@@ -7,13 +7,12 @@
 | 任务 / 分支 | 负责人 | 状态与下一步 |
 | --- | --- | --- |
 | Runner read-file 可构造适配器 — `ai/runner-read-file-adapter-20261011` | recovery_lead 交付，runner_read_file 子域 | 源 `311d` 已固定，基础 Runner 12 项通过，Central import cycle 正在窄修，尚未验收；当前 Mount PG 授权解析、单次 dispatch、真实认证 WSS 与 Manager.Read 属本片，上游 Operation 授权仍需严格提供者，生产默认 nil executor 与旧 STOP 保留。 |
-| 系统 Runner 管理 UI — `ai/system-runner-management-ui-20261011` | variables_review 交付，agent_display_settings 方法，skill_package_review 独审 | Web `6d2367ea` 与分段控/build 已接受；native01/02 wholeFAIL 保留，fixture 窄修后原 native03 已启动，尚未主线交付；一次性 token 仅内存，Unknown 只查原操作。 |
-| Agent Secret Variable 白名单 UI — `ai/agent-secret-allowlist-ui-20261011` | variables_review 交付，secret_allowlist_fixture 方法 | 产品 `a52610da` 的普通 Owner 安全 metadata 选择、创建/换项/清空、原 Unknown 恢复已获 native01 完整有限独验；等待共享方法依赖的整合顺序，不接 Secret 值或运行注入。 |
 | Knowledge 子树删除 UI — `ai/knowledge-subtree-delete-ui-20261011` | skills_milestone_review 交付 | 基线 `a15d8bbd`；普通 Owner 的 preview/delete/原 Lookup 有限 UI 正在独立实现，尚未验收，原 STOP 保留。 |
 | Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |
 
 ## 保留与清理
 
+- 系统 Runner 管理 UI 已交付 main `f86f4215`；Agent Secret Variable 白名单 UI 随本次合入，均已获默认 App/browser 有限独验。两原树及全部原 FAIL/结果暂保留，待必要材料保全后由 root 清理；尚未计入下列清理数量。
 - SkillHTTP 树保留活跃热 Go cache，SkillsMilestoneResume 树保留共享只读 modules 与既有运行依赖；Go writer 和 native 窗口均按 root 明确交接。
 - ProjectVariablesResume 保留未完恢复；ObjectSafe 保留原件与失败。Move 活跃树保留，未核其他树不自动清理。
 - Find、Sprint、Title、AgentDisplay、TaskHistoryFilters、SecretAudit、Runner Workspace、Outbox、Secrets、KnowledgeTextUI、Milestone、KnowledgeHTTP、SchedulerHTTP、SchedulerUI、SkillUI、AgentRunner 后端、AgentRunner UI、ExecutionMountCapture、Project Usage UI、ExecutionMountDirectText 二十组 tree/local/remote 已全部清理。近期五树已普通 remove，远端引用按精确 lease 删除成功；对应本地引用仅因 squash 非祖先被普通 `-d` 拒绝，在完整交付、材料保全与无依赖核实后逐个窄 `-D` 成功。root 已确认对应 worktree、本地及 tracking 引用均不存在，成功的精确 ls-remote 为空，main+ai fetch/prune 实际成功。完整原件迁入 main `output/ai/` 各任务目录，依赖与日志映射见各自保全说明。另 25 个严格 main 祖先旧远端引用已按逐 OID lease 原子删除，精确查询为空、fetch/prune 成功；本地 work296 已普通删除。合计清理 45 个远端引用、21 个本地分支和 20 个 WorkTree；额外 25 个引用没有对应本地分支或树。154 个未证明包含于 main 的引用与 1 个显式保留历史引用仍未动，其他活动分支按 owner 保留。

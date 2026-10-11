@@ -205,7 +205,13 @@ const approval = { default: '默认审批', auto: '模型自动审批', allow: '
                 <dd>{{ state.configuration.allowed_mount_ids.join('\n') || '无额外引用' }}</dd>
                 <dt>Secret Variable 引用</dt>
                 <dd>
-                  {{ state.configuration.allowed_secret_variable_ids.join('\n') || '无额外引用' }}
+                  <template v-if="state.configuration.allowed_secret_variable_ids.length">
+                    <p v-for="id in state.configuration.allowed_secret_variable_ids" :key="id">
+                      {{ owner.secretLabel(id)
+                      }}<template v-if="owner.secretLabel(id) !== id"> · {{ id }}</template>
+                    </p>
+                  </template>
+                  <span v-else>白名单为空</span>
                 </dd>
                 <dt>创建时间</dt>
                 <dd>{{ state.configuration.created_at }}</dd>

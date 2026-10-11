@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AgentSecretFields from './AgentSecretFields.vue'
 import AgentRunnerMountFields from './AgentRunnerMountFields.vue'
 import { computed, onMounted, ref, watch } from 'vue'
 import { UiButton, UiField, UiInput, UiSelect, UiTextarea } from '../ui'
@@ -164,6 +165,7 @@ watch(disabled, focusName, { flush: 'post' })
       />
     </UiField>
     <AgentRunnerMountFields :owner="owner" editing />
+    <AgentSecretFields :owner="owner" editing />
     <p v-if="owner.editStale.value" role="alert">
       配置已有新版本。请取消编辑并重新读取，核对后再保存；不会自动替换原版本。
     </p>

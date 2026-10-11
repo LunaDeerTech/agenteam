@@ -1,0 +1,11 @@
+--- a/web/src/composables/useProjectAgents.ts
++++ b/web/src/composables/useProjectAgents.ts
+@@ -163,7 +163,7 @@
+     readKey = ''
+   let readingSecrets = false
+   const secretCursors = new Set<string>()
+-  const knownSecretIDs = reactive(new Set<string>())
++  const knownSecretIDs = new Set<string>()
+   let leaveResult: ((yes: boolean) => void) | null = null
+   const visible = computed(() => {
+     const r = projectRoute(route.value)

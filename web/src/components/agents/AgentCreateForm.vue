@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AgentSecretFields from './AgentSecretFields.vue'
 import AgentRunnerMountFields from './AgentRunnerMountFields.vue'
 import { computed, onMounted, ref, watch } from 'vue'
 import { UiButton, UiCheckbox, UiField, UiInput, UiSelect, UiTextarea } from '../ui'
@@ -46,7 +47,7 @@ watch(disabled, focusName, { flush: 'post' })
   >
     <h2>创建空白 Agent</h2>
     <p>
-      填写配置后明确创建。可选择 Runner 与资源目录；Tool 和 Secret Variable
+      填写配置后明确创建。可选择 Runner、资源目录与 Secret Variable 白名单；Tool
       不在此额外授权；内置初始化选项由服务实际执行。
     </p>
     <UiField
@@ -146,6 +147,7 @@ watch(disabled, focusName, { flush: 'post' })
       />
     </UiField>
     <AgentRunnerMountFields :owner="owner" />
+    <AgentSecretFields :owner="owner" />
     <fieldset :disabled="disabled">
       <legend>内置初始化</legend>
       <UiCheckbox v-model="owner.draft.addSkills" :disabled="disabled">添加默认 Skills</UiCheckbox>

@@ -1,0 +1,10 @@
+--- a/.agent-state/agent-secret-allowlist-ui/method-controls.mjs
++++ b/.agent-state/agent-secret-allowlist-ui/method-controls.mjs
+@@ -29,6 +29,6 @@
+ assert(source.includes('requireAgentSecretProfile(profile, data);'));
+ assert(source.includes('consumer(auth.projectSecrets, "list", "secret.list"'));
+ assert(source.includes('profile.agentSecretAllowlist ? ["agent-secrets"] : []'));
+-const sensitive={receipt:{safe:true},token_available:true,enrollment_token:'never-retain'.padEnd(43,'x'),expires_at:'2026-10-11T22:00:00Z'};
++const sensitive={receipt:{safe:true},enrollment:{token:'never-retain',expires_at:'safe'}};
+ const sanitized=guards.systemRunnerEvidenceValue(sensitive);assert(!JSON.stringify(sanitized).includes('never-retain'));
+ console.log(JSON.stringify({syntax_sources:sources.length,exact_profile_normal_and_lost:true,rejection_controls:rejects,actual_shared_wire_call:true,system_runner_redaction_retained:true,no_native:true}));

@@ -31,6 +31,7 @@ export type AgentCreateFields = Readonly<{
 }>
 export type AgentUpdateFields = Readonly<{
   runner_mounts?: readonly RunnerMountDeclaration[]
+  allowed_secret_variable_ids?: readonly string[]
   name?: string
   display_name?: string | null
   tag_color?: string | null
@@ -261,6 +262,7 @@ export function captureAgentUpdateInput(value: unknown): AgentUpdateInput {
       [],
       [
         'runner_mounts',
+        'allowed_secret_variable_ids',
         'name',
         'display_name',
         'tag_color',
@@ -284,6 +286,9 @@ export function captureAgentUpdateInput(value: unknown): AgentUpdateInput {
       request: Object.freeze({
         ...(Object.hasOwn(v, 'runner_mounts')
           ? { runner_mounts: runnerMountDeclarations(v.runner_mounts) }
+          : {}),
+        ...(Object.hasOwn(v, 'allowed_secret_variable_ids')
+          ? { allowed_secret_variable_ids: references(v.allowed_secret_variable_ids) }
           : {}),
         ...(Object.hasOwn(v, 'name') ? { name: name(v.name) } : {}),
         ...(Object.hasOwn(v, 'display_name')
@@ -333,6 +338,10 @@ function updateReceipt(
     'approval_model_ref',
   ] as const)
     if (Object.hasOwn(original.request, key)) requireValue(agent[key] === original.request[key])
+  if (original.request.allowed_secret_variable_ids !== undefined)
+    requireValue(
+      sameIDs(agent.allowed_secret_variable_ids, original.request.allowed_secret_variable_ids),
+    )
   requireValue(Array.isArray(v.event_ids) && v.event_ids.length === (changed ? 1 : 0))
   const bindings = receiptMounts(v, original.request, agent)
   return Object.freeze({

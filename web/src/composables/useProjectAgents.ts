@@ -16,6 +16,7 @@ import type {
   AgentUpdateFields,
   AgentUpdateReceipt,
 } from '../api/agent-configuration'
+import { compareProjectSecrets, type ProjectSecretMetadata } from '../api/project-secrets'
 import type { ProjectAvailableChatModel } from '../api/project-models'
 import { projectRoute } from '../router/auth'
 import type { SessionController } from './useSession'
@@ -23,7 +24,12 @@ import type { ProjectWorkspace } from './useProjectWorkspace'
 
 type EditField = 'name' | 'displayName' | 'tagColor' | 'description' | 'instructions'
 type EditPolicyField =
-  'runner_mounts' | 'model_ref' | 'inject_agents_md' | 'approval_policy' | 'approval_model_ref'
+  | 'allowed_secret_variable_ids'
+  | 'runner_mounts'
+  | 'model_ref'
+  | 'inject_agents_md'
+  | 'approval_policy'
+  | 'approval_model_ref'
 const initialEdit = () => ({
   open: false,
   agentID: '',
@@ -38,6 +44,7 @@ const initialEdit = () => ({
   approvalPolicy: 'default' as AgentApprovalPolicy,
   approvalModelID: '',
   runnerMounts: [] as RunnerMountDeclaration[],
+  secretIDs: [] as string[],
   touched: {} as Partial<Record<EditField | EditPolicyField, true>>,
   conflict: false,
   message: '',
@@ -56,6 +63,7 @@ const initialDraft = () => ({
   approvalPolicy: '' as '' | AgentApprovalPolicy,
   approvalModelID: '',
   runnerMounts: [] as RunnerMountDeclaration[],
+  secretIDs: [] as string[],
   addSkills: true,
   installSkill: true,
   message: '',
@@ -108,6 +116,10 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
     runnerNext?: string
     runnerPhase: Phase
     runnerMessage: string
+    secrets: readonly ProjectSecretMetadata[]
+    secretNext?: string
+    secretPhase: Phase
+    secretMessage: string
     mounts: AgentRunnerMounts | null
     mountsPhase: Phase
     mountsMessage: string
@@ -129,6 +141,10 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
     runnerNext: undefined,
     runnerPhase: 'idle',
     runnerMessage: '',
+    secrets: [],
+    secretNext: undefined,
+    secretPhase: 'idle',
+    secretMessage: '',
     mounts: null,
     mountsPhase: 'idle',
     mountsMessage: '',
@@ -145,6 +161,9 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
     requested = false,
     projectKey = '',
     readKey = ''
+  let readingSecrets = false
+  const secretCursors = new Set<string>()
+  const knownSecretIDs = reactive(new Set<string>())
   let leaveResult: ((yes: boolean) => void) | null = null
   const visible = computed(() => {
     const r = projectRoute(route.value)
@@ -198,6 +217,7 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
       !editStale.value &&
       (!editPolicyTouched.value || !editPolicyMessage.value) &&
       (!edit.touched.runner_mounts || (editMountsReady.value && !editMountMessage.value)) &&
+      (!edit.touched.allowed_secret_variable_ids || !editSecretMessage.value) &&
       !!edit.name.trim(),
   )
   const editModels = computed(() => state.models.filter(editableModel))
@@ -277,7 +297,7 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
       if (
         captured.length +
           (a?.allowed_tool_ids.length ?? 0) +
-          (a?.allowed_secret_variable_ids.length ?? 0) >
+          (editing ? edit.secretIDs.length : draft.secretIDs.length) >
         256
       )
         return 'Agent 能力引用总数不能超过 256 项。'
@@ -296,6 +316,52 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
       edit.touched.runner_mounts = true
       edit.message = ''
     } else if (draft.open) draft.runnerMounts = rows.map((row) => ({ ...row }))
+  }
+  const secretOptions = computed(() =>
+    state.secrets.map((secret) => ({ value: secret.id, label: secret.name })),
+  )
+  function secretLabel(id: string) {
+    return state.secrets.find((secret) => secret.id === id)?.name ?? id
+  }
+  function secretMessage(ids: readonly string[], editing: boolean) {
+    const original = editing ? (state.configuration?.allowed_secret_variable_ids ?? []) : []
+    if (ids.length > 128 || new Set(ids).size !== ids.length)
+      return 'Secret Variable 白名单不能重复，最多 128 项。'
+    if (ids.some((id) => !knownSecretIDs.has(id) && !original.includes(id)))
+      return '请重新读取 Secret Variable 目录，核对新选择后再保存。'
+    const a = editing ? state.configuration : null
+    const mounts = editing
+      ? edit.touched.runner_mounts
+        ? edit.runnerMounts.length
+        : (a?.allowed_mount_ids.length ?? 0)
+      : draft.runnerMounts.length
+    if (ids.length + mounts + (a?.allowed_tool_ids.length ?? 0) > 256)
+      return 'Agent 能力引用总数不能超过 256 项。'
+    return ''
+  }
+  const draftSecretMessage = computed(() => secretMessage(draft.secretIDs, false))
+  const editSecretMessage = computed(() => secretMessage(edit.secretIDs, true))
+  function changeSecrets(editing: boolean, ids: readonly string[]) {
+    if (busy.value || formInitializing.value || !canCreate.value) return
+    if (editing && (!edit.open || !canEdit.value || editStale.value)) return
+    if (!editing && !draft.open) return
+    const previous = editing ? edit.secretIDs : draft.secretIDs
+    if (
+      ids.length > 128 ||
+      new Set(ids).size !== ids.length ||
+      ids.some(
+        (id) =>
+          !previous.includes(id) &&
+          (state.secretPhase !== 'ready' || !state.secrets.some((s) => s.id === id)),
+      )
+    )
+      return
+    const captured = [...ids].sort()
+    if (editing) {
+      edit.secretIDs = captured
+      edit.touched.allowed_secret_variable_ids = true
+      edit.message = ''
+    } else draft.secretIDs = captured
   }
   function readContextKey() {
     const c = workspace.currentReadContext.value
@@ -326,6 +392,12 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
     state.runnerNext = undefined
     state.runnerPhase = 'error'
     state.runnerMessage = explain(error)
+    state.secrets = []
+    state.secretNext = undefined
+    state.secretPhase = 'error'
+    state.secretMessage = explain(error)
+    secretCursors.clear()
+    knownSecretIDs.clear()
     state.models = []
     state.modelNext = null
     state.modelPhase = 'error'
@@ -346,6 +418,7 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
         !!draft.injectAgentsMD ||
         !!draft.approvalPolicy ||
         draft.runnerMounts.length > 0 ||
+        draft.secretIDs.length > 0 ||
         !draft.addSkills ||
         !draft.installSkill),
   )
@@ -356,6 +429,7 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
       draft.open &&
       !!draft.name.trim() &&
       !draftMountMessage.value &&
+      !draftSecretMessage.value &&
       state.modelPhase === 'ready' &&
       !!model.value &&
       !!draft.injectAgentsMD &&
@@ -376,9 +450,12 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
     ++generation
     requested = false
     auth.agentConfiguration.abandonRead()
+    if (readingSecrets) auth.projectSecrets.abandon()
   }
   function clear() {
     formInitialization.value = null
+    secretCursors.clear()
+    knownSecretIDs.clear()
     Object.assign(state, {
       phase: 'idle',
       accessDenied: false,
@@ -398,6 +475,10 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
       runnerNext: undefined,
       runnerPhase: 'idle',
       runnerMessage: '',
+      secrets: [],
+      secretNext: undefined,
+      secretPhase: 'idle',
+      secretMessage: '',
       mounts: null,
       mountsPhase: 'idle',
       mountsMessage: '',
@@ -493,6 +574,56 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
         clearDenied(error)
         state.runnerPhase = 'error'
         state.runnerMessage = explain(error)
+      },
+    )
+  }
+  async function loadSecrets(more = false) {
+    if (!canCreate.value || formInitializing.value || !(draft.open || edit.open)) return
+    const cursor = more ? state.secretNext : undefined
+    if (more && !cursor) return
+    await read(
+      async (p) => {
+        state.secretPhase = 'loading'
+        state.secretMessage = ''
+        readingSecrets = true
+        try {
+          return await auth.projectSecrets.list(p, { limit: 50, ...(cursor ? { cursor } : {}) })
+        } finally {
+          // Session retains its owner until fetch/body/cancel really returns.
+          readingSecrets = false
+        }
+      },
+      (page) => {
+        const previous = cursor ? state.secrets : []
+        const last = previous.at(-1)
+        const ids = new Set(previous.map((secret) => secret.id))
+        if (
+          (last && page.items.some((secret) => compareProjectSecrets(last, secret) >= 0)) ||
+          page.items.some((secret) => ids.has(secret.id)) ||
+          (page.next_cursor &&
+            (page.next_cursor === cursor || (cursor && secretCursors.has(page.next_cursor))))
+        ) {
+          state.secretPhase = 'error'
+          state.secretNext = undefined
+          state.secretMessage = 'Secret Variable 目录已变化，请从第一页重新读取；原选择保留。'
+          return
+        }
+        if (!cursor) secretCursors.clear()
+        if (cursor) secretCursors.add(cursor)
+        state.secrets = [...previous, ...page.items]
+        page.items.forEach((secret) => knownSecretIDs.add(secret.id))
+        state.secretNext = page.next_cursor
+        state.secretPhase = 'ready'
+      },
+      (error) => {
+        if (clearDenied(error)) return
+        state.secretPhase = 'error'
+        state.secretMessage = `${explain(error)} 原白名单与草稿保持不变。`
+        if (
+          error instanceof AccountFailure &&
+          ['CURSOR_INVALID', 'CURSOR_STALE'].includes(error.problem?.code ?? '')
+        )
+          state.secretNext = undefined
       },
     )
   }
@@ -675,6 +806,7 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
       injectAgentsMD: a.inject_agents_md ? 'yes' : 'no',
       approvalPolicy: a.approval_policy,
       approvalModelID: a.approval_model_ref ?? '',
+      secretIDs: [...a.allowed_secret_variable_ids],
       runnerMounts: editMountsReady.value
         ? state.mounts!.items.map(({ runner_id, workspace }) => ({ runner_id, workspace }))
         : [],
@@ -693,7 +825,10 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
     edit.touched[field] = true
     edit.message = ''
   }
-  function touchEditPolicy(field: Exclude<EditPolicyField, 'runner_mounts'>, value: string) {
+  function touchEditPolicy(
+    field: Exclude<EditPolicyField, 'runner_mounts' | 'allowed_secret_variable_ids'>,
+    value: string,
+  ) {
     if (!canEdit.value || busy.value || !edit.open || editStale.value) return
     if (field === 'inject_agents_md') {
       if (value !== 'yes' && value !== 'no') return
@@ -735,6 +870,9 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
       a = edit.agentID
     const request: AgentUpdateFields = Object.freeze({
       ...(edit.touched.runner_mounts ? { runner_mounts: edit.runnerMounts } : {}),
+      ...(edit.touched.allowed_secret_variable_ids
+        ? { allowed_secret_variable_ids: edit.secretIDs }
+        : {}),
       ...(edit.touched.name ? { name: edit.name } : {}),
       ...(edit.touched.displayName
         ? { display_name: edit.displayName === '' ? null : edit.displayName }
@@ -786,7 +924,7 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
       approval_policy: draft.approvalPolicy as AgentApprovalPolicy,
       allowed_tool_ids: [],
       runner_mounts: draft.runnerMounts,
-      allowed_secret_variable_ids: [],
+      allowed_secret_variable_ids: draft.secretIDs,
       ...(draft.displayName ? { display_name: draft.displayName } : {}),
       ...(draft.tagColor ? { tag_color: draft.tagColor } : {}),
       ...(draft.description ? { description: draft.description } : {}),
@@ -881,6 +1019,12 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
           state.items = []
           state.models = []
           state.runners = []
+          state.secrets = []
+          state.secretNext = undefined
+          state.secretPhase = 'idle'
+          state.secretMessage = ''
+          secretCursors.clear()
+          knownSecretIDs.clear()
           state.next = undefined
           state.modelNext = null
           state.runnerNext = undefined
@@ -919,6 +1063,12 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
   }
   return {
     state,
+    secretOptions,
+    secretLabel,
+    draftSecretMessage,
+    editSecretMessage,
+    changeSecrets,
+    loadSecrets,
     runnerOptions,
     runnerStatus,
     editMountsReady,
