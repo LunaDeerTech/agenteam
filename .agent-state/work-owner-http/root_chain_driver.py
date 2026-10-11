@@ -18,6 +18,7 @@ MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 # One closed same-package PG family: adding a scenario changes required
 # inputs and expected test data, never the resource/Wait/tail implementation.
 METADATA_INPUTS = {
+    '^TestTaskTimeline(PersistenceAndPaging|AuthorityAndCancellation|IntegrityAndCompatibility)$': ('tests/work/task_timeline_test.go', 'tests/work/fixture_test.go', 'tests/work/task_fixture_test.go', 'tests/work/task_blocker_persistence_test.go', 'tests/work/task_concurrency_test.go'),
     "^TestAgentConfigurationWeb$": ("tests/projectvariable/agent_configuration_web_test.go", "tests/projectvariable/agent_configuration_app_test.go", "tests/projectvariable/agent_configuration_create_test.go", "tests/projectvariable/agent_configuration_facts_test.go", "tests/projectvariable/skill_installation_test.go", "tests/projectvariable/fixture_test.go", "tests/projectvariable/task_review_web_test.go", "tests/testsupport/agentconfiguration/assembly.go", "tests/account-captcha-web/agent-configuration.config.js", "tests/account-captcha-web/e2e/agent-configuration.spec.ts", "tests/account-captcha-web/e2e/agent-configuration.helpers.ts", "tests/account-captcha-web/e2e/task-review.helpers.ts", "tests/account-captcha-web/e2e/knowledge-owner-read.native.ts",),
     "^TestTaskEditWeb$": ("tests/projectvariable/task_edit_web_test.go", "tests/projectvariable/task_review_web_test.go", "tests/projectvariable/task_intake_web_test.go", "tests/projectvariable/task_transition_scheduler_test.go", "tests/projectvariable/scheduler_claim_test.go", "tests/account-captcha-web/task-edit.config.js", "tests/account-captcha-web/e2e/task-edit.spec.ts", "tests/account-captcha-web/e2e/task-edit.helpers.ts", "tests/account-captcha-web/e2e/task-review.helpers.ts", "tests/account-captcha-web/e2e/knowledge-owner-read.native.ts",),
     "^TestAgentConfigurationApp$": ("tests/projectvariable/agent_configuration_app_test.go", "tests/projectvariable/agent_configuration_create_test.go", "tests/projectvariable/agent_configuration_facts_test.go", "tests/projectvariable/skill_installation_test.go", "tests/projectvariable/fixture_test.go", "tests/testsupport/agentconfiguration/assembly.go", "tests/projectvariable/execution_preparation_test.go", "tests/projectvariable/task_transition_scheduler_test.go",),
@@ -174,6 +175,7 @@ METADATA_INPUTS = {
 }
 TARGETS = {
     **dict.fromkeys(METADATA_INPUTS, 'tests/projectvariable'),
+    '^TestTaskTimeline(PersistenceAndPaging|AuthorityAndCancellation|IntegrityAndCompatibility)$': 'tests/work',
     '^TestModelAgentRetryRuntime$': 'tests/model',
     '^TestProjectLifecycleStopBatchRealGuard$': 'tests/projectvariable',
     '^TestModelTextRuntimePersistentWire$': 'tests/model',

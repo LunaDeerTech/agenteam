@@ -199,6 +199,7 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestTaskTimeline(PersistenceAndPaging|AuthorityAndCancellation|IntegrityAndCompatibility)$': frozenset(('TestTaskTimelinePersistenceAndPaging', 'TestTaskTimelineAuthorityAndCancellation', 'TestTaskTimelineAuthorityAndCancellation/cancel-lock', 'TestTaskTimelineAuthorityAndCancellation/cancel-sql', 'TestTaskTimelineAuthorityAndCancellation/cancel-rows', 'TestTaskTimelineAuthorityAndCancellation/pending', 'TestTaskTimelineAuthorityAndCancellation/archiving', 'TestTaskTimelineAuthorityAndCancellation/archived', 'TestTaskTimelineAuthorityAndCancellation/deleting', 'TestTaskTimelineIntegrityAndCompatibility', 'TestTaskTimelineIntegrityAndCompatibility/unknown', 'TestTaskTimelineIntegrityAndCompatibility/payload', 'TestTaskTimelineIntegrityAndCompatibility/actor', 'TestTaskTimelineIntegrityAndCompatibility/operation', 'TestTaskTimelineIntegrityAndCompatibility/correlation', 'TestTaskTimelineIntegrityAndCompatibility/lookahead')),
     "^TestAgentConfigurationWeb$": frozenset(("TestAgentConfigurationWeb", "TestAgentConfigurationWeb/default-create-config-and-directory", "TestAgentConfigurationWeb/lost-create-confirmation-only-lookup",)),
     "^TestTaskEditWeb$": frozenset(("TestTaskEditWeb", "TestTaskEditWeb/changed-noop-clear-and-ready", "TestTaskEditWeb/lost-edit-confirmation-and-ready",)),
     "^TestAgentConfigurationApp$": frozenset(("TestAgentConfigurationApp", "TestAgentConfigurationApp/default-create-get-lookup-directory-and-assign", "TestAgentConfigurationApp/lost-create-receipt-and-current-owner",)),
@@ -1170,7 +1171,7 @@ def main():
     parser.add_argument('--root-chain', action='store_true',
                         help='exact Work root adapter; 540s chain budget and seven-resource observations')
     args = parser.parse_args()
-    if any(name in args.run for name in ('AgentConfigurationMetadata', 'AgentConfigurationSchema', 'AgentRuntimeSchema', 'ExecutionPreparation', 'AgentConfigurationCreate', 'TaskTransitionHuman', 'SchedulerClaim', 'SchedulerLaunch', 'SchedulerBusyCompensation', 'SchedulerPendingVisit', 'TaskHumanHTTP', 'SprintStartHTTP', 'TaskTechnicalResolutionHTTP', 'TaskTechnicalResolutionAtomic', 'SchedulerRetryBinding', 'SchedulerBoundedRetry', 'SchedulerProjectRunner', 'ExecutionCaptureProviders', 'ExecutionModelEnvironmentCapture', 'ExecutionTaskContext')) and (args.run not in METADATA_GROUPS or not args.root_chain):
+    if any(name in args.run for name in ('TaskTimeline', 'AgentConfigurationMetadata', 'AgentConfigurationSchema', 'AgentRuntimeSchema', 'ExecutionPreparation', 'AgentConfigurationCreate', 'TaskTransitionHuman', 'SchedulerClaim', 'SchedulerLaunch', 'SchedulerBusyCompensation', 'SchedulerPendingVisit', 'TaskHumanHTTP', 'SprintStartHTTP', 'TaskTechnicalResolutionHTTP', 'TaskTechnicalResolutionAtomic', 'SchedulerRetryBinding', 'SchedulerBoundedRetry', 'SchedulerProjectRunner', 'ExecutionCaptureProviders', 'ExecutionModelEnvironmentCapture', 'ExecutionTaskContext')) and (args.run not in METADATA_GROUPS or not args.root_chain):
         parser.error('System configuration requires one exact original root-chain profile')
     if 'TestSkillInstallation' in args.run and (args.run not in METADATA_GROUPS or not args.root_chain):
         parser.error('Skill installation requires one exact original root-chain profile')
