@@ -513,3 +513,22 @@ python3.12 -B output/ai/agent-system-integration/agent-directory-http-launcher-0
 ```
 
 资源准备仅root普通sparse停放旧ToolRegistry九tracked目录（4e3323，后验8c7646）；compile全尾后精准退休旧第九全PASS可再生bin `scheduler-review-dispatch-race-03.test`（05777c，65,919,007 B/allocated65,925,120 B）。原源码refs/recipe/results/inputs及FAIL candidate02、全部ignored/output/state/config继续保留；当前候选与shared cache/MinIO未清理。
+
+## Execution RuntimeAccess 拒绝审计
+
+第十一批B SOURCE `64bdbb6f15531d55f56cd8e0b891b18a5b8c5056`：Project五top race＋单包vet、compile01/list、native01全部wholePASS。`TestExecutionRuntimeAccessAudit`整top两sub22.41s：`policy-denial-requires-live-runtime-handoff`沿真实Execution/Model/D04拒绝与单原ProjectAuthority wrapper核审计；`default-factory-completed-one-turn`核旧默认factory正常首轮。没有更换原Owner/授权来源，不外推第十一批A浏览器或完整App Runtime装配。
+
+native01于2026-10-11 02:30:03–02:31:54 UTC结束，Go456047/driver454419/supervisor454398/outer454352原Wait0；七ID14次absence、所有private/runtime/desc/TCP双尾闭合、delta0/adopted=[]、1643输入首尾同（含891编译输入）。候选 `output/ai/agent-system-integration/execution-runtime-access-audit-race-01.test` 为66,467,736 B，SHA256 `ae1352b233159c62924e1557d664a3c7ac85fe7bc1142a27f562e395f0e3f289`。本片无新增FAIL，窗口已归还。
+
+原件：`output/ai/execution-runtime-access-audit/combined-pure-01/result.json`（pure SOURCE `a3eb45b1`）；`output/ai/agent-system-integration/execution-runtime-access-audit-compile-01/result.json`、`execution-runtime-access-audit-01-control/{result.json,supervisor.log}`；PG `/tmp/eraa01/pg-2e4f25ddb30a4bc88641bed5ecbe1e90.log`。后续只新增fixture/methods，pure输入不变并复用。
+
+恢复沿上述immutable模板/输入冻结recipe；pure `exact_5_top_pass`，仅project包五top：`TestRuntimeAccessAuditAuthorityConstructionAndDelegation`、`TestRuntimeAccessAuditAuthorityOriginalFacts`、`TestModelAccessAuditExactTxAndOriginalDenyFault`、`TestModelAccessAuditCurrentGateAndExactActor`、`TestModelAccessAuditRegistrationDoesNotGrantOtherProducer`；vet仅该包。compile包 `tests/projectvariable`，list数量1＋精确集合 `{'TestExecutionRuntimeAccessAudit'}`；native whole-top `^TestExecutionRuntimeAccessAudit$`，plan `execution-runtime-access-audit-01-inputs.json`，输出 `/tmp/eraa01`。原完整Go/embed/support闭包不缩减；新轮须fresh namespace与唯一窗口，固定Go/Python/sole hotcache/RO模块/private环境及每进程fresh≥5GiB、预算/实际Wait/全部尾保持。
+
+```sh
+python3.12 -B output/ai/agent-system-integration/execution-runtime-access-audit-pure-checks.py --cache /workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build
+python3.12 -B output/ai/agent-system-integration/execution-runtime-access-audit-compile-01-launcher.py
+# compile wholePASS后按原recipe冻结新plan：
+python3.12 -B output/ai/agent-system-integration/execution-runtime-access-audit-launcher-01.py
+```
+
+本批准备仅root普通park指定旧ExecutionIdentity/ModelTextRuntime九tracked目录（`038ac9`/`1f6f79`），protected与原output存在/absent后验`9822e2`保持；精确退休第十全PASS candidate01可再生bin（`86e15b`，66,400,625 B/allocated66,408,448 B）。原source/recipe/results/inputs、全部FAIL与sharedcache/MinIO保留；Web/PW仅复用既有同锁安装，B结果不冒A已执行。

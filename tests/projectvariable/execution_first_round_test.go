@@ -334,6 +334,8 @@ type firstRoundFixture struct {
 	capture          *modelEnvironmentFixture
 	runtimeAuthority *model.RuntimeAuthority
 	projects         *project.Authority
+	auditProjects    ac.ProjectAuthority
+	outboundPolicy   *outbound.PolicyService
 	audit            *audit.Service
 	secrets          *secret.Service
 	reader           *firstRoundCredentialReads
@@ -389,8 +391,17 @@ func newFirstRoundFixture(t *testing.T, held bool) *firstRoundFixture {
 
 func newFirstRoundFixtureWithSource(t *testing.T, held, deferLaunch bool) *firstRoundFixture {
 	t.Helper()
+	return newFirstRoundFixtureWithRuntimeAudit(t, held, deferLaunch, false)
+}
+
+func newFirstRoundFixtureWithRuntimeAudit(t *testing.T, held, deferLaunch, runtimeAudit bool) *firstRoundFixture {
+	t.Helper()
 	x := &firstRoundFixture{}
-	x.capture = newModelEnvironmentFixtureWithSource(t,
+	var selectProject func(*taskTransitionFixture) *project.Authority
+	if runtimeAudit {
+		selectProject = func(v *taskTransitionFixture) *project.Authority { return v.agent.providers.Projects }
+	}
+	x.capture = newModelEnvironmentFixtureWithProjectSource(t,
 		func(v *taskTransitionFixture, owner *execution.Authority) captureModelPorts {
 			modelActor, err := i.RegisterService(i.ModelRuntime)
 			firstRoundRequire(t, err)
@@ -403,17 +414,23 @@ func newFirstRoundFixtureWithSource(t *testing.T, held, deferLaunch bool) *first
 				SecretService: secretActor, OutboundService: outboundActor,
 			})
 			firstRoundRequire(t, err)
-			secretFacts, err := secret.NewProjectAuditAuthority(v.base.tracked)
-			firstRoundRequire(t, err)
-			x.projects, err = project.NewAuthority(v.base.tracked, project.AuthorityDependencies{
-				Sessions: v.base.accounts, Routes: v.base.accounts,
-				AuditFacts: map[ac.Producer]ac.ProjectFactAuthority{
-					ac.SecretProducer: secretFacts, ac.AccessProducer: x.runtimeAuthority,
-				},
-			})
-			firstRoundRequire(t, err)
+			if runtimeAudit {
+				x.projects = selectProject(v)
+				x.auditProjects, err = project.NewRuntimeAccessAuditAuthority(x.projects, x.runtimeAuthority)
+				firstRoundRequire(t, err)
+			} else {
+				secretFacts, err := secret.NewProjectAuditAuthority(v.base.tracked)
+				firstRoundRequire(t, err)
+				x.projects, err = project.NewAuthority(v.base.tracked, project.AuthorityDependencies{
+					Sessions: v.base.accounts, Routes: v.base.accounts,
+					AuditFacts: map[ac.Producer]ac.ProjectFactAuthority{
+						ac.SecretProducer: secretFacts, ac.AccessProducer: x.runtimeAuthority,
+					},
+				})
+				firstRoundRequire(t, err)
+			}
 			return captureModelPorts{
-				projects: x.projects,
+				projects: x.projects, auditProjects: x.auditProjects,
 				usageFactory: func(authority *model.Authority) (sc.UsageAuthority, error) {
 					return model.NewRuntimeSecretUsageRouter(authority, x.runtimeAuthority, v.base.accounts)
 				},
@@ -444,7 +461,7 @@ func newFirstRoundFixtureWithSource(t *testing.T, held, deferLaunch bool) *first
 			// resulting Model request has its captured Tool list edited later.
 			policy.DeniedToolIDs = []i.ToolID{v.agent.tool.ToolID}
 			firstRoundRequire(t, policy.Validate())
-		}, deferLaunch)
+		}, deferLaunch, selectProject)
 	t.Cleanup(func() { x.close(t) })
 	v := x.capture.v
 	invocations, err := usage.NewAuthority(v.base.tracked, usage.Authorizations{
@@ -495,6 +512,7 @@ func (x *firstRoundFixture) transport(t *testing.T, v *taskTransitionFixture) wi
 	t.Helper()
 	policy, err := outbound.NewPolicyService(v.base.tracked, x.audit, outbound.Authorizations{Sessions: v.base.accounts, System: v.base.accounts})
 	firstRoundRequire(t, err)
+	x.outboundPolicy = policy
 	firstRoundRequire(t, policy.Reload(ctxFor(t)))
 	ports, err := outbound.SelectedPorts(8443)
 	firstRoundRequire(t, err)
@@ -607,13 +625,13 @@ func (x *firstRoundFixture) directDriver(t *testing.T) *execution.DirectTextDriv
 	firstRoundRequire(t, err)
 	box, err := outbox.New(v.base.tracked, catalog, outbox.Authorizations{
 		Producers: map[event.StableName]oc.ProducerAuthority{ec.ExecutionProducer: eventAuthority},
-		Sessions:  v.base.accounts, System: v.base.accounts, Projects: v.base.projectAuthority,
+		Sessions:  v.base.accounts, System: v.base.accounts, Projects: x.capture.projectAuthority,
 		Audit: v.base.audit, Cursors: v.base.keys, Processes: captureProviderProcesses{v.agent.guard},
 	})
 	firstRoundRequire(t, err)
 	driver, err := execution.NewDirectTextDriver(v.base.tracked, x.capture.authority, execution.DirectTextDependencies{
 		Context: contextBuilder, Loop: loop, Processes: captureProviderProcesses{v.agent.guard},
-		Projects: v.base.projectAuthority, Agents: x.capture.configuration, Skills: skills,
+		Projects: x.capture.projectAuthority, Agents: x.capture.configuration, Skills: skills,
 		Events: box, Lifecycle: lifecycle, Models: models, Environment: environment,
 	})
 	firstRoundRequire(t, err)
