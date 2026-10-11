@@ -89,29 +89,44 @@ async function fixture() {
   const personal = shallowReactive<{ identity: typeof identity | null }>({ identity })
   const progress = shallowRef<AgentConfigurationProgress | null>(null)
   const project = shallowReactive({ id: id(1), lifecycle: 'active' })
+  const current = new Map<string, AgentConfiguration>()
   const api = {
     list: vi.fn(async (p: string, q: { cursor?: string }) => ({
       items: [entry(p, q.cursor ? 6 : 2)],
       next_cursor: q.cursor ? undefined : 'second-page',
     })),
-    getConfiguration: vi.fn(async (p: string, a: string) => ({ ...configuration(p), id: a })),
-    models: vi.fn(async () => ({ items: [model], next_cursor: null })),
-    startCreate: vi.fn(async (p: string, value: Omit<AgentCreateFields, 'agent_id'>) => ({
-      changed: true as const,
-      event_ids: [id(50)],
-      agent: { ...configuration(p, 40), ...value, id: id(40) },
+    getConfiguration: vi.fn(
+      async (p: string, a: string) => current.get(a) ?? { ...configuration(p), id: a },
+    ),
+    runners: vi.fn(async () => ({ items: [] })),
+    runnerMounts: vi.fn(async (p: string, a: string) => ({
+      project_id: p,
+      agent_id: a,
+      agent_version: current.get(a)?.version ?? '1',
+      items: [],
     })),
+    models: vi.fn(async () => ({ items: [model], next_cursor: null })),
+    startCreate: vi.fn(async (p: string, value: Omit<AgentCreateFields, 'agent_id'>) => {
+      const agent = {
+        ...configuration(p, 40),
+        ...value,
+        allowed_mount_ids: value.allowed_mount_ids ?? [],
+        id: id(40),
+      }
+      current.set(agent.id, agent)
+      return { changed: true as const, event_ids: [id(50)], agent }
+    }),
     startUpdate: vi.fn(
-      async (p: string, a: string, value: AgentUpdateInput): Promise<AgentUpdateReceipt> => ({
-        changed: true,
-        event_ids: [id(51)],
-        agent: {
-          ...configuration(p),
+      async (p: string, a: string, value: AgentUpdateInput): Promise<AgentUpdateReceipt> => {
+        const agent = {
+          ...(current.get(a) ?? configuration(p)),
           ...value.request,
           id: a,
           version: String(BigInt(value.expected_version) + 1n),
-        },
-      }),
+        }
+        current.set(a, agent)
+        return { changed: true, event_ids: [id(51)], agent }
+      },
     ),
     checkOriginal: vi.fn(async () => ({ status: 'not_observed' as const, receipt: null })),
     editRejected: vi.fn(),
@@ -134,7 +149,7 @@ async function fixture() {
   owners.push(owner)
   owner.afterNavigation('/owner/demo/settings/agents')
   await flushPromises()
-  return { owner, api, context, personal, project, authState, progress, identity }
+  return { owner, api, context, personal, project, authState, progress, identity, current }
 }
 
 describe('Project Agent settings publication', () => {
@@ -224,7 +239,7 @@ describe('Project Agent settings publication', () => {
       inject_agents_md: true,
       approval_policy: 'default',
       allowed_tool_ids: [],
-      allowed_mount_ids: [],
+      runner_mounts: [],
       allowed_secret_variable_ids: [],
     })
     for (const absent of [
@@ -274,7 +289,7 @@ describe('Agent edit generation and version gates', () => {
     await f.owner.submitEdit()
     expect(f.api.startUpdate).toHaveBeenCalledTimes(1)
     expect(f.api.getConfiguration).toHaveBeenCalledTimes(1)
-    f.api.getConfiguration.mockResolvedValueOnce({ ...configuration(), version: '2' })
+    f.current.set(id(2), { ...configuration(), version: '2' })
     const refresh = f.owner.refresh()
     expect(f.owner.confirmation.open).toBe(true)
     f.owner.finishConfirmation(false)
@@ -387,6 +402,12 @@ describe('Agent edit generation and version gates', () => {
     await f.owner.openEdit()
     f.owner.touchEditPolicy('approval_policy', 'default')
     expect(f.owner.edit.approvalModelID).toBe('')
+    f.current.set(id(2), {
+      ...f.owner.state.configuration!,
+      version: '3',
+      approval_policy: 'default',
+      approval_model_ref: null,
+    })
     f.api.startUpdate.mockResolvedValueOnce({
       agent: {
         ...f.owner.state.configuration!,

@@ -72,6 +72,13 @@ async function page() {
   const api = {
     list: vi.fn<Port['list']>(async () => ({ items: [summary(current)] })),
     getConfiguration: vi.fn<Port['getConfiguration']>(async () => ({ ...current })),
+    runners: vi.fn<Port['runners']>(async () => ({ items: [] })),
+    runnerMounts: vi.fn<Port['runnerMounts']>(async () => ({
+      project_id: current.project_id,
+      agent_id: current.id,
+      agent_version: current.version,
+      items: [],
+    })),
     // Display edits remain available when the unrelated model directory fails.
     models: vi.fn<Port['models']>(async () => {
       throw new AccountFailure('transport')
@@ -179,7 +186,7 @@ describe('Agent display settings with real shared controls', () => {
     })
     expect(f.owner.state.items[0]).not.toHaveProperty('instructions')
     expect(f.api.list).toHaveBeenCalledTimes(1)
-    expect(f.api.getConfiguration).toHaveBeenCalledTimes(1)
+    expect(f.api.getConfiguration).toHaveBeenCalledTimes(2)
     f.setCurrent({
       ...initial,
       display_name: '服务端当前显示名称',
@@ -190,7 +197,7 @@ describe('Agent display settings with real shared controls', () => {
     expect(f.api.list).toHaveBeenLastCalledWith(id(1), { limit: 50 })
     expect(f.api.list).toHaveBeenCalledTimes(2)
     expect(f.api.getConfiguration).toHaveBeenLastCalledWith(id(1), id(2))
-    expect(f.api.getConfiguration).toHaveBeenCalledTimes(2)
+    expect(f.api.getConfiguration).toHaveBeenCalledTimes(3)
     expect(body().get('section[aria-label="Agent 目录"]').text()).toContain('服务端当前显示名称')
     expect(body().get('section[aria-label="Agent 配置"]').text()).toContain('#abcdef')
     await click('编辑配置')
@@ -228,7 +235,7 @@ describe('Agent display settings with real shared controls', () => {
       version: '3',
     })
     await click('刷新 Agent 目录')
-    expect(f.api.getConfiguration).toHaveBeenCalledTimes(2)
+    expect(f.api.getConfiguration).toHaveBeenCalledTimes(4)
     expect(f.owner.state.items[0]).toMatchObject({
       display_name: null,
       tag_color: null,

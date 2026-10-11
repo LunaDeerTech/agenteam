@@ -96,16 +96,25 @@ async function page() {
   const context = shallowRef({ identity, projectID, generation: 1, readGeneration: 1 })
   const progress = shallowRef<AgentConfigurationProgress | null>(null)
   type AgentPort = SessionController['agentConfiguration']
+  let current = { ...receipt.agent, ...existing, normalized_name: existing.name.toLowerCase() }
   const api = {
     list: vi.fn<AgentPort['list']>(async () => ({ items: [existing] })),
     getConfiguration: vi.fn<AgentPort['getConfiguration']>(async (_p, a) => ({
-      ...receipt.agent,
-      ...existing,
+      ...current,
       id: a,
-      normalized_name: existing.name.toLowerCase(),
+    })),
+    runners: vi.fn<AgentPort['runners']>(async () => ({ items: [] })),
+    runnerMounts: vi.fn<AgentPort['runnerMounts']>(async (_p, a) => ({
+      project_id: projectID,
+      agent_id: a,
+      agent_version: current.version,
+      items: [],
     })),
     models: vi.fn<AgentPort['models']>(async () => ({ items: [model], next_cursor: null })),
-    startCreate: vi.fn<AgentPort['startCreate']>(async () => receipt),
+    startCreate: vi.fn<AgentPort['startCreate']>(async () => {
+      current = { ...receipt.agent }
+      return receipt
+    }),
     startUpdate: vi.fn<AgentPort['startUpdate']>(async () => {
       throw new Error('unexpected configuration update')
     }),
@@ -137,7 +146,14 @@ async function page() {
   })
   mounted.push(wrapper)
   await flushPromises()
-  return { owner, api, progress }
+  return {
+    owner,
+    api,
+    progress,
+    setCurrent: (value: typeof current) => {
+      current = value
+    },
+  }
 }
 
 const body = () => new DOMWrapper(document.body)
@@ -207,7 +223,7 @@ async function fillCreation() {
 }
 
 describe('Agent configuration page with real UI controls', () => {
-  it('waits for parent cancellation, then creates explicit configuration and displays the safe directory and full receipt', async () => {
+  it('waits for parent cancellation, then creates explicit configuration and displays the safe directory and freshly read full configuration', async () => {
     const f = await page()
     await click('创建 Agent')
     expect(document.activeElement).toBe(field('Agent 名称').element)
@@ -237,7 +253,7 @@ describe('Agent configuration page with real UI controls', () => {
       approval_policy: 'auto',
       approval_model_ref: model.id,
       allowed_tool_ids: [],
-      allowed_mount_ids: [],
+      runner_mounts: [],
       allowed_secret_variable_ids: [],
       add_skills_enabled: false,
     })
@@ -292,6 +308,7 @@ describe('Agent configuration page with real UI controls', () => {
     expect(f.api.checkOriginal).toHaveBeenCalledTimes(1)
     expect(body().text()).toContain('尚未确认原操作结果，请继续保留原操作。')
     expect(findButton('创建 Agent')).toBeUndefined()
+    f.setCurrent(receipt.agent)
     f.api.checkOriginal.mockImplementationOnce(async () => {
       f.progress.value = { ...original, phase: 'confirmed', receipt, observation: 'committed' }
       return { status: 'committed', receipt }
@@ -365,6 +382,7 @@ describe('Agent text configuration editing with real controls', () => {
       changed: true,
       event_ids: [id(53)],
     }
+    f.setCurrent(updated.agent)
     f.api.startUpdate.mockResolvedValueOnce(updated)
     await click('保存配置')
     expect(f.api.startUpdate).toHaveBeenCalledExactlyOnceWith(projectID, existing.id, {
@@ -387,6 +405,12 @@ describe('Agent text configuration editing with real controls', () => {
         .findAll('label')
         .some((item) => visibleLabel(item.element) === '审批模型'),
     ).toBe(false)
+    f.setCurrent({
+      ...updated.agent,
+      approval_policy: 'default',
+      approval_model_ref: null,
+      version: '3',
+    })
     f.api.startUpdate.mockResolvedValueOnce({
       agent: {
         ...updated.agent,
@@ -444,6 +468,7 @@ describe('Agent text configuration editing with real controls', () => {
         version: '2',
       },
     }
+    f.setCurrent(saved.agent)
     f.api.startUpdate.mockResolvedValueOnce(saved)
     expect(f.api.startUpdate).not.toHaveBeenCalled()
     await click('保存配置')
@@ -521,6 +546,7 @@ describe('Agent text configuration editing with real controls', () => {
         version: '2',
       },
     }
+    f.setCurrent(saved.agent)
     f.api.checkOriginal.mockImplementationOnce(async () => {
       f.progress.value = {
         ...original,

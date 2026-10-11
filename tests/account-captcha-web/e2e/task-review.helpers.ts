@@ -71,6 +71,8 @@ type SkillsHeaderDiagnostic = {
   response_id_valid: boolean;
   usage_wire?: UsageWireProof;
   usage_wire_error?: string;
+  runner_wire?: UsageWireProof;
+  runner_wire_error?: string;
 };
 type Entry = {
   seq: number;
@@ -537,6 +539,7 @@ export async function observeBrowserIO(
         knowledgeTitleReads = false,
         secretReads = false,
         usageReads = false,
+        runnerMounts: { mode: string; agent?: string } | undefined = undefined,
       ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
@@ -565,6 +568,31 @@ export async function observeBrowserIO(
               throw Error("SKILL_DETAIL_CONSUMER_SCOPE");
             return "/api/v1/projects/" + project + "/skills/" + skillsTarget;
           });
+        } else if (runnerMounts) {
+          const prefix = "/api/v1/projects/" + project;
+          const target = () => runnerMounts.agent ?? originalAgentCreate?.request?.agent_id;
+          for (const method of ["list", "getConfiguration", "models", "runners", "runnerMounts"])
+            consumer(auth.agentConfiguration, method, "agent." + method, (a) => {
+              const single = method === "getConfiguration" || method === "runnerMounts";
+              if (a[0] !== project || (single && (!target() || a[1] !== target())))
+                throw Error("AGENT_RUNNER_READ_SCOPE");
+              return prefix + (method === "models" ? "/available-chat-models" : method === "runners" ? "/available-runners" :
+                "/agents" + (single ? "/" + a[1] + (method === "getConfiguration" ? "/configuration" : "/runner-mounts") : ""));
+            });
+          consumer(auth.agentConfiguration, "startCreate", "agent.startCreate", (a) => {
+            if (runnerMounts.mode !== "runner-mounts-normal" || a[0] !== project)
+              throw Error("AGENT_RUNNER_CREATE_SCOPE");
+            return prefix + "/agents";
+          }, "POST");
+          consumer(auth.agentConfiguration, "startUpdate", "agentEdit.startUpdate", (a) => {
+            if (a[0] !== project || !target() || a[1] !== target()) throw Error("AGENT_RUNNER_UPDATE_SCOPE");
+            return prefix + "/agents/" + a[1] + "/configuration";
+          }, "PATCH");
+          consumer(auth.agentConfiguration, "checkOriginal", "agentEdit.checkOriginal", (a) => {
+            if (runnerMounts.mode !== "runner-mounts-lost" || a.length !== 0)
+              throw Error("AGENT_RUNNER_LOOKUP_SCOPE");
+            return prefix + "/agent-commands/lookup";
+          }, "POST");
         } else if (schedulerWrites) {
           for (const method of ["get", "startUpdate", "checkOriginal"])
             consumer(auth.projectScheduler, method, "scheduler." + method, (a) => {
@@ -1591,7 +1619,8 @@ export type TaskObservationProfile = {
     | "knowledge-title-search"
     | "project-scheduler"
     | "project-secrets"
-    | "project-usage";
+    | "project-usage"
+    | "agent-runner-mounts";
   endpoint: (request: Request) => string | undefined;
   cut?: "transfer" | "create" | "update" | "start";
   lookupCommand:
@@ -1624,6 +1653,8 @@ export type TaskObservationProfile = {
   knowledgeTitleReads?: true;
   secretReads?: true;
   usageReads?: true;
+  agentRunnerMounts?: true;
+  agentRunnerWireHeaders?: (expected: { method: string; url: string; status: number; requestID: string }) => Promise<UsageWireProof>;
   usageWireHeaders?: (expected: { method: string; url: string; status: number; requestID: string }) => Promise<UsageWireProof>;
   schedulerWrites?: true;
 };
@@ -1673,12 +1704,42 @@ export function requireUsageHostEvidence(record: Record<string, unknown>, header
   expect(record.handler_returned).toBe(true);
   expect(record.handler_return_source).toBe("app_http_request_log");
 }
+export function requireAgentRunnerProfile(profile: TaskObservationProfile, data: TaskObservationMaterial) {
+  if (!profile.agentRunnerMounts && profile.prefix !== "agent-runner-mounts") {
+    if (profile.agentRunnerWireHeaders !== undefined) throw Error("AGENT_RUNNER_PROFILE_MISMATCH");
+    return;
+  }
+  const lost = data.mode === "runner-mounts-lost";
+  const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand", "cut", "agentRunnerMounts", "agentRunnerWireHeaders"];
+  if (profile.agentRunnerMounts !== true || profile.prefix !== "agent-runner-mounts" ||
+      !["runner-mounts-normal", "runner-mounts-lost"].includes(data.mode) ||
+      profile.lookupCommand !== "agent.update" || profile.cut !== (lost ? "update" : undefined) ||
+      typeof profile.agentRunnerWireHeaders !== "function" || Object.keys(profile).some(key => !allowed.includes(key)) ||
+      (lost && !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.agent_id ?? "")) ||
+      (!lost && data.agent_id !== undefined)) throw Error("AGENT_RUNNER_PROFILE_MISMATCH");
+}
+export function requireAgentRunnerHostEvidence(record: Record<string, unknown>, headers: SkillsHeaderDiagnostic | undefined) {
+  expect(headers?.request_fulfilled && headers.response_fulfilled).toBe(true);
+  expect(headers?.cookie_present).toBe(true);
+  if (headers?.host_present) expect(headers.host_matches).toBe(true);
+  if (headers?.authority_present) expect(headers.authority_matches).toBe(true);
+  expect(headers?.runner_wire?.source).toBe("cdp_network_extra_info");
+  expect(headers?.runner_wire?.host_present && headers.runner_wire.host_matches).toBe(true);
+  expect(headers?.runner_wire?.request_id).toBe(record.request_id);
+  expect(headers?.runner_wire?.method).toBe(record.method);
+  expect(headers?.runner_wire?.status).toBe(record.status);
+  expect(record.browser_ingress_host_matches).toBe(true);
+  expect(record.downstream_host_matches).toBe(true);
+  expect(record.handler_returned).toBe(true);
+  expect(record.handler_return_source).toBe("owned_tls_bridge");
+}
 export async function observeTaskRequests(
   page: Page,
   data: TaskObservationMaterial,
   profile: TaskObservationProfile,
 ) {
   requireUsageReadProfile(profile, data);
+  requireAgentRunnerProfile(profile, data);
   if (
     profile.intakeWrites &&
     (profile.prefix !== "task-intake" ||
@@ -1932,7 +1993,7 @@ export async function observeTaskRequests(
         status: entry.status,
         request_id: entry.requestID,
         failure: entry.failure,
-        ...((profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.secretReads || profile.usageReads) && entry.skillsHeaders
+        ...((profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.secretReads || profile.usageReads || profile.agentRunnerMounts) && entry.skillsHeaders
           ? { skills_headers: { ...entry.skillsHeaders } }
           : {}),
       });
@@ -1992,7 +2053,7 @@ export async function observeTaskRequests(
     if (entry.responseCount !== 1)
       observerError = new Error("DUPLICATE_ORIGINAL_RESPONSE");
     entry.status = response.status();
-    if (profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.secretReads || profile.usageReads) {
+    if (profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.secretReads || profile.usageReads || profile.agentRunnerMounts) {
       // Observe both original header promises once; retain no credential values.
       entry.headersReady = Promise.allSettled([
         entry.request.allHeaders(),
@@ -2055,6 +2116,10 @@ export async function observeTaskRequests(
             try { diagnostic.usage_wire = await profile.usageWireHeaders!({ method: entry.request.method(), url: entry.request.url(), status: entry.status!, requestID: id! }); }
             catch { diagnostic.usage_wire_error = "USAGE_WIRE_HEADERS_FAILED"; throw Error("USAGE_WIRE_HEADERS_FAILED"); }
           }
+          if (profile.agentRunnerMounts) {
+            try { diagnostic.runner_wire = await profile.agentRunnerWireHeaders!({ method: entry.request.method(), url: entry.request.url(), status: entry.status!, requestID: id! }); }
+            catch { diagnostic.runner_wire_error = "AGENT_RUNNER_WIRE_HEADERS_FAILED"; throw Error("AGENT_RUNNER_WIRE_HEADERS_FAILED"); }
+          }
           diagnostic.stage = "handler_pending";
           entry.requestID = id;
           event("response", entry);
@@ -2108,6 +2173,7 @@ export async function observeTaskRequests(
           knowledgeTitleReads,
           secretReads,
           usageReads,
+          runnerMounts,
         }) => {
           const module = await import(/* @vite-ignore */ binding.asset);
           const useSession = module[binding.exportName];
@@ -2136,6 +2202,7 @@ export async function observeTaskRequests(
           knowledgeTitleReads,
           secretReads,
           usageReads,
+          runnerMounts,
           );
         },
         {
@@ -2163,6 +2230,7 @@ export async function observeTaskRequests(
           knowledgeTitleReads: profile.knowledgeTitleReads === true,
           secretReads: profile.secretReads === true,
           usageReads: profile.usageReads === true,
+          runnerMounts: profile.agentRunnerMounts ? { mode: data.mode, agent: data.agent_id } : undefined,
         },
       );
       await route.continue();
@@ -2412,6 +2480,18 @@ export async function observeTaskRequests(
     return profile.schedulerWrites && entry.request.method() === "GET" &&
       ["session", "resolve", "projects", "project", "scheduler"].includes(entry.name);
   }
+  function runnerWrite(entry: Entry) {
+    if (!profile.agentRunnerMounts) return false;
+    const url = new URL(entry.request.url()), prefix = `/api/v1/projects/${data.project_id}`;
+    const target = data.agent_id ?? entries.find(e => e.name === "create")?.request.postDataJSON()?.request?.agent_id;
+    return !url.search && ((entry.name === "create" && entry.request.method() === "POST" && url.pathname === prefix + "/agents") ||
+      (entry.name === "update" && entry.request.method() === "PATCH" && target && url.pathname === `${prefix}/agents/${target}/configuration`) ||
+      (entry.name === "lookup" && entry.request.method() === "POST" && url.pathname === prefix + "/agent-commands/lookup"));
+  }
+  function runnerReadEntry(entry: Entry) {
+    return profile.agentRunnerMounts && entry.request.method() === "GET" &&
+      ["session", "resolve", "projects", "project", "agent-directory", "agent-configuration", "agent-models", "agent-runners", "agent-mounts"].includes(entry.name);
+  }
   function joint(entry: Entry, proof: any) {
     const edit = editWrite(entry);
     const agentEdit = agentEditWrite(entry);
@@ -2423,6 +2503,7 @@ export async function observeTaskRequests(
     const variable = variableWrite(entry);
     const knowledgeText = knowledgeTextWrite(entry);
     const scheduler = schedulerWrite(entry);
+    const runner = runnerWrite(entry);
     const write =
       intakeWrite(entry) ||
       agentWrite(entry) ||
@@ -2434,9 +2515,9 @@ export async function observeTaskRequests(
       milestoneUpdate ||
       sprintUpdate ||
       variable ||
-      knowledgeText || scheduler;
+      knowledgeText || scheduler || runner;
     const method =
-      (edit || agentEdit || milestoneUpdate || sprintUpdate || variable || scheduler) && entry.name === "update"
+      (edit || agentEdit || milestoneUpdate || sprintUpdate || variable || scheduler || runner) && entry.name === "update"
         ? "PATCH"
         : write
           ? "POST"
@@ -2515,11 +2596,14 @@ export async function observeTaskRequests(
     if (knowledgeTitleReadEntry(entry)) expect(c.kind).toBe({session:"restore", resolve:"project.resolve", projects:"project.list", project:"project.get", documents:"knowledge.children", titles:"knowledge.searchTitles", document:"knowledge.get", ancestors:"knowledge.ancestors", content:"knowledge.readContent"}[entry.name]);
     if (secretReadEntry(entry)) expect(c.kind).toBe({session:"restore", resolve:"project.resolve", projects:"project.list", project:"project.get", secrets:"secret.list", secret:"secret.get"}[entry.name]);
     if (usageReadEntry(entry)) expect(c.kind).toBe({session:"restore", resolve:"project.resolve", projects:"project.list", project:"project.get", usage:"usage.list"}[entry.name]);
+    if (runnerReadEntry(entry)) expect(c.kind).toBe({ session: "restore", resolve: "project.resolve", projects: "project.list", project: "project.get", "agent-directory": "agent.list", "agent-configuration": "agent.getConfiguration", "agent-models": "agent.models", "agent-runners": "agent.runners", "agent-mounts": "agent.runnerMounts" }[entry.name]);
     if (schedulerReadEntry(entry)) expect(c.kind).toBe({ session: "restore", resolve: "project.resolve", projects: "project.list", project: "project.get", scheduler: "scheduler.get" }[entry.name]);
     if (write) {
       if (scheduler) expect(c.result_current).toBe(true);
       if (sprintCreate || milestoneCreate || milestoneUpdate || sprintUpdate || variable || knowledgeText) expect(c.result_current).toBe(true);
-      const kinds: Record<string, string> = scheduler
+      const kinds: Record<string, string> = runner
+        ? { create: "agent.startCreate", update: "agentEdit.startUpdate", lookup: "agentEdit.checkOriginal" }
+        : scheduler
         ? { update: "scheduler.startUpdate", lookup: "scheduler.checkOriginal" }
         : knowledgeText
         ? { create: "knowledgeText.write", update: "knowledgeText.write" }
@@ -2603,7 +2687,7 @@ export async function observeTaskRequests(
       if (entry.checked) continue;
       const state = await entry.done;
       const response = await entry.request.response();
-      if (profile.schedulerWrites && state === "failed" && entry.name === profile.cut) {
+      if ((profile.schedulerWrites || profile.agentRunnerMounts) && state === "failed" && entry.name === profile.cut) {
         // The proxy publishes this predicate only after its actual flush and
         // connection Close. Its original safe record can be mid-rewrite here.
         await expect.poll(() => {
@@ -2612,7 +2696,7 @@ export async function observeTaskRequests(
           } catch { return false; }
         }, { timeout: 5_000 }).toBe(true);
       }
-      if (profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.secretReads || profile.usageReads) {
+      if (profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.secretReads || profile.usageReads || profile.agentRunnerMounts) {
         // Include bootstrap reads as well as catalog/detail: a missing browser
         // projection is accepted only with this original request's App proof.
         const record = JSON.parse(
@@ -2634,6 +2718,7 @@ export async function observeTaskRequests(
             .digest("hex"),
         );
         if (profile.usageReads) requireUsageHostEvidence(record, entry.skillsHeaders);
+        else if (profile.agentRunnerMounts) requireAgentRunnerHostEvidence(record, entry.skillsHeaders);
         else {
           expect(record.request_host_matches).toBe(true);
           expect(record.handler_returned).toBe(true);
@@ -2652,7 +2737,7 @@ export async function observeTaskRequests(
         // physically truncating its original Content-Length response.
         expect(response?.status()).toBe(200);
         expect(entry.request.failure()).not.toBeNull();
-        if (profile.schedulerWrites) {
+        if (profile.schedulerWrites || profile.agentRunnerMounts) {
           const readRecord = () => JSON.parse(readFileSync(join(profile.evidence, `${profile.prefix}-${data.mode}-response-${entry.requestID}.json`), "utf8"));
           const record = readRecord();
           expect(record.receipt_cut).toBe(true);
@@ -2664,7 +2749,7 @@ export async function observeTaskRequests(
           expect(calls).toHaveLength(1);
           const c = calls[0];
           expect(proof.current && proof.not_busy).toBe(true);
-          expect(c.kind).toBe("scheduler.startUpdate");
+          expect(c.kind).toBe(profile.agentRunnerMounts ? "agentEdit.startUpdate" : "scheduler.startUpdate");
           expect(c.rejected && c.settled && !c.fulfilled).toBe(true);
           expect(c.bound).toBe(1);
           expect(n.path).toBe(new URL(entry.request.url()).pathname);
@@ -2702,6 +2787,7 @@ export async function observeTaskRequests(
           variableWrite(entry) ||
           knowledgeTextWrite(entry) ||
           schedulerWrite(entry) ||
+          runnerWrite(entry) ||
           agentWrite(entry)) &&
         response?.status() === 200 &&
         entry.failure === "net::ERR_ABORTED"
@@ -2766,7 +2852,7 @@ export async function observeTaskRequests(
         variablePageRead(entry) ||
         knowledgeTextWrite(entry) ||
         knowledgeTextReadEntry(entry) || knowledgeTitleReadEntry(entry) || secretReadEntry(entry) || usageReadEntry(entry) ||
-        schedulerWrite(entry) || schedulerReadEntry(entry) ||
+        schedulerWrite(entry) || schedulerReadEntry(entry) || runnerWrite(entry) || runnerReadEntry(entry) ||
         sprintPageRead(entry) ||
         agentWrite(entry) ||
         agentPageRead(entry) ||
@@ -2790,7 +2876,7 @@ export async function observeTaskRequests(
           expect(wire.result.command).toBe("update");
           entry.body = { state: "committed", receipt: { project_id: wire.result.project.id, version: wire.result.project.version } };
         }
-        if ((profile.schedulerWrites || profile.knowledgeTitleReads || profile.secretReads || profile.usageReads) && entry.name === "session") {
+        if ((profile.schedulerWrites || profile.knowledgeTitleReads || profile.secretReads || profile.usageReads || profile.agentRunnerMounts) && entry.name === "session") {
           const wire = entry.body as any;
           entry.body = { user: wire.user, session: wire.session };
         }
@@ -2889,6 +2975,12 @@ export async function observeTaskRequests(
     const rows = entries.filter(e => e.name === name && e.checked && e.body);
     expect(rows[index], "original Secrets GET must complete before publication assertions").toBeTruthy();
     return rows[index]!.body as Record<string, any>;
+  }
+  function runnerMountRead(name: string) {
+    expect(profile.agentRunnerMounts).toBe(true);
+    const rows = entries.filter(e => e.name === name && e.checked && e.body && runnerReadEntry(e));
+    expect(rows.length, "original Agent Runner GET must complete before publication assertions").toBeGreaterThan(0);
+    return rows.at(-1)!.body as Record<string, any>;
   }
   function usageRead(index: number) {
     expect(profile.usageReads).toBe(true);
@@ -3059,7 +3151,7 @@ export async function observeTaskRequests(
             request_id: entry.requestID,
             terminal: entry.terminal,
             failure: entry.failure,
-            ...((profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.secretReads || profile.usageReads) && entry.skillsHeaders
+            ...((profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.secretReads || profile.usageReads || profile.agentRunnerMounts) && entry.skillsHeaders
               ? { skills_headers: { ...entry.skillsHeaders } }
               : {}),
             checked: entry.checked,
@@ -3131,6 +3223,7 @@ export async function observeTaskRequests(
     knowledgeTitleRead,
     secretRead,
     usageRead,
+    runnerMountRead,
     schedulerRead,
     timelinePage,
     save,

@@ -147,6 +147,27 @@ const approval = { default: '默认审批', auto: '模型自动审批', allow: '
                 @click="owner.openEdit()"
                 >编辑配置</UiButton
               >
+              <section aria-label="当前 Runner 配置" class="runner-facts">
+                <h3>Runner 与资源目录</h3>
+                <template v-if="state.mountsPhase === 'ready' && state.mounts">
+                  <p v-if="!state.mounts.items.length">未配置 Runner。</p>
+                  <ul v-else>
+                    <li v-for="item in state.mounts.items" :key="item.mount_id">
+                      <strong>{{ item.workspace }}</strong> · Runner {{ item.runner_id }}
+                      <span>（{{ item.name }}）</span>
+                    </li>
+                  </ul>
+                </template>
+                <p v-else role="status">
+                  {{ state.mountsMessage || '尚未取得完整 Runner 配置。' }}
+                </p>
+                <UiButton
+                  v-if="state.mountsPhase === 'error'"
+                  :disabled="owner.busy.value"
+                  @click="owner.loadConfiguration(state.selectedID)"
+                  >重新读取 Runner 配置</UiButton
+                >
+              </section>
               <dl class="agent-facts">
                 <dt>名称</dt>
                 <dd>{{ state.configuration.name }}</dd>
@@ -272,6 +293,9 @@ const approval = { default: '默认审批', auto: '模型自动审批', allow: '
 .agent-entry:disabled {
   cursor: default;
   opacity: 0.6;
+}
+.runner-facts {
+  overflow-wrap: anywhere;
 }
 .agent-content h2,
 .agent-content p,

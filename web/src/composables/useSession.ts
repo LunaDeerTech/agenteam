@@ -1,3 +1,4 @@
+import { createAgentRunnerMountsAPI, type AgentRunnerMountsAPI } from '../api/agent-runner-mounts'
 import {
   createKnowledgeTitleSearchAPI,
   captureKnowledgeTitleQuery,
@@ -949,6 +950,7 @@ export function createSessionController(
   commandAPIs: Readonly<{
     edit?: WorkTaskEditAPI
     taskTimeline?: WorkTaskTimelineAPI
+    agentRunnerMounts?: AgentRunnerMountsAPI
     agentConfiguration?: AgentConfigurationAPI
     projectVariables?: ProjectVariablesAPI
     sprintPlanning?: WorkSprintPlanningAPI
@@ -974,6 +976,7 @@ export function createSessionController(
   const skillPackageAPI = commandAPIs.skillPackage ?? createSkillPackageAPI()
   const taskEditAPI = commandAPIs.edit ?? createWorkTaskEditAPI()
   const taskTimelineAPI = commandAPIs.taskTimeline ?? createWorkTaskTimelineAPI()
+  const agentRunnerMountsAPI = commandAPIs.agentRunnerMounts ?? createAgentRunnerMountsAPI()
   const agentConfigurationAPI = commandAPIs.agentConfiguration ?? createAgentConfigurationAPI()
   const sprintLifecycleAPI = commandAPIs.sprintLifecycle ?? createWorkSprintLifecycleAPI()
   const knowledgeTextAPI = commandAPIs.knowledgeText ?? createKnowledgeTextAPI()
@@ -4584,6 +4587,8 @@ export function createSessionController(
       agentConfigurationRead((signal) =>
         projectModelSettingsAPI.listAvailableChatModels(p, q, signal),
       ),
+    runners: (p: string, q: PageQuery) => agentConfigurationRead((signal) => agentRunnerMountsAPI.list(p, q, signal)),
+    runnerMounts: (p: string, a: string) => agentConfigurationRead((signal) => agentRunnerMountsAPI.get(p, a, signal)),
     abandonRead: clearAgentConfigurationRead,
     startCreate(projectID: string, fields: Omit<AgentCreateFields, 'agent_id'>) {
       try {

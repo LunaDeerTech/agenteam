@@ -54,6 +54,8 @@ export function string(value: unknown, minimum: number, maximum: number): string
 }
 
 const endpoints = {
+  availableAgentRunners: ['GET', '/api/v1/projects/{project_id}/available-runners', 200],
+  agentRunnerMounts: ['GET', '/api/v1/projects/{project_id}/agents/{target}/runner-mounts', 200],
   getProjectScheduler: ['GET', '/api/v1/projects/{id}/scheduler', 200],
   updateProjectScheduler: ['PATCH', '/api/v1/projects/{id}/scheduler', 200],
   lookupProjectScheduler: ['POST', '/api/v1/projects/{id}/commands/lookup', 200],
@@ -1124,6 +1126,8 @@ type KnowledgeOptions<E extends KnowledgeEndpoint> = E extends 'knowledgeTitleSe
       : { signal: AbortSignal; projectID: string; target: string }
 
 type WorkReviewEndpoint =
+  | 'availableAgentRunners'
+  | 'agentRunnerMounts'
   | 'listProjectVariables'
   | 'getProjectVariable'
   | 'createProjectVariable'
@@ -1160,6 +1164,8 @@ type WorkReviewEndpoint =
   | 'agentConfigurationGet'
   | 'agentConfigurationLookup'
 const workReviewEndpoints: readonly WorkReviewEndpoint[] = [
+  'availableAgentRunners',
+  'agentRunnerMounts',
   'listProjectVariables',
   'getProjectVariable',
   'createProjectVariable',
@@ -1489,6 +1495,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     } else if ((workReviewEndpoints as readonly string[]).includes(endpoint)) {
       try {
         const list = [
+          'availableAgentRunners',
           'listProjectVariables',
           'reviewMilestones',
           'reviewSprints',
@@ -1530,7 +1537,12 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           const limit = string(query.limit, 1, 3)
           if (
             !/^[1-9][0-9]*$/.test(limit) ||
-            Number(limit) > (endpoint === 'listProjectVariables' ? 100 : 200)
+            Number(limit) >
+              (endpoint === 'availableAgentRunners'
+                ? 50
+                : endpoint === 'listProjectVariables'
+                  ? 100
+                  : 200)
           )
             throw new Error()
           const params = new URLSearchParams()
@@ -2086,6 +2098,8 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           response,
           options.signal,
           lifecycle,
+          endpoint === 'availableAgentRunners' && success ? 2 * 1024 * 1024 :
+          endpoint === 'agentRunnerMounts' && success ? 512 * 1024 :
           endpoint === 'listProjectUsage' && success
             ? 1024 * 1024
             : (secretReadEndpoints as readonly string[]).includes(endpoint) && success

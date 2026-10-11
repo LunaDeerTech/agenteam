@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AgentRunnerMountFields from './AgentRunnerMountFields.vue'
 import { computed, onMounted, ref, watch } from 'vue'
 import { UiButton, UiField, UiInput, UiSelect, UiTextarea } from '../ui'
 import type { ProjectAgents } from '../../composables/useProjectAgents'
@@ -6,7 +7,11 @@ const props = defineProps<{ owner: ProjectAgents }>()
 const emit = defineEmits<{ cancel: [] }>()
 const form = ref<HTMLFormElement | null>(null)
 const disabled = computed(
-  () => props.owner.busy.value || !props.owner.canEdit.value || props.owner.editStale.value,
+  () =>
+    props.owner.formInitializing.value ||
+    props.owner.busy.value ||
+    !props.owner.canEdit.value ||
+    props.owner.editStale.value,
 )
 const policyDisabled = computed(
   () =>
@@ -26,7 +31,14 @@ const injectOptions = [
 let focused = false
 function focusName() {
   const input = form.value?.querySelector('input')
-  if (!focused && input && !input.disabled) {
+  if (
+    !focused &&
+    !disabled.value &&
+    props.owner.visible.value &&
+    props.owner.edit.open &&
+    input?.isConnected &&
+    !input.disabled
+  ) {
     input.focus()
     focused = true
   }
@@ -151,6 +163,7 @@ watch(disabled, focusName, { flush: 'post' })
         @update:model-value="owner.touchEditPolicy('approval_model_ref', $event)"
       />
     </UiField>
+    <AgentRunnerMountFields :owner="owner" editing />
     <p v-if="owner.editStale.value" role="alert">
       配置已有新版本。请取消编辑并重新读取，核对后再保存；不会自动替换原版本。
     </p>

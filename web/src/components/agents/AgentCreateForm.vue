@@ -1,11 +1,15 @@
 <script setup lang="ts">
+import AgentRunnerMountFields from './AgentRunnerMountFields.vue'
 import { computed, onMounted, ref, watch } from 'vue'
 import { UiButton, UiCheckbox, UiField, UiInput, UiSelect, UiTextarea } from '../ui'
 import type { ProjectAgents } from '../../composables/useProjectAgents'
 const props = defineProps<{ owner: ProjectAgents }>()
 const emit = defineEmits<{ cancel: [] }>()
 const form = ref<HTMLFormElement | null>(null)
-const disabled = computed(() => props.owner.busy.value || !props.owner.canCreate.value)
+const disabled = computed(
+  () =>
+    props.owner.formInitializing.value || props.owner.busy.value || !props.owner.canCreate.value,
+)
 const approvalOptions = [
   { value: 'default', label: '默认审批' },
   { value: 'auto', label: '模型自动审批' },
@@ -18,7 +22,14 @@ const injectOptions = [
 let focused = false
 function focusName() {
   const input = form.value?.querySelector('input')
-  if (!focused && input && !input.disabled) {
+  if (
+    !focused &&
+    !disabled.value &&
+    props.owner.visible.value &&
+    props.owner.draft.open &&
+    input?.isConnected &&
+    !input.disabled
+  ) {
     input.focus()
     focused = true
   }
@@ -35,8 +46,8 @@ watch(disabled, focusName, { flush: 'post' })
   >
     <h2>创建空白 Agent</h2>
     <p>
-      填写配置后明确创建。此处不额外授予 Tool、Mount 或 Secret
-      Variable；内置初始化选项由服务实际执行。
+      填写配置后明确创建。可选择 Runner 与资源目录；Tool 和 Secret Variable
+      不在此额外授权；内置初始化选项由服务实际执行。
     </p>
     <UiField
       label="Agent 名称"
@@ -134,6 +145,7 @@ watch(disabled, focusName, { flush: 'post' })
         :disabled="disabled"
       />
     </UiField>
+    <AgentRunnerMountFields :owner="owner" />
     <fieldset :disabled="disabled">
       <legend>内置初始化</legend>
       <UiCheckbox v-model="owner.draft.addSkills" :disabled="disabled">添加默认 Skills</UiCheckbox>

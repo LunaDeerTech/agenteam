@@ -69,7 +69,7 @@ function receipt(value: AgentCreateInput): AgentCreateReceipt {
       approval_policy: r.approval_policy,
       approval_model_ref: r.approval_model_ref ?? null,
       allowed_tool_ids: [id(21)],
-      allowed_mount_ids: r.allowed_mount_ids,
+      allowed_mount_ids: r.allowed_mount_ids!,
       allowed_secret_variable_ids: r.allowed_secret_variable_ids,
       lifecycle: 'active',
       version: '1',

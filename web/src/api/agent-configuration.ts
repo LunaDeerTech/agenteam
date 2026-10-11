@@ -1,3 +1,9 @@
+import {
+  runnerMountDeclarations,
+  runnerMountReceipt,
+  type RunnerMountDeclaration,
+  type RunnerMountBinding,
+} from './agent-runner-mounts'
 import { AccountFailure, accountTransport, shape, type Fetch } from './client'
 import type { WriteOptions } from './account'
 import { parseSystemInstant } from './system-account'
@@ -11,7 +17,8 @@ export type AgentCreateFields = Readonly<{
   inject_agents_md: boolean
   approval_policy: AgentApprovalPolicy
   allowed_tool_ids: readonly string[]
-  allowed_mount_ids: readonly string[]
+  allowed_mount_ids?: readonly string[]
+  runner_mounts?: readonly RunnerMountDeclaration[]
   allowed_secret_variable_ids: readonly string[]
   display_name?: string | null
   tag_color?: string | null
@@ -23,6 +30,7 @@ export type AgentCreateFields = Readonly<{
   install_skill_enabled?: boolean
 }>
 export type AgentUpdateFields = Readonly<{
+  runner_mounts?: readonly RunnerMountDeclaration[]
   name?: string
   display_name?: string | null
   tag_color?: string | null
@@ -36,6 +44,7 @@ export type AgentUpdateFields = Readonly<{
 }>
 export type AgentUpdateInput = Readonly<{ expected_version: string; request: AgentUpdateFields }>
 export type AgentUpdateReceipt = Readonly<{
+  runner_mounts?: readonly RunnerMountBinding[]
   agent: AgentConfiguration
   changed: boolean
   event_ids: readonly string[]
@@ -67,6 +76,7 @@ export type AgentConfiguration = Readonly<{
   updated_at: string
 }>
 export type AgentCreateReceipt = Readonly<{
+  runner_mounts?: readonly RunnerMountBinding[]
   agent: AgentConfiguration
   changed: true
   event_ids: readonly string[]
@@ -162,13 +172,14 @@ function relations(
     | 'approval_model_ref'
     | 'allowed_tool_ids'
     | 'allowed_mount_ids'
+    | 'runner_mounts'
     | 'allowed_secret_variable_ids'
   >,
 ) {
   requireValue((value.approval_policy === 'auto') === (value.approval_model_ref != null))
   requireValue(
     value.allowed_tool_ids.length +
-      value.allowed_mount_ids.length +
+      (value.runner_mounts?.length ?? value.allowed_mount_ids?.length ?? 0) +
       value.allowed_secret_variable_ids.length <=
       256,
   )
@@ -188,10 +199,11 @@ export function captureAgentCreateInput(value: unknown): AgentCreateInput {
         'inject_agents_md',
         'approval_policy',
         'allowed_tool_ids',
-        'allowed_mount_ids',
         'allowed_secret_variable_ids',
       ],
       [
+        'allowed_mount_ids',
+        'runner_mounts',
         'display_name',
         'tag_color',
         'description',
@@ -202,6 +214,7 @@ export function captureAgentCreateInput(value: unknown): AgentCreateInput {
         'install_skill_enabled',
       ],
     )
+    requireValue(Object.hasOwn(v, 'runner_mounts') !== Object.hasOwn(v, 'allowed_mount_ids'))
     const request: AgentCreateFields = Object.freeze({
       agent_id: workID(v.agent_id),
       name: name(v.name),
@@ -209,7 +222,9 @@ export function captureAgentCreateInput(value: unknown): AgentCreateInput {
       inject_agents_md: bool(v.inject_agents_md),
       approval_policy: approval(v.approval_policy),
       allowed_tool_ids: references(v.allowed_tool_ids),
-      allowed_mount_ids: references(v.allowed_mount_ids),
+      ...(Object.hasOwn(v, 'runner_mounts')
+        ? { runner_mounts: runnerMountDeclarations(v.runner_mounts) }
+        : { allowed_mount_ids: references(v.allowed_mount_ids) }),
       allowed_secret_variable_ids: references(v.allowed_secret_variable_ids),
       ...(Object.hasOwn(v, 'display_name')
         ? { display_name: nullable(v.display_name, (x) => workText(x, 1024, true)) }
@@ -245,6 +260,7 @@ export function captureAgentUpdateInput(value: unknown): AgentUpdateInput {
       outer.request,
       [],
       [
+        'runner_mounts',
         'name',
         'display_name',
         'tag_color',
@@ -266,6 +282,9 @@ export function captureAgentUpdateInput(value: unknown): AgentUpdateInput {
     return Object.freeze({
       expected_version: workVersion(outer.expected_version),
       request: Object.freeze({
+        ...(Object.hasOwn(v, 'runner_mounts')
+          ? { runner_mounts: runnerMountDeclarations(v.runner_mounts) }
+          : {}),
         ...(Object.hasOwn(v, 'name') ? { name: name(v.name) } : {}),
         ...(Object.hasOwn(v, 'display_name')
           ? { display_name: nullable(v.display_name, (x) => workText(x, 1024, true)) }
@@ -296,7 +315,7 @@ function updateReceipt(
   target: string,
   original: AgentUpdateInput,
 ): AgentUpdateReceipt {
-  const v = shape(value, ['agent', 'changed', 'event_ids'])
+  const v = shape(value, ['agent', 'changed', 'event_ids'], ['runner_mounts'])
   const agent = configuration(v.agent, project, target),
     changed = bool(v.changed)
   const version = BigInt(original.expected_version) + (changed ? 1n : 0n)
@@ -315,7 +334,13 @@ function updateReceipt(
   ] as const)
     if (Object.hasOwn(original.request, key)) requireValue(agent[key] === original.request[key])
   requireValue(Array.isArray(v.event_ids) && v.event_ids.length === (changed ? 1 : 0))
-  return Object.freeze({ agent, changed, event_ids: Object.freeze(v.event_ids.map(workID)) })
+  const bindings = receiptMounts(v, original.request, agent)
+  return Object.freeze({
+    agent,
+    changed,
+    event_ids: Object.freeze(v.event_ids.map(workID)),
+    ...bindings,
+  })
 }
 
 function configuration(value: unknown, project: string, target: string): AgentConfiguration {
@@ -377,7 +402,7 @@ function sameIDs(a: readonly string[], b: readonly string[]): boolean {
   return a.length === b.length && a.every((value, n) => value === b[n])
 }
 function receipt(value: unknown, project: string, original: AgentCreateInput): AgentCreateReceipt {
-  const v = shape(value, ['agent', 'changed', 'event_ids']),
+  const v = shape(value, ['agent', 'changed', 'event_ids'], ['runner_mounts']),
     r = original.request
   const agent = configuration(v.agent, project, r.agent_id)
   requireValue(v.changed === true && agent.version === '1' && agent.created_at === agent.updated_at)
@@ -394,7 +419,7 @@ function receipt(value: unknown, project: string, original: AgentCreateInput): A
       agent.approval_model_ref === (r.approval_model_ref ?? null),
   )
   requireValue(
-    sameIDs(agent.allowed_mount_ids, r.allowed_mount_ids) &&
+    (r.runner_mounts !== undefined || sameIDs(agent.allowed_mount_ids, r.allowed_mount_ids!)) &&
       sameIDs(agent.allowed_secret_variable_ids, r.allowed_secret_variable_ids),
   )
   if (r.install_skill_enabled ?? true) {
@@ -407,7 +432,30 @@ function receipt(value: unknown, project: string, original: AgentCreateInput): A
     )
   } else requireValue(sameIDs(agent.allowed_tool_ids, r.allowed_tool_ids))
   requireValue(Array.isArray(v.event_ids) && v.event_ids.length === 1)
-  return Object.freeze({ agent, changed: true, event_ids: Object.freeze(v.event_ids.map(workID)) })
+  const bindings = receiptMounts(v, r, agent)
+  return Object.freeze({
+    agent,
+    changed: true,
+    event_ids: Object.freeze(v.event_ids.map(workID)),
+    ...bindings,
+  })
+}
+
+function receiptMounts(
+  value: Record<string, unknown>,
+  original: Readonly<{ runner_mounts?: readonly RunnerMountDeclaration[] }>,
+  agent: AgentConfiguration,
+) {
+  requireValue(Object.hasOwn(value, 'runner_mounts') === Object.hasOwn(original, 'runner_mounts'))
+  return original.runner_mounts === undefined
+    ? {}
+    : {
+        runner_mounts: runnerMountReceipt(
+          value.runner_mounts,
+          original.runner_mounts,
+          agent.allowed_mount_ids,
+        ),
+      }
 }
 
 export function createAgentConfigurationAPI(fetcher?: Fetch): AgentConfigurationAPI {

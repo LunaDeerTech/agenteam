@@ -1,5 +1,12 @@
 import { computed, inject, reactive, ref, shallowReactive, watch, type InjectionKey } from 'vue'
 import { AccountFailure } from '../api/client'
+import {
+  captureRunnerMountDeclarations,
+  matchingRunnerMounts,
+  type AgentRunnerMounts,
+  type AvailableRunner,
+  type RunnerMountDeclaration,
+} from '../api/agent-runner-mounts'
 import { agentLabel, type DirectoryAgent } from '../api/agent-directory'
 import type {
   AgentApprovalPolicy,
@@ -15,7 +22,8 @@ import type { SessionController } from './useSession'
 import type { ProjectWorkspace } from './useProjectWorkspace'
 
 type EditField = 'name' | 'displayName' | 'tagColor' | 'description' | 'instructions'
-type EditPolicyField = 'model_ref' | 'inject_agents_md' | 'approval_policy' | 'approval_model_ref'
+type EditPolicyField =
+  'runner_mounts' | 'model_ref' | 'inject_agents_md' | 'approval_policy' | 'approval_model_ref'
 const initialEdit = () => ({
   open: false,
   agentID: '',
@@ -29,6 +37,7 @@ const initialEdit = () => ({
   injectAgentsMD: 'yes' as 'yes' | 'no',
   approvalPolicy: 'default' as AgentApprovalPolicy,
   approvalModelID: '',
+  runnerMounts: [] as RunnerMountDeclaration[],
   touched: {} as Partial<Record<EditField | EditPolicyField, true>>,
   conflict: false,
   message: '',
@@ -46,6 +55,7 @@ const initialDraft = () => ({
   injectAgentsMD: '' as '' | 'yes' | 'no',
   approvalPolicy: '' as '' | AgentApprovalPolicy,
   approvalModelID: '',
+  runnerMounts: [] as RunnerMountDeclaration[],
   addSkills: true,
   installSkill: true,
   message: '',
@@ -81,6 +91,7 @@ function editableModel(model: ProjectAvailableChatModel) {
 export function createProjectAgents(auth: SessionController, workspace: ProjectWorkspace) {
   const state = shallowReactive<{
     phase: Phase
+    accessDenied: boolean
     items: readonly DirectoryAgent[]
     next?: string
     message: string
@@ -93,8 +104,16 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
     modelPhase: Phase
     modelMessage: string
     feedback: string
+    runners: readonly AvailableRunner[]
+    runnerNext?: string
+    runnerPhase: Phase
+    runnerMessage: string
+    mounts: AgentRunnerMounts | null
+    mountsPhase: Phase
+    mountsMessage: string
   }>({
     phase: 'idle',
+    accessDenied: false,
     items: [],
     message: '',
     selectedID: null,
@@ -106,16 +125,26 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
     modelPhase: 'idle',
     modelMessage: '',
     feedback: '',
+    runners: [],
+    runnerNext: undefined,
+    runnerPhase: 'idle',
+    runnerMessage: '',
+    mounts: null,
+    mountsPhase: 'idle',
+    mountsMessage: '',
   })
   const draft = reactive(initialDraft())
   const edit = reactive(initialEdit())
   const confirmation = reactive({ open: false, message: '' })
   const route = ref(''),
     reading = ref(false)
+  const formInitialization = ref<object | null>(null)
+  const formInitializing = computed(() => formInitialization.value !== null)
   let generation = 0,
     disposed = false,
     requested = false,
-    projectKey = ''
+    projectKey = '',
+    readKey = ''
   let leaveResult: ((yes: boolean) => void) | null = null
   const visible = computed(() => {
     const r = projectRoute(route.value)
@@ -139,7 +168,11 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
   })
   const busy = computed(() => reading.value || auth.state.busy || confirmation.open)
   const canCreate = computed(
-    () => visible.value && workspace.detail.project?.lifecycle === 'active' && !pending.value,
+    () =>
+      visible.value &&
+      !state.accessDenied &&
+      workspace.detail.project?.lifecycle === 'active' &&
+      !pending.value,
   )
   const canEdit = computed(
     () =>
@@ -164,6 +197,7 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
       editDirty.value &&
       !editStale.value &&
       (!editPolicyTouched.value || !editPolicyMessage.value) &&
+      (!edit.touched.runner_mounts || (editMountsReady.value && !editMountMessage.value)) &&
       !!edit.name.trim(),
   )
   const editModels = computed(() => state.models.filter(editableModel))
@@ -215,6 +249,91 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
       label: value,
     })),
   ])
+  const runnerStatus = { online: '在线', offline: '离线', incompatible: '协议不兼容' }
+  const runnerOptions = computed(() =>
+    state.runners.map((r) => ({ value: r.id, label: `${r.name}（${runnerStatus[r.status]}）` })),
+  )
+  const editMountsReady = computed(
+    () =>
+      !!state.configuration &&
+      !!state.mounts &&
+      state.mountsPhase === 'ready' &&
+      matchingRunnerMounts(state.configuration, state.mounts) &&
+      (!edit.open || edit.version === state.mounts.agent_version),
+  )
+  function mountMessage(rows: readonly RunnerMountDeclaration[], editing: boolean) {
+    try {
+      const captured = captureRunnerMountDeclarations(rows)
+      const previous = editing ? (state.mounts?.items ?? []) : []
+      if (
+        captured.some(
+          (row) =>
+            !state.runners.some((r) => r.id === row.runner_id) &&
+            !previous.some((r) => r.runner_id === row.runner_id),
+        )
+      )
+        return '请从已读取的系统 Runner 中选择；可加载更多 Runner。'
+      const a = editing ? state.configuration : null
+      if (
+        captured.length +
+          (a?.allowed_tool_ids.length ?? 0) +
+          (a?.allowed_secret_variable_ids.length ?? 0) >
+        256
+      )
+        return 'Agent 能力引用总数不能超过 256 项。'
+      return ''
+    } catch {
+      return '请选择 Runner 并填写 1–255 位英文字母、数字、下划线、点或连字符的目录名；不能使用路径、尾点、保留名称或重复组合。'
+    }
+  }
+  const draftMountMessage = computed(() => mountMessage(draft.runnerMounts, false))
+  const editMountMessage = computed(() => mountMessage(edit.runnerMounts, true))
+  function changeMounts(editing: boolean, rows: readonly RunnerMountDeclaration[]) {
+    if (busy.value || !canCreate.value || rows.length > 128) return
+    if (editing) {
+      if (!edit.open || !canEdit.value || editStale.value || !editMountsReady.value) return
+      edit.runnerMounts = rows.map((row) => ({ ...row }))
+      edit.touched.runner_mounts = true
+      edit.message = ''
+    } else if (draft.open) draft.runnerMounts = rows.map((row) => ({ ...row }))
+  }
+  function readContextKey() {
+    const c = workspace.currentReadContext.value
+    return c
+      ? `${c.identity.userID}/${c.identity.sessionID}/${c.identity.epoch}/${c.projectID}/${c.generation}/${c.readGeneration}`
+      : ''
+  }
+  function denied(error: unknown) {
+    return error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)
+  }
+  function clearDenied(error: unknown) {
+    if (!denied(error)) return false
+    // Retire visible observations, never the Session's original uncertain command.
+    // Only a new current directory read may reopen creation after this refusal.
+    state.accessDenied = true
+    state.items = []
+    state.next = undefined
+    state.phase = 'error'
+    state.message = explain(error)
+    state.selectedID = null
+    state.configuration = null
+    state.mounts = null
+    state.detailPhase = 'error'
+    state.detailMessage = explain(error)
+    state.mountsPhase = 'error'
+    state.mountsMessage = explain(error)
+    state.runners = []
+    state.runnerNext = undefined
+    state.runnerPhase = 'error'
+    state.runnerMessage = explain(error)
+    state.models = []
+    state.modelNext = null
+    state.modelPhase = 'error'
+    state.modelMessage = explain(error)
+    Object.assign(edit, initialEdit())
+    Object.assign(draft, initialDraft())
+    return true
+  }
   const dirty = computed(
     () =>
       draft.open &&
@@ -226,6 +345,7 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
         !!draft.modelID ||
         !!draft.injectAgentsMD ||
         !!draft.approvalPolicy ||
+        draft.runnerMounts.length > 0 ||
         !draft.addSkills ||
         !draft.installSkill),
   )
@@ -235,6 +355,7 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
       !busy.value &&
       draft.open &&
       !!draft.name.trim() &&
+      !draftMountMessage.value &&
       state.modelPhase === 'ready' &&
       !!model.value &&
       !!draft.injectAgentsMD &&
@@ -257,8 +378,10 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
     auth.agentConfiguration.abandonRead()
   }
   function clear() {
+    formInitialization.value = null
     Object.assign(state, {
       phase: 'idle',
+      accessDenied: false,
       items: [],
       next: undefined,
       message: '',
@@ -271,6 +394,13 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
       modelPhase: 'idle',
       modelMessage: '',
       feedback: '',
+      runners: [],
+      runnerNext: undefined,
+      runnerPhase: 'idle',
+      runnerMessage: '',
+      mounts: null,
+      mountsPhase: 'idle',
+      mountsMessage: '',
     })
     Object.assign(draft, initialDraft())
     Object.assign(edit, initialEdit())
@@ -283,13 +413,14 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
     const context = workspace.currentReadContext.value
     if (!context || !visible.value || busy.value) return
     const own = generation,
-      p = context.projectID
+      p = context.projectID,
+      key = readContextKey()
     reading.value = true
     try {
       const value = await work(p)
-      if (live(own, p)) accept(value)
+      if (live(own, p) && readContextKey() === key) accept(value)
     } catch (error) {
-      if (live(own, p)) fail(error)
+      if (live(own, p) && readContextKey() === key) fail(error)
     } finally {
       reading.value = false
       void pump()
@@ -308,8 +439,10 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
         state.items = more ? [...state.items, ...page.items] : page.items
         state.next = page.next_cursor
         state.phase = 'ready'
+        state.accessDenied = false
       },
       (error) => {
+        clearDenied(error)
         state.phase = 'error'
         state.message = explain(error)
       },
@@ -330,8 +463,36 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
         state.modelPhase = 'ready'
       },
       (error) => {
+        clearDenied(error)
         state.modelPhase = 'error'
         state.modelMessage = explain(error)
+      },
+    )
+  }
+  async function loadRunners(more = false) {
+    const cursor = more ? state.runnerNext : undefined
+    if (more && !cursor) return
+    await read(
+      async (p) => {
+        state.runnerPhase = 'loading'
+        state.runnerMessage = ''
+        return auth.agentConfiguration.runners(p, { limit: 50, ...(cursor ? { cursor } : {}) })
+      },
+      (page) => {
+        const last = more ? state.runners.at(-1)?.id : undefined
+        if (last && page.items.some((r) => r.id <= last)) {
+          state.runnerPhase = 'error'
+          state.runnerMessage = 'Runner 目录已变化，请从第一页重新读取。'
+          return
+        }
+        state.runners = more ? [...state.runners, ...page.items] : page.items
+        state.runnerNext = page.next_cursor
+        state.runnerPhase = 'ready'
+      },
+      (error) => {
+        clearDenied(error)
+        state.runnerPhase = 'error'
+        state.runnerMessage = explain(error)
       },
     )
   }
@@ -341,16 +502,55 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
         state.detailPhase = 'loading'
         state.detailMessage = ''
         state.configuration = null
-        return auth.agentConfiguration.getConfiguration(p, id)
+        state.mounts = null
+        state.mountsPhase = 'loading'
+        state.mountsMessage = ''
+        const key = readContextKey(),
+          own = generation
+        const configuration = await auth.agentConfiguration.getConfiguration(p, id)
+        if (!live(own, p) || readContextKey() !== key || state.selectedID !== id)
+          throw new AccountFailure('cancelled')
+        try {
+          const mounts = await auth.agentConfiguration.runnerMounts(p, id)
+          return { configuration, mounts, error: null }
+        } catch (error) {
+          // A local dependency failure must not turn existing references into [].
+          if (denied(error)) throw error
+          return { configuration, mounts: null, error }
+        }
       },
       (value) => {
         if (state.selectedID !== id) return
-        state.configuration = value
+        state.configuration = value.configuration
         state.detailPhase = 'ready'
+        if (value.mounts && matchingRunnerMounts(value.configuration, value.mounts)) {
+          state.mounts = value.mounts
+          state.mountsPhase = 'ready'
+          state.mountsMessage = ''
+          if (
+            edit.open &&
+            edit.agentID === id &&
+            edit.version === value.mounts.agent_version &&
+            !edit.touched.runner_mounts
+          )
+            edit.runnerMounts = value.mounts.items.map(({ runner_id, workspace }) => ({
+              runner_id,
+              workspace,
+            }))
+        } else {
+          state.mounts = null
+          state.mountsPhase = 'error'
+          state.mountsMessage = value.mounts
+            ? '配置版本或挂载引用已变化，请重新读取；原编辑内容和版本保持不变。'
+            : '未能完整读取当前 Runner 配置。原引用保持不变，请重新读取。'
+        }
       },
       (error) => {
+        clearDenied(error)
         state.detailPhase = 'error'
         state.detailMessage = explain(error)
+        state.mounts = null
+        state.mountsPhase = 'error'
       },
     )
   }
@@ -359,9 +559,25 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
     requested = false
     const own = generation,
       p = workspace.currentReadContext.value!.projectID
-    await loadDirectory()
-    if (live(own, p) && state.selectedID) await loadConfiguration(state.selectedID)
-    if (live(own, p) && (draft.open || edit.open)) await loadModels()
+    await initializeForm(async () => {
+      await loadDirectory()
+      if (live(own, p) && state.selectedID) await loadConfiguration(state.selectedID)
+      if (live(own, p) && (draft.open || edit.open)) {
+        await loadModels()
+        if (live(own, p) && (draft.open || edit.open)) await loadRunners()
+      }
+    })
+  }
+  async function initializeForm(work: () => Promise<void>) {
+    // Covers the whole opening/revalidation sequence, not an individual read.
+    // Keep it separate from busy: read() must still admit the next owned read.
+    const token = Object.freeze({})
+    formInitialization.value = token
+    try {
+      await work()
+    } finally {
+      if (formInitialization.value === token) formInitialization.value = null
+    }
   }
   async function refresh() {
     if (busy.value || !visible.value) return
@@ -395,7 +611,12 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
     state.selectedID = null
     state.configuration = null
     state.feedback = ''
-    await loadModels()
+    const own = generation,
+      p = projectID.value!
+    await initializeForm(async () => {
+      await loadModels()
+      if (live(own, p) && draft.open) await loadRunners()
+    })
   }
   function selectModel(id: string) {
     if (busy.value || !canCreate.value || !state.models.some((m) => m.id === id)) return
@@ -430,15 +651,12 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
       ? state.items.map((v) => (v.id === a.id ? summary : v))
       : [summary, ...state.items]
   }
-  function acceptUpdate(receipt: AgentUpdateReceipt) {
+  async function acceptUpdate(receipt: AgentUpdateReceipt) {
     if (edit.agentID === receipt.agent.id) Object.assign(edit, initialEdit())
-    if (state.selectedID === receipt.agent.id) {
-      state.configuration = receipt.agent
-      state.detailPhase = 'ready'
-      state.detailMessage = ''
-    }
-    publishSummary(receipt.agent)
     state.feedback = receipt.changed ? 'Agent 配置已保存。' : '配置未变化，版本保持不变。'
+    if (state.selectedID === receipt.agent.id) await loadConfiguration(receipt.agent.id)
+    if (state.configuration?.id === receipt.agent.id && state.detailPhase === 'ready')
+      publishSummary(state.configuration)
   }
   async function openEdit() {
     if (!canEdit.value || busy.value || !state.configuration) return
@@ -457,9 +675,17 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
       injectAgentsMD: a.inject_agents_md ? 'yes' : 'no',
       approvalPolicy: a.approval_policy,
       approvalModelID: a.approval_model_ref ?? '',
+      runnerMounts: editMountsReady.value
+        ? state.mounts!.items.map(({ runner_id, workspace }) => ({ runner_id, workspace }))
+        : [],
     })
     state.feedback = ''
-    await loadModels()
+    const own = generation,
+      p = projectID.value!
+    await initializeForm(async () => {
+      await loadModels()
+      if (live(own, p) && edit.open) await loadRunners()
+    })
   }
   function touchEdit(field: EditField, value: string) {
     if (!canEdit.value || busy.value || !edit.open || editStale.value) return
@@ -467,7 +693,7 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
     edit.touched[field] = true
     edit.message = ''
   }
-  function touchEditPolicy(field: EditPolicyField, value: string) {
+  function touchEditPolicy(field: Exclude<EditPolicyField, 'runner_mounts'>, value: string) {
     if (!canEdit.value || busy.value || !edit.open || editStale.value) return
     if (field === 'inject_agents_md') {
       if (value !== 'yes' && value !== 'no') return
@@ -508,6 +734,7 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
       p = projectID.value,
       a = edit.agentID
     const request: AgentUpdateFields = Object.freeze({
+      ...(edit.touched.runner_mounts ? { runner_mounts: edit.runnerMounts } : {}),
       ...(edit.touched.name ? { name: edit.name } : {}),
       ...(edit.touched.displayName
         ? { display_name: edit.displayName === '' ? null : edit.displayName }
@@ -529,21 +756,21 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
         expected_version: edit.version,
         request,
       })
-      if (live(own, p) && state.selectedID === a && !('status' in value)) acceptUpdate(value)
+      if (live(own, p) && state.selectedID === a && !('status' in value)) await acceptUpdate(value)
     } catch (error) {
       if (!live(own, p) || state.selectedID !== a) return
+      if (clearDenied(error)) return
       edit.conflict = error instanceof AccountFailure && error.problem?.code === 'VERSION_CONFLICT'
       edit.message = explain(error)
     }
   }
-  function acceptCreation(receipt: AgentCreateReceipt) {
+  async function acceptCreation(receipt: AgentCreateReceipt) {
     Object.assign(draft, initialDraft())
-    state.configuration = receipt.agent
+    state.configuration = null
     state.selectedID = receipt.agent.id
-    state.detailPhase = 'ready'
-    state.detailMessage = ''
     state.feedback = 'Agent 已创建。配置与运行权限仍以实际服务校验为准。'
-    publishSummary(receipt.agent)
+    await loadConfiguration(receipt.agent.id)
+    if (state.configuration && state.detailPhase === 'ready') publishSummary(state.configuration)
   }
   async function submitCreation() {
     if (!canSubmit.value) return
@@ -558,7 +785,7 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
       inject_agents_md: draft.injectAgentsMD === 'yes',
       approval_policy: draft.approvalPolicy as AgentApprovalPolicy,
       allowed_tool_ids: [],
-      allowed_mount_ids: [],
+      runner_mounts: draft.runnerMounts,
       allowed_secret_variable_ids: [],
       ...(draft.displayName ? { display_name: draft.displayName } : {}),
       ...(draft.tagColor ? { tag_color: draft.tagColor } : {}),
@@ -571,9 +798,9 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
     }
     try {
       const value = await auth.agentConfiguration.startCreate(p, fields)
-      if (live(own, p) && !('status' in value)) acceptCreation(value)
+      if (live(own, p) && !('status' in value)) await acceptCreation(value)
     } catch (error) {
-      if (live(own, p)) draft.message = explain(error)
+      if (live(own, p) && !clearDenied(error)) draft.message = explain(error)
     }
   }
   async function lookup() {
@@ -586,11 +813,14 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
       const value = await auth.agentConfiguration.checkOriginal()
       if (!live(own, p)) return
       if ('status' in value && value.status === 'committed') {
-        if (original.kind === 'update') acceptUpdate(value.receipt)
-        else if (value.receipt.changed) acceptCreation({ ...value.receipt, changed: true })
+        if (original.kind === 'update') await acceptUpdate(value.receipt)
+        else if (value.receipt.changed) await acceptCreation({ ...value.receipt, changed: true })
       } else state.feedback = '尚未确认原操作结果，请继续保留原操作。'
     } catch (error) {
-      if (live(own, p)) state.feedback = explain(error)
+      if (live(own, p)) {
+        clearDenied(error)
+        state.feedback = explain(error)
+      }
     }
   }
   function ask(message: string) {
@@ -643,6 +873,20 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
         ? `${identity.userID}/${identity.sessionID}/${identity.epoch}/${context?.projectID ?? ''}`
         : ''
       if (!context) {
+        if (readKey) {
+          retire()
+          readKey = ''
+          state.configuration = null
+          state.mounts = null
+          state.items = []
+          state.models = []
+          state.runners = []
+          state.next = undefined
+          state.modelNext = null
+          state.runnerNext = undefined
+          state.detailPhase = 'idle'
+          state.mountsPhase = 'idle'
+        }
         if (!identity) {
           retire()
           clear()
@@ -651,15 +895,20 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
         } else if (projectKey) requested = true
         return
       }
+      const nextRead = readContextKey()
       if (next !== projectKey) {
         retire()
         clear()
         projectKey = next
         requested = true
+      } else if (readKey !== nextRead) {
+        retire()
+        requested = true
       }
+      readKey = nextRead
       void pump()
     },
-    { immediate: true, flush: 'post' },
+    { immediate: true, flush: 'sync' },
   )
   function dispose() {
     disposed = true
@@ -670,6 +919,13 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
   }
   return {
     state,
+    runnerOptions,
+    runnerStatus,
+    editMountsReady,
+    draftMountMessage,
+    editMountMessage,
+    changeMounts,
+    loadRunners,
     draft,
     edit,
     editDirty,
@@ -689,6 +945,7 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
     progress,
     pending,
     busy,
+    formInitializing,
     canCreate,
     canSubmit,
     dirty,
