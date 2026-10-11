@@ -34,8 +34,11 @@ func (readFileExecutor) mask(string) (string, error)      { return "", ErrProtoc
 
 func (c *Client) connectionHello(id p.ID, version string) p.Hello {
 	hello := clientHello(id, version)
-	if c.executor != nil {
+	switch c.executor.(type) {
+	case readFileExecutor:
 		hello.Capabilities = []string{p.ReadFileOperation}
+	case directoryExecutor:
+		hello.Capabilities = []string{p.ListDirectoryOperation, p.FindFilesOperation}
 	}
 	return hello
 }

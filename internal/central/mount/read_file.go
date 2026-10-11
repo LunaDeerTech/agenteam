@@ -109,56 +109,8 @@ func (r *ReadFileResolver) read(ctx context.Context, tx f.Tx, in mc.ReadFileInte
 		if err != nil {
 			return portError(err)
 		}
-		if err = config.Validate(); err != nil {
-			return fault(f.InvalidState)
-		}
-		fields := config.Fields()
-		if fields.Core.ID != in.AgentID || fields.Core.ProjectID != in.ProjectID {
-			return fault(f.InvalidState)
-		}
-		if fields.Core.Lifecycle != ac.AgentActive {
-			return fault(f.Forbidden)
-		}
-		refs, err := loadReferences(authorized, x, in.ProjectID, in.AgentID)
-		if err != nil {
-			return err
-		}
-		ids := slices.Clone(fields.AllowedMountIDs)
-		slices.SortFunc(ids, func(a, b i.MountID) int {
-			if a.String() < b.String() {
-				return -1
-			}
-			if a == b {
-				return 0
-			}
-			return 1
-		})
-		if !refs.exists || refs.version != fields.Core.Version || !slices.Equal(refs.ids, ids) {
-			return fault(f.InvalidState)
-		}
-		if !slices.Contains(ids, in.MountID) {
-			return fault(f.Forbidden)
-		}
-		d, err := loadDefinition(authorized, x, in.ProjectID, in.AgentID, in.MountID)
-		if err != nil {
-			return err
-		}
-		unique, err := definitionForTuple(authorized, x, in.ProjectID, in.AgentID, d.Runner, d.Workspace)
-		if err != nil {
-			return err
-		}
-		if unique == nil || !sameDefinition(d, *unique) {
-			return fault(f.InvalidState)
-		}
-		mapping, err := loadWorkspaceMapping(authorized, x, in.MountID)
-		if err != nil {
-			return err
-		}
-		if !mappingMatches(mapping, d) {
-			return fault(f.InvalidState)
-		}
-		out = readFileCurrent{agentVersion: fields.Core.Version, ids: ids, definition: d, mapping: *mapping}
-		return authorized.Err()
+		out, err = readCurrentMount(authorized, x, config, in.ProjectID, in.AgentID, in.MountID)
+		return err
 	})
 	if err != nil {
 		return readFileCurrent{}, portError(err)

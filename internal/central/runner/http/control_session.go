@@ -20,21 +20,23 @@ type controlAuthority interface {
 }
 
 type controlSession struct {
-	readFile   bool // Only the authenticated, current Hello/Status capability.
-	wire       *controlWire
-	authority  controlAuthority
-	connection service.Connection
-	runner     p.ID
-	mu         sync.Mutex
-	started    bool
-	active     bool
-	closed     bool
-	deadline   time.Time
-	sequence   uint64
-	seen       map[p.ID]struct{}
-	pending    map[p.ID]*controlCall
-	completed  map[p.ID]struct{}
-	wake       chan struct{}
+	readFile      bool // Only the authenticated, current Hello/Status capability.
+	listDirectory bool
+	findFiles     bool
+	wire          *controlWire
+	authority     controlAuthority
+	connection    service.Connection
+	runner        p.ID
+	mu            sync.Mutex
+	started       bool
+	active        bool
+	closed        bool
+	deadline      time.Time
+	sequence      uint64
+	seen          map[p.ID]struct{}
+	pending       map[p.ID]*controlCall
+	completed     map[p.ID]struct{}
+	wake          chan struct{}
 }
 
 type controlCall struct {
@@ -193,6 +195,8 @@ func (s *controlSession) receive(ctx context.Context, message p.Message) error {
 		s.mu.Lock()
 		s.active = true
 		s.readFile = slices.Contains(value.Capabilities, p.ReadFileOperation)
+		s.listDirectory = slices.Contains(value.Capabilities, p.ListDirectoryOperation)
+		s.findFiles = slices.Contains(value.Capabilities, p.FindFilesOperation)
 		s.deadline = time.Now().Add(time.Duration(ack.HeartbeatTimeoutMS) * time.Millisecond)
 		s.mu.Unlock()
 		select {
@@ -227,6 +231,8 @@ func (s *controlSession) receive(ctx context.Context, message p.Message) error {
 		}
 		s.mu.Lock()
 		s.readFile = slices.Contains(value.Capabilities, p.ReadFileOperation)
+		s.listDirectory = slices.Contains(value.Capabilities, p.ListDirectoryOperation)
+		s.findFiles = slices.Contains(value.Capabilities, p.FindFilesOperation)
 		s.mu.Unlock()
 		return nil
 	case p.Response:

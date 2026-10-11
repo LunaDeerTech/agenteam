@@ -18,6 +18,18 @@ MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 # One closed same-package PG family: adding a scenario changes required
 # inputs and expected test data, never the resource/Wait/tail implementation.
 METADATA_INPUTS = {
+    '^TestRunnerDirectoryAdapter$': (
+        'tests/projectvariable/runner_directory_adapter_test.go',
+        'tests/projectvariable/runner_read_file_adapter_test.go',
+        'internal/central/mount/contract/directory.go',
+        'internal/central/mount/directory.go',
+        'internal/central/mount/current_mount.go',
+        'internal/central/runner/http/directory_dispatch.go',
+        'internal/runnerprotocol/directory.go',
+        'internal/runner/directory/handler.go',
+        'internal/runner/control/directory.go',
+        '.agent-state/runner-directory-adapter/profile-controls.py',
+    ),
     '^TestRunnerReadFileAdapter$': (
         'tests/projectvariable/runner_read_file_adapter_test.go',
         'tests/projectvariable/agent_runner_mounts_integration_test.go',
