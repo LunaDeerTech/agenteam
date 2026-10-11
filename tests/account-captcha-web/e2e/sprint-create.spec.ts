@@ -30,18 +30,16 @@ test("plans a real sibling without replacing the current Sprint [plan-another-sp
   const data = sprintCreateMaterial();
   await page.setViewportSize({ width: 1440, height: 960 });
   await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
-  await page
-    .context()
-    .addCookies([
-      {
-        name: "agenteam_local_session",
-        value: data.cookie,
-        url: process.env.AGENTEAM_AUTH_WEB_ORIGIN!,
-        httpOnly: true,
-        sameSite: "Lax",
-        secure: false,
-      },
-    ]);
+  await page.context().addCookies([
+    {
+      name: "agenteam_local_session",
+      value: data.cookie,
+      url: process.env.AGENTEAM_AUTH_WEB_ORIGIN!,
+      httpOnly: true,
+      sameSite: "Lax",
+      secure: false,
+    },
+  ]);
   const seen = await observeSprintCreate(page, data);
   observations.set(page, seen);
   await page.goto(data.route);

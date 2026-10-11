@@ -61,18 +61,16 @@ test("real model references switch atomically and clear approval [switch-model-a
   const data = modelPolicyMaterial();
   await page.setViewportSize({ width: 1440, height: 960 });
   await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
-  await page
-    .context()
-    .addCookies([
-      {
-        name: "agenteam_local_session",
-        value: data.cookie,
-        url: process.env.AGENTEAM_AUTH_WEB_ORIGIN!,
-        httpOnly: true,
-        sameSite: "Lax",
-        secure: false,
-      },
-    ]);
+  await page.context().addCookies([
+    {
+      name: "agenteam_local_session",
+      value: data.cookie,
+      url: process.env.AGENTEAM_AUTH_WEB_ORIGIN!,
+      httpOnly: true,
+      sameSite: "Lax",
+      secure: false,
+    },
+  ]);
   const seen = await observeModelPolicy(page, data);
   observations.set(page, seen);
   await page.goto(data.route);
@@ -80,11 +78,9 @@ test("real model references switch atomically and clear approval [switch-model-a
     name: "Agent 目录",
     exact: true,
   });
-  const entry = directory
-    .getByRole("button")
-    .filter({
-      has: page.locator("strong").filter({ hasText: /^model-policy-agent$/ }),
-    });
+  const entry = directory.getByRole("button").filter({
+    has: page.locator("strong").filter({ hasText: /^model-policy-agent$/ }),
+  });
   await expect(entry).toHaveCount(1);
   await entry.focus();
   await page.keyboard.press("Enter");
