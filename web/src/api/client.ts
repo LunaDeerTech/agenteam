@@ -1586,16 +1586,14 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       if (response.redirected || response.type === 'opaqueredirect')
         throw new AccountFailure('invalid-response')
       if (response.status === 204 && status === 204) {
-        if (endpoint === 'completePasswordReset' || endpoint === 'revokeSystemInvitation') {
-          // A network 204 may expose an empty stream. Confirm its actual EOF,
-          // rather than requiring the Fetch implementation to return null.
-          try {
-            await readEmptyBody(response, options.signal, lifecycle)
-          } catch {
-            throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response')
-          }
-          if (options.signal.aborted) throw new AccountFailure('cancelled')
+        // A network 204 may expose an empty stream. Confirm its actual EOF,
+        // rather than requiring the Fetch implementation to return null.
+        try {
+          await readEmptyBody(response, options.signal, lifecycle)
+        } catch {
+          throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response')
         }
+        if (options.signal.aborted) throw new AccountFailure('cancelled')
         return parse(undefined)
       }
       if (endpoint === 'avatar' && response.status === 200)
