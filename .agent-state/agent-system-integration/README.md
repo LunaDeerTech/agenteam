@@ -479,3 +479,37 @@ python3 -B output/ai/agent-system-integration/scheduler-review-dispatch-compile-
 # compile PASS并按原recipe冻结新plan后：
 python3 -B output/ai/agent-system-integration/scheduler-review-dispatch-launcher-02.py
 ```
+
+## Project 多实例管理与 Agent 安全目录
+
+SOURCE `2c59cf0d7eee18f968a688b4c7cc003211863ac2`；pure01 精确17 top race＋7包vet、一次compile01/list两top、两组native01均wholePASS。A `TestProjectRunnerManager` 的 `candidate-pages-and-project-facts`、`cross-project-capacity-and-borrowed-executor-join` 共28.40s，验证真实Project有限发现、多Project容量与借用executor的独立退出；B `TestAgentDirectoryHTTP` 的 `normal-directory-pagination`、`current-owner-boundary` 共26.95s，验证真实Owner HTTPS分页与当前权限。范围不包含完整App Runtime装配、ready或页面。
+
+两组各七资源14次absence、全部private/runtime/desc/TCP双尾关闭、delta0/adopted=[]，各1640输入首尾同，包含889编译输入。A原Wait0为Go435911/driver434328/supervisor434327/outer434262（02:08:55–02:10:55 UTC）；B为Go439127/driver437668/supervisor437667/outer437601（02:11:14–02:13:06 UTC）。共享候选 `output/ai/agent-system-integration/project-runtime-support-race-01.test` 为66,400,625 B，SHA256 `5f3270ca110b758276a77ec274fddbdbfaa23805ecbe35ba3b9b07c862df07c9`。本批无FAIL，窗口已归还。
+
+原件：`output/ai/project-runtime-support/combined-pure-01/result.json`；`output/ai/agent-system-integration/project-runtime-support-compile-01/result.json`；同目录 `project-runner-manager-01-control/`、`agent-directory-http-01-control/` 各 `result.json` 与 `supervisor.log`。PG分别 `/tmp/prm01/pg-9101d6ac178744d2aae8aa6a4ff1b016.log`、`/tmp/adh01/pg-820c5a50ea934f4385814a0bfbd19eba.log`。
+
+恢复沿前述immutable模板与原输入冻结recipe，只替换ROOT/SOURCE/namespace及下列精确清单。compile同包 `tests/projectvariable` 一次，list selector `^(TestProjectRunnerManager|TestAgentDirectoryHTTP)$` 用len2＋精确集合，不能依列表顺序；两native各用独立whole-top selector与plan `project-runner-manager-01-inputs.json` / `agent-directory-http-01-inputs.json`，输出 `/tmp/prm01` / `/tmp/adh01`。已有namespace不覆盖；重建后在唯一窗口用新namespace、冻结实际输入并核编译输入子集。原Go1.27.1/唯一hotcache/RO模块/private环境、每实际调用fresh≥5GiB、全部预算/Wait/资源尾保持。新增固定 `AGENTEAM_AGENT_DIRECTORY_SCHEMA_PYTHON=/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3`；pure设 `exact_17_top_pass`，vet恰下列7包。
+
+```python
+TOPS = {
+ 'project/contract': ['TestSchedulerProjectPagesBoundOneDiscoveryCycle'],
+ 'project': ['TestSchedulerProjectDiscoveryTransactionBoundaries', 'TestSchedulerProjectDiscoveryCompleteRowsAndClose'],
+ 'scheduler': ['TestSchedulerProjectRunnersBoundedCyclesAndCapacity', 'TestSchedulerProjectRunnersWaitForActualCallsAndBorrowExecutor', 'TestSchedulerProjectRunnersKeepOriginalUnknownBeforeRestart'],
+ 'agent/contract': ['TestAgentDirectoryEntrySafeProjectionAndStrictCodec'],
+ 'agent': ['TestAgentDirectoryPublicationAndScopedCursor', 'TestAgentDirectoryCurrentOwnerAndFailurePublishNothing', 'TestAgentDirectoryCancellationWaitsForOriginalRead'],
+ 'agent/http': ['TestAgentDirectoryHTTPReadBoundaryAndProjection', 'TestAgentDirectoryHTTPOriginalCallAndIOJoin', 'TestAgentDirectoryHTTPStandardSchema'],
+ 'app': ['TestAgentDirectoryRootConstructionAndRoutes', 'TestAgentDirectoryRootWaitsForOriginalRead', 'TestWorkPlanningRootRouteOwnership', 'TestSkillManagementRootRoutesKeepReadCompatibility'],
+}
+```
+
+实际入口位于 `output/ai/agent-system-integration/`，以下 `python3.12` 为固定 `/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12`：
+
+```sh
+python3.12 -B output/ai/agent-system-integration/project-runtime-support-pure-checks.py --cache /workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build
+python3.12 -B output/ai/agent-system-integration/project-runtime-support-compile-01-launcher.py
+# compile wholePASS并按原recipe冻结两plan后，共用同一candidate顺序运行：
+python3.12 -B output/ai/agent-system-integration/project-runner-manager-launcher-01.py
+python3.12 -B output/ai/agent-system-integration/agent-directory-http-launcher-01.py
+```
+
+资源准备仅root普通sparse停放旧ToolRegistry九tracked目录（4e3323，后验8c7646）；compile全尾后精准退休旧第九全PASS可再生bin `scheduler-review-dispatch-race-03.test`（05777c，65,919,007 B/allocated65,925,120 B）。原源码refs/recipe/results/inputs及FAIL candidate02、全部ignored/output/state/config继续保留；当前候选与shared cache/MinIO未清理。
