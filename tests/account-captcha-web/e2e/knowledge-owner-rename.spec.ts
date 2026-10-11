@@ -79,6 +79,7 @@ test("[rename] Knowledge Owner existing-document rename", async ({ page }) => {
   };
   diagnostic.enter(stage);
   let terminal: any;
+  let currentReadGate = "not-entered";
   try {
     await page.emulateMedia({
       colorScheme: "light",
@@ -145,18 +146,24 @@ test("[rename] Knowledge Owner existing-document rename", async ({ page }) => {
     await dialog.getByRole("textbox").fill(data.title);
     await dialog.getByRole("button", { name: "保存标题", exact: true }).click();
     enter("current-read");
+    currentReadGate = "confirmation";
     await expect(dialog).toContainText("改名已确认；已读取当前文档。");
+    currentReadGate = "close";
     await dialog
       .locator("footer.dialog-footer")
       .getByRole("button", { name: "关闭", exact: true })
       .click();
+    currentReadGate = "role-retired";
     await expect(dialog).toHaveCount(0);
     // beforeLeave removes the dialog from the accessibility tree before its
     // transition ends. Require the actual layer to retire before observing it.
+    currentReadGate = "overlay-retired";
     await expect(page.locator(".ui-overlay")).toHaveCount(0);
-    await expect(
-      area.getByRole("button", { name: "改名", exact: true }),
-    ).toBeFocused();
+    // The current-document refresh retires the original trigger. The view
+    // deliberately gives UiDialog this current heading as its fallback.
+    currentReadGate = "document-heading-focus";
+    await expect(area.locator(".knowledge-document > h2")).toBeFocused();
+    currentReadGate = "current-content";
     await expect(area.locator("h2")).toHaveText(data.title);
     await expect(document).toContainText(data.title);
     await expect(area.locator(".document-facts")).toContainText("2");
@@ -165,9 +172,11 @@ test("[rename] Knowledge Owner existing-document rename", async ({ page }) => {
     await expect(
       area.getByRole("button", { name: "从开头重读", exact: true }),
     ).toBeEnabled();
+    currentReadGate = "desktop-screenshot";
     await page.screenshot({
       path: join(evidence, "knowledge-rename-current.png"),
     });
+    currentReadGate = "narrow-media";
     await page.setViewportSize({ width: 390, height: 844 });
     await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
@@ -176,8 +185,10 @@ test("[rename] Knowledge Owner existing-document rename", async ({ page }) => {
         () => matchMedia("(prefers-reduced-motion: reduce)").matches,
       ),
     ).toBe(true);
+    currentReadGate = "narrow-content";
     await expect(area.locator("h2")).toHaveText(data.title);
     await expect.poll(() => text.textContent()).toBe(data.text);
+    currentReadGate = "narrow-overflow";
     expect(
       await page.evaluate(
         () =>
@@ -187,10 +198,12 @@ test("[rename] Knowledge Owner existing-document rename", async ({ page }) => {
           ) - document.documentElement.clientWidth,
       ),
     ).toBeLessThanOrEqual(1);
+    currentReadGate = "narrow-screenshot";
     await page.screenshot({
       path: join(evidence, "knowledge-rename-current-390-dark.png"),
       fullPage: true,
     });
+    currentReadGate = "complete";
     enter("observer-idle");
     await expect.poll(() => observer!.idle()).toBe(true);
     enter("observer-finish");
@@ -346,6 +359,27 @@ test("[rename] Knowledge Owner existing-document rename", async ({ page }) => {
     // Preserve the actual first phase and known state before any tail await.
     // finish/close may append later observations but cannot rewrite this copy.
     diagnostic.firstFailure(page.isClosed(), !!terminal);
+    if (stage === "current-read") {
+      try {
+        const visual = await page.evaluate(() => {
+          const heading = document.querySelector(".knowledge-document > h2");
+          const trigger = document.querySelector(".document-toolbar > button");
+          return {
+            overlay_present: document.querySelector(".ui-overlay") !== null,
+            heading_present: heading !== null,
+            heading_focused: heading !== null && document.activeElement === heading,
+            trigger_present: trigger !== null,
+            trigger_focused: trigger !== null && document.activeElement === trigger,
+            dark_theme: document.documentElement.dataset.theme === "dark",
+            reduced_motion: matchMedia("(prefers-reduced-motion: reduce)").matches,
+            horizontal_overflow: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) > document.documentElement.clientWidth + 1,
+          };
+        });
+        writeFileSync(join(evidence, "knowledge-rename-visual-failure.json"), JSON.stringify({ gate: currentReadGate, ...visual }), { mode: 0o600 });
+      } catch {
+        // The original assertion remains failed if its safe DOM snapshot is unavailable.
+      }
+    }
     if (observer && !terminal) {
       try {
         terminal = await observer.finish();
