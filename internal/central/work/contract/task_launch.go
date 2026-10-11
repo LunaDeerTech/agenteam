@@ -18,7 +18,7 @@ type TaskLaunchIntent struct {
 	AgentID        i.AgentID
 	SprintID       SprintID
 	DispatchID     string
-	ClaimedVersion f.Version
+	ClaimedVersion f.Version              `json:",omitempty"`
 	Origin         TaskDispatchOriginKind `json:",omitempty"`
 	Relaunch       *TaskRelaunchSource    `json:",omitempty"`
 }
