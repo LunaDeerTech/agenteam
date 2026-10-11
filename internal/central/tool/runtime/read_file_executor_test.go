@@ -184,6 +184,58 @@ func readFileHandoffFixture(t *testing.T) *readFileHandoff {
 	return &readFileHandoff{execution: b.Execution, binding: binding, record: readFileOperationRecord{ID: newOperationID[tc.Operation](t), Input: in, InputDigest: digest(encoded), Fingerprint: fingerprint, Phase: "running", Version: 2, Attempt: attempt}, arguments: tc.ReadFileToolArguments{MountID: in.Target.Mount, Arguments: p.ReadFileArguments{Path: "private-reader-canary.txt", Offset: 0, Length: 64, Encoding: "utf8"}}, attempt: attempt, request: p.ID(newOperationID[f.Request](t).String())}
 }
 
+func TestReadFileTerminalAcceptsActualMessageCodec(t *testing.T) {
+	h := readFileHandoffFixture(t)
+	h.arguments.Arguments.Length = p.MaxReadFileBytes
+	file := p.ReadFileResult{Path: h.arguments.Arguments.Path, Offset: 0, BytesRead: p.MaxReadFileBytes, EOF: true, Encoding: "utf8", Data: strings.Repeat("λ\r\n", p.MaxReadFileBytes/4)}
+	body, err := p.EncodeReadFileResult(file)
+	if err != nil {
+		t.Fatal("original full result encoding failed")
+	}
+	defer clear(body)
+	response := p.Response{RequestID: h.request, OperationID: p.ID(h.record.ID.String()), Outcome: p.Success, Payload: body}
+	header := p.Header{
+		ProtocolVersion: p.CurrentVersion(),
+		MessageID:       p.ID(newOperationID[f.Request](t).String()),
+		Timestamp:       p.Instant("2026-10-11T00:00:00Z"),
+		RequestID:       response.RequestID,
+		OperationID:     response.OperationID,
+	}
+	// Cross the real wire codec, whose validated JSON tree can reorder object
+	// members. A directly constructed Response does not exercise this boundary.
+	message, err := p.NewMessage(header, response)
+	if err != nil {
+		t.Fatal("original Response message construction failed")
+	}
+	wire, err := p.Encode(message)
+	if err != nil {
+		t.Fatal("original Response wire encoding failed")
+	}
+	defer clear(wire)
+	decoded, err := p.Decode(wire)
+	if err != nil || decoded.AllowedFrom(p.Runner) != nil {
+		t.Fatal("original Response wire decoding failed")
+	}
+	observed, ok := decoded.Payload().(p.Response)
+	if !ok {
+		t.Fatal("original decoded Response missing")
+	}
+	defer clear(observed.Payload)
+	actual, err := p.DecodeReadFileResult(observed.Payload)
+	if err != nil || actual != file || bytes.Equal(observed.Payload, body) {
+		t.Fatal("real protocol did not preserve the full result with reordered JSON")
+	}
+	terminal, payload := terminalReadFile(h, runnerhttp.ReadFileDispatchResult{Attempted: true, Terminal: &observed}, nil)
+	defer clear(payload)
+	if terminal.Outcome != "success" || terminal.Code != "" || !terminal.Attempted || terminal.Result == nil || terminal.validate(h.record) != nil {
+		t.Fatal("valid protocol result was rejected after actual wire decoding")
+	}
+	stored, err := decodeReadFileStoredResult(*terminal.Result, payload, h.record.ID, h.attempt, h.arguments.Arguments)
+	if err != nil || stored != file || !bytes.Equal(payload, body) || len(payload) <= 32768 {
+		t.Fatal("complete protocol result did not retain its stable stored representation")
+	}
+}
+
 func TestReadFileTerminalPreservesActualAttemptAndIdentity(t *testing.T) {
 	h := readFileHandoffFixture(t)
 	file := p.ReadFileResult{Path: h.arguments.Arguments.Path, Offset: 0, BytesRead: 64, EOF: true, Encoding: "utf8", Data: strings.Repeat("x", 64)}
