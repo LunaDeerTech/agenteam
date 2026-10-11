@@ -17,7 +17,33 @@ export type MilestoneCreateReceipt = Readonly<{
 export type MilestoneCreateLookup =
   | Readonly<{ state: 'committed'; result: MilestoneCreateReceipt }>
   | Readonly<{ state: 'in_progress' | 'not_observed'; result: null }>
+export type MilestoneUpdateInput = Readonly<{
+  expected_version: string
+  request: Readonly<{ title?: string; description?: string }>
+}>
+export type MilestoneUpdateReceipt = Readonly<{
+  command: 'work.milestone.update'
+  changed: boolean
+  milestone: Milestone
+  sprint: null
+  event_id: string | null
+}>
+export type MilestoneUpdateLookup =
+  | Readonly<{ state: 'committed'; result: MilestoneUpdateReceipt }>
+  | Readonly<{ state: 'in_progress' | 'not_observed'; result: null }>
 export interface WorkMilestonePlanningAPI {
+  update(
+    project: string,
+    target: string,
+    input: MilestoneUpdateInput,
+    write: WriteOptions,
+  ): Promise<MilestoneUpdateReceipt>
+  lookupUpdate(
+    project: string,
+    target: string,
+    input: MilestoneUpdateInput,
+    write: WriteOptions,
+  ): Promise<MilestoneUpdateLookup>
   create(
     project: string,
     input: MilestoneCreateInput,
@@ -107,9 +133,109 @@ function createReceipt(
     }),
   })
 }
+export function captureMilestoneUpdateInput(value: unknown): MilestoneUpdateInput {
+  return input(() => {
+    const v = shape(value, ['expected_version', 'request'])
+    const r = shape(v.request, [], ['title', 'description'])
+    requireValue(Object.keys(r).length > 0)
+    return Object.freeze({
+      expected_version: workVersion(v.expected_version),
+      request: Object.freeze({
+        ...(Object.hasOwn(r, 'title') ? { title: workText(r.title, 1024, true) } : {}),
+        ...(Object.hasOwn(r, 'description') ? { description: workText(r.description, 32768) } : {}),
+      }),
+    })
+  })
+}
+function updateReceipt(
+  value: unknown,
+  project: string,
+  target: string,
+  original: MilestoneUpdateInput,
+): MilestoneUpdateReceipt {
+  const v = shape(value, ['command', 'changed', 'milestone', 'sprint', 'event_id'])
+  const m = shape(v.milestone, [
+    'id',
+    'project_id',
+    'title',
+    'description',
+    'manual_rank',
+    'version',
+    'created_at',
+    'updated_at',
+  ])
+  const created = parseSystemInstant(m.created_at),
+    updated = parseSystemInstant(m.updated_at)
+  const rank = string(m.manual_rank, 32, 32),
+    version = workVersion(m.version)
+  const title = workText(m.title, 1024, true),
+    description = workText(m.description, 32768)
+  requireValue(v.command === 'work.milestone.update' && v.sprint === null)
+  requireValue(v.changed === true || v.changed === false)
+  requireValue(workID(m.id) === target && workID(m.project_id) === project && created <= updated)
+  requireValue(/^[0-9a-f]{32}$/.test(rank) && rank !== '0'.repeat(32) && rank !== 'f'.repeat(32))
+  requireValue(BigInt(version) === BigInt(original.expected_version) + (v.changed ? 1n : 0n))
+  if (Object.hasOwn(original.request, 'title')) requireValue(title === original.request.title)
+  if (Object.hasOwn(original.request, 'description'))
+    requireValue(description === original.request.description)
+  if (!v.changed) requireValue(v.event_id === null)
+  return Object.freeze({
+    command: 'work.milestone.update',
+    changed: v.changed,
+    sprint: null,
+    event_id: v.changed ? workID(v.event_id) : null,
+    milestone: Object.freeze({
+      id: target,
+      project_id: project,
+      title,
+      description,
+      manual_rank: rank,
+      version,
+      created_at: created,
+      updated_at: updated,
+    }),
+  })
+}
 export function createWorkMilestonePlanningAPI(fetcher?: Fetch): WorkMilestonePlanningAPI {
   const call = accountTransport(fetcher)
   return {
+    update(project, target, value, write) {
+      const original = captureMilestoneUpdateInput(value)
+      const scope = input(() => ({ projectID: workID(project), target: workID(target) }))
+      return call('milestoneUpdate', (v) => updateReceipt(v, project, target, original), {
+        ...scope,
+        signal: write.signal ?? new AbortController().signal,
+        csrf: write.csrfToken,
+        key: write.key,
+        body: original,
+      })
+    },
+    lookupUpdate(project, target, value, write) {
+      const original = captureMilestoneUpdateInput(value)
+      const scope = input(() => ({ projectID: workID(project), target: workID(target) }))
+      return call(
+        'milestoneUpdateLookup',
+        (value): MilestoneUpdateLookup => {
+          const v = shape(value, ['state', 'result'])
+          if (v.state === 'committed')
+            return Object.freeze({
+              state: 'committed',
+              result: updateReceipt(v.result, project, target, original),
+            })
+          requireValue(
+            (v.state === 'in_progress' || v.state === 'not_observed') && v.result === null,
+          )
+          return Object.freeze({ state: v.state as 'in_progress' | 'not_observed', result: null })
+        },
+        {
+          projectID: scope.projectID,
+          signal: write.signal ?? new AbortController().signal,
+          csrf: write.csrfToken,
+          key: write.key,
+          body: { command: 'work.milestone.update', target_id: scope.target, ...original },
+        },
+      )
+    },
     create(project, value, write) {
       const original = captureMilestoneCreateInput(value)
       const projectID = input(() => workID(project))

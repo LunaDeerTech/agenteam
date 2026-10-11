@@ -305,3 +305,5 @@ cleanup有限接受1440×960浅色创建表单和390×844深色planned结果两�
 共用精确 13 文件 80 项前端单元、类型与生产构建通过。`TestMilestoneCreateWeb/first-milestone-and-sprint-entry` 原真实链 22.32s PASS：一次 Milestone Create、零浏览器 Lookup/其他规划写，真实列表/详情重读、持久回执/事件与零 Sprint 创建核对完成。9 个原请求中 8 finished，另一个 GET failed 保留并经原字节、消费与 Go 证明联证；不能写成全部 finished。原 Wait、七资源和全部退出双尾闭合，独立正常业务/资源及 1440 浅色首 Milestone、390 深色 Sprint 入口两图有限接受。
 
 该结果不代验真实 Unknown 浏览器矩阵、完整撤权、全规划 UI 或整个 D11/D27。原 Planning04/05/06、Recovery/Authority 各 FAIL 保持；生产 Project initializer、`ready=false`/503 与旧 STOP 不变。精确输入、命令及原件见[恢复 recipe](../../../.agent-state/agent-system-integration/README.md#skills目录与首milestone恢复交付2026-10-11)。
+
+后续[既有 Milestone 标题/描述编辑](d11-milestone-edit-ui.md)已作为独立切片有限接受，包含正常修改/no-op/清空、原 Lookup 恢复与当前 Get/List；不扩大本节首创建链的原验收范围，也不完成其余规划 UI。

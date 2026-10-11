@@ -5,6 +5,7 @@ import TaskBoard from '../../components/work/TaskBoard.vue'
 import TaskReviewDetail from '../../components/work/TaskReviewDetail.vue'
 import TaskCreateForm from '../../components/work/TaskCreateForm.vue'
 import MilestoneCreateForm from '../../components/work/MilestoneCreateForm.vue'
+import MilestoneEditForm from '../../components/work/MilestoneEditForm.vue'
 import SprintCreateForm from '../../components/work/SprintCreateForm.vue'
 import { useProjectTasks } from '../../composables/useProjectTasks'
 const owner = useProjectTasks(),
@@ -17,6 +18,39 @@ const sprintHeading = ref<HTMLHeadingElement | null>(null)
 const sprintCreateButton = ref<{ $el: HTMLButtonElement } | null>(null)
 const milestoneCreateButton = ref<{ $el: HTMLButtonElement } | null>(null)
 const milestoneHeading = ref<HTMLHeadingElement | null>(null)
+const milestoneEditButton = ref<{ $el: HTMLButtonElement } | null>(null)
+async function cancelMilestoneEdit() {
+  const project = owner.milestoneEdit.projectID,
+    target = owner.milestoneEdit.milestoneID
+  owner.cancelMilestoneEdit()
+  await nextTick()
+  if (
+    !owner.milestoneEdit.open &&
+    owner.visible.value &&
+    owner.projectID.value === project &&
+    state.milestone?.id === target &&
+    !state.task
+  )
+    milestoneEditButton.value?.$el.focus()
+}
+async function saveMilestoneEdit(action: 'save' | 'lookup' | 'read' = 'save') {
+  const project = owner.projectID.value,
+    target = state.milestone?.id
+  if (action === 'lookup') await owner.lookupMilestoneEdit()
+  else if (action === 'read') await owner.rereadMilestoneEdit()
+  else await owner.submitMilestoneEdit()
+  await nextTick()
+  if (
+    owner.visible.value &&
+    owner.projectID.value === project &&
+    state.milestone?.id === target &&
+    !state.task &&
+    !owner.milestoneEdit.open &&
+    !owner.milestoneEdit.needsRead &&
+    owner.milestoneEditProgress.value?.phase === 'confirmed'
+  )
+    milestoneHeading.value?.focus()
+}
 watch(
   () => owner.milestoneCreationFocus.value,
   async (id) => {
@@ -155,6 +189,57 @@ function returnToCreation() {
     </section>
     <UiState v-if="!owner.visible.value" kind="loading" title="正在确认任务访问身份" />
     <template v-else>
+      <section v-if="owner.milestoneEditProgress.value" aria-label="Milestone 保存状态">
+        <p v-if="owner.milestoneEditProgress.value.phase === 'submitting'" role="status">
+          正在保存 Milestone。
+        </p>
+        <template v-if="owner.milestoneEditProgress.value.phase === 'uncertain'">
+          <p role="status">Milestone 保存结果尚未确认。请查证原保存，勿再次提交。</p>
+          <p v-if="owner.milestoneEditProgress.value.observation === 'not_observed'" role="status">
+            尚未观察到原保存结果，可再次查询。
+          </p>
+          <p v-if="owner.milestoneEditProgress.value.observation === 'in_progress'" role="status">
+            原保存仍在处理中，可稍后再次查询。
+          </p>
+          <UiButton
+            v-if="
+              state.milestone?.id === owner.milestoneEditProgress.value.milestoneID && !state.task
+            "
+            :disabled="owner.busy.value || !owner.milestoneEditProgress.value.contextValid"
+            @click="saveMilestoneEdit('lookup')"
+            >查询原 Milestone 保存结果</UiButton
+          >
+          <UiButton
+            v-else
+            :disabled="owner.busy.value || !owner.milestoneEditProgress.value.contextValid"
+            @click="owner.selectMilestone(owner.milestoneEditProgress.value.milestoneID)"
+            >返回待确认 Milestone</UiButton
+          >
+        </template>
+        <template
+          v-if="
+            owner.milestoneEditProgress.value.phase === 'confirmed' &&
+            (owner.milestoneEdit.needsRead ||
+              state.milestone?.id !== owner.milestoneEditProgress.value.milestoneID)
+          "
+        >
+          <p role="status">原 Milestone 保存已确认，当前内容需要重新读取。</p>
+          <UiButton
+            v-if="
+              state.milestone?.id === owner.milestoneEditProgress.value.milestoneID && !state.task
+            "
+            :disabled="owner.busy.value || !owner.milestoneEditProgress.value.contextValid"
+            @click="saveMilestoneEdit('read')"
+            >读取已确认的 Milestone</UiButton
+          >
+          <UiButton
+            v-else
+            :disabled="owner.busy.value || !owner.milestoneEditProgress.value.contextValid"
+            @click="owner.selectMilestone(owner.milestoneEditProgress.value.milestoneID)"
+            >返回已确认 Milestone</UiButton
+          >
+        </template>
+      </section>
       <p v-if="owner.milestonePending.value && !owner.milestoneProgress.value" role="status">
         有一项 Milestone 创建结果待确认，请返回原 Project 查询结果。
       </p>
@@ -385,6 +470,23 @@ function returnToCreation() {
             aria-label="所选 Milestone"
           >
             <h2 ref="milestoneHeading" tabindex="-1">{{ state.milestone.title }}</h2>
+            <p class="milestone-description">{{ state.milestone.description || '暂无描述。' }}</p>
+            <UiButton
+              v-if="!owner.milestoneEdit.open && !owner.milestoneEditPending.value"
+              ref="milestoneEditButton"
+              :disabled="owner.busy.value || !owner.canEditMilestone.value"
+              @click="owner.openMilestoneEdit()"
+              >编辑 Milestone</UiButton
+            >
+            <MilestoneEditForm
+              v-if="owner.milestoneEdit.open && !owner.milestoneEditPending.value"
+              :owner="owner"
+              @cancel="cancelMilestoneEdit"
+              @submit="saveMilestoneEdit()"
+            />
+            <p v-if="!owner.milestoneEdit.open && owner.milestoneEdit.message" role="status">
+              {{ owner.milestoneEdit.message }}
+            </p>
           </section>
           <UiButton
             v-if="!state.task && !owner.sprintCreation.open && !owner.sprintCreatePending.value"
@@ -499,6 +601,10 @@ function returnToCreation() {
   </section>
 </template>
 <style scoped>
+.milestone-description {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
 .tasks-page {
   display: flex;
   flex-direction: column;

@@ -95,6 +95,8 @@ const endpoints = {
   createProjectVariable: ['POST', '/api/v1/projects/{project_id}/variables', 200],
   updateProjectVariable: ['PATCH', '/api/v1/projects/{project_id}/variables/{target}', 200],
   lookupProjectVariable: ['POST', '/api/v1/projects/{project_id}/variables/commands/lookup', 200],
+  milestoneUpdate: ['PATCH', '/api/v1/projects/{project_id}/milestones/{target}', 200],
+  milestoneUpdateLookup: ['POST', '/api/v1/projects/{project_id}/structure-commands/lookup', 200],
   milestoneCreate: ['POST', '/api/v1/projects/{project_id}/milestones', 200],
   milestoneCreateLookup: ['POST', '/api/v1/projects/{project_id}/structure-commands/lookup', 200],
   sprintCreate: ['POST', '/api/v1/projects/{project_id}/sprints', 200],
@@ -1096,6 +1098,8 @@ type WorkReviewEndpoint =
   | 'createProjectVariable'
   | 'updateProjectVariable'
   | 'lookupProjectVariable'
+  | 'milestoneUpdate'
+  | 'milestoneUpdateLookup'
   | 'milestoneCreate'
   | 'milestoneCreateLookup'
   | 'sprintCreate'
@@ -1128,6 +1132,8 @@ const workReviewEndpoints: readonly WorkReviewEndpoint[] = [
   'createProjectVariable',
   'updateProjectVariable',
   'lookupProjectVariable',
+  'milestoneUpdate',
+  'milestoneUpdateLookup',
   'milestoneCreate',
   'milestoneCreateLookup',
   'sprintCreate',

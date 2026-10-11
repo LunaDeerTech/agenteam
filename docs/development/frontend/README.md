@@ -87,6 +87,12 @@ npm run preview --prefix web
 
 [限定交付卡](../work-items/d11-task-history-filters-ui.md)记录受控 5 文件 27 项及类型/构建通过，真实八次历史查询、只读持久事实后验与全部资源退出已独立接受。25 请求为 22 finished 和 3 个原 GET aborted，10 份原请求联合证明；浏览器零写入、零 Lookup。1440 浅色新到旧与 390 深色旧到新两图已独立查看，不外推七类型全部视觉/真实权限矩阵、评论写入或完整 Task 功能。此前历史页反转为正序的行为已由本片明确的双向顺序取代，旧验收记录保留。
 
+## Milestone 标题与描述编辑
+
+当前 Human Owner 可在已有 initialized Project 的任务页面选择 Milestone，编辑标题和描述；仅保存触达字段，删除描述后保存明确清空。标题保留原字节；版本冲突保留输入，用户须重新读取并明确采用当前版本后再保存。取消恢复按钮焦点，保存确认后从真实 Get/List 更新当前内容，读回失败可单独重读。
+
+结果未知时仅查询原保存，不自动重发或改写原 key/版本。编辑与创建在唯一 Session 内互斥，确认放弃只释放明确拒绝；同 Session checking/503 保留草稿与 Unknown，绑定目标或同 Project 的真实失权清理私有材料。[限定交付卡](../work-items/d11-milestone-edit-ui.md)记录正常编辑/no-op/清空、真实丢回执恢复、五图与完整资源尾的独立接受，保留首轮观察方法失败和 lost 的实际 GET aborted。该结果不包含 Sprint 编辑、排序/删除、完整权限浏览器矩阵或生产 initializer。
+
 ## Skill 固定修订包下载
 
 已有 initialized Project 的当前 Human Owner 可在 `/:username/:project_name/settings/skills` 进入详情，下载当前所示 revision 的原包。revision 保持规范正 int64 字符串；一次明确点击发起单次 GET，无 HEAD 预检、自动重试或命令 Lookup。进度和取消反馈沿当前详情；身份、项目、技能或修订变化退役旧请求并清理临时字节与 Object URL，迟到结果不保存。用户可在安全失败反馈后明确重新下载。

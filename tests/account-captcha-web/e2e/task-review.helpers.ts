@@ -159,6 +159,7 @@ export async function observeBrowserIO(
     let originalAgentCreate: any;
     const originalEdits: any[] = [];
     const originalAgentEdits: any[] = [];
+    const originalMilestoneEdits: any[] = [];
     let originalSprintStart: any;
     let originalSprintCreate: any;
     let originalMilestoneCreate: any;
@@ -332,6 +333,14 @@ export async function observeBrowserIO(
               progress.agentID === source?.agent,
           });
         }
+        if (kind === "milestone.update") {
+          const original = { call, project: args[0], milestone: args[1], input: JSON.parse(JSON.stringify(args[2])) };
+          originalMilestoneEdits.push(original);
+          writeInputs.set(call, original);
+        } else if (kind === "milestone.checkOriginal") {
+          const source = originalMilestoneEdits.at(-1), progress = auth.workMilestoneEditing.progress;
+          writeInputs.set(call, { source, current: progress?.phase === "uncertain" && progress.contextValid === true && progress.projectID === source?.project && progress.milestoneID === source?.milestone });
+        }
         if (kind === "knowledgeText.write") {
           const original = {call, project: args[0], intent: JSON.parse(JSON.stringify(args[1]))};
           originalTextWrites.push(original);
@@ -406,6 +415,12 @@ export async function observeBrowserIO(
               current() && (kind === "restore" || before === identity());
             identities.set(call, identity());
             call.not_busy = auth.state.busy === false;
+            if (kind === "milestone.update" || kind === "milestone.checkOriginal") {
+              const original = writeInputs.get(call), source = kind === "milestone.update" ? original : original.source;
+              const progress = auth.workMilestoneEditing.progress;
+              const result = kind === "milestone.update" ? value : value.result;
+              call.result_current = progress?.phase === "confirmed" && progress.contextValid === true && progress.projectID === source.project && progress.milestoneID === source.milestone && result != null && progress.result === result;
+            }
             if (kind === "knowledgeText.write") {
               const original = writeInputs.get(call), progress = auth.knowledgeText.progress;
               call.result_current = progress?.phase === "confirmed" &&
@@ -480,6 +495,7 @@ export async function observeBrowserIO(
         createMilestone: string | undefined,
         skillsTarget: string | undefined,
         milestoneCreate: boolean,
+        editMilestone: string | undefined,
         variableWrites: boolean,
         knowledgeTextWrites: boolean,
       ) {
@@ -719,6 +735,13 @@ export async function observeBrowserIO(
             );
           }
         }
+        if (editMilestone) {
+          consumer(auth.workMilestoneEditing, "update", "milestone.update", (a) => {
+            if (a[0] !== project || a[1] !== editMilestone) throw Error("MILESTONE_UPDATE_CONSUMER_SCOPE");
+            return "/api/v1/projects/" + project + "/milestones/" + editMilestone;
+          }, "PATCH");
+          consumer(auth.workMilestoneEditing, "checkOriginal", "milestone.checkOriginal", () => "/api/v1/projects/" + project + "/structure-commands/lookup", "POST");
+        }
         if (milestoneCreate) {
           consumer(
             auth.workMilestonePlanning,
@@ -800,6 +823,7 @@ export async function observeBrowserIO(
         originalAgentCreate = undefined;
         originalEdits.length = 0;
         originalAgentEdits.length = 0;
+        originalMilestoneEdits.length = 0;
         originalSprintStart = undefined;
         originalSprintCreate = undefined;
         originalMilestoneCreate = undefined;
@@ -1035,6 +1059,12 @@ export async function observeBrowserIO(
                 expected_version: original.source.input.expected_version,
                 request: original.source.input.request,
               });
+          }
+          if (call.kind === "milestone.update") {
+            matches = originalMilestoneEdits.every(old => old === original || (typeof old.key === "string" && old.key !== key)) && equal(parsed, original.input);
+            if (matches) original.key = key;
+          } else if (call.kind === "milestone.checkOriginal") {
+            matches = original.current && original.source?.call.rejected === true && original.source.call.settled === true && key === original.source.key && equal(parsed, { command: "work.milestone.update", target_id: original.source.milestone, expected_version: original.source.input.expected_version, request: original.source.input.request });
           }
           if (call.kind === "knowledgeText.write") {
             matches = originalTextWrites.every(old => old === original || (typeof old.key === "string" && old.key !== key)) && equal(parsed, original.intent.request);
@@ -1452,6 +1482,7 @@ export type TaskObservationProfile = {
     | "sprint-create"
     | "skill-owner-read"
     | "milestone-create"
+    | "milestone-edit"
     | "project-variables"
     | "knowledge-text";
   endpoint: (request: Request) => string | undefined;
@@ -1465,6 +1496,7 @@ export type TaskObservationProfile = {
     | "work.sprint.start"
     | "work.sprint.create"
     | "work.milestone.create"
+    | "work.milestone.update"
     | null;
   intakeWrites?: true;
   agentConfiguration?: true;
@@ -1476,6 +1508,7 @@ export type TaskObservationProfile = {
   sprintCreateWrites?: true;
   skillsReads?: true;
   milestoneCreateWrites?: true;
+  milestoneUpdateWrites?: true;
   variableWrites?: true;
   knowledgeTextWrites?: true;
 };
@@ -1496,6 +1529,10 @@ export function observeReview(page: Page, data: ReviewMaterial) {
 // classifier and at most its one declared committed-response delivery fault.
 // Only explicitly opted-in Intake, Edit or Agent fixtures can additionally prove
 // their closed write sets. Other POST completion rules remain identical.
+export function requireCommittedLookup(value: Record<string, unknown>, milestoneUpdate = false) {
+  expect(milestoneUpdate ? value.state : value.status).toBe("committed");
+}
+
 export async function observeTaskRequests(
   page: Page,
   data: TaskObservationMaterial,
@@ -1688,6 +1725,13 @@ export async function observeTaskRequests(
        profile.timelineReads || profile.agentEditWrites || profile.agentModelPolicy || profile.sprintStartWrites ||
        profile.sprintCreateWrites || profile.skillsReads || profile.milestoneCreateWrites || profile.variableWrites))
     throw Error("KNOWLEDGE_TEXT_PROFILE_MISMATCH");
+  if ((profile.milestoneUpdateWrites || profile.prefix === "milestone-edit") &&
+    (profile.milestoneUpdateWrites !== true || profile.prefix !== "milestone-edit" || profile.lookupCommand !== "work.milestone.update" ||
+      profile.intakeWrites || profile.agentConfiguration || profile.editWrites || profile.timelineReads || profile.agentEditWrites || profile.agentModelPolicy || profile.sprintStartWrites || profile.sprintCreateWrites || profile.skillsReads || profile.milestoneCreateWrites || profile.variableWrites || profile.knowledgeTextWrites ||
+      !data.milestone_id || !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.milestone_id) ||
+      !["milestone-edit-normal", "milestone-edit-lost"].includes(data.mode) ||
+      profile.cut !== (data.mode === "milestone-edit-lost" ? "update" : undefined)))
+    throw Error("MILESTONE_UPDATE_PROFILE_MISMATCH");
   const entries: Entry[] = [];
   const events: Record<string, unknown>[] = [];
   const browserEvents: BrowserDiagnostic[] = [];
@@ -1879,6 +1923,7 @@ export async function observeTaskRequests(
           createMilestone,
           skillsTarget,
           milestoneCreate,
+          editMilestone,
           variableWrites,
           knowledgeTextWrites,
         }) => {
@@ -1901,6 +1946,7 @@ export async function observeTaskRequests(
             createMilestone,
             skillsTarget,
             milestoneCreate,
+            editMilestone,
             variableWrites,
             knowledgeTextWrites,
           );
@@ -1922,6 +1968,7 @@ export async function observeTaskRequests(
             : undefined,
           skillsTarget: profile.skillsReads ? data.skill_id : undefined,
           milestoneCreate: profile.milestoneCreateWrites === true,
+          editMilestone: profile.milestoneUpdateWrites ? data.milestone_id : undefined,
           variableWrites: profile.variableWrites === true,
           knowledgeTextWrites: profile.knowledgeTextWrites === true,
         },
@@ -2099,9 +2146,15 @@ export async function observeTaskRequests(
       !url.search
     );
   }
+  function milestoneUpdateWrite(entry: Entry) {
+    if (!profile.milestoneUpdateWrites) return false;
+    const url = new URL(entry.request.url()), prefix = `/api/v1/projects/${data.project_id}`;
+    return !url.search && ((entry.name === "update" && entry.request.method() === "PATCH" && url.pathname === `${prefix}/milestones/${data.milestone_id}`) ||
+      (entry.name === "lookup" && entry.request.method() === "POST" && url.pathname === `${prefix}/structure-commands/lookup`));
+  }
   function milestonePageRead(entry: Entry) {
     return (
-      profile.milestoneCreateWrites &&
+      (profile.milestoneCreateWrites || profile.milestoneUpdateWrites) &&
       entry.request.method() === "GET" &&
       ["project", "milestones", "milestone", "sprints", "agents"].includes(
         entry.name,
@@ -2144,6 +2197,7 @@ export async function observeTaskRequests(
     const sprint = sprintWrite(entry);
     const sprintCreate = sprintCreateWrite(entry);
     const milestoneCreate = milestoneCreateWrite(entry);
+    const milestoneUpdate = milestoneUpdateWrite(entry);
     const variable = variableWrite(entry);
     const knowledgeText = knowledgeTextWrite(entry);
     const write =
@@ -2154,10 +2208,11 @@ export async function observeTaskRequests(
       sprint ||
       sprintCreate ||
       milestoneCreate ||
+      milestoneUpdate ||
       variable ||
       knowledgeText;
     const method =
-      (edit || agentEdit || variable) && entry.name === "update"
+      (edit || agentEdit || milestoneUpdate || variable) && entry.name === "update"
         ? "PATCH"
         : write
           ? "POST"
@@ -2234,11 +2289,13 @@ export async function observeTaskRequests(
       expect(c.kind).toBe(entry.name === "variables" ? "variable.list" : "variable.get");
     if (knowledgeTextReadEntry(entry)) expect(c.kind).toBe({documents:"knowledge.children", document:"knowledge.get", ancestors:"knowledge.ancestors", content:"knowledge.readContent"}[entry.name]);
     if (write) {
-      if (sprintCreate || milestoneCreate || variable || knowledgeText) expect(c.result_current).toBe(true);
+      if (sprintCreate || milestoneCreate || milestoneUpdate || variable || knowledgeText) expect(c.result_current).toBe(true);
       const kinds: Record<string, string> = knowledgeText
         ? { create: "knowledgeText.write", update: "knowledgeText.write" }
         : variable
         ? { create: "variable.create", update: "variable.update" }
+        : milestoneUpdate
+        ? { update: "milestone.update", lookup: "milestone.checkOriginal" }
         : milestoneCreate
         ? { create: "milestone.create" }
         : sprintCreate
@@ -2282,7 +2339,7 @@ export async function observeTaskRequests(
         expect(source.idempotency_key_sha256).toBe(keyHash);
       }
       if (entry.name === "lookup") {
-        expect(c.typed.status).toBe("committed");
+        requireCommittedLookup(c.typed, profile.milestoneUpdateWrites === true);
         originalLookup();
       }
     }
@@ -2362,6 +2419,7 @@ export async function observeTaskRequests(
           sprintWrite(entry) ||
           sprintCreateWrite(entry) ||
           milestoneCreateWrite(entry) ||
+          milestoneUpdateWrite(entry) ||
           variableWrite(entry) ||
           knowledgeTextWrite(entry) ||
           agentWrite(entry)) &&
@@ -2421,6 +2479,7 @@ export async function observeTaskRequests(
         sprintWrite(entry) ||
         sprintCreateWrite(entry) ||
         milestoneCreateWrite(entry) ||
+        milestoneUpdateWrite(entry) ||
         milestonePageRead(entry) ||
         variableWrite(entry) ||
         variablePageRead(entry) ||
@@ -2478,7 +2537,8 @@ export async function observeTaskRequests(
       creation
         ? "create"
         : profile.lookupCommand === "work.task.update" ||
-            profile.lookupCommand === "agent.update"
+            profile.lookupCommand === "agent.update" ||
+            profile.lookupCommand === "work.milestone.update"
           ? "update"
           : profile.lookupCommand === "work.sprint.start"
             ? "start"
@@ -2494,7 +2554,9 @@ export async function observeTaskRequests(
         : {
             command: profile.lookupCommand,
             target_id:
-              profile.lookupCommand === "agent.update"
+              profile.lookupCommand === "work.milestone.update"
+                ? data.milestone_id
+                : profile.lookupCommand === "agent.update"
                 ? data.agent_id
                 : profile.lookupCommand === "work.sprint.start"
                   ? data.sprint_id
@@ -2523,7 +2585,7 @@ export async function observeTaskRequests(
   function milestoneRead(
     name: "project" | "milestones" | "milestone" | "sprints" | "agents",
   ) {
-    expect(profile.milestoneCreateWrites).toBe(true);
+    expect(profile.milestoneCreateWrites || profile.milestoneUpdateWrites).toBe(true);
     const rows = entries.filter((e) => e.name === name && e.checked && e.body);
     expect(
       rows.length,
@@ -2637,7 +2699,7 @@ export async function observeTaskRequests(
                 ready: entries.filter((e) => e.name === "ready").length,
               }
             : {}),
-          ...(profile.agentEditWrites || profile.agentModelPolicy
+          ...(profile.agentEditWrites || profile.agentModelPolicy || profile.milestoneUpdateWrites
             ? { updates: entries.filter((e) => e.name === "update").length }
             : {}),
           ...(profile.sprintCreateWrites

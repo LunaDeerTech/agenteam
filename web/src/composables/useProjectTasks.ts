@@ -25,6 +25,8 @@ import {
 import { captureSprintCreateDraft, type SprintCreateReceipt } from '../api/work-sprint-lifecycle'
 import {
   captureMilestoneCreateDraft,
+  captureMilestoneUpdateInput,
+  type MilestoneUpdateReceipt,
   type MilestoneCreateReceipt,
 } from '../api/work-milestone-planning'
 import { captureTaskCreateDraft, type TaskCreateDraft } from '../api/work-task-planning'
@@ -166,6 +168,20 @@ export function createProjectTasks(
     touched: { title: false, description: false, type: false, priority: false, plan: false },
     message: '',
   })
+  const milestoneEdit = reactive({
+    open: false,
+    projectID: '',
+    milestoneID: '',
+    version: '',
+    title: '',
+    description: '',
+    touched: { title: false, description: false },
+    conflict: false,
+    readVersion: '',
+    needsRead: false,
+    message: '',
+  })
+  let milestoneEditIdentity = ''
   const milestoneCreation = reactive({
     open: false,
     projectID: '',
@@ -257,6 +273,52 @@ export function createProjectTasks(
       ? p
       : null
   })
+  const milestoneEditPending = computed(() => {
+    const p = auth.workMilestoneEditing?.progress
+    return p && ['submitting', 'uncertain'].includes(p.phase) ? p : null
+  })
+  const milestoneEditProgress = computed(() => {
+    const p = auth.workMilestoneEditing?.progress
+    return visible.value && p?.projectID === workspace.currentReadContext.value?.projectID
+      ? p
+      : null
+  })
+  const milestoneEditBlocked = computed(
+    () => !!milestoneEditPending.value || milestoneEdit.open || milestoneEdit.needsRead,
+  )
+  const milestoneEditDirty = computed(
+    () => milestoneEdit.open && (milestoneEdit.touched.title || milestoneEdit.touched.description),
+  )
+  const milestoneEditStale = computed(
+    () =>
+      milestoneEdit.conflict ||
+      (milestoneEdit.open &&
+        (milestoneEdit.milestoneID !== state.milestone?.id ||
+          milestoneEdit.version !== state.milestone?.version)),
+  )
+  const canEditMilestone = computed(
+    () =>
+      visible.value &&
+      state.phase === 'ready' &&
+      !!state.milestone &&
+      !state.task &&
+      workspace.detail.project?.lifecycle === 'active' &&
+      !pending.value &&
+      !milestonePending.value &&
+      !milestoneCreation.open &&
+      !milestoneCreation.needsRead &&
+      !sprintPending.value &&
+      !sprintCreatePending.value &&
+      !sprintStart.open &&
+      !sprintStart.needsRead &&
+      !sprintCreation.open &&
+      !sprintCreation.needsRead &&
+      !creation.open &&
+      !edit.open &&
+      !draft.action &&
+      !milestoneEditPending.value &&
+      !milestoneEdit.needsRead,
+  )
   const milestonePending = computed(() => {
     const p = auth.workMilestonePlanning.progress
     return p && ['submitting', 'uncertain'].includes(p.phase) ? p : null
@@ -275,6 +337,7 @@ export function createProjectTasks(
       workspace.detail.project?.lifecycle === 'active' &&
       !pending.value &&
       !milestonePending.value &&
+      !milestoneEditBlocked.value &&
       !sprintPending.value &&
       !sprintCreatePending.value &&
       !sprintStart.open &&
@@ -361,6 +424,7 @@ export function createProjectTasks(
       !pending.value &&
       !sprintCreatePending.value &&
       !milestonePending.value &&
+      !milestoneEditBlocked.value &&
       !milestoneCreation.open &&
       !milestoneCreation.needsRead &&
       !sprintPending.value &&
@@ -406,6 +470,7 @@ export function createProjectTasks(
       !sprintPending.value &&
       !sprintCreatePending.value &&
       !milestonePending.value &&
+      !milestoneEditBlocked.value &&
       !milestoneCreation.open &&
       !milestoneCreation.needsRead &&
       !sprintCreation.open &&
@@ -443,6 +508,7 @@ export function createProjectTasks(
       !!sprintPending.value ||
       !!sprintCreatePending.value ||
       !!milestonePending.value ||
+      milestoneEditBlocked.value ||
       milestoneCreation.open ||
       milestoneCreation.needsRead ||
       sprintCreation.open ||
@@ -461,6 +527,7 @@ export function createProjectTasks(
       !sprintPending.value &&
       !sprintCreatePending.value &&
       !milestonePending.value &&
+      !milestoneEditBlocked.value &&
       !milestoneCreation.open &&
       !milestoneCreation.needsRead &&
       !sprintCreation.open &&
@@ -481,6 +548,7 @@ export function createProjectTasks(
       !sprintPending.value &&
       !sprintCreatePending.value &&
       !milestonePending.value &&
+      !milestoneEditBlocked.value &&
       !milestoneCreation.open &&
       !milestoneCreation.needsRead &&
       !sprintCreation.open &&
@@ -514,6 +582,7 @@ export function createProjectTasks(
       !!sprintPending.value ||
       !!sprintCreatePending.value ||
       !!milestonePending.value ||
+      milestoneEditBlocked.value ||
       milestoneCreation.open ||
       milestoneCreation.needsRead ||
       sprintCreation.open ||
@@ -549,6 +618,36 @@ export function createProjectTasks(
       workspace.detail.project?.id === project &&
       state.sprint?.id === sprint &&
       !state.task
+    )
+  }
+  function clearMilestoneEdit() {
+    Object.assign(milestoneEdit, {
+      open: false,
+      projectID: '',
+      milestoneID: '',
+      version: '',
+      title: '',
+      description: '',
+      touched: { title: false, description: false },
+      conflict: false,
+      readVersion: '',
+      needsRead: false,
+      message: '',
+    })
+    milestoneEditIdentity = ''
+  }
+  function forgetMilestoneAccess(project: string) {
+    auth.workMilestoneEditing?.forgetUnavailable(project)
+    clearMilestoneEdit()
+    state.milestone = null
+    state.milestones = []
+    state.milestoneNext = undefined
+  }
+  function hasMilestoneEdit(project: string, target?: string) {
+    const progress = auth.workMilestoneEditing?.progress
+    return (
+      (milestoneEdit.projectID === project && (!target || milestoneEdit.milestoneID === target)) ||
+      (progress?.projectID === project && (!target || progress.milestoneID === target))
     )
   }
   function clearMilestoneCreation() {
@@ -632,6 +731,7 @@ export function createProjectTasks(
     createdSprintFocus.value = null
     createdMilestoneFocus.value = null
     clearMilestoneCreation()
+    clearMilestoneEdit()
     clearTimeline(true)
     manualMilestone = null
     state.phase = 'idle'
@@ -919,6 +1019,7 @@ export function createProjectTasks(
     state.message = ''
     state.detailCurrent = false
     clearTimeline()
+    let refusedMilestone: { project: string; target: string } | null = null
     await read(
       async (p, step) => {
         const task =
@@ -931,11 +1032,20 @@ export function createProjectTasks(
               ? null
               : workspace.detail.project?.current_sprint_id)
         const sprint = sid ? await step(() => auth.workReview.sprint(p, sid)) : null
-        const milestone = sprint
-          ? await step(() => auth.workReview.milestone(p, sprint.milestone_id))
-          : manualMilestone
-            ? await step(() => auth.workReview.milestone(p, manualMilestone!))
-            : null
+        const target = sprint?.milestone_id ?? manualMilestone
+        let milestone: Milestone | null = null
+        if (target) {
+          try {
+            milestone = await step(() => auth.workReview.milestone(p, target))
+          } catch (error) {
+            if (
+              error instanceof AccountFailure &&
+              [401, 403, 404].includes(error.problem?.status ?? 0)
+            )
+              refusedMilestone = { project: p, target }
+            throw error
+          }
+        }
         if (
           task &&
           (!sprint ||
@@ -971,6 +1081,9 @@ export function createProjectTasks(
         if (changed) for (const s of taskStates) Object.assign(columns[s], emptyColumn())
       },
       (error) => {
+        // read() only invokes this callback for the still-current read generation.
+        if (refusedMilestone && hasMilestoneEdit(refusedMilestone.project, refusedMilestone.target))
+          forgetMilestoneAccess(refusedMilestone.project)
         state.phase = 'error'
         state.message = explain(error)
         state.task = null
@@ -995,6 +1108,244 @@ export function createProjectTasks(
     for (const s of taskStates) {
       if (requested || !visible.value || busy.value) return
       await loadColumn(s)
+    }
+  }
+  function sameMilestoneEdit(own: number, project: string, target: string, identity: string) {
+    return (
+      live(own, project) &&
+      identityKey(project) === identity &&
+      !state.task &&
+      state.milestone?.id === target
+    )
+  }
+  function releaseRejectedMilestoneEdit() {
+    if (
+      !auth.state.busy &&
+      auth.workMilestoneEditing?.progress?.phase === 'rejected' &&
+      auth.workMilestoneEditing.progress.contextValid
+    )
+      auth.workMilestoneEditing.editRejected()
+  }
+  function openMilestoneEdit() {
+    const current = state.milestone
+    if (!current || busy.value || !canEditMilestone.value || milestoneEdit.open) return
+    releaseRejectedMilestoneEdit()
+    releaseRejectedMilestone()
+    if (sprintProgress.value?.phase === 'rejected' && sprintProgress.value.contextValid)
+      auth.workSprintLifecycle.editRejected()
+    if (sprintCreateProgress.value?.phase === 'rejected' && sprintCreateProgress.value.contextValid)
+      auth.workSprintLifecycle.editRejectedCreate()
+    clearMilestoneEdit()
+    Object.assign(milestoneEdit, {
+      open: true,
+      projectID: current.project_id,
+      milestoneID: current.id,
+      version: current.version,
+      title: current.title,
+      description: current.description,
+    })
+    milestoneEditIdentity = identityKey(current.project_id)
+  }
+  function touchMilestoneEdit(field: 'title' | 'description', value: string) {
+    if (!milestoneEdit.open || busy.value || !canEditMilestone.value || milestoneEditStale.value)
+      return
+    milestoneEdit[field] = value
+    milestoneEdit.touched[field] = true
+  }
+  function cancelMilestoneEdit() {
+    if (busy.value || milestoneEditPending.value) return
+    releaseRejectedMilestoneEdit()
+    clearMilestoneEdit()
+  }
+  async function readEditedMilestone(confirmed: boolean) {
+    const project = milestoneEdit.projectID,
+      target = milestoneEdit.milestoneID,
+      own = generation,
+      identity = milestoneEditIdentity
+    if (
+      busy.value ||
+      milestoneEditPending.value ||
+      !sameMilestoneEdit(own, project, target, identity)
+    )
+      return
+    await read(
+      async (_p, step) => {
+        const current = await step(() => auth.workReview.milestone(project, target))
+        const page = await step(() => auth.workReview.milestones(project, { limit: 50 }))
+        if (current.id !== target || current.project_id !== project)
+          throw new AccountFailure('invalid-response')
+        return { current, page }
+      },
+      ({ current, page }) => {
+        if (!sameMilestoneEdit(own, project, target, identity)) return
+        state.milestone = current
+        state.milestones = page.items
+        state.milestoneNext = page.next_cursor
+        milestoneEdit.readVersion = current.version
+        if (confirmed) {
+          milestoneEdit.needsRead = false
+          milestoneEdit.message =
+            auth.workMilestoneEditing.progress?.result?.changed === false
+              ? '保存已确认，原操作没有改变内容；当前 Milestone 已重新读取。'
+              : '保存已确认，当前 Milestone 已重新读取。'
+        } else
+          milestoneEdit.message =
+            '已读取当前 Milestone。核对详情与保留输入后，可明确使用当前版本继续编辑。'
+      },
+      (error) => {
+        if (
+          error instanceof AccountFailure &&
+          [401, 403, 404].includes(error.problem?.status ?? 0)
+        ) {
+          forgetMilestoneAccess(project)
+          state.phase = 'error'
+          state.message = '当前 Milestone 不可用或无权访问，编辑内容已清除。'
+          return
+        }
+        if (sameMilestoneEdit(own, project, target, identity))
+          milestoneEdit.message = confirmed
+            ? '保存已确认，当前内容读取失败。请重新读取，不要再次保存。'
+            : '当前 Milestone 读取失败，已保留原版本和输入。'
+      },
+    )
+  }
+  async function rereadMilestoneEdit() {
+    const progress = milestoneEditProgress.value
+    if (
+      busy.value ||
+      progress?.phase !== 'confirmed' ||
+      !progress.contextValid ||
+      state.milestone?.id !== progress.milestoneID ||
+      state.task
+    )
+      return
+    Object.assign(milestoneEdit, {
+      projectID: progress.projectID,
+      milestoneID: progress.milestoneID,
+      needsRead: true,
+    })
+    milestoneEditIdentity = identityKey(progress.projectID)
+    await readEditedMilestone(true)
+  }
+  async function reloadMilestoneEdit() {
+    if (
+      !milestoneEdit.open ||
+      !milestoneEditStale.value ||
+      busy.value ||
+      milestoneEditPending.value
+    )
+      return
+    milestoneEdit.readVersion = ''
+    await readEditedMilestone(false)
+  }
+  function adoptMilestoneVersion() {
+    const current = state.milestone
+    if (
+      !milestoneEdit.open ||
+      busy.value ||
+      !canEditMilestone.value ||
+      !milestoneEditStale.value ||
+      !current ||
+      !milestoneEdit.readVersion ||
+      current.version !== milestoneEdit.readVersion ||
+      current.id !== milestoneEdit.milestoneID
+    )
+      return
+    releaseRejectedMilestoneEdit()
+    milestoneEdit.version = current.version
+    if (!milestoneEdit.touched.title) milestoneEdit.title = current.title
+    if (!milestoneEdit.touched.description) milestoneEdit.description = current.description
+    milestoneEdit.conflict = false
+    milestoneEdit.readVersion = ''
+    milestoneEdit.message = '已使用当前版本，保留本次修改。请核对后明确保存。'
+  }
+  async function acceptMilestoneEdit(
+    receipt: MilestoneUpdateReceipt,
+    own: number,
+    identity: string,
+  ) {
+    const current = receipt.milestone
+    if (!sameMilestoneEdit(own, current.project_id, current.id, identity)) return
+    clearMilestoneEdit()
+    Object.assign(milestoneEdit, {
+      projectID: current.project_id,
+      milestoneID: current.id,
+      needsRead: true,
+      message: '保存已确认，正在读取当前 Milestone。',
+    })
+    milestoneEditIdentity = identity
+    // Receipt is historical: publish the current object only from the independent reads.
+    state.milestoneNext = undefined
+    await readEditedMilestone(true)
+  }
+  async function submitMilestoneEdit() {
+    const project = milestoneEdit.projectID,
+      target = milestoneEdit.milestoneID,
+      own = generation,
+      identity = milestoneEditIdentity
+    if (
+      !milestoneEdit.open ||
+      !canEditMilestone.value ||
+      !milestoneEditDirty.value ||
+      milestoneEditStale.value ||
+      busy.value ||
+      !sameMilestoneEdit(own, project, target, identity)
+    )
+      return
+    try {
+      const input = captureMilestoneUpdateInput({
+        expected_version: milestoneEdit.version,
+        request: {
+          ...(milestoneEdit.touched.title ? { title: milestoneEdit.title } : {}),
+          ...(milestoneEdit.touched.description ? { description: milestoneEdit.description } : {}),
+        },
+      })
+      releaseRejectedMilestoneEdit()
+      const value = await auth.workMilestoneEditing.update(project, target, input)
+      const receipt = 'state' in value ? value.result : value
+      if (receipt) await acceptMilestoneEdit(receipt, own, identity)
+    } catch (error) {
+      if (!sameMilestoneEdit(own, project, target, identity)) return
+      if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
+        forgetMilestoneAccess(project)
+        state.phase = 'error'
+        state.message = '当前 Milestone 不可用或无权访问，编辑内容已清除。'
+        return
+      }
+      if (error instanceof AccountFailure && error.problem?.code === 'VERSION_CONFLICT') {
+        milestoneEdit.conflict = true
+        milestoneEdit.readVersion = ''
+        milestoneEdit.message = 'Milestone 已发生变化，原版本和输入已保留。请先重新读取并核对。'
+      } else
+        milestoneEdit.message =
+          error instanceof AccountFailure && error.kind === 'invalid-input'
+            ? '请核对标题与描述：标题须含非空白字符、最多 256 个字符；描述最多 32768 字节。'
+            : '未确认保存结果，请查看原操作状态。'
+    }
+  }
+  async function lookupMilestoneEdit() {
+    const progress = milestoneEditProgress.value,
+      own = generation
+    if (
+      busy.value ||
+      progress?.phase !== 'uncertain' ||
+      !progress.contextValid ||
+      state.milestone?.id !== progress.milestoneID ||
+      state.task
+    )
+      return
+    const identity = identityKey(progress.projectID)
+    try {
+      const value = await auth.workMilestoneEditing.checkOriginal()
+      const receipt = 'state' in value ? value.result : value
+      if (receipt) await acceptMilestoneEdit(receipt, own, identity)
+    } catch (error) {
+      if (!sameMilestoneEdit(own, progress.projectID, progress.milestoneID, identity)) return
+      if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
+        forgetMilestoneAccess(progress.projectID)
+        state.phase = 'error'
+        state.message = '当前 Milestone 不可用或无权访问，编辑内容已清除。'
+      } else milestoneEdit.message = '未取得原保存结果，可在原请求结束后再次查询。'
     }
   }
   function openMilestoneCreation() {
@@ -1734,8 +2085,12 @@ export function createProjectTasks(
   function confirmLeave(target?: string): Promise<boolean> {
     if (target === route.value || !dirty.value) return Promise.resolve(true)
     confirmation.message =
-      pending.value || sprintPending.value || sprintCreatePending.value || milestonePending.value
-        ? '操作结果尚未确认。离开不会重发，返回原 Sprint 或任务后可继续查询原结果。'
+      pending.value ||
+      sprintPending.value ||
+      sprintCreatePending.value ||
+      milestonePending.value ||
+      milestoneEditPending.value
+        ? '操作结果尚未确认。离开不会重发，返回原 Milestone、Sprint 或任务后可继续查询原结果。'
         : '离开将放弃尚未提交的工作输入。'
     confirmation.open = true
     return new Promise((resolve) => {
@@ -1747,17 +2102,20 @@ export function createProjectTasks(
     const resolve = resolveLeave
     resolveLeave = null
     if (yes) {
+      releaseRejectedMilestoneEdit()
       clearDraft()
       clearCreation()
       clearEdit()
       clearSprintStart()
       clearSprintCreation()
       clearMilestoneCreation()
+      clearMilestoneEdit()
     }
     resolve?.(yes)
   }
   function afterNavigation(to: string) {
     if (to === route.value) return
+    releaseRejectedMilestoneEdit()
     const milestoneFocus = createdMilestoneFocus.value
     if (
       milestoneFocus &&
@@ -1777,6 +2135,7 @@ export function createProjectTasks(
     clearSprintStart()
     clearSprintCreation()
     clearMilestoneCreation()
+    clearMilestoneEdit()
     clearTimeline(true)
     state.task = null
     state.detailCurrent = false
@@ -1786,6 +2145,33 @@ export function createProjectTasks(
       void pump()
     }
   }
+  let milestoneProjectRead: { projectID: string; identity: string; path: string } | null = null
+  const stopMilestoneAccess = watch(
+    () => [workspace.detail.phase, workspace.detail.project] as const,
+    ([phase, project]) => {
+      if (phase === 'loading') {
+        // A current Project retained for a new Get binds a later Owner refusal.
+        // A different route starts with no Project and cannot erase the old intent.
+        const path = workspace.paths.value.home
+        milestoneProjectRead =
+          project && path && projectPath() === path
+            ? { projectID: project.id, identity: identityKey(project.id), path }
+            : null
+      } else if (phase === 'unavailable') {
+        const read = milestoneProjectRead
+        milestoneProjectRead = null
+        if (
+          read &&
+          read.identity &&
+          identityKey(read.projectID) === read.identity &&
+          projectPath() === read.path &&
+          hasMilestoneEdit(read.projectID)
+        )
+          forgetMilestoneAccess(read.projectID)
+      } else if (phase !== 'checking') milestoneProjectRead = null
+    },
+    { flush: 'sync' },
+  )
   const stop = watch(
     () =>
       [workspace.currentReadContext.value, auth.state.busy, auth.personalContext.identity] as const,
@@ -1817,6 +2203,7 @@ export function createProjectTasks(
     disposed = true
     retire()
     stop()
+    stopMilestoneAccess()
     finishLeave(false)
     clearData()
   }
@@ -1829,6 +2216,20 @@ export function createProjectTasks(
     edit,
     sprintStart,
     projectID,
+    milestoneEdit,
+    milestoneEditPending,
+    milestoneEditProgress,
+    milestoneEditDirty,
+    milestoneEditStale,
+    canEditMilestone,
+    openMilestoneEdit,
+    touchMilestoneEdit,
+    cancelMilestoneEdit,
+    submitMilestoneEdit,
+    lookupMilestoneEdit,
+    rereadMilestoneEdit,
+    reloadMilestoneEdit,
+    adoptMilestoneVersion,
     milestoneCreation,
     milestonePending,
     milestoneProgress,

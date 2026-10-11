@@ -113,6 +113,10 @@ import {
   createWorkMilestonePlanningAPI,
   captureMilestoneCreateDraft,
   captureMilestoneCreateInput,
+  captureMilestoneUpdateInput,
+  type MilestoneUpdateInput,
+  type MilestoneUpdateReceipt,
+  type MilestoneUpdateLookup,
   type WorkMilestonePlanningAPI,
   type MilestoneCreateDraft,
   type MilestoneCreateInput,
@@ -439,7 +443,8 @@ export type ProjectVariableProgress = Readonly<{
   observation: 'none' | 'committed' | 'in_progress' | 'not_observed' | 'failed'
   contextValid: boolean
 }>
-type MilestonePlanningAction = 'milestone-create' | 'milestone-create-lookup'
+type MilestonePlanningAction =
+  'milestone-create' | 'milestone-create-lookup' | 'milestone-update' | 'milestone-update-lookup'
 type MilestoneCreateIntent = Omit<SprintStartIntent, 'sprintID' | 'input'> & {
   milestoneID: string
   input: MilestoneCreateInput
@@ -453,6 +458,10 @@ export type MilestoneCreateProgress = Readonly<{
   error: string | null
   contextValid: boolean
 }>
+type MilestoneUpdateIntent = Omit<MilestoneCreateIntent, 'input'> & { input: MilestoneUpdateInput }
+export type MilestoneUpdateProgress = Omit<MilestoneCreateProgress, 'result'> & {
+  readonly result: MilestoneUpdateReceipt | null
+}
 type WorkReviewAction = 'work-review-read' | 'work-review-transfer' | 'work-review-lookup'
 type WorkReviewIntent = {
   identity: PersonalIdentity
@@ -1008,9 +1017,16 @@ export function createSessionController(
   const milestonePlanningRevisions: Record<MilestonePlanningAction, number> = {
     'milestone-create': 0,
     'milestone-create-lookup': 0,
+    'milestone-update': 0,
+    'milestone-update-lookup': 0,
   }
   const isMilestonePlanningAction = (kind: Action): kind is MilestonePlanningAction =>
     Object.hasOwn(milestonePlanningRevisions, kind)
+  let milestoneUpdateIntent: MilestoneUpdateIntent | null = null
+  let milestoneUpdateContext: Pick<SprintStartIntent, 'identity' | 'csrf'> | null = null
+  const milestoneUpdateState = shallowReactive<{
+    progress: Omit<MilestoneUpdateProgress, 'contextValid'> | null
+  }>({ progress: null })
   let milestoneCreateIntent: MilestoneCreateIntent | null = null
   let milestoneCreateContext: Pick<SprintStartIntent, 'identity' | 'csrf'> | null = null
   const milestoneCreateState = shallowReactive<{
@@ -4719,7 +4735,17 @@ export function createSessionController(
       },
     )
   }
+  function clearMilestoneUpdateState() {
+    ++milestonePlanningRevisions['milestone-update']
+    ++milestonePlanningRevisions['milestone-update-lookup']
+    milestoneUpdateIntent = null
+    milestoneUpdateContext = null
+    milestoneUpdateState.progress = null
+    if (owner?.kind === 'milestone-update' || owner?.kind === 'milestone-update-lookup')
+      owner.abandon?.()
+  }
   function clearMilestonePlanningState() {
+    clearMilestoneUpdateState()
     ++milestonePlanningRevisions['milestone-create']
     ++milestonePlanningRevisions['milestone-create-lookup']
     milestoneCreateIntent = null
@@ -4813,6 +4839,177 @@ export function createSessionController(
       },
     )
   }
+  function milestoneUpdateCurrent(original: MilestoneUpdateIntent) {
+    return milestoneUpdateIntent === original && projectContext(original)
+  }
+  function publishMilestoneUpdate(
+    original: MilestoneUpdateIntent,
+    phase: MilestoneUpdateProgress['phase'],
+    result: MilestoneUpdateReceipt | null = null,
+    observation: MilestoneUpdateProgress['observation'] = 'none',
+    error: string | null = null,
+  ) {
+    milestoneUpdateContext = { identity: original.identity, csrf: original.csrf }
+    milestoneUpdateState.progress = Object.freeze({
+      projectID: original.projectID,
+      milestoneID: original.milestoneID,
+      phase,
+      result,
+      observation,
+      error,
+    })
+  }
+  function performMilestoneUpdate(
+    original: MilestoneUpdateIntent,
+    lookup: boolean,
+  ): Promise<MilestoneUpdateReceipt | MilestoneUpdateLookup> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    if (!milestoneUpdateCurrent(original))
+      return Promise.reject(new AccountFailure('invalid-input'))
+    const kind: MilestonePlanningAction = lookup ? 'milestone-update-lookup' : 'milestone-update'
+    const revision = milestonePlanningRevisions[kind]
+    const live = () =>
+      milestoneUpdateCurrent(original) && revision === milestonePlanningRevisions[kind]
+    let dispatched = false
+    if (!lookup) publishMilestoneUpdate(original, 'submitting')
+    return runAuthorized<MilestoneUpdateReceipt | MilestoneUpdateLookup>(
+      original.identity,
+      async (op, current) => {
+        if (!current() || !live()) throw new AccountFailure('cancelled')
+        if (JSON.stringify(original.input) !== original.body)
+          throw new AccountFailure('invalid-input')
+        dispatched = true
+        const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
+        return lookup
+          ? milestonePlanningAPI.lookupUpdate(
+              original.projectID,
+              original.milestoneID,
+              original.input,
+              write,
+            )
+          : milestonePlanningAPI.update(
+              original.projectID,
+              original.milestoneID,
+              original.input,
+              write,
+            )
+      },
+      undefined,
+      kind,
+    ).then(
+      (value) => {
+        if (!live()) throw new AccountFailure('cancelled')
+        if ('state' in value && value.state !== 'committed') {
+          original.uncertain = true
+          publishMilestoneUpdate(original, 'uncertain', null, value.state)
+          return value
+        }
+        publishMilestoneUpdate(
+          original,
+          'confirmed',
+          'state' in value ? value.result : value,
+          lookup ? 'committed' : 'none',
+        )
+        milestoneUpdateIntent = null
+        return value
+      },
+      (error) => {
+        const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (live()) {
+          const p = failure.problem
+          if (p && [403, 404].includes(p.status)) {
+            clearMilestoneUpdateState()
+            throw failure
+          }
+          const rejected =
+            !dispatched ||
+            (!!p &&
+              ['not_started', 'not_committed'].includes(p.commit_state) &&
+              p.code !== 'IDEMPOTENCY_KEY_REUSED')
+          original.uncertain ||= lookup || !rejected
+          publishMilestoneUpdate(
+            original,
+            original.uncertain ? 'uncertain' : 'rejected',
+            null,
+            lookup ? 'failed' : 'none',
+            p?.code ?? failure.kind,
+          )
+        }
+        throw failure
+      },
+    )
+  }
+  const workMilestoneEditing = {
+    get progress(): MilestoneUpdateProgress | null {
+      const value = milestoneUpdateState.progress
+      return value
+        ? Object.freeze({
+            ...value,
+            contextValid: !!milestoneUpdateContext && projectContext(milestoneUpdateContext),
+          })
+        : null
+    },
+    update(
+      projectID: string,
+      milestoneID: string,
+      value: MilestoneUpdateInput,
+    ): Promise<MilestoneUpdateReceipt | MilestoneUpdateLookup> {
+      try {
+        const identity = personalIdentity()
+        if (
+          owner ||
+          milestoneUpdateIntent ||
+          milestoneCreateIntent ||
+          sprintStartIntent ||
+          sprintCreateIntent ||
+          workReviewIntent ||
+          personalIntent ||
+          pending
+        )
+          throw new AccountFailure('busy')
+        if (!uuid7.test(projectID) || !uuid7.test(milestoneID))
+          throw new AccountFailure('invalid-input')
+        const input = captureMilestoneUpdateInput(value)
+        const original: MilestoneUpdateIntent = {
+          identity,
+          csrf: sessionCSRF,
+          projectID,
+          milestoneID,
+          input,
+          key: newKey(),
+          body: JSON.stringify(input),
+          uncertain: false,
+        }
+        milestoneUpdateIntent = original
+        return performMilestoneUpdate(original, false)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    checkOriginal(): Promise<MilestoneUpdateReceipt | MilestoneUpdateLookup> {
+      if (!milestoneUpdateIntent?.uncertain)
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performMilestoneUpdate(milestoneUpdateIntent, true)
+    },
+    editRejected() {
+      if (
+        owner ||
+        !milestoneUpdateIntent ||
+        !milestoneUpdateCurrent(milestoneUpdateIntent) ||
+        milestoneUpdateIntent.uncertain ||
+        milestoneUpdateState.progress?.phase !== 'rejected'
+      )
+        throw new AccountFailure('busy')
+      clearMilestoneUpdateState()
+    },
+    forgetUnavailable(projectID: string) {
+      if (milestoneUpdateState.progress?.projectID === projectID) clearMilestoneUpdateState()
+    },
+    abandon() {
+      if (owner?.kind === 'milestone-update' || owner?.kind === 'milestone-update-lookup')
+        owner.abandon?.()
+    },
+  }
   const workMilestonePlanning = {
     get progress(): MilestoneCreateProgress | null {
       const value = milestoneCreateState.progress
@@ -4832,6 +5029,7 @@ export function createSessionController(
         if (
           owner ||
           milestoneCreateIntent ||
+          milestoneUpdateIntent ||
           sprintStartIntent ||
           sprintCreateIntent ||
           personalIntent ||
@@ -4903,6 +5101,7 @@ export function createSessionController(
         if (
           owner ||
           milestoneCreateIntent ||
+          milestoneUpdateIntent ||
           sprintCreateIntent ||
           sprintStartIntent ||
           personalIntent ||
@@ -4966,6 +5165,7 @@ export function createSessionController(
         if (
           owner ||
           milestoneCreateIntent ||
+          milestoneUpdateIntent ||
           sprintStartIntent ||
           sprintCreateIntent ||
           personalIntent ||
@@ -5149,7 +5349,8 @@ export function createSessionController(
     startTransfer(projectID: string, taskID: string, value: ReviewInput) {
       try {
         const identity = personalIdentity()
-        if (owner || workReviewIntent || personalIntent || pending) throw new AccountFailure('busy')
+        if (owner || workReviewIntent || milestoneUpdateIntent || personalIntent || pending)
+          throw new AccountFailure('busy')
         if (!uuid7.test(projectID) || !uuid7.test(taskID)) throw new AccountFailure('invalid-input')
         const input = captureReviewInput(value)
         const original: WorkReviewIntent = {
@@ -5172,7 +5373,8 @@ export function createSessionController(
     startReady(projectID: string, taskID: string, value: ReadyInput) {
       try {
         const identity = personalIdentity()
-        if (owner || workReviewIntent || personalIntent || pending) throw new AccountFailure('busy')
+        if (owner || workReviewIntent || milestoneUpdateIntent || personalIntent || pending)
+          throw new AccountFailure('busy')
         if (!uuid7.test(projectID) || !uuid7.test(taskID)) throw new AccountFailure('invalid-input')
         const input = captureReadyInput(value)
         const original: WorkReviewIntent = {
@@ -5195,7 +5397,8 @@ export function createSessionController(
     startCreate(projectID: string, value: TaskCreateDraft) {
       try {
         const identity = personalIdentity()
-        if (owner || workReviewIntent || personalIntent || pending) throw new AccountFailure('busy')
+        if (owner || workReviewIntent || milestoneUpdateIntent || personalIntent || pending)
+          throw new AccountFailure('busy')
         if (!uuid7.test(projectID)) throw new AccountFailure('invalid-input')
         const draft = captureTaskCreateDraft(value),
           taskID = newTaskID()
@@ -5220,7 +5423,8 @@ export function createSessionController(
     startEdit(projectID: string, taskID: string, value: TaskUpdateInput) {
       try {
         const identity = personalIdentity()
-        if (owner || workReviewIntent || personalIntent || pending) throw new AccountFailure('busy')
+        if (owner || workReviewIntent || milestoneUpdateIntent || personalIntent || pending)
+          throw new AccountFailure('busy')
         if (!uuid7.test(projectID) || !uuid7.test(taskID)) throw new AccountFailure('invalid-input')
         const input = captureTaskUpdateInput(value)
         const original: WorkReviewIntent = {
@@ -7422,6 +7626,7 @@ export function createSessionController(
     workReview,
     workSprintLifecycle,
     workMilestonePlanning,
+    workMilestoneEditing,
     projectVariables,
     agentConfiguration,
     projectAudit,
