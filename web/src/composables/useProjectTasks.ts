@@ -142,6 +142,17 @@ export function createProjectTasks(
     touched: { title: false, description: false, type: false, priority: false, plan: false },
     message: '',
   })
+  const sprintStart = reactive({
+    open: false,
+    projectID: '',
+    sprintID: '',
+    version: '',
+    message: '',
+    needsRead: false,
+    confirmed: false,
+  })
+  const syncingSprint = ref(false)
+  let sprintStartIdentity = ''
   const confirmation = reactive({ open: false, message: '' })
   let resolveLeave: ((value: boolean) => void) | null = null
   const reading = ref(false)
@@ -186,14 +197,72 @@ export function createProjectTasks(
       ? p
       : null
   })
-  const busy = computed(() => auth.state.busy || reading.value || confirmation.open)
+  const sprintPending = computed(() => {
+    const p = auth.workSprintLifecycle.progress
+    return p && ['submitting', 'uncertain'].includes(p.phase) ? p : null
+  })
+  const sprintProgress = computed(() => {
+    const p = auth.workSprintLifecycle.progress
+    return visible.value &&
+      p &&
+      p.projectID === workspace.currentReadContext.value?.projectID &&
+      p.sprintID === state.sprint?.id
+      ? p
+      : null
+  })
+  const sprintPendingHere = computed(() => {
+    const p = sprintPending.value
+    return visible.value && p?.projectID === workspace.currentReadContext.value?.projectID
+      ? p
+      : null
+  })
+  const busy = computed(
+    () => auth.state.busy || reading.value || syncingSprint.value || confirmation.open,
+  )
+  const canStartSprint = computed(
+    () =>
+      visible.value &&
+      state.phase === 'ready' &&
+      !state.task &&
+      workspace.detail.project?.lifecycle === 'active' &&
+      workspace.detail.project.current_sprint_id === null &&
+      state.sprint?.state === 'planned' &&
+      state.sprint.project_id === workspace.currentReadContext.value?.projectID &&
+      !pending.value &&
+      !sprintPending.value &&
+      !creation.open &&
+      !edit.open &&
+      !draft.action &&
+      !sprintStart.needsRead &&
+      sprintProgress.value?.phase !== 'confirmed',
+  )
+  const sprintStartStale = computed(
+    () =>
+      sprintStart.open &&
+      (sprintStart.projectID !== workspace.currentReadContext.value?.projectID ||
+        sprintStart.sprintID !== state.sprint?.id ||
+        sprintStart.version !== state.sprint?.version),
+  )
+  const sprintReadRecovery = computed(
+    () =>
+      sprintStart.needsRead &&
+      sameSprintLocation(
+        generation,
+        sprintStart.projectID,
+        sprintStart.sprintID,
+        sprintStartIdentity,
+      ),
+  )
   const readOnly = computed(
     () =>
       !visible.value ||
       workspace.detail.project?.lifecycle !== 'active' ||
       state.sprint?.state !== 'current' ||
       !state.detailCurrent ||
-      !!pending.value,
+      !!pending.value ||
+      !!sprintPending.value ||
+      sprintStart.open ||
+      sprintStart.needsRead,
   )
   const canCreate = computed(
     () =>
@@ -202,7 +271,10 @@ export function createProjectTasks(
       state.phase === 'ready' &&
       state.sprint?.state === 'current' &&
       !state.task &&
-      !pending.value,
+      !pending.value &&
+      !sprintPending.value &&
+      !sprintStart.open &&
+      !sprintStart.needsRead,
   )
   const canEdit = computed(
     () =>
@@ -213,7 +285,10 @@ export function createProjectTasks(
       ['planned', 'current'].includes(state.sprint.state) &&
       state.task?.state === 'backlog' &&
       state.task.assignee_agent_id === null &&
-      !pending.value,
+      !pending.value &&
+      !sprintPending.value &&
+      !sprintStart.open &&
+      !sprintStart.needsRead,
   )
   const editDirty = computed(() => edit.open && editFields.some((field) => edit.touched[field]))
   const editStale = computed(
@@ -237,7 +312,9 @@ export function createProjectTasks(
       !!draft.agentID ||
       creationDirty.value ||
       editDirty.value ||
-      !!pending.value,
+      !!pending.value ||
+      !!sprintPending.value ||
+      sprintStart.open,
   )
   const agentOptions = computed(() =>
     state.agents.map((a) => ({
@@ -253,6 +330,35 @@ export function createProjectTasks(
     own === generation &&
     visible.value &&
     workspace.currentReadContext.value?.projectID === p
+  function identityKey(project: string) {
+    const who = auth.personalContext.identity
+    return who ? `${who.userID}/${who.sessionID}/${who.epoch}/${project}` : ''
+  }
+  function sameSprintLocation(own: number, project: string, sprint: string, identity: string) {
+    return (
+      !disposed &&
+      own === generation &&
+      auth.state.phase === 'authenticated' &&
+      !!identity &&
+      identityKey(project) === identity &&
+      workTaskRoute(route.value)?.projectPath === workspace.paths.value.home &&
+      workspace.detail.project?.id === project &&
+      state.sprint?.id === sprint &&
+      !state.task
+    )
+  }
+  function clearSprintStart() {
+    Object.assign(sprintStart, {
+      open: false,
+      projectID: '',
+      sprintID: '',
+      version: '',
+      message: '',
+      needsRead: false,
+      confirmed: false,
+    })
+    sprintStartIdentity = ''
+  }
   function clearDraft() {
     draft.action = ''
     draft.agentID = ''
@@ -314,6 +420,7 @@ export function createProjectTasks(
     clearDraft()
     clearCreation()
     clearEdit()
+    clearSprintStart()
   }
   async function read<T>(
     fn: (project: string, step: <V>(work: () => Promise<V>) => Promise<V>) => Promise<T>,
@@ -636,6 +743,139 @@ export function createProjectTasks(
       await loadColumn(s)
     }
   }
+  function openSprintStart() {
+    const p = workspace.currentReadContext.value?.projectID,
+      sprint = state.sprint
+    if (!p || !sprint || !canStartSprint.value || busy.value) return
+    Object.assign(sprintStart, {
+      open: true,
+      projectID: p,
+      sprintID: sprint.id,
+      version: sprint.version,
+      message: '',
+      needsRead: false,
+      confirmed: false,
+    })
+    sprintStartIdentity = identityKey(p)
+  }
+  function cancelSprintStart() {
+    if (busy.value || sprintPending.value) return
+    clearSprintStart()
+  }
+  async function rereadSprintStart() {
+    const p = sprintStart.projectID,
+      sid = sprintStart.sprintID,
+      own = generation,
+      identity = sprintStartIdentity
+    if (busy.value || !sprintStart.needsRead || !sameSprintLocation(own, p, sid, identity)) return
+    syncingSprint.value = true
+    sprintStart.message = sprintStart.confirmed
+      ? '启动已确认，正在读取当前项目信息。'
+      : '正在重新读取启动条件。'
+    let reload = false
+    try {
+      // A historical command receipt never replaces the current Project read.
+      await workspace.readCurrent()
+      if (!sameSprintLocation(own, p, sid, identity)) return
+      if (workspace.currentReadContext.value?.projectID !== p)
+        throw new AccountFailure('invalid-response')
+      const sprint = await auth.workReview.sprint(p, sid)
+      if (!sameSprintLocation(own, p, sid, identity) || !live(own, p)) return
+      if (sprint.id !== sid || sprint.project_id !== p) throw new AccountFailure('invalid-response')
+      state.sprint = sprint
+      state.sprints = state.sprints.map((row) => (row.id === sid ? sprint : row))
+      if (
+        sprintStart.confirmed &&
+        (workspace.detail.project?.current_sprint_id !== sid || sprint.state !== 'current')
+      ) {
+        sprintStart.message = '启动已确认，但当前 Sprint 已变化。请按当前项目信息重新选择。'
+        return
+      }
+      sprintStart.needsRead = false
+      sprintStart.message = sprintStart.confirmed
+        ? 'Sprint 已启动，已确认当前 Sprint。'
+        : '已重新读取启动条件，请核对后明确启动。'
+      reload = true
+    } catch {
+      if (sameSprintLocation(own, p, sid, identity))
+        sprintStart.message = sprintStart.confirmed
+          ? '启动已确认，当前信息读取失败。请重新读取，不要再次启动。'
+          : '启动条件读取失败，请重试读取。'
+    } finally {
+      syncingSprint.value = false
+      if (!sameSprintLocation(own, p, sid, identity)) void pump()
+    }
+    if (reload && sameSprintLocation(own, p, sid, identity)) {
+      await refresh()
+    }
+  }
+  async function acceptSprintStart(project: string, sprint: string, own: number, identity: string) {
+    if (!sameSprintLocation(own, project, sprint, identity)) return
+    Object.assign(sprintStart, {
+      open: false,
+      projectID: project,
+      sprintID: sprint,
+      needsRead: true,
+      confirmed: true,
+    })
+    sprintStartIdentity = identity
+    await rereadSprintStart()
+  }
+  async function submitSprintStart() {
+    const p = sprintStart.projectID,
+      sid = sprintStart.sprintID,
+      own = generation,
+      identity = sprintStartIdentity
+    if (!sprintStart.open || !canStartSprint.value || sprintStartStale.value || busy.value) return
+    try {
+      if (auth.workSprintLifecycle.progress?.phase === 'rejected')
+        auth.workSprintLifecycle.editRejected()
+      const result = await auth.workSprintLifecycle.start(p, sid, {
+        expected_version: sprintStart.version,
+        request: {},
+      })
+      const receipt = 'status' in result ? result.receipt : result
+      if (!receipt || receipt.project.id !== p || receipt.sprint.id !== sid) return
+      await acceptSprintStart(p, sid, own, identity)
+    } catch (error) {
+      if (sameSprintLocation(own, p, sid, identity)) {
+        sprintStart.message =
+          error instanceof AccountFailure &&
+          ['VERSION_CONFLICT', 'SPRINT_VERSION_CONFLICT'].includes(error.problem?.code ?? '')
+            ? 'Sprint 已发生变化，请重新读取后核对，再明确启动。'
+            : '未确认 Sprint 启动。请查看原操作状态；明确拒绝后可重新读取。'
+        if (auth.workSprintLifecycle.progress?.phase === 'rejected') {
+          sprintStart.open = false
+          sprintStart.needsRead = true
+        }
+      }
+    }
+  }
+  async function rereadConfirmedSprint() {
+    const p = sprintProgress.value
+    if (busy.value || p?.phase !== 'confirmed' || !p.contextValid) return
+    await acceptSprintStart(p.projectID, p.sprintID, generation, identityKey(p.projectID))
+  }
+  async function lookupSprintStart() {
+    const original = sprintProgress.value,
+      own = generation
+    if (busy.value || original?.phase !== 'uncertain' || !original.contextValid) return
+    const identity = identityKey(original.projectID)
+    try {
+      const result = await auth.workSprintLifecycle.checkOriginal()
+      const receipt = 'status' in result ? result.receipt : result
+      if (
+        !receipt ||
+        receipt.project.id !== original.projectID ||
+        receipt.sprint.id !== original.sprintID
+      )
+        return
+      await acceptSprintStart(original.projectID, original.sprintID, own, identity)
+    } catch {
+      if (sameSprintLocation(own, original.projectID, original.sprintID, identity))
+        sprintStart.message = '未取得原启动结果，可在原请求结束后再次查询。'
+    }
+  }
   async function selectMilestone(id: string) {
     if (busy.value) return
     const target = `${projectPath()}/tasks`
@@ -880,9 +1120,10 @@ export function createProjectTasks(
   }
   function confirmLeave(target?: string): Promise<boolean> {
     if (target === route.value || !dirty.value) return Promise.resolve(true)
-    confirmation.message = pending.value
-      ? '操作结果尚未确认。离开不会重发，返回原 Sprint 或任务后可继续查询原结果。'
-      : '离开将放弃尚未提交的任务输入。'
+    confirmation.message =
+      pending.value || sprintPending.value
+        ? '操作结果尚未确认。离开不会重发，返回原 Sprint 或任务后可继续查询原结果。'
+        : '离开将放弃尚未提交的工作输入。'
     confirmation.open = true
     return new Promise((resolve) => {
       resolveLeave = resolve
@@ -896,6 +1137,7 @@ export function createProjectTasks(
       clearDraft()
       clearCreation()
       clearEdit()
+      clearSprintStart()
     }
     resolve?.(yes)
   }
@@ -907,6 +1149,7 @@ export function createProjectTasks(
     clearDraft()
     clearCreation()
     clearEdit()
+    clearSprintStart()
     clearTimeline()
     state.task = null
     state.detailCurrent = false
@@ -957,6 +1200,19 @@ export function createProjectTasks(
     draft,
     creation,
     edit,
+    sprintStart,
+    sprintPending,
+    sprintPendingHere,
+    sprintProgress,
+    canStartSprint,
+    sprintStartStale,
+    sprintReadRecovery,
+    openSprintStart,
+    cancelSprintStart,
+    submitSprintStart,
+    lookupSprintStart,
+    rereadSprintStart,
+    rereadConfirmedSprint,
     canEdit,
     editDirty,
     editStale,

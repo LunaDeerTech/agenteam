@@ -137,6 +137,7 @@ function fixture(current: string | null = id(3)) {
     state: authState,
     personalContext: personal,
     workReview: api,
+    workSprintLifecycle: { progress: null },
   } as unknown as SessionController
   const project = shallowReactive({ id: id(1), lifecycle: 'active', current_sprint_id: current })
   const workspace = {

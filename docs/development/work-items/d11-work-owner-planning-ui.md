@@ -273,3 +273,13 @@ Blocker status 默认为 unresolved，可选 resolved/all；顺序 `(created_at,
 后端14项/3包vet及前端16项、format10/type/build有限证据复用；SOURCE `d407f82a`的真实PG三父top/十三sub全PASS。Web compile02/native03沿SOURCE `b3e6f0bb`，唯一`recent-older-and-refresh`30.90s wholePASS：正式Work服务写入51条历史，最近50→较早1→刷新50、完整评论和只读DB后验闭合。四Wait0、Node实际成功、七ID14次absence、全部双尾/TCP0及2444输入一致，secret最终业务/资源有限接受；cleanup接受实际两个尺寸/主题下的2PNG及同轮键盘、overflow检查，不外推全面无障碍或七kind全部视觉审计。原件与恢复入口见[Timeline组合recipe](../../../.agent-state/agent-system-integration/README.md#task-timeline只读组合)。
 
 原Web native01容量零业务FAIL、native02夹具比较FAIL及各pure/format失败原件保留，后继修复不回填。此只读闭环不代表六类事件生产者的真实全矩阵，不提供评论写入/编辑、Execution/Model日志、实时订阅或完整规划功能；Agent编辑、完整Runtime、生产initializer与ready等未完成范围及既有STOP保持。
+
+## 15. 已有planned Sprint的显式启动
+
+本片真实浏览器native01已wholePASS，最终业务/资源有限独审接受，随本次文档提交交付main。沿现“任务”入口明确选择已有planned Sprint，在当前Human Owner、active Project且Current为空时提供“启动 Sprint／确认启动 Sprint”；没有Current时仍不自动选中或启动首项。复用原`POST /api/v1/projects/{P}/sprints/{S}/start`与`POST /api/v1/projects/{P}/sprint-lifecycle-commands/lookup`，不新增服务端规则、迁移或公共路由。
+
+Session的workSprintLifecycle保有原Project、Sprint、字符串expected_version、空request和独立key；Unknown只查原Lookup，in_progress/not_observed不授权重发。已确认receipt保留为原操作事实，页面controller仍需真实重读Project，再读取同一Sprint和看板。当前指针已变化时显示明确状态，不把历史receipt覆盖为当前事实；重读失败只提供“重新读取启动条件与当前状态”，不重新Start。切Project/Sprint或身份退出后，原调用真实退出且迟到结果隔离，不能发布到新选择。
+
+确认、提交中、明确拒绝、Unknown及重读失败分别显示；取消恢复原启动按钮焦点，成功重读后回到同Sprint标题。启动不改变Scheduler启停状态；公开Project DTO没有scheduler_enabled，页面只说明“已暂停的调度保持暂停”，其真实不变性已由同轮PG后验验证，不以文案代证。启动完成后可继续使用已有Task创建与独立Ready，页面不连发这些操作。本片不提供Sprint创建、完成、rollover、删除或自动启用Scheduler，不解除生产initializer、完整Runtime、ready或旧STOP。
+
+frontend01保留15PASS/1FAIL、唯一TS18047及build未启动的原结果；两路径窄修显式判progress非null，并使受控page刺激等待真实DOM解除disabled后再点击Lookup，保留Unknown与恰一次原操作断言。frontend02只补原失败case、完整类型检查和构建，均实际通过并获独审接受；原15PASS、format10及八项controls按原输入复用，compile02已通过。runtime SOURCE `5a8ccdd2`沿Go compile `20bb`/candidate02及dist02完成`TestSprintStartWeb`两场景：明确启动并重读当前看板34.67s、真实丢回执后Unknown仅原Lookup22.16s，合56.83s wholePASS。正常链1Start/0Lookup，丢回执链1Start/1原Lookup；Project/Sprint各版本+1、command1、Outbox1、paused配置及原Snapshot不变、零新增Dispatch/Execution均由真实后验确认，secret最终业务/资源有限接受。四Wait0、两Node成功、七ID14次absence、全部双尾/TCP0、2448输入一致；cleanup接受五PNG及原键盘、取消回焦、主题、reduced-motion与横溢检查。截图限1440浅色确认和390深色Unknown/当前看板，未覆盖七列末端或全面无障碍。原件与恢复入口见[Sprint启动组合recipe](../../../.agent-state/agent-system-integration/README.md#已有planned-sprint启动页面)；§1–14及旧Planning/Recovery、Task/Agent各轮FAIL原样保留。

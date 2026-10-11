@@ -137,6 +137,7 @@ async function observeBrowserIO(
     let originalAgentCreate: any;
     const originalEdits: any[] = [];
     const originalAgentEdits: any[] = [];
+    let originalSprintStart: any;
     const tails = new Set<Promise<void>>();
     const restorers: (() => void)[] = [];
     let retired = false,
@@ -305,6 +306,26 @@ async function observeBrowserIO(
               progress.agentID === source?.agent,
           });
         }
+        if (kind === "sprint.start") {
+          if (originalSprintStart) failed = true;
+          originalSprintStart = {
+            call,
+            project: args[0],
+            sprint: args[1],
+            input: JSON.parse(JSON.stringify(args[2])),
+          };
+          writeInputs.set(call, originalSprintStart);
+        } else if (kind === "sprint.checkOriginal") {
+          const progress = auth.workSprintLifecycle.progress;
+          writeInputs.set(call, {
+            source: originalSprintStart,
+            current:
+              progress?.phase === "uncertain" &&
+              progress.contextValid === true &&
+              progress.projectID === originalSprintStart?.project &&
+              progress.sprintID === originalSprintStart?.sprint,
+          });
+        }
         let result: Promise<any>;
         try {
           result = Reflect.apply(original, this, args);
@@ -357,6 +378,7 @@ async function observeBrowserIO(
         editTask: string | undefined,
         timelineTask: string | undefined,
         editAgent: string | undefined,
+        startSprint: string | undefined,
       ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
@@ -555,6 +577,35 @@ async function observeBrowserIO(
             );
           }
         }
+        if (startSprint) {
+          consumer(
+            auth.workSprintLifecycle,
+            "start",
+            "sprint.start",
+            (a) => {
+              if (a[0] !== project || a[1] !== startSprint)
+                throw Error("SPRINT_START_CONSUMER_SCOPE");
+              return (
+                "/api/v1/projects/" +
+                project +
+                "/sprints/" +
+                startSprint +
+                "/start"
+              );
+            },
+            "POST",
+          );
+          consumer(
+            auth.workSprintLifecycle,
+            "checkOriginal",
+            "sprint.checkOriginal",
+            () =>
+              "/api/v1/projects/" +
+              project +
+              "/sprint-lifecycle-commands/lookup",
+            "POST",
+          );
+        }
       },
       snapshot() {
         return {
@@ -581,6 +632,7 @@ async function observeBrowserIO(
         originalAgentCreate = undefined;
         originalEdits.length = 0;
         originalAgentEdits.length = 0;
+        originalSprintStart = undefined;
         return this.snapshot();
       },
     };
@@ -796,6 +848,29 @@ async function observeBrowserIO(
               equal(parsed, {
                 command: "agent.update",
                 target_id: original.source.agent,
+                expected_version: original.source.input.expected_version,
+                request: original.source.input.request,
+              });
+          }
+          if (call.kind === "sprint.start") {
+            matches =
+              equal(parsed, original.input) &&
+              Object.keys(parsed).sort().join() ===
+                "expected_version,request" &&
+              parsed.request !== null &&
+              typeof parsed.request === "object" &&
+              !Array.isArray(parsed.request) &&
+              Object.keys(parsed.request).length === 0;
+            if (matches) original.key = key;
+          } else if (call.kind === "sprint.checkOriginal") {
+            matches =
+              original.current &&
+              original.source?.call.rejected === true &&
+              original.source.call.settled === true &&
+              key === original.source.key &&
+              equal(parsed, {
+                command: "work.sprint.start",
+                target_id: original.source.sprint,
                 expected_version: original.source.input.expected_version,
                 request: original.source.input.request,
               });
@@ -1107,6 +1182,7 @@ export type TaskObservationMaterial = {
   project_id: string;
   task_id?: string;
   agent_id?: string;
+  sprint_id?: string;
 };
 export type TaskObservationProfile = {
   dist: string;
@@ -1118,21 +1194,24 @@ export type TaskObservationProfile = {
     | "task-edit"
     | "agent-configuration"
     | "agent-edit"
-    | "task-timeline";
+    | "task-timeline"
+    | "sprint-start";
   endpoint: (request: Request) => string | undefined;
-  cut?: "transfer" | "create" | "update";
+  cut?: "transfer" | "create" | "update" | "start";
   lookupCommand:
     | "work.task.transfer"
     | "work.task.create"
     | "work.task.update"
     | "agent.create"
     | "agent.update"
+    | "work.sprint.start"
     | null;
   intakeWrites?: true;
   agentConfiguration?: true;
   editWrites?: true;
   timelineReads?: true;
   agentEditWrites?: true;
+  sprintStartWrites?: true;
 };
 
 export function observeReview(page: Page, data: ReviewMaterial) {
@@ -1230,6 +1309,29 @@ export async function observeTaskRequests(
           : undefined))
   )
     throw Error("AGENT_EDIT_WRITE_PROFILE_MISMATCH");
+  if (
+    profile.sprintStartWrites &&
+    (profile.intakeWrites ||
+      profile.agentConfiguration ||
+      profile.editWrites ||
+      profile.timelineReads ||
+      profile.agentEditWrites ||
+      profile.prefix !== "sprint-start" ||
+      profile.lookupCommand !== "work.sprint.start" ||
+      !data.sprint_id ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+        data.sprint_id,
+      ) ||
+      ![
+        "paused-start-and-current-board",
+        "lost-start-confirmation-only-lookup",
+      ].includes(data.mode) ||
+      profile.cut !==
+        (data.mode === "lost-start-confirmation-only-lookup"
+          ? "start"
+          : undefined))
+  )
+    throw Error("SPRINT_START_WRITE_PROFILE_MISMATCH");
   const entries: Entry[] = [];
   const events: Record<string, unknown>[] = [];
   const browserEvents: BrowserDiagnostic[] = [];
@@ -1346,6 +1448,7 @@ export async function observeTaskRequests(
           editTask,
           timelineTask,
           editAgent,
+          startSprint,
         }) => {
           const module = await import(/* @vite-ignore */ binding.asset);
           const useSession = module[binding.exportName];
@@ -1362,6 +1465,7 @@ export async function observeTaskRequests(
             editTask,
             timelineTask,
             editAgent,
+            startSprint,
           );
         },
         {
@@ -1372,6 +1476,7 @@ export async function observeTaskRequests(
           editTask: profile.editWrites ? data.task_id : undefined,
           timelineTask: profile.timelineReads ? data.task_id : undefined,
           editAgent: profile.agentEditWrites ? data.agent_id : undefined,
+          startSprint: profile.sprintStartWrites ? data.sprint_id : undefined,
         },
       );
       await route.continue();
@@ -1495,10 +1600,32 @@ export async function observeTaskRequests(
     );
   }
 
+  function sprintWrite(entry: Entry) {
+    if (!profile.sprintStartWrites || entry.request.method() !== "POST")
+      return false;
+    const url = new URL(entry.request.url());
+    if (url.search) return false;
+    const prefix = `/api/v1/projects/${data.project_id}`;
+    return (
+      (entry.name === "start" &&
+        url.pathname === `${prefix}/sprints/${data.sprint_id}/start`) ||
+      (entry.name === "lookup" &&
+        url.pathname === `${prefix}/sprint-lifecycle-commands/lookup`)
+    );
+  }
+  function sprintPageRead(entry: Entry) {
+    return (
+      profile.sprintStartWrites &&
+      entry.request.method() === "GET" &&
+      ["project", "sprint", "tasks"].includes(entry.name)
+    );
+  }
   function joint(entry: Entry, proof: any) {
     const edit = editWrite(entry);
     const agentEdit = agentEditWrite(entry);
-    const write = intakeWrite(entry) || agentWrite(entry) || edit || agentEdit;
+    const sprint = sprintWrite(entry);
+    const write =
+      intakeWrite(entry) || agentWrite(entry) || edit || agentEdit || sprint;
     const method =
       (edit || agentEdit) && entry.name === "update"
         ? "PATCH"
@@ -1570,24 +1697,29 @@ export async function observeTaskRequests(
     expect(n.typed_digest).toBe(c.typed_digest);
     if (timelinePageRead(entry)) expect(c.kind).toBe("work.events");
     if (write) {
-      const kinds: Record<string, string> = agentEdit
-        ? { update: "agentEdit.startUpdate", lookup: "agentEdit.checkOriginal" }
-        : profile.agentConfiguration
+      const kinds: Record<string, string> = sprint
+        ? { start: "sprint.start", lookup: "sprint.checkOriginal" }
+        : agentEdit
           ? {
-              create: "agent.startCreate",
-              lookup: "agent.checkOriginal",
+              update: "agentEdit.startUpdate",
+              lookup: "agentEdit.checkOriginal",
             }
-          : edit
+          : profile.agentConfiguration
             ? {
-                update: "edit.startEdit",
-                ready: "edit.startReady",
-                lookup: "edit.checkOriginal",
+                create: "agent.startCreate",
+                lookup: "agent.checkOriginal",
               }
-            : {
-                create: "work.startCreate",
-                ready: "work.startReady",
-                lookup: "work.checkOriginal",
-              };
+            : edit
+              ? {
+                  update: "edit.startEdit",
+                  ready: "edit.startReady",
+                  lookup: "edit.checkOriginal",
+                }
+              : {
+                  create: "work.startCreate",
+                  ready: "work.startReady",
+                  lookup: "work.checkOriginal",
+                };
       const raw = entry.request.postDataBuffer();
       const key = entry.request.headers()["idempotency-key"];
       expect(raw).not.toBeNull();
@@ -1652,6 +1784,7 @@ export async function observeTaskRequests(
           intakeWrite(entry) ||
           editWrite(entry) ||
           agentEditWrite(entry) ||
+          sprintWrite(entry) ||
           agentWrite(entry)) &&
         response?.status() === 200 &&
         entry.failure === "net::ERR_ABORTED"
@@ -1706,6 +1839,8 @@ export async function observeTaskRequests(
         intakeWrite(entry) ||
         editWrite(entry) ||
         agentEditWrite(entry) ||
+        sprintWrite(entry) ||
+        sprintPageRead(entry) ||
         agentWrite(entry) ||
         agentPageRead(entry) ||
         timelinePageRead(entry)
@@ -1713,6 +1848,13 @@ export async function observeTaskRequests(
         // Even genuine requestfinished must match the original public value
         // and Go proof (including commit for writes); this does not replace its tail.
         const consumed = joint(entry, proof);
+        if (sprintPageRead(entry) && entry.name === "sprint") {
+          const { started_by, completed_by, ...detail } = entry.body as Record<
+            string,
+            unknown
+          >;
+          entry.body = detail;
+        }
         expect(consumed).toEqual(entry.body);
         entry.body = consumed;
       }
@@ -1720,7 +1862,7 @@ export async function observeTaskRequests(
     }
   }
   function receipt(
-    name: "transfer" | "lookup" | "create" | "ready" | "update",
+    name: "transfer" | "lookup" | "create" | "ready" | "update" | "start",
     index: number,
   ): Record<string, any> {
     const values = entries.filter(
@@ -1750,7 +1892,9 @@ export async function observeTaskRequests(
         : profile.lookupCommand === "work.task.update" ||
             profile.lookupCommand === "agent.update"
           ? "update"
-          : "transfer",
+          : profile.lookupCommand === "work.sprint.start"
+            ? "start"
+            : "transfer",
     );
     const lookups = requests("lookup");
     expect(originals).toHaveLength(1);
@@ -1764,7 +1908,9 @@ export async function observeTaskRequests(
             target_id:
               profile.lookupCommand === "agent.update"
                 ? data.agent_id
-                : data.task_id,
+                : profile.lookupCommand === "work.sprint.start"
+                  ? data.sprint_id
+                  : data.task_id,
             expected_version: sent.expected_version,
             request: sent.request,
           },
@@ -1773,6 +1919,17 @@ export async function observeTaskRequests(
       originals[0]!.headers()["idempotency-key"],
     );
     expect(dropped).toBe(1);
+  }
+  function sprintRead(name: "project" | "sprint" | "tasks") {
+    expect(profile.sprintStartWrites).toBe(true);
+    const rows = entries.filter(
+      (entry) => entry.name === name && entry.checked && entry.body,
+    );
+    expect(
+      rows.length,
+      "original Sprint page read must complete",
+    ).toBeGreaterThan(0);
+    return rows.at(-1)!.body as Record<string, any>;
   }
   function agentRead(
     name: "agent-directory" | "agent-configuration" | "agent-models",
@@ -1844,6 +2001,9 @@ export async function observeTaskRequests(
             : {}),
           ...(profile.agentEditWrites
             ? { updates: entries.filter((e) => e.name === "update").length }
+            : {}),
+          ...(profile.sprintStartWrites
+            ? { starts: entries.filter((e) => e.name === "start").length }
             : {}),
           ...(profile.agentConfiguration
             ? {
@@ -1920,6 +2080,7 @@ export async function observeTaskRequests(
     requests,
     agentOption,
     agentRead,
+    sprintRead,
     timelinePage,
     save,
     endDocument,
