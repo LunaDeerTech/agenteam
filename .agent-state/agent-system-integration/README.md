@@ -417,3 +417,37 @@ python3 -B output/ai/agent-system-integration/scheduler-relaunch-launcher-04.py
 ```
 
 本批容量恢复只退休前批全PASS派生产物 `scheduler-execution-race-01.test`（64,844,964 B），其 source/recipe/inputs/results 保留；root 对已停用 TaskHumanHTTP、TaskTransition、Source、旧 WorkUI 与 independent UI 树作 normal sparse 可逆停放，保留 output/ignored/FAIL、根规则、恢复目录和 refs。delivery、sole hotcache/shared mod/MinIO 未停放，所有本批 FAIL candidates 保留；后继不要自动展开全部 donor 或删除失败证据。
+
+## Human review 主流程
+
+SOURCE `8cfbe24d21938947787fcfeb7633b64a72866e94`。12 top race 全PASS，补验4包 vet、compile01/list 与 native02 均 wholePASS。`TestTaskHumanReview` 恰1 top/2 sub（34.54s）：`completed-work-review-and-done` 在真实 work Execution 终态后，经 Owner HTTPS 交给真实当前 reviewer、转 in_review，再接受为 done并保留省略的 reviewer，验证权限、Get/Lookup/原 key replay；`review-rework-late-transaction-rollback-and-replay` 用另一真实 Task 从 review 返工到 todo，在原最终事务完整写入后物理回滚，再以原请求正常提交和重放，验证当前组追加位置、history/receipt/Outbox/activity 原子性。两条均保留原 Execution/Dispatch lineage，不由模型终态自动完成 Task，也未增加生产 Scheduler/App 装配。
+
+原 pure01 wholeFAIL 仅 vet 启动门容量不足：12 top 已PASS，0 vet；随后 `combined-vet-02` 只补原4包，不重race。compile01 一次通过；native01 仅同进程容量门失败，0资源/0业务，未到输入核验的 `inputs_unchanged=false` 不表示发现源变更。native02 只换新 namespace，复用原 candidate/876编译输入与1616运行输入。两容量FAIL及全部原件保持，不改判。
+
+native02 于 2026-10-11 01:12:35–01:14:39 UTC 完成，Go386695、driver385072、supervisor385071、outer385026 原 Wait0；七资源14次 absent，private/runtime/desc/HOST_TCP 与 outer 全部双尾关闭、adopted=[]，1616输入首尾同。候选 `output/ai/agent-system-integration/task-human-review-race-01.test` 为65,726,522 B，SHA256 `15c388ade46e62e83bce414610565c4bdc9313eeb7bd3d29ae130cb092e9d318`。窗口已归还。
+
+原件：`output/ai/task-human-review/combined-pure-01/result.json`、`combined-vet-02/result.json`；`output/ai/agent-system-integration/task-human-review-compile-01/result.json`、`task-human-review-{01,02}-control/result.json` 与02的 `supervisor.log`；成功 PG `/tmp/thr02/pg-fe195712631b47858e3746c295ebb0b7.log`。root 精确退休旧第七批全PASS `scheduler-relaunch-race-04.test`（65,603,644 B），保留对应源码refs/recipe/inputs/results与全部07失败候选；另普通 sparse 停放旧 feature-integration、ToolOperation 的九个 tracked 源目录，output/FAIL/state/config/refs保留。未清理本批候选、hotcache、模块或 MinIO。
+
+恢复使用上述成熟 recipe 与 immutable 模板：`148640b8:.agent-state/agent-system-integration/task-launch-failure-pure-checks.py`，以及 `73387883` 同目录 `scheduler-failure-compile-02-launcher.py` / `scheduler-failure-launcher-01.py`。仅代入 delivery ROOT、上述完整SOURCE、namespace `task-human-review`、compile包 `tests/projectvariable`、list数量1＋精确集合 `{'TestTaskHumanReview'}`；native只用父 selector `^TestTaskHumanReview$`，不加 slash profile。compile PASS后沿原步骤冻结实际输入并验证全部编译输入子集。已用 plan `task-human-review-02-inputs.json`、输出 `/tmp/thr02`，后继必须新 namespace，不覆盖任何旧结果。
+
+完整pure为下列12 top、`exact_12_top_pass`；vet恰同4包，固定 `AGENTEAM_WORK_HTTP_SCHEMA_PYTHON` 沿原入口。原Go1.27.1、只读模块、sole hotcache、private XDG、每进程fresh≥5GiB、全部预算/实际Wait/资源尾不变。
+
+```python
+TOPS = {
+ 'work/http': ['TestWorkHTTPReviewTransitionsAndOriginalLookup', 'TestWorkHTTPTaskTransitionStandardSchema'],
+ 'httpapi': ['TestWorkProblemsPreservePublicFailureFacts', 'TestSharedSchemaMatchesImplementedBoundary'],
+ 'foundation': ['TestTaskFaultCodesPreserveSafeProjectionAndCause'],
+ 'work': ['TestTaskHumanReviewPresenceAndActiveCapability', 'TestTaskHumanReviewCanonicalHistoryAndRetainedReviewer', 'TestTaskHumanReviewBlockersUseTargetInvariant', 'TestTaskTransitionPlanBindsOriginalIntentAndPostimage', 'TestTaskUnblockFrozenResolutionsAndLegacyPlans', 'TestTaskUnblockResolutionReadsRejectPartialOrStaleSets', 'TestTaskUnblockResolverWritesAndPostimage'],
+}
+```
+
+实际 ignored 调用命令如下，原 pure入口仍保留；补验入口只移除已通过race、改输出目录，不能把它记成12 top重跑。重建后须另定fresh namespace并取得唯一执行窗口。
+
+```sh
+python3 -B output/ai/agent-system-integration/task-human-review-pure-checks.py --cache /workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build
+# 本次只补未执行的vet：
+python3 -B output/ai/agent-system-integration/task-human-review-vet-checks-02.py --cache /workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build
+python3 -B output/ai/agent-system-integration/task-human-review-compile-01-launcher.py
+# compile PASS并冻结新plan后：
+python3 -B output/ai/agent-system-integration/task-human-review-launcher-02.py
+```
