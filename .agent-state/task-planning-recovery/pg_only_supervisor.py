@@ -199,6 +199,7 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestRunnerReadFileAdapter$': frozenset(('TestRunnerReadFileAdapter',)),
     '^TestExecutionMountFirstRound$': frozenset((
         'TestExecutionMountFirstRound',
         'TestExecutionMountFirstRound/nonempty-terminal-and-historical-replay',

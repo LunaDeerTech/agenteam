@@ -2,6 +2,7 @@ package runnerhttp
 
 import (
 	"context"
+	"slices"
 	"strconv"
 	"sync"
 	"time"
@@ -19,6 +20,7 @@ type controlAuthority interface {
 }
 
 type controlSession struct {
+	readFile   bool // Only the authenticated, current Hello/Status capability.
 	wire       *controlWire
 	authority  controlAuthority
 	connection service.Connection
@@ -190,6 +192,7 @@ func (s *controlSession) receive(ctx context.Context, message p.Message) error {
 		}
 		s.mu.Lock()
 		s.active = true
+		s.readFile = slices.Contains(value.Capabilities, p.ReadFileOperation)
 		s.deadline = time.Now().Add(time.Duration(ack.HeartbeatTimeoutMS) * time.Millisecond)
 		s.mu.Unlock()
 		select {
@@ -219,7 +222,13 @@ func (s *controlSession) receive(ctx context.Context, message p.Message) error {
 		_, e = s.send(p.HeartbeatAck{Sequence: value.Sequence}, "", "")
 		return e
 	case p.RunnerStatus:
-		return s.authority.UpdateStatus(ctx, s.connection, value)
+		if err := s.authority.UpdateStatus(ctx, s.connection, value); err != nil {
+			return err
+		}
+		s.mu.Lock()
+		s.readFile = slices.Contains(value.Capabilities, p.ReadFileOperation)
+		s.mu.Unlock()
+		return nil
 	case p.Response:
 		return s.authority.WithCurrentConnection(ctx, s.connection, func(context.Context) error { return s.response(value) })
 	case p.Stream:

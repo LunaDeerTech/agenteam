@@ -68,6 +68,7 @@ type Client struct {
 	started, stopped bool
 	cancel           context.CancelFunc
 	done             chan struct{}
+	executor         operationExecutor // Immutable; only NewReadFile explicitly binds it.
 	open             func(string) (ownedIdentity, error)
 	device           func(identity.Configuration, *x509.CertPool) (deviceBackend, error)
 	wait             func(context.Context, time.Duration) error
@@ -238,7 +239,7 @@ func (c *Client) Run(ctx context.Context) (result error) {
 		var activeAt time.Time
 		var localErr error
 		if attemptErr == nil {
-			s, makeErr := newSession(connection, clientHello(id.Configuration().RunnerID, options.RunnerVersion), nil)
+			s, makeErr := newSession(connection, c.connectionHello(id.Configuration().RunnerID, options.RunnerVersion), c.executor)
 			if makeErr != nil {
 				connection.stop()
 				return makeErr

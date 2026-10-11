@@ -18,6 +18,17 @@ MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 # One closed same-package PG family: adding a scenario changes required
 # inputs and expected test data, never the resource/Wait/tail implementation.
 METADATA_INPUTS = {
+    '^TestRunnerReadFileAdapter$': (
+        'tests/projectvariable/runner_read_file_adapter_test.go',
+        'tests/projectvariable/agent_runner_mounts_integration_test.go',
+        'internal/central/mount/contract/read_file.go',
+        'internal/central/mount/read_file.go',
+        'internal/central/runner/http/read_file_dispatch.go',
+        'internal/runnerprotocol/read_file.go',
+        'internal/runner/readfile/handler.go',
+        'internal/runner/control/read_file.go',
+        '.agent-state/runner-read-file-adapter/profile-controls.py',
+    ),
     '^TestExecutionMountFirstRound$': (
         'tests/projectvariable/execution_mount_first_round_test.go',
         'tests/projectvariable/execution_first_round_test.go',
