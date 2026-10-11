@@ -105,6 +105,10 @@ func TestWriteFileWSS(t *testing.T) {
 							t.Error("original WSS peer failed before cancellation")
 							ok = false
 						}
+						if peer.closeErr != nil {
+							t.Error("original WSS peer physical Close failed")
+							ok = false
+						}
 					case <-time.After(5 * time.Second):
 						t.Error("original WSS HTTP handler did not return")
 						ok = false
@@ -248,6 +252,8 @@ type writeWSSPeer struct {
 	runner                 p.ID
 	mu, writeMu            sync.Mutex
 	conn                   *websocket.Conn
+	closeOnce              sync.Once
+	closeErr               error
 	ready, done            chan struct{}
 	messages               chan p.Message
 	result                 chan error
@@ -333,8 +339,12 @@ func (ppeer *writeWSSPeer) close() {
 	connection := ppeer.conn
 	ppeer.mu.Unlock()
 	if connection != nil {
-		_ = connection.UnderlyingConn().SetDeadline(time.Now())
-		_ = connection.Close()
+		// Concurrent cleanup waits for this original physical Close to return.
+		// Retain its first result privately; never retry or format its raw error.
+		ppeer.closeOnce.Do(func() {
+			_ = connection.UnderlyingConn().SetDeadline(time.Now())
+			ppeer.closeErr = connection.Close()
+		})
 	}
 }
 
