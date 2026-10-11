@@ -1,6 +1,6 @@
 # D18/D22 单 read-file Operation
 
-本片把真实 Execution ToolCall 接到一次 Runner read-file Operation/Attempt，并持久保存可重读的完整结果。当前仅独立存储、codec 与消费接口源码已落；尚未编译、运行测试或接通真实 producer，不是已交付执行链。基线为 main `1b10c29c`，后继依赖 ToolFacts 正式交付的 00063/00064 与真实保护参数 producer，不复制其在制实现。
+本片把真实 Execution ToolCall 接到一次 Runner read-file Operation/Attempt，并持久保存可重读的完整结果。独立基础及真实 producer 首片源码已落，尚未编译或运行本片 Tool 控制，不是已交付执行链。初始基线为 main `1b10c29c`；ToolFacts 先以已提交开发依赖接入，随后通过 main `95c092bc` 正式有限交付，原 native01/02 FAIL 与修后03通过事实均保持，不替代本片验证。
 
 正式依据：[Model/Tool 契约](d01-contracts/model-tool.md)、[Execution 契约](d01-contracts/execution-orchestration.md)、[Runner read-file](d15-runner-read-file-adapter.md)。本片止于原 Operation 的持久结果，不包含下一轮 Model、Transcript 注入或自动重试。
 
@@ -20,8 +20,10 @@
 
 ## 写域与当前缺口
 
-Tool lead `skill_package_review` 负责新 contract、private runtime codec/repository、迁移65及本卡/current。Runner 作者仅负责原 dispatcher 两文件，已由 root 保存为 `6f87bfff`，只完成静态审查与格式化，新增控制尚未运行。Execution owner `skills_milestone_review` 已完成接口设计，待 ToolFacts 正式集成才实现；`runtime_recovery` 为独立 principal，root 负责 Git 与资源窗口。
+Tool lead `skill_package_review` 负责新 contract、private runtime、迁移65及本卡/current。Runner `6f87bfff`、Execution callback `4b73635e`、Mount 安全 metadata 投影 `0eeeea0e` 已保存并有限静审，三域基础动态检查由 root 另排；`runtime_recovery` 为独立 principal，root 负责 Git 与资源窗口。迁移65中曾误用 uuid 局部变量的静态缺陷已在 `86c298c9` 改为实际列 `%TYPE`，不称已 PG 复现。
 
-当前没有公开 Tool read-file producer、Attempt owner/终态写入入口或默认装配。另一个明确后继接缝是：现 Mount ticket 只公开 RunnerID，真实目标的 Mount/Workspace/name/版本需由原 resolver 给安全只读投影，不能由模型参数或调用者自报；本次未改 Mount。完整结果引用还需由真实 owner 写入原 terminal metadata 并用于历史重读。这些均须在首链前接通，不把 private repository 函数当运行授权。
+显式装配顺序为 `NewReadFileAuthority` → 原 Mount resolver → 原 Runner dispatcher → `NewReadFileExecutor`。`ExecuteReadFile(ctx, ExecutionID)` 是唯一执行入口，不接 caller raw/body/target/RID；在原 Execution callback 内经真实 `CurrentTargetInTx` 读取六字段安全目标并同 Tx 写完整 created，实际已知提交返回后才 Resolve。ticket.Target 只作原目标精确比对，不替代 Claim。原 Attempt Tx 中写 prepared call 的同一 RID，实际已知提交并返回之后才 Dispatch。原 frame 与 terminal/connection 实际退出之后，一次有界最终 Tx 保存原终态、小 metadata 引用、完整 payload 及 retired。
 
-已有三组 codec 控制源码覆盖闭集输入、指纹/原记录绑定及 utf8/base64 两类完整 65536B 结果和错误引用；尚未执行。后续先做必要编译与兼容控制，再在原窗口验证最小真实 PG + WSS 链、事务实际返回前/Unknown 零发送、同 RID 和结果重读。Model 可复用已明确端口替身，Execution/Tool authority、CurrentMount、ticket、WSS 与 Runner Manager 必须真实。默认生产 nil、全 registry、OpenAI tools A/B 和其他原 STOP 不变。
+`LookupReadFile` 只经当前 Execution 权限读取原 Operation/Attempt/历史 payload，不重新读当前目标替换历史、不发送或创建新 RID。提交 Unknown 保留原 owner、实际返回事件与有界结果候选；只有精确终态观测且原调用已返回才可解除最终提交的不确定性。显式 `ResolveReadFile` 只为这个仍持有的 owner 重查/保存原事实，绝不调用 Dispatcher；Attempt 提交 Unknown 且当时零派发，只能在查见同一原 Attempt 后记已知未发送，缺行不能证明 rollback。Stop 仅取消原调用；Drain/Joined 不把 Cancel、公开结果或未知提交当退休。首次构造均显式，默认生产装配未改。
+
+已有三组 codec 控制源码覆盖闭集输入、指纹/原记录绑定及 utf8/base64 两类完整 65536B 结果和错误引用；四组 producer 控制源码覆盖原终态/RequestID、borrowed input、实际返回/未知持久状态及默认脱敏。均尚未运行。variables_review 正实现唯一 PG 两子场景，含真实65536B结果、原事务返回 barrier、Lookup不重放与当前撤权；两旧 fixture 只补正式 seed handoff/透明 wire 观察接口。先做必要基础验证，尽早进入真实 PG + WSS 链，不扩完整矩阵。Model JSON 为唯一明确端口替身，Execution/Tool authority、CurrentMount、ticket、WSS 与 Runner Manager 必须真实。默认生产 nil、全 registry、OpenAI tools A/B 和其他原 STOP 不变。
