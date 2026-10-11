@@ -14,6 +14,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/projectvariable"
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
 	"github.com/LunaDeerTech/agenteam/internal/central/usage"
+	uc "github.com/LunaDeerTech/agenteam/internal/central/usage/contract"
 	usagehttp "github.com/LunaDeerTech/agenteam/internal/central/usage/http"
 )
 
@@ -27,12 +28,19 @@ type projectUsageAssembly struct {
 }
 
 func createProjectUsage(cfg config.Config, db database, accounts *account.Authority) (*projectUsageAssembly, error) {
+	base, err := createProjectUsageAuthority(db, accounts)
+	if err != nil {
+		return nil, err
+	}
+	return bindProjectUsage(cfg, db, accounts, base, nil)
+}
+
+// The opt-in graph constructs its original Project authority first, then fixes
+// the actual Runtime Invocation provider before constructing Usage. No existing
+// Usage authority is rebound and no second Project authority is introduced.
+func createProjectUsageAuthority(db database, accounts *account.Authority) (*projectUsageAssembly, error) {
 	projectsStore, ok := db.(project.Store)
 	if !ok || runtimeInformationNil(projectsStore) || accounts == nil {
-		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
-	}
-	usageStore, ok := db.(usage.Store)
-	if !ok || runtimeInformationNil(usageStore) {
 		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
 	}
 	secretStore, ok := db.(secret.Store)
@@ -67,7 +75,15 @@ func createProjectUsage(cfg config.Config, db database, accounts *account.Author
 	if err != nil {
 		return nil, err
 	}
-	authority, err := usage.NewAuthority(usageStore, usage.Authorizations{Sessions: accounts, Projects: projects, Invocations: nil})
+	return &projectUsageAssembly{projects: projects, variables: variableFacts, objectFacts: objectFacts}, nil
+}
+
+func bindProjectUsage(cfg config.Config, db database, accounts *account.Authority, base *projectUsageAssembly, invocations uc.InvocationFacts) (*projectUsageAssembly, error) {
+	usageStore, ok := db.(usage.Store)
+	if !ok || runtimeInformationNil(usageStore) || accounts == nil || base == nil || base.projects == nil || base.reader != nil {
+		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+	}
+	authority, err := usage.NewAuthority(usageStore, usage.Authorizations{Sessions: accounts, Projects: base.projects, Invocations: invocations})
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +91,9 @@ func createProjectUsage(cfg config.Config, db database, accounts *account.Author
 	if err != nil {
 		return nil, err
 	}
-	return &projectUsageAssembly{projects: projects, reader: reader, variables: variableFacts, objectFacts: objectFacts}, nil
+	bound := *base
+	bound.reader = reader
+	return &bound, nil
 }
 
 func (a *projectUsageAssembly) handler(core *account.Service, origin string) (http.Handler, error) {

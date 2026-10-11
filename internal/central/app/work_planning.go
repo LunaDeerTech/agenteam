@@ -81,9 +81,21 @@ type workPlanningAssembly struct {
 // These are pure constructors. Until the complete bundle is installed, none of
 // its services has been exposed to HTTP or another caller. On a partial failure
 // the local owner still retires every service it has constructed.
-func createWorkPlanning(cfg config.Config, db database, authority *work.Authority, accounts *account.Authority, journal *outbox.Service, events workPlanningEvents, transitionProjects ...*project.Authority) (result *workPlanningAssembly, err error) {
+func createWorkPlanning(cfg config.Config, db database, authority *work.Authority, accounts *account.Authority, journal *outbox.Service, events workPlanningEvents, transitionProjects ...*project.Authority) (*workPlanningAssembly, error) {
 	store, ok := db.(work.Store)
-	if !ok || runtimeInformationNil(store) || authority == nil || accounts == nil || journal == nil || !events.structure.Valid() || !events.tasks.Valid() || !events.blockers.Valid() {
+	if !ok || runtimeInformationNil(store) {
+		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+	}
+	pending, err := scheduler.NewPendingAuthority(store)
+	if err != nil {
+		return nil, err
+	}
+	return createWorkPlanningWithPending(cfg, db, authority, accounts, journal, events, pending, transitionProjects...)
+}
+
+func createWorkPlanningWithPending(cfg config.Config, db database, authority *work.Authority, accounts *account.Authority, journal *outbox.Service, events workPlanningEvents, pending *scheduler.PendingAuthority, transitionProjects ...*project.Authority) (result *workPlanningAssembly, err error) {
+	store, ok := db.(work.Store)
+	if !ok || runtimeInformationNil(store) || pending == nil || authority == nil || accounts == nil || journal == nil || !events.structure.Valid() || !events.tasks.Valid() || !events.blockers.Valid() {
 		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
 	}
 	// An omitted capability retains the old three-service assembly. An explicit
@@ -114,10 +126,6 @@ func createWorkPlanning(cfg config.Config, db database, authority *work.Authorit
 		return nil, err
 	}
 	b.commands = append(b.commands, b.structure)
-	pending, err := scheduler.NewPendingAuthority(store)
-	if err != nil {
-		return nil, err
-	}
 	if b.tasks, err = work.NewTask(store, work.TaskDependencies{Authority: authority, Structure: b.structureReader, Events: journal, TaskEvents: events.tasks, Activity: accounts, Pending: pending}); err != nil {
 		return nil, err
 	}

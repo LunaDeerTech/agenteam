@@ -13,6 +13,7 @@ import (
 	audithttp "github.com/LunaDeerTech/agenteam/internal/central/audit/http"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
+	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	kc "github.com/LunaDeerTech/agenteam/internal/central/knowledge/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/model"
@@ -21,11 +22,13 @@ import (
 	outboundhttp "github.com/LunaDeerTech/agenteam/internal/central/outbound/http"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/project"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	vc "github.com/LunaDeerTech/agenteam/internal/central/projectvariable/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/recoverylog"
 	"github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo"
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
+	"github.com/LunaDeerTech/agenteam/internal/central/skill"
 	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 )
 
@@ -59,6 +62,7 @@ type accountAssembly struct {
 	stopped         bool
 	started         bool
 	forced          context.Context
+	executions      *executionRuntimeAssembly
 	planning        accountWork
 	agentDirectory  accountWork
 	variables       accountWork
@@ -96,7 +100,7 @@ func (a *accountAssembly) constructionDone() {
 
 func (a *accountAssembly) Start(ctx context.Context) error {
 	a.mu.Lock()
-	runtime, mail, stopped := a.runtime, a.mail, a.stopped
+	runtime, mail, executions, stopped := a.runtime, a.mail, a.executions, a.stopped
 	a.mu.Unlock()
 	if runtime == nil || mail == nil || stopped {
 		return foundation.NewFault(foundation.DependencyUnavailable, foundation.NotStarted)
@@ -106,6 +110,11 @@ func (a *accountAssembly) Start(ctx context.Context) error {
 	}
 	if err := mail.Start(ctx); err != nil {
 		return err
+	}
+	if executions != nil {
+		if err := executions.Start(ctx); err != nil {
+			return err
+		}
 	}
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -118,7 +127,7 @@ func (a *accountAssembly) Start(ctx context.Context) error {
 
 func (a *accountAssembly) Check(ctx context.Context) error {
 	a.mu.Lock()
-	runtime, mail, available := a.runtime, a.mail, a.started && !a.stopped
+	runtime, mail, executions, available := a.runtime, a.mail, a.executions, a.started && !a.stopped
 	a.mu.Unlock()
 	if !available || runtime == nil || mail == nil {
 		return foundation.NewFault(foundation.DependencyUnavailable, foundation.NotStarted)
@@ -127,7 +136,13 @@ func (a *accountAssembly) Check(ctx context.Context) error {
 	if err := runtime.Check(ctx); err != nil {
 		return err
 	}
-	return mail.Check(ctx)
+	if err := mail.Check(ctx); err != nil {
+		return err
+	}
+	if executions != nil {
+		return executions.Check(ctx)
+	}
+	return nil
 }
 
 func (a *accountAssembly) Handler() http.Handler {
@@ -143,6 +158,11 @@ func (a *accountAssembly) works() []accountWork {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	var work []accountWork
+	// Runtime joins its Scheduler, drivers, Model and wire owners before any
+	// shared Work/Skill/Account provider or the root ProcessGuard may retire.
+	if a.executions != nil {
+		work = append(work, a.executions)
+	}
 	// Runner owns hijacked sockets and generation/Audit transactions; HTTP
 	// shutdown alone cannot retire them. Account and DB must remain until join.
 	if a.runners != nil {
@@ -222,14 +242,20 @@ func (a *accountAssembly) Force(ctx context.Context) error {
 		a.forced = ctx
 	}
 	original := a.forced
+	executions := a.executions
 	a.mu.Unlock()
 	a.StopAdmission()
 	var result error
-	// Mail gets its final completion opportunity before core retirement. Even
-	// if it consumes the budget, initiate every remaining concrete cancellation
-	// with the original expired context so root can actually force DB last.
+	// Mail gets its final completion opportunity before core retirement. Every
+	// force uses the original remaining budget; an unjoined Execution bundle
+	// additionally prevents shared-provider retirement below.
 	for _, work := range a.works() {
 		result = errors.Join(result, work.Force(original))
+		// The opt-in Runtime's original terminal/lease cleanup still uses the
+		// shared providers. Expiring a force budget does not make them disposable.
+		if executions != nil && work == executions && !executions.Joined() {
+			return errors.Join(result, foundation.NewFault(foundation.DependencyUnavailable, foundation.NotStarted))
+		}
 	}
 	return result
 }
@@ -281,7 +307,13 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
-	projectUsage, err := createProjectUsage(cfg, db, authority)
+	_, runtimeEnabled := cfg.ExecutionRuntime()
+	var projectUsage *projectUsageAssembly
+	if runtimeEnabled {
+		projectUsage, err = createProjectUsageAuthority(db, authority)
+	} else {
+		projectUsage, err = createProjectUsage(cfg, db, authority)
+	}
 	if err != nil {
 		return err
 	}
@@ -301,14 +333,6 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if !ok {
 		return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
 	}
-	modelAuthority, err := model.NewAuthority(modelStore, model.Authorizations{Sessions: authority, System: authority, Projects: projectUsage.projects})
-	if err != nil {
-		return err
-	}
-	usage, err := model.NewSecretUsageRouter(modelAuthority, authority)
-	if err != nil {
-		return err
-	}
 	accounts := &accountAssembly{constructing: true}
 	if !owned.addAccounts(ctx, accounts) {
 		accounts.constructionDone()
@@ -316,6 +340,40 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	}
 	defer accounts.constructionDone()
 	objects, err := openObjectAssembly(ctx, cfg, owned)
+	if err != nil {
+		return err
+	}
+	var executionAuthorities *executionRuntimeAuthorities
+	modelAuth := model.Authorizations{Sessions: authority, System: authority, Projects: projectUsage.projects}
+	if runtimeEnabled {
+		executionAuthorities, err = createExecutionRuntimeAuthorities(db, projectUsage.projects, objects.guard)
+		if err != nil {
+			return err
+		}
+		modelAuth.Resolution = &model.ResolutionAuthorizations{Consumers: executionAuthorities.execution, SecretService: executionAuthorities.secretService}
+		projectUsage, err = bindProjectUsage(cfg, db, authority, projectUsage, executionAuthorities.model)
+		if err != nil {
+			return err
+		}
+		facts, e := skill.NewInitializationAuditFacts(contentAuthorities.skills, projectUsage.objectFacts)
+		if e != nil {
+			return e
+		}
+		contentAuthorities.audit, err = project.NewRuntimeInitializationAuditAuthority(projectUsage.projects, facts, executionAuthorities.model)
+		if err != nil {
+			return err
+		}
+	}
+	modelAuthority, err := model.NewAuthority(modelStore, modelAuth)
+	if err != nil {
+		return err
+	}
+	var usage *model.SecretUsageRouter
+	if runtimeEnabled {
+		usage, err = model.NewRuntimeSecretUsageRouter(modelAuthority, executionAuthorities.model, authority)
+	} else {
+		usage, err = model.NewSecretUsageRouter(modelAuthority, authority)
+	}
 	if err != nil {
 		return err
 	}
@@ -400,15 +458,29 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
+	producers := map[event.StableName]oc.ProducerAuthority{c.AccountProducer: authority, model.ModelProducer: modelAuthority, pc.ProjectProducer: projectUsage.projects, wc.WorkProducer: workAuthority, vc.VariableProducer: projectUsage.variables, kc.KnowledgeProducer: contentAuthorities.knowledge}
+	var executionEvents executionRuntimeEventSet
+	if runtimeEnabled {
+		executionEvents, err = defineExecutionRuntimeEvents(catalog)
+		if err != nil {
+			return err
+		}
+		producers[ec.ExecutionProducer] = executionAuthorities.events
+	}
 	journal, err := outbox.New(journalStore, catalog, outbox.Authorizations{
-		Producers: map[event.StableName]oc.ProducerAuthority{c.AccountProducer: authority, model.ModelProducer: modelAuthority, pc.ProjectProducer: projectUsage.projects, wc.WorkProducer: workAuthority, vc.VariableProducer: projectUsage.variables, kc.KnowledgeProducer: contentAuthorities.knowledge},
+		Producers: producers,
 		Processes: outboxProcessAuthority{process: objects.process, guard: objects.guard},
 		Sessions:  authority, System: authority, Audit: auditor, Cursors: cfg.CursorKeyring(), Projects: projectUsage.projects,
 	})
 	if err != nil {
 		return err
 	}
-	planning, err := createWorkPlanning(cfg, db, workAuthority, authority, journal, workEvents, projectUsage.projects)
+	var planning *workPlanningAssembly
+	if runtimeEnabled {
+		planning, err = createWorkPlanningWithPending(cfg, db, workAuthority, authority, journal, workEvents, executionAuthorities.pending, projectUsage.projects)
+	} else {
+		planning, err = createWorkPlanning(cfg, db, workAuthority, authority, journal, workEvents, projectUsage.projects)
+	}
 	if err != nil {
 		return err
 	}
@@ -487,6 +559,16 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	}
 	if !accounts.install(ctx, func() { accounts.skills = &skillWork{service: skills} }) {
 		return context.Canceled
+	}
+	if runtimeEnabled {
+		executions := &executionRuntimeAssembly{constructing: true}
+		if !accounts.install(ctx, func() { accounts.executions = executions }) {
+			executions.constructionDone()
+			return context.Canceled
+		}
+		if err = constructExecutionRuntime(executions, cfg, db, authority, projectUsage, contentAuthorities.skills, workAuthority, executionAuthorities, objects, models, secrets, transport, journal, executionEvents); err != nil {
+			return err
+		}
 	}
 	projectCommands, err := createProjectUpdate(cfg, db, projectUsage.projects, authority, auditor, journal, projectEvents, processes)
 	if err != nil {
