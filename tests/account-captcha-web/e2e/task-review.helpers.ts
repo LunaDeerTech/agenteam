@@ -277,8 +277,7 @@ async function observeBrowserIO(
           writeInputs.set(call, {
             source: originalAgentCreate,
             current:
-              progress?.kind === "create" &&
-              progress.phase === "uncertain" &&
+              progress?.phase === "uncertain" &&
               progress.contextValid === true &&
               progress.projectID === originalAgentCreate?.project &&
               progress.agentID === originalAgentCreate?.request?.agent_id,
