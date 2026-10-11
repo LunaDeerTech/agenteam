@@ -98,6 +98,7 @@ export async function observeIntake(page: Page, data: IntakeMaterial) {
     cut:
       data.mode === "lost-create-confirmation-and-ready" ? "create" : undefined,
     lookupCommand: "work.task.create",
+    intakeWrites: true,
   });
   return {
     ...seen,

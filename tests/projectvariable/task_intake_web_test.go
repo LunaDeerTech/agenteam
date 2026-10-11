@@ -5,11 +5,14 @@ package projectvariable_test
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"reflect"
 	"testing"
 
@@ -35,9 +38,11 @@ func TestTaskIntakeWeb(t *testing.T) {
 }
 
 type intakeWebObservation struct {
-	kind     string
-	key      f.IdempotencyKey
-	transfer wc.TaskTransfer
+	kind          string
+	key           f.IdempotencyKey
+	transfer      wc.TaskTransfer
+	requestDigest [sha256.Size]byte
+	keyDigest     [sha256.Size]byte
 }
 type intakeWebObservationKey struct{}
 type taskIntakeWeb struct {
@@ -184,6 +189,10 @@ func (w *taskIntakeWeb) observeRequest(r *http.Request) error {
 		}
 		observation = intakeWebObservation{kind: "ready", key: key, transfer: request.Clone()}
 	}
+	// Bind proof to these original browser bytes and key before the request is
+	// forwarded. Later response observation never reconstructs an intent.
+	observation.requestDigest = sha256.Sum256(raw)
+	observation.keyDigest = sha256.Sum256([]byte(key))
 	*r = *r.WithContext(context.WithValue(r.Context(), intakeWebObservationKey{}, observation))
 	return nil
 }
@@ -200,9 +209,10 @@ func (w *taskIntakeWeb) response(r *http.Response) error {
 	if r.StatusCode != http.StatusOK {
 		return fmt.Errorf("original intake %s returned HTTP %d", observation.kind, r.StatusCode)
 	}
-	requestID, err := f.ParseID[f.Request](r.Header.Get("X-Request-ID"))
-	if err != nil {
-		return err
+	id := r.Header.Get("X-Request-ID")
+	requestID, err := f.ParseID[f.Request](id)
+	if err != nil || len(r.Header.Values("X-Request-ID")) != 1 || requestID.String() != id {
+		return errors.New("original intake response identity invalid")
 	}
 	meta := f.CommandMeta{RequestID: requestID, IdempotencyKey: observation.key}
 	switch observation.kind {
@@ -269,8 +279,63 @@ func (w *taskIntakeWeb) response(r *http.Response) error {
 		w.shell.mu.Lock()
 		w.ready = receipt.Clone()
 		w.shell.mu.Unlock()
+	default:
+		return errors.New("unexpected intake response kind")
 	}
-	return nil
+	return w.committedProof(r, raw, observation)
+}
+
+func (w *taskIntakeWeb) committedProof(r *http.Response, raw []byte, observation intakeWebObservation) error {
+	// Called only after completedResponse has joined the original verified TLS
+	// read/Close and handler, and after this exact command's committed facts match.
+	// The declared lost Create returns reviewWebDrop before reaching this point.
+	if r.Request.Method != http.MethodPost || r.StatusCode != http.StatusOK {
+		return errors.New("intake proof requires the original successful POST")
+	}
+	id := r.Header.Get("X-Request-ID")
+	w.shell.mu.Lock()
+	tail := w.shell.tails[id]
+	returned := tail != nil && tail.returned
+	w.shell.mu.Unlock()
+	if !returned {
+		return errors.New("original intake handler did not return")
+	}
+	select {
+	case <-tail.done:
+	default:
+		return errors.New("original intake handler tail still open")
+	}
+	record := struct {
+		InputHash         string `json:"input_hash"`
+		RequestID         string `json:"request_id"`
+		Method            string `json:"method"`
+		URLDigest         string `json:"url_sha256"`
+		Status            int    `json:"status"`
+		Length            int    `json:"content_length"`
+		Digest            string `json:"body_sha256"`
+		OriginalEOF       bool   `json:"original_eof"`
+		OriginalClosed    bool   `json:"original_closed"`
+		HandlerReturned   bool   `json:"handler_returned"`
+		Kind              string `json:"kind"`
+		RequestBodyDigest string `json:"request_body_sha256"`
+		IdempotencyDigest string `json:"idempotency_key_sha256"`
+		CommittedVerified bool   `json:"committed_verified"`
+	}{
+		InputHash: w.shell.inputHash, RequestID: id, Method: r.Request.Method,
+		URLDigest: fmt.Sprintf("%x", sha256.Sum256([]byte(r.Request.URL.RequestURI()))),
+		Status:    r.StatusCode, Length: len(raw), Digest: fmt.Sprintf("%x", sha256.Sum256(raw)),
+		OriginalEOF: true, OriginalClosed: true, HandlerReturned: returned,
+		Kind: observation.kind, RequestBodyDigest: fmt.Sprintf("%x", observation.requestDigest),
+		IdempotencyDigest: fmt.Sprintf("%x", observation.keyDigest), CommittedVerified: true,
+	}
+	encoded, err := json.Marshal(record)
+	if err != nil {
+		return err
+	}
+	if err := os.MkdirAll(w.shell.evidence, 0700); err != nil {
+		return err
+	}
+	return os.WriteFile(filepath.Join(w.shell.evidence, w.shell.profile.filePrefix+"-"+w.shell.mode+"-response-"+id+".json"), encoded, 0600)
 }
 
 func (w *taskIntakeWeb) createdFacts(ctx context.Context, meta f.CommandMeta, receipt wc.TaskMutation) error {

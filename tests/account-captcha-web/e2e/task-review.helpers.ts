@@ -130,6 +130,10 @@ async function observeBrowserIO(
     const calls: any[] = [];
     const originalCalls = new WeakMap<Promise<any>, any>();
     const identities = new WeakMap<object, string>();
+    // Original public arguments and keys stay private to this document. Only
+    // hashes and boolean matches can enter the persisted observation.
+    const writeInputs = new WeakMap<object, any>();
+    let originalCreate: any;
     const tails = new Set<Promise<void>>();
     const restorers: (() => void)[] = [];
     let retired = false,
@@ -181,6 +185,7 @@ async function observeBrowserIO(
       method: string,
       kind: string,
       path: (args: any[]) => string,
+      httpMethod = "GET",
     ) {
       const original = object[method],
         descriptor = Object.getOwnPropertyDescriptor(object, method);
@@ -192,6 +197,7 @@ async function observeBrowserIO(
         const call: any = {
           id: calls.length + 1,
           kind,
+          method: httpMethod,
           path: path(args),
           bound: 0,
           fulfilled: false,
@@ -203,6 +209,33 @@ async function observeBrowserIO(
           typed: null,
         };
         calls.push(call);
+        if (kind === "work.startCreate") {
+          if (originalCreate) failed = true;
+          originalCreate = {
+            call,
+            project: args[0],
+            draft: JSON.parse(JSON.stringify(args[1])),
+          };
+          writeInputs.set(call, originalCreate);
+        } else if (kind === "work.startReady") {
+          writeInputs.set(call, {
+            project: args[0],
+            task: args[1],
+            input: JSON.parse(JSON.stringify(args[2])),
+            source: originalCreate,
+          });
+        } else if (kind === "work.checkOriginal") {
+          const progress = auth.workReview.progress;
+          writeInputs.set(call, {
+            source: originalCreate,
+            current:
+              progress?.kind === "create" &&
+              progress.phase === "uncertain" &&
+              progress.contextValid === true &&
+              progress.projectID === originalCreate?.project &&
+              progress.taskID === originalCreate?.request?.task_id,
+          });
+        }
         let result: Promise<any>;
         try {
           result = Reflect.apply(original, this, args);
@@ -247,7 +280,7 @@ async function observeBrowserIO(
       });
     }
     host.__taskReviewProof = {
-      consumers(value: any, project: string) {
+      consumers(value: any, project: string, intakeWrites: boolean) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
         consumer(auth, "restore", "restore", () => "/api/v1/session");
@@ -294,6 +327,37 @@ async function observeBrowserIO(
               (method === "blockers" ? "/blockers" : "")
             );
           });
+        if (intakeWrites) {
+          consumer(
+            auth.workReview,
+            "startCreate",
+            "work.startCreate",
+            (a) => {
+              if (a[0] !== project) throw Error("TASK_INTAKE_CONSUMER_SCOPE");
+              return "/api/v1/projects/" + project + "/tasks";
+            },
+            "POST",
+          );
+          consumer(
+            auth.workReview,
+            "startReady",
+            "work.startReady",
+            (a) => {
+              if (a[0] !== project) throw Error("TASK_INTAKE_CONSUMER_SCOPE");
+              return (
+                "/api/v1/projects/" + project + "/tasks/" + a[1] + "/transfer"
+              );
+            },
+            "POST",
+          );
+          consumer(
+            auth.workReview,
+            "checkOriginal",
+            "work.checkOriginal",
+            () => "/api/v1/projects/" + project + "/task-commands/lookup",
+            "POST",
+          );
+        }
       },
       snapshot() {
         return {
@@ -315,6 +379,8 @@ async function observeBrowserIO(
           throw Error("TASK_REVIEW_ORIGINAL_OBSERVATIONS_PENDING");
         retired = true;
         for (const restore of restorers.reverse()) restore();
+        for (const call of calls) writeInputs.delete(call);
+        originalCreate = undefined;
         return this.snapshot();
       },
     };
@@ -379,17 +445,21 @@ async function observeBrowserIO(
       const id = ++nextFetch;
       if (id > 192) failed = true;
       const url = new URL(rawURL, location.href);
+      const method =
+        init?.method ?? (input instanceof Request ? input.method : "GET");
       const candidates = calls.filter(
         (call) =>
-          !call.settled && call.bound === 0 && call.path === url.pathname,
+          !call.settled &&
+          call.bound === 0 &&
+          call.path === url.pathname &&
+          call.method === method,
       );
       const call = candidates.length === 1 ? candidates[0] : undefined;
       if (call) call.bound++;
       const row: any = {
         id,
         call_id: call?.id ?? null,
-        method:
-          init?.method ?? (input instanceof Request ? input.method : "GET"),
+        method,
         path: url.pathname,
         request_id: null,
         status: null,
@@ -411,6 +481,72 @@ async function observeBrowserIO(
         error: false,
       };
       rows.set(id, row);
+      if (call && writeInputs.has(call)) {
+        // Observe only the string body supplied to the original fetch; never
+        // read a Request stream or substitute a reconstructed command.
+        const original = writeInputs.get(call);
+        try {
+          const raw = init?.body;
+          const key = new Headers(init?.headers).get("idempotency-key");
+          if (
+            typeof raw !== "string" ||
+            new TextEncoder().encode(raw).length > 512 << 10 ||
+            !key ||
+            !/^[A-Za-z0-9._:/-]{1,128}$/.test(key)
+          )
+            throw Error("TASK_INTAKE_ORIGINAL_REQUEST_MISSING");
+          const parsed = JSON.parse(raw);
+          const equal = (a: unknown, b: unknown) =>
+            JSON.stringify(canonical(a)) === JSON.stringify(canonical(b));
+          let matches = false;
+          if (call.kind === "work.startCreate") {
+            const { task_id, ...draft } = parsed.request ?? {};
+            matches =
+              Object.keys(parsed).join() === "request" &&
+              typeof task_id === "string" &&
+              /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+                task_id,
+              ) &&
+              equal(draft, original.draft);
+            if (matches) {
+              original.request = parsed.request;
+              original.key = key;
+            }
+          } else if (call.kind === "work.startReady") {
+            matches =
+              original.task === original.source?.request?.task_id &&
+              key !== original.source?.key &&
+              equal(parsed, original.input);
+          } else if (call.kind === "work.checkOriginal") {
+            matches =
+              original.current &&
+              original.source?.call.rejected === true &&
+              original.source.call.settled === true &&
+              key === original.source.key &&
+              equal(parsed, {
+                command: "work.task.create",
+                request: original.source.request,
+              });
+          }
+          call.request_bound = row.request_bound = matches;
+          track(
+            Promise.all([
+              digest(new TextEncoder().encode(raw)),
+              digest(new TextEncoder().encode(key)),
+            ]),
+            ([bodyHash, keyHash]) => {
+              call.request_body_sha256 = row.request_body_sha256 = bodyHash;
+              call.idempotency_key_sha256 = row.idempotency_key_sha256 =
+                keyHash;
+            },
+            () => {
+              row.error = true;
+            },
+          );
+        } catch {
+          row.error = true;
+        }
+      }
       const signal =
         init?.signal ?? (input instanceof Request ? input.signal : undefined);
       if (signal && !signals.has(signal)) signals.set(signal, ++nextSignal);
@@ -707,6 +843,7 @@ export type TaskObservationProfile = {
   endpoint: (request: Request) => string | undefined;
   cut?: "transfer" | "create";
   lookupCommand: "work.task.transfer" | "work.task.create";
+  intakeWrites?: true;
 };
 
 export function observeReview(page: Page, data: ReviewMaterial) {
@@ -723,12 +860,19 @@ export function observeReview(page: Page, data: ReviewMaterial) {
 
 // Shared observation machinery only. Each fixture supplies a closed endpoint
 // classifier and at most its one declared committed-response delivery fault.
-// GET joint proofs and ordinary POST completion rules remain identical.
+// Only the explicitly opted-in Intake fixture can additionally prove its three
+// original writes. GET and all other POST completion rules remain identical.
 export async function observeTaskRequests(
   page: Page,
   data: TaskObservationMaterial,
   profile: TaskObservationProfile,
 ) {
+  if (
+    profile.intakeWrites &&
+    (profile.prefix !== "task-intake" ||
+      profile.lookupCommand !== "work.task.create")
+  )
+    throw Error("TASK_INTAKE_WRITE_PROFILE_MISMATCH");
   const entries: Entry[] = [];
   const events: Record<string, unknown>[] = [];
   const browserEvents: BrowserDiagnostic[] = [];
@@ -837,7 +981,7 @@ export async function observeTaskRequests(
     entryHandlers++;
     try {
       await page.evaluate(
-        async ({ binding, project }) => {
+        async ({ binding, project, intakeWrites }) => {
           const module = await import(/* @vite-ignore */ binding.asset);
           const useSession = module[binding.exportName];
           if (typeof useSession !== "function")
@@ -845,9 +989,17 @@ export async function observeTaskRequests(
           const auth = useSession();
           if (useSession() !== auth)
             throw Error("TASK_REVIEW_SINGLETON_IDENTITY");
-          (window as any).__taskReviewProof.consumers(auth, project);
+          (window as any).__taskReviewProof.consumers(
+            auth,
+            project,
+            intakeWrites,
+          );
         },
-        { binding, project: data.project_id },
+        {
+          binding,
+          project: data.project_id,
+          intakeWrites: profile.intakeWrites === true,
+        },
       );
       await route.continue();
     } catch {
@@ -881,8 +1033,33 @@ export async function observeTaskRequests(
     return proof;
   }
 
+  function intakeWrite(entry: Entry) {
+    if (!profile.intakeWrites || entry.request.method() !== "POST")
+      return false;
+    const paths: Record<string, string> = {
+      create: `/api/v1/projects/${data.project_id}/tasks`,
+      lookup: `/api/v1/projects/${data.project_id}/task-commands/lookup`,
+    };
+    const url = new URL(entry.request.url());
+    if (url.search) return false;
+    if (entry.name === "ready") {
+      const creates = entries.filter((e) => e.name === "create");
+      if (creates.length !== 1) return false;
+      const task = creates[0]!.request.postDataJSON().request.task_id;
+      return (
+        url.pathname ===
+        `/api/v1/projects/${data.project_id}/tasks/${task}/transfer`
+      );
+    }
+    return (
+      Object.hasOwn(paths, entry.name) && url.pathname === paths[entry.name]
+    );
+  }
+
   function joint(entry: Entry, proof: any) {
-    expect(entry.request.method()).toBe("GET");
+    const write = intakeWrite(entry);
+    const method = write ? "POST" : "GET";
+    expect(entry.request.method()).toBe(method);
     expect(entry.status).toBe(200);
     expect(entry.responseCount).toBe(1);
     expect(entry.finishedCount).toBe(entry.terminal === "finished" ? 1 : 0);
@@ -910,7 +1087,7 @@ export async function observeTaskRequests(
     );
     expect(record.input_hash).toBe(profile.inputHash);
     expect(record.request_id).toBe(entry.requestID);
-    expect(record.method).toBe("GET");
+    expect(record.method).toBe(method);
     expect(record.status).toBe(200);
     expect(record.url_sha256).toBe(
       createHash("sha256")
@@ -921,7 +1098,7 @@ export async function observeTaskRequests(
       record.original_eof && record.original_closed && record.handler_returned,
     ).toBe(true);
     expect(n.path).toBe(expectedURL.pathname);
-    expect(n.method).toBe("GET");
+    expect(n.method).toBe(method);
     expect(n.status).toBe(200);
     expect(n.fetch_returned).toBe(true);
     expect(n.fetch_rejected || n.error || n.aborted).toBe(false);
@@ -938,12 +1115,39 @@ export async function observeTaskRequests(
     expect(n.digest).toMatch(/^[0-9a-f]{64}$/);
     expect(record.body_sha256).toBe(n.digest);
     expect(c.bound).toBe(1);
+    expect(c.method).toBe(method);
     expect(c.path).toBe(n.path);
     expect(c.fulfilled && c.settled && c.current && c.not_busy).toBe(true);
     expect(c.rejected).toBe(false);
     expect(c.typed).not.toBeNull();
     expect(c.typed_digest).toMatch(/^[0-9a-f]{64}$/);
     expect(n.typed_digest).toBe(c.typed_digest);
+    if (write) {
+      const kinds: Record<string, string> = {
+        create: "work.startCreate",
+        ready: "work.startReady",
+        lookup: "work.checkOriginal",
+      };
+      const raw = entry.request.postDataBuffer();
+      const key = entry.request.headers()["idempotency-key"];
+      expect(raw).not.toBeNull();
+      expect(raw!.length).toBeLessThanOrEqual(512 << 10);
+      expect(key).toMatch(/^[A-Za-z0-9._:/-]{1,128}$/);
+      const bodyHash = createHash("sha256").update(raw!).digest("hex");
+      const keyHash = createHash("sha256").update(key!).digest("hex");
+      expect(c.kind).toBe(kinds[entry.name]);
+      expect(c.request_bound && n.request_bound).toBe(true);
+      expect(record.kind).toBe(entry.name);
+      expect(record.committed_verified).toBe(true);
+      for (const source of [record, n, c]) {
+        expect(source.request_body_sha256).toBe(bodyHash);
+        expect(source.idempotency_key_sha256).toBe(keyHash);
+      }
+      if (entry.name === "lookup") {
+        expect(c.typed.status).toBe("committed");
+        originalLookup();
+      }
+    }
     proofs.push({
       seq: entry.seq,
       request_id: entry.requestID,
@@ -984,7 +1188,7 @@ export async function observeTaskRequests(
       }
       if (
         state === "failed" &&
-        entry.request.method() === "GET" &&
+        (entry.request.method() === "GET" || intakeWrite(entry)) &&
         response?.status() === 200 &&
         entry.failure === "net::ERR_ABORTED"
       ) {
@@ -1034,6 +1238,13 @@ export async function observeTaskRequests(
       entry.body = JSON.parse(raw.toString("utf8"));
       expect(typeof entry.body).toBe("object");
       expect(entry.body).not.toBeNull();
+      if (intakeWrite(entry)) {
+        // Even genuine requestfinished must match the original public receipt
+        // and committed facts; the additional proof does not replace its tail.
+        const consumed = joint(entry, proof);
+        expect(consumed).toEqual(entry.body);
+        entry.body = consumed;
+      }
       entry.checked = true;
     }
   }
