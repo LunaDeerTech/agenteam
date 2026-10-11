@@ -2,6 +2,9 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
 import { useKnowledgeText } from '../../composables/useKnowledgeText'
+import { useSession } from '../../composables/useSession'
+import { useKnowledgeTitleSearch } from '../../composables/useKnowledgeTitleSearch'
+import KnowledgeTitleSearch from '../../components/knowledge/KnowledgeTitleSearch.vue'
 import type { KnowledgeDocument } from '../../api/knowledge-owner'
 import KnowledgeRenameDialog from '../../components/knowledge/KnowledgeRenameDialog.vue'
 import { useKnowledgeRename } from '../../composables/useKnowledgeRename'
@@ -25,6 +28,11 @@ const owner = useKnowledgeOwner(undefined, workspace, location),
 const rename = useKnowledgeRename(owner, workspace)
 const textEditor = useKnowledgeText()
 const detachText = textEditor.attachReader(owner)
+const titleSearch = useKnowledgeTitleSearch(
+  useSession().knowledge,
+  computed(() => (owner.visible.value ? workspace.currentReadContext.value : null)),
+  owner.blocked,
+)
 async function createText(parent: KnowledgeDocument | null = null) {
   if (await rename.permitNavigation()) await textEditor.openCreate(parent)
 }
@@ -65,19 +73,27 @@ const creator = computed(() => {
       ? value.user_id
       : `${value.agent_id} / ${value.execution_id}`
 })
-async function select(id: string) {
+async function select(id: string, current: () => boolean = () => true) {
   if (
     id !== state.selected &&
     (!(await rename.permitNavigation()) || !(await textEditor.permitNavigation()))
   )
     return
+  if (!current()) return
   const fromDrawer = drawer.value
   owner.select(id)
   drawer.value = false
   await nextTick()
   if (!fromDrawer && owner.visible.value && state.selected === id) documentHeading.value?.focus()
 }
-const cancel = () => owner.cancel()
+function selectSearchResult(id: string) {
+  const current = titleSearch.selection(id)
+  if (current) void select(id, current)
+}
+const cancel = () => {
+  titleSearch.cancel()
+  owner.cancel()
+}
 async function leave() {
   if (!(await rename.permitNavigation()) || !(await textEditor.permitNavigation())) return false
   cancel()
@@ -93,6 +109,7 @@ onBeforeUnmount(() => {
   detachText()
   stopNavigation()
   rename.dispose()
+  titleSearch.dispose()
   owner.dispose()
 })
 </script>
@@ -118,6 +135,11 @@ onBeforeUnmount(() => {
     <UiState v-if="!owner.visible.value" kind="loading" title="正在确认知识库访问身份" />
     <div v-else class="knowledge-layout">
       <aside class="desktop-tree" aria-label="文档目录">
+        <KnowledgeTitleSearch
+          :search="titleSearch"
+          :selected="state.selected"
+          @select="selectSearchResult"
+        />
         <KnowledgeDocumentTree
           :levels="state.levels"
           :expanded="state.expanded"
@@ -262,6 +284,12 @@ onBeforeUnmount(() => {
     </div>
     <KnowledgeRenameDialog :editor="rename" :fallback-focus="documentHeading ?? heading" />
     <UiDrawer v-model:open="drawer" title="文档树">
+      <KnowledgeTitleSearch
+        v-if="owner.visible.value"
+        :search="titleSearch"
+        :selected="state.selected"
+        @select="selectSearchResult"
+      />
       <KnowledgeDocumentTree
         v-if="owner.visible.value"
         :levels="state.levels"
@@ -280,6 +308,11 @@ onBeforeUnmount(() => {
 .knowledge-page {
   min-width: 0;
   padding: var(--space);
+}
+.desktop-tree {
+  display: grid;
+  align-content: start;
+  gap: var(--space-4);
 }
 .knowledge-heading,
 .document-toolbar,

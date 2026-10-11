@@ -1,6 +1,20 @@
-# 主线有限交付与后继状态
+# Knowledge 全项目标题查找 UI
 
-2026-10-11：Sprint 标题/描述编辑已有限独立接受，最终4文档已保存为 `cfc915e4`，root 正在 `/workspace/agenteam` 集成主线，待 Git 提交。树 `/workspace/agenteam-sprint-edit-ui`，分支 `ai/sprint-edit-ui-20261011`；起点 `953fc793`，Scheduler main 已组合为 `df554807`，最终技术/方法 `9651ec9188704b4fd5b8c34b445af7072fe9df97` 已 root checkpoint/push。作者 agent_display_settings，唯一Go fixture原作者 knowledge_text_fixture，非作者 recovery_lead 已独审源码/方法/原件/五图；全部 Git 由 root 执行。
+2026-10-11，`/workspace/agenteam-knowledge-title-search-ui`，分支 `ai/knowledge-title-search-ui-20261011`。实现者 skills_milestone_review，独审 skill_package_review，root 独占 Git。产品固定f09827a8、真实方法9ec39517；[正式卡](../docs/development/work-items/d12-knowledge-title-search-ui.md)记录契约、证据与范围。最终5docs以main34ea0b1a为共享底，保已交Sprint/SecretAudit，等待root统一主线组合；产品/方法/dist保持冻结。
+
+全项目标题字面查找已接入桌面目录/窄屏Drawer与唯一Session knowledgeRead owner。完整查询页/祖先校验后发布，分页按ID合并；查询/身份变化退役旧观察，实际原cancel尾未退出仍串行阻止新请求。选择命中复用正文/改名未保存确认，确认后再核上下文，原文档owner读取当前metadata/path/body。只读查询属于页面实例，checking/离页清除，不清既有App正文草稿或Unknown原意图。共享client/Session最窄新增与Sprint产品需最终精确并集；三方法已传入Sprint9651基底。
+
+基础原件 `output/ai/knowledge-title-search-ui/checks-01/` 的codec/state18、组件2及type实际通过；checks-02的最终冻结输入integration04三文件10控原34657 actual0/5.045s，旧受影响Knowledge4文件76PASS。integration01原FAIL为测试Project名称归一化不匹配；integration02修fixture后5PASS/1FAIL，checking03修测试对restore微任务等待后1PASS。初始client/Session仅保存局部排版前SHA而无源码，故用最终10控补齐证据，不以记忆作逐字证明；原FAIL保留。build01原53456 actual0/type与freshdist-01均0、24.947s，312web输入前后等。web/harness依赖均同锁后物理私有复制，无网络/源目录写入。
+
+method-01原3573 actual0：26profile正反控、4syntax、唯一PW list/单Session绑定，4.201s、6输入前后等；两harness37有效映射/结果正反控actual0，supervisor逆去新增selector逐字恢复旧源。compile-app01原52074 actual0：Go243784 race-c0/81.195s、2445输入前后等，list2465490/1.446s且唯一TestKnowledgeTitleSearchWeb；native闭包2446项仅新增真实binary6987886b…6617ec28，89AppGo/77dist，aggregate10099229…5e0df，已独核准入。
+
+native01已有限whole独验接受：outer31234亲wait0/141.189s；Go1top1sub19.38s，9GET全200/finished、2search/0写入/Lookup/all_observedtrue。两PNG为1440浅色当前正文与390深色命中Drawer，非作者亲视并核9条原联合证据。Node/Go/driver/四Chrome原Wait0、七资源14absence、private/runtime/desc与HOST_TCP双空及inputs_unchanged齐；原件native01/，PG原log `/tmp/ktsw01/ui-f041d9ebb0644133.log`。最初 `/tmp/ktw01` 重名预检FAIL保留且旧目录未动，实际fresh路径为 `/tmp/ktsw01`。
+
+本轮全finished，不称failed GET补证实际触发，不外推真实分页/撤权/取消竞争/命令Unknown矩阵。原Knowledge历史FAIL、Jina/Image/source ingestion、移动/上传/删除、生产initializer、Object Runtime join和SPA部署等STOP保持。当前无后台、Go/cache writer、native或网络占用，资源窗口已明确交回root。
+
+## 已交主线范围保留
+
+2026-10-11：Sprint 标题/描述编辑已有限独立接受，最终4文档已保存为 `cfc915e4`，此前已由root集成至main `34ea0b1a`。树 `/workspace/agenteam-sprint-edit-ui`，分支 `ai/sprint-edit-ui-20261011`；起点 `953fc793`，Scheduler main 已组合为 `df554807`，最终技术/方法 `9651ec9188704b4fd5b8c34b445af7072fe9df97` 已 root checkpoint/push。作者 agent_display_settings，唯一Go fixture原作者 knowledge_text_fixture，非作者 recovery_lead 已独审源码/方法/原件/五图；全部 Git 由 root 执行。
 
 范围与精确证据见[本片卡](../docs/development/work-items/d11-sprint-edit-ui.md)。planned/current 仅标题/描述编辑，completed 连no-op禁；原key/version/full patch、冲突草稿/显式采用、Unknown只原Lookup与当前Get/List分离。未改后端、迁移或通用框架。
 
@@ -18,4 +32,6 @@
 
 该窄片仅证明真实 Authority/同 Store/Project SH 下两个 adapter 的停止报告与原事务返回；实际接受等待依全局锁序先阻于原 User EX。Account 为 canonical 种子，terminal 状态为明确 SQL 观察输入，Unknown 为已 Committed 后包装返回；不冒生产登录、完整 registry 或网络 COMMIT 故障。没有恢复旧领域绑定整卡，不绑定生产 initializer/registry、Cleanup 或 ready，不修改 Object/Artifact/app/web。Object Runtime join、foreign join、完整 D08/F1、ready=false/503 和其他既有 STOP 保持。
 
-本次主线组合的15个Sprint产品/测试技术路径与已验 `cfc915e4` staged/working逐字相等；两原harness仅叠加 main `f688` 的Secret/Audit精确selector、3输入/2sub与TARGETS差额，双向反补丁证明均成立，记录在Sprint树 `output/ai/sprint-edit-ui/merge-main-final01/`。此为组合内容证明，不冒新main动态重跑。Knowledge标题查找后继仍在独立树实施，不计已交付；共享方法已向该作者交接9651固定字节，由root协调Git集成及运行窗口。
+本次主线组合的15个Sprint产品/测试技术路径与已验 `cfc915e4` staged/working逐字相等；两原harness仅叠加 main `f688` 的Secret/Audit精确selector、3输入/2sub与TARGETS差额，双向反补丁证明均成立，记录在Sprint树 `output/ai/sprint-edit-ui/merge-main-final01/`。此为组合内容证明，不冒新main动态重跑。Knowledge标题查找已完成限定验收，后继范围见本记录首部；旧结果与停止项保留。
+
+本次Knowledge主线内容组合完成：client/Session与两harness四路径均有“main加原Knowledge补丁、反向移除、候选加原main补丁、反向移除”四路逐字证明，保Sprint/SecretAudit；另16技术路径逐字等99431258。shared helper逐字等实际运行候选且候选前基底等main，没有新组合分派，未重跑native。有效METADATA_INPUTS/TARGETS/METADATA_GROUPS精确并集和Python语法检查通过，证据在标题查找树 `output/ai/knowledge-title-search-ui/merge-main01/`。首版证明器因原Session重复上下文拒绝保留，后版在整文件目标约束下证明完整补丁并集；产品没有因此修改。等待root Git保存。

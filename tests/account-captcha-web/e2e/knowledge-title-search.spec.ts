@@ -1,0 +1,71 @@
+import { test, expect, type Page, type Locator } from "@playwright/test";
+import { titleMaterial, observeTitleSearch, titleScreenshot } from "./knowledge-title-search.helpers";
+
+const observations = new WeakMap<Page, Awaited<ReturnType<typeof observeTitleSearch>>>();
+test.afterEach(async ({ page }, info) => {
+  const seen = observations.get(page);
+  try { await seen?.retire(); } finally { seen?.save(info.status, info.errors); }
+});
+async function press(page: Page, button: Locator) {
+  await expect(button).toBeEnabled();
+  await button.focus();
+  await expect(button).toBeFocused();
+  await page.keyboard.press("Enter");
+}
+test("finds an unloaded descendant by literal title and opens its current text [literal-title-and-current-read]", async ({ page }) => {
+  const data = titleMaterial();
+  await page.setViewportSize({ width: 1440, height: 960 });
+  await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
+  await page.context().addCookies([{ name: "agenteam_local_session", value: data.cookie, url: process.env.AGENTEAM_AUTH_WEB_ORIGIN!, httpOnly: true, sameSite: "Lax", secure: false }]);
+  const seen = await observeTitleSearch(page, data);
+  observations.set(page, seen);
+  await page.goto(data.route);
+  await expect(page.getByRole("region", { name: "项目知识库", exact: true })).toBeVisible();
+  const directory = page.getByRole("complementary", { name: "文档目录", exact: true });
+  const tree = directory.getByRole("tree", { name: "知识库文档" });
+  await expect(tree.locator(`[data-tree-id="${data.parent_id}"]`)).toBeVisible();
+  await expect(tree.locator(`[data-tree-id="${data.document_id}"]`)).toHaveCount(0);
+  seen.stage("root-read"); await seen.verify(); seen.rootOnly();
+  const search = directory.getByRole("search", { name: "查找文档标题" });
+  await search.getByRole("searchbox", { name: "标题包含" }).fill(data.query);
+  seen.stage("literal-query");
+  await press(page, search.getByRole("button", { name: "查找标题", exact: true }));
+  const results = directory.getByRole("list", { name: "标题查找结果" });
+  await expect(results.getByRole("listitem")).toHaveCount(1);
+  await expect(results.getByText(data.parent_title, { exact: true })).toBeVisible();
+  await seen.verify(); seen.hit();
+  seen.stage("select-current");
+  await press(page, results.getByRole("button", { name: data.title, exact: true }));
+  await expect(page.locator(".knowledge-document > h2")).toHaveText(data.title);
+  await expect.poll(() => page.locator("pre.canonical-text").textContent()).toBe(data.text);
+  await seen.verify(); seen.current();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await titleScreenshot(page, "1440-light-current");
+  seen.stage("narrow-results");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+  const trigger = page.getByRole("button", { name: "文档树", exact: true });
+  await press(page, trigger);
+  const drawer = page.getByRole("dialog", { name: "文档树", exact: true });
+  await expect(drawer).toBeVisible();
+  const hit = drawer.getByRole("list", { name: "标题查找结果" }).getByRole("button", { name: data.title, exact: true });
+  await expect(hit).toHaveAttribute("aria-current", "true");
+  await expect(drawer.getByRole("list", { name: "标题查找结果" }).getByText(data.parent_title, { exact: true })).toBeVisible();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  expect(await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches)).toBe(true);
+  await titleScreenshot(page, "390-dark-results");
+  seen.stage("empty-query");
+  const narrowSearch = drawer.getByRole("search", { name: "查找文档标题" });
+  await narrowSearch.getByRole("searchbox", { name: "标题包含" }).fill(data.miss_query);
+  await press(page, narrowSearch.getByRole("button", { name: "查找标题", exact: true }));
+  await expect(drawer.getByText("没有匹配的文档标题", { exact: true })).toBeVisible();
+  await expect(drawer.getByRole("list", { name: "标题查找结果" })).toHaveCount(0);
+  await seen.verify();
+  await press(page, narrowSearch.getByRole("button", { name: "清空查找", exact: true }));
+  await expect(narrowSearch.getByRole("searchbox", { name: "标题包含" })).toHaveValue("");
+  await expect(drawer.getByRole("tree", { name: "知识库文档" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(drawer).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+  seen.stage("retire"); await seen.finish();
+});

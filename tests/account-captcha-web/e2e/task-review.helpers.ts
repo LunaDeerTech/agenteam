@@ -531,6 +531,7 @@ export async function observeBrowserIO(
         variableWrites: boolean,
         knowledgeTextWrites: boolean,
         schedulerWrites = false,
+        knowledgeTitleReads = false,
       ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
@@ -566,6 +567,13 @@ export async function observeBrowserIO(
                 throw Error("PROJECT_SCHEDULER_CONSUMER_SCOPE");
               return "/api/v1/projects/" + project + (method === "checkOriginal" ? "/commands/lookup" : "/scheduler");
             }, method === "get" ? "GET" : method === "startUpdate" ? "PATCH" : "POST");
+        } else if (knowledgeTitleReads) {
+          const prefix = "/api/v1/projects/" + project + "/knowledge/documents";
+          for (const method of ["children", "searchTitles", "get", "ancestors", "readContent"])
+            consumer(auth.knowledge, method, "knowledge." + method, (a) => {
+              if (a[0] !== project) throw Error("KNOWLEDGE_TITLE_READ_SCOPE");
+              return prefix + (method === "children" ? "/children" : method === "searchTitles" ? "/search-titles" : "/" + a[1] + (method === "get" ? "" : method === "ancestors" ? "/ancestors" : "/content"));
+            });
         } else if (knowledgeTextWrites) {
           const prefix = "/api/v1/projects/" + project + "/knowledge/documents";
           for (const method of ["children", "get", "ancestors", "readContent"])
@@ -1554,6 +1562,7 @@ export type TaskObservationProfile = {
     | "sprint-edit"
     | "project-variables"
     | "knowledge-text"
+    | "knowledge-title-search"
     | "project-scheduler";
   endpoint: (request: Request) => string | undefined;
   cut?: "transfer" | "create" | "update" | "start";
@@ -1584,6 +1593,7 @@ export type TaskObservationProfile = {
   sprintUpdateWrites?: true;
   variableWrites?: true;
   knowledgeTextWrites?: true;
+  knowledgeTitleReads?: true;
   schedulerWrites?: true;
 };
 
@@ -1822,6 +1832,14 @@ export async function observeTaskRequests(
        profile.agentEditWrites || profile.agentModelPolicy || profile.sprintStartWrites || profile.sprintCreateWrites ||
        profile.skillsReads || profile.milestoneCreateWrites || profile.variableWrites || profile.knowledgeTextWrites))
     throw Error("PROJECT_SCHEDULER_PROFILE_MISMATCH");
+  if ((profile.knowledgeTitleReads || profile.prefix === "knowledge-title-search") &&
+      (profile.knowledgeTitleReads !== true || profile.prefix !== "knowledge-title-search" ||
+       profile.lookupCommand !== null || profile.cut !== undefined || data.mode !== "literal-title-and-current-read" ||
+       profile.intakeWrites || profile.agentConfiguration || profile.editWrites || profile.timelineReads ||
+       profile.agentEditWrites || profile.agentModelPolicy || profile.sprintStartWrites || profile.sprintCreateWrites ||
+       profile.skillsReads || profile.milestoneCreateWrites || profile.milestoneUpdateWrites || profile.sprintUpdateWrites ||
+       profile.variableWrites || profile.knowledgeTextWrites || profile.schedulerWrites))
+    throw Error("KNOWLEDGE_TITLE_PROFILE_MISMATCH");
   const entries: Entry[] = [];
   const events: Record<string, unknown>[] = [];
   const browserEvents: BrowserDiagnostic[] = [];
@@ -1849,7 +1867,7 @@ export async function observeTaskRequests(
         status: entry.status,
         request_id: entry.requestID,
         failure: entry.failure,
-        ...((profile.skillsReads || profile.schedulerWrites) && entry.skillsHeaders
+        ...((profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads) && entry.skillsHeaders
           ? { skills_headers: { ...entry.skillsHeaders } }
           : {}),
       });
@@ -1909,7 +1927,7 @@ export async function observeTaskRequests(
     if (entry.responseCount !== 1)
       observerError = new Error("DUPLICATE_ORIGINAL_RESPONSE");
     entry.status = response.status();
-    if (profile.skillsReads || profile.schedulerWrites) {
+    if (profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads) {
       // Observe both original header promises once; retain no credential values.
       entry.headersReady = Promise.allSettled([
         entry.request.allHeaders(),
@@ -2018,6 +2036,7 @@ export async function observeTaskRequests(
           variableWrites,
           knowledgeTextWrites,
           schedulerWrites,
+          knowledgeTitleReads,
         }) => {
           const module = await import(/* @vite-ignore */ binding.asset);
           const useSession = module[binding.exportName];
@@ -2043,6 +2062,7 @@ export async function observeTaskRequests(
             variableWrites,
             knowledgeTextWrites,
             schedulerWrites,
+          knowledgeTitleReads,
           );
         },
         {
@@ -2067,6 +2087,7 @@ export async function observeTaskRequests(
           variableWrites: profile.variableWrites === true,
           knowledgeTextWrites: profile.knowledgeTextWrites === true,
           schedulerWrites: profile.schedulerWrites === true,
+          knowledgeTitleReads: profile.knowledgeTitleReads === true,
         },
       );
       await route.continue();
@@ -2294,6 +2315,10 @@ export async function observeTaskRequests(
   function knowledgeTextReadEntry(entry: Entry) {
     return profile.knowledgeTextWrites && entry.request.method() === "GET" && ["documents", "document", "ancestors", "content"].includes(entry.name);
   }
+  function knowledgeTitleReadEntry(entry: Entry) {
+    return profile.knowledgeTitleReads && entry.request.method() === "GET" &&
+      ["session", "resolve", "projects", "project", "documents", "titles", "document", "ancestors", "content"].includes(entry.name);
+  }
   function schedulerWrite(entry: Entry) {
     if (!profile.schedulerWrites) return false;
     const url = new URL(entry.request.url()), prefix = `/api/v1/projects/${data.project_id}`;
@@ -2404,6 +2429,7 @@ export async function observeTaskRequests(
     if (variablePageRead(entry))
       expect(c.kind).toBe(entry.name === "variables" ? "variable.list" : "variable.get");
     if (knowledgeTextReadEntry(entry)) expect(c.kind).toBe({documents:"knowledge.children", document:"knowledge.get", ancestors:"knowledge.ancestors", content:"knowledge.readContent"}[entry.name]);
+    if (knowledgeTitleReadEntry(entry)) expect(c.kind).toBe({session:"restore", resolve:"project.resolve", projects:"project.list", project:"project.get", documents:"knowledge.children", titles:"knowledge.searchTitles", document:"knowledge.get", ancestors:"knowledge.ancestors", content:"knowledge.readContent"}[entry.name]);
     if (schedulerReadEntry(entry)) expect(c.kind).toBe({ session: "restore", resolve: "project.resolve", projects: "project.list", project: "project.get", scheduler: "scheduler.get" }[entry.name]);
     if (write) {
       if (scheduler) expect(c.result_current).toBe(true);
@@ -2501,7 +2527,7 @@ export async function observeTaskRequests(
           } catch { return false; }
         }, { timeout: 5_000 }).toBe(true);
       }
-      if (profile.skillsReads || profile.schedulerWrites) {
+      if (profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads) {
         // Include bootstrap reads as well as catalog/detail: a missing browser
         // projection is accepted only with this original request's App proof.
         const record = JSON.parse(
@@ -2651,7 +2677,7 @@ export async function observeTaskRequests(
         variableWrite(entry) ||
         variablePageRead(entry) ||
         knowledgeTextWrite(entry) ||
-        knowledgeTextReadEntry(entry) ||
+        knowledgeTextReadEntry(entry) || knowledgeTitleReadEntry(entry) ||
         schedulerWrite(entry) || schedulerReadEntry(entry) ||
         sprintPageRead(entry) ||
         agentWrite(entry) ||
@@ -2669,14 +2695,14 @@ export async function observeTaskRequests(
           >;
           entry.body = detail;
         }
-        if (knowledgeTextReadEntry(entry) && entry.name === "ancestors") entry.body = (entry.body as any).items;
+        if ((knowledgeTextReadEntry(entry) || knowledgeTitleReadEntry(entry)) && entry.name === "ancestors") entry.body = (entry.body as any).items;
         if (profile.schedulerWrites && entry.name === "lookup") {
           const wire = entry.body as any;
           expect(wire.state).toBe("committed");
           expect(wire.result.command).toBe("update");
           entry.body = { state: "committed", receipt: { project_id: wire.result.project.id, version: wire.result.project.version } };
         }
-        if (profile.schedulerWrites && entry.name === "session") {
+        if ((profile.schedulerWrites || profile.knowledgeTitleReads) && entry.name === "session") {
           const wire = entry.body as any;
           entry.body = { user: wire.user, session: wire.session };
         }
@@ -2762,6 +2788,12 @@ export async function observeTaskRequests(
     expect(profile.knowledgeTextWrites).toBe(true);
     const rows = entries.filter(e => e.name === name && e.checked && e.body && (!target || new URL(e.request.url()).pathname.includes("/" + target)));
     expect(rows.length, "original Knowledge read must complete").toBeGreaterThan(0);
+    return rows.at(-1)!.body as Record<string, any>;
+  }
+  function knowledgeTitleRead(name: "documents" | "titles" | "document" | "ancestors" | "content") {
+    expect(profile.knowledgeTitleReads).toBe(true);
+    const rows = entries.filter(e => e.name === name && e.checked && e.body);
+    expect(rows.length, "original title search read must complete").toBeGreaterThan(0);
     return rows.at(-1)!.body as Record<string, any>;
   }
   function schedulerRead() {
@@ -2927,7 +2959,7 @@ export async function observeTaskRequests(
             request_id: entry.requestID,
             terminal: entry.terminal,
             failure: entry.failure,
-            ...((profile.skillsReads || profile.schedulerWrites) && entry.skillsHeaders
+            ...((profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads) && entry.skillsHeaders
               ? { skills_headers: { ...entry.skillsHeaders } }
               : {}),
             checked: entry.checked,
@@ -2996,6 +3028,7 @@ export async function observeTaskRequests(
     sprintEditRead,
     variableRead,
     knowledgeTextRead,
+    knowledgeTitleRead,
     schedulerRead,
     timelinePage,
     save,

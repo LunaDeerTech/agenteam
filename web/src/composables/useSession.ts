@@ -1,4 +1,10 @@
 import {
+  createKnowledgeTitleSearchAPI,
+  captureKnowledgeTitleQuery,
+  type KnowledgeTitleSearchAPI,
+  type KnowledgeTitleQuery,
+} from '../api/knowledge-title-search'
+import {
   createProjectSchedulerAPI, captureProjectSchedulerUpdate, captureProjectSchedulerID,
   type ProjectSchedulerAPI, type ProjectSchedulerUpdate,
   type ProjectSchedulerReceipt, type ProjectSchedulerLookup,
@@ -937,6 +943,7 @@ export function createSessionController(
     skillPackage?: SkillPackageAPI
     knowledgeText?: KnowledgeTextAPI
     knowledgeCommands?: KnowledgeCommandsAPI
+    knowledgeTitleSearch?: KnowledgeTitleSearchAPI
   }> = {},
 ) {
   const projectVariablesAPI = commandAPIs.projectVariables ?? createProjectVariablesAPI()
@@ -951,6 +958,7 @@ export function createSessionController(
   const sprintLifecycleAPI = commandAPIs.sprintLifecycle ?? createWorkSprintLifecycleAPI()
   const knowledgeTextAPI = commandAPIs.knowledgeText ?? createKnowledgeTextAPI()
   const knowledgeCommandsAPI = commandAPIs.knowledgeCommands ?? createKnowledgeCommandsAPI()
+  const knowledgeTitleSearchAPI = commandAPIs.knowledgeTitleSearch ?? createKnowledgeTitleSearchAPI()
   const state = shallowReactive<PublicState>({
     phase: 'checking',
     user: null,
@@ -7361,6 +7369,13 @@ export function createSessionController(
     },
   }
   const knowledge = {
+    searchTitles(projectID: string, query: KnowledgeTitleQuery) {
+      return knowledgeRead(() => {
+        const project = captureKnowledgeID(projectID),
+          captured = captureKnowledgeTitleQuery(query)
+        return (signal) => knowledgeTitleSearchAPI.searchTitles(project, captured, signal)
+      })
+    },
     children(projectID: string, parentID: string | null, query: KnowledgeQuery) {
       return knowledgeRead(() => {
         const project = captureKnowledgeID(projectID),

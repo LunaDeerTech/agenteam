@@ -136,6 +136,11 @@ const endpoints = {
     200,
   ],
   agentConfigurationLookup: ['POST', '/api/v1/projects/{project_id}/agent-commands/lookup', 200],
+  knowledgeTitleSearch: [
+    'GET',
+    '/api/v1/projects/{project_id}/knowledge/documents/search-titles',
+    200,
+  ],
   knowledgeChildren: ['GET', '/api/v1/projects/{project_id}/knowledge/documents/children', 200],
   knowledgeDocument: ['GET', '/api/v1/projects/{project_id}/knowledge/documents/{target}', 200],
   knowledgeAncestors: [
@@ -1080,6 +1085,7 @@ type SkillOptions<E extends SkillEndpoint> = E extends 'listProjectSkills'
       : {})
 
 const knowledgeEndpoints = [
+  'knowledgeTitleSearch',
   'knowledgeChildren',
   'knowledgeDocument',
   'knowledgeAncestors',
@@ -1092,16 +1098,19 @@ type KnowledgeChildrenWire = Readonly<{
   cursor?: string
 }>
 type KnowledgeContentWire = Readonly<{ byte_offset: string; max_bytes: number }>
-type KnowledgeOptions<E extends KnowledgeEndpoint> = E extends 'knowledgeChildren'
-  ? { signal: AbortSignal; projectID: string; knowledgeChildren: KnowledgeChildrenWire }
-  : E extends 'knowledgeContent'
-    ? {
-        signal: AbortSignal
-        projectID: string
-        target: string
-        knowledgeContent: KnowledgeContentWire
-      }
-    : { signal: AbortSignal; projectID: string; target: string }
+type KnowledgeTitleWire = Readonly<{ title_query: string; limit: number; cursor?: string }>
+type KnowledgeOptions<E extends KnowledgeEndpoint> = E extends 'knowledgeTitleSearch'
+  ? { signal: AbortSignal; projectID: string; knowledgeTitleQuery: KnowledgeTitleWire }
+  : E extends 'knowledgeChildren'
+    ? { signal: AbortSignal; projectID: string; knowledgeChildren: KnowledgeChildrenWire }
+    : E extends 'knowledgeContent'
+      ? {
+          signal: AbortSignal
+          projectID: string
+          target: string
+          knowledgeContent: KnowledgeContentWire
+        }
+      : { signal: AbortSignal; projectID: string; target: string }
 
 type WorkReviewEndpoint =
   | 'listProjectVariables'
@@ -1324,6 +1333,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       revision?: string
       progress?: SkillPackageProgress
       knowledgeChildren?: KnowledgeChildrenWire
+      knowledgeTitleQuery?: KnowledgeTitleWire
       knowledgeContent?: KnowledgeContentWire
       projectModels?: ProjectModelWireQuery
       projectAddress?: ProjectWireAddress
@@ -1523,30 +1533,43 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     } else if ((knowledgeEndpoints as readonly string[]).includes(endpoint)) {
       try {
         const children = endpoint === 'knowledgeChildren',
+          titles = endpoint === 'knowledgeTitleSearch',
           content = endpoint === 'knowledgeContent'
         shape(options, [
           'signal',
           'projectID',
-          ...(children ? ['knowledgeChildren'] : ['target']),
+          ...(children ? ['knowledgeChildren'] : titles ? ['knowledgeTitleQuery'] : ['target']),
           ...(content ? ['knowledgeContent'] : []),
         ])
         const project = string(options.projectID, 36, 36)
         if (!uuid7.test(project)) throw new Error()
         path = basePath.replace('{project_id}', project)
-        if (!children) {
+        if (!children && !titles) {
           const target = string(options.target, 36, 36)
           if (!uuid7.test(target)) throw new Error()
           path = path.replace('{target}', target)
         }
         const params = new URLSearchParams()
-        if (children) {
-          const q = shape(options.knowledgeChildren, ['parent_document_id', 'limit'], ['cursor'])
-          const parent = q.parent_document_id,
-            limit = q.limit
-          if (parent !== null && !uuid7.test(string(parent, 36, 36))) throw new Error()
+        if (children || titles) {
+          const q = titles
+            ? shape(options.knowledgeTitleQuery, ['title_query', 'limit'], ['cursor'])
+            : shape(options.knowledgeChildren, ['parent_document_id', 'limit'], ['cursor'])
+          const limit = q.limit
+          if (children) {
+            const parent = q.parent_document_id
+            if (parent !== null && !uuid7.test(string(parent, 36, 36))) throw new Error()
+            params.set('parent_document_id', parent === null ? 'null' : (parent as string))
+          } else {
+            const title = string(q.title_query, 1, 32768)
+            if (
+              /[\u0000-\u001f\u007f-\u009f]/u.test(title) ||
+              /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(title)
+            )
+              throw new Error()
+            params.set('title_query', title)
+          }
           if (typeof limit !== 'number' || !Number.isInteger(limit) || limit < 1 || limit > 200)
             throw new Error()
-          params.set('parent_document_id', parent === null ? 'null' : (parent as string))
           params.set('limit', String(limit))
           if (Object.hasOwn(q, 'cursor')) {
             const cursor = string(q.cursor, 1, 8192)

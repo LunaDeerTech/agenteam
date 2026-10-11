@@ -125,6 +125,11 @@ npm run preview --prefix web
 
 [文本 UI 正式卡与 recipe](../work-items/d12-knowledge-text-ui.md)记录定向状态/页面控制及真实普通 Owner 链：根 plain 与 Markdown child 各创建、编辑、回读，共四次写入，最终两文档均 v2；真实浅色 1440/深色 390、窄屏 Drawer 与焦点已有限独验。28 请求为 23 finished 与 5 个原 GET aborted（联合消费证明闭合），四 POST 全部 200/finished；浏览器 Lookup 为 0，不把正常链外推真实 Unknown/撤权矩阵。原 native01 旧构建资产残留、native02 窄屏 fixture FAIL 保留，native03 业务、七资源及原退出尾全部接受。完整 D12、上传/移动/删除 UI、生产 initializer 和 SPA 发布仍未由本片完成。
 
+
+全项目标题查找已接入桌面目录和窄屏文档树：用户输入后明确查找，大小写、空格及 `%/_/!` 按原文字匹配，不限已加载分支、不检索正文。命中显示标题与完整祖先路径，完整页校验后发布，可显式继续加载或清空。选择命中复用改名/正文未保存确认，确认后仍核当前查询与身份，再读取当前文档。查询属于页面只读状态，离页或 checking 清除；取消保持唯一 Session 原请求退出规则。
+
+[标题查找正式卡](../work-items/d12-knowledge-title-search-ui.md)记录20项专属控制、冻结接线10控、相关76回归及type/build。真实默认App正常链使用正式文本创建准备父子文档，未加载子标题 `%_!` 命中并读取当前正文，再查询空结果；9GET全部200/finished、无写入/Lookup、1440浅色与390深色两图及原资源全尾获有限独验。该首链没有实际触发failed GET补证，也不代真实分页、撤权或命令Unknown矩阵；原fixture与路径预检FAIL保留，既有STOP不变。
+
 ## Project Owner 工作区
 
 [Owner 工作区卡 rev2.1](../work-items/d27-project-owner-workspace-ui.md)连接正式 Owner List/Get、Resolve、Update 和 Update lookup 五个端点。普通 Human 与管理员使用同一 Owner 校验，管理员身份不提供 Project 访问豁免。
