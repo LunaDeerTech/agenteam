@@ -32,6 +32,35 @@ type readFileAuthorityState struct {
 	mu         sync.Mutex
 	stopped    bool
 	active     map[i.ExecutionID]*readFileHandoff
+	lookups    map[*readFileLookupCall]struct{}
+}
+
+type readFileLookupCall struct {
+	cancel context.CancelFunc
+	done   chan struct{}
+}
+
+func (d *readFileAuthorityState) beginLookup(ctx context.Context) (context.Context, func(), error) {
+	callCtx, cancel := context.WithCancel(ctx)
+	call := &readFileLookupCall{cancel: cancel, done: make(chan struct{})}
+	d.mu.Lock()
+	if d.stopped {
+		d.mu.Unlock()
+		cancel()
+		return nil, nil, fail(f.ShuttingDown)
+	}
+	if d.lookups == nil {
+		d.lookups = make(map[*readFileLookupCall]struct{})
+	}
+	d.lookups[call] = struct{}{}
+	d.mu.Unlock()
+	return callCtx, func() {
+		cancel()
+		d.mu.Lock()
+		delete(d.lookups, call)
+		close(call.done)
+		d.mu.Unlock()
+	}, nil
 }
 
 type readFileHandoff struct {
@@ -168,9 +197,12 @@ func (a *ReadFileAuthority) Stop() {
 	d := a.data()
 	d.mu.Lock()
 	d.stopped = true
-	cancels := make([]context.CancelFunc, 0, len(d.active))
+	cancels := make([]context.CancelFunc, 0, len(d.active)+len(d.lookups))
 	for _, h := range d.active {
 		cancels = append(cancels, h.cancel)
+	}
+	for call := range d.lookups {
+		cancels = append(cancels, call.cancel)
 	}
 	d.mu.Unlock()
 	for _, cancel := range cancels {
@@ -195,7 +227,18 @@ func (a *ReadFileAuthority) Drain(ctx context.Context) error {
 	for _, h := range d.active {
 		calls = append(calls, h)
 	}
+	lookups := make([]*readFileLookupCall, 0, len(d.lookups))
+	for call := range d.lookups {
+		lookups = append(lookups, call)
+	}
 	d.mu.Unlock()
+	for _, call := range lookups {
+		select {
+		case <-call.done:
+		case <-ctx.Done():
+			return ctx.Err()
+		}
+	}
 	for _, h := range calls {
 		select {
 		case <-h.done:
@@ -222,7 +265,7 @@ func (a *ReadFileAuthority) Joined() bool {
 	d := a.data()
 	d.mu.Lock()
 	defer d.mu.Unlock()
-	return d.stopped && len(d.active) == 0
+	return d.stopped && len(d.active) == 0 && len(d.lookups) == 0
 }
 
 func (ReadFileAuthority) Format(w fmt.State, _ rune) {

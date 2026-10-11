@@ -1,19 +1,170 @@
 package runtime
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	runnerhttp "github.com/LunaDeerTech/agenteam/internal/central/runner/http"
+	"github.com/LunaDeerTech/agenteam/internal/central/tool/builtin"
 	tc "github.com/LunaDeerTech/agenteam/internal/central/tool/contract"
 	p "github.com/LunaDeerTech/agenteam/internal/runnerprotocol"
 )
+
+func TestReadFileSuccessCandidateSurvivesMetadataFailure(t *testing.T) {
+	for _, mode := range []string{"dependency", "metadata-invalid-argument", "cancelled", "deadline", "schema-mismatch"} {
+		t.Run(mode, func(t *testing.T) {
+			v, s := schemaAdapterFixture(t)
+			definition := builtin.SkillInstallDefinition()
+			definition.OutputSchema = tc.ReadFileDefinition().OutputSchema
+			var err error
+			s.versions[1], err = tc.CanonicalDefinition(s.ctx, definition)
+			if err != nil {
+				t.Fatal(err)
+			}
+			h := readFileHandoffFixture(t)
+			file := p.ReadFileResult{Path: h.arguments.Arguments.Path, Offset: 0, BytesRead: 64, EOF: true, Encoding: "utf8", Data: strings.Repeat("x", 64)}
+			ref, payload, err := encodeReadFileStoredResult(h.record.ID, h.attempt, file, h.arguments.Arguments)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer clear(payload)
+			before := bytes.Clone(payload)
+			defer clear(before)
+			original := readFileTerminal{Format: 1, Operation: h.record.ID, Attempt: h.attempt, Request: h.request, Outcome: "success", Attempted: true, Result: &ref}
+			ctx := s.ctx
+			switch mode {
+			case "dependency":
+				s.readError = fail(f.DependencyUnavailable)
+			case "metadata-invalid-argument":
+				s.readError = fail(f.InvalidArgument)
+			case "cancelled":
+				var cancel context.CancelFunc
+				ctx, cancel = context.WithCancel(s.ctx)
+				s.ctx, s.readHook = ctx, cancel
+				defer cancel()
+			case "deadline":
+				s.readError = context.DeadlineExceeded
+			case "schema-mismatch":
+				definition.OutputSchema = []byte(`{"const":"different-output"}`)
+				s.versions[1], err = tc.CanonicalDefinition(s.ctx, definition)
+				if err != nil {
+					t.Fatal(err)
+				}
+			}
+			candidate, err := readFileOutputCandidate(ctx, s.tx, v, s.ref, original, payload)
+			if mode == "schema-mismatch" {
+				if err != nil || candidate.Outcome != "unknown" || candidate.Code != "backend_contract_violation" || candidate.Result != nil {
+					t.Fatal("actual schema mismatch was not distinguished")
+				}
+			} else if err == nil || candidate.Outcome != "" {
+				t.Fatal("metadata/cancellation error became a Runner contract verdict")
+			}
+			if original.Outcome != "success" || original.Code != "" || original.Result != &ref || !bytes.Equal(before, payload) {
+				t.Fatal("unsuccessful publication destroyed the original result")
+			}
+			// A fresh caller and the same historical schema permit an explicit
+			// retry of the original candidate; no Runner dispatch is involved.
+			s.ctx, s.readError, s.readHook = context.Background(), nil, nil
+			definition.OutputSchema = tc.ReadFileDefinition().OutputSchema
+			s.versions[1], err = tc.CanonicalDefinition(s.ctx, definition)
+			if err != nil {
+				t.Fatal(err)
+			}
+			candidate, err = readFileOutputCandidate(s.ctx, s.tx, v, s.ref, original, payload)
+			if err != nil || !sameReadFileTerminal(candidate, original) {
+				t.Fatal("recovery lost the original successful candidate", err)
+			}
+			got, err := decodeReadFileStoredResult(*candidate.Result, payload, h.record.ID, h.attempt, h.arguments.Arguments)
+			if err != nil || got != file {
+				t.Fatal("recovered candidate lost complete file bytes")
+			}
+		})
+	}
+}
+
+type readFileLookupPlanControl struct{ binding tc.ToolCallBinding }
+
+func (p readFileLookupPlanControl) Binding() tc.ToolCallBinding  { return p.binding }
+func (readFileLookupPlanControl) RequiredLocks() []f.LockRequest { return nil }
+
+type readFileLookupDiscoveryControl struct{ binding tc.ToolCallBinding }
+
+func (c readFileLookupDiscoveryControl) DiscoverReadFileCall(context.Context, i.ExecutionID) (tc.ReadFileCallPlan, error) {
+	return readFileLookupPlanControl{c.binding}, nil
+}
+func (readFileLookupDiscoveryControl) WithReadFileCallInTx(context.Context, f.Tx, tc.ReadFileCallPlan, func(context.Context, tc.ToolCallBinding, []byte) error) error {
+	panic("held Store must not enter the callback")
+}
+
+type readFileLookupStoreBarrier struct {
+	*operationStoreControl
+	entered chan context.Context
+	release chan struct{}
+	calls   atomic.Int32
+}
+
+func (s *readFileLookupStoreBarrier) WithinTx(ctx context.Context, _ f.TransactionCause, _ func(context.Context, f.Tx) error) f.CommitResult {
+	s.calls.Add(1)
+	s.entered <- ctx
+	<-s.release
+	return f.NotCommittedResult(f.NewFault(f.DependencyUnavailable, f.NotCommitted))
+}
+
+func TestReadFileLookupStopWaitsForOriginalStoreReturn(t *testing.T) {
+	h := readFileHandoffFixture(t)
+	store := &readFileLookupStoreBarrier{operationStoreControl: &operationStoreControl{t: t}, entered: make(chan context.Context, 1), release: make(chan struct{})}
+	var once sync.Once
+	release := func() { once.Do(func() { close(store.release) }) }
+	defer release()
+	d := &readFileAuthorityState{store: store, executions: readFileLookupDiscoveryControl{h.binding}, active: make(map[i.ExecutionID]*readFileHandoff)}
+	a := &ReadFileAuthority{data: func() *readFileAuthorityState { return d }}
+	e := &ReadFileExecutor{data: func() *readFileExecutorData { return &readFileExecutorData{authority: d} }}
+	returned := make(chan error, 1)
+	go func() { _, _, err := e.LookupReadFile(context.Background(), h.execution); returned <- err }()
+	var original context.Context
+	select {
+	case original = <-store.entered:
+	case <-time.After(2 * time.Second):
+		t.Fatal("public Lookup did not reach original readonly Store")
+	}
+	a.Stop()
+	if original.Err() == nil || a.Joined() {
+		t.Fatal("Lookup cancellation was mistaken for actual return")
+	}
+	short, cancel := context.WithTimeout(context.Background(), 20*time.Millisecond)
+	err := a.Drain(short)
+	cancel()
+	if !errors.Is(err, context.DeadlineExceeded) || a.Joined() {
+		t.Fatal("Drain passed while original Lookup Store was held")
+	}
+	_, _, err = e.LookupReadFile(context.Background(), h.execution)
+	schemaFault(t, err, f.ShuttingDown)
+	if store.calls.Load() != 1 {
+		t.Fatal("stopped Lookup entered another transaction")
+	}
+	release()
+	select {
+	case err := <-returned:
+		if err == nil {
+			t.Fatal("failed original read published an observation")
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("original Lookup did not return after Store release")
+	}
+	if err := a.Drain(context.Background()); err != nil || !a.Joined() {
+		t.Fatal("actual Lookup return failed to retire")
+	}
+}
 
 // Private terminal/consumer controls below do not manufacture an actual guard,
 // Execution authority, SQL transaction, ticket or WSS dispatch. Those paths are

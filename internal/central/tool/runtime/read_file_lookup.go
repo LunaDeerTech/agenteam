@@ -20,6 +20,17 @@ func (e *ReadFileExecutor) LookupReadFile(ctx context.Context, execution i.Execu
 		return ReadFileOutcome{}, false, fail(f.InvalidArgument)
 	}
 	d := e.data()
+	callCtx, returned, err := d.authority.beginLookup(ctx)
+	if err != nil {
+		return ReadFileOutcome{}, false, err
+	}
+	defer returned()
+	return lookupReadFile(callCtx, d, execution)
+}
+
+// An Execute replay is already registered under its original handoff. It uses
+// the same read logic without creating an independently admitted public call.
+func lookupReadFile(ctx context.Context, d *readFileExecutorData, execution i.ExecutionID) (ReadFileOutcome, bool, error) {
 	h, err := discoverReadFile(ctx, d, execution)
 	if err != nil {
 		return ReadFileOutcome{}, false, err
@@ -56,6 +67,9 @@ func (e *ReadFileExecutor) LookupReadFile(ctx context.Context, execution i.Execu
 		})
 	})
 	if err != nil {
+		return ReadFileOutcome{}, false, err
+	}
+	if err := ctx.Err(); err != nil {
 		return ReadFileOutcome{}, false, err
 	}
 	// Only an exact final candidate, observed after the original call returned,

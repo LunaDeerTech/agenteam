@@ -181,7 +181,9 @@ func requireReadFileAttempt(ctx context.Context, x postgres.SQLExecutor, d *read
 }
 
 func finishReadFileAttempt(ctx context.Context, d *readFileAuthorityState, h *readFileHandoff, schemas *RegistrySchemaValidator, terminal *readFileTerminal, payload []byte) (f.CommitResult, error) {
-	return readFileTransaction(ctx, d, h, func(ctx context.Context, tx f.Tx, x postgres.SQLExecutor) error {
+	candidate := *terminal
+	publicationReady := false
+	result, err := readFileTransaction(ctx, d, h, func(ctx context.Context, tx f.Tx, x postgres.SQLExecutor) error {
 		// Recording the already joined original result is not execution admission;
 		// current revocation must not erase an actual result or fake retirement.
 		row, err := loadReadFileOperation(ctx, x, h.record.Input.Binding)
@@ -204,23 +206,22 @@ func finishReadFileAttempt(ctx context.Context, d *readFileAuthorityState, h *re
 		if err := requireReadFileAttempt(ctx, x, d, h); err != nil {
 			return err
 		}
-		if terminal.Outcome == "success" {
-			if err := schemas.ValidateReadFileOutputInTx(ctx, tx, h.binding.Spec, payload); err != nil {
-				terminal.Outcome, terminal.Code, terminal.Result = "unknown", "backend_contract_violation", nil
-			}
-		}
-		if err := terminal.validate(h.record); err != nil {
-			return err
-		}
-		raw, err := encode(terminal)
+		candidate, err = readFileOutputCandidate(ctx, tx, schemas, h.binding.Spec, *terminal, payload)
 		if err != nil {
 			return err
 		}
-		opPhase, attemptPhase, outcome := terminal.phases()
-		if terminal.Result != nil {
+		if err := candidate.validate(h.record); err != nil {
+			return err
+		}
+		raw, err := encode(candidate)
+		if err != nil {
+			return err
+		}
+		opPhase, attemptPhase, outcome := candidate.phases()
+		if candidate.Result != nil {
 			complete := h.record
 			complete.Phase, complete.Version = "succeeded", 3
-			if err = insertReadFileStoredResult(ctx, x, complete, *terminal.Result, payload, h.arguments.Arguments); err != nil {
+			if err = insertReadFileStoredResult(ctx, x, complete, *candidate.Result, payload, h.arguments.Arguments); err != nil {
 				return err
 			}
 		}
@@ -238,8 +239,15 @@ func finishReadFileAttempt(ctx context.Context, d *readFileAuthorityState, h *re
 		if tag.RowsAffected() != 1 {
 			return fail(f.InvalidState)
 		}
+		publicationReady = true
 		return nil
 	})
+	// Unknown may already have published this exact candidate, so preserve it
+	// for strict observation. A known rollback never changes the original.
+	if publicationReady && result.State() != f.NotCommitted {
+		*terminal = candidate
+	}
+	return result, err
 }
 
 func loadReadFileTerminal(ctx context.Context, x postgres.SQLExecutor, r readFileOperationRecord, arguments p.ReadFileArguments) (readFileObservation, error) {

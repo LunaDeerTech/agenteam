@@ -15,7 +15,7 @@
 - 主目标：真实 ToolCall → 单次 read-file Operation/Attempt → 完整持久结果，不包含下一轮 Model/Transcript 或自动重试。正式写域见 [D18/D22 工作卡](../docs/development/work-items/d18-runner-read-file-operation.md)。Tool lead 为 skill_package_review，Execution 由 skills_milestone_review、Mount/Runner 由 knowledge_delete_fixture 实现，variables_review 写最小 PG 方法，runtime_recovery 独审。
 - Tool 基础 `d3dc0b18` 已保存，迁移65两变量改原列 `%TYPE` 的 `86c298c9` 已有限静审；原install编码/摘要未改，read-file完整payload沿原512KiB协议上限。Runner固定RID接缝 `6f87bfff`、Execution live callback `4b73635e`、Mount metadata-only目标投影 `0eeeea0e` 已保存。以上本片新源码尚未编译或动态验证，不计真实执行链已通。
 - 上游最初 `6e0b925c` 作为未验收开发依赖合入，现已由 main `95c092bc` 正式有限交付 ToolFacts，原native01/02 FAIL及修后03实际wholePASS均保留；该验收不包含本片ToolOperation/Runner。此合并带入原PG聚合SQL修正，不复制未提交WIP。
-- producer首片源码现已冻结待root保存：原Execution borrowed参数/live witness下读真实CurrentTarget并同Tx created，已知提交返回后才Resolve→Prepare固定RID→Attempt持久提交返回→Claim/原WSS，实际原call/frame退出后同Tx保存完整结果和retired。未知提交保原owner及候选，Lookup不派发，显式持久恢复也不发新请求。新增5个runtime产品文件与1个必要控制文件，gofmt/diffcheck实际0，尚未编译或动态验证；公开API已交PG作者落两sub，原consumer contract保持冻结。
+- producer首片已保存f803e0f4；独审两处静态must-fix现窄修冻结：最终schema/依赖错误区分且不污染未提交原候选；Lookup独立实际返回登记与停止门。新增两个判别top待最小Tool runtime/contract检查，不称原反例已动态复现。原三接口19top race/vet已actual0且666项输入相同、不含本runtime；新PG两sub方法已冻结，原Stop后Lookup次序随本修正调整，尚未编译/native。原consumer contract保持冻结。
 - 原ToolFacts PG helper的受控root/正式首次material窄handoff由原owner在本树后续修改；新PG方法只以Model JSON端口为明确替身，Execution/Tool/currentMount/WSS/Manager保持真实。所有Go/cache/native窗口由root统筹，本分支未启动任何工具链或服务。首轮先核依赖稳定后的最小有效范围，不重复已交旧矩阵。
 
 ## 保留与清理

@@ -331,7 +331,7 @@ func (e *ReadFileExecutor) ExecuteReadFile(ctx context.Context, execution i.Exec
 		if h.record.Phase == "running" {
 			return out, f.NewFault(f.CommitUnknown, f.Unknown)
 		}
-		out, _, err = e.LookupReadFile(callCtx, execution)
+		out, _, err = lookupReadFile(callCtx, d, execution)
 		return out, err
 	}
 	h.mu.Lock()
