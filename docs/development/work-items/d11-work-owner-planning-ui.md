@@ -222,7 +222,7 @@ Blocker status 默认为 unresolved，可选 resolved/all；顺序 `(created_at,
 
 ## 11. 任务评审界面限定切片（2026-10-11）
 
-本批在 main `6a6da44e` 已有 Human Transfer/Lookup、三条评审边和[真实 Agent 安全目录](d10-agent-configuration.md)之上新增前端消费者，无后端、DDL 或依赖锁变更。实现已冻结、独立有限源码审已接受；修复后的 `frontend06` 共 31 项定向检查、两个修复文件的格式检查、全量类型检查和生产构建已通过。真实浏览器 `native03` 两个子场景仍失败，本批界面尚未完成验收。
+本批在 main `6a6da44e` 已有 Human Transfer/Lookup、三条评审边和[真实 Agent 安全目录](d10-agent-configuration.md)之上新增前端消费者，无后端、DDL 或依赖锁变更。组合源 `53bd25cb` 的限定任务评审界面已通过定向前端检查和 `TestTaskReviewWeb` 两个真实浏览器子场景；原调用及资源退出均已闭合，独立有限源码与最终原件审查已接受。该结果交付本节切片，不代表整张规划界面卡完成。
 
 正式导航为“任务”，路由恰 `/{owner}/{project}/tasks`、`tasks/sprints/{SprintID}`、`tasks/{TaskID}`。默认从当前 Owner Project Get 的 `current_sprint_id` 读取真实 Sprint/Milestone；无 Current 时保留结构选择，不自动选择或启动 planned/completed Sprint。七列按各自 `state+sprint_id` 读取服务端分页与顺序；Task 深链校验真实父链，详情抽屉关闭回所属 Sprint。手选 Milestone 回任务入口并清 Sprint/Task，当前 App 内刷新保留手选；整页重载重新遵守入口默认，身份或 Project 改变清理原选择。
 
@@ -230,8 +230,14 @@ Blocker status 默认为 unresolved，可选 resolved/all；顺序 `(created_at,
 
 所有读写经原 Session 单一请求所有者；App 持有页面状态，临时 checking 隐藏保护内容但保留同身份草稿。首次提交前私有冻结原 Project/Task、version、request、key 和 CSRF；结果不确定仅提供原键 Lookup，`in_progress/not_observed` 保持未决，不重发 Transfer、不用当前 GET 代替原回执。真正身份失效清保护数据和原意图，迟到响应不得发布到新身份或对象；可见取消不提前释放仍在返回的 body/cancel 尾。
 
-共享客户端区分实际 EOF 与提前中止：JSON、空正文和头像读取在原 `reader.read()` 返回 `done=true` 后只释放 reader，不再调用 `reader.cancel()` 或外层 `body.cancel()`；即使随后 JSON/DTO 校验拒绝，也不重复取消已完成正文。EOF 前异常或 abort 仍等待原一次 cancel Promise，释放锁后才确认该 body 已收尾；外层仅对未被 reader 收尾的早期拒绝响应执行并等待清理。容量、严格解码、身份门及 Session 原调用退出要求不变。定向测试通过不证明浏览器 `requestfailed` 的因果已经解决，原失败结果仍保留。
+共享客户端区分实际 EOF 与提前中止：JSON、空正文和头像读取在原 `reader.read()` 返回 `done=true` 后只释放 reader，不再调用 `reader.cancel()` 或外层 `body.cancel()`；即使随后 JSON/DTO 校验拒绝，也不重复取消已完成正文。成功 `204` 的 logout、deleteAvatar、completePasswordReset、revokeSystemInvitation 四口统一等待空正文完成，兼容无 body，拒绝非空正文。EOF 前异常或 abort 仍等待原一次 cancel Promise，释放锁后才确认该 body 已收尾；外层仅对未被 reader 收尾的早期拒绝响应执行并等待清理。容量、严格解码、身份门及 Session 原调用退出要求不变。
 
-本批真实浏览器契约为 `review-complete` 与 `lost-confirmation-lookup-and-session-revocation`：使用真实已终态 Work 执行素材、Account/Owner 与 Agent 目录，分别验证提交评审后接受完成，以及返工提交后精确丢回执、仅 Lookup 恢复和正式 Logout。组合源 `e43b8c` 的 `native03` 两个子场景分别停在原 Session、Project 请求的 `requestfailed`，尚未执行 Human 三边动作或回执截断恢复。每个子场景的 17 次 fetch 均已观察到完整 EOF，reader/body cancel 及 signal abort 均为零；这证明冗余 cancel 已消除，不足以解释或接受浏览器的失败终态。原调用与资源退出均已闭合，失败结果保留；后续诊断转向网络层，桌面/窄屏、键盘和真实业务闭环仍待验，不以受控前端测试代替浏览器或持久事实。
+`auth.restore()` 在原严格 Session 响应已发布、原调用实际返回且身份仍有效时，返回冻结的安全 `{user,session}` 副本，不含 CSRF；同一次在途恢复复用原 Promise，失败、超时或身份失效返回 null。既有忽略返回值的调用兼容，不增加授权入口，也不使迟到结果恢复旧身份。
 
-旧 Planning06、Recovery04 的 whole FAIL 保留：原成功响应后的 finished/aborted 观察未闭合，后续持久验证不足以回填当次成功。当前切片不恢复旧 Planning/Recovery 全矩阵，不交付 Explore/规划写入、跨列拖拽、Timeline 或 Execution 新读口、完整筛选、生产 SPA 发布及生产 runtime/ready；任务状态也不由 Model 结果在前端推导。原 STOP 与整卡未完成边界不变。
+定向验证按实际受影响输入组合，不将重复执行的用例相加为唯一总数：原路由 62 项和页面状态 3 项通过；`frontend06` 的客户端、Session、页面及正文生命周期等 31 项通过；安全恢复返回变更后的 `frontend07` 为 Session 20 项加 Work Review Session 4 项通过；统一 `204` 后的 `frontend08` 为正文生命周期 9 项加旧端点代表 5 项通过。三个后续前端轮次的改动文件格式检查、完整类型检查和生产构建均通过，未运行的旧平台矩阵不计入结果。
+
+`native06` 使用 `frontend08/dist` 与已通过编译的原候选，真实 Account/当前 Owner、已初始化 Project、Agent 目录及已终态 Work 执行素材经正式服务装配。`review-complete` 在无 active Execution 的 Task 上实际选择另一 reviewer，完成 `in_progress→in_review→done`（43.42 秒）；`lost-confirmation-lookup-and-session-revocation` 实际执行 `in_review→todo`，在提交持久事实后的原回执截断下保持 Unknown，禁止第二次 Transfer，只按原键 Lookup 恢复，再完成正式 Logout、保护数据清理及后续 Session 拒绝（43.55 秒）。原数据库核对版本、负责人、历史和 Outbox，未用 SQL 种成功状态。整 top 86.97 秒，两原 Node 调用成功，Go/driver/supervisor/outer 均退出 0；7 个资源的两次缺席检查及进程、TCP 尾均闭合。
+
+真实 HTTP 观察保留原 `requestfailed` 事件；仅精确 GET 200 的 `ERR_ABORTED` 可由同一原请求的服务端完整正文长度/摘要、EOF/关闭/handler 返回、浏览器原正文收尾与原公开消费者的当前有效安全投影共同证明完成，不以 DOM 或补发 GET 替代。预声明的 Transfer 回执截断单独验证已提交事实；Logout POST 没有失败豁免。两场景覆盖桌面与 390 窄屏、键盘操作及恢复提示；四张截图的有限视觉检查只接受实际详情可见区域，完整七列整板、深色主题和其它宽度仍未视觉验收。原结果位于 `output/ai/agent-system-integration/task-review-web-06-control/result.json`。
+
+旧 Planning06、Recovery04 以及本片 native01–05 的 whole FAIL 均保留，后继成功不回填旧轮次。当前切片不恢复旧 Planning/Recovery 全矩阵，不交付 Explore/规划写入、跨列拖拽、Timeline 或 Execution 新读口、完整筛选、生产 SPA 发布及生产 runtime/ready；任务状态也不由 Model 结果在前端推导。原 STOP 与整卡未完成边界不变。
