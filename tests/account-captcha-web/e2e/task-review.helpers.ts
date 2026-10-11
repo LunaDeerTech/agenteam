@@ -136,6 +136,7 @@ async function observeBrowserIO(
     let originalCreate: any;
     let originalAgentCreate: any;
     const originalEdits: any[] = [];
+    const originalAgentEdits: any[] = [];
     const tails = new Set<Promise<void>>();
     const restorers: (() => void)[] = [];
     let retired = false,
@@ -282,6 +283,27 @@ async function observeBrowserIO(
               progress.projectID === originalAgentCreate?.project &&
               progress.agentID === originalAgentCreate?.request?.agent_id,
           });
+        } else if (kind === "agentEdit.startUpdate") {
+          const original = {
+            call,
+            project: args[0],
+            agent: args[1],
+            input: JSON.parse(JSON.stringify(args[2])),
+          };
+          originalAgentEdits.push(original);
+          writeInputs.set(call, original);
+        } else if (kind === "agentEdit.checkOriginal") {
+          const source = originalAgentEdits.at(-1);
+          const progress = auth.agentConfiguration.progress;
+          writeInputs.set(call, {
+            source,
+            current:
+              progress?.kind === "update" &&
+              progress.phase === "uncertain" &&
+              progress.contextValid === true &&
+              progress.projectID === source?.project &&
+              progress.agentID === source?.agent,
+          });
         }
         let result: Promise<any>;
         try {
@@ -334,6 +356,7 @@ async function observeBrowserIO(
         agentConfiguration: boolean,
         editTask: string | undefined,
         timelineTask: string | undefined,
+        editAgent: string | undefined,
       ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
@@ -351,7 +374,7 @@ async function observeBrowserIO(
                   ? "/resolve"
                   : ""),
           );
-        if (!agentConfiguration) {
+        if (!agentConfiguration && !editAgent) {
           const paths: Record<string, string> = {
             milestones: "milestones",
             milestone: "milestones",
@@ -456,8 +479,8 @@ async function observeBrowserIO(
             );
           }
         } else {
-          // This profile observes only Agent Create, its original Lookup and
-          // the public directory/configuration/model reads used by that page.
+          // Agent Create and Edit have separate write observers. Only their
+          // existing public page reads share this registration.
           const paths: Record<string, string> = {
             list: "/agents",
             getConfiguration: "/agents",
@@ -469,7 +492,8 @@ async function observeBrowserIO(
               method,
               "agent." + method,
               (a) => {
-                if (a[0] !== project)
+                if (a[0] !== project ||
+                  (editAgent && method === "getConfiguration" && a[1] !== editAgent))
                   throw Error("AGENT_CONFIGURATION_CONSUMER_SCOPE");
                 return (
                   "/api/v1/projects/" +
@@ -481,24 +505,45 @@ async function observeBrowserIO(
                 );
               },
             );
-          consumer(
-            auth.agentConfiguration,
-            "startCreate",
-            "agent.startCreate",
-            (a) => {
-              if (a[0] !== project)
-                throw Error("AGENT_CONFIGURATION_CONSUMER_SCOPE");
-              return "/api/v1/projects/" + project + "/agents";
-            },
-            "POST",
-          );
-          consumer(
-            auth.agentConfiguration,
-            "checkOriginal",
-            "agent.checkOriginal",
-            () => "/api/v1/projects/" + project + "/agent-commands/lookup",
-            "POST",
-          );
+          if (editAgent) {
+            consumer(
+              auth.agentConfiguration,
+              "startUpdate",
+              "agentEdit.startUpdate",
+              (a) => {
+                if (a[0] !== project || a[1] !== editAgent)
+                  throw Error("AGENT_EDIT_CONSUMER_SCOPE");
+                return "/api/v1/projects/" + project + "/agents/" + editAgent + "/configuration";
+              },
+              "PATCH",
+            );
+            consumer(
+              auth.agentConfiguration,
+              "checkOriginal",
+              "agentEdit.checkOriginal",
+              () => "/api/v1/projects/" + project + "/agent-commands/lookup",
+              "POST",
+            );
+          } else {
+            consumer(
+              auth.agentConfiguration,
+              "startCreate",
+              "agent.startCreate",
+              (a) => {
+                if (a[0] !== project)
+                  throw Error("AGENT_CONFIGURATION_CONSUMER_SCOPE");
+                return "/api/v1/projects/" + project + "/agents";
+              },
+              "POST",
+            );
+            consumer(
+              auth.agentConfiguration,
+              "checkOriginal",
+              "agent.checkOriginal",
+              () => "/api/v1/projects/" + project + "/agent-commands/lookup",
+              "POST",
+            );
+          }
         }
       },
       snapshot() {
@@ -525,6 +570,7 @@ async function observeBrowserIO(
         originalCreate = undefined;
         originalAgentCreate = undefined;
         originalEdits.length = 0;
+        originalAgentEdits.length = 0;
         return this.snapshot();
       },
     };
@@ -722,6 +768,24 @@ async function observeBrowserIO(
               equal(parsed, {
                 command: "agent.create",
                 request: original.source.request,
+              });
+          } else if (call.kind === "agentEdit.startUpdate") {
+            matches =
+              originalAgentEdits.every((old) => old === original ||
+                (typeof old.key === "string" && old.key !== key)) &&
+              equal(parsed, original.input);
+            if (matches) original.key = key;
+          } else if (call.kind === "agentEdit.checkOriginal") {
+            matches =
+              original.current &&
+              original.source?.call.rejected === true &&
+              original.source.call.settled === true &&
+              key === original.source.key &&
+              equal(parsed, {
+                command: "agent.update",
+                target_id: original.source.agent,
+                expected_version: original.source.input.expected_version,
+                request: original.source.input.request,
               });
           }
           call.request_bound = row.request_bound = matches;
@@ -1030,6 +1094,7 @@ export type TaskObservationMaterial = {
   cookie: string;
   project_id: string;
   task_id?: string;
+  agent_id?: string;
 };
 export type TaskObservationProfile = {
   dist: string;
@@ -1040,6 +1105,7 @@ export type TaskObservationProfile = {
     | "task-intake"
     | "task-edit"
     | "agent-configuration"
+    | "agent-edit"
     | "task-timeline";
   endpoint: (request: Request) => string | undefined;
   cut?: "transfer" | "create" | "update";
@@ -1048,11 +1114,13 @@ export type TaskObservationProfile = {
     | "work.task.create"
     | "work.task.update"
     | "agent.create"
+    | "agent.update"
     | null;
   intakeWrites?: true;
   agentConfiguration?: true;
   editWrites?: true;
   timelineReads?: true;
+  agentEditWrites?: true;
 };
 
 export function observeReview(page: Page, data: ReviewMaterial) {
@@ -1128,6 +1196,15 @@ export async function observeTaskRequests(
       ))
   )
     throw Error("TASK_TIMELINE_READ_PROFILE_MISMATCH");
+  if (
+    profile.agentEditWrites &&
+    (profile.intakeWrites || profile.agentConfiguration || profile.editWrites || profile.timelineReads ||
+      profile.prefix !== "agent-edit" || profile.lookupCommand !== "agent.update" ||
+      !data.agent_id ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.agent_id) ||
+      !["changed-noop-and-clear", "lost-update-confirmation-only-lookup"].includes(data.mode) ||
+      profile.cut !== (data.mode === "lost-update-confirmation-only-lookup" ? "update" : undefined))
+  ) throw Error("AGENT_EDIT_WRITE_PROFILE_MISMATCH");
   const entries: Entry[] = [];
   const events: Record<string, unknown>[] = [];
   const browserEvents: BrowserDiagnostic[] = [];
@@ -1243,6 +1320,7 @@ export async function observeTaskRequests(
           agentConfiguration,
           editTask,
           timelineTask,
+          editAgent,
         }) => {
           const module = await import(/* @vite-ignore */ binding.asset);
           const useSession = module[binding.exportName];
@@ -1258,6 +1336,7 @@ export async function observeTaskRequests(
             agentConfiguration,
             editTask,
             timelineTask,
+            editAgent,
           );
         },
         {
@@ -1267,6 +1346,7 @@ export async function observeTaskRequests(
           agentConfiguration: profile.agentConfiguration === true,
           editTask: profile.editWrites ? data.task_id : undefined,
           timelineTask: profile.timelineReads ? data.task_id : undefined,
+          editAgent: profile.agentEditWrites ? data.agent_id : undefined,
         },
       );
       await route.continue();
@@ -1357,12 +1437,23 @@ export async function observeTaskRequests(
   }
   function agentPageRead(entry: Entry) {
     return (
-      profile.agentConfiguration &&
+      (profile.agentConfiguration || profile.agentEditWrites) &&
       entry.request.method() === "GET" &&
       ["agent-directory", "agent-configuration", "agent-models"].includes(
         entry.name,
       )
     );
+  }
+
+  function agentEditWrite(entry: Entry) {
+    if (!profile.agentEditWrites) return false;
+    const url = new URL(entry.request.url());
+    if (url.search) return false;
+    const prefix = `/api/v1/projects/${data.project_id}`;
+    return (entry.name === "update" && entry.request.method() === "PATCH" &&
+      url.pathname === `${prefix}/agents/${data.agent_id}/configuration`) ||
+      (entry.name === "lookup" && entry.request.method() === "POST" &&
+        url.pathname === `${prefix}/agent-commands/lookup`);
   }
 
   function timelinePageRead(entry: Entry) {
@@ -1377,9 +1468,10 @@ export async function observeTaskRequests(
 
   function joint(entry: Entry, proof: any) {
     const edit = editWrite(entry);
-    const write = intakeWrite(entry) || agentWrite(entry) || edit;
+    const agentEdit = agentEditWrite(entry);
+    const write = intakeWrite(entry) || agentWrite(entry) || edit || agentEdit;
     const method =
-      edit && entry.name === "update" ? "PATCH" : write ? "POST" : "GET";
+      (edit || agentEdit) && entry.name === "update" ? "PATCH" : write ? "POST" : "GET";
     expect(entry.request.method()).toBe(method);
     expect(entry.status).toBe(200);
     expect(entry.responseCount).toBe(1);
@@ -1445,7 +1537,9 @@ export async function observeTaskRequests(
     expect(n.typed_digest).toBe(c.typed_digest);
     if (timelinePageRead(entry)) expect(c.kind).toBe("work.events");
     if (write) {
-      const kinds: Record<string, string> = profile.agentConfiguration
+      const kinds: Record<string, string> = agentEdit
+        ? { update: "agentEdit.startUpdate", lookup: "agentEdit.checkOriginal" }
+        : profile.agentConfiguration
         ? {
             create: "agent.startCreate",
             lookup: "agent.checkOriginal",
@@ -1524,6 +1618,7 @@ export async function observeTaskRequests(
         (entry.request.method() === "GET" ||
           intakeWrite(entry) ||
           editWrite(entry) ||
+          agentEditWrite(entry) ||
           agentWrite(entry)) &&
         response?.status() === 200 &&
         entry.failure === "net::ERR_ABORTED"
@@ -1577,6 +1672,7 @@ export async function observeTaskRequests(
       if (
         intakeWrite(entry) ||
         editWrite(entry) ||
+        agentEditWrite(entry) ||
         agentWrite(entry) ||
         agentPageRead(entry) ||
         timelinePageRead(entry)
@@ -1618,7 +1714,7 @@ export async function observeTaskRequests(
     const originals = requests(
       creation
         ? "create"
-        : profile.lookupCommand === "work.task.update"
+        : profile.lookupCommand === "work.task.update" || profile.lookupCommand === "agent.update"
           ? "update"
           : "transfer",
     );
@@ -1631,7 +1727,7 @@ export async function observeTaskRequests(
         ? { command: profile.lookupCommand, request: sent.request }
         : {
             command: profile.lookupCommand,
-            target_id: data.task_id,
+            target_id: profile.lookupCommand === "agent.update" ? data.agent_id : data.task_id,
             expected_version: sent.expected_version,
             request: sent.request,
           },
@@ -1644,7 +1740,7 @@ export async function observeTaskRequests(
   function agentRead(
     name: "agent-directory" | "agent-configuration" | "agent-models",
   ) {
-    expect(profile.agentConfiguration).toBe(true);
+    expect(profile.agentConfiguration || profile.agentEditWrites).toBe(true);
     const found = entries.filter(
       (entry) => entry.name === name && entry.checked && entry.body,
     );
@@ -1708,6 +1804,9 @@ export async function observeTaskRequests(
                 updates: entries.filter((e) => e.name === "update").length,
                 ready: entries.filter((e) => e.name === "ready").length,
               }
+            : {}),
+          ...(profile.agentEditWrites
+            ? { updates: entries.filter((e) => e.name === "update").length }
             : {}),
           ...(profile.agentConfiguration
             ? {
