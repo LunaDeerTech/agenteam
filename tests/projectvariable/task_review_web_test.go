@@ -117,16 +117,20 @@ type taskReviewWeb struct {
 func newTaskReviewWeb(t *testing.T, x *taskReviewFixture, mode string) *taskReviewWeb {
 	t.Helper()
 	var w *taskReviewWeb
+	ready := make(chan struct{})
 	w = newTaskWebShell(t, x.domain, mode, taskWebProfile{
 		envPrefix: "AGENTEAM_TASK_REVIEW_WEB", filePrefix: "task-review", configName: "task-review.config.js", logName: "Task Review",
-		observe:  func(r *http.Request) error { return w.observeRequest(r) },
-		response: func(r *http.Response) error { return w.response(r) },
+		observe:  func(r *http.Request) error { <-ready; return w.observeRequest(r) },
+		response: func(r *http.Response) error { <-ready; return w.response(r) },
 		material: func(username string) map[string]any {
 			d, current := x.domain, x.current(t)
 			return map[string]any{"mode": mode, "cookie": d.base.ownerBrowser.cookie, "project_id": d.base.project.ID, "task_id": current.ID, "sprint_id": current.SprintID, "title": current.Title, "version": current.Version, "worker_id": d.agentID, "reviewer_id": x.reviewer, "route": "/" + username + "/" + d.base.project.NormalizedName + "/tasks/" + current.ID.String()}
 		},
 	})
 	w.x = x
+	// The shell starts Serve before returning, but performs no HTTP self-call.
+	// Publish the complete wrapper before any handler dereferences it.
+	close(ready)
 	return w
 }
 

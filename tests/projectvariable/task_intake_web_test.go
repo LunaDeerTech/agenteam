@@ -57,13 +57,18 @@ func newTaskIntakeWeb(t *testing.T, d *taskTransitionFixture, mode string) *task
 	baseline, err := d.taskReader.GetTask(ctxFor(t), d.base.ownerBrowser.actor, d.base.project.ID, d.task.ID)
 	firstRoundRequire(t, err)
 	w := &taskIntakeWeb{domain: d, baseline: baseline, draft: wc.TaskCreate{SprintID: d.task.SprintID, Title: "Browser intake: " + mode, Description: "A real backlog Task, created before assignment.", Type: wc.TaskTypeTask, Priority: wc.TaskPriorityMedium, Plan: "Confirm creation, then independently select the current Agent."}}
+	ready := make(chan struct{})
 	w.shell = newTaskWebShell(t, d, mode, taskWebProfile{
 		envPrefix: "AGENTEAM_TASK_INTAKE_WEB", filePrefix: "task-intake", configName: "task-intake.config.js", logName: "Task Intake",
-		observe: w.observeRequest, response: w.response,
+		observe:  func(r *http.Request) error { <-ready; return w.observeRequest(r) },
+		response: func(r *http.Response) error { <-ready; return w.response(r) },
 		material: func(username string) map[string]any {
 			return map[string]any{"mode": mode, "cookie": d.base.ownerBrowser.cookie, "project_id": d.base.project.ID, "sprint_id": w.draft.SprintID, "worker_id": d.agentID, "route": "/" + username + "/" + d.base.project.NormalizedName + "/tasks", "draft": map[string]any{"title": w.draft.Title, "description": w.draft.Description, "plan": w.draft.Plan, "type": w.draft.Type, "priority": w.draft.Priority}}
 		},
 	})
+	// Construction reads domain facts directly; no HTTP callback must complete
+	// before this publication. Browser handlers acquire the initialized shell.
+	close(ready)
 	return w
 }
 

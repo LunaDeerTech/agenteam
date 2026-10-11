@@ -1,4 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import {
   intakeMaterial,
   observeIntake,
@@ -62,25 +64,73 @@ async function boardEnds(page: Page, data: IntakeMaterial, label: string) {
     "已完成",
     "已取消",
   ]);
-  await board.focus();
-  await expect(board).toBeFocused();
-  await board.hover();
-  await page.mouse.wheel(-3000, 0);
-  await expect.poll(() => board.evaluate((node) => node.scrollLeft)).toBe(0);
-  await intakeScreenshot(page, data, `${label}-board-start`);
-  await page.mouse.wheel(3000, 0);
-  await expect
-    .poll(() =>
-      board.evaluate((node) => {
-        const last = node.lastElementChild!.getBoundingClientRect(),
-          own = node.getBoundingClientRect();
-        return last.left >= own.left - 1 && last.right <= own.right + 1;
-      }),
-    )
-    .toBe(true);
-  await intakeScreenshot(page, data, `${label}-board-end`);
-  await page.mouse.wheel(-3000, 0);
-  await expect.poll(() => board.evaluate((node) => node.scrollLeft)).toBe(0);
+  const samples: Record<string, unknown>[] = [];
+  async function sample(stage: string) {
+    const value = await board.evaluate((node) => {
+      const last = node.lastElementChild!.getBoundingClientRect(),
+        own = node.getBoundingClientRect();
+      const rect = (r: DOMRect) => ({
+        left: r.left,
+        right: r.right,
+        top: r.top,
+        bottom: r.bottom,
+        width: r.width,
+        height: r.height,
+      });
+      return {
+        scrollLeft: node.scrollLeft,
+        scrollWidth: node.scrollWidth,
+        clientWidth: node.clientWidth,
+        boardRect: rect(own),
+        lastRect: rect(last),
+        hoverWithinBoard: node.contains(
+          document.elementFromPoint(own.left + 20, own.top + 20),
+        ),
+        lastVisible: last.left >= own.left - 1 && last.right <= own.right + 1,
+      };
+    });
+    if (samples.length < 48) samples.push({ stage, ...value });
+    return value;
+  }
+  async function hover() {
+    // Screenshotting may have changed the viewport's scroll position. Re-hit
+    // the visible board before every real wheel; never set its scroll offset.
+    await board.hover({ position: { x: 20, y: 20 } });
+    expect((await sample("hover")).hoverWithinBoard).toBe(true);
+  }
+  try {
+    await board.focus();
+    await expect(board).toBeFocused();
+    await hover();
+    await page.mouse.wheel(-3000, 0);
+    await expect.poll(() => sample("start")).toMatchObject({ scrollLeft: 0 });
+    await intakeScreenshot(page, data, `${label}-board-start`);
+    await hover();
+    await page.mouse.wheel(3000, 0);
+    await expect.poll(() => sample("end")).toMatchObject({ lastVisible: true });
+    await intakeScreenshot(page, data, `${label}-board-end`);
+    await hover();
+    await page.mouse.wheel(-3000, 0);
+    await expect.poll(() => sample("reset")).toMatchObject({ scrollLeft: 0 });
+  } finally {
+    await sample("finally").catch(() =>
+      samples.push({ stage: "final-observation-unavailable" }),
+    );
+    const directory = process.env.AGENTEAM_TASK_INTAKE_WEB_EVIDENCE!;
+    mkdirSync(directory, { recursive: true, mode: 0o700 });
+    writeFileSync(
+      join(directory, `task-intake-${data.mode}-${label}-scroll.json`),
+      JSON.stringify(
+        {
+          input_hash: process.env.AGENTEAM_TASK_INTAKE_WEB_INPUT_HASH!,
+          samples,
+        },
+        null,
+        2,
+      ) + "\n",
+      { mode: 0o600 },
+    );
+  }
 }
 
 async function selectWithKeyboard(page: Page, label: string, option: string) {
