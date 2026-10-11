@@ -68,6 +68,8 @@ const endpoints = {
   reviewMilestone: ['GET', '/api/v1/projects/{project_id}/milestones/{target}', 200],
   reviewSprints: ['GET', '/api/v1/projects/{project_id}/sprints', 200],
   reviewSprint: ['GET', '/api/v1/projects/{project_id}/sprints/{target}', 200],
+  sprintCreate: ['POST', '/api/v1/projects/{project_id}/sprints', 200],
+  sprintCreateLookup: ['POST', '/api/v1/projects/{project_id}/structure-commands/lookup', 200],
   sprintStart: ['POST', '/api/v1/projects/{project_id}/sprints/{target}/start', 200],
   sprintStartLookup: [
     'POST',
@@ -969,6 +971,8 @@ type KnowledgeOptions<E extends KnowledgeEndpoint> = E extends 'knowledgeChildre
     : { signal: AbortSignal; projectID: string; target: string }
 
 type WorkReviewEndpoint =
+  | 'sprintCreate'
+  | 'sprintCreateLookup'
   | 'sprintStart'
   | 'sprintStartLookup'
   | 'reviewMilestones'
@@ -992,6 +996,8 @@ type WorkReviewEndpoint =
   | 'agentConfigurationGet'
   | 'agentConfigurationLookup'
 const workReviewEndpoints: readonly WorkReviewEndpoint[] = [
+  'sprintCreate',
+  'sprintCreateLookup',
   'sprintStart',
   'sprintStartLookup',
   'reviewMilestones',

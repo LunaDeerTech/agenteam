@@ -59,6 +59,16 @@ const model: ProjectAvailableChatModel = {
     max_output: null,
   },
 }
+const textModel: ProjectAvailableChatModel = {
+  ...model,
+  capabilities: {
+    ...model.capabilities,
+    tool_calls: false,
+    reasoning: false,
+    reasoning_efforts: [],
+  },
+}
+const secondModel: ProjectAvailableChatModel = { ...textModel, id: id(7), name: 'Second Chat' }
 const owners: ProjectAgents[] = [],
   release: (() => void)[] = []
 afterEach(async () => {
@@ -237,7 +247,7 @@ describe('Agent edit generation and version gates', () => {
   it('captures only touched fields and requires explicit discard and a fresh read after a version conflict', async () => {
     const f = await fixture()
     await f.owner.selectAgent(id(2))
-    f.owner.openEdit()
+    await f.owner.openEdit()
     expect(f.owner.canSave.value).toBe(false)
     f.owner.touchEdit('description', '')
     f.api.startUpdate.mockRejectedValueOnce(
@@ -276,7 +286,7 @@ describe('Agent edit generation and version gates', () => {
     await flushPromises()
     expect(f.owner.edit.open).toBe(false)
     expect(f.owner.state.configuration?.version).toBe('2')
-    f.owner.openEdit()
+    await f.owner.openEdit()
     f.owner.touchEdit('name', 'Review-Agent')
     f.api.startUpdate.mockResolvedValueOnce({
       changed: false,
@@ -297,7 +307,7 @@ describe('Agent edit generation and version gates', () => {
     const f = await fixture()
     await f.owner.loadDirectory(true)
     await f.owner.selectAgent(id(2))
-    f.owner.openEdit()
+    await f.owner.openEdit()
     f.owner.touchEdit('instructions', '')
     const denied = f.owner.selectAgent(id(6))
     expect(f.owner.confirmation.open).toBe(true)
@@ -309,7 +319,7 @@ describe('Agent edit generation and version gates', () => {
     await allowed
     expect(f.owner.state.selectedID).toBe(id(6))
     expect(f.owner.edit.open).toBe(false)
-    f.owner.openEdit()
+    await f.owner.openEdit()
     f.owner.touchEdit('name', 'Later-Agent')
     let finish!: () => void
     f.api.startUpdate.mockImplementationOnce(
@@ -336,5 +346,106 @@ describe('Agent edit generation and version gates', () => {
     expect(f.owner.state.feedback).toBe('')
     expect(f.owner.state.items.every((item) => item.project_id === id(11))).toBe(true)
     expect(f.api.startUpdate).toHaveBeenCalledTimes(1)
+  })
+
+  it('selects current supported models and saves the model, injection and approval pair atomically', async () => {
+    const f = await fixture()
+    f.api.models.mockResolvedValue({
+      items: [textModel, secondModel, { ...model, id: id(12) }],
+      next_cursor: null,
+    })
+    await f.owner.selectAgent(id(2))
+    await f.owner.openEdit()
+    expect(f.api.models).toHaveBeenCalledExactlyOnceWith(id(1), { limit: 50 })
+    expect(f.owner.editModelOptions.value.map((v) => v.value)).toEqual([id(3), id(7)])
+    f.owner.touchEditPolicy('model_ref', id(12))
+    expect(f.owner.edit.modelID).toBe(id(3))
+    expect(f.owner.editDirty.value).toBe(false)
+    f.owner.touchEditPolicy('model_ref', id(7))
+    f.owner.touchEditPolicy('inject_agents_md', 'no')
+    f.owner.touchEditPolicy('approval_policy', 'auto')
+    expect(f.owner.canSave.value).toBe(false)
+    await f.owner.submitEdit()
+    expect(f.api.startUpdate).not.toHaveBeenCalled()
+    f.owner.touchEditPolicy('approval_model_ref', id(3))
+    await f.owner.submitEdit()
+    expect(f.api.startUpdate).toHaveBeenCalledExactlyOnceWith(id(1), id(2), {
+      expected_version: '1',
+      request: {
+        model_ref: id(7),
+        reasoning_effort: null,
+        inject_agents_md: false,
+        approval_policy: 'auto',
+        approval_model_ref: id(3),
+      },
+    })
+    expect(f.owner.state.configuration).toMatchObject({
+      version: '2',
+      model_ref: id(7),
+      approval_model_ref: id(3),
+    })
+    await f.owner.openEdit()
+    f.owner.touchEditPolicy('approval_policy', 'default')
+    expect(f.owner.edit.approvalModelID).toBe('')
+    f.api.startUpdate.mockResolvedValueOnce({
+      agent: {
+        ...f.owner.state.configuration!,
+        version: '3',
+        approval_policy: 'default',
+        approval_model_ref: null,
+      },
+      changed: true,
+      event_ids: [id(52)],
+    })
+    await f.owner.submitEdit()
+    expect(f.api.startUpdate).toHaveBeenLastCalledWith(id(1), id(2), {
+      expected_version: '2',
+      request: { approval_policy: 'default', approval_model_ref: null },
+    })
+    expect(f.api.startUpdate).toHaveBeenCalledTimes(2)
+    expect(f.owner.state.configuration).toMatchObject({
+      model_ref: id(7),
+      inject_agents_md: false,
+      approval_model_ref: null,
+    })
+    expect(f.api.startCreate).not.toHaveBeenCalled()
+    expect(f.api.checkOriginal).not.toHaveBeenCalled()
+  })
+
+  it('does not rewrite a selected model or original version when the directory changes, and rejects a late directory from another Project', async () => {
+    const f = await fixture()
+    f.api.models.mockResolvedValue({ items: [textModel, secondModel], next_cursor: null })
+    await f.owner.selectAgent(id(2))
+    await f.owner.openEdit()
+    f.owner.touchEditPolicy('model_ref', id(7))
+    f.api.models.mockResolvedValueOnce({ items: [textModel], next_cursor: null })
+    await f.owner.loadModels()
+    expect(f.owner.edit.modelID).toBe(id(7))
+    expect(f.owner.edit.version).toBe('1')
+    expect(f.owner.editModelOptions.value[0]).toMatchObject({ value: id(7), disabled: true })
+    expect(f.owner.canSave.value).toBe(false)
+    await f.owner.submitEdit()
+    expect(f.api.startUpdate).not.toHaveBeenCalled()
+    await f.owner.loadModels()
+    expect(f.owner.canSave.value).toBe(true)
+    let finish!: () => void
+    f.api.models.mockImplementationOnce(
+      async () =>
+        new Promise<{ items: ProjectAvailableChatModel[]; next_cursor: null }>((resolve) => {
+          finish = () => resolve({ items: [textModel, secondModel], next_cursor: null })
+          release.push(finish)
+        }),
+    )
+    const reading = f.owner.loadModels()
+    f.project.id = id(11)
+    f.context.value = { identity: f.identity, projectID: id(11), generation: 2, readGeneration: 2 }
+    f.owner.afterNavigation('/owner/second/settings/agents')
+    await flushPromises()
+    finish()
+    await reading
+    await flushPromises()
+    expect(f.owner.edit.open).toBe(false)
+    expect(f.owner.state.models).toEqual([])
+    expect(f.api.startUpdate).not.toHaveBeenCalled()
   })
 })

@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, nextTick, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { UiButton, UiDrawer, UiState, UiSelect, UiField, UiBadge } from '../../components/ui'
 import TaskBoard from '../../components/work/TaskBoard.vue'
 import TaskReviewDetail from '../../components/work/TaskReviewDetail.vue'
 import TaskCreateForm from '../../components/work/TaskCreateForm.vue'
+import SprintCreateForm from '../../components/work/SprintCreateForm.vue'
 import { useProjectTasks } from '../../composables/useProjectTasks'
 const owner = useProjectTasks(),
   state = owner.state
@@ -12,6 +13,37 @@ const createButton = ref<{ $el: HTMLButtonElement } | null>(null)
 const startButton = ref<{ $el: HTMLButtonElement } | null>(null)
 const startConfirmButton = ref<{ $el: HTMLButtonElement } | null>(null)
 const sprintHeading = ref<HTMLHeadingElement | null>(null)
+const sprintCreateButton = ref<{ $el: HTMLButtonElement } | null>(null)
+watch(
+  () => owner.sprintCreationFocus.value,
+  async (id) => {
+    if (!id) return
+    await nextTick()
+    if (owner.sprintCreationFocus.value !== id) return
+    const heading = sprintHeading.value
+    if (!heading?.isConnected) return
+    heading.focus()
+    if (heading.ownerDocument.activeElement === heading) owner.consumeSprintCreationFocus(id)
+  },
+  { immediate: true, flush: 'post' },
+)
+async function cancelSprintCreation() {
+  const project = owner.sprintCreation.projectID
+  owner.cancelSprintCreation()
+  await nextTick()
+  if (
+    !owner.sprintCreation.open &&
+    owner.visible.value &&
+    !state.task &&
+    state.milestones.some((m) => m.project_id === project)
+  )
+    sprintCreateButton.value?.$el.focus()
+}
+async function submitSprintCreation(action: 'create' | 'lookup' | 'read' = 'create') {
+  if (action === 'lookup') await owner.lookupSprintCreation()
+  else if (action === 'read') await owner.rereadConfirmedCreation()
+  else await owner.submitSprintCreation()
+}
 async function openSprintStart() {
   owner.openSprintStart()
   await nextTick()
@@ -95,6 +127,47 @@ function returnToCreation() {
     </section>
     <UiState v-if="!owner.visible.value" kind="loading" title="正在确认任务访问身份" />
     <template v-else>
+      <p v-if="owner.sprintCreatePending.value && !owner.sprintCreateProgress.value" role="status">
+        有一项 Sprint 创建结果待确认，请返回原 Project 查询结果。
+      </p>
+      <section
+        v-if="owner.sprintCreateProgress.value?.phase === 'uncertain'"
+        class="sprint-create-recovery"
+        aria-label="Sprint 创建结果恢复"
+      >
+        <p role="status">Sprint 创建结果待确认。请查询原创建结果，不要重复创建。</p>
+        <UiButton
+          :disabled="
+            owner.busy.value || !owner.sprintCreateProgress.value.contextValid || !!state.task
+          "
+          @click="submitSprintCreation('lookup')"
+          >查询原 Sprint 创建结果</UiButton
+        >
+        <p v-if="owner.sprintCreateProgress.value.observation === 'not_observed'" role="status">
+          尚未观察到原创建结果，可再次查询。
+        </p>
+        <p v-if="owner.sprintCreateProgress.value.observation === 'in_progress'" role="status">
+          原创建仍在处理中，稍后可再次查询。
+        </p>
+      </section>
+      <p v-if="owner.sprintCreateProgress.value?.phase === 'submitting'" role="status">
+        正在创建 Sprint，请等待原请求结束。
+      </p>
+      <p v-if="owner.sprintCreation.message && !owner.sprintCreation.open" role="status">
+        {{ owner.sprintCreation.message }}
+      </p>
+      <UiButton
+        v-if="
+          owner.sprintCreateProgress.value?.phase === 'confirmed' &&
+          (owner.sprintCreation.needsRead ||
+            state.sprint?.id !== owner.sprintCreateProgress.value.sprintID)
+        "
+        :disabled="
+          owner.busy.value || !owner.sprintCreateProgress.value.contextValid || !!state.task
+        "
+        @click="submitSprintCreation('read')"
+        >读取已创建的 Sprint</UiButton
+      >
       <p v-if="owner.sprintPending.value && !owner.sprintProgress.value" role="status">
         有一项 Sprint 启动结果待确认，请返回原 Project 和 Sprint 查询结果。
       </p>
@@ -227,6 +300,22 @@ function returnToCreation() {
           >
         </aside>
         <main class="tasks-content">
+          <UiButton
+            v-if="!state.task && !owner.sprintCreation.open && !owner.sprintCreatePending.value"
+            ref="sprintCreateButton"
+            :disabled="owner.busy.value || !owner.canCreateSprint.value"
+            @click="owner.openSprintCreation()"
+            >新建 Sprint</UiButton
+          >
+          <p v-if="!state.task && !state.milestones.length">
+            暂无 Milestone，暂时无法创建 Sprint。
+          </p>
+          <SprintCreateForm
+            v-if="owner.sprintCreation.open && !owner.sprintCreatePending.value"
+            :owner="owner"
+            @cancel="cancelSprintCreation"
+            @submit="submitSprintCreation()"
+          />
           <template v-if="state.sprint"
             ><header class="sprint-heading">
               <h2 ref="sprintHeading" tabindex="-1">{{ state.sprint.title }}</h2>

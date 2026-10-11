@@ -43,7 +43,42 @@ export type SprintStartReceipt = Readonly<{
 export type SprintStartLookup =
   | Readonly<{ status: 'committed'; receipt: SprintStartReceipt }>
   | Readonly<{ status: 'in_progress' | 'not_observed'; receipt: null }>
+export type SprintCreateDraft = Readonly<{
+  milestone_id: string
+  title: string
+  description?: string
+}>
+export type SprintCreateInput = Readonly<{
+  request: SprintCreateDraft & Readonly<{ sprint_id: string }>
+}>
+export type CreatedSprint = Readonly<
+  Omit<StartedSprint, 'state' | 'started_at' | 'started_by'> & {
+    state: 'planned'
+    started_at: null
+    started_by: null
+  }
+>
+export type SprintCreateReceipt = Readonly<{
+  command: 'work.sprint.create'
+  changed: true
+  milestone: null
+  sprint: CreatedSprint
+  event_id: string
+}>
+export type SprintCreateLookup =
+  | Readonly<{ state: 'committed'; result: SprintCreateReceipt }>
+  | Readonly<{ state: 'in_progress' | 'not_observed'; result: null }>
 export interface WorkSprintLifecycleAPI {
+  create(
+    project: string,
+    input: SprintCreateInput,
+    write: WriteOptions,
+  ): Promise<SprintCreateReceipt>
+  lookupCreate(
+    project: string,
+    input: SprintCreateInput,
+    write: WriteOptions,
+  ): Promise<SprintCreateLookup>
   start(
     project: string,
     sprint: string,
@@ -194,9 +229,135 @@ function receipt(
     event_id: workID(v.event_id),
   })
 }
+export function captureSprintCreateDraft(value: unknown): SprintCreateDraft {
+  return input(() => {
+    const v = shape(value, ['milestone_id', 'title'], ['description'])
+    return Object.freeze({
+      milestone_id: workID(v.milestone_id),
+      title: workText(v.title, 1024, true),
+      ...(Object.hasOwn(v, 'description') ? { description: workText(v.description, 32768) } : {}),
+    })
+  })
+}
+export function captureSprintCreateInput(value: unknown): SprintCreateInput {
+  return input(() => {
+    const v = shape(value, ['request'])
+    const r = shape(v.request, ['sprint_id', 'milestone_id', 'title'], ['description'])
+    const { sprint_id, ...draft } = r
+    return Object.freeze({
+      request: Object.freeze({ sprint_id: workID(sprint_id), ...captureSprintCreateDraft(draft) }),
+    })
+  })
+}
+function createReceipt(
+  value: unknown,
+  project: string,
+  original: SprintCreateInput,
+): SprintCreateReceipt {
+  const v = shape(value, ['command', 'changed', 'milestone', 'sprint', 'event_id'])
+  const s = shape(v.sprint, [
+    'id',
+    'project_id',
+    'milestone_id',
+    'title',
+    'description',
+    'manual_rank',
+    'version',
+    'created_at',
+    'updated_at',
+    'state',
+    'started_at',
+    'started_by',
+    'completed_at',
+    'completed_by',
+  ])
+  const created = parseSystemInstant(s.created_at),
+    updated = parseSystemInstant(s.updated_at)
+  const rank = string(s.manual_rank, 32, 32),
+    r = original.request
+  requireValue(v.command === 'work.sprint.create' && v.changed === true && v.milestone === null)
+  requireValue(
+    workID(s.id) === r.sprint_id &&
+      workID(s.project_id) === project &&
+      workID(s.milestone_id) === r.milestone_id,
+  )
+  requireValue(
+    s.title === r.title &&
+      s.description === (r.description ?? '') &&
+      workVersion(s.version) === '1',
+  )
+  requireValue(
+    s.state === 'planned' &&
+      s.started_at === null &&
+      s.started_by === null &&
+      s.completed_at === null &&
+      s.completed_by === null &&
+      created === updated,
+  )
+  requireValue(/^[0-9a-f]{32}$/.test(rank) && rank !== '0'.repeat(32) && rank !== 'f'.repeat(32))
+  return Object.freeze({
+    command: 'work.sprint.create',
+    changed: true,
+    milestone: null,
+    event_id: workID(v.event_id),
+    sprint: Object.freeze({
+      id: r.sprint_id,
+      project_id: project,
+      milestone_id: r.milestone_id,
+      title: r.title,
+      description: r.description ?? '',
+      manual_rank: rank,
+      version: '1',
+      created_at: created,
+      updated_at: updated,
+      state: 'planned',
+      started_at: null,
+      started_by: null,
+      completed_at: null,
+      completed_by: null,
+    }),
+  })
+}
 export function createWorkSprintLifecycleAPI(fetcher?: Fetch): WorkSprintLifecycleAPI {
   const call = accountTransport(fetcher)
   return {
+    create(project, value, write) {
+      const original = captureSprintCreateInput(value)
+      const projectID = input(() => workID(project))
+      return call('sprintCreate', (value) => createReceipt(value, projectID, original), {
+        projectID,
+        signal: write.signal ?? new AbortController().signal,
+        csrf: write.csrfToken,
+        key: write.key,
+        body: original,
+      })
+    },
+    lookupCreate(project, value, write) {
+      const original = captureSprintCreateInput(value)
+      const projectID = input(() => workID(project))
+      return call(
+        'sprintCreateLookup',
+        (value): SprintCreateLookup => {
+          const v = shape(value, ['state', 'result'])
+          if (v.state === 'committed')
+            return Object.freeze({
+              state: 'committed',
+              result: createReceipt(v.result, projectID, original),
+            })
+          requireValue(
+            (v.state === 'in_progress' || v.state === 'not_observed') && v.result === null,
+          )
+          return Object.freeze({ state: v.state as 'in_progress' | 'not_observed', result: null })
+        },
+        {
+          projectID,
+          signal: write.signal ?? new AbortController().signal,
+          csrf: write.csrfToken,
+          key: write.key,
+          body: { command: 'work.sprint.create', ...original },
+        },
+      )
+    },
     start(project, sprint, value, write) {
       const original = captureSprintStartInput(value)
       const scope = input(() => ({ projectID: workID(project), target: workID(sprint) }))

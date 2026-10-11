@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createWorkSprintLifecycleAPI, captureSprintStartInput } from '../api/work-sprint-lifecycle'
+import {
+  createWorkSprintLifecycleAPI,
+  captureSprintStartInput,
+  captureSprintCreateInput,
+  captureSprintCreateDraft,
+} from '../api/work-sprint-lifecycle'
 import type { Fetch } from '../api/client'
 
 const id = (n: number) => `01990000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
@@ -132,6 +137,102 @@ describe('Sprint Start wire contract', () => {
       ),
     )
     await expect(api.lookup(p, s, original, write)).rejects.toMatchObject({
+      kind: 'invalid-response',
+    })
+    expect(fetch).toHaveBeenCalledTimes(5)
+  })
+})
+
+const createInput = { request: { sprint_id: s, milestone_id: id(4), title: 'Planned Sprint' } }
+function created() {
+  return {
+    command: 'work.sprint.create',
+    changed: true,
+    milestone: null,
+    sprint: {
+      ...receipt().sprint,
+      title: createInput.request.title,
+      description: '',
+      version: '1',
+      state: 'planned',
+      started_at: null,
+      started_by: null,
+    },
+    event_id: id(6),
+  }
+}
+describe('Sprint Create wire contract', () => {
+  it('preserves optional description and accepts only the complete original planned Sprint receipt', async () => {
+    const fetch = vi.fn<Fetch>(async () => json(created()))
+    const api = createWorkSprintLifecycleAPI(fetch)
+    const captured = captureSprintCreateInput(createInput)
+    expect(Object.hasOwn(captured.request, 'description')).toBe(false)
+    expect(Object.isFrozen(captured.request)).toBe(true)
+    const result = await api.create(p, captured, write)
+    expect(result).toEqual(created())
+    expect(Object.isFrozen(result.sprint)).toBe(true)
+    const [path, init] = fetch.mock.calls[0]!
+    expect(path).toBe(`/api/v1/projects/${p}/sprints`)
+    expect(init.method).toBe('POST')
+    expect(JSON.parse(init.body as string)).toEqual(createInput)
+    expect(init.headers).toMatchObject({
+      'Idempotency-Key': write.key,
+      'X-CSRF-Token': write.csrfToken,
+    })
+    expect(
+      captureSprintCreateDraft({ milestone_id: id(4), title: 'Planned Sprint', description: '' }),
+    ).toEqual({ milestone_id: id(4), title: 'Planned Sprint', description: '' })
+  })
+  it('looks up the original create body and key using structure state/result without target or version', async () => {
+    const fetch = vi.fn<Fetch>()
+    const api = createWorkSprintLifecycleAPI(fetch)
+    const original = captureSprintCreateInput({
+      request: { ...createInput.request, description: '' },
+    })
+    for (const state of ['not_observed', 'in_progress', 'committed'] as const) {
+      const result = { state, result: state === 'committed' ? created() : null }
+      fetch.mockResolvedValueOnce(json(result))
+      expect(await api.lookupCreate(p, original, write)).toEqual(result)
+      const [path, init] = fetch.mock.calls.at(-1)!
+      expect(path).toBe(`/api/v1/projects/${p}/structure-commands/lookup`)
+      expect(init.method).toBe('POST')
+      expect(init.headers).toMatchObject({ 'Idempotency-Key': write.key })
+      expect(JSON.parse(init.body as string)).toEqual({
+        command: 'work.sprint.create',
+        ...original,
+      })
+    }
+    expect(fetch).toHaveBeenCalledTimes(3)
+  })
+  it('rejects invalid presence before dispatch and rejects wrong scope, state, version or duplicate structure receipts', async () => {
+    const fetch = vi.fn<Fetch>(),
+      api = createWorkSprintLifecycleAPI(fetch)
+    for (const value of [
+      { ...createInput, expected_version: '1' },
+      { request: { ...createInput.request, description: null } },
+      { request: { ...createInput.request, description: undefined } },
+      { request: { ...createInput.request, sprint_id: s.replace('-7000-', '-4000-') } },
+      { request: { ...createInput.request, title: '  ' } },
+    ])
+      expect(() => api.create(p, value as typeof createInput, write)).toThrowError('invalid-input')
+    expect(fetch).not.toHaveBeenCalled()
+    for (const value of [
+      { ...created(), sprint: { ...created().sprint, milestone_id: id(30) } },
+      { ...created(), sprint: { ...created().sprint, state: 'current' } },
+      { ...created(), sprint: { ...created().sprint, version: '2' } },
+      { ...created(), changed: false, event_id: null },
+    ]) {
+      fetch.mockResolvedValueOnce(json(value))
+      await expect(api.create(p, createInput, write)).rejects.toMatchObject({
+        kind: 'invalid-response',
+      })
+    }
+    fetch.mockResolvedValueOnce(
+      new Response('{"state":"not_observed","state":"committed","result":null}', {
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    )
+    await expect(api.lookupCreate(p, createInput, write)).rejects.toMatchObject({
       kind: 'invalid-response',
     })
     expect(fetch).toHaveBeenCalledTimes(5)

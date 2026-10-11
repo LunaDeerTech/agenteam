@@ -18,6 +18,8 @@ MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 # One closed same-package PG family: adding a scenario changes required
 # inputs and expected test data, never the resource/Wait/tail implementation.
 METADATA_INPUTS = {
+    '^TestSprintCreateWeb$': ('tests/projectvariable/sprint_create_web_test.go', 'tests/projectvariable/sprint_start_web_test.go', 'tests/projectvariable/agent_edit_web_test.go', 'tests/projectvariable/agent_configuration_app_test.go', 'tests/projectvariable/agent_configuration_web_test.go', 'tests/projectvariable/agent_configuration_create_test.go', 'tests/projectvariable/agent_configuration_facts_test.go', 'tests/projectvariable/skill_installation_test.go', 'tests/projectvariable/fixture_test.go', 'tests/projectvariable/execution_preparation_test.go', 'tests/projectvariable/task_review_web_test.go', 'tests/testsupport/agentconfiguration/assembly.go', 'tests/account-captcha-web/sprint-create.config.js', 'tests/account-captcha-web/e2e/sprint-create.spec.ts', 'tests/account-captcha-web/e2e/sprint-create.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts'),
+    '^TestAgentModelPolicyWeb$': ('tests/projectvariable/agent_model_policy_web_test.go', 'tests/projectvariable/agent_edit_web_test.go', 'tests/projectvariable/agent_configuration_app_test.go', 'tests/projectvariable/agent_configuration_web_test.go', 'tests/projectvariable/agent_configuration_create_test.go', 'tests/projectvariable/agent_configuration_facts_test.go', 'tests/projectvariable/skill_installation_test.go', 'tests/projectvariable/fixture_test.go', 'tests/projectvariable/task_review_web_test.go', 'tests/testsupport/agentconfiguration/assembly.go', 'tests/account-captcha-web/agent-model-policy.config.js', 'tests/account-captcha-web/e2e/agent-model-policy.spec.ts', 'tests/account-captcha-web/e2e/agent-model-policy.helpers.ts', 'tests/account-captcha-web/e2e/agent-configuration.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts'),
     '^TestKnowledgeOwnerRenameWeb$': ('internal/central/app/knowledge_owner_rename_web_test.go', 'internal/central/app/knowledge_owner_web_test.go', 'internal/central/app/knowledge_skills_process_test.go', 'tests/account-captcha-web/knowledge-owner-rename.config.js', 'tests/account-captcha-web/e2e/knowledge-owner-rename.spec.ts', 'tests/account-captcha-web/e2e/knowledge-owner-rename.native.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts', 'api/openapi/common.json', 'api/openapi/knowledge-owner.json', 'api/openapi/knowledge-content.json', 'api/openapi/knowledge-tree-commands.json'),
     '^TestSprintStartWeb$': ('tests/projectvariable/sprint_start_web_test.go', 'tests/projectvariable/agent_configuration_app_test.go', 'tests/projectvariable/agent_configuration_web_test.go', 'tests/projectvariable/agent_configuration_create_test.go', 'tests/projectvariable/agent_configuration_facts_test.go', 'tests/projectvariable/skill_installation_test.go', 'tests/projectvariable/fixture_test.go', 'tests/projectvariable/execution_preparation_test.go', 'tests/projectvariable/task_review_web_test.go', 'tests/testsupport/agentconfiguration/assembly.go', 'tests/account-captcha-web/sprint-start.config.js', 'tests/account-captcha-web/e2e/sprint-start.spec.ts', 'tests/account-captcha-web/e2e/sprint-start.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts'),
     '^TestAgentConfigurationUpdateApp$': ('tests/projectvariable/agent_edit_web_test.go', 'tests/projectvariable/agent_configuration_app_test.go', 'tests/projectvariable/agent_configuration_web_test.go', 'tests/projectvariable/agent_configuration_create_test.go', 'tests/projectvariable/agent_configuration_facts_test.go', 'tests/projectvariable/skill_installation_test.go', 'tests/projectvariable/fixture_test.go', 'tests/projectvariable/task_review_web_test.go', 'tests/testsupport/agentconfiguration/assembly.go'),
@@ -257,7 +259,7 @@ def metadata_inputs(binary, selector='^TestAgentConfigurationMetadata$'):
     # Only the explicitly retained legacy metadata profile includes its
     # historical records. New profiles contain actual compiled/runtime inputs.
     paths.update(REPOSITORY / name for name in METADATA_INPUTS[selector])
-    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, SPRINT_START_UI, KNOWLEDGE_RENAME_UI):
+    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, SPRINT_START_UI, KNOWLEDGE_RENAME_UI):
         paths.update(task_review_ui_inputs(selector))
     if selector == APP_RUNTIME:
         paths.update(app_runtime_inputs())
@@ -323,6 +325,8 @@ TASK_EDIT_UI = '^TestTaskEditWeb$'
 TASK_TIMELINE_UI = '^TestTaskTimelineWeb$'
 AGENT_CONFIGURATION_UI = '^TestAgentConfigurationWeb$'
 AGENT_EDIT_UI = '^TestAgentEditWeb$'
+AGENT_MODEL_POLICY_UI = '^TestAgentModelPolicyWeb$'
+SPRINT_CREATE_UI = '^TestSprintCreateWeb$'
 SPRINT_START_UI = '^TestSprintStartWeb$'
 KNOWLEDGE_RENAME_UI = '^TestKnowledgeOwnerRenameWeb$'
 APP_RUNTIME = '^TestAppExecutionRuntime$'
@@ -331,6 +335,8 @@ TASK_EDIT_ENV = ('AGENTEAM_TASK_EDIT_WEB_DIST', 'AGENTEAM_TASK_EDIT_WEB_EVIDENCE
 TASK_TIMELINE_ENV = ('AGENTEAM_TASK_TIMELINE_WEB_DIST', 'AGENTEAM_TASK_TIMELINE_WEB_EVIDENCE')
 AGENT_CONFIGURATION_ENV = ('AGENTEAM_AGENT_CONFIGURATION_WEB_DIST', 'AGENTEAM_AGENT_CONFIGURATION_WEB_EVIDENCE')
 AGENT_EDIT_ENV = ('AGENTEAM_AGENT_EDIT_WEB_DIST', 'AGENTEAM_AGENT_EDIT_WEB_EVIDENCE')
+AGENT_MODEL_POLICY_ENV = ('AGENTEAM_AGENT_MODEL_POLICY_WEB_DIST', 'AGENTEAM_AGENT_MODEL_POLICY_WEB_EVIDENCE')
+SPRINT_CREATE_ENV = ('AGENTEAM_SPRINT_CREATE_WEB_DIST', 'AGENTEAM_SPRINT_CREATE_WEB_EVIDENCE')
 SPRINT_START_ENV = ('AGENTEAM_SPRINT_START_WEB_DIST', 'AGENTEAM_SPRINT_START_WEB_EVIDENCE')
 KNOWLEDGE_RENAME_ENV = tuple('AGENTEAM_KNOWLEDGE_OWNER_RENAME_WEB_' + part for part in ('DIST', 'EVIDENCE', 'SCHEMA_PYTHON', 'CASE'))
 TASK_REVIEW_ENV = ('AGENTEAM_TASK_REVIEW_WEB_DIST', 'AGENTEAM_TASK_REVIEW_WEB_EVIDENCE')
@@ -349,8 +355,12 @@ def task_review_ui_profile(selector):
         return TASK_TIMELINE_ENV, 'output/ai/task-timeline-web', 'task-timeline'
     if selector == AGENT_CONFIGURATION_UI:
         return AGENT_CONFIGURATION_ENV, 'output/ai/agent-configuration-web', 'agent-configuration'
+    if selector == AGENT_MODEL_POLICY_UI:
+        return AGENT_MODEL_POLICY_ENV, 'output/ai/agent-model-policy-web', 'agent-model-policy'
     if selector == AGENT_EDIT_UI:
         return AGENT_EDIT_ENV, 'output/ai/agent-edit-web', 'agent-edit'
+    if selector == SPRINT_CREATE_UI:
+        return SPRINT_CREATE_ENV, 'output/ai/sprint-create-web', 'sprint-create'
     if selector == SPRINT_START_UI:
         return SPRINT_START_ENV, 'output/ai/sprint-start-web', 'sprint-start'
     if selector == KNOWLEDGE_RENAME_UI:
@@ -660,7 +670,7 @@ def configuration(binary, selector, directory):
             'cwd': str(REPOSITORY / TARGETS[selector]),
             'directory': str(directory), 'runtime': str(directory / 'runtime'),
             'test_timeout': '6m', 'resources': 7}
-    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, SPRINT_START_UI, KNOWLEDGE_RENAME_UI):
+    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, SPRINT_START_UI, KNOWLEDGE_RENAME_UI):
         plan['task_review_ui'] = task_review_ui_configuration(directory, selector)
     if selector == APP_RUNTIME:
         app_runtime_inputs()
@@ -738,7 +748,7 @@ def main():
         env.update({'AGENTEAM_AUTH_WEB_RUNTIME': str(runtime),
                     'AGENTEAM_KNOWLEDGE_OWNER_WEB_INPUT_HASH': knowledge_ui_input_hash(args.test_binary),
                     'PATH': str(KNOWLEDGE_NODE.parent) + os.pathsep + env.get('PATH', '')})
-    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, SPRINT_START_UI, KNOWLEDGE_RENAME_UI):
+    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, SPRINT_START_UI, KNOWLEDGE_RENAME_UI):
         ui = plan['task_review_ui']
         names, _, _ = task_review_ui_profile(args.run)
         Path(ui[names[1]]).mkdir(mode=0o700)

@@ -654,3 +654,20 @@ frontend01格式通过，unit为15PASS/1FAIL，唯一page因fixture恢复context
 ```
 
 继续使用原固定依赖、独立namespace、实际输入闭包、fresh容量及七资源/原Wait双尾门；已有FAIL目录不覆盖，两个候选raw当前均保留、没有新压缩或退休；复用须按对应原编译记录核定。资源仅回收原授权25个可再生cache对象417,730,560 B，`sprint-start-cache-recovery-01/result.json`保留前置失败与零删除事实，02记录实际成功；未删除源码、日志、FAIL或候选。正式可见范围见[D11 Sprint启动切片](../../docs/development/work-items/d11-work-owner-planning-ui.md#15-已有planned-sprint的显式启动)。
+
+## Agent模型策略与Sprint创建组合（限定范围）
+
+本组合已完成限定验收，随本次提交交付main。执行树为`/workspace/agenteam-skill-install-runtime-source` / `ai/agent-sprint-configuration-integration`；Agent三产品/三测试、Sprint六产品/六测试及各八path fixture分别保持边界，不混入后继Skills或Milestone源码。Agent runtime为`a4c636f72ff72ddfd111d1fac49b36a76cb7c61e`；Sprint runtime为`38ebc39e3fb9f257dd301846e9a798019a5a59c5`，使用回焦修复后的Sprint `frontend-02/dist`，不将其冒作Agent重验输入。
+
+共享Go编译SOURCE为`293f062b2faf1554056602768ed21f95f256b104`，990个Go/embed输入。原编译记录为执行树`output/ai/agent-system-integration/agent-sprint-configuration-compile-01/result.json`；同目录candidate为`agent-sprint-configuration-race-01.test`，79,094,753 B，SHA256 `8ec3eb35022a4d24284450caed7cce4dd0623c2c57aea1219ca46c153dec8677`。恢复须从该原记录读取输入清单、候选和绑定，不用旧Rename/Sprint Start候选替代。候选当前保留，没有新增压缩或退休；重新运行须分配独立namespace/output和资源窗口，不覆盖原result。
+
+基础frontend01原42项为41PASS/1FAIL，另原Agent Session两项PASS；仅补原失败case后通过，累计44项接受，非一次44项全绿。类型/构建及八项controls通过。Sprint路由重挂载后的标题回焦修复另补15项（12 Sprint＋3 Work，含两项新增remount/Session身份控）、类型和构建；与前44项存在复用，不累加唯一数。Agent02有效输入保持，无重复业务矩阵。
+
+- `^TestAgentModelPolicyWeb$`：native02正常链22.88s wholePASS，两次PATCH使版本1→2→3、零浏览器Lookup；真实配置引用、receipt/event及最终服务端历史原Lookup/SQL/domainGuard到达。原结果为`output/ai/agent-system-integration/agent-model-policy-web-02-control/result.json`。11请求中9finished，另两GET failed原事实保留且严格完成联证通过。
+- `^TestSprintCreateWeb$`：native03正常链17.41s wholePASS，一次Create、零浏览器Lookup/transition；新planned sibling、最终历史原Lookup/PG plan-Outbox，以及旧Current/paused/Project/Milestone/Task保持、零Dispatch/Execution和App joined到达。原结果为`output/ai/agent-system-integration/sprint-create-web-03-control/result.json`，PG为`/tmp/scr03/ui-ed204c1faa154bfd.log`。32请求中29finished，另三GET failed保留且严格联证通过。
+
+两轮各四原Wait0、Node成功、七ID14次absence、所有private/runtime/desc/TCP双尾空、outer无遗留，Agent2456/Sprint2455输入不变；SUP各自回收Chrome的Wait另记，不代替四层Wait。secret最终业务/资源有限接受，cleanup分别接受两张实际图及同场景键盘/主题/reduced-motion/overflow边界：Agent为1440浅色/390深色且显式聚焦后Enter；Sprint为1440浅色创建表单/390深色planned结果及新路由标题焦点，窄图仅前列。不宣自动保存回焦、七列全景或完整无障碍，也不以正常链代验真实Unknown native矩阵。
+
+原frontend01 FAIL、Agent native01（30.96s，新增自动回焦断言不符原契约）、Sprint native01（25.97s，标题label错配、零Create/Lookup）及native02（24.79s，Create后路由卸载导致标题回焦丢失、最终联证/后验未到）全部保留。原finished/failed事件不改写。公开范围与原意图规则见[D10模型与审批配置](../../docs/development/work-items/d10-agent-configuration.md#9-已有agent的模型与审批配置编辑限定范围)和[D11 Sprint创建](../../docs/development/work-items/d11-work-owner-planning-ui.md#16-已有milestone下创建planned-sprint限定范围)。两片不新增运行权限，不启用Scheduler，不解除initializer、ready或旧STOP。
+
+四个活跃物理树及第五个原Rename/回焦作者树继续HOLD：执行树保组合/原候选，UI保文档与旧材料，independent的Milestone UI `fa87a985`与metadata的Milestone fixture `f9620068`已保存推送且独审接受、动态未跑；唯一锁定PW、依赖和原FAIL不清理。Skills UI `2ee6e334`及fixture `ebcfb3b8`已保存静审、尚无动态结论。沿原固定依赖、fresh容量、独立namespace、输入绑定和真实Wait/资源双尾门恢复，不新建永久归档。

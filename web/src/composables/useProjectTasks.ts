@@ -1,4 +1,13 @@
-import { computed, inject, reactive, ref, shallowReactive, watch, type InjectionKey } from 'vue'
+import {
+  computed,
+  inject,
+  reactive,
+  ref,
+  shallowReactive,
+  shallowRef,
+  watch,
+  type InjectionKey,
+} from 'vue'
 import { AccountFailure } from '../api/client'
 import {
   taskStates,
@@ -13,6 +22,7 @@ import {
   type Page,
   type ReviewInput,
 } from '../api/work-review'
+import { captureSprintCreateDraft, type SprintCreateReceipt } from '../api/work-sprint-lifecycle'
 import { captureTaskCreateDraft, type TaskCreateDraft } from '../api/work-task-planning'
 import { compareTaskTimelineEvents, type TaskTimelineEvent } from '../api/work-task-timeline'
 import { captureTaskUpdateInput } from '../api/work-task-edit'
@@ -142,6 +152,25 @@ export function createProjectTasks(
     touched: { title: false, description: false, type: false, priority: false, plan: false },
     message: '',
   })
+  const sprintCreation = reactive({
+    open: false,
+    projectID: '',
+    milestoneID: '',
+    sprintID: '',
+    title: '',
+    description: '',
+    message: '',
+    needsRead: false,
+  })
+  let sprintCreationIdentity = ''
+  // App owns this controller across the RouterView removal during Session
+  // restoration. A View-local ref cannot carry focus across that navigation.
+  const createdSprintFocus = shallowRef<Readonly<{
+    projectID: string
+    sprintID: string
+    identity: string
+    path: string
+  }> | null>(null)
   const sprintStart = reactive({
     open: false,
     projectID: '',
@@ -197,6 +226,64 @@ export function createProjectTasks(
       ? p
       : null
   })
+  const sprintCreatePending = computed(() => {
+    const p = auth.workSprintLifecycle.createProgress
+    return p && ['submitting', 'uncertain'].includes(p.phase) ? p : null
+  })
+  const sprintCreateProgress = computed(() => {
+    const p = auth.workSprintLifecycle.createProgress
+    return visible.value && p?.projectID === workspace.currentReadContext.value?.projectID
+      ? p
+      : null
+  })
+  const sprintCreationFocus = computed(() => {
+    const request = createdSprintFocus.value
+    const progress = sprintCreateProgress.value
+    return request &&
+      !disposed &&
+      visible.value &&
+      !busy.value &&
+      request.identity === identityKey(request.projectID) &&
+      workspace.currentReadContext.value?.projectID === request.projectID &&
+      route.value === request.path &&
+      state.phase === 'ready' &&
+      state.sprint?.id === request.sprintID &&
+      !state.task &&
+      progress?.phase === 'confirmed' &&
+      progress.contextValid &&
+      progress.projectID === request.projectID &&
+      progress.sprintID === request.sprintID
+      ? request.sprintID
+      : null
+  })
+  function consumeSprintCreationFocus(sprintID: string) {
+    if (sprintCreationFocus.value !== sprintID) return false
+    createdSprintFocus.value = null
+    return true
+  }
+  const sprintMilestoneOptions = computed(() => {
+    const rows = [...state.milestones]
+    if (state.milestone && !rows.some((m) => m.id === state.milestone!.id))
+      rows.unshift(state.milestone)
+    return rows.map((m) => ({ value: m.id, label: m.title }))
+  })
+  const canCreateSprint = computed(
+    () =>
+      visible.value &&
+      state.phase === 'ready' &&
+      !state.task &&
+      workspace.detail.project?.lifecycle === 'active' &&
+      !!sprintMilestoneOptions.value.length &&
+      !pending.value &&
+      !sprintCreatePending.value &&
+      !sprintPending.value &&
+      !sprintStart.open &&
+      !sprintStart.needsRead &&
+      !creation.open &&
+      !edit.open &&
+      !draft.action &&
+      !sprintCreation.needsRead,
+  )
   const sprintPending = computed(() => {
     const p = auth.workSprintLifecycle.progress
     return p && ['submitting', 'uncertain'].includes(p.phase) ? p : null
@@ -230,6 +317,9 @@ export function createProjectTasks(
       state.sprint.project_id === workspace.currentReadContext.value?.projectID &&
       !pending.value &&
       !sprintPending.value &&
+      !sprintCreatePending.value &&
+      !sprintCreation.open &&
+      !sprintCreation.needsRead &&
       !creation.open &&
       !edit.open &&
       !draft.action &&
@@ -261,6 +351,9 @@ export function createProjectTasks(
       !state.detailCurrent ||
       !!pending.value ||
       !!sprintPending.value ||
+      !!sprintCreatePending.value ||
+      sprintCreation.open ||
+      sprintCreation.needsRead ||
       sprintStart.open ||
       sprintStart.needsRead,
   )
@@ -273,6 +366,9 @@ export function createProjectTasks(
       !state.task &&
       !pending.value &&
       !sprintPending.value &&
+      !sprintCreatePending.value &&
+      !sprintCreation.open &&
+      !sprintCreation.needsRead &&
       !sprintStart.open &&
       !sprintStart.needsRead,
   )
@@ -287,6 +383,9 @@ export function createProjectTasks(
       state.task.assignee_agent_id === null &&
       !pending.value &&
       !sprintPending.value &&
+      !sprintCreatePending.value &&
+      !sprintCreation.open &&
+      !sprintCreation.needsRead &&
       !sprintStart.open &&
       !sprintStart.needsRead,
   )
@@ -314,6 +413,9 @@ export function createProjectTasks(
       editDirty.value ||
       !!pending.value ||
       !!sprintPending.value ||
+      !!sprintCreatePending.value ||
+      sprintCreation.open ||
+      sprintCreation.needsRead ||
       sprintStart.open,
   )
   const agentOptions = computed(() =>
@@ -346,6 +448,19 @@ export function createProjectTasks(
       state.sprint?.id === sprint &&
       !state.task
     )
+  }
+  function clearSprintCreation() {
+    Object.assign(sprintCreation, {
+      open: false,
+      projectID: '',
+      milestoneID: '',
+      sprintID: '',
+      title: '',
+      description: '',
+      message: '',
+      needsRead: false,
+    })
+    sprintCreationIdentity = ''
   }
   function clearSprintStart() {
     Object.assign(sprintStart, {
@@ -396,6 +511,7 @@ export function createProjectTasks(
     auth.workReview.abandonRead()
   }
   function clearData() {
+    createdSprintFocus.value = null
     clearTimeline()
     manualMilestone = null
     state.phase = 'idle'
@@ -421,6 +537,7 @@ export function createProjectTasks(
     clearCreation()
     clearEdit()
     clearSprintStart()
+    clearSprintCreation()
   }
   async function read<T>(
     fn: (project: string, step: <V>(work: () => Promise<V>) => Promise<V>) => Promise<T>,
@@ -743,10 +860,189 @@ export function createProjectTasks(
       await loadColumn(s)
     }
   }
+  function openSprintCreation() {
+    const p = workspace.currentReadContext.value?.projectID
+    if (!p || busy.value || !canCreateSprint.value) return
+    createdSprintFocus.value = null
+    if (
+      auth.workSprintLifecycle.progress?.phase === 'rejected' &&
+      auth.workSprintLifecycle.progress.contextValid
+    )
+      auth.workSprintLifecycle.editRejected()
+    clearSprintCreation()
+    Object.assign(sprintCreation, {
+      open: true,
+      projectID: p,
+      milestoneID: state.milestone?.id ?? '',
+    })
+    sprintCreationIdentity = identityKey(p)
+  }
+  function cancelSprintCreation() {
+    if (busy.value || sprintCreatePending.value) return
+    if (sprintCreateProgress.value?.phase === 'rejected' && sprintCreateProgress.value.contextValid)
+      auth.workSprintLifecycle.editRejectedCreate()
+    clearSprintCreation()
+  }
+  function sameSprintCreation(own: number, project: string, milestone: string, identity: string) {
+    return (
+      live(own, project) &&
+      !!identity &&
+      identityKey(project) === identity &&
+      !state.task &&
+      sprintCreation.projectID === project &&
+      sprintCreation.milestoneID === milestone
+    )
+  }
+  async function rereadCreatedSprint() {
+    const p = sprintCreation.projectID,
+      m = sprintCreation.milestoneID,
+      sid = sprintCreation.sprintID,
+      own = generation,
+      identity = sprintCreationIdentity
+    if (busy.value || !sprintCreation.needsRead || !sid || !sameSprintCreation(own, p, m, identity))
+      return
+    let selected = false
+    await read(
+      async (_p, step) => {
+        const sprint = await step(() => auth.workReview.sprint(p, sid))
+        const milestone = await step(() => auth.workReview.milestone(p, m))
+        const page = await step(() => auth.workReview.sprints(p, m, { limit: 50 }))
+        if (
+          sprint.id !== sid ||
+          sprint.project_id !== p ||
+          sprint.milestone_id !== m ||
+          milestone.id !== m ||
+          milestone.project_id !== p
+        )
+          throw new AccountFailure('invalid-response')
+        return { sprint, milestone, page }
+      },
+      (value) => {
+        if (!sameSprintCreation(own, p, m, identity)) return
+        // Publish actual current reads, never a synthetic list row or receipt as current state.
+        state.sprint = value.sprint
+        state.milestone = value.milestone
+        state.sprints = value.page.items
+        state.sprintNext = value.page.next_cursor
+        sprintCreation.needsRead = false
+        sprintCreation.open = false
+        sprintCreation.message = 'Sprint 已创建；启动需单独确认。'
+        selected = true
+      },
+      () => {
+        if (sameSprintCreation(own, p, m, identity))
+          sprintCreation.message =
+            '创建已确认，当前 Sprint 信息读取失败。请重新读取，不要再次创建。'
+      },
+    )
+    if (selected && sameSprintCreation(own, p, m, identity)) {
+      const request = Object.freeze({
+        projectID: p,
+        sprintID: sid,
+        identity,
+        path: `${projectPath()}/tasks/sprints/${sid}`,
+      })
+      createdSprintFocus.value = request
+      try {
+        await selectSprint(sid)
+      } finally {
+        if (createdSprintFocus.value === request && route.value !== request.path)
+          createdSprintFocus.value = null
+      }
+    }
+  }
+  async function acceptSprintCreation(value: SprintCreateReceipt, own: number, identity: string) {
+    const p = value.sprint.project_id,
+      m = value.sprint.milestone_id
+    if (!sameSprintCreation(own, p, m, identity)) return
+    Object.assign(sprintCreation, {
+      open: false,
+      sprintID: value.sprint.id,
+      needsRead: true,
+      message: '创建已确认，正在读取当前 Sprint。',
+    })
+    await rereadCreatedSprint()
+  }
+  async function submitSprintCreation() {
+    const p = sprintCreation.projectID,
+      m = sprintCreation.milestoneID,
+      own = generation,
+      identity = sprintCreationIdentity
+    if (
+      busy.value ||
+      !sprintCreation.open ||
+      !canCreateSprint.value ||
+      !sameSprintCreation(own, p, m, identity) ||
+      !sprintMilestoneOptions.value.some((row) => row.value === m)
+    )
+      return
+    try {
+      const draft = captureSprintCreateDraft({
+        milestone_id: m,
+        title: sprintCreation.title,
+        ...(sprintCreation.description ? { description: sprintCreation.description } : {}),
+      })
+      if (auth.workSprintLifecycle.createProgress?.phase === 'rejected')
+        auth.workSprintLifecycle.editRejectedCreate()
+      const value = await auth.workSprintLifecycle.create(p, draft)
+      const result = 'state' in value ? value.result : value
+      if (result) await acceptSprintCreation(result, own, identity)
+    } catch (error) {
+      if (sameSprintCreation(own, p, m, identity))
+        sprintCreation.message =
+          error instanceof AccountFailure && error.kind === 'invalid-input'
+            ? '请选择有效 Milestone，并填写合法标题与描述。'
+            : explain(error)
+    }
+  }
+  async function lookupSprintCreation() {
+    const progress = sprintCreateProgress.value,
+      own = generation
+    if (busy.value || progress?.phase !== 'uncertain' || !progress.contextValid || state.task)
+      return
+    Object.assign(sprintCreation, {
+      open: false,
+      projectID: progress.projectID,
+      milestoneID: progress.milestoneID,
+      sprintID: progress.sprintID,
+    })
+    sprintCreationIdentity = identityKey(progress.projectID)
+    const identity = sprintCreationIdentity
+    try {
+      const value = await auth.workSprintLifecycle.checkOriginalCreate()
+      const result = 'state' in value ? value.result : value
+      if (result) await acceptSprintCreation(result, own, identity)
+    } catch (error) {
+      if (sameSprintCreation(own, progress.projectID, progress.milestoneID, identity))
+        sprintCreation.message = explain(error)
+    }
+  }
+  async function rereadConfirmedCreation() {
+    const progress = sprintCreateProgress.value
+    if (
+      busy.value ||
+      progress?.phase !== 'confirmed' ||
+      !progress.contextValid ||
+      !progress.result ||
+      state.task
+    )
+      return
+    Object.assign(sprintCreation, {
+      open: false,
+      projectID: progress.projectID,
+      milestoneID: progress.milestoneID,
+      sprintID: progress.sprintID,
+      needsRead: true,
+    })
+    sprintCreationIdentity = identityKey(progress.projectID)
+    await rereadCreatedSprint()
+  }
   function openSprintStart() {
     const p = workspace.currentReadContext.value?.projectID,
       sprint = state.sprint
     if (!p || !sprint || !canStartSprint.value || busy.value) return
+    if (sprintCreateProgress.value?.phase === 'rejected' && sprintCreateProgress.value.contextValid)
+      auth.workSprintLifecycle.editRejectedCreate()
     Object.assign(sprintStart, {
       open: true,
       projectID: p,
@@ -1121,7 +1417,7 @@ export function createProjectTasks(
   function confirmLeave(target?: string): Promise<boolean> {
     if (target === route.value || !dirty.value) return Promise.resolve(true)
     confirmation.message =
-      pending.value || sprintPending.value
+      pending.value || sprintPending.value || sprintCreatePending.value
         ? '操作结果尚未确认。离开不会重发，返回原 Sprint 或任务后可继续查询原结果。'
         : '离开将放弃尚未提交的工作输入。'
     confirmation.open = true
@@ -1138,11 +1434,15 @@ export function createProjectTasks(
       clearCreation()
       clearEdit()
       clearSprintStart()
+      clearSprintCreation()
     }
     resolve?.(yes)
   }
   function afterNavigation(to: string) {
     if (to === route.value) return
+    const focus = createdSprintFocus.value
+    if (focus && (to !== focus.path || identityKey(focus.projectID) !== focus.identity))
+      createdSprintFocus.value = null
     retire()
     route.value = to
     if (workTaskRoute(to)?.kind !== 'root') manualMilestone = null
@@ -1150,6 +1450,7 @@ export function createProjectTasks(
     clearCreation()
     clearEdit()
     clearSprintStart()
+    clearSprintCreation()
     clearTimeline()
     state.task = null
     state.detailCurrent = false
@@ -1201,6 +1502,19 @@ export function createProjectTasks(
     creation,
     edit,
     sprintStart,
+    sprintCreation,
+    sprintCreateProgress,
+    sprintCreatePending,
+    sprintCreationFocus,
+    consumeSprintCreationFocus,
+    sprintMilestoneOptions,
+    canCreateSprint,
+    openSprintCreation,
+    cancelSprintCreation,
+    submitSprintCreation,
+    lookupSprintCreation,
+    rereadCreatedSprint,
+    rereadConfirmedCreation,
     sprintPending,
     sprintPendingHere,
     sprintProgress,

@@ -26,6 +26,11 @@ export type AgentUpdateFields = Readonly<{
   name?: string
   description?: string
   instructions?: string
+  model_ref?: string
+  reasoning_effort?: null
+  inject_agents_md?: boolean
+  approval_policy?: AgentApprovalPolicy
+  approval_model_ref?: string | null
 }>
 export type AgentUpdateInput = Readonly<{ expected_version: string; request: AgentUpdateFields }>
 export type AgentUpdateReceipt = Readonly<{
@@ -234,8 +239,26 @@ export function captureAgentCreateInput(value: unknown): AgentCreateInput {
 export function captureAgentUpdateInput(value: unknown): AgentUpdateInput {
   return input(() => {
     const outer = shape(value, ['expected_version', 'request'])
-    const v = shape(outer.request, [], ['name', 'description', 'instructions'])
+    const v = shape(
+      outer.request,
+      [],
+      [
+        'name',
+        'description',
+        'instructions',
+        'model_ref',
+        'reasoning_effort',
+        'inject_agents_md',
+        'approval_policy',
+        'approval_model_ref',
+      ],
+    )
     requireValue(Object.keys(v).length > 0)
+    if (Object.hasOwn(v, 'reasoning_effort')) requireValue(v.reasoning_effort === null)
+    // Partial updates retain omitted fields. Reject contradictory explicit pairs;
+    // the backend revalidates the complete postimage and current model references.
+    if (Object.hasOwn(v, 'approval_policy') && Object.hasOwn(v, 'approval_model_ref'))
+      requireValue((v.approval_policy === 'auto') === (v.approval_model_ref !== null))
     return Object.freeze({
       expected_version: workVersion(outer.expected_version),
       request: Object.freeze({
@@ -243,6 +266,17 @@ export function captureAgentUpdateInput(value: unknown): AgentUpdateInput {
         ...(Object.hasOwn(v, 'description') ? { description: workText(v.description, 8192) } : {}),
         ...(Object.hasOwn(v, 'instructions')
           ? { instructions: workText(v.instructions, 32768) }
+          : {}),
+        ...(Object.hasOwn(v, 'model_ref') ? { model_ref: workID(v.model_ref) } : {}),
+        ...(Object.hasOwn(v, 'reasoning_effort') ? { reasoning_effort: null } : {}),
+        ...(Object.hasOwn(v, 'inject_agents_md')
+          ? { inject_agents_md: bool(v.inject_agents_md) }
+          : {}),
+        ...(Object.hasOwn(v, 'approval_policy')
+          ? { approval_policy: approval(v.approval_policy) }
+          : {}),
+        ...(Object.hasOwn(v, 'approval_model_ref')
+          ? { approval_model_ref: nullable(v.approval_model_ref, workID) }
           : {}),
       }),
     })
@@ -259,7 +293,16 @@ function updateReceipt(
     changed = bool(v.changed)
   const version = BigInt(original.expected_version) + (changed ? 1n : 0n)
   requireValue(version <= 9223372036854775807n && agent.version === String(version))
-  for (const key of ['name', 'description', 'instructions'] as const)
+  for (const key of [
+    'name',
+    'description',
+    'instructions',
+    'model_ref',
+    'reasoning_effort',
+    'inject_agents_md',
+    'approval_policy',
+    'approval_model_ref',
+  ] as const)
     if (Object.hasOwn(original.request, key)) requireValue(agent[key] === original.request[key])
   requireValue(Array.isArray(v.event_ids) && v.event_ids.length === (changed ? 1 : 0))
   return Object.freeze({ agent, changed, event_ids: Object.freeze(v.event_ids.map(workID)) })

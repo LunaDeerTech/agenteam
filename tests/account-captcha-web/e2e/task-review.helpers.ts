@@ -138,6 +138,7 @@ async function observeBrowserIO(
     const originalEdits: any[] = [];
     const originalAgentEdits: any[] = [];
     let originalSprintStart: any;
+    let originalSprintCreate: any;
     const tails = new Set<Promise<void>>();
     const restorers: (() => void)[] = [];
     let retired = false,
@@ -306,6 +307,15 @@ async function observeBrowserIO(
               progress.agentID === source?.agent,
           });
         }
+        if (kind === "sprint.create") {
+          if (originalSprintCreate) failed = true;
+          originalSprintCreate = {
+            call,
+            project: args[0],
+            fields: JSON.parse(JSON.stringify(args[1])),
+          };
+          writeInputs.set(call, originalSprintCreate);
+        }
         if (kind === "sprint.start") {
           if (originalSprintStart) failed = true;
           originalSprintStart = {
@@ -346,6 +356,17 @@ async function observeBrowserIO(
               current() && (kind === "restore" || before === identity());
             identities.set(call, identity());
             call.not_busy = auth.state.busy === false;
+            if (kind === "sprint.create") {
+              const progress = auth.workSprintLifecycle.createProgress;
+              call.result_current =
+                progress?.phase === "confirmed" &&
+                progress.contextValid === true &&
+                progress.projectID === originalSprintCreate.project &&
+                progress.milestoneID ===
+                  originalSprintCreate.fields.milestone_id &&
+                progress.sprintID === originalSprintCreate.request?.sprint_id &&
+                progress.result === value;
+            }
             if (!value || typeof value !== "object") return;
             if (
               kind === "restore" &&
@@ -379,6 +400,7 @@ async function observeBrowserIO(
         timelineTask: string | undefined,
         editAgent: string | undefined,
         startSprint: string | undefined,
+        createMilestone: string | undefined,
       ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
@@ -577,6 +599,19 @@ async function observeBrowserIO(
             );
           }
         }
+        if (createMilestone) {
+          consumer(
+            auth.workSprintLifecycle,
+            "create",
+            "sprint.create",
+            (a) => {
+              if (a[0] !== project || a[1]?.milestone_id !== createMilestone)
+                throw Error("SPRINT_CREATE_CONSUMER_SCOPE");
+              return "/api/v1/projects/" + project + "/sprints";
+            },
+            "POST",
+          );
+        }
         if (startSprint) {
           consumer(
             auth.workSprintLifecycle,
@@ -633,6 +668,7 @@ async function observeBrowserIO(
         originalEdits.length = 0;
         originalAgentEdits.length = 0;
         originalSprintStart = undefined;
+        originalSprintCreate = undefined;
         return this.snapshot();
       },
     };
@@ -851,6 +887,25 @@ async function observeBrowserIO(
                 expected_version: original.source.input.expected_version,
                 request: original.source.input.request,
               });
+          }
+          if (call.kind === "sprint.create") {
+            const request = parsed?.request;
+            matches =
+              Object.keys(parsed).join() === "request" &&
+              request !== null &&
+              typeof request === "object" &&
+              !Array.isArray(request) &&
+              /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+                request.sprint_id,
+              ) &&
+              equal(request, {
+                ...original.fields,
+                sprint_id: request.sprint_id,
+              });
+            if (matches) {
+              original.key = key;
+              original.request = request;
+            }
           }
           if (call.kind === "sprint.start") {
             matches =
@@ -1183,6 +1238,7 @@ export type TaskObservationMaterial = {
   task_id?: string;
   agent_id?: string;
   sprint_id?: string;
+  milestone_id?: string;
 };
 export type TaskObservationProfile = {
   dist: string;
@@ -1194,8 +1250,10 @@ export type TaskObservationProfile = {
     | "task-edit"
     | "agent-configuration"
     | "agent-edit"
+    | "agent-model-policy"
     | "task-timeline"
-    | "sprint-start";
+    | "sprint-start"
+    | "sprint-create";
   endpoint: (request: Request) => string | undefined;
   cut?: "transfer" | "create" | "update" | "start";
   lookupCommand:
@@ -1205,13 +1263,16 @@ export type TaskObservationProfile = {
     | "agent.create"
     | "agent.update"
     | "work.sprint.start"
+    | "work.sprint.create"
     | null;
   intakeWrites?: true;
   agentConfiguration?: true;
   editWrites?: true;
   timelineReads?: true;
   agentEditWrites?: true;
+  agentModelPolicy?: true;
   sprintStartWrites?: true;
+  sprintCreateWrites?: true;
 };
 
 export function observeReview(page: Page, data: ReviewMaterial) {
@@ -1310,6 +1371,24 @@ export async function observeTaskRequests(
   )
     throw Error("AGENT_EDIT_WRITE_PROFILE_MISMATCH");
   if (
+    profile.agentModelPolicy &&
+    (profile.intakeWrites ||
+      profile.agentConfiguration ||
+      profile.editWrites ||
+      profile.timelineReads ||
+      profile.agentEditWrites ||
+      profile.sprintStartWrites ||
+      profile.prefix !== "agent-model-policy" ||
+      profile.lookupCommand !== "agent.update" ||
+      profile.cut !== undefined ||
+      data.mode !== "switch-model-auto-and-clear-approval" ||
+      !data.agent_id ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+        data.agent_id,
+      ))
+  )
+    throw Error("AGENT_MODEL_POLICY_PROFILE_MISMATCH");
+  if (
     profile.sprintStartWrites &&
     (profile.intakeWrites ||
       profile.agentConfiguration ||
@@ -1332,6 +1411,25 @@ export async function observeTaskRequests(
           : undefined))
   )
     throw Error("SPRINT_START_WRITE_PROFILE_MISMATCH");
+  if (
+    profile.sprintCreateWrites &&
+    (profile.intakeWrites ||
+      profile.agentConfiguration ||
+      profile.editWrites ||
+      profile.timelineReads ||
+      profile.agentEditWrites ||
+      profile.agentModelPolicy ||
+      profile.sprintStartWrites ||
+      profile.prefix !== "sprint-create" ||
+      profile.lookupCommand !== "work.sprint.create" ||
+      profile.cut !== undefined ||
+      data.mode !== "plan-another-sprint-with-existing-current" ||
+      !data.milestone_id ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+        data.milestone_id,
+      ))
+  )
+    throw Error("SPRINT_CREATE_PROFILE_MISMATCH");
   const entries: Entry[] = [];
   const events: Record<string, unknown>[] = [];
   const browserEvents: BrowserDiagnostic[] = [];
@@ -1449,6 +1547,7 @@ export async function observeTaskRequests(
           timelineTask,
           editAgent,
           startSprint,
+          createMilestone,
         }) => {
           const module = await import(/* @vite-ignore */ binding.asset);
           const useSession = module[binding.exportName];
@@ -1466,6 +1565,7 @@ export async function observeTaskRequests(
             timelineTask,
             editAgent,
             startSprint,
+            createMilestone,
           );
         },
         {
@@ -1475,8 +1575,14 @@ export async function observeTaskRequests(
           agentConfiguration: profile.agentConfiguration === true,
           editTask: profile.editWrites ? data.task_id : undefined,
           timelineTask: profile.timelineReads ? data.task_id : undefined,
-          editAgent: profile.agentEditWrites ? data.agent_id : undefined,
+          editAgent:
+            profile.agentEditWrites || profile.agentModelPolicy
+              ? data.agent_id
+              : undefined,
           startSprint: profile.sprintStartWrites ? data.sprint_id : undefined,
+          createMilestone: profile.sprintCreateWrites
+            ? data.milestone_id
+            : undefined,
         },
       );
       await route.continue();
@@ -1567,7 +1673,9 @@ export async function observeTaskRequests(
   }
   function agentPageRead(entry: Entry) {
     return (
-      (profile.agentConfiguration || profile.agentEditWrites) &&
+      (profile.agentConfiguration ||
+        profile.agentEditWrites ||
+        profile.agentModelPolicy) &&
       entry.request.method() === "GET" &&
       ["agent-directory", "agent-configuration", "agent-models"].includes(
         entry.name,
@@ -1576,7 +1684,7 @@ export async function observeTaskRequests(
   }
 
   function agentEditWrite(entry: Entry) {
-    if (!profile.agentEditWrites) return false;
+    if (!profile.agentEditWrites && !profile.agentModelPolicy) return false;
     const url = new URL(entry.request.url());
     if (url.search) return false;
     const prefix = `/api/v1/projects/${data.project_id}`;
@@ -1584,7 +1692,8 @@ export async function observeTaskRequests(
       (entry.name === "update" &&
         entry.request.method() === "PATCH" &&
         url.pathname === `${prefix}/agents/${data.agent_id}/configuration`) ||
-      (entry.name === "lookup" &&
+      (profile.agentEditWrites &&
+        entry.name === "lookup" &&
         entry.request.method() === "POST" &&
         url.pathname === `${prefix}/agent-commands/lookup`)
     );
@@ -1613,19 +1722,44 @@ export async function observeTaskRequests(
         url.pathname === `${prefix}/sprint-lifecycle-commands/lookup`)
     );
   }
+  function sprintCreateWrite(entry: Entry) {
+    const url = new URL(entry.request.url());
+    return (
+      profile.sprintCreateWrites &&
+      entry.name === "create" &&
+      entry.request.method() === "POST" &&
+      url.pathname === `/api/v1/projects/${data.project_id}/sprints` &&
+      !url.search
+    );
+  }
   function sprintPageRead(entry: Entry) {
     return (
-      profile.sprintStartWrites &&
       entry.request.method() === "GET" &&
-      ["project", "sprint", "tasks"].includes(entry.name)
+      ((profile.sprintStartWrites &&
+        ["project", "sprint", "tasks"].includes(entry.name)) ||
+        (profile.sprintCreateWrites &&
+          [
+            "project",
+            "sprint",
+            "tasks",
+            "milestone",
+            "milestones",
+            "sprints",
+          ].includes(entry.name)))
     );
   }
   function joint(entry: Entry, proof: any) {
     const edit = editWrite(entry);
     const agentEdit = agentEditWrite(entry);
     const sprint = sprintWrite(entry);
+    const sprintCreate = sprintCreateWrite(entry);
     const write =
-      intakeWrite(entry) || agentWrite(entry) || edit || agentEdit || sprint;
+      intakeWrite(entry) ||
+      agentWrite(entry) ||
+      edit ||
+      agentEdit ||
+      sprint ||
+      sprintCreate;
     const method =
       (edit || agentEdit) && entry.name === "update"
         ? "PATCH"
@@ -1697,29 +1831,32 @@ export async function observeTaskRequests(
     expect(n.typed_digest).toBe(c.typed_digest);
     if (timelinePageRead(entry)) expect(c.kind).toBe("work.events");
     if (write) {
-      const kinds: Record<string, string> = sprint
-        ? { start: "sprint.start", lookup: "sprint.checkOriginal" }
-        : agentEdit
-          ? {
-              update: "agentEdit.startUpdate",
-              lookup: "agentEdit.checkOriginal",
-            }
-          : profile.agentConfiguration
+      if (sprintCreate) expect(c.result_current).toBe(true);
+      const kinds: Record<string, string> = sprintCreate
+        ? { create: "sprint.create" }
+        : sprint
+          ? { start: "sprint.start", lookup: "sprint.checkOriginal" }
+          : agentEdit
             ? {
-                create: "agent.startCreate",
-                lookup: "agent.checkOriginal",
+                update: "agentEdit.startUpdate",
+                lookup: "agentEdit.checkOriginal",
               }
-            : edit
+            : profile.agentConfiguration
               ? {
-                  update: "edit.startEdit",
-                  ready: "edit.startReady",
-                  lookup: "edit.checkOriginal",
+                  create: "agent.startCreate",
+                  lookup: "agent.checkOriginal",
                 }
-              : {
-                  create: "work.startCreate",
-                  ready: "work.startReady",
-                  lookup: "work.checkOriginal",
-                };
+              : edit
+                ? {
+                    update: "edit.startEdit",
+                    ready: "edit.startReady",
+                    lookup: "edit.checkOriginal",
+                  }
+                : {
+                    create: "work.startCreate",
+                    ready: "work.startReady",
+                    lookup: "work.checkOriginal",
+                  };
       const raw = entry.request.postDataBuffer();
       const key = entry.request.headers()["idempotency-key"];
       expect(raw).not.toBeNull();
@@ -1785,6 +1922,7 @@ export async function observeTaskRequests(
           editWrite(entry) ||
           agentEditWrite(entry) ||
           sprintWrite(entry) ||
+          sprintCreateWrite(entry) ||
           agentWrite(entry)) &&
         response?.status() === 200 &&
         entry.failure === "net::ERR_ABORTED"
@@ -1840,6 +1978,7 @@ export async function observeTaskRequests(
         editWrite(entry) ||
         agentEditWrite(entry) ||
         sprintWrite(entry) ||
+        sprintCreateWrite(entry) ||
         sprintPageRead(entry) ||
         agentWrite(entry) ||
         agentPageRead(entry) ||
@@ -1920,6 +2059,18 @@ export async function observeTaskRequests(
     );
     expect(dropped).toBe(1);
   }
+  function sprintCreateRead(
+    name:
+      "project" | "sprint" | "tasks" | "milestone" | "milestones" | "sprints",
+  ) {
+    expect(profile.sprintCreateWrites).toBe(true);
+    const found = entries.filter((e) => e.name === name && e.checked && e.body);
+    expect(
+      found.length,
+      "original Sprint Create page read must complete",
+    ).toBeGreaterThan(0);
+    return found.at(-1)!.body as Record<string, any>;
+  }
   function sprintRead(name: "project" | "sprint" | "tasks") {
     expect(profile.sprintStartWrites).toBe(true);
     const rows = entries.filter(
@@ -1934,7 +2085,11 @@ export async function observeTaskRequests(
   function agentRead(
     name: "agent-directory" | "agent-configuration" | "agent-models",
   ) {
-    expect(profile.agentConfiguration || profile.agentEditWrites).toBe(true);
+    expect(
+      profile.agentConfiguration ||
+        profile.agentEditWrites ||
+        profile.agentModelPolicy,
+    ).toBe(true);
     const found = entries.filter(
       (entry) => entry.name === name && entry.checked && entry.body,
     );
@@ -1999,8 +2154,11 @@ export async function observeTaskRequests(
                 ready: entries.filter((e) => e.name === "ready").length,
               }
             : {}),
-          ...(profile.agentEditWrites
+          ...(profile.agentEditWrites || profile.agentModelPolicy
             ? { updates: entries.filter((e) => e.name === "update").length }
+            : {}),
+          ...(profile.sprintCreateWrites
+            ? { creates: entries.filter((e) => e.name === "create").length }
             : {}),
           ...(profile.sprintStartWrites
             ? { starts: entries.filter((e) => e.name === "start").length }
@@ -2081,6 +2239,7 @@ export async function observeTaskRequests(
     agentOption,
     agentRead,
     sprintRead,
+    sprintCreateRead,
     timelinePage,
     save,
     endDocument,
