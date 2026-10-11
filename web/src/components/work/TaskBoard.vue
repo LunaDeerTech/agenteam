@@ -65,6 +65,7 @@ const priorities = { critical: '紧急', high: '高', medium: '中', low: '低' 
   align-items: flex-start;
   gap: var(--content-gap);
   overflow-x: auto;
+  overscroll-behavior-x: contain;
   min-width: 0;
   padding-bottom: var(--space);
 }
