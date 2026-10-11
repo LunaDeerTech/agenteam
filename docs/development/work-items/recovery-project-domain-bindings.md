@@ -352,3 +352,11 @@ Runner的取消与Stop/Drain只覆盖本次遍历及准入调用，不停止共�
 本片限定Human无active Execution，遇active明确DependencyUnbound，不将规格允许的执行内交接永久判非法；Execution成功不自动使Task done。Work与HTTP沿原入口实现三边，并提供安全`COMMENT_REQUIRED`→409映射。AgentRun写权、review自动调度、生产app绑定及原STOP不因此开放。
 
 来源`8cfbe24d21938947787fcfeb7633b64a72866e94`的定向12 top、四包vet及compile01/list已接受；native02复用candidate01，无重编译。`TestTaskHumanReview`真实1 top/2 sub整轮wholePASS（34.54s），覆盖原TLS执行终态后Human review→done，以及退回todo的原Tx回滚与同key重放。四原Wait0、七资源14次absence、全部退出双尾关闭且adopted为空，1616输入首尾一致（含876个编译输入）。原pure01及native01仅容量门FAIL，原件保留，无产品FAIL；资源窗口已归还。结果与重跑方式沿[既有组合说明](../../../.agent-state/agent-system-integration/README.md)收口。
+
+## 有限后继：review 自动调度与分阶段冷却
+
+第九批将原relaunch链扩展到`in_review`、`task/review`，复用原公开API与`TaskRelaunchRequest.Purpose`，不新增入口或第二次todo Claim。Work记录真实当前reviewer、Task版本及Sprint来源，在原私有证明、同Store原Tx和完整锁下重验；旧claim与schema 4始终只表示work。00059前向扩展严格的purpose/state配对，原work与新增review分别保存最近可靠Dispatch/Execution关联；冷却只绑定对应phase的最近Execution，首次review没有review历史时不继承work剩余次数，原Unknown仍只按原身份恢复。旧迁移、来源字节与回执保持。
+
+review Launch复用原Execution捕获、固定review Prompt、当前reviewer的主模型及受支持direct-text单轮链，不使用ApprovalModel或新增Execution提供方。已证最终Launch失败仅在原phase仍适用时沿原Tx写technical blocker、blocked、typed历史及schema 5事件；旧work失败遇当前review或旧review失败遇用户后续phase均保留当前Task，Busy只skip而不恢复Task。模型终态不改变Task结论，done或rework仍由Human Owner沿已交付的Transfer/Lookup决定。
+
+来源`389c40a3`的定向14 top、三包vet全PASS，后续仅fixture变更，纯检查输入未变并复用。最终来源`a3b72c72`的compile03/list及native02真实1 top/2 sub全部wholePASS，并获最终原件有限独审接受。两真实场景共49.09s（27.02/22.07s），覆盖work冷却隔离、review实际执行及其自身冷却恢复后Human完成，以及review来源最终失败的原Tx回滚、结算与重放；四原Wait0、七资源14次absence、全部退出尾关闭，878编译输入与1620运行输入稳定。compile01的fixture `TextPart`编译FAIL仅修两行后compile02通过；native01首场景后验SQL `42703`失败、第二场景通过，仅修fixture一个谓词后重建compile03并完成native02，两原FAIL保持。详细结果和重跑方法沿[既有组合说明](../../../.agent-state/agent-system-integration/README.md)，不回填旧轮。生产app默认binding、AgentRun任务写权、工具调用、完整多轮及既有STOP仍未完成，约30%的整体粗估不因此提高。
