@@ -1,0 +1,1758 @@
+diff --git a/.agent-state/task-planning-recovery/pg_only_supervisor.py b/.agent-state/task-planning-recovery/pg_only_supervisor.py
+index bc763e3c..94fd078a 100644
+--- a/.agent-state/task-planning-recovery/pg_only_supervisor.py
++++ b/.agent-state/task-planning-recovery/pg_only_supervisor.py
+@@ -199,11 +199,6 @@ METADATA_CASES = frozenset({
+ 
+ 
+ METADATA_GROUPS = {
+-    '^TestProjectSchedulerWeb$': frozenset((
+-        'TestProjectSchedulerWeb',
+-        'TestProjectSchedulerWeb/pause-limit-and-resume',
+-        'TestProjectSchedulerWeb/lost-update-confirmation-only-lookup',
+-    )),
+     '^TestProjectSchedulerOwnerHTTP$': frozenset((
+         'TestProjectSchedulerOwnerHTTP',
+         'TestProjectSchedulerOwnerHTTP/configuration-historical-receipts-and-facts',
+@@ -224,7 +219,6 @@ METADATA_GROUPS = {
+     )),
+     '^TestProjectVariablesWeb$': frozenset(('TestProjectVariablesWeb', 'TestProjectVariablesWeb/create-update-and-clear')),
+     '^TestMilestoneCreateWeb$': frozenset(('TestMilestoneCreateWeb', 'TestMilestoneCreateWeb/first-milestone-and-sprint-entry')),
+-    '^TestMilestoneEditWeb$': frozenset(('TestMilestoneEditWeb', 'TestMilestoneEditWeb/milestone-edit-normal', 'TestMilestoneEditWeb/milestone-edit-lost')),
+     '^TestSkillOwnerReadWeb$': frozenset(('TestSkillOwnerReadWeb',)),
+     '^TestKnowledgeTextHTTP(Publication|CurrentAuthority)$': frozenset((
+         'TestKnowledgeTextHTTPPublication',
+@@ -430,10 +424,8 @@ AGENT_MODEL_POLICY_UI = '^TestAgentModelPolicyWeb$'
+ SPRINT_CREATE_UI = '^TestSprintCreateWeb$'
+ PROJECT_VARIABLES_UI = '^TestProjectVariablesWeb$'
+ MILESTONE_CREATE_UI = '^TestMilestoneCreateWeb$'
+-MILESTONE_EDIT_UI = '^TestMilestoneEditWeb$'
+ SKILL_OWNER_UI = '^TestSkillOwnerReadWeb$'
+ SKILL_PACKAGE_UI = '^TestSkillPackageWeb$'
+-PROJECT_SCHEDULER_UI = '^TestProjectSchedulerWeb$'
+ SPRINT_START_UI = '^TestSprintStartWeb$'
+ KNOWLEDGE_TEXT_UI = '^TestKnowledgeTextWeb$'
+ KNOWLEDGE_RENAME_UI = '^TestKnowledgeOwnerRenameWeb$'
+@@ -441,11 +433,9 @@ APP_RUNTIME = '^TestAppExecutionRuntime$'
+ 
+ 
+ def task_review_browser_waits(output, selector=TASK_REVIEW_UI):
+-    label = ('Project Scheduler' if selector == PROJECT_SCHEDULER_UI else
+-             'Skill Package' if selector == SKILL_PACKAGE_UI else
++    label = ('Skill Package' if selector == SKILL_PACKAGE_UI else
+              'KnowledgeText' if selector == KNOWLEDGE_TEXT_UI else
+              'Project Variables' if selector == PROJECT_VARIABLES_UI else
+-             'Milestone Edit' if selector == MILESTONE_EDIT_UI else
+              'Milestone Create' if selector == MILESTONE_CREATE_UI else
+              'Skill' if selector == SKILL_OWNER_UI else
+              'KnowledgeRename' if selector == KNOWLEDGE_RENAME_UI else
+@@ -458,11 +448,9 @@ def task_review_browser_waits(output, selector=TASK_REVIEW_UI):
+              'Task Edit' if selector == TASK_EDIT_UI else
+              'Task Intake' if selector == TASK_INTAKE_UI else 'Task Review')
+     # browser calls t.Helper, so the real log points at each profile's caller.
+-    source = ('project_scheduler_web_test.go' if selector == PROJECT_SCHEDULER_UI else
+-              'skill_package_web_test.go' if selector == SKILL_PACKAGE_UI else
++    source = ('skill_package_web_test.go' if selector == SKILL_PACKAGE_UI else
+               'knowledge_text_web_test.go' if selector == KNOWLEDGE_TEXT_UI else
+               'project_variables_web_test.go' if selector == PROJECT_VARIABLES_UI else
+-              'milestone_edit_web_test.go' if selector == MILESTONE_EDIT_UI else
+               'milestone_create_web_test.go' if selector == MILESTONE_CREATE_UI else
+               'skill_owner_web_test.go' if selector == SKILL_OWNER_UI else
+               'knowledge_owner_rename_web_test.go' if selector == KNOWLEDGE_RENAME_UI else
+@@ -500,7 +488,7 @@ def metadata_results(output, selector=METADATA_ROOT):
+     results = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): (\S+) \([^()\r\n]*\)$', output, re.M)
+     waits = re.findall(r'^D03 explicit test actual_wait pid=([1-9][0-9]*) code=(-?[0-9]+) selector=(\S+)$', output, re.M)
+     return (len(runs) == len(cases) and set(runs) == cases
+-            and (selector not in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI) or task_review_browser_waits(output, selector))
++            and (selector not in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI) or task_review_browser_waits(output, selector))
+             and (selector != APP_RUNTIME or app_runtime_waits(output))
+             and len(results) == len(cases)
+             and all(state == 'PASS' for state, _ in results)
+@@ -1296,7 +1284,7 @@ def main():
+             args.content_schema_python = os.environ['AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON']
+         except (OSError, ValueError):
+             parser.error('explicit local content Schema interpreter required')
+-    stem = ('ui-' + uuid.uuid4().hex[:16]) if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI) else ('pg-' + uuid.uuid4().hex)
++    stem = ('ui-' + uuid.uuid4().hex[:16]) if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI) else ('pg-' + uuid.uuid4().hex)
+     directory = args.output.resolve() / stem
+     if args.run == KNOWLEDGE_UI:
+         try:
+@@ -1304,7 +1292,7 @@ def main():
+             args.knowledge_ui_environment = adapter.knowledge_ui_environment()
+         except (OSError, ValueError):
+             parser.error('exact frozen Knowledge assets, interpreters and fresh evidence required')
+-    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
++    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
+         try:
+             args.task_review_ui_environment = adapter.task_review_ui_configuration(directory, args.run)
+         except (OSError, ValueError):
+@@ -1397,7 +1385,7 @@ def main():
+                 log.write(f'SUPERVISOR actual_driver_wait pid={child.pid} actual={child.returncode is not None} code={code}\n')
+             else:
+                 log.write(f'SUPERVISOR actual_driver_wait pid={child.pid} actual={child.returncode is not None} actual_exit={child.returncode} code={code}\n')
+-            if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI) and child.returncode is not None:
++            if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI) and child.returncode is not None:
+                 if not knowledge_ui_reap_exited(log):
+                     code = 1
+             survivors = descendants(os.getpid())
+@@ -1512,7 +1500,7 @@ def main():
+                 same = same and parser_same(inputs, args, adapter)
+             if args.run == KNOWLEDGE_UI:
+                 same = same and knowledge_ui_same(inputs, args, adapter)
+-            if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
++            if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
+                 same = same and adapter.task_review_ui_environment(args.run) == args.task_review_ui_environment
+             if args.run == APP_RUNTIME:
+                 same = same and adapter.app_runtime_wrapper_same(args.binary, directory)
+diff --git a/.agent-state/work-owner-http/root_chain_driver.py b/.agent-state/work-owner-http/root_chain_driver.py
+index b57b4e0a..cf7a382c 100755
+--- a/.agent-state/work-owner-http/root_chain_driver.py
++++ b/.agent-state/work-owner-http/root_chain_driver.py
+@@ -18,23 +18,6 @@ MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
+ # One closed same-package PG family: adding a scenario changes required
+ # inputs and expected test data, never the resource/Wait/tail implementation.
+ METADATA_INPUTS = {
+-    '^TestProjectSchedulerWeb$': (
+-        'internal/central/app/project_scheduler_web_test.go',
+-        'internal/central/app/skill_package_web_test.go',
+-        'internal/central/app/skill_owner_web_test.go',
+-        'internal/central/app/knowledge_owner_web_test.go',
+-        'internal/central/app/knowledge_skills_process_test.go',
+-        'internal/central/app/outbox_process_test.go',
+-        'internal/central/app/app_test.go',
+-        'tests/account-captcha-web/project-scheduler.config.js',
+-        'tests/account-captcha-web/e2e/project-scheduler.spec.ts',
+-        'tests/account-captcha-web/e2e/project-scheduler.helpers.ts',
+-        'tests/account-captcha-web/e2e/task-review.helpers.ts',
+-        'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts',
+-        'api/openapi/project-scheduler.json',
+-        'api/openapi/project-owner.json',
+-        'api/openapi/common.json',
+-    ),
+     '^TestProjectSchedulerOwnerHTTP$': (
+         'tests/projectvariable/project_scheduler_http_test.go',
+         'tests/projectvariable/fixture_test.go',
+@@ -61,7 +44,6 @@ METADATA_INPUTS = {
+     ),
+     '^TestProjectVariablesWeb$': ('tests/projectvariable/project_variables_web_test.go', 'tests/projectvariable/agent_edit_web_test.go', 'tests/projectvariable/agent_configuration_app_test.go', 'tests/projectvariable/agent_configuration_web_test.go', 'tests/projectvariable/agent_configuration_create_test.go', 'tests/projectvariable/agent_configuration_facts_test.go', 'tests/projectvariable/skill_installation_test.go', 'tests/projectvariable/fixture_test.go', 'tests/projectvariable/task_review_web_test.go', 'tests/testsupport/agentconfiguration/assembly.go', 'tests/account-captcha-web/project-variables.config.js', 'tests/account-captcha-web/e2e/project-variables.spec.ts', 'tests/account-captcha-web/e2e/project-variables.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts'),
+     '^TestMilestoneCreateWeb$': ('tests/projectvariable/milestone_create_web_test.go', 'tests/projectvariable/sprint_create_web_test.go', 'tests/projectvariable/sprint_start_web_test.go', 'tests/projectvariable/agent_edit_web_test.go', 'tests/projectvariable/agent_configuration_app_test.go', 'tests/projectvariable/agent_configuration_web_test.go', 'tests/projectvariable/agent_configuration_create_test.go', 'tests/projectvariable/agent_configuration_facts_test.go', 'tests/projectvariable/skill_installation_test.go', 'tests/projectvariable/fixture_test.go', 'tests/projectvariable/task_review_web_test.go', 'tests/testsupport/agentconfiguration/assembly.go', 'tests/account-captcha-web/milestone-create.config.js', 'tests/account-captcha-web/e2e/milestone-create.spec.ts', 'tests/account-captcha-web/e2e/milestone-create.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts'),
+-    '^TestMilestoneEditWeb$': ('tests/projectvariable/milestone_edit_web_test.go', 'tests/projectvariable/milestone_create_web_test.go', 'tests/projectvariable/sprint_create_web_test.go', 'tests/projectvariable/sprint_start_web_test.go', 'tests/projectvariable/agent_edit_web_test.go', 'tests/projectvariable/agent_configuration_app_test.go', 'tests/projectvariable/agent_configuration_web_test.go', 'tests/projectvariable/agent_configuration_create_test.go', 'tests/projectvariable/agent_configuration_facts_test.go', 'tests/projectvariable/skill_installation_test.go', 'tests/projectvariable/fixture_test.go', 'tests/projectvariable/task_review_web_test.go', 'tests/testsupport/agentconfiguration/assembly.go', 'tests/account-captcha-web/milestone-edit.config.js', 'tests/account-captcha-web/e2e/milestone-edit.spec.ts', 'tests/account-captcha-web/e2e/milestone-edit.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts'),
+     '^TestSkillOwnerReadWeb$': ('internal/central/app/skill_owner_web_test.go', 'internal/central/app/knowledge_owner_web_test.go', 'internal/central/app/knowledge_skills_process_test.go', 'internal/central/app/outbox_process_test.go', 'internal/central/app/app_test.go', 'tests/account-captcha-web/skill-owner-read.config.js', 'tests/account-captcha-web/e2e/skill-owner-read.spec.ts', 'tests/account-captcha-web/e2e/skill-owner-read.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts'),
+     '^TestKnowledgeTextHTTP(Publication|CurrentAuthority)$': (
+         'tests/knowledge/owner_text_http_fixture_test.go',
+@@ -244,7 +226,6 @@ METADATA_INPUTS = {
+ }
+ TARGETS = {
+     **dict.fromkeys(METADATA_INPUTS, 'tests/projectvariable'),
+-    '^TestProjectSchedulerWeb$': 'internal/central/app',
+     '^TestSkillPackageWeb$': 'internal/central/app',
+     '^TestSkillOwnerPackageHTTP(Publication|CurrentAuthority)$': 'tests/skills',
+     '^TestSkillPackageHTTPDefaultRootComposition$': 'internal/central/app',
+@@ -329,7 +310,7 @@ def metadata_inputs(binary, selector='^TestAgentConfigurationMetadata$'):
+     # Only the explicitly retained legacy metadata profile includes its
+     # historical records. New profiles contain actual compiled/runtime inputs.
+     paths.update(REPOSITORY / name for name in METADATA_INPUTS[selector])
+-    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
++    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
+         paths.update(task_review_ui_inputs(selector))
+     if selector == APP_RUNTIME:
+         paths.update(app_runtime_inputs())
+@@ -399,10 +380,8 @@ AGENT_MODEL_POLICY_UI = '^TestAgentModelPolicyWeb$'
+ SPRINT_CREATE_UI = '^TestSprintCreateWeb$'
+ PROJECT_VARIABLES_UI = '^TestProjectVariablesWeb$'
+ MILESTONE_CREATE_UI = '^TestMilestoneCreateWeb$'
+-MILESTONE_EDIT_UI = '^TestMilestoneEditWeb$'
+ SKILL_OWNER_UI = '^TestSkillOwnerReadWeb$'
+ SKILL_PACKAGE_UI = '^TestSkillPackageWeb$'
+-PROJECT_SCHEDULER_UI = '^TestProjectSchedulerWeb$'
+ SPRINT_START_UI = '^TestSprintStartWeb$'
+ KNOWLEDGE_TEXT_UI = '^TestKnowledgeTextWeb$'
+ KNOWLEDGE_RENAME_UI = '^TestKnowledgeOwnerRenameWeb$'
+@@ -415,11 +394,9 @@ AGENT_EDIT_ENV = ('AGENTEAM_AGENT_EDIT_WEB_DIST', 'AGENTEAM_AGENT_EDIT_WEB_EVIDE
+ AGENT_MODEL_POLICY_ENV = ('AGENTEAM_AGENT_MODEL_POLICY_WEB_DIST', 'AGENTEAM_AGENT_MODEL_POLICY_WEB_EVIDENCE')
+ PROJECT_VARIABLES_ENV = ('AGENTEAM_PROJECT_VARIABLES_WEB_DIST', 'AGENTEAM_PROJECT_VARIABLES_WEB_EVIDENCE')
+ MILESTONE_CREATE_ENV = ('AGENTEAM_MILESTONE_CREATE_WEB_DIST', 'AGENTEAM_MILESTONE_CREATE_WEB_EVIDENCE')
+-MILESTONE_EDIT_ENV = ('AGENTEAM_MILESTONE_EDIT_WEB_DIST', 'AGENTEAM_MILESTONE_EDIT_WEB_EVIDENCE')
+ SPRINT_CREATE_ENV = ('AGENTEAM_SPRINT_CREATE_WEB_DIST', 'AGENTEAM_SPRINT_CREATE_WEB_EVIDENCE')
+ SKILL_OWNER_ENV = ('AGENTEAM_SKILL_OWNER_WEB_DIST', 'AGENTEAM_SKILL_OWNER_WEB_EVIDENCE')
+ SKILL_PACKAGE_ENV = ('AGENTEAM_SKILL_PACKAGE_WEB_DIST', 'AGENTEAM_SKILL_PACKAGE_WEB_EVIDENCE')
+-PROJECT_SCHEDULER_ENV = ('AGENTEAM_PROJECT_SCHEDULER_WEB_DIST', 'AGENTEAM_PROJECT_SCHEDULER_WEB_EVIDENCE')
+ SPRINT_START_ENV = ('AGENTEAM_SPRINT_START_WEB_DIST', 'AGENTEAM_SPRINT_START_WEB_EVIDENCE')
+ KNOWLEDGE_TEXT_ENV = ('AGENTEAM_KNOWLEDGE_TEXT_WEB_DIST', 'AGENTEAM_KNOWLEDGE_TEXT_WEB_EVIDENCE')
+ KNOWLEDGE_RENAME_ENV = tuple('AGENTEAM_KNOWLEDGE_OWNER_RENAME_WEB_' + part for part in ('DIST', 'EVIDENCE', 'SCHEMA_PYTHON', 'CASE'))
+@@ -431,8 +408,6 @@ TASK_REVIEW_WEB_MODULES = REPOSITORY / 'web/node_modules'
+ 
+ 
+ def task_review_ui_profile(selector):
+-    if selector == PROJECT_SCHEDULER_UI:
+-        return PROJECT_SCHEDULER_ENV, 'output/ai/project-scheduler-ui', 'project-scheduler'
+     if selector == TASK_REVIEW_UI:
+         return TASK_REVIEW_ENV, 'output/ai/work-review-web', 'task-review'
+     if selector == TASK_INTAKE_UI:
+@@ -449,8 +424,6 @@ def task_review_ui_profile(selector):
+         return AGENT_EDIT_ENV, 'output/ai/agent-edit-web', 'agent-edit'
+     if selector == PROJECT_VARIABLES_UI:
+         return PROJECT_VARIABLES_ENV, 'output/ai/project-variables-web', 'project-variables'
+-    if selector == MILESTONE_EDIT_UI:
+-        return MILESTONE_EDIT_ENV, 'output/ai/milestone-edit-ui', 'milestone-edit'
+     if selector == MILESTONE_CREATE_UI:
+         return MILESTONE_CREATE_ENV, 'output/ai/milestone-create-web', 'milestone-create'
+     if selector == SPRINT_CREATE_UI:
+@@ -770,7 +743,7 @@ def configuration(binary, selector, directory):
+             'cwd': str(REPOSITORY / TARGETS[selector]),
+             'directory': str(directory), 'runtime': str(directory / 'runtime'),
+             'test_timeout': '6m', 'resources': 7}
+-    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
++    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
+         plan['task_review_ui'] = task_review_ui_configuration(directory, selector)
+     if selector == APP_RUNTIME:
+         app_runtime_inputs()
+@@ -848,7 +821,7 @@ def main():
+         env.update({'AGENTEAM_AUTH_WEB_RUNTIME': str(runtime),
+                     'AGENTEAM_KNOWLEDGE_OWNER_WEB_INPUT_HASH': knowledge_ui_input_hash(args.test_binary),
+                     'PATH': str(KNOWLEDGE_NODE.parent) + os.pathsep + env.get('PATH', '')})
+-    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
++    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
+         ui = plan['task_review_ui']
+         names, _, _ = task_review_ui_profile(args.run)
+         Path(ui[names[1]]).mkdir(mode=0o700)
+diff --git a/internal/central/app/project_scheduler_web_test.go b/internal/central/app/project_scheduler_web_test.go
+deleted file mode 100644
+index 6ffce4e4..00000000
+--- a/internal/central/app/project_scheduler_web_test.go
++++ /dev/null
+@@ -1,888 +0,0 @@
+-//go:build integration
+-
+-package app
+-
+-import (
+-	"bytes"
+-	"context"
+-	"crypto/sha256"
+-	"encoding/hex"
+-	"encoding/json"
+-	"errors"
+-	"fmt"
+-	"io"
+-	"log/slog"
+-	"net"
+-	"net/http"
+-	"net/http/httputil"
+-	"net/url"
+-	"os"
+-	"os/exec"
+-	"path/filepath"
+-	"reflect"
+-	"regexp"
+-	"strconv"
+-	"strings"
+-	"sync"
+-	"syscall"
+-	"testing"
+-	"time"
+-
+-	"github.com/LunaDeerTech/agenteam/internal/central/account"
+-	"github.com/LunaDeerTech/agenteam/internal/central/config"
+-	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+-	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
+-	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+-	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+-	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+-	"github.com/LunaDeerTech/agenteam/internal/platform/logging"
+-	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
+-	"github.com/jackc/pgx/v5"
+-)
+-
+-// A real current Owner changes Scheduler configuration through the default App. The separate Project
+-// fixture never replaces the default root's deliberately unbound initializer.
+-// Static hosting is private test infrastructure, not production SPA delivery.
+-func TestProjectSchedulerWeb(t *testing.T) {
+-	for _, mode := range []string{"pause-limit-and-resume", "lost-update-confirmation-only-lookup"} {
+-		t.Run(mode, func(t *testing.T) { projectSchedulerWeb(t, mode) })
+-	}
+-}
+-
+-func projectSchedulerWeb(t *testing.T, mode string) {
+-	started := time.Now()
+-	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
+-	t.Cleanup(func() {
+-		cancel()
+-		if time.Since(started) > 120*time.Second {
+-			t.Error("Skill browser exceeded its original 120s including cleanup")
+-		}
+-	})
+-	check := func(stage string, err error) {
+-		t.Helper()
+-		if err != nil {
+-			var fault *f.Fault
+-			if errors.As(err, &fault) {
+-				t.Fatalf("Skill browser %s: %s/%s", stage, fault.Code.Safe(), fault.CommitState.Safe())
+-			}
+-			t.Fatalf("Skill browser %s failed", stage)
+-		}
+-	}
+-	dist := os.Getenv("AGENTEAM_PROJECT_SCHEDULER_WEB_DIST")
+-	runtime := os.Getenv("AGENTEAM_AUTH_WEB_RUNTIME")
+-	evidence := os.Getenv("AGENTEAM_PROJECT_SCHEDULER_WEB_EVIDENCE")
+-	inputHash := os.Getenv("AGENTEAM_PROJECT_SCHEDULER_WEB_INPUT_HASH")
+-	decoded, hashErr := hex.DecodeString(inputHash)
+-	if !filepath.IsAbs(dist) || !filepath.IsAbs(runtime) || len(runtime) > 45 || !filepath.IsAbs(evidence) || hashErr != nil || len(decoded) != sha256.Size {
+-		t.Fatal("exact owned Skill assets/runtime/evidence/input required")
+-	}
+-	info, err := os.Lstat(filepath.Join(dist, "index.html"))
+-	check("dist", err)
+-	if !info.Mode().IsRegular() {
+-		t.Fatal("regular private dist required")
+-	}
+-	evidence = filepath.Join(evidence, "TestProjectSchedulerWeb", mode)
+-	check("fresh evidence", os.MkdirAll(evidence, 0700))
+-	private, err := os.MkdirTemp(runtime, "psw-")
+-	check("private browser directory", err)
+-	t.Cleanup(func() {
+-		check("private removal", os.RemoveAll(private))
+-		if _, err := os.Lstat(private); !errors.Is(err, os.ErrNotExist) {
+-			t.Error("private Skill directory remains")
+-		}
+-	})
+-	db := pgfixture.NewDatabase(t)
+-	listener, err := net.Listen("tcp", "127.0.0.1:0")
+-	check("private listener", err)
+-	t.Cleanup(func() { _ = listener.Close() })
+-	origin := "http://" + listener.Addr().String()
+-	cfg := guardConfiguration(t, append(guardEnvironment(t, db), "AGENTEAM_CENTRAL_PUBLIC_ORIGIN="+origin, "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=5s"))
+-	var core *account.Service
+-	var owned *resources
+-	observations := &projectSchedulerObservations{mode: mode, evidence: evidence, inputHash: inputHash, origin: origin, host: listener.Addr().String(), tails: map[string]*projectSchedulerTail{}}
+-	deps := dependencies{observeAccount: func(v *account.Service) { core = v }, bind: func(c context.Context, cfg config.Config, store database, owner *resources, d *dependencies) error {
+-		owned = owner
+-		if err := bindAccounts(c, cfg, store, owner, d); err != nil {
+-			return err
+-		}
+-		assembly, ok := owner.accounts().(*accountAssembly)
+-		if !ok {
+-			return f.NewFault(f.DependencyUnbound, f.NotStarted)
+-		}
+-		assembly.mu.Lock()
+-		assembly.handler = observations.observeHandler(assembly.handler)
+-		assembly.mu.Unlock()
+-		return nil
+-	}}
+-	output := newEventLog()
+-	logger, err := logging.New(logging.Central, slog.LevelInfo, output)
+-	check("logger", err)
+-	rootCtx, cancelRoot := context.WithCancel(ctx)
+-	signals := make(chan os.Signal, 2)
+-	rootDone := make(chan struct{})
+-	var rootErr error
+-	go func() { rootErr = run(rootCtx, cfg, logger, signals, deps); close(rootDone) }()
+-	t.Cleanup(func() {
+-		cancelRoot()
+-		select {
+-		case <-rootDone:
+-		case <-time.After(7 * time.Second):
+-			t.Error("Skill root actual join exceeded cleanup observation")
+-			<-rootDone
+-		}
+-	})
+-	var address string
+-	for address == "" {
+-		select {
+-		case event := <-output.events:
+-			if event["event"] == "listening" {
+-				address, _ = event["listen_address"].(string)
+-			}
+-		case <-rootDone:
+-			check("root startup", rootErr)
+-			t.Fatal("root returned before listening")
+-		case <-ctx.Done():
+-			t.Fatal("root startup exhausted original budget")
+-		}
+-	}
+-	if core == nil || owned == nil {
+-		t.Fatal("original root owners missing")
+-	}
+-	assembly, ok := owned.accounts().(*accountAssembly)
+-	if !ok {
+-		t.Fatal("original Account assembly missing")
+-	}
+-	assembly.mu.Lock()
+-	projects, projectOK := assembly.projects.(*projectCommandWork)
+-	skills, skillOK := assembly.skills.(*skillWork)
+-	documents, knowledgeOK := assembly.knowledge.(*knowledgeWork)
+-	assembly.mu.Unlock()
+-	objects, objectOK := owned.objects().(*objectAssembly)
+-	if !projectOK || !skillOK || !knowledgeOK || !objectOK {
+-		t.Fatal("original concrete domains missing")
+-	}
+-	backend, err := url.Parse("http://" + address)
+-	check("backend URL", err)
+-	transport := &http.Transport{Proxy: nil}
+-	proxy := httputil.NewSingleHostReverseProxy(backend)
+-	proxy.Transport = transport
+-	proxy.ErrorLog = slog.NewLogLogger(slog.NewTextHandler(io.Discard, nil), slog.LevelError)
+-	proxy.ErrorHandler = observations.proxyError
+-	proxy.ModifyResponse = observations.capture
+-	server := &http.Server{ReadHeaderTimeout: 5 * time.Second}
+-	// Asset paths remain under the actual frozen assets directory.
+-	server.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+-		if strings.HasPrefix(r.URL.Path, "/api/") {
+-			proxy.ServeHTTP(w, r)
+-			return
+-		}
+-		if r.Method != http.MethodGet && r.Method != http.MethodHead {
+-			http.Error(w, "method", 405)
+-			return
+-		}
+-		if strings.HasPrefix(r.URL.Path, "/assets/") {
+-			skillWebServeAsset(w, r, dist)
+-			return
+-		}
+-		http.ServeFile(w, r, filepath.Join(dist, "index.html"))
+-	})
+-	served := make(chan error, 1)
+-	go func() { served <- server.Serve(listener) }()
+-	var proxyStop sync.Once
+-	stopProxy := func() {
+-		proxyStop.Do(func() {
+-			if err := server.Shutdown(ctx); err != nil {
+-				t.Error("private proxy Shutdown did not complete in original budget")
+-				_ = server.Close()
+-			}
+-			err := <-served
+-			if err != nil && !errors.Is(err, http.ErrServerClosed) {
+-				t.Error("private proxy original Serve failed")
+-			}
+-			transport.CloseIdleConnections()
+-		})
+-	}
+-	t.Cleanup(stopProxy)
+-	setup := &knowledgeWebSetup{t: t, ctx: ctx, origin: origin, cfg: cfg, check: check}
+-	adminRecord := setup.record("bootstrap", "", "")
+-	admin := setup.client()
+-	anon := setup.call(admin, "GET", "/api/v1/auth/bootstrap", nil, "", false, 200)
+-	setup.call(admin, "POST", "/api/v1/sessions/login", map[string]string{"email": adminRecord.Email, "password": adminRecord.Password}, knowledgeWebString(t, anon, "csrf_token"), true, 200)
+-	adminSession := setup.call(admin, "GET", "/api/v1/session", nil, "", false, 200)
+-	// Both Humans are created by the original Invitation and Session HTTP paths.
+-	type human struct {
+-		email, username, password, cookie, token string
+-		client                                   *http.Client
+-		actor                                    id.Actor
+-	}
+-	newHuman := func(email, username string) human {
+-		invitation := setup.call(admin, "POST", "/api/v1/system/invitations", map[string]string{"email": email}, knowledgeWebString(t, adminSession, "csrf_token"), true, 201)
+-		record := setup.record("invitation", email, knowledgeWebString(t, invitation, "id"))
+-		inviteURL, err := url.Parse(record.URL)
+-		check("invitation URL", err)
+-		if inviteURL.Scheme+"://"+inviteURL.Host != origin || inviteURL.Fragment == "" {
+-			t.Fatal("invitation origin binding missing")
+-		}
+-		client := setup.client()
+-		bootstrap := setup.call(client, "GET", "/api/v1/auth/bootstrap", nil, "", false, 200)
+-		csrf := knowledgeWebString(t, bootstrap, "csrf_token")
+-		setup.call(client, "POST", "/api/v1/invitations/inspect", map[string]string{"token": inviteURL.Fragment}, csrf, false, 200)
+-		password := "Skill private " + guardID[struct{}](t).String() + "!"
+-		setup.call(client, "POST", "/api/v1/invitations/redeem", map[string]string{"token": inviteURL.Fragment, "username": username, "display_name": username, "password": password, "confirmation": password}, csrf, true, 201)
+-		setup.call(client, "POST", "/api/v1/sessions/login", map[string]string{"email": email, "password": password}, csrf, true, 200)
+-		session := setup.call(client, "GET", "/api/v1/session", nil, "", false, 200)
+-		user, ok := session["user"].(map[string]any)
+-		if !ok || user["role"] != "user" || user["username"] != username {
+-			t.Fatal("formal ordinary Human missing")
+-		}
+-		originURL, err := url.Parse(origin)
+-		check("owned origin", err)
+-		var cookie string
+-		for _, value := range client.Jar.Cookies(originURL) {
+-			if value.Name == "agenteam_local_session" {
+-				cookie = value.Value
+-			}
+-		}
+-		material, err := sc.NewSecretMaterial([]byte(cookie))
+-		check("formal Human cookie", err)
+-		defer material.Destroy()
+-		actor, err := core.Authenticate(ctx, material)
+-		check("same current Account authority", err)
+-		if actor.Details().UserID != knowledgeWebString(t, user, "id") {
+-			t.Fatal("Human Session identity mismatch")
+-		}
+-		return human{email, username, password, cookie, inviteURL.Fragment, client, actor}
+-	}
+-	owner := newHuman("scheduler-owner@example.com", "scheduler-owner")
+-	other := newHuman("scheduler-other@example.com", "scheduler-other")
+-	actor := owner.actor
+-	meta := func() f.CommandMeta {
+-		return f.CommandMeta{RequestID: guardID[f.Request](t), IdempotencyKey: f.IdempotencyKey(guardID[struct{}](t).String())}
+-	}
+-	blockedID := guardID[id.Project](t)
+-	blocked, err := projects.service.CreateProject(ctx, actor, meta(), pc.CreateProjectRequest{ProjectID: blockedID, Name: "project-scheduler", Description: "Default initializer stays unbound"})
+-	var fault *f.Fault
+-	if !errors.As(err, &fault) || fault.Code != f.DependencyUnbound || fault.CommitState != f.NotCommitted || blocked.State != "" || blocked.Project != nil || blocked.Operation != nil {
+-		t.Fatal("default Project creation did not remain unbound/not_committed")
+-	}
+-	conn := db.Connect(t)
+-	var facts int
+-	check("default unbound zero facts", conn.QueryRow(ctx, `SELECT
+- (SELECT count(*) FROM agenteam_project.projects WHERE id=$1 OR (owner_user_id=$2 AND normalized_name='project-scheduler'))+
+- (SELECT count(*) FROM agenteam_project.creations WHERE project_id=$1)+
+- (SELECT count(*) FROM agenteam_project.commands WHERE project_id=$1)+
+- (SELECT count(*) FROM agenteam_skill.initializations WHERE project_id=$1)+
+- (SELECT count(*) FROM agenteam_skill.skills WHERE project_id=$1)+
+- (SELECT count(*) FROM agenteam_skill.revisions WHERE project_id=$1)+
+- (SELECT count(*) FROM agenteam_skill.work WHERE project_id=$1)+
+- (SELECT count(*) FROM agenteam_skill.object_attempts WHERE project_id=$1)+
+- (SELECT count(*) FROM agenteam_object.uploads WHERE project_id=$1)+
+- (SELECT count(*) FROM agenteam_object.objects WHERE project_id=$1)+
+- (SELECT count(*) FROM agenteam_audit.audit_records WHERE project_id=$1)+
+- (SELECT count(*) FROM agenteam_outbox.events WHERE project_id=$1)`, blockedID.String(), actor.Details().UserID).Scan(&facts))
+-	if facts != 0 {
+-		t.Fatal("default unbound produced facts")
+-	}
+-	fixture := rootCompositionProjectFixture(t, cfg, owned, objects, skills.service)
+-	fixtureOwner := &projectCommandWork{service: fixture}
+-	t.Cleanup(func() {
+-		if !fixtureOwner.Joined() {
+-			check("test-only Project cleanup", fixtureOwner.Drain(ctx))
+-		}
+-	})
+-	projectID := guardID[id.Project](t)
+-	created, createErr := fixture.CreateProject(ctx, actor, meta(), pc.CreateProjectRequest{ProjectID: projectID, Name: "project-scheduler", Description: "Existing Project for Scheduler configuration"})
+-	drainErr := fixtureOwner.Drain(ctx)
+-	check("test-only real Project", createErr)
+-	check("test-only actual Drain", drainErr)
+-	if !fixtureOwner.Joined() || created.Validate() != nil || created.State != pc.CreationReady || created.Project == nil || created.Project.ID != projectID {
+-		t.Fatal("isolated real Project did not confirm and join")
+-	}
+-
+-	observations.conn, observations.actor, observations.project = conn, actor, projectID
+-	schedulerPath := "/api/v1/projects/" + projectID.String() + "/scheduler"
+-	session := setup.call(owner.client, "GET", "/api/v1/session", nil, "", false, 200)
+-	seedKey := f.IdempotencyKey(guardID[struct{}](t).String())
+-	seedInput := projectSchedulerInput{Expected: 1, Enabled: true}
+-	seedRaw, err := json.Marshal(seedInput)
+-	check("seed input", err)
+-	request, err := http.NewRequestWithContext(ctx, http.MethodPatch, origin+schedulerPath, bytes.NewReader(seedRaw))
+-	check("seed request", err)
+-	request.Header.Set("Origin", origin)
+-	request.Header.Set("Sec-Fetch-Site", "same-origin")
+-	request.Header.Set("Content-Type", "application/json")
+-	request.Header.Set("X-CSRF-Token", knowledgeWebString(t, session, "csrf_token"))
+-	request.Header.Set("Idempotency-Key", string(seedKey))
+-	response, err := owner.client.Do(request)
+-	check("formal Scheduler enable seed", err)
+-	seedReply, readErr := io.ReadAll(io.LimitReader(response.Body, 4097))
+-	closeErr := response.Body.Close()
+-	check("seed EOF", readErr)
+-	check("seed Close", closeErr)
+-	if response.StatusCode != 200 || len(seedReply) > 4096 || response.ContentLength != int64(len(seedReply)) || response.Header.Get("Cache-Control") != "no-store" {
+-		t.Fatal("formal Scheduler seed failed")
+-	}
+-	seedID, err := f.ParseID[f.Request](response.Header.Get("X-Request-ID"))
+-	check("seed original request ID", err)
+-	seedIntent := projectSchedulerIntent{kind: "update", key: seedKey, rid: seedID, input: seedInput, bodyDigest: sha256.Sum256(seedRaw), keyDigest: sha256.Sum256([]byte(seedKey))}
+-	seedResult, err := observations.commandFacts(ctx, seedIntent, seedReply, []string{"scheduler_enabled"})
+-	check("seed original command/Audit/Outbox", err)
+-	observations.current = projectSchedulerCurrent{ProjectID: projectID, Version: 2, Enabled: true}
+-	initial := setup.call(owner.client, "GET", schedulerPath, nil, "", false, 200)
+-	initialRaw, err := json.Marshal(initial)
+-	check("seed current JSON", err)
+-	check("seed current GET", observations.currentFacts(ctx, initialRaw))
+-	for _, path := range []string{schedulerPath, "/api/v1/projects/" + projectID.String() + "/commands/lookup"} {
+-		method, body, keyed := "GET", any(nil), false
+-		if strings.HasSuffix(path, "/lookup") {
+-			method, body, keyed = "POST", map[string]string{"command": "update"}, true
+-		}
+-		problem := setup.call(other.client, method, path, body, knowledgeWebString(t, setup.call(other.client, "GET", "/api/v1/session", nil, "", false, 200), "csrf_token"), keyed, 404)
+-		if problem["code"] != "NOT_FOUND" {
+-			t.Fatal("other Human read did not retain current Owner gate")
+-		}
+-	}
+-	immutable := func() string {
+-		var snapshot string
+-		check("immutable Scheduler boundary facts", conn.QueryRow(ctx, `SELECT jsonb_build_object(
+-   'project',(SELECT to_jsonb(p)-ARRAY['version','updated_at','scheduler_enabled','scheduler_max_concurrency'] FROM agenteam_project.projects p WHERE id=$1::text::uuid),
+-   'work',(SELECT count(*) FROM agenteam_work.tasks WHERE project_id=$1::text::uuid),
+-   'sprints',(SELECT count(*) FROM agenteam_work.sprints WHERE project_id=$1::text::uuid),
+-   'dispatches',(SELECT count(*) FROM agenteam_scheduler.dispatches WHERE project_id=$1::text),
+-   'executions',(SELECT count(*) FROM agenteam_execution.executions WHERE project_id=$1::text))::text`, projectID.String()).Scan(&snapshot))
+-		return snapshot
+-	}
+-	before := immutable()
+-	observations.mu.Lock()
+-	observations.active = true
+-	observations.mu.Unlock()
+-	material := map[string]any{"mode": mode, "cookie": owner.cookie, "project_id": projectID.String(), "route": "/" + owner.username + "/project-scheduler/settings/scheduler", "version": "2", "scheduler_enabled": true, "scheduler_max_concurrency": nil, "input_hash": inputHash}
+-	raw, err := json.Marshal(material)
+-	check("private Scheduler material", err)
+-	check("private Scheduler material file", os.WriteFile(filepath.Join(private, "project-scheduler-material.json"), raw, 0600))
+-	clear(raw)
+-	result := projectSchedulerBrowser(t, ctx, private, origin, dist, evidence, inputHash, mode)
+-	observations.mu.Lock()
+-	observeErr, count, updates, lookups, cuts, reads := observations.err, observations.count, len(observations.intents), observations.lookups, observations.cuts, observations.reads
+-	intents := append([]projectSchedulerIntent(nil), observations.intents...)
+-	receipts := append([][]byte(nil), observations.receipts...)
+-	finalSnapshot := observations.after
+-	tails := make([]*projectSchedulerTail, 0, len(observations.tails))
+-	for _, tail := range observations.tails {
+-		tails = append(tails, tail)
+-	}
+-	observations.mu.Unlock()
+-	wantUpdates, wantLookup, wantReads := 2, 0, 3
+-	if mode == "lost-update-confirmation-only-lookup" {
+-		wantUpdates, wantLookup, wantReads = 1, 1, 2
+-	}
+-	if observeErr != nil || updates != wantUpdates || lookups != wantLookup || cuts != wantLookup || reads != wantReads || len(receipts) != updates || count != len(tails) || result["case"] != mode || result["test_status"] != "passed" || result["all_observed"] != true || result["original_requests"] != float64(count) || result["updates"] != float64(wantUpdates) || result["lookups"] != float64(wantLookup) || result["declared_receipt_cut"] != float64(wantLookup) || result["schedulerReads"] != float64(wantReads) {
+-		t.Fatal("Scheduler browser original request/receipt proofs incomplete")
+-	}
+-	for _, tail := range tails {
+-		select {
+-		case <-tail.done:
+-		default:
+-			t.Fatal("original Scheduler App handler still running")
+-		}
+-		if !tail.returned {
+-			t.Fatal("original Scheduler App handler did not return")
+-		}
+-	}
+-	for index, in := range intents {
+-		_, err := observations.commandFacts(ctx, in, receipts[index], []string{"scheduler_enabled", "scheduler_max_concurrency"})
+-		check("historical Scheduler command facts", err)
+-	}
+-	if seedResult.Project == nil || seedResult.Project.Version != 2 {
+-		t.Fatal("seed lost formal historical Project result")
+-	}
+-	after, err := observations.snapshot(ctx)
+-	check("original current read snapshot", err)
+-	if finalSnapshot == "" || after != finalSnapshot || immutable() != before {
+-		t.Fatal("Scheduler reads/recovery changed original business facts")
+-	}
+-	var commands, audits, events, runtimeFacts int64
+-	check("exact Scheduler consequences", conn.QueryRow(ctx, `SELECT
+- (SELECT count(*) FROM agenteam_project.commands WHERE project_id=$1::text::uuid AND command_name='update'),
+- (SELECT count(*) FROM agenteam_audit.audit_records WHERE project_id=$1::text::uuid AND action='project.update'),
+- (SELECT count(*) FROM agenteam_outbox.events WHERE project_id=$1::text::uuid AND event_type='project.updated'),
+- (SELECT count(*) FROM agenteam_work.tasks WHERE project_id=$1::text::uuid)+(SELECT count(*) FROM agenteam_work.sprints WHERE project_id=$1::text::uuid)+(SELECT count(*) FROM agenteam_scheduler.dispatches WHERE project_id=$1::text)+(SELECT count(*) FROM agenteam_execution.executions WHERE project_id=$1::text)`, projectID.String()).Scan(&commands, &audits, &events, &runtimeFacts))
+-	if commands != int64(1+wantUpdates) || audits != commands || events != commands || runtimeFacts != 0 {
+-		t.Fatal("Scheduler configuration lost exact consequences or started runtime facts")
+-	}
+-	for _, secret := range []string{adminRecord.Password, owner.token, owner.password, owner.cookie, other.token, other.password, other.cookie} {
+-		if secret != "" && strings.Contains(output.String(), secret) {
+-			t.Error("private Account material escaped into root log")
+-		}
+-	}
+-	setup.close()
+-	stopProxy()
+-	claim, err := os.OpenFile(filepath.Join(cfg.Objects().SpoolDirectory()+".processes", objects.process.String()+".claim"), os.O_RDWR, 0)
+-	check("guard claim", err)
+-	defer claim.Close()
+-	if err := syscall.Flock(int(claim.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); !errors.Is(err, syscall.EWOULDBLOCK) {
+-		if err == nil {
+-			_ = syscall.Flock(int(claim.Fd()), syscall.LOCK_UN)
+-		}
+-		t.Fatal("live root process guard not held")
+-	}
+-	signals <- syscall.SIGTERM
+-	select {
+-	case <-rootDone:
+-	case <-ctx.Done():
+-		t.Fatal("root did not join within original browser budget")
+-	}
+-	check("root actual result", rootErr)
+-	if !fixtureOwner.Joined() || !projects.Joined() || !skills.service.Joined() || !documents.Joined() || !assembly.Joined() || !owned.producersJoined() {
+-		t.Fatal("original domain owners did not join")
+-	}
+-	check("released guard", syscall.Flock(int(claim.Fd()), syscall.LOCK_EX|syscall.LOCK_NB))
+-	check("guard unlock", syscall.Flock(int(claim.Fd()), syscall.LOCK_UN))
+-	var stopped string
+-	check("guard stopped fact", conn.QueryRow(ctx, `SELECT state FROM agenteam_object.process_claims WHERE process_id=$1`, objects.process.String()).Scan(&stopped))
+-	if stopped != "stopped" {
+-		t.Fatal("original process claim not stopped")
+-	}
+-	t.Log("Project Scheduler browser chain: original Node Wait, proxy/root join, domain retirement and guard facts complete; production initializer remains unbound")
+-}
+-
+-type projectSchedulerInput struct {
+-	Expected f.Version `json:"expected_version"`
+-	Enabled  bool      `json:"scheduler_enabled"`
+-	Limit    *string   `json:"scheduler_max_concurrency"`
+-}
+-type projectSchedulerCurrent struct {
+-	ProjectID pc.ProjectID `json:"project_id"`
+-	Version   f.Version    `json:"version"`
+-	Enabled   bool         `json:"scheduler_enabled"`
+-	Limit     *string      `json:"scheduler_max_concurrency"`
+-}
+-type projectSchedulerIntent struct {
+-	kind                  string
+-	key                   f.IdempotencyKey
+-	rid                   f.ID[f.Request]
+-	input                 projectSchedulerInput
+-	bodyDigest, keyDigest [sha256.Size]byte
+-}
+-type projectSchedulerTail struct {
+-	done        chan struct{}
+-	returned    bool
+-	method, uri string
+-	intent      *projectSchedulerIntent
+-}
+-type projectSchedulerObservations struct {
+-	mu, dbMu                                sync.Mutex
+-	mode, evidence, inputHash, origin, host string
+-	active                                  bool
+-	err                                     error
+-	count, reads, lookups, cuts             int
+-	project                                 pc.ProjectID
+-	actor                                   id.Actor
+-	conn                                    *pgx.Conn
+-	current                                 projectSchedulerCurrent
+-	intents                                 []projectSchedulerIntent
+-	receipts                                [][]byte
+-	first                                   pc.CommandResult
+-	after                                   string
+-	tails                                   map[string]*projectSchedulerTail
+-}
+-type projectSchedulerDrop struct {
+-	header http.Header
+-	length int
+-	record map[string]any
+-}
+-
+-func (*projectSchedulerDrop) Error() string { return "declared Scheduler receipt cut" }
+-
+-func (o *projectSchedulerObservations) fail() error {
+-	o.mu.Lock()
+-	defer o.mu.Unlock()
+-	if o.err == nil {
+-		o.err = errors.New("original Scheduler browser observation failed")
+-	}
+-	return o.err
+-}
+-func (o *projectSchedulerObservations) observeHandler(next http.Handler) http.Handler {
+-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+-		o.mu.Lock()
+-		active := o.active
+-		o.mu.Unlock()
+-		if !active {
+-			next.ServeHTTP(w, r)
+-			return
+-		}
+-		rid := httpapi.RequestID(r.Context())
+-		if rid.Validate() != nil || r.Host != o.host {
+-			_ = o.fail()
+-			http.Error(w, "request identity", 502)
+-			return
+-		}
+-		tail := &projectSchedulerTail{done: make(chan struct{}), method: r.Method, uri: r.URL.RequestURI()}
+-		if r.Method != http.MethodGet {
+-			raw, readErr := io.ReadAll(io.LimitReader(r.Body, 4097))
+-			closeErr := r.Body.Close()
+-			key := f.IdempotencyKey(r.Header.Get("Idempotency-Key"))
+-			if readErr != nil || closeErr != nil || len(raw) > 4096 || r.ContentLength != int64(len(raw)) || key.Validate() != nil || len(r.Header.Values("Idempotency-Key")) != 1 || r.Header.Get("Origin") != o.origin || r.Header.Get("Content-Type") != "application/json" || r.Header.Get("X-CSRF-Token") == "" || r.Header.Get("Cookie") == "" || r.URL.RawQuery != "" || r.URL.ForceQuery {
+-				_ = o.fail()
+-				http.Error(w, "original Scheduler body", 502)
+-				return
+-			}
+-			in := projectSchedulerIntent{key: key, rid: rid, bodyDigest: sha256.Sum256(raw), keyDigest: sha256.Sum256([]byte(key))}
+-			o.mu.Lock()
+-			valid := true
+-			prefix := "/api/v1/projects/" + o.project.String()
+-			if r.Method == http.MethodPatch && r.URL.Path == prefix+"/scheduler" {
+-				var fields map[string]json.RawMessage
+-				valid = skillWebDecode(raw, &in.input) == nil && json.Unmarshal(raw, &fields) == nil && len(fields) == 3 && in.input.Expected == o.current.Version && len(o.intents) == len(o.receipts)
+-				index := len(o.intents)
+-				if index == 0 {
+-					valid = valid && in.input.Expected == 2 && !in.input.Enabled && in.input.Limit != nil && *in.input.Limit == "9007199254740993"
+-				} else if index == 1 {
+-					valid = valid && o.mode == "pause-limit-and-resume" && in.input.Expected == 3 && in.input.Enabled && in.input.Limit == nil
+-				} else {
+-					valid = false
+-				}
+-				for _, old := range o.intents {
+-					if old.key == key {
+-						valid = false
+-					}
+-				}
+-				in.kind = "update"
+-				if valid {
+-					o.intents = append(o.intents, in)
+-				}
+-			} else if r.Method == http.MethodPost && r.URL.Path == prefix+"/commands/lookup" {
+-				var body struct {
+-					Command string `json:"command"`
+-				}
+-				valid = skillWebDecode(raw, &body) == nil && body.Command == "update" && o.mode == "lost-update-confirmation-only-lookup" && len(o.intents) == 1 && len(o.receipts) == 1 && o.cuts == 1 && o.lookups == 0 && key == o.intents[0].key
+-				in.kind = "lookup"
+-				if valid {
+-					o.lookups++
+-				}
+-			} else {
+-				valid = false
+-			}
+-			o.mu.Unlock()
+-			if !valid {
+-				_ = o.fail()
+-				http.Error(w, "closed Scheduler intent", 502)
+-				return
+-			}
+-			tail.intent = &in
+-			r.Body = io.NopCloser(bytes.NewReader(raw))
+-		}
+-		o.mu.Lock()
+-		if o.tails[rid.String()] != nil || len(o.tails) >= 96 {
+-			o.mu.Unlock()
+-			_ = o.fail()
+-			http.Error(w, "duplicate Scheduler request", 502)
+-			return
+-		}
+-		o.tails[rid.String()] = tail
+-		o.mu.Unlock()
+-		defer close(tail.done)
+-		next.ServeHTTP(w, r)
+-		tail.returned = true
+-	})
+-}
+-
+-func (o *projectSchedulerObservations) capture(response *http.Response) error {
+-	o.mu.Lock()
+-	active := o.active
+-	o.mu.Unlock()
+-	if !active {
+-		return nil
+-	}
+-	raw, readErr := io.ReadAll(io.LimitReader(response.Body, (2<<20)+1))
+-	closeErr := response.Body.Close()
+-	if readErr != nil || closeErr != nil || len(raw) > 2<<20 || response.ContentLength != int64(len(raw)) || response.StatusCode != 200 || !json.Valid(raw) || response.Header.Get("Cache-Control") != "no-store" {
+-		return o.fail()
+-	}
+-	rid, err := f.ParseID[f.Request](response.Header.Get("X-Request-ID"))
+-	if err != nil || rid.String() != response.Header.Get("X-Request-ID") || len(response.Header.Values("X-Request-ID")) != 1 {
+-		return o.fail()
+-	}
+-	o.mu.Lock()
+-	tail := o.tails[rid.String()]
+-	o.mu.Unlock()
+-	if tail == nil || tail.method != response.Request.Method || tail.uri != response.Request.URL.RequestURI() {
+-		return o.fail()
+-	}
+-	select {
+-	case <-tail.done:
+-	case <-response.Request.Context().Done():
+-		return o.fail()
+-	}
+-	if !tail.returned {
+-		return o.fail()
+-	}
+-	lost := false
+-	if tail.intent != nil {
+-		in := *tail.intent
+-		if in.kind == "update" {
+-			result, err := o.commandFacts(response.Request.Context(), in, raw, []string{"scheduler_enabled", "scheduler_max_concurrency"})
+-			if err != nil {
+-				return o.fail()
+-			}
+-			snapshot, err := o.snapshot(response.Request.Context())
+-			if err != nil {
+-				return o.fail()
+-			}
+-			o.mu.Lock()
+-			o.current = projectSchedulerCurrent{ProjectID: o.project, Version: result.Project.Version, Enabled: in.input.Enabled, Limit: in.input.Limit}
+-			o.receipts = append(o.receipts, bytes.Clone(raw))
+-			o.after = snapshot
+-			if len(o.receipts) == 1 {
+-				o.first = result
+-			}
+-			lost = o.mode == "lost-update-confirmation-only-lookup"
+-			o.mu.Unlock()
+-		} else {
+-			// This endpoint observes only Project + update + key. Original body
+-			// identity comes from the captured PATCH and its persisted digest.
+-			var found struct {
+-				State  pc.LookupState    `json:"state"`
+-				Result *pc.CommandResult `json:"result"`
+-			}
+-			o.mu.Lock()
+-			original, before := o.first, o.after
+-			o.mu.Unlock()
+-			if skillWebDecode(raw, &found) != nil || found.State != pc.LookupCommitted || found.Result == nil || !reflect.DeepEqual(*found.Result, original) || bytes.Contains(raw, []byte("scheduler_")) {
+-				return o.fail()
+-			}
+-			after, err := o.snapshot(response.Request.Context())
+-			if err != nil || before != after {
+-				return o.fail()
+-			}
+-		}
+-	} else if response.Request.URL.Path == "/api/v1/projects/"+o.project.String()+"/scheduler" {
+-		if response.Request.URL.RawQuery != "" || o.currentFacts(response.Request.Context(), raw) != nil {
+-			return o.fail()
+-		}
+-		o.mu.Lock()
+-		o.reads++
+-		o.mu.Unlock()
+-	}
+-	record := map[string]any{"input_hash": o.inputHash, "request_id": rid.String(), "method": tail.method, "url_sha256": fmt.Sprintf("%x", sha256.Sum256([]byte(tail.uri))), "status": response.StatusCode, "content_length": len(raw), "body_sha256": fmt.Sprintf("%x", sha256.Sum256(raw)), "original_eof": true, "original_closed": true, "handler_returned": true, "request_host_matches": true}
+-	if tail.intent != nil {
+-		record["kind"] = tail.intent.kind
+-		record["request_body_sha256"] = fmt.Sprintf("%x", tail.intent.bodyDigest)
+-		record["idempotency_key_sha256"] = fmt.Sprintf("%x", tail.intent.keyDigest)
+-		record["committed_verified"] = true
+-	}
+-	if o.writeProof(record) != nil {
+-		return o.fail()
+-	}
+-	o.mu.Lock()
+-	o.count++
+-	o.mu.Unlock()
+-	if lost {
+-		return &projectSchedulerDrop{response.Header.Clone(), len(raw), record}
+-	}
+-	response.Body = io.NopCloser(bytes.NewReader(raw))
+-	return nil
+-}
+-
+-func (o *projectSchedulerObservations) writeProof(record map[string]any) error {
+-	raw, err := json.Marshal(record)
+-	if err != nil {
+-		return err
+-	}
+-	rid, ok := record["request_id"].(string)
+-	if !ok {
+-		return errors.New("proof identity absent")
+-	}
+-	return os.WriteFile(filepath.Join(o.evidence, "project-scheduler-"+o.mode+"-response-"+rid+".json"), raw, 0600)
+-}
+-func (o *projectSchedulerObservations) proxyError(w http.ResponseWriter, _ *http.Request, err error) {
+-	var drop *projectSchedulerDrop
+-	if !errors.As(err, &drop) {
+-		_ = o.fail()
+-		http.Error(w, "owned Scheduler proxy failed", 502)
+-		return
+-	}
+-	for key, values := range drop.header {
+-		w.Header()[key] = append([]string(nil), values...)
+-	}
+-	w.Header().Set("Content-Length", strconv.Itoa(drop.length))
+-	w.Header().Set("Connection", "close")
+-	w.WriteHeader(http.StatusOK)
+-	n, writeErr := io.WriteString(w, "{")
+-	flushErr := http.NewResponseController(w).Flush()
+-	conn, _, hijackErr := http.NewResponseController(w).Hijack()
+-	var closeErr error
+-	if conn != nil {
+-		closeErr = conn.Close()
+-	}
+-	if n != 1 || writeErr != nil || flushErr != nil || hijackErr != nil || conn == nil || closeErr != nil {
+-		_ = o.fail()
+-		return
+-	}
+-	drop.record["receipt_cut"] = true
+-	if o.writeProof(drop.record) != nil {
+-		_ = o.fail()
+-		return
+-	}
+-	o.mu.Lock()
+-	o.cuts++
+-	o.mu.Unlock()
+-}
+-
+-func (o *projectSchedulerObservations) currentFacts(ctx context.Context, raw []byte) error {
+-	var current projectSchedulerCurrent
+-	var fields map[string]json.RawMessage
+-	if skillWebDecode(raw, &current) != nil || json.Unmarshal(raw, &fields) != nil || len(fields) != 4 {
+-		return errors.New("current Scheduler wire invalid")
+-	}
+-	o.mu.Lock()
+-	expected := o.current
+-	o.mu.Unlock()
+-	if !reflect.DeepEqual(current, expected) {
+-		return errors.New("current Scheduler GET differs from last completed mutation")
+-	}
+-	o.dbMu.Lock()
+-	defer o.dbMu.Unlock()
+-	var version int64
+-	var enabled bool
+-	var limit *int64
+-	err := o.conn.QueryRow(ctx, `SELECT version,scheduler_enabled,scheduler_max_concurrency FROM agenteam_project.projects WHERE id=$1`, o.project.String()).Scan(&version, &enabled, &limit)
+-	if err != nil {
+-		return err
+-	}
+-	if version != int64(current.Version) || enabled != current.Enabled || (limit == nil) != (current.Limit == nil) || limit != nil && strconv.FormatInt(*limit, 10) != *current.Limit {
+-		return errors.New("Scheduler GET differs from actual Project row")
+-	}
+-	return nil
+-}
+-
+-func (o *projectSchedulerObservations) commandFacts(ctx context.Context, in projectSchedulerIntent, raw []byte, changed []string) (pc.CommandResult, error) {
+-	var ack struct {
+-		ProjectID pc.ProjectID `json:"project_id"`
+-		Version   f.Version    `json:"version"`
+-	}
+-	var fields map[string]json.RawMessage
+-	if skillWebDecode(raw, &ack) != nil || json.Unmarshal(raw, &fields) != nil || len(fields) != 2 || ack.ProjectID != o.project || ack.Version != in.input.Expected+1 {
+-		return pc.CommandResult{}, errors.New("Scheduler acknowledgement changed original Project/version")
+-	}
+-	config := pc.ProjectSchedulerConfig{Enabled: in.input.Enabled}
+-	if in.input.Limit != nil {
+-		limit, err := strconv.ParseInt(*in.input.Limit, 10, 64)
+-		if err != nil {
+-			return pc.CommandResult{}, err
+-		}
+-		config.MaxConcurrency = &limit
+-	}
+-	meta := f.CommandMeta{RequestID: in.rid, IdempotencyKey: in.key, ExpectedVersion: &in.input.Expected}
+-	digest, err := pc.UpdateDigest(o.actor, meta, o.project, pc.UpdateProjectRequest{Scheduler: &config})
+-	if err != nil {
+-		return pc.CommandResult{}, err
+-	}
+-	o.dbMu.Lock()
+-	defer o.dbMu.Unlock()
+-	var storedRaw []byte
+-	var actualDigest, user string
+-	err = o.conn.QueryRow(ctx, `SELECT safe_result,semantic_digest,actor_user_id::text FROM agenteam_project.commands WHERE project_id=$1 AND command_name='update' AND key=$2 AND state='completed' AND committed_at IS NOT NULL`, o.project.String(), string(in.key)).Scan(&storedRaw, &actualDigest, &user)
+-	if err != nil {
+-		return pc.CommandResult{}, err
+-	}
+-	var stored pc.CommandResult
+-	if json.Unmarshal(storedRaw, &stored) != nil || stored.Validate() != nil || stored.Command != pc.UpdateCommand || stored.Project == nil || stored.Project.ID != o.project || stored.Project.Version != ack.Version || stored.Project.OwnerUserID.String() != o.actor.Details().UserID || actualDigest != digest.String() || user != o.actor.Details().UserID {
+-		return pc.CommandResult{}, errors.New("Scheduler command differs from original Owner/full body/key/version")
+-	}
+-	metadata, _ := json.Marshal(map[string]any{"project_id": o.project, "initiator_id": o.actor.Details().UserID, "project_version": ack.Version, "changed_fields": changed})
+-	payload, _ := json.Marshal(map[string]any{"changed_fields": changed})
+-	configRaw, _ := json.Marshal(config)
+-	changedRaw, _ := json.Marshal(changed)
+-	var matches, audits, events int64
+-	err = o.conn.QueryRow(ctx, `SELECT
+- (SELECT count(*) FROM agenteam_audit.audit_records a JOIN agenteam_outbox.events e ON e.id=c.event_id
+-  WHERE a.project_id=c.project_id AND a.cause_ref=c.audit_cause AND a.producer='project' AND a.action='project.update'
+-  AND a.scope='project' AND a.outcome='success' AND a.actor_kind='human' AND a.user_id=$3::text::uuid AND a.session_id=$4::text::uuid
+-  AND a.resource_kind='project' AND a.resource_id=c.project_id AND a.ordinal=0 AND a.metadata=$5::jsonb
+-  AND e.project_id=c.project_id AND e.scope='project' AND e.producer='project' AND e.event_type='project.updated'
+-  AND e.aggregate_type='project' AND e.aggregate_id=c.project_id AND e.aggregate_version=$6 AND e.schema_version=1
+-  AND convert_from(e.payload,'UTF8')::jsonb=$7::jsonb AND c.event_ids=jsonb_build_array(e.id::text)
+-  AND c.plan->>'expected_version'=$8 AND c.plan->'scheduler'=$9::jsonb AND c.plan->'changed'=$10::jsonb
+-  AND c.plan->'project'=c.safe_result->'project' AND c.plan->'event_header'=e.header AND c.plan->'event_payload'=convert_from(e.payload,'UTF8')::jsonb),
+- (SELECT count(*) FROM agenteam_audit.audit_records a WHERE a.project_id=c.project_id AND a.cause_ref=c.audit_cause),
+- (SELECT count(*) FROM agenteam_outbox.events e WHERE e.id=c.event_id)
+- FROM agenteam_project.commands c WHERE c.project_id=$1::text::uuid AND c.command_name='update' AND c.key=$2`, o.project.String(), string(in.key), o.actor.Details().UserID, o.actor.Details().SessionID, string(metadata), int64(ack.Version), string(payload), in.input.Expected.String(), string(configRaw), string(changedRaw)).Scan(&matches, &audits, &events)
+-	if err != nil {
+-		return pc.CommandResult{}, err
+-	}
+-	if matches != 1 || audits != 1 || events != 1 {
+-		return pc.CommandResult{}, errors.New("Scheduler original plan/Audit/Outbox consequences differ")
+-	}
+-	return stored, nil
+-}
+-
+-func (o *projectSchedulerObservations) snapshot(ctx context.Context) (string, error) {
+-	o.dbMu.Lock()
+-	defer o.dbMu.Unlock()
+-	var snapshot string
+-	err := o.conn.QueryRow(ctx, `SELECT jsonb_build_object(
+- 'project',(SELECT to_jsonb(p) FROM agenteam_project.projects p WHERE id=$1::text::uuid),
+- 'commands',(SELECT jsonb_agg(to_jsonb(c) ORDER BY id) FROM agenteam_project.commands c WHERE project_id=$1::text::uuid),
+- 'audit',(SELECT jsonb_agg(to_jsonb(a) ORDER BY id) FROM agenteam_audit.audit_records a WHERE project_id=$1::text::uuid),
+- 'events',(SELECT jsonb_agg(to_jsonb(e) ORDER BY id) FROM agenteam_outbox.events e WHERE project_id=$1::text::uuid),
+- 'activity',(SELECT last_activity_at FROM agenteam_account.sessions WHERE id=$2::uuid))::text`, o.project.String(), o.actor.Details().SessionID).Scan(&snapshot)
+-	return snapshot, err
+-}
+-
+-func projectSchedulerBrowser(t *testing.T, ctx context.Context, private, origin, dist, evidence, inputHash, mode string) map[string]any {
+-	t.Helper()
+-	harness, err := filepath.Abs("../../../tests/account-captcha-web")
+-	if err != nil {
+-		t.Fatal("browser harness path unavailable")
+-	}
+-	cmd := exec.CommandContext(ctx, "node", filepath.Join(harness, "node_modules/@playwright/test/cli.js"), "test", "--config", filepath.Join(harness, "project-scheduler.config.js"))
+-	cmd.Dir = harness
+-	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+-	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
+-	cmd.WaitDelay = time.Second
+-	for _, entry := range os.Environ() {
+-		key, _, _ := strings.Cut(entry, "=")
+-		if key != "TMPDIR" && key != "DEBUG" && key != "PWDEBUG" && !strings.HasPrefix(key, "AGENTEAM_") {
+-			cmd.Env = append(cmd.Env, entry)
+-		}
+-	}
+-	cmd.Env = append(cmd.Env, "TMPDIR="+private, "AGENTEAM_AUTH_WEB_ORIGIN="+origin, "AGENTEAM_AUTH_WEB_PRIVATE="+private, "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium", "AGENTEAM_PROJECT_SCHEDULER_WEB_DIST="+dist, "AGENTEAM_PROJECT_SCHEDULER_WEB_EVIDENCE="+evidence, "AGENTEAM_PROJECT_SCHEDULER_WEB_INPUT_HASH="+inputHash, "AGENTEAM_PROJECT_SCHEDULER_WEB_CASE="+mode, "PLAYWRIGHT_NO_COPY_PROMPT=1")
+-	var output bytes.Buffer
+-	cmd.Stdout = &output
+-	cmd.Stderr = &output
+-	if err := cmd.Start(); err != nil {
+-		t.Fatal("locked Skill Node could not start")
+-	}
+-	done := make(chan error, 1)
+-	go func() { done <- cmd.Wait() }()
+-	joined := false
+-	defer func() {
+-		if !joined {
+-			_ = cmd.Cancel()
+-			<-done
+-		}
+-		_ = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+-		cmd.Env = nil
+-	}()
+-	err = <-done
+-	joined = true
+-	t.Logf("Project Scheduler Node actual_wait pid=%d success=%t", cmd.Process.Pid, err == nil)
+-	// Never print the browser's credential-bearing call log. The spec writes
+-	// fixed-stage safe failure diagnostics; the original child status is final.
+-	if err != nil || !regexp.MustCompile(`(?m)\b1 passed\b`).Match(output.Bytes()) {
+-		t.Fatal("Skill locked browser did not actually pass its one case")
+-	}
+-	raw, err := os.ReadFile(filepath.Join(evidence, "project-scheduler-"+mode+".json"))
+-	if err != nil {
+-		t.Fatal("Skill browser result missing")
+-	}
+-	if len(raw) > 256<<10 {
+-		t.Fatal("Skill browser result too large")
+-	}
+-	var result map[string]any
+-	if json.Unmarshal(raw, &result) != nil || result["input_hash"] != inputHash {
+-		t.Fatal("Skill browser result not bound to frozen inputs")
+-	}
+-	return result
+-}
+diff --git a/tests/projectvariable/milestone_edit_web_test.go b/tests/projectvariable/milestone_edit_web_test.go
+deleted file mode 100644
+index b8234a67..00000000
+--- a/tests/projectvariable/milestone_edit_web_test.go
++++ /dev/null
+@@ -1,640 +0,0 @@
+-//go:build integration
+-
+-package projectvariable_test
+-
+-import (
+-	"bytes"
+-	"context"
+-	"crypto/sha256"
+-	"encoding/json"
+-	"errors"
+-	"fmt"
+-	"io"
+-	"log"
+-	"net"
+-	"net/http"
+-	"net/http/httptest"
+-	"net/http/httputil"
+-	"net/url"
+-	"os"
+-	"os/exec"
+-	"path/filepath"
+-	"reflect"
+-	"strings"
+-	"syscall"
+-	"testing"
+-	"time"
+-
+-	eventc "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
+-	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+-	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+-	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
+-)
+-
+-// Edit an existing Milestone through the original default App and real Owner.
+-// The explicit setup initializer and all original owner retirement gates remain.
+-func TestMilestoneEditWeb(t *testing.T) {
+-	for _, mode := range []string{"milestone-edit-normal", "milestone-edit-lost"} {
+-		t.Run(mode, func(t *testing.T) {
+-			entered, completed := false, false
+-			t.Cleanup(func() {
+-				if !entered || !completed {
+-					t.Error("Milestone Edit original App handoff incomplete")
+-				}
+-			})
+-			a := newAgentCreateFixture(t)
+-			original := a.p2.base
+-			project, err := a.p2.creator.GetSchedulerConfig(ctxFor(t), original.ownerBrowser.actor, a.p2.project.ID)
+-			agentAppRequire(t, err)
+-			if project.Config.Enabled || project.Project.CurrentSprintID != nil {
+-				t.Fatal("original Project must be paused without a current Sprint")
+-			}
+-			process, err := a.guard.CurrentProcess()
+-			agentAppRequire(t, err)
+-			var username string
+-			agentAppRequire(t, original.raw.QueryRow(ctxFor(t), `SELECT username FROM agenteam_account.users WHERE id=$1`, original.ownerBrowser.actor.Details().UserID).Scan(&username))
+-			if original.afterOwners != nil {
+-				t.Fatal("original handoff occupied")
+-			}
+-			original.afterOwners = func() {
+-				entered = true
+-				if !original.core.Joined() || !a.agents.Joined() || !a.p2.service.Joined() {
+-					t.Fatal("original setup owners not joined")
+-				}
+-				if _, err := a.guard.CurrentProcess(); err == nil {
+-					t.Fatal("original guard still held")
+-				}
+-				var stopped bool
+-				agentAppRequire(t, original.raw.QueryRow(ctxFor(t), `SELECT state='stopped' AND stopped_at IS NOT NULL FROM agenteam_object.process_claims WHERE process_id=$1`, process.String()).Scan(&stopped))
+-				if !stopped {
+-					t.Fatal("original process not retired")
+-				}
+-				w := newMilestoneEditWeb(t, a, project, mode)
+-				defer w.dispose(t)
+-				withAgentConfigurationApp(t, a, process.String(), w.origin, func(ctx context.Context, address string) {
+-					defer w.close(t)
+-					w.start(t, address)
+-					w.prepare(t, ctx)
+-					w.material(t, username)
+-					w.browser(t, ctx)
+-					w.verify(t, ctx)
+-					w.close(t)
+-				})
+-				completed = true
+-			}
+-		})
+-	}
+-}
+-
+-const milestoneEditTitle = "  e\u0301 Delivery milestone  "
+-const milestoneEditDescription = "Updated milestone.\nKeep Sprint planning explicit."
+-
+-type milestoneEditIntent struct {
+-	sprintWebIntent
+-	before    wc.Milestone
+-	request   wc.UpdateFields
+-	expected  f.Version
+-	requestID f.ID[f.Request]
+-}
+-type milestoneEditIntentKey struct{}
+-type milestoneEditWeb struct {
+-	*milestoneCreateWeb
+-	seed, current                          wc.Milestone
+-	writes                                 []milestoneEditIntent
+-	results                                []wc.StructureMutation
+-	updates, changed, lookups, gets, lists int
+-	fixed, afterCommit                     string
+-}
+-
+-func (w *milestoneEditWeb) prepare(t *testing.T, ctx context.Context) {
+-	w.prepareEmpty(t, ctx)
+-	input := wc.CreateMilestoneRequest{MilestoneID: id[wc.Milestone](t), Title: milestoneCreateTitle, Description: milestoneCreateDescription}
+-	key := f.IdempotencyKey(id[struct{}](t).String())
+-	reply := w.request(t, http.MethodPost, variableHTTPPath(w.project.Project.ID, "/milestones"), jsonBytes(t, map[string]any{"request": input}), key)
+-	var seed wc.StructureMutation
+-	if reply.status != 200 || json.Unmarshal(reply.body, &seed) != nil || seed.Validate() != nil || seed.Milestone == nil {
+-		t.Fatal("formal HTTP seed did not create the original Milestone")
+-	}
+-	rid, err := f.ParseID[f.Request](reply.header.Get("X-Request-ID"))
+-	agentAppRequire(t, err)
+-	in := milestoneCreateIntent{sprintWebIntent: sprintWebIntent{key: key}, request: input, requestID: rid}
+-	agentAppRequire(t, w.milestoneCreateWeb.committedFacts(ctx, in, seed))
+-	read := w.request(t, http.MethodGet, variableHTTPPath(w.project.Project.ID, "/milestones/"+seed.Milestone.ID.String()), nil, "")
+-	var current wc.Milestone
+-	if read.status != 200 || json.Unmarshal(read.body, &current) != nil || !reflect.DeepEqual(current, *seed.Milestone) {
+-		t.Fatal("formal HTTP seed Get differs from original Create receipt")
+-	}
+-	fixed, err := w.fixedFacts(ctx)
+-	agentAppRequire(t, err)
+-	w.mu.Lock()
+-	w.created, w.seed, w.current, w.fixed = seed.Clone(), current, current, fixed
+-	w.mu.Unlock()
+-}
+-
+-func (w *milestoneEditWeb) material(t *testing.T, username string) {
+-	raw := jsonBytes(t, map[string]any{"mode": w.mode, "cookie": w.a.p2.base.ownerBrowser.cookie, "project_id": w.project.Project.ID, "project_version": w.project.Project.Version, "milestone_id": w.seed.ID, "version": w.seed.Version, "route": "/" + username + "/" + w.project.Project.NormalizedName + "/tasks", "title": w.seed.Title, "description": w.seed.Description, "updated_title": milestoneEditTitle, "updated_description": milestoneEditDescription, "milestone": w.seed, "input_hash": w.inputHash})
+-	agentAppRequire(t, os.WriteFile(filepath.Join(w.directory, "milestone-edit-material.json"), raw, 0600))
+-	clear(raw)
+-}
+-
+-func (w *milestoneEditWeb) path() string {
+-	return variableHTTPPath(w.project.Project.ID, "/milestones/"+w.seed.ID.String())
+-}
+-func (w *milestoneEditWeb) lookupPath() string {
+-	return variableHTTPPath(w.project.Project.ID, "/structure-commands/lookup")
+-}
+-
+-func (w *milestoneEditWeb) observe(r *http.Request) error {
+-	if r.Method == http.MethodGet || r.Method == http.MethodHead {
+-		return nil
+-	}
+-	if r.URL.RawQuery != "" || r.URL.ForceQuery || r.Method != http.MethodPatch && r.Method != http.MethodPost {
+-		return errors.New("undeclared Milestone Edit request")
+-	}
+-	raw, readErr := io.ReadAll(io.LimitReader(r.Body, (16<<10)+1))
+-	closeErr := r.Body.Close()
+-	key := f.IdempotencyKey(r.Header.Get("Idempotency-Key"))
+-	if readErr != nil || closeErr != nil || len(raw) > 16<<10 || key.Validate() != nil || len(r.Header.Values("Idempotency-Key")) != 1 {
+-		return errors.New("original Milestone Edit request incomplete")
+-	}
+-	r.Body = io.NopCloser(bytes.NewReader(raw))
+-	var wire struct {
+-		Command  wc.CommandName  `json:"command,omitempty"`
+-		Target   wc.MilestoneID  `json:"target_id,omitempty"`
+-		Expected f.Version       `json:"expected_version"`
+-		Request  wc.UpdateFields `json:"request"`
+-	}
+-	var fields map[string]json.RawMessage
+-	if agentWebDecode(raw, &wire) != nil || wire.Request.Validate() != nil || wire.Expected.Validate() != nil || json.Unmarshal(raw, &fields) != nil {
+-		return errors.New("Milestone Edit envelope lost exact fields")
+-	}
+-	w.mu.Lock()
+-	defer w.mu.Unlock()
+-	in := milestoneEditIntent{sprintWebIntent: sprintWebIntent{key: key, bodyDigest: sha256.Sum256(raw), keyDigest: sha256.Sum256([]byte(key))}, request: wire.Request, expected: wire.Expected, before: w.current}
+-	if r.Method == http.MethodPatch && r.URL.Path == w.path() {
+-		if len(fields) != 2 || wire.Command != "" || wire.Target.Validate() == nil || wire.Expected != w.current.Version || len(w.writes) != len(w.results) {
+-			return errors.New("Milestone Edit changed original target/version or overlapped a write")
+-		}
+-		for _, old := range w.writes {
+-			if old.key == key {
+-				return errors.New("browser repeated Milestone Edit")
+-			}
+-		}
+-		title, description, empty := milestoneEditTitle, milestoneEditDescription, ""
+-		want := wc.UpdateFields{Title: &title, Description: &description}
+-		switch len(w.writes) {
+-		case 0:
+-		case 1:
+-			if w.mode != "milestone-edit-normal" {
+-				return errors.New("browser retransmitted uncertain Milestone Edit")
+-			}
+-			want = wc.UpdateFields{Title: &title}
+-		case 2:
+-			if w.mode != "milestone-edit-normal" {
+-				return errors.New("browser added an uncertain Milestone Edit")
+-			}
+-			want = wc.UpdateFields{Description: &empty}
+-		default:
+-			return errors.New("browser added an undeclared Milestone Edit")
+-		}
+-		if !reflect.DeepEqual(wire.Request, want) {
+-			return errors.New("Milestone Edit changed original field presence or Unicode bytes")
+-		}
+-		in.kind = "update"
+-		w.writes = append(w.writes, in)
+-		w.updates++
+-	} else if r.Method == http.MethodPost && r.URL.Path == w.lookupPath() {
+-		if w.mode != "milestone-edit-lost" || len(fields) != 4 || len(w.writes) != 1 || len(w.results) != 1 || w.lookups != 0 || w.cut != 1 {
+-			return errors.New("Milestone Lookup has no declared uncertain original write")
+-		}
+-		original := w.writes[0]
+-		if wire.Command != wc.MilestoneUpdate || wire.Target != w.seed.ID || wire.Expected != original.expected || key != original.key || !reflect.DeepEqual(wire.Request, original.request) {
+-			return errors.New("Milestone Lookup lost original key/version/target/full patch")
+-		}
+-		in.kind = "lookup"
+-		in.before = original.before
+-		in.requestID = original.requestID
+-		w.lookups++
+-	} else {
+-		return errors.New("browser used a foreign Milestone Edit route")
+-	}
+-	w.keys = append(w.keys, string(key))
+-	*r = *r.WithContext(context.WithValue(r.Context(), milestoneEditIntentKey{}, in))
+-	return nil
+-}
+-
+-func (w *milestoneEditWeb) response(r *http.Response) error {
+-	raw, err := w.completedResponse(r)
+-	if err != nil {
+-		return err
+-	}
+-	in, write := r.Request.Context().Value(milestoneEditIntentKey{}).(milestoneEditIntent)
+-	lost := false
+-	if write {
+-		if r.StatusCode != 200 {
+-			return errors.New("original Milestone Edit/Lookup failed")
+-		}
+-		switch in.kind {
+-		case "update":
+-			var result wc.StructureMutation
+-			if json.Unmarshal(raw, &result) != nil || result.Validate() != nil {
+-				return errors.New("original Milestone Edit receipt invalid")
+-			}
+-			in.requestID, err = f.ParseID[f.Request](r.Header.Get("X-Request-ID"))
+-			if err != nil {
+-				return err
+-			}
+-			if err = w.updateFacts(r.Request.Context(), in, result, true); err != nil {
+-				return err
+-			}
+-			snapshot, err := w.snapshot(r.Request.Context())
+-			if err != nil {
+-				return err
+-			}
+-			w.mu.Lock()
+-			w.current = *result.Milestone
+-			w.writes[len(w.writes)-1] = in
+-			w.results = append(w.results, result.Clone())
+-			if result.Changed {
+-				w.changed++
+-			}
+-			w.afterCommit = snapshot
+-			lost = w.mode == "milestone-edit-lost"
+-			w.mu.Unlock()
+-		case "lookup":
+-			var found wc.CommandLookup
+-			w.mu.Lock()
+-			original, snapshot := w.results[0].Clone(), w.afterCommit
+-			w.mu.Unlock()
+-			if json.Unmarshal(raw, &found) != nil || found.Validate() != nil || found.State != wc.LookupCommitted || found.Result == nil || !reflect.DeepEqual(*found.Result, original) {
+-				return errors.New("Lookup did not recover original historical Milestone receipt")
+-			}
+-			if err = w.updateFacts(r.Request.Context(), in, original, false); err != nil {
+-				return err
+-			}
+-			after, err := w.snapshot(r.Request.Context())
+-			if err != nil {
+-				return err
+-			}
+-			if snapshot != after {
+-				return errors.New("read-only Milestone Lookup changed original facts")
+-			}
+-		default:
+-			return errors.New("unknown Milestone Edit proof")
+-		}
+-	} else if r.Request.Method == http.MethodGet && r.StatusCode == 200 {
+-		if err = w.observeRead(r.Request, raw); err != nil {
+-			return err
+-		}
+-	}
+-	if r.StatusCode == 200 && (write || r.Request.Method == http.MethodGet) {
+-		if err = w.proof(r, raw, in.sprintWebIntent, write); err != nil {
+-			return err
+-		}
+-	}
+-	// The declared cut follows the complete original App/TLS response and its
+-	// committed database facts. It changes only delivery to the browser.
+-	if lost {
+-		return &reviewWebDrop{r.Header.Clone(), len(raw)}
+-	}
+-	r.Body = io.NopCloser(bytes.NewReader(raw))
+-	return nil
+-}
+-
+-func (w *milestoneEditWeb) observeRead(r *http.Request, raw []byte) error {
+-	w.mu.Lock()
+-	defer w.mu.Unlock()
+-	p := w.project.Project.ID
+-	switch r.URL.Path {
+-	case variableHTTPPath(p, ""):
+-		var project pc.ProjectRef
+-		if json.Unmarshal(raw, &project) != nil || !reflect.DeepEqual(project, w.project.Project) {
+-			return errors.New("Milestone Edit changed current Project")
+-		}
+-		w.projectReads++
+-	case w.path():
+-		var current wc.Milestone
+-		if json.Unmarshal(raw, &current) != nil || !reflect.DeepEqual(current, w.current) {
+-			return errors.New("Milestone current Get differs from canonical postimage")
+-		}
+-		w.gets++
+-	case variableHTTPPath(p, "/milestones"):
+-		var page f.Page[map[string]any]
+-		item, err := sprintCreateSummary(w.current, "description")
+-		if err != nil {
+-			return err
+-		}
+-		if json.Unmarshal(raw, &page) != nil || page.Items == nil || page.NextCursor != "" || !reflect.DeepEqual(page.Items, []map[string]any{item}) {
+-			return errors.New("Milestone List lost exact current summary")
+-		}
+-		w.lists++
+-	case variableHTTPPath(p, "/sprints"):
+-		var page f.Page[map[string]any]
+-		if r.URL.Query().Get("milestone_id") != w.seed.ID.String() || json.Unmarshal(raw, &page) != nil || page.Items == nil || len(page.Items) != 0 || page.NextCursor != "" {
+-			return errors.New("Milestone Edit changed empty Sprint list")
+-		}
+-	}
+-	return nil
+-}
+-
+-func (w *milestoneEditWeb) fixedFacts(ctx context.Context) (string, error) {
+-	unchanged, err := w.unchanged(ctx)
+-	if err != nil {
+-		return "", err
+-	}
+-	var facts string
+-	err = w.a.p2.base.raw.QueryRow(ctx, `SELECT jsonb_build_object(
+- 'audit',(SELECT jsonb_agg(to_jsonb(a) ORDER BY id) FROM agenteam_audit.audit_records a WHERE project_id=$1::text::uuid),
+- 'milestone_order',(SELECT to_jsonb(g) FROM agenteam_work.milestone_order_groups g WHERE project_id=$1::text::uuid),
+- 'sprint_order',(SELECT jsonb_agg(to_jsonb(g) ORDER BY milestone_id) FROM agenteam_work.sprint_order_groups g WHERE project_id=$1::text::uuid))::text`, w.project.Project.ID.String()).Scan(&facts)
+-	return unchanged + facts, err
+-}
+-
+-func (w *milestoneEditWeb) snapshot(ctx context.Context) (string, error) {
+-	var snapshot string
+-	err := w.a.p2.base.raw.QueryRow(ctx, `SELECT jsonb_build_object(
+- 'milestones',(SELECT jsonb_agg(to_jsonb(m) ORDER BY id) FROM agenteam_work.milestones m WHERE project_id=$1::text::uuid),
+- 'commands',(SELECT jsonb_agg(to_jsonb(c) ORDER BY id) FROM agenteam_work.structure_commands c WHERE project_id=$1::text::uuid),
+- 'events',(SELECT jsonb_agg(to_jsonb(e) ORDER BY id) FROM agenteam_outbox.events e WHERE project_id=$1::text::uuid AND producer='work'),
+- 'activity',(SELECT last_activity_at FROM agenteam_account.sessions WHERE id=$2::uuid))::text`, w.project.Project.ID.String(), w.a.p2.base.ownerBrowser.actor.Details().SessionID).Scan(&snapshot)
+-	return snapshot, err
+-}
+-
+-func (w *milestoneEditWeb) updateFacts(ctx context.Context, in milestoneEditIntent, result wc.StructureMutation, canonical bool) error {
+-	if result.Validate() != nil || result.Command != wc.MilestoneUpdate || result.Milestone == nil || result.Sprint != nil {
+-		return errors.New("Milestone Update lost original Structure receipt")
+-	}
+-	expected := in.before
+-	var changed []wc.ChangedField
+-	if in.request.Description != nil && *in.request.Description != expected.Description {
+-		expected.Description = *in.request.Description
+-		changed = append(changed, wc.DescriptionChanged)
+-	}
+-	if in.request.Title != nil && *in.request.Title != expected.Title {
+-		expected.Title = *in.request.Title
+-		changed = append(changed, wc.TitleChanged)
+-	}
+-	if len(changed) != 0 {
+-		expected.Version++
+-		expected.UpdatedAt = result.Milestone.UpdatedAt
+-	}
+-	if in.expected != in.before.Version || !reflect.DeepEqual(*result.Milestone, expected) || result.Changed != (len(changed) != 0) || (result.EventID != nil) != result.Changed {
+-		return errors.New("Milestone Update altered omitted fields, original bytes, version or no-op semantics")
+-	}
+-	actor := w.a.p2.base.ownerBrowser.actor
+-	semantic, err := wc.UpdateMilestoneDigest(actor, f.CommandMeta{RequestID: in.requestID, IdempotencyKey: in.key, ExpectedVersion: &in.expected}, w.project.Project.ID, w.seed.ID, in.request)
+-	if err != nil {
+-		return err
+-	}
+-	var commandID, user, digest string
+-	var eventID *string
+-	var requestRaw, receiptRaw, planRaw []byte
+-	var revision int64
+-	err = w.a.p2.base.raw.QueryRow(ctx, `SELECT id::text,event_id::text,actor_user_id::text,semantic_digest,request,receipt,plan,plan_revision FROM agenteam_work.structure_commands WHERE project_id=$1::text::uuid AND command_name='work.milestone.update' AND idempotency_key=$2 AND state='completed' AND committed_at IS NOT NULL`, w.project.Project.ID.String(), string(in.key)).Scan(&commandID, &eventID, &user, &digest, &requestRaw, &receiptRaw, &planRaw, &revision)
+-	if err != nil {
+-		return err
+-	}
+-	var input map[string]any
+-	var receipt wc.StructureMutation
+-	want := map[string]any{"command": wc.MilestoneUpdate, "project_id": w.project.Project.ID, "target_id": w.seed.ID.String(), "actor_user_id": actor.Details().UserID, "expected_version": in.expected, "create_milestone": nil, "create_sprint": nil, "update": in.request, "reorder_milestone": nil, "reorder_sprint": nil}
+-	if json.Unmarshal(requestRaw, &input) != nil || !sprintCreateEqual(input, want) || json.Unmarshal(receiptRaw, &receipt) != nil || !reflect.DeepEqual(receipt, result) || revision < 1 || user != actor.Details().UserID || digest != semantic.String() {
+-		return errors.New("Milestone command lost exact original input, actor or receipt")
+-	}
+-	if !result.Changed {
+-		if eventID != nil || len(planRaw) != 0 {
+-			return errors.New("Milestone no-op created a plan or event")
+-		}
+-	} else {
+-		var plan struct {
+-			BeforeMilestone *wc.Milestone        `json:"before_milestone"`
+-			BeforeSprint    *wc.Sprint           `json:"before_sprint"`
+-			After           wc.StructureMutation `json:"after"`
+-			GroupBefore     *f.Version           `json:"group_before"`
+-			Header          eventc.Header        `json:"header"`
+-			Payload         wc.MilestoneChanged  `json:"payload"`
+-		}
+-		if eventID == nil || *eventID != result.EventID.String() || json.Unmarshal(planRaw, &plan) != nil || plan.BeforeMilestone == nil || !reflect.DeepEqual(*plan.BeforeMilestone, in.before) || plan.BeforeSprint != nil || plan.GroupBefore != nil || !reflect.DeepEqual(plan.After, result) {
+-			return errors.New("Milestone Update plan lost original preimage/postimage")
+-		}
+-		h, p := plan.Header, plan.Payload
+-		if h.Validate() != nil || p.Validate() != nil || h.EventID != *result.EventID || h.EventType != wc.MilestoneChangedName || h.AggregateType != wc.MilestoneAggregate || h.AggregateID.String() != w.seed.ID.String() || h.AggregateVersion == nil || *h.AggregateVersion != expected.Version || h.AggregateSequence != nil || h.SchemaVersion != wc.WorkSchemaVersion || h.Scope.Kind != eventc.ProjectScope || h.Scope.ProjectID.String() != w.project.Project.ID.String() || h.OccurredAt != expected.UpdatedAt || p.CommandID.String() != commandID || p.ActorUserID.String() != user || p.Change != wc.UpdatedChange || !reflect.DeepEqual(p.ChangedFields, changed) || p.Position != nil {
+-			return errors.New("Milestone event lost exact fields, actor, version or stable rank")
+-		}
+-		var headerRaw, payloadRaw []byte
+-		var columns bool
+-		err = w.a.p2.base.raw.QueryRow(ctx, `SELECT header,payload,event_type='work.milestone_changed' AND schema_version=1 AND scope='project' AND aggregate_type='work.milestone' AND aggregate_version=$4 AND aggregate_sequence IS NULL AND occurred_at=$5 FROM agenteam_outbox.events WHERE project_id=$1::text::uuid AND aggregate_id=$2::text::uuid AND id=$3::text::uuid AND producer='work'`, w.project.Project.ID.String(), w.seed.ID.String(), *eventID, int64(expected.Version), expected.UpdatedAt.Time()).Scan(&headerRaw, &payloadRaw, &columns)
+-		if err != nil {
+-			return err
+-		}
+-		actualHeader, err := eventc.DecodeHeader(headerRaw)
+-		var actualPayload wc.MilestoneChanged
+-		if err != nil || !columns || json.Unmarshal(payloadRaw, &actualPayload) != nil || !reflect.DeepEqual(actualHeader, h) || !reflect.DeepEqual(actualPayload, p) {
+-			return errors.New("Milestone Outbox differs from original command plan")
+-		}
+-	}
+-	if canonical {
+-		var matches bool
+-		err = w.a.p2.base.raw.QueryRow(ctx, `SELECT title=$3 AND description=$4 AND manual_rank=$5 AND version=$6 AND created_at=$7 AND updated_at=$8 FROM agenteam_work.milestones WHERE project_id=$1::text::uuid AND id=$2::text::uuid`, w.project.Project.ID.String(), w.seed.ID.String(), expected.Title, expected.Description, expected.ManualRank, int64(expected.Version), expected.CreatedAt.Time(), expected.UpdatedAt.Time()).Scan(&matches)
+-		if err != nil {
+-			return err
+-		}
+-		if !matches {
+-			return errors.New("current Milestone row differs from original Update postimage")
+-		}
+-	}
+-	fixed, err := w.fixedFacts(ctx)
+-	if err != nil {
+-		return err
+-	}
+-	if fixed != w.fixed {
+-		return errors.New("Milestone Edit changed Project, ordering, Audit, Sprint or Execution facts")
+-	}
+-	return nil
+-}
+-
+-func (w *milestoneEditWeb) verify(t *testing.T, ctx context.Context) {
+-	w.mu.Lock()
+-	failure, updates, changed, lookups, cuts, gets, lists := w.failure, w.updates, w.changed, w.lookups, w.cut, w.gets, w.lists
+-	writes := append([]milestoneEditIntent(nil), w.writes...)
+-	results := append([]wc.StructureMutation(nil), w.results...)
+-	snapshot := w.afterCommit
+-	tails := make([]*reviewWebTail, 0, len(w.tails))
+-	for _, tail := range w.tails {
+-		tails = append(tails, tail)
+-	}
+-	w.mu.Unlock()
+-	wantUpdates, wantChanged, wantLookups, wantReads := 3, 2, 0, 5
+-	if w.mode == "milestone-edit-lost" {
+-		wantUpdates, wantChanged, wantLookups, wantReads = 1, 1, 1, 3
+-	}
+-	if failure != nil || updates != wantUpdates || len(results) != updates || changed != wantChanged || lookups != wantLookups || cuts != wantLookups || gets < wantReads || lists < wantReads {
+-		t.Fatal("Milestone Edit original browser chain incomplete", failure)
+-	}
+-	for _, tail := range tails {
+-		select {
+-		case <-tail.done:
+-		default:
+-			t.Fatal("original Milestone Edit handler still running")
+-		}
+-		if !tail.returned {
+-			t.Fatal("original Milestone Edit handler did not return")
+-		}
+-	}
+-	for index, in := range writes {
+-		agentAppRequire(t, w.updateFacts(ctx, in, results[index], index == len(writes)-1))
+-	}
+-	var commands, events, milestones int64
+-	agentAppRequire(t, w.a.p2.base.raw.QueryRow(ctx, `SELECT
+- (SELECT count(*) FROM agenteam_work.structure_commands WHERE project_id=$1::text::uuid),
+- (SELECT count(*) FROM agenteam_outbox.events WHERE project_id=$1::text::uuid AND producer='work'),
+- (SELECT count(*) FROM agenteam_work.milestones WHERE project_id=$1::text::uuid)`, w.project.Project.ID.String()).Scan(&commands, &events, &milestones))
+-	if commands != int64(1+wantUpdates) || events != int64(1+wantChanged) || milestones != 1 {
+-		t.Fatal("Milestone Edit duplicated command/event or created another Milestone")
+-	}
+-	after, err := w.snapshot(ctx)
+-	agentAppRequire(t, err)
+-	if snapshot == "" || snapshot != after {
+-		t.Fatal("Milestone current reads or Lookup changed original committed facts")
+-	}
+-}
+-
+-func newMilestoneEditWeb(t *testing.T, a *agentCreateFixture, project pc.SchedulerProject, mode string) *milestoneEditWeb {
+-	t.Helper()
+-	const prefix = "AGENTEAM_MILESTONE_EDIT_WEB"
+-	dist, runtime, evidence, inputHash := os.Getenv(prefix+"_DIST"), os.Getenv("AGENTEAM_AUTH_WEB_RUNTIME"), os.Getenv(prefix+"_EVIDENCE"), os.Getenv(prefix+"_INPUT_HASH")
+-	if !filepath.IsAbs(dist) || !filepath.IsAbs(runtime) || len(runtime) > 45 || !filepath.IsAbs(evidence) || len(inputHash) != 64 || strings.Trim(inputHash, "0123456789abcdef") != "" {
+-		t.Fatal("frozen Milestone Edit inputs required")
+-	}
+-	if info, err := os.Stat(filepath.Join(dist, "index.html")); err != nil || !info.Mode().IsRegular() {
+-		t.Fatal("frozen index missing")
+-	}
+-	directory, err := os.MkdirTemp(runtime, "mew-")
+-	agentAppRequire(t, err)
+-	published := false
+-	defer func() {
+-		if !published {
+-			_ = os.RemoveAll(directory)
+-		}
+-	}()
+-	agentAppRequire(t, os.Chmod(directory, 0700))
+-	listener, err := net.Listen("tcp", "127.0.0.1:0")
+-	agentAppRequire(t, err)
+-	base := &agentConfigurationWeb{a: a, mode: mode, origin: "http://" + listener.Addr().String(), directory: directory, evidence: evidence, inputHash: inputHash, dist: dist, listener: listener, serve: make(chan error, 1), tails: map[string]*reviewWebTail{}}
+-	w := &milestoneCreateWeb{sprintStartWeb: &sprintStartWeb{agentConfigurationWeb: base, project: project.Clone()}}
+-	published = true
+-	return &milestoneEditWeb{milestoneCreateWeb: w}
+-}
+-func (w *milestoneEditWeb) start(t *testing.T, address string) {
+-	t.Helper()
+-	w.upstream = &http.Transport{Proxy: nil, DisableKeepAlives: true}
+-	w.backend = httptest.NewUnstartedServer(http.HandlerFunc(func(out http.ResponseWriter, r *http.Request) { w.bridge(address, out, r) }))
+-	w.backend.Config.ErrorLog = log.New(io.Discard, "", 0)
+-	w.backend.StartTLS()
+-	w.transport = w.backend.Client().Transport.(*http.Transport).Clone()
+-	if w.transport.TLSClientConfig.InsecureSkipVerify {
+-		t.Fatal("owned Agent Edit TLS verification disabled")
+-	}
+-	target, err := url.Parse(w.backend.URL)
+-	agentAppRequire(t, err)
+-	proxy := httputil.NewSingleHostReverseProxy(target)
+-	proxy.Transport, proxy.ErrorLog = w.transport, log.New(io.Discard, "", 0)
+-	proxy.ModifyResponse, proxy.ErrorHandler = w.response, w.proxyError
+-	static := http.FileServer(http.Dir(w.dist))
+-	w.front = &http.Server{ReadHeaderTimeout: 2 * time.Second, ErrorLog: log.New(io.Discard, "", 0), Handler: http.HandlerFunc(func(out http.ResponseWriter, r *http.Request) {
+-		w.frontWG.Add(1)
+-		defer w.frontWG.Done()
+-		if strings.HasPrefix(r.URL.Path, "/api/") {
+-			if err := w.observe(r); err != nil {
+-				w.fail(err)
+-				http.Error(out, "owned Milestone Edit observation failed", 500)
+-				return
+-			}
+-			proxy.ServeHTTP(out, r)
+-			return
+-		}
+-		if w.dist == "" || r.Method != http.MethodGet && r.Method != http.MethodHead {
+-			http.NotFound(out, r)
+-			return
+-		}
+-		clean := filepath.Clean("/" + r.URL.Path)
+-		if info, err := os.Stat(filepath.Join(w.dist, clean)); err == nil && info.Mode().IsRegular() {
+-			static.ServeHTTP(out, r)
+-			return
+-		}
+-		http.ServeFile(out, r, filepath.Join(w.dist, "index.html"))
+-	})}
+-	go func() { w.serve <- w.front.Serve(w.listener) }()
+-}
+-
+-func (w *milestoneEditWeb) browser(t *testing.T, parent context.Context) {
+-	t.Helper()
+-	root, err := filepath.Abs("../account-captcha-web")
+-	agentAppRequire(t, err)
+-	ctx, cancel := context.WithTimeout(parent, 60*time.Second)
+-	defer cancel()
+-	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", filepath.Join(root, "milestone-edit.config.js"))
+-	cmd.Dir = root
+-	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+-	cmd.WaitDelay = time.Second
+-	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
+-	for _, entry := range os.Environ() {
+-		key, _, _ := strings.Cut(entry, "=")
+-		if key != "TMPDIR" && key != "DEBUG" && key != "PWDEBUG" && key != "PLAYWRIGHT_NO_COPY_PROMPT" && !strings.HasPrefix(key, "AGENTEAM_") {
+-			cmd.Env = append(cmd.Env, entry)
+-		}
+-	}
+-	const prefix = "AGENTEAM_MILESTONE_EDIT_WEB"
+-	cmd.Env = append(cmd.Env, "TMPDIR="+w.directory, "PLAYWRIGHT_NO_COPY_PROMPT=1", "AGENTEAM_AUTH_WEB_ORIGIN="+w.origin, "AGENTEAM_AUTH_WEB_PRIVATE="+w.directory, "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium", prefix+"_DIST="+w.dist, prefix+"_CASE="+w.mode, prefix+"_EVIDENCE="+w.evidence, prefix+"_INPUT_HASH="+w.inputHash)
+-	var output bytes.Buffer
+-	cmd.Stdout = &output
+-	cmd.Stderr = &output
+-	if err = cmd.Start(); err != nil {
+-		t.Fatal("owned Milestone Edit Playwright did not start")
+-	}
+-	done := make(chan error, 1)
+-	go func() { done <- cmd.Wait() }()
+-	joined := false
+-	defer func() {
+-		if !joined {
+-			_ = cmd.Cancel()
+-			<-done
+-		}
+-		_ = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+-		cmd.Env = nil
+-	}()
+-	err = <-done
+-	joined = true
+-	t.Logf("Milestone Edit Node actual_wait pid=%d success=%t", cmd.Process.Pid, err == nil)
+-	safe := output.String()
+-	w.mu.Lock()
+-	tokens := append([]string(nil), w.keys...)
+-	w.mu.Unlock()
+-	tokens = append(tokens, w.a.p2.base.ownerBrowser.cookie, w.a.p2.base.ownerBrowser.csrf)
+-	for _, token := range tokens {
+-		if token != "" {
+-			safe = strings.ReplaceAll(safe, token, "[redacted]")
+-		}
+-	}
+-	t.Log(safe)
+-	if err != nil {
+-		t.Fatal("original Milestone Edit browser call failed")
+-	}
+-}
+-
+-func (w *milestoneEditWeb) proof(r *http.Response, raw []byte, intent sprintWebIntent, write bool) error {
+-	record := map[string]any{"input_hash": w.inputHash, "request_id": r.Header.Get("X-Request-ID"), "method": r.Request.Method, "url_sha256": fmt.Sprintf("%x", sha256.Sum256([]byte(r.Request.URL.RequestURI()))), "status": r.StatusCode, "content_length": len(raw), "body_sha256": fmt.Sprintf("%x", sha256.Sum256(raw)), "original_eof": true, "original_closed": true, "handler_returned": true}
+-	if write {
+-		record["kind"] = intent.kind
+-		record["request_body_sha256"] = fmt.Sprintf("%x", intent.bodyDigest)
+-		record["idempotency_key_sha256"] = fmt.Sprintf("%x", intent.keyDigest)
+-		record["committed_verified"] = true
+-	}
+-	encoded, err := json.Marshal(record)
+-	if err != nil {
+-		return err
+-	}
+-	if err = os.MkdirAll(w.evidence, 0700); err != nil {
+-		return err
+-	}
+-	return os.WriteFile(filepath.Join(w.evidence, "milestone-edit-"+w.mode+"-response-"+r.Header.Get("X-Request-ID")+".json"), encoded, 0600)
+-}
