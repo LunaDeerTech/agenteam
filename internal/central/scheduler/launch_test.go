@@ -12,6 +12,7 @@ import (
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
@@ -20,11 +21,12 @@ import (
 // Work authorization, slot insertion or a successful Execution service.
 type handoffTestStore struct {
 	pendingTestStore
-	t                  *testing.T
-	row, staged        *dispatchRecord
-	locks              []f.LockRequest
-	failName, failMode string
-	attempt            f.ID[f.TransactionAttempt]
+	t                                            *testing.T
+	row, staged                                  *dispatchRecord
+	associationRuntime, stagedAssociationRuntime []any
+	locks                                        []f.LockRequest
+	failName, failMode                           string
+	attempt                                      f.ID[f.TransactionAttempt]
 }
 
 func (s *handoffTestStore) InTx(tx f.Tx) (postgres.SQLExecutor, error) {
@@ -49,7 +51,8 @@ func (s *handoffTestStore) WithinTx(ctx context.Context, cause f.TransactionCaus
 		return f.NotCommittedResult(f.NewFault(f.InternalError, f.NotCommitted).WithCause(err))
 	}
 	s.tx, s.locks, s.staged = f.NewTx(), nil, s.row
-	defer func() { s.tx, s.staged, s.locks = f.Tx{}, nil, nil }()
+	s.stagedAssociationRuntime = append([]any(nil), s.associationRuntime...)
+	defer func() { s.tx, s.staged, s.locks = f.Tx{}, nil, nil; s.stagedAssociationRuntime = nil }()
 	if err := fn(ctx, s.tx); err != nil {
 		var known *f.Fault
 		if errors.As(err, &known) {
@@ -61,6 +64,7 @@ func (s *handoffTestStore) WithinTx(ctx context.Context, cause f.TransactionCaus
 		return f.NotCommittedResult(fault(f.DependencyUnavailable))
 	}
 	s.row = s.staged
+	s.associationRuntime = append([]any(nil), s.stagedAssociationRuntime...)
 	if mode == "unknown-after" {
 		return f.UnknownResult(s.attempt, cause)
 	}
@@ -90,10 +94,36 @@ func (s *handoffTestStore) RequireHeldLocks(ctx context.Context, tx f.Tx, requir
 	}
 	return ctx.Err()
 }
-func (s *handoffTestStore) QueryRow(context.Context, string, ...any) postgres.Row {
+func (s *handoffTestStore) QueryRow(_ context.Context, query string, _ ...any) postgres.Row {
+	if query == relaunchRuntimeSQL {
+		if s.stagedAssociationRuntime == nil {
+			return dispatchTestRow{err: pgx.ErrNoRows}
+		}
+		return dispatchTestRow{values: s.stagedAssociationRuntime}
+	}
 	return dispatchTestRow{values: recordValues(s.t, s.staged)}
 }
 func (s *handoffTestStore) Exec(ctx context.Context, query string, args ...any) (pgconn.CommandTag, error) {
+	if strings.HasPrefix(query, "INSERT INTO agenteam_scheduler.task_runtimes(") || strings.HasPrefix(query, "UPDATE agenteam_scheduler.task_runtimes SET") {
+		var cooldown, purpose *string
+		if args[4] != nil {
+			v := args[4].(string)
+			cooldown = &v
+		}
+		if args[5] != nil {
+			v := args[5].(string)
+			purpose = &v
+		}
+		version, at := int64(1), args[7]
+		if len(args) == 10 {
+			version, at = args[7].(int64), args[8]
+			if s.stagedAssociationRuntime == nil || s.stagedAssociationRuntime[5] != args[9] {
+				return pgconn.NewCommandTag("UPDATE 0"), nil
+			}
+		}
+		s.stagedAssociationRuntime = []any{args[2], args[3], cooldown, purpose, args[6], version, at}
+		return pgconn.NewCommandTag("INSERT 0 1"), ctx.Err()
+	}
 	if !strings.HasPrefix(query, "UPDATE agenteam_scheduler.dispatches SET") || len(args) != 22 || s.staged.version != f.Version(args[9].(int64)) {
 		return pgconn.CommandTag{}, errors.New("unexpected controlled update")
 	}

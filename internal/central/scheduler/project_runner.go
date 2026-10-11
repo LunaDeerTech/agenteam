@@ -24,6 +24,7 @@ type ProjectRunnerOptions struct {
 	TickInterval time.Duration
 	LaunchPolicy ec.Policy
 	Tasks        wc.SchedulerTaskReader
+	Relaunch     *RelaunchCoordinator
 }
 
 type ProjectVisitAction string
@@ -32,19 +33,22 @@ const (
 	ProjectVisitDeferred ProjectVisitAction = "deferred"
 	ProjectVisitPending  ProjectVisitAction = "pending"
 	ProjectVisitClaim    ProjectVisitAction = "claim"
+	ProjectVisitRelaunch ProjectVisitAction = "relaunch"
 )
 
 // Visits are observations, not successful-mutation receipts. Err preserves the
 // original owner's error, including unresolved physical CommitUnknown. A
 // pending entry has no expected Work group and therefore ExpectedState="".
 type ProjectTaskVisit struct {
-	TaskID        wc.TaskID
-	DispatchID    *DispatchID
-	ClaimRequest  *wc.TaskClaimRequest
-	ExpectedState wc.TaskState
-	Action        ProjectVisitAction
-	Dispatch      Dispatch
-	Err           error
+	TaskID          wc.TaskID
+	DispatchID      *DispatchID
+	ClaimRequest    *wc.TaskClaimRequest
+	RelaunchRequest *wc.TaskRelaunchRequest
+	Relaunch        RelaunchVisit
+	ExpectedState   wc.TaskState
+	Action          ProjectVisitAction
+	Dispatch        Dispatch
+	Err             error
 }
 type ProjectRunResult struct {
 	ProjectID       i.ProjectID
@@ -91,6 +95,10 @@ func cloneProjectRunResult(v ProjectRunResult) ProjectRunResult {
 			id := *entry.DispatchID
 			entry.DispatchID = &id
 		}
+		if entry.RelaunchRequest != nil {
+			r := entry.RelaunchRequest.Clone()
+			entry.RelaunchRequest = &r
+		}
 		if entry.ClaimRequest != nil {
 			r := entry.ClaimRequest.Clone()
 			entry.ClaimRequest = &r
@@ -134,6 +142,9 @@ func NewProjectRunner(coordinator *Coordinator, visitor *PendingVisitor, options
 		return nil, invalid()
 	}
 	if coordinator == nil || coordinator.authority == nil || visitor == nil || visitor.authority != coordinator.authority || nilPort(options.Tasks) || nilPort(coordinator.deps.Projects) {
+		return nil, fault(f.DependencyUnbound)
+	}
+	if options.Relaunch != nil && options.Relaunch.coordinator != coordinator {
 		return nil, fault(f.DependencyUnbound)
 	}
 	options.LaunchPolicy = options.LaunchPolicy.Clone()
@@ -346,6 +357,9 @@ func (s *ProjectRunner) visitTask(ctx context.Context, entry projectTaskEntry, s
 		out.Err = e
 		return out, false, nil
 	}
+	if original, ok := s.unknownRelaunch(entry.task); ok {
+		return s.resumeRelaunch(ctx, out, original), false, nil
+	}
 	// Current pending is checked before any current Work state/Sprint filter.
 	// Thus a new pending appearing after the snapshot also takes this path.
 	if pending != nil {
@@ -362,8 +376,10 @@ func (s *ProjectRunner) visitTask(ctx context.Context, entry projectTaskEntry, s
 	if entry.state == "" || sprint == nil || current.Project.CurrentSprintID == nil || *current.Project.CurrentSprintID != *sprint || facts == nil || facts.SprintID != *sprint || facts.State != entry.state {
 		return out, false, nil
 	}
-	// Relaunch/cooldown and automatic blocked reconciliation have no bound
-	// producer in this slice. They remain visited and paced as Deferred.
+	if facts.State == wc.TaskStateInProgress && s.options.Relaunch != nil && facts.AssigneeAgentID != nil && !facts.HasUnresolvedBlockers {
+		return s.visitRelaunchTask(ctx, out, *facts), false, nil
+	}
+	// Review and automatic blocked reconciliation remain explicitly deferred.
 	if facts.State != wc.TaskStateTodo || facts.AssigneeAgentID == nil || facts.HasUnresolvedBlockers {
 		return out, false, nil
 	}

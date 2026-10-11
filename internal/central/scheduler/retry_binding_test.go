@@ -148,7 +148,7 @@ func TestSchedulerRetryBindingInsertPreservesExplicitAndLegacyPair(t *testing.T)
 			if err := insertDispatch(context.Background(), x, row); err != nil {
 				t.Fatal(err)
 			}
-			if len(x.args) != 16 || !strings.Contains(x.sql, "retry_policy,retry_policy_digest)") || !strings.Contains(x.sql, "$14,$14,$15,$16)") {
+			if len(x.args) != 17 || !strings.Contains(x.sql, "retry_policy,retry_policy_digest,relaunch_source)") || !strings.Contains(x.sql, "$14,$14,$15,$16,$17)") {
 				t.Fatal("binding omitted from original insert")
 			}
 			raw, ok := x.args[14].([]byte)
