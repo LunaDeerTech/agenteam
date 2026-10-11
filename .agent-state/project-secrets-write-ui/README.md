@@ -45,4 +45,4 @@ patch --batch --fuzz=0 -p1 < .agent-state/project-secrets-write-ui/early-product
 - `retained-inputs/web/dist/`：最后构建的 84 个物理资产；原 `dist-02/` 与早期构建资产仍在完整任务输出内。
 - `retention/tmp/psw-406773/` 和 `retention/tmp/psw-064a37/`：各轮实际命名的 log、owned.json、request.json 逐字副本；原 `/tmp` 未移动或改写。精确来源、目标及核对结果见 `retention/migration.json`。
 
-保全只调整本机位置，不重写原 invocation 中的绝对路径或原 FAIL。两套依赖和原 worktree/分支尚由 root 按正式清理条件处理；共享 SkillHTTP cache 与 SkillsMilestoneResume modules 未动。跨设备先恢复正式 main 源码与本目录必要差额，再按锁文件恢复依赖；本机 ignored 输出不等于已上传远端。
+保全只调整本机位置，不重写原 invocation 中的绝对路径或原 FAIL。root 已完成原 worktree 普通移除；本地分支仅因 squash 非祖先被 `-d` 拒绝后，针对已交分支窄 `-D`。远端以最终 tip `7a6d683b691a836a477945a0422d208a8526f514` 的精确 lease 删除成功，成功的 fresh ls-remote 为空、explicit prune 实际退出0，worktree 列表已无原树。共享 SkillHTTP cache 与 SkillsMilestoneResume modules 未动。跨设备先恢复正式 main 源码与本目录必要差额，再按锁文件恢复依赖；本机 ignored 输出不等于已上传远端。
