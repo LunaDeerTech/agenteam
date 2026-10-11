@@ -14,6 +14,7 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
+	"net/http/httptest"
 	"net/http/httputil"
 	"net/url"
 	"os"
@@ -91,7 +92,7 @@ func TestSkillOwnerReadWeb(t *testing.T) {
 	cfg := guardConfiguration(t, append(guardEnvironment(t, db), "AGENTEAM_CENTRAL_PUBLIC_ORIGIN="+origin, "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=5s"))
 	var core *account.Service
 	var owned *resources
-	observations := &skillWebObservations{evidence: evidence, inputHash: inputHash, tails: map[string]*skillWebTail{}}
+	observations := &skillWebObservations{evidence: evidence, inputHash: inputHash, host: listener.Addr().String(), tails: map[string]*skillWebTail{}}
 	deps := dependencies{observeAccount: func(v *account.Service) { core = v }, bind: func(c context.Context, cfg config.Config, store database, owner *resources, d *dependencies) error {
 		owned = owner
 		if err := bindAccounts(c, cfg, store, owner, d); err != nil {
@@ -404,6 +405,7 @@ func TestSkillOwnerReadWeb(t *testing.T) {
 type skillWebObservations struct {
 	mu                                  sync.Mutex
 	evidence, inputHash, project, skill string
+	host                                string
 	active                              bool
 	metadata                            skillc.Metadata
 	count, catalogs, details            int
@@ -414,6 +416,7 @@ type skillWebTail struct {
 	done        chan struct{}
 	returned    bool
 	method, uri string
+	hostMatches bool
 }
 
 func (o *skillWebObservations) fail() error {
@@ -434,12 +437,13 @@ func (o *skillWebObservations) observeHandler(next http.Handler) http.Handler {
 			return
 		}
 		rid := httpapi.RequestID(r.Context())
-		if r.Method != http.MethodGet || rid.Validate() != nil {
+		hostMatches := o.host != "" && r.Host == o.host
+		if r.Method != http.MethodGet || rid.Validate() != nil || !hostMatches {
 			_ = o.fail()
 			http.Error(w, "read-only observation rejected", 502)
 			return
 		}
-		tail := &skillWebTail{done: make(chan struct{}), method: r.Method, uri: r.URL.RequestURI()}
+		tail := &skillWebTail{done: make(chan struct{}), method: r.Method, uri: r.URL.RequestURI(), hostMatches: hostMatches}
 		o.mu.Lock()
 		if o.tails[rid.String()] != nil || len(o.tails) >= 64 {
 			o.mu.Unlock()
@@ -485,7 +489,7 @@ func (o *skillWebObservations) capture(response *http.Response) error {
 	case <-response.Request.Context().Done():
 		return o.fail()
 	}
-	if !tail.returned {
+	if !tail.returned || !tail.hostMatches {
 		return o.fail()
 	}
 	// Only immutable safe metadata is decoded here. Session bytes are hashed in
@@ -513,7 +517,7 @@ func (o *skillWebObservations) capture(response *http.Response) error {
 			return o.fail()
 		}
 	}
-	record := map[string]any{"input_hash": o.inputHash, "request_id": rid.String(), "method": response.Request.Method, "url_sha256": fmt.Sprintf("%x", sha256.Sum256([]byte(response.Request.URL.RequestURI()))), "status": response.StatusCode, "content_length": len(raw), "body_sha256": fmt.Sprintf("%x", sha256.Sum256(raw)), "original_eof": true, "original_closed": true, "handler_returned": true}
+	record := map[string]any{"input_hash": o.inputHash, "request_id": rid.String(), "method": response.Request.Method, "url_sha256": fmt.Sprintf("%x", sha256.Sum256([]byte(response.Request.URL.RequestURI()))), "status": response.StatusCode, "content_length": len(raw), "body_sha256": fmt.Sprintf("%x", sha256.Sum256(raw)), "original_eof": true, "original_closed": true, "handler_returned": true, "request_host_matches": tail.hostMatches}
 	encoded, err := json.Marshal(record)
 	if err != nil {
 		return o.fail()
@@ -543,6 +547,47 @@ func skillWebDecode(raw []byte, out any) error {
 		return errors.New("trailing read representation")
 	}
 	return nil
+}
+
+func TestSkillWebRequestHostEvidence(t *testing.T) {
+	const expected = "127.0.0.1:32123"
+	for _, scenario := range []struct {
+		name, host, configured string
+		accepted               bool
+	}{
+		{"matching-host", expected, expected, true},
+		{"wrong-host", "127.0.0.1:32124", expected, false},
+		{"missing-host", "", expected, false},
+		{"unconfigured-host", expected, "", false},
+	} {
+		t.Run(scenario.name, func(t *testing.T) {
+			observation := &skillWebObservations{active: true, host: scenario.configured, tails: map[string]*skillWebTail{}}
+			called := false
+			handler := httpapi.WithRequestID(slog.New(slog.NewTextHandler(io.Discard, nil)), observation.observeHandler(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				called = true
+				w.WriteHeader(http.StatusOK)
+			})))
+			request := httptest.NewRequest(http.MethodGet, "http://"+expected+"/api/v1/session", nil)
+			request.Host = scenario.host
+			response := httptest.NewRecorder()
+			handler.ServeHTTP(response, request)
+			if !scenario.accepted {
+				if called || response.Code != http.StatusBadGateway || len(observation.tails) != 0 || observation.err == nil {
+					t.Fatal("invalid original Host reached the observed handler")
+				}
+				return
+			}
+			tail := observation.tails[response.Header().Get("X-Request-ID")]
+			if !called || response.Code != http.StatusOK || len(observation.tails) != 1 || observation.err != nil || tail == nil || !tail.returned || !tail.hostMatches {
+				t.Fatal("Host evidence not bound to the original request ID and returned handler")
+			}
+			select {
+			case <-tail.done:
+			default:
+				t.Fatal("original observed handler did not join")
+			}
+		})
+	}
 }
 
 func skillWebBrowser(t *testing.T, ctx context.Context, private, origin, dist, evidence, inputHash string) map[string]any {

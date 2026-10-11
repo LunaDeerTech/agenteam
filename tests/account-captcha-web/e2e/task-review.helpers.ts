@@ -56,6 +56,7 @@ type SkillsHeaderDiagnostic = {
     | "header_promises"
     | "request_gate"
     | "response_id_gate"
+    | "handler_pending"
     | "accepted";
   request_fulfilled: boolean;
   response_fulfilled: boolean;
@@ -63,6 +64,7 @@ type SkillsHeaderDiagnostic = {
   host_matches: boolean;
   authority_present: boolean;
   authority_matches: boolean;
+  handler_host_matches: boolean;
   cookie_present: boolean;
   response_id_present: boolean;
   response_id_valid: boolean;
@@ -1748,6 +1750,7 @@ export async function observeTaskRequests(
               typeof sent?.[":authority"] === "string" &&
               sent[":authority"].length > 0,
             authority_matches: sent?.[":authority"] === origin.host,
+            handler_host_matches: false,
             cookie_present: Boolean(sent?.cookie),
             response_id_present: typeof id === "string" && id.length > 0,
             response_id_valid:
@@ -1758,13 +1761,19 @@ export async function observeTaskRequests(
           };
           entry.skillsHeaders = diagnostic;
           // Publish only closed predicates after both original promises retire.
-          // Keep the original gates: this diagnostic never supplies a header.
+          // Chromium may omit Host from its header projection. A visible wrong
+          // Host still rejects; the original App handler proves the wire Host
+          // separately, bound to this response's canonical request ID below.
           if (!diagnostic.request_fulfilled || !diagnostic.response_fulfilled) {
             diagnostic.stage = "header_promises";
             event("skills-headers", entry);
             throw Error("SKILLS_ORIGINAL_HEADERS_FAILED");
           }
-          if (!diagnostic.host_matches || !diagnostic.cookie_present) {
+          if (
+            !diagnostic.cookie_present ||
+            (diagnostic.host_present && !diagnostic.host_matches) ||
+            (diagnostic.authority_present && !diagnostic.authority_matches)
+          ) {
             diagnostic.stage = "request_gate";
             event("skills-headers", entry);
             throw Error("SKILLS_ORIGINAL_REQUEST_HEADERS");
@@ -1774,7 +1783,7 @@ export async function observeTaskRequests(
             event("skills-headers", entry);
             throw Error("SKILLS_ORIGINAL_RESPONSE_ID");
           }
-          diagnostic.stage = "accepted";
+          diagnostic.stage = "handler_pending";
           entry.requestID = id;
           event("response", entry);
         })
@@ -2235,6 +2244,33 @@ export async function observeTaskRequests(
       if (entry.checked) continue;
       const state = await entry.done;
       const response = await entry.request.response();
+      if (profile.skillsReads) {
+        // Include bootstrap reads as well as catalog/detail: a missing browser
+        // projection is accepted only with this original request's App proof.
+        const record = JSON.parse(
+          readFileSync(
+            join(
+              profile.evidence,
+              `${profile.prefix}-${data.mode}-response-${entry.requestID}.json`,
+            ),
+            "utf8",
+          ),
+        );
+        const url = new URL(entry.request.url());
+        expect(record.input_hash).toBe(profile.inputHash);
+        expect(record.request_id).toBe(entry.requestID);
+        expect(record.method).toBe(entry.request.method());
+        expect(record.url_sha256).toBe(
+          createHash("sha256")
+            .update(url.pathname + url.search)
+            .digest("hex"),
+        );
+        expect(record.request_host_matches).toBe(true);
+        expect(record.handler_returned).toBe(true);
+        expect(entry.skillsHeaders?.stage).toBe("handler_pending");
+        entry.skillsHeaders!.handler_host_matches = true;
+        entry.skillsHeaders!.stage = "accepted";
+      }
       if (
         state === "failed" &&
         profile.cut !== undefined &&
