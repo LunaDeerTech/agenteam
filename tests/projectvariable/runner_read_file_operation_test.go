@@ -291,14 +291,19 @@ func (v *operationReadFileFixture) requireJoined(t *testing.T, before operationR
 // protected argument, Mount, Operation or Attempt into this fixture.
 func newOperationReadFileFixture(t *testing.T, fullResult bool) *operationReadFileFixture {
 	t.Helper()
+	return newOperationReadFileFixtureWithPreparation(t, fullResult, nil)
+}
+
+func newOperationReadFileFixtureWithPreparation(t *testing.T, fullResult bool, beforePreparation func(*toolFactsFixture)) *operationReadFileFixture {
+	t.Helper()
 	directory := readFileAdapterPrivateDirectory(t)
 	rootPath := filepath.Join(directory, "root")
 	readFileAdapterOK(t, os.Mkdir(rootPath, 0700), "owned Runner root")
 	var runners *runnerservice.Service
 	var enrollment rc.EnrollmentMaterial
-	facts := newToolFactsFixtureWithRunner(t, rootPath, func(service *runnerservice.Service, material rc.EnrollmentMaterial) {
+	facts := newToolFactsFixtureWithPreparation(t, rootPath, func(service *runnerservice.Service, material rc.EnrollmentMaterial) {
 		runners, enrollment = service, material
-	})
+	}, beforePreparation)
 	defer func() { enrollment = rc.EnrollmentMaterial{} }()
 	if runners == nil || !enrollment.Token.Valid() {
 		t.Fatal("formal Runner creation did not hand off its original enrollment")
