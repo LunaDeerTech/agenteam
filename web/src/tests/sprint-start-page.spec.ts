@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DOMWrapper, flushPromises, mount, type VueWrapper } from '@vue/test-utils'
-import { computed, shallowReactive, shallowRef } from 'vue'
+import { computed, nextTick, shallowReactive, shallowRef } from 'vue'
 import { AccountFailure } from '../api/client'
 import type { Project } from '../api/project-owner'
 import type { Sprint } from '../api/work-review'
@@ -131,11 +131,14 @@ describe('Sprint Start visible workflow', () => {
     await flushPromises()
     expect(button('查询原启动结果').element.disabled).toBe(true)
     f.progress.value = { ...f.progress.value!, contextValid: true }
+    await nextTick()
+    expect(button('查询原启动结果').element.disabled).toBe(false)
     f.api.checkOriginal.mockImplementationOnce(async () => {
       f.progress.value = { ...f.progress.value!, observation: 'not_observed' }
       return { status: 'not_observed', receipt: null }
     })
     await click('查询原启动结果')
+    expect(f.api.checkOriginal).toHaveBeenCalledTimes(1)
     expect(body().text()).toContain('尚未观察到原启动结果，可再次查询。')
     expect(f.readCurrent).not.toHaveBeenCalled()
     f.api.checkOriginal.mockImplementationOnce(async () => ({ status: 'committed', receipt: f.commit() }))
