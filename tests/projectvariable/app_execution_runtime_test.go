@@ -294,7 +294,9 @@ func runAppExecutionRuntime(t *testing.T, wire *firstRoundFixture, held bool, ol
 	var executionID, processID string
 	if held {
 		await(func() bool {
-			observe()
+			if observations == 0 || time.Since(startedAt)-observedAt >= 250*time.Millisecond {
+				observe()
+			}
 			state, e := wire.network.State(ctx, wire.scenario)
 			if e != nil {
 				lastPollError = e
