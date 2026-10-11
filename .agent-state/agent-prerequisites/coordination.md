@@ -2,13 +2,13 @@
 
 ## 当前批次与活动树
 
-正式main `d4a8626162b13c5eff9b98fcf63a5eabd956ba42`已交付第八批Human Owner无active review三边并远端exact确认，产品与实测SOURCE `8cfbe24d21938947787fcfeb7633b64a72866e94`一致；root正常merge/push（`b548eb95`），delivery已ff/push同一main，恢复README `245f2285`已保存。第七批main `5b0a3eed`及更早已接受范围保持。
+当前为第九批自动review dispatch，基线正式main `d4a86261`。Work作者 `/workspace/agenteam-task-transition` / `ai/work-review-dispatch`（`7e04711e`）已推送，最后新test已冻结并纳入组合；Scheduler作者 `/workspace/agenteam-skill-install-runtime-source` / `ai/scheduler-review-dispatch`基于同一main，生产与helper已冻结并纳入组合。work_ui三个新pure及coordination唯一真实fixture `tests/projectvariable/scheduler_review_test.go`已freeze（整top `TestSchedulerReviewDispatch` / 两sub），尚无动态结论。
 
-第八批12 top、四包vet、compile01/list及native02最终接受；`TestTaskHumanReview`真实1 top/2 sub、34.54s整轮wholePASS，原TLS执行终态后review→done、原Tx rework回滚/重放已验证。四原Wait0、七ID14次absence及全部双尾闭合，1616输入一致（含876个编译输入）。candidate01复用、原件保留；pure01/native01仅容量门FAIL，无产品FAIL。当前源码停写，0活动、0待跑，资源窗口归root；约30%粗估和全部旧STOP不变。
+唯一完整树 `/workspace/agenteam-task-flow-delivery` / `ai/review-dispatch-delivery`的组合SOURCE `389c40a3`已保存并推送（`26138e`），三方法checkpoint `736f37b8`亦已远端保存。secret已有限接受Work/59与三方法，Scheduler、新test及fixture继续有限审；skills_http收口两既有恢复记录，准备成熟whole-top入口的14 top/三包vet→compile→native。当前0 Go/cache/native在途，等待root窗口，不沿历史分工写源或清理。
 
-最终恢复映射：Work `/workspace/agenteam-task-transition` / `ai/work-human-review`（`5e2c6c32`）已park；HTTP `/workspace/agenteam-task-human-http` / `ai/work-review-http`（`e8e251a2`）已park。`/workspace/agenteam-task-flow-delivery` / `ai/work-review-delivery`（`d4a86261`）是唯一完整源码树。content的Work/Foundation、work_ui的HTTP、coordination的`task_review_test.go`、skills_http的方法及secret有限审均已收口，无待执行任务。Scheduler donor继续park；FeatureIntegration `4d1b605e`与ToolOperation `6eb3a62a`本批九目录普通可逆park及protected后验已完成，精确回收量见current，前者全部原FAIL保留、后者output原本absent。第七全PASS候选04精确退休事实保持，第八candidate01与全部旧FAIL/refs不动。恢复位置见[当前并行产品线与执行者](../current.md#当前并行产品线与执行者)，方法沿[既有组合recipe](../agent-system-integration/README.md)，不沿下表历史分工安排写入或清理。
+第八批已正式交付：SOURCE `8cfbe24d21938947787fcfeb7633b64a72866e94`的12 top、四包vet、compile01/list与native02最终接受，真实1 top/2 sub（34.54s）、原Wait与资源尾闭合、1616输入一致。原candidate01及pure01/native01两容量FAIL完整保留，恢复README `245f2285`已保存。Human三边仍限无active profile；Execution成功不自动done，active评审、AgentRun写权、多轮/tools/Stream及生产app/initializer与其它旧STOP不因此完成。约30%工程粗估不变。
 
-第八批三边`in_progress→in_review`、`in_review→done`、`in_review→todo`复用原Transfer/Lookup/schema 1，无新迁移。Human无active的有限profile已完成；三新边遇active明确DependencyUnbound，仍不改写规格允许的执行内交接。done省略assignee保旧reviewer，显式指派验当前资格；仅目标todo要求零unresolved。原Owner、pending/occupancy及同Tx门保持，Execution成功不自动done；active评审、AgentRun写权、review自动Dispatch、多轮/tools/Stream及生产app/initializer仍待后继。下一验证前预留缓存与候选增量空间，fresh≥5GiB门不变。
+D13/D18/D16九tracked目录已按原规则普通可逆sparse park，限定后验clean/protected材料保留；output/state/config/rootfiles、refs与全部FAIL未动。约586 MB仅为缓存与候选增量的规划余量，资源预备已关闭，后续实际调用仍须同进程fresh≥5GiB。详细当前映射见[当前并行产品线与执行者](../current.md#当前并行产品线与执行者)，复现沿[既有组合recipe](../agent-system-integration/README.md)，不新增恢复文件或回填旧结果。
 
 ## 前置阶段记录（历史）
 
