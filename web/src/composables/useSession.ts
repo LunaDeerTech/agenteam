@@ -60,6 +60,12 @@ import type { KnowledgeDocument } from '../api/knowledge-owner'
 import {
   createWorkSprintLifecycleAPI,
   captureSprintStartInput,
+  captureSprintCreateDraft,
+  captureSprintCreateInput,
+  type SprintCreateDraft,
+  type SprintCreateInput,
+  type SprintCreateReceipt,
+  type SprintCreateLookup,
   type WorkSprintLifecycleAPI,
   type SprintStartInput,
   type SprintStartReceipt,
@@ -336,7 +342,7 @@ export type AgentConfigurationProgress = Readonly<{
   observation: 'none' | 'committed' | 'in_progress' | 'not_observed' | 'failed'
   contextValid: boolean
 }>
-type SprintLifecycleAction = 'sprint-start' | 'sprint-start-lookup'
+type SprintLifecycleAction = 'sprint-start' | 'sprint-start-lookup' | 'sprint-create' | 'sprint-create-lookup'
 type SprintStartIntent = {
   identity: PersonalIdentity
   csrf: string
@@ -353,6 +359,17 @@ export type WorkSprintLifecycleProgress = Readonly<{
   phase: 'submitting' | 'uncertain' | 'confirmed' | 'rejected'
   receipt: SprintStartReceipt | null
   observation: 'none' | 'committed' | 'in_progress' | 'not_observed' | 'failed'
+  error: string | null
+  contextValid: boolean
+}>
+type SprintCreateIntent = Omit<SprintStartIntent, 'input'> & { input: SprintCreateInput }
+export type SprintCreateProgress = Readonly<{
+  projectID: string
+  sprintID: string
+  milestoneID: string
+  phase: WorkSprintLifecycleProgress['phase']
+  result: SprintCreateReceipt | null
+  observation: WorkSprintLifecycleProgress['observation']
   error: string | null
   contextValid: boolean
 }>
@@ -864,9 +881,14 @@ export function createSessionController(
   const sprintLifecycleRevisions: Record<SprintLifecycleAction, number> = {
     'sprint-start': 0,
     'sprint-start-lookup': 0,
+    'sprint-create': 0,
+    'sprint-create-lookup': 0,
   }
   const isSprintLifecycleAction = (kind: Action): kind is SprintLifecycleAction =>
     Object.hasOwn(sprintLifecycleRevisions, kind)
+  let sprintCreateIntent: SprintCreateIntent | null = null
+  let sprintCreateContext: Pick<SprintStartIntent, 'identity' | 'csrf'> | null = null
+  const sprintCreateState = shallowReactive<{ progress: Omit<SprintCreateProgress, 'contextValid'> | null }>({ progress: null })
   let sprintStartIntent: SprintStartIntent | null = null
   let sprintProgressContext: Pick<SprintStartIntent, 'identity' | 'csrf'> | null = null
   const sprintLifecycleState = shallowReactive<{
@@ -4148,6 +4170,11 @@ export function createSessionController(
   function clearSprintLifecycleState() {
     ++sprintLifecycleRevisions['sprint-start']
     ++sprintLifecycleRevisions['sprint-start-lookup']
+    ++sprintLifecycleRevisions['sprint-create']
+    ++sprintLifecycleRevisions['sprint-create-lookup']
+    sprintCreateIntent = null
+    sprintCreateContext = null
+    sprintCreateState.progress = null
     sprintStartIntent = null
     sprintProgressContext = null
     sprintLifecycleState.progress = null
@@ -4245,8 +4272,78 @@ export function createSessionController(
       },
     )
   }
+  function sprintCreateCurrent(original: SprintCreateIntent) {
+    return sprintCreateIntent === original && projectContext(original)
+  }
+  function publishSprintCreate(original: SprintCreateIntent, phase: SprintCreateProgress['phase'], result: SprintCreateReceipt | null = null, observation: SprintCreateProgress['observation'] = 'none', error: string | null = null) {
+    sprintCreateContext = { identity: original.identity, csrf: original.csrf }
+    sprintCreateState.progress = Object.freeze({ projectID: original.projectID, sprintID: original.sprintID, milestoneID: original.input.request.milestone_id, phase, result, observation, error })
+  }
+  function performSprintCreate(original: SprintCreateIntent, lookup: boolean): Promise<SprintCreateReceipt | SprintCreateLookup> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    if (!sprintCreateCurrent(original)) return Promise.reject(new AccountFailure('invalid-input'))
+    const kind: SprintLifecycleAction = lookup ? 'sprint-create-lookup' : 'sprint-create'
+    const revision = sprintLifecycleRevisions[kind]
+    const live = () => sprintCreateCurrent(original) && revision === sprintLifecycleRevisions[kind]
+    let dispatched = false
+    if (!lookup) publishSprintCreate(original, 'submitting')
+    return runAuthorized<SprintCreateReceipt | SprintCreateLookup>(original.identity, async (op, current) => {
+      if (!current() || !live()) throw new AccountFailure('cancelled')
+      if (JSON.stringify(original.input) !== original.body) throw new AccountFailure('invalid-input')
+      dispatched = true
+      const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
+      return lookup ? sprintLifecycleAPI.lookupCreate(original.projectID, original.input, write) : sprintLifecycleAPI.create(original.projectID, original.input, write)
+    }, undefined, kind).then((value) => {
+      if (!live()) throw new AccountFailure('cancelled')
+      if ('state' in value && value.state !== 'committed') {
+        original.uncertain = true
+        publishSprintCreate(original, 'uncertain', null, value.state)
+        return value
+      }
+      publishSprintCreate(original, 'confirmed', 'state' in value ? value.result : value, lookup ? 'committed' : 'none')
+      sprintCreateIntent = null
+      return value
+    }, (error) => {
+      const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
+      if (live()) {
+        const p = failure.problem
+        const rejected = !dispatched || (!!p && ['not_started', 'not_committed'].includes(p.commit_state) && p.code !== 'IDEMPOTENCY_KEY_REUSED')
+        original.uncertain ||= lookup || !rejected
+        publishSprintCreate(original, original.uncertain ? 'uncertain' : 'rejected', null, lookup ? 'failed' : 'none', p?.code ?? failure.kind)
+      }
+      throw failure
+    })
+  }
   // A completed command is a receipt, not a locally synthesized Project refresh.
   const workSprintLifecycle = {
+    get createProgress(): SprintCreateProgress | null {
+      const value = sprintCreateState.progress
+      return value ? Object.freeze({ ...value, contextValid: !!sprintCreateContext && projectContext(sprintCreateContext) }) : null
+    },
+    create(projectID: string, value: SprintCreateDraft): Promise<SprintCreateReceipt | SprintCreateLookup> {
+      try {
+        const identity = personalIdentity()
+        if (owner || sprintCreateIntent || sprintStartIntent || personalIntent || pending) throw new AccountFailure('busy')
+        if (!uuid7.test(projectID)) throw new AccountFailure('invalid-input')
+        const draft = captureSprintCreateDraft(value)
+        // The existing UUIDv7 generator has no Task-side effects. Mint once before dispatch.
+        const sprintID = newTaskID()
+        const input = captureSprintCreateInput({ request: { sprint_id: sprintID, ...draft } })
+        const original: SprintCreateIntent = { identity, csrf: sessionCSRF, projectID, sprintID, input, key: newKey(), body: JSON.stringify(input), uncertain: false }
+        sprintCreateIntent = original
+        return performSprintCreate(original, false)
+      } catch (error) { return Promise.reject(error) }
+    },
+    checkOriginalCreate(): Promise<SprintCreateReceipt | SprintCreateLookup> {
+      if (!sprintCreateIntent?.uncertain) return Promise.reject(new AccountFailure('invalid-input'))
+      return performSprintCreate(sprintCreateIntent, true)
+    },
+    editRejectedCreate() {
+      if (owner || !sprintCreateIntent || !sprintCreateCurrent(sprintCreateIntent) || sprintCreateIntent.uncertain || sprintCreateState.progress?.phase !== 'rejected') throw new AccountFailure('busy')
+      sprintCreateIntent = null
+      sprintCreateContext = null
+      sprintCreateState.progress = null
+    },
     get progress(): WorkSprintLifecycleProgress | null {
       const value = sprintLifecycleState.progress
       return value
@@ -4263,7 +4360,7 @@ export function createSessionController(
     ): Promise<SprintStartReceipt | SprintStartLookup> {
       try {
         const identity = personalIdentity()
-        if (owner || sprintStartIntent || personalIntent || pending)
+        if (owner || sprintStartIntent || sprintCreateIntent || personalIntent || pending)
           throw new AccountFailure('busy')
         if (!uuid7.test(projectID) || !uuid7.test(sprintID))
           throw new AccountFailure('invalid-input')

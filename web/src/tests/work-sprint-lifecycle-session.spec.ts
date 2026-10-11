@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
 import { createAccountAPI, type SessionView } from '../api/account'
 import type { Fetch, Problem } from '../api/client'
-import { createWorkSprintLifecycleAPI, type SprintStartInput } from '../api/work-sprint-lifecycle'
+import { createWorkSprintLifecycleAPI, type SprintStartInput, type SprintCreateInput } from '../api/work-sprint-lifecycle'
 import { createSessionController, type SessionController } from '../composables/useSession'
 
 const id = (n: number) => `01990000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
@@ -58,6 +58,14 @@ function receipt(value: SprintStartInput) {
     event_id: id(13),
   }
 }
+const createPath = `/api/v1/projects/${p}/sprints`, createLookupPath = `/api/v1/projects/${p}/structure-commands/lookup`
+function created(input: SprintCreateInput) {
+  return { command: 'work.sprint.create', changed: true, milestone: null, event_id: id(14), sprint: {
+    id: input.request.sprint_id, project_id: p, milestone_id: input.request.milestone_id,
+    title: input.request.title, description: input.request.description ?? '', manual_rank: '8'.repeat(32), version: '1', created_at: at, updated_at: at,
+    state: 'planned', started_at: null, started_by: null, completed_at: null, completed_by: null,
+  } }
+}
 const json = (v: unknown, status = 200) =>
   new Response(JSON.stringify(v), {
     status,
@@ -90,10 +98,13 @@ afterEach(async () => {
 })
 async function fixture() {
   let current = session(),
-    start: Fetch | null = null
+    start: Fetch | null = null,
+    create: Fetch | null = null
   let status: 'committed' | 'in_progress' | 'not_observed' = 'committed'
   const fetch = vi.fn<Fetch>(async (path, init) => {
     if (path === '/api/v1/session') return json(current)
+    if (path === createPath) return create ? create(path, init) : json(created(JSON.parse(init.body as string)))
+    if (path === createLookupPath) return json({ state: status, result: status === 'committed' ? created(JSON.parse(init.body as string)) : null })
     if (path === startPath)
       return start ? start(path, init) : json(receipt(JSON.parse(init.body as string)))
     if (path === lookupPath)
@@ -111,6 +122,9 @@ async function fixture() {
   return {
     auth,
     fetch,
+    creates: () => fetch.mock.calls.filter(([path]) => path === createPath),
+    createLookups: () => fetch.mock.calls.filter(([path]) => path === createLookupPath),
+    setCreate(v: Fetch | null) { create = v },
     setStart(v: Fetch | null) {
       start = v
     },
@@ -235,5 +249,81 @@ describe('Sprint Start original Session ownership', () => {
     })
     expect(f.starts()).toHaveLength(1)
     expect(f.lookups()).toHaveLength(0)
+  })
+})
+
+describe('Sprint Create original Session ownership', () => {
+  it('mints one original Sprint identity, preserves full presence and only looks up an uncertain create', async () => {
+    const f = await fixture()
+    f.setCreate(async () => problem('COMMIT_UNKNOWN', 'unknown'))
+    const draft = { milestone_id: id(12), title: 'Original planned Sprint' }
+    const creating = f.auth.workSprintLifecycle.create(p, draft)
+    draft.title = 'Later edit'
+    await expect(creating).rejects.toMatchObject({ problem: { code: 'COMMIT_UNKNOWN' } })
+    const first = f.creates()[0]![1], body = JSON.parse(first.body as string)
+    expect(body).toEqual({ request: { sprint_id: expect.stringMatching(/^[0-9a-f-]{14}7[0-9a-f-]{21}$/), milestone_id: id(12), title: 'Original planned Sprint' } })
+    const key = (first.headers as Record<string, string>)['Idempotency-Key']
+    expect(f.auth.workSprintLifecycle.createProgress).toMatchObject({ projectID: p, milestoneID: id(12), sprintID: body.request.sprint_id, phase: 'uncertain', contextValid: true })
+    expect(JSON.stringify(f.auth.workSprintLifecycle.createProgress)).not.toContain(key)
+    await expect(f.auth.workSprintLifecycle.create(p, draft)).rejects.toMatchObject({ kind: 'busy' })
+    await expect(f.auth.workSprintLifecycle.start(p, s, { expected_version: '1', request: {} })).rejects.toMatchObject({ kind: 'busy' })
+    await f.auth.restore()
+    for (const state of ['not_observed', 'in_progress', 'committed'] as const) {
+      f.setStatus(state)
+      expect(await f.auth.workSprintLifecycle.checkOriginalCreate()).toMatchObject({ state })
+      const lookup = f.createLookups().at(-1)![1]
+      expect(JSON.parse(lookup.body as string)).toEqual({ command: 'work.sprint.create', ...body })
+      expect(lookup.headers).toMatchObject({ 'Idempotency-Key': key })
+    }
+    expect(f.auth.workSprintLifecycle.createProgress).toMatchObject({ phase: 'confirmed', result: created(body) })
+    expect(f.creates()).toHaveLength(1)
+    expect(f.createLookups()).toHaveLength(3)
+    expect(f.starts()).toHaveLength(0)
+  })
+  it('keeps Start and Create intents separate and requires explicit release of a proven create rejection', async () => {
+    const f = await fixture(), draft = { milestone_id: id(12), title: 'Planned', description: '' }
+    f.setCreate(async () => problem('INVALID_STATE', 'not_started'))
+    await expect(f.auth.workSprintLifecycle.create(p, draft)).rejects.toMatchObject({ kind: 'problem' })
+    expect(f.auth.workSprintLifecycle.createProgress?.phase).toBe('rejected')
+    await expect(f.auth.workSprintLifecycle.checkOriginalCreate()).rejects.toMatchObject({ kind: 'invalid-input' })
+    await expect(f.auth.workSprintLifecycle.start(p, s, { expected_version: '1', request: {} })).rejects.toMatchObject({ kind: 'busy' })
+    f.auth.workSprintLifecycle.editRejectedCreate()
+    f.setCreate(null)
+    expect(await f.auth.workSprintLifecycle.create(p, draft)).toMatchObject({ command: 'work.sprint.create', sprint: { description: '', state: 'planned' } })
+    const [one, two] = f.creates().map(([, init]) => JSON.parse(init.body as string))
+    expect(one.request.sprint_id).not.toBe(two.request.sprint_id)
+    expect(one.request.description).toBe('')
+    expect(f.createLookups()).toHaveLength(0)
+    f.setStart(async () => problem('COMMIT_UNKNOWN', 'unknown'))
+    await expect(f.auth.workSprintLifecycle.start(p, s, { expected_version: '1', request: {} })).rejects.toMatchObject({ kind: 'problem' })
+    await expect(f.auth.workSprintLifecycle.create(p, draft)).rejects.toMatchObject({ kind: 'busy' })
+    expect(f.creates()).toHaveLength(2)
+  })
+  it('waits for the original timed-out create tail and never publishes it into a later identity', async () => {
+    const f = await fixture()
+    vi.useFakeTimers()
+    let release!: () => void
+    f.setCreate(async (_path, init) => new Promise<Response>((resolve) => {
+      release = () => resolve(json(created(JSON.parse(init.body as string))))
+      releases.push(release)
+    }))
+    const pending = f.auth.workSprintLifecycle.create(p, { milestone_id: id(12), title: 'Planned' })
+    const rejected = expect(pending).rejects.toMatchObject({ kind: 'cancelled' })
+    await vi.advanceTimersByTimeAsync(30_000)
+    await rejected
+    expect(f.auth.state.busy).toBe(true)
+    expect(f.auth.workSprintLifecycle.createProgress?.phase).toBe('uncertain')
+    await expect(f.auth.workSprintLifecycle.checkOriginalCreate()).rejects.toMatchObject({ kind: 'busy' })
+    f.auth.leave()
+    release()
+    await flushPromises()
+    expect(f.auth.state.busy).toBe(false)
+    expect(f.auth.workSprintLifecycle.createProgress).toBeNull()
+    vi.useRealTimers()
+    f.setSession(session(3))
+    await f.auth.restore()
+    await expect(f.auth.workSprintLifecycle.checkOriginalCreate()).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(f.creates()).toHaveLength(1)
+    expect(f.createLookups()).toHaveLength(0)
   })
 })

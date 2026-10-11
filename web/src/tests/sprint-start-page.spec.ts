@@ -119,6 +119,10 @@ async function page() {
     return receipt
   }
   const api = {
+    createProgress: null,
+    create: vi.fn<Port['create']>(async () => { throw new Error('Unexpected Sprint Create') }),
+    checkOriginalCreate: vi.fn<Port['checkOriginalCreate']>(async () => { throw new Error('Unexpected Sprint Create Lookup') }),
+    editRejectedCreate: vi.fn(() => { throw new Error('Unexpected Sprint Create rejection') }),
     start: vi.fn<Port['start']>(async () => commit()),
     checkOriginal: vi.fn<Port['checkOriginal']>(async () => ({
       status: 'not_observed',
