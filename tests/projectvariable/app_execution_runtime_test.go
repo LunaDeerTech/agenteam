@@ -43,6 +43,14 @@ func TestAppExecutionRuntime(t *testing.T) {
 		{"stop-joins-held-model-and-leases", true},
 	} {
 		t.Run(test.name, func(t *testing.T) {
+			entered, returned := false, false
+			// Registered before setup, so this runs after the original fixture's
+			// owner handoff. A copied or skipped callback cannot produce PASS.
+			t.Cleanup(func() {
+				if !entered || !returned {
+					t.Error("original public App handoff did not enter and return")
+				}
+			})
 			wire := &firstRoundFixture{}
 			capture := newModelEnvironmentFixtureWithSource(t, nil, func(v *taskTransitionFixture, models *model.Service, policy *ec.Policy) {
 				t.Cleanup(func() {
@@ -77,10 +85,12 @@ func TestAppExecutionRuntime(t *testing.T) {
 			if before != 0 || v.task.State != wc.TaskStateTodo {
 				t.Fatal("setup admitted work before the production App")
 			}
-			if v.base.afterOwners != nil {
+			originalOwner := v.agent.p2.base
+			if originalOwner.afterOwners != nil {
 				t.Fatal("fixture already owns a completion handoff")
 			}
-			v.base.afterOwners = func() {
+			originalOwner.afterOwners = func() {
+				entered = true
 				// Testing's cleanup LIFO already ran the real Stop/Drain callbacks. These
 				// additional facts reject a still-live original owner before any App call.
 				if t.Failed() || !v.base.core.Joined() || !v.agent.agents.Joined() || !capture.claims.Joined() {
@@ -96,6 +106,7 @@ func TestAppExecutionRuntime(t *testing.T) {
 				}
 				defer wire.close(t)
 				runAppExecutionRuntime(t, wire, test.held, oldProcess.String())
+				returned = true
 			}
 		})
 	}
