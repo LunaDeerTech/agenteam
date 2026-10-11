@@ -60,6 +60,7 @@ type accountAssembly struct {
 	started         bool
 	forced          context.Context
 	planning        accountWork
+	agentDirectory  accountWork
 	variables       accountWork
 	secretVariables accountWork
 	projects        accountWork
@@ -156,6 +157,9 @@ func (a *accountAssembly) works() []accountWork {
 	}
 	if a.planning != nil {
 		work = append(work, a.planning)
+	}
+	if a.agentDirectory != nil {
+		work = append(work, a.agentDirectory)
 	}
 	if a.projects != nil {
 		work = append(work, a.projects)
@@ -411,6 +415,13 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if !accounts.install(ctx, func() { accounts.planning = planning }) {
 		return context.Canceled
 	}
+	directory, err := createAgentDirectory(cfg, db, projectUsage.projects)
+	if err != nil {
+		return err
+	}
+	if !accounts.install(ctx, func() { accounts.agentDirectory = directory }) {
+		return context.Canceled
+	}
 	models, err := model.New(modelStore, modelAuthority, model.Dependencies{Secret: secrets, Audit: auditor, Events: journal, ConfigurationEvents: modelEvents, Cursors: cfg.CursorKeyring()})
 	if err != nil {
 		return err
@@ -573,6 +584,10 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
+	directoryHandler, err := agentDirectoryHandler(directory, core, cfg.PublicOrigin())
+	if err != nil {
+		return err
+	}
 	variableHandler, err := projectVariablesHandler(variables, core, cfg.PublicOrigin())
 	if err != nil {
 		return err
@@ -596,6 +611,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if !accounts.install(ctx, func() {
 		accounts.handler = projectAuditRoutes(projectCredentialsRoutes(projectModelsRoutes(projectUpdateRoutes(projectReadRoutes(projectUsageRoutes(systemAuditRoutes(systemOutboundPolicyRoutes(systemModelRoutes(httpHandler, modelHandler), policyHandler), auditHandler), usageHandler), projectHandler), updateHandler), projectModelHandler), credentialHandler), projectAudit)
 		accounts.handler = workPlanningRoutes(accounts.handler, planningHandler)
+		accounts.handler = agentDirectoryRoutes(accounts.handler, directoryHandler)
 		accounts.handler = projectVariablesRoutes(accounts.handler, variableHandler)
 		accounts.handler = projectSecretVariablesRoutes(accounts.handler, secretVariableHandler)
 		accounts.handler = runnerControlRoutes(accounts.handler, runnerAdmin, runnerDevice)
