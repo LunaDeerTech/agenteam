@@ -18,6 +18,8 @@ MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 # One closed same-package PG family: adding a scenario changes required
 # inputs and expected test data, never the resource/Wait/tail implementation.
 METADATA_INPUTS = {
+    '^TestTaskTimeline(PersistenceAndPaging|AuthorityAndCancellation|IntegrityAndCompatibility)$': ('tests/work/task_timeline_test.go', 'tests/work/fixture_test.go', 'tests/work/task_fixture_test.go', 'tests/work/task_blocker_persistence_test.go', 'tests/work/task_concurrency_test.go'),
+    "^TestAgentConfigurationWeb$": ("tests/projectvariable/agent_configuration_web_test.go", "tests/projectvariable/agent_configuration_app_test.go", "tests/projectvariable/agent_configuration_create_test.go", "tests/projectvariable/agent_configuration_facts_test.go", "tests/projectvariable/skill_installation_test.go", "tests/projectvariable/fixture_test.go", "tests/projectvariable/task_review_web_test.go", "tests/testsupport/agentconfiguration/assembly.go", "tests/account-captcha-web/agent-configuration.config.js", "tests/account-captcha-web/e2e/agent-configuration.spec.ts", "tests/account-captcha-web/e2e/agent-configuration.helpers.ts", "tests/account-captcha-web/e2e/task-review.helpers.ts", "tests/account-captcha-web/e2e/knowledge-owner-read.native.ts",),
     "^TestTaskEditWeb$": ("tests/projectvariable/task_edit_web_test.go", "tests/projectvariable/task_review_web_test.go", "tests/projectvariable/task_intake_web_test.go", "tests/projectvariable/task_transition_scheduler_test.go", "tests/projectvariable/scheduler_claim_test.go", "tests/account-captcha-web/task-edit.config.js", "tests/account-captcha-web/e2e/task-edit.spec.ts", "tests/account-captcha-web/e2e/task-edit.helpers.ts", "tests/account-captcha-web/e2e/task-review.helpers.ts", "tests/account-captcha-web/e2e/knowledge-owner-read.native.ts",),
     "^TestAgentConfigurationApp$": ("tests/projectvariable/agent_configuration_app_test.go", "tests/projectvariable/agent_configuration_create_test.go", "tests/projectvariable/agent_configuration_facts_test.go", "tests/projectvariable/skill_installation_test.go", "tests/projectvariable/fixture_test.go", "tests/testsupport/agentconfiguration/assembly.go", "tests/projectvariable/execution_preparation_test.go", "tests/projectvariable/task_transition_scheduler_test.go",),
     '^TestTaskIntakeWeb$': ('tests/projectvariable/task_intake_web_test.go', 'tests/projectvariable/task_review_web_test.go', 'tests/projectvariable/task_transition_scheduler_test.go', 'tests/projectvariable/scheduler_claim_test.go', 'tests/account-captcha-web/task-intake.config.js', 'tests/account-captcha-web/e2e/task-intake.spec.ts', 'tests/account-captcha-web/e2e/task-intake.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts'),
@@ -173,6 +175,7 @@ METADATA_INPUTS = {
 }
 TARGETS = {
     **dict.fromkeys(METADATA_INPUTS, 'tests/projectvariable'),
+    '^TestTaskTimeline(PersistenceAndPaging|AuthorityAndCancellation|IntegrityAndCompatibility)$': 'tests/work',
     '^TestModelAgentRetryRuntime$': 'tests/model',
     '^TestProjectLifecycleStopBatchRealGuard$': 'tests/projectvariable',
     '^TestModelTextRuntimePersistentWire$': 'tests/model',
@@ -248,7 +251,7 @@ def metadata_inputs(binary, selector='^TestAgentConfigurationMetadata$'):
     # Only the explicitly retained legacy metadata profile includes its
     # historical records. New profiles contain actual compiled/runtime inputs.
     paths.update(REPOSITORY / name for name in METADATA_INPUTS[selector])
-    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI):
+    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, AGENT_CONFIGURATION_UI):
         paths.update(task_review_ui_inputs(selector))
     if selector == APP_RUNTIME:
         paths.update(app_runtime_inputs())
@@ -311,9 +314,11 @@ KNOWLEDGE_ENV = ('AGENTEAM_KNOWLEDGE_OWNER_WEB_DIST',
 TASK_REVIEW_UI = '^TestTaskReviewWeb$'
 TASK_INTAKE_UI = '^TestTaskIntakeWeb$'
 TASK_EDIT_UI = '^TestTaskEditWeb$'
+AGENT_CONFIGURATION_UI = '^TestAgentConfigurationWeb$'
 APP_RUNTIME = '^TestAppExecutionRuntime$'
 TASK_INTAKE_ENV = ('AGENTEAM_TASK_INTAKE_WEB_DIST', 'AGENTEAM_TASK_INTAKE_WEB_EVIDENCE')
 TASK_EDIT_ENV = ('AGENTEAM_TASK_EDIT_WEB_DIST', 'AGENTEAM_TASK_EDIT_WEB_EVIDENCE')
+AGENT_CONFIGURATION_ENV = ('AGENTEAM_AGENT_CONFIGURATION_WEB_DIST', 'AGENTEAM_AGENT_CONFIGURATION_WEB_EVIDENCE')
 TASK_REVIEW_ENV = ('AGENTEAM_TASK_REVIEW_WEB_DIST', 'AGENTEAM_TASK_REVIEW_WEB_EVIDENCE')
 TASK_REVIEW_HARNESS_MODULES = Path('/workspace/agenteam-work-ui-independent/tests/account-captcha-web/node_modules')
 TASK_REVIEW_WEB_MODULES = Path('/workspace/agenteam/web/node_modules')
@@ -326,6 +331,8 @@ def task_review_ui_profile(selector):
         return TASK_INTAKE_ENV, 'output/ai/task-intake-web', 'task-intake'
     if selector == TASK_EDIT_UI:
         return TASK_EDIT_ENV, 'output/ai/task-edit-web', 'task-edit'
+    if selector == AGENT_CONFIGURATION_UI:
+        return AGENT_CONFIGURATION_ENV, 'output/ai/agent-configuration-web', 'agent-configuration'
     raise ValueError('exact Task browser profile required')
 
 
@@ -624,7 +631,7 @@ def configuration(binary, selector, directory):
             'cwd': str(REPOSITORY / TARGETS[selector]),
             'directory': str(directory), 'runtime': str(directory / 'runtime'),
             'test_timeout': '6m', 'resources': 7}
-    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI):
+    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, AGENT_CONFIGURATION_UI):
         plan['task_review_ui'] = task_review_ui_configuration(directory, selector)
     if selector == APP_RUNTIME:
         app_runtime_inputs()
@@ -702,7 +709,7 @@ def main():
         env.update({'AGENTEAM_AUTH_WEB_RUNTIME': str(runtime),
                     'AGENTEAM_KNOWLEDGE_OWNER_WEB_INPUT_HASH': knowledge_ui_input_hash(args.test_binary),
                     'PATH': str(KNOWLEDGE_NODE.parent) + os.pathsep + env.get('PATH', '')})
-    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI):
+    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, AGENT_CONFIGURATION_UI):
         ui = plan['task_review_ui']
         names, _, _ = task_review_ui_profile(args.run)
         Path(ui[names[1]]).mkdir(mode=0o700)

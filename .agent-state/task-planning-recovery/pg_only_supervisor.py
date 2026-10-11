@@ -199,6 +199,8 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestTaskTimeline(PersistenceAndPaging|AuthorityAndCancellation|IntegrityAndCompatibility)$': frozenset(('TestTaskTimelinePersistenceAndPaging', 'TestTaskTimelineAuthorityAndCancellation', 'TestTaskTimelineAuthorityAndCancellation/cancel-lock', 'TestTaskTimelineAuthorityAndCancellation/cancel-sql', 'TestTaskTimelineAuthorityAndCancellation/cancel-rows', 'TestTaskTimelineAuthorityAndCancellation/pending', 'TestTaskTimelineAuthorityAndCancellation/archiving', 'TestTaskTimelineAuthorityAndCancellation/archived', 'TestTaskTimelineAuthorityAndCancellation/deleting', 'TestTaskTimelineIntegrityAndCompatibility', 'TestTaskTimelineIntegrityAndCompatibility/unknown', 'TestTaskTimelineIntegrityAndCompatibility/payload', 'TestTaskTimelineIntegrityAndCompatibility/actor', 'TestTaskTimelineIntegrityAndCompatibility/operation', 'TestTaskTimelineIntegrityAndCompatibility/correlation', 'TestTaskTimelineIntegrityAndCompatibility/lookahead')),
+    "^TestAgentConfigurationWeb$": frozenset(("TestAgentConfigurationWeb", "TestAgentConfigurationWeb/default-create-config-and-directory", "TestAgentConfigurationWeb/lost-create-confirmation-only-lookup",)),
     "^TestTaskEditWeb$": frozenset(("TestTaskEditWeb", "TestTaskEditWeb/changed-noop-clear-and-ready", "TestTaskEditWeb/lost-edit-confirmation-and-ready",)),
     "^TestAgentConfigurationApp$": frozenset(("TestAgentConfigurationApp", "TestAgentConfigurationApp/default-create-get-lookup-directory-and-assign", "TestAgentConfigurationApp/lost-create-receipt-and-current-owner",)),
     '^TestTaskIntakeWeb$': frozenset(('TestTaskIntakeWeb', 'TestTaskIntakeWeb/create-and-ready', 'TestTaskIntakeWeb/lost-create-confirmation-and-ready')),
@@ -376,14 +378,17 @@ METADATA_GROUPS = {
 TASK_REVIEW_UI = '^TestTaskReviewWeb$'
 TASK_INTAKE_UI = '^TestTaskIntakeWeb$'
 TASK_EDIT_UI = '^TestTaskEditWeb$'
+AGENT_CONFIGURATION_UI = '^TestAgentConfigurationWeb$'
 APP_RUNTIME = '^TestAppExecutionRuntime$'
 
 
 def task_review_browser_waits(output, selector=TASK_REVIEW_UI):
-    label = ('Task Edit' if selector == TASK_EDIT_UI else
+    label = ('Agent Configuration' if selector == AGENT_CONFIGURATION_UI else
+             'Task Edit' if selector == TASK_EDIT_UI else
              'Task Intake' if selector == TASK_INTAKE_UI else 'Task Review')
     # browser calls t.Helper, so the real log points at each profile's caller.
-    source = ('task_edit_web_test.go' if selector == TASK_EDIT_UI else
+    source = ('agent_configuration_web_test.go' if selector == AGENT_CONFIGURATION_UI else
+              'task_edit_web_test.go' if selector == TASK_EDIT_UI else
               'task_intake_web_test.go' if selector == TASK_INTAKE_UI else 'task_review_web_test.go')
     lines = [line for line in output.splitlines() if label + ' Node actual_wait' in line]
     matches = [re.fullmatch(r'[ \t]+' + re.escape(source) + r':[1-9][0-9]*: '
@@ -410,7 +415,7 @@ def metadata_results(output, selector=METADATA_ROOT):
     results = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): (\S+) \([^()\r\n]*\)$', output, re.M)
     waits = re.findall(r'^D03 explicit test actual_wait pid=([1-9][0-9]*) code=(-?[0-9]+) selector=(\S+)$', output, re.M)
     return (len(runs) == len(cases) and set(runs) == cases
-            and (selector not in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI) or task_review_browser_waits(output, selector))
+            and (selector not in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, AGENT_CONFIGURATION_UI) or task_review_browser_waits(output, selector))
             and (selector != APP_RUNTIME or app_runtime_waits(output))
             and len(results) == len(cases)
             and all(state == 'PASS' for state, _ in results)
@@ -1166,7 +1171,7 @@ def main():
     parser.add_argument('--root-chain', action='store_true',
                         help='exact Work root adapter; 540s chain budget and seven-resource observations')
     args = parser.parse_args()
-    if any(name in args.run for name in ('AgentConfigurationMetadata', 'AgentConfigurationSchema', 'AgentRuntimeSchema', 'ExecutionPreparation', 'AgentConfigurationCreate', 'TaskTransitionHuman', 'SchedulerClaim', 'SchedulerLaunch', 'SchedulerBusyCompensation', 'SchedulerPendingVisit', 'TaskHumanHTTP', 'SprintStartHTTP', 'TaskTechnicalResolutionHTTP', 'TaskTechnicalResolutionAtomic', 'SchedulerRetryBinding', 'SchedulerBoundedRetry', 'SchedulerProjectRunner', 'ExecutionCaptureProviders', 'ExecutionModelEnvironmentCapture', 'ExecutionTaskContext')) and (args.run not in METADATA_GROUPS or not args.root_chain):
+    if any(name in args.run for name in ('TaskTimeline', 'AgentConfigurationMetadata', 'AgentConfigurationSchema', 'AgentRuntimeSchema', 'ExecutionPreparation', 'AgentConfigurationCreate', 'TaskTransitionHuman', 'SchedulerClaim', 'SchedulerLaunch', 'SchedulerBusyCompensation', 'SchedulerPendingVisit', 'TaskHumanHTTP', 'SprintStartHTTP', 'TaskTechnicalResolutionHTTP', 'TaskTechnicalResolutionAtomic', 'SchedulerRetryBinding', 'SchedulerBoundedRetry', 'SchedulerProjectRunner', 'ExecutionCaptureProviders', 'ExecutionModelEnvironmentCapture', 'ExecutionTaskContext')) and (args.run not in METADATA_GROUPS or not args.root_chain):
         parser.error('System configuration requires one exact original root-chain profile')
     if 'TestSkillInstallation' in args.run and (args.run not in METADATA_GROUPS or not args.root_chain):
         parser.error('Skill installation requires one exact original root-chain profile')
@@ -1206,7 +1211,7 @@ def main():
             args.content_schema_python = os.environ['AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON']
         except (OSError, ValueError):
             parser.error('explicit local content Schema interpreter required')
-    stem = ('ui-' + uuid.uuid4().hex[:16]) if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI) else ('pg-' + uuid.uuid4().hex)
+    stem = ('ui-' + uuid.uuid4().hex[:16]) if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, AGENT_CONFIGURATION_UI) else ('pg-' + uuid.uuid4().hex)
     directory = args.output.resolve() / stem
     if args.run == KNOWLEDGE_UI:
         try:
@@ -1214,7 +1219,7 @@ def main():
             args.knowledge_ui_environment = adapter.knowledge_ui_environment()
         except (OSError, ValueError):
             parser.error('exact frozen Knowledge assets, interpreters and fresh evidence required')
-    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI):
+    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, AGENT_CONFIGURATION_UI):
         try:
             args.task_review_ui_environment = adapter.task_review_ui_configuration(directory, args.run)
         except (OSError, ValueError):
@@ -1307,7 +1312,7 @@ def main():
                 log.write(f'SUPERVISOR actual_driver_wait pid={child.pid} actual={child.returncode is not None} code={code}\n')
             else:
                 log.write(f'SUPERVISOR actual_driver_wait pid={child.pid} actual={child.returncode is not None} actual_exit={child.returncode} code={code}\n')
-            if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI) and child.returncode is not None:
+            if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, AGENT_CONFIGURATION_UI) and child.returncode is not None:
                 if not knowledge_ui_reap_exited(log):
                     code = 1
             survivors = descendants(os.getpid())
@@ -1422,7 +1427,7 @@ def main():
                 same = same and parser_same(inputs, args, adapter)
             if args.run == KNOWLEDGE_UI:
                 same = same and knowledge_ui_same(inputs, args, adapter)
-            if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI):
+            if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, AGENT_CONFIGURATION_UI):
                 same = same and adapter.task_review_ui_environment(args.run) == args.task_review_ui_environment
             if args.run == APP_RUNTIME:
                 same = same and adapter.app_runtime_wrapper_same(args.binary, directory)
