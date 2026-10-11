@@ -76,6 +76,18 @@ func (r *Registry) RequireExecutionToolFactsInTx(ctx context.Context, tx f.Tx, r
 	if _, err = f.ParseDigest(digest); err != nil {
 		return fail(f.InvalidState)
 	}
+	// Reuse the original capture writer's exact encoding. Current Agent changes
+	// cannot substitute a different original selection, version or attempt.
+	expectedDigest, err := executionCaptureDigest(tc.ExecutionToolCaptureFacts{
+		AgentVersion: request.CaptureAgentVersion,
+		Selection:    request.Selection,
+	}, request.Tools)
+	if err != nil {
+		return err
+	}
+	if capturedVersion != int64(request.CaptureAgentVersion) || binding != request.AttemptBinding.String() || digest != expectedDigest.String() {
+		return fail(f.VersionConflict)
+	}
 	if err = checkExecutionToolReferences(ctx, x, request.Capture, request.Tools); err != nil {
 		return err
 	}

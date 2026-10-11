@@ -13,17 +13,24 @@ import (
 
 // Execution supplies current Agent facts and its complete immutable Tool
 // capture. This is a metadata consistency request, never invocation authority.
-// AgentVersion/AllowedToolIDs are current; Tools are the original capture.
+// AgentVersion/AllowedToolIDs are current. CaptureAgentVersion, AttemptBinding,
+// Selection and Tools come from the original committed PreparationInput.
 type ExecutionToolFactsRequest struct {
-	Capture        ExecutionToolCaptureRequest
-	AgentVersion   f.Version
-	AllowedToolIDs []id.ToolID
-	Tools          []ExecutionTool
+	Capture             ExecutionToolCaptureRequest
+	AgentVersion        f.Version
+	AllowedToolIDs      []id.ToolID
+	CaptureAgentVersion f.Version
+	AttemptBinding      f.Digest
+	Selection           ToolSnapshotSelection
+	Tools               []ExecutionTool
 }
 
 func (r ExecutionToolFactsRequest) Validate() error {
-	if r.Capture.Validate() != nil || r.AgentVersion.Validate() != nil || r.AllowedToolIDs == nil || r.Tools == nil || len(r.AllowedToolIDs) > 128 || len(r.Tools) > 128 {
+	if r.Capture.Validate() != nil || r.AgentVersion.Validate() != nil || r.CaptureAgentVersion.Validate() != nil || r.AttemptBinding.Validate() != nil || r.AllowedToolIDs == nil || r.Tools == nil || len(r.AllowedToolIDs) > 128 || len(r.Tools) > 128 {
 		return operationInvalid()
+	}
+	if err := r.Selection.Validate(); err != nil {
+		return err
 	}
 	for n, v := range r.AllowedToolIDs {
 		if v.Validate() != nil || n > 0 && r.AllowedToolIDs[n-1].String() >= v.String() {
@@ -40,6 +47,7 @@ func (r ExecutionToolFactsRequest) Validate() error {
 
 func (r ExecutionToolFactsRequest) Clone() ExecutionToolFactsRequest {
 	r.AllowedToolIDs = slices.Clone(r.AllowedToolIDs)
+	r.Selection = r.Selection.Clone()
 	r.Tools = slices.Clone(r.Tools)
 	return r
 }

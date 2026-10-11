@@ -2,6 +2,7 @@ package registry
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"strings"
 	"testing"
@@ -78,6 +79,9 @@ type runnerFactsStore struct {
 	historyKind      string
 	currentOperation string
 	historyCount     int64
+	capturedVersion  int64
+	capturedBinding  string
+	capturedDigest   string
 }
 
 func (s *runnerFactsStore) InTx(tx f.Tx) (postgres.SQLExecutor, error) {
@@ -107,7 +111,7 @@ func (s *runnerFactsStore) QueryRow(ctx context.Context, sql string, args ...any
 		if args[0] != r.Capture.ExecutionID.String() {
 			return metadataRow{err: pgx.ErrNoRows}
 		}
-		return captureValues(r.Capture.ProjectID.String(), r.Capture.AgentID.String(), int64(1), "sha256:"+strings.Repeat("a", 64), "sha256:"+strings.Repeat("b", 64), int64(len(r.Tools)))
+		return captureValues(r.Capture.ProjectID.String(), r.Capture.AgentID.String(), s.capturedVersion, s.capturedBinding, s.capturedDigest, int64(len(r.Tools)))
 	case strings.HasPrefix(sql, "SELECT count(*)"):
 		return captureValues(s.historyCount)
 	case strings.Contains(sql, "FROM agenteam_tool.execution_references"):
@@ -130,7 +134,21 @@ func runnerFactsFixture(t *testing.T) (*Registry, *runnerFactsStore) {
 	tool := captureID[id.Tool](t, 11)
 	v := tc.ReadFileRegistration()
 	r := tc.ExecutionToolFactsRequest{Capture: tc.ExecutionToolCaptureRequest{ProjectID: captureID[id.Project](t, 1), AgentID: captureID[id.Agent](t, 2), ExecutionID: captureID[id.Execution](t, 3)}, AgentVersion: 4, AllowedToolIDs: []id.ToolID{tool}, Tools: []tc.ExecutionTool{{ToolID: tool, SpecRevision: 1, ModelVisibleName: "tool_" + strings.ReplaceAll(tool.String(), "-", ""), BindingSnapshot: tc.BuiltinExecutionBinding{RunnerBinding: v.Binding, ScopeResolverID: v.ScopeResolverID, RiskClassifierID: v.RiskClassifierID, Class: v.Class}}}}
+	r.CaptureAgentVersion = 1
+	r.AttemptBinding, _ = f.ParseDigest("sha256:" + strings.Repeat("a", 64))
+	r.Selection = tc.ToolSnapshotSelection{AllowedToolIDs: []id.ToolID{tool}, DeniedToolIDs: []id.ToolID{}, ScopeConstraints: []json.RawMessage{}}
+	// Seed the original head with the actual capture writer, then exercise the
+	// later read independently. This is controlled SQL, not a claimed PG run.
+	history := &metadataStore{tx: f.NewTx()}
+	if err := writeExecutionToolReferences(context.Background(), history, r.Capture, tc.ExecutionToolCaptureFacts{AgentVersion: r.CaptureAgentVersion, AttemptBinding: r.AttemptBinding, Selection: r.Selection}, r.Tools); err != nil {
+		t.Fatal(err)
+	}
+	if len(history.args) != 2 {
+		t.Fatal("original capture writer did not produce the head and reference")
+	}
+	head := history.args[0]
 	s := &runnerFactsStore{metadataStore: &metadataStore{tx: f.NewTx()}, request: r, currentVersion: 4, allowed: append([]id.ToolID{}, r.AllowedToolIDs...), currentRevision: 1, historyRevision: 1, historyKind: "runner", currentOperation: "read-file", historyCount: 1}
+	s.capturedVersion, s.capturedBinding, s.capturedDigest = head[3].(int64), head[4].(string), head[5].(string)
 	s.held = r.RequiredLocks()
 	source, err := NewReadFileMetadataSource(s)
 	if err != nil {
@@ -160,6 +178,9 @@ func TestToolRunnerCurrentAndHistoricalFactsUseOriginalTx(t *testing.T) {
 		func(s *runnerFactsStore) { s.historyKind = "builtin" },
 		func(s *runnerFactsStore) { s.currentOperation = "command" },
 		func(s *runnerFactsStore) { s.historyCount++ },
+		func(s *runnerFactsStore) { s.capturedVersion++ },
+		func(s *runnerFactsStore) { s.capturedBinding = "sha256:" + strings.Repeat("b", 64) },
+		func(s *runnerFactsStore) { s.capturedDigest = "sha256:" + strings.Repeat("c", 64) },
 	} {
 		r, s := runnerFactsFixture(t)
 		mutate(s)
@@ -181,5 +202,37 @@ func TestToolRunnerCurrentAndHistoricalFactsUseOriginalTx(t *testing.T) {
 	s.held = request.RequiredLocks()
 	if err := r.RequireExecutionToolFactsInTx(context.Background(), s.tx, request); err == nil {
 		t.Fatal("foreign Execution obtained history")
+	}
+}
+
+func TestToolRunnerFactsBindOriginalSelectionAndAttempt(t *testing.T) {
+	for _, mutate := range []func(*tc.ExecutionToolFactsRequest){
+		func(r *tc.ExecutionToolFactsRequest) { r.CaptureAgentVersion++ },
+		func(r *tc.ExecutionToolFactsRequest) {
+			r.AttemptBinding, _ = f.ParseDigest("sha256:" + strings.Repeat("b", 64))
+		},
+		func(r *tc.ExecutionToolFactsRequest) { r.Selection.AllowedToolIDs = []id.ToolID{} },
+		func(r *tc.ExecutionToolFactsRequest) { r.Selection.DeniedToolIDs = []id.ToolID{r.Tools[0].ToolID} },
+	} {
+		r, s := runnerFactsFixture(t)
+		request := s.request.Clone()
+		mutate(&request)
+		if request.Validate() != nil {
+			t.Fatal("counterexample must remain structurally valid")
+		}
+		if err := r.RequireExecutionToolFactsInTx(context.Background(), s.tx, request); err == nil || s.queries != 2 || len(s.writes) != 0 {
+			t.Fatal("different original capture advanced beyond the head")
+		}
+	}
+	// Current configuration may advance while its original captured facts stay
+	// fixed. Do not compare the historical version with the current Agent head.
+	r, s := runnerFactsFixture(t)
+	request := s.request.Clone()
+	request.AgentVersion++
+	request.AllowedToolIDs = append(request.AllowedToolIDs, captureID[id.Tool](t, 12))
+	s.currentVersion = request.AgentVersion
+	s.allowed = append([]id.ToolID{}, request.AllowedToolIDs...)
+	if err := r.RequireExecutionToolFactsInTx(context.Background(), s.tx, request); err != nil {
+		t.Fatal("current configuration change replaced or invalidated original capture")
 	}
 }
