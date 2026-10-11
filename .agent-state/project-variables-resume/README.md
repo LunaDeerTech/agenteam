@@ -30,4 +30,4 @@ root 已完成并推送仅保留已交付开发历史的 `ours` merge `66d45ce1b
 
 被动 `/proc` 可读部分最后未见目标路径持有，首个并行盘点快照有一个短暂未归属的只读 FD，后续消失；大量进程/FD 权限不可读，因此这不能单独证明宿主无活动进程。清理依据仍须结合原命令实际退出与 owner 停写确认，不以扫描代替原 Wait。两个 node_modules 可从已保留锁文件恢复；外部共享 Go cache/modules 不属于本树，不搬移或删除它们。
 
-历史合并、无覆盖迁移及结果核对完成后，root 已普通移除原 worktree，本地 branch -d 实际成功；远端原 tip `352be73e28762b22ee15f84fa3a7d542c6e7b4e0` 精确 lease 删除工具 4661 实际退出 0，fresh 查询为空、prune 0。清理累计为 28 个 WorkTree / 29 个本地分支 / 59 个远端引用，旧待核 148 个、显式保留 1 个不变，见[主线 current](../current.md)。本片不含删除、UI 原命令重放、Agent/Runner 环境注入、生产 Project initializer 或完整 Variables 生命周期；原 STOP 不随清理解除。
+历史合并、无覆盖迁移及结果核对完成后，root 已普通移除原 worktree，本地 branch -d 实际成功；远端原 tip `352be73e28762b22ee15f84fa3a7d542c6e7b4e0` 精确 lease 删除工具 4661 实际退出 0，fresh 查询为空、prune 0。清理累计为 28 个 WorkTree / 29 个本地分支 / 60 个远端引用（含后继已核 main 祖先的 Skills/Milestone 旧引用），旧待核 147 个、显式保留 1 个不变，见[主线 current](../current.md)。本片不含删除、UI 原命令重放、Agent/Runner 环境注入、生产 Project initializer 或完整 Variables 生命周期；原 STOP 不随清理解除。
