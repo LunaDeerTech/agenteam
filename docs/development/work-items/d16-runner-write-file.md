@@ -1,6 +1,6 @@
 # D16 Workspace 原子 write-file 本地库
 
-状态：实现中；基线 main `7c874adc`，尚未编译或运行测试。variables_review 独占 filesystem/workspace 源码、相邻控制及本卡；root 负责 Git 与共享工具链窗口。
+状态：首完整源码与相邻控制已落并完成限定 gofmt/静态自查；基线 main `7c874adc`，尚未编译或运行测试。variables_review 独占 filesystem/workspace 源码、相邻控制及本卡；root 负责 Git 与共享工具链窗口。
 
 依据：[Execution Runtime §4/6](../../architecture/runner/execution-runtime.md#6-write-file)、[Workspace](d16-runner-workspace.md)。本片只完成可信 root fd → Manager Handle → 原子 Write → 原 Read 的本地调用；不新增 Tool、Control/WSS、数据库、shell/edit-file、生产默认 executor 或授权旁路，既有 STOP 不变。
 
@@ -16,3 +16,5 @@
 ## 必要验证
 
 真实临时目录 Write→Read，空/二进制/上限、overwrite 与竞争、完整替换而无半文件、跨 Project/Agent 隔离；非法 path、symlink/非普通文件/父目录置换；受控真实 syscall 返回后的取消、fsync/close 失败与实际 Drain 等待；停止后禁新及请求/错误脱敏。仅两个受影响包 race/vet，待 root 授窗口后执行；不复跑 PG 或旧 Runner 全矩阵。
+
+首候选只新增 6 个 Go 文件，无旧 Read/List/Find 或生命周期源码改写。计划新控制 10 top（13 个具名子例），另随两受影响包复用原 read/manager 控检查兼容；不把源码存在或 gofmt 当动态通过。Linux 控使用包内 syscall 返回装饰，真实临时目录和实际 fd；不是 kernel 故障、崩溃恢复或恶意宿主证明。

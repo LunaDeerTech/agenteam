@@ -66,8 +66,8 @@ func (r *Root) Write(ctx context.Context, request WriteRequest) (WriteResult, er
 		err = ErrUnsupported
 	} else {
 		request.Data = bytes.Clone(request.Data)
-		defer clear(request.Data)
 		result, err = writer.write(op.ctx, request)
+		clear(request.Data)
 	}
 	// Keep actual publication/durability facts when Stop wins the return race.
 	// Like Read, this retires only after native I/O and cleanup actually return.
