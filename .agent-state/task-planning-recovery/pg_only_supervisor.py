@@ -199,6 +199,11 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestSchedulerRelaunch$': frozenset({
+        'TestSchedulerRelaunch',
+        'TestSchedulerRelaunch/cooldown-restart-and-new-execution',
+        'TestSchedulerRelaunch/relaunch-failure-atomic-block-and-replay',
+    }),
     '^TestSchedulerExecution$': frozenset({
         'TestSchedulerExecution',
         'TestSchedulerExecution/historical-association-terminal-and-dedup',
