@@ -333,6 +333,7 @@ async function observeBrowserIO(
         intakeWrites: boolean,
         agentConfiguration: boolean,
         editTask: string | undefined,
+        timelineTask: string | undefined,
       ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
@@ -380,6 +381,12 @@ async function observeBrowserIO(
                 (single ? "/" + a[1] : "") +
                 (method === "blockers" ? "/blockers" : "")
               );
+            });
+          if (timelineTask)
+            consumer(auth.workReview, "events", "work.events", (a) => {
+              if (a[0] !== project || a[1] !== timelineTask)
+                throw Error("TASK_TIMELINE_CONSUMER_SCOPE");
+              return "/api/v1/projects/" + project + "/tasks/" + timelineTask + "/events";
             });
           if (intakeWrites) {
             consumer(
@@ -1022,17 +1029,19 @@ export type TaskObservationProfile = {
   dist: string;
   evidence: string;
   inputHash: string;
-  prefix: "task-review" | "task-intake" | "task-edit" | "agent-configuration";
+  prefix: "task-review" | "task-intake" | "task-edit" | "agent-configuration" | "task-timeline";
   endpoint: (request: Request) => string | undefined;
   cut?: "transfer" | "create" | "update";
   lookupCommand:
     | "work.task.transfer"
     | "work.task.create"
     | "work.task.update"
-    | "agent.create";
+    | "agent.create"
+    | null;
   intakeWrites?: true;
   agentConfiguration?: true;
   editWrites?: true;
+  timelineReads?: true;
 };
 
 export function observeReview(page: Page, data: ReviewMaterial) {
@@ -1093,6 +1102,15 @@ export async function observeTaskRequests(
           : undefined))
   )
     throw Error("TASK_EDIT_WRITE_PROFILE_MISMATCH");
+  if (
+    profile.timelineReads &&
+    (profile.intakeWrites || profile.agentConfiguration || profile.editWrites ||
+      profile.prefix !== "task-timeline" || profile.lookupCommand !== null ||
+      profile.cut !== undefined || data.mode !== "recent-older-and-refresh" ||
+      !data.task_id ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.task_id))
+  )
+    throw Error("TASK_TIMELINE_READ_PROFILE_MISMATCH");
   const entries: Entry[] = [];
   const events: Record<string, unknown>[] = [];
   const browserEvents: BrowserDiagnostic[] = [];
@@ -1207,6 +1225,7 @@ export async function observeTaskRequests(
           intakeWrites,
           agentConfiguration,
           editTask,
+          timelineTask,
         }) => {
           const module = await import(/* @vite-ignore */ binding.asset);
           const useSession = module[binding.exportName];
@@ -1221,6 +1240,7 @@ export async function observeTaskRequests(
             intakeWrites,
             agentConfiguration,
             editTask,
+            timelineTask,
           );
         },
         {
@@ -1229,6 +1249,7 @@ export async function observeTaskRequests(
           intakeWrites: profile.intakeWrites === true,
           agentConfiguration: profile.agentConfiguration === true,
           editTask: profile.editWrites ? data.task_id : undefined,
+          timelineTask: profile.timelineReads ? data.task_id : undefined,
         },
       );
       await route.continue();
@@ -1327,6 +1348,13 @@ export async function observeTaskRequests(
     );
   }
 
+  function timelinePageRead(entry: Entry) {
+    return profile.timelineReads && entry.name === "events" &&
+      entry.request.method() === "GET" &&
+      new URL(entry.request.url()).pathname ===
+        `/api/v1/projects/${data.project_id}/tasks/${data.task_id}/events`;
+  }
+
   function joint(entry: Entry, proof: any) {
     const edit = editWrite(entry);
     const write = intakeWrite(entry) || agentWrite(entry) || edit;
@@ -1395,6 +1423,7 @@ export async function observeTaskRequests(
     expect(c.typed).not.toBeNull();
     expect(c.typed_digest).toMatch(/^[0-9a-f]{64}$/);
     expect(n.typed_digest).toBe(c.typed_digest);
+    if (timelinePageRead(entry)) expect(c.kind).toBe("work.events");
     if (write) {
       const kinds: Record<string, string> = profile.agentConfiguration
         ? {
@@ -1529,7 +1558,8 @@ export async function observeTaskRequests(
         intakeWrite(entry) ||
         editWrite(entry) ||
         agentWrite(entry) ||
-        agentPageRead(entry)
+        agentPageRead(entry) ||
+        timelinePageRead(entry)
       ) {
         // Even genuine requestfinished must match the original public value
         // and Go proof (including commit for writes); this does not replace its tail.
@@ -1560,6 +1590,8 @@ export async function observeTaskRequests(
       .map((entry) => entry.request);
   }
   function originalLookup() {
+    if (profile.lookupCommand === null)
+      throw Error("TASK_TIMELINE_HAS_NO_WRITE_LOOKUP");
     const creation =
       profile.lookupCommand === "work.task.create" ||
       profile.lookupCommand === "agent.create";
@@ -1601,6 +1633,12 @@ export async function observeTaskRequests(
       "original Agent page read must complete",
     ).toBeGreaterThan(0);
     return found[found.length - 1]!.body as Record<string, any>;
+  }
+  function timelinePage(index: number): Record<string, any> {
+    expect(profile.timelineReads).toBe(true);
+    const pages = entries.filter((entry) => timelinePageRead(entry) && entry.checked && entry.body);
+    expect(pages[index], "original Timeline public page must complete").toBeTruthy();
+    return pages[index]!.body as Record<string, any>;
   }
   function agentOption(id: string): string {
     const pages = entries.filter(
@@ -1721,6 +1759,7 @@ export async function observeTaskRequests(
     requests,
     agentOption,
     agentRead,
+    timelinePage,
     save,
     endDocument,
     retire,
