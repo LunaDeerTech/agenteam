@@ -45,13 +45,15 @@ export function projectRoute(value: unknown): {
     | '/settings/audit'
     | '/settings/model-providers'
     | '/settings/available-models'
+    | '/tasks'
+    | `/tasks/${string}`
     | '/knowledge'
     | `/knowledge/${string}`
   path: string
 } | null {
   if (typeof value !== 'string' || /[%\\?#]/.test(value)) return null
   const match =
-    /^\/([A-Za-z0-9][A-Za-z0-9-]{1,30}[A-Za-z0-9])\/([A-Za-z0-9._-]{1,64})(\/settings(?:\/(?:general|audit|model-providers|available-models))?|\/knowledge(?:\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?)?$/.exec(
+    /^\/([A-Za-z0-9][A-Za-z0-9-]{1,30}[A-Za-z0-9])\/([A-Za-z0-9._-]{1,64})(\/settings(?:\/(?:general|audit|model-providers|available-models))?|\/tasks(?:\/(?:sprints\/)?[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?|\/knowledge(?:\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?)?$/.exec(
       value,
     )
   if (!match) return null
@@ -61,6 +63,18 @@ export function projectRoute(value: unknown): {
     return null
   const suffix = (match[3] ?? '') as NonNullable<ReturnType<typeof projectRoute>>['suffix']
   return { username, project_name, suffix, path: `/${username}/${project_name}${suffix}` }
+}
+export function workTaskRoute(
+  value: unknown,
+): { projectPath: string; kind: 'root' | 'sprint' | 'task'; id: string | null } | null {
+  const route = projectRoute(value)
+  if (!route || !(route.suffix === '/tasks' || route.suffix.startsWith('/tasks/'))) return null
+  const parts = route.suffix.split('/')
+  return {
+    projectPath: `/${route.username}/${route.project_name}`,
+    kind: parts[2] === 'sprints' ? 'sprint' : parts[2] ? 'task' : 'root',
+    id: parts[2] === 'sprints' ? parts[3]! : (parts[2] ?? null),
+  }
 }
 export function safeReturnTarget(value: unknown): string {
   if (typeof value === 'string' && (returnTargets as readonly string[]).includes(value))
@@ -147,8 +161,32 @@ export function installProjectModelSettingsNavigation(
   }
 }
 
+const taskNavigation = new WeakMap<
+  Router,
+  {
+    confirmLeave: (target?: string) => Promise<boolean>
+    afterNavigation: (to: string, from: string) => void
+  }
+>()
+export function installTaskNavigation(
+  router: Router,
+  owner: {
+    confirmLeave: (target?: string) => Promise<boolean>
+    afterNavigation: (to: string, from: string) => void
+  },
+) {
+  taskNavigation.set(router, owner)
+  return () => {
+    if (taskNavigation.get(router) === owner) taskNavigation.delete(router)
+  }
+}
 export function installAuthentication(router: Router, auth: SessionController = useSession()) {
   router.beforeEach(async (to, from) => {
+    if (
+      to.fullPath !== from.fullPath &&
+      !((await taskNavigation.get(router)?.confirmLeave(to.fullPath)) ?? true)
+    )
+      return false
     if (to.meta.projectWorkspace && to.fullPath !== '/projects' && !projectRoute(to.fullPath))
       return {
         name: 'not-found',
@@ -240,6 +278,7 @@ export function installAuthentication(router: Router, auth: SessionController = 
   })
   router.afterEach((to, from, failure) => {
     if (!failure) projectNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+    if (!failure) taskNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) projectModelNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) outboundPolicyNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) smtpNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
