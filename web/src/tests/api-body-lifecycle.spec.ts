@@ -184,6 +184,67 @@ describe('public API response body ownership', () => {
     expectEOF(stream, calls)
   })
 
+  it.each(['logout', 'deleteAvatar'] as const)(
+    'reads the original %s 204 stream to EOF without cancelling it',
+    async (method) => {
+      const stream = completedBody()
+      const calls = watchBody(stream)
+      const result = response(stream)
+      Object.defineProperty(result, 'status', { value: 204 })
+      const api = createAccountAPI(async () => result)
+      const signal = new AbortController().signal
+      if (method === 'logout') await api.logout('S'.repeat(43), 'original-logout-key', signal)
+      else
+        await api.deleteAvatar(
+          { version: '1' },
+          { csrfToken: 'S'.repeat(43), key: 'original-avatar-key', signal },
+        )
+      expectEOF(stream, calls)
+    },
+  )
+
+  it('rejects a nonempty logout 204 only after its original cancellation returns', async () => {
+    const release = deferred()
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(encode(' '))
+      },
+      cancel() {
+        return release.promise
+      },
+    })
+    const calls = watchBody(stream)
+    const result = response(stream)
+    Object.defineProperty(result, 'status', { value: 204 })
+    const abort = new AbortController()
+    const job = observed(
+      createAccountAPI(async () => result).logout(
+        'S'.repeat(43),
+        'original-logout-key',
+        abort.signal,
+      ),
+    )
+    try {
+      await vi.waitFor(() => expect(calls.readers[0]?.cancel).toHaveBeenCalledOnce())
+      await flushPromises()
+      expect(job.settled()).toBe(false)
+      expect(stream.locked).toBe(true)
+      expect(calls.readers[0]!.cancel).toHaveBeenCalledOnce()
+      expect(calls.bodyCancel).not.toHaveBeenCalled()
+      release.resolve()
+      const outcome = await job.result
+      expect(outcome.error).toMatchObject({ kind: 'invalid-response' })
+      expect(outcome.value).toBeUndefined()
+      expect(calls.readers[0]!.cancel).toHaveBeenCalledOnce()
+      expect(calls.bodyCancel).not.toHaveBeenCalled()
+      expect(stream.locked).toBe(false)
+    } finally {
+      release.resolve()
+      abort.abort()
+      await job.result
+    }
+  })
+
   it('does not cancel avatar EOF on either a complete body or a size mismatch', async () => {
     for (const length of ['4', '5']) {
       const stream = completedBody(new Uint8Array([137, 80, 78, 71]))
