@@ -302,7 +302,7 @@ class SystemEntryControls(unittest.TestCase):
                     patch.object(self.driver, 'GO', binary), patch.object(self.driver, 'sha', return_value=self.driver.MINIO_SHA), \
                     patch.object(self.driver, 'task_review_ui_configuration', return_value={
                         'AGENTEAM_TASK_REVIEW_WEB_DIST': str(root / 'dist'),
-                        'AGENTEAM_TASK_REVIEW_WEB_EVIDENCE': str(root / 'evidence')} if SELECTOR not in ('^TestTaskIntakeWeb$', '^TestTaskEditWeb$', '^TestTaskTimelineWeb$', '^TestAgentConfigurationWeb$', '^TestAgentEditWeb$', '^TestAgentModelPolicyWeb$', '^TestSprintCreateWeb$', '^TestMilestoneCreateWeb$', '^TestSkillOwnerReadWeb$', '^TestSprintStartWeb$', '^TestKnowledgeOwnerRenameWeb$') else {
+                        'AGENTEAM_TASK_REVIEW_WEB_EVIDENCE': str(root / 'evidence')} if SELECTOR not in ('^TestProjectVariablesWeb$', '^TestTaskIntakeWeb$', '^TestTaskEditWeb$', '^TestTaskTimelineWeb$', '^TestAgentConfigurationWeb$', '^TestAgentEditWeb$', '^TestAgentModelPolicyWeb$', '^TestSprintCreateWeb$', '^TestMilestoneCreateWeb$', '^TestSkillOwnerReadWeb$', '^TestSprintStartWeb$', '^TestKnowledgeOwnerRenameWeb$') else {
                         'AGENTEAM_TASK_INTAKE_WEB_DIST': str(root / 'dist'),
                         'AGENTEAM_TASK_INTAKE_WEB_EVIDENCE': str(root / 'evidence')} if SELECTOR == '^TestTaskIntakeWeb$' else {
                         'AGENTEAM_TASK_EDIT_WEB_DIST': str(root / 'dist'),
@@ -315,6 +315,8 @@ class SystemEntryControls(unittest.TestCase):
                         'AGENTEAM_AGENT_EDIT_WEB_EVIDENCE': str(root / 'evidence')} if SELECTOR == '^TestAgentEditWeb$' else {
                         'AGENTEAM_AGENT_MODEL_POLICY_WEB_DIST': str(root / 'dist'),
                         'AGENTEAM_AGENT_MODEL_POLICY_WEB_EVIDENCE': str(root / 'evidence')} if SELECTOR == '^TestAgentModelPolicyWeb$' else {
+                        'AGENTEAM_PROJECT_VARIABLES_WEB_DIST': str(root / 'dist'),
+                        'AGENTEAM_PROJECT_VARIABLES_WEB_EVIDENCE': str(root / 'evidence')} if SELECTOR == '^TestProjectVariablesWeb$' else {
                         'AGENTEAM_MILESTONE_CREATE_WEB_DIST': str(root / 'dist'),
                         'AGENTEAM_MILESTONE_CREATE_WEB_EVIDENCE': str(root / 'evidence')} if SELECTOR == '^TestMilestoneCreateWeb$' else {
                         'AGENTEAM_SPRINT_CREATE_WEB_DIST': str(root / 'dist'),
@@ -366,6 +368,12 @@ class SystemEntryControls(unittest.TestCase):
                     self.assertEqual(environment['AGENTEAM_AGENT_MODEL_POLICY_WEB_DIST'], str(root / 'dist'))
                     self.assertEqual(environment['AGENTEAM_AGENT_MODEL_POLICY_WEB_EVIDENCE'], str(root / 'evidence'))
                     self.assertEqual(environment['AGENTEAM_AGENT_MODEL_POLICY_WEB_INPUT_HASH'], 'a'*64)
+                    self.assertTrue((root / 'evidence').is_dir())
+                    self.assertNotIn('app_runtime_wrapper_sha', plan)
+                if SELECTOR == '^TestProjectVariablesWeb$':
+                    self.assertEqual(environment['AGENTEAM_PROJECT_VARIABLES_WEB_DIST'], str(root / 'dist'))
+                    self.assertEqual(environment['AGENTEAM_PROJECT_VARIABLES_WEB_EVIDENCE'], str(root / 'evidence'))
+                    self.assertEqual(environment['AGENTEAM_PROJECT_VARIABLES_WEB_INPUT_HASH'], 'a'*64)
                     self.assertTrue((root / 'evidence').is_dir())
                     self.assertNotIn('app_runtime_wrapper_sha', plan)
                 if SELECTOR == '^TestMilestoneCreateWeb$':
@@ -420,14 +428,14 @@ class SystemEntryControls(unittest.TestCase):
 
 
     def test_task_review_browser_assets_waits_and_environment(self):
-        for selector in ('^TestTaskReviewWeb$', '^TestTaskIntakeWeb$', '^TestTaskEditWeb$', '^TestTaskTimelineWeb$', '^TestAgentConfigurationWeb$', '^TestAgentEditWeb$', '^TestAgentModelPolicyWeb$', '^TestSprintCreateWeb$', '^TestMilestoneCreateWeb$', '^TestSkillOwnerReadWeb$', '^TestSprintStartWeb$', '^TestKnowledgeOwnerRenameWeb$'):
-            label = 'Milestone Create' if selector == '^TestMilestoneCreateWeb$' else 'Skill' if selector == '^TestSkillOwnerReadWeb$' else 'KnowledgeRename' if selector == '^TestKnowledgeOwnerRenameWeb$' else 'Sprint Create' if selector == '^TestSprintCreateWeb$' else 'Sprint Start' if selector == '^TestSprintStartWeb$' else 'Task Timeline' if selector == '^TestTaskTimelineWeb$' else 'Agent Model Policy' if selector == '^TestAgentModelPolicyWeb$' else 'Agent Edit' if selector == '^TestAgentEditWeb$' else 'Agent Configuration' if selector == '^TestAgentConfigurationWeb$' else 'Task Edit' if selector == '^TestTaskEditWeb$' else 'Task Intake' if selector == '^TestTaskIntakeWeb$' else 'Task Review'
-            source = 'milestone_create_web_test.go' if selector == '^TestMilestoneCreateWeb$' else 'skill_owner_web_test.go' if selector == '^TestSkillOwnerReadWeb$' else 'knowledge_owner_rename_web_test.go' if selector == '^TestKnowledgeOwnerRenameWeb$' else 'sprint_create_web_test.go' if selector == '^TestSprintCreateWeb$' else 'sprint_start_web_test.go' if selector == '^TestSprintStartWeb$' else 'task_timeline_web_test.go' if selector == '^TestTaskTimelineWeb$' else 'agent_model_policy_web_test.go' if selector == '^TestAgentModelPolicyWeb$' else 'agent_edit_web_test.go' if selector == '^TestAgentEditWeb$' else 'agent_configuration_web_test.go' if selector == '^TestAgentConfigurationWeb$' else 'task_edit_web_test.go' if selector == '^TestTaskEditWeb$' else 'task_intake_web_test.go' if selector == '^TestTaskIntakeWeb$' else 'task_review_web_test.go'
+        for selector in ('^TestProjectVariablesWeb$', '^TestTaskReviewWeb$', '^TestTaskIntakeWeb$', '^TestTaskEditWeb$', '^TestTaskTimelineWeb$', '^TestAgentConfigurationWeb$', '^TestAgentEditWeb$', '^TestAgentModelPolicyWeb$', '^TestSprintCreateWeb$', '^TestMilestoneCreateWeb$', '^TestSkillOwnerReadWeb$', '^TestSprintStartWeb$', '^TestKnowledgeOwnerRenameWeb$'):
+            label = 'Project Variables' if selector == '^TestProjectVariablesWeb$' else 'Milestone Create' if selector == '^TestMilestoneCreateWeb$' else 'Skill' if selector == '^TestSkillOwnerReadWeb$' else 'KnowledgeRename' if selector == '^TestKnowledgeOwnerRenameWeb$' else 'Sprint Create' if selector == '^TestSprintCreateWeb$' else 'Sprint Start' if selector == '^TestSprintStartWeb$' else 'Task Timeline' if selector == '^TestTaskTimelineWeb$' else 'Agent Model Policy' if selector == '^TestAgentModelPolicyWeb$' else 'Agent Edit' if selector == '^TestAgentEditWeb$' else 'Agent Configuration' if selector == '^TestAgentConfigurationWeb$' else 'Task Edit' if selector == '^TestTaskEditWeb$' else 'Task Intake' if selector == '^TestTaskIntakeWeb$' else 'Task Review'
+            source = 'project_variables_web_test.go' if selector == '^TestProjectVariablesWeb$' else 'milestone_create_web_test.go' if selector == '^TestMilestoneCreateWeb$' else 'skill_owner_web_test.go' if selector == '^TestSkillOwnerReadWeb$' else 'knowledge_owner_rename_web_test.go' if selector == '^TestKnowledgeOwnerRenameWeb$' else 'sprint_create_web_test.go' if selector == '^TestSprintCreateWeb$' else 'sprint_start_web_test.go' if selector == '^TestSprintStartWeb$' else 'task_timeline_web_test.go' if selector == '^TestTaskTimelineWeb$' else 'agent_model_policy_web_test.go' if selector == '^TestAgentModelPolicyWeb$' else 'agent_edit_web_test.go' if selector == '^TestAgentEditWeb$' else 'agent_configuration_web_test.go' if selector == '^TestAgentConfigurationWeb$' else 'task_edit_web_test.go' if selector == '^TestTaskEditWeb$' else 'task_intake_web_test.go' if selector == '^TestTaskIntakeWeb$' else 'task_review_web_test.go'
             names, owned_path, _ = self.driver.task_review_ui_profile(selector)
             good = output(selector, SYSTEM_CASES[selector])
             self.assertTrue(self.sup.task_review_browser_waits(good, selector))
-            final_pid = '51' if selector in ('^TestTaskTimelineWeb$', '^TestKnowledgeOwnerRenameWeb$', '^TestAgentModelPolicyWeb$', '^TestSprintCreateWeb$', '^TestMilestoneCreateWeb$', '^TestSkillOwnerReadWeb$') else '52'
-            duplicate_or_invalid = good.replace('pid=51', 'pid=0') if selector in ('^TestTaskTimelineWeb$', '^TestKnowledgeOwnerRenameWeb$', '^TestAgentModelPolicyWeb$', '^TestSprintCreateWeb$', '^TestMilestoneCreateWeb$', '^TestSkillOwnerReadWeb$') else good.replace('pid=52', 'pid=51')
+            final_pid = '51' if selector in ('^TestProjectVariablesWeb$', '^TestTaskTimelineWeb$', '^TestKnowledgeOwnerRenameWeb$', '^TestAgentModelPolicyWeb$', '^TestSprintCreateWeb$', '^TestMilestoneCreateWeb$', '^TestSkillOwnerReadWeb$') else '52'
+            duplicate_or_invalid = good.replace('pid=51', 'pid=0') if selector in ('^TestProjectVariablesWeb$', '^TestTaskTimelineWeb$', '^TestKnowledgeOwnerRenameWeb$', '^TestAgentModelPolicyWeb$', '^TestSprintCreateWeb$', '^TestMilestoneCreateWeb$', '^TestSkillOwnerReadWeb$') else good.replace('pid=52', 'pid=51')
             for bad in (duplicate_or_invalid, good.replace('success=true', 'success=false'),
                         good.replace('    ' + source + ':123: ' + label + ' Node actual_wait pid=' + final_pid + ' success=true\n', ''),
                         good + '    ' + source + ':123: ' + label + ' Node actual_wait pid=53 success=true\n'):
