@@ -124,6 +124,12 @@ export function useKnowledgeOwner(
   let disposed = false,
     retired = false,
     route: KnowledgeLocation | null = null
+  let renameRefresh: {
+    target: string
+    minimum: string
+    parents: Set<string | null>
+    observed?: string | null
+  } | null = null
   let offsets: string[] = [],
     offsetIndex = 0
   const authorized = () =>
@@ -162,6 +168,7 @@ export function useKnowledgeOwner(
     state.levels = Object.freeze({ ...state.levels, [key(value.parentID)]: Object.freeze(value) })
   }
   function clearSelection(target: string | null) {
+    if (renameRefresh?.target !== target) renameRefresh = null
     state.selected = target
     state.document = null
     state.metadataPhase = target ? 'waiting' : 'idle'
@@ -253,6 +260,11 @@ export function useKnowledgeOwner(
         max_bytes: knowledgeDefaultReadBytes,
       })
       if (!current()) return
+      if (
+        renameRefresh?.target === task.target &&
+        BigInt(value.document.content_version) < BigInt(renameRefresh.minimum)
+      )
+        throw new AccountFailure('invalid-response')
       if (value.document.content_version !== task.version) {
         state.document = value.document
         offsets = []
@@ -293,37 +305,44 @@ export function useKnowledgeOwner(
       }
     }
   }
+  async function readChildren(
+    task: Extract<Task, { kind: 'children' }>,
+    captured: Context,
+    current: () => boolean,
+  ) {
+    const previous = level(task.parent)
+    setLevel({ ...(task.cursor ? previous : emptyLevel(task.parent)), phase: 'loading' })
+    try {
+      const page = await auth.knowledge.children(captured.projectID, task.parent, {
+        limit: 50,
+        ...(task.cursor ? { cursor: task.cursor } : {}),
+      })
+      if (!current()) return
+      const items = [...(task.cursor ? previous.items : []), ...page.items]
+      const unique = new Map(items.map((item) => [item.id, item]))
+      const moved = new Set(page.items.map((item) => item.id))
+      for (const other of Object.values(state.levels))
+        if (other.parentID !== task.parent && other.items.some((item) => moved.has(item.id)))
+          setLevel({
+            ...other,
+            items: Object.freeze(other.items.filter((item) => !moved.has(item.id))),
+          })
+      setLevel({
+        parentID: task.parent,
+        phase: unique.size ? 'ready' : 'empty',
+        items: Object.freeze([...unique.values()].sort(compareKnowledgeDocuments)),
+        ...(page.next_cursor ? { nextCursor: page.next_cursor } : {}),
+        message: '',
+      })
+    } catch (error) {
+      if (current()) setLevel({ ...emptyLevel(task.parent), ...failure(error) })
+    }
+  }
   async function execute(task: Task, captured: Context, serial: number) {
     const current = () => live() && generation === serial && sameContext(scope, captured)
     try {
       if (task.kind === 'children') {
-        const previous = level(task.parent)
-        setLevel({ ...(task.cursor ? previous : emptyLevel(task.parent)), phase: 'loading' })
-        try {
-          const page = await auth.knowledge.children(captured.projectID, task.parent, {
-            limit: 50,
-            ...(task.cursor ? { cursor: task.cursor } : {}),
-          })
-          if (!current()) return
-          const items = [...(task.cursor ? previous.items : []), ...page.items]
-          const unique = new Map(items.map((item) => [item.id, item]))
-          const moved = new Set(page.items.map((item) => item.id))
-          for (const other of Object.values(state.levels))
-            if (other.parentID !== task.parent && other.items.some((item) => moved.has(item.id)))
-              setLevel({
-                ...other,
-                items: Object.freeze(other.items.filter((item) => !moved.has(item.id))),
-              })
-          setLevel({
-            parentID: task.parent,
-            phase: unique.size ? 'ready' : 'empty',
-            items: Object.freeze([...unique.values()].sort(compareKnowledgeDocuments)),
-            ...(page.next_cursor ? { nextCursor: page.next_cursor } : {}),
-            message: '',
-          })
-        } catch (error) {
-          if (current()) setLevel({ ...emptyLevel(task.parent), ...failure(error) })
-        }
+        await readChildren(task, captured, current)
       } else if (task.kind === 'selection') {
         state.metadataPhase = 'loading'
         try {
@@ -334,6 +353,15 @@ export function useKnowledgeOwner(
             state.metadataMessage = '文档已删除。'
             state.content = emptyContent('deleted', '文档已删除。')
             return
+          }
+          if (renameRefresh?.target === task.target) {
+            if (BigInt(head.active.content_version) < BigInt(renameRefresh.minimum))
+              throw new AccountFailure('invalid-response')
+            const parent = head.active.parent_document_id
+            if (parent === null || state.levels[key(parent)]) {
+              renameRefresh.observed = parent
+              setLevel(emptyLevel(parent, 'waiting'))
+            }
           }
           state.document = head.active
           state.metadataPhase = 'ready'
@@ -355,6 +383,15 @@ export function useKnowledgeOwner(
             const result = failure(error)
             state.metadataPhase = result.phase
             state.metadataMessage = result.message
+          }
+        } finally {
+          if (current() && renameRefresh?.target === task.target) {
+            const parents = new Set(renameRefresh.parents)
+            if (renameRefresh.observed !== undefined) parents.add(renameRefresh.observed)
+            for (const parent of parents) {
+              if (!current()) break
+              await readChildren({ kind: 'children', parent }, captured, current)
+            }
           }
         }
       } else if (task.kind === 'ancestors') await readAncestors(task.target, captured, current)
@@ -452,6 +489,37 @@ export function useKnowledgeOwner(
           enqueue({ kind: 'children', parent, ...(more ? { cursor: value.nextCursor } : {}) })
       }
     },
+    refreshAfterRename(receipt: KnowledgeDocument, previousParent: string | null) {
+      if (
+        !live() ||
+        blocked.value ||
+        receipt.project_id !== scope?.projectID ||
+        receipt.id !== state.selected
+      )
+        return false
+      const parents = new Set<string | null>([null])
+      for (const parent of [previousParent, receipt.parent_document_id])
+        if (parent === null || state.levels[key(parent)]) parents.add(parent)
+      renameRefresh = { target: receipt.id, minimum: receipt.content_version, parents }
+      for (const parent of parents) setLevel(emptyLevel(parent, 'waiting'))
+      enqueue({ kind: 'selection', target: receipt.id })
+      return true
+    },
+    invalidateCurrent(projectID: string, documentID: string) {
+      if (!live() || scope?.projectID !== projectID || state.selected !== documentID) return
+      retireRead()
+      state.levels = Object.freeze({
+        [rootKey]: {
+          ...emptyLevel(null),
+          phase: 'unavailable',
+          message: '当前文档不存在或不可访问。',
+        },
+      })
+      state.expanded = Object.freeze([])
+      clearSelection(documentID)
+      state.metadataPhase = 'unavailable'
+      state.metadataMessage = '当前文档不存在或不可访问。'
+    },
     retryDocument() {
       if (state.selected && !blocked.value) enqueue({ kind: 'selection', target: state.selected })
     },
@@ -490,3 +558,5 @@ export function useKnowledgeOwner(
   }
 }
 export type KnowledgeOwnerController = ReturnType<typeof useKnowledgeOwner>
+
+export type KnowledgeOwner = ReturnType<typeof useKnowledgeOwner>

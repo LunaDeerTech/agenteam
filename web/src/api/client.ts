@@ -54,6 +54,8 @@ export function string(value: unknown, minimum: number, maximum: number): string
 }
 
 const endpoints = {
+  knowledgeRename: ['POST', '/api/v1/projects/{project_id}/knowledge/documents/{target}/rename', 200],
+  knowledgeRenameLookup: ['POST', '/api/v1/projects/{project_id}/knowledge/documents/commands/lookup', 200],
   reviewMilestones: ['GET', '/api/v1/projects/{project_id}/milestones', 200],
   reviewMilestone: ['GET', '/api/v1/projects/{project_id}/milestones/{target}', 200],
   reviewSprints: ['GET', '/api/v1/projects/{project_id}/sprints', 200],
@@ -924,6 +926,16 @@ const projectEndpoints: readonly ProjectEndpoint[] = [
   'lookupOwnerProject',
 ]
 
+const knowledgeCommandEndpoints = ['knowledgeRename', 'knowledgeRenameLookup'] as const
+type KnowledgeCommandEndpoint = (typeof knowledgeCommandEndpoints)[number]
+type KnowledgeCommandOptions<E extends KnowledgeCommandEndpoint> = {
+  signal: AbortSignal
+  projectID: string
+  body: unknown
+  csrf: string
+  key: string
+} & (E extends 'knowledgeRename' ? { target: string } : { target?: never })
+
 const knowledgeEndpoints = [
   'knowledgeChildren',
   'knowledgeDocument',
@@ -1006,6 +1018,11 @@ type WorkReviewOptions = {
 }
 
 export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
+  function request<T, E extends KnowledgeCommandEndpoint>(
+    endpoint: E,
+    parse: (value: unknown) => T,
+    options: KnowledgeCommandOptions<E>,
+  ): Promise<T>
   function request<T>(
     endpoint: WorkReviewEndpoint,
     parse: (value: unknown) => T,
@@ -1095,6 +1112,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
   function request<T>(
     endpoint: Exclude<
       keyof typeof endpoints,
+      | KnowledgeCommandEndpoint
       | KnowledgeEndpoint
       | ProjectEndpoint
       | ProjectAuditEndpoint
@@ -1238,6 +1256,21 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       } catch {
         throw new AccountFailure('invalid-input')
       }
+    } else if ((knowledgeCommandEndpoints as readonly string[]).includes(endpoint)) {
+      try {
+        const rename = endpoint === 'knowledgeRename'
+        shape(options, ['signal', 'projectID', 'body', 'csrf', 'key', ...(rename ? ['target'] : [])])
+        const project = string(options.projectID, 36, 36)
+        if (!uuid7.test(project) || !(options.signal instanceof AbortSignal) ||
+          !/^[A-Za-z0-9_-]{43,128}$/.test(string(options.csrf, 43, 128)) ||
+          !/^[A-Za-z0-9._:/-]{1,128}$/.test(string(options.key, 1, 128))) throw new Error()
+        path = basePath.replace('{project_id}', project)
+        if (rename) {
+          const target = string(options.target, 36, 36)
+          if (!uuid7.test(target)) throw new Error()
+          path = path.replace('{target}', target)
+        }
+      } catch { throw new AccountFailure('invalid-input') }
     } else if ((knowledgeEndpoints as readonly string[]).includes(endpoint)) {
       try {
         const children = endpoint === 'knowledgeChildren',
@@ -1704,7 +1737,8 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
                         ].includes(endpoint)
                       ? 5 * 1024 * 1024
                       : 1024 * 1024
-            : (knowledgeEndpoints as readonly string[]).includes(endpoint) && success
+            : ((knowledgeEndpoints as readonly string[]).includes(endpoint) ||
+                (knowledgeCommandEndpoints as readonly string[]).includes(endpoint)) && success
               ? // Exact complete representation limits of the two Knowledge adapters.
                 endpoint === 'knowledgeContent'
                 ? 7 * 1024 * 1024
@@ -1730,6 +1764,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
                           : 600_000,
           success && (projectModelReads as readonly string[]).includes(endpoint),
           (workReviewEndpoints as readonly string[]).includes(endpoint) ||
+            (knowledgeCommandEndpoints as readonly string[]).includes(endpoint) ||
             (success &&
               (endpoint === 'listProjectAudit' ||
                 endpoint === 'getProjectAudit' ||

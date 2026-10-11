@@ -49,6 +49,15 @@ import {
 } from '../api/work-task-timeline'
 import { createAgentDirectoryAPI, type AgentDirectoryAPI } from '../api/agent-directory'
 import {
+  createKnowledgeCommandsAPI,
+  captureKnowledgeRename,
+  type KnowledgeCommandsAPI,
+  type KnowledgeRenameInput,
+  type KnowledgeRenameResult,
+  type KnowledgeRenameLookup,
+} from '../api/knowledge-commands'
+import type { KnowledgeDocument } from '../api/knowledge-owner'
+import {
   createWorkSprintLifecycleAPI,
   captureSprintStartInput,
   type WorkSprintLifecycleAPI,
@@ -384,6 +393,26 @@ export type ProjectProgress = Readonly<{
   contextValid: boolean
   canRetryOriginal: boolean
 }>
+type KnowledgeCommandAction = 'knowledge-rename' | 'knowledge-lookup'
+export type KnowledgeCommandProgress = Readonly<{
+  projectID: string
+  documentID: string
+  phase: 'submitting' | 'uncertain' | 'confirmed' | 'rejected'
+  observation: 'none' | 'committed' | 'not_observed' | 'in_progress' | 'failed'
+  receipt: KnowledgeDocument | null
+  contextValid: boolean
+  canRetryOriginal: boolean
+}>
+type KnowledgeCommandIntent = {
+  projectID: string
+  documentID: string
+  identity: PersonalIdentity
+  csrf: string
+  key: string
+  payload: { input: KnowledgeRenameInput | null; body: string | null }
+  uncertain: boolean
+  keyConflict: boolean
+}
 type ProjectIntent = {
   targetID: string
   identity: PersonalIdentity
@@ -612,6 +641,7 @@ type Action =
   | ProjectAction
   | WorkReviewAction
   | SprintLifecycleAction
+  | KnowledgeCommandAction
   | AgentConfigurationAction
   | ProjectAuditAction
   | ProjectModelAction
@@ -738,12 +768,14 @@ export function createSessionController(
     taskTimeline?: WorkTaskTimelineAPI
     agentConfiguration?: AgentConfigurationAPI
     sprintLifecycle?: WorkSprintLifecycleAPI
+    knowledgeCommands?: KnowledgeCommandsAPI
   }> = {},
 ) {
   const taskEditAPI = commandAPIs.edit ?? createWorkTaskEditAPI()
   const taskTimelineAPI = commandAPIs.taskTimeline ?? createWorkTaskTimelineAPI()
   const agentConfigurationAPI = commandAPIs.agentConfiguration ?? createAgentConfigurationAPI()
   const sprintLifecycleAPI = commandAPIs.sprintLifecycle ?? createWorkSprintLifecycleAPI()
+  const knowledgeCommandsAPI = commandAPIs.knowledgeCommands ?? createKnowledgeCommandsAPI()
   const state = shallowReactive<PublicState>({
     phase: 'checking',
     user: null,
@@ -851,6 +883,16 @@ export function createSessionController(
     'project-update': 0,
     'project-lookup': 0,
   }
+  const knowledgeCommandRevisions: Record<KnowledgeCommandAction, number> = {
+    'knowledge-rename': 0,
+    'knowledge-lookup': 0,
+  }
+  const isKnowledgeCommand = (kind: Action): kind is KnowledgeCommandAction =>
+    Object.hasOwn(knowledgeCommandRevisions, kind)
+  let knowledgeIntent: KnowledgeCommandIntent | null = null
+  const knowledgeCommandState = shallowReactive<{
+    progress: Omit<KnowledgeCommandProgress, 'contextValid' | 'canRetryOriginal'> | null
+  }>({ progress: null })
   const isProjectAction = (kind: Action): kind is ProjectAction =>
     Object.hasOwn(projectRevisions, kind)
   let projectIntent: ProjectIntent | null = null
@@ -1025,6 +1067,7 @@ export function createSessionController(
       clearProjectState()
       clearAgentConfigurationState()
       clearSprintLifecycleState()
+      clearKnowledgeCommand()
       clearWorkReviewState()
       clearInvitationState()
       clearProviderState()
@@ -1092,6 +1135,7 @@ export function createSessionController(
       clearProjectState()
       clearAgentConfigurationState()
       clearSprintLifecycleState()
+      clearKnowledgeCommand()
       clearWorkReviewState()
       ++personalRevision
       personalContext.identity = Object.freeze({
@@ -1640,12 +1684,14 @@ export function createSessionController(
       | ProjectAction
       | WorkReviewAction
       | SprintLifecycleAction
+      | KnowledgeCommandAction
       | AgentConfigurationAction
       | ProjectAuditAction
       | ProjectModelAction = 'personal',
   ): Promise<T> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     const revisionNow = () => {
+      if (isKnowledgeCommand(kind)) return knowledgeCommandRevisions[kind]
       if (isSprintLifecycleAction(kind)) return sprintLifecycleRevisions[kind]
       if (isAgentConfigurationAction(kind)) return agentConfigurationRevisions[kind]
       return isWorkReviewAction(kind)
@@ -1698,7 +1744,8 @@ export function createSessionController(
       revision === revisionNow() &&
       sameIdentity(identity, personalContext.identity) &&
       (kind === 'personal' ||
-        (isSprintLifecycleAction(kind) ||
+        (isKnowledgeCommand(kind) ||
+        isSprintLifecycleAction(kind) ||
         isAgentConfigurationAction(kind) ||
         isWorkReviewAction(kind) ||
         kind === 'knowledge-read' ||
@@ -1769,9 +1816,15 @@ export function createSessionController(
       })
       .catch((error: unknown) => {
         const e =
-          isSprintLifecycleAction(kind) ||
-          isAgentConfigurationAction(kind) ||
-          isWorkReviewAction(kind)
+          isKnowledgeCommand(kind)
+            ? current()
+              ? projectFailure(identity, op, error)
+              : error instanceof AccountFailure
+                ? error
+                : new AccountFailure('transport')
+            : isSprintLifecycleAction(kind) ||
+                isAgentConfigurationAction(kind) ||
+                isWorkReviewAction(kind)
             ? projectFailure(identity, op, error)
             : kind === 'knowledge-read'
               ? knowledgeFailure(current, error)
@@ -5557,6 +5610,187 @@ export function createSessionController(
     },
     abandon: clearRuntimeInformationRead,
   }
+  function clearKnowledgeCommandPayload(original: KnowledgeCommandIntent | null) {
+    if (original) {
+      original.payload.input = null
+      original.payload.body = null
+    }
+  }
+  function clearKnowledgeCommand() {
+    const retiring = owner && isKnowledgeCommand(owner.kind) ? owner : null
+    ++knowledgeCommandRevisions['knowledge-rename']
+    ++knowledgeCommandRevisions['knowledge-lookup']
+    clearKnowledgeCommandPayload(knowledgeIntent)
+    knowledgeIntent = null
+    knowledgeCommandState.progress = null
+    retiring?.abandon?.()
+  }
+  function publishKnowledgeCommand(
+    original: KnowledgeCommandIntent,
+    phase: KnowledgeCommandProgress['phase'],
+    receipt: KnowledgeDocument | null = null,
+    observation: KnowledgeCommandProgress['observation'] = 'none',
+  ) {
+    knowledgeCommandState.progress = Object.freeze({
+      projectID: original.projectID,
+      documentID: original.documentID,
+      phase,
+      receipt,
+      observation,
+    })
+  }
+  function performKnowledgeCommand(
+    original: KnowledgeCommandIntent,
+    lookup = false,
+  ): Promise<KnowledgeRenameResult | KnowledgeRenameLookup> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    if (knowledgeIntent !== original || !original.payload.input || !projectContext(original))
+      return Promise.reject(new AccountFailure('invalid-input'))
+    const kind: KnowledgeCommandAction = lookup ? 'knowledge-lookup' : 'knowledge-rename'
+    const revision = knowledgeCommandRevisions[kind]
+    const live = () =>
+      knowledgeIntent === original &&
+      revision === knowledgeCommandRevisions[kind] &&
+      projectContext(original)
+    let dispatched = false
+    if (!lookup) publishKnowledgeCommand(original, 'submitting')
+    return runAuthorized<KnowledgeRenameResult | KnowledgeRenameLookup>(
+      original.identity,
+      async (op, current) => {
+        const input = original.payload.input
+        if (!input || !current() || !live()) throw new AccountFailure('cancelled')
+        if (JSON.stringify(input) !== original.payload.body)
+          throw new AccountFailure('invalid-input')
+        dispatched = true
+        try {
+          const write = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
+          return lookup
+            ? await knowledgeCommandsAPI.lookup(
+                original.projectID,
+                original.documentID,
+                input,
+                write,
+              )
+            : await knowledgeCommandsAPI.rename(
+                original.projectID,
+                original.documentID,
+                input,
+                write,
+              )
+        } finally {
+          if (knowledgeIntent !== original) clearKnowledgeCommandPayload(original)
+        }
+      },
+      undefined,
+      kind,
+    ).then(
+      (value) => {
+        if (!live()) throw new AccountFailure('cancelled')
+        if ('state' in value && value.state !== 'committed') {
+          publishKnowledgeCommand(original, 'uncertain', null, value.state)
+          return value
+        }
+        const receipt = 'state' in value ? value.receipt.document : value.document
+        publishKnowledgeCommand(original, 'confirmed', receipt, lookup ? 'committed' : 'none')
+        clearKnowledgeCommandPayload(original)
+        knowledgeIntent = null
+        return value
+      },
+      (error: unknown) => {
+        const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (
+          knowledgeIntent === original &&
+          revision === knowledgeCommandRevisions[kind] &&
+          sameIdentity(original.identity, personalContext.identity)
+        ) {
+          const p = e.problem
+          const known =
+            !dispatched ||
+            (!!p &&
+              ['not_started', 'not_committed'].includes(p.commit_state) &&
+              [
+                'INVALID_ARGUMENT',
+                'VERSION_CONFLICT',
+                'INVALID_STATE',
+                'PROJECT_NOT_ACTIVE',
+                'NOT_FOUND',
+                'FORBIDDEN',
+                'RESOURCE_DELETED',
+              ].includes(p.code))
+          original.keyConflict ||= p?.code === 'IDEMPOTENCY_KEY_REUSED'
+          original.uncertain ||= lookup || !known || original.keyConflict
+          publishKnowledgeCommand(
+            original,
+            original.uncertain ? 'uncertain' : 'rejected',
+            null,
+            lookup ? 'failed' : 'none',
+          )
+        }
+        throw e
+      },
+    )
+  }
+  const knowledgeCommands = {
+    get progress(): KnowledgeCommandProgress | null {
+      const value = knowledgeCommandState.progress
+      if (!value) return null
+      const contextValid = !!knowledgeIntent && projectContext(knowledgeIntent)
+      return Object.freeze({
+        ...value,
+        contextValid,
+        canRetryOriginal:
+          !!knowledgeIntent?.payload.input &&
+          knowledgeIntent.uncertain &&
+          !knowledgeIntent.keyConflict &&
+          value.observation === 'not_observed' &&
+          contextValid &&
+          !state.busy,
+      })
+    },
+    startRename(projectID: string, documentID: string, value: KnowledgeRenameInput) {
+      try {
+        const identity = personalIdentity()
+        if (owner || knowledgeIntent || personalIntent || pending) throw new AccountFailure('busy')
+        const input = captureKnowledgeRename(value)
+        const original: KnowledgeCommandIntent = {
+          projectID: captureKnowledgeID(projectID),
+          documentID: captureKnowledgeID(documentID),
+          identity,
+          csrf: sessionCSRF,
+          key: newKey(),
+          payload: { input, body: JSON.stringify(input) },
+          uncertain: false,
+          keyConflict: false,
+        }
+        knowledgeIntent = original
+        return performKnowledgeCommand(original)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    checkOriginal() {
+      if (!knowledgeIntent?.uncertain || !projectContext(knowledgeIntent))
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performKnowledgeCommand(knowledgeIntent, true)
+    },
+    retryOriginal() {
+      if (!knowledgeIntent || !knowledgeCommands.progress?.canRetryOriginal)
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performKnowledgeCommand(knowledgeIntent)
+    },
+    editRejected() {
+      if (
+        owner ||
+        !knowledgeIntent ||
+        knowledgeIntent.uncertain ||
+        knowledgeCommandState.progress?.phase !== 'rejected' ||
+        !projectContext(knowledgeIntent)
+      )
+        throw new AccountFailure('invalid-input')
+      clearKnowledgeCommand()
+    },
+    abandon: clearKnowledgeCommand,
+  }
   function clearKnowledgeRead() {
     ++knowledgeRevision
     if (owner?.kind === 'knowledge-read') owner.abandon?.()
@@ -6232,6 +6466,7 @@ export function createSessionController(
     agentConfiguration,
     projectAudit,
     knowledge,
+    knowledgeCommands,
     projectModelSettings,
     personal,
     system,
