@@ -293,7 +293,7 @@ func (a *Authority) ValidateAppendInTx(ctx context.Context, tx foundation.Tx, ac
 }
 
 // Discover/ValidateInTx bind typed Project appends and explicitly configured
-// lifecycle facts, plus the Model, Work, ProjectVariable and Knowledge gates.
+// lifecycle facts, plus explicitly supported domain Project gates.
 // Other delivery remains unbound; each producer proves its own facts.
 func (a *Authority) Discover(ctx context.Context, request oc.ProjectRequest) (oc.Dependencies, error) {
 	if a.state() == nil {
@@ -324,6 +324,9 @@ func (a *Authority) Discover(ctx context.Context, request oc.ProjectRequest) (oc
 	}
 	if d.Kind == oc.AppendProject && d.Event.Producer == "agent" {
 		return a.discoverAgentEvent(ctx, request)
+	}
+	if d.Kind == oc.AppendProject && d.Event.Producer == "skill" {
+		return a.discoverSkillAssignmentEvent(ctx, request)
 	}
 	if d.Kind == oc.AppendProject && d.Event.Producer == "execution" {
 		return a.discoverExecutionEvent(request)
@@ -370,6 +373,9 @@ func (a *Authority) ValidateInTx(ctx context.Context, tx foundation.Tx, request 
 	}
 	if d.Kind == oc.AppendProject && d.Event.Producer == "agent" {
 		return a.validateAgentEventInTx(ctx, tx, request, deps)
+	}
+	if d.Kind == oc.AppendProject && d.Event.Producer == "skill" {
+		return a.validateSkillAssignmentEventInTx(ctx, tx, request, deps)
 	}
 	if d.Kind == oc.AppendProject && d.Event.Producer == "execution" {
 		return a.validateExecutionEventInTx(ctx, tx, request, deps)
