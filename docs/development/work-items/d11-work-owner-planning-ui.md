@@ -244,10 +244,22 @@ Blocker status 默认为 unresolved，可选 resolved/all；顺序 `(created_at,
 
 ## 12. Current Sprint 任务创建与指派切片（批 12A）
 
-本批在 §11 已交任务页面上增加两次独立确认，限定已有已初始化 Project 的 Current Sprint。当前 Human Owner 显式填写标题、类型、优先级及可选描述、Plan，调用原 [Task Planning](d11-task-planning.md) Create，成功结果为 `backlog/assignee=null/version=1`；类型、优先级不代选默认值。完整创建回执确认后才进入真实 Task 详情，再由用户明确选择[真实 Agent 目录](d10-agent-configuration.md)中的 Agent，单独确认 `backlog→todo`。指派使用当前 Task 原字符串版本，保留当前资格和完整阻塞检查；说明在此边可省略，不放宽原三条评审边的说明要求。
+本批已随正式产品基线main `295f46b4`交付，在 §11 已交任务页面上增加两次独立确认，限定已有已初始化 Project 的 Current Sprint。当前 Human Owner 显式填写标题、类型、优先级及可选描述、Plan，调用原 [Task Planning](d11-task-planning.md) Create，成功结果为 `backlog/assignee=null/version=1`；类型、优先级不代选默认值。完整创建回执确认后才进入真实 Task 详情，再由用户明确选择[真实 Agent 目录](d10-agent-configuration.md)中的 Agent，单独确认 `backlog→todo`。指派使用当前 Task 原字符串版本，保留当前资格和完整阻塞检查；说明在此边可省略，不放宽原三条评审边的说明要求。
 
 客户端复用 [Work Owner HTTP](d11-work-owner-http.md)：Create 为 `POST /api/v1/projects/{P}/tasks`，原创建 Lookup 为 `POST /api/v1/projects/{P}/task-commands/lookup`；指派仍沿原 Transfer/Lookup。Task UUIDv7 仅在首次提交前生成，原 ID、key、Project、Sprint、完整请求及身份由 Session 私有意图冻结；create 与 transfer 分别持有独立意图和 key，不串联发送。创建结果 Unknown 时在原 Sprint 保留“查询原创建结果”，不依赖尚未确认存在的 Task 详情；只按原 key/request Lookup，`in_progress/not_observed` 不授权重发。返回原创建 Sprint 的入口同时检查当前 Project 归属，不能把原 Sprint ID 拼进另一 Project 的路径。身份、选择与页面代际变化继续隔离迟到结果。
 
 新表单复用正式 Ui 控件和主题 token，取消后由仍存活的父页面等待原取消及必要确认，再恢复同一 Sprint 的创建按钮焦点。此切片不自动启动 Sprint、不启用 Scheduler、不把 Task 进入 todo 等同于已运行或完成，也不交付后继 Task 编辑、排序、Blocker 写入或完整规划界面。
 
-当前验证：`frontend01` 的 25 个定向用例中 24 个通过，唯一失败为取消创建后焦点回归；原 13 文件格式检查、完整类型检查及生产构建通过，但该轮整体仍为 FAIL。焦点两组件窄修已完成并经有限静审接受，原失败用例及修后类型/构建补验待执行；真实浏览器创建、回执截断恢复、指派和主题/视口验收待执行。本节暂不声明浏览器闭环通过；§1–11 与旧 Planning06、Recovery04 失败事实保持，后继实际结果只更新本节验证结论。
+定向前端验证已通过：`frontend01`有效24项与取消焦点修复后`frontend02`原失败1项组成25个不同用例，格式、完整类型检查及生产构建通过。最终SOURCE `75e23e9d`/candidate06的 `TestTaskIntakeWeb` 在native06整轮wholePASS，两sub37.63s（正常创建与独立指派18.85s、丢创建回执后原Lookup与独立指派18.78s）。原四Wait0、两Node实际成功、七ID14次absence、全部双尾/TCP0、2426输入一致；secret最终业务验收接受。原结果为delivery的`output/ai/agent-system-integration/task-intake-web-06-control/result.json`，恢复入口沿[既有组合recipe](../../../.agent-state/agent-system-integration/README.md#task-intake与agent配置创建有限组合)。
+
+本节接受上述两条真实浏览器闭环。cleanup接受15张实际截图：1440 light看板首尾、1024 dark创建表单、834 light未指派backlog详情、390 dark的Unknown／已指派todo／看板首尾；七列末列可达，未见明显页面溢出或控件遮挡。同轮断言覆盖键盘表单、真实选项与提交、取消后返回焦点和reduced-motion，不外推完整无障碍审计或完整规划界面。原frontend01、native01–05及§1–11的Planning06/Recovery04 FAIL均保留，不回填：此前A05只有丢回执链独立通过，正常链失败由后继原请求完成联证闭合。并行批12B原native01业务接受已撤回，B02–04 FAIL和B05有限真实通过各自留存，Runtime不作为本UI通过依据，也不由创建/指派结果推断Task已执行或完成。
+
+## 13. 未指派 backlog Task 内容编辑（批 13）
+
+本片沿[共享 Task 详情与操作设计](../../frontend-design/layouts/tasks.md#5-共享-task-详情)，在详情内提供独立“编辑任务／保存任务”，限定当前 Human Owner、active Project、planned/current Sprint 中的未指派 backlog Task。可修改 title、description、type、priority、plan；表单保留打开时的原字符串 version，只提交用户实际触达的字段，未触达字段保持省略，description/plan 的显式空字符串表示清空。相同值保存仍可确认 No-op；新版本不会覆盖原输入，须核对当前详情后重新编辑。编辑与 ready、评审动作互斥，保存不自动指派或转 todo，取消由仍存活的父组件等待确认后恢复原入口焦点。
+
+复用原 [Task Planning](d11-task-planning.md) 与 [Owner HTTP](d11-work-owner-http.md)：`PATCH /api/v1/projects/{P}/tasks/{T}` 携带原 expected_version 和精确字段 presence；`POST /api/v1/projects/{P}/task-commands/lookup` 使用原 `work.task.update` 意图。Session 私有保存同一 Project/Task、key、完整请求和身份；Unknown 时只允许查询原操作，`in_progress/not_observed` 不允许重新保存或连发 ready。changed 回执要求原版本加一及对应事件，No-op 保持版本且不产生 Task 历史/Outbox 事件；两个结果均经严格回执解码后才确认。身份或页面代际已退出的迟到结果不得发布到新 Task。
+
+来源 `bfe52d55`的独立前端四文件24项、十文件格式检查、完整类型检查和生产构建已通过。SOURCE `8417`/candidate09的 `TestTaskEditWeb` native02两sub81.74s wholePASS，真实覆盖changed、显式清空、No-op及独立Ready，另核真实丢编辑回执后保留原version、完整patch和key，仅查原Lookup。四Wait0、两Node实际成功、七ID14次absence、全部双尾/TCP0、2436输入一致，secret最终业务/资源有限接受。cleanup接受8PNG和同轮键盘回焦、主题、reduced-motion及overflow检查；截图下半部与Unknown提示仅有DOM断言支持，不外推全面视觉或无障碍审计。原件见[组合recipe](../../../.agent-state/agent-system-integration/README.md#task编辑与agent创建页面有限组合)。
+
+本片验收闭合，已随main `4270a670`交付。原native01整轮34.22s FAIL及既有§1–12、Planning/Recovery和批12原FAIL均保留，不以后继请求联证修复回填。此片不新增排序、Blocker写入、状态边或完整规划能力；Timeline后端14项/3包vet及新UI16项/format/type/build仅有限接受，真实PG/浏览器尚待联调，不计入本次Task编辑交付；第十七批Agent编辑UI也未纳入。

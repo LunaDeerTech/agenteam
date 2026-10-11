@@ -43,6 +43,7 @@ export function projectRoute(value: unknown): {
     | '/settings'
     | '/settings/general'
     | '/settings/audit'
+    | '/settings/agents'
     | '/settings/model-providers'
     | '/settings/available-models'
     | '/tasks'
@@ -53,7 +54,7 @@ export function projectRoute(value: unknown): {
 } | null {
   if (typeof value !== 'string' || /[%\\?#]/.test(value)) return null
   const match =
-    /^\/([A-Za-z0-9][A-Za-z0-9-]{1,30}[A-Za-z0-9])\/([A-Za-z0-9._-]{1,64})(\/settings(?:\/(?:general|audit|model-providers|available-models))?|\/tasks(?:\/(?:sprints\/)?[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?|\/knowledge(?:\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?)?$/.exec(
+    /^\/([A-Za-z0-9][A-Za-z0-9-]{1,30}[A-Za-z0-9])\/([A-Za-z0-9._-]{1,64})(\/settings(?:\/(?:general|audit|agents|model-providers|available-models))?|\/tasks(?:\/(?:sprints\/)?[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?|\/knowledge(?:\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?)?$/.exec(
       value,
     )
   if (!match) return null
@@ -161,6 +162,25 @@ export function installProjectModelSettingsNavigation(
   }
 }
 
+const agentNavigation = new WeakMap<
+  Router,
+  {
+    confirmLeave: (target?: string) => Promise<boolean>
+    afterNavigation: (to: string, from: string) => void
+  }
+>()
+export function installAgentNavigation(
+  router: Router,
+  owner: {
+    confirmLeave: (target?: string) => Promise<boolean>
+    afterNavigation: (to: string, from: string) => void
+  },
+) {
+  agentNavigation.set(router, owner)
+  return () => {
+    if (agentNavigation.get(router) === owner) agentNavigation.delete(router)
+  }
+}
 const taskNavigation = new WeakMap<
   Router,
   {
@@ -185,6 +205,11 @@ export function installAuthentication(router: Router, auth: SessionController = 
     if (
       to.fullPath !== from.fullPath &&
       !((await taskNavigation.get(router)?.confirmLeave(to.fullPath)) ?? true)
+    )
+      return false
+    if (
+      to.fullPath !== from.fullPath &&
+      !((await agentNavigation.get(router)?.confirmLeave(to.fullPath)) ?? true)
     )
       return false
     if (to.meta.projectWorkspace && to.fullPath !== '/projects' && !projectRoute(to.fullPath))
@@ -279,6 +304,7 @@ export function installAuthentication(router: Router, auth: SessionController = 
   router.afterEach((to, from, failure) => {
     if (!failure) projectNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) taskNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+    if (!failure) agentNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) projectModelNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) outboundPolicyNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) smtpNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)

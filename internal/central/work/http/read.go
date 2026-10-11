@@ -20,6 +20,7 @@ type query struct {
 	milestone c.MilestoneID
 	filter    c.TaskFilter
 	status    c.TaskBlockerStatus
+	timeline  c.TaskTimelineFilter
 }
 
 func parseQuery(r *http.Request, kind resource) (query, error) {
@@ -27,7 +28,7 @@ func parseQuery(r *http.Request, kind resource) (query, error) {
 	if r == nil || r.URL == nil || len(r.URL.RawQuery) > maxQueryBytes || r.URL.RawQuery == "" && r.URL.ForceQuery {
 		return q, invalidInput()
 	}
-	list := kind == milestones || kind == sprints || kind == tasks || kind == blockers
+	list := kind == milestones || kind == sprints || kind == tasks || kind == blockers || kind == taskEvents
 	if !list && r.URL.RawQuery != "" {
 		return q, invalidInput()
 	}
@@ -52,7 +53,7 @@ func parseQuery(r *http.Request, kind resource) (query, error) {
 			if _, exists := values[key]; exists {
 				return q, invalidInput()
 			}
-			if key != "limit" && key != "cursor" && !(kind == sprints && key == "milestone_id") && !(kind == blockers && key == "status") && !(kind == tasks && slices.Contains([]string{"state", "priority", "type", "milestone_id", "sprint_id", "text", "assignee_agent_id"}, key)) {
+			if key != "limit" && key != "cursor" && !(kind == sprints && key == "milestone_id") && !(kind == blockers && key == "status") && !(kind == taskEvents && (key == "types" || key == "order")) && !(kind == tasks && slices.Contains([]string{"state", "priority", "type", "milestone_id", "sprint_id", "text", "assignee_agent_id"}, key)) {
 				return q, invalidInput()
 			}
 			values[key] = value
@@ -68,6 +69,20 @@ func parseQuery(r *http.Request, kind resource) (query, error) {
 	q.page.Cursor = values["cursor"]
 	if len(q.page.Cursor) > maxCursorBytes {
 		return q, f.NewFault(f.CursorInvalid, f.NotStarted)
+	}
+	if kind == taskEvents {
+		q.timeline.Order = c.TaskTimelineDescending
+		if v, ok := values["order"]; ok {
+			q.timeline.Order = c.TaskTimelineOrder(v)
+		}
+		if v, ok := values["types"]; ok {
+			for _, kind := range strings.Split(v, ",") {
+				q.timeline.Types = append(q.timeline.Types, c.TaskTimelineEventType(kind))
+			}
+		}
+		if q.timeline.Validate() != nil {
+			return q, invalidInput()
+		}
 	}
 	if kind == sprints {
 		v, err := f.ParseID[c.Milestone](values["milestone_id"])
@@ -142,6 +157,8 @@ func (h *handler) read(r *http.Request, a id.Actor, p c.ProjectID, route route) 
 	}
 	ctx := r.Context()
 	switch route.kind {
+	case taskEvents:
+		return h.readTimeline(r, a, p, route.target, q)
 	case milestones:
 		page, err := h.structureReader.ListMilestones(ctx, a, p, q.page)
 		if err != nil {

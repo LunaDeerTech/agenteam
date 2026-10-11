@@ -61,12 +61,22 @@ const endpoints = {
   reviewTasks: ['GET', '/api/v1/projects/{project_id}/tasks', 200],
   reviewTask: ['GET', '/api/v1/projects/{project_id}/tasks/{target}', 200],
   reviewBlockers: ['GET', '/api/v1/projects/{project_id}/tasks/{target}/blockers', 200],
+  taskTimeline: ['GET', '/api/v1/projects/{project_id}/tasks/{target}/events', 200],
   reviewTransfer: ['POST', '/api/v1/projects/{project_id}/tasks/{target}/transfer', 200],
   reviewLookup: ['POST', '/api/v1/projects/{project_id}/task-transition-commands/lookup', 200],
   taskCreate: ['POST', '/api/v1/projects/{project_id}/tasks', 200],
   taskCreateLookup: ['POST', '/api/v1/projects/{project_id}/task-commands/lookup', 200],
+  taskUpdate: ['PATCH', '/api/v1/projects/{project_id}/tasks/{target}', 200],
+  taskUpdateLookup: ['POST', '/api/v1/projects/{project_id}/task-commands/lookup', 200],
   directoryAgents: ['GET', '/api/v1/projects/{project_id}/agents', 200],
   directoryAgent: ['GET', '/api/v1/projects/{project_id}/agents/{target}', 200],
+  agentConfigurationCreate: ['POST', '/api/v1/projects/{project_id}/agents', 200],
+  agentConfigurationGet: [
+    'GET',
+    '/api/v1/projects/{project_id}/agents/{target}/configuration',
+    200,
+  ],
+  agentConfigurationLookup: ['POST', '/api/v1/projects/{project_id}/agent-commands/lookup', 200],
   knowledgeChildren: ['GET', '/api/v1/projects/{project_id}/knowledge/documents/children', 200],
   knowledgeDocument: ['GET', '/api/v1/projects/{project_id}/knowledge/documents/{target}', 200],
   knowledgeAncestors: [
@@ -935,12 +945,18 @@ type WorkReviewEndpoint =
   | 'reviewTasks'
   | 'reviewTask'
   | 'reviewBlockers'
+  | 'taskTimeline'
   | 'reviewTransfer'
   | 'reviewLookup'
   | 'taskCreate'
   | 'taskCreateLookup'
+  | 'taskUpdate'
+  | 'taskUpdateLookup'
   | 'directoryAgents'
   | 'directoryAgent'
+  | 'agentConfigurationCreate'
+  | 'agentConfigurationGet'
+  | 'agentConfigurationLookup'
 const workReviewEndpoints: readonly WorkReviewEndpoint[] = [
   'reviewMilestones',
   'reviewMilestone',
@@ -949,12 +965,18 @@ const workReviewEndpoints: readonly WorkReviewEndpoint[] = [
   'reviewTasks',
   'reviewTask',
   'reviewBlockers',
+  'taskTimeline',
   'reviewTransfer',
   'reviewLookup',
   'taskCreate',
   'taskCreateLookup',
+  'taskUpdate',
+  'taskUpdateLookup',
   'directoryAgents',
   'directoryAgent',
+  'agentConfigurationCreate',
+  'agentConfigurationGet',
+  'agentConfigurationLookup',
 ]
 type WorkReviewOptions = {
   signal: AbortSignal
@@ -1107,6 +1129,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           'reviewSprints',
           'reviewTasks',
           'reviewBlockers',
+          'taskTimeline',
           'directoryAgents',
         ].includes(endpoint)
         const target = basePath.includes('{target}')
@@ -1134,12 +1157,16 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
                 : endpoint === 'reviewBlockers'
                   ? ['status']
                   : []
-          const query = shape(options.workQuery, ['limit', ...fields], ['cursor'])
+          const query = shape(
+            options.workQuery,
+            ['limit', ...fields],
+            endpoint === 'taskTimeline' ? ['cursor', 'order', 'types'] : ['cursor'],
+          )
           const limit = string(query.limit, 1, 3)
           if (!/^[1-9][0-9]*$/.test(limit) || Number(limit) > 200) throw new Error()
           const params = new URLSearchParams()
           for (const [key, value] of Object.entries(query)) {
-            const item = string(value, 1, key === 'cursor' ? 8192 : 64)
+            const item = string(value, 1, key === 'cursor' ? 8192 : key === 'types' ? 128 : 64)
             if (key.endsWith('_id') && !uuid7.test(item)) throw new Error()
             if (
               key === 'state' &&
@@ -1154,6 +1181,25 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
               ].includes(item)
             )
               throw new Error()
+            if (key === 'order' && !['asc', 'desc'].includes(item)) throw new Error()
+            if (key === 'types') {
+              const kinds = item.split(',')
+              if (
+                new Set(kinds).size !== kinds.length ||
+                !kinds.every((kind) =>
+                  [
+                    'task_created',
+                    'fields_updated',
+                    'blocker_added',
+                    'blocker_resolved',
+                    'state_changed',
+                    'assignee_changed',
+                    'comment',
+                  ].includes(kind),
+                )
+              )
+                throw new Error()
+            }
             if (key === 'status' && !['unresolved', 'resolved', 'all'].includes(item))
               throw new Error()
             if (
@@ -1526,29 +1572,32 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       headers['Content-Type'] = options.avatar.mediaType
       headers['If-Match'] = `"${options.avatar.version}"`
     } else if (method !== 'GET') {
-      const maximum = (workReviewEndpoints as readonly string[]).includes(endpoint)
-        ? 1048576
-        : (projectConfigurationWrites as readonly string[]).includes(endpoint)
-          ? 1048576
-          : endpoint === 'createProjectModelCredential' ||
-              endpoint === 'updateProjectModelCredential'
-            ? 409600
-            : endpoint === 'deleteProjectModelCredential' ||
-                endpoint === 'lookupProjectModelCredential'
-              ? 1024
-              : endpoint === 'updateOwnerProject'
-                ? 64 * 1024
-                : endpoint === 'lookupOwnerProject'
+      const maximum =
+        endpoint === 'agentConfigurationCreate' || endpoint === 'agentConfigurationLookup'
+          ? 512 * 1024
+          : (workReviewEndpoints as readonly string[]).includes(endpoint)
+            ? 1048576
+            : (projectConfigurationWrites as readonly string[]).includes(endpoint)
+              ? 1048576
+              : endpoint === 'createProjectModelCredential' ||
+                  endpoint === 'updateProjectModelCredential'
+                ? 409600
+                : endpoint === 'deleteProjectModelCredential' ||
+                    endpoint === 'lookupProjectModelCredential'
                   ? 1024
-                  : endpoint === 'updateOutboundPolicy'
-                    ? 1024 * 1024
-                    : endpoint === 'createModelCredential'
-                      ? 512 * 1024
-                      : endpoint === 'createProvider' ||
-                          endpoint === 'updateProvider' ||
-                          endpoint === 'updateSMTPSettings'
-                        ? 32 * 1024
-                        : 16 * 1024
+                  : endpoint === 'updateOwnerProject'
+                    ? 64 * 1024
+                    : endpoint === 'lookupOwnerProject'
+                      ? 1024
+                      : endpoint === 'updateOutboundPolicy'
+                        ? 1024 * 1024
+                        : endpoint === 'createModelCredential'
+                          ? 512 * 1024
+                          : endpoint === 'createProvider' ||
+                              endpoint === 'updateProvider' ||
+                              endpoint === 'updateSMTPSettings'
+                            ? 32 * 1024
+                            : 16 * 1024
       try {
         body = JSON.stringify(options.body)
       } catch {
@@ -1615,15 +1664,26 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           options.signal,
           lifecycle,
           (workReviewEndpoints as readonly string[]).includes(endpoint) && success
-            ? endpoint === 'directoryAgents'
-              ? 13 * 1024 * 1024
-              : endpoint === 'directoryAgent'
-                ? 64 * 1024
-                : ['reviewMilestones', 'reviewSprints', 'reviewTasks', 'reviewBlockers'].includes(
-                      endpoint,
-                    )
-                  ? 5 * 1024 * 1024
-                  : 1024 * 1024
+            ? [
+                'agentConfigurationCreate',
+                'agentConfigurationGet',
+                'agentConfigurationLookup',
+              ].includes(endpoint)
+              ? 512 * 1024
+              : endpoint === 'taskTimeline'
+                ? 4 * 1024 * 1024
+                : endpoint === 'directoryAgents'
+                  ? 13 * 1024 * 1024
+                  : endpoint === 'directoryAgent'
+                    ? 64 * 1024
+                    : [
+                          'reviewMilestones',
+                          'reviewSprints',
+                          'reviewTasks',
+                          'reviewBlockers',
+                        ].includes(endpoint)
+                      ? 5 * 1024 * 1024
+                      : 1024 * 1024
             : (knowledgeEndpoints as readonly string[]).includes(endpoint) && success
               ? // Exact complete representation limits of the two Knowledge adapters.
                 endpoint === 'knowledgeContent'

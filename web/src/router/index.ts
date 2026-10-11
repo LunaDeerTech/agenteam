@@ -148,6 +148,11 @@ export const router = createRouter({
               component: () => import('../views/projects/ProjectGeneralSettings.vue'),
             },
             {
+              path: 'agents',
+              name: 'project-agents',
+              component: () => import('../views/projects/ProjectAgentsView.vue'),
+            },
+            {
               path: 'audit',
               name: 'project-audit',
               component: () => import('../views/projects/ProjectAuditView.vue'),

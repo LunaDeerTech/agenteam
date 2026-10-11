@@ -18,6 +18,7 @@ import {
   installSMTPSettingsNavigation,
   installOutboundPolicyNavigation,
   installTaskNavigation,
+  installAgentNavigation,
   installProjectNavigation,
   installProjectModelSettingsNavigation,
 } from './router/auth'
@@ -53,6 +54,7 @@ import {
   projectModelSettingsKey,
 } from './composables/useProjectModelSettings'
 import { createProjectTasks, projectTasksKey } from './composables/useProjectTasks'
+import { createProjectAgents, projectAgentsKey } from './composables/useProjectAgents'
 const auth = useSession(),
   state = auth.state,
   route = useRoute(),
@@ -63,6 +65,9 @@ const stopProjectNavigation = installProjectNavigation(router, projects)
 const tasks = createProjectTasks(auth, projects, (path) => router.push(path))
 provide(projectTasksKey, tasks)
 const stopTaskNavigation = installTaskNavigation(router, tasks)
+const agents = createProjectAgents(auth, projects)
+provide(projectAgentsKey, agents)
+const stopAgentNavigation = installAgentNavigation(router, agents)
 const projectModels = createProjectModelSettings(auth, projects)
 provide(projectModelSettingsKey, projectModels)
 const stopProjectModelNavigation = installProjectModelSettingsNavigation(router, projectModels)
@@ -121,6 +126,7 @@ provide(systemOutboundPolicyKey, outboundPolicy)
 const stopOutboundNavigation = installOutboundPolicyNavigation(router, outboundPolicy)
 async function logout() {
   if (
+    (await agents.confirmLeave()) &&
     (await tasks.confirmLeave()) &&
     (await settings.confirmLeave()) &&
     (await invitations.confirmLeave()) &&
@@ -162,6 +168,7 @@ watch(
 onMounted(() => {
   projects.afterNavigation(route.fullPath, '')
   tasks.afterNavigation(route.fullPath)
+  agents.afterNavigation(route.fullPath)
   projectModels.afterNavigation(route.fullPath, '')
   entry.afterNavigation(route.fullPath, '')
   invitations.afterNavigation(route.fullPath, '')
@@ -177,6 +184,8 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('visibilitychange', refreshVisible)
   window.removeEventListener('pageshow', refreshVisible)
+  stopAgentNavigation()
+  agents.dispose()
   stopTaskNavigation()
   tasks.dispose()
   stopProjectModelNavigation()
@@ -255,6 +264,17 @@ onUnmounted(() => {
     <template #footer
       ><UiButton variant="ghost" @click="tasks.cancelConfirmation">继续查看</UiButton
       ><UiButton @click="tasks.confirm">离开</UiButton></template
+    >
+  </UiDialog>
+  <UiDialog
+    :open="agents.confirmation.open"
+    title="离开 Agent 配置？"
+    @update:open="!$event && agents.finishConfirmation(false)"
+  >
+    <p>{{ agents.confirmation.message }}</p>
+    <template #footer
+      ><UiButton variant="ghost" @click="agents.finishConfirmation(false)">继续编辑</UiButton>
+      <UiButton @click="agents.finishConfirmation(true)">确认离开</UiButton></template
     >
   </UiDialog>
   <UiDialog

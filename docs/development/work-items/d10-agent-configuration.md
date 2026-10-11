@@ -1,6 +1,14 @@
 # D10 Agent 配置与当前身份事实
 
-状态：**C1 六个纯契约与 §2.3 的 metadata 前置已接受；Owner 只读 Agent 目录 HTTP 已通过 §2.4 的有限真实验证；完整 F1 与 D10 不据此视为完成**。§2.3 保留此前 metadata 交付范围，§2.4 单独记录后继目录能力；其它类型、接口与生产接入按各自实际范围验收。`identity.AgentID` 仍只是 typed identity，目录也不授予运行权限。
+状态：**第十四/十六批backend已随正式产品基线main `295f46b4`交付。C1 六个纯契约与§2.3 metadata前置、§2.4 Owner安全目录已分别有限接受；第十四批配置Create/Get/Lookup的公共App TLS真实两链已通过并最终独审接受。第十六批Update仅十九race加两包vet分段接受；第十五批创建UI真实两链验收闭合，已随main `4270a670`交付；第十七批编辑UI仅有限前端验证通过，未纳入本次交付，真实Update/App/browser未验。完整F1与D10不据此视为完成**。下文早期前置保留原范围；typed identity、目录或配置回执不授予运行权限。
+
+第十四批限定已有initialized Project的当前Human Owner：`POST /api/v1/projects/{project_id}/agents`创建、`GET/HEAD /api/v1/projects/{project_id}/agents/{agent_id}/configuration`读取完整配置，以及`POST /api/v1/projects/{project_id}/agent-commands/lookup`查询原agent.create请求与key。完整Config二十字段，安全Directory九字段；默认Install Skill由App真实Skill/InstallSource/Registry图取得身份，显式false保原规则。SOURCE `75e23e9d`的 `TestAgentConfigurationApp` 真实两sub18.42s（9.39/9.03）wholePASS，覆盖runtimeoff公共App TLS默认Create/Get/Lookup/Directory/Assign及丢回执、当前Owner边界；四Wait0、七ID14次absence、全部双尾/TCP0、1663输入一致，secret最终接受。与16组合的十九race top和后继两包vet按原输入分段接受，原pure01容量wholeFAIL保留；本轮Create不代验Update PG、页面或Project初始化。原件入口见[组合recipe](../../../.agent-state/agent-system-integration/README.md#task-intake与agent配置创建有限组合)。
+
+第十五批沿[项目设置](../../frontend-design/layouts/project-settings.md)增加`/{owner}/{project}/settings/agents`：安全目录分页选中后读取完整配置，空白创建从真实可用chat模型中选择并显式填写注入与审批策略，保留默认字段省略、null与false的原语义。Unknown冻结原Project、Agent UUIDv7、完整字段presence和key，只查原操作；身份及页面代际变化隔离迟到结果。目录和创建成功均不构成运行授权，不新增preset、删除、完整授权picker或运行管理。
+
+原frontend01二十个不同用例、format15/type/build已通过。runtime SOURCE `7a0224a9`的 `TestAgentConfigurationWeb` native03两sub41.82s wholePASS（正常创建/目录/配置21.37s，真实丢回执后仅原Lookup20.45s）；复用compile SOURCE `8417`的candidate09与原Agent dist01，不混写运行与编译来源。正常链验证一次Create、安全目录九字段及配置二十字段；丢回执链保持一次Create、一次原Lookup，原截断失败不伪记请求成功。四Wait0、两Node实际成功、七ID14次absence、全部双尾/TCP0、2436输入一致，secret最终业务/资源有限接受；cleanup接受本轮7PNG及键盘、主题、overflow有限检查，未把二十字段未同入图的部分算作完整视觉审计。原native01容量FAIL、native02 Lookup绑定FAIL保留。该创建页面验收闭合，已随main `4270a670`交付；原件与恢复入口见[组合recipe](../../../.agent-state/agent-system-integration/README.md#task编辑与agent创建页面有限组合)。
+
+第十六批 Agent Update HTTP/schema 来源`dc902550`已随main `295f46b4`交付并获有限静审接受，十九race top及后继两包vet已分段接受，原pure01容量wholeFAIL保留。第十七批SOURCE `3c17d0a6`已推送，仅编辑真实选中Agent的name、description、instructions：冻结原version及实际触达字段，空描述/指令明确清空，changed与no-op分别校验版本和事件；版本冲突须人工核对重读，Unknown只查询原Project/Agent/key/完整patch，不自动重发。原Create默认语义保持，切换Agent/Project及退出保护草稿并隔离迟到结果。frontend01二十个不同用例（client 6、Session 5、state 5、page 4）、format10、完整类型检查与构建全部通过，四Node原Wait0、全部双尾关闭，并获cleanup独立有限接受；真实Update PG/App及浏览器未验证。完整配置修改UI、删除、运行中授权与 lifecycle 不随上述创建/读取切片开放。生产 Project initializer、平台 ready、完整 F1 与 Object runtime join 等既有停止项保持，旧 metadata、Model/资源与目录的接受结果分别复用，不合并宣称全卡完成。
 
 本卡拟分成两个可分别验收的结果：**C1 纯 AgentCore 与当前身份端口契约**可在规格接受后先行；**F1 Human Owner 创建、读取、修改真实 Agent 配置，并提供同 caller Tx 的当前身份事实**必须等本卡列出的真实前置闭合后开工。F1 不接受 SQL 手种 Agent、默认成功目录或未绑定初始化作为生产创建路径。C1 完成不解锁 Task 指派；F1 完成也不等于 Executor、Agent 删除、完整 D10 或平台 ready。
 
@@ -108,7 +116,7 @@ Skill assignments 是独立权威集合，不伪造 `skills:[]` 到 AgentConfig�
 
 外域引用不得混淆：D01 ToolSpec 的 `tool_id` 是 UUIDv7 数据库身份，`stable_key` 才是 `builtin:<name>` / `runner:<name>` / `mcp:<config_id>:<remote_name>` 字符串；Agent 的 `allowed_tool_ids` 保存前者，不把后者塞进 UUID 解析器。R1 已在 identity 层唯一定义 Tool、Mount、ProjectVariable 的 canonical UUIDv7 类型。上文 ToolID/MountID/ProjectVariableID 均指这些 alias，普通与 Secret 变量共享稳定变量身份；白名单仍须由真实目录验证当前同 Project 且 type=secret。各 owner 的 scope、目录及引用保护仍须冻结并实现后才能补完整 AgentConfig，不使用原始宿主路径、RunnerID、Secret CredentialRef 或字符串占位来代替。C1只依赖已存在的 identity/Model/Foundation。
 
-全体对象包括嵌套 Capability、私有持久 request/plan、历史 payload，逐层拒绝未知 key、大小写别名、重复 key、null 越界、缺必有字段、非法 UTF-8、孤立 surrogate、尾随值、错误标量类型。不能只用 `DisallowUnknownFields` 或 canonical-v1 代替 schema。请求/单个 Agent/单 receipt cap 建议512KiB，Lookup request16KiB，safe history/typed event payload16KiB，私有计划4MiB。每个 codec 检查其方法实际收到的完整 raw；标准 `json.Unmarshal` 裁外层空白的行为单独测试。正文最坏 escaping 与三类共256项引用合计仍须经实测证明低于 cap。
+全体对象包括嵌套 Capability、私有持久 request/plan、历史 payload，逐层拒绝未知 key、大小写别名、重复 key、null 越界、缺必有字段、非法 UTF-8、孤立 surrogate、尾随值、错误标量类型。不能只用 `DisallowUnknownFields` 或 canonical-v1 代替 schema。请求/单个 Agent/单 receipt cap 建议512KiB；HTTP Create/Lookup 的完整原请求 body 均严格限制为512KiB，可包含原字段上限内的≤32KiB instructions，不扩大任何 domain 字段上限。safe history/typed event payload16KiB，私有计划4MiB。每个 codec 检查其方法实际收到的完整 raw；标准 `json.Unmarshal` 裁外层空白的行为单独测试。正文最坏 escaping 与三类共256项引用合计仍须经实测证明低于 cap。
 
 全部导出 DTO 提供 Validate、严格编解码与 Clone，pointer/slice/maps 深复制。fmt/slog 使用固定 `agent_config` 等安全投影，Fault wire 不含正文、Secret、command key、SQL 或内部 cause；外域纯 DTO 的安全格式化边界不得靠反射猜测私有结构。显式授权 JSON 才是业务传输通道。
 

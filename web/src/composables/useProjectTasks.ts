@@ -14,12 +14,23 @@ import {
   type ReviewInput,
 } from '../api/work-review'
 import { captureTaskCreateDraft, type TaskCreateDraft } from '../api/work-task-planning'
+import { compareTaskTimelineEvents, type TaskTimelineEvent } from '../api/work-task-timeline'
+import { captureTaskUpdateInput } from '../api/work-task-edit'
 import { agentLabel, type DirectoryAgent } from '../api/agent-directory'
 import { workTaskRoute } from '../router/auth'
 import { type SessionController } from './useSession'
 import type { createProjectWorkspace } from './useProjectWorkspace'
 
 type Phase = 'idle' | 'loading' | 'ready' | 'error'
+export type TaskTimelineState = {
+  phase: Phase
+  items: readonly TaskTimelineEvent[]
+  next?: string
+  message: string
+  retryMore: boolean
+}
+const editFields = ['title', 'description', 'type', 'priority', 'plan'] as const
+type EditField = (typeof editFields)[number]
 export type TaskColumn = {
   phase: Phase
   items: readonly TaskSummary[]
@@ -37,6 +48,7 @@ function explain(error: unknown): string {
     return '当前对象不可用或无权访问，请重新选择。'
   const messages: Record<string, string> = {
     VERSION_CONFLICT: '任务已发生变化。已保留输入，请重新读取后核对。',
+    TASK_VERSION_CONFLICT: '任务已发生变化。已保留输入，请重新读取后核对。',
     COMMENT_REQUIRED: '请填写评审说明。',
     TASK_ASSIGNEE_REQUIRED: '请选择接收此任务的 Agent。',
     RESOURCE_BUSY: '任务有尚未结束的操作，请稍后重新读取。',
@@ -84,6 +96,21 @@ export function createProjectTasks(
     detailCurrent: false,
     feedback: '',
   })
+  const timeline = shallowReactive<TaskTimelineState>({
+    phase: 'idle',
+    items: [],
+    message: '',
+    retryMore: false,
+  })
+  function clearTimeline() {
+    Object.assign(timeline, {
+      phase: 'idle',
+      items: [],
+      next: undefined,
+      message: '',
+      retryMore: false,
+    })
+  }
   const columns = reactive(
     Object.fromEntries(taskStates.map((s) => [s, emptyColumn()])) as Record<TaskState, TaskColumn>,
   )
@@ -102,6 +129,19 @@ export function createProjectTasks(
     priority: TaskCreateDraft['priority'] | ''
     message: string
   }>({ open: false, title: '', description: '', plan: '', type: '', priority: '', message: '' })
+  const edit = reactive({
+    open: false,
+    projectID: '',
+    taskID: '',
+    version: '',
+    title: '',
+    description: '',
+    type: '' as Task['type'] | '',
+    priority: '' as Task['priority'] | '',
+    plan: '',
+    touched: { title: false, description: false, type: false, priority: false, plan: false },
+    message: '',
+  })
   const confirmation = reactive({ open: false, message: '' })
   let resolveLeave: ((value: boolean) => void) | null = null
   const reading = ref(false)
@@ -164,6 +204,25 @@ export function createProjectTasks(
       !state.task &&
       !pending.value,
   )
+  const canEdit = computed(
+    () =>
+      visible.value &&
+      workspace.detail.project?.lifecycle === 'active' &&
+      state.detailCurrent &&
+      !!state.sprint &&
+      ['planned', 'current'].includes(state.sprint.state) &&
+      state.task?.state === 'backlog' &&
+      state.task.assignee_agent_id === null &&
+      !pending.value,
+  )
+  const editDirty = computed(() => edit.open && editFields.some((field) => edit.touched[field]))
+  const editStale = computed(
+    () =>
+      edit.open &&
+      (edit.projectID !== workspace.currentReadContext.value?.projectID ||
+        edit.taskID !== state.task?.id ||
+        edit.version !== state.task?.version),
+  )
   const creationDirty = computed(
     () =>
       !!creation.title ||
@@ -173,7 +232,12 @@ export function createProjectTasks(
       !!creation.priority,
   )
   const dirty = computed(
-    () => !!draft.comment || !!draft.agentID || creationDirty.value || !!pending.value,
+    () =>
+      !!draft.comment ||
+      !!draft.agentID ||
+      creationDirty.value ||
+      editDirty.value ||
+      !!pending.value,
   )
   const agentOptions = computed(() =>
     state.agents.map((a) => ({
@@ -205,12 +269,28 @@ export function createProjectTasks(
       message: '',
     })
   }
+  function clearEdit() {
+    Object.assign(edit, {
+      open: false,
+      projectID: '',
+      taskID: '',
+      version: '',
+      title: '',
+      description: '',
+      type: '',
+      priority: '',
+      plan: '',
+      message: '',
+      touched: { title: false, description: false, type: false, priority: false, plan: false },
+    })
+  }
   function retire() {
     ++generation
     requested = false
     auth.workReview.abandonRead()
   }
   function clearData() {
+    clearTimeline()
     manualMilestone = null
     state.phase = 'idle'
     state.message = ''
@@ -233,6 +313,7 @@ export function createProjectTasks(
     for (const s of taskStates) Object.assign(columns[s], emptyColumn())
     clearDraft()
     clearCreation()
+    clearEdit()
   }
   async function read<T>(
     fn: (project: string, step: <V>(work: () => Promise<V>) => Promise<V>) => Promise<T>,
@@ -399,6 +480,71 @@ export function createProjectTasks(
       },
     )
   }
+  async function loadTimeline(more = false) {
+    const task = state.task
+    if (!task || !state.detailCurrent) return
+    const cursor = more ? timeline.next : undefined
+    if (more && !cursor) return
+    await read(
+      async (p, step) => {
+        if (!more) clearTimeline()
+        timeline.phase = 'loading'
+        timeline.message = ''
+        timeline.retryMore = more
+        return step(() =>
+          auth.workReview.events(p, task.id, {
+            limit: 50,
+            order: 'desc',
+            ...(cursor ? { cursor } : {}),
+          }),
+        )
+      },
+      (page) => {
+        if (state.task?.id !== task.id) return
+        // Reject inconsistent continuation atomically; never hide duplicate events.
+        const before = more ? timeline.items : []
+        const seen = new Set(before.map((item) => item.id))
+        const chunk = [...page.items].reverse()
+        for (let n = 0; n < chunk.length; n++) {
+          const item = chunk[n]!
+          if (
+            item.project_id !== task.project_id ||
+            item.task_id !== task.id ||
+            seen.has(item.id) ||
+            (n > 0 && compareTaskTimelineEvents(chunk[n - 1]!, item) >= 0)
+          )
+            throw new AccountFailure('invalid-response')
+          seen.add(item.id)
+        }
+        if (
+          (chunk.length &&
+            before.length &&
+            compareTaskTimelineEvents(chunk[chunk.length - 1]!, before[0]!) >= 0) ||
+          (page.next_cursor && (!chunk.length || page.next_cursor === cursor))
+        )
+          throw new AccountFailure('invalid-response')
+        timeline.items = Object.freeze([...chunk, ...before])
+        timeline.next = page.next_cursor
+        timeline.phase = 'ready'
+      },
+      (error) => {
+        if (state.task?.id !== task.id) return
+        if (
+          error instanceof AccountFailure &&
+          [401, 403, 404].includes(error.problem?.status ?? 0)
+        ) {
+          timeline.items = []
+          timeline.next = undefined
+          timeline.retryMore = false
+        }
+        timeline.phase = 'error'
+        timeline.message =
+          error instanceof AccountFailure && error.problem?.code === 'CURSOR_INVALID'
+            ? '历史分页已不可用，请重新读取历史。'
+            : explain(error)
+      },
+    )
+  }
   async function refresh() {
     requested = true
     await pump()
@@ -411,6 +557,7 @@ export function createProjectTasks(
     state.phase = 'loading'
     state.message = ''
     state.detailCurrent = false
+    clearTimeline()
     await read(
       async (p, step) => {
         const task =
@@ -473,6 +620,8 @@ export function createProjectTasks(
     if ((state.phase as Phase) !== 'ready' || requested || !visible.value) return
     if (state.task) {
       await loadBlockers()
+      if (requested || !visible.value || busy.value) return
+      await loadTimeline()
       if (state.task?.assignee_agent_id && !names.has(state.task.assignee_agent_id)) {
         const tid = state.task.assignee_agent_id
         await read(
@@ -516,7 +665,7 @@ export function createProjectTasks(
       await navigate(`${projectPath()}/tasks/sprints/${state.sprint.id}`)
   }
   function chooseAction(action: ReviewInput['request']['target_state']) {
-    if (readOnly.value || busy.value) return
+    if (readOnly.value || busy.value || edit.open) return
     const task = state.task
     if (
       !task ||
@@ -534,7 +683,7 @@ export function createProjectTasks(
   async function submit() {
     const p = workspace.currentReadContext.value?.projectID,
       task = state.task
-    if (!p || !task || !draft.action || readOnly.value || busy.value) return
+    if (!p || !task || !draft.action || readOnly.value || busy.value || edit.open) return
     try {
       if (auth.workReview.progress?.phase === 'rejected') auth.workReview.editRejected()
       if (task.state === 'backlog' && draft.action === 'todo') {
@@ -574,15 +723,104 @@ export function createProjectTasks(
     }
   }
   async function lookup() {
-    if (busy.value || !progress.value?.contextValid || progress.value.phase !== 'uncertain') return
+    const original = progress.value,
+      own = generation
+    if (busy.value || !original?.contextValid || original.phase !== 'uncertain') return
     try {
       const result = await auth.workReview.checkOriginal()
       if ('status' in result && result.status !== 'committed') return
+      if (!live(own, original.projectID) || state.task?.id !== original.taskID) return
       clearDraft()
-      state.feedback = '已确认原操作结果。'
+      clearEdit()
+      const receipt = 'status' in result ? result.receipt : result
+      state.feedback =
+        original.kind === 'edit' && 'changed' in receipt && !receipt.changed
+          ? '已确认原保存结果，任务内容没有变化。'
+          : '已确认原操作结果。'
       await refresh()
+      if (original.kind === 'edit' && live(own, original.projectID) && state.phase === 'error')
+        state.message = `${state.feedback} ${state.message}`
     } catch (error) {
-      state.message = explain(error)
+      if (live(own, original.projectID) && state.task?.id === original.taskID)
+        state.message = explain(error)
+    }
+  }
+  function openEdit() {
+    const task = state.task
+    if (!task || !canEdit.value || busy.value || draft.action || edit.open) return
+    clearEdit()
+    Object.assign(edit, {
+      projectID: task.project_id,
+      taskID: task.id,
+      version: task.version,
+      title: task.title,
+      description: task.description,
+      type: task.type,
+      priority: task.priority,
+      plan: task.plan,
+      open: true,
+    })
+    state.feedback = ''
+  }
+  function touchEdit(field: EditField, value: string) {
+    if (!edit.open || busy.value || !canEdit.value || editStale.value) return
+    if (field === 'type') {
+      if (!['feature', 'bug', 'task', 'spike', 'chore'].includes(value)) return
+      edit.type = value as Task['type']
+    } else if (field === 'priority') {
+      if (!['critical', 'high', 'medium', 'low'].includes(value)) return
+      edit.priority = value as Task['priority']
+    } else edit[field] = value
+    edit.touched[field] = true
+  }
+  async function cancelEdit() {
+    if (busy.value || pending.value) return
+    if (editDirty.value && !(await confirmLeave())) return
+    clearEdit()
+  }
+  async function submitEdit() {
+    const p = workspace.currentReadContext.value?.projectID,
+      task = state.task,
+      own = generation
+    if (
+      !p ||
+      !task ||
+      !edit.open ||
+      !canEdit.value ||
+      !editDirty.value ||
+      editStale.value ||
+      busy.value
+    )
+      return
+    try {
+      const input = captureTaskUpdateInput({
+        expected_version: edit.version,
+        request: Object.fromEntries(
+          editFields.filter((field) => edit.touched[field]).map((field) => [field, edit[field]]),
+        ),
+      })
+      if (auth.workReview.progress?.phase === 'rejected') auth.workReview.editRejected()
+      const result = await auth.workReview.startEdit(p, task.id, input)
+      if (
+        'status' in result ||
+        !('changed' in result) ||
+        !live(own, p) ||
+        state.task?.id !== task.id
+      )
+        return
+      clearEdit()
+      const message = result.changed ? '任务已保存。' : '已确认保存，任务内容没有变化。'
+      state.feedback = message
+      await refresh()
+      if (live(own, p) && state.phase === 'error') state.message = `${message} ${state.message}`
+    } catch (error) {
+      if (live(own, p) && state.task?.id === task.id) {
+        edit.message =
+          error instanceof AccountFailure && error.kind === 'invalid-input'
+            ? '请核对标题、类型、优先级和文本长度。'
+            : explain(error)
+        if (auth.workReview.progress?.phase === 'rejected') state.detailCurrent = false
+      }
     }
   }
   function openCreation() {
@@ -657,6 +895,7 @@ export function createProjectTasks(
     if (yes) {
       clearDraft()
       clearCreation()
+      clearEdit()
     }
     resolve?.(yes)
   }
@@ -667,6 +906,8 @@ export function createProjectTasks(
     if (workTaskRoute(to)?.kind !== 'root') manualMilestone = null
     clearDraft()
     clearCreation()
+    clearEdit()
+    clearTimeline()
     state.task = null
     state.detailCurrent = false
     state.feedback = ''
@@ -711,9 +952,14 @@ export function createProjectTasks(
   }
   return {
     state,
+    timeline,
     columns,
     draft,
     creation,
+    edit,
+    canEdit,
+    editDirty,
+    editStale,
     creationPending,
     creationProgress,
     canCreate,
@@ -731,12 +977,17 @@ export function createProjectTasks(
     loadMilestones,
     loadSprints,
     loadBlockers,
+    loadTimeline,
     selectMilestone,
     selectSprint,
     selectTask,
     closeTask,
     chooseAction,
     submit,
+    openEdit,
+    touchEdit,
+    cancelEdit,
+    submitEdit,
     openCreation,
     cancelCreation,
     submitCreation,

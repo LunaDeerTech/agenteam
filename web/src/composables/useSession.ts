@@ -1,4 +1,13 @@
 import {
+  createAgentConfigurationAPI,
+  captureAgentCreateInput,
+  type AgentConfigurationAPI,
+  type AgentCreateFields,
+  type AgentCreateInput,
+  type AgentCreateReceipt,
+  type AgentCreateLookup,
+} from '../api/agent-configuration'
+import {
   createWorkReviewAPI,
   captureReviewInput,
   captureReadyInput,
@@ -21,6 +30,19 @@ import {
   type TaskCreateReceipt,
   type TaskCreateLookup,
 } from '../api/work-task-planning'
+import {
+  createWorkTaskEditAPI,
+  captureTaskUpdateInput,
+  type WorkTaskEditAPI,
+  type TaskUpdateInput,
+  type TaskUpdateReceipt,
+  type TaskUpdateLookup,
+} from '../api/work-task-edit'
+import {
+  createWorkTaskTimelineAPI,
+  type WorkTaskTimelineAPI,
+  type TaskTimelineQuery,
+} from '../api/work-task-timeline'
 import { createAgentDirectoryAPI, type AgentDirectoryAPI } from '../api/agent-directory'
 import { readonly, shallowReactive } from 'vue'
 import {
@@ -267,6 +289,24 @@ export type ProjectModelSettingsProgress = Readonly<{
   contextValid: boolean
   canRetryOriginal: boolean
 }>
+type AgentConfigurationAction = 'agent-configuration-read' | 'agent-create' | 'agent-create-lookup'
+type AgentCreateIntent = {
+  identity: PersonalIdentity
+  csrf: string
+  projectID: string
+  input: AgentCreateInput
+  key: string
+  body: string
+  uncertain: boolean
+}
+export type AgentConfigurationProgress = Readonly<{
+  projectID: string
+  agentID: string
+  phase: 'submitting' | 'uncertain' | 'confirmed' | 'rejected'
+  receipt: AgentCreateReceipt | null
+  observation: 'none' | 'committed' | 'in_progress' | 'not_observed' | 'failed'
+  contextValid: boolean
+}>
 type WorkReviewAction = 'work-review-read' | 'work-review-transfer' | 'work-review-lookup'
 type WorkReviewIntent = {
   identity: PersonalIdentity
@@ -280,9 +320,10 @@ type WorkReviewIntent = {
   | { kind: 'review'; input: ReviewInput }
   | { kind: 'ready'; input: ReadyInput }
   | { kind: 'create'; input: TaskCreateInput }
+  | { kind: 'edit'; input: TaskUpdateInput }
 )
-type WorkCommandReceipt = ReviewReceipt | TaskCreateReceipt
-type WorkCommandLookup = ReviewLookup | TaskCreateLookup
+type WorkCommandReceipt = ReviewReceipt | TaskCreateReceipt | TaskUpdateReceipt
+type WorkCommandLookup = ReviewLookup | TaskCreateLookup | TaskUpdateLookup
 export type WorkReviewProgress = Readonly<{
   kind: WorkReviewIntent['kind']
   projectID: string
@@ -530,6 +571,7 @@ type Action =
   | OutboundPolicyAction
   | ProjectAction
   | WorkReviewAction
+  | AgentConfigurationAction
   | ProjectAuditAction
   | ProjectModelAction
 interface Operation {
@@ -650,7 +692,15 @@ export function createSessionController(
   workReviewAPI: WorkReviewAPI = createWorkReviewAPI(),
   agentDirectoryAPI: AgentDirectoryAPI = createAgentDirectoryAPI(),
   taskPlanningAPI: WorkTaskPlanningAPI = createWorkTaskPlanningAPI(),
+  commandAPIs: Readonly<{
+    edit?: WorkTaskEditAPI
+    taskTimeline?: WorkTaskTimelineAPI
+    agentConfiguration?: AgentConfigurationAPI
+  }> = {},
 ) {
+  const taskEditAPI = commandAPIs.edit ?? createWorkTaskEditAPI()
+  const taskTimelineAPI = commandAPIs.taskTimeline ?? createWorkTaskTimelineAPI()
+  const agentConfigurationAPI = commandAPIs.agentConfiguration ?? createAgentConfigurationAPI()
   const state = shallowReactive<PublicState>({
     phase: 'checking',
     user: null,
@@ -718,6 +768,17 @@ export function createSessionController(
     materialInvalid: boolean
     materialRevision: number
   }>({ progress: null, hasMaterial: false, materialInvalid: false, materialRevision: 0 })
+  const agentConfigurationRevisions: Record<AgentConfigurationAction, number> = {
+    'agent-configuration-read': 0,
+    'agent-create': 0,
+    'agent-create-lookup': 0,
+  }
+  const isAgentConfigurationAction = (kind: Action): kind is AgentConfigurationAction =>
+    Object.hasOwn(agentConfigurationRevisions, kind)
+  let agentCreateIntent: AgentCreateIntent | null = null
+  const agentConfigurationState = shallowReactive<{
+    progress: Omit<AgentConfigurationProgress, 'contextValid'> | null
+  }>({ progress: null })
   const workReviewRevisions: Record<WorkReviewAction, number> = {
     'work-review-read': 0,
     'work-review-transfer': 0,
@@ -896,6 +957,7 @@ export function createSessionController(
     )
   }
   function clearIdentity(invalidate = true) {
+    clearAgentConfigurationRead()
     clearWorkReviewRead()
     clearKnowledgeRead()
     clearProjectAuditRead()
@@ -905,6 +967,7 @@ export function createSessionController(
     if (invalidate) {
       clearProjectModelState()
       clearProjectState()
+      clearAgentConfigurationState()
       clearWorkReviewState()
       clearInvitationState()
       clearProviderState()
@@ -970,6 +1033,7 @@ export function createSessionController(
     if (!same) {
       clearProjectModelState()
       clearProjectState()
+      clearAgentConfigurationState()
       clearWorkReviewState()
       ++personalRevision
       personalContext.identity = Object.freeze({
@@ -1517,12 +1581,14 @@ export function createSessionController(
       | OutboundPolicyAction
       | ProjectAction
       | WorkReviewAction
+      | AgentConfigurationAction
       | ProjectAuditAction
       | ProjectModelAction = 'personal',
   ): Promise<T> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
-    const revisionNow = () =>
-      isWorkReviewAction(kind)
+    const revisionNow = () => {
+      if (isAgentConfigurationAction(kind)) return agentConfigurationRevisions[kind]
+      return isWorkReviewAction(kind)
         ? workReviewRevisions[kind]
         : kind === 'knowledge-read'
           ? knowledgeRevision
@@ -1557,6 +1623,7 @@ export function createSessionController(
                                       : isOutboundPolicyAction(kind)
                                         ? outboundRevisions[kind]
                                         : providerRevisions[kind]
+    }
     const revision = revisionNow()
     const op: Operation = {
       kind,
@@ -1571,7 +1638,8 @@ export function createSessionController(
       revision === revisionNow() &&
       sameIdentity(identity, personalContext.identity) &&
       (kind === 'personal' ||
-        (isWorkReviewAction(kind) ||
+        (isAgentConfigurationAction(kind) ||
+        isWorkReviewAction(kind) ||
         kind === 'knowledge-read' ||
         isProjectAction(kind) ||
         isProjectAuditAction(kind) ||
@@ -1639,19 +1707,20 @@ export function createSessionController(
         return result
       })
       .catch((error: unknown) => {
-        const e = isWorkReviewAction(kind)
-          ? projectFailure(identity, op, error)
-          : kind === 'knowledge-read'
-            ? knowledgeFailure(current, error)
-            : isProjectModelAction(kind)
-              ? projectModelFailure(kind, current, error)
-              : isProjectAuditAction(kind)
-                ? projectAuditFailure(current, error)
-                : isProjectAction(kind)
-                  ? projectFailure(identity, op, error)
-                  : kind !== 'personal'
-                    ? systemFailure(identity, op, current, error)
-                    : personalFailure(identity, error)
+        const e =
+          isAgentConfigurationAction(kind) || isWorkReviewAction(kind)
+            ? projectFailure(identity, op, error)
+            : kind === 'knowledge-read'
+              ? knowledgeFailure(current, error)
+              : isProjectModelAction(kind)
+                ? projectModelFailure(kind, current, error)
+                : isProjectAuditAction(kind)
+                  ? projectAuditFailure(current, error)
+                  : isProjectAction(kind)
+                    ? projectFailure(identity, op, error)
+                    : kind !== 'personal'
+                      ? systemFailure(identity, op, current, error)
+                      : personalFailure(identity, error)
         if (command && personalIntent === command) {
           if (command.unsettled || isUnknown(e) || e.problem?.code === 'IDEMPOTENCY_KEY_REUSED') {
             command.checked = false
@@ -3723,6 +3792,183 @@ export function createSessionController(
       return performSMTPDelivery(smtpDeliveryIntent)
     },
   }
+  function clearAgentConfigurationRead() {
+    ++agentConfigurationRevisions['agent-configuration-read']
+    if (owner?.kind === 'agent-configuration-read') owner.abandon?.()
+  }
+  function clearAgentConfigurationState() {
+    for (const kind of Object.keys(agentConfigurationRevisions) as AgentConfigurationAction[])
+      ++agentConfigurationRevisions[kind]
+    agentCreateIntent = null
+    agentConfigurationState.progress = null
+    if (owner && isAgentConfigurationAction(owner.kind)) owner.abandon?.()
+  }
+  function agentCreateCurrent(original: AgentCreateIntent) {
+    return agentCreateIntent === original && projectContext(original)
+  }
+  function publishAgentCreate(
+    original: AgentCreateIntent,
+    phase: AgentConfigurationProgress['phase'],
+    receipt: AgentCreateReceipt | null = null,
+    observation: AgentConfigurationProgress['observation'] = 'none',
+  ) {
+    agentConfigurationState.progress = Object.freeze({
+      projectID: original.projectID,
+      agentID: original.input.request.agent_id,
+      phase,
+      receipt,
+      observation,
+    })
+  }
+  function performAgentCreate(original: AgentCreateIntent, lookup: boolean) {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    if (!agentCreateCurrent(original)) return Promise.reject(new AccountFailure('invalid-input'))
+    const kind: AgentConfigurationAction = lookup ? 'agent-create-lookup' : 'agent-create'
+    const revision = agentConfigurationRevisions[kind]
+    const live = () =>
+      agentCreateCurrent(original) && revision === agentConfigurationRevisions[kind]
+    let dispatched = false
+    if (!lookup) publishAgentCreate(original, 'submitting')
+    return runAuthorized<AgentCreateReceipt | AgentCreateLookup>(
+      original.identity,
+      async (op, current) => {
+        if (!current() || !live()) throw new AccountFailure('cancelled')
+        if (JSON.stringify(original.input) !== original.body)
+          throw new AccountFailure('invalid-input')
+        dispatched = true
+        const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
+        return lookup
+          ? agentConfigurationAPI.lookup(original.projectID, original.input, write)
+          : agentConfigurationAPI.create(original.projectID, original.input, write)
+      },
+      undefined,
+      kind,
+    ).then(
+      (value) => {
+        if (!live()) throw new AccountFailure('cancelled')
+        if ('status' in value && value.status !== 'committed') {
+          original.uncertain = true
+          publishAgentCreate(original, 'uncertain', null, value.status)
+          return value
+        }
+        const receipt = 'status' in value ? value.receipt : value
+        publishAgentCreate(original, 'confirmed', receipt, lookup ? 'committed' : 'none')
+        agentCreateIntent = null
+        return value
+      },
+      (error) => {
+        const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (live()) {
+          const p = failure.problem
+          const rejected =
+            !dispatched ||
+            (!!p &&
+              ['not_started', 'not_committed'].includes(p.commit_state) &&
+              p.code !== 'IDEMPOTENCY_KEY_REUSED')
+          original.uncertain ||= lookup || !rejected
+          publishAgentCreate(
+            original,
+            original.uncertain ? 'uncertain' : 'rejected',
+            null,
+            lookup ? 'failed' : 'none',
+          )
+        }
+        throw failure
+      },
+    )
+  }
+  function agentConfigurationRead<T>(fn: (signal: AbortSignal) => Promise<T>) {
+    try {
+      return runAuthorized(
+        personalIdentity(),
+        (op) => fn(op.abort.signal),
+        undefined,
+        'agent-configuration-read',
+      )
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+  function newAgentID() {
+    const now = Date.now()
+    if (!Number.isSafeInteger(now) || now < 0 || now > 0xffffffffffff)
+      throw new AccountFailure('invalid-input')
+    const bytes = crypto.getRandomValues(new Uint8Array(16))
+    let timestamp = BigInt(now)
+    for (let n = 5; n >= 0; n--) {
+      bytes[n] = Number(timestamp & 255n)
+      timestamp >>= 8n
+    }
+    bytes[6] = (bytes[6]! & 15) | 0x70
+    bytes[8] = (bytes[8]! & 63) | 0x80
+    const hex = Array.from(bytes, (v) => v.toString(16).padStart(2, '0')).join('')
+    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`
+  }
+  // Agent commands have their own immutable intent; Cookie ownership is shared with every operation.
+  const agentConfiguration = {
+    get progress(): AgentConfigurationProgress | null {
+      const value = agentConfigurationState.progress
+      return value
+        ? Object.freeze({
+            ...value,
+            contextValid: !!agentCreateIntent && agentCreateCurrent(agentCreateIntent),
+          })
+        : null
+    },
+    list: (p: string, q: PageQuery) =>
+      agentConfigurationRead((signal) => agentDirectoryAPI.list(p, q, signal)),
+    getConfiguration: (p: string, a: string) =>
+      agentConfigurationRead((signal) => agentConfigurationAPI.getConfiguration(p, a, signal)),
+    models: (p: string, q: ProjectModelPageQuery) =>
+      agentConfigurationRead((signal) =>
+        projectModelSettingsAPI.listAvailableChatModels(p, q, signal),
+      ),
+    abandonRead: clearAgentConfigurationRead,
+    startCreate(projectID: string, fields: Omit<AgentCreateFields, 'agent_id'>) {
+      try {
+        const identity = personalIdentity()
+        if (owner || agentCreateIntent || personalIntent || pending)
+          throw new AccountFailure('busy')
+        if (
+          !uuid7.test(projectID) ||
+          !fields ||
+          typeof fields !== 'object' ||
+          Object.hasOwn(fields, 'agent_id')
+        )
+          throw new AccountFailure('invalid-input')
+        const input = captureAgentCreateInput({ request: { ...fields, agent_id: newAgentID() } })
+        const original: AgentCreateIntent = {
+          identity,
+          csrf: sessionCSRF,
+          projectID,
+          input,
+          key: newKey(),
+          body: JSON.stringify(input),
+          uncertain: false,
+        }
+        agentCreateIntent = original
+        return performAgentCreate(original, false)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    checkOriginal() {
+      if (!agentCreateIntent?.uncertain) return Promise.reject(new AccountFailure('invalid-input'))
+      return performAgentCreate(agentCreateIntent, true)
+    },
+    editRejected() {
+      if (
+        owner ||
+        !agentCreateIntent ||
+        !agentCreateCurrent(agentCreateIntent) ||
+        agentCreateIntent.uncertain ||
+        agentConfigurationState.progress?.phase !== 'rejected'
+      )
+        throw new AccountFailure('busy')
+      agentCreateIntent = null
+      agentConfigurationState.progress = null
+    },
+  }
   function clearWorkReviewRead() {
     ++workReviewRevisions['work-review-read']
     if (owner?.kind === 'work-review-read') owner.abandon?.()
@@ -3772,6 +4018,10 @@ export function createSessionController(
           throw new AccountFailure('invalid-input')
         dispatched = true
         const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
+        if (original.kind === 'edit')
+          return lookup
+            ? taskEditAPI.lookup(original.projectID, original.taskID, original.input, write)
+            : taskEditAPI.update(original.projectID, original.taskID, original.input, write)
         if (original.kind === 'create')
           return lookup
             ? taskPlanningAPI.lookup(original.projectID, original.input, write)
@@ -3848,6 +4098,8 @@ export function createSessionController(
     sprint: (p: string, t: string) => reviewRead((signal) => workReviewAPI.sprint(p, t, signal)),
     tasks: (p: string, q: TaskQuery) => reviewRead((signal) => workReviewAPI.tasks(p, q, signal)),
     task: (p: string, t: string) => reviewRead((signal) => workReviewAPI.task(p, t, signal)),
+    events: (p: string, t: string, q: TaskTimelineQuery) =>
+      reviewRead((signal) => taskTimelineAPI.list(p, t, q, signal)),
     blockers: (p: string, t: string, q: PageQuery) =>
       reviewRead((signal) => workReviewAPI.blockers(p, t, q, signal)),
     agents: (p: string, q: PageQuery) =>
@@ -3910,6 +4162,29 @@ export function createSessionController(
         const input = captureTaskCreateInput({ request: { task_id: taskID, ...draft } })
         const original: WorkReviewIntent = {
           kind: 'create',
+          identity,
+          csrf: sessionCSRF,
+          projectID,
+          taskID,
+          key: newKey(),
+          input,
+          body: JSON.stringify(input),
+          uncertain: false,
+        }
+        workReviewIntent = original
+        return performReview(original, false)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    startEdit(projectID: string, taskID: string, value: TaskUpdateInput) {
+      try {
+        const identity = personalIdentity()
+        if (owner || workReviewIntent || personalIntent || pending) throw new AccountFailure('busy')
+        if (!uuid7.test(projectID) || !uuid7.test(taskID)) throw new AccountFailure('invalid-input')
+        const input = captureTaskUpdateInput(value)
+        const original: WorkReviewIntent = {
+          kind: 'edit',
           identity,
           csrf: sessionCSRF,
           projectID,
@@ -5672,6 +5947,7 @@ export function createSessionController(
     personalContext: readonly(personalContext),
     projects,
     workReview,
+    agentConfiguration,
     projectAudit,
     knowledge,
     projectModelSettings,

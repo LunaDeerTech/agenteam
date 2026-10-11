@@ -13,6 +13,7 @@ vi.mock('../composables/useSession', async (original) => {
 import { createSessionController } from '../composables/useSession'
 import {
   installAuthentication,
+  installAgentNavigation,
   safeReturnTarget,
   projectRoute,
   workTaskRoute,
@@ -609,5 +610,64 @@ describe('task review route boundaries', () => {
       expect(projectRoute(path)).toBe(null)
       expect(safeReturnTarget(path)).toBe('/')
     }
+  })
+})
+
+describe('Agent configuration route boundaries', () => {
+  it('keeps the Agent settings return target within the exact Project leaf', () => {
+    expect(safeReturnTarget('/OWNER/DeMo/settings/agents')).toBe('/owner/demo/settings/agents')
+    expect(projectRoute('/owner/demo/settings/agents')?.suffix).toBe('/settings/agents')
+    for (const path of [
+      '/owner/demo/settings/agents/new',
+      '/owner/demo/settings/agents?agent=private',
+      '/owner/demo/settings/agents/',
+      '/owner/demo/settings/%61gents',
+      '/system/demo/settings/agents',
+    ]) {
+      expect(projectRoute(path)).toBeNull()
+      expect(safeReturnTarget(path)).toBe('/')
+    }
+  })
+
+  it('confirms Agent navigation before Session restoration and only publishes completed navigation', async () => {
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [
+        {
+          path: '/owner/demo/settings/agents',
+          component: HomeView,
+          meta: { authentication: true, protected: true, projectWorkspace: true },
+        },
+        {
+          path: '/owner/demo/settings/general',
+          component: HomeView,
+          meta: { authentication: true, protected: true, projectWorkspace: true },
+        },
+        { path: '/login', name: 'login', component: LoginView },
+      ],
+    })
+    const restore = vi.fn(async () => null)
+    const auth = {
+      state: { phase: 'authenticated', busy: false },
+      restore,
+    } as unknown as SessionController
+    installAuthentication(router, auth)
+    await router.push('/owner/demo/settings/agents')
+    const confirmLeave = vi.fn(async () => false),
+      afterNavigation = vi.fn()
+    const stop = installAgentNavigation(router, { confirmLeave, afterNavigation })
+    restore.mockClear()
+    await router.push('/owner/demo/settings/general')
+    expect(router.currentRoute.value.fullPath).toBe('/owner/demo/settings/agents')
+    expect(restore).not.toHaveBeenCalled()
+    expect(afterNavigation).not.toHaveBeenCalled()
+    confirmLeave.mockResolvedValue(true)
+    await router.push('/owner/demo/settings/general')
+    expect(restore).toHaveBeenCalledTimes(1)
+    expect(afterNavigation).toHaveBeenCalledExactlyOnceWith(
+      '/owner/demo/settings/general',
+      '/owner/demo/settings/agents',
+    )
+    stop()
   })
 })

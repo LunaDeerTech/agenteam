@@ -1,3 +1,4 @@
+import { createWorkTaskTimelineAPI } from '../api/work-task-timeline'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DOMWrapper, flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { createAccountAPI, type SessionView } from '../api/account'
@@ -14,6 +15,11 @@ import {
   type TaskCreateInput,
   type TaskCreateReceipt,
 } from '../api/work-task-planning'
+import {
+  createWorkTaskEditAPI,
+  type TaskUpdateInput,
+  type TaskUpdateReceipt,
+} from '../api/work-task-edit'
 import type { Fetch } from '../api/client'
 import { createSessionController, type SessionController } from '../composables/useSession'
 import { createProjectWorkspace } from '../composables/useProjectWorkspace'
@@ -128,7 +134,7 @@ async function page(state: Task['state'] = 'in_progress', empty = false, blocked
     type: 'task',
     priority: 'high',
     state,
-    assignee_agent_id: state === 'in_progress' ? workerID : reviewerID,
+    assignee_agent_id: state === 'backlog' ? null : state === 'in_progress' ? workerID : reviewerID,
     version: '4',
   }
   let uncertain = false
@@ -136,6 +142,9 @@ async function page(state: Task['state'] = 'in_progress', empty = false, blocked
   let creationLost = false
   let creationObservation: 'not_observed' | 'in_progress' | 'committed' = 'not_observed'
   let creationReceipt: TaskCreateReceipt | undefined
+  let editLost = false
+  let editObservation: 'not_observed' | 'committed' = 'not_observed'
+  let editReceipt: TaskUpdateReceipt | undefined
   let blockers: 'none' | 'unresolved' | 'unavailable' | 'resolved' = blocked ? 'unresolved' : 'none'
   let observation: 'not_observed' | 'in_progress' | 'committed' = 'not_observed'
   let original: ReviewInput | ReadyInput | undefined
@@ -178,6 +187,34 @@ async function page(state: Task['state'] = 'in_progress', empty = false, blocked
     if (route === `${prefix}/agents`) return json({ items: agents })
     if (route === `${prefix}/agents/${workerID}`) return json(agents[1])
     if (route === `${prefix}/agents/${reviewerID}`) return json(agents[0])
+    if (route === `${prefix}/tasks/${current.id}` && init.method === 'PATCH') {
+      const input = JSON.parse(init.body as string) as TaskUpdateInput
+      const fields = Object.keys(input.request) as (keyof typeof input.request)[]
+      const changed = fields.some((field) => current[field] !== input.request[field])
+      current = {
+        ...current,
+        ...input.request,
+        version: String(BigInt(input.expected_version) + (changed ? 1n : 0n)),
+      }
+      editReceipt = changed
+        ? { task: current, changed: true, task_event_id: id(45), event_ids: [id(46)] }
+        : { task: current, changed: false, task_event_id: null, event_ids: [] }
+      if (editLost)
+        return json(
+          {
+            type: 'urn:agenteam:problem:test',
+            title: 'Unknown',
+            detail: '',
+            instance: route,
+            status: 503,
+            code: 'COMMIT_UNKNOWN',
+            request_id: id(99),
+            commit_state: 'unknown',
+          },
+          503,
+        )
+      return json(editReceipt)
+    }
     if (route === `${prefix}/tasks/${current.id}`) return json(current)
     if (route === `${prefix}/tasks/${current.id}/blockers`) {
       if (blockers === 'unavailable')
@@ -245,6 +282,14 @@ async function page(state: Task['state'] = 'in_progress', empty = false, blocked
         )
       return json(creationReceipt)
     }
+    if (
+      route === `${prefix}/task-commands/lookup` &&
+      JSON.parse(init.body as string).command === 'work.task.update'
+    )
+      return json({
+        status: editObservation,
+        receipt: editObservation === 'committed' ? editReceipt : null,
+      })
     if (route === `${prefix}/task-commands/lookup`)
       return json({
         status: creationObservation,
@@ -279,6 +324,7 @@ async function page(state: Task['state'] = 'in_progress', empty = false, blocked
         status: observation,
         receipt: observation === 'committed' ? commit(original!) : null,
       })
+    if (route === `${prefix}/tasks/${current.id}/events`) return json({ items: [] })
     unexpected.push(path)
     throw new Error('Unexpected page endpoint')
   })
@@ -287,6 +333,10 @@ async function page(state: Task['state'] = 'in_progress', empty = false, blocked
   args[16] = createWorkReviewAPI(fetcher)
   args[17] = createAgentDirectoryAPI(fetcher)
   args[18] = createWorkTaskPlanningAPI(fetcher)
+  args[19] = {
+    edit: createWorkTaskEditAPI(fetcher),
+    taskTimeline: createWorkTaskTimelineAPI(fetcher),
+  }
   const auth = createSessionController(...args)
   await auth.restore()
   const workspace = createProjectWorkspace(auth)
@@ -331,6 +381,22 @@ async function page(state: Task['state'] = 'in_progress', empty = false, blocked
       ),
     creationLookups: () =>
       fetcher.mock.calls.filter(([path]) => path === `${prefix}/task-commands/lookup`),
+    loseEdit() {
+      editLost = true
+    },
+    observeEdit() {
+      editObservation = 'committed'
+    },
+    edits: () =>
+      fetcher.mock.calls.filter(
+        ([path, init]) => path === `${prefix}/tasks/${current.id}` && init.method === 'PATCH',
+      ),
+    editLookups: () =>
+      fetcher.mock.calls.filter(
+        ([path, init]) =>
+          path === `${prefix}/task-commands/lookup` &&
+          JSON.parse(init.body as string).command === 'work.task.update',
+      ),
     transfers: () =>
       fetcher.mock.calls.filter(
         ([path]) => path.startsWith(`${prefix}/tasks/`) && path.endsWith('/transfer'),
@@ -367,6 +433,97 @@ async function selectAgent(label: string, option: string) {
 }
 
 describe('Human review page with real UI controls', () => {
+  it('edits an unassigned backlog with explicit field presence and confirms same-value No-op separately', async () => {
+    const f = await page('backlog')
+    await click('编辑任务')
+    expect(document.activeElement).toBe(body().get('form[aria-label="编辑任务"] input').element)
+    expect(button('保存任务').element.disabled).toBe(true)
+    await click('取消编辑')
+    expect(document.activeElement).toBe(button('编辑任务').element)
+    await click('编辑任务')
+    await body().get('form[aria-label="编辑任务"] input').setValue('完整保存的规划任务')
+    await selectAgent('任务类型', '缺陷')
+    await selectAgent('优先级', '低')
+    const fields = body().findAll('form[aria-label="编辑任务"] textarea')
+    await fields[0]!.setValue('')
+    await fields[1]!.setValue('')
+    await click('保存任务')
+    expect(f.edits()).toHaveLength(1)
+    expect(JSON.parse(f.edits()[0]![1].body as string)).toEqual({
+      expected_version: '4',
+      request: {
+        title: '完整保存的规划任务',
+        description: '',
+        type: 'bug',
+        priority: 'low',
+        plan: '',
+      },
+    })
+    expect(body().get('[role="dialog"]').text()).toContain('任务已保存')
+    expect(body().get('[role="dialog"]').text()).toContain('暂无描述')
+    expect(body().get('[role="dialog"]').text()).toContain('暂无计划')
+    await click('编辑任务')
+    const title = body().get('form[aria-label="编辑任务"] input')
+    await title.setValue('暂时修改')
+    await title.setValue('完整保存的规划任务')
+    await click('保存任务')
+    expect(f.edits()).toHaveLength(2)
+    expect(JSON.parse(f.edits()[1]![1].body as string)).toEqual({
+      expected_version: '5',
+      request: { title: '完整保存的规划任务' },
+    })
+    expect(body().get('[role="dialog"]').text()).toContain('任务内容没有变化')
+    expect(
+      body()
+        .get('.task-facts')
+        .findAll('div')
+        .find((row) => row.get('dt').text() === '版本')
+        ?.get('dd')
+        .text(),
+    ).toBe('5')
+    expect(f.transfers()).toHaveLength(0)
+    expect(f.creates()).toHaveLength(0)
+  })
+
+  it('hides edit and ready while an edit result is Unknown and queries only its original patch', async () => {
+    const f = await page('backlog')
+    f.loseEdit()
+    await click('编辑任务')
+    await body()
+      .findAll('form[aria-label="编辑任务"] textarea')[1]!
+      .setValue('保留原始执行计划补充')
+    await click('保存任务')
+    expect(f.edits()).toHaveLength(1)
+    expect(f.editLookups()).toHaveLength(0)
+    expect(body().get('[role="dialog"]').text()).toContain('提交结果待确认')
+    expect(body().find('form[aria-label="编辑任务"]').exists()).toBe(false)
+    expect(
+      body()
+        .findAll<HTMLButtonElement>('button')
+        .some((b) => ['编辑任务', '指派并加入待执行'].includes(buttonLabel(b))),
+    ).toBe(false)
+    await click('查询原操作结果')
+    expect(body().text()).toContain('尚未观察到原操作结果')
+    f.observeEdit()
+    await click('查询原操作结果')
+    expect(body().get('[role="dialog"]').text()).toContain('保留原始执行计划补充')
+    expect(button('编辑任务').element.disabled).toBe(false)
+    expect(f.edits()).toHaveLength(1)
+    expect(f.editLookups()).toHaveLength(2)
+    const original = f.edits()[0]![1]
+    for (const [, request] of f.editLookups()) {
+      expect(JSON.parse(request.body as string)).toEqual({
+        command: 'work.task.update',
+        target_id: taskID,
+        ...JSON.parse(original.body as string),
+      })
+      expect(new Headers(request.headers).get('Idempotency-Key')).toBe(
+        new Headers(original.headers).get('Idempotency-Key'),
+      )
+    }
+    expect(f.transfers()).toHaveLength(0)
+  })
+
   it('creates a confirmed backlog first and requires a second explicit Agent choice before todo', async () => {
     const f = await page('in_progress', true)
     await click('新建任务')
