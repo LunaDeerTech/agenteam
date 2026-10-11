@@ -199,6 +199,11 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestExecutionMountFirstRound$': frozenset((
+        'TestExecutionMountFirstRound',
+        'TestExecutionMountFirstRound/nonempty-terminal-and-historical-replay',
+        'TestExecutionMountFirstRound/held-join-terminal-rollback-and-unknown',
+    )),
     '^TestExecutionMountCapture$': frozenset((
         'TestExecutionMountCapture',
         'TestExecutionMountCapture/nonempty-unknown-and-historical-material',

@@ -1,13 +1,14 @@
 # 全局协调索引
 
-2026-10-11。main 的本文件由 root 指定 variables_review 唯一维护正文；root 负责 Git、集成和资源排期。功能分支 current 不覆盖本索引。正式交付边界见[任务台账](../docs/development/agent-team/tasks.md)，分段接受不等于当前 main 单次全量通过。
+2026-10-11。main 的本文件由 root 指定 recovery_lead 唯一维护正文；root 负责 Git、集成和资源排期。功能分支 current 不覆盖本索引。正式交付边界见[任务台账](../docs/development/agent-team/tasks.md)，分段接受不等于当前 main 单次全量通过。
 
 ## 当前开发
 
 | 任务 / 分支 | 负责人 | 状态与下一步 |
 | --- | --- | --- |
+| Runner read-file 可构造适配器 — `ai/runner-read-file-adapter-20261011` | recovery_lead 交付，runner_read_file 子域 | 当前 Mount PG 授权解析、单次 dispatch、真实认证 WSS 与 Manager.Read 正在实现，未验收；上游 Operation 授权仍需严格提供者，生产默认 nil executor 与旧 STOP 保留。 |
 | Agent Secret Variable 白名单 UI — `ai/agent-secret-allowlist-ui-20261011` | variables_review 交付，secret_allowlist_fixture 方法 | 基线 9bc9e13a；普通 Owner 的安全 metadata 选择与 Agent 创建/编辑、原 Unknown 恢复正在独立实现；未验收，不接 Secret 值或运行注入。 |
-| 非空 Mount DirectText — `ai/execution-mount-directtext-20261011` | runtime_recovery 实施，recovery_lead 独审 | 技术候选 d3f64149；native02 两业务子例通过，但原 TCP 差额尾未空，wholeFAIL，尚未集成。原 native01/02 及被动归属材料保留在该任务树 `output/ai/execution-mount-directtext/`，不改变退出门或既有 STOP。 |
+| 非空 Mount DirectText — `ai/execution-mount-directtext-20261011` | runtime_recovery 实施，recovery_lead 独审 | native03 原业务与全部退出门有限通过，主线采纳中；验收止非空 Snapshot/安全投影与真实 join 后引用退休，不含 Runner operation。任务树待材料保全与依赖核实后清理；原 native01/02 FAIL 保留。 |
 | Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |
 
 ## 保留与清理

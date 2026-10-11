@@ -86,6 +86,10 @@ func (a *Authority) RequireMountMaterialInTx(ctx context.Context, tx f.Tx, expec
 	if err := ctx.Err(); err != nil {
 		return err
 	}
+	if _, ok := ctx.Value(directTextMountKey{}).(*directTextMountWitness); ok {
+		_, err := a.directTextMountProof(ctx, tx, expected)
+		return err
+	}
 	w, ok := ctx.Value(preparationMountMaterialKey{}).(*preparationMountMaterialWitness)
 	if !ok || w == nil || !w.active.Load() || w.driver == nil || w.driver.authority != a || w.driver.store != a.state.store || w.tx != tx || w.record == nil || w.record.input.Validate() != nil {
 		return fault(f.Forbidden)

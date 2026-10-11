@@ -132,6 +132,9 @@ func (s *directTextState) observeStart(ctx context.Context, run *directTextCall)
 		if !samePreparationInput(input, run.input) {
 			return nil
 		}
+		if err = s.verifyDirectTextMountUse(ctx, tx, run, row, stored, input); err != nil {
+			return err
+		}
 		found = true
 		observed = row.summary.Clone()
 		return ctx.Err()
@@ -193,6 +196,9 @@ func (s *directTextState) observeTerminal(ctx context.Context, run *directTextCa
 		}
 		if !modelRetired || !environmentRetired {
 			return nil
+		}
+		if err = s.verifyDirectTextMountUse(ctx, tx, run, row, stored, run.input); err != nil {
+			return err
 		}
 		found = true
 		observed = row.summary.Clone()

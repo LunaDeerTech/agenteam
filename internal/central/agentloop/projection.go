@@ -10,6 +10,7 @@ import (
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	rc "github.com/LunaDeerTech/agenteam/internal/central/runner/contract"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/skill/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/work"
 )
@@ -28,8 +29,24 @@ type environmentInformation struct {
 	Project  projectInformation `json:"project"`
 	Policy   ec.Policy          `json:"execution_policy"`
 	AgentsMD bool               `json:"agents_md_injected"`
-	Mounts   []string           `json:"mounts"`
+	Mounts   []mountInformation `json:"mounts"`
 	Tools    []string           `json:"tools"`
+}
+
+// This profile has captured safe metadata, but no hello or operation grant.
+// Null means not captured, distinct from known false or an empty capability
+// set. No current Runner read or online gate can rewrite these snapshot data.
+type mountInformation struct {
+	ID                id.MountID  `json:"mount_id"`
+	Name              string      `json:"mount_name"`
+	Description       *string     `json:"mount_description"`
+	RunnerID          rc.RunnerID `json:"runner_id"`
+	RunnerName        string      `json:"runner_name"`
+	RunnerDescription string      `json:"runner_description"`
+	Workspace         string      `json:"workspace_logical_path"`
+	CapabilityState   string      `json:"capability_state"`
+	Headless          *bool       `json:"headless"`
+	Capabilities      []string    `json:"capabilities"`
 }
 type variableInformation struct {
 	Name        string `json:"name"`
@@ -77,7 +94,14 @@ func projectMessages(ctx context.Context, captured ec.ExecutionContext) ([]mc.Me
 	defer clear(input)
 	environment := environmentInformation{
 		Project: projectInformation{fields.Project.ID, fields.Project.Name, fields.Project.Description, fields.Project.Version},
-		Policy:  fields.Request.Launch.Policy.Clone(), AgentsMD: false, Mounts: []string{}, Tools: []string{},
+		Policy:  fields.Request.Launch.Policy.Clone(), AgentsMD: false, Mounts: []mountInformation{}, Tools: []string{},
+	}
+	for _, m := range fields.Mounts.Mounts {
+		environment.Mounts = append(environment.Mounts, mountInformation{
+			ID: m.ID, Name: m.Name, Description: m.Description,
+			RunnerID: m.RunnerID, RunnerName: m.RunnerName, RunnerDescription: m.RunnerDescription,
+			Workspace: m.Workspace, CapabilityState: "not_captured", Headless: nil, Capabilities: nil,
+		})
 	}
 	variables := variablesInformation{Variables: []variableInformation{}, Secrets: []secretInformation{}}
 	for _, variable := range fields.Environment.Fields().Variables {

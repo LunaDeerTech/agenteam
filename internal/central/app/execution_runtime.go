@@ -238,10 +238,14 @@ func constructExecutionRuntime(b *executionRuntimeAssembly, cfg config.Config, d
 	if err != nil {
 		return err
 	}
+	mountUses, err := mount.NewExecutionUse(store, a.execution)
+	if err != nil {
+		return err
+	}
 	direct, err := execution.NewDirectTextDriver(store, a.execution, execution.DirectTextDependencies{
 		Context: contextBuilder, Loop: loop, Processes: processes, Projects: projects.projects,
 		Agents: providers.configuration, Skills: providers.roundSkills, Events: journal, Lifecycle: events.lifecycle,
-		Models: modelRetirement, Environment: environmentRetirement,
+		Models: modelRetirement, Environment: environmentRetirement, Mounts: mountUses,
 	})
 	if err != nil {
 		return err

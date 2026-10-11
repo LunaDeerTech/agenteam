@@ -13,6 +13,7 @@ import (
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	mt "github.com/LunaDeerTech/agenteam/internal/central/mount/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 	pvc "github.com/LunaDeerTech/agenteam/internal/central/projectvariable/contract"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/skill/contract"
@@ -29,6 +30,7 @@ type DirectTextDependencies struct {
 	Lifecycle   c.DirectTextEvents
 	Models      mc.ExecutionModelRetirement
 	Environment pvc.EnvironmentRetirement
+	Mounts      mt.ExecutionMountUseProvider
 }
 type DirectTextDriver struct{ state *directTextState }
 type directTextInvocation struct {
@@ -45,6 +47,9 @@ type directTextInvocation struct {
 
 func NewDirectTextDriver(store Store, a *Authority, deps DirectTextDependencies) (*DirectTextDriver, error) {
 	if nilPort(store) || !reflect.TypeOf(store).Comparable() || a == nil || a.state == nil || a.state.store != store || deps.Context == nil || deps.Loop == nil || nilPort(deps.Processes) || nilPort(deps.Projects) || nilPort(deps.Agents) || nilPort(deps.Skills) || nilPort(deps.Events) || !deps.Lifecycle.Valid() || nilPort(deps.Models) || nilPort(deps.Environment) {
+		return nil, fault(f.DependencyUnbound)
+	}
+	if deps.Mounts != nil && nilPort(deps.Mounts) {
 		return nil, fault(f.DependencyUnbound)
 	}
 	process := deps.Processes.CurrentProcess()
@@ -149,6 +154,13 @@ func (s *directTextState) readInitial(ctx context.Context, run *directTextCall) 
 			return e
 		}
 		if stored != nil {
+			if len(stored.snapshot.Fields().Context.Input().Fields().Mounts.Mounts) != 0 {
+				input, readErr := loadPreparationInput(ctx, x, run.request.ExecutionID)
+				if readErr != nil {
+					return readErr
+				}
+				return s.verifyDirectTextMountUse(ctx, tx, run, row, stored, input)
+			}
 			return ctx.Err()
 		}
 		if row.summary.Status != c.Preparing || row.summary.CancelRequestedAt != nil {
@@ -173,7 +185,7 @@ func (s *directTextState) readInitial(ctx context.Context, run *directTextCall) 
 		}
 		run.input = input
 		run.summary = row.summary.Clone()
-		return ctx.Err()
+		return s.verifyDirectTextMountMaterial(ctx, tx, run, input.input)
 	})
 	// No input/output writer or Loop admission has occurred in this read Tx.
 	err = commitError(result)
@@ -325,6 +337,9 @@ func (s *directTextState) start(ctx context.Context, run *directTextCall) error 
 		actor, _ := i.NewAgentRun(run.request.Launch.ProjectID, run.request.Launch.AgentID, run.request.ExecutionID)
 		if _, err = s.deps.Agents.ReadExecutionConfigurationInTx(ctx, tx, ac.ExecutionConfigurationRequest{Actor: actor, ProjectID: run.request.Launch.ProjectID, AgentID: run.request.Launch.AgentID, ExecutionID: run.request.ExecutionID, Stage: ac.ExecutionConfigurationCurrent}); err != nil {
 			return portError(err)
+		}
+		if err = s.acquireDirectTextMountUse(ctx, tx, run); err != nil {
+			return err
 		}
 		if _, err = s.deps.Events.AppendEventInTx(ctx, tx, actor, run.event, run.invocation.startPlan); err != nil {
 			return portError(err)

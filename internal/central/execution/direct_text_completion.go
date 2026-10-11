@@ -318,6 +318,9 @@ func (s *directTextState) commitTerminal(ctx context.Context, run *directTextCal
 		if err = s.deps.Environment.RetireEnvironmentInTx(ctx, tx, run.input.input.Fields().Environment, run.invocation.environmentPlan); err != nil {
 			return portError(err)
 		}
+		if err = s.retireDirectTextMountUse(ctx, tx, run); err != nil {
+			return err
+		}
 		s.mu.Lock()
 		run.retired = true
 		s.mu.Unlock()
