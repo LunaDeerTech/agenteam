@@ -14,7 +14,7 @@ import (
 	c "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 )
 
-// TaskLaunchProvider validates a real Scheduler todo claim. Capture remains a
+// TaskLaunchProvider validates a real Scheduler claim or recorded relaunch. Capture remains a
 // separate provider: this reader neither freezes preparation input nor writes
 // an Execution. Execution owns the enclosing Launch call and its actual tail.
 type TaskLaunchProvider struct {
@@ -35,11 +35,12 @@ func NewTaskLaunchProvider(store Store, authority *Authority, intents c.TaskLaun
 }
 
 type taskLaunchSource struct {
-	Intent      c.TaskLaunchIntent
-	ClaimDigest f.Digest
-	Task        c.Task
-	Sprint      c.Sprint
-	Milestone   c.Milestone
+	Intent         c.TaskLaunchIntent
+	ClaimDigest    f.Digest `json:",omitempty"`
+	RelaunchDigest f.Digest `json:",omitempty"`
+	Task           c.Task
+	Sprint         c.Sprint
+	Milestone      c.Milestone
 }
 type taskLaunchPlan struct {
 	owner     *TaskLaunchProvider
@@ -187,6 +188,7 @@ func (p *TaskLaunchProvider) currentSource(ctx context.Context, tx f.Tx, actor i
 	if intent.Validate() != nil || intent.ProjectID != r.ProjectID || intent.TaskID.String() != r.Trigger.TaskID || intent.AgentID != r.AgentID || intent.DispatchID != r.Lineage.DispatchID {
 		return zero, fault(f.Forbidden)
 	}
+	intent = intent.Clone()
 	project, err := p.projects.RequireSchedulerProjectInTx(ctx, tx, r.ProjectID)
 	if ctx.Err() != nil {
 		return zero, ctx.Err()
@@ -200,12 +202,31 @@ func (p *TaskLaunchProvider) currentSource(ctx context.Context, tx f.Tx, actor i
 	if project.Project.Lifecycle != pc.Active || !project.Config.Enabled || project.Project.CurrentSprintID == nil || *project.Project.CurrentSprintID != intent.SprintID {
 		return zero, fault(f.InvalidState)
 	}
-	claim, err := loadSchedulerClaim(ctx, x, r.ProjectID, intent.DispatchID)
-	if err != nil {
-		return zero, err
-	}
-	if claim == nil || claim.Request.ProjectID != r.ProjectID || claim.Request.TaskID != intent.TaskID || claim.Request.AgentID != r.AgentID || claim.Request.CurrentSprintID != intent.SprintID || claim.Request.Purpose != r.Purpose || claim.Request.RequestID != r.Meta.RequestID || claim.After.Version != intent.ClaimedVersion {
-		return zero, fault(f.Forbidden)
+	var claimDigest, relaunchDigest f.Digest
+	version := intent.ClaimedVersion
+	if intent.Origin == c.TaskDispatchRelaunch {
+		origin, e := loadTaskRelaunch(ctx, x, r.ProjectID, intent.DispatchID)
+		if e != nil {
+			return zero, e
+		}
+		if origin == nil || intent.Relaunch == nil || origin.source() != *intent.Relaunch || origin.Request.RequestID != r.Meta.RequestID || origin.Request.Purpose != r.Purpose {
+			return zero, fault(f.Forbidden)
+		}
+		relaunchDigest = origin.source().ReferenceDigest
+		version = origin.Task.Version
+	} else {
+		claim, e := loadSchedulerClaim(ctx, x, r.ProjectID, intent.DispatchID)
+		if e != nil {
+			return zero, e
+		}
+		if claim == nil || claim.Request.ProjectID != r.ProjectID || claim.Request.TaskID != intent.TaskID || claim.Request.AgentID != r.AgentID || claim.Request.CurrentSprintID != intent.SprintID || claim.Request.Purpose != r.Purpose || claim.Request.RequestID != r.Meta.RequestID || claim.After.Version != intent.ClaimedVersion {
+			return zero, fault(f.Forbidden)
+		}
+		claimBytes, e := canonical(claim)
+		if e != nil {
+			return zero, e
+		}
+		claimDigest = digest(claimBytes)
 	}
 	task, err := loadTask(ctx, x, r.ProjectID, intent.TaskID)
 	if err != nil {
@@ -217,7 +238,7 @@ func (p *TaskLaunchProvider) currentSource(ctx context.Context, tx f.Tx, actor i
 	// An eligible concurrent title/description change before discovery is legal.
 	// It is the newly observed version, not the historical claim postimage, that
 	// must remain unchanged through this plan's final validation.
-	if task.Version < intent.ClaimedVersion || task.State != c.TaskStateInProgress || task.SprintID != intent.SprintID || task.AssigneeAgentID == nil || *task.AssigneeAgentID != r.AgentID {
+	if task.Version < version || task.State != c.TaskStateInProgress || task.SprintID != intent.SprintID || task.AssigneeAgentID == nil || *task.AssigneeAgentID != r.AgentID {
 		return zero, fault(f.InvalidState)
 	}
 	sprint, err := loadSprint(ctx, x, r.ProjectID, task.SprintID, project.Project.CurrentSprintID)
@@ -247,11 +268,7 @@ func (p *TaskLaunchProvider) currentSource(ctx context.Context, tx f.Tx, actor i
 	if err = ctx.Err(); err != nil {
 		return zero, err
 	}
-	claimBytes, err := canonical(claim)
-	if err != nil {
-		return zero, err
-	}
-	return taskLaunchSource{intent, digest(claimBytes), task.Clone(), sprint.Clone(), milestone}, nil
+	return taskLaunchSource{Intent: intent, ClaimDigest: claimDigest, RelaunchDigest: relaunchDigest, Task: task.Clone(), Sprint: sprint.Clone(), Milestone: milestone}, nil
 }
 
 var _ ec.TriggerProvider = (*TaskLaunchProvider)(nil)

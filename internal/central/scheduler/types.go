@@ -131,6 +131,10 @@ func snapshot(r *dispatchRecord) Dispatch {
 		g := *v.guard
 		v.guard = &g
 	}
+	if v.relaunch != nil {
+		source := v.relaunch.Clone()
+		v.relaunch = &source
+	}
 	if v.execution != nil {
 		e := *v.execution
 		v.execution = &e
@@ -159,6 +163,7 @@ type dispatchRecord struct {
 	outcome              LaunchOutcome
 	version              f.Version
 	guard                *ClaimGuard
+	relaunch             *wc.TaskRelaunchSource
 	execution            *i.ExecutionID
 	attempts             int64
 	nextRetry            *f.Instant

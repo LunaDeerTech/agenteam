@@ -9,25 +9,49 @@ import (
 )
 
 // TaskLaunchIntent is the Scheduler's callback-local projection of the original
-// committed todo claim. It is data, never a bearer permit or a replacement for
-// the Work-owned claim record and current Task facts.
+// committed dispatch origin. It is data, never a bearer permit or a replacement
+// for Work's immutable origin and current Task facts. The zero Origin is kept
+// only for the legacy todo-claim projection; it cannot identify a relaunch.
 type TaskLaunchIntent struct {
 	ProjectID      ProjectID
 	TaskID         TaskID
 	AgentID        i.AgentID
 	SprintID       SprintID
 	DispatchID     string
-	ClaimedVersion f.Version
+	ClaimedVersion f.Version              `json:",omitempty"`
+	Origin         TaskDispatchOriginKind `json:",omitempty"`
+	Relaunch       *TaskRelaunchSource    `json:",omitempty"`
 }
 
 func (v TaskLaunchIntent) Validate() error {
-	if v.ProjectID.Validate() != nil || v.TaskID.Validate() != nil || v.AgentID.Validate() != nil || v.SprintID.Validate() != nil || v.ClaimedVersion.Validate() != nil || v.ClaimedVersion < 2 {
+	if v.ProjectID.Validate() != nil || v.TaskID.Validate() != nil || v.AgentID.Validate() != nil || v.SprintID.Validate() != nil {
 		return invalid("", "INVALID_TASK_LAUNCH_INTENT")
 	}
 	if _, err := f.ParseID[SchedulerClaim](v.DispatchID); err != nil {
 		return invalid("", "INVALID_TASK_LAUNCH_INTENT")
 	}
+	switch v.Origin {
+	case "", TaskDispatchTodoClaim:
+		if v.Relaunch != nil || v.ClaimedVersion.Validate() != nil || v.ClaimedVersion < 2 {
+			return invalid("", "INVALID_TASK_LAUNCH_INTENT")
+		}
+	case TaskDispatchRelaunch:
+		if v.ClaimedVersion != 0 || v.Relaunch == nil || v.Relaunch.Validate() != nil {
+			return invalid("", "INVALID_TASK_LAUNCH_INTENT")
+		}
+		r := v.Relaunch.Request
+		if r.ProjectID != v.ProjectID || r.TaskID != v.TaskID || r.AgentID != v.AgentID || r.CurrentSprintID != v.SprintID || r.DispatchID != v.DispatchID {
+			return invalid("", "INVALID_TASK_LAUNCH_INTENT")
+		}
+	default:
+		return invalid("", "INVALID_TASK_LAUNCH_INTENT")
+	}
 	return nil
+}
+
+func (v TaskLaunchIntent) Clone() TaskLaunchIntent {
+	v.Relaunch = taskClonePtr(v.Relaunch)
+	return v
 }
 
 // TaskLaunchAuthority is supplied by the real Scheduler owner. Before every

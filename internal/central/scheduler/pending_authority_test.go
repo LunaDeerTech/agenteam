@@ -56,7 +56,13 @@ func recordValues(t *testing.T, r *dispatchRecord) []any {
 	if err != nil {
 		t.Fatal(err)
 	}
-	var guard []byte
+	var guard, relaunch []byte
+	if r.relaunch != nil {
+		relaunch, err = json.Marshal(r.relaunch)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
 	var gs, gst, gp, execution *string
 	if r.guard != nil {
 		guard, err = json.Marshal(r.guard)
@@ -134,7 +140,7 @@ func recordValues(t *testing.T, r *dispatchRecord) []any {
 		v := r.temporaryOccurredAt.Time()
 		temporaryOccurred = &v
 	}
-	return []any{r.id.String(), r.project.String(), r.sprint, r.task, r.agent.String(), raw, string(r.digest), string(r.launch.Meta.IdempotencyKey), r.launch.Meta.RequestID.String(), string(r.status), string(r.outcome), int64(r.version), guard, gs, gst, gp, execution, r.attempts, retry, r.createdAt.Time(), r.updatedAt.Time(), busy, reason, skipped, finalAttempt, failureReason, failureCode, occurred, failed, policyRaw, policyDigest, temporaryAttempt, temporaryReason, temporaryCode, temporaryOccurred}
+	return []any{r.id.String(), r.project.String(), r.sprint, r.task, r.agent.String(), raw, string(r.digest), string(r.launch.Meta.IdempotencyKey), r.launch.Meta.RequestID.String(), string(r.status), string(r.outcome), int64(r.version), guard, gs, gst, gp, execution, r.attempts, retry, r.createdAt.Time(), r.updatedAt.Time(), busy, reason, skipped, finalAttempt, failureReason, failureCode, occurred, failed, policyRaw, policyDigest, temporaryAttempt, temporaryReason, temporaryCode, temporaryOccurred, relaunch}
 }
 
 type dispatchTestRow struct {

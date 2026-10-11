@@ -51,6 +51,7 @@ import (
 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
 	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 const variableHTTPOrigin = "https://variable-owner.example.test"
@@ -803,6 +804,12 @@ func migrate(t *testing.T, db *pgfixture.Database, sources ...postgres.Source) {
 		t.Fatal(err)
 	}
 	if result := m.Migrate(ctxFor(t)); !result.Migrated {
+		// This isolated fixture has only fixed migration SQL at this stage.
+		// Keep connection data, parameters, Detail and the raw cause private.
+		var pg *pgconn.PgError
+		if errors.As(result.Fault, &pg) {
+			t.Logf("project migration pgerror sqlstate=%s message=%.512q constraint=%.128q position=%d", pg.Code, pg.Message, pg.ConstraintName, pg.Position)
+		}
 		t.Fatal("project migration", result.Fault)
 	}
 }

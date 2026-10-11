@@ -10,21 +10,32 @@ import (
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 )
 
-// TaskLaunchFailureRequest identifies one original claim and send attempt.
+// TaskLaunchFailureRequest identifies exactly one original dispatch origin and send attempt.
 // Neither these fields nor a known-not-created outcome prove final failure.
 type TaskLaunchFailureRequest struct {
 	Claim           TaskClaimRequest
 	DispatchVersion f.Version
 	LaunchAttempt   int64
+	Relaunch        *TaskRelaunchRequest
 }
 
 func (v TaskLaunchFailureRequest) Validate() error {
-	if v.Claim.Validate() != nil || v.DispatchVersion.Validate() != nil || v.LaunchAttempt <= 0 {
+	if v.DispatchVersion.Validate() != nil || v.LaunchAttempt <= 0 {
+		return invalid("", "INVALID_TASK_LAUNCH_FAILURE")
+	}
+	if v.Relaunch == nil {
+		if v.Claim.Validate() != nil {
+			return invalid("", "INVALID_TASK_LAUNCH_FAILURE")
+		}
+	} else if v.Claim != (TaskClaimRequest{}) || v.Relaunch.Validate() != nil {
 		return invalid("", "INVALID_TASK_LAUNCH_FAILURE")
 	}
 	return nil
 }
-func (v TaskLaunchFailureRequest) Clone() TaskLaunchFailureRequest { return v }
+func (v TaskLaunchFailureRequest) Clone() TaskLaunchFailureRequest {
+	v.Relaunch = taskClonePtr(v.Relaunch)
+	return v
+}
 
 // The closed reason distinguishes a deterministic policy rejection from an
 // exhausted bound retry policy. A Fault code, retryable flag, attempt count or
@@ -50,10 +61,12 @@ type TaskLaunchFailureFacts struct {
 	Guard      TaskClaimGuard
 	Reason     TaskLaunchFailureReason
 	OccurredAt f.Instant
+	Relaunch   *TaskRelaunchSource
 }
 
 func (v TaskLaunchFailureFacts) Clone() TaskLaunchFailureFacts {
 	v.Guard = v.Guard.Clone()
+	v.Relaunch = taskClonePtr(v.Relaunch)
 	return v
 }
 
@@ -74,7 +87,7 @@ type SchedulerTaskLaunchFailures interface {
 
 // Scheduler must verify its live private discovery/applying call, the original
 // same-Store transaction and complete held union, exact pending Dispatch and
-// same-attempt durable final rejection. Unknown, AgentBusy and historical
+// same-attempt durable final rejection and exact claim or relaunch origin. Unknown, AgentBusy and historical
 // known-not-created without the final marker never pass. The final callback
 // also binds the original Work plan and excludes only this Dispatch from its
 // own protected source group; other pending claims remain protected.
@@ -90,6 +103,8 @@ type SchedulerTaskLaunchFailures interface {
 // admission is inferred. Work independently rechecks the current Task's full
 // preimage and applicability, preserving user changes and rejecting a stale
 // discovery plan. These callbacks must not recurse into Work or Execution.
+// A relaunch never supplies a ClaimGuard. Its source is compared with Work's
+// immutable relaunch row; failure handling does not manufacture a todo claim.
 type SchedulerTaskLaunchFailureAuthority interface {
 	RequireTaskLaunchFailureDiscoveryInTx(context.Context, f.Tx, i.Actor, TaskLaunchFailureRequest) (TaskLaunchFailureFacts, error)
 	RequireTaskLaunchFailureInTx(context.Context, f.Tx, i.Actor, TaskLaunchFailureRequest, TaskLaunchFailurePlan) (TaskLaunchFailureFacts, error)

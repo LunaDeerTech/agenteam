@@ -377,7 +377,7 @@ func finalFailureMarker(r *dispatchRecord) bool {
 		(r.failureReason == wc.TaskLaunchFailureUnsupportedResourceConstraints && r.failureCode == f.DependencyUnbound && len(r.launch.Policy.AllowedResourceConstraints) > 0 || exhaustedTemporary(r)) &&
 		r.failureOccurredAt != nil && r.failureOccurredAt.Validate() == nil &&
 		!r.failureOccurredAt.Time().Before(r.createdAt.Time()) && !r.failureOccurredAt.Time().After(r.updatedAt.Time()) &&
-		r.outcome == KnownNotCreated && r.guard != nil && r.guard.valid() && r.execution == nil && r.nextRetry == nil &&
+		r.outcome == KnownNotCreated && validDispatchOrigin(r) && r.execution == nil && r.nextRetry == nil &&
 		r.busyAttempt == 0 && r.skipReason == "" && r.skippedAt == nil &&
 		r.launch.Purpose == "task/work" &&
 		r.launch.Lineage.RetryOf == nil && r.launch.Lineage.RegenerateOf == nil && r.launch.Lineage.ContributionGeneration == nil && r.launch.Lineage.ContributionAttempt == nil

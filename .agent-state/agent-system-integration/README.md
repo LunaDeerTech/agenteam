@@ -384,3 +384,36 @@ TOPS = {
 ```
 
 实际三个 ignored 入口均在 `output/ai/agent-system-integration/`，沿固定 Python `-B` 顺序执行：`scheduler-execution-pure-checks.py --cache /workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build` → `scheduler-execution-compile-01-launcher.py` → 冻结 plan 后 `scheduler-execution-launcher-01.py`。须先取得唯一资源窗口，已有结果不覆盖，所有历史 FAIL/输入/日志继续保留。
+
+## Work phase relaunch 与持久 cooldown
+
+最终 SOURCE `146594e6a993eaaafb8be7aa427d20b7a1e41426`，compile04/list 与 native04 wholePASS。`TestSchedulerRelaunch` 恰 1 top/2 sub（25.59s）：`cooldown-restart-and-new-execution` 从真实旧 Execution succeeded 开始，skipCount2 跨新 owner 持久减为1、0，下一次访问才建新 Dispatch/key/Execution，保持原 Task in_progress、版本/history 与唯一 todo Claim；`relaunch-failure-atomic-block-and-replay` 使用真实 typed 永久拒绝，在最终事务完整写入 schema5、双来源47/58关系、Task/blocker/history/Dispatch 后物理回滚，再由原请求正常结算与幂等重放。cooldown 是访问次数，不是墙钟期限；本片未接 App 生产装配、review/revise 或系统 blocked 自动解除。
+
+pure04 补直接受影响 6 top＋4 包 vet 全通过，与未变 12 top PASS 合计18；原 pure01/02 的类型错误和 pure03 的4项失败均保留，修复及补集不冒完整重跑。native01 在迁移失败且没有底层诊断时停止；native02 新增安全 SQLSTATE 后复现22P02，修58三处 JSON 提取/减法括号；native03 迁移已过但新 origin 写入失败，后修58两处 Version 的 canonical JSON 字符串类型，并纠正 fixture 的 admission helper 位置及原始错误诊断。58 属 Go embed 输入，每次修后都重新编译。三个 native wholeFAIL、四个候选及全部输入/日志原件保留，不回填旧结果。
+
+native04 于 2026-10-11 00:51:48–00:53:42 UTC 完成，Go 367928、driver 366286、supervisor 366285、outer 366220 原 Wait0；七资源14次 absent、private/runtime/desc/HOST_TCP 与 outer 全部双尾关闭，adopted=[]。1,614 native 输入首尾一致，含全部875 compile 输入。候选 `output/ai/agent-system-integration/scheduler-relaunch-race-04.test` 为65,603,644 B，SHA256 `ec3167a242bf6870826e6c3e941e89ea80c1c6ff94627cae42cf7ff5470b5ef7`。窗口已归还，不追加测试。
+
+原件为 `output/ai/scheduler-relaunch/combined-pure-{01,02,03,04}/result.json`、`output/ai/agent-system-integration/scheduler-relaunch-compile-{01,02,03,04}/result.json`、同目录 `scheduler-relaunch-{01,02,03,04}-control/result.json` 与各 `supervisor.log`；成功 PG 日志 `/tmp/srl04/pg-ef24c95e204046f4ad4c40957741a724.log`。pure04 SOURCE 为 `a84edefd59ac227d0b88b6151351dc05715a90ff`；后续差额仅运行时 fixture 诊断/断言与嵌入迁移，纯测闭合证据复用。
+
+恢复沿本文件既有 recipe（原版可读 `573d4275:.agent-state/agent-system-integration/README.md`），immutable 模板仍为 `.agent-state/agent-system-integration/` 下 `148640b8` 的 `task-launch-failure-pure-checks.py`、`73387883` 的 `scheduler-failure-compile-02-launcher.py` / `scheduler-failure-launcher-01.py`。仅代入 delivery ROOT、上述最终 SOURCE、namespace `scheduler-relaunch`、compile `tests/projectvariable`，list 数量1＋精确集合 `{'TestSchedulerRelaunch'}`；native 必须为父 selector `^TestSchedulerRelaunch$`。compile wholePASS 后按原严格输入冻结步骤生成 plan，保留875编译输入子集检查。已用 plan 为 `scheduler-relaunch-04-inputs.json`、输出 `/tmp/srl04`；重新运行必须换 fresh namespace，不覆盖任何结果。
+
+从零恢复 pure 使用以下18 top、`exact_18_top_pass`，vet 仅 `work`、`work/contract`、`scheduler`、`project`；本次最后补集为 Work 的 Origin/Records/Schema/CurrentClaim 四项与 Scheduler 的 Cooldown/Unknown 两项。
+
+```python
+TOPS = {
+ 'work': ['TestTaskRelaunchOriginIsDistinctFromTodoClaim', 'TestTaskRelaunchRecordsOnlyOriginAndRechecksCurrentFacts', 'TestTaskRelaunchRejectsForeignProofAndPreservesOriginalOutcome', 'TestTaskRelaunchFailureOriginsKeepLegacyEncoding', 'TestTaskRelaunchFailureSchemaDoesNotRewriteClaimHistory', 'TestTaskLaunchCurrentClaimAndFrozenSource', 'TestTaskLaunchFailureHistoryAndEventRemainSeparate'],
+ 'scheduler': ['TestSchedulerRelaunchCooldownPersistsVisits', 'TestSchedulerRelaunchUnknownKeepsOriginalVisit', 'TestSchedulerRelaunchBusyKeepsTaskAndCooldown', 'TestSchedulerLaunchAssociationAndOriginalKeyRecovery', 'TestSchedulerBusySettlementRequiresWorkProofInOriginalTransaction', 'TestSchedulerLaunchFailureSettlementChecksCurrentProofAndCommit', 'TestSchedulerRetryBindingInsertPreservesExplicitAndLegacyPair', 'TestSchedulerProjectRunnerPrioritizesHistoricalPending'],
+ 'project': ['TestSchedulerClaimProjectEventExactGate', 'TestTaskBusyCompensationProjectGatePausedAndExactSchema', 'TestTaskLaunchFailureProjectGatePausedAndExactSchema'],
+}
+```
+
+实际 ignored 入口保留于 `output/ai/agent-system-integration/`，原调用命令如下；已有 namespace 仅供复原核对，不能原位重跑。固定 Go1.27.1、只读模块、sole hotcache、private XDG、每进程 fresh≥5GiB、原 Go6m/driver540s/TERM60s/KILL3s/TCP75s、实际 Wait 与所有资源尾不变。
+
+```sh
+python3 -B output/ai/agent-system-integration/scheduler-relaunch-pure-checks-04.py --cache /workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build
+python3 -B output/ai/agent-system-integration/scheduler-relaunch-compile-04-launcher.py
+# compile PASS 后，先按原 recipe 冻结实际输入再启动 native：
+python3 -B output/ai/agent-system-integration/scheduler-relaunch-launcher-04.py
+```
+
+本批容量恢复只退休前批全PASS派生产物 `scheduler-execution-race-01.test`（64,844,964 B），其 source/recipe/inputs/results 保留；root 对已停用 TaskHumanHTTP、TaskTransition、Source、旧 WorkUI 与 independent UI 树作 normal sparse 可逆停放，保留 output/ignored/FAIL、根规则、恢复目录和 refs。delivery、sole hotcache/shared mod/MinIO 未停放，所有本批 FAIL candidates 保留；后继不要自动展开全部 donor 或删除失败证据。

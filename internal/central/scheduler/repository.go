@@ -16,11 +16,11 @@ import (
 
 const dispatchColumns = `id::text,project_id::text,sprint_id::text,task_id::text,agent_id::text,
  launch_request,launch_digest,idempotency_key,request_id::text,status,launch_outcome,version,
- claim_guard,claim_source_sprint_id::text,claim_source_state,claim_source_priority,execution_id::text,attempt_count,next_retry_at,created_at,updated_at,busy_attempt,skip_reason,skipped_at,final_attempt,failure_reason,failure_code,failure_occurred_at,failed_at,retry_policy,retry_policy_digest,temporary_attempt,temporary_reason,temporary_code,temporary_occurred_at`
+ claim_guard,claim_source_sprint_id::text,claim_source_state,claim_source_priority,execution_id::text,attempt_count,next_retry_at,created_at,updated_at,busy_attempt,skip_reason,skipped_at,final_attempt,failure_reason,failure_code,failure_occurred_at,failed_at,retry_policy,retry_policy_digest,temporary_attempt,temporary_reason,temporary_code,temporary_occurred_at,relaunch_source`
 
 func scanDispatch(row postgres.Row) (*dispatchRecord, error) {
 	var id, p, s, t, a, key, requestID, status, outcome, digest string
-	var launchRaw, guardRaw []byte
+	var launchRaw, guardRaw, relaunchRaw []byte
 	var execution *string
 	var sourceSprint, sourceState, sourcePriority *string
 	var version, attempts int64
@@ -37,7 +37,7 @@ func scanDispatch(row postgres.Row) (*dispatchRecord, error) {
 	var temporaryAttempt *int64
 	var temporaryReason, temporaryCode *string
 	var temporaryOccurred *time.Time
-	if err := row.Scan(&id, &p, &s, &t, &a, &launchRaw, &digest, &key, &requestID, &status, &outcome, &version, &guardRaw, &sourceSprint, &sourceState, &sourcePriority, &execution, &attempts, &retry, &created, &updated, &busy, &reason, &skipped, &finalAttempt, &failureReason, &failureCode, &occurred, &failed, &policyRaw, &policyDigest, &temporaryAttempt, &temporaryReason, &temporaryCode, &temporaryOccurred); err != nil {
+	if err := row.Scan(&id, &p, &s, &t, &a, &launchRaw, &digest, &key, &requestID, &status, &outcome, &version, &guardRaw, &sourceSprint, &sourceState, &sourcePriority, &execution, &attempts, &retry, &created, &updated, &busy, &reason, &skipped, &finalAttempt, &failureReason, &failureCode, &occurred, &failed, &policyRaw, &policyDigest, &temporaryAttempt, &temporaryReason, &temporaryCode, &temporaryOccurred, &relaunchRaw); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
 		}
@@ -70,6 +70,12 @@ func scanDispatch(row postgres.Row) (*dispatchRecord, error) {
 	actual, err := r.launch.Digest()
 	if err != nil || actual != r.digest || r.launch.ProjectID != r.project || r.launch.AgentID != r.agent || r.launch.Trigger.Kind != "task" || r.launch.Trigger.TaskID != r.task || r.launch.Lineage.DispatchID != id || r.launch.Meta.IdempotencyKey != launchKey(r.id) {
 		return nil, unavailable(nil)
+	}
+	if relaunchRaw != nil {
+		r.relaunch = new(wc.TaskRelaunchSource)
+		if decodeExact(relaunchRaw, r.relaunch, 262144) != nil || guardRaw != nil || !validRelaunchOrigin(r) {
+			return nil, unavailable(nil)
+		}
 	}
 	if guardRaw != nil {
 		g := new(ClaimGuard)
@@ -205,6 +211,16 @@ func insertDispatch(ctx context.Context, x postgres.SQLExecutor, r *dispatchReco
 		return err
 	}
 	var guard []byte
+	var relaunch []byte
+	if r.relaunch != nil {
+		if !validRelaunchOrigin(r) {
+			return invalid()
+		}
+		relaunch, err = json.Marshal(r.relaunch)
+		if err != nil {
+			return invalid()
+		}
+	}
 	var sourceSprint, sourceState, sourcePriority any
 	if r.guard != nil {
 		guard, err = json.Marshal(r.guard)
@@ -216,9 +232,9 @@ func insertDispatch(ctx context.Context, x postgres.SQLExecutor, r *dispatchReco
 		sourceSprint, sourceState, sourcePriority = r.guard.SourceSprintID, r.guard.SourceState, r.guard.SourcePriority
 	}
 	tag, err := x.Exec(ctx, `INSERT INTO agenteam_scheduler.dispatches
- (id,project_id,sprint_id,task_id,agent_id,launch_request,launch_digest,idempotency_key,request_id,status,launch_outcome,version,claim_guard,claim_source_sprint_id,claim_source_state,claim_source_priority,attempt_count,created_at,updated_at,retry_policy,retry_policy_digest)
- VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,'pending','not_sent',1,$10,$11,$12,$13,0,$14,$14,$15,$16)`,
-		r.id.String(), r.project.String(), r.sprint, r.task, r.agent.String(), launch, string(r.digest), string(r.launch.Meta.IdempotencyKey), r.launch.Meta.RequestID.String(), guard, sourceSprint, sourceState, sourcePriority, r.createdAt.Time(), policyRaw, policyDigest)
+ (id,project_id,sprint_id,task_id,agent_id,launch_request,launch_digest,idempotency_key,request_id,status,launch_outcome,version,claim_guard,claim_source_sprint_id,claim_source_state,claim_source_priority,attempt_count,created_at,updated_at,retry_policy,retry_policy_digest,relaunch_source)
+ VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,'pending','not_sent',1,$10,$11,$12,$13,0,$14,$14,$15,$16,$17)`,
+		r.id.String(), r.project.String(), r.sprint, r.task, r.agent.String(), launch, string(r.digest), string(r.launch.Meta.IdempotencyKey), r.launch.Meta.RequestID.String(), guard, sourceSprint, sourceState, sourcePriority, r.createdAt.Time(), policyRaw, policyDigest, relaunch)
 	if err != nil {
 		return portError(err)
 	}

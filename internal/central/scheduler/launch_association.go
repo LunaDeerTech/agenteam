@@ -42,7 +42,7 @@ func nextDispatch(r *dispatchRecord) (*dispatchRecord, error) {
 	return &v, err
 }
 func sameDispatch(a, b *dispatchRecord) bool {
-	return a != nil && b != nil && a.id == b.id && a.project == b.project && a.agent == b.agent && a.sprint == b.sprint && a.task == b.task && a.digest == b.digest && a.launch.Meta.RequestID == b.launch.Meta.RequestID && a.launch.Meta.IdempotencyKey == b.launch.Meta.IdempotencyKey && a.retryPolicy == b.retryPolicy
+	return a != nil && b != nil && a.id == b.id && a.project == b.project && a.agent == b.agent && a.sprint == b.sprint && a.task == b.task && a.digest == b.digest && a.launch.Meta.RequestID == b.launch.Meta.RequestID && a.launch.Meta.IdempotencyKey == b.launch.Meta.IdempotencyKey && a.retryPolicy == b.retryPolicy && sameRelaunchSource(a.relaunch, b.relaunch)
 }
 
 func (s *LaunchHandoff) markSending(ctx context.Context, call *launchCall) (*dispatchRecord, bool, error) {
@@ -92,7 +92,7 @@ func (s *LaunchHandoff) markAttempt(ctx context.Context, call *launchCall, retry
 		} else if r.outcome != NotSent {
 			return ctx.Err()
 		}
-		if r.guard == nil || r.launch.Purpose != "task/work" || !retry && r.attempts != 0 || r.attempts == math.MaxInt64 {
+		if !validDispatchOrigin(r) || r.launch.Purpose != "task/work" || !retry && r.attempts != 0 || r.attempts == math.MaxInt64 {
 			return fault(f.CapabilityUnsupported)
 		}
 		if err = requirePendingVisitInTx(ctx, tx, s, r, true); err != nil {
@@ -215,7 +215,10 @@ func (s *LaunchHandoff) associate(ctx context.Context, call *launchCall, expecte
 			return err
 		}
 		out.status, out.outcome, out.execution, out.nextRetry = Launched, Created, &execution, nil
-		return updateDispatch(ctx, x, out, r.version)
+		if err = updateDispatch(ctx, x, out, r.version); err != nil {
+			return err
+		}
+		return recordRelaunchAssociation(ctx, x, out)
 	})
 	if err = commitError(result); err != nil {
 		return nil, err
