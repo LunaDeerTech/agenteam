@@ -262,4 +262,14 @@ Blocker status 默认为 unresolved，可选 resolved/all；顺序 `(created_at,
 
 来源 `bfe52d55`的独立前端四文件24项、十文件格式检查、完整类型检查和生产构建已通过。SOURCE `8417`/candidate09的 `TestTaskEditWeb` native02两sub81.74s wholePASS，真实覆盖changed、显式清空、No-op及独立Ready，另核真实丢编辑回执后保留原version、完整patch和key，仅查原Lookup。四Wait0、两Node实际成功、七ID14次absence、全部双尾/TCP0、2436输入一致，secret最终业务/资源有限接受。cleanup接受8PNG和同轮键盘回焦、主题、reduced-motion及overflow检查；截图下半部与Unknown提示仅有DOM断言支持，不外推全面视觉或无障碍审计。原件见[组合recipe](../../../.agent-state/agent-system-integration/README.md#task编辑与agent创建页面有限组合)。
 
-本片验收闭合，已随main `4270a670`交付。原native01整轮34.22s FAIL及既有§1–12、Planning/Recovery和批12原FAIL均保留，不以后继请求联证修复回填。此片不新增排序、Blocker写入、状态边或完整规划能力；Timeline后端14项/3包vet及新UI16项/format/type/build仅有限接受，真实PG/浏览器尚待联调，不计入本次Task编辑交付；第十七批Agent编辑UI也未纳入。
+本片验收闭合，已随main `4270a670`交付。原native01整轮34.22s FAIL及既有§1–12、Planning/Recovery和批12原FAIL均保留，不以后继请求联证修复回填。此片不新增排序、Blocker写入、状态边或完整规划能力；后继Timeline的限定验收与独立交付范围见§14，不回填本次Task编辑交付；第十七批Agent编辑UI也未纳入。
+
+## 14. 任务详情只读历史
+
+本片已完成限定验收，随本次提交交付main，产品事实锚为SOURCE `b3e6f0bb`。沿现任务详情增加“任务历史”，复用当前Human Owner的Session与TaskReader，调用`GET /api/v1/projects/{P}/tasks/{T}/events`，保持服务端Project/Task权限、版本水位和签名cursor；HTTP同时提供HEAD。首次读取最近50条并按时间正序展示，可“加载较早历史”或“重新读取历史”。七种事件按结构化事实展示，人工评论完整保留换行且仅按纯文本渲染；历史actor不推导成当前权限或伪姓名。每页上限4 MiB，允许完整字节短页；未知kind、非法来源、重复或乱序整页拒绝，不截断后当作成功。
+
+读取仍经过原Session实际owner与串行读，切换Project/Task、身份撤销或页面代际退出后，迟到结果不得发布到新上下文。错误态明确允许重试原读取或重新读取；历史不会确认任何未决写操作，不替代Transfer/Create/Update原key与完整请求Lookup。组件沿主题token、真实Ui控件与键盘操作，使用独立读取状态，不修改Task业务状态。
+
+后端14项/3包vet及前端16项、format10/type/build有限证据复用；SOURCE `d407f82a`的真实PG三父top/十三sub全PASS。Web compile02/native03沿SOURCE `b3e6f0bb`，唯一`recent-older-and-refresh`30.90s wholePASS：正式Work服务写入51条历史，最近50→较早1→刷新50、完整评论和只读DB后验闭合。四Wait0、Node实际成功、七ID14次absence、全部双尾/TCP0及2444输入一致，secret最终业务/资源有限接受；cleanup接受实际两个尺寸/主题下的2PNG及同轮键盘、overflow检查，不外推全面无障碍或七kind全部视觉审计。原件与恢复入口见[Timeline组合recipe](../../../.agent-state/agent-system-integration/README.md#task-timeline只读组合)。
+
+原Web native01容量零业务FAIL、native02夹具比较FAIL及各pure/format失败原件保留，后继修复不回填。此只读闭环不代表六类事件生产者的真实全矩阵，不提供评论写入/编辑、Execution/Model日志、实时订阅或完整规划功能；Agent编辑、完整Runtime、生产initializer与ready等未完成范围及既有STOP保持。
