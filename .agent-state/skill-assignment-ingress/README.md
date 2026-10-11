@@ -8,7 +8,7 @@
 
 三个失败输入快照的仓库内文件分别逐 blob 对应 main 可达历史：basic01 的 918 项对应 `141b9b8a`，compile01 的 1,866 项对应 `a9899b85`，native01 的 1,866 项对应 `20fee0c4`；对应三个 wrapper 的原 SHA 也已核合。完整历史合入后再次核对这些提交均为上述 main 的祖先，源码恢复缺口为零，无需重造 patch。native01 的原 binary 位于已迁移的 `compile02/`；Go 工具链、SkillHTTP 热 cache、SkillsMilestoneResume 只读 modules 与 MinIO 保持原位置，不随本树搬移，也不声称纳入 Git 历史。
 
-本片原注册进程已有实际 Wait，七资源及所有退出双尾已闭合；仅对原 PID 的被动存在检查未见保留，不据此声称系统进程全部可见。68 的实际 PG/方法 owner、基础执行 owner、Skill 作者及后继投影作者已分别确认所辖源码/配方无旧树绝对运行路径依赖，principal 也已结束旧原件读取。原树无后续 source/output/binary/cache 依赖及本片后台，正常工作区检查无未提交内容。证据保全已完成，普通 worktree/分支删除仍交 root 执行；此时清理累计仍为 31 个 WorkTree、32 个本地分支、62 个远端引用，未核 legacy 147 与显式保留 1 不变。
+本片原注册进程已有实际 Wait，七资源及所有退出双尾已闭合；仅对原 PID 的被动存在检查未见保留，不据此声称系统进程全部可见。68 的实际 PG/方法 owner、基础执行 owner、Skill 作者及后继投影作者已分别确认所辖源码/配方无旧树绝对运行路径依赖，principal 也已结束旧原件读取。原树无后续 source/output/binary/cache 依赖及本片后台，正常工作区检查无未提交内容。证据保全说明已由 main `ad023b69` 推送工具 14649 实际退出 0 保存。root 随后确认旧树 clean、ignored 0，本地 HEAD `d3acb6e2` 与远端 `52bec60a56052a82f805ac0874b067fe3f1c51d0` 均为 main 祖先；普通 worktree remove 与 branch -d 均实际退出 0。首次对 fresh 原 tip 的 exact-lease 删除工具 49505 因无法读取 Git Username 实际退出 1，紧接 fresh 查询证明 ref 仍为原值；同一 exact-lease 必要后继工具 2276 实际退出 0，后续 fresh ls-remote 为空、fetch/prune 实际 0，未绕过权限或保护门。原树及本地/远端任务分支已清理，累计为 32 个 WorkTree、33 个本地分支、63 个远端引用；未核 legacy 147、显式保留 1、全部 STOP 和完整历史/保全路径均不变。下文原失败与运行路径作为历史记录保留，恢复使用上述 main 历史和 retired 输出，不再进入已删除旧树。
 
 ## 方法与原验证记录
 

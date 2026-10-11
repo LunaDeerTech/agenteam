@@ -6,13 +6,15 @@
 
 | 任务 / 分支 | 负责人 | 状态与下一步 |
 | --- | --- | --- |
-| Skill Assignment ingress — `ai/skill-assignment-ingress-20261011` | skill_package_review 交付；Agent / Execution 分域实施 | 已随 main `5c4bdca9` 有限交付并推送，完整已提交开发历史保留；native02 原91341 wholePASS 已唯一主审接受，1871 输入及全部 Wait/资源/TCP 门齐。原 basic01、compile01、native01 FAIL 与后继修复均保留，详见[本卡](../docs/development/work-items/d10-skill-assignment-ingress.md)及[原件入口](skill-assignment-ingress/README.md)。真实 Owner Assign/Remove、四 owner、typed Audit/Outbox/Ingress 同Tx、历史/回滚/Committed ack-loss 只 Lookup，止于 created / Model0、显式图和 Project test Skills；不含 Preparing 全链、68、下一 Model 或默认绑定。完整 output 已同文件系统无覆盖迁至 main `output/ai/retired-20261011/skill-assignment-ingress`，六份 tmp 原件副本及失败输入历史均核合，原 tmp 保留；树/分支删除仍待 root，未计入下列清理数。 |
-| DetermineRoundInput（68）独立树 | root 统筹分域实施 | 源码 ad458be1 / 基测脚本 b51bdb27 已静审；9 top 首次 basic01 原19551 wholeFAIL：7 top / 43 sub PASS，2 个正向入口 INVALID_ARGUMENT，vet 未运行。作者正诊断，原失败保留；真实 PG 方法实施中，尚未交付，不以 67 接受代本片通过。 |
+| DetermineRoundInput（68）独立树 | root 统筹分域实施 | 已组合正式主线输入，基础控制分段 9 top / 52 sub 与四包 vet 通过；basic01 原19551 wholeFAIL 保留，不改为单次全绿。首次 PG compile 原34561 正在运行，尚不计通过或真实 PG 验收；本片尚未交付。 |
+| NextRoundProjection 独立树 | root 统筹分域实施 | 合同 31e 已形成，仅源码阶段；尚无编译或运行通过结论，不代表下一 Model 已执行。 |
 | Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |
 
 主目标仍是完成[开发计划](../docs/development/development-plan.md)中的D01–D28/E01，目前尚未完成；任何单片有限验收不代表整体目标或原STOP解除。
 
 ## 保留与清理
+
+- Skill Assignment ingress 已随完整历史 main `5c4bdca9` 有限交付，保全说明 `ad023b69` 推送工具 14649 实际 0；native02 原91341 wholePASS 已唯一主审接受，原 basic01、compile01、native01 FAIL 全部保留。131 个完整 output 文件及六份 tmp 副本已保全至 `output/ai/retired-20261011/skill-assignment-ingress`，原 tmp 保留，详见[本卡](../docs/development/work-items/d10-skill-assignment-ingress.md)及[恢复说明](skill-assignment-ingress/README.md)。root 已实际完成普通 worktree remove 和 branch -d，均退出 0；远端首次 exact-lease 删除工具 49505 因无法读取 Git Username 实际 1，fresh 确认原 ref 未变后，同一 exact-lease 后继工具 2276 实际 0，fresh 查询为空、fetch/prune 0。三项已计入下列清理数。范围仍只到真实 Owner Assign/Remove、四 owner 与 typed Audit/Outbox/Ingress 同Tx、历史/回滚/Committed ack-loss 只 Lookup，created / Model0、显式图与 Project test Skills；不含 Preparing 全链、68、下一 Model 或默认绑定。
 
 - Runner 本地 write-file 已随完整历史 main `66fe3ab0` 有限交付并推送；仅可信 Root/Handle 原子 Write→Read，不含 Tool/WSS/production。原 basic01 wholeFAIL 与旧 31 top PASS、修后新 10 top / 13 sub race 及两包 vet PASS 均保留。59 个原件 / 3,665,603 B 已无覆盖同文件系统迁至 `output/ai/retired-20261011/runner-write-file-adapter`，路径、SHA、size、dev、inode、mode 逐项相同；33 个仓库内历史输入每轮均与 main 可达提交逐字一致，外部 1,067 项仍指原工具链/modules。详见[恢复说明](runner-write-file-adapter/README.md)。root 已实际完成普通 worktree remove 和普通 branch -d，均退出 0、未强制删除；原 HEAD 6ce32282 为 main 祖先。fresh 远端精确查询成功且为空，本任务分支从未推送，故仅增加树和本地分支计数，不增加远端删除数。
 
@@ -29,7 +31,7 @@
 - ProjectVariablesResume 已随 main `3e28f10a` 有限交付；`66d45ce1` 仅保留完整开发历史、文件树零变化。全部原 output 和三份 tmp 必需副本已无覆盖保全，119 个已提交历史版本 main 可达；早期未提交失败输入缺口如实保留，见[恢复说明](project-variables-resume/README.md)。原树已普通移除，本地 branch -d 实际成功；远端原 tip 精确 lease 删除工具 4661 实际 0，fresh 查询为空、prune 0，三项清理已计入下列总数。
 - ObjectSafe 保留原件与失败。Move 活跃树保留，未核其他树不自动清理。
 - Runner directory 已随 main `4e5e70ce` 有限交付并推送，28 个相关 race top、六包 vet 与真实 PG/WSS 整轮独立接受；原树、本地分支及远端引用均已清理。完整 output 已同文件系统无覆盖迁至 main `output/ai/retired-20261011/runner-directory-adapter/`，其中 `retention/` 保存原 `/tmp/rda01` log/owned/request 的逐字副本和路径映射；原 `/tmp` 保留。本片无失败输入需补恢复差额，上游严格授权替身、生产默认 nil executor/旧 STOP 保留。
-- 已完成清理共 31 个 WorkTree、32 个本地分支、62 个远端引用；其中 27 个额外远端引用为严格 main 祖先，没有对应本地分支或树，另有已删除的本地 work296。root 已确认前述三棵退役树不存在、对应 local/tracking 为空，精确 lease 删除、ls-remote 空结果及 main+ai prune 均实际成功。Directory 普通 worktree remove 成功，branch -d 因非祖先拒绝后仅对已交 squash 分支执行窄 -D；最新 tip 精确 lease 删除、成功空查询、prune 和 local/tracking 空结果均已闭合。另有 D16 filesystem、D18 NameProjection、SearchBenchmark 三个完整 scope 已交且无独占依赖的旧远端引用，经 fresh tip 核对、精确 lease 删除、成功空查询及 prune 后完成清理，没有新增本地分支或树。新增清理 `ai/work-review-runtime-delivery`：tip `f4190ad7` 全部历史经 main 可达，无本地分支、worktree 或活动依赖；root fresh tip 核对后精确 lease 删除成功，ls-remote 成功为空，prune 后远端跟踪引用为空，无需新增恢复材料。原 154 个待核引用现剩 147 个，1 个显式保留历史引用仍未动，其他活动分支按 owner 保留。`ai/skills-milestone-integration` 的全部历史已为 main 祖先、无 local/tree 或活动依赖；root 核定 tip `fc0fb130` 后精确 lease 删除工具 74385 实际 0，fresh 查询为空、prune 完成，已计入上述远端累计。
+- 已完成清理共 32 个 WorkTree、33 个本地分支、63 个远端引用；其中 27 个额外远端引用为严格 main 祖先，没有对应本地分支或树，另有已删除的本地 work296。root 已确认前述三棵退役树不存在、对应 local/tracking 为空，精确 lease 删除、ls-remote 空结果及 main+ai prune 均实际成功。Directory 普通 worktree remove 成功，branch -d 因非祖先拒绝后仅对已交 squash 分支执行窄 -D；最新 tip 精确 lease 删除、成功空查询、prune 和 local/tracking 空结果均已闭合。另有 D16 filesystem、D18 NameProjection、SearchBenchmark 三个完整 scope 已交且无独占依赖的旧远端引用，经 fresh tip 核对、精确 lease 删除、成功空查询及 prune 后完成清理，没有新增本地分支或树。新增清理 `ai/work-review-runtime-delivery`：tip `f4190ad7` 全部历史经 main 可达，无本地分支、worktree 或活动依赖；root fresh tip 核对后精确 lease 删除成功，ls-remote 成功为空，prune 后远端跟踪引用为空，无需新增恢复材料。原 154 个待核引用现剩 147 个，1 个显式保留历史引用仍未动，其他活动分支按 owner 保留。`ai/skills-milestone-integration` 的全部历史已为 main 祖先、无 local/tree 或活动依赖；root 核定 tip `fc0fb130` 后精确 lease 删除工具 74385 实际 0，fresh 查询为空、prune 完成，已计入上述远端累计。
 
 
 - 两条无 local/tree 或活动依赖的旧 remote 已完成 fresh tip 核对、双 exact-lease 原子删除、成功空查询及 prune：`ai/task-timeline-http`（`1e6b3db2809ce0e62de6c8c2042a0eaf3b9b67f5`）完整 6 路径及 6 个提交版本逐字保留于 main 祖先 `bfebd676`；`ai/agent-directory-http`（`235887d2f615ed6bd6863d9c8b4a1b1e548f32d2`）完整 14 路径等于 main 祖先 `2c59cf0d`，跨三提交的 15 个文件版本均可从 main 历史恢复，无需新增材料。
