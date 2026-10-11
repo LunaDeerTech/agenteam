@@ -37,4 +37,13 @@ python3 -B .agent-state/runner-write-file-wss/run-checks.py prepare --compile ou
 python3 -B output/ai/runner-write-file-wss/native01/record-native.py
 ```
 
-当前仅方法源码准备；产品及 WSS fixture 仍由各自作者冻结。允许的离线方法控制为 `profile-controls.py` 的 1 正 / 7 负与原 TCP while AST 对照、Python 语法和 inert `--help`。不得将这些控制计为产品 Go、真实 WSS 或退出门通过。原所有 STOP 保留。
+固定源码 `5d8cf4c4` 已完成并获唯一主审有限接受：
+
+- `methods01` 的离线1正/7负、原TCP while AST对照、语法与 inert help 按原方法接受；这些结论仅对应方法。peer.Close 原返回证明修正来自静审，未发生本片动态 FAIL。
+- `basic01`：原工具31350亲收actual0；Go810676 race 12top/37sub（10新+2旧）0/10.189s，Go810921三包vet 0/2.073s；1493项before/after-unit/after一致，四次实际race/plain go-list均0。
+- `compile01`：原工具18090亲收actual0；Go811848 race-c 0/1.228s，list811878 0/1.021s，精确唯一top。1480项实际编译输入三份等；binary 17,991,296B、SHA256 `151c6b630a9ff97eb8bd4aa20c48ec703cc86460fbb661e29560d22b4f0f4cec`，native仅加此一项至1481。
+- `native01`：原工具96046亲收actual0（原chunk `ea8450`）；supervisor812703原Wait0/3.395s，内部3.137s，Go812704原Wait0，精确1top/1sub 1.76s PASS。唯一真实资源marker、desc/private两次空、原自动TCP差额双empty、1481输入不变和terminal0全齐，窗口已释放。
+
+原件在本树 `output/ai/runner-write-file-wss/{methods01,basic01,compile01,native01}`，各阶段原Popen/Wait日志、input maps、binary/recipe及作者亲收的tool-terminal保留；网络原件 `/tmp/rwfw01/{invocation.json,process.json,test.log,native.log,tcp-baseline.json}`。完整保全、main合入/push与树/分支清理由root后续执行，当前未发生，不提前记完成。
+
+结果止于本页首段的trusted peer / bound session范围，不能外推Central授权、enrollment、完整或默认Client.Run/生产接线，以及未运行的WSS故障取消。原所有STOP保持；详细业务与基础边界见[本卡](../../docs/development/work-items/d15-runner-write-file-adapter.md)。

@@ -1,6 +1,6 @@
 # D15/D16 Runner write-file WSS 适配器
 
-状态：源码阶段，尚未运行 Go 基础检查或真实 WSS。本片以已交付本地 `filesystem.Root.Write` / `workspace.Handle.Write` 为底座，只新增 Runner 闭集 codec、Handler 和显式 Control 绑定。
+状态：固定 `5d8cf4c4` 的基础检查、编译与隔离真实 WSS 首链已获唯一主审有限 wholePASS 接受，可交 main；当前本树尚未合入、推送或保全清理。本片以已交付本地 `filesystem.Root.Write` / `workspace.Handle.Write` 为底座，只新增 Runner 闭集 codec、Handler 和显式 Control 绑定。
 
 依据：[D15 §7](d15-runner-control.md#7-rpc端口与-unknown)、[本地 Write](d16-runner-write-file.md)、[Workspace](../../architecture/runner/agent-workspace.md)与[执行运行时](../../architecture/runner/execution-runtime.md)。
 
@@ -26,10 +26,16 @@ Handler 顺序为校验 → 原 `Manager.Ensure` → 原 `Handle.Write` → 背�
 
 这里 success 表示已知完整原子发布，不等于 durable 或没有后置错误；generic failure/cancelled/unknown 禁 payload 的规则完全不变。合法终态返回 nil Go error，以免原 Control 将已确定结果改为 Unknown；原 wire、worker 与连接退休仍由既有 Control owner 实际收束。
 
-## 分域与验证计划
+## 已验证范围
 
-skill_package_review 负责 Handler、Control 显式接线、本卡/D15/current；skills_milestone_review 负责两个协议文件；knowledge_delete_fixture 独写真实 WSS 控制；recovery_lead 负责 `.agent-state/runner-write-file-wss/` 方法；runtime_recovery 唯一独立主审。Git、cache 与实际执行窗口由 root 统筹。
+skill_package_review 实施 Handler/Control 并亲自执行；skills_milestone_review 实施 codec；knowledge_delete_fixture 独写真实 WSS fixture；recovery_lead 实施方法；runtime_recovery 唯一独立主审已按原件接受。Git、cache 与实际执行窗口由 root 统筹。此前 peer.Close 返回证明在静审中发现漏项，于 `5d8cf4c4` 保留原 Close 结果后闭合；不是实际运行失败，不补造 FAIL。
 
-必要源码控制包括严格 codec/完整帧、显式构造与默认拒绝、publication/取消/close 分类、原 Ensure/Write/Drain barrier、真实最大二进制 Write→分块 Handle.Read、禁止覆盖和隔离。首条真实网络链为 `TestWriteFileWSS/committed-write-and-overwrite-conflict`：可信测试 TLS/WSS 对端 → 原 Runner Client/session → 真实 Handler/Manager/Root → 已提交结果与独立完整读取 → 显式第二请求的 no-overwrite conflict → 原客户端/连接/服务/Manager 实际退出。该测试对端不冒 Central 当前授权或生产 dispatcher。
+basic01 原工具 31350 亲收 actual0：Go 810676 的 race 为 12 top / 37 sub（10 新 top、2 个受 hello 分支影响的旧入口），10.189s；Go 810921 的三包 vet 为 0/2.073s。race/plain 四次实际 go-list 全部退出0，1493 项编译输入 before / after-unit / after 完整一致。控制覆盖严格 codec/整帧、默认拒绝、publication/取消/close 分类与原调用 barrier、真实最大二进制 Write→分块 Handle.Read、禁止覆盖和隔离；没有重复旧 D16 全矩阵。
 
-当前仅源代码、指定 gofmt 和静态差额检查；测试通过与实际退出结果待原工具链窗口。已交付 local Write 的原 FAIL 与通过事实沿原卡，不重复整套 D16 矩阵。Object/toolsHTTP/SPA/Jina/Image 既有 STOP 和默认生产边界保持。
+compile01 原工具 18090 亲收 actual0：Go 811848 race-c 为 0/1.228s，811878 list 为 0/1.021s，精确唯一 `TestWriteFileWSS`。1480 项实际编译输入三份一致；binary 为 17,991,296 B、SHA256 `151c6b630a9ff97eb8bd4aa20c48ec703cc86460fbb661e29560d22b4f0f4cec`。native 配方只增加该 binary，共1481项。
+
+native01 原工具 96046 亲收 actual0：supervisor 812703 实际 Wait0/3.395s，原内部3.137s，Go 812704实际 Wait0；`TestWriteFileWSS/committed-write-and-overwrite-conflict` 精确1 top / 1 sub、1.76s PASS。可信测试 TLS/WSS peer → 原 Control bound session/wire → 显式 Handler/Manager/Root，完成512KiB原子写入及独立Handle按64KiB完整读取；同连接显式第二请求得到 no-overwrite Conflict，原正文再次完整一致。原 executor 返回、两终态及RequestID关联真实核对，没有自动重发。
+
+唯一 `WRITE_FILE_WSS owned_resources_joined=true` 只在实际 session/worker、wire reader/writer、peer handler/socket Close、TLS server、离线显式 client、独立Handle与Manager 全部退出后产生。监督器亲收原 Go 后，desc/private 两次空、原75s自动baseline TCP差额两次empty、1481输入不变与terminal0均闭合。没有PG/Docker，不借用七资源声明。全部原输出在 `output/ai/runner-write-file-wss/{methods01,basic01,compile01,native01}/`，原网络日志为 `/tmp/rwfw01/{test.log,native.log}`，方法见[恢复与执行说明](../../../.agent-state/runner-write-file-wss/README.md)。
+
+真实链仅证明 trusted TLS/WSS peer 的 bound session，不含 Central grant/Operation/dispatcher、enrollment、完整或默认 `Client.Run`、生产接线，也不外推故障/取消真实WSS场景；后置错误/取消判据属于上述受控基础测试。已交付 local Write 的原 FAIL 与通过事实沿原卡。Object/toolsHTTP/SPA/Jina/Image 既有 STOP 与默认生产边界保持；本片测试资源与执行窗口已全部释放。
