@@ -113,6 +113,21 @@ export const router = createRouter({
           component: () => import('../views/projects/ProjectHomeView.vue'),
         },
         {
+          path: 'tasks',
+          name: 'project-tasks',
+          component: () => import('../views/projects/ProjectTasksView.vue'),
+        },
+        {
+          path: 'tasks/sprints/:sprint_id',
+          name: 'project-task-sprint',
+          component: () => import('../views/projects/ProjectTasksView.vue'),
+        },
+        {
+          path: 'tasks/:task_id',
+          name: 'project-task-detail',
+          component: () => import('../views/projects/ProjectTasksView.vue'),
+        },
+        {
           path: 'knowledge/:document_id?',
           name: 'project-knowledge',
           component: () => import('../views/projects/ProjectKnowledgeView.vue'),

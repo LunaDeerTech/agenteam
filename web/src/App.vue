@@ -17,6 +17,7 @@ import {
   installAccountSecurityNavigation,
   installSMTPSettingsNavigation,
   installOutboundPolicyNavigation,
+  installTaskNavigation,
   installProjectNavigation,
   installProjectModelSettingsNavigation,
 } from './router/auth'
@@ -51,6 +52,7 @@ import {
   createProjectModelSettings,
   projectModelSettingsKey,
 } from './composables/useProjectModelSettings'
+import { createProjectTasks, projectTasksKey } from './composables/useProjectTasks'
 const auth = useSession(),
   state = auth.state,
   route = useRoute(),
@@ -58,6 +60,9 @@ const auth = useSession(),
 const projects = createProjectWorkspace(auth, (path) => router.replace(path))
 provide(projectWorkspaceKey, projects)
 const stopProjectNavigation = installProjectNavigation(router, projects)
+const tasks = createProjectTasks(auth, projects, (path) => router.push(path))
+provide(projectTasksKey, tasks)
+const stopTaskNavigation = installTaskNavigation(router, tasks)
 const projectModels = createProjectModelSettings(auth, projects)
 provide(projectModelSettingsKey, projectModels)
 const stopProjectModelNavigation = installProjectModelSettingsNavigation(router, projectModels)
@@ -116,6 +121,7 @@ provide(systemOutboundPolicyKey, outboundPolicy)
 const stopOutboundNavigation = installOutboundPolicyNavigation(router, outboundPolicy)
 async function logout() {
   if (
+    (await tasks.confirmLeave()) &&
     (await settings.confirmLeave()) &&
     (await invitations.confirmLeave()) &&
     (await providers.confirmLeave()) &&
@@ -155,6 +161,7 @@ watch(
 )
 onMounted(() => {
   projects.afterNavigation(route.fullPath, '')
+  tasks.afterNavigation(route.fullPath)
   projectModels.afterNavigation(route.fullPath, '')
   entry.afterNavigation(route.fullPath, '')
   invitations.afterNavigation(route.fullPath, '')
@@ -170,6 +177,8 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('visibilitychange', refreshVisible)
   window.removeEventListener('pageshow', refreshVisible)
+  stopTaskNavigation()
+  tasks.dispose()
   stopProjectModelNavigation()
   projectModels.dispose()
   stopProjectNavigation()
@@ -237,6 +246,17 @@ onUnmounted(() => {
     </div>
   </AppShell>
   <RouterView v-else />
+  <UiDialog
+    :open="tasks.confirmation.open"
+    title="离开任务"
+    @update:open="!$event && tasks.cancelConfirmation()"
+  >
+    <p>{{ tasks.confirmation.message }}</p>
+    <template #footer
+      ><UiButton variant="ghost" @click="tasks.cancelConfirmation">继续查看</UiButton
+      ><UiButton @click="tasks.confirm">离开</UiButton></template
+    >
+  </UiDialog>
   <UiDialog
     :open="projectModels.confirmation.open"
     :title="projectModels.confirmation.title"
