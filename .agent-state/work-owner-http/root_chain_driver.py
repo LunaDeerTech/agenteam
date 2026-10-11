@@ -18,6 +18,8 @@ MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 # One closed same-package PG family: adding a scenario changes required
 # inputs and expected test data, never the resource/Wait/tail implementation.
 METADATA_INPUTS = {
+    '^TestTaskIntakeWeb$': ('tests/projectvariable/task_intake_web_test.go', 'tests/projectvariable/task_review_web_test.go', 'tests/projectvariable/task_transition_scheduler_test.go', 'tests/projectvariable/scheduler_claim_test.go', 'tests/account-captcha-web/task-intake.config.js', 'tests/account-captcha-web/e2e/task-intake.spec.ts', 'tests/account-captcha-web/e2e/task-intake.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts'),
+    '^TestAppExecutionRuntime$': ('tests/projectvariable/app_execution_runtime_test.go', 'tests/projectvariable/fixture_test.go', 'tests/projectvariable/execution_model_environment_capture_test.go', 'tests/projectvariable/execution_first_round_test.go'),
     '^TestTaskReviewWeb$': (
         'tests/projectvariable/task_review_web_test.go',
         'tests/projectvariable/task_review_test.go',
@@ -244,8 +246,10 @@ def metadata_inputs(binary, selector='^TestAgentConfigurationMetadata$'):
     # Only the explicitly retained legacy metadata profile includes its
     # historical records. New profiles contain actual compiled/runtime inputs.
     paths.update(REPOSITORY / name for name in METADATA_INPUTS[selector])
-    if selector == TASK_REVIEW_UI:
-        paths.update(task_review_ui_inputs())
+    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI):
+        paths.update(task_review_ui_inputs(selector))
+    if selector == APP_RUNTIME:
+        paths.update(app_runtime_inputs())
     if any(not p.is_file() or p.is_symlink() or p.resolve(strict=True) != p for p in paths):
         raise ValueError('regular complete configuration metadata inputs required')
     return sorted(paths)
@@ -303,18 +307,31 @@ KNOWLEDGE_ENV = ('AGENTEAM_KNOWLEDGE_OWNER_WEB_DIST',
 
 
 TASK_REVIEW_UI = '^TestTaskReviewWeb$'
+TASK_INTAKE_UI = '^TestTaskIntakeWeb$'
+APP_RUNTIME = '^TestAppExecutionRuntime$'
+TASK_INTAKE_ENV = ('AGENTEAM_TASK_INTAKE_WEB_DIST', 'AGENTEAM_TASK_INTAKE_WEB_EVIDENCE')
 TASK_REVIEW_ENV = ('AGENTEAM_TASK_REVIEW_WEB_DIST', 'AGENTEAM_TASK_REVIEW_WEB_EVIDENCE')
 TASK_REVIEW_HARNESS_MODULES = Path('/workspace/agenteam-work-ui-independent/tests/account-captcha-web/node_modules')
 TASK_REVIEW_WEB_MODULES = Path('/workspace/agenteam/web/node_modules')
 
 
-def task_review_ui_environment():
-    return {key: os.environ.get(key, '') for key in TASK_REVIEW_ENV}
+def task_review_ui_profile(selector):
+    if selector == TASK_REVIEW_UI:
+        return TASK_REVIEW_ENV, 'output/ai/work-review-web', 'task-review'
+    if selector == TASK_INTAKE_UI:
+        return TASK_INTAKE_ENV, 'output/ai/task-intake-web', 'task-intake'
+    raise ValueError('exact Task browser profile required')
 
 
-def task_review_ui_assets():
-    owned = (REPOSITORY / 'output/ai/work-review-web').resolve()
-    dist = Path(task_review_ui_environment()[TASK_REVIEW_ENV[0]])
+def task_review_ui_environment(selector=TASK_REVIEW_UI):
+    names, _, _ = task_review_ui_profile(selector)
+    return {key: os.environ.get(key, '') for key in names}
+
+
+def task_review_ui_assets(selector=TASK_REVIEW_UI):
+    names, output, _ = task_review_ui_profile(selector)
+    owned = (REPOSITORY / output).resolve()
+    dist = Path(task_review_ui_environment(selector)[names[0]])
     if (not dist.is_absolute() or dist != dist.resolve() or not dist.is_relative_to(owned)
             or not (dist / 'index.html').is_file()):
         raise ValueError('owned frozen Task Review dist required')
@@ -324,22 +341,24 @@ def task_review_ui_assets():
     return sorted(p for p in assets if p.is_file())
 
 
-def task_review_ui_configuration(directory):
-    values = task_review_ui_environment()
-    task_review_ui_assets()
-    evidence = Path(values[TASK_REVIEW_ENV[1]])
-    owned = (REPOSITORY / 'output/ai/work-review-web').resolve()
+def task_review_ui_configuration(directory, selector=TASK_REVIEW_UI):
+    names, output, _ = task_review_ui_profile(selector)
+    values = task_review_ui_environment(selector)
+    task_review_ui_assets(selector)
+    evidence = Path(values[names[1]])
+    owned = (REPOSITORY / output).resolve()
     if (len(str(directory / 'runtime')) > 45 or not evidence.is_absolute()
             or evidence != evidence.resolve() or evidence.exists() or evidence.is_symlink()
             or not evidence.parent.is_dir() or not evidence.parent.is_relative_to(owned)
-            or evidence.is_relative_to(Path(values[TASK_REVIEW_ENV[0]]))
+            or evidence.is_relative_to(Path(values[names[0]]))
             or not KNOWLEDGE_NODE.is_file() or not os.access(KNOWLEDGE_NODE, os.X_OK)):
         raise ValueError('fresh owned Task Review evidence and short runtime required')
     return values
 
 
-def task_review_ui_inputs():
-    paths = set(task_review_ui_assets())
+def task_review_ui_inputs(selector=TASK_REVIEW_UI):
+    _, _, stem = task_review_ui_profile(selector)
+    paths = set(task_review_ui_assets(selector))
     harness = REPOSITORY / 'tests/account-captcha-web'
     modules = harness / 'node_modules'
     web_modules = REPOSITORY / 'web/node_modules'
@@ -347,7 +366,7 @@ def task_review_ui_inputs():
             or web_modules.resolve(strict=True) != TASK_REVIEW_WEB_MODULES.resolve(strict=True)):
         raise ValueError('approved shared Task Review installations required')
     paths.update(harness / name for name in ('package.json', 'package-lock.json',
-        'task-review.config.js', 'e2e/task-review.spec.ts', 'e2e/task-review.helpers.ts'))
+        stem + '.config.js', 'e2e/' + stem + '.spec.ts', 'e2e/' + stem + '.helpers.ts'))
     for name in ('@playwright/test', 'playwright', 'playwright-core'):
         package = (modules / name).resolve(strict=True)
         if not package.is_relative_to(TASK_REVIEW_HARNESS_MODULES.resolve(strict=True)):
@@ -371,9 +390,133 @@ def task_review_ui_inputs():
     return sorted(paths)
 
 
-def task_review_ui_input_hash(binary):
-    inputs = {str(p): sha(p) for p in metadata_inputs(binary, TASK_REVIEW_UI)}
+def task_review_ui_input_hash(binary, selector=TASK_REVIEW_UI):
+    inputs = {str(p): sha(p) for p in metadata_inputs(binary, selector)}
     return hashlib.sha256(json.dumps(inputs, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+
+
+APP_RUNTIME_UNSHARE = Path('/usr/bin/unshare')
+APP_RUNTIME_PYTHON = KNOWLEDGE_PYTHON.resolve()
+# Executed twice by the original PG owner: list, then the exact whole top. There
+# is no child/fork or network namespace. Its PID becomes the real Go candidate.
+APP_RUNTIME_WRAPPER = r"""import ctypes
+import hashlib
+import ipaddress
+import json
+import os
+from pathlib import Path
+import stat
+import sys
+import tempfile
+
+
+def main():
+    args = sys.argv[1:]
+    inside = args[:1] == ['--inside-private-hosts']
+    old = args[1:3] if inside else None
+    if inside:
+        args = args[3:]
+    phase = ('list' if args == ['-test.list=^TestAppExecutionRuntime$'] else
+             'run' if args == ['-test.v', '-test.count=1', '-test.timeout=6m',
+                              '-test.run=^TestAppExecutionRuntime$'] else None)
+    if phase is None or CANDIDATE.is_symlink() or not CANDIDATE.is_file():
+        raise ValueError('exact candidate and original arguments required')
+    with CANDIDATE.open('rb') as stream:
+        if hashlib.file_digest(stream, 'sha256').hexdigest() != DIGEST:
+            raise ValueError('candidate changed')
+    current = [os.readlink('/proc/self/ns/' + name) for name in ('mnt', 'user')]
+    if not inside:
+        os.execv(UNSHARE, [UNSHARE, '--user', '--map-root-user', '--mount',
+                          '--propagation', 'private', PYTHON, __file__,
+                          '--inside-private-hosts', *current, *args])
+    if len(old) != 2 or any(a == b for a, b in zip(old, current)):
+        raise ValueError('private namespaces required')
+    descriptor = Path(os.environ['AGENTEAM_OUTBOUND_FIXTURE'])
+    info = descriptor.lstat()
+    if (not stat.S_ISREG(info.st_mode) or info.st_mode & 0o077
+            or info.st_size > 16384):
+        raise ValueError('owned descriptor required')
+    value = json.loads(descriptor.read_text())
+    if set(value) != {'ContainerID', 'NetworkID', 'Nonce', 'ControlPort', 'PrivateIP', 'CAFile'}:
+        raise ValueError('exact outbound descriptor required')
+    ip = ipaddress.IPv4Address(value['PrivateIP'])
+    if not any(ip in ipaddress.IPv4Network(cidr) for cidr in
+               ('10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16')):
+        raise ValueError('private fixture address required')
+    hosts = Path('/etc/hosts').read_bytes()
+    if len(hosts) > 65536 or b'\x00' in hosts:
+        raise ValueError('bounded original hosts required')
+    for line in hosts.splitlines():
+        if b'fixture.test' in line.split(b'#', 1)[0].split()[1:]:
+            raise ValueError('fixture alias already exists')
+    libc = ctypes.CDLL(None, use_errno=True)
+    libc.mount.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p,
+                          ctypes.c_ulong, ctypes.c_void_p]
+    libc.mount.restype = ctypes.c_int
+    if libc.mount(None, b'/', None, (1 << 14) | (1 << 18), None) != 0:
+        raise ValueError('private propagation required')
+    fd, source = tempfile.mkstemp(prefix='app-hosts-', dir=OWNED)
+    try:
+        with os.fdopen(fd, 'wb') as stream:
+            stream.write(hosts + b'\n' + str(ip).encode('ascii') + b' fixture.test\n')
+        if libc.mount(os.fsencode(source), b'/etc/hosts', None, 1 << 12, None) != 0:
+            raise ValueError('private hosts bind failed')
+    finally:
+        os.unlink(source)
+    # Descriptor ownership is independently revalidated by the real Go fixture.
+    # This marker is observation only, not an authority or a business grant.
+    os.environ['AGENTEAM_APP_RUNTIME_PRIVATE_HOSTS'] = '1'
+    print('APP_RUNTIME private_hosts phase=%s pid=%d candidate_sha=%s' %
+          (phase, os.getpid(), DIGEST), file=sys.stderr, flush=True)
+    os.execv(str(CANDIDATE), [str(CANDIDATE), *args])
+
+
+try:
+    main()
+except (OSError, ValueError, KeyError, TypeError):
+    print('STOP App runtime private hosts setup failed', file=sys.stderr)
+    sys.exit(1)
+"""
+
+
+def app_runtime_inputs():
+    paths = (APP_RUNTIME_UNSHARE, APP_RUNTIME_PYTHON)
+    if any(not p.is_file() or p.is_symlink() or p.resolve(strict=True) != p
+           or not os.access(p, os.X_OK) for p in paths):
+        raise ValueError('fixed private namespace executables required')
+    return paths
+
+
+def app_runtime_wrapper(binary, directory):
+    app_runtime_inputs()
+    binary = Path(binary).resolve(strict=True)
+    header = ('#!' + str(APP_RUNTIME_PYTHON) + '\n'
+              'from pathlib import Path\n'
+              'CANDIDATE = Path(' + repr(str(binary)) + ')\n'
+              'DIGEST = ' + repr(sha(binary)) + '\n'
+              'UNSHARE = ' + repr(str(APP_RUNTIME_UNSHARE)) + '\n'
+              'PYTHON = ' + repr(str(APP_RUNTIME_PYTHON)) + '\n'
+              'OWNED = ' + repr(str(directory / 'runtime')) + '\n')
+    return header + APP_RUNTIME_WRAPPER
+
+
+def prepare_app_runtime_wrapper(binary, directory):
+    target = directory / 'app-runtime-candidate'
+    source = app_runtime_wrapper(binary, directory)
+    fd = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    with os.fdopen(fd, 'w') as stream:
+        stream.write(source)
+    target.chmod(0o700)
+    return target
+
+
+def app_runtime_wrapper_same(binary, directory):
+    target = directory / 'app-runtime-candidate'
+    try:
+        return (not target.is_symlink() and target.stat().st_mode & 0o777 == 0o700
+                and target.read_text() == app_runtime_wrapper(binary, directory))
+    except (OSError, ValueError):
+        return False
 
 
 def knowledge_ui_assets():
@@ -479,8 +622,11 @@ def configuration(binary, selector, directory):
             'cwd': str(REPOSITORY / TARGETS[selector]),
             'directory': str(directory), 'runtime': str(directory / 'runtime'),
             'test_timeout': '6m', 'resources': 7}
-    if selector == TASK_REVIEW_UI:
-        plan['task_review_ui'] = task_review_ui_configuration(directory)
+    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI):
+        plan['task_review_ui'] = task_review_ui_configuration(directory, selector)
+    if selector == APP_RUNTIME:
+        app_runtime_inputs()
+        plan['app_runtime_wrapper_sha'] = hashlib.sha256(app_runtime_wrapper(binary, directory).encode()).hexdigest()
     if selector == KNOWLEDGE_UI:
         plan['knowledge_ui'] = knowledge_ui_configuration(directory)
     return plan
@@ -554,13 +700,19 @@ def main():
         env.update({'AGENTEAM_AUTH_WEB_RUNTIME': str(runtime),
                     'AGENTEAM_KNOWLEDGE_OWNER_WEB_INPUT_HASH': knowledge_ui_input_hash(args.test_binary),
                     'PATH': str(KNOWLEDGE_NODE.parent) + os.pathsep + env.get('PATH', '')})
-    if args.run == TASK_REVIEW_UI:
+    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI):
         ui = plan['task_review_ui']
-        Path(ui['AGENTEAM_TASK_REVIEW_WEB_EVIDENCE']).mkdir(mode=0o700)
+        names, _, _ = task_review_ui_profile(args.run)
+        Path(ui[names[1]]).mkdir(mode=0o700)
         env.update(ui)
         env.update({'AGENTEAM_AUTH_WEB_RUNTIME': str(runtime),
-                    'AGENTEAM_TASK_REVIEW_WEB_INPUT_HASH': task_review_ui_input_hash(args.test_binary),
+                    names[0].removesuffix('_DIST') + '_INPUT_HASH': task_review_ui_input_hash(args.test_binary, args.run),
                     'PATH': str(KNOWLEDGE_NODE.parent) + os.pathsep + env.get('PATH', '')})
+    if args.run == APP_RUNTIME:
+        source = app_runtime_wrapper(args.test_binary, directory)
+        if hashlib.sha256(source.encode()).hexdigest() != plan['app_runtime_wrapper_sha']:
+            raise ValueError('private hosts wrapper inputs changed')
+        env['AGENTEAM_FIXTURE_TEST_BINARY'] = str(prepare_app_runtime_wrapper(args.test_binary, directory))
     os.chdir(REPOSITORY)
     # No child is started here: the original shell chain replaces this PID.
     # Its nested Go Cmd.Run and shell wait remain the actual child owners.

@@ -199,6 +199,8 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestTaskIntakeWeb$': frozenset(('TestTaskIntakeWeb', 'TestTaskIntakeWeb/create-and-ready', 'TestTaskIntakeWeb/lost-create-confirmation-and-ready')),
+    '^TestAppExecutionRuntime$': frozenset(('TestAppExecutionRuntime', 'TestAppExecutionRuntime/discovers-existing-project-and-completes', 'TestAppExecutionRuntime/stop-joins-held-model-and-leases')),
     '^TestTaskReviewWeb$': frozenset({
         'TestTaskReviewWeb',
         'TestTaskReviewWeb/review-complete',
@@ -370,15 +372,29 @@ METADATA_GROUPS = {
 
 
 TASK_REVIEW_UI = '^TestTaskReviewWeb$'
+TASK_INTAKE_UI = '^TestTaskIntakeWeb$'
+APP_RUNTIME = '^TestAppExecutionRuntime$'
 
 
-def task_review_browser_waits(output):
-    lines = [line for line in output.splitlines() if 'Task Review Node actual_wait' in line]
-    matches = [re.fullmatch(r'[ \t]+task_review_web_test\.go:[1-9][0-9]*: '
-                           r'Task Review Node actual_wait pid=([1-9][0-9]*) success=true', line)
+def task_review_browser_waits(output, selector=TASK_REVIEW_UI):
+    label = 'Task Intake' if selector == TASK_INTAKE_UI else 'Task Review'
+    # browser calls t.Helper, so the real log points at each profile's caller.
+    source = 'task_intake_web_test.go' if selector == TASK_INTAKE_UI else 'task_review_web_test.go'
+    lines = [line for line in output.splitlines() if label + ' Node actual_wait' in line]
+    matches = [re.fullmatch(r'[ \t]+' + re.escape(source) + r':[1-9][0-9]*: '
+                           + re.escape(label) + r' Node actual_wait pid=([1-9][0-9]*) success=true', line)
                for line in lines]
     return (len(matches) == 2 and all(matches)
             and len({match[1] for match in matches}) == 2)
+
+
+def app_runtime_waits(output):
+    lines = [line for line in output.splitlines() if line.startswith('APP_RUNTIME private_hosts')]
+    matches = [re.fullmatch(r'APP_RUNTIME private_hosts phase=(list|run) pid=([1-9][0-9]*) candidate_sha=([a-f0-9]{64})', line) for line in lines]
+    waits = re.findall(r'^D03 explicit test actual_wait pid=([1-9][0-9]*) code=0 selector=\^TestAppExecutionRuntime\$$', output, re.M)
+    return (len(matches) == 2 and all(matches) and [m[1] for m in matches] == ['list', 'run']
+            and matches[0][2] != matches[1][2] and matches[0][3] == matches[1][3]
+            and waits == [matches[1][2]])
 
 
 def metadata_results(output, selector=METADATA_ROOT):
@@ -389,7 +405,8 @@ def metadata_results(output, selector=METADATA_ROOT):
     results = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): (\S+) \([^()\r\n]*\)$', output, re.M)
     waits = re.findall(r'^D03 explicit test actual_wait pid=([1-9][0-9]*) code=(-?[0-9]+) selector=(\S+)$', output, re.M)
     return (len(runs) == len(cases) and set(runs) == cases
-            and (selector != TASK_REVIEW_UI or task_review_browser_waits(output))
+            and (selector not in (TASK_REVIEW_UI, TASK_INTAKE_UI) or task_review_browser_waits(output, selector))
+            and (selector != APP_RUNTIME or app_runtime_waits(output))
             and len(results) == len(cases)
             and all(state == 'PASS' for state, _ in results)
             and {name for _, name in results} == cases
@@ -1184,7 +1201,7 @@ def main():
             args.content_schema_python = os.environ['AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON']
         except (OSError, ValueError):
             parser.error('explicit local content Schema interpreter required')
-    stem = ('ui-' + uuid.uuid4().hex[:16]) if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI) else ('pg-' + uuid.uuid4().hex)
+    stem = ('ui-' + uuid.uuid4().hex[:16]) if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI, TASK_INTAKE_UI) else ('pg-' + uuid.uuid4().hex)
     directory = args.output.resolve() / stem
     if args.run == KNOWLEDGE_UI:
         try:
@@ -1192,9 +1209,9 @@ def main():
             args.knowledge_ui_environment = adapter.knowledge_ui_environment()
         except (OSError, ValueError):
             parser.error('exact frozen Knowledge assets, interpreters and fresh evidence required')
-    if args.run == TASK_REVIEW_UI:
+    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI):
         try:
-            args.task_review_ui_environment = adapter.task_review_ui_configuration(directory)
+            args.task_review_ui_environment = adapter.task_review_ui_configuration(directory, args.run)
         except (OSError, ValueError):
             parser.error('exact frozen Task Review assets, dependencies and fresh evidence required')
     args.output.mkdir(parents=True, exist_ok=True)
@@ -1285,7 +1302,7 @@ def main():
                 log.write(f'SUPERVISOR actual_driver_wait pid={child.pid} actual={child.returncode is not None} code={code}\n')
             else:
                 log.write(f'SUPERVISOR actual_driver_wait pid={child.pid} actual={child.returncode is not None} actual_exit={child.returncode} code={code}\n')
-            if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI) and child.returncode is not None:
+            if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI, TASK_INTAKE_UI) and child.returncode is not None:
                 if not knowledge_ui_reap_exited(log):
                     code = 1
             survivors = descendants(os.getpid())
@@ -1400,8 +1417,10 @@ def main():
                 same = same and parser_same(inputs, args, adapter)
             if args.run == KNOWLEDGE_UI:
                 same = same and knowledge_ui_same(inputs, args, adapter)
-            if args.run == TASK_REVIEW_UI:
-                same = same and adapter.task_review_ui_environment() == args.task_review_ui_environment
+            if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI):
+                same = same and adapter.task_review_ui_environment(args.run) == args.task_review_ui_environment
+            if args.run == APP_RUNTIME:
+                same = same and adapter.app_runtime_wrapper_same(args.binary, directory)
             if not same: code = 1
             if interrupted: code = 1
             log.write(f'SUPERVISOR inputs_unchanged={same} terminal={code} elapsed={time.monotonic()-started:.3f}s\n')
