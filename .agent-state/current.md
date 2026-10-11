@@ -1,12 +1,14 @@
 # 全局协调索引
 
-2026-10-11。main 的本文件当前由 root 指定 skill_assignment_agent 维护本次 Operation 保全入口；root 负责 Git、集成和资源排期。功能分支 current 不覆盖本索引。正式交付边界见[任务台账](../docs/development/agent-team/tasks.md)，分段接受不等于当前 main 单次全量通过。
+2026-10-11。main 的本文件当前由 root 指定 recovery_lead 维护本次结果消费集成入口；root 负责 Git、集成和资源排期。功能分支 current 不覆盖本索引。正式交付边界见[任务台账](../docs/development/agent-team/tasks.md)，分段接受不等于当前 main 单次全量通过。
 
 ## 当前开发
 
 | 任务 / 分支 | 负责人 | 状态与下一步 |
 | --- | --- | --- |
+| read-file 结果单次消费 — `ai/execution-tool-result-consumption-20261011` | recovery_lead 交付，runtime_recovery 独审，root 集成 | 本次随 main 合入精确 17 路径的有限已验片：完整成功结果同事务追加原 Execution seq3 / 消费记录 / version，重复与 Unknown 仅观察；9 top 分段 race、5 包 vet、native01 wholePASS 已独立接受。原基础 FAIL 与上游旧 FAIL 保留，生产默认未绑定，无下一 Model 或终态退休。完整历史随本次合入；原输出 / tmp 保全及原树 / 分支清理待正式交付后执行，见[正式卡](../docs/development/work-items/d22-execution-tool-result-consumption.md)。 |
 | 单次 read-file Operation/Attempt 收尾 | skill_package_review 交付，runtime_recovery 独审，root 清理 | main 本地 `c7ad165b` 已合入有限已验片，native04 wholePASS；完整历史和全部运行材料已保全。main 推送及原 WorkTree / 本地 / 远端分支清理仍待 root 执行，不含 Transcript 消费、下一 Model 或生产默认绑定，见[恢复说明](runner-read-file-operation/README.md)与[正式卡](../docs/development/work-items/d18-runner-read-file-operation.md)。 |
+| Skill Assignment ingress — `ai/skill-assignment-ingress-20261011` | skill_package_review 交付；Agent / Execution 分域实施 | 当前真实源码线：Owner assignment 与 Agent 版本 / 引用所有者推进、Skill immutable change、Execution 原事务 queued / no_active 决策。分域源码检查点已保存，组合与真实链尚未验收；不包含 DetermineRoundInput、下一 Model 或 Transcript 应用。 |
 | Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |
 
 主目标仍是完成[开发计划](../docs/development/development-plan.md)中的D01–D28/E01，目前尚未完成；任何单片有限验收不代表整体目标或原STOP解除。

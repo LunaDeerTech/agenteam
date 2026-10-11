@@ -199,6 +199,11 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestExecutionToolResultConsumption$': frozenset((
+        'TestExecutionToolResultConsumption',
+        'TestExecutionToolResultConsumption/full-result-once-and-current-binding',
+        'TestExecutionToolResultConsumption/rollback-and-commit-loss-observation',
+    )),
     '^TestRunnerReadFileOperation$': frozenset((
         'TestRunnerReadFileOperation',
         'TestRunnerReadFileOperation/result-commit-loss-and-observation',

@@ -18,6 +18,19 @@ MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 # One closed same-package PG family: adding a scenario changes required
 # inputs and expected test data, never the resource/Wait/tail implementation.
 METADATA_INPUTS = {
+    '^TestExecutionToolResultConsumption$': (
+        'tests/projectvariable/execution_tool_result_consumption_test.go',
+        'tests/projectvariable/runner_read_file_operation_test.go',
+        'tests/projectvariable/execution_tool_call_facts_test.go',
+        'db/migrations/00066_execution_tool_result_consumptions.sql',
+        'internal/central/execution/contract/tool_result_consumption.go',
+        'internal/central/execution/tool_result_consumption.go',
+        'internal/central/execution/tool_result_consumption_repository.go',
+        'internal/central/tool/contract/read_file_result.go',
+        'internal/central/tool/runtime/read_file_result.go',
+        'internal/central/agentloop/tool_result.go',
+        '.agent-state/execution-tool-result-consumption/profile-controls.py',
+    ),
     '^TestRunnerReadFileOperation$': (
         'tests/projectvariable/runner_read_file_operation_test.go',
         'tests/projectvariable/runner_read_file_adapter_test.go',
