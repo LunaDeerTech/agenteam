@@ -1,6 +1,6 @@
 # D22 首轮 ToolCall 持久事实
 
-状态：基于 `226ea38b` 实施；基础 race 与 vet 已分段通过，真实 PG 测试已编译，尚未运行。本片止于真实原模型句柄完成并实际 Joined 后的 ToolCall 持久事实和 `tool-pending` 非终态 checkpoint，不声明完整多轮 Agent、ToolOperation、Runner 派发或生产 tools 接入。
+状态：基于 `226ea38b` 实施；基础 race 与 vet 已分段通过，首次真实 PG 已运行但在 Model 捕获入口失败，显式补口尚待验证。本片止于真实原模型句柄完成并实际 Joined 后的 ToolCall 持久事实和 `tool-pending` 非终态 checkpoint，不声明完整多轮 Agent、ToolOperation、Runner 派发或生产 tools 接入。
 
 正式来源：[Model/Tool 契约](d01-contracts/model-tool.md)、[Execution 编排契约](d01-contracts/execution-orchestration.md)、[Transcript 与 Context](../../architecture/agent-loop/transcript-context.md)。
 
@@ -42,3 +42,11 @@ Tool 子域已有 6 个新基础测试入口，Execution/Loop 增加 8 个入口
 精确 argv、进程与 actual Wait、输入和日志见 `output/ai/execution-tool-call-facts/checks/unit01-*`、`unit02-*`、`vet01-*`。尚未据此声明 PG、公开 Cancel 命令、多轮 Tool Runtime 或生产 tools 已通过。
 
 PG 唯一测试的首次 `-race -tags=integration -c -p=1` 编译实际退出 0（Go PID 656310，109.403 秒），随后精确 `-test.list=^TestExecutionToolCallFacts$` 实际退出 0 且仅枚举该 top。1806 项原 driver 编译闭包前后及列表后均相同；runtime 仅追加真实 binary，原件见 `output/ai/execution-tool-call-facts/compile01/` 与 `native01/`。这仍是编译和配方准备，不代表两条 PG 业务场景通过。
+
+## 首次真实链失败及显式捕获补口
+
+`native01` 原工具 40757 实际退出 1，supervisor 659462 实际 1 / 136.730 秒。两个 sub 在依赖装配阶段返回 `CAPABILITY_UNSUPPORTED`，尚未进入 ToolCall 持久化断言；原通用 helper 未记录具体内部调用 stage，不将静态定位冒作额外运行观测。原 Go / driver 均实际 Wait 1，七资源双次不存在、descendants / private / runtime 双尾、自动 TCP delta 双空和输入未变门均完整。原件 `output/ai/execution-tool-call-facts/native01/` 保留，整轮为 FAIL。
+
+静态定位确认不可满足的原路径：本夹具通过正式 Model 配置启用 `ToolCalls`，而原 `ExecutionCapture` 委托的默认 Resolver 明确拒绝该配置。不得删除原门或伪造 Snapshot。补口采用独立、显式的 `NewToolCallFactsCapture`，复用原真实 Model 配置、同事务计划 / Snapshot / Secret lease；只接受 AgentGeneration 的 direct 选择、文本模态、ToolCalls 且无 parallel / streaming / reasoning。捕获 revision 为 `execution-tool-call-facts-capture-v1`，表示配置捕获，未注册任何 HTTP adapter，也不等于被 STOP 的 tools adapter。
+
+原 resolution identity / semantic / mapping 编码不变，完整 frozen draft 已把独立 revision 纳入 mapping。prepared 和 committed 历史须与调用 profile 一致，不能修改成另一 profile；最终 Resolve 与 Unknown 观察复核原候选、owner 和 revision。公开 `DiscoverResolve` / `ResolveModelInTx`、原 `NewExecutionCapture` 和 `Runtime.Chat` 仍走默认 no-tools 门。该补口尚未执行新增 Model 控制或复验 PG；不放宽原 A/B STOP 或默认生产接入。

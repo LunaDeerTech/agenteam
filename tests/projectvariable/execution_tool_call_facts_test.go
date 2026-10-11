@@ -135,6 +135,7 @@ func newToolFactsFixture(t *testing.T) *toolFactsFixture {
 	v := &toolFactsFixture{}
 	var modelAuthority *model.RuntimeAuthority
 	var modelSecrets *secret.Service
+	var modelService *model.Service
 	v.capture = newModelEnvironmentFixtureWithSource(t,
 		func(task *taskTransitionFixture, owner *execution.Authority) captureModelPorts {
 			modelActor, err := i.RegisterService(i.ModelRuntime)
@@ -150,6 +151,7 @@ func newToolFactsFixture(t *testing.T) *toolFactsFixture {
 			}, ready: func(_ *model.Service, secrets *secret.Service, _ *audit.Service) { modelSecrets = secrets }}
 		},
 		func(task *taskTransitionFixture, models *model.Service, _ *ec.Policy) {
+			modelService = models
 			current, err := models.GetProjectModel(ctxFor(t), task.base.ownerBrowser.actor, task.base.project.ID, task.agent.modelID)
 			firstRoundRequire(t, err)
 			input := current.Input.Clone()
@@ -159,6 +161,9 @@ func newToolFactsFixture(t *testing.T) *toolFactsFixture {
 			firstRoundRequire(t, err)
 		}, true)
 	c, b := v.capture, v.capture.v.base
+	modelCapture, err := model.NewToolCallFactsCapture(modelService, c.authority)
+	firstRoundRequire(t, err)
+	c.models.provider = modelCapture
 	var ordinary bool
 	firstRoundRequire(t, b.raw.QueryRow(ctxFor(t), `SELECT role='user' FROM agenteam_account.users WHERE id::text=$1`, b.ownerBrowser.actor.Details().UserID).Scan(&ordinary))
 	if !ordinary {
@@ -250,7 +255,10 @@ func newToolFactsFixture(t *testing.T) *toolFactsFixture {
 			t.Error("original Tool preparation did not join", err)
 		}
 	})
-	firstRoundRequire(t, preparation.Run(ctxFor(t), c.created.ID))
+	if err := preparation.Run(ctxFor(t), c.created.ID); err != nil {
+		t.Log("tool_facts_stage=preparation_run")
+		firstRoundRequire(t, err)
+	}
 	c.requireProviderCalls(t, false)
 	v.input = (&firstRoundFixture{capture: c}).preparedInput(t)
 	fields := v.input.Fields()

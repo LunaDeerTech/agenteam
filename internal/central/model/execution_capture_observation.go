@@ -64,8 +64,20 @@ func (p *ExecutionCapture) ObserveExecutionModelDiscovery(ctx context.Context, r
 	locks := slices.Clone(observation.locks)
 	if observation.discovery != nil {
 		c := observation.discovery.candidate
-		if c == nil || c.authority != p.models.state().authority {
+		if c == nil || c.authority != p.models.state().authority || c.profile != p.profile {
 			return pending, fault(f.Forbidden)
+		}
+		// A failed preflight may have no complete draft. Its private kind still
+		// must match; a durable candidate additionally binds the frozen revision.
+		if !observation.discovery.readOnly || c.draft.validate() == nil {
+			if err := p.profile.requireDraft(c.request, c.draft); err != nil {
+				return pending, err
+			}
+		}
+		if c.row != nil {
+			if err := p.profile.requireDraft(c.request, c.row.Draft); err != nil {
+				return pending, err
+			}
 		}
 		expected, err := executionModelResolveRequest(r, observation.source)
 		if err != nil {
@@ -120,6 +132,9 @@ func (p *ExecutionCapture) ObserveExecutionModelDiscovery(ctx context.Context, r
 		// Absence or a later/unrelated plan cannot settle this original intention.
 		if row == nil || c.row == nil || row.ID != c.row.ID || row.SnapshotID != c.draft.Snapshot.ID || row.Semantic != resolutionSemantic(c.request) || row.Version != c.version || !resolutionEqual(row.Draft, c.draft) {
 			return ctx.Err()
+		}
+		if err = p.profile.requireDraft(c.request, row.Draft); err != nil {
+			return err
 		}
 		if row.Phase == "committed" {
 			if err = loadCommittedResolution(ctx, x, row); err != nil {
