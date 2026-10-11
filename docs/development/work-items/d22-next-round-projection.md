@@ -1,6 +1,6 @@
 # 已提交后继 RoundInput 的只读投影
 
-状态：独立树 `agenteam-next-round-projection`，起点 `71b13d5c`，运行输入固定 `c30623db`。产品、基础和 PG 方法已获有限静态接受；basic01 的 8 top / 42 sub race、三包 vet，以及 compile01/list/prepare 已实际通过并获独立接受。首次 native01 原工具 10165 **wholeFAIL**：fixture 最前置创建私有目录失败，未到投影业务。上游 68 已随完整历史 main `bf7c882a` 有限交付，不代替本片真实 PG 验收。
+状态：独立树 `agenteam-next-round-projection`，起点 `71b13d5c`。产品、基础和 PG 方法已获有限静态接受；basic01 的 8 top / 42 sub race、三包 vet，以及两次 compile/list/prepare 已实际通过并获独立接受。native01（`c30623db`）与仅增失败诊断的 native02（`5b04b4fc`）均 **wholeFAIL**：fixture 最前置创建私有目录失败，未到投影业务。02 明确记录 ENOSPC，01 原 errno 仍未知。上游 68 已随完整历史 main `bf7c882a` 有限交付，不代替本片真实 PG 验收。
 
 依据：[输入确定点](d01-contracts/execution-orchestration.md#技能变更与下一轮输入确定点)、[68 RoundInput](d22-execution-round-input.md)。本片只把已提交的首个后继输入投影为数据；不发 ModelRequest、不调用下一 Model/Runner，不接生产默认或解除 tools HTTP 及其它原 STOP。
 
@@ -20,4 +20,8 @@ compile01 原工具 97067 实际 0：Go795737 / 112.194s，精确唯一 `TestNex
 
 native01 原工具 10165 亲见退出 1，supervisor798335 / 76.456s 实际 1；Go799928 与 driver798336 实际 Wait 1。唯一 top/sub 在 0.00s 报 `owned private directory failed`，真实起点是继承 fixture 的 `runner_read_file_adapter_test.go` 中 `os.MkdirTemp(".", ".runner-read-file-")`；固定安全错误未保存原 errno，不能倒填原因。失败早于投影、上游 fixture 业务与本片后验，不记任何 Projection/PG 业务通过。七个精确资源双 absence、desc/private/runtime 双空、原自动 HOST_TCP delta 双空及 `inputs_unchanged=True` 均齐，只证明失败轮完整退出，不能升级 whole。原监督日志 `/tmp/nrp01/pg-ca39cb5c2c934124b58f00abc25176f7.log` 与 `native01/{terminal,outer-observation}.json`、`outer.log` 完整保留。
 
-原 PG 作者已提供仅 helper 失败分支的有界安全诊断候选，尚未重编或运行；新增诊断不能补造原01 errno。当前未归因具体 errno、未改产品、未重试。真实联调须沿原 68 已提交输入调用 `NewRoundProjector(d).Project(ctx,E,next)`，不以自造 DTO 冒充 committed 输入。后继编译或 native 均由 root 另授窗口，原预算与所有退出门、tools HTTP 等 STOP 不变。
+失败诊断 `77805930` 获静态接受后单独执行 compile02/list：原工具 31194 实际 0，Go803424 / 25.678s 与 list803817 / 1.060s 均实际 0；1893 输入三份前后相同，对01仅原 helper 诊断一文件改变。prepare 原81467 实际0，运行1894项仅增 binary `2cc5aad07c3ef00a44456d923fbf71967fc1e77299ef990ad7db33414653492c`（87,968,196 B）；未重跑已接受基础。
+
+native02 原73449亲见退出1，supervisor804805 / 78.008s 实际1（原监督日志77.063s），Go806502/driver804825 Wait1。唯一 top/sub 仍在0.00s原 `MkdirTemp` 失败，新增闭集诊断 `errno=space` 精确对应 `syscall.ENOSPC`；当时 parent stat/Getwd无错误，parent为0700目录且owner_known/owned/linked为真。七资源双 absence、desc/private/runtime双空、75s内原自动 HOST_TCP delta双空与1894输入不变全部齐。原件在 `native02/`，raw log `/tmp/nrp02/pg-c442cb0e32194dd9b836b211d41ea603.log`。没有到达投影或任何本片业务后验，不记PG通过；02诊断不能补造01首因，也未证明ENOSPC来自字节、inode或其它文件系统限制。
+
+原尾后同一 parent 的一次受控 mkdir/rmdir 均实际0、身份匹配且清理后不存在，外层46cd46实际0，记录在 main 的 [projection-parent-mkdir01.json](/workspace/agenteam/output/ai/projection-parent-mkdir01.json)。这只能说明该次当前态可创建并清理，不证明原运行故障已解决。原 PG 作者持有失败点 Statfs 最小诊断增量；目前尚未为其重编，也未授权第三次 native，不算修复。真实联调仍须沿原68提交调用 `NewRoundProjector(d).Project(ctx,E,next)`，不得换原预算/退出门或以自造DTO替代。tools HTTP等全部STOP保持。
