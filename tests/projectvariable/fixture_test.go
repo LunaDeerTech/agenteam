@@ -85,6 +85,10 @@ func (l *variableHTTPLog) Write(raw []byte) (int, error) {
 func (l *variableHTTPLog) text() string { l.mu.Lock(); defer l.mu.Unlock(); return l.data.String() }
 
 type variableHTTPFixture struct {
+	// Opt-in integration handoff after every originally registered setup owner
+	// has retired, while this fixture still owns its Store and database.
+	afterOwners func()
+
 	db                                       *pgfixture.Database
 	raw                                      *postgres.Store
 	accounts                                 *account.Authority
@@ -113,7 +117,16 @@ func newVariableHTTPFixture(t *testing.T) *variableHTTPFixture {
 	t.Helper()
 	db := newDatabase(t)
 	raw := openStore(t, db.Config(t, nil))
-	return assembleVariableHTTPFixture(t, db, raw, &hookStore{fixtureStore: raw})
+	var fixture *variableHTTPFixture
+	// Register before assembly: testing runs the original owner cleanup stack
+	// first. A failed setup or failed actual Drain/Join must not start the App.
+	t.Cleanup(func() {
+		if fixture != nil && fixture.afterOwners != nil && !t.Failed() {
+			fixture.afterOwners()
+		}
+	})
+	fixture = assembleVariableHTTPFixture(t, db, raw, &hookStore{fixtureStore: raw})
+	return fixture
 }
 
 // The explicit Store argument also permits the already accepted complete-frame
