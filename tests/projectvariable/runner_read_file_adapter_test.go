@@ -297,14 +297,22 @@ func readFileAdapterPrivateDirectory(t *testing.T) string {
 		parent, statErr := os.Stat(".")
 		_, cwdErr := os.Getwd()
 		var mode uint32
+		var device uint64
 		var directory, ownerKnown, owned, linked bool
 		if statErr == nil {
 			mode, directory = uint32(parent.Mode().Perm()), parent.IsDir()
 			if native, ok := parent.Sys().(*syscall.Stat_t); ok {
 				ownerKnown, owned, linked = true, native.Uid == uint32(os.Geteuid()), native.Nlink > 0
+				device = uint64(native.Dev)
 			}
 		}
 		t.Logf("owned_private_directory errno=%s parent_stat=%s parent_known=%t parent_directory=%t parent_mode=%04o parent_owner_known=%t parent_owned=%t parent_linked=%t cwd=%s", classify(err), classify(statErr), statErr == nil, directory, mode, ownerKnown, owned, linked, classify(cwdErr))
+		var fs syscall.Statfs_t
+		fsErr := syscall.Statfs(".", &fs)
+		if fsErr != nil {
+			fs = syscall.Statfs_t{}
+		}
+		t.Logf("owned_private_directory_fs statfs=%s statfs_known=%t type=%#x bsize=%d blocks=%d bfree=%d bavail=%d files=%d ffree=%d parent_device_known=%t parent_device=%d uid=%d euid=%d gid=%d egid=%d", classify(fsErr), fsErr == nil, fs.Type, fs.Bsize, fs.Blocks, fs.Bfree, fs.Bavail, fs.Files, fs.Ffree, ownerKnown, device, os.Getuid(), os.Geteuid(), os.Getgid(), os.Getegid())
 	}
 	readFileAdapterOK(t, err, "owned private directory")
 	directory, err = filepath.Abs(directory)
