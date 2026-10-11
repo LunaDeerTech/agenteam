@@ -485,6 +485,11 @@ type toolFactsIdentity struct {
 }
 
 func (v *toolFactsFixture) facts(ctx context.Context, sql postgres.SQLExecutor) (toolFactsIdentity, error) {
+	expectedCanonical := []byte(fmt.Sprintf(`{"encoding":"utf8","length":64,"mount_id":%q,"offset":"0","path":"private-tool-call-argument.txt"}`, v.mount.MountID.String()))
+	return v.factsFor(ctx, sql, expectedCanonical, 0)
+}
+
+func (v *toolFactsFixture) factsFor(ctx context.Context, sql postgres.SQLExecutor, expectedCanonical []byte, expectedOperations int64) (toolFactsIdentity, error) {
 	var out toolFactsIdentity
 	var original, canonical, transcript, response, snapshotRaw, roundRaw []byte
 	var state, modelName, toolID, originalDigest, canonicalDigest, inputDigest, projectID, agentID, operation, revision string
@@ -512,13 +517,12 @@ func (v *toolFactsFixture) facts(ctx context.Context, sql postgres.SQLExecutor) 
 	if err != nil {
 		return out, err
 	}
-	if state != "running" || out.Version != int64(v.capture.created.Version)+3 || schema != 2 || !pending || through != 2 || !sameTx || transcriptCount != 2 || argumentCount != 1 || callCount != 1 || operationCount != 0 || terminalCount != 0 || mountRefs != 1 || retired != 0 || modelLeases != 1 || environmentLeases != 1 {
+	if state != "running" || out.Version != int64(v.capture.created.Version)+3 || schema != 2 || !pending || through != 2 || !sameTx || transcriptCount != 2 || argumentCount != 1 || callCount != 1 || operationCount != expectedOperations || terminalCount != 0 || mountRefs != 1 || retired != 0 || modelLeases != 1 || environmentLeases != 1 {
 		return out, errors.New("tool checkpoint is partial, terminal, or detached from live provider facts")
 	}
 	if projectID != v.capture.created.ProjectID.String() || agentID != v.capture.created.AgentID.String() || out.Invocation != v.model.invocation.String() || out.Call != "owned-read-file-call" || modelName != v.input.Fields().Tools[0].ModelVisibleName || toolID != v.spec.ToolID.String() || spec != int64(v.spec.SpecRevision) || operation != "read-file" || revision != "1" || protocol != 1 {
 		return out, errors.New("Tool call lost original model or captured binding identities")
 	}
-	expectedCanonical := []byte(fmt.Sprintf(`{"encoding":"utf8","length":64,"mount_id":%q,"offset":"0","path":"private-tool-call-argument.txt"}`, v.mount.MountID.String()))
 	if !bytes.Equal(original, v.model.arguments) || !bytes.Equal(canonical, expectedCanonical) || originalDigest != string(ec.TriggerInputDigest(v.model.arguments)) || canonicalDigest != string(ec.TriggerInputDigest(expectedCanonical)) {
 		return out, errors.New("protected original or canonical arguments changed")
 	}
