@@ -1,6 +1,6 @@
 # Skill 当前分配与 Execution pending ingress
 
-状态：以 main `19df3fea` 建立独立源码候选，现合入正式 main `7c874adc` 的已交付 65/66 及完整历史；本片尚未编译、自测或真实联调。交付边界是当前 Human Owner 的 Skill 分配命令及其同事务持久 ingress；不执行 Model，不产生下一轮 RoundInput，不改变默认生产未绑定及已有 STOP。
+状态：以 main `19df3fea` 建立独立源码候选，现合入正式 main `7c874adc` 的已交付 65/66 及完整历史；本片最小基础检查分段通过，真实 PG 尚未编译或运行。交付边界是当前 Human Owner 的 Skill 分配命令及其同事务持久 ingress；不执行 Model，不产生下一轮 RoundInput，不改变默认生产未绑定及已有 STOP。
 
 ## 正式依据与分域
 
@@ -33,7 +33,7 @@ Ingress 不 Acquire 新锁、不另开 Tx、不调用 Model。Agent EX 与 Launc
 
 每个 change_id 的 ingress receipt 不可变：第一次的 queued Execution 或 no_active 决定原样重放，后来启动的新 Execution 不能吸收旧 change。queued 行仅表示 pending，不代表已进入某轮或 waiting 已恢复。
 
-原意图与候选通过完整转换绑定：Assign 的 Skill/enabled、Remove 的原 grant identity、Added/Removed 与完整 After 集合逐项相符，并重建全部 Before 集合验证原 digest。`runtime_receipt` 仅在真实 ingress 调用成功返回后与 completed 回执同 Tx 冻结，planned 必须为空；历史回执以独立原路由证明构建期望值，queued 还核 Skill 自有 pending 的完整原身份，no_active 拒绝存在 pending。`30c31358` 已静态关闭这两项 decoder must-fix，新增判别控尚未运行，不记作动态红绿。
+原意图与候选通过完整转换绑定：Assign 的 Skill/enabled、Remove 的原 grant identity、Added/Removed 与完整 After 集合逐项相符，并重建全部 Before 集合验证原 digest。`runtime_receipt` 仅在真实 ingress 调用成功返回后与 completed 回执同 Tx 冻结，planned 必须为空；历史回执以独立原路由证明构建期望值，queued 还核 Skill 自有 pending 的完整原身份，no_active 拒绝存在 pending。`30c31358` 已静态关闭这两项 decoder must-fix，两个判别 top 的 16 个子例在 basic01 首次实际通过；未运行修前反例，不记作动态红绿。
 
 `RequireAssignmentChangeInTx` 读取同 Tx 实际 Skill change 并核完整 DTO；`ProtectAssignmentChangeInTx` 写入/重验 Skill 自域的 exact Execution/change/revision/package/Object 映射。新表通过真实 immutable revision 身份外键保护，原 revision → Object 引用继续由 Skill 持有，清理必须检查这些保护行。不存在 caller 自报 DTO 即获得引用或授权的路径。
 
@@ -47,4 +47,8 @@ Ingress 不 Acquire 新锁、不另开 Tx、不调用 Model。Agent EX 与 Launc
 
 计划先用真实 Owner、Agent、已发布 Skill 和 Execution Launch(created)，不调用 Model：正式 Assign 同时推进版本/序列并写 pending/ref；同 key Lookup 不重复；真实无 active 返回并持久 no_active；sink 失败回滚整个命令。随后检查初始化重放/新 preparing 当前集合与固定历史 capture，及 Remove/重新分配的新 identity。纯替身不代替 Agent 当前授权、Execution slot 或 revision/Object 引用。
 
-Skill producer、current/命令读取、typed Audit/Event/实际事实 authority 与 00067、Agent/Execution/四 owner 以及 capture 兼容与专属控均已冻结；首次 33 top 基础及真实 PG 尚待原窗口。没有本片动态通过结论。工具链和真实 PG 仅由 root 在实际资源窗口安排。上游 Operation 与 ToolResult 单次消费已正式有限交付并完整保全，不扩展为本片通过或下一轮执行。原 Object runtime join、OpenAI tools A/B、SPA concurrent-publication、Jina/Image STOP、生产 initializer/默认执行绑定保持。
+Skill producer、current/命令读取、typed Audit/Event/实际事实 authority 与 00067、Agent/Execution/四 owner 以及 capture 兼容与专属控均已冻结。基础原件位于 `output/ai/skill-assignment-ingress/checks/basic01/` 和 `basic02/`：basic01 工具 82378、Go 746836 实际 exit 1 / 145.503s，32 top / 141 sub 通过，唯一失败为 Mount 测试替身缺少 Query 方法而未编译该包，vet 未执行；basic02 工具 39722 实际 exit 0，补齐 Mount 1 top / 9 sub（Go 751539，4.657s）及原 11 包 vet（Go 751635，75.608s），依赖核对 Go 751490 亦实际 0。两次各自 918 输入前后相等，跨次仅 Mount 测试修正；基础期间新增 profile 不在该 Go 闭包，不宣称整树 HEAD 未变。合计 33 top / 150 sub 分段通过，不称单轮全绿，原 basic01 FAIL 保留。
+
+精确 PG profile 已限定接受：两份原 harness 只加本 selector 字典项，离线 `profile01` 进程 752037 实际 Wait 0 / 0.454s，一正七反、旧完整 AST 与有效映射保持、3 方法输入前后相等。方法见[本片运行说明](../../../.agent-state/skill-assignment-ingress/README.md)，该控制不替代真实 PG。
+
+真实 PG 仍为原 Launch created / Model0 的一 top 两 sub，尚未编译或运行。capture 控制的受控 SQL/历史兼容范围不冒充完整 Preparing/capture 真实 PG。工具链和真实 PG 仅由 root 在实际资源窗口安排。上游 Operation 与 ToolResult 单次消费已正式有限交付并完整保全，不扩展为本片通过或下一轮执行。原 Object runtime join、OpenAI tools A/B、SPA concurrent-publication、Jina/Image STOP、生产 initializer/默认执行绑定保持。
