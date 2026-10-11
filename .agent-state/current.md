@@ -1,13 +1,13 @@
 # 全局协调索引
 
-2026-10-11。main 的本文件当前由 root 指定 skills_milestone_review 唯一维护本次正文；root 负责 Git、集成和资源排期。功能分支 current 不覆盖本索引。正式交付边界见[任务台账](../docs/development/agent-team/tasks.md)，分段接受不等于当前 main 单次全量通过。
+2026-10-11。main 的本文件当前由 root 指定 skill_package_review 唯一维护本次正文；root 负责 Git、集成和资源排期。功能分支 current 不覆盖本索引。正式交付边界见[任务台账](../docs/development/agent-team/tasks.md)，分段接受不等于当前 main 单次全量通过。
 
 ## 当前开发
 
 | 任务 / 分支 | 负责人 | 状态与下一步 |
 | --- | --- | --- |
-| Project Secret 写 UI — `ai/project-secrets-write-ui-20261011` | variables_review 交付，agent_display_settings 独审 | 已将 main `48fe9a37` 合入本树并固定 `0661f376`；build02 原 helper 类型 FAIL 保留，修后 build03 原工具96236实际0（含type/Vite，27.797s），combined01 实际4文件32PASS，dist-02 的84资产已冻结。首次Go编译原工具55050仍在途，首native未运行，尚未正式验收。私有Web/browser依赖已复制且不再引用Knowledge旧树。不含删除、注入或新provider，原STOP保留。 |
-| Execution ToolCall 事实 — `ai/execution-tool-call-facts-20261011` | recovery_lead交付；Tool域child runner_read_file；拟runtime_recovery独审（尚未启动） | 新树基线 `226ea38b`，首份 codec 合同 `53010733` 与 `db88944e` 的15路径均已保存，仅静态、尚未编译；00063/00064 迁移已预留，尚未验收，不推断 Tool 执行或其他 STOP 已解。 |
+| Project Secret 写 UI — `ai/project-secrets-write-ui-20261011` | variables_review 交付，agent_display_settings 独审 | 已将 main `48fe9a37` 合入本树并固定 `0661f376`；build02 原 helper 类型 FAIL 保留，修后 build03 原工具96236实际0（含type/Vite，27.797s），combined01 实际4文件32PASS，dist-02 的84资产已冻结。首次 native01 wholeFAIL，两场景均零浏览器写入，资源退出门全通过；当前进行 DOM 定向核对，尚未正式验收。私有Web/browser依赖已复制且不再引用Knowledge旧树。不含删除、注入或新provider，原STOP保留。 |
+| Execution ToolCall 事实 — `ai/execution-tool-call-facts-20261011` | recovery_lead交付；Tool域child runner_read_file；runtime_recovery独审 | 新树基线 `226ea38b`，产品固定 `acff3e4d`；首次 Go 基础测试原工具63326在途，PG 方法已静审接受、尚未实际运行。00063/00064 迁移已预留，尚未验收，不推断 Tool 执行或其他 STOP 已解。 |
 | Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |
 
 ## 保留与清理
@@ -17,7 +17,7 @@
 - SkillHTTP 树保留活跃热 Go cache，SkillsMilestoneResume 树保留共享只读 modules 与既有运行依赖；Go writer 和 native 窗口均按 root 明确交接。
 - ProjectVariablesResume 保留未完恢复；ObjectSafe 保留原件与失败。Move 活跃树保留，未核其他树不自动清理。
 - Runner directory 已随 main `4e5e70ce` 有限交付并推送，28 个相关 race top、六包 vet 与真实 PG/WSS 整轮独立接受；原树、本地分支及远端引用均已清理。完整 output 已同文件系统无覆盖迁至 main `output/ai/retired-20261011/runner-directory-adapter/`，其中 `retention/` 保存原 `/tmp/rda01` log/owned/request 的逐字副本和路径映射；原 `/tmp` 保留。本片无失败输入需补恢复差额，上游严格授权替身、生产默认 nil executor/旧 STOP 保留。
-- 已完成清理共 25 个 WorkTree、26 个本地分支、53 个远端引用；其中 25 个额外远端引用为严格 main 祖先，没有对应本地分支或树，另有已删除的本地 work296。root 已确认前述三棵退役树不存在、对应 local/tracking 为空，精确 lease 删除、ls-remote 空结果及 main+ai prune 均实际成功。Directory 普通 worktree remove 成功，branch -d 因非祖先拒绝后仅对已交 squash 分支执行窄 -D；最新 tip 精确 lease 删除、成功空查询、prune 和 local/tracking 空结果均已闭合。另有 D16 filesystem、D18 NameProjection、SearchBenchmark 三个完整 scope 已交且无独占依赖的旧远端引用，经 fresh tip 核对、精确 lease 删除、成功空查询及 prune 后完成清理，没有新增本地分支或树；原 154 个待核引用现剩 151 个，1 个显式保留历史引用仍未动，其他活动分支按 owner 保留。
+- 已完成清理共 25 个 WorkTree、26 个本地分支、54 个远端引用；其中 26 个额外远端引用为严格 main 祖先，没有对应本地分支或树，另有已删除的本地 work296。root 已确认前述三棵退役树不存在、对应 local/tracking 为空，精确 lease 删除、ls-remote 空结果及 main+ai prune 均实际成功。Directory 普通 worktree remove 成功，branch -d 因非祖先拒绝后仅对已交 squash 分支执行窄 -D；最新 tip 精确 lease 删除、成功空查询、prune 和 local/tracking 空结果均已闭合。另有 D16 filesystem、D18 NameProjection、SearchBenchmark 三个完整 scope 已交且无独占依赖的旧远端引用，经 fresh tip 核对、精确 lease 删除、成功空查询及 prune 后完成清理，没有新增本地分支或树。新增清理 `ai/work-review-runtime-delivery`：tip `f4190ad7` 全部历史经 main 可达，无本地分支、worktree 或活动依赖；root fresh tip 核对后精确 lease 删除成功，ls-remote 成功为空，prune 后远端跟踪引用为空，无需新增恢复材料。原 154 个待核引用现剩 150 个，1 个显式保留历史引用仍未动，其他活动分支按 owner 保留。
 
 跨设备必要差额与各自核对范围见 [Sprint](sprint-edit-ui/README.md)、[Title](knowledge-title-search-ui/README.md)、[TaskHistory](task-history-filters/README.md)、[SecretAudit](secret-audit-stop-adapters/README.md)、[Outbox](outbox-stop-adapter/README.md)、[AgentRunner 后端](agent-runner-mounts/README.md)、[AgentRunner UI](agent-runner-mounts-ui/README.md)、[ExecutionMountCapture](execution-mount-capture/README.md)、[Project Usage UI](project-usage-read-ui/README.md)、[ExecutionMountDirectText](execution-mount-directtext/README.md)、[SystemRunner UI](system-runner-management-ui/recovery/README.md)、[Agent Secret 白名单 UI](agent-secret-allowlist-ui/README.md)、[Runner read-file](runner-read-file-adapter/README.md)、[SearchBenchmark 原 v1](search-benchmark/README.md)、[Knowledge 子树删除 UI](knowledge-subtree-delete-ui/README.md)。近批完整原件位于 main `output/ai/retired-20261011/` 对应任务目录；read-file 的 `output/ai/runner-read-file-adapter/main-integration01.json` 另留原位。更早原件按各自保全说明定位。原 FAIL、绝对路径及验收边界保持；早期 UI source map、Usage 局部输入，以及 SystemRunner/Secret 未提交失败输入缺少原字节或逐项 SHA，以及 Search 原日志与误设夹具缺失的限制均不补造。AgentDisplay、Find、Runner Workspace 无需额外源码差额；不复制整树、日志或依赖入 Git。
 
