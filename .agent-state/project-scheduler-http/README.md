@@ -10,14 +10,14 @@
 
 ### 最小源码恢复
 
-[retired-inputs.patch](retired-inputs.patch) 对应下表第一行。每个版本都独立以命名主线基准开始，不能叠加应用不同版本补丁；只在私有历史恢复树中使用，不覆盖当前产品。其余有界补丁、实际应用目录和原 apply 日志保存在输出 `source-recovery/`。
+[retired-inputs.patch](retired-inputs.patch) 对应下表第一行。每个版本都独立以命名主线基准开始，不能叠加应用不同版本补丁；只在私有历史恢复树中使用，不覆盖当前产品。所有存在独有差额的历史补丁均在本目录随 Git 保存；实际应用目录和原 apply 日志仍保存在输出 `source-recovery/`。空差额版本直接由命名 main 基准恢复，不生成额外补丁。
 
 | 历史输入 | 恢复补丁 | 技术差额文件数 |
 | --- | --- | --- |
-| `1381eb773bd45e4a7a04f996d7488c0e397e13c1`（最终原 PG 方法与编译输入） | `native-compile-1381.patch` | 4 |
-| `59f6bad5`（原 unit01/02 记录引用的已知源码基准） | `unit-initial-59f6.patch` | 9 |
-| `ce6da768`（原 unit03/vet 引用的已知源码基准） | `unit-contract-ce6.patch` | 9 |
-| `61d5bcf1`（原 compile 记录的已知基准（新 profile 见 1381）） | `compile-base-61d5.patch` | 4 |
+| `1381eb773bd45e4a7a04f996d7488c0e397e13c1`（最终原 PG 方法与编译输入） | [retired-inputs.patch](retired-inputs.patch) | 4 |
+| `59f6bad5`（原 unit01/02 记录引用的已知源码基准） | [retired-inputs-59f6bad5.patch](retired-inputs-59f6bad5.patch) | 9 |
+| `ce6da768`（原 unit03/vet 引用的已知源码基准） | [retired-inputs-ce6da768.patch](retired-inputs-ce6da768.patch) | 9 |
+| `61d5bcf1`（原 compile 记录的已知基准（新 profile 见 1381）） | [retired-inputs-61d5bcf1.patch](retired-inputs-61d5bcf1.patch) | 4 |
 
 所有非空补丁均实际运行 `patch --batch --forward --fuzz=0 -p1`，原进程退出 0、无 fuzz/offset；每个差额文件逐字等于指定历史 Git blob（原版本缺席的文件恢复为缺席）。存在原输入 map 的差额文件亦逐项核对 SHA。没有对整个旧树进行大哈希；未改路径由 Git blob/tree 差额界定，未据此声称对所有运行环境重新校验。详细路径/摘要/映射见 [preservation01.json](../../output/ai/project-scheduler-http/preservation01.json)。
 
@@ -28,3 +28,5 @@
 早期 unit invocation 明确记有 “checkpoint plus” 未提交修复/新 schema_test.go，未保存其完整逐文件清单。本次保全对应已知提交和全部现存日志，不回填未记录字节，也不声称早期 unit 完整输入可重新证明；最终已冻结 1381 输入不受此限制。
 
 原 owner 已停写且无自有后台；当前 Usage、AgentRunner、Move 无这棵树的源码/binary/dist/cache/node_modules 运行依赖。可再生 `node_modules`/`__pycache__` 未额外复制；后继依赖恢复必须沿固定锁及工具版本。保护的热 Go cache、RO modules 和活动工作树未触及。未运行产品测试、Go、服务或网络，也未删除旧树或 Git 引用；目录名义体积不是实际释放容量。
+
+额外历史补丁复制自上述已经实际零 fuzz 应用并核对的原补丁，新增 tracked 文件逐字相同；本次只核保存字节，没有重复恢复验证或运行产品检查。

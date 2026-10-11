@@ -1,0 +1,2558 @@
+diff --git a/.agent-state/work-owner-http/root_chain_driver.py b/.agent-state/work-owner-http/root_chain_driver.py
+index 1edff94a..ea2e6df5 100755
+--- a/.agent-state/work-owner-http/root_chain_driver.py
++++ b/.agent-state/work-owner-http/root_chain_driver.py
+@@ -218,8 +218,8 @@ METADATA_INPUTS = {
+         'tests/projectvariable/skill_installation_test.go'),
+ }
+ TARGETS = {
+-    **dict.fromkeys(METADATA_INPUTS, 'tests/projectvariable'),
+     '^TestSkillPackageWeb$': 'internal/central/app',
++    **dict.fromkeys(METADATA_INPUTS, 'tests/projectvariable'),
+     '^TestSkillOwnerPackageHTTP(Publication|CurrentAuthority)$': 'tests/skills',
+     '^TestSkillPackageHTTPDefaultRootComposition$': 'internal/central/app',
+     '^TestKnowledgeTextHTTP(Publication|CurrentAuthority)$': 'tests/knowledge',
+diff --git a/tests/account-captcha-web/e2e/agent-edit.helpers.ts b/tests/account-captcha-web/e2e/agent-edit.helpers.ts
+index 3ef43fe7..ba460741 100644
+--- a/tests/account-captcha-web/e2e/agent-edit.helpers.ts
++++ b/tests/account-captcha-web/e2e/agent-edit.helpers.ts
+@@ -38,29 +38,15 @@ export function agentEditInputs(data: AgentEditMaterial) {
+           expected_version: "1",
+           request: {
+             name,
+-            display_name: "  e\u0301 显示助手😀  ",
+-            tag_color: "#12abcf",
+             description: "Browser saved Agent description.",
+             instructions:
+               "Browser saved Agent instructions.\nPreserve the complete text.",
+           },
+         },
++        { expected_version: "2", request: { name } },
+         {
+           expected_version: "2",
+-          request: {
+-            name,
+-            display_name: "  e\u0301 显示助手😀  ",
+-            tag_color: "#12abcf",
+-          },
+-        },
+-        {
+-          expected_version: "2",
+-          request: {
+-            display_name: null,
+-            tag_color: null,
+-            description: "",
+-            instructions: "",
+-          },
++          request: { description: "", instructions: "" },
+         },
+       ];
+ }
+@@ -122,10 +108,6 @@ export async function observeAgentEdit(page: Page, data: AgentEditMaterial) {
+       !url.search
+     )
+       return "agent-configuration";
+-    if (method === "GET" && path === prefix + "/available-chat-models") {
+-      expect([...url.searchParams.entries()]).toEqual([["limit", "50"]]);
+-      return "agent-models";
+-    }
+     // Creation, other Agents, Model/authorization edits and unrelated writes
+     // are outside this original Update profile.
+     throw Error("UNOBSERVED_AGENT_EDIT_ENDPOINT");
+diff --git a/tests/account-captcha-web/e2e/agent-edit.spec.ts b/tests/account-captcha-web/e2e/agent-edit.spec.ts
+index 6669aad1..8f2e3605 100644
+--- a/tests/account-captcha-web/e2e/agent-edit.spec.ts
++++ b/tests/account-captcha-web/e2e/agent-edit.spec.ts
+@@ -105,19 +105,11 @@ async function runAgentEdit(page: Page, lost: boolean) {
+     version: data.version,
+     ...data.initial,
+   });
+-  expect(initial.display_name).toBeNull();
+-  expect(initial.tag_color).toBeNull();
+   seen.requireDirectory(initial);
+ 
+   // Cancel the original untouched form; wait for the real parent to restore focus.
+   await press(page, "编辑配置");
+   await expect(field(page, "Agent 名称")).toBeFocused();
+-  await page.keyboard.press("Tab");
+-  await expect(field(page, "显示名称")).toBeFocused();
+-  await expect(field(page, "显示名称")).toHaveValue("");
+-  await page.keyboard.press("Tab");
+-  await expect(field(page, "标签颜色")).toBeFocused();
+-  await expect(field(page, "标签颜色")).toHaveValue("");
+   await expect(button(page, "保存配置")).toBeDisabled();
+   await press(page, "取消编辑");
+   await expect(form(page)).toHaveCount(0);
+@@ -127,11 +119,7 @@ async function runAgentEdit(page: Page, lost: boolean) {
+   await expect(field(page, "Agent 名称")).toBeFocused();
+   await field(page, "Agent 名称").fill(name);
+   await field(page, "Agent 描述").fill(inputs[0]!.request.description!);
+-  if (!lost) {
+-    await field(page, "显示名称").fill(inputs[0]!.request.display_name!);
+-    await field(page, "标签颜色").fill(inputs[0]!.request.tag_color!);
+-    await field(page, "指令").fill(inputs[0]!.request.instructions!);
+-  }
++  if (!lost) await field(page, "指令").fill(inputs[0]!.request.instructions!);
+   await expect(button(page, "保存配置")).toBeEnabled();
+   await layout(page, 1440, "light");
+   await agentEditScreenshot(page, data, "1440-light-edit-form");
+@@ -167,40 +155,11 @@ async function runAgentEdit(page: Page, lost: boolean) {
+     ? seen.receipt("lookup", 0).receipt
+     : seen.receipt("update", 0);
+   seen.requireReceipt(first, 0, initial);
+-  async function refreshCurrent(current: Record<string, any>) {
+-    const directories = seen.requests("agent-directory").length;
+-    const configurations = seen.requests("agent-configuration").length;
+-    await press(page, "刷新 Agent 目录");
+-    await expect
+-      .poll(() => seen.requests("agent-directory").length)
+-      .toBe(directories + 1);
+-    await expect
+-      .poll(() => seen.requests("agent-configuration").length)
+-      .toBe(configurations + 1);
+-    await expect(button(page, "刷新 Agent 目录")).toBeEnabled();
+-    await expect(fact(page, "版本")).toHaveText(current.version);
+-    await seen.verify();
+-    expect(seen.agentRead("agent-configuration")).toEqual(current);
+-    seen.requireDirectory(current);
+-  }
+   let final = first;
+   if (!lost) {
+-    expect(first.agent.display_name).toBe("  e\u0301 显示助手😀  ");
+-    expect(first.agent.tag_color).toBe("#12abcf");
+-    await refreshCurrent(first.agent);
+-    expect(await fact(page, "显示名称").textContent()).toBe(
+-      first.agent.display_name,
+-    );
+-    await expect(fact(page, "标签颜色")).toHaveText(first.agent.tag_color);
+     await press(page, "编辑配置");
+-    await expect(field(page, "显示名称")).toHaveValue(first.agent.display_name);
+-    await expect(field(page, "标签颜色")).toHaveValue(first.agent.tag_color);
+     await field(page, "Agent 名称").fill(name + "x");
+     await field(page, "Agent 名称").fill(name);
+-    await field(page, "显示名称").fill("Temporary display");
+-    await field(page, "显示名称").fill(first.agent.display_name);
+-    await field(page, "标签颜色").fill("#ffffff");
+-    await field(page, "标签颜色").fill(first.agent.tag_color);
+     await press(page, "保存配置");
+     await expect(form(page)).toHaveCount(0);
+     await expect(
+@@ -211,10 +170,7 @@ async function runAgentEdit(page: Page, lost: boolean) {
+     const noop = seen.receipt("update", 1);
+     seen.requireReceipt(noop, 1, first.agent);
+     expect(noop.agent).toEqual(first.agent);
+-    await refreshCurrent(noop.agent);
+     await press(page, "编辑配置");
+-    await field(page, "显示名称").fill("");
+-    await field(page, "标签颜色").fill("");
+     await field(page, "Agent 描述").fill("");
+     await field(page, "指令").fill("");
+     await layout(page, 390, "dark");
+@@ -224,8 +180,6 @@ async function runAgentEdit(page: Page, lost: boolean) {
+     await expect(fact(page, "版本")).toHaveText("3");
+     await expect(fact(page, "描述")).toHaveText("未设置");
+     await expect(fact(page, "指令")).toHaveText("未设置");
+-    await expect(fact(page, "显示名称")).toHaveText("未设置");
+-    await expect(fact(page, "标签颜色")).toHaveText("未设置");
+     await seen.verify();
+     final = seen.receipt("update", 2);
+     seen.requireReceipt(final, 2, noop.agent);
+@@ -238,12 +192,20 @@ async function runAgentEdit(page: Page, lost: boolean) {
+ 
+   // Later reads check publication only; original write success was already
+   // established from its own public Promise, bytes and committed Go receipt.
+-  await refreshCurrent(final.agent);
+-  await expect(directory.locator("strong")).toHaveText(name);
+-  if (!lost) {
+-    expect(seen.agentRead("agent-configuration").display_name).toBeNull();
+-    expect(seen.agentRead("agent-configuration").tag_color).toBeNull();
+-  }
++  const directories = seen.requests("agent-directory").length;
++  const configurations = seen.requests("agent-configuration").length;
++  await press(page, "刷新 Agent 目录");
++  await expect
++    .poll(() => seen.requests("agent-directory").length)
++    .toBe(directories + 1);
++  await expect
++    .poll(() => seen.requests("agent-configuration").length)
++    .toBe(configurations + 1);
++  await expect(button(page, "刷新 Agent 目录")).toBeEnabled();
++  await expect(fact(page, "版本")).toHaveText(lost ? "2" : "3");
++  await seen.verify();
++  expect(seen.agentRead("agent-configuration")).toEqual(final.agent);
++  seen.requireDirectory(final.agent);
+   seen.requireCounts();
+   await expect(directory).not.toContainText(initial.instructions);
+   await layout(page, 390, "dark");
+diff --git a/tests/account-captcha-web/e2e/knowledge-text.helpers.ts b/tests/account-captcha-web/e2e/knowledge-text.helpers.ts
+index db6fd38f..a09a8939 100644
+--- a/tests/account-captcha-web/e2e/knowledge-text.helpers.ts
++++ b/tests/account-captcha-web/e2e/knowledge-text.helpers.ts
+@@ -39,11 +39,7 @@ export async function observeKnowledgeText(page:Page,data:KnowledgeTextMaterial)
+   throw Error("UNOBSERVED_KNOWLEDGE_TEXT_ENDPOINT");
+  };
+  const evidence=process.env.AGENTEAM_KNOWLEDGE_TEXT_WEB_EVIDENCE!,inputHash=process.env.AGENTEAM_KNOWLEDGE_TEXT_WEB_INPUT_HASH!;
+- const seen=await observeTaskRequests(page,data,{dist:process.env.AGENTEAM_KNOWLEDGE_TEXT_WEB_DIST!,evidence,inputHash,prefix:"knowledge-text",endpoint:classify,lookupCommand:null,knowledgeTextWrites:true}).catch(error=>{
+-  const code=error instanceof Error && /^[A-Z_]{1,80}$/.test(error.message)?error.message:"OBSERVATION_INSTALL_FAILED";
+-  writeFileSync(join(evidence,"knowledge-text-stage.json"),JSON.stringify({stage:"observation-install",code}),{mode:0o600});
+-  throw error;
+- });
++ const seen=await observeTaskRequests(page,data,{dist:process.env.AGENTEAM_KNOWLEDGE_TEXT_WEB_DIST!,evidence,inputHash,prefix:"knowledge-text",endpoint:classify,lookupCommand:null,knowledgeTextWrites:true});
+  let completed=false,stage="entry";
+  return {...seen,
+   stage(value:string){if(!/^[a-z0-9-]{1,64}$/.test(value))throw Error("INVALID_KNOWLEDGE_STAGE");stage=value;},
+diff --git a/tests/account-captcha-web/e2e/knowledge-text.spec.ts b/tests/account-captcha-web/e2e/knowledge-text.spec.ts
+index b62b1b3b..5bb1113f 100644
+--- a/tests/account-captcha-web/e2e/knowledge-text.spec.ts
++++ b/tests/account-captcha-web/e2e/knowledge-text.spec.ts
+@@ -26,17 +26,7 @@ test("creates and replaces plain root and Markdown child text [create-and-replac
+   seen.stage(index===0?"plain-edit-save":"markdown-edit-save");await press(page,"保存文本");await expect(edit.getByText("保存已确认；已读取当前文档、正文与目录。",{exact:true})).toBeVisible();
+   seen.stage(index===0?"plain-edit-proof":"markdown-edit-proof");await seen.verify();seen.current(index,2);await press(page,"关闭编辑器");await expect(edit).toHaveCount(0);await expect(page.locator(".ui-overlay")).toHaveCount(0);
+   await expect.poll(()=>page.locator("pre.canonical-text").textContent()).toBe(index===0?data.plain_updated:data.markdown_updated);
+-  if(index===1){
+-   seen.stage("narrow-document-drawer");await press(page,"文档树");
+-   const drawer=page.getByRole("dialog",{name:"文档树",exact:true});await expect(drawer).toBeVisible();
+-   const selected=drawer.getByRole("tree",{name:"知识库文档"}).locator(`[data-tree-id="${seen.target(index)}"]`);
+-   await expect(selected).toBeVisible();await expect(selected).toHaveAttribute("aria-selected","true");
+-   await selected.focus();await expect(selected).toBeFocused();await page.keyboard.press("Escape");
+-   await expect(drawer).toHaveCount(0);await expect(page.getByRole("button",{name:"文档树",exact:true})).toBeFocused();
+-  }else{
+-   const selected=page.getByRole("tree",{name:"知识库文档"}).locator(`[data-tree-id="${seen.target(index)}"]`);
+-   await expect(selected).toBeVisible();await expect(selected).toHaveAttribute("aria-selected","true");
+-  }
++  await expect(page.getByRole("tree",{name:"知识库文档"}).locator(`[data-tree-id="${seen.target(index)}"]`)).toBeVisible();
+   if(index===0){await expect(page.locator("html")).toHaveAttribute("data-theme","light");await knowledgeTextScreenshot(page,"1440-light-plain");await page.setViewportSize({width:390,height:844});await page.emulateMedia({colorScheme:"dark",reducedMotion:"reduce"});}
+  }
+  await expect(page.locator("html")).toHaveAttribute("data-theme","dark");expect(await page.evaluate(()=>matchMedia("(prefers-reduced-motion: reduce)").matches)).toBe(true);
+diff --git a/tests/account-captcha-web/e2e/skill-package.helpers.ts b/tests/account-captcha-web/e2e/skill-package.helpers.ts
+index 7c010d73..0ee6617f 100644
+--- a/tests/account-captcha-web/e2e/skill-package.helpers.ts
++++ b/tests/account-captcha-web/e2e/skill-package.helpers.ts
+@@ -8,8 +8,6 @@ import {
+ import { readFileSync, writeFileSync } from "node:fs";
+ import { createHash } from "node:crypto";
+ import { join } from "node:path";
+-import { observeBrowserIO } from "./task-review.helpers";
+-import { knowledgeSessionBinding } from "./knowledge-owner-read.native";
+ 
+ const uuid =
+   /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+@@ -80,13 +78,10 @@ type Entry = {
+   headersAccepted?: boolean;
+   length?: number;
+   sha256?: string;
+-  failure?: string;
+-  native?: Record<string, unknown>;
+ };
+-// Reuse the original JSON-reader/public-consumer observers for metadata only.
+-// They preserve each original call and Promise; binary bytes and terminals are
+-// never replaced. A failed original GET remains failed in the evidence.
+-export async function observePackage(page: Page, data: PackageMaterial) {
++// This normal-flow observer never replaces Fetch, the public Session API, ZIP
++// bytes, a response, or a terminal event. A failed original GET stays a failure.
++export function observePackage(page: Page, data: PackageMaterial) {
+   const entries: Entry[] = [];
+   const evidence = process.env.AGENTEAM_SKILL_PACKAGE_WEB_EVIDENCE!;
+   const prefix = `/api/v1/projects/${data.project_id}`;
+@@ -95,66 +90,6 @@ export async function observePackage(page: Page, data: PackageMaterial) {
+     stage = "installed",
+     stopped = false;
+   let browserFile: { length: number; sha256: string } | undefined;
+-  let nativeRetired = false,
+-    nativePending: number | undefined;
+-  const metadataKinds: Record<string, string> = {
+-    session: "restore",
+-    resolve: "project.resolve",
+-    projects: "project.list",
+-    project: "project.get",
+-    catalog: "skills.list",
+-    detail: "skills.get",
+-  };
+-  const binding = await knowledgeSessionBinding(
+-    join(import.meta.dirname, "../../.."),
+-    process.env.AGENTEAM_SKILL_PACKAGE_WEB_DIST!,
+-  );
+-  await observeBrowserIO(page, () => {}, {
+-    project: data.project_id,
+-    skill: data.skill.id,
+-  });
+-  const entryURL = new URL(binding.entry, process.env.AGENTEAM_AUTH_WEB_ORIGIN!)
+-    .href;
+-  let installing = 0;
+-  const install = async (route: import("@playwright/test").Route) => {
+-    installing++;
+-    try {
+-      await page.evaluate(
+-        async ({ binding, project, skill }) => {
+-          const module = await import(/* @vite-ignore */ binding.asset);
+-          const useSession = module[binding.exportName];
+-          if (typeof useSession !== "function")
+-            throw Error("SKILL_NATIVE_SINGLETON");
+-          const auth = useSession();
+-          if (useSession() !== auth)
+-            throw Error("SKILL_NATIVE_SINGLETON_IDENTITY");
+-          (window as any).__taskReviewProof.consumers(
+-            auth,
+-            project,
+-            false,
+-            false,
+-            undefined,
+-            undefined,
+-            undefined,
+-            undefined,
+-            undefined,
+-            skill,
+-            false,
+-            false,
+-            false,
+-          );
+-        },
+-        { binding, project: data.project_id, skill: data.skill.id },
+-      );
+-      await route.continue();
+-    } catch {
+-      fail("NATIVE_INSTALL");
+-      await route.abort();
+-    } finally {
+-      installing--;
+-    }
+-  };
+-  await page.route(entryURL, install);
+   const fail = (code: string) => {
+     failure ||= code;
+   };
+@@ -261,7 +196,6 @@ export async function observePackage(page: Page, data: PackageMaterial) {
+     if (entry.terminal) fail("DUPLICATE_TERMINAL");
+     entry.terminal = terminal;
+     entry[terminal]++;
+-    if (terminal === "failed") entry.failure = request.failure()?.errorText;
+   };
+   const finished = (r: Request) => end(r, "finished"),
+     failed = (r: Request) => end(r, "failed");
+@@ -273,118 +207,19 @@ export async function observePackage(page: Page, data: PackageMaterial) {
+   page.on("requestfinished", finished);
+   page.on("requestfailed", failed);
+   page.on("close", closed);
+-  async function checkpoint() {
+-    await expect
+-      .poll(() =>
+-        page.evaluate(
+-          () => (window as any).__taskReviewProof.snapshot().pending,
+-        ),
+-      )
+-      .toBe(0);
+-    const proof = await page.evaluate(() =>
+-      (window as any).__taskReviewProof.snapshot(),
+-    );
+-    expect(proof.failed).toBe(false);
+-    expect(proof.pending).toBe(0);
+-    expect(proof.current).toBe(true);
+-    expect(proof.not_busy).toBe(true);
+-    return proof;
+-  }
+-  function originalMetadata(e: Entry, proof: any, record: any) {
+-    expect(Object.hasOwn(metadataKinds, e.name)).toBe(true);
+-    const matches = proof.rows.filter((n: any) => n.request_id === e.requestID);
+-    expect(matches).toHaveLength(1);
+-    const n = matches[0],
+-      calls = proof.calls.filter((c: any) => c.id === n.call_id);
+-    expect(calls).toHaveLength(1);
+-    const c = calls[0];
+-    expect(n.path).toBe(new URL(e.request.url()).pathname);
+-    expect(n.method).toBe("GET");
+-    expect(n.status).toBe(200);
+-    expect(n.fetch_returned).toBe(true);
+-    expect(n.fetch_rejected || n.error || n.aborted).toBe(false);
+-    expect(n.readers).toBe(1);
+-    expect(n.reads).toBeGreaterThan(0);
+-    expect(n.read_returns).toBe(n.reads);
+-    expect(n.eof && n.closed).toBe(true);
+-    expect(n.release).toBe(1);
+-    expect(n.reader_cancel).toBe(0);
+-    expect(n.stream_cancel).toBe(0);
+-    expect(n.length).toMatch(/^(0|[1-9][0-9]*)$/);
+-    expect(Number(n.length)).toBe(n.bytes);
+-    expect(n.bytes).toBeLessThanOrEqual(2 << 20);
+-    expect(record.content_length).toBe(n.bytes);
+-    expect(n.digest).toMatch(/^[0-9a-f]{64}$/);
+-    expect(record.body_sha256).toBe(n.digest);
+-    expect(c.bound).toBe(1);
+-    expect(c.method).toBe("GET");
+-    expect(c.path).toBe(n.path);
+-    expect(c.kind).toBe(metadataKinds[e.name]);
+-    expect(c.fulfilled && c.settled && c.current && c.not_busy).toBe(true);
+-    expect(c.rejected).toBe(false);
+-    expect(c.typed).not.toBeNull();
+-    expect(c.typed_digest).toMatch(/^[0-9a-f]{64}$/);
+-    expect(n.typed_digest).toBe(c.typed_digest);
+-    // The original safe predicates/digests remain reviewable; public DTO values
+-    // (especially Session fields) stay private and never enter the evidence.
+-    e.native = {
+-      reader: { ...n },
+-      consumer: { ...c, typed: undefined },
+-      pending: proof.pending,
+-      current: proof.current,
+-      not_busy: proof.not_busy,
+-    };
+-    return {
+-      length: n.bytes as number,
+-      sha256: n.digest as string,
+-      typed: c.typed,
+-    };
+-  }
+   async function verify() {
+     stage = "original_terminals";
+     await expect.poll(() => entries.filter((e) => !e.terminal).length).toBe(0);
+     await Promise.all(entries.map((e) => e.headersJoined));
+     expect(failure).toBe("");
+-    const proof = await checkpoint();
+     for (const e of entries.filter((e) => !e.checked)) {
++      expect(e.terminal).toBe("finished");
++      expect(e.finished).toBe(1);
++      expect(e.failed).toBe(0);
+       expect(e.responses).toBe(1);
+       expect(e.headersAccepted).toBe(true);
+       const r = e.response!;
+       expect(r.status()).toBe(200);
+-      const record = JSON.parse(
+-        readFileSync(
+-          join(evidence, `skill-package-download-response-${e.requestID}.json`),
+-          "utf8",
+-        ),
+-      );
+-      const url = new URL(e.request.url());
+-      expect(record).toMatchObject({
+-        input_hash: data.input_hash,
+-        request_id: e.requestID,
+-        method: "GET",
+-        url_sha256: digest(url.pathname + url.search),
+-        status: 200,
+-        request_host_matches: true,
+-        original_eof: true,
+-        original_closed: true,
+-        handler_returned: true,
+-      });
+-      if (e.terminal === "failed") {
+-        stage = "original_failed_metadata";
+-        expect(Object.hasOwn(metadataKinds, e.name)).toBe(true);
+-        expect(e.failure).toBe("net::ERR_ABORTED");
+-        expect(e.finished).toBe(0);
+-        expect(e.failed).toBe(1);
+-        const actual = originalMetadata(e, proof, record);
+-        e.length = actual.length;
+-        e.sha256 = actual.sha256;
+-        checkMetadata(e, actual.typed);
+-        e.checked = true;
+-        continue;
+-      }
+-      expect(e.terminal).toBe("finished");
+-      expect(e.finished).toBe(1);
+-      expect(e.failed).toBe(0);
+       let timer: ReturnType<typeof setTimeout> | undefined;
+       try {
+         expect(
+@@ -410,6 +245,13 @@ export async function observePackage(page: Page, data: PackageMaterial) {
+       e.sha256 = digest(bytes);
+       expect(r.headers()["content-length"]).toBe(String(bytes.length));
+       stage = "handler_binding";
++      const record = JSON.parse(
++        readFileSync(
++          join(evidence, `skill-package-download-response-${e.requestID}.json`),
++          "utf8",
++        ),
++      );
++      const url = new URL(e.request.url());
+       expect(record).toMatchObject({
+         input_hash: data.input_hash,
+         request_id: e.requestID,
+@@ -423,11 +265,6 @@ export async function observePackage(page: Page, data: PackageMaterial) {
+         original_closed: true,
+         handler_returned: true,
+       });
+-      if (Object.hasOwn(metadataKinds, e.name)) {
+-        const actual = originalMetadata(e, proof, record);
+-        expect(actual.length).toBe(bytes.length);
+-        expect(actual.sha256).toBe(e.sha256);
+-      }
+       if (e.name === "package") {
+         expect(bytes.length).toBe(data.byte_size);
+         expect(e.sha256).toBe(data.sha256);
+@@ -438,18 +275,17 @@ export async function observePackage(page: Page, data: PackageMaterial) {
+           nosniff: true,
+           package_verified: true,
+         });
+-      } else checkMetadata(e, JSON.parse(bytes.toString("utf8")));
++      } else if (e.name === "catalog") {
++        const catalog = JSON.parse(bytes.toString("utf8"));
++        expect(catalog.items).toHaveLength(2);
++        expect(catalog.items).toContainEqual(data.skill);
++        expect(catalog.next_cursor).toBeUndefined();
++      } else if (e.name === "detail")
++        expect(JSON.parse(bytes.toString("utf8"))).toEqual(data.skill);
+       e.checked = true;
+     }
+     stage = "verified";
+   }
+-  function checkMetadata(e: Entry, value: any) {
+-    if (e.name === "catalog") {
+-      expect(value.items).toHaveLength(2);
+-      expect(value.items).toContainEqual(data.skill);
+-      expect(value.next_cursor).toBeUndefined();
+-    } else if (e.name === "detail") expect(value).toEqual(data.skill);
+-  }
+   return {
+     verify,
+     async downloaded(download: Download) {
+@@ -471,26 +307,7 @@ export async function observePackage(page: Page, data: PackageMaterial) {
+     async retire() {
+       if (stopped) return;
+       try {
+-        if (!page.isClosed()) {
+-          await expect.poll(() => installing).toBe(0);
+-          await expect
+-            .poll(() =>
+-              page.evaluate(
+-                () => (window as any).__taskReviewProof.snapshot().pending,
+-              ),
+-            )
+-            .toBe(0);
+-          const retired = await page.evaluate(() =>
+-            (window as any).__taskReviewProof.finish(),
+-          );
+-          nativePending = retired.pending;
+-          nativeRetired = retired.retired;
+-          expect(retired.pending).toBe(0);
+-          expect(retired.failed).toBe(false);
+-          expect(retired.retired).toBe(true);
+-          await page.unroute(entryURL, install);
+-          await page.goto("about:blank");
+-        }
++        if (!page.isClosed()) await page.goto("about:blank");
+         await expect
+           .poll(() => entries.filter((e) => !e.terminal).length)
+           .toBe(0);
+@@ -507,8 +324,6 @@ export async function observePackage(page: Page, data: PackageMaterial) {
+     complete() {
+       expect(failure).toBe("");
+       expect(stopped).toBe(true);
+-      expect(nativeRetired).toBe(true);
+-      expect(nativePending).toBe(0);
+       expect(entries.every((e) => e.checked)).toBe(true);
+       for (const name of ["catalog", "detail", "package"])
+         expect(entries.filter((e) => e.name === name)).toHaveLength(1);
+@@ -548,8 +363,6 @@ export async function observePackage(page: Page, data: PackageMaterial) {
+             stage,
+             failure: failure || undefined,
+             observers_removed: stopped,
+-            native_retired: nativeRetired,
+-            native_pending: nativePending,
+             browser_file_verified: browserFile !== undefined,
+             all_observed: entries.length > 0 && entries.every((e) => e.checked),
+             requests: entries.map((e) => ({
+@@ -560,8 +373,6 @@ export async function observePackage(page: Page, data: PackageMaterial) {
+               responses: e.responses,
+               finished: e.finished,
+               failed: e.failed,
+-              failure: e.failure,
+-              native: e.native,
+               headers_joined: e.headersAccepted === true,
+               checked: e.checked,
+               length: e.length,
+diff --git a/tests/account-captcha-web/e2e/skill-package.spec.ts b/tests/account-captcha-web/e2e/skill-package.spec.ts
+index 8c4b3369..f6c7364b 100644
+--- a/tests/account-captcha-web/e2e/skill-package.spec.ts
++++ b/tests/account-captcha-web/e2e/skill-package.spec.ts
+@@ -5,10 +5,7 @@ import {
+   packageScreenshot,
+ } from "./skill-package.helpers";
+ 
+-const observations = new WeakMap<
+-  Page,
+-  Awaited<ReturnType<typeof observePackage>>
+->();
++const observations = new WeakMap<Page, ReturnType<typeof observePackage>>();
+ test.afterEach(async ({ page }, info) => {
+   const seen = observations.get(page);
+   try {
+@@ -21,17 +18,19 @@ test("downloads the real fixed Skill revision [download]", async ({ page }) => {
+   const data = packageMaterial();
+   await page.setViewportSize({ width: 1440, height: 960 });
+   await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
+-  await page.context().addCookies([
+-    {
+-      name: "agenteam_local_session",
+-      value: data.cookie,
+-      url: process.env.AGENTEAM_AUTH_WEB_ORIGIN!,
+-      httpOnly: true,
+-      secure: false,
+-      sameSite: "Lax",
+-    },
+-  ]);
+-  const seen = await observePackage(page, data);
++  await page
++    .context()
++    .addCookies([
++      {
++        name: "agenteam_local_session",
++        value: data.cookie,
++        url: process.env.AGENTEAM_AUTH_WEB_ORIGIN!,
++        httpOnly: true,
++        secure: false,
++        sameSite: "Lax",
++      },
++    ]);
++  const seen = observePackage(page, data);
+   observations.set(page, seen);
+   await page.goto(data.route);
+   const region = page.getByRole("region", { name: "项目技能库", exact: true });
+diff --git a/tests/account-captcha-web/e2e/task-review.helpers.ts b/tests/account-captcha-web/e2e/task-review.helpers.ts
+index a8740366..c4b949c0 100644
+--- a/tests/account-captcha-web/e2e/task-review.helpers.ts
++++ b/tests/account-captcha-web/e2e/task-review.helpers.ts
+@@ -129,15 +129,14 @@ type BrowserDiagnostic = {
+   session_check_control: boolean;
+ };
+ 
+-export async function observeBrowserIO(
++async function observeBrowserIO(
+   page: Page,
+   accept: (event: BrowserDiagnostic) => void,
+-  metadataScope?: { project: string; skill: string },
+ ) {
+   await page.exposeBinding("__taskReviewDiagnostic", (_source, event) => {
+     accept(event as BrowserDiagnostic);
+   });
+-  await page.addInitScript((metadataScope?: { project: string; skill: string }) => {
++  await page.addInitScript(() => {
+     // These observers return the original fetch/read/cancel promises and the
+     // original Response/reader. They do not consume, clone or replace a body.
+     const send = (
+@@ -866,18 +865,6 @@ export async function observeBrowserIO(
+       } catch {
+         return result;
+       }
+-      if (metadataScope) {
+-        // The package fixture reuses this existing JSON observation only for
+-        // its closed metadata GET set. Its binary download keeps its separate
+-        // original-finished/file-byte gate and never enters this JSON reader.
+-        const url = new URL(rawURL, location.href);
+-        const method = init?.method ?? (input instanceof Request ? input.method : "GET");
+-        const project = "/api/v1/projects/" + metadataScope.project;
+-        if (method !== "GET" || url.origin !== location.origin || ![
+-          "/api/v1/session", "/api/v1/projects", "/api/v1/projects/resolve",
+-          project, project + "/skills/catalog", project + "/skills/" + metadataScope.skill,
+-        ].includes(url.pathname)) return result;
+-      }
+       const id = ++nextFetch;
+       if (id > 192) failed = true;
+       const url = new URL(rawURL, location.href);
+@@ -1379,7 +1366,7 @@ export async function observeBrowserIO(
+       restorers.push(() => window.removeEventListener(kind, listener));
+     }
+     record("observer-installed");
+-  }, metadataScope);
++  });
+ }
+ 
+ // This closed endpoint set includes every real Task/Agent/list/lookup read in
+diff --git a/tests/account-captcha-web/e2e/task-timeline.helpers.ts b/tests/account-captcha-web/e2e/task-timeline.helpers.ts
+index 3ca2c32f..2a8e594b 100644
+--- a/tests/account-captcha-web/e2e/task-timeline.helpers.ts
++++ b/tests/account-captcha-web/e2e/task-timeline.helpers.ts
+@@ -48,21 +48,9 @@ export function timelineMaterial(): TimelineMaterial {
+   return value;
+ }
+ 
+-const readSteps = [
+-  { order: "desc", type: null, page: 0 },
+-  { order: "desc", type: null, page: 1 },
+-  { order: "desc", type: null, page: 0 },
+-  { order: "desc", type: "comment", page: 0 },
+-  { order: "desc", type: "blocker_added", page: 0 },
+-  { order: "desc", type: null, page: 0 },
+-  { order: "asc", type: null, page: 0 },
+-  { order: "asc", type: null, page: 1 },
+-] as const;
+-
+ export async function observeTimeline(page: Page, data: TimelineMaterial) {
+   const prefix = `/api/v1/projects/${data.project_id}`;
+   const eventsPath = `/tasks/${data.task_id}/events`;
+-  let eventRequests = 0;
+   const classify = (request: Request): string | undefined => {
+     const url = new URL(request.url());
+     const pathname = url.pathname;
+@@ -83,16 +71,10 @@ export async function observeTimeline(page: Page, data: TimelineMaterial) {
+     const path = pathname.slice(prefix.length);
+     if (path === eventsPath) {
+       expect(url.searchParams.getAll("limit")).toEqual(["50"]);
+-      const step = readSteps[eventRequests++];
+-      expect(step, "one exact query per expected user action").toBeTruthy();
+-      expect(url.searchParams.getAll("order")).toEqual([step!.order]);
+-      expect(url.searchParams.getAll("types")).toEqual(
+-        step!.type ? [step!.type] : [],
+-      );
+-      expect(url.searchParams.has("cursor")).toBe(step!.page === 1);
++      expect(url.searchParams.getAll("order")).toEqual(["desc"]);
+       expect(url.searchParams.getAll("cursor").length).toBeLessThanOrEqual(1);
+       for (const key of url.searchParams.keys())
+-        expect(["limit", "order", "cursor", "types"]).toContain(key);
++        expect(["limit", "order", "cursor"]).toContain(key);
+       if (url.searchParams.has("cursor"))
+         expect(url.searchParams.get("cursor")!.length).toBeGreaterThan(0);
+       return "events";
+@@ -131,68 +113,40 @@ export async function observeTimeline(page: Page, data: TimelineMaterial) {
+   });
+   return {
+     ...seen,
+-    requirePages(count: number) {
+-      expect(count).toBeGreaterThan(0);
+-      expect(count).toBeLessThanOrEqual(readSteps.length);
++    requirePages(count: 1 | 2 | 3) {
+       const requests = seen.requests("events");
+       expect(requests).toHaveLength(count);
++      const recent = [...data.event_ids.slice(1)].reverse();
+       for (let index = 0; index < count; index++) {
+-        const step = readSteps[index]!;
+         const body = seen.timelinePage(index);
+-        const query = new URL(requests[index]!.url()).searchParams;
+-        expect(query.get("order")).toBe(step.order);
+-        expect(query.get("types")).toBe(step.type);
+-        let expectedIDs = [...data.event_ids];
+-        if (step.type === "comment") {
+-          const original = seen
+-            .timelinePage(0)
+-            .items.find((item: any) => item.type === "comment");
+-          expect(original).toBeTruthy();
+-          expectedIDs = [original.id];
+-        } else if (step.type === "blocker_added") {
+-          expectedIDs = [];
+-        }
+-        if (step.order === "desc") expectedIDs.reverse();
+-        const expectedPage = expectedIDs.slice(
+-          step.page * 50,
+-          (step.page + 1) * 50,
+-        );
+-        const more = expectedIDs.length > (step.page + 1) * 50;
+         expect(Object.keys(body).sort()).toEqual(
+-          more ? ["items", "next_cursor"] : ["items"],
++          index === 1 ? ["items"] : ["items", "next_cursor"],
++        );
++        expect(body.items.map((item: any) => item.id)).toEqual(
++          index === 1 ? [data.event_ids[0]] : recent,
+         );
+-        expect(body.items.map((item: any) => item.id)).toEqual(expectedPage);
+         for (const item of body.items) {
+           expect(item.project_id).toBe(data.project_id);
+           expect(item.task_id).toBe(data.task_id);
+           expect(BigInt(item.task_version) <= BigInt(data.version)).toBe(true);
+           expect(item.actor.type).toBe("human");
+-          if (step.type) expect(item.type).toBe(step.type);
+         }
+-        if (step.page === 1) {
+-          expect(query.get("cursor")).toBe(
+-            seen.timelinePage(index === 1 ? 0 : 6).next_cursor,
+-          );
++        const query = new URL(requests[index]!.url()).searchParams;
++        if (index === 1) {
++          expect(query.get("cursor")).toBe(seen.timelinePage(0).next_cursor);
++          expect(Object.hasOwn(body, "next_cursor")).toBe(false);
++          expect(body.items[0].type).toBe("task_created");
++          expect(body.items[0].task_version).toBe("1");
+         } else {
+           expect(query.has("cursor")).toBe(false);
+-        }
+-        if (more) {
+           expect(typeof body.next_cursor).toBe("string");
+           expect(body.next_cursor.length).toBeGreaterThan(0);
+-        }
+-        const comments = body.items.filter(
+-          (item: any) => item.type === "comment",
+-        );
+-        for (const comment of comments) {
+-          expect(comment.payload.body).toBe(data.comment);
+-          expect(comment.task_version).toBe(data.version);
+-        }
+-        if (index === 1) {
+-          expect(body.items[0].type).toBe("task_created");
+-          expect(body.items[0].task_version).toBe("1");
+-        }
+-        if ([0, 2, 5].includes(index)) {
++          const comments = body.items.filter(
++            (item: any) => item.type === "comment",
++          );
+           expect(comments).toHaveLength(1);
++          expect(comments[0].payload.body).toBe(data.comment);
++          expect(comments[0].task_version).toBe(data.version);
+           expect(
+             body.items.filter((item: any) => item.type === "fields_updated"),
+           ).toHaveLength(47);
+@@ -214,7 +168,6 @@ export async function observeTimeline(page: Page, data: TimelineMaterial) {
+             to_agent_id: data.worker_id,
+           });
+         }
+-        if (step.type === "comment") expect(comments).toHaveLength(1);
+       }
+       expect(seen.requests("transfer")).toHaveLength(0);
+       expect(seen.requests("lookup")).toHaveLength(0);
+@@ -244,10 +197,6 @@ export async function timelineScreenshot(
+     .toBe(true);
+   const directory = process.env.AGENTEAM_TASK_TIMELINE_WEB_EVIDENCE!;
+   mkdirSync(directory, { recursive: true, mode: 0o700 });
+-  await page
+-    .getByRole("region", { name: "任务历史", exact: true })
+-    .locator(".timeline-filters")
+-    .scrollIntoViewIfNeeded();
+   await page.screenshot({
+     path: join(directory, `task-timeline-${data.mode}-${layout}-history.png`),
+     fullPage: true,
+diff --git a/tests/account-captcha-web/e2e/task-timeline.spec.ts b/tests/account-captcha-web/e2e/task-timeline.spec.ts
+index 2db79d37..6b61ffa5 100644
+--- a/tests/account-captcha-web/e2e/task-timeline.spec.ts
++++ b/tests/account-captcha-web/e2e/task-timeline.spec.ts
+@@ -61,24 +61,6 @@ async function pressHistory(page: Page, name: string) {
+   await button.focus();
+   await page.keyboard.press("Enter");
+ }
+-async function selectHistory(page: Page, label: string, value: string) {
+-  const trigger = history(page).getByRole("button", {
+-    name: label,
+-    exact: true,
+-  });
+-  await expect(trigger).toBeEnabled();
+-  await trigger.focus();
+-  await page.keyboard.press("ArrowDown");
+-  const list = page.getByRole("listbox", { name: label, exact: true });
+-  const option = list.getByRole("option", { name: value, exact: true });
+-  await expect(option).toBeVisible();
+-  await option.focus();
+-  await page.keyboard.press("Enter");
+-  await expect(list).toHaveCount(0);
+-  await expect(history(page)).toHaveAttribute("aria-busy", "false");
+-  await expect(trigger).toContainText(value);
+-  await expect(trigger).toBeFocused();
+-}
+ 
+ test("real persisted history reads recent, older and refreshed pages [recent-older-and-refresh]", async ({
+   page,
+@@ -115,7 +97,7 @@ test("real persisted history reads recent, older and refreshed pages [recent-old
+   await expect(
+     history(page).getByRole("button", { name: "加载较早历史", exact: true }),
+   ).toBeEnabled();
+-  expect(await eventIDs(page)).toEqual([...data.event_ids.slice(1)].reverse());
++  expect(await eventIDs(page)).toEqual(data.event_ids.slice(1));
+   await fullComment(page, data.comment);
+   await seen.verify();
+   seen.requirePages(1);
+@@ -129,9 +111,9 @@ test("real persisted history reads recent, older and refreshed pages [recent-old
+   await expect(
+     history(page).getByRole("heading", { name: "任务历史", exact: true }),
+   ).toBeFocused();
+-  expect(await eventIDs(page)).toEqual([...data.event_ids].reverse());
++  expect(await eventIDs(page)).toEqual(data.event_ids);
+   await expect(
+-    items(page).last().getByRole("heading", { name: "创建任务", exact: true }),
++    items(page).first().getByRole("heading", { name: "创建任务", exact: true }),
+   ).toBeVisible();
+   await fullComment(page, data.comment);
+   await seen.verify();
+@@ -149,59 +131,9 @@ test("real persisted history reads recent, older and refreshed pages [recent-old
+   await expect(
+     history(page).getByRole("button", { name: "重新读取历史", exact: true }),
+   ).toBeFocused();
+-  expect(await eventIDs(page)).toEqual([...data.event_ids.slice(1)].reverse());
++  expect(await eventIDs(page)).toEqual(data.event_ids.slice(1));
+   await fullComment(page, data.comment);
+   await seen.verify();
+   seen.requirePages(3);
+-
+-  await selectHistory(page, "历史事件类型", "评论");
+-  await expect(items(page)).toHaveCount(1);
+-  await expect(
+-    history(page).getByRole("button", { name: "加载较早历史", exact: true }),
+-  ).toHaveCount(0);
+-  await fullComment(page, data.comment);
+-  await seen.verify();
+-  seen.requirePages(4);
+-
+-  await selectHistory(page, "历史事件类型", "添加阻塞");
+-  await expect(items(page)).toHaveCount(0);
+-  await expect(
+-    history(page).getByText("没有此类型的任务历史。", { exact: true }),
+-  ).toBeVisible();
+-  await seen.verify();
+-  seen.requirePages(5);
+-
+-  await pressHistory(page, "清除事件筛选");
+-  await expect(items(page)).toHaveCount(50);
+-  await expect(
+-    history(page).getByRole("button", { name: "清除事件筛选", exact: true }),
+-  ).toHaveCount(0);
+-  await expect(
+-    history(page).getByRole("heading", { name: "任务历史", exact: true }),
+-  ).toBeFocused();
+-  expect(await eventIDs(page)).toEqual([...data.event_ids.slice(1)].reverse());
+-  await seen.verify();
+-  seen.requirePages(6);
+-
+-  await selectHistory(page, "历史时间顺序", "由旧到新");
+-  await expect(items(page)).toHaveCount(50);
+-  expect(await eventIDs(page)).toEqual(data.event_ids.slice(0, 50));
+-  await expect(
+-    history(page).getByRole("button", { name: "加载较早历史", exact: true }),
+-  ).toHaveCount(0);
+-  await seen.verify();
+-  seen.requirePages(7);
+-  await pressHistory(page, "加载较新历史");
+-  await expect(items(page)).toHaveCount(51);
+-  expect(await eventIDs(page)).toEqual(data.event_ids);
+-  await expect(
+-    history(page).getByRole("button", { name: "加载较新历史", exact: true }),
+-  ).toHaveCount(0);
+-  await expect(
+-    history(page).getByRole("heading", { name: "任务历史", exact: true }),
+-  ).toBeFocused();
+-  await fullComment(page, data.comment);
+-  await seen.verify();
+-  seen.requirePages(8);
+   await timelineScreenshot(page, data, "390-dark");
+ });
+diff --git a/tests/projectvariable/agent_edit_web_test.go b/tests/projectvariable/agent_edit_web_test.go
+index fb7e2151..7d8f41be 100644
+--- a/tests/projectvariable/agent_edit_web_test.go
++++ b/tests/projectvariable/agent_edit_web_test.go
+@@ -607,25 +607,25 @@ func (w *agentEditWeb) observe(r *http.Request) error {
+ 				return errors.New("browser repeated an Update key")
+ 			}
+ 		}
+-		var want map[string]any
++		var want map[string]string
+ 		if w.mode == "lost-update-confirmation-only-lookup" {
+ 			if index != 0 {
+ 				return errors.New("browser retransmitted an uncertain Update")
+ 			}
+-			want = map[string]any{"name": w.draft.Name + "-edited", "description": ""}
++			want = map[string]string{"name": w.draft.Name + "-edited", "description": ""}
+ 		} else {
+ 			switch index {
+ 			case 0:
+-				want = map[string]any{"name": w.draft.Name + "-edited", "display_name": "  e\u0301 显示助手😀  ", "tag_color": "#12abcf", "description": "Browser saved Agent description.", "instructions": "Browser saved Agent instructions.\nPreserve the complete text."}
++				want = map[string]string{"name": w.draft.Name + "-edited", "description": "Browser saved Agent description.", "instructions": "Browser saved Agent instructions.\nPreserve the complete text."}
+ 			case 1:
+-				want = map[string]any{"name": w.draft.Name + "-edited", "display_name": "  e\u0301 显示助手😀  ", "tag_color": "#12abcf"}
++				want = map[string]string{"name": w.draft.Name + "-edited"}
+ 			case 2:
+-				want = map[string]any{"display_name": nil, "tag_color": nil, "description": "", "instructions": ""}
++				want = map[string]string{"description": "", "instructions": ""}
+ 			default:
+ 				return errors.New("browser added an undeclared Update")
+ 			}
+ 		}
+-		var actual map[string]any
++		var actual map[string]string
+ 		if json.Unmarshal(envelope.Request, &actual) != nil || !reflect.DeepEqual(actual, want) {
+ 			return errors.New("browser changed the original touched-field patch")
+ 		}
+@@ -748,7 +748,7 @@ func (w *agentEditWeb) observeRead(path string, raw []byte) error {
+ 			return errors.New("Agent Edit Directory is not the original safe page")
+ 		}
+ 		v, core := page.Items[0], current.Fields().Core
+-		if v.Validate() != nil || v.ID != w.target || v.ProjectID != w.a.p2.project.ID || v.Version != core.Version || v.Name != core.Name || !reflect.DeepEqual(v.DisplayName, core.DisplayName) || !reflect.DeepEqual(v.TagColor, core.TagColor) || bytes.Contains(raw, []byte(w.a.modelID.String())) {
++		if v.Validate() != nil || v.ID != w.target || v.ProjectID != w.a.p2.project.ID || v.Version != core.Version || v.Name != core.Name || bytes.Contains(raw, []byte(w.a.modelID.String())) {
+ 			return errors.New("Agent Edit Directory lost current safe metadata")
+ 		}
+ 		w.pages++
+@@ -826,11 +826,11 @@ func (w *agentEditWeb) verifyBrowser(t *testing.T, ctx context.Context) {
+ 	if failure != nil {
+ 		t.Fatal("Agent Edit original observation failed", failure)
+ 	}
+-	wantUpdates, wantChanged, wantLookup, wantReads := 3, 2, 0, 4
++	wantUpdates, wantChanged, wantLookup := 3, 2, 0
+ 	if w.mode == "lost-update-confirmation-only-lookup" {
+-		wantUpdates, wantChanged, wantLookup, wantReads = 1, 1, 1, 2
++		wantUpdates, wantChanged, wantLookup = 1, 1, 1
+ 	}
+-	if updates != wantUpdates || receipts != updates || changed != wantChanged || lookups != wantLookup || cuts != wantLookup || configs < wantReads || pages < wantReads {
++	if updates != wantUpdates || receipts != updates || changed != wantChanged || lookups != wantLookup || cuts != wantLookup || configs < 1 || pages < 1 {
+ 		t.Fatal("Agent Edit omitted or repeated an original command/read")
+ 	}
+ 	wantVersion := int64(1 + wantChanged)
+@@ -843,7 +843,4 @@ func (w *agentEditWeb) verifyBrowser(t *testing.T, ctx context.Context) {
+ 	if core.Name != w.draft.Name+"-edited" || core.Description != "" || (wantLookup == 0 && core.Instructions != "") || (wantLookup == 1 && core.Instructions != w.draft.Instructions) {
+ 		t.Fatal("Agent Edit final full/omitted/cleared text differs")
+ 	}
+-	if core.DisplayName != nil || core.TagColor != nil {
+-		t.Fatal("Agent Edit final display metadata was not explicitly cleared or preserved null")
+-	}
+ }
+diff --git a/tests/projectvariable/task_timeline_web_test.go b/tests/projectvariable/task_timeline_web_test.go
+index a093335c..89ae8170 100644
+--- a/tests/projectvariable/task_timeline_web_test.go
++++ b/tests/projectvariable/task_timeline_web_test.go
+@@ -40,23 +40,6 @@ func TestTaskTimelineWeb(t *testing.T) {
+ 
+ type timelineWebRequest struct{ index int }
+ type timelineWebRequestKey struct{}
+-
+-// Each entry is one real browser action, checked before forwarding and again
+-// against persisted facts after its original HTTP response fully completes.
+-var taskTimelineReadSteps = [...]struct {
+-	order, eventType string
+-	page             int
+-}{
+-	{"desc", "", 0}, // Initial recent page.
+-	{"desc", "", 1}, // Its original older-page cursor.
+-	{"desc", "", 0}, // Explicit refresh.
+-	{"desc", "comment", 0},
+-	{"desc", "blocker_added", 0}, // Empty in the unchanged 51-event seed.
+-	{"desc", "", 0},              // Clear the event filter.
+-	{"asc", "", 0},
+-	{"asc", "", 1}, // Its original newer-page cursor.
+-}
+-
+ type taskTimelineWeb struct {
+ 	shell      *taskReviewWeb
+ 	domain     *taskTransitionFixture
+@@ -160,32 +143,16 @@ func (w *taskTimelineWeb) observeRequest(r *http.Request) error {
+ 	w.shell.mu.Lock()
+ 	defer w.shell.mu.Unlock()
+ 	index := w.requested
+-	if index >= len(taskTimelineReadSteps) || index != w.completed || len(q["limit"]) != 1 || q.Get("limit") != "50" {
++	if index >= 3 || index != w.completed || len(q["limit"]) != 1 || q.Get("limit") != "50" ||
++		len(q["order"]) != 1 || q.Get("order") != "desc" {
+ 		return errors.New("timeline request lost the original serialized page contract")
+ 	}
+-	step := taskTimelineReadSteps[index]
+-	keys := 2
+-	if len(q["order"]) != 1 || q.Get("order") != step.order {
+-		return errors.New("timeline action did not request its exact time direction")
+-	}
+-	if step.eventType != "" {
+-		keys++
+-		if len(q["types"]) != 1 || q.Get("types") != step.eventType {
+-			return errors.New("timeline action did not request its exact event filter")
++	if index == 1 {
++		if len(q) != 3 || len(q["cursor"]) != 1 || w.nextCursor == "" || q.Get("cursor") != w.nextCursor {
++			return errors.New("older timeline request did not reuse the original opaque cursor")
+ 		}
+-	} else if q.Has("types") {
+-		return errors.New("all-events action retained a previous event filter")
+-	}
+-	if step.page == 1 {
+-		keys++
+-		if len(q["cursor"]) != 1 || w.nextCursor == "" || q.Get("cursor") != w.nextCursor {
+-			return errors.New("timeline continuation did not reuse its own original opaque cursor")
+-		}
+-	} else if q.Has("cursor") {
+-		return errors.New("timeline condition change or refresh retained an old cursor")
+-	}
+-	if len(q) != keys {
+-		return errors.New("timeline request contains an unexpected query field")
++	} else if len(q) != 2 {
++		return errors.New("initial or refreshed timeline request retained an old cursor/filter")
+ 	}
+ 	w.requested++
+ 	*r = *r.WithContext(context.WithValue(r.Context(), timelineWebRequestKey{}, timelineWebRequest{index}))
+@@ -214,33 +181,17 @@ func (w *taskTimelineWeb) response(r *http.Response) error {
+ 		return err
+ 	}
+ 	want := slices.Clone(w.stored)
+-	step := taskTimelineReadSteps[request.index]
+-	if step.eventType != "" {
+-		filtered := make([]wc.TaskTimelineEvent, 0)
+-		for _, event := range want {
+-			header, err := event.Header()
+-			if err != nil {
+-				return err
+-			}
+-			if string(header.Type) == step.eventType {
+-				filtered = append(filtered, event)
+-			}
+-		}
+-		want = filtered
+-	}
+-	if step.order == "desc" {
+-		slices.Reverse(want)
+-	}
+-	if step.page == 1 {
++	slices.Reverse(want)
++	if request.index == 1 {
+ 		want = want[50:]
+-	}
+-	if len(want) > 50 {
++		if page.NextCursor != "" {
++			return errors.New("oldest actual timeline page did not end")
++		}
++	} else {
+ 		want = want[:50]
+ 		if page.NextCursor == "" || len(page.NextCursor) > 8192 {
+-			return errors.New("actual timeline page lost its opaque continuation")
++			return errors.New("actual recent timeline page lost its opaque continuation")
+ 		}
+-	} else if page.NextCursor != "" {
+-		return errors.New("exhausted actual timeline page did not end")
+ 	}
+ 	// Planning payloads retain their original JSON bytes. PostgreSQL JSONB
+ 	// includes insignificant whitespace which the formal HTTP encoder compacts.
+@@ -262,7 +213,7 @@ func (w *taskTimelineWeb) response(r *http.Response) error {
+ 	if request.index != w.completed {
+ 		return errors.New("timeline responses did not complete in original request order")
+ 	}
+-	if request.index == 0 || request.index == 6 {
++	if request.index == 0 {
+ 		w.nextCursor = page.NextCursor
+ 	}
+ 	w.completed++
+@@ -395,8 +346,8 @@ func (w *taskTimelineWeb) verify(t *testing.T) {
+ 	if failure != nil {
+ 		t.Fatal("owned timeline observation failed", failure)
+ 	}
+-	if requested != len(taskTimelineReadSteps) || completed != len(taskTimelineReadSteps) {
+-		t.Fatal("timeline browser did not finish every original filter and time-direction page")
++	if requested != 3 || completed != 3 {
++		t.Fatal("timeline browser did not finish recent, older and refreshed original pages")
+ 	}
+ 	stored, err := w.readFacts(ctxFor(t))
+ 	firstRoundRequire(t, err)
+diff --git a/web/src/api/agent-configuration.ts b/web/src/api/agent-configuration.ts
+index 97dbe273..fd581dce 100644
+--- a/web/src/api/agent-configuration.ts
++++ b/web/src/api/agent-configuration.ts
+@@ -24,8 +24,6 @@ export type AgentCreateFields = Readonly<{
+ }>
+ export type AgentUpdateFields = Readonly<{
+   name?: string
+-  display_name?: string | null
+-  tag_color?: string | null
+   description?: string
+   instructions?: string
+   model_ref?: string
+@@ -237,7 +235,7 @@ export function captureAgentCreateInput(value: unknown): AgentCreateInput {
+   })
+ }
+ 
+-// Omission keeps a field; null clears display metadata and empty text clears long text.
++// Omitted fields remain omitted; an explicit empty description/instructions is a clear.
+ export function captureAgentUpdateInput(value: unknown): AgentUpdateInput {
+   return input(() => {
+     const outer = shape(value, ['expected_version', 'request'])
+@@ -246,8 +244,6 @@ export function captureAgentUpdateInput(value: unknown): AgentUpdateInput {
+       [],
+       [
+         'name',
+-        'display_name',
+-        'tag_color',
+         'description',
+         'instructions',
+         'model_ref',
+@@ -267,10 +263,6 @@ export function captureAgentUpdateInput(value: unknown): AgentUpdateInput {
+       expected_version: workVersion(outer.expected_version),
+       request: Object.freeze({
+         ...(Object.hasOwn(v, 'name') ? { name: name(v.name) } : {}),
+-        ...(Object.hasOwn(v, 'display_name')
+-          ? { display_name: nullable(v.display_name, (x) => workText(x, 1024, true)) }
+-          : {}),
+-        ...(Object.hasOwn(v, 'tag_color') ? { tag_color: nullable(v.tag_color, color) } : {}),
+         ...(Object.hasOwn(v, 'description') ? { description: workText(v.description, 8192) } : {}),
+         ...(Object.hasOwn(v, 'instructions')
+           ? { instructions: workText(v.instructions, 32768) }
+@@ -303,8 +295,6 @@ function updateReceipt(
+   requireValue(version <= 9223372036854775807n && agent.version === String(version))
+   for (const key of [
+     'name',
+-    'display_name',
+-    'tag_color',
+     'description',
+     'instructions',
+     'model_ref',
+diff --git a/web/src/components/agents/AgentEditForm.vue b/web/src/components/agents/AgentEditForm.vue
+index 276854e3..bf42ace8 100644
+--- a/web/src/components/agents/AgentEditForm.vue
++++ b/web/src/components/agents/AgentEditForm.vue
+@@ -42,7 +42,7 @@ watch(disabled, focusName, { flush: 'post' })
+     @submit.prevent="owner.submitEdit()"
+   >
+     <h2>编辑 Agent 配置</h2>
+-    <p>基于版本 {{ owner.edit.version }}，只保存本次编辑的字段；未编辑的字段保持原值。</p>
++    <p>基于版本 {{ owner.edit.version }}，只保存本次编辑的字段。描述和指令可以明确清空。</p>
+     <UiField label="Agent 名称" required v-slot="field">
+       <UiInput
+         :id="field.id"
+@@ -51,32 +51,6 @@ watch(disabled, focusName, { flush: 'post' })
+         @update:model-value="owner.touchEdit('name', $event)"
+       />
+     </UiField>
+-    <UiField
+-      label="显示名称"
+-      hint="最多 256 个字符，不能全为空白。删除内容后保存可清空，改用 Agent 名称显示。"
+-      v-slot="field"
+-    >
+-      <UiInput
+-        :id="field.id"
+-        :model-value="owner.edit.displayName"
+-        :disabled="disabled"
+-        :aria-describedby="field.describedby"
+-        @update:model-value="owner.touchEdit('displayName', $event)"
+-      />
+-    </UiField>
+-    <UiField
+-      label="标签颜色"
+-      hint="可选，格式为小写 #rrggbb。删除内容后保存可清空标签颜色。"
+-      v-slot="field"
+-    >
+-      <UiInput
+-        :id="field.id"
+-        :model-value="owner.edit.tagColor"
+-        :disabled="disabled"
+-        :aria-describedby="field.describedby"
+-        @update:model-value="owner.touchEdit('tagColor', $event)"
+-      />
+-    </UiField>
+     <UiField label="Agent 描述" v-slot="field">
+       <UiTextarea
+         :id="field.id"
+diff --git a/web/src/components/work/TaskReviewDetail.vue b/web/src/components/work/TaskReviewDetail.vue
+index 6c0bfd19..855cafcd 100644
+--- a/web/src/components/work/TaskReviewDetail.vue
++++ b/web/src/components/work/TaskReviewDetail.vue
+@@ -231,7 +231,6 @@ const canSubmit = computed(
+       :busy="owner.busy.value"
+       :agent-name="owner.name"
+       @load="owner.loadTimeline"
+-      @filter="owner.setTimelineFilter"
+     />
+   </div>
+ </template>
+diff --git a/web/src/components/work/TaskTimeline.vue b/web/src/components/work/TaskTimeline.vue
+index 37b749c1..af0d045d 100644
+--- a/web/src/components/work/TaskTimeline.vue
++++ b/web/src/components/work/TaskTimeline.vue
+@@ -1,6 +1,6 @@
+ <script setup lang="ts">
+ import { ref, watch } from 'vue'
+-import { UiButton, UiField, UiSelect, UiState } from '../ui'
++import { UiButton, UiState } from '../ui'
+ import { taskLabels } from '../../api/work-review'
+ import type { TaskTimelineEvent } from '../../api/work-task-timeline'
+ import type { TaskTimelineState } from '../../composables/useProjectTasks'
+@@ -9,12 +9,8 @@ const props = defineProps<{
+   busy: boolean
+   agentName: (id: string | null) => string
+ }>()
+-const emit = defineEmits<{
+-  load: [more: boolean]
+-  filter: [field: 'type' | 'order', value: string]
+-}>()
++const emit = defineEmits<{ load: [more: boolean] }>()
+ const heading = ref<HTMLElement | null>(null)
+-const filters = ref<HTMLElement | null>(null)
+ let requestedFocus: HTMLElement | null = null
+ function request(more: boolean, event: MouseEvent) {
+   if (props.busy) return
+@@ -22,21 +18,6 @@ function request(more: boolean, event: MouseEvent) {
+   requestedFocus = document.activeElement === button ? button : null
+   emit('load', more)
+ }
+-function filter(field: 'type' | 'order', value: string, event?: MouseEvent) {
+-  if (props.busy || props.state[field] === value) return
+-  const target = event
+-    ? (event.currentTarget as HTMLElement)
+-    : filters.value?.querySelector<HTMLElement>(`[data-timeline-filter="${field}"]`)
+-  const active = document.activeElement
+-  requestedFocus =
+-    target &&
+-    (active === target ||
+-      active?.closest('[role="listbox"]')?.getAttribute('aria-label') ===
+-        target.getAttribute('aria-label'))
+-      ? target
+-      : null
+-  emit('filter', field, value)
+-}
+ watch(
+   () => props.state.phase,
+   (phase, previous) => {
+@@ -75,14 +56,6 @@ const titles = {
+   blocker_resolved: '解除阻塞',
+   comment: '评论',
+ }
+-const typeOptions = [
+-  { value: 'all', label: '全部事件' },
+-  ...Object.entries(titles).map(([value, label]) => ({ value, label })),
+-]
+-const orderOptions = [
+-  { value: 'desc', label: '由新到旧' },
+-  { value: 'asc', label: '由旧到新' },
+-]
+ function references(item: TaskTimelineEvent): ReadonlyArray<readonly [string, string]> {
+   const rows: [string, string][] = [
+     ['事件 ID', item.id],
+@@ -115,45 +88,16 @@ function references(item: TaskTimelineEvent): ReadonlyArray<readonly [string, st
+       <h3 ref="heading" tabindex="-1">任务历史</h3>
+       <UiButton :disabled="busy" @click="request(false, $event)">重新读取历史</UiButton>
+     </div>
+-    <div ref="filters" class="timeline-filters">
+-      <UiField class="timeline-filter" label="事件类型" v-slot="field">
+-        <UiSelect
+-          :id="field.id"
+-          label="历史事件类型"
+-          data-timeline-filter="type"
+-          :model-value="state.type"
+-          :options="typeOptions"
+-          :disabled="busy"
+-          @update:model-value="filter('type', $event)"
+-        />
+-      </UiField>
+-      <UiField class="timeline-filter" label="时间顺序" v-slot="field">
+-        <UiSelect
+-          :id="field.id"
+-          label="历史时间顺序"
+-          data-timeline-filter="order"
+-          :model-value="state.order"
+-          :options="orderOptions"
+-          :disabled="busy"
+-          @update:model-value="filter('order', $event)"
+-        />
+-      </UiField>
+-      <UiButton v-if="state.type !== 'all'" :disabled="busy" @click="filter('type', 'all', $event)"
+-        >清除事件筛选</UiButton
+-      >
+-    </div>
+     <p class="timeline-hint">显示已读取的任务历史；重新读取可查看最新事件。</p>
+     <UiState v-if="state.phase === 'loading'" kind="loading" title="正在读取任务历史" />
+     <div v-if="state.phase === 'error'" role="alert">
+       <p>{{ state.message }}</p>
+       <UiButton :disabled="busy" @click="request(state.retryMore, $event)">重试读取历史</UiButton>
+     </div>
+-    <p v-if="state.phase === 'ready' && !state.items.length">
+-      {{ state.type === 'all' ? '暂无任务历史。' : '没有此类型的任务历史。' }}
+-    </p>
+-    <UiButton v-if="state.next" :disabled="busy" @click="request(true, $event)">{{
+-      state.order === 'desc' ? '加载较早历史' : '加载较新历史'
+-    }}</UiButton>
++    <p v-if="state.phase === 'ready' && !state.items.length">暂无任务历史。</p>
++    <UiButton v-if="state.next" :disabled="busy" @click="request(true, $event)"
++      >加载较早历史</UiButton
++    >
+     <ol v-if="state.items.length" class="timeline-events">
+       <li v-for="item in state.items" :key="item.id" class="timeline-event">
+         <div class="event-heading">
+@@ -230,16 +174,6 @@ function references(item: TaskTimelineEvent): ReadonlyArray<readonly [string, st
+ .timeline-heading {
+   justify-content: space-between;
+ }
+-.timeline-filters {
+-  display: flex;
+-  align-items: end;
+-  flex-wrap: wrap;
+-  gap: var(--space);
+-}
+-.timeline-filter {
+-  flex: 1 1 12rem;
+-  min-width: 0;
+-}
+ h3,
+ h4 {
+   font-size: 1rem;
+diff --git a/web/src/composables/useProjectAgents.ts b/web/src/composables/useProjectAgents.ts
+index bf7ec5d6..0d6f7c1f 100644
+--- a/web/src/composables/useProjectAgents.ts
++++ b/web/src/composables/useProjectAgents.ts
+@@ -14,15 +14,13 @@ import { projectRoute } from '../router/auth'
+ import type { SessionController } from './useSession'
+ import type { ProjectWorkspace } from './useProjectWorkspace'
+ 
+-type EditField = 'name' | 'displayName' | 'tagColor' | 'description' | 'instructions'
++type EditField = 'name' | 'description' | 'instructions'
+ type EditPolicyField = 'model_ref' | 'inject_agents_md' | 'approval_policy' | 'approval_model_ref'
+ const initialEdit = () => ({
+   open: false,
+   agentID: '',
+   version: '',
+   name: '',
+-  displayName: '',
+-  tagColor: '',
+   description: '',
+   instructions: '',
+   modelID: '',
+@@ -59,7 +57,7 @@ function explain(error: unknown) {
+     return 'Agent 配置已有新版本。请取消编辑并重新读取，核对后再保存。'
+   if (e.problem?.code === 'CURSOR_INVALID') return '目录已变化，请从第一页重新读取。'
+   if (e.kind === 'invalid-input')
+-    return '请核对名称、显示名称、标签颜色、模型和必填配置。名称须为 3–32 位英文字母、数字或连字符；显示名称不能全为空白，最多 256 个字符；标签颜色须为小写 #rrggbb。'
++    return '请核对名称、模型和必填配置。名称须为 3–32 位英文字母、数字或连字符。'
+   return '未取得完整结果，请在原请求结束后重新读取。'
+ }
+ // This editor supports the current text-chat configuration profile only.
+@@ -449,8 +447,6 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
+       agentID: a.id,
+       version: a.version,
+       name: a.name,
+-      displayName: a.display_name ?? '',
+-      tagColor: a.tag_color ?? '',
+       description: a.description,
+       instructions: a.instructions,
+       modelID: a.model_ref,
+@@ -509,10 +505,6 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
+       a = edit.agentID
+     const request: AgentUpdateFields = Object.freeze({
+       ...(edit.touched.name ? { name: edit.name } : {}),
+-      ...(edit.touched.displayName
+-        ? { display_name: edit.displayName === '' ? null : edit.displayName }
+-        : {}),
+-      ...(edit.touched.tagColor ? { tag_color: edit.tagColor === '' ? null : edit.tagColor } : {}),
+       ...(edit.touched.description ? { description: edit.description } : {}),
+       ...(edit.touched.instructions ? { instructions: edit.instructions } : {}),
+       ...(edit.touched.model_ref ? { model_ref: edit.modelID, reasoning_effort: null } : {}),
+diff --git a/web/src/composables/useProjectTasks.ts b/web/src/composables/useProjectTasks.ts
+index cd7dff81..bccde0ec 100644
+--- a/web/src/composables/useProjectTasks.ts
++++ b/web/src/composables/useProjectTasks.ts
+@@ -28,12 +28,7 @@ import {
+   type MilestoneCreateReceipt,
+ } from '../api/work-milestone-planning'
+ import { captureTaskCreateDraft, type TaskCreateDraft } from '../api/work-task-planning'
+-import {
+-  compareTaskTimelineEvents,
+-  taskTimelineTypes,
+-  type TaskTimelineEvent,
+-  type TaskTimelineType,
+-} from '../api/work-task-timeline'
++import { compareTaskTimelineEvents, type TaskTimelineEvent } from '../api/work-task-timeline'
+ import { captureTaskUpdateInput } from '../api/work-task-edit'
+ import { agentLabel, type DirectoryAgent } from '../api/agent-directory'
+ import { workTaskRoute } from '../router/auth'
+@@ -42,8 +37,6 @@ import type { createProjectWorkspace } from './useProjectWorkspace'
+ 
+ type Phase = 'idle' | 'loading' | 'ready' | 'error'
+ export type TaskTimelineState = {
+-  type: 'all' | TaskTimelineType
+-  order: 'asc' | 'desc'
+   phase: Phase
+   items: readonly TaskTimelineEvent[]
+   next?: string
+@@ -118,16 +111,13 @@ export function createProjectTasks(
+     feedback: '',
+   })
+   const timeline = shallowReactive<TaskTimelineState>({
+-    type: 'all',
+-    order: 'desc',
+     phase: 'idle',
+     items: [],
+     message: '',
+     retryMore: false,
+   })
+-  function clearTimeline(resetFilters = false) {
++  function clearTimeline() {
+     Object.assign(timeline, {
+-      ...(resetFilters ? { type: 'all', order: 'desc' } : {}),
+       phase: 'idle',
+       items: [],
+       next: undefined,
+@@ -632,7 +622,7 @@ export function createProjectTasks(
+     createdSprintFocus.value = null
+     createdMilestoneFocus.value = null
+     clearMilestoneCreation()
+-    clearTimeline(true)
++    clearTimeline()
+     manualMilestone = null
+     state.phase = 'idle'
+     state.message = ''
+@@ -824,24 +814,9 @@ export function createProjectTasks(
+       },
+     )
+   }
+-  async function setTimelineFilter(field: 'type' | 'order', value: string) {
+-    if (busy.value || !visible.value || !state.task || !state.detailCurrent) return
+-    if (field === 'type') {
+-      if (value !== 'all' && !taskTimelineTypes.includes(value as TaskTimelineType)) return
+-      if (timeline.type === value) return
+-      timeline.type = value as TaskTimelineState['type']
+-    } else {
+-      if (value !== 'asc' && value !== 'desc') return
+-      if (timeline.order === value) return
+-      timeline.order = value
+-    }
+-    await loadTimeline()
+-  }
+   async function loadTimeline(more = false) {
+     const task = state.task
+     if (!task || !state.detailCurrent) return
+-    const { type, order } = timeline
+-    const direction = order === 'asc' ? 1 : -1
+     const cursor = more ? timeline.next : undefined
+     if (more && !cursor) return
+     await read(
+@@ -853,26 +828,24 @@ export function createProjectTasks(
+         return step(() =>
+           auth.workReview.events(p, task.id, {
+             limit: 50,
+-            order,
+-            ...(type === 'all' ? {} : { types: [type] }),
++            order: 'desc',
+             ...(cursor ? { cursor } : {}),
+           }),
+         )
+       },
+       (page) => {
+-        if (state.task?.id !== task.id || timeline.type !== type || timeline.order !== order) return
++        if (state.task?.id !== task.id) return
+         // Reject inconsistent continuation atomically; never hide duplicate events.
+         const before = more ? timeline.items : []
+         const seen = new Set(before.map((item) => item.id))
+-        const chunk = page.items
++        const chunk = [...page.items].reverse()
+         for (let n = 0; n < chunk.length; n++) {
+           const item = chunk[n]!
+           if (
+             item.project_id !== task.project_id ||
+             item.task_id !== task.id ||
+-            (type !== 'all' && item.type !== type) ||
+             seen.has(item.id) ||
+-            (n > 0 && compareTaskTimelineEvents(chunk[n - 1]!, item) * direction >= 0)
++            (n > 0 && compareTaskTimelineEvents(chunk[n - 1]!, item) >= 0)
+           )
+             throw new AccountFailure('invalid-response')
+           seen.add(item.id)
+@@ -880,16 +853,16 @@ export function createProjectTasks(
+         if (
+           (chunk.length &&
+             before.length &&
+-            compareTaskTimelineEvents(before[before.length - 1]!, chunk[0]!) * direction >= 0) ||
++            compareTaskTimelineEvents(chunk[chunk.length - 1]!, before[0]!) >= 0) ||
+           (page.next_cursor && (!chunk.length || page.next_cursor === cursor))
+         )
+           throw new AccountFailure('invalid-response')
+-        timeline.items = Object.freeze([...before, ...chunk])
++        timeline.items = Object.freeze([...chunk, ...before])
+         timeline.next = page.next_cursor
+         timeline.phase = 'ready'
+       },
+       (error) => {
+-        if (state.task?.id !== task.id || timeline.type !== type || timeline.order !== order) return
++        if (state.task?.id !== task.id) return
+         if (
+           error instanceof AccountFailure &&
+           [401, 403, 404].includes(error.problem?.status ?? 0)
+@@ -1777,7 +1750,7 @@ export function createProjectTasks(
+     clearSprintStart()
+     clearSprintCreation()
+     clearMilestoneCreation()
+-    clearTimeline(true)
++    clearTimeline()
+     state.task = null
+     state.detailCurrent = false
+     state.feedback = ''
+@@ -1886,7 +1859,6 @@ export function createProjectTasks(
+     loadSprints,
+     loadBlockers,
+     loadTimeline,
+-    setTimelineFilter,
+     selectMilestone,
+     selectSprint,
+     selectTask,
+diff --git a/web/src/tests/agent-display-settings-client.spec.ts b/web/src/tests/agent-display-settings-client.spec.ts
+deleted file mode 100644
+index 25efbbe6..00000000
+--- a/web/src/tests/agent-display-settings-client.spec.ts
++++ /dev/null
+@@ -1,236 +0,0 @@
+-import { afterEach, describe, expect, it, vi } from 'vitest'
+-import { flushPromises } from '@vue/test-utils'
+-import { createAccountAPI, type SessionView } from '../api/account'
+-import type { Fetch } from '../api/client'
+-import {
+-  captureAgentUpdateInput,
+-  createAgentConfigurationAPI,
+-  type AgentConfiguration,
+-  type AgentUpdateFields,
+-} from '../api/agent-configuration'
+-import { createSessionController, type SessionController } from '../composables/useSession'
+-
+-const id = (n: number) => `01990000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
+-const project = id(1),
+-  agent = id(2),
+-  time = '2026-10-11T10:00:00.000000Z'
+-const path = `/api/v1/projects/${project}/agents/${agent}/configuration`
+-const write = { csrfToken: 'S'.repeat(43), key: 'agent-display/original' }
+-const configuration = (fields: AgentUpdateFields = {}, version = '2'): AgentConfiguration => ({
+-  id: agent,
+-  project_id: project,
+-  name: 'Review-Agent',
+-  normalized_name: 'review-agent',
+-  display_name: '原显示名称',
+-  tag_color: '#123abc',
+-  description: '',
+-  instructions: '',
+-  model_ref: id(3),
+-  reasoning_effort: null,
+-  inject_agents_md: true,
+-  approval_policy: 'default',
+-  approval_model_ref: null,
+-  allowed_tool_ids: [],
+-  allowed_mount_ids: [],
+-  allowed_secret_variable_ids: [],
+-  lifecycle: 'active',
+-  version,
+-  created_at: time,
+-  updated_at: time,
+-  ...fields,
+-})
+-const receipt = (fields: AgentUpdateFields, changed = true, version = changed ? '2' : '1') => ({
+-  agent: configuration(fields, version),
+-  changed,
+-  event_ids: changed ? [id(4)] : [],
+-})
+-const json = (value: unknown, status = 200) =>
+-  new Response(JSON.stringify(value), {
+-    status,
+-    headers: {
+-      'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json',
+-      'X-Request-ID': id(99),
+-    },
+-  })
+-const owners: SessionController[] = []
+-afterEach(async () => {
+-  owners.splice(0).forEach((owner) => owner.leave())
+-  await flushPromises()
+-})
+-
+-describe('Agent display metadata closed update contract', () => {
+-  it('preserves omission, exact Unicode values and null in immutable captured updates', () => {
+-    const text = '  e\u0301 助手😀  '
+-    const draft = { expected_version: '7', request: { display_name: text } }
+-    const captured = captureAgentUpdateInput(draft)
+-    draft.request.display_name = 'later'
+-    expect(captured).toEqual({ expected_version: '7', request: { display_name: text } })
+-    expect(Object.isFrozen(captured.request)).toBe(true)
+-    expect(Object.hasOwn(captured.request, 'tag_color')).toBe(false)
+-    expect(
+-      captureAgentUpdateInput({ expected_version: '7', request: { tag_color: null } }),
+-    ).toEqual({ expected_version: '7', request: { tag_color: null } })
+-    expect(
+-      captureAgentUpdateInput({
+-        expected_version: '7',
+-        request: { display_name: null, tag_color: '#abcdef' },
+-      }).request,
+-    ).toEqual({ display_name: null, tag_color: '#abcdef' })
+-    expect(
+-      captureAgentUpdateInput({
+-        expected_version: '7',
+-        request: { display_name: '😀'.repeat(256) },
+-      }).request.display_name,
+-    ).toBe('😀'.repeat(256))
+-  })
+-
+-  it('rejects blank, control, malformed Unicode, oversized names and noncanonical colors before fetch', () => {
+-    const fetcher = vi.fn<Fetch>()
+-    const api = createAgentConfigurationAPI(fetcher)
+-    for (const request of [
+-      { display_name: '' },
+-      { display_name: ' \t ' },
+-      { display_name: '\u0085' },
+-      { display_name: 'name\nline' },
+-      { display_name: '\ud800' },
+-      { display_name: 'x'.repeat(257) },
+-      { display_name: '😀'.repeat(257) },
+-      { display_name: undefined },
+-      { tag_color: '' },
+-      { tag_color: '#ABCDEF' },
+-      { tag_color: ' #123abc' },
+-      { tag_color: '#123abc ' },
+-      { tag_color: '#abc' },
+-      { tag_color: undefined },
+-      { displayName: 'alias' },
+-    ])
+-      expect(() =>
+-        api.update(project, agent, { expected_version: '1', request } as never, write),
+-      ).toThrowError('invalid-input')
+-    expect(fetcher).not.toHaveBeenCalled()
+-  })
+-
+-  it('checks each explicit display field in changed, no-op and Lookup receipts', async () => {
+-    const input = {
+-      expected_version: '1',
+-      request: { display_name: '  新助手  ', tag_color: '#abc123' },
+-    }
+-    const clear = { expected_version: '2', request: { display_name: null, tag_color: null } }
+-    const replies = [json(receipt(input.request)), json(receipt(clear.request, true, '3'))]
+-    const fetcher = vi.fn<Fetch>(async () => replies.shift()!)
+-    const api = createAgentConfigurationAPI(fetcher)
+-    expect(await api.update(project, agent, input, write)).toEqual(receipt(input.request))
+-    expect(await api.update(project, agent, clear, write)).toEqual(
+-      receipt(clear.request, true, '3'),
+-    )
+-    expect(fetcher.mock.calls.map(([, init]) => JSON.parse(init.body as string))).toEqual([
+-      input,
+-      clear,
+-    ])
+-    expect(fetcher.mock.calls.every(([, init]) => init.method === 'PATCH')).toBe(true)
+-    expect(
+-      await createAgentConfigurationAPI(async () =>
+-        json(receipt({ display_name: null }, false)),
+-      ).update(project, agent, { expected_version: '1', request: { display_name: null } }, write),
+-    ).toMatchObject({ changed: false, event_ids: [], agent: { version: '1', display_name: null } })
+-    for (const wrong of [{ display_name: 'different' }, { tag_color: '#abcdef' }]) {
+-      const invalid = receipt({ ...input.request, ...wrong })
+-      await expect(
+-        createAgentConfigurationAPI(async () => json(invalid)).update(project, agent, input, write),
+-      ).rejects.toMatchObject({ kind: 'invalid-response' })
+-      await expect(
+-        createAgentConfigurationAPI(async () =>
+-          json({ status: 'committed', receipt: invalid }),
+-        ).lookupUpdate(project, agent, input, write),
+-      ).rejects.toMatchObject({ kind: 'invalid-response' })
+-    }
+-    await expect(
+-      createAgentConfigurationAPI(async () =>
+-        json(receipt({ display_name: 'ignored clear' }, true, '3')),
+-      ).update(project, agent, clear, write),
+-    ).rejects.toMatchObject({ kind: 'invalid-response' })
+-  })
+-
+-  it('keeps the actual Session original key, Agent, version and nullable patch through Unknown', async () => {
+-    const current: SessionView = {
+-      user: {
+-        id: id(8),
+-        email: 'owner@example.test',
+-        username: 'owner',
+-        display_name: 'Owner',
+-        role: 'user',
+-        theme: 'system',
+-        version: '1',
+-        initial_password_suggestion: false,
+-      },
+-      session: { id: id(9), issued_at: time, absolute_expires_at: time, idle_expires_at: time },
+-      csrf_token: write.csrfToken,
+-    }
+-    let status: 'not_observed' | 'in_progress' | 'committed' = 'not_observed'
+-    const fetcher = vi.fn<Fetch>(async (url, init) => {
+-      if (url === '/api/v1/session') return json(current)
+-      if (url === path)
+-        return json(
+-          {
+-            type: 'urn:agenteam:problem:test',
+-            title: 'Unknown',
+-            status: 503,
+-            detail: '',
+-            instance: path,
+-            code: 'COMMIT_UNKNOWN',
+-            request_id: id(99),
+-            commit_state: 'unknown',
+-          },
+-          503,
+-        )
+-      if (url === `/api/v1/projects/${project}/agent-commands/lookup`) {
+-        const original = JSON.parse(init.body as string)
+-        return json({
+-          status,
+-          receipt:
+-            status === 'committed' ? receipt(original.request, true, '9007199254740994') : null,
+-        })
+-      }
+-      throw new Error(`Unexpected path ${url}`)
+-    })
+-    const args: Parameters<typeof createSessionController> = [createAccountAPI(fetcher)]
+-    args[19] = { agentConfiguration: createAgentConfigurationAPI(fetcher) }
+-    const auth = createSessionController(...args)
+-    owners.push(auth)
+-    await auth.restore()
+-    const draft = {
+-      expected_version: '9007199254740993',
+-      request: { display_name: '  原助手😀  ', tag_color: null as string | null },
+-    }
+-    const expected = structuredClone(draft)
+-    const saving = auth.agentConfiguration.startUpdate(project, agent, draft)
+-    draft.request.display_name = 'later'
+-    draft.request.tag_color = '#ffffff'
+-    draft.expected_version = '2'
+-    await expect(saving).rejects.toMatchObject({ problem: { code: 'COMMIT_UNKNOWN' } })
+-    const first = fetcher.mock.calls.find(([, init]) => init.method === 'PATCH')![1]
+-    expect(JSON.parse(first.body as string)).toEqual(expected)
+-    await auth.restore()
+-    await expect(auth.agentConfiguration.startUpdate(project, agent, draft)).rejects.toMatchObject({
+-      kind: 'busy',
+-    })
+-    for (const next of ['not_observed', 'in_progress', 'committed'] as const) {
+-      status = next
+-      expect(await auth.agentConfiguration.checkOriginal()).toMatchObject({ status })
+-      const lookup = fetcher.mock.calls.at(-1)![1]
+-      expect(JSON.parse(lookup.body as string)).toEqual({
+-        command: 'agent.update',
+-        target_id: agent,
+-        ...expected,
+-      })
+-      expect(lookup.headers).toMatchObject({
+-        'Idempotency-Key': (first.headers as Record<string, string>)['Idempotency-Key'],
+-      })
+-    }
+-    expect(fetcher.mock.calls.filter(([, init]) => init.method === 'PATCH')).toHaveLength(1)
+-    expect(auth.agentConfiguration.progress).toMatchObject({
+-      phase: 'confirmed',
+-      receipt: { agent: { ...expected.request, version: '9007199254740994' } },
+-    })
+-  })
+-})
+diff --git a/web/src/tests/agent-display-settings-page.spec.ts b/web/src/tests/agent-display-settings-page.spec.ts
+deleted file mode 100644
+index b0cbbed2..00000000
+--- a/web/src/tests/agent-display-settings-page.spec.ts
++++ /dev/null
+@@ -1,331 +0,0 @@
+-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+-import { DOMWrapper, flushPromises, mount, type VueWrapper } from '@vue/test-utils'
+-import { computed, shallowReactive, shallowRef } from 'vue'
+-import { AccountFailure } from '../api/client'
+-import { captureAgentUpdateInput, type AgentConfiguration } from '../api/agent-configuration'
+-import type { AgentConfigurationProgress, SessionController } from '../composables/useSession'
+-import type { ProjectWorkspace } from '../composables/useProjectWorkspace'
+-import {
+-  createProjectAgents,
+-  projectAgentsKey,
+-  type ProjectAgents,
+-} from '../composables/useProjectAgents'
+-import ProjectAgentsView from '../views/projects/ProjectAgentsView.vue'
+-
+-const id = (n: number) => `01990000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
+-const time = '2026-10-11T10:00:00.000000Z'
+-const initial: AgentConfiguration = {
+-  id: id(2),
+-  project_id: id(1),
+-  name: 'Review-Agent',
+-  normalized_name: 'review-agent',
+-  display_name: '原显示名称',
+-  tag_color: '#123abc',
+-  description: '原描述',
+-  instructions: '原指令',
+-  model_ref: id(3),
+-  reasoning_effort: null,
+-  inject_agents_md: true,
+-  approval_policy: 'default',
+-  approval_model_ref: null,
+-  allowed_tool_ids: [],
+-  allowed_mount_ids: [],
+-  allowed_secret_variable_ids: [],
+-  lifecycle: 'active',
+-  version: '1',
+-  created_at: time,
+-  updated_at: time,
+-}
+-const summary = (a: AgentConfiguration) => ({
+-  id: a.id,
+-  project_id: a.project_id,
+-  name: a.name,
+-  display_name: a.display_name,
+-  tag_color: a.tag_color,
+-  description: a.description,
+-  version: a.version,
+-  created_at: a.created_at,
+-  updated_at: a.updated_at,
+-})
+-const mounted: VueWrapper[] = [],
+-  owners: ProjectAgents[] = []
+-beforeEach(() => {
+-  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(
+-    () => [{ width: 10, height: 10 }] as unknown as DOMRectList,
+-  )
+-  vi.stubGlobal('CSS', { escape: (value: string) => value })
+-})
+-afterEach(async () => {
+-  mounted.splice(0).forEach((wrapper) => wrapper.unmount())
+-  owners.splice(0).forEach((owner) => owner.dispose())
+-  await flushPromises()
+-  document.body.innerHTML = ''
+-  vi.unstubAllGlobals()
+-})
+-async function page() {
+-  // Controlled typed service results test publication and controls. These are
+-  // not database authority or a substitute for the later native browser chain.
+-  let current = { ...initial }
+-  const identity = { userID: id(8), sessionID: id(9), epoch: 1 }
+-  const progress = shallowRef<AgentConfigurationProgress | null>(null)
+-  type Port = SessionController['agentConfiguration']
+-  const api = {
+-    list: vi.fn<Port['list']>(async () => ({ items: [summary(current)] })),
+-    getConfiguration: vi.fn<Port['getConfiguration']>(async () => ({ ...current })),
+-    // Display edits remain available when the unrelated model directory fails.
+-    models: vi.fn<Port['models']>(async () => {
+-      throw new AccountFailure('transport')
+-    }),
+-    startCreate: vi.fn<Port['startCreate']>(async () => {
+-      throw new Error('unexpected create')
+-    }),
+-    startUpdate: vi.fn<Port['startUpdate']>(async (_p, _a, value) => {
+-      const captured = captureAgentUpdateInput(value)
+-      current = {
+-        ...current,
+-        ...captured.request,
+-        version: String(BigInt(captured.expected_version) + 1n),
+-      }
+-      return { agent: { ...current }, changed: true, event_ids: [id(40)] }
+-    }),
+-    checkOriginal: vi.fn<Port['checkOriginal']>(async () => ({
+-      status: 'not_observed',
+-      receipt: null,
+-    })),
+-    abandonRead: vi.fn(),
+-    editRejected: vi.fn(),
+-    get progress() {
+-      return progress.value
+-    },
+-  } satisfies Port
+-  const authState = shallowReactive({ phase: 'authenticated', busy: false })
+-  const context = shallowRef({ identity, projectID: id(1), generation: 1, readGeneration: 1 })
+-  const auth = {
+-    state: authState,
+-    personalContext: shallowReactive({ identity }),
+-    agentConfiguration: api,
+-  } as unknown as SessionController
+-  const workspace = {
+-    currentReadContext: context,
+-    detail: { project: { id: id(1), lifecycle: 'active' } },
+-    paths: computed(() => ({ home: '/owner/demo' })),
+-  } as unknown as ProjectWorkspace
+-  const owner = createProjectAgents(auth, workspace)
+-  owners.push(owner)
+-  owner.afterNavigation('/owner/demo/settings/agents')
+-  const wrapper = mount(ProjectAgentsView, {
+-    attachTo: document.body,
+-    global: { provide: { [projectAgentsKey as symbol]: owner } },
+-  })
+-  mounted.push(wrapper)
+-  await flushPromises()
+-  await wrapper.get('.agent-entry').trigger('click')
+-  await flushPromises()
+-  await click('编辑配置')
+-  return {
+-    owner,
+-    api,
+-    progress,
+-    authState,
+-    setCurrent: (value: AgentConfiguration) => {
+-      current = value
+-    },
+-  }
+-}
+-const body = () => new DOMWrapper(document.body)
+-function visibleLabel(element: Element) {
+-  const copy = element.cloneNode(true) as Element
+-  copy.querySelectorAll('[aria-hidden="true"]').forEach((hidden) => hidden.remove())
+-  return copy.getAttribute('aria-label') ?? copy.textContent?.trim() ?? ''
+-}
+-function button(label: string) {
+-  const found = body()
+-    .findAll<HTMLButtonElement>('button')
+-    .find((item) => visibleLabel(item.element) === label)
+-  expect(found, `missing button ${label}`).toBeDefined()
+-  return found!
+-}
+-async function click(label: string) {
+-  await button(label).trigger('click')
+-  await flushPromises()
+-}
+-function field(label: string) {
+-  const labelNode = body()
+-    .findAll('label[for]')
+-    .find((item) => visibleLabel(item.element) === label)
+-  expect(labelNode, `missing field ${label}`).toBeDefined()
+-  return new DOMWrapper(document.getElementById(labelNode!.attributes('for')!) as HTMLInputElement)
+-}
+-const editor = () => body().find('form[aria-label="编辑 Agent 配置"]')
+-
+-describe('Agent display settings with real shared controls', () => {
+-  it('prefills both fields, changes one without rewriting others, and reads newer current metadata on explicit refresh', async () => {
+-    const f = await page()
+-    expect(field('显示名称').element.value).toBe('原显示名称')
+-    expect(field('标签颜色').element.value).toBe('#123abc')
+-    expect(document.activeElement).toBe(field('Agent 名称').element)
+-    expect(button('保存配置').element.disabled).toBe(true)
+-    expect(f.owner.state.modelPhase).toBe('error')
+-    await field('显示名称').setValue('  e\u0301 助手😀  ')
+-    expect(button('保存配置').element.disabled).toBe(false)
+-    await click('保存配置')
+-    expect(f.api.startUpdate).toHaveBeenCalledExactlyOnceWith(id(1), id(2), {
+-      expected_version: '1',
+-      request: { display_name: '  e\u0301 助手😀  ' },
+-    })
+-    expect(f.owner.state.items[0]).toMatchObject({
+-      display_name: '  e\u0301 助手😀  ',
+-      tag_color: '#123abc',
+-    })
+-    expect(f.owner.state.items[0]).not.toHaveProperty('instructions')
+-    expect(f.api.list).toHaveBeenCalledTimes(1)
+-    expect(f.api.getConfiguration).toHaveBeenCalledTimes(1)
+-    f.setCurrent({
+-      ...initial,
+-      display_name: '服务端当前显示名称',
+-      tag_color: '#abcdef',
+-      version: '3',
+-    })
+-    await click('刷新 Agent 目录')
+-    expect(f.api.list).toHaveBeenLastCalledWith(id(1), { limit: 50 })
+-    expect(f.api.list).toHaveBeenCalledTimes(2)
+-    expect(f.api.getConfiguration).toHaveBeenLastCalledWith(id(1), id(2))
+-    expect(f.api.getConfiguration).toHaveBeenCalledTimes(2)
+-    expect(body().get('section[aria-label="Agent 目录"]').text()).toContain('服务端当前显示名称')
+-    expect(body().get('section[aria-label="Agent 配置"]').text()).toContain('#abcdef')
+-    await click('编辑配置')
+-    expect(field('显示名称').element.value).toBe('服务端当前显示名称')
+-    expect(field('标签颜色').element.value).toBe('#abcdef')
+-    expect(f.owner.edit.version).toBe('3')
+-    expect(f.api.startCreate).not.toHaveBeenCalled()
+-  })
+-
+-  it('sets a canonical color by itself then explicitly clears both fields and falls back to the Agent name', async () => {
+-    const f = await page()
+-    await field('标签颜色').setValue('#a0b1c2')
+-    await click('保存配置')
+-    expect(f.api.startUpdate).toHaveBeenLastCalledWith(id(1), id(2), {
+-      expected_version: '1',
+-      request: { tag_color: '#a0b1c2' },
+-    })
+-    await click('编辑配置')
+-    for (const label of ['显示名称', '标签颜色']) {
+-      const control = field(label)
+-      expect(
+-        document.getElementById(control.attributes('aria-describedby')!)?.textContent,
+-      ).toContain('删除内容后保存可清空')
+-      await control.setValue('')
+-    }
+-    await click('保存配置')
+-    expect(f.api.startUpdate).toHaveBeenLastCalledWith(id(1), id(2), {
+-      expected_version: '2',
+-      request: { display_name: null, tag_color: null },
+-    })
+-    expect(body().get('.agent-entry strong').text()).toBe('Review-Agent')
+-    expect(f.owner.state.configuration).toMatchObject({
+-      display_name: null,
+-      tag_color: null,
+-      version: '3',
+-    })
+-    await click('刷新 Agent 目录')
+-    expect(f.api.getConfiguration).toHaveBeenCalledTimes(2)
+-    expect(f.owner.state.items[0]).toMatchObject({
+-      display_name: null,
+-      tag_color: null,
+-      version: '3',
+-    })
+-    await click('编辑配置')
+-    expect(field('显示名称').element.value).toBe('')
+-    expect(field('标签颜色').element.value).toBe('')
+-    expect(button('保存配置').element.disabled).toBe(true)
+-  })
+-
+-  it('keeps whitespace and uppercase input as rejected drafts instead of silently clearing or normalizing', async () => {
+-    const f = await page()
+-    await field('显示名称').setValue('   ')
+-    await click('保存配置')
+-    expect(editor().exists()).toBe(true)
+-    expect(field('显示名称').element.value).toBe('   ')
+-    expect(editor().text()).toContain('显示名称不能全为空白')
+-    expect(f.owner.state.configuration?.display_name).toBe('原显示名称')
+-    await field('显示名称').setValue('有效显示名称')
+-    await field('标签颜色').setValue('#ABCDEF')
+-    await click('保存配置')
+-    expect(field('标签颜色').element.value).toBe('#ABCDEF')
+-    expect(editor().text()).toContain('标签颜色须为小写 #rrggbb')
+-    expect(f.owner.state.configuration?.tag_color).toBe('#123abc')
+-    expect(f.owner.edit.version).toBe('1')
+-  })
+-
+-  it('retains conflicting drafts and restores focus only after confirmed cancellation', async () => {
+-    const f = await page()
+-    await field('显示名称').setValue('未保存名称')
+-    await field('标签颜色').setValue('')
+-    f.api.startUpdate.mockRejectedValueOnce(
+-      new AccountFailure('problem', {
+-        type: 'urn:agenteam:problem:test',
+-        title: 'Conflict',
+-        status: 409,
+-        detail: '',
+-        instance: '/',
+-        code: 'VERSION_CONFLICT',
+-        request_id: id(99),
+-        commit_state: 'not_committed',
+-      }),
+-    )
+-    await click('保存配置')
+-    expect(field('显示名称').element.value).toBe('未保存名称')
+-    expect(field('标签颜色').element.value).toBe('')
+-    expect(field('显示名称').element.disabled).toBe(true)
+-    expect(button('保存配置').element.disabled).toBe(true)
+-    expect(f.owner.edit.version).toBe('1')
+-    expect(f.api.startUpdate).toHaveBeenCalledExactlyOnceWith(id(1), id(2), {
+-      expected_version: '1',
+-      request: { display_name: '未保存名称', tag_color: null },
+-    })
+-    await click('取消编辑')
+-    expect(editor().exists()).toBe(true)
+-    f.owner.finishConfirmation(false)
+-    await flushPromises()
+-    expect(field('显示名称').element.value).toBe('未保存名称')
+-    await click('取消编辑')
+-    f.owner.finishConfirmation(true)
+-    await flushPromises()
+-    expect(editor().exists()).toBe(false)
+-    expect(document.activeElement).toBe(button('编辑配置').element)
+-    expect(f.api.startUpdate).toHaveBeenCalledTimes(1)
+-  })
+-
+-  it('locks both fields during a busy request and exposes only original Lookup after Unknown', async () => {
+-    const f = await page()
+-    await field('显示名称').setValue('恢复名称')
+-    await field('标签颜色').setValue('')
+-    f.authState.busy = true
+-    await flushPromises()
+-    expect(field('显示名称').element.disabled).toBe(true)
+-    expect(field('标签颜色').element.disabled).toBe(true)
+-    f.authState.busy = false
+-    await flushPromises()
+-    f.api.startUpdate.mockImplementationOnce(async () => {
+-      f.progress.value = {
+-        kind: 'update',
+-        projectID: id(1),
+-        agentID: id(2),
+-        phase: 'uncertain',
+-        receipt: null,
+-        observation: 'none',
+-        contextValid: true,
+-      }
+-      throw new AccountFailure('transport')
+-    })
+-    await click('保存配置')
+-    expect(editor().exists()).toBe(false)
+-    expect(body().get('section[aria-label="Agent 保存结果恢复"]').text()).toContain('不要重复保存')
+-    await click('查询原保存结果')
+-    expect(f.api.checkOriginal).toHaveBeenCalledTimes(1)
+-    expect(f.api.startUpdate).toHaveBeenCalledTimes(1)
+-    expect(f.owner.edit.displayName).toBe('恢复名称')
+-    expect(f.owner.edit.tagColor).toBe('')
+-    expect(f.owner.edit.version).toBe('1')
+-  })
+-})
+diff --git a/web/src/tests/work-task-timeline-component.spec.ts b/web/src/tests/work-task-timeline-component.spec.ts
+index 12830ac9..883bb287 100644
+--- a/web/src/tests/work-task-timeline-component.spec.ts
++++ b/web/src/tests/work-task-timeline-component.spec.ts
+@@ -1,5 +1,5 @@
+-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+-import { DOMWrapper, flushPromises, mount, type VueWrapper } from '@vue/test-utils'
++import { afterEach, describe, expect, it } from 'vitest'
++import { mount, type VueWrapper } from '@vue/test-utils'
+ import TaskTimeline from '../components/work/TaskTimeline.vue'
+ import type { TaskTimelineEvent } from '../api/work-task-timeline'
+ import type { TaskTimelineState } from '../composables/useProjectTasks'
+@@ -39,31 +39,18 @@ let wrapper: VueWrapper | undefined
+ function button(label: string) {
+   const result = wrapper!
+     .findAll('button')
+-    .find(
+-      (node) =>
+-        node.find('.button-label[aria-hidden="false"]').exists() &&
+-        node.find('.button-label[aria-hidden="false"]').text() === label,
+-    )
++    .find((node) => node.find('.button-label[aria-hidden="false"]').text() === label)
+   if (!result) throw new Error(`Missing button ${label}`)
+   return result
+ }
+-beforeEach(() => {
+-  // jsdom has no layout; this exposes real UiSelect options to keyboard focus.
+-  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(
+-    () => [{ width: 10, height: 10 }] as unknown as DOMRectList,
+-  )
+-})
+ afterEach(() => {
+   wrapper?.unmount()
+   wrapper = undefined
+   document.body.innerHTML = ''
+-  vi.restoreAllMocks()
+ })
+ describe('Task timeline detail presentation', () => {
+   it('shows structured facts and complete plain comments with keyboard-accessible identity details', async () => {
+     const state: TaskTimelineState = {
+-      type: 'all',
+-      order: 'desc',
+       phase: 'ready',
+       items: [comment, claimed, assigned],
+       next: 'older-page',
+@@ -116,8 +103,6 @@ describe('Task timeline detail presentation', () => {
+ 
+   it('keeps a failed older page separate from accepted history and exposes local retry and empty states', async () => {
+     const state: TaskTimelineState = {
+-      type: 'all',
+-      order: 'desc',
+       phase: 'error',
+       items: [comment],
+       next: 'original-cursor',
+@@ -144,117 +129,8 @@ describe('Task timeline detail presentation', () => {
+     })
+     expect(wrapper.text()).toContain('暂无任务历史。')
+     expect(wrapper.find('ol').exists()).toBe(false)
+-    expect(wrapper.find('button[aria-label="历史事件类型"]').exists()).toBe(true)
+-    expect(wrapper.find('button[aria-label="历史时间顺序"]').exists()).toBe(true)
++    expect(wrapper.findAll('button')).toHaveLength(1)
+     await button('重新读取历史').trigger('click')
+     expect(wrapper.emitted('load')).toEqual([[true], [false]])
+   })
+-
+-  it('offers all seven server filters through real keyboard options and restores the selector after reading', async () => {
+-    const state: TaskTimelineState = {
+-      type: 'all',
+-      order: 'desc',
+-      phase: 'ready',
+-      items: [],
+-      message: '',
+-      retryMore: false,
+-    }
+-    wrapper = mount(TaskTimeline, {
+-      attachTo: document.body,
+-      props: { state, busy: false, agentName: () => 'Agent' },
+-    })
+-    const trigger = wrapper.get<HTMLButtonElement>('button[aria-label="历史事件类型"]')
+-    trigger.element.focus()
+-    await trigger.trigger('keydown', { key: 'ArrowDown' })
+-    await flushPromises()
+-    const options = new DOMWrapper(document.body)
+-      .get('[role="listbox"][aria-label="历史事件类型"]')
+-      .findAll('[role="option"]')
+-    expect(options.map((option) => option.text())).toEqual([
+-      '全部事件',
+-      '创建任务',
+-      '更新任务',
+-      '状态变更',
+-      '负责人变更',
+-      '添加阻塞',
+-      '解除阻塞',
+-      '评论',
+-    ])
+-    expect(options[0]!.attributes('aria-selected')).toBe('true')
+-    expect(document.activeElement).toBe(options[0]!.element)
+-    document.activeElement?.dispatchEvent(
+-      new KeyboardEvent('keydown', { key: 'End', bubbles: true }),
+-    )
+-    expect(document.activeElement).toBe(options[7]!.element)
+-    ;(document.activeElement as HTMLButtonElement).click()
+-    await wrapper.setProps({ state: { ...state, type: 'comment', phase: 'loading' }, busy: true })
+-    expect(wrapper.emitted('filter')).toEqual([['type', 'comment']])
+-    expect(trigger.attributes('aria-expanded')).toBe('false')
+-    expect(trigger.element.disabled).toBe(true)
+-    expect(
+-      wrapper.get<HTMLButtonElement>('button[aria-label="历史时间顺序"]').element.disabled,
+-    ).toBe(true)
+-    // A disabled selector can drop focus in a real browser while its body is pending.
+-    ;(document.activeElement as HTMLElement).blur()
+-    await wrapper.setProps({ state: { ...state, type: 'comment' }, busy: false })
+-    expect(document.activeElement).toBe(trigger.element)
+-    expect(wrapper.text()).toContain('没有此类型的任务历史。')
+-    await trigger.trigger('click')
+-    await flushPromises()
+-    const selected = new DOMWrapper(document.body).get('[role="option"][aria-selected="true"]')
+-    expect(selected.text()).toBe('评论')
+-    await selected.trigger('click')
+-    expect(wrapper.emitted('filter')).toHaveLength(1)
+-    const clear = button('清除事件筛选')
+-    ;(clear.element as HTMLButtonElement).focus()
+-    await clear.trigger('click')
+-    expect(wrapper.emitted('filter')).toEqual([
+-      ['type', 'comment'],
+-      ['type', 'all'],
+-    ])
+-    await wrapper.setProps({ state: { ...state, phase: 'loading' }, busy: true })
+-    await wrapper.setProps({ state, busy: false })
+-    expect(document.activeElement).toBe(wrapper.get('h3').element)
+-    expect(wrapper.text()).toContain('暂无任务历史。')
+-    expect(wrapper.text()).not.toContain('清除事件筛选')
+-  })
+-
+-  it('changes time direction, labels continuation accurately, and never steals focus from another control', async () => {
+-    const state: TaskTimelineState = {
+-      type: 'all',
+-      order: 'desc',
+-      phase: 'ready',
+-      items: [comment],
+-      next: 'page',
+-      message: '',
+-      retryMore: false,
+-    }
+-    wrapper = mount(TaskTimeline, {
+-      attachTo: document.body,
+-      props: { state, busy: false, agentName: () => 'Agent' },
+-    })
+-    const trigger = wrapper.get<HTMLButtonElement>('button[aria-label="历史时间顺序"]')
+-    trigger.element.focus()
+-    await trigger.trigger('keydown', { key: 'ArrowDown' })
+-    await flushPromises()
+-    expect(document.activeElement?.textContent).toContain('由新到旧')
+-    document.activeElement?.dispatchEvent(
+-      new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
+-    )
+-    expect(document.activeElement?.textContent).toContain('由旧到新')
+-    ;(document.activeElement as HTMLButtonElement).click()
+-    await wrapper.setProps({ state: { ...state, order: 'asc', phase: 'loading' }, busy: true })
+-    expect(wrapper.emitted('filter')).toEqual([['order', 'asc']])
+-    const outside = document.createElement('button')
+-    document.body.append(outside)
+-    outside.focus()
+-    await wrapper.setProps({ state: { ...state, order: 'asc' }, busy: false })
+-    expect(document.activeElement).toBe(outside)
+-    expect(trigger.text()).toContain('由旧到新')
+-    expect(button('加载较新历史').exists()).toBe(true)
+-    await button('加载较新历史').trigger('click')
+-    expect(wrapper.emitted('load')).toEqual([[true]])
+-    await wrapper.setProps({ state, busy: false })
+-    expect(button('加载较早历史').exists()).toBe(true)
+-  })
+ })
+diff --git a/web/src/tests/work-task-timeline-state.spec.ts b/web/src/tests/work-task-timeline-state.spec.ts
+index ef91c78a..4bcc5e70 100644
+--- a/web/src/tests/work-task-timeline-state.spec.ts
++++ b/web/src/tests/work-task-timeline-state.spec.ts
+@@ -92,8 +92,6 @@ async function fixture() {
+       })
+     if (url.pathname.endsWith('/events')) return history(path, init)
+     if (url.pathname.endsWith('/transfer')) return problem('COMMIT_UNKNOWN', 503, 'unknown')
+-    if (url.pathname.endsWith('/task-transition-commands/lookup'))
+-      return json({ status: 'not_observed', receipt: null })
+     const project = url.pathname.split('/')[4]!
+     const base = {
+       project_id: project,
+@@ -220,7 +218,7 @@ afterEach(async () => {
+ describe('Task timeline original Session and page ownership', () => {
+   it('loads complete older pages atomically and refreshes explicitly without confirming an Unknown write', async () => {
+     const f = await fixture()
+-    expect(f.tasks.timeline.items.map((e) => e.id)).toEqual([id(104), id(103)])
++    expect(f.tasks.timeline.items.map((e) => e.id)).toEqual([id(103), id(104)])
+     f.history(async (path) => {
+       expect(new URL(path, 'https://example.test').searchParams.get('cursor')).toBe(
+         'first-watermark',
+@@ -228,7 +226,7 @@ describe('Task timeline original Session and page ownership', () => {
+       return json({ items: [event(2), event(1)], next_cursor: 'older-watermark' })
+     })
+     await f.tasks.loadTimeline(true)
+-    expect(f.tasks.timeline.items.map((e) => e.id)).toEqual([id(104), id(103), id(102), id(101)])
++    expect(f.tasks.timeline.items.map((e) => e.id)).toEqual([id(101), id(102), id(103), id(104)])
+     const accepted = f.tasks.timeline.items
+     f.history(async () => json({ items: [event(2)], next_cursor: 'duplicate-page' }))
+     await f.tasks.loadTimeline(true)
+@@ -252,161 +250,15 @@ describe('Task timeline original Session and page ownership', () => {
+     await flushPromises()
+     const pending = f.owner.workReview.progress
+     await f.tasks.loadTimeline()
+-    await f.tasks.setTimelineFilter('type', 'comment')
+-    await f.tasks.setTimelineFilter('order', 'asc')
+     expect(f.owner.workReview.progress).toEqual(pending)
+     expect(pending).toMatchObject({ phase: 'uncertain', taskID })
+     expect(f.fetcher.mock.calls.filter(([path]) => path.endsWith('/transfer'))).toHaveLength(1)
+     expect(f.fetcher.mock.calls.some(([path]) => path.includes('commands/lookup'))).toBe(false)
+-    const write = f.fetcher.mock.calls.find(([path]) => path.endsWith('/transfer'))![1]
+-    await f.owner.workReview.checkOriginal()
+-    const lookup = f.fetcher.mock.calls.find(([path]) =>
+-      path.endsWith('/task-transition-commands/lookup'),
+-    )![1]
+-    expect(new Headers(lookup.headers).get('Idempotency-Key')).toBe(
+-      new Headers(write.headers).get('Idempotency-Key'),
+-    )
+-    expect(JSON.parse(lookup.body as string)).toMatchObject({
+-      command: 'work.task.transfer',
+-      ...JSON.parse(write.body as string),
+-    })
+-    expect(f.owner.workReview.progress).toMatchObject({ phase: 'uncertain', taskID })
+-  })
+-
+-  it('reads each type on the server, resets old pages and errors, and refuses duplicate or busy changes', async () => {
+-    const f = await fixture()
+-    const initial = new URL(f.reads()[0]![0], 'https://example.test').searchParams
+-    expect(initial.get('order')).toBe('desc')
+-    expect(initial.has('types')).toBe(false)
+-    f.history(async () => problem('CURSOR_INVALID', 400))
+-    await f.tasks.loadTimeline(true)
+-    expect(f.tasks.timeline).toMatchObject({
+-      phase: 'error',
+-      retryMore: true,
+-      next: 'first-watermark',
+-    })
+-    expect(f.tasks.timeline.message).not.toBe('')
+-    const held = deferred<Response>(json({ items: [] }))
+-    f.history(async () => held.promise)
+-    const changed = f.tasks.setTimelineFilter('type', 'comment')
+-    await flushPromises()
+-    expect(f.tasks.timeline).toMatchObject({
+-      type: 'comment',
+-      order: 'desc',
+-      phase: 'loading',
+-      items: [],
+-      next: undefined,
+-      message: '',
+-      retryMore: false,
+-    })
+-    const count = f.reads().length
+-    await f.tasks.setTimelineFilter('order', 'asc')
+-    await f.tasks.setTimelineFilter('type', 'state_changed')
+-    expect(f.reads()).toHaveLength(count)
+-    expect(f.tasks.timeline).toMatchObject({ type: 'comment', order: 'desc' })
+-    held.resolve(json({ items: [event(8)], next_cursor: 'comment-watermark' }))
+-    await changed
+-    await f.tasks.setTimelineFilter('type', 'comment')
+-    await f.tasks.setTimelineFilter('type', 'invented')
+-    await f.tasks.setTimelineFilter('order', 'invented')
+-    expect(f.reads()).toHaveLength(count)
+-    f.history(async () => json({ items: [] }))
+-    for (const type of [
+-      'task_created',
+-      'fields_updated',
+-      'blocker_added',
+-      'blocker_resolved',
+-      'state_changed',
+-      'assignee_changed',
+-      'all',
+-    ]) {
+-      await f.tasks.setTimelineFilter('type', type)
+-      const query = new URL(f.reads().at(-1)![0], 'https://example.test').searchParams
+-      expect(query.get('types')).toBe(type === 'all' ? null : type)
+-      expect(query.get('order')).toBe('desc')
+-      expect(query.has('cursor')).toBe(false)
+-      expect(f.tasks.timeline).toMatchObject({ phase: 'ready', items: [], next: undefined })
+-    }
+-    const commentQuery = new URL(f.reads()[2]![0], 'https://example.test').searchParams
+-    expect(commentQuery.get('types')).toBe('comment')
+-    expect(commentQuery.has('cursor')).toBe(false)
+   })
+ 
+-  it.each(['asc', 'desc'] as const)(
+-    'continues %s pages with the same filter and strict timestamp/ID boundaries',
+-    async (order) => {
+-      const f = await fixture()
+-      const sameTime = (n: number) => ({ ...event(n), created_at: time })
+-      f.history(async () => json({ items: [], next_cursor: undefined }))
+-      await f.tasks.setTimelineFilter('type', 'comment')
+-      f.history(async () =>
+-        json({
+-          items: (order === 'asc' ? [1, 2] : [4, 3]).map(sameTime),
+-          next_cursor: 'first-filter-page',
+-        }),
+-      )
+-      if (order === 'asc') await f.tasks.setTimelineFilter('order', order)
+-      else await f.tasks.loadTimeline()
+-      const firstQuery = new URL(f.reads().at(-1)![0], 'https://example.test').searchParams
+-      expect(firstQuery.get('order')).toBe(order)
+-      expect(firstQuery.has('cursor')).toBe(false)
+-      f.history(async (path) => {
+-        const query = new URL(path, 'https://example.test').searchParams
+-        expect(query.get('types')).toBe('comment')
+-        expect(query.get('order')).toBe(order)
+-        expect(query.get('cursor')).toBe('first-filter-page')
+-        return json({
+-          items: (order === 'asc' ? [3, 4] : [2, 1]).map(sameTime),
+-          next_cursor: 'second-filter-page',
+-        })
+-      })
+-      await f.tasks.loadTimeline(true)
+-      expect(f.tasks.timeline.items.map((row) => row.id)).toEqual(
+-        (order === 'asc' ? [101, 102, 103, 104] : [104, 103, 102, 101]).map(id),
+-      )
+-      const accepted = f.tasks.timeline.items
+-      for (const bad of [sameTime(2), sameTime(order === 'asc' ? 0 : 6)]) {
+-        f.history(async () => json({ items: [bad], next_cursor: 'bad-page' }))
+-        await f.tasks.loadTimeline(true)
+-        expect(f.tasks.timeline).toMatchObject({
+-          phase: 'error',
+-          next: 'second-filter-page',
+-          retryMore: true,
+-        })
+-        expect(f.tasks.timeline.items).toBe(accepted)
+-      }
+-      f.history(async () => problem('CURSOR_INVALID', 400))
+-      await f.tasks.loadTimeline(true)
+-      expect(f.tasks.timeline.items).toBe(accepted)
+-      expect(f.tasks.timeline.next).toBe('second-filter-page')
+-      f.history(async (path) => {
+-        expect(new URL(path, 'https://example.test').searchParams.get('cursor')).toBe(
+-          'second-filter-page',
+-        )
+-        return json({ items: [sameTime(order === 'asc' ? 5 : 0)] })
+-      })
+-      await f.tasks.loadTimeline(true)
+-      expect(f.tasks.timeline.phase).toBe('ready')
+-      expect(f.tasks.timeline.items).toHaveLength(5)
+-      expect(f.tasks.timeline.next).toBeUndefined()
+-      await f.tasks.setTimelineFilter('order', order)
+-      const count = f.reads().length
+-      f.history(async () => json({ items: [] }))
+-      await f.tasks.refresh()
+-      expect(f.reads()).toHaveLength(count + 1)
+-      expect(f.tasks.timeline).toMatchObject({ type: 'comment', order })
+-      expect(new URL(f.reads().at(-1)![0], 'https://example.test').searchParams.has('cursor')).toBe(
+-        false,
+-      )
+-    },
+-  )
+-
+   it('retires the original read before a new Task or Project publishes, and clears history on Session revocation', async () => {
+     const f = await fixture(),
+       held = deferred<Response>(json({ items: [] }))
+-    f.history(async () => json({ items: [] }))
+-    await f.tasks.setTimelineFilter('type', 'comment')
+-    await f.tasks.setTimelineFilter('order', 'asc')
+     let signal: AbortSignal | undefined
+     f.history((_path, init) => {
+       signal = init.signal as AbortSignal
+@@ -419,7 +271,6 @@ describe('Task timeline original Session and page ownership', () => {
+     await flushPromises()
+     expect(signal?.aborted).toBe(true)
+     expect(f.tasks.timeline.items).toEqual([])
+-    expect(f.tasks.timeline).toMatchObject({ type: 'all', order: 'desc' })
+     expect(f.owner.state.busy).toBe(true)
+     const count = f.reads().length
+     f.project.id = id(50)
+@@ -435,10 +286,6 @@ describe('Task timeline original Session and page ownership', () => {
+     expect(f.tasks.state.task?.id).toBe(otherTask)
+     expect(f.tasks.timeline.items.map((e) => e.id)).toEqual([id(106)])
+     expect(f.owner.state.busy).toBe(false)
+-    f.history(async () => json({ items: [] }))
+-    await f.tasks.setTimelineFilter('type', 'comment')
+-    await f.tasks.setTimelineFilter('order', 'asc')
+-    expect(f.tasks.timeline).toMatchObject({ type: 'comment', order: 'asc' })
+     f.history(async () => problem('SESSION_REVOKED', 401))
+     await f.tasks.loadTimeline()
+     await flushPromises()
+@@ -446,42 +293,5 @@ describe('Task timeline original Session and page ownership', () => {
+     expect(f.tasks.state.task).toBeNull()
+     expect(f.tasks.timeline.items).toEqual([])
+     expect(f.tasks.timeline.next).toBeUndefined()
+-    expect(f.tasks.timeline).toMatchObject({ type: 'all', order: 'desc' })
+-  })
+-
+-  it('keeps the Session lane until an aborted response body actually retires before reading another Task', async () => {
+-    const f = await fixture()
+-    const tail = deferred<void>(undefined)
+-    const cancel = vi.fn(() => tail.promise)
+-    const stream = new ReadableStream<Uint8Array>({
+-      start(controller) {
+-        controller.enqueue(new TextEncoder().encode(JSON.stringify({ items: [event(7)] })))
+-        // Complete JSON bytes without EOF: the original body still owns the lane.
+-      },
+-      cancel,
+-    })
+-    f.history(async () => new Response(stream, { headers: { 'Content-Type': 'application/json' } }))
+-    const original = f.tasks.setTimelineFilter('type', 'comment')
+-    await flushPromises()
+-    expect(f.tasks.busy.value).toBe(true)
+-    expect(f.tasks.timeline).toMatchObject({ type: 'comment', phase: 'loading', items: [] })
+-    const count = f.reads().length
+-    await f.tasks.setTimelineFilter('type', 'state_changed')
+-    await f.tasks.setTimelineFilter('order', 'asc')
+-    expect(f.tasks.timeline).toMatchObject({ type: 'comment', order: 'desc' })
+-    expect(f.reads()).toHaveLength(count)
+-    f.tasks.afterNavigation(`/owner/demo/tasks/${otherTask}`)
+-    await flushPromises()
+-    expect(cancel).toHaveBeenCalledTimes(1)
+-    expect(f.owner.state.busy).toBe(true)
+-    expect(f.reads()).toHaveLength(count)
+-    expect(f.tasks.timeline).toMatchObject({ type: 'all', order: 'desc', items: [] })
+-    f.history(async () => json({ items: [event(6, otherTask)] }))
+-    tail.resolve(undefined)
+-    await original
+-    await flushPromises()
+-    expect(f.owner.state.busy).toBe(false)
+-    expect(f.tasks.state.task?.id).toBe(otherTask)
+-    expect(f.tasks.timeline.items.map((row) => row.id)).toEqual([id(106)])
+   })
+ })

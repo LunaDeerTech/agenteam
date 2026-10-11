@@ -1,0 +1,4187 @@
+diff --git a/.agent-state/task-planning-recovery/pg_only_supervisor.py b/.agent-state/task-planning-recovery/pg_only_supervisor.py
+index bc763e3c..25008191 100644
+--- a/.agent-state/task-planning-recovery/pg_only_supervisor.py
++++ b/.agent-state/task-planning-recovery/pg_only_supervisor.py
+@@ -224,7 +224,6 @@ METADATA_GROUPS = {
+     )),
+     '^TestProjectVariablesWeb$': frozenset(('TestProjectVariablesWeb', 'TestProjectVariablesWeb/create-update-and-clear')),
+     '^TestMilestoneCreateWeb$': frozenset(('TestMilestoneCreateWeb', 'TestMilestoneCreateWeb/first-milestone-and-sprint-entry')),
+-    '^TestMilestoneEditWeb$': frozenset(('TestMilestoneEditWeb', 'TestMilestoneEditWeb/milestone-edit-normal', 'TestMilestoneEditWeb/milestone-edit-lost')),
+     '^TestSkillOwnerReadWeb$': frozenset(('TestSkillOwnerReadWeb',)),
+     '^TestKnowledgeTextHTTP(Publication|CurrentAuthority)$': frozenset((
+         'TestKnowledgeTextHTTPPublication',
+@@ -430,7 +429,6 @@ AGENT_MODEL_POLICY_UI = '^TestAgentModelPolicyWeb$'
+ SPRINT_CREATE_UI = '^TestSprintCreateWeb$'
+ PROJECT_VARIABLES_UI = '^TestProjectVariablesWeb$'
+ MILESTONE_CREATE_UI = '^TestMilestoneCreateWeb$'
+-MILESTONE_EDIT_UI = '^TestMilestoneEditWeb$'
+ SKILL_OWNER_UI = '^TestSkillOwnerReadWeb$'
+ SKILL_PACKAGE_UI = '^TestSkillPackageWeb$'
+ PROJECT_SCHEDULER_UI = '^TestProjectSchedulerWeb$'
+@@ -445,7 +443,6 @@ def task_review_browser_waits(output, selector=TASK_REVIEW_UI):
+              'Skill Package' if selector == SKILL_PACKAGE_UI else
+              'KnowledgeText' if selector == KNOWLEDGE_TEXT_UI else
+              'Project Variables' if selector == PROJECT_VARIABLES_UI else
+-             'Milestone Edit' if selector == MILESTONE_EDIT_UI else
+              'Milestone Create' if selector == MILESTONE_CREATE_UI else
+              'Skill' if selector == SKILL_OWNER_UI else
+              'KnowledgeRename' if selector == KNOWLEDGE_RENAME_UI else
+@@ -462,7 +459,6 @@ def task_review_browser_waits(output, selector=TASK_REVIEW_UI):
+               'skill_package_web_test.go' if selector == SKILL_PACKAGE_UI else
+               'knowledge_text_web_test.go' if selector == KNOWLEDGE_TEXT_UI else
+               'project_variables_web_test.go' if selector == PROJECT_VARIABLES_UI else
+-              'milestone_edit_web_test.go' if selector == MILESTONE_EDIT_UI else
+               'milestone_create_web_test.go' if selector == MILESTONE_CREATE_UI else
+               'skill_owner_web_test.go' if selector == SKILL_OWNER_UI else
+               'knowledge_owner_rename_web_test.go' if selector == KNOWLEDGE_RENAME_UI else
+@@ -500,7 +496,7 @@ def metadata_results(output, selector=METADATA_ROOT):
+     results = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): (\S+) \([^()\r\n]*\)$', output, re.M)
+     waits = re.findall(r'^D03 explicit test actual_wait pid=([1-9][0-9]*) code=(-?[0-9]+) selector=(\S+)$', output, re.M)
+     return (len(runs) == len(cases) and set(runs) == cases
+-            and (selector not in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI) or task_review_browser_waits(output, selector))
++            and (selector not in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI) or task_review_browser_waits(output, selector))
+             and (selector != APP_RUNTIME or app_runtime_waits(output))
+             and len(results) == len(cases)
+             and all(state == 'PASS' for state, _ in results)
+@@ -1296,7 +1292,7 @@ def main():
+             args.content_schema_python = os.environ['AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON']
+         except (OSError, ValueError):
+             parser.error('explicit local content Schema interpreter required')
+-    stem = ('ui-' + uuid.uuid4().hex[:16]) if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI) else ('pg-' + uuid.uuid4().hex)
++    stem = ('ui-' + uuid.uuid4().hex[:16]) if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI) else ('pg-' + uuid.uuid4().hex)
+     directory = args.output.resolve() / stem
+     if args.run == KNOWLEDGE_UI:
+         try:
+@@ -1304,7 +1300,7 @@ def main():
+             args.knowledge_ui_environment = adapter.knowledge_ui_environment()
+         except (OSError, ValueError):
+             parser.error('exact frozen Knowledge assets, interpreters and fresh evidence required')
+-    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
++    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
+         try:
+             args.task_review_ui_environment = adapter.task_review_ui_configuration(directory, args.run)
+         except (OSError, ValueError):
+@@ -1397,7 +1393,7 @@ def main():
+                 log.write(f'SUPERVISOR actual_driver_wait pid={child.pid} actual={child.returncode is not None} code={code}\n')
+             else:
+                 log.write(f'SUPERVISOR actual_driver_wait pid={child.pid} actual={child.returncode is not None} actual_exit={child.returncode} code={code}\n')
+-            if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI) and child.returncode is not None:
++            if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI) and child.returncode is not None:
+                 if not knowledge_ui_reap_exited(log):
+                     code = 1
+             survivors = descendants(os.getpid())
+@@ -1512,7 +1508,7 @@ def main():
+                 same = same and parser_same(inputs, args, adapter)
+             if args.run == KNOWLEDGE_UI:
+                 same = same and knowledge_ui_same(inputs, args, adapter)
+-            if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
++            if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
+                 same = same and adapter.task_review_ui_environment(args.run) == args.task_review_ui_environment
+             if args.run == APP_RUNTIME:
+                 same = same and adapter.app_runtime_wrapper_same(args.binary, directory)
+diff --git a/.agent-state/work-owner-http/root_chain_driver.py b/.agent-state/work-owner-http/root_chain_driver.py
+index b57b4e0a..71febd7c 100755
+--- a/.agent-state/work-owner-http/root_chain_driver.py
++++ b/.agent-state/work-owner-http/root_chain_driver.py
+@@ -61,7 +61,6 @@ METADATA_INPUTS = {
+     ),
+     '^TestProjectVariablesWeb$': ('tests/projectvariable/project_variables_web_test.go', 'tests/projectvariable/agent_edit_web_test.go', 'tests/projectvariable/agent_configuration_app_test.go', 'tests/projectvariable/agent_configuration_web_test.go', 'tests/projectvariable/agent_configuration_create_test.go', 'tests/projectvariable/agent_configuration_facts_test.go', 'tests/projectvariable/skill_installation_test.go', 'tests/projectvariable/fixture_test.go', 'tests/projectvariable/task_review_web_test.go', 'tests/testsupport/agentconfiguration/assembly.go', 'tests/account-captcha-web/project-variables.config.js', 'tests/account-captcha-web/e2e/project-variables.spec.ts', 'tests/account-captcha-web/e2e/project-variables.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts'),
+     '^TestMilestoneCreateWeb$': ('tests/projectvariable/milestone_create_web_test.go', 'tests/projectvariable/sprint_create_web_test.go', 'tests/projectvariable/sprint_start_web_test.go', 'tests/projectvariable/agent_edit_web_test.go', 'tests/projectvariable/agent_configuration_app_test.go', 'tests/projectvariable/agent_configuration_web_test.go', 'tests/projectvariable/agent_configuration_create_test.go', 'tests/projectvariable/agent_configuration_facts_test.go', 'tests/projectvariable/skill_installation_test.go', 'tests/projectvariable/fixture_test.go', 'tests/projectvariable/task_review_web_test.go', 'tests/testsupport/agentconfiguration/assembly.go', 'tests/account-captcha-web/milestone-create.config.js', 'tests/account-captcha-web/e2e/milestone-create.spec.ts', 'tests/account-captcha-web/e2e/milestone-create.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts'),
+-    '^TestMilestoneEditWeb$': ('tests/projectvariable/milestone_edit_web_test.go', 'tests/projectvariable/milestone_create_web_test.go', 'tests/projectvariable/sprint_create_web_test.go', 'tests/projectvariable/sprint_start_web_test.go', 'tests/projectvariable/agent_edit_web_test.go', 'tests/projectvariable/agent_configuration_app_test.go', 'tests/projectvariable/agent_configuration_web_test.go', 'tests/projectvariable/agent_configuration_create_test.go', 'tests/projectvariable/agent_configuration_facts_test.go', 'tests/projectvariable/skill_installation_test.go', 'tests/projectvariable/fixture_test.go', 'tests/projectvariable/task_review_web_test.go', 'tests/testsupport/agentconfiguration/assembly.go', 'tests/account-captcha-web/milestone-edit.config.js', 'tests/account-captcha-web/e2e/milestone-edit.spec.ts', 'tests/account-captcha-web/e2e/milestone-edit.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts'),
+     '^TestSkillOwnerReadWeb$': ('internal/central/app/skill_owner_web_test.go', 'internal/central/app/knowledge_owner_web_test.go', 'internal/central/app/knowledge_skills_process_test.go', 'internal/central/app/outbox_process_test.go', 'internal/central/app/app_test.go', 'tests/account-captcha-web/skill-owner-read.config.js', 'tests/account-captcha-web/e2e/skill-owner-read.spec.ts', 'tests/account-captcha-web/e2e/skill-owner-read.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts'),
+     '^TestKnowledgeTextHTTP(Publication|CurrentAuthority)$': (
+         'tests/knowledge/owner_text_http_fixture_test.go',
+@@ -329,7 +328,7 @@ def metadata_inputs(binary, selector='^TestAgentConfigurationMetadata$'):
+     # Only the explicitly retained legacy metadata profile includes its
+     # historical records. New profiles contain actual compiled/runtime inputs.
+     paths.update(REPOSITORY / name for name in METADATA_INPUTS[selector])
+-    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
++    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
+         paths.update(task_review_ui_inputs(selector))
+     if selector == APP_RUNTIME:
+         paths.update(app_runtime_inputs())
+@@ -399,7 +398,6 @@ AGENT_MODEL_POLICY_UI = '^TestAgentModelPolicyWeb$'
+ SPRINT_CREATE_UI = '^TestSprintCreateWeb$'
+ PROJECT_VARIABLES_UI = '^TestProjectVariablesWeb$'
+ MILESTONE_CREATE_UI = '^TestMilestoneCreateWeb$'
+-MILESTONE_EDIT_UI = '^TestMilestoneEditWeb$'
+ SKILL_OWNER_UI = '^TestSkillOwnerReadWeb$'
+ SKILL_PACKAGE_UI = '^TestSkillPackageWeb$'
+ PROJECT_SCHEDULER_UI = '^TestProjectSchedulerWeb$'
+@@ -415,7 +413,6 @@ AGENT_EDIT_ENV = ('AGENTEAM_AGENT_EDIT_WEB_DIST', 'AGENTEAM_AGENT_EDIT_WEB_EVIDE
+ AGENT_MODEL_POLICY_ENV = ('AGENTEAM_AGENT_MODEL_POLICY_WEB_DIST', 'AGENTEAM_AGENT_MODEL_POLICY_WEB_EVIDENCE')
+ PROJECT_VARIABLES_ENV = ('AGENTEAM_PROJECT_VARIABLES_WEB_DIST', 'AGENTEAM_PROJECT_VARIABLES_WEB_EVIDENCE')
+ MILESTONE_CREATE_ENV = ('AGENTEAM_MILESTONE_CREATE_WEB_DIST', 'AGENTEAM_MILESTONE_CREATE_WEB_EVIDENCE')
+-MILESTONE_EDIT_ENV = ('AGENTEAM_MILESTONE_EDIT_WEB_DIST', 'AGENTEAM_MILESTONE_EDIT_WEB_EVIDENCE')
+ SPRINT_CREATE_ENV = ('AGENTEAM_SPRINT_CREATE_WEB_DIST', 'AGENTEAM_SPRINT_CREATE_WEB_EVIDENCE')
+ SKILL_OWNER_ENV = ('AGENTEAM_SKILL_OWNER_WEB_DIST', 'AGENTEAM_SKILL_OWNER_WEB_EVIDENCE')
+ SKILL_PACKAGE_ENV = ('AGENTEAM_SKILL_PACKAGE_WEB_DIST', 'AGENTEAM_SKILL_PACKAGE_WEB_EVIDENCE')
+@@ -449,8 +446,6 @@ def task_review_ui_profile(selector):
+         return AGENT_EDIT_ENV, 'output/ai/agent-edit-web', 'agent-edit'
+     if selector == PROJECT_VARIABLES_UI:
+         return PROJECT_VARIABLES_ENV, 'output/ai/project-variables-web', 'project-variables'
+-    if selector == MILESTONE_EDIT_UI:
+-        return MILESTONE_EDIT_ENV, 'output/ai/milestone-edit-ui', 'milestone-edit'
+     if selector == MILESTONE_CREATE_UI:
+         return MILESTONE_CREATE_ENV, 'output/ai/milestone-create-web', 'milestone-create'
+     if selector == SPRINT_CREATE_UI:
+@@ -770,7 +765,7 @@ def configuration(binary, selector, directory):
+             'cwd': str(REPOSITORY / TARGETS[selector]),
+             'directory': str(directory), 'runtime': str(directory / 'runtime'),
+             'test_timeout': '6m', 'resources': 7}
+-    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
++    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
+         plan['task_review_ui'] = task_review_ui_configuration(directory, selector)
+     if selector == APP_RUNTIME:
+         app_runtime_inputs()
+@@ -848,7 +843,7 @@ def main():
+         env.update({'AGENTEAM_AUTH_WEB_RUNTIME': str(runtime),
+                     'AGENTEAM_KNOWLEDGE_OWNER_WEB_INPUT_HASH': knowledge_ui_input_hash(args.test_binary),
+                     'PATH': str(KNOWLEDGE_NODE.parent) + os.pathsep + env.get('PATH', '')})
+-    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
++    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
+         ui = plan['task_review_ui']
+         names, _, _ = task_review_ui_profile(args.run)
+         Path(ui[names[1]]).mkdir(mode=0o700)
+diff --git a/tests/account-captcha-web/e2e/milestone-edit.helpers.ts b/tests/account-captcha-web/e2e/milestone-edit.helpers.ts
+deleted file mode 100644
+index 69980174..00000000
+--- a/tests/account-captcha-web/e2e/milestone-edit.helpers.ts
++++ /dev/null
+@@ -1,229 +0,0 @@
+-import { expect, type Page, type Request } from "@playwright/test";
+-import { mkdirSync, readFileSync } from "node:fs";
+-import { join } from "node:path";
+-import {
+-  observeTaskRequests,
+-  type TaskObservationProfile,
+-} from "./task-review.helpers";
+-
+-const id =
+-  /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+-export type MilestoneEditMaterial = {
+-  mode: "milestone-edit-normal" | "milestone-edit-lost";
+-  cookie: string;
+-  project_id: string;
+-  project_version: string;
+-  milestone_id: string;
+-  version: string;
+-  route: string;
+-  title: string;
+-  description: string;
+-  updated_title: string;
+-  updated_description: string;
+-  milestone: Record<string, any>;
+-};
+-export function milestoneEditMaterial(): MilestoneEditMaterial {
+-  const value = JSON.parse(
+-    readFileSync(
+-      join(
+-        process.env.AGENTEAM_AUTH_WEB_PRIVATE!,
+-        "milestone-edit-material.json",
+-      ),
+-      "utf8",
+-    ),
+-  );
+-  expect(value.mode).toBe(process.env.AGENTEAM_MILESTONE_EDIT_WEB_CASE);
+-  expect(["milestone-edit-normal", "milestone-edit-lost"]).toContain(
+-    value.mode,
+-  );
+-  expect(value.project_id).toMatch(id);
+-  expect(value.milestone_id).toMatch(id);
+-  expect(value.project_version).toMatch(/^[1-9][0-9]*$/);
+-  expect(value.version).toBe("1");
+-  expect(value.route).toMatch(/^\/[^/?#]+\/[^/?#]+\/tasks$/);
+-  expect(value.title).toBe("First delivery milestone");
+-  expect(value.description).toBe(
+-    "Plan the first milestone.\nKeep Sprint creation explicit.",
+-  );
+-  expect(value.updated_title).toBe("  e\u0301 Delivery milestone  ");
+-  expect(value.updated_description).toBe(
+-    "Updated milestone.\nKeep Sprint planning explicit.",
+-  );
+-  expect(value.milestone).toEqual({
+-    id: value.milestone_id,
+-    project_id: value.project_id,
+-    title: value.title,
+-    description: value.description,
+-    manual_rank: value.milestone.manual_rank,
+-    version: "1",
+-    created_at: value.milestone.created_at,
+-    updated_at: value.milestone.created_at,
+-  });
+-  expect(value.milestone.manual_rank).toMatch(/^[0-9a-f]{32}$/);
+-  return value;
+-}
+-export function milestoneEditProfile(
+-  data: Pick<MilestoneEditMaterial, "mode">,
+-): Omit<TaskObservationProfile, "endpoint"> {
+-  return {
+-    dist: process.env.AGENTEAM_MILESTONE_EDIT_WEB_DIST!,
+-    evidence: process.env.AGENTEAM_MILESTONE_EDIT_WEB_EVIDENCE!,
+-    inputHash: process.env.AGENTEAM_MILESTONE_EDIT_WEB_INPUT_HASH!,
+-    prefix: "milestone-edit",
+-    lookupCommand: "work.milestone.update",
+-    milestoneUpdateWrites: true,
+-    cut: data.mode === "milestone-edit-lost" ? "update" : undefined,
+-  };
+-}
+-export async function observeMilestoneEdit(
+-  page: Page,
+-  data: MilestoneEditMaterial,
+-) {
+-  const prefix = `/api/v1/projects/${data.project_id}`,
+-    target = `${prefix}/milestones/${data.milestone_id}`;
+-  let updates = 0,
+-    lookups = 0;
+-  const first = {
+-    expected_version: "1",
+-    request: {
+-      title: data.updated_title,
+-      description: data.updated_description,
+-    },
+-  };
+-  const patches = [
+-    first,
+-    { expected_version: "2", request: { title: data.updated_title } },
+-    { expected_version: "2", request: { description: "" } },
+-  ];
+-  const classify = (request: Request): string | undefined => {
+-    const url = new URL(request.url()),
+-      path = url.pathname,
+-      method = request.method();
+-    if (!path.startsWith("/api/")) return undefined;
+-    if (method === "PATCH" && path === target && !url.search) {
+-      expect(updates).toBeLessThan(
+-        data.mode === "milestone-edit-normal" ? 3 : 1,
+-      );
+-      expect(request.postDataJSON()).toEqual(patches[updates++]);
+-      return "update";
+-    }
+-    if (
+-      method === "POST" &&
+-      path === prefix + "/structure-commands/lookup" &&
+-      !url.search
+-    ) {
+-      expect(data.mode).toBe("milestone-edit-lost");
+-      expect(updates).toBe(1);
+-      expect(lookups++).toBe(0);
+-      expect(request.postDataJSON()).toEqual({
+-        command: "work.milestone.update",
+-        target_id: data.milestone_id,
+-        ...first,
+-      });
+-      return "lookup";
+-    }
+-    if (method !== "GET") throw Error("UNOBSERVED_MILESTONE_EDIT_WRITE");
+-    const globals: Record<string, string> = {
+-      "/api/v1/session": "session",
+-      "/api/v1/me": "profile",
+-      "/api/v1/me/preferences": "preferences",
+-      "/api/v1/auth/bootstrap": "bootstrap",
+-      "/api/v1/projects/resolve": "resolve",
+-      "/api/v1/projects": "projects",
+-    };
+-    if (globals[path]) return globals[path];
+-    if (path === prefix && !url.search) return "project";
+-    if (path === target && !url.search) return "milestone";
+-    for (const name of ["milestones", "agents"]) {
+-      if (path === `${prefix}/${name}`) {
+-        expect([...url.searchParams.entries()]).toEqual([["limit", "50"]]);
+-        return name;
+-      }
+-    }
+-    if (path === prefix + "/sprints") {
+-      expect([...url.searchParams.keys()].sort()).toEqual([
+-        "limit",
+-        "milestone_id",
+-      ]);
+-      expect(url.searchParams.get("limit")).toBe("50");
+-      expect(url.searchParams.get("milestone_id")).toBe(data.milestone_id);
+-      return "sprints";
+-    }
+-    throw Error("UNOBSERVED_MILESTONE_EDIT_ENDPOINT");
+-  };
+-  const seen = await observeTaskRequests(page, data, {
+-    ...milestoneEditProfile(data),
+-    endpoint: classify,
+-  });
+-  return {
+-    ...seen,
+-    current(expected: Record<string, any>) {
+-      expect(seen.milestoneRead("milestone")).toEqual(expected);
+-      const { description: _description, ...summary } = expected;
+-      expect(seen.milestoneRead("milestones")).toEqual({ items: [summary] });
+-      expect(seen.milestoneRead("sprints")).toEqual({ items: [] });
+-      expect(seen.milestoneRead("agents")).toEqual({ items: [] });
+-      expect(seen.milestoneRead("project")).toMatchObject({
+-        id: data.project_id,
+-        version: data.project_version,
+-        current_sprint_id: null,
+-        lifecycle: "active",
+-      });
+-    },
+-    result(index: number, before: Record<string, any>, lookup = false) {
+-      const wire = seen.receipt(
+-        lookup ? "lookup" : "update",
+-        lookup ? 0 : index,
+-      );
+-      if (lookup) {
+-        expect(Object.keys(wire).sort()).toEqual(["result", "state"]);
+-        expect(wire.state).toBe("committed");
+-      }
+-      const value = lookup ? wire.result : wire;
+-      expect(Object.keys(value).sort()).toEqual([
+-        "changed",
+-        "command",
+-        "event_id",
+-        "milestone",
+-        "sprint",
+-      ]);
+-      expect(value.command).toBe("work.milestone.update");
+-      expect(value.sprint).toBeNull();
+-      expect(value.changed).toBe(index !== 1);
+-      if (index === 1) expect(value.event_id).toBeNull();
+-      else expect(value.event_id).toMatch(id);
+-      const fields = patches[index]!.request;
+-      const expected = {
+-        ...before,
+-        ...fields,
+-        version: String(BigInt(before.version) + (index === 1 ? 0n : 1n)),
+-        updated_at:
+-          index === 1 ? before.updated_at : value.milestone.updated_at,
+-      };
+-      expect(value.milestone).toEqual(expected);
+-      expect(typeof value.milestone.updated_at).toBe("string");
+-      expect(value.milestone.updated_at >= before.updated_at).toBe(true);
+-      return value.milestone as Record<string, any>;
+-    },
+-  };
+-}
+-export async function milestoneEditScreenshot(
+-  page: Page,
+-  data: MilestoneEditMaterial,
+-  name: string,
+-) {
+-  await expect
+-    .poll(() =>
+-      page.evaluate(
+-        () => document.documentElement.scrollWidth <= innerWidth + 1,
+-      ),
+-    )
+-    .toBe(true);
+-  const evidence = process.env.AGENTEAM_MILESTONE_EDIT_WEB_EVIDENCE!;
+-  mkdirSync(evidence, { recursive: true, mode: 0o700 });
+-  await page.screenshot({
+-    path: join(evidence, `milestone-edit-${data.mode}-${name}.png`),
+-    fullPage: true,
+-    animations: "disabled",
+-  });
+-}
+diff --git a/tests/account-captcha-web/e2e/milestone-edit.spec.ts b/tests/account-captcha-web/e2e/milestone-edit.spec.ts
+deleted file mode 100644
+index 33b0c059..00000000
+--- a/tests/account-captcha-web/e2e/milestone-edit.spec.ts
++++ /dev/null
+@@ -1,336 +0,0 @@
+-import { test, expect, type Page } from "@playwright/test";
+-import {
+-  observeTaskRequests,
+-  requireCommittedLookup,
+-  type TaskObservationProfile,
+-} from "./task-review.helpers";
+-import {
+-  milestoneEditMaterial,
+-  milestoneEditProfile,
+-  observeMilestoneEdit,
+-  milestoneEditScreenshot,
+-  type MilestoneEditMaterial,
+-} from "./milestone-edit.helpers";
+-
+-test("rejects mixed and incomplete Milestone Edit profiles before browser setup [milestone-edit-profile-controls]", async () => {
+-  expect(() =>
+-    requireCommittedLookup({ state: "committed", result: {} }, true),
+-  ).not.toThrow();
+-  expect(() =>
+-    requireCommittedLookup({ status: "committed", receipt: {} }, true),
+-  ).toThrow();
+-  for (const state of ["in_progress", "not_observed", undefined])
+-    expect(() =>
+-      requireCommittedLookup(
+-        { state, status: "committed", result: null },
+-        true,
+-      ),
+-    ).toThrow();
+-  expect(() =>
+-    requireCommittedLookup({ status: "committed", receipt: {} }),
+-  ).not.toThrow();
+-  expect(() =>
+-    requireCommittedLookup({ state: "committed", result: {} }),
+-  ).toThrow();
+-  expect(() =>
+-    requireCommittedLookup({ status: "in_progress", state: "committed" }),
+-  ).toThrow();
+-  const data = {
+-    mode: "milestone-edit-normal" as const,
+-    cookie: "private-control",
+-    project_id: "01990000-0000-7000-8000-000000000001",
+-    milestone_id: "01990000-0000-7000-8000-000000000002",
+-  };
+-  const profile: TaskObservationProfile = {
+-    ...milestoneEditProfile(data),
+-    endpoint: () => undefined,
+-  };
+-  const page = {
+-    on() {
+-      throw Error("CONTROL_REACHED_NATIVE_SETUP");
+-    },
+-  } as unknown as Page;
+-  for (const changes of [
+-    { milestoneUpdateWrites: undefined },
+-    { prefix: "milestone-create" },
+-    { lookupCommand: "work.milestone.create" },
+-    { cut: "update" },
+-    ...[
+-      "intakeWrites",
+-      "agentConfiguration",
+-      "editWrites",
+-      "timelineReads",
+-      "agentEditWrites",
+-      "agentModelPolicy",
+-      "sprintStartWrites",
+-      "sprintCreateWrites",
+-      "skillsReads",
+-      "milestoneCreateWrites",
+-      "variableWrites",
+-      "knowledgeTextWrites",
+-    ].map((key) => ({ [key]: true })),
+-  ])
+-    await expect(
+-      observeTaskRequests(page, data, {
+-        ...profile,
+-        ...changes,
+-      } as TaskObservationProfile),
+-    ).rejects.toThrow(/PROFILE_MISMATCH/);
+-  for (const changes of [
+-    { mode: "other" },
+-    { milestone_id: undefined },
+-    { milestone_id: "not-an-id" },
+-  ])
+-    await expect(
+-      observeTaskRequests(page, { ...data, ...changes }, profile),
+-    ).rejects.toThrow("MILESTONE_UPDATE_PROFILE_MISMATCH");
+-  await expect(
+-    observeTaskRequests(
+-      page,
+-      { ...data, mode: "milestone-edit-lost" },
+-      profile,
+-    ),
+-  ).rejects.toThrow("MILESTONE_UPDATE_PROFILE_MISMATCH");
+-  for (const mode of ["milestone-edit-normal", "milestone-edit-lost"] as const)
+-    await expect(
+-      observeTaskRequests(
+-        page,
+-        { ...data, mode },
+-        { ...milestoneEditProfile({ mode }), endpoint: () => undefined },
+-      ),
+-    ).rejects.toThrow("CONTROL_REACHED_NATIVE_SETUP");
+-  await expect(
+-    observeTaskRequests(
+-      page,
+-      { ...data, mode: "first-milestone-and-sprint-entry" },
+-      {
+-        ...profile,
+-        prefix: "milestone-create",
+-        lookupCommand: "work.milestone.create",
+-        milestoneUpdateWrites: undefined,
+-        milestoneCreateWrites: true,
+-      },
+-    ),
+-  ).rejects.toThrow("CONTROL_REACHED_NATIVE_SETUP");
+-});
+-
+-async function press(page: Page, name: string) {
+-  const button = page.getByRole("button", { name, exact: true });
+-  await expect(button).toBeEnabled();
+-  await button.focus();
+-  await expect(button).toBeFocused();
+-  await page.keyboard.press("Enter");
+-}
+-async function begin(page: Page, data: MilestoneEditMaterial) {
+-  await page.setViewportSize({ width: 1440, height: 960 });
+-  await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
+-  await page.context().addCookies([
+-    {
+-      name: "agenteam_local_session",
+-      value: data.cookie,
+-      url: process.env.AGENTEAM_AUTH_WEB_ORIGIN!,
+-      httpOnly: true,
+-      sameSite: "Lax",
+-      secure: false,
+-    },
+-  ]);
+-  const seen = await observeMilestoneEdit(page, data);
+-  return {
+-    seen,
+-    async enter() {
+-      await page.goto(data.route);
+-      await press(page, "Milestone");
+-      const option = page
+-        .getByRole("listbox", { name: "Milestone", exact: true })
+-        .getByRole("option", { name: data.title, exact: true });
+-      await option.focus();
+-      await page.keyboard.press("Enter");
+-      await expect(
+-        page.getByRole("button", { name: "编辑 Milestone", exact: true }),
+-      ).toBeEnabled();
+-      await seen.verify();
+-      seen.current(data.milestone);
+-    },
+-  };
+-}
+-async function open(page: Page) {
+-  await press(page, "编辑 Milestone");
+-  const form = page.getByRole("form", { name: "编辑 Milestone", exact: true });
+-  await expect(form).toBeVisible();
+-  await expect(
+-    form.getByRole("textbox", { name: "Milestone 标题", exact: true }),
+-  ).toBeFocused();
+-  return form;
+-}
+-async function refresh(
+-  page: Page,
+-  seen: Awaited<ReturnType<typeof observeMilestoneEdit>>,
+-  expected: Record<string, any>,
+-) {
+-  const gets = seen.requests("milestone").length,
+-    lists = seen.requests("milestones").length;
+-  await press(page, "刷新任务看板");
+-  await expect(
+-    page.getByRole("button", { name: "编辑 Milestone", exact: true }),
+-  ).toBeEnabled();
+-  await seen.verify();
+-  expect(seen.requests("milestone")).toHaveLength(gets + 1);
+-  expect(seen.requests("milestones")).toHaveLength(lists + 1);
+-  seen.current(expected);
+-}
+-
+-test.describe("real Milestone edit", () => {
+-  const observations = new WeakMap<
+-    Page,
+-    Awaited<ReturnType<typeof observeMilestoneEdit>>
+-  >();
+-  test.afterEach(async ({ page }, info) => {
+-    const seen = observations.get(page);
+-    try {
+-      await seen?.retire();
+-    } finally {
+-      seen?.save(info.status);
+-    }
+-  });
+-  test("edits, preserves a no-op, and explicitly clears the current Milestone [milestone-edit-normal]", async ({
+-    page,
+-  }) => {
+-    const data = milestoneEditMaterial(),
+-      started = await begin(page, data),
+-      seen = started.seen;
+-    observations.set(page, seen);
+-    await started.enter();
+-    let form = await open(page);
+-    await expect(
+-      form.getByRole("textbox", { name: "Milestone 标题", exact: true }),
+-    ).toHaveValue(data.title);
+-    await expect(
+-      form.getByRole("textbox", { name: "Milestone 描述", exact: true }),
+-    ).toHaveValue(data.description);
+-    await form
+-      .getByRole("textbox", { name: "Milestone 标题", exact: true })
+-      .fill("Discarded draft");
+-    await press(page, "取消编辑 Milestone");
+-    await expect(form).toHaveCount(0);
+-    await expect(
+-      page.getByRole("button", { name: "编辑 Milestone", exact: true }),
+-    ).toBeFocused();
+-    expect(seen.requests("update")).toHaveLength(0);
+-    form = await open(page);
+-    await form
+-      .getByRole("textbox", { name: "Milestone 标题", exact: true })
+-      .fill(data.updated_title);
+-    await form
+-      .getByRole("textbox", { name: "Milestone 描述", exact: true })
+-      .fill(data.updated_description);
+-    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+-    await milestoneEditScreenshot(page, data, "1440-light-edit");
+-    await press(page, "保存 Milestone");
+-    await expect(form).toHaveCount(0);
+-    const heading = page.locator(".selected-milestone h2");
+-    await expect(heading).toHaveText(data.updated_title);
+-    await expect(heading).toBeFocused();
+-    await seen.verify();
+-    let current = seen.result(0, data.milestone);
+-    seen.current(current);
+-    await refresh(page, seen, current);
+-    form = await open(page);
+-    const title = form.getByRole("textbox", {
+-      name: "Milestone 标题",
+-      exact: true,
+-    });
+-    await title.fill(data.updated_title + "x");
+-    await title.fill(data.updated_title);
+-    await press(page, "保存 Milestone");
+-    await expect(form).toHaveCount(0);
+-    await expect(heading).toBeFocused();
+-    await seen.verify();
+-    current = seen.result(1, current);
+-    seen.current(current);
+-    await refresh(page, seen, current);
+-    form = await open(page);
+-    await form
+-      .getByRole("textbox", { name: "Milestone 描述", exact: true })
+-      .fill("");
+-    await page.setViewportSize({ width: 390, height: 844 });
+-    await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+-    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+-    expect(
+-      await page.evaluate(
+-        () => matchMedia("(prefers-reduced-motion: reduce)").matches,
+-      ),
+-    ).toBe(true);
+-    await milestoneEditScreenshot(page, data, "390-dark-clear");
+-    await press(page, "保存 Milestone");
+-    await expect(form).toHaveCount(0);
+-    await expect(heading).toBeFocused();
+-    await expect(
+-      page.locator(".selected-milestone .milestone-description"),
+-    ).toHaveText("暂无描述。");
+-    await seen.verify();
+-    current = seen.result(2, current);
+-    seen.current(current);
+-    await refresh(page, seen, current);
+-    expect(seen.requests("update")).toHaveLength(3);
+-    expect(seen.requests("lookup")).toHaveLength(0);
+-    await milestoneEditScreenshot(page, data, "390-dark-current");
+-    await seen.endDocument();
+-  });
+-  test("looks up the original Milestone update after its committed response is cut [milestone-edit-lost]", async ({
+-    page,
+-  }) => {
+-    const data = milestoneEditMaterial(),
+-      started = await begin(page, data),
+-      seen = started.seen;
+-    observations.set(page, seen);
+-    await started.enter();
+-    const form = await open(page);
+-    await form
+-      .getByRole("textbox", { name: "Milestone 标题", exact: true })
+-      .fill(data.updated_title);
+-    await form
+-      .getByRole("textbox", { name: "Milestone 描述", exact: true })
+-      .fill(data.updated_description);
+-    await press(page, "保存 Milestone");
+-    const recovery = page.getByRole("region", {
+-      name: "Milestone 保存状态",
+-      exact: true,
+-    });
+-    await expect(
+-      recovery.getByText(
+-        "Milestone 保存结果尚未确认。请查证原保存，勿再次提交。",
+-        { exact: true },
+-      ),
+-    ).toBeVisible();
+-    await expect(form).toHaveCount(0);
+-    await expect(
+-      page.getByRole("button", { name: "编辑 Milestone", exact: true }),
+-    ).toHaveCount(0);
+-    await expect(
+-      page.getByRole("button", { name: "新建 Milestone", exact: true }),
+-    ).toBeDisabled();
+-    await seen.verify();
+-    expect(seen.requests("update")).toHaveLength(1);
+-    expect(seen.requests("lookup")).toHaveLength(0);
+-    await milestoneEditScreenshot(page, data, "1440-light-uncertain");
+-    await press(page, "查询原 Milestone 保存结果");
+-    const heading = page.locator(".selected-milestone h2");
+-    await expect(heading).toHaveText(data.updated_title);
+-    await expect(heading).toBeFocused();
+-    await expect(
+-      page.getByRole("button", { name: "编辑 Milestone", exact: true }),
+-    ).toBeEnabled();
+-    await seen.verify();
+-    const current = seen.result(0, data.milestone, true);
+-    seen.originalLookup();
+-    seen.current(current);
+-    await refresh(page, seen, current);
+-    expect(seen.requests("update")).toHaveLength(1);
+-    expect(seen.requests("lookup")).toHaveLength(1);
+-    await page.setViewportSize({ width: 390, height: 844 });
+-    await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+-    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+-    await milestoneEditScreenshot(page, data, "390-dark-recovered");
+-    await seen.endDocument();
+-  });
+-});
+diff --git a/tests/account-captcha-web/e2e/project-scheduler.spec.ts b/tests/account-captcha-web/e2e/project-scheduler.spec.ts
+index ca12c52d..fb39173c 100644
+--- a/tests/account-captcha-web/e2e/project-scheduler.spec.ts
++++ b/tests/account-captcha-web/e2e/project-scheduler.spec.ts
+@@ -1,6 +1,4 @@
+ import { test, expect, type Page } from "@playwright/test";
+-import { writeFileSync } from "node:fs";
+-import { join } from "node:path";
+ import {
+   schedulerMaterial,
+   observeScheduler,
+@@ -12,56 +10,12 @@ const observations = new WeakMap<
+   Page,
+   Awaited<ReturnType<typeof observeScheduler>>
+ >();
+-type Stage =
+-  | "material"
+-  | "settings"
+-  | "scheduler-link"
+-  | "initial-read"
+-  | "pause"
+-  | "paused-read"
+-  | "light-image"
+-  | "resume"
+-  | "resumed-read"
+-  | "unknown"
+-  | "lookup"
+-  | "confirmed-read"
+-  | "dark-image"
+-  | "complete";
+-const stages = new WeakMap<Page, Stage>();
+ test.afterEach(async ({ page }, info) => {
+   const seen = observations.get(page);
+   try {
+     await seen?.retire();
+   } finally {
+     seen?.save(info.status);
+-    const mode = process.env.AGENTEAM_PROJECT_SCHEDULER_WEB_CASE!;
+-    const locations = info.errors.flatMap((error) =>
+-      [
+-        ...(error.stack ?? "").matchAll(
+-          /\b((?:project-scheduler\.(?:spec|helpers)|task-review\.helpers)\.ts):(\d+):(\d+)/g,
+-        ),
+-      ].map((match) => ({
+-        file: match[1],
+-        line: Number(match[2]),
+-        column: Number(match[3]),
+-      })),
+-    );
+-    writeFileSync(
+-      join(
+-        process.env.AGENTEAM_PROJECT_SCHEDULER_WEB_EVIDENCE!,
+-        `project-scheduler-${mode}-diagnostic.json`,
+-      ),
+-      JSON.stringify(
+-        {
+-          stage: stages.get(page) ?? "material",
+-          test_status: info.status,
+-          locations,
+-        },
+-        null,
+-        2,
+-      ) + "\n",
+-      { mode: 0o600 },
+-    );
+   }
+ });
+ async function press(page: Page, name: string) {
+@@ -72,31 +26,25 @@ async function press(page: Page, name: string) {
+   await page.keyboard.press("Enter");
+ }
+ async function open(page: Page) {
+-  stages.set(page, "material");
+   const data = schedulerMaterial();
+   await page.setViewportSize({ width: 1440, height: 960 });
+   await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
+-  await page.context().addCookies([
+-    {
+-      name: "agenteam_local_session",
+-      value: data.cookie,
+-      url: process.env.AGENTEAM_AUTH_WEB_ORIGIN!,
+-      httpOnly: true,
+-      sameSite: "Lax",
+-      secure: false,
+-    },
+-  ]);
++  await page
++    .context()
++    .addCookies([
++      {
++        name: "agenteam_local_session",
++        value: data.cookie,
++        url: process.env.AGENTEAM_AUTH_WEB_ORIGIN!,
++        httpOnly: true,
++        sameSite: "Lax",
++        secure: false,
++      },
++    ]);
+   const seen = await observeScheduler(page, data);
+   observations.set(page, seen);
+-  stages.set(page, "settings");
+   await page.goto(data.route.slice(0, -"/scheduler".length));
+-  const group = page.getByRole("button", { name: "Scheduler", exact: true });
+-  await expect(group).toBeVisible();
+-  await expect(group).toHaveAttribute("aria-expanded", /^(true|false)$/);
+-  if ((await group.getAttribute("aria-expanded")) === "false")
+-    await press(page, "Scheduler");
+-  await expect(group).toHaveAttribute("aria-expanded", "true");
+-  stages.set(page, "scheduler-link");
++  await press(page, "Scheduler");
+   const link = page.getByRole("link", { name: "调度配置", exact: true });
+   await expect(link).toBeVisible();
+   await link.focus();
+@@ -106,7 +54,6 @@ async function open(page: Page) {
+     new URL(data.route, process.env.AGENTEAM_AUTH_WEB_ORIGIN!).href,
+   );
+   const screen = page.getByRole("region", { name: "调度配置", exact: true });
+-  stages.set(page, "initial-read");
+   await expect(
+     screen.getByRole("heading", { name: "调度配置", exact: true }),
+   ).toBeVisible();
+@@ -128,7 +75,6 @@ async function open(page: Page) {
+       .filter({ has: page.getByText(label, { exact: true }) })
+       .locator("dd");
+   const pause = async () => {
+-    stages.set(page, "pause");
+     await form
+       .getByRole("switch", { name: "启用自动调度", exact: true })
+       .uncheck();
+@@ -148,7 +94,6 @@ test("pauses with an integer limit above Number precision then resumes without a
+ }) => {
+   const { data, seen, form, fact, pause } = await open(page);
+   await pause();
+-  stages.set(page, "paused-read");
+   await expect(fact("当前自动调度")).toHaveText("已暂停");
+   await expect(fact("当前并发上限")).toHaveText(schedulerLimit);
+   await expect(
+@@ -157,7 +102,6 @@ test("pauses with an integer limit above Number precision then resumes without a
+   await seen.verify();
+   seen.requireCurrent("3");
+   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+-  stages.set(page, "light-image");
+   await schedulerScreenshot(page, data, "1440-light-paused");
+   await page.setViewportSize({ width: 390, height: 844 });
+   await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+@@ -167,13 +111,11 @@ test("pauses with an integer limit above Number precision then resumes without a
+       () => matchMedia("(prefers-reduced-motion: reduce)").matches,
+     ),
+   ).toBe(true);
+-  stages.set(page, "resume");
+   await form.getByRole("switch", { name: "启用自动调度", exact: true }).check();
+   await form
+     .getByRole("checkbox", { name: "不限制并发数量", exact: true })
+     .check();
+   await press(page, "保存调度配置");
+-  stages.set(page, "resumed-read");
+   await expect(fact("当前自动调度")).toHaveText("已启用");
+   await expect(fact("当前并发上限")).toHaveText("不限制");
+   await expect(
+@@ -182,10 +124,8 @@ test("pauses with an integer limit above Number precision then resumes without a
+   await seen.verify();
+   seen.requireCurrent("4");
+   expect(seen.requests("scheduler")).toHaveLength(3);
+-  stages.set(page, "dark-image");
+   await schedulerScreenshot(page, data, "390-dark-resumed");
+   await seen.endDocument();
+-  stages.set(page, "complete");
+ });
+ 
+ test("queries a committed but physically truncated update by its original key then reads current configuration [lost-update-confirmation-only-lookup]", async ({
+@@ -193,7 +133,6 @@ test("queries a committed but physically truncated update by its original key th
+ }) => {
+   const { data, seen, form, screen, fact, pause } = await open(page);
+   await pause();
+-  stages.set(page, "unknown");
+   await expect(
+     screen.getByRole("heading", { name: "保存结果尚未确认", exact: true }),
+   ).toBeVisible();
+@@ -211,7 +150,6 @@ test("queries a committed but physically truncated update by its original key th
+   expect(seen.requests("update")).toHaveLength(1);
+   expect(seen.requests("lookup")).toHaveLength(0);
+   expect(seen.requests("scheduler")).toHaveLength(1);
+-  stages.set(page, "lookup");
+   await press(page, "查证原操作");
+   await expect(fact("当前自动调度")).toHaveText("已暂停");
+   await expect(fact("当前并发上限")).toHaveText(schedulerLimit);
+@@ -221,7 +159,6 @@ test("queries a committed but physically truncated update by its original key th
+   await expect(
+     page.getByRole("button", { name: "保存调度配置", exact: true }),
+   ).toBeEnabled();
+-  stages.set(page, "confirmed-read");
+   await seen.verify();
+   seen.requireCurrent("3");
+   expect(seen.requests("update")).toHaveLength(1);
+@@ -230,8 +167,6 @@ test("queries a committed but physically truncated update by its original key th
+   await page.setViewportSize({ width: 390, height: 844 });
+   await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+-  stages.set(page, "dark-image");
+   await schedulerScreenshot(page, data, "390-dark-confirmed");
+   await seen.endDocument();
+-  stages.set(page, "complete");
+ });
+diff --git a/tests/account-captcha-web/e2e/task-review.helpers.ts b/tests/account-captcha-web/e2e/task-review.helpers.ts
+index 65c786d8..e0bab342 100644
+--- a/tests/account-captcha-web/e2e/task-review.helpers.ts
++++ b/tests/account-captcha-web/e2e/task-review.helpers.ts
+@@ -159,7 +159,6 @@ export async function observeBrowserIO(
+     let originalAgentCreate: any;
+     const originalEdits: any[] = [];
+     const originalAgentEdits: any[] = [];
+-    const originalMilestoneEdits: any[] = [];
+     let originalSprintStart: any;
+     let originalSprintCreate: any;
+     let originalMilestoneCreate: any;
+@@ -334,14 +333,6 @@ export async function observeBrowserIO(
+               progress.agentID === source?.agent,
+           });
+         }
+-        if (kind === "milestone.update") {
+-          const original = { call, project: args[0], milestone: args[1], input: JSON.parse(JSON.stringify(args[2])) };
+-          originalMilestoneEdits.push(original);
+-          writeInputs.set(call, original);
+-        } else if (kind === "milestone.checkOriginal") {
+-          const source = originalMilestoneEdits.at(-1), progress = auth.workMilestoneEditing.progress;
+-          writeInputs.set(call, { source, current: progress?.phase === "uncertain" && progress.contextValid === true && progress.projectID === source?.project && progress.milestoneID === source?.milestone });
+-        }
+         if (kind === "scheduler.startUpdate") {
+           const original = { call, project: args[0], input: JSON.parse(JSON.stringify(args[1])) };
+           originalSchedulerWrites.push(original);
+@@ -425,12 +416,6 @@ export async function observeBrowserIO(
+               current() && (kind === "restore" || before === identity());
+             identities.set(call, identity());
+             call.not_busy = auth.state.busy === false;
+-            if (kind === "milestone.update" || kind === "milestone.checkOriginal") {
+-              const original = writeInputs.get(call), source = kind === "milestone.update" ? original : original.source;
+-              const progress = auth.workMilestoneEditing.progress;
+-              const result = kind === "milestone.update" ? value : value.result;
+-              call.result_current = progress?.phase === "confirmed" && progress.contextValid === true && progress.projectID === source.project && progress.milestoneID === source.milestone && result != null && progress.result === result;
+-            }
+             if (kind === "scheduler.startUpdate" || kind === "scheduler.checkOriginal") {
+               const original = writeInputs.get(call), progress = auth.projectScheduler.progress;
+               call.result_current = progress?.phase === "confirmed" && progress.contextValid === true &&
+@@ -511,7 +496,6 @@ export async function observeBrowserIO(
+         createMilestone: string | undefined,
+         skillsTarget: string | undefined,
+         milestoneCreate: boolean,
+-        editMilestone: string | undefined,
+         variableWrites: boolean,
+         knowledgeTextWrites: boolean,
+         schedulerWrites = false,
+@@ -759,13 +743,6 @@ export async function observeBrowserIO(
+             );
+           }
+         }
+-        if (editMilestone) {
+-          consumer(auth.workMilestoneEditing, "update", "milestone.update", (a) => {
+-            if (a[0] !== project || a[1] !== editMilestone) throw Error("MILESTONE_UPDATE_CONSUMER_SCOPE");
+-            return "/api/v1/projects/" + project + "/milestones/" + editMilestone;
+-          }, "PATCH");
+-          consumer(auth.workMilestoneEditing, "checkOriginal", "milestone.checkOriginal", () => "/api/v1/projects/" + project + "/structure-commands/lookup", "POST");
+-        }
+         if (milestoneCreate) {
+           consumer(
+             auth.workMilestonePlanning,
+@@ -847,7 +824,6 @@ export async function observeBrowserIO(
+         originalAgentCreate = undefined;
+         originalEdits.length = 0;
+         originalAgentEdits.length = 0;
+-        originalMilestoneEdits.length = 0;
+         originalSprintStart = undefined;
+         originalSprintCreate = undefined;
+         originalMilestoneCreate = undefined;
+@@ -1085,12 +1061,6 @@ export async function observeBrowserIO(
+                 request: original.source.input.request,
+               });
+           }
+-          if (call.kind === "milestone.update") {
+-            matches = originalMilestoneEdits.every(old => old === original || (typeof old.key === "string" && old.key !== key)) && equal(parsed, original.input);
+-            if (matches) original.key = key;
+-          } else if (call.kind === "milestone.checkOriginal") {
+-            matches = original.current && original.source?.call.rejected === true && original.source.call.settled === true && key === original.source.key && equal(parsed, { command: "work.milestone.update", target_id: original.source.milestone, expected_version: original.source.input.expected_version, request: original.source.input.request });
+-          }
+           if (call.kind === "scheduler.startUpdate") {
+             matches = originalSchedulerWrites.every(old => old === original ||
+               (typeof old.key === "string" && old.key !== key)) && equal(parsed, original.input);
+@@ -1520,7 +1490,6 @@ export type TaskObservationProfile = {
+     | "sprint-create"
+     | "skill-owner-read"
+     | "milestone-create"
+-    | "milestone-edit"
+     | "project-variables"
+     | "knowledge-text"
+     | "project-scheduler";
+@@ -1535,7 +1504,6 @@ export type TaskObservationProfile = {
+     | "work.sprint.start"
+     | "work.sprint.create"
+     | "work.milestone.create"
+-    | "work.milestone.update"
+     | "update"
+     | null;
+   intakeWrites?: true;
+@@ -1548,7 +1516,6 @@ export type TaskObservationProfile = {
+   sprintCreateWrites?: true;
+   skillsReads?: true;
+   milestoneCreateWrites?: true;
+-  milestoneUpdateWrites?: true;
+   variableWrites?: true;
+   knowledgeTextWrites?: true;
+   schedulerWrites?: true;
+@@ -1570,10 +1537,6 @@ export function observeReview(page: Page, data: ReviewMaterial) {
+ // classifier and at most its one declared committed-response delivery fault.
+ // Only explicitly opted-in Intake, Edit or Agent fixtures can additionally prove
+ // their closed write sets. Other POST completion rules remain identical.
+-export function requireCommittedLookup(value: Record<string, unknown>, milestoneUpdate = false) {
+-  expect(milestoneUpdate ? value.state : value.status).toBe("committed");
+-}
+-
+ export async function observeTaskRequests(
+   page: Page,
+   data: TaskObservationMaterial,
+@@ -1766,13 +1729,6 @@ export async function observeTaskRequests(
+        profile.timelineReads || profile.agentEditWrites || profile.agentModelPolicy || profile.sprintStartWrites ||
+        profile.sprintCreateWrites || profile.skillsReads || profile.milestoneCreateWrites || profile.variableWrites))
+     throw Error("KNOWLEDGE_TEXT_PROFILE_MISMATCH");
+-  if ((profile.milestoneUpdateWrites || profile.prefix === "milestone-edit") &&
+-    (profile.milestoneUpdateWrites !== true || profile.prefix !== "milestone-edit" || profile.lookupCommand !== "work.milestone.update" ||
+-      profile.intakeWrites || profile.agentConfiguration || profile.editWrites || profile.timelineReads || profile.agentEditWrites || profile.agentModelPolicy || profile.sprintStartWrites || profile.sprintCreateWrites || profile.skillsReads || profile.milestoneCreateWrites || profile.variableWrites || profile.knowledgeTextWrites ||
+-      !data.milestone_id || !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.milestone_id) ||
+-      !["milestone-edit-normal", "milestone-edit-lost"].includes(data.mode) ||
+-      profile.cut !== (data.mode === "milestone-edit-lost" ? "update" : undefined)))
+-    throw Error("MILESTONE_UPDATE_PROFILE_MISMATCH");
+   if (profile.schedulerWrites &&
+       (profile.prefix !== "project-scheduler" || profile.lookupCommand !== "update" ||
+        !["pause-limit-and-resume", "lost-update-confirmation-only-lookup"].includes(data.mode) ||
+@@ -1972,7 +1928,6 @@ export async function observeTaskRequests(
+           createMilestone,
+           skillsTarget,
+           milestoneCreate,
+-          editMilestone,
+           variableWrites,
+           knowledgeTextWrites,
+           schedulerWrites,
+@@ -1996,7 +1951,6 @@ export async function observeTaskRequests(
+             createMilestone,
+             skillsTarget,
+             milestoneCreate,
+-            editMilestone,
+             variableWrites,
+             knowledgeTextWrites,
+             schedulerWrites,
+@@ -2019,7 +1973,6 @@ export async function observeTaskRequests(
+             : undefined,
+           skillsTarget: profile.skillsReads ? data.skill_id : undefined,
+           milestoneCreate: profile.milestoneCreateWrites === true,
+-          editMilestone: profile.milestoneUpdateWrites ? data.milestone_id : undefined,
+           variableWrites: profile.variableWrites === true,
+           knowledgeTextWrites: profile.knowledgeTextWrites === true,
+           schedulerWrites: profile.schedulerWrites === true,
+@@ -2198,15 +2151,9 @@ export async function observeTaskRequests(
+       !url.search
+     );
+   }
+-  function milestoneUpdateWrite(entry: Entry) {
+-    if (!profile.milestoneUpdateWrites) return false;
+-    const url = new URL(entry.request.url()), prefix = `/api/v1/projects/${data.project_id}`;
+-    return !url.search && ((entry.name === "update" && entry.request.method() === "PATCH" && url.pathname === `${prefix}/milestones/${data.milestone_id}`) ||
+-      (entry.name === "lookup" && entry.request.method() === "POST" && url.pathname === `${prefix}/structure-commands/lookup`));
+-  }
+   function milestonePageRead(entry: Entry) {
+     return (
+-      (profile.milestoneCreateWrites || profile.milestoneUpdateWrites) &&
++      profile.milestoneCreateWrites &&
+       entry.request.method() === "GET" &&
+       ["project", "milestones", "milestone", "sprints", "agents"].includes(
+         entry.name,
+@@ -2259,7 +2206,6 @@ export async function observeTaskRequests(
+     const sprint = sprintWrite(entry);
+     const sprintCreate = sprintCreateWrite(entry);
+     const milestoneCreate = milestoneCreateWrite(entry);
+-    const milestoneUpdate = milestoneUpdateWrite(entry);
+     const variable = variableWrite(entry);
+     const knowledgeText = knowledgeTextWrite(entry);
+     const scheduler = schedulerWrite(entry);
+@@ -2271,11 +2217,10 @@ export async function observeTaskRequests(
+       sprint ||
+       sprintCreate ||
+       milestoneCreate ||
+-      milestoneUpdate ||
+       variable ||
+       knowledgeText || scheduler;
+     const method =
+-      (edit || agentEdit || milestoneUpdate || variable || scheduler) && entry.name === "update"
++      (edit || agentEdit || variable || scheduler) && entry.name === "update"
+         ? "PATCH"
+         : write
+           ? "POST"
+@@ -2354,15 +2299,13 @@ export async function observeTaskRequests(
+     if (schedulerReadEntry(entry)) expect(c.kind).toBe({ session: "restore", resolve: "project.resolve", projects: "project.list", project: "project.get", scheduler: "scheduler.get" }[entry.name]);
+     if (write) {
+       if (scheduler) expect(c.result_current).toBe(true);
+-      if (sprintCreate || milestoneCreate || milestoneUpdate || variable || knowledgeText) expect(c.result_current).toBe(true);
++      if (sprintCreate || milestoneCreate || variable || knowledgeText) expect(c.result_current).toBe(true);
+       const kinds: Record<string, string> = scheduler
+         ? { update: "scheduler.startUpdate", lookup: "scheduler.checkOriginal" }
+         : knowledgeText
+         ? { create: "knowledgeText.write", update: "knowledgeText.write" }
+         : variable
+         ? { create: "variable.create", update: "variable.update" }
+-        : milestoneUpdate
+-        ? { update: "milestone.update", lookup: "milestone.checkOriginal" }
+         : milestoneCreate
+         ? { create: "milestone.create" }
+         : sprintCreate
+@@ -2406,8 +2349,7 @@ export async function observeTaskRequests(
+         expect(source.idempotency_key_sha256).toBe(keyHash);
+       }
+       if (entry.name === "lookup") {
+-        if (profile.schedulerWrites) expect(c.typed.state).toBe("committed");
+-        else requireCommittedLookup(c.typed, profile.milestoneUpdateWrites === true);
++        expect(profile.schedulerWrites ? c.typed.state : c.typed.status).toBe("committed");
+         originalLookup();
+       }
+     }
+@@ -2528,7 +2470,6 @@ export async function observeTaskRequests(
+           sprintWrite(entry) ||
+           sprintCreateWrite(entry) ||
+           milestoneCreateWrite(entry) ||
+-          milestoneUpdateWrite(entry) ||
+           variableWrite(entry) ||
+           knowledgeTextWrite(entry) ||
+           schedulerWrite(entry) ||
+@@ -2589,7 +2530,6 @@ export async function observeTaskRequests(
+         sprintWrite(entry) ||
+         sprintCreateWrite(entry) ||
+         milestoneCreateWrite(entry) ||
+-        milestoneUpdateWrite(entry) ||
+         milestonePageRead(entry) ||
+         variableWrite(entry) ||
+         variablePageRead(entry) ||
+@@ -2667,8 +2607,7 @@ export async function observeTaskRequests(
+       creation
+         ? "create"
+         : profile.lookupCommand === "work.task.update" ||
+-            profile.lookupCommand === "agent.update" ||
+-            profile.lookupCommand === "work.milestone.update"
++            profile.lookupCommand === "agent.update"
+           ? "update"
+           : profile.lookupCommand === "work.sprint.start"
+             ? "start"
+@@ -2684,9 +2623,7 @@ export async function observeTaskRequests(
+         : {
+             command: profile.lookupCommand,
+             target_id:
+-              profile.lookupCommand === "work.milestone.update"
+-                ? data.milestone_id
+-                : profile.lookupCommand === "agent.update"
++              profile.lookupCommand === "agent.update"
+                 ? data.agent_id
+                 : profile.lookupCommand === "work.sprint.start"
+                   ? data.sprint_id
+@@ -2721,7 +2658,7 @@ export async function observeTaskRequests(
+   function milestoneRead(
+     name: "project" | "milestones" | "milestone" | "sprints" | "agents",
+   ) {
+-    expect(profile.milestoneCreateWrites || profile.milestoneUpdateWrites).toBe(true);
++    expect(profile.milestoneCreateWrites).toBe(true);
+     const rows = entries.filter((e) => e.name === name && e.checked && e.body);
+     expect(
+       rows.length,
+@@ -2836,7 +2773,7 @@ export async function observeTaskRequests(
+               }
+             : {}),
+           ...(profile.schedulerWrites ? { updates: entries.filter(e => e.name === "update").length, schedulerReads: entries.filter(e => e.name === "scheduler").length } : {}),
+-          ...(profile.agentEditWrites || profile.agentModelPolicy || profile.milestoneUpdateWrites
++          ...(profile.agentEditWrites || profile.agentModelPolicy
+             ? { updates: entries.filter((e) => e.name === "update").length }
+             : {}),
+           ...(profile.sprintCreateWrites
+diff --git a/tests/account-captcha-web/milestone-edit.config.js b/tests/account-captcha-web/milestone-edit.config.js
+deleted file mode 100644
+index 1dd94d4d..00000000
+--- a/tests/account-captcha-web/milestone-edit.config.js
++++ /dev/null
+@@ -1,51 +0,0 @@
+-import { defineConfig } from "@playwright/test";
+-import { isAbsolute } from "node:path";
+-
+-const origin = process.env.AGENTEAM_AUTH_WEB_ORIGIN;
+-const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE;
+-const executablePath = process.env.AGENTEAM_AUTH_WEB_CHROMIUM;
+-const evidence = process.env.AGENTEAM_MILESTONE_EDIT_WEB_EVIDENCE;
+-const selected = process.env.AGENTEAM_MILESTONE_EDIT_WEB_CASE;
+-if (
+-  !origin ||
+-  !directory ||
+-  !executablePath ||
+-  !evidence ||
+-  !selected ||
+-  ![
+-    "milestone-edit-normal",
+-    "milestone-edit-lost",
+-    "milestone-edit-profile-controls",
+-  ].includes(selected)
+-)
+-  throw new Error("OWNED_MILESTONE_EDIT_FIXTURE_REQUIRED");
+-const url = new URL(origin);
+-if (
+-  url.protocol !== "http:" ||
+-  url.hostname !== "127.0.0.1" ||
+-  !url.port ||
+-  url.origin !== origin ||
+-  ![directory, executablePath, evidence].every(isAbsolute)
+-)
+-  throw new Error("EXACT_OWNED_MILESTONE_EDIT_PATHS_REQUIRED");
+-
+-export default defineConfig({
+-  testDir: "./e2e",
+-  testMatch: "milestone-edit.spec.ts",
+-  grep: new RegExp(`^.*\\[${selected}\\]$`),
+-  timeout: 45_000,
+-  expect: { timeout: 5_000 },
+-  workers: 1,
+-  retries: 0,
+-  forbidOnly: true,
+-  reporter: "line",
+-  outputDir: `${directory}/milestone-edit-playwright-results`,
+-  use: {
+-    baseURL: origin,
+-    browserName: "chromium",
+-    launchOptions: { executablePath, args: ["--no-sandbox"] },
+-    screenshot: "off",
+-    video: "off",
+-    trace: "off",
+-  },
+-});
+diff --git a/tests/projectvariable/milestone_edit_web_test.go b/tests/projectvariable/milestone_edit_web_test.go
+deleted file mode 100644
+index b8234a67..00000000
+--- a/tests/projectvariable/milestone_edit_web_test.go
++++ /dev/null
+@@ -1,640 +0,0 @@
+-//go:build integration
+-
+-package projectvariable_test
+-
+-import (
+-	"bytes"
+-	"context"
+-	"crypto/sha256"
+-	"encoding/json"
+-	"errors"
+-	"fmt"
+-	"io"
+-	"log"
+-	"net"
+-	"net/http"
+-	"net/http/httptest"
+-	"net/http/httputil"
+-	"net/url"
+-	"os"
+-	"os/exec"
+-	"path/filepath"
+-	"reflect"
+-	"strings"
+-	"syscall"
+-	"testing"
+-	"time"
+-
+-	eventc "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
+-	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+-	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+-	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
+-)
+-
+-// Edit an existing Milestone through the original default App and real Owner.
+-// The explicit setup initializer and all original owner retirement gates remain.
+-func TestMilestoneEditWeb(t *testing.T) {
+-	for _, mode := range []string{"milestone-edit-normal", "milestone-edit-lost"} {
+-		t.Run(mode, func(t *testing.T) {
+-			entered, completed := false, false
+-			t.Cleanup(func() {
+-				if !entered || !completed {
+-					t.Error("Milestone Edit original App handoff incomplete")
+-				}
+-			})
+-			a := newAgentCreateFixture(t)
+-			original := a.p2.base
+-			project, err := a.p2.creator.GetSchedulerConfig(ctxFor(t), original.ownerBrowser.actor, a.p2.project.ID)
+-			agentAppRequire(t, err)
+-			if project.Config.Enabled || project.Project.CurrentSprintID != nil {
+-				t.Fatal("original Project must be paused without a current Sprint")
+-			}
+-			process, err := a.guard.CurrentProcess()
+-			agentAppRequire(t, err)
+-			var username string
+-			agentAppRequire(t, original.raw.QueryRow(ctxFor(t), `SELECT username FROM agenteam_account.users WHERE id=$1`, original.ownerBrowser.actor.Details().UserID).Scan(&username))
+-			if original.afterOwners != nil {
+-				t.Fatal("original handoff occupied")
+-			}
+-			original.afterOwners = func() {
+-				entered = true
+-				if !original.core.Joined() || !a.agents.Joined() || !a.p2.service.Joined() {
+-					t.Fatal("original setup owners not joined")
+-				}
+-				if _, err := a.guard.CurrentProcess(); err == nil {
+-					t.Fatal("original guard still held")
+-				}
+-				var stopped bool
+-				agentAppRequire(t, original.raw.QueryRow(ctxFor(t), `SELECT state='stopped' AND stopped_at IS NOT NULL FROM agenteam_object.process_claims WHERE process_id=$1`, process.String()).Scan(&stopped))
+-				if !stopped {
+-					t.Fatal("original process not retired")
+-				}
+-				w := newMilestoneEditWeb(t, a, project, mode)
+-				defer w.dispose(t)
+-				withAgentConfigurationApp(t, a, process.String(), w.origin, func(ctx context.Context, address string) {
+-					defer w.close(t)
+-					w.start(t, address)
+-					w.prepare(t, ctx)
+-					w.material(t, username)
+-					w.browser(t, ctx)
+-					w.verify(t, ctx)
+-					w.close(t)
+-				})
+-				completed = true
+-			}
+-		})
+-	}
+-}
+-
+-const milestoneEditTitle = "  e\u0301 Delivery milestone  "
+-const milestoneEditDescription = "Updated milestone.\nKeep Sprint planning explicit."
+-
+-type milestoneEditIntent struct {
+-	sprintWebIntent
+-	before    wc.Milestone
+-	request   wc.UpdateFields
+-	expected  f.Version
+-	requestID f.ID[f.Request]
+-}
+-type milestoneEditIntentKey struct{}
+-type milestoneEditWeb struct {
+-	*milestoneCreateWeb
+-	seed, current                          wc.Milestone
+-	writes                                 []milestoneEditIntent
+-	results                                []wc.StructureMutation
+-	updates, changed, lookups, gets, lists int
+-	fixed, afterCommit                     string
+-}
+-
+-func (w *milestoneEditWeb) prepare(t *testing.T, ctx context.Context) {
+-	w.prepareEmpty(t, ctx)
+-	input := wc.CreateMilestoneRequest{MilestoneID: id[wc.Milestone](t), Title: milestoneCreateTitle, Description: milestoneCreateDescription}
+-	key := f.IdempotencyKey(id[struct{}](t).String())
+-	reply := w.request(t, http.MethodPost, variableHTTPPath(w.project.Project.ID, "/milestones"), jsonBytes(t, map[string]any{"request": input}), key)
+-	var seed wc.StructureMutation
+-	if reply.status != 200 || json.Unmarshal(reply.body, &seed) != nil || seed.Validate() != nil || seed.Milestone == nil {
+-		t.Fatal("formal HTTP seed did not create the original Milestone")
+-	}
+-	rid, err := f.ParseID[f.Request](reply.header.Get("X-Request-ID"))
+-	agentAppRequire(t, err)
+-	in := milestoneCreateIntent{sprintWebIntent: sprintWebIntent{key: key}, request: input, requestID: rid}
+-	agentAppRequire(t, w.milestoneCreateWeb.committedFacts(ctx, in, seed))
+-	read := w.request(t, http.MethodGet, variableHTTPPath(w.project.Project.ID, "/milestones/"+seed.Milestone.ID.String()), nil, "")
+-	var current wc.Milestone
+-	if read.status != 200 || json.Unmarshal(read.body, &current) != nil || !reflect.DeepEqual(current, *seed.Milestone) {
+-		t.Fatal("formal HTTP seed Get differs from original Create receipt")
+-	}
+-	fixed, err := w.fixedFacts(ctx)
+-	agentAppRequire(t, err)
+-	w.mu.Lock()
+-	w.created, w.seed, w.current, w.fixed = seed.Clone(), current, current, fixed
+-	w.mu.Unlock()
+-}
+-
+-func (w *milestoneEditWeb) material(t *testing.T, username string) {
+-	raw := jsonBytes(t, map[string]any{"mode": w.mode, "cookie": w.a.p2.base.ownerBrowser.cookie, "project_id": w.project.Project.ID, "project_version": w.project.Project.Version, "milestone_id": w.seed.ID, "version": w.seed.Version, "route": "/" + username + "/" + w.project.Project.NormalizedName + "/tasks", "title": w.seed.Title, "description": w.seed.Description, "updated_title": milestoneEditTitle, "updated_description": milestoneEditDescription, "milestone": w.seed, "input_hash": w.inputHash})
+-	agentAppRequire(t, os.WriteFile(filepath.Join(w.directory, "milestone-edit-material.json"), raw, 0600))
+-	clear(raw)
+-}
+-
+-func (w *milestoneEditWeb) path() string {
+-	return variableHTTPPath(w.project.Project.ID, "/milestones/"+w.seed.ID.String())
+-}
+-func (w *milestoneEditWeb) lookupPath() string {
+-	return variableHTTPPath(w.project.Project.ID, "/structure-commands/lookup")
+-}
+-
+-func (w *milestoneEditWeb) observe(r *http.Request) error {
+-	if r.Method == http.MethodGet || r.Method == http.MethodHead {
+-		return nil
+-	}
+-	if r.URL.RawQuery != "" || r.URL.ForceQuery || r.Method != http.MethodPatch && r.Method != http.MethodPost {
+-		return errors.New("undeclared Milestone Edit request")
+-	}
+-	raw, readErr := io.ReadAll(io.LimitReader(r.Body, (16<<10)+1))
+-	closeErr := r.Body.Close()
+-	key := f.IdempotencyKey(r.Header.Get("Idempotency-Key"))
+-	if readErr != nil || closeErr != nil || len(raw) > 16<<10 || key.Validate() != nil || len(r.Header.Values("Idempotency-Key")) != 1 {
+-		return errors.New("original Milestone Edit request incomplete")
+-	}
+-	r.Body = io.NopCloser(bytes.NewReader(raw))
+-	var wire struct {
+-		Command  wc.CommandName  `json:"command,omitempty"`
+-		Target   wc.MilestoneID  `json:"target_id,omitempty"`
+-		Expected f.Version       `json:"expected_version"`
+-		Request  wc.UpdateFields `json:"request"`
+-	}
+-	var fields map[string]json.RawMessage
+-	if agentWebDecode(raw, &wire) != nil || wire.Request.Validate() != nil || wire.Expected.Validate() != nil || json.Unmarshal(raw, &fields) != nil {
+-		return errors.New("Milestone Edit envelope lost exact fields")
+-	}
+-	w.mu.Lock()
+-	defer w.mu.Unlock()
+-	in := milestoneEditIntent{sprintWebIntent: sprintWebIntent{key: key, bodyDigest: sha256.Sum256(raw), keyDigest: sha256.Sum256([]byte(key))}, request: wire.Request, expected: wire.Expected, before: w.current}
+-	if r.Method == http.MethodPatch && r.URL.Path == w.path() {
+-		if len(fields) != 2 || wire.Command != "" || wire.Target.Validate() == nil || wire.Expected != w.current.Version || len(w.writes) != len(w.results) {
+-			return errors.New("Milestone Edit changed original target/version or overlapped a write")
+-		}
+-		for _, old := range w.writes {
+-			if old.key == key {
+-				return errors.New("browser repeated Milestone Edit")
+-			}
+-		}
+-		title, description, empty := milestoneEditTitle, milestoneEditDescription, ""
+-		want := wc.UpdateFields{Title: &title, Description: &description}
+-		switch len(w.writes) {
+-		case 0:
+-		case 1:
+-			if w.mode != "milestone-edit-normal" {
+-				return errors.New("browser retransmitted uncertain Milestone Edit")
+-			}
+-			want = wc.UpdateFields{Title: &title}
+-		case 2:
+-			if w.mode != "milestone-edit-normal" {
+-				return errors.New("browser added an uncertain Milestone Edit")
+-			}
+-			want = wc.UpdateFields{Description: &empty}
+-		default:
+-			return errors.New("browser added an undeclared Milestone Edit")
+-		}
+-		if !reflect.DeepEqual(wire.Request, want) {
+-			return errors.New("Milestone Edit changed original field presence or Unicode bytes")
+-		}
+-		in.kind = "update"
+-		w.writes = append(w.writes, in)
+-		w.updates++
+-	} else if r.Method == http.MethodPost && r.URL.Path == w.lookupPath() {
+-		if w.mode != "milestone-edit-lost" || len(fields) != 4 || len(w.writes) != 1 || len(w.results) != 1 || w.lookups != 0 || w.cut != 1 {
+-			return errors.New("Milestone Lookup has no declared uncertain original write")
+-		}
+-		original := w.writes[0]
+-		if wire.Command != wc.MilestoneUpdate || wire.Target != w.seed.ID || wire.Expected != original.expected || key != original.key || !reflect.DeepEqual(wire.Request, original.request) {
+-			return errors.New("Milestone Lookup lost original key/version/target/full patch")
+-		}
+-		in.kind = "lookup"
+-		in.before = original.before
+-		in.requestID = original.requestID
+-		w.lookups++
+-	} else {
+-		return errors.New("browser used a foreign Milestone Edit route")
+-	}
+-	w.keys = append(w.keys, string(key))
+-	*r = *r.WithContext(context.WithValue(r.Context(), milestoneEditIntentKey{}, in))
+-	return nil
+-}
+-
+-func (w *milestoneEditWeb) response(r *http.Response) error {
+-	raw, err := w.completedResponse(r)
+-	if err != nil {
+-		return err
+-	}
+-	in, write := r.Request.Context().Value(milestoneEditIntentKey{}).(milestoneEditIntent)
+-	lost := false
+-	if write {
+-		if r.StatusCode != 200 {
+-			return errors.New("original Milestone Edit/Lookup failed")
+-		}
+-		switch in.kind {
+-		case "update":
+-			var result wc.StructureMutation
+-			if json.Unmarshal(raw, &result) != nil || result.Validate() != nil {
+-				return errors.New("original Milestone Edit receipt invalid")
+-			}
+-			in.requestID, err = f.ParseID[f.Request](r.Header.Get("X-Request-ID"))
+-			if err != nil {
+-				return err
+-			}
+-			if err = w.updateFacts(r.Request.Context(), in, result, true); err != nil {
+-				return err
+-			}
+-			snapshot, err := w.snapshot(r.Request.Context())
+-			if err != nil {
+-				return err
+-			}
+-			w.mu.Lock()
+-			w.current = *result.Milestone
+-			w.writes[len(w.writes)-1] = in
+-			w.results = append(w.results, result.Clone())
+-			if result.Changed {
+-				w.changed++
+-			}
+-			w.afterCommit = snapshot
+-			lost = w.mode == "milestone-edit-lost"
+-			w.mu.Unlock()
+-		case "lookup":
+-			var found wc.CommandLookup
+-			w.mu.Lock()
+-			original, snapshot := w.results[0].Clone(), w.afterCommit
+-			w.mu.Unlock()
+-			if json.Unmarshal(raw, &found) != nil || found.Validate() != nil || found.State != wc.LookupCommitted || found.Result == nil || !reflect.DeepEqual(*found.Result, original) {
+-				return errors.New("Lookup did not recover original historical Milestone receipt")
+-			}
+-			if err = w.updateFacts(r.Request.Context(), in, original, false); err != nil {
+-				return err
+-			}
+-			after, err := w.snapshot(r.Request.Context())
+-			if err != nil {
+-				return err
+-			}
+-			if snapshot != after {
+-				return errors.New("read-only Milestone Lookup changed original facts")
+-			}
+-		default:
+-			return errors.New("unknown Milestone Edit proof")
+-		}
+-	} else if r.Request.Method == http.MethodGet && r.StatusCode == 200 {
+-		if err = w.observeRead(r.Request, raw); err != nil {
+-			return err
+-		}
+-	}
+-	if r.StatusCode == 200 && (write || r.Request.Method == http.MethodGet) {
+-		if err = w.proof(r, raw, in.sprintWebIntent, write); err != nil {
+-			return err
+-		}
+-	}
+-	// The declared cut follows the complete original App/TLS response and its
+-	// committed database facts. It changes only delivery to the browser.
+-	if lost {
+-		return &reviewWebDrop{r.Header.Clone(), len(raw)}
+-	}
+-	r.Body = io.NopCloser(bytes.NewReader(raw))
+-	return nil
+-}
+-
+-func (w *milestoneEditWeb) observeRead(r *http.Request, raw []byte) error {
+-	w.mu.Lock()
+-	defer w.mu.Unlock()
+-	p := w.project.Project.ID
+-	switch r.URL.Path {
+-	case variableHTTPPath(p, ""):
+-		var project pc.ProjectRef
+-		if json.Unmarshal(raw, &project) != nil || !reflect.DeepEqual(project, w.project.Project) {
+-			return errors.New("Milestone Edit changed current Project")
+-		}
+-		w.projectReads++
+-	case w.path():
+-		var current wc.Milestone
+-		if json.Unmarshal(raw, &current) != nil || !reflect.DeepEqual(current, w.current) {
+-			return errors.New("Milestone current Get differs from canonical postimage")
+-		}
+-		w.gets++
+-	case variableHTTPPath(p, "/milestones"):
+-		var page f.Page[map[string]any]
+-		item, err := sprintCreateSummary(w.current, "description")
+-		if err != nil {
+-			return err
+-		}
+-		if json.Unmarshal(raw, &page) != nil || page.Items == nil || page.NextCursor != "" || !reflect.DeepEqual(page.Items, []map[string]any{item}) {
+-			return errors.New("Milestone List lost exact current summary")
+-		}
+-		w.lists++
+-	case variableHTTPPath(p, "/sprints"):
+-		var page f.Page[map[string]any]
+-		if r.URL.Query().Get("milestone_id") != w.seed.ID.String() || json.Unmarshal(raw, &page) != nil || page.Items == nil || len(page.Items) != 0 || page.NextCursor != "" {
+-			return errors.New("Milestone Edit changed empty Sprint list")
+-		}
+-	}
+-	return nil
+-}
+-
+-func (w *milestoneEditWeb) fixedFacts(ctx context.Context) (string, error) {
+-	unchanged, err := w.unchanged(ctx)
+-	if err != nil {
+-		return "", err
+-	}
+-	var facts string
+-	err = w.a.p2.base.raw.QueryRow(ctx, `SELECT jsonb_build_object(
+- 'audit',(SELECT jsonb_agg(to_jsonb(a) ORDER BY id) FROM agenteam_audit.audit_records a WHERE project_id=$1::text::uuid),
+- 'milestone_order',(SELECT to_jsonb(g) FROM agenteam_work.milestone_order_groups g WHERE project_id=$1::text::uuid),
+- 'sprint_order',(SELECT jsonb_agg(to_jsonb(g) ORDER BY milestone_id) FROM agenteam_work.sprint_order_groups g WHERE project_id=$1::text::uuid))::text`, w.project.Project.ID.String()).Scan(&facts)
+-	return unchanged + facts, err
+-}
+-
+-func (w *milestoneEditWeb) snapshot(ctx context.Context) (string, error) {
+-	var snapshot string
+-	err := w.a.p2.base.raw.QueryRow(ctx, `SELECT jsonb_build_object(
+- 'milestones',(SELECT jsonb_agg(to_jsonb(m) ORDER BY id) FROM agenteam_work.milestones m WHERE project_id=$1::text::uuid),
+- 'commands',(SELECT jsonb_agg(to_jsonb(c) ORDER BY id) FROM agenteam_work.structure_commands c WHERE project_id=$1::text::uuid),
+- 'events',(SELECT jsonb_agg(to_jsonb(e) ORDER BY id) FROM agenteam_outbox.events e WHERE project_id=$1::text::uuid AND producer='work'),
+- 'activity',(SELECT last_activity_at FROM agenteam_account.sessions WHERE id=$2::uuid))::text`, w.project.Project.ID.String(), w.a.p2.base.ownerBrowser.actor.Details().SessionID).Scan(&snapshot)
+-	return snapshot, err
+-}
+-
+-func (w *milestoneEditWeb) updateFacts(ctx context.Context, in milestoneEditIntent, result wc.StructureMutation, canonical bool) error {
+-	if result.Validate() != nil || result.Command != wc.MilestoneUpdate || result.Milestone == nil || result.Sprint != nil {
+-		return errors.New("Milestone Update lost original Structure receipt")
+-	}
+-	expected := in.before
+-	var changed []wc.ChangedField
+-	if in.request.Description != nil && *in.request.Description != expected.Description {
+-		expected.Description = *in.request.Description
+-		changed = append(changed, wc.DescriptionChanged)
+-	}
+-	if in.request.Title != nil && *in.request.Title != expected.Title {
+-		expected.Title = *in.request.Title
+-		changed = append(changed, wc.TitleChanged)
+-	}
+-	if len(changed) != 0 {
+-		expected.Version++
+-		expected.UpdatedAt = result.Milestone.UpdatedAt
+-	}
+-	if in.expected != in.before.Version || !reflect.DeepEqual(*result.Milestone, expected) || result.Changed != (len(changed) != 0) || (result.EventID != nil) != result.Changed {
+-		return errors.New("Milestone Update altered omitted fields, original bytes, version or no-op semantics")
+-	}
+-	actor := w.a.p2.base.ownerBrowser.actor
+-	semantic, err := wc.UpdateMilestoneDigest(actor, f.CommandMeta{RequestID: in.requestID, IdempotencyKey: in.key, ExpectedVersion: &in.expected}, w.project.Project.ID, w.seed.ID, in.request)
+-	if err != nil {
+-		return err
+-	}
+-	var commandID, user, digest string
+-	var eventID *string
+-	var requestRaw, receiptRaw, planRaw []byte
+-	var revision int64
+-	err = w.a.p2.base.raw.QueryRow(ctx, `SELECT id::text,event_id::text,actor_user_id::text,semantic_digest,request,receipt,plan,plan_revision FROM agenteam_work.structure_commands WHERE project_id=$1::text::uuid AND command_name='work.milestone.update' AND idempotency_key=$2 AND state='completed' AND committed_at IS NOT NULL`, w.project.Project.ID.String(), string(in.key)).Scan(&commandID, &eventID, &user, &digest, &requestRaw, &receiptRaw, &planRaw, &revision)
+-	if err != nil {
+-		return err
+-	}
+-	var input map[string]any
+-	var receipt wc.StructureMutation
+-	want := map[string]any{"command": wc.MilestoneUpdate, "project_id": w.project.Project.ID, "target_id": w.seed.ID.String(), "actor_user_id": actor.Details().UserID, "expected_version": in.expected, "create_milestone": nil, "create_sprint": nil, "update": in.request, "reorder_milestone": nil, "reorder_sprint": nil}
+-	if json.Unmarshal(requestRaw, &input) != nil || !sprintCreateEqual(input, want) || json.Unmarshal(receiptRaw, &receipt) != nil || !reflect.DeepEqual(receipt, result) || revision < 1 || user != actor.Details().UserID || digest != semantic.String() {
+-		return errors.New("Milestone command lost exact original input, actor or receipt")
+-	}
+-	if !result.Changed {
+-		if eventID != nil || len(planRaw) != 0 {
+-			return errors.New("Milestone no-op created a plan or event")
+-		}
+-	} else {
+-		var plan struct {
+-			BeforeMilestone *wc.Milestone        `json:"before_milestone"`
+-			BeforeSprint    *wc.Sprint           `json:"before_sprint"`
+-			After           wc.StructureMutation `json:"after"`
+-			GroupBefore     *f.Version           `json:"group_before"`
+-			Header          eventc.Header        `json:"header"`
+-			Payload         wc.MilestoneChanged  `json:"payload"`
+-		}
+-		if eventID == nil || *eventID != result.EventID.String() || json.Unmarshal(planRaw, &plan) != nil || plan.BeforeMilestone == nil || !reflect.DeepEqual(*plan.BeforeMilestone, in.before) || plan.BeforeSprint != nil || plan.GroupBefore != nil || !reflect.DeepEqual(plan.After, result) {
+-			return errors.New("Milestone Update plan lost original preimage/postimage")
+-		}
+-		h, p := plan.Header, plan.Payload
+-		if h.Validate() != nil || p.Validate() != nil || h.EventID != *result.EventID || h.EventType != wc.MilestoneChangedName || h.AggregateType != wc.MilestoneAggregate || h.AggregateID.String() != w.seed.ID.String() || h.AggregateVersion == nil || *h.AggregateVersion != expected.Version || h.AggregateSequence != nil || h.SchemaVersion != wc.WorkSchemaVersion || h.Scope.Kind != eventc.ProjectScope || h.Scope.ProjectID.String() != w.project.Project.ID.String() || h.OccurredAt != expected.UpdatedAt || p.CommandID.String() != commandID || p.ActorUserID.String() != user || p.Change != wc.UpdatedChange || !reflect.DeepEqual(p.ChangedFields, changed) || p.Position != nil {
+-			return errors.New("Milestone event lost exact fields, actor, version or stable rank")
+-		}
+-		var headerRaw, payloadRaw []byte
+-		var columns bool
+-		err = w.a.p2.base.raw.QueryRow(ctx, `SELECT header,payload,event_type='work.milestone_changed' AND schema_version=1 AND scope='project' AND aggregate_type='work.milestone' AND aggregate_version=$4 AND aggregate_sequence IS NULL AND occurred_at=$5 FROM agenteam_outbox.events WHERE project_id=$1::text::uuid AND aggregate_id=$2::text::uuid AND id=$3::text::uuid AND producer='work'`, w.project.Project.ID.String(), w.seed.ID.String(), *eventID, int64(expected.Version), expected.UpdatedAt.Time()).Scan(&headerRaw, &payloadRaw, &columns)
+-		if err != nil {
+-			return err
+-		}
+-		actualHeader, err := eventc.DecodeHeader(headerRaw)
+-		var actualPayload wc.MilestoneChanged
+-		if err != nil || !columns || json.Unmarshal(payloadRaw, &actualPayload) != nil || !reflect.DeepEqual(actualHeader, h) || !reflect.DeepEqual(actualPayload, p) {
+-			return errors.New("Milestone Outbox differs from original command plan")
+-		}
+-	}
+-	if canonical {
+-		var matches bool
+-		err = w.a.p2.base.raw.QueryRow(ctx, `SELECT title=$3 AND description=$4 AND manual_rank=$5 AND version=$6 AND created_at=$7 AND updated_at=$8 FROM agenteam_work.milestones WHERE project_id=$1::text::uuid AND id=$2::text::uuid`, w.project.Project.ID.String(), w.seed.ID.String(), expected.Title, expected.Description, expected.ManualRank, int64(expected.Version), expected.CreatedAt.Time(), expected.UpdatedAt.Time()).Scan(&matches)
+-		if err != nil {
+-			return err
+-		}
+-		if !matches {
+-			return errors.New("current Milestone row differs from original Update postimage")
+-		}
+-	}
+-	fixed, err := w.fixedFacts(ctx)
+-	if err != nil {
+-		return err
+-	}
+-	if fixed != w.fixed {
+-		return errors.New("Milestone Edit changed Project, ordering, Audit, Sprint or Execution facts")
+-	}
+-	return nil
+-}
+-
+-func (w *milestoneEditWeb) verify(t *testing.T, ctx context.Context) {
+-	w.mu.Lock()
+-	failure, updates, changed, lookups, cuts, gets, lists := w.failure, w.updates, w.changed, w.lookups, w.cut, w.gets, w.lists
+-	writes := append([]milestoneEditIntent(nil), w.writes...)
+-	results := append([]wc.StructureMutation(nil), w.results...)
+-	snapshot := w.afterCommit
+-	tails := make([]*reviewWebTail, 0, len(w.tails))
+-	for _, tail := range w.tails {
+-		tails = append(tails, tail)
+-	}
+-	w.mu.Unlock()
+-	wantUpdates, wantChanged, wantLookups, wantReads := 3, 2, 0, 5
+-	if w.mode == "milestone-edit-lost" {
+-		wantUpdates, wantChanged, wantLookups, wantReads = 1, 1, 1, 3
+-	}
+-	if failure != nil || updates != wantUpdates || len(results) != updates || changed != wantChanged || lookups != wantLookups || cuts != wantLookups || gets < wantReads || lists < wantReads {
+-		t.Fatal("Milestone Edit original browser chain incomplete", failure)
+-	}
+-	for _, tail := range tails {
+-		select {
+-		case <-tail.done:
+-		default:
+-			t.Fatal("original Milestone Edit handler still running")
+-		}
+-		if !tail.returned {
+-			t.Fatal("original Milestone Edit handler did not return")
+-		}
+-	}
+-	for index, in := range writes {
+-		agentAppRequire(t, w.updateFacts(ctx, in, results[index], index == len(writes)-1))
+-	}
+-	var commands, events, milestones int64
+-	agentAppRequire(t, w.a.p2.base.raw.QueryRow(ctx, `SELECT
+- (SELECT count(*) FROM agenteam_work.structure_commands WHERE project_id=$1::text::uuid),
+- (SELECT count(*) FROM agenteam_outbox.events WHERE project_id=$1::text::uuid AND producer='work'),
+- (SELECT count(*) FROM agenteam_work.milestones WHERE project_id=$1::text::uuid)`, w.project.Project.ID.String()).Scan(&commands, &events, &milestones))
+-	if commands != int64(1+wantUpdates) || events != int64(1+wantChanged) || milestones != 1 {
+-		t.Fatal("Milestone Edit duplicated command/event or created another Milestone")
+-	}
+-	after, err := w.snapshot(ctx)
+-	agentAppRequire(t, err)
+-	if snapshot == "" || snapshot != after {
+-		t.Fatal("Milestone current reads or Lookup changed original committed facts")
+-	}
+-}
+-
+-func newMilestoneEditWeb(t *testing.T, a *agentCreateFixture, project pc.SchedulerProject, mode string) *milestoneEditWeb {
+-	t.Helper()
+-	const prefix = "AGENTEAM_MILESTONE_EDIT_WEB"
+-	dist, runtime, evidence, inputHash := os.Getenv(prefix+"_DIST"), os.Getenv("AGENTEAM_AUTH_WEB_RUNTIME"), os.Getenv(prefix+"_EVIDENCE"), os.Getenv(prefix+"_INPUT_HASH")
+-	if !filepath.IsAbs(dist) || !filepath.IsAbs(runtime) || len(runtime) > 45 || !filepath.IsAbs(evidence) || len(inputHash) != 64 || strings.Trim(inputHash, "0123456789abcdef") != "" {
+-		t.Fatal("frozen Milestone Edit inputs required")
+-	}
+-	if info, err := os.Stat(filepath.Join(dist, "index.html")); err != nil || !info.Mode().IsRegular() {
+-		t.Fatal("frozen index missing")
+-	}
+-	directory, err := os.MkdirTemp(runtime, "mew-")
+-	agentAppRequire(t, err)
+-	published := false
+-	defer func() {
+-		if !published {
+-			_ = os.RemoveAll(directory)
+-		}
+-	}()
+-	agentAppRequire(t, os.Chmod(directory, 0700))
+-	listener, err := net.Listen("tcp", "127.0.0.1:0")
+-	agentAppRequire(t, err)
+-	base := &agentConfigurationWeb{a: a, mode: mode, origin: "http://" + listener.Addr().String(), directory: directory, evidence: evidence, inputHash: inputHash, dist: dist, listener: listener, serve: make(chan error, 1), tails: map[string]*reviewWebTail{}}
+-	w := &milestoneCreateWeb{sprintStartWeb: &sprintStartWeb{agentConfigurationWeb: base, project: project.Clone()}}
+-	published = true
+-	return &milestoneEditWeb{milestoneCreateWeb: w}
+-}
+-func (w *milestoneEditWeb) start(t *testing.T, address string) {
+-	t.Helper()
+-	w.upstream = &http.Transport{Proxy: nil, DisableKeepAlives: true}
+-	w.backend = httptest.NewUnstartedServer(http.HandlerFunc(func(out http.ResponseWriter, r *http.Request) { w.bridge(address, out, r) }))
+-	w.backend.Config.ErrorLog = log.New(io.Discard, "", 0)
+-	w.backend.StartTLS()
+-	w.transport = w.backend.Client().Transport.(*http.Transport).Clone()
+-	if w.transport.TLSClientConfig.InsecureSkipVerify {
+-		t.Fatal("owned Agent Edit TLS verification disabled")
+-	}
+-	target, err := url.Parse(w.backend.URL)
+-	agentAppRequire(t, err)
+-	proxy := httputil.NewSingleHostReverseProxy(target)
+-	proxy.Transport, proxy.ErrorLog = w.transport, log.New(io.Discard, "", 0)
+-	proxy.ModifyResponse, proxy.ErrorHandler = w.response, w.proxyError
+-	static := http.FileServer(http.Dir(w.dist))
+-	w.front = &http.Server{ReadHeaderTimeout: 2 * time.Second, ErrorLog: log.New(io.Discard, "", 0), Handler: http.HandlerFunc(func(out http.ResponseWriter, r *http.Request) {
+-		w.frontWG.Add(1)
+-		defer w.frontWG.Done()
+-		if strings.HasPrefix(r.URL.Path, "/api/") {
+-			if err := w.observe(r); err != nil {
+-				w.fail(err)
+-				http.Error(out, "owned Milestone Edit observation failed", 500)
+-				return
+-			}
+-			proxy.ServeHTTP(out, r)
+-			return
+-		}
+-		if w.dist == "" || r.Method != http.MethodGet && r.Method != http.MethodHead {
+-			http.NotFound(out, r)
+-			return
+-		}
+-		clean := filepath.Clean("/" + r.URL.Path)
+-		if info, err := os.Stat(filepath.Join(w.dist, clean)); err == nil && info.Mode().IsRegular() {
+-			static.ServeHTTP(out, r)
+-			return
+-		}
+-		http.ServeFile(out, r, filepath.Join(w.dist, "index.html"))
+-	})}
+-	go func() { w.serve <- w.front.Serve(w.listener) }()
+-}
+-
+-func (w *milestoneEditWeb) browser(t *testing.T, parent context.Context) {
+-	t.Helper()
+-	root, err := filepath.Abs("../account-captcha-web")
+-	agentAppRequire(t, err)
+-	ctx, cancel := context.WithTimeout(parent, 60*time.Second)
+-	defer cancel()
+-	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", filepath.Join(root, "milestone-edit.config.js"))
+-	cmd.Dir = root
+-	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+-	cmd.WaitDelay = time.Second
+-	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
+-	for _, entry := range os.Environ() {
+-		key, _, _ := strings.Cut(entry, "=")
+-		if key != "TMPDIR" && key != "DEBUG" && key != "PWDEBUG" && key != "PLAYWRIGHT_NO_COPY_PROMPT" && !strings.HasPrefix(key, "AGENTEAM_") {
+-			cmd.Env = append(cmd.Env, entry)
+-		}
+-	}
+-	const prefix = "AGENTEAM_MILESTONE_EDIT_WEB"
+-	cmd.Env = append(cmd.Env, "TMPDIR="+w.directory, "PLAYWRIGHT_NO_COPY_PROMPT=1", "AGENTEAM_AUTH_WEB_ORIGIN="+w.origin, "AGENTEAM_AUTH_WEB_PRIVATE="+w.directory, "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium", prefix+"_DIST="+w.dist, prefix+"_CASE="+w.mode, prefix+"_EVIDENCE="+w.evidence, prefix+"_INPUT_HASH="+w.inputHash)
+-	var output bytes.Buffer
+-	cmd.Stdout = &output
+-	cmd.Stderr = &output
+-	if err = cmd.Start(); err != nil {
+-		t.Fatal("owned Milestone Edit Playwright did not start")
+-	}
+-	done := make(chan error, 1)
+-	go func() { done <- cmd.Wait() }()
+-	joined := false
+-	defer func() {
+-		if !joined {
+-			_ = cmd.Cancel()
+-			<-done
+-		}
+-		_ = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+-		cmd.Env = nil
+-	}()
+-	err = <-done
+-	joined = true
+-	t.Logf("Milestone Edit Node actual_wait pid=%d success=%t", cmd.Process.Pid, err == nil)
+-	safe := output.String()
+-	w.mu.Lock()
+-	tokens := append([]string(nil), w.keys...)
+-	w.mu.Unlock()
+-	tokens = append(tokens, w.a.p2.base.ownerBrowser.cookie, w.a.p2.base.ownerBrowser.csrf)
+-	for _, token := range tokens {
+-		if token != "" {
+-			safe = strings.ReplaceAll(safe, token, "[redacted]")
+-		}
+-	}
+-	t.Log(safe)
+-	if err != nil {
+-		t.Fatal("original Milestone Edit browser call failed")
+-	}
+-}
+-
+-func (w *milestoneEditWeb) proof(r *http.Response, raw []byte, intent sprintWebIntent, write bool) error {
+-	record := map[string]any{"input_hash": w.inputHash, "request_id": r.Header.Get("X-Request-ID"), "method": r.Request.Method, "url_sha256": fmt.Sprintf("%x", sha256.Sum256([]byte(r.Request.URL.RequestURI()))), "status": r.StatusCode, "content_length": len(raw), "body_sha256": fmt.Sprintf("%x", sha256.Sum256(raw)), "original_eof": true, "original_closed": true, "handler_returned": true}
+-	if write {
+-		record["kind"] = intent.kind
+-		record["request_body_sha256"] = fmt.Sprintf("%x", intent.bodyDigest)
+-		record["idempotency_key_sha256"] = fmt.Sprintf("%x", intent.keyDigest)
+-		record["committed_verified"] = true
+-	}
+-	encoded, err := json.Marshal(record)
+-	if err != nil {
+-		return err
+-	}
+-	if err = os.MkdirAll(w.evidence, 0700); err != nil {
+-		return err
+-	}
+-	return os.WriteFile(filepath.Join(w.evidence, "milestone-edit-"+w.mode+"-response-"+r.Header.Get("X-Request-ID")+".json"), encoded, 0600)
+-}
+diff --git a/web/src/api/work-milestone-planning.ts b/web/src/api/work-milestone-planning.ts
+index 55e8e1f1..628db427 100644
+--- a/web/src/api/work-milestone-planning.ts
++++ b/web/src/api/work-milestone-planning.ts
+@@ -32,18 +32,8 @@ export type MilestoneUpdateLookup =
+   | Readonly<{ state: 'committed'; result: MilestoneUpdateReceipt }>
+   | Readonly<{ state: 'in_progress' | 'not_observed'; result: null }>
+ export interface WorkMilestonePlanningAPI {
+-  update(
+-    project: string,
+-    target: string,
+-    input: MilestoneUpdateInput,
+-    write: WriteOptions,
+-  ): Promise<MilestoneUpdateReceipt>
+-  lookupUpdate(
+-    project: string,
+-    target: string,
+-    input: MilestoneUpdateInput,
+-    write: WriteOptions,
+-  ): Promise<MilestoneUpdateLookup>
++  update(project: string, target: string, input: MilestoneUpdateInput, write: WriteOptions): Promise<MilestoneUpdateReceipt>
++  lookupUpdate(project: string, target: string, input: MilestoneUpdateInput, write: WriteOptions): Promise<MilestoneUpdateLookup>
+   create(
+     project: string,
+     input: MilestoneCreateInput,
+@@ -147,53 +137,24 @@ export function captureMilestoneUpdateInput(value: unknown): MilestoneUpdateInpu
+     })
+   })
+ }
+-function updateReceipt(
+-  value: unknown,
+-  project: string,
+-  target: string,
+-  original: MilestoneUpdateInput,
+-): MilestoneUpdateReceipt {
++function updateReceipt(value: unknown, project: string, target: string, original: MilestoneUpdateInput): MilestoneUpdateReceipt {
+   const v = shape(value, ['command', 'changed', 'milestone', 'sprint', 'event_id'])
+-  const m = shape(v.milestone, [
+-    'id',
+-    'project_id',
+-    'title',
+-    'description',
+-    'manual_rank',
+-    'version',
+-    'created_at',
+-    'updated_at',
+-  ])
+-  const created = parseSystemInstant(m.created_at),
+-    updated = parseSystemInstant(m.updated_at)
+-  const rank = string(m.manual_rank, 32, 32),
+-    version = workVersion(m.version)
+-  const title = workText(m.title, 1024, true),
+-    description = workText(m.description, 32768)
++  const m = shape(v.milestone, ['id', 'project_id', 'title', 'description', 'manual_rank', 'version', 'created_at', 'updated_at'])
++  const created = parseSystemInstant(m.created_at), updated = parseSystemInstant(m.updated_at)
++  const rank = string(m.manual_rank, 32, 32), version = workVersion(m.version)
++  const title = workText(m.title, 1024, true), description = workText(m.description, 32768)
+   requireValue(v.command === 'work.milestone.update' && v.sprint === null)
+   requireValue(v.changed === true || v.changed === false)
+   requireValue(workID(m.id) === target && workID(m.project_id) === project && created <= updated)
+   requireValue(/^[0-9a-f]{32}$/.test(rank) && rank !== '0'.repeat(32) && rank !== 'f'.repeat(32))
+   requireValue(BigInt(version) === BigInt(original.expected_version) + (v.changed ? 1n : 0n))
+   if (Object.hasOwn(original.request, 'title')) requireValue(title === original.request.title)
+-  if (Object.hasOwn(original.request, 'description'))
+-    requireValue(description === original.request.description)
++  if (Object.hasOwn(original.request, 'description')) requireValue(description === original.request.description)
+   if (!v.changed) requireValue(v.event_id === null)
+   return Object.freeze({
+-    command: 'work.milestone.update',
+-    changed: v.changed,
+-    sprint: null,
+-    event_id: v.changed ? workID(v.event_id) : null,
+-    milestone: Object.freeze({
+-      id: target,
+-      project_id: project,
+-      title,
+-      description,
+-      manual_rank: rank,
+-      version,
+-      created_at: created,
+-      updated_at: updated,
+-    }),
++    command: 'work.milestone.update', changed: v.changed,
++    sprint: null, event_id: v.changed ? workID(v.event_id) : null,
++    milestone: Object.freeze({ id: target, project_id: project, title, description, manual_rank: rank, version, created_at: created, updated_at: updated }),
+   })
+ }
+ export function createWorkMilestonePlanningAPI(fetcher?: Fetch): WorkMilestonePlanningAPI {
+@@ -203,38 +164,23 @@ export function createWorkMilestonePlanningAPI(fetcher?: Fetch): WorkMilestonePl
+       const original = captureMilestoneUpdateInput(value)
+       const scope = input(() => ({ projectID: workID(project), target: workID(target) }))
+       return call('milestoneUpdate', (v) => updateReceipt(v, project, target, original), {
+-        ...scope,
+-        signal: write.signal ?? new AbortController().signal,
+-        csrf: write.csrfToken,
+-        key: write.key,
+-        body: original,
++        ...scope, signal: write.signal ?? new AbortController().signal,
++        csrf: write.csrfToken, key: write.key, body: original,
+       })
+     },
+     lookupUpdate(project, target, value, write) {
+       const original = captureMilestoneUpdateInput(value)
+       const scope = input(() => ({ projectID: workID(project), target: workID(target) }))
+-      return call(
+-        'milestoneUpdateLookup',
+-        (value): MilestoneUpdateLookup => {
+-          const v = shape(value, ['state', 'result'])
+-          if (v.state === 'committed')
+-            return Object.freeze({
+-              state: 'committed',
+-              result: updateReceipt(v.result, project, target, original),
+-            })
+-          requireValue(
+-            (v.state === 'in_progress' || v.state === 'not_observed') && v.result === null,
+-          )
+-          return Object.freeze({ state: v.state as 'in_progress' | 'not_observed', result: null })
+-        },
+-        {
+-          projectID: scope.projectID,
+-          signal: write.signal ?? new AbortController().signal,
+-          csrf: write.csrfToken,
+-          key: write.key,
+-          body: { command: 'work.milestone.update', target_id: scope.target, ...original },
+-        },
+-      )
++      return call('milestoneUpdateLookup', (value): MilestoneUpdateLookup => {
++        const v = shape(value, ['state', 'result'])
++        if (v.state === 'committed') return Object.freeze({ state: 'committed', result: updateReceipt(v.result, project, target, original) })
++        requireValue((v.state === 'in_progress' || v.state === 'not_observed') && v.result === null)
++        return Object.freeze({ state: v.state as 'in_progress' | 'not_observed', result: null })
++      }, {
++        projectID: scope.projectID, signal: write.signal ?? new AbortController().signal,
++        csrf: write.csrfToken, key: write.key,
++        body: { command: 'work.milestone.update', target_id: scope.target, ...original },
++      })
+     },
+     create(project, value, write) {
+       const original = captureMilestoneCreateInput(value)
+diff --git a/web/src/components/work/MilestoneEditForm.vue b/web/src/components/work/MilestoneEditForm.vue
+deleted file mode 100644
+index e50069a9..00000000
+--- a/web/src/components/work/MilestoneEditForm.vue
++++ /dev/null
+@@ -1,108 +0,0 @@
+-<script setup lang="ts">
+-import { computed, onMounted, ref } from 'vue'
+-import { UiButton, UiField, UiInput, UiTextarea } from '../ui'
+-import type { ProjectTasks } from '../../composables/useProjectTasks'
+-const props = defineProps<{ owner: ProjectTasks }>()
+-const emit = defineEmits<{ cancel: []; submit: [] }>()
+-const form = ref<HTMLFormElement | null>(null)
+-const disabled = computed(
+-  () =>
+-    props.owner.busy.value ||
+-    !props.owner.canEditMilestone.value ||
+-    props.owner.milestoneEditStale.value,
+-)
+-onMounted(() => form.value?.querySelector<HTMLInputElement>('input')?.focus())
+-</script>
+-<template>
+-  <form
+-    ref="form"
+-    class="milestone-edit-form"
+-    aria-label="编辑 Milestone"
+-    @submit.prevent="emit('submit')"
+-  >
+-    <h3>编辑 Milestone</h3>
+-    <p>基于版本 {{ owner.milestoneEdit.version }}，只保存本次编辑的字段。</p>
+-    <UiField label="Milestone 标题" hint="最多 256 个字符，不能全为空白。" required v-slot="field">
+-      <UiInput
+-        :id="field.id"
+-        :model-value="owner.milestoneEdit.title"
+-        :disabled="disabled"
+-        :aria-describedby="field.describedby"
+-        @update:model-value="owner.touchMilestoneEdit('title', $event)"
+-      />
+-    </UiField>
+-    <UiField
+-      label="Milestone 描述"
+-      hint="删除内容后保存可清空描述；未编辑时保留原值。"
+-      v-slot="field"
+-    >
+-      <UiTextarea
+-        :id="field.id"
+-        :model-value="owner.milestoneEdit.description"
+-        :disabled="disabled"
+-        :aria-describedby="field.describedby"
+-        rows="4"
+-        @update:model-value="owner.touchMilestoneEdit('description', $event)"
+-      />
+-    </UiField>
+-    <p v-if="owner.milestoneEditStale.value" role="alert">
+-      Milestone
+-      已有变化，已保留原版本和输入。重新读取当前详情后，核对并明确使用当前版本；不会自动保存。
+-    </p>
+-    <p v-if="owner.milestoneEdit.message" role="status">{{ owner.milestoneEdit.message }}</p>
+-    <div v-if="owner.milestoneEditStale.value" class="milestone-edit-actions">
+-      <UiButton
+-        type="button"
+-        :disabled="owner.busy.value || !!owner.milestoneEditPending.value"
+-        @click="owner.reloadMilestoneEdit()"
+-        >重新读取 Milestone</UiButton
+-      >
+-      <UiButton
+-        type="button"
+-        :disabled="
+-          owner.busy.value || !owner.canEditMilestone.value || !owner.milestoneEdit.readVersion
+-        "
+-        @click="owner.adoptMilestoneVersion()"
+-        >使用当前版本继续编辑</UiButton
+-      >
+-    </div>
+-    <div class="milestone-edit-actions">
+-      <UiButton
+-        type="submit"
+-        :disabled="disabled || !owner.milestoneEditDirty.value || !owner.milestoneEdit.title.trim()"
+-        >保存 Milestone</UiButton
+-      >
+-      <UiButton
+-        type="button"
+-        :disabled="owner.busy.value || !!owner.milestoneEditPending.value"
+-        @click="emit('cancel')"
+-        >取消编辑 Milestone</UiButton
+-      >
+-    </div>
+-  </form>
+-</template>
+-<style scoped>
+-.milestone-edit-form {
+-  display: flex;
+-  flex-direction: column;
+-  gap: var(--space);
+-  min-width: 0;
+-  padding: var(--space);
+-  border: 1px solid var(--border);
+-  border-radius: var(--radius);
+-  background: var(--surface);
+-}
+-.milestone-edit-form h3,
+-.milestone-edit-form p {
+-  margin: 0;
+-  overflow-wrap: anywhere;
+-}
+-.milestone-edit-form p {
+-  color: var(--muted);
+-}
+-.milestone-edit-actions {
+-  display: flex;
+-  flex-wrap: wrap;
+-  gap: var(--content-gap);
+-}
+-</style>
+diff --git a/web/src/composables/useProjectTasks.ts b/web/src/composables/useProjectTasks.ts
+index 1c676115..cd7dff81 100644
+--- a/web/src/composables/useProjectTasks.ts
++++ b/web/src/composables/useProjectTasks.ts
+@@ -25,8 +25,6 @@ import {
+ import { captureSprintCreateDraft, type SprintCreateReceipt } from '../api/work-sprint-lifecycle'
+ import {
+   captureMilestoneCreateDraft,
+-  captureMilestoneUpdateInput,
+-  type MilestoneUpdateReceipt,
+   type MilestoneCreateReceipt,
+ } from '../api/work-milestone-planning'
+ import { captureTaskCreateDraft, type TaskCreateDraft } from '../api/work-task-planning'
+@@ -168,20 +166,6 @@ export function createProjectTasks(
+     touched: { title: false, description: false, type: false, priority: false, plan: false },
+     message: '',
+   })
+-  const milestoneEdit = reactive({
+-    open: false,
+-    projectID: '',
+-    milestoneID: '',
+-    version: '',
+-    title: '',
+-    description: '',
+-    touched: { title: false, description: false },
+-    conflict: false,
+-    readVersion: '',
+-    needsRead: false,
+-    message: '',
+-  })
+-  let milestoneEditIdentity = ''
+   const milestoneCreation = reactive({
+     open: false,
+     projectID: '',
+@@ -273,52 +257,6 @@ export function createProjectTasks(
+       ? p
+       : null
+   })
+-  const milestoneEditPending = computed(() => {
+-    const p = auth.workMilestoneEditing?.progress
+-    return p && ['submitting', 'uncertain'].includes(p.phase) ? p : null
+-  })
+-  const milestoneEditProgress = computed(() => {
+-    const p = auth.workMilestoneEditing?.progress
+-    return visible.value && p?.projectID === workspace.currentReadContext.value?.projectID
+-      ? p
+-      : null
+-  })
+-  const milestoneEditBlocked = computed(
+-    () => !!milestoneEditPending.value || milestoneEdit.open || milestoneEdit.needsRead,
+-  )
+-  const milestoneEditDirty = computed(
+-    () => milestoneEdit.open && (milestoneEdit.touched.title || milestoneEdit.touched.description),
+-  )
+-  const milestoneEditStale = computed(
+-    () =>
+-      milestoneEdit.conflict ||
+-      (milestoneEdit.open &&
+-        (milestoneEdit.milestoneID !== state.milestone?.id ||
+-          milestoneEdit.version !== state.milestone?.version)),
+-  )
+-  const canEditMilestone = computed(
+-    () =>
+-      visible.value &&
+-      state.phase === 'ready' &&
+-      !!state.milestone &&
+-      !state.task &&
+-      workspace.detail.project?.lifecycle === 'active' &&
+-      !pending.value &&
+-      !milestonePending.value &&
+-      !milestoneCreation.open &&
+-      !milestoneCreation.needsRead &&
+-      !sprintPending.value &&
+-      !sprintCreatePending.value &&
+-      !sprintStart.open &&
+-      !sprintStart.needsRead &&
+-      !sprintCreation.open &&
+-      !sprintCreation.needsRead &&
+-      !creation.open &&
+-      !edit.open &&
+-      !draft.action &&
+-      !milestoneEditPending.value &&
+-      !milestoneEdit.needsRead,
+-  )
+   const milestonePending = computed(() => {
+     const p = auth.workMilestonePlanning.progress
+     return p && ['submitting', 'uncertain'].includes(p.phase) ? p : null
+@@ -337,7 +275,6 @@ export function createProjectTasks(
+       workspace.detail.project?.lifecycle === 'active' &&
+       !pending.value &&
+       !milestonePending.value &&
+-      !milestoneEditBlocked.value &&
+       !sprintPending.value &&
+       !sprintCreatePending.value &&
+       !sprintStart.open &&
+@@ -424,7 +361,6 @@ export function createProjectTasks(
+       !pending.value &&
+       !sprintCreatePending.value &&
+       !milestonePending.value &&
+-      !milestoneEditBlocked.value &&
+       !milestoneCreation.open &&
+       !milestoneCreation.needsRead &&
+       !sprintPending.value &&
+@@ -470,7 +406,6 @@ export function createProjectTasks(
+       !sprintPending.value &&
+       !sprintCreatePending.value &&
+       !milestonePending.value &&
+-      !milestoneEditBlocked.value &&
+       !milestoneCreation.open &&
+       !milestoneCreation.needsRead &&
+       !sprintCreation.open &&
+@@ -508,7 +443,6 @@ export function createProjectTasks(
+       !!sprintPending.value ||
+       !!sprintCreatePending.value ||
+       !!milestonePending.value ||
+-      milestoneEditBlocked.value ||
+       milestoneCreation.open ||
+       milestoneCreation.needsRead ||
+       sprintCreation.open ||
+@@ -527,7 +461,6 @@ export function createProjectTasks(
+       !sprintPending.value &&
+       !sprintCreatePending.value &&
+       !milestonePending.value &&
+-      !milestoneEditBlocked.value &&
+       !milestoneCreation.open &&
+       !milestoneCreation.needsRead &&
+       !sprintCreation.open &&
+@@ -548,7 +481,6 @@ export function createProjectTasks(
+       !sprintPending.value &&
+       !sprintCreatePending.value &&
+       !milestonePending.value &&
+-      !milestoneEditBlocked.value &&
+       !milestoneCreation.open &&
+       !milestoneCreation.needsRead &&
+       !sprintCreation.open &&
+@@ -582,7 +514,6 @@ export function createProjectTasks(
+       !!sprintPending.value ||
+       !!sprintCreatePending.value ||
+       !!milestonePending.value ||
+-      milestoneEditBlocked.value ||
+       milestoneCreation.open ||
+       milestoneCreation.needsRead ||
+       sprintCreation.open ||
+@@ -620,36 +551,6 @@ export function createProjectTasks(
+       !state.task
+     )
+   }
+-  function clearMilestoneEdit() {
+-    Object.assign(milestoneEdit, {
+-      open: false,
+-      projectID: '',
+-      milestoneID: '',
+-      version: '',
+-      title: '',
+-      description: '',
+-      touched: { title: false, description: false },
+-      conflict: false,
+-      readVersion: '',
+-      needsRead: false,
+-      message: '',
+-    })
+-    milestoneEditIdentity = ''
+-  }
+-  function forgetMilestoneAccess(project: string) {
+-    auth.workMilestoneEditing?.forgetUnavailable(project)
+-    clearMilestoneEdit()
+-    state.milestone = null
+-    state.milestones = []
+-    state.milestoneNext = undefined
+-  }
+-  function hasMilestoneEdit(project: string, target?: string) {
+-    const progress = auth.workMilestoneEditing?.progress
+-    return (
+-      (milestoneEdit.projectID === project && (!target || milestoneEdit.milestoneID === target)) ||
+-      (progress?.projectID === project && (!target || progress.milestoneID === target))
+-    )
+-  }
+   function clearMilestoneCreation() {
+     Object.assign(milestoneCreation, {
+       open: false,
+@@ -731,7 +632,6 @@ export function createProjectTasks(
+     createdSprintFocus.value = null
+     createdMilestoneFocus.value = null
+     clearMilestoneCreation()
+-    clearMilestoneEdit()
+     clearTimeline(true)
+     manualMilestone = null
+     state.phase = 'idle'
+@@ -1019,7 +919,6 @@ export function createProjectTasks(
+     state.message = ''
+     state.detailCurrent = false
+     clearTimeline()
+-    let refusedMilestone: { project: string; target: string } | null = null
+     await read(
+       async (p, step) => {
+         const task =
+@@ -1032,20 +931,11 @@ export function createProjectTasks(
+               ? null
+               : workspace.detail.project?.current_sprint_id)
+         const sprint = sid ? await step(() => auth.workReview.sprint(p, sid)) : null
+-        const target = sprint?.milestone_id ?? manualMilestone
+-        let milestone: Milestone | null = null
+-        if (target) {
+-          try {
+-            milestone = await step(() => auth.workReview.milestone(p, target))
+-          } catch (error) {
+-            if (
+-              error instanceof AccountFailure &&
+-              [401, 403, 404].includes(error.problem?.status ?? 0)
+-            )
+-              refusedMilestone = { project: p, target }
+-            throw error
+-          }
+-        }
++        const milestone = sprint
++          ? await step(() => auth.workReview.milestone(p, sprint.milestone_id))
++          : manualMilestone
++            ? await step(() => auth.workReview.milestone(p, manualMilestone!))
++            : null
+         if (
+           task &&
+           (!sprint ||
+@@ -1081,9 +971,6 @@ export function createProjectTasks(
+         if (changed) for (const s of taskStates) Object.assign(columns[s], emptyColumn())
+       },
+       (error) => {
+-        // read() only invokes this callback for the still-current read generation.
+-        if (refusedMilestone && hasMilestoneEdit(refusedMilestone.project, refusedMilestone.target))
+-          forgetMilestoneAccess(refusedMilestone.project)
+         state.phase = 'error'
+         state.message = explain(error)
+         state.task = null
+@@ -1110,244 +997,6 @@ export function createProjectTasks(
+       await loadColumn(s)
+     }
+   }
+-  function sameMilestoneEdit(own: number, project: string, target: string, identity: string) {
+-    return (
+-      live(own, project) &&
+-      identityKey(project) === identity &&
+-      !state.task &&
+-      state.milestone?.id === target
+-    )
+-  }
+-  function releaseRejectedMilestoneEdit() {
+-    if (
+-      !auth.state.busy &&
+-      auth.workMilestoneEditing?.progress?.phase === 'rejected' &&
+-      auth.workMilestoneEditing.progress.contextValid
+-    )
+-      auth.workMilestoneEditing.editRejected()
+-  }
+-  function openMilestoneEdit() {
+-    const current = state.milestone
+-    if (!current || busy.value || !canEditMilestone.value || milestoneEdit.open) return
+-    releaseRejectedMilestoneEdit()
+-    releaseRejectedMilestone()
+-    if (sprintProgress.value?.phase === 'rejected' && sprintProgress.value.contextValid)
+-      auth.workSprintLifecycle.editRejected()
+-    if (sprintCreateProgress.value?.phase === 'rejected' && sprintCreateProgress.value.contextValid)
+-      auth.workSprintLifecycle.editRejectedCreate()
+-    clearMilestoneEdit()
+-    Object.assign(milestoneEdit, {
+-      open: true,
+-      projectID: current.project_id,
+-      milestoneID: current.id,
+-      version: current.version,
+-      title: current.title,
+-      description: current.description,
+-    })
+-    milestoneEditIdentity = identityKey(current.project_id)
+-  }
+-  function touchMilestoneEdit(field: 'title' | 'description', value: string) {
+-    if (!milestoneEdit.open || busy.value || !canEditMilestone.value || milestoneEditStale.value)
+-      return
+-    milestoneEdit[field] = value
+-    milestoneEdit.touched[field] = true
+-  }
+-  function cancelMilestoneEdit() {
+-    if (busy.value || milestoneEditPending.value) return
+-    releaseRejectedMilestoneEdit()
+-    clearMilestoneEdit()
+-  }
+-  async function readEditedMilestone(confirmed: boolean) {
+-    const project = milestoneEdit.projectID,
+-      target = milestoneEdit.milestoneID,
+-      own = generation,
+-      identity = milestoneEditIdentity
+-    if (
+-      busy.value ||
+-      milestoneEditPending.value ||
+-      !sameMilestoneEdit(own, project, target, identity)
+-    )
+-      return
+-    await read(
+-      async (_p, step) => {
+-        const current = await step(() => auth.workReview.milestone(project, target))
+-        const page = await step(() => auth.workReview.milestones(project, { limit: 50 }))
+-        if (current.id !== target || current.project_id !== project)
+-          throw new AccountFailure('invalid-response')
+-        return { current, page }
+-      },
+-      ({ current, page }) => {
+-        if (!sameMilestoneEdit(own, project, target, identity)) return
+-        state.milestone = current
+-        state.milestones = page.items
+-        state.milestoneNext = page.next_cursor
+-        milestoneEdit.readVersion = current.version
+-        if (confirmed) {
+-          milestoneEdit.needsRead = false
+-          milestoneEdit.message =
+-            auth.workMilestoneEditing.progress?.result?.changed === false
+-              ? '保存已确认，原操作没有改变内容；当前 Milestone 已重新读取。'
+-              : '保存已确认，当前 Milestone 已重新读取。'
+-        } else
+-          milestoneEdit.message =
+-            '已读取当前 Milestone。核对详情与保留输入后，可明确使用当前版本继续编辑。'
+-      },
+-      (error) => {
+-        if (
+-          error instanceof AccountFailure &&
+-          [401, 403, 404].includes(error.problem?.status ?? 0)
+-        ) {
+-          forgetMilestoneAccess(project)
+-          state.phase = 'error'
+-          state.message = '当前 Milestone 不可用或无权访问，编辑内容已清除。'
+-          return
+-        }
+-        if (sameMilestoneEdit(own, project, target, identity))
+-          milestoneEdit.message = confirmed
+-            ? '保存已确认，当前内容读取失败。请重新读取，不要再次保存。'
+-            : '当前 Milestone 读取失败，已保留原版本和输入。'
+-      },
+-    )
+-  }
+-  async function rereadMilestoneEdit() {
+-    const progress = milestoneEditProgress.value
+-    if (
+-      busy.value ||
+-      progress?.phase !== 'confirmed' ||
+-      !progress.contextValid ||
+-      state.milestone?.id !== progress.milestoneID ||
+-      state.task
+-    )
+-      return
+-    Object.assign(milestoneEdit, {
+-      projectID: progress.projectID,
+-      milestoneID: progress.milestoneID,
+-      needsRead: true,
+-    })
+-    milestoneEditIdentity = identityKey(progress.projectID)
+-    await readEditedMilestone(true)
+-  }
+-  async function reloadMilestoneEdit() {
+-    if (
+-      !milestoneEdit.open ||
+-      !milestoneEditStale.value ||
+-      busy.value ||
+-      milestoneEditPending.value
+-    )
+-      return
+-    milestoneEdit.readVersion = ''
+-    await readEditedMilestone(false)
+-  }
+-  function adoptMilestoneVersion() {
+-    const current = state.milestone
+-    if (
+-      !milestoneEdit.open ||
+-      busy.value ||
+-      !canEditMilestone.value ||
+-      !milestoneEditStale.value ||
+-      !current ||
+-      !milestoneEdit.readVersion ||
+-      current.version !== milestoneEdit.readVersion ||
+-      current.id !== milestoneEdit.milestoneID
+-    )
+-      return
+-    releaseRejectedMilestoneEdit()
+-    milestoneEdit.version = current.version
+-    if (!milestoneEdit.touched.title) milestoneEdit.title = current.title
+-    if (!milestoneEdit.touched.description) milestoneEdit.description = current.description
+-    milestoneEdit.conflict = false
+-    milestoneEdit.readVersion = ''
+-    milestoneEdit.message = '已使用当前版本，保留本次修改。请核对后明确保存。'
+-  }
+-  async function acceptMilestoneEdit(
+-    receipt: MilestoneUpdateReceipt,
+-    own: number,
+-    identity: string,
+-  ) {
+-    const current = receipt.milestone
+-    if (!sameMilestoneEdit(own, current.project_id, current.id, identity)) return
+-    clearMilestoneEdit()
+-    Object.assign(milestoneEdit, {
+-      projectID: current.project_id,
+-      milestoneID: current.id,
+-      needsRead: true,
+-      message: '保存已确认，正在读取当前 Milestone。',
+-    })
+-    milestoneEditIdentity = identity
+-    // Receipt is historical: publish the current object only from the independent reads.
+-    state.milestoneNext = undefined
+-    await readEditedMilestone(true)
+-  }
+-  async function submitMilestoneEdit() {
+-    const project = milestoneEdit.projectID,
+-      target = milestoneEdit.milestoneID,
+-      own = generation,
+-      identity = milestoneEditIdentity
+-    if (
+-      !milestoneEdit.open ||
+-      !canEditMilestone.value ||
+-      !milestoneEditDirty.value ||
+-      milestoneEditStale.value ||
+-      busy.value ||
+-      !sameMilestoneEdit(own, project, target, identity)
+-    )
+-      return
+-    try {
+-      const input = captureMilestoneUpdateInput({
+-        expected_version: milestoneEdit.version,
+-        request: {
+-          ...(milestoneEdit.touched.title ? { title: milestoneEdit.title } : {}),
+-          ...(milestoneEdit.touched.description ? { description: milestoneEdit.description } : {}),
+-        },
+-      })
+-      releaseRejectedMilestoneEdit()
+-      const value = await auth.workMilestoneEditing.update(project, target, input)
+-      const receipt = 'state' in value ? value.result : value
+-      if (receipt) await acceptMilestoneEdit(receipt, own, identity)
+-    } catch (error) {
+-      if (!sameMilestoneEdit(own, project, target, identity)) return
+-      if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
+-        forgetMilestoneAccess(project)
+-        state.phase = 'error'
+-        state.message = '当前 Milestone 不可用或无权访问，编辑内容已清除。'
+-        return
+-      }
+-      if (error instanceof AccountFailure && error.problem?.code === 'VERSION_CONFLICT') {
+-        milestoneEdit.conflict = true
+-        milestoneEdit.readVersion = ''
+-        milestoneEdit.message = 'Milestone 已发生变化，原版本和输入已保留。请先重新读取并核对。'
+-      } else
+-        milestoneEdit.message =
+-          error instanceof AccountFailure && error.kind === 'invalid-input'
+-            ? '请核对标题与描述：标题须含非空白字符、最多 256 个字符；描述最多 32768 字节。'
+-            : '未确认保存结果，请查看原操作状态。'
+-    }
+-  }
+-  async function lookupMilestoneEdit() {
+-    const progress = milestoneEditProgress.value,
+-      own = generation
+-    if (
+-      busy.value ||
+-      progress?.phase !== 'uncertain' ||
+-      !progress.contextValid ||
+-      state.milestone?.id !== progress.milestoneID ||
+-      state.task
+-    )
+-      return
+-    const identity = identityKey(progress.projectID)
+-    try {
+-      const value = await auth.workMilestoneEditing.checkOriginal()
+-      const receipt = 'state' in value ? value.result : value
+-      if (receipt) await acceptMilestoneEdit(receipt, own, identity)
+-    } catch (error) {
+-      if (!sameMilestoneEdit(own, progress.projectID, progress.milestoneID, identity)) return
+-      if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
+-        forgetMilestoneAccess(progress.projectID)
+-        state.phase = 'error'
+-        state.message = '当前 Milestone 不可用或无权访问，编辑内容已清除。'
+-      } else milestoneEdit.message = '未取得原保存结果，可在原请求结束后再次查询。'
+-    }
+-  }
+   function openMilestoneCreation() {
+     const p = workspace.currentReadContext.value?.projectID
+     if (!p || busy.value || !canCreateMilestone.value) return
+@@ -2085,12 +1734,8 @@ export function createProjectTasks(
+   function confirmLeave(target?: string): Promise<boolean> {
+     if (target === route.value || !dirty.value) return Promise.resolve(true)
+     confirmation.message =
+-      pending.value ||
+-      sprintPending.value ||
+-      sprintCreatePending.value ||
+-      milestonePending.value ||
+-      milestoneEditPending.value
+-        ? '操作结果尚未确认。离开不会重发，返回原 Milestone、Sprint 或任务后可继续查询原结果。'
++      pending.value || sprintPending.value || sprintCreatePending.value || milestonePending.value
++        ? '操作结果尚未确认。离开不会重发，返回原 Sprint 或任务后可继续查询原结果。'
+         : '离开将放弃尚未提交的工作输入。'
+     confirmation.open = true
+     return new Promise((resolve) => {
+@@ -2102,20 +1747,17 @@ export function createProjectTasks(
+     const resolve = resolveLeave
+     resolveLeave = null
+     if (yes) {
+-      releaseRejectedMilestoneEdit()
+       clearDraft()
+       clearCreation()
+       clearEdit()
+       clearSprintStart()
+       clearSprintCreation()
+       clearMilestoneCreation()
+-      clearMilestoneEdit()
+     }
+     resolve?.(yes)
+   }
+   function afterNavigation(to: string) {
+     if (to === route.value) return
+-    releaseRejectedMilestoneEdit()
+     const milestoneFocus = createdMilestoneFocus.value
+     if (
+       milestoneFocus &&
+@@ -2135,7 +1777,6 @@ export function createProjectTasks(
+     clearSprintStart()
+     clearSprintCreation()
+     clearMilestoneCreation()
+-    clearMilestoneEdit()
+     clearTimeline(true)
+     state.task = null
+     state.detailCurrent = false
+@@ -2145,33 +1786,6 @@ export function createProjectTasks(
+       void pump()
+     }
+   }
+-  let milestoneProjectRead: { projectID: string; identity: string; path: string } | null = null
+-  const stopMilestoneAccess = watch(
+-    () => [workspace.detail.phase, workspace.detail.project] as const,
+-    ([phase, project]) => {
+-      if (phase === 'loading') {
+-        // A current Project retained for a new Get binds a later Owner refusal.
+-        // A different route starts with no Project and cannot erase the old intent.
+-        const path = workspace.paths.value.home
+-        milestoneProjectRead =
+-          project && path && projectPath() === path
+-            ? { projectID: project.id, identity: identityKey(project.id), path }
+-            : null
+-      } else if (phase === 'unavailable') {
+-        const read = milestoneProjectRead
+-        milestoneProjectRead = null
+-        if (
+-          read &&
+-          read.identity &&
+-          identityKey(read.projectID) === read.identity &&
+-          projectPath() === read.path &&
+-          hasMilestoneEdit(read.projectID)
+-        )
+-          forgetMilestoneAccess(read.projectID)
+-      } else if (phase !== 'checking') milestoneProjectRead = null
+-    },
+-    { flush: 'sync' },
+-  )
+   const stop = watch(
+     () =>
+       [workspace.currentReadContext.value, auth.state.busy, auth.personalContext.identity] as const,
+@@ -2203,7 +1817,6 @@ export function createProjectTasks(
+     disposed = true
+     retire()
+     stop()
+-    stopMilestoneAccess()
+     finishLeave(false)
+     clearData()
+   }
+@@ -2216,20 +1829,6 @@ export function createProjectTasks(
+     edit,
+     sprintStart,
+     projectID,
+-    milestoneEdit,
+-    milestoneEditPending,
+-    milestoneEditProgress,
+-    milestoneEditDirty,
+-    milestoneEditStale,
+-    canEditMilestone,
+-    openMilestoneEdit,
+-    touchMilestoneEdit,
+-    cancelMilestoneEdit,
+-    submitMilestoneEdit,
+-    lookupMilestoneEdit,
+-    rereadMilestoneEdit,
+-    reloadMilestoneEdit,
+-    adoptMilestoneVersion,
+     milestoneCreation,
+     milestonePending,
+     milestoneProgress,
+diff --git a/web/src/composables/useSession.ts b/web/src/composables/useSession.ts
+index a9822800..e3d0ac67 100644
+--- a/web/src/composables/useSession.ts
++++ b/web/src/composables/useSession.ts
+@@ -448,8 +448,7 @@ export type ProjectVariableProgress = Readonly<{
+   observation: 'none' | 'committed' | 'in_progress' | 'not_observed' | 'failed'
+   contextValid: boolean
+ }>
+-type MilestonePlanningAction =
+-  'milestone-create' | 'milestone-create-lookup' | 'milestone-update' | 'milestone-update-lookup'
++type MilestonePlanningAction = 'milestone-create' | 'milestone-create-lookup' | 'milestone-update' | 'milestone-update-lookup'
+ type MilestoneCreateIntent = Omit<SprintStartIntent, 'sprintID' | 'input'> & {
+   milestoneID: string
+   input: MilestoneCreateInput
+@@ -464,9 +463,7 @@ export type MilestoneCreateProgress = Readonly<{
+   contextValid: boolean
+ }>
+ type MilestoneUpdateIntent = Omit<MilestoneCreateIntent, 'input'> & { input: MilestoneUpdateInput }
+-export type MilestoneUpdateProgress = Omit<MilestoneCreateProgress, 'result'> & {
+-  readonly result: MilestoneUpdateReceipt | null
+-}
++export type MilestoneUpdateProgress = Omit<MilestoneCreateProgress, 'result'> & { readonly result: MilestoneUpdateReceipt | null }
+ type WorkReviewAction = 'work-review-read' | 'work-review-transfer' | 'work-review-lookup'
+ type WorkReviewIntent = {
+   identity: PersonalIdentity
+@@ -4778,8 +4775,7 @@ export function createSessionController(
+     milestoneUpdateIntent = null
+     milestoneUpdateContext = null
+     milestoneUpdateState.progress = null
+-    if (owner?.kind === 'milestone-update' || owner?.kind === 'milestone-update-lookup')
+-      owner.abandon?.()
++    if (owner?.kind === 'milestone-update' || owner?.kind === 'milestone-update-lookup') owner.abandon?.()
+   }
+   function clearMilestonePlanningState() {
+     clearMilestoneUpdateState()
+@@ -4918,18 +4914,8 @@ export function createSessionController(
+         dispatched = true
+         const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
+         return lookup
+-          ? milestonePlanningAPI.lookupUpdate(
+-              original.projectID,
+-              original.milestoneID,
+-              original.input,
+-              write,
+-            )
+-          : milestonePlanningAPI.update(
+-              original.projectID,
+-              original.milestoneID,
+-              original.input,
+-              write,
+-            )
++          ? milestonePlanningAPI.lookupUpdate(original.projectID, original.milestoneID, original.input, write)
++          : milestonePlanningAPI.update(original.projectID, original.milestoneID, original.input, write)
+       },
+       undefined,
+       kind,
+@@ -4979,72 +4965,32 @@ export function createSessionController(
+   const workMilestoneEditing = {
+     get progress(): MilestoneUpdateProgress | null {
+       const value = milestoneUpdateState.progress
+-      return value
+-        ? Object.freeze({
+-            ...value,
+-            contextValid: !!milestoneUpdateContext && projectContext(milestoneUpdateContext),
+-          })
+-        : null
++      return value ? Object.freeze({ ...value, contextValid: !!milestoneUpdateContext && projectContext(milestoneUpdateContext) }) : null
+     },
+-    update(
+-      projectID: string,
+-      milestoneID: string,
+-      value: MilestoneUpdateInput,
+-    ): Promise<MilestoneUpdateReceipt | MilestoneUpdateLookup> {
++    update(projectID: string, milestoneID: string, value: MilestoneUpdateInput): Promise<MilestoneUpdateReceipt | MilestoneUpdateLookup> {
+       try {
+         const identity = personalIdentity()
+-        if (
+-          owner ||
+-          milestoneUpdateIntent ||
+-          milestoneCreateIntent ||
+-          sprintStartIntent ||
+-          sprintCreateIntent ||
+-          workReviewIntent ||
+-          personalIntent ||
+-          pending
+-        )
+-          throw new AccountFailure('busy')
+-        if (!uuid7.test(projectID) || !uuid7.test(milestoneID))
+-          throw new AccountFailure('invalid-input')
++        if (owner || milestoneUpdateIntent || milestoneCreateIntent || sprintStartIntent || sprintCreateIntent || workReviewIntent || personalIntent || pending) throw new AccountFailure('busy')
++        if (!uuid7.test(projectID) || !uuid7.test(milestoneID)) throw new AccountFailure('invalid-input')
+         const input = captureMilestoneUpdateInput(value)
+-        const original: MilestoneUpdateIntent = {
+-          identity,
+-          csrf: sessionCSRF,
+-          projectID,
+-          milestoneID,
+-          input,
+-          key: newKey(),
+-          body: JSON.stringify(input),
+-          uncertain: false,
+-        }
++        const original: MilestoneUpdateIntent = { identity, csrf: sessionCSRF, projectID, milestoneID, input, key: newKey(), body: JSON.stringify(input), uncertain: false }
+         milestoneUpdateIntent = original
+         return performMilestoneUpdate(original, false)
+-      } catch (error) {
+-        return Promise.reject(error)
+-      }
++      } catch (error) { return Promise.reject(error) }
+     },
+     checkOriginal(): Promise<MilestoneUpdateReceipt | MilestoneUpdateLookup> {
+-      if (!milestoneUpdateIntent?.uncertain)
+-        return Promise.reject(new AccountFailure('invalid-input'))
++      if (!milestoneUpdateIntent?.uncertain) return Promise.reject(new AccountFailure('invalid-input'))
+       return performMilestoneUpdate(milestoneUpdateIntent, true)
+     },
+     editRejected() {
+-      if (
+-        owner ||
+-        !milestoneUpdateIntent ||
+-        !milestoneUpdateCurrent(milestoneUpdateIntent) ||
+-        milestoneUpdateIntent.uncertain ||
+-        milestoneUpdateState.progress?.phase !== 'rejected'
+-      )
+-        throw new AccountFailure('busy')
++      if (owner || !milestoneUpdateIntent || !milestoneUpdateCurrent(milestoneUpdateIntent) || milestoneUpdateIntent.uncertain || milestoneUpdateState.progress?.phase !== 'rejected') throw new AccountFailure('busy')
+       clearMilestoneUpdateState()
+     },
+     forgetUnavailable(projectID: string) {
+       if (milestoneUpdateState.progress?.projectID === projectID) clearMilestoneUpdateState()
+     },
+     abandon() {
+-      if (owner?.kind === 'milestone-update' || owner?.kind === 'milestone-update-lookup')
+-        owner.abandon?.()
++      if (owner?.kind === 'milestone-update' || owner?.kind === 'milestone-update-lookup') owner.abandon?.()
+     },
+   }
+   const workMilestonePlanning = {
+@@ -5386,8 +5332,7 @@ export function createSessionController(
+     startTransfer(projectID: string, taskID: string, value: ReviewInput) {
+       try {
+         const identity = personalIdentity()
+-        if (owner || workReviewIntent || milestoneUpdateIntent || personalIntent || pending)
+-          throw new AccountFailure('busy')
++        if (owner || workReviewIntent || milestoneUpdateIntent || personalIntent || pending) throw new AccountFailure('busy')
+         if (!uuid7.test(projectID) || !uuid7.test(taskID)) throw new AccountFailure('invalid-input')
+         const input = captureReviewInput(value)
+         const original: WorkReviewIntent = {
+@@ -5410,8 +5355,7 @@ export function createSessionController(
+     startReady(projectID: string, taskID: string, value: ReadyInput) {
+       try {
+         const identity = personalIdentity()
+-        if (owner || workReviewIntent || milestoneUpdateIntent || personalIntent || pending)
+-          throw new AccountFailure('busy')
++        if (owner || workReviewIntent || milestoneUpdateIntent || personalIntent || pending) throw new AccountFailure('busy')
+         if (!uuid7.test(projectID) || !uuid7.test(taskID)) throw new AccountFailure('invalid-input')
+         const input = captureReadyInput(value)
+         const original: WorkReviewIntent = {
+@@ -5434,8 +5378,7 @@ export function createSessionController(
+     startCreate(projectID: string, value: TaskCreateDraft) {
+       try {
+         const identity = personalIdentity()
+-        if (owner || workReviewIntent || milestoneUpdateIntent || personalIntent || pending)
+-          throw new AccountFailure('busy')
++        if (owner || workReviewIntent || milestoneUpdateIntent || personalIntent || pending) throw new AccountFailure('busy')
+         if (!uuid7.test(projectID)) throw new AccountFailure('invalid-input')
+         const draft = captureTaskCreateDraft(value),
+           taskID = newTaskID()
+@@ -5460,8 +5403,7 @@ export function createSessionController(
+     startEdit(projectID: string, taskID: string, value: TaskUpdateInput) {
+       try {
+         const identity = personalIdentity()
+-        if (owner || workReviewIntent || milestoneUpdateIntent || personalIntent || pending)
+-          throw new AccountFailure('busy')
++        if (owner || workReviewIntent || milestoneUpdateIntent || personalIntent || pending) throw new AccountFailure('busy')
+         if (!uuid7.test(projectID) || !uuid7.test(taskID)) throw new AccountFailure('invalid-input')
+         const input = captureTaskUpdateInput(value)
+         const original: WorkReviewIntent = {
+diff --git a/web/src/tests/milestone-edit-client.spec.ts b/web/src/tests/milestone-edit-client.spec.ts
+deleted file mode 100644
+index 55e59aec..00000000
+--- a/web/src/tests/milestone-edit-client.spec.ts
++++ /dev/null
+@@ -1,147 +0,0 @@
+-import { describe, expect, it, vi } from 'vitest'
+-import { AccountFailure, type Fetch } from '../api/client'
+-import {
+-  captureMilestoneUpdateInput,
+-  createWorkMilestonePlanningAPI,
+-  type MilestoneUpdateInput,
+-} from '../api/work-milestone-planning'
+-const id = (n: number) => `01990000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
+-const project = id(1),
+-  target = id(2),
+-  at = '2026-10-11T10:00:00.000001Z'
+-const write = { csrfToken: 'C'.repeat(43), key: 'K'.repeat(32) }
+-const original = { expected_version: '9007199254740993', request: { title: '  e\u0301 项目😀  ' } }
+-function receipt(input: MilestoneUpdateInput = original, changed = true) {
+-  return {
+-    command: 'work.milestone.update',
+-    changed,
+-    sprint: null,
+-    event_id: changed ? id(3) : null,
+-    milestone: {
+-      id: target,
+-      project_id: project,
+-      title: 'Old',
+-      description: 'Unchanged',
+-      ...input.request,
+-      manual_rank: '8'.repeat(32),
+-      version: String(BigInt(input.expected_version) + (changed ? 1n : 0n)),
+-      created_at: at,
+-      updated_at: at,
+-    },
+-  }
+-}
+-const json = (value: unknown) =>
+-  new Response(JSON.stringify(value), {
+-    status: 200,
+-    headers: { 'Content-Type': 'application/json', 'X-Request-ID': id(99) },
+-  })
+-describe('Milestone edit wire contract', () => {
+-  it('preserves original bytes, exact presence, large versions and explicit empty description', async () => {
+-    const draft = { expected_version: original.expected_version, request: { ...original.request } }
+-    const captured = captureMilestoneUpdateInput(draft)
+-    draft.request.title = 'Later'
+-    expect(captured).toEqual(original)
+-    expect(Object.isFrozen(captured.request)).toBe(true)
+-    const fetch = vi.fn<Fetch>(async () => json(receipt()))
+-    const result = await createWorkMilestonePlanningAPI(fetch).update(
+-      project,
+-      target,
+-      captured,
+-      write,
+-    )
+-    expect(result).toEqual(receipt())
+-    expect(fetch.mock.calls[0]![0]).toBe(`/api/v1/projects/${project}/milestones/${target}`)
+-    expect(fetch.mock.calls[0]![1].method).toBe('PATCH')
+-    expect(JSON.parse(fetch.mock.calls[0]![1].body as string)).toEqual(original)
+-    expect(
+-      captureMilestoneUpdateInput({ expected_version: '1', request: { description: '' } }).request,
+-    ).toEqual({ description: '' })
+-  })
+-  it('rejects invalid title, null, empty patch, unknown fields and malformed version before fetch', () => {
+-    const fetch = vi.fn<Fetch>(),
+-      api = createWorkMilestonePlanningAPI(fetch)
+-    for (const request of [
+-      {},
+-      { title: null },
+-      { description: null },
+-      { title: '' },
+-      { title: ' \n' },
+-      { title: 'x\u007f' },
+-      { title: '\ud800' },
+-      { title: '😀'.repeat(257) },
+-      { description: 'x'.repeat(32769) },
+-      { Title: 'Wrong' },
+-      { milestone_id: target, title: 'Wrong' },
+-    ])
+-      expect(() =>
+-        api.update(
+-          project,
+-          target,
+-          { expected_version: '1', request } as unknown as MilestoneUpdateInput,
+-          write,
+-        ),
+-      ).toThrowError(AccountFailure)
+-    for (const version of ['01', '0', '9223372036854775808', 1])
+-      expect(() =>
+-        captureMilestoneUpdateInput({ expected_version: version, request: { title: 'x' } }),
+-      ).toThrowError(AccountFailure)
+-    expect(fetch).not.toHaveBeenCalled()
+-  })
+-  it('accepts a MaxInt64 no-op and requires precise changed/version/event and original fields', async () => {
+-    const max = { expected_version: '9223372036854775807', request: { description: '' } }
+-    const fetch = vi.fn<Fetch>().mockResolvedValueOnce(json(receipt(max, false))),
+-      api = createWorkMilestonePlanningAPI(fetch)
+-    expect(await api.update(project, target, max, write)).toEqual(receipt(max, false))
+-    const good = receipt()
+-    for (const bad of [
+-      { ...good, command: 'work.milestone.create' },
+-      { ...good, sprint: {} },
+-      { ...good, event_id: null },
+-      { ...good, changed: false },
+-      { ...good, milestone: { ...good.milestone, id: id(8) } },
+-      { ...good, milestone: { ...good.milestone, project_id: id(8) } },
+-      { ...good, milestone: { ...good.milestone, title: 'Trimmed' } },
+-      { ...good, milestone: { ...good.milestone, version: original.expected_version } },
+-      { ...receipt(max, false), event_id: id(3) },
+-    ]) {
+-      fetch.mockResolvedValueOnce(json(bad))
+-      await expect(api.update(project, target, original, write)).rejects.toMatchObject({
+-        kind: 'invalid-response',
+-      })
+-    }
+-  })
+-  it('uses Structure state/result and the original target, version, patch and key for all Lookup observations', async () => {
+-    const fetch = vi.fn<Fetch>(),
+-      api = createWorkMilestonePlanningAPI(fetch)
+-    for (const state of ['not_observed', 'in_progress', 'committed'] as const) {
+-      fetch.mockResolvedValueOnce(json({ state, result: state === 'committed' ? receipt() : null }))
+-      expect(await api.lookupUpdate(project, target, original, write)).toEqual({
+-        state,
+-        result: state === 'committed' ? receipt() : null,
+-      })
+-    }
+-    for (const [path, init] of fetch.mock.calls) {
+-      expect(path).toBe(`/api/v1/projects/${project}/structure-commands/lookup`)
+-      expect(JSON.parse(init.body as string)).toEqual({
+-        command: 'work.milestone.update',
+-        target_id: target,
+-        ...original,
+-      })
+-      expect(init.headers).toMatchObject({ 'Idempotency-Key': write.key })
+-    }
+-    for (const bad of [
+-      { status: 'committed', receipt: receipt() },
+-      { state: 'in_progress' },
+-      { state: 'not_observed', result: receipt() },
+-      {
+-        state: 'committed',
+-        result: { ...receipt(), milestone: { ...receipt().milestone, title: 'Wrong' } },
+-      },
+-    ]) {
+-      fetch.mockResolvedValueOnce(json(bad))
+-      await expect(api.lookupUpdate(project, target, original, write)).rejects.toMatchObject({
+-        kind: 'invalid-response',
+-      })
+-    }
+-  })
+-})
+diff --git a/web/src/tests/milestone-edit-page.spec.ts b/web/src/tests/milestone-edit-page.spec.ts
+deleted file mode 100644
+index 794c79f0..00000000
+--- a/web/src/tests/milestone-edit-page.spec.ts
++++ /dev/null
+@@ -1,396 +0,0 @@
+-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+-import { DOMWrapper, flushPromises, mount, type VueWrapper } from '@vue/test-utils'
+-import { computed, shallowReactive, shallowRef } from 'vue'
+-import { AccountFailure } from '../api/client'
+-import type { Project } from '../api/project-owner'
+-import type { Milestone, Sprint } from '../api/work-review'
+-import type { MilestoneUpdateInput, MilestoneUpdateReceipt } from '../api/work-milestone-planning'
+-import {
+-  createProjectTasks,
+-  projectTasksKey,
+-  type ProjectTasks,
+-} from '../composables/useProjectTasks'
+-import type { SessionController } from '../composables/useSession'
+-import ProjectTasksView from '../views/projects/ProjectTasksView.vue'
+-import type { ProjectWorkspace } from '../composables/useProjectWorkspace'
+-const id = (n: number) => `01990000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
+-const p = id(1),
+-  m = id(2),
+-  s = id(3),
+-  at = '2026-10-11T10:00:00.000001Z'
+-const base = {
+-  project_id: p,
+-  manual_rank: '8'.repeat(32),
+-  version: '9007199254740993',
+-  created_at: at,
+-  updated_at: at,
+-}
+-const milestone: Milestone = {
+-  ...base,
+-  id: m,
+-  title: 'Original milestone',
+-  description: 'Original description',
+-}
+-const sprint: Sprint = {
+-  ...base,
+-  id: s,
+-  milestone_id: m,
+-  title: 'Current Sprint',
+-  description: '',
+-  state: 'current',
+-  started_at: at,
+-  completed_at: null,
+-}
+-const project: Project = {
+-  id: p,
+-  owner_user_id: id(8),
+-  name: 'Demo',
+-  normalized_name: 'demo',
+-  description: '',
+-  lifecycle: 'active',
+-  version: '1',
+-  current_sprint_id: s,
+-  created_at: at,
+-  updated_at: at,
+-  archived_at: null,
+-}
+-type Port = SessionController['workMilestoneEditing']
+-const owners: ProjectTasks[] = [],
+-  wrappers: VueWrapper[] = [],
+-  releases: (() => void)[] = []
+-beforeEach(() => {
+-  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(
+-    () => [{ width: 10, height: 10 }] as unknown as DOMRectList,
+-  )
+-  vi.stubGlobal('CSS', { escape: (v: string) => v })
+-})
+-afterEach(async () => {
+-  releases.splice(0).forEach((r) => r())
+-  wrappers.splice(0).forEach((w) => w.unmount())
+-  owners.splice(0).forEach((o) => o.dispose())
+-  await flushPromises()
+-  document.body.innerHTML = ''
+-  vi.unstubAllGlobals()
+-  vi.restoreAllMocks()
+-})
+-const failure = (code: string, status = 409) =>
+-  new AccountFailure('problem', {
+-    type: 'urn:agenteam:problem:test',
+-    title: 'Rejected',
+-    status,
+-    detail: '',
+-    instance: '',
+-    code,
+-    request_id: id(99),
+-    commit_state: code === 'COMMIT_UNKNOWN' ? 'unknown' : 'not_committed',
+-  })
+-async function fixture() {
+-  // Actual controller/shared controls; Session ports are controlled, not a SQL or browser oracle.
+-  const identity = { userID: id(8), sessionID: id(9), epoch: 1 }
+-  const personal = shallowReactive<{ identity: typeof identity | null }>({ identity })
+-  const context = shallowRef<ProjectWorkspace['currentReadContext']['value']>({
+-    identity,
+-    projectID: p,
+-    generation: 1,
+-    readGeneration: 1,
+-  })
+-  const detail = shallowReactive<{ project: Project | null }>({ project: { ...project } })
+-  const sessionState = shallowReactive({ phase: 'authenticated', busy: false })
+-  const progress = shallowRef<Port['progress']>(null)
+-  let current = { ...milestone }
+-  const publish = (
+-    phase: NonNullable<Port['progress']>['phase'],
+-    result: MilestoneUpdateReceipt | null = null,
+-    observation: NonNullable<Port['progress']>['observation'] = 'none',
+-  ) => {
+-    progress.value = {
+-      projectID: p,
+-      milestoneID: m,
+-      phase,
+-      result,
+-      observation,
+-      error: null,
+-      contextValid: true,
+-    }
+-  }
+-  const commit = (input: MilestoneUpdateInput, changed = true) => {
+-    current = {
+-      ...current,
+-      ...input.request,
+-      version: String(BigInt(input.expected_version) + (changed ? 1n : 0n)),
+-    }
+-    const result: MilestoneUpdateReceipt = {
+-      command: 'work.milestone.update',
+-      changed,
+-      milestone: { ...current },
+-      sprint: null,
+-      event_id: changed ? id(20) : null,
+-    }
+-    publish('confirmed', result)
+-    return result
+-  }
+-  const api = {
+-    update: vi.fn<Port['update']>(async (_p, _m, input) => commit(input)),
+-    checkOriginal: vi.fn<Port['checkOriginal']>(async () => ({
+-      state: 'not_observed',
+-      result: null,
+-    })),
+-    editRejected: vi.fn(() => {
+-      progress.value = null
+-    }),
+-    forgetUnavailable: vi.fn(() => {
+-      progress.value = null
+-    }),
+-    abandon: vi.fn(),
+-    get progress() {
+-      return progress.value
+-    },
+-  } satisfies Port
+-  const reads = {
+-    progress: null,
+-    milestones: vi.fn(async () => ({ items: [{ ...current }] })),
+-    milestone: vi.fn(async () => ({ ...current })),
+-    sprints: vi.fn(async () => ({ items: [sprint] })),
+-    sprint: vi.fn(async () => sprint),
+-    agents: vi.fn(async () => ({ items: [] })),
+-    tasks: vi.fn(async () => ({ items: [] })),
+-    abandonRead: vi.fn(),
+-  }
+-  const createAPI = {
+-    progress: null,
+-    create: vi.fn(),
+-    checkOriginal: vi.fn(),
+-    editRejected: vi.fn(),
+-    abandon: vi.fn(),
+-  }
+-  const sprintAPI = {
+-    progress: null,
+-    createProgress: null,
+-    create: vi.fn(),
+-    start: vi.fn(),
+-    checkOriginal: vi.fn(),
+-    checkOriginalCreate: vi.fn(),
+-    editRejected: vi.fn(),
+-    editRejectedCreate: vi.fn(),
+-  }
+-  const auth = {
+-    state: sessionState,
+-    personalContext: personal,
+-    workReview: reads,
+-    workMilestoneEditing: api,
+-    workMilestonePlanning: createAPI,
+-    workSprintLifecycle: sprintAPI,
+-  } as unknown as SessionController
+-  const workspace = {
+-    currentReadContext: context,
+-    detail,
+-    paths: computed(() => ({ home: '/owner/demo' })),
+-    readCurrent: vi.fn(),
+-  } as unknown as ProjectWorkspace
+-  const owner = createProjectTasks(auth, workspace, async (path) => {
+-    owner.afterNavigation(path)
+-  })
+-  owners.push(owner)
+-  owner.afterNavigation('/owner/demo/tasks')
+-  const wrapper = mount(ProjectTasksView, {
+-    attachTo: document.body,
+-    global: { provide: { [projectTasksKey as symbol]: owner } },
+-  })
+-  wrappers.push(wrapper)
+-  await flushPromises()
+-  return {
+-    owner,
+-    wrapper,
+-    api,
+-    reads,
+-    createAPI,
+-    sprintAPI,
+-    publish,
+-    commit,
+-    progress,
+-    context,
+-    personal,
+-    detail,
+-    sessionState,
+-    setCurrent(value: Milestone) {
+-      current = value
+-    },
+-  }
+-}
+-const body = () => new DOMWrapper(document.body)
+-function button(name: string) {
+-  const b = body()
+-    .findAll<HTMLButtonElement>('button')
+-    .find((v) => {
+-      const copy = v.element.cloneNode(true) as Element
+-      copy.querySelectorAll('[aria-hidden="true"]').forEach((n) => n.remove())
+-      return (copy.getAttribute('aria-label') ?? copy.textContent?.trim()) === name
+-    })
+-  expect(b, name).toBeDefined()
+-  return b!
+-}
+-async function click(name: string) {
+-  await button(name).trigger('click')
+-  await flushPromises()
+-}
+-function field(name: string) {
+-  const label = body()
+-    .findAll('label')
+-    .find((v) => v.text().includes(name))
+-  expect(label).toBeDefined()
+-  return body().get<HTMLInputElement | HTMLTextAreaElement>(`#${label!.attributes('for')}`)
+-}
+-async function save() {
+-  await body().get('form[aria-label="编辑 Milestone"]').trigger('submit')
+-  await flushPromises()
+-}
+-describe('Milestone editing visible behavior', () => {
+-  it('prefills, restores cancel focus, saves only the touched field and publishes actual current Get/List', async () => {
+-    const f = await fixture()
+-    await click('编辑 Milestone')
+-    expect(field('Milestone 标题').element.value).toBe(milestone.title)
+-    expect(field('Milestone 描述').element.value).toBe(milestone.description)
+-    expect(document.activeElement).toBe(field('Milestone 标题').element)
+-    await click('取消编辑 Milestone')
+-    expect(document.activeElement).toBe(button('编辑 Milestone').element)
+-    expect(f.api.update).not.toHaveBeenCalled()
+-    await click('编辑 Milestone')
+-    const title = '  e\u0301 delivery 😀  '
+-    await field('Milestone 标题').setValue(title)
+-    f.api.update.mockImplementationOnce(async (_p, _m, input) => {
+-      const result = f.commit(input)
+-      f.setCurrent({
+-        ...result.milestone,
+-        title: 'Newer current fact',
+-        version: '9007199254740998',
+-      })
+-      return result
+-    })
+-    const before = f.reads.milestone.mock.calls.length
+-    await save()
+-    expect(f.api.update).toHaveBeenCalledExactlyOnceWith(p, m, {
+-      expected_version: milestone.version,
+-      request: { title },
+-    })
+-    expect(f.reads.milestone).toHaveBeenCalledTimes(before + 1)
+-    expect(f.reads.milestones.mock.calls.length).toBeGreaterThan(1)
+-    expect(body().get('.selected-milestone h2').text()).toBe('Newer current fact')
+-    expect(document.activeElement).toBe(body().get('.selected-milestone h2').element)
+-    expect(f.progress.value?.result?.milestone.title).toBe(title)
+-    expect(f.createAPI.create).not.toHaveBeenCalled()
+-    expect(f.sprintAPI.start).not.toHaveBeenCalled()
+-  })
+-  it('sends explicit empty description and preserves the successful no-op result separately from rereads', async () => {
+-    const f = await fixture()
+-    await click('编辑 Milestone')
+-    await field('Milestone 描述').setValue('')
+-    await save()
+-    expect(f.api.update).toHaveBeenLastCalledWith(p, m, {
+-      expected_version: milestone.version,
+-      request: { description: '' },
+-    })
+-    expect(body().get('.milestone-description').text()).toBe('暂无描述。')
+-    await click('编辑 Milestone')
+-    await field('Milestone 标题').setValue('Temporary')
+-    await field('Milestone 标题').setValue(milestone.title)
+-    f.api.update.mockImplementationOnce(async (_p, _m, input) => f.commit(input, false))
+-    await save()
+-    expect(body().text()).toContain('原操作没有改变内容')
+-    expect(f.progress.value?.result?.milestone.version).toBe('9007199254740994')
+-  })
+-  it('retains the draft and original version on conflict, then requires a read and explicit version adoption before saving', async () => {
+-    const f = await fixture()
+-    await click('编辑 Milestone')
+-    await field('Milestone 标题').setValue('My draft')
+-    f.api.update.mockImplementationOnce(async () => {
+-      f.publish('rejected')
+-      throw failure('VERSION_CONFLICT')
+-    })
+-    await save()
+-    expect(field('Milestone 标题').element.value).toBe('My draft')
+-    expect(button('保存 Milestone').element.disabled).toBe(true)
+-    f.setCurrent({
+-      ...milestone,
+-      title: 'Other title',
+-      description: 'New description',
+-      version: '9007199254740995',
+-    })
+-    await click('重新读取 Milestone')
+-    expect(f.owner.milestoneEdit.version).toBe(milestone.version)
+-    expect(field('Milestone 标题').element.value).toBe('My draft')
+-    expect(f.api.update).toHaveBeenCalledTimes(1)
+-    await click('使用当前版本继续编辑')
+-    expect(field('Milestone 描述').element.value).toBe('New description')
+-    expect(f.api.update).toHaveBeenCalledTimes(1)
+-    await save()
+-    expect(f.api.update).toHaveBeenLastCalledWith(p, m, {
+-      expected_version: '9007199254740995',
+-      request: { title: 'My draft' },
+-    })
+-  })
+-  it('keeps confirmed status when the current read fails and retries only the read', async () => {
+-    const f = await fixture()
+-    await click('编辑 Milestone')
+-    await field('Milestone 标题').setValue('Saved')
+-    f.reads.milestone.mockRejectedValueOnce(new AccountFailure('transport'))
+-    await save()
+-    expect(body().text()).toContain('保存已确认，当前内容读取失败')
+-    expect(body().get('.selected-milestone h2').text()).toBe(milestone.title)
+-    await click('读取已确认的 Milestone')
+-    expect(body().get('.selected-milestone h2').text()).toBe('Saved')
+-    expect(f.api.update).toHaveBeenCalledTimes(1)
+-  })
+-  it('hides the editor while Unknown and allows only original Lookup, including for an archived Project', async () => {
+-    const f = await fixture()
+-    await click('编辑 Milestone')
+-    await field('Milestone 描述').setValue('Unknown draft')
+-    f.api.update.mockImplementationOnce(async () => {
+-      f.publish('uncertain')
+-      throw failure('COMMIT_UNKNOWN')
+-    })
+-    await save()
+-    expect(body().find('form[aria-label="编辑 Milestone"]').exists()).toBe(false)
+-    f.detail.project = { ...project, lifecycle: 'archived', archived_at: at }
+-    await flushPromises()
+-    for (const observation of ['not_observed', 'in_progress'] as const) {
+-      f.api.checkOriginal.mockImplementationOnce(async () => {
+-        f.publish('uncertain', null, observation)
+-        return { state: observation, result: null }
+-      })
+-      await click('查询原 Milestone 保存结果')
+-    }
+-    f.api.checkOriginal.mockImplementationOnce(async () => ({
+-      state: 'committed',
+-      result: f.commit({
+-        expected_version: milestone.version,
+-        request: { description: 'Unknown draft' },
+-      }),
+-    }))
+-    await click('查询原 Milestone 保存结果')
+-    expect(body().get('.milestone-description').text()).toBe('Unknown draft')
+-    expect(f.api.update).toHaveBeenCalledTimes(1)
+-    expect(f.api.checkOriginal).toHaveBeenCalledTimes(3)
+-    expect(button('编辑 Milestone').element.disabled).toBe(true)
+-  })
+-  it('preserves drafts through same-identity checking and clears material on an actual denied reread', async () => {
+-    const f = await fixture()
+-    await click('编辑 Milestone')
+-    await field('Milestone 标题').setValue('Private draft')
+-    const context = f.context.value
+-    f.context.value = null
+-    f.sessionState.phase = 'checking'
+-    await flushPromises()
+-    expect(body().text()).not.toContain('Private draft')
+-    f.sessionState.phase = 'authenticated'
+-    f.context.value = context
+-    await flushPromises()
+-    expect(field('Milestone 标题').element.value).toBe('Private draft')
+-    f.reads.milestone.mockRejectedValueOnce(failure('NOT_FOUND', 404))
+-    await save()
+-    expect(f.api.forgetUnavailable).toHaveBeenCalledExactlyOnceWith(p)
+-    expect(f.progress.value).toBeNull()
+-    expect(f.owner.milestoneEdit.title).toBe('')
+-    expect(f.owner.state.milestone).toBeNull()
+-    expect(body().text()).toContain('编辑内容已清除')
+-  })
+-})
+diff --git a/web/src/tests/milestone-edit-recovery.spec.ts b/web/src/tests/milestone-edit-recovery.spec.ts
+deleted file mode 100644
+index 1dc63e53..00000000
+--- a/web/src/tests/milestone-edit-recovery.spec.ts
++++ /dev/null
+@@ -1,314 +0,0 @@
+-import { afterEach, describe, expect, it, vi } from 'vitest'
+-import { flushPromises } from '@vue/test-utils'
+-import { createAccountAPI, type SessionView } from '../api/account'
+-import { createAgentDirectoryAPI } from '../api/agent-directory'
+-import { type Fetch, type Problem } from '../api/client'
+-import { createProjectOwnerAPI, type Project } from '../api/project-owner'
+-import { createWorkMilestonePlanningAPI } from '../api/work-milestone-planning'
+-import { createWorkReviewAPI, type Milestone } from '../api/work-review'
+-import { createSessionController, type SessionController } from '../composables/useSession'
+-import { createProjectWorkspace, type ProjectWorkspace } from '../composables/useProjectWorkspace'
+-import { createProjectTasks, type ProjectTasks } from '../composables/useProjectTasks'
+-
+-const id = (n: number) => `01990000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
+-const p = id(1),
+-  m = id(2),
+-  other = id(7),
+-  at = '2026-10-11T10:00:00.000001Z'
+-const projectPath = `/api/v1/projects/${p}`,
+-  milestonePath = `${projectPath}/milestones/${m}`
+-const session: SessionView = {
+-  user: {
+-    id: id(3),
+-    email: 'owner@example.test',
+-    username: 'owner',
+-    display_name: 'Owner',
+-    role: 'user',
+-    theme: 'system',
+-    version: '1',
+-    initial_password_suggestion: false,
+-  },
+-  session: { id: id(4), issued_at: at, absolute_expires_at: at, idle_expires_at: at },
+-  csrf_token: 'S'.repeat(43),
+-}
+-const project: Project = {
+-  id: p,
+-  owner_user_id: id(3),
+-  name: 'Demo',
+-  normalized_name: 'demo',
+-  description: '',
+-  lifecycle: 'active',
+-  version: '1',
+-  current_sprint_id: null,
+-  created_at: at,
+-  updated_at: at,
+-  archived_at: null,
+-}
+-const milestone = (target = m, title = 'Current'): Milestone => ({
+-  id: target,
+-  project_id: p,
+-  title,
+-  description: 'Private description',
+-  manual_rank: '8'.repeat(32),
+-  version: '9007199254740993',
+-  created_at: at,
+-  updated_at: at,
+-})
+-const json = (value: unknown, status = 200) =>
+-  new Response(JSON.stringify(value), {
+-    status,
+-    headers: {
+-      'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json',
+-      'X-Request-ID': id(99),
+-    },
+-  })
+-const problem = (status: number, code: string, state: Problem['commit_state'] = 'not_started') =>
+-  json(
+-    {
+-      type: 'urn:agenteam:problem:test',
+-      title: 'Rejected',
+-      status,
+-      detail: '',
+-      instance: milestonePath,
+-      code,
+-      request_id: id(99),
+-      commit_state: state,
+-    },
+-    status,
+-  )
+-const tasks: ProjectTasks[] = [],
+-  workspaces: ProjectWorkspace[] = [],
+-  sessions: SessionController[] = []
+-afterEach(async () => {
+-  tasks.splice(0).forEach((v) => v.dispose())
+-  workspaces.splice(0).forEach((v) => v.dispose())
+-  sessions.splice(0).forEach((v) => v.leave())
+-  await flushPromises()
+-})
+-async function fixture() {
+-  let deniedPath = '',
+-    status = 404,
+-    updateCode = 'COMMIT_UNKNOWN'
+-  let restoreResponse: Promise<Response> | null = null
+-  let created = milestone(id(8), 'Next operation')
+-  const fetch = vi.fn<Fetch>(async (path, init) => {
+-    const url = new URL(path, 'https://owned.invalid')
+-    if (path === '/api/v1/session') return restoreResponse ?? json(session)
+-    if (init.method === 'GET' && url.pathname === deniedPath)
+-      return problem(status, status === 503 ? 'SERVICE_UNAVAILABLE' : 'NOT_FOUND')
+-    if (path.startsWith('/api/v1/projects/resolve?') || path === projectPath) return json(project)
+-    if (path === milestonePath && init.method === 'PATCH')
+-      return problem(409, updateCode, updateCode === 'COMMIT_UNKNOWN' ? 'unknown' : 'not_committed')
+-    if (url.pathname === `${projectPath}/milestones` && init.method === 'POST') {
+-      const request = JSON.parse(init.body as string).request
+-      created = {
+-        ...milestone(request.milestone_id, request.title),
+-        version: '1',
+-        description: request.description ?? '',
+-      }
+-      return json({
+-        command: 'work.milestone.create',
+-        changed: true,
+-        milestone: created,
+-        sprint: null,
+-        event_id: id(9),
+-      })
+-    }
+-    if (url.pathname === `${projectPath}/milestones`)
+-      return json({
+-        items: [milestone(), milestone(other)].map(
+-          ({ description: _description, ...summary }) => summary,
+-        ),
+-      })
+-    if (url.pathname.startsWith(`${projectPath}/milestones/`))
+-      return json(
+-        url.pathname.endsWith(created.id) ? created : milestone(url.pathname.split('/').at(-1)),
+-      )
+-    if (url.pathname === `${projectPath}/sprints` || url.pathname === `${projectPath}/agents`)
+-      return json({ items: [] })
+-    throw new Error(`Unexpected ${init.method} ${path}`)
+-  })
+-  const args: Parameters<typeof createSessionController> = [createAccountAPI(fetch)]
+-  args[12] = createProjectOwnerAPI(fetch)
+-  args[16] = createWorkReviewAPI(fetch)
+-  args[17] = createAgentDirectoryAPI(fetch)
+-  args[19] = { milestonePlanning: createWorkMilestonePlanningAPI(fetch) }
+-  const auth = createSessionController(...args)
+-  sessions.push(auth)
+-  await auth.restore()
+-  const workspace = createProjectWorkspace(auth)
+-  workspaces.push(workspace)
+-  workspace.afterNavigation('/owner/demo/tasks')
+-  await flushPromises()
+-  expect(workspace.detail.phase).toBe('current')
+-  const owner = createProjectTasks(auth, workspace, async (to) => {
+-    workspace.afterNavigation(to)
+-    owner.afterNavigation(to)
+-  })
+-  tasks.push(owner)
+-  owner.afterNavigation('/owner/demo/tasks')
+-  await flushPromises()
+-  await owner.selectMilestone(m)
+-  expect(owner.state.phase).toBe('ready')
+-  owner.openMilestoneEdit()
+-  owner.touchMilestoneEdit('title', 'Private draft')
+-  expect(owner.milestoneEdit.title).toBe('Private draft')
+-  return {
+-    auth,
+-    workspace,
+-    owner,
+-    fetch,
+-    deny(path: string, value = 404) {
+-      deniedPath = path
+-      status = value
+-    },
+-    reject() {
+-      updateCode = 'VERSION_CONFLICT'
+-    },
+-    holdRestore() {
+-      let release!: (response: Response) => void
+-      restoreResponse = new Promise((resolve) => {
+-        release = resolve
+-      })
+-      return () => {
+-        restoreResponse = null
+-        release(json(session))
+-      }
+-    },
+-    writes: () => fetch.mock.calls.filter(([, init]) => init.method === 'PATCH'),
+-    creates: () =>
+-      fetch.mock.calls.filter(
+-        ([path, init]) => path === `${projectPath}/milestones` && init.method === 'POST',
+-      ),
+-  }
+-}
+-
+-describe('Milestone edit recovery through the real Session, Workspace and Tasks controllers', () => {
+-  it.each([403, 404])(
+-    'forgets this target draft and original Unknown after its normal refresh returns %s',
+-    async (status) => {
+-      const f = await fixture()
+-      await f.owner.submitMilestoneEdit()
+-      expect(f.auth.workMilestoneEditing.progress?.phase).toBe('uncertain')
+-      f.deny(milestonePath, status)
+-      await f.owner.refresh()
+-      expect(f.owner.state.phase).toBe('error')
+-      expect(f.owner.milestoneEdit.title).toBe('')
+-      expect(f.auth.workMilestoneEditing.progress).toBeNull()
+-      expect(f.writes()).toHaveLength(1)
+-    },
+-  )
+-  it('forgets this Project draft and Unknown after an actual Workspace Owner read is refused', async () => {
+-    const f = await fixture()
+-    await f.owner.submitMilestoneEdit()
+-    f.deny(projectPath)
+-    await f.workspace.readCurrent()
+-    await flushPromises()
+-    expect(f.workspace.detail.phase).toBe('unavailable')
+-    expect(f.workspace.currentReadContext.value).toBeNull()
+-    expect(f.owner.milestoneEdit.title).toBe('')
+-    expect(f.auth.workMilestoneEditing.progress).toBeNull()
+-    expect(f.writes()).toHaveLength(1)
+-  })
+-  it('retains draft and original Unknown through an actual same-Session restore and Workspace reauthorization', async () => {
+-    const f = await fixture()
+-    await f.owner.submitMilestoneEdit()
+-    const release = f.holdRestore()
+-    const checking = f.auth.restore()
+-    await flushPromises()
+-    expect(f.workspace.currentReadContext.value).toBeNull()
+-    expect(f.owner.milestoneEdit.title).toBe('Private draft')
+-    expect(f.auth.workMilestoneEditing.progress).toMatchObject({
+-      phase: 'uncertain',
+-      contextValid: false,
+-    })
+-    release()
+-    await checking
+-    await flushPromises()
+-    expect(f.workspace.detail.phase).toBe('current')
+-    expect(f.owner.milestoneEdit.title).toBe('Private draft')
+-    expect(f.auth.workMilestoneEditing.progress).toMatchObject({
+-      phase: 'uncertain',
+-      contextValid: true,
+-    })
+-    expect(f.writes()).toHaveLength(1)
+-  })
+-  it.each(['target', 'project'])(
+-    'retains draft and Unknown when the %s current read returns 503',
+-    async (scope) => {
+-      const f = await fixture()
+-      await f.owner.submitMilestoneEdit()
+-      f.deny(scope === 'target' ? milestonePath : projectPath, 503)
+-      if (scope === 'target') await f.owner.refresh()
+-      else await f.workspace.readCurrent()
+-      await flushPromises()
+-      expect(f.owner.milestoneEdit.title).toBe('Private draft')
+-      expect(f.auth.workMilestoneEditing.progress?.phase).toBe('uncertain')
+-      expect(f.writes()).toHaveLength(1)
+-    },
+-  )
+-  it('preserves the original Unknown after confirmed navigation and a different Milestone refusal', async () => {
+-    const f = await fixture()
+-    await f.owner.submitMilestoneEdit()
+-    f.deny(`${projectPath}/milestones/${other}`)
+-    const navigation = f.owner.selectMilestone(other)
+-    expect(f.owner.confirmation.open).toBe(true)
+-    f.owner.confirm()
+-    await navigation
+-    expect(f.owner.state.phase).toBe('error')
+-    expect(f.auth.workMilestoneEditing.progress).toMatchObject({
+-      phase: 'uncertain',
+-      milestoneID: m,
+-    })
+-    expect(f.writes()).toHaveLength(1)
+-  })
+-  it('preserves the old Project Unknown when navigation to another Project is refused', async () => {
+-    const f = await fixture()
+-    await f.owner.submitMilestoneEdit()
+-    const navigation = f.owner.confirmLeave('/owner/other/tasks')
+-    f.owner.confirm()
+-    expect(await navigation).toBe(true)
+-    f.deny('/api/v1/projects/resolve')
+-    f.workspace.afterNavigation('/owner/other/tasks')
+-    f.owner.afterNavigation('/owner/other/tasks')
+-    await flushPromises()
+-    expect(f.workspace.detail.phase).toBe('unavailable')
+-    expect(f.auth.workMilestoneEditing.progress).toMatchObject({
+-      phase: 'uncertain',
+-      projectID: p,
+-      milestoneID: m,
+-    })
+-    expect(f.writes()).toHaveLength(1)
+-  })
+-  it.each(['selection', 'route'])(
+-    'releases a definite rejection after explicit %s abandonment, allowing another authorized command',
+-    async (navigationKind) => {
+-      const f = await fixture()
+-      f.reject()
+-      await f.owner.submitMilestoneEdit()
+-      expect(f.auth.workMilestoneEditing.progress?.phase).toBe('rejected')
+-      const navigation =
+-        navigationKind === 'selection'
+-          ? f.owner.selectMilestone(other)
+-          : f.owner.confirmLeave('/owner/demo/settings/general')
+-      expect(f.owner.confirmation.open).toBe(true)
+-      f.owner.confirm()
+-      await navigation
+-      if (navigationKind === 'route') {
+-        for (const path of ['/owner/demo/settings/general', '/owner/demo/tasks']) {
+-          f.workspace.afterNavigation(path)
+-          f.owner.afterNavigation(path)
+-          await flushPromises()
+-        }
+-      }
+-      expect(f.owner.canCreateMilestone.value).toBe(true)
+-      f.owner.openMilestoneCreation()
+-      f.owner.milestoneCreation.title = 'Next operation'
+-      await f.owner.submitMilestoneCreation()
+-      expect(f.creates()).toHaveLength(1)
+-      expect(f.auth.workMilestonePlanning.progress?.phase).toBe('confirmed')
+-      expect(f.auth.workMilestoneEditing.progress).toBeNull()
+-      expect(f.writes()).toHaveLength(1)
+-    },
+-  )
+-})
+diff --git a/web/src/tests/milestone-edit-session.spec.ts b/web/src/tests/milestone-edit-session.spec.ts
+deleted file mode 100644
+index d44513a7..00000000
+--- a/web/src/tests/milestone-edit-session.spec.ts
++++ /dev/null
+@@ -1,242 +0,0 @@
+-import { afterEach, describe, expect, it, vi } from 'vitest'
+-import { flushPromises } from '@vue/test-utils'
+-import { createAccountAPI, type SessionView } from '../api/account'
+-import { type Fetch, type Problem } from '../api/client'
+-import {
+-  createWorkMilestonePlanningAPI,
+-  type MilestoneUpdateInput,
+-} from '../api/work-milestone-planning'
+-import { createWorkSprintLifecycleAPI } from '../api/work-sprint-lifecycle'
+-import { createSessionController, type SessionController } from '../composables/useSession'
+-const id = (n: number) => `01990000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
+-const p = id(1),
+-  m = id(2),
+-  at = '2026-10-11T10:00:00.000001Z'
+-const path = `/api/v1/projects/${p}/milestones/${m}`,
+-  lookupPath = `/api/v1/projects/${p}/structure-commands/lookup`
+-const session = (n = 4): SessionView => ({
+-  user: {
+-    id: id(3),
+-    email: 'owner@example.test',
+-    username: 'owner',
+-    display_name: 'Owner',
+-    role: 'user',
+-    theme: 'system',
+-    version: '1',
+-    initial_password_suggestion: false,
+-  },
+-  session: { id: id(n), issued_at: at, absolute_expires_at: at, idle_expires_at: at },
+-  csrf_token: 'S'.repeat(43),
+-})
+-const json = (value: unknown, status = 200) =>
+-  new Response(JSON.stringify(value), {
+-    status,
+-    headers: {
+-      'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json',
+-      'X-Request-ID': id(99),
+-    },
+-  })
+-const problem = (code: string, state: Problem['commit_state'], status = 409) =>
+-  json(
+-    {
+-      type: 'urn:agenteam:problem:test',
+-      title: 'Rejected',
+-      status,
+-      detail: '',
+-      instance: path,
+-      code,
+-      request_id: id(99),
+-      commit_state: state,
+-    },
+-    status,
+-  )
+-function receipt(input: MilestoneUpdateInput) {
+-  return {
+-    command: 'work.milestone.update',
+-    changed: true,
+-    event_id: id(6),
+-    sprint: null,
+-    milestone: {
+-      id: m,
+-      project_id: p,
+-      title: 'Initial',
+-      description: 'Initial description',
+-      ...input.request,
+-      manual_rank: '8'.repeat(32),
+-      version: String(BigInt(input.expected_version) + 1n),
+-      created_at: at,
+-      updated_at: at,
+-    },
+-  }
+-}
+-const owners: SessionController[] = [],
+-  releases: (() => void)[] = []
+-afterEach(async () => {
+-  releases.splice(0).forEach((r) => r())
+-  owners.splice(0).forEach((a) => a.leave())
+-  await flushPromises()
+-  vi.restoreAllMocks()
+-})
+-async function fixture() {
+-  let current = session(),
+-    response: (() => Promise<Response>) | null = null,
+-    restore: (() => Promise<Response>) | null = null
+-  let observation: 'committed' | 'not_observed' | 'in_progress' = 'committed'
+-  const fetch = vi.fn<Fetch>(async (url, init) => {
+-    if (url === '/api/v1/session') return restore ? restore() : json(current)
+-    if (url === path) return response ? response() : json(receipt(JSON.parse(init.body as string)))
+-    if (url === lookupPath)
+-      return json({
+-        state: observation,
+-        result: observation === 'committed' ? receipt(JSON.parse(init.body as string)) : null,
+-      })
+-    throw new Error('Unexpected request')
+-  })
+-  const args: Parameters<typeof createSessionController> = [createAccountAPI(fetch)]
+-  args[19] = {
+-    milestonePlanning: createWorkMilestonePlanningAPI(fetch),
+-    sprintLifecycle: createWorkSprintLifecycleAPI(fetch),
+-  }
+-  const auth = createSessionController(...args)
+-  owners.push(auth)
+-  await auth.restore()
+-  return {
+-    auth,
+-    fetch,
+-    writes: () => fetch.mock.calls.filter(([url]) => url === path),
+-    lookups: () => fetch.mock.calls.filter(([url]) => url === lookupPath),
+-    setResponse(v: typeof response) {
+-      response = v
+-    },
+-    setObservation(v: typeof observation) {
+-      observation = v
+-    },
+-    setSession(v: SessionView) {
+-      current = v
+-    },
+-    holdRestore() {
+-      let resolve!: (r: Response) => void
+-      const held = new Promise<Response>((r) => {
+-        resolve = r
+-      })
+-      restore = () => held
+-      const release = () => {
+-        restore = null
+-        resolve(json(current))
+-      }
+-      releases.push(release)
+-      return release
+-    },
+-  }
+-}
+-const original = {
+-  expected_version: '9007199254740993',
+-  request: { title: '  e\u0301 Milestone  ', description: '' },
+-}
+-describe('Milestone edit original Session ownership', () => {
+-  it('preserves complete original intent through all observations without a second PATCH or colliding create/start', async () => {
+-    const f = await fixture()
+-    f.setResponse(async () => problem('COMMIT_UNKNOWN', 'unknown'))
+-    const draft = { expected_version: original.expected_version, request: { ...original.request } }
+-    const saving = f.auth.workMilestoneEditing.update(p, m, draft)
+-    draft.request.title = 'Later'
+-    draft.expected_version = '2'
+-    await expect(saving).rejects.toMatchObject({ problem: { code: 'COMMIT_UNKNOWN' } })
+-    expect(f.auth.workMilestonePlanning.progress).toBeNull()
+-    expect(f.auth.workMilestoneEditing.progress).toMatchObject({
+-      projectID: p,
+-      milestoneID: m,
+-      phase: 'uncertain',
+-    })
+-    await expect(
+-      f.auth.workMilestonePlanning.create(p, { title: 'Blocked' }),
+-    ).rejects.toMatchObject({ kind: 'busy' })
+-    await expect(
+-      f.auth.workSprintLifecycle.start(p, id(8), { expected_version: '1', request: {} }),
+-    ).rejects.toMatchObject({ kind: 'busy' })
+-    await expect(f.auth.workMilestoneEditing.update(p, m, original)).rejects.toMatchObject({
+-      kind: 'busy',
+-    })
+-    for (const value of ['not_observed', 'in_progress', 'committed'] as const) {
+-      f.setObservation(value)
+-      await f.auth.workMilestoneEditing.checkOriginal()
+-      expect(f.auth.workMilestoneEditing.progress?.phase).toBe(
+-        value === 'committed' ? 'confirmed' : 'uncertain',
+-      )
+-    }
+-    expect(f.writes()).toHaveLength(1)
+-    const init = f.writes()[0]![1],
+-      key = (init.headers as Record<string, string>)['Idempotency-Key']
+-    expect(JSON.parse(init.body as string)).toEqual(original)
+-    for (const [, lookup] of f.lookups()) {
+-      expect(JSON.parse(lookup.body as string)).toEqual({
+-        command: 'work.milestone.update',
+-        target_id: m,
+-        ...original,
+-      })
+-      expect(lookup.headers).toMatchObject({ 'Idempotency-Key': key })
+-    }
+-    expect(JSON.stringify(f.auth.workMilestoneEditing.progress)).not.toContain(key)
+-  })
+-  it('keeps Unknown during same-identity checking and clears it on a real Session change', async () => {
+-    const f = await fixture()
+-    f.setResponse(async () => problem('COMMIT_UNKNOWN', 'unknown'))
+-    await expect(f.auth.workMilestoneEditing.update(p, m, original)).rejects.toBeDefined()
+-    const release = f.holdRestore(),
+-      checking = f.auth.restore()
+-    await flushPromises()
+-    expect(f.auth.workMilestoneEditing.progress).toMatchObject({
+-      phase: 'uncertain',
+-      contextValid: false,
+-    })
+-    release()
+-    await checking
+-    expect(f.auth.workMilestoneEditing.progress).toMatchObject({
+-      phase: 'uncertain',
+-      contextValid: true,
+-    })
+-    f.setObservation('in_progress')
+-    await f.auth.workMilestoneEditing.checkOriginal()
+-    f.setSession(session(5))
+-    await f.auth.restore()
+-    expect(f.auth.workMilestoneEditing.progress).toBeNull()
+-    await expect(f.auth.workMilestoneEditing.checkOriginal()).rejects.toMatchObject({
+-      kind: 'invalid-input',
+-    })
+-    expect(f.writes()).toHaveLength(1)
+-    expect(f.lookups()).toHaveLength(1)
+-  })
+-  it('retains a definite version rejection until explicit release, then accepts a separately confirmed version', async () => {
+-    const f = await fixture()
+-    f.setResponse(async () => problem('VERSION_CONFLICT', 'not_committed'))
+-    await expect(f.auth.workMilestoneEditing.update(p, m, original)).rejects.toBeDefined()
+-    expect(f.auth.workMilestoneEditing.progress).toMatchObject({
+-      phase: 'rejected',
+-      error: 'VERSION_CONFLICT',
+-    })
+-    await expect(f.auth.workMilestoneEditing.checkOriginal()).rejects.toMatchObject({
+-      kind: 'invalid-input',
+-    })
+-    f.auth.workMilestoneEditing.editRejected()
+-    f.setResponse(null)
+-    await f.auth.workMilestoneEditing.update(p, m, {
+-      expected_version: '9007199254740998',
+-      request: { description: '' },
+-    })
+-    expect(f.auth.workMilestoneEditing.progress?.result?.milestone.version).toBe('9007199254740999')
+-    expect(f.writes()).toHaveLength(2)
+-    expect(f.lookups()).toHaveLength(0)
+-  })
+-  it('clears new command and confirmed material on an actual Owner denial', async () => {
+-    const f = await fixture()
+-    f.setResponse(async () => problem('NOT_FOUND', 'not_started', 404))
+-    await expect(f.auth.workMilestoneEditing.update(p, m, original)).rejects.toMatchObject({
+-      problem: { status: 404 },
+-    })
+-    expect(f.auth.workMilestoneEditing.progress).toBeNull()
+-    await expect(f.auth.workMilestoneEditing.checkOriginal()).rejects.toMatchObject({
+-      kind: 'invalid-input',
+-    })
+-    expect(f.lookups()).toHaveLength(0)
+-  })
+-})
+diff --git a/web/src/views/projects/ProjectTasksView.vue b/web/src/views/projects/ProjectTasksView.vue
+index f8077cca..708d0e4e 100644
+--- a/web/src/views/projects/ProjectTasksView.vue
++++ b/web/src/views/projects/ProjectTasksView.vue
+@@ -5,7 +5,6 @@ import TaskBoard from '../../components/work/TaskBoard.vue'
+ import TaskReviewDetail from '../../components/work/TaskReviewDetail.vue'
+ import TaskCreateForm from '../../components/work/TaskCreateForm.vue'
+ import MilestoneCreateForm from '../../components/work/MilestoneCreateForm.vue'
+-import MilestoneEditForm from '../../components/work/MilestoneEditForm.vue'
+ import SprintCreateForm from '../../components/work/SprintCreateForm.vue'
+ import { useProjectTasks } from '../../composables/useProjectTasks'
+ const owner = useProjectTasks(),
+@@ -18,39 +17,6 @@ const sprintHeading = ref<HTMLHeadingElement | null>(null)
+ const sprintCreateButton = ref<{ $el: HTMLButtonElement } | null>(null)
+ const milestoneCreateButton = ref<{ $el: HTMLButtonElement } | null>(null)
+ const milestoneHeading = ref<HTMLHeadingElement | null>(null)
+-const milestoneEditButton = ref<{ $el: HTMLButtonElement } | null>(null)
+-async function cancelMilestoneEdit() {
+-  const project = owner.milestoneEdit.projectID,
+-    target = owner.milestoneEdit.milestoneID
+-  owner.cancelMilestoneEdit()
+-  await nextTick()
+-  if (
+-    !owner.milestoneEdit.open &&
+-    owner.visible.value &&
+-    owner.projectID.value === project &&
+-    state.milestone?.id === target &&
+-    !state.task
+-  )
+-    milestoneEditButton.value?.$el.focus()
+-}
+-async function saveMilestoneEdit(action: 'save' | 'lookup' | 'read' = 'save') {
+-  const project = owner.projectID.value,
+-    target = state.milestone?.id
+-  if (action === 'lookup') await owner.lookupMilestoneEdit()
+-  else if (action === 'read') await owner.rereadMilestoneEdit()
+-  else await owner.submitMilestoneEdit()
+-  await nextTick()
+-  if (
+-    owner.visible.value &&
+-    owner.projectID.value === project &&
+-    state.milestone?.id === target &&
+-    !state.task &&
+-    !owner.milestoneEdit.open &&
+-    !owner.milestoneEdit.needsRead &&
+-    owner.milestoneEditProgress.value?.phase === 'confirmed'
+-  )
+-    milestoneHeading.value?.focus()
+-}
+ watch(
+   () => owner.milestoneCreationFocus.value,
+   async (id) => {
+@@ -189,57 +155,6 @@ function returnToCreation() {
+     </section>
+     <UiState v-if="!owner.visible.value" kind="loading" title="正在确认任务访问身份" />
+     <template v-else>
+-      <section v-if="owner.milestoneEditProgress.value" aria-label="Milestone 保存状态">
+-        <p v-if="owner.milestoneEditProgress.value.phase === 'submitting'" role="status">
+-          正在保存 Milestone。
+-        </p>
+-        <template v-if="owner.milestoneEditProgress.value.phase === 'uncertain'">
+-          <p role="status">Milestone 保存结果尚未确认。请查证原保存，勿再次提交。</p>
+-          <p v-if="owner.milestoneEditProgress.value.observation === 'not_observed'" role="status">
+-            尚未观察到原保存结果，可再次查询。
+-          </p>
+-          <p v-if="owner.milestoneEditProgress.value.observation === 'in_progress'" role="status">
+-            原保存仍在处理中，可稍后再次查询。
+-          </p>
+-          <UiButton
+-            v-if="
+-              state.milestone?.id === owner.milestoneEditProgress.value.milestoneID && !state.task
+-            "
+-            :disabled="owner.busy.value || !owner.milestoneEditProgress.value.contextValid"
+-            @click="saveMilestoneEdit('lookup')"
+-            >查询原 Milestone 保存结果</UiButton
+-          >
+-          <UiButton
+-            v-else
+-            :disabled="owner.busy.value || !owner.milestoneEditProgress.value.contextValid"
+-            @click="owner.selectMilestone(owner.milestoneEditProgress.value.milestoneID)"
+-            >返回待确认 Milestone</UiButton
+-          >
+-        </template>
+-        <template
+-          v-if="
+-            owner.milestoneEditProgress.value.phase === 'confirmed' &&
+-            (owner.milestoneEdit.needsRead ||
+-              state.milestone?.id !== owner.milestoneEditProgress.value.milestoneID)
+-          "
+-        >
+-          <p role="status">原 Milestone 保存已确认，当前内容需要重新读取。</p>
+-          <UiButton
+-            v-if="
+-              state.milestone?.id === owner.milestoneEditProgress.value.milestoneID && !state.task
+-            "
+-            :disabled="owner.busy.value || !owner.milestoneEditProgress.value.contextValid"
+-            @click="saveMilestoneEdit('read')"
+-            >读取已确认的 Milestone</UiButton
+-          >
+-          <UiButton
+-            v-else
+-            :disabled="owner.busy.value || !owner.milestoneEditProgress.value.contextValid"
+-            @click="owner.selectMilestone(owner.milestoneEditProgress.value.milestoneID)"
+-            >返回已确认 Milestone</UiButton
+-          >
+-        </template>
+-      </section>
+       <p v-if="owner.milestonePending.value && !owner.milestoneProgress.value" role="status">
+         有一项 Milestone 创建结果待确认，请返回原 Project 查询结果。
+       </p>
+@@ -470,23 +385,6 @@ function returnToCreation() {
+             aria-label="所选 Milestone"
+           >
+             <h2 ref="milestoneHeading" tabindex="-1">{{ state.milestone.title }}</h2>
+-            <p class="milestone-description">{{ state.milestone.description || '暂无描述。' }}</p>
+-            <UiButton
+-              v-if="!owner.milestoneEdit.open && !owner.milestoneEditPending.value"
+-              ref="milestoneEditButton"
+-              :disabled="owner.busy.value || !owner.canEditMilestone.value"
+-              @click="owner.openMilestoneEdit()"
+-              >编辑 Milestone</UiButton
+-            >
+-            <MilestoneEditForm
+-              v-if="owner.milestoneEdit.open && !owner.milestoneEditPending.value"
+-              :owner="owner"
+-              @cancel="cancelMilestoneEdit"
+-              @submit="saveMilestoneEdit()"
+-            />
+-            <p v-if="!owner.milestoneEdit.open && owner.milestoneEdit.message" role="status">
+-              {{ owner.milestoneEdit.message }}
+-            </p>
+           </section>
+           <UiButton
+             v-if="!state.task && !owner.sprintCreation.open && !owner.sprintCreatePending.value"
+@@ -601,10 +499,6 @@ function returnToCreation() {
+   </section>
+ </template>
+ <style scoped>
+-.milestone-description {
+-  white-space: pre-wrap;
+-  overflow-wrap: anywhere;
+-}
+ .tasks-page {
+   display: flex;
+   flex-direction: column;
