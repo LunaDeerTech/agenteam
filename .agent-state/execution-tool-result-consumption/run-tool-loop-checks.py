@@ -64,7 +64,11 @@ def head():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--execution-only", action="store_true", help="Run only the four new Execution tops; still vet all five packages")
     args = parser.parse_args()
+    packages = ["./internal/central/execution"] if args.execution_only else PACKAGES
+    tops = TOPS[5:] if args.execution_only else TOPS
+    tool_rejections = [] if args.execution_only else TOOL_REJECTIONS
     out = args.output.resolve()
     out.mkdir(parents=True, exist_ok=False)
     env = os.environ.copy()
@@ -142,9 +146,9 @@ def main():
                     paths.add(str(path.relative_to(ROOT)))
     missing = sorted(paths - prior.keys())
     save("deps01-closure.json", dict(
-        packages=PACKAGES, vet_packages=VET_PACKAGES, local_packages=local_packages, input_count=len(paths),
+        packages=packages, vet_packages=VET_PACKAGES, local_packages=local_packages, input_count=len(paths),
         missing_pre_discovery_inputs=missing,
-        top_tests=TOPS, tool_rejection_subtests=TOOL_REJECTIONS,
+        top_tests=tops, tool_rejection_subtests=tool_rejections,
     ))
     if missing:
         raise RuntimeError("test dependency reached unbound source; no test started")
@@ -155,14 +159,14 @@ def main():
     save("deps01-stability.json", dict(input_count=len(paths), inputs_unchanged=before == after))
     if before != after:
         raise RuntimeError("dependency source changed during discovery; no test started")
-    pattern = "^(" + "|".join(TOPS) + ")$"
-    run("unit01", [GO, "test", "-race", "-p", "1", "-count=1", "-json", "-run", pattern, *PACKAGES], after)
+    pattern = "^(" + "|".join(tops) + ")$"
+    run("unit01", [GO, "test", "-race", "-p", "1", "-count=1", "-json", "-run", pattern, *packages], after)
     passed = []
     for line in (out / "unit01.log").read_text().splitlines():
         event = json.loads(line)
         if event.get("Action") == "pass" and event.get("Test"):
             passed.append(event["Test"])
-    required = TOPS + [TOPS[1] + "/" + name for name in TOOL_REJECTIONS]
+    required = tops + [TOPS[1] + "/" + name for name in tool_rejections]
     save("unit01-selection.json", dict(required=required, passed=passed, all_required_passed=all(name in passed for name in required)))
     if any(name not in passed for name in required):
         raise RuntimeError("expected selected test did not pass")
