@@ -378,3 +378,15 @@ review Launch复用原Execution捕获、固定review Prompt、当前reviewer的�
 来源`64bdbb6f`的定向5 top、一包vet、compile/list及`TestExecutionRuntimeAccessAudit`真实1 top/2 sub全部wholePASS，并获原件有限独审接受。真实链覆盖D04拒绝后同Invocation的Model AccessDeny审计、零wire、Execution失败与双lease退休且Task不变，原私有scope退出后重用Entry/Key被拒，以及旧默认成功分支兼容；两个子例共22.41s。891编译输入与1643运行输入稳定，四原Wait0、七资源14次absence、全部退出尾与TCP/adopted检查闭合，本片无新增FAIL；结果及重跑方式沿[既有组合说明](../../../.agent-state/agent-system-integration/README.md)，旧FAIL保留。
 
 本片只完成Runtime Access Audit构造接缝；初始化Audit wrapper仍不能直接串接，完整生产app Runtime图、显式配置、Project initializer与ready开放继续未完成，不外推为第十一批前端范围已验收。AgentRun任务写权、工具调用、完整多轮、既有STOP与约30%的整体粗估保持。
+
+## 有限后继：显式配置的 Central Execution Runtime 装配
+
+第十二批B通过`AGENTEAM_CENTRAL_EXECUTION_RUNTIME`显式启用`direct-text-v1`。闭集JSON完整指定Project Runner的容量、分页、发现与访问间隔、relaunch访问跳过次数，Executor容量与恢复间隔、Model AgentRetry时序及原Launch policy；启用时同时要求已有Scheduler LaunchRetry三个配置齐备。缺省保持原启动路径，部分、空值或非法组合拒绝，不补fixture默认值，也不自动计算工具deny列表。
+
+生产App复用同一个Project Authority、Skill Authority和PendingAuthority，固定Execution与Model Runtime消费者，再组合原初始化Audit及Runtime Access Audit、Secret路由、Usage Invocation事实和Outbox typed事件；原Agent/Task/Skill/Tool/Model/Environment/Mount提供方接入Preparation、DirectText、AssociatedExecutor与多Project Manager。已初始化active Project由真实目录发现，新的todo仍经原当前权限、Sprint、Agent、占用与pending门；执行终态不自动完成Task。未初始化Project不会由该运行器补初始化。
+
+原`app.Run`负责启动及退出：依赖初始化后才启动实际Executor和Manager寿命；停止时取消新调度与原执行调用，按依赖顺序等待Scheduler、Execution drivers、Loop、Model及wire原调用实际退出。双lease使用资格沿原Execution终态事务退休，历史引用保留。Runtime的原Run未返回或Unknown owner尚未退休时，联合Joined门不允许释放共享提供方与ProcessGuard；构造中途失败也保留已取得的owner，不把取消或超时当退出。
+
+本片仅支持已交付的单轮JSON direct-text配置：实际Agent须关闭AGENTS.md注入，Mount读取须证明真实空集合，Model须满足原text/none及凭据profile，工具集合须经真实Registry与显式Execution Policy得到空集。Core不经普通Agent开关移除；Execution Policy仍可进一步收紧。空Sources不构成假Builtin提供方，任何未拒绝的当前Builtin缺少真实source仍按原规则Unbound，Loop不删工具以迁就profile。Project initializer、全局ready、AgentRun任务写权、工具调用、完整多轮及[Object Runtime join STOP](recovery-object-runtime-join.md)不随本片开放。
+
+源码已冻结；App定向纯检查与公开`app.Run`真实链待验证，本片尚未验收。验证结果与重跑入口继续沿[既有组合说明](../../../.agent-state/agent-system-integration/README.md)，不升级既有FAIL或STOP。
