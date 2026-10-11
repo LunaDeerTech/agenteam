@@ -360,3 +360,13 @@ Runner的取消与Stop/Drain只覆盖本次遍历及准入调用，不停止共�
 review Launch复用原Execution捕获、固定review Prompt、当前reviewer的主模型及受支持direct-text单轮链，不使用ApprovalModel或新增Execution提供方。已证最终Launch失败仅在原phase仍适用时沿原Tx写technical blocker、blocked、typed历史及schema 5事件；旧work失败遇当前review或旧review失败遇用户后续phase均保留当前Task，Busy只skip而不恢复Task。模型终态不改变Task结论，done或rework仍由Human Owner沿已交付的Transfer/Lookup决定。
 
 来源`389c40a3`的定向14 top、三包vet全PASS，后续仅fixture变更，纯检查输入未变并复用。最终来源`a3b72c72`的compile03/list及native02真实1 top/2 sub全部wholePASS，并获最终原件有限独审接受。两真实场景共49.09s（27.02/22.07s），覆盖work冷却隔离、review实际执行及其自身冷却恢复后Human完成，以及review来源最终失败的原Tx回滚、结算与重放；四原Wait0、七资源14次absence、全部退出尾关闭，878编译输入与1620运行输入稳定。compile01的fixture `TextPart`编译FAIL仅修两行后compile02通过；native01首场景后验SQL `42703`失败、第二场景通过，仅修fixture一个谓词后重建compile03并完成native02，两原FAIL保持。详细结果和重跑方法沿[既有组合说明](../../../.agent-state/agent-system-integration/README.md)，不回填旧轮。生产app默认binding、AgentRun任务写权、工具调用、完整多轮及既有STOP仍未完成，约30%的整体粗估不因此提高。
+
+## 有限后继：Project 发现与多 Project Runner 管理
+
+第十批A新增`project.NewSchedulerProjects`，从原Authority的Store以短只读Tx发现已初始化且active的Project；显式分页上限128，按UUID升序keyset并固定每轮highwater，完整读取、关闭Rows后才返回。paused或无CurrentSprint的Project仍在候选中，避免隐藏历史pending和已关联Execution；候选身份不是授权，每个Runner继续按原锁与当前事实重验。跨页不承诺不可变快照，取消、SQL或物理Unknown均不返回部分页；本片无DDL，也不改Human列表。
+
+`scheduler.NewProjectRunners`以显式容量、发现及tick间隔、分页和Launch policy管理多个真实ProjectRunner。原Runner的完整寿命及未退休Unknown均占容量，超额候选明确Deferred；只有完整发现周期结束才据缺席停止自身Runner，单Project失败不取消其他Project。Unknown保留原owner与原访问身份，按原恢复口核对，不能换身份重发。Manager等待借用的AssociatedExecutor原Run就绪，但不启动、Stop或Drain该Executor及共享Coordinator/Visitor；Manager的Stop/Drain/Joined只描述自身发现调用、Runner和保留owner的实际退出，不代表Execution终止或跨进程leader选举。
+
+来源`2c59cf0d`的A/B共用定向17 top、七包vet及一次compile/list（两top、889输入稳定）全部PASS。A的`TestProjectRunnerManager`真实1 top/2 sub整轮wholePASS（28.40s），验证真实初始化/生命周期候选筛选、paused与无Sprint保留、多Project容量和遍历，以及Manager退出后借用Executor继续持有原调用、由其原owner单独取消并join；四原Wait0、七资源14次absence、1640运行输入稳定，全部退出尾、TCP及adopted检查闭合。本批无新增FAIL，旧FAIL保持；结果与重跑方式沿[既有组合说明](../../../.agent-state/agent-system-integration/README.md)。B的真实Agent目录HTTP范围与验证见[D10 Agent配置](d10-agent-configuration.md)。
+
+该库级Manager不完成生产app Runtime装配、显式配置入口、Project initializer或ready开放；构造环分析不等于已实现审计接线，Work UI也尚未完成。AgentRun任务写权、工具调用、完整多轮、原STOP与约30%的整体粗估保持。
