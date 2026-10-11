@@ -1,0 +1,13 @@
+diff --git a/tests/projectvariable/agent_runner_mounts_web_test.go b/tests/projectvariable/agent_runner_mounts_web_test.go
+index 36e38101e3beb4dc43b81eb22ff7689a74998842..ba2f71fbfeb9b544f9c85a47523d38863b12405b 100644
+--- a/tests/projectvariable/agent_runner_mounts_web_test.go
++++ b/tests/projectvariable/agent_runner_mounts_web_test.go
+@@ -837,7 +837,7 @@ func (w *agentRunnerWeb) observeRead(path string, raw []byte) error {
+ 	version := current.Fields().Core.Version
+ 	counts := w.reads[version]
+ 	if path == w.path() {
+-		_, err := ac.DecodeAgentConfig(raw)
++		config, err := ac.DecodeAgentConfig(raw)
+ 		var fields map[string]json.RawMessage
+ 		if err != nil || json.Unmarshal(raw, &fields) != nil || len(fields) != 20 || !runnerMountSameJSON(raw, jsonAgentWeb(current)) {
+ 			return errors.New("current Config differs from original canonical state")

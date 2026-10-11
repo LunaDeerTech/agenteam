@@ -1,0 +1,53 @@
+diff --git a/web/src/api/agent-runner-mounts.ts b/web/src/api/agent-runner-mounts.ts
+index df0aedebb46efe3e21de602c7404b0dd7a42f773..e4183b2faf8ee77c3deecfa817c19f85aeb275f3 100644
+--- a/web/src/api/agent-runner-mounts.ts
++++ b/web/src/api/agent-runner-mounts.ts
+@@ -52,7 +52,7 @@ export function runnerMountDeclarations(value: unknown): readonly RunnerMountDec
+   requireValue(Array.isArray(value) && value.length <= 128)
+   const pairs = new Set<string>()
+   return Object.freeze(
+-    Array.from(value, (item) => {
++    value.map((item) => {
+       const v = shape(item, ['runner_id', 'workspace'])
+       const result = Object.freeze({
+         runner_id: workID(v.runner_id),
+diff --git a/web/src/tests/agent-runner-mounts-client.spec.ts b/web/src/tests/agent-runner-mounts-client.spec.ts
+index 83d89ca2b340f7a2b28737b74d380bc1cfb269a4..816a6834522740c0dd5d0049e28df5a5999c9c5f 100644
+--- a/web/src/tests/agent-runner-mounts-client.spec.ts
++++ b/web/src/tests/agent-runner-mounts-client.spec.ts
+@@ -215,35 +215,3 @@ describe('Agent Runner configuration wire', () => {
+     }
+   })
+ })
+-
+-it('rejects terminal separators in exact workspace declarations', () => {
+-  for (const workspace of [
+-    'workspace\n',
+-    'workspace\r',
+-    'workspace\u2028',
+-    'workspace\u2029',
+-    'x'.repeat(255) + '\n',
+-  ])
+-    expect(
+-      () => captureRunnerMountDeclarations([{ runner_id: id(2), workspace }]),
+-      JSON.stringify(workspace),
+-    ).toThrow('invalid-input')
+-})
+-
+-it('rejects sparse declarations before JSON can turn holes into null', () => {
+-  expect(() => captureRunnerMountDeclarations(Array(1))).toThrow('invalid-input')
+-})
+-it('rejects noncanonical decimal versions in both new current reads', async () => {
+-  await expect(
+-    createAgentRunnerMountsAPI(async () =>
+-      json({ items: [{ ...candidate(), version: '1\n' }] }),
+-    ).list(id(1), {}, signal()),
+-  ).rejects.toMatchObject({ kind: 'invalid-response' })
+-  await expect(
+-    createAgentRunnerMountsAPI(async () => json({ ...mounts(), agent_version: '4\n' })).get(
+-      id(1),
+-      id(3),
+-      signal(),
+-    ),
+-  ).rejects.toMatchObject({ kind: 'invalid-response' })
+-})

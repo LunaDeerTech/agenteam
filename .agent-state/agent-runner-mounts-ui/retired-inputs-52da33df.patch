@@ -1,0 +1,300 @@
+diff --git a/web/src/composables/useProjectAgents.ts b/web/src/composables/useProjectAgents.ts
+index a3602d2488f64509752cf4a38ac800fc5fd54f2c..d7ea23f8d32b2c97bf77ff7bf4567a26587b414e 100644
+--- a/web/src/composables/useProjectAgents.ts
++++ b/web/src/composables/useProjectAgents.ts
+@@ -91,7 +91,6 @@ function editableModel(model: ProjectAvailableChatModel) {
+ export function createProjectAgents(auth: SessionController, workspace: ProjectWorkspace) {
+   const state = shallowReactive<{
+     phase: Phase
+-    accessDenied: boolean
+     items: readonly DirectoryAgent[]
+     next?: string
+     message: string
+@@ -113,7 +112,6 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
+     mountsMessage: string
+   }>({
+     phase: 'idle',
+-    accessDenied: false,
+     items: [],
+     message: '',
+     selectedID: null,
+@@ -138,8 +136,6 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
+   const confirmation = reactive({ open: false, message: '' })
+   const route = ref(''),
+     reading = ref(false)
+-  const formInitialization = ref<object | null>(null)
+-  const formInitializing = computed(() => formInitialization.value !== null)
+   let generation = 0,
+     disposed = false,
+     requested = false,
+@@ -168,11 +164,7 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
+   })
+   const busy = computed(() => reading.value || auth.state.busy || confirmation.open)
+   const canCreate = computed(
+-    () =>
+-      visible.value &&
+-      !state.accessDenied &&
+-      workspace.detail.project?.lifecycle === 'active' &&
+-      !pending.value,
++    () => visible.value && workspace.detail.project?.lifecycle === 'active' && !pending.value,
+   )
+   const canEdit = computed(
+     () =>
+@@ -308,14 +300,6 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
+   }
+   function clearDenied(error: unknown) {
+     if (!denied(error)) return false
+-    // Retire visible observations, never the Session's original uncertain command.
+-    // Only a new current directory read may reopen creation after this refusal.
+-    state.accessDenied = true
+-    state.items = []
+-    state.next = undefined
+-    state.phase = 'error'
+-    state.message = explain(error)
+-    state.selectedID = null
+     state.configuration = null
+     state.mounts = null
+     state.detailPhase = 'error'
+@@ -324,12 +308,6 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
+     state.mountsMessage = explain(error)
+     state.runners = []
+     state.runnerNext = undefined
+-    state.runnerPhase = 'error'
+-    state.runnerMessage = explain(error)
+-    state.models = []
+-    state.modelNext = null
+-    state.modelPhase = 'error'
+-    state.modelMessage = explain(error)
+     Object.assign(edit, initialEdit())
+     Object.assign(draft, initialDraft())
+     return true
+@@ -378,10 +356,8 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
+     auth.agentConfiguration.abandonRead()
+   }
+   function clear() {
+-    formInitialization.value = null
+     Object.assign(state, {
+       phase: 'idle',
+-      accessDenied: false,
+       items: [],
+       next: undefined,
+       message: '',
+@@ -439,10 +415,8 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
+         state.items = more ? [...state.items, ...page.items] : page.items
+         state.next = page.next_cursor
+         state.phase = 'ready'
+-        state.accessDenied = false
+       },
+       (error) => {
+-        clearDenied(error)
+         state.phase = 'error'
+         state.message = explain(error)
+       },
+@@ -463,7 +437,6 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
+         state.modelPhase = 'ready'
+       },
+       (error) => {
+-        clearDenied(error)
+         state.modelPhase = 'error'
+         state.modelMessage = explain(error)
+       },
+@@ -559,24 +532,11 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
+     requested = false
+     const own = generation,
+       p = workspace.currentReadContext.value!.projectID
+-    await initializeForm(async () => {
+-      await loadDirectory()
+-      if (live(own, p) && state.selectedID) await loadConfiguration(state.selectedID)
+-      if (live(own, p) && (draft.open || edit.open)) {
+-        await loadModels()
+-        if (live(own, p) && (draft.open || edit.open)) await loadRunners()
+-      }
+-    })
+-  }
+-  async function initializeForm(work: () => Promise<void>) {
+-    // Covers the whole opening/revalidation sequence, not an individual read.
+-    // Keep it separate from busy: read() must still admit the next owned read.
+-    const token = Object.freeze({})
+-    formInitialization.value = token
+-    try {
+-      await work()
+-    } finally {
+-      if (formInitialization.value === token) formInitialization.value = null
++    await loadDirectory()
++    if (live(own, p) && state.selectedID) await loadConfiguration(state.selectedID)
++    if (live(own, p) && (draft.open || edit.open)) {
++      await loadModels()
++      if (live(own, p)) await loadRunners()
+     }
+   }
+   async function refresh() {
+@@ -613,10 +573,8 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
+     state.feedback = ''
+     const own = generation,
+       p = projectID.value!
+-    await initializeForm(async () => {
+-      await loadModels()
+-      if (live(own, p) && draft.open) await loadRunners()
+-    })
++    await loadModels()
++    if (live(own, p) && draft.open) await loadRunners()
+   }
+   function selectModel(id: string) {
+     if (busy.value || !canCreate.value || !state.models.some((m) => m.id === id)) return
+@@ -682,10 +640,8 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
+     state.feedback = ''
+     const own = generation,
+       p = projectID.value!
+-    await initializeForm(async () => {
+-      await loadModels()
+-      if (live(own, p) && edit.open) await loadRunners()
+-    })
++    await loadModels()
++    if (live(own, p) && edit.open) await loadRunners()
+   }
+   function touchEdit(field: EditField, value: string) {
+     if (!canEdit.value || busy.value || !edit.open || editStale.value) return
+@@ -759,7 +715,6 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
+       if (live(own, p) && state.selectedID === a && !('status' in value)) await acceptUpdate(value)
+     } catch (error) {
+       if (!live(own, p) || state.selectedID !== a) return
+-      if (clearDenied(error)) return
+       edit.conflict = error instanceof AccountFailure && error.problem?.code === 'VERSION_CONFLICT'
+       edit.message = explain(error)
+     }
+@@ -800,7 +755,7 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
+       const value = await auth.agentConfiguration.startCreate(p, fields)
+       if (live(own, p) && !('status' in value)) await acceptCreation(value)
+     } catch (error) {
+-      if (live(own, p) && !clearDenied(error)) draft.message = explain(error)
++      if (live(own, p)) draft.message = explain(error)
+     }
+   }
+   async function lookup() {
+@@ -817,10 +772,7 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
+         else if (value.receipt.changed) await acceptCreation({ ...value.receipt, changed: true })
+       } else state.feedback = '尚未确认原操作结果，请继续保留原操作。'
+     } catch (error) {
+-      if (live(own, p)) {
+-        clearDenied(error)
+-        state.feedback = explain(error)
+-      }
++      if (live(own, p)) state.feedback = explain(error)
+     }
+   }
+   function ask(message: string) {
+@@ -945,7 +897,6 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
+     progress,
+     pending,
+     busy,
+-    formInitializing,
+     canCreate,
+     canSubmit,
+     dirty,
+diff --git a/web/src/tests/agent-runner-mounts-state.spec.ts b/web/src/tests/agent-runner-mounts-state.spec.ts
+index 4ce6a07c52de33e6f388ae8336c8c2f01352dbe7..0890ced5aaf4b47e2ca7c38cb95ad69c2d7b2edb 100644
+--- a/web/src/tests/agent-runner-mounts-state.spec.ts
++++ b/web/src/tests/agent-runner-mounts-state.spec.ts
+@@ -283,102 +283,3 @@ describe('Agent Runner current configuration and drafts', () => {
+     expect(f.api.startCreate).not.toHaveBeenCalled()
+   })
+ })
+-
+-describe('current-scope refusal across Agent settings reads', () => {
+-  it('retires the creation draft on current write refusal and cannot resubmit it', async () => {
+-    const f = await fixture()
+-    await f.owner.openCreation()
+-    f.owner.draft.name = 'New-Agent'
+-    f.owner.selectModel(id(3))
+-    f.owner.draft.injectAgentsMD = 'yes'
+-    f.owner.chooseApproval('default')
+-    f.owner.changeMounts(false, [{ runner_id: runner.id, workspace: 'private.dir' }])
+-    expect(f.owner.canSubmit.value).toBe(true)
+-    f.api.startCreate.mockRejectedValueOnce(
+-      new AccountFailure('problem', {
+-        type: 'urn:test',
+-        title: 'Forbidden',
+-        status: 403,
+-        detail: '',
+-        instance: '/',
+-        code: 'FORBIDDEN',
+-        request_id: id(90),
+-        commit_state: 'not_started',
+-      }),
+-    )
+-    await f.owner.submitCreation()
+-    expect(f.owner.draft.open).toBe(false)
+-    expect(f.owner.draft.runnerMounts).toEqual([])
+-    expect(f.owner.canCreate.value).toBe(false)
+-    await f.owner.submitCreation()
+-    expect(f.api.startCreate).toHaveBeenCalledTimes(1)
+-  })
+-  it.each(['models', 'list', 'runners'] as const)(
+-    'retires observations and write capability after current %s refusal',
+-    async (port) => {
+-      const f = await fixture()
+-      await f.owner.selectAgent(id(2))
+-      await f.owner.openEdit()
+-      f.owner.touchEdit('description', 'private draft')
+-      f.owner.changeMounts(true, [{ runner_id: id(4), workspace: 'private.dir' }])
+-      f.api[port].mockRejectedValueOnce(
+-        new AccountFailure('problem', {
+-          type: 'urn:test',
+-          title: 'Forbidden',
+-          status: 403,
+-          detail: '',
+-          instance: '/',
+-          code: 'FORBIDDEN',
+-          request_id: id(90),
+-          commit_state: 'not_started',
+-        }),
+-      )
+-      await (port === 'models'
+-        ? f.owner.loadModels()
+-        : port === 'list'
+-          ? f.owner.loadDirectory()
+-          : f.owner.loadRunners())
+-      expect(f.owner.canSave.value).toBe(false)
+-      expect(f.owner.canCreate.value).toBe(false)
+-      expect(f.owner.state.configuration).toBeNull()
+-      expect(f.owner.state.mounts).toBeNull()
+-      expect(f.owner.state.items).toEqual([])
+-      expect(f.owner.edit.open).toBe(false)
+-      await f.owner.submitEdit()
+-      expect(f.api.startUpdate).not.toHaveBeenCalled()
+-      await f.owner.refresh()
+-      await flushPromises()
+-      expect(f.owner.canCreate.value).toBe(true)
+-    },
+-  )
+-  it.each(['models', 'list', 'runners'] as const)(
+-    'preserves the current draft on local %s unavailability',
+-    async (port) => {
+-      const f = await fixture()
+-      await f.owner.selectAgent(id(2))
+-      await f.owner.openEdit()
+-      f.owner.touchEdit('description', 'kept draft')
+-      f.api[port].mockRejectedValueOnce(
+-        new AccountFailure('problem', {
+-          type: 'urn:test',
+-          title: 'Unavailable',
+-          status: 503,
+-          detail: '',
+-          instance: '/',
+-          code: 'DEPENDENCY_UNBOUND',
+-          request_id: id(90),
+-          commit_state: 'not_started',
+-        }),
+-      )
+-      await (port === 'models'
+-        ? f.owner.loadModels()
+-        : port === 'list'
+-          ? f.owner.loadDirectory()
+-          : f.owner.loadRunners())
+-      expect(f.owner.edit.description).toBe('kept draft')
+-      expect(f.owner.edit.version).toBe('1')
+-      expect(f.owner.state.mounts?.items[0]!.workspace).toBe('original.dir')
+-      expect(f.owner.canSave.value).toBe(true)
+-    },
+-  )
+-})

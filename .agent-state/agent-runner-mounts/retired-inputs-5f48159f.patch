@@ -1,0 +1,19 @@
+diff --git a/internal/central/agent/reader.go b/internal/central/agent/reader.go
+index 04cc4bab6e73de20c44a882650ef3fcac55cc4d8..256ca722ca9c43dc726cee286d64e7ef1c0bd2c4 100644
+--- a/internal/central/agent/reader.go
++++ b/internal/central/agent/reader.go
+@@ -105,9 +105,12 @@ func (s *Service) LookupAgentCommand(ctx context.Context, actor i.Actor, project
+ 			out, err = c.NewAgentCommandLookup(c.AgentLookupInProgress, nil)
+ 			return err
+ 		}
+-		receipt, err := commandReceipt(r)
++		receipt, err := c.DecodeAgentMutation(r.Receipt)
+ 		if err != nil {
+-			return err
++			return unavailable(err)
++		}
++		if !sameValue(receipt.Fields().Agent, r.After) || receipt.Fields().Changed != (len(r.ChangedFields) > 0) {
++			return unavailable(nil)
+ 		}
+ 		out, err = c.NewAgentCommandLookup(c.AgentLookupCommitted, &receipt)
+ 		return err

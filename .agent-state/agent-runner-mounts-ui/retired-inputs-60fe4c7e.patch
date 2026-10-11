@@ -1,0 +1,418 @@
+diff --git a/web/src/api/client.ts b/web/src/api/client.ts
+index 10edc81050722438b1de25ca2d0325930af913cf..d11b930719dfc16b95e724a646413e904834dda5 100644
+--- a/web/src/api/client.ts
++++ b/web/src/api/client.ts
+@@ -99,7 +99,6 @@ const endpoints = {
+   getProjectVariable: ['GET', '/api/v1/projects/{project_id}/variables/{target}', 200],
+   listProjectSecrets: ['GET', '/api/v1/projects/{project_id}/secret-variables', 200],
+   getProjectSecret: ['GET', '/api/v1/projects/{project_id}/secret-variables/{target}', 200],
+-  listProjectUsage: ['GET', '/api/v1/projects/{project_id}/model-usage', 200],
+   createProjectVariable: ['POST', '/api/v1/projects/{project_id}/variables', 200],
+   updateProjectVariable: ['PATCH', '/api/v1/projects/{project_id}/variables/{target}', 200],
+   lookupProjectVariable: ['POST', '/api/v1/projects/{project_id}/variables/commands/lookup', 200],
+@@ -1087,8 +1086,6 @@ type SecretReadQuery = Readonly<{ limit: number; cursor?: string }>
+ type SecretReadOptions<E extends SecretReadEndpoint> = E extends 'listProjectSecrets'
+   ? { signal: AbortSignal; projectID: string; secretQuery: SecretReadQuery }
+   : { signal: AbortSignal; projectID: string; target: string }
+-type UsageReadQuery = Readonly<{ from: string; to: string; limit: number; cursor?: string }>
+-type UsageReadOptions = { signal: AbortSignal; projectID: string; usageQuery: UsageReadQuery }
+ type SkillEndpoint = (typeof skillEndpoints)[number]
+ type SkillWireQuery = Readonly<{ limit: number; cursor?: string }>
+ type SkillOptions<E extends SkillEndpoint> = E extends 'listProjectSkills'
+@@ -1213,11 +1210,6 @@ type WorkReviewOptions = {
+ }
+ 
+ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
+-  function request<T>(
+-    endpoint: 'listProjectUsage',
+-    parse: (value: unknown) => T,
+-    options: UsageReadOptions,
+-  ): Promise<T>
+   function request<T, E extends SecretReadEndpoint>(
+     endpoint: E,
+     parse: (value: unknown) => T,
+@@ -1326,7 +1318,6 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
+       | KnowledgeEndpoint
+       | SkillEndpoint
+       | SecretReadEndpoint
+-      | 'listProjectUsage'
+       | ProjectEndpoint
+       | ProjectAuditEndpoint
+       | ProjectModelEndpoint
+@@ -1360,7 +1351,6 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
+       projects?: ProjectWireQuery
+       skillQuery?: SkillWireQuery
+       secretQuery?: SecretReadQuery
+-      usageQuery?: UsageReadQuery
+       revision?: string
+       progress?: SkillPackageProgress
+       knowledgeChildren?: KnowledgeChildrenWire
+@@ -1376,43 +1366,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
+     if (!Object.hasOwn(endpoints, endpoint)) throw new AccountFailure('invalid-input')
+     const [method, basePath, status] = endpoints[endpoint]
+     let path: string = basePath
+-    if (endpoint === 'listProjectUsage') {
+-      try {
+-        shape(options, ['signal', 'projectID', 'usageQuery'])
+-        const project = string(options.projectID, 36, 36)
+-        if (!uuid7.test(project) || !(options.signal instanceof AbortSignal)) throw new Error()
+-        const q = shape(options.usageQuery, ['from', 'to', 'limit'], ['cursor'])
+-        const from = string(q.from, 27, 27),
+-          to = string(q.to, 27, 27),
+-          limit = q.limit
+-        if (
+-          !auditCanonicalTime(from) ||
+-          !auditCanonicalTime(to) ||
+-          from >= to ||
+-          typeof limit !== 'number' ||
+-          !Number.isInteger(limit) ||
+-          limit < 1 ||
+-          limit > 100
+-        )
+-          throw new Error()
+-        const params = new URLSearchParams({ from, to, limit: String(limit) })
+-        if (Object.hasOwn(q, 'cursor')) {
+-          const token = string(q.cursor, 1, 8192)
+-          if (
+-            new TextEncoder().encode(token).byteLength > 8192 ||
+-            token.includes('\0') ||
+-            /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(token)
+-          )
+-            throw new Error()
+-          params.set('cursor', token)
+-        }
+-        const encoded = params.toString()
+-        if (new TextEncoder().encode(encoded).byteLength > 32768) throw new Error()
+-        path = basePath.replace('{project_id}', project) + '?' + encoded
+-      } catch {
+-        throw new AccountFailure('invalid-input')
+-      }
+-    } else if ((secretReadEndpoints as readonly string[]).includes(endpoint)) {
++    if ((secretReadEndpoints as readonly string[]).includes(endpoint)) {
+       try {
+         const list = endpoint === 'listProjectSecrets'
+         shape(options, ['signal', 'projectID', list ? 'secretQuery' : 'target'])
+@@ -1537,12 +1491,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
+           const limit = string(query.limit, 1, 3)
+           if (
+             !/^[1-9][0-9]*$/.test(limit) ||
+-            Number(limit) >
+-              (endpoint === 'availableAgentRunners'
+-                ? 50
+-                : endpoint === 'listProjectVariables'
+-                  ? 100
+-                  : 200)
++            Number(limit) > (endpoint === 'availableAgentRunners' ? 50 : endpoint === 'listProjectVariables' ? 100 : 200)
+           )
+             throw new Error()
+           const params = new URLSearchParams()
+@@ -2100,76 +2049,68 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
+           lifecycle,
+           endpoint === 'availableAgentRunners' && success ? 2 * 1024 * 1024 :
+           endpoint === 'agentRunnerMounts' && success ? 512 * 1024 :
+-          endpoint === 'listProjectUsage' && success
+-            ? 1024 * 1024
+-            : (secretReadEndpoints as readonly string[]).includes(endpoint) && success
+-              ? endpoint === 'listProjectSecrets'
+-                ? 5 * 1024 * 1024
+-                : 1024 * 1024
+-              : endpoint === 'getProjectScheduler' || endpoint === 'updateProjectScheduler'
+-                ? 4096
+-                : (knowledgeTextEndpoints as readonly string[]).includes(endpoint) && success
+-                  ? 16384
+-                  : (skillEndpoints as readonly string[]).includes(endpoint) && success
+-                    ? endpoint === 'listProjectSkills'
+-                      ? 100 * 65536 + 8192 + 1024
+-                      : 65536
+-                    : (workReviewEndpoints as readonly string[]).includes(endpoint) && success
+-                      ? [
+-                          'agentConfigurationCreate',
+-                          'agentConfigurationUpdate',
+-                          'agentConfigurationGet',
+-                          'agentConfigurationLookup',
+-                        ].includes(endpoint)
+-                        ? 512 * 1024
+-                        : endpoint === 'taskTimeline'
+-                          ? 4 * 1024 * 1024
+-                          : endpoint === 'directoryAgents'
+-                            ? 13 * 1024 * 1024
+-                            : endpoint === 'directoryAgent'
+-                              ? 64 * 1024
+-                              : [
+-                                    'listProjectVariables',
+-                                    'reviewMilestones',
+-                                    'reviewSprints',
+-                                    'reviewTasks',
+-                                    'reviewBlockers',
+-                                  ].includes(endpoint)
+-                                ? 5 * 1024 * 1024
+-                                : 1024 * 1024
+-                      : ((knowledgeEndpoints as readonly string[]).includes(endpoint) ||
+-                            (knowledgeCommandEndpoints as readonly string[]).includes(endpoint)) &&
+-                          success
+-                        ? // Exact complete representation limits of the two Knowledge adapters.
+-                          endpoint === 'knowledgeContent'
+-                          ? 7 * 1024 * 1024
+-                          : 5 * 1024 * 1024
+-                        : (projectModelEndpoints as readonly string[]).includes(endpoint) && success
+-                          ? (projectModelReads as readonly string[]).includes(endpoint)
+-                            ? 8388608
+-                            : 1024
+-                          : endpoint === 'listOwnerProjects' && success
+-                            ? 5 * 1024 * 1024
+-                            : projectEndpoints.includes(endpoint as ProjectEndpoint) && success
+-                              ? 64 * 1024
+-                              : endpoint === 'getSystemRuntimeInformation' && success
+-                                ? 16 * 1024
+-                                : endpoint === 'listProviders' && success
+-                                  ? 2 * 1024 * 1024
+-                                  : (endpoint === 'listSystemAudit' ||
+-                                        endpoint === 'getSystemAudit' ||
+-                                        endpoint === 'listProjectAudit' ||
+-                                        endpoint === 'getProjectAudit') &&
+-                                      success
+-                                    ? 1024 * 1024
+-                                    : 600_000,
++          (secretReadEndpoints as readonly string[]).includes(endpoint) && success
++            ? endpoint === 'listProjectSecrets' ? 5 * 1024 * 1024 : 1024 * 1024
++            : (endpoint === 'getProjectScheduler' || endpoint === 'updateProjectScheduler') ? 4096 :
++          (knowledgeTextEndpoints as readonly string[]).includes(endpoint) && success
++            ? 16384
++            : (skillEndpoints as readonly string[]).includes(endpoint) && success
++              ? endpoint === 'listProjectSkills'
++                ? 100 * 65536 + 8192 + 1024
++                : 65536
++              : (workReviewEndpoints as readonly string[]).includes(endpoint) && success
++                ? [
++                    'agentConfigurationCreate',
++                    'agentConfigurationUpdate',
++                    'agentConfigurationGet',
++                    'agentConfigurationLookup',
++                  ].includes(endpoint)
++                  ? 512 * 1024
++                  : endpoint === 'taskTimeline'
++                    ? 4 * 1024 * 1024
++                    : endpoint === 'directoryAgents'
++                      ? 13 * 1024 * 1024
++                      : endpoint === 'directoryAgent'
++                        ? 64 * 1024
++                        : [
++                              'listProjectVariables',
++                              'reviewMilestones',
++                              'reviewSprints',
++                              'reviewTasks',
++                              'reviewBlockers',
++                            ].includes(endpoint)
++                          ? 5 * 1024 * 1024
++                          : 1024 * 1024
++                : ((knowledgeEndpoints as readonly string[]).includes(endpoint) ||
++                      (knowledgeCommandEndpoints as readonly string[]).includes(endpoint)) &&
++                    success
++                  ? // Exact complete representation limits of the two Knowledge adapters.
++                    endpoint === 'knowledgeContent'
++                    ? 7 * 1024 * 1024
++                    : 5 * 1024 * 1024
++                  : (projectModelEndpoints as readonly string[]).includes(endpoint) && success
++                    ? (projectModelReads as readonly string[]).includes(endpoint)
++                      ? 8388608
++                      : 1024
++                    : endpoint === 'listOwnerProjects' && success
++                      ? 5 * 1024 * 1024
++                      : projectEndpoints.includes(endpoint as ProjectEndpoint) && success
++                        ? 64 * 1024
++                        : endpoint === 'getSystemRuntimeInformation' && success
++                          ? 16 * 1024
++                          : endpoint === 'listProviders' && success
++                            ? 2 * 1024 * 1024
++                            : (endpoint === 'listSystemAudit' ||
++                                  endpoint === 'getSystemAudit' ||
++                                  endpoint === 'listProjectAudit' ||
++                                  endpoint === 'getProjectAudit') &&
++                                success
++                              ? 1024 * 1024
++                              : 600_000,
+           success && (projectModelReads as readonly string[]).includes(endpoint),
+-          ['getProjectScheduler', 'updateProjectScheduler', 'lookupProjectScheduler'].includes(
+-            endpoint,
+-          ) ||
+-            endpoint === 'listProjectUsage' ||
+-            (secretReadEndpoints as readonly string[]).includes(endpoint) ||
+-            (skillEndpoints as readonly string[]).includes(endpoint) ||
++          ['getProjectScheduler', 'updateProjectScheduler', 'lookupProjectScheduler'].includes(endpoint) ||
++          (secretReadEndpoints as readonly string[]).includes(endpoint) ||
++          (skillEndpoints as readonly string[]).includes(endpoint) ||
+             (workReviewEndpoints as readonly string[]).includes(endpoint) ||
+             (knowledgeCommandEndpoints as readonly string[]).includes(endpoint) ||
+             (success &&
+diff --git a/web/src/composables/useSession.ts b/web/src/composables/useSession.ts
+index 0c803440ee35e2eb77c87c7968f6b5d86c0109d6..926a6a4a4f945ada8aac76e6615b028f1a6f9f58 100644
+--- a/web/src/composables/useSession.ts
++++ b/web/src/composables/useSession.ts
+@@ -49,13 +49,6 @@ import {
+   type ProjectSecretsAPI,
+   type ProjectSecretQuery,
+ } from '../api/project-secrets'
+-import {
+-  createProjectUsageAPI,
+-  captureProjectUsageID,
+-  captureProjectUsageQuery,
+-  type ProjectUsageAPI,
+-  type ProjectUsageQuery,
+-} from '../api/project-usage'
+ import {
+   createSkillPackageAPI,
+   captureSkillRevision,
+@@ -807,7 +800,6 @@ type Action =
+   | 'knowledge-read'
+   | 'skill-read'
+   | 'secret-read'
+-  | 'usage-read'
+   | 'runtime-information-read'
+   | 'invitation-read'
+   | 'invitation-write'
+@@ -958,7 +950,6 @@ export function createSessionController(
+     sprintLifecycle?: WorkSprintLifecycleAPI
+     skills?: SkillOwnerAPI
+     projectSecrets?: ProjectSecretsAPI
+-    projectUsage?: ProjectUsageAPI
+     scheduler?: ProjectSchedulerAPI
+     skillPackage?: SkillPackageAPI
+     knowledgeText?: KnowledgeTextAPI
+@@ -971,7 +962,6 @@ export function createSessionController(
+   const milestonePlanningAPI = commandAPIs.milestonePlanning ?? createWorkMilestonePlanningAPI()
+   const skillsAPI = commandAPIs.skills ?? createSkillOwnerAPI()
+   const projectSecretsAPI = commandAPIs.projectSecrets ?? createProjectSecretsAPI()
+-  const projectUsageAPI = commandAPIs.projectUsage ?? createProjectUsageAPI()
+   const schedulerAPI = commandAPIs.scheduler ?? createProjectSchedulerAPI()
+   const skillPackageAPI = commandAPIs.skillPackage ?? createSkillPackageAPI()
+   const taskEditAPI = commandAPIs.edit ?? createWorkTaskEditAPI()
+@@ -1023,7 +1013,6 @@ export function createSessionController(
+     knowledgeRevision = 0,
+     skillRevision = 0,
+     secretReadRevision = 0,
+-    usageReadRevision = 0,
+     runtimeInformationRevision = 0
+   let invitationReadRevision = 0,
+     invitationRevision = 0
+@@ -1953,7 +1942,6 @@ export function createSessionController(
+       | 'knowledge-read'
+       | 'skill-read'
+       | 'secret-read'
+-      | 'usage-read'
+       | 'runtime-information-read'
+       | 'invitation-read'
+       | 'invitation-write'
+@@ -1982,7 +1970,6 @@ export function createSessionController(
+       if (isVariableAction(kind)) return variableRevisions[kind]
+       if (kind === 'skill-read') return skillRevision
+       if (kind === 'secret-read') return secretReadRevision
+-      if (kind === 'usage-read') return usageReadRevision
+       if (isKnowledgeCommand(kind)) return knowledgeCommandRevisions[kind]
+       if (isSprintPlanningAction(kind)) return sprintPlanningRevisions[kind]
+       if (isMilestonePlanningAction(kind)) return milestonePlanningRevisions[kind]
+@@ -2049,7 +2036,6 @@ export function createSessionController(
+         kind === 'knowledge-read' ||
+         kind === 'skill-read' ||
+         kind === 'secret-read' ||
+-        kind === 'usage-read' ||
+         isProjectAction(kind) ||
+         isProjectAuditAction(kind) ||
+         isProjectModelAction(kind)
+@@ -2116,36 +2102,31 @@ export function createSessionController(
+         return result
+       })
+       .catch((error: unknown) => {
+-        const e = isSchedulerAction(kind)
+-          ? schedulerFailure(identity, op, current, error)
+-          : isKnowledgeCommand(kind)
+-            ? current()
++        const e = isSchedulerAction(kind) ? schedulerFailure(identity, op, current, error) : isKnowledgeCommand(kind)
++          ? current()
++            ? projectFailure(identity, op, error)
++            : error instanceof AccountFailure
++              ? error
++              : new AccountFailure('transport')
++          : isVariableAction(kind)
++            ? variableFailure(op, current, identity, error)
++            : isSprintPlanningAction(kind) ||
++                isMilestonePlanningAction(kind) ||
++                isSprintLifecycleAction(kind) ||
++                isAgentConfigurationAction(kind) ||
++                isWorkReviewAction(kind)
+               ? projectFailure(identity, op, error)
+-              : error instanceof AccountFailure
+-                ? error
+-                : new AccountFailure('transport')
+-            : isVariableAction(kind)
+-              ? variableFailure(op, current, identity, error)
+-              : isSprintPlanningAction(kind) ||
+-                  isMilestonePlanningAction(kind) ||
+-                  isSprintLifecycleAction(kind) ||
+-                  isAgentConfigurationAction(kind) ||
+-                  isWorkReviewAction(kind)
+-                ? projectFailure(identity, op, error)
+-                : kind === 'knowledge-read' ||
+-                    kind === 'skill-read' ||
+-                    kind === 'secret-read' ||
+-                    kind === 'usage-read'
+-                  ? knowledgeFailure(current, error)
+-                  : isProjectModelAction(kind)
+-                    ? projectModelFailure(kind, current, error)
+-                    : isProjectAuditAction(kind)
+-                      ? projectAuditFailure(current, error)
+-                      : isProjectAction(kind)
+-                        ? projectFailure(identity, op, error)
+-                        : kind !== 'personal'
+-                          ? systemFailure(identity, op, current, error)
+-                          : personalFailure(identity, error)
++              : kind === 'knowledge-read' || kind === 'skill-read' || kind === 'secret-read'
++                ? knowledgeFailure(current, error)
++                : isProjectModelAction(kind)
++                  ? projectModelFailure(kind, current, error)
++                  : isProjectAuditAction(kind)
++                    ? projectAuditFailure(current, error)
++                    : isProjectAction(kind)
++                      ? projectFailure(identity, op, error)
++                      : kind !== 'personal'
++                        ? systemFailure(identity, op, current, error)
++                        : personalFailure(identity, error)
+         if (command && personalIntent === command) {
+           if (command.unsettled || isUnknown(e) || e.problem?.code === 'IDEMPOTENCY_KEY_REUSED') {
+             command.checked = false
+@@ -7399,28 +7380,6 @@ export function createSessionController(
+     },
+     abandon: clearSecretRead,
+   }
+-  function clearUsageRead() {
+-    ++usageReadRevision
+-    if (owner?.kind === 'usage-read') owner.abandon?.()
+-  }
+-  const projectUsage = {
+-    list(projectID: string, query: ProjectUsageQuery) {
+-      try {
+-        const identity = personalIdentity(),
+-          project = captureProjectUsageID(projectID)
+-        const captured = captureProjectUsageQuery(query)
+-        return runAuthorized(
+-          identity,
+-          (op) => projectUsageAPI.list(project, captured, op.abort.signal),
+-          undefined,
+-          'usage-read',
+-        )
+-      } catch (error) {
+-        return Promise.reject(error)
+-      }
+-    },
+-    abandon: clearUsageRead,
+-  }
+   const skills = {
+     download(
+       projectID: string,
+@@ -8117,7 +8076,6 @@ export function createSessionController(
+     projectAudit,
+     skills,
+     projectSecrets,
+-    projectUsage,
+     knowledge,
+     knowledgeCommands,
+     knowledgeText,

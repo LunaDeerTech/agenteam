@@ -1,0 +1,845 @@
+diff --git a/.agent-state/task-planning-recovery/pg_only_supervisor.py b/.agent-state/task-planning-recovery/pg_only_supervisor.py
+index 7f6dfa0d91aa17e630f77ab2fba647e528783c71..66ffa039d7154270cf6f5062f2783a805141e80c 100644
+--- a/.agent-state/task-planning-recovery/pg_only_supervisor.py
++++ b/.agent-state/task-planning-recovery/pg_only_supervisor.py
+@@ -204,11 +204,6 @@ METADATA_GROUPS = {
+         'TestAgentRunnerMountsIntegration/owner-http-configuration-and-current-reads',
+         'TestAgentRunnerMountsIntegration/final-rollback-preserves-frozen-identities',
+     )),
+-    '^TestProjectOutboxStopParticipant$': frozenset((
+-        'TestProjectOutboxStopParticipant',
+-        'TestProjectOutboxStopParticipant/nonempty-queue-stop-and-inspect',
+-        'TestProjectOutboxStopParticipant/current-facts-unknown-and-terminal',
+-    )),
+     '^TestObjectRuntimeJoin(ConcurrentDrainAndForceBudget|FirstReadWriterBeforeRegistration|ConfirmationFailureRetainsOwnership|ReadyWorkMakesProgress)$': frozenset((
+         'TestObjectRuntimeJoinConcurrentDrainAndForceBudget',
+         'TestObjectRuntimeJoinConcurrentDrainAndForceBudget/join-return-barrier',
+@@ -264,7 +259,6 @@ METADATA_GROUPS = {
+     '^TestKnowledgeTextWeb$': frozenset(('TestKnowledgeTextWeb',)),
+     '^TestKnowledgeTitleSearchWeb$': frozenset(('TestKnowledgeTitleSearchWeb', 'TestKnowledgeTitleSearchWeb/literal-title-and-current-read')),
+     '^TestProjectSecretsWeb$': frozenset(('TestProjectSecretsWeb', 'TestProjectSecretsWeb/metadata-pagination-and-detail')),
+-    '^TestProjectUsageWeb$': frozenset(('TestProjectUsageWeb', 'TestProjectUsageWeb/paginated-current-read')),
+     '^TestSkillOwnerPackageHTTP(Publication|CurrentAuthority)$': frozenset((
+         'TestSkillOwnerPackageHTTPPublication',
+         'TestSkillOwnerPackageHTTPPublication/builtin',
+@@ -494,7 +488,6 @@ SPRINT_START_UI = '^TestSprintStartWeb$'
+ KNOWLEDGE_TEXT_UI = '^TestKnowledgeTextWeb$'
+ KNOWLEDGE_TITLE_UI = '^TestKnowledgeTitleSearchWeb$'
+ PROJECT_SECRETS_UI = '^TestProjectSecretsWeb$'
+-PROJECT_USAGE_UI = '^TestProjectUsageWeb$'
+ KNOWLEDGE_RENAME_UI = '^TestKnowledgeOwnerRenameWeb$'
+ APP_RUNTIME = '^TestAppExecutionRuntime$'
+ 
+@@ -502,7 +495,6 @@ APP_RUNTIME = '^TestAppExecutionRuntime$'
+ def task_review_browser_waits(output, selector=TASK_REVIEW_UI):
+     label = ('Project Scheduler' if selector == PROJECT_SCHEDULER_UI else
+              'Skill Package' if selector == SKILL_PACKAGE_UI else
+-             'ProjectUsage' if selector == PROJECT_USAGE_UI else
+              'ProjectSecrets' if selector == PROJECT_SECRETS_UI else
+              'KnowledgeTitleSearch' if selector == KNOWLEDGE_TITLE_UI else
+              'KnowledgeText' if selector == KNOWLEDGE_TEXT_UI else
+@@ -523,7 +515,6 @@ def task_review_browser_waits(output, selector=TASK_REVIEW_UI):
+     # browser calls t.Helper, so the real log points at each profile's caller.
+     source = ('project_scheduler_web_test.go' if selector == PROJECT_SCHEDULER_UI else
+               'skill_package_web_test.go' if selector == SKILL_PACKAGE_UI else
+-              'project_usage_web_test.go' if selector == PROJECT_USAGE_UI else
+               'project_secrets_web_test.go' if selector == PROJECT_SECRETS_UI else
+               'knowledge_title_search_web_test.go' if selector == KNOWLEDGE_TITLE_UI else
+               'knowledge_text_web_test.go' if selector == KNOWLEDGE_TEXT_UI else
+@@ -545,7 +536,7 @@ def task_review_browser_waits(output, selector=TASK_REVIEW_UI):
+     matches = [re.fullmatch(r'[ \t]+' + re.escape(source) + r':[1-9][0-9]*: '
+                            + re.escape(label) + r' Node actual_wait pid=([1-9][0-9]*) success=true', line)
+                for line in lines]
+-    count = 1 if selector in (TASK_TIMELINE_UI, KNOWLEDGE_RENAME_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, PROJECT_SECRETS_UI, PROJECT_USAGE_UI) else 2
++    count = 1 if selector in (TASK_TIMELINE_UI, KNOWLEDGE_RENAME_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, PROJECT_SECRETS_UI) else 2
+     return (len(matches) == count and all(matches)
+             and len({match[1] for match in matches}) == count)
+ 
+@@ -567,7 +558,7 @@ def metadata_results(output, selector=METADATA_ROOT):
+     results = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): (\S+) \([^()\r\n]*\)$', output, re.M)
+     waits = re.findall(r'^D03 explicit test actual_wait pid=([1-9][0-9]*) code=(-?[0-9]+) selector=(\S+)$', output, re.M)
+     return (len(runs) == len(cases) and set(runs) == cases
+-            and (selector not in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_USAGE_UI) or task_review_browser_waits(output, selector))
++            and (selector not in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI) or task_review_browser_waits(output, selector))
+             and (selector != APP_RUNTIME or app_runtime_waits(output))
+             and len(results) == len(cases)
+             and all(state == 'PASS' for state, _ in results)
+@@ -1363,7 +1354,7 @@ def main():
+             args.content_schema_python = os.environ['AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON']
+         except (OSError, ValueError):
+             parser.error('explicit local content Schema interpreter required')
+-    stem = ('ui-' + uuid.uuid4().hex[:16]) if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_USAGE_UI) else ('pg-' + uuid.uuid4().hex)
++    stem = ('ui-' + uuid.uuid4().hex[:16]) if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI) else ('pg-' + uuid.uuid4().hex)
+     directory = args.output.resolve() / stem
+     if args.run == KNOWLEDGE_UI:
+         try:
+@@ -1371,7 +1362,7 @@ def main():
+             args.knowledge_ui_environment = adapter.knowledge_ui_environment()
+         except (OSError, ValueError):
+             parser.error('exact frozen Knowledge assets, interpreters and fresh evidence required')
+-    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_USAGE_UI):
++    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI):
+         try:
+             args.task_review_ui_environment = adapter.task_review_ui_configuration(directory, args.run)
+         except (OSError, ValueError):
+@@ -1464,7 +1455,7 @@ def main():
+                 log.write(f'SUPERVISOR actual_driver_wait pid={child.pid} actual={child.returncode is not None} code={code}\n')
+             else:
+                 log.write(f'SUPERVISOR actual_driver_wait pid={child.pid} actual={child.returncode is not None} actual_exit={child.returncode} code={code}\n')
+-            if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_USAGE_UI) and child.returncode is not None:
++            if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI) and child.returncode is not None:
+                 if not knowledge_ui_reap_exited(log):
+                     code = 1
+             survivors = descendants(os.getpid())
+@@ -1579,7 +1570,7 @@ def main():
+                 same = same and parser_same(inputs, args, adapter)
+             if args.run == KNOWLEDGE_UI:
+                 same = same and knowledge_ui_same(inputs, args, adapter)
+-            if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_USAGE_UI):
++            if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI):
+                 same = same and adapter.task_review_ui_environment(args.run) == args.task_review_ui_environment
+             if args.run == APP_RUNTIME:
+                 same = same and adapter.app_runtime_wrapper_same(args.binary, directory)
+diff --git a/.agent-state/work-owner-http/root_chain_driver.py b/.agent-state/work-owner-http/root_chain_driver.py
+index fa714ba44d640752ab0efa81b81599b87b9dcaaf..8cf93472c1f8b55c02c9edcd3282ab52a5117c6d 100755
+--- a/.agent-state/work-owner-http/root_chain_driver.py
++++ b/.agent-state/work-owner-http/root_chain_driver.py
+@@ -27,12 +27,6 @@ METADATA_INPUTS = {
+         'api/openapi/agent-configuration.json',
+         'api/openapi/agent-runner-mounts.json',
+     ),
+-    '^TestProjectOutboxStopParticipant$': (
+-        'tests/project/outbox_stop_participant_test.go',
+-        'tests/project/b03_r3_outbox_inspection_test.go',
+-        'tests/project/b03_secret_audit_fixture_test.go',
+-        'internal/central/project/outbox_stop_participant.go',
+-    ),
+     '^TestObjectRuntimeJoin(ConcurrentDrainAndForceBudget|FirstReadWriterBeforeRegistration|ConfirmationFailureRetainsOwnership|ReadyWorkMakesProgress)$': (
+         'tests/objects/runtime_join_test.go',
+         'tests/objects/runtime_test.go',
+@@ -83,7 +77,6 @@ METADATA_INPUTS = {
+     '^TestSkillPackageWeb$': ('internal/central/app/skill_package_web_test.go', 'internal/central/app/skill_owner_web_test.go', 'internal/central/app/knowledge_owner_web_test.go', 'internal/central/app/knowledge_skills_process_test.go', 'internal/central/app/outbox_process_test.go', 'internal/central/app/app_test.go', 'tests/account-captcha-web/skill-package.config.js', 'tests/account-captcha-web/e2e/skill-package.spec.ts', 'tests/account-captcha-web/e2e/skill-package.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts', 'api/openapi/skill-package.json', 'api/openapi/skill-owner.json', 'api/openapi/common.json'),
+     '^TestKnowledgeTextWeb$': ('internal/central/app/knowledge_text_web_test.go', 'internal/central/app/knowledge_owner_web_test.go', 'internal/central/app/knowledge_skills_process_test.go', 'internal/central/app/skill_owner_web_test.go', 'internal/central/app/outbox_process_test.go', 'internal/central/app/app_test.go', 'tests/account-captcha-web/knowledge-text.config.js', 'tests/account-captcha-web/e2e/knowledge-text.spec.ts', 'tests/account-captcha-web/e2e/knowledge-text.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts', 'api/openapi/knowledge-text-commands.json', 'api/openapi/knowledge-owner.json', 'api/openapi/knowledge-content.json', 'api/openapi/common.json'),
+     '^TestKnowledgeTitleSearchWeb$': ('internal/central/app/knowledge_title_search_web_test.go', 'internal/central/app/knowledge_text_web_test.go', 'internal/central/app/knowledge_owner_web_test.go', 'internal/central/app/knowledge_skills_process_test.go', 'internal/central/app/skill_owner_web_test.go', 'internal/central/app/outbox_process_test.go', 'internal/central/app/app_test.go', 'tests/account-captcha-web/knowledge-title-search.config.js', 'tests/account-captcha-web/e2e/knowledge-title-search.spec.ts', 'tests/account-captcha-web/e2e/knowledge-title-search.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts', 'api/openapi/knowledge-text-commands.json', 'api/openapi/knowledge-owner.json', 'api/openapi/knowledge-content.json', 'api/openapi/common.json'),
+-    '^TestProjectUsageWeb$': ('tests/model/project_usage_web_test.go', 'tests/model/project_usage_http_fixture_test.go', 'tests/model/project_usage_http_root_test.go', 'tests/model/usage_fixture_test.go', 'tests/account-captcha-web/project-usage.config.js', 'tests/account-captcha-web/e2e/project-usage.spec.ts', 'tests/account-captcha-web/e2e/project-usage.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts', 'api/openapi/project-usage.json', 'api/openapi/project-owner.json', 'api/openapi/common.json'),
+     '^TestProjectSecretsWeb$': ('internal/central/app/project_secrets_web_test.go', 'internal/central/app/knowledge_title_search_web_test.go', 'internal/central/app/knowledge_text_web_test.go', 'internal/central/app/knowledge_owner_web_test.go', 'internal/central/app/knowledge_skills_process_test.go', 'internal/central/app/skill_owner_web_test.go', 'internal/central/app/outbox_process_test.go', 'internal/central/app/app_test.go', 'tests/account-captcha-web/project-secrets.config.js', 'tests/account-captcha-web/e2e/project-secrets.spec.ts', 'tests/account-captcha-web/e2e/project-secrets.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts', 'api/openapi/secret-variables.json', 'api/openapi/project-owner.json', 'api/openapi/common.json'),
+     '^TestSkillOwnerPackageHTTP(Publication|CurrentAuthority)$': (
+         'tests/skills/owner_package_http_fixture_test.go',
+@@ -287,7 +280,6 @@ METADATA_INPUTS = {
+ TARGETS = {
+     **dict.fromkeys(METADATA_INPUTS, 'tests/projectvariable'),
+     '^TestAgentRunnerMountsIntegration$': 'tests/projectvariable',
+-    '^TestProjectOutboxStopParticipant$': 'tests/project',
+     '^TestObjectRuntimeJoin(ConcurrentDrainAndForceBudget|FirstReadWriterBeforeRegistration|ConfirmationFailureRetainsOwnership|ReadyWorkMakesProgress)$': 'tests/objects',
+     '^TestObject(RuntimeForceJoinsMainAndTransferIOInOneBudget|RuntimeRecoveryCleanupKeepsStartupAndWorkerBudget|RuntimeBusyDoesNotMaskLaterRecoveryFailure|RuntimeMetadataGateUntilActualProbeAndRecovery|ProjectStopDeleteWaitsForActualIO|ProjectStopCleanupWaitsForActualIOAndCallbacks|CancelProtectsActualSourceUntilJoined)$': 'tests/objects',
+     '^TestObjectProjectWorkPendingJoinKeepsRuntimeGuard$': 'tests/objects',
+@@ -301,7 +293,6 @@ TARGETS = {
+     '^TestKnowledgeTextWeb$': 'internal/central/app',
+     '^TestKnowledgeTitleSearchWeb$': 'internal/central/app',
+     '^TestProjectSecretsWeb$': 'internal/central/app',
+-    '^TestProjectUsageWeb$': 'tests/model',
+     '^TestKnowledgeOwnerRenameWeb$': 'internal/central/app',
+     '^TestSkillOwnerReadWeb$': 'internal/central/app',
+     '^TestTaskTimeline(PersistenceAndPaging|AuthorityAndCancellation|IntegrityAndCompatibility)$': 'tests/work',
+@@ -380,7 +371,7 @@ def metadata_inputs(binary, selector='^TestAgentConfigurationMetadata$'):
+     # Only the explicitly retained legacy metadata profile includes its
+     # historical records. New profiles contain actual compiled/runtime inputs.
+     paths.update(REPOSITORY / name for name in METADATA_INPUTS[selector])
+-    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_USAGE_UI):
++    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI):
+         paths.update(task_review_ui_inputs(selector))
+     if selector == APP_RUNTIME:
+         paths.update(app_runtime_inputs())
+@@ -459,7 +450,6 @@ SPRINT_START_UI = '^TestSprintStartWeb$'
+ KNOWLEDGE_TEXT_UI = '^TestKnowledgeTextWeb$'
+ KNOWLEDGE_TITLE_UI = '^TestKnowledgeTitleSearchWeb$'
+ PROJECT_SECRETS_UI = '^TestProjectSecretsWeb$'
+-PROJECT_USAGE_UI = '^TestProjectUsageWeb$'
+ KNOWLEDGE_RENAME_UI = '^TestKnowledgeOwnerRenameWeb$'
+ APP_RUNTIME = '^TestAppExecutionRuntime$'
+ TASK_INTAKE_ENV = ('AGENTEAM_TASK_INTAKE_WEB_DIST', 'AGENTEAM_TASK_INTAKE_WEB_EVIDENCE')
+@@ -479,7 +469,6 @@ PROJECT_SCHEDULER_ENV = ('AGENTEAM_PROJECT_SCHEDULER_WEB_DIST', 'AGENTEAM_PROJEC
+ SPRINT_START_ENV = ('AGENTEAM_SPRINT_START_WEB_DIST', 'AGENTEAM_SPRINT_START_WEB_EVIDENCE')
+ KNOWLEDGE_TITLE_ENV = ('AGENTEAM_KNOWLEDGE_TITLE_SEARCH_WEB_DIST', 'AGENTEAM_KNOWLEDGE_TITLE_SEARCH_WEB_EVIDENCE')
+ PROJECT_SECRETS_ENV = ('AGENTEAM_PROJECT_SECRETS_WEB_DIST', 'AGENTEAM_PROJECT_SECRETS_WEB_EVIDENCE')
+-PROJECT_USAGE_ENV = ('AGENTEAM_PROJECT_USAGE_WEB_DIST', 'AGENTEAM_PROJECT_USAGE_WEB_EVIDENCE')
+ KNOWLEDGE_TEXT_ENV = ('AGENTEAM_KNOWLEDGE_TEXT_WEB_DIST', 'AGENTEAM_KNOWLEDGE_TEXT_WEB_EVIDENCE')
+ KNOWLEDGE_RENAME_ENV = tuple('AGENTEAM_KNOWLEDGE_OWNER_RENAME_WEB_' + part for part in ('DIST', 'EVIDENCE', 'SCHEMA_PYTHON', 'CASE'))
+ TASK_REVIEW_ENV = ('AGENTEAM_TASK_REVIEW_WEB_DIST', 'AGENTEAM_TASK_REVIEW_WEB_EVIDENCE')
+@@ -522,8 +511,6 @@ def task_review_ui_profile(selector):
+         return SKILL_OWNER_ENV, 'output/ai/skills-owner-ui', 'skill-owner-read'
+     if selector == SPRINT_START_UI:
+         return SPRINT_START_ENV, 'output/ai/sprint-start-web', 'sprint-start'
+-    if selector == PROJECT_USAGE_UI:
+-        return PROJECT_USAGE_ENV, 'output/ai/project-usage-read-ui', 'project-usage'
+     if selector == PROJECT_SECRETS_UI:
+         return PROJECT_SECRETS_ENV, 'output/ai/project-secrets-read-ui', 'project-secrets'
+     if selector == KNOWLEDGE_TITLE_UI:
+@@ -837,7 +824,7 @@ def configuration(binary, selector, directory):
+             'cwd': str(REPOSITORY / TARGETS[selector]),
+             'directory': str(directory), 'runtime': str(directory / 'runtime'),
+             'test_timeout': '6m', 'resources': 7}
+-    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_USAGE_UI):
++    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI):
+         plan['task_review_ui'] = task_review_ui_configuration(directory, selector)
+     if selector == APP_RUNTIME:
+         app_runtime_inputs()
+@@ -915,7 +902,7 @@ def main():
+         env.update({'AGENTEAM_AUTH_WEB_RUNTIME': str(runtime),
+                     'AGENTEAM_KNOWLEDGE_OWNER_WEB_INPUT_HASH': knowledge_ui_input_hash(args.test_binary),
+                     'PATH': str(KNOWLEDGE_NODE.parent) + os.pathsep + env.get('PATH', '')})
+-    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_USAGE_UI):
++    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI):
+         ui = plan['task_review_ui']
+         names, _, _ = task_review_ui_profile(args.run)
+         Path(ui[names[1]]).mkdir(mode=0o700)
+diff --git a/internal/central/project/outbox_stop_participant.go b/internal/central/project/outbox_stop_participant.go
+deleted file mode 100644
+index 3fb371fe4cee291dbb48b91f271300342d4f98be..0000000000000000000000000000000000000000
+--- a/internal/central/project/outbox_stop_participant.go
++++ /dev/null
+@@ -1,163 +0,0 @@
+-package project
+-
+-import (
+-	"context"
+-	"time"
+-
+-	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+-	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+-	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+-	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+-)
+-
+-// NewOutboxStopParticipant adapts the explicitly supplied Outbox lifecycle
+-// service. It grants neither ordinary delivery nor Project cleanup authority.
+-func NewOutboxStopParticipant(authority *LifecycleAuthority, outbox oc.ProjectLifecycleParticipant) (c.ProjectLifecycleParticipant, error) {
+-	if !authority.bound() || nilPort(outbox) {
+-		return nil, fault(f.DependencyUnbound)
+-	}
+-	name, err := outboxStopName(outbox)
+-	if err != nil {
+-		return nil, err
+-	}
+-	if name != string(c.OutboxParticipant) {
+-		return nil, invalid()
+-	}
+-	return &outboxStopParticipant{authority: authority, outbox: outbox}, nil
+-}
+-
+-type outboxStopParticipant struct {
+-	authority *LifecycleAuthority
+-	outbox    oc.ProjectLifecycleParticipant
+-}
+-
+-func (*outboxStopParticipant) Name() c.ParticipantName { return c.OutboxParticipant }
+-
+-func (p *outboxStopParticipant) RequestStop(ctx context.Context, actor identity.Actor, cause c.LifecycleCause, scope c.ScopeRef) (c.StopReport, error) {
+-	return p.stop(ctx, actor, cause, scope, false)
+-}
+-
+-func (p *outboxStopParticipant) InspectStop(ctx context.Context, actor identity.Actor, cause c.LifecycleCause, scope c.ScopeRef) (c.StopReport, error) {
+-	return p.stop(ctx, actor, cause, scope, true)
+-}
+-
+-func (*outboxStopParticipant) Cleanup(context.Context, identity.Actor, c.LifecycleCause, c.ScopeRef, *c.CleanupCheckpoint) (c.CleanupReport, error) {
+-	return c.CleanupReport{}, fault(f.DependencyUnbound)
+-}
+-
+-func (p *outboxStopParticipant) stop(ctx context.Context, actor identity.Actor, cause c.LifecycleCause, scope c.ScopeRef, inspect bool) (c.StopReport, error) {
+-	if ctx == nil || scope.Validate() != nil {
+-		return c.StopReport{}, invalid()
+-	}
+-	if p == nil || !p.authority.bound() || nilPort(p.outbox) {
+-		return c.StopReport{}, fault(f.DependencyUnbound)
+-	}
+-	name, err := outboxStopName(p.outbox)
+-	if err != nil {
+-		return c.StopReport{}, err
+-	}
+-	if name != string(c.OutboxParticipant) {
+-		return c.StopReport{}, fault(f.DependencyUnavailable)
+-	}
+-	project, err := lifecycleActorProject(actor, cause)
+-	if err != nil {
+-		return c.StopReport{}, err
+-	}
+-	if project != scope.ProjectID {
+-		return c.StopReport{}, fault(f.Forbidden)
+-	}
+-	if scope.Kind != c.ProjectScope {
+-		return c.StopReport{}, fault(f.DependencyUnbound)
+-	}
+-	// One caller-derived budget covers preflight and the real downstream call.
+-	// Neither cancellation nor its deadline substitutes for either actual return.
+-	ctx, end := context.WithTimeout(ctx, 2*time.Second)
+-	defer end()
+-	if err = ctx.Err(); err != nil {
+-		return c.StopReport{}, portError(err)
+-	}
+-	txCause, err := readCause("outbox-stop-preflight")
+-	if err != nil {
+-		return c.StopReport{}, err
+-	}
+-	validated := false
+-	result := p.authority.store.WithinTx(ctx, txCause, func(ctx context.Context, tx f.Tx) error {
+-		if err := p.authority.store.AcquireAll(ctx, tx, []f.LockRequest{projectLock(project, f.Shared)}); err != nil {
+-			return portError(err)
+-		}
+-		x, err := p.authority.lifecycleExecutor(ctx, tx, project)
+-		if err != nil {
+-			return err
+-		}
+-		fact, err := p.authority.lifecycleFact(ctx, x, project, cause, c.OutboxParticipant)
+-		if err != nil {
+-			return err
+-		}
+-		if err = fact.authorize(inspect); err != nil {
+-			return err
+-		}
+-		validated = true
+-		return nil
+-	})
+-	if err = commitError(result); err != nil {
+-		return c.StopReport{}, err
+-	}
+-	if err = ctx.Err(); err != nil {
+-		return c.StopReport{}, portError(err)
+-	}
+-	if !validated {
+-		return c.StopReport{}, fault(f.DependencyUnavailable)
+-	}
+-	operation, err := f.ParseID[oc.LifecycleOperation](cause.OperationID.String())
+-	if err != nil {
+-		return c.StopReport{}, invalid()
+-	}
+-	downstreamCause, err := oc.NewLifecycleCause(oc.LifecycleDetails{ProjectID: project, OperationID: operation, Action: oc.LifecycleAction(cause.Action), ProjectVersion: cause.ProjectVersion})
+-	if err != nil {
+-		return c.StopReport{}, invalid()
+-	}
+-	// The preflight transaction and its Project SH are gone. D06 must still
+-	// validate the current facts in each of its own original transactions.
+-	observed, err := callOutboxStop(p.outbox, ctx, actor, downstreamCause, inspect)
+-	if err != nil {
+-		return c.StopReport{}, err
+-	}
+-	if err = ctx.Err(); err != nil {
+-		return c.StopReport{}, portError(err)
+-	}
+-	if observed.Pending.Validate() != nil || observed.Stopped && observed.Pending != 0 {
+-		return c.StopReport{}, fault(f.DependencyUnavailable)
+-	}
+-	details := c.StopDetails{State: c.StopPending, SafeReason: c.ReasonWorkPending}
+-	if observed.Stopped {
+-		details = c.StopDetails{State: c.Stopped}
+-	}
+-	// D06's count supplies no resource identities; do not invent PendingRefs.
+-	return c.NewStopReport(c.OutboxParticipant, cause, scope, details)
+-}
+-
+-func outboxStopName(port oc.ProjectLifecycleParticipant) (name string, err error) {
+-	defer func() {
+-		if recover() != nil {
+-			name, err = "", fault(f.DependencyUnavailable)
+-		}
+-	}()
+-	return port.Name(), nil
+-}
+-
+-// Only the opaque call is contained here, after preflight has returned. A
+-// panic supplies no rollback or join proof. It cannot publish a stop report,
+-// and this boundary never intercepts the original preflight transaction unwind.
+-func callOutboxStop(port oc.ProjectLifecycleParticipant, ctx context.Context, actor identity.Actor, cause oc.LifecycleCause, inspect bool) (report oc.StopReport, err error) {
+-	defer func() {
+-		if recover() != nil {
+-			report, err = oc.StopReport{}, fault(f.DependencyUnavailable)
+-		}
+-	}()
+-	if inspect {
+-		return port.InspectStop(ctx, actor, cause)
+-	}
+-	return port.RequestStop(ctx, actor, cause)
+-}
+-
+-var _ c.ProjectLifecycleParticipant = (*outboxStopParticipant)(nil)
+diff --git a/internal/central/project/outbox_stop_participant_test.go b/internal/central/project/outbox_stop_participant_test.go
+deleted file mode 100644
+index 670d0456856fb32cb4066f4fea48ce80c91e623b..0000000000000000000000000000000000000000
+--- a/internal/central/project/outbox_stop_participant_test.go
++++ /dev/null
+@@ -1,475 +0,0 @@
+-package project
+-
+-import (
+-	"context"
+-	"errors"
+-	"strings"
+-	"testing"
+-	"time"
+-
+-	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+-	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+-	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+-	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+-	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+-	"github.com/jackc/pgx/v5"
+-)
+-
+-// These are explicit Store/participant controls. The PG tests independently
+-// exercise the canonical rows and the real D06 service.
+-type outboxStopControl struct {
+-	name    string
+-	request func(context.Context, identity.Actor, oc.LifecycleCause) (oc.StopReport, error)
+-	inspect func(context.Context, identity.Actor, oc.LifecycleCause) (oc.StopReport, error)
+-}
+-
+-func (p *outboxStopControl) Name() string { return p.name }
+-func (p *outboxStopControl) RequestStop(ctx context.Context, actor identity.Actor, cause oc.LifecycleCause) (oc.StopReport, error) {
+-	return p.request(ctx, actor, cause)
+-}
+-func (p *outboxStopControl) InspectStop(ctx context.Context, actor identity.Actor, cause oc.LifecycleCause) (oc.StopReport, error) {
+-	return p.inspect(ctx, actor, cause)
+-}
+-func (*outboxStopControl) Cleanup(context.Context, identity.Actor, oc.LifecycleCause) (oc.CleanupReport, error) {
+-	panic("Outbox stop adapter must not call Cleanup")
+-}
+-
+-// The minimal deletion receipt supplies a real strict-decoder preflight for
+-// Inspect only. Current stopping/Request canonical rows are covered by PG;
+-// postgres.Rows is deliberately not replaced with a test-only fake interface.
+-type outboxStopControlSQL struct {
+-	postgres.SQLExecutor
+-	receipt []any
+-}
+-
+-func (x *outboxStopControlSQL) QueryRow(_ context.Context, query string, _ ...any) postgres.Row {
+-	switch {
+-	case strings.Contains(query, "FROM agenteam_project.projects "):
+-		return rowFunc(func(...any) error { return pgx.ErrNoRows })
+-	case strings.Contains(query, "FROM agenteam_project.deletion_receipts "):
+-		return valuesRow(x.receipt...)
+-	default:
+-		return rowFunc(func(...any) error { return errors.New("unexpected controlled query") })
+-	}
+-}
+-
+-type outboxStopFixture struct {
+-	actor       identity.Actor
+-	cause       c.LifecycleCause
+-	scope       c.ScopeRef
+-	store       *barrierControlStore
+-	x           *outboxStopControlSQL
+-	provider    *outboxStopControl
+-	participant c.ProjectLifecycleParticipant
+-	txContext   context.Context
+-	returned    bool
+-	calls       int
+-}
+-
+-func newOutboxStopFixture(t *testing.T) *outboxStopFixture {
+-	t.Helper()
+-	actor, project, cause := lifecycleTestActor(t)
+-	cause.Action = c.Delete
+-	v := &outboxStopFixture{actor: actor, cause: cause, scope: c.ScopeRef{Kind: c.ProjectScope, ProjectID: project}}
+-	manifest := registryTestManifest(t, registryTestEntries())
+-	now := time.Now().UTC().Truncate(time.Microsecond)
+-	owner := testID[identity.User](t).String()
+-	v.x = &outboxStopControlSQL{receipt: []any{cause.OperationID.String(), project.String(), owner, string(digest([]byte("delete-key"))), string(digest([]byte("delete-request"))), now, "completed"}}
+-	tx := f.NewTx()
+-	v.store = &barrierControlStore{}
+-	v.store.within = func(ctx context.Context, _ f.TransactionCause, callback func(context.Context, f.Tx) error) f.CommitResult {
+-		v.txContext, v.returned = ctx, false
+-		defer func() { v.returned = true }()
+-		if err := callback(ctx, tx); err != nil {
+-			var fault *f.Fault
+-			if !errors.As(err, &fault) {
+-				t.Fatal("unsafe callback error", err)
+-			}
+-			return f.NotCommittedResult(fault)
+-		}
+-		return f.CommittedResult()
+-	}
+-	checkLock := func(_ context.Context, got f.Tx, locks []f.LockRequest) error {
+-		if got != tx || len(locks) != 1 || locks[0].Mode != f.Shared || locks[0].Key.Canonical() != projectLock(project, f.Shared).Key.Canonical() {
+-			return errors.New("not the same transaction and exact Project SH")
+-		}
+-		return nil
+-	}
+-	v.store.acquire, v.store.held = checkLock, checkLock
+-	v.store.inTx = func(got f.Tx) (postgres.SQLExecutor, error) {
+-		if got != tx {
+-			return nil, errors.New("foreign transaction")
+-		}
+-		return v.x, nil
+-	}
+-	authority, err := NewLifecycleAuthority(v.store, manifest, nil)
+-	if err != nil {
+-		t.Fatal(err)
+-	}
+-	v.provider = &outboxStopControl{name: "outbox"}
+-	call := func(ctx context.Context, got identity.Actor, gotCause oc.LifecycleCause) (oc.StopReport, error) {
+-		v.calls++
+-		d := gotCause.Details()
+-		if !v.returned || ctx != v.txContext || !got.Equal(actor) || d.ProjectID != project || d.OperationID.String() != cause.OperationID.String() || string(d.Action) != string(cause.Action) || d.ProjectVersion != cause.ProjectVersion {
+-			t.Fatal("lost actual preflight return, original context or complete cause")
+-		}
+-		return oc.StopReport{Stopped: true}, nil
+-	}
+-	v.provider.request, v.provider.inspect = call, call
+-	v.participant, err = NewOutboxStopParticipant(authority, v.provider)
+-	if err != nil {
+-		t.Fatal(err)
+-	}
+-	return v
+-}
+-
+-func TestOutboxStopParticipantConstructionAndInput(t *testing.T) {
+-	v := newOutboxStopFixture(t)
+-	authority := v.participant.(*outboxStopParticipant).authority
+-	var absent *outboxStopControl
+-	for _, dependency := range []oc.ProjectLifecycleParticipant{nil, absent} {
+-		p, err := NewOutboxStopParticipant(authority, dependency)
+-		hasCode(t, err, f.DependencyUnbound)
+-		if p != nil {
+-			t.Fatal("nil participant admitted")
+-		}
+-	}
+-	for _, a := range []*LifecycleAuthority{nil, {}} {
+-		_, err := NewOutboxStopParticipant(a, v.provider)
+-		hasCode(t, err, f.DependencyUnbound)
+-	}
+-	_, err := NewOutboxStopParticipant(authority, &outboxStopControl{name: "audit"})
+-	hasCode(t, err, f.InvalidArgument)
+-	if v.participant.Name() != c.OutboxParticipant {
+-		t.Fatal("fixed name lost")
+-	}
+-	meeting := testID[c.Meeting](t)
+-	for _, tc := range []struct {
+-		name  string
+-		actor identity.Actor
+-		cause c.LifecycleCause
+-		scope c.ScopeRef
+-		code  f.Code
+-	}{
+-		{"actor", testActor(t), v.cause, v.scope, f.Forbidden},
+-		{"cause", v.actor, c.LifecycleCause{}, v.scope, f.InvalidArgument},
+-		{"scope", v.actor, v.cause, c.ScopeRef{}, f.InvalidArgument},
+-		{"foreign-project", v.actor, v.cause, c.ScopeRef{Kind: c.ProjectScope, ProjectID: testID[identity.Project](t)}, f.Forbidden},
+-		{"meeting", v.actor, v.cause, c.ScopeRef{Kind: c.MeetingScope, ProjectID: v.scope.ProjectID, MeetingID: &meeting}, f.DependencyUnbound},
+-	} {
+-		t.Run(tc.name, func(t *testing.T) {
+-			for _, call := range []func(context.Context, identity.Actor, c.LifecycleCause, c.ScopeRef) (c.StopReport, error){v.participant.RequestStop, v.participant.InspectStop} {
+-				report, err := call(context.Background(), tc.actor, tc.cause, tc.scope)
+-				hasCode(t, err, tc.code)
+-				if report.Details().State != "" || v.calls != 0 || v.txContext != nil {
+-					t.Fatal("invalid input reached a dependency or exposed a report")
+-				}
+-			}
+-		})
+-	}
+-	_, err = v.participant.RequestStop(nil, v.actor, v.cause, v.scope)
+-	hasCode(t, err, f.InvalidArgument)
+-	ctx, cancel := context.WithCancel(context.Background())
+-	cancel()
+-	if _, err = v.participant.InspectStop(ctx, v.actor, v.cause, v.scope); err == nil {
+-		t.Fatal("cancelled input admitted")
+-	}
+-	cleanup, err := v.participant.Cleanup(context.Background(), v.actor, v.cause, v.scope, nil)
+-	hasCode(t, err, f.DependencyUnbound)
+-	if cleanup.Details().State != "" || v.calls != 0 {
+-		t.Fatal("Cleanup delegated or fabricated progress")
+-	}
+-	v.provider.name = "changed"
+-	_, err = v.participant.RequestStop(context.Background(), v.actor, v.cause, v.scope)
+-	hasCode(t, err, f.DependencyUnavailable)
+-}
+-
+-func TestOutboxStopParticipantPreflightFailures(t *testing.T) {
+-	for _, stage := range []string{"acquire", "foreign-tx", "held-lock", "not-committed", "unknown", "empty-committed", "old-cause", "request-after-delete"} {
+-		t.Run(stage, func(t *testing.T) {
+-			v := newOutboxStopFixture(t)
+-			attempt := testID[f.TransactionAttempt](t)
+-			var original f.TransactionCause
+-			switch stage {
+-			case "acquire":
+-				v.store.acquire = func(context.Context, f.Tx, []f.LockRequest) error { return errors.New("controlled acquire") }
+-			case "foreign-tx":
+-				v.store.inTx = func(f.Tx) (postgres.SQLExecutor, error) { return nil, errors.New("foreign store") }
+-			case "held-lock":
+-				v.store.held = func(context.Context, f.Tx, []f.LockRequest) error { return errors.New("missing lock") }
+-			case "not-committed", "unknown":
+-				next := v.store.within
+-				v.store.within = func(ctx context.Context, cause f.TransactionCause, callback func(context.Context, f.Tx) error) f.CommitResult {
+-					original = cause
+-					if result := next(ctx, cause, callback); result.State() != f.Committed {
+-						t.Fatal("controlled valid preflight failed", result.Fault())
+-					}
+-					if stage == "unknown" {
+-						return f.UnknownResult(attempt, cause)
+-					}
+-					return f.NotCommittedResult(f.NewFault(f.Forbidden, f.NotCommitted))
+-				}
+-			case "empty-committed":
+-				v.store.within = func(context.Context, f.TransactionCause, func(context.Context, f.Tx) error) f.CommitResult {
+-					return f.CommittedResult()
+-				}
+-			case "old-cause":
+-				v.cause.Action = c.Archive
+-			}
+-			invoke := v.participant.InspectStop
+-			if stage == "request-after-delete" {
+-				invoke = v.participant.RequestStop
+-			}
+-			report, err := invoke(context.Background(), v.actor, v.cause, v.scope)
+-			if err == nil || report.Details().State != "" || v.calls != 0 {
+-				t.Fatal("failed preflight delegated or exposed report", err)
+-			}
+-			want := f.DependencyUnavailable
+-			switch stage {
+-			case "unknown":
+-				want = f.CommitUnknown
+-				got, ok := UnknownAttempt(err)
+-				gotCause, wantCause := got.Cause().Details(), original.Details()
+-				if !ok || got.AttemptID() != attempt || gotCause.Kind != f.RecoveryCause || gotCause.Kind != wantCause.Kind || gotCause.Owner != wantCause.Owner || gotCause.RecoveryRunID != wantCause.RecoveryRunID || gotCause.CheckpointRef != wantCause.CheckpointRef {
+-					t.Fatal("original Unknown provenance lost")
+-				}
+-			case "old-cause", "not-committed":
+-				want = f.Forbidden
+-			case "request-after-delete":
+-				want = f.InvalidState
+-			}
+-			hasCode(t, err, want)
+-		})
+-	}
+-}
+-
+-func TestOutboxStopParticipantDelegationAndReports(t *testing.T) {
+-	for _, tc := range []struct {
+-		name   string
+-		report oc.StopReport
+-		want   c.StopState
+-	}{
+-		{"stopped", oc.StopReport{Stopped: true}, c.Stopped},
+-		{"pending", oc.StopReport{Pending: 3}, c.StopPending},
+-		{"not-proved", oc.StopReport{}, c.StopPending},
+-		{"negative", oc.StopReport{Pending: -1}, ""},
+-		{"contradiction", oc.StopReport{Stopped: true, Pending: 1}, ""},
+-	} {
+-		t.Run(tc.name, func(t *testing.T) {
+-			v := newOutboxStopFixture(t)
+-			next := v.provider.inspect
+-			v.provider.request = func(context.Context, identity.Actor, oc.LifecycleCause) (oc.StopReport, error) {
+-				t.Fatal("Inspect called RequestStop")
+-				return oc.StopReport{}, nil
+-			}
+-			v.provider.inspect = func(ctx context.Context, actor identity.Actor, cause oc.LifecycleCause) (oc.StopReport, error) {
+-				_, _ = next(ctx, actor, cause)
+-				return tc.report, nil
+-			}
+-			report, err := v.participant.InspectStop(context.Background(), v.actor, v.cause, v.scope)
+-			if v.calls != 1 {
+-				t.Fatal("missing downstream call or replay")
+-			}
+-			if tc.want == "" {
+-				hasCode(t, err, f.DependencyUnavailable)
+-				if report.Details().State != "" {
+-					t.Fatal("invalid report projected")
+-				}
+-				return
+-			}
+-			d := report.Details()
+-			if err != nil || !report.Matches(c.OutboxParticipant, v.cause, v.scope) || d.State != tc.want || len(d.ActiveRefs) != 0 || len(d.UnknownRefs) != 0 || (d.State == c.StopPending) != (d.SafeReason == c.ReasonWorkPending) {
+-				t.Fatal("report identity, reason or count projection changed", err)
+-			}
+-		})
+-	}
+-}
+-
+-func TestOutboxStopParticipantPreservesDownstreamError(t *testing.T) {
+-	v := newOutboxStopFixture(t)
+-	original := f.NewFault(f.CommitUnknown, f.Unknown).WithCause(errors.New("controlled private provenance"))
+-	original.CauseID = testID[f.TransactionAttempt](t).String()
+-	original.RetryHint = "lookup"
+-	call := func(context.Context, identity.Actor, oc.LifecycleCause) (oc.StopReport, error) {
+-		return oc.StopReport{Stopped: true}, original
+-	}
+-	v.provider.request, v.provider.inspect = call, call
+-	report, err := v.participant.InspectStop(context.Background(), v.actor, v.cause, v.scope)
+-	if err != original || report.Details().State != "" {
+-		t.Fatal("downstream Unknown was wrapped, erased or projected as success")
+-	}
+-}
+-
+-func TestOutboxStopParticipantWaitsForActualReturn(t *testing.T) {
+-	for _, stage := range []string{"preflight", "inspect"} {
+-		t.Run(stage, func(t *testing.T) {
+-			v := newOutboxStopFixture(t)
+-			entered, release, returned := make(chan struct{}), make(chan struct{}), make(chan struct{})
+-			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+-			defer cancel()
+-			deadline, _ := ctx.Deadline()
+-			hold := func(got context.Context) {
+-				gotDeadline, ok := got.Deadline()
+-				if !ok || !gotDeadline.Equal(deadline) || got.Err() != nil {
+-					t.Error("caller deadline lost or preflight context cancelled before delegation")
+-				}
+-				close(entered)
+-				<-release
+-			}
+-			if stage == "preflight" {
+-				next := v.store.within
+-				v.store.within = func(ctx context.Context, cause f.TransactionCause, callback func(context.Context, f.Tx) error) f.CommitResult {
+-					result := next(ctx, cause, callback)
+-					hold(ctx)
+-					return result
+-				}
+-			} else {
+-				next := v.provider.request
+-				call := func(ctx context.Context, actor identity.Actor, cause oc.LifecycleCause) (oc.StopReport, error) {
+-					report, err := next(ctx, actor, cause)
+-					hold(ctx)
+-					return report, err
+-				}
+-				v.provider.request, v.provider.inspect = call, call
+-			}
+-			var report c.StopReport
+-			var err error
+-			go func() {
+-				defer close(returned)
+-				report, err = v.participant.InspectStop(ctx, v.actor, v.cause, v.scope)
+-			}()
+-			select {
+-			case <-entered:
+-			case <-time.After(time.Second):
+-				close(release)
+-				t.Fatal("original dependency did not enter")
+-			}
+-			cancel()
+-			select {
+-			case <-returned:
+-				close(release)
+-				t.Fatal("cancellation substituted for actual return")
+-			case <-time.After(20 * time.Millisecond):
+-			}
+-			close(release)
+-			select {
+-			case <-returned:
+-			case <-time.After(time.Second):
+-				t.Fatal("released original dependency did not return")
+-			}
+-			if err == nil || report.Details().State != "" || stage == "preflight" && v.calls != 0 {
+-				t.Fatal("late success exposed after cancellation or preflight delegated")
+-			}
+-		})
+-	}
+-}
+-
+-type outboxStopNameControl struct {
+-	oc.ProjectLifecycleParticipant
+-	name func() string
+-}
+-
+-func (p *outboxStopNameControl) Name() string { return p.name() }
+-
+-func TestOutboxStopParticipantOpaquePanicBoundary(t *testing.T) {
+-	for _, stage := range []string{"constructor-name", "request-name", "inspect-name", "inspect-after-preflight"} {
+-		t.Run(stage, func(t *testing.T) {
+-			v := newOutboxStopFixture(t)
+-			authority := v.participant.(*outboxStopParticipant).authority
+-			port := &outboxStopNameControl{ProjectLifecycleParticipant: v.provider, name: func() string { return "outbox" }}
+-			var report c.StopReport
+-			var err error
+-			var escaped any
+-			var participant c.ProjectLifecycleParticipant
+-			panicName := func() string { panic("private name panic marker") }
+-			func() {
+-				defer func() { escaped = recover() }()
+-				if stage == "constructor-name" {
+-					port.name = panicName
+-					participant, err = NewOutboxStopParticipant(authority, port)
+-					return
+-				}
+-				participant, err = NewOutboxStopParticipant(authority, port)
+-				if err != nil {
+-					t.Fatal(err)
+-				}
+-				if stage == "inspect-after-preflight" {
+-					next := v.provider.inspect
+-					v.provider.inspect = func(ctx context.Context, actor identity.Actor, cause oc.LifecycleCause) (oc.StopReport, error) {
+-						_, _ = next(ctx, actor, cause)
+-						panic("private downstream panic marker")
+-					}
+-				} else {
+-					port.name = panicName
+-				}
+-				if stage == "request-name" {
+-					report, err = participant.RequestStop(context.Background(), v.actor, v.cause, v.scope)
+-				} else {
+-					report, err = participant.InspectStop(context.Background(), v.actor, v.cause, v.scope)
+-				}
+-			}()
+-			if escaped != nil {
+-				t.Fatal("opaque dependency panic escaped the adapter")
+-			}
+-			hasCode(t, err, f.DependencyUnavailable)
+-			if report.Details().State != "" || strings.Contains(err.Error(), "private") {
+-				t.Fatal("panic exposed a report or private panic detail")
+-			}
+-			if stage == "constructor-name" && participant != nil {
+-				t.Fatal("panicking declaration returned a participant")
+-			}
+-			if stage == "inspect-after-preflight" {
+-				if !v.returned || v.calls != 1 {
+-					t.Fatal("stop boundary did not follow actual preflight return")
+-				}
+-			} else if v.returned || v.calls != 0 {
+-				t.Fatal("panicking declaration reached preflight or stop")
+-			}
+-		})
+-	}
+-
+-	t.Run("transaction-panic-keeps-original-unwind", func(t *testing.T) {
+-		v := newOutboxStopFixture(t)
+-		marker := errors.New("original transaction panic")
+-		v.store.within = func(context.Context, f.TransactionCause, func(context.Context, f.Tx) error) f.CommitResult {
+-			panic(marker)
+-		}
+-		var escaped any
+-		func() {
+-			defer func() { escaped = recover() }()
+-			_, _ = v.participant.InspectStop(context.Background(), v.actor, v.cause, v.scope)
+-		}()
+-		if escaped != marker || v.calls != 0 {
+-			t.Fatal("opaque boundary swallowed the original transaction unwind")
+-		}
+-	})
+-
+-	t.Run("request-call-boundary", func(t *testing.T) {
+-		v := newOutboxStopFixture(t)
+-		operation, err := f.ParseID[oc.LifecycleOperation](v.cause.OperationID.String())
+-		if err != nil {
+-			t.Fatal(err)
+-		}
+-		cause, err := oc.NewLifecycleCause(oc.LifecycleDetails{ProjectID: v.scope.ProjectID, OperationID: operation, Action: oc.DeleteProject, ProjectVersion: v.cause.ProjectVersion})
+-		if err != nil {
+-			t.Fatal(err)
+-		}
+-		ctx := context.Background()
+-		calls := 0
+-		v.provider.request = func(got context.Context, actor identity.Actor, original oc.LifecycleCause) (oc.StopReport, error) {
+-			calls++
+-			if got != ctx || !actor.Equal(v.actor) || original.Details() != cause.Details() {
+-				t.Fatal("request call boundary changed original arguments")
+-			}
+-			panic("private RequestStop panic marker")
+-		}
+-		// This directly exercises the opaque RequestStop call boundary. The
+-		// canonical stopping preflight and its wiring are the real PG test's
+-		// responsibility; the pure receipt fixture only authorizes Inspect.
+-		report, err := callOutboxStop(v.provider, ctx, v.actor, cause, false)
+-		hasCode(t, err, f.DependencyUnavailable)
+-		if calls != 1 || report != (oc.StopReport{}) || strings.Contains(err.Error(), "private") {
+-			t.Fatal("RequestStop panic leaked a report, detail or changed call count")
+-		}
+-	})
+-}

@@ -1,0 +1,32 @@
+diff --git a/tests/projectvariable/agent_runner_mounts_integration_test.go b/tests/projectvariable/agent_runner_mounts_integration_test.go
+index d5fc4ef46d91a1fe67092f2387dd4f011aa8ff4f..4dce6f6c1f71e6c1ca59be42d22e0f9828297f01 100644
+--- a/tests/projectvariable/agent_runner_mounts_integration_test.go
++++ b/tests/projectvariable/agent_runner_mounts_integration_test.go
+@@ -281,25 +281,8 @@ func newRunnerMountPGFixture(t *testing.T) *runnerMountPGFixture {
+ 		t.Fatal(err)
+ 	}
+ 	created, err := runners.Execute(ctxFor(t), base.adminBrowser.actor, "runner-mount-bootstrap-create", intent)
+-	if err != nil {
+-		t.Fatal("formal bootstrap administrator Runner creation returned an error")
+-	}
+-	if created.Receipt.Validate() != nil {
+-		t.Fatal("formal Runner creation returned an invalid receipt")
+-	}
+-	if created.Receipt.Runner.Status != rc.Offline {
+-		t.Fatal("formal Runner creation did not produce an offline candidate")
+-	}
+-	// The first known commit returns one-time enrollment material. It stays
+-	// local to this bootstrap; only the safe Runner snapshot enters the fixture.
+-	if created.Material == nil {
+-		t.Fatal("first known Runner creation commit omitted enrollment material")
+-	}
+-	if !created.Material.Token.Valid() {
+-		t.Fatal("first known Runner creation commit returned an invalid enrollment token")
+-	}
+-	if created.Material.ExpiresAt.Validate() != nil {
+-		t.Fatal("first known Runner creation commit returned an invalid enrollment expiry")
++	if err != nil || created.Receipt.Validate() != nil || created.Receipt.Runner.Status != rc.Offline || created.Material != nil {
++		t.Fatal("formal bootstrap administrator Runner creation", err)
+ 	}
+ 	v := &runnerMountPGFixture{agent: a, runner: created.Receipt.Runner, done: make(chan bool, 1)}
+ 	v.server = httptest.NewUnstartedServer(nil)

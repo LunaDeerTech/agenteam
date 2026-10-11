@@ -1,0 +1,109 @@
+diff --git a/internal/central/execution/contract/preparation_mounts_test.go b/internal/central/execution/contract/preparation_mounts_test.go
+index a47eba4d8f9e3453371a73e82fd4cac05b615a4d..3f1ac227733aab0ebe289a31f67f6e70e4ed6fc6 100644
+--- a/internal/central/execution/contract/preparation_mounts_test.go
++++ b/internal/central/execution/contract/preparation_mounts_test.go
+@@ -65,7 +65,7 @@ func TestPreparationInputMountMaterialBinding(t *testing.T) {
+ 	}{
+ 		{"foreign-attempt", func(v *ec.PreparationInputFields) { v.Mounts.AttemptBinding = ec.TriggerInputDigest([]byte("foreign")) }},
+ 		{"missing-attempt", func(v *ec.PreparationInputFields) { v.Mounts.AttemptBinding = "" }},
+-		{"missing-mapping", func(v *ec.PreparationInputFields) { v.Mounts.Mounts[0].WorkspaceID = mt.WorkspaceID{} }},
++		{"missing-mapping", func(v *ec.PreparationInputFields) { v.Mounts.Mounts[0].WorkspaceID = "" }},
+ 		{"wrong-allowed-id", func(v *ec.PreparationInputFields) { v.Mounts.Mounts[0].ID = inputID[i.Mount](t, 103) }},
+ 		{"missing-allowed-id", func(v *ec.PreparationInputFields) {
+ 			v.Mounts.Mounts = []mt.ExecutionMountMetadata{}
+diff --git a/internal/central/execution/preparation_mounts_test.go b/internal/central/execution/preparation_mounts_test.go
+index 4c9ceffadf757e721323802618097f855b0658c3..7ac3ba2e222d77e6d93b1d8d126687e38846b97b 100644
+--- a/internal/central/execution/preparation_mounts_test.go
++++ b/internal/central/execution/preparation_mounts_test.go
+@@ -94,9 +94,7 @@ func TestExecutionPreparationMountMaterialRecovery(t *testing.T) {
+ 		if r.verifyCalls == 0 || p.store.rows[p.execution.String()][3] != "preparing" {
+ 			t.Fatal("nonempty input skipped material or started runtime")
+ 		}
+-		// Keep the original private value but remove the caller cancellation:
+-		// this independently proves witness expiry, not context precedence.
+-		requireCode(t, p.launch.authority.RequireMountMaterialInTx(context.WithoutCancel(r.verifyCtx), r.verifyTx, r.material), f.Forbidden)
++		requireCode(t, p.launch.authority.RequireMountMaterialInTx(r.verifyCtx, r.verifyTx, r.material), f.Forbidden)
+ 		fields := p.launch.config.Fields()
+ 		fields.AllowedMountIDs = []i.MountID{}
+ 		var err error
+@@ -124,37 +122,14 @@ func TestExecutionPreparationMountMaterialRecovery(t *testing.T) {
+ 		}
+ 		p.driver.Stop()
+ 		calls := len(r.order)
+-		s := p.driver.state
+-		s.mu.Lock()
+-		run := s.calls[p.execution]
+-		validUnknown := run != nil && run.claim != nil && run.unresolved == original && run.returned
+-		var claim preparationClaim
+-		if validUnknown {
+-			claim = *run.claim
+-		}
+-		s.mu.Unlock()
+-		if !validUnknown {
+-			t.Fatal("original Unknown lost its returned claim")
+-		}
+ 		r.materialErr = fault(f.DependencyUnavailable)
+-		requireCode(t, p.driver.ResolveUnknown(context.Background(), p.execution), f.DependencyUnavailable)
+-		s.mu.Lock()
+-		retained := s.calls[p.execution]
+-		keptUnknown := retained == run && retained.claim != nil && *retained.claim == claim && retained.unresolved == original && retained.returned && !retained.resolving
+-		s.mu.Unlock()
+-		if !keptUnknown || p.driver.Joined() || len(r.order) != calls {
+-			t.Fatal("unavailable material changed original Unknown ownership or recaptured")
++		if err := p.driver.ResolveUnknown(context.Background(), p.execution); err != original || p.driver.Joined() {
++			t.Fatal("input without material resolved original Unknown", err)
+ 		}
+ 		r.materialErr = nil
+ 		if err := p.driver.ResolveUnknown(context.Background(), p.execution); err != nil || !p.driver.Joined() || len(r.order) != calls {
+ 			t.Fatal("historical material recovery recaptured or failed to join", err)
+ 		}
+-		s.mu.Lock()
+-		remaining := len(s.calls)
+-		s.mu.Unlock()
+-		if remaining != 0 {
+-			t.Fatal("verified material did not retire original call")
+-		}
+ 	})
+ 	t.Run("missing-required-verifier-rolls-back", func(t *testing.T) {
+ 		r := newPreparationMountControl(t)
+diff --git a/internal/central/runner/service/execution_capture_test.go b/internal/central/runner/service/execution_capture_test.go
+index a4d18c26a07498f54f597301b2d3e66e5a535c5c..c2c45e7c80ed54542387633466fb06a65c55224c 100644
+--- a/internal/central/runner/service/execution_capture_test.go
++++ b/internal/central/runner/service/execution_capture_test.go
+@@ -172,12 +172,6 @@ func metadataFixture(t *testing.T, count int) (*ExecutionMetadataDirectory, *met
+ 	return directory, store, x, authority, request
+ }
+ 
+-func equalMetadataLocks(a, b []f.LockRequest) bool {
+-	return slices.EqualFunc(a, b, func(left, right f.LockRequest) bool {
+-		return f.CompareLockKeys(left.Key, right.Key) == 0 && left.Mode == right.Mode
+-	})
+-}
+-
+ func TestExecutionMetadataReadsCompleteSafeProjectionAfterAuthority(t *testing.T) {
+ 	directory, store, x, _, request := metadataFixture(t, 2)
+ 	result, err := directory.ReadExecutionMetadataInTx(context.Background(), store.tx, request)
+@@ -185,7 +179,7 @@ func TestExecutionMetadataReadsCompleteSafeProjectionAfterAuthority(t *testing.T
+ 		t.Fatal("complete metadata read failed", err)
+ 	}
+ 	wantTrace := []string{"transaction", "locks", "authority", "read", "read"}
+-	if !slices.Equal(store.trace, wantTrace) || !equalMetadataLocks(store.requested, store.held) {
++	if !slices.Equal(store.trace, wantTrace) || !reflect.DeepEqual(store.requested, store.held) {
+ 		t.Fatal("read bypassed its original transaction, lock set or authority")
+ 	}
+ 	for n, metadata := range result {
+@@ -213,12 +207,12 @@ func TestExecutionMetadataLocksArePureSharedAndDetached(t *testing.T) {
+ 	ids := []c.RunnerID{request.RunnerIDs[1], request.RunnerIDs[0], request.RunnerIDs[1]}
+ 	before := slices.Clone(ids)
+ 	locks, err := directory.ExecutionMetadataLocks(ids)
+-	if err != nil || !equalMetadataLocks(locks, store.held) || !slices.Equal(ids, before) || len(store.trace) != 0 {
++	if err != nil || !reflect.DeepEqual(locks, store.held) || !slices.Equal(ids, before) || len(store.trace) != 0 {
+ 		t.Fatal("lock collection touched the store or changed the canonical shared set", err)
+ 	}
+ 	locks[0].Mode = f.Exclusive
+ 	again, err := directory.ExecutionMetadataLocks(ids)
+-	if err != nil || !equalMetadataLocks(again, store.held) {
++	if err != nil || !reflect.DeepEqual(again, store.held) {
+ 		t.Fatal("caller changed a later lock set", err)
+ 	}
+ }

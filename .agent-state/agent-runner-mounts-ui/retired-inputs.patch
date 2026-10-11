@@ -1,0 +1,281 @@
+diff --git a/web/src/components/agents/AgentCreateForm.vue b/web/src/components/agents/AgentCreateForm.vue
+index f90c98589736ce05095a7e7f9dcd9c805bf9e4aa..cbf80060f6dcfa7af7bcc84b2ab73386560c39da 100644
+--- a/web/src/components/agents/AgentCreateForm.vue
++++ b/web/src/components/agents/AgentCreateForm.vue
+@@ -6,10 +6,7 @@ import type { ProjectAgents } from '../../composables/useProjectAgents'
+ const props = defineProps<{ owner: ProjectAgents }>()
+ const emit = defineEmits<{ cancel: [] }>()
+ const form = ref<HTMLFormElement | null>(null)
+-const disabled = computed(
+-  () =>
+-    props.owner.formInitializing.value || props.owner.busy.value || !props.owner.canCreate.value,
+-)
++const disabled = computed(() => props.owner.busy.value || !props.owner.canCreate.value)
+ const approvalOptions = [
+   { value: 'default', label: '默认审批' },
+   { value: 'auto', label: '模型自动审批' },
+@@ -22,14 +19,7 @@ const injectOptions = [
+ let focused = false
+ function focusName() {
+   const input = form.value?.querySelector('input')
+-  if (
+-    !focused &&
+-    !disabled.value &&
+-    props.owner.visible.value &&
+-    props.owner.draft.open &&
+-    input?.isConnected &&
+-    !input.disabled
+-  ) {
++  if (!focused && input && !input.disabled) {
+     input.focus()
+     focused = true
+   }
+diff --git a/web/src/components/agents/AgentEditForm.vue b/web/src/components/agents/AgentEditForm.vue
+index 625107a55ee10e82fcbff6ee4b80415ec6e8d39d..557e1db763f03a9e391589b8037dfefb2a5c9f3b 100644
+--- a/web/src/components/agents/AgentEditForm.vue
++++ b/web/src/components/agents/AgentEditForm.vue
+@@ -7,11 +7,7 @@ const props = defineProps<{ owner: ProjectAgents }>()
+ const emit = defineEmits<{ cancel: [] }>()
+ const form = ref<HTMLFormElement | null>(null)
+ const disabled = computed(
+-  () =>
+-    props.owner.formInitializing.value ||
+-    props.owner.busy.value ||
+-    !props.owner.canEdit.value ||
+-    props.owner.editStale.value,
++  () => props.owner.busy.value || !props.owner.canEdit.value || props.owner.editStale.value,
+ )
+ const policyDisabled = computed(
+   () =>
+@@ -31,14 +27,7 @@ const injectOptions = [
+ let focused = false
+ function focusName() {
+   const input = form.value?.querySelector('input')
+-  if (
+-    !focused &&
+-    !disabled.value &&
+-    props.owner.visible.value &&
+-    props.owner.edit.open &&
+-    input?.isConnected &&
+-    !input.disabled
+-  ) {
++  if (!focused && input && !input.disabled) {
+     input.focus()
+     focused = true
+   }
+diff --git a/web/src/composables/useProjectAgents.ts b/web/src/composables/useProjectAgents.ts
+index a3602d2488f64509752cf4a38ac800fc5fd54f2c..20c122344e979785b33270485c99d9db79164a4c 100644
+--- a/web/src/composables/useProjectAgents.ts
++++ b/web/src/composables/useProjectAgents.ts
+@@ -138,8 +138,6 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
+   const confirmation = reactive({ open: false, message: '' })
+   const route = ref(''),
+     reading = ref(false)
+-  const formInitialization = ref<object | null>(null)
+-  const formInitializing = computed(() => formInitialization.value !== null)
+   let generation = 0,
+     disposed = false,
+     requested = false,
+@@ -378,7 +376,6 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
+     auth.agentConfiguration.abandonRead()
+   }
+   function clear() {
+-    formInitialization.value = null
+     Object.assign(state, {
+       phase: 'idle',
+       accessDenied: false,
+@@ -559,24 +556,11 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
+     requested = false
+     const own = generation,
+       p = workspace.currentReadContext.value!.projectID
+-    await initializeForm(async () => {
+-      await loadDirectory()
+-      if (live(own, p) && state.selectedID) await loadConfiguration(state.selectedID)
+-      if (live(own, p) && (draft.open || edit.open)) {
+-        await loadModels()
+-        if (live(own, p) && (draft.open || edit.open)) await loadRunners()
+-      }
+-    })
+-  }
+-  async function initializeForm(work: () => Promise<void>) {
+-    // Covers the whole opening/revalidation sequence, not an individual read.
+-    // Keep it separate from busy: read() must still admit the next owned read.
+-    const token = Object.freeze({})
+-    formInitialization.value = token
+-    try {
+-      await work()
+-    } finally {
+-      if (formInitialization.value === token) formInitialization.value = null
++    await loadDirectory()
++    if (live(own, p) && state.selectedID) await loadConfiguration(state.selectedID)
++    if (live(own, p) && (draft.open || edit.open)) {
++      await loadModels()
++      if (live(own, p)) await loadRunners()
+     }
+   }
+   async function refresh() {
+@@ -613,10 +597,8 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
+     state.feedback = ''
+     const own = generation,
+       p = projectID.value!
+-    await initializeForm(async () => {
+-      await loadModels()
+-      if (live(own, p) && draft.open) await loadRunners()
+-    })
++    await loadModels()
++    if (live(own, p) && draft.open) await loadRunners()
+   }
+   function selectModel(id: string) {
+     if (busy.value || !canCreate.value || !state.models.some((m) => m.id === id)) return
+@@ -682,10 +664,8 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
+     state.feedback = ''
+     const own = generation,
+       p = projectID.value!
+-    await initializeForm(async () => {
+-      await loadModels()
+-      if (live(own, p) && edit.open) await loadRunners()
+-    })
++    await loadModels()
++    if (live(own, p) && edit.open) await loadRunners()
+   }
+   function touchEdit(field: EditField, value: string) {
+     if (!canEdit.value || busy.value || !edit.open || editStale.value) return
+@@ -945,7 +925,6 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
+     progress,
+     pending,
+     busy,
+-    formInitializing,
+     canCreate,
+     canSubmit,
+     dirty,
+diff --git a/web/src/tests/agent-runner-mounts-page.spec.ts b/web/src/tests/agent-runner-mounts-page.spec.ts
+index 199f7e29b2807c06082eedd8563a30594cffcc10..37ebcc75ea6859cb29ecc9208cd2b8e097cf265a 100644
+--- a/web/src/tests/agent-runner-mounts-page.spec.ts
++++ b/web/src/tests/agent-runner-mounts-page.spec.ts
+@@ -151,8 +151,7 @@ function summary(a: AgentConfiguration) {
+ }
+ const mounted: VueWrapper[] = [],
+   owners: ProjectAgents[] = [],
+-  sessions: SessionController[] = [],
+-  releaseReads: (() => void)[] = []
++  sessions: SessionController[] = []
+ beforeEach(() => {
+   // Geometry only; all selects, popovers, fields and focus handlers are real.
+   vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(
+@@ -164,7 +163,6 @@ afterEach(async () => {
+   mounted.splice(0).forEach((w) => w.unmount())
+   owners.splice(0).forEach((o) => o.dispose())
+   sessions.splice(0).forEach((s) => s.leave())
+-  releaseReads.splice(0).forEach((release) => release())
+   await flushPromises()
+   document.body.innerHTML = ''
+   vi.unstubAllGlobals()
+@@ -180,14 +178,11 @@ async function page() {
+   let mappingFailure: 'missing' | 'denied' | null = null
+   let patch: Fetch | null = null,
+     lookup: Fetch | null = null
+-  const reads = new Map<string, Fetch>()
+   const unexpected: string[] = []
+   const fetcher = vi.fn<Fetch>(async (url, init) => {
+     const path = String(url).split('?')[0]
+     if (path === '/api/v1/session') return json(session)
+     if (init.method === 'GET') {
+-      const read = reads.get(path)
+-      if (read) return read(url, init)
+       if (path === `${root}/agents`) return json({ items: [summary(current)] })
+       if (path === `${root}/available-chat-models`)
+         return json({ items: [model], next_cursor: null })
+@@ -291,10 +286,6 @@ async function page() {
+       current = value
+       mappings = valueMounts
+     },
+-    onRead: (path: string, fn: Fetch | null) => {
+-      if (fn) reads.set(path, fn)
+-      else reads.delete(path)
+-    },
+     onPatch: (fn: Fetch) => {
+       patch = fn
+     },
+@@ -599,82 +590,3 @@ describe('Agent Runner page using real controls and Session codecs', () => {
+     expect(f.unexpected).toEqual([])
+   })
+ })
+-
+-function heldRead(response: () => Response) {
+-  let release!: (value: Response) => void
+-  const promise = new Promise<Response>((resolve) => {
+-    release = resolve
+-  })
+-  releaseReads.push(() => release(response()))
+-  return { promise, release: (value = response()) => release(value) }
+-}
+-async function initializingForm(mode: 'create' | 'edit') {
+-  const f = await page()
+-  if (mode === 'edit') {
+-    await f.wrapper.get('.agent-entry').trigger('click')
+-    await flushPromises()
+-  }
+-  const models = heldRead(() => json({ items: [model], next_cursor: null }))
+-  const candidates = heldRead(() => json({ items: runners }))
+-  f.onRead(`${root}/available-chat-models`, async () => models.promise)
+-  f.onRead(`${root}/available-runners`, async () => candidates.promise)
+-  await click(mode === 'create' ? '创建 Agent' : '编辑配置')
+-  const name = field('Agent 名称').element
+-  const focus = vi.fn()
+-  name.addEventListener('focus', focus)
+-  expect(name.disabled).toBe(true)
+-  expect(focus).not.toHaveBeenCalled()
+-  return { ...f, models, candidates, name, focus }
+-}
+-
+-describe('form initialization focus across actual sequential reads', () => {
+-  it.each(['create', 'edit'] as const)(
+-    'focuses %s only after both reads return and does not reclaim focus on manual refresh',
+-    async (mode) => {
+-      const f = await initializingForm(mode)
+-      f.models.release()
+-      await flushPromises()
+-      expect(f.calls('GET', `${root}/available-runners`)).toHaveLength(1)
+-      expect(f.name.disabled).toBe(true)
+-      // A real focus event in this gap is premature even though jsdom does not
+-      // reproduce Chromium's automatic blur when the second read disables it.
+-      expect(f.focus).not.toHaveBeenCalled()
+-      f.candidates.release()
+-      await flushPromises()
+-      expect(f.name.disabled).toBe(false)
+-      expect(document.activeElement).toBe(f.name)
+-      expect(f.focus).toHaveBeenCalledTimes(1)
+-      const outside = document.createElement('button')
+-      outside.textContent = 'outside current form'
+-      document.body.append(outside)
+-      outside.focus()
+-      f.onRead(`${root}/available-chat-models`, null)
+-      f.onRead(`${root}/available-runners`, null)
+-      await f.owner.loadModels()
+-      await f.owner.loadRunners()
+-      await flushPromises()
+-      expect(document.activeElement).toBe(outside)
+-      expect(f.focus).toHaveBeenCalledTimes(1)
+-    },
+-  )
+-  it.each([
+-    { mode: 'create', end: 'leave' },
+-    { mode: 'edit', end: 'denied' },
+-  ] as const)('does not focus a retired $mode form after $end', async ({ mode, end }) => {
+-    const f = await initializingForm(mode)
+-    f.models.release()
+-    await flushPromises()
+-    const outside = document.createElement('button')
+-    document.body.append(outside)
+-    outside.focus()
+-    if (end === 'leave') f.owner.afterNavigation('/owner/demo/settings')
+-    f.candidates.release(end === 'denied' ? problem(403, 'FORBIDDEN') : json({ items: runners }))
+-    await flushPromises()
+-    expect(f.name.isConnected).toBe(false)
+-    expect(f.focus).not.toHaveBeenCalled()
+-    expect(document.activeElement).toBe(outside)
+-    expect(f.owner.canSave.value).toBe(false)
+-    if (end === 'denied') expect(f.owner.canCreate.value).toBe(false)
+-    expect(f.writes()).toEqual([])
+-  })
+-})
