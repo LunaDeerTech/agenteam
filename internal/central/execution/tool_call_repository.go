@@ -95,6 +95,7 @@ func (s *directTextState) saveToolCallFacts(ctx context.Context, run *directText
 	run.phase = "tool-writing"
 	s.mu.Unlock()
 	cause, _ := f.NewJobCause("execution-tool-call-checkpoint", run.request.ExecutionID.String(), run.toolFacts.payload.String())
+	canonicalCancelled := false
 	result := s.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		if err := s.store.AcquireAll(ctx, tx, run.locks); err != nil {
 			return portError(err)
@@ -117,8 +118,12 @@ func (s *directTextState) saveToolCallFacts(ctx context.Context, run *directText
 		if err != nil {
 			return err
 		}
-		if row == nil || row.summary.Status != c.Running || row.summary.CancelRequestedAt != nil || row.summary.Version == f.Version(math.MaxInt64) || !sameDirectText(stored, run.snapshot, run.round) || stored.terminal != nil || stored.toolPending != nil {
+		if row == nil || row.summary.Status != c.Running || row.summary.Version == f.Version(math.MaxInt64) || !sameDirectText(stored, run.snapshot, run.round) || stored.terminal != nil || stored.toolPending != nil {
 			return fault(f.ConfirmationStale)
+		}
+		if row.summary.CancelRequestedAt != nil {
+			canonicalCancelled = true
+			return context.Canceled
 		}
 		if err = s.requireCurrentToolFacts(ctx, tx, run); err != nil {
 			return err
@@ -130,6 +135,16 @@ func (s *directTextState) saveToolCallFacts(ctx context.Context, run *directText
 		return insertToolCallFacts(ctx, x, run, row.summary.Version)
 	})
 	if err := commitError(result); err != nil {
+		// A canonical cancel is distinct from an uncertain checkpoint. Only a
+		// known rollback with no candidate writes may enter the old terminal
+		// owner; the actual JSON handle has already joined at this boundary.
+		if canonicalCancelled && result.State() == f.NotCommitted {
+			s.mu.Lock()
+			run.phase = "closing"
+			run.invocation.callError = context.Canceled
+			s.mu.Unlock()
+			return s.finish(run)
+		}
 		s.mu.Lock()
 		run.uncertainty = "tool-writing"
 		if directTextUnknown(err) {
@@ -241,6 +256,9 @@ func loadToolCallFacts(ctx context.Context, x postgres.SQLExecutor, stored *dire
 }
 
 func (s *directTextState) observeToolCallCheckpoint(ctx context.Context, run *directTextCall) (bool, error) {
+	if run == nil || run.toolFacts == nil || !run.allJoined || run.invocation == nil || run.invocation.session == nil || !run.invocation.session.Joined() {
+		return false, fault(f.InvalidState)
+	}
 	var found bool
 	cause, _ := f.NewRecoveryCause("execution.tool-call.observe", run.request.ExecutionID.String(), run.toolFacts.payload.String())
 	result := s.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
@@ -263,7 +281,7 @@ func (s *directTextState) observeToolCallCheckpoint(ctx context.Context, run *di
 			return nil
 		}
 		v := stored.toolPending
-		if row.summary.Status != c.Running || v.payload != run.toolFacts.payload || v.version != run.toolFacts.version || row.summary.Version < v.version || !bytes.Equal(v.original, run.toolFacts.original) || !bytes.Equal(v.canonical, run.toolFacts.canonical) || v.response.InvocationID != run.toolFacts.response.InvocationID {
+		if row.summary.Status != c.Running || row.summary.Version < v.version || !sameToolCallCheckpoint(v, run.toolFacts) {
 			return fault(f.ConfirmationStale)
 		}
 		if err = s.verifyDirectTextMountUse(ctx, tx, run, row, stored, run.input); err != nil {
@@ -301,4 +319,18 @@ func toolBinding(stored *directTextRecord) (tc.ToolCallBinding, error) {
 	}
 	b := tc.ToolCallBinding{Actor: actor, ProjectID: input.Request.Launch.ProjectID, AgentID: input.Request.Launch.AgentID, ExecutionID: r.ExecutionID, RoundID: r.ID.String(), SnapshotID: r.SnapshotID.String(), InputBindingID: r.InputBindingID.String(), LogicalCallID: r.CallID, InvocationID: v.response.InvocationID, CallID: v.call.ID, ModelVisibleName: t.ModelVisibleName, Spec: tc.SpecRef{ToolID: t.ToolID, SpecRevision: t.SpecRevision}, RunnerBinding: t.BindingSnapshot.RunnerBinding, Input: tc.ToolInputReference{PayloadID: v.payload.String(), SHA256: c.TriggerInputDigest(v.original), Bytes: f.Progress(len(v.original))}, CanonicalArguments: c.TriggerInputDigest(v.canonical)}
 	return b, b.Validate()
+}
+
+// Observation binds all original success bytes, not only the protected input.
+// Two self-consistent persisted rows are not interchangeable commit receipts.
+func sameToolCallCheckpoint(actual, expected *toolCallCandidate) bool {
+	if actual == nil || expected == nil || actual.payload != expected.payload || actual.version != expected.version || actual.call.ID != expected.call.ID || actual.call.Name != expected.call.Name || !actual.at.Time().Equal(expected.at.Time()) || !bytes.Equal(actual.original, expected.original) || !bytes.Equal(actual.canonical, expected.canonical) {
+		return false
+	}
+	a, err := directTextJSON(actual.response)
+	if err != nil {
+		return false
+	}
+	b, err := directTextJSON(expected.response)
+	return err == nil && bytes.Equal(a, b)
 }

@@ -136,3 +136,33 @@ func TestExecutionToolCallCurrentAndCaptureFactsStaySeparate(t *testing.T) {
 		t.Fatal("current facts rewrote immutable capture")
 	}
 }
+
+func TestExecutionToolCallObservationBindsCompleteOriginalSuccess(t *testing.T) {
+	facts, _ := runtimeModelCandidate(t)
+	at := facts.Round.Fields().CreatedAt
+	response := mc.ModelResponse{CallID: facts.Round.Fields().CallID, InvocationID: newTestID[mc.Invocation](t), Message: mc.Message{Role: "assistant", Parts: []mc.MessagePart{{Text: &mc.TextPart{Text: "original assistant"}}, {ToolCall: &mc.ToolCallPart{ID: "original-call", Name: "original-name", Arguments: json.RawMessage(`{"path":"README.md"}`)}}}}, FinishReason: "tool_calls", Usage: mc.Usage{Source: mc.UnknownUsage}}
+	original := &toolCallCandidate{payload: newTestID[toolArgumentPayload](t), response: response, call: *response.Message.Parts[1].ToolCall, original: []byte(`{ "path":"README.md" }`), canonical: []byte(`{"path":"README.md"}`), at: at, version: 3}
+	if !sameToolCallCheckpoint(original, original) {
+		t.Fatal("same original rejected")
+	}
+	for name, change := range map[string]func(*toolCallCandidate){
+		"self-consistent other call": func(v *toolCallCandidate) {
+			v.call.ID = "other-call"
+			v.response.Message.Parts[1].ToolCall.ID = "other-call"
+		},
+		"assistant":      func(v *toolCallCandidate) { v.response.Message.Parts[0].Text.Text = "other assistant" },
+		"invocation":     func(v *toolCallCandidate) { v.response.InvocationID = newTestID[mc.Invocation](t) },
+		"usage":          func(v *toolCallCandidate) { v.response.ProviderRequestID = "other provider request" },
+		"time":           func(v *toolCallCandidate) { v.at, _ = f.NewInstant(v.at.Time().Add(1000)) },
+		"original bytes": func(v *toolCallCandidate) { v.original = append([]byte(" "), v.original...) },
+	} {
+		t.Run(name, func(t *testing.T) {
+			copy := *original
+			copy.response = original.response.Clone()
+			change(&copy)
+			if sameToolCallCheckpoint(&copy, original) {
+				t.Fatal("unrelated candidate cleared original Unknown")
+			}
+		})
+	}
+}
