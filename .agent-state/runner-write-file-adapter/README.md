@@ -4,7 +4,7 @@
 
 ## 原件与源码
 
-本片已随完整历史 main `66fe3ab06a245a20d94ba2d02aa5066fd3083bbe` 有限交付并推送。原树的 `output/ai/runner-write-file-adapter` 已通过 `renameat2(RENAME_NOREPLACE)` 无覆盖、同文件系统迁至 main 的 `output/ai/retired-20261011/runner-write-file-adapter`，原路径现已不存在。这里只完成原件迁移，worktree/分支清理仍待 root 实际执行；本任务远端分支未推送，不虚计远端删除。
+本片已随完整历史 main `66fe3ab06a245a20d94ba2d02aa5066fd3083bbe` 有限交付并推送。原树的 `output/ai/runner-write-file-adapter` 已通过 `renameat2(RENAME_NOREPLACE)` 无覆盖、同文件系统迁至 main 的 `output/ai/retired-20261011/runner-write-file-adapter`，原路径现已不存在。保全说明已随 main `f1d854e1` 推送。root 随后确认原树 clean/ignored0、HEAD `6ce32282` 为 main 祖先，普通 worktree remove 与普通 branch -d 均实际退出 0，未强制删除；本任务远端分支从未推送，fresh 精确 ls-remote 成功且为空，不虚计远端删除。原树已不存在，后继恢复使用 main 的历史与上述 retired 位置。
 
 | 原记录 | 精确源码 | 实际结果 |
 | --- | --- | --- |
