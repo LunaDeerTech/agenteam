@@ -22,7 +22,7 @@ import (
 
 func toolResultTestDigest(raw []byte) f.Digest {
 	sum := sha256.Sum256(raw)
-	return f.Digest(hex.EncodeToString(sum[:]))
+	return f.Digest("sha256:" + hex.EncodeToString(sum[:]))
 }
 
 // This is a controlled codec value, not a substitute for the real Tool reader

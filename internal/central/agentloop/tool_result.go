@@ -124,5 +124,5 @@ func ProjectReadFileToolResult(ctx context.Context, binding tc.ReadFileResultBin
 
 func toolResultDigest(raw []byte) f.Digest {
 	sum := sha256.Sum256(raw)
-	return f.Digest(hex.EncodeToString(sum[:]))
+	return f.Digest("sha256:" + hex.EncodeToString(sum[:]))
 }
