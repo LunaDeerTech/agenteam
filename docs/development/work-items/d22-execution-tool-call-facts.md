@@ -1,6 +1,6 @@
 # D22 首轮 ToolCall 持久事实
 
-状态：基于 `226ea38b` 实施；基础 race 与 vet 已分段通过，真实 PG 尚未编译运行。本片止于真实原模型句柄完成并实际 Joined 后的 ToolCall 持久事实和 `tool-pending` 非终态 checkpoint，不声明完整多轮 Agent、ToolOperation、Runner 派发或生产 tools 接入。
+状态：基于 `226ea38b` 实施；基础 race 与 vet 已分段通过，真实 PG 测试已编译，尚未运行。本片止于真实原模型句柄完成并实际 Joined 后的 ToolCall 持久事实和 `tool-pending` 非终态 checkpoint，不声明完整多轮 Agent、ToolOperation、Runner 派发或生产 tools 接入。
 
 正式来源：[Model/Tool 契约](d01-contracts/model-tool.md)、[Execution 编排契约](d01-contracts/execution-orchestration.md)、[Transcript 与 Context](../../architecture/agent-loop/transcript-context.md)。
 
@@ -19,7 +19,7 @@ lead 独占 Execution/Loop、本卡、分支 current 与迁移 `00064_execution_
 
 首条 PG 链只替换 Model 端口，真实 Agent/Execution/Tool Registry/持久化及当前权威不得用原 D15 上游替身替代。必要基础控制覆盖完整响应与原句柄退休、事实幂等、未知提交、当前权限与事务回滚；不扩大成多轮 Tool Runtime 或重新验收旧领域矩阵。
 
-OpenAI tools 独立 A/B STOP、生产 nil/unbound、旧默认 no-tools 均保留；归档 input08 不当作动态通过。不得通过新 driver 恢复停项，也不引入网络故障 probe、新依赖或默认绑定。当前已运行限定 Go 基础检查与离线 Python 方法控制；没有运行服务或 native。
+OpenAI tools 独立 A/B STOP、生产 nil/unbound、旧默认 no-tools 均保留；归档 input08 不当作动态通过。不得通过新 driver 恢复停项，也不引入网络故障 probe、新依赖或默认绑定。当前已运行限定 Go 基础检查与离线 Python 方法控制；已编译 PG 测试但没有运行服务或 native。
 
 ## 当前实现候选
 
@@ -40,3 +40,5 @@ Tool 子域已有 6 个新基础测试入口，Execution/Loop 增加 8 个入口
 随后 `unit02` 只补 Execution 原选择范围，13 top / 10 sub 实际通过（11.021 秒）；其余四包复用原通过结果。五包 `vet01` 实际退出 0（73.069 秒）。两阶段合计 34 top，包括 14 个新入口与 20 个适用旧入口；这是分段通过，不把首轮 FAIL 改写为通过。两次输入清单前后均相同，轮间唯一差额为上述两行接口修复。
 
 精确 argv、进程与 actual Wait、输入和日志见 `output/ai/execution-tool-call-facts/checks/unit01-*`、`unit02-*`、`vet01-*`。尚未据此声明 PG、公开 Cancel 命令、多轮 Tool Runtime 或生产 tools 已通过。
+
+PG 唯一测试的首次 `-race -tags=integration -c -p=1` 编译实际退出 0（Go PID 656310，109.403 秒），随后精确 `-test.list=^TestExecutionToolCallFacts$` 实际退出 0 且仅枚举该 top。1806 项原 driver 编译闭包前后及列表后均相同；runtime 仅追加真实 binary，原件见 `output/ai/execution-tool-call-facts/compile01/` 与 `native01/`。这仍是编译和配方准备，不代表两条 PG 业务场景通过。
