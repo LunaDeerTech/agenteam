@@ -8,7 +8,7 @@
 
 四轮实际输入已逐 Git blob 核合：basic01、basic02 各 730 个仓库内文件分别对应 `67cde809`、`71b13d5c`；compile01/native01 各 1,884 个对应 `44ab6534`。四个对应 wrapper 的原 SHA 也全部一致；这些历史及最终任务提交均为上述正式 main 的祖先，未发现未提交 FAIL 源码缺口，无需重造补丁。固定 Go/MinIO、SkillHTTP 热 cache、SkillsMilestoneResume 只读 modules 不搬移，不声称在 Git 或本输出内。
 
-原执行者已亲收全部工具 Wait；native01 的 30712 实际 0、七资源十四次 absence、所有退出双尾及输入门闭合。定向原 PID 的被动检查未见保留，不代替全系统进程可见性。NextRoundProjection 的基础作者、PG 作者及其七个实际方法/PG 文件均确认无旧 68 绝对运行路径依赖，后继使用自身树源码及既有受保护外部依赖。保全后旧树正常状态及 ignored 清单均为空，可交 root 做普通清理；root 的 fresh 远端精确查询工具 37217 已实际退出 0 且结果为空，本任务分支从未推送；后续只涉及树与本地分支，不增加远端计数。本次未删树或引用，累计仍为 32 个 WorkTree、33 个本地分支、63 个远端引用，legacy 147、显式 keep 1 和全部 STOP 保持。
+原执行者已亲收全部工具 Wait；native01 的 30712 实际 0、七资源十四次 absence、所有退出双尾及输入门闭合。定向原 PID 的被动检查未见保留，不代替全系统进程可见性。NextRoundProjection 的基础作者、PG 作者及其七个实际方法/PG 文件均确认无旧 68 绝对运行路径依赖，后继使用自身树源码及既有受保护外部依赖。保全后旧树正常状态及 ignored 清单均为空。保全文档已随 main `c34ba3b5` 推送，原工具 50299 实际退出 0；root 核定最终任务 tip `f1fe5484` 为 main 祖先后，普通 worktree remove 与 branch -d 均实际退出 0（工具 chunk `9dc6b3`）。fresh 远端精确查询工具 37217 已实际退出 0 且结果为空，本任务分支从未推送，故没有远端删除；本次只增加树与本地分支。旧树和本地分支清理完成，累计为 33 个 WorkTree、34 个本地分支、63 个远端引用，legacy 147、显式 keep 1 和全部 STOP 保持。完整历史、原 FAIL 和上述 retired 路径不变；恢复不再进入已删除旧树。
 
 NextRoundProjection 没有新增迁移，仍使用原 00066–00068；它不依赖旧树路径不等于其 PG 已通过。
 
