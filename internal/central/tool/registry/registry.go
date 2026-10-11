@@ -42,11 +42,13 @@ type Authorizations struct {
 }
 type Options struct {
 	Sources        map[string]BuiltinSource
+	RunnerSources  map[string]RunnerSource
 	Authorizations Authorizations
 }
 type state struct {
 	store   Store
 	sources map[string]BuiltinSource
+	runners map[string]RunnerSource
 	auth    Authorizations
 }
 
@@ -67,7 +69,17 @@ func New(store Store, options Options) (*Registry, error) {
 		}
 		sources[key] = source
 	}
-	s := &state{store: store, sources: sources, auth: options.Authorizations}
+	runners := make(map[string]RunnerSource, len(options.RunnerSources))
+	for key, source := range options.RunnerSources {
+		if key != tc.RunnerReadFileKey {
+			return nil, fail(f.InvalidArgument)
+		}
+		if nilPort(source) {
+			return nil, fail(f.DependencyUnbound)
+		}
+		runners[key] = source
+	}
+	s := &state{store: store, sources: sources, runners: runners, auth: options.Authorizations}
 	return &Registry{state: func() *state { return s }}, nil
 }
 func (r *Registry) data() *state {

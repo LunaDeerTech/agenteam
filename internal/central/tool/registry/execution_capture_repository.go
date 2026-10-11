@@ -73,7 +73,7 @@ func (r *Registry) currentCaptureTool(ctx context.Context, tx f.Tx, x postgres.S
 	var v currentTool
 	var revision, contract int64
 	var raw []byte
-	err := x.QueryRow(ctx, `SELECT i.stable_key,r.spec_revision,s.definition,r.handler_id,r.contract_revision,r.scope_resolver_id,r.risk_classifier_id,r.class FROM agenteam_tool.identities i JOIN agenteam_tool.registrations r ON r.tool_id=i.tool_id AND r.spec_revision=i.latest_revision JOIN agenteam_tool.spec_revisions s ON s.tool_id=r.tool_id AND s.spec_revision=r.spec_revision WHERE i.tool_id=$1`, tool.String()).Scan(&v.Key, &revision, &raw, &v.Binding.HandlerID, &contract, &v.Scope, &v.Risk, &v.Class)
+	err := x.QueryRow(ctx, `SELECT i.stable_key,r.spec_revision,s.definition,COALESCE(r.handler_id,''),COALESCE(r.contract_revision,0),r.scope_resolver_id,r.risk_classifier_id,r.class FROM agenteam_tool.identities i JOIN agenteam_tool.registrations r ON r.tool_id=i.tool_id AND r.spec_revision=i.latest_revision JOIN agenteam_tool.spec_revisions s ON s.tool_id=r.tool_id AND s.spec_revision=r.spec_revision WHERE i.tool_id=$1`, tool.String()).Scan(&v.Key, &revision, &raw, &v.Binding.HandlerID, &contract, &v.Scope, &v.Risk, &v.Class)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return currentTool{}, false, nil
 	}
@@ -84,6 +84,10 @@ func (r *Registry) currentCaptureTool(ctx context.Context, tx f.Tx, x postgres.S
 	v.Binding.ContractRevision = f.Version(contract)
 	if v.Ref.Validate() != nil {
 		return currentTool{}, false, fail(f.InvalidState)
+	}
+	if v.Key == tc.RunnerReadFileKey {
+		out, err := r.currentRunner(ctx, tx, x, v, raw)
+		return out, err == nil, err
 	}
 	v.Definition, err = decodeDefinition(ctx, raw, v.Key)
 	if err != nil {
@@ -147,6 +151,12 @@ func writeExecutionToolReferences(ctx context.Context, x postgres.SQLExecutor, r
 	}
 	for _, v := range tools {
 		b := v.BindingSnapshot
+		if b.RunnerBinding != (tc.RunnerBinding{}) {
+			if err = writeRunnerExecutionReference(ctx, x, r, v); err != nil {
+				return err
+			}
+			continue
+		}
 		tag, err = x.Exec(ctx, `INSERT INTO agenteam_tool.execution_references(execution_id,tool_id,spec_revision,model_visible_name,handler_id,contract_revision,scope_resolver_id,risk_classifier_id,class) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`, r.ExecutionID.String(), v.ToolID.String(), int64(v.SpecRevision), v.ModelVisibleName, b.Binding.HandlerID, int64(b.Binding.ContractRevision), string(b.ScopeResolverID), string(b.RiskClassifierID), string(b.Class))
 		if err != nil {
 			return captureError(err)
@@ -167,6 +177,12 @@ func checkExecutionToolReferences(ctx context.Context, x postgres.SQLExecutor, r
 		return fail(f.InvalidState)
 	}
 	for _, want := range tools {
+		if want.BindingSnapshot.RunnerBinding != (tc.RunnerBinding{}) {
+			if err := checkRunnerExecutionReference(ctx, x, r, want); err != nil {
+				return err
+			}
+			continue
+		}
 		var revision, contract int64
 		var name, handler, scope, risk, class string
 		err := x.QueryRow(ctx, `SELECT spec_revision,model_visible_name,handler_id,contract_revision,scope_resolver_id,risk_classifier_id,class FROM agenteam_tool.execution_references WHERE execution_id=$1 AND tool_id=$2`, r.ExecutionID.String(), want.ToolID.String()).Scan(&revision, &name, &handler, &contract, &scope, &risk, &class)
