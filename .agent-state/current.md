@@ -7,17 +7,15 @@
 | 任务 / 分支 | 负责人 | 状态与下一步 |
 | --- | --- | --- |
 | Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |
-| Agent Runner 配置 — 后端与独立 UI 分支 | runtime_recovery / variables_review 实施，指定作者编写 Go/PW 方法 | 后端 PG02 已交付main（d319a041），[UI](../docs/development/work-items/d10-agent-runner-mounts-ui.md)已正式交付并推送main（94a225a2）：普通Owner选择系统Runner与资源目录名创建、编辑、清空，确认后当前回读及原Unknown恢复；offline/incompatible均可配置，无额外Admin门。最终type/build、真实runtime-off默认App两子例、五图及完整退出尾独验接受。原编译、PG01及UI首焦点FAIL保留，不外推物理目录、executor或完整D10。 |
-| Execution Mount Capture — `ai/execution-mount-capture-20261011` | runtime_recovery 主实施，Mount / Runner 子作者分域 | [非空preparing捕获](../docs/development/work-items/d22-execution-mount-capture.md)已有限验收，本次合入主线：真实PreparationDriver同Tx原子保存input与不可变Mount material/ref；历史重读与原身份恢复核原材料，末段失败实际回滚且零部分捕获。自有PG的native01两子例及完整退出尾通过，原unit01 FAIL保留；Unknown为Committed后受控丢回执，不冒网络故障。未完成非空Snapshot、引用退休、物理目录、Runner执行或完整D22。 |
 
 Project Usage 只读 UI 已正式交付并推送 main（066bf），native03 有限业务、视觉及完整退出尾独验接受；原 native01/02 FAIL 保留，不外推完整 D09。
 
 ## 保留与清理
 
 - SkillHTTP 树保留活跃热 Go cache，SkillsMilestoneResume 树保留共享只读 modules 与既有运行依赖；Go writer 和 native 窗口均按 root 明确交接。
-- ProjectVariablesResume 保留未完恢复；ObjectSafe 保留原件与失败。Move 活跃树保留；ExecutionMountCapture、AgentRunner 后端/UI 与 Usage 原树及原件等待独立清理核验，未核其他树不自动清理。
-- Find、Sprint、Title、AgentDisplay、TaskHistoryFilters、SecretAudit、Runner Workspace、Outbox、Secrets、KnowledgeTextUI、Milestone、KnowledgeHTTP、SchedulerHTTP、SchedulerUI、SkillUI 十五组 tree/local/remote 已全部清理，root 已确认远端删除、ls-remote 空与 fetch-prune 实际成功。完整原件迁入 main `output/ai/` 各任务目录，依赖与日志映射见各自保全说明。另 25 个严格 main 祖先旧远端引用已按逐 OID lease 原子删除，精确查询为空、fetch/prune 成功；本地 work296 已普通删除。合计清理 40 个远端引用、16 个本地分支和 15 个 WorkTree；额外 25 个引用没有对应本地分支或树。154 个未证明包含于 main 的引用、1 个显式保留历史引用与 8 个活动分支均未动。
+- ProjectVariablesResume 保留未完恢复；ObjectSafe 保留原件与失败。Move 活跃树保留；Usage 原树及原件等待独立清理核验，未核其他树不自动清理。
+- Find、Sprint、Title、AgentDisplay、TaskHistoryFilters、SecretAudit、Runner Workspace、Outbox、Secrets、KnowledgeTextUI、Milestone、KnowledgeHTTP、SchedulerHTTP、SchedulerUI、SkillUI、AgentRunner 后端、AgentRunner UI、ExecutionMountCapture 十八组 tree/local/remote 已全部清理。最近三树已普通 remove，三远端引用按精确 lease 原子删除成功；三本地引用仅因 squash 非祖先被普通 `-d` 拒绝，在完整交付、材料保全与无依赖核实后逐个窄 `-D` 成功。root 已确认 worktree、本地及 tracking 查询均无三项，成功的精确 ls-remote 为空，main+ai fetch/prune 实际成功。完整原件迁入 main `output/ai/` 各任务目录，依赖与日志映射见各自保全说明。另 25 个严格 main 祖先旧远端引用已按逐 OID lease 原子删除，精确查询为空、fetch/prune 成功；本地 work296 已普通删除。合计清理 43 个远端引用、19 个本地分支和 18 个 WorkTree；额外 25 个引用没有对应本地分支或树。154 个未证明包含于 main 的引用与 1 个显式保留历史引用仍未动，其他活动分支按 owner 保留。
 
-跨设备必要差额见 [Sprint](sprint-edit-ui/README.md)、[Title](knowledge-title-search-ui/README.md)、[TaskHistory](task-history-filters/README.md)、[SecretAudit](secret-audit-stop-adapters/README.md)、[Outbox](outbox-stop-adapter/README.md) 的历史 main 基准与最小补丁，均已实际应用并逐字核原输入。Outbox 补丁仅恢复已复用的历史 PG 输入，当前安全修后代码从 main 恢复；AgentDisplay、Find、Runner 无需额外源码差额。原 FAIL、绝对路径和验收范围不改写，不复制整树、日志或依赖入 Git。
+跨设备必要差额见 [Sprint](sprint-edit-ui/README.md)、[Title](knowledge-title-search-ui/README.md)、[TaskHistory](task-history-filters/README.md)、[SecretAudit](secret-audit-stop-adapters/README.md)、[Outbox](outbox-stop-adapter/README.md)、[AgentRunner 后端](agent-runner-mounts/README.md)、[AgentRunner UI](agent-runner-mounts-ui/README.md)、[ExecutionMountCapture](execution-mount-capture/README.md) 的历史 main 基准与最小补丁，均已实际应用并逐字核已记录的必要输入。最近三套原件位于 `output/ai/retired-20261011/`，原 FAIL 与 UI 早期未记录完整 source map 的限制保留。Outbox 补丁仅恢复已复用的历史 PG 输入，当前安全修后代码从 main 恢复；AgentDisplay、Find、Runner Workspace 无需额外源码差额。原 FAIL、绝对路径和验收范围不改写，不复制整树、日志或依赖入 Git。
 
 完整 Project initializer、ready、生产 participant/Control 绑定及既有 STOP 按正式记录保持；本索引不批准恢复旧网络故障 probe 或其他停项。
