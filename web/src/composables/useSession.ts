@@ -38,6 +38,7 @@ import {
   type TaskUpdateReceipt,
   type TaskUpdateLookup,
 } from '../api/work-task-edit'
+import { createWorkTaskTimelineAPI, type WorkTaskTimelineAPI, type TaskTimelineQuery } from '../api/work-task-timeline'
 import { createAgentDirectoryAPI, type AgentDirectoryAPI } from '../api/agent-directory'
 import { readonly, shallowReactive } from 'vue'
 import {
@@ -689,10 +690,12 @@ export function createSessionController(
   taskPlanningAPI: WorkTaskPlanningAPI = createWorkTaskPlanningAPI(),
   commandAPIs: Readonly<{
     edit?: WorkTaskEditAPI
+    taskTimeline?: WorkTaskTimelineAPI
     agentConfiguration?: AgentConfigurationAPI
   }> = {},
 ) {
   const taskEditAPI = commandAPIs.edit ?? createWorkTaskEditAPI()
+  const taskTimelineAPI = commandAPIs.taskTimeline ?? createWorkTaskTimelineAPI()
   const agentConfigurationAPI = commandAPIs.agentConfiguration ?? createAgentConfigurationAPI()
   const state = shallowReactive<PublicState>({
     phase: 'checking',
@@ -4091,6 +4094,8 @@ export function createSessionController(
     sprint: (p: string, t: string) => reviewRead((signal) => workReviewAPI.sprint(p, t, signal)),
     tasks: (p: string, q: TaskQuery) => reviewRead((signal) => workReviewAPI.tasks(p, q, signal)),
     task: (p: string, t: string) => reviewRead((signal) => workReviewAPI.task(p, t, signal)),
+    events: (p: string, t: string, q: TaskTimelineQuery) =>
+      reviewRead((signal) => taskTimelineAPI.list(p, t, q, signal)),
     blockers: (p: string, t: string, q: PageQuery) =>
       reviewRead((signal) => workReviewAPI.blockers(p, t, q, signal)),
     agents: (p: string, q: PageQuery) =>

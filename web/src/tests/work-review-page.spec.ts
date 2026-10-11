@@ -1,3 +1,4 @@
+import { createWorkTaskTimelineAPI } from '../api/work-task-timeline'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DOMWrapper, flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { createAccountAPI, type SessionView } from '../api/account'
@@ -323,6 +324,8 @@ async function page(state: Task['state'] = 'in_progress', empty = false, blocked
         status: observation,
         receipt: observation === 'committed' ? commit(original!) : null,
       })
+    if (route === `${prefix}/tasks/${current.id}/events`)
+      return json({ items: [] })
     unexpected.push(path)
     throw new Error('Unexpected page endpoint')
   })
@@ -331,7 +334,7 @@ async function page(state: Task['state'] = 'in_progress', empty = false, blocked
   args[16] = createWorkReviewAPI(fetcher)
   args[17] = createAgentDirectoryAPI(fetcher)
   args[18] = createWorkTaskPlanningAPI(fetcher)
-  args[19] = { edit: createWorkTaskEditAPI(fetcher) }
+  args[19] = { edit: createWorkTaskEditAPI(fetcher), taskTimeline: createWorkTaskTimelineAPI(fetcher) }
   const auth = createSessionController(...args)
   await auth.restore()
   const workspace = createProjectWorkspace(auth)

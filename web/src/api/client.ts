@@ -61,6 +61,7 @@ const endpoints = {
   reviewTasks: ['GET', '/api/v1/projects/{project_id}/tasks', 200],
   reviewTask: ['GET', '/api/v1/projects/{project_id}/tasks/{target}', 200],
   reviewBlockers: ['GET', '/api/v1/projects/{project_id}/tasks/{target}/blockers', 200],
+  taskTimeline: ['GET', '/api/v1/projects/{project_id}/tasks/{target}/events', 200],
   reviewTransfer: ['POST', '/api/v1/projects/{project_id}/tasks/{target}/transfer', 200],
   reviewLookup: ['POST', '/api/v1/projects/{project_id}/task-transition-commands/lookup', 200],
   taskCreate: ['POST', '/api/v1/projects/{project_id}/tasks', 200],
@@ -944,6 +945,7 @@ type WorkReviewEndpoint =
   | 'reviewTasks'
   | 'reviewTask'
   | 'reviewBlockers'
+  | 'taskTimeline'
   | 'reviewTransfer'
   | 'reviewLookup'
   | 'taskCreate'
@@ -963,6 +965,7 @@ const workReviewEndpoints: readonly WorkReviewEndpoint[] = [
   'reviewTasks',
   'reviewTask',
   'reviewBlockers',
+  'taskTimeline',
   'reviewTransfer',
   'reviewLookup',
   'taskCreate',
@@ -1126,6 +1129,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           'reviewSprints',
           'reviewTasks',
           'reviewBlockers',
+          'taskTimeline',
           'directoryAgents',
         ].includes(endpoint)
         const target = basePath.includes('{target}')
@@ -1153,12 +1157,12 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
                 : endpoint === 'reviewBlockers'
                   ? ['status']
                   : []
-          const query = shape(options.workQuery, ['limit', ...fields], ['cursor'])
+          const query = shape(options.workQuery, ['limit', ...fields], endpoint === 'taskTimeline' ? ['cursor', 'order', 'types'] : ['cursor'])
           const limit = string(query.limit, 1, 3)
           if (!/^[1-9][0-9]*$/.test(limit) || Number(limit) > 200) throw new Error()
           const params = new URLSearchParams()
           for (const [key, value] of Object.entries(query)) {
-            const item = string(value, 1, key === 'cursor' ? 8192 : 64)
+            const item = string(value, 1, key === 'cursor' ? 8192 : key === 'types' ? 128 : 64)
             if (key.endsWith('_id') && !uuid7.test(item)) throw new Error()
             if (
               key === 'state' &&
@@ -1173,6 +1177,11 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
               ].includes(item)
             )
               throw new Error()
+            if (key === 'order' && !['asc', 'desc'].includes(item)) throw new Error()
+            if (key === 'types') {
+              const kinds = item.split(',')
+              if (new Set(kinds).size !== kinds.length || !kinds.every((kind) => ['task_created', 'fields_updated', 'blocker_added', 'blocker_resolved', 'state_changed', 'assignee_changed', 'comment'].includes(kind))) throw new Error()
+            }
             if (key === 'status' && !['unresolved', 'resolved', 'all'].includes(item))
               throw new Error()
             if (
@@ -1643,6 +1652,8 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
                 'agentConfigurationLookup',
               ].includes(endpoint)
               ? 512 * 1024
+              : endpoint === 'taskTimeline'
+                ? 4 * 1024 * 1024
               : endpoint === 'directoryAgents'
                 ? 13 * 1024 * 1024
                 : endpoint === 'directoryAgent'

@@ -4,6 +4,7 @@ import { UiButton, UiField, UiSelect, UiTextarea, UiState, UiBadge } from '../ui
 import { taskLabels } from '../../api/work-review'
 import type { ProjectTasks } from '../../composables/useProjectTasks'
 import TaskEditForm from './TaskEditForm.vue'
+import TaskTimeline from './TaskTimeline.vue'
 const props = defineProps<{ owner: ProjectTasks }>()
 const task = computed(() => props.owner.state.task)
 const editButton = ref<{ $el: HTMLButtonElement } | null>(null)
@@ -225,6 +226,7 @@ const canSubmit = computed(
       </p>
       <UiButton type="submit" :disabled="!canSubmit">确认{{ actionLabel }}</UiButton>
     </form>
+    <TaskTimeline :state="owner.timeline" :busy="owner.busy.value" :agent-name="owner.name" @load="owner.loadTimeline" />
   </div>
 </template>
 <style scoped>

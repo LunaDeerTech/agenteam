@@ -14,6 +14,7 @@ import {
   type ReviewInput,
 } from '../api/work-review'
 import { captureTaskCreateDraft, type TaskCreateDraft } from '../api/work-task-planning'
+import { compareTaskTimelineEvents, type TaskTimelineEvent } from '../api/work-task-timeline'
 import { captureTaskUpdateInput } from '../api/work-task-edit'
 import { agentLabel, type DirectoryAgent } from '../api/agent-directory'
 import { workTaskRoute } from '../router/auth'
@@ -21,6 +22,13 @@ import { type SessionController } from './useSession'
 import type { createProjectWorkspace } from './useProjectWorkspace'
 
 type Phase = 'idle' | 'loading' | 'ready' | 'error'
+export type TaskTimelineState = {
+  phase: Phase
+  items: readonly TaskTimelineEvent[]
+  next?: string
+  message: string
+  retryMore: boolean
+}
 const editFields = ['title', 'description', 'type', 'priority', 'plan'] as const
 type EditField = (typeof editFields)[number]
 export type TaskColumn = {
@@ -88,6 +96,10 @@ export function createProjectTasks(
     detailCurrent: false,
     feedback: '',
   })
+  const timeline = shallowReactive<TaskTimelineState>({ phase: 'idle', items: [], message: '', retryMore: false })
+  function clearTimeline() {
+    Object.assign(timeline, { phase: 'idle', items: [], next: undefined, message: '', retryMore: false })
+  }
   const columns = reactive(
     Object.fromEntries(taskStates.map((s) => [s, emptyColumn()])) as Record<TaskState, TaskColumn>,
   )
@@ -267,6 +279,7 @@ export function createProjectTasks(
     auth.workReview.abandonRead()
   }
   function clearData() {
+    clearTimeline()
     manualMilestone = null
     state.phase = 'idle'
     state.message = ''
@@ -456,6 +469,55 @@ export function createProjectTasks(
       },
     )
   }
+  async function loadTimeline(more = false) {
+    const task = state.task
+    if (!task || !state.detailCurrent) return
+    const cursor = more ? timeline.next : undefined
+    if (more && !cursor) return
+    await read(
+      async (p, step) => {
+        if (!more) clearTimeline()
+        timeline.phase = 'loading'
+        timeline.message = ''
+        timeline.retryMore = more
+        return step(() => auth.workReview.events(p, task.id, {
+          limit: 50, order: 'desc', ...(cursor ? { cursor } : {}),
+        }))
+      },
+      (page) => {
+        if (state.task?.id !== task.id) return
+        // Reject inconsistent continuation atomically; never hide duplicate events.
+        const before = more ? timeline.items : []
+        const seen = new Set(before.map((item) => item.id))
+        const chunk = [...page.items].reverse()
+        for (let n = 0; n < chunk.length; n++) {
+          const item = chunk[n]!
+          if (item.project_id !== task.project_id || item.task_id !== task.id || seen.has(item.id) ||
+            (n > 0 && compareTaskTimelineEvents(chunk[n - 1]!, item) >= 0))
+            throw new AccountFailure('invalid-response')
+          seen.add(item.id)
+        }
+        if ((chunk.length && before.length && compareTaskTimelineEvents(chunk[chunk.length - 1]!, before[0]!) >= 0) ||
+          (page.next_cursor && (!chunk.length || page.next_cursor === cursor)))
+          throw new AccountFailure('invalid-response')
+        timeline.items = Object.freeze([...chunk, ...before])
+        timeline.next = page.next_cursor
+        timeline.phase = 'ready'
+      },
+      (error) => {
+        if (state.task?.id !== task.id) return
+        if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
+          timeline.items = []
+          timeline.next = undefined
+          timeline.retryMore = false
+        }
+        timeline.phase = 'error'
+        timeline.message = error instanceof AccountFailure && error.problem?.code === 'CURSOR_INVALID'
+          ? '历史分页已不可用，请重新读取历史。'
+          : explain(error)
+      },
+    )
+  }
   async function refresh() {
     requested = true
     await pump()
@@ -468,6 +530,7 @@ export function createProjectTasks(
     state.phase = 'loading'
     state.message = ''
     state.detailCurrent = false
+    clearTimeline()
     await read(
       async (p, step) => {
         const task =
@@ -530,6 +593,8 @@ export function createProjectTasks(
     if ((state.phase as Phase) !== 'ready' || requested || !visible.value) return
     if (state.task) {
       await loadBlockers()
+      if (requested || !visible.value || busy.value) return
+      await loadTimeline()
       if (state.task?.assignee_agent_id && !names.has(state.task.assignee_agent_id)) {
         const tid = state.task.assignee_agent_id
         await read(
@@ -815,6 +880,7 @@ export function createProjectTasks(
     clearDraft()
     clearCreation()
     clearEdit()
+    clearTimeline()
     state.task = null
     state.detailCurrent = false
     state.feedback = ''
@@ -859,6 +925,7 @@ export function createProjectTasks(
   }
   return {
     state,
+    timeline,
     columns,
     draft,
     creation,
@@ -883,6 +950,7 @@ export function createProjectTasks(
     loadMilestones,
     loadSprints,
     loadBlockers,
+    loadTimeline,
     selectMilestone,
     selectSprint,
     selectTask,
