@@ -1540,9 +1540,12 @@ export async function observeTaskRequests(
     entry.status = response.status();
     if (profile.skillsReads) {
       // Observe both original header promises once; retain no credential values.
-      entry.headersReady = Promise.all([
+      entry.headersReady = Promise.allSettled([
         entry.request.allHeaders(), response.allHeaders(),
-      ]).then(([sent, received]) => {
+      ]).then(([sentResult, receivedResult]) => {
+        if (sentResult.status !== "fulfilled" || receivedResult.status !== "fulfilled")
+          throw Error("SKILLS_ORIGINAL_HEADERS_FAILED");
+        const sent = sentResult.value, received = receivedResult.value;
         const origin = new URL(entry.request.url());
         if (sent.host !== origin.host || !sent.cookie)
           throw Error("SKILLS_ORIGINAL_REQUEST_HEADERS");
