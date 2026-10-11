@@ -1,4 +1,13 @@
-import { computed, inject, reactive, ref, shallowReactive, watch, type InjectionKey } from 'vue'
+import {
+  computed,
+  inject,
+  reactive,
+  ref,
+  shallowReactive,
+  shallowRef,
+  watch,
+  type InjectionKey,
+} from 'vue'
 import { AccountFailure } from '../api/client'
 import {
   taskStates,
@@ -154,6 +163,14 @@ export function createProjectTasks(
     needsRead: false,
   })
   let sprintCreationIdentity = ''
+  // App owns this controller across the RouterView removal during Session
+  // restoration. A View-local ref cannot carry focus across that navigation.
+  const createdSprintFocus = shallowRef<Readonly<{
+    projectID: string
+    sprintID: string
+    identity: string
+    path: string
+  }> | null>(null)
   const sprintStart = reactive({
     open: false,
     projectID: '',
@@ -219,6 +236,31 @@ export function createProjectTasks(
       ? p
       : null
   })
+  const sprintCreationFocus = computed(() => {
+    const request = createdSprintFocus.value
+    const progress = sprintCreateProgress.value
+    return request &&
+      !disposed &&
+      visible.value &&
+      !busy.value &&
+      request.identity === identityKey(request.projectID) &&
+      workspace.currentReadContext.value?.projectID === request.projectID &&
+      route.value === request.path &&
+      state.phase === 'ready' &&
+      state.sprint?.id === request.sprintID &&
+      !state.task &&
+      progress?.phase === 'confirmed' &&
+      progress.contextValid &&
+      progress.projectID === request.projectID &&
+      progress.sprintID === request.sprintID
+      ? request.sprintID
+      : null
+  })
+  function consumeSprintCreationFocus(sprintID: string) {
+    if (sprintCreationFocus.value !== sprintID) return false
+    createdSprintFocus.value = null
+    return true
+  }
   const sprintMilestoneOptions = computed(() => {
     const rows = [...state.milestones]
     if (state.milestone && !rows.some((m) => m.id === state.milestone!.id))
@@ -469,6 +511,7 @@ export function createProjectTasks(
     auth.workReview.abandonRead()
   }
   function clearData() {
+    createdSprintFocus.value = null
     clearTimeline()
     manualMilestone = null
     state.phase = 'idle'
@@ -820,6 +863,7 @@ export function createProjectTasks(
   function openSprintCreation() {
     const p = workspace.currentReadContext.value?.projectID
     if (!p || busy.value || !canCreateSprint.value) return
+    createdSprintFocus.value = null
     if (
       auth.workSprintLifecycle.progress?.phase === 'rejected' &&
       auth.workSprintLifecycle.progress.contextValid
@@ -891,7 +935,21 @@ export function createProjectTasks(
             '创建已确认，当前 Sprint 信息读取失败。请重新读取，不要再次创建。'
       },
     )
-    if (selected && sameSprintCreation(own, p, m, identity)) await selectSprint(sid)
+    if (selected && sameSprintCreation(own, p, m, identity)) {
+      const request = Object.freeze({
+        projectID: p,
+        sprintID: sid,
+        identity,
+        path: `${projectPath()}/tasks/sprints/${sid}`,
+      })
+      createdSprintFocus.value = request
+      try {
+        await selectSprint(sid)
+      } finally {
+        if (createdSprintFocus.value === request && route.value !== request.path)
+          createdSprintFocus.value = null
+      }
+    }
   }
   async function acceptSprintCreation(value: SprintCreateReceipt, own: number, identity: string) {
     const p = value.sprint.project_id,
@@ -1382,6 +1440,9 @@ export function createProjectTasks(
   }
   function afterNavigation(to: string) {
     if (to === route.value) return
+    const focus = createdSprintFocus.value
+    if (focus && (to !== focus.path || identityKey(focus.projectID) !== focus.identity))
+      createdSprintFocus.value = null
     retire()
     route.value = to
     if (workTaskRoute(to)?.kind !== 'root') manualMilestone = null
@@ -1444,6 +1505,8 @@ export function createProjectTasks(
     sprintCreation,
     sprintCreateProgress,
     sprintCreatePending,
+    sprintCreationFocus,
+    consumeSprintCreationFocus,
     sprintMilestoneOptions,
     canCreateSprint,
     openSprintCreation,

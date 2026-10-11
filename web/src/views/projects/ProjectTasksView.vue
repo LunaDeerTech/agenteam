@@ -14,33 +14,19 @@ const startButton = ref<{ $el: HTMLButtonElement } | null>(null)
 const startConfirmButton = ref<{ $el: HTMLButtonElement } | null>(null)
 const sprintHeading = ref<HTMLHeadingElement | null>(null)
 const sprintCreateButton = ref<{ $el: HTMLButtonElement } | null>(null)
-const focusCreatedSprint = ref<string | null>(null)
 watch(
-  () => [focusCreatedSprint.value, state.phase, state.sprint?.id, owner.visible.value] as const,
-  async () => {
-    const id = focusCreatedSprint.value
-    if (
-      !id ||
-      !owner.visible.value ||
-      state.phase !== 'ready' ||
-      state.sprint?.id !== id ||
-      owner.sprintCreateProgress.value?.sprintID !== id
-    )
-      return
+  () => owner.sprintCreationFocus.value,
+  async (id) => {
+    if (!id) return
     await nextTick()
-    if (
-      focusCreatedSprint.value === id &&
-      owner.visible.value &&
-      state.phase === 'ready' &&
-      state.sprint?.id === id &&
-      owner.sprintCreateProgress.value?.contextValid &&
-      owner.sprintCreateProgress.value.sprintID === id
-    ) {
-      sprintHeading.value?.focus()
-      focusCreatedSprint.value = null
-    }
+    if (owner.sprintCreationFocus.value !== id) return
+    const heading = sprintHeading.value
+    if (!heading?.isConnected) return
+    heading.focus()
+    if (heading.ownerDocument.activeElement === heading)
+      owner.consumeSprintCreationFocus(id)
   },
-  { flush: 'post' },
+  { immediate: true, flush: 'post' },
 )
 async function cancelSprintCreation() {
   const project = owner.sprintCreation.projectID
@@ -58,10 +44,6 @@ async function submitSprintCreation(action: 'create' | 'lookup' | 'read' = 'crea
   if (action === 'lookup') await owner.lookupSprintCreation()
   else if (action === 'read') await owner.rereadConfirmedCreation()
   else await owner.submitSprintCreation()
-  await nextTick()
-  const result = owner.sprintCreateProgress.value
-  if (owner.visible.value && result?.phase === 'confirmed' && !owner.sprintCreation.needsRead)
-    focusCreatedSprint.value = result.sprintID
 }
 async function openSprintStart() {
   owner.openSprintStart()

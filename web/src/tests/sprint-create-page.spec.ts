@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DOMWrapper, flushPromises, mount, type VueWrapper } from '@vue/test-utils'
-import { computed, shallowReactive, shallowRef } from 'vue'
+import { computed, defineComponent, h, shallowReactive, shallowRef } from 'vue'
+import { createMemoryHistory, createRouter, RouterView, type Router } from 'vue-router'
 import { AccountFailure } from '../api/client'
 import type { Project } from '../api/project-owner'
 import type { Sprint } from '../api/work-review'
@@ -13,6 +14,7 @@ import {
 import type { SessionController } from '../composables/useSession'
 import type { ProjectWorkspace } from '../composables/useProjectWorkspace'
 import ProjectTasksView from '../views/projects/ProjectTasksView.vue'
+import { installAuthentication, installTaskNavigation } from '../router/auth'
 
 const id = (n: number) => `01990000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
 const p = id(1),
@@ -53,7 +55,8 @@ const project: Project = {
 }
 type Port = SessionController['workSprintLifecycle']
 const owners: ProjectTasks[] = [],
-  wrappers: VueWrapper[] = []
+  wrappers: VueWrapper[] = [],
+  stopNavigation: (() => void)[] = []
 beforeEach(() => {
   vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(
     () => [{ width: 10, height: 10 }] as unknown as DOMRectList,
@@ -63,12 +66,13 @@ beforeEach(() => {
 afterEach(async () => {
   wrappers.splice(0).forEach((wrapper) => wrapper.unmount())
   owners.splice(0).forEach((owner) => owner.dispose())
+  stopNavigation.splice(0).forEach((stop) => stop())
   await flushPromises()
   document.body.innerHTML = ''
   vi.unstubAllGlobals()
   vi.restoreAllMocks()
 })
-async function fixture() {
+async function fixture(withRouter = false) {
   // Real controller with controlled typed Session/read ports, not SQL or authorization proof.
   const identity = { userID: id(8), sessionID: id(9), epoch: 1 }
   const personal = shallowReactive<{ identity: typeof identity | null }>({ identity })
@@ -157,8 +161,33 @@ async function fixture() {
     tasks: vi.fn(async () => ({ items: [] })),
     abandonRead: vi.fn(),
   }
+  let restoration: { entered: () => void; released: Promise<void> } | null = null
+  function holdRestoration() {
+    let entered!: () => void, release!: () => void
+    const waiting = new Promise<void>((resolve) => { entered = resolve })
+    const released = new Promise<void>((resolve) => { release = resolve })
+    restoration = { entered, released }
+    return { waiting, release }
+  }
+  const sessionState = shallowReactive({ phase: 'authenticated', busy: false })
+  // Control only Session revalidation; the real router guard and controller
+  // still decide navigation, retirement and publication.
+  const restore = vi.fn(async () => {
+    const held = restoration
+    restoration = null
+    sessionState.phase = 'checking'
+    context.value = null
+    held?.entered()
+    if (held) await held.released
+    sessionState.phase = 'authenticated'
+    if (personal.identity) context.value = {
+      identity: personal.identity, projectID: p, generation: 1, readGeneration: 2,
+    }
+    return null
+  })
   const auth = {
-    state: shallowReactive({ phase: 'authenticated', busy: false }),
+    state: sessionState,
+    restore,
     personalContext: personal,
     workReview: reads,
     workSprintLifecycle: api,
@@ -169,15 +198,37 @@ async function fixture() {
     paths: computed(() => ({ home: home.value })),
     readCurrent: vi.fn(),
   } as unknown as ProjectWorkspace
+  let router: Router | null = null
   const navigate = vi.fn(async (path: string) => {
-    owner.afterNavigation(path)
+    if (router) await router.push(path)
+    else owner.afterNavigation(path)
   })
+  // The App-owned controller outlives its conditionally mounted RouterView.
   const owner = createProjectTasks(auth, workspace, navigate)
   owners.push(owner)
-  owner.afterNavigation('/owner/demo/tasks')
-  const wrapper = mount(ProjectTasksView, {
+  if (withRouter) {
+    router = createRouter({
+      history: createMemoryHistory(),
+      routes: [{
+        path: '/owner/demo/tasks/:tail(.*)*',
+        component: ProjectTasksView,
+        meta: { authentication: true, protected: true, projectWorkspace: true },
+      }],
+    })
+    stopNavigation.push(installTaskNavigation(router, owner))
+    installAuthentication(router, auth)
+    await router.push('/owner/demo/tasks')
+    await router.isReady()
+  } else owner.afterNavigation('/owner/demo/tasks')
+  const shell = defineComponent({
+    setup: () => () => sessionState.phase === 'authenticated' ? h(RouterView) : null,
+  })
+  const wrapper = mount(withRouter ? shell : ProjectTasksView, {
     attachTo: document.body,
-    global: { provide: { [projectTasksKey as symbol]: owner } },
+    global: {
+      plugins: router ? [router] : [],
+      provide: { [projectTasksKey as symbol]: owner },
+    },
   })
   wrappers.push(wrapper)
   await flushPromises()
@@ -195,6 +246,9 @@ async function fixture() {
     context,
     detail,
     home,
+    router,
+    restore,
+    holdRestoration,
   }
 }
 
@@ -256,6 +310,77 @@ describe('Sprint Create real page controls', () => {
     expect(button('启动 Sprint').attributes('disabled')).toBeDefined()
     expect(f.api.start).not.toHaveBeenCalled()
     expect(body().find('form[aria-label="新建 Sprint"]').exists()).toBe(false)
+  })
+  it('focuses the created Sprint once after the authentication guard unmounts and remounts its real route', async () => {
+    const f = await fixture(true)
+    const originalView = f.wrapper.getComponent(ProjectTasksView).vm
+    await click('新建 Sprint')
+    await control('Sprint 标题').setValue('跨导航的新迭代')
+    const held = f.holdRestoration()
+    try {
+      await body().get('form[aria-label="新建 Sprint"]').trigger('submit')
+      await held.waiting
+      await flushPromises()
+      expect(f.wrapper.findComponent(ProjectTasksView).exists()).toBe(false)
+      expect(originalView.$.isUnmounted).toBe(true)
+      expect(f.api.create).toHaveBeenCalledTimes(1)
+      expect(f.reads.sprint).toHaveBeenCalledWith(p, createdID)
+    } finally {
+      held.release()
+    }
+    await f.navigate.mock.results[0]!.value
+    await flushPromises()
+    expect(f.router!.currentRoute.value.path).toBe(`/owner/demo/tasks/sprints/${createdID}`)
+    expect(f.wrapper.getComponent(ProjectTasksView).vm).not.toBe(originalView)
+    expect(f.owner.state.sprint?.id).toBe(createdID)
+    const heading = body().get('.sprint-heading h2')
+    expect(heading.text()).toBe('跨导航的新迭代')
+    expect(document.activeElement).toBe(heading.element)
+    expect(f.owner.sprintCreationFocus.value).toBeNull()
+    expect(f.detail.project?.current_sprint_id).toBe(currentID)
+    expect(f.api.start).not.toHaveBeenCalled()
+
+    // A later Session check/remount must not replay an already consumed focus.
+    const outside = document.createElement('button')
+    document.body.append(outside)
+    outside.focus()
+    const later = f.holdRestoration()
+    const checking = f.restore()
+    try {
+      await later.waiting
+      await flushPromises()
+      expect(f.wrapper.findComponent(ProjectTasksView).exists()).toBe(false)
+    } finally {
+      later.release()
+    }
+    await checking
+    await flushPromises()
+    expect(body().get('.sprint-heading h2').text()).toBe('跨导航的新迭代')
+    expect(document.activeElement).toBe(outside)
+    expect(f.api.create).toHaveBeenCalledTimes(1)
+  })
+  it('does not carry the original creation focus into a replacement Session during route revalidation', async () => {
+    const f = await fixture(true)
+    await click('新建 Sprint')
+    await control('Sprint 标题').setValue('原身份创建')
+    const held = f.holdRestoration()
+    try {
+      await body().get('form[aria-label="新建 Sprint"]').trigger('submit')
+      await held.waiting
+      await flushPromises()
+      expect(f.wrapper.findComponent(ProjectTasksView).exists()).toBe(false)
+      f.personal.identity = { userID: id(8), sessionID: id(30), epoch: 2 }
+    } finally {
+      held.release()
+    }
+    await f.navigate.mock.results[0]!.value
+    await flushPromises()
+    const heading = body().get('.sprint-heading h2')
+    expect(heading.text()).toBe('原身份创建')
+    expect(document.activeElement).not.toBe(heading.element)
+    expect(f.owner.sprintCreationFocus.value).toBeNull()
+    expect(f.api.create).toHaveBeenCalledTimes(1)
+    expect(f.api.start).not.toHaveBeenCalled()
   })
   it('hides the form on Unknown and only offers the original create Lookup before the real current reread', async () => {
     const f = await fixture(),
