@@ -533,21 +533,24 @@ python3.12 -B output/ai/agent-system-integration/execution-runtime-access-audit-
 
 本批准备仅root普通park指定旧ExecutionIdentity/ModelTextRuntime九tracked目录（`038ac9`/`1f6f79`），protected与原output存在/absent后验`9822e2`保持；精确退休第十全PASS candidate01可再生bin（`86e15b`，66,400,625 B/allocated66,408,448 B）。原source/recipe/results/inputs、全部FAIL与sharedcache/MinIO保留；Web/PW仅复用既有同锁安装，B结果不冒A已执行。
 
-## Work 评审 UI（WIP）
+## Work 评审 UI（真实链已通过）
 
-当前SOURCE `e43b8c399fa803eed030152561f203b90d340e57`。共享body正常EOF不cancel，未EOF仍单次cancel并等待原调用，早拒保留外层fallback；frontend06新增/直接受影响24控＋精确旧7控、两path格式、type/build全PASS。旧auth62/state3按未变输入复用；legacy未选39项不计通过。原31控精确argv、结果与各owned Wait/双尾记录在`output/ai/work-review-web/frontend-06/{result.json,core-unit.json,legacy-unit.json}`；新生产产物只写`frontend-06/dist`，未覆盖旧dist。
+最终SOURCE `53bd25cb80b2b890edb4df14452fede05edeb5e1`。`TestTaskReviewWeb`整top两sub为`review-complete`与`lost-confirmation-lookup-and-session-revocation`：真实完成work后交review/done，另一Task返工回执截断后保留Unknown、查询原操作并验证Logout/Session撤销。native06于2026-10-11 03:36:21–03:39:36 UTC wholePASS，1top2sub86.97s（43.42/43.55）。Go516688/driver514996/supervisor514974/outer514909四原Wait0，Node517027/517677在实际Wait后success=true；七ID14次absence、private/runtime/desc及SUP/outer TCP全双尾闭、delta0/adopted[]、2404输入首尾同。当前仅本片验收，不冒完整app runtime/initializer/ready；完整七列与深色视觉不由详情截图外推。
 
-compile02/list原PASS（SOURCE `9e93eeaa`、898 Go/embed输入），候选`output/ai/agent-system-integration/task-review-web-race-02.test`为69,613,883 B，SHA256 `bc71db0106cba6f7352792fb98804b11ed68e1241c3a64ee7fd62bd6bc569a49`。后续仅JS/client及前端测试改变，原898记录完全同，故native02/03复用候选、不重复compile。native03冻结2403项输入，相02只替换70项dist及client记录；plan为`task-review-web-03-inputs.json`，hash `fc0c24fbb783bcbae89e70ded5b5d105609253b6950ddca396268027c498fbdc`。
+前端有效结果按实际输入复用：frontend06的31定向控验证JSON/204/avatar原body生命周期；frontend07的Session20＋WorkReviewSession4及type/build通过；最终frontend08仅补成功204统一empty reader的body9＋精确旧5、两path格式、type/build，全部PASS/各原Wait0与双尾空，legacy120未选不计通过。旧auth62/state3等未受影响结果保留、不重整矩阵。上述目录均在`output/ai/work-review-web/`，各`result.json`保存精确argv、范围和退出尾；frontend06/08另有`core-unit.json`、`legacy-unit.json`，frontend07为`unit.json`。最终独有生产产物为`frontend-08/dist`，旧dist全部保留。
 
-`TestTaskReviewWeb`只用整top，两sub为`review-complete`与`lost-confirmation-lookup-and-session-revocation`。native03于2026-10-11 03:08:18–03:10:49 UTC完整FAIL：两sub共55.86s（29.20/26.65），仍在openTask的原Session/Project读取observer门失败，0 Human评审边/receipt截断实测接受。Go490043/driver488555/supervisor488554/outer488488四Wait1；Node490334/490893为实际Wait后success=false。七ID14次absence、private/runtime/desc及SUP/outer TCP全双尾关闭、delta0/adopted[]、2403输入首尾同，窗口已归还。
+compile03/list在SOURCE `64701249`通过，精确父top1、898 Go/embed输入首尾同，原件`output/ai/agent-system-integration/task-review-web-compile-03/{result.json,inputs-after.json}`。候选`task-review-web-race-03.test`为69,629,851 B，SHA256 `df3ce2d5e30bf67310345b0bd56f7c6247fc99daf5c327fc0e53295b3d384aed`（同上输出根）。后继仅method/runtime JS/client/前端测试变化，原898记录不变，native04–06复用候选、不重复compile。native06 plan为`task-review-web-06-inputs.json`；相05只换70项dist07→dist08，共同记录仅client变化，2404闭集hash `6337eb6045e826e8cc7eea168259f8d7f6f446372f0188a2da5d8718bd6e6efc`。
 
-原件在`output/ai/agent-system-integration/task-review-web-03-control/{result.json,supervisor.log}`与`/tmp/trw03/ui-9341bf3fdb50447d.log`；两安全诊断为`output/ai/work-review-web/native-03-evidence/task-review-{review-complete,lost-confirmation-lookup-and-session-revocation}.json`。03所观察17次fetch已无reader/body cancel或signal abort，相关200响应已EOF/closed而PW仍报ERR_ABORTED，fixture后继由coordination补既有Knowledge originalCompleted的同请求完整联证，限定GET200/exact ERR_ABORTED；差额尚未验证，未将本轮observer失败改判成功。native01/02/03、compile01输入枚举0Go FAIL、frontend01/02/03与所有原候选/输入/日志保留。A仍WIP，不冒完整浏览器验收或main交付。
+最终原件为`output/ai/agent-system-integration/task-review-web-06-control/{result.json,supervisor.log}`、PG `/tmp/trw06/ui-008f2459cc554212.log`和`output/ai/work-review-web/native-06-evidence/`。原native01/02/03初始读取observer FAIL、native04 typed投影/Unknown文案fixture FAIL、native05首case PASS而最后Logout FAIL均原样保留，未回填wholePASS；compile01输入枚举0Go FAIL、frontend01缓存尾/02类型及page加载/03按钮helper FAIL也保留。当前candidate03、旧candidate02、所有输入/诊断/截图/结果与旧dist不删除。
 
-恢复使用原三methods的`^TestTaskReviewWeb$`profile与上述compile02入口，mandatory五项和完整Go/embed/browser闭包保持。固定Node v24.19.0、同锁PW1.56.1、批准Chromium、`NODE_DISABLE_COMPILE_CACHE=1`及原private环境；Go1.27.1/唯一hotcache/RO模块、每实际进程fresh≥5GiB、原60s Node/45s Playwright预算、一次Wait及七资源全尾不降。以下是已执行的03命令，已有namespace不可重用；后继须有具体修复或能决定修复的新诊断、独立namespace和新窗口，不能自动重跑。
+恢复沿原三methods的`^TestTaskReviewWeb$`profile：mandatory六项为`task_review_web_test.go`、`task_review_test.go`、`task-review.config.js`、`task-review.spec.ts`、`task-review.helpers.ts`与只读`knowledge-owner-read.native.ts`，完整Go/embed/browser及批准依赖闭包不缩减。GET200/exact ERR_ABORTED仅按同request的Go长度/SHA、原reader完整EOF与退役、公开typed消费fulfilled/current、PW唯一终态全部联证；mutation判据不豁免。固定Node v24.19.0、同锁PW1.56.1、批准Chromium、`NODE_DISABLE_COMPILE_CACHE=1`及原private环境；Go1.27.1/唯一hotcache/RO模块、每实际进程fresh≥5GiB、原60s Node/45s Playwright预算、实际Wait和七资源全尾保持。以下为实际入口，已有namespace不可重用；恢复须独立namespace和明确资源窗口，不自动重跑已通过输入。
 
 ```sh
-AGENTEAM_TASK_REVIEW_WEB_DIST=/workspace/agenteam-task-flow-delivery/output/ai/work-review-web/frontend-06/dist \
-AGENTEAM_TASK_REVIEW_WEB_EVIDENCE=/workspace/agenteam-task-flow-delivery/output/ai/work-review-web/native-03-evidence \
+# 已执行的唯一新Go候选编译/list；后继runtime JS/前端变更不重编：
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12 -B output/ai/agent-system-integration/task-review-web-compile-03-launcher.py
+# 已执行的最终native06：
+AGENTEAM_TASK_REVIEW_WEB_DIST=/workspace/agenteam-task-flow-delivery/output/ai/work-review-web/frontend-08/dist \
+AGENTEAM_TASK_REVIEW_WEB_EVIDENCE=/workspace/agenteam-task-flow-delivery/output/ai/work-review-web/native-06-evidence \
 NODE_DISABLE_COMPILE_CACHE=1 \
-/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12 -B output/ai/agent-system-integration/task-review-web-launcher-03.py
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12 -B output/ai/agent-system-integration/task-review-web-launcher-06.py
 ```
