@@ -2,7 +2,11 @@
 
 ## 当前批次与活动树
 
-正式main `dc876501d06cecacfcbd4495828fc1b2ba9d1f87`已交付53路径并远端确认；root已正常merge/push，delivery已ff/push。第五批真实Execution单轮的有效20 top/13包vet、compile/list及native03 1 top/3 sub wholePASS已有限接受，原Wait与全部资源尾关闭，当前0 Go/cache/native；原pure01/native01/native02 FAIL不回填，tools/stream、完整多轮Controller与App自动运行仍未完成。新Skill树及其冗余本地/远端ref已清理，13路径实际同main且无独有ignored材料；旧作者树与delivery的FAIL/恢复材料保留，部分tracked源码仅可逆park。六位执行者的实际tree/branch及恢复位置统一见[当前并行产品线与执行者](../current.md#当前并行产品线与执行者)，结果与重建方法沿正式recipe，不沿下表历史分工安排写入或清理。
+正式main `dc876501d06cecacfcbd4495828fc1b2ba9d1f87`仍为已交付基线，53路径远端确认及第五批有效20 top/13包vet、compile/list和native03 1 top/3 sub wholePASS不变，原Wait与全部资源尾已关闭。原pure01/native01/native02 FAIL不回填，tools/stream、完整多轮Controller与App自动运行仍未完成。
+
+第六批真实Scheduler→AssociatedExecutor已完成定向验证、待root正式交付：Execution `ai/execution-associated-runtime` / `f8fba80e`、Scheduler `ai/scheduler-execution-handoff`（生产及窄修至`d3e9e979`，测试`82ca114e`）、组合`ai/scheduler-execution-delivery` / `573d4275`。合同`0c9abd3f`、Execution生产`382acdb1`、两factory与三方法`a1c88f38`已保存；10 top/三包vet、compile/list精确1 top（860输入）与native01 1 top/2 sub（37.80s，1,596输入）均wholePASS。原四Wait0、七资源14次absence及全部退出尾关闭，无新增FAIL，当前0 Go/cache/native，窗口已归还；第五批正式main与全部STOP保持。
+
+第五批新Skill树及其冗余本地/远端ref已清理，13路径实际同main且无独有ignored材料；旧作者树与delivery的FAIL/恢复材料保留。TaskHumanHTTP已恢复源码用于本批Execution，TaskTransition与AgentSystem仍可逆park；PVLifecycle `0654efe3`本轮也已正常sparse park tracked源码及docs，释放169,775,104 B，protected热缓存/output/state/config完整保留，候选及FAIL未删。实际tree/branch、唯一写者与恢复位置统一见[当前并行产品线与执行者](../current.md#当前并行产品线与执行者)，结果与重建方法沿正式recipe，不沿下表历史分工安排写入或清理。
 
 ## 前置阶段记录（历史）
 
