@@ -5,6 +5,7 @@ package projectvariable_test
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -357,6 +358,38 @@ func (w *taskReviewWeb) response(r *http.Response) error {
 	case <-r.Request.Context().Done():
 		return r.Request.Context().Err()
 	}
+	// Safe original-response proof. No body, Session token or request header is
+	// persisted; the browser must independently match these exact bytes.
+	if r.Request.Method == http.MethodGet && r.StatusCode == http.StatusOK {
+		w.mu.Lock()
+		returned := tail.returned
+		w.mu.Unlock()
+		if !returned {
+			return errors.New("original GET handler did not return")
+		}
+		record := struct {
+			InputHash       string `json:"input_hash"`
+			RequestID       string `json:"request_id"`
+			Method          string `json:"method"`
+			URLDigest       string `json:"url_sha256"`
+			Status          int    `json:"status"`
+			Length          int    `json:"content_length"`
+			Digest          string `json:"body_sha256"`
+			OriginalEOF     bool   `json:"original_eof"`
+			OriginalClosed  bool   `json:"original_closed"`
+			HandlerReturned bool   `json:"handler_returned"`
+		}{w.inputHash, id, r.Request.Method, fmt.Sprintf("%x", sha256.Sum256([]byte(r.Request.URL.RequestURI()))), r.StatusCode, len(raw), fmt.Sprintf("%x", sha256.Sum256(raw)), true, true, returned}
+		encoded, encodeErr := json.Marshal(record)
+		if encodeErr != nil {
+			return encodeErr
+		}
+		if err := os.MkdirAll(w.evidence, 0700); err != nil {
+			return err
+		}
+		if err := os.WriteFile(filepath.Join(w.evidence, "task-review-"+w.mode+"-response-"+id+".json"), encoded, 0600); err != nil {
+			return err
+		}
+	}
 	r.Body = io.NopCloser(bytes.NewReader(raw))
 	intent, ok := r.Request.Context().Value(reviewWebIntentKey{}).(reviewWebIntent)
 	if !ok {
@@ -478,7 +511,7 @@ func (w *taskReviewWeb) browser(t *testing.T) {
 			cmd.Env = append(cmd.Env, entry)
 		}
 	}
-	cmd.Env = append(cmd.Env, "TMPDIR="+w.directory, "PLAYWRIGHT_NO_COPY_PROMPT=1", "AGENTEAM_AUTH_WEB_ORIGIN="+w.origin, "AGENTEAM_AUTH_WEB_PRIVATE="+w.directory, "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium", "AGENTEAM_TASK_REVIEW_WEB_CASE="+w.mode, "AGENTEAM_TASK_REVIEW_WEB_EVIDENCE="+w.evidence, "AGENTEAM_TASK_REVIEW_WEB_INPUT_HASH="+w.inputHash)
+	cmd.Env = append(cmd.Env, "TMPDIR="+w.directory, "PLAYWRIGHT_NO_COPY_PROMPT=1", "AGENTEAM_AUTH_WEB_ORIGIN="+w.origin, "AGENTEAM_AUTH_WEB_PRIVATE="+w.directory, "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium", "AGENTEAM_TASK_REVIEW_WEB_DIST="+os.Getenv("AGENTEAM_TASK_REVIEW_WEB_DIST"), "AGENTEAM_TASK_REVIEW_WEB_CASE="+w.mode, "AGENTEAM_TASK_REVIEW_WEB_EVIDENCE="+w.evidence, "AGENTEAM_TASK_REVIEW_WEB_INPUT_HASH="+w.inputHash)
 	var output bytes.Buffer
 	cmd.Stdout = &output
 	cmd.Stderr = &output
