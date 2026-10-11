@@ -1,11 +1,12 @@
-# 全局协调索引
+# Skill assignment ingress 工作分支
 
-2026-10-11。main 的本文件当前由 root 指定 recovery_lead 维护本次集成正文；root 负责 Git、集成和资源排期。功能分支 current 不覆盖本索引。正式交付边界见[任务台账](../docs/development/agent-team/tasks.md)，分段接受不等于当前 main 单次全量通过。
+2026-10-11。本树 `/workspace/agenteam-skill-assignment-ingress` 从 main `19df3fea` 建立，分支 `ai/skill-assignment-ingress-20261011`。`skill_package_review` 负责本分支正文与 Skill/00067；Execution、Agent 与四引用域按[本卡](../docs/development/work-items/d10-skill-assignment-ingress.md)唯一写者并行。root 负责 Git、集成和资源排期。当前仅源码准备，未编译/未验收；下列 main 已交付与清理事实保持，不以本分支 WIP 覆盖全局状态。
 
 ## 当前开发
 
 | 任务 / 分支 | 负责人 | 状态与下一步 |
 | --- | --- | --- |
+| Owner Skill 分配 → 同 Tx durable pending ingress | skill_package_review lead；recovery_lead Execution；skill_assignment_agent Agent | 首合同与兼容方案已落，00067 预留；需同时推进 Agent 及四域 refs version，不可只插新表。零 Model/不实现 DetermineRoundInput，尚未工具链或真实 PG。 |
 | 单次 read-file Operation/Attempt 基础 | root 统筹并行实施 | 独立树 `/workspace/agenteam-runner-read-file-operation` 已建，基线 `1b10c29c`；Tool 存储基础与 Runner RequestID 接缝正在纯源码实施，尚未测试、未验收，不提前计作执行链已打通。 |
 | Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |
 
