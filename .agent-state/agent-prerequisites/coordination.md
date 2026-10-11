@@ -2,19 +2,15 @@
 
 ## 当前批次与活动树
 
-第十一B已交付main `381f6e71e0c11da1145b4ddef7a1574cdc7e64fa`（push `09f929`、exact `3cd699`）：SOURCE `64bdbb6f`的pure5/单包vet、compile/list及native两sub22.41s全PASS，B不重跑。A为七列Work看板及三Human评审边UI（无后端产品变更），当前尚未取得真实browser验收；全部原调用/资源尾已闭，0 Go/npm/browser/native窗口。
+第十一A/B均已正式交付main `f4190ad7f6a2efdd7dc7b8235f519de0c109d71f`（push `b3321d`、exact `cf939f`，delivery同tip）；root正常merge为`1076170a`并push `afc2d2`。B先前main `381f6e71`的pure5/单包vet、compile/list及两sub22.41s接受保留。当前零活动实现、零Go/Node/browser/native窗口，不开启新批。
 
-恢复来源：UI `/workspace/agenteam-work-ui` / `ai/work-review-ui`最近保存`1a9283f5`，Web independent / `ai/work-review-web`的诊断两JS已组合`7afc76cb`；完整delivery `/workspace/agenteam-task-flow-delivery` / `ai/work-review-runtime-delivery`为`e43b8c399fa803eed030152561f203b90d340e57`。共享body正常EOF不cancel、未EOF单次cancel实际join及早拒fallback已修并冻结；skills_http唯一维护原recipe/恢复入口与执行窗口，secret有限验收原件。A仅WIP，不入main。
+A最终SOURCE `53bd25cb80b2b890edb4df14452fede05edeb5e1`：native06真实1top2sub86.97s，review/done、返工回执截断后的原Lookup和Logout/Session撤销均通过；四原Wait0、两Node实际Wait成功、七ID14次absence、全部双尾/TCP0/adopted[]、2404输入一致，secret有限终核接受。前端06的31控、07的Session20＋WorkReviewSession4、08的body9＋精确旧5及对应format/type/build分别有效，不将31/24/14累加唯一数；auth62/state3按未变输入复用。最终dist08，compile03的898 Go/embed记录与candidate03复用。
 
-frontend06定向24＋精确旧7控、两path格式、type/build全PASS；未选39不计通过，auth62/state3原PASS复用。新dist为`output/ai/work-review-web/frontend-06/dist`；Go898编译输入未变，compile02/list与`task-review-web-race-02.test`原候选复用。native03两sub55.86s仍在初始Session/Project requestfailed observer处FAIL，0 Human边；两Node实际Wait后success=false，四主Wait1，七ID14次absence、全部双尾/TCP0/adopted[]及2403输入一致，0活动窗口。
+恢复来源：UI `/workspace/agenteam-work-ui` / `ai/work-review-ui` @`b15c423f`，Web `/workspace/agenteam-work-ui-independent` / `ai/work-review-web` @`f596c326`均已推送；完整delivery `/workspace/agenteam-task-flow-delivery` / `ai/work-review-runtime-delivery`与main同为`f4190ad7`。原native01–05、compile01、前端FAIL、candidate02/03及旧dist全部保留，不改旧结论；不因局部交付删除原refs、树或唯一原件。
 
-03安全证据所观察17次fetch未出现reader/body cancel或signal abort；相应200已EOF/closed后仍有PW ERR_ABORTED。coordination/content已收敛到fixture遗漏既有Knowledge originalCompleted严格联证，coordination负责原四paths内同请求服务端长度/SHA、EOF/cleanup、typed消费与唯一PW终态，限定GET200/exact ERR_ABORTED；产品/frontend06不变，新差额未验证，须root新source/窗口后才运行。frontend旧FAIL、compile01及native01/02/03、candidate02与全部dist/原件保留，不回填。
+原件与命令见[既有组合recipe](../agent-system-integration/README.md#work-评审-ui真实链已通过)；最终为delivery的`output/ai/work-review-web/frontend-08/result.json`、`output/ai/agent-system-integration/task-review-web-06-control/{result.json,supervisor.log}`及PG `/tmp/trw06/ui-008f2459cc554212.log`。只接受本片评审UI与B单Project audit包装；完整App runtime/config、生产initializer、ready、Work Planning和全部STOP仍未完成，约30%粗估不变。
 
-原件索引：delivery既有`.agent-state/agent-system-integration/README.md`的Work评审UI段；本轮`output/ai/work-review-web/frontend-06/result.json`、`native-03-evidence/task-review-*.json`、`output/ai/agent-system-integration/task-review-web-03-control/{result.json,supervisor.log}`，原PG `/tmp/trw03/ui-9341bf3fdb50447d.log`。不复制前批流水或删除恢复树。
-
-root已普通park指定ExecutionIdentity/ModelTextRuntime九目录（`038ac9`/`1f6f79`，原HEAD clean `bc57cb`/`e1ba20`），并只精准退休第十全PASS candidate01可再生bin（`86e15b`，66,400,625 B/allocated66,408,448 B）；source/recipe/results及全部FAIL不动。bounded后验`9822e2`确认protected保留，前树output原absent不变、后树output仍在，资源子任务关闭。
-
-第十一初始容量读仅作规划，后继每次实际同进程fresh≥5GiB硬门不变。root已三处窄软链复用既有同锁Web/PW1.56.1及go-captcha-vue（`106085`），模块解析PASS，不复制或下载；固定Node v24.19.0/批准Chromium已实际运行并退出。`NODE_DISABLE_COMPILE_CACHE=1`固定于后继，原缓存尾FAIL保留。完整App runtime/config装配、生产initializer、ready与未完成Work UI范围、全部STOP及约30%粗估不变。恢复映射见[当前执行者](../current.md#当前执行者与保留树)，既有[组合recipe](../agent-system-integration/README.md)不因A前端PASS升级真实浏览器验收。
+资源窗口已全部归还。既有同锁Web/PW1.56.1/go-captcha-vue只复用原三处软链，固定Node v24.19.0/批准Chromium与`NODE_DISABLE_COMPILE_CACHE=1`；后继仍须实际同进程fresh≥5GiB，旧容量只作规划。此前ExecutionIdentity/ModelTextRuntime普通park与第十PASS可再生bin精确退休事实保留，不涉及任何FAIL材料；B两个作者树`a3eb45b1`/`2f3c67ba`已普通park（`058b86`/`ca8fe6`），后验clean、原HEAD及protected原件仍在（`f44b22`/`1929c0`）。A UI `b15c423f`与Web `f596c326`也已普通park九目录（`07b683`/`6c71de`，clean/原HEAD/protected后验`a4dd33`/`9a6ab8`），原PW依赖及软链仍在；A/B四作者均停止，所有FAIL、refs和树保留。恢复映射见[当前执行者](../current.md#当前执行者与保留树)。
 
 ## 前置阶段记录（历史）
 
