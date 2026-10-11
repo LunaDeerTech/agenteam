@@ -114,8 +114,18 @@ AGENTEAM_MINIO_BINARY=/task-owned/cache/minio GOFLAGS=-p=1 sh scripts/test-accou
 | `AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_ATTEMPTS` | 无，三项可同时缺省 | 规范十进制正 int64，至少 1，包含首次 Launch |
 | `AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_INITIAL_BACKOFF` | 无，三项可同时缺省 | Go duration，严格大于 0 |
 | `AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_BACKOFF` | 无，三项可同时缺省 | Go duration，不小于 initial backoff |
+| `AGENTEAM_CENTRAL_EXECUTION_RUNTIME` | 无，缺省关闭 | ≤64 KiB 的完整闭集 JSON；固定 `direct-text-v1`，启用时必须同时配置上述三个 Launch retry 变量 |
 
 Scheduler retry 三项全部缺省时保持旧启动行为；任一项存在（包括空串）即要求三项完整、合法，不补默认值。`Load` 使用 `NewLaunchRetryPolicy` 统一验证，`Config.SchedulerLaunchRetryPolicy()` 返回不可变 policy 值和是否配置的标志；错误只报告固定字段，不携带解析器输入或原始错误。该 loader、Claim 持久绑定和 Execution 锁超时证明已通过有限独审、15 个定向 top 的 race、五包 vet、编译及真实 PG 的 1 top/2 sub 整轮验证，全部原调用和资源尾闭合；生产 app / Loop 尚未接入。设置变量不启动自动重试，也不补写旧 Dispatch 的 policy。原构造器兼容和到期发送等未完成边界见 [Scheduler policy 说明](../../architecture/scheduler/scheduler-loop.md#141-显式-retry-policy-与已实现前置的边界)。
+
+`EXECUTION_RUNTIME` 缺省不改变原启动行为；存在即要求完整配置，空串、`null`、缺字段、未知或重复字段、大小写别名和错误类型均拒绝，无隐含启用开关或数值默认。JSON 顶层严格为以下四项，列出的子字段也全部必填：
+
+- `profile`：仅字符串 `direct-text-v1`。
+- `project_runners`：`max_projects`、`project_page_size`、`execution_page_size`、`discovery_interval`、`tick_interval`、`relaunch_skip_count`、`launch_policy`。容量为正整数，两种 page size 为 1–128，skip count 为非负整数；两个 interval 为正 Go duration 字符串。Policy 使用原 Execution JSON：`schema_version` 为字符串 `"1"`，`denied_tool_ids` 为显式、严格递增且无重复的 UUIDv7 数组（最多128个），`allowed_resource_constraints` 在本 profile 必须为显式空数组 `[]`。
+- `associated_executor`：`max_owned` 为正整数，`recovery_interval` 为正 Go duration 字符串；容量包含尚未退休的原 Unknown owner。
+- `model_agent_retry`：`initial_request_timeout`、`max_request_timeout`、`timeout_multiplier`、`initial_backoff`、`max_backoff`。四个时长均为正 Go duration 字符串，initial 不超过各自 max，request max 不超过120秒；multiplier 为至少2的 uint32 整数。这是 Model 调用重试时序，独立于上述 Dispatch Launch retry policy。
+
+`Config.ExecutionRuntime()` 返回是否配置及安全、不可变的 typed options，配置验证不读业务数据库、不启动 worker，也不授予调用权限。显式运行范围仅为既存、真实已初始化 Project 的受支持 direct-text 路径：实际捕获仍须满足无模型可见工具、关闭 AGENTS.md 注入、真实空 Mount 配置及原 Model profile 等门禁。配置不自动生成 deny IDs；Core Tools 不受普通 Agent Capability 开关控制，执行级 Policy 只能进一步收紧能力，未拒绝的真实工具若缺提供方仍失败，不以空目录替代。生产 Model 出站保持 HTTPS 与原策略授权。该 opt-in 不完成 Project 初始化或 Object runtime join，不扩工具/多轮能力，也不把 Execution 完成自动转换成 Task done；任务仍沿正式 Human done/rework 出口。
 
 Central 还必须配置 `AGENTEAM_CENTRAL_DATABASE_URL`；TLS 默认 verify-full，显式 CA 文件会在配置检查时读取验证，其余数据库参数及范围见[数据库配置表](database.md#版本与配置)。连接、迁移 guard、全部迁移和首次 Check 共用 `DATABASE_STARTUP_TIMEOUT`，随后在独立且共享的 30s 安全初始化预算内构造真实账户依赖并打开受限 Sink，验证 Account key registry、cursor/Audit、Secret registry/canary/write fence。仅在 Secret 初始化成功且原 ctx 仍有效后，才用同一 ctx/deadline 依次调用同一 Model Service 的 `Initialize`、`InitializeMeetingSummarySelection` 和 Usage Service 的 `Initialize`，三步在 Secret maintenance 及后续业务启动、监听之前完成，不另起预算。Usage 只检查已有表结构，不建表、填默认行或启动 worker；Model 的原 `Initialize` 首次只建立未配置的四用途技术 selector，随后根显式初始化独立的 Summary 技术行。Summary 未配置不阻塞启动；重启保留已有 ID/version/model 和命令历史，不补默认模型。随后验证 DB 出站策略、对象 bucket/双 origin 实际写读删 probe、ProcessGuard 与恢复门禁、Outbox 唯一 handler 注册/恢复，再完成 Account bootstrap/账户及头像恢复、Mail canonical/恢复与技术 Check，最后 HTTP bind。后续步骤不能重置前序消耗的预算；Model 或 Summary 初始化失败或 Unknown、Usage 结构检查失败均不放行监听，SMTP 是否配置或远端可达不作为启动探测。两个阶段都受启动停止信号取消。配置缺失退出 2，连接、版本、迁移、受限日志打开或安全初始化失败退出 1。
 
