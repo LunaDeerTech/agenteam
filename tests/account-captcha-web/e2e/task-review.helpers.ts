@@ -1194,6 +1194,7 @@ export type TaskObservationProfile = {
     | "task-edit"
     | "agent-configuration"
     | "agent-edit"
+    | "agent-model-policy"
     | "task-timeline"
     | "sprint-start";
   endpoint: (request: Request) => string | undefined;
@@ -1211,6 +1212,7 @@ export type TaskObservationProfile = {
   editWrites?: true;
   timelineReads?: true;
   agentEditWrites?: true;
+  agentModelPolicy?: true;
   sprintStartWrites?: true;
 };
 
@@ -1309,6 +1311,14 @@ export async function observeTaskRequests(
           : undefined))
   )
     throw Error("AGENT_EDIT_WRITE_PROFILE_MISMATCH");
+  if (
+    profile.agentModelPolicy &&
+    (profile.intakeWrites || profile.agentConfiguration || profile.editWrites ||
+      profile.timelineReads || profile.agentEditWrites || profile.sprintStartWrites ||
+      profile.prefix !== "agent-model-policy" || profile.lookupCommand !== "agent.update" ||
+      profile.cut !== undefined || data.mode !== "switch-model-auto-and-clear-approval" ||
+      !data.agent_id || !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.agent_id))
+  ) throw Error("AGENT_MODEL_POLICY_PROFILE_MISMATCH");
   if (
     profile.sprintStartWrites &&
     (profile.intakeWrites ||
@@ -1475,7 +1485,7 @@ export async function observeTaskRequests(
           agentConfiguration: profile.agentConfiguration === true,
           editTask: profile.editWrites ? data.task_id : undefined,
           timelineTask: profile.timelineReads ? data.task_id : undefined,
-          editAgent: profile.agentEditWrites ? data.agent_id : undefined,
+          editAgent: (profile.agentEditWrites || profile.agentModelPolicy) ? data.agent_id : undefined,
           startSprint: profile.sprintStartWrites ? data.sprint_id : undefined,
         },
       );
@@ -1567,7 +1577,7 @@ export async function observeTaskRequests(
   }
   function agentPageRead(entry: Entry) {
     return (
-      (profile.agentConfiguration || profile.agentEditWrites) &&
+      (profile.agentConfiguration || profile.agentEditWrites || profile.agentModelPolicy) &&
       entry.request.method() === "GET" &&
       ["agent-directory", "agent-configuration", "agent-models"].includes(
         entry.name,
@@ -1576,7 +1586,7 @@ export async function observeTaskRequests(
   }
 
   function agentEditWrite(entry: Entry) {
-    if (!profile.agentEditWrites) return false;
+    if (!profile.agentEditWrites && !profile.agentModelPolicy) return false;
     const url = new URL(entry.request.url());
     if (url.search) return false;
     const prefix = `/api/v1/projects/${data.project_id}`;
@@ -1584,7 +1594,7 @@ export async function observeTaskRequests(
       (entry.name === "update" &&
         entry.request.method() === "PATCH" &&
         url.pathname === `${prefix}/agents/${data.agent_id}/configuration`) ||
-      (entry.name === "lookup" &&
+      (profile.agentEditWrites && entry.name === "lookup" &&
         entry.request.method() === "POST" &&
         url.pathname === `${prefix}/agent-commands/lookup`)
     );
@@ -1934,7 +1944,7 @@ export async function observeTaskRequests(
   function agentRead(
     name: "agent-directory" | "agent-configuration" | "agent-models",
   ) {
-    expect(profile.agentConfiguration || profile.agentEditWrites).toBe(true);
+    expect(profile.agentConfiguration || profile.agentEditWrites || profile.agentModelPolicy).toBe(true);
     const found = entries.filter(
       (entry) => entry.name === name && entry.checked && entry.body,
     );
@@ -1999,7 +2009,7 @@ export async function observeTaskRequests(
                 ready: entries.filter((e) => e.name === "ready").length,
               }
             : {}),
-          ...(profile.agentEditWrites
+          ...((profile.agentEditWrites || profile.agentModelPolicy)
             ? { updates: entries.filter((e) => e.name === "update").length }
             : {}),
           ...(profile.sprintStartWrites
