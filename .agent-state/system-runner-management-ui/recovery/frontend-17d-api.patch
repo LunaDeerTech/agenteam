@@ -1,0 +1,11 @@
+diff --git a/web/src/api/system-runners.ts b/web/src/api/system-runners.ts
+index 5676ad15c5a96f9066c4651251c30f65d2c92b2f..79a5964f64bb54a75f7e2bc275e674f0db84837b 100644
+--- a/web/src/api/system-runners.ts
++++ b/web/src/api/system-runners.ts
+@@ -342,5 +342 @@ export function createSystemRunnersAPI(fetcher?: Fetch): SystemRunnersAPI {
+-  const options = (o: WriteOptions) => ({
+-    csrf: o.csrfToken,
+-    key: o.key,
+-    signal: o.signal ?? new AbortController().signal,
+-  })
++  const options = (o: WriteOptions) => ({ csrf: o.csrfToken, key: o.key, signal: o.signal })

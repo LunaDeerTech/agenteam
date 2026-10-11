@@ -1,0 +1,21 @@
+diff --git a/tests/projectvariable/system_runner_management_web_test.go b/tests/projectvariable/system_runner_management_web_test.go
+index 684d454fab6be3acc4102fc7e58a30824fa37946..45c3e0e826e070a012815641048f1a9ce8c959ff 100644
+--- a/tests/projectvariable/system_runner_management_web_test.go
++++ b/tests/projectvariable/system_runner_management_web_test.go
+@@ -100,8 +100,8 @@ type systemRunnerWeb struct {
+-	target                                        rc.RunnerID
+-	current                                       rc.Snapshot
+-	commands                                      []systemRunnerIntent
+-	receipts                                      []rc.Receipt
+-	hosts                                         map[string]agentRunnerHost
+-	proofs                                        map[string]map[string]any
+-	reads                                         map[f.Version]int
+-	lists, details, updates, enrollments, revokes int
++	target                               rc.RunnerID
++	current                              rc.Snapshot
++	commands                             []systemRunnerIntent
++	receipts                             []rc.Receipt
++	hosts                                map[string]agentRunnerHost
++	proofs                               map[string]map[string]any
++	reads                                map[f.Version]int
++	lists, details, enrollments, revokes int

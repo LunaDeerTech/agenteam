@@ -1,0 +1,7 @@
+diff --git a/tests/projectvariable/system_runner_management_web_test.go b/tests/projectvariable/system_runner_management_web_test.go
+index 84378e9797a950a86f06b88e7b41511a80327fd1..69943f18598a3f061b6dc83e2ddacf5d23906eb0 100644
+--- a/tests/projectvariable/system_runner_management_web_test.go
++++ b/tests/projectvariable/system_runner_management_web_test.go
+@@ -347 +347 @@ func (w *systemRunnerWeb) counts(ctx context.Context) ([8]int64, error) {
+- (SELECT count(*) FROM agenteam_audit.audit_records WHERE producer='runner' AND resource_id=$1),
++ (SELECT count(*) FROM agenteam_audit.audit_records WHERE producer='runner' AND resource_id::text=$1),

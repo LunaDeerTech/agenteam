@@ -1,0 +1,48 @@
+diff --git a/web/src/api/system-runners.ts b/web/src/api/system-runners.ts
+index 5676ad15c5a96f9066c4651251c30f65d2c92b2f..e007b641371e2d73cf415b1b2d3e02dbecbb36b5 100644
+--- a/web/src/api/system-runners.ts
++++ b/web/src/api/system-runners.ts
+@@ -97,6 +97 @@ function version(value: unknown) {
+-function text(
+-  value: unknown,
+-  min: number,
+-  max: number,
+-  controls = /[\u0000-\u001f\u007f-\u009f]/u,
+-) {
++function text(value: unknown, min: number, max: number) {
+@@ -106 +101 @@ function text(
+-      !controls.test(s) &&
++      !/[\u0000-\u001f\u007f-\u009f]/u.test(s) &&
+@@ -167,2 +162 @@ function hello(value: unknown, runner: string): RunnerHello {
+-    // Device protocol text rejects C0/DEL, while management labels also reject C1.
+-    runner_version = text(v.runner_version, 1, 64, /[\u0000-\u001f\u007f]/u),
++    runner_version = text(v.runner_version, 1, 64),
+@@ -266 +260 @@ export function captureRunnerQuery(value: RunnerQuery) {
+-      limit = Object.hasOwn(v, 'limit') ? v.limit : 50
++      limit = v.limit ?? 50
+@@ -342,5 +336 @@ export function createSystemRunnersAPI(fetcher?: Fetch): SystemRunnersAPI {
+-  const options = (o: WriteOptions) => ({
+-    csrf: o.csrfToken,
+-    key: o.key,
+-    signal: o.signal ?? new AbortController().signal,
+-  })
++  const options = (o: WriteOptions) => ({ csrf: o.csrfToken, key: o.key, signal: o.signal })
+@@ -362 +352 @@ export function createSystemRunnersAPI(fetcher?: Fetch): SystemRunnersAPI {
+-          valid(next === null || (items.length > 0 && items.at(-1)?.id === next))
++          valid(next === null || (items.length === q.limit && items.at(-1)?.id === next))
+diff --git a/web/src/composables/useSession.ts b/web/src/composables/useSession.ts
+index 6d0686a9ffc44950e503dc610ad2d8ce2d1b420e..b3977d24bc47fffb22759483bd560aa8aae2fe28 100644
+--- a/web/src/composables/useSession.ts
++++ b/web/src/composables/useSession.ts
+@@ -2583 +2583 @@ export function createSessionController(
+-      if ('state' in result && result.state === 'not_observed') {
++      if ('state' in result && result.state === 'not_observed')
+@@ -2585,4 +2585,2 @@ export function createSessionController(
+-        if (!live()) throw new AccountFailure('cancelled')
+-      } else {
+-        // Public progress never owns the first-response material. A synchronous
+-        // consumer may retire the identity during this publication.
++      else {
++        // Public progress never owns the first-response material.
+@@ -2590 +2587,0 @@ export function createSessionController(
+-        if (!live()) throw new AccountFailure('cancelled')

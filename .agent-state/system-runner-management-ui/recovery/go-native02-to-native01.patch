@@ -1,0 +1,8 @@
+diff --git a/tests/projectvariable/system_runner_management_web_test.go b/tests/projectvariable/system_runner_management_web_test.go
+index 69943f18598a3f061b6dc83e2ddacf5d23906eb0..684d454fab6be3acc4102fc7e58a30824fa37946 100644
+--- a/tests/projectvariable/system_runner_management_web_test.go
++++ b/tests/projectvariable/system_runner_management_web_test.go
+@@ -324 +323,0 @@ func (w *systemRunnerWeb) commandFacts(ctx context.Context, in systemRunnerInten
+-		hash := sha256.Sum256(decoded)
+@@ -325,0 +325 @@ func (w *systemRunnerWeb) commandFacts(ctx context.Context, in systemRunnerInten
++		hash := sha256.Sum256([]byte(token))
