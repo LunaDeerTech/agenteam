@@ -189,7 +189,7 @@ func (c *readFileAdapterConn) Close() error {
 	return err
 }
 
-func newReadFileAdapterServer(t *testing.T, handler *runnerhttp.DeviceHandler, service *runnerservice.Service) *readFileAdapterServer {
+func newReadFileAdapterServer(t *testing.T, handler http.Handler, service *runnerservice.Service) *readFileAdapterServer {
 	t.Helper()
 	public, private, err := ed25519.GenerateKey(rand.Reader)
 	readFileAdapterOK(t, err, "owned TLS key")

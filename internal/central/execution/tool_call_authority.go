@@ -1,6 +1,7 @@
 package execution
 
 import (
+	"bytes"
 	"context"
 	"reflect"
 	"slices"
@@ -98,6 +99,12 @@ func (d *ToolCallDriver) DiscoverToolCall(ctx context.Context, b tc.ToolCallBind
 }
 
 func (d *ToolCallDriver) RequireToolCallInTx(ctx context.Context, tx f.Tx, b tc.ToolCallBinding, plan tc.ToolCallPlan) error {
+	return d.withToolCallInTx(ctx, tx, b, plan, nil)
+}
+
+// The callback remains inside the original current-Agent witness lifetime.
+// Returning from Require and then lending its context would expire that proof.
+func (d *ToolCallDriver) withToolCallInTx(ctx context.Context, tx f.Tx, b tc.ToolCallBinding, plan tc.ToolCallPlan, consume func(context.Context, tc.ToolCallBinding, []byte) error) error {
 	if d == nil || d.driver == nil || ctx == nil || b.Validate() != nil {
 		return invalid()
 	}
@@ -142,7 +149,8 @@ func (d *ToolCallDriver) RequireToolCallInTx(ctx context.Context, tx f.Tx, b tc.
 	w := &toolCurrentWitness{driver: d, tx: tx, request: request, locks: p.RequiredLocks()}
 	w.active.Store(true)
 	defer w.active.Store(false)
-	agent, err := s.deps.Agents.ReadExecutionConfigurationInTx(context.WithValue(ctx, toolCurrentKey{}, w), tx, request)
+	authorized := context.WithValue(ctx, toolCurrentKey{}, w)
+	agent, err := s.deps.Agents.ReadExecutionConfigurationInTx(authorized, tx, request)
 	if err != nil {
 		return portError(err)
 	}
@@ -168,6 +176,18 @@ func (d *ToolCallDriver) RequireToolCallInTx(ctx context.Context, tx f.Tx, b tc.
 	}
 	if err = s.tools.metadata.RequireExecutionToolFactsInTx(ctx, tx, toolFactsRequest(input.input, agent)); err != nil {
 		return portError(err)
+	}
+	if err = ctx.Err(); err != nil {
+		return err
+	}
+	if consume != nil {
+		// Never lend repository-owned storage: mutation by the consumer cannot
+		// replace the original protected bytes, and the loan expires on return.
+		borrowed := bytes.Clone(stored.toolPending.original)
+		defer clear(borrowed)
+		if err = consume(authorized, expected, borrowed); err != nil {
+			return err
+		}
 	}
 	return ctx.Err()
 }
