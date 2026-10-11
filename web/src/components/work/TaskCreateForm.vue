@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { UiButton, UiField, UiInput, UiSelect, UiTextarea } from '../ui'
 import type { ProjectTasks } from '../../composables/useProjectTasks'
 const props = defineProps<{ owner: ProjectTasks }>()
-const emit = defineEmits<{ closed: [] }>()
+const emit = defineEmits<{ cancel: [] }>()
 const form = ref<HTMLFormElement | null>(null)
 const types = [
   { value: 'feature', label: '功能' },
@@ -35,10 +35,6 @@ function selectPriority(value: string) {
     props.owner.creation.priority = value as typeof props.owner.creation.priority
 }
 onMounted(() => form.value?.querySelector('input')?.focus())
-async function cancel() {
-  await props.owner.cancelCreation()
-  if (!props.owner.creation.open && props.owner.visible.value) emit('closed')
-}
 </script>
 <template>
   <form
@@ -85,7 +81,7 @@ async function cancel() {
     <p v-if="owner.creation.message" role="alert">{{ owner.creation.message }}</p>
     <div class="task-create-actions">
       <UiButton type="submit" :disabled="!canSubmit">确认创建任务</UiButton
-      ><UiButton type="button" :disabled="disabled" @click="cancel">取消创建</UiButton>
+      ><UiButton type="button" :disabled="disabled" @click="emit('cancel')">取消创建</UiButton>
     </div>
   </form>
 </template>
