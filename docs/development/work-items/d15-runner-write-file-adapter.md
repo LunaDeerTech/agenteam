@@ -1,6 +1,6 @@
 # D15/D16 Runner write-file WSS 适配器
 
-状态：固定 `5d8cf4c4` 的基础检查、编译与隔离真实 WSS 首链已获唯一主审有限 wholePASS 接受，随完整开发历史正式交付 main `570da7a2`，原推送工具2926实际0。全部原件已无覆盖保全；旧树/分支清理仍由root后续执行。本片以已交付本地 `filesystem.Root.Write` / `workspace.Handle.Write` 为底座，只新增 Runner 闭集 codec、Handler 和显式 Control 绑定。
+状态：固定 `5d8cf4c4` 的基础检查、编译与隔离真实 WSS 首链已获唯一主审有限 wholePASS 接受，随完整开发历史正式交付 main `570da7a2`，原推送工具2926实际0。全部原件已无覆盖保全，说明随main `58a1b1e1`推送68131实际0；root祖先检查后普通删除旧worktree及本地分支（原`095069`全0）。远端原查询`f5f55c`实际0为空，本分支从未推送，未增加远端删除数。本片以已交付本地 `filesystem.Root.Write` / `workspace.Handle.Write` 为底座，只新增 Runner 闭集 codec、Handler 和显式 Control 绑定。
 
 依据：[D15 §7](d15-runner-control.md#7-rpc端口与-unknown)、[本地 Write](d16-runner-write-file.md)、[Workspace](../../architecture/runner/agent-workspace.md)与[执行运行时](../../architecture/runner/execution-runtime.md)。
 

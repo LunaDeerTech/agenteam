@@ -44,7 +44,7 @@ python3 -B output/ai/runner-write-file-wss/native01/record-native.py
 - `compile01`：原工具18090亲收actual0；Go811848 race-c 0/1.228s，list811878 0/1.021s，精确唯一top。1480项实际编译输入三份等；binary 17,991,296B、SHA256 `151c6b630a9ff97eb8bd4aa20c48ec703cc86460fbb661e29560d22b4f0f4cec`，native仅加此一项至1481。
 - `native01`：原工具96046亲收actual0（原chunk `ea8450`）；supervisor812703原Wait0/3.395s，内部3.137s，Go812704原Wait0，精确1top/1sub 1.76s PASS。唯一真实资源marker、desc/private两次空、原自动TCP差额双empty、1481输入不变和terminal0全齐，窗口已释放。
 
-原件在本树 `output/ai/runner-write-file-wss/{methods01,basic01,compile01,native01}`，各阶段原Popen/Wait日志、input maps、binary/recipe及作者亲收的tool-terminal保留；网络原件 `/tmp/rwfw01/{invocation.json,process.json,test.log,native.log,tcp-baseline.json}`。完整开发历史已随main `570da7a2`交付，root原推送2926实际0；原件已按下节保全，树/分支清理仍待root，不提前记完成。
+原件原位为 `output/ai/runner-write-file-wss/{methods01,basic01,compile01,native01}`，现按下节映射位于main retired目录，各阶段原Popen/Wait日志、input maps、binary/recipe及作者亲收的tool-terminal保留；网络原件 `/tmp/rwfw01/{invocation.json,process.json,test.log,native.log,tcp-baseline.json}`。完整开发历史已随main `570da7a2`交付，root原推送2926实际0；原件已按下节保全，旧树及本地分支已由root普通清理。
 
 结果止于本页首段的trusted peer / bound session范围，不能外推Central授权、enrollment、完整或默认Client.Run/生产接线，以及未运行的WSS故障取消。原所有STOP保持；详细业务与基础边界见[本卡](../../docs/development/work-items/d15-runner-write-file-adapter.md)。
 
@@ -57,4 +57,4 @@ python3 -B output/ai/runner-write-file-wss/native01/record-native.py
 
 所有原工具/Go/supervisor已亲收实际Wait，记录仍在各原result/tool-terminal；迁移前本任务记录的PID均已不存在，该观察不替代原Wait。methods/basic/compile/native全部仓库内输入共63个路径，逐项SHA等于main可达 `5d8cf4c4` 对应blob；方法README的旧输入亦在该提交。静态Close修前 `61e33774`、修后 `5d8cf4c4` 与最终文档 `25840576` 全历史由main保存，无需额外恢复patch、动态FAIL文件或永久归档分支。1431个外部输入属于原工具链/模块路径，未迁移或删除；SkillHTTP热cache与SkillsMilestoneResume只读modules继续保护。
 
-本任务作者后继从已交付main取源码，无旧树source/output/binary/cache的绝对运行依赖；没有在途Go/Node/服务或网络调用。此处只记录证据保全完成，旧worktree、本地与远端分支是否删除由root完成后记录，尚未增加全局清理累计。
+本任务作者后继从已交付main取源码，无旧树source/output/binary/cache的绝对运行依赖；没有在途Go/Node/服务或网络调用。保全说明已随main `58a1b1e1`推送（原68131实际0）。root核定最终tip `25840576` 为main祖先后，普通worktree remove与普通branch -d均实际0（chunk `095069`）；此前fresh ls-remote `f5f55c`实际0为空，该分支从未推送，没有远端删除动作。清理仅增加1树/1本地分支，全局现34/35/64，146待核与keep1不变；证据、binary、原tmp和受保护依赖未删除。
