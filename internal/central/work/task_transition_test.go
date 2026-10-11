@@ -132,7 +132,7 @@ func pureTransitionRecord(t *testing.T) (*transitionRecord, i.Actor, event.Summa
 	if err != nil {
 		t.Fatal(err)
 	}
-	r.Plan = transitionPlan{Before: before, After: mutation, Placement: old.Plan.Placement, Agent: ac.AgentRef{ProjectID: before.ProjectID, AgentID: agent, ConfigVersion: 1}, Groups: []taskGroupPlan{{source, []rankItem{{before.ID.String(), before.ManualRank}}, []rankItem{}, 2}, {target, []rankItem{}, []rankItem{{after.ID.String(), after.ManualRank}}, 1}}, QueryGeneration: 2, History: history, Source: sp, Target: tp, Header: header, Payload: ev.PayloadBytes()}
+	r.Plan = transitionPlan{Before: before, After: mutation, Placement: old.Plan.Placement, Agent: &ac.AgentRef{ProjectID: before.ProjectID, AgentID: agent, ConfigVersion: 1}, Groups: []taskGroupPlan{{source, []rankItem{{before.ID.String(), before.ManualRank}}, []rankItem{}, 2}, {target, []rankItem{}, []rankItem{{after.ID.String(), after.ManualRank}}, 1}}, QueryGeneration: 2, History: history, Source: sp, Target: tp, Header: header, Payload: ev.PayloadBytes()}
 	if err = validateTransitionRecord(r, actor); err != nil {
 		t.Fatal("coherent transition plan", err)
 	}
