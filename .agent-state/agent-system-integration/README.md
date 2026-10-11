@@ -451,3 +451,31 @@ python3 -B output/ai/agent-system-integration/task-human-review-compile-01-launc
 # compile PASS并冻结新plan后：
 python3 -B output/ai/agent-system-integration/task-human-review-launcher-02.py
 ```
+
+## Scheduler 自动 review dispatch
+
+最终 SOURCE `a3b72c72b4d8ba26610e7096a99113cf115f36a8`。pure01 的14 top race＋3包vet全PASS；后两次仅改新native fixture，原pure输入不变并复用。compile03/list及native02 wholePASS，`TestSchedulerReviewDispatch`整top两sub共49.09s：`phase-isolated-review-execution`从真实work终态与Human交review开始，由新reviewer的正式Model执行验证task/review输入、Prompt/HTTPS请求、双phase pointer及跨owner持久skip，Task仍in_review，再由Human明确done；`review-failure-atomic-block-and-replay`用真实typed永久拒绝，在原最终事务全部事实写入后物理rollback，再按原请求结算与重放，保留另一phase事实。未增加App自动装配、active Human交接、多轮/tools/Stream或Task自动done。
+
+compile01因fixture三处把TextPart当string而FAIL，修为Text.Text后compile02通过；native01首sub终态后验错误引用不存在的`e.purpose`，原SQLSTATE42703/Position1721，第二subPASS，整轮仍FAIL。唯一谓词改读真实`launch_request->>'purpose'`后编译新candidate03，并沿成熟whole-top入口重验两sub。原compile01/native01结果、candidate02及全部旧FAIL/输入/日志不变，不回填原轮。
+
+native02于2026-10-11 01:44:33–01:46:53 UTC结束；Go414081、driver412543、supervisor412542、outer412497原Wait均0，七ID14次absence，private/runtime/desc与TCP全部双尾关闭、delta0/adopted[]，1620输入首尾同（含878编译输入）。候选`output/ai/agent-system-integration/scheduler-review-dispatch-race-03.test`为65,919,007 B，SHA256 `cd3bc9cfc5bbbe965a9937f7f39806e9a03fc7fb97473950c8a651e75b3657a1`；窗口已归还，无新增验证待跑。
+
+原件：`output/ai/scheduler-review-dispatch/combined-pure-01/result.json`（SOURCE `389c40a3`）；`output/ai/agent-system-integration/scheduler-review-dispatch-compile-{01,02,03}/result.json`、`scheduler-review-dispatch-{01,02}-control/result.json`及各`supervisor.log`；成功PG `/tmp/srd02/pg-86823bd8d4a247038220ccd926abe888.log`。本轮启动前root普通sparse停放D13/D18/D16九tracked目录，protected output/state/config/rootfiles、refs和全部FAIL保留；未清理第八candidate01、两容量FAIL或任何共享cache/MinIO。
+
+恢复仍用本文件原recipe和immutable模板：`148640b8:.agent-state/agent-system-integration/task-launch-failure-pure-checks.py`，以及`73387883`同目录`scheduler-failure-compile-02-launcher.py`/`scheduler-failure-launcher-01.py`。只代入delivery ROOT、上述完整SOURCE、namespace `scheduler-review-dispatch`、compile `tests/projectvariable`及list数量1＋精确集合`{'TestSchedulerReviewDispatch'}`；native父selector `^TestSchedulerReviewDispatch$`，不加slash。已用compile03/candidate03、native02 plan `scheduler-review-dispatch-02-inputs.json`和`/tmp/srd02`；新运行须fresh namespace。compile wholePASS后沿原步骤冻结实际输入，包含全部编译输入子集。原固定Go1.27.1/唯一hotcache/RO模块/private环境、每实际调用same-process fresh≥5GiB、预算/Wait/资源尾均不变。
+
+pure设`exact_14_top_pass`，vet仅work、work/contract、scheduler；精确TOPS如下，不复跑旧整库：
+
+```python
+TOPS = {
+ 'work': ['TestTaskReviewDispatchUsesCurrentReviewerOrigin', 'TestTaskReviewDispatchRejectsCrossPhaseAndBindsFailureMarker', 'TestTaskReviewFailurePreservesOtherPhaseAndKeepsSchemaFour', 'TestTaskRelaunchOriginIsDistinctFromTodoClaim', 'TestTaskRelaunchRecordsOnlyOriginAndRechecksCurrentFacts', 'TestTaskLaunchCurrentClaimAndFrozenSource', 'TestTaskRelaunchFailureSchemaDoesNotRewriteClaimHistory', 'TestTaskLaunchFailureHistoryAndEventRemainSeparate'],
+ 'scheduler': ['TestSchedulerReviewEligibilityAndRunnerSelection', 'TestSchedulerReviewCooldownAndUnknownKeepOriginalPhase', 'TestSchedulerReviewBusyAndFinalFailureKeepOrigin', 'TestSchedulerRelaunchCooldownPersistsVisits', 'TestSchedulerRelaunchUnknownKeepsOriginalVisit', 'TestSchedulerLaunchAssociationAndOriginalKeyRecovery'],
+}
+```
+
+```sh
+python3 -B output/ai/agent-system-integration/scheduler-review-dispatch-pure-checks.py --cache /workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build
+python3 -B output/ai/agent-system-integration/scheduler-review-dispatch-compile-03-launcher.py
+# compile PASS并按原recipe冻结新plan后：
+python3 -B output/ai/agent-system-integration/scheduler-review-dispatch-launcher-02.py
+```
