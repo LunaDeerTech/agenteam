@@ -135,6 +135,13 @@ type toolFactsFixture struct {
 
 func newToolFactsFixture(t *testing.T) *toolFactsFixture {
 	t.Helper()
+	return newToolFactsFixtureWithRunner(t, "/tool-facts-private-root", nil)
+}
+
+// Only an owned Runner fixture receives this private in-memory seed. Material
+// is never logged or added to persisted test evidence by this handoff.
+func newToolFactsFixtureWithRunner(t *testing.T, privateRoot string, seed func(*runnerservice.Service, rc.EnrollmentMaterial)) *toolFactsFixture {
+	t.Helper()
 	v := &toolFactsFixture{}
 	var modelAuthority *model.RuntimeAuthority
 	var modelSecrets *secret.Service
@@ -200,7 +207,7 @@ func newToolFactsFixture(t *testing.T) *toolFactsFixture {
 			t.Error("original Runner service did not join", err)
 		}
 	})
-	create, err := rc.NewCreate(rc.CreateRequest{RunnerID: id[rc.Runner](t), Name: "tool-facts-runner", Description: "owned offline metadata", Tags: []string{}, RootPath: "/tool-facts-private-root"})
+	create, err := rc.NewCreate(rc.CreateRequest{RunnerID: id[rc.Runner](t), Name: "tool-facts-runner", Description: "owned offline metadata", Tags: []string{}, RootPath: privateRoot})
 	firstRoundRequire(t, err)
 	created, err := runners.Execute(ctxFor(t), b.adminBrowser.actor, "tool-facts-runner", create)
 	firstRoundRequire(t, err)
@@ -208,6 +215,9 @@ func newToolFactsFixture(t *testing.T) *toolFactsFixture {
 		t.Fatal("formal Runner creation or its original private material is invalid")
 	}
 	v.runner = created.Receipt.Runner
+	if seed != nil {
+		seed(runners, *created.Material)
+	}
 	current, err := v.agents.GetAgent(ctxFor(t), b.ownerBrowser.actor, b.project.ID, c.v.agentID)
 	firstRoundRequire(t, err)
 	tools := []i.ToolID{v.spec.ToolID}
