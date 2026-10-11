@@ -176,11 +176,7 @@ func TestSkillOwnerReadWeb(t *testing.T) {
 			return
 		}
 		if strings.HasPrefix(r.URL.Path, "/assets/") {
-			if strings.TrimPrefix(r.URL.Path, "/assets/") != filepath.Base(r.URL.Path) {
-				http.NotFound(w, r)
-				return
-			}
-			http.ServeFile(w, r, filepath.Join(dist, "assets", filepath.Base(r.URL.Path)))
+			skillWebServeAsset(w, r, dist)
 			return
 		}
 		http.ServeFile(w, r, filepath.Join(dist, "index.html"))
@@ -547,6 +543,61 @@ func skillWebDecode(raw []byte, out any) error {
 		return errors.New("trailing read representation")
 	}
 	return nil
+}
+
+func skillWebServeAsset(w http.ResponseWriter, r *http.Request, dist string) {
+	asset := strings.TrimPrefix(r.URL.Path, "/assets/")
+	switch asset {
+	case "brand/agenteam-horizontal-light.svg", "brand/agenteam-horizontal-dark.svg",
+		"brand/agenteam-icon-512-light.svg", "brand/agenteam-icon-512-dark.svg":
+		// Exact public brand assets from the same frozen dist; no arbitrary
+		// subdirectory or path alias is admitted by this private fixture.
+	default:
+		if !strings.HasPrefix(r.URL.Path, "/assets/") || asset == "." || asset == ".." || asset != filepath.Base(asset) {
+			http.NotFound(w, r)
+			return
+		}
+	}
+	http.ServeFile(w, r, filepath.Join(dist, "assets", asset))
+}
+
+func TestSkillWebStaticAssets(t *testing.T) {
+	dist := t.TempDir()
+	for _, name := range []string{"index.js", "brand/agenteam-horizontal-light.svg", "brand/agenteam-horizontal-dark.svg", "brand/agenteam-icon-512-light.svg", "brand/agenteam-icon-512-dark.svg", "brand/other.svg", "other/nested.js"} {
+		file := filepath.Join(dist, "assets", name)
+		if err := os.MkdirAll(filepath.Dir(file), 0700); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(file, []byte("frozen:"+name), 0600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	for _, scenario := range []struct {
+		path, body string
+	}{
+		{"/assets/index.js", "frozen:index.js"},
+		{"/assets/brand/agenteam-horizontal-light.svg", "frozen:brand/agenteam-horizontal-light.svg"},
+		{"/assets/brand/agenteam-horizontal-dark.svg", "frozen:brand/agenteam-horizontal-dark.svg"},
+		{"/assets/brand/agenteam-icon-512-light.svg", "frozen:brand/agenteam-icon-512-light.svg"},
+		{"/assets/brand/agenteam-icon-512-dark.svg", "frozen:brand/agenteam-icon-512-dark.svg"},
+		{"/assets/brand/other.svg", ""},
+		{"/assets/other/nested.js", ""},
+		{"/assets/../index.html", ""},
+		{"/assets/brand/../index.js", ""},
+		{"/assets/brand/", ""},
+	} {
+		t.Run(scenario.path, func(t *testing.T) {
+			response := httptest.NewRecorder()
+			skillWebServeAsset(response, httptest.NewRequest(http.MethodGet, scenario.path, nil), dist)
+			if scenario.body == "" {
+				if response.Code != http.StatusNotFound {
+					t.Fatal("undeclared or escaping asset path was accepted")
+				}
+			} else if response.Code != http.StatusOK || response.Body.String() != scenario.body {
+				t.Fatal("declared frozen asset bytes were not served")
+			}
+		})
+	}
 }
 
 func TestSkillWebRequestHostEvidence(t *testing.T) {

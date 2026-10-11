@@ -141,6 +141,15 @@ export async function observeSkills(page: Page, data: SkillMaterial) {
 export async function skillScreenshot(page: Page, name: string) {
   const evidence = process.env.AGENTEAM_SKILL_OWNER_WEB_EVIDENCE!;
   mkdirSync(evidence, { recursive: true, mode: 0o700 });
+  const brand = page.locator(".app-brand-image:visible");
+  await expect(brand).toHaveCount(1);
+  await expect
+    .poll(() =>
+      brand.evaluate(
+        (image: HTMLImageElement) => image.complete && image.naturalWidth > 0,
+      ),
+    )
+    .toBe(true);
   await expect
     .poll(() =>
       page.evaluate(
