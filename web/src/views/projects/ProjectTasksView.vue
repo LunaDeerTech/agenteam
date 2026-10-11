@@ -14,6 +14,10 @@ const milestoneOptions = computed(() => {
   return rows.map((m) => ({ value: m.id, label: m.title }))
 })
 const sprintLabels = { planned: '未启动', current: '当前', completed: '已完成' }
+function selectSprint(id: string) {
+  owner.selectSprint(id)
+  sidebar.value = false
+}
 </script>
 <template>
   <section class="tasks-page" aria-label="项目任务">
@@ -66,10 +70,7 @@ const sprintLabels = { planned: '未启动', current: '当前', completed: '已�
               type="button"
               :aria-current="state.sprint?.id === sprint.id ? 'page' : undefined"
               :disabled="owner.busy.value"
-              @click="
-                owner.selectSprint(sprint.id)
-                sidebar = false
-              "
+              @click="selectSprint(sprint.id)"
             >
               <span>{{ sprint.title }}</span
               ><UiBadge>{{ sprintLabels[sprint.state] }}</UiBadge>

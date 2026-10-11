@@ -114,7 +114,8 @@ export function createProjectTasks(
   })
   const progress = computed(() => {
     const p = auth.workReview.progress
-    return p?.projectID === workspace.currentReadContext.value?.projectID &&
+    if (!p) return null
+    return p.projectID === workspace.currentReadContext.value?.projectID &&
       p.taskID === state.task?.id
       ? p
       : null
@@ -411,7 +412,8 @@ export function createProjectTasks(
         state.detailCurrent = false
       },
     )
-    if (state.phase !== 'ready' || requested || !visible.value) return
+    // The read callbacks publish the phase after the asynchronous request returns.
+    if ((state.phase as Phase) !== 'ready' || requested || !visible.value) return
     if (state.task) {
       await loadBlockers()
       if (state.task?.assignee_agent_id && !names.has(state.task.assignee_agent_id)) {
