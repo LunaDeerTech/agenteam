@@ -65,6 +65,7 @@ type Entry = {
   done: Promise<Tail>;
   checked: boolean;
   body?: unknown;
+  headersReady?: Promise<void>;
 };
 
 // Preserve paths and the few non-secret query facts used by these reads. Never
@@ -401,6 +402,7 @@ async function observeBrowserIO(
         editAgent: string | undefined,
         startSprint: string | undefined,
         createMilestone: string | undefined,
+        skillsTarget: string | undefined,
       ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
@@ -418,7 +420,18 @@ async function observeBrowserIO(
                   ? "/resolve"
                   : ""),
           );
-        if (!agentConfiguration && !editAgent) {
+        if (skillsTarget) {
+          consumer(auth.skills, "list", "skills.list", (a) => {
+            if (a[0] !== project || JSON.stringify(a[1]) !== '{"limit":25}')
+              throw Error("SKILL_CATALOG_CONSUMER_SCOPE");
+            return "/api/v1/projects/" + project + "/skills/catalog";
+          });
+          consumer(auth.skills, "get", "skills.get", (a) => {
+            if (a[0] !== project || a[1] !== skillsTarget)
+              throw Error("SKILL_DETAIL_CONSUMER_SCOPE");
+            return "/api/v1/projects/" + project + "/skills/" + skillsTarget;
+          });
+        } else if (!agentConfiguration && !editAgent) {
           const paths: Record<string, string> = {
             milestones: "milestones",
             milestone: "milestones",
@@ -1239,6 +1252,7 @@ export type TaskObservationMaterial = {
   agent_id?: string;
   sprint_id?: string;
   milestone_id?: string;
+  skill_id?: string;
 };
 export type TaskObservationProfile = {
   dist: string;
@@ -1253,7 +1267,8 @@ export type TaskObservationProfile = {
     | "agent-model-policy"
     | "task-timeline"
     | "sprint-start"
-    | "sprint-create";
+    | "sprint-create"
+    | "skill-owner-read";
   endpoint: (request: Request) => string | undefined;
   cut?: "transfer" | "create" | "update" | "start";
   lookupCommand:
@@ -1273,6 +1288,7 @@ export type TaskObservationProfile = {
   agentModelPolicy?: true;
   sprintStartWrites?: true;
   sprintCreateWrites?: true;
+  skillsReads?: true;
 };
 
 export function observeReview(page: Page, data: ReviewMaterial) {
@@ -1430,6 +1446,14 @@ export async function observeTaskRequests(
       ))
   )
     throw Error("SPRINT_CREATE_PROFILE_MISMATCH");
+  if (profile.skillsReads && (
+    profile.intakeWrites || profile.agentConfiguration || profile.editWrites ||
+    profile.timelineReads || profile.agentEditWrites || profile.agentModelPolicy ||
+    profile.sprintStartWrites || profile.sprintCreateWrites ||
+    profile.prefix !== "skill-owner-read" || profile.lookupCommand !== null ||
+    profile.cut !== undefined || data.mode !== "read" || !data.skill_id ||
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.skill_id)
+  )) throw Error("SKILLS_READ_PROFILE_MISMATCH");
   const entries: Entry[] = [];
   const events: Record<string, unknown>[] = [];
   const browserEvents: BrowserDiagnostic[] = [];
@@ -1514,9 +1538,25 @@ export async function observeTaskRequests(
     if (entry.responseCount !== 1)
       observerError = new Error("DUPLICATE_ORIGINAL_RESPONSE");
     entry.status = response.status();
-    const id = response.headers()["x-request-id"];
-    entry.requestID = id && /^[0-9a-f-]{36}$/.test(id) ? id : undefined;
-    event("response", entry);
+    if (profile.skillsReads) {
+      // Observe both original header promises once; retain no credential values.
+      entry.headersReady = Promise.all([
+        entry.request.allHeaders(), response.allHeaders(),
+      ]).then(([sent, received]) => {
+        const origin = new URL(entry.request.url());
+        if (sent.host !== origin.host || !sent.cookie)
+          throw Error("SKILLS_ORIGINAL_REQUEST_HEADERS");
+        const id = received["x-request-id"];
+        if (!id || !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(id))
+          throw Error("SKILLS_ORIGINAL_RESPONSE_ID");
+        entry.requestID = id;
+        event("response", entry);
+      }).catch(() => { observerError = new Error("SKILLS_ORIGINAL_HEADERS_FAILED"); });
+    } else {
+      const id = response.headers()["x-request-id"];
+      entry.requestID = id && /^[0-9a-f-]{36}$/.test(id) ? id : undefined;
+      event("response", entry);
+    }
   };
   const closed = () =>
     entries
@@ -1548,6 +1588,7 @@ export async function observeTaskRequests(
           editAgent,
           startSprint,
           createMilestone,
+          skillsTarget,
         }) => {
           const module = await import(/* @vite-ignore */ binding.asset);
           const useSession = module[binding.exportName];
@@ -1566,6 +1607,7 @@ export async function observeTaskRequests(
             editAgent,
             startSprint,
             createMilestone,
+            skillsTarget,
           );
         },
         {
@@ -1583,6 +1625,7 @@ export async function observeTaskRequests(
           createMilestone: profile.sprintCreateWrites
             ? data.milestone_id
             : undefined,
+          skillsTarget: profile.skillsReads ? data.skill_id : undefined,
         },
       );
       await route.continue();
@@ -1748,6 +1791,10 @@ export async function observeTaskRequests(
           ].includes(entry.name)))
     );
   }
+  function skillsPageRead(entry: Entry) {
+    return profile.skillsReads && entry.request.method() === "GET" &&
+      ["skills-catalog", "skill"].includes(entry.name);
+  }
   function joint(entry: Entry, proof: any) {
     const edit = editWrite(entry);
     const agentEdit = agentEditWrite(entry);
@@ -1830,6 +1877,8 @@ export async function observeTaskRequests(
     expect(c.typed_digest).toMatch(/^[0-9a-f]{64}$/);
     expect(n.typed_digest).toBe(c.typed_digest);
     if (timelinePageRead(entry)) expect(c.kind).toBe("work.events");
+    if (skillsPageRead(entry))
+      expect(c.kind).toBe(entry.name === "skills-catalog" ? "skills.list" : "skills.get");
     if (write) {
       if (sprintCreate) expect(c.result_current).toBe(true);
       const kinds: Record<string, string> = sprintCreate
@@ -1895,6 +1944,8 @@ export async function observeTaskRequests(
         message: "original API requests must actually finish or fail",
       })
       .toBe(0);
+    if (observerError) throw observerError;
+    await Promise.all(entries.map((entry) => entry.headersReady));
     if (observerError) throw observerError;
     const proof = await checkpoint();
     for (const entry of entries) {
@@ -1982,7 +2033,8 @@ export async function observeTaskRequests(
         sprintPageRead(entry) ||
         agentWrite(entry) ||
         agentPageRead(entry) ||
-        timelinePageRead(entry)
+        timelinePageRead(entry) ||
+        skillsPageRead(entry)
       ) {
         // Even genuine requestfinished must match the original public value
         // and Go proof (including commit for writes); this does not replace its tail.
@@ -2058,6 +2110,12 @@ export async function observeTaskRequests(
       originals[0]!.headers()["idempotency-key"],
     );
     expect(dropped).toBe(1);
+  }
+  function skillsRead(name: "skills-catalog" | "skill", index: number) {
+    expect(profile.skillsReads).toBe(true);
+    const values = entries.filter((e) => e.name === name && e.checked && e.body);
+    expect(values[index], "original Skills public read must complete").toBeTruthy();
+    return values[index]!.body as Record<string, any>;
   }
   function sprintCreateRead(
     name:
@@ -2203,6 +2261,8 @@ export async function observeTaskRequests(
         timeout: 5_000,
       })
       .toBe(0);
+    await Promise.all(entries.map((entry) => entry.headersReady));
+    if (observerError) throw observerError;
     const snapshot = await checkpoint();
     const end = await page.evaluate(() =>
       (window as any).__taskReviewProof.finish(),
@@ -2240,6 +2300,7 @@ export async function observeTaskRequests(
     agentRead,
     sprintRead,
     sprintCreateRead,
+    skillsRead,
     timelinePage,
     save,
     endDocument,

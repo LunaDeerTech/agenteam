@@ -1,0 +1,73 @@
+import { test, expect, type Page } from "@playwright/test";
+import { skillMaterial, observeSkills, skillScreenshot } from "./skill-owner-read.helpers";
+
+const observations = new WeakMap<Page, Awaited<ReturnType<typeof observeSkills>>>();
+test.afterEach(async ({page}, info) => {
+  const seen = observations.get(page);
+  try { await seen?.retire(); } finally { seen?.save(info.status); }
+});
+test("reads the real protected catalog and complete metadata [read]", async ({page}) => {
+  const data=skillMaterial();
+  await page.setViewportSize({width:1440,height:960});
+  await page.emulateMedia({colorScheme:"light",reducedMotion:"reduce"});
+  await page.context().addCookies([{name:"agenteam_local_session",value:data.cookie,url:process.env.AGENTEAM_AUTH_WEB_ORIGIN!,httpOnly:true,secure:false,sameSite:"Lax"}]);
+  const seen=await observeSkills(page,data);
+  observations.set(page,seen);
+  await page.goto(data.route);
+  const region=page.getByRole("region",{name:"项目技能库",exact:true});
+  const directory=region.getByRole("heading",{name:"项目技能库",exact:true,level:1});
+  const detail=region.getByRole("heading",{name:"技能详情",exact:true,level:1});
+  await expect(directory).toBeVisible();
+  await expect(directory).toBeFocused();
+  const list=region.getByRole("list",{name:"技能目录",exact:true});
+  await expect(list.getByRole("listitem")).toHaveCount(1);
+  await expect(region.getByRole("button",{name:"加载更多技能",exact:true})).toHaveCount(0);
+  await seen.verify();
+  seen.requireCatalog(0);
+  await expect(page.locator("html")).toHaveAttribute("data-theme","light");
+  await skillScreenshot(page,"1440-light-catalog");
+  const link=list.getByRole("link",{name:data.skill.name,exact:true});
+  await link.focus();
+  await expect(link).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(detail).toBeVisible();
+  await expect(detail).toBeFocused();
+  await seen.verify();
+  seen.requireDetail(0);
+  await expect(region.getByRole("heading",{name:data.skill.name,exact:true,level:2})).toBeVisible();
+  const facts:Record<string,string>={"当前修订":data.skill.current_revision,"记录版本":data.skill.version,"标识名":data.skill.normalized_name,"项目 ID":data.project_id,"保护状态":"受保护","技能 ID":data.skill.id};
+  await expect(region.locator(".skill-facts dt")).toHaveCount(6);
+  for(const [name,value] of Object.entries(facts)) {
+    const row=region.locator(".skill-facts > div").filter({has:page.getByText(name,{exact:true})});
+    await expect(row.locator("dd")).toHaveText(value);
+  }
+  expect(await region.locator(".skill-description").textContent()).toBe(data.skill.description);
+  const reread=region.getByRole("button",{name:"重新读取",exact:true});
+  await expect(reread).toBeEnabled();
+  await reread.focus();
+  await expect(reread).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect.poll(()=>seen.requests("skill").length).toBe(2);
+  await expect(detail).toBeFocused();
+  await seen.verify();
+  seen.requireDetail(1);
+  await page.setViewportSize({width:390,height:844});
+  await page.emulateMedia({colorScheme:"dark",reducedMotion:"reduce"});
+  await expect(page.locator("html")).toHaveAttribute("data-theme","dark");
+  expect(await page.evaluate(()=>matchMedia("(prefers-reduced-motion: reduce)").matches)).toBe(true);
+  await expect(detail).toBeVisible();
+  expect(await region.locator(".skill-description").textContent()).toBe(data.skill.description);
+  await skillScreenshot(page,"390-dark-detail");
+  const back=region.getByRole("link",{name:"返回技能库",exact:true});
+  await back.focus();
+  await expect(back).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(directory).toBeVisible();
+  await expect(directory).toBeFocused();
+  await expect(list.getByRole("listitem")).toHaveCount(1);
+  await expect(region.getByRole("button",{name:"加载更多技能",exact:true})).toHaveCount(0);
+  await seen.verify();
+  seen.requireCatalog(1);
+  await seen.endDocument();
+  seen.complete();
+});
