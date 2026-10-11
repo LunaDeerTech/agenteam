@@ -12,14 +12,160 @@ const observations = new WeakMap<
   Page,
   Awaited<ReturnType<typeof observeIntake>>
 >();
+const navigations = new WeakMap<
+  Page,
+  Awaited<ReturnType<typeof observeNavigation>>
+>();
 test.afterEach(async ({ page }, info) => {
   const seen = observations.get(page);
+  const navigation = navigations.get(page);
+  navigation?.mark("afterEach:begin", { status: info.status });
   try {
     await seen?.retire();
   } finally {
-    seen?.save(info.status);
+    try {
+      await navigation?.retire();
+    } finally {
+      seen?.save(info.status);
+      navigation?.save(info.status);
+    }
   }
 });
+
+// One passive session belongs to this original Page. Host epoch timestamps are
+// shared by actions and CDP events; browser timestamps always include timeOrigin.
+// No browser input, history entry, scroll offset or product callback is replaced.
+async function observeNavigation(page: Page, data: IntakeMaterial) {
+  const cdp = await page.context().newCDPSession(page);
+  const rows: Record<string, unknown>[] = [];
+  const faults = new Set<string>();
+  let mainFrame = "";
+  let loader = "";
+  let detached = false;
+  let setup: Promise<void> | undefined;
+  let setupReturned = false;
+  function route(value: string) {
+    try {
+      const url = new URL(value);
+      if (url.href === "about:blank") return "about:blank";
+      return url.origin === process.env.AGENTEAM_AUTH_WEB_ORIGIN
+        ? `${url.origin}${url.pathname}`
+        : "<other-origin>";
+    } catch {
+      return "<unavailable-route>";
+    }
+  }
+  function mark(kind: string, fields: Record<string, unknown> = {}) {
+    if (rows.length >= 128) {
+      faults.add("event-cap");
+      return;
+    }
+    rows.push({
+      at_host: Date.now(),
+      kind,
+      frame_id: mainFrame,
+      loader_id: loader,
+      route: route(page.url()),
+      ...fields,
+    });
+  }
+  const navigated = ({ frame }: any) => {
+    if (frame.parentId) return;
+    mainFrame = frame.id;
+    loader = frame.loaderId;
+    mark("frame-navigated", { destination: route(frame.url) });
+  };
+  const requested = (event: any) => {
+    if (event.frameId === mainFrame)
+      mark("navigation-requested", {
+        reason: event.reason,
+        disposition: event.disposition,
+        destination: route(event.url),
+      });
+  };
+  const scheduled = (event: any) => {
+    if (event.frameId === mainFrame)
+      mark("navigation-scheduled", {
+        reason: event.reason,
+        delay: event.delay,
+        destination: route(event.url),
+      });
+  };
+  cdp.on("Page.frameNavigated", navigated);
+  cdp.on("Page.frameRequestedNavigation", requested);
+  cdp.on("Page.frameScheduledNavigation", scheduled);
+  function start() {
+    setup = (async () => {
+      try {
+        await cdp.send("Page.enable");
+        const value = await cdp.send("Page.getFrameTree");
+        mainFrame = value.frameTree.frame.id;
+        loader = value.frameTree.frame.loaderId;
+        mark("before-original-goto");
+      } finally {
+        setupReturned = true;
+      }
+    })();
+    return setup;
+  }
+  async function action<T>(stage: string, work: () => Promise<T>) {
+    mark(`${stage}:begin`);
+    let returned = false;
+    try {
+      const value = await work();
+      returned = true;
+      return value;
+    } finally {
+      mark(`${stage}:end`, { returned });
+    }
+  }
+  async function retire() {
+    mark("retire:begin");
+    cdp.off("Page.frameNavigated", navigated);
+    cdp.off("Page.frameRequestedNavigation", requested);
+    cdp.off("Page.frameScheduledNavigation", scheduled);
+    try {
+      await cdp.detach();
+      detached = true;
+    } finally {
+      // If the original test ended during setup, detach retires that session's
+      // pending calls; still wait for the original setup Promise to return.
+      if (setup) await Promise.allSettled([setup]);
+      mark("retire:end", {
+        detached,
+        setup_returned: setupReturned,
+        listeners_removed: true,
+      });
+    }
+    expect(
+      faults.size,
+      "bounded navigation diagnostics must actually retire",
+    ).toBe(0);
+    expect(detached && setupReturned).toBe(true);
+  }
+  function save(status?: string) {
+    const directory = process.env.AGENTEAM_TASK_INTAKE_WEB_EVIDENCE!;
+    mkdirSync(directory, { recursive: true, mode: 0o700 });
+    writeFileSync(
+      join(directory, `task-intake-${data.mode}-navigation.json`),
+      JSON.stringify(
+        {
+          input_hash: process.env.AGENTEAM_TASK_INTAKE_WEB_INPUT_HASH!,
+          status,
+          page: "original-page",
+          rows,
+          faults: [...faults],
+          detached,
+          setup_returned: setupReturned,
+        },
+        null,
+        2,
+      ) + "\n",
+      { mode: 0o600 },
+    );
+  }
+  return { start, action, mark, retire, save };
+}
 const button = (page: Page, name: string) =>
   page.getByRole("button", { name, exact: true });
 const drawer = (page: Page) =>
@@ -53,6 +199,7 @@ async function layout(
 }
 
 async function boardEnds(page: Page, data: IntakeMaterial, label: string) {
+  const navigation = navigations.get(page)!;
   const board = page.locator('.task-board[aria-label="任务看板"]');
   await expect(board.locator(".task-column")).toHaveCount(7);
   await expect(board.locator(".task-column h3")).toHaveText([
@@ -66,6 +213,7 @@ async function boardEnds(page: Page, data: IntakeMaterial, label: string) {
   ]);
   const samples: Record<string, unknown>[] = [];
   async function sample(stage: string) {
+    const before = Date.now();
     const value = await board.evaluate((node) => {
       const last = node.lastElementChild!.getBoundingClientRect(),
         own = node.getBoundingClientRect();
@@ -78,6 +226,9 @@ async function boardEnds(page: Page, data: IntakeMaterial, label: string) {
         height: r.height,
       });
       return {
+        at_browser: performance.timeOrigin + performance.now(),
+        document_at: performance.timeOrigin,
+        overscroll_x: getComputedStyle(node).overscrollBehaviorX,
         scrollLeft: node.scrollLeft,
         scrollWidth: node.scrollWidth,
         clientWidth: node.clientWidth,
@@ -89,33 +240,59 @@ async function boardEnds(page: Page, data: IntakeMaterial, label: string) {
         lastVisible: last.left >= own.left - 1 && last.right <= own.right + 1,
       };
     });
-    if (samples.length < 48) samples.push({ stage, ...value });
+    if (samples.length < 48)
+      samples.push({
+        stage,
+        at_host_before: before,
+        at_host_after: Date.now(),
+        ...value,
+      });
     return value;
   }
   async function hover() {
     // Screenshotting may have changed the viewport's scroll position. Re-hit
     // the visible board before every real wheel; never set its scroll offset.
-    await board.hover({ position: { x: 20, y: 20 } });
-    expect((await sample("hover")).hoverWithinBoard).toBe(true);
+    await navigation.action(`${label}:hover`, () =>
+      board.hover({ position: { x: 20, y: 20 } }),
+    );
+    const value = await sample("hover");
+    expect(value.hoverWithinBoard).toBe(true);
+    return value;
   }
   try {
-    await board.focus();
+    await navigation.action(`${label}:focus`, () => board.focus());
     await expect(board).toBeFocused();
-    await hover();
-    await page.mouse.wheel(-3000, 0);
+    const initial = await hover();
+    if (initial.scrollLeft > 0) {
+      await navigation.action(`${label}:initial-reset-wheel`, () =>
+        page.mouse.wheel(-3000, 0),
+      );
+    } else {
+      navigation.mark(`${label}:initial-reset-not-needed`, {
+        scroll_left: initial.scrollLeft,
+      });
+    }
     await expect.poll(() => sample("start")).toMatchObject({ scrollLeft: 0 });
-    await intakeScreenshot(page, data, `${label}-board-start`);
+    await navigation.action(`${label}:screenshot-start`, () =>
+      intakeScreenshot(page, data, `${label}-board-start`),
+    );
     await hover();
-    await page.mouse.wheel(3000, 0);
+    await navigation.action(`${label}:right-wheel`, () =>
+      page.mouse.wheel(3000, 0),
+    );
     await expect.poll(() => sample("end")).toMatchObject({ lastVisible: true });
-    await intakeScreenshot(page, data, `${label}-board-end`);
+    await navigation.action(`${label}:screenshot-end`, () =>
+      intakeScreenshot(page, data, `${label}-board-end`),
+    );
     await hover();
-    await page.mouse.wheel(-3000, 0);
+    await navigation.action(`${label}:left-wheel`, () =>
+      page.mouse.wheel(-3000, 0),
+    );
     await expect.poll(() => sample("reset")).toMatchObject({ scrollLeft: 0 });
   } finally {
-    await sample("finally").catch(() =>
-      samples.push({ stage: "final-observation-unavailable" }),
-    );
+    navigation.mark(`${label}:finally`);
+    // Keep the original samples; failure cleanup must not wait for a missing
+    // locator or start another browser evaluation.
     const directory = process.env.AGENTEAM_TASK_INTAKE_WEB_EVIDENCE!;
     mkdirSync(directory, { recursive: true, mode: 0o700 });
     writeFileSync(
@@ -164,7 +341,10 @@ async function runIntake(page: Page, lost: boolean) {
   ]);
   const seen = await observeIntake(page, data);
   observations.set(page, seen);
-  await page.goto(data.route);
+  const navigation = await observeNavigation(page, data);
+  navigations.set(page, navigation);
+  await navigation.start();
+  await navigation.action("original-goto", () => page.goto(data.route));
   await expect(button(page, "新建任务")).toBeEnabled();
   await seen.verify();
   await layout(page, 1440, "light");
