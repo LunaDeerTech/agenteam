@@ -180,8 +180,15 @@ func TestTaskTimelineCurrentTypedSources(t *testing.T) {
 		original := TaskTimelineEvent{Transition: &e}
 		raw := taskRaw(t, original)
 		got, err := DecodeTaskTimelineEvent(raw)
-		if err != nil || got.Blocker == nil || !bytes.Equal(taskRaw(t, got), raw) {
-			t.Fatal("canonical human blocker wire", err)
+		if err != nil || got.Blocker == nil {
+			t.Fatal("canonical human blocker family", err)
+		}
+		// The existing codecs place payload/created_at in different wire
+		// positions. Compare every original field, without imposing one
+		// command family's member order on the other compatible decoder.
+		var before, after map[string]json.RawMessage
+		if json.Unmarshal(raw, &before) != nil || json.Unmarshal(taskRaw(t, got), &after) != nil || !reflect.DeepEqual(before, after) {
+			t.Fatal("canonical human blocker changed a wire field")
 		}
 	}
 	technical := transitionHistoryFixture(t, TaskTransitionBlockerResolved)
