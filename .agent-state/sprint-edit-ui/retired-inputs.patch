@@ -1,0 +1,36 @@
+--- a/.agent-state/task-planning-recovery/pg_only_supervisor.py
++++ b/.agent-state/task-planning-recovery/pg_only_supervisor.py
+@@ -199,11 +199,6 @@
+
+
+ METADATA_GROUPS = {
+-    '^TestProjectDomainBarrierParticipants$': frozenset((
+-        'TestProjectDomainBarrierParticipants',
+-        'TestProjectDomainBarrierParticipants/gate-and-confirmed-stop',
+-        'TestProjectDomainBarrierParticipants/current-cause-and-terminal-observation',
+-    )),
+     '^TestProjectSchedulerWeb$': frozenset((
+         'TestProjectSchedulerWeb',
+         'TestProjectSchedulerWeb/pause-limit-and-resume',
+--- a/.agent-state/work-owner-http/root_chain_driver.py
++++ b/.agent-state/work-owner-http/root_chain_driver.py
+@@ -18,11 +18,6 @@
+ # One closed same-package PG family: adding a scenario changes required
+ # inputs and expected test data, never the resource/Wait/tail implementation.
+ METADATA_INPUTS = {
+-    '^TestProjectDomainBarrierParticipants$': (
+-        'tests/project/domain_barrier_participants_test.go',
+-        'tests/project/b03_secret_audit_fixture_test.go',
+-        'internal/central/project/domain_barrier_participants.go',
+-    ),
+     '^TestProjectSchedulerWeb$': (
+         'internal/central/app/project_scheduler_web_test.go',
+         'internal/central/app/skill_package_web_test.go',
+@@ -250,7 +245,6 @@
+ }
+ TARGETS = {
+     **dict.fromkeys(METADATA_INPUTS, 'tests/projectvariable'),
+-    '^TestProjectDomainBarrierParticipants$': 'tests/project',
+     '^TestProjectSchedulerWeb$': 'internal/central/app',
+     '^TestSkillPackageWeb$': 'internal/central/app',
+     '^TestSkillOwnerPackageHTTP(Publication|CurrentAuthority)$': 'tests/skills',

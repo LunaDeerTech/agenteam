@@ -1,0 +1,1181 @@
+--- a/.agent-state/task-planning-recovery/pg_only_supervisor.py
++++ b/.agent-state/task-planning-recovery/pg_only_supervisor.py
+@@ -199,11 +199,6 @@
+
+
+ METADATA_GROUPS = {
+-    '^TestProjectDomainBarrierParticipants$': frozenset((
+-        'TestProjectDomainBarrierParticipants',
+-        'TestProjectDomainBarrierParticipants/gate-and-confirmed-stop',
+-        'TestProjectDomainBarrierParticipants/current-cause-and-terminal-observation',
+-    )),
+     '^TestProjectSchedulerWeb$': frozenset((
+         'TestProjectSchedulerWeb',
+         'TestProjectSchedulerWeb/pause-limit-and-resume',
+--- a/.agent-state/work-owner-http/root_chain_driver.py
++++ b/.agent-state/work-owner-http/root_chain_driver.py
+@@ -18,11 +18,6 @@
+ # One closed same-package PG family: adding a scenario changes required
+ # inputs and expected test data, never the resource/Wait/tail implementation.
+ METADATA_INPUTS = {
+-    '^TestProjectDomainBarrierParticipants$': (
+-        'tests/project/domain_barrier_participants_test.go',
+-        'tests/project/b03_secret_audit_fixture_test.go',
+-        'internal/central/project/domain_barrier_participants.go',
+-    ),
+     '^TestProjectSchedulerWeb$': (
+         'internal/central/app/project_scheduler_web_test.go',
+         'internal/central/app/skill_package_web_test.go',
+@@ -251,7 +246,6 @@
+ }
+ TARGETS = {
+     **dict.fromkeys(METADATA_INPUTS, 'tests/projectvariable'),
+-    '^TestProjectDomainBarrierParticipants$': 'tests/project',
+     '^TestProjectSchedulerWeb$': 'internal/central/app',
+     '^TestSkillPackageWeb$': 'internal/central/app',
+     '^TestSkillOwnerPackageHTTP(Publication|CurrentAuthority)$': 'tests/skills',
+--- a/web/src/api/client.ts
++++ b/web/src/api/client.ts
+@@ -102,8 +102,6 @@
+   milestoneUpdateLookup: ['POST', '/api/v1/projects/{project_id}/structure-commands/lookup', 200],
+   milestoneCreate: ['POST', '/api/v1/projects/{project_id}/milestones', 200],
+   milestoneCreateLookup: ['POST', '/api/v1/projects/{project_id}/structure-commands/lookup', 200],
+-  sprintUpdate: ['PATCH', '/api/v1/projects/{project_id}/sprints/{target}', 200],
+-  sprintUpdateLookup: ['POST', '/api/v1/projects/{project_id}/structure-commands/lookup', 200],
+   sprintCreate: ['POST', '/api/v1/projects/{project_id}/sprints', 200],
+   sprintCreateLookup: ['POST', '/api/v1/projects/{project_id}/structure-commands/lookup', 200],
+   sprintStart: ['POST', '/api/v1/projects/{project_id}/sprints/{target}/start', 200],
+@@ -1122,8 +1120,6 @@
+   | 'milestoneUpdateLookup'
+   | 'milestoneCreate'
+   | 'milestoneCreateLookup'
+-  | 'sprintUpdate'
+-  | 'sprintUpdateLookup'
+   | 'sprintCreate'
+   | 'sprintCreateLookup'
+   | 'sprintStart'
+@@ -1158,8 +1154,6 @@
+   'milestoneUpdateLookup',
+   'milestoneCreate',
+   'milestoneCreateLookup',
+-  'sprintUpdate',
+-  'sprintUpdateLookup',
+   'sprintCreate',
+   'sprintCreateLookup',
+   'sprintStart',
+--- a/web/src/composables/useProjectTasks.ts
++++ b/web/src/composables/useProjectTasks.ts
+@@ -29,7 +29,6 @@
+   type MilestoneUpdateReceipt,
+   type MilestoneCreateReceipt,
+ } from '../api/work-milestone-planning'
+-import { captureSprintUpdateInput, type SprintUpdateReceipt } from '../api/work-sprint-planning'
+ import { captureTaskCreateDraft, type TaskCreateDraft } from '../api/work-task-planning'
+ import {
+   compareTaskTimelineEvents,
+@@ -183,20 +182,6 @@
+     message: '',
+   })
+   let milestoneEditIdentity = ''
+-  const sprintEdit = reactive({
+-    open: false,
+-    projectID: '',
+-    sprintID: '',
+-    version: '',
+-    title: '',
+-    description: '',
+-    touched: { title: false, description: false },
+-    conflict: false,
+-    readVersion: '',
+-    needsRead: false,
+-    message: '',
+-  })
+-  let sprintEditIdentity = ''
+   const milestoneCreation = reactive({
+     open: false,
+     projectID: '',
+@@ -332,55 +317,7 @@
+       !edit.open &&
+       !draft.action &&
+       !milestoneEditPending.value &&
+-      !milestoneEdit.needsRead &&
+-      !sprintEditBlocked.value,
+-  )
+-  const sprintEditPending = computed(() => {
+-    const p = auth.workSprintEditing?.progress
+-    return p && ['submitting', 'uncertain'].includes(p.phase) ? p : null
+-  })
+-  const sprintEditProgress = computed(() => {
+-    const p = auth.workSprintEditing?.progress
+-    return visible.value && p?.projectID === workspace.currentReadContext.value?.projectID
+-      ? p
+-      : null
+-  })
+-  const sprintEditBlocked = computed(
+-    () => !!sprintEditPending.value || sprintEdit.open || sprintEdit.needsRead,
+-  )
+-  const sprintEditDirty = computed(
+-    () => sprintEdit.open && (sprintEdit.touched.title || sprintEdit.touched.description),
+-  )
+-  const sprintEditStale = computed(
+-    () =>
+-      sprintEdit.conflict ||
+-      (sprintEdit.open &&
+-        (sprintEdit.sprintID !== state.sprint?.id || sprintEdit.version !== state.sprint?.version)),
+-  )
+-  const canEditSprint = computed(
+-    () =>
+-      visible.value &&
+-      state.phase === 'ready' &&
+-      !!state.sprint &&
+-      ['planned', 'current'].includes(state.sprint.state) &&
+-      !state.task &&
+-      workspace.detail.project?.lifecycle === 'active' &&
+-      !pending.value &&
+-      !milestonePending.value &&
+-      !milestoneCreation.open &&
+-      !milestoneCreation.needsRead &&
+-      !milestoneEditBlocked.value &&
+-      !sprintPending.value &&
+-      !sprintCreatePending.value &&
+-      !sprintStart.open &&
+-      !sprintStart.needsRead &&
+-      !sprintCreation.open &&
+-      !sprintCreation.needsRead &&
+-      !creation.open &&
+-      !edit.open &&
+-      !draft.action &&
+-      !sprintEditPending.value &&
+-      !sprintEdit.needsRead,
++      !milestoneEdit.needsRead,
+   )
+   const milestonePending = computed(() => {
+     const p = auth.workMilestonePlanning.progress
+@@ -401,7 +338,6 @@
+       !pending.value &&
+       !milestonePending.value &&
+       !milestoneEditBlocked.value &&
+-      !sprintEditBlocked.value &&
+       !sprintPending.value &&
+       !sprintCreatePending.value &&
+       !sprintStart.open &&
+@@ -489,7 +425,6 @@
+       !sprintCreatePending.value &&
+       !milestonePending.value &&
+       !milestoneEditBlocked.value &&
+-      !sprintEditBlocked.value &&
+       !milestoneCreation.open &&
+       !milestoneCreation.needsRead &&
+       !sprintPending.value &&
+@@ -536,7 +471,6 @@
+       !sprintCreatePending.value &&
+       !milestonePending.value &&
+       !milestoneEditBlocked.value &&
+-      !sprintEditBlocked.value &&
+       !milestoneCreation.open &&
+       !milestoneCreation.needsRead &&
+       !sprintCreation.open &&
+@@ -575,7 +509,6 @@
+       !!sprintCreatePending.value ||
+       !!milestonePending.value ||
+       milestoneEditBlocked.value ||
+-      sprintEditBlocked.value ||
+       milestoneCreation.open ||
+       milestoneCreation.needsRead ||
+       sprintCreation.open ||
+@@ -595,7 +528,6 @@
+       !sprintCreatePending.value &&
+       !milestonePending.value &&
+       !milestoneEditBlocked.value &&
+-      !sprintEditBlocked.value &&
+       !milestoneCreation.open &&
+       !milestoneCreation.needsRead &&
+       !sprintCreation.open &&
+@@ -617,7 +549,6 @@
+       !sprintCreatePending.value &&
+       !milestonePending.value &&
+       !milestoneEditBlocked.value &&
+-      !sprintEditBlocked.value &&
+       !milestoneCreation.open &&
+       !milestoneCreation.needsRead &&
+       !sprintCreation.open &&
+@@ -652,7 +583,6 @@
+       !!sprintCreatePending.value ||
+       !!milestonePending.value ||
+       milestoneEditBlocked.value ||
+-      sprintEditBlocked.value ||
+       milestoneCreation.open ||
+       milestoneCreation.needsRead ||
+       sprintCreation.open ||
+@@ -720,36 +650,6 @@
+       (progress?.projectID === project && (!target || progress.milestoneID === target))
+     )
+   }
+-  function clearSprintEdit() {
+-    Object.assign(sprintEdit, {
+-      open: false,
+-      projectID: '',
+-      sprintID: '',
+-      version: '',
+-      title: '',
+-      description: '',
+-      touched: { title: false, description: false },
+-      conflict: false,
+-      readVersion: '',
+-      needsRead: false,
+-      message: '',
+-    })
+-    sprintEditIdentity = ''
+-  }
+-  function forgetSprintAccess(project: string) {
+-    auth.workSprintEditing?.forgetUnavailable(project)
+-    clearSprintEdit()
+-    state.sprint = null
+-    state.sprints = []
+-    state.sprintNext = undefined
+-  }
+-  function hasSprintEdit(project: string, target?: string) {
+-    const progress = auth.workSprintEditing?.progress
+-    return (
+-      (sprintEdit.projectID === project && (!target || sprintEdit.sprintID === target)) ||
+-      (progress?.projectID === project && (!target || progress.sprintID === target))
+-    )
+-  }
+   function clearMilestoneCreation() {
+     Object.assign(milestoneCreation, {
+       open: false,
+@@ -832,7 +732,6 @@
+     createdMilestoneFocus.value = null
+     clearMilestoneCreation()
+     clearMilestoneEdit()
+-    clearSprintEdit()
+     clearTimeline(true)
+     manualMilestone = null
+     state.phase = 'idle'
+@@ -1120,7 +1019,6 @@
+     state.message = ''
+     state.detailCurrent = false
+     clearTimeline()
+-    let refusedSprint: { project: string; target: string } | null = null
+     let refusedMilestone: { project: string; target: string } | null = null
+     await read(
+       async (p, step) => {
+@@ -1133,19 +1031,7 @@
+             : manualMilestone
+               ? null
+               : workspace.detail.project?.current_sprint_id)
+-        let sprint: Sprint | null = null
+-        if (sid) {
+-          try {
+-            sprint = await step(() => auth.workReview.sprint(p, sid))
+-          } catch (error) {
+-            if (
+-              error instanceof AccountFailure &&
+-              [401, 403, 404].includes(error.problem?.status ?? 0)
+-            )
+-              refusedSprint = { project: p, target: sid }
+-            throw error
+-          }
+-        }
++        const sprint = sid ? await step(() => auth.workReview.sprint(p, sid)) : null
+         const target = sprint?.milestone_id ?? manualMilestone
+         let milestone: Milestone | null = null
+         if (target) {
+@@ -1196,8 +1082,6 @@
+       },
+       (error) => {
+         // read() only invokes this callback for the still-current read generation.
+-        if (refusedSprint && hasSprintEdit(refusedSprint.project, refusedSprint.target))
+-          forgetSprintAccess(refusedSprint.project)
+         if (refusedMilestone && hasMilestoneEdit(refusedMilestone.project, refusedMilestone.target))
+           forgetMilestoneAccess(refusedMilestone.project)
+         state.phase = 'error'
+@@ -1462,241 +1346,6 @@
+         state.phase = 'error'
+         state.message = '当前 Milestone 不可用或无权访问，编辑内容已清除。'
+       } else milestoneEdit.message = '未取得原保存结果，可在原请求结束后再次查询。'
+-    }
+-  }
+-  function sameSprintEdit(own: number, project: string, target: string, identity: string) {
+-    return (
+-      live(own, project) &&
+-      identityKey(project) === identity &&
+-      !state.task &&
+-      state.sprint?.id === target
+-    )
+-  }
+-  function releaseRejectedSprintEdit() {
+-    if (
+-      !auth.state.busy &&
+-      auth.workSprintEditing?.progress?.phase === 'rejected' &&
+-      auth.workSprintEditing.progress.contextValid
+-    )
+-      auth.workSprintEditing.editRejected()
+-  }
+-  function openSprintEdit() {
+-    const current = state.sprint
+-    if (!current || busy.value || !canEditSprint.value || sprintEdit.open) return
+-    releaseRejectedSprintEdit()
+-    releaseRejectedMilestone()
+-    releaseRejectedMilestoneEdit()
+-    if (sprintProgress.value?.phase === 'rejected' && sprintProgress.value.contextValid)
+-      auth.workSprintLifecycle.editRejected()
+-    if (sprintCreateProgress.value?.phase === 'rejected' && sprintCreateProgress.value.contextValid)
+-      auth.workSprintLifecycle.editRejectedCreate()
+-    clearSprintEdit()
+-    Object.assign(sprintEdit, {
+-      open: true,
+-      projectID: current.project_id,
+-      sprintID: current.id,
+-      version: current.version,
+-      title: current.title,
+-      description: current.description,
+-    })
+-    sprintEditIdentity = identityKey(current.project_id)
+-  }
+-  function touchSprintEdit(field: 'title' | 'description', value: string) {
+-    if (!sprintEdit.open || busy.value || !canEditSprint.value || sprintEditStale.value) return
+-    sprintEdit[field] = value
+-    sprintEdit.touched[field] = true
+-  }
+-  function cancelSprintEdit() {
+-    if (busy.value || sprintEditPending.value) return
+-    releaseRejectedSprintEdit()
+-    clearSprintEdit()
+-  }
+-  async function readEditedSprint(confirmed: boolean) {
+-    const project = sprintEdit.projectID,
+-      target = sprintEdit.sprintID,
+-      own = generation,
+-      identity = sprintEditIdentity
+-    if (busy.value || sprintEditPending.value || !sameSprintEdit(own, project, target, identity))
+-      return
+-    await read(
+-      async (_p, step) => {
+-        const current = await step(() => auth.workReview.sprint(project, target))
+-        const page = await step(() =>
+-          auth.workReview.sprints(project, current.milestone_id, { limit: 50 }),
+-        )
+-        if (
+-          current.id !== target ||
+-          current.project_id !== project ||
+-          current.milestone_id !== state.milestone?.id
+-        )
+-          throw new AccountFailure('invalid-response')
+-        return { current, page }
+-      },
+-      ({ current, page }) => {
+-        if (!sameSprintEdit(own, project, target, identity)) return
+-        state.sprint = current
+-        state.sprints = page.items
+-        state.sprintNext = page.next_cursor
+-        sprintEdit.readVersion = current.version
+-        if (confirmed) {
+-          sprintEdit.needsRead = false
+-          sprintEdit.message =
+-            auth.workSprintEditing.progress?.result?.changed === false
+-              ? '保存已确认，原操作没有改变内容；当前 Sprint 已重新读取。'
+-              : '保存已确认，当前 Sprint 已重新读取。'
+-        } else
+-          sprintEdit.message =
+-            current.state === 'completed'
+-              ? '当前 Sprint 已完成，不能继续修改。原输入已保留，可取消编辑。'
+-              : '已读取当前 Sprint。核对详情与保留输入后，可明确使用当前版本继续编辑。'
+-      },
+-      (error) => {
+-        if (
+-          error instanceof AccountFailure &&
+-          [401, 403, 404].includes(error.problem?.status ?? 0)
+-        ) {
+-          forgetSprintAccess(project)
+-          state.phase = 'error'
+-          state.message = '当前 Sprint 不可用或无权访问，编辑内容已清除。'
+-          return
+-        }
+-        if (sameSprintEdit(own, project, target, identity))
+-          sprintEdit.message = confirmed
+-            ? '保存已确认，当前内容读取失败。请重新读取，不要再次保存。'
+-            : '当前 Sprint 读取失败，已保留原版本和输入。'
+-      },
+-    )
+-  }
+-  async function rereadSprintEdit() {
+-    const progress = sprintEditProgress.value
+-    if (
+-      busy.value ||
+-      progress?.phase !== 'confirmed' ||
+-      !progress.contextValid ||
+-      state.sprint?.id !== progress.sprintID ||
+-      state.task
+-    )
+-      return
+-    Object.assign(sprintEdit, {
+-      projectID: progress.projectID,
+-      sprintID: progress.sprintID,
+-      needsRead: true,
+-    })
+-    sprintEditIdentity = identityKey(progress.projectID)
+-    await readEditedSprint(true)
+-  }
+-  async function reloadSprintEdit() {
+-    if (!sprintEdit.open || !sprintEditStale.value || busy.value || sprintEditPending.value) return
+-    sprintEdit.readVersion = ''
+-    await readEditedSprint(false)
+-  }
+-  function adoptSprintVersion() {
+-    const current = state.sprint
+-    if (
+-      !sprintEdit.open ||
+-      busy.value ||
+-      !canEditSprint.value ||
+-      !sprintEditStale.value ||
+-      !current ||
+-      !sprintEdit.readVersion ||
+-      current.version !== sprintEdit.readVersion ||
+-      current.id !== sprintEdit.sprintID
+-    )
+-      return
+-    releaseRejectedSprintEdit()
+-    sprintEdit.version = current.version
+-    if (!sprintEdit.touched.title) sprintEdit.title = current.title
+-    if (!sprintEdit.touched.description) sprintEdit.description = current.description
+-    sprintEdit.conflict = false
+-    sprintEdit.readVersion = ''
+-    sprintEdit.message = '已使用当前版本，保留本次修改。请核对后明确保存。'
+-  }
+-  async function acceptSprintEdit(receipt: SprintUpdateReceipt, own: number, identity: string) {
+-    const current = receipt.sprint
+-    if (!sameSprintEdit(own, current.project_id, current.id, identity)) return
+-    clearSprintEdit()
+-    Object.assign(sprintEdit, {
+-      projectID: current.project_id,
+-      sprintID: current.id,
+-      needsRead: true,
+-      message: '保存已确认，正在读取当前 Sprint。',
+-    })
+-    sprintEditIdentity = identity
+-    // Receipt is historical: publish the current object only from the independent reads.
+-    state.sprintNext = undefined
+-    await readEditedSprint(true)
+-  }
+-  async function submitSprintEdit() {
+-    const project = sprintEdit.projectID,
+-      target = sprintEdit.sprintID,
+-      own = generation,
+-      identity = sprintEditIdentity
+-    if (
+-      !sprintEdit.open ||
+-      !canEditSprint.value ||
+-      !sprintEditDirty.value ||
+-      sprintEditStale.value ||
+-      busy.value ||
+-      !sameSprintEdit(own, project, target, identity)
+-    )
+-      return
+-    try {
+-      const input = captureSprintUpdateInput({
+-        expected_version: sprintEdit.version,
+-        request: {
+-          ...(sprintEdit.touched.title ? { title: sprintEdit.title } : {}),
+-          ...(sprintEdit.touched.description ? { description: sprintEdit.description } : {}),
+-        },
+-      })
+-      releaseRejectedSprintEdit()
+-      const value = await auth.workSprintEditing.update(project, target, input)
+-      const receipt = 'state' in value ? value.result : value
+-      if (receipt) await acceptSprintEdit(receipt, own, identity)
+-    } catch (error) {
+-      if (!sameSprintEdit(own, project, target, identity)) return
+-      if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
+-        forgetSprintAccess(project)
+-        state.phase = 'error'
+-        state.message = '当前 Sprint 不可用或无权访问，编辑内容已清除。'
+-        return
+-      }
+-      if (
+-        error instanceof AccountFailure &&
+-        ['VERSION_CONFLICT', 'INVALID_STATE'].includes(error.problem?.code ?? '')
+-      ) {
+-        sprintEdit.conflict = true
+-        sprintEdit.readVersion = ''
+-        sprintEdit.message = 'Sprint 已发生变化，原版本和输入已保留。请先重新读取并核对。'
+-      } else
+-        sprintEdit.message =
+-          error instanceof AccountFailure && error.kind === 'invalid-input'
+-            ? '请核对标题与描述：标题须含非空白字符、最多 256 个字符；描述最多 32768 字节。'
+-            : '未确认保存结果，请查看原操作状态。'
+-    }
+-  }
+-  async function lookupSprintEdit() {
+-    const progress = sprintEditProgress.value,
+-      own = generation
+-    if (
+-      busy.value ||
+-      progress?.phase !== 'uncertain' ||
+-      !progress.contextValid ||
+-      state.sprint?.id !== progress.sprintID ||
+-      state.task
+-    )
+-      return
+-    const identity = identityKey(progress.projectID)
+-    try {
+-      const value = await auth.workSprintEditing.checkOriginal()
+-      const receipt = 'state' in value ? value.result : value
+-      if (receipt) await acceptSprintEdit(receipt, own, identity)
+-    } catch (error) {
+-      if (!sameSprintEdit(own, progress.projectID, progress.sprintID, identity)) return
+-      if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
+-        forgetSprintAccess(progress.projectID)
+-        state.phase = 'error'
+-        state.message = '当前 Sprint 不可用或无权访问，编辑内容已清除。'
+-      } else sprintEdit.message = '未取得原保存结果，可在原请求结束后再次查询。'
+     }
+   }
+   function openMilestoneCreation() {
+@@ -2440,8 +2089,7 @@
+       sprintPending.value ||
+       sprintCreatePending.value ||
+       milestonePending.value ||
+-      milestoneEditPending.value ||
+-      sprintEditPending.value
++      milestoneEditPending.value
+         ? '操作结果尚未确认。离开不会重发，返回原 Milestone、Sprint 或任务后可继续查询原结果。'
+         : '离开将放弃尚未提交的工作输入。'
+     confirmation.open = true
+@@ -2455,7 +2103,6 @@
+     resolveLeave = null
+     if (yes) {
+       releaseRejectedMilestoneEdit()
+-      releaseRejectedSprintEdit()
+       clearDraft()
+       clearCreation()
+       clearEdit()
+@@ -2463,14 +2110,12 @@
+       clearSprintCreation()
+       clearMilestoneCreation()
+       clearMilestoneEdit()
+-      clearSprintEdit()
+     }
+     resolve?.(yes)
+   }
+   function afterNavigation(to: string) {
+     if (to === route.value) return
+     releaseRejectedMilestoneEdit()
+-    releaseRejectedSprintEdit()
+     const milestoneFocus = createdMilestoneFocus.value
+     if (
+       milestoneFocus &&
+@@ -2491,7 +2136,6 @@
+     clearSprintCreation()
+     clearMilestoneCreation()
+     clearMilestoneEdit()
+-    clearSprintEdit()
+     clearTimeline(true)
+     state.task = null
+     state.detailCurrent = false
+@@ -2520,11 +2164,10 @@
+           read &&
+           read.identity &&
+           identityKey(read.projectID) === read.identity &&
+-          projectPath() === read.path
+-        ) {
+-          if (hasMilestoneEdit(read.projectID)) forgetMilestoneAccess(read.projectID)
+-          if (hasSprintEdit(read.projectID)) forgetSprintAccess(read.projectID)
+-        }
++          projectPath() === read.path &&
++          hasMilestoneEdit(read.projectID)
++        )
++          forgetMilestoneAccess(read.projectID)
+       } else if (phase !== 'checking') milestoneProjectRead = null
+     },
+     { flush: 'sync' },
+@@ -2587,20 +2230,6 @@
+     rereadMilestoneEdit,
+     reloadMilestoneEdit,
+     adoptMilestoneVersion,
+-    sprintEdit,
+-    sprintEditPending,
+-    sprintEditProgress,
+-    sprintEditDirty,
+-    sprintEditStale,
+-    canEditSprint,
+-    openSprintEdit,
+-    touchSprintEdit,
+-    cancelSprintEdit,
+-    submitSprintEdit,
+-    lookupSprintEdit,
+-    rereadSprintEdit,
+-    reloadSprintEdit,
+-    adoptSprintVersion,
+     milestoneCreation,
+     milestonePending,
+     milestoneProgress,
+--- a/web/src/composables/useSession.ts
++++ b/web/src/composables/useSession.ts
+@@ -134,14 +134,6 @@
+   type MilestoneCreateReceipt,
+   type MilestoneCreateLookup,
+ } from '../api/work-milestone-planning'
+-import {
+-  createWorkSprintPlanningAPI,
+-  captureSprintUpdateInput,
+-  type WorkSprintPlanningAPI,
+-  type SprintUpdateInput,
+-  type SprintUpdateReceipt,
+-  type SprintUpdateLookup,
+-} from '../api/work-sprint-planning'
+ import { readonly, shallowReactive } from 'vue'
+ import {
+   createAccountAPI,
+@@ -481,11 +473,6 @@
+ export type MilestoneUpdateProgress = Omit<MilestoneCreateProgress, 'result'> & {
+   readonly result: MilestoneUpdateReceipt | null
+ }
+-type SprintPlanningAction = 'sprint-update' | 'sprint-update-lookup'
+-type SprintUpdateIntent = Omit<SprintStartIntent, 'input'> & { input: SprintUpdateInput }
+-export type SprintUpdateProgress = Omit<WorkSprintLifecycleProgress, 'receipt'> & {
+-  readonly result: SprintUpdateReceipt | null
+-}
+ type WorkReviewAction = 'work-review-read' | 'work-review-transfer' | 'work-review-lookup'
+ type WorkReviewIntent = {
+   identity: PersonalIdentity
+@@ -806,7 +793,6 @@
+   | WorkReviewAction
+   | SprintLifecycleAction
+   | MilestonePlanningAction
+-  | SprintPlanningAction
+   | ProjectVariableAction
+   | KnowledgeCommandAction
+   | AgentConfigurationAction
+@@ -935,7 +921,6 @@
+     taskTimeline?: WorkTaskTimelineAPI
+     agentConfiguration?: AgentConfigurationAPI
+     projectVariables?: ProjectVariablesAPI
+-    sprintPlanning?: WorkSprintPlanningAPI
+     milestonePlanning?: WorkMilestonePlanningAPI
+     sprintLifecycle?: WorkSprintLifecycleAPI
+     skills?: SkillOwnerAPI
+@@ -947,7 +932,6 @@
+   }> = {},
+ ) {
+   const projectVariablesAPI = commandAPIs.projectVariables ?? createProjectVariablesAPI()
+-  const sprintPlanningAPI = commandAPIs.sprintPlanning ?? createWorkSprintPlanningAPI()
+   const milestonePlanningAPI = commandAPIs.milestonePlanning ?? createWorkMilestonePlanningAPI()
+   const skillsAPI = commandAPIs.skills ?? createSkillOwnerAPI()
+   const schedulerAPI = commandAPIs.scheduler ?? createProjectSchedulerAPI()
+@@ -1064,17 +1048,6 @@
+   const variableState = shallowReactive<{
+     progress: Omit<ProjectVariableProgress, 'contextValid'> | null
+   }>({ progress: null })
+-  const sprintPlanningRevisions: Record<SprintPlanningAction, number> = {
+-    'sprint-update': 0,
+-    'sprint-update-lookup': 0,
+-  }
+-  const isSprintPlanningAction = (kind: Action): kind is SprintPlanningAction =>
+-    Object.hasOwn(sprintPlanningRevisions, kind)
+-  let sprintUpdateIntent: SprintUpdateIntent | null = null
+-  let sprintUpdateContext: Pick<SprintStartIntent, 'identity' | 'csrf'> | null = null
+-  const sprintUpdateState = shallowReactive<{
+-    progress: Omit<SprintUpdateProgress, 'contextValid'> | null
+-  }>({ progress: null })
+   const milestonePlanningRevisions: Record<MilestonePlanningAction, number> = {
+     'milestone-create': 0,
+     'milestone-create-lookup': 0,
+@@ -1311,7 +1284,6 @@
+       clearProjectState()
+       clearSchedulerState()
+       clearAgentConfigurationState()
+-      clearSprintUpdateState()
+       clearMilestonePlanningState()
+       clearVariableState()
+       clearSprintLifecycleState()
+@@ -1384,7 +1356,6 @@
+       clearProjectState()
+       clearSchedulerState()
+       clearAgentConfigurationState()
+-      clearSprintUpdateState()
+       clearMilestonePlanningState()
+       clearVariableState()
+       clearSprintLifecycleState()
+@@ -1941,7 +1912,6 @@
+       | WorkReviewAction
+       | SprintLifecycleAction
+       | MilestonePlanningAction
+-      | SprintPlanningAction
+       | ProjectVariableAction
+       | KnowledgeCommandAction
+       | AgentConfigurationAction
+@@ -1954,7 +1924,6 @@
+       if (isVariableAction(kind)) return variableRevisions[kind]
+       if (kind === 'skill-read') return skillRevision
+       if (isKnowledgeCommand(kind)) return knowledgeCommandRevisions[kind]
+-      if (isSprintPlanningAction(kind)) return sprintPlanningRevisions[kind]
+       if (isMilestonePlanningAction(kind)) return milestonePlanningRevisions[kind]
+       if (isSprintLifecycleAction(kind)) return sprintLifecycleRevisions[kind]
+       if (isAgentConfigurationAction(kind)) return agentConfigurationRevisions[kind]
+@@ -2011,7 +1980,6 @@
+         (isSchedulerAction(kind) ||
+         isVariableAction(kind) ||
+         isKnowledgeCommand(kind) ||
+-        isSprintPlanningAction(kind) ||
+         isMilestonePlanningAction(kind) ||
+         isSprintLifecycleAction(kind) ||
+         isAgentConfigurationAction(kind) ||
+@@ -2092,8 +2060,7 @@
+               : new AccountFailure('transport')
+           : isVariableAction(kind)
+             ? variableFailure(op, current, identity, error)
+-            : isSprintPlanningAction(kind) ||
+-                isMilestonePlanningAction(kind) ||
++            : isMilestonePlanningAction(kind) ||
+                 isSprintLifecycleAction(kind) ||
+                 isAgentConfigurationAction(kind) ||
+                 isWorkReviewAction(kind)
+@@ -4813,14 +4780,6 @@
+       },
+     )
+   }
+-  function clearSprintUpdateState() {
+-    ++sprintPlanningRevisions['sprint-update']
+-    ++sprintPlanningRevisions['sprint-update-lookup']
+-    sprintUpdateIntent = null
+-    sprintUpdateContext = null
+-    sprintUpdateState.progress = null
+-    if (owner?.kind === 'sprint-update' || owner?.kind === 'sprint-update-lookup') owner.abandon?.()
+-  }
+   function clearMilestoneUpdateState() {
+     ++milestonePlanningRevisions['milestone-update']
+     ++milestonePlanningRevisions['milestone-update-lookup']
+@@ -5045,7 +5004,6 @@
+         if (
+           owner ||
+           milestoneUpdateIntent ||
+-          sprintUpdateIntent ||
+           milestoneCreateIntent ||
+           sprintStartIntent ||
+           sprintCreateIntent ||
+@@ -5097,170 +5055,6 @@
+         owner.abandon?.()
+     },
+   }
+-  function sprintUpdateCurrent(original: SprintUpdateIntent) {
+-    return sprintUpdateIntent === original && projectContext(original)
+-  }
+-  function publishSprintUpdate(
+-    original: SprintUpdateIntent,
+-    phase: SprintUpdateProgress['phase'],
+-    result: SprintUpdateReceipt | null = null,
+-    observation: SprintUpdateProgress['observation'] = 'none',
+-    error: string | null = null,
+-  ) {
+-    sprintUpdateContext = { identity: original.identity, csrf: original.csrf }
+-    sprintUpdateState.progress = Object.freeze({
+-      projectID: original.projectID,
+-      sprintID: original.sprintID,
+-      phase,
+-      result,
+-      observation,
+-      error,
+-    })
+-  }
+-  function performSprintUpdate(
+-    original: SprintUpdateIntent,
+-    lookup: boolean,
+-  ): Promise<SprintUpdateReceipt | SprintUpdateLookup> {
+-    if (owner) return Promise.reject(new AccountFailure('busy'))
+-    if (!sprintUpdateCurrent(original)) return Promise.reject(new AccountFailure('invalid-input'))
+-    const kind: SprintPlanningAction = lookup ? 'sprint-update-lookup' : 'sprint-update'
+-    const revision = sprintPlanningRevisions[kind]
+-    const live = () => sprintUpdateCurrent(original) && revision === sprintPlanningRevisions[kind]
+-    let dispatched = false
+-    if (!lookup) publishSprintUpdate(original, 'submitting')
+-    return runAuthorized<SprintUpdateReceipt | SprintUpdateLookup>(
+-      original.identity,
+-      async (op, current) => {
+-        if (!current() || !live()) throw new AccountFailure('cancelled')
+-        if (JSON.stringify(original.input) !== original.body)
+-          throw new AccountFailure('invalid-input')
+-        dispatched = true
+-        const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
+-        return lookup
+-          ? sprintPlanningAPI.lookupUpdate(
+-              original.projectID,
+-              original.sprintID,
+-              original.input,
+-              write,
+-            )
+-          : sprintPlanningAPI.update(original.projectID, original.sprintID, original.input, write)
+-      },
+-      undefined,
+-      kind,
+-    ).then(
+-      (value) => {
+-        if (!live()) throw new AccountFailure('cancelled')
+-        if ('state' in value && value.state !== 'committed') {
+-          original.uncertain = true
+-          publishSprintUpdate(original, 'uncertain', null, value.state)
+-          return value
+-        }
+-        publishSprintUpdate(
+-          original,
+-          'confirmed',
+-          'state' in value ? value.result : value,
+-          lookup ? 'committed' : 'none',
+-        )
+-        sprintUpdateIntent = null
+-        return value
+-      },
+-      (error) => {
+-        const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
+-        if (live()) {
+-          const p = failure.problem
+-          if (p && [403, 404].includes(p.status)) {
+-            clearSprintUpdateState()
+-            throw failure
+-          }
+-          const rejected =
+-            !dispatched ||
+-            (!!p &&
+-              ['not_started', 'not_committed'].includes(p.commit_state) &&
+-              p.code !== 'IDEMPOTENCY_KEY_REUSED')
+-          original.uncertain ||= lookup || !rejected
+-          publishSprintUpdate(
+-            original,
+-            original.uncertain ? 'uncertain' : 'rejected',
+-            null,
+-            lookup ? 'failed' : 'none',
+-            p?.code ?? failure.kind,
+-          )
+-        }
+-        throw failure
+-      },
+-    )
+-  }
+-  const workSprintEditing = {
+-    get progress(): SprintUpdateProgress | null {
+-      const value = sprintUpdateState.progress
+-      return value
+-        ? Object.freeze({
+-            ...value,
+-            contextValid: !!sprintUpdateContext && projectContext(sprintUpdateContext),
+-          })
+-        : null
+-    },
+-    update(
+-      projectID: string,
+-      sprintID: string,
+-      value: SprintUpdateInput,
+-    ): Promise<SprintUpdateReceipt | SprintUpdateLookup> {
+-      try {
+-        const identity = personalIdentity()
+-        if (
+-          owner ||
+-          sprintUpdateIntent ||
+-          milestoneUpdateIntent ||
+-          milestoneCreateIntent ||
+-          sprintStartIntent ||
+-          sprintCreateIntent ||
+-          workReviewIntent ||
+-          personalIntent ||
+-          pending
+-        )
+-          throw new AccountFailure('busy')
+-        if (!uuid7.test(projectID) || !uuid7.test(sprintID))
+-          throw new AccountFailure('invalid-input')
+-        const input = captureSprintUpdateInput(value)
+-        const original: SprintUpdateIntent = {
+-          identity,
+-          csrf: sessionCSRF,
+-          projectID,
+-          sprintID,
+-          input,
+-          key: newKey(),
+-          body: JSON.stringify(input),
+-          uncertain: false,
+-        }
+-        sprintUpdateIntent = original
+-        return performSprintUpdate(original, false)
+-      } catch (error) {
+-        return Promise.reject(error)
+-      }
+-    },
+-    checkOriginal(): Promise<SprintUpdateReceipt | SprintUpdateLookup> {
+-      if (!sprintUpdateIntent?.uncertain) return Promise.reject(new AccountFailure('invalid-input'))
+-      return performSprintUpdate(sprintUpdateIntent, true)
+-    },
+-    editRejected() {
+-      if (
+-        owner ||
+-        !sprintUpdateIntent ||
+-        !sprintUpdateCurrent(sprintUpdateIntent) ||
+-        sprintUpdateIntent.uncertain ||
+-        sprintUpdateState.progress?.phase !== 'rejected'
+-      )
+-        throw new AccountFailure('busy')
+-      clearSprintUpdateState()
+-    },
+-    forgetUnavailable(projectID: string) {
+-      if (sprintUpdateState.progress?.projectID === projectID) clearSprintUpdateState()
+-    },
+-    abandon() {
+-      if (owner?.kind === 'sprint-update' || owner?.kind === 'sprint-update-lookup')
+-        owner.abandon?.()
+-    },
+-  }
+   const workMilestonePlanning = {
+     get progress(): MilestoneCreateProgress | null {
+       const value = milestoneCreateState.progress
+@@ -5281,7 +5075,6 @@
+           owner ||
+           milestoneCreateIntent ||
+           milestoneUpdateIntent ||
+-          sprintUpdateIntent ||
+           sprintStartIntent ||
+           sprintCreateIntent ||
+           personalIntent ||
+@@ -5354,7 +5147,6 @@
+           owner ||
+           milestoneCreateIntent ||
+           milestoneUpdateIntent ||
+-          sprintUpdateIntent ||
+           sprintCreateIntent ||
+           sprintStartIntent ||
+           personalIntent ||
+@@ -5419,7 +5211,6 @@
+           owner ||
+           milestoneCreateIntent ||
+           milestoneUpdateIntent ||
+-          sprintUpdateIntent ||
+           sprintStartIntent ||
+           sprintCreateIntent ||
+           personalIntent ||
+@@ -5603,14 +5394,7 @@
+     startTransfer(projectID: string, taskID: string, value: ReviewInput) {
+       try {
+         const identity = personalIdentity()
+-        if (
+-          owner ||
+-          workReviewIntent ||
+-          milestoneUpdateIntent ||
+-          sprintUpdateIntent ||
+-          personalIntent ||
+-          pending
+-        )
++        if (owner || workReviewIntent || milestoneUpdateIntent || personalIntent || pending)
+           throw new AccountFailure('busy')
+         if (!uuid7.test(projectID) || !uuid7.test(taskID)) throw new AccountFailure('invalid-input')
+         const input = captureReviewInput(value)
+@@ -5634,14 +5418,7 @@
+     startReady(projectID: string, taskID: string, value: ReadyInput) {
+       try {
+         const identity = personalIdentity()
+-        if (
+-          owner ||
+-          workReviewIntent ||
+-          milestoneUpdateIntent ||
+-          sprintUpdateIntent ||
+-          personalIntent ||
+-          pending
+-        )
++        if (owner || workReviewIntent || milestoneUpdateIntent || personalIntent || pending)
+           throw new AccountFailure('busy')
+         if (!uuid7.test(projectID) || !uuid7.test(taskID)) throw new AccountFailure('invalid-input')
+         const input = captureReadyInput(value)
+@@ -5665,14 +5442,7 @@
+     startCreate(projectID: string, value: TaskCreateDraft) {
+       try {
+         const identity = personalIdentity()
+-        if (
+-          owner ||
+-          workReviewIntent ||
+-          milestoneUpdateIntent ||
+-          sprintUpdateIntent ||
+-          personalIntent ||
+-          pending
+-        )
++        if (owner || workReviewIntent || milestoneUpdateIntent || personalIntent || pending)
+           throw new AccountFailure('busy')
+         if (!uuid7.test(projectID)) throw new AccountFailure('invalid-input')
+         const draft = captureTaskCreateDraft(value),
+@@ -5698,14 +5468,7 @@
+     startEdit(projectID: string, taskID: string, value: TaskUpdateInput) {
+       try {
+         const identity = personalIdentity()
+-        if (
+-          owner ||
+-          workReviewIntent ||
+-          milestoneUpdateIntent ||
+-          sprintUpdateIntent ||
+-          personalIntent ||
+-          pending
+-        )
++        if (owner || workReviewIntent || milestoneUpdateIntent || personalIntent || pending)
+           throw new AccountFailure('busy')
+         if (!uuid7.test(projectID) || !uuid7.test(taskID)) throw new AccountFailure('invalid-input')
+         const input = captureTaskUpdateInput(value)
+@@ -8025,7 +7788,6 @@
+     workSprintLifecycle,
+     workMilestonePlanning,
+     workMilestoneEditing,
+-    workSprintEditing,
+     projectVariables,
+     agentConfiguration,
+     projectAudit,
+--- a/web/src/views/projects/ProjectTasksView.vue
++++ b/web/src/views/projects/ProjectTasksView.vue
+@@ -6,7 +6,6 @@
+ import TaskCreateForm from '../../components/work/TaskCreateForm.vue'
+ import MilestoneCreateForm from '../../components/work/MilestoneCreateForm.vue'
+ import MilestoneEditForm from '../../components/work/MilestoneEditForm.vue'
+-import SprintEditForm from '../../components/work/SprintEditForm.vue'
+ import SprintCreateForm from '../../components/work/SprintCreateForm.vue'
+ import { useProjectTasks } from '../../composables/useProjectTasks'
+ const owner = useProjectTasks(),
+@@ -52,42 +51,6 @@
+   )
+     milestoneHeading.value?.focus()
+ }
+-const sprintEditButton = ref<{ $el: HTMLButtonElement } | null>(null)
+-async function cancelSprintEdit() {
+-  const project = owner.sprintEdit.projectID,
+-    target = owner.sprintEdit.sprintID
+-  owner.cancelSprintEdit()
+-  await nextTick()
+-  if (
+-    !owner.sprintEdit.open &&
+-    owner.visible.value &&
+-    owner.projectID.value === project &&
+-    state.sprint?.id === target &&
+-    !state.task
+-  ) {
+-    const button = sprintEditButton.value?.$el
+-    if (button && !button.disabled) button.focus()
+-    else sprintHeading.value?.focus()
+-  }
+-}
+-async function saveSprintEdit(action: 'save' | 'lookup' | 'read' = 'save') {
+-  const project = owner.projectID.value,
+-    target = state.sprint?.id
+-  if (action === 'lookup') await owner.lookupSprintEdit()
+-  else if (action === 'read') await owner.rereadSprintEdit()
+-  else await owner.submitSprintEdit()
+-  await nextTick()
+-  if (
+-    owner.visible.value &&
+-    owner.projectID.value === project &&
+-    state.sprint?.id === target &&
+-    !state.task &&
+-    !owner.sprintEdit.open &&
+-    !owner.sprintEdit.needsRead &&
+-    owner.sprintEditProgress.value?.phase === 'confirmed'
+-  )
+-    sprintHeading.value?.focus()
+-}
+ watch(
+   () => owner.milestoneCreationFocus.value,
+   async (id) => {
+@@ -277,56 +240,6 @@
+           >
+         </template>
+       </section>
+-      <section v-if="owner.sprintEditProgress.value" aria-label="Sprint 保存状态">
+-        <p v-if="owner.sprintEditProgress.value.phase === 'submitting'" role="status">
+-          正在保存 Sprint。
+-        </p>
+-        <template v-if="owner.sprintEditProgress.value.phase === 'uncertain'">
+-          <p role="status">Sprint 保存结果尚未确认。请查证原保存，勿再次提交。</p>
+-          <p v-if="owner.sprintEditProgress.value.observation === 'not_observed'" role="status">
+-            尚未观察到原保存结果，可再次查询。
+-          </p>
+-          <p v-if="owner.sprintEditProgress.value.observation === 'in_progress'" role="status">
+-            原保存仍在处理中，可稍后再次查询。
+-          </p>
+-          <UiButton
+-            v-if="state.sprint?.id === owner.sprintEditProgress.value.sprintID && !state.task"
+-            :disabled="owner.busy.value || !owner.sprintEditProgress.value.contextValid"
+-            @click="saveSprintEdit('lookup')"
+-            >查询原 Sprint 保存结果</UiButton
+-          >
+-          <UiButton
+-            v-else
+-            :disabled="owner.busy.value || !owner.sprintEditProgress.value.contextValid"
+-            @click="owner.selectSprint(owner.sprintEditProgress.value.sprintID)"
+-            >返回待确认 Sprint</UiButton
+-          >
+-        </template>
+-        <template
+-          v-if="
+-            owner.sprintEditProgress.value.phase === 'confirmed' &&
+-            (owner.sprintEdit.needsRead ||
+-              state.sprint?.id !== owner.sprintEditProgress.value.sprintID)
+-          "
+-        >
+-          <p role="status">原 Sprint 保存已确认，当前内容需要重新读取。</p>
+-          <UiButton
+-            v-if="state.sprint?.id === owner.sprintEditProgress.value.sprintID && !state.task"
+-            :disabled="owner.busy.value || !owner.sprintEditProgress.value.contextValid"
+-            @click="saveSprintEdit('read')"
+-            >读取已确认的 Sprint</UiButton
+-          >
+-          <UiButton
+-            v-else
+-            :disabled="owner.busy.value || !owner.sprintEditProgress.value.contextValid"
+-            @click="owner.selectSprint(owner.sprintEditProgress.value.sprintID)"
+-            >返回已确认 Sprint</UiButton
+-          >
+-        </template>
+-      </section>
+-      <p v-if="owner.sprintEditPending.value && !owner.sprintEditProgress.value" role="status">
+-        有一项 Sprint 保存结果待确认，请返回原 Project 查询结果。
+-      </p>
+       <p v-if="owner.milestonePending.value && !owner.milestoneProgress.value" role="status">
+         有一项 Milestone 创建结果待确认，请返回原 Project 查询结果。
+       </p>
+@@ -596,13 +509,6 @@
+               <h2 ref="sprintHeading" tabindex="-1">{{ state.sprint.title }}</h2>
+               <UiBadge>{{ sprintLabels[state.sprint.state] }}</UiBadge>
+               <UiButton
+-                v-if="!state.task && !owner.sprintEdit.open && !owner.sprintEditPending.value"
+-                ref="sprintEditButton"
+-                :disabled="owner.busy.value || !owner.canEditSprint.value"
+-                @click="owner.openSprintEdit()"
+-                >编辑 Sprint</UiButton
+-              >
+-              <UiButton
+                 v-if="
+                   state.sprint.state === 'planned' &&
+                   !owner.sprintStart.open &&
+@@ -621,23 +527,6 @@
+                 >新建任务</UiButton
+               >
+             </header>
+-            <p v-if="!state.task" class="sprint-description">
+-              {{ state.sprint.description || '暂无描述。' }}
+-            </p>
+-            <SprintEditForm
+-              v-if="!state.task && owner.sprintEdit.open && !owner.sprintEditPending.value"
+-              :owner="owner"
+-              @cancel="cancelSprintEdit"
+-              @submit="saveSprintEdit()" />
+-            <p
+-              v-if="!state.task && !owner.sprintEdit.open && owner.sprintEdit.message"
+-              role="status"
+-            >
+-              {{ owner.sprintEdit.message }}
+-            </p>
+-            <p v-if="!state.task && state.sprint.state === 'completed'">
+-              已完成的 Sprint 不可修改标题或描述。
+-            </p>
+             <p
+               v-if="
+                 state.sprint.state === 'planned' &&
+@@ -712,8 +601,7 @@
+   </section>
+ </template>
+ <style scoped>
+-.milestone-description,
+-.sprint-description {
++.milestone-description {
+   white-space: pre-wrap;
+   overflow-wrap: anywhere;
+ }

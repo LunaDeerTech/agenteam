@@ -120,6 +120,8 @@ Project 的 Deliver 校验只证明当前 Project gate 部分，不能证明 Del
 
 ## 四个 stop adapter
 
+后继窄片进度：[Secret/Audit 屏障](d08-secret-audit-stop-adapters.md)与 [Outbox stop adapter](d08-outbox-stop-adapter.md)已分别实施并按各自固定输入有限验证。Outbox 复用真实 D06 非空队列停止/Inspect、同 Store 当前事实及原实际退出；后继同步 panic 边界按独立差额接受，原 FAIL 保留。实际文件与证据范围以窄卡为准，不表示本卡原 22 路径整包恢复，不开放普通 delivery、Artifact adapter、完整 registry、Cleanup 或生产 initializer/ready。上文旧前置阻塞记录属于原整卡时点，不覆盖后继另授的窄片结果。
+
 构造返回固定 Name，禁止 caller 改名；Outbox 依赖必须 Name=`outbox`，此声明不是内部 state 健康证明。调用先校验 actor/cause、Project Scope（Meeting unbound）、当前冻结 manifest 的精确 name/version/metadata。每个 adapter 的 Project facts 来自同一个具体 `LifecycleAuthority`，并按 R1 显式 `LifecycleParticipantBinding{Registration, Participant}` 注册；本卡不发明默认 contract_version/ReferenceKinds，不按空数据删必需项。旧版本只能显式保留对应已审能力，错 metadata/缺版本拒绝。
 
 Project preflight 在短 Tx 取得 Project SH 后调用已有 facts；Request 只允许当前 stopping 且选中 stop 未 failed。Inspect 沿 R3 当前 operation 的 stopping/failed/cleaning/completed 检查；终态只能只读。短 Tx 真实提交确认后释放锁才调用下游，绝不把 Project SH/Tx 跨 I/O/长 join 持有。下游 Artifact/Object/Outbox 在每个真实阶段仍自行经 R3 再校验，预检不是一张可缓存授权票。

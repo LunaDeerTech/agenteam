@@ -199,6 +199,11 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestProjectOutboxStopParticipant$': frozenset((
+        'TestProjectOutboxStopParticipant',
+        'TestProjectOutboxStopParticipant/nonempty-queue-stop-and-inspect',
+        'TestProjectOutboxStopParticipant/current-facts-unknown-and-terminal',
+    )),
     '^TestObjectRuntimeJoin(ConcurrentDrainAndForceBudget|FirstReadWriterBeforeRegistration|ConfirmationFailureRetainsOwnership|ReadyWorkMakesProgress)$': frozenset((
         'TestObjectRuntimeJoinConcurrentDrainAndForceBudget',
         'TestObjectRuntimeJoinConcurrentDrainAndForceBudget/join-return-barrier',

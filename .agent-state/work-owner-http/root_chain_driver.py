@@ -18,6 +18,12 @@ MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 # One closed same-package PG family: adding a scenario changes required
 # inputs and expected test data, never the resource/Wait/tail implementation.
 METADATA_INPUTS = {
+    '^TestProjectOutboxStopParticipant$': (
+        'tests/project/outbox_stop_participant_test.go',
+        'tests/project/b03_r3_outbox_inspection_test.go',
+        'tests/project/b03_secret_audit_fixture_test.go',
+        'internal/central/project/outbox_stop_participant.go',
+    ),
     '^TestObjectRuntimeJoin(ConcurrentDrainAndForceBudget|FirstReadWriterBeforeRegistration|ConfirmationFailureRetainsOwnership|ReadyWorkMakesProgress)$': (
         'tests/objects/runtime_join_test.go',
         'tests/objects/runtime_test.go',
@@ -270,6 +276,7 @@ METADATA_INPUTS = {
 }
 TARGETS = {
     **dict.fromkeys(METADATA_INPUTS, 'tests/projectvariable'),
+    '^TestProjectOutboxStopParticipant$': 'tests/project',
     '^TestObjectRuntimeJoin(ConcurrentDrainAndForceBudget|FirstReadWriterBeforeRegistration|ConfirmationFailureRetainsOwnership|ReadyWorkMakesProgress)$': 'tests/objects',
     '^TestObject(RuntimeForceJoinsMainAndTransferIOInOneBudget|RuntimeRecoveryCleanupKeepsStartupAndWorkerBudget|RuntimeBusyDoesNotMaskLaterRecoveryFailure|RuntimeMetadataGateUntilActualProbeAndRecovery|ProjectStopDeleteWaitsForActualIO|ProjectStopCleanupWaitsForActualIOAndCallbacks|CancelProtectsActualSourceUntilJoined)$': 'tests/objects',
     '^TestObjectProjectWorkPendingJoinKeepsRuntimeGuard$': 'tests/objects',

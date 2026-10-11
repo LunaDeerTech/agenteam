@@ -1,0 +1,223 @@
+--- a/.agent-state/task-planning-recovery/pg_only_supervisor.py
++++ b/.agent-state/task-planning-recovery/pg_only_supervisor.py
+@@ -203,16 +203,6 @@
+         'TestProjectDomainBarrierParticipants',
+         'TestProjectDomainBarrierParticipants/gate-and-confirmed-stop',
+         'TestProjectDomainBarrierParticipants/current-cause-and-terminal-observation',
+-    )),
+-    '^TestProjectSchedulerWeb$': frozenset((
+-        'TestProjectSchedulerWeb',
+-        'TestProjectSchedulerWeb/pause-limit-and-resume',
+-        'TestProjectSchedulerWeb/lost-update-confirmation-only-lookup',
+-    )),
+-    '^TestProjectSchedulerOwnerHTTP$': frozenset((
+-        'TestProjectSchedulerOwnerHTTP',
+-        'TestProjectSchedulerOwnerHTTP/configuration-historical-receipts-and-facts',
+-        'TestProjectSchedulerOwnerHTTP/current-session-owner-and-project-gates',
+     )),
+     '^TestSkillPackageWeb$': frozenset(('TestSkillPackageWeb',)),
+     '^TestKnowledgeTextWeb$': frozenset(('TestKnowledgeTextWeb',)),
+@@ -438,7 +428,6 @@
+ MILESTONE_EDIT_UI = '^TestMilestoneEditWeb$'
+ SKILL_OWNER_UI = '^TestSkillOwnerReadWeb$'
+ SKILL_PACKAGE_UI = '^TestSkillPackageWeb$'
+-PROJECT_SCHEDULER_UI = '^TestProjectSchedulerWeb$'
+ SPRINT_START_UI = '^TestSprintStartWeb$'
+ KNOWLEDGE_TEXT_UI = '^TestKnowledgeTextWeb$'
+ KNOWLEDGE_RENAME_UI = '^TestKnowledgeOwnerRenameWeb$'
+@@ -446,8 +435,7 @@
+
+
+ def task_review_browser_waits(output, selector=TASK_REVIEW_UI):
+-    label = ('Project Scheduler' if selector == PROJECT_SCHEDULER_UI else
+-             'Skill Package' if selector == SKILL_PACKAGE_UI else
++    label = ('Skill Package' if selector == SKILL_PACKAGE_UI else
+              'KnowledgeText' if selector == KNOWLEDGE_TEXT_UI else
+              'Project Variables' if selector == PROJECT_VARIABLES_UI else
+              'Milestone Edit' if selector == MILESTONE_EDIT_UI else
+@@ -463,8 +451,7 @@
+              'Task Edit' if selector == TASK_EDIT_UI else
+              'Task Intake' if selector == TASK_INTAKE_UI else 'Task Review')
+     # browser calls t.Helper, so the real log points at each profile's caller.
+-    source = ('project_scheduler_web_test.go' if selector == PROJECT_SCHEDULER_UI else
+-              'skill_package_web_test.go' if selector == SKILL_PACKAGE_UI else
++    source = ('skill_package_web_test.go' if selector == SKILL_PACKAGE_UI else
+               'knowledge_text_web_test.go' if selector == KNOWLEDGE_TEXT_UI else
+               'project_variables_web_test.go' if selector == PROJECT_VARIABLES_UI else
+               'milestone_edit_web_test.go' if selector == MILESTONE_EDIT_UI else
+@@ -505,7 +492,7 @@
+     results = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): (\S+) \([^()\r\n]*\)$', output, re.M)
+     waits = re.findall(r'^D03 explicit test actual_wait pid=([1-9][0-9]*) code=(-?[0-9]+) selector=(\S+)$', output, re.M)
+     return (len(runs) == len(cases) and set(runs) == cases
+-            and (selector not in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI) or task_review_browser_waits(output, selector))
++            and (selector not in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI) or task_review_browser_waits(output, selector))
+             and (selector != APP_RUNTIME or app_runtime_waits(output))
+             and len(results) == len(cases)
+             and all(state == 'PASS' for state, _ in results)
+@@ -1301,7 +1288,7 @@
+             args.content_schema_python = os.environ['AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON']
+         except (OSError, ValueError):
+             parser.error('explicit local content Schema interpreter required')
+-    stem = ('ui-' + uuid.uuid4().hex[:16]) if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI) else ('pg-' + uuid.uuid4().hex)
++    stem = ('ui-' + uuid.uuid4().hex[:16]) if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI) else ('pg-' + uuid.uuid4().hex)
+     directory = args.output.resolve() / stem
+     if args.run == KNOWLEDGE_UI:
+         try:
+@@ -1309,7 +1296,7 @@
+             args.knowledge_ui_environment = adapter.knowledge_ui_environment()
+         except (OSError, ValueError):
+             parser.error('exact frozen Knowledge assets, interpreters and fresh evidence required')
+-    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
++    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
+         try:
+             args.task_review_ui_environment = adapter.task_review_ui_configuration(directory, args.run)
+         except (OSError, ValueError):
+@@ -1402,7 +1389,7 @@
+                 log.write(f'SUPERVISOR actual_driver_wait pid={child.pid} actual={child.returncode is not None} code={code}\n')
+             else:
+                 log.write(f'SUPERVISOR actual_driver_wait pid={child.pid} actual={child.returncode is not None} actual_exit={child.returncode} code={code}\n')
+-            if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI) and child.returncode is not None:
++            if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI) and child.returncode is not None:
+                 if not knowledge_ui_reap_exited(log):
+                     code = 1
+             survivors = descendants(os.getpid())
+@@ -1517,7 +1504,7 @@
+                 same = same and parser_same(inputs, args, adapter)
+             if args.run == KNOWLEDGE_UI:
+                 same = same and knowledge_ui_same(inputs, args, adapter)
+-            if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
++            if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
+                 same = same and adapter.task_review_ui_environment(args.run) == args.task_review_ui_environment
+             if args.run == APP_RUNTIME:
+                 same = same and adapter.app_runtime_wrapper_same(args.binary, directory)
+--- a/.agent-state/work-owner-http/root_chain_driver.py
++++ b/.agent-state/work-owner-http/root_chain_driver.py
+@@ -22,30 +22,6 @@
+         'tests/project/domain_barrier_participants_test.go',
+         'tests/project/b03_secret_audit_fixture_test.go',
+         'internal/central/project/domain_barrier_participants.go',
+-    ),
+-    '^TestProjectSchedulerWeb$': (
+-        'internal/central/app/project_scheduler_web_test.go',
+-        'internal/central/app/skill_package_web_test.go',
+-        'internal/central/app/skill_owner_web_test.go',
+-        'internal/central/app/knowledge_owner_web_test.go',
+-        'internal/central/app/knowledge_skills_process_test.go',
+-        'internal/central/app/outbox_process_test.go',
+-        'internal/central/app/app_test.go',
+-        'tests/account-captcha-web/project-scheduler.config.js',
+-        'tests/account-captcha-web/e2e/project-scheduler.spec.ts',
+-        'tests/account-captcha-web/e2e/project-scheduler.helpers.ts',
+-        'tests/account-captcha-web/e2e/task-review.helpers.ts',
+-        'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts',
+-        'api/openapi/project-scheduler.json',
+-        'api/openapi/project-owner.json',
+-        'api/openapi/common.json',
+-    ),
+-    '^TestProjectSchedulerOwnerHTTP$': (
+-        'tests/projectvariable/project_scheduler_http_test.go',
+-        'tests/projectvariable/fixture_test.go',
+-        'api/openapi/project-scheduler.json',
+-        'api/openapi/project-owner.json',
+-        'api/openapi/common.json',
+     ),
+     '^TestSkillPackageWeb$': ('internal/central/app/skill_package_web_test.go', 'internal/central/app/skill_owner_web_test.go', 'internal/central/app/knowledge_owner_web_test.go', 'internal/central/app/knowledge_skills_process_test.go', 'internal/central/app/outbox_process_test.go', 'internal/central/app/app_test.go', 'tests/account-captcha-web/skill-package.config.js', 'tests/account-captcha-web/e2e/skill-package.spec.ts', 'tests/account-captcha-web/e2e/skill-package.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts', 'api/openapi/skill-package.json', 'api/openapi/skill-owner.json', 'api/openapi/common.json'),
+     '^TestKnowledgeTextWeb$': ('internal/central/app/knowledge_text_web_test.go', 'internal/central/app/knowledge_owner_web_test.go', 'internal/central/app/knowledge_skills_process_test.go', 'internal/central/app/skill_owner_web_test.go', 'internal/central/app/outbox_process_test.go', 'internal/central/app/app_test.go', 'tests/account-captcha-web/knowledge-text.config.js', 'tests/account-captcha-web/e2e/knowledge-text.spec.ts', 'tests/account-captcha-web/e2e/knowledge-text.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts', 'api/openapi/knowledge-text-commands.json', 'api/openapi/knowledge-owner.json', 'api/openapi/knowledge-content.json', 'api/openapi/common.json'),
+@@ -250,7 +226,6 @@
+ TARGETS = {
+     **dict.fromkeys(METADATA_INPUTS, 'tests/projectvariable'),
+     '^TestProjectDomainBarrierParticipants$': 'tests/project',
+-    '^TestProjectSchedulerWeb$': 'internal/central/app',
+     '^TestSkillPackageWeb$': 'internal/central/app',
+     '^TestSkillOwnerPackageHTTP(Publication|CurrentAuthority)$': 'tests/skills',
+     '^TestSkillPackageHTTPDefaultRootComposition$': 'internal/central/app',
+@@ -335,7 +310,7 @@
+     # Only the explicitly retained legacy metadata profile includes its
+     # historical records. New profiles contain actual compiled/runtime inputs.
+     paths.update(REPOSITORY / name for name in METADATA_INPUTS[selector])
+-    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
++    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
+         paths.update(task_review_ui_inputs(selector))
+     if selector == APP_RUNTIME:
+         paths.update(app_runtime_inputs())
+@@ -408,7 +383,6 @@
+ MILESTONE_EDIT_UI = '^TestMilestoneEditWeb$'
+ SKILL_OWNER_UI = '^TestSkillOwnerReadWeb$'
+ SKILL_PACKAGE_UI = '^TestSkillPackageWeb$'
+-PROJECT_SCHEDULER_UI = '^TestProjectSchedulerWeb$'
+ SPRINT_START_UI = '^TestSprintStartWeb$'
+ KNOWLEDGE_TEXT_UI = '^TestKnowledgeTextWeb$'
+ KNOWLEDGE_RENAME_UI = '^TestKnowledgeOwnerRenameWeb$'
+@@ -425,7 +399,6 @@
+ SPRINT_CREATE_ENV = ('AGENTEAM_SPRINT_CREATE_WEB_DIST', 'AGENTEAM_SPRINT_CREATE_WEB_EVIDENCE')
+ SKILL_OWNER_ENV = ('AGENTEAM_SKILL_OWNER_WEB_DIST', 'AGENTEAM_SKILL_OWNER_WEB_EVIDENCE')
+ SKILL_PACKAGE_ENV = ('AGENTEAM_SKILL_PACKAGE_WEB_DIST', 'AGENTEAM_SKILL_PACKAGE_WEB_EVIDENCE')
+-PROJECT_SCHEDULER_ENV = ('AGENTEAM_PROJECT_SCHEDULER_WEB_DIST', 'AGENTEAM_PROJECT_SCHEDULER_WEB_EVIDENCE')
+ SPRINT_START_ENV = ('AGENTEAM_SPRINT_START_WEB_DIST', 'AGENTEAM_SPRINT_START_WEB_EVIDENCE')
+ KNOWLEDGE_TEXT_ENV = ('AGENTEAM_KNOWLEDGE_TEXT_WEB_DIST', 'AGENTEAM_KNOWLEDGE_TEXT_WEB_EVIDENCE')
+ KNOWLEDGE_RENAME_ENV = tuple('AGENTEAM_KNOWLEDGE_OWNER_RENAME_WEB_' + part for part in ('DIST', 'EVIDENCE', 'SCHEMA_PYTHON', 'CASE'))
+@@ -437,8 +410,6 @@
+
+
+ def task_review_ui_profile(selector):
+-    if selector == PROJECT_SCHEDULER_UI:
+-        return PROJECT_SCHEDULER_ENV, 'output/ai/project-scheduler-ui', 'project-scheduler'
+     if selector == TASK_REVIEW_UI:
+         return TASK_REVIEW_ENV, 'output/ai/work-review-web', 'task-review'
+     if selector == TASK_INTAKE_UI:
+@@ -776,7 +747,7 @@
+             'cwd': str(REPOSITORY / TARGETS[selector]),
+             'directory': str(directory), 'runtime': str(directory / 'runtime'),
+             'test_timeout': '6m', 'resources': 7}
+-    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
++    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
+         plan['task_review_ui'] = task_review_ui_configuration(directory, selector)
+     if selector == APP_RUNTIME:
+         app_runtime_inputs()
+@@ -854,7 +825,7 @@
+         env.update({'AGENTEAM_AUTH_WEB_RUNTIME': str(runtime),
+                     'AGENTEAM_KNOWLEDGE_OWNER_WEB_INPUT_HASH': knowledge_ui_input_hash(args.test_binary),
+                     'PATH': str(KNOWLEDGE_NODE.parent) + os.pathsep + env.get('PATH', '')})
+-    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
++    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
+         ui = plan['task_review_ui']
+         names, _, _ = task_review_ui_profile(args.run)
+         Path(ui[names[1]]).mkdir(mode=0o700)
+--- a/internal/central/app/project_update.go
++++ b/internal/central/app/project_update.go
+@@ -15,7 +15,6 @@
+ 	"github.com/LunaDeerTech/agenteam/internal/central/project"
+ 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+ 	projecthttp "github.com/LunaDeerTech/agenteam/internal/central/project/http"
+-	"github.com/LunaDeerTech/agenteam/internal/central/project/schedulerhttp"
+ )
+
+ // Pure construction retains the existing authority, store, actual process
+@@ -87,25 +86,11 @@
+ 	if err != nil {
+ 		return nil, err
+ 	}
+-	updates, err := projecthttp.NewUpdateHTTPHandler(service, boundary)
+-	if err != nil {
+-		return nil, err
+-	}
+-	scheduler, err := schedulerhttp.NewHTTPHandler(service, boundary)
+-	if err != nil {
+-		return nil, err
+-	}
+-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+-		if schedulerhttp.HandlesPath(r.URL.Path) {
+-			scheduler.ServeHTTP(w, r)
+-			return
+-		}
+-		updates.ServeHTTP(w, r)
+-	}), nil
++	return projecthttp.NewUpdateHTTPHandler(service, boundary)
+ }
+ func projectUpdateRoutes(existing, updates http.Handler) http.Handler {
+ 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+-		if schedulerhttp.HandlesPath(r.URL.Path) || projecthttp.HandlesUpdateRequest(r.Method, r.URL.Path) {
++		if projecthttp.HandlesUpdateRequest(r.Method, r.URL.Path) {
+ 			updates.ServeHTTP(w, r)
+ 			return
+ 		}

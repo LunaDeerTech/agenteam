@@ -1,0 +1,208 @@
+--- a/tests/projectvariable/agent_edit_web_test.go
++++ b/tests/projectvariable/agent_edit_web_test.go
+@@ -607,25 +607,25 @@
+ 				return errors.New("browser repeated an Update key")
+ 			}
+ 		}
+-		var want map[string]any
++		var want map[string]string
+ 		if w.mode == "lost-update-confirmation-only-lookup" {
+ 			if index != 0 {
+ 				return errors.New("browser retransmitted an uncertain Update")
+ 			}
+-			want = map[string]any{"name": w.draft.Name + "-edited", "description": ""}
++			want = map[string]string{"name": w.draft.Name + "-edited", "description": ""}
+ 		} else {
+ 			switch index {
+ 			case 0:
+-				want = map[string]any{"name": w.draft.Name + "-edited", "display_name": "  e\u0301 显示助手😀  ", "tag_color": "#12abcf", "description": "Browser saved Agent description.", "instructions": "Browser saved Agent instructions.\nPreserve the complete text."}
++				want = map[string]string{"name": w.draft.Name + "-edited", "description": "Browser saved Agent description.", "instructions": "Browser saved Agent instructions.\nPreserve the complete text."}
+ 			case 1:
+-				want = map[string]any{"name": w.draft.Name + "-edited", "display_name": "  e\u0301 显示助手😀  ", "tag_color": "#12abcf"}
++				want = map[string]string{"name": w.draft.Name + "-edited"}
+ 			case 2:
+-				want = map[string]any{"display_name": nil, "tag_color": nil, "description": "", "instructions": ""}
++				want = map[string]string{"description": "", "instructions": ""}
+ 			default:
+ 				return errors.New("browser added an undeclared Update")
+ 			}
+ 		}
+-		var actual map[string]any
++		var actual map[string]string
+ 		if json.Unmarshal(envelope.Request, &actual) != nil || !reflect.DeepEqual(actual, want) {
+ 			return errors.New("browser changed the original touched-field patch")
+ 		}
+@@ -748,7 +748,7 @@
+ 			return errors.New("Agent Edit Directory is not the original safe page")
+ 		}
+ 		v, core := page.Items[0], current.Fields().Core
+-		if v.Validate() != nil || v.ID != w.target || v.ProjectID != w.a.p2.project.ID || v.Version != core.Version || v.Name != core.Name || !reflect.DeepEqual(v.DisplayName, core.DisplayName) || !reflect.DeepEqual(v.TagColor, core.TagColor) || bytes.Contains(raw, []byte(w.a.modelID.String())) {
++		if v.Validate() != nil || v.ID != w.target || v.ProjectID != w.a.p2.project.ID || v.Version != core.Version || v.Name != core.Name || bytes.Contains(raw, []byte(w.a.modelID.String())) {
+ 			return errors.New("Agent Edit Directory lost current safe metadata")
+ 		}
+ 		w.pages++
+@@ -826,11 +826,11 @@
+ 	if failure != nil {
+ 		t.Fatal("Agent Edit original observation failed", failure)
+ 	}
+-	wantUpdates, wantChanged, wantLookup, wantReads := 3, 2, 0, 4
++	wantUpdates, wantChanged, wantLookup := 3, 2, 0
+ 	if w.mode == "lost-update-confirmation-only-lookup" {
+-		wantUpdates, wantChanged, wantLookup, wantReads = 1, 1, 1, 2
+-	}
+-	if updates != wantUpdates || receipts != updates || changed != wantChanged || lookups != wantLookup || cuts != wantLookup || configs < wantReads || pages < wantReads {
++		wantUpdates, wantChanged, wantLookup = 1, 1, 1
++	}
++	if updates != wantUpdates || receipts != updates || changed != wantChanged || lookups != wantLookup || cuts != wantLookup || configs < 1 || pages < 1 {
+ 		t.Fatal("Agent Edit omitted or repeated an original command/read")
+ 	}
+ 	wantVersion := int64(1 + wantChanged)
+@@ -843,7 +843,4 @@
+ 	if core.Name != w.draft.Name+"-edited" || core.Description != "" || (wantLookup == 0 && core.Instructions != "") || (wantLookup == 1 && core.Instructions != w.draft.Instructions) {
+ 		t.Fatal("Agent Edit final full/omitted/cleared text differs")
+ 	}
+-	if core.DisplayName != nil || core.TagColor != nil {
+-		t.Fatal("Agent Edit final display metadata was not explicitly cleared or preserved null")
+-	}
+-}
++}
+--- a/web/src/api/agent-configuration.ts
++++ b/web/src/api/agent-configuration.ts
+@@ -24,8 +24,6 @@
+ }>
+ export type AgentUpdateFields = Readonly<{
+   name?: string
+-  display_name?: string | null
+-  tag_color?: string | null
+   description?: string
+   instructions?: string
+   model_ref?: string
+@@ -237,7 +235,7 @@
+   })
+ }
+
+-// Omission keeps a field; null clears display metadata and empty text clears long text.
++// Omitted fields remain omitted; an explicit empty description/instructions is a clear.
+ export function captureAgentUpdateInput(value: unknown): AgentUpdateInput {
+   return input(() => {
+     const outer = shape(value, ['expected_version', 'request'])
+@@ -246,8 +244,6 @@
+       [],
+       [
+         'name',
+-        'display_name',
+-        'tag_color',
+         'description',
+         'instructions',
+         'model_ref',
+@@ -267,10 +263,6 @@
+       expected_version: workVersion(outer.expected_version),
+       request: Object.freeze({
+         ...(Object.hasOwn(v, 'name') ? { name: name(v.name) } : {}),
+-        ...(Object.hasOwn(v, 'display_name')
+-          ? { display_name: nullable(v.display_name, (x) => workText(x, 1024, true)) }
+-          : {}),
+-        ...(Object.hasOwn(v, 'tag_color') ? { tag_color: nullable(v.tag_color, color) } : {}),
+         ...(Object.hasOwn(v, 'description') ? { description: workText(v.description, 8192) } : {}),
+         ...(Object.hasOwn(v, 'instructions')
+           ? { instructions: workText(v.instructions, 32768) }
+@@ -303,8 +295,6 @@
+   requireValue(version <= 9223372036854775807n && agent.version === String(version))
+   for (const key of [
+     'name',
+-    'display_name',
+-    'tag_color',
+     'description',
+     'instructions',
+     'model_ref',
+--- a/web/src/components/agents/AgentEditForm.vue
++++ b/web/src/components/agents/AgentEditForm.vue
+@@ -42,39 +42,13 @@
+     @submit.prevent="owner.submitEdit()"
+   >
+     <h2>编辑 Agent 配置</h2>
+-    <p>基于版本 {{ owner.edit.version }}，只保存本次编辑的字段；未编辑的字段保持原值。</p>
++    <p>基于版本 {{ owner.edit.version }}，只保存本次编辑的字段。描述和指令可以明确清空。</p>
+     <UiField label="Agent 名称" required v-slot="field">
+       <UiInput
+         :id="field.id"
+         :model-value="owner.edit.name"
+         :disabled="disabled"
+         @update:model-value="owner.touchEdit('name', $event)"
+-      />
+-    </UiField>
+-    <UiField
+-      label="显示名称"
+-      hint="最多 256 个字符，不能全为空白。删除内容后保存可清空，改用 Agent 名称显示。"
+-      v-slot="field"
+-    >
+-      <UiInput
+-        :id="field.id"
+-        :model-value="owner.edit.displayName"
+-        :disabled="disabled"
+-        :aria-describedby="field.describedby"
+-        @update:model-value="owner.touchEdit('displayName', $event)"
+-      />
+-    </UiField>
+-    <UiField
+-      label="标签颜色"
+-      hint="可选，格式为小写 #rrggbb。删除内容后保存可清空标签颜色。"
+-      v-slot="field"
+-    >
+-      <UiInput
+-        :id="field.id"
+-        :model-value="owner.edit.tagColor"
+-        :disabled="disabled"
+-        :aria-describedby="field.describedby"
+-        @update:model-value="owner.touchEdit('tagColor', $event)"
+       />
+     </UiField>
+     <UiField label="Agent 描述" v-slot="field">
+--- a/web/src/composables/useProjectAgents.ts
++++ b/web/src/composables/useProjectAgents.ts
+@@ -14,15 +14,13 @@
+ import type { SessionController } from './useSession'
+ import type { ProjectWorkspace } from './useProjectWorkspace'
+
+-type EditField = 'name' | 'displayName' | 'tagColor' | 'description' | 'instructions'
++type EditField = 'name' | 'description' | 'instructions'
+ type EditPolicyField = 'model_ref' | 'inject_agents_md' | 'approval_policy' | 'approval_model_ref'
+ const initialEdit = () => ({
+   open: false,
+   agentID: '',
+   version: '',
+   name: '',
+-  displayName: '',
+-  tagColor: '',
+   description: '',
+   instructions: '',
+   modelID: '',
+@@ -59,7 +57,7 @@
+     return 'Agent 配置已有新版本。请取消编辑并重新读取，核对后再保存。'
+   if (e.problem?.code === 'CURSOR_INVALID') return '目录已变化，请从第一页重新读取。'
+   if (e.kind === 'invalid-input')
+-    return '请核对名称、显示名称、标签颜色、模型和必填配置。名称须为 3–32 位英文字母、数字或连字符；显示名称不能全为空白，最多 256 个字符；标签颜色须为小写 #rrggbb。'
++    return '请核对名称、模型和必填配置。名称须为 3–32 位英文字母、数字或连字符。'
+   return '未取得完整结果，请在原请求结束后重新读取。'
+ }
+ // This editor supports the current text-chat configuration profile only.
+@@ -449,8 +447,6 @@
+       agentID: a.id,
+       version: a.version,
+       name: a.name,
+-      displayName: a.display_name ?? '',
+-      tagColor: a.tag_color ?? '',
+       description: a.description,
+       instructions: a.instructions,
+       modelID: a.model_ref,
+@@ -509,10 +505,6 @@
+       a = edit.agentID
+     const request: AgentUpdateFields = Object.freeze({
+       ...(edit.touched.name ? { name: edit.name } : {}),
+-      ...(edit.touched.displayName
+-        ? { display_name: edit.displayName === '' ? null : edit.displayName }
+-        : {}),
+-      ...(edit.touched.tagColor ? { tag_color: edit.tagColor === '' ? null : edit.tagColor } : {}),
+       ...(edit.touched.description ? { description: edit.description } : {}),
+       ...(edit.touched.instructions ? { instructions: edit.instructions } : {}),
+       ...(edit.touched.model_ref ? { model_ref: edit.modelID, reasoning_effort: null } : {}),
