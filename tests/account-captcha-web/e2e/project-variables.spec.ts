@@ -1,0 +1,79 @@
+import { test, expect, type Page } from "@playwright/test";
+import { projectVariablesMaterial, observeProjectVariables, projectVariablesScreenshot } from "./project-variables.helpers";
+
+const observations=new WeakMap<Page,Awaited<ReturnType<typeof observeProjectVariables>>>();
+test.afterEach(async({page},info)=>{
+  const seen=observations.get(page);
+  try{await seen?.retire();}finally{seen?.save(info.status);}
+});
+async function press(page:Page,name:string){
+  const button=page.getByRole("button",{name,exact:true});
+  await expect(button).toBeEnabled();await button.focus();await expect(button).toBeFocused();await page.keyboard.press("Enter");
+}
+test("creates, edits and explicitly clears one ordinary Variable [create-update-and-clear]",async({page})=>{
+  const data=projectVariablesMaterial();
+  await page.setViewportSize({width:1440,height:960});
+  await page.emulateMedia({colorScheme:"light",reducedMotion:"reduce"});
+  await page.context().addCookies([{name:"agenteam_local_session",value:data.cookie,url:process.env.AGENTEAM_AUTH_WEB_ORIGIN!,httpOnly:true,sameSite:"Lax",secure:false}]);
+  const seen=await observeProjectVariables(page,data);observations.set(page,seen);
+  await page.goto(data.route);
+  const screen=page.getByRole("region",{name:"项目普通变量",exact:true});
+  await expect(screen.getByRole("heading",{name:"普通变量",exact:true})).toBeVisible();
+  await expect(screen.getByText("项目暂无普通变量。",{exact:true})).toBeVisible();
+  await expect(page.getByRole("button",{name:"新建变量",exact:true})).toBeEnabled();
+  await seen.verify();
+  expect(seen.variableRead("variables")).toEqual({items:[]});
+  await press(page,"新建变量");
+  const create=page.getByRole("form",{name:"新建普通变量",exact:true});
+  await expect(create).toBeVisible();
+  const name=create.getByRole("textbox",{name:"变量名称",exact:true});
+  await expect(name).toBeFocused();await name.fill(data.draft.name);
+  await create.getByRole("textbox",{name:"变量描述",exact:true}).fill(data.draft.description);
+  await create.getByRole("textbox",{name:"变量值",exact:true}).fill(data.draft.value);
+  await press(page,"创建变量");
+  expect(seen.requests("create")).toHaveLength(0);
+  await press(page,"确认创建变量");
+  await expect(page.locator(".ui-overlay")).toHaveCount(0);
+  await expect(create).toHaveCount(0);
+  const detail=page.getByRole("region",{name:"变量详情",exact:true});
+  const heading=detail.getByRole("heading",{name:data.draft.name,exact:true});
+  const field=(label:string)=>detail.locator("dl > div").filter({has:page.getByText(label,{exact:true})}).locator("dd");
+  async function current(version:1|2|3,description:string,value:string){
+    await expect(detail).toHaveAttribute("aria-busy","false");
+    await expect(field("版本")).toHaveText(String(version));
+    await expect(heading).toBeFocused();
+    await expect(field("描述")).toHaveText(description);
+    await expect.poll(()=>detail.locator(".variable-value").textContent()).toBe(value===""?"（空值）":value);
+    await expect(screen.locator(".variable-list li")).toHaveCount(1);
+    await expect(screen.locator(".variable-list").getByRole("button",{name:data.draft.name,exact:true})).toBeVisible();
+    await expect(page.getByRole("button",{name:"编辑变量",exact:true})).toBeEnabled();
+    await seen.verify();seen.requireVersion(version);
+    await expect(field("变量 ID")).toHaveText(seen.targetID());
+  }
+  await current(1,data.draft.description,data.draft.value);
+  await press(page,"编辑变量");
+  const edit=page.getByRole("form",{name:"编辑普通变量",exact:true});
+  await expect(edit.getByRole("textbox",{name:"变量名称",exact:true})).toBeFocused();
+  await expect(edit.getByRole("textbox",{name:"变量名称",exact:true})).toHaveValue(data.draft.name);
+  await edit.getByRole("textbox",{name:"变量描述",exact:true}).fill(data.changed_description);
+  await edit.getByRole("textbox",{name:"变量值",exact:true}).fill(data.changed_value);
+  await press(page,"保存变量");expect(seen.requests("update")).toHaveLength(0);
+  await press(page,"确认保存变量");await expect(page.locator(".ui-overlay")).toHaveCount(0);await expect(edit).toHaveCount(0);
+  await current(2,data.changed_description,data.changed_value);
+  await expect(page.locator("html")).toHaveAttribute("data-theme","light");
+  await projectVariablesScreenshot(page,data,"1440-light-updated");
+  await page.setViewportSize({width:390,height:844});await page.emulateMedia({colorScheme:"dark",reducedMotion:"reduce"});
+  await expect(page.locator("html")).toHaveAttribute("data-theme","dark");
+  expect(await page.evaluate(()=>matchMedia("(prefers-reduced-motion: reduce)").matches)).toBe(true);
+  await press(page,"编辑变量");
+  await expect(edit.getByRole("textbox",{name:"变量名称",exact:true})).toBeFocused();
+  await expect(edit.getByRole("textbox",{name:"变量描述",exact:true})).toHaveValue(data.changed_description);
+  await edit.getByRole("textbox",{name:"变量值",exact:true}).fill("");
+  await press(page,"保存变量");expect(seen.requests("update")).toHaveLength(1);
+  await press(page,"确认保存变量");await expect(page.locator(".ui-overlay")).toHaveCount(0);await expect(edit).toHaveCount(0);
+  await current(3,data.changed_description,"");
+  await projectVariablesScreenshot(page,data,"390-dark-empty");
+  await expect(page).toHaveURL(new URL(data.route,process.env.AGENTEAM_AUTH_WEB_ORIGIN!).href);
+  expect(seen.requests("create")).toHaveLength(1);expect(seen.requests("update")).toHaveLength(2);expect(seen.requests("lookup")).toHaveLength(0);
+  await seen.endDocument();
+});
