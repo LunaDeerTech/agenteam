@@ -1,6 +1,6 @@
 # D18/D22 单 read-file Operation
 
-本片把真实 Execution ToolCall 接到一次 Runner read-file Operation/Attempt，并持久保存可重读的完整结果。两组基础检查与compile01至04及精确list通过；native01至03均wholeFAIL，清Mount子场景已通过，完整结果场景的fixture类型窄修待另授native04复验，不是已交付执行链。初始基线为 main `1b10c29c`；ToolFacts 先以已提交开发依赖接入，随后通过 main `95c092bc` 正式有限交付，原 native01/02 FAIL 与修后03通过事实均保持，不替代本片验证。
+本片把真实 Execution ToolCall 接到一次 Runner read-file Operation/Attempt，并持久保存可重读的完整结果。两组基础检查与compile01至04及精确list通过；native04已实际wholePASS，有限范围为显式装配的单次read-file持久结果、原Lookup恢复与当前撤权零发送。runtime_recovery已完成有限whole独验接受，主线整合由root收口；native01至03和codec原红全部保留。初始基线为 main `1b10c29c`；ToolFacts 先以已提交开发依赖接入，随后通过 main `95c092bc` 正式有限交付，原 native01/02 FAIL 与修后03通过事实均保持，不替代本片验证。
 
 正式依据：[Model/Tool 契约](d01-contracts/model-tool.md)、[Execution 契约](d01-contracts/execution-orchestration.md)、[Runner read-file](d15-runner-read-file-adapter.md)。本片止于原 Operation 的持久结果，不包含下一轮 Model、Transcript 注入或自动重试。
 
@@ -44,4 +44,15 @@ Model JSON 为唯一明确端口替身，Execution/Tool authority、CurrentMount
 
 `compile03` race编译与精确list实际0，1827输入前后相同，相对02仅已审codec产品/测试两源差额。固定 `8d0781bf` 的 native03 为 **wholeFAIL**：原工具84435亲收actual1，supervisor722019实际1/121.997s；两子场景33.08s，clear PASS16.62s，happy FAIL16.46s。happy已通过原COMMIT_UNKNOWN与Attempt/final实际Committed门，随后在成功terminal元数据解析处失败；尚未抵达完整结果后验、两次Lookup及正常Stop/Drain，cleanup因仍有未查证Unknown原owner而报告未退休，此FAIL也保留，不记作正常Join通过。Go723769/driver722040实际Wait1，七资源14absence/private/runtime/descendants双尾、原HOST_TCP两delta_empty、1828inputs_unchanged均齐，整轮业务仍失败。原证据为 `output/ai/runner-read-file-operation/{compile03,native03}/` 与 `/tmp/rfo03/pg-cdbc3822c3c04958a2ed65a2d509144f.log`。
 
-静态核实成功结果引用的 `Bytes` 正式类型为 `f.Progress`，编码为十进制JSON字符串，PG误用int64导致解析失败。`b5532d77` 仅把测试字段改为f.Progress并在后验比较时显式转换int64，保留其余全部强断言，无产品变动；该两行修正已独审接受。`compile04` 原工具35958实际0，race编译与唯一top精确list均0，1827输入前后相同、对03仅此PG文件变化，binary `49f1fdf4…8cb4dfcc` 独立保留。compile01至03及各轮原FAIL均不覆盖，旧基础未重跑。当前没有native04，须root另授一次窗口；原PG完整结果/Lookup/退休强门、预算、自动baseline与七ID双尾均不变。
+静态核实成功结果引用的 `Bytes` 正式类型为 `f.Progress`，编码为十进制JSON字符串，PG误用int64导致解析失败。`b5532d77` 仅把测试字段改为f.Progress并在后验比较时显式转换int64，保留其余全部强断言，无产品变动；该两行修正已独审接受。`compile04` 原工具35958实际0，race编译与唯一top精确list均0，1827输入前后相同、对03仅此PG文件变化，binary `49f1fdf4…8cb4dfcc` 独立保留。compile01至03及各轮原FAIL均不覆盖，旧基础未重跑。native04沿原PG完整结果/Lookup/退休强门、预算、自动baseline与七ID双尾执行，无放宽或额外场景。
+
+
+## native04 有限实际通过
+
+固定技术 `b5532d77`（候选 `4ac043e0` 仅随后文档）使用compile04 binary `49f1fdf4a536109e109d4e4051b2292bcc50cc26d7e9d75b8d9209e28cb4dfcc`，1828项输入启动前逐SHA核等、结束inputs_unchanged。原工具71277亲收actual0；supervisor730036实际0/123.600s，原监督terminal0/122.171s。唯一top两sub均PASS31.94s：完整结果15.34s、当前Mount清除16.60s。
+
+- 完整结果：真实ToolCall/保护参数与Registry/currentMount、WSS和Manager读出完整65536B；原Attempt已实际提交但Store返回held期间零wire，释放后实际wire RID与原Attempt一致。最终原Tx确实Committed后才投影Unknown，保原Operation/Attempt身份和未退休owner；独立SQL核完整原body/摘要/引用/原终态，两次当前授权Lookup均返回同一完整原结果且wire仍为1，随后原owner及driver实际Stop/Drain/Joined。
+- 当前撤权：原Attempt提交后、旧票据尚未Claim前，经真实普通Owner Agent更新显式清空Mount。旧票据随后被当前门拒绝、wire0；持久结果为同一身份的已退休未发送failure，新的Execute/Lookup拒绝且没有第二Attempt/新RID，最终实际Join。
+- Go731861与driver730084实际Wait0，七个原资源各两次absence、private/runtime/descendants双尾、75s原automatic HOST_TCP baseline差额两次空、metadata exact与inputs_unchanged齐。全部原预算及门不变；窗口已释放，没有native05。
+
+原件在 `output/ai/runner-read-file-operation/native04/` 的invocation、input-hashes、process、outer与terminal；原监督日志 `/tmp/rfo04/pg-05e7687f0dfc4714bd201ba67768c6ed.log` 保留。该通过不覆盖前三轮FAIL、不解释native01 TIME_WAIT归属、不补造native02未记录Status；也不外推Transcript结果消费、下一次Model调用、生产默认绑定或完整D18/D22/原STOP。

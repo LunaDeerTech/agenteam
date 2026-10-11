@@ -7,7 +7,7 @@
 | 任务 / 分支 | 负责人 | 状态与下一步 |
 | --- | --- | --- |
 | Execution ToolCall 事实 — `ai/execution-tool-call-facts-20261011` | recovery_lead 交付；Tool 域 runner_read_file；runtime_recovery 独审 | 本次集成正式交付有限片：原句柄实际 Joined 后同事务写保护参数 / ToolCall / Transcript 与 running/tool-pending；34 + 26 top 分段 race、适用 vet、native03 原两场景 wholePASS 已独立接受。原 unit / Model 控制与 native01/02 FAIL 保留；仅 Model JSONCaller 受控，不含 ToolOperation / Runner 派发或生产 tools。00063/00064 随本片，完整分支历史保留；原树 / output / tmp 等正式保存后保全清理。 |
-| 单次 read-file Operation/Attempt 基础 | root 统筹并行实施 | 两组基础及compile01至04/list通过；native01至03均wholeFAIL。03清MountPASS，happy到terminal解析FAIL、尚未Lookup/正常Join；f.Progress两行fixture修正已审且编译通过，等另授native04，未验收整链。 |
+| 单次 read-file Operation/Attempt 基础 | root 统筹并行实施 | 两组基础及compile01至04/list通过；native04原两场景wholePASS，止于单次持久read-file/原Lookup恢复与撤权零wire，runtime_recovery有限whole独验已接受，待root正式整合。原01至03及codec红均保留，不含Transcript消费/下一Model/生产绑定。 |
 | Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |
 
 ## 本片恢复与下一步
@@ -21,7 +21,9 @@
 - native02原63642亲收actual1/supervisor709384实际1/120.850s，**wholeFAIL**：clear子场景PASS15.80s，原零发送/身份/退休与Join后验成立；happy FAIL14.56s，Attempt barrier后Execute err=nil而要求COMMIT_UNKNOWN，未记录安全Status/phase，不能补造原分支。Go/driver实际Wait1，七资源14absence/private/runtime/desc/TCP两delta_empty及1828inputs不变齐。原件 `output/ai/runner-read-file-operation/{compile02,native02}/` 与 `/tmp/rfo02/pg-b0e94d0c377f47909e923553ed067107.log` 保留；本轮TCP通过不解释01差额。
 - 真实Message codec反例d40fc527原24616 actual1；产品窄修67329a12保严格值/参数/身份门，移除JSON对象键序逐字比较，持久完整结果仍以明确编码生成原值/摘要。修后原30556 actual0：2top7sub race与runtime vet0，509输入分别前后相同；`checks/codec-repro01`、`codec-fixed01`、`codec-vet01`原件保留，不倒填native02未记录Status/动态首因。
 - compile03/list实际0；native03原84435亲收actual1/sup722019实际1/121.997s，**wholeFAIL**。clear PASS16.62s，happy FAIL16.46s：原COMMIT_UNKNOWN及实际Committed门已过，但terminal解析失败，尚未完整结果后验/两次Lookup/正常Stop；cleanup原Unknown owner未退休FAIL保留。Go/driver实际Wait1，七资源14absence/private/runtime/desc/TCP双空/1828inputs不变齐。原 `output/ai/runner-read-file-operation/{compile03,native03}/` 与 `/tmp/rfo03/pg-cdbc3822c3c04958a2ed65a2d509144f.log` 不覆盖。
-- b5532d77仅把PG Result.Bytes改正式f.Progress及int64后验比较，无产品改动、强断言不减，独审已接受。compile04/list原35958实际0，1827输入前后同、对03只PG文件变，独立binary `49f1fdf4…8cb4dfcc` 保留；尚未native04，须root另授窗。旧基础不重复，原预算/退出门不变；Model JSON仍唯一替身，生产默认nil及其他STOP保持。
+- b5532d77仅把PG Result.Bytes改正式f.Progress及int64后验比较，无产品改动、强断言不减，独审已接受。compile04/list原35958实际0，1827输入前后同、对03只PG文件变，独立binary `49f1fdf4…8cb4dfcc` 保留；旧基础未重复，native04原预算/退出门不变。
+
+- native04原71277亲收wholeactual0/supervisor7300360/123.600s；1top2sub31.94s均PASS，完整65536B持久结果、实际commit后Unknown与两次原Lookup零重发、当前Mount清除旧票据零wire及原身份/实际Join全门成立。Go731861/driver730084Wait0，七资源14absence/private/runtime/desc/TCP双delta_empty/1828inputsunchanged齐。原 `output/ai/runner-read-file-operation/native04/` 与 `/tmp/rfo04/pg-05e7687f0dfc4714bd201ba67768c6ed.log` 保留，窗口已释放、没有native05；runtime_recovery有限whole独验已接受，正式整合由root收口。前三轮及codec红不覆盖，02未记录Status与01TCP未明归属保持；Model JSON仍唯一替身，不含Transcript注入/下一Model/default绑定，原STOP不变。
 
 ## 保留与清理
 
