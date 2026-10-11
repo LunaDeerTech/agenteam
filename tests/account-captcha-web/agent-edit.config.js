@@ -6,12 +6,25 @@ const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE;
 const executablePath = process.env.AGENTEAM_AUTH_WEB_CHROMIUM;
 const evidence = process.env.AGENTEAM_AGENT_EDIT_WEB_EVIDENCE;
 const selected = process.env.AGENTEAM_AGENT_EDIT_WEB_CASE;
-if (!origin || !directory || !executablePath || !evidence || !selected ||
-  !["changed-noop-and-clear", "lost-update-confirmation-only-lookup"].includes(selected))
+if (
+  !origin ||
+  !directory ||
+  !executablePath ||
+  !evidence ||
+  !selected ||
+  !["changed-noop-and-clear", "lost-update-confirmation-only-lookup"].includes(
+    selected,
+  )
+)
   throw new Error("OWNED_AGENT_EDIT_FIXTURE_REQUIRED");
 const url = new URL(origin);
-if (url.protocol !== "http:" || url.hostname !== "127.0.0.1" || !url.port ||
-  url.origin !== origin || ![directory, executablePath, evidence].every(isAbsolute))
+if (
+  url.protocol !== "http:" ||
+  url.hostname !== "127.0.0.1" ||
+  !url.port ||
+  url.origin !== origin ||
+  ![directory, executablePath, evidence].every(isAbsolute)
+)
   throw new Error("EXACT_OWNED_AGENT_EDIT_PATHS_REQUIRED");
 
 export default defineConfig({
