@@ -209,7 +209,15 @@ func (w *agentEditWeb) request(t *testing.T, actor variableHTTPBrowser, method, 
 	defer cancel()
 	r, err := http.NewRequestWithContext(ctx, method, w.backend.URL+path, bytes.NewReader(body))
 	agentAppRequire(t, err)
-	r.AddCookie(&http.Cookie{Name: "__Host-agenteam_session", Value: actor.cookie, Secure: true, HttpOnly: true, Path: "/"})
+	public, err := url.Parse(w.origin)
+	agentAppRequire(t, err)
+	if public.Scheme != "http" || public.Host != w.listener.Addr().String() {
+		t.Fatal("Agent Edit public origin differs from its owned front")
+	}
+	// Preserve the public authority and local cookie exactly as the browser
+	// front does; the separate backend URL still supplies verified TLS.
+	r.Host = public.Host
+	r.AddCookie(&http.Cookie{Name: "agenteam_local_session", Value: actor.cookie, HttpOnly: true, Path: "/"})
 	r.Header.Set("Origin", w.origin)
 	r.Header.Set("Sec-Fetch-Site", "same-origin")
 	if method != http.MethodGet && method != http.MethodHead {
@@ -227,6 +235,16 @@ func (w *agentEditWeb) request(t *testing.T, actor variableHTTPBrowser, method, 
 	agentAppRequire(t, err)
 	raw, err := w.completedResponse(response)
 	agentAppRequire(t, err)
+	if response.StatusCode >= http.StatusBadRequest {
+		var problem struct {
+			Code f.Code `json:"code"`
+		}
+		decoded := json.Unmarshal(raw, &problem) == nil
+		_, cookieErr := r.Cookie("agenteam_local_session")
+		t.Logf("Agent Edit original HTTP status=%d problem_code=%s problem_known=%t public_host_matches=%t origin_present=%t session_cookie_present=%t csrf_present=%t key_present=%t",
+			response.StatusCode, problem.Code.Safe(), decoded && problem.Code.Known(), r.Host == public.Host,
+			r.Header.Get("Origin") != "", cookieErr == nil, r.Header.Get("X-CSRF-Token") != "", r.Header.Get("Idempotency-Key") != "")
+	}
 	if response.Header.Get("Cache-Control") != "no-store" {
 		t.Fatal("original Agent Edit response omitted no-store")
 	}
