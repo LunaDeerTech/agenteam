@@ -271,7 +271,6 @@ import {
   type ProjectCredentialDeleted,
   type ProjectCredentialObservation,
 } from '../api/project-model-credentials'
-import { shape } from '../api/client'
 import {
   createKnowledgeOwnerAPI,
   captureKnowledgeID,

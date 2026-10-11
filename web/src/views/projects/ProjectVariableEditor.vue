@@ -15,7 +15,11 @@ onMounted(() => form.value?.querySelector<HTMLInputElement>('input')?.focus())
     <UiField label="变量描述" v-slot="field"><UiTextarea :id="field.id" :model-value="owner.draft.description" :disabled="owner.busy.value || owner.pending.value" rows="3" @update:model-value="owner.setField('description', $event)" /></UiField>
     <UiField label="变量值" v-slot="field"><UiTextarea :id="field.id" :model-value="owner.draft.value" :disabled="owner.busy.value || owner.pending.value" rows="5" @update:model-value="owner.setField('value', $event)" /></UiField>
     <p v-if="owner.editor.message" role="alert">{{ owner.editor.message }}</p>
-    <div class="variable-actions"><UiButton type="submit" :disabled="!owner.canSave.value">{{ owner.editor.mode === 'create' ? '创建变量' : '保存变量' }}</UiButton><UiButton type="button" variant="secondary" :disabled="owner.busy.value || owner.pending.value" @click="emit('cancel')">取消编辑</UiButton></div>
+    <div v-if="owner.editor.conflict" class="variable-actions">
+      <UiButton type="button" :disabled="owner.busy.value || !owner.canMutate.value" @click="owner.rereadConflict()">重新读取当前变量</UiButton>
+      <UiButton type="button" :disabled="!owner.canAdoptVersion.value" @click="owner.adoptCurrentVersion()">保留输入并采用当前版本</UiButton>
+    </div>
+    <div class="variable-actions"><UiButton type="submit" :disabled="!owner.canSave.value">{{ owner.editor.mode === 'create' ? '创建变量' : '保存变量' }}</UiButton><UiButton type="button" variant="ghost" :disabled="owner.busy.value || owner.pending.value" @click="emit('cancel')">取消编辑</UiButton></div>
   </form>
 </template>
 <style scoped>

@@ -4,18 +4,20 @@ import { createAccountAPI, type SessionView } from '../api/account'
 import { AccountFailure, type Fetch } from '../api/client'
 import { createProjectVariablesAPI, type ProjectVariablesAPI, type ProjectVariable } from '../api/project-variables'
 import { createSessionController, type SessionController } from '../composables/useSession'
+import { createProjectWorkspace, type ProjectWorkspace } from '../composables/useProjectWorkspace'
+import { createProjectVariables, type ProjectVariables } from '../composables/useProjectVariables'
 const id = (n: number) => `01990000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
 const p = id(10), v = id(11), at = '2026-10-11T10:00:00.000001Z', fields = { name: 'ORDINARY', description: '', value: 'complete\nvalue' }
 const view = (n = 2): SessionView => ({ user: { id: id(1), email: 'owner@example.test', username: 'owner', display_name: 'Owner', role: 'user', theme: 'system', version: '1', initial_password_suggestion: false }, session: { id: id(n), issued_at: at, absolute_expires_at: at, idle_expires_at: at }, csrf_token: 'S'.repeat(43) })
 const json = (body: unknown) => new Response(JSON.stringify(body), { headers: { 'Content-Type': 'application/json' } })
-const owners: SessionController[] = [], releases: (() => void)[] = []
-afterEach(async () => { owners.splice(0).forEach(a => a.leave()); releases.splice(0).forEach(f => f()); await flushPromises() })
+const owners: SessionController[] = [], releases: (() => void)[] = [], workspaces: ProjectWorkspace[] = [], variables: ProjectVariables[] = []
+afterEach(async () => { variables.splice(0).forEach(o => o.dispose()); workspaces.splice(0).forEach(o => o.dispose()); owners.splice(0).forEach(a => a.leave()); releases.splice(0).forEach(f => f()); await flushPromises() })
 async function setup(override?: (api: ProjectVariablesAPI) => ProjectVariablesAPI) {
-  let current = view(), cut = false
+  let current = view(), cut = false, sessionWait: Promise<void> | null = null
   let stored: ProjectVariable = { id: v, project_id: p, type: 'variable', ...fields, version: '1', created_at: at, updated_at: at }
   const receipt = (command: string) => ({ command, changed: true, variable: stored, event_id: id(20), audit_id: id(21) })
   const fetcher = vi.fn<Fetch>(async (path, init) => {
-    if (path === '/api/v1/session') return json(current)
+    if (path === '/api/v1/session') { await sessionWait; return json(current) }
     const base = `/api/v1/projects/${p}/variables`
     if (path === base && init.method === 'POST') {
       const body = JSON.parse(init.body as string)
@@ -34,9 +36,20 @@ async function setup(override?: (api: ProjectVariablesAPI) => ProjectVariablesAP
     throw new Error('Unexpected ordinary variable endpoint')
   })
   const api = createProjectVariablesAPI(fetcher), args: Parameters<typeof createSessionController> = [createAccountAPI(fetcher)]
+  const project = { id: p, owner_user_id: id(1), name: 'Demo', normalized_name: 'demo', description: '', lifecycle: 'active' as const, version: '1', current_sprint_id: null, created_at: at, updated_at: at, archived_at: null }
+  args[12] = { resolve: async () => project, get: async () => project, list: async () => ({ items: [], next_cursor: null }), update: async () => { throw new Error('Unexpected Project update') }, lookup: async () => { throw new Error('Unexpected Project lookup') } }
   args[19] = { projectVariables: override ? override(api) : api }
   const auth = createSessionController(...args); owners.push(auth); await auth.restore()
-  return { auth, fetcher, cut() { cut = true }, replaceSession() { current = view(3) }, stored: () => stored }
+  return { auth, fetcher, cut() { cut = true }, replaceSession() { current = view(3) }, stored: () => stored,
+    holdSession() { let resolve!: () => void; sessionWait = new Promise<void>(r => { resolve = r }); releases.push(resolve); return resolve },
+    async workspace() {
+      const workspace = createProjectWorkspace(auth); workspaces.push(workspace)
+      const owner = createProjectVariables(auth, workspace); variables.push(owner)
+      workspace.afterNavigation('/owner/demo/settings/variables'); owner.afterNavigation('/owner/demo/settings/variables'); await flushPromises()
+      expect(owner.visible.value).toBe(true)
+      return { workspace, owner }
+    },
+  }
 }
 describe('ordinary Project Variable Session owner', () => {
   it('mints once, publishes the original receipt and retires it after real current reads before the next patch', async () => {
@@ -95,6 +108,39 @@ describe('ordinary Project Variable Session owner', () => {
     await expect(f.auth.projectVariables.create(p, fields)).rejects.toMatchObject({ kind: 'transport' })
     f.replaceSession(); await f.auth.restore()
     expect(f.auth.projectVariables.progress).toBeNull()
+    await expect(f.auth.projectVariables.checkOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(f.fetcher.mock.calls.filter(([path]) => path.endsWith('/commands/lookup'))).toHaveLength(0)
+  })
+  it('keeps Unknown through a real same-Session checking cycle with a temporarily empty workspace path', async () => {
+    const f = await setup(), { owner, workspace } = await f.workspace(); f.cut()
+    await owner.openCreate(); owner.setField('name', fields.name); owner.setField('value', fields.value)
+    const saving = owner.submit(); await flushPromises(); owner.finishConfirmation(true); await saving
+    const original = f.fetcher.mock.calls.find(([path, init]) => path.endsWith('/variables') && init.method === 'POST')!
+    const release = f.holdSession(), restoring = f.auth.restore(); await flushPromises()
+    expect(workspace.paths.value.home).toBe('')
+    expect(owner.visible.value).toBe(false)
+    expect(f.auth.projectVariables.progress).toMatchObject({ phase: 'uncertain', contextValid: false })
+    await owner.openCreate(); await owner.submit(); await owner.lookupOriginal()
+    expect(f.fetcher.mock.calls.filter(([path]) => path.endsWith('/commands/lookup'))).toHaveLength(0)
+    release(); await restoring; await flushPromises()
+    expect(owner.pending.value).toBe(true); expect(owner.canSave.value).toBe(false)
+    await owner.openCreate(); await owner.submit(); await owner.lookupOriginal()
+    const lookup = f.fetcher.mock.calls.find(([path]) => path.endsWith('/commands/lookup'))!
+    expect(JSON.parse(lookup[1].body as string)).toEqual({ command: 'project.variable.create', ...JSON.parse(original[1].body as string) })
+    expect((lookup[1].headers as Record<string, string>)['Idempotency-Key']).toBe((original[1].headers as Record<string, string>)['Idempotency-Key'])
+    expect(f.fetcher.mock.calls.filter(([path, init]) => path.endsWith('/variables') && init.method === 'POST')).toHaveLength(1)
+    expect(owner.detail.variable?.value).toBe(fields.value)
+  })
+  it.each(['session', 'project'] as const)('clears Unknown after a real %s switch through the workspace', async (change) => {
+    const f = await setup(), { owner, workspace } = await f.workspace(); f.cut()
+    await owner.openCreate(); owner.setField('name', fields.name); owner.setField('value', fields.value)
+    const saving = owner.submit(); await flushPromises(); owner.finishConfirmation(true); await saving
+    expect(f.auth.projectVariables.progress?.phase).toBe('uncertain')
+    if (change === 'session') { f.replaceSession(); await f.auth.restore() }
+    else { workspace.afterNavigation('/owner/other/settings/variables'); owner.afterNavigation('/owner/other/settings/variables') }
+    await flushPromises()
+    expect(f.auth.projectVariables.progress).toBeNull()
+    expect(owner.draft).toEqual({ name: '', description: '', value: '' })
     await expect(f.auth.projectVariables.checkOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
     expect(f.fetcher.mock.calls.filter(([path]) => path.endsWith('/commands/lookup'))).toHaveLength(0)
   })

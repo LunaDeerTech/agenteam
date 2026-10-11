@@ -22,7 +22,7 @@ async function fixture(existing = true) {
   const home = shallowRef('/owner/demo'), project = shallowReactive<{ project: Project | null }>({ project: { id: p, owner_user_id: id(8), name: 'Demo', normalized_name: 'demo', description: '', lifecycle: 'active', version: '1', current_sprint_id: null, created_at: at, updated_at: at, archived_at: null } })
   const progress = shallowRef<Port['progress']>(null), log: string[] = []
   let stored: ProjectVariable | null = existing ? data() : null
-  const publish = (kind: 'create' | 'update', value: ProjectVariableReceipt | null, phase: 'confirmed' | 'uncertain') => { progress.value = { projectID: p, targetID: v, kind, phase, receipt: value, observation: value ? 'committed' : 'none', contextValid: true } }
+  const publish = (kind: 'create' | 'update', value: ProjectVariableReceipt | null, phase: 'confirmed' | 'uncertain' | 'rejected') => { progress.value = { projectID: p, targetID: v, kind, phase, receipt: value, observation: value ? 'committed' : 'none', contextValid: true } }
   const receipt = (kind: 'create' | 'update'): ProjectVariableReceipt => ({ command: kind === 'create' ? 'project.variable.create' : 'project.variable.update', changed: true, variable: stored!, event_id: id(20), audit_id: id(21) })
   const port = {
     get progress() { return progress.value },
@@ -40,6 +40,37 @@ async function fixture(existing = true) {
 }
 async function save(owner: ProjectVariables) { const pending = owner.submit(); tails.push(pending); await flushPromises(); expect(owner.confirmation.open).toBe(true); owner.finishConfirmation(true); await pending }
 describe('ordinary Project Variable current owner state', () => {
+  it('keeps input and clear-field presence after a definite non-conflict rejection without automatic retry', async () => {
+    const f = await fixture(); await f.owner.select(v); f.owner.openEdit()
+    f.owner.setField('description', ''); f.owner.setField('value', 'pending input')
+    f.port.update.mockImplementationOnce(async () => {
+      f.publish('update', null, 'rejected')
+      throw new AccountFailure('problem', { type: 'urn:agenteam:problem:test', title: 'Rejected', status: 400, detail: '', instance: '/', code: 'INVALID_INPUT', request_id: id(90), commit_state: 'not_committed' })
+    })
+    await save(f.owner)
+    expect(f.owner.editor).toMatchObject({ open: true, targetID: v, version: '1' })
+    expect(f.owner.draft).toEqual({ name: 'ORDINARY', description: '', value: 'pending input' })
+    expect(f.port.update).toHaveBeenCalledTimes(1)
+    expect(f.port.get).toHaveBeenCalledTimes(1)
+    f.owner.setField('value', 'corrected input'); await save(f.owner)
+    expect(f.port.update).toHaveBeenNthCalledWith(2, p, v, '1', { description: '', value: 'corrected input' })
+  })
+  it.each([401, 403, 404])('clears retained conflict plaintext on a current %s reread denial', async (status) => {
+    const f = await fixture(); await f.owner.select(v); f.owner.openEdit(); f.owner.setField('value', 'pending input')
+    f.port.update.mockImplementationOnce(async () => {
+      f.publish('update', null, 'rejected')
+      throw new AccountFailure('problem', { type: 'urn:agenteam:problem:test', title: 'Conflict', status: 409, detail: '', instance: '/', code: 'VERSION_CONFLICT', request_id: id(90), commit_state: 'not_committed' })
+    })
+    await save(f.owner)
+    expect(f.owner.draft.value).toBe('pending input')
+    f.port.get.mockRejectedValueOnce(new AccountFailure('problem', { type: 'urn:agenteam:problem:test', title: 'Denied', status, detail: '', instance: '/', code: 'FORBIDDEN', request_id: id(91), commit_state: 'not_started' }))
+    await f.owner.rereadConflict(); f.owner.adoptCurrentVersion(); await f.owner.submit()
+    expect(f.owner.editor).toMatchObject({ open: false, targetID: '', version: '', conflict: false })
+    expect(f.owner.draft).toEqual({ name: '', description: '', value: '' })
+    expect(f.owner.detail.variable).toBeNull(); expect(f.owner.page.items).toEqual([])
+    expect(f.owner.canSave.value).toBe(false); expect(f.port.update).toHaveBeenCalledTimes(1)
+    expect(f.port.abandonPending).toHaveBeenCalled()
+  })
   it('publishes only a real post-command Get/List and sends only touched clear fields', async () => {
     const f = await fixture(false)
     await f.owner.openCreate(); f.owner.setField('name', 'ORDINARY'); f.owner.setField('description', 'Description'); f.owner.setField('value', 'original\ntext')

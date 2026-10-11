@@ -2,11 +2,11 @@
 
 ## 本次 Variables 接续
 
-2026-10-11 在 `/workspace/agenteam-project-variables-resume`、分支 `ai/project-variables-resume-20261011` 接续普通 Project Variables 创建、编辑与回读。root 以 `1b6ad53e` 建树，已组合 UI 来源 `c9101845`、`11f46b63` 与 fixture 来源 `6e73fddd`、`4308e91d`；本轮自查起点为 `5e04ef71`。
+2026-10-11 在 `/workspace/agenteam-project-variables-resume`、分支 `ai/project-variables-resume-20261011` 接续普通 Project Variables 创建、编辑与回读。root 以 `1b6ad53e` 建树，已组合 UI 来源 `c9101845`、`11f46b63` 与 fixture 来源 `6e73fddd`、`4308e91d`；本轮自查起点为 `5e04ef71`，控制样本修复保存于 `bcf1d880`；root 已另以 `32f32a97` 窄同步 Skills Host/App handler 观测修复。
 
-`frontend_checks` 独占本树 Variables 22 条产品/测试/fixture 路径及必要恢复记录，直接向 root 报告并抄送 `recovery_lead`。root 独占全部 Git 操作；本轮属于作者实现自查，本片独立验收者尚未分配。`recovery_lead` 继续负责另一树 Skills/Milestone 真实链，本树不继承其资源窗口或通过结论。
+`frontend_checks` 独占本树 Variables 22 条产品/测试/fixture 路径及必要恢复记录，直接向 root 报告并抄送 `recovery_lead`。root 独占全部 Git 操作；本轮属于作者实现自查，root 已安排独立审查并交回下述两项 must-fix；本轮实现者不兼任独立验收者。`recovery_lead` 继续负责另一树 Skills/Milestone 真实链，本树不继承其资源窗口或通过结论。
 
-`tests/account-captcha-web/e2e/task-review.helpers.ts` 的 Skills 观测段冻结，由 root 后续窄同步主链 Host/实际 App handler 关联修复；本树不独立修改该段。
+`tests/account-captcha-web/e2e/task-review.helpers.ts` 的 Skills 观测段冻结，已由 root 以 `32f32a97` 窄同步主链 Host/实际 App handler 关联修复；本实现者不独立修改该段。
 
 ## 限定结果与文件
 
@@ -24,13 +24,61 @@
 
 本轮发现 `schema-entry-controls.output()` 未为 `^TestProjectVariablesWeb$` 生成必需的单条 Node wait 正常样本。只补 source、label、单 PID 与 selector 四处分支；supervisor 的真实接受条件及预算不变。
 
-已只读核对新增 API、Session、页面状态、16 个既有前端用例及正常浏览器 fixture 的调用关系。前端正常/Unknown、权限与迟到响应、类型/构建、Go 编译、入口控制套件及真实浏览器/PG **尚未在本候选运行**。原 Skills/Milestone 80 项属于原技术输入，不能计入 Variables 结果；旧 Variables `60dbcee7` 的 CRUD03 有限通过和 Authority03 整体失败也不代本轮验收。
+本树已按锁定版本独立执行 `npm ci --prefix web`（146 包，exit 0），缓存仅为本树 `output/ai/project-variables-web/npm-cache`；未改锁、未新增版本、未借其他树 node_modules。所有前端命令设置 `NODE_DISABLE_COMPILE_CACHE=1`，Vitest 最多两个 worker，临时文件、Vite 缓存与产物均在本树 `output/ai/project-variables-web/frontend/`。本树未运行 Go、browser、PG、入口控制动态套件；主链 native 窗口内没有外网操作。
 
-本轮未运行测试、安装、下载或资源启动。只做静态/本地轻量检查，无后台命令。新树依赖须私有恢复，不能借用其他树可写依赖或缓存。
+作者基础检查保留各次真实结果，不覆盖原 FAIL。以下日志均相对上述 frontend 输出根：
+
+| 日志 | 实际结果与范围 |
+| --- | --- |
+| `npm-ci-01.log` | 独立锁定安装 exit 0，146 包 |
+| `unit-01.log` | exit 1；17 文件中 14 个加载失败，3 文件 15 项通过；首因为 useSession 重复导入 shape |
+| `type-01.log` | exit 2；重复 shape 及取消按钮不支持的 secondary variant；构建尚未启动 |
+| `unit-02.log` | 两编译修复后仅重跑受影响 14 文件，81/81 通过 |
+| `type-02.log` / `build-01.log` | 类型、首次实际生产构建 exit 0 |
+| `unit-03-restore-repro.log` | 修复前真实 Session + ProjectWorkspace 复现：同身份 checking 临时空路径丢 Unknown；1 FAIL / 6 PASS |
+| `unit-04-conflict-repro.log` | 修复前实际页面复现：VERSION_CONFLICT/not_committed 清空 editor/target/version；1 FAIL / 3 PASS |
+| `unit-05-must-fix.log` | 两 must-fix 首轮三文件 15/15 通过 |
+| `unit-06-must-fix-final.log` | 最终三文件 19/19 通过，exit 0，4.36s；含拒绝保留 presence、冲突重读 401/403/404 清理 |
+| `type-03.log` / `build-02.log` | 最终类型 exit 0、生产构建 exit 0（2.11s）；dist 已更新 |
+
+最终变化为去掉重复 shape 导入、按钮改用既有 ghost variant；拒绝保留 draft/touched/target/version，冲突须显式重读并采用当前版本后再确认保存，既不自动更新版本也不自动重发。重读 401/403/404 仍清空输入与结果。同 Session checking 暂时隐藏/清除页面内容但保留 Session 内原 Unknown 意图；匹配身份和项目恢复后只有原 key/full body Lookup，真实 Session 或 Project 切换仍清理。三个既有测试文件新增 8 项。合并未受影响的原证据，共有 17 文件 104 项作者定向覆盖，**并非一次最终全 17 文件运行，亦非独立/真实浏览器验收**。
+
+当前未提交改动精确七路径：`.agent-state/current.md`、`web/src/composables/useSession.ts`、`web/src/composables/useProjectVariables.ts`、`web/src/views/projects/ProjectVariableEditor.vue`、`web/src/tests/project-variables-session.spec.ts`、`web/src/tests/project-variables-state.spec.ts`、`web/src/tests/project-variables.spec.ts`。Skills 两技术路径由 root 单独提交；本实现者未修改其观测段。`git diff --check` 通过。旧 Variables `60dbcee7` 的 CRUD03 有限通过和 Authority03 整体失败不代本轮验收。
+
+## 精确前端复跑方式
+
+cwd 固定为 `/workspace/agenteam-project-variables-resume`。最终单元命令用 `NODE_DISABLE_COMPILE_CACHE=1 NO_COLOR=1`，`TMPDIR=$PWD/output/ai/project-variables-web/frontend/tmp-unit`、`XDG_CACHE_HOME=$PWD/output/ai/project-variables-web/frontend/xdg-unit`，执行 `node --input-type=module`，原 Node API 表达式为：
+
+```js
+import {startVitest} from './web/node_modules/vitest/dist/node.js'
+const base='/workspace/agenteam-project-variables-resume'
+const names=['project-variables-session','project-variables-state','project-variables']
+const ctx=await startVitest('test',names.map(name=>`src/tests/${name}.spec.ts`),{root:`${base}/web`,config:`${base}/web/vite.config.ts`,watch:false,cache:false,maxWorkers:2,configLoader:'native'},{cacheDir:`${base}/output/ai/project-variables-web/frontend/vite-unit-cache`})
+if(ctx.state.getFiles().length!==names.length) process.exitCode=1
+await ctx.close()
+```
+
+首次 17 文件的 `names` 为 `project-variables-client, project-variables-session, project-variables-state, project-variables, skill-owner-client, skill-owner-state, skill-owner-view, milestone-create-page, milestone-create-state, work-milestone-planning-client, work-milestone-planning-session, sprint-create-state, sprint-start-state, work-review-state, work-review-session, work-sprint-lifecycle-session, session`，路径均为 `web/src/tests/<name>.spec.ts`。unit-02 只排除首次已通过的 `project-variables-client`、`skill-owner-client`、`work-milestone-planning-client`，其余 14 同表达式执行。
+
+类型及构建使用相同 NODE_DISABLE/NO_COLOR，TMPDIR/XDG 分别改为 `frontend/tmp-build`、`frontend/xdg-build`。实际按顺序执行（类型非零不进入构建）：
+
+```sh
+node web/node_modules/vue-tsc/bin/vue-tsc.js --noEmit --project web/tsconfig.json
+```
+
+随后 `node --input-type=module` 使用：
+
+```js
+import {build} from './web/node_modules/vite/dist/node/index.js'
+const base='/workspace/agenteam-project-variables-resume'
+await build({root:`${base}/web`,configFile:`${base}/web/vite.config.ts`,configLoader:'native',cacheDir:`${base}/output/ai/project-variables-web/frontend/vite-build-cache`,build:{outDir:`${base}/output/ai/project-variables-web/frontend/dist`}})
+```
+
+日志各次独立重定向到上表文件，后续运行须用新文件名保留历史。最终 dist 为 `/workspace/agenteam-project-variables-resume/output/ai/project-variables-web/frontend/dist`。
 
 ## 下一步
 
-先停写交 root 保存本轮 checkpoint。root 已授权保存后以本树私有 npm 根/输出恢复锁定依赖，使用最多两个 worker 执行新增四文件 16 项及受影响共享接缝定向检查，再做一次类型/生产构建；不改锁、不新增版本、不跑全量。当前 Go/browser 仍禁止；Skills 下一 native 窗口的外网暂停由 root 通知。
+当前命令已全部结束、无后台任务；停写交 root 保存七路径 checkpoint，再由独立审查确认 must-fix 与本片技术范围。Go/browser 仍待 root 的单独资源授权；不得从作者前端 PASS 推断其已通过。
 
 后续真实入口为 `^TestProjectVariablesWeb$` / `create-update-and-clear`：一次 Create、两次 PATCH，各自完整 Get/List；浏览器零 Lookup，服务后验查证原 key 历史 receipt、canonical/Audit/Outbox 与其他 Project/Work/Secret/runtime 不变。两图为 1440 浅色与 390 深色，正常链不代权限/Unknown或完整 CRUD 验收。正式接受须另行安排独立验证。
 
