@@ -108,6 +108,9 @@ func (w *preparationWitness) saveInput(ctx context.Context, input c.PreparationI
 		return portError(err)
 	}
 	record := &preparationInputRecord{claim: w.claim, input: input}
+	if err = w.driver.verifyMountMaterial(ctx, w.tx, record); err != nil {
+		return err
+	}
 	// Save exact immutable expected bytes before the physical COMMIT. Recovery
 	// cannot substitute a new capture or infer rollback from an absent row.
 	w.driver.mu.Lock()
@@ -173,6 +176,9 @@ func (s *preparationState) capturedInput(ctx context.Context, request c.Preparat
 		if record != nil {
 			if current.summary.Status != c.Preparing || !record.input.Fields().Request.Equal(request) {
 				return fault(f.ConfirmationStale)
+			}
+			if err = s.verifyMountMaterial(ctx, tx, record); err != nil {
+				return err
 			}
 			found = true
 		}

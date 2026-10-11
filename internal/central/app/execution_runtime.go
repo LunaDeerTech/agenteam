@@ -17,6 +17,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
 	"github.com/LunaDeerTech/agenteam/internal/central/project"
 	pv "github.com/LunaDeerTech/agenteam/internal/central/projectvariable"
+	runnerservice "github.com/LunaDeerTech/agenteam/internal/central/runner/service"
 	"github.com/LunaDeerTech/agenteam/internal/central/scheduler"
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
 	"github.com/LunaDeerTech/agenteam/internal/central/skill"
@@ -199,7 +200,11 @@ func constructExecutionRuntime(b *executionRuntimeAssembly, cfg config.Config, d
 	if err != nil {
 		return err
 	}
-	mounts, err := mount.NewExecutionCapture(store, a.execution)
+	runnerMetadata, err := runnerservice.NewExecutionMetadataDirectory(store, a.execution)
+	if err != nil {
+		return err
+	}
+	mounts, err := mount.NewExecutionCapture(store, a.execution, runnerMetadata)
 	if err != nil {
 		return err
 	}

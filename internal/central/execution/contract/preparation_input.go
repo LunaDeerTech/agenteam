@@ -195,14 +195,21 @@ func validatePreparationFields(v PreparationInputFields) error {
 	if v.Project.ID != r.Launch.ProjectID || v.Project.Lifecycle != pc.Active || a.Core.ProjectID != v.Project.ID || a.Core.ID != r.Launch.AgentID || a.Core.Lifecycle != ac.AgentActive || v.Trigger.Ref().ProviderType != r.Launch.Trigger.Kind {
 		return invalid()
 	}
-	// This first complete capture profile has no AGENTS.md content provider or
-	// nonempty Mount runtime-reference provider. Explicit false and the real
-	// Mount provider's empty, versioned set are required; nil is never empty.
-	if a.Core.InjectAgentsMD || len(a.AllowedMountIDs) != 0 || v.Mounts.Mounts == nil || len(v.Mounts.Mounts) != 0 || len(r.Launch.Policy.AllowedResourceConstraints) != 0 {
+	// Capturing a nonempty Mount set does not enable an execution profile or
+	// issue operation permission. Unsupported content/policy stays explicit.
+	if a.Core.InjectAgentsMD || len(r.Launch.Policy.AllowedResourceConstraints) != 0 {
 		return f.NewFault(f.CapabilityUnsupported, f.NotStarted)
 	}
 	if v.Mounts.Request.ProjectID != v.Project.ID || v.Mounts.Request.AgentID != a.Core.ID || v.Mounts.Request.ExecutionID != r.ExecutionID || v.Mounts.AgentVersion != a.Core.Version {
 		return invalid()
+	}
+	if len(v.Mounts.Mounts) != len(a.AllowedMountIDs) {
+		return invalid()
+	}
+	for n, mount := range v.Mounts.Mounts {
+		if mount.ID != a.AllowedMountIDs[n] || v.Mounts.AttemptBinding != v.AttemptBinding {
+			return invalid()
+		}
 	}
 	if v.Skills.Request.ProjectID != v.Project.ID || v.Skills.Request.AgentID != a.Core.ID || v.Skills.Request.ExecutionID != r.ExecutionID || e.Request.ProjectID != v.Project.ID || e.Request.AgentID != a.Core.ID || e.Request.ExecutionID != r.ExecutionID || e.AttemptBinding != v.AttemptBinding || e.AgentVersion != a.Core.Version {
 		return invalid()

@@ -87,9 +87,9 @@ func NewPreparationDriver(store Store, authority *Authority, deps PreparationDep
 // Run reads the stored original Launch, commits created -> preparing and a
 // fenced attempt, then atomically captures all installed providers and their
 // references/leases with one immutable input. A missing provider rolls the
-// entire capture back. The supported profile requires AGENTS.md injection off
-// and a real empty Mount head. This does not seal a Snapshot, enter running or
-// publish Started. A committed input is reused without recapturing sources.
+// entire capture back. Mount metadata and references come from the real
+// provider; capturing them does not seal a Snapshot, enter running or publish
+// Started. A committed input is reused without recapturing current sources.
 func (d *PreparationDriver) Run(ctx context.Context, execution i.ExecutionID) (err error) {
 	if ctx == nil || execution.Validate() != nil {
 		return invalid()
@@ -534,8 +534,13 @@ func (s *preparationState) capture(ctx context.Context, request c.PreparationReq
 		if err = ctx.Err(); err != nil {
 			return err
 		}
-		if mounts.Validate() != nil || mounts.Request != mountRequest || mounts.AgentVersion != fields.Core.Version || len(fields.AllowedMountIDs) != 0 {
+		if mounts.Validate() != nil || mounts.Request != mountRequest || mounts.AgentVersion != fields.Core.Version || len(mounts.Mounts) != len(fields.AllowedMountIDs) {
 			return fault(f.InvalidState)
+		}
+		for n, mount := range mounts.Mounts {
+			if mount.ID != fields.AllowedMountIDs[n] {
+				return fault(f.InvalidState)
+			}
 		}
 		x, err := s.store.InTx(tx)
 		if err != nil {

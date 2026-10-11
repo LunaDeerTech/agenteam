@@ -157,6 +157,9 @@ func (s *preparationState) start(ctx context.Context, request c.PreparationReque
 			if current.summary.Status != c.Preparing || !captured.input.Fields().Request.Equal(request) {
 				return fault(f.ConfirmationStale)
 			}
+			if err = s.verifyMountMaterial(ctx, tx, captured); err != nil {
+				return err
+			}
 			run.replayed = true
 			return ctx.Err()
 		}
@@ -257,6 +260,9 @@ func (s *preparationState) finish(ctx context.Context, request c.PreparationRequ
 					return fault(f.CommitUnknown)
 				}
 				return fault(f.ConfirmationStale)
+			}
+			if err = s.verifyMountMaterial(ctx, tx, observed); err != nil {
+				return err
 			}
 		}
 		actual, err := loadPreparationAttempt(ctx, x, claim)

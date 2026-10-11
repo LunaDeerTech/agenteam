@@ -199,6 +199,11 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestExecutionMountCapture$': frozenset((
+        'TestExecutionMountCapture',
+        'TestExecutionMountCapture/nonempty-unknown-and-historical-material',
+        'TestExecutionMountCapture/final-rollback-keeps-no-partial-capture',
+    )),
     '^TestAgentRunnerMountsIntegration$': frozenset((
         'TestAgentRunnerMountsIntegration',
         'TestAgentRunnerMountsIntegration/owner-http-configuration-and-current-reads',
