@@ -605,7 +605,7 @@ func (v *operationReadFileFixture) requireTerminal(t *testing.T, row operationRe
 		Attempted                                  bool
 		Result                                     *struct {
 			Operation, Attempt, SHA256 string
-			Bytes                      int64
+			Bytes                      f.Progress
 		}
 	}
 	if json.Unmarshal(row.terminal, &terminal) != nil || !bytes.Equal(row.terminal, row.attemptOutcome) || len(row.terminal) > 32768 || terminal.Format != 1 || terminal.Operation != row.operation || terminal.Attempt != row.attempt || terminal.Request != row.request || !row.retired || row.version != 3 {
@@ -614,7 +614,7 @@ func (v *operationReadFileFixture) requireTerminal(t *testing.T, row operationRe
 	if success {
 		want, err := p.EncodeReadFileResult(v.expected)
 		readFileAdapterOK(t, err, "independently expected full read-file result")
-		if len(want) <= 32768 || row.phase != "succeeded" || row.attemptPhase != "succeeded" || row.outcome != "success" || terminal.Outcome != "success" || terminal.Code != "" || !terminal.Attempted || terminal.Result == nil || row.results != 1 || !bytes.Equal(row.result, want) || row.resultBytes != int64(len(want)) || row.resultDigest != fmt.Sprintf("sha256:%x", sha256.Sum256(want)) || terminal.Result.Operation != row.operation || terminal.Result.Attempt != row.attempt || terminal.Result.SHA256 != row.resultDigest || terminal.Result.Bytes != row.resultBytes {
+		if len(want) <= 32768 || row.phase != "succeeded" || row.attemptPhase != "succeeded" || row.outcome != "success" || terminal.Outcome != "success" || terminal.Code != "" || !terminal.Attempted || terminal.Result == nil || row.results != 1 || !bytes.Equal(row.result, want) || row.resultBytes != int64(len(want)) || row.resultDigest != fmt.Sprintf("sha256:%x", sha256.Sum256(want)) || terminal.Result.Operation != row.operation || terminal.Result.Attempt != row.attempt || terminal.Result.SHA256 != row.resultDigest || int64(terminal.Result.Bytes) != row.resultBytes {
 			t.Fatal("original full result was truncated, replaced or not atomically retired")
 		}
 	} else if row.phase != "failed" || row.attemptPhase != "failed" || row.outcome != "error" || terminal.Outcome != "failure" || terminal.Code != "not_dispatched" || terminal.Attempted || terminal.Result != nil || row.results != 0 || len(row.result) != 0 {
