@@ -70,7 +70,7 @@ func insertTaskRelaunch(ctx context.Context, x postgres.SQLExecutor, r *taskRela
 	if ref.Validate() != nil {
 		return internal(nil)
 	}
-	err = taskAffected(x.Exec(ctx, `INSERT INTO agenteam_work.task_scheduler_relaunches(id,project_id,task_id,agent_id,sprint_id,milestone_id,request_id,task_version,purpose,source_digest,record,created_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,'task/work',$9,$10,$11)`, r.Request.DispatchID, r.Request.ProjectID.String(), r.Request.TaskID.String(), r.Request.AgentID.String(), r.Request.CurrentSprintID.String(), r.Task.MilestoneID.String(), r.Request.RequestID.String(), int64(r.Task.Version), string(ref.ReferenceDigest), raw, r.CreatedAt.Time()))
+	err = taskAffected(x.Exec(ctx, `INSERT INTO agenteam_work.task_scheduler_relaunches(id,project_id,task_id,agent_id,sprint_id,milestone_id,request_id,task_version,purpose,source_digest,record,created_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$12,$9,$10,$11)`, r.Request.DispatchID, r.Request.ProjectID.String(), r.Request.TaskID.String(), r.Request.AgentID.String(), r.Request.CurrentSprintID.String(), r.Task.MilestoneID.String(), r.Request.RequestID.String(), int64(r.Task.Version), string(ref.ReferenceDigest), raw, r.CreatedAt.Time(), r.Request.Purpose))
 	if err != nil {
 		return err
 	}
