@@ -55,3 +55,9 @@ native01已有限whole独验接受：outer31234亲wait0/141.189s；Go1top1sub19.
 生产 initializer/registry、Cleanup、ready=false/503、Artifact/Project 完整生命周期及其他 STOP 均保持；新候选不等于生产解禁。
 
 本次主线组合核对：五个产品/测试路径的 working 与 staged 均逐字等已验 `4807ac91`；两 harness 的 main加Object/反向移除、候选加main/反向移除四路补丁均以零 fuzz 得到精确整文件，全部有效映射为主线与Object三个精确组的并集，函数 AST 与主线及原540+60预算不变。证据在 `/workspace/agenteam-object-runtime-join-safe/output/ai/object-runtime-join-safe/merge-main01/`。只解决本 current 内容冲突，未写 Git，未重跑已有通过测试。
+
+## D16 Workspace Root.Find 有限交付
+
+2026-10-11，在已交 Object 的 main `509b43a1` 上组合本片。作者 recovery_lead、独审 agent_display_settings；来源 `ai/workspace-find-20261011`，技术 `3fe35261`、收口文档 `b6632eb5`，[正式卡](../docs/development/work-items/d16-workspace-find.md)。仅 Linux 本地 Root.Find→Read：明确 name/path glob、子 symlink 不追踪、真实第 Limit+1 命中才截断，遍历/编码预算错误归零，保原 fd 生命周期。未绑定生产 Tool/Mount/Authority/RPC/initializer，不解除任何既有 STOP。
+
+原 race 工具12782/Go271784实际0（20 top，Find新增9），vet 工具81217/Go273680实际0；非作者已核源码、全部13输入/四份前后清单与原件，无遗留 must-fix。原件在 `/workspace/agenteam-workspace-find/output/ai/workspace-find/{race01,vet01}/`。当前没有本片后台、缓存 writer、服务或网络窗口。五技术文件的主线 working/staged 逐字等已验 `3fe35261`，仅此 current 内容冲突按原主线全文保留后追加，未重跑已经通过的输入；Git 集成由 root 执行。完整 D16、生产装配与非 Linux 动态验收仍未完成。

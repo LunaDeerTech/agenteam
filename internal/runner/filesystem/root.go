@@ -12,6 +12,7 @@ import (
 type nativeRoot interface {
 	read(context.Context, ReadRequest) (ReadResult, error)
 	list(context.Context, ListRequest) (ListResult, error)
+	find(context.Context, FindRequest) (FindResult, error)
 	close() error
 }
 
