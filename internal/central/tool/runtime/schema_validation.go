@@ -51,16 +51,31 @@ func (v *RegistrySchemaValidator) ValidateInstallOutputInTx(ctx context.Context,
 	return v.validate(ctx, tx, ref, raw, true)
 }
 
-func (v *RegistrySchemaValidator) validate(ctx context.Context, tx f.Tx, ref tc.SpecRef, raw []byte, output bool) (err error) {
+func (v *RegistrySchemaValidator) validate(ctx context.Context, tx f.Tx, ref tc.SpecRef, raw []byte, output bool) error {
+	return v.validateInstance(ctx, tx, ref, raw, output, nil)
+}
+
+// mismatch is set only by the actual instance validator, never by a metadata,
+// lock or compilation error that happens to have the same public fault code.
+func (v *RegistrySchemaValidator) validateInstance(ctx context.Context, tx f.Tx, ref tc.SpecRef, raw []byte, output bool, mismatch *bool) (err error) {
+	if mismatch != nil {
+		*mismatch = false
+	}
 	if err = contextError(ctx); err != nil {
 		return err
 	}
 	defer func() {
 		if recover() != nil {
 			err = fail(f.DependencyUnavailable)
+			if mismatch != nil {
+				*mismatch = false
+			}
 		}
 		if ctx.Err() != nil {
 			err = ctx.Err()
+			if mismatch != nil {
+				*mismatch = false
+			}
 		}
 	}()
 	if v == nil || v.data == nil {
@@ -106,7 +121,12 @@ func (v *RegistrySchemaValidator) validate(ctx context.Context, tx f.Tx, ref tc.
 	if err != nil {
 		return err
 	}
-	return compiled.Validate(ctx, raw)
+	err = compiled.Validate(ctx, raw)
+	var fault *f.Fault
+	if mismatch != nil && errors.As(err, &fault) && fault != nil && fault.Code == f.InvalidArgument {
+		*mismatch = true
+	}
+	return err
 }
 
 // A metadata provider can carry schema text in diagnostics. Keep only typed

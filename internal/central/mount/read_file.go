@@ -60,6 +60,15 @@ func (t ReadFileTicket) RunnerID() rc.RunnerID {
 	return t.state.current.definition.Runner
 }
 
+// Target exposes the ticket's fixed safe metadata without consuming it or
+// granting dispatch. The original Claim still rechecks the complete mapping.
+func (t ReadFileTicket) Target() (mc.ReadFileTarget, error) {
+	if t.state == nil {
+		return mc.ReadFileTarget{}, fault(f.Forbidden)
+	}
+	return readFileTarget(t.state.current)
+}
+
 func readFileConfigurationRequest(in mc.ReadFileIntent) ac.ExecutionConfigurationRequest {
 	return ac.ExecutionConfigurationRequest{Actor: in.Actor, ProjectID: in.ProjectID, AgentID: in.AgentID, ExecutionID: in.ExecutionID, Stage: ac.ExecutionConfigurationCurrent}
 }

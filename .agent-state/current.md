@@ -1,15 +1,19 @@
 # 全局协调索引
 
-2026-10-11。main 的本文件当前由 root 指定 recovery_lead 维护本次集成正文；root 负责 Git、集成和资源排期。功能分支 current 不覆盖本索引。正式交付边界见[任务台账](../docs/development/agent-team/tasks.md)，分段接受不等于当前 main 单次全量通过。
+2026-10-11。main 的本文件当前由 root 指定 variables_review 维护本次集成正文；root 负责 Git、集成和资源排期。功能分支 current 不覆盖本索引。正式交付边界见[任务台账](../docs/development/agent-team/tasks.md)，分段接受不等于当前 main 单次全量通过。
 
 ## 当前开发
 
 | 任务 / 分支 | 负责人 | 状态与下一步 |
 | --- | --- | --- |
-| 单次 read-file Operation/Attempt 基础 | root 统筹并行实施 | 独立树 `/workspace/agenteam-runner-read-file-operation` 已建，基线 `1b10c29c`；Tool 存储基础与 Runner RequestID 接缝正在纯源码实施，尚未测试、未验收，不提前计作执行链已打通。 |
+| 单次 read-file Operation/Attempt | skill_package_review 交付，runtime_recovery 独审 | 本次合入有限已验片：native04 wholePASS，完整64KiB持久结果、原提交回执丢失后的Lookup不重发，以及当前撤Mount零wire。原01至03与codec红保留，完整开发历史随非squash合并进入main；不含Transcript消费、下一Model或生产默认绑定，见[正式卡及四轮原记录](../docs/development/work-items/d18-runner-read-file-operation.md)。 |
 | Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |
 
+主目标仍是完成[开发计划](../docs/development/development-plan.md)中的D01–D28/E01，目前尚未完成；任何单片有限验收不代表整体目标或原STOP解除。
+
 ## 保留与清理
+
+- read-file Operation本次以保留历史的合并交付；原树、四组compile/native及codec原红目前仍保留，尚未计入清理。证据入口为原树 `output/ai/runner-read-file-operation/` 和 `/tmp/rfo01` 至 `/tmp/rfo04`，四轮实际结果、Wait/TCP/输入及恢复边界见[工作卡](../docs/development/work-items/d18-runner-read-file-operation.md#实际验证与保留失败)。native01 TIME_WAIT归属未明、native02未记录Status、native03未执行Lookup/正常收尾均不由04通过回填。
 
 - Execution ToolCall 持久事实已随 main `95c092bc` 有限交付并推送，native03 wholePASS 独立接受，原全部 FAIL 保留；完整开发历史在 main，126 个 output 原件及三轮 tmp 必需副本已无覆盖保全，见[恢复说明](execution-tool-call-facts/README.md)。原树普通移除、本地 branch -d 成功；远端精确 tip lease 删除实际 0，fresh 查询为空、explicit prune 0、旧树不在列表，三项清理已计入下列总数。不含真实 Model tools HTTP、ToolOperation / Runner 派发或默认生产绑定。
 
