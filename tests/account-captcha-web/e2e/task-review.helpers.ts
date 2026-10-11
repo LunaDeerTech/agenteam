@@ -137,8 +137,17 @@ async function observeBrowserIO(
         : "other";
     const record = (kind: string, fields: Record<string, unknown> = {}) => {
       if (sequence >= 2048) return;
-      const controls = [...document.querySelectorAll("button")].map((button) =>
-        button.textContent?.trim(),
+      const controls = [...document.querySelectorAll("button")].map(
+        (button) => {
+          if (button.getAttribute("aria-hidden") === "true") return undefined;
+          const label = button.getAttribute("aria-label")?.trim();
+          if (label) return label;
+          const visible = button.cloneNode(true) as HTMLElement;
+          visible
+            .querySelectorAll('[aria-hidden="true"]')
+            .forEach((node) => node.remove());
+          return visible.textContent?.replace(/\s+/g, " ").trim();
+        },
       );
       try {
         void send({
