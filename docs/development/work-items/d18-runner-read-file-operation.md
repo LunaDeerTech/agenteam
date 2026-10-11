@@ -1,6 +1,6 @@
 # D18/D22 单 read-file Operation
 
-本片把真实 Execution ToolCall 接到一次 Runner read-file Operation/Attempt，并持久保存可重读的完整结果。两组基础检查与两次 PG 编译通过；native01/02均wholeFAIL，第二轮清Mount子场景通过，随后codec矛盾已通过定向红绿修复，尚待新PG编译与复验，不是已交付执行链。初始基线为 main `1b10c29c`；ToolFacts 先以已提交开发依赖接入，随后通过 main `95c092bc` 正式有限交付，原 native01/02 FAIL 与修后03通过事实均保持，不替代本片验证。
+本片把真实 Execution ToolCall 接到一次 Runner read-file Operation/Attempt，并持久保存可重读的完整结果。两组基础检查与compile01至04及精确list通过；native01至03均wholeFAIL，清Mount子场景已通过，完整结果场景的fixture类型窄修待另授native04复验，不是已交付执行链。初始基线为 main `1b10c29c`；ToolFacts 先以已提交开发依赖接入，随后通过 main `95c092bc` 正式有限交付，原 native01/02 FAIL 与修后03通过事实均保持，不替代本片验证。
 
 正式依据：[Model/Tool 契约](d01-contracts/model-tool.md)、[Execution 契约](d01-contracts/execution-orchestration.md)、[Runner read-file](d15-runner-read-file-adapter.md)。本片止于原 Operation 的持久结果，不包含下一轮 Model、Transcript 注入或自动重试。
 
@@ -42,4 +42,6 @@ Model JSON 为唯一明确端口替身，Execution/Tool authority、CurrentMount
 
 后续只读发现确定的codec矛盾：实际Message解码会重排嵌套JSON对象键，而 `terminalReadFile` 使用完整Payload与struct定序编码的逐字相等作为成功条件，合法协议值可能被降为 `backend_contract_violation`。此为静态产品发现，不能替代native02未保存的分支事实。针对真实Message codec的反例 `d40fc527` 已实际复现：原工具24616 actual1，`codec-repro01` 原产品未改且509项输入前后相同。窄修 `67329a12` 保留严格协议解码、原请求参数和身份校验，移除传输JSON对象键序与struct编码逐字相等的错误条件，持久结果仍使用明确编码器生成的完整原值与稳定摘要。修后原工具30556 actual0，`codec-fixed01` 2个top/7个sub race与runtime `codec-vet01` 均实际0，各509项输入前后相同；原红及命令/Wait保留在 `output/ai/runner-read-file-operation/checks/codec-*`。这证明定向codec问题已修，不补造native02的未记录Status或动态首因。
 
-下一步仅在root另授Go窗口后重新做PG race-c与精确list，再由root单独决定native03；当前尚未编译compile03或启动native03，不重复已通过的旧基础组。PG原COMMIT_UNKNOWN及完整结果强门不改，原预算、自动baseline、七ID双尾与两轮FAIL均保留。
+`compile03` race编译与精确list实际0，1827输入前后相同，相对02仅已审codec产品/测试两源差额。固定 `8d0781bf` 的 native03 为 **wholeFAIL**：原工具84435亲收actual1，supervisor722019实际1/121.997s；两子场景33.08s，clear PASS16.62s，happy FAIL16.46s。happy已通过原COMMIT_UNKNOWN与Attempt/final实际Committed门，随后在成功terminal元数据解析处失败；尚未抵达完整结果后验、两次Lookup及正常Stop/Drain，cleanup因仍有未查证Unknown原owner而报告未退休，此FAIL也保留，不记作正常Join通过。Go723769/driver722040实际Wait1，七资源14absence/private/runtime/descendants双尾、原HOST_TCP两delta_empty、1828inputs_unchanged均齐，整轮业务仍失败。原证据为 `output/ai/runner-read-file-operation/{compile03,native03}/` 与 `/tmp/rfo03/pg-cdbc3822c3c04958a2ed65a2d509144f.log`。
+
+静态核实成功结果引用的 `Bytes` 正式类型为 `f.Progress`，编码为十进制JSON字符串，PG误用int64导致解析失败。`b5532d77` 仅把测试字段改为f.Progress并在后验比较时显式转换int64，保留其余全部强断言，无产品变动；该两行修正已独审接受。`compile04` 原工具35958实际0，race编译与唯一top精确list均0，1827输入前后相同、对03仅此PG文件变化，binary `49f1fdf4…8cb4dfcc` 独立保留。compile01至03及各轮原FAIL均不覆盖，旧基础未重跑。当前没有native04，须root另授一次窗口；原PG完整结果/Lookup/退休强门、预算、自动baseline与七ID双尾均不变。
