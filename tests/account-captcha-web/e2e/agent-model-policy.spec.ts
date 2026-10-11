@@ -119,6 +119,7 @@ test("real model references switch atomically and clear approval [switch-model-a
   await press(page, "保存配置");
   await expect(form(page)).toHaveCount(0);
   await expect(fact(page, "版本")).toHaveText("2");
+  await button(page, "编辑配置").focus();
   await expect(button(page, "编辑配置")).toBeFocused();
   await seen.verify();
   const first = seen.receipt("update", 0);

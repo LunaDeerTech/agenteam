@@ -70,7 +70,9 @@ test("plans a real sibling without replacing the current Sprint [plan-another-sp
   await press(page, "新建 Sprint");
   const form = page.getByRole("form", { name: "新建 Sprint", exact: true });
   await expect(form).toBeVisible();
-  await expect(form.getByLabel("Sprint 标题", { exact: true })).toBeFocused();
+  await expect(
+    form.getByRole("textbox", { name: "Sprint 标题", exact: true }),
+  ).toBeFocused();
   const milestone = form.getByRole("button", {
     name: "所属 Milestone",
     exact: true,
@@ -84,7 +86,9 @@ test("plans a real sibling without replacing the current Sprint [plan-another-sp
   await page.keyboard.press("Enter");
   await expect(page.locator(".ui-popover")).toHaveCount(0);
   await expect(milestone).toBeFocused();
-  await form.getByLabel("Sprint 标题", { exact: true }).fill(data.title);
+  await form
+    .getByRole("textbox", { name: "Sprint 标题", exact: true })
+    .fill(data.title);
   await form.getByLabel("Sprint 描述", { exact: true }).fill(data.description);
   expect(seen.requests("create")).toHaveLength(0);
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
