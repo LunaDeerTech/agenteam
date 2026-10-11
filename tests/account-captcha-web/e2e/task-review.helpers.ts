@@ -1944,7 +1944,7 @@ export async function observeTaskRequests(
     return (
       profile.milestoneCreateWrites &&
       entry.request.method() === "GET" &&
-      ["project", "milestones", "milestone", "sprints"].includes(entry.name)
+      ["project", "milestones", "milestone", "sprints", "agents"].includes(entry.name)
     );
   }
   function skillsPageRead(entry: Entry) {
@@ -2280,7 +2280,7 @@ export async function observeTaskRequests(
     expect(dropped).toBe(1);
   }
   function milestoneRead(
-    name: "project" | "milestones" | "milestone" | "sprints",
+    name: "project" | "milestones" | "milestone" | "sprints" | "agents",
   ) {
     expect(profile.milestoneCreateWrites).toBe(true);
     const rows = entries.filter((e) => e.name === name && e.checked && e.body);

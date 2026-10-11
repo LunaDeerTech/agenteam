@@ -77,6 +77,10 @@ export async function observeMilestoneCreate(
       expect([...url.searchParams.entries()]).toEqual([["limit", "50"]]);
       return "milestones";
     }
+    if (path === prefix + "/agents") {
+      expect([...url.searchParams.entries()]).toEqual([["limit", "50"]]);
+      return "agents";
+    }
     if (
       createdID &&
       path === prefix + "/milestones/" + createdID &&
@@ -152,6 +156,7 @@ export async function observeMilestoneCreate(
       const { description, ...summary } = milestone;
       expect(seen.milestoneRead("milestones")).toEqual({ items: [summary] });
       expect(seen.milestoneRead("sprints")).toEqual({ items: [] });
+      expect(seen.milestoneRead("agents")).toEqual({ items: [] });
       expect(seen.milestoneRead("project")).toEqual(originalProject);
       return result;
     },
