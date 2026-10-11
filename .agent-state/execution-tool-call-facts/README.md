@@ -21,4 +21,4 @@
 
 `retention/source-history.json` 已逐字核对：两轮基础清单各 100 项、两轮 Model 清单各 129 项，以及三轮编译的 1804 / 1806 / 1806 项已跟踪输入，均等对应 main 可达提交；每套编译另两项外部工具输入保持原 manifest 与产物身份。以上原源码均在 main 历史中，无需重造恢复 patch。恢复时以对应输入 manifest、实际 argv 与当时依赖为准；旧绝对路径表示原运行位置，迁移后的材料本身不是可直接重跑的现行配方。只读 modules、活跃热 cache 和 MinIO 仍由各自明确保留树管理，均未随本树保全搬移。重新执行需要新隔离工作树、当前依赖校验和 root 资源窗口，不重复使用旧 namespace 或覆盖原件。
 
-本树所有原 Go / native 工具已实际退出，后继 Operation 只消费已提交 main 源码，无本树源码、产物或依赖绝对路径引用。原树 / 分支是否已经清理，以[主线当前索引](../current.md)及 root 实际 Git 结果为准。
+本树所有原 Go / native 工具已实际退出，后继 Operation 只消费已提交 main 源码，无本树源码、产物或依赖绝对路径引用。root 已完成原树普通 `worktree remove`、本地 `branch -d`（完整历史 main 可达）及远端 tip `b395810d0641dbdad2324a4c5a62d4c5b9c4191f` 的精确 lease 删除；原工具 7230 实际 0，fresh `ls-remote` 为空、explicit prune 0，旧树已不在列表。清理累计为 27 个 WorkTree / 28 个本地分支 / 58 个远端引用；旧待核 148 个与显式保留 1 个不变，见[主线当前索引](../current.md)。

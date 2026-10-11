@@ -6,11 +6,12 @@
 
 | 任务 / 分支 | 负责人 | 状态与下一步 |
 | --- | --- | --- |
-| Execution ToolCall 事实 — `ai/execution-tool-call-facts-20261011` | recovery_lead 交付；runtime_recovery 独审 | 已随 main `95c092bc` 有限交付并推送：34 + 26 top 分段 race / 适用 vet / native03 两场景 wholePASS 独立接受，原全部 FAIL 保留；不含 ToolOperation / Runner 派发或生产 tools。完整源码历史在 main，output 及三轮 tmp 必需副本已无覆盖保全，见[恢复说明](execution-tool-call-facts/README.md)；无活跃旧树依赖，待 root 普通 Git 清理。 |
 | 单次 read-file Operation/Attempt 基础 | root 统筹并行实施 | 独立树 `/workspace/agenteam-runner-read-file-operation` 已建，基线 `1b10c29c`；Tool 存储基础与 Runner RequestID 接缝正在纯源码实施，尚未测试、未验收，不提前计作执行链已打通。 |
 | Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |
 
 ## 保留与清理
+
+- Execution ToolCall 持久事实已随 main `95c092bc` 有限交付并推送，native03 wholePASS 独立接受，原全部 FAIL 保留；完整开发历史在 main，126 个 output 原件及三轮 tmp 必需副本已无覆盖保全，见[恢复说明](execution-tool-call-facts/README.md)。原树普通移除、本地 branch -d 成功；远端精确 tip lease 删除实际 0，fresh 查询为空、explicit prune 0、旧树不在列表，三项清理已计入下列总数。不含真实 Model tools HTTP、ToolOperation / Runner 派发或默认生产绑定。
 
 - Project Secret 写 UI 已随 main `22d0a0b6` 有限交付：普通 Owner 创建、元数据修改、明确替换与原身份 Lookup 恢复，native02 wholePASS 独立接受；原 FAIL 保留。完整证据已同文件系统无覆盖保全至 `output/ai/retired-20261011/project-secrets-write-ui/`，含组合 Knowledge 控制、dist 与两轮 tmp 原件副本；原树已普通移除，本地分支在 squash 非祖先拒绝后窄删；精确 tip lease 远端删除、成功空查询及 prune 均已核实，三项清理已计入下列总数。删除、运行注入、生产 Project initializer 与原 STOP 不在本片。
 - Knowledge 子树删除 UI 已于 main `48fe9a37` 有限交付，native03 wholePASS 独立接受；原树、本地分支及远端引用均已实际清理并核为空。两输出根、dist、三轮 `/tmp` 原件及必要恢复差额已保全；原01/02 FAIL、02 Lookup502 未定因和 cleanup_pending 不代表物理 Object 回收的边界保持。
@@ -18,7 +19,7 @@
 - SkillHTTP 树保留活跃热 Go cache，SkillsMilestoneResume 树保留共享只读 modules 与既有运行依赖；Go writer 和 native 窗口均按 root 明确交接。
 - ProjectVariablesResume 保留未完恢复；ObjectSafe 保留原件与失败。Move 活跃树保留，未核其他树不自动清理。
 - Runner directory 已随 main `4e5e70ce` 有限交付并推送，28 个相关 race top、六包 vet 与真实 PG/WSS 整轮独立接受；原树、本地分支及远端引用均已清理。完整 output 已同文件系统无覆盖迁至 main `output/ai/retired-20261011/runner-directory-adapter/`，其中 `retention/` 保存原 `/tmp/rda01` log/owned/request 的逐字副本和路径映射；原 `/tmp` 保留。本片无失败输入需补恢复差额，上游严格授权替身、生产默认 nil executor/旧 STOP 保留。
-- 已完成清理共 26 个 WorkTree、27 个本地分支、57 个远端引用；其中 26 个额外远端引用为严格 main 祖先，没有对应本地分支或树，另有已删除的本地 work296。root 已确认前述三棵退役树不存在、对应 local/tracking 为空，精确 lease 删除、ls-remote 空结果及 main+ai prune 均实际成功。Directory 普通 worktree remove 成功，branch -d 因非祖先拒绝后仅对已交 squash 分支执行窄 -D；最新 tip 精确 lease 删除、成功空查询、prune 和 local/tracking 空结果均已闭合。另有 D16 filesystem、D18 NameProjection、SearchBenchmark 三个完整 scope 已交且无独占依赖的旧远端引用，经 fresh tip 核对、精确 lease 删除、成功空查询及 prune 后完成清理，没有新增本地分支或树。新增清理 `ai/work-review-runtime-delivery`：tip `f4190ad7` 全部历史经 main 可达，无本地分支、worktree 或活动依赖；root fresh tip 核对后精确 lease 删除成功，ls-remote 成功为空，prune 后远端跟踪引用为空，无需新增恢复材料。原 154 个待核引用现剩 148 个，1 个显式保留历史引用仍未动，其他活动分支按 owner 保留。
+- 已完成清理共 27 个 WorkTree、28 个本地分支、58 个远端引用；其中 26 个额外远端引用为严格 main 祖先，没有对应本地分支或树，另有已删除的本地 work296。root 已确认前述三棵退役树不存在、对应 local/tracking 为空，精确 lease 删除、ls-remote 空结果及 main+ai prune 均实际成功。Directory 普通 worktree remove 成功，branch -d 因非祖先拒绝后仅对已交 squash 分支执行窄 -D；最新 tip 精确 lease 删除、成功空查询、prune 和 local/tracking 空结果均已闭合。另有 D16 filesystem、D18 NameProjection、SearchBenchmark 三个完整 scope 已交且无独占依赖的旧远端引用，经 fresh tip 核对、精确 lease 删除、成功空查询及 prune 后完成清理，没有新增本地分支或树。新增清理 `ai/work-review-runtime-delivery`：tip `f4190ad7` 全部历史经 main 可达，无本地分支、worktree 或活动依赖；root fresh tip 核对后精确 lease 删除成功，ls-remote 成功为空，prune 后远端跟踪引用为空，无需新增恢复材料。原 154 个待核引用现剩 148 个，1 个显式保留历史引用仍未动，其他活动分支按 owner 保留。
 
 
 - 两条无 local/tree 或活动依赖的旧 remote 已完成 fresh tip 核对、双 exact-lease 原子删除、成功空查询及 prune：`ai/task-timeline-http`（`1e6b3db2809ce0e62de6c8c2042a0eaf3b9b67f5`）完整 6 路径及 6 个提交版本逐字保留于 main 祖先 `bfebd676`；`ai/agent-directory-http`（`235887d2f615ed6bd6863d9c8b4a1b1e548f32d2`）完整 14 路径等于 main 祖先 `2c59cf0d`，跨三提交的 15 个文件版本均可从 main 历史恢复，无需新增材料。
