@@ -20,6 +20,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/scheduler"
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
 	"github.com/LunaDeerTech/agenteam/internal/central/skill"
+	"github.com/LunaDeerTech/agenteam/internal/central/tool/registry"
 	"github.com/LunaDeerTech/agenteam/internal/central/work"
 	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 )
@@ -56,7 +57,7 @@ func constructExecutionRuntime(b *executionRuntimeAssembly, cfg config.Config, d
 	accounts *account.Authority, projects *projectUsageAssembly, skills *skill.Authority,
 	workAuthority *work.Authority, a *executionRuntimeAuthorities, objects *objectAssembly,
 	models *model.Service, secrets *secret.Service, outbound *outboundRuntime,
-	journal *outbox.Service, events executionRuntimeEventSet) error {
+	journal *outbox.Service, events executionRuntimeEventSet, registries ...*registry.Registry) error {
 	if b == nil {
 		return f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
@@ -67,7 +68,7 @@ func constructExecutionRuntime(b *executionRuntimeAssembly, cfg config.Config, d
 	if !enabled || options.Validate() != nil || !bound || !ok || runtimeInformationNil(store) || b == nil || a == nil || projects == nil || projects.reader == nil || objects == nil || objects.guard == nil || models == nil || secrets == nil || outbound == nil || journal == nil {
 		return f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
-	providers, err := createAgentRuntimeProviders(db, projects.projects, accounts, skills, a)
+	providers, err := createAgentRuntimeProviders(db, projects.projects, accounts, skills, a, registries...)
 	if err != nil {
 		return err
 	}

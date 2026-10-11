@@ -28,9 +28,9 @@ type executionRuntimeAuthorities struct {
 	secretService i.ServiceRegistration
 }
 
-func createExecutionRuntimeAuthorities(db database, projects *project.Authority, guard *object.ProcessGuard) (*executionRuntimeAuthorities, error) {
+func createExecutionRuntimeAuthorities(db database, projects *project.Authority, guard *object.ProcessGuard, originalAgents ...*agent.Authority) (*executionRuntimeAuthorities, error) {
 	store, ok := db.(execution.Store)
-	if !ok || runtimeInformationNil(store) || projects == nil || guard == nil {
+	if !ok || runtimeInformationNil(store) || projects == nil || guard == nil || len(originalAgents) > 1 || len(originalAgents) == 1 && originalAgents[0] == nil {
 		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
 	b := &executionRuntimeAuthorities{}
@@ -45,7 +45,9 @@ func createExecutionRuntimeAuthorities(db database, projects *project.Authority,
 	if b.execution, err = execution.NewAuthority(store, projects, access); err != nil {
 		return nil, err
 	}
-	if b.agents, err = agent.NewAuthority(store, projects); err != nil {
+	if len(originalAgents) == 1 {
+		b.agents = originalAgents[0]
+	} else if b.agents, err = agent.NewAuthority(store, projects); err != nil {
 		return nil, err
 	}
 	modelService, err := i.RegisterService(i.ModelRuntime)
@@ -78,15 +80,14 @@ type agentRuntimeProviders struct {
 	tools         tc.ExecutionTools
 }
 
-// This profile reads the original Agent, Skill and Registry state. In
-// particular it does not install a replacement builtin, manufacture an empty
-// directory or add deny IDs. Registry still rejects every selected registered
-// builtin whose actual source is unbound. The persisted execution policy alone
-// may exclude it; DirectText independently rejects a nonempty captured set.
-func createAgentRuntimeProviders(db database, projects *project.Authority, accounts *account.Authority, skills *skill.Authority, a *executionRuntimeAuthorities) (agentRuntimeProviders, error) {
+// This profile reads the original Agent, Skill and Registry state. The App
+// supplies its same real configuration Registry. Legacy constructor callers
+// retain their empty source map and its fail-closed behavior. No path adds deny
+// IDs; DirectText independently rejects a nonempty captured set.
+func createAgentRuntimeProviders(db database, projects *project.Authority, accounts *account.Authority, skills *skill.Authority, a *executionRuntimeAuthorities, registries ...*registry.Registry) (agentRuntimeProviders, error) {
 	var out agentRuntimeProviders
 	store, ok := db.(registry.Store)
-	if !ok || runtimeInformationNil(store) || projects == nil || accounts == nil || skills == nil || a == nil {
+	if !ok || runtimeInformationNil(store) || projects == nil || accounts == nil || skills == nil || a == nil || len(registries) > 1 || len(registries) == 1 && registries[0] == nil {
 		return out, f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
 	var err error
@@ -99,9 +100,14 @@ func createAgentRuntimeProviders(db database, projects *project.Authority, accou
 	if out.roundSkills, err = skill.NewInitialRoundBindings(skills); err != nil {
 		return out, err
 	}
-	registered, err := registry.New(store, registry.Options{Sources: map[string]registry.BuiltinSource{}, Authorizations: registry.Authorizations{Sessions: accounts, Projects: projects}})
-	if err != nil {
-		return out, err
+	var registered *registry.Registry
+	if len(registries) == 1 {
+		registered = registries[0]
+	} else {
+		registered, err = registry.New(store, registry.Options{Sources: map[string]registry.BuiltinSource{}, Authorizations: registry.Authorizations{Sessions: accounts, Projects: projects}})
+		if err != nil {
+			return out, err
+		}
 	}
 	if out.tools, err = registry.NewExecutionCapture(registered, a.execution); err != nil {
 		return out, err

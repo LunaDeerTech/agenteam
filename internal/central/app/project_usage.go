@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	"github.com/LunaDeerTech/agenteam/internal/central/agent"
 	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -71,7 +72,11 @@ func createProjectUsageAuthority(db database, accounts *account.Authority) (*pro
 	if err != nil {
 		return nil, err
 	}
-	projects, err := project.NewAuthority(projectsStore, project.AuthorityDependencies{Sessions: accounts, Routes: accounts, AuditFacts: map[ac.Producer]ac.ProjectFactAuthority{ac.SecretProducer: secretFacts, ac.ProjectVariableProducer: variableFacts, ac.KnowledgeProducer: knowledgeFacts, ac.ObjectProducer: objectFacts}})
+	agentFacts, err := agent.NewProjectAuditAuthority(projectsStore)
+	if err != nil {
+		return nil, err
+	}
+	projects, err := project.NewAuthority(projectsStore, project.AuthorityDependencies{Sessions: accounts, Routes: accounts, AuditFacts: map[ac.Producer]ac.ProjectFactAuthority{ac.AgentProducer: agentFacts, ac.SecretProducer: secretFacts, ac.ProjectVariableProducer: variableFacts, ac.KnowledgeProducer: knowledgeFacts, ac.ObjectProducer: objectFacts}})
 	if err != nil {
 		return nil, err
 	}

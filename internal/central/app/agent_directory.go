@@ -25,6 +25,14 @@ func createAgentDirectory(cfg config.Config, db database, projects *project.Auth
 	if err != nil {
 		return nil, err
 	}
+	return createAgentDirectoryWithAuthority(cfg, db, authority)
+}
+
+func createAgentDirectoryWithAuthority(cfg config.Config, db database, authority *agent.Authority) (*agentDirectoryAssembly, error) {
+	store, ok := db.(agent.Store)
+	if !ok || runtimeInformationNil(store) || authority == nil {
+		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
+	}
 	reader, err := agent.NewDirectoryReader(store, authority, cfg.CursorKeyring())
 	if err != nil {
 		return nil, err

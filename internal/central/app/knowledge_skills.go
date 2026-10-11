@@ -19,6 +19,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
 	"github.com/LunaDeerTech/agenteam/internal/central/project"
 	"github.com/LunaDeerTech/agenteam/internal/central/skill"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/skill/contract"
 	skillhttp "github.com/LunaDeerTech/agenteam/internal/central/skill/http"
 )
 
@@ -29,6 +30,10 @@ type knowledgeSkillAuthorities struct {
 }
 
 func createKnowledgeSkillAuthorities(db database, projects *projectUsageAssembly) (*knowledgeSkillAuthorities, error) {
+	return createKnowledgeSkillAuthoritiesWithInstall(db, projects, nil)
+}
+
+func createKnowledgeSkillAuthoritiesWithInstall(db database, projects *projectUsageAssembly, install sc.InstallExecutionAuthority) (*knowledgeSkillAuthorities, error) {
 	knowledgeStore, ok := db.(knowledge.Store)
 	if !ok || runtimeInformationNil(knowledgeStore) || projects == nil {
 		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
@@ -41,7 +46,12 @@ func createKnowledgeSkillAuthorities(db database, projects *projectUsageAssembly
 	if err != nil {
 		return nil, err
 	}
-	skills, err := skill.NewAuthority(skillStore, projects.projects)
+	var skills *skill.Authority
+	if install == nil {
+		skills, err = skill.NewAuthority(skillStore, projects.projects)
+	} else {
+		skills, err = skill.NewAuthorityWithInstallExecution(skillStore, projects.projects, install)
+	}
 	if err != nil {
 		return nil, err
 	}

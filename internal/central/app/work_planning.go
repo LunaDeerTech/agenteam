@@ -94,6 +94,22 @@ func createWorkPlanning(cfg config.Config, db database, authority *work.Authorit
 }
 
 func createWorkPlanningWithPending(cfg config.Config, db database, authority *work.Authority, accounts *account.Authority, journal *outbox.Service, events workPlanningEvents, pending *scheduler.PendingAuthority, transitionProjects ...*project.Authority) (result *workPlanningAssembly, err error) {
+	return createWorkPlanningWithProviders(cfg, db, authority, accounts, journal, events, pending, nil, transitionProjects...)
+}
+
+func createWorkPlanningWithAgents(cfg config.Config, db database, authority *work.Authority, accounts *account.Authority, journal *outbox.Service, events workPlanningEvents, agents *agent.Authority, projects *project.Authority) (*workPlanningAssembly, error) {
+	store, ok := db.(work.Store)
+	if !ok || runtimeInformationNil(store) || agents == nil {
+		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+	}
+	pending, err := scheduler.NewPendingAuthority(store)
+	if err != nil {
+		return nil, err
+	}
+	return createWorkPlanningWithProviders(cfg, db, authority, accounts, journal, events, pending, agents, projects)
+}
+
+func createWorkPlanningWithProviders(cfg config.Config, db database, authority *work.Authority, accounts *account.Authority, journal *outbox.Service, events workPlanningEvents, pending *scheduler.PendingAuthority, originalAgents *agent.Authority, transitionProjects ...*project.Authority) (result *workPlanningAssembly, err error) {
 	store, ok := db.(work.Store)
 	if !ok || runtimeInformationNil(store) || pending == nil || authority == nil || accounts == nil || journal == nil || !events.structure.Valid() || !events.tasks.Valid() || !events.blockers.Valid() {
 		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
@@ -137,9 +153,12 @@ func createWorkPlanningWithPending(cfg config.Config, db database, authority *wo
 	if len(transitionProjects) == 1 {
 		// All providers receive the original application Store and Project
 		// authority. Their current reads use the caller's actual transaction.
-		agents, e := agent.NewAuthority(store, transitionProjects[0])
-		if e != nil {
-			return nil, e
+		agents := originalAgents
+		if agents == nil {
+			agents, err = agent.NewAuthority(store, transitionProjects[0])
+			if err != nil {
+				return nil, err
+			}
 		}
 		occupancy, e := execution.NewWorkOccupancy(store)
 		if e != nil {

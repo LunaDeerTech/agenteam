@@ -9,6 +9,8 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/account"
 	c "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/accountmail"
+	"github.com/LunaDeerTech/agenteam/internal/central/agent"
+	agentc "github.com/LunaDeerTech/agenteam/internal/central/agent/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
 	audithttp "github.com/LunaDeerTech/agenteam/internal/central/audit/http"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
@@ -65,6 +67,8 @@ type accountAssembly struct {
 	executions      *executionRuntimeAssembly
 	planning        accountWork
 	agentDirectory  accountWork
+	agentInstall    accountWork
+	agents          *agentConfigurationAssembly
 	variables       accountWork
 	secretVariables accountWork
 	projects        accountWork
@@ -100,10 +104,15 @@ func (a *accountAssembly) constructionDone() {
 
 func (a *accountAssembly) Start(ctx context.Context) error {
 	a.mu.Lock()
-	runtime, mail, executions, stopped := a.runtime, a.mail, a.executions, a.stopped
+	runtime, mail, executions, agents, stopped := a.runtime, a.mail, a.executions, a.agents, a.stopped
 	a.mu.Unlock()
 	if runtime == nil || mail == nil || stopped {
 		return foundation.NewFault(foundation.DependencyUnavailable, foundation.NotStarted)
+	}
+	if agents != nil {
+		if err := agents.Initialize(ctx); err != nil {
+			return err
+		}
 	}
 	if err := runtime.Start(ctx); err != nil {
 		return err
@@ -181,6 +190,12 @@ func (a *accountAssembly) works() []accountWork {
 	if a.agentDirectory != nil {
 		work = append(work, a.agentDirectory)
 	}
+	if a.agents != nil {
+		work = append(work, a.agents)
+	}
+	if a.agentInstall != nil {
+		work = append(work, a.agentInstall)
+	}
 	if a.projects != nil {
 		work = append(work, a.projects)
 	}
@@ -242,7 +257,7 @@ func (a *accountAssembly) Force(ctx context.Context) error {
 		a.forced = ctx
 	}
 	original := a.forced
-	executions := a.executions
+	executions, agents, install := a.executions, a.agents, a.agentInstall
 	a.mu.Unlock()
 	a.StopAdmission()
 	var result error
@@ -253,7 +268,7 @@ func (a *accountAssembly) Force(ctx context.Context) error {
 		result = errors.Join(result, work.Force(original))
 		// The opt-in Runtime's original terminal/lease cleanup still uses the
 		// shared providers. Expiring a force budget does not make them disposable.
-		if executions != nil && work == executions && !executions.Joined() {
+		if executions != nil && work == executions && !executions.Joined() || agents != nil && work == agents && !agents.Joined() || install != nil && work == install && !install.Joined() {
 			return errors.Join(result, foundation.NewFault(foundation.DependencyUnavailable, foundation.NotStarted))
 		}
 	}
@@ -317,7 +332,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
-	contentAuthorities, err := createKnowledgeSkillAuthorities(db, projectUsage)
+	agentAuthority, err := createAgentConfigurationAuthority(db, projectUsage.projects)
 	if err != nil {
 		return err
 	}
@@ -343,10 +358,21 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
+	install, err := createAgentInstall(db, objects)
+	if err != nil {
+		return err
+	}
+	if !accounts.install(ctx, func() { accounts.agentInstall = install }) {
+		return context.Canceled
+	}
+	contentAuthorities, err := createKnowledgeSkillAuthoritiesWithInstall(db, projectUsage, install.authority)
+	if err != nil {
+		return err
+	}
 	var executionAuthorities *executionRuntimeAuthorities
 	modelAuth := model.Authorizations{Sessions: authority, System: authority, Projects: projectUsage.projects}
 	if runtimeEnabled {
-		executionAuthorities, err = createExecutionRuntimeAuthorities(db, projectUsage.projects, objects.guard)
+		executionAuthorities, err = createExecutionRuntimeAuthorities(db, projectUsage.projects, objects.guard, agentAuthority)
 		if err != nil {
 			return err
 		}
@@ -458,7 +484,15 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
-	producers := map[event.StableName]oc.ProducerAuthority{c.AccountProducer: authority, model.ModelProducer: modelAuthority, pc.ProjectProducer: projectUsage.projects, wc.WorkProducer: workAuthority, vc.VariableProducer: projectUsage.variables, kc.KnowledgeProducer: contentAuthorities.knowledge}
+	agentEvents, err := agentc.RegisterAgentEvents(catalog)
+	if err != nil {
+		return err
+	}
+	agentProducer, err := agent.NewEventAuthority(agentAuthority, agentEvents)
+	if err != nil {
+		return err
+	}
+	producers := map[event.StableName]oc.ProducerAuthority{agentc.AgentProducer: agentProducer, c.AccountProducer: authority, model.ModelProducer: modelAuthority, pc.ProjectProducer: projectUsage.projects, wc.WorkProducer: workAuthority, vc.VariableProducer: projectUsage.variables, kc.KnowledgeProducer: contentAuthorities.knowledge}
 	var executionEvents executionRuntimeEventSet
 	if runtimeEnabled {
 		executionEvents, err = defineExecutionRuntimeEvents(catalog)
@@ -477,9 +511,9 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	}
 	var planning *workPlanningAssembly
 	if runtimeEnabled {
-		planning, err = createWorkPlanningWithPending(cfg, db, workAuthority, authority, journal, workEvents, executionAuthorities.pending, projectUsage.projects)
+		planning, err = createWorkPlanningWithProviders(cfg, db, workAuthority, authority, journal, workEvents, executionAuthorities.pending, agentAuthority, projectUsage.projects)
 	} else {
-		planning, err = createWorkPlanning(cfg, db, workAuthority, authority, journal, workEvents, projectUsage.projects)
+		planning, err = createWorkPlanningWithAgents(cfg, db, workAuthority, authority, journal, workEvents, agentAuthority, projectUsage.projects)
 	}
 	if err != nil {
 		return err
@@ -487,7 +521,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if !accounts.install(ctx, func() { accounts.planning = planning }) {
 		return context.Canceled
 	}
-	directory, err := createAgentDirectory(cfg, db, projectUsage.projects)
+	directory, err := createAgentDirectoryWithAuthority(cfg, db, agentAuthority)
 	if err != nil {
 		return err
 	}
@@ -560,13 +594,20 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if !accounts.install(ctx, func() { accounts.skills = &skillWork{service: skills} }) {
 		return context.Canceled
 	}
+	agentConfiguration, err := createAgentConfiguration(db, projectUsage.projects, authority, agentAuthority, agentProducer, modelAuthority, skills, contentAuthorities.skills, install, auditor, journal)
+	if err != nil {
+		return err
+	}
+	if !accounts.install(ctx, func() { accounts.agents = agentConfiguration }) {
+		return context.Canceled
+	}
 	if runtimeEnabled {
 		executions := &executionRuntimeAssembly{constructing: true}
 		if !accounts.install(ctx, func() { accounts.executions = executions }) {
 			executions.constructionDone()
 			return context.Canceled
 		}
-		if err = constructExecutionRuntime(executions, cfg, db, authority, projectUsage, contentAuthorities.skills, workAuthority, executionAuthorities, objects, models, secrets, transport, journal, executionEvents); err != nil {
+		if err = constructExecutionRuntime(executions, cfg, db, authority, projectUsage, contentAuthorities.skills, workAuthority, executionAuthorities, objects, models, secrets, transport, journal, executionEvents, agentConfiguration.registry); err != nil {
 			return err
 		}
 	}
@@ -670,6 +711,10 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
+	agentHandler, err := agentConfigurationHandler(agentConfiguration, core, cfg.PublicOrigin())
+	if err != nil {
+		return err
+	}
 	variableHandler, err := projectVariablesHandler(variables, core, cfg.PublicOrigin())
 	if err != nil {
 		return err
@@ -694,6 +739,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		accounts.handler = projectAuditRoutes(projectCredentialsRoutes(projectModelsRoutes(projectUpdateRoutes(projectReadRoutes(projectUsageRoutes(systemAuditRoutes(systemOutboundPolicyRoutes(systemModelRoutes(httpHandler, modelHandler), policyHandler), auditHandler), usageHandler), projectHandler), updateHandler), projectModelHandler), credentialHandler), projectAudit)
 		accounts.handler = workPlanningRoutes(accounts.handler, planningHandler)
 		accounts.handler = agentDirectoryRoutes(accounts.handler, directoryHandler)
+		accounts.handler = agentConfigurationRoutes(accounts.handler, agentHandler)
 		accounts.handler = projectVariablesRoutes(accounts.handler, variableHandler)
 		accounts.handler = projectSecretVariablesRoutes(accounts.handler, secretVariableHandler)
 		accounts.handler = runnerControlRoutes(accounts.handler, runnerAdmin, runnerDevice)
