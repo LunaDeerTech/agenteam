@@ -286,7 +286,7 @@ func (x *schedulerReviewFixture) requireReviewTerminal(t *testing.T, dispatch sc
 		t.Fatal("review lost its fixed Task/reviewer/prompt or repeated the original work claim")
 	}
 	messages := round.Fields().Messages
-	if len(messages) != 2 || messages[0].Parts[0].Text == nil || !strings.Contains(*messages[0].Parts[0].Text, captured.Trigger().Instructions().Content()) {
+	if len(messages) != 2 || messages[0].Parts[0].Text == nil || !strings.Contains(messages[0].Parts[0].Text.Text, captured.Trigger().Instructions().Content()) {
 		t.Fatal("sealed review Round did not contain its versioned TaskReviewPrompt")
 	}
 	wire := x.parent.execution.round.requireWire(t, 2, true)
@@ -297,7 +297,7 @@ func (x *schedulerReviewFixture) requireReviewTerminal(t *testing.T, dispatch sc
 		} `json:"messages"`
 	}
 	requireSchedulerReview(t, json.Unmarshal([]byte(wire.Requests[1].Body), &sent))
-	if len(sent.Messages) != 2 || sent.Messages[0].Role != "system" || sent.Messages[0].Content != *messages[0].Parts[0].Text || sent.Messages[1].Role != "user" || sent.Messages[1].Content != *messages[1].Parts[0].Text {
+	if len(sent.Messages) != 2 || sent.Messages[0].Role != "system" || sent.Messages[0].Content != messages[0].Parts[0].Text.Text || sent.Messages[1].Role != "user" || sent.Messages[1].Content != messages[1].Parts[0].Text.Text {
 		t.Fatal("actual HTTPS review Model input differed from the sealed review Round")
 	}
 	x.requireRuntime(t, &dispatch, "", 0)
