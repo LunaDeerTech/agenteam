@@ -74,13 +74,13 @@ BEGIN
    AND record ?& ARRAY['request','facts','relaunch','before','after','sprint','current_sprint_id','changed','groups','query_generation','blocker','history','event','header','created_at']
    AND record-ARRAY['request','facts','relaunch','before','after','sprint','current_sprint_id','changed','groups','query_generation','blocker','history','event','header','created_at','relaunch_event']='{}'::jsonb
    AND record->'request' ?& ARRAY['Relaunch','DispatchVersion','LaunchAttempt']
-   AND record->'request'-ARRAY['Relaunch','DispatchVersion','LaunchAttempt']='{}'::jsonb
+   AND (record->'request')-ARRAY['Relaunch','DispatchVersion','LaunchAttempt']='{}'::jsonb
    AND record->'request'->'Relaunch'=record->'relaunch'->'request'
    AND record->'request'->'Relaunch'->>'DispatchID'=id::text AND record->'request'->'Relaunch'->>'ProjectID'=project_id::text
    AND record->'request'->'Relaunch'->>'TaskID'=task_id::text AND record->'request'->'Relaunch'->>'AgentID'=agent_id::text
    AND record->'request'->'Relaunch'->>'RequestID'=request_id::text AND record->'request'->'Relaunch'->>'Purpose'='task/work'
    AND record->'request'->>'DispatchVersion'=dispatch_version::text AND record->'request'->>'LaunchAttempt'=launch_attempt::text
-   AND record->'facts' ?& ARRAY['Relaunch','Reason','OccurredAt'] AND record->'facts'-ARRAY['Relaunch','Reason','OccurredAt']='{}'::jsonb
+   AND record->'facts' ?& ARRAY['Relaunch','Reason','OccurredAt'] AND (record->'facts')-ARRAY['Relaunch','Reason','OccurredAt']='{}'::jsonb
    AND record->'facts'->'Relaunch'->'Request'=record->'request'->'Relaunch'
    AND record->'facts'->'Relaunch'->>'MilestoneID'=record->'relaunch'->'task'->>'milestone_id'
    AND record->'facts'->'Relaunch'->>'ReferenceDigest' ~ '^sha256:[0-9a-f]{64}$'
@@ -203,7 +203,7 @@ CREATE TABLE agenteam_scheduler.relaunch_visits (
   AND jsonb_typeof(convert_from(request,'UTF8')::jsonb->'policy')='object'
   AND (convert_from(request,'UTF8')::jsonb->>'retry_policy_digest'='' OR convert_from(request,'UTF8')::jsonb->>'retry_policy_digest' ~ '^sha256:[0-9a-f]{64}$')
   AND convert_from(request,'UTF8')::jsonb->'request' ?& ARRAY['ProjectID','TaskID','AgentID','CurrentSprintID','ExpectedTaskVersion','DispatchID','RequestID','Purpose']
-  AND convert_from(request,'UTF8')::jsonb->'request'-ARRAY['ProjectID','TaskID','AgentID','CurrentSprintID','ExpectedTaskVersion','DispatchID','RequestID','Purpose']='{}'::jsonb
+  AND (convert_from(request,'UTF8')::jsonb->'request')-ARRAY['ProjectID','TaskID','AgentID','CurrentSprintID','ExpectedTaskVersion','DispatchID','RequestID','Purpose']='{}'::jsonb
   AND convert_from(request,'UTF8')::jsonb->'request'->>'ProjectID'=project_id::text
   AND convert_from(request,'UTF8')::jsonb->'request'->>'TaskID'=task_id::text
   AND convert_from(request,'UTF8')::jsonb->'request'->>'DispatchID'=id::text
