@@ -5,6 +5,7 @@ import (
 	"math"
 	"slices"
 
+	agentc "github.com/LunaDeerTech/agenteam/internal/central/agent/contract"
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
 	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -69,6 +70,22 @@ func transitionPosition(g taskGroup, gen int64, previous, next string) (c.TaskTr
 	return p, nil
 }
 
+func checkTransitionOccupancy(before c.Task, request c.TaskTransfer, occupancy ec.ExecutionOccupancy) error {
+	if occupancy.Active == nil || occupancy.HistoryTaskIDs == nil {
+		return internal(nil)
+	}
+	if len(occupancy.Active) != 0 {
+		if transitionReviewEdge(before, request) {
+			// This Human capability covers unoccupied Tasks. Active review
+			// handoff is a valid domain operation, but needs the separate
+			// execution lifecycle integration; an Actor DTO cannot supply it.
+			return field(f.DependencyUnbound, "/task_id", "ACTIVE_REVIEW_TRANSITION_UNBOUND")
+		}
+		return fault(f.ResourceBusy)
+	}
+	return nil
+}
+
 func (s *TaskTransitionService) evaluateTransition(ctx context.Context, tx f.Tx, x postgres.SQLExecutor, actor i.Actor, r *transitionRecord, discovered c.Task, at f.Instant, ids []c.TaskEventID, eventID event.EventID) (transitionPlan, error) {
 	var zero transitionPlan
 	in := r.Input
@@ -102,22 +119,23 @@ func (s *TaskTransitionService) evaluateTransition(ctx context.Context, tx f.Tx,
 	if placement.Sprint.State == c.Completed {
 		return zero, field(f.TaskSprintInvalid, "/sprint_id", "COMPLETED_SPRINT")
 	}
-	agent, err := s.state().deps.Agents.RequireCurrentInTx(ctx, tx, actor, in.Project, *chosen)
-	if err != nil {
-		return zero, portError(err)
-	}
-	if agent.Validate() != nil || agent.ProjectID != in.Project || agent.AgentID != *chosen {
-		return zero, internal(nil)
+	var agent *agentc.AgentRef
+	if !transitionRetainsReviewer(before, in.Request) {
+		current, err := s.state().deps.Agents.RequireCurrentInTx(ctx, tx, actor, in.Project, *chosen)
+		if err != nil {
+			return zero, portError(err)
+		}
+		if current.Validate() != nil || current.ProjectID != in.Project || current.AgentID != *chosen {
+			return zero, internal(nil)
+		}
+		agent = &current
 	}
 	occupancy, err := s.state().deps.Occupancy.ReadInTx(ctx, tx, in.Project, []string{in.Task.String()})
 	if err != nil {
 		return zero, portError(err)
 	}
-	if occupancy.Active == nil || occupancy.HistoryTaskIDs == nil {
-		return zero, internal(nil)
-	}
-	if len(occupancy.Active) != 0 {
-		return zero, fault(f.ResourceBusy)
+	if err = checkTransitionOccupancy(before, in.Request, occupancy); err != nil {
+		return zero, err
 	}
 	pending, err := s.state().deps.Pending.ReadInTx(ctx, tx, in.Project, []string{in.Task.String()})
 	if err != nil {
@@ -208,7 +226,7 @@ func (s *TaskTransitionService) evaluateTransition(ctx context.Context, tx f.Tx,
 	}
 	after := before.Clone()
 	after.State = in.Request.TargetState
-	newAgent := agent.AgentID
+	newAgent := *chosen
 	after.AssigneeAgentID = &newAgent
 	after.ManualRank = ranks.Rank
 	after.Version = f.Version(version)

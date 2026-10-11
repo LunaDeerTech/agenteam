@@ -54,20 +54,47 @@ func transitionAgent(before c.Task, request c.TaskTransfer) *i.AgentID {
 	return before.AssigneeAgentID
 }
 func transitionEdge(before c.Task, request c.TaskTransfer) error {
-	if request.TargetState != c.TaskStateTodo || (before.State != c.TaskStateBacklog && before.State != c.TaskStateBlocked) || len(request.AddBlockers) != 0 {
+	if len(request.AddBlockers) != 0 {
 		return fault(f.DependencyUnbound)
 	}
-	// Keep the existing backlog writer's supported intent unchanged.
-	if before.State == c.TaskStateBacklog && (request.AssigneeAgentID == nil || len(request.ResolveBlockerIDs) != 0) {
+	switch {
+	case before.State == c.TaskStateBacklog && request.TargetState == c.TaskStateTodo:
+		// Keep the existing backlog writer's supported intent unchanged.
 		if request.AssigneeAgentID == nil {
 			return fault(f.TaskAssigneeRequired)
 		}
+		if len(request.ResolveBlockerIDs) != 0 {
+			return fault(f.DependencyUnbound)
+		}
+	case before.State == c.TaskStateBlocked && request.TargetState == c.TaskStateTodo:
+	case before.State == c.TaskStateInProgress && request.TargetState == c.TaskStateInReview,
+		before.State == c.TaskStateInReview && request.TargetState == c.TaskStateTodo:
+		if request.AssigneeAgentID == nil {
+			return fault(f.TaskAssigneeRequired)
+		}
+	case before.State == c.TaskStateInReview && request.TargetState == c.TaskStateDone:
+	default:
 		return fault(f.DependencyUnbound)
 	}
 	if transitionAgent(before, request) == nil {
 		return fault(f.TaskAssigneeRequired)
 	}
+	if transitionReviewEdge(before, request) && request.Comment == nil {
+		return field(f.CommentRequired, "/comment", "COMMENT_REQUIRED")
+	}
 	return nil
+}
+
+func transitionReviewEdge(before c.Task, request c.TaskTransfer) bool {
+	return before.State == c.TaskStateInProgress && request.TargetState == c.TaskStateInReview ||
+		before.State == c.TaskStateInReview && (request.TargetState == c.TaskStateDone || request.TargetState == c.TaskStateTodo)
+}
+
+// An incoming done transition retains the current reviewer when omitted. It
+// does not select that Agent for new work or require a new current-Agent fact.
+// An explicit selection, including the same ID, still requires that fact.
+func transitionRetainsReviewer(before c.Task, request c.TaskTransfer) bool {
+	return before.State == c.TaskStateInReview && request.TargetState == c.TaskStateDone && request.AssigneeAgentID == nil
 }
 func transitionResolveIDs(in transitionInput) []c.TaskBlockerID {
 	ids := slices.Clone(in.Request.ResolveBlockerIDs)
@@ -111,7 +138,7 @@ func prepareTransitionResolutions(ctx context.Context, x postgres.SQLExecutor, i
 	if remaining < int64(len(out)) {
 		return nil, at, internal(nil)
 	}
-	if remaining != int64(len(out)) {
+	if in.Request.TargetState == c.TaskStateTodo && remaining != int64(len(out)) {
 		return nil, at, field(f.InvalidState, "/task_id", "UNRESOLVED_BLOCKERS")
 	}
 	for n := range out {
@@ -188,7 +215,7 @@ func verifyTransitionResolutions(ctx context.Context, x postgres.SQLExecutor, r 
 	if err := x.QueryRow(ctx, `SELECT count(*) FILTER(WHERE resolved_transition_operation_id=$3),count(*) FILTER(WHERE resolved_at IS NULL) FROM agenteam_work.task_blockers WHERE project_id=$1 AND task_id=$2`, r.Input.Project.String(), r.Input.Task.String(), r.ID.String()).Scan(&linked, &unresolved); err != nil {
 		return taskSQL(err)
 	}
-	if linked != int64(len(r.Plan.Resolutions)) || unresolved != 0 {
+	if linked != int64(len(r.Plan.Resolutions)) || unresolved < 0 || r.Input.Request.TargetState == c.TaskStateTodo && unresolved != 0 {
 		return fault(f.Forbidden)
 	}
 	return nil

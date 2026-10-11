@@ -63,7 +63,7 @@ type transitionPlan struct {
 	Before          c.Task                        `json:"before"`
 	After           c.TaskTransitionMutation      `json:"after"`
 	Placement       taskPlacement                 `json:"placement"`
-	Agent           agentc.AgentRef               `json:"agent"`
+	Agent           *agentc.AgentRef              `json:"agent"`
 	Groups          []taskGroupPlan               `json:"groups"`
 	QueryGeneration int64                         `json:"query_generation"`
 	History         []c.TaskTransitionEvent       `json:"history"`
@@ -116,7 +116,7 @@ func (v *transitionPlan) UnmarshalJSON(raw []byte) error {
 	if _, ok := shape["blocker_resolutions"]; ok {
 		fields = append(fields, "blocker_resolutions")
 	}
-	if _, err := taskPrivateObject(raw, taskPlanCap, fields, nil); err != nil {
+	if _, err := taskPrivateObject(raw, taskPlanCap, fields, []string{"agent"}); err != nil {
 		return err
 	}
 	type wire transitionPlan
@@ -124,7 +124,14 @@ func (v *transitionPlan) UnmarshalJSON(raw []byte) error {
 	if err := json.Unmarshal(raw, &next); err != nil {
 		return internal(err)
 	}
-	if next.Before.Validate() != nil || next.After.Validate() != nil || next.Agent.Validate() != nil || next.Source.Validate() != nil || next.Target.Validate() != nil || next.Header.Validate() != nil || len(next.Groups) != 2 || len(next.History) < 1 || len(next.History) > 35 || next.QueryGeneration < 1 {
+	if next.Before.Validate() != nil || next.After.Validate() != nil || next.Source.Validate() != nil || next.Target.Validate() != nil || next.Header.Validate() != nil || len(next.Groups) != 2 || len(next.History) < 1 || len(next.History) > 35 || next.QueryGeneration < 1 {
+		return internal(nil)
+	}
+	if next.Agent == nil {
+		if next.Before.State != c.TaskStateInReview || next.After.Task.State != c.TaskStateDone || !sameValue(next.Before.AssigneeAgentID, next.After.Task.AssigneeAgentID) {
+			return internal(nil)
+		}
+	} else if next.Agent.Validate() != nil {
 		return internal(nil)
 	}
 	if _, ok := shape["blocker_resolutions"]; ok && (len(next.Resolutions) == 0 || len(next.Resolutions) > 16) {
