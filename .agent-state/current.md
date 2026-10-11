@@ -1,45 +1,41 @@
 # 当前执行检查点
 
-## 本次恢复
+## 本次 Variables 接续
 
-2026-10-11 在隔离工作树 `/workspace/agenteam-skills-milestone-resume`、分支 `ai/skills-milestone-resume-20261011` 接续 `origin/ai/skills-milestone-integration` 的 `fc0fb130`。正式 `origin/main` 为 `29666627`；root 已 fetch 并核对。原作者分支不抢写，旧摘要中的物理工作树、缓存、资源窗口与执行者均不作为本次可用事实。
+2026-10-11 在 `/workspace/agenteam-project-variables-resume`、分支 `ai/project-variables-resume-20261011` 接续普通 Project Variables 创建、编辑与回读。root 以 `1b6ad53e` 建树，已组合 UI 来源 `c9101845`、`11f46b63` 与 fixture 来源 `6e73fddd`、`4308e91d`；本轮自查起点为 `5e04ef71`。
 
-本次由 `recovery_lead` 独占本树产品、作者 fixture 与本页内容；root 负责所有 Git 操作和最终集成。独立审查由未参与实现的 `skills_milestone_review` 承担。`frontend_checks` 只运行既有前端检查，`runtime_recovery` 恢复锁定运行依赖。Variables 后继分支保留，当前不并行改写共享 client、Session、router 或 Work 状态。
+`frontend_checks` 独占本树 Variables 22 条产品/测试/fixture 路径及必要恢复记录，直接向 root 报告并抄送 `recovery_lead`。root 独占全部 Git 操作；本轮属于作者实现自查，本片独立验收者尚未分配。`recovery_lead` 继续负责另一树 Skills/Milestone 真实链，本树不继承其资源窗口或通过结论。
 
-## 本次完整结果
+`tests/account-captcha-web/e2e/task-review.helpers.ts` 的 Skills 观测段冻结，由 root 后续窄同步主链 Host/实际 App handler 关联修复；本树不独立修改该段。
 
-- 当前 Human Owner 在已有 initialized Project 的空规划结构中创建首个 Milestone，经正式命令确认后重新读取列表与详情，并可显式进入已有 Sprint 创建入口；打开或取消 Sprint 表单不创建 Sprint。
-- 当前 Human Owner 从项目设置进入 Skills 目录，读取已发布技能的 metadata 与详情；真实身份、Project 或路由变化使过期读取失效。不增加技能正文、安装、分配或运行授权。
+## 限定结果与文件
 
-现有产品、组件与状态测试及真实浏览器 fixture 已保存在恢复基线中。最后提交涉及 Milestone 页面 bootstrap Agent directory 的观察，以及 Skills header 拒绝阶段诊断；尚无本次恢复后的通过结论。历史 `Skills03`、`Planning06` 及其他 FAIL 不回填。
+已有 initialized Project 的当前 Human Owner 可从 `/:username/:project_name/settings/variables` 读取普通变量摘要目录与完整详情，明确确认创建或编辑，按字段 presence 保存原文并允许显式空 description/value。确认命令后必须取得当前 Get/List；结果不确定时只查询原 key 与原意图，不自动重发。摘要不含 value，身份或 Project 切换清理旧材料。
 
-正式业务来源：[Work 规划 UI](../docs/development/work-items/d11-work-owner-planning-ui.md)、[Work Structure](../docs/development/work-items/d11-work-structure.md)、[Skills Owner HTTP](../docs/development/work-items/d10-skills-owner-read-http.md)、[Agent Skills](../docs/architecture/agent-skills.md)。只修恢复范围内真实缺陷，不借 fixture 改写这些契约。
+不含删除、Secret、UI 原命令重放、Agent/Runner 环境注入、生产 Project 初始化或完整 Variables 生命周期。契约来源为[普通 Variables Owner 后端卡](../docs/development/work-items/d10-project-variables-owner-http.md)、[正式 API](../api/openapi/project-variables.json)与[变量架构](../docs/architecture/project-work-management/project-environment-variables.md)；后端接受不代表本片 UI 验收。
 
-## 验证与环境
+- 前端 14 路径：`web/src/App.vue`、`api/{client,project-variables}.ts`、`composables/{useSession,useProjectVariables}.ts`、`router/{auth,index}.ts`、`views/projects/{ProjectSettingsView,ProjectVariablesView,ProjectVariableEditor}.vue`、`tests/project-variables{,-client,-session,-state}.spec.ts`；省略完整前缀者均在 `web/src/` 下。
+- Fixture 8 路径：`tests/projectvariable/project_variables_web_test.go`、`tests/account-captcha-web/project-variables.config.js`、其 `e2e/{project-variables.helpers.ts,project-variables.spec.ts,task-review.helpers.ts}`，以及 `.agent-state/{agent-system-integration/schema-entry-controls.py,task-planning-recovery/pg_only_supervisor.py,work-owner-http/root_chain_driver.py}`。
+- 不新增依赖、迁移或后端产品；本轮另更新本页，不扩大共享文件所有权。
 
-前端基础检查已通过，技术输入仍为 `fc0fb130`；`34dc6bdd` 仅保存恢复摘要。Vitest 的精确 13 文件共 80/80 测试 PASS（18.20s）、vue-tsc 类型检查 PASS、Vite 生产构建 PASS（347 modules，1.69s），原两个执行会话均退出 0。测试文件为 `web/src/tests/` 下的 `skill-owner-{client,state,view}`、`milestone-create-{page,state}`、`work-milestone-planning-{client,session}`、`sprint-create-state`、`sprint-start-state`、`work-review-{state,session}`、`work-sprint-lifecycle-session`、`session`，均为 `.spec.ts`。
+## 当前检查事实
 
-运行使用 `NODE_DISABLE_COMPILE_CACHE=1`、私有 TMPDIR/XDG_CACHE_HOME；锁定 Vitest Node API `startVitest('test', 精确文件, {root: web, config: web/vite.config.ts, watch:false, cache:false, maxWorkers:2, configLoader:'native'})` 并实际 `close()`。类型命令为 `node web/node_modules/vue-tsc/bin/vue-tsc.js --noEmit --project web/tsconfig.json`；Vite Node API `build({root: web, configFile: web/vite.config.ts, configLoader:'native', cacheDir: 私有目录, build:{outDir: 私有dist}})`。日志为 `output/ai/skills-milestone-resume/frontend/{unit-01,type-01,build-01}.log`，正式资产为同目录 `dist/`。
+组合冲突已由 root 保存到上述起点：`schema-entry-controls.py` 同时保留 Variables selector/env/profile 和 driver 的本树 `REPOSITORY` 私有依赖路径。合入时的 Skills header 安全布尔诊断、原门禁及 Milestone agents 观察保留。三个 Python AST、三个 TypeScript fixture/config.js 语法、两入口 SOURCE_HUNKS 原基线反向投影及差异空白检查已通过；只证明静态范围。
 
-真实链尚未运行，下一步：
+本轮发现 `schema-entry-controls.output()` 未为 `^TestProjectVariablesWeb$` 生成必需的单条 Node wait 正常样本。只补 source、label、单 PID 与 selector 四处分支；supervisor 的真实接受条件及预算不变。
 
-- `tests/projectvariable`：`TestMilestoneCreateWeb/first-milestone-and-sprint-entry`。
-- `internal/central/app`：`TestSkillOwnerReadWeb`。
+已只读核对新增 API、Session、页面状态、16 个既有前端用例及正常浏览器 fixture 的调用关系。前端正常/Unknown、权限与迟到响应、类型/构建、Go 编译、入口控制套件及真实浏览器/PG **尚未在本候选运行**。原 Skills/Milestone 80 项属于原技术输入，不能计入 Variables 结果；旧 Variables `60dbcee7` 的 CRUD03 有限通过和 Authority03 整体失败也不代本轮验收。
 
-两条真实链沿既有 Go fixture、锁定 Playwright 与自有隔离资源，复用原 `pg_only_supervisor.py` subreaper/实际 Wait。`root_chain_driver.py` 两个过时依赖目录已改为本树私有安装，版本与完整性门保留；独立路径审已接受。原 8 项 entry controls 中 7 项通过，inverse 项因预期源片段仍含旧路径而 FAIL；只同步该片段后定向补验 1 项 PASS（0.111s），原失败保留，不称同轮 8 PASS。收到真实失败先定位首个具体原因，只补受影响检查。作者检查不冒充独立验收。正式接受前由独立审查者核对当前 Owner/Session、跨 Project 迟到响应、原意图恢复、实际网络/持久事实和资源退出。
+本轮未运行测试、安装、下载或资源启动。只做静态/本地轻量检查，无后台命令。新树依赖须私有恢复，不能借用其他树可写依赖或缓存。
 
-已只读确认 Go `/workspace/toolchains/go1.27.1/bin/go` 为 1.27.1，Node 为 v24.19.0，Chromium 可执行文件存在。新树两个私有 npm ci 已退出 0，锁定 Playwright 1.56.1 和 `go-captcha-vue` 2.0.7 已恢复，锁文件未变；两个精确 PG 镜像已恢复。精确 MinIO 构建仍在进行；旧共享模块和 hot-cache 路径不存在。既有 onboarding 容器不属本任务，不连接或复用。恢复检查时磁盘约 30 GiB 空闲，不把该旧读数当后续启动证明。
+## 下一步
 
-平台恢复人员的独立 `data:` 浏览器探针受企业策略拒绝，Node 退出 1；不代表产品 loopback 失败，原记录位于 `output/ai/skills-milestone-resume/platform/browser-smoke.log`。探针留下 4 个 PID1 已终止未回收 Chrome 进程，无活动浏览器；本次真实链沿原 subreaper 收集自己的后代，不改宿主策略或重跑探针。
+先停写交 root 保存本轮 checkpoint。root 已授权保存后以本树私有 npm 根/输出恢复锁定依赖，使用最多两个 worker 执行新增四文件 16 项及受影响共享接缝定向检查，再做一次类型/生产构建；不改锁、不新增版本、不跑全量。当前 Go/browser 仍禁止；Skills 下一 native 窗口的外网暂停由 root 通知。
 
-本次日志和可再生资产放 `output/ai/skills-milestone-resume/`，必要复现源码保存在正式测试路径或现有 `.agent-state` 下。旧被引用原件在本机未证实可用；已保存源码可按 Git 恢复，旧实际通过结论只按其原输入和记录引用。
+后续真实入口为 `^TestProjectVariablesWeb$` / `create-update-and-clear`：一次 Create、两次 PATCH，各自完整 Get/List；浏览器零 Lookup，服务后验查证原 key 历史 receipt、canonical/Audit/Outbox 与其他 Project/Work/Secret/runtime 不变。两图为 1440 浅色与 390 深色，正常链不代权限/Unknown或完整 CRUD 验收。正式接受须另行安排独立验证。
 
-## 保留的全局边界
+driver 的 owned 输出根为 `output/ai/project-variables-web/`，dist/evidence/cache 保持本树隔离；原短 runtime、实际 Wait/退出及资源清理门不变。历史沿[组合说明](agent-system-integration/README.md)、[前置协调记录](agent-prerequisites/coordination.md)及[任务台账](../docs/development/agent-team/tasks.md)引用；继承摘要可从 `1b6ad53e:.agent-state/current.md` 查看，不复制旧物理树布局。
 
-既有有限交付与恢复方法见[组合说明](agent-system-integration/README.md)、[前置协调记录](agent-prerequisites/coordination.md)、[任务台账](../docs/development/agent-team/tasks.md)。本页被替换的长历史可从 `fc0fb130:.agent-state/current.md` 读取，不再把其多树布局抄作当前状态。
+默认生产 Project initializer、完整 participant/F1、Loop/Tool 与平台 ready 未完成，`ready=false`/`readyz` 503 保持。Object Runtime join、OpenAI tools 独立动态验收、Central SPA concurrent-publication、Jina/Image 来源及其他显式 STOP 不恢复；本片不改变整体进度或 E01 未开始事实。
 
-默认生产 Project initializer、完整 participant/F1、完整 Loop/Tool 与平台 ready 未完成；`ready=false` 与 `/readyz` 503 保持。Object Runtime join、OpenAI tools 独立动态验收、Central SPA concurrent-publication、Jina/Image 来源及其余显式 STOP 不恢复。已交 direct-text-v1 有限链不等于完整平台执行能力。
-
-长期目标仍为 D01–D28 全部完成，再由平台自身组织任务、Agent/Execution、审核和产物完成 E01 游戏复刻；游戏版本、完整内容分母、权重与关键门槛需先冻结，最终真实试玩和独立验收证明至少 50% 内容覆盖。历史平台约 30%（25%–35%）仅工程粗估，本次不提升或宣称总体完成。
-
-所有层级要求 `gpt-6-astra / ultra / priority`；实例创建接口可指定前两项，未提供 `service_tier` 参数，不能据此声称本次实际 Fast 档位已确认。
+实例要求沿仓库 `gpt-6-astra / ultra / priority`；工具没有 `service_tier` 参数，本轮实际 Fast 档位未确认。
