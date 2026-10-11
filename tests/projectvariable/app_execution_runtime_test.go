@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net"
@@ -21,6 +22,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/app"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/model"
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
@@ -128,6 +130,76 @@ func (l *appRuntimeLog) bytes() []byte {
 	return bytes.Clone(l.data.Bytes())
 }
 
+// This is the last successful observation of the same fixture-owned records,
+// not an authorization or an inference about an in-memory Manager owner.
+// No request, key, model input, environment value or error message is selected.
+const appRuntimeObservationSQL = `WITH selected_executions AS (
+ SELECT id,status,snapshot_id FROM agenteam_execution.executions WHERE project_id=$1 AND agent_id=$2
+), selected_dispatches AS (
+ SELECT status,launch_outcome,failure_code FROM agenteam_scheduler.dispatches WHERE project_id=$1 AND task_id=$3
+), selected_calls AS (
+ SELECT phase,retired FROM agenteam_model.calls WHERE request_data#>>'{Initiator,ExecutionID}' IN (SELECT id::text FROM selected_executions)
+)
+SELECT jsonb_build_object(
+ 'project_lifecycle',p.lifecycle,'initialized',p.initialized_at IS NOT NULL,
+ 'scheduler_enabled',p.scheduler_enabled,'current_sprint_matches',p.current_sprint_id=t.sprint_id,
+ 'task_state',t.state,'task_version',t.version,'assignee_matches',t.assignee_agent_id::text=$2,
+ 'dispatch_count',(SELECT count(*) FROM selected_dispatches),
+ 'dispatch_phases',(SELECT coalesce(string_agg(DISTINCT status||':'||launch_outcome,',' ORDER BY status||':'||launch_outcome),'') FROM selected_dispatches),
+ 'dispatch_failure_codes',(SELECT coalesce(string_agg(DISTINCT failure_code,',' ORDER BY failure_code),'') FROM selected_dispatches),
+ 'execution_count',(SELECT count(*) FROM selected_executions),
+ 'execution_phases',(SELECT coalesce(string_agg(DISTINCT status,',' ORDER BY status),'') FROM selected_executions),
+ 'preparation_phases',(SELECT coalesce(string_agg(DISTINCT phase,',' ORDER BY phase),'') FROM agenteam_execution.preparation_attempts WHERE execution_id IN (SELECT id FROM selected_executions)),
+ 'input_count',(SELECT count(*) FROM agenteam_execution.preparation_inputs WHERE execution_id IN (SELECT id FROM selected_executions)),
+ 'snapshot_count',(SELECT count(*) FROM selected_executions WHERE snapshot_id IS NOT NULL),
+ 'model_call_count',(SELECT count(*) FROM selected_calls),
+ 'model_phases',(SELECT coalesce(string_agg(DISTINCT phase,',' ORDER BY phase),'') FROM selected_calls),
+ 'model_retired_count',(SELECT count(*) FROM selected_calls WHERE retired)
+), (SELECT count(*) FROM selected_executions WHERE status='succeeded')
+FROM agenteam_project.projects p JOIN agenteam_work.tasks t ON t.project_id=p.id
+WHERE p.id=$1::uuid AND t.id=$3::uuid`
+
+func appRuntimeSafeError(err error) string {
+	if err == nil {
+		return "none"
+	}
+	var fault *f.Fault
+	if errors.As(err, &fault) {
+		return fmt.Sprintf("%s/%s", fault.Code.Safe(), fault.CommitState.Safe())
+	}
+	if errors.Is(err, context.Canceled) {
+		return "context_canceled"
+	}
+	if errors.Is(err, context.DeadlineExceeded) {
+		return "deadline_exceeded"
+	}
+	var state interface{ SQLState() string }
+	if errors.As(err, &state) {
+		return "sqlstate:" + state.SQLState()
+	}
+	return fmt.Sprintf("type:%T", err)
+}
+
+func appRuntimeSafeLog(raw []byte) []string {
+	var events []string
+	for _, line := range bytes.Split(raw, []byte{'\n'}) {
+		var entry struct {
+			Event, Phase, Outcome, Code string
+		}
+		if json.Unmarshal(line, &entry) != nil {
+			continue
+		}
+		switch entry.Event {
+		case "security", "lifecycle", "listening", "process_failed", "shutdown_complete":
+			events = append(events, entry.Event+":"+entry.Phase+":"+entry.Outcome+":"+entry.Code)
+		}
+	}
+	if len(events) > 32 {
+		events = events[len(events)-32:]
+	}
+	return events
+}
+
 func runAppExecutionRuntime(t *testing.T, wire *firstRoundFixture, held bool, oldProcess string) {
 	t.Helper()
 	v := wire.capture.v
@@ -154,6 +226,22 @@ func runAppExecutionRuntime(t *testing.T, wire *firstRoundFixture, held bool, ol
 	var runErr error
 	go func() { runErr = app.Run(ctx, cfg, logger, signals); close(done) }()
 	joined := false
+	var lastObservation []byte
+	var observedAt time.Duration
+	var observations uint64
+	var lastPollError error
+	wireRequests, wireHandlers := -1, -1
+	var wireObservedAt time.Duration
+	startedAt := time.Now()
+	report := func(phase string) {
+		returned, result := false, "not_returned"
+		select {
+		case <-done:
+			returned, result = true, appRuntimeSafeError(runErr)
+		default:
+		}
+		t.Logf("App runtime observation phase=%s observations=%d observed_ms=%d poll_error=%s state=%s wire_requests=%d wire_handlers=%d wire_observed_ms=%d app_returned=%t app_error=%s safe_events=%q", phase, observations, observedAt.Milliseconds(), appRuntimeSafeError(lastPollError), lastObservation, wireRequests, wireHandlers, wireObservedAt.Milliseconds(), returned, result, appRuntimeSafeLog(logs.bytes()))
+	}
 	defer func() {
 		if joined {
 			return
@@ -168,7 +256,22 @@ func runAppExecutionRuntime(t *testing.T, wire *firstRoundFixture, held bool, ol
 			// returns. The original whole-test deadline remains the outer bound.
 			<-done
 		}
+		if t.Failed() {
+			report("after_original_app_return")
+		}
 	}()
+	observe := func() int64 {
+		var raw []byte
+		var succeeded int64
+		lastPollError = v.base.raw.QueryRow(ctx, appRuntimeObservationSQL, v.base.project.ID.String(), v.agentID.String(), v.task.ID.String()).Scan(&raw, &succeeded)
+		if lastPollError != nil {
+			report("database_observer_failed")
+			t.Fatal("App runtime state observer failed")
+		}
+		lastObservation, observedAt = raw, time.Since(startedAt)
+		observations++
+		return succeeded
+	}
 	await := func(check func() bool) {
 		t.Helper()
 		tick := time.NewTicker(10 * time.Millisecond)
@@ -179,8 +282,10 @@ func runAppExecutionRuntime(t *testing.T, wire *firstRoundFixture, held bool, ol
 			}
 			select {
 			case <-done:
-				t.Fatalf("App returned before its required runtime fact: %v; safe log=%s", runErr, logs.bytes())
+				report("returned_before_required_fact")
+				t.Fatal("App returned before its required runtime fact")
 			case <-ctx.Done():
+				report("observation_deadline")
 				t.Fatal("App runtime observation deadline")
 			case <-tick.C:
 			}
@@ -189,10 +294,14 @@ func runAppExecutionRuntime(t *testing.T, wire *firstRoundFixture, held bool, ol
 	var executionID, processID string
 	if held {
 		await(func() bool {
+			observe()
 			state, e := wire.network.State(ctx, wire.scenario)
 			if e != nil {
-				t.Fatal(e)
+				lastPollError = e
+				report("wire_observer_failed")
+				t.Fatal("App runtime wire observer failed")
 			}
+			wireRequests, wireHandlers, wireObservedAt = len(state.Requests), state.ActiveHandlers, time.Since(startedAt)
 			return len(state.Requests) == 1 && state.ActiveHandlers == 1
 		})
 		firstRoundRequire(t, v.base.raw.QueryRow(ctx, `SELECT e.id,s.process_id FROM agenteam_execution.executions e JOIN agenteam_execution.snapshots s ON(s.id,s.execution_id)=(e.snapshot_id,e.id) WHERE e.project_id=$1 AND e.agent_id=$2 AND e.status='running'`, v.base.project.ID.String(), v.agentID.String()).Scan(&executionID, &processID))
@@ -207,8 +316,18 @@ func runAppExecutionRuntime(t *testing.T, wire *firstRoundFixture, held bool, ol
 		}
 	} else {
 		await(func() bool {
-			var count int64
-			firstRoundRequire(t, v.base.raw.QueryRow(ctx, `SELECT count(*) FROM agenteam_execution.executions WHERE project_id=$1 AND agent_id=$2 AND status='succeeded'`, v.base.project.ID.String(), v.agentID.String()).Scan(&count))
+			count := observe()
+			// Only the existing owned wire's counters are retained, never its
+			// request material. Diagnostic sampling does not extend the deadline.
+			if wireRequests < 0 || time.Since(startedAt)-wireObservedAt >= 250*time.Millisecond {
+				state, e := wire.network.State(ctx, wire.scenario)
+				if e != nil {
+					lastPollError = e
+					report("wire_observer_failed")
+					t.Fatal("App runtime wire observer failed")
+				}
+				wireRequests, wireHandlers, wireObservedAt = len(state.Requests), state.ActiveHandlers, time.Since(startedAt)
+			}
 			return count == 1
 		})
 	}
