@@ -151,6 +151,12 @@ test("[rename] Knowledge Owner existing-document rename", async ({ page }) => {
       .getByRole("button", { name: "关闭", exact: true })
       .click();
     await expect(dialog).toHaveCount(0);
+    // beforeLeave removes the dialog from the accessibility tree before its
+    // transition ends. Require the actual layer to retire before observing it.
+    await expect(page.locator(".ui-overlay")).toHaveCount(0);
+    await expect(
+      area.getByRole("button", { name: "改名", exact: true }),
+    ).toBeFocused();
     await expect(area.locator("h2")).toHaveText(data.title);
     await expect(document).toContainText(data.title);
     await expect(area.locator(".document-facts")).toContainText("2");
@@ -161,6 +167,29 @@ test("[rename] Knowledge Owner existing-document rename", async ({ page }) => {
     ).toBeEnabled();
     await page.screenshot({
       path: join(evidence, "knowledge-rename-current.png"),
+    });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    expect(
+      await page.evaluate(
+        () => matchMedia("(prefers-reduced-motion: reduce)").matches,
+      ),
+    ).toBe(true);
+    await expect(area.locator("h2")).toHaveText(data.title);
+    await expect.poll(() => text.textContent()).toBe(data.text);
+    expect(
+      await page.evaluate(
+        () =>
+          Math.max(
+            document.documentElement.scrollWidth,
+            document.body.scrollWidth,
+          ) - document.documentElement.clientWidth,
+      ),
+    ).toBeLessThanOrEqual(1);
+    await page.screenshot({
+      path: join(evidence, "knowledge-rename-current-390-dark.png"),
+      fullPage: true,
     });
     enter("observer-idle");
     await expect.poll(() => observer!.idle()).toBe(true);
