@@ -19,6 +19,7 @@ import {
   installOutboundPolicyNavigation,
   installTaskNavigation,
   installAgentNavigation,
+  installProjectVariablesNavigation,
   installProjectNavigation,
   installProjectModelSettingsNavigation,
 } from './router/auth'
@@ -54,6 +55,7 @@ import {
   projectModelSettingsKey,
 } from './composables/useProjectModelSettings'
 import { createProjectTasks, projectTasksKey } from './composables/useProjectTasks'
+import { createProjectVariables, projectVariablesKey } from './composables/useProjectVariables'
 import { createProjectAgents, projectAgentsKey } from './composables/useProjectAgents'
 const auth = useSession(),
   state = auth.state,
@@ -65,6 +67,9 @@ const stopProjectNavigation = installProjectNavigation(router, projects)
 const tasks = createProjectTasks(auth, projects, (path) => router.push(path))
 provide(projectTasksKey, tasks)
 const stopTaskNavigation = installTaskNavigation(router, tasks)
+const variables = createProjectVariables(auth, projects)
+provide(projectVariablesKey, variables)
+const stopVariablesNavigation = installProjectVariablesNavigation(router, variables)
 const agents = createProjectAgents(auth, projects)
 provide(projectAgentsKey, agents)
 const stopAgentNavigation = installAgentNavigation(router, agents)
@@ -126,6 +131,7 @@ provide(systemOutboundPolicyKey, outboundPolicy)
 const stopOutboundNavigation = installOutboundPolicyNavigation(router, outboundPolicy)
 async function logout() {
   if (
+    (await variables.confirmLeave()) &&
     (await agents.confirmLeave()) &&
     (await tasks.confirmLeave()) &&
     (await settings.confirmLeave()) &&
@@ -168,6 +174,7 @@ watch(
 onMounted(() => {
   projects.afterNavigation(route.fullPath, '')
   tasks.afterNavigation(route.fullPath)
+  variables.afterNavigation(route.fullPath)
   agents.afterNavigation(route.fullPath)
   projectModels.afterNavigation(route.fullPath, '')
   entry.afterNavigation(route.fullPath, '')
@@ -184,6 +191,8 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('visibilitychange', refreshVisible)
   window.removeEventListener('pageshow', refreshVisible)
+  stopVariablesNavigation()
+  variables.dispose()
   stopAgentNavigation()
   agents.dispose()
   stopTaskNavigation()
@@ -255,6 +264,10 @@ onUnmounted(() => {
     </div>
   </AppShell>
   <RouterView v-else />
+  <UiDialog :open="variables.confirmation.open" :title="variables.confirmation.title" @update:open="!$event && variables.finishConfirmation(false)">
+    <p>{{ variables.confirmation.message }}</p>
+    <template #footer><UiButton variant="ghost" @click="variables.finishConfirmation(false)">取消</UiButton><UiButton @click="variables.finishConfirmation(true)">{{ variables.confirmation.label }}</UiButton></template>
+  </UiDialog>
   <UiDialog
     :open="tasks.confirmation.open"
     title="离开任务"

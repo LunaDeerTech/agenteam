@@ -70,6 +70,11 @@ const endpoints = {
   reviewMilestone: ['GET', '/api/v1/projects/{project_id}/milestones/{target}', 200],
   reviewSprints: ['GET', '/api/v1/projects/{project_id}/sprints', 200],
   reviewSprint: ['GET', '/api/v1/projects/{project_id}/sprints/{target}', 200],
+  listProjectVariables: ['GET', '/api/v1/projects/{project_id}/variables', 200],
+  getProjectVariable: ['GET', '/api/v1/projects/{project_id}/variables/{target}', 200],
+  createProjectVariable: ['POST', '/api/v1/projects/{project_id}/variables', 200],
+  updateProjectVariable: ['PATCH', '/api/v1/projects/{project_id}/variables/{target}', 200],
+  lookupProjectVariable: ['POST', '/api/v1/projects/{project_id}/variables/commands/lookup', 200],
   milestoneCreate: ['POST', '/api/v1/projects/{project_id}/milestones', 200],
   milestoneCreateLookup: ['POST', '/api/v1/projects/{project_id}/structure-commands/lookup', 200],
   sprintCreate: ['POST', '/api/v1/projects/{project_id}/sprints', 200],
@@ -982,6 +987,11 @@ type KnowledgeOptions<E extends KnowledgeEndpoint> = E extends 'knowledgeChildre
     : { signal: AbortSignal; projectID: string; target: string }
 
 type WorkReviewEndpoint =
+  | 'listProjectVariables'
+  | 'getProjectVariable'
+  | 'createProjectVariable'
+  | 'updateProjectVariable'
+  | 'lookupProjectVariable'
   | 'milestoneCreate'
   | 'milestoneCreateLookup'
   | 'sprintCreate'
@@ -1009,6 +1019,11 @@ type WorkReviewEndpoint =
   | 'agentConfigurationGet'
   | 'agentConfigurationLookup'
 const workReviewEndpoints: readonly WorkReviewEndpoint[] = [
+  'listProjectVariables',
+  'getProjectVariable',
+  'createProjectVariable',
+  'updateProjectVariable',
+  'lookupProjectVariable',
   'milestoneCreate',
   'milestoneCreateLookup',
   'sprintCreate',
@@ -1228,6 +1243,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     } else if ((workReviewEndpoints as readonly string[]).includes(endpoint)) {
       try {
         const list = [
+          'listProjectVariables',
           'reviewMilestones',
           'reviewSprints',
           'reviewTasks',
@@ -1266,7 +1282,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
             endpoint === 'taskTimeline' ? ['cursor', 'order', 'types'] : ['cursor'],
           )
           const limit = string(query.limit, 1, 3)
-          if (!/^[1-9][0-9]*$/.test(limit) || Number(limit) > 200) throw new Error()
+          if (!/^[1-9][0-9]*$/.test(limit) || Number(limit) > (endpoint === 'listProjectVariables' ? 100 : 200)) throw new Error()
           const params = new URLSearchParams()
           for (const [key, value] of Object.entries(query)) {
             const item = string(value, 1, key === 'cursor' ? 8192 : key === 'types' ? 128 : 64)
@@ -1815,6 +1831,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
                     : endpoint === 'directoryAgent'
                       ? 64 * 1024
                       : [
+                            'listProjectVariables',
                             'reviewMilestones',
                             'reviewSprints',
                             'reviewTasks',
