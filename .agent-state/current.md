@@ -1,13 +1,15 @@
 # 全局协调索引
 
-2026-10-11。main 的本文件由 root 指定 recovery_lead 唯一维护正文；root 负责 Git、集成和资源排期。功能分支 current 不覆盖本索引。正式交付边界见[任务台账](../docs/development/agent-team/tasks.md)，分段接受不等于当前 main 单次全量通过。
+2026-10-11。main 的本文件由 root 指定 variables_review 唯一维护正文；root 负责 Git、集成和资源排期。功能分支 current 不覆盖本索引。正式交付边界见[任务台账](../docs/development/agent-team/tasks.md)，分段接受不等于当前 main 单次全量通过。
 
 ## 当前开发
 
 | 任务 / 分支 | 负责人 | 状态与下一步 |
 | --- | --- | --- |
-| Runner read-file 可构造适配器 — `ai/runner-read-file-adapter-20261011` | recovery_lead 交付，runner_read_file 子域 | 当前 Mount PG 授权解析、单次 dispatch、真实认证 WSS 与 Manager.Read 正在实现，未验收；上游 Operation 授权仍需严格提供者，生产默认 nil executor 与旧 STOP 保留。 |
-| Agent Secret Variable 白名单 UI — `ai/agent-secret-allowlist-ui-20261011` | variables_review 交付，secret_allowlist_fixture 方法 | 基线 9bc9e13a；普通 Owner 的安全 metadata 选择与 Agent 创建/编辑、原 Unknown 恢复正在独立实现；未验收，不接 Secret 值或运行注入。 |
+| Runner read-file 可构造适配器 — `ai/runner-read-file-adapter-20261011` | recovery_lead 交付，runner_read_file 子域 | 源 `311d` 已固定，基础 Runner 12 项通过，Central import cycle 正在窄修，尚未验收；当前 Mount PG 授权解析、单次 dispatch、真实认证 WSS 与 Manager.Read 属本片，上游 Operation 授权仍需严格提供者，生产默认 nil executor 与旧 STOP 保留。 |
+| 系统 Runner 管理 UI — `ai/system-runner-management-ui-20261011` | variables_review 交付，agent_display_settings 方法，skill_package_review 独审 | Web `6d2367ea` 与分段控/build 已接受；native01/02 wholeFAIL 保留，fixture 窄修后原 native03 已启动，尚未主线交付；一次性 token 仅内存，Unknown 只查原操作。 |
+| Agent Secret Variable 白名单 UI — `ai/agent-secret-allowlist-ui-20261011` | variables_review 交付，secret_allowlist_fixture 方法 | 产品 `a52610da` 的普通 Owner 安全 metadata 选择、创建/换项/清空、原 Unknown 恢复已获 native01 完整有限独验；等待共享方法依赖的整合顺序，不接 Secret 值或运行注入。 |
+| Knowledge 子树删除 UI — `ai/knowledge-subtree-delete-ui-20261011` | skills_milestone_review 交付 | 基线 `a15d8bbd`；普通 Owner 的 preview/delete/原 Lookup 有限 UI 正在独立实现，尚未验收，原 STOP 保留。 |
 | Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |
 
 ## 保留与清理
