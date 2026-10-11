@@ -58,6 +58,7 @@ type preparationState struct {
 	changed       chan struct{}
 }
 type preparationCall struct {
+	ctx                 context.Context
 	cancel              context.CancelFunc
 	request             c.PreparationRequest
 	claim               *preparationClaim
@@ -110,7 +111,7 @@ func (d *PreparationDriver) Run(ctx context.Context, execution i.ExecutionID) (e
 		return fault(f.ResourceBusy)
 	}
 	runCtx, cancel := context.WithCancel(ctx)
-	run := &preparationCall{cancel: cancel}
+	run := &preparationCall{ctx: runCtx, cancel: cancel}
 	s.calls[execution] = run
 	s.mu.Unlock()
 	started, terminal := false, false
