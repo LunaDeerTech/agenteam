@@ -608,3 +608,18 @@ SOURCE `deec8a506b98a77b120446e7e4360740557ac861`的compile07/candidate07与B05�
 视觉与交互仅接受上述实际截图及同轮键盘、取消回焦、主题、reduced-motion/overflow范围；13截图下半部和Unknown提示有DOM断言支持，15二十字段未同入一图，不外推全面视觉或无障碍审计。13 native01的Ready联证FAIL、15 native01容量FAIL与native02 Lookup绑定FAIL及其全部原件保留；后继通过不回填。重现沿既有immutable输入/方法和独立namespace，仍须固定依赖、fresh容量、原实际Wait和七资源退出门。
 
 当前只交付[Task内容编辑](../../docs/development/work-items/d11-work-owner-planning-ui.md#13-未指派-backlog-task-内容编辑批-13)与[Agent创建页面](../../docs/development/work-items/d10-agent-configuration.md)。16真实Update PG、17编辑页面、Timeline真实PG/浏览器、Project initializer、完整Loop与ready均不由本轮通过替代；旧STOP保持。
+
+## Task Timeline只读组合
+
+本片已完成限定验收，随本次提交交付main；产品与Web事实锚为SOURCE `b3e6f0bb9981cca668087f0686c5138cd8df6237`。后端14 top/3包vet、UI `b1fdc7d5`的新7加原page9共16项、format10/type/build按原有效输入复用，不将不同轮次累加为一次全平台检查。
+
+| 入口 | 绑定与实际范围 | 原件（metadata树output/ai/agent-system-integration下） |
+| --- | --- | --- |
+| `TestTaskTimelinePersistenceAndPaging`、`TestTaskTimelineAuthorityAndCancellation`、`TestTaskTimelineIntegrityAndCompatibility` | SOURCE `d407f82a`，三父top/十三sub真实PG全PASS | `task-timeline-pg-01-control/result.json` |
+| `TestTaskTimelineWeb` | SOURCE `b3e6f0bb`、compile02/candidate02，native03唯一`recent-older-and-refresh`30.90s wholePASS；正式服务写入51事件，读取最近50、较早1、刷新50，完整评论与只读DB后验通过 | `task-timeline-web-03-control/result.json` |
+
+Web四原Wait0、Node实际成功、七ID14次absence、全部private/runtime/desc/TCP双尾空、outer无遗留、2444输入一致，secret最终业务/资源有限接受。原PW失败事件仍保留，严格同request联合完成证明成立后才计读取完成；不以DOM或后补GET替代原typed消费者与服务端证明。cleanup实际2PNG与原键盘/overflow有限接受，不外推完整无障碍审计或所有事件类型的视觉覆盖。
+
+Web成功candidate02原为`task-timeline-web-race-02.test`，78,241,136 B，SHA256 `10ab714511caab1b69c8da3df36a9cfc86ddf603bf0f9a7ccecf25bbaed5de32`，绑定同目录`task-timeline-web-compile-02/result.json`；compile02/native03全PASS且零consumer后已精确退休raw（actual `8441f4`退出0），source、recipe、plan及results保留，可按原源码配方重建，未保存为gzip；原PG日志`/tmp/tlw03/ui-0e4ab8434d6d4175.log`。恢复继续沿原methods、immutable输入与独立namespace、固定依赖及唯一资源窗口，不直接重用旧namespace。旧candidate01已无损gzip保存，精确compile映射与独占恢复规程见[前置协调记录](../agent-prerequisites/coordination.md#当前批次与活动树)。
+
+原combined-pure-01断言FAIL、02物理缺包零top FAIL、format01授权文件物理缺失FAIL、Web native01容量零业务FAIL及native02夹具比较FAIL均保留。native02的原HTTP200被fixture中JSONB RawMessage空白与compact字节比较误拒为502；后继比较双方原typed数组经正式wire codec序列化的完整内容，保留事件来源、顺序、页边界及错误门，不改产品。真实浏览器仅覆盖本轮51事件分页链，不宣称六类来源的全部真实生产写矩阵、评论编辑、Execution日志、完整Runtime或ready已完成；17 Agent编辑仍独立未验。
