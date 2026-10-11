@@ -1,12 +1,18 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import { UiButton, UiDrawer, UiState, UiSelect, UiField, UiBadge } from '../../components/ui'
 import TaskBoard from '../../components/work/TaskBoard.vue'
 import TaskReviewDetail from '../../components/work/TaskReviewDetail.vue'
+import TaskCreateForm from '../../components/work/TaskCreateForm.vue'
 import { useProjectTasks } from '../../composables/useProjectTasks'
 const owner = useProjectTasks(),
   state = owner.state
 const sidebar = ref(false)
+const createButton = ref<{ $el: HTMLButtonElement } | null>(null)
+async function restoreCreateFocus() {
+  await nextTick()
+  if (owner.visible.value && !state.task) createButton.value?.$el.focus()
+}
 const milestoneOptions = computed(() => {
   const rows = [...state.milestones]
   if (state.milestone && !rows.some((x) => x.id === state.milestone!.id))
@@ -17,6 +23,10 @@ const sprintLabels = { planned: '未启动', current: '当前', completed: '已�
 function selectSprint(id: string) {
   owner.selectSprint(id)
   sidebar.value = false
+}
+function returnToCreation() {
+  const p = owner.pending.value
+  if (p?.kind === 'create' && p.sprintID) selectSprint(p.sprintID)
 }
 </script>
 <template>
@@ -31,9 +41,44 @@ function selectSprint(id: string) {
     </header>
     <UiState v-if="!owner.visible.value" kind="loading" title="正在确认任务访问身份" />
     <template v-else>
-      <p v-if="owner.pending.value && !owner.progress.value" role="status">
-        有一项评审操作结果待确认，请返回原任务查询结果。
+      <p
+        v-if="owner.pending.value && !owner.progress.value && !owner.creationProgress.value"
+        role="status"
+      >
+        有一项任务操作结果待确认，请返回原 Sprint 或任务查询结果。
       </p>
+      <UiButton
+        v-if="
+          owner.pending.value?.kind === 'create' &&
+          !owner.creationProgress.value &&
+          owner.pending.value.sprintID
+        "
+        :disabled="owner.busy.value"
+        @click="returnToCreation"
+        >返回原创建 Sprint</UiButton
+      >
+      <p v-if="owner.creationProgress.value?.phase === 'submitting'" role="status">
+        正在创建任务，请等待原请求结束。
+      </p>
+      <section
+        v-if="owner.creationProgress.value?.phase === 'uncertain'"
+        class="create-recovery"
+        aria-label="创建结果恢复"
+      >
+        <p role="status">创建结果待确认。请查询原创建结果，不要重复创建。</p>
+        <UiButton
+          :disabled="owner.busy.value || !owner.creationProgress.value.contextValid"
+          @click="owner.lookupCreation()"
+          >查询原创建结果</UiButton
+        >
+        <p v-if="owner.creationProgress.value.observation === 'in_progress'" role="status">
+          原创建仍在处理中，稍后可再次查询。
+        </p>
+        <p v-if="owner.creationProgress.value.observation === 'not_observed'" role="status">
+          尚未观察到原创建结果，可再次查询。
+        </p>
+        <p v-if="owner.creation.message" role="alert">{{ owner.creation.message }}</p>
+      </section>
       <UiState v-if="state.phase === 'loading'" kind="loading" title="正在读取任务工作区" />
       <UiState
         v-else-if="state.phase === 'error'"
@@ -88,7 +133,18 @@ function selectSprint(id: string) {
             ><header class="sprint-heading">
               <h2>{{ state.sprint.title }}</h2>
               <UiBadge>{{ sprintLabels[state.sprint.state] }}</UiBadge>
+              <UiButton
+                v-if="!owner.creation.open"
+                ref="createButton"
+                :disabled="owner.busy.value || !owner.canCreate.value"
+                @click="owner.openCreation()"
+                >新建任务</UiButton
+              >
             </header>
+            <TaskCreateForm
+              v-if="owner.creation.open && !owner.pending.value"
+              :owner="owner"
+              @closed="restoreCreateFocus" />
             <TaskBoard
               :columns="owner.columns"
               :busy="owner.busy.value"

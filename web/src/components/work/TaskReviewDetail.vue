@@ -9,7 +9,9 @@ const actionLabel = computed(() =>
   props.owner.draft.action === 'in_review'
     ? '提交评审'
     : props.owner.draft.action === 'todo'
-      ? '退回修改'
+      ? task.value?.state === 'backlog'
+        ? '指派'
+        : '退回修改'
       : '接受并完成',
 )
 const unresolved = computed(() => props.owner.state.blockers.filter((b) => b.resolved_at === null))
@@ -18,7 +20,7 @@ const canSubmit = computed(
     !props.owner.busy.value &&
     !props.owner.readOnly.value &&
     !!props.owner.draft.action &&
-    !!props.owner.draft.comment.trim() &&
+    (task.value?.state === 'backlog' || !!props.owner.draft.comment.trim()) &&
     (props.owner.draft.action === 'done' || !!props.owner.draft.agentID) &&
     (props.owner.draft.action !== 'todo' ||
       (!unresolved.value.length &&
@@ -125,6 +127,12 @@ const canSubmit = computed(
     <UiButton :disabled="owner.busy.value" @click="owner.refresh()">重新读取任务</UiButton>
     <div v-if="!owner.pending.value" class="review-actions">
       <UiButton
+        v-if="task.state === 'backlog'"
+        :disabled="owner.busy.value || owner.readOnly.value"
+        @click="owner.chooseAction('todo')"
+        >指派并加入待执行</UiButton
+      >
+      <UiButton
         v-if="task.state === 'in_progress'"
         :disabled="owner.busy.value || owner.readOnly.value"
         @click="owner.chooseAction('in_review')"
@@ -179,7 +187,11 @@ const canSubmit = computed(
           >重新读取 Agent 目录</UiButton
         ></template
       >
-      <UiField label="评审说明" required hint="说明将作为任务历史保留。" v-slot="field"
+      <UiField
+        :label="task.state === 'backlog' ? '指派说明' : '评审说明'"
+        :required="task.state !== 'backlog'"
+        hint="填写的说明将作为任务历史保留。"
+        v-slot="field"
         ><UiTextarea
           :id="field.id"
           v-model="owner.draft.comment"

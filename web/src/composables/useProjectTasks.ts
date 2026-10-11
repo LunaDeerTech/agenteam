@@ -13,6 +13,7 @@ import {
   type Page,
   type ReviewInput,
 } from '../api/work-review'
+import { captureTaskCreateDraft, type TaskCreateDraft } from '../api/work-task-planning'
 import { agentLabel, type DirectoryAgent } from '../api/agent-directory'
 import { workTaskRoute } from '../router/auth'
 import { type SessionController } from './useSession'
@@ -92,6 +93,15 @@ export function createProjectTasks(
     agentID: string
     comment: string
   }>({ action: '', agentID: '', comment: '' })
+  const creation = reactive<{
+    open: boolean
+    title: string
+    description: string
+    plan: string
+    type: TaskCreateDraft['type'] | ''
+    priority: TaskCreateDraft['priority'] | ''
+    message: string
+  }>({ open: false, title: '', description: '', plan: '', type: '', priority: '', message: '' })
   const confirmation = reactive({ open: false, message: '' })
   let resolveLeave: ((value: boolean) => void) | null = null
   const reading = ref(false)
@@ -114,9 +124,17 @@ export function createProjectTasks(
   })
   const progress = computed(() => {
     const p = auth.workReview.progress
-    if (!p) return null
+    if (!p || p.kind === 'create') return null
     return p.projectID === workspace.currentReadContext.value?.projectID &&
       p.taskID === state.task?.id
+      ? p
+      : null
+  })
+  const creationProgress = computed(() => {
+    const p = auth.workReview.progress
+    return p?.kind === 'create' &&
+      p.projectID === workspace.currentReadContext.value?.projectID &&
+      p.sprintID === state.sprint?.id
       ? p
       : null
   })
@@ -129,7 +147,26 @@ export function createProjectTasks(
       !state.detailCurrent ||
       !!pending.value,
   )
-  const dirty = computed(() => !!draft.comment || !!draft.agentID || !!pending.value)
+  const canCreate = computed(
+    () =>
+      visible.value &&
+      workspace.detail.project?.lifecycle === 'active' &&
+      state.phase === 'ready' &&
+      state.sprint?.state === 'current' &&
+      !state.task &&
+      !pending.value,
+  )
+  const creationDirty = computed(
+    () =>
+      !!creation.title ||
+      !!creation.description ||
+      !!creation.plan ||
+      !!creation.type ||
+      !!creation.priority,
+  )
+  const dirty = computed(
+    () => !!draft.comment || !!draft.agentID || creationDirty.value || !!pending.value,
+  )
   const agentOptions = computed(() =>
     state.agents.map((a) => ({
       value: a.id,
@@ -148,6 +185,17 @@ export function createProjectTasks(
     draft.action = ''
     draft.agentID = ''
     draft.comment = ''
+  }
+  function clearCreation() {
+    Object.assign(creation, {
+      open: false,
+      title: '',
+      description: '',
+      plan: '',
+      type: '',
+      priority: '',
+      message: '',
+    })
   }
   function retire() {
     ++generation
@@ -176,6 +224,7 @@ export function createProjectTasks(
     names.clear()
     for (const s of taskStates) Object.assign(columns[s], emptyColumn())
     clearDraft()
+    clearCreation()
   }
   async function read<T>(
     fn: (project: string, step: <V>(work: () => Promise<V>) => Promise<V>) => Promise<T>,
@@ -465,6 +514,7 @@ export function createProjectTasks(
       !task ||
       !(
         (task.state === 'in_progress' && action === 'in_review') ||
+        (task.state === 'backlog' && action === 'todo') ||
         (task.state === 'in_review' && ['todo', 'done'].includes(action))
       )
     )
@@ -479,15 +529,26 @@ export function createProjectTasks(
     if (!p || !task || !draft.action || readOnly.value || busy.value) return
     try {
       if (auth.workReview.progress?.phase === 'rejected') auth.workReview.editRejected()
-      const input: ReviewInput = {
-        expected_version: task.version,
-        request: {
-          target_state: draft.action,
-          comment: draft.comment,
-          ...(draft.action === 'done' ? {} : { assignee_agent_id: draft.agentID }),
-        },
+      if (task.state === 'backlog' && draft.action === 'todo') {
+        await auth.workReview.startReady(p, task.id, {
+          expected_version: task.version,
+          request: {
+            target_state: 'todo',
+            assignee_agent_id: draft.agentID,
+            ...(draft.comment === '' ? {} : { comment: draft.comment }),
+          },
+        })
+      } else {
+        const input: ReviewInput = {
+          expected_version: task.version,
+          request: {
+            target_state: draft.action,
+            comment: draft.comment,
+            ...(draft.action === 'done' ? {} : { assignee_agent_id: draft.agentID }),
+          },
+        }
+        await auth.workReview.startTransfer(p, task.id, input)
       }
-      await auth.workReview.startTransfer(p, task.id, input)
       if (
         visible.value &&
         workspace.currentReadContext.value?.projectID === p &&
@@ -516,11 +577,66 @@ export function createProjectTasks(
       state.message = explain(error)
     }
   }
+  function openCreation() {
+    if (!canCreate.value || busy.value) return
+    clearDraft()
+    creation.open = true
+    creation.message = ''
+  }
+  async function cancelCreation() {
+    if (busy.value || pending.value) return
+    if (creationDirty.value && !(await confirmLeave())) return
+    clearCreation()
+  }
+  async function revealCreated(project: string, task: Task) {
+    if (!visible.value || workspace.currentReadContext.value?.projectID !== project) return
+    clearCreation()
+    await navigate(`${projectPath()}/tasks/${task.id}`)
+    if (visible.value && workspace.currentReadContext.value?.projectID === project)
+      state.feedback = '任务已创建，可选择 Agent 加入待执行。'
+  }
+  async function submitCreation() {
+    const p = workspace.currentReadContext.value?.projectID,
+      sprint = state.sprint,
+      own = generation
+    if (!p || !sprint || !creation.open || !canCreate.value || busy.value) return
+    try {
+      const value = captureTaskCreateDraft({
+        sprint_id: sprint.id,
+        title: creation.title,
+        description: creation.description,
+        type: creation.type,
+        priority: creation.priority,
+        plan: creation.plan,
+      })
+      if (auth.workReview.progress?.phase === 'rejected') auth.workReview.editRejected()
+      const result = await auth.workReview.startCreate(p, value)
+      if (!('status' in result) && live(own, p)) await revealCreated(p, result.task)
+    } catch (error) {
+      if (live(own, p))
+        creation.message =
+          error instanceof AccountFailure && error.kind === 'invalid-input'
+            ? '请填写合法的标题、类型和优先级，并核对描述与计划长度。'
+            : explain(error)
+    }
+  }
+  async function lookupCreation() {
+    const p = creationProgress.value,
+      own = generation
+    if (busy.value || p?.phase !== 'uncertain' || !p.contextValid) return
+    try {
+      const result = await auth.workReview.checkOriginal()
+      if ('status' in result && result.status === 'committed' && live(own, p.projectID))
+        await revealCreated(p.projectID, result.receipt.task)
+    } catch (error) {
+      if (live(own, p.projectID)) creation.message = explain(error)
+    }
+  }
   function confirmLeave(target?: string): Promise<boolean> {
     if (target === route.value || !dirty.value) return Promise.resolve(true)
     confirmation.message = pending.value
-      ? '操作结果尚未确认。离开不会重发，返回原任务后可继续查询原结果。'
-      : '离开将放弃尚未提交的评审输入。'
+      ? '操作结果尚未确认。离开不会重发，返回原 Sprint 或任务后可继续查询原结果。'
+      : '离开将放弃尚未提交的任务输入。'
     confirmation.open = true
     return new Promise((resolve) => {
       resolveLeave = resolve
@@ -530,7 +646,10 @@ export function createProjectTasks(
     confirmation.open = false
     const resolve = resolveLeave
     resolveLeave = null
-    if (yes) clearDraft()
+    if (yes) {
+      clearDraft()
+      clearCreation()
+    }
     resolve?.(yes)
   }
   function afterNavigation(to: string) {
@@ -539,6 +658,7 @@ export function createProjectTasks(
     route.value = to
     if (workTaskRoute(to)?.kind !== 'root') manualMilestone = null
     clearDraft()
+    clearCreation()
     state.task = null
     state.detailCurrent = false
     state.feedback = ''
@@ -585,6 +705,9 @@ export function createProjectTasks(
     state,
     columns,
     draft,
+    creation,
+    creationProgress,
+    canCreate,
     confirmation,
     visible,
     busy,
@@ -605,6 +728,10 @@ export function createProjectTasks(
     closeTask,
     chooseAction,
     submit,
+    openCreation,
+    cancelCreation,
+    submitCreation,
+    lookupCreation,
     lookup,
     confirmLeave,
     afterNavigation,
