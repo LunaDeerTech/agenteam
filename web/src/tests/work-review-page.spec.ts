@@ -3,7 +3,17 @@ import { DOMWrapper, flushPromises, mount, type VueWrapper } from '@vue/test-uti
 import { createAccountAPI, type SessionView } from '../api/account'
 import { createProjectOwnerAPI } from '../api/project-owner'
 import { createAgentDirectoryAPI } from '../api/agent-directory'
-import { createWorkReviewAPI, type ReviewInput, type Task } from '../api/work-review'
+import {
+  createWorkReviewAPI,
+  type ReviewInput,
+  type ReadyInput,
+  type Task,
+} from '../api/work-review'
+import {
+  createWorkTaskPlanningAPI,
+  type TaskCreateInput,
+  type TaskCreateReceipt,
+} from '../api/work-task-planning'
 import type { Fetch } from '../api/client'
 import { createSessionController, type SessionController } from '../composables/useSession'
 import { createProjectWorkspace } from '../composables/useProjectWorkspace'
@@ -122,11 +132,15 @@ async function page(state: Task['state'] = 'in_progress', empty = false, blocked
     version: '4',
   }
   let uncertain = false
+  let hasTask = !empty
+  let creationLost = false
+  let creationObservation: 'not_observed' | 'in_progress' | 'committed' = 'not_observed'
+  let creationReceipt: TaskCreateReceipt | undefined
   let blockers: 'none' | 'unresolved' | 'unavailable' | 'resolved' = blocked ? 'unresolved' : 'none'
   let observation: 'not_observed' | 'in_progress' | 'committed' = 'not_observed'
-  let original: ReviewInput | undefined
+  let original: ReviewInput | ReadyInput | undefined
   const unexpected: string[] = []
-  const commit = (input: ReviewInput) => {
+  const commit = (input: ReviewInput | ReadyInput) => {
     current = {
       ...current,
       state: input.request.target_state,
@@ -164,8 +178,8 @@ async function page(state: Task['state'] = 'in_progress', empty = false, blocked
     if (route === `${prefix}/agents`) return json({ items: agents })
     if (route === `${prefix}/agents/${workerID}`) return json(agents[1])
     if (route === `${prefix}/agents/${reviewerID}`) return json(agents[0])
-    if (route === `${prefix}/tasks/${taskID}`) return json(current)
-    if (route === `${prefix}/tasks/${taskID}/blockers`) {
+    if (route === `${prefix}/tasks/${current.id}`) return json(current)
+    if (route === `${prefix}/tasks/${current.id}/blockers`) {
       if (blockers === 'unavailable')
         return json(
           {
@@ -188,7 +202,7 @@ async function page(state: Task['state'] = 'in_progress', empty = false, blocked
                 {
                   id: id(70),
                   project_id: projectID,
-                  task_id: taskID,
+                  task_id: current.id,
                   type: 'waiting_for_human',
                   metadata: {},
                   description: '等待负责人确认',
@@ -204,14 +218,46 @@ async function page(state: Task['state'] = 'in_progress', empty = false, blocked
               ],
       })
     }
+    if (route === `${prefix}/tasks` && init.method === 'POST') {
+      const input = JSON.parse(init.body as string) as TaskCreateInput
+      const { task_id, ...fields } = input.request
+      current = {
+        ...current,
+        ...fields,
+        id: task_id,
+        state: 'backlog',
+        assignee_agent_id: null,
+        version: '1',
+      }
+      hasTask = true
+      creationReceipt = { task: current, changed: true, task_event_id: id(43), event_ids: [id(44)] }
+      if (creationLost)
+        return new Response(
+          new ReadableStream({
+            start(controller) {
+              controller.error(new TypeError('receipt interrupted'))
+            },
+          }),
+          {
+            status: 200,
+            headers: { 'Content-Type': 'application/json', 'X-Request-ID': id(99) },
+          },
+        )
+      return json(creationReceipt)
+    }
+    if (route === `${prefix}/task-commands/lookup`)
+      return json({
+        status: creationObservation,
+        receipt: creationObservation === 'committed' ? creationReceipt : null,
+      })
     if (route === `${prefix}/tasks`) {
       const { description: _description, plan: _plan, ...summary } = current
       return json({
-        items: !empty && url.searchParams.get('state') === current.state ? [summary] : [],
+        items: hasTask && url.searchParams.get('state') === current.state ? [summary] : [],
       })
     }
-    if (route === transferPath) {
-      original = JSON.parse(init.body as string) as ReviewInput
+    if (route === `${prefix}/tasks/${current.id}/transfer`) {
+      original = JSON.parse(init.body as string) as ReviewInput | ReadyInput
       if (uncertain)
         return json(
           {
@@ -240,6 +286,7 @@ async function page(state: Task['state'] = 'in_progress', empty = false, blocked
   args[12] = createProjectOwnerAPI(fetcher)
   args[16] = createWorkReviewAPI(fetcher)
   args[17] = createAgentDirectoryAPI(fetcher)
+  args[18] = createWorkTaskPlanningAPI(fetcher)
   const auth = createSessionController(...args)
   await auth.restore()
   const workspace = createProjectWorkspace(auth)
@@ -272,7 +319,22 @@ async function page(state: Task['state'] = 'in_progress', empty = false, blocked
     blockers(value: typeof blockers) {
       blockers = value
     },
-    transfers: () => fetcher.mock.calls.filter(([path]) => path === transferPath),
+    loseCreation() {
+      creationLost = true
+    },
+    observeCreation(value: typeof creationObservation) {
+      creationObservation = value
+    },
+    creates: () =>
+      fetcher.mock.calls.filter(
+        ([path, init]) => path === `${prefix}/tasks` && init.method === 'POST',
+      ),
+    creationLookups: () =>
+      fetcher.mock.calls.filter(([path]) => path === `${prefix}/task-commands/lookup`),
+    transfers: () =>
+      fetcher.mock.calls.filter(
+        ([path]) => path.startsWith(`${prefix}/tasks/`) && path.endsWith('/transfer'),
+      ),
     lookups: () => fetcher.mock.calls.filter(([path]) => path === lookupPath),
   }
 }
@@ -305,6 +367,103 @@ async function selectAgent(label: string, option: string) {
 }
 
 describe('Human review page with real UI controls', () => {
+  it('creates a confirmed backlog first and requires a second explicit Agent choice before todo', async () => {
+    const f = await page('in_progress', true)
+    await click('新建任务')
+    const form = body().get('form[aria-label="新建任务"]')
+    expect(document.activeElement).toBe(form.get('input').element)
+    await click('取消创建')
+    expect(document.activeElement).toBe(button('新建任务').element)
+    await click('新建任务')
+    expect(button('确认创建任务').element.disabled).toBe(true)
+    expect(f.creates()).toHaveLength(0)
+    await body().get('form[aria-label="新建任务"] input').setValue('用户明确创建的任务')
+    await selectAgent('任务类型', '任务')
+    expect(button('确认创建任务').element.disabled).toBe(true)
+    await selectAgent('优先级', '高')
+    const fields = body().findAll('form[aria-label="新建任务"] textarea')
+    await fields[0]!.setValue('原始任务描述')
+    await fields[1]!.setValue('原始执行计划')
+    await click('确认创建任务')
+    expect(f.creates()).toHaveLength(1)
+    expect(f.creationLookups()).toHaveLength(0)
+    expect(f.transfers()).toHaveLength(0)
+    const original = f.creates()[0]![1]
+    const input = JSON.parse(original.body as string) as TaskCreateInput
+    expect(input.request).toEqual({
+      task_id: input.request.task_id,
+      sprint_id: sprintID,
+      title: '用户明确创建的任务',
+      description: '原始任务描述',
+      plan: '原始执行计划',
+      type: 'task',
+      priority: 'high',
+    })
+    expect(body().get('[role="dialog"]').text()).toContain('待规划')
+    expect(body().get('[role="dialog"]').text()).toContain('未指派')
+    await click('指派并加入待执行')
+    expect(button('确认指派').element.disabled).toBe(true)
+    expect(body().get('button[aria-label="执行 Agent"]').text()).toContain('请选择')
+    await selectAgent('执行 Agent', '执行员 (work-agent)')
+    expect(body().get<HTMLTextAreaElement>('[role="dialog"] textarea').element.value).toBe('')
+    expect(button('确认指派').element.disabled).toBe(false)
+    await click('确认指派')
+    expect(f.transfers()).toHaveLength(1)
+    const ready = f.transfers()[0]![1]
+    expect(JSON.parse(ready.body as string)).toEqual({
+      expected_version: '1',
+      request: { target_state: 'todo', assignee_agent_id: workerID },
+    })
+    expect(new Headers(ready.headers).get('Idempotency-Key')).not.toBe(
+      new Headers(original.headers).get('Idempotency-Key'),
+    )
+    expect(body().get('[role="dialog"]').text()).toContain('待执行')
+    expect(body().get('[role="dialog"]').text()).toContain('执行员')
+  })
+
+  it('recovers a lost creation receipt on the Sprint before any Task detail or ready action', async () => {
+    const f = await page('in_progress', true)
+    f.loseCreation()
+    await click('新建任务')
+    await body().get('form[aria-label="新建任务"] input').setValue('待确认的原任务')
+    await selectAgent('任务类型', '任务')
+    await selectAgent('优先级', '中')
+    await click('确认创建任务')
+    const original = f.creates()[0]![1]
+    const input = JSON.parse(original.body as string) as TaskCreateInput
+    expect(body().get('[aria-label="创建结果恢复"]').text()).toContain(
+      '创建结果待确认。请查询原创建结果，不要重复创建。',
+    )
+    expect(body().find('[role="dialog"]').exists()).toBe(false)
+    expect(body().find('form[aria-label="新建任务"]').exists()).toBe(false)
+    expect(
+      f.fetcher.mock.calls.filter(([path]) => path === `${prefix}/tasks/${input.request.task_id}`),
+    ).toHaveLength(0)
+    expect(f.creationLookups()).toHaveLength(0)
+    await click('查询原创建结果')
+    expect(body().text()).toContain('尚未观察到原创建结果')
+    f.observeCreation('in_progress')
+    await click('查询原创建结果')
+    expect(body().text()).toContain('原创建仍在处理中')
+    expect(f.transfers()).toHaveLength(0)
+    f.observeCreation('committed')
+    await click('查询原创建结果')
+    expect(body().get('[role="dialog"]').text()).toContain('待规划')
+    expect(f.creates()).toHaveLength(1)
+    expect(f.creationLookups()).toHaveLength(3)
+    for (const [, request] of f.creationLookups()) {
+      expect(JSON.parse(request.body as string)).toEqual({ command: 'work.task.create', ...input })
+      expect(new Headers(request.headers).get('Idempotency-Key')).toBe(
+        new Headers(original.headers).get('Idempotency-Key'),
+      )
+    }
+    await click('指派并加入待执行')
+    await selectAgent('执行 Agent', '执行员 (work-agent)')
+    await click('确认指派')
+    expect(f.transfers()).toHaveLength(1)
+    expect(body().get('[role="dialog"]').text()).toContain('待执行')
+  })
+
   it('requires an explicit reviewer and comment before submitting for review', async () => {
     const f = await page('in_progress', false, true)
     expect(body().get('[role="dialog"]').text()).toContain('执行员')

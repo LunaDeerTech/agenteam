@@ -10,6 +10,11 @@ import {
   type ReviewReceipt,
   type ReviewLookup,
 } from '../api/work-review'
+import type {
+  TaskCreateDraft,
+  TaskCreateLookup,
+  TaskCreateReceipt,
+} from '../api/work-task-planning'
 import { createProjectTasks, type ProjectTasks } from '../composables/useProjectTasks'
 import type { SessionController, WorkReviewProgress } from '../composables/useSession'
 import type { createProjectWorkspace } from '../composables/useProjectWorkspace'
@@ -95,7 +100,20 @@ function fixture(current: string | null = id(3)) {
         return { task: stored, task_event_ids: [id(21)], event_ids: [id(22)] }
       },
     ),
-    checkOriginal: vi.fn(async (): Promise<ReviewLookup> => ({
+    startCreate: vi.fn(async (_p: string, input: TaskCreateDraft): Promise<TaskCreateReceipt> => ({
+      task: {
+        ...stored,
+        ...input,
+        id: id(40),
+        state: 'backlog',
+        assignee_agent_id: null,
+        version: '1',
+      },
+      changed: true,
+      task_event_id: id(21),
+      event_ids: [id(22)],
+    })),
+    checkOriginal: vi.fn(async (): Promise<ReviewLookup | TaskCreateLookup> => ({
       status: 'not_observed',
       receipt: null,
     })),
@@ -218,6 +236,8 @@ describe('Work review selection and publication owner', () => {
     f.owner.draft.comment = '  原始评审说明\n'
     f.api.startTransfer.mockImplementationOnce(async () => {
       f.progress.value = {
+        kind: 'review',
+        sprintID: null,
         projectID: id(1),
         taskID: id(4),
         phase: 'uncertain',
@@ -246,6 +266,8 @@ describe('Work review selection and publication owner', () => {
       f.setStored(next)
       const receipt = { task: next, task_event_ids: [id(21)], event_ids: [id(22)] }
       f.progress.value = {
+        kind: 'review',
+        sprintID: null,
         projectID: id(1),
         taskID: id(4),
         phase: 'confirmed',
@@ -269,5 +291,99 @@ describe('Work review selection and publication owner', () => {
       request: { target_state: 'done', comment: '接受结果' },
     })
     expect(f.owner.state.task?.state).toBe('done')
+  })
+  it('recovers creation from its Sprint without reading a not-yet-confirmed Task and clears retired drafts', async () => {
+    const f = fixture()
+    f.owner.afterNavigation(`/owner/demo/tasks/sprints/${id(3)}`)
+    await flushPromises()
+    expect(f.owner.canCreate.value).toBe(true)
+    f.owner.openCreation()
+    Object.assign(f.owner.creation, { title: '原始新任务', type: 'task', priority: 'high' })
+    f.api.startCreate.mockImplementationOnce(async () => {
+      f.progress.value = {
+        kind: 'create',
+        projectID: id(1),
+        taskID: id(40),
+        sprintID: id(3),
+        phase: 'uncertain',
+        receipt: null,
+        observation: 'none',
+        contextValid: true,
+      }
+      throw new AccountFailure('transport')
+    })
+    await f.owner.submitCreation()
+    expect(f.api.startCreate.mock.calls[0]).toEqual([
+      id(1),
+      {
+        sprint_id: id(3),
+        title: '原始新任务',
+        type: 'task',
+        priority: 'high',
+        description: '',
+        plan: '',
+      },
+    ])
+    expect(f.owner.state.task).toBeNull()
+    expect(f.api.task).not.toHaveBeenCalled()
+    expect(f.owner.progress.value).toBeNull()
+    expect(f.owner.creationProgress.value?.phase).toBe('uncertain')
+    expect(f.owner.canCreate.value).toBe(false)
+    await f.owner.submitCreation()
+    expect(f.api.startCreate).toHaveBeenCalledTimes(1)
+    await f.owner.selectSprint(id(30))
+    await flushPromises()
+    expect(f.owner.creationProgress.value).toBeNull()
+    expect(f.owner.pending.value?.taskID).toBe(id(40))
+    expect(f.owner.creationPending.value?.projectID).toBe(id(1))
+    const originalContext = f.context.value!
+    f.context.value = { ...originalContext, projectID: id(60), generation: 2 }
+    f.owner.afterNavigation('/owner/other/tasks')
+    await flushPromises()
+    expect(f.owner.creationPending.value).toBeNull()
+    expect(f.owner.pending.value?.projectID).toBe(id(1))
+    expect(f.api.task).not.toHaveBeenCalled()
+    f.context.value = { ...originalContext, generation: 3 }
+    f.owner.afterNavigation(`/owner/demo/tasks/sprints/${id(30)}`)
+    await flushPromises()
+    await f.owner.selectSprint(id(3))
+    await flushPromises()
+    expect(f.owner.creationProgress.value?.taskID).toBe(id(40))
+    await f.owner.lookupCreation()
+    expect(f.api.checkOriginal).toHaveBeenCalledTimes(1)
+    expect(f.api.task).not.toHaveBeenCalled()
+    const created: TaskCreateReceipt = {
+      task: { ...task, id: id(40), title: '原始新任务', state: 'backlog', assignee_agent_id: null },
+      changed: true,
+      task_event_id: id(21),
+      event_ids: [id(22)],
+    }
+    f.api.checkOriginal.mockImplementationOnce(async () => {
+      f.setStored(created.task)
+      f.progress.value = {
+        ...f.progress.value!,
+        phase: 'confirmed',
+        receipt: created,
+        observation: 'committed',
+        contextValid: false,
+      }
+      return { status: 'committed', receipt: created }
+    })
+    await f.owner.lookupCreation()
+    await flushPromises()
+    expect(f.navigate).toHaveBeenLastCalledWith(`/owner/demo/tasks/${id(40)}`)
+    expect(f.owner.state.task?.state).toBe('backlog')
+    expect(f.owner.creation.open).toBe(false)
+    expect(f.api.startTransfer).not.toHaveBeenCalled()
+    await f.owner.closeTask()
+    await flushPromises()
+    f.owner.openCreation()
+    f.owner.creation.title = '不得跨身份保存的草稿'
+    f.personal.identity = null
+    f.context.value = null
+    await flushPromises()
+    expect(f.owner.creation.open).toBe(false)
+    expect(f.owner.creation.title).toBe('')
+    expect(f.owner.visible.value).toBe(false)
   })
 })
