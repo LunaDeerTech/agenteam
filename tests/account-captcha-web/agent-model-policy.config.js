@@ -12,9 +12,7 @@ if (
   !executablePath ||
   !evidence ||
   !selected ||
-  !["switch-model-auto-and-clear-approval"].includes(
-    selected,
-  )
+  !["switch-model-auto-and-clear-approval"].includes(selected)
 )
   throw new Error("OWNED_AGENT_MODEL_POLICY_FIXTURE_REQUIRED");
 const url = new URL(origin);

@@ -61,7 +61,12 @@ const model: ProjectAvailableChatModel = {
 }
 const textModel: ProjectAvailableChatModel = {
   ...model,
-  capabilities: { ...model.capabilities, tool_calls: false, reasoning: false, reasoning_efforts: [] },
+  capabilities: {
+    ...model.capabilities,
+    tool_calls: false,
+    reasoning: false,
+    reasoning_efforts: [],
+  },
 }
 const secondModel: ProjectAvailableChatModel = { ...textModel, id: id(7), name: 'Second Chat' }
 const owners: ProjectAgents[] = [],
@@ -345,11 +350,14 @@ describe('Agent edit generation and version gates', () => {
 
   it('selects current supported models and saves the model, injection and approval pair atomically', async () => {
     const f = await fixture()
-    f.api.models.mockResolvedValue({ items: [textModel, secondModel, { ...model, id: id(12) }], next_cursor: null })
+    f.api.models.mockResolvedValue({
+      items: [textModel, secondModel, { ...model, id: id(12) }],
+      next_cursor: null,
+    })
     await f.owner.selectAgent(id(2))
     await f.owner.openEdit()
     expect(f.api.models).toHaveBeenCalledExactlyOnceWith(id(1), { limit: 50 })
-    expect(f.owner.editModelOptions.value.map(v => v.value)).toEqual([id(3), id(7)])
+    expect(f.owner.editModelOptions.value.map((v) => v.value)).toEqual([id(3), id(7)])
     f.owner.touchEditPolicy('model_ref', id(12))
     expect(f.owner.edit.modelID).toBe(id(3))
     expect(f.owner.editDirty.value).toBe(false)
@@ -362,25 +370,44 @@ describe('Agent edit generation and version gates', () => {
     f.owner.touchEditPolicy('approval_model_ref', id(3))
     await f.owner.submitEdit()
     expect(f.api.startUpdate).toHaveBeenCalledExactlyOnceWith(id(1), id(2), {
-      expected_version: '1', request: {
-        model_ref: id(7), reasoning_effort: null, inject_agents_md: false,
-        approval_policy: 'auto', approval_model_ref: id(3),
+      expected_version: '1',
+      request: {
+        model_ref: id(7),
+        reasoning_effort: null,
+        inject_agents_md: false,
+        approval_policy: 'auto',
+        approval_model_ref: id(3),
       },
     })
-    expect(f.owner.state.configuration).toMatchObject({ version: '2', model_ref: id(7), approval_model_ref: id(3) })
+    expect(f.owner.state.configuration).toMatchObject({
+      version: '2',
+      model_ref: id(7),
+      approval_model_ref: id(3),
+    })
     await f.owner.openEdit()
     f.owner.touchEditPolicy('approval_policy', 'default')
     expect(f.owner.edit.approvalModelID).toBe('')
     f.api.startUpdate.mockResolvedValueOnce({
-      agent: { ...f.owner.state.configuration!, version: '3', approval_policy: 'default', approval_model_ref: null },
-      changed: true, event_ids: [id(52)],
+      agent: {
+        ...f.owner.state.configuration!,
+        version: '3',
+        approval_policy: 'default',
+        approval_model_ref: null,
+      },
+      changed: true,
+      event_ids: [id(52)],
     })
     await f.owner.submitEdit()
     expect(f.api.startUpdate).toHaveBeenLastCalledWith(id(1), id(2), {
-      expected_version: '2', request: { approval_policy: 'default', approval_model_ref: null },
+      expected_version: '2',
+      request: { approval_policy: 'default', approval_model_ref: null },
     })
     expect(f.api.startUpdate).toHaveBeenCalledTimes(2)
-    expect(f.owner.state.configuration).toMatchObject({ model_ref: id(7), inject_agents_md: false, approval_model_ref: null })
+    expect(f.owner.state.configuration).toMatchObject({
+      model_ref: id(7),
+      inject_agents_md: false,
+      approval_model_ref: null,
+    })
     expect(f.api.startCreate).not.toHaveBeenCalled()
     expect(f.api.checkOriginal).not.toHaveBeenCalled()
   })
@@ -402,10 +429,13 @@ describe('Agent edit generation and version gates', () => {
     await f.owner.loadModels()
     expect(f.owner.canSave.value).toBe(true)
     let finish!: () => void
-    f.api.models.mockImplementationOnce(async () => new Promise<{ items: ProjectAvailableChatModel[]; next_cursor: null }>(resolve => {
-      finish = () => resolve({ items: [textModel, secondModel], next_cursor: null })
-      release.push(finish)
-    }))
+    f.api.models.mockImplementationOnce(
+      async () =>
+        new Promise<{ items: ProjectAvailableChatModel[]; next_cursor: null }>((resolve) => {
+          finish = () => resolve({ items: [textModel, secondModel], next_cursor: null })
+          release.push(finish)
+        }),
+    )
     const reading = f.owner.loadModels()
     f.project.id = id(11)
     f.context.value = { identity: f.identity, projectID: id(11), generation: 2, readGeneration: 2 }

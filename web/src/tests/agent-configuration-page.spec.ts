@@ -313,17 +313,35 @@ describe('Agent text configuration editing with real controls', () => {
   it('uses actual model choices and saves automatic approval then clears its reference when returning to default', async () => {
     const f = await page()
     const primary: ProjectAvailableChatModel = {
-      ...model, name: 'Original Chat',
-      capabilities: { ...model.capabilities, tool_calls: false, reasoning: false, reasoning_efforts: [] },
+      ...model,
+      name: 'Original Chat',
+      capabilities: {
+        ...model.capabilities,
+        tool_calls: false,
+        reasoning: false,
+        reasoning_efforts: [],
+      },
     }
-    const replacement: ProjectAvailableChatModel = { ...primary, id: id(7), name: 'Replacement Chat' }
+    const replacement: ProjectAvailableChatModel = {
+      ...primary,
+      id: id(7),
+      name: 'Replacement Chat',
+    }
     const initial = {
-      ...receipt.agent, ...existing, normalized_name: existing.name.toLowerCase(),
-      model_ref: primary.id, inject_agents_md: true, reasoning_effort: null,
-      approval_policy: 'default' as const, approval_model_ref: null,
+      ...receipt.agent,
+      ...existing,
+      normalized_name: existing.name.toLowerCase(),
+      model_ref: primary.id,
+      inject_agents_md: true,
+      reasoning_effort: null,
+      approval_policy: 'default' as const,
+      approval_model_ref: null,
     }
     f.api.getConfiguration.mockResolvedValueOnce(initial)
-    f.api.models.mockResolvedValue({ items: [primary, replacement, { ...model, id: id(12), name: 'Unsupported Reasoning' }], next_cursor: null })
+    f.api.models.mockResolvedValue({
+      items: [primary, replacement, { ...model, id: id(12), name: 'Unsupported Reasoning' }],
+      next_cursor: null,
+    })
     await body().get('.agent-entry').trigger('click')
     await flushPromises()
     await click('编辑配置')
@@ -336,15 +354,27 @@ describe('Agent text configuration editing with real controls', () => {
     expect(button('保存配置').element.disabled).toBe(true)
     await choose('审批模型', 'Original Chat · Configured Provider（系统）')
     const updated: AgentUpdateReceipt = {
-      agent: { ...initial, model_ref: id(7), inject_agents_md: false, approval_policy: 'auto', approval_model_ref: primary.id, version: '2' },
-      changed: true, event_ids: [id(53)],
+      agent: {
+        ...initial,
+        model_ref: id(7),
+        inject_agents_md: false,
+        approval_policy: 'auto',
+        approval_model_ref: primary.id,
+        version: '2',
+      },
+      changed: true,
+      event_ids: [id(53)],
     }
     f.api.startUpdate.mockResolvedValueOnce(updated)
     await click('保存配置')
     expect(f.api.startUpdate).toHaveBeenCalledExactlyOnceWith(projectID, existing.id, {
-      expected_version: '1', request: {
-        model_ref: id(7), reasoning_effort: null, inject_agents_md: false,
-        approval_policy: 'auto', approval_model_ref: primary.id,
+      expected_version: '1',
+      request: {
+        model_ref: id(7),
+        reasoning_effort: null,
+        inject_agents_md: false,
+        approval_policy: 'auto',
+        approval_model_ref: primary.id,
       },
     })
     expect(f.owner.state.configuration).toEqual(updated.agent)
@@ -352,17 +382,32 @@ describe('Agent text configuration editing with real controls', () => {
     expect(field('主模型').text()).toContain('Replacement Chat')
     expect(field('审批模型').text()).toContain('Original Chat')
     await choose('审批策略', '默认审批')
-    expect(body().findAll('label').some(item => visibleLabel(item.element) === '审批模型')).toBe(false)
+    expect(
+      body()
+        .findAll('label')
+        .some((item) => visibleLabel(item.element) === '审批模型'),
+    ).toBe(false)
     f.api.startUpdate.mockResolvedValueOnce({
-      agent: { ...updated.agent, approval_policy: 'default', approval_model_ref: null, version: '3' },
-      changed: true, event_ids: [id(54)],
+      agent: {
+        ...updated.agent,
+        approval_policy: 'default',
+        approval_model_ref: null,
+        version: '3',
+      },
+      changed: true,
+      event_ids: [id(54)],
     })
     await click('保存配置')
     expect(f.api.startUpdate).toHaveBeenLastCalledWith(projectID, existing.id, {
-      expected_version: '2', request: { approval_policy: 'default', approval_model_ref: null },
+      expected_version: '2',
+      request: { approval_policy: 'default', approval_model_ref: null },
     })
     expect(f.api.startUpdate).toHaveBeenCalledTimes(2)
-    expect(f.owner.state.configuration).toMatchObject({ model_ref: id(7), inject_agents_md: false, version: '3' })
+    expect(f.owner.state.configuration).toMatchObject({
+      model_ref: id(7),
+      inject_agents_md: false,
+      version: '3',
+    })
     expect(f.api.startCreate).not.toHaveBeenCalled()
     expect(f.api.checkOriginal).not.toHaveBeenCalled()
   })

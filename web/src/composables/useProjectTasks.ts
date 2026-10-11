@@ -143,7 +143,16 @@ export function createProjectTasks(
     touched: { title: false, description: false, type: false, priority: false, plan: false },
     message: '',
   })
-  const sprintCreation = reactive({ open: false, projectID: '', milestoneID: '', sprintID: '', title: '', description: '', message: '', needsRead: false })
+  const sprintCreation = reactive({
+    open: false,
+    projectID: '',
+    milestoneID: '',
+    sprintID: '',
+    title: '',
+    description: '',
+    message: '',
+    needsRead: false,
+  })
   let sprintCreationIdentity = ''
   const sprintStart = reactive({
     open: false,
@@ -206,14 +215,33 @@ export function createProjectTasks(
   })
   const sprintCreateProgress = computed(() => {
     const p = auth.workSprintLifecycle.createProgress
-    return visible.value && p?.projectID === workspace.currentReadContext.value?.projectID ? p : null
+    return visible.value && p?.projectID === workspace.currentReadContext.value?.projectID
+      ? p
+      : null
   })
   const sprintMilestoneOptions = computed(() => {
     const rows = [...state.milestones]
-    if (state.milestone && !rows.some((m) => m.id === state.milestone!.id)) rows.unshift(state.milestone)
+    if (state.milestone && !rows.some((m) => m.id === state.milestone!.id))
+      rows.unshift(state.milestone)
     return rows.map((m) => ({ value: m.id, label: m.title }))
   })
-  const canCreateSprint = computed(() => visible.value && state.phase === 'ready' && !state.task && workspace.detail.project?.lifecycle === 'active' && !!sprintMilestoneOptions.value.length && !pending.value && !sprintCreatePending.value && !sprintPending.value && !sprintStart.open && !sprintStart.needsRead && !creation.open && !edit.open && !draft.action && !sprintCreation.needsRead)
+  const canCreateSprint = computed(
+    () =>
+      visible.value &&
+      state.phase === 'ready' &&
+      !state.task &&
+      workspace.detail.project?.lifecycle === 'active' &&
+      !!sprintMilestoneOptions.value.length &&
+      !pending.value &&
+      !sprintCreatePending.value &&
+      !sprintPending.value &&
+      !sprintStart.open &&
+      !sprintStart.needsRead &&
+      !creation.open &&
+      !edit.open &&
+      !draft.action &&
+      !sprintCreation.needsRead,
+  )
   const sprintPending = computed(() => {
     const p = auth.workSprintLifecycle.progress
     return p && ['submitting', 'uncertain'].includes(p.phase) ? p : null
@@ -380,7 +408,16 @@ export function createProjectTasks(
     )
   }
   function clearSprintCreation() {
-    Object.assign(sprintCreation, { open: false, projectID: '', milestoneID: '', sprintID: '', title: '', description: '', message: '', needsRead: false })
+    Object.assign(sprintCreation, {
+      open: false,
+      projectID: '',
+      milestoneID: '',
+      sprintID: '',
+      title: '',
+      description: '',
+      message: '',
+      needsRead: false,
+    })
     sprintCreationIdentity = ''
   }
   function clearSprintStart() {
@@ -783,68 +820,134 @@ export function createProjectTasks(
   function openSprintCreation() {
     const p = workspace.currentReadContext.value?.projectID
     if (!p || busy.value || !canCreateSprint.value) return
-    if (auth.workSprintLifecycle.progress?.phase === 'rejected' && auth.workSprintLifecycle.progress.contextValid) auth.workSprintLifecycle.editRejected()
+    if (
+      auth.workSprintLifecycle.progress?.phase === 'rejected' &&
+      auth.workSprintLifecycle.progress.contextValid
+    )
+      auth.workSprintLifecycle.editRejected()
     clearSprintCreation()
-    Object.assign(sprintCreation, { open: true, projectID: p, milestoneID: state.milestone?.id ?? '' })
+    Object.assign(sprintCreation, {
+      open: true,
+      projectID: p,
+      milestoneID: state.milestone?.id ?? '',
+    })
     sprintCreationIdentity = identityKey(p)
   }
   function cancelSprintCreation() {
     if (busy.value || sprintCreatePending.value) return
-    if (sprintCreateProgress.value?.phase === 'rejected' && sprintCreateProgress.value.contextValid) auth.workSprintLifecycle.editRejectedCreate()
+    if (sprintCreateProgress.value?.phase === 'rejected' && sprintCreateProgress.value.contextValid)
+      auth.workSprintLifecycle.editRejectedCreate()
     clearSprintCreation()
   }
   function sameSprintCreation(own: number, project: string, milestone: string, identity: string) {
-    return live(own, project) && !!identity && identityKey(project) === identity && !state.task && sprintCreation.projectID === project && sprintCreation.milestoneID === milestone
+    return (
+      live(own, project) &&
+      !!identity &&
+      identityKey(project) === identity &&
+      !state.task &&
+      sprintCreation.projectID === project &&
+      sprintCreation.milestoneID === milestone
+    )
   }
   async function rereadCreatedSprint() {
-    const p = sprintCreation.projectID, m = sprintCreation.milestoneID, sid = sprintCreation.sprintID, own = generation, identity = sprintCreationIdentity
-    if (busy.value || !sprintCreation.needsRead || !sid || !sameSprintCreation(own, p, m, identity)) return
+    const p = sprintCreation.projectID,
+      m = sprintCreation.milestoneID,
+      sid = sprintCreation.sprintID,
+      own = generation,
+      identity = sprintCreationIdentity
+    if (busy.value || !sprintCreation.needsRead || !sid || !sameSprintCreation(own, p, m, identity))
+      return
     let selected = false
-    await read(async (_p, step) => {
-      const sprint = await step(() => auth.workReview.sprint(p, sid))
-      const milestone = await step(() => auth.workReview.milestone(p, m))
-      const page = await step(() => auth.workReview.sprints(p, m, { limit: 50 }))
-      if (sprint.id !== sid || sprint.project_id !== p || sprint.milestone_id !== m || milestone.id !== m || milestone.project_id !== p) throw new AccountFailure('invalid-response')
-      return { sprint, milestone, page }
-    }, (value) => {
-      if (!sameSprintCreation(own, p, m, identity)) return
-      // Publish actual current reads, never a synthetic list row or receipt as current state.
-      state.sprint = value.sprint
-      state.milestone = value.milestone
-      state.sprints = value.page.items
-      state.sprintNext = value.page.next_cursor
-      sprintCreation.needsRead = false
-      sprintCreation.open = false
-      sprintCreation.message = 'Sprint 已创建；启动需单独确认。'
-      selected = true
-    }, () => {
-      if (sameSprintCreation(own, p, m, identity)) sprintCreation.message = '创建已确认，当前 Sprint 信息读取失败。请重新读取，不要再次创建。'
-    })
+    await read(
+      async (_p, step) => {
+        const sprint = await step(() => auth.workReview.sprint(p, sid))
+        const milestone = await step(() => auth.workReview.milestone(p, m))
+        const page = await step(() => auth.workReview.sprints(p, m, { limit: 50 }))
+        if (
+          sprint.id !== sid ||
+          sprint.project_id !== p ||
+          sprint.milestone_id !== m ||
+          milestone.id !== m ||
+          milestone.project_id !== p
+        )
+          throw new AccountFailure('invalid-response')
+        return { sprint, milestone, page }
+      },
+      (value) => {
+        if (!sameSprintCreation(own, p, m, identity)) return
+        // Publish actual current reads, never a synthetic list row or receipt as current state.
+        state.sprint = value.sprint
+        state.milestone = value.milestone
+        state.sprints = value.page.items
+        state.sprintNext = value.page.next_cursor
+        sprintCreation.needsRead = false
+        sprintCreation.open = false
+        sprintCreation.message = 'Sprint 已创建；启动需单独确认。'
+        selected = true
+      },
+      () => {
+        if (sameSprintCreation(own, p, m, identity))
+          sprintCreation.message =
+            '创建已确认，当前 Sprint 信息读取失败。请重新读取，不要再次创建。'
+      },
+    )
     if (selected && sameSprintCreation(own, p, m, identity)) await selectSprint(sid)
   }
   async function acceptSprintCreation(value: SprintCreateReceipt, own: number, identity: string) {
-    const p = value.sprint.project_id, m = value.sprint.milestone_id
+    const p = value.sprint.project_id,
+      m = value.sprint.milestone_id
     if (!sameSprintCreation(own, p, m, identity)) return
-    Object.assign(sprintCreation, { open: false, sprintID: value.sprint.id, needsRead: true, message: '创建已确认，正在读取当前 Sprint。' })
+    Object.assign(sprintCreation, {
+      open: false,
+      sprintID: value.sprint.id,
+      needsRead: true,
+      message: '创建已确认，正在读取当前 Sprint。',
+    })
     await rereadCreatedSprint()
   }
   async function submitSprintCreation() {
-    const p = sprintCreation.projectID, m = sprintCreation.milestoneID, own = generation, identity = sprintCreationIdentity
-    if (busy.value || !sprintCreation.open || !canCreateSprint.value || !sameSprintCreation(own, p, m, identity) || !sprintMilestoneOptions.value.some((row) => row.value === m)) return
+    const p = sprintCreation.projectID,
+      m = sprintCreation.milestoneID,
+      own = generation,
+      identity = sprintCreationIdentity
+    if (
+      busy.value ||
+      !sprintCreation.open ||
+      !canCreateSprint.value ||
+      !sameSprintCreation(own, p, m, identity) ||
+      !sprintMilestoneOptions.value.some((row) => row.value === m)
+    )
+      return
     try {
-      const draft = captureSprintCreateDraft({ milestone_id: m, title: sprintCreation.title, ...(sprintCreation.description ? { description: sprintCreation.description } : {}) })
-      if (auth.workSprintLifecycle.createProgress?.phase === 'rejected') auth.workSprintLifecycle.editRejectedCreate()
+      const draft = captureSprintCreateDraft({
+        milestone_id: m,
+        title: sprintCreation.title,
+        ...(sprintCreation.description ? { description: sprintCreation.description } : {}),
+      })
+      if (auth.workSprintLifecycle.createProgress?.phase === 'rejected')
+        auth.workSprintLifecycle.editRejectedCreate()
       const value = await auth.workSprintLifecycle.create(p, draft)
       const result = 'state' in value ? value.result : value
       if (result) await acceptSprintCreation(result, own, identity)
     } catch (error) {
-      if (sameSprintCreation(own, p, m, identity)) sprintCreation.message = error instanceof AccountFailure && error.kind === 'invalid-input' ? '请选择有效 Milestone，并填写合法标题与描述。' : explain(error)
+      if (sameSprintCreation(own, p, m, identity))
+        sprintCreation.message =
+          error instanceof AccountFailure && error.kind === 'invalid-input'
+            ? '请选择有效 Milestone，并填写合法标题与描述。'
+            : explain(error)
     }
   }
   async function lookupSprintCreation() {
-    const progress = sprintCreateProgress.value, own = generation
-    if (busy.value || progress?.phase !== 'uncertain' || !progress.contextValid || state.task) return
-    Object.assign(sprintCreation, { open: false, projectID: progress.projectID, milestoneID: progress.milestoneID, sprintID: progress.sprintID })
+    const progress = sprintCreateProgress.value,
+      own = generation
+    if (busy.value || progress?.phase !== 'uncertain' || !progress.contextValid || state.task)
+      return
+    Object.assign(sprintCreation, {
+      open: false,
+      projectID: progress.projectID,
+      milestoneID: progress.milestoneID,
+      sprintID: progress.sprintID,
+    })
     sprintCreationIdentity = identityKey(progress.projectID)
     const identity = sprintCreationIdentity
     try {
@@ -852,13 +955,27 @@ export function createProjectTasks(
       const result = 'state' in value ? value.result : value
       if (result) await acceptSprintCreation(result, own, identity)
     } catch (error) {
-      if (sameSprintCreation(own, progress.projectID, progress.milestoneID, identity)) sprintCreation.message = explain(error)
+      if (sameSprintCreation(own, progress.projectID, progress.milestoneID, identity))
+        sprintCreation.message = explain(error)
     }
   }
   async function rereadConfirmedCreation() {
     const progress = sprintCreateProgress.value
-    if (busy.value || progress?.phase !== 'confirmed' || !progress.contextValid || !progress.result || state.task) return
-    Object.assign(sprintCreation, { open: false, projectID: progress.projectID, milestoneID: progress.milestoneID, sprintID: progress.sprintID, needsRead: true })
+    if (
+      busy.value ||
+      progress?.phase !== 'confirmed' ||
+      !progress.contextValid ||
+      !progress.result ||
+      state.task
+    )
+      return
+    Object.assign(sprintCreation, {
+      open: false,
+      projectID: progress.projectID,
+      milestoneID: progress.milestoneID,
+      sprintID: progress.sprintID,
+      needsRead: true,
+    })
     sprintCreationIdentity = identityKey(progress.projectID)
     await rereadCreatedSprint()
   }
@@ -866,7 +983,8 @@ export function createProjectTasks(
     const p = workspace.currentReadContext.value?.projectID,
       sprint = state.sprint
     if (!p || !sprint || !canStartSprint.value || busy.value) return
-    if (sprintCreateProgress.value?.phase === 'rejected' && sprintCreateProgress.value.contextValid) auth.workSprintLifecycle.editRejectedCreate()
+    if (sprintCreateProgress.value?.phase === 'rejected' && sprintCreateProgress.value.contextValid)
+      auth.workSprintLifecycle.editRejectedCreate()
     Object.assign(sprintStart, {
       open: true,
       projectID: p,

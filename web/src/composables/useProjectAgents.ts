@@ -64,11 +64,17 @@ function explain(error: unknown) {
 // Directory membership is a choice source; the mutation still rechecks it in Tx.
 function editableModel(model: ProjectAvailableChatModel) {
   const c = model.capabilities
-  return !c.tool_calls && !c.parallel_tool_calls && !c.reasoning &&
+  return (
+    !c.tool_calls &&
+    !c.parallel_tool_calls &&
+    !c.reasoning &&
     c.reasoning_efforts.length === 0 &&
-    c.input_modalities.length === 1 && c.input_modalities[0] === 'text' &&
-    c.output_modalities.length === 1 && c.output_modalities[0] === 'text' &&
-    c.structured_output_modes.every(mode => mode === 'text' || mode === 'json_schema')
+    c.input_modalities.length === 1 &&
+    c.input_modalities[0] === 'text' &&
+    c.output_modalities.length === 1 &&
+    c.output_modalities[0] === 'text' &&
+    c.structured_output_modes.every((mode) => mode === 'text' || mode === 'json_schema')
+  )
 }
 export function createProjectAgents(auth: SessionController, workspace: ProjectWorkspace) {
   const state = shallowReactive<{
@@ -159,28 +165,36 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
       !!edit.name.trim(),
   )
   const editModels = computed(() => state.models.filter(editableModel))
-  const editPolicyTouched = computed(() =>
-    !!(edit.touched.model_ref || edit.touched.approval_policy || edit.touched.approval_model_ref),
+  const editPolicyTouched = computed(
+    () =>
+      !!(edit.touched.model_ref || edit.touched.approval_policy || edit.touched.approval_model_ref),
   )
   const editPolicyMessage = computed(() => {
     if (!edit.open) return ''
     if (state.configuration?.reasoning_effort !== null)
       return '当前配置包含推理强度，暂不支持在此修改模型或审批策略。'
     if (state.modelPhase !== 'ready') return '请先完成可用模型读取，再保存模型或审批策略。'
-    if (!editModels.value.some(m => m.id === edit.modelID))
+    if (!editModels.value.some((m) => m.id === edit.modelID))
       return '原主模型未在已读取的受支持列表中。请加载更多模型，或显式选择可用模型。'
-    if (edit.approvalPolicy === 'auto' && !editModels.value.some(m => m.id === edit.approvalModelID))
+    if (
+      edit.approvalPolicy === 'auto' &&
+      !editModels.value.some((m) => m.id === edit.approvalModelID)
+    )
       return '请选择当前可用的审批模型，再保存自动审批策略。'
     return ''
   })
   function editOptions(selected: string) {
-    const options = editModels.value.map(m => ({
+    const options = editModels.value.map((m) => ({
       value: m.id,
       label: `${m.name} · ${m.provider_name}（${m.scope.kind === 'system' ? '系统' : '项目'}）`,
       disabled: false,
     }))
-    if (selected && !options.some(option => option.value === selected))
-      options.unshift({ value: selected, label: '原模型（未在已读取的受支持列表中）', disabled: true })
+    if (selected && !options.some((option) => option.value === selected))
+      options.unshift({
+        value: selected,
+        label: '原模型（未在已读取的受支持列表中）',
+        disabled: true,
+      })
     return options
   }
   const editModelOptions = computed(() => editOptions(edit.modelID))
@@ -463,7 +477,7 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
         // A strategy change always submits its matching reference in the same command.
         edit.touched.approval_model_ref = true
       } else {
-        if (!editModels.value.some(m => m.id === value)) return
+        if (!editModels.value.some((m) => m.id === value)) return
         if (field === 'model_ref') edit.modelID = value
         else {
           if (edit.approvalPolicy !== 'auto') return

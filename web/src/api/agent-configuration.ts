@@ -239,10 +239,20 @@ export function captureAgentCreateInput(value: unknown): AgentCreateInput {
 export function captureAgentUpdateInput(value: unknown): AgentUpdateInput {
   return input(() => {
     const outer = shape(value, ['expected_version', 'request'])
-    const v = shape(outer.request, [], [
-      'name', 'description', 'instructions', 'model_ref', 'reasoning_effort',
-      'inject_agents_md', 'approval_policy', 'approval_model_ref',
-    ])
+    const v = shape(
+      outer.request,
+      [],
+      [
+        'name',
+        'description',
+        'instructions',
+        'model_ref',
+        'reasoning_effort',
+        'inject_agents_md',
+        'approval_policy',
+        'approval_model_ref',
+      ],
+    )
     requireValue(Object.keys(v).length > 0)
     if (Object.hasOwn(v, 'reasoning_effort')) requireValue(v.reasoning_effort === null)
     // Partial updates retain omitted fields. Reject contradictory explicit pairs;
@@ -259,8 +269,12 @@ export function captureAgentUpdateInput(value: unknown): AgentUpdateInput {
           : {}),
         ...(Object.hasOwn(v, 'model_ref') ? { model_ref: workID(v.model_ref) } : {}),
         ...(Object.hasOwn(v, 'reasoning_effort') ? { reasoning_effort: null } : {}),
-        ...(Object.hasOwn(v, 'inject_agents_md') ? { inject_agents_md: bool(v.inject_agents_md) } : {}),
-        ...(Object.hasOwn(v, 'approval_policy') ? { approval_policy: approval(v.approval_policy) } : {}),
+        ...(Object.hasOwn(v, 'inject_agents_md')
+          ? { inject_agents_md: bool(v.inject_agents_md) }
+          : {}),
+        ...(Object.hasOwn(v, 'approval_policy')
+          ? { approval_policy: approval(v.approval_policy) }
+          : {}),
         ...(Object.hasOwn(v, 'approval_model_ref')
           ? { approval_model_ref: nullable(v.approval_model_ref, workID) }
           : {}),
@@ -280,8 +294,14 @@ function updateReceipt(
   const version = BigInt(original.expected_version) + (changed ? 1n : 0n)
   requireValue(version <= 9223372036854775807n && agent.version === String(version))
   for (const key of [
-    'name', 'description', 'instructions', 'model_ref', 'reasoning_effort',
-    'inject_agents_md', 'approval_policy', 'approval_model_ref',
+    'name',
+    'description',
+    'instructions',
+    'model_ref',
+    'reasoning_effort',
+    'inject_agents_md',
+    'approval_policy',
+    'approval_model_ref',
   ] as const)
     if (Object.hasOwn(original.request, key)) requireValue(agent[key] === original.request[key])
   requireValue(Array.isArray(v.event_ids) && v.event_ids.length === (changed ? 1 : 0))

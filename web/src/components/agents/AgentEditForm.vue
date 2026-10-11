@@ -8,8 +8,12 @@ const form = ref<HTMLFormElement | null>(null)
 const disabled = computed(
   () => props.owner.busy.value || !props.owner.canEdit.value || props.owner.editStale.value,
 )
-const policyDisabled = computed(() => disabled.value || props.owner.state.modelPhase !== 'ready' ||
-  props.owner.state.configuration?.reasoning_effort !== null)
+const policyDisabled = computed(
+  () =>
+    disabled.value ||
+    props.owner.state.modelPhase !== 'ready' ||
+    props.owner.state.configuration?.reasoning_effort !== null,
+)
 const approvalOptions = [
   { value: 'default', label: '默认审批' },
   { value: 'auto', label: '模型自动审批' },
@@ -80,8 +84,16 @@ watch(disabled, focusName, { flush: 'post' })
     <p v-if="owner.state.modelMessage" role="alert">{{ owner.state.modelMessage }}</p>
     <p v-if="owner.editPolicyMessage.value" role="status">{{ owner.editPolicyMessage.value }}</p>
     <div class="agent-edit-actions">
-      <UiButton type="button" :disabled="disabled" @click="owner.loadModels()">刷新可用模型</UiButton>
-      <UiButton v-if="owner.state.modelNext" type="button" :disabled="disabled" @click="owner.loadModels(true)">加载更多模型</UiButton>
+      <UiButton type="button" :disabled="disabled" @click="owner.loadModels()"
+        >刷新可用模型</UiButton
+      >
+      <UiButton
+        v-if="owner.state.modelNext"
+        type="button"
+        :disabled="disabled"
+        @click="owner.loadModels(true)"
+        >加载更多模型</UiButton
+      >
     </div>
     <UiField label="AGENTS.md 注入" required v-slot="field">
       <UiSelect
