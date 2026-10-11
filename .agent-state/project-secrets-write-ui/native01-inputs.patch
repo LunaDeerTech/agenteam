@@ -1,0 +1,45 @@
+diff --git a/tests/account-captcha-web/e2e/project-secret-write.spec.ts b/tests/account-captcha-web/e2e/project-secret-write.spec.ts
+index 80bfe47ddda54e477d55b45e734abf57ad564e50..84fb4eecbb6f5dd120528164833d0ef592485bf5 100644
+--- a/tests/account-captcha-web/e2e/project-secret-write.spec.ts
++++ b/tests/account-captcha-web/e2e/project-secret-write.spec.ts
+@@ -16,24 +16,22 @@ for (const mode of ["secret-write-normal", "secret-write-lost"] as const) test(`
+   const seen = await observeSecretWrite(page, data); observations.set(page, seen);
+   await page.goto(data.route);
+   const region = page.getByRole("region", { name: "项目 Secrets", exact: true }), catalog = region.getByRole("list", { name: "Secrets 目录", exact: true }), detail = region.locator(".secret-detail");
+-  await expect(region).toBeVisible(); await expect(catalog).toHaveCount(1);
+-  if (mode === "secret-write-normal") await expect(region.getByText("项目 Secrets 目录暂无条目。", { exact: true })).toBeVisible();
+-  else await expect(catalog).toBeVisible();
++  await expect(region).toBeVisible(); await expect(catalog).toBeVisible();
+   await expect(catalog.getByRole("listitem")).toHaveCount(mode === "secret-write-normal" ? 0 : 1);
+   seen.stage("initial-current"); await seen.initial();
+   if (mode === "secret-write-normal") {
+     await press(page, region.getByRole("button", { name: "创建 Secret", exact: true }));
+     const form = region.getByRole("form", { name: "创建 Secret", exact: true });
+-    await expect(form.getByRole("textbox", { name: "Secret 名称", exact: true })).toBeFocused();
+-    await form.getByRole("textbox", { name: "Secret 名称", exact: true }).fill("BROWSER_SECRET"); await form.getByLabel("描述", { exact: true }).fill("创建说明");
++    await expect(form.getByLabel("Secret 名称", { exact: true })).toBeFocused();
++    await form.getByLabel("Secret 名称", { exact: true }).fill("BROWSER_SECRET"); await form.getByLabel("描述", { exact: true }).fill("创建说明");
+     await pasteSecretMaterial(page); seen.stage("create");
+     await press(page, form.getByRole("button", { name: "创建 Secret", exact: true }));
+     await expect(detail.getByRole("heading", { name: "BROWSER_SECRET", exact: true })).toBeVisible(); await expect(detail.locator("dd").first()).toHaveText("1");
+     await secretInputsCleared(page); await seen.current("1", "BROWSER_SECRET", "创建说明");
+     await press(page, detail.getByRole("button", { name: "编辑名称与描述", exact: true }));
+     const metadata = region.getByRole("form", { name: "编辑名称与描述", exact: true });
+-    await expect(metadata.getByRole("textbox", { name: "Secret 值", exact: true })).toHaveCount(0);
+-    await metadata.getByRole("textbox", { name: "Secret 名称", exact: true }).fill("RENAMED_BROWSER_SECRET"); await metadata.getByLabel("描述", { exact: true }).fill("更新后的安全说明");
++    await expect(metadata.getByLabel("Secret 值", { exact: true })).toHaveCount(0);
++    await metadata.getByLabel("Secret 名称", { exact: true }).fill("RENAMED_BROWSER_SECRET"); await metadata.getByLabel("描述", { exact: true }).fill("更新后的安全说明");
+     seen.stage("metadata-only"); await press(page, metadata.getByRole("button", { name: "保存修改", exact: true }));
+     await expect(detail.getByRole("heading", { name: "RENAMED_BROWSER_SECRET", exact: true })).toBeVisible(); await expect(detail.locator("dd").first()).toHaveText("2");
+     await secretInputsCleared(page); await seen.current("2", "RENAMED_BROWSER_SECRET", "更新后的安全说明");
+@@ -44,8 +42,8 @@ for (const mode of ["secret-write-normal", "secret-write-lost"] as const) test(`
+   }
+   await press(page, detail.getByRole("button", { name: "替换 Secret 值", exact: true }));
+   const replacement = region.getByRole("form", { name: "替换 Secret 值", exact: true });
+-  await expect(replacement.getByRole("textbox", { name: "Secret 值", exact: true })).toBeFocused();
+-  expect(await replacement.getByRole("textbox", { name: "Secret 值", exact: true }).evaluate((field: HTMLTextAreaElement) => field.value === "")).toBe(true);
++  await expect(replacement.getByLabel("Secret 值", { exact: true })).toBeFocused();
++  expect(await replacement.getByLabel("Secret 值", { exact: true }).evaluate((field: HTMLTextAreaElement) => field.value === "")).toBe(true);
+   await pasteSecretMaterial(page); seen.stage("explicit-replace");
+   await press(page, replacement.getByRole("button", { name: "确认替换", exact: true }));
+   if (mode === "secret-write-lost") {

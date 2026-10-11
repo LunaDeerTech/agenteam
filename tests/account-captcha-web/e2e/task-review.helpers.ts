@@ -206,6 +206,19 @@ export async function observeBrowserIO(
     const originalTextWrites: any[] = [];
     const originalSchedulerWrites: any[] = [];
     const originalSystemRunnerWrites: any[] = [];
+    const originalSecretWrites: any[] = [];
+    let secretWriteEnabled = false;
+    let pendingSecretMaterial: string | undefined;
+    function stageSecretMaterial(value: unknown) {
+      if (!secretWriteEnabled || typeof value !== "string" || pendingSecretMaterial !== undefined)
+        throw Error("SECRET_WRITE_MATERIAL_STAGE");
+      pendingSecretMaterial = value;
+    }
+    function consumeSecretMaterial(value: unknown, present: boolean) {
+      const expected = pendingSecretMaterial;
+      pendingSecretMaterial = undefined;
+      return present ? expected !== undefined && typeof value === "string" && value === expected : expected === undefined;
+    }
     let systemRunnerMaterial: string | undefined;
     const systemRunnerMaterials = new WeakMap<object, { wire?: string; published?: string }>();
     function bindSystemRunnerMaterial(call: any, token: string, source: "wire" | "published") {
@@ -304,7 +317,19 @@ export async function observeBrowserIO(
           typed: null,
         };
         calls.push(call);
-        if (kind === "systemRunner.start") {
+        if (kind === "secretWrite.create" || kind === "secretWrite.update") {
+          const original = { call, project: args[0], target: kind === "secretWrite.update" ? args[1] : undefined,
+            expected: kind === "secretWrite.update" ? args[2] : undefined,
+            input: { ...(kind === "secretWrite.update" ? args[3] : args[1]) } };
+          call.paste_bound = consumeSecretMaterial(original.input.value, Object.hasOwn(original.input, "value"));
+          originalSecretWrites.push(original); writeInputs.set(call, original);
+        } else if (kind === "secretWrite.lookup") {
+          const source = originalSecretWrites.at(-1), progress = auth.projectSecretCommands.progress;
+          call.paste_bound = source?.call.paste_bound === true && pendingSecretMaterial === undefined;
+          writeInputs.set(call, { source, current: progress?.phase === "uncertain" && progress.contextValid === true &&
+            progress.identity.kind === "update" && progress.identity.projectID === source?.project &&
+            progress.identity.targetID === source?.target && progress.identity.expectedVersion === source?.expected && progress.key === source?.key });
+        } else if (kind === "systemRunner.start") {
           const original = { call, command: JSON.parse(JSON.stringify(args[0])) };
           originalSystemRunnerWrites.push(original); writeInputs.set(call, original);
         } else if (kind === "systemRunner.checkOriginal") {
@@ -516,6 +541,13 @@ export async function observeBrowserIO(
               current() && (kind === "restore" || before === identity());
             identities.set(call, identity());
             call.not_busy = auth.state.busy === false;
+            if (kind.startsWith("secretWrite.")) {
+              const original = writeInputs.get(call), source = kind === "secretWrite.lookup" ? original.source : original;
+              const progress = auth.projectSecretCommands.progress;
+              call.result_current = progress?.phase === "confirmed" && progress.contextValid === true &&
+                progress.identity.projectID === source.project && progress.identity.targetID === source.target &&
+                progress.receipt === (kind === "secretWrite.lookup" ? value?.receipt : value);
+            }
             if (kind === "systemRunner.start" || kind === "systemRunner.checkOriginal") {
               const progress = auth.system.runners.progress;
               call.result_current = progress?.phase === "confirmed" && progress.receipt === value?.receipt;
@@ -598,7 +630,9 @@ export async function observeBrowserIO(
                 value.session.id !== auth.state.session?.id)
             )
               return;
-            const published = kind.startsWith("systemRunner.") ? host.__systemRunnerEvidenceValue(value) : kind === "knowledgeDelete.preview" ? host.__knowledgeDeleteEvidenceValue(value) : value;
+            const published = kind.startsWith("secretWrite.") || (host.__secretWriteEvidenceValue && kind.startsWith("secret."))
+              ? host.__secretWriteEvidenceValue(value, kind === "secret.list" ? "list" : kind === "secret.get" ? "detail" : kind === "secretWrite.lookup" ? "lookup" : "receipt")
+              : kind.startsWith("systemRunner.") ? host.__systemRunnerEvidenceValue(value)  : kind === "knowledgeDelete.preview" ? host.__knowledgeDeleteEvidenceValue(value) : value;
             if (kind.startsWith("systemRunner.") && value.token_available === true) {
               bindSystemRunnerMaterial(call, value.enrollment_token, "published");
               systemRunnerMaterial = value.enrollment_token;
@@ -641,10 +675,12 @@ export async function observeBrowserIO(
         usageReads = false,
         runnerMounts: { mode: string; agent?: string; secretAllowlist?: true } | undefined = undefined,
         systemRunnerManagement = false,
+        secretWrite = false,
         knowledgeDelete: { mode: string; root: string } | undefined = undefined,
       ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
+        secretWriteEnabled = secretWrite;
         consumer(auth, "restore", "restore", () => "/api/v1/session");
         for (const method of ["get", "list", "resolve"])
           consumer(
@@ -659,7 +695,20 @@ export async function observeBrowserIO(
                   ? "/resolve"
                   : ""),
           );
-        if (systemRunnerManagement) {
+        if (secretWrite) {
+          const prefix = "/api/v1/projects/" + project + "/secret-variables";
+          for (const method of ["list", "get"])
+            consumer(auth.projectSecrets, method, "secret." + method, a => {
+              if (a.length !== 2 || a[0] !== project || (method === "list" ? JSON.stringify(a[1]) !== '{"limit":50}' :
+                  !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(a[1]))) throw Error("SECRET_WRITE_READ_SCOPE");
+              return prefix + (method === "get" ? "/" + a[1] : "");
+            });
+          for (const method of ["create", "update", "lookup"])
+            consumer(auth.projectSecretCommands, method, "secretWrite." + method, a => {
+              if (method === "lookup" ? a.length !== 0 : a[0] !== project || a.length !== (method === "create" ? 2 : 4)) throw Error("SECRET_WRITE_COMMAND_SCOPE");
+              return prefix + (method === "lookup" ? "/commands/lookup" : method === "update" ? "/" + a[1] : "");
+            }, method === "update" ? "PATCH" : "POST");
+        } else if (systemRunnerManagement) {
           const prefix = "/api/v1/system/runners";
           consumer(auth.system.runners, "list", "systemRunner.list", a => {
             if (a.length !== 1 || JSON.stringify(a[0]) !== '{"limit":50}') throw Error("SYSTEM_RUNNER_LIST_SCOPE");
@@ -1050,6 +1099,7 @@ export async function observeBrowserIO(
           );
         }
       },
+      expectSecretMaterial(value: unknown) { stageSecretMaterial(value); },
       runnerMaterialMatches(value: unknown) {
         const matched = typeof value === "string" && systemRunnerMaterial !== undefined && value === systemRunnerMaterial;
         if (matched) systemRunnerMaterial = undefined;
@@ -1090,6 +1140,10 @@ export async function observeBrowserIO(
         originalTextWrites.length = 0;
         originalSchedulerWrites.length = 0;
         originalSystemRunnerWrites.length = 0;
+        for (const original of originalSecretWrites) original.input = undefined;
+        originalSecretWrites.length = 0;
+        if (pendingSecretMaterial !== undefined) failed = true;
+        pendingSecretMaterial = undefined;
         systemRunnerMaterial = undefined;
         return this.snapshot();
       },
@@ -1221,7 +1275,20 @@ export async function observeBrowserIO(
           const equal = (a: unknown, b: unknown) =>
             JSON.stringify(canonical(a)) === JSON.stringify(canonical(b));
           let matches = false;
-          if (call.kind === "systemRunner.start") {
+          if (call.kind === "secretWrite.create" || call.kind === "secretWrite.update") {
+            const progress = auth.projectSecretCommands.progress;
+            const target = call.kind === "secretWrite.create" ? parsed.request?.variable_id : original.target;
+            const request = call.kind === "secretWrite.create" ? { variable_id: target, ...original.input } : original.input;
+            matches = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(target) &&
+              equal(parsed, call.kind === "secretWrite.create" ? { request } : { expected_version: original.expected, request }) &&
+              progress?.identity.projectID === original.project && progress.identity.targetID === target && progress.key === key &&
+              originalSecretWrites.every(old => old === original || old.key !== key);
+            original.input = undefined;
+            if (matches) { original.target = target; original.key = key; }
+          } else if (call.kind === "secretWrite.lookup") {
+            matches = original.current && original.source?.call.rejected === true && original.source.call.settled === true &&
+              key === original.source.key && equal(parsed, { command: "project.secret_variable.update", target_id: original.source.target, expected_version: original.source.expected });
+          } else if (call.kind === "systemRunner.start") {
             matches = equal(parsed, original.command.request) && originalSystemRunnerWrites.every(old => old === original || old.key !== key);
             if (matches) original.key = key;
           } else if (call.kind === "systemRunner.checkOriginal") {
@@ -1461,7 +1528,11 @@ export async function observeBrowserIO(
               });
           }
           call.request_bound = row.request_bound = matches;
-          track(
+          if (call.kind.startsWith("secretWrite.")) {
+            track(digest(new TextEncoder().encode(key)), keyHash => {
+              call.idempotency_key_sha256 = row.idempotency_key_sha256 = keyHash;
+            }, () => { row.error = true; });
+          } else track(
             Promise.all([
               digest(new TextEncoder().encode(raw)),
               key === null ? Promise.resolve(null) : digest(new TextEncoder().encode(key)),
@@ -1597,10 +1668,16 @@ export async function observeBrowserIO(
             }
             chunks.delete(reader);
             try {
-              row.digest = await digest(body);
+              const secretKind = calls.find(call => call.id === row.call_id)?.kind;
+              const sensitive = host.__secretWriteEvidenceValue && (secretKind?.startsWith("secretWrite.") || secretKind?.startsWith("secret."));
+              if (!sensitive) row.digest = await digest(body);
               let parsed = JSON.parse(
                 new TextDecoder("utf-8", { fatal: true }).decode(body),
               );
+              if (sensitive) {
+                parsed = host.__secretWriteEvidenceValue(parsed, secretKind === "secret.list" ? "list" : secretKind === "secret.get" ? "detail" : secretKind === "secretWrite.lookup" ? "lookup" : "receipt");
+                row.digest = await digest(body);
+              }
               if (row.path === "/api/v1/session" && row.status === 200)
                 parsed = { user: parsed.user, session: parsed.session };
               // Match the production public DTO, not the richer wire shape.
@@ -1810,6 +1887,7 @@ export type TaskObservationProfile = {
     | "knowledge-delete"
     | "project-scheduler"
     | "project-secrets"
+    | "project-secret-write"
     | "project-usage"
     | "agent-runner-mounts"
     | "agent-secret-allowlist"
@@ -1829,6 +1907,7 @@ export type TaskObservationProfile = {
     | "work.sprint.update"
     | "update"
     | "runner.create"
+    | "project.secret_variable.update"
     | "delete-subtree"
     | null;
   intakeWrites?: true;
@@ -1848,6 +1927,7 @@ export type TaskObservationProfile = {
   knowledgeTitleReads?: true;
   knowledgeDeleteWrites?: true;
   secretReads?: true;
+  secretWrite?: true;
   usageReads?: true;
   systemRunnerManagement?: true;
   systemRunnerWireHeaders?: (expected: { method: string; url: string; status: number; requestID: string }) => Promise<UsageWireProof>;
@@ -1943,6 +2023,51 @@ export function requireAgentSecretProfile(profile: TaskObservationProfile, data:
       (lost && !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.agent_id ?? "")) ||
       (!lost && data.agent_id !== undefined)) throw Error("AGENT_SECRET_PROFILE_MISMATCH");
 }
+export function requireSecretWriteProfile(profile: TaskObservationProfile, data: TaskObservationMaterial) {
+  if (profile.secretWrite === undefined && profile.prefix !== "project-secret-write") return;
+  const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand", "cut", "secretWrite"];
+  if (profile.secretWrite !== true || profile.prefix !== "project-secret-write" ||
+      !["secret-write-normal", "secret-write-lost"].includes(data.mode) || profile.lookupCommand !== "project.secret_variable.update" ||
+      profile.cut !== (data.mode === "secret-write-lost" ? "update" : undefined) || Object.keys(profile).some(key => !allowed.includes(key)))
+    throw Error("SECRET_WRITE_PROFILE_MISMATCH");
+}
+// The same closed projection runs before response hashing in the original
+// browser reader, public consumer and Node observer. It never accepts a value.
+export function secretWriteEvidenceValue(value: any, shape: "detail" | "list" | "receipt" | "lookup"): any {
+  const fail = () => { throw Error("SECRET_WRITE_UNSAFE_RESPONSE"); };
+  const keys = (v: any, expected: string[]) => {
+    if (!v || typeof v !== "object" || Array.isArray(v) || Object.keys(v).sort().join() !== expected.slice().sort().join()) fail();
+  };
+  const metadata = (v: any) => {
+    keys(v, ["id", "project_id", "type", "name", "description", "version", "created_at", "updated_at"]);
+    if (v.type !== "secret" || ![v.id, v.project_id, v.name, v.description, v.version, v.created_at, v.updated_at].every(x => typeof x === "string") || !/^[1-9][0-9]*$/.test(v.version)) fail();
+    return { id: v.id, project_id: v.project_id, type: v.type, name: v.name, description: v.description, version: v.version, created_at: v.created_at, updated_at: v.updated_at };
+  };
+  const receipt = (v: any) => {
+    keys(v, ["command", "changed", "variable", "event_id", "audit_id"]);
+    if (!["project.secret_variable.create", "project.secret_variable.update"].includes(v.command) || v.changed !== true || typeof v.event_id !== "string" || typeof v.audit_id !== "string") fail();
+    return { command: v.command, changed: v.changed, variable: metadata(v.variable), event_id: v.event_id, audit_id: v.audit_id };
+  };
+  if (shape === "detail") return metadata(value);
+  if (shape === "receipt") return receipt(value);
+  if (shape === "list") { keys(value, ["items"]); if (!Array.isArray(value.items) || value.items.length > 1) fail(); return { items: value.items.map(metadata) }; }
+  if (shape === "lookup") { keys(value, ["status", "receipt"]); if (value.status !== "committed") fail(); return { status: value.status, receipt: receipt(value.receipt) }; }
+  return fail();
+}
+export function secretWriteEvidenceProof(proof: any) {
+  const fields = {
+    go: ["input_hash", "request_id", "method", "url_sha256", "status", "content_length", "body_sha256", "original_eof", "original_closed", "handler_returned", "request_host_matches", "kind", "request_bound", "input_verified", "committed_verified", "idempotency_key_sha256", "receipt_cut"],
+    native: ["id", "call_id", "method", "path", "request_id", "status", "length", "bytes", "digest", "typed_digest", "fetch_returned", "fetch_rejected", "readers", "reads", "read_returns", "eof", "closed", "release", "reader_cancel", "stream_cancel", "aborted", "error", "request_bound", "idempotency_key_sha256"],
+    consumer: ["id", "kind", "method", "path", "bound", "fulfilled", "settled", "rejected", "current", "not_busy", "typed_digest", "result_current", "request_bound", "paste_bound", "idempotency_key_sha256"],
+  };
+  const result: any = { seq: proof.seq, request_id: proof.request_id, ...(proof.declared_cut ? { declared_cut: true } : {}) };
+  for (const part of ["go", "native", "consumer"] as const) {
+    const source = proof[part];
+    if (!source || Object.keys(source).some(key => !fields[part].includes(key) && !(part === "consumer" && key === "typed" && source.typed === undefined))) throw Error("SECRET_WRITE_UNSAFE_PROOF");
+    result[part] = Object.fromEntries(fields[part].filter(key => Object.hasOwn(source, key)).map(key => [key, source[key]]));
+  }
+  return result;
+}
 export function requireAgentRunnerHostEvidence(record: Record<string, unknown>, headers: SkillsHeaderDiagnostic | undefined) {
   expect(headers?.request_fulfilled && headers.response_fulfilled).toBe(true);
   expect(headers?.cookie_present).toBe(true);
@@ -1963,6 +2088,7 @@ export async function observeTaskRequests(
   data: TaskObservationMaterial,
   profile: TaskObservationProfile,
 ) {
+  requireSecretWriteProfile(profile, data);
   requireUsageReadProfile(profile, data);
   requireAgentRunnerProfile(profile, data);
   requireAgentSecretProfile(profile, data);
@@ -2231,7 +2357,7 @@ export async function observeTaskRequests(
         status: entry.status,
         request_id: entry.requestID,
         failure: entry.failure,
-        ...((profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.knowledgeDeleteWrites || profile.secretReads || profile.usageReads || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement) && entry.skillsHeaders
+        ...((profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.knowledgeDeleteWrites || profile.secretReads || profile.secretWrite || profile.usageReads || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement) && entry.skillsHeaders
           ? { skills_headers: { ...entry.skillsHeaders } }
           : {}),
       });
@@ -2279,7 +2405,7 @@ export async function observeTaskRequests(
       event("request", entry);
     } catch (error) {
       observerError =
-        error instanceof Error ? error : new Error("API_OBSERVER_REJECTED");
+        profile.secretWrite ? new Error("SECRET_WRITE_REQUEST_SCOPE") : error instanceof Error ? error : new Error("API_OBSERVER_REJECTED");
     }
   };
   const finished = (request: Request) => end(request, "finished");
@@ -2291,7 +2417,7 @@ export async function observeTaskRequests(
     if (entry.responseCount !== 1)
       observerError = new Error("DUPLICATE_ORIGINAL_RESPONSE");
     entry.status = response.status();
-    if (profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.knowledgeDeleteWrites || profile.secretReads || profile.usageReads || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement) {
+    if (profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.knowledgeDeleteWrites || profile.secretReads || profile.secretWrite || profile.usageReads || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement) {
       // Observe both original header promises once; retain no credential values.
       entry.headersReady = Promise.allSettled([
         entry.request.allHeaders(),
@@ -2380,6 +2506,7 @@ export async function observeTaskRequests(
   page.on("requestfailed", failed);
   page.on("response", response);
   page.on("close", closed);
+  if (profile.secretWrite) await page.addInitScript({ content: `Object.defineProperty(window, "__secretWriteEvidenceValue", { value: (${secretWriteEvidenceValue.toString()}) });` });
   if (profile.systemRunnerManagement) await page.addInitScript({ content: `Object.defineProperty(window, "__systemRunnerEvidenceValue", { value: (${systemRunnerEvidenceValue.toString()}) });` });
   if (profile.knowledgeDeleteWrites) await page.addInitScript({ content: `Object.defineProperty(window, "__knowledgeDeleteEvidenceValue", { value: (${knowledgeDeleteEvidenceValue.toString()}) });` });
   await observeBrowserIO(page, (event) => {
@@ -2415,6 +2542,7 @@ export async function observeTaskRequests(
           usageReads,
           runnerMounts,
           systemRunnerManagement,
+          secretWrite,
           knowledgeDelete,
         }) => {
           const module = await import(/* @vite-ignore */ binding.asset);
@@ -2446,6 +2574,7 @@ export async function observeTaskRequests(
           usageReads,
           runnerMounts,
           systemRunnerManagement,
+          secretWrite,
           knowledgeDelete,
           );
         },
@@ -2476,6 +2605,7 @@ export async function observeTaskRequests(
           usageReads: profile.usageReads === true,
           runnerMounts: (profile.agentRunnerMounts || profile.agentSecretAllowlist) ? { mode: data.mode, agent: data.agent_id, ...(profile.agentSecretAllowlist ? { secretAllowlist: true as const } : {}) } : undefined,
           systemRunnerManagement: profile.systemRunnerManagement === true,
+          secretWrite: profile.secretWrite === true,
           knowledgeDelete: profile.knowledgeDeleteWrites ? { mode: data.mode, root: data.root_id! } : undefined,
         },
       );
@@ -2709,7 +2839,7 @@ export async function observeTaskRequests(
       ["session", "resolve", "projects", "project", "documents", "titles", "document", "ancestors", "content"].includes(entry.name);
   }
   function secretReadEntry(entry: Entry) {
-    return profile.secretReads && entry.request.method() === "GET" &&
+    return (profile.secretReads || profile.secretWrite) && entry.request.method() === "GET" &&
       ["session", "resolve", "projects", "project", "secrets", "secret"].includes(entry.name);
   }
   function usageReadEntry(entry: Entry) {
@@ -2737,6 +2867,14 @@ export async function observeTaskRequests(
   function runnerReadEntry(entry: Entry) {
     return (profile.agentRunnerMounts || profile.agentSecretAllowlist) && entry.request.method() === "GET" &&
       ["session", "resolve", "projects", "project", "agent-directory", "agent-configuration", "agent-models", "agent-runners", "agent-mounts", ...(profile.agentSecretAllowlist ? ["agent-secrets"] : [])].includes(entry.name);
+  }
+  function secretWriteEntry(entry: Entry) {
+    if (!profile.secretWrite) return false;
+    const url = new URL(entry.request.url()), prefix = `/api/v1/projects/${data.project_id}/secret-variables`;
+    return !url.search && ((entry.name === "create" && entry.request.method() === "POST" && url.pathname === prefix) ||
+      (entry.name === "lookup" && entry.request.method() === "POST" && url.pathname === prefix + "/commands/lookup") ||
+      (entry.name === "update" && entry.request.method() === "PATCH" && url.pathname.startsWith(prefix + "/") &&
+        /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(url.pathname.slice(prefix.length + 1))));
   }
   function systemRunnerWrite(entry: Entry) {
     return profile.systemRunnerManagement && ["create", "update", "enrollment", "revoke", "lookup"].includes(entry.name) && entry.request.method() !== "GET";
@@ -2772,6 +2910,7 @@ export async function observeTaskRequests(
     const scheduler = schedulerWrite(entry);
     const runner = runnerWrite(entry);
     const systemRunner = systemRunnerWrite(entry);
+    const secret = secretWriteEntry(entry);
     const knowledgeDelete = knowledgeDeleteWrite(entry), deletePreview = knowledgeDeletePreview(entry);
     const write =
       intakeWrite(entry) ||
@@ -2784,9 +2923,9 @@ export async function observeTaskRequests(
       milestoneUpdate ||
       sprintUpdate ||
       variable ||
-      knowledgeText || scheduler || runner || systemRunner || knowledgeDelete;
+      knowledgeText || scheduler || runner || systemRunner || knowledgeDelete || secret;
     const method =
-      (edit || agentEdit || milestoneUpdate || sprintUpdate || variable || scheduler || runner || systemRunner) && entry.name === "update"
+      (edit || agentEdit || milestoneUpdate || sprintUpdate || variable || scheduler || runner || systemRunner || secret) && entry.name === "update"
         ? "PATCH"
         : write || deletePreview
           ? "POST"
@@ -2885,10 +3024,13 @@ export async function observeTaskRequests(
     if (schedulerReadEntry(entry)) expect(c.kind).toBe({ session: "restore", resolve: "project.resolve", projects: "project.list", project: "project.get", scheduler: "scheduler.get" }[entry.name]);
     if (systemRunnerReadEntry(entry)) expect(c.kind).toBe({ session: "restore", projects: "project.list", "runner-list": "systemRunner.list", "runner-detail": "systemRunner.get" }[entry.name]);
     if (write) {
+      if (secret) { expect(c.result_current).toBe(true); expect(c.paste_bound).toBe(true); }
       if (systemRunner) { expect(c.result_current).toBe(true); if (c.typed.token_available === true) expect(c.material_matches).toBe(true); }
       if (scheduler || knowledgeDelete) expect(c.result_current).toBe(true);
       if (sprintCreate || milestoneCreate || milestoneUpdate || sprintUpdate || variable || knowledgeText) expect(c.result_current).toBe(true);
-      const kinds: Record<string, string> = systemRunner
+      const kinds: Record<string, string> = secret
+        ? { create: "secretWrite.create", update: "secretWrite.update", lookup: "secretWrite.lookup" }
+        : systemRunner
         ? { create: "systemRunner.start", update: "systemRunner.start", enrollment: "systemRunner.start", revoke: "systemRunner.start", lookup: "systemRunner.checkOriginal" }
         : knowledgeDelete
         ? { delete: "knowledgeDelete.startDelete", lookup: "knowledgeDelete.checkOriginal" }
@@ -2936,14 +3078,16 @@ export async function observeTaskRequests(
       expect(raw).not.toBeNull();
       expect(raw!.length).toBeLessThanOrEqual(512 << 10);
       expect(key).toMatch(/^[A-Za-z0-9._:/-]{1,128}$/);
-      const bodyHash = createHash("sha256").update(raw!).digest("hex");
+      const bodyHash = secret ? undefined : createHash("sha256").update(raw!).digest("hex");
       const keyHash = createHash("sha256").update(key!).digest("hex");
       expect(c.kind).toBe(kinds[entry.name]);
       expect(c.request_bound && n.request_bound).toBe(true);
       expect(record.kind).toBe(entry.name);
       expect(record.committed_verified).toBe(true);
+      if (secret) expect(record.request_bound && record.input_verified).toBe(true);
       for (const source of [record, n, c]) {
-        expect(source.request_body_sha256).toBe(bodyHash);
+        if (secret) expect(!Object.hasOwn(source, "request_body_sha256")).toBe(true);
+        else expect(source.request_body_sha256).toBe(bodyHash);
         expect(source.idempotency_key_sha256).toBe(keyHash);
       }
       if (knowledgeDelete) {
@@ -2984,7 +3128,7 @@ export async function observeTaskRequests(
       if (entry.checked) continue;
       const state = await entry.done;
       const response = await entry.request.response();
-      if ((profile.schedulerWrites || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement || profile.knowledgeDeleteWrites) && state === "failed" && entry.name === profile.cut) {
+      if ((profile.schedulerWrites || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement || profile.knowledgeDeleteWrites || profile.secretWrite) && state === "failed" && entry.name === profile.cut) {
         // The proxy publishes this predicate only after its actual flush and
         // connection Close. Its original safe record can be mid-rewrite here.
         await expect.poll(() => {
@@ -2993,7 +3137,7 @@ export async function observeTaskRequests(
           } catch { return false; }
         }, { timeout: 5_000 }).toBe(true);
       }
-      if (profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.knowledgeDeleteWrites || profile.secretReads || profile.usageReads || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement) {
+      if (profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.knowledgeDeleteWrites || profile.secretReads || profile.secretWrite || profile.usageReads || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement) {
         // Include bootstrap reads as well as catalog/detail: a missing browser
         // projection is accepted only with this original request's App proof.
         const record = JSON.parse(
@@ -3034,7 +3178,7 @@ export async function observeTaskRequests(
         // physically truncating its original Content-Length response.
         expect(response?.status()).toBe(200);
         expect(entry.request.failure()).not.toBeNull();
-        if (profile.schedulerWrites || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement || profile.knowledgeDeleteWrites) {
+        if (profile.schedulerWrites || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement || profile.knowledgeDeleteWrites || profile.secretWrite) {
           const readRecord = () => JSON.parse(readFileSync(join(profile.evidence, `${profile.prefix}-${data.mode}-response-${entry.requestID}.json`), "utf8"));
           const record = readRecord();
           expect(record.receipt_cut).toBe(true);
@@ -3046,7 +3190,7 @@ export async function observeTaskRequests(
           expect(calls).toHaveLength(1);
           const c = calls[0];
           expect(proof.current && proof.not_busy).toBe(true);
-          expect(c.kind).toBe(profile.systemRunnerManagement ? "systemRunner.start" : profile.knowledgeDeleteWrites ? "knowledgeDelete.startDelete" : (profile.agentRunnerMounts || profile.agentSecretAllowlist) ? "agentEdit.startUpdate" : "scheduler.startUpdate");
+          expect(c.kind).toBe(profile.secretWrite ? "secretWrite.update" : profile.systemRunnerManagement ? "systemRunner.start" : profile.knowledgeDeleteWrites ? "knowledgeDelete.startDelete" : (profile.agentRunnerMounts || profile.agentSecretAllowlist) ? "agentEdit.startUpdate" : "scheduler.startUpdate");
           expect(c.rejected && c.settled && !c.fulfilled).toBe(true);
           expect(c.bound).toBe(1);
           expect(n.path).toBe(new URL(entry.request.url()).pathname);
@@ -3058,10 +3202,13 @@ export async function observeTaskRequests(
           expect(entry.finishedCount).toBe(0);
           expect(entry.failedCount).toBe(1);
           expect(c.request_bound && n.request_bound).toBe(true);
-          const bodyHash = createHash("sha256").update(entry.request.postDataBuffer()!).digest("hex");
+          const secret = profile.secretWrite === true;
+          if (secret) { expect(c.paste_bound).toBe(true); expect(record.request_bound && record.input_verified).toBe(true); expect(!n.eof && n.error && n.bytes < Number(n.length)).toBe(true); }
+          const bodyHash = secret ? undefined : createHash("sha256").update(entry.request.postDataBuffer()!).digest("hex");
           const keyHash = createHash("sha256").update(entry.request.headers()["idempotency-key"]!).digest("hex");
           for (const source of [record, n, c]) {
-            expect(source.request_body_sha256).toBe(bodyHash);
+            if (secret) expect(!Object.hasOwn(source, "request_body_sha256")).toBe(true);
+        else expect(source.request_body_sha256).toBe(bodyHash);
             expect(source.idempotency_key_sha256).toBe(keyHash);
           }
           if (profile.knowledgeDeleteWrites) {
@@ -3093,7 +3240,7 @@ export async function observeTaskRequests(
           knowledgeTextWrite(entry) ||
           knowledgeDeleteWrite(entry) || knowledgeDeletePreview(entry) ||
           schedulerWrite(entry) ||
-          runnerWrite(entry) || systemRunnerWrite(entry) ||
+          runnerWrite(entry) || systemRunnerWrite(entry) || secretWriteEntry(entry) ||
           agentWrite(entry)) &&
         response?.status() === 200 &&
         entry.failure === "net::ERR_ABORTED"
@@ -3141,7 +3288,10 @@ export async function observeTaskRequests(
         r.status() === 200 || revoked,
         `unexpected ${entry.name} status`,
       ).toBe(true);
-      entry.body = JSON.parse(raw.toString("utf8"));
+      if (profile.secretWrite && ["secrets", "secret", "create", "update", "lookup"].includes(entry.name)) {
+        try { entry.body = secretWriteEvidenceValue(JSON.parse(raw.toString("utf8")), entry.name === "secrets" ? "list" : entry.name === "secret" ? "detail" : entry.name === "lookup" ? "lookup" : "receipt"); }
+        catch { throw Error("SECRET_WRITE_UNSAFE_RESPONSE"); }
+      } else entry.body = JSON.parse(raw.toString("utf8"));
       if (profile.systemRunnerManagement) entry.body = systemRunnerEvidenceValue(entry.body);
       if (knowledgeDeletePreview(entry)) entry.body = knowledgeDeleteEvidenceValue(entry.body);
       expect(typeof entry.body).toBe("object");
@@ -3160,7 +3310,7 @@ export async function observeTaskRequests(
         variablePageRead(entry) ||
         knowledgeTextWrite(entry) ||
         knowledgeTextReadEntry(entry) || knowledgeTitleReadEntry(entry) || knowledgeDeleteWrite(entry) || knowledgeDeletePreview(entry) || knowledgeDeleteReadEntry(entry) || secretReadEntry(entry) || usageReadEntry(entry) ||
-        schedulerWrite(entry) || schedulerReadEntry(entry) || runnerWrite(entry) || runnerReadEntry(entry) || systemRunnerWrite(entry) || systemRunnerReadEntry(entry) ||
+        secretWriteEntry(entry) || schedulerWrite(entry) || schedulerReadEntry(entry) || runnerWrite(entry) || runnerReadEntry(entry) || systemRunnerWrite(entry) || systemRunnerReadEntry(entry) ||
         sprintPageRead(entry) ||
         agentWrite(entry) ||
         agentPageRead(entry) ||
@@ -3184,7 +3334,7 @@ export async function observeTaskRequests(
           expect(wire.result.command).toBe("update");
           entry.body = { state: "committed", receipt: { project_id: wire.result.project.id, version: wire.result.project.version } };
         }
-        if ((profile.schedulerWrites || profile.knowledgeTitleReads || profile.knowledgeDeleteWrites || profile.secretReads || profile.usageReads || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement) && entry.name === "session") {
+        if ((profile.schedulerWrites || profile.knowledgeTitleReads || profile.knowledgeDeleteWrites || profile.secretReads || profile.secretWrite || profile.usageReads || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement) && entry.name === "session") {
           const wire = entry.body as any;
           entry.body = { user: wire.user, session: wire.session };
         }
@@ -3216,6 +3366,18 @@ export async function observeTaskRequests(
   function originalLookup() {
     if (profile.lookupCommand === null)
       throw Error("TASK_TIMELINE_HAS_NO_WRITE_LOOKUP");
+    if (profile.secretWrite) {
+      const original = requests("update"), lookups = requests("lookup");
+      expect(original).toHaveLength(1); expect(lookups).toHaveLength(1);
+      let matches = false;
+      try {
+        const source = original[0]!.postDataJSON(), value = lookups[0]!.postDataJSON();
+        matches = Object.keys(value).sort().join() === "command,expected_version,target_id" &&
+          value.command === "project.secret_variable.update" && value.target_id === new URL(original[0]!.url()).pathname.split("/").at(-1) &&
+          value.expected_version === source.expected_version && lookups[0]!.headers()["idempotency-key"] === original[0]!.headers()["idempotency-key"];
+      } catch { /* Never include a captured request or parsing error in evidence. */ }
+      expect(matches).toBe(true); expect(dropped).toBe(1); return;
+    }
     if (profile.systemRunnerManagement) {
       const original = requests("create"), lookups = requests("lookup");
       expect(original).toHaveLength(1); expect(lookups).toHaveLength(1);
@@ -3308,7 +3470,7 @@ export async function observeTaskRequests(
     return rows.at(-1)!.body as Record<string, any>;
   }
   function secretRead(name: "secrets" | "secret", index: number) {
-    expect(profile.secretReads).toBe(true);
+    expect(profile.secretReads || profile.secretWrite).toBe(true);
     const rows = entries.filter(e => e.name === name && e.checked && e.body);
     expect(rows[index], "original Secrets GET must complete before publication assertions").toBeTruthy();
     return rows[index]!.body as Record<string, any>;
@@ -3488,7 +3650,7 @@ export async function observeTaskRequests(
           lookups: entries.filter((e) => e.name === "lookup").length,
           test_status: testStatus,
           route: diagnosticURL(page.url()),
-          observer_error: profile.systemRunnerManagement && observerError ? "SYSTEM_RUNNER_OBSERVER_FAILED" : profile.knowledgeDeleteWrites && observerError ? "KNOWLEDGE_DELETE_OBSERVER_FAILED" : observerError?.message,
+          observer_error: profile.secretWrite && observerError ? "SECRET_WRITE_OBSERVER_FAILED" : profile.systemRunnerManagement && observerError ? "SYSTEM_RUNNER_OBSERVER_FAILED" : profile.knowledgeDeleteWrites && observerError ? "KNOWLEDGE_DELETE_OBSERVER_FAILED" : observerError?.message,
           requests: entries.map((entry) => ({
             seq: entry.seq,
             name: entry.name,
@@ -3498,7 +3660,7 @@ export async function observeTaskRequests(
             request_id: entry.requestID,
             terminal: entry.terminal,
             failure: entry.failure,
-            ...((profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.knowledgeDeleteWrites || profile.secretReads || profile.usageReads || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement) && entry.skillsHeaders
+            ...((profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.knowledgeDeleteWrites || profile.secretReads || profile.secretWrite || profile.usageReads || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement) && entry.skillsHeaders
               ? { skills_headers: { ...entry.skillsHeaders } }
               : {}),
             checked: entry.checked,
@@ -3508,7 +3670,7 @@ export async function observeTaskRequests(
           browser_events_truncated:
             browserEventsTruncated ||
             browserEvents.some((event) => event.seq === 2048),
-          joint_proofs: proofs,
+          joint_proofs: profile.secretWrite ? proofs.map(secretWriteEvidenceProof) : proofs,
           observer_retirements: retirements,
         },
         null,

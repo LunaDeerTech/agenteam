@@ -109,6 +109,9 @@ const endpoints = {
   getProjectVariable: ['GET', '/api/v1/projects/{project_id}/variables/{target}', 200],
   listProjectSecrets: ['GET', '/api/v1/projects/{project_id}/secret-variables', 200],
   getProjectSecret: ['GET', '/api/v1/projects/{project_id}/secret-variables/{target}', 200],
+  createProjectSecret: ['POST', '/api/v1/projects/{project_id}/secret-variables', 200],
+  updateProjectSecret: ['PATCH', '/api/v1/projects/{project_id}/secret-variables/{target}', 200],
+  lookupProjectSecret: ['POST', '/api/v1/projects/{project_id}/secret-variables/commands/lookup', 200],
   listProjectUsage: ['GET', '/api/v1/projects/{project_id}/model-usage', 200],
   createProjectVariable: ['POST', '/api/v1/projects/{project_id}/variables', 200],
   updateProjectVariable: ['PATCH', '/api/v1/projects/{project_id}/variables/{target}', 200],
@@ -1091,6 +1094,11 @@ type KnowledgeCommandOptions<E extends KnowledgeCommandEndpoint> = {
   : { target?: never })
 
 const skillEndpoints = ['listProjectSkills', 'getProjectSkill', 'getSkillPackage'] as const
+const secretCommandEndpoints = ['createProjectSecret', 'updateProjectSecret', 'lookupProjectSecret'] as const
+type SecretCommandEndpoint = (typeof secretCommandEndpoints)[number]
+type SecretCommandOptions<E extends SecretCommandEndpoint> = {
+  signal: AbortSignal; projectID: string; body: unknown; csrf: string; key: string
+} & (E extends 'updateProjectSecret' ? { target: string } : { target?: never })
 const secretReadEndpoints = ['listProjectSecrets', 'getProjectSecret'] as const
 type SecretReadEndpoint = (typeof secretReadEndpoints)[number]
 type SecretReadQuery = Readonly<{ limit: number; cursor?: string }>
@@ -1248,6 +1256,11 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     parse: (value: unknown) => T,
     options: UsageReadOptions,
   ): Promise<T>
+  function request<T, E extends SecretCommandEndpoint>(
+    endpoint: E,
+    parse: (value: unknown) => T,
+    options: SecretCommandOptions<E>,
+  ): Promise<T>
   function request<T, E extends SecretReadEndpoint>(
     endpoint: E,
     parse: (value: unknown) => T,
@@ -1357,6 +1370,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       | KnowledgeEndpoint
       | SkillEndpoint
       | SecretReadEndpoint
+      | SecretCommandEndpoint
       | 'listProjectUsage'
       | ProjectEndpoint
       | ProjectAuditEndpoint
@@ -1480,6 +1494,21 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       } catch {
         throw new AccountFailure('invalid-input')
       }
+    } else if ((secretCommandEndpoints as readonly string[]).includes(endpoint)) {
+      try {
+        const update = endpoint === 'updateProjectSecret'
+        shape(options, ['signal', 'projectID', 'body', 'csrf', 'key', ...(update ? ['target'] : [])])
+        const project = string(options.projectID, 36, 36)
+        const csrf = string(options.csrf, 43, 43), key = string(options.key, 1, 128)
+        if (!uuid7.test(project) || !(options.signal instanceof AbortSignal) ||
+            /[^A-Za-z0-9_-]/.test(csrf) || /[^A-Za-z0-9._:/-]/.test(key)) throw new Error()
+        path = basePath.replace('{project_id}', project)
+        if (update) {
+          const target = string(options.target, 36, 36)
+          if (!uuid7.test(target)) throw new Error()
+          path = path.replace('{target}', target)
+        }
+      } catch { throw new AccountFailure('invalid-input') }
     } else if ((secretReadEndpoints as readonly string[]).includes(endpoint)) {
       try {
         const list = endpoint === 'listProjectSecrets'
@@ -2064,6 +2093,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       headers['If-Match'] = `"${options.avatar.version}"`
     } else if (method !== 'GET') {
       const maximum =
+        (secretCommandEndpoints as readonly string[]).includes(endpoint) ? 1024 * 1024 :
         (runnerEndpoints as readonly string[]).includes(endpoint) ? 32768 :
         endpoint === 'updateProjectScheduler' ? 4096 : endpoint === 'lookupProjectScheduler' ? 1024 :
         endpoint === 'knowledgeTextLookup'
@@ -2173,7 +2203,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           endpoint === 'agentRunnerMounts' && success ? 512 * 1024 :
           endpoint === 'listProjectUsage' && success
             ? 1024 * 1024
-            : (secretReadEndpoints as readonly string[]).includes(endpoint) && success
+            : ((secretReadEndpoints as readonly string[]).includes(endpoint) || (secretCommandEndpoints as readonly string[]).includes(endpoint)) && success
               ? endpoint === 'listProjectSecrets'
                 ? 5 * 1024 * 1024
                 : 1024 * 1024
@@ -2241,6 +2271,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
             (runnerEndpoints as readonly string[]).includes(endpoint) ||
             endpoint === 'listProjectUsage' ||
             (secretReadEndpoints as readonly string[]).includes(endpoint) ||
+            (secretCommandEndpoints as readonly string[]).includes(endpoint) ||
             (skillEndpoints as readonly string[]).includes(endpoint) ||
             (workReviewEndpoints as readonly string[]).includes(endpoint) ||
             (knowledgeCommandEndpoints as readonly string[]).includes(endpoint) ||

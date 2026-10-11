@@ -80,7 +80,7 @@ async function setup() {
   return { ...f, workspace, router, wrapper }
 }
 describe('Project Secrets read page', () => {
-  it('exposes safe names/descriptions, explicitly reads detail, restores focus and offers no write actions', async () => {
+  it('exposes safe names/descriptions, explicitly reads detail, restores focus and exposes the authorized write entry points without exposing values', async () => {
     const f = await setup()
     expect(f.wrapper.text()).toContain('SERVICE_TOKEN')
     const button = findButton(f.wrapper, 'SERVICE_TOKEN')
@@ -95,7 +95,10 @@ describe('Project Secrets read page', () => {
     const actions = f.wrapper
       .findAll('button.ui-button')
       .map((button) => button.get('.button-label[aria-hidden="false"]').text())
-    for (const text of ['创建', '修改', '删除', '授权'])
+    expect(actions).toContain('创建 Secret')
+    expect(actions).toContain('编辑名称与描述')
+    expect(actions).toContain('替换 Secret 值')
+    for (const text of ['删除', '授权'])
       expect(actions.some((label) => label.includes(text))).toBe(false)
     for (const text of ['授权 Agent', '有效', '无授权'])
       expect(f.wrapper.text()).not.toContain(text)

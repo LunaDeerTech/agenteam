@@ -1,4 +1,9 @@
 import {
+  createProjectSecretCommandsAPI, captureProjectSecretCreate, captureProjectSecretUpdate,
+  captureProjectSecretIdentity, type ProjectSecretCommandsAPI, type ProjectSecretIdentity,
+  type ProjectSecretCreate, type ProjectSecretUpdate, type ProjectSecretReceipt, type ProjectSecretLookup,
+} from '../api/project-secret-commands'
+import {
   createSystemRunnersAPI,
   captureRunnerCommand,
   type SystemRunnersAPI,
@@ -470,6 +475,24 @@ export type SprintCreateProgress = Readonly<{
   error: string | null
   contextValid: boolean
 }>
+type ProjectSecretAction = 'secret-write' | 'secret-lookup'
+type ProjectSecretIntent = {
+  actor: PersonalIdentity
+  csrf: string
+  key: string
+  identity: ProjectSecretIdentity
+  uncertain: boolean
+  dispatched: boolean
+}
+export type ProjectSecretProgress = Readonly<{
+  identity: ProjectSecretIdentity
+  key: string
+  phase: 'submitting' | 'uncertain' | 'rejected' | 'confirmed'
+  uncertain: boolean
+  receipt: ProjectSecretReceipt | null
+  observation: 'none' | 'committed' | 'not_observed' | 'failed'
+  contextValid: boolean
+}>
 type ProjectVariableAction = 'variable-read' | 'variable-write' | 'variable-lookup'
 type ProjectVariableIntent = {
   identity: PersonalIdentity
@@ -854,6 +877,7 @@ type Action =
   | MilestonePlanningAction
   | SprintPlanningAction
   | ProjectVariableAction
+  | ProjectSecretAction
   | KnowledgeCommandAction
   | AgentConfigurationAction
   | ProjectAuditAction
@@ -988,6 +1012,7 @@ export function createSessionController(
     sprintLifecycle?: WorkSprintLifecycleAPI
     skills?: SkillOwnerAPI
     projectSecrets?: ProjectSecretsAPI
+    projectSecretCommands?: ProjectSecretCommandsAPI
     projectUsage?: ProjectUsageAPI
     scheduler?: ProjectSchedulerAPI
     skillPackage?: SkillPackageAPI
@@ -1002,6 +1027,7 @@ export function createSessionController(
   const sprintPlanningAPI = commandAPIs.sprintPlanning ?? createWorkSprintPlanningAPI()
   const milestonePlanningAPI = commandAPIs.milestonePlanning ?? createWorkMilestonePlanningAPI()
   const skillsAPI = commandAPIs.skills ?? createSkillOwnerAPI()
+  const secretCommandsAPI = commandAPIs.projectSecretCommands ?? createProjectSecretCommandsAPI()
   const projectSecretsAPI = commandAPIs.projectSecrets ?? createProjectSecretsAPI()
   const projectUsageAPI = commandAPIs.projectUsage ?? createProjectUsageAPI()
   const schedulerAPI = commandAPIs.scheduler ?? createProjectSchedulerAPI()
@@ -1122,6 +1148,10 @@ export function createSessionController(
   }
   const isSprintLifecycleAction = (kind: Action): kind is SprintLifecycleAction =>
     Object.hasOwn(sprintLifecycleRevisions, kind)
+  const secretCommandRevisions: Record<ProjectSecretAction, number> = { 'secret-write': 0, 'secret-lookup': 0 }
+  const isSecretCommand = (kind: Action): kind is ProjectSecretAction => Object.hasOwn(secretCommandRevisions, kind)
+  let secretIntent: ProjectSecretIntent | null = null
+  const secretCommandState = shallowReactive<{ progress: Omit<ProjectSecretProgress, 'contextValid'> | null }>({ progress: null })
   const variableRevisions: Record<ProjectVariableAction, number> = {
     'variable-read': 0,
     'variable-write': 0,
@@ -1389,6 +1419,7 @@ export function createSessionController(
       clearSprintUpdateState()
       clearMilestonePlanningState()
       clearVariableState()
+      clearSecretCommand()
       clearSprintLifecycleState()
       clearKnowledgeCommand()
       clearKnowledgeText()
@@ -1464,6 +1495,7 @@ export function createSessionController(
       clearSprintUpdateState()
       clearMilestonePlanningState()
       clearVariableState()
+      clearSecretCommand()
       clearSprintLifecycleState()
       clearKnowledgeCommand()
       clearKnowledgeText()
@@ -2025,6 +2057,7 @@ export function createSessionController(
       | MilestonePlanningAction
       | SprintPlanningAction
       | ProjectVariableAction
+  | ProjectSecretAction
       | KnowledgeCommandAction
       | AgentConfigurationAction
       | ProjectAuditAction
@@ -2035,6 +2068,7 @@ export function createSessionController(
       if (isRunnerAction(kind)) return runnerRevisions[kind]
       if (isSchedulerAction(kind)) return schedulerRevisions[kind]
       if (isVariableAction(kind)) return variableRevisions[kind]
+      if (isSecretCommand(kind)) return secretCommandRevisions[kind]
       if (kind === 'skill-read') return skillRevision
       if (kind === 'secret-read') return secretReadRevision
       if (kind === 'usage-read') return usageReadRevision
@@ -2095,6 +2129,7 @@ export function createSessionController(
       (kind === 'personal' ||
         (isSchedulerAction(kind) ||
         isVariableAction(kind) ||
+        isSecretCommand(kind) ||
         isKnowledgeCommand(kind) ||
         isSprintPlanningAction(kind) ||
         isMilestonePlanningAction(kind) ||
@@ -2181,7 +2216,7 @@ export function createSessionController(
                 : new AccountFailure('transport')
             : isVariableAction(kind)
               ? variableFailure(op, current, identity, error)
-              : isSprintPlanningAction(kind) ||
+              : isSecretCommand(kind) || isSprintPlanningAction(kind) ||
                   isMilestonePlanningAction(kind) ||
                   isSprintLifecycleAction(kind) ||
                   isAgentConfigurationAction(kind) ||
@@ -4402,6 +4437,114 @@ export function createSessionController(
       if (!smtpDeliveryIntent || !smtpDelivery.progress?.canRetryOriginal)
         return Promise.reject(new AccountFailure('invalid-input'))
       return performSMTPDelivery(smtpDeliveryIntent)
+    },
+  }
+  function clearSecretCommand() {
+    ++secretCommandRevisions['secret-write']
+    ++secretCommandRevisions['secret-lookup']
+    secretIntent = null
+    secretCommandState.progress = null
+    if (owner && isSecretCommand(owner.kind)) owner.abandon?.()
+  }
+  const secretContext = (original: ProjectSecretIntent) =>
+    projectContext({ identity: original.actor, csrf: original.csrf })
+  function publishSecret(original: ProjectSecretIntent, phase: ProjectSecretProgress['phase'], receipt: ProjectSecretReceipt | null = null, observation: ProjectSecretProgress['observation'] = 'none') {
+    secretCommandState.progress = Object.freeze({ identity: original.identity, key: original.key, phase, uncertain: original.uncertain, receipt, observation })
+  }
+  async function performSecret(original: ProjectSecretIntent, write?: (signal: AbortSignal) => Promise<ProjectSecretReceipt>): Promise<ProjectSecretReceipt | ProjectSecretLookup> {
+    if (owner) throw new AccountFailure('busy')
+    const kind: ProjectSecretAction = write ? 'secret-write' : 'secret-lookup', revision = secretCommandRevisions[kind]
+    const live = () => secretIntent === original && secretContext(original) && revision === secretCommandRevisions[kind]
+    if (!live()) throw new AccountFailure('invalid-input')
+    const lookup = !write
+    try {
+      if (!lookup) publishSecret(original, 'submitting')
+      // Publication can synchronously retire the current Session.
+      if (!live()) throw new AccountFailure('cancelled')
+      const value = await runAuthorized<ProjectSecretReceipt | ProjectSecretLookup>(original.actor, async (op, current) => {
+        if (!current() || !live()) throw new AccountFailure('cancelled')
+        original.dispatched = true
+        return write ? write(op.abort.signal) : secretCommandsAPI.lookup(original.identity, original.csrf, original.key, op.abort.signal)
+      }, undefined, kind)
+      if (!live()) throw new AccountFailure('cancelled')
+      if ('status' in value && value.status === 'not_observed') {
+        original.uncertain = true
+        publishSecret(original, 'uncertain', null, 'not_observed')
+      } else {
+        original.uncertain = false
+        publishSecret(original, 'confirmed', 'status' in value ? value.receipt : value, lookup ? 'committed' : 'none')
+      }
+      if (!live()) throw new AccountFailure('cancelled')
+      return value
+    } catch (error) {
+      const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
+      if (secretIntent === original && revision === secretCommandRevisions[kind] && sameIdentity(original.actor, personalContext.identity)) {
+        const p = failure.problem
+        const rejected = !original.dispatched || (!!p && ['not_started', 'not_committed'].includes(p.commit_state) && p.code !== 'IDEMPOTENCY_KEY_REUSED')
+        original.uncertain ||= lookup || !rejected
+        publishSecret(original, original.uncertain ? 'uncertain' : 'rejected', null, lookup ? 'failed' : 'none')
+      }
+      throw failure
+    }
+  }
+  function startSecret(identity: ProjectSecretIdentity, send: (csrf: string, key: string, signal: AbortSignal) => Promise<ProjectSecretReceipt>): Promise<ProjectSecretReceipt | ProjectSecretLookup> {
+    const actor = personalIdentity()
+    if (owner || secretIntent || personalIntent || pending) throw new AccountFailure('busy')
+    const original: ProjectSecretIntent = { actor, csrf: sessionCSRF, key: newKey(), identity: captureProjectSecretIdentity(identity), uncertain: false, dispatched: false }
+    secretIntent = original
+    return performSecret(original, signal => send(original.csrf, original.key, signal))
+  }
+  const projectSecretCommands = {
+    get progress(): ProjectSecretProgress | null {
+      const progress = secretCommandState.progress
+      if (!progress) return null
+      const contextValid = !!secretIntent && secretContext(secretIntent)
+      return Object.freeze({ ...progress, receipt: contextValid ? progress.receipt : null, contextValid })
+    },
+    create(projectID: string, draft: Omit<ProjectSecretCreate, 'variable_id'>) {
+      try {
+        if (owner || secretIntent || personalIntent || pending) throw new AccountFailure('busy')
+        const value = shape(draft, ['name', 'description', 'value'])
+        const request = captureProjectSecretCreate({ ...value, variable_id: newProjectVariableID() })
+        return startSecret({ kind: 'create', projectID, targetID: request.variable_id }, (csrf, key, signal) => secretCommandsAPI.create(projectID, request, csrf, key, signal))
+      } catch (error) { return Promise.reject(error instanceof AccountFailure ? error : new AccountFailure('invalid-input')) }
+    },
+    update(projectID: string, targetID: string, expectedVersion: string, draft: ProjectSecretUpdate) {
+      try {
+        const request = captureProjectSecretUpdate(draft)
+        return startSecret({ kind: 'update', projectID, targetID, expectedVersion }, (csrf, key, signal) => secretCommandsAPI.update(projectID, targetID, expectedVersion, request, csrf, key, signal))
+      } catch (error) { return Promise.reject(error instanceof AccountFailure ? error : new AccountFailure('invalid-input')) }
+    },
+    lookup() {
+      if (!secretIntent?.uncertain || secretCommandState.progress?.phase !== 'uncertain') return Promise.reject(new AccountFailure('invalid-input'))
+      return performSecret(secretIntent)
+    },
+    editRejected() {
+      if (owner || !secretIntent || secretIntent.uncertain || !secretContext(secretIntent) || secretCommandState.progress?.phase !== 'rejected') throw new AccountFailure('busy')
+      clearSecretCommand()
+    },
+    finishConfirmed() {
+      if (owner || secretCommandState.progress?.phase !== 'confirmed') throw new AccountFailure('busy')
+      clearSecretCommand()
+    },
+    abandon() {
+      if (!owner || !isSecretCommand(owner.kind)) {
+        // A synchronous submitting consumer can leave before runAuthorized
+        // acquires its owner. Retire that invocation without dispatching it.
+        if (secretIntent && secretCommandState.progress?.phase === 'submitting') {
+          ++secretCommandRevisions['secret-write']
+          secretIntent.uncertain ||= secretIntent.dispatched
+          publishSecret(secretIntent, secretIntent.uncertain ? 'uncertain' : 'rejected')
+        }
+        return
+      }
+      const retiring = owner
+      ++secretCommandRevisions[retiring.kind as ProjectSecretAction]
+      if (secretIntent && secretCommandState.progress?.phase !== 'confirmed') {
+        secretIntent.uncertain ||= secretIntent.dispatched || retiring.kind === 'secret-lookup'
+        publishSecret(secretIntent, secretIntent.uncertain ? 'uncertain' : 'rejected')
+      }
+      retiring.abandon?.()
     },
   }
   function clearVariableReads() {
@@ -8519,6 +8662,7 @@ export function createSessionController(
     projectAudit,
     skills,
     projectSecrets,
+    projectSecretCommands,
     projectUsage,
     knowledge,
     knowledgeDelete,

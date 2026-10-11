@@ -58,7 +58,7 @@ async function control(name, body) {
   catch (error) { rows.push({ name, pass: false, error_name: error?.name ?? "Error" }); }
   console.log(JSON.stringify(rows.at(-1)));
 }
-const topNames = ["knowledgeDeleteEvidenceValue", "systemRunnerEvidenceValue", "requireUsageReadProfile", "requireAgentRunnerProfile", "requireAgentSecretProfile", "requireSystemRunnerProfile", "requireCommittedLookup", "observeTaskRequests"];
+const topNames = ["requireSecretWriteProfile", "knowledgeDeleteEvidenceValue", "systemRunnerEvidenceValue", "requireUsageReadProfile", "requireAgentRunnerProfile", "requireAgentSecretProfile", "requireSystemRunnerProfile", "requireCommittedLookup", "observeTaskRequests"];
 const guards = await moduleOf(`let bindings = 0; const knowledgeSessionBinding = async () => { bindings++; throw Error("CONTROL_BINDING_REACHED"); }; export function bindingCount() { return bindings; }\n` + topNames.map(name => top(name).getText(file)).join("\n"));
 const id = "01a12c02-d66a-79c4-8cf0-7f8d8a657c4f";
 const project = "01a12c02-d66a-79c4-8cf0-7f8d8a657c50";
@@ -90,6 +90,8 @@ for (const [name, patch] of Object.entries({ missing_optin: { knowledgeDeleteWri
 for (const [name, patch] of Object.entries({ missing_root: { root_id: undefined }, malformed_root: { root_id: "wrong" }, foreign_mode: { mode: "other" }, missing_lost_cut: { mode: "delete-lost" } }))
   await control(`profile-reject-${name}`, () => reaches(profile, { ...data, ...patch }, false));
 for (const [name, candidate, material] of [
+  ["delete-secret-write", { ...profile, secretWrite: true }, data],
+  ["secret-write-delete", { ...base, prefix: "project-secret-write", lookupCommand: "project.secret_variable.update", secretWrite: true, knowledgeDeleteWrites: true }, { mode: "secret-write-normal" }],
   ["delete-system", { ...profile, systemRunnerManagement: true, systemRunnerWireHeaders() {} }, data],
   ["delete-secret", { ...profile, agentSecretAllowlist: true, agentSecretWireHeaders() {} }, data],
   ["system-delete", { ...system, knowledgeDeleteWrites: true }, { mode: "system-runner-normal" }],
@@ -201,8 +203,8 @@ await control("merged-consumer-argument-order", () => {
   const call = all.find(n => ts.isCallExpression(n) && ts.isPropertyAccessExpression(n.expression) && n.expression.name.text === "consumers");
   assert(method && call);
   const params = method.parameters.map(n => n.name.getText(file));
-  assert.deepEqual(params.slice(-3), ["runnerMounts", "systemRunnerManagement", "knowledgeDelete"]);
-  assert.deepEqual(call.arguments.slice(-3).map(n => n.getText(file)), params.slice(-3));
+  assert.deepEqual(params.slice(-4), ["runnerMounts", "systemRunnerManagement", "secretWrite", "knowledgeDelete"]);
+  assert.deepEqual(call.arguments.slice(-4).map(n => n.getText(file)), params.slice(-4));
 });
 
 for (const mode of process.argv.includes("--controls-only") ? [] : ["delete-normal", "delete-lost"]) {

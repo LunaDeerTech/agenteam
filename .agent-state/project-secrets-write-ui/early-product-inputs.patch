@@ -1,0 +1,919 @@
+diff --git a/web/src/components/projects/ProjectSecretEditor.vue b/web/src/components/projects/ProjectSecretEditor.vue
+index 593c3d81d8b1d8c63205a86660372a9a155a42bb..abb9b39056d28b6184b48db59f0dbadedba53480 100644
+--- a/web/src/components/projects/ProjectSecretEditor.vue
++++ b/web/src/components/projects/ProjectSecretEditor.vue
+@@ -5,94 +5,35 @@ import { captureProjectSecretValue } from '../../api/project-secret-commands'
+ import type { ProjectSecretEditor } from '../../composables/useProjectSecretEditor'
+ const props = defineProps<{ owner: ProjectSecretEditor }>()
+ const emit = defineEmits<{ close: [] }>()
+-const form = ref<HTMLFormElement | null>(null),
+-  materialInput = ref<HTMLTextAreaElement | null>(null)
++const form = ref<HTMLFormElement | null>(null), materialInput = ref<HTMLTextAreaElement | null>(null)
+ const materialInvalid = ref(false)
+ // Never make material reactive, emit it, or bind it to a component model.
+ let material = ''
+-let pendingEdit: { start: number; end: number; type: string } | null = null
+-const disabled = computed(
+-  () =>
+-    props.owner.blocked.value ||
+-    ['submitting', 'uncertain'].includes(props.owner.progress.value?.phase ?? ''),
+-)
+-const title = computed(() =>
+-  props.owner.state.mode === 'create'
+-    ? '创建 Secret'
+-    : props.owner.state.mode === 'metadata'
+-      ? '编辑名称与描述'
+-      : '替换 Secret 值',
+-)
+-const submitLabel = computed(() =>
+-  props.owner.state.mode === 'create'
+-    ? '创建 Secret'
+-    : props.owner.state.mode === 'metadata'
+-      ? '保存修改'
+-      : '确认替换',
+-)
++const disabled = computed(() => props.owner.blocked.value || ['submitting', 'uncertain'].includes(props.owner.progress.value?.phase ?? ''))
++const title = computed(() => props.owner.state.mode === 'create' ? '创建 Secret' : props.owner.state.mode === 'metadata' ? '编辑名称与描述' : '替换 Secret 值')
++const submitLabel = computed(() => props.owner.state.mode === 'create' ? '创建 Secret' : props.owner.state.mode === 'metadata' ? '保存修改' : '确认替换')
+ const display = (value: string) => value.replace(/\r\n?/g, '\n')
+ function rawOffset(position: number): number {
+-  let at = 0,
+-    shown = 0
++  let at = 0, shown = 0
+   while (at < material.length && shown < position) {
+     at += material[at] === '\r' && material[at + 1] === '\n' ? 2 : 1
+     ++shown
+   }
+   return at
+ }
+-function beforeInput(event: InputEvent) {
+-  const field = event.target as HTMLTextAreaElement
+-  pendingEdit = { start: field.selectionStart, end: field.selectionEnd, type: event.inputType }
+-}
+ function input(event: Event) {
+-  const next = (event.target as HTMLTextAreaElement).value,
+-    previous = display(material)
+-  const edit = pendingEdit
+-  pendingEdit = null
+-  if (edit) {
+-    let { start, end } = edit
+-    if (start === end && edit.type.startsWith('delete')) {
+-      const removed = previous.length - next.length
+-      if (removed >= 0 && edit.type.endsWith('Backward')) start = Math.max(0, start - removed)
+-      else if (removed >= 0 && edit.type.endsWith('Forward'))
+-        end = Math.min(previous.length, end + removed)
+-    }
+-    const insertedEnd = next.length - (previous.length - end)
+-    if (
+-      insertedEnd >= start &&
+-      next.slice(0, start) === previous.slice(0, start) &&
+-      next.slice(insertedEnd) === previous.slice(end)
+-    ) {
+-      material =
+-        material.slice(0, rawOffset(start)) +
+-        next.slice(start, insertedEnd) +
+-        material.slice(rawOffset(end))
+-      materialInvalid.value = false
+-      return
+-    }
+-  }
+-  let start = 0,
+-    end = previous.length,
+-    nextEnd = next.length
++  const next = (event.target as HTMLTextAreaElement).value, previous = display(material)
++  let start = 0, end = previous.length, nextEnd = next.length
+   while (start < end && start < nextEnd && previous[start] === next[start]) ++start
+-  while (end > start && nextEnd > start && previous[end - 1] === next[nextEnd - 1]) {
+-    --end
+-    --nextEnd
+-  }
+-  material =
+-    material.slice(0, rawOffset(start)) +
+-    next.slice(start, nextEnd) +
+-    material.slice(rawOffset(end))
++  while (end > start && nextEnd > start && previous[end - 1] === next[nextEnd - 1]) { --end; --nextEnd }
++  material = material.slice(0, rawOffset(start)) + next.slice(start, nextEnd) + material.slice(rawOffset(end))
+   materialInvalid.value = false
+ }
+ function paste(event: ClipboardEvent) {
+   if (disabled.value || !event.clipboardData || !materialInput.value) return
+   event.preventDefault()
+-  pendingEdit = null
+-  const field = materialInput.value,
+-    pasted = event.clipboardData.getData('text/plain')
+-  const start = field.selectionStart,
+-    end = field.selectionEnd
++  const field = materialInput.value, pasted = event.clipboardData.getData('text/plain')
++  const start = field.selectionStart, end = field.selectionEnd
+   material = material.slice(0, rawOffset(start)) + pasted + material.slice(rawOffset(end))
+   field.value = display(material)
+   const caret = start + display(pasted).length
+@@ -101,7 +42,6 @@ function paste(event: ClipboardEvent) {
+ }
+ function clearMaterial() {
+   material = ''
+-  pendingEdit = null
+   if (materialInput.value) materialInput.value.value = ''
+   materialInvalid.value = false
+ }
+@@ -113,41 +53,20 @@ function takeMaterial() {
+ async function submit() {
+   if (!props.owner.canSave.value) return
+   if (props.owner.state.mode !== 'metadata') {
+-    try {
+-      captureProjectSecretValue(material)
+-    } catch {
+-      materialInvalid.value = true
+-      return
+-    }
++    try { captureProjectSecretValue(material) } catch { materialInvalid.value = true; return }
+   }
+   await props.owner.submit(takeMaterial)
+ }
+-function close() {
+-  clearMaterial()
+-  props.owner.close()
+-  emit('close')
+-}
++function close() { clearMaterial(); props.owner.close(); emit('close') }
+ watch(() => props.owner.state.materialRevision, clearMaterial, { flush: 'sync' })
+-watch(
+-  () => props.owner.state.formRevision,
+-  async () => {
+-    clearMaterial()
+-    const revision = props.owner.state.formRevision
+-    await nextTick()
+-    if (
+-      revision !== props.owner.state.formRevision ||
+-      !props.owner.state.open ||
+-      !props.owner.visible.value ||
+-      disabled.value
+-    )
+-      return
+-    const control = form.value?.querySelector<HTMLInputElement | HTMLTextAreaElement>(
+-      'input,textarea',
+-    )
+-    if (control?.isConnected && !control.disabled) control.focus()
+-  },
+-  { immediate: true, flush: 'post' },
+-)
++watch(() => props.owner.state.formRevision, async () => {
++  clearMaterial()
++  const revision = props.owner.state.formRevision
++  await nextTick()
++  if (revision !== props.owner.state.formRevision || !props.owner.state.open || !props.owner.visible.value || disabled.value) return
++  const control = form.value?.querySelector<HTMLInputElement | HTMLTextAreaElement>('input,textarea')
++  if (control?.isConnected && !control.disabled) control.focus()
++}, { immediate: true, flush: 'post' })
+ onBeforeUnmount(clearMaterial)
+ </script>
+ 
+@@ -156,95 +75,35 @@ onBeforeUnmount(clearMaterial)
+     <form ref="form" :aria-label="title" class="secret-editor" @submit.prevent="submit">
+       <h2>{{ title }}</h2>
+       <template v-if="owner.state.mode !== 'replace'">
+-        <UiField
+-          label="Secret 名称"
+-          required
+-          hint="最多 128 位英文字母、数字与下划线，首位不能是数字；AGENTEAM 名称保留。"
+-          v-slot="field"
+-        >
+-          <UiInput
+-            :id="field.id"
+-            v-model="owner.state.name"
+-            :disabled="disabled"
+-            :aria-describedby="field.describedby"
+-            autocomplete="off"
+-          />
++        <UiField label="Secret 名称" required hint="最多 128 位英文字母、数字与下划线，首位不能是数字；AGENTEAM 名称保留。" v-slot="field">
++          <UiInput :id="field.id" v-model="owner.state.name" :disabled="disabled" :aria-describedby="field.describedby" autocomplete="off" />
+         </UiField>
+         <UiField label="描述" hint="可为空，最多 4096 UTF8 字节。" v-slot="field">
+-          <UiTextarea
+-            :id="field.id"
+-            v-model="owner.state.description"
+-            :disabled="disabled"
+-            rows="3"
+-          />
++          <UiTextarea :id="field.id" v-model="owner.state.description" :disabled="disabled" rows="3" />
+         </UiField>
+       </template>
+-      <template v-else
+-        ><p>替换 {{ owner.state.name }} 的材料。已有值不会返回；替换会生成新版本。</p></template
+-      >
+-      <UiField
+-        v-if="owner.state.mode !== 'metadata'"
+-        label="Secret 值"
+-        required
++      <template v-else><p>替换 {{ owner.state.name }} 的材料。已有值不会返回；替换会生成新版本。</p></template>
++      <UiField v-if="owner.state.mode !== 'metadata'" label="Secret 值" required
+         hint="1–65536 UTF8 字节，可多行。空白、制表符与粘贴的换行保持原样；提交后输入会清除。"
+-        :error="
+-          materialInvalid ? '请输入有效的非空文本（不含 NUL），并检查 UTF8 字节上限。' : undefined
+-        "
+-        v-slot="field"
+-      >
+-        <textarea
+-          ref="materialInput"
+-          :id="field.id"
+-          class="ui-input secret-material"
+-          :disabled="disabled"
+-          :aria-invalid="field.invalid || undefined"
+-          :aria-describedby="field.describedby"
+-          rows="4"
+-          autocomplete="off"
+-          autocapitalize="off"
+-          :spellcheck="false"
+-          @beforeinput="beforeInput"
+-          @input="input"
+-          @paste="paste"
+-        />
++        :error="materialInvalid ? '请输入有效的非空文本（不含 NUL），并检查 UTF8 字节上限。' : undefined" v-slot="field">
++        <textarea ref="materialInput" :id="field.id" class="ui-input secret-material" :disabled="disabled"
++          :aria-invalid="field.invalid || undefined" :aria-describedby="field.describedby" rows="4"
++          autocomplete="off" autocapitalize="off" :spellcheck="false" @input="input" @paste="paste" />
+       </UiField>
+       <p v-if="owner.state.mode === 'metadata'">此操作不会提交或修改 Secret 值。</p>
+       <p v-if="owner.state.mode !== 'create'">当前编辑版本：{{ owner.state.version }}</p>
+       <p v-if="owner.state.conflict" role="alert">请先重新读取当前版本，材料不会恢复。</p>
+       <div class="secret-editor-actions">
+-        <UiButton type="submit" :disabled="disabled || !owner.canSave.value">{{
+-          submitLabel
+-        }}</UiButton>
+-        <UiButton
+-          v-if="owner.state.conflict"
+-          type="button"
+-          :disabled="disabled"
+-          @click="owner.readCurrent()"
+-          >重新读取当前版本</UiButton
+-        >
++        <UiButton type="submit" :disabled="disabled || !owner.canSave.value">{{ submitLabel }}</UiButton>
++        <UiButton v-if="owner.state.conflict" type="button" :disabled="disabled" @click="owner.readCurrent()">重新读取当前版本</UiButton>
+         <UiButton type="button" variant="ghost" @click="close">关闭编辑</UiButton>
+       </div>
+     </form>
+   </UiCard>
+ </template>
+ <style scoped>
+-.secret-editor {
+-  display: grid;
+-  gap: var(--content-gap);
+-  min-width: 0;
+-}
+-.secret-editor-actions {
+-  display: flex;
+-  flex-wrap: wrap;
+-  gap: var(--content-gap);
+-}
+-.secret-editor h2,
+-.secret-editor p {
+-  overflow-wrap: anywhere;
+-}
+-.secret-material {
+-  width: 100%;
+-  resize: vertical;
+-  white-space: pre-wrap;
+-}
++.secret-editor { display: grid; gap: var(--content-gap); min-width: 0; }
++.secret-editor-actions { display: flex; flex-wrap: wrap; gap: var(--content-gap); }
++.secret-editor h2, .secret-editor p { overflow-wrap: anywhere; }
++.secret-material { width: 100%; resize: vertical; white-space: pre-wrap; }
+ </style>
+diff --git a/web/src/composables/useProjectSecretEditor.ts b/web/src/composables/useProjectSecretEditor.ts
+index cde84fbf2cf2eb5d206b5707853448188795a731..d84694bb942fc9eb056fcbba5c783fdfd84283d7 100644
+--- a/web/src/composables/useProjectSecretEditor.ts
++++ b/web/src/composables/useProjectSecretEditor.ts
+@@ -1,9 +1,6 @@
+ import { computed, reactive, watch } from 'vue'
+ import { AccountFailure } from '../api/client'
+-import {
+-  captureProjectSecretUpdate,
+-  captureProjectSecretValue,
+-} from '../api/project-secret-commands'
++import { captureProjectSecretUpdate, captureProjectSecretValue } from '../api/project-secret-commands'
+ import type { ProjectSecretMetadata } from '../api/project-secrets'
+ import { useSession, type SessionController } from './useSession'
+ import { useProjectWorkspace, type ProjectWorkspace } from './useProjectWorkspace'
+@@ -16,22 +13,8 @@ export function useProjectSecretEditor(
+   workspace: ProjectWorkspace = useProjectWorkspace(),
+ ) {
+   // No material belongs in this reactive draft, baseline, public progress or Session.
+-  const state = reactive({
+-    open: false,
+-    mode: 'create' as Mode,
+-    name: '',
+-    description: '',
+-    targetID: '',
+-    version: '',
+-    message: '',
+-    conflict: false,
+-    reading: false,
+-    materialRevision: 0,
+-    formRevision: 0,
+-  })
+-  let base: ProjectSecretMetadata | null = null,
+-    disposed = false,
+-    generation = 0
++  const state = reactive({ open: false, mode: 'create' as Mode, name: '', description: '', targetID: '', version: '', message: '', conflict: false, reading: false, materialRevision: 0, formRevision: 0 })
++  let base: ProjectSecretMetadata | null = null, disposed = false, generation = 0
+   const key = computed(() => {
+     const context = workspace.currentReadContext.value
+     if (disposed || !reader.visible.value || !context) return ''
+@@ -41,83 +24,37 @@ export function useProjectSecretEditor(
+   const visible = computed(() => key.value !== '' && reader.page.phase !== 'unavailable')
+   const progress = computed(() => {
+     const value = auth.projectSecretCommands.progress
+-    return visible.value &&
+-      value?.identity.projectID === workspace.currentReadContext.value?.projectID
+-      ? value
+-      : null
++    return visible.value && value?.identity.projectID === workspace.currentReadContext.value?.projectID ? value : null
+   })
+-  const unresolved = computed(() =>
+-    ['submitting', 'uncertain'].includes(progress.value?.phase ?? ''),
+-  )
+-  const blocked = computed(
+-    () => !visible.value || auth.state.busy || state.reading || reader.blocked.value,
+-  )
++  const unresolved = computed(() => ['submitting', 'uncertain'].includes(progress.value?.phase ?? ''))
++  const blocked = computed(() => !visible.value || auth.state.busy || state.reading || reader.blocked.value)
+   const writable = computed(() => visible.value && workspace.detail.project?.lifecycle === 'active')
+-  const canOpen = computed(
+-    () =>
+-      !blocked.value && writable.value && !unresolved.value && !auth.projectSecretCommands.progress,
+-  )
+-  const canSave = computed(
+-    () =>
+-      state.open &&
+-      !blocked.value &&
+-      writable.value &&
+-      !state.conflict &&
+-      !unresolved.value &&
+-      (state.mode !== 'metadata' ||
+-        (!!base && (state.name !== base.name || state.description !== base.description))),
+-  )
+-  const canLookup = computed(
+-    () => !blocked.value && progress.value?.phase === 'uncertain' && !!progress.value.contextValid,
+-  )
++  const canOpen = computed(() => !blocked.value && writable.value && !unresolved.value && !auth.projectSecretCommands.progress)
++  const canSave = computed(() => state.open && !blocked.value && writable.value && !state.conflict && !unresolved.value && (state.mode !== 'metadata' || !!base && (state.name !== base.name || state.description !== base.description)))
++  const canLookup = computed(() => !blocked.value && progress.value?.phase === 'uncertain' && !!progress.value.contextValid)
+   function clear(message = '') {
+     ++generation
+     ++state.materialRevision
+     ++state.formRevision
+-    Object.assign(state, {
+-      open: false,
+-      name: '',
+-      description: '',
+-      targetID: '',
+-      version: '',
+-      message,
+-      conflict: false,
+-      reading: false,
+-    })
++    Object.assign(state, { open: false, name: '', description: '', targetID: '', version: '', message, conflict: false, reading: false })
+     base = null
+   }
+   function close() {
+     clear()
+     auth.projectSecretCommands.abandon()
+     const pending = auth.projectSecretCommands.progress
+-    if (!auth.state.busy && pending?.phase === 'rejected' && pending.contextValid)
+-      auth.projectSecretCommands.editRejected()
++    if (!auth.state.busy && pending?.phase === 'rejected' && pending.contextValid) auth.projectSecretCommands.editRejected()
+   }
+-  const stop = watch(
+-    [key, () => reader.page.phase],
+-    ([now, phase], [previous]) => {
+-      if (now !== previous || phase === 'unavailable') close()
+-    },
+-    { flush: 'sync' },
+-  )
++  const stop = watch([key, () => reader.page.phase], ([now, phase], [previous]) => {
++    if (now !== previous || phase === 'unavailable') close()
++  }, { flush: 'sync' })
+   function open(mode: Mode) {
+     if (!canOpen.value) return
+     const value = reader.detail.value
+-    if (
+-      mode !== 'create' &&
+-      (reader.detail.phase !== 'ready' || !value || value.id !== reader.selected.value)
+-    )
+-      return
++    if (mode !== 'create' && (reader.detail.phase !== 'ready' || !value || value.id !== reader.selected.value)) return
+     clear()
+     base = mode === 'create' ? null : value
+-    Object.assign(state, {
+-      open: true,
+-      mode,
+-      name: base?.name ?? '',
+-      description: base?.description ?? '',
+-      targetID: base?.id ?? '',
+-      version: base?.version ?? '',
+-    })
++    Object.assign(state, { open: true, mode, name: base?.name ?? '', description: base?.description ?? '', targetID: base?.id ?? '', version: base?.version ?? '' })
+   }
+   function failure(error: unknown) {
+     const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+@@ -130,14 +67,11 @@ export function useProjectSecretEditor(
+       state.message = '提交结果尚未确认。材料已清除；只能检查原请求，不能重复提交。'
+       return
+     }
+-    state.conflict = state.mode !== 'create' && e.problem?.code === 'VERSION_CONFLICT'
++    state.conflict = e.problem?.status === 409 && e.problem.code !== 'IDEMPOTENCY_KEY_REUSED'
+     state.message = state.conflict
+       ? '记录已经变化。请重新读取当前版本后检查草稿；替换材料需要重新输入。'
+-      : e.problem?.code === 'RESOURCE_BUSY'
+-        ? '名称已被占用或当前资源不可修改。请检查名称和草稿后重新提交；材料需要重新输入。'
+-        : e.kind === 'invalid-input'
+-          ? '请检查名称、描述和 Secret 值的格式。'
+-          : '本次提交未完成。已输入的材料不会保留，请检查后重新输入。'
++      : e.kind === 'invalid-input' ? '请检查名称、描述和 Secret 值的格式。'
++      : '本次提交未完成。已输入的材料不会保留，请检查后重新输入。'
+   }
+   function confirmed(target: string) {
+     clear('请求已确认，正在独立读取当前记录。')
+@@ -146,51 +80,32 @@ export function useProjectSecretEditor(
+   }
+   async function submit(takeMaterial: () => string) {
+     if (!canSave.value) return
+-    const projectID = workspace.currentReadContext.value!.projectID,
+-      capturedKey = key.value,
+-      serial = generation
++    const projectID = workspace.currentReadContext.value!.projectID, capturedKey = key.value, serial = generation
+     let value: string | undefined
+     try {
+       // Validate safe fields before consuming the private material input.
+-      if (state.mode !== 'replace')
+-        captureProjectSecretUpdate({ name: state.name, description: state.description })
++      if (state.mode !== 'replace') captureProjectSecretUpdate({ name: state.name, description: state.description })
+       if (state.mode !== 'metadata') value = captureProjectSecretValue(takeMaterial())
+       ++state.materialRevision
+       if (progress.value?.phase === 'rejected') auth.projectSecretCommands.editRejected()
+-      const operation =
+-        state.mode === 'create'
+-          ? auth.projectSecretCommands.create(projectID, {
+-              name: state.name,
+-              description: state.description,
+-              value: value!,
+-            })
+-          : auth.projectSecretCommands.update(
+-              projectID,
+-              state.targetID,
+-              state.version,
+-              state.mode === 'replace'
+-                ? { value: value! }
+-                : {
+-                    ...(state.name !== base?.name ? { name: state.name } : {}),
+-                    ...(state.description !== base?.description
+-                      ? { description: state.description }
+-                      : {}),
+-                  },
+-            )
++      const operation = state.mode === 'create'
++        ? auth.projectSecretCommands.create(projectID, { name: state.name, description: state.description, value: value! })
++        : auth.projectSecretCommands.update(projectID, state.targetID, state.version,
++          state.mode === 'replace' ? { value: value! } : {
++            ...(state.name !== base?.name ? { name: state.name } : {}),
++            ...(state.description !== base?.description ? { description: state.description } : {}),
++          })
+       value = undefined
+       const result = await operation
+       if (serial !== generation || capturedKey !== key.value || !visible.value) return
+       if (!('status' in result)) confirmed(result.variable.id)
+     } catch (error) {
+       if (serial === generation && capturedKey === key.value && visible.value) failure(error)
+-    } finally {
+-      value = undefined
+-    }
++    } finally { value = undefined }
+   }
+   async function lookup() {
+     if (!canLookup.value) return
+-    const capturedKey = key.value,
+-      serial = generation
++    const capturedKey = key.value, serial = generation
+     try {
+       const result = await auth.projectSecretCommands.lookup()
+       if (serial !== generation || capturedKey !== key.value || !visible.value) return
+@@ -202,16 +117,11 @@ export function useProjectSecretEditor(
+   }
+   async function readCurrent() {
+     if (blocked.value || !state.open || state.mode === 'create' || unresolved.value) return
+-    const capturedKey = key.value,
+-      serial = generation,
+-      target = state.targetID
++    const capturedKey = key.value, serial = generation, target = state.targetID
+     ++state.materialRevision
+     state.reading = true
+     try {
+-      const value = await auth.projectSecrets.get(
+-        workspace.currentReadContext.value!.projectID,
+-        target,
+-      )
++      const value = await auth.projectSecrets.get(workspace.currentReadContext.value!.projectID, target)
+       if (serial !== generation || capturedKey !== key.value || !visible.value) return
+       base = value
+       state.version = value.version
+@@ -219,34 +129,13 @@ export function useProjectSecretEditor(
+       state.message = '已读取当前版本，名称与描述草稿保留；请确认后再提交。'
+     } catch (error) {
+       if (serial === generation && capturedKey === key.value && visible.value) failure(error)
+-    } finally {
+-      if (serial === generation) state.reading = false
+-    }
++    } finally { if (serial === generation) state.reading = false }
+   }
+-  return {
+-    state,
+-    visible,
+-    progress,
+-    blocked,
+-    canOpen,
+-    canSave,
+-    canLookup,
+-    open,
+-    close,
+-    submit,
+-    lookup,
+-    readCurrent,
++  return { state, visible, progress, blocked, canOpen, canSave, canLookup, open, close, submit, lookup, readCurrent,
+     readConfirmed() {
+       const pending = progress.value
+-      if (!blocked.value && pending?.phase === 'confirmed' && pending.contextValid)
+-        confirmed(pending.identity.targetID)
++      if (!blocked.value && pending?.phase === 'confirmed' && pending.contextValid) confirmed(pending.identity.targetID)
+     },
+-    dispose() {
+-      if (disposed) return
+-      stop()
+-      close()
+-      disposed = true
+-    },
+-  }
++    dispose() { if (disposed) return; stop(); close(); disposed = true } }
+ }
+ export type ProjectSecretEditor = ReturnType<typeof useProjectSecretEditor>
+diff --git a/web/src/composables/useProjectSecrets.ts b/web/src/composables/useProjectSecrets.ts
+index 977eb897e0553d87c423f11bdaa42b45d5459d24..fed5efcd9f668c00fd3043b82321536bf64a7601 100644
+--- a/web/src/composables/useProjectSecrets.ts
++++ b/web/src/composables/useProjectSecrets.ts
+@@ -216,10 +216,8 @@ export function useProjectSecrets(
+         return
+       }
+       if (!sameContext(scope.value, context) || boundRoute !== path) {
+-        // Publish the route before the reactive scope: synchronous consumers
+-        // must never cache a new scope against the retired route.
+-        boundRoute = path
+         scope.value = context
++        boundRoute = path
+         firstPage()
+       } else pump()
+     },
+diff --git a/web/src/composables/useSession.ts b/web/src/composables/useSession.ts
+index 5076b2d0d79aa9d94504b2d5f20bbbc9f698318c..66ed381c0e5a868ae7838b5210f652a4d40c6fc5 100644
+--- a/web/src/composables/useSession.ts
++++ b/web/src/composables/useSession.ts
+@@ -13,7 +13,6 @@ import {
+   type RunnerMutation,
+   type RunnerLookup,
+ } from '../api/system-runners'
+-import { createKnowledgeDeleteAPI, captureKnowledgeDelete, type KnowledgeDeleteAPI, type KnowledgeDeleteInput, type KnowledgeDeleteReceipt, type KnowledgeDeleteLookup } from '../api/knowledge-delete'
+ import { createAgentRunnerMountsAPI, type AgentRunnerMountsAPI } from '../api/agent-runner-mounts'
+ import {
+   createKnowledgeTitleSearchAPI,
+@@ -591,7 +590,7 @@ export type ProjectProgress = Readonly<{
+   canRetryOriginal: boolean
+ }>
+ type KnowledgeCommandAction =
+-  'knowledge-rename' | 'knowledge-lookup' | 'knowledge-text-write' | 'knowledge-text-lookup' | 'knowledge-delete-preview' | 'knowledge-delete' | 'knowledge-delete-lookup'
++  'knowledge-rename' | 'knowledge-lookup' | 'knowledge-text-write' | 'knowledge-text-lookup'
+ export type KnowledgeCommandProgress = Readonly<{
+   projectID: string
+   documentID: string
+@@ -624,8 +623,6 @@ type KnowledgeTextOriginal = {
+   uncertain: boolean
+   keyConflict: boolean
+ }
+-export type KnowledgeDeleteProgress = Omit<KnowledgeCommandProgress, 'receipt'> & Readonly<{ receipt: KnowledgeDeleteReceipt | null }>
+-type KnowledgeDeleteOriginal = Omit<KnowledgeCommandIntent, 'payload'> & { payload: { input: KnowledgeDeleteInput | null; body: string | null; ids: readonly string[] | null } }
+ type ProjectIntent = {
+   targetID: string
+   identity: PersonalIdentity
+@@ -1017,7 +1014,6 @@ export function createSessionController(
+     scheduler?: ProjectSchedulerAPI
+     skillPackage?: SkillPackageAPI
+     knowledgeText?: KnowledgeTextAPI
+-    knowledgeDelete?: KnowledgeDeleteAPI
+     knowledgeCommands?: KnowledgeCommandsAPI
+     knowledgeTitleSearch?: KnowledgeTitleSearchAPI
+   }> = {},
+@@ -1038,7 +1034,6 @@ export function createSessionController(
+   const agentConfigurationAPI = commandAPIs.agentConfiguration ?? createAgentConfigurationAPI()
+   const sprintLifecycleAPI = commandAPIs.sprintLifecycle ?? createWorkSprintLifecycleAPI()
+   const knowledgeTextAPI = commandAPIs.knowledgeText ?? createKnowledgeTextAPI()
+-  const knowledgeDeleteAPI = commandAPIs.knowledgeDelete ?? createKnowledgeDeleteAPI()
+   const knowledgeCommandsAPI = commandAPIs.knowledgeCommands ?? createKnowledgeCommandsAPI()
+   const knowledgeTitleSearchAPI = commandAPIs.knowledgeTitleSearch ?? createKnowledgeTitleSearchAPI()
+   const state = shallowReactive<PublicState>({
+@@ -1223,9 +1218,6 @@ export function createSessionController(
+     'knowledge-lookup': 0,
+     'knowledge-text-write': 0,
+     'knowledge-text-lookup': 0,
+-    'knowledge-delete-preview': 0,
+-    'knowledge-delete': 0,
+-    'knowledge-delete-lookup': 0,
+   }
+   const isKnowledgeCommand = (kind: Action): kind is KnowledgeCommandAction =>
+     Object.hasOwn(knowledgeCommandRevisions, kind)
+@@ -1233,8 +1225,6 @@ export function createSessionController(
+   const knowledgeCommandState = shallowReactive<{
+     progress: Omit<KnowledgeCommandProgress, 'contextValid' | 'canRetryOriginal'> | null
+   }>({ progress: null })
+-  let knowledgeDeleteIntent: KnowledgeDeleteOriginal | null = null
+-  const knowledgeDeleteState = shallowReactive<{ progress: Omit<KnowledgeDeleteProgress, 'contextValid' | 'canRetryOriginal'> | null }>({ progress: null })
+   let knowledgeTextIntent: KnowledgeTextOriginal | null = null
+   const knowledgeTextState = shallowReactive<{
+     progress: Omit<KnowledgeTextProgress, 'contextValid' | 'canRetryOriginal'> | null
+@@ -1423,7 +1413,6 @@ export function createSessionController(
+       clearSprintLifecycleState()
+       clearKnowledgeCommand()
+       clearKnowledgeText()
+-      clearKnowledgeDelete()
+       clearWorkReviewState()
+       clearInvitationState()
+       clearRunnerState()
+@@ -1499,7 +1488,6 @@ export function createSessionController(
+       clearSprintLifecycleState()
+       clearKnowledgeCommand()
+       clearKnowledgeText()
+-      clearKnowledgeDelete()
+       clearWorkReviewState()
+       ++personalRevision
+       personalContext.identity = Object.freeze({
+@@ -4528,16 +4516,7 @@ export function createSessionController(
+       clearSecretCommand()
+     },
+     abandon() {
+-      if (!owner || !isSecretCommand(owner.kind)) {
+-        // A synchronous submitting consumer can leave before runAuthorized
+-        // acquires its owner. Retire that invocation without dispatching it.
+-        if (secretIntent && secretCommandState.progress?.phase === 'submitting') {
+-          ++secretCommandRevisions['secret-write']
+-          secretIntent.uncertain ||= secretIntent.dispatched
+-          publishSecret(secretIntent, secretIntent.uncertain ? 'uncertain' : 'rejected')
+-        }
+-        return
+-      }
++      if (!owner || !isSecretCommand(owner.kind)) return
+       const retiring = owner
+       ++secretCommandRevisions[retiring.kind as ProjectSecretAction]
+       if (secretIntent && secretCommandState.progress?.phase !== 'confirmed') {
+@@ -7422,7 +7401,7 @@ export function createSessionController(
+     startRename(projectID: string, documentID: string, value: KnowledgeRenameInput) {
+       try {
+         const identity = personalIdentity()
+-        if (owner || knowledgeIntent || knowledgeTextIntent || knowledgeDeleteIntent || personalIntent || pending)
++        if (owner || knowledgeIntent || knowledgeTextIntent || personalIntent || pending)
+           throw new AccountFailure('busy')
+         const input = captureKnowledgeRename(value)
+         const original: KnowledgeCommandIntent = {
+@@ -7464,220 +7443,6 @@ export function createSessionController(
+     },
+     abandon: clearKnowledgeCommand,
+   }
+-  function clearKnowledgeDeletePayload(original: KnowledgeDeleteOriginal | null) {
+-    if (original) {
+-      original.payload.input = null
+-      original.payload.body = null
+-      original.payload.ids = null
+-    }
+-  }
+-  function clearKnowledgeDelete() {
+-    clearKnowledgeDeletePreview()
+-    const retiring =
+-      owner && (owner.kind === 'knowledge-delete' || owner.kind === 'knowledge-delete-lookup')
+-        ? owner
+-        : null
+-    ++knowledgeCommandRevisions['knowledge-delete']
+-    ++knowledgeCommandRevisions['knowledge-delete-lookup']
+-    clearKnowledgeDeletePayload(knowledgeDeleteIntent)
+-    knowledgeDeleteIntent = null
+-    knowledgeDeleteState.progress = null
+-    retiring?.abandon?.()
+-  }
+-  function publishKnowledgeDelete(
+-    original: KnowledgeDeleteOriginal,
+-    phase: KnowledgeDeleteProgress['phase'],
+-    receipt: KnowledgeDeleteReceipt | null = null,
+-    observation: KnowledgeDeleteProgress['observation'] = 'none',
+-  ) {
+-    knowledgeDeleteState.progress = Object.freeze({
+-      projectID: original.projectID,
+-      documentID: original.documentID,
+-      phase,
+-      receipt,
+-      observation,
+-    })
+-  }
+-  function performKnowledgeDelete(
+-    original: KnowledgeDeleteOriginal,
+-    lookup = false,
+-  ): Promise<KnowledgeDeleteReceipt | KnowledgeDeleteLookup> {
+-    if (owner) return Promise.reject(new AccountFailure('busy'))
+-    if (knowledgeDeleteIntent !== original || !original.payload.input || !projectContext(original))
+-      return Promise.reject(new AccountFailure('invalid-input'))
+-    const kind: KnowledgeCommandAction = lookup ? 'knowledge-delete-lookup' : 'knowledge-delete'
+-    const revision = knowledgeCommandRevisions[kind]
+-    const live = () =>
+-      knowledgeDeleteIntent === original &&
+-      revision === knowledgeCommandRevisions[kind] &&
+-      projectContext(original)
+-    let dispatched = false
+-    if (!lookup) publishKnowledgeDelete(original, 'submitting')
+-    return runAuthorized<KnowledgeDeleteReceipt | KnowledgeDeleteLookup>(
+-      original.identity,
+-      async (op, current) => {
+-        const input = original.payload.input
+-        if (!input || !current() || !live()) throw new AccountFailure('cancelled')
+-        if (JSON.stringify(input) !== original.payload.body)
+-          throw new AccountFailure('invalid-input')
+-        dispatched = true
+-        try {
+-          const write = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
+-          const result = lookup
+-            ? await knowledgeDeleteAPI.lookup(
+-                original.projectID,
+-                original.documentID,
+-                input,
+-                write,
+-              )
+-            : await knowledgeDeleteAPI.remove(
+-                original.projectID,
+-                original.documentID,
+-                input,
+-                write,
+-              )
+-          const receipt = 'state' in result ? result.receipt : result
+-          if (receipt && (!original.payload.ids || receipt.deleted_ids.length !== original.payload.ids.length ||
+-            receipt.deleted_ids.some((id, index) => id !== original.payload.ids![index])))
+-            throw new AccountFailure('invalid-response')
+-          return result
+-        } finally {
+-          if (knowledgeDeleteIntent !== original) clearKnowledgeDeletePayload(original)
+-        }
+-      },
+-      undefined,
+-      kind,
+-    ).then(
+-      (value) => {
+-        if (!live()) throw new AccountFailure('cancelled')
+-        if ('state' in value && value.state !== 'committed') {
+-          publishKnowledgeDelete(original, 'uncertain', null, value.state)
+-          if (!live()) throw new AccountFailure('cancelled')
+-          return value
+-        }
+-        const receipt = 'state' in value ? value.receipt : value
+-        publishKnowledgeDelete(original, 'confirmed', receipt, lookup ? 'committed' : 'none')
+-        if (!live()) throw new AccountFailure('cancelled')
+-        clearKnowledgeDeletePayload(original)
+-        knowledgeDeleteIntent = null
+-        return value
+-      },
+-      (error: unknown) => {
+-        const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+-        if (
+-          knowledgeDeleteIntent === original &&
+-          revision === knowledgeCommandRevisions[kind] &&
+-          sameIdentity(original.identity, personalContext.identity)
+-        ) {
+-          const p = e.problem
+-          const known =
+-            !dispatched ||
+-            (!!p &&
+-              ['not_started', 'not_committed'].includes(p.commit_state) &&
+-              [
+-                'INVALID_ARGUMENT',
+-                'VERSION_CONFLICT',
+-                'CONFIRMATION_STALE',
+-                'INVALID_STATE',
+-                'PROJECT_NOT_ACTIVE',
+-                'NOT_FOUND',
+-                'FORBIDDEN',
+-                'RESOURCE_DELETED',
+-              ].includes(p.code))
+-          original.keyConflict ||= p?.code === 'IDEMPOTENCY_KEY_REUSED'
+-          original.uncertain ||= lookup || !known || original.keyConflict
+-          publishKnowledgeDelete(
+-            original,
+-            original.uncertain ? 'uncertain' : 'rejected',
+-            null,
+-            lookup ? 'failed' : 'none',
+-          )
+-        }
+-        throw e
+-      },
+-    )
+-  }
+-  function clearKnowledgeDeletePreview() {
+-    ++knowledgeCommandRevisions['knowledge-delete-preview']
+-    if (owner?.kind === 'knowledge-delete-preview') owner.abandon?.()
+-  }
+-  const knowledgeDelete = {
+-    preview(projectID: string, documentID: string) {
+-      try {
+-        const identity = personalIdentity()
+-        const project = captureKnowledgeID(projectID), target = captureKnowledgeID(documentID)
+-        if (owner || knowledgeDeleteIntent || knowledgeIntent || knowledgeTextIntent || personalIntent || pending)
+-          throw new AccountFailure('busy')
+-        return runAuthorized(identity, (op) => knowledgeDeleteAPI.preview(project, target,
+-          { csrfToken: sessionCSRF, signal: op.abort.signal }), undefined, 'knowledge-delete-preview')
+-      } catch (error) { return Promise.reject(error) }
+-    },
+-    cancelPreview: clearKnowledgeDeletePreview,
+-    get progress(): KnowledgeDeleteProgress | null {
+-      const value = knowledgeDeleteState.progress
+-      if (!value) return null
+-      const contextValid = !!knowledgeDeleteIntent && projectContext(knowledgeDeleteIntent)
+-      return Object.freeze({
+-        ...value,
+-        contextValid,
+-        canRetryOriginal:
+-          !!knowledgeDeleteIntent?.payload.input &&
+-          knowledgeDeleteIntent.uncertain &&
+-          !knowledgeDeleteIntent.keyConflict &&
+-          value.observation === 'not_observed' &&
+-          contextValid &&
+-          !state.busy,
+-      })
+-    },
+-    startDelete(projectID: string, documentID: string, value: KnowledgeDeleteInput, previewIDs: readonly string[]) {
+-      try {
+-        const identity = personalIdentity()
+-        if (owner || knowledgeIntent || knowledgeTextIntent || knowledgeDeleteIntent || personalIntent || pending)
+-          throw new AccountFailure('busy')
+-        const input = captureKnowledgeDelete(value)
+-        if (!Array.isArray(previewIDs) || previewIDs.length === 0) throw new AccountFailure('invalid-input')
+-        const ids = Object.freeze(previewIDs.map(captureKnowledgeID).sort())
+-        if (!ids.includes(documentID) || ids.some((id, index) => index > 0 && ids[index - 1] === id))
+-          throw new AccountFailure('invalid-input')
+-        const original: KnowledgeDeleteOriginal = {
+-          projectID: captureKnowledgeID(projectID),
+-          documentID: captureKnowledgeID(documentID),
+-          identity,
+-          csrf: sessionCSRF,
+-          key: newKey(),
+-          payload: { input, body: JSON.stringify(input), ids },
+-          uncertain: false,
+-          keyConflict: false,
+-        }
+-        knowledgeDeleteIntent = original
+-        return performKnowledgeDelete(original)
+-      } catch (error) {
+-        return Promise.reject(error)
+-      }
+-    },
+-    checkOriginal() {
+-      if (!knowledgeDeleteIntent?.uncertain || !projectContext(knowledgeDeleteIntent))
+-        return Promise.reject(new AccountFailure('invalid-input'))
+-      return performKnowledgeDelete(knowledgeDeleteIntent, true)
+-    },
+-    retryOriginal() {
+-      if (!knowledgeDeleteIntent || !knowledgeDelete.progress?.canRetryOriginal)
+-        return Promise.reject(new AccountFailure('invalid-input'))
+-      return performKnowledgeDelete(knowledgeDeleteIntent)
+-    },
+-    editRejected() {
+-      if (
+-        owner ||
+-        !knowledgeDeleteIntent ||
+-        knowledgeDeleteIntent.uncertain ||
+-        knowledgeDeleteState.progress?.phase !== 'rejected' ||
+-        !projectContext(knowledgeDeleteIntent)
+-      )
+-        throw new AccountFailure('invalid-input')
+-      clearKnowledgeDelete()
+-    },
+-    abandon: clearKnowledgeDelete,
+-  }
+   function clearKnowledgeTextPayload(original: KnowledgeTextOriginal | null) {
+     if (original) {
+       original.payload.input = null
+@@ -7812,7 +7577,7 @@ export function createSessionController(
+     start(projectID: string, value: KnowledgeTextIntent) {
+       try {
+         const identity = personalIdentity()
+-        if (owner || knowledgeTextIntent || knowledgeIntent || knowledgeDeleteIntent || personalIntent || pending)
++        if (owner || knowledgeTextIntent || knowledgeIntent || personalIntent || pending)
+           throw new AccountFailure('busy')
+         const input = captureKnowledgeText(value)
+         const original: KnowledgeTextOriginal = {
+@@ -8665,7 +8430,6 @@ export function createSessionController(
+     projectSecretCommands,
+     projectUsage,
+     knowledge,
+-    knowledgeDelete,
+     knowledgeCommands,
+     knowledgeText,
+     projectModelSettings,

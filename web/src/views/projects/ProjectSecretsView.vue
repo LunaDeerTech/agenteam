@@ -2,6 +2,8 @@
 import { computed, nextTick, onBeforeUnmount, ref } from 'vue'
 import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
 import { UiButton, UiCard, UiState } from '../../components/ui'
+import ProjectSecretEditor from '../../components/projects/ProjectSecretEditor.vue'
+import { useProjectSecretEditor } from '../../composables/useProjectSecretEditor'
 import { useProjectSecrets } from '../../composables/useProjectSecrets'
 import { useProjectWorkspace } from '../../composables/useProjectWorkspace'
 import { skillsNavigationReadReady } from '../../router/auth'
@@ -10,13 +12,25 @@ const route = useRoute(),
   navigationReady = skillsNavigationReadReady(useRouter())
 const location = computed(() => (navigationReady.value ? route.fullPath : ''))
 const owner = useProjectSecrets(undefined, useProjectWorkspace(), location)
+const editor = useProjectSecretEditor(owner)
 const page = owner.page,
   detail = owner.detail
 const detailHeading = ref<HTMLElement | null>(null)
 let selectionTrigger: HTMLElement | null = null
+let editorTrigger: HTMLElement | null = null
+function openEditor(mode: 'create' | 'metadata' | 'replace', event: MouseEvent) {
+  editorTrigger = event.currentTarget as HTMLElement
+  editor.open(mode)
+}
+async function closeEditor() {
+  await nextTick()
+  if (editorTrigger?.isConnected) editorTrigger.focus()
+  editorTrigger = null
+}
 async function select(id: string, event: MouseEvent) {
   if (owner.blocked.value) return
   const trigger = event.currentTarget as HTMLElement
+  editor.close()
   selectionTrigger = trigger
   owner.select(id)
   await nextTick()
@@ -24,16 +38,26 @@ async function select(id: string, event: MouseEvent) {
     detailHeading.value?.focus()
 }
 async function closeDetail() {
+  editor.close()
   owner.closeDetail()
   await nextTick()
   if (selectionTrigger?.isConnected) selectionTrigger.focus()
   selectionTrigger = null
 }
-onBeforeRouteLeave(() => owner.cancel())
-onBeforeRouteUpdate((to, from) => {
-  if (to.fullPath !== from.fullPath) owner.cancel()
+onBeforeRouteLeave(() => {
+  editor.close()
+  owner.cancel()
 })
-onBeforeUnmount(() => owner.dispose())
+onBeforeRouteUpdate((to, from) => {
+  if (to.fullPath !== from.fullPath) {
+    editor.close()
+    owner.cancel()
+  }
+})
+onBeforeUnmount(() => {
+  editor.dispose()
+  owner.dispose()
+})
 </script>
 
 <template>
@@ -41,15 +65,35 @@ onBeforeUnmount(() => owner.dispose())
     <header class="secrets-header">
       <div>
         <h1>Secrets</h1>
-        <p>查看名称、描述和记录信息。Secret 的值不会显示。</p>
+        <p>管理名称、描述与 Secret 材料。已有值不会返回；输入的材料仅用于本次提交。</p>
       </div>
       <div class="secrets-actions">
+        <UiButton :disabled="!editor.canOpen.value" @click="openEditor('create', $event)"
+          >创建 Secret</UiButton
+        >
         <UiButton :disabled="owner.blocked.value" @click="owner.refresh()">重新读取目录</UiButton>
         <UiButton v-if="owner.reading.value" variant="ghost" @click="owner.cancel()"
           >停止读取</UiButton
         >
       </div>
     </header>
+    <ProjectSecretEditor :owner="editor" @close="closeEditor" />
+    <p v-if="editor.visible.value && editor.state.message" role="status">
+      {{ editor.state.message }}
+    </p>
+    <div
+      v-if="editor.visible.value && editor.progress.value?.phase === 'uncertain'"
+      class="secrets-recovery"
+    >
+      <p>原请求尚未确认。材料已清除；检查原请求不会再次提交材料。</p>
+      <UiButton :disabled="!editor.canLookup.value" @click="editor.lookup()">检查原请求</UiButton>
+    </div>
+    <div v-if="editor.visible.value && editor.progress.value?.phase === 'confirmed'">
+      <p>原请求已确认。请独立读取当前记录。</p>
+      <UiButton :disabled="editor.blocked.value" @click="editor.readConfirmed()"
+        >读取已确认的记录</UiButton
+      >
+    </div>
     <UiState v-if="!owner.visible.value" kind="loading" title="正在确认 Secrets 访问身份" />
     <UiState
       v-else-if="page.phase === 'waiting' || page.phase === 'loading'"
@@ -104,6 +148,14 @@ onBeforeUnmount(() => owner.dispose())
             :description="detail.message"
           />
           <template v-else-if="detail.value">
+            <div class="secrets-actions">
+              <UiButton :disabled="!editor.canOpen.value" @click="openEditor('metadata', $event)"
+                >编辑名称与描述</UiButton
+              >
+              <UiButton :disabled="!editor.canOpen.value" @click="openEditor('replace', $event)"
+                >替换 Secret 值</UiButton
+              >
+            </div>
             <p class="secret-description">{{ detail.value.description || '暂无描述' }}</p>
             <dl class="secret-facts">
               <div>
