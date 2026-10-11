@@ -1,4 +1,8 @@
-# Knowledge 全项目标题查找 UI
+# 主线已交能力与当前边界
+
+2026-10-11，本次在 main `1d41132a` 上组合 Object Runtime join 隔离安全修复。Sprint 与 Knowledge 标题查找及此前有限交付全部保留；Object 新候选 `5994c537` 的三次分段 wholePASS 已独立接受，技术依据为 `4807ac91`。旧中断历史、全部原 FAIL、永久停止的网络故障 probe，以及生产 initializer/ready/registry/Cleanup 的未绑定边界不改变。下列各片记录保留其原验收输入，不表示组合主线重新执行过全部测试；本次仅做内容并集与字节核对，root 负责 Git 集成。
+
+## Knowledge 全项目标题查找 UI
 
 2026-10-11，`/workspace/agenteam-knowledge-title-search-ui`，分支 `ai/knowledge-title-search-ui-20261011`。实现者 skills_milestone_review，独审 skill_package_review，root 独占 Git。产品固定f09827a8、真实方法9ec39517；[正式卡](../docs/development/work-items/d12-knowledge-title-search-ui.md)记录契约、证据与范围。最终5docs以main34ea0b1a为共享底，保已交Sprint/SecretAudit，等待root统一主线组合；产品/方法/dist保持冻结。
 
@@ -35,3 +39,19 @@ native01已有限whole独验接受：outer31234亲wait0/141.189s；Go1top1sub19.
 本次主线组合的15个Sprint产品/测试技术路径与已验 `cfc915e4` staged/working逐字相等；两原harness仅叠加 main `f688` 的Secret/Audit精确selector、3输入/2sub与TARGETS差额，双向反补丁证明均成立，记录在Sprint树 `output/ai/sprint-edit-ui/merge-main-final01/`。此为组合内容证明，不冒新main动态重跑。Knowledge标题查找已完成限定验收，后继范围见本记录首部；旧结果与停止项保留。
 
 本次Knowledge主线内容组合完成：client/Session与两harness四路径均有“main加原Knowledge补丁、反向移除、候选加原main补丁、反向移除”四路逐字证明，保Sprint/SecretAudit；另16技术路径逐字等99431258。shared helper逐字等实际运行候选且候选前基底等main，没有新组合分派，未重跑native。有效METADATA_INPUTS/TARGETS/METADATA_GROUPS精确并集和Python语法检查通过，证据在标题查找树 `output/ai/knowledge-title-search-ui/merge-main01/`。首版证明器因原Session重复上下文拒绝保留，后版在整文件目标约束下证明完整补丁并集；产品没有因此修改。等待root Git保存。
+
+## Object Runtime join 隔离安全修复有限交付
+
+2026-10-11，root 明确授权的新隔离任务，基线 main `f688738f`，树 `/workspace/agenteam-object-runtime-join-safe`，分支 `ai/object-runtime-join-safe-20261011`。runtime_recovery 为实施 owner，PG 专属测试由子作者 knowledge_text_fixture 编写，其余既授域由本人实施；variables_review 独立审查，root 独占 Git。
+
+范围、当前三文件合法 delta、50ms/10ms 原预算内策略及原四红安全方法见[新卡](../docs/development/work-items/d05-object-runtime-join-safe.md)。普通第二 Tx/work mutex/canary 和正式 Store 结果装饰是本片唯一受控手段；旧中断执行与全部原 FAIL 保留，旧网络故障 probe 永久不恢复。
+
+方法 `c6f9d299`、三生产初片 `45d25313`、Force owner 修复/纯控 `e299ba83`、首 PG top/profile `e2b7090f` 已保存。保留 `unit01` 原断言 FAIL 和 `force-close-repro01` 真实双红；`unit02` race5顶层17子例、Object 包 race/vet、两 cmd build、首集成 race-c/list 均实际0，原件在 `output/ai/object-runtime-join-safe/`，未启动业务二进制。
+
+首 `native01` 的普通第二Tx/同实例 Runtime 1顶层已有限 wholePASS，原四红保持且最终 flock 可重取。后继固定 `4807ac91` 保持三生产/纯控和首top正文不变，补齐余4新顶层10子例；`compile02` race-c/list实际0、1706输入前后不变，新/旧两组各绑定同一1707闭包及最终二进制。`native02` 新4顶层10子例及 `native03` 原7顶层10子例均已有限独立 wholePASS。三组原工具98235/54934/99665均由作者亲收0，各自Go/driver Wait、七资源14absence、desc/private/runtime/TCP双尾与输入不变齐；variables_review 已接受本卡限定修复，不称单次当前 HEAD 全绿。原命令、日志、限定和终态见新卡。
+
+三次 native 窗口均已完整释放，无本线自有后台或 cache writer；全部技术作者已停写。原两 harness 只增三个精确组，`checks/profile01.json`/`profile02.json` 证明旧全部有效映射、函数 AST、预算与尾不变。仅做本卡/current及 root 另授的 tasks 一处当前事实收口；tasks 以 main `1d41132a` 正文为底保留 Sprint/Knowledge 等全部已交记录，Git 保存/集成由 root 继续。
+
+生产 initializer/registry、Cleanup、ready=false/503、Artifact/Project 完整生命周期及其他 STOP 均保持；新候选不等于生产解禁。
+
+本次主线组合核对：五个产品/测试路径的 working 与 staged 均逐字等已验 `4807ac91`；两 harness 的 main加Object/反向移除、候选加main/反向移除四路补丁均以零 fuzz 得到精确整文件，全部有效映射为主线与Object三个精确组的并集，函数 AST 与主线及原540+60预算不变。证据在 `/workspace/agenteam-object-runtime-join-safe/output/ai/object-runtime-join-safe/merge-main01/`。只解决本 current 内容冲突，未写 Git，未重跑已有通过测试。

@@ -65,37 +65,44 @@ type writer struct {
 }
 type cleanupRequest struct{ cancel context.CancelFunc }
 type serviceState struct {
-	accessIssuer                 oc.AccessIssuer
-	accessMu                     sync.Mutex
-	accessTransactions           map[foundation.Tx]bool
-	metadataTransactions         map[foundation.Tx]bool
-	store                        Store
-	backend                      *Backend
-	transferBackend              *Backend
-	runtime                      *Runtime
-	runtimeReady                 bool
-	spool                        *Spool
-	audit                        ac.Appender
-	auth                         Authorizations
-	registration                 identity.ServiceRegistration
-	process                      oc.ProcessID
-	mu                           sync.Mutex
-	initialized, stopped, forced bool
-	drained                      bool
-	operations                   map[*operation]bool
-	prepared                     map[oc.PayloadID]*preparation
-	writers                      map[oc.AttemptID]*writer
-	closedAttempts               map[oc.AttemptID]bool
-	closedLeases                 map[oc.LeaseID]oc.ObjectID
-	changed                      chan struct{}
-	forceContext                 context.Context
-	cleanupRequests              map[*cleanupRequest]bool
-	workerStop                   chan struct{}
-	workerOnce                   sync.Once
-	workerDone                   chan struct{}
-	maintenance                  MaintenanceStatus
-	projectWork                  map[string]*projectWorkHandle
-	transfers                    *TransferService
+	accessIssuer                   oc.AccessIssuer
+	accessMu                       sync.Mutex
+	accessTransactions             map[foundation.Tx]bool
+	metadataTransactions           map[foundation.Tx]bool
+	store                          Store
+	backend                        *Backend
+	transferBackend                *Backend
+	runtime                        *Runtime
+	runtimeReady                   bool
+	spool                          *Spool
+	audit                          ac.Appender
+	auth                           Authorizations
+	registration                   identity.ServiceRegistration
+	process                        oc.ProcessID
+	mu                             sync.Mutex
+	initialized, stopped, forced   bool
+	drained                        bool
+	drainClosing, drainClosed      bool
+	drainCloseDone                 chan struct{}
+	backendClosing, backendsClosed bool
+	backendCloseDone               chan struct{}
+	operations                     map[*operation]bool
+	prepared                       map[oc.PayloadID]*preparation
+	writers                        map[oc.AttemptID]*writer
+	closedAttempts                 map[oc.AttemptID]bool
+	closedLeases                   map[oc.LeaseID]oc.ObjectID
+	changed                        chan struct{}
+	forceContext                   context.Context
+	cleanupRequests                map[*cleanupRequest]bool
+	workerStop                     chan struct{}
+	workerOnce                     sync.Once
+	workerDone                     chan struct{}
+	maintenance                    MaintenanceStatus
+	projectWork                    map[string]*projectWorkHandle
+	projectWriters                 map[*projectWorkWriter]bool
+	projectJoins                   map[string]*projectWorkHandle
+	joinCursor                     string
+	transfers                      *TransferService
 }
 type Service struct{ data func() *serviceState }
 
@@ -119,6 +126,8 @@ func New(store Store, backend *Backend, spool *Spool, audit ac.Appender, auth Au
 	state.accessTransactions = make(map[foundation.Tx]bool)
 	state.metadataTransactions = make(map[foundation.Tx]bool)
 	state.projectWork = make(map[string]*projectWorkHandle)
+	state.projectWriters = make(map[*projectWorkWriter]bool)
+	state.projectJoins = make(map[string]*projectWorkHandle)
 	return &Service{func() *serviceState { return state }}, nil
 }
 func (s *Service) state() *serviceState        { return s.data() }
@@ -185,30 +194,95 @@ func (s *Service) StopAdmission() {
 func (s *Service) Drain(ctx context.Context) error {
 	r := s.state()
 	for {
-		r.mu.Lock()
-		n, ch := len(r.operations)+len(r.cleanupRequests), r.changed
-		if r.maintenance.Running {
-			n++
+		if err := ctx.Err(); err != nil {
+			return unavailable(err)
 		}
-		if n == 0 {
+		r.mu.Lock()
+		if r.drainClosed {
+			r.mu.Unlock()
+			return nil
+		}
+		if r.drainClosing {
+			done := r.drainCloseDone
+			r.mu.Unlock()
+			select {
+			case <-ctx.Done():
+				return unavailable(ctx.Err())
+			case <-done:
+				continue
+			}
+		}
+		if r.workJoinedLocked() {
 			// Fence technical cleanup admission under the same mutex as its
 			// registration. Once drain succeeds, a late Cancel keeps its durable
 			// checkpoint instead of starting work behind the closed service.
 			r.drained = true
+			r.drainClosing = true
+			r.drainCloseDone = make(chan struct{})
 			r.mu.Unlock()
-			_ = r.backend.Close()
-			if r.transferBackend != nil {
-				_ = r.transferBackend.Close()
+			err := s.closeBackends(ctx)
+			if err == nil {
+				err = r.spool.Close()
 			}
-			return r.spool.Close()
+			r.mu.Lock()
+			r.drainClosing = false
+			r.drainClosed = err == nil
+			close(r.drainCloseDone)
+			r.notifyWorkLocked()
+			r.mu.Unlock()
+			return err
 		}
+		handles := r.pendingProjectWorkLocked()
 		r.mu.Unlock()
+		progress := false
+		for _, h := range handles {
+			if ctx.Err() != nil {
+				return unavailable(ctx.Err())
+			}
+			r.mu.Lock()
+			r.joinCursor = h.work.id
+			r.mu.Unlock()
+			attempt, cancel := context.WithTimeout(ctx, 50*time.Millisecond)
+			err := s.joinProjectWork(attempt, h)
+			cancel()
+			progress = progress || err == nil
+		}
+		r.mu.Lock()
+		ready, ch := r.workJoinedLocked(), r.changed
+		r.mu.Unlock()
+		if ready || progress {
+			continue
+		}
+		var retry <-chan time.Time
+		var timer *time.Timer
+		if len(handles) != 0 {
+			timer = time.NewTimer(10 * time.Millisecond)
+			retry = timer.C
+		}
 		select {
 		case <-ctx.Done():
+			if timer != nil {
+				timer.Stop()
+			}
 			return unavailable(ctx.Err())
 		case <-ch:
+		case <-retry:
+		}
+		if timer != nil {
+			timer.Stop()
 		}
 	}
+}
+
+// Both Service and its ProcessGuard use this predicate while holding mu.
+func (r *serviceState) workJoinedLocked() bool {
+	return len(r.operations) == 0 && len(r.cleanupRequests) == 0 && !r.maintenance.Running && !r.backendClosing &&
+		len(r.projectWork) == 0 && len(r.projectWriters) == 0 && len(r.projectJoins) == 0
+}
+
+func (r *serviceState) notifyWorkLocked() {
+	close(r.changed)
+	r.changed = make(chan struct{})
 }
 func (s *Service) Force(ctx context.Context) error {
 	s.StopAdmission()
@@ -231,11 +305,47 @@ func (s *Service) Force(ctx context.Context) error {
 	for _, op := range operations {
 		op.cancel()
 	}
-	_ = r.backend.Close()
-	if r.transferBackend != nil {
-		_ = r.transferBackend.Close()
+	if err := s.closeBackends(ctx); err != nil {
+		return err
 	}
 	return s.Drain(ctx)
+}
+
+// Force must interrupt existing I/O promptly, but its actual Close calls are
+// also part of the exit barrier. Another Close is not a join of those calls.
+func (s *Service) closeBackends(ctx context.Context) error {
+	r := s.state()
+	for {
+		r.mu.Lock()
+		if r.backendsClosed {
+			r.mu.Unlock()
+			return nil
+		}
+		if r.backendClosing {
+			done := r.backendCloseDone
+			r.mu.Unlock()
+			select {
+			case <-ctx.Done():
+				return unavailable(ctx.Err())
+			case <-done:
+				continue
+			}
+		}
+		r.backendClosing = true
+		r.backendCloseDone = make(chan struct{})
+		r.notifyWorkLocked()
+		r.mu.Unlock()
+		_ = r.backend.Close()
+		if r.transferBackend != nil {
+			_ = r.transferBackend.Close()
+		}
+		r.mu.Lock()
+		r.backendClosing, r.backendsClosed = false, true
+		close(r.backendCloseDone)
+		r.notifyWorkLocked()
+		r.mu.Unlock()
+		return nil
+	}
 }
 func (s *Service) cleanupContext() (context.Context, context.CancelFunc) {
 	r := s.state()

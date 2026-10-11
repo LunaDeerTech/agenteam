@@ -44,6 +44,8 @@ type processState struct {
 	device, inode uint64
 	service       *Service
 	bound, closed bool
+	finishDone    chan struct{}
+	closeErr      error
 }
 
 // ProcessGuard holds an exact per-instance flock. A PID, an elapsed interval
@@ -406,26 +408,58 @@ func openVerifiedProcessClaim(root *os.Root, c processClaim, dev, ino uint64) (*
 }
 func (g *ProcessGuard) finish(ctx context.Context) error {
 	r := g.state()
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	if r.closed {
-		return nil
+	for {
+		if err := ctx.Err(); err != nil {
+			return unavailable(err)
+		}
+		r.mu.Lock()
+		if r.closed {
+			err := r.closeErr
+			r.mu.Unlock()
+			return err
+		}
+		if done := r.finishDone; done != nil {
+			r.mu.Unlock()
+			select {
+			case <-ctx.Done():
+				return unavailable(ctx.Err())
+			case <-done:
+				continue
+			}
+		}
+		r.finishDone = make(chan struct{})
+		r.mu.Unlock()
+		err := g.finishOwned(ctx)
+		r.mu.Lock()
+		close(r.finishDone)
+		r.finishDone = nil
+		r.mu.Unlock()
+		return err
 	}
-	if r.service != nil {
-		s := r.service.state()
+}
+
+// Exactly one caller owns the original stop transaction and actual file
+// closes. Waiters never hold this mutex across that caller's I/O.
+func (g *ProcessGuard) finishOwned(ctx context.Context) error {
+	r := g.state()
+	r.mu.Lock()
+	service, bound := r.service, r.bound
+	r.mu.Unlock()
+	if service != nil {
+		s := service.state()
 		s.mu.Lock()
-		joined := s.drained && len(s.operations) == 0 && len(s.cleanupRequests) == 0 && !s.maintenance.Running
+		joined := s.drained && s.drainClosed && s.workJoinedLocked()
 		s.mu.Unlock()
 		if !joined {
 			return failure(foundation.ResourceBusy, nil)
 		}
-		if r.bound {
+		if bound {
 			key, _ := foundation.SystemConfigLock("object-process-" + r.process.String())
 			result := s.store.WithinTx(ctx, recoveryCause(), func(ctx context.Context, tx foundation.Tx) error {
 				if err := s.store.AcquireAll(ctx, tx, []foundation.LockRequest{{Key: key, Mode: foundation.Exclusive}}); err != nil {
 					return unavailable(err)
 				}
-				e, err := executor(r.service, tx)
+				e, err := executor(service, tx)
 				if err != nil {
 					return err
 				}
@@ -444,12 +478,15 @@ func (g *ProcessGuard) finish(ctx context.Context) error {
 			}
 		}
 	}
-	r.closed = true
 	err := r.file.Close()
 	rootErr := r.root.Close()
 	if err == nil {
 		err = rootErr
 	}
+	r.mu.Lock()
+	r.closed = true
+	r.closeErr = unavailableIf(err)
+	r.mu.Unlock()
 	return unavailableIf(err)
 }
 
@@ -462,6 +499,9 @@ func (g *ProcessGuard) Close() error {
 	r := g.state()
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if r.finishDone != nil {
+		return failure(foundation.ResourceBusy, nil)
+	}
 	if r.closed {
 		return nil
 	}

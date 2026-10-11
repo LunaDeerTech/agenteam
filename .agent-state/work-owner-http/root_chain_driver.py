@@ -18,6 +18,24 @@ MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 # One closed same-package PG family: adding a scenario changes required
 # inputs and expected test data, never the resource/Wait/tail implementation.
 METADATA_INPUTS = {
+    '^TestObjectRuntimeJoin(ConcurrentDrainAndForceBudget|FirstReadWriterBeforeRegistration|ConfirmationFailureRetainsOwnership|ReadyWorkMakesProgress)$': (
+        'tests/objects/runtime_join_test.go',
+        'tests/objects/runtime_test.go',
+        'tests/objects/common_test.go',
+    ),
+    '^TestObject(RuntimeForceJoinsMainAndTransferIOInOneBudget|RuntimeRecoveryCleanupKeepsStartupAndWorkerBudget|RuntimeBusyDoesNotMaskLaterRecoveryFailure|RuntimeMetadataGateUntilActualProbeAndRecovery|ProjectStopDeleteWaitsForActualIO|ProjectStopCleanupWaitsForActualIOAndCallbacks|CancelProtectsActualSourceUntilJoined)$': (
+        'tests/objects/runtime_shutdown_test.go',
+        'tests/objects/runtime_recovery_test.go',
+        'tests/objects/project_stop_io_test.go',
+        'tests/objects/read_cleanup_test.go',
+        'tests/objects/runtime_test.go',
+        'tests/objects/common_test.go',
+    ),
+    '^TestObjectProjectWorkPendingJoinKeepsRuntimeGuard$': (
+        'tests/objects/runtime_join_test.go',
+        'tests/objects/runtime_test.go',
+        'tests/objects/common_test.go',
+    ),
     '^TestProjectDomainBarrierParticipants$': (
         'tests/project/domain_barrier_participants_test.go',
         'tests/project/b03_secret_audit_fixture_test.go',
@@ -251,6 +269,9 @@ METADATA_INPUTS = {
 }
 TARGETS = {
     **dict.fromkeys(METADATA_INPUTS, 'tests/projectvariable'),
+    '^TestObjectRuntimeJoin(ConcurrentDrainAndForceBudget|FirstReadWriterBeforeRegistration|ConfirmationFailureRetainsOwnership|ReadyWorkMakesProgress)$': 'tests/objects',
+    '^TestObject(RuntimeForceJoinsMainAndTransferIOInOneBudget|RuntimeRecoveryCleanupKeepsStartupAndWorkerBudget|RuntimeBusyDoesNotMaskLaterRecoveryFailure|RuntimeMetadataGateUntilActualProbeAndRecovery|ProjectStopDeleteWaitsForActualIO|ProjectStopCleanupWaitsForActualIOAndCallbacks|CancelProtectsActualSourceUntilJoined)$': 'tests/objects',
+    '^TestObjectProjectWorkPendingJoinKeepsRuntimeGuard$': 'tests/objects',
     '^TestProjectDomainBarrierParticipants$': 'tests/project',
     '^TestProjectSchedulerWeb$': 'internal/central/app',
     '^TestSkillPackageWeb$': 'internal/central/app',

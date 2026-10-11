@@ -111,7 +111,7 @@ D08–D28 各模块仍有未完成范围，E01 未开始；首个未完成模块
 
 | 停止项 | 当前边界 | 恢复所需条件 |
 | --- | --- | --- |
-| Object runtime join | [已复现退出屏障缺陷](object-runtime-join-regression.md)；[修复卡](../work-items/recovery-object-runtime-join.md)原实施停止，缺陷未修，Artifact最终共享guard/Project组合受阻。 | 保持原停止，不自动改派或重试；明确恢复范围后按正式修复契约补实现和独立验证。 |
+| Object runtime join | [旧退出屏障失败](object-runtime-join-regression.md)与[旧中断卡](../work-items/recovery-object-runtime-join.md)保留；[新隔离安全修复候选](../work-items/d05-object-runtime-join-safe.md)已实现共同退出、首次 writer/确认 owner 与有界推进，新增5顶层10子例和原7项回归分别实际 wholePASS，三次分段证据与限定修复已独立接受。 | 旧 FAIL 不回写，原网络故障 probe 永久 STOP；生产 initializer/ready/registry/Cleanup 与 Artifact/Project 完整组合仍不开放，本结果不证明真实 foreign process 死亡或完整生产绑定。 |
 | OpenAI Chat tools 独立验收 | [有限验证记录](openai-chat-tools-wire-verification.md)：作者结果与候选保存，独立真实 A/B NOT RUN/BLOCKED，产品未接受。 | 保持受阻任务停止；不能由作者自测、离线编译或重建driver替代独立动态结果。 |
 | Central SPA concurrent-publication | [SPA卡](../work-items/d28-central-spa-hosting.md)与[规格记录](system-central-spa-hosting-spec-verification.md)保留脚本原失败与阶段边界；并发发布验证停止，生产托管未接受。 | 文档/环境恢复不解停，不以私有 Vite build 或测试资产替代生产发布验收。 |
 | Jina rerank 来源 | [来源准备](jina-rerank-frontier-2026-10-08.md)：五次请求失败，未取得有效官方字段正文、固定版本与许可。 | 后续只有明确恢复来源工作并取得可用资料后才冻结协议实施；不推测字段或绕换通道重试。 |

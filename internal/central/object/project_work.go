@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"sort"
 	"strings"
 	"sync"
 
@@ -28,13 +29,101 @@ type projectWork struct {
 }
 
 type projectWorkHandle struct {
-	work              projectWork
-	operation         *operation
-	locks             []foundation.LockRequest
-	origin            foundation.Tx
-	registered, ended bool
-	cancel            context.CancelFunc
-	stop              func(context.Context) error
+	work                              projectWork
+	operation                         *operation
+	locks                             []foundation.LockRequest
+	origin                            foundation.Tx
+	registered, ended                 bool
+	cancel                            context.CancelFunc
+	stop                              func(context.Context) error
+	joining, joinPending, joinRetired bool
+	joinOrigin                        foundation.Tx
+	joinLocks                         []foundation.LockRequest
+}
+
+// A first writer is owned before AcquireAll, even if no durable work row is
+// reached. Returned is separate from Tx validity and from the public outcome.
+type projectWorkWriter struct {
+	handle   *projectWorkHandle
+	origin   foundation.Tx
+	locks    []foundation.LockRequest
+	returned bool
+}
+
+func (r *serviceState) pendingProjectWorkLocked() []*projectWorkHandle {
+	byID := make(map[string]*projectWorkHandle)
+	for id, h := range r.projectWork {
+		if h.ended {
+			byID[id] = h
+		}
+	}
+	for w := range r.projectWriters {
+		if w.handle.ended {
+			byID[w.handle.work.id] = w.handle
+		}
+	}
+	for id, h := range r.projectJoins {
+		if h.ended {
+			byID[id] = h
+		}
+	}
+	ids := make([]string, 0, len(byID))
+	for id := range byID {
+		ids = append(ids, id)
+	}
+	sort.Strings(ids)
+	start := sort.Search(len(ids), func(i int) bool { return ids[i] > r.joinCursor })
+	result := make([]*projectWorkHandle, 0, len(ids))
+	for i := 0; i < len(ids); i++ {
+		result = append(result, byID[ids[(start+i)%len(ids)]])
+	}
+	return result
+}
+
+func (s *Service) captureProjectWriter(tx foundation.Tx, h *projectWorkHandle, plan oc.AccessLockPlan, extra []foundation.LockRequest) (*projectWorkWriter, error) {
+	if h == nil {
+		return nil, nil
+	}
+	r := s.state()
+	// The same immutable plan union that AcquireAccessPlansInTx will use.
+	locked, err := oc.NewLockedAccess(r.accessIssuer, tx, []oc.AccessLockPlan{plan}, extra)
+	if err != nil {
+		return nil, invalid()
+	}
+	w := &projectWorkWriter{handle: h, origin: tx, locks: locked.Locks()}
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.drained || h.ended || h.joining {
+		return nil, failure(foundation.ShuttingDown, nil)
+	}
+	if prior := r.projectWork[h.work.id]; prior != nil && prior != h {
+		return nil, invalid()
+	}
+	for prior := range r.projectWriters {
+		if prior.handle.work.id == h.work.id && prior.handle != h {
+			return nil, invalid()
+		}
+	}
+	if r.projectWriters == nil {
+		r.projectWriters = make(map[*projectWorkWriter]bool)
+	}
+	r.projectWriters[w] = true
+	r.notifyWorkLocked()
+	return w, nil
+}
+
+func (s *Service) returnedProjectWriter(w *projectWorkWriter, result foundation.CommitResult) {
+	if w == nil {
+		return
+	}
+	r := s.state()
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	w.returned = true
+	if result.State() == foundation.Committed {
+		delete(r.projectWriters, w)
+	}
+	r.notifyWorkLocked()
 }
 
 func newWorkIdentity() (string, error) {
@@ -222,7 +311,12 @@ func (s *Service) admitProjectWork(ctx context.Context, actor identity.Actor, ow
 	if h != nil {
 		extra = append(extra, workLock(h.work.id))
 	}
+	var writer *projectWorkWriter
 	result := s.state().store.WithinTx(ctx, recoveryCause(), func(ctx context.Context, tx foundation.Tx) error {
+		writer, err = s.captureProjectWriter(tx, h, plan, extra)
+		if err != nil {
+			return err
+		}
 		locked, err := s.AcquireAccessPlansInTx(ctx, tx, []oc.AccessLockPlan{plan}, extra)
 		if err != nil {
 			return err
@@ -242,6 +336,7 @@ func (s *Service) admitProjectWork(ctx context.Context, actor identity.Actor, ow
 		}
 		return s.registerProjectWork(ctx, tx, h, locked.Locks())
 	})
+	s.returnedProjectWriter(writer, result)
 	return commitError(result)
 }
 
@@ -292,22 +387,83 @@ func (s *Service) projectWorkLocks(ctx context.Context, e postgres.SQLExecutor, 
 }
 
 func (s *Service) joinProjectWork(ctx context.Context, h *projectWorkHandle) error {
+	if h == nil {
+		return nil
+	}
 	r := s.state()
 	r.mu.Lock()
-	w, ended, origin := h.work, h.ended, h.origin
-	captured := append([]foundation.LockRequest(nil), h.locks...)
-	r.mu.Unlock()
-	if !ended {
+	if h.joinRetired {
+		r.mu.Unlock()
+		return nil
+	}
+	if !h.ended || h.joining {
+		r.mu.Unlock()
 		return failure(foundation.ResourceBusy, nil)
 	}
-	if _, err := r.store.InTx(origin); err == nil {
+	if prior := r.projectJoins[h.work.id]; prior != nil && prior != h {
+		r.mu.Unlock()
 		return failure(foundation.ResourceBusy, nil)
+	}
+	if prior := r.projectWork[h.work.id]; prior != nil && prior != h {
+		r.mu.Unlock()
+		return failure(foundation.ResourceBusy, nil)
+	}
+	w, registered := h.work, h.registered
+	origins := []foundation.Tx{h.origin, h.joinOrigin}
+	captured := append(append([]foundation.LockRequest(nil), h.locks...), h.joinLocks...)
+	for writer := range r.projectWriters {
+		if writer.handle != h {
+			continue
+		}
+		if !writer.returned {
+			r.mu.Unlock()
+			return failure(foundation.ResourceBusy, nil)
+		}
+		origins = append(origins, writer.origin)
+		captured = append(captured, writer.locks...)
+	}
+	if r.projectJoins == nil {
+		r.projectJoins = make(map[string]*projectWorkHandle)
+	}
+	r.projectJoins[w.id] = h
+	h.joining = true
+	r.notifyWorkLocked()
+	r.mu.Unlock()
+	confirmed := false
+	defer func() {
+		r.mu.Lock()
+		defer r.mu.Unlock()
+		h.joining = false
+		if confirmed {
+			if r.projectWork[w.id] == h {
+				delete(r.projectWork, w.id)
+			}
+			for writer := range r.projectWriters {
+				if writer.handle == h {
+					delete(r.projectWriters, writer)
+				}
+			}
+			h.joinPending, h.joinRetired = false, true
+		}
+		if !h.joinPending && r.projectJoins[w.id] == h {
+			delete(r.projectJoins, w.id)
+		}
+		r.notifyWorkLocked()
+	}()
+	for _, origin := range origins {
+		if _, err := r.store.InTx(origin); err == nil {
+			return failure(foundation.ResourceBusy, nil)
+		}
 	}
 	locks, err := s.projectWorkLocks(ctx, r.store, w, captured)
 	if err != nil {
 		return err
 	}
 	result := r.store.WithinTx(ctx, recoveryCause(), func(ctx context.Context, tx foundation.Tx) error {
+		r.mu.Lock()
+		h.joinPending, h.joinOrigin = true, tx
+		h.joinLocks = append([]foundation.LockRequest(nil), locks...)
+		r.mu.Unlock()
 		if err := r.store.AcquireAll(ctx, tx, locks); err != nil {
 			return unavailable(err)
 		}
@@ -322,7 +478,7 @@ func (s *Service) joinProjectWork(ctx context.Context, h *projectWorkHandle) err
 		if actual == nil {
 			return nil
 		} // Serialized absence of the original admission.
-		if !workIdentityEqual(w, *actual) {
+		if !registered || !workIdentityEqual(w, *actual) {
 			return failure(foundation.InvalidState, nil)
 		}
 		_, err = x.Exec(ctx, `UPDATE agenteam_object.project_work SET joined_at=COALESCE(joined_at,clock_timestamp()) WHERE id=$1`, w.id)
@@ -331,11 +487,7 @@ func (s *Service) joinProjectWork(ctx context.Context, h *projectWorkHandle) err
 	if err = commitError(result); err != nil {
 		return err
 	}
-	r.mu.Lock()
-	if r.projectWork[w.id] == h {
-		delete(r.projectWork, w.id)
-	}
-	r.mu.Unlock()
+	confirmed = true
 	return nil
 }
 
@@ -357,6 +509,7 @@ func (s *Service) finishProjectWorkContext(ctx context.Context, h *projectWorkHa
 	r := s.state()
 	r.mu.Lock()
 	h.ended = true
+	r.notifyWorkLocked()
 	r.mu.Unlock()
 	if ctx.Err() != nil {
 		return
@@ -374,6 +527,14 @@ func (s *Service) finishOperationWork(op *operation) {
 			handles = append(handles, h)
 		}
 	}
+	for writer := range r.projectWriters {
+		h := writer.handle
+		if h.operation == op && !h.ended {
+			h.ended = true
+			handles = append(handles, h)
+		}
+	}
+	r.notifyWorkLocked()
 	r.mu.Unlock()
 	if len(handles) == 0 {
 		return
@@ -432,7 +593,12 @@ func (s *Service) withinProjectWork(ctx context.Context, request oc.AccessReques
 	if h != nil {
 		extra = append(extra, workLock(h.work.id))
 	}
-	return s.state().store.WithinTx(ctx, recoveryCause(), func(ctx context.Context, tx foundation.Tx) error {
+	var writer *projectWorkWriter
+	result := s.state().store.WithinTx(ctx, recoveryCause(), func(ctx context.Context, tx foundation.Tx) error {
+		writer, err = s.captureProjectWriter(tx, h, plan, extra)
+		if err != nil {
+			return err
+		}
 		locked, err := s.AcquireAccessPlansInTx(ctx, tx, []oc.AccessLockPlan{plan}, extra)
 		if err != nil {
 			return err
@@ -445,6 +611,8 @@ func (s *Service) withinProjectWork(ctx context.Context, request oc.AccessReques
 		}
 		return s.registerProjectWork(ctx, tx, h, locked.Locks())
 	})
+	s.returnedProjectWriter(writer, result)
+	return result
 }
 
 // Revocation belongs to the original native identity and survives Restore.
@@ -710,7 +878,7 @@ func (s *Service) recoverProjectWork(ctx context.Context, failures *recoveryFail
 			failures.remember(portError(err))
 			continue
 		}
-		h = &projectWorkHandle{work: *w, ended: true}
+		h = &projectWorkHandle{work: *w, registered: true, ended: true}
 		failures.remember(s.joinProjectWork(ctx, h))
 	}
 }
