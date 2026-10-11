@@ -1,0 +1,14 @@
+diff --git a/tests/projectvariable/execution_mount_first_round_test.go b/tests/projectvariable/execution_mount_first_round_test.go
+index d293ab76..267b307e 100644
+--- a/tests/projectvariable/execution_mount_first_round_test.go
++++ b/tests/projectvariable/execution_mount_first_round_test.go
+@@ -308,6 +308,9 @@ func TestExecutionMountFirstRound(t *testing.T) {
+ 		receipt, err := v.driver.Start(ctxFor(t), v.x.capture.created.ID)
+ 		firstRoundRequire(t, err)
+ 		v.x.requireTerminal(t, v.captured, receipt, ec.Succeeded)
++		if !v.driver.Joined() {
++			t.Fatal("original successful Execution did not join before historical replay")
++		}
+ 		before, err := v.facts(ctxFor(t), v.x.capture.v.base.raw, true)
+ 		firstRoundRequire(t, err)
+ 		v.requireProjection(t, true)

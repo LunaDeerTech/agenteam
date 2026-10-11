@@ -1,0 +1,235 @@
+--- /dev/null
++++ b/output/ai/execution-mount-directtext/checks/run-pure.py
+@@ -0,0 +1,33 @@
++import hashlib,json,os,pathlib,subprocess,time
++root=pathlib.Path.cwd()
++out=root/'output/ai/execution-mount-directtext/checks'
++go='/workspace/toolchains/go1.27.1/bin/go'
++selector='^(TestExecutionMount(Use|Retirement).*|TestDirectTextMountProjection|TestDirectTextRequest.*|TestExecutionDirectTextMount.*|TestExecutionDirectTextRejectsUnboundAndForeignOwners|TestExecutionDirectTextCodecsKeepExactIdentityAndSafeOutput)$'
++packages=['./internal/central/mount/contract','./internal/central/mount','./internal/central/agentloop','./internal/central/execution']
++env=os.environ.copy()
++fixed={'GOTOOLCHAIN':'local','GOENV':'off','GOWORK':'off','GOPROXY':'off','GOSUMDB':'off','GOTELEMETRY':'off','GOMAXPROCS':'1','CGO_ENABLED':'1','GOFLAGS':'-mod=readonly -p=1','GOCACHE':'/workspace/agenteam-skill-package-http/output/ai/skill-package-http/go-build','GOMODCACHE':'/workspace/agenteam-skills-milestone-resume/output/ai/skills-milestone-resume/go-mod'}
++env.update(fixed)
++paths=['go.mod','go.sum','internal/central/app/execution_runtime.go','db/migrations/00062_execution_mount_use.sql']
++for folder in ['internal/central/mount','internal/central/execution','internal/central/agentloop']:
++ paths += [str(p.relative_to(root)) for p in (root/folder).rglob('*.go')]
++paths=sorted(set(paths))
++def hashes():return {p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in paths}
++def run(name,args):
++ before=hashes()
++ command=[go,*args]
++ inv={'command':command,'cwd':str(root),'source_checkpoint':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'environment':fixed,'scope':'four directly affected package sources + new app injection/migration; PG new test excluded','inputs':before}
++ (out/(name+'-invocation.json')).write_text(json.dumps(inv,indent=2)+'\n')
++ start=time.monotonic()
++ with (out/(name+'.log')).open('wb') as log:
++  p=subprocess.Popen(command,cwd=root,env=env,stdout=log,stderr=subprocess.STDOUT)
++  (out/(name+'-process.json')).write_text(json.dumps({'pid':p.pid,'command':command})+'\n')
++  print(json.dumps({'started':name,'pid':p.pid}),flush=True)
++  rc=p.wait()
++ after=hashes()
++ result={'pid':p.pid,'actual_process_exit':rc,'elapsed_seconds':round(time.monotonic()-start,3),'inputs_unchanged':before==after,'after':after}
++ (out/(name+'-result.json')).write_text(json.dumps(result,indent=2)+'\n')
++ print(json.dumps({k:v for k,v in result.items() if k!='after'}),flush=True)
++ return rc if before==after else 99
++rc=run('unit01',['test','-race','-count=1','-v','-timeout=90s','-run',selector,*packages])
++if rc==0:rc=run('app01',['test','-race','-count=1','-timeout=90s','-run','^$','./internal/central/app'])
++raise SystemExit(rc)
+--- /dev/null
++++ b/output/ai/execution-mount-directtext/compile03/run-compile.py
+@@ -0,0 +1,34 @@
++import hashlib,importlib.util,json,os,pathlib,subprocess,time
++root=pathlib.Path.cwd(); output=root/'output/ai/execution-mount-directtext'; directory=output/'compile03'; checks=output/'checks'
++selector='^TestExecutionMountFirstRound$'
++spec=importlib.util.spec_from_file_location('driver',root/'.agent-state/work-owner-http/root_chain_driver.py'); driver=importlib.util.module_from_spec(spec); spec.loader.exec_module(driver)
++# Original harness closure, with an existing module input occupying the
++# not-yet-built binary slot. The new binary is appended only after real Wait0.
++inputs=driver.metadata_inputs(root/'go.mod',selector)
++def hashes():return {str(p):driver.sha(p) for p in inputs}
++def save(p,v):p.write_text(json.dumps(v,indent=2,sort_keys=True)+'\n')
++binary=directory/'projectvariable.test'
++env=os.environ.copy(); fixed={'GOTOOLCHAIN':'local','GOENV':'off','GOWORK':'off','GOPROXY':'off','GOSUMDB':'off','GOTELEMETRY':'off','GOMAXPROCS':'1','CGO_ENABLED':'1','GOFLAGS':'-mod=readonly -p=1','GOCACHE':'/workspace/agenteam-skill-package-http/output/ai/skill-package-http/go-build','GOMODCACHE':'/workspace/agenteam-skills-milestone-resume/output/ai/skills-milestone-resume/go-mod','PATH':'/workspace/toolchains/go1.27.1/bin:/usr/local/bin:/usr/bin:/bin','PYTHONDONTWRITEBYTECODE':'1'}
++for key,name in [('GOTMPDIR','go-tmp'),('TMPDIR','tmp'),('XDG_CONFIG_HOME','go-config')]:
++ p=directory/name;p.mkdir(exist_ok=False);fixed[key]=str(p)
++env.update(fixed)
++before=hashes();save(directory/'inputs-before.json',before)
++def run(name,args):
++ save(checks/(name+'-invocation.json'),{'argv':args,'cwd':str(root),'environment':fixed,'source_checkpoint':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'input_count':len(before),'scope':'original frozen metadata_inputs closure; real compile/list only'})
++ start=time.monotonic()
++ with (checks/(name+'.log')).open('xb') as log:
++  p=subprocess.Popen(args,cwd=root,env=env,stdout=log,stderr=subprocess.STDOUT)
++  print(json.dumps({'started':name,'pid':p.pid}),flush=True)
++  code=p.wait()
++ result={'pid':p.pid,'actual_process_exit':code,'elapsed_seconds':round(time.monotonic()-start,3)}
++ save(checks/(name+'-result.json'),result);print(json.dumps(result),flush=True)
++ return code
++rc=run('compile03',['/workspace/toolchains/go1.27.1/bin/go','test','-race','-tags=integration','-c','-p=1','-o',str(binary),'./tests/projectvariable'])
++after=hashes();save(directory/'inputs-after.json',after)
++if before!=after:raise SystemExit(99)
++if rc:raise SystemExit(rc)
++rc=run('list03',[str(binary),'-test.list',selector])
++if rc:raise SystemExit(rc)
++runtime={str(p):driver.sha(p) for p in driver.metadata_inputs(binary,selector)}
++save(directory/'runtime-input-hashes.json',runtime)
++print(json.dumps({'inputs_unchanged':before==after,'compile_inputs':len(before),'runtime_inputs':len(runtime),'binary_sha256':driver.sha(binary),'binary_bytes':binary.stat().st_size}),flush=True)
+--- /dev/null
++++ b/output/ai/execution-mount-directtext/native03/record-native.py
+@@ -0,0 +1,62 @@
++#!/usr/bin/python3
++"""Record one authorized original supervisor invocation; no cleanup or gate."""
++import hashlib
++import json
++import os
++from pathlib import Path
++import subprocess
++import time
++
++
++def digest(path):
++    with path.open('rb') as stream:
++        return hashlib.file_digest(stream, 'sha256').hexdigest()
++
++
++def save(path, value):
++    with path.open('x') as stream:
++        json.dump(value, stream, indent=2, sort_keys=True)
++        stream.write('\n')
++
++
++def main():
++    directory = Path(__file__).resolve().parent
++    identity = json.loads((directory / 'recorder-identity.json').read_text())
++    for name, expected in identity['sha256'].items():
++        if digest(directory / name) != expected:
++            raise ValueError('frozen recorder inputs changed')
++    recipe = json.loads((directory / 'invocation.json').read_text())
++    inputs = json.loads((directory / 'input-hashes.json').read_text())
++    for name, expected in inputs.items():
++        path = Path(name)
++        if (not path.is_file() or path.is_symlink()
++                or path.resolve(strict=True) != path or digest(path) != expected):
++            raise ValueError('frozen original runtime input changed')
++    command = recipe['command']
++    output = Path(command[command.index('--output') + 1])
++    if output.exists() or output.is_symlink():
++        raise ValueError('fresh original supervisor output required')
++    for name in ('process.json', 'terminal.json', 'outer.log'):
++        if (directory / name).exists():
++            raise ValueError('recording already exists; no retry or overwrite')
++    for key in ('GOTMPDIR', 'TMPDIR', 'XDG_CONFIG_HOME', 'XDG_CACHE_HOME', 'DOCKER_CONFIG'):
++        Path(recipe['environment'][key]).mkdir(mode=0o700)
++    environment = os.environ.copy()
++    environment.update(recipe['environment'])
++    started = time.monotonic()
++    with (directory / 'outer.log').open('xb') as log:
++        child = subprocess.Popen(command, cwd=recipe['cwd'], env=environment,
++                                 stdout=log, stderr=subprocess.STDOUT)
++        save(directory / 'process.json', {'pid': child.pid,
++                                         'started_monotonic': started})
++        print(json.dumps({'supervisor_pid': child.pid}), flush=True)
++        code = child.wait()
++    terminal = {'supervisor_pid': child.pid, 'actual_process_exit': code,
++                'elapsed_seconds': round(time.monotonic() - started, 3)}
++    save(directory / 'terminal.json', terminal)
++    print(json.dumps(terminal), flush=True)
++    return code
++
++
++if __name__ == '__main__':
++    raise SystemExit(main())
+--- /dev/null
++++ b/output/ai/execution-mount-directtext/checks/mount-profile01/control.py
+@@ -0,0 +1,94 @@
++"""Offline selector controls only; never invoke native harness entry points."""
++import ast
++import hashlib
++import json
++from pathlib import Path
++import re
++
++ROOT = Path(__file__).resolve().parents[5]
++OUT = Path(__file__).resolve().parent
++SELECTOR = '^TestExecutionMountFirstRound$'
++TOP = 'TestExecutionMountFirstRound'
++CASES = frozenset((TOP, TOP + '/nonempty-terminal-and-historical-replay',
++                   TOP + '/held-join-terminal-rollback-and-unknown'))
++PATHS = {
++    'driver': '.agent-state/work-owner-http/root_chain_driver.py',
++    'supervisor': '.agent-state/task-planning-recovery/pg_only_supervisor.py',
++}
++
++
++def constants_and_functions(raw, filename):
++    # Imports needed by these maps/functions only. Do not execute module-level
++    # calls or main; function definitions retain their original unchanged AST.
++    tree = ast.parse(raw, filename=filename)
++    selected = []
++    for node in tree.body:
++        if isinstance(node, (ast.Assign, ast.AnnAssign, ast.FunctionDef)):
++            selected.append(node)
++    namespace = {'__file__': filename, 'Path': Path, 're': re}
++    exec(compile(ast.Module(body=selected, type_ignores=[]), filename, 'exec'), namespace)
++    return tree, namespace
++
++
++def strip_new_key(tree, name):
++    matches = 0
++    for node in tree.body:
++        if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == name for t in node.targets):
++            assert isinstance(node.value, ast.Dict)
++            keep = []
++            for key, value in zip(node.value.keys, node.value.values):
++                if isinstance(key, ast.Constant) and key.value == SELECTOR:
++                    matches += 1
++                else:
++                    keep.append((key, value))
++            node.value.keys = [k for k, _ in keep]
++            node.value.values = [v for _, v in keep]
++    assert matches == 1
++    return ast.dump(tree, include_attributes=False)
++
++
++loaded = {}
++hashes = {}
++for label, relative in PATHS.items():
++    filename = str(ROOT / relative)
++    raw = Path(filename).read_text()
++    before = (OUT / (label + '-before.py')).read_text()
++    current_tree, current = constants_and_functions(raw, filename)
++    old_tree, old = constants_and_functions(before, filename)
++    key = 'METADATA_INPUTS' if label == 'driver' else 'METADATA_GROUPS'
++    assert strip_new_key(current_tree, key) == ast.dump(old_tree, include_attributes=False)
++    assert {k: v for k, v in current[key].items() if k != SELECTOR} == old[key]
++    if label == 'driver':
++        assert current['TARGETS'][SELECTOR] == 'tests/projectvariable'
++        assert {k: v for k, v in current['TARGETS'].items() if k != SELECTOR} == old['TARGETS']
++        assert set(old['METADATA_INPUTS']['^TestExecutionMountCapture$']).issubset(current[key][SELECTOR])
++        assert all((ROOT / p).is_file() and not (ROOT / p).is_symlink() for p in current[key][SELECTOR])
++    loaded[label] = current
++    hashes[relative] = hashlib.sha256(raw.encode()).hexdigest()
++
++supervisor = loaded['supervisor']
++assert supervisor['METADATA_GROUPS'][SELECTOR] == CASES
++
++
++def transcript(cases, selector=SELECTOR):
++    # Synthetic control data, explicitly not actual Go or native evidence.
++    return '\n'.join([*(f'=== RUN   {n}' for n in sorted(cases)),
++                      *(f'--- PASS: {n} (0.00s)' for n in sorted(cases)),
++                      f'D03 explicit test actual_wait pid=123 code=0 selector={selector}', ''])
++
++
++verify = supervisor['metadata_results']
++assert verify(transcript(CASES), SELECTOR)
++assert not verify(transcript(CASES - {TOP + '/held-join-terminal-rollback-and-unknown'}), SELECTOR)
++assert not verify(transcript(CASES | {TOP + '/unregistered-case'}), SELECTOR)
++extra = '^TestExecutionMountFirstRound|TestUnregistered$'
++assert not verify(transcript(CASES, extra), extra)
++assert not verify(transcript(CASES).replace('code=0 ', 'code=1 '), SELECTOR)
++result = {'kind': 'offline synthetic Python controls', 'selector': SELECTOR,
++          'cases': sorted(CASES), 'same_ast_after_removing_new_key': True,
++          'old_effective_maps_unchanged': True, 'target': 'tests/projectvariable',
++          'positive': True, 'missing_sub_rejected': True, 'extra_sub_rejected': True,
++          'extra_selector_rejected': True, 'nonzero_wait_rejected': True,
++          'source_sha256': hashes, 'no_go_or_native': True}
++(OUT / 'result.json').write_text(json.dumps(result, indent=2, sort_keys=True) + '\n')
++print(json.dumps(result, sort_keys=True))
