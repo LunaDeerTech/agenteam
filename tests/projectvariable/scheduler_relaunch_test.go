@@ -21,6 +21,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/scheduler"
 	"github.com/LunaDeerTech/agenteam/internal/central/work"
 	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 // Relaunch starts from a real completed Model call. The original Task remains
@@ -161,12 +162,14 @@ func runSchedulerRelaunchCooldown(t *testing.T) {
 	// This is a newly constructed owner, not a copied in-memory countdown.
 	second := x.newOwner(t, 2, policy)
 	visit, err = second.runner.RunTraversal(ctxFor(t))
-	requireRelaunchAdmission(t, visit, err)
+	firstRoundRequire(t, err)
 	x.requireCooldownVisit(t, visit, 0)
 	visit, err = second.runner.RunTraversal(ctxFor(t))
-	firstRoundRequire(t, err)
+	requireRelaunchAdmission(t, visit, err)
 	item := x.relaunchVisit(t, visit)
-	firstRoundRequire(t, item.Err)
+	if item.Err != nil {
+		failSchedulerRelaunch(t, item.Err)
+	}
 	old, next := x.original.Summary(), item.Dispatch.Summary()
 	request, err := item.Dispatch.LaunchRequest()
 	firstRoundRequire(t, err)
@@ -235,6 +238,19 @@ func requireRelaunchAdmission(t *testing.T, result scheduler.ProjectRunResult, e
 		}
 	}
 	t.Fatal("capacity error was not an observed executor admission")
+}
+
+func failSchedulerRelaunch(t *testing.T, err error) {
+	t.Helper()
+	var fault *f.Fault
+	if errors.As(err, &fault) {
+		t.Logf("relaunch fault code=%s commit=%s", fault.Code, fault.CommitState)
+	}
+	var pg *pgconn.PgError
+	if errors.As(err, &pg) {
+		t.Logf("relaunch pgerror sqlstate=%s constraint=%.128q position=%d", pg.Code, pg.ConstraintName, pg.Position)
+	}
+	t.Fatal("original relaunch call failed before a usable Dispatch; private cause and request withheld")
 }
 
 func (x *schedulerRelaunchFixture) awaitExecution(t *testing.T, executionID i.ExecutionID) {
@@ -354,6 +370,9 @@ func runSchedulerRelaunchFailure(t *testing.T) {
 	result, err := owner.runner.RunTraversal(ctxFor(t))
 	firstRoundRequire(t, err)
 	visit := x.relaunchVisit(t, result)
+	if visit.Dispatch.Summary().ID.Validate() != nil {
+		failSchedulerRelaunch(t, visit.Err)
+	}
 	request, err := visit.Dispatch.LaunchRequest()
 	firstRoundRequire(t, err)
 	firstRoundRequire(t, request.Validate())
