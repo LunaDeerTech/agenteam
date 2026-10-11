@@ -600,14 +600,10 @@ func TestRunnerReadFileOperation(t *testing.T) {
 		requireOperationReadFileIdentity(t, pending, final)
 		v.requireTerminal(t, final, true)
 		v.requireWire(t, 1, final)
-		// Stop does not discard an unresolved final publication or manufacture
-		// a join. Lookup may subsequently observe only this exact old result.
-		authority.Stop()
-		short, cancel := context.WithTimeout(context.Background(), time.Second)
-		blocked := authority.Drain(short)
-		cancel()
-		if blocked == nil || authority.Joined() {
-			t.Fatal("Unknown original publication owner was released before observation")
+		// Public Lookup is a new current-authorized call and must begin before
+		// Stop. It observes only this original unresolved publication/result.
+		if authority.Joined() {
+			t.Fatal("Unknown original publication reported a premature join")
 		}
 		for n := 0; n < 2; n++ {
 			out, found, err := executor.LookupReadFile(ctxFor(t), execution)
@@ -622,6 +618,7 @@ func TestRunnerReadFileOperation(t *testing.T) {
 			v.requireTerminal(t, after, true)
 			v.requireWire(t, 1, after)
 		}
+		authority.Stop()
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		if err := authority.Drain(ctx); err != nil || !authority.Joined() {
