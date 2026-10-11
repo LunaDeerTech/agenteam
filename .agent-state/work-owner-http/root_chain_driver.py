@@ -347,8 +347,10 @@ SKILL_OWNER_ENV = ('AGENTEAM_SKILL_OWNER_WEB_DIST', 'AGENTEAM_SKILL_OWNER_WEB_EV
 SPRINT_START_ENV = ('AGENTEAM_SPRINT_START_WEB_DIST', 'AGENTEAM_SPRINT_START_WEB_EVIDENCE')
 KNOWLEDGE_RENAME_ENV = tuple('AGENTEAM_KNOWLEDGE_OWNER_RENAME_WEB_' + part for part in ('DIST', 'EVIDENCE', 'SCHEMA_PYTHON', 'CASE'))
 TASK_REVIEW_ENV = ('AGENTEAM_TASK_REVIEW_WEB_DIST', 'AGENTEAM_TASK_REVIEW_WEB_EVIDENCE')
-TASK_REVIEW_HARNESS_MODULES = Path('/workspace/agenteam-work-ui-independent/tests/account-captcha-web/node_modules')
-TASK_REVIEW_WEB_MODULES = Path('/workspace/agenteam/web/node_modules')
+# Each recovered worktree installs the existing locks privately; no historical
+# author's physical tree is a runtime dependency.
+TASK_REVIEW_HARNESS_MODULES = REPOSITORY / 'tests/account-captcha-web/node_modules'
+TASK_REVIEW_WEB_MODULES = REPOSITORY / 'web/node_modules'
 
 
 def task_review_ui_profile(selector):
