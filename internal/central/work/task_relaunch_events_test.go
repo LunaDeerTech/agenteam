@@ -144,7 +144,9 @@ func TestTaskRelaunchFailureSchemaDoesNotRewriteClaimHistory(t *testing.T) {
 	if err != nil {
 		t.Fatal("schema4 stopped constructing", err)
 	}
-	legacyRaw, err := json.Marshal(old.Event)
+	// Event factories have always persisted canonical object-key order, not
+	// encoding/json's struct-field order. Keep the exact stored-byte check.
+	legacyRaw, err := canonical(old.Event)
 	if err != nil || !bytes.Equal(legacyRaw, legacy.PayloadBytes()) {
 		t.Fatal("schema4 payload changed", err)
 	}

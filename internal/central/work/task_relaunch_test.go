@@ -111,6 +111,10 @@ func TestTaskRelaunchOriginIsDistinctFromTodoClaim(t *testing.T) {
 	if source.Validate() != nil || intent.Validate() != nil {
 		t.Fatal("typed relaunch origin rejected")
 	}
+	raw, err = json.Marshal(intent)
+	if err != nil || strings.Contains(string(raw), `"ClaimedVersion"`) {
+		t.Fatal("relaunch serialized a fictitious or invalid claim version", err)
+	}
 	copy := intent.Clone()
 	copy.Relaunch.Request.DispatchID = legacy.DispatchID
 	if copy.Validate() == nil || intent.Relaunch.Request.DispatchID != r.DispatchID {
