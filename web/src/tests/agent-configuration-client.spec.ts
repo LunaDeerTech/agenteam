@@ -429,7 +429,7 @@ describe('Owner Agent configuration closed client', () => {
       { ...value, request: { description: null } },
       { ...value, request: { instructions: undefined } },
       { ...value, request: { name: '' } },
-      { ...value, request: { model_ref: model } },
+      { ...value, request: { model_reference: model } },
       { ...value, expected_version: 8 },
       { ...value, expected_version: '08' },
     ])
@@ -484,5 +484,77 @@ describe('Owner Agent configuration closed client', () => {
           write,
         ),
       ).rejects.toMatchObject({ kind: 'invalid-response' })
+  })
+
+  it('preserves model and approval changes as one immutable update and recovers an explicit approval clear by the original Lookup', async () => {
+    const value = {
+      expected_version: '9',
+      request: {
+        model_ref: id(7), reasoning_effort: null, inject_agents_md: false,
+        approval_policy: 'auto', approval_model_ref: model,
+      },
+    }
+    const captured = captureAgentUpdateInput(value)
+    value.request.model_ref = id(8)
+    expect(Object.isFrozen(captured.request)).toBe(true)
+    expect(captured.request.model_ref).toBe(id(7))
+    expect(Object.hasOwn(captured.request, 'instructions')).toBe(false)
+    const saved = {
+      agent: { ...configuration(), ...captured.request, version: '10' },
+      changed: true, event_ids: [id(44)],
+    }
+    const cleared = {
+      agent: { ...saved.agent, approval_policy: 'default', approval_model_ref: null, version: '11' },
+      changed: true, event_ids: [id(45)],
+    }
+    const failure = {
+      type: 'urn:agenteam:problem:test', title: 'Unable to confirm', status: 503, detail: '',
+      instance: '/', code: 'COMMIT_UNKNOWN', request_id: id(91), commit_state: 'unknown',
+    }
+    const replies = [json(saved), new Response(JSON.stringify(failure), {
+      status: 503, headers: { 'Content-Type': 'application/problem+json', 'X-Request-ID': id(91) },
+    }), json({ status: 'committed', receipt: cleared })]
+    const fetcher = vi.fn<Fetch>(async () => replies.shift()!)
+    const api = createAgentConfigurationAPI(fetcher)
+    expect(await api.update(project, agent, captured, write)).toEqual(saved)
+    const clear = captureAgentUpdateInput({
+      expected_version: '10', request: { approval_policy: 'default', approval_model_ref: null },
+    })
+    const originalWrite = { ...write, key: 'approval-clear/original' }
+    await expect(api.update(project, agent, clear, originalWrite)).rejects.toMatchObject({
+      kind: 'problem', problem: { code: 'COMMIT_UNKNOWN' },
+    })
+    expect(await api.lookupUpdate(project, agent, clear, originalWrite)).toEqual({ status: 'committed', receipt: cleared })
+    expect(fetcher.mock.calls.map(([, init]) => init.method)).toEqual(['PATCH', 'PATCH', 'POST'])
+    expect(JSON.parse(fetcher.mock.calls[0]![1].body as string)).toEqual(captured)
+    expect(JSON.parse(fetcher.mock.calls[1]![1].body as string)).toEqual(clear)
+    expect(JSON.parse(fetcher.mock.calls[2]![1].body as string)).toEqual({
+      command: 'agent.update', target_id: agent, ...clear,
+    })
+    for (const [, init] of fetcher.mock.calls.slice(1))
+      expect(init.headers).toMatchObject({ 'Idempotency-Key': originalWrite.key })
+  })
+
+  it('rejects unsupported policy input and any successful receipt that ignores an explicit model, false or null', async () => {
+    const fetcher = vi.fn<Fetch>()
+    const api = createAgentConfigurationAPI(fetcher)
+    for (const request of [
+      { model_ref: null }, { inject_agents_md: null }, { reasoning_effort: 'high' },
+      { reasoning_effort: undefined }, { approval_policy: 'auto', approval_model_ref: null },
+      { approval_policy: 'default', approval_model_ref: model }, { approval_model_ref: undefined },
+    ]) await expect(api.update(project, agent, { expected_version: '1', request } as never, write))
+      .rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(fetcher).not.toHaveBeenCalled()
+    const input = captureAgentUpdateInput({ expected_version: '1', request: {
+      model_ref: id(7), reasoning_effort: null, inject_agents_md: false,
+      approval_policy: 'allow', approval_model_ref: null,
+    } })
+    const exact = { ...configuration(), ...input.request, version: '2' }
+    for (const ignored of [
+      { model_ref: model }, { inject_agents_md: true }, { reasoning_effort: 'high' },
+      { approval_policy: 'auto', approval_model_ref: model },
+    ]) await expect(createAgentConfigurationAPI(async () => json({
+      agent: { ...exact, ...ignored }, changed: true, event_ids: [id(46)],
+    })).update(project, agent, input, write)).rejects.toMatchObject({ kind: 'invalid-response' })
   })
 })

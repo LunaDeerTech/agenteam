@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { UiButton, UiField, UiInput, UiTextarea } from '../ui'
+import { computed, onMounted, ref, watch } from 'vue'
+import { UiButton, UiField, UiInput, UiSelect, UiTextarea } from '../ui'
 import type { ProjectAgents } from '../../composables/useProjectAgents'
 const props = defineProps<{ owner: ProjectAgents }>()
 const emit = defineEmits<{ cancel: [] }>()
@@ -8,7 +8,27 @@ const form = ref<HTMLFormElement | null>(null)
 const disabled = computed(
   () => props.owner.busy.value || !props.owner.canEdit.value || props.owner.editStale.value,
 )
-onMounted(() => form.value?.querySelector('input')?.focus())
+const policyDisabled = computed(() => disabled.value || props.owner.state.modelPhase !== 'ready' ||
+  props.owner.state.configuration?.reasoning_effort !== null)
+const approvalOptions = [
+  { value: 'default', label: '默认审批' },
+  { value: 'auto', label: '模型自动审批' },
+  { value: 'allow', label: '允许工具调用' },
+]
+const injectOptions = [
+  { value: 'yes', label: '注入 AGENTS.md' },
+  { value: 'no', label: '不注入 AGENTS.md' },
+]
+let focused = false
+function focusName() {
+  const input = form.value?.querySelector('input')
+  if (!focused && input && !input.disabled) {
+    input.focus()
+    focused = true
+  }
+}
+onMounted(focusName)
+watch(disabled, focusName, { flush: 'post' })
 </script>
 <template>
   <form
@@ -43,6 +63,54 @@ onMounted(() => form.value?.querySelector('input')?.focus())
         :disabled="disabled"
         rows="6"
         @update:model-value="owner.touchEdit('instructions', $event)"
+      />
+    </UiField>
+    <UiField label="主模型" required v-slot="field">
+      <UiSelect
+        :id="field.id"
+        label="主模型"
+        :model-value="owner.edit.modelID"
+        :options="owner.editModelOptions.value"
+        :disabled="policyDisabled"
+        @update:model-value="owner.touchEditPolicy('model_ref', $event)"
+      />
+    </UiField>
+    <p>可选择当前受支持的文本聊天模型。保存后用于后续执行，已有执行的配置不变。</p>
+    <p v-if="owner.state.modelPhase === 'loading'" role="status">正在读取可用模型。</p>
+    <p v-if="owner.state.modelMessage" role="alert">{{ owner.state.modelMessage }}</p>
+    <p v-if="owner.editPolicyMessage.value" role="status">{{ owner.editPolicyMessage.value }}</p>
+    <div class="agent-edit-actions">
+      <UiButton type="button" :disabled="disabled" @click="owner.loadModels()">刷新可用模型</UiButton>
+      <UiButton v-if="owner.state.modelNext" type="button" :disabled="disabled" @click="owner.loadModels(true)">加载更多模型</UiButton>
+    </div>
+    <UiField label="AGENTS.md 注入" required v-slot="field">
+      <UiSelect
+        :id="field.id"
+        label="AGENTS.md 注入"
+        :model-value="owner.edit.injectAgentsMD"
+        :options="injectOptions"
+        :disabled="disabled"
+        @update:model-value="owner.touchEditPolicy('inject_agents_md', $event)"
+      />
+    </UiField>
+    <UiField label="审批策略" required v-slot="field">
+      <UiSelect
+        :id="field.id"
+        label="审批策略"
+        :model-value="owner.edit.approvalPolicy"
+        :options="approvalOptions"
+        :disabled="policyDisabled"
+        @update:model-value="owner.touchEditPolicy('approval_policy', $event)"
+      />
+    </UiField>
+    <UiField v-if="owner.edit.approvalPolicy === 'auto'" label="审批模型" required v-slot="field">
+      <UiSelect
+        :id="field.id"
+        label="审批模型"
+        :model-value="owner.edit.approvalModelID"
+        :options="owner.editApprovalOptions.value"
+        :disabled="policyDisabled"
+        @update:model-value="owner.touchEditPolicy('approval_model_ref', $event)"
       />
     </UiField>
     <p v-if="owner.editStale.value" role="alert">
