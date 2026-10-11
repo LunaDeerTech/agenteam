@@ -554,3 +554,42 @@ AGENTEAM_TASK_REVIEW_WEB_EVIDENCE=/workspace/agenteam-task-flow-delivery/output/
 NODE_DISABLE_COMPILE_CACHE=1 \
 /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12 -B output/ai/agent-system-integration/task-review-web-launcher-06.py
 ```
+
+## Task intake与Agent配置创建有限组合
+
+第十二批A与第十四批真实验收共用SOURCE `75e23e9ddfc72e5d72b83af5c66cc695baf1a6c6`及candidate06，各自独立运行并留存输入与资源尾：
+
+| 入口 | 实际范围与结果 | 原件（delivery的output/ai/agent-system-integration下） |
+| --- | --- | --- |
+| `TestTaskIntakeWeb` | native06两sub37.63s：`create-and-ready`18.85s、`lost-create-confirmation-and-ready`18.78s；四Wait0、两Node实际成功、七ID14次absence、全部双尾/TCP0、2426输入同；业务及15PNG有限视觉最终接受 | `task-intake-web-06-control/result.json` |
+| `TestAgentConfigurationApp` | native01两sub18.42s：`default-create-get-lookup-directory-and-assign`9.39s、`lost-create-receipt-and-current-owner`9.03s；runtimeoff公共App TLS、两次joined、每例仅一次Create；四Wait0、七ID14次absence、全部双尾/TCP0、1663输入同，最终独审接受 | `agent-configuration-app-01-control/result.json` |
+
+A复用25个不同前端用例及其有效format/type/build输入；14与16组合的十九race top和后继两包vet按原输入分段接受，不回填pure01容量wholeFAIL。14创建链不代验16 Update PG，也不证明15/17页面已通过浏览器。13前端24项、15前端20项、17前端20项分别按原输入保留，不能累加当作同一次全平台验证。
+
+A普通POST若出现精确ERR_ABORTED，仍保原failed事件；仅在同一原请求的服务端完整长度/SHA及真实提交后验、原body完成/退役、公开typed消费者原Promise fulfilled且身份current三方严格一致时计完整完成。预声明的创建回执截断仍必须进入Unknown，仅原key/fullrequest Lookup；不得以已显示Task或后补GET替代提交证明。真实范围是Current Sprint创建backlog并独立选择真实Agent转todo，不自动StartSprint、启用Scheduler或把todo认作执行完成。
+
+实际入口继续复用原immutable plan/runner和唯一资源窗口，以下是已执行文件，重现须新namespace并重新冻结输入，不能覆盖原轮：
+
+```sh
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12 -B output/ai/agent-system-integration/task-intake-runtime-compile-06-launcher.py
+AGENTEAM_TASK_INTAKE_WEB_DIST=/workspace/agenteam-task-flow-delivery/output/ai/task-intake-web/frontend-03/dist \
+AGENTEAM_TASK_INTAKE_WEB_EVIDENCE=/workspace/agenteam-task-flow-delivery/output/ai/task-intake-web/native-06-evidence \
+NODE_DISABLE_COMPILE_CACHE=1 \
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12 -B output/ai/agent-system-integration/task-intake-web-launcher-06.py
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12 -B output/ai/agent-system-integration/agent-configuration-app-launcher-01.py
+```
+
+原A01–05 FAIL及compile05等结果不回填；B01虽原文件为PASS但业务接受已撤回，B02–04 FAIL及复验按独立入口保存。B的最终范围见[显式Runtime装配](../../docs/development/work-items/recovery-project-domain-bindings.md#有限后继显式配置的-central-execution-runtime-装配)，不由上述A/14验收代替。生产Project initializer、完整Loop/工具调用、全局ready及既有STOP保持。
+
+## 显式 App Runtime有限组合
+
+SOURCE `deec8a506b98a77b120446e7e4360740557ac861`的compile07/candidate07与B05已实际wholePASS。`TestAppExecutionRuntime`两sub25.84s：`discovers-existing-project-and-completes`12.34s，`stop-joins-held-model-and-leases`13.50s；实际从原app.Run发现已有initialized Project，经Scheduler/Execution/真实Model到终态，另在held-wire时Stop并等待原调用、双lease与App退出。两个原SystemResolver A/AAAA前验均通过，private DNS run PID与原Go实际Wait身份一致。四Wait0、七ID14次absence、全部private/runtime/desc/TCP双尾空、1665输入首尾同；secret独立最终原件有限验收已接受。
+
+原件为`output/ai/agent-system-integration/app-execution-runtime-05-control/{result.json,supervisor.log}`及PG `/tmp/aer05/pg-2af5cff46f01429d98c3f7a240a4813f.log`。此前B01目标回调未执行而撤回的业务接受不恢复；B02–04及compile05原FAIL继续保留。真实DNS属于本轮有界fixture接线，不改生产Resolver，也不以测试初始化图证明生产Project创建已绑定。
+
+```sh
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12 -B output/ai/agent-system-integration/task-intake-runtime-compile-07-launcher.py
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12 -B output/ai/agent-system-integration/app-execution-runtime-launcher-05.py
+```
+
+上述为已执行入口，不直接复用旧namespace。重现继续按原plan/输入闭包、固定Go/Python与唯一hotcache、fresh容量及七资源实际退出门执行；依赖已初始化Project、真实provider图和显式`AGENTEAM_CENTRAL_EXECUTION_RUNTIME`中的`direct-text-v1`完整配置，不能只传模式字符串替代闭集JSON。准确字段见[Runtime装配](../../docs/development/work-items/recovery-project-domain-bindings.md#有限后继显式配置的-central-execution-runtime-装配)。完整Loop、Tool、Project initializer及ready仍未完成。
