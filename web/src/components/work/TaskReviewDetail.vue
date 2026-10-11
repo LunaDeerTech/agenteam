@@ -20,9 +20,10 @@ const canSubmit = computed(
     !!props.owner.draft.action &&
     !!props.owner.draft.comment.trim() &&
     (props.owner.draft.action === 'done' || !!props.owner.draft.agentID) &&
-    !unresolved.value.length &&
-    props.owner.state.blockerPhase === 'ready' &&
-    !props.owner.state.blockerNext,
+    (props.owner.draft.action !== 'todo' ||
+      (!unresolved.value.length &&
+        props.owner.state.blockerPhase === 'ready' &&
+        !props.owner.state.blockerNext)),
 )
 </script>
 <template>
@@ -186,7 +187,7 @@ const canSubmit = computed(
           :disabled="owner.busy.value || owner.readOnly.value"
           rows="5"
       /></UiField>
-      <p v-if="unresolved.length || owner.state.blockerNext">
+      <p v-if="owner.draft.action === 'todo' && (unresolved.length || owner.state.blockerNext)">
         提交前需要读取并确认全部阻塞已解除。
       </p>
       <UiButton type="submit" :disabled="!canSubmit">确认{{ actionLabel }}</UiButton>
