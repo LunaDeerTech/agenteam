@@ -69,6 +69,14 @@ export type ReviewInput = Readonly<{
     assignee_agent_id?: string
   }>
 }>
+export type ReadyInput = Readonly<{
+  expected_version: string
+  request: Readonly<{
+    target_state: 'todo'
+    assignee_agent_id: string
+    comment?: string
+  }>
+}>
 export type ReviewReceipt = Readonly<{
   task: Task
   task_event_ids: readonly string[]
@@ -109,6 +117,18 @@ export interface WorkReviewAPI {
     project: string,
     task: string,
     input: ReviewInput,
+    write: WriteOptions,
+  ): Promise<ReviewLookup>
+  ready(
+    project: string,
+    task: string,
+    input: ReadyInput,
+    write: WriteOptions,
+  ): Promise<ReviewReceipt>
+  lookupReady(
+    project: string,
+    task: string,
+    input: ReadyInput,
     write: WriteOptions,
   ): Promise<ReviewLookup>
 }
@@ -364,6 +384,27 @@ export function captureReviewInput(value: unknown): ReviewInput {
     })
   })
 }
+export function captureReadyInput(value: unknown): ReadyInput {
+  return input(() => {
+    const v = shape(value, ['expected_version', 'request']),
+      r = shape(v.request, ['target_state', 'assignee_agent_id'], ['comment'])
+    requireValue(r.target_state === 'todo')
+    return freeze({
+      expected_version: workVersion(v.expected_version),
+      request: {
+        target_state: 'todo' as const,
+        assignee_agent_id: workID(r.assignee_agent_id),
+        ...(Object.hasOwn(r, 'comment')
+          ? { comment: workText(r.comment, 32768, false, true) }
+          : {}),
+      },
+    })
+  })
+}
+// Reuse the same complete Task decoder for other Work receipts.
+export function decodeWorkTask(value: unknown, project: string, task: string): Task {
+  return parseTask(value, project, task) as Task
+}
 function query(value: PageQuery): Readonly<Record<string, string>> {
   return input(() => {
     const q = shape(value, [], ['limit', 'cursor']),
@@ -408,7 +449,7 @@ function receipt(
   value: unknown,
   project: string,
   task: string,
-  command: ReviewInput,
+  command: ReviewInput | ReadyInput,
 ): ReviewReceipt {
   const v = shape(value, ['task', 'task_event_ids', 'event_ids']),
     result = parseTask(v.task, project, task) as Task
@@ -434,7 +475,40 @@ export function createWorkReviewAPI(fetcher?: Fetch): WorkReviewAPI {
   const call = accountTransport(fetcher)
   const ids = (project: string, target?: string) =>
     input(() => ({ projectID: workID(project), ...(target ? { target: workID(target) } : {}) }))
+  function readyCall(
+    project: string,
+    task: string,
+    value: ReadyInput,
+    write: WriteOptions,
+    lookup: boolean,
+  ) {
+    const captured = captureReadyInput(value)
+    return call(
+      lookup ? 'reviewLookup' : 'reviewTransfer',
+      (v): ReviewReceipt | ReviewLookup => {
+        if (!lookup) return receipt(v, project, task, captured)
+        const r = shape(v, ['status', 'receipt']),
+          status = enumeration(r.status, ['committed', 'in_progress', 'not_observed'])
+        if (status === 'committed')
+          return { status, receipt: receipt(r.receipt, project, task, captured) }
+        requireValue(r.receipt === null)
+        return { status, receipt: null }
+      },
+      {
+        ...ids(project, lookup ? undefined : task),
+        signal: write.signal ?? new AbortController().signal,
+        body: lookup
+          ? { command: 'work.task.transfer', target_id: input(() => workID(task)), ...captured }
+          : captured,
+        csrf: write.csrfToken,
+        key: write.key,
+      },
+    )
+  }
   return {
+    ready: (p, t, value, write) => readyCall(p, t, value, write, false) as Promise<ReviewReceipt>,
+    lookupReady: (p, t, value, write) =>
+      readyCall(p, t, value, write, true) as Promise<ReviewLookup>,
     milestones(project, q, signal) {
       const captured = query(q)
       return call(

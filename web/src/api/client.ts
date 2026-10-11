@@ -63,6 +63,8 @@ const endpoints = {
   reviewBlockers: ['GET', '/api/v1/projects/{project_id}/tasks/{target}/blockers', 200],
   reviewTransfer: ['POST', '/api/v1/projects/{project_id}/tasks/{target}/transfer', 200],
   reviewLookup: ['POST', '/api/v1/projects/{project_id}/task-transition-commands/lookup', 200],
+  taskCreate: ['POST', '/api/v1/projects/{project_id}/tasks', 200],
+  taskCreateLookup: ['POST', '/api/v1/projects/{project_id}/task-commands/lookup', 200],
   directoryAgents: ['GET', '/api/v1/projects/{project_id}/agents', 200],
   directoryAgent: ['GET', '/api/v1/projects/{project_id}/agents/{target}', 200],
   knowledgeChildren: ['GET', '/api/v1/projects/{project_id}/knowledge/documents/children', 200],
@@ -935,6 +937,8 @@ type WorkReviewEndpoint =
   | 'reviewBlockers'
   | 'reviewTransfer'
   | 'reviewLookup'
+  | 'taskCreate'
+  | 'taskCreateLookup'
   | 'directoryAgents'
   | 'directoryAgent'
 const workReviewEndpoints: readonly WorkReviewEndpoint[] = [
@@ -947,6 +951,8 @@ const workReviewEndpoints: readonly WorkReviewEndpoint[] = [
   'reviewBlockers',
   'reviewTransfer',
   'reviewLookup',
+  'taskCreate',
+  'taskCreateLookup',
   'directoryAgents',
   'directoryAgent',
 ]

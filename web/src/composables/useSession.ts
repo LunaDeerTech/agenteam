@@ -1,6 +1,8 @@
 import {
   createWorkReviewAPI,
   captureReviewInput,
+  captureReadyInput,
+  type ReadyInput,
   type WorkReviewAPI,
   type ReviewInput,
   type ReviewReceipt,
@@ -8,6 +10,17 @@ import {
   type PageQuery,
   type TaskQuery,
 } from '../api/work-review'
+import {
+  createWorkTaskPlanningAPI,
+  captureTaskCreateDraft,
+  captureTaskCreateInput,
+  newTaskID,
+  type WorkTaskPlanningAPI,
+  type TaskCreateDraft,
+  type TaskCreateInput,
+  type TaskCreateReceipt,
+  type TaskCreateLookup,
+} from '../api/work-task-planning'
 import { createAgentDirectoryAPI, type AgentDirectoryAPI } from '../api/agent-directory'
 import { readonly, shallowReactive } from 'vue'
 import {
@@ -261,15 +274,22 @@ type WorkReviewIntent = {
   projectID: string
   taskID: string
   key: string
-  input: ReviewInput
   body: string
   uncertain: boolean
-}
+} & (
+  | { kind: 'review'; input: ReviewInput }
+  | { kind: 'ready'; input: ReadyInput }
+  | { kind: 'create'; input: TaskCreateInput }
+)
+type WorkCommandReceipt = ReviewReceipt | TaskCreateReceipt
+type WorkCommandLookup = ReviewLookup | TaskCreateLookup
 export type WorkReviewProgress = Readonly<{
+  kind: WorkReviewIntent['kind']
   projectID: string
   taskID: string
+  sprintID: string | null
   phase: 'submitting' | 'uncertain' | 'confirmed' | 'rejected'
-  receipt: ReviewReceipt | null
+  receipt: WorkCommandReceipt | null
   observation: 'none' | 'committed' | 'in_progress' | 'not_observed' | 'failed'
   contextValid: boolean
 }>
@@ -629,6 +649,7 @@ export function createSessionController(
   knowledgeAPI: KnowledgeOwnerAPI = createKnowledgeOwnerAPI(),
   workReviewAPI: WorkReviewAPI = createWorkReviewAPI(),
   agentDirectoryAPI: AgentDirectoryAPI = createAgentDirectoryAPI(),
+  taskPlanningAPI: WorkTaskPlanningAPI = createWorkTaskPlanningAPI(),
 ) {
   const state = shallowReactive<PublicState>({
     phase: 'checking',
@@ -3719,12 +3740,14 @@ export function createSessionController(
   function publishReview(
     original: WorkReviewIntent,
     phase: WorkReviewProgress['phase'],
-    receipt: ReviewReceipt | null = null,
+    receipt: WorkCommandReceipt | null = null,
     observation: WorkReviewProgress['observation'] = 'none',
   ) {
     workReviewState.progress = Object.freeze({
+      kind: original.kind,
       projectID: original.projectID,
       taskID: original.taskID,
+      sprintID: original.kind === 'create' ? original.input.request.sprint_id : null,
       phase,
       receipt,
       observation,
@@ -3733,7 +3756,7 @@ export function createSessionController(
   function performReview(
     original: WorkReviewIntent,
     lookup: boolean,
-  ): Promise<ReviewReceipt | ReviewLookup> {
+  ): Promise<WorkCommandReceipt | WorkCommandLookup> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     if (!reviewCurrent(original)) return Promise.reject(new AccountFailure('invalid-input'))
     const kind: WorkReviewAction = lookup ? 'work-review-lookup' : 'work-review-transfer'
@@ -3741,7 +3764,7 @@ export function createSessionController(
     const live = () => reviewCurrent(original) && revision === workReviewRevisions[kind]
     let dispatched = false
     if (!lookup) publishReview(original, 'submitting')
-    return runAuthorized(
+    return runAuthorized<WorkCommandReceipt | WorkCommandLookup>(
       original.identity,
       async (op, current) => {
         if (!current() || !live()) throw new AccountFailure('cancelled')
@@ -3749,6 +3772,14 @@ export function createSessionController(
           throw new AccountFailure('invalid-input')
         dispatched = true
         const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
+        if (original.kind === 'create')
+          return lookup
+            ? taskPlanningAPI.lookup(original.projectID, original.input, write)
+            : taskPlanningAPI.create(original.projectID, original.input, write)
+        if (original.kind === 'ready')
+          return lookup
+            ? workReviewAPI.lookupReady(original.projectID, original.taskID, original.input, write)
+            : workReviewAPI.ready(original.projectID, original.taskID, original.input, write)
         return lookup
           ? workReviewAPI.lookup(original.projectID, original.taskID, original.input, write)
           : workReviewAPI.transfer(original.projectID, original.taskID, original.input, write)
@@ -3830,6 +3861,55 @@ export function createSessionController(
         if (!uuid7.test(projectID) || !uuid7.test(taskID)) throw new AccountFailure('invalid-input')
         const input = captureReviewInput(value)
         const original: WorkReviewIntent = {
+          kind: 'review',
+          identity,
+          csrf: sessionCSRF,
+          projectID,
+          taskID,
+          key: newKey(),
+          input,
+          body: JSON.stringify(input),
+          uncertain: false,
+        }
+        workReviewIntent = original
+        return performReview(original, false)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    startReady(projectID: string, taskID: string, value: ReadyInput) {
+      try {
+        const identity = personalIdentity()
+        if (owner || workReviewIntent || personalIntent || pending) throw new AccountFailure('busy')
+        if (!uuid7.test(projectID) || !uuid7.test(taskID)) throw new AccountFailure('invalid-input')
+        const input = captureReadyInput(value)
+        const original: WorkReviewIntent = {
+          kind: 'ready',
+          identity,
+          csrf: sessionCSRF,
+          projectID,
+          taskID,
+          key: newKey(),
+          input,
+          body: JSON.stringify(input),
+          uncertain: false,
+        }
+        workReviewIntent = original
+        return performReview(original, false)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    startCreate(projectID: string, value: TaskCreateDraft) {
+      try {
+        const identity = personalIdentity()
+        if (owner || workReviewIntent || personalIntent || pending) throw new AccountFailure('busy')
+        if (!uuid7.test(projectID)) throw new AccountFailure('invalid-input')
+        const draft = captureTaskCreateDraft(value),
+          taskID = newTaskID()
+        const input = captureTaskCreateInput({ request: { task_id: taskID, ...draft } })
+        const original: WorkReviewIntent = {
+          kind: 'create',
           identity,
           csrf: sessionCSRF,
           projectID,
