@@ -135,6 +135,7 @@ async function observeBrowserIO(
     const writeInputs = new WeakMap<object, any>();
     let originalCreate: any;
     let originalAgentCreate: any;
+    const originalEdits: any[] = [];
     const tails = new Set<Promise<void>>();
     const restorers: (() => void)[] = [];
     let retired = false,
@@ -236,6 +237,33 @@ async function observeBrowserIO(
               progress.projectID === originalCreate?.project &&
               progress.taskID === originalCreate?.request?.task_id,
           });
+        } else if (kind === "edit.startEdit") {
+          const original = {
+            call,
+            project: args[0],
+            task: args[1],
+            input: JSON.parse(JSON.stringify(args[2])),
+          };
+          originalEdits.push(original);
+          writeInputs.set(call, original);
+        } else if (kind === "edit.startReady") {
+          writeInputs.set(call, {
+            project: args[0],
+            task: args[1],
+            input: JSON.parse(JSON.stringify(args[2])),
+          });
+        } else if (kind === "edit.checkOriginal") {
+          const source = originalEdits.at(-1);
+          const progress = auth.workReview.progress;
+          writeInputs.set(call, {
+            source,
+            current:
+              progress?.kind === "edit" &&
+              progress.phase === "uncertain" &&
+              progress.contextValid === true &&
+              progress.projectID === source?.project &&
+              progress.taskID === source?.task,
+          });
         } else if (kind === "agent.startCreate") {
           if (originalAgentCreate) failed = true;
           originalAgentCreate = {
@@ -305,6 +333,7 @@ async function observeBrowserIO(
         project: string,
         intakeWrites: boolean,
         agentConfiguration: boolean,
+        editTask: string | undefined,
       ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
@@ -384,6 +413,36 @@ async function observeBrowserIO(
               "POST",
             );
           }
+          if (editTask) {
+            for (const [method, httpMethod, suffix] of [
+              ["startEdit", "PATCH", ""],
+              ["startReady", "POST", "/transfer"],
+            ] as const)
+              consumer(
+                auth.workReview,
+                method,
+                "edit." + method,
+                (a) => {
+                  if (a[0] !== project || a[1] !== editTask)
+                    throw Error("TASK_EDIT_CONSUMER_SCOPE");
+                  return (
+                    "/api/v1/projects/" +
+                    project +
+                    "/tasks/" +
+                    editTask +
+                    suffix
+                  );
+                },
+                httpMethod,
+              );
+            consumer(
+              auth.workReview,
+              "checkOriginal",
+              "edit.checkOriginal",
+              () => "/api/v1/projects/" + project + "/task-commands/lookup",
+              "POST",
+            );
+          }
         } else {
           // This profile observes only Agent Create, its original Lookup and
           // the public directory/configuration/model reads used by that page.
@@ -453,6 +512,7 @@ async function observeBrowserIO(
         for (const call of calls) writeInputs.delete(call);
         originalCreate = undefined;
         originalAgentCreate = undefined;
+        originalEdits.length = 0;
         return this.snapshot();
       },
     };
@@ -598,6 +658,35 @@ async function observeBrowserIO(
               equal(parsed, {
                 command: "work.task.create",
                 request: original.source.request,
+              });
+          } else if (call.kind === "edit.startEdit") {
+            matches =
+              originalEdits.every(
+                (old) => old === original || old.key !== key,
+              ) && equal(parsed, original.input);
+            if (matches) original.key = key;
+          } else if (call.kind === "edit.startReady") {
+            matches =
+              originalEdits.length > 0 &&
+              originalEdits.every(
+                (old) =>
+                  old.project === original.project &&
+                  old.task === original.task &&
+                  typeof old.key === "string" &&
+                  old.key !== key,
+              ) &&
+              equal(parsed, original.input);
+          } else if (call.kind === "edit.checkOriginal") {
+            matches =
+              original.current &&
+              original.source?.call.rejected === true &&
+              original.source.call.settled === true &&
+              key === original.source.key &&
+              equal(parsed, {
+                command: "work.task.update",
+                target_id: original.source.task,
+                expected_version: original.source.input.expected_version,
+                request: original.source.input.request,
               });
           } else if (call.kind === "agent.startCreate") {
             const { agent_id, ...fields } = parsed.request ?? {};
@@ -944,6 +1033,7 @@ export type TaskObservationProfile = {
     | "agent.create";
   intakeWrites?: true;
   agentConfiguration?: true;
+  editWrites?: true;
 };
 
 export function observeReview(page: Page, data: ReviewMaterial) {
@@ -960,7 +1050,7 @@ export function observeReview(page: Page, data: ReviewMaterial) {
 
 // Shared observation machinery only. Each fixture supplies a closed endpoint
 // classifier and at most its one declared committed-response delivery fault.
-// Only explicitly opted-in Intake or Agent fixtures can additionally prove
+// Only explicitly opted-in Intake, Edit or Agent fixtures can additionally prove
 // their closed write sets. Other POST completion rules remain identical.
 export async function observeTaskRequests(
   page: Page,
@@ -984,6 +1074,26 @@ export async function observeTaskRequests(
       ].includes(data.mode))
   )
     throw Error("AGENT_CONFIGURATION_PROFILE_MISMATCH");
+  if (
+    profile.editWrites &&
+    (profile.intakeWrites ||
+      profile.agentConfiguration ||
+      profile.prefix !== "task-edit" ||
+      profile.lookupCommand !== "work.task.update" ||
+      !data.task_id ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+        data.task_id,
+      ) ||
+      ![
+        "changed-noop-clear-and-ready",
+        "lost-edit-confirmation-and-ready",
+      ].includes(data.mode) ||
+      profile.cut !==
+        (data.mode === "lost-edit-confirmation-and-ready"
+          ? "update"
+          : undefined))
+  )
+    throw Error("TASK_EDIT_WRITE_PROFILE_MISMATCH");
   const entries: Entry[] = [];
   const events: Record<string, unknown>[] = [];
   const browserEvents: BrowserDiagnostic[] = [];
@@ -1092,7 +1202,13 @@ export async function observeTaskRequests(
     entryHandlers++;
     try {
       await page.evaluate(
-        async ({ binding, project, intakeWrites, agentConfiguration }) => {
+        async ({
+          binding,
+          project,
+          intakeWrites,
+          agentConfiguration,
+          editTask,
+        }) => {
           const module = await import(/* @vite-ignore */ binding.asset);
           const useSession = module[binding.exportName];
           if (typeof useSession !== "function")
@@ -1105,6 +1221,7 @@ export async function observeTaskRequests(
             project,
             intakeWrites,
             agentConfiguration,
+            editTask,
           );
         },
         {
@@ -1112,6 +1229,7 @@ export async function observeTaskRequests(
           project: data.project_id,
           intakeWrites: profile.intakeWrites === true,
           agentConfiguration: profile.agentConfiguration === true,
+          editTask: profile.editWrites ? data.task_id : undefined,
         },
       );
       await route.continue();
@@ -1169,6 +1287,25 @@ export async function observeTaskRequests(
     );
   }
 
+  function editWrite(entry: Entry) {
+    if (!profile.editWrites) return false;
+    const url = new URL(entry.request.url());
+    if (url.search) return false;
+    const prefix = `/api/v1/projects/${data.project_id}`;
+    const method = entry.request.method();
+    return (
+      (entry.name === "update" &&
+        method === "PATCH" &&
+        url.pathname === `${prefix}/tasks/${data.task_id}`) ||
+      (entry.name === "ready" &&
+        method === "POST" &&
+        url.pathname === `${prefix}/tasks/${data.task_id}/transfer`) ||
+      (entry.name === "lookup" &&
+        method === "POST" &&
+        url.pathname === `${prefix}/task-commands/lookup`)
+    );
+  }
+
   function agentWrite(entry: Entry) {
     if (!profile.agentConfiguration || entry.request.method() !== "POST")
       return false;
@@ -1192,8 +1329,10 @@ export async function observeTaskRequests(
   }
 
   function joint(entry: Entry, proof: any) {
-    const write = intakeWrite(entry) || agentWrite(entry);
-    const method = write ? "POST" : "GET";
+    const edit = editWrite(entry);
+    const write = intakeWrite(entry) || agentWrite(entry) || edit;
+    const method =
+      edit && entry.name === "update" ? "PATCH" : write ? "POST" : "GET";
     expect(entry.request.method()).toBe(method);
     expect(entry.status).toBe(200);
     expect(entry.responseCount).toBe(1);
@@ -1263,11 +1402,17 @@ export async function observeTaskRequests(
             create: "agent.startCreate",
             lookup: "agent.checkOriginal",
           }
-        : {
-            create: "work.startCreate",
-            ready: "work.startReady",
-            lookup: "work.checkOriginal",
-          };
+        : edit
+          ? {
+              update: "edit.startEdit",
+              ready: "edit.startReady",
+              lookup: "edit.checkOriginal",
+            }
+          : {
+              create: "work.startCreate",
+              ready: "work.startReady",
+              lookup: "work.checkOriginal",
+            };
       const raw = entry.request.postDataBuffer();
       const key = entry.request.headers()["idempotency-key"];
       expect(raw).not.toBeNull();
@@ -1330,6 +1475,7 @@ export async function observeTaskRequests(
         state === "failed" &&
         (entry.request.method() === "GET" ||
           intakeWrite(entry) ||
+          editWrite(entry) ||
           agentWrite(entry)) &&
         response?.status() === 200 &&
         entry.failure === "net::ERR_ABORTED"
@@ -1380,7 +1526,12 @@ export async function observeTaskRequests(
       entry.body = JSON.parse(raw.toString("utf8"));
       expect(typeof entry.body).toBe("object");
       expect(entry.body).not.toBeNull();
-      if (intakeWrite(entry) || agentWrite(entry) || agentPageRead(entry)) {
+      if (
+        intakeWrite(entry) ||
+        editWrite(entry) ||
+        agentWrite(entry) ||
+        agentPageRead(entry)
+      ) {
         // Even genuine requestfinished must match the original public value
         // and Go proof (including commit for writes); this does not replace its tail.
         const consumed = joint(entry, proof);

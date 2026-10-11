@@ -5,11 +5,14 @@ package projectvariable_test
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"reflect"
 	"testing"
 
@@ -38,11 +41,13 @@ type editWebInput struct {
 	Request  wc.TaskFieldsUpdate `json:"request"`
 }
 type editWebObservation struct {
-	kind     string
-	key      f.IdempotencyKey
-	input    editWebInput
-	before   wc.Task
-	transfer wc.TaskTransfer
+	kind          string
+	key           f.IdempotencyKey
+	input         editWebInput
+	before        wc.Task
+	transfer      wc.TaskTransfer
+	requestDigest [sha256.Size]byte
+	keyDigest     [sha256.Size]byte
 }
 type editWebObservationKey struct{}
 type taskEditWeb struct {
@@ -190,6 +195,10 @@ func (w *taskEditWeb) observeRequest(r *http.Request) error {
 	default:
 		return errors.New("unexpected edit fixture mutation")
 	}
+	// Bind these original bytes and key before forwarding; response proof must
+	// not reconstruct the browser's presence-sensitive command.
+	observation.requestDigest = sha256.Sum256(raw)
+	observation.keyDigest = sha256.Sum256([]byte(key))
 	*r = *r.WithContext(context.WithValue(r.Context(), editWebObservationKey{}, observation))
 	return nil
 }
@@ -206,9 +215,10 @@ func (w *taskEditWeb) response(r *http.Response) error {
 	if r.StatusCode != http.StatusOK {
 		return fmt.Errorf("original edit %s returned HTTP %d", o.kind, r.StatusCode)
 	}
-	requestID, err := f.ParseID[f.Request](r.Header.Get("X-Request-ID"))
-	if err != nil {
-		return err
+	id := r.Header.Get("X-Request-ID")
+	requestID, err := f.ParseID[f.Request](id)
+	if err != nil || len(r.Header.Values("X-Request-ID")) != 1 || requestID.String() != id {
+		return errors.New("original edit response identity invalid")
 	}
 	meta := f.CommandMeta{RequestID: requestID, IdempotencyKey: o.key}
 	switch o.kind {
@@ -273,8 +283,65 @@ func (w *taskEditWeb) response(r *http.Response) error {
 		w.shell.mu.Lock()
 		w.ready = receipt.Clone()
 		w.shell.mu.Unlock()
+	default:
+		return errors.New("unexpected edit response kind")
 	}
-	return nil
+	return w.committedProof(r, raw, o)
+}
+
+func (w *taskEditWeb) committedProof(r *http.Response, raw []byte, observation editWebObservation) error {
+	// completedResponse has joined the original verified-TLS EOF/Close and
+	// handler. The exact command's stored receipt/facts have also matched above.
+	// The declared lost Update returns reviewWebDrop before reaching this point.
+	validMethod := observation.kind == "update" && r.Request.Method == http.MethodPatch ||
+		(observation.kind == "ready" || observation.kind == "lookup") && r.Request.Method == http.MethodPost
+	if !validMethod || r.StatusCode != http.StatusOK {
+		return errors.New("edit proof requires the original successful command response")
+	}
+	id := r.Header.Get("X-Request-ID")
+	w.shell.mu.Lock()
+	tail := w.shell.tails[id]
+	returned := tail != nil && tail.returned
+	w.shell.mu.Unlock()
+	if !returned {
+		return errors.New("original edit handler did not return")
+	}
+	select {
+	case <-tail.done:
+	default:
+		return errors.New("original edit handler tail still open")
+	}
+	record := struct {
+		InputHash         string `json:"input_hash"`
+		RequestID         string `json:"request_id"`
+		Method            string `json:"method"`
+		URLDigest         string `json:"url_sha256"`
+		Status            int    `json:"status"`
+		Length            int    `json:"content_length"`
+		Digest            string `json:"body_sha256"`
+		OriginalEOF       bool   `json:"original_eof"`
+		OriginalClosed    bool   `json:"original_closed"`
+		HandlerReturned   bool   `json:"handler_returned"`
+		Kind              string `json:"kind"`
+		RequestBodyDigest string `json:"request_body_sha256"`
+		IdempotencyDigest string `json:"idempotency_key_sha256"`
+		CommittedVerified bool   `json:"committed_verified"`
+	}{
+		InputHash: w.shell.inputHash, RequestID: id, Method: r.Request.Method,
+		URLDigest: fmt.Sprintf("%x", sha256.Sum256([]byte(r.Request.URL.RequestURI()))),
+		Status:    r.StatusCode, Length: len(raw), Digest: fmt.Sprintf("%x", sha256.Sum256(raw)),
+		OriginalEOF: true, OriginalClosed: true, HandlerReturned: returned,
+		Kind: observation.kind, RequestBodyDigest: fmt.Sprintf("%x", observation.requestDigest),
+		IdempotencyDigest: fmt.Sprintf("%x", observation.keyDigest), CommittedVerified: true,
+	}
+	encoded, err := json.Marshal(record)
+	if err != nil {
+		return err
+	}
+	if err := os.MkdirAll(w.shell.evidence, 0700); err != nil {
+		return err
+	}
+	return os.WriteFile(filepath.Join(w.shell.evidence, w.shell.profile.filePrefix+"-"+w.shell.mode+"-response-"+id+".json"), encoded, 0600)
 }
 
 func (w *taskEditWeb) updateFacts(ctx context.Context, meta f.CommandMeta, o editWebObservation, receipt wc.TaskMutation) error {

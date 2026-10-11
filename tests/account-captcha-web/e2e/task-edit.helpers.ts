@@ -113,6 +113,7 @@ export async function observeEdit(page: Page, data: EditMaterial) {
     cut:
       data.mode === "lost-edit-confirmation-and-ready" ? "update" : undefined,
     lookupCommand: "work.task.update",
+    editWrites: true,
   });
   return {
     ...seen,
