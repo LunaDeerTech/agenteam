@@ -1,6 +1,6 @@
 # D16 Workspace 原子 write-file 本地库
 
-状态：首完整源码与相邻控制已落并完成限定 gofmt/静态自查；基线 main `7c874adc`，尚未编译或运行测试。variables_review 独占 filesystem/workspace 源码、相邻控制及本卡；root 负责 Git 与共享工具链窗口。
+状态：本地库实现与必要分段验证完成，等待主线集成；基线 main `7c874adc`，最终技术差额 `7ff8174a`。variables_review 实施，runtime_recovery 独立审查；root 负责 Git 与主线交付。此结果仅适用于下述本地库范围。
 
 依据：[Execution Runtime §4/6](../../architecture/runner/execution-runtime.md#6-write-file)、[Workspace](d16-runner-workspace.md)。本片只完成可信 root fd → Manager Handle → 原子 Write → 原 Read 的本地调用；不新增 Tool、Control/WSS、数据库、shell/edit-file、生产默认 executor 或授权旁路，既有 STOP 不变。
 
@@ -15,6 +15,11 @@
 
 ## 必要验证
 
-真实临时目录 Write→Read，空/二进制/上限、overwrite 与竞争、完整替换而无半文件、跨 Project/Agent 隔离；非法 path、symlink/非普通文件/父目录置换；受控真实 syscall 返回后的取消、fsync/close 失败与实际 Drain 等待；停止后禁新及请求/错误脱敏。仅两个受影响包 race/vet，待 root 授窗口后执行；不复跑 PG 或旧 Runner 全矩阵。
+真实临时目录 Write→Read，空/二进制/上限、overwrite 与竞争、完整替换而无半文件、跨 Project/Agent 隔离；非法 path、symlink/非普通文件/父目录置换；受控真实 syscall 返回后的取消、fsync/close 失败与实际 Drain 等待；停止后禁新及请求/错误脱敏。验证只涉及 filesystem/workspace 两个受影响包，不运行 PG 或旧 Runner 全矩阵。
 
-首候选只新增 6 个 Go 文件，无旧 Read/List/Find 或生命周期源码改写。计划新控制 10 top（13 个具名子例），另随两受影响包复用原 read/manager 控检查兼容；不把源码存在或 gofmt 当动态通过。Linux 控使用包内 syscall 返回装饰，真实临时目录和实际 fd；不是 kernel 故障、崩溃恢复或恶意宿主证明。
+只新增 6 个 Go 文件，无旧 Read/List/Find 或生命周期源码改写。Linux 控使用包内 syscall 返回装饰、真实临时目录和实际 fd；不是 kernel 故障、崩溃恢复或恶意宿主证明。非 Linux 仅保留原 unsupported 构造，本轮未在非 Linux 实跑。
+
+- `basic01`（`91d281c4`）：原工具 `49447` 实际退出 1，Go `766015` Wait 1 / 13.328s；41 top 中 33 PASS、8 FAIL，包含原有 31 top 全部通过。vet 按失败门未运行。原 FAIL 完整保留。
+- 静态定位为新 `writeOpen` 给 `O_PATH` 额外加了不兼容的 `O_NONBLOCK`；原失败日志只有固定 `Unavailable`，未观测原 errno，不倒填 EINVAL。`7ff8174a` 仅将 NONBLOCK 限定非 O_PATH，保留所有路径解析、发布和退出门；测试断言未改。
+- `basic02`（`7ff8174a`）：原工具 `37839` 实际退出 0，原新增 10 top / 13 sub 全部 race PASS（Go `768732` Wait 0 / 5.085s），随后两包 vet PASS（`768858` Wait 0 / 1.398s）。原有 31 top 复用 `basic01`，不表述为单轮 41 top 全绿。
+- 两轮各自实际 race/plain `go list` 联集均为 1,100 项输入，运行前后全部相同；跨轮仅上述产品文件及选择原 10 top 的 recorder 变化。原命令、PID、Wait、日志和源身份见任务输出 `output/ai/runner-write-file-adapter/checks/`；[恢复说明](../../../.agent-state/runner-write-file-adapter/README.md)保留两轮入口。
