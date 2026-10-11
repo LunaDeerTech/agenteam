@@ -50,8 +50,8 @@ type SkillAssignmentPlan interface {
 // Prepare observes current Owner Read and the initialized Agent before looking
 // up the original Skill command. Completed replay returns false before checking
 // ExpectedVersion and may observe an initialized deleting Agent. A new command
-// must separately require current Owner Mutate and active Agent authority before
-// checking ExpectedVersion. A new no-op may record its unchanged receipt in
+// must require current Owner Mutate, check ExpectedVersion, then require active
+// Agent authority. A new no-op may record its unchanged receipt in
 // Prepare, also returning false. A real change returns true with only its
 // mutation plan prepared. Agent then synchronously advances its canonical
 // version and all four reference owners before calling Finalize with the new
