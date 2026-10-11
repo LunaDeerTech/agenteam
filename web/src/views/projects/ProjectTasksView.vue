@@ -4,6 +4,7 @@ import { UiButton, UiDrawer, UiState, UiSelect, UiField, UiBadge } from '../../c
 import TaskBoard from '../../components/work/TaskBoard.vue'
 import TaskReviewDetail from '../../components/work/TaskReviewDetail.vue'
 import TaskCreateForm from '../../components/work/TaskCreateForm.vue'
+import MilestoneCreateForm from '../../components/work/MilestoneCreateForm.vue'
 import SprintCreateForm from '../../components/work/SprintCreateForm.vue'
 import { useProjectTasks } from '../../composables/useProjectTasks'
 const owner = useProjectTasks(),
@@ -14,6 +15,23 @@ const startButton = ref<{ $el: HTMLButtonElement } | null>(null)
 const startConfirmButton = ref<{ $el: HTMLButtonElement } | null>(null)
 const sprintHeading = ref<HTMLHeadingElement | null>(null)
 const sprintCreateButton = ref<{ $el: HTMLButtonElement } | null>(null)
+const milestoneCreateButton = ref<{ $el: HTMLButtonElement } | null>(null)
+const milestoneHeading = ref<HTMLHeadingElement | null>(null)
+watch(() => owner.milestoneCreationFocus.value, async (id) => {
+  if (!id) return
+  await nextTick()
+  if (owner.milestoneCreationFocus.value !== id) return
+  const heading = milestoneHeading.value
+  if (!heading?.isConnected) return
+  heading.focus()
+  if (heading.ownerDocument.activeElement === heading) owner.consumeMilestoneCreationFocus(id)
+}, {immediate: true, flush: 'post'})
+async function cancelMilestoneCreation() {
+  const project = owner.milestoneCreation.projectID
+  owner.cancelMilestoneCreation()
+  await nextTick()
+  if (!owner.milestoneCreation.open && owner.visible.value && owner.canCreateMilestone.value && owner.projectID.value === project) milestoneCreateButton.value?.$el.focus()
+}
 watch(
   () => owner.sprintCreationFocus.value,
   async (id) => {
@@ -127,6 +145,16 @@ function returnToCreation() {
     </section>
     <UiState v-if="!owner.visible.value" kind="loading" title="正在确认任务访问身份" />
     <template v-else>
+      <p v-if="owner.milestonePending.value && !owner.milestoneProgress.value" role="status">有一项 Milestone 创建结果待确认，请返回原 Project 查询结果。</p>
+      <section v-if="owner.milestoneProgress.value?.phase === 'uncertain'" aria-label="Milestone 创建结果恢复">
+        <p role="status">Milestone 创建结果待确认。请查询原创建结果，不要重复创建。</p>
+        <UiButton :disabled="owner.busy.value || !owner.milestoneProgress.value.contextValid || !!state.task" @click="owner.lookupMilestoneCreation()">查询原 Milestone 创建结果</UiButton>
+        <p v-if="owner.milestoneProgress.value.observation === 'not_observed'" role="status">尚未观察到原创建结果，可再次查询。</p>
+        <p v-if="owner.milestoneProgress.value.observation === 'in_progress'" role="status">原创建仍在处理中，稍后可再次查询。</p>
+      </section>
+      <p v-if="owner.milestoneProgress.value?.phase === 'submitting'" role="status">正在创建 Milestone，请等待原请求结束。</p>
+      <p v-if="owner.milestoneCreation.message && !owner.milestoneCreation.open" role="status">{{ owner.milestoneCreation.message }}</p>
+      <UiButton v-if="owner.milestoneProgress.value?.phase === 'confirmed' && (owner.milestoneCreation.needsRead || state.milestone?.id !== owner.milestoneProgress.value.milestoneID)" :disabled="owner.busy.value || !owner.milestoneProgress.value.contextValid || !!state.task" @click="owner.rereadConfirmedMilestone()">读取已创建的 Milestone</UiButton>
       <p v-if="owner.sprintCreatePending.value && !owner.sprintCreateProgress.value" role="status">
         有一项 Sprint 创建结果待确认，请返回原 Project 查询结果。
       </p>
@@ -300,6 +328,11 @@ function returnToCreation() {
           >
         </aside>
         <main class="tasks-content">
+          <UiButton v-if="!state.task && !owner.milestoneCreation.open && !owner.milestonePending.value" ref="milestoneCreateButton" :disabled="owner.busy.value || !owner.canCreateMilestone.value" @click="owner.openMilestoneCreation()">新建 Milestone</UiButton>
+          <MilestoneCreateForm v-if="owner.milestoneCreation.open && !owner.milestonePending.value" :owner="owner" @cancel="cancelMilestoneCreation" @submit="owner.submitMilestoneCreation()" />
+          <section v-if="state.milestone && !state.task" class="selected-milestone" aria-label="所选 Milestone">
+            <h2 ref="milestoneHeading" tabindex="-1">{{ state.milestone.title }}</h2>
+          </section>
           <UiButton
             v-if="!state.task && !owner.sprintCreation.open && !owner.sprintCreatePending.value"
             ref="sprintCreateButton"
@@ -487,6 +520,7 @@ function returnToCreation() {
 .sprint-heading {
   margin-bottom: var(--space);
 }
+.selected-milestone h2,
 .sprint-heading h2 {
   margin: 0;
   font-size: 1.25rem;
