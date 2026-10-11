@@ -534,7 +534,8 @@ func (w *taskReviewWeb) browser(t *testing.T) {
 	t.Helper()
 	root, err := filepath.Abs("../account-captcha-web")
 	firstRoundRequire(t, err)
-	ctx, cancel := context.WithTimeout(ctxFor(t), 60*time.Second)
+	// The browser owns its declared budget; ctxFor is a shorter DB operation budget.
+	ctx, cancel := context.WithTimeout(t.Context(), 60*time.Second)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", filepath.Join(root, w.profile.configName))
 	cmd.Dir = root
@@ -568,6 +569,14 @@ func (w *taskReviewWeb) browser(t *testing.T) {
 	err = <-done
 	joined = true
 	t.Logf("%s Node actual_wait pid=%d success=%t", w.profile.logName, cmd.Process.Pid, err == nil)
+	if err != nil {
+		ctxErr := ctx.Err()
+		exitCode := -1
+		if cmd.ProcessState != nil {
+			exitCode = cmd.ProcessState.ExitCode()
+		}
+		t.Logf("%s Node exit deadline=%t cancelled=%t exit_code=%d", w.profile.logName, errors.Is(ctxErr, context.DeadlineExceeded), errors.Is(ctxErr, context.Canceled), exitCode)
+	}
 	safe := output.String()
 	w.mu.Lock()
 	tokens := append([]string(nil), w.keys...)
