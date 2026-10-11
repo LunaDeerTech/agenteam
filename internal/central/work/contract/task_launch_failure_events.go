@@ -228,8 +228,9 @@ func (v *TaskLaunchFailed) UnmarshalJSON(raw []byte) error {
 }
 
 type TaskLaunchFailureEvents struct {
-	catalog *event.Catalog
-	failed  event.EventType[TaskLaunchFailed]
+	catalog    *event.Catalog
+	failed     event.EventType[TaskLaunchFailed]
+	relaunched event.EventType[TaskRelaunchFailed]
 }
 
 func RegisterTaskLaunchFailureEvents(catalog *event.Catalog) (TaskLaunchFailureEvents, error) {
@@ -240,10 +241,14 @@ func RegisterTaskLaunchFailureEvents(catalog *event.Catalog) (TaskLaunchFailureE
 	if e != nil {
 		return TaskLaunchFailureEvents{}, e
 	}
-	return TaskLaunchFailureEvents{catalog, t}, nil
+	relaunch, e := event.DefineEvent(catalog, event.Definition[TaskRelaunchFailed]{Schema: event.Schema{Producer: WorkProducer, EventType: TaskTransitionedName, AggregateType: TaskAggregate, Version: TaskRelaunchFailureSchemaVersion}, Codec: event.JSONCodec[TaskRelaunchFailed]{}, Validate: TaskRelaunchFailed.Validate})
+	if e != nil {
+		return TaskLaunchFailureEvents{}, e
+	}
+	return TaskLaunchFailureEvents{catalog, t, relaunch}, nil
 }
 func (v TaskLaunchFailureEvents) Valid() bool {
-	return v.catalog.Valid() && v.failed.Schema() == (event.Schema{Producer: WorkProducer, EventType: TaskTransitionedName, AggregateType: TaskAggregate, Version: TaskLaunchFailureSchemaVersion})
+	return v.catalog.Valid() && v.failed.Schema() == (event.Schema{Producer: WorkProducer, EventType: TaskTransitionedName, AggregateType: TaskAggregate, Version: TaskLaunchFailureSchemaVersion}) && v.relaunched.Schema() == (event.Schema{Producer: WorkProducer, EventType: TaskTransitionedName, AggregateType: TaskAggregate, Version: TaskRelaunchFailureSchemaVersion})
 }
 func (v TaskLaunchFailureEvents) NewTaskLaunchFailed(h event.Header, p TaskLaunchFailed) (event.Event, error) {
 	if !v.Valid() || h.Validate() != nil || h.EventType != TaskTransitionedName || h.AggregateType != TaskAggregate || h.SchemaVersion != TaskLaunchFailureSchemaVersion || h.Scope.Kind != event.ProjectScope || h.AggregateVersion == nil || *h.AggregateVersion < 2 || h.AggregateSequence != nil || p.Validate() != nil {
@@ -259,6 +264,13 @@ func (v TaskLaunchFailureEvents) NewTaskLaunchFailed(h event.Header, p TaskLaunc
 	return event.NewEvent(v.failed, h, p.Clone())
 }
 func (v TaskLaunchFailureEvents) Restore(h event.Header, raw []byte) (event.Event, error) {
+	if h.SchemaVersion == TaskRelaunchFailureSchemaVersion {
+		var p TaskRelaunchFailed
+		if e := json.Unmarshal(raw, &p); e != nil {
+			return event.Event{}, e
+		}
+		return v.NewTaskRelaunchFailed(h, p)
+	}
 	var p TaskLaunchFailed
 	if e := json.Unmarshal(raw, &p); e != nil {
 		return event.Event{}, e
