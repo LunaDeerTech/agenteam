@@ -204,7 +204,8 @@ export function createProjectTasks(
   const sprintProgress = computed(() => {
     const p = auth.workSprintLifecycle.progress
     return visible.value &&
-      p?.projectID === workspace.currentReadContext.value?.projectID &&
+      p &&
+      p.projectID === workspace.currentReadContext.value?.projectID &&
       p.sprintID === state.sprint?.id
       ? p
       : null
