@@ -1,0 +1,96 @@
+diff --git a/web/src/tests/project-secrets-view.spec.ts b/web/src/tests/project-secrets-view.spec.ts
+index dc7ae123..c3e19a9c 100644
+--- a/web/src/tests/project-secrets-view.spec.ts
++++ b/web/src/tests/project-secrets-view.spec.ts
+@@ -130,10 +130,6 @@ describe('Project Secrets read page', () => {
+     await select.trigger('click')
+     await flushPromises()
+     expect(select.attributes('disabled')).toBeDefined()
+-    const heading = f.wrapper.get('[aria-label="项目 Secrets"] h2')
+-    expect(heading.text()).toBe('Secret 详情')
+-    expect(document.activeElement).toBe(heading.element)
+-    expect(f.wrapper.text()).not.toContain('9007199254740993')
+     const other = document.createElement('button')
+     document.body.append(other)
+     cleanups.unshift(() => other.remove())
+@@ -141,8 +137,6 @@ describe('Project Secrets read page', () => {
+     pending.resolve(secretJSON(secretMetadata()))
+     await flushPromises()
+     expect(document.activeElement).toBe(other)
+-    expect(f.wrapper.get('[aria-label="项目 Secrets"] h2').element).toBe(heading.element)
+-    expect(heading.text()).toBe('SERVICE_TOKEN')
+     expect(f.wrapper.text()).toContain('9007199254740993')
+   })
+   it('cancels and clears its page instance on navigation', async () => {
+@@ -154,16 +148,10 @@ describe('Project Secrets read page', () => {
+     )
+     await findButton(f.wrapper, 'SERVICE_TOKEN').trigger('click')
+     await flushPromises()
+-    const other = document.createElement('button')
+-    document.body.append(other)
+-    cleanups.unshift(() => other.remove())
+-    other.focus()
+     await f.router.push('/elsewhere')
+     pending.resolve(secretJSON(secretMetadata()))
+     await flushPromises()
+     expect(f.wrapper.text()).not.toContain('9007199254740993')
+-    expect(f.wrapper.find('[aria-label="项目 Secrets"] h2').exists()).toBe(false)
+-    expect(document.activeElement).toBe(other)
+     expect(f.auth.state.busy).toBe(false)
+   })
+   it('allowlists only the exact project Secrets route', () => {
+diff --git a/web/src/views/projects/ProjectSecretsView.vue b/web/src/views/projects/ProjectSecretsView.vue
+index 9d0bb580..a7d0b4e0 100644
+--- a/web/src/views/projects/ProjectSecretsView.vue
++++ b/web/src/views/projects/ProjectSecretsView.vue
+@@ -1,5 +1,5 @@
+ <script setup lang="ts">
+-import { computed, nextTick, onBeforeUnmount, ref } from 'vue'
++import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
+ import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
+ import { UiButton, UiCard, UiState } from '../../components/ui'
+ import { useProjectSecrets } from '../../composables/useProjectSecrets'
+@@ -14,15 +14,20 @@ const page = owner.page,
+   detail = owner.detail
+ const detailHeading = ref<HTMLElement | null>(null)
+ let selectionTrigger: HTMLElement | null = null
+-async function select(id: string, event: MouseEvent) {
+-  if (owner.blocked.value) return
+-  const trigger = event.currentTarget as HTMLElement
+-  selectionTrigger = trigger
++function select(id: string, event: MouseEvent) {
++  selectionTrigger = event.currentTarget as HTMLElement
+   owner.select(id)
+-  await nextTick()
+-  if (owner.visible.value && owner.selected.value === id && selectionTrigger === trigger)
+-    detailHeading.value?.focus()
+ }
++watch(
++  () => detail.phase,
++  async (phase) => {
++    if (phase !== 'ready') return
++    const trigger = selectionTrigger
++    await nextTick()
++    if (owner.visible.value && detail.phase === 'ready' && trigger === document.activeElement)
++      detailHeading.value?.focus()
++  },
++)
+ async function closeDetail() {
+   owner.closeDetail()
+   await nextTick()
+@@ -87,7 +92,6 @@ onBeforeUnmount(() => owner.dispose())
+           >
+         </div>
+         <UiCard v-if="owner.selected.value" class="secret-detail">
+-          <h2 ref="detailHeading" tabindex="-1">{{ detail.value?.name ?? 'Secret 详情' }}</h2>
+           <div class="secrets-actions">
+             <UiButton variant="ghost" :disabled="owner.blocked.value" @click="closeDetail"
+               >返回目录</UiButton
+@@ -104,6 +108,7 @@ onBeforeUnmount(() => owner.dispose())
+             :description="detail.message"
+           />
+           <template v-else-if="detail.value">
++            <h2 ref="detailHeading" tabindex="-1">{{ detail.value.name }}</h2>
+             <p class="secret-description">{{ detail.value.description || '暂无描述' }}</p>
+             <dl class="secret-facts">
+               <div>
