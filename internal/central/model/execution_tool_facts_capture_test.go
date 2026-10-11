@@ -87,8 +87,14 @@ func TestExecutionToolFactsCaptureKeepsDefaultRuntimeClosed(t *testing.T) {
 		requireCode(t, err, f.CapabilityUnsupported)
 	}
 	identity, _ := resolutionIdentity(r)
-	c := &resolutionCandidate{request: r, identity: identity, draft: old, version: 1}
-	raw, _ := encoded(struct {
+	// Mapping requires a real, structurally valid issued consumer plan. A zero
+	// plan has an invalid empty digest and cannot be an encoding positive case.
+	consumer, err := mc.NewConsumerDependencies(mc.NewPlanIssuer(), mc.ConsumerDependencyDetails{Binding: hash([]byte("mapping-test-binding")), Mapping: hash([]byte("mapping-test-consumer")), Locks: []f.LockRequest{projectLock(r.Consumer.ProjectID.String())}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	c := &resolutionCandidate{request: r, identity: identity, draft: old, version: 1, consumer: consumer}
+	raw, err := encoded(struct {
 		Format   int
 		Identity string
 		Semantic f.Digest
@@ -96,6 +102,9 @@ func TestExecutionToolFactsCaptureKeepsDefaultRuntimeClosed(t *testing.T) {
 		Draft    resolutionDraft
 		Consumer f.Digest
 	}{1, identity.Canonical(), resolutionSemantic(r), 1, old, c.consumer.Details().Mapping})
+	if err != nil {
+		t.Fatal("valid original mapping encoding", err)
+	}
 	if c.mapping() != hash(raw) {
 		t.Fatal("default mapping bytes changed")
 	}
