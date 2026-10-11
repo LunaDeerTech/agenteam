@@ -79,7 +79,9 @@ Connections 列表展示 mcp_config_id 对应名称、state、enabled、auth_sta
 
 ## 6. Variables / Secrets 与会议
 
-Variables 列表 / 表单字段：name、description、value；Secrets 列表只显示 name、description、配置状态及已授权 Agent，表单仅提供新值写入，不读取回显旧值。type 在对应创建入口固定；提供创建、更新、删除，删除影响需在确认中展示。
+Variables 列表 / 表单字段：name、description、value；type 在对应创建入口固定；提供创建、更新、删除，删除影响需在确认中展示。
+
+Secrets 当前交付为[安全目录与详情只读 UI](../../development/work-items/d10-project-secrets-read-ui.md)：目录展示 name、description，选中后独立 GET 展示 id、project_id、type、version、created_at、updated_at 等正式安全 metadata。只提供分页、选择和明确重新读取；当前 DTO 没有有效性或授权 Agent 信息，不能推断“已配置/有效/无授权”。Secret 值、密文、CredentialRef、摘要、长度和掩码均不进入页面；创建、改值、删除及授权另待正式写入 UI，不在本片提供入口。
 
 会议配置说明 Summary（initial/update，含首轮标题）由系统管理员统一配置模型；Project 不保存或复制模型初值，不提供本地选择器、override 或第二套编辑入口。系统初始未配置不阻止 Project 创建，但需要生成 Summary 时会明确失败。本说明不新增 Project 只读 HTTP，也不展示 Agent Tools、Capability 或 reasoning effort 配置。
 
@@ -93,7 +95,7 @@ Scheduler 字段：`scheduler_enabled` 启停、`scheduler_max_concurrency` 并�
 
 ## 8. 默认、加载、异常与窄屏
 
-普通入口打开基本信息，指定配置链接优先。Agent、Skills、模型、MCP、变量列表独立加载，空列表提供合法创建入口。连接错误显示诊断与重试，版本冲突保留输入。删除 / 撤销前明确影响范围，不以系统管理员身份绕过 Owner；归档项目的普通创建、配置与分配入口只读。
+普通入口打开基本信息，指定配置链接优先。Agent、Skills、模型、MCP、变量列表独立加载；空列表仅在该页面已开放创建命令时提供创建入口，Secrets 只读空态提供重新读取。连接错误显示诊断与重试，版本冲突保留输入。删除 / 撤销前明确影响范围，不以系统管理员身份绕过 Owner；归档项目的普通创建、配置与分配入口只读。
 
 窄屏遵循通用设置布局，Agent 分区标签可横向滚动，凭据及参数表单单列，列表详情提供返回入口。
 

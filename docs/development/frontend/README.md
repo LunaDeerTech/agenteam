@@ -73,6 +73,14 @@ npm run preview --prefix web
 
 本片不含删除、Secret、UI 原命令重放、Agent/Runner 环境注入或完整 Variables 生命周期；正常浏览器链不代真实权限/Unknown 全矩阵。生产 Project initializer 和 Central SPA 发布仍未由此完成，上述限定候选与真实正常链已独立接受，Git 集成由主线程收口。
 
+## Project Secrets 安全目录
+
+已有 initialized Project 的当前 Human Owner 可在 `/:username/:project_name/settings/secrets` 分页查看安全目录，选择条目后独立读取详情，并明确刷新目录或当前详情。八字段 DTO 仅包含身份、名称、描述、版本和时间，拒所有额外材料字段；不复用普通变量 value DTO，不显示接口未提供的有效性或授权 Agent 信息。
+
+页面实例绑定当前 Session、Project 与路由；checking、失权、换身份或离页清观察，迟到响应不能发布，原 body/cancel 实际退出前不释放唯一请求 owner。完整页校验后才追加，失效游标回第一页。打开详情立即聚焦稳定标题，loading 使用通用标题，网络返回不会抢走其他焦点；返回目录恢复选中按钮焦点。
+
+[限定交付卡](../work-items/d10-project-secrets-read-ui.md)记录分段前端控、133项共享回归和最终类型/构建结果。默认 App 真实链经正式服务准备51项，验证50+1目录、末项独立Get和显式刷新Get；7个请求为6 finished与一个实际Session GET aborted，7份完整联合证明，四个Secrets GET均finished，零浏览器写入/Lookup。服务端随机值、受保护字段和SQL快照留在Go进程；真实键盘焦点、1440浅色/390深色两图、持久事实不变及原Wait/七资源/所有退出尾已独立接受。首次真实焦点FAIL及修复前的控制/构建FAIL保留，不外推创建、改值、删除、Agent授权、真实撤权全矩阵、完整D10、生产Project initializer或SPA发布。
+
 ## Agent 显示设置
 
 已有 initialized Project 的当前 Human Owner 可在 `/:username/:project_name/settings/agents` 编辑 Agent 的显示名称与标签颜色。表单回填当前配置，仅保存用户编辑的字段；删除输入后保存明确清空，显示名称清空后目录回退标识名。显示名称保留原字节，颜色须为小写 `#rrggbb`；仅空字符串映射清空，空白输入仍按非法值拒绝。

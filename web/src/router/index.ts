@@ -159,6 +159,11 @@ export const router = createRouter({
               component: () => import('../views/projects/ProjectVariablesView.vue'),
             },
             {
+              path: 'secrets',
+              name: 'project-secrets',
+              component: () => import('../views/projects/ProjectSecretsView.vue'),
+            },
+            {
               path: 'agents',
               name: 'project-agents',
               component: () => import('../views/projects/ProjectAgentsView.vue'),

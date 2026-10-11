@@ -1,3 +1,13 @@
+# Project Secrets 只读 UI 已有限独立接受
+
+2026-10-11，树 `/workspace/agenteam-project-secrets-read-ui`，基线43590d1f；variables_review实施、recovery_lead独审、root独占Git。产品30f4b8e1、原方法e7466973及native02已有限接受，待root统一集成。正式范围及原件见[专属卡](../docs/development/work-items/d10-project-secrets-read-ui.md)：仅八字段安全目录/详情GET、明确刷新，当前Owner/Session/路由和实际取消尾保持。client/Session最终由root精确保Move增量。
+
+新API/state20与页面四控按有效输入分段接受，六共享文件133控通过；焦点修补后page07四控、build03 type/build实际0，fresh dist-02的80资产和单Session绑定通过。App原race-c/list0且2461编译输入前后等；新runtime2462除新资产与View外保持，1561Go源和原binary未变。native01真实Enter焦点FAIL、早期fixture及build01 FAIL完整保留；修复采用稳定通用loading标题即时聚焦，网络返回不抢外部焦点，原PW断言未放宽。
+
+native02原98789亲Wait0，supervisor360517/148.227s；Go1top1sub38.03s PASS，7GET=6finished+1实际Session200 ERR_ABORTED、7joint，四Secrets GET全部finished：50+1目录、当前详情与显式刷新，零写/Lookup。Go独持Secret材料与SQL快照，后验事实不变；真实焦点与1440浅色/390深色两图已独立查看。Node/Go/driver/四Chrome原Wait、七资源14absence、private/runtime/desc与原HOST_TCP baseline+delta双尾、inputs unchanged均齐，有限whole接受。无创建改值删除、Agent授权/有效性或真实撤权全矩阵主张；生产initializer/F1/材料消费及既有STOP不变。当前无后台或cachewriter，原窗口已交回root。
+
+以下主线既交记录原样保留。
+
 # 主线已交能力与当前边界
 
 2026-10-11，本次在 main `1d41132a` 上组合 Object Runtime join 隔离安全修复。Sprint 与 Knowledge 标题查找及此前有限交付全部保留；Object 新候选 `5994c537` 的三次分段 wholePASS 已独立接受，技术依据为 `4807ac91`。旧中断历史、全部原 FAIL、永久停止的网络故障 probe，以及生产 initializer/ready/registry/Cleanup 的未绑定边界不改变。下列各片记录保留其原验收输入，不表示组合主线重新执行过全部测试；本次仅做内容并集与字节核对，root 负责 Git 集成。

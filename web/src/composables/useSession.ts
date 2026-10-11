@@ -42,6 +42,13 @@ import {
   type SkillQuery,
 } from '../api/skill-owner'
 import {
+  createProjectSecretsAPI,
+  captureProjectSecretID,
+  captureProjectSecretQuery,
+  type ProjectSecretsAPI,
+  type ProjectSecretQuery,
+} from '../api/project-secrets'
+import {
   createSkillPackageAPI,
   captureSkillRevision,
   type SkillPackageAPI,
@@ -791,6 +798,7 @@ type Action =
   | 'audit-read'
   | 'knowledge-read'
   | 'skill-read'
+  | 'secret-read'
   | 'runtime-information-read'
   | 'invitation-read'
   | 'invitation-write'
@@ -939,6 +947,7 @@ export function createSessionController(
     milestonePlanning?: WorkMilestonePlanningAPI
     sprintLifecycle?: WorkSprintLifecycleAPI
     skills?: SkillOwnerAPI
+    projectSecrets?: ProjectSecretsAPI
     scheduler?: ProjectSchedulerAPI
     skillPackage?: SkillPackageAPI
     knowledgeText?: KnowledgeTextAPI
@@ -950,6 +959,7 @@ export function createSessionController(
   const sprintPlanningAPI = commandAPIs.sprintPlanning ?? createWorkSprintPlanningAPI()
   const milestonePlanningAPI = commandAPIs.milestonePlanning ?? createWorkMilestonePlanningAPI()
   const skillsAPI = commandAPIs.skills ?? createSkillOwnerAPI()
+  const projectSecretsAPI = commandAPIs.projectSecrets ?? createProjectSecretsAPI()
   const schedulerAPI = commandAPIs.scheduler ?? createProjectSchedulerAPI()
   const skillPackageAPI = commandAPIs.skillPackage ?? createSkillPackageAPI()
   const taskEditAPI = commandAPIs.edit ?? createWorkTaskEditAPI()
@@ -999,6 +1009,7 @@ export function createSessionController(
     projectAuditRevision = 0,
     knowledgeRevision = 0,
     skillRevision = 0,
+    secretReadRevision = 0,
     runtimeInformationRevision = 0
   let invitationReadRevision = 0,
     invitationRevision = 0
@@ -1297,6 +1308,7 @@ export function createSessionController(
     )
   }
   function clearIdentity(invalidate = true) {
+    clearSecretRead()
     clearVariableReads()
     clearSchedulerRead()
     clearAgentConfigurationRead()
@@ -1926,6 +1938,7 @@ export function createSessionController(
       | 'audit-read'
       | 'knowledge-read'
       | 'skill-read'
+      | 'secret-read'
       | 'runtime-information-read'
       | 'invitation-read'
       | 'invitation-write'
@@ -1953,6 +1966,7 @@ export function createSessionController(
       if (isSchedulerAction(kind)) return schedulerRevisions[kind]
       if (isVariableAction(kind)) return variableRevisions[kind]
       if (kind === 'skill-read') return skillRevision
+      if (kind === 'secret-read') return secretReadRevision
       if (isKnowledgeCommand(kind)) return knowledgeCommandRevisions[kind]
       if (isSprintPlanningAction(kind)) return sprintPlanningRevisions[kind]
       if (isMilestonePlanningAction(kind)) return milestonePlanningRevisions[kind]
@@ -2018,6 +2032,7 @@ export function createSessionController(
         isWorkReviewAction(kind) ||
         kind === 'knowledge-read' ||
         kind === 'skill-read' ||
+        kind === 'secret-read' ||
         isProjectAction(kind) ||
         isProjectAuditAction(kind) ||
         isProjectModelAction(kind)
@@ -2098,7 +2113,7 @@ export function createSessionController(
                 isAgentConfigurationAction(kind) ||
                 isWorkReviewAction(kind)
               ? projectFailure(identity, op, error)
-              : kind === 'knowledge-read' || kind === 'skill-read'
+              : kind === 'knowledge-read' || kind === 'skill-read' || kind === 'secret-read'
                 ? knowledgeFailure(current, error)
                 : isProjectModelAction(kind)
                   ? projectModelFailure(kind, current, error)
@@ -7335,6 +7350,31 @@ export function createSessionController(
       return Promise.reject(error)
     }
   }
+  function clearSecretRead() {
+    ++secretReadRevision
+    if (owner?.kind === 'secret-read') owner.abandon?.()
+  }
+  function secretRead<T>(capture: () => (signal: AbortSignal) => Promise<T>): Promise<T> {
+    try {
+      const identity = personalIdentity(), work = capture()
+      return runAuthorized(identity, op => work(op.abort.signal), undefined, 'secret-read')
+    } catch (error) { return Promise.reject(error) }
+  }
+  const projectSecrets = {
+    list(projectID: string, query: ProjectSecretQuery = {}) {
+      return secretRead(() => {
+        const project = captureProjectSecretID(projectID), captured = captureProjectSecretQuery(query)
+        return signal => projectSecretsAPI.list(project, captured, signal)
+      })
+    },
+    get(projectID: string, secretID: string) {
+      return secretRead(() => {
+        const project = captureProjectSecretID(projectID), target = captureProjectSecretID(secretID)
+        return signal => projectSecretsAPI.get(project, target, signal)
+      })
+    },
+    abandon: clearSecretRead,
+  }
   const skills = {
     download(
       projectID: string,
@@ -8030,6 +8070,7 @@ export function createSessionController(
     agentConfiguration,
     projectAudit,
     skills,
+    projectSecrets,
     knowledge,
     knowledgeCommands,
     knowledgeText,

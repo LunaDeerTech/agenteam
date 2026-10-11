@@ -95,6 +95,8 @@ const endpoints = {
   reviewSprint: ['GET', '/api/v1/projects/{project_id}/sprints/{target}', 200],
   listProjectVariables: ['GET', '/api/v1/projects/{project_id}/variables', 200],
   getProjectVariable: ['GET', '/api/v1/projects/{project_id}/variables/{target}', 200],
+  listProjectSecrets: ['GET', '/api/v1/projects/{project_id}/secret-variables', 200],
+  getProjectSecret: ['GET', '/api/v1/projects/{project_id}/secret-variables/{target}', 200],
   createProjectVariable: ['POST', '/api/v1/projects/{project_id}/variables', 200],
   updateProjectVariable: ['PATCH', '/api/v1/projects/{project_id}/variables/{target}', 200],
   lookupProjectVariable: ['POST', '/api/v1/projects/{project_id}/variables/commands/lookup', 200],
@@ -1076,6 +1078,12 @@ type KnowledgeCommandOptions<E extends KnowledgeCommandEndpoint> = {
   : { target?: never })
 
 const skillEndpoints = ['listProjectSkills', 'getProjectSkill', 'getSkillPackage'] as const
+const secretReadEndpoints = ['listProjectSecrets', 'getProjectSecret'] as const
+type SecretReadEndpoint = (typeof secretReadEndpoints)[number]
+type SecretReadQuery = Readonly<{ limit: number; cursor?: string }>
+type SecretReadOptions<E extends SecretReadEndpoint> = E extends 'listProjectSecrets'
+  ? { signal: AbortSignal; projectID: string; secretQuery: SecretReadQuery }
+  : { signal: AbortSignal; projectID: string; target: string }
 type SkillEndpoint = (typeof skillEndpoints)[number]
 type SkillWireQuery = Readonly<{ limit: number; cursor?: string }>
 type SkillOptions<E extends SkillEndpoint> = E extends 'listProjectSkills'
@@ -1196,6 +1204,11 @@ type WorkReviewOptions = {
 }
 
 export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
+  function request<T, E extends SecretReadEndpoint>(
+    endpoint: E,
+    parse: (value: unknown) => T,
+    options: SecretReadOptions<E>,
+  ): Promise<T>
   function request<T, E extends SkillEndpoint>(
     endpoint: E,
     parse: (value: unknown) => T,
@@ -1298,6 +1311,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       | KnowledgeCommandEndpoint
       | KnowledgeEndpoint
       | SkillEndpoint
+      | SecretReadEndpoint
       | ProjectEndpoint
       | ProjectAuditEndpoint
       | ProjectModelEndpoint
@@ -1330,6 +1344,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       audit?: AuditWireQuery
       projects?: ProjectWireQuery
       skillQuery?: SkillWireQuery
+      secretQuery?: SecretReadQuery
       revision?: string
       progress?: SkillPackageProgress
       knowledgeChildren?: KnowledgeChildrenWire
@@ -1345,7 +1360,34 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     if (!Object.hasOwn(endpoints, endpoint)) throw new AccountFailure('invalid-input')
     const [method, basePath, status] = endpoints[endpoint]
     let path: string = basePath
-    if ((skillEndpoints as readonly string[]).includes(endpoint)) {
+    if ((secretReadEndpoints as readonly string[]).includes(endpoint)) {
+      try {
+        const list = endpoint === 'listProjectSecrets'
+        shape(options, ['signal', 'projectID', list ? 'secretQuery' : 'target'])
+        const project = string(options.projectID, 36, 36)
+        if (!uuid7.test(project) || !(options.signal instanceof AbortSignal)) throw new Error()
+        path = basePath.replace('{project_id}', project)
+        if (list) {
+          const query = shape(options.secretQuery, ['limit'], ['cursor']), limit = query.limit
+          if (typeof limit !== 'number' || !Number.isInteger(limit) || limit < 1 || limit > 100)
+            throw new Error()
+          const params = new URLSearchParams({ limit: String(limit) })
+          if (Object.hasOwn(query, 'cursor')) {
+            const cursor = string(query.cursor, 1, 8192)
+            if (new TextEncoder().encode(cursor).byteLength > 8192 ||
+                /[\u0000-\u001f\u007f-\u009f]/u.test(cursor) ||
+                /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(cursor))
+              throw new Error()
+            params.set('cursor', cursor)
+          }
+          path += '?' + params.toString()
+        } else {
+          const target = string(options.target, 36, 36)
+          if (!uuid7.test(target)) throw new Error()
+          path = path.replace('{target}', target)
+        }
+      } catch { throw new AccountFailure('invalid-input') }
+    } else if ((skillEndpoints as readonly string[]).includes(endpoint)) {
       try {
         const list = endpoint === 'listProjectSkills'
         const packaged = endpoint === 'getSkillPackage'
@@ -1998,7 +2040,9 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           response,
           options.signal,
           lifecycle,
-          (endpoint === 'getProjectScheduler' || endpoint === 'updateProjectScheduler') ? 4096 :
+          (secretReadEndpoints as readonly string[]).includes(endpoint) && success
+            ? endpoint === 'listProjectSecrets' ? 5 * 1024 * 1024 : 1024 * 1024
+            : (endpoint === 'getProjectScheduler' || endpoint === 'updateProjectScheduler') ? 4096 :
           (knowledgeTextEndpoints as readonly string[]).includes(endpoint) && success
             ? 16384
             : (skillEndpoints as readonly string[]).includes(endpoint) && success
@@ -2056,6 +2100,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
                               : 600_000,
           success && (projectModelReads as readonly string[]).includes(endpoint),
           ['getProjectScheduler', 'updateProjectScheduler', 'lookupProjectScheduler'].includes(endpoint) ||
+          (secretReadEndpoints as readonly string[]).includes(endpoint) ||
           (skillEndpoints as readonly string[]).includes(endpoint) ||
             (workReviewEndpoints as readonly string[]).includes(endpoint) ||
             (knowledgeCommandEndpoints as readonly string[]).includes(endpoint) ||
