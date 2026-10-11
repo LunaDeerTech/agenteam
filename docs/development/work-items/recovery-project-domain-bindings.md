@@ -370,3 +370,11 @@ review Launch复用原Execution捕获、固定review Prompt、当前reviewer的�
 来源`2c59cf0d`的A/B共用定向17 top、七包vet及一次compile/list（两top、889输入稳定）全部PASS。A的`TestProjectRunnerManager`真实1 top/2 sub整轮wholePASS（28.40s），验证真实初始化/生命周期候选筛选、paused与无Sprint保留、多Project容量和遍历，以及Manager退出后借用Executor继续持有原调用、由其原owner单独取消并join；四原Wait0、七资源14次absence、1640运行输入稳定，全部退出尾、TCP及adopted检查闭合。本批无新增FAIL，旧FAIL保持；结果与重跑方式沿[既有组合说明](../../../.agent-state/agent-system-integration/README.md)。B的真实Agent目录HTTP范围与验证见[D10 Agent配置](d10-agent-configuration.md)。
 
 该库级Manager不完成生产app Runtime装配、显式配置入口、Project initializer或ready开放；构造环分析不等于已实现审计接线，Work UI也尚未完成。AgentRun任务写权、工具调用、完整多轮、原STOP与约30%的整体粗估保持。
+
+## 有限后继：同一 Project Authority 的 Runtime Access Audit 接线
+
+第十一批B新增`project.NewRuntimeAccessAuditAuthority(original, actualRuntime)`，在原Project→Execution→Model Runtime构造完成后，将固定Runtime事实提供方接到Audit；不重建第二个Project Authority，不修改原AuditFacts映射，也不使用late Bind。adapter仅处理精确ProjectScope、AccessProducer、Model AccessDeny，复用原Project SH、同Store原Tx及当前初始化/lifecycle门，再由真实Runtime核原私有live handoff、accepted Invocation和process；公开Entry、Service actor或已有持久行均不构成授权。其他Audit方法与producer仍委托同一个原Project Authority，不增加锁、事务或DDL。
+
+来源`64bdbb6f`的定向5 top、一包vet、compile/list及`TestExecutionRuntimeAccessAudit`真实1 top/2 sub全部wholePASS，并获原件有限独审接受。真实链覆盖D04拒绝后同Invocation的Model AccessDeny审计、零wire、Execution失败与双lease退休且Task不变，原私有scope退出后重用Entry/Key被拒，以及旧默认成功分支兼容；两个子例共22.41s。891编译输入与1643运行输入稳定，四原Wait0、七资源14次absence、全部退出尾与TCP/adopted检查闭合，本片无新增FAIL；结果及重跑方式沿[既有组合说明](../../../.agent-state/agent-system-integration/README.md)，旧FAIL保留。
+
+本片只完成Runtime Access Audit构造接缝；初始化Audit wrapper仍不能直接串接，完整生产app Runtime图、显式配置、Project initializer与ready开放继续未完成，不外推为第十一批前端范围已验收。AgentRun任务写权、工具调用、完整多轮、既有STOP与约30%的整体粗估保持。
