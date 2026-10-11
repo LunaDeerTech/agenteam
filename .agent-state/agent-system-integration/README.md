@@ -365,3 +365,22 @@ TOPS = {
 ```
 
 实际 ignored 入口都在 `output/ai/agent-system-integration/`，固定 Python `-B`：`execution-first-round-pure-checks.py --cache /workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build`（原 20 top）；`execution-first-round-pure-checks-02.py`（Execution 5/13 vet）；`execution-first-round-pure-checks-03.py`（第三 top/1 vet）；`execution-first-round-compile-02-launcher.py`；`execution-first-round-launcher-03.py`。这些目录均已执行，不直接覆盖重跑；后续需先获唯一窗口，使用新 namespace，按所改范围选择必要补集。原 Go 1.27.1、只读模块、sole hotcache、private XDG、每进程 fresh≥5GiB、Go 6m/driver 540s/TERM 60s/KILL 3s/TCP 75s、实际 Wait 和全部资源尾保持。
+
+## Scheduler 可靠关联到异步 Execution
+
+SOURCE `573d427567071cea55c2b9778c263472a656d26e`。pure01 精确 10 top race＋3 包 vet、compile01/list、native01 均 wholePASS。`TestSchedulerExecution` 恰 1 top/2 sub（37.80s）：`historical-association-terminal-and-dedup` 用真实旧 Runner 形成已关联未投递的 Execution，pageSize1 补投后由真实 providers/Loop/Model 完成，重复 Runner 遍历保持同 E、单次调用与 Task in_progress；`asynchronous-todo-and-cancel-join` 在真实 held wire 期间遍历返回并继续后项，短 traversal context 不取消独立 executor，Stop/Drain 等原调用退出后提交 cancelled 与双 lease 退休。分页跨终态历史的完整推进由定向纯控覆盖；本片不包含 App 自动装配、多轮或 Task done。
+
+native01 于 2026-10-11 00:05:40–00:07:51 UTC 全尾结束，Go 323988、driver 322304、supervisor 322303、outer 322258 原 Wait0；七资源 14 次 absent，private/runtime/desc/HOST_TCP 与 outer 全部双尾关闭，adopted=[]。1,596 native 输入首尾相同，包含全部 860 compile 输入。候选 `output/ai/agent-system-integration/scheduler-execution-race-01.test` 为 64,844,964 B，SHA256 `b8616a3038576de0c8bbd620ecdc9a485bdc5e4a9cd9d4f22f37cf0af94770a7`。窗口已归还，未追加验证。
+
+原件：`output/ai/scheduler-execution/combined-pure-01/result.json`、`output/ai/agent-system-integration/scheduler-execution-compile-01/result.json`、同目录 `scheduler-execution-01-control/result.json` 与 `supervisor.log`；PG 日志 `/tmp/sxe01/pg-3c07d5cc1b1c4fc5bacffa7ba079cc08.log`。compile 全尾后因已知容量不足暂停，未尝试 native、未产生容量 FAIL；root 对旧 ProjectVariableLifecycle HEAD `0654efe` 的九个 tracked 源目录作 normal sparse 可逆停放，全部 output/sole hotcache、恢复目录、根规则、refs、旧 FAIL 保留。native 原同进程 fresh 为 5,495,574,528 B；本批未删除 candidate 或 cache。
+
+恢复沿既有 recipe（可从 `573d4275:.agent-state/agent-system-integration/README.md` 读取），模板仍为 `148640b8` 的 `task-launch-failure-pure-checks.py`、`73387883` 的 `scheduler-failure-compile-02-launcher.py` / `scheduler-failure-launcher-01.py`，均在 `.agent-state/agent-system-integration/`。仅代入 delivery ROOT、上述完整 SOURCE、namespace `scheduler-execution`、compile `tests/projectvariable` 与 len1＋精确集合 `{'TestSchedulerExecution'}`；native 父 selector `^TestSchedulerExecution$`、plan `scheduler-execution-01-inputs.json`、输出 `/tmp/sxe01`。不使用 slash 子选择器；新轮需 fresh namespace，compile wholePASS 后按原 recipe 冻结实际输入。pure 为下列 10 top、`exact_10_top_pass`，vet 仅 execution、execution/contract、scheduler；原固定环境、5GiB、预算、Wait 与全部尾门不变。
+
+```python
+TOPS = {
+ 'execution': ['TestAssociatedExecutorAdmissionOwnsExactTupleAndCapacity', 'TestAssociatedExecutorRunLifetimeStopsOnlyOwnedCalls', 'TestAssociatedExecutorUnknownRecoveryIsPacedAndUsesOriginalOwner', 'TestAssociatedExecutorCurrentFactsDeferUnsafeTakeover', 'TestExecutionPreparationStopWaitsForOriginalSourceAndCheckpoint'],
+ 'scheduler': ['TestSchedulerProjectRunnerExecutionPagesReachAndWrapHistory', 'TestSchedulerProjectRunnerExecutionFailuresPreserveCursor', 'TestSchedulerProjectRunnerExecutionPauseAndBorrowedLifetime', 'TestSchedulerProjectRunnerConsumesFixedSnapshotOrder', 'TestSchedulerProjectRunnerRechecksScopeAndPacesSkips'],
+}
+```
+
+实际三个 ignored 入口均在 `output/ai/agent-system-integration/`，沿固定 Python `-B` 顺序执行：`scheduler-execution-pure-checks.py --cache /workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build` → `scheduler-execution-compile-01-launcher.py` → 冻结 plan 后 `scheduler-execution-launcher-01.py`。须先取得唯一资源窗口，已有结果不覆盖，所有历史 FAIL/输入/日志继续保留。
