@@ -156,7 +156,7 @@ func TestExecutionToolResultStopWaitsForActualReaderReturn(t *testing.T) {
 	done := make(chan error, 1)
 	go func() { _, err := owner.Consume(context.Background(), e); done <- err }()
 	<-entered
-	if _, err = owner.Lookup(context.Background(), e); err == nil {
+	if _, _, err = owner.Lookup(context.Background(), e); err == nil {
 		t.Fatal("concurrent call entered the same execution")
 	}
 	owner.Stop()
