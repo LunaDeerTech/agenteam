@@ -1,3 +1,14 @@
+import {
+  createWorkReviewAPI,
+  captureReviewInput,
+  type WorkReviewAPI,
+  type ReviewInput,
+  type ReviewReceipt,
+  type ReviewLookup,
+  type PageQuery,
+  type TaskQuery,
+} from '../api/work-review'
+import { createAgentDirectoryAPI, type AgentDirectoryAPI } from '../api/agent-directory'
 import { readonly, shallowReactive } from 'vue'
 import {
   createAccountAPI,
@@ -243,6 +254,25 @@ export type ProjectModelSettingsProgress = Readonly<{
   contextValid: boolean
   canRetryOriginal: boolean
 }>
+type WorkReviewAction = 'work-review-read' | 'work-review-transfer' | 'work-review-lookup'
+type WorkReviewIntent = {
+  identity: PersonalIdentity
+  csrf: string
+  projectID: string
+  taskID: string
+  key: string
+  input: ReviewInput
+  body: string
+  uncertain: boolean
+}
+export type WorkReviewProgress = Readonly<{
+  projectID: string
+  taskID: string
+  phase: 'submitting' | 'uncertain' | 'confirmed' | 'rejected'
+  receipt: ReviewReceipt | null
+  observation: 'none' | 'committed' | 'in_progress' | 'not_observed' | 'failed'
+  contextValid: boolean
+}>
 type ProjectAction = 'project-read' | 'project-update' | 'project-lookup'
 type ProjectAuditAction = 'project-audit-list' | 'project-audit-get'
 export type ProjectProgress = Readonly<{
@@ -479,6 +509,7 @@ type Action =
   | SMTPDeliveryAction
   | OutboundPolicyAction
   | ProjectAction
+  | WorkReviewAction
   | ProjectAuditAction
   | ProjectModelAction
 interface Operation {
@@ -493,6 +524,10 @@ interface Operation {
 }
 
 export type PersonalIdentity = Readonly<{ userID: string; sessionID: string; epoch: number }>
+export type SessionRestoreResult = Readonly<{
+  user: Readonly<User>
+  session: Readonly<Session>
+}>
 export type SystemInvitationProgress = Readonly<{
   kind: InvitationCommand['kind']
   phase: 'submitting' | 'uncertain' | 'confirmed'
@@ -592,6 +627,8 @@ export function createSessionController(
   projectAuditAPI: ProjectAuditAPI = createProjectAuditAPI(),
   projectModelSettingsAPI: ProjectModelSettingsAPI = createProjectModelSettingsAPI(),
   knowledgeAPI: KnowledgeOwnerAPI = createKnowledgeOwnerAPI(),
+  workReviewAPI: WorkReviewAPI = createWorkReviewAPI(),
+  agentDirectoryAPI: AgentDirectoryAPI = createAgentDirectoryAPI(),
 ) {
   const state = shallowReactive<PublicState>({
     phase: 'checking',
@@ -614,6 +651,7 @@ export function createSessionController(
   let intent: Intent | null = null
   let expectedSession: LoginResult | null = null
   let owner: Operation | null = null
+  let restoration: Promise<SessionRestoreResult | null> | null = null
   let challengeAbort: AbortController | null = null
   const challengeTails = new Set<Promise<void>>()
   let pending = false
@@ -659,6 +697,17 @@ export function createSessionController(
     materialInvalid: boolean
     materialRevision: number
   }>({ progress: null, hasMaterial: false, materialInvalid: false, materialRevision: 0 })
+  const workReviewRevisions: Record<WorkReviewAction, number> = {
+    'work-review-read': 0,
+    'work-review-transfer': 0,
+    'work-review-lookup': 0,
+  }
+  const isWorkReviewAction = (kind: Action): kind is WorkReviewAction =>
+    Object.hasOwn(workReviewRevisions, kind)
+  let workReviewIntent: WorkReviewIntent | null = null
+  const workReviewState = shallowReactive<{
+    progress: Omit<WorkReviewProgress, 'contextValid'> | null
+  }>({ progress: null })
   const projectRevisions: Record<ProjectAction, number> = {
     'project-read': 0,
     'project-update': 0,
@@ -826,6 +875,7 @@ export function createSessionController(
     )
   }
   function clearIdentity(invalidate = true) {
+    clearWorkReviewRead()
     clearKnowledgeRead()
     clearProjectAuditRead()
     clearProjectModelReads()
@@ -834,6 +884,7 @@ export function createSessionController(
     if (invalidate) {
       clearProjectModelState()
       clearProjectState()
+      clearWorkReviewState()
       clearInvitationState()
       clearProviderState()
       clearModelState()
@@ -898,6 +949,7 @@ export function createSessionController(
     if (!same) {
       clearProjectModelState()
       clearProjectState()
+      clearWorkReviewState()
       ++personalRevision
       personalContext.identity = Object.freeze({
         userID: view.user.id,
@@ -1091,8 +1143,14 @@ export function createSessionController(
     deliveryChannel = result.delivery_channel
     state.phase = 'anonymous'
   }
-  function restore() {
-    return run('restore', async (op) => {
+  function restore(): Promise<SessionRestoreResult | null> {
+    if (owner?.kind === 'restore' && restoration) return restoration
+    let accepted: {
+      op: Operation
+      identity: PersonalIdentity
+      value: SessionRestoreResult
+    } | null = null
+    const original = run('restore', async (op) => {
       state.notice = ''
       state.phase = 'checking'
       // A restored identity is never displayed while its current authority is unknown.
@@ -1126,6 +1184,15 @@ export function createSessionController(
           return
         }
         publish(result)
+        if (personalContext.identity)
+          accepted = {
+            op,
+            identity: personalContext.identity,
+            value: Object.freeze({
+              user: Object.freeze({ ...result.user }),
+              session: Object.freeze({ ...result.session }),
+            }),
+          }
       } catch (e) {
         if (!valid(op)) return
         if (!unavailableSession(e)) throw e
@@ -1139,6 +1206,26 @@ export function createSessionController(
         await bootstrap(op)
       }
     })
+    const restored: Promise<SessionRestoreResult | null> = original
+      .then(() => {
+        // This value belongs to the original strict Session read, not a later
+        // state snapshot. A visible timeout or invalidated identity has no value.
+        if (
+          !accepted ||
+          accepted.op.expired ||
+          accepted.op.abort.signal.aborted ||
+          !sameIdentity(accepted.identity, personalContext.identity) ||
+          personalContext.phase !== 'current' ||
+          state.phase !== 'authenticated'
+        )
+          return null
+        return accepted.value
+      })
+      .finally(() => {
+        if (restoration === restored) restoration = null
+      })
+    restoration = restored
+    return restored
   }
   function newKey() {
     try {
@@ -1408,44 +1495,47 @@ export function createSessionController(
       | SMTPDeliveryAction
       | OutboundPolicyAction
       | ProjectAction
+      | WorkReviewAction
       | ProjectAuditAction
       | ProjectModelAction = 'personal',
   ): Promise<T> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     const revisionNow = () =>
-      kind === 'knowledge-read'
-        ? knowledgeRevision
-        : isProjectModelAction(kind)
-          ? projectModelRevisions[kind]
-          : isProjectAuditAction(kind)
-            ? projectAuditRevision
-            : isProjectAction(kind)
-              ? projectRevisions[kind]
-              : kind === 'system'
-                ? systemRevision
-                : kind === 'audit-read'
-                  ? auditRevision
-                  : kind === 'runtime-information-read'
-                    ? runtimeInformationRevision
-                    : kind === 'invitation-read'
-                      ? invitationReadRevision
-                      : kind === 'invitation-write'
-                        ? invitationRevision
-                        : kind === 'personal'
-                          ? personalRevision
-                          : isModelAction(kind)
-                            ? modelRevisions[kind]
-                            : isSelectionAction(kind)
-                              ? selectionRevisions[kind]
-                              : isAccountSecurityAction(kind)
-                                ? accountSecurityRevisions[kind]
-                                : isSMTPAction(kind)
-                                  ? smtpRevisions[kind]
-                                  : isSMTPDeliveryAction(kind)
-                                    ? smtpDeliveryRevisions[kind]
-                                    : isOutboundPolicyAction(kind)
-                                      ? outboundRevisions[kind]
-                                      : providerRevisions[kind]
+      isWorkReviewAction(kind)
+        ? workReviewRevisions[kind]
+        : kind === 'knowledge-read'
+          ? knowledgeRevision
+          : isProjectModelAction(kind)
+            ? projectModelRevisions[kind]
+            : isProjectAuditAction(kind)
+              ? projectAuditRevision
+              : isProjectAction(kind)
+                ? projectRevisions[kind]
+                : kind === 'system'
+                  ? systemRevision
+                  : kind === 'audit-read'
+                    ? auditRevision
+                    : kind === 'runtime-information-read'
+                      ? runtimeInformationRevision
+                      : kind === 'invitation-read'
+                        ? invitationReadRevision
+                        : kind === 'invitation-write'
+                          ? invitationRevision
+                          : kind === 'personal'
+                            ? personalRevision
+                            : isModelAction(kind)
+                              ? modelRevisions[kind]
+                              : isSelectionAction(kind)
+                                ? selectionRevisions[kind]
+                                : isAccountSecurityAction(kind)
+                                  ? accountSecurityRevisions[kind]
+                                  : isSMTPAction(kind)
+                                    ? smtpRevisions[kind]
+                                    : isSMTPDeliveryAction(kind)
+                                      ? smtpDeliveryRevisions[kind]
+                                      : isOutboundPolicyAction(kind)
+                                        ? outboundRevisions[kind]
+                                        : providerRevisions[kind]
     const revision = revisionNow()
     const op: Operation = {
       kind,
@@ -1460,7 +1550,8 @@ export function createSessionController(
       revision === revisionNow() &&
       sameIdentity(identity, personalContext.identity) &&
       (kind === 'personal' ||
-        (kind === 'knowledge-read' ||
+        (isWorkReviewAction(kind) ||
+        kind === 'knowledge-read' ||
         isProjectAction(kind) ||
         isProjectAuditAction(kind) ||
         isProjectModelAction(kind)
@@ -1527,8 +1618,9 @@ export function createSessionController(
         return result
       })
       .catch((error: unknown) => {
-        const e =
-          kind === 'knowledge-read'
+        const e = isWorkReviewAction(kind)
+          ? projectFailure(identity, op, error)
+          : kind === 'knowledge-read'
             ? knowledgeFailure(current, error)
             : isProjectModelAction(kind)
               ? projectModelFailure(kind, current, error)
@@ -3610,6 +3702,166 @@ export function createSessionController(
       return performSMTPDelivery(smtpDeliveryIntent)
     },
   }
+  function clearWorkReviewRead() {
+    ++workReviewRevisions['work-review-read']
+    if (owner?.kind === 'work-review-read') owner.abandon?.()
+  }
+  function clearWorkReviewState() {
+    for (const kind of Object.keys(workReviewRevisions) as WorkReviewAction[])
+      ++workReviewRevisions[kind]
+    workReviewIntent = null
+    workReviewState.progress = null
+    if (owner && isWorkReviewAction(owner.kind)) owner.abandon?.()
+  }
+  function reviewCurrent(original: WorkReviewIntent) {
+    return workReviewIntent === original && projectContext(original)
+  }
+  function publishReview(
+    original: WorkReviewIntent,
+    phase: WorkReviewProgress['phase'],
+    receipt: ReviewReceipt | null = null,
+    observation: WorkReviewProgress['observation'] = 'none',
+  ) {
+    workReviewState.progress = Object.freeze({
+      projectID: original.projectID,
+      taskID: original.taskID,
+      phase,
+      receipt,
+      observation,
+    })
+  }
+  function performReview(
+    original: WorkReviewIntent,
+    lookup: boolean,
+  ): Promise<ReviewReceipt | ReviewLookup> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    if (!reviewCurrent(original)) return Promise.reject(new AccountFailure('invalid-input'))
+    const kind: WorkReviewAction = lookup ? 'work-review-lookup' : 'work-review-transfer'
+    const revision = workReviewRevisions[kind]
+    const live = () => reviewCurrent(original) && revision === workReviewRevisions[kind]
+    let dispatched = false
+    if (!lookup) publishReview(original, 'submitting')
+    return runAuthorized(
+      original.identity,
+      async (op, current) => {
+        if (!current() || !live()) throw new AccountFailure('cancelled')
+        if (JSON.stringify(original.input) !== original.body)
+          throw new AccountFailure('invalid-input')
+        dispatched = true
+        const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
+        return lookup
+          ? workReviewAPI.lookup(original.projectID, original.taskID, original.input, write)
+          : workReviewAPI.transfer(original.projectID, original.taskID, original.input, write)
+      },
+      undefined,
+      kind,
+    ).then(
+      (value) => {
+        if (!live()) throw new AccountFailure('cancelled')
+        if ('status' in value && value.status !== 'committed') {
+          original.uncertain = true
+          publishReview(original, 'uncertain', null, value.status)
+          return value
+        }
+        const receipt = 'status' in value ? value.receipt : value
+        publishReview(original, 'confirmed', receipt, lookup ? 'committed' : 'none')
+        workReviewIntent = null
+        return value
+      },
+      (error) => {
+        const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (live()) {
+          const p = failure.problem
+          const rejected =
+            !dispatched ||
+            (!!p &&
+              ['not_started', 'not_committed'].includes(p.commit_state) &&
+              p.code !== 'IDEMPOTENCY_KEY_REUSED')
+          original.uncertain ||= lookup || !rejected
+          publishReview(
+            original,
+            original.uncertain ? 'uncertain' : 'rejected',
+            null,
+            lookup ? 'failed' : 'none',
+          )
+        }
+        throw failure
+      },
+    )
+  }
+  function reviewRead<T>(fn: (signal: AbortSignal) => Promise<T>) {
+    try {
+      const identity = personalIdentity()
+      return runAuthorized(identity, (op) => fn(op.abort.signal), undefined, 'work-review-read')
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+  // The Session owns keys/payloads and the actual request tail. Views receive only safe progress.
+  const workReview = {
+    get progress(): WorkReviewProgress | null {
+      const value = workReviewState.progress
+      return value
+        ? Object.freeze({
+            ...value,
+            contextValid: !!workReviewIntent && reviewCurrent(workReviewIntent),
+          })
+        : null
+    },
+    milestones: (p: string, q: PageQuery) =>
+      reviewRead((signal) => workReviewAPI.milestones(p, q, signal)),
+    milestone: (p: string, t: string) =>
+      reviewRead((signal) => workReviewAPI.milestone(p, t, signal)),
+    sprints: (p: string, m: string, q: PageQuery) =>
+      reviewRead((signal) => workReviewAPI.sprints(p, m, q, signal)),
+    sprint: (p: string, t: string) => reviewRead((signal) => workReviewAPI.sprint(p, t, signal)),
+    tasks: (p: string, q: TaskQuery) => reviewRead((signal) => workReviewAPI.tasks(p, q, signal)),
+    task: (p: string, t: string) => reviewRead((signal) => workReviewAPI.task(p, t, signal)),
+    blockers: (p: string, t: string, q: PageQuery) =>
+      reviewRead((signal) => workReviewAPI.blockers(p, t, q, signal)),
+    agents: (p: string, q: PageQuery) =>
+      reviewRead((signal) => agentDirectoryAPI.list(p, q, signal)),
+    agent: (p: string, t: string) => reviewRead((signal) => agentDirectoryAPI.get(p, t, signal)),
+    abandonRead: clearWorkReviewRead,
+    startTransfer(projectID: string, taskID: string, value: ReviewInput) {
+      try {
+        const identity = personalIdentity()
+        if (owner || workReviewIntent || personalIntent || pending) throw new AccountFailure('busy')
+        if (!uuid7.test(projectID) || !uuid7.test(taskID)) throw new AccountFailure('invalid-input')
+        const input = captureReviewInput(value)
+        const original: WorkReviewIntent = {
+          identity,
+          csrf: sessionCSRF,
+          projectID,
+          taskID,
+          key: newKey(),
+          input,
+          body: JSON.stringify(input),
+          uncertain: false,
+        }
+        workReviewIntent = original
+        return performReview(original, false)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    checkOriginal() {
+      if (!workReviewIntent?.uncertain) return Promise.reject(new AccountFailure('invalid-input'))
+      return performReview(workReviewIntent, true)
+    },
+    editRejected() {
+      if (
+        owner ||
+        !workReviewIntent ||
+        !reviewCurrent(workReviewIntent) ||
+        workReviewIntent.uncertain ||
+        workReviewState.progress?.phase !== 'rejected'
+      )
+        throw new AccountFailure('busy')
+      workReviewIntent = null
+      workReviewState.progress = null
+    },
+  }
   function projectContext(original: Pick<ProjectIntent, 'identity' | 'csrf'>) {
     return (
       sameIdentity(original.identity, personalContext.identity) &&
@@ -5339,6 +5591,7 @@ export function createSessionController(
     state: readonly(state),
     personalContext: readonly(personalContext),
     projects,
+    workReview,
     projectAudit,
     knowledge,
     projectModelSettings,

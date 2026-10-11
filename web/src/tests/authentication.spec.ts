@@ -11,7 +11,12 @@ vi.mock('../composables/useSession', async (original) => {
   return { ...actual, useSession: () => selected.auth! }
 })
 import { createSessionController } from '../composables/useSession'
-import { installAuthentication, safeReturnTarget } from '../router/auth'
+import {
+  installAuthentication,
+  safeReturnTarget,
+  projectRoute,
+  workTaskRoute,
+} from '../router/auth'
 import App from '../App.vue'
 import LoginView from '../views/auth/LoginView.vue'
 import HomeView from '../views/HomeView.vue'
@@ -581,5 +586,28 @@ describe('Project login return closed paths', () => {
     expect(safeReturnTarget('/system/users')).toBe('/system/users')
     expect(safeReturnTarget('/settings/profile')).toBe('/settings/profile')
     expect(safeReturnTarget('/projects')).toBe('/projects')
+  })
+})
+
+describe('task review route boundaries', () => {
+  it('accepts only canonical project Task/Sprint paths and preserves safe login return targets', () => {
+    const root = '/owner/demo/tasks',
+      sprint = `${root}/sprints/${id}`,
+      task = `${root}/${id}`
+    expect(workTaskRoute(root)).toEqual({ projectPath: '/owner/demo', kind: 'root', id: null })
+    expect(workTaskRoute(sprint)).toEqual({ projectPath: '/owner/demo', kind: 'sprint', id })
+    expect(workTaskRoute(task)).toEqual({ projectPath: '/owner/demo', kind: 'task', id })
+    for (const path of [root, sprint, task]) expect(safeReturnTarget(path)).toBe(path)
+    for (const path of [
+      `${root}?state=done`,
+      `${root}/${id}/transfer`,
+      `${root}/sprints`,
+      `${root}/%2e%2e`,
+      `${root}/019abcde-0000-7000-8000-00000000000A`,
+      `/system/demo/tasks`,
+    ]) {
+      expect(projectRoute(path)).toBe(null)
+      expect(safeReturnTarget(path)).toBe('/')
+    }
   })
 })

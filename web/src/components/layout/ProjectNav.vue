@@ -5,6 +5,17 @@ import { projectRoute } from '../../router/auth'
 
 const props = defineProps<{ name: string; home: string; settings: string }>()
 const route = useRoute()
+const tasksCurrent = computed(() => {
+  const current = projectRoute(route.fullPath),
+    target = projectRoute(props.home)
+  return (
+    !!current &&
+    !!target &&
+    current.username === target.username &&
+    current.project_name === target.project_name &&
+    (current.suffix === '/tasks' || current.suffix.startsWith('/tasks/'))
+  )
+})
 const knowledgeCurrent = computed(() => {
   const current = projectRoute(route.fullPath),
     target = projectRoute(props.home)
@@ -41,6 +52,9 @@ const settingsCurrent = computed(() => {
       :title="name"
       :aria-current="route.path === home ? 'page' : undefined"
       >{{ name }}</RouterLink
+    >
+    <RouterLink :to="home + '/tasks'" :aria-current="tasksCurrent ? 'page' : undefined"
+      >任务</RouterLink
     >
     <RouterLink :to="home + '/knowledge'" :aria-current="knowledgeCurrent ? 'page' : undefined"
       >知识库</RouterLink

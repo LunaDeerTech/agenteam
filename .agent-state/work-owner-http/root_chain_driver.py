@@ -18,6 +18,14 @@ MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 # One closed same-package PG family: adding a scenario changes required
 # inputs and expected test data, never the resource/Wait/tail implementation.
 METADATA_INPUTS = {
+    '^TestTaskReviewWeb$': (
+        'tests/projectvariable/task_review_web_test.go',
+        'tests/projectvariable/task_review_test.go',
+        'tests/account-captcha-web/task-review.config.js',
+        'tests/account-captcha-web/e2e/task-review.spec.ts',
+        'tests/account-captcha-web/e2e/task-review.helpers.ts',
+        'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts',
+    ),
     '^TestExecutionRuntimeAccessAudit$': (
         'tests/projectvariable/execution_runtime_access_audit_test.go',
         'tests/projectvariable/execution_first_round_test.go',
@@ -236,6 +244,8 @@ def metadata_inputs(binary, selector='^TestAgentConfigurationMetadata$'):
     # Only the explicitly retained legacy metadata profile includes its
     # historical records. New profiles contain actual compiled/runtime inputs.
     paths.update(REPOSITORY / name for name in METADATA_INPUTS[selector])
+    if selector == TASK_REVIEW_UI:
+        paths.update(task_review_ui_inputs())
     if any(not p.is_file() or p.is_symlink() or p.resolve(strict=True) != p for p in paths):
         raise ValueError('regular complete configuration metadata inputs required')
     return sorted(paths)
@@ -290,6 +300,80 @@ KNOWLEDGE_ENV = ('AGENTEAM_KNOWLEDGE_OWNER_WEB_DIST',
                  'AGENTEAM_KNOWLEDGE_OWNER_WEB_EVIDENCE',
                  'AGENTEAM_KNOWLEDGE_OWNER_WEB_SCHEMA_PYTHON',
                  'AGENTEAM_KNOWLEDGE_OWNER_WEB_CASE')
+
+
+TASK_REVIEW_UI = '^TestTaskReviewWeb$'
+TASK_REVIEW_ENV = ('AGENTEAM_TASK_REVIEW_WEB_DIST', 'AGENTEAM_TASK_REVIEW_WEB_EVIDENCE')
+TASK_REVIEW_HARNESS_MODULES = Path('/workspace/agenteam-work-ui-independent/tests/account-captcha-web/node_modules')
+TASK_REVIEW_WEB_MODULES = Path('/workspace/agenteam/web/node_modules')
+
+
+def task_review_ui_environment():
+    return {key: os.environ.get(key, '') for key in TASK_REVIEW_ENV}
+
+
+def task_review_ui_assets():
+    owned = (REPOSITORY / 'output/ai/work-review-web').resolve()
+    dist = Path(task_review_ui_environment()[TASK_REVIEW_ENV[0]])
+    if (not dist.is_absolute() or dist != dist.resolve() or not dist.is_relative_to(owned)
+            or not (dist / 'index.html').is_file()):
+        raise ValueError('owned frozen Task Review dist required')
+    assets = list(dist.rglob('*'))
+    if any(p.is_symlink() for p in assets):
+        raise ValueError('Task Review assets must not alias another source')
+    return sorted(p for p in assets if p.is_file())
+
+
+def task_review_ui_configuration(directory):
+    values = task_review_ui_environment()
+    task_review_ui_assets()
+    evidence = Path(values[TASK_REVIEW_ENV[1]])
+    owned = (REPOSITORY / 'output/ai/work-review-web').resolve()
+    if (len(str(directory / 'runtime')) > 45 or not evidence.is_absolute()
+            or evidence != evidence.resolve() or evidence.exists() or evidence.is_symlink()
+            or not evidence.parent.is_dir() or not evidence.parent.is_relative_to(owned)
+            or evidence.is_relative_to(Path(values[TASK_REVIEW_ENV[0]]))
+            or not KNOWLEDGE_NODE.is_file() or not os.access(KNOWLEDGE_NODE, os.X_OK)):
+        raise ValueError('fresh owned Task Review evidence and short runtime required')
+    return values
+
+
+def task_review_ui_inputs():
+    paths = set(task_review_ui_assets())
+    harness = REPOSITORY / 'tests/account-captcha-web'
+    modules = harness / 'node_modules'
+    web_modules = REPOSITORY / 'web/node_modules'
+    if (modules.resolve(strict=True) != TASK_REVIEW_HARNESS_MODULES.resolve(strict=True)
+            or web_modules.resolve(strict=True) != TASK_REVIEW_WEB_MODULES.resolve(strict=True)):
+        raise ValueError('approved shared Task Review installations required')
+    paths.update(harness / name for name in ('package.json', 'package-lock.json',
+        'task-review.config.js', 'e2e/task-review.spec.ts', 'e2e/task-review.helpers.ts'))
+    for name in ('@playwright/test', 'playwright', 'playwright-core'):
+        package = (modules / name).resolve(strict=True)
+        if not package.is_relative_to(TASK_REVIEW_HARNESS_MODULES.resolve(strict=True)):
+            raise ValueError('Task Review package escaped approved installation')
+        if json.loads((package / 'package.json').read_text())['version'] != '1.56.1':
+            raise ValueError('locked Playwright 1.56.1 required')
+        paths.update(p for p in package.rglob('*') if p.is_file() or p.is_symlink())
+    typescript = (web_modules / 'typescript').resolve(strict=True)
+    if not typescript.is_relative_to(TASK_REVIEW_WEB_MODULES.resolve(strict=True)):
+        raise ValueError('Task Review compiler escaped approved installation')
+    paths.update(typescript / name for name in ('package.json', 'lib/typescript.js'))
+    paths.update(p for p in (REPOSITORY / 'web/src').rglob('*')
+                 if p.is_file() and '.spec.' not in p.name and '.test.' not in p.name)
+    paths.update(REPOSITORY / 'web' / name for name in
+                 ('package.json', 'package-lock.json', 'index.html', 'vite.config.ts'))
+    paths.update((REPOSITORY / 'web').glob('tsconfig*.json'))
+    paths.update({KNOWLEDGE_NODE, Path('/usr/bin/chromium'), Path('/usr/lib/chromium/chromium')})
+    paths.update(p for p in Path('/etc/chromium.d').glob('*') if p.is_file() or p.is_symlink())
+    if any(not p.is_file() or p.is_symlink() or p.resolve(strict=True) != p for p in paths):
+        raise ValueError('regular complete Task Review browser inputs required')
+    return sorted(paths)
+
+
+def task_review_ui_input_hash(binary):
+    inputs = {str(p): sha(p) for p in metadata_inputs(binary, TASK_REVIEW_UI)}
+    return hashlib.sha256(json.dumps(inputs, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
 
 
 def knowledge_ui_assets():
@@ -395,6 +479,8 @@ def configuration(binary, selector, directory):
             'cwd': str(REPOSITORY / TARGETS[selector]),
             'directory': str(directory), 'runtime': str(directory / 'runtime'),
             'test_timeout': '6m', 'resources': 7}
+    if selector == TASK_REVIEW_UI:
+        plan['task_review_ui'] = task_review_ui_configuration(directory)
     if selector == KNOWLEDGE_UI:
         plan['knowledge_ui'] = knowledge_ui_configuration(directory)
     return plan
@@ -467,6 +553,13 @@ def main():
         env.update(ui)
         env.update({'AGENTEAM_AUTH_WEB_RUNTIME': str(runtime),
                     'AGENTEAM_KNOWLEDGE_OWNER_WEB_INPUT_HASH': knowledge_ui_input_hash(args.test_binary),
+                    'PATH': str(KNOWLEDGE_NODE.parent) + os.pathsep + env.get('PATH', '')})
+    if args.run == TASK_REVIEW_UI:
+        ui = plan['task_review_ui']
+        Path(ui['AGENTEAM_TASK_REVIEW_WEB_EVIDENCE']).mkdir(mode=0o700)
+        env.update(ui)
+        env.update({'AGENTEAM_AUTH_WEB_RUNTIME': str(runtime),
+                    'AGENTEAM_TASK_REVIEW_WEB_INPUT_HASH': task_review_ui_input_hash(args.test_binary),
                     'PATH': str(KNOWLEDGE_NODE.parent) + os.pathsep + env.get('PATH', '')})
     os.chdir(REPOSITORY)
     # No child is started here: the original shell chain replaces this PID.

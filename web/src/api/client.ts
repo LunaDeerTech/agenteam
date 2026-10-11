@@ -54,6 +54,17 @@ export function string(value: unknown, minimum: number, maximum: number): string
 }
 
 const endpoints = {
+  reviewMilestones: ['GET', '/api/v1/projects/{project_id}/milestones', 200],
+  reviewMilestone: ['GET', '/api/v1/projects/{project_id}/milestones/{target}', 200],
+  reviewSprints: ['GET', '/api/v1/projects/{project_id}/sprints', 200],
+  reviewSprint: ['GET', '/api/v1/projects/{project_id}/sprints/{target}', 200],
+  reviewTasks: ['GET', '/api/v1/projects/{project_id}/tasks', 200],
+  reviewTask: ['GET', '/api/v1/projects/{project_id}/tasks/{target}', 200],
+  reviewBlockers: ['GET', '/api/v1/projects/{project_id}/tasks/{target}/blockers', 200],
+  reviewTransfer: ['POST', '/api/v1/projects/{project_id}/tasks/{target}/transfer', 200],
+  reviewLookup: ['POST', '/api/v1/projects/{project_id}/task-transition-commands/lookup', 200],
+  directoryAgents: ['GET', '/api/v1/projects/{project_id}/agents', 200],
+  directoryAgent: ['GET', '/api/v1/projects/{project_id}/agents/{target}', 200],
   knowledgeChildren: ['GET', '/api/v1/projects/{project_id}/knowledge/documents/children', 200],
   knowledgeDocument: ['GET', '/api/v1/projects/{project_id}/knowledge/documents/{target}', 200],
   knowledgeAncestors: [
@@ -361,9 +372,14 @@ export function projectModelJSONBytes(value: unknown): number {
   return Infinity
 }
 
+// A reader publishes this only after EOF or its original cancellation has settled
+// and the reader lock has been released. The caller retains cleanup otherwise.
+type BodyLifecycle = { settled: boolean }
+
 async function readJSON(
   response: Response,
   signal: AbortSignal,
+  lifecycle: BodyLifecycle,
   maximum = 600_000,
   preserveProjectModelJSON = false,
   checkProjectAuditMembers = false,
@@ -372,19 +388,23 @@ async function readJSON(
   if (!reader) throw new AccountFailure('invalid-response')
   const decoder = new TextDecoder('utf-8', { fatal: true })
   let text = '',
-    bytes = 0
+    bytes = 0,
+    eof = false
   let cancelled: Promise<void> | undefined
   const cancel = () => (cancelled ??= reader.cancel().catch(() => undefined))
   // The listener starts cancellation; the same promise is joined in finally.
   const abort = () => {
-    void cancel()
+    if (!eof) void cancel()
   }
   signal.addEventListener('abort', abort, { once: true })
   if (signal.aborted) abort()
   try {
     for (;;) {
       const { done, value } = await reader.read()
-      if (done) break
+      if (done) {
+        eof = true
+        break
+      }
       bytes += value.byteLength
       if (bytes > maximum) throw new AccountFailure('invalid-response')
       text += decoder.decode(value, { stream: true })
@@ -397,35 +417,47 @@ async function readJSON(
       : (JSON.parse(text) as unknown)
   } finally {
     signal.removeEventListener('abort', abort)
-    await cancel()
+    if (cancelled) await cancelled
+    else if (!eof) await cancel()
     reader.releaseLock()
+    lifecycle.settled = true
   }
 }
 
-async function readEmptyBody(response: Response, signal: AbortSignal): Promise<void> {
+async function readEmptyBody(
+  response: Response,
+  signal: AbortSignal,
+  lifecycle: BodyLifecycle,
+): Promise<void> {
   const reader = response.body?.getReader()
   if (!reader) return
-  let cancelled: Promise<void> | undefined
+  let eof = false,
+    cancelled: Promise<void> | undefined
   const cancel = () => (cancelled ??= reader.cancel().catch(() => undefined))
   const abort = () => {
-    void cancel()
+    if (!eof) void cancel()
   }
   signal.addEventListener('abort', abort, { once: true })
   if (signal.aborted) abort()
   try {
     for (;;) {
       const { done, value } = await reader.read()
-      if (done) return
+      if (done) {
+        eof = true
+        return
+      }
       if (value.byteLength !== 0) throw new AccountFailure('invalid-response')
     }
   } finally {
     signal.removeEventListener('abort', abort)
-    await cancel()
+    if (cancelled) await cancelled
+    else if (!eof) await cancel()
     reader.releaseLock()
+    lifecycle.settled = true
   }
 }
 
-async function readAvatar(response: Response, signal: AbortSignal) {
+async function readAvatar(response: Response, signal: AbortSignal, lifecycle: BodyLifecycle) {
   const media = response.headers.get('Content-Type')
   const length = response.headers.get('Content-Length')
   const etag = response.headers.get('ETag')
@@ -440,10 +472,11 @@ async function readAvatar(response: Response, signal: AbortSignal) {
     throw new AccountFailure('invalid-response')
   const reader = response.body?.getReader()
   if (!reader) throw new AccountFailure('invalid-response')
-  let cancelled: Promise<void> | undefined
+  let eof = false,
+    cancelled: Promise<void> | undefined
   const cancel = () => (cancelled ??= reader.cancel().catch(() => undefined))
   const abort = () => {
-    void cancel()
+    if (!eof) void cancel()
   }
   signal.addEventListener('abort', abort, { once: true })
   if (signal.aborted) abort()
@@ -452,7 +485,10 @@ async function readAvatar(response: Response, signal: AbortSignal) {
   try {
     for (;;) {
       const { done, value } = await reader.read()
-      if (done) break
+      if (done) {
+        eof = true
+        break
+      }
       if (offset + value.byteLength > bytes.byteLength) throw new AccountFailure('invalid-response')
       bytes.set(value, offset)
       offset += value.byteLength
@@ -469,8 +505,10 @@ async function readAvatar(response: Response, signal: AbortSignal) {
       : new AccountFailure(signal.aborted ? 'cancelled' : 'invalid-response')
   } finally {
     signal.removeEventListener('abort', abort)
-    await cancel()
+    if (cancelled) await cancelled
+    else if (!eof) await cancel()
     reader.releaseLock()
+    lifecycle.settled = true
   }
 }
 
@@ -887,7 +925,47 @@ type KnowledgeOptions<E extends KnowledgeEndpoint> = E extends 'knowledgeChildre
       }
     : { signal: AbortSignal; projectID: string; target: string }
 
+type WorkReviewEndpoint =
+  | 'reviewMilestones'
+  | 'reviewMilestone'
+  | 'reviewSprints'
+  | 'reviewSprint'
+  | 'reviewTasks'
+  | 'reviewTask'
+  | 'reviewBlockers'
+  | 'reviewTransfer'
+  | 'reviewLookup'
+  | 'directoryAgents'
+  | 'directoryAgent'
+const workReviewEndpoints: readonly WorkReviewEndpoint[] = [
+  'reviewMilestones',
+  'reviewMilestone',
+  'reviewSprints',
+  'reviewSprint',
+  'reviewTasks',
+  'reviewTask',
+  'reviewBlockers',
+  'reviewTransfer',
+  'reviewLookup',
+  'directoryAgents',
+  'directoryAgent',
+]
+type WorkReviewOptions = {
+  signal: AbortSignal
+  projectID: string
+  target?: string
+  workQuery?: Readonly<Record<string, string>>
+  body?: unknown
+  csrf?: string
+  key?: string
+}
+
 export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
+  function request<T>(
+    endpoint: WorkReviewEndpoint,
+    parse: (value: unknown) => T,
+    options: WorkReviewOptions,
+  ): Promise<T>
   function request<T, E extends KnowledgeEndpoint>(
     endpoint: E,
     parse: (value: unknown) => T,
@@ -988,6 +1066,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       | OutboundPolicyEndpoint
       | AuditEndpoint
       | 'getSystemRuntimeInformation'
+      | WorkReviewEndpoint
     >,
     parse: (value: unknown) => T,
     options: RequestOptions & { users?: never; invitations?: never; target?: never },
@@ -1008,13 +1087,89 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       projectModels?: ProjectModelWireQuery
       projectAddress?: ProjectWireAddress
       projectID?: string
+      workQuery?: Readonly<Record<string, string>>
       target?: string
     },
   ): Promise<T> {
     if (!Object.hasOwn(endpoints, endpoint)) throw new AccountFailure('invalid-input')
     const [method, basePath, status] = endpoints[endpoint]
     let path: string = basePath
-    if ((knowledgeEndpoints as readonly string[]).includes(endpoint)) {
+    if ((workReviewEndpoints as readonly string[]).includes(endpoint)) {
+      try {
+        const list = [
+          'reviewMilestones',
+          'reviewSprints',
+          'reviewTasks',
+          'reviewBlockers',
+          'directoryAgents',
+        ].includes(endpoint)
+        const target = basePath.includes('{target}')
+        shape(options, [
+          'signal',
+          'projectID',
+          ...(target ? ['target'] : []),
+          ...(list ? ['workQuery'] : []),
+          ...(method === 'GET' ? [] : ['body', 'csrf', 'key']),
+        ])
+        const project = string(options.projectID, 36, 36)
+        if (!uuid7.test(project)) throw new Error()
+        path = basePath.replace('{project_id}', project)
+        if (target) {
+          const id = string(options.target, 36, 36)
+          if (!uuid7.test(id)) throw new Error()
+          path = path.replace('{target}', id)
+        }
+        if (list) {
+          const fields =
+            endpoint === 'reviewTasks'
+              ? ['sprint_id', 'state']
+              : endpoint === 'reviewSprints'
+                ? ['milestone_id']
+                : endpoint === 'reviewBlockers'
+                  ? ['status']
+                  : []
+          const query = shape(options.workQuery, ['limit', ...fields], ['cursor'])
+          const limit = string(query.limit, 1, 3)
+          if (!/^[1-9][0-9]*$/.test(limit) || Number(limit) > 200) throw new Error()
+          const params = new URLSearchParams()
+          for (const [key, value] of Object.entries(query)) {
+            const item = string(value, 1, key === 'cursor' ? 8192 : 64)
+            if (key.endsWith('_id') && !uuid7.test(item)) throw new Error()
+            if (
+              key === 'state' &&
+              ![
+                'backlog',
+                'todo',
+                'in_progress',
+                'in_review',
+                'blocked',
+                'done',
+                'cancelled',
+              ].includes(item)
+            )
+              throw new Error()
+            if (key === 'status' && !['unresolved', 'resolved', 'all'].includes(item))
+              throw new Error()
+            if (
+              new TextEncoder().encode(item).byteLength > 8192 ||
+              /[\u0000-\u001f\u007f-\u009f]/u.test(item) ||
+              /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(item)
+            )
+              throw new Error()
+            params.set(key, item)
+          }
+          path += '?' + params.toString()
+        }
+        if (
+          method !== 'GET' &&
+          (!/^[A-Za-z0-9_-]{43}$/.test(string(options.csrf, 43, 43)) ||
+            !/^[A-Za-z0-9._:/-]{1,128}$/.test(string(options.key, 1, 128)))
+        )
+          throw new Error()
+      } catch {
+        throw new AccountFailure('invalid-input')
+      }
+    } else if ((knowledgeEndpoints as readonly string[]).includes(endpoint)) {
       try {
         const children = endpoint === 'knowledgeChildren',
           content = endpoint === 'knowledgeContent'
@@ -1337,6 +1492,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
         throw new AccountFailure('invalid-input')
       }
     } else if (
+      Object.hasOwn(options, 'workQuery') ||
       Object.hasOwn(options, 'projects') ||
       Object.hasOwn(options, 'projectModels') ||
       Object.hasOwn(options, 'projectAddress') ||
@@ -1364,26 +1520,29 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       headers['Content-Type'] = options.avatar.mediaType
       headers['If-Match'] = `"${options.avatar.version}"`
     } else if (method !== 'GET') {
-      const maximum = (projectConfigurationWrites as readonly string[]).includes(endpoint)
+      const maximum = (workReviewEndpoints as readonly string[]).includes(endpoint)
         ? 1048576
-        : endpoint === 'createProjectModelCredential' || endpoint === 'updateProjectModelCredential'
-          ? 409600
-          : endpoint === 'deleteProjectModelCredential' ||
-              endpoint === 'lookupProjectModelCredential'
-            ? 1024
-            : endpoint === 'updateOwnerProject'
-              ? 64 * 1024
-              : endpoint === 'lookupOwnerProject'
-                ? 1024
-                : endpoint === 'updateOutboundPolicy'
-                  ? 1024 * 1024
-                  : endpoint === 'createModelCredential'
-                    ? 512 * 1024
-                    : endpoint === 'createProvider' ||
-                        endpoint === 'updateProvider' ||
-                        endpoint === 'updateSMTPSettings'
-                      ? 32 * 1024
-                      : 16 * 1024
+        : (projectConfigurationWrites as readonly string[]).includes(endpoint)
+          ? 1048576
+          : endpoint === 'createProjectModelCredential' ||
+              endpoint === 'updateProjectModelCredential'
+            ? 409600
+            : endpoint === 'deleteProjectModelCredential' ||
+                endpoint === 'lookupProjectModelCredential'
+              ? 1024
+              : endpoint === 'updateOwnerProject'
+                ? 64 * 1024
+                : endpoint === 'lookupOwnerProject'
+                  ? 1024
+                  : endpoint === 'updateOutboundPolicy'
+                    ? 1024 * 1024
+                    : endpoint === 'createModelCredential'
+                      ? 512 * 1024
+                      : endpoint === 'createProvider' ||
+                          endpoint === 'updateProvider' ||
+                          endpoint === 'updateSMTPSettings'
+                        ? 32 * 1024
+                        : 16 * 1024
       try {
         body = JSON.stringify(options.body)
       } catch {
@@ -1421,25 +1580,24 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     } catch {
       throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'transport')
     }
+    const lifecycle: BodyLifecycle = { settled: false }
     try {
       if (options.signal.aborted) throw new AccountFailure('cancelled')
       if (response.redirected || response.type === 'opaqueredirect')
         throw new AccountFailure('invalid-response')
       if (response.status === 204 && status === 204) {
-        if (endpoint === 'completePasswordReset' || endpoint === 'revokeSystemInvitation') {
-          // A network 204 may expose an empty stream. Confirm its actual EOF,
-          // rather than requiring the Fetch implementation to return null.
-          try {
-            await readEmptyBody(response, options.signal)
-          } catch {
-            throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response')
-          }
-          if (options.signal.aborted) throw new AccountFailure('cancelled')
+        // A network 204 may expose an empty stream. Confirm its actual EOF,
+        // rather than requiring the Fetch implementation to return null.
+        try {
+          await readEmptyBody(response, options.signal, lifecycle)
+        } catch {
+          throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response')
         }
+        if (options.signal.aborted) throw new AccountFailure('cancelled')
         return parse(undefined)
       }
       if (endpoint === 'avatar' && response.status === 200)
-        return parse(await readAvatar(response, options.signal))
+        return parse(await readAvatar(response, options.signal, lifecycle))
       const contentType = response.headers.get('Content-Type')?.split(';')[0]?.trim().toLowerCase()
       const success = response.status === status
       if (contentType !== (success ? 'application/json' : 'application/problem+json'))
@@ -1449,35 +1607,47 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
         value = await readJSON(
           response,
           options.signal,
-          (knowledgeEndpoints as readonly string[]).includes(endpoint) && success
-            ? // Exact complete representation limits of the two Knowledge adapters.
-              endpoint === 'knowledgeContent'
-              ? 7 * 1024 * 1024
-              : 5 * 1024 * 1024
-            : (projectModelEndpoints as readonly string[]).includes(endpoint) && success
-              ? (projectModelReads as readonly string[]).includes(endpoint)
-                ? 8388608
-                : 1024
-              : endpoint === 'listOwnerProjects' && success
-                ? 5 * 1024 * 1024
-                : projectEndpoints.includes(endpoint as ProjectEndpoint) && success
-                  ? 64 * 1024
-                  : endpoint === 'getSystemRuntimeInformation' && success
-                    ? 16 * 1024
-                    : endpoint === 'listProviders' && success
-                      ? 2 * 1024 * 1024
-                      : (endpoint === 'listSystemAudit' ||
-                            endpoint === 'getSystemAudit' ||
-                            endpoint === 'listProjectAudit' ||
-                            endpoint === 'getProjectAudit') &&
-                          success
-                        ? 1024 * 1024
-                        : 600_000,
+          lifecycle,
+          (workReviewEndpoints as readonly string[]).includes(endpoint) && success
+            ? endpoint === 'directoryAgents'
+              ? 13 * 1024 * 1024
+              : endpoint === 'directoryAgent'
+                ? 64 * 1024
+                : ['reviewMilestones', 'reviewSprints', 'reviewTasks', 'reviewBlockers'].includes(
+                      endpoint,
+                    )
+                  ? 5 * 1024 * 1024
+                  : 1024 * 1024
+            : (knowledgeEndpoints as readonly string[]).includes(endpoint) && success
+              ? // Exact complete representation limits of the two Knowledge adapters.
+                endpoint === 'knowledgeContent'
+                ? 7 * 1024 * 1024
+                : 5 * 1024 * 1024
+              : (projectModelEndpoints as readonly string[]).includes(endpoint) && success
+                ? (projectModelReads as readonly string[]).includes(endpoint)
+                  ? 8388608
+                  : 1024
+                : endpoint === 'listOwnerProjects' && success
+                  ? 5 * 1024 * 1024
+                  : projectEndpoints.includes(endpoint as ProjectEndpoint) && success
+                    ? 64 * 1024
+                    : endpoint === 'getSystemRuntimeInformation' && success
+                      ? 16 * 1024
+                      : endpoint === 'listProviders' && success
+                        ? 2 * 1024 * 1024
+                        : (endpoint === 'listSystemAudit' ||
+                              endpoint === 'getSystemAudit' ||
+                              endpoint === 'listProjectAudit' ||
+                              endpoint === 'getProjectAudit') &&
+                            success
+                          ? 1024 * 1024
+                          : 600_000,
           success && (projectModelReads as readonly string[]).includes(endpoint),
-          success &&
-            (endpoint === 'listProjectAudit' ||
-              endpoint === 'getProjectAudit' ||
-              (knowledgeEndpoints as readonly string[]).includes(endpoint)),
+          (workReviewEndpoints as readonly string[]).includes(endpoint) ||
+            (success &&
+              (endpoint === 'listProjectAudit' ||
+                endpoint === 'getProjectAudit' ||
+                (knowledgeEndpoints as readonly string[]).includes(endpoint))),
         )
       } catch {
         throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response')
@@ -1494,9 +1664,10 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
         throw new AccountFailure('invalid-response')
       }
     } finally {
-      // Includes aborted/redirected/wrong-media-type responses which never acquired a reader.
-      // The controller may finish its bounded UI wait, but owns us until this actually returns.
-      await response.body?.cancel().catch(() => undefined)
+      // Early rejection may precede reader ownership. Once the reader has joined
+      // its body, do not cancel that completed body again. Ownership still lasts
+      // until this fallback's original cancellation actually returns.
+      if (!lifecycle.settled) await response.body?.cancel().catch(() => undefined)
     }
   }
   return request

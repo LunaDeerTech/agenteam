@@ -121,6 +121,82 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 describe('Account Session ownership', () => {
+  it('returns one immutable safe restore receipt only after the original Session read settles', async () => {
+    const { api, controller: c } = fixture()
+    const held = deferred<SessionView>()
+    api.getSession.mockImplementationOnce(() => held.promise)
+    const first = c.restore()
+    let settled = false
+    void first.then(() => {
+      settled = true
+    })
+    try {
+      expect(c.restore()).toBe(first)
+      await Promise.resolve()
+      expect(api.getSession).toHaveBeenCalledOnce()
+      expect(c.state.busy).toBe(true)
+      expect(c.state.user).toBeNull()
+      expect(settled).toBe(false)
+      const source = { ...view, user: { ...view.user }, session: { ...view.session } }
+      held.resolve(source)
+      const receipt = await first
+      expect(receipt).toEqual({ user: view.user, session: view.session })
+      expect(Object.keys(receipt!).sort()).toEqual(['session', 'user'])
+      expect(JSON.stringify(receipt)).not.toContain(sessionToken)
+      expect(receipt).not.toHaveProperty('csrf_token')
+      expect(Object.isFrozen(receipt)).toBe(true)
+      expect(Object.isFrozen(receipt!.user)).toBe(true)
+      expect(Object.isFrozen(receipt!.session)).toBe(true)
+      expect(receipt!.user).not.toBe(source.user)
+      expect(receipt!.session).not.toBe(source.session)
+      expect(c.state.phase).toBe('authenticated')
+      expect(c.state.busy).toBe(false)
+      expect(api.bootstrap).not.toHaveBeenCalled()
+      c.leave()
+      expect(c.state.user).toBeNull()
+      expect(receipt).toEqual({ user: view.user, session: view.session })
+    } finally {
+      held.resolve(view)
+      await first
+      c.leave()
+    }
+  })
+  it.each(['timeout', 'leave'] as const)(
+    'returns no restore receipt after %s while retaining the original actual tail',
+    async (mode) => {
+      vi.useFakeTimers()
+      const { api, controller: c } = fixture()
+      const held = deferred<SessionView>()
+      api.getSession.mockImplementationOnce(() => held.promise)
+      const first = c.restore()
+      try {
+        await vi.advanceTimersByTimeAsync(0)
+        expect(api.getSession).toHaveBeenCalledOnce()
+        if (mode === 'timeout') {
+          await vi.advanceTimersByTimeAsync(30_000)
+          expect(await first).toBeNull()
+          expect(api.getSession.mock.calls[0]![0].aborted).toBe(true)
+        } else {
+          c.leave()
+        }
+        expect(c.state.busy).toBe(true)
+        expect(c.state.user).toBeNull()
+        held.resolve(view)
+        expect(await first).toBeNull()
+        await vi.advanceTimersByTimeAsync(0)
+        expect(api.getSession).toHaveBeenCalledOnce()
+        expect(api.bootstrap).not.toHaveBeenCalled()
+        expect(c.state.busy).toBe(false)
+        expect(c.state.user).toBeNull()
+        expect(c.state.phase).not.toBe('authenticated')
+      } finally {
+        held.resolve(view)
+        await first
+        await vi.advanceTimersByTimeAsync(0)
+        c.leave()
+      }
+    },
+  )
   it.each(['content-type', 'oversize'])(
     'retains Cookie ownership until response body cancellation joins: %s',
     async (mode) => {
@@ -346,10 +422,10 @@ describe('Account Session ownership', () => {
   })
   it('distinguishes actual anonymous from unavailable, then confirms Session CSRF after login', async () => {
     const { api, controller: c } = fixture()
-    await c.restore()
+    expect(await c.restore()).toBeNull()
     expect(c.state.phase).toBe('anonymous')
     api.getSession.mockRejectedValueOnce(problem('DEPENDENCY_UNAVAILABLE', 503))
-    await c.restore()
+    expect(await c.restore()).toBeNull()
     expect(c.state.phase).toBe('unavailable')
     expect(api.bootstrap).toHaveBeenCalledTimes(1)
     await c.restart()
@@ -495,7 +571,7 @@ describe('Account Session ownership', () => {
     api.logout.mockRejectedValueOnce(problem('COMMIT_UNKNOWN', 503, 'unknown'))
     await c.logout()
     expect(c.state.phase).toBe('uncertain')
-    await c.restore()
+    expect(await c.restore()).toBeNull()
     expect(c.state.phase).toBe('uncertain')
     await c.retryOriginal()
     expect(api.logout.mock.calls[1].slice(0, 2)).toEqual(api.logout.mock.calls[0].slice(0, 2))
