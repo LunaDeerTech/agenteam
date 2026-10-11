@@ -1,0 +1,467 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Project Owner Agent Directory",
+    "version": "0.1.0",
+    "description": "Current Human Owner only, including initialized readable archived Projects under the original Project gate; no administrator bypass. Only initialized active Agents. No runtime/busy or capability grant. Fixed created_at DESC,id DESC signed pagination; every page reauthorizes, and traversal is not a snapshot. display_name=null falls back to name. Explicit nine-field projection excludes Model, Prompt, tools and Secret configuration. IDs, decimal-string Version, exact UTF-8 byte caps (display_name 1024, description 8192), Unicode/control checks, reserved names and updated_at>=created_at are additionally validated by Go. GET/HEAD accept no body or unknown/repeated query keys; only list accepts limit/cursor. Natural total read deadline 2s includes authentication, SQL and original I/O join; no automatic retry."
+  },
+  "paths": {
+    "/api/v1/projects/{project_id}/agents": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "agentDirectoryList",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Only GET and HEAD are supported.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Current Owner directory representation. HEAD executes the identical read and sends no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentDirectoryPage"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            }
+          }
+        ]
+      },
+      "head": {
+        "operationId": "agentDirectoryListHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Only GET and HEAD are supported.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Current Owner directory representation. HEAD executes the identical read and sends no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/agents/{agent_id}": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "agent_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "agentDirectoryGet",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Only GET and HEAD are supported.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Current Owner directory representation. HEAD executes the identical read and sends no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentDirectoryEntry"
+                }
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "operationId": "agentDirectoryGetHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Only GET and HEAD are supported.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "GET, HEAD"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Current Owner directory representation. HEAD executes the identical read and sends no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "browserSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-agenteam_session"
+      }
+    },
+    "responses": {
+      "Problem": {
+        "description": "Safe Problem Details.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/Problem"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "AgentDirectoryEntry": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "project_id",
+          "name",
+          "display_name",
+          "tag_color",
+          "description",
+          "version",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 32,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9-]{1,30}[A-Za-z0-9]$"
+          },
+          "display_name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "tag_color": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^#[0-9a-f]{6}$"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 8192
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "updated_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        }
+      },
+      "AgentDirectoryPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 200,
+            "items": {
+              "$ref": "#/components/schemas/AgentDirectoryEntry"
+            }
+          },
+          "next_cursor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8192
+          }
+        }
+      }
+    }
+  }
+}
