@@ -53,7 +53,7 @@ func TestTaskLaunchFailureProjectGatePausedAndExactSchema(t *testing.T) {
 		t.Fatal(err)
 	}
 	hasCode(t, x.authority.ValidateInTx(context.Background(), x.store.tx, request, deps), f.Forbidden)
-	d.Event.Header.SchemaVersion = 5
+	d.Event.Header.SchemaVersion = 6
 	d.Stage = oc.CurrentAccess
 	request, err = oc.NewProjectRequest(d)
 	if err != nil {
