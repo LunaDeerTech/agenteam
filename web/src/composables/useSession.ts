@@ -1,4 +1,9 @@
 import {
+  createProjectSchedulerAPI, captureProjectSchedulerUpdate, captureProjectSchedulerID,
+  type ProjectSchedulerAPI, type ProjectSchedulerUpdate,
+  type ProjectSchedulerReceipt, type ProjectSchedulerLookup,
+} from '../api/project-scheduler'
+import {
   createKnowledgeTextAPI,
   captureKnowledgeText,
   type KnowledgeTextAPI,
@@ -489,6 +494,24 @@ export type WorkReviewProgress = Readonly<{
   observation: 'none' | 'committed' | 'in_progress' | 'not_observed' | 'failed'
   contextValid: boolean
 }>
+type SchedulerAction = 'scheduler-read' | 'scheduler-write' | 'scheduler-lookup'
+type SchedulerIntent = {
+  projectID: string
+  identity: PersonalIdentity
+  csrf: string
+  key: string
+  payload: { input: ProjectSchedulerUpdate | null; body: string | null }
+  uncertain: boolean
+  keyConflict: boolean
+}
+export type ProjectSchedulerProgress = Readonly<{
+  projectID: string
+  phase: 'submitting' | 'uncertain' | 'rejected' | 'confirmed'
+  receipt: ProjectSchedulerReceipt | null
+  observation: 'none' | 'committed' | 'in_progress' | 'not_observed' | 'failed'
+  contextValid: boolean
+  canRetryOriginal: boolean
+}>
 type ProjectAction = 'project-read' | 'project-update' | 'project-lookup'
 type ProjectAuditAction = 'project-audit-list' | 'project-audit-get'
 export type ProjectProgress = Readonly<{
@@ -760,6 +783,7 @@ type Action =
   | SMTPDeliveryAction
   | OutboundPolicyAction
   | ProjectAction
+  | SchedulerAction
   | WorkReviewAction
   | SprintLifecycleAction
   | MilestonePlanningAction
@@ -894,6 +918,7 @@ export function createSessionController(
     milestonePlanning?: WorkMilestonePlanningAPI
     sprintLifecycle?: WorkSprintLifecycleAPI
     skills?: SkillOwnerAPI
+    scheduler?: ProjectSchedulerAPI
     skillPackage?: SkillPackageAPI
     knowledgeText?: KnowledgeTextAPI
     knowledgeCommands?: KnowledgeCommandsAPI
@@ -902,6 +927,7 @@ export function createSessionController(
   const projectVariablesAPI = commandAPIs.projectVariables ?? createProjectVariablesAPI()
   const milestonePlanningAPI = commandAPIs.milestonePlanning ?? createWorkMilestonePlanningAPI()
   const skillsAPI = commandAPIs.skills ?? createSkillOwnerAPI()
+  const schedulerAPI = commandAPIs.scheduler ?? createProjectSchedulerAPI()
   const skillPackageAPI = commandAPIs.skillPackage ?? createSkillPackageAPI()
   const taskEditAPI = commandAPIs.edit ?? createWorkTaskEditAPI()
   const taskTimelineAPI = commandAPIs.taskTimeline ?? createWorkTaskTimelineAPI()
@@ -1048,6 +1074,11 @@ export function createSessionController(
   const workReviewState = shallowReactive<{
     progress: Omit<WorkReviewProgress, 'contextValid'> | null
   }>({ progress: null })
+  const schedulerRevisions: Record<SchedulerAction, number> = { 'scheduler-read': 0, 'scheduler-write': 0, 'scheduler-lookup': 0 }
+  const isSchedulerAction = (kind: Action): kind is SchedulerAction => Object.hasOwn(schedulerRevisions, kind)
+  let schedulerIntent: SchedulerIntent | null = null
+  let schedulerProgressContext: Pick<SchedulerIntent, 'identity' | 'csrf'> | null = null
+  const schedulerState = shallowReactive<{ progress: Omit<ProjectSchedulerProgress, 'contextValid' | 'canRetryOriginal'> | null }>({ progress: null })
   const projectRevisions: Record<ProjectAction, number> = {
     'project-read': 0,
     'project-update': 0,
@@ -1232,6 +1263,7 @@ export function createSessionController(
   }
   function clearIdentity(invalidate = true) {
     clearVariableReads()
+    clearSchedulerRead()
     clearAgentConfigurationRead()
     clearWorkReviewRead()
     clearKnowledgeRead()
@@ -1242,6 +1274,7 @@ export function createSessionController(
     if (invalidate) {
       clearProjectModelState()
       clearProjectState()
+      clearSchedulerState()
       clearAgentConfigurationState()
       clearMilestonePlanningState()
       clearVariableState()
@@ -1313,6 +1346,7 @@ export function createSessionController(
     if (!same) {
       clearProjectModelState()
       clearProjectState()
+      clearSchedulerState()
       clearAgentConfigurationState()
       clearMilestonePlanningState()
       clearVariableState()
@@ -1866,6 +1900,7 @@ export function createSessionController(
       | SMTPDeliveryAction
       | OutboundPolicyAction
       | ProjectAction
+  | SchedulerAction
       | WorkReviewAction
       | SprintLifecycleAction
       | MilestonePlanningAction
@@ -1877,6 +1912,7 @@ export function createSessionController(
   ): Promise<T> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     const revisionNow = () => {
+      if (isSchedulerAction(kind)) return schedulerRevisions[kind]
       if (isVariableAction(kind)) return variableRevisions[kind]
       if (kind === 'skill-read') return skillRevision
       if (isKnowledgeCommand(kind)) return knowledgeCommandRevisions[kind]
@@ -1933,7 +1969,8 @@ export function createSessionController(
       revision === revisionNow() &&
       sameIdentity(identity, personalContext.identity) &&
       (kind === 'personal' ||
-        (isVariableAction(kind) ||
+        (isSchedulerAction(kind) ||
+        isVariableAction(kind) ||
         isKnowledgeCommand(kind) ||
         isMilestonePlanningAction(kind) ||
         isSprintLifecycleAction(kind) ||
@@ -2007,7 +2044,7 @@ export function createSessionController(
         return result
       })
       .catch((error: unknown) => {
-        const e = isKnowledgeCommand(kind)
+        const e = isSchedulerAction(kind) ? schedulerFailure(identity, op, current, error) : isKnowledgeCommand(kind)
           ? current()
             ? projectFailure(identity, op, error)
             : error instanceof AccountFailure
@@ -5461,6 +5498,114 @@ export function createSessionController(
       workReviewState.progress = null
     },
   }
+  function clearSchedulerRead() {
+    ++schedulerRevisions['scheduler-read']
+    if (owner?.kind === 'scheduler-read') owner.abandon?.()
+  }
+  function clearSchedulerPayload(original: SchedulerIntent | null) {
+    if (original) { original.payload.input = null; original.payload.body = null }
+  }
+  function clearSchedulerState(retire = true) {
+    for (const kind of Object.keys(schedulerRevisions) as SchedulerAction[]) ++schedulerRevisions[kind]
+    clearSchedulerPayload(schedulerIntent)
+    schedulerIntent = null
+    schedulerProgressContext = null
+    schedulerState.progress = null
+    if (retire && owner && isSchedulerAction(owner.kind)) owner.abandon?.()
+  }
+  function schedulerFailure(identity: PersonalIdentity, op: Operation, current: () => boolean, error: unknown) {
+    const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+    if (!current()) return e
+    const result = projectFailure(identity, op, e)
+    if ([401, 403, 404].includes(e.problem?.status ?? 0)) clearSchedulerState(false)
+    return result
+  }
+  function publishScheduler(original: SchedulerIntent, phase: ProjectSchedulerProgress['phase'], receipt: ProjectSchedulerReceipt | null = null, observation: ProjectSchedulerProgress['observation'] = 'none') {
+    schedulerProgressContext = { identity: original.identity, csrf: original.csrf }
+    schedulerState.progress = Object.freeze({ projectID: original.projectID, phase, receipt, observation })
+  }
+  function performScheduler(original: SchedulerIntent, lookup = false): Promise<ProjectSchedulerReceipt | ProjectSchedulerLookup> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    const kind: SchedulerAction = lookup ? 'scheduler-lookup' : 'scheduler-write'
+    const revision = schedulerRevisions[kind]
+    const live = () => schedulerIntent === original && !!original.payload.input && projectContext(original) && revision === schedulerRevisions[kind]
+    if (!live()) return Promise.reject(new AccountFailure('invalid-input'))
+    let dispatched = false
+    if (!lookup) publishScheduler(original, 'submitting')
+    return runAuthorized<ProjectSchedulerReceipt | ProjectSchedulerLookup>(original.identity, async (op, current) => {
+      const input = original.payload.input
+      if (!input || !current() || !live()) throw new AccountFailure('cancelled')
+      if (JSON.stringify(input) !== original.payload.body) throw new AccountFailure('invalid-input')
+      dispatched = true
+      try {
+        const write = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
+        return lookup
+          ? await schedulerAPI.lookup(original.projectID, original.identity.userID, write)
+          : await schedulerAPI.update(original.projectID, input, write)
+      } finally { if (schedulerIntent !== original) clearSchedulerPayload(original) }
+    }, undefined, kind).then(value => {
+      if (!live()) throw new AccountFailure('cancelled')
+      if ('state' in value && value.state !== 'committed') {
+        publishScheduler(original, 'uncertain', null, value.state)
+        return value
+      }
+      // Lookup confirms a historical key only; neither response publishes current configuration.
+      const receipt = 'state' in value ? value.receipt : value
+      publishScheduler(original, 'confirmed', receipt, lookup ? 'committed' : 'none')
+      clearSchedulerPayload(original)
+      schedulerIntent = null
+      return value
+    }, (error: unknown) => {
+      const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+      if (schedulerIntent === original && revision === schedulerRevisions[kind] && sameIdentity(original.identity, personalContext.identity)) {
+        const p = e.problem
+        const known = !dispatched || (!!p && ['not_started', 'not_committed'].includes(p.commit_state) && ['INVALID_ARGUMENT', 'VERSION_CONFLICT', 'INVALID_STATE', 'PROJECT_NOT_ACTIVE'].includes(p.code))
+        original.keyConflict ||= p?.code === 'IDEMPOTENCY_KEY_REUSED'
+        original.uncertain ||= lookup || !known || original.keyConflict
+        publishScheduler(original, original.uncertain ? 'uncertain' : 'rejected', null, lookup ? 'failed' : 'none')
+      }
+      throw e
+    })
+  }
+  const projectScheduler = {
+    get progress(): ProjectSchedulerProgress | null {
+      const value = schedulerState.progress
+      if (!value) return null
+      const contextValid = !!schedulerProgressContext && projectContext(schedulerProgressContext)
+      return Object.freeze({ ...value, contextValid, canRetryOriginal: !!schedulerIntent?.payload.input && schedulerIntent.uncertain && !schedulerIntent.keyConflict && value.observation !== 'in_progress' && contextValid && !state.busy })
+    },
+    get(project: string) {
+      try {
+        const target = captureProjectSchedulerID(project), identity = personalIdentity()
+        return runAuthorized(identity, (op) => schedulerAPI.get(target, op.abort.signal), undefined, 'scheduler-read')
+      } catch (e) { return Promise.reject(e) }
+    },
+    startUpdate(project: string, value: ProjectSchedulerUpdate) {
+      try {
+        const identity = personalIdentity()
+        if (owner || schedulerIntent || personalIntent || pending) throw new AccountFailure('busy')
+        const projectID = captureProjectSchedulerID(project), input = captureProjectSchedulerUpdate(value)
+        const original: SchedulerIntent = { projectID, identity, csrf: sessionCSRF, key: newKey(), payload: { input, body: JSON.stringify(input) }, uncertain: false, keyConflict: false }
+        schedulerIntent = original
+        return performScheduler(original)
+      } catch (e) { return Promise.reject(e) }
+    },
+    checkOriginal() {
+      if (!schedulerIntent?.uncertain || !projectContext(schedulerIntent)) return Promise.reject(new AccountFailure('invalid-input'))
+      return performScheduler(schedulerIntent, true)
+    },
+    retryOriginal() {
+      if (!schedulerIntent || !projectScheduler.progress?.canRetryOriginal) return Promise.reject(new AccountFailure('invalid-input'))
+      return performScheduler(schedulerIntent)
+    },
+    editRejected() {
+      if (owner || !schedulerIntent || schedulerIntent.uncertain || schedulerState.progress?.phase !== 'rejected' || !projectContext(schedulerIntent)) throw new AccountFailure('invalid-input')
+      clearSchedulerState()
+    },
+    finishConfirmed() { if (!owner && schedulerState.progress?.phase === 'confirmed') clearSchedulerState() },
+    abandonRead: clearSchedulerRead,
+    abandon: () => clearSchedulerState(),
+  }
   function projectContext(original: Pick<ProjectIntent, 'identity' | 'csrf'>) {
     return (
       sameIdentity(original.identity, personalContext.identity) &&
@@ -7623,6 +7768,7 @@ export function createSessionController(
     state: readonly(state),
     personalContext: readonly(personalContext),
     projects,
+    projectScheduler,
     workReview,
     workSprintLifecycle,
     workMilestonePlanning,

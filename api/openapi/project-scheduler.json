@@ -1,0 +1,492 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Project Scheduler Owner configuration",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/projects/{project_id}/scheduler": {
+      "get": {
+        "operationId": "projectSchedulerGet",
+        "summary": "Read current Owner Project scheduler configuration",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        ],
+        "description": "Two-second total budget from before Account authentication. No body or query. Current Session and Owner are revalidated in the service transaction; administrators have no bypass. Maximum complete JSON representation 4096 bytes.",
+        "responses": {
+          "200": {
+            "description": "Current Project version and complete scheduler configuration; not a historical command receipt.",
+            "headers": {
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchedulerConfiguration"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Original safe Problem; no publication after the original deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Original safe Problem; no publication after the original deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Original safe Problem; no publication after the original deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Original safe Problem; no publication after the original deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Original safe Problem; no publication after the original deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Original safe Problem; no publication after the original deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Original safe Problem; no publication after the original deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Original safe Problem; no publication after the original deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Original safe Problem; no publication after the original deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Original safe Problem; no publication after the original deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "operationId": "projectSchedulerHead",
+        "summary": "Read the same current facts without a response body",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        ],
+        "description": "Two-second total budget from before Account authentication. No body or query. Current Session and Owner are revalidated in the service transaction; administrators have no bypass. Maximum complete JSON representation 4096 bytes.",
+        "responses": {
+          "200": {
+            "description": "Same authorization, service query, status, representation length and cleanup as GET; no body.",
+            "headers": {
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Original safe Problem; no publication after the original deadline."
+          },
+          "401": {
+            "description": "Original safe Problem; no publication after the original deadline."
+          },
+          "403": {
+            "description": "Original safe Problem; no publication after the original deadline."
+          },
+          "404": {
+            "description": "Original safe Problem; no publication after the original deadline."
+          },
+          "405": {
+            "description": "Original safe Problem; no publication after the original deadline."
+          },
+          "409": {
+            "description": "Original safe Problem; no publication after the original deadline."
+          },
+          "413": {
+            "description": "Original safe Problem; no publication after the original deadline."
+          },
+          "415": {
+            "description": "Original safe Problem; no publication after the original deadline."
+          },
+          "500": {
+            "description": "Original safe Problem; no publication after the original deadline."
+          },
+          "503": {
+            "description": "Original safe Problem; no publication after the original deadline."
+          }
+        }
+      },
+      "patch": {
+        "operationId": "projectSchedulerUpdate",
+        "summary": "Replace scheduler configuration through the original Owner UpdateProject command",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9._:/-]{1,128}(?![\\s\\S])"
+            },
+            "description": "Exactly one original key, shared with the existing Project update command namespace."
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Original current Account Session CSRF."
+          }
+        ],
+        "description": "Thirty-second total budget, inheriting earlier deadlines. Strict UTF-8 application/json <=4096 bytes, no query/encoding/unknown or duplicate members. All fields required. Uses UpdateCommand=\"update\" and the original Project expected_version/key. Response is only historical Project acknowledgement. Read current settings with a separate GET; never attach that later GET to a historical receipt. Existing key-only POST commands/lookup remains unchanged and does not validate caller-supplied scheduler intent. Pausing does not stop existing Execution; enabling does not start a planned Sprint or launch a runtime.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SchedulerUpdateInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Historical acknowledgement from the original UpdateProject call, including no-op and same-key replay. Contains no scheduler values.",
+            "headers": {
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              },
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchedulerUpdateReceipt"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Original safe Problem; no publication after the original deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Original safe Problem; no publication after the original deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Original safe Problem; no publication after the original deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Original safe Problem; no publication after the original deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Original safe Problem; no publication after the original deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Original safe Problem; no publication after the original deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Original safe Problem; no publication after the original deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Original safe Problem; no publication after the original deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Original safe Problem; no publication after the original deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Original safe Problem; no publication after the original deadline.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}/commands/lookup": {
+      "$ref": "./project-owner.json#/paths/~1api~1v1~1projects~1{id}~1commands~1lookup"
+    }
+  },
+  "components": {
+    "schemas": {
+      "SchedulerConfiguration": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "project_id",
+          "version",
+          "scheduler_enabled",
+          "scheduler_max_concurrency"
+        ],
+        "properties": {
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/PositiveInt64String"
+          },
+          "scheduler_enabled": {
+            "type": "boolean"
+          },
+          "scheduler_max_concurrency": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/PositiveInt64String"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Explicit null means unlimited; otherwise canonical positive int64 decimal string. Never a JSON number."
+          }
+        }
+      },
+      "SchedulerUpdateInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "scheduler_enabled",
+          "scheduler_max_concurrency"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/PositiveInt64String"
+          },
+          "scheduler_enabled": {
+            "type": "boolean"
+          },
+          "scheduler_max_concurrency": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/PositiveInt64String"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Explicit null means unlimited; otherwise canonical positive int64 decimal string. Never a JSON number."
+          }
+        }
+      },
+      "SchedulerUpdateReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "project_id",
+          "version"
+        ],
+        "properties": {
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/PositiveInt64String"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "browserSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-agenteam_session",
+        "description": "Original Account Session; configured loopback HTTP uses agenteam_local_session. No caller Actor or bearer bypass."
+      }
+    }
+  }
+}

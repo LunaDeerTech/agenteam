@@ -11,6 +11,7 @@ const groups = computed(() =>
         { label: 'Agent', path: paths.value.home + '/settings/agents', leaf: '目录与配置' },
         { label: '普通变量', path: paths.value.home + '/settings/variables', leaf: '变量目录' },
         { label: 'Skills', path: paths.value.home + '/settings/skills', leaf: '项目技能库' },
+        { label: 'Scheduler', path: paths.value.home + '/settings/scheduler', leaf: '调度配置' },
         { label: '安全记录', path: paths.value.home + '/settings/audit', leaf: '项目审计' },
         {
           key: 'project-models-providers',

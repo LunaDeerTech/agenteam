@@ -152,6 +152,7 @@ export const router = createRouter({
               name: 'project-skills',
               component: () => import('../views/projects/ProjectSkillsView.vue'),
             },
+            { path: 'scheduler', name: 'project-scheduler', component: () => import('../views/projects/ProjectSchedulerSettings.vue') },
             {
               path: 'variables',
               name: 'project-variables',

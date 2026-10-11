@@ -31,6 +31,7 @@
 
 | 工作项 | 当前可证状态 | 接手时的下一步与完成边界 |
 | --- | --- | --- |
+| [D08 Project Scheduler 配置 HTTP/UI](../work-items/d08-project-scheduler-ui.md) | **当前 Owner 调度配置已有限独立接受**。正式 GET/HEAD/PATCH、完整 int64/null、历史 ack 与当前 GET 分离；真实默认 App/browser 正常两次写入及丢响应后原 key Lookup/独立 GET、三图与完整资源尾接受。 | 原 browser01 导航 fixture wholeFAIL 保留；02 normal 9 请求8 finished（原 GET aborted 联证），lost 8 请求7 finished（原 PATCH 物理截断），无重发 PATCH。Lookup 不证明 Scheduler body；运行中 Execution、Scheduler Runtime、生产 initializer、ready 与既有 STOP 未由本片完成。 |
 | [D01 低层资源身份](../work-items/d01-resource-identities.md) | **R1纯契约已实现并独立验收**。Tool/Mount/ProjectVariable三个canonical marker与Foundation ID alias，四依赖race/vet及独立3顶层6子例通过。 | 仅标量声明与类型消费；Tool/Mount/Variables真实目录、引用保护和Agent F1仍未闭合，普通与Secret共用变量ID且不同CredentialID。 |
 | [D10 Agent 核心与引用](../work-items/d10-agent-configuration.md) | **C1纯契约已交付，Model Selection＋Secret Directory metadata 前置本次有限交付**。两域作者 race/vet、非作者源码/方法审与真实联合 1 top/3 sub wholePASS；当前 Owner、同 Store caller Tx、目录分类、撤权/陈旧映射/回滚与原资源尾闭合。 | Agent canonical 创建/当前事实、完整双角色/Secret 引用、默认 Skills/Registry 及 Task 指派绑定仍须后继真实组合；本次无 Agent 行、引用写入或新迁移，生产 initializer 保持 unbound，完整 F1/D10 未完成。 |
 | [D10 Agent 显示设置 UI](../work-items/d10-agent-display-settings-ui.md) | **显示名称/标签颜色编辑与明确清空已有限独立接受**。原字段省略与 null、版本/原意图恢复、冲突保输入保持；真实设置/no-op/清空后三次当前 Get/List、原旧字段 lost 链、资源全尾与六图可见范围接受。 | 新显示字段真实 Unknown/完整权限矩阵未由旧 lost 子例代证；请求存在已联证的 aborted/cut，非全 finished。完整二十字段编辑、F1/D10、生产 initializer 与原 STOP 保持。 |

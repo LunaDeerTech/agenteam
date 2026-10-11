@@ -93,6 +93,14 @@ npm run preview --prefix web
 
 结果未知时仅查询原保存，不自动重发或改写原 key/版本。编辑与创建在唯一 Session 内互斥，确认放弃只释放明确拒绝；同 Session checking/503 保留草稿与 Unknown，绑定目标或同 Project 的真实失权清理私有材料。[限定交付卡](../work-items/d11-milestone-edit-ui.md)记录正常编辑/no-op/清空、真实丢回执恢复、五图与完整资源尾的独立接受，保留首轮观察方法失败和 lost 的实际 GET aborted。该结果不包含 Sprint 编辑、排序/删除、完整权限浏览器矩阵或生产 initializer。
 
+## Project Scheduler 调度配置
+
+当前 Human Owner 可从项目设置进入 `/:username/:project_name/settings/scheduler`，暂停/启用自动调度，并明确选择正整数并发上限或“不限制”。暂停保留所设上限，不结束已有执行；启用不自动启动 planned Sprint。表单保留完整 int64 字符串与原版本，冲突后明确读取和采用当前版本；归档后只读，原未决意图仍可查询，但不能重放写入。
+
+保存确认和当前配置分开：PATCH 两字段 ack 或旧 Project Lookup 仅确认历史记录，随后独立 GET 才发布当前值。Unknown 保原 key/body/version，不自动重发；Lookup 请求只含原 key 与 `command:update`，不证明调用者传入的 Scheduler body。同 Session checking 保留草稿与原命令，真实身份变化或当前权限拒绝清理私有材料。
+
+[本片卡](../work-items/d08-project-scheduler-ui.md)记录42项专项、129项共享回归及类型/构建分段证据。真实默认 App 两场景已有限独验：正常暂停大整数上限→恢复不限；提交后物理截断→用户查询原 key→历史 ack→独立 GET，未重发 PATCH。三张浅色1440/深色390图与完整资源尾接受；原 browser01 导航 fixture FAIL、02 原 GET aborted 与 PATCH 截断均保留。不代完整权限/故障矩阵、Scheduler Runtime、生产初始化或平台 ready。
+
 ## Skill 固定修订包下载
 
 已有 initialized Project 的当前 Human Owner 可在 `/:username/:project_name/settings/skills` 进入详情，下载当前所示 revision 的原包。revision 保持规范正 int64 字符串；一次明确点击发起单次 GET，无 HEAD 预检、自动重试或命令 Lookup。进度和取消反馈沿当前详情；身份、项目、技能或修订变化退役旧请求并清理临时字节与 Object URL，迟到结果不保存。用户可在安全失败反馈后明确重新下载。

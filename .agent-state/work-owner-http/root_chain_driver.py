@@ -18,6 +18,30 @@ MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 # One closed same-package PG family: adding a scenario changes required
 # inputs and expected test data, never the resource/Wait/tail implementation.
 METADATA_INPUTS = {
+    '^TestProjectSchedulerWeb$': (
+        'internal/central/app/project_scheduler_web_test.go',
+        'internal/central/app/skill_package_web_test.go',
+        'internal/central/app/skill_owner_web_test.go',
+        'internal/central/app/knowledge_owner_web_test.go',
+        'internal/central/app/knowledge_skills_process_test.go',
+        'internal/central/app/outbox_process_test.go',
+        'internal/central/app/app_test.go',
+        'tests/account-captcha-web/project-scheduler.config.js',
+        'tests/account-captcha-web/e2e/project-scheduler.spec.ts',
+        'tests/account-captcha-web/e2e/project-scheduler.helpers.ts',
+        'tests/account-captcha-web/e2e/task-review.helpers.ts',
+        'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts',
+        'api/openapi/project-scheduler.json',
+        'api/openapi/project-owner.json',
+        'api/openapi/common.json',
+    ),
+    '^TestProjectSchedulerOwnerHTTP$': (
+        'tests/projectvariable/project_scheduler_http_test.go',
+        'tests/projectvariable/fixture_test.go',
+        'api/openapi/project-scheduler.json',
+        'api/openapi/project-owner.json',
+        'api/openapi/common.json',
+    ),
     '^TestSkillPackageWeb$': ('internal/central/app/skill_package_web_test.go', 'internal/central/app/skill_owner_web_test.go', 'internal/central/app/knowledge_owner_web_test.go', 'internal/central/app/knowledge_skills_process_test.go', 'internal/central/app/outbox_process_test.go', 'internal/central/app/app_test.go', 'tests/account-captcha-web/skill-package.config.js', 'tests/account-captcha-web/e2e/skill-package.spec.ts', 'tests/account-captcha-web/e2e/skill-package.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts', 'api/openapi/skill-package.json', 'api/openapi/skill-owner.json', 'api/openapi/common.json'),
     '^TestKnowledgeTextWeb$': ('internal/central/app/knowledge_text_web_test.go', 'internal/central/app/knowledge_owner_web_test.go', 'internal/central/app/knowledge_skills_process_test.go', 'internal/central/app/skill_owner_web_test.go', 'internal/central/app/outbox_process_test.go', 'internal/central/app/app_test.go', 'tests/account-captcha-web/knowledge-text.config.js', 'tests/account-captcha-web/e2e/knowledge-text.spec.ts', 'tests/account-captcha-web/e2e/knowledge-text.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts', 'api/openapi/knowledge-text-commands.json', 'api/openapi/knowledge-owner.json', 'api/openapi/knowledge-content.json', 'api/openapi/common.json'),
     '^TestSkillOwnerPackageHTTP(Publication|CurrentAuthority)$': (
@@ -220,6 +244,7 @@ METADATA_INPUTS = {
 }
 TARGETS = {
     **dict.fromkeys(METADATA_INPUTS, 'tests/projectvariable'),
+    '^TestProjectSchedulerWeb$': 'internal/central/app',
     '^TestSkillPackageWeb$': 'internal/central/app',
     '^TestSkillOwnerPackageHTTP(Publication|CurrentAuthority)$': 'tests/skills',
     '^TestSkillPackageHTTPDefaultRootComposition$': 'internal/central/app',
@@ -304,7 +329,7 @@ def metadata_inputs(binary, selector='^TestAgentConfigurationMetadata$'):
     # Only the explicitly retained legacy metadata profile includes its
     # historical records. New profiles contain actual compiled/runtime inputs.
     paths.update(REPOSITORY / name for name in METADATA_INPUTS[selector])
-    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
+    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
         paths.update(task_review_ui_inputs(selector))
     if selector == APP_RUNTIME:
         paths.update(app_runtime_inputs())
@@ -377,6 +402,7 @@ MILESTONE_CREATE_UI = '^TestMilestoneCreateWeb$'
 MILESTONE_EDIT_UI = '^TestMilestoneEditWeb$'
 SKILL_OWNER_UI = '^TestSkillOwnerReadWeb$'
 SKILL_PACKAGE_UI = '^TestSkillPackageWeb$'
+PROJECT_SCHEDULER_UI = '^TestProjectSchedulerWeb$'
 SPRINT_START_UI = '^TestSprintStartWeb$'
 KNOWLEDGE_TEXT_UI = '^TestKnowledgeTextWeb$'
 KNOWLEDGE_RENAME_UI = '^TestKnowledgeOwnerRenameWeb$'
@@ -393,6 +419,7 @@ MILESTONE_EDIT_ENV = ('AGENTEAM_MILESTONE_EDIT_WEB_DIST', 'AGENTEAM_MILESTONE_ED
 SPRINT_CREATE_ENV = ('AGENTEAM_SPRINT_CREATE_WEB_DIST', 'AGENTEAM_SPRINT_CREATE_WEB_EVIDENCE')
 SKILL_OWNER_ENV = ('AGENTEAM_SKILL_OWNER_WEB_DIST', 'AGENTEAM_SKILL_OWNER_WEB_EVIDENCE')
 SKILL_PACKAGE_ENV = ('AGENTEAM_SKILL_PACKAGE_WEB_DIST', 'AGENTEAM_SKILL_PACKAGE_WEB_EVIDENCE')
+PROJECT_SCHEDULER_ENV = ('AGENTEAM_PROJECT_SCHEDULER_WEB_DIST', 'AGENTEAM_PROJECT_SCHEDULER_WEB_EVIDENCE')
 SPRINT_START_ENV = ('AGENTEAM_SPRINT_START_WEB_DIST', 'AGENTEAM_SPRINT_START_WEB_EVIDENCE')
 KNOWLEDGE_TEXT_ENV = ('AGENTEAM_KNOWLEDGE_TEXT_WEB_DIST', 'AGENTEAM_KNOWLEDGE_TEXT_WEB_EVIDENCE')
 KNOWLEDGE_RENAME_ENV = tuple('AGENTEAM_KNOWLEDGE_OWNER_RENAME_WEB_' + part for part in ('DIST', 'EVIDENCE', 'SCHEMA_PYTHON', 'CASE'))
@@ -404,6 +431,8 @@ TASK_REVIEW_WEB_MODULES = REPOSITORY / 'web/node_modules'
 
 
 def task_review_ui_profile(selector):
+    if selector == PROJECT_SCHEDULER_UI:
+        return PROJECT_SCHEDULER_ENV, 'output/ai/project-scheduler-ui', 'project-scheduler'
     if selector == TASK_REVIEW_UI:
         return TASK_REVIEW_ENV, 'output/ai/work-review-web', 'task-review'
     if selector == TASK_INTAKE_UI:
@@ -741,7 +770,7 @@ def configuration(binary, selector, directory):
             'cwd': str(REPOSITORY / TARGETS[selector]),
             'directory': str(directory), 'runtime': str(directory / 'runtime'),
             'test_timeout': '6m', 'resources': 7}
-    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
+    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
         plan['task_review_ui'] = task_review_ui_configuration(directory, selector)
     if selector == APP_RUNTIME:
         app_runtime_inputs()
@@ -819,7 +848,7 @@ def main():
         env.update({'AGENTEAM_AUTH_WEB_RUNTIME': str(runtime),
                     'AGENTEAM_KNOWLEDGE_OWNER_WEB_INPUT_HASH': knowledge_ui_input_hash(args.test_binary),
                     'PATH': str(KNOWLEDGE_NODE.parent) + os.pathsep + env.get('PATH', '')})
-    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
+    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_RENAME_UI):
         ui = plan['task_review_ui']
         names, _, _ = task_review_ui_profile(args.run)
         Path(ui[names[1]]).mkdir(mode=0o700)

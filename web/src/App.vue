@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, provide, shallowRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { createProjectScheduler, projectSchedulerKey } from './composables/useProjectScheduler'
 import KnowledgeTextDialog from './components/knowledge/KnowledgeTextDialog.vue'
 import { createKnowledgeText, knowledgeTextKey } from './composables/useKnowledgeText'
 import AppShell from './components/layout/AppShell.vue'
@@ -22,6 +23,7 @@ import {
   installTaskNavigation,
   installAgentNavigation,
   installProjectVariablesNavigation,
+  installProjectSchedulerNavigation,
   installKnowledgeTextNavigation,
   installProjectNavigation,
   installProjectModelSettingsNavigation,
@@ -70,6 +72,9 @@ const stopProjectNavigation = installProjectNavigation(router, projects)
 const tasks = createProjectTasks(auth, projects, (path) => router.push(path))
 provide(projectTasksKey, tasks)
 const stopTaskNavigation = installTaskNavigation(router, tasks)
+const scheduler = createProjectScheduler(auth, projects)
+provide(projectSchedulerKey, scheduler)
+const stopSchedulerNavigation = installProjectSchedulerNavigation(router, scheduler)
 const variables = createProjectVariables(auth, projects)
 provide(projectVariablesKey, variables)
 const stopVariablesNavigation = installProjectVariablesNavigation(router, variables)
@@ -137,6 +142,7 @@ provide(systemOutboundPolicyKey, outboundPolicy)
 const stopOutboundNavigation = installOutboundPolicyNavigation(router, outboundPolicy)
 async function logout() {
   if (
+    (await scheduler.confirmLeave()) &&
     (await knowledgeText.confirmLeave()) &&
     (await variables.confirmLeave()) &&
     (await agents.confirmLeave()) &&
@@ -180,6 +186,7 @@ watch(
 )
 onMounted(() => {
   projects.afterNavigation(route.fullPath, '')
+  scheduler.afterNavigation(route.fullPath)
   tasks.afterNavigation(route.fullPath)
   knowledgeText.afterNavigation(route.fullPath)
   variables.afterNavigation(route.fullPath)
@@ -199,6 +206,8 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('visibilitychange', refreshVisible)
   window.removeEventListener('pageshow', refreshVisible)
+  stopSchedulerNavigation()
+  scheduler.dispose()
   stopKnowledgeTextNavigation()
   knowledgeText.dispose()
   stopVariablesNavigation()
@@ -274,6 +283,13 @@ onUnmounted(() => {
     </div>
   </AppShell>
   <RouterView v-else />
+  <UiDialog :open="scheduler.confirmation.open" :title="scheduler.confirmation.title" @update:open="(open) => !open && scheduler.finishConfirmation(false)">
+    <p>{{ scheduler.confirmation.message }}</p>
+    <template #footer>
+      <UiButton @click="scheduler.finishConfirmation(false)">留在页面</UiButton>
+      <UiButton variant="primary" @click="scheduler.finishConfirmation(true)">{{ scheduler.confirmation.label }}</UiButton>
+    </template>
+  </UiDialog>
   <UiDialog
     :open="variables.confirmation.open"
     :title="variables.confirmation.title"

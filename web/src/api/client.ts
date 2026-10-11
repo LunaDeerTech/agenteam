@@ -54,6 +54,9 @@ export function string(value: unknown, minimum: number, maximum: number): string
 }
 
 const endpoints = {
+  getProjectScheduler: ['GET', '/api/v1/projects/{id}/scheduler', 200],
+  updateProjectScheduler: ['PATCH', '/api/v1/projects/{id}/scheduler', 200],
+  lookupProjectScheduler: ['POST', '/api/v1/projects/{id}/commands/lookup', 200],
   knowledgeTextCreate: [
     'POST',
     '/api/v1/projects/{project_id}/knowledge/documents/{target}/create-text',
@@ -1016,6 +1019,9 @@ type ProjectModelOptions<E extends ProjectModelEndpoint> = E extends
       : { signal: AbortSignal; projectID: string; body: unknown; csrf: string; key: string }
 
 type ProjectEndpoint =
+  | 'getProjectScheduler'
+  | 'updateProjectScheduler'
+  | 'lookupProjectScheduler'
   | 'listOwnerProjects'
   | 'getOwnerProject'
   | 'resolveOwnerProject'
@@ -1027,10 +1033,13 @@ type ProjectOptions<E extends ProjectEndpoint> = E extends 'listOwnerProjects'
   ? { signal: AbortSignal; projects: ProjectWireQuery }
   : E extends 'resolveOwnerProject'
     ? { signal: AbortSignal; projectAddress: ProjectWireAddress }
-    : E extends 'getOwnerProject'
+    : E extends 'getOwnerProject' | 'getProjectScheduler'
       ? { signal: AbortSignal; target: string }
       : { signal: AbortSignal; target: string; body: unknown; csrf: string; key: string }
 const projectEndpoints: readonly ProjectEndpoint[] = [
+  'getProjectScheduler',
+  'updateProjectScheduler',
+  'lookupProjectScheduler',
   'listOwnerProjects',
   'getOwnerProject',
   'resolveOwnerProject',
@@ -1713,7 +1722,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
         )
           throw new Error()
         if (
-          endpoint === 'lookupOwnerProject' &&
+          (endpoint === 'lookupOwnerProject' || endpoint === 'lookupProjectScheduler') &&
           shape(options.body, ['command']).command !== 'update'
         )
           throw new Error()
@@ -1857,6 +1866,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       headers['If-Match'] = `"${options.avatar.version}"`
     } else if (method !== 'GET') {
       const maximum =
+        endpoint === 'updateProjectScheduler' ? 4096 : endpoint === 'lookupProjectScheduler' ? 1024 :
         endpoint === 'knowledgeTextLookup'
           ? 1048660
           : (knowledgeTextEndpoints as readonly string[]).includes(endpoint)
@@ -1959,6 +1969,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           response,
           options.signal,
           lifecycle,
+          (endpoint === 'getProjectScheduler' || endpoint === 'updateProjectScheduler') ? 4096 :
           (knowledgeTextEndpoints as readonly string[]).includes(endpoint) && success
             ? 16384
             : (skillEndpoints as readonly string[]).includes(endpoint) && success
@@ -2015,6 +2026,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
                               ? 1024 * 1024
                               : 600_000,
           success && (projectModelReads as readonly string[]).includes(endpoint),
+          ['getProjectScheduler', 'updateProjectScheduler', 'lookupProjectScheduler'].includes(endpoint) ||
           (skillEndpoints as readonly string[]).includes(endpoint) ||
             (workReviewEndpoints as readonly string[]).includes(endpoint) ||
             (knowledgeCommandEndpoints as readonly string[]).includes(endpoint) ||

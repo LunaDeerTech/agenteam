@@ -215,6 +215,15 @@ PATCH 发布/I/O 预算为30秒、lookup为2秒，从认证前覆盖同一次服
 
 固定 candidate06 的作者离线版本组合、三个真实 native 顶层、四个新 PG 顶层与九个旧回归，以及独立 A01/B02 均通过。A01 补验真实缺 User/Project/Outbox 锁、旧计划、已提交 Logout 和原子回滚；B02 验默认根、历史 receipt 与当前 GET 分离及实际 drain，真实 PATCH 8545 B、lookup 8607 B 原 body 均通过 Draft 2020-12 与 FormatChecker 标准解析。原编译失败、I/O 能力预检缺陷及循环 writer 测试首红、独立 B01 私有 SQL 探针首红与 B02 修正均保留；这是版本组合验收。物理 ACK 丢失、原 writer 确认尾部和在途 root 正常/耗尽关停由固定作者测试另行举证；forced root 返回后的私有 proxy/backend 等待不倒填 root 内部 join。新身份使用正式账户链，持久 Skills 与特殊 canonical 仅为测试前置。各轮 owned 实际等待、资源双清，daemon 未 wait 差量单列，不称全机零。创建、生命周期、UI、生产 Resolution/Invocations 与 D24 仍未绑定，三停止、ready503 和完整 D08–D28/E01 未完成边界保持。
 
+## Project Scheduler Owner 配置 HTTP
+
+`GET/HEAD/PATCH /api/v1/projects/{project_id}/scheduler` 提供已有 initialized Project 的当前 Owner 配置读取和完整替换，契约见 [Scheduler OpenAPI](../../../api/openapi/project-scheduler.json) 与[实施卡](../work-items/d08-project-scheduler-owner-http.md)。PATCH 必须显式提供 `expected_version`、`scheduler_enabled` 和 `scheduler_max_concurrency`；版本与正上限采用完整 int64 十进制字符串，`null` 上限表示不限。新 body/表示限 4 KiB，GET/HEAD 2s、PATCH 30s 发布/I/O 预算继承更早期限，原服务调用、实际 Body.Close 与取消 callback 均完成后才释放拥有者。
+
+默认 App 接线复用原已登记的 Project Service、Account boundary 和关闭链；每次请求重验当前 Human Session/Owner，unsafe 请求保持 CSRF，管理员没有旁路。PATCH 恰返回 `{project_id,version}` 历史确认；原 `POST /api/v1/projects/{id}/commands/lookup` 仍接受 `{command:"update"}` 和原 key，只提供历史 ProjectRef，不能证明调用者传入的 Scheduler body，也不含当前配置。调用者须显式 GET 读当前值；旧 metadata PATCH 仍独立 name/description-only，不自动改 key 或重试。
+
+固定候选的 15 个顶层 race 控制、vet、编译/list 与自有 TLS/Account/Project/PG 两子例真实链及原 Wait/七资源/全部退出尾已有限独立接受；原单元失败保留。真实选择器是 `^TestProjectSchedulerOwnerHTTP$`，精确原配方与结果入口见实施卡。该 PG 链是显式装配；[设置 UI 后继](../work-items/d08-project-scheduler-ui.md)现已通过测试进程内默认 App/run/listener 的两子例，正常两次保存及真实提交后响应截断、原 key Lookup 历史 ack、独立当前 GET 均有原请求/持久事实/退出联证，完整尾和三图已有限独验。该 App 退出使用进程内 signal channel，不冒外部 OS signal；配置暂停/恢复不新建 Runtime、不启动 planned Sprint、不取消已有 Execution，运行中 Execution 的实际行为不由本组代证。生产 initializer、`ready=false`/503 与既有 STOP 不变。
+
+
 ## Project Model 配置与安全目录 Owner 只读 HTTP
 
 默认根已提供以下五个 GET/HEAD 资源，精确字段见 [Project Model OpenAPI](../../../api/openapi/project-models.json) 与[实施规格](../work-items/d09-project-model-owner-read-http.md)。Model 的 `Authorizations.Projects` 绑定 Owner read、Update 与 Usage 共用的真实 Project Authority，沿原 Account Store、Session Authority 和 cursor keyring；每次读取在同一事务与完整锁计划内重验当前 Human Session、Owner 和项目 Read 门禁，管理员没有跨 Owner 豁免。

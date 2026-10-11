@@ -46,6 +46,7 @@ export function projectRoute(value: unknown): {
     | '/settings/audit'
     | '/settings/agents'
     | '/settings/variables'
+    | '/settings/scheduler'
     | '/settings/skills'
     | `/settings/skills/${string}`
     | '/settings/model-providers'
@@ -58,7 +59,7 @@ export function projectRoute(value: unknown): {
 } | null {
   if (typeof value !== 'string' || /[%\\?#]/.test(value)) return null
   const match =
-    /^\/([A-Za-z0-9][A-Za-z0-9-]{1,30}[A-Za-z0-9])\/([A-Za-z0-9._-]{1,64})(\/settings(?:\/(?:general|audit|agents|variables|model-providers|available-models|skills(?:\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?))?|\/tasks(?:\/(?:sprints\/)?[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?|\/knowledge(?:\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?)?$/.exec(
+    /^\/([A-Za-z0-9][A-Za-z0-9-]{1,30}[A-Za-z0-9])\/([A-Za-z0-9._-]{1,64})(\/settings(?:\/(?:general|audit|agents|variables|scheduler|model-providers|available-models|skills(?:\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?))?|\/tasks(?:\/(?:sprints\/)?[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?|\/knowledge(?:\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?)?$/.exec(
       value,
     )
   if (!match) return null
@@ -166,6 +167,25 @@ export function installProjectModelSettingsNavigation(
   }
 }
 
+const projectSchedulerNavigation = new WeakMap<
+  Router,
+  {
+    confirmLeave: (target?: string) => Promise<boolean>
+    afterNavigation: (to: string, from: string) => void
+  }
+>()
+export function installProjectSchedulerNavigation(
+  router: Router,
+  owner: {
+    confirmLeave: (target?: string) => Promise<boolean>
+    afterNavigation: (to: string, from: string) => void
+  },
+) {
+  projectSchedulerNavigation.set(router, owner)
+  return () => {
+    if (projectSchedulerNavigation.get(router) === owner) projectSchedulerNavigation.delete(router)
+  }
+}
 const projectVariablesNavigation = new WeakMap<
   Router,
   {
@@ -303,6 +323,7 @@ export function installAuthentication(router: Router, auth: SessionController = 
       !((await projectVariablesNavigation.get(router)?.confirmLeave(to.fullPath)) ?? true)
     )
       return false
+    if (to.fullPath !== from.fullPath && !((await projectSchedulerNavigation.get(router)?.confirmLeave(to.fullPath)) ?? true)) return false
     if (to.meta.projectWorkspace && to.fullPath !== '/projects' && !projectRoute(to.fullPath))
       return {
         name: 'not-found',
@@ -399,6 +420,7 @@ export function installAuthentication(router: Router, auth: SessionController = 
       if (!failure) taskNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
       if (!failure)
         projectVariablesNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+      if (!failure) projectSchedulerNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
       if (!failure) agentNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
       if (!failure) projectModelNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
       if (!failure)

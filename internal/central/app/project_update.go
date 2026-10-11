@@ -15,6 +15,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/project"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	projecthttp "github.com/LunaDeerTech/agenteam/internal/central/project/http"
+	"github.com/LunaDeerTech/agenteam/internal/central/project/schedulerhttp"
 )
 
 // Pure construction retains the existing authority, store, actual process
@@ -86,11 +87,25 @@ func projectUpdateHandler(service *project.Service, core *account.Service, origi
 	if err != nil {
 		return nil, err
 	}
-	return projecthttp.NewUpdateHTTPHandler(service, boundary)
+	updates, err := projecthttp.NewUpdateHTTPHandler(service, boundary)
+	if err != nil {
+		return nil, err
+	}
+	scheduler, err := schedulerhttp.NewHTTPHandler(service, boundary)
+	if err != nil {
+		return nil, err
+	}
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if schedulerhttp.HandlesPath(r.URL.Path) {
+			scheduler.ServeHTTP(w, r)
+			return
+		}
+		updates.ServeHTTP(w, r)
+	}), nil
 }
 func projectUpdateRoutes(existing, updates http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if projecthttp.HandlesUpdateRequest(r.Method, r.URL.Path) {
+		if schedulerhttp.HandlesPath(r.URL.Path) || projecthttp.HandlesUpdateRequest(r.Method, r.URL.Path) {
 			updates.ServeHTTP(w, r)
 			return
 		}

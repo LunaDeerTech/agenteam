@@ -165,6 +165,7 @@ export async function observeBrowserIO(
     let originalMilestoneCreate: any;
     const originalVariableWrites: any[] = [];
     const originalTextWrites: any[] = [];
+    const originalSchedulerWrites: any[] = [];
     const tails = new Set<Promise<void>>();
     const restorers: (() => void)[] = [];
     let retired = false,
@@ -341,6 +342,15 @@ export async function observeBrowserIO(
           const source = originalMilestoneEdits.at(-1), progress = auth.workMilestoneEditing.progress;
           writeInputs.set(call, { source, current: progress?.phase === "uncertain" && progress.contextValid === true && progress.projectID === source?.project && progress.milestoneID === source?.milestone });
         }
+        if (kind === "scheduler.startUpdate") {
+          const original = { call, project: args[0], input: JSON.parse(JSON.stringify(args[1])) };
+          originalSchedulerWrites.push(original);
+          writeInputs.set(call, original);
+        } else if (kind === "scheduler.checkOriginal") {
+          const source = originalSchedulerWrites.at(-1), progress = auth.projectScheduler.progress;
+          writeInputs.set(call, { source, current: progress?.phase === "uncertain" &&
+            progress.contextValid === true && progress.projectID === source?.project });
+        }
         if (kind === "knowledgeText.write") {
           const original = {call, project: args[0], intent: JSON.parse(JSON.stringify(args[1]))};
           originalTextWrites.push(original);
@@ -421,6 +431,12 @@ export async function observeBrowserIO(
               const result = kind === "milestone.update" ? value : value.result;
               call.result_current = progress?.phase === "confirmed" && progress.contextValid === true && progress.projectID === source.project && progress.milestoneID === source.milestone && result != null && progress.result === result;
             }
+            if (kind === "scheduler.startUpdate" || kind === "scheduler.checkOriginal") {
+              const original = writeInputs.get(call), progress = auth.projectScheduler.progress;
+              call.result_current = progress?.phase === "confirmed" && progress.contextValid === true &&
+                progress.projectID === (original.source?.project ?? original.project) &&
+                progress.receipt === (kind === "scheduler.startUpdate" ? value : value.receipt);
+            }
             if (kind === "knowledgeText.write") {
               const original = writeInputs.get(call), progress = auth.knowledgeText.progress;
               call.result_current = progress?.phase === "confirmed" &&
@@ -498,6 +514,7 @@ export async function observeBrowserIO(
         editMilestone: string | undefined,
         variableWrites: boolean,
         knowledgeTextWrites: boolean,
+        schedulerWrites = false,
       ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
@@ -526,6 +543,13 @@ export async function observeBrowserIO(
               throw Error("SKILL_DETAIL_CONSUMER_SCOPE");
             return "/api/v1/projects/" + project + "/skills/" + skillsTarget;
           });
+        } else if (schedulerWrites) {
+          for (const method of ["get", "startUpdate", "checkOriginal"])
+            consumer(auth.projectScheduler, method, "scheduler." + method, (a) => {
+              if (method === "checkOriginal" ? a.length !== 0 || auth.projectScheduler.progress?.projectID !== project : a[0] !== project)
+                throw Error("PROJECT_SCHEDULER_CONSUMER_SCOPE");
+              return "/api/v1/projects/" + project + (method === "checkOriginal" ? "/commands/lookup" : "/scheduler");
+            }, method === "get" ? "GET" : method === "startUpdate" ? "PATCH" : "POST");
         } else if (knowledgeTextWrites) {
           const prefix = "/api/v1/projects/" + project + "/knowledge/documents";
           for (const method of ["children", "get", "ancestors", "readContent"])
@@ -829,6 +853,7 @@ export async function observeBrowserIO(
         originalMilestoneCreate = undefined;
         originalVariableWrites.length = 0;
         originalTextWrites.length = 0;
+        originalSchedulerWrites.length = 0;
         return this.snapshot();
       },
     };
@@ -1066,6 +1091,17 @@ export async function observeBrowserIO(
           } else if (call.kind === "milestone.checkOriginal") {
             matches = original.current && original.source?.call.rejected === true && original.source.call.settled === true && key === original.source.key && equal(parsed, { command: "work.milestone.update", target_id: original.source.milestone, expected_version: original.source.input.expected_version, request: original.source.input.request });
           }
+          if (call.kind === "scheduler.startUpdate") {
+            matches = originalSchedulerWrites.every(old => old === original ||
+              (typeof old.key === "string" && old.key !== key)) && equal(parsed, original.input);
+            if (matches) original.key = key;
+          } else if (call.kind === "scheduler.checkOriginal") {
+            // Legacy Project Lookup binds only the key and command, not the
+            // Scheduler intent body. Never add that body to its wire request.
+            matches = original.current && original.source?.call.rejected === true &&
+              original.source.call.settled === true && key === original.source.key &&
+              equal(parsed, { command: "update" });
+          }
           if (call.kind === "knowledgeText.write") {
             matches = originalTextWrites.every(old => old === original || (typeof old.key === "string" && old.key !== key)) && equal(parsed, original.intent.request);
             if (matches) original.key = key;
@@ -1302,6 +1338,8 @@ export async function observeBrowserIO(
               // The untouched original bytes remain bound by row.digest.
               const kind = calls.find((call) => call.id === row.call_id)?.kind;
               if (kind === "knowledge.ancestors") parsed = parsed.items;
+              if (kind === "scheduler.checkOriginal" && parsed.state === "committed")
+                parsed = { state: "committed", receipt: { project_id: parsed.result.project.id, version: parsed.result.project.version } };
               if (kind === "work.sprint") {
                 const { started_by, completed_by, ...sprint } = parsed;
                 parsed = sprint;
@@ -1484,7 +1522,8 @@ export type TaskObservationProfile = {
     | "milestone-create"
     | "milestone-edit"
     | "project-variables"
-    | "knowledge-text";
+    | "knowledge-text"
+    | "project-scheduler";
   endpoint: (request: Request) => string | undefined;
   cut?: "transfer" | "create" | "update" | "start";
   lookupCommand:
@@ -1497,6 +1536,7 @@ export type TaskObservationProfile = {
     | "work.sprint.create"
     | "work.milestone.create"
     | "work.milestone.update"
+    | "update"
     | null;
   intakeWrites?: true;
   agentConfiguration?: true;
@@ -1511,6 +1551,7 @@ export type TaskObservationProfile = {
   milestoneUpdateWrites?: true;
   variableWrites?: true;
   knowledgeTextWrites?: true;
+  schedulerWrites?: true;
 };
 
 export function observeReview(page: Page, data: ReviewMaterial) {
@@ -1732,6 +1773,14 @@ export async function observeTaskRequests(
       !["milestone-edit-normal", "milestone-edit-lost"].includes(data.mode) ||
       profile.cut !== (data.mode === "milestone-edit-lost" ? "update" : undefined)))
     throw Error("MILESTONE_UPDATE_PROFILE_MISMATCH");
+  if (profile.schedulerWrites &&
+      (profile.prefix !== "project-scheduler" || profile.lookupCommand !== "update" ||
+       !["pause-limit-and-resume", "lost-update-confirmation-only-lookup"].includes(data.mode) ||
+       profile.cut !== (data.mode === "lost-update-confirmation-only-lookup" ? "update" : undefined) ||
+       profile.intakeWrites || profile.agentConfiguration || profile.editWrites || profile.timelineReads ||
+       profile.agentEditWrites || profile.agentModelPolicy || profile.sprintStartWrites || profile.sprintCreateWrites ||
+       profile.skillsReads || profile.milestoneCreateWrites || profile.variableWrites || profile.knowledgeTextWrites))
+    throw Error("PROJECT_SCHEDULER_PROFILE_MISMATCH");
   const entries: Entry[] = [];
   const events: Record<string, unknown>[] = [];
   const browserEvents: BrowserDiagnostic[] = [];
@@ -1759,7 +1808,7 @@ export async function observeTaskRequests(
         status: entry.status,
         request_id: entry.requestID,
         failure: entry.failure,
-        ...(profile.skillsReads && entry.skillsHeaders
+        ...((profile.skillsReads || profile.schedulerWrites) && entry.skillsHeaders
           ? { skills_headers: { ...entry.skillsHeaders } }
           : {}),
       });
@@ -1819,7 +1868,7 @@ export async function observeTaskRequests(
     if (entry.responseCount !== 1)
       observerError = new Error("DUPLICATE_ORIGINAL_RESPONSE");
     entry.status = response.status();
-    if (profile.skillsReads) {
+    if (profile.skillsReads || profile.schedulerWrites) {
       // Observe both original header promises once; retain no credential values.
       entry.headersReady = Promise.allSettled([
         entry.request.allHeaders(),
@@ -1926,6 +1975,7 @@ export async function observeTaskRequests(
           editMilestone,
           variableWrites,
           knowledgeTextWrites,
+          schedulerWrites,
         }) => {
           const module = await import(/* @vite-ignore */ binding.asset);
           const useSession = module[binding.exportName];
@@ -1949,6 +1999,7 @@ export async function observeTaskRequests(
             editMilestone,
             variableWrites,
             knowledgeTextWrites,
+            schedulerWrites,
           );
         },
         {
@@ -1971,6 +2022,7 @@ export async function observeTaskRequests(
           editMilestone: profile.milestoneUpdateWrites ? data.milestone_id : undefined,
           variableWrites: profile.variableWrites === true,
           knowledgeTextWrites: profile.knowledgeTextWrites === true,
+          schedulerWrites: profile.schedulerWrites === true,
         },
       );
       await route.continue();
@@ -2191,6 +2243,16 @@ export async function observeTaskRequests(
   function knowledgeTextReadEntry(entry: Entry) {
     return profile.knowledgeTextWrites && entry.request.method() === "GET" && ["documents", "document", "ancestors", "content"].includes(entry.name);
   }
+  function schedulerWrite(entry: Entry) {
+    if (!profile.schedulerWrites) return false;
+    const url = new URL(entry.request.url()), prefix = `/api/v1/projects/${data.project_id}`;
+    return !url.search && ((entry.name === "update" && entry.request.method() === "PATCH" && url.pathname === prefix + "/scheduler") ||
+      (entry.name === "lookup" && entry.request.method() === "POST" && url.pathname === prefix + "/commands/lookup"));
+  }
+  function schedulerReadEntry(entry: Entry) {
+    return profile.schedulerWrites && entry.request.method() === "GET" &&
+      ["session", "resolve", "projects", "project", "scheduler"].includes(entry.name);
+  }
   function joint(entry: Entry, proof: any) {
     const edit = editWrite(entry);
     const agentEdit = agentEditWrite(entry);
@@ -2200,6 +2262,7 @@ export async function observeTaskRequests(
     const milestoneUpdate = milestoneUpdateWrite(entry);
     const variable = variableWrite(entry);
     const knowledgeText = knowledgeTextWrite(entry);
+    const scheduler = schedulerWrite(entry);
     const write =
       intakeWrite(entry) ||
       agentWrite(entry) ||
@@ -2210,9 +2273,9 @@ export async function observeTaskRequests(
       milestoneCreate ||
       milestoneUpdate ||
       variable ||
-      knowledgeText;
+      knowledgeText || scheduler;
     const method =
-      (edit || agentEdit || milestoneUpdate || variable) && entry.name === "update"
+      (edit || agentEdit || milestoneUpdate || variable || scheduler) && entry.name === "update"
         ? "PATCH"
         : write
           ? "POST"
@@ -2288,9 +2351,13 @@ export async function observeTaskRequests(
     if (variablePageRead(entry))
       expect(c.kind).toBe(entry.name === "variables" ? "variable.list" : "variable.get");
     if (knowledgeTextReadEntry(entry)) expect(c.kind).toBe({documents:"knowledge.children", document:"knowledge.get", ancestors:"knowledge.ancestors", content:"knowledge.readContent"}[entry.name]);
+    if (schedulerReadEntry(entry)) expect(c.kind).toBe({ session: "restore", resolve: "project.resolve", projects: "project.list", project: "project.get", scheduler: "scheduler.get" }[entry.name]);
     if (write) {
+      if (scheduler) expect(c.result_current).toBe(true);
       if (sprintCreate || milestoneCreate || milestoneUpdate || variable || knowledgeText) expect(c.result_current).toBe(true);
-      const kinds: Record<string, string> = knowledgeText
+      const kinds: Record<string, string> = scheduler
+        ? { update: "scheduler.startUpdate", lookup: "scheduler.checkOriginal" }
+        : knowledgeText
         ? { create: "knowledgeText.write", update: "knowledgeText.write" }
         : variable
         ? { create: "variable.create", update: "variable.update" }
@@ -2339,7 +2406,8 @@ export async function observeTaskRequests(
         expect(source.idempotency_key_sha256).toBe(keyHash);
       }
       if (entry.name === "lookup") {
-        requireCommittedLookup(c.typed, profile.milestoneUpdateWrites === true);
+        if (profile.schedulerWrites) expect(c.typed.state).toBe("committed");
+        else requireCommittedLookup(c.typed, profile.milestoneUpdateWrites === true);
         originalLookup();
       }
     }
@@ -2369,7 +2437,16 @@ export async function observeTaskRequests(
       if (entry.checked) continue;
       const state = await entry.done;
       const response = await entry.request.response();
-      if (profile.skillsReads) {
+      if (profile.schedulerWrites && state === "failed" && entry.name === profile.cut) {
+        // The proxy publishes this predicate only after its actual flush and
+        // connection Close. Its original safe record can be mid-rewrite here.
+        await expect.poll(() => {
+          try {
+            return JSON.parse(readFileSync(join(profile.evidence, `${profile.prefix}-${data.mode}-response-${entry.requestID}.json`), "utf8")).receipt_cut === true;
+          } catch { return false; }
+        }, { timeout: 5_000 }).toBe(true);
+      }
+      if (profile.skillsReads || profile.schedulerWrites) {
         // Include bootstrap reads as well as catalog/detail: a missing browser
         // projection is accepted only with this original request's App proof.
         const record = JSON.parse(
@@ -2406,6 +2483,38 @@ export async function observeTaskRequests(
         // physically truncating its original Content-Length response.
         expect(response?.status()).toBe(200);
         expect(entry.request.failure()).not.toBeNull();
+        if (profile.schedulerWrites) {
+          const readRecord = () => JSON.parse(readFileSync(join(profile.evidence, `${profile.prefix}-${data.mode}-response-${entry.requestID}.json`), "utf8"));
+          const record = readRecord();
+          expect(record.receipt_cut).toBe(true);
+          expect(record.committed_verified && record.original_eof && record.original_closed && record.handler_returned).toBe(true);
+          expect(record.kind).toBe("update");
+          const rows = proof.rows.filter((r: any) => r.request_id === entry.requestID);
+          expect(rows).toHaveLength(1);
+          const n = rows[0], calls = proof.calls.filter((c: any) => c.id === n.call_id);
+          expect(calls).toHaveLength(1);
+          const c = calls[0];
+          expect(proof.current && proof.not_busy).toBe(true);
+          expect(c.kind).toBe("scheduler.startUpdate");
+          expect(c.rejected && c.settled && !c.fulfilled).toBe(true);
+          expect(c.bound).toBe(1);
+          expect(n.path).toBe(new URL(entry.request.url()).pathname);
+          expect(n.method).toBe("PATCH");
+          expect(n.status).toBe(200);
+          expect(n.fetch_returned).toBe(true);
+          expect(n.readers).toBe(1);
+          expect(n.release).toBe(1);
+          expect(entry.finishedCount).toBe(0);
+          expect(entry.failedCount).toBe(1);
+          expect(c.request_bound && n.request_bound).toBe(true);
+          const bodyHash = createHash("sha256").update(entry.request.postDataBuffer()!).digest("hex");
+          const keyHash = createHash("sha256").update(entry.request.headers()["idempotency-key"]!).digest("hex");
+          for (const source of [record, n, c]) {
+            expect(source.request_body_sha256).toBe(bodyHash);
+            expect(source.idempotency_key_sha256).toBe(keyHash);
+          }
+          proofs.push({ seq: entry.seq, request_id: entry.requestID, declared_cut: true, native: n, consumer: { ...c, typed: undefined }, go: record });
+        }
         dropped++;
         entry.checked = true;
         continue;
@@ -2422,6 +2531,7 @@ export async function observeTaskRequests(
           milestoneUpdateWrite(entry) ||
           variableWrite(entry) ||
           knowledgeTextWrite(entry) ||
+          schedulerWrite(entry) ||
           agentWrite(entry)) &&
         response?.status() === 200 &&
         entry.failure === "net::ERR_ABORTED"
@@ -2485,6 +2595,7 @@ export async function observeTaskRequests(
         variablePageRead(entry) ||
         knowledgeTextWrite(entry) ||
         knowledgeTextReadEntry(entry) ||
+        schedulerWrite(entry) || schedulerReadEntry(entry) ||
         sprintPageRead(entry) ||
         agentWrite(entry) ||
         agentPageRead(entry) ||
@@ -2502,6 +2613,16 @@ export async function observeTaskRequests(
           entry.body = detail;
         }
         if (knowledgeTextReadEntry(entry) && entry.name === "ancestors") entry.body = (entry.body as any).items;
+        if (profile.schedulerWrites && entry.name === "lookup") {
+          const wire = entry.body as any;
+          expect(wire.state).toBe("committed");
+          expect(wire.result.command).toBe("update");
+          entry.body = { state: "committed", receipt: { project_id: wire.result.project.id, version: wire.result.project.version } };
+        }
+        if (profile.schedulerWrites && entry.name === "session") {
+          const wire = entry.body as any;
+          entry.body = { user: wire.user, session: wire.session };
+        }
         expect(consumed).toEqual(entry.body);
         entry.body = consumed;
       }
@@ -2530,6 +2651,15 @@ export async function observeTaskRequests(
   function originalLookup() {
     if (profile.lookupCommand === null)
       throw Error("TASK_TIMELINE_HAS_NO_WRITE_LOOKUP");
+    if (profile.schedulerWrites) {
+      const original = requests("update"), lookups = requests("lookup");
+      expect(original).toHaveLength(1);
+      expect(lookups).toHaveLength(1);
+      expect(lookups[0]!.postDataJSON()).toEqual({ command: "update" });
+      expect(lookups[0]!.headers()["idempotency-key"]).toBe(original[0]!.headers()["idempotency-key"]);
+      expect(dropped).toBe(1);
+      return;
+    }
     const creation =
       profile.lookupCommand === "work.task.create" ||
       profile.lookupCommand === "agent.create";
@@ -2574,6 +2704,12 @@ export async function observeTaskRequests(
     expect(profile.knowledgeTextWrites).toBe(true);
     const rows = entries.filter(e => e.name === name && e.checked && e.body && (!target || new URL(e.request.url()).pathname.includes("/" + target)));
     expect(rows.length, "original Knowledge read must complete").toBeGreaterThan(0);
+    return rows.at(-1)!.body as Record<string, any>;
+  }
+  function schedulerRead() {
+    expect(profile.schedulerWrites).toBe(true);
+    const rows = entries.filter(e => e.name === "scheduler" && e.checked && e.body);
+    expect(rows.length, "original current Scheduler GET must complete").toBeGreaterThan(0);
     return rows.at(-1)!.body as Record<string, any>;
   }
   function variableRead(name: "variables" | "variable") {
@@ -2699,6 +2835,7 @@ export async function observeTaskRequests(
                 ready: entries.filter((e) => e.name === "ready").length,
               }
             : {}),
+          ...(profile.schedulerWrites ? { updates: entries.filter(e => e.name === "update").length, schedulerReads: entries.filter(e => e.name === "scheduler").length } : {}),
           ...(profile.agentEditWrites || profile.agentModelPolicy || profile.milestoneUpdateWrites
             ? { updates: entries.filter((e) => e.name === "update").length }
             : {}),
@@ -2726,7 +2863,7 @@ export async function observeTaskRequests(
             request_id: entry.requestID,
             terminal: entry.terminal,
             failure: entry.failure,
-            ...(profile.skillsReads && entry.skillsHeaders
+            ...((profile.skillsReads || profile.schedulerWrites) && entry.skillsHeaders
               ? { skills_headers: { ...entry.skillsHeaders } }
               : {}),
             checked: entry.checked,
@@ -2794,6 +2931,7 @@ export async function observeTaskRequests(
     milestoneRead,
     variableRead,
     knowledgeTextRead,
+    schedulerRead,
     timelinePage,
     save,
     endDocument,
