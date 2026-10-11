@@ -50,6 +50,18 @@ export async function taskScreenshot(page: Page, name: string) {
 }
 
 type Tail = "finished" | "failed" | "closed";
+type SkillsHeaderDiagnostic = {
+  stage: "joined" | "header_promises" | "request_gate" | "response_id_gate" | "accepted";
+  request_fulfilled: boolean;
+  response_fulfilled: boolean;
+  host_present: boolean;
+  host_matches: boolean;
+  authority_present: boolean;
+  authority_matches: boolean;
+  cookie_present: boolean;
+  response_id_present: boolean;
+  response_id_valid: boolean;
+};
 type Entry = {
   seq: number;
   request: Request;
@@ -66,6 +78,7 @@ type Entry = {
   checked: boolean;
   body?: unknown;
   headersReady?: Promise<void>;
+  skillsHeaders?: SkillsHeaderDiagnostic;
 };
 
 // Preserve paths and the few non-secret query facts used by these reads. Never
@@ -1567,6 +1580,9 @@ export async function observeTaskRequests(
         status: entry.status,
         request_id: entry.requestID,
         failure: entry.failure,
+        ...(profile.skillsReads && entry.skillsHeaders
+          ? { skills_headers: { ...entry.skillsHeaders } }
+          : {}),
       });
   };
   const end = (request: Request, state: Tail) => {
@@ -1631,24 +1647,41 @@ export async function observeTaskRequests(
         response.allHeaders(),
       ])
         .then(([sentResult, receivedResult]) => {
-          if (
-            sentResult.status !== "fulfilled" ||
-            receivedResult.status !== "fulfilled"
-          )
-            throw Error("SKILLS_ORIGINAL_HEADERS_FAILED");
-          const sent = sentResult.value,
-            received = receivedResult.value;
+          const sent = sentResult.status === "fulfilled" ? sentResult.value : undefined;
+          const received = receivedResult.status === "fulfilled" ? receivedResult.value : undefined;
           const origin = new URL(entry.request.url());
-          if (sent.host !== origin.host || !sent.cookie)
+          const id = received?.["x-request-id"];
+          const diagnostic: SkillsHeaderDiagnostic = {
+            stage: "joined",
+            request_fulfilled: sentResult.status === "fulfilled",
+            response_fulfilled: receivedResult.status === "fulfilled",
+            host_present: typeof sent?.host === "string" && sent.host.length > 0,
+            host_matches: sent?.host === origin.host,
+            authority_present: typeof sent?.[":authority"] === "string" && sent[":authority"].length > 0,
+            authority_matches: sent?.[":authority"] === origin.host,
+            cookie_present: Boolean(sent?.cookie),
+            response_id_present: typeof id === "string" && id.length > 0,
+            response_id_valid: typeof id === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(id),
+          };
+          entry.skillsHeaders = diagnostic;
+          // Publish only closed predicates after both original promises retire.
+          // Keep the original gates: this diagnostic never supplies a header.
+          if (!diagnostic.request_fulfilled || !diagnostic.response_fulfilled) {
+            diagnostic.stage = "header_promises";
+            event("skills-headers", entry);
+            throw Error("SKILLS_ORIGINAL_HEADERS_FAILED");
+          }
+          if (!diagnostic.host_matches || !diagnostic.cookie_present) {
+            diagnostic.stage = "request_gate";
+            event("skills-headers", entry);
             throw Error("SKILLS_ORIGINAL_REQUEST_HEADERS");
-          const id = received["x-request-id"];
-          if (
-            !id ||
-            !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-              id,
-            )
-          )
+          }
+          if (!diagnostic.response_id_valid) {
+            diagnostic.stage = "response_id_gate";
+            event("skills-headers", entry);
             throw Error("SKILLS_ORIGINAL_RESPONSE_ID");
+          }
+          diagnostic.stage = "accepted";
           entry.requestID = id;
           event("response", entry);
         })
@@ -2390,6 +2423,9 @@ export async function observeTaskRequests(
             request_id: entry.requestID,
             terminal: entry.terminal,
             failure: entry.failure,
+            ...(profile.skillsReads && entry.skillsHeaders
+              ? { skills_headers: { ...entry.skillsHeaders } }
+              : {}),
             checked: entry.checked,
           })),
           request_events: events,
