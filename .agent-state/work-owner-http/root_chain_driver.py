@@ -24,6 +24,7 @@ METADATA_INPUTS = {
         'tests/account-captcha-web/task-review.config.js',
         'tests/account-captcha-web/e2e/task-review.spec.ts',
         'tests/account-captcha-web/e2e/task-review.helpers.ts',
+        'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts',
     ),
     '^TestExecutionRuntimeAccessAudit$': (
         'tests/projectvariable/execution_runtime_access_audit_test.go',
