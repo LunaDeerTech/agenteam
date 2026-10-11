@@ -1,6 +1,6 @@
 # D15/D16 Runner write-file WSS 适配器
 
-状态：固定 `5d8cf4c4` 的基础检查、编译与隔离真实 WSS 首链已获唯一主审有限 wholePASS 接受，可交 main；当前本树尚未合入、推送或保全清理。本片以已交付本地 `filesystem.Root.Write` / `workspace.Handle.Write` 为底座，只新增 Runner 闭集 codec、Handler 和显式 Control 绑定。
+状态：固定 `5d8cf4c4` 的基础检查、编译与隔离真实 WSS 首链已获唯一主审有限 wholePASS 接受，随完整开发历史正式交付 main `570da7a2`，原推送工具2926实际0。全部原件已无覆盖保全；旧树/分支清理仍由root后续执行。本片以已交付本地 `filesystem.Root.Write` / `workspace.Handle.Write` 为底座，只新增 Runner 闭集 codec、Handler 和显式 Control 绑定。
 
 依据：[D15 §7](d15-runner-control.md#7-rpc端口与-unknown)、[本地 Write](d16-runner-write-file.md)、[Workspace](../../architecture/runner/agent-workspace.md)与[执行运行时](../../architecture/runner/execution-runtime.md)。
 
@@ -36,6 +36,6 @@ compile01 原工具 18090 亲收 actual0：Go 811848 race-c 为 0/1.228s，81187
 
 native01 原工具 96046 亲收 actual0：supervisor 812703 实际 Wait0/3.395s，原内部3.137s，Go 812704实际 Wait0；`TestWriteFileWSS/committed-write-and-overwrite-conflict` 精确1 top / 1 sub、1.76s PASS。可信测试 TLS/WSS peer → 原 Control bound session/wire → 显式 Handler/Manager/Root，完成512KiB原子写入及独立Handle按64KiB完整读取；同连接显式第二请求得到 no-overwrite Conflict，原正文再次完整一致。原 executor 返回、两终态及RequestID关联真实核对，没有自动重发。
 
-唯一 `WRITE_FILE_WSS owned_resources_joined=true` 只在实际 session/worker、wire reader/writer、peer handler/socket Close、TLS server、离线显式 client、独立Handle与Manager 全部退出后产生。监督器亲收原 Go 后，desc/private 两次空、原75s自动baseline TCP差额两次empty、1481输入不变与terminal0均闭合。没有PG/Docker，不借用七资源声明。全部原输出在 `output/ai/runner-write-file-wss/{methods01,basic01,compile01,native01}/`，原网络日志为 `/tmp/rwfw01/{test.log,native.log}`，方法见[恢复与执行说明](../../../.agent-state/runner-write-file-wss/README.md)。
+唯一 `WRITE_FILE_WSS owned_resources_joined=true` 只在实际 session/worker、wire reader/writer、peer handler/socket Close、TLS server、离线显式 client、独立Handle与Manager 全部退出后产生。监督器亲收原 Go 后，desc/private 两次空、原75s自动baseline TCP差额两次empty、1481输入不变与terminal0均闭合。没有PG/Docker，不借用七资源声明。全部原输出已从旧树 `output/ai/runner-write-file-wss/` 同文件系统无覆盖迁至 main `output/ai/retired-20261011/runner-write-file-wss/`：80文件、22,975,545B与7目录的逐路径内容和身份保持；其中 `methods01/basic01/compile01/native01` 均完整。5份 `/tmp/rwfw01` 原日志/调用/PID/TCP基线逐字副本在 `retention/tmp-rwfw01/`，原tmp保留。63个仓库内输入均逐项等main可达原`5d8cf4c4`源码，1431个外部工具链/模块输入保持原路径未搬；静态修前`61e33774`及全部开发历史均main可达，无动态FAIL。方法与精确恢复映射见[恢复与执行说明](../../../.agent-state/runner-write-file-wss/README.md)。
 
 真实链仅证明 trusted TLS/WSS peer 的 bound session，不含 Central grant/Operation/dispatcher、enrollment、完整或默认 `Client.Run`、生产接线，也不外推故障/取消真实WSS场景；后置错误/取消判据属于上述受控基础测试。已交付 local Write 的原 FAIL 与通过事实沿原卡。Object/toolsHTTP/SPA/Jina/Image 既有 STOP 与默认生产边界保持；本片测试资源与执行窗口已全部释放。
