@@ -15,6 +15,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/agent"
 	ac "github.com/LunaDeerTech/agenteam/internal/central/agent/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
+	auditc "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/execution"
 	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
@@ -180,9 +181,10 @@ func newCaptureModelResolver(t *testing.T, v *taskTransitionFixture, consumers m
 // Optional ports only change real service composition. The default remains
 // the original preparation-only resolver and Secret usage router.
 type captureModelPorts struct {
-	projects     *project.Authority
-	usageFactory func(*model.Authority) (sc.UsageAuthority, error)
-	ready        func(*model.Service, *secret.Service, *audit.Service)
+	projects      *project.Authority
+	auditProjects auditc.ProjectAuthority
+	usageFactory  func(*model.Authority) (sc.UsageAuthority, error)
+	ready         func(*model.Service, *secret.Service, *audit.Service)
 }
 
 func newCaptureModelResolverWithPorts(t *testing.T, v *taskTransitionFixture, consumers mc.ConsumerAuthority, ports captureModelPorts) (*model.Service, *secret.Service, sc.Metadata) {
@@ -200,7 +202,11 @@ func newCaptureModelResolverWithPorts(t *testing.T, v *taskTransitionFixture, co
 	if err != nil {
 		t.Fatal("Model resolution authority", err)
 	}
-	aud, err := audit.New(b.tracked, b.keys, audit.Authorizations{Sessions: b.accounts, System: b.accounts, Accounts: b.accounts, Projects: projects, Models: authority})
+	var auditProjects auditc.ProjectAuthority = projects
+	if ports.auditProjects != nil {
+		auditProjects = ports.auditProjects
+	}
+	aud, err := audit.New(b.tracked, b.keys, audit.Authorizations{Sessions: b.accounts, System: b.accounts, Accounts: b.accounts, Projects: auditProjects, Models: authority})
 	if err != nil {
 		t.Fatal("Model capture Audit", err)
 	}
@@ -320,6 +326,7 @@ type modelEnvironmentFixture struct {
 	request            ec.LaunchRequest
 	attempt            string
 	authority          *execution.Authority
+	projectAuthority   *project.Authority
 	configuration      *agent.ExecutionConfigurationAuthority
 	task               *work.TaskTrigger
 	ordinary           vc.Variable
@@ -354,13 +361,29 @@ func newModelEnvironmentFixtureWithSource(t *testing.T,
 	deferLaunch bool,
 ) *modelEnvironmentFixture {
 	t.Helper()
+	return newModelEnvironmentFixtureWithProjectSource(t, modelFactory, beforeClaim, deferLaunch, nil)
+}
+
+// Project selection happens before Execution construction. An Audit decorator
+// can then retain that exact original Project without rebuilding its facts map.
+func newModelEnvironmentFixtureWithProjectSource(t *testing.T,
+	modelFactory func(*taskTransitionFixture, *execution.Authority) captureModelPorts,
+	beforeClaim func(*taskTransitionFixture, *model.Service, *ec.Policy),
+	deferLaunch bool,
+	selectProject func(*taskTransitionFixture) *project.Authority,
+) *modelEnvironmentFixture {
+	t.Helper()
 	v, claims := newSchedulerClaimFixture(t)
 	ordinary, secretVariable, environmentSecrets := prepareCaptureEnvironment(t, v)
-	access, err := project.NewSchedulerExecutionAccess(v.base.projectAuthority, v.pending)
+	projects := v.base.projectAuthority
+	if selectProject != nil {
+		projects = selectProject(v)
+	}
+	access, err := project.NewSchedulerExecutionAccess(projects, v.pending)
 	if err != nil {
 		t.Fatal("capture Project access", err)
 	}
-	authority, err := execution.NewAuthority(v.base.tracked, v.base.projectAuthority, access)
+	authority, err := execution.NewAuthority(v.base.tracked, projects, access)
 	if err != nil {
 		t.Fatal("capture Execution authority", err)
 	}
@@ -409,7 +432,7 @@ func newModelEnvironmentFixtureWithSource(t *testing.T,
 	if beforeClaim != nil {
 		beforeClaim(v, models, &policy)
 	}
-	x := &modelEnvironmentFixture{v: v, claims: claims, launchPolicy: policy.Clone(), authority: authority, configuration: configuration, task: task,
+	x := &modelEnvironmentFixture{v: v, claims: claims, launchPolicy: policy.Clone(), authority: authority, projectAuthority: projects, configuration: configuration, task: task,
 		ordinary: ordinary, secret: secretVariable, credential: credential,
 		skills: &observedSkillCapture{provider: skills}, tools: &observedToolCapture{provider: tools},
 		models: &observedExecutionModel{provider: modelCapture}, environment: &observedExecutionEnvironment{provider: environment},
@@ -445,7 +468,7 @@ func newModelEnvironmentFixtureWithSource(t *testing.T,
 
 func (x *modelEnvironmentFixture) newDriver(t *testing.T, withMounts bool) *execution.PreparationDriver {
 	t.Helper()
-	deps := execution.PreparationDependencies{Agents: x.configuration, Projects: x.v.base.projectAuthority,
+	deps := execution.PreparationDependencies{Agents: x.configuration, Projects: x.projectAuthority,
 		Processes: captureProviderProcesses{x.v.agent.guard}, Task: x.task, Skills: x.skills, Tools: x.tools,
 		Models: x.models, Environment: x.environment}
 	if withMounts {
