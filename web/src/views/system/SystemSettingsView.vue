@@ -12,6 +12,7 @@ const allowed = computed(
     !auth.system.denied,
 )
 const groups = [
+  { key: 'runners', label: 'Runner', children: [{ label: '设备列表', path: '/system/runners' }] },
   {
     key: 'users-invitations',
     label: '用户与邀请',

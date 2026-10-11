@@ -54,6 +54,13 @@ export function string(value: unknown, minimum: number, maximum: number): string
 }
 
 const endpoints = {
+  listSystemRunners: ['GET', '/api/v1/system/runners', 200],
+  getSystemRunner: ['GET', '/api/v1/system/runners/{target}', 200],
+  createSystemRunner: ['POST', '/api/v1/system/runners', 200],
+  updateSystemRunner: ['PATCH', '/api/v1/system/runners/{target}', 200],
+  issueSystemRunnerEnrollment: ['POST', '/api/v1/system/runners/{target}/enrollment', 200],
+  revokeSystemRunner: ['POST', '/api/v1/system/runners/{target}/revoke', 200],
+  lookupSystemRunner: ['POST', '/api/v1/system/runners/{target}/commands/lookup', 200],
   availableAgentRunners: ['GET', '/api/v1/projects/{project_id}/available-runners', 200],
   agentRunnerMounts: ['GET', '/api/v1/projects/{project_id}/agents/{target}/runner-mounts', 200],
   getProjectScheduler: ['GET', '/api/v1/projects/{id}/scheduler', 200],
@@ -1212,7 +1219,27 @@ type WorkReviewOptions = {
   key?: string
 }
 
+const runnerEndpoints = [
+  'listSystemRunners',
+  'getSystemRunner',
+  'createSystemRunner',
+  'updateSystemRunner',
+  'issueSystemRunnerEnrollment',
+  'revokeSystemRunner',
+  'lookupSystemRunner',
+] as const
+type RunnerEndpoint = (typeof runnerEndpoints)[number]
+type RunnerOptions = RequestOptions & {
+  target?: string
+  runnerQuery?: Readonly<{ limit: number; after_id?: string }>
+}
+
 export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
+  function request<T>(
+    endpoint: RunnerEndpoint,
+    parse: (value: unknown) => T,
+    options: RunnerOptions,
+  ): Promise<T>
   function request<T>(
     endpoint: 'listProjectUsage',
     parse: (value: unknown) => T,
@@ -1322,6 +1349,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
   function request<T>(
     endpoint: Exclude<
       keyof typeof endpoints,
+      | RunnerEndpoint
       | KnowledgeCommandEndpoint
       | KnowledgeEndpoint
       | SkillEndpoint
@@ -1351,6 +1379,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     endpoint: keyof typeof endpoints,
     parse: (value: unknown) => T,
     options: RequestOptions & {
+      runnerQuery?: Readonly<{ limit: number; after_id?: string }>
       users?: Readonly<{ cursor?: string }>
       invitations?: Readonly<{ cursor?: string }>
       providers?: Readonly<{ cursor?: string }>
@@ -1376,7 +1405,43 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     if (!Object.hasOwn(endpoints, endpoint)) throw new AccountFailure('invalid-input')
     const [method, basePath, status] = endpoints[endpoint]
     let path: string = basePath
-    if (endpoint === 'listProjectUsage') {
+    if ((runnerEndpoints as readonly string[]).includes(endpoint)) {
+      try {
+        const list = endpoint === 'listSystemRunners',
+          create = endpoint === 'createSystemRunner'
+        shape(options, [
+          'signal',
+          ...(method === 'GET' ? [] : ['body', 'csrf', 'key']),
+          ...(list ? ['runnerQuery'] : create ? [] : ['target']),
+        ])
+        if (!(options.signal instanceof AbortSignal)) throw new Error()
+        if (
+          method !== 'GET' &&
+          (!/^[A-Za-z0-9_-]{43}$/.test(string(options.csrf, 43, 43)) ||
+            !/^[A-Za-z0-9._:/-]{1,128}$/.test(string(options.key, 1, 128)))
+        )
+          throw new Error()
+        if (!list && !create) {
+          const target = string(options.target, 36, 36)
+          if (!uuid7.test(target)) throw new Error()
+          path = basePath.replace('{target}', target)
+        }
+        if (list) {
+          const q = shape(options.runnerQuery, ['limit'], ['after_id'])
+          if (!Number.isInteger(q.limit) || Number(q.limit) < 1 || Number(q.limit) > 200)
+            throw new Error()
+          const query = new URLSearchParams({ limit: String(q.limit) })
+          if (Object.hasOwn(q, 'after_id')) {
+            const after = string(q.after_id, 36, 36)
+            if (!uuid7.test(after)) throw new Error()
+            query.set('after_id', after)
+          }
+          path += '?' + query.toString()
+        }
+      } catch {
+        throw new AccountFailure('invalid-input')
+      }
+    } else if (endpoint === 'listProjectUsage') {
       try {
         shape(options, ['signal', 'projectID', 'usageQuery'])
         const project = string(options.projectID, 36, 36)
@@ -1995,6 +2060,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       headers['If-Match'] = `"${options.avatar.version}"`
     } else if (method !== 'GET') {
       const maximum =
+        (runnerEndpoints as readonly string[]).includes(endpoint) ? 32768 :
         endpoint === 'updateProjectScheduler' ? 4096 : endpoint === 'lookupProjectScheduler' ? 1024 :
         endpoint === 'knowledgeTextLookup'
           ? 1048660
@@ -2098,6 +2164,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           response,
           options.signal,
           lifecycle,
+          (runnerEndpoints as readonly string[]).includes(endpoint) && success ? (endpoint === 'listSystemRunners' ? 2 * 1024 * 1024 : 65536) :
           endpoint === 'availableAgentRunners' && success ? 2 * 1024 * 1024 :
           endpoint === 'agentRunnerMounts' && success ? 512 * 1024 :
           endpoint === 'listProjectUsage' && success
@@ -2167,6 +2234,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           ['getProjectScheduler', 'updateProjectScheduler', 'lookupProjectScheduler'].includes(
             endpoint,
           ) ||
+            (runnerEndpoints as readonly string[]).includes(endpoint) ||
             endpoint === 'listProjectUsage' ||
             (secretReadEndpoints as readonly string[]).includes(endpoint) ||
             (skillEndpoints as readonly string[]).includes(endpoint) ||

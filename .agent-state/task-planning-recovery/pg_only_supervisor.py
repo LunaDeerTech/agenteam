@@ -204,6 +204,7 @@ METADATA_GROUPS = {
         'TestExecutionMountFirstRound/nonempty-terminal-and-historical-replay',
         'TestExecutionMountFirstRound/held-join-terminal-rollback-and-unknown',
     )),
+    '^TestSystemRunnerManagementWeb$': frozenset(('TestSystemRunnerManagementWeb', 'TestSystemRunnerManagementWeb/system-runner-normal', 'TestSystemRunnerManagementWeb/system-runner-lost')),
     '^TestExecutionMountCapture$': frozenset((
         'TestExecutionMountCapture',
         'TestExecutionMountCapture/nonempty-unknown-and-historical-material',
@@ -493,6 +494,7 @@ TASK_TIMELINE_UI = '^TestTaskTimelineWeb$'
 AGENT_CONFIGURATION_UI = '^TestAgentConfigurationWeb$'
 AGENT_EDIT_UI = '^TestAgentEditWeb$'
 AGENT_RUNNER_MOUNTS_UI = '^TestAgentRunnerMountsWeb$'
+SYSTEM_RUNNER_MANAGEMENT_UI = '^TestSystemRunnerManagementWeb$'
 AGENT_MODEL_POLICY_UI = '^TestAgentModelPolicyWeb$'
 SPRINT_CREATE_UI = '^TestSprintCreateWeb$'
 PROJECT_VARIABLES_UI = '^TestProjectVariablesWeb$'
@@ -527,6 +529,7 @@ def task_review_browser_waits(output, selector=TASK_REVIEW_UI):
              'Sprint Create' if selector == SPRINT_CREATE_UI else
              'Sprint Start' if selector == SPRINT_START_UI else
              'Agent Model Policy' if selector == AGENT_MODEL_POLICY_UI else
+             'System Runner Management' if selector == SYSTEM_RUNNER_MANAGEMENT_UI else
              'Agent Runner Mounts' if selector == AGENT_RUNNER_MOUNTS_UI else
              'Agent Edit' if selector == AGENT_EDIT_UI else
              'Task Timeline' if selector == TASK_TIMELINE_UI else
@@ -549,6 +552,7 @@ def task_review_browser_waits(output, selector=TASK_REVIEW_UI):
               'sprint_create_web_test.go' if selector == SPRINT_CREATE_UI else
               'sprint_start_web_test.go' if selector == SPRINT_START_UI else
               'agent_model_policy_web_test.go' if selector == AGENT_MODEL_POLICY_UI else
+              'system_runner_management_web_test.go' if selector == SYSTEM_RUNNER_MANAGEMENT_UI else
               'agent_runner_mounts_web_test.go' if selector == AGENT_RUNNER_MOUNTS_UI else
               'agent_edit_web_test.go' if selector == AGENT_EDIT_UI else
               'task_timeline_web_test.go' if selector == TASK_TIMELINE_UI else
@@ -581,7 +585,7 @@ def metadata_results(output, selector=METADATA_ROOT):
     results = re.findall(r'^[ \t]*--- (PASS|FAIL|SKIP): (\S+) \([^()\r\n]*\)$', output, re.M)
     waits = re.findall(r'^D03 explicit test actual_wait pid=([1-9][0-9]*) code=(-?[0-9]+) selector=(\S+)$', output, re.M)
     return (len(runs) == len(cases) and set(runs) == cases
-            and (selector not in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_RUNNER_MOUNTS_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_USAGE_UI) or task_review_browser_waits(output, selector))
+            and (selector not in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_RUNNER_MOUNTS_UI, SYSTEM_RUNNER_MANAGEMENT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_USAGE_UI) or task_review_browser_waits(output, selector))
             and (selector != APP_RUNTIME or app_runtime_waits(output))
             and len(results) == len(cases)
             and all(state == 'PASS' for state, _ in results)
@@ -1377,7 +1381,7 @@ def main():
             args.content_schema_python = os.environ['AGENTEAM_KNOWLEDGE_CONTENT_SCHEMA_PYTHON']
         except (OSError, ValueError):
             parser.error('explicit local content Schema interpreter required')
-    stem = ('ui-' + uuid.uuid4().hex[:16]) if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_RUNNER_MOUNTS_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_USAGE_UI) else ('pg-' + uuid.uuid4().hex)
+    stem = ('ui-' + uuid.uuid4().hex[:16]) if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_RUNNER_MOUNTS_UI, SYSTEM_RUNNER_MANAGEMENT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_USAGE_UI) else ('pg-' + uuid.uuid4().hex)
     directory = args.output.resolve() / stem
     if args.run == KNOWLEDGE_UI:
         try:
@@ -1385,7 +1389,7 @@ def main():
             args.knowledge_ui_environment = adapter.knowledge_ui_environment()
         except (OSError, ValueError):
             parser.error('exact frozen Knowledge assets, interpreters and fresh evidence required')
-    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_RUNNER_MOUNTS_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_USAGE_UI):
+    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_RUNNER_MOUNTS_UI, SYSTEM_RUNNER_MANAGEMENT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_USAGE_UI):
         try:
             args.task_review_ui_environment = adapter.task_review_ui_configuration(directory, args.run)
         except (OSError, ValueError):
@@ -1478,7 +1482,7 @@ def main():
                 log.write(f'SUPERVISOR actual_driver_wait pid={child.pid} actual={child.returncode is not None} code={code}\n')
             else:
                 log.write(f'SUPERVISOR actual_driver_wait pid={child.pid} actual={child.returncode is not None} actual_exit={child.returncode} code={code}\n')
-            if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_RUNNER_MOUNTS_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_USAGE_UI) and child.returncode is not None:
+            if args.run in (KNOWLEDGE_UI, TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_RUNNER_MOUNTS_UI, SYSTEM_RUNNER_MANAGEMENT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_USAGE_UI) and child.returncode is not None:
                 if not knowledge_ui_reap_exited(log):
                     code = 1
             survivors = descendants(os.getpid())
@@ -1593,7 +1597,7 @@ def main():
                 same = same and parser_same(inputs, args, adapter)
             if args.run == KNOWLEDGE_UI:
                 same = same and knowledge_ui_same(inputs, args, adapter)
-            if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_RUNNER_MOUNTS_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_USAGE_UI):
+            if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_RUNNER_MOUNTS_UI, SYSTEM_RUNNER_MANAGEMENT_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_USAGE_UI):
                 same = same and adapter.task_review_ui_environment(args.run) == args.task_review_ui_environment
             if args.run == APP_RUNTIME:
                 same = same and adapter.app_runtime_wrapper_same(args.binary, directory)

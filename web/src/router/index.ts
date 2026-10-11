@@ -53,6 +53,7 @@ export const router = createRouter({
       },
       redirect: '/system/users',
       children: [
+        { path: 'runners', component: () => import('../views/system/SystemRunnersView.vue') },
         { path: 'users', component: () => import('../views/system/SystemUsersView.vue') },
         {
           path: 'invitations',

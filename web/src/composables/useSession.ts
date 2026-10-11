@@ -1,3 +1,13 @@
+import {
+  createSystemRunnersAPI,
+  captureRunnerCommand,
+  type SystemRunnersAPI,
+  type RunnerCommand,
+  type RunnerQuery,
+  type RunnerReceipt,
+  type RunnerMutation,
+  type RunnerLookup,
+} from '../api/system-runners'
 import { createAgentRunnerMountsAPI, type AgentRunnerMountsAPI } from '../api/agent-runner-mounts'
 import {
   createKnowledgeTitleSearchAPI,
@@ -732,6 +742,21 @@ type SystemModelIntent = Readonly<{
 }>
 
 type ProviderRead = 'provider-list' | 'provider-detail' | 'provider-models' | 'provider-metadata'
+type RunnerAction = 'runner-read' | 'runner-write' | 'runner-lookup'
+export type SystemRunnerProgress = Readonly<{
+  phase: 'submitting' | 'uncertain' | 'rejected' | 'confirmed'
+  command: RunnerCommand
+  receipt: RunnerReceipt | null
+  observation: 'none' | 'not_observed' | 'failed'
+  contextValid: boolean
+}>
+type RunnerIntent = Readonly<{
+  command: RunnerCommand
+  identity: PersonalIdentity
+  csrf: string
+  key: string
+}>
+
 type ProviderAction = ProviderRead | 'provider-write' | 'provider-lookup'
 export type SystemProviderProgress = Readonly<{
   kind: ProviderCommand['kind']
@@ -811,6 +836,7 @@ type Action =
   | 'runtime-information-read'
   | 'invitation-read'
   | 'invitation-write'
+  | RunnerAction
   | ProviderAction
   | ModelAction
   | SelectionAction
@@ -950,6 +976,7 @@ export function createSessionController(
   commandAPIs: Readonly<{
     edit?: WorkTaskEditAPI
     taskTimeline?: WorkTaskTimelineAPI
+    systemRunners?: SystemRunnersAPI
     agentRunnerMounts?: AgentRunnerMountsAPI
     agentConfiguration?: AgentConfigurationAPI
     projectVariables?: ProjectVariablesAPI
@@ -966,6 +993,7 @@ export function createSessionController(
     knowledgeTitleSearch?: KnowledgeTitleSearchAPI
   }> = {},
 ) {
+  const runnersAPI = commandAPIs.systemRunners ?? createSystemRunnersAPI()
   const projectVariablesAPI = commandAPIs.projectVariables ?? createProjectVariablesAPI()
   const sprintPlanningAPI = commandAPIs.sprintPlanning ?? createWorkSprintPlanningAPI()
   const milestonePlanningAPI = commandAPIs.milestonePlanning ?? createWorkMilestonePlanningAPI()
@@ -1035,6 +1063,17 @@ export function createSessionController(
       kind: InvitationCommand['kind']
       phase: SystemInvitationProgress['phase']
     }> | null
+  }>({ progress: null })
+  const runnerRevisions: Record<RunnerAction, number> = {
+    'runner-read': 0,
+    'runner-write': 0,
+    'runner-lookup': 0,
+  }
+  const isRunnerAction = (kind: Action): kind is RunnerAction =>
+    Object.hasOwn(runnerRevisions, kind)
+  let runnerIntent: RunnerIntent | null = null
+  const runnerState = shallowReactive<{
+    progress: Omit<SystemRunnerProgress, 'contextValid'> | null
   }>({ progress: null })
   const providerRevisions: Record<ProviderAction, number> = {
     'provider-list': 0,
@@ -1345,6 +1384,7 @@ export function createSessionController(
       clearKnowledgeText()
       clearWorkReviewState()
       clearInvitationState()
+      clearRunnerState()
       clearProviderState()
       clearModelState()
       clearSelectionState()
@@ -1441,6 +1481,7 @@ export function createSessionController(
     forgetIntent()
     expectedSession = null
     state.phase = 'authenticated'
+    if (!same || view.user.role !== 'admin' || (runnerIntent && runnerIntent.csrf !== sessionCSRF)) clearRunnerState()
     if (invitationIntent) {
       if (!same || view.user.role !== 'admin' || invitationIntent.csrf !== sessionCSRF)
         clearInvitationState()
@@ -1957,7 +1998,8 @@ export function createSessionController(
       | 'runtime-information-read'
       | 'invitation-read'
       | 'invitation-write'
-      | ProviderAction
+      | RunnerAction
+  | ProviderAction
       | ModelAction
       | SelectionAction
       | AccountSecurityAction
@@ -1978,6 +2020,7 @@ export function createSessionController(
   ): Promise<T> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     const revisionNow = () => {
+      if (isRunnerAction(kind)) return runnerRevisions[kind]
       if (isSchedulerAction(kind)) return schedulerRevisions[kind]
       if (isVariableAction(kind)) return variableRevisions[kind]
       if (kind === 'skill-read') return skillRevision
@@ -2313,6 +2356,8 @@ export function createSessionController(
         unavailableSession(e) ||
         ([
           'invitation-write',
+          'runner-write',
+          'runner-lookup',
           'provider-write',
           'provider-lookup',
           'model-write',
@@ -2478,6 +2523,136 @@ export function createSessionController(
     } catch (error) {
       return Promise.reject(error)
     }
+  }
+  function clearRunnerRead() {
+    ++runnerRevisions['runner-read']
+    if (owner?.kind === 'runner-read') owner.abandon?.()
+  }
+  function clearRunnerState() {
+    for (const scope of Object.keys(runnerRevisions) as RunnerAction[]) ++runnerRevisions[scope]
+    runnerIntent = null
+    runnerState.progress = null
+    if (owner && isRunnerAction(owner.kind)) owner.abandon?.()
+  }
+  function readRunner<T>(work: (signal: AbortSignal) => Promise<T>): Promise<T> {
+    try {
+      const identity = invitationIdentity()
+      return runAuthorized(identity, (op) => work(op.abort.signal), undefined, 'runner-read')
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+  function runnerProgress(
+    original: RunnerIntent,
+    phase: SystemRunnerProgress['phase'],
+    receipt: RunnerReceipt | null = null,
+    observation: SystemRunnerProgress['observation'] = 'none',
+  ) {
+    runnerState.progress = Object.freeze({ phase, command: original.command, receipt, observation })
+  }
+  async function performRunner(
+    original: RunnerIntent,
+    lookup: boolean,
+  ): Promise<RunnerMutation | RunnerLookup> {
+    if (owner) throw new AccountFailure('busy')
+    if (runnerIntent !== original || !invitationContext(original))
+      throw new AccountFailure('invalid-input')
+    const scope: RunnerAction = lookup ? 'runner-lookup' : 'runner-write',
+      revision = runnerRevisions[scope]
+    const live = () =>
+      runnerIntent === original &&
+      revision === runnerRevisions[scope] &&
+      invitationContext(original)
+    let dispatched = false
+    if (!lookup) runnerProgress(original, 'submitting')
+    try {
+      const result = await runAuthorized(
+        original.identity,
+        async (op, current) => {
+          if (!live() || !current()) throw new AccountFailure('cancelled')
+          dispatched = true
+          const write = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
+          return lookup
+            ? runnersAPI.lookup(original.command, write)
+            : runnersAPI.execute(original.command, write)
+        },
+        undefined,
+        scope,
+      )
+      if (!live()) throw new AccountFailure('cancelled')
+      if ('state' in result && result.state === 'not_observed') {
+        runnerProgress(original, 'uncertain', null, 'not_observed')
+        if (!live()) throw new AccountFailure('cancelled')
+      } else {
+        // Public progress never owns the first-response material. A synchronous
+        // consumer may retire the identity during this publication.
+        runnerProgress(original, 'confirmed', result.receipt)
+        if (!live()) throw new AccountFailure('cancelled')
+        runnerIntent = null
+      }
+      return result
+    } catch (error) {
+      const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
+      if (
+        runnerIntent === original &&
+        revision === runnerRevisions[scope] &&
+        sameIdentity(original.identity, personalContext.identity)
+      ) {
+        const p = failure.problem
+        const rejected =
+          !dispatched ||
+          (p &&
+            ['not_started', 'not_committed'].includes(p.commit_state) &&
+            p.status < 500 &&
+            p.code !== 'IDEMPOTENCY_KEY_REUSED')
+        runnerProgress(
+          original,
+          lookup || !rejected ? 'uncertain' : 'rejected',
+          null,
+          lookup ? 'failed' : 'none',
+        )
+        if (!lookup && rejected) runnerIntent = null
+      }
+      throw failure
+    }
+  }
+  const runners = {
+    get progress(): SystemRunnerProgress | null {
+      const p = runnerState.progress
+      if (!p) return null
+      return Object.freeze({
+        ...p,
+        contextValid: runnerIntent !== null && invitationContext(runnerIntent),
+      })
+    },
+    list: (query: RunnerQuery) => readRunner((signal) => runnersAPI.list(query, signal)),
+    get: (target: string) => readRunner((signal) => runnersAPI.get(target, signal)),
+    abandonRead: clearRunnerRead,
+    cancel() {
+      clearRunnerRead()
+      if (owner && isRunnerAction(owner.kind)) owner.abandon?.()
+    },
+    start(command: RunnerCommand) {
+      try {
+        const identity = invitationIdentity()
+        if (owner || runnerIntent || personalIntent || pending) throw new AccountFailure('busy')
+        const original = Object.freeze({
+          command: captureRunnerCommand(command),
+          identity,
+          csrf: sessionCSRF,
+          key: newKey(),
+        })
+        runnerIntent = original
+        return performRunner(original, false) as Promise<RunnerMutation>
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    checkOriginal() {
+      if (!runnerIntent || runnerState.progress?.phase !== 'uncertain')
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performRunner(runnerIntent, true) as Promise<RunnerLookup>
+    },
   }
   function clearProviderMaterial() {
     providerMaterial = null
@@ -7583,6 +7758,7 @@ export function createSessionController(
     abandon: clearAuditRead,
   }
   const system = {
+    runners,
     runtimeInformation,
     audit,
     outboundPolicy,

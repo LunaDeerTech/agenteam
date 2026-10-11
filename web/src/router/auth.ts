@@ -8,6 +8,7 @@ const returnTargets = [
   '/settings/profile',
   '/settings/appearance',
   '/settings/password',
+  '/system/runners',
   '/system/users',
   '/system/invitations',
   '/system/providers',

@@ -134,6 +134,27 @@ type BrowserDiagnostic = {
   session_check_control: boolean;
 };
 
+// This projection runs only for the explicit System Runner profile, after the
+// original public/byte consumer has received the untouched response. The token
+// never crosses the diagnostic binding or enters an assertion value.
+export function systemRunnerEvidenceValue(value: any): any {
+  if (!value || typeof value !== "object") return value;
+  if (!Object.hasOwn(value, "token_available")) {
+    if (Object.hasOwn(value, "enrollment_token")) throw Error("SYSTEM_RUNNER_UNEXPECTED_MATERIAL");
+    return value;
+  }
+  if (value.token_available === true) {
+    if (typeof value.enrollment_token !== "string" || !/^[A-Za-z0-9_-]{43}$/.test(value.enrollment_token) ||
+        typeof value.expires_at !== "string" || !value.receipt || value.state !== undefined)
+      throw Error("SYSTEM_RUNNER_MATERIAL_SHAPE");
+    const { enrollment_token: _discarded, ...safe } = value;
+    return safe;
+  }
+  if (value.token_available !== false || Object.hasOwn(value, "enrollment_token") || Object.hasOwn(value, "expires_at"))
+    throw Error("SYSTEM_RUNNER_UNEXPECTED_MATERIAL");
+  return value;
+}
+
 export async function observeBrowserIO(
   page: Page,
   accept: (event: BrowserDiagnostic) => void,
@@ -172,6 +193,18 @@ export async function observeBrowserIO(
     const originalVariableWrites: any[] = [];
     const originalTextWrites: any[] = [];
     const originalSchedulerWrites: any[] = [];
+    const originalSystemRunnerWrites: any[] = [];
+    let systemRunnerMaterial: string | undefined;
+    const systemRunnerMaterials = new WeakMap<object, { wire?: string; published?: string }>();
+    function bindSystemRunnerMaterial(call: any, token: string, source: "wire" | "published") {
+      const values = systemRunnerMaterials.get(call) ?? {};
+      if (values[source] !== undefined) throw Error("SYSTEM_RUNNER_DUPLICATE_MATERIAL");
+      values[source] = token;
+      if (values.wire !== undefined && values.published !== undefined) {
+        call.material_matches = values.wire === values.published;
+        systemRunnerMaterials.delete(call);
+      } else systemRunnerMaterials.set(call, values);
+    }
     const tails = new Set<Promise<void>>();
     const restorers: (() => void)[] = [];
     let retired = false,
@@ -223,7 +256,7 @@ export async function observeBrowserIO(
       method: string,
       kind: string,
       path: (args: any[]) => string,
-      httpMethod = "GET",
+      httpMethod: string | ((args: any[]) => string) = "GET",
     ) {
       const original = object[method],
         descriptor = Object.getOwnPropertyDescriptor(object, method);
@@ -235,7 +268,7 @@ export async function observeBrowserIO(
         const call: any = {
           id: calls.length + 1,
           kind,
-          method: httpMethod,
+          method: typeof httpMethod === "function" ? httpMethod(args) : httpMethod,
           path: path(args),
           bound: 0,
           fulfilled: false,
@@ -247,7 +280,14 @@ export async function observeBrowserIO(
           typed: null,
         };
         calls.push(call);
-        if (kind === "work.startCreate") {
+        if (kind === "systemRunner.start") {
+          const original = { call, command: JSON.parse(JSON.stringify(args[0])) };
+          originalSystemRunnerWrites.push(original); writeInputs.set(call, original);
+        } else if (kind === "systemRunner.checkOriginal") {
+          const source = originalSystemRunnerWrites.at(-1), progress = auth.system.runners.progress;
+          writeInputs.set(call, { source, current: progress?.phase === "uncertain" && progress.contextValid === true &&
+            JSON.stringify(canonical(progress.command)) === JSON.stringify(canonical(source?.command)) });
+        } else if (kind === "work.startCreate") {
           if (originalCreate) failed = true;
           originalCreate = {
             call,
@@ -439,6 +479,10 @@ export async function observeBrowserIO(
               current() && (kind === "restore" || before === identity());
             identities.set(call, identity());
             call.not_busy = auth.state.busy === false;
+            if (kind === "systemRunner.start" || kind === "systemRunner.checkOriginal") {
+              const progress = auth.system.runners.progress;
+              call.result_current = progress?.phase === "confirmed" && progress.receipt === value?.receipt;
+            }
             if (kind === "milestone.update" || kind === "milestone.checkOriginal") {
               const original = writeInputs.get(call), source = kind === "milestone.update" ? original : original.source;
               const progress = auth.workMilestoneEditing.progress;
@@ -503,8 +547,13 @@ export async function observeBrowserIO(
                 value.session.id !== auth.state.session?.id)
             )
               return;
-            call.typed = JSON.parse(JSON.stringify(value));
-            call.typed_digest = await typedDigest(value);
+            const published = kind.startsWith("systemRunner.") ? host.__systemRunnerEvidenceValue(value) : value;
+            if (kind.startsWith("systemRunner.") && value.token_available === true) {
+              bindSystemRunnerMaterial(call, value.enrollment_token, "published");
+              systemRunnerMaterial = value.enrollment_token;
+            }
+            call.typed = JSON.parse(JSON.stringify(published));
+            call.typed_digest = await typedDigest(published);
           },
           () => {
             call.rejected = call.settled = true;
@@ -540,6 +589,7 @@ export async function observeBrowserIO(
         secretReads = false,
         usageReads = false,
         runnerMounts: { mode: string; agent?: string } | undefined = undefined,
+        systemRunnerManagement = false,
       ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
@@ -557,7 +607,27 @@ export async function observeBrowserIO(
                   ? "/resolve"
                   : ""),
           );
-        if (skillsTarget) {
+        if (systemRunnerManagement) {
+          const prefix = "/api/v1/system/runners";
+          consumer(auth.system.runners, "list", "systemRunner.list", a => {
+            if (a.length !== 1 || JSON.stringify(a[0]) !== '{"limit":50}') throw Error("SYSTEM_RUNNER_LIST_SCOPE");
+            return prefix;
+          });
+          consumer(auth.system.runners, "get", "systemRunner.get", a => {
+            if (a.length !== 1 || !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(a[0])) throw Error("SYSTEM_RUNNER_GET_SCOPE");
+            return prefix + "/" + a[0];
+          });
+          consumer(auth.system.runners, "start", "systemRunner.start", a => {
+            const c = a[0];
+            if (a.length !== 1 || !c || !["runner.create", "runner.update", "runner.enrollment.issue", "runner.revoke"].includes(c.command)) throw Error("SYSTEM_RUNNER_WRITE_SCOPE");
+            return prefix + (c.command === "runner.create" ? "" : "/" + c.target + (c.command === "runner.enrollment.issue" ? "/enrollment" : c.command === "runner.revoke" ? "/revoke" : ""));
+          }, a => a[0].command === "runner.update" ? "PATCH" : "POST");
+          consumer(auth.system.runners, "checkOriginal", "systemRunner.checkOriginal", a => {
+            const progress = auth.system.runners.progress;
+            if (a.length !== 0 || progress?.command.command !== "runner.create") throw Error("SYSTEM_RUNNER_LOOKUP_SCOPE");
+            return prefix + "/" + progress.command.target + "/commands/lookup";
+          }, "POST");
+        } else if (skillsTarget) {
           consumer(auth.skills, "list", "skills.list", (a) => {
             if (a[0] !== project || JSON.stringify(a[1]) !== '{"limit":25}')
               throw Error("SKILL_CATALOG_CONSUMER_SCOPE");
@@ -907,6 +977,11 @@ export async function observeBrowserIO(
           );
         }
       },
+      runnerMaterialMatches(value: unknown) {
+        const matched = typeof value === "string" && systemRunnerMaterial !== undefined && value === systemRunnerMaterial;
+        if (matched) systemRunnerMaterial = undefined;
+        return matched;
+      },
       snapshot() {
         return {
           retired,
@@ -927,7 +1002,7 @@ export async function observeBrowserIO(
           throw Error("TASK_REVIEW_ORIGINAL_OBSERVATIONS_PENDING");
         retired = true;
         for (const restore of restorers.reverse()) restore();
-        for (const call of calls) writeInputs.delete(call);
+        for (const call of calls) { writeInputs.delete(call); systemRunnerMaterials.delete(call); }
         originalCreate = undefined;
         originalAgentCreate = undefined;
         originalEdits.length = 0;
@@ -940,6 +1015,8 @@ export async function observeBrowserIO(
         originalVariableWrites.length = 0;
         originalTextWrites.length = 0;
         originalSchedulerWrites.length = 0;
+        originalSystemRunnerWrites.length = 0;
+        systemRunnerMaterial = undefined;
         return this.snapshot();
       },
     };
@@ -1070,7 +1147,14 @@ export async function observeBrowserIO(
           const equal = (a: unknown, b: unknown) =>
             JSON.stringify(canonical(a)) === JSON.stringify(canonical(b));
           let matches = false;
-          if (call.kind === "work.startCreate") {
+          if (call.kind === "systemRunner.start") {
+            matches = equal(parsed, original.command.request) && originalSystemRunnerWrites.every(old => old === original || old.key !== key);
+            if (matches) original.key = key;
+          } else if (call.kind === "systemRunner.checkOriginal") {
+            matches = original.current && original.source?.call.rejected === true && original.source.call.settled === true &&
+              original.source.command.command === "runner.create" && key === original.source.key &&
+              equal(parsed, { command: original.source.command.command, request: original.source.command.request });
+          } else if (call.kind === "work.startCreate") {
             const { task_id, ...draft } = parsed.request ?? {};
             matches =
               Object.keys(parsed).join() === "request" &&
@@ -1451,6 +1535,11 @@ export async function observeBrowserIO(
                   }),
                 };
               }
+              if (kind?.startsWith("systemRunner.")) {
+                const safe = host.__systemRunnerEvidenceValue(parsed);
+                if (parsed.token_available === true) bindSystemRunnerMaterial(calls.find(call => call.id === row.call_id), parsed.enrollment_token, "wire");
+                parsed = safe;
+              }
               row.typed_digest = await typedDigest(parsed);
             } catch {
               row.error = true;
@@ -1620,7 +1709,8 @@ export type TaskObservationProfile = {
     | "project-scheduler"
     | "project-secrets"
     | "project-usage"
-    | "agent-runner-mounts";
+    | "agent-runner-mounts"
+    | "system-runner-management";
   endpoint: (request: Request) => string | undefined;
   cut?: "transfer" | "create" | "update" | "start";
   lookupCommand:
@@ -1635,6 +1725,7 @@ export type TaskObservationProfile = {
     | "work.milestone.update"
     | "work.sprint.update"
     | "update"
+    | "runner.create"
     | null;
   intakeWrites?: true;
   agentConfiguration?: true;
@@ -1653,6 +1744,8 @@ export type TaskObservationProfile = {
   knowledgeTitleReads?: true;
   secretReads?: true;
   usageReads?: true;
+  systemRunnerManagement?: true;
+  systemRunnerWireHeaders?: (expected: { method: string; url: string; status: number; requestID: string }) => Promise<UsageWireProof>;
   agentRunnerMounts?: true;
   agentRunnerWireHeaders?: (expected: { method: string; url: string; status: number; requestID: string }) => Promise<UsageWireProof>;
   usageWireHeaders?: (expected: { method: string; url: string; status: number; requestID: string }) => Promise<UsageWireProof>;
@@ -1718,6 +1811,17 @@ export function requireAgentRunnerProfile(profile: TaskObservationProfile, data:
       (lost && !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.agent_id ?? "")) ||
       (!lost && data.agent_id !== undefined)) throw Error("AGENT_RUNNER_PROFILE_MISMATCH");
 }
+export function requireSystemRunnerProfile(profile: TaskObservationProfile, data: TaskObservationMaterial) {
+  if (!profile.systemRunnerManagement && profile.prefix !== "system-runner-management") {
+    if (profile.systemRunnerWireHeaders !== undefined) throw Error("SYSTEM_RUNNER_PROFILE_MISMATCH");
+    return;
+  }
+  const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand", "cut", "systemRunnerManagement", "systemRunnerWireHeaders"];
+  if (profile.systemRunnerManagement !== true || profile.prefix !== "system-runner-management" ||
+      !["system-runner-normal", "system-runner-lost"].includes(data.mode) || profile.lookupCommand !== "runner.create" ||
+      profile.cut !== (data.mode === "system-runner-lost" ? "create" : undefined) || typeof profile.systemRunnerWireHeaders !== "function" ||
+      Object.keys(profile).some(key => !allowed.includes(key))) throw Error("SYSTEM_RUNNER_PROFILE_MISMATCH");
+}
 export function requireAgentRunnerHostEvidence(record: Record<string, unknown>, headers: SkillsHeaderDiagnostic | undefined) {
   expect(headers?.request_fulfilled && headers.response_fulfilled).toBe(true);
   expect(headers?.cookie_present).toBe(true);
@@ -1740,6 +1844,7 @@ export async function observeTaskRequests(
 ) {
   requireUsageReadProfile(profile, data);
   requireAgentRunnerProfile(profile, data);
+  requireSystemRunnerProfile(profile, data);
   if (
     profile.intakeWrites &&
     (profile.prefix !== "task-intake" ||
@@ -1993,7 +2098,7 @@ export async function observeTaskRequests(
         status: entry.status,
         request_id: entry.requestID,
         failure: entry.failure,
-        ...((profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.secretReads || profile.usageReads || profile.agentRunnerMounts) && entry.skillsHeaders
+        ...((profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.secretReads || profile.usageReads || profile.agentRunnerMounts || profile.systemRunnerManagement) && entry.skillsHeaders
           ? { skills_headers: { ...entry.skillsHeaders } }
           : {}),
       });
@@ -2053,7 +2158,7 @@ export async function observeTaskRequests(
     if (entry.responseCount !== 1)
       observerError = new Error("DUPLICATE_ORIGINAL_RESPONSE");
     entry.status = response.status();
-    if (profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.secretReads || profile.usageReads || profile.agentRunnerMounts) {
+    if (profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.secretReads || profile.usageReads || profile.agentRunnerMounts || profile.systemRunnerManagement) {
       // Observe both original header promises once; retain no credential values.
       entry.headersReady = Promise.allSettled([
         entry.request.allHeaders(),
@@ -2116,8 +2221,8 @@ export async function observeTaskRequests(
             try { diagnostic.usage_wire = await profile.usageWireHeaders!({ method: entry.request.method(), url: entry.request.url(), status: entry.status!, requestID: id! }); }
             catch { diagnostic.usage_wire_error = "USAGE_WIRE_HEADERS_FAILED"; throw Error("USAGE_WIRE_HEADERS_FAILED"); }
           }
-          if (profile.agentRunnerMounts) {
-            try { diagnostic.runner_wire = await profile.agentRunnerWireHeaders!({ method: entry.request.method(), url: entry.request.url(), status: entry.status!, requestID: id! }); }
+          if (profile.agentRunnerMounts || profile.systemRunnerManagement) {
+            try { diagnostic.runner_wire = await (profile.systemRunnerManagement ? profile.systemRunnerWireHeaders! : profile.agentRunnerWireHeaders!)({ method: entry.request.method(), url: entry.request.url(), status: entry.status!, requestID: id! }); }
             catch { diagnostic.runner_wire_error = "AGENT_RUNNER_WIRE_HEADERS_FAILED"; throw Error("AGENT_RUNNER_WIRE_HEADERS_FAILED"); }
           }
           diagnostic.stage = "handler_pending";
@@ -2142,6 +2247,7 @@ export async function observeTaskRequests(
   page.on("requestfailed", failed);
   page.on("response", response);
   page.on("close", closed);
+  if (profile.systemRunnerManagement) await page.addInitScript({ content: `Object.defineProperty(window, "__systemRunnerEvidenceValue", { value: (${systemRunnerEvidenceValue.toString()}) });` });
   await observeBrowserIO(page, (event) => {
     if (browserEvents.length < 4096) browserEvents.push(event);
     else browserEventsTruncated = true;
@@ -2174,6 +2280,7 @@ export async function observeTaskRequests(
           secretReads,
           usageReads,
           runnerMounts,
+          systemRunnerManagement,
         }) => {
           const module = await import(/* @vite-ignore */ binding.asset);
           const useSession = module[binding.exportName];
@@ -2203,6 +2310,7 @@ export async function observeTaskRequests(
           secretReads,
           usageReads,
           runnerMounts,
+          systemRunnerManagement,
           );
         },
         {
@@ -2231,6 +2339,7 @@ export async function observeTaskRequests(
           secretReads: profile.secretReads === true,
           usageReads: profile.usageReads === true,
           runnerMounts: profile.agentRunnerMounts ? { mode: data.mode, agent: data.agent_id } : undefined,
+          systemRunnerManagement: profile.systemRunnerManagement === true,
         },
       );
       await route.continue();
@@ -2492,6 +2601,12 @@ export async function observeTaskRequests(
     return profile.agentRunnerMounts && entry.request.method() === "GET" &&
       ["session", "resolve", "projects", "project", "agent-directory", "agent-configuration", "agent-models", "agent-runners", "agent-mounts"].includes(entry.name);
   }
+  function systemRunnerWrite(entry: Entry) {
+    return profile.systemRunnerManagement && ["create", "update", "enrollment", "revoke", "lookup"].includes(entry.name) && entry.request.method() !== "GET";
+  }
+  function systemRunnerReadEntry(entry: Entry) {
+    return profile.systemRunnerManagement && entry.request.method() === "GET" && ["session", "projects", "runner-list", "runner-detail"].includes(entry.name);
+  }
   function joint(entry: Entry, proof: any) {
     const edit = editWrite(entry);
     const agentEdit = agentEditWrite(entry);
@@ -2504,6 +2619,7 @@ export async function observeTaskRequests(
     const knowledgeText = knowledgeTextWrite(entry);
     const scheduler = schedulerWrite(entry);
     const runner = runnerWrite(entry);
+    const systemRunner = systemRunnerWrite(entry);
     const write =
       intakeWrite(entry) ||
       agentWrite(entry) ||
@@ -2515,9 +2631,9 @@ export async function observeTaskRequests(
       milestoneUpdate ||
       sprintUpdate ||
       variable ||
-      knowledgeText || scheduler || runner;
+      knowledgeText || scheduler || runner || systemRunner;
     const method =
-      (edit || agentEdit || milestoneUpdate || sprintUpdate || variable || scheduler || runner) && entry.name === "update"
+      (edit || agentEdit || milestoneUpdate || sprintUpdate || variable || scheduler || runner || systemRunner) && entry.name === "update"
         ? "PATCH"
         : write
           ? "POST"
@@ -2598,10 +2714,14 @@ export async function observeTaskRequests(
     if (usageReadEntry(entry)) expect(c.kind).toBe({session:"restore", resolve:"project.resolve", projects:"project.list", project:"project.get", usage:"usage.list"}[entry.name]);
     if (runnerReadEntry(entry)) expect(c.kind).toBe({ session: "restore", resolve: "project.resolve", projects: "project.list", project: "project.get", "agent-directory": "agent.list", "agent-configuration": "agent.getConfiguration", "agent-models": "agent.models", "agent-runners": "agent.runners", "agent-mounts": "agent.runnerMounts" }[entry.name]);
     if (schedulerReadEntry(entry)) expect(c.kind).toBe({ session: "restore", resolve: "project.resolve", projects: "project.list", project: "project.get", scheduler: "scheduler.get" }[entry.name]);
+    if (systemRunnerReadEntry(entry)) expect(c.kind).toBe({ session: "restore", projects: "project.list", "runner-list": "systemRunner.list", "runner-detail": "systemRunner.get" }[entry.name]);
     if (write) {
+      if (systemRunner) { expect(c.result_current).toBe(true); if (c.typed.token_available === true) expect(c.material_matches).toBe(true); }
       if (scheduler) expect(c.result_current).toBe(true);
       if (sprintCreate || milestoneCreate || milestoneUpdate || sprintUpdate || variable || knowledgeText) expect(c.result_current).toBe(true);
-      const kinds: Record<string, string> = runner
+      const kinds: Record<string, string> = systemRunner
+        ? { create: "systemRunner.start", update: "systemRunner.start", enrollment: "systemRunner.start", revoke: "systemRunner.start", lookup: "systemRunner.checkOriginal" }
+        : runner
         ? { create: "agent.startCreate", update: "agentEdit.startUpdate", lookup: "agentEdit.checkOriginal" }
         : scheduler
         ? { update: "scheduler.startUpdate", lookup: "scheduler.checkOriginal" }
@@ -2656,7 +2776,7 @@ export async function observeTaskRequests(
         expect(source.idempotency_key_sha256).toBe(keyHash);
       }
       if (entry.name === "lookup") {
-        if (profile.schedulerWrites) expect(c.typed.state).toBe("committed");
+        if (profile.schedulerWrites || profile.systemRunnerManagement) expect(c.typed.state).toBe("committed");
         else requireCommittedLookup(c.typed, profile.milestoneUpdateWrites === true || profile.sprintUpdateWrites === true);
         originalLookup();
       }
@@ -2687,7 +2807,7 @@ export async function observeTaskRequests(
       if (entry.checked) continue;
       const state = await entry.done;
       const response = await entry.request.response();
-      if ((profile.schedulerWrites || profile.agentRunnerMounts) && state === "failed" && entry.name === profile.cut) {
+      if ((profile.schedulerWrites || profile.agentRunnerMounts || profile.systemRunnerManagement) && state === "failed" && entry.name === profile.cut) {
         // The proxy publishes this predicate only after its actual flush and
         // connection Close. Its original safe record can be mid-rewrite here.
         await expect.poll(() => {
@@ -2696,7 +2816,7 @@ export async function observeTaskRequests(
           } catch { return false; }
         }, { timeout: 5_000 }).toBe(true);
       }
-      if (profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.secretReads || profile.usageReads || profile.agentRunnerMounts) {
+      if (profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.secretReads || profile.usageReads || profile.agentRunnerMounts || profile.systemRunnerManagement) {
         // Include bootstrap reads as well as catalog/detail: a missing browser
         // projection is accepted only with this original request's App proof.
         const record = JSON.parse(
@@ -2718,7 +2838,7 @@ export async function observeTaskRequests(
             .digest("hex"),
         );
         if (profile.usageReads) requireUsageHostEvidence(record, entry.skillsHeaders);
-        else if (profile.agentRunnerMounts) requireAgentRunnerHostEvidence(record, entry.skillsHeaders);
+        else if (profile.agentRunnerMounts || profile.systemRunnerManagement) requireAgentRunnerHostEvidence(record, entry.skillsHeaders);
         else {
           expect(record.request_host_matches).toBe(true);
           expect(record.handler_returned).toBe(true);
@@ -2737,23 +2857,23 @@ export async function observeTaskRequests(
         // physically truncating its original Content-Length response.
         expect(response?.status()).toBe(200);
         expect(entry.request.failure()).not.toBeNull();
-        if (profile.schedulerWrites || profile.agentRunnerMounts) {
+        if (profile.schedulerWrites || profile.agentRunnerMounts || profile.systemRunnerManagement) {
           const readRecord = () => JSON.parse(readFileSync(join(profile.evidence, `${profile.prefix}-${data.mode}-response-${entry.requestID}.json`), "utf8"));
           const record = readRecord();
           expect(record.receipt_cut).toBe(true);
           expect(record.committed_verified && record.original_eof && record.original_closed && record.handler_returned).toBe(true);
-          expect(record.kind).toBe("update");
+          expect(record.kind).toBe(profile.systemRunnerManagement ? "create" : "update");
           const rows = proof.rows.filter((r: any) => r.request_id === entry.requestID);
           expect(rows).toHaveLength(1);
           const n = rows[0], calls = proof.calls.filter((c: any) => c.id === n.call_id);
           expect(calls).toHaveLength(1);
           const c = calls[0];
           expect(proof.current && proof.not_busy).toBe(true);
-          expect(c.kind).toBe(profile.agentRunnerMounts ? "agentEdit.startUpdate" : "scheduler.startUpdate");
+          expect(c.kind).toBe(profile.systemRunnerManagement ? "systemRunner.start" : profile.agentRunnerMounts ? "agentEdit.startUpdate" : "scheduler.startUpdate");
           expect(c.rejected && c.settled && !c.fulfilled).toBe(true);
           expect(c.bound).toBe(1);
           expect(n.path).toBe(new URL(entry.request.url()).pathname);
-          expect(n.method).toBe("PATCH");
+          expect(n.method).toBe(profile.systemRunnerManagement ? "POST" : "PATCH");
           expect(n.status).toBe(200);
           expect(n.fetch_returned).toBe(true);
           expect(n.readers).toBe(1);
@@ -2787,7 +2907,7 @@ export async function observeTaskRequests(
           variableWrite(entry) ||
           knowledgeTextWrite(entry) ||
           schedulerWrite(entry) ||
-          runnerWrite(entry) ||
+          runnerWrite(entry) || systemRunnerWrite(entry) ||
           agentWrite(entry)) &&
         response?.status() === 200 &&
         entry.failure === "net::ERR_ABORTED"
@@ -2836,6 +2956,7 @@ export async function observeTaskRequests(
         `unexpected ${entry.name} status`,
       ).toBe(true);
       entry.body = JSON.parse(raw.toString("utf8"));
+      if (profile.systemRunnerManagement) entry.body = systemRunnerEvidenceValue(entry.body);
       expect(typeof entry.body).toBe("object");
       expect(entry.body).not.toBeNull();
       if (
@@ -2852,7 +2973,7 @@ export async function observeTaskRequests(
         variablePageRead(entry) ||
         knowledgeTextWrite(entry) ||
         knowledgeTextReadEntry(entry) || knowledgeTitleReadEntry(entry) || secretReadEntry(entry) || usageReadEntry(entry) ||
-        schedulerWrite(entry) || schedulerReadEntry(entry) || runnerWrite(entry) || runnerReadEntry(entry) ||
+        schedulerWrite(entry) || schedulerReadEntry(entry) || runnerWrite(entry) || runnerReadEntry(entry) || systemRunnerWrite(entry) || systemRunnerReadEntry(entry) ||
         sprintPageRead(entry) ||
         agentWrite(entry) ||
         agentPageRead(entry) ||
@@ -2876,7 +2997,7 @@ export async function observeTaskRequests(
           expect(wire.result.command).toBe("update");
           entry.body = { state: "committed", receipt: { project_id: wire.result.project.id, version: wire.result.project.version } };
         }
-        if ((profile.schedulerWrites || profile.knowledgeTitleReads || profile.secretReads || profile.usageReads || profile.agentRunnerMounts) && entry.name === "session") {
+        if ((profile.schedulerWrites || profile.knowledgeTitleReads || profile.secretReads || profile.usageReads || profile.agentRunnerMounts || profile.systemRunnerManagement) && entry.name === "session") {
           const wire = entry.body as any;
           entry.body = { user: wire.user, session: wire.session };
         }
@@ -2887,7 +3008,7 @@ export async function observeTaskRequests(
     }
   }
   function receipt(
-    name: "transfer" | "lookup" | "create" | "ready" | "update" | "start",
+    name: "transfer" | "lookup" | "create" | "ready" | "update" | "start" | "enrollment" | "revoke",
     index: number,
   ): Record<string, any> {
     const values = entries.filter(
@@ -2908,6 +3029,13 @@ export async function observeTaskRequests(
   function originalLookup() {
     if (profile.lookupCommand === null)
       throw Error("TASK_TIMELINE_HAS_NO_WRITE_LOOKUP");
+    if (profile.systemRunnerManagement) {
+      const original = requests("create"), lookups = requests("lookup");
+      expect(original).toHaveLength(1); expect(lookups).toHaveLength(1);
+      expect(lookups[0]!.postDataJSON()).toEqual({ command: "runner.create", request: original[0]!.postDataJSON() });
+      expect(lookups[0]!.headers()["idempotency-key"]).toBe(original[0]!.headers()["idempotency-key"]);
+      expect(dropped).toBe(1); return;
+    }
     if (profile.schedulerWrites) {
       const original = requests("update"), lookups = requests("lookup");
       expect(original).toHaveLength(1);
@@ -2980,6 +3108,12 @@ export async function observeTaskRequests(
     expect(profile.agentRunnerMounts).toBe(true);
     const rows = entries.filter(e => e.name === name && e.checked && e.body && runnerReadEntry(e));
     expect(rows.length, "original Agent Runner GET must complete before publication assertions").toBeGreaterThan(0);
+    return rows.at(-1)!.body as Record<string, any>;
+  }
+  function systemRunnerRead(name: "session" | "projects" | "runner-list" | "runner-detail") {
+    expect(profile.systemRunnerManagement).toBe(true);
+    const rows = entries.filter(e => e.name === name && e.checked && e.body && systemRunnerReadEntry(e));
+    expect(rows.length, "original System Runner GET must complete").toBeGreaterThan(0);
     return rows.at(-1)!.body as Record<string, any>;
   }
   function usageRead(index: number) {
@@ -3141,7 +3275,7 @@ export async function observeTaskRequests(
           lookups: entries.filter((e) => e.name === "lookup").length,
           test_status: testStatus,
           route: diagnosticURL(page.url()),
-          observer_error: observerError?.message,
+          observer_error: profile.systemRunnerManagement && observerError ? "SYSTEM_RUNNER_OBSERVER_FAILED" : observerError?.message,
           requests: entries.map((entry) => ({
             seq: entry.seq,
             name: entry.name,
@@ -3151,7 +3285,7 @@ export async function observeTaskRequests(
             request_id: entry.requestID,
             terminal: entry.terminal,
             failure: entry.failure,
-            ...((profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.secretReads || profile.usageReads || profile.agentRunnerMounts) && entry.skillsHeaders
+            ...((profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.secretReads || profile.usageReads || profile.agentRunnerMounts || profile.systemRunnerManagement) && entry.skillsHeaders
               ? { skills_headers: { ...entry.skillsHeaders } }
               : {}),
             checked: entry.checked,
@@ -3224,6 +3358,7 @@ export async function observeTaskRequests(
     secretRead,
     usageRead,
     runnerMountRead,
+    systemRunnerRead,
     schedulerRead,
     timelinePage,
     save,
