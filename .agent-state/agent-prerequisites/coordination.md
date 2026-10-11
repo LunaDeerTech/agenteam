@@ -2,13 +2,13 @@
 
 ## 当前批次与活动树
 
-正式main `5b0a3eed54b8f0cb007b4450472bb24da1102a74`已交付第七批work-phase `in_progress` relaunch、持久访问计次、Work不可变来源/schema 5及00058，并远端exact确认。root正常merge/push（`3a9c708f`），delivery已ff/push同一main，产品与实测SOURCE `146594e6`一致；前批main `af1c8acd`及其已接受范围保持。
+正式main `d4a8626162b13c5eff9b98fcf63a5eabd956ba42`已交付第八批Human Owner无active review三边并远端exact确认，产品与实测SOURCE `8cfbe24d21938947787fcfeb7633b64a72866e94`一致；root正常merge/push（`b548eb95`），delivery已ff/push同一main，恢复README `245f2285`已保存。第七批main `5b0a3eed`及更早已接受范围保持。
 
-第七批18项独立top/四包vet与compile04/list已接受；native04真实1 top/2 sub、25.59s整轮wholePASS，跨owner计次恢复→新Execution与relaunch最终失败原Tx回滚/重放已验证。四原Wait0、七ID14次absence、全部双尾关闭，1614输入稳定。原pure01/02/03、native01/02/03 FAIL及对应候选、输入、日志原位保留；仅全PASS候选04已由root精确退休，大小与原退出记录见current。第七批窗口已归还root；约30%粗估、生产initializer/App未绑定与全部旧STOP不变。
+第八批12 top、四包vet、compile01/list及native02最终接受；`TestTaskHumanReview`真实1 top/2 sub、34.54s整轮wholePASS，原TLS执行终态后review→done、原Tx rework回滚/重放已验证。四原Wait0、七ID14次absence及全部双尾闭合，1616输入一致（含876个编译输入）。candidate01复用、原件保留；pure01/native01仅容量门FAIL，无产品FAIL。当前源码停写，0活动、0待跑，资源窗口归root；约30%粗估和全部旧STOP不变。
 
-第八批当前活动映射：content唯一Work/Foundation，`/workspace/agenteam-task-transition` / `ai/work-human-review`（`e2e6c1df`）精准恢复8个原path并新增1个测试，其余code仍parked；work_ui唯一HTTP，`/workspace/agenteam-task-human-http` / `ai/work-review-http`（`96358549`）恢复5个path。`/workspace/agenteam-task-flow-delivery` / `ai/work-review-delivery`（`6f6e3ccc`）是唯一完整code与runner树，coordination唯一写`tests/projectvariable/task_review_test.go`，skills_http持方法与运行器，secret负责冻结差额有限审。方法`316c60fb`已先保存，源码未跑Go；当前无Go/cache/native活动。cleanup的Scheduler donor `ai/scheduler-work-relaunch`（`615135bb`）继续park，本批只做有限架构边界、两份状态映射及本批恢复工作项，不新增Scheduler实现。其它旧停放树、全部outputs/状态/FAIL/refs保留。具体恢复位置见[当前并行产品线与执行者](../current.md#当前并行产品线与执行者)，方法沿[既有组合recipe](../agent-system-integration/README.md)，不沿下表历史分工安排写入或清理。
+最终恢复映射：Work `/workspace/agenteam-task-transition` / `ai/work-human-review`（`5e2c6c32`）已park；HTTP `/workspace/agenteam-task-human-http` / `ai/work-review-http`（`e8e251a2`）已park。`/workspace/agenteam-task-flow-delivery` / `ai/work-review-delivery`（`d4a86261`）是唯一完整源码树。content的Work/Foundation、work_ui的HTTP、coordination的`task_review_test.go`、skills_http的方法及secret有限审均已收口，无待执行任务。Scheduler donor继续park；FeatureIntegration `4d1b605e`与ToolOperation `6eb3a62a`本批九目录普通可逆park及protected后验已完成，精确回收量见current，前者全部原FAIL保留、后者output原本absent。第七全PASS候选04精确退休事实保持，第八candidate01与全部旧FAIL/refs不动。恢复位置见[当前并行产品线与执行者](../current.md#当前并行产品线与执行者)，方法沿[既有组合recipe](../agent-system-integration/README.md)，不沿下表历史分工安排写入或清理。
 
-第八批Human Owner三边已在开发：`in_progress→in_review`、`in_review→done`、`in_review→todo`复用原Transfer/Lookup/schema 1，无新迁移。限定无active Execution，三新边遇active明确DependencyUnbound：created/preparing期间改Task可令capture拒绝，而当前准备失败只退claim、不保证Execution终态；此限制不改写规格允许的活动执行交接。done省略assignee保旧reviewer，显式指派验当前资格；仅目标todo要求零unresolved。原Owner、pending/occupancy及同Tx门保留，不冒AgentRun授权；review自动Dispatch、多轮/tools/Stream及生产app/initializer不因此完成。
+第八批三边`in_progress→in_review`、`in_review→done`、`in_review→todo`复用原Transfer/Lookup/schema 1，无新迁移。Human无active的有限profile已完成；三新边遇active明确DependencyUnbound，仍不改写规格允许的执行内交接。done省略assignee保旧reviewer，显式指派验当前资格；仅目标todo要求零unresolved。原Owner、pending/occupancy及同Tx门保持，Execution成功不自动done；active评审、AgentRun写权、review自动Dispatch、多轮/tools/Stream及生产app/initializer仍待后继。下一验证前预留缓存与候选增量空间，fresh≥5GiB门不变。
 
 ## 前置阶段记录（历史）
 
