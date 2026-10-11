@@ -72,3 +72,9 @@ Runner 停止新请求、取消已接收请求及重连，再等待实际运行�
 Linux正式OS测试使用真实默认cmd、自有PID/starttime/exe、blocking fd0 pipe和双SYS_read见证。EOF退出Wait0；实际第二信号及原3s+1s期限退出Wait1，强退两格仍Read未join。另一次new-main默认双cmd真实验证完整1..26迁移、stdin登记、在线、锁竞争、无token同key重启、撤销/再登记、正常退出和实际数据库尾；七资源、private/runtime/desc、TCP双尾及输入不变齐全。组合六owner的未join/Force/late-install由独立纯控制补证，默认进程case不冒六owner同时held。CLI/config、held TLS challenge中正常TERM/INT与依赖方向三个原回归也在同交付候选实际完整通过。
 
 历史失败不被后继结果改写：原DeviceAndReader的TCP四行缺原tuple/归属；原四组组合的Protocol top残留物理连接缺身份；原B首子未读POST导致handler join未完成；原OS01/02方法失败；作者Default01的同baseline tuple由ESTAB转TIME_WAIT、无PID归属，整轮仍FAIL。修后Protocol单组、A+DeviceReader、B首子、正式OS以及new-main Default分别取得后继限定合格结果；没有修改原TCP门或把事后清空补成旧轮PASS。具体原始边界与组合证据见D15卡。
+
+## 本地 Workspace manager
+
+[D16 Workspace manager](../work-items/d16-runner-workspace.md) 已有限独立接受：`internal/runner/workspace` 从可信、已打开的 Runner root fd 复制自有句柄，以 canonical Project/Agent UUID 和严格单段逻辑 name 创建或打开 `<root>/<project>/<agent>/<name>`，通过受管理 Handle 调用现有 Read/List/Find。它不把协议 `workspace_id` 当作目录名，不暴露 host path 或脱管 fd。
+
+新建和既有目录遵循卡内 owner/0700 与三层无链接规则，Stop 拒新并取消，Drain 等原 I/O 和关闭实际返回；失败或取消可能留下已创建目录，不自动删除。Linux 本地真实目录及生命周期控、race/vet 已验；非 Linux 拒绝源存在但未动态验收。当前 Mount 解析/授权、Agent 配置调用链、生产 Control/executor 与 initializer 均未绑定，默认拒绝和 ready=false 保持。

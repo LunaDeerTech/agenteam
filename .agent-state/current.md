@@ -1,73 +1,26 @@
-# Project Secrets 只读 UI 已有限独立接受
+# 全局协调索引
 
-2026-10-11，树 `/workspace/agenteam-project-secrets-read-ui`，基线43590d1f；variables_review实施、recovery_lead独审、root独占Git。产品30f4b8e1、原方法e7466973及native02已有限接受，待root统一集成。正式范围及原件见[专属卡](../docs/development/work-items/d10-project-secrets-read-ui.md)：仅八字段安全目录/详情GET、明确刷新，当前Owner/Session/路由和实际取消尾保持。client/Session最终由root精确保Move增量。
+2026-10-11。当前协调位置为 main 的本文件，由 root 指定 variables_review 唯一维护正文；root 负责全部 Git、集成与资源排期。功能分支的 current 只记录本片状态，合入时不覆盖本索引。正式产品状态见[任务台账](../docs/development/agent-team/tasks.md)，下表只保留当前任务和下一步；固定输入的分段接受不等于当前 main 单次全量通过。
 
-新API/state20与页面四控按有效输入分段接受，六共享文件133控通过；焦点修补后page07四控、build03 type/build实际0，fresh dist-02的80资产和单Session绑定通过。App原race-c/list0且2461编译输入前后等；新runtime2462除新资产与View外保持，1561Go源和原binary未变。native01真实Enter焦点FAIL、早期fixture及build01 FAIL完整保留；修复采用稳定通用loading标题即时聚焦，网络返回不抢外部焦点，原PW断言未放宽。
+## 当前五线
 
-native02原98789亲Wait0，supervisor360517/148.227s；Go1top1sub38.03s PASS，7GET=6finished+1实际Session200 ERR_ABORTED、7joint，四Secrets GET全部finished：50+1目录、当前详情与显式刷新，零写/Lookup。Go独持Secret材料与SQL快照，后验事实不变；真实焦点与1440浅色/390深色两图已独立查看。Node/Go/driver/四Chrome原Wait、七资源14absence、private/runtime/desc与原HOST_TCP baseline+delta双尾、inputs unchanged均齐，有限whole接受。无创建改值删除、Agent授权/有效性或真实撤权全矩阵主张；生产initializer/F1/材料消费及既有STOP不变。当前无后台或cachewriter，原窗口已交回root。
+| 任务 / 分支 | 负责人及依赖 | 当前状态与下一步 |
+| --- | --- | --- |
+| Outbox stop adapter — `ai/outbox-stop-adapter-20261011` | runtime_recovery 实施，skill_package_review 独审；同 Store 生命周期端口 | 正在收真实 PG native01 结果与最终独审、有限文档。普通 delivery、Cleanup、生产 registry/initializer 和旧整卡 STOP 不变；以本树原件和 root 窗口交接为准。 |
+| Project Usage 只读 UI — `ai/project-usage-read-ui-20261011` | agent_display_settings 实施，recovery_lead 独审；基于 Secrets 主线 `7e0a123e` | 产品基础控/build 已完成有限验证，浏览器方法待最终组合独审及原资源窗口；不提前计 browser、真实焦点或完整 Usage 交付。依赖已私有复制。 |
+| Runner Workspace manager — `ai/runner-workspace-manager-20261011` | variables_review 实施，skill_package_review 最终独审；recovery_lead 仅契约咨询 | 技术 `20672baa` 与文档 `de87b8d9` 有限接受，本次主线合入；11 top/11 sub race 与 vet、原 FAIL/窄修保留。仅本地 Ensure→Read/List/Find，后继 Mount/Control/executor 接线独立。 |
+| Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move04 业务有限接受但 whole 因 TCP delta FAIL 未交付；Move05 固定输入复验仍受容量门阻塞，未启动。保留全部旧 FAIL，不降低原输入、预算或退出门。 |
+| Agent Runner 配置原子链 — 分支待 root 指派 | recovery_lead 提供契约，实施 owner 待排 | 待启动。按用户确认：系统管理 Runner，项目内沿既有 Agent 配置权限在创建/编辑 Agent 选择 Runner 并填写挂载目录 name；无额外系统 Admin 门、无独立 Mount 创建 UI。不以本地 Workspace 库代当前授权或生产执行接线。 |
 
-以下主线既交记录原样保留。
+## 必须保留的依赖和材料
 
-# 主线已交能力与当前边界
+- `/workspace/agenteam-skill-package-http` 保留活跃热 Go cache；`/workspace/agenteam-skills-milestone-resume` 保留共享只读 module cache 及已明确运行依赖。任何 Go writer 必须遵守 root 的缓存交接。
+- `/workspace/agenteam-project-variables-resume` 保留未完恢复上下文；`/workspace/agenteam-object-runtime-join-safe` 保留原件和既有失败。不能按旧任务名称或完成标题自动清理。
+- Move、Outbox、Usage、新 Runner 活跃树保留；Secrets 树暂保留到 Usage 依赖交接阶段核清。其他树只按 owner 停写、当前引用、实际交付和材料保全逐个判断。
+- AgentDisplay、TaskHistoryFilters、SecretAudit 三树正在逐个只读评估，尚未记为已删除；原件迁移及 root 实际 tree/local/remote 删除确认后再移出保留范围。
 
-2026-10-11，本次在 main `1d41132a` 上组合 Object Runtime join 隔离安全修复。Sprint 与 Knowledge 标题查找及此前有限交付全部保留；Object 新候选 `5994c537` 的三次分段 wholePASS 已独立接受，技术依据为 `4807ac91`。旧中断历史、全部原 FAIL、永久停止的网络故障 probe，以及生产 initializer/ready/registry/Cleanup 的未绑定边界不改变。下列各片记录保留其原验收输入，不表示组合主线重新执行过全部测试；本次仅做内容并集与字节核对，root 负责 Git 集成。
+## 已完成树的材料位置
 
-## Knowledge 全项目标题查找 UI
+root 已清理 Find、Sprint、Title 的工作树和本地/远端任务分支，它们不再属于活动任务。必要原件分别保存在 main 的 `output/ai/workspace-find/`、`output/ai/sprint-edit-ui/`、`output/ai/knowledge-title-search-ui/`；各自保全说明给出历史 main 恢复基准、必要差异源码、依赖及原日志位置。迁移没有改写原 FAIL、输入绝对路径或产生新的测试通过结论。后续清理只在实际结果成立后同步本节，不另建永久台账。
 
-2026-10-11，`/workspace/agenteam-knowledge-title-search-ui`，分支 `ai/knowledge-title-search-ui-20261011`。实现者 skills_milestone_review，独审 skill_package_review，root 独占 Git。产品固定f09827a8、真实方法9ec39517；[正式卡](../docs/development/work-items/d12-knowledge-title-search-ui.md)记录契约、证据与范围。最终5docs以main34ea0b1a为共享底，保已交Sprint/SecretAudit，等待root统一主线组合；产品/方法/dist保持冻结。
-
-全项目标题字面查找已接入桌面目录/窄屏Drawer与唯一Session knowledgeRead owner。完整查询页/祖先校验后发布，分页按ID合并；查询/身份变化退役旧观察，实际原cancel尾未退出仍串行阻止新请求。选择命中复用正文/改名未保存确认，确认后再核上下文，原文档owner读取当前metadata/path/body。只读查询属于页面实例，checking/离页清除，不清既有App正文草稿或Unknown原意图。共享client/Session最窄新增与Sprint产品需最终精确并集；三方法已传入Sprint9651基底。
-
-基础原件 `output/ai/knowledge-title-search-ui/checks-01/` 的codec/state18、组件2及type实际通过；checks-02的最终冻结输入integration04三文件10控原34657 actual0/5.045s，旧受影响Knowledge4文件76PASS。integration01原FAIL为测试Project名称归一化不匹配；integration02修fixture后5PASS/1FAIL，checking03修测试对restore微任务等待后1PASS。初始client/Session仅保存局部排版前SHA而无源码，故用最终10控补齐证据，不以记忆作逐字证明；原FAIL保留。build01原53456 actual0/type与freshdist-01均0、24.947s，312web输入前后等。web/harness依赖均同锁后物理私有复制，无网络/源目录写入。
-
-method-01原3573 actual0：26profile正反控、4syntax、唯一PW list/单Session绑定，4.201s、6输入前后等；两harness37有效映射/结果正反控actual0，supervisor逆去新增selector逐字恢复旧源。compile-app01原52074 actual0：Go243784 race-c0/81.195s、2445输入前后等，list2465490/1.446s且唯一TestKnowledgeTitleSearchWeb；native闭包2446项仅新增真实binary6987886b…6617ec28，89AppGo/77dist，aggregate10099229…5e0df，已独核准入。
-
-native01已有限whole独验接受：outer31234亲wait0/141.189s；Go1top1sub19.38s，9GET全200/finished、2search/0写入/Lookup/all_observedtrue。两PNG为1440浅色当前正文与390深色命中Drawer，非作者亲视并核9条原联合证据。Node/Go/driver/四Chrome原Wait0、七资源14absence、private/runtime/desc与HOST_TCP双空及inputs_unchanged齐；原件native01/，PG原log `/tmp/ktsw01/ui-f041d9ebb0644133.log`。最初 `/tmp/ktw01` 重名预检FAIL保留且旧目录未动，实际fresh路径为 `/tmp/ktsw01`。
-
-本轮全finished，不称failed GET补证实际触发，不外推真实分页/撤权/取消竞争/命令Unknown矩阵。原Knowledge历史FAIL、Jina/Image/source ingestion、移动/上传/删除、生产initializer、Object Runtime join和SPA部署等STOP保持。当前无后台、Go/cache writer、native或网络占用，资源窗口已明确交回root。
-
-## 已交主线范围保留
-
-2026-10-11：Sprint 标题/描述编辑已有限独立接受，最终4文档已保存为 `cfc915e4`，此前已由root集成至main `34ea0b1a`。树 `/workspace/agenteam-sprint-edit-ui`，分支 `ai/sprint-edit-ui-20261011`；起点 `953fc793`，Scheduler main 已组合为 `df554807`，最终技术/方法 `9651ec9188704b4fd5b8c34b445af7072fe9df97` 已 root checkpoint/push。作者 agent_display_settings，唯一Go fixture原作者 knowledge_text_fixture，非作者 recovery_lead 已独审源码/方法/原件/五图；全部 Git 由 root 执行。
-
-范围与精确证据见[本片卡](../docs/development/work-items/d11-sprint-edit-ui.md)。planned/current 仅标题/描述编辑，completed 连no-op禁；原key/version/full patch、冲突草稿/显式采用、Unknown只原Lookup与当前Get/List分离。未改后端、迁移或通用框架。
-
-原 `native-sprint01` 工具31455本人实际exit0，supervisor224310 Wait0/144.162秒，原log `/tmp/sew01/ui-f19db55b37e340bb.log` terminal0/142.476秒。两sub原PASS，原Go/两Node/driver/8Chrome实际Wait、7ID14absence、private/runtime/desc/TCP双尾和2509输入前后一致齐。normal60=52finished+8abort，lost31=29finished+cut+GETabort，58+28联合证明已独核。五图接受可见范围；390清空图底部按钮未入图，DOM/键盘支持分列。
-
-`compile-sprint01` 原Go p.wait0之后，作者记录器SHA索引错误导致外层45078 actual1，原FAIL保留；补充SHA/1692前后清单及39291唯一selector list实际0已独核，不伪造wrapper成功或精确编译耗时。最终build01含类型/构建0，77物理资产逐字等原manifest。前端recovery01两fixture等待FAIL、launcher01非UI profile控制FAIL及其限定修正均原样保留，不相加分轮通过数。
-
-本片native/hostTCP/热Go cache窗口已完整释放，无自有服务或后台进程，不重编/重测。产品与方法全部停写；client/Session已向Knowledge标题查找作者确认冻结。最终共享docs以当前main `f688738f250ed1477bba0522aaf1968bf45192de` 为底保Scheduler、Secret/Audit及此前交付，只有Sprint有限条目；该新后端main未重合/重建进入本轮已冻结动态输入，后续Git集成由root负责。本树与原Agent/Milestone树独有证据保持。
-
-完整Sprint完成/rollover、排序/删除、真实权限全矩阵、D11/D27/E01未由本片完成。生产initializer unbound、完整F1/participant、ready=false/503及Object Runtime join/OpenAI tools/Central SPA concurrent publication/Jina Image STOP保持。下一功能由root另派，不自行扩域。
-
-[Project Scheduler 配置 HTTP/UI](../docs/development/work-items/d08-project-scheduler-ui.md)已在 main `6aaa7763` 有限交付，原两场景、历史确认/当前GET分离和完整资源尾接受；原失败、生产initializer未绑定及Scheduler Runtime未完成边界保持。Milestone、Agent、Task、Skill和Knowledge文本既有有限交付沿[任务台账](../docs/development/agent-team/tasks.md)保留。
-
-[Secret/Audit 停止屏障](../docs/development/work-items/d08-secret-audit-stop-adapters.md)的技术冻结 `be0dc8ec`，收口文档 `49fde048`，作者 runtime_recovery、独立审查 variables_review。4 top / 9 sub race、vet、最终 race-c/list 均 actual0；真实 PG 1 top / 2 sub PASS 8.83s，原 Go/driver/outer Wait0、七资源及 desc/private/runtime/TCP 双尾和输入不变俱齐，限定 wholePASS 已独验。原工具 58404 actual0，supervisor 213702 actual0/105.702s；原件在 `/workspace/agenteam-secret-audit-stop-adapters/output/ai/secret-audit-stop-adapters/`，监督日志 `/tmp/sab01/pg-644a24c5dc884ac3bd1510f717bb9a4c.log`。原 unit01 编译 FAIL 保留。当前没有本片后台、缓存 writer 或 native 窗口。
-
-该窄片仅证明真实 Authority/同 Store/Project SH 下两个 adapter 的停止报告与原事务返回；实际接受等待依全局锁序先阻于原 User EX。Account 为 canonical 种子，terminal 状态为明确 SQL 观察输入，Unknown 为已 Committed 后包装返回；不冒生产登录、完整 registry 或网络 COMMIT 故障。没有恢复旧领域绑定整卡，不绑定生产 initializer/registry、Cleanup 或 ready，不修改 Object/Artifact/app/web。Object Runtime join、foreign join、完整 D08/F1、ready=false/503 和其他既有 STOP 保持。
-
-本次主线组合的15个Sprint产品/测试技术路径与已验 `cfc915e4` staged/working逐字相等；两原harness仅叠加 main `f688` 的Secret/Audit精确selector、3输入/2sub与TARGETS差额，双向反补丁证明均成立，记录在Sprint树 `output/ai/sprint-edit-ui/merge-main-final01/`。此为组合内容证明，不冒新main动态重跑。Knowledge标题查找已完成限定验收，后继范围见本记录首部；旧结果与停止项保留。
-
-本次Knowledge主线内容组合完成：client/Session与两harness四路径均有“main加原Knowledge补丁、反向移除、候选加原main补丁、反向移除”四路逐字证明，保Sprint/SecretAudit；另16技术路径逐字等99431258。shared helper逐字等实际运行候选且候选前基底等main，没有新组合分派，未重跑native。有效METADATA_INPUTS/TARGETS/METADATA_GROUPS精确并集和Python语法检查通过，证据在标题查找树 `output/ai/knowledge-title-search-ui/merge-main01/`。首版证明器因原Session重复上下文拒绝保留，后版在整文件目标约束下证明完整补丁并集；产品没有因此修改。等待root Git保存。
-
-## Object Runtime join 隔离安全修复有限交付
-
-2026-10-11，root 明确授权的新隔离任务，基线 main `f688738f`，树 `/workspace/agenteam-object-runtime-join-safe`，分支 `ai/object-runtime-join-safe-20261011`。runtime_recovery 为实施 owner，PG 专属测试由子作者 knowledge_text_fixture 编写，其余既授域由本人实施；variables_review 独立审查，root 独占 Git。
-
-范围、当前三文件合法 delta、50ms/10ms 原预算内策略及原四红安全方法见[新卡](../docs/development/work-items/d05-object-runtime-join-safe.md)。普通第二 Tx/work mutex/canary 和正式 Store 结果装饰是本片唯一受控手段；旧中断执行与全部原 FAIL 保留，旧网络故障 probe 永久不恢复。
-
-方法 `c6f9d299`、三生产初片 `45d25313`、Force owner 修复/纯控 `e299ba83`、首 PG top/profile `e2b7090f` 已保存。保留 `unit01` 原断言 FAIL 和 `force-close-repro01` 真实双红；`unit02` race5顶层17子例、Object 包 race/vet、两 cmd build、首集成 race-c/list 均实际0，原件在 `output/ai/object-runtime-join-safe/`，未启动业务二进制。
-
-首 `native01` 的普通第二Tx/同实例 Runtime 1顶层已有限 wholePASS，原四红保持且最终 flock 可重取。后继固定 `4807ac91` 保持三生产/纯控和首top正文不变，补齐余4新顶层10子例；`compile02` race-c/list实际0、1706输入前后不变，新/旧两组各绑定同一1707闭包及最终二进制。`native02` 新4顶层10子例及 `native03` 原7顶层10子例均已有限独立 wholePASS。三组原工具98235/54934/99665均由作者亲收0，各自Go/driver Wait、七资源14absence、desc/private/runtime/TCP双尾与输入不变齐；variables_review 已接受本卡限定修复，不称单次当前 HEAD 全绿。原命令、日志、限定和终态见新卡。
-
-三次 native 窗口均已完整释放，无本线自有后台或 cache writer；全部技术作者已停写。原两 harness 只增三个精确组，`checks/profile01.json`/`profile02.json` 证明旧全部有效映射、函数 AST、预算与尾不变。仅做本卡/current及 root 另授的 tasks 一处当前事实收口；tasks 以 main `1d41132a` 正文为底保留 Sprint/Knowledge 等全部已交记录，Git 保存/集成由 root 继续。
-
-生产 initializer/registry、Cleanup、ready=false/503、Artifact/Project 完整生命周期及其他 STOP 均保持；新候选不等于生产解禁。
-
-本次主线组合核对：五个产品/测试路径的 working 与 staged 均逐字等已验 `4807ac91`；两 harness 的 main加Object/反向移除、候选加main/反向移除四路补丁均以零 fuzz 得到精确整文件，全部有效映射为主线与Object三个精确组的并集，函数 AST 与主线及原540+60预算不变。证据在 `/workspace/agenteam-object-runtime-join-safe/output/ai/object-runtime-join-safe/merge-main01/`。只解决本 current 内容冲突，未写 Git，未重跑已有通过测试。
-
-## D16 Workspace Root.Find 有限交付
-
-2026-10-11，在已交 Object 的 main `509b43a1` 上组合本片。作者 recovery_lead、独审 agent_display_settings；来源 `ai/workspace-find-20261011`，技术 `3fe35261`、收口文档 `b6632eb5`，[正式卡](../docs/development/work-items/d16-workspace-find.md)。仅 Linux 本地 Root.Find→Read：明确 name/path glob、子 symlink 不追踪、真实第 Limit+1 命中才截断，遍历/编码预算错误归零，保原 fd 生命周期。未绑定生产 Tool/Mount/Authority/RPC/initializer，不解除任何既有 STOP。
-
-原 race 工具12782/Go271784实际0（20 top，Find新增9），vet 工具81217/Go273680实际0；非作者已核源码、全部13输入/四份前后清单与原件，无遗留 must-fix。原件在 `/workspace/agenteam-workspace-find/output/ai/workspace-find/{race01,vet01}/`。当前没有本片后台、缓存 writer、服务或网络窗口。五技术文件的主线 working/staged 逐字等已验 `3fe35261`，仅此 current 内容冲突按原主线全文保留后追加，未重跑已经通过的输入；Git 集成由 root 执行。完整 D16、生产装配与非 Linux 动态验收仍未完成。
+完整 Project initializer、ready、生产 participant/Control 绑定及所有既有 STOP 均按正式任务记录保持；本索引不批准恢复旧网络故障 probe 或其他停项。
