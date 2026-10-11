@@ -309,7 +309,11 @@ async function observeBrowserIO(
         }
         if (kind === "sprint.create") {
           if (originalSprintCreate) failed = true;
-          originalSprintCreate = { call, project: args[0], fields: JSON.parse(JSON.stringify(args[1])) };
+          originalSprintCreate = {
+            call,
+            project: args[0],
+            fields: JSON.parse(JSON.stringify(args[1])),
+          };
           writeInputs.set(call, originalSprintCreate);
         }
         if (kind === "sprint.start") {
@@ -354,10 +358,14 @@ async function observeBrowserIO(
             call.not_busy = auth.state.busy === false;
             if (kind === "sprint.create") {
               const progress = auth.workSprintLifecycle.createProgress;
-              call.result_current = progress?.phase === "confirmed" && progress.contextValid === true &&
+              call.result_current =
+                progress?.phase === "confirmed" &&
+                progress.contextValid === true &&
                 progress.projectID === originalSprintCreate.project &&
-                progress.milestoneID === originalSprintCreate.fields.milestone_id &&
-                progress.sprintID === originalSprintCreate.request?.sprint_id && progress.result === value;
+                progress.milestoneID ===
+                  originalSprintCreate.fields.milestone_id &&
+                progress.sprintID === originalSprintCreate.request?.sprint_id &&
+                progress.result === value;
             }
             if (!value || typeof value !== "object") return;
             if (
@@ -592,11 +600,17 @@ async function observeBrowserIO(
           }
         }
         if (createMilestone) {
-          consumer(auth.workSprintLifecycle, "create", "sprint.create", (a) => {
-            if (a[0] !== project || a[1]?.milestone_id !== createMilestone)
-              throw Error("SPRINT_CREATE_CONSUMER_SCOPE");
-            return "/api/v1/projects/" + project + "/sprints";
-          }, "POST");
+          consumer(
+            auth.workSprintLifecycle,
+            "create",
+            "sprint.create",
+            (a) => {
+              if (a[0] !== project || a[1]?.milestone_id !== createMilestone)
+                throw Error("SPRINT_CREATE_CONSUMER_SCOPE");
+              return "/api/v1/projects/" + project + "/sprints";
+            },
+            "POST",
+          );
         }
         if (startSprint) {
           consumer(
@@ -876,11 +890,22 @@ async function observeBrowserIO(
           }
           if (call.kind === "sprint.create") {
             const request = parsed?.request;
-            matches = Object.keys(parsed).join() === "request" && request !== null &&
-              typeof request === "object" && !Array.isArray(request) &&
-              /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(request.sprint_id) &&
-              equal(request, { ...original.fields, sprint_id: request.sprint_id });
-            if (matches) { original.key = key; original.request = request; }
+            matches =
+              Object.keys(parsed).join() === "request" &&
+              request !== null &&
+              typeof request === "object" &&
+              !Array.isArray(request) &&
+              /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+                request.sprint_id,
+              ) &&
+              equal(request, {
+                ...original.fields,
+                sprint_id: request.sprint_id,
+              });
+            if (matches) {
+              original.key = key;
+              original.request = request;
+            }
           }
           if (call.kind === "sprint.start") {
             matches =
@@ -1386,12 +1411,24 @@ export async function observeTaskRequests(
           : undefined))
   )
     throw Error("SPRINT_START_WRITE_PROFILE_MISMATCH");
-  if (profile.sprintCreateWrites &&
-    (profile.intakeWrites || profile.agentConfiguration || profile.editWrites ||
-      profile.timelineReads || profile.agentEditWrites || profile.agentModelPolicy || profile.sprintStartWrites ||
-      profile.prefix !== "sprint-create" || profile.lookupCommand !== "work.sprint.create" ||
-      profile.cut !== undefined || data.mode !== "plan-another-sprint-with-existing-current" ||
-      !data.milestone_id || !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.milestone_id)))
+  if (
+    profile.sprintCreateWrites &&
+    (profile.intakeWrites ||
+      profile.agentConfiguration ||
+      profile.editWrites ||
+      profile.timelineReads ||
+      profile.agentEditWrites ||
+      profile.agentModelPolicy ||
+      profile.sprintStartWrites ||
+      profile.prefix !== "sprint-create" ||
+      profile.lookupCommand !== "work.sprint.create" ||
+      profile.cut !== undefined ||
+      data.mode !== "plan-another-sprint-with-existing-current" ||
+      !data.milestone_id ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+        data.milestone_id,
+      ))
+  )
     throw Error("SPRINT_CREATE_PROFILE_MISMATCH");
   const entries: Entry[] = [];
   const events: Record<string, unknown>[] = [];
@@ -1543,7 +1580,9 @@ export async function observeTaskRequests(
               ? data.agent_id
               : undefined,
           startSprint: profile.sprintStartWrites ? data.sprint_id : undefined,
-          createMilestone: profile.sprintCreateWrites ? data.milestone_id : undefined,
+          createMilestone: profile.sprintCreateWrites
+            ? data.milestone_id
+            : undefined,
         },
       );
       await route.continue();
@@ -1685,14 +1724,28 @@ export async function observeTaskRequests(
   }
   function sprintCreateWrite(entry: Entry) {
     const url = new URL(entry.request.url());
-    return profile.sprintCreateWrites && entry.name === "create" && entry.request.method() === "POST" &&
-      url.pathname === `/api/v1/projects/${data.project_id}/sprints` && !url.search;
+    return (
+      profile.sprintCreateWrites &&
+      entry.name === "create" &&
+      entry.request.method() === "POST" &&
+      url.pathname === `/api/v1/projects/${data.project_id}/sprints` &&
+      !url.search
+    );
   }
   function sprintPageRead(entry: Entry) {
     return (
       entry.request.method() === "GET" &&
-      ((profile.sprintStartWrites && ["project", "sprint", "tasks"].includes(entry.name)) ||
-        (profile.sprintCreateWrites && ["project", "sprint", "tasks", "milestone", "milestones", "sprints"].includes(entry.name)))
+      ((profile.sprintStartWrites &&
+        ["project", "sprint", "tasks"].includes(entry.name)) ||
+        (profile.sprintCreateWrites &&
+          [
+            "project",
+            "sprint",
+            "tasks",
+            "milestone",
+            "milestones",
+            "sprints",
+          ].includes(entry.name)))
     );
   }
   function joint(entry: Entry, proof: any) {
@@ -1701,7 +1754,12 @@ export async function observeTaskRequests(
     const sprint = sprintWrite(entry);
     const sprintCreate = sprintCreateWrite(entry);
     const write =
-      intakeWrite(entry) || agentWrite(entry) || edit || agentEdit || sprint || sprintCreate;
+      intakeWrite(entry) ||
+      agentWrite(entry) ||
+      edit ||
+      agentEdit ||
+      sprint ||
+      sprintCreate;
     const method =
       (edit || agentEdit) && entry.name === "update"
         ? "PATCH"
@@ -1774,29 +1832,31 @@ export async function observeTaskRequests(
     if (timelinePageRead(entry)) expect(c.kind).toBe("work.events");
     if (write) {
       if (sprintCreate) expect(c.result_current).toBe(true);
-      const kinds: Record<string, string> = sprintCreate ? { create: "sprint.create" } : sprint
-        ? { start: "sprint.start", lookup: "sprint.checkOriginal" }
-        : agentEdit
-          ? {
-              update: "agentEdit.startUpdate",
-              lookup: "agentEdit.checkOriginal",
-            }
-          : profile.agentConfiguration
+      const kinds: Record<string, string> = sprintCreate
+        ? { create: "sprint.create" }
+        : sprint
+          ? { start: "sprint.start", lookup: "sprint.checkOriginal" }
+          : agentEdit
             ? {
-                create: "agent.startCreate",
-                lookup: "agent.checkOriginal",
+                update: "agentEdit.startUpdate",
+                lookup: "agentEdit.checkOriginal",
               }
-            : edit
+            : profile.agentConfiguration
               ? {
-                  update: "edit.startEdit",
-                  ready: "edit.startReady",
-                  lookup: "edit.checkOriginal",
+                  create: "agent.startCreate",
+                  lookup: "agent.checkOriginal",
                 }
-              : {
-                  create: "work.startCreate",
-                  ready: "work.startReady",
-                  lookup: "work.checkOriginal",
-                };
+              : edit
+                ? {
+                    update: "edit.startEdit",
+                    ready: "edit.startReady",
+                    lookup: "edit.checkOriginal",
+                  }
+                : {
+                    create: "work.startCreate",
+                    ready: "work.startReady",
+                    lookup: "work.checkOriginal",
+                  };
       const raw = entry.request.postDataBuffer();
       const key = entry.request.headers()["idempotency-key"];
       expect(raw).not.toBeNull();
@@ -1862,7 +1922,7 @@ export async function observeTaskRequests(
           editWrite(entry) ||
           agentEditWrite(entry) ||
           sprintWrite(entry) ||
-        sprintCreateWrite(entry) ||
+          sprintCreateWrite(entry) ||
           agentWrite(entry)) &&
         response?.status() === 200 &&
         entry.failure === "net::ERR_ABORTED"
@@ -1999,10 +2059,16 @@ export async function observeTaskRequests(
     );
     expect(dropped).toBe(1);
   }
-  function sprintCreateRead(name: "project" | "sprint" | "tasks" | "milestone" | "milestones" | "sprints") {
+  function sprintCreateRead(
+    name:
+      "project" | "sprint" | "tasks" | "milestone" | "milestones" | "sprints",
+  ) {
     expect(profile.sprintCreateWrites).toBe(true);
-    const found = entries.filter(e => e.name === name && e.checked && e.body);
-    expect(found.length, "original Sprint Create page read must complete").toBeGreaterThan(0);
+    const found = entries.filter((e) => e.name === name && e.checked && e.body);
+    expect(
+      found.length,
+      "original Sprint Create page read must complete",
+    ).toBeGreaterThan(0);
     return found.at(-1)!.body as Record<string, any>;
   }
   function sprintRead(name: "project" | "sprint" | "tasks") {
@@ -2091,7 +2157,9 @@ export async function observeTaskRequests(
           ...(profile.agentEditWrites || profile.agentModelPolicy
             ? { updates: entries.filter((e) => e.name === "update").length }
             : {}),
-          ...(profile.sprintCreateWrites ? { creates: entries.filter(e => e.name === "create").length } : {}),
+          ...(profile.sprintCreateWrites
+            ? { creates: entries.filter((e) => e.name === "create").length }
+            : {}),
           ...(profile.sprintStartWrites
             ? { starts: entries.filter((e) => e.name === "start").length }
             : {}),
