@@ -88,6 +88,9 @@ const endpoints = {
     '/api/v1/projects/{project_id}/skills/{target}/revisions/{revision}/package',
     200,
   ],
+  knowledgeDeletePreview: ['POST', '/api/v1/projects/{project_id}/knowledge/documents/{target}/delete-preview', 200],
+  knowledgeDelete: ['POST', '/api/v1/projects/{project_id}/knowledge/documents/{target}/delete-subtree', 200],
+  knowledgeDeleteLookup: ['POST', '/api/v1/projects/{project_id}/knowledge/documents/commands/lookup', 200],
   knowledgeRename: [
     'POST',
     '/api/v1/projects/{project_id}/knowledge/documents/{target}/rename',
@@ -1072,6 +1075,7 @@ const knowledgeTextEndpoints = [
   'knowledgeTextLookup',
 ] as const
 const knowledgeCommandEndpoints = [
+  'knowledgeDeletePreview', 'knowledgeDelete', 'knowledgeDeleteLookup',
   'knowledgeRename',
   'knowledgeRenameLookup',
   ...knowledgeTextEndpoints,
@@ -1082,8 +1086,7 @@ type KnowledgeCommandOptions<E extends KnowledgeCommandEndpoint> = {
   projectID: string
   body: unknown
   csrf: string
-  key: string
-} & (E extends 'knowledgeRename' | 'knowledgeTextCreate' | 'knowledgeTextReplace'
+} & (E extends 'knowledgeDeletePreview' ? { key?: never } : { key: string }) & (E extends 'knowledgeRename' | 'knowledgeTextCreate' | 'knowledgeTextReplace' | 'knowledgeDeletePreview' | 'knowledgeDelete'
   ? { target: string }
   : { target?: never })
 
@@ -1669,13 +1672,14 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       }
     } else if ((knowledgeCommandEndpoints as readonly string[]).includes(endpoint)) {
       try {
-        const rename = endpoint !== 'knowledgeRenameLookup' && endpoint !== 'knowledgeTextLookup'
+        const preview = endpoint === 'knowledgeDeletePreview'
+        const rename = endpoint !== 'knowledgeRenameLookup' && endpoint !== 'knowledgeTextLookup' && endpoint !== 'knowledgeDeleteLookup'
         shape(options, [
           'signal',
           'projectID',
           'body',
           'csrf',
-          'key',
+          ...(preview ? [] : ['key']),
           ...(rename ? ['target'] : []),
         ])
         const project = string(options.projectID, 36, 36)
@@ -1683,7 +1687,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           !uuid7.test(project) ||
           !(options.signal instanceof AbortSignal) ||
           !/^[A-Za-z0-9_-]{43,128}$/.test(string(options.csrf, 43, 128)) ||
-          !/^[A-Za-z0-9._:/-]{1,128}$/.test(string(options.key, 1, 128))
+          (!preview && !/^[A-Za-z0-9._:/-]{1,128}$/.test(string(options.key, 1, 128)))
         )
           throw new Error()
         path = basePath.replace('{project_id}', project)

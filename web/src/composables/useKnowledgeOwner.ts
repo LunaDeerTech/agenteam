@@ -124,6 +124,7 @@ export function useKnowledgeOwner(
   let disposed = false,
     retired = false,
     route: KnowledgeLocation | null = null
+  let deleteRefresh: { target: string; parents: Set<string | null> } | null = null
   let renameRefresh: {
     target: string
     minimum: string
@@ -169,6 +170,7 @@ export function useKnowledgeOwner(
   }
   function clearSelection(target: string | null) {
     if (renameRefresh?.target !== target) renameRefresh = null
+    if (deleteRefresh?.target !== target) deleteRefresh = null
     state.selected = target
     state.document = null
     state.metadataPhase = target ? 'waiting' : 'idle'
@@ -385,6 +387,12 @@ export function useKnowledgeOwner(
             state.metadataMessage = result.message
           }
         } finally {
+          if (current() && deleteRefresh?.target === task.target) {
+            for (const parent of deleteRefresh.parents) {
+              if (!current()) break
+              await readChildren({ kind: 'children', parent }, captured, current)
+            }
+          }
           if (current() && renameRefresh?.target === task.target) {
             const parents = new Set(renameRefresh.parents)
             if (renameRefresh.observed !== undefined) parents.add(renameRefresh.observed)
@@ -488,6 +496,25 @@ export function useKnowledgeOwner(
         if (!more || value.nextCursor)
           enqueue({ kind: 'children', parent, ...(more ? { cursor: value.nextCursor } : {}) })
       }
+    },
+    refreshAfterDelete(
+      projectID: string,
+      target: string,
+      deletedIDs: readonly string[],
+      previousParent: string | null,
+    ) {
+      if (!live() || blocked.value || scope?.projectID !== projectID) return false
+      const deleted = new Set(deletedIDs)
+      const parents = new Set<string | null>([null])
+      if (previousParent !== null && !deleted.has(previousParent)) parents.add(previousParent)
+      // Retire all pre-delete directory pages/cursors and visible content. The
+      // receipt is historical; only the following Get may publish a tombstone.
+      renameRefresh = null
+      deleteRefresh = { target, parents }
+      state.levels = Object.freeze({ [rootKey]: emptyLevel(null, 'waiting') })
+      state.expanded = Object.freeze([])
+      enqueue({ kind: 'selection', target })
+      return true
     },
     refreshAfterRename(receipt: KnowledgeDocument, previousParent: string | null) {
       if (

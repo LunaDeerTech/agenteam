@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import KnowledgeDeleteDialog from '../../components/knowledge/KnowledgeDeleteDialog.vue'
+import { useKnowledgeDelete } from '../../composables/useKnowledgeDelete'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
 import { useKnowledgeText } from '../../composables/useKnowledgeText'
@@ -26,6 +28,7 @@ const location = computed(() => {
 const owner = useKnowledgeOwner(undefined, workspace, location),
   state = owner.state
 const rename = useKnowledgeRename(owner, workspace)
+const deletion = useKnowledgeDelete(owner, workspace)
 const textEditor = useKnowledgeText()
 const detachText = textEditor.attachReader(owner)
 const titleSearch = useKnowledgeTitleSearch(
@@ -34,16 +37,27 @@ const titleSearch = useKnowledgeTitleSearch(
   owner.blocked,
 )
 async function createText(parent: KnowledgeDocument | null = null) {
-  if (await rename.permitNavigation()) await textEditor.openCreate(parent)
+  if ((await deletion.permitNavigation()) && (await rename.permitNavigation()))
+    await textEditor.openCreate(parent)
 }
 async function editText() {
-  if (state.document && (await rename.permitNavigation())) await textEditor.openEdit(state.document)
+  if (state.document && (await deletion.permitNavigation()) && (await rename.permitNavigation()))
+    await textEditor.openEdit(state.document)
+}
+async function deleteTree() {
+  const selected = state.selected,
+    context = workspace.currentReadContext.value
+  if (!(await rename.permitNavigation()) || !(await textEditor.permitNavigation())) return
+  if (state.selected !== selected || workspace.currentReadContext.value !== context) return
+  titleSearch.clear()
+  await deletion.open()
 }
 async function renameText() {
-  if (await textEditor.permitNavigation()) rename.open()
+  if ((await deletion.permitNavigation()) && (await textEditor.permitNavigation())) rename.open()
 }
 const stopNavigation = installKnowledgeNavigation(useRouter(), {
-  confirmLeave: rename.permitNavigation,
+  confirmLeave: async () =>
+    (await deletion.permitNavigation()) && (await rename.permitNavigation()),
 })
 const drawer = ref(false),
   heading = ref<HTMLElement | null>(null),
@@ -76,7 +90,9 @@ const creator = computed(() => {
 async function select(id: string, current: () => boolean = () => true) {
   if (
     id !== state.selected &&
-    (!(await rename.permitNavigation()) || !(await textEditor.permitNavigation()))
+    (!(await deletion.permitNavigation()) ||
+      !(await rename.permitNavigation()) ||
+      !(await textEditor.permitNavigation()))
   )
     return
   if (!current()) return
@@ -95,7 +111,12 @@ const cancel = () => {
   owner.cancel()
 }
 async function leave() {
-  if (!(await rename.permitNavigation()) || !(await textEditor.permitNavigation())) return false
+  if (
+    !(await deletion.permitNavigation()) ||
+    !(await rename.permitNavigation()) ||
+    !(await textEditor.permitNavigation())
+  )
+    return false
   cancel()
   return true
 }
@@ -108,6 +129,7 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   detachText()
   stopNavigation()
+  deletion.dispose()
   rename.dispose()
   titleSearch.dispose()
   owner.dispose()
@@ -176,6 +198,11 @@ onBeforeUnmount(() => {
           </UiState>
           <template v-if="state.document">
             <div class="document-toolbar">
+              <UiButton
+                :disabled="!deletion.canOpen.value || textEditor.pending.value"
+                @click="deleteTree()"
+                >删除子树</UiButton
+              >
               <UiButton
                 :disabled="!rename.canOpen.value || textEditor.pending.value"
                 @click="renameText()"
@@ -282,6 +309,7 @@ onBeforeUnmount(() => {
         </template>
       </div>
     </div>
+    <KnowledgeDeleteDialog :deletion="deletion" :fallback-focus="documentHeading ?? heading" />
     <KnowledgeRenameDialog :editor="rename" :fallback-focus="documentHeading ?? heading" />
     <UiDrawer v-model:open="drawer" title="文档树">
       <KnowledgeTitleSearch
