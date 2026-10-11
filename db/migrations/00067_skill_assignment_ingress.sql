@@ -15,11 +15,15 @@ CREATE TABLE agenteam_skill.assignment_commands (
  candidate bytea NOT NULL CHECK(octet_length(candidate) BETWEEN 2 AND 1048576),
  state text NOT NULL CHECK(state IN ('planned','completed')),
  receipt bytea CHECK(octet_length(receipt) BETWEEN 2 AND 65536),
+ runtime_receipt bytea CHECK(octet_length(runtime_receipt) BETWEEN 2 AND 1024),
  created_at timestamptz(6) NOT NULL,
  completed_at timestamptz(6),
  UNIQUE(project_id,agent_id,command_name,idempotency_key),
  UNIQUE(project_id,agent_id,id),
  CHECK((state='completed')=(receipt IS NOT NULL AND completed_at IS NOT NULL)),
+ CHECK((state='planned' AND runtime_receipt IS NULL) OR
+  (state='completed' AND (runtime_receipt IS NOT NULL)=
+   (convert_from(candidate,'UTF8')::jsonb ? 'runtime'))),
  FOREIGN KEY(project_id,agent_id) REFERENCES agenteam_skill.agent_assignment_heads(project_id,agent_id)
 );
 CREATE TABLE agenteam_skill.assignment_changes (
@@ -144,6 +148,8 @@ ALTER TABLE agenteam_audit.audit_records ADD CONSTRAINT audit_records_skill_assi
 -- +goose StatementBegin
 CREATE FUNCTION agenteam_skill.guard_assignment_command() RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
+ -- A completed row is wholly immutable, including its independently frozen
+ -- runtime_receipt. Planned rows carry no routing proof by the table guard.
  IF TG_OP='DELETE' OR OLD.state='completed' OR NEW.state<>'completed'
  OR ROW(NEW.id,NEW.project_id,NEW.agent_id,NEW.actor_user_id,NEW.command_name,NEW.idempotency_key,NEW.semantic_digest,NEW.input,NEW.candidate,NEW.created_at)
  IS DISTINCT FROM ROW(OLD.id,OLD.project_id,OLD.agent_id,OLD.actor_user_id,OLD.command_name,OLD.idempotency_key,OLD.semantic_digest,OLD.input,OLD.candidate,OLD.created_at)

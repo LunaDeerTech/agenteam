@@ -351,7 +351,7 @@ func (s *AssignmentCommands) applyAssignmentInTx(ctx context.Context, tx f.Tx, p
 				}
 			}
 			out = selected.mutation(nil)
-			return false, completeAssignmentCommand(ctx, x, selected, out)
+			return false, completeAssignmentCommand(ctx, x, selected, out, nil)
 		}
 		return true, nil
 	}, func(ctx context.Context, ref ag.AgentRef) error {
@@ -376,7 +376,8 @@ func (s *AssignmentCommands) applyAssignmentInTx(ctx context.Context, tx f.Tx, p
 			if r.Validate() != nil || r.ChangeID != selected.ID {
 				return unavailable(nil)
 			}
-			receipt = &r
+			frozen := r.Clone()
+			receipt = &frozen
 		}
 		entry, key, err := assignmentAudit(selected, p.input.Actor)
 		if err != nil {
@@ -397,7 +398,7 @@ func (s *AssignmentCommands) applyAssignmentInTx(ctx context.Context, tx f.Tx, p
 			return unavailable(nil)
 		}
 		out = selected.mutation(receipt)
-		return completeAssignmentCommand(ctx, x, selected, out)
+		return completeAssignmentCommand(ctx, x, selected, out, receipt)
 	})
 	if err != nil {
 		return sc.AssignmentMutation{}, captureError(err)

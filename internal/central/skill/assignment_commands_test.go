@@ -10,6 +10,7 @@ import (
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/skill/contract"
@@ -121,6 +122,8 @@ type assignmentLookupStore struct {
 	record           *assignmentCommand
 	entered, release chan struct{}
 	queries          int
+	pending          []any
+	pendingErr       error
 }
 
 func (s *assignmentLookupStore) InTx(tx f.Tx) (postgres.SQLExecutor, error) {
@@ -130,6 +133,15 @@ func (s *assignmentLookupStore) InTx(tx f.Tx) (postgres.SQLExecutor, error) {
 	return s, nil
 }
 func (s *assignmentLookupStore) QueryRow(ctx context.Context, q string, args ...any) postgres.Row {
+	if strings.Contains(q, "FROM agenteam_skill.assignment_pending_refs") {
+		if s.pendingErr != nil {
+			return skillRowValues{err: s.pendingErr}
+		}
+		if s.pending == nil {
+			return skillRowValues{err: pgx.ErrNoRows}
+		}
+		return skillRowValues{values: s.pending}
+	}
 	if !strings.Contains(q, "FROM agenteam_skill.assignment_commands") {
 		return skillRowValues{err: errors.New("unexpected assignment lookup SQL")}
 	}
@@ -146,8 +158,174 @@ func (s *assignmentLookupStore) QueryRow(ctx context.Context, q string, args ...
 	if err != nil {
 		return skillRowValues{err: err}
 	}
-	return skillRowValues{values: []any{r.ID.String(), r.Input.Actor.Details().UserID, string(r.Digest), r.Input.Raw, candidate, r.State, r.Receipt, r.Candidate.Created.Time()}}
+	return skillRowValues{values: []any{r.ID.String(), r.Input.Actor.Details().UserID, string(r.Digest), r.Input.Raw, candidate, r.State, r.Receipt, r.RuntimeReceipt, r.Candidate.Created.Time()}}
 }
+
+func assignmentChangedControl(t *testing.T, actor i.Actor, enabled bool) *assignmentCommand {
+	t.Helper()
+	in, base := assignmentReceiptControl(t, actor)
+	in.Request.Enabled = &enabled
+	in, err := newAssignmentInput(actor, in.Meta, in.Request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	c := base.Candidate
+	before := c.After
+	before.Items = append([]sc.AgentSkillAssignment{}, c.After.Items...)
+	before.Items[0].Enabled = !enabled
+	c.BeforeDigest, _, err = captureDigest(before)
+	if err != nil {
+		t.Fatal(err)
+	}
+	removed := before.Items[0]
+	added := removed
+	added.ID, added.Enabled, added.Sequence = stateID[sc.Assignment](420), enabled, 2
+	c.After.Sequence, c.After.Items = 2, []sc.AgentSkillAssignment{added}
+	c.Version, c.Changed, c.Added, c.Removed = 2, true, &added, &removed
+	if enabled {
+		d := f.Digest("sha256:" + strings.Repeat("a", 64))
+		revision := assignmentRevision{ID: stateID[sc.Revision](421), SkillID: c.Skill, ProjectID: c.After.Project, Revision: 1, Name: "readable", Description: "safe", EntryPath: sc.EntryPath, ObjectID: stateID[oc.StoredObject](422), ObjectVersion: 1, ObjectCreatedAt: c.Created, PublishedAt: c.Created, PackageSHA256: d, ManifestDigest: d}
+		c.Revision = &revision
+		c.Runtime = &sc.RuntimeAssignmentChange{ID: base.ID, ProjectID: c.After.Project, AgentID: c.After.Agent, AssignmentSequence: 2, AgentVersion: 2, Binding: bindingForAssignment(added, revision), RecordedAt: c.Created}
+	}
+	r := &assignmentCommand{ID: base.ID, Input: in, Digest: in.Digest, Candidate: c, State: "planned"}
+	if err = r.validate(); err != nil {
+		t.Fatal("valid changed candidate rejected", err)
+	}
+	return r
+}
+
+func TestSkillAssignmentCandidateBindsCompleteOriginalTransition(t *testing.T) {
+	actor, _ := i.NewHuman(stateID[i.User](111), stateID[i.Session](112))
+	remove := assignmentChangedControl(t, actor, false)
+	id := remove.Candidate.Removed.ID
+	remove.Input.Request = AssignmentRequest{ProjectID: remove.Input.Request.ProjectID, AgentID: remove.Input.Request.AgentID, AssignmentID: &id}
+	var err error
+	remove.Input, err = newAssignmentInput(actor, remove.Input.Meta, remove.Input.Request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	remove.Digest = remove.Input.Digest
+	remove.Candidate.Added, remove.Candidate.After.Items = nil, []sc.AgentSkillAssignment{}
+	if remove.validate() != nil {
+		t.Fatal("exact original grant removal rejected")
+	}
+	for _, name := range []string{"request-skill", "request-enabled", "added-not-in-after", "unrelated-item", "removed-still-current", "removed-id", "noop-enabled", "remove-wrong-id"} {
+		t.Run(name, func(t *testing.T) {
+			r := assignmentChangedControl(t, actor, false)
+			switch name {
+			case "request-skill":
+				skill := stateID[pc.Skill](423)
+				r.Input.Request.SkillID = &skill
+			case "request-enabled":
+				enabled := true
+				r.Input.Request.Enabled = &enabled
+			case "added-not-in-after":
+				r.Candidate.After.Items[0].ID = stateID[sc.Assignment](424)
+			case "unrelated-item":
+				extra := r.Candidate.After.Items[0]
+				extra.SkillID = stateID[pc.Skill](425)
+				extra.ID = stateID[sc.Assignment](426)
+				extra.Sequence = 1
+				r.Candidate.After.Items = append(r.Candidate.After.Items, extra)
+			case "removed-still-current":
+				r.Candidate.After.Items[0] = *r.Candidate.Removed
+			case "removed-id":
+				r.Candidate.Removed.ID = stateID[sc.Assignment](427)
+			case "noop-enabled":
+				_, r = assignmentReceiptControl(t, actor)
+				r.Candidate.After.Items[0].Enabled = false
+			case "remove-wrong-id":
+				id := stateID[sc.Assignment](428)
+				r.Input.Request = AssignmentRequest{ProjectID: r.Input.Request.ProjectID, AgentID: r.Input.Request.AgentID, AssignmentID: &id}
+				r.Candidate.Added = nil
+				r.Candidate.After.Items = []sc.AgentSkillAssignment{}
+			}
+			// Bind every edited request to its own valid digest: rejection must
+			// come from the original-intent/candidate relation, not a stale hash.
+			var err error
+			r.Input, err = newAssignmentInput(actor, r.Input.Meta, r.Input.Request)
+			if err != nil {
+				t.Fatal(err)
+			}
+			r.Digest = r.Input.Digest
+			if r.validate() == nil {
+				t.Fatal("shape-valid candidate escaped full original transition")
+			}
+		})
+	}
+}
+
+func completeAssignmentControl(t *testing.T, r *assignmentCommand, queued bool) {
+	t.Helper()
+	route := sc.AssignmentIngressReceipt{ChangeID: r.ID, Queued: queued}
+	if queued {
+		e := stateID[i.Execution](429)
+		route.ExecutionID = &e
+	}
+	var err error
+	_, r.RuntimeReceipt, err = captureDigest(route)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, r.Receipt, err = captureDigest(r.mutation(&route))
+	if err != nil {
+		t.Fatal(err)
+	}
+	r.State = "completed"
+	if _, err = r.receipt(); err != nil {
+		t.Fatal("original routing receipt rejected", err)
+	}
+}
+
+func TestSkillAssignmentReceiptBindsOriginalRoutingAndProtection(t *testing.T) {
+	for _, name := range []string{"queued", "no-active", "changed-execution", "changed-outcome", "missing-proof", "missing-protection", "changed-protection", "no-active-with-protection"} {
+		t.Run(name, func(t *testing.T) {
+			s, store, _, in := assignmentLookupControl(t)
+			r := assignmentChangedControl(t, in.Actor, true)
+			queued := name != "no-active" && name != "no-active-with-protection"
+			completeAssignmentControl(t, r, queued)
+			store.record = r
+			binding := r.Candidate.Runtime.Binding
+			if queued || name == "no-active-with-protection" {
+				store.pending = []any{stateID[i.Execution](429).String(), r.Input.Request.ProjectID.String(), r.Input.Request.AgentID.String(), binding.AssignmentID.String(), int64(binding.AssignmentSequence), binding.SkillID.String(), binding.RevisionID.String(), int64(binding.Revision), r.Candidate.Revision.ObjectID.String()}
+			}
+			switch name {
+			case "changed-execution", "changed-outcome":
+				out, err := r.receipt()
+				if err != nil {
+					t.Fatal(err)
+				}
+				if name == "changed-execution" {
+					e := stateID[i.Execution](430)
+					out.Runtime.ExecutionID = &e
+				} else {
+					out.Runtime.Queued = false
+					out.Runtime.ExecutionID = nil
+				}
+				_, r.Receipt, err = captureDigest(out)
+				if err != nil {
+					t.Fatal(err)
+				}
+			case "missing-proof":
+				r.RuntimeReceipt = nil
+			case "missing-protection":
+				store.pending = nil
+			case "changed-protection":
+				store.pending[0] = stateID[i.Execution](431).String()
+			}
+			out, err := s.LookupAssignment(context.Background(), r.Input.Actor, r.Input.Meta, r.Input.Request)
+			if name == "queued" || name == "no-active" {
+				if err != nil || out.Receipt == nil || out.Receipt.Runtime == nil || out.Receipt.Runtime.Queued != queued {
+					t.Fatal("original routing not re-readable", err)
+				}
+			} else if err == nil || out.Receipt != nil || out.State != "" {
+				t.Fatal("tampered original routing published")
+			}
+		})
+	}
+}
+
 func assignmentLookupControl(t *testing.T) (*AssignmentCommands, *assignmentLookupStore, *skillReaderProjects, assignmentInput) {
 	t.Helper()
 	service, base, projects, actor, _ := readerFixture(t)

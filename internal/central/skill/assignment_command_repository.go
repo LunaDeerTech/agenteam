@@ -30,12 +30,13 @@ type assignmentCandidate struct {
 	Created      f.Instant                   `json:"created_at"`
 }
 type assignmentCommand struct {
-	ID        sc.AssignmentChangeID
-	Input     assignmentInput
-	Digest    f.Digest
-	Candidate assignmentCandidate
-	State     string
-	Receipt   []byte
+	ID             sc.AssignmentChangeID
+	Input          assignmentInput
+	Digest         f.Digest
+	Candidate      assignmentCandidate
+	State          string
+	Receipt        []byte
+	RuntimeReceipt []byte
 }
 
 func assignmentReadError(err error) error {
@@ -45,7 +46,7 @@ func assignmentReadError(err error) error {
 	return captureError(err)
 }
 func (r *assignmentCommand) validate() error {
-	if r == nil || r.ID.Validate() != nil || r.Input.Request.validate() != nil || r.Input.Digest != r.Digest || r.Digest.Validate() != nil || r.Candidate.BeforeDigest.Validate() != nil || r.Candidate.After.validate() != nil || r.Candidate.Skill.Validate() != nil || r.Candidate.Version.Validate() != nil || r.Candidate.Created.Validate() != nil || r.State != "planned" && r.State != "completed" {
+	if r == nil || r.ID.Validate() != nil || r.Input.Request.validate() != nil || r.Input.Meta.ExpectedVersion == nil || r.Input.Digest != r.Digest || r.Digest.Validate() != nil || r.Candidate.BeforeDigest.Validate() != nil || r.Candidate.After.validate() != nil || r.Candidate.Skill.Validate() != nil || r.Candidate.Version.Validate() != nil || r.Candidate.Created.Validate() != nil || r.State != "planned" && r.State != "completed" {
 		return unavailable(nil)
 	}
 	c := r.Candidate
@@ -73,6 +74,9 @@ func (r *assignmentCommand) validate() error {
 	if c.Added != nil && (c.Added.Sequence != c.After.Sequence || c.Added.CreatedAt != c.Created) {
 		return unavailable(nil)
 	}
+	if err := r.validateTransition(); err != nil {
+		return err
+	}
 	if c.Runtime != nil {
 		if c.Runtime.Validate() != nil || c.Runtime.ID != r.ID || c.Runtime.ProjectID != c.After.Project || c.Runtime.AgentID != c.After.Agent || c.Runtime.AgentVersion != c.Version || c.Runtime.AssignmentSequence != c.After.Sequence || c.Added == nil || !c.Added.Enabled || c.Revision == nil {
 			return unavailable(nil)
@@ -87,10 +91,88 @@ func (r *assignmentCommand) validate() error {
 	if c.Revision != nil && (c.Revision.validate() != nil || c.Revision.SkillID != c.Skill || c.Revision.ProjectID != c.After.Project) {
 		return unavailable(nil)
 	}
+	if (c.Revision != nil) != (c.Runtime != nil) {
+		return unavailable(nil)
+	}
 	if (r.State == "completed") != (len(r.Receipt) > 0) {
 		return unavailable(nil)
 	}
+	if _, err := r.runtimeReceipt(); err != nil {
+		return err
+	}
 	return nil
+}
+
+// Reconstruct the entire prior set, including unchanged grants. Shape-valid
+// candidates cannot switch the requested Skill, remove a different grant, or
+// carry an unrelated change alongside the one authorized by the original key.
+func (r *assignmentCommand) validateTransition() error {
+	c, request := r.Candidate, r.Input.Request
+	if request.SkillID != nil {
+		if c.Skill != *request.SkillID || c.Changed && (c.Added == nil || c.Added.Enabled != *request.Enabled) || c.Removed != nil && c.Removed.Enabled == *request.Enabled {
+			return unavailable(nil)
+		}
+	} else if c.Added != nil || c.Changed && (c.Removed == nil || c.Removed.ID != *request.AssignmentID) {
+		return unavailable(nil)
+	}
+	before := c.After
+	before.Items = make([]sc.AgentSkillAssignment, 0, len(c.After.Items)+1)
+	found := false
+	for _, a := range c.After.Items {
+		if c.Removed != nil && (a.ID == c.Removed.ID || a.SkillID == c.Removed.SkillID && c.Added == nil) {
+			return unavailable(nil)
+		}
+		if c.Added != nil && a.ID == c.Added.ID {
+			if a != *c.Added {
+				return unavailable(nil)
+			}
+			found = true
+			continue
+		}
+		if !c.Changed {
+			if request.SkillID != nil && a.SkillID == *request.SkillID && a.Enabled == *request.Enabled {
+				found = true
+			}
+			if request.AssignmentID != nil && a.ID == *request.AssignmentID {
+				return unavailable(nil)
+			}
+		}
+		before.Items = append(before.Items, a)
+	}
+	if c.Added != nil && !found || !c.Changed && request.SkillID != nil && !found {
+		return unavailable(nil)
+	}
+	if c.Changed {
+		before.Sequence--
+		if c.Removed != nil {
+			before.Items = append(before.Items, *c.Removed)
+		}
+		slices.SortFunc(before.Items, func(a, b sc.AgentSkillAssignment) int {
+			return bytes.Compare([]byte(a.SkillID.String()), []byte(b.SkillID.String()))
+		})
+	}
+	if before.validate() != nil {
+		return unavailable(nil)
+	}
+	digest, _, err := captureDigest(before)
+	if err != nil || digest != c.BeforeDigest {
+		return unavailable(err)
+	}
+	return nil
+}
+
+func (r *assignmentCommand) runtimeReceipt() (*sc.AssignmentIngressReceipt, error) {
+	if r.State != "completed" || r.Candidate.Runtime == nil {
+		if len(r.RuntimeReceipt) != 0 {
+			return nil, unavailable(nil)
+		}
+		return nil, nil
+	}
+	var out sc.AssignmentIngressReceipt
+	if assignmentDecode(r.RuntimeReceipt, &out, 1024) != nil || out.Validate() != nil || out.ChangeID != r.ID {
+		return nil, unavailable(nil)
+	}
+	return &out, nil
 }
 func bindingForAssignment(a sc.AgentSkillAssignment, r assignmentRevision) sc.SkillBinding {
 	return sc.SkillBinding{SkillID: a.SkillID, RevisionID: r.ID, Revision: r.Revision, AssignmentID: a.ID, AssignmentSequence: a.Sequence, Name: r.Name, Description: r.Description, PackageSHA256: r.PackageSHA256, EntryPath: r.EntryPath}
@@ -114,7 +196,11 @@ func (r *assignmentCommand) receipt() (sc.AssignmentMutation, error) {
 	if r.validate() != nil || r.State != "completed" || assignmentDecode(r.Receipt, &out, 65536) != nil || out.Validate() != nil {
 		return out, unavailable(nil)
 	}
-	expected := r.mutation(out.Runtime)
+	runtime, err := r.runtimeReceipt()
+	if err != nil {
+		return sc.AssignmentMutation{}, err
+	}
+	expected := r.mutation(runtime)
 	a, _, e := captureDigest(out)
 	b, _, e2 := captureDigest(expected)
 	if e != nil || e2 != nil || a != b || (out.Runtime != nil) != (r.Candidate.Runtime != nil) {
@@ -124,9 +210,9 @@ func (r *assignmentCommand) receipt() (sc.AssignmentMutation, error) {
 }
 func loadAssignmentCommand(ctx context.Context, x postgres.SQLExecutor, in assignmentInput) (*assignmentCommand, error) {
 	var id, actor, digest, state string
-	var input, candidate, receipt []byte
+	var input, candidate, receipt, runtimeReceipt []byte
 	var created time.Time
-	err := x.QueryRow(ctx, `SELECT id::text,actor_user_id::text,semantic_digest,input,candidate,state,receipt,created_at FROM agenteam_skill.assignment_commands WHERE project_id=$1 AND agent_id=$2 AND command_name=$3 AND idempotency_key=$4`, in.Request.ProjectID.String(), in.Request.AgentID.String(), in.Request.name(), string(in.Meta.IdempotencyKey)).Scan(&id, &actor, &digest, &input, &candidate, &state, &receipt, &created)
+	err := x.QueryRow(ctx, `SELECT id::text,actor_user_id::text,semantic_digest,input,candidate,state,receipt,runtime_receipt,created_at FROM agenteam_skill.assignment_commands WHERE project_id=$1 AND agent_id=$2 AND command_name=$3 AND idempotency_key=$4`, in.Request.ProjectID.String(), in.Request.AgentID.String(), in.Request.name(), string(in.Meta.IdempotencyKey)).Scan(&id, &actor, &digest, &input, &candidate, &state, &receipt, &runtimeReceipt, &created)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
 	}
@@ -142,7 +228,7 @@ func loadAssignmentCommand(ctx context.Context, x postgres.SQLExecutor, in assig
 	if !bytes.Equal(input, in.Raw) {
 		return nil, unavailable(nil)
 	}
-	r := &assignmentCommand{Input: in, Digest: in.Digest, State: state, Receipt: slices.Clone(receipt)}
+	r := &assignmentCommand{Input: in, Digest: in.Digest, State: state, Receipt: slices.Clone(receipt), RuntimeReceipt: slices.Clone(runtimeReceipt)}
 	r.ID, err = f.ParseID[sc.AssignmentChange](id)
 	if err != nil {
 		return nil, unavailable(err)
@@ -152,6 +238,14 @@ func loadAssignmentCommand(ctx context.Context, x postgres.SQLExecutor, in assig
 	}
 	if !created.Equal(r.Candidate.Created.Time()) || r.validate() != nil {
 		return nil, unavailable(nil)
+	}
+	if r.State == "completed" {
+		if _, err = r.receipt(); err != nil {
+			return nil, err
+		}
+		if err = validateAssignmentRouting(ctx, x, r); err != nil {
+			return nil, err
+		}
 	}
 	return r, ctx.Err()
 }
@@ -260,7 +354,7 @@ func insertAssignmentCommand(ctx context.Context, x postgres.SQLExecutor, r *ass
 	}
 	return ctx.Err()
 }
-func completeAssignmentCommand(ctx context.Context, x postgres.SQLExecutor, r *assignmentCommand, out sc.AssignmentMutation) error {
+func completeAssignmentCommand(ctx context.Context, x postgres.SQLExecutor, r *assignmentCommand, out sc.AssignmentMutation, runtime *sc.AssignmentIngressReceipt) error {
 	if out.Validate() != nil {
 		return unavailable(nil)
 	}
@@ -268,11 +362,57 @@ func completeAssignmentCommand(ctx context.Context, x postgres.SQLExecutor, r *a
 	if err != nil {
 		return err
 	}
-	tag, err := x.Exec(ctx, `UPDATE agenteam_skill.assignment_commands SET state='completed',receipt=$2,completed_at=GREATEST(created_at,clock_timestamp()) WHERE id=$1 AND state='planned'`, r.ID.String(), raw)
+	var routing any
+	completed := *r
+	completed.State, completed.Receipt = "completed", raw
+	if runtime != nil {
+		_, completed.RuntimeReceipt, err = captureDigest(runtime.Clone())
+		if err != nil {
+			return err
+		}
+		routing = completed.RuntimeReceipt
+	}
+	if _, err = completed.receipt(); err != nil {
+		return err
+	}
+	if err = validateAssignmentRouting(ctx, x, &completed); err != nil {
+		return err
+	}
+	tag, err := x.Exec(ctx, `UPDATE agenteam_skill.assignment_commands SET state='completed',receipt=$2,runtime_receipt=$3,completed_at=GREATEST(created_at,clock_timestamp()) WHERE id=$1 AND state='planned'`, r.ID.String(), raw, routing)
 	if err != nil {
 		return unavailable(err)
 	}
 	if tag.RowsAffected() != 1 {
+		return unavailable(nil)
+	}
+	return ctx.Err()
+}
+
+// The independent routing proof was frozen only after the real ingress call
+// returned. Compare it to Skill's immutable package protection, never to the
+// current Execution slot (which may have changed since this command).
+func validateAssignmentRouting(ctx context.Context, x postgres.SQLExecutor, r *assignmentCommand) error {
+	routing, err := r.runtimeReceipt()
+	if err != nil || routing == nil {
+		return err
+	}
+	var e, p, agent, assignment, skill, revision, object string
+	var sequence, number int64
+	err = x.QueryRow(ctx, `SELECT execution_id::text,project_id::text,agent_id::text,assignment_id::text,assignment_sequence,skill_id::text,revision_id::text,revision,object_id::text FROM agenteam_skill.assignment_pending_refs WHERE change_id=$1`, r.ID.String()).Scan(&e, &p, &agent, &assignment, &sequence, &skill, &revision, &number, &object)
+	if errors.Is(err, pgx.ErrNoRows) {
+		if routing.Queued {
+			return unavailable(nil)
+		}
+		return ctx.Err()
+	}
+	if err != nil {
+		return unavailable(err)
+	}
+	if !routing.Queued || r.Candidate.Runtime == nil || r.Candidate.Revision == nil {
+		return unavailable(nil)
+	}
+	c := *r.Candidate.Runtime
+	if e != routing.ExecutionID.String() || p != c.ProjectID.String() || agent != c.AgentID.String() || assignment != c.Binding.AssignmentID.String() || sequence != int64(c.AssignmentSequence) || skill != c.Binding.SkillID.String() || revision != c.Binding.RevisionID.String() || number != int64(c.Binding.Revision) || object != r.Candidate.Revision.ObjectID.String() {
 		return unavailable(nil)
 	}
 	return ctx.Err()
