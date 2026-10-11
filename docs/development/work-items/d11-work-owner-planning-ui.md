@@ -262,4 +262,4 @@ Blocker status 默认为 unresolved，可选 resolved/all；顺序 `(created_at,
 
 来源 `bfe52d55`的独立前端四文件24项、十文件格式检查、完整类型检查和生产构建已通过。SOURCE `8417`/candidate09的 `TestTaskEditWeb` native02两sub81.74s wholePASS，真实覆盖changed、显式清空、No-op及独立Ready，另核真实丢编辑回执后保留原version、完整patch和key，仅查原Lookup。四Wait0、两Node实际成功、七ID14次absence、全部双尾/TCP0、2436输入一致，secret最终业务/资源有限接受。cleanup接受8PNG和同轮键盘回焦、主题、reduced-motion及overflow检查；截图下半部与Unknown提示仅有DOM断言支持，不外推全面视觉或无障碍审计。原件见[组合recipe](../../../.agent-state/agent-system-integration/README.md#task编辑与agent创建页面有限组合)。
 
-本片验收闭合，待root交付。原native01整轮34.22s FAIL及既有§1–12、Planning/Recovery和批12原FAIL均保留，不以后继请求联证修复回填。此片不新增排序、Blocker写入、状态边或完整规划能力；Timeline后端14项/3包vet及新UI16项/format/type/build仅有限接受，真实PG/浏览器尚待联调，不计入本次Task编辑交付；第十七批Agent编辑UI也未纳入。
+本片验收闭合，已随main `4270a670`交付。原native01整轮34.22s FAIL及既有§1–12、Planning/Recovery和批12原FAIL均保留，不以后继请求联证修复回填。此片不新增排序、Blocker写入、状态边或完整规划能力；Timeline后端14项/3包vet及新UI16项/format/type/build仅有限接受，真实PG/浏览器尚待联调，不计入本次Task编辑交付；第十七批Agent编辑UI也未纳入。

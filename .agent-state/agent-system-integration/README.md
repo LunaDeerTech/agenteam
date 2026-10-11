@@ -596,7 +596,7 @@ SOURCE `deec8a506b98a77b120446e7e4360740557ac861`的compile07/candidate07与B05�
 
 ## Task编辑与Agent创建页面有限组合
 
-第十三/十五批真实页面验收闭合，待root交付。共享candidate09来自compile SOURCE `8417da7a0d6de6e7813092b106797ba3491e66df`；13 native02沿同SOURCE运行，15 native03沿runtime SOURCE `7a0224a98c724ade5bab956d3f5e2a1d57948353`运行并复用原Agent dist01。后继只修夹具原请求/进度绑定，不重建历史请求或改变页面产品；具体输入闭包与编译字节/SHA以原compile09记录为准。
+第十三/十五批真实页面验收闭合，已随main `4270a670`交付。共享candidate09来自compile SOURCE `8417da7a0d6de6e7813092b106797ba3491e66df`；13 native02沿同SOURCE运行，15 native03沿runtime SOURCE `7a0224a98c724ade5bab956d3f5e2a1d57948353`运行并复用原Agent dist01。后继只修夹具原请求/进度绑定，不重建历史请求或改变页面产品；具体输入闭包与编译字节/SHA以原compile09记录为准。
 
 | 入口 | 实际有限结果 | 原件（delivery的output/ai/agent-system-integration下） |
 | --- | --- | --- |
