@@ -18,6 +18,8 @@
 
 ## 当前并行产品线与执行者
 
+Knowledge已有文档Rename正常闭环已完成限定验收，随本次提交交付main。复用正式Rename/原Lookup与原Session命名依赖，保持BodyLifecycle和现有guard；receipt后真实重读metadata、ancestors、正文及相关树页，不把历史回执冒当前数据。前端36项/type/build/72dist、schema8按有效输入复用，修后observer14模式/113检查与compile02通过；runtime `15f28d57`加唯一spec格式层，复用compile `f64dcaae`/candidate02。native04恰1top/无sub、13.34s wholePASS，原唯一POST/完整receipt/最终Lookup/SQL/domainGuard及当前回读均到达，四Wait0、Node实际成功、七ID14次absence、全部双尾/TCP双0、2393输入一致、outer无遗留；SUP另对四Chrome实际Wait0。secret最终业务/资源与cleanup两PNG有限视觉均接受，范围为1280浅色/390深色、真实h2回焦、树Enter、reduced-motion和overflow，不外推全壳或全部无障碍。旧Rename03/current-read FAIL与旧DIST03未验、本轮native01联证FAIL和03焦点门FAIL原样保留；02独立业务PASS及过渡截图不改判。正常链不代验真实Unknown/Owner变更矩阵，production initializer仍Unbound。恢复见[Rename recipe](knowledge-owner-rename/README.md)；已交Sprint main1f98aa98、约30%、E01未开始和旧STOP不变。
+
 第十二批完整组合来源为 `/workspace/agenteam-task-flow-delivery` / `ai/task-intake-runtime-delivery`，B05验收输入`deec8a506b98a77b120446e7e4360740557ac861`已随产品基线main `295f46b4`交付；A06与14仍绑定各自原SOURCE `75e23e9d`。A06沿SOURCE `75e23e9d`及共享candidate06完成 `TestTaskIntakeWeb` 两sub37.63s（18.85/18.78）：正常Create后独立Ready、丢创建回执后Unknown仅原Lookup再独立Ready均通过。四原Wait0、两Node实际成功、七ID14次absence、全部双尾/TCP0、2426输入一致；secret业务终核和cleanup 15PNG有限视觉接受。原件为`output/ai/agent-system-integration/task-intake-web-06-control/result.json`；原A01–05整轮FAIL与各局部事实保留，严格原请求完成联证未降门。
 
 第十二批B沿SOURCE `deec8a506b98a77b120446e7e4360740557ac861`/candidate07完成B05真实 `TestAppExecutionRuntime`，两sub25.84s：已有initialized Project自动发现并经真实Model到Execution终态12.34s，held-wire下Stop等待原调用及双lease退休13.50s。两个原SystemResolver A/AAAA前验均通过，DNS私有run PID与实际Go Wait身份一致；四原Wait0、七ID14次absence、全部双尾/TCP0、1665输入同，整轮wholePASS。secret独立最终原件有限验收已接受。原定向16 top/三包vet及compile07通过事实保持；本轮仅接受显式direct-text-v1且已初始化Project的有限链，不开放Project initializer、全局ready或完整Loop。 B01原29.39s PASS因afterOwners写入struct副本、目标app.Run未执行而撤回业务接受，只保留实际setup/cleanup和资源尾；原结果不修改。B02观察deadline/必达完成、B03失败退休、B04已到达DNS/wire但两处uuid/text后验SQL错误的wholeFAIL，以及compile05等失败原件均保留，不以后继通过回填。B04两行fixture修复不改产品Resolver或Runtime授权。 实际Runtime范围见[装配记录](../docs/development/work-items/recovery-project-domain-bindings.md#有限后继显式配置的-central-execution-runtime-装配)。
@@ -74,12 +76,13 @@ Context有限包已随main `561a2443`的11路径正式交付，源码`346003e6`�
 
 | 执行者 | 当前工作、真实状态与下一步 |
 | --- | --- |
-| content / Timeline HTTP与客户端测试 | Timeline HTTP复用原TaskReader，产品和新UI客户端3项已冻结；参与13原请求完成联证窄修，原native01 FAIL保留。15native03与Timeline03业务/资源有限接受，后继Agent编辑App03/Web01业务与资源有限验收均已接受。 |
+| content / Agent模型与审批配置UI | `/workspace/agenteam-work-ui-independent` / `ai/agent-model-policy-ui` @`01e01246`已推送并静审接受，现有Agent模型、审批与AGENTS.md注入配置UI的6产品/8基础控尚未动态验证；原唯一锁定PW依赖及FAIL保留，不可清理。 |
+| content / Sprint Create UI | `/workspace/agenteam-knowledge-owner-rename` / `ai/sprint-create-ui` @`361a2b66`开发十二path，后继八path fixture/方法尚待组合与验证；只创建已有Milestone下planned Sprint，不自动Start或enable。Rename原产品/FAIL保留，不把后继开发写成动态PASS。 |
 | cleanup / browser 与独立差额审 | A06业务及15PNG有限视觉已接受，原A01–05 FAIL保留。13/15/17前端按各自输入接受；13native02的8PNG、15native03的7PNG和各自键盘/主题等有限视觉已接受，Timeline UI十路径及exact16/type/build/format实际原件也获有限接受；Timeline03的两张实际截图及键盘/overflow有限接受。 |
 | secret / 独立差额审查 | A06与14native01最终有限接受；B01业务接受撤回、B02–04 FAIL保留，B05 wholePASS且独立最终有限接受。Timeline与后继组合按各自冻结源独立审查，不扩旧STOP。 |
-| work_ui / Timeline UI与当前文档 | `/workspace/agenteam-work-ui` / `ai/task-timeline-current-ui` @`b1fdc7d5`十路径冻结，格式与有限独审通过，frontend01的16项/type/build实际全PASS、原尾齐，Timeline03真实只读闭环已有限接受，13/15已随main `4270a670`交付；17沿SOURCE `510dd29d`的App03/Web01已有限接受，本次App/root四份必要文档由其维护，原前端证据继续保留。 |
+| work_ui / 当前交付文档 | `/workspace/agenteam-work-ui`维护本片Rename五份正式/恢复来源，正常链native04业务、资源和两图有限接受；原Timeline、Agent、Sprint材料保留，不重复未变矩阵或为文档追自身hash。 |
 | skills_http / 验证与资源 | A06和14native01均wholePASS、四Wait0及资源双尾齐；17原前端20项/format10/type/build、14/16十九race加两包vet按原输入接受；Agent编辑App03/Web01 wholePASS且全部原尾闭合。B05实际25.84s wholePASS、四Wait0及全部原尾闭合，secret最终有限接受；各批输入与旧FAIL不混用。 |
-| coordination / Timeline Reader与保留源 | `ai/task-timeline-current-reader`从旧`9ad6f1cd`借入并适配当前真实历史来源、字节分页；不另造Reader或改共享TaskTrigger；后继组合SOURCE `5335d5b0`已分段通过14项/3包vet，后继d407真实PG三父十三子与b3e6 Web03有限通过，本次交付Timeline范围。B fixture修复`bea84677`已进入delivery `deec8a50`，16 `dc902550`及14App来源保留。 |
+| coordination / Sprint Create fixture | `/workspace/agenteam-agent-configuration-integration` / `ai/sprint-create-fixture` @`e22ced5a`已启用，继承的Agent八path fixture已推送/静审接受；本片Sprint Create fixture开发中，未动态验证。旧Timeline提供方及真实接受材料保留。 |
 | 14/16 独立组合树 | 原`ai/agent-configuration-owner-delivery` @`548c9959`的十九race加两包vet分段接受，容量wholeFAIL保留。14 Create App TLS已在delivery SOURCE `75e23e9d`真实两sub通过；16 Update已由后继SOURCE `510dd29d`的App03真实两sub有限验收，不以14创建链代验。 |
 | cleanup / content | `/workspace/agenteam-skill-install` / `ai/skill-install`：Human Install/LookupInstall、普通读取与清理已随main有限交付；domain安装读取重放、原Object/Audit事实及普通清理两sub真实通过，定向pure/race/vet证据按版本复用。旧树已可逆sparse停放，原ignored材料保留；原Project/外人码/素材/Audit查询夹具FAIL保留。真实Source配置装配已进Agent创建链，AgentRun/Runtime实际调用仍未验。 |
 | coordination | 统筹合同、唯一写者及必要恢复说明，不作为参与设计或编码范围的独立验收者。 |

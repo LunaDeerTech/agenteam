@@ -100,3 +100,15 @@ Skills/coordination已对产品、fixture和消费方法实际差异做有限独
 合入主线Account/Secret根与共享并集后，`26e3928d` 新race候选经精确1 top/list准备；`3c7958ac` 输入的作者 `read04` 使用该新候选和未变67个dist资产，1 Go top/1 PW case整体PASS（Go27.31s）。12原四GET与Schema12、树键盘/UTF8下一段/Drawer、原typed发布和两个observer首次explicit/pending0/实际join全部通过；4个原请求现场ERR_ABORTED且finished调用0，另8个正常finished调用1/null。原Node/Go/driver/outer及4 adopted Wait0，七资源14次absent/private/runtime/desc/TCP双尾齐，1455运行时输入初末一致，wholePASS130.643s。新增纯测试由既有collector排除，不人为扩成1456输入。
 
 本次有限完成范围仅Owner已有文档的四GET与只读页面，复用既有后端权限证据；旧01/02FAIL与read03旧输入PASS不升级。默认initializer、完整participant、Object Runtime join与来源STOP保持，不扩编辑、parser、Project Create HTTP、整D12或生产SPA。
+
+## Owner已有文档标题改名UI（限定范围）
+
+本片正常链已最终有限验收，随本次提交交付main。复用[树命令HTTP](d12-knowledge-owner-tree-http.md)的Rename与原请求Lookup，只为当前Human Owner打开的已有文档提供明确“保存标题”。以当前读取的Document ID和字符串version为基线，保留标题原输入；不改正文、父关系、文档ID，不增加创建、移动或删除入口。与已交只读页面共用原Session实际owner和Cookie通道，依赖置于现commandAPIs.knowledgeCommands命名口；现BodyLifecycle、认证和导航保护保持。
+
+Session的knowledgeCommands持有原Project、Document、expected_version、标题、key及身份，结果不确定先查询原Lookup，不自动重发。只有Lookup明确not_observed、同身份且仍持原输入、无key冲突或在途调用时，才提供用户明确选择的“重试原请求”；重放仍用完全相同的原请求和key，不用当前GET重建历史意图或生成新key冒原恢复。离开、放弃和身份失效沿实际owner退役及原guard处理，旧调用迟到不能发布到新选择。
+
+receipt只证明原命令结果，不代替当前授权或当前版本。确认后重新读取真实metadata、ancestors、UTF-8正文及相关根/父树页，再发布当前文档；当前读取失败时保留“改名已确认”与“当前读取失败”的区别，版本冲突须读取当前事实后重新编辑。页面复用正式Dialog/控件、主题与键盘焦点保护。
+
+前端36项、类型/构建与72dist、schema8复用原有效结果，修后observer14模式/113检查与974输入compile02通过。runtime `15f28d57`加唯一spec格式层，沿compile `f64dcaae`/candidate02与原dist完成native04：`TestKnowledgeOwnerRenameWeb`恰1top/无sub，13.34s wholePASS。原唯一Rename/fullreceipt、当前metadata/ancestors/body/tree、最终原Lookup、SQL四计数与domainGuard后验全部闭合；四Wait0、Node成功、七ID14次absence、全部双尾/TCP0、2393输入稳定。secret业务/资源与cleanup两张1280浅色/390深色图、h2回焦/tree Enter/reduced-motion/overflow有限接受，不外推全壳或全面无障碍。
+
+原旧Rename03/current-read FAIL和旧DIST03未验保持；本轮native01联证FAIL、native02独立业务PASS及modal过渡截图、native03新增焦点门FAIL全部保留。03原件只记phase，没有断言明文，不补写原证据或宣产品缺陷；后继spec改为正式h2 fallback且等待实际DOM退出。原件与恢复见[Rename recipe](../../../.agent-state/knowledge-owner-rename/README.md)。本正常链不代验真实Unknown/replay或Owner变更全矩阵；默认App为runtimeoff、生产initializer仍Unbound，不扩正文编辑、移动/删除、下载URL、全Project生命周期、Object Runtime join或生产SPA发布，既有STOP不变。
