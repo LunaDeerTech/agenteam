@@ -1,7 +1,8 @@
-"""Run the frozen Tool-result reader and Loop projection checks, offline only.
+"""Run frozen Tool-result reader, Loop and Execution checks, offline only.
 
 Preparation is inert: root must hand over the single Go/cache window before this
-script is invoked. Execution implementation is still another writer's domain.
+script is invoked. All five dependency packages and migration 00066 must be
+frozen, including test and embedded files discovered from the working tree.
 """
 
 import argparse
@@ -15,13 +16,25 @@ import time
 
 ROOT = Path(__file__).resolve().parents[2]
 GO = "/workspace/toolchains/go1.27.1/bin/go"
-PACKAGES = ["./internal/central/tool/runtime", "./internal/central/agentloop"]
+PACKAGES = [
+    "./internal/central/tool/runtime", "./internal/central/agentloop",
+    "./internal/central/execution",
+]
+VET_PACKAGES = [
+    "./internal/central/execution/contract", "./internal/central/execution",
+    "./internal/central/tool/contract", "./internal/central/tool/runtime",
+    "./internal/central/agentloop",
+]
 TOPS = [
     "TestReadFileResultLoanIsSameTxCompleteAndCleared",
     "TestReadFileResultLoanRejectsForeignStaleAndNonSuccess",
     "TestReadFileToolResultCompleteProjection",
     "TestReadFileToolResultRejectsUnboundOrDamagedResult",
     "TestReadFileToolResultDefaultsRedactContent",
+    "TestExecutionToolResultObservationBindsWholeCandidate",
+    "TestExecutionToolResultUnknownCannotBecomeRetry",
+    "TestExecutionToolResultStopWaitsForActualReaderReturn",
+    "TestExecutionToolResultPersistenceIsExplicitAndComplete",
 ]
 TOOL_REJECTIONS = [
     "foreign-reader", "foreign-tx", "missing-locks", "denied",
@@ -44,12 +57,8 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def floating_execution(relative):
-    # The old prompt package is used by existing Loop test fixtures; it and
-    # contract are frozen. The new root Execution consumer is still being written.
-    return relative.startswith("internal/central/execution/") and not relative.startswith((
-        "internal/central/execution/contract/", "internal/central/execution/prompt/",
-    ))
+def head():
+    return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
 
 
 def main():
@@ -78,6 +87,7 @@ def main():
         save(stage + "-invocation.json", dict(
             cwd=str(ROOT), command=command, environment_overrides=ENV,
             wrapper_sha256=digest(Path(__file__)), go_binary_sha256=digest(Path(GO)),
+            source_head=head(),
         ))
         started = time.monotonic()
         with (out / (stage + ".log")).open("xb") as log:
@@ -88,7 +98,7 @@ def main():
             log.flush()
             os.fsync(log.fileno())
         after = manifest(frozen) if frozen is not None else None
-        result = dict(pid=child.pid, actual_wait_exit=code, elapsed_seconds=time.monotonic() - started)
+        result = dict(pid=child.pid, actual_wait_exit=code, elapsed_seconds=time.monotonic() - started, source_head_after=head())
         if after is not None:
             save(stage + "-inputs-after.json", after)
             result.update(input_count=len(frozen), inputs_unchanged=before == after)
@@ -99,16 +109,16 @@ def main():
 
     # Only the actual go-list closure is retained. The temporary pre-discovery
     # source binding detects a source change while Go resolves that closure.
-    # Never read/hash the still-floating Execution implementation as an input.
+    # Include untracked files and all migration embeds; do not use git's tracked
+    # list or exclusions to conceal a dependency from the actual working tree.
     candidates = {"go.mod", "go.sum"}
     for prefix in ["internal", "tests/testsupport", "db"]:
         for path in (ROOT / prefix).rglob("*"):
             if path.is_file():
                 relative = str(path.relative_to(ROOT))
-                if not floating_execution(relative):
-                    candidates.add(relative)
+                candidates.add(relative)
     prior = manifest(candidates)
-    run("deps01", [GO, "list", "-deps", "-test", "-json", *PACKAGES])
+    run("deps01", [GO, "list", "-deps", "-test", "-json", *VET_PACKAGES])
     raw = (out / "deps01.log").read_text()
     decoder = json.JSONDecoder()
     offset, rows = 0, []
@@ -119,15 +129,12 @@ def main():
             break
         row, offset = decoder.raw_decode(raw, offset)
         rows.append(row)
-    paths, local_packages, forbidden = {"go.mod", "go.sum"}, [], []
+    paths, local_packages = {"go.mod", "go.sum"}, []
     for row in rows:
         directory = Path(row.get("Dir", "/"))
         if not directory.is_relative_to(ROOT):
             continue
-        package = str(directory.relative_to(ROOT))
         local_packages.append(row["ImportPath"])
-        if floating_execution(package + "/"):
-            forbidden.append(row["ImportPath"])
         for field in SOURCE_FIELDS:
             for item in row.get(field, []):
                 path = directory / item
@@ -135,12 +142,12 @@ def main():
                     paths.add(str(path.relative_to(ROOT)))
     missing = sorted(paths - prior.keys())
     save("deps01-closure.json", dict(
-        packages=PACKAGES, local_packages=local_packages, input_count=len(paths),
-        forbidden_execution_implementation=forbidden, missing_pre_discovery_inputs=missing,
+        packages=PACKAGES, vet_packages=VET_PACKAGES, local_packages=local_packages, input_count=len(paths),
+        missing_pre_discovery_inputs=missing,
         top_tests=TOPS, tool_rejection_subtests=TOOL_REJECTIONS,
     ))
-    if forbidden or missing:
-        raise RuntimeError("test dependency reached floating or unbound source; no test started")
+    if missing:
+        raise RuntimeError("test dependency reached unbound source; no test started")
     before = {name: prior[name] for name in sorted(paths)}
     after = manifest(paths)
     save("deps01-inputs-before.json", before)
@@ -159,7 +166,7 @@ def main():
     save("unit01-selection.json", dict(required=required, passed=passed, all_required_passed=all(name in passed for name in required)))
     if any(name not in passed for name in required):
         raise RuntimeError("expected selected test did not pass")
-    run("vet01", [GO, "vet", "-p", "1", *PACKAGES], after)
+    run("vet01", [GO, "vet", "-p", "1", *VET_PACKAGES], after)
 
 
 if __name__ == "__main__":
