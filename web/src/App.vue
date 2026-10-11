@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, provide, shallowRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import KnowledgeTextDialog from './components/knowledge/KnowledgeTextDialog.vue'
+import { createKnowledgeText, knowledgeTextKey } from './composables/useKnowledgeText'
 import AppShell from './components/layout/AppShell.vue'
 import UiButton from './components/ui/UiButton.vue'
 import UiState from './components/ui/UiState.vue'
@@ -20,6 +22,7 @@ import {
   installTaskNavigation,
   installAgentNavigation,
   installProjectVariablesNavigation,
+  installKnowledgeTextNavigation,
   installProjectNavigation,
   installProjectModelSettingsNavigation,
 } from './router/auth'
@@ -70,6 +73,9 @@ const stopTaskNavigation = installTaskNavigation(router, tasks)
 const variables = createProjectVariables(auth, projects)
 provide(projectVariablesKey, variables)
 const stopVariablesNavigation = installProjectVariablesNavigation(router, variables)
+const knowledgeText = createKnowledgeText(auth, projects)
+provide(knowledgeTextKey, knowledgeText)
+const stopKnowledgeTextNavigation = installKnowledgeTextNavigation(router, knowledgeText)
 const agents = createProjectAgents(auth, projects)
 provide(projectAgentsKey, agents)
 const stopAgentNavigation = installAgentNavigation(router, agents)
@@ -131,6 +137,7 @@ provide(systemOutboundPolicyKey, outboundPolicy)
 const stopOutboundNavigation = installOutboundPolicyNavigation(router, outboundPolicy)
 async function logout() {
   if (
+    (await knowledgeText.confirmLeave()) &&
     (await variables.confirmLeave()) &&
     (await agents.confirmLeave()) &&
     (await tasks.confirmLeave()) &&
@@ -174,6 +181,7 @@ watch(
 onMounted(() => {
   projects.afterNavigation(route.fullPath, '')
   tasks.afterNavigation(route.fullPath)
+  knowledgeText.afterNavigation(route.fullPath)
   variables.afterNavigation(route.fullPath)
   agents.afterNavigation(route.fullPath)
   projectModels.afterNavigation(route.fullPath, '')
@@ -191,6 +199,8 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('visibilitychange', refreshVisible)
   window.removeEventListener('pageshow', refreshVisible)
+  stopKnowledgeTextNavigation()
+  knowledgeText.dispose()
   stopVariablesNavigation()
   variables.dispose()
   stopAgentNavigation()
@@ -264,9 +274,18 @@ onUnmounted(() => {
     </div>
   </AppShell>
   <RouterView v-else />
-  <UiDialog :open="variables.confirmation.open" :title="variables.confirmation.title" @update:open="!$event && variables.finishConfirmation(false)">
+  <UiDialog
+    :open="variables.confirmation.open"
+    :title="variables.confirmation.title"
+    @update:open="!$event && variables.finishConfirmation(false)"
+  >
     <p>{{ variables.confirmation.message }}</p>
-    <template #footer><UiButton variant="ghost" @click="variables.finishConfirmation(false)">取消</UiButton><UiButton @click="variables.finishConfirmation(true)">{{ variables.confirmation.label }}</UiButton></template>
+    <template #footer
+      ><UiButton variant="ghost" @click="variables.finishConfirmation(false)">取消</UiButton
+      ><UiButton @click="variables.finishConfirmation(true)">{{
+        variables.confirmation.label
+      }}</UiButton></template
+    >
   </UiDialog>
   <UiDialog
     :open="tasks.confirmation.open"
@@ -338,6 +357,7 @@ onUnmounted(() => {
       <UiButton @click="entry.finishConfirmation(true)">放弃并离开</UiButton>
     </template>
   </UiDialog>
+  <KnowledgeTextDialog :editor="knowledgeText" />
 </template>
 <style scoped>
 .authentication-shell :deep(.system-nav) {

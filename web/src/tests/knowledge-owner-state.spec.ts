@@ -303,7 +303,11 @@ describe('Knowledge Human Session and actual Cookie owner', () => {
       f.intercept((path, init) =>
         path.startsWith(`${base}/${id(20)}/content`)
           ? Promise.resolve(
-              new Response(stream, { headers: { 'Content-Type': 'application/json' } }),
+              // EOF already completes a successful body; the outer-cancel case
+              // must take a real early-rejection path before acquiring a reader.
+              new Response(stream, {
+                headers: { 'Content-Type': held === 'outer' ? 'text/plain' : 'application/json' },
+              }),
             )
           : f.normal(path, init),
       )

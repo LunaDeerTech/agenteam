@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
+import { useKnowledgeText } from '../../composables/useKnowledgeText'
+import type { KnowledgeDocument } from '../../api/knowledge-owner'
 import KnowledgeRenameDialog from '../../components/knowledge/KnowledgeRenameDialog.vue'
 import { useKnowledgeRename } from '../../composables/useKnowledgeRename'
 import KnowledgeDocumentTree from '../../components/knowledge/KnowledgeDocumentTree.vue'
@@ -21,6 +23,17 @@ const location = computed(() => {
 const owner = useKnowledgeOwner(undefined, workspace, location),
   state = owner.state
 const rename = useKnowledgeRename(owner, workspace)
+const textEditor = useKnowledgeText()
+const detachText = textEditor.attachReader(owner)
+async function createText(parent: KnowledgeDocument | null = null) {
+  if (await rename.permitNavigation()) await textEditor.openCreate(parent)
+}
+async function editText() {
+  if (state.document && (await rename.permitNavigation())) await textEditor.openEdit(state.document)
+}
+async function renameText() {
+  if (await textEditor.permitNavigation()) rename.open()
+}
 const stopNavigation = installKnowledgeNavigation(useRouter(), {
   confirmLeave: rename.permitNavigation,
 })
@@ -53,7 +66,11 @@ const creator = computed(() => {
       : `${value.agent_id} / ${value.execution_id}`
 })
 async function select(id: string) {
-  if (id !== state.selected && !(await rename.permitNavigation())) return
+  if (
+    id !== state.selected &&
+    (!(await rename.permitNavigation()) || !(await textEditor.permitNavigation()))
+  )
+    return
   const fromDrawer = drawer.value
   owner.select(id)
   drawer.value = false
@@ -62,7 +79,7 @@ async function select(id: string) {
 }
 const cancel = () => owner.cancel()
 async function leave() {
-  if (!(await rename.permitNavigation())) return false
+  if (!(await rename.permitNavigation()) || !(await textEditor.permitNavigation())) return false
   cancel()
   return true
 }
@@ -73,6 +90,7 @@ onMounted(async () => {
   if (owner.visible.value) heading.value?.focus()
 })
 onBeforeUnmount(() => {
+  detachText()
   stopNavigation()
   rename.dispose()
   owner.dispose()
@@ -86,9 +104,17 @@ onBeforeUnmount(() => {
       <UiButton class="drawer-trigger" :disabled="!owner.visible.value" @click="drawer = true"
         >文档树</UiButton
       >
-      <UiButton :disabled="owner.blocked.value" @click="owner.refreshTree()">重读文档树</UiButton>
+      <UiButton :disabled="!textEditor.canOpen.value" @click="createText()">新建文本</UiButton>
+      <UiButton
+        :disabled="owner.blocked.value || textEditor.state.open"
+        @click="owner.refreshTree()"
+        >重读文档树</UiButton
+      >
       <UiButton v-if="owner.busy.value" @click="cancel">停止本次读取</UiButton>
     </header>
+    <p v-if="!textEditor.state.open && textEditor.state.denied" role="status">
+      {{ textEditor.state.message }}
+    </p>
     <UiState v-if="!owner.visible.value" kind="loading" title="正在确认知识库访问身份" />
     <div v-else class="knowledge-layout">
       <aside class="desktop-tree" aria-label="文档目录">
@@ -128,7 +154,20 @@ onBeforeUnmount(() => {
           </UiState>
           <template v-if="state.document">
             <div class="document-toolbar">
-              <UiButton :disabled="!rename.canOpen.value" @click="rename.open()">改名</UiButton>
+              <UiButton
+                :disabled="!rename.canOpen.value || textEditor.pending.value"
+                @click="renameText()"
+                >改名</UiButton
+              >
+              <UiButton :disabled="!textEditor.canOpen.value" @click="createText(state.document)"
+                >新建子文档</UiButton
+              >
+              <UiButton
+                v-if="state.document.source_kind === 'text'"
+                :disabled="!textEditor.canOpen.value"
+                @click="editText()"
+                >编辑正文</UiButton
+              >
               <UiBadge
                 :tone="state.document.indexing_status === 'failed' ? 'warning' : 'neutral'"
                 >{{ indexLabels[state.document.indexing_status] }}</UiBadge

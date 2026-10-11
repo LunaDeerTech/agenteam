@@ -505,6 +505,16 @@ export function useKnowledgeOwner(
       enqueue({ kind: 'selection', target: receipt.id })
       return true
     },
+    refreshAfterText(receipt: KnowledgeDocument, previousParent: string | null) {
+      if (!live() || blocked.value || receipt.project_id !== scope?.projectID) return false
+      const parents = new Set<string | null>([null, previousParent, receipt.parent_document_id])
+      renameRefresh = { target: receipt.id, minimum: receipt.content_version, parents }
+      for (const parent of parents) setLevel(emptyLevel(parent, 'waiting'))
+      if (receipt.parent_document_id && !state.expanded.includes(receipt.parent_document_id))
+        state.expanded = Object.freeze([...state.expanded, receipt.parent_document_id])
+      enqueue({ kind: 'selection', target: receipt.id })
+      return true
+    },
     invalidateCurrent(projectID: string, documentID: string) {
       if (!live() || scope?.projectID !== projectID || state.selected !== documentID) return
       retireRead()

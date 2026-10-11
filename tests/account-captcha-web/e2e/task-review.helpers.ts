@@ -162,6 +162,7 @@ async function observeBrowserIO(
     let originalSprintCreate: any;
     let originalMilestoneCreate: any;
     const originalVariableWrites: any[] = [];
+    const originalTextWrites: any[] = [];
     const tails = new Set<Promise<void>>();
     const restorers: (() => void)[] = [];
     let retired = false,
@@ -330,6 +331,11 @@ async function observeBrowserIO(
               progress.agentID === source?.agent,
           });
         }
+        if (kind === "knowledgeText.write") {
+          const original = {call, project: args[0], intent: JSON.parse(JSON.stringify(args[1]))};
+          originalTextWrites.push(original);
+          writeInputs.set(call, original);
+        }
         if (kind === "variable.create" || kind === "variable.update") {
           const original = {
             call,
@@ -399,6 +405,12 @@ async function observeBrowserIO(
               current() && (kind === "restore" || before === identity());
             identities.set(call, identity());
             call.not_busy = auth.state.busy === false;
+            if (kind === "knowledgeText.write") {
+              const original = writeInputs.get(call), progress = auth.knowledgeText.progress;
+              call.result_current = progress?.phase === "confirmed" &&
+                progress.projectID === original.project && progress.documentID === original.intent.document_id &&
+                progress.command === original.intent.command && progress.receipt === value.document;
+            }
             if (kind === "variable.create" || kind === "variable.update") {
               const original = writeInputs.get(call);
               const progress = auth.projectVariables.progress;
@@ -468,6 +480,7 @@ async function observeBrowserIO(
         skillsTarget: string | undefined,
         milestoneCreate: boolean,
         variableWrites: boolean,
+        knowledgeTextWrites: boolean,
       ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
@@ -496,6 +509,17 @@ async function observeBrowserIO(
               throw Error("SKILL_DETAIL_CONSUMER_SCOPE");
             return "/api/v1/projects/" + project + "/skills/" + skillsTarget;
           });
+        } else if (knowledgeTextWrites) {
+          const prefix = "/api/v1/projects/" + project + "/knowledge/documents";
+          for (const method of ["children", "get", "ancestors", "readContent"])
+            consumer(auth.knowledge, method, "knowledge." + method, (a) => {
+              if (a[0] !== project) throw Error("KNOWLEDGE_TEXT_READ_SCOPE");
+              return prefix + (method === "children" ? "/children" : "/" + a[1] + (method === "get" ? "" : method === "ancestors" ? "/ancestors" : "/content"));
+            });
+          consumer(auth.knowledgeText, "start", "knowledgeText.write", (a) => {
+            if (a[0] !== project || !["create", "update"].includes(a[1]?.command)) throw Error("KNOWLEDGE_TEXT_WRITE_SCOPE");
+            return prefix + "/" + a[1].document_id + (a[1].command === "create" ? "/create-text" : "/replace-text");
+          }, "POST");
         } else if (variableWrites) {
           for (const method of ["list", "get"])
             consumer(auth.projectVariables, method, "variable." + method, (a) => {
@@ -779,6 +803,7 @@ async function observeBrowserIO(
         originalSprintCreate = undefined;
         originalMilestoneCreate = undefined;
         originalVariableWrites.length = 0;
+        originalTextWrites.length = 0;
         return this.snapshot();
       },
     };
@@ -997,6 +1022,10 @@ async function observeBrowserIO(
                 expected_version: original.source.input.expected_version,
                 request: original.source.input.request,
               });
+          }
+          if (call.kind === "knowledgeText.write") {
+            matches = originalTextWrites.every(old => old === original || (typeof old.key === "string" && old.key !== key)) && equal(parsed, original.intent.request);
+            if (matches) original.key = key;
           }
           if (call.kind === "variable.create") {
             const request = parsed?.request;
@@ -1229,6 +1258,7 @@ async function observeBrowserIO(
               // Match the production public DTO, not the richer wire shape.
               // The untouched original bytes remain bound by row.digest.
               const kind = calls.find((call) => call.id === row.call_id)?.kind;
+              if (kind === "knowledge.ancestors") parsed = parsed.items;
               if (kind === "work.sprint") {
                 const { started_by, completed_by, ...sprint } = parsed;
                 parsed = sprint;
@@ -1409,7 +1439,8 @@ export type TaskObservationProfile = {
     | "sprint-create"
     | "skill-owner-read"
     | "milestone-create"
-    | "project-variables";
+    | "project-variables"
+    | "knowledge-text";
   endpoint: (request: Request) => string | undefined;
   cut?: "transfer" | "create" | "update" | "start";
   lookupCommand:
@@ -1433,6 +1464,7 @@ export type TaskObservationProfile = {
   skillsReads?: true;
   milestoneCreateWrites?: true;
   variableWrites?: true;
+  knowledgeTextWrites?: true;
 };
 
 export function observeReview(page: Page, data: ReviewMaterial) {
@@ -1637,6 +1669,12 @@ export async function observeTaskRequests(
       data.mode !== "create-update-and-clear")
   )
     throw Error("PROJECT_VARIABLE_WRITE_PROFILE_MISMATCH");
+  if (profile.knowledgeTextWrites &&
+      (profile.prefix !== "knowledge-text" || profile.lookupCommand !== null || profile.cut !== undefined ||
+       data.mode !== "create-and-replace" || profile.intakeWrites || profile.agentConfiguration || profile.editWrites ||
+       profile.timelineReads || profile.agentEditWrites || profile.agentModelPolicy || profile.sprintStartWrites ||
+       profile.sprintCreateWrites || profile.skillsReads || profile.milestoneCreateWrites || profile.variableWrites))
+    throw Error("KNOWLEDGE_TEXT_PROFILE_MISMATCH");
   const entries: Entry[] = [];
   const events: Record<string, unknown>[] = [];
   const browserEvents: BrowserDiagnostic[] = [];
@@ -1829,6 +1867,7 @@ export async function observeTaskRequests(
           skillsTarget,
           milestoneCreate,
           variableWrites,
+          knowledgeTextWrites,
         }) => {
           const module = await import(/* @vite-ignore */ binding.asset);
           const useSession = module[binding.exportName];
@@ -1850,6 +1889,7 @@ export async function observeTaskRequests(
             skillsTarget,
             milestoneCreate,
             variableWrites,
+            knowledgeTextWrites,
           );
         },
         {
@@ -1870,6 +1910,7 @@ export async function observeTaskRequests(
           skillsTarget: profile.skillsReads ? data.skill_id : undefined,
           milestoneCreate: profile.milestoneCreateWrites === true,
           variableWrites: profile.variableWrites === true,
+          knowledgeTextWrites: profile.knowledgeTextWrites === true,
         },
       );
       await route.continue();
@@ -2075,6 +2116,15 @@ export async function observeTaskRequests(
     return profile.variableWrites && entry.request.method() === "GET" &&
       ["variables", "variable"].includes(entry.name);
   }
+  function knowledgeTextWrite(entry: Entry) {
+    if (!profile.knowledgeTextWrites || entry.request.method() !== "POST") return false;
+    const url = new URL(entry.request.url()), prefix = `/api/v1/projects/${data.project_id}/knowledge/documents/`;
+    return !url.search && ["create", "update"].includes(entry.name) && url.pathname.startsWith(prefix) &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\/(create-text|replace-text)$/.test(url.pathname.slice(prefix.length));
+  }
+  function knowledgeTextReadEntry(entry: Entry) {
+    return profile.knowledgeTextWrites && entry.request.method() === "GET" && ["documents", "document", "ancestors", "content"].includes(entry.name);
+  }
   function joint(entry: Entry, proof: any) {
     const edit = editWrite(entry);
     const agentEdit = agentEditWrite(entry);
@@ -2082,6 +2132,7 @@ export async function observeTaskRequests(
     const sprintCreate = sprintCreateWrite(entry);
     const milestoneCreate = milestoneCreateWrite(entry);
     const variable = variableWrite(entry);
+    const knowledgeText = knowledgeTextWrite(entry);
     const write =
       intakeWrite(entry) ||
       agentWrite(entry) ||
@@ -2090,7 +2141,8 @@ export async function observeTaskRequests(
       sprint ||
       sprintCreate ||
       milestoneCreate ||
-      variable;
+      variable ||
+      knowledgeText;
     const method =
       (edit || agentEdit || variable) && entry.name === "update"
         ? "PATCH"
@@ -2167,9 +2219,12 @@ export async function observeTaskRequests(
       );
     if (variablePageRead(entry))
       expect(c.kind).toBe(entry.name === "variables" ? "variable.list" : "variable.get");
+    if (knowledgeTextReadEntry(entry)) expect(c.kind).toBe({documents:"knowledge.children", document:"knowledge.get", ancestors:"knowledge.ancestors", content:"knowledge.readContent"}[entry.name]);
     if (write) {
-      if (sprintCreate || milestoneCreate || variable) expect(c.result_current).toBe(true);
-      const kinds: Record<string, string> = variable
+      if (sprintCreate || milestoneCreate || variable || knowledgeText) expect(c.result_current).toBe(true);
+      const kinds: Record<string, string> = knowledgeText
+        ? { create: "knowledgeText.write", update: "knowledgeText.write" }
+        : variable
         ? { create: "variable.create", update: "variable.update" }
         : milestoneCreate
         ? { create: "milestone.create" }
@@ -2295,6 +2350,7 @@ export async function observeTaskRequests(
           sprintCreateWrite(entry) ||
           milestoneCreateWrite(entry) ||
           variableWrite(entry) ||
+          knowledgeTextWrite(entry) ||
           agentWrite(entry)) &&
         response?.status() === 200 &&
         entry.failure === "net::ERR_ABORTED"
@@ -2355,6 +2411,8 @@ export async function observeTaskRequests(
         milestonePageRead(entry) ||
         variableWrite(entry) ||
         variablePageRead(entry) ||
+        knowledgeTextWrite(entry) ||
+        knowledgeTextReadEntry(entry) ||
         sprintPageRead(entry) ||
         agentWrite(entry) ||
         agentPageRead(entry) ||
@@ -2371,6 +2429,7 @@ export async function observeTaskRequests(
           >;
           entry.body = detail;
         }
+        if (knowledgeTextReadEntry(entry) && entry.name === "ancestors") entry.body = (entry.body as any).items;
         expect(consumed).toEqual(entry.body);
         entry.body = consumed;
       }
@@ -2435,6 +2494,12 @@ export async function observeTaskRequests(
       originals[0]!.headers()["idempotency-key"],
     );
     expect(dropped).toBe(1);
+  }
+  function knowledgeTextRead(name: "documents" | "document" | "ancestors" | "content", target?: string) {
+    expect(profile.knowledgeTextWrites).toBe(true);
+    const rows = entries.filter(e => e.name === name && e.checked && e.body && (!target || new URL(e.request.url()).pathname.includes("/" + target)));
+    expect(rows.length, "original Knowledge read must complete").toBeGreaterThan(0);
+    return rows.at(-1)!.body as Record<string, any>;
   }
   function variableRead(name: "variables" | "variable") {
     expect(profile.variableWrites).toBe(true);
@@ -2653,6 +2718,7 @@ export async function observeTaskRequests(
     skillsRead,
     milestoneRead,
     variableRead,
+    knowledgeTextRead,
     timelinePage,
     save,
     endDocument,

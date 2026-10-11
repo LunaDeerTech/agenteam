@@ -337,7 +337,9 @@ describe('Knowledge production page with the original Session and Project worksp
     }
     f.intercept(async (path, init) =>
       path.includes('/content?')
-        ? new Response(body, { headers: { 'Content-Type': 'application/json' } })
+        ? // Rejected media takes the real outer cancellation path; a successful
+          // body completed at EOF has no remaining cancellation to await.
+          new Response(body, { headers: { 'Content-Type': 'text/plain' } })
         : f.normal(path, init),
     )
     await clickParent()

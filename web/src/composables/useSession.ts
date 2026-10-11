@@ -1,8 +1,26 @@
 import {
-  createProjectVariablesAPI, captureProjectVariableCommand, captureProjectVariableCreate,
-  newProjectVariableID, projectVariableTarget, projectVariableBody,
-  type ProjectVariablesAPI, type ProjectVariableCommand, type ProjectVariableCreate,
-  type ProjectVariableUpdate, type ProjectVariableQuery, type ProjectVariableReceipt,
+  createKnowledgeTextAPI,
+  captureKnowledgeText,
+  type KnowledgeTextAPI,
+  type KnowledgeTextIntent,
+  type KnowledgeTextCreate,
+  type KnowledgeTextReplace,
+  type KnowledgeTextResult,
+  type KnowledgeTextLookup,
+} from '../api/knowledge-text'
+import {
+  createProjectVariablesAPI,
+  captureProjectVariableCommand,
+  captureProjectVariableCreate,
+  newProjectVariableID,
+  projectVariableTarget,
+  projectVariableBody,
+  type ProjectVariablesAPI,
+  type ProjectVariableCommand,
+  type ProjectVariableCreate,
+  type ProjectVariableUpdate,
+  type ProjectVariableQuery,
+  type ProjectVariableReceipt,
   type ProjectVariableLookup,
 } from '../api/project-variables'
 import {
@@ -466,7 +484,8 @@ export type ProjectProgress = Readonly<{
   contextValid: boolean
   canRetryOriginal: boolean
 }>
-type KnowledgeCommandAction = 'knowledge-rename' | 'knowledge-lookup'
+type KnowledgeCommandAction =
+  'knowledge-rename' | 'knowledge-lookup' | 'knowledge-text-write' | 'knowledge-text-lookup'
 export type KnowledgeCommandProgress = Readonly<{
   projectID: string
   documentID: string
@@ -483,6 +502,19 @@ type KnowledgeCommandIntent = {
   csrf: string
   key: string
   payload: { input: KnowledgeRenameInput | null; body: string | null }
+  uncertain: boolean
+  keyConflict: boolean
+}
+export type KnowledgeTextProgress = KnowledgeCommandProgress &
+  Readonly<{ command: 'create' | 'update' }>
+type KnowledgeTextOriginal = {
+  projectID: string
+  documentID: string
+  command: 'create' | 'update'
+  identity: PersonalIdentity
+  csrf: string
+  key: string
+  payload: { input: KnowledgeTextIntent | null; body: string | null }
   uncertain: boolean
   keyConflict: boolean
 }
@@ -847,6 +879,7 @@ export function createSessionController(
     milestonePlanning?: WorkMilestonePlanningAPI
     sprintLifecycle?: WorkSprintLifecycleAPI
     skills?: SkillOwnerAPI
+    knowledgeText?: KnowledgeTextAPI
     knowledgeCommands?: KnowledgeCommandsAPI
   }> = {},
 ) {
@@ -857,6 +890,7 @@ export function createSessionController(
   const taskTimelineAPI = commandAPIs.taskTimeline ?? createWorkTaskTimelineAPI()
   const agentConfigurationAPI = commandAPIs.agentConfiguration ?? createAgentConfigurationAPI()
   const sprintLifecycleAPI = commandAPIs.sprintLifecycle ?? createWorkSprintLifecycleAPI()
+  const knowledgeTextAPI = commandAPIs.knowledgeText ?? createKnowledgeTextAPI()
   const knowledgeCommandsAPI = commandAPIs.knowledgeCommands ?? createKnowledgeCommandsAPI()
   const state = shallowReactive<PublicState>({
     phase: 'checking',
@@ -953,12 +987,16 @@ export function createSessionController(
   const isSprintLifecycleAction = (kind: Action): kind is SprintLifecycleAction =>
     Object.hasOwn(sprintLifecycleRevisions, kind)
   const variableRevisions: Record<ProjectVariableAction, number> = {
-    'variable-read': 0, 'variable-write': 0, 'variable-lookup': 0,
+    'variable-read': 0,
+    'variable-write': 0,
+    'variable-lookup': 0,
   }
   const isVariableAction = (kind: Action): kind is ProjectVariableAction =>
     Object.hasOwn(variableRevisions, kind)
   let variableIntent: ProjectVariableIntent | null = null
-  const variableState = shallowReactive<{ progress: Omit<ProjectVariableProgress, 'contextValid'> | null }>({ progress: null })
+  const variableState = shallowReactive<{
+    progress: Omit<ProjectVariableProgress, 'contextValid'> | null
+  }>({ progress: null })
   const milestonePlanningRevisions: Record<MilestonePlanningAction, number> = {
     'milestone-create': 0,
     'milestone-create-lookup': 0,
@@ -994,12 +1032,18 @@ export function createSessionController(
   const knowledgeCommandRevisions: Record<KnowledgeCommandAction, number> = {
     'knowledge-rename': 0,
     'knowledge-lookup': 0,
+    'knowledge-text-write': 0,
+    'knowledge-text-lookup': 0,
   }
   const isKnowledgeCommand = (kind: Action): kind is KnowledgeCommandAction =>
     Object.hasOwn(knowledgeCommandRevisions, kind)
   let knowledgeIntent: KnowledgeCommandIntent | null = null
   const knowledgeCommandState = shallowReactive<{
     progress: Omit<KnowledgeCommandProgress, 'contextValid' | 'canRetryOriginal'> | null
+  }>({ progress: null })
+  let knowledgeTextIntent: KnowledgeTextOriginal | null = null
+  const knowledgeTextState = shallowReactive<{
+    progress: Omit<KnowledgeTextProgress, 'contextValid' | 'canRetryOriginal'> | null
   }>({ progress: null })
   const isProjectAction = (kind: Action): kind is ProjectAction =>
     Object.hasOwn(projectRevisions, kind)
@@ -1179,6 +1223,7 @@ export function createSessionController(
       clearVariableState()
       clearSprintLifecycleState()
       clearKnowledgeCommand()
+      clearKnowledgeText()
       clearWorkReviewState()
       clearInvitationState()
       clearProviderState()
@@ -1249,6 +1294,7 @@ export function createSessionController(
       clearVariableState()
       clearSprintLifecycleState()
       clearKnowledgeCommand()
+      clearKnowledgeText()
       clearWorkReviewState()
       ++personalRevision
       personalContext.identity = Object.freeze({
@@ -1799,7 +1845,7 @@ export function createSessionController(
       | WorkReviewAction
       | SprintLifecycleAction
       | MilestonePlanningAction
-  | ProjectVariableAction
+      | ProjectVariableAction
       | KnowledgeCommandAction
       | AgentConfigurationAction
       | ProjectAuditAction
@@ -1863,7 +1909,8 @@ export function createSessionController(
       revision === revisionNow() &&
       sameIdentity(identity, personalContext.identity) &&
       (kind === 'personal' ||
-        (isVariableAction(kind) || isKnowledgeCommand(kind) ||
+        (isVariableAction(kind) ||
+        isKnowledgeCommand(kind) ||
         isMilestonePlanningAction(kind) ||
         isSprintLifecycleAction(kind) ||
         isAgentConfigurationAction(kind) ||
@@ -1945,21 +1992,21 @@ export function createSessionController(
           : isVariableAction(kind)
             ? variableFailure(op, current, identity, error)
             : isMilestonePlanningAction(kind) ||
-              isSprintLifecycleAction(kind) ||
-              isAgentConfigurationAction(kind) ||
-              isWorkReviewAction(kind)
-            ? projectFailure(identity, op, error)
-            : kind === 'knowledge-read' || kind === 'skill-read'
-              ? knowledgeFailure(current, error)
-              : isProjectModelAction(kind)
-                ? projectModelFailure(kind, current, error)
-                : isProjectAuditAction(kind)
-                  ? projectAuditFailure(current, error)
-                  : isProjectAction(kind)
-                    ? projectFailure(identity, op, error)
-                    : kind !== 'personal'
-                      ? systemFailure(identity, op, current, error)
-                      : personalFailure(identity, error)
+                isSprintLifecycleAction(kind) ||
+                isAgentConfigurationAction(kind) ||
+                isWorkReviewAction(kind)
+              ? projectFailure(identity, op, error)
+              : kind === 'knowledge-read' || kind === 'skill-read'
+                ? knowledgeFailure(current, error)
+                : isProjectModelAction(kind)
+                  ? projectModelFailure(kind, current, error)
+                  : isProjectAuditAction(kind)
+                    ? projectAuditFailure(current, error)
+                    : isProjectAction(kind)
+                      ? projectFailure(identity, op, error)
+                      : kind !== 'personal'
+                        ? systemFailure(identity, op, current, error)
+                        : personalFailure(identity, error)
         if (command && personalIntent === command) {
           if (command.unsettled || isUnknown(e) || e.problem?.code === 'IDEMPOTENCY_KEY_REUSED') {
             command.checked = false
@@ -4036,13 +4083,22 @@ export function createSessionController(
     if (owner?.kind === 'variable-read') owner.abandon?.()
   }
   function clearVariableState() {
-    for (const kind of Object.keys(variableRevisions) as ProjectVariableAction[]) ++variableRevisions[kind]
-    if (variableIntent) { variableIntent.command = null; variableIntent.body = null }
+    for (const kind of Object.keys(variableRevisions) as ProjectVariableAction[])
+      ++variableRevisions[kind]
+    if (variableIntent) {
+      variableIntent.command = null
+      variableIntent.body = null
+    }
     variableIntent = null
     variableState.progress = null
     if (owner && isVariableAction(owner.kind)) owner.abandon?.()
   }
-  function variableFailure(op: Operation, current: () => boolean, identity: PersonalIdentity, error: unknown) {
+  function variableFailure(
+    op: Operation,
+    current: () => boolean,
+    identity: PersonalIdentity,
+    error: unknown,
+  ) {
     const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
     // A late denial from another Project/read generation must not revoke a new scope.
     if (!current()) return e
@@ -4050,59 +4106,134 @@ export function createSessionController(
     if ([401, 403].includes(e.problem?.status ?? 0)) clearVariableState()
     return result
   }
-  function publishVariable(original: ProjectVariableIntent, phase: ProjectVariableProgress['phase'], receipt: ProjectVariableReceipt | null = null, observation: ProjectVariableProgress['observation'] = 'none') {
+  function publishVariable(
+    original: ProjectVariableIntent,
+    phase: ProjectVariableProgress['phase'],
+    receipt: ProjectVariableReceipt | null = null,
+    observation: ProjectVariableProgress['observation'] = 'none',
+  ) {
     const c = original.command
     if (!c) return
-    variableState.progress = Object.freeze({ projectID: c.projectID, targetID: projectVariableTarget(c), kind: c.kind, phase, receipt, observation })
+    variableState.progress = Object.freeze({
+      projectID: c.projectID,
+      targetID: projectVariableTarget(c),
+      kind: c.kind,
+      phase,
+      receipt,
+      observation,
+    })
   }
-  function performVariable(original: ProjectVariableIntent, lookup: boolean): Promise<ProjectVariableReceipt | ProjectVariableLookup> {
+  function performVariable(
+    original: ProjectVariableIntent,
+    lookup: boolean,
+  ): Promise<ProjectVariableReceipt | ProjectVariableLookup> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     const kind: ProjectVariableAction = lookup ? 'variable-lookup' : 'variable-write'
     const revision = variableRevisions[kind]
-    const live = () => variableIntent === original && !!original.command && projectContext(original) && revision === variableRevisions[kind]
+    const live = () =>
+      variableIntent === original &&
+      !!original.command &&
+      projectContext(original) &&
+      revision === variableRevisions[kind]
     if (!live()) return Promise.reject(new AccountFailure('invalid-input'))
     let dispatched = false
     if (!lookup) publishVariable(original, 'submitting')
-    return runAuthorized<ProjectVariableReceipt | ProjectVariableLookup>(original.identity, async (op, current) => {
-      const c = original.command
-      if (!c || !current() || !live()) throw new AccountFailure('cancelled')
-      if (JSON.stringify(projectVariableBody(c)) !== original.body) throw new AccountFailure('invalid-input')
-      dispatched = true
-      if (lookup) return projectVariablesAPI.lookup(c, original.csrf, original.key, op.abort.signal)
-      return c.kind === 'create'
-        ? projectVariablesAPI.create(c.projectID, c.request, original.csrf, original.key, op.abort.signal)
-        : projectVariablesAPI.update(c.projectID, c.targetID, c.expectedVersion, c.request, original.csrf, original.key, op.abort.signal)
-    }, undefined, kind).then(value => {
-      if (!live()) throw new AccountFailure('cancelled')
-      if ('status' in value && value.status !== 'committed') {
-        original.uncertain = true
-        publishVariable(original, 'uncertain', null, value.status)
-      } else publishVariable(original, 'confirmed', 'status' in value ? value.receipt : value, lookup ? 'committed' : 'none')
-      return value
-    }, error => {
-      const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
-      if (live()) {
-        const p = e.problem
-        const rejected = !dispatched || (!!p && ['not_started', 'not_committed'].includes(p.commit_state) && p.code !== 'IDEMPOTENCY_KEY_REUSED')
-        original.uncertain ||= lookup || !rejected
-        publishVariable(original, original.uncertain ? 'uncertain' : 'rejected', null, lookup ? 'failed' : 'none')
-      }
-      throw e
-    })
+    return runAuthorized<ProjectVariableReceipt | ProjectVariableLookup>(
+      original.identity,
+      async (op, current) => {
+        const c = original.command
+        if (!c || !current() || !live()) throw new AccountFailure('cancelled')
+        if (JSON.stringify(projectVariableBody(c)) !== original.body)
+          throw new AccountFailure('invalid-input')
+        dispatched = true
+        if (lookup)
+          return projectVariablesAPI.lookup(c, original.csrf, original.key, op.abort.signal)
+        return c.kind === 'create'
+          ? projectVariablesAPI.create(
+              c.projectID,
+              c.request,
+              original.csrf,
+              original.key,
+              op.abort.signal,
+            )
+          : projectVariablesAPI.update(
+              c.projectID,
+              c.targetID,
+              c.expectedVersion,
+              c.request,
+              original.csrf,
+              original.key,
+              op.abort.signal,
+            )
+      },
+      undefined,
+      kind,
+    ).then(
+      (value) => {
+        if (!live()) throw new AccountFailure('cancelled')
+        if ('status' in value && value.status !== 'committed') {
+          original.uncertain = true
+          publishVariable(original, 'uncertain', null, value.status)
+        } else
+          publishVariable(
+            original,
+            'confirmed',
+            'status' in value ? value.receipt : value,
+            lookup ? 'committed' : 'none',
+          )
+        return value
+      },
+      (error) => {
+        const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (live()) {
+          const p = e.problem
+          const rejected =
+            !dispatched ||
+            (!!p &&
+              ['not_started', 'not_committed'].includes(p.commit_state) &&
+              p.code !== 'IDEMPOTENCY_KEY_REUSED')
+          original.uncertain ||= lookup || !rejected
+          publishVariable(
+            original,
+            original.uncertain ? 'uncertain' : 'rejected',
+            null,
+            lookup ? 'failed' : 'none',
+          )
+        }
+        throw e
+      },
+    )
   }
   function startVariable(value: ProjectVariableCommand) {
     try {
       const identity = personalIdentity()
       if (owner || variableIntent || personalIntent || pending) throw new AccountFailure('busy')
       const command = captureProjectVariableCommand(value)
-      const original: ProjectVariableIntent = { identity, csrf: sessionCSRF, key: newKey(), command, body: JSON.stringify(projectVariableBody(command)), uncertain: false }
+      const original: ProjectVariableIntent = {
+        identity,
+        csrf: sessionCSRF,
+        key: newKey(),
+        command,
+        body: JSON.stringify(projectVariableBody(command)),
+        uncertain: false,
+      }
       variableIntent = original
       return performVariable(original, false)
-    } catch (error) { return Promise.reject(error) }
+    } catch (error) {
+      return Promise.reject(error)
+    }
   }
   function variableRead<T>(fn: (signal: AbortSignal) => Promise<T>) {
-    try { return runAuthorized(personalIdentity(), op => fn(op.abort.signal), undefined, 'variable-read') }
-    catch (error) { return Promise.reject(error) }
+    try {
+      return runAuthorized(
+        personalIdentity(),
+        (op) => fn(op.abort.signal),
+        undefined,
+        'variable-read',
+      )
+    } catch (error) {
+      return Promise.reject(error)
+    }
   }
   const projectVariables = {
     get progress(): ProjectVariableProgress | null {
@@ -4111,8 +4242,9 @@ export function createSessionController(
       const contextValid = !!variableIntent?.command && projectContext(variableIntent)
       return Object.freeze({ ...p, receipt: contextValid ? p.receipt : null, contextValid })
     },
-    list: (p: string, q: ProjectVariableQuery) => variableRead(signal => projectVariablesAPI.list(p, q, signal)),
-    get: (p: string, v: string) => variableRead(signal => projectVariablesAPI.get(p, v, signal)),
+    list: (p: string, q: ProjectVariableQuery) =>
+      variableRead((signal) => projectVariablesAPI.list(p, q, signal)),
+    get: (p: string, v: string) => variableRead((signal) => projectVariablesAPI.get(p, v, signal)),
     create(p: string, draft: Omit<ProjectVariableCreate, 'variable_id'>) {
       try {
         // Capture own fields before minting an identity; neither retries nor lookup regenerate it.
@@ -4120,15 +4252,28 @@ export function createSessionController(
         const d = shape(draft, ['name', 'description', 'value'])
         const request = captureProjectVariableCreate({ ...d, variable_id: newProjectVariableID() })
         return startVariable({ kind: 'create', projectID: p, request })
-      } catch (error) { return Promise.reject(error instanceof AccountFailure ? error : new AccountFailure('invalid-input')) }
+      } catch (error) {
+        return Promise.reject(
+          error instanceof AccountFailure ? error : new AccountFailure('invalid-input'),
+        )
+      }
     },
-    update: (p: string, v: string, expectedVersion: string, request: ProjectVariableUpdate) => startVariable({ kind: 'update', projectID: p, targetID: v, expectedVersion, request }),
+    update: (p: string, v: string, expectedVersion: string, request: ProjectVariableUpdate) =>
+      startVariable({ kind: 'update', projectID: p, targetID: v, expectedVersion, request }),
     checkOriginal() {
-      if (!variableIntent?.uncertain || variableState.progress?.phase !== 'uncertain') return Promise.reject(new AccountFailure('invalid-input'))
+      if (!variableIntent?.uncertain || variableState.progress?.phase !== 'uncertain')
+        return Promise.reject(new AccountFailure('invalid-input'))
       return performVariable(variableIntent, true)
     },
     editRejected() {
-      if (owner || !variableIntent || !projectContext(variableIntent) || variableIntent.uncertain || variableState.progress?.phase !== 'rejected') throw new AccountFailure('busy')
+      if (
+        owner ||
+        !variableIntent ||
+        !projectContext(variableIntent) ||
+        variableIntent.uncertain ||
+        variableState.progress?.phase !== 'rejected'
+      )
+        throw new AccountFailure('busy')
       clearVariableState()
     },
     finishConfirmed() {
@@ -6170,7 +6315,10 @@ export function createSessionController(
     }
   }
   function clearKnowledgeCommand() {
-    const retiring = owner && isKnowledgeCommand(owner.kind) ? owner : null
+    const retiring =
+      owner && (owner.kind === 'knowledge-rename' || owner.kind === 'knowledge-lookup')
+        ? owner
+        : null
     ++knowledgeCommandRevisions['knowledge-rename']
     ++knowledgeCommandRevisions['knowledge-lookup']
     clearKnowledgeCommandPayload(knowledgeIntent)
@@ -6303,7 +6451,8 @@ export function createSessionController(
     startRename(projectID: string, documentID: string, value: KnowledgeRenameInput) {
       try {
         const identity = personalIdentity()
-        if (owner || knowledgeIntent || personalIntent || pending) throw new AccountFailure('busy')
+        if (owner || knowledgeIntent || knowledgeTextIntent || personalIntent || pending)
+          throw new AccountFailure('busy')
         const input = captureKnowledgeRename(value)
         const original: KnowledgeCommandIntent = {
           projectID: captureKnowledgeID(projectID),
@@ -6343,6 +6492,212 @@ export function createSessionController(
       clearKnowledgeCommand()
     },
     abandon: clearKnowledgeCommand,
+  }
+  function clearKnowledgeTextPayload(original: KnowledgeTextOriginal | null) {
+    if (original) {
+      original.payload.input = null
+      original.payload.body = null
+    }
+  }
+  function clearKnowledgeText() {
+    const retiring =
+      owner && (owner.kind === 'knowledge-text-write' || owner.kind === 'knowledge-text-lookup')
+        ? owner
+        : null
+    ++knowledgeCommandRevisions['knowledge-text-write']
+    ++knowledgeCommandRevisions['knowledge-text-lookup']
+    clearKnowledgeTextPayload(knowledgeTextIntent)
+    knowledgeTextIntent = null
+    knowledgeTextState.progress = null
+    retiring?.abandon?.()
+  }
+  function publishKnowledgeText(
+    original: KnowledgeTextOriginal,
+    phase: KnowledgeTextProgress['phase'],
+    receipt: KnowledgeDocument | null = null,
+    observation: KnowledgeTextProgress['observation'] = 'none',
+  ) {
+    knowledgeTextState.progress = Object.freeze({
+      command: original.command,
+      projectID: original.projectID,
+      documentID: original.documentID,
+      phase,
+      receipt,
+      observation,
+    })
+  }
+  function performKnowledgeText(
+    original: KnowledgeTextOriginal,
+    lookup = false,
+  ): Promise<KnowledgeTextResult | KnowledgeTextLookup> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    if (knowledgeTextIntent !== original || !original.payload.input || !projectContext(original))
+      return Promise.reject(new AccountFailure('invalid-input'))
+    const kind: KnowledgeCommandAction = lookup ? 'knowledge-text-lookup' : 'knowledge-text-write'
+    const revision = knowledgeCommandRevisions[kind]
+    const live = () =>
+      knowledgeTextIntent === original &&
+      revision === knowledgeCommandRevisions[kind] &&
+      projectContext(original)
+    let dispatched = false
+    if (!lookup) publishKnowledgeText(original, 'submitting')
+    return runAuthorized<KnowledgeTextResult | KnowledgeTextLookup>(
+      original.identity,
+      async (op, current) => {
+        const input = original.payload.input
+        if (!input || !current() || !live()) throw new AccountFailure('cancelled')
+        if (JSON.stringify(input) !== original.payload.body)
+          throw new AccountFailure('invalid-input')
+        dispatched = true
+        try {
+          const write = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
+          return lookup
+            ? await knowledgeTextAPI.lookup(original.projectID, input, write)
+            : await knowledgeTextAPI.write(original.projectID, input, write)
+        } finally {
+          if (knowledgeTextIntent !== original) clearKnowledgeTextPayload(original)
+        }
+      },
+      undefined,
+      kind,
+    ).then(
+      (value) => {
+        if (!live()) throw new AccountFailure('cancelled')
+        if ('state' in value && value.state !== 'committed') {
+          publishKnowledgeText(original, 'uncertain', null, value.state)
+          return value
+        }
+        const receipt = 'state' in value ? value.receipt.document : value.document
+        publishKnowledgeText(original, 'confirmed', receipt, lookup ? 'committed' : 'none')
+        clearKnowledgeTextPayload(original)
+        knowledgeTextIntent = null
+        return value
+      },
+      (error: unknown) => {
+        const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (
+          knowledgeTextIntent === original &&
+          revision === knowledgeCommandRevisions[kind] &&
+          sameIdentity(original.identity, personalContext.identity)
+        ) {
+          const p = e.problem
+          const known =
+            !dispatched ||
+            (!!p &&
+              ['not_started', 'not_committed'].includes(p.commit_state) &&
+              [
+                'INVALID_ARGUMENT',
+                'VERSION_CONFLICT',
+                'INVALID_STATE',
+                'PROJECT_NOT_ACTIVE',
+                'NOT_FOUND',
+                'FORBIDDEN',
+                'RESOURCE_DELETED',
+              ].includes(p.code))
+          original.keyConflict ||= p?.code === 'IDEMPOTENCY_KEY_REUSED'
+          original.uncertain ||= lookup || !known || original.keyConflict
+          publishKnowledgeText(
+            original,
+            original.uncertain ? 'uncertain' : 'rejected',
+            null,
+            lookup ? 'failed' : 'none',
+          )
+        }
+        throw e
+      },
+    )
+  }
+  const knowledgeText = {
+    get progress(): KnowledgeTextProgress | null {
+      const value = knowledgeTextState.progress
+      if (!value) return null
+      const contextValid = !!knowledgeTextIntent && projectContext(knowledgeTextIntent)
+      return Object.freeze({
+        ...value,
+        contextValid,
+        canRetryOriginal:
+          !!knowledgeTextIntent?.payload.input &&
+          knowledgeTextIntent.uncertain &&
+          !knowledgeTextIntent.keyConflict &&
+          value.observation === 'not_observed' &&
+          contextValid &&
+          !state.busy,
+      })
+    },
+    start(projectID: string, value: KnowledgeTextIntent) {
+      try {
+        const identity = personalIdentity()
+        if (owner || knowledgeTextIntent || knowledgeIntent || personalIntent || pending)
+          throw new AccountFailure('busy')
+        const input = captureKnowledgeText(value)
+        const original: KnowledgeTextOriginal = {
+          projectID: captureKnowledgeID(projectID),
+          documentID: input.document_id,
+          command: input.command,
+          identity,
+          csrf: sessionCSRF,
+          key: newKey(),
+          payload: { input, body: JSON.stringify(input) },
+          uncertain: false,
+          keyConflict: false,
+        }
+        knowledgeTextIntent = original
+        return performKnowledgeText(original)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    startCreate(projectID: string, request: KnowledgeTextCreate) {
+      try {
+        return knowledgeText.start(
+          projectID,
+          captureKnowledgeText({ command: 'create', document_id: newTaskID(), request }),
+        )
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    startReplace(projectID: string, documentID: string, request: KnowledgeTextReplace) {
+      try {
+        return knowledgeText.start(
+          projectID,
+          captureKnowledgeText({ command: 'update', document_id: documentID, request }),
+        )
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    readCurrent(projectID: string, documentID: string) {
+      return knowledge
+        .readContent(projectID, documentID, { byte_offset: '0', max_bytes: 1048576 })
+        .then((value) => {
+          if (!('text' in value) || value.text.truncated)
+            throw new AccountFailure('invalid-response')
+          return value
+        })
+    },
+    checkOriginal() {
+      if (!knowledgeTextIntent?.uncertain || !projectContext(knowledgeTextIntent))
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performKnowledgeText(knowledgeTextIntent, true)
+    },
+    retryOriginal() {
+      if (!knowledgeTextIntent || !knowledgeText.progress?.canRetryOriginal)
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performKnowledgeText(knowledgeTextIntent)
+    },
+    editRejected() {
+      if (
+        owner ||
+        !knowledgeTextIntent ||
+        knowledgeTextIntent.uncertain ||
+        knowledgeTextState.progress?.phase !== 'rejected' ||
+        !projectContext(knowledgeTextIntent)
+      )
+        throw new AccountFailure('invalid-input')
+      clearKnowledgeText()
+    },
+    abandon: clearKnowledgeText,
   }
   function clearKnowledgeRead() {
     ++knowledgeRevision
@@ -7052,6 +7407,7 @@ export function createSessionController(
     skills,
     knowledge,
     knowledgeCommands,
+    knowledgeText,
     projectModelSettings,
     personal,
     system,

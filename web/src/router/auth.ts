@@ -223,6 +223,19 @@ export function installTaskNavigation(
     if (taskNavigation.get(router) === owner) taskNavigation.delete(router)
   }
 }
+const knowledgeTextNavigation = new WeakMap<
+  Router,
+  { confirmLeave: () => Promise<boolean>; afterNavigation: (path: string) => void }
+>()
+export function installKnowledgeTextNavigation(
+  router: Router,
+  owner: { confirmLeave: () => Promise<boolean>; afterNavigation: (path: string) => void },
+) {
+  knowledgeTextNavigation.set(router, owner)
+  return () => {
+    if (knowledgeTextNavigation.get(router) === owner) knowledgeTextNavigation.delete(router)
+  }
+}
 const knowledgeNavigation = new WeakMap<Router, { confirmLeave: () => Promise<boolean> }>()
 export function installKnowledgeNavigation(
   router: Router,
@@ -267,6 +280,11 @@ export function installAuthentication(router: Router, auth: SessionController = 
     // Ask before Session revalidation can temporarily unmount the dirty page.
     if (
       to.fullPath !== from.fullPath &&
+      !((await knowledgeTextNavigation.get(router)?.confirmLeave()) ?? true)
+    )
+      return false
+    if (
+      to.fullPath !== from.fullPath &&
       !((await knowledgeNavigation.get(router)?.confirmLeave()) ?? true)
     )
       return false
@@ -280,7 +298,11 @@ export function installAuthentication(router: Router, auth: SessionController = 
       !((await agentNavigation.get(router)?.confirmLeave(to.fullPath)) ?? true)
     )
       return false
-    if (to.fullPath !== from.fullPath && !((await projectVariablesNavigation.get(router)?.confirmLeave(to.fullPath)) ?? true)) return false
+    if (
+      to.fullPath !== from.fullPath &&
+      !((await projectVariablesNavigation.get(router)?.confirmLeave(to.fullPath)) ?? true)
+    )
+      return false
     if (to.meta.projectWorkspace && to.fullPath !== '/projects' && !projectRoute(to.fullPath))
       return {
         name: 'not-found',
@@ -373,8 +395,10 @@ export function installAuthentication(router: Router, auth: SessionController = 
   router.afterEach((to, from, failure) => {
     try {
       if (!failure) projectNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+      if (!failure) knowledgeTextNavigation.get(router)?.afterNavigation(to.fullPath)
       if (!failure) taskNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
-      if (!failure) projectVariablesNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+      if (!failure)
+        projectVariablesNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
       if (!failure) agentNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
       if (!failure) projectModelNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
       if (!failure)

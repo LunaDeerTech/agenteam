@@ -51,6 +51,16 @@
 
 窄屏树改覆盖侧栏，选中文档后收起；工具栏换行；预览适配内容宽度。长正文和代码在对应区域滚动。
 
-## 6. 相关架构
+## 6. 文本创建与正文编辑的当前交互
+
+当前文本入口提供纯文本与 Markdown：页首“新建文本”默认根层，详情“新建子文档”默认当前文档。创建时可从已读取的同项目目录选择父文档；服务端重新校验当前位置与权限。标题不自动修剪，正文可为空，保留空格和换行；完整编码 JSON 请求上限 1 MiB，而非字符数。
+
+“编辑正文”先读取当前完整文本和版本，不将分页阅读片段作为编辑基线；仅替换正文来源和媒体类型，保持当前标题、父文档。保存成功后重读当前元信息、正文、路径与相关目录，再显示确认反馈。已确认但重读失败只提供重读，不再次提交保存。
+
+版本冲突保留草稿与原版本；用户重读当前正文、核对并明确采用当前版本后，才能再次保存。结果不确定时保留原命令、目标 ID、body 和 key，只提供显式查询原保存结果；仅 Lookup 返回 not_observed 后允许明确重放原请求，查询本身不执行保存。同一 Session 检查期间隐藏编辑器并保留草稿与原查询入口；真实身份变化或失去访问权清除私有内容。切换文档、离页、关闭编辑器与退出登录均先处理未保存确认。
+
+正文始终作为文本展示，不把 Markdown 或 HTML 直接执行。上传、移动、删除、标题搜索和重试索引仍沿上文设计单独交付，此文本切片不宣称这些入口已实现。
+
+## 7. 相关架构
 
 [Knowledge Document Domain](../../architecture/knowledge-memory/knowledge-document-domain.md)、[Knowledge Indexing](../../architecture/knowledge-memory/knowledge-indexing.md)、[Object Storage](../../architecture/platform-infrastructure/object-storage.md)。正式查询、并发和清理的工程落实见[架构衔接](../architecture-follow-ups.md)，不重复改变已定目录规则。

@@ -73,11 +73,15 @@ npm run preview --prefix web
 
 本片不含删除、Secret、UI 原命令重放、Agent/Runner 环境注入或完整 Variables 生命周期；正常浏览器链不代真实权限/Unknown 全矩阵。生产 Project initializer 和 Central SPA 发布仍未由此完成，上述限定候选与真实正常链已独立接受，Git 集成由主线程收口。
 
-## Knowledge Owner 只读 UI
+## Knowledge Owner 文档 UI
 
 `/:username/:project_name/knowledge` 读取当前 Owner 的已有文档，`/knowledge/:document_id` 使用规范 UUIDv7 深链；仅在 Project Resolve→Get 和当前 Human Session 均成立后读子层、metadata、祖先及正文。树展开与选择分开，每层按 cursor 显式继续；祖先是当前路径，不是完整目录快照。正文按正式默认 65536 UTF-8 字节分段，只显示当前段，版本变化清空旧段；Markdown 安全显示源文本，PDF/DOCX 明确不可读，不调用解析、预览或来源获取。
 
 实现复用唯一 Cookie 请求 owner、现有 Project 工作区与 UiTree/Drawer。取消/切换不提前释放原 fetch/body/cancel 尾；新的页面观察与原请求完成分别管理。普通 Owner 无管理员门禁，局部拒绝不污染 System 状态。定向客户端/会话/页面检查及旧后端输入下的作者单正常链 `read03` 已通过，涵盖真实四 GET、树键盘、UTF-8 下一段和窄屏 Drawer；新主线Account/Secret根装配下 `read04` 同范围整体通过，另有三项独立App/Session/Workspace受控网络风险验证，具体边界见 [D12 UI 片段](../work-items/d12-knowledge-documents.md#owner-文档树与正文读取-ui限定读取范围)。默认生产 Project initializer 仍未绑定；真实测试只用隔离正式服务准备已有 Project，并实际 Stop/Drain 后供默认读取服务使用；测试静态托管不代表 SPA 生产发布。
+
+已有文档改名之外，当前提供根层/子文档的纯文本与 Markdown 创建、完整正文编辑及保存后当前 metadata/ancestors/content/目录回读。创建固定目标与原 key；替换只提交原版本和来源，不覆盖并发标题或父文档变化。完整写入 JSON 上限 1 MiB，原 Lookup 包装允许额外 84 B；不把分页片段作为完整编辑基线。版本冲突保留草稿，明确重读和采用当前版本后才能再次保存；Unknown 只显式查询与按原请求重放。同 Session checking/页面卸载保留草稿与原命令，真实身份变化或当前拒绝清除私有材料，已确认写的事实不被普通回读失败推翻。
+
+[文本 UI 正式卡与 recipe](../work-items/d12-knowledge-text-ui.md)记录定向状态/页面控制及真实普通 Owner 链：根 plain 与 Markdown child 各创建、编辑、回读，共四次写入，最终两文档均 v2；真实浅色 1440/深色 390、窄屏 Drawer 与焦点已有限独验。28 请求为 23 finished 与 5 个原 GET aborted（联合消费证明闭合），四 POST 全部 200/finished；浏览器 Lookup 为 0，不把正常链外推真实 Unknown/撤权矩阵。原 native01 旧构建资产残留、native02 窄屏 fixture FAIL 保留，native03 业务、七资源及原退出尾全部接受。完整 D12、上传/移动/删除 UI、生产 initializer 和 SPA 发布仍未由本片完成。
 
 ## Project Owner 工作区
 
