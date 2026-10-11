@@ -659,8 +659,9 @@ export function createSessionController(
   workReviewAPI: WorkReviewAPI = createWorkReviewAPI(),
   agentDirectoryAPI: AgentDirectoryAPI = createAgentDirectoryAPI(),
   taskPlanningAPI: WorkTaskPlanningAPI = createWorkTaskPlanningAPI(),
-  taskEditAPI: WorkTaskEditAPI = createWorkTaskEditAPI(),
+  workCommands: Readonly<{ edit?: WorkTaskEditAPI }> = {},
 ) {
+  const taskEditAPI = workCommands.edit ?? createWorkTaskEditAPI()
   const state = shallowReactive<PublicState>({
     phase: 'checking',
     user: null,
