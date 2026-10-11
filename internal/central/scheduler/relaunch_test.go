@@ -119,16 +119,16 @@ func (s *relaunchTestStore) Query(_ context.Context, query string, _ ...any) (*p
 func (s *relaunchTestStore) Exec(ctx context.Context, query string, args ...any) (pgconn.CommandTag, error) {
 	switch {
 	case strings.HasPrefix(query, "UPDATE agenteam_scheduler.task_runtimes SET"):
-		if len(args) != 10 || s.stagedRuntime == nil || args[9] != s.stagedRuntime[5] {
+		if len(args) != 12 || s.stagedRuntime == nil || args[9] != s.stagedRuntime[5] {
 			return pgconn.CommandTag{}, errors.New("runtime CAS lost original version")
 		}
-		s.stagedRuntime = relaunchRuntimeValues(args[2:9])
+		s.stagedRuntime = relaunchRuntimeValues(append(append([]any(nil), args[2:9]...), args[10], args[11]))
 		s.runtimeWrites++
 	case strings.HasPrefix(query, "INSERT INTO agenteam_scheduler.task_runtimes("):
-		if len(args) != 8 || s.stagedRuntime != nil {
+		if len(args) != 10 || s.stagedRuntime != nil {
 			return pgconn.CommandTag{}, errors.New("unexpected runtime insertion")
 		}
-		values := []any{args[2], args[3], args[4], args[5], args[6], int64(1), args[7]}
+		values := []any{args[2], args[3], args[4], args[5], args[6], int64(1), args[7], args[8], args[9]}
 		s.stagedRuntime = relaunchRuntimeValues(values)
 		s.runtimeWrites++
 	case strings.HasPrefix(query, "INSERT INTO agenteam_scheduler.relaunch_visits("):
@@ -150,7 +150,7 @@ func (s *relaunchTestStore) Exec(ctx context.Context, query string, args ...any)
 
 func relaunchRuntimeValues(values []any) []any {
 	out := append([]any(nil), values...)
-	for _, n := range []int{2, 3} {
+	for _, n := range []int{0, 1, 2, 3, 7, 8} {
 		if out[n] != nil {
 			text := out[n].(string)
 			out[n] = &text
@@ -304,7 +304,7 @@ func newRelaunchTest(t *testing.T, skip int64) *relaunchTestFixture {
 	eid := dispatchTestID[i.Execution](t, 700)
 	r.execution, r.status, r.outcome, r.attempts, r.version = &eid, Launched, Created, 1, 3
 	request := relaunchRequest(t, r, 800)
-	store := &relaunchTestStore{handoffTestStore: base, receipts: map[string][]any{}, runtime: []any{r.id.String(), eid.String(), nil, nil, int64(0), int64(1), r.updatedAt.Time()}}
+	store := &relaunchTestStore{handoffTestStore: base, receipts: map[string][]any{}, runtime: relaunchRuntimeValues([]any{r.id.String(), eid.String(), nil, nil, int64(0), int64(1), r.updatedAt.Time(), nil, nil})}
 	authority, err := NewPendingAuthority(store)
 	if err != nil {
 		t.Fatal(err)

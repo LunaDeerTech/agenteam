@@ -10,7 +10,7 @@ import (
 )
 
 func failureRequest(r *dispatchRecord) (wc.TaskLaunchFailureRequest, error) {
-	if !pendingFinalFailure(r) || !validDispatchOrigin(r) || r.launch.Purpose != "task/work" {
+	if !pendingFinalFailure(r) || !validDispatchOrigin(r) {
 		return wc.TaskLaunchFailureRequest{}, fault(f.InvalidState)
 	}
 	if r.relaunch != nil {

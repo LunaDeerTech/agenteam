@@ -96,7 +96,7 @@ func (a *PendingAuthority) RequireTaskLaunchInTx(ctx context.Context, tx f.Tx, a
 		return wc.TaskLaunchIntent{}, err
 	}
 	digest, _ := request.Digest()
-	if digest != r.digest || request.Meta.RequestID != r.launch.Meta.RequestID || request.Meta.IdempotencyKey != r.launch.Meta.IdempotencyKey || request.Meta.ExpectedVersion != nil || !validDispatchOrigin(r) || r.launch.Purpose != "task/work" {
+	if digest != r.digest || request.Meta.RequestID != r.launch.Meta.RequestID || request.Meta.IdempotencyKey != r.launch.Meta.IdempotencyKey || request.Meta.ExpectedVersion != nil || !validDispatchOrigin(r) {
 		return wc.TaskLaunchIntent{}, fault(f.Forbidden)
 	}
 	taskKey, _ := f.AggregateLock(f.TaskAggregate, r.task)

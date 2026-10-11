@@ -105,23 +105,20 @@ func (s *handoffTestStore) QueryRow(_ context.Context, query string, _ ...any) p
 }
 func (s *handoffTestStore) Exec(ctx context.Context, query string, args ...any) (pgconn.CommandTag, error) {
 	if strings.HasPrefix(query, "INSERT INTO agenteam_scheduler.task_runtimes(") || strings.HasPrefix(query, "UPDATE agenteam_scheduler.task_runtimes SET") {
-		var cooldown, purpose *string
-		if args[4] != nil {
-			v := args[4].(string)
-			cooldown = &v
-		}
-		if args[5] != nil {
-			v := args[5].(string)
-			purpose = &v
-		}
 		version, at := int64(1), args[7]
-		if len(args) == 10 {
+		var reviewD, reviewE any
+		if len(args) == 12 {
 			version, at = args[7].(int64), args[8]
+			reviewD, reviewE = args[10], args[11]
 			if s.stagedAssociationRuntime == nil || s.stagedAssociationRuntime[5] != args[9] {
 				return pgconn.NewCommandTag("UPDATE 0"), nil
 			}
+		} else if len(args) == 10 {
+			reviewD, reviewE = args[8], args[9]
+		} else {
+			return pgconn.CommandTag{}, errors.New("unexpected runtime arguments")
 		}
-		s.stagedAssociationRuntime = []any{args[2], args[3], cooldown, purpose, args[6], version, at}
+		s.stagedAssociationRuntime = relaunchRuntimeValues([]any{args[2], args[3], args[4], args[5], args[6], version, at, reviewD, reviewE})
 		return pgconn.NewCommandTag("INSERT 0 1"), ctx.Err()
 	}
 	if !strings.HasPrefix(query, "UPDATE agenteam_scheduler.dispatches SET") || len(args) != 22 || s.staged.version != f.Version(args[9].(int64)) {

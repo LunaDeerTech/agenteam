@@ -39,7 +39,14 @@ func (s *ProjectRunner) visitRelaunchTask(ctx context.Context, out ProjectTaskVi
 		out.Err = portError(err)
 		return out
 	}
-	req := wc.TaskRelaunchRequest{ProjectID: s.options.ProjectID, TaskID: facts.TaskID, AgentID: *facts.AssigneeAgentID, CurrentSprintID: facts.SprintID, ExpectedTaskVersion: facts.Version, DispatchID: id.String(), RequestID: request, Purpose: "task/work"}
+	purpose := "task/work"
+	if facts.State == wc.TaskStateInReview {
+		purpose = "task/review"
+	} else if facts.State != wc.TaskStateInProgress {
+		out.Err = fault(f.InvalidState)
+		return out
+	}
+	req := wc.TaskRelaunchRequest{ProjectID: s.options.ProjectID, TaskID: facts.TaskID, AgentID: *facts.AssigneeAgentID, CurrentSprintID: facts.SprintID, ExpectedTaskVersion: facts.Version, DispatchID: id.String(), RequestID: request, Purpose: purpose}
 	out.Action, out.RelaunchRequest, out.DispatchID = ProjectVisitRelaunch, &req, &id
 	out.Relaunch, out.Err = s.options.Relaunch.VisitRelaunch(ctx, req, s.options.LaunchPolicy)
 	return s.finishRelaunchVisit(ctx, out)
