@@ -1,12 +1,12 @@
 # D22：read-file 成功结果的单次 Transcript 消费
 
-状态：2026-10-11 首片源码实现中。基线为 Operation 已提交候选 `2d4`；其首次真实 PG 验收当时仍在运行，不把开发依赖算作已验收。当前未运行本片 Go、PG 或浏览器。
+状态：2026-10-11 首片源码已成形，尚未编译或运行 Go/PG。基线为 Operation 已提交候选 `2d4`；上游首次 native wholeFAIL（夹具旧阶段断言与原 TCP 门），原件保留，第二轮正在原资源窗口运行，未把开发依赖算作已验收。此片不通过更换 harness 绕过上游未验范围。
 
 ## 本片边界
 
 依据 [Agent Loop Canonical Transcript 与 checkpoint](../../architecture/agent-loop/README.md#6-canonical-transcript)、[Transcript 与 Model Context](../../architecture/agent-loop/transcript-context.md)、[ToolCall 持久事实](d22-execution-tool-call-facts.md)和现有 read-file Operation/Attempt 契约，将**已持久成功**的完整 read-file 结果一次性消费为原 Execution 的 Canonical Transcript 检查点。
 
-只处理实际 terminal succeeded、原 Attempt 已退休且完整结果 payload 已同事务落库的 read-file。running、Unknown、failed、cancelled 不产生本片 ToolResult，不把未知转成普通错误。没有 Runner 重发、第二 Model 请求、默认 initializer 绑定或真实 Model tools HTTP；原 OpenAI tools A/B STOP 保持。Skill ingress/cutoff 和多 Round 仍未交付，不能借本片进入下一轮或终态退休。
+只处理实际 Operation phase `succeeded`、terminal outcome `success`、原 Attempt 已退休且完整结果 payload 已同事务落库的 read-file。running、Unknown、failed、cancelled 不产生本片 ToolResult，不把未知转成普通错误。没有 Runner 重发、第二 Model 请求、默认 initializer 绑定或真实 Model tools HTTP；原 OpenAI tools A/B STOP 保持。Skill ingress/cutoff 和多 Round 仍未交付，不能借本片进入下一轮或终态退休。
 
 ## 同事务接缝
 
@@ -32,3 +32,7 @@ Execution 消费者在同一事务取得完整锁、借用真实结果并复核�
 基础控制核严格关联、错误/Unknown 拒绝、脱敏编码、同 Store/全锁/私有 plan、重复与候选观察。真实 PG 复用本树正式 Owner、原持久 ToolCall、认证 WSS 与 Workspace.Manager 的成功结果；Model 仍为明确的 JSONCaller 替身。两场景限定为正常完整结果/重复与新 consumer 恢复，以及事务末回滚零部分/实际 COMMIT 后回执丢失再仅观察。检查原 ToolCall/Round、旧 Transcript、Op/Attempt 和 wire/Model 次数不被消费改写。仍使用既有真实资源/Wait/TCP 退出门，不重复已接受的上游矩阵。
 
 尚未执行上述验证，不预写 PASS；所有 Git 操作和共享资源窗口由 root 统一处理。
+
+当前实现提供显式 `NewToolResultConsumer(actual *ToolCallDriver, results ReadFileResultAuthority)`，`Consume` / `Lookup` / `ResolveUnknown` 与 `Stop` / `Drain` / `Joined`；无默认装配。Execution 新纯控为 4 top（其中候选关联 8 sub），尚未执行。Tool 与 AgentLoop 另有作者专属控制，不将静态代码数量写作通过数量。
+
+两原 harness 仅新增 `TestExecutionToolResultConsumption` 的同包输入与精确 2 sub；资源、Wait、预算、自动 TCP baseline/delta 双空门不变。离线 `method01` 使用原门：1 正例、7 反例实际退出 0，剥新增 selector 后两文件完整 AST 与旧有效映射相同，4 项输入前后不变。原命令、PID、日志及结果位于 `output/ai/execution-tool-result-consumption/checks/method01/`；该结果不替代 Go 或真实链验收。
