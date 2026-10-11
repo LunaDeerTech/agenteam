@@ -60,7 +60,9 @@ CREATE TRIGGER tool_read_file_result_immutable BEFORE UPDATE OR DELETE
 -- the Tool owner must actually join the original call before writing them.
 -- +goose StatementBegin
 CREATE FUNCTION agenteam_tool.check_read_file_result() RETURNS trigger LANGUAGE plpgsql AS $$
-DECLARE target uuid; k text; ph text; active uuid; matching bigint; total bigint;
+DECLARE target agenteam_tool.operations.operation_id%TYPE;
+ k text; ph text; active agenteam_tool.operations.active_attempt_id%TYPE;
+ matching bigint; total bigint;
 BEGIN
  target:=NEW.operation_id;
  SELECT operation_kind,phase,active_attempt_id INTO STRICT k,ph,active

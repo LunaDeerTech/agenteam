@@ -43,10 +43,10 @@ func TestReadFileOperationInputClosedProfile(t *testing.T) {
 		t.Fatal("read-file metadata did not preserve only its exact reference profile")
 	}
 	for name, bad := range map[string][]byte{
-		"unknown-field": append(append([]byte{}, raw[:len(raw)-1]...), []byte(`,"unexpected":true}`)...),
+		"unknown-field":   append(append([]byte{}, raw[:len(raw)-1]...), []byte(`,"unexpected":true}`)...),
 		"duplicate-field": bytes.Replace(raw, []byte(`"format_version":1`), []byte(`"format_version":1,"format_version":1`), 1),
 		"second-document": append(append([]byte{}, raw...), []byte(`{}`)...),
-		"null-binding": bytes.Replace(raw, []byte(`"Binding":{`), []byte(`"Binding":null,"Binding":{`), 1),
+		"null-binding":    bytes.Replace(raw, []byte(`"Binding":{`), []byte(`"Binding":null,"Binding":{`), 1),
 	} {
 		t.Run(name, func(t *testing.T) {
 			if _, err := decodeReadFileInput(bad); err == nil {
@@ -56,9 +56,9 @@ func TestReadFileOperationInputClosedProfile(t *testing.T) {
 	}
 	for name, mutate := range map[string]func(*readFileInput){
 		"other-operation": func(v *readFileInput) { v.Operation = "execute-command" },
-		"other-revision": func(v *readFileInput) { v.Revision = "2" },
-		"host-path": func(v *readFileInput) { v.Target.WorkspaceName = "/tmp/private" },
-		"missing-target": func(v *readFileInput) { v.Target.Workspace = mount.WorkspaceID{} },
+		"other-revision":  func(v *readFileInput) { v.Revision = "2" },
+		"host-path":       func(v *readFileInput) { v.Target.WorkspaceName = "/tmp/private" },
+		"missing-target":  func(v *readFileInput) { v.Target.Workspace = mount.WorkspaceID{} },
 	} {
 		t.Run(name, func(t *testing.T) {
 			bad := v
@@ -77,11 +77,11 @@ func TestReadFileOperationFingerprintAndRecord(t *testing.T) {
 		t.Fatal(err)
 	}
 	for name, mutate := range map[string]func(*readFileInput){
-		"arguments": func(v *readFileInput) { v.Binding.ArgumentsDigest = digest([]byte("different")) },
-		"project": func(v *readFileInput) { v.Binding.Project = newOperationID[i.Project](t) },
-		"mount": func(v *readFileInput) { v.Target.Mount = newOperationID[i.Mount](t) },
-		"workspace": func(v *readFileInput) { v.Target.Workspace = newOperationID[mount.Workspace](t) },
-		"runner": func(v *readFileInput) { v.Target.Runner = newOperationID[runner.Runner](t) },
+		"arguments":      func(v *readFileInput) { v.Binding.ArgumentsDigest = digest([]byte("different")) },
+		"project":        func(v *readFileInput) { v.Binding.Project = newOperationID[i.Project](t) },
+		"mount":          func(v *readFileInput) { v.Target.Mount = newOperationID[i.Mount](t) },
+		"workspace":      func(v *readFileInput) { v.Target.Workspace = newOperationID[mount.Workspace](t) },
+		"runner":         func(v *readFileInput) { v.Target.Runner = newOperationID[runner.Runner](t) },
 		"workspace-name": func(v *readFileInput) { v.Target.WorkspaceName = "different-workspace" },
 	} {
 		t.Run(name, func(t *testing.T) {
