@@ -161,6 +161,7 @@ async function observeBrowserIO(
     let originalSprintStart: any;
     let originalSprintCreate: any;
     let originalMilestoneCreate: any;
+    const originalVariableWrites: any[] = [];
     const tails = new Set<Promise<void>>();
     const restorers: (() => void)[] = [];
     let retired = false,
@@ -329,6 +330,17 @@ async function observeBrowserIO(
               progress.agentID === source?.agent,
           });
         }
+        if (kind === "variable.create" || kind === "variable.update") {
+          const original = {
+            call,
+            project: args[0],
+            variable: kind === "variable.update" ? args[1] : undefined,
+            expectedVersion: kind === "variable.update" ? args[2] : undefined,
+            fields: JSON.parse(JSON.stringify(args[kind === "variable.create" ? 1 : 3])),
+          };
+          originalVariableWrites.push(original);
+          writeInputs.set(call, original);
+        }
         if (kind === "milestone.create") {
           if (originalMilestoneCreate) failed = true;
           originalMilestoneCreate = {
@@ -387,6 +399,17 @@ async function observeBrowserIO(
               current() && (kind === "restore" || before === identity());
             identities.set(call, identity());
             call.not_busy = auth.state.busy === false;
+            if (kind === "variable.create" || kind === "variable.update") {
+              const original = writeInputs.get(call);
+              const progress = auth.projectVariables.progress;
+              call.result_current =
+                progress?.phase === "confirmed" &&
+                progress.contextValid === true &&
+                progress.kind === (kind === "variable.create" ? "create" : "update") &&
+                progress.projectID === original.project &&
+                progress.targetID === (original.variable ?? original.request?.variable_id) &&
+                progress.receipt === value;
+            }
             if (kind === "milestone.create") {
               const progress = auth.workMilestonePlanning.progress;
               call.result_current =
@@ -444,6 +467,7 @@ async function observeBrowserIO(
         createMilestone: string | undefined,
         skillsTarget: string | undefined,
         milestoneCreate: boolean,
+        variableWrites: boolean,
       ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
@@ -472,6 +496,23 @@ async function observeBrowserIO(
               throw Error("SKILL_DETAIL_CONSUMER_SCOPE");
             return "/api/v1/projects/" + project + "/skills/" + skillsTarget;
           });
+        } else if (variableWrites) {
+          for (const method of ["list", "get"])
+            consumer(auth.projectVariables, method, "variable." + method, (a) => {
+              if (a[0] !== project ||
+                  (method === "list" && JSON.stringify(a[1]) !== '{"limit":50}'))
+                throw Error("PROJECT_VARIABLE_READ_SCOPE");
+              return "/api/v1/projects/" + project + "/variables" +
+                (method === "get" ? "/" + a[1] : "");
+            });
+          consumer(auth.projectVariables, "create", "variable.create", (a) => {
+            if (a[0] !== project) throw Error("PROJECT_VARIABLE_WRITE_SCOPE");
+            return "/api/v1/projects/" + project + "/variables";
+          }, "POST");
+          consumer(auth.projectVariables, "update", "variable.update", (a) => {
+            if (a[0] !== project) throw Error("PROJECT_VARIABLE_WRITE_SCOPE");
+            return "/api/v1/projects/" + project + "/variables/" + a[1];
+          }, "PATCH");
         } else if (!agentConfiguration && !editAgent) {
           const paths: Record<string, string> = {
             milestones: "milestones",
@@ -737,6 +778,7 @@ async function observeBrowserIO(
         originalSprintStart = undefined;
         originalSprintCreate = undefined;
         originalMilestoneCreate = undefined;
+        originalVariableWrites.length = 0;
         return this.snapshot();
       },
     };
@@ -955,6 +997,29 @@ async function observeBrowserIO(
                 expected_version: original.source.input.expected_version,
                 request: original.source.input.request,
               });
+          }
+          if (call.kind === "variable.create") {
+            const request = parsed?.request;
+            matches =
+              originalVariableWrites.length === 1 &&
+              Object.keys(parsed).join() === "request" &&
+              request !== null && typeof request === "object" && !Array.isArray(request) &&
+              /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(request.variable_id) &&
+              equal(request, { ...original.fields, variable_id: request.variable_id });
+            if (matches) {
+              original.key = key;
+              original.request = request;
+            }
+          } else if (call.kind === "variable.update") {
+            const creation = originalVariableWrites[0];
+            matches =
+              creation?.call.kind === "variable.create" &&
+              original.project === creation.project &&
+              original.variable === creation.request?.variable_id &&
+              originalVariableWrites.every((old) => old === original ||
+                (typeof old.key === "string" && old.key !== key)) &&
+              equal(parsed, { expected_version: original.expectedVersion, request: original.fields });
+            if (matches) original.key = key;
           }
           if (call.kind === "milestone.create") {
             const request = parsed?.request;
@@ -1343,7 +1408,8 @@ export type TaskObservationProfile = {
     | "sprint-start"
     | "sprint-create"
     | "skill-owner-read"
-    | "milestone-create";
+    | "milestone-create"
+    | "project-variables";
   endpoint: (request: Request) => string | undefined;
   cut?: "transfer" | "create" | "update" | "start";
   lookupCommand:
@@ -1366,6 +1432,7 @@ export type TaskObservationProfile = {
   sprintCreateWrites?: true;
   skillsReads?: true;
   milestoneCreateWrites?: true;
+  variableWrites?: true;
 };
 
 export function observeReview(page: Page, data: ReviewMaterial) {
@@ -1560,6 +1627,16 @@ export async function observeTaskRequests(
       data.mode !== "first-milestone-and-sprint-entry")
   )
     throw Error("MILESTONE_CREATE_PROFILE_MISMATCH");
+  if (
+    profile.variableWrites &&
+    (profile.intakeWrites || profile.agentConfiguration || profile.editWrites ||
+      profile.timelineReads || profile.agentEditWrites || profile.agentModelPolicy ||
+      profile.sprintStartWrites || profile.sprintCreateWrites || profile.skillsReads ||
+      profile.milestoneCreateWrites || profile.prefix !== "project-variables" ||
+      profile.lookupCommand !== null || profile.cut !== undefined ||
+      data.mode !== "create-update-and-clear")
+  )
+    throw Error("PROJECT_VARIABLE_WRITE_PROFILE_MISMATCH");
   const entries: Entry[] = [];
   const events: Record<string, unknown>[] = [];
   const browserEvents: BrowserDiagnostic[] = [];
@@ -1751,6 +1828,7 @@ export async function observeTaskRequests(
           createMilestone,
           skillsTarget,
           milestoneCreate,
+          variableWrites,
         }) => {
           const module = await import(/* @vite-ignore */ binding.asset);
           const useSession = module[binding.exportName];
@@ -1771,6 +1849,7 @@ export async function observeTaskRequests(
             createMilestone,
             skillsTarget,
             milestoneCreate,
+            variableWrites,
           );
         },
         {
@@ -1790,6 +1869,7 @@ export async function observeTaskRequests(
             : undefined,
           skillsTarget: profile.skillsReads ? data.skill_id : undefined,
           milestoneCreate: profile.milestoneCreateWrites === true,
+          variableWrites: profile.variableWrites === true,
         },
       );
       await route.continue();
@@ -1981,12 +2061,27 @@ export async function observeTaskRequests(
       ["skills-catalog", "skill"].includes(entry.name)
     );
   }
+  function variableWrite(entry: Entry) {
+    if (!profile.variableWrites) return false;
+    const url = new URL(entry.request.url());
+    const prefix = `/api/v1/projects/${data.project_id}/variables`;
+    if (url.search) return false;
+    return (entry.name === "create" && entry.request.method() === "POST" && url.pathname === prefix) ||
+      (entry.name === "update" && entry.request.method() === "PATCH" &&
+        url.pathname.startsWith(prefix + "/") &&
+        /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(url.pathname.slice(prefix.length + 1)));
+  }
+  function variablePageRead(entry: Entry) {
+    return profile.variableWrites && entry.request.method() === "GET" &&
+      ["variables", "variable"].includes(entry.name);
+  }
   function joint(entry: Entry, proof: any) {
     const edit = editWrite(entry);
     const agentEdit = agentEditWrite(entry);
     const sprint = sprintWrite(entry);
     const sprintCreate = sprintCreateWrite(entry);
     const milestoneCreate = milestoneCreateWrite(entry);
+    const variable = variableWrite(entry);
     const write =
       intakeWrite(entry) ||
       agentWrite(entry) ||
@@ -1994,9 +2089,10 @@ export async function observeTaskRequests(
       agentEdit ||
       sprint ||
       sprintCreate ||
-      milestoneCreate;
+      milestoneCreate ||
+      variable;
     const method =
-      (edit || agentEdit) && entry.name === "update"
+      (edit || agentEdit || variable) && entry.name === "update"
         ? "PATCH"
         : write
           ? "POST"
@@ -2069,9 +2165,13 @@ export async function observeTaskRequests(
       expect(c.kind).toBe(
         entry.name === "skills-catalog" ? "skills.list" : "skills.get",
       );
+    if (variablePageRead(entry))
+      expect(c.kind).toBe(entry.name === "variables" ? "variable.list" : "variable.get");
     if (write) {
-      if (sprintCreate || milestoneCreate) expect(c.result_current).toBe(true);
-      const kinds: Record<string, string> = milestoneCreate
+      if (sprintCreate || milestoneCreate || variable) expect(c.result_current).toBe(true);
+      const kinds: Record<string, string> = variable
+        ? { create: "variable.create", update: "variable.update" }
+        : milestoneCreate
         ? { create: "milestone.create" }
         : sprintCreate
           ? { create: "sprint.create" }
@@ -2194,6 +2294,7 @@ export async function observeTaskRequests(
           sprintWrite(entry) ||
           sprintCreateWrite(entry) ||
           milestoneCreateWrite(entry) ||
+          variableWrite(entry) ||
           agentWrite(entry)) &&
         response?.status() === 200 &&
         entry.failure === "net::ERR_ABORTED"
@@ -2252,6 +2353,8 @@ export async function observeTaskRequests(
         sprintCreateWrite(entry) ||
         milestoneCreateWrite(entry) ||
         milestonePageRead(entry) ||
+        variableWrite(entry) ||
+        variablePageRead(entry) ||
         sprintPageRead(entry) ||
         agentWrite(entry) ||
         agentPageRead(entry) ||
@@ -2332,6 +2435,12 @@ export async function observeTaskRequests(
       originals[0]!.headers()["idempotency-key"],
     );
     expect(dropped).toBe(1);
+  }
+  function variableRead(name: "variables" | "variable") {
+    expect(profile.variableWrites).toBe(true);
+    const rows = entries.filter((e) => e.name === name && e.checked && e.body);
+    expect(rows.length, "original Variable public read must complete").toBeGreaterThan(0);
+    return rows.at(-1)!.body as Record<string, any>;
   }
   function milestoneRead(
     name: "project" | "milestones" | "milestone" | "sprints" | "agents",
@@ -2543,6 +2652,7 @@ export async function observeTaskRequests(
     sprintCreateRead,
     skillsRead,
     milestoneRead,
+    variableRead,
     timelinePage,
     save,
     endDocument,

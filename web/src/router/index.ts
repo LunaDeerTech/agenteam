@@ -153,6 +153,11 @@ export const router = createRouter({
               component: () => import('../views/projects/ProjectSkillsView.vue'),
             },
             {
+              path: 'variables',
+              name: 'project-variables',
+              component: () => import('../views/projects/ProjectVariablesView.vue'),
+            },
+            {
               path: 'agents',
               name: 'project-agents',
               component: () => import('../views/projects/ProjectAgentsView.vue'),
