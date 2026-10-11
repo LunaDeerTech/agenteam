@@ -1,6 +1,6 @@
 # Execution 首个后继 RoundInput
 
-状态：独立树 `/workspace/agenteam-execution-round-input`，分支 `ai/execution-round-input-20261011`，组合起点 `2151a43f`。本片源码与必要控制在实施，尚未编译、测试或真实 PG 验收。上游 67 源码已冻结，真实 PG 仍在独立窗口验证；不能把 65/66 的交付或 67 基础通过算作本片通过。
+状态：独立树 `/workspace/agenteam-execution-round-input`，分支 `ai/execution-round-input-20261011`，组合起点 `2151a43f`。本片源码与必要控制已在 `ad458be1` 冻结并获有限静态接受，尚未编译、测试或真实 PG 验收。已组合 67 最新 PG 方法与 Project producer 静态修复；67 原 native01 wholeFAIL 保留，修后动态验证待独立窗口。不能把 65/66 的交付或 67 基础通过算作本片通过。
 
 依据：[执行编排的输入确定点](d01-contracts/execution-orchestration.md#技能变更与下一轮输入确定点)、[资源与技能](d01-contracts/resources-skills.md#分配目录与读取)。本片只把原 66 已提交结果与 67 durable pending 确定为首个后继输入；不启动 Model、Tool dispatch、waiting resume 或终态退休，不接生产默认，不解除 tools HTTP 及其它既有 STOP。
 
@@ -8,6 +8,7 @@
 
 - `skill_assignment_agent`：Execution `contract/round_input.go`、`round_input*.go`、原 current-authority 分派的窄兼容；前向迁移 `00068` 唯一写者；本卡与本树 current。
 - `skills_milestone_review`：Skill `contract/assignment_validation.go`、`assignment_validation.go` 与控制。提供 `NewAssignmentValidation(*skill.Authority)`，仅同原 Store/Tx SQL 事实，不创建 runtime/ref，不读其它域私表。
+- `skills_milestone_review/knowledge_delete_fixture`：`tests/projectvariable/execution_round_input_test.go` 真实组合 fixture 唯一写者；沿原 66 实际消费与 67 正式分配入口接线。
 - root：Git 保存/集成、后续测试/native 资源窗与联调作者分配；主审检查完整事务、旧模型兼容与真实验证范围。
 
 `NewRoundInputDeterminer(store, *execution.Authority, RoundInputDependencies)` 显式组合 Project gate、Agent ExecutionConfiguration、历史 InitialRoundBindingsReader 和 Skill RoundAssignmentValidation。它没有 Model/Tool runtime 端口、后台 worker 或全局注册。公开 DTO 不授执行权限。
@@ -36,6 +37,14 @@ RoundInput、dispositions、ControlInput/Transcript 和 Execution version CAS �
 
 已写必要纯控制：selection/cutoff/replacement、旧目录保留、codec/digest/克隆与重复 change 拒绝、foreign Tx/plan/full锁/expired witness、Unknown 不重发和 Stop 等原 Store 返回。它们只证明控制与选择行为，不替代真实 owner、流式 SQL、DDL、回滚或 PG 数据完整性；目前尚未运行。
 
-真实 PG 在 67 实际验证与组合输入固定后，由 root 授窗。复用 `newToolResultConsumptionFixture` 的原完整已消费 checkpoint，接真实 Owner、Agent/四引用 owner、已发布 Skill 与正式 Remove/Assign。检验 capture covered 不重复、B 替换 A、同 ID 重放、整体回滚、Unknown 原事实查询，以及 Assign/Determine 两个真实锁提交顺序。不得 SQL seed pending/receipt，不可空 pending 替代主链。
+[基础脚本](../../../.agent-state/execution-round-input/run-basic-checks.py)已完成 Python AST 与源码选择器静态核对，未调用 Go。选择 Skill 3 个和 Execution 4 个新 top，另选原 `TestExecutionToolCallCurrentWitnessIsOriginalAndScoped`、`TestExecutionRuntimeModelDoesNotGrantFromPublicCandidates` 两个授权回归；仅 vet Skill、Execution 及各自 contract 共 4 包。实际运行先分别以 `go list -race -deps -test -json` 和普通 `go list -deps -test -json` 收集 race/vet 输入闭包，绑定完整 migration embeds、实际同包测试、脚本与固定 Go 二进制；各阶段前后核输入不变。测试使用 `-race -p 1 -count=1 -timeout=10m -json` 和 9 个精确 top 的联合选择器，记录各子进程实际 wait/exit 与精确命中，不以编译或无测试替代通过。输出目录不允许覆盖，不自动重试。
+
+root 授予唯一 Go/cache 窗口且输入全部冻结后，在本树运行以下命令；若 `basic01` 已存在，改用下一未使用目录，不复用原件：
+
+```sh
+python3 -B .agent-state/execution-round-input/run-basic-checks.py --output output/ai/execution-round-input/checks/basic01
+```
+
+真实 PG 在 67 修后实际验证与组合输入固定后，由 root 授窗。复用 `newToolResultConsumptionFixture`，先通过原 consumer 实际 `Consume` 取得已提交 seq3 checkpoint，再接真实 Owner、Agent/四引用 owner、已发布 Skill 与正式 Remove/Assign。检验 capture covered 不重复、B 替换 A、同 ID 重放、整体回滚、Unknown 原事实查询，以及 Assign/Determine 两个真实锁提交顺序。不得 SQL seed pending/receipt，不可空 pending 替代主链。
 
 Determine 阶段新增 Model BeginChat/Tool dispatch 均应为 0；整个继承 fixture 原有一次受控首轮 Model，原 Runner WSS/I/O 真实。受控首轮不是 tools HTTP 通过证据。真实工具 HTTP、后续 Model 调用、资源删除成功边界、等待恢复、生产 default 与原 STOP 保留。
