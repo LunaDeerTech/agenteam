@@ -21,4 +21,4 @@
 
 本线所有原工具及资源已退出，原树无源码 writer、正常 untracked 或剩余 output 文件；没有本树 node_modules、Go cache/module、dist 或私有共享二进制依赖。原 Go 执行只使用独立 SkillHTTP 热 cache、SkillsMilestoneResume 只读 modules/MinIO 与固定工具链，这些外部保护目录不随本片清理。后继源码应从 main 获取，后继证据只使用上述保全路径。
 
-当前本片工作树、本地和远端引用仍待 root 在正式推送确认后执行 Git 清理，未预计删除。Operation 另片已普通移除工作树/本地分支，远端精确 lease 删除原 99189 实际 0、fresh 查询为空、prune 完成；全局累计现为 29 个 WorkTree、30 个本地分支、61 个远端引用，另 147 个旧引用待核、1 个显式保留不变。
+本片清理已实际完成：main `5905df69` 推送工具 83333 实际 0，保留完整 `c84a1257` / `f20f52b1` 开发历史与保全说明；原工作树普通移除成功，本地分支 `-d`（原 tip `f20f52b1`）成功。远端 fresh tip `0bf996ab156b16ab16ca10fe34a5cc321775ab77` 经精确 lease 删除，工具 37215 实际 0，再 fresh 查询为空、prune 0。上述旧目录和引用只作为原件身份保留，不再是活动依赖。Operation 另片此前也已完整清理；全局累计现为 30 个 WorkTree、31 个本地分支、62 个远端引用，另 147 个旧引用待核、1 个显式保留不变。
