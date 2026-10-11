@@ -7,7 +7,7 @@
 | 任务 / 分支 | 负责人 | 状态与下一步 |
 | --- | --- | --- |
 | Execution ToolCall 事实 — `ai/execution-tool-call-facts-20261011` | recovery_lead 交付；Tool 域 runner_read_file；runtime_recovery 独审 | 本次集成正式交付有限片：原句柄实际 Joined 后同事务写保护参数 / ToolCall / Transcript 与 running/tool-pending；34 + 26 top 分段 race、适用 vet、native03 原两场景 wholePASS 已独立接受。原 unit / Model 控制与 native01/02 FAIL 保留；仅 Model JSONCaller 受控，不含 ToolOperation / Runner 派发或生产 tools。00063/00064 随本片，完整分支历史保留；原树 / output / tmp 等正式保存后保全清理。 |
-| 单次 read-file Operation/Attempt 基础 | root 统筹并行实施 | 两组基础与compile01/02及精确list通过；native01/02均wholeFAIL。02清Mount子场景PASS，完整结果子场景err=nil未达原COMMIT_UNKNOWN预期；codec静态矛盾正在定向验证，未native03、未验收整链。 |
+| 单次 read-file Operation/Attempt 基础 | root 统筹并行实施 | 两组基础与compile01/02及精确list通过；native01/02均wholeFAIL。02清Mount子场景PASS，完整结果子场景err=nil未达原COMMIT_UNKNOWN预期；codec矛盾已真实反例红→定向修后绿，等待另授compile03/list及单独native03，未验收整链。 |
 | Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |
 
 ## 本片恢复与下一步
@@ -19,7 +19,8 @@
 - native01原工具32554实际1/140.340s，**wholeFAIL**：65536结果场景尚未进入Operation便被旧canonical64断言拒绝；清Mount场景到达新业务后验后，被旧joined尾的Operation0断言拒绝。Go/driver实际Wait1、七资源14absence/private/runtime/desc双尾与1828输入不变齐；原75s HOST_TCP仍余1条TIME_WAIT差额，不能称退出门全过。原 `output/ai/runner-read-file-operation/{compile01,native01}/` 与 `/tmp/rfo01/pg-8c62651ea7e34711ac66556710e69e16.log` 保留，窗口已实际释放。
 - 2eadbbde/872ebdb3仅修两fixture：原facts默认64/0不变；新PG显式场景canonical与阶段Operation0/1，复用全部旧强断言，再核exact原Operation/Attempt/结果/wire及实际Join。差额独审接受；compile02/list均实际0，1827输入前后相同，对01仅这两夹具变化，binary `f934ff93…13b475f2` 保留，basic未重复。独审确认harness STOP仅限原轮；native01 TIME_WAIT归属仍未明。
 - native02原63642亲收actual1/supervisor709384实际1/120.850s，**wholeFAIL**：clear子场景PASS15.80s，原零发送/身份/退休与Join后验成立；happy FAIL14.56s，Attempt barrier后Execute err=nil而要求COMMIT_UNKNOWN，未记录安全Status/phase，不能补造原分支。Go/driver实际Wait1，七资源14absence/private/runtime/desc/TCP两delta_empty及1828inputs不变齐。原件 `output/ai/runner-read-file-operation/{compile02,native02}/` 与 `/tmp/rfo02/pg-b0e94d0c377f47909e923553ed067107.log` 保留；本轮TCP通过不解释01差额。
-- 静态发现Message嵌套JSON键重排与Tool成功条件逐字比较相冲突；真实codec反例已固定d40fc527，由Tool作者另窗验证/修复，未预记结果，也不倒填native02动态首因。当前没有native03；原PG强断言、预算和退出门保持。Model JSON仍唯一端口替身，生产默认nil及其他STOP不变。
+- 真实Message codec反例d40fc527原24616 actual1；产品窄修67329a12保严格值/参数/身份门，移除JSON对象键序逐字比较，持久完整结果仍以明确编码生成原值/摘要。修后原30556 actual0：2top7sub race与runtime vet0，509输入分别前后相同；`checks/codec-repro01`、`codec-fixed01`、`codec-vet01`原件保留，不倒填native02未记录Status/动态首因。
+- 等root另授compile03 race-c/精确list，再单独决定native03；截至当前两者均未运行，旧基础不重复。原PG强判据、预算与退出门保持。Model JSON仍唯一端口替身，生产默认nil及其他STOP不变。
 
 ## 保留与清理
 

@@ -1,6 +1,6 @@
 # D18/D22 单 read-file Operation
 
-本片把真实 Execution ToolCall 接到一次 Runner read-file Operation/Attempt，并持久保存可重读的完整结果。两组基础检查与两次 PG 编译通过；native01/02均wholeFAIL，第二轮清Mount子场景通过，完整结果子场景仍待诊断修复，不是已交付执行链。初始基线为 main `1b10c29c`；ToolFacts 先以已提交开发依赖接入，随后通过 main `95c092bc` 正式有限交付，原 native01/02 FAIL 与修后03通过事实均保持，不替代本片验证。
+本片把真实 Execution ToolCall 接到一次 Runner read-file Operation/Attempt，并持久保存可重读的完整结果。两组基础检查与两次 PG 编译通过；native01/02均wholeFAIL，第二轮清Mount子场景通过，随后codec矛盾已通过定向红绿修复，尚待新PG编译与复验，不是已交付执行链。初始基线为 main `1b10c29c`；ToolFacts 先以已提交开发依赖接入，随后通过 main `95c092bc` 正式有限交付，原 native01/02 FAIL 与修后03通过事实均保持，不替代本片验证。
 
 正式依据：[Model/Tool 契约](d01-contracts/model-tool.md)、[Execution 契约](d01-contracts/execution-orchestration.md)、[Runner read-file](d15-runner-read-file-adapter.md)。本片止于原 Operation 的持久结果，不包含下一轮 Model、Transcript 注入或自动重试。
 
@@ -40,4 +40,6 @@ Model JSON 为唯一明确端口替身，Execution/Tool authority、CurrentMount
 
 固定 `b952cd59` 的 native02 为 **wholeFAIL**，原工具63642亲收actual1，supervisor709384实际1/120.850s。两子场景共30.35s：`current-mount-clear-rejects-unclaimed` PASS15.80s，包含原Attempt提交返回barrier后正式clear、旧未claim票据零wire、原Operation/Attempt身份与退休失败、拒绝新Execute/Lookup及原Join后验；`result-commit-loss-and-observation` FAIL14.56s，在已到Attempt barrier后，Execute返回err=nil而原断言要求COMMIT_UNKNOWN。该失败点尚未记录安全Outcome.Status、最终phase/terminal或hook命中状态，不能推断实际成功、failure或unknown，更不能倒填COMMIT丢回执已触发。原Go711250、driver709385均实际Wait1；七资源14absence、private/runtime/descendants双尾、原HOST_TCP两次delta_empty及1828项inputs_unchanged均通过，整轮仍因业务失败返回1。原件在 `output/ai/runner-read-file-operation/{compile02,native02}/`，监督日志为 `/tmp/rfo02/pg-b0e94d0c377f47909e923553ed067107.log`；本轮TCP通过不解释或覆盖native01差额。
 
-后续只读发现确定的codec矛盾：实际Message解码会重排嵌套JSON对象键，而 `terminalReadFile` 使用完整Payload与struct定序编码的逐字相等作为成功条件，合法协议值可能被降为 `backend_contract_violation`。此为静态产品发现，不能替代native02未保存的分支事实。针对真实Message codec的新反例已固定 `d40fc527`，由Tool作者在另授基础窗口先验证原红再窄修；本文不预记其结果。截至本次记录没有native03，PG原COMMIT_UNKNOWN及完整结果强门不改，原预算、自动baseline、七ID双尾与两轮FAIL均保留。
+后续只读发现确定的codec矛盾：实际Message解码会重排嵌套JSON对象键，而 `terminalReadFile` 使用完整Payload与struct定序编码的逐字相等作为成功条件，合法协议值可能被降为 `backend_contract_violation`。此为静态产品发现，不能替代native02未保存的分支事实。针对真实Message codec的反例 `d40fc527` 已实际复现：原工具24616 actual1，`codec-repro01` 原产品未改且509项输入前后相同。窄修 `67329a12` 保留严格协议解码、原请求参数和身份校验，移除传输JSON对象键序与struct编码逐字相等的错误条件，持久结果仍使用明确编码器生成的完整原值与稳定摘要。修后原工具30556 actual0，`codec-fixed01` 2个top/7个sub race与runtime `codec-vet01` 均实际0，各509项输入前后相同；原红及命令/Wait保留在 `output/ai/runner-read-file-operation/checks/codec-*`。这证明定向codec问题已修，不补造native02的未记录Status或动态首因。
+
+下一步仅在root另授Go窗口后重新做PG race-c与精确list，再由root单独决定native03；当前尚未编译compile03或启动native03，不重复已通过的旧基础组。PG原COMMIT_UNKNOWN及完整结果强门不改，原预算、自动baseline、七ID双尾与两轮FAIL均保留。
