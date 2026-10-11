@@ -498,6 +498,7 @@ func (w *taskReviewWeb) browser(t *testing.T) {
 	}()
 	err = <-done
 	joined = true
+	t.Logf("Task Review Node actual_wait pid=%d success=%t", cmd.Process.Pid, err == nil)
 	safe := output.String()
 	w.mu.Lock()
 	tokens := append([]string(nil), w.keys...)
