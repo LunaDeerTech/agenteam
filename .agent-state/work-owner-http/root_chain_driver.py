@@ -18,6 +18,11 @@ MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 # One closed same-package PG family: adding a scenario changes required
 # inputs and expected test data, never the resource/Wait/tail implementation.
 METADATA_INPUTS = {
+    '^TestProjectDomainBarrierParticipants$': (
+        'tests/project/domain_barrier_participants_test.go',
+        'tests/project/b03_secret_audit_fixture_test.go',
+        'internal/central/project/domain_barrier_participants.go',
+    ),
     '^TestProjectSchedulerWeb$': (
         'internal/central/app/project_scheduler_web_test.go',
         'internal/central/app/skill_package_web_test.go',
@@ -244,6 +249,7 @@ METADATA_INPUTS = {
 }
 TARGETS = {
     **dict.fromkeys(METADATA_INPUTS, 'tests/projectvariable'),
+    '^TestProjectDomainBarrierParticipants$': 'tests/project',
     '^TestProjectSchedulerWeb$': 'internal/central/app',
     '^TestSkillPackageWeb$': 'internal/central/app',
     '^TestSkillOwnerPackageHTTP(Publication|CurrentAuthority)$': 'tests/skills',

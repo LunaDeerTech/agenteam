@@ -199,6 +199,11 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestProjectDomainBarrierParticipants$': frozenset((
+        'TestProjectDomainBarrierParticipants',
+        'TestProjectDomainBarrierParticipants/gate-and-confirmed-stop',
+        'TestProjectDomainBarrierParticipants/current-cause-and-terminal-observation',
+    )),
     '^TestProjectSchedulerWeb$': frozenset((
         'TestProjectSchedulerWeb',
         'TestProjectSchedulerWeb/pause-limit-and-resume',
