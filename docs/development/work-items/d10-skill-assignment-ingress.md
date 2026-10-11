@@ -1,6 +1,6 @@
 # Skill 当前分配与 Execution pending ingress
 
-状态：以 main `19df3fea` 建立独立源码候选，现合入正式 main `7c874adc` 的已交付 65/66 及完整历史；本片最小基础检查分段通过，真实 PG 尚未编译或运行。交付边界是当前 Human Owner 的 Skill 分配命令及其同事务持久 ingress；不执行 Model，不产生下一轮 RoundInput，不改变默认生产未绑定及已有 STOP。
+状态：以 main `19df3fea` 建立独立源码候选，现合入正式 main `7c874adc` 的已交付 65/66 及完整历史；本片最小基础检查分段通过，PG compile02/list 已通过，首次 native01 wholeFAIL；Project producer 接线缺口待修复验证，尚未交付。交付边界是当前 Human Owner 的 Skill 分配命令及其同事务持久 ingress；不执行 Model，不产生下一轮 RoundInput，不改变默认生产未绑定及已有 STOP。
 
 ## 正式依据与分域
 
@@ -51,4 +51,8 @@ Skill producer、current/命令读取、typed Audit/Event/实际事实 authority
 
 精确 PG profile 已限定接受：两份原 harness 只加本 selector 字典项，离线 `profile01` 进程 752037 实际 Wait 0 / 0.454s，一正七反、旧完整 AST 与有效映射保持、3 方法输入前后相等。方法见[本片运行说明](../../../.agent-state/skill-assignment-ingress/README.md)，该控制不替代真实 PG。
 
-真实 PG 仍为原 Launch created / Model0 的一 top 两 sub，尚未编译或运行。capture 控制的受控 SQL/历史兼容范围不冒充完整 Preparing/capture 真实 PG。工具链和真实 PG 仅由 root 在实际资源窗口安排。上游 Operation 与 ToolResult 单次消费已正式有限交付并完整保全，不扩展为本片通过或下一轮执行。原 Object runtime join、OpenAI tools A/B、SPA concurrent-publication、Jina/Image STOP、生产 initializer/默认执行绑定保持。
+真实 PG 保持原 Launch created / Model0 的一 top 两 sub。compile01 原工具 17832 实际 FAIL，原因是 PG fixture 两处类型接线错误，未 list；`20fee0c4` 窄修后 compile02 原工具 29133 实际 0，精确 list 唯一 top。1868 输入各轮前后不变，跨轮仅该 fixture 变化；运行闭包为原输入加 binary 共 1869 项。原 compile01 FAIL 保留。
+
+native01 原工具 53013 实际 exit 1（supervisor 761393 Wait 1 / 118.399s），两个 sub 均 FAIL。第一 sub 的原 AssignSkill 返回 `DEPENDENCY_UNBOUND`，成功 receipt 断言未执行；第二 sub 的 final callback 回滚复合断言亦因同一错误失败，不能记作实际回滚后验或 Unknown 恢复通过。Go/driver 原 Wait、七资源十四次 absence、desc/private/runtime 双尾、自动 HOST_TCP delta 两次 empty 和输入不变门全部齐，资源已释放，整轮仍 FAIL。独审静态定位 Project.Discover / ValidateInTx 的 producer 闭集遗漏 Skill，产品作者正在处理；该确定代码缺口不冒充原日志的内部阶段记录，尚无修后实际通过。原件及实际命令入口见[本片运行说明](../../../.agent-state/skill-assignment-ingress/README.md)，不重写失败或自动重试。
+
+capture 控制的受控 SQL/历史兼容范围不冒充完整 Preparing/capture 真实 PG。工具链和真实 PG 仅由 root 在实际资源窗口安排。上游 Operation 与 ToolResult 单次消费已正式有限交付并完整保全，不扩展为本片通过或下一轮执行。原 Object runtime join、OpenAI tools A/B、SPA concurrent-publication、Jina/Image STOP、生产 initializer/默认执行绑定保持。

@@ -58,6 +58,13 @@ TESTS = {
 }
 PACKAGES = list(TESTS)
 VET_PACKAGES = PACKAGES + ["./internal/central/agent/contract", "./internal/central/execution/contract"]
+PROJECT_EVENT_TESTS = {
+    "./internal/central/project": [
+        "TestSkillAssignmentProjectGateKeepsReadAndNewFactDistinct",
+        "TestSkillAssignmentProjectPlanBindsEntireRequestAndClosedTypes",
+    ],
+}
+PROJECT_EVENT_VET_PACKAGES = ["./internal/central/project", "./internal/central/project/contract"]
 TOPS = [name for names in TESTS.values() for name in names]
 ENV = dict(
     GOTOOLCHAIN="local", GOENV="off", GOWORK="off", GOPROXY="off",
@@ -83,9 +90,16 @@ def head():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--mount-only", action="store_true", help="Run only the original Mount top; still vet all eleven packages")
+    selection = parser.add_mutually_exclusive_group()
+    selection.add_argument("--mount-only", action="store_true", help="Run only the original Mount top; still vet all eleven packages")
+    selection.add_argument("--project-events-only", action="store_true", help="Run only the two Skill assignment Project gate tops; vet only Project and its contract")
     args = parser.parse_args()
-    tests = {"./internal/central/mount": TESTS["./internal/central/mount"]} if args.mount_only else TESTS
+    if args.project_events_only:
+        tests = PROJECT_EVENT_TESTS
+        vet_packages = PROJECT_EVENT_VET_PACKAGES
+    else:
+        tests = {"./internal/central/mount": TESTS["./internal/central/mount"]} if args.mount_only else TESTS
+        vet_packages = VET_PACKAGES
     packages = list(tests)
     tops = [name for names in tests.values() for name in names]
     out = args.output.resolve()
@@ -141,7 +155,7 @@ def main():
                 relative = str(path.relative_to(ROOT))
                 candidates.add(relative)
     prior = manifest(candidates)
-    run("deps01", [GO, "list", "-deps", "-test", "-json", *VET_PACKAGES])
+    run("deps01", [GO, "list", "-deps", "-test", "-json", *vet_packages])
     raw = (out / "deps01.log").read_text()
     decoder = json.JSONDecoder()
     offset, rows = 0, []
@@ -165,7 +179,7 @@ def main():
                     paths.add(str(path.relative_to(ROOT)))
     missing = sorted(paths - prior.keys())
     save("deps01-closure.json", dict(
-        packages=packages, vet_packages=VET_PACKAGES, local_packages=local_packages, input_count=len(paths),
+        packages=packages, vet_packages=vet_packages, local_packages=local_packages, input_count=len(paths),
         missing_pre_discovery_inputs=missing,
         top_tests=tests,
     ))
@@ -192,7 +206,7 @@ def main():
     save("unit01-selection.json", dict(required=required, passed=passed, all_required_passed=all(item in passed for item in required)))
     if any(item not in passed for item in required):
         raise RuntimeError("expected selected test did not pass")
-    run("vet01", [GO, "vet", "-p", "1", *VET_PACKAGES], after)
+    run("vet01", [GO, "vet", "-p", "1", *vet_packages], after)
 
 
 if __name__ == "__main__":
