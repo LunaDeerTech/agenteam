@@ -114,10 +114,11 @@ type ProjectRunner struct {
 	options     ProjectRunnerOptions
 	// Private read seam; construction always fixes the real bounded SQL reader.
 	readPending       func(context.Context, postgres.SQLExecutor, i.ProjectID) ([]traversalPending, error)
-	readLaunched      func(context.Context, postgres.SQLExecutor, i.ProjectID, string, int) ([]*dispatchRecord, error)
+	readLaunched      func(context.Context, postgres.SQLExecutor, i.ProjectID, string, string, int) ([]*dispatchRecord, error)
 	executions        ec.AssociatedExecutor
 	executionPageSize int
 	executionAfter    *DispatchID
+	executionThrough  *DispatchID
 	mu                sync.Mutex
 	stopped           bool
 	call              *projectRunCall

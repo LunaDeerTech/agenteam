@@ -10,26 +10,30 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 )
 
+const traversalLaunchedHighWaterSQL = `SELECT max(id::text COLLATE "C") FROM agenteam_scheduler.dispatches
+ WHERE project_id=$1 AND status='launched'`
+
 const traversalLaunchedSQL = `SELECT ` + dispatchColumns + ` FROM agenteam_scheduler.dispatches
  WHERE project_id=$1 AND status='launched' AND id::text COLLATE "C">$2::text COLLATE "C"
- ORDER BY id COLLATE "C" LIMIT $3`
+ AND id::text COLLATE "C"<=$3::text COLLATE "C"
+ ORDER BY id COLLATE "C" LIMIT $4`
 
 func validAssociatedDispatch(r *dispatchRecord, project i.ProjectID) bool {
 	return r != nil && r.project == project && r.id.Validate() == nil && r.status == Launched && r.outcome == Created && r.execution != nil && r.execution.Validate() == nil && r.agent.Validate() == nil && r.launch.Validate() == nil && r.digest.Validate() == nil && r.launch.ProjectID == project && r.launch.AgentID == r.agent && r.launch.Trigger.Kind == "task" && r.launch.Trigger.TaskID == r.task && r.launch.Lineage.DispatchID == r.id.String()
 }
 
-func loadTraversalLaunched(ctx context.Context, x postgres.SQLExecutor, project i.ProjectID, after string, limit int) ([]*dispatchRecord, error) {
-	rows, err := x.Query(ctx, traversalLaunchedSQL, project.String(), after, limit)
+func loadTraversalLaunched(ctx context.Context, x postgres.SQLExecutor, project i.ProjectID, after, through string, limit int) ([]*dispatchRecord, error) {
+	rows, err := x.Query(ctx, traversalLaunchedSQL, project.String(), after, through, limit)
 	if err != nil {
 		return nil, portError(err)
 	}
 	if rows == nil {
 		return nil, unavailable(nil)
 	}
-	return collectTraversalLaunched(ctx, rows, project, after, limit)
+	return collectTraversalLaunched(ctx, rows, project, after, through, limit)
 }
 
-func collectTraversalLaunched(ctx context.Context, rows dispatchRows, project i.ProjectID, after string, limit int) (out []*dispatchRecord, err error) {
+func collectTraversalLaunched(ctx context.Context, rows dispatchRows, project i.ProjectID, after, through string, limit int) (out []*dispatchRecord, err error) {
 	defer func() {
 		rows.Close()
 		if err == nil {
@@ -42,7 +46,7 @@ func collectTraversalLaunched(ctx context.Context, rows dispatchRows, project i.
 			out = nil
 		}
 	}()
-	if limit < 1 || limit > MaxExecutionHandoffPage+1 || project.Validate() != nil || after != "" && !validID(after) {
+	if limit < 1 || limit > MaxExecutionHandoffPage+1 || project.Validate() != nil || after != "" && !validID(after) || !validID(through) || after > through {
 		return nil, invalid()
 	}
 	out = make([]*dispatchRecord, 0, limit)
@@ -59,7 +63,7 @@ func collectTraversalLaunched(ctx context.Context, rows dispatchRows, project i.
 		if e != nil {
 			return nil, e
 		}
-		if !validAssociatedDispatch(r, project) || r.id.String() <= previous || seen[*r.execution] {
+		if !validAssociatedDispatch(r, project) || r.id.String() <= previous || r.id.String() > through || seen[*r.execution] {
 			return nil, unavailable(nil)
 		}
 		previous = r.id.String()
@@ -69,10 +73,13 @@ func collectTraversalLaunched(ctx context.Context, rows dispatchRows, project i.
 	return out, portError(rows.Err())
 }
 
-func (s *ProjectRunner) captureExecutionPage(ctx context.Context, after string) ([]*dispatchRecord, error) {
+func (s *ProjectRunner) captureExecutionPage(ctx context.Context, after string, through *DispatchID) ([]*dispatchRecord, *DispatchID, error) {
+	if after != "" && (!validID(after) || through == nil) || through != nil && (through.Validate() != nil || after > through.String()) {
+		return nil, nil, invalid()
+	}
 	cause, locks, err := s.traversalLocks("capture_launched", nil)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	a := s.coordinator.authority
 	var rows []*dispatchRecord
@@ -89,7 +96,22 @@ func (s *ProjectRunner) captureExecutionPage(ctx context.Context, after string) 
 		if _, err = s.readProject(ctx, tx); err != nil {
 			return err
 		}
-		rows, err = s.readLaunched(ctx, x, s.options.ProjectID, after, s.executionPageSize+1)
+		if through == nil {
+			var highWater *string
+			if err = x.QueryRow(ctx, traversalLaunchedHighWaterSQL, s.options.ProjectID.String()).Scan(&highWater); err != nil {
+				return portError(err)
+			}
+			if highWater == nil {
+				rows = []*dispatchRecord{}
+				return ctx.Err()
+			}
+			id, e := f.ParseID[DispatchIdentity](*highWater)
+			if e != nil {
+				return unavailable(e)
+			}
+			through = &id
+		}
+		rows, err = s.readLaunched(ctx, x, s.options.ProjectID, after, through.String(), s.executionPageSize+1)
 		if err != nil {
 			return err
 		}
@@ -99,7 +121,7 @@ func (s *ProjectRunner) captureExecutionPage(ctx context.Context, after string) 
 		previous := after
 		seen := make(map[i.ExecutionID]bool, len(rows))
 		for _, r := range rows {
-			if !validAssociatedDispatch(r, s.options.ProjectID) || r.id.String() <= previous || seen[*r.execution] {
+			if !validAssociatedDispatch(r, s.options.ProjectID) || r.id.String() <= previous || r.id.String() > through.String() || seen[*r.execution] {
 				return unavailable(nil)
 			}
 			previous = r.id.String()
@@ -108,12 +130,12 @@ func (s *ProjectRunner) captureExecutionPage(ctx context.Context, after string) 
 		return ctx.Err()
 	})
 	if err = commitError(result); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if err = ctx.Err(); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return rows, nil
+	return rows, through, nil
 }
 
 func (s *ProjectRunner) observeAssociatedExecution(ctx context.Context, expected *dispatchRecord) (*dispatchRecord, ec.Summary, error) {
