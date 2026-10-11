@@ -10,11 +10,23 @@ const cases = [
   "default-create-config-and-directory",
   "lost-create-confirmation-only-lookup",
 ];
-if (!origin || !directory || !executablePath || !evidence || !selected || !cases.includes(selected))
+if (
+  !origin ||
+  !directory ||
+  !executablePath ||
+  !evidence ||
+  !selected ||
+  !cases.includes(selected)
+)
   throw new Error("OWNED_AGENT_CONFIGURATION_FIXTURE_REQUIRED");
 const url = new URL(origin);
-if (url.protocol !== "http:" || url.hostname !== "127.0.0.1" || !url.port ||
-    url.origin !== origin || ![directory, executablePath, evidence].every(isAbsolute))
+if (
+  url.protocol !== "http:" ||
+  url.hostname !== "127.0.0.1" ||
+  !url.port ||
+  url.origin !== origin ||
+  ![directory, executablePath, evidence].every(isAbsolute)
+)
   throw new Error("EXACT_OWNED_AGENT_CONFIGURATION_PATHS_REQUIRED");
 
 export default defineConfig({

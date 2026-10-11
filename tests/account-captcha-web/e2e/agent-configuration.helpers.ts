@@ -4,7 +4,9 @@ import { join } from "node:path";
 import { observeTaskRequests } from "./task-review.helpers";
 
 export type AgentMaterial = {
-  mode: "default-create-config-and-directory" | "lost-create-confirmation-only-lookup";
+  mode:
+    | "default-create-config-and-directory"
+    | "lost-create-confirmation-only-lookup";
   cookie: string;
   project_id: string;
   model_id: string;
@@ -12,21 +14,48 @@ export type AgentMaterial = {
   draft: { name: string; description: string; instructions: string };
 };
 export function agentMaterial(): AgentMaterial {
-  return JSON.parse(readFileSync(join(process.env.AGENTEAM_AUTH_WEB_PRIVATE!,
-    "agent-configuration-material.json"), "utf8"));
+  return JSON.parse(
+    readFileSync(
+      join(
+        process.env.AGENTEAM_AUTH_WEB_PRIVATE!,
+        "agent-configuration-material.json",
+      ),
+      "utf8",
+    ),
+  );
 }
-const uuid7 = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+const uuid7 =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 export const directoryKeys = [
-  "id", "project_id", "name", "display_name", "tag_color", "description",
-  "version", "created_at", "updated_at",
+  "id",
+  "project_id",
+  "name",
+  "display_name",
+  "tag_color",
+  "description",
+  "version",
+  "created_at",
+  "updated_at",
 ].sort();
 export const configurationKeys = [
-  ...directoryKeys, "normalized_name", "instructions", "inject_agents_md", "model_ref",
-  "reasoning_effort", "approval_policy", "approval_model_ref", "allowed_tool_ids",
-  "allowed_mount_ids", "allowed_secret_variable_ids", "lifecycle",
+  ...directoryKeys,
+  "normalized_name",
+  "instructions",
+  "inject_agents_md",
+  "model_ref",
+  "reasoning_effort",
+  "approval_policy",
+  "approval_model_ref",
+  "allowed_tool_ids",
+  "allowed_mount_ids",
+  "allowed_secret_variable_ids",
+  "lifecycle",
 ].sort();
 
-export async function observeAgentConfiguration(page: Page, data: AgentMaterial) {
+export async function observeAgentConfiguration(
+  page: Page,
+  data: AgentMaterial,
+) {
   let agentID: string | undefined;
   const prefix = `/api/v1/projects/${data.project_id}`;
   const classify = (request: Request): string | undefined => {
@@ -44,7 +73,8 @@ export async function observeAgentConfiguration(page: Page, data: AgentMaterial)
     const global = globals[`${method} ${pathname}`];
     if (global) return global;
     if (method === "GET" && pathname === prefix) return "project";
-    if (!pathname.startsWith(prefix + "/")) throw Error("UNEXPECTED_AGENT_CONFIGURATION_SCOPE");
+    if (!pathname.startsWith(prefix + "/"))
+      throw Error("UNEXPECTED_AGENT_CONFIGURATION_SCOPE");
     const path = pathname.slice(prefix.length);
     if (method === "POST" && path === "/agents") {
       const body = request.postDataJSON();
@@ -68,7 +98,8 @@ export async function observeAgentConfiguration(page: Page, data: AgentMaterial)
     if (method === "GET") {
       if (path === "/agents") return "agent-directory";
       if (path === "/available-chat-models") return "agent-models";
-      if (agentID && path === `/agents/${agentID}/configuration`) return "agent-configuration";
+      if (agentID && path === `/agents/${agentID}/configuration`)
+        return "agent-configuration";
     }
     // In particular, the compiled Update controls never grant this fixture
     // permission to call PATCH or to observe an agent.update lookup.
@@ -80,7 +111,10 @@ export async function observeAgentConfiguration(page: Page, data: AgentMaterial)
     inputHash: process.env.AGENTEAM_AGENT_CONFIGURATION_WEB_INPUT_HASH!,
     prefix: "agent-configuration",
     endpoint: classify,
-    cut: data.mode === "lost-create-confirmation-only-lookup" ? "create" : undefined,
+    cut:
+      data.mode === "lost-create-confirmation-only-lookup"
+        ? "create"
+        : undefined,
     lookupCommand: "agent.create",
     agentConfiguration: true,
   });
@@ -91,22 +125,36 @@ export async function observeAgentConfiguration(page: Page, data: AgentMaterial)
       return agentID!;
     },
     modelOption() {
-      const rows = seen.agentRead("agent-models").items.filter((v: any) => v.id === data.model_id);
+      const rows = seen
+        .agentRead("agent-models")
+        .items.filter((v: any) => v.id === data.model_id);
       expect(rows).toHaveLength(1);
       const model = rows[0];
-      expect(model.scope).toEqual({ kind: "project", project_id: data.project_id });
+      expect(model.scope).toEqual({
+        kind: "project",
+        project_id: data.project_id,
+      });
       expect(model.capabilities.reasoning_efforts).toEqual([]);
       return `${model.name} · ${model.provider_name}（项目）`;
     },
     requireConfiguration(agent: Record<string, any>) {
       expect(Object.keys(agent).sort()).toEqual(configurationKeys);
       expect(agent).toMatchObject({
-        id: agentID, project_id: data.project_id, ...data.draft,
+        id: agentID,
+        project_id: data.project_id,
+        ...data.draft,
         normalized_name: data.draft.name.toLowerCase(),
-        display_name: null, tag_color: null, inject_agents_md: false,
-        model_ref: data.model_id, reasoning_effort: null, approval_policy: "default",
-        approval_model_ref: null, allowed_mount_ids: [], allowed_secret_variable_ids: [],
-        lifecycle: "active", version: "1",
+        display_name: null,
+        tag_color: null,
+        inject_agents_md: false,
+        model_ref: data.model_id,
+        reasoning_effort: null,
+        approval_policy: "default",
+        approval_model_ref: null,
+        allowed_mount_ids: [],
+        allowed_secret_variable_ids: [],
+        lifecycle: "active",
+        version: "1",
       });
       expect(agent.created_at).toBe(agent.updated_at);
       expect(agent.allowed_tool_ids).toHaveLength(1);
@@ -115,13 +163,23 @@ export async function observeAgentConfiguration(page: Page, data: AgentMaterial)
   };
 }
 
-export async function agentScreenshot(page: Page, data: AgentMaterial, name: string) {
-  await expect.poll(() => page.evaluate(() =>
-    document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+export async function agentScreenshot(
+  page: Page,
+  data: AgentMaterial,
+  name: string,
+) {
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth + 1,
+      ),
+    )
+    .toBe(true);
   const directory = process.env.AGENTEAM_AGENT_CONFIGURATION_WEB_EVIDENCE!;
   mkdirSync(directory, { recursive: true, mode: 0o700 });
   await page.screenshot({
     path: join(directory, `agent-configuration-${data.mode}-${name}.png`),
-    fullPage: true, animations: "disabled",
+    fullPage: true,
+    animations: "disabled",
   });
 }

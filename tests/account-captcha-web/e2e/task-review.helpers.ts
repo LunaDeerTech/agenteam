@@ -300,7 +300,12 @@ async function observeBrowserIO(
       });
     }
     host.__taskReviewProof = {
-      consumers(value: any, project: string, intakeWrites: boolean, agentConfiguration: boolean) {
+      consumers(
+        value: any,
+        project: string,
+        intakeWrites: boolean,
+        agentConfiguration: boolean,
+      ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
         consumer(auth, "restore", "restore", () => "/api/v1/session");
@@ -318,85 +323,111 @@ async function observeBrowserIO(
                   : ""),
           );
         if (!agentConfiguration) {
-        const paths: Record<string, string> = {
-          milestones: "milestones",
-          milestone: "milestones",
-          sprints: "sprints",
-          sprint: "sprints",
-          tasks: "tasks",
-          task: "tasks",
-          blockers: "tasks",
-          agents: "agents",
-          agent: "agents",
-        };
-        for (const method of Object.keys(paths))
-          consumer(auth.workReview, method, "work." + method, (a) => {
-            if (a[0] !== project) throw Error("TASK_REVIEW_CONSUMER_SCOPE");
-            const single = [
-              "milestone",
-              "sprint",
-              "task",
-              "agent",
-              "blockers",
-            ].includes(method);
-            return (
-              "/api/v1/projects/" +
-              project +
-              "/" +
-              paths[method] +
-              (single ? "/" + a[1] : "") +
-              (method === "blockers" ? "/blockers" : "")
-            );
-          });
-        if (intakeWrites) {
-          consumer(
-            auth.workReview,
-            "startCreate",
-            "work.startCreate",
-            (a) => {
-              if (a[0] !== project) throw Error("TASK_INTAKE_CONSUMER_SCOPE");
-              return "/api/v1/projects/" + project + "/tasks";
-            },
-            "POST",
-          );
-          consumer(
-            auth.workReview,
-            "startReady",
-            "work.startReady",
-            (a) => {
-              if (a[0] !== project) throw Error("TASK_INTAKE_CONSUMER_SCOPE");
+          const paths: Record<string, string> = {
+            milestones: "milestones",
+            milestone: "milestones",
+            sprints: "sprints",
+            sprint: "sprints",
+            tasks: "tasks",
+            task: "tasks",
+            blockers: "tasks",
+            agents: "agents",
+            agent: "agents",
+          };
+          for (const method of Object.keys(paths))
+            consumer(auth.workReview, method, "work." + method, (a) => {
+              if (a[0] !== project) throw Error("TASK_REVIEW_CONSUMER_SCOPE");
+              const single = [
+                "milestone",
+                "sprint",
+                "task",
+                "agent",
+                "blockers",
+              ].includes(method);
               return (
-                "/api/v1/projects/" + project + "/tasks/" + a[1] + "/transfer"
+                "/api/v1/projects/" +
+                project +
+                "/" +
+                paths[method] +
+                (single ? "/" + a[1] : "") +
+                (method === "blockers" ? "/blockers" : "")
               );
-            },
-            "POST",
-          );
-          consumer(
-            auth.workReview,
-            "checkOriginal",
-            "work.checkOriginal",
-            () => "/api/v1/projects/" + project + "/task-commands/lookup",
-            "POST",
-          );
-        }
+            });
+          if (intakeWrites) {
+            consumer(
+              auth.workReview,
+              "startCreate",
+              "work.startCreate",
+              (a) => {
+                if (a[0] !== project) throw Error("TASK_INTAKE_CONSUMER_SCOPE");
+                return "/api/v1/projects/" + project + "/tasks";
+              },
+              "POST",
+            );
+            consumer(
+              auth.workReview,
+              "startReady",
+              "work.startReady",
+              (a) => {
+                if (a[0] !== project) throw Error("TASK_INTAKE_CONSUMER_SCOPE");
+                return (
+                  "/api/v1/projects/" + project + "/tasks/" + a[1] + "/transfer"
+                );
+              },
+              "POST",
+            );
+            consumer(
+              auth.workReview,
+              "checkOriginal",
+              "work.checkOriginal",
+              () => "/api/v1/projects/" + project + "/task-commands/lookup",
+              "POST",
+            );
+          }
         } else {
           // This profile observes only Agent Create, its original Lookup and
           // the public directory/configuration/model reads used by that page.
           const paths: Record<string, string> = {
-            list: "/agents", getConfiguration: "/agents", models: "/available-chat-models",
+            list: "/agents",
+            getConfiguration: "/agents",
+            models: "/available-chat-models",
           };
           for (const method of Object.keys(paths))
-            consumer(auth.agentConfiguration, method, "agent." + method, (a) => {
-              if (a[0] !== project) throw Error("AGENT_CONFIGURATION_CONSUMER_SCOPE");
-              return "/api/v1/projects/" + project + paths[method] +
-                (method === "getConfiguration" ? "/" + a[1] + "/configuration" : "");
-            });
-          consumer(auth.agentConfiguration, "startCreate", "agent.startCreate", (a) => {
-            if (a[0] !== project) throw Error("AGENT_CONFIGURATION_CONSUMER_SCOPE");
-            return "/api/v1/projects/" + project + "/agents";
-          }, "POST");
-          consumer(auth.agentConfiguration, "checkOriginal", "agent.checkOriginal", () =>
-            "/api/v1/projects/" + project + "/agent-commands/lookup", "POST");
+            consumer(
+              auth.agentConfiguration,
+              method,
+              "agent." + method,
+              (a) => {
+                if (a[0] !== project)
+                  throw Error("AGENT_CONFIGURATION_CONSUMER_SCOPE");
+                return (
+                  "/api/v1/projects/" +
+                  project +
+                  paths[method] +
+                  (method === "getConfiguration"
+                    ? "/" + a[1] + "/configuration"
+                    : "")
+                );
+              },
+            );
+          consumer(
+            auth.agentConfiguration,
+            "startCreate",
+            "agent.startCreate",
+            (a) => {
+              if (a[0] !== project)
+                throw Error("AGENT_CONFIGURATION_CONSUMER_SCOPE");
+              return "/api/v1/projects/" + project + "/agents";
+            },
+            "POST",
+          );
+          consumer(
+            auth.agentConfiguration,
+            "checkOriginal",
+            "agent.checkOriginal",
+            () => "/api/v1/projects/" + project + "/agent-commands/lookup",
+            "POST",
+          );
         }
       },
       snapshot() {
@@ -570,18 +601,27 @@ async function observeBrowserIO(
               });
           } else if (call.kind === "agent.startCreate") {
             const { agent_id, ...fields } = parsed.request ?? {};
-            matches = Object.keys(parsed).join() === "request" &&
+            matches =
+              Object.keys(parsed).join() === "request" &&
               typeof agent_id === "string" &&
-              /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(agent_id) &&
+              /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+                agent_id,
+              ) &&
               equal(fields, original.fields);
             if (matches) {
               original.request = parsed.request;
               original.key = key;
             }
           } else if (call.kind === "agent.checkOriginal") {
-            matches = original.current && original.source?.call.rejected === true &&
-              original.source.call.settled === true && key === original.source.key &&
-              equal(parsed, { command: "agent.create", request: original.source.request });
+            matches =
+              original.current &&
+              original.source?.call.rejected === true &&
+              original.source.call.settled === true &&
+              key === original.source.key &&
+              equal(parsed, {
+                command: "agent.create",
+                request: original.source.request,
+              });
           }
           call.request_bound = row.request_bound = matches;
           track(
@@ -933,10 +973,16 @@ export async function observeTaskRequests(
       profile.lookupCommand !== "work.task.create")
   )
     throw Error("TASK_INTAKE_WRITE_PROFILE_MISMATCH");
-  if (profile.agentConfiguration &&
-      (profile.intakeWrites || profile.prefix !== "agent-configuration" ||
-       profile.lookupCommand !== "agent.create" ||
-       !["default-create-config-and-directory", "lost-create-confirmation-only-lookup"].includes(data.mode)))
+  if (
+    profile.agentConfiguration &&
+    (profile.intakeWrites ||
+      profile.prefix !== "agent-configuration" ||
+      profile.lookupCommand !== "agent.create" ||
+      ![
+        "default-create-config-and-directory",
+        "lost-create-confirmation-only-lookup",
+      ].includes(data.mode))
+  )
     throw Error("AGENT_CONFIGURATION_PROFILE_MISMATCH");
   const entries: Entry[] = [];
   const events: Record<string, unknown>[] = [];
@@ -1124,16 +1170,25 @@ export async function observeTaskRequests(
   }
 
   function agentWrite(entry: Entry) {
-    if (!profile.agentConfiguration || entry.request.method() !== "POST") return false;
+    if (!profile.agentConfiguration || entry.request.method() !== "POST")
+      return false;
     const url = new URL(entry.request.url());
     if (url.search) return false;
     const prefix = `/api/v1/projects/${data.project_id}`;
-    return (entry.name === "create" && url.pathname === prefix + "/agents") ||
-      (entry.name === "lookup" && url.pathname === prefix + "/agent-commands/lookup");
+    return (
+      (entry.name === "create" && url.pathname === prefix + "/agents") ||
+      (entry.name === "lookup" &&
+        url.pathname === prefix + "/agent-commands/lookup")
+    );
   }
   function agentPageRead(entry: Entry) {
-    return profile.agentConfiguration && entry.request.method() === "GET" &&
-      ["agent-directory", "agent-configuration", "agent-models"].includes(entry.name);
+    return (
+      profile.agentConfiguration &&
+      entry.request.method() === "GET" &&
+      ["agent-directory", "agent-configuration", "agent-models"].includes(
+        entry.name,
+      )
+    );
   }
 
   function joint(entry: Entry, proof: any) {
@@ -1203,13 +1258,16 @@ export async function observeTaskRequests(
     expect(c.typed_digest).toMatch(/^[0-9a-f]{64}$/);
     expect(n.typed_digest).toBe(c.typed_digest);
     if (write) {
-      const kinds: Record<string, string> = profile.agentConfiguration ? {
-        create: "agent.startCreate", lookup: "agent.checkOriginal",
-      } : {
-        create: "work.startCreate",
-        ready: "work.startReady",
-        lookup: "work.checkOriginal",
-      };
+      const kinds: Record<string, string> = profile.agentConfiguration
+        ? {
+            create: "agent.startCreate",
+            lookup: "agent.checkOriginal",
+          }
+        : {
+            create: "work.startCreate",
+            ready: "work.startReady",
+            lookup: "work.checkOriginal",
+          };
       const raw = entry.request.postDataBuffer();
       const key = entry.request.headers()["idempotency-key"];
       expect(raw).not.toBeNull();
@@ -1270,7 +1328,9 @@ export async function observeTaskRequests(
       }
       if (
         state === "failed" &&
-        (entry.request.method() === "GET" || intakeWrite(entry) || agentWrite(entry)) &&
+        (entry.request.method() === "GET" ||
+          intakeWrite(entry) ||
+          agentWrite(entry)) &&
         response?.status() === 200 &&
         entry.failure === "net::ERR_ABORTED"
       ) {
@@ -1350,7 +1410,9 @@ export async function observeTaskRequests(
       .map((entry) => entry.request);
   }
   function originalLookup() {
-    const creation = profile.lookupCommand === "work.task.create" || profile.lookupCommand === "agent.create";
+    const creation =
+      profile.lookupCommand === "work.task.create" ||
+      profile.lookupCommand === "agent.create";
     const originals = requests(
       creation
         ? "create"
@@ -1377,10 +1439,17 @@ export async function observeTaskRequests(
     );
     expect(dropped).toBe(1);
   }
-  function agentRead(name: "agent-directory" | "agent-configuration" | "agent-models") {
+  function agentRead(
+    name: "agent-directory" | "agent-configuration" | "agent-models",
+  ) {
     expect(profile.agentConfiguration).toBe(true);
-    const found = entries.filter((entry) => entry.name === name && entry.checked && entry.body);
-    expect(found.length, "original Agent page read must complete").toBeGreaterThan(0);
+    const found = entries.filter(
+      (entry) => entry.name === name && entry.checked && entry.body,
+    );
+    expect(
+      found.length,
+      "original Agent page read must complete",
+    ).toBeGreaterThan(0);
     return found[found.length - 1]!.body as Record<string, any>;
   }
   function agentOption(id: string): string {
@@ -1427,9 +1496,11 @@ export async function observeTaskRequests(
                 ready: entries.filter((e) => e.name === "ready").length,
               }
             : {}),
-          ...(profile.agentConfiguration ? {
-            creates: entries.filter((e) => e.name === "create").length,
-          } : {}),
+          ...(profile.agentConfiguration
+            ? {
+                creates: entries.filter((e) => e.name === "create").length,
+              }
+            : {}),
           lookups: entries.filter((e) => e.name === "lookup").length,
           test_status: testStatus,
           route: diagnosticURL(page.url()),
