@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DOMWrapper, flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { computed, shallowReactive, shallowRef } from 'vue'
 import { AccountFailure } from '../api/client'
-import type { AgentCreateReceipt } from '../api/agent-configuration'
+import type { AgentCreateReceipt, AgentUpdateReceipt } from '../api/agent-configuration'
 import type { DirectoryAgent } from '../api/agent-directory'
 import type { ProjectAvailableChatModel } from '../api/project-models'
 import type { AgentConfigurationProgress, SessionController } from '../composables/useSession'
@@ -98,9 +98,17 @@ async function page() {
   type AgentPort = SessionController['agentConfiguration']
   const api = {
     list: vi.fn<AgentPort['list']>(async () => ({ items: [existing] })),
-    getConfiguration: vi.fn<AgentPort['getConfiguration']>(async () => receipt.agent),
+    getConfiguration: vi.fn<AgentPort['getConfiguration']>(async (_p, a) => ({
+      ...receipt.agent,
+      ...existing,
+      id: a,
+      normalized_name: existing.name.toLowerCase(),
+    })),
     models: vi.fn<AgentPort['models']>(async () => ({ items: [model], next_cursor: null })),
     startCreate: vi.fn<AgentPort['startCreate']>(async () => receipt),
+    startUpdate: vi.fn<AgentPort['startUpdate']>(async () => {
+      throw new Error('unexpected configuration update')
+    }),
     checkOriginal: vi.fn<AgentPort['checkOriginal']>(async () => {
       throw new Error('unexpected original-result lookup')
     }),
@@ -243,7 +251,7 @@ describe('Agent configuration page with real UI controls', () => {
     expect(detail.text()).toContain(receipt.agent.instructions)
     expect(detail.text()).toContain(id(4))
     expect(detail.text()).toContain('模型自动审批')
-    expect(detail.text()).toContain('只读配置。目录和配置本身不授予执行权限。')
+    expect(detail.text()).toContain('目录和配置本身不授予执行权限。')
     expect(detail.find('input, textarea, select').exists()).toBe(false)
     expect(f.api.checkOriginal).not.toHaveBeenCalled()
   })
@@ -251,6 +259,7 @@ describe('Agent configuration page with real UI controls', () => {
   it('hides creation after Unknown and only queries the original result while its context remains valid', async () => {
     const f = await page()
     const original: AgentConfigurationProgress = {
+      kind: 'create',
       projectID,
       agentID: receipt.agent.id,
       phase: 'uncertain',
@@ -281,7 +290,7 @@ describe('Agent configuration page with real UI controls', () => {
     await flushPromises()
     await click('查询原创建结果')
     expect(f.api.checkOriginal).toHaveBeenCalledTimes(1)
-    expect(body().text()).toContain('尚未确认原创建结果，请继续保留原操作。')
+    expect(body().text()).toContain('尚未确认原操作结果，请继续保留原操作。')
     expect(findButton('创建 Agent')).toBeUndefined()
     f.api.checkOriginal.mockImplementationOnce(async () => {
       f.progress.value = { ...original, phase: 'confirmed', receipt, observation: 'committed' }
@@ -297,5 +306,136 @@ describe('Agent configuration page with real UI controls', () => {
     )
     expect(body().find('form[aria-label="创建 Agent"]').exists()).toBe(false)
     expect(button('创建 Agent').element.disabled).toBe(false)
+  })
+})
+
+describe('Agent text configuration editing with real controls', () => {
+  it('restores focus after confirmed cancellation and explicitly saves touched text or a no-op', async () => {
+    const f = await page()
+    await body().get('.agent-entry').trigger('click')
+    await flushPromises()
+    await click('编辑配置')
+    expect(document.activeElement).toBe(field('Agent 名称').element)
+    expect(button('保存配置').element.disabled).toBe(true)
+    await field('Agent 描述').setValue('尚未保存')
+    await click('取消编辑')
+    expect(body().find('form[aria-label="编辑 Agent 配置"]').exists()).toBe(true)
+    expect(f.api.startUpdate).not.toHaveBeenCalled()
+    f.owner.finishConfirmation(true)
+    await flushPromises()
+    expect(body().find('form[aria-label="编辑 Agent 配置"]').exists()).toBe(false)
+    expect(document.activeElement).toBe(button('编辑配置').element)
+    await click('编辑配置')
+    await field('Agent 名称').setValue('Changed-Agent')
+    await field('Agent 描述').setValue('')
+    await field('指令').setValue('')
+    const saved: AgentUpdateReceipt = {
+      changed: true,
+      event_ids: [id(52)],
+      agent: {
+        ...receipt.agent,
+        ...existing,
+        name: 'Changed-Agent',
+        normalized_name: 'changed-agent',
+        description: '',
+        instructions: '',
+        version: '2',
+      },
+    }
+    f.api.startUpdate.mockResolvedValueOnce(saved)
+    expect(f.api.startUpdate).not.toHaveBeenCalled()
+    await click('保存配置')
+    expect(f.api.startUpdate).toHaveBeenCalledExactlyOnceWith(projectID, existing.id, {
+      expected_version: '1',
+      request: { name: 'Changed-Agent', description: '', instructions: '' },
+    })
+    expect(body().find('form[aria-label="编辑 Agent 配置"]').exists()).toBe(false)
+    expect(body().text()).toContain('Agent 配置已保存。')
+    expect(f.owner.state.configuration).toEqual(saved.agent)
+    expect(f.owner.state.items[0]).toMatchObject({
+      name: 'Changed-Agent',
+      description: '',
+      version: '2',
+    })
+    expect(f.owner.state.items[0]).not.toHaveProperty('instructions')
+    await click('编辑配置')
+    await field('Agent 名称').setValue('Temporary-Agent')
+    await field('Agent 名称').setValue('Changed-Agent')
+    f.api.startUpdate.mockResolvedValueOnce({ ...saved, changed: false, event_ids: [] })
+    await click('保存配置')
+    expect(f.api.startUpdate).toHaveBeenLastCalledWith(projectID, existing.id, {
+      expected_version: '2',
+      request: { name: 'Changed-Agent' },
+    })
+    expect(body().text()).toContain('配置未变化，版本保持不变。')
+    expect(f.api.startCreate).not.toHaveBeenCalled()
+    expect(f.api.checkOriginal).not.toHaveBeenCalled()
+  })
+
+  it('hides the editor after an uncertain save and permits only the original result query', async () => {
+    const f = await page()
+    await body().get('.agent-entry').trigger('click')
+    await flushPromises()
+    await click('编辑配置')
+    await field('指令').setValue('replacement')
+    const original: AgentConfigurationProgress = {
+      kind: 'update',
+      projectID,
+      agentID: existing.id,
+      phase: 'uncertain',
+      receipt: null,
+      observation: 'none',
+      contextValid: true,
+    }
+    f.api.startUpdate.mockImplementationOnce(async () => {
+      f.progress.value = original
+      throw new AccountFailure('transport')
+    })
+    await click('保存配置')
+    expect(body().find('form[aria-label="编辑 Agent 配置"]').exists()).toBe(false)
+    expect(body().get('section[aria-label="Agent 保存结果恢复"]').text()).toContain(
+      '保存结果待确认。请查询原操作结果，不要重复保存。',
+    )
+    expect(button('编辑配置').element.disabled).toBe(true)
+    expect(findButton('创建 Agent')).toBeUndefined()
+    f.progress.value = { ...original, contextValid: false }
+    await flushPromises()
+    expect(button('查询原保存结果').element.disabled).toBe(true)
+    await click('查询原保存结果')
+    expect(f.api.checkOriginal).not.toHaveBeenCalled()
+    f.progress.value = original
+    f.api.checkOriginal.mockResolvedValueOnce({ status: 'not_observed', receipt: null })
+    await flushPromises()
+    await click('查询原保存结果')
+    expect(body().text()).toContain('尚未确认原操作结果，请继续保留原操作。')
+    const saved: AgentUpdateReceipt = {
+      changed: true,
+      event_ids: [id(52)],
+      agent: {
+        ...receipt.agent,
+        ...existing,
+        normalized_name: existing.name.toLowerCase(),
+        instructions: 'replacement',
+        version: '2',
+      },
+    }
+    f.api.checkOriginal.mockImplementationOnce(async () => {
+      f.progress.value = {
+        ...original,
+        phase: 'confirmed',
+        receipt: saved,
+        observation: 'committed',
+      }
+      return { status: 'committed', receipt: saved }
+    })
+    await click('查询原保存结果')
+    expect(f.api.checkOriginal).toHaveBeenCalledTimes(2)
+    expect(f.api.startUpdate).toHaveBeenCalledExactlyOnceWith(projectID, existing.id, {
+      expected_version: '1',
+      request: { instructions: 'replacement' },
+    })
+    expect(f.owner.state.configuration).toEqual(saved.agent)
+    expect(body().find('section[aria-label="Agent 保存结果恢复"]').exists()).toBe(false)
+    expect(f.api.startCreate).not.toHaveBeenCalled()
   })
 })

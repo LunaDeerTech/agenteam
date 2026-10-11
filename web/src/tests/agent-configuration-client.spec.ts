@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import type { Fetch } from '../api/client'
 import {
   captureAgentCreateInput,
+  captureAgentUpdateInput,
   createAgentConfigurationAPI,
   type AgentCreateInput,
 } from '../api/agent-configuration'
@@ -274,5 +275,214 @@ describe('Owner Agent configuration closed client', () => {
         ),
       ).rejects.toMatchObject({ kind: 'invalid-response' })
     }
+  })
+
+  it('updates only captured fields and distinguishes exact large-version changes from no-op clears', async () => {
+    const value = {
+      expected_version: '9007199254740993',
+      request: { name: 'Edited-Agent', description: '' },
+    }
+    const captured = captureAgentUpdateInput(value)
+    value.request.name = 'Later-Agent'
+    value.request.description = 'later draft'
+    expect(captured).toEqual({
+      expected_version: '9007199254740993',
+      request: { name: 'Edited-Agent', description: '' },
+    })
+    expect(Object.hasOwn(captured.request, 'instructions')).toBe(false)
+    expect(Object.isFrozen(captured)).toBe(true)
+    expect(Object.isFrozen(captured.request)).toBe(true)
+    const changed = {
+      agent: {
+        ...configuration(),
+        name: 'Edited-Agent',
+        normalized_name: 'edited-agent',
+        description: '',
+        version: '9007199254740994',
+      },
+      changed: true,
+      event_ids: [id(41)],
+    }
+    const noop = {
+      agent: { ...configuration(), instructions: '', version: '9223372036854775807' },
+      changed: false,
+      event_ids: [],
+    }
+    const replies = [changed, noop]
+    const fetcher = vi.fn<Fetch>(async () => json(replies.shift()!))
+    const api = createAgentConfigurationAPI(fetcher)
+    const signal = new AbortController().signal
+    const options = { ...write, key: 'original-agent-update/1', signal }
+    const result = await api.update(project, agent, captured, options)
+    expect(result).toEqual(changed)
+    expect(result.agent.instructions).toBe(original().request.instructions)
+    expect(Object.isFrozen(result)).toBe(true)
+    expect(Object.isFrozen(result.agent.allowed_tool_ids)).toBe(true)
+    expect(Object.isFrozen(result.event_ids)).toBe(true)
+    const clear = captureAgentUpdateInput({
+      expected_version: '9223372036854775807',
+      request: { instructions: '' },
+    })
+    expect(
+      await api.update(project, agent, clear, { ...options, key: 'noop-agent-update/1' }),
+    ).toEqual(noop)
+    for (const [path, init] of fetcher.mock.calls) {
+      expect(path).toBe(`/api/v1/projects/${project}/agents/${agent}/configuration`)
+      expect(init).toMatchObject({
+        method: 'PATCH',
+        credentials: 'same-origin',
+        cache: 'no-store',
+        redirect: 'error',
+        signal,
+      })
+    }
+    expect(fetcher.mock.calls[0]![1].headers).toMatchObject({
+      'X-CSRF-Token': options.csrfToken,
+      'Idempotency-Key': options.key,
+    })
+    expect(JSON.parse(fetcher.mock.calls[0]![1].body as string)).toEqual(captured)
+    expect(JSON.parse(fetcher.mock.calls[1]![1].body as string)).toEqual(clear)
+    expect(fetcher).toHaveBeenCalledTimes(2)
+  })
+
+  it('looks up the exact original Update after Unknown without another PATCH and preserves conflict semantics', async () => {
+    const failure = {
+      type: 'urn:agenteam:problem:test',
+      title: 'Unable to confirm',
+      status: 503,
+      detail: 'safe failure',
+      instance: `/api/v1/projects/${project}/agents/${agent}/configuration`,
+      code: 'COMMIT_UNKNOWN',
+      request_id: id(91),
+      commit_state: 'unknown',
+    }
+    const problem = (body: typeof failure) =>
+      new Response(JSON.stringify(body), {
+        status: body.status,
+        headers: { 'Content-Type': 'application/problem+json', 'X-Request-ID': body.request_id },
+      })
+    const value = {
+      expected_version: '8',
+      request: { description: '  原意图\n保持原字节  ', instructions: '' },
+    }
+    const captured = captureAgentUpdateInput(value)
+    const committed = {
+      agent: { ...configuration(), ...captured.request, version: '9' },
+      changed: true,
+      event_ids: [id(42)],
+    }
+    value.expected_version = '9'
+    value.request.description = 'later draft'
+    const replies = [
+      problem(failure),
+      json({ status: 'not_observed', receipt: null }),
+      json({ status: 'in_progress', receipt: null }),
+      json({ status: 'committed', receipt: committed }),
+    ]
+    const fetcher = vi.fn<Fetch>(async () => replies.shift()!)
+    const api = createAgentConfigurationAPI(fetcher)
+    const options = { ...write, key: 'uncertain-agent-update/1' }
+    await expect(api.update(project, agent, captured, options)).rejects.toMatchObject({
+      kind: 'problem',
+      problem: failure,
+    })
+    expect(fetcher).toHaveBeenCalledTimes(1)
+    for (const status of ['not_observed', 'in_progress', 'committed']) {
+      expect(await api.lookupUpdate(project, agent, captured, options)).toEqual({
+        status,
+        receipt: status === 'committed' ? committed : null,
+      })
+    }
+    expect(fetcher.mock.calls[0]![1].method).toBe('PATCH')
+    for (const [path, init] of fetcher.mock.calls.slice(1)) {
+      expect(path).toBe(`/api/v1/projects/${project}/agent-commands/lookup`)
+      expect(init.method).toBe('POST')
+      expect(init.headers).toMatchObject({
+        'X-CSRF-Token': options.csrfToken,
+        'Idempotency-Key': options.key,
+      })
+      expect(JSON.parse(init.body as string)).toEqual({
+        command: 'agent.update',
+        target_id: agent,
+        expected_version: '8',
+        request: { description: '  原意图\n保持原字节  ', instructions: '' },
+      })
+    }
+    expect(fetcher).toHaveBeenCalledTimes(4)
+    const conflict = {
+      ...failure,
+      status: 409,
+      code: 'VERSION_CONFLICT',
+      commit_state: 'not_started',
+    }
+    const denied = vi.fn<Fetch>(async () => problem(conflict))
+    await expect(
+      createAgentConfigurationAPI(denied).update(project, agent, captured, options),
+    ).rejects.toMatchObject({ kind: 'problem', problem: conflict })
+    expect(denied).toHaveBeenCalledTimes(1)
+  })
+
+  it('rejects invalid Update presence and receipts that disagree with the original identity, patch or event shape', async () => {
+    const value = { expected_version: '8', request: { description: '' } }
+    for (const malformed of [
+      { ...value, request: {} },
+      { ...value, request: { description: null } },
+      { ...value, request: { instructions: undefined } },
+      { ...value, request: { name: '' } },
+      { ...value, request: { model_ref: model } },
+      { ...value, expected_version: 8 },
+      { ...value, expected_version: '08' },
+    ])
+      expect(() => captureAgentUpdateInput(malformed)).toThrowError('invalid-input')
+    const valid = {
+      agent: { ...configuration(), version: '9' },
+      changed: true,
+      event_ids: [id(43)],
+    }
+    const fetcher = vi.fn<Fetch>(async () => json(valid))
+    await expect(
+      Promise.resolve().then(() =>
+        createAgentConfigurationAPI(fetcher).update(project, agent, value, {
+          ...write,
+          key: 'invalid key',
+        }),
+      ),
+    ).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(fetcher).not.toHaveBeenCalled()
+    for (const malformed of [
+      { ...valid, agent: { ...valid.agent, id: id(99) } },
+      { ...valid, agent: { ...valid.agent, project_id: id(99) } },
+      { ...valid, agent: { ...valid.agent, version: '8' } },
+      { ...valid, agent: { ...valid.agent, description: 'ignored clear' } },
+      { ...valid, event_ids: [] },
+      { ...valid, changed: false, agent: { ...valid.agent, version: '8' } },
+    ])
+      await expect(
+        createAgentConfigurationAPI(async () => json(malformed)).update(
+          project,
+          agent,
+          value,
+          write,
+        ),
+      ).rejects.toMatchObject({ kind: 'invalid-response' })
+    const raw = JSON.stringify(valid).replace('"changed":true', '"changed":false,"changed":true')
+    await expect(
+      createAgentConfigurationAPI(
+        async () => new Response(raw, { headers: { 'Content-Type': 'application/json' } }),
+      ).update(project, agent, value, write),
+    ).rejects.toMatchObject({ kind: 'invalid-response' })
+    for (const malformed of [
+      { status: 'committed', receipt: null },
+      { status: 'in_progress', receipt: valid },
+      { status: 'committed', receipt: { ...valid, agent: { ...valid.agent, version: '10' } } },
+    ])
+      await expect(
+        createAgentConfigurationAPI(async () => json(malformed)).lookupUpdate(
+          project,
+          agent,
+          value,
+          write,
+        ),
+      ).rejects.toMatchObject({ kind: 'invalid-response' })
   })
 })

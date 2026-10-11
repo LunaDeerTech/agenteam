@@ -1,7 +1,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
 import { computed, shallowReactive, shallowRef } from 'vue'
-import type { AgentConfiguration, AgentCreateFields } from '../api/agent-configuration'
+import { AccountFailure } from '../api/client'
+import type {
+  AgentConfiguration,
+  AgentCreateFields,
+  AgentUpdateInput,
+  AgentUpdateReceipt,
+} from '../api/agent-configuration'
 import type { ProjectAvailableChatModel } from '../api/project-models'
 import type { SessionController, AgentConfigurationProgress } from '../composables/useSession'
 import type { ProjectWorkspace } from '../composables/useProjectWorkspace'
@@ -85,6 +91,18 @@ async function fixture() {
       event_ids: [id(50)],
       agent: { ...configuration(p, 40), ...value, id: id(40) },
     })),
+    startUpdate: vi.fn(
+      async (p: string, a: string, value: AgentUpdateInput): Promise<AgentUpdateReceipt> => ({
+        changed: true,
+        event_ids: [id(51)],
+        agent: {
+          ...configuration(p),
+          ...value.request,
+          id: a,
+          version: String(BigInt(value.expected_version) + 1n),
+        },
+      }),
+    ),
     checkOriginal: vi.fn(async () => ({ status: 'not_observed' as const, receipt: null })),
     editRejected: vi.fn(),
     abandonRead: vi.fn(),
@@ -139,6 +157,7 @@ describe('Project Agent settings publication', () => {
     )
     const reading = f.owner.selectAgent(id(2))
     f.progress.value = {
+      kind: 'create',
       projectID: id(1),
       agentID: id(40),
       phase: 'uncertain',
@@ -211,5 +230,111 @@ describe('Project Agent settings publication', () => {
     await f.owner.openCreation()
     expect(f.owner.draft.open).toBe(false)
     expect(f.api.startCreate).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('Agent edit generation and version gates', () => {
+  it('captures only touched fields and requires explicit discard and a fresh read after a version conflict', async () => {
+    const f = await fixture()
+    await f.owner.selectAgent(id(2))
+    f.owner.openEdit()
+    expect(f.owner.canSave.value).toBe(false)
+    f.owner.touchEdit('description', '')
+    f.api.startUpdate.mockRejectedValueOnce(
+      new AccountFailure('problem', {
+        type: 'urn:agenteam:problem:test',
+        title: 'Conflict',
+        status: 409,
+        detail: '',
+        instance: '/',
+        code: 'VERSION_CONFLICT',
+        request_id: id(99),
+        commit_state: 'not_committed',
+      }),
+    )
+    await f.owner.submitEdit()
+    expect(f.api.startUpdate).toHaveBeenCalledExactlyOnceWith(id(1), id(2), {
+      expected_version: '1',
+      request: { description: '' },
+    })
+    expect(f.owner.edit.description).toBe('')
+    expect(f.owner.edit.version).toBe('1')
+    expect(f.owner.editStale.value).toBe(true)
+    expect(f.owner.canSave.value).toBe(false)
+    await f.owner.submitEdit()
+    expect(f.api.startUpdate).toHaveBeenCalledTimes(1)
+    expect(f.api.getConfiguration).toHaveBeenCalledTimes(1)
+    f.api.getConfiguration.mockResolvedValueOnce({ ...configuration(), version: '2' })
+    const refresh = f.owner.refresh()
+    expect(f.owner.confirmation.open).toBe(true)
+    f.owner.finishConfirmation(false)
+    await refresh
+    expect(f.owner.edit.open).toBe(true)
+    const confirmedRefresh = f.owner.refresh()
+    f.owner.finishConfirmation(true)
+    await confirmedRefresh
+    await flushPromises()
+    expect(f.owner.edit.open).toBe(false)
+    expect(f.owner.state.configuration?.version).toBe('2')
+    f.owner.openEdit()
+    f.owner.touchEdit('name', 'Review-Agent')
+    f.api.startUpdate.mockResolvedValueOnce({
+      changed: false,
+      event_ids: [],
+      agent: { ...configuration(), version: '2' },
+    })
+    await f.owner.submitEdit()
+    expect(f.api.startUpdate).toHaveBeenLastCalledWith(id(1), id(2), {
+      expected_version: '2',
+      request: { name: 'Review-Agent' },
+    })
+    expect(f.owner.state.feedback).toBe('配置未变化，版本保持不变。')
+    expect(f.owner.state.items[0]).not.toHaveProperty('instructions')
+    expect(f.api.startCreate).not.toHaveBeenCalled()
+  })
+
+  it('confirms dirty Agent switches and ignores an edit result after the Project generation has retired', async () => {
+    const f = await fixture()
+    await f.owner.loadDirectory(true)
+    await f.owner.selectAgent(id(2))
+    f.owner.openEdit()
+    f.owner.touchEdit('instructions', '')
+    const denied = f.owner.selectAgent(id(6))
+    expect(f.owner.confirmation.open).toBe(true)
+    f.owner.finishConfirmation(false)
+    await denied
+    expect(f.owner.state.selectedID).toBe(id(2))
+    const allowed = f.owner.selectAgent(id(6))
+    f.owner.finishConfirmation(true)
+    await allowed
+    expect(f.owner.state.selectedID).toBe(id(6))
+    expect(f.owner.edit.open).toBe(false)
+    f.owner.openEdit()
+    f.owner.touchEdit('name', 'Later-Agent')
+    let finish!: () => void
+    f.api.startUpdate.mockImplementationOnce(
+      async () =>
+        new Promise<AgentUpdateReceipt>((resolve) => {
+          finish = () =>
+            resolve({
+              changed: true,
+              event_ids: [id(51)],
+              agent: { ...configuration(id(1), 6), name: 'Later-Agent', version: '2' },
+            })
+          release.push(finish)
+        }),
+    )
+    const saving = f.owner.submitEdit()
+    f.project.id = id(11)
+    f.context.value = { identity: f.identity, projectID: id(11), generation: 2, readGeneration: 2 }
+    f.owner.afterNavigation('/owner/second/settings/agents')
+    await flushPromises()
+    finish()
+    await saving
+    expect(f.owner.state.configuration).toBeNull()
+    expect(f.owner.edit.open).toBe(false)
+    expect(f.owner.state.feedback).toBe('')
+    expect(f.owner.state.items.every((item) => item.project_id === id(11))).toBe(true)
+    expect(f.api.startUpdate).toHaveBeenCalledTimes(1)
   })
 })

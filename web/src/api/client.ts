@@ -71,6 +71,11 @@ const endpoints = {
   directoryAgents: ['GET', '/api/v1/projects/{project_id}/agents', 200],
   directoryAgent: ['GET', '/api/v1/projects/{project_id}/agents/{target}', 200],
   agentConfigurationCreate: ['POST', '/api/v1/projects/{project_id}/agents', 200],
+  agentConfigurationUpdate: [
+    'PATCH',
+    '/api/v1/projects/{project_id}/agents/{target}/configuration',
+    200,
+  ],
   agentConfigurationGet: [
     'GET',
     '/api/v1/projects/{project_id}/agents/{target}/configuration',
@@ -955,6 +960,7 @@ type WorkReviewEndpoint =
   | 'directoryAgents'
   | 'directoryAgent'
   | 'agentConfigurationCreate'
+  | 'agentConfigurationUpdate'
   | 'agentConfigurationGet'
   | 'agentConfigurationLookup'
 const workReviewEndpoints: readonly WorkReviewEndpoint[] = [
@@ -975,6 +981,7 @@ const workReviewEndpoints: readonly WorkReviewEndpoint[] = [
   'directoryAgents',
   'directoryAgent',
   'agentConfigurationCreate',
+  'agentConfigurationUpdate',
   'agentConfigurationGet',
   'agentConfigurationLookup',
 ]
@@ -1573,7 +1580,9 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       headers['If-Match'] = `"${options.avatar.version}"`
     } else if (method !== 'GET') {
       const maximum =
-        endpoint === 'agentConfigurationCreate' || endpoint === 'agentConfigurationLookup'
+        endpoint === 'agentConfigurationCreate' ||
+        endpoint === 'agentConfigurationUpdate' ||
+        endpoint === 'agentConfigurationLookup'
           ? 512 * 1024
           : (workReviewEndpoints as readonly string[]).includes(endpoint)
             ? 1048576
@@ -1666,6 +1675,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           (workReviewEndpoints as readonly string[]).includes(endpoint) && success
             ? [
                 'agentConfigurationCreate',
+                'agentConfigurationUpdate',
                 'agentConfigurationGet',
                 'agentConfigurationLookup',
               ].includes(endpoint)

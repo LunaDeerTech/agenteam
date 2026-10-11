@@ -1,6 +1,10 @@
 import {
   createAgentConfigurationAPI,
   captureAgentCreateInput,
+  captureAgentUpdateInput,
+  type AgentUpdateInput,
+  type AgentUpdateReceipt,
+  type AgentUpdateLookup,
   type AgentConfigurationAPI,
   type AgentCreateFields,
   type AgentCreateInput,
@@ -289,21 +293,29 @@ export type ProjectModelSettingsProgress = Readonly<{
   contextValid: boolean
   canRetryOriginal: boolean
 }>
-type AgentConfigurationAction = 'agent-configuration-read' | 'agent-create' | 'agent-create-lookup'
-type AgentCreateIntent = {
+type AgentConfigurationAction =
+  | 'agent-configuration-read'
+  | 'agent-create'
+  | 'agent-create-lookup'
+  | 'agent-update'
+  | 'agent-update-lookup'
+type AgentCommandIntent = {
   identity: PersonalIdentity
   csrf: string
   projectID: string
-  input: AgentCreateInput
+  agentID: string
   key: string
   body: string
   uncertain: boolean
-}
+} & ({ kind: 'create'; input: AgentCreateInput } | { kind: 'update'; input: AgentUpdateInput })
+type AgentCommandReceipt = AgentCreateReceipt | AgentUpdateReceipt
+type AgentCommandLookup = AgentCreateLookup | AgentUpdateLookup
 export type AgentConfigurationProgress = Readonly<{
+  kind: 'create' | 'update'
   projectID: string
   agentID: string
   phase: 'submitting' | 'uncertain' | 'confirmed' | 'rejected'
-  receipt: AgentCreateReceipt | null
+  receipt: AgentCommandReceipt | null
   observation: 'none' | 'committed' | 'in_progress' | 'not_observed' | 'failed'
   contextValid: boolean
 }>
@@ -772,10 +784,12 @@ export function createSessionController(
     'agent-configuration-read': 0,
     'agent-create': 0,
     'agent-create-lookup': 0,
+    'agent-update': 0,
+    'agent-update-lookup': 0,
   }
   const isAgentConfigurationAction = (kind: Action): kind is AgentConfigurationAction =>
     Object.hasOwn(agentConfigurationRevisions, kind)
-  let agentCreateIntent: AgentCreateIntent | null = null
+  let agentCommandIntent: AgentCommandIntent | null = null
   const agentConfigurationState = shallowReactive<{
     progress: Omit<AgentConfigurationProgress, 'contextValid'> | null
   }>({ progress: null })
@@ -3799,37 +3813,57 @@ export function createSessionController(
   function clearAgentConfigurationState() {
     for (const kind of Object.keys(agentConfigurationRevisions) as AgentConfigurationAction[])
       ++agentConfigurationRevisions[kind]
-    agentCreateIntent = null
+    agentCommandIntent = null
     agentConfigurationState.progress = null
     if (owner && isAgentConfigurationAction(owner.kind)) owner.abandon?.()
   }
-  function agentCreateCurrent(original: AgentCreateIntent) {
-    return agentCreateIntent === original && projectContext(original)
+  function agentCommandCurrent(original: AgentCommandIntent) {
+    return agentCommandIntent === original && projectContext(original)
   }
-  function publishAgentCreate(
-    original: AgentCreateIntent,
+  function publishAgentCommand(
+    original: AgentCommandIntent,
     phase: AgentConfigurationProgress['phase'],
-    receipt: AgentCreateReceipt | null = null,
+    receipt: AgentCommandReceipt | null = null,
     observation: AgentConfigurationProgress['observation'] = 'none',
   ) {
     agentConfigurationState.progress = Object.freeze({
       projectID: original.projectID,
-      agentID: original.input.request.agent_id,
+      agentID: original.agentID,
+      kind: original.kind,
       phase,
       receipt,
       observation,
     })
   }
-  function performAgentCreate(original: AgentCreateIntent, lookup: boolean) {
+  function performAgentCommand(
+    original: Extract<AgentCommandIntent, { kind: 'create' }>,
+    lookup: boolean,
+  ): Promise<AgentCreateReceipt | AgentCreateLookup>
+  function performAgentCommand(
+    original: Extract<AgentCommandIntent, { kind: 'update' }>,
+    lookup: boolean,
+  ): Promise<AgentUpdateReceipt | AgentUpdateLookup>
+  function performAgentCommand(
+    original: AgentCommandIntent,
+    lookup: boolean,
+  ): Promise<AgentCommandReceipt | AgentCommandLookup>
+  function performAgentCommand(original: AgentCommandIntent, lookup: boolean) {
     if (owner) return Promise.reject(new AccountFailure('busy'))
-    if (!agentCreateCurrent(original)) return Promise.reject(new AccountFailure('invalid-input'))
-    const kind: AgentConfigurationAction = lookup ? 'agent-create-lookup' : 'agent-create'
+    if (!agentCommandCurrent(original)) return Promise.reject(new AccountFailure('invalid-input'))
+    const kind: AgentConfigurationAction =
+      original.kind === 'update'
+        ? lookup
+          ? 'agent-update-lookup'
+          : 'agent-update'
+        : lookup
+          ? 'agent-create-lookup'
+          : 'agent-create'
     const revision = agentConfigurationRevisions[kind]
     const live = () =>
-      agentCreateCurrent(original) && revision === agentConfigurationRevisions[kind]
+      agentCommandCurrent(original) && revision === agentConfigurationRevisions[kind]
     let dispatched = false
-    if (!lookup) publishAgentCreate(original, 'submitting')
-    return runAuthorized<AgentCreateReceipt | AgentCreateLookup>(
+    if (!lookup) publishAgentCommand(original, 'submitting')
+    return runAuthorized<AgentCommandReceipt | AgentCommandLookup>(
       original.identity,
       async (op, current) => {
         if (!current() || !live()) throw new AccountFailure('cancelled')
@@ -3837,6 +3871,20 @@ export function createSessionController(
           throw new AccountFailure('invalid-input')
         dispatched = true
         const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
+        if (original.kind === 'update')
+          return lookup
+            ? agentConfigurationAPI.lookupUpdate(
+                original.projectID,
+                original.agentID,
+                original.input,
+                write,
+              )
+            : agentConfigurationAPI.update(
+                original.projectID,
+                original.agentID,
+                original.input,
+                write,
+              )
         return lookup
           ? agentConfigurationAPI.lookup(original.projectID, original.input, write)
           : agentConfigurationAPI.create(original.projectID, original.input, write)
@@ -3848,12 +3896,12 @@ export function createSessionController(
         if (!live()) throw new AccountFailure('cancelled')
         if ('status' in value && value.status !== 'committed') {
           original.uncertain = true
-          publishAgentCreate(original, 'uncertain', null, value.status)
+          publishAgentCommand(original, 'uncertain', null, value.status)
           return value
         }
         const receipt = 'status' in value ? value.receipt : value
-        publishAgentCreate(original, 'confirmed', receipt, lookup ? 'committed' : 'none')
-        agentCreateIntent = null
+        publishAgentCommand(original, 'confirmed', receipt, lookup ? 'committed' : 'none')
+        agentCommandIntent = null
         return value
       },
       (error) => {
@@ -3866,7 +3914,7 @@ export function createSessionController(
               ['not_started', 'not_committed'].includes(p.commit_state) &&
               p.code !== 'IDEMPOTENCY_KEY_REUSED')
           original.uncertain ||= lookup || !rejected
-          publishAgentCreate(
+          publishAgentCommand(
             original,
             original.uncertain ? 'uncertain' : 'rejected',
             null,
@@ -3911,7 +3959,7 @@ export function createSessionController(
       return value
         ? Object.freeze({
             ...value,
-            contextValid: !!agentCreateIntent && agentCreateCurrent(agentCreateIntent),
+            contextValid: !!agentCommandIntent && agentCommandCurrent(agentCommandIntent),
           })
         : null
     },
@@ -3927,7 +3975,7 @@ export function createSessionController(
     startCreate(projectID: string, fields: Omit<AgentCreateFields, 'agent_id'>) {
       try {
         const identity = personalIdentity()
-        if (owner || agentCreateIntent || personalIntent || pending)
+        if (owner || agentCommandIntent || personalIntent || pending)
           throw new AccountFailure('busy')
         if (
           !uuid7.test(projectID) ||
@@ -3937,7 +3985,9 @@ export function createSessionController(
         )
           throw new AccountFailure('invalid-input')
         const input = captureAgentCreateInput({ request: { ...fields, agent_id: newAgentID() } })
-        const original: AgentCreateIntent = {
+        const original: AgentCommandIntent = {
+          kind: 'create',
+          agentID: input.request.agent_id,
           identity,
           csrf: sessionCSRF,
           projectID,
@@ -3946,26 +3996,51 @@ export function createSessionController(
           body: JSON.stringify(input),
           uncertain: false,
         }
-        agentCreateIntent = original
-        return performAgentCreate(original, false)
+        agentCommandIntent = original
+        return performAgentCommand(original, false)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    startUpdate(projectID: string, agentID: string, value: AgentUpdateInput) {
+      try {
+        const identity = personalIdentity()
+        if (owner || agentCommandIntent || personalIntent || pending)
+          throw new AccountFailure('busy')
+        if (!uuid7.test(projectID) || !uuid7.test(agentID))
+          throw new AccountFailure('invalid-input')
+        const input = captureAgentUpdateInput(value)
+        const original: AgentCommandIntent = {
+          kind: 'update',
+          identity,
+          csrf: sessionCSRF,
+          projectID,
+          agentID,
+          input,
+          key: newKey(),
+          body: JSON.stringify(input),
+          uncertain: false,
+        }
+        agentCommandIntent = original
+        return performAgentCommand(original, false)
       } catch (error) {
         return Promise.reject(error)
       }
     },
     checkOriginal() {
-      if (!agentCreateIntent?.uncertain) return Promise.reject(new AccountFailure('invalid-input'))
-      return performAgentCreate(agentCreateIntent, true)
+      if (!agentCommandIntent?.uncertain) return Promise.reject(new AccountFailure('invalid-input'))
+      return performAgentCommand(agentCommandIntent, true)
     },
     editRejected() {
       if (
         owner ||
-        !agentCreateIntent ||
-        !agentCreateCurrent(agentCreateIntent) ||
-        agentCreateIntent.uncertain ||
+        !agentCommandIntent ||
+        !agentCommandCurrent(agentCommandIntent) ||
+        agentCommandIntent.uncertain ||
         agentConfigurationState.progress?.phase !== 'rejected'
       )
         throw new AccountFailure('busy')
-      agentCreateIntent = null
+      agentCommandIntent = null
       agentConfigurationState.progress = null
     },
   }

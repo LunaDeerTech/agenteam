@@ -6,12 +6,26 @@ import type {
   AgentConfiguration,
   AgentCreateFields,
   AgentCreateReceipt,
+  AgentUpdateFields,
+  AgentUpdateReceipt,
 } from '../api/agent-configuration'
 import type { ProjectAvailableChatModel } from '../api/project-models'
 import { projectRoute } from '../router/auth'
 import type { SessionController } from './useSession'
 import type { ProjectWorkspace } from './useProjectWorkspace'
 
+type EditField = 'name' | 'description' | 'instructions'
+const initialEdit = () => ({
+  open: false,
+  agentID: '',
+  version: '',
+  name: '',
+  description: '',
+  instructions: '',
+  touched: {} as Partial<Record<EditField, true>>,
+  conflict: false,
+  message: '',
+})
 type Phase = 'idle' | 'loading' | 'ready' | 'error'
 const initialDraft = () => ({
   open: false,
@@ -34,6 +48,8 @@ function explain(error: unknown) {
   if (e.problem?.status === 401 || e.problem?.code === 'CSRF_FAILED')
     return '会话已失效，请重新登录。'
   if ([403, 404].includes(e.problem?.status ?? 0)) return '当前项目或 Agent 不可用，或无权访问。'
+  if (e.problem?.code === 'VERSION_CONFLICT')
+    return 'Agent 配置已有新版本。请取消编辑并重新读取，核对后再保存。'
   if (e.problem?.code === 'CURSOR_INVALID') return '目录已变化，请从第一页重新读取。'
   if (e.kind === 'invalid-input')
     return '请核对名称、模型和必填配置。名称须为 3–32 位英文字母、数字或连字符。'
@@ -69,6 +85,7 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
     feedback: '',
   })
   const draft = reactive(initialDraft())
+  const edit = reactive(initialEdit())
   const confirmation = reactive({ open: false, message: '' })
   const route = ref(''),
     reading = ref(false)
@@ -100,6 +117,30 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
   const busy = computed(() => reading.value || auth.state.busy || confirmation.open)
   const canCreate = computed(
     () => visible.value && workspace.detail.project?.lifecycle === 'active' && !pending.value,
+  )
+  const canEdit = computed(
+    () =>
+      canCreate.value &&
+      state.detailPhase === 'ready' &&
+      !!state.configuration &&
+      state.configuration.id === state.selectedID &&
+      !draft.open,
+  )
+  const editDirty = computed(() => edit.open && Object.keys(edit.touched).length > 0)
+  const editStale = computed(() => {
+    const a = state.configuration
+    return (
+      edit.conflict || (edit.open && (!a || a.id !== edit.agentID || a.version !== edit.version))
+    )
+  })
+  const canSave = computed(
+    () =>
+      canEdit.value &&
+      !busy.value &&
+      edit.open &&
+      editDirty.value &&
+      !editStale.value &&
+      !!edit.name.trim(),
   )
   const model = computed(() => state.models.find((m) => m.id === draft.modelID))
   const modelOptions = computed(() =>
@@ -173,6 +214,7 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
       feedback: '',
     })
     Object.assign(draft, initialDraft())
+    Object.assign(edit, initialEdit())
   }
   async function read<T>(
     work: (p: string) => Promise<T>,
@@ -262,18 +304,32 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
     if (live(own, p) && state.selectedID) await loadConfiguration(state.selectedID)
     if (live(own, p) && draft.open) await loadModels()
   }
-  function refresh() {
+  async function refresh() {
     if (busy.value || !visible.value) return
+    if (edit.open && !(await cancelEdit())) return
     requested = true
     void pump()
   }
   async function selectAgent(id: string) {
     if (busy.value || !visible.value || !state.items.some((a) => a.id === id)) return
+    if (state.selectedID === id) return
+    const own = generation,
+      p = projectID.value!
     if (draft.open && !(await cancelCreation())) return
+    if (edit.open && !pending.value && !(await cancelEdit())) return
+    if (progress.value?.kind === 'update' && progress.value.phase === 'uncertain') {
+      if (!(await ask('保存结果尚未确认。切换后仍须查询原 Agent 的原操作，不能重新保存。'))) return
+      Object.assign(edit, initialEdit())
+    }
+    if (!live(own, p)) return
+    retire()
+    state.feedback = ''
     state.selectedID = id
     await loadConfiguration(id)
   }
   async function openCreation() {
+    if (!canCreate.value || busy.value) return
+    if (edit.open && !(await cancelEdit())) return
     if (!canCreate.value || busy.value) return
     if (progress.value?.phase === 'rejected') auth.agentConfiguration.editRejected()
     Object.assign(draft, initialDraft(), { open: true })
@@ -299,15 +355,8 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
     Object.assign(draft, initialDraft())
     return true
   }
-  function acceptCreation(receipt: AgentCreateReceipt) {
-    Object.assign(draft, initialDraft())
-    state.configuration = receipt.agent
-    state.selectedID = receipt.agent.id
-    state.detailPhase = 'ready'
-    state.detailMessage = ''
-    state.feedback = 'Agent 已创建。配置与运行权限仍以实际服务校验为准。'
-    const a = receipt.agent
-    const summary: DirectoryAgent = {
+  function publishSummary(a: AgentConfiguration) {
+    const summary: DirectoryAgent = Object.freeze({
       id: a.id,
       project_id: a.project_id,
       name: a.name,
@@ -317,9 +366,82 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
       version: a.version,
       created_at: a.created_at,
       updated_at: a.updated_at,
+    })
+    state.items = state.items.some((v) => v.id === a.id)
+      ? state.items.map((v) => (v.id === a.id ? summary : v))
+      : [summary, ...state.items]
+  }
+  function acceptUpdate(receipt: AgentUpdateReceipt) {
+    if (edit.agentID === receipt.agent.id) Object.assign(edit, initialEdit())
+    if (state.selectedID === receipt.agent.id) {
+      state.configuration = receipt.agent
+      state.detailPhase = 'ready'
+      state.detailMessage = ''
     }
-    if (!state.items.some((v) => v.id === a.id))
-      state.items = [Object.freeze(summary), ...state.items]
+    publishSummary(receipt.agent)
+    state.feedback = receipt.changed ? 'Agent 配置已保存。' : '配置未变化，版本保持不变。'
+  }
+  function openEdit() {
+    if (!canEdit.value || busy.value || !state.configuration) return
+    if (progress.value?.phase === 'rejected') auth.agentConfiguration.editRejected()
+    const a = state.configuration
+    Object.assign(edit, initialEdit(), {
+      open: true,
+      agentID: a.id,
+      version: a.version,
+      name: a.name,
+      description: a.description,
+      instructions: a.instructions,
+    })
+    state.feedback = ''
+  }
+  function touchEdit(field: EditField, value: string) {
+    if (!canEdit.value || busy.value || !edit.open || editStale.value) return
+    edit[field] = value
+    edit.touched[field] = true
+    edit.message = ''
+  }
+  async function cancelEdit() {
+    if (busy.value || pending.value) return false
+    const own = generation,
+      p = projectID.value
+    if (editDirty.value && !(await ask('放弃尚未保存的 Agent 修改？'))) return false
+    if (!p || !live(own, p)) return false
+    Object.assign(edit, initialEdit())
+    return true
+  }
+  async function submitEdit() {
+    if (!canSave.value || !projectID.value) return
+    const own = generation,
+      p = projectID.value,
+      a = edit.agentID
+    const request: AgentUpdateFields = Object.freeze({
+      ...(edit.touched.name ? { name: edit.name } : {}),
+      ...(edit.touched.description ? { description: edit.description } : {}),
+      ...(edit.touched.instructions ? { instructions: edit.instructions } : {}),
+    })
+    if (progress.value?.phase === 'rejected') auth.agentConfiguration.editRejected()
+    edit.message = ''
+    try {
+      const value = await auth.agentConfiguration.startUpdate(p, a, {
+        expected_version: edit.version,
+        request,
+      })
+      if (live(own, p) && state.selectedID === a && !('status' in value)) acceptUpdate(value)
+    } catch (error) {
+      if (!live(own, p) || state.selectedID !== a) return
+      edit.conflict = error instanceof AccountFailure && error.problem?.code === 'VERSION_CONFLICT'
+      edit.message = explain(error)
+    }
+  }
+  function acceptCreation(receipt: AgentCreateReceipt) {
+    Object.assign(draft, initialDraft())
+    state.configuration = receipt.agent
+    state.selectedID = receipt.agent.id
+    state.detailPhase = 'ready'
+    state.detailMessage = ''
+    state.feedback = 'Agent 已创建。配置与运行权限仍以实际服务校验为准。'
+    publishSummary(receipt.agent)
   }
   async function submitCreation() {
     if (!canSubmit.value) return
@@ -361,8 +483,10 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
     try {
       const value = await auth.agentConfiguration.checkOriginal()
       if (!live(own, p)) return
-      if ('status' in value && value.status === 'committed') acceptCreation(value.receipt)
-      else state.feedback = '尚未确认原创建结果，请继续保留原操作。'
+      if ('status' in value && value.status === 'committed') {
+        if (original.kind === 'update') acceptUpdate(value.receipt)
+        else if (value.receipt.changed) acceptCreation({ ...value.receipt, changed: true })
+      } else state.feedback = '尚未确认原操作结果，请继续保留原操作。'
     } catch (error) {
       if (live(own, p)) state.feedback = explain(error)
     }
@@ -385,13 +509,16 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
     if (!visible.value || target === route.value) return true
     if (busy.value) return false
     const uncertain = progress.value?.phase === 'uncertain' && progress.value.contextValid
-    if (!dirty.value && !uncertain) return true
+    if (!dirty.value && !editDirty.value && !uncertain) return true
     const yes = await ask(
       uncertain
-        ? '创建结果尚未确认。离开后仍需回到原项目查询原操作，不能重新创建。'
+        ? '操作结果尚未确认。离开后仍需回到原项目查询原操作，不能重新提交。'
         : '放弃尚未提交的 Agent 配置并离开？',
     )
-    if (yes) Object.assign(draft, initialDraft())
+    if (yes) {
+      Object.assign(draft, initialDraft())
+      Object.assign(edit, initialEdit())
+    }
     return yes
   }
   function afterNavigation(to: string) {
@@ -442,6 +569,15 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
   return {
     state,
     draft,
+    edit,
+    editDirty,
+    editStale,
+    canEdit,
+    canSave,
+    openEdit,
+    touchEdit,
+    cancelEdit,
+    submitEdit,
     visible,
     projectID,
     progress,

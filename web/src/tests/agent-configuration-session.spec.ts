@@ -7,11 +7,15 @@ import {
   type AgentCreateFields,
   type AgentCreateInput,
   type AgentCreateReceipt,
+  type AgentUpdateInput,
+  type AgentUpdateReceipt,
 } from '../api/agent-configuration'
 import { createSessionController, type SessionController } from '../composables/useSession'
 const id = (n: number) => `01990000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
 const instant = '2026-10-11T10:00:00.000000Z',
   project = id(10)
+const updateAgent = id(60),
+  updatePath = `/api/v1/projects/${project}/agents/${updateAgent}/configuration`
 const createPath = `/api/v1/projects/${project}/agents`,
   lookupPath = `/api/v1/projects/${project}/agent-commands/lookup`
 const session = (n = 2): SessionView => ({
@@ -74,6 +78,19 @@ function receipt(value: AgentCreateInput): AgentCreateReceipt {
     },
   }
 }
+function updated(value: AgentUpdateInput): AgentUpdateReceipt {
+  const base = receipt({ request: { ...fields(), agent_id: updateAgent } }).agent
+  return {
+    changed: true,
+    event_ids: [id(61)],
+    agent: {
+      ...base,
+      ...value.request,
+      normalized_name: (value.request.name ?? base.name).toLowerCase(),
+      version: String(BigInt(value.expected_version) + 1n),
+    },
+  }
+}
 const json = (value: unknown, status = 200) =>
   new Response(JSON.stringify(value), {
     status,
@@ -106,15 +123,26 @@ afterEach(async () => {
 })
 async function fixture() {
   let current = session(),
-    create: Fetch | null = null
+    create: Fetch | null = null,
+    update: Fetch | null = null
   let status: 'not_observed' | 'in_progress' | 'committed' = 'committed'
   const fetch = vi.fn<Fetch>(async (path, init) => {
     if (path === '/api/v1/session') return json(current)
     if (path === createPath)
       return create ? create(path, init) : json(receipt(JSON.parse(init.body as string)))
+    if (path === updatePath)
+      return update ? update(path, init) : json(updated(JSON.parse(init.body as string)))
     if (path === lookupPath) {
-      const body = JSON.parse(init.body as string) as AgentCreateInput
-      return json({ status, receipt: status === 'committed' ? receipt(body) : null })
+      const body = JSON.parse(init.body as string)
+      return json({
+        status,
+        receipt:
+          status === 'committed'
+            ? body.command === 'agent.update'
+              ? updated(body)
+              : receipt(body)
+            : null,
+      })
     }
     throw new Error('Unexpected Agent Session request')
   })
@@ -129,6 +157,10 @@ async function fixture() {
     setCreate(value: Fetch | null) {
       create = value
     },
+    setUpdate(value: Fetch | null) {
+      update = value
+    },
+    updates: () => fetch.mock.calls.filter(([path]) => path === updatePath),
     setStatus(value: typeof status) {
       status = value
     },
@@ -243,6 +275,89 @@ describe('Agent create original Session ownership', () => {
       kind: 'invalid-input',
     })
     expect(f.creates()).toHaveLength(1)
+    expect(f.lookups()).toHaveLength(0)
+  })
+})
+
+describe('Agent update original Session ownership', () => {
+  it('keeps the original Agent, version, presence and key through Unknown without mixing Create or resending Update', async () => {
+    const f = await fixture()
+    f.setUpdate(async () => problem('COMMIT_UNKNOWN', 'unknown'))
+    const value = {
+      expected_version: '9007199254740993',
+      request: { description: '', instructions: ' original\nbytes ' },
+    }
+    const expected = structuredClone(value)
+    const saving = f.auth.agentConfiguration.startUpdate(project, updateAgent, value)
+    value.expected_version = '2'
+    value.request.instructions = 'later'
+    await expect(saving).rejects.toMatchObject({ problem: { code: 'COMMIT_UNKNOWN' } })
+    expect(f.auth.agentConfiguration.progress).toMatchObject({
+      kind: 'update',
+      phase: 'uncertain',
+      agentID: updateAgent,
+    })
+    await expect(f.auth.agentConfiguration.startCreate(project, fields())).rejects.toMatchObject({
+      kind: 'busy',
+    })
+    await expect(
+      f.auth.agentConfiguration.startUpdate(project, id(62), value),
+    ).rejects.toMatchObject({ kind: 'busy' })
+    const first = f.updates()[0]![1]
+    expect(JSON.parse(first.body as string)).toEqual(expected)
+    for (const status of ['not_observed', 'in_progress', 'committed'] as const) {
+      f.setStatus(status)
+      expect(await f.auth.agentConfiguration.checkOriginal()).toMatchObject({ status })
+      const lookup = f.lookups().at(-1)![1]
+      expect(JSON.parse(lookup.body as string)).toEqual({
+        command: 'agent.update',
+        target_id: updateAgent,
+        ...expected,
+      })
+      expect(lookup.headers).toMatchObject({
+        'Idempotency-Key': (first.headers as Record<string, string>)['Idempotency-Key'],
+      })
+    }
+    expect(f.auth.agentConfiguration.progress).toMatchObject({
+      kind: 'update',
+      phase: 'confirmed',
+      receipt: updated(expected),
+    })
+    expect(f.updates()).toHaveLength(1)
+    expect(f.creates()).toHaveLength(0)
+    expect(f.auth.workReview.progress).toBeNull()
+  })
+
+  it('holds the update Cookie owner until its actual tail returns and never publishes it into a later Session', async () => {
+    const f = await fixture()
+    let release!: () => void
+    f.setUpdate(
+      async (_path, init) =>
+        new Promise<Response>((resolve) => {
+          release = () => resolve(json(updated(JSON.parse(init.body as string))))
+          releases.push(release)
+        }),
+    )
+    const saving = f.auth.agentConfiguration.startUpdate(project, updateAgent, {
+      expected_version: '1',
+      request: { name: 'Changed-Agent' },
+    })
+    const rejected = expect(saving).rejects.toMatchObject({ kind: 'cancelled' })
+    await flushPromises()
+    f.auth.leave()
+    await rejected
+    expect(f.auth.state.busy).toBe(true)
+    expect(f.auth.agentConfiguration.progress).toBeNull()
+    release()
+    await flushPromises()
+    expect(f.auth.state.busy).toBe(false)
+    f.setSession(session(3))
+    await f.auth.restore()
+    await expect(f.auth.agentConfiguration.checkOriginal()).rejects.toMatchObject({
+      kind: 'invalid-input',
+    })
+    expect(f.auth.agentConfiguration.progress).toBeNull()
+    expect(f.updates()).toHaveLength(1)
     expect(f.lookups()).toHaveLength(0)
   })
 })

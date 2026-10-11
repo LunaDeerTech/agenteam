@@ -2,9 +2,25 @@
 import { nextTick, ref } from 'vue'
 import { UiButton, UiState } from '../../components/ui'
 import AgentCreateForm from '../../components/agents/AgentCreateForm.vue'
+import AgentEditForm from '../../components/agents/AgentEditForm.vue'
 import { useProjectAgents } from '../../composables/useProjectAgents'
 const owner = useProjectAgents(),
   state = owner.state
+const editButton = ref<{ $el: HTMLButtonElement } | null>(null)
+async function cancelEdit() {
+  const p = owner.projectID.value,
+    a = state.selectedID
+  const cancelled = await owner.cancelEdit()
+  await nextTick()
+  if (
+    cancelled &&
+    !owner.edit.open &&
+    owner.visible.value &&
+    p === owner.projectID.value &&
+    a === state.selectedID
+  )
+    editButton.value?.$el.focus()
+}
 const createButton = ref<{ $el: HTMLButtonElement } | null>(null)
 async function cancelCreation() {
   const p = owner.projectID.value
@@ -24,7 +40,7 @@ const approval = { default: '默认审批', auto: '模型自动审批', allow: '
       </div>
       <UiButton
         ref="createButton"
-        v-if="!owner.draft.open && !owner.pending.value"
+        v-if="!owner.draft.open && !owner.edit.open && !owner.pending.value"
         :disabled="!owner.canCreate.value || owner.busy.value"
         @click="owner.openCreation()"
         >创建 Agent</UiButton
@@ -36,24 +52,38 @@ const approval = { default: '默认审批', auto: '模型自动审批', allow: '
     <UiState v-if="!owner.visible.value" kind="loading" title="正在确认项目访问身份" />
     <template v-else>
       <p v-if="!owner.canCreate.value && !owner.pending.value" role="status">
-        当前项目为只读，不能创建 Agent。
+        当前项目为只读，不能创建或编辑 Agent。
       </p>
       <p v-if="owner.pending.value && !owner.progress.value" role="status">
-        另一项目的 Agent 创建结果待确认，请返回原项目查询原操作。
+        另一项目的 Agent 操作结果待确认，请返回原项目查询原操作。
       </p>
       <p v-if="owner.progress.value?.phase === 'submitting'" role="status">
-        正在创建 Agent，请等待原请求结束。
+        {{
+          owner.progress.value.kind === 'update'
+            ? '正在保存配置，请等待原请求结束。'
+            : '正在创建 Agent，请等待原请求结束。'
+        }}
       </p>
       <section
         v-if="owner.progress.value?.phase === 'uncertain'"
         class="agent-recovery"
-        aria-label="Agent 创建结果恢复"
+        :aria-label="
+          owner.progress.value.kind === 'update' ? 'Agent 保存结果恢复' : 'Agent 创建结果恢复'
+        "
       >
-        <p role="status">创建结果待确认。请查询原操作结果，不要重复创建。</p>
+        <p role="status">
+          {{
+            owner.progress.value.kind === 'update'
+              ? '保存结果待确认。请查询原操作结果，不要重复保存。'
+              : '创建结果待确认。请查询原操作结果，不要重复创建。'
+          }}
+        </p>
         <UiButton
           :disabled="owner.busy.value || !owner.progress.value.contextValid"
           @click="owner.lookup()"
-          >查询原创建结果</UiButton
+          >{{
+            owner.progress.value.kind === 'update' ? '查询原保存结果' : '查询原创建结果'
+          }}</UiButton
         >
       </section>
       <p v-if="state.feedback" role="status">{{ state.feedback }}</p>
@@ -90,6 +120,11 @@ const approval = { default: '默认审批', auto: '模型自动审批', allow: '
             :owner="owner"
             @cancel="cancelCreation"
           />
+          <AgentEditForm
+            v-else-if="owner.edit.open && !owner.pending.value"
+            :owner="owner"
+            @cancel="cancelEdit"
+          />
           <template v-else-if="state.selectedID">
             <UiState
               v-if="state.detailPhase === 'loading'"
@@ -105,7 +140,13 @@ const approval = { default: '默认审批', auto: '模型自动审批', allow: '
             >
             <template v-if="state.configuration && state.detailPhase === 'ready'">
               <h2>{{ state.configuration.display_name ?? state.configuration.name }}</h2>
-              <p>只读配置。目录和配置本身不授予执行权限。</p>
+              <p>目录和配置本身不授予执行权限。</p>
+              <UiButton
+                ref="editButton"
+                :disabled="!owner.canEdit.value || owner.busy.value"
+                @click="owner.openEdit()"
+                >编辑配置</UiButton
+              >
               <dl class="agent-facts">
                 <dt>名称</dt>
                 <dd>{{ state.configuration.name }}</dd>

@@ -22,6 +22,20 @@ export type AgentCreateFields = Readonly<{
   add_skills_enabled?: boolean
   install_skill_enabled?: boolean
 }>
+export type AgentUpdateFields = Readonly<{
+  name?: string
+  description?: string
+  instructions?: string
+}>
+export type AgentUpdateInput = Readonly<{ expected_version: string; request: AgentUpdateFields }>
+export type AgentUpdateReceipt = Readonly<{
+  agent: AgentConfiguration
+  changed: boolean
+  event_ids: readonly string[]
+}>
+export type AgentUpdateLookup =
+  | Readonly<{ status: 'committed'; receipt: AgentUpdateReceipt }>
+  | Readonly<{ status: 'in_progress' | 'not_observed'; receipt: null }>
 export type AgentCreateInput = Readonly<{ request: AgentCreateFields }>
 export type AgentConfiguration = Readonly<{
   id: string
@@ -54,6 +68,18 @@ export type AgentCreateLookup =
   | Readonly<{ status: 'committed'; receipt: AgentCreateReceipt }>
   | Readonly<{ status: 'in_progress' | 'not_observed'; receipt: null }>
 export interface AgentConfigurationAPI {
+  update(
+    project: string,
+    agent: string,
+    input: AgentUpdateInput,
+    write: WriteOptions,
+  ): Promise<AgentUpdateReceipt>
+  lookupUpdate(
+    project: string,
+    agent: string,
+    input: AgentUpdateInput,
+    write: WriteOptions,
+  ): Promise<AgentUpdateLookup>
   create(project: string, input: AgentCreateInput, write: WriteOptions): Promise<AgentCreateReceipt>
   getConfiguration(project: string, agent: string, signal: AbortSignal): Promise<AgentConfiguration>
   lookup(project: string, input: AgentCreateInput, write: WriteOptions): Promise<AgentCreateLookup>
@@ -204,6 +230,41 @@ export function captureAgentCreateInput(value: unknown): AgentCreateInput {
   })
 }
 
+// Omitted fields remain omitted; an explicit empty description/instructions is a clear.
+export function captureAgentUpdateInput(value: unknown): AgentUpdateInput {
+  return input(() => {
+    const outer = shape(value, ['expected_version', 'request'])
+    const v = shape(outer.request, [], ['name', 'description', 'instructions'])
+    requireValue(Object.keys(v).length > 0)
+    return Object.freeze({
+      expected_version: workVersion(outer.expected_version),
+      request: Object.freeze({
+        ...(Object.hasOwn(v, 'name') ? { name: name(v.name) } : {}),
+        ...(Object.hasOwn(v, 'description') ? { description: workText(v.description, 8192) } : {}),
+        ...(Object.hasOwn(v, 'instructions')
+          ? { instructions: workText(v.instructions, 32768) }
+          : {}),
+      }),
+    })
+  })
+}
+function updateReceipt(
+  value: unknown,
+  project: string,
+  target: string,
+  original: AgentUpdateInput,
+): AgentUpdateReceipt {
+  const v = shape(value, ['agent', 'changed', 'event_ids'])
+  const agent = configuration(v.agent, project, target),
+    changed = bool(v.changed)
+  const version = BigInt(original.expected_version) + (changed ? 1n : 0n)
+  requireValue(version <= 9223372036854775807n && agent.version === String(version))
+  for (const key of ['name', 'description', 'instructions'] as const)
+    if (Object.hasOwn(original.request, key)) requireValue(agent[key] === original.request[key])
+  requireValue(Array.isArray(v.event_ids) && v.event_ids.length === (changed ? 1 : 0))
+  return Object.freeze({ agent, changed, event_ids: Object.freeze(v.event_ids.map(workID)) })
+}
+
 function configuration(value: unknown, project: string, target: string): AgentConfiguration {
   const v = shape(value, [
     'id',
@@ -299,6 +360,46 @@ function receipt(value: unknown, project: string, original: AgentCreateInput): A
 export function createAgentConfigurationAPI(fetcher?: Fetch): AgentConfigurationAPI {
   const call = accountTransport(fetcher)
   return {
+    update(project, target, value, write) {
+      const original = captureAgentUpdateInput(value)
+      return call('agentConfigurationUpdate', (v) => updateReceipt(v, project, target, original), {
+        projectID: input(() => workID(project)),
+        target: input(() => workID(target)),
+        signal: write.signal ?? new AbortController().signal,
+        csrf: write.csrfToken,
+        key: write.key,
+        body: original,
+      })
+    },
+    lookupUpdate(project, target, value, write) {
+      const original = captureAgentUpdateInput(value)
+      input(() => workID(target))
+      return call(
+        'agentConfigurationLookup',
+        (value): AgentUpdateLookup => {
+          const v = shape(value, ['status', 'receipt'])
+          if (v.status === 'committed')
+            return Object.freeze({
+              status: 'committed',
+              receipt: updateReceipt(v.receipt, project, target, original),
+            })
+          requireValue(
+            (v.status === 'in_progress' || v.status === 'not_observed') && v.receipt === null,
+          )
+          return Object.freeze({
+            status: v.status as 'in_progress' | 'not_observed',
+            receipt: null,
+          })
+        },
+        {
+          projectID: input(() => workID(project)),
+          signal: write.signal ?? new AbortController().signal,
+          csrf: write.csrfToken,
+          key: write.key,
+          body: { command: 'agent.update', target_id: target, ...original },
+        },
+      )
+    },
     create(project, value, write) {
       const original = captureAgentCreateInput(value)
       return call('agentConfigurationCreate', (v) => receipt(v, project, original), {
