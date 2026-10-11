@@ -9,14 +9,12 @@
 | Agent Secret Variable 白名单 UI — `ai/agent-secret-allowlist-ui-20261011` | variables_review 交付，secret_allowlist_fixture 方法 | 基线 9bc9e13a；普通 Owner 的安全 metadata 选择与 Agent 创建/编辑、原 Unknown 恢复正在独立实现；未验收，不接 Secret 值或运行注入。 |
 | Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |
 
-Project Usage 只读 UI 已正式交付并推送 main（066bf），native03 有限业务、视觉及完整退出尾独验接受；原 native01/02 FAIL 保留，不外推完整 D09。
-
 ## 保留与清理
 
 - SkillHTTP 树保留活跃热 Go cache，SkillsMilestoneResume 树保留共享只读 modules 与既有运行依赖；Go writer 和 native 窗口均按 root 明确交接。
-- ProjectVariablesResume 保留未完恢复；ObjectSafe 保留原件与失败。Move 活跃树保留；Usage 原树及原件等待独立清理核验，未核其他树不自动清理。
-- Find、Sprint、Title、AgentDisplay、TaskHistoryFilters、SecretAudit、Runner Workspace、Outbox、Secrets、KnowledgeTextUI、Milestone、KnowledgeHTTP、SchedulerHTTP、SchedulerUI、SkillUI、AgentRunner 后端、AgentRunner UI、ExecutionMountCapture 十八组 tree/local/remote 已全部清理。最近三树已普通 remove，三远端引用按精确 lease 原子删除成功；三本地引用仅因 squash 非祖先被普通 `-d` 拒绝，在完整交付、材料保全与无依赖核实后逐个窄 `-D` 成功。root 已确认 worktree、本地及 tracking 查询均无三项，成功的精确 ls-remote 为空，main+ai fetch/prune 实际成功。完整原件迁入 main `output/ai/` 各任务目录，依赖与日志映射见各自保全说明。另 25 个严格 main 祖先旧远端引用已按逐 OID lease 原子删除，精确查询为空、fetch/prune 成功；本地 work296 已普通删除。合计清理 43 个远端引用、19 个本地分支和 18 个 WorkTree；额外 25 个引用没有对应本地分支或树。154 个未证明包含于 main 的引用与 1 个显式保留历史引用仍未动，其他活动分支按 owner 保留。
+- ProjectVariablesResume 保留未完恢复；ObjectSafe 保留原件与失败。Move 活跃树保留，未核其他树不自动清理。
+- Find、Sprint、Title、AgentDisplay、TaskHistoryFilters、SecretAudit、Runner Workspace、Outbox、Secrets、KnowledgeTextUI、Milestone、KnowledgeHTTP、SchedulerHTTP、SchedulerUI、SkillUI、AgentRunner 后端、AgentRunner UI、ExecutionMountCapture、Project Usage UI 十九组 tree/local/remote 已全部清理。近期四树已普通 remove，远端引用按精确 lease 删除成功；对应本地引用仅因 squash 非祖先被普通 `-d` 拒绝，在完整交付、材料保全与无依赖核实后逐个窄 `-D` 成功。root 已确认对应 worktree、本地及 tracking 引用均不存在，成功的精确 ls-remote 为空，main+ai fetch/prune 实际成功。完整原件迁入 main `output/ai/` 各任务目录，依赖与日志映射见各自保全说明。另 25 个严格 main 祖先旧远端引用已按逐 OID lease 原子删除，精确查询为空、fetch/prune 成功；本地 work296 已普通删除。合计清理 44 个远端引用、20 个本地分支和 19 个 WorkTree；额外 25 个引用没有对应本地分支或树。154 个未证明包含于 main 的引用与 1 个显式保留历史引用仍未动，其他活动分支按 owner 保留。
 
-跨设备必要差额见 [Sprint](sprint-edit-ui/README.md)、[Title](knowledge-title-search-ui/README.md)、[TaskHistory](task-history-filters/README.md)、[SecretAudit](secret-audit-stop-adapters/README.md)、[Outbox](outbox-stop-adapter/README.md)、[AgentRunner 后端](agent-runner-mounts/README.md)、[AgentRunner UI](agent-runner-mounts-ui/README.md)、[ExecutionMountCapture](execution-mount-capture/README.md) 的历史 main 基准与最小补丁，均已实际应用并逐字核已记录的必要输入。最近三套原件位于 `output/ai/retired-20261011/`，原 FAIL 与 UI 早期未记录完整 source map 的限制保留。Outbox 补丁仅恢复已复用的历史 PG 输入，当前安全修后代码从 main 恢复；AgentDisplay、Find、Runner Workspace 无需额外源码差额。原 FAIL、绝对路径和验收范围不改写，不复制整树、日志或依赖入 Git。
+跨设备必要差额见 [Sprint](sprint-edit-ui/README.md)、[Title](knowledge-title-search-ui/README.md)、[TaskHistory](task-history-filters/README.md)、[SecretAudit](secret-audit-stop-adapters/README.md)、[Outbox](outbox-stop-adapter/README.md)、[AgentRunner 后端](agent-runner-mounts/README.md)、[AgentRunner UI](agent-runner-mounts-ui/README.md)、[ExecutionMountCapture](execution-mount-capture/README.md)、[Project Usage UI](project-usage-read-ui/README.md) 的历史 main 基准与最小补丁，均已实际应用并逐字核已记录的必要输入。最近四套原件位于 `output/ai/retired-20261011/`；原 FAIL、早期 UI 未记录完整 source map，以及 Usage 局部 SHA map 对应的部分未提交源码字节缺失限制均保留。Outbox 补丁仅恢复已复用的历史 PG 输入，当前安全修后代码从 main 恢复；AgentDisplay、Find、Runner Workspace 无需额外源码差额。原 FAIL、绝对路径和验收范围不改写，不复制整树、日志或依赖入 Git。
 
 完整 Project initializer、ready、生产 participant/Control 绑定及既有 STOP 按正式记录保持；本索引不批准恢复旧网络故障 probe 或其他停项。
