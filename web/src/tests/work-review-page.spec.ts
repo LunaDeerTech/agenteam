@@ -277,10 +277,15 @@ async function page(state: Task['state'] = 'in_progress', empty = false, blocked
   }
 }
 const body = () => new DOMWrapper(document.body)
+function buttonLabel(item: DOMWrapper<HTMLButtonElement>) {
+  const element = item.element.cloneNode(true) as HTMLButtonElement
+  for (const hidden of element.querySelectorAll('[aria-hidden="true"]')) hidden.remove()
+  return element.getAttribute('aria-label') ?? element.textContent?.trim() ?? ''
+}
 function button(label: string) {
   const result = body()
     .findAll<HTMLButtonElement>('button')
-    .find((item) => item.text() === label)
+    .find((item) => buttonLabel(item) === label)
   expect(result, `missing button: ${label}`).toBeDefined()
   return result!
 }
@@ -369,8 +374,8 @@ describe('Human review page with real UI controls', () => {
     expect(detail.find('form').exists()).toBe(false)
     expect(
       detail
-        .findAll('button')
-        .some((item) => ['提交评审', '接受并完成', '退回修改'].includes(item.text())),
+        .findAll<HTMLButtonElement>('button')
+        .some((item) => ['提交评审', '接受并完成', '退回修改'].includes(buttonLabel(item))),
     ).toBe(false)
   })
 
