@@ -1,13 +1,13 @@
 # 全局协调索引
 
-2026-10-11。main 的本文件当前由 root 指定 variables_review 维护本次 Runner 本地写入保全收口；root 负责 Git、集成和资源排期。功能分支 current 不覆盖本索引。正式交付边界见[任务台账](../docs/development/agent-team/tasks.md)，分段接受不等于当前 main 单次全量通过。
+2026-10-11。main 的本文件当前由 root 指定 recovery_lead 维护本次 Skill Assignment 集成索引；root 负责 Git、集成和资源排期。功能分支 current 不覆盖本索引。正式交付边界见[任务台账](../docs/development/agent-team/tasks.md)，分段接受不等于当前 main 单次全量通过。
 
 ## 当前开发
 
 | 任务 / 分支 | 负责人 | 状态与下一步 |
 | --- | --- | --- |
-| Skill Assignment ingress — `ai/skill-assignment-ingress-20261011` | skill_package_review 交付；Agent / Execution 分域实施 | 基线 52bec60a；Project 窄修 2 top / 19 sub 与两包 vet 已通过。native01 wholeFAIL 保留；native02 原 91341 wholePASS，最终文档与主线集成待收口。不包含 DetermineRoundInput、下一 Model 或 Transcript 应用。 |
-| DetermineRoundInput（68） | root 统筹分域实施 | 源码 ad458be1 / 基测脚本 b51bdb27 已静审通过；basic01 原 19551 正在运行，尚不计通过，真实 PG 方法实施中，未验收。 |
+| Skill Assignment ingress — `ai/skill-assignment-ingress-20261011` | skill_package_review 交付；Agent / Execution 分域实施 | 随本次 main 集成有限交付并保留完整已提交开发历史；native02 原91341 wholePASS 已唯一主审接受，1871 输入及全部 Wait/资源/TCP 门齐。原 basic01、compile01、native01 FAIL 与后继修复均保留，详见[本卡](../docs/development/work-items/d10-skill-assignment-ingress.md)及[原件入口](skill-assignment-ingress/README.md)。真实 Owner Assign/Remove、四 owner、typed Audit/Outbox/Ingress 同Tx、历史/回滚/Committed ack-loss 只 Lookup，止于 created / Model0、显式图和 Project test Skills；不含 Preparing 全链、68、下一 Model 或默认绑定。原件保全及树/分支清理待主线推送后安排，未计入下列清理数。 |
+| DetermineRoundInput（68）独立树 | root 统筹分域实施 | 源码 ad458be1 / 基测脚本 b51bdb27 已静审；9 top 首次 basic01 原19551 wholeFAIL：7 top / 43 sub PASS，2 个正向入口 INVALID_ARGUMENT，vet 未运行。作者正诊断，原失败保留；真实 PG 方法实施中，尚未交付，不以 67 接受代本片通过。 |
 | Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |
 
 主目标仍是完成[开发计划](../docs/development/development-plan.md)中的D01–D28/E01，目前尚未完成；任何单片有限验收不代表整体目标或原STOP解除。

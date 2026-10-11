@@ -12,6 +12,13 @@ import (
 // A canonical row becomes observable as initialized only with its completed
 // create receipt in the same commit. A row by itself is not publication proof.
 func initializedAgent(ctx context.Context, x postgres.SQLExecutor, project i.ProjectID, agent i.AgentID) (c.AgentConfig, error) {
+	return initializedAgentState(ctx, x, project, agent, true)
+}
+
+// Historical Skill command replay may inspect an initialized deleting Agent.
+// Every existing current reader retains the active gate through the wrapper
+// above; publication still requires the original completed creation receipt.
+func initializedAgentState(ctx context.Context, x postgres.SQLExecutor, project i.ProjectID, agent i.AgentID, requireActive bool) (c.AgentConfig, error) {
 	v, err := loadAgent(ctx, x, project, agent)
 	if err != nil {
 		return c.AgentConfig{}, err
@@ -19,7 +26,7 @@ func initializedAgent(ctx context.Context, x postgres.SQLExecutor, project i.Pro
 	if v == nil {
 		return c.AgentConfig{}, fault(f.NotFound)
 	}
-	if v.Fields().Core.Lifecycle != c.AgentActive {
+	if requireActive && v.Fields().Core.Lifecycle != c.AgentActive {
 		return c.AgentConfig{}, fault(f.InvalidState)
 	}
 	rows, err := x.Query(ctx, `SELECT receipt FROM agenteam_agent.commands WHERE project_id=$1 AND target_id=$2 AND command_name='agent.create' AND state='completed' LIMIT 2`, project.String(), agent.String())

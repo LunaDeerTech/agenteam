@@ -72,12 +72,23 @@ func captureDigest(v any) (f.Digest, []byte, error) {
 	return f.Digest("sha256:" + hex.EncodeToString(h[:])), raw, nil
 }
 func captureLocks(r sc.SkillCaptureRequest, skill *sc.SkillID) ([]f.LockRequest, error) {
+	var skills []sc.SkillID
+	if skill != nil {
+		skills = append(skills, *skill)
+	}
+	return captureSetLocks(r, skills)
+}
+
+func captureSetLocks(r sc.SkillCaptureRequest, skills []sc.SkillID) ([]f.LockRequest, error) {
 	agent, _ := f.AgentLock(r.AgentID.String())
 	execution, _ := f.AggregateLock(f.ExecutionAggregate, r.ExecutionID.String())
 	schedule, _ := f.ProjectScheduleLock(r.ProjectID.String())
 	locks := []f.LockRequest{projectLock(r.ProjectID, f.Shared), {Key: schedule, Mode: f.Exclusive}, {Key: agent, Mode: f.Shared}, {Key: execution, Mode: f.Exclusive}}
-	if skill != nil {
-		locks = append(locks, skillLock(*skill, f.Shared))
+	for _, skill := range skills {
+		if skill.Validate() != nil {
+			return nil, invalid()
+		}
+		locks = append(locks, skillLock(skill, f.Shared))
 	}
 	return ob.NormalizeLocks(locks)
 }
@@ -140,9 +151,10 @@ func (p *ExecutionBindings) DiscoverInitialBindings(ctx context.Context, r sc.Sk
 		return nil, err
 	}
 	var head *agentInitializationRecord
+	var assignments assignmentSet
 	var attempt f.Digest
-	// First observe only the initialized assignment identity under its real
-	// owner gate. Release this Tx before adding the discovered Skill lock.
+	// Discover the complete current set under the Agent gate, then release
+	// this transaction before acquiring every enabled Skill key.
 	result := p.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		if e := p.store.AcquireAll(ctx, tx, base); e != nil {
 			return captureError(e)
@@ -159,6 +171,10 @@ func (p *ExecutionBindings) DiscoverInitialBindings(ctx context.Context, r sc.Sk
 		if head == nil {
 			return fault(f.DependencyUnbound)
 		}
+		assignments, e = loadCaptureAssignments(ctx, x, r, head)
+		if e != nil {
+			return e
+		}
 		return ctx.Err()
 	})
 	if err = commitError(result); err != nil {
@@ -170,7 +186,7 @@ func (p *ExecutionBindings) DiscoverInitialBindings(ctx context.Context, r sc.Sk
 	if head == nil {
 		return nil, unavailable(nil)
 	}
-	locks, err := captureLocks(r, &head.skill)
+	locks, err := captureSetLocks(r, assignmentSkills(assignments, head.skill))
 	if err != nil {
 		return nil, captureError(err)
 	}
@@ -186,7 +202,7 @@ func (p *ExecutionBindings) DiscoverInitialBindings(ctx context.Context, r sc.Sk
 		if scope.AttemptBinding != attempt {
 			return fault(f.ConfirmationStale)
 		}
-		source, e = loadSkillCaptureSource(ctx, x, r, head.skill)
+		source, e = loadCurrentCaptureSource(ctx, x, r, head.skill, assignments)
 		if e != nil {
 			return e
 		}
@@ -221,7 +237,7 @@ func (p *ExecutionBindings) ResolveInitialBindingsInTx(ctx context.Context, tx f
 	if scope.AttemptBinding != selected.attempt {
 		return zero, fault(f.ConfirmationStale)
 	}
-	source, err := loadSkillCaptureSource(ctx, x, r, selected.source.InitialSkillID)
+	source, err := loadCurrentCaptureSource(ctx, x, r, selected.source.InitialSkillID, selected.source.assignmentSet())
 	if err != nil {
 		return zero, captureError(err)
 	}

@@ -48,6 +48,19 @@ func (s *captureBindingStore) WithinTx(ctx context.Context, cause f.TransactionC
 }
 func (s *captureBindingStore) QueryRow(ctx context.Context, q string, args ...any) postgres.Row {
 	switch {
+	case strings.HasPrefix(q, "SELECT EXISTS(SELECT 1 FROM agenteam_skill.assignment_current"):
+		return skillRowValues{values: []any{false, false, s.assignments, s.assignments}}
+	case strings.HasPrefix(q, "SELECT count(*) FROM agenteam_skill.revisions r JOIN agenteam_skill.skills s"):
+		// This fixed-revision query must not resolve the current revision pointer.
+		if strings.Contains(q, "s.revision_id") || !strings.Contains(q, "r.id=$3") {
+			return skillRowValues{err: errors.New("historical query used current revision")}
+		}
+		v := s.published.values
+		count := int64(0)
+		if s.published.err == nil && len(v) == 15 && v[9] == true && reflect.DeepEqual(args[:8], []any{v[0], v[1], v[2], v[10], v[11], v[12], v[13], v[14]}) && args[8] == "" {
+			count = 1
+		}
+		return skillRowValues{values: []any{count}}
 	case strings.HasPrefix(q, "SELECT NOT EXISTS(SELECT 1 FROM agenteam_skill.agent_assignment_heads"):
 		if !strings.Contains(q, "FROM agenteam_skill.execution_binding_heads") || !strings.Contains(q, "FROM agenteam_skill.execution_bindings") {
 			return skillRowValues{err: errors.New("missing execution protection")}

@@ -52,8 +52,8 @@ func loadAgentInitialization(ctx context.Context, x postgres.SQLExecutor, projec
 	var enabled bool
 	var created time.Time
 	err := x.QueryRow(ctx, `SELECT h.project_id::text,h.agent_id::text,h.creation_command,h.plan_revision,h.request_binding,h.add_skills_enabled,h.assignment_sequence,h.initial_skill_id::text,h.observed_revision,COALESCE(h.initial_assignment_id::text,''),h.created_at,
- (SELECT count(*) FROM agenteam_skill.agent_assignments a WHERE a.project_id=h.project_id AND a.agent_id=h.agent_id),
- (SELECT count(*) FROM agenteam_skill.agent_assignments a WHERE a.project_id=h.project_id AND a.agent_id=h.agent_id AND a.id=h.initial_assignment_id AND a.skill_id=h.initial_skill_id AND a.enabled AND a.assignment_sequence=1 AND a.removed_at IS NULL AND a.created_at=h.created_at)
+ (SELECT count(*) FROM agenteam_skill.agent_assignments a WHERE a.project_id=h.project_id AND a.agent_id=h.agent_id AND a.assignment_sequence=1),
+ (SELECT count(*) FROM agenteam_skill.agent_assignments a WHERE a.project_id=h.project_id AND a.agent_id=h.agent_id AND a.id=h.initial_assignment_id AND a.skill_id=h.initial_skill_id AND a.enabled AND a.assignment_sequence=1 AND a.created_at=h.created_at)
  FROM agenteam_skill.agent_assignment_heads h WHERE h.project_id=$1 AND h.agent_id=$2`, project.String(), agent.String()).Scan(
 		&p, &a, &command, &planRevision, &binding, &enabled, &sequence, &skill, &revision, &assignment, &created, &total, &initial)
 	if errors.Is(err, pgx.ErrNoRows) {
@@ -122,6 +122,8 @@ func insertAgentInitialization(ctx context.Context, x postgres.SQLExecutor, r ag
 	return r.receipt()
 }
 
+// This reader verifies only the immutable initialization receipt. Later grants
+// and removals are verified by loadAssignmentSet; they cannot rewrite seq 1.
 // Even a disabled initial set retains creation facts. There is no Agent
 // retirement provider in this slice, so cleanup cannot consume those facts.
 func agentAssignmentsEmpty(ctx context.Context, x postgres.SQLExecutor, project id.ProjectID) (bool, error) {
