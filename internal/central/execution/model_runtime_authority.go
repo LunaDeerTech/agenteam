@@ -148,6 +148,9 @@ func (a *Authority) validateRuntimeModelInTx(ctx context.Context, tx f.Tx, reque
 }
 
 func (a *Authority) requireModelCurrentConfiguration(ctx context.Context, tx f.Tx, request ac.ExecutionConfigurationRequest) error {
+	if ctx.Value(roundCurrentKey{}) != nil {
+		return a.requireRoundCurrentConfiguration(ctx, tx, request)
+	}
 	if ctx.Value(toolCurrentKey{}) != nil {
 		return a.requireToolCurrentConfiguration(ctx, tx, request)
 	}

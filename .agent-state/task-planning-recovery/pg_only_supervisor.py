@@ -199,6 +199,11 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestExecutionRoundInput$': frozenset((
+        'TestExecutionRoundInput',
+        'TestExecutionRoundInput/assignment-first-replacement-and-replay',
+        'TestExecutionRoundInput/rollback-commit-loss-and-determination-first',
+    )),
     '^TestSkillAssignmentIngress$': frozenset((
         'TestSkillAssignmentIngress',
         'TestSkillAssignmentIngress/active-assignment-and-current-replay',

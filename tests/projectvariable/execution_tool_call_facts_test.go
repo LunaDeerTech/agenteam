@@ -142,6 +142,11 @@ func newToolFactsFixture(t *testing.T) *toolFactsFixture {
 // is never logged or added to persisted test evidence by this handoff.
 func newToolFactsFixtureWithRunner(t *testing.T, privateRoot string, seed func(*runnerservice.Service, rc.EnrollmentMaterial)) *toolFactsFixture {
 	t.Helper()
+	return newToolFactsFixtureWithPreparation(t, privateRoot, seed, nil)
+}
+
+func newToolFactsFixtureWithPreparation(t *testing.T, privateRoot string, seed func(*runnerservice.Service, rc.EnrollmentMaterial), beforePreparation func(*toolFactsFixture)) *toolFactsFixture {
+	t.Helper()
 	v := &toolFactsFixture{}
 	var modelAuthority *model.RuntimeAuthority
 	var modelSecrets *secret.Service
@@ -269,6 +274,9 @@ func newToolFactsFixtureWithRunner(t *testing.T, privateRoot string, seed func(*
 			t.Error("original Tool preparation did not join", err)
 		}
 	})
+	if beforePreparation != nil {
+		beforePreparation(v)
+	}
 	if err := preparation.Run(ctxFor(t), c.created.ID); err != nil {
 		t.Log("tool_facts_stage=preparation_run")
 		firstRoundRequire(t, err)

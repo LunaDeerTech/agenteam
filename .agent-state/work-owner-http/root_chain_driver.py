@@ -18,6 +18,14 @@ MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 # One closed same-package PG family: adding a scenario changes required
 # inputs and expected test data, never the resource/Wait/tail implementation.
 METADATA_INPUTS = {
+    '^TestExecutionRoundInput$': (
+        'tests/projectvariable/execution_round_input_test.go',
+        'db/migrations/00068_execution_round_inputs.sql',
+        'internal/central/execution/round_input.go',
+        'internal/central/execution/round_input_repository.go',
+        'internal/central/skill/assignment_validation.go',
+        '.agent-state/execution-round-input/profile-controls.py',
+    ),
     '^TestSkillAssignmentIngress$': (
         'tests/projectvariable/skill_assignment_ingress_test.go',
         'db/migrations/00067_skill_assignment_ingress.sql',

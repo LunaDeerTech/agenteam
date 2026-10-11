@@ -1,13 +1,13 @@
 # 全局协调索引
 
-2026-10-11。main 的本文件当前由 root 指定 recovery_lead 维护本次 Skill Assignment 集成索引；root 负责 Git、集成和资源排期。功能分支 current 不覆盖本索引。正式交付边界见[任务台账](../docs/development/agent-team/tasks.md)，分段接受不等于当前 main 单次全量通过。
+2026-10-11。本次将已独立验收的 Execution RoundInput（68）随完整开发历史有限合入 main；skill_package_review 处理本次索引内容，root 负责 Git、推送和资源排期。正式交付边界见[任务台账](../docs/development/agent-team/tasks.md)与[68 本卡](../docs/development/work-items/d22-execution-round-input.md)。main `53ac76fe` 的全局保全、清理和保护记录保持；68 保全/清理仍待，不提前计数，分段接受不等于 main 单次全量通过。
 
 ## 当前开发
 
 | 任务 / 分支 | 负责人 | 状态与下一步 |
 | --- | --- | --- |
-| DetermineRoundInput（68）独立树 | root 统筹分域实施 | 已组合正式主线输入，基础控制分段 9 top / 52 sub 与四包 vet 通过；basic01 原19551 wholeFAIL 保留，不改为单次全绿。首次 PG compile 原34561 正在运行，尚不计通过或真实 PG 验收；本片尚未交付。 |
-| NextRoundProjection 独立树 | root 统筹分域实施 | 合同 31e 已形成，仅源码阶段；尚无编译或运行通过结论，不代表下一 Model 已执行。 |
+| DetermineRoundInput（68）— `ai/execution-round-input-20261011` | skill_assignment_agent Execution/68；skills_milestone_review Skill；skill_package_review PG 执行；runtime_recovery 独验 | 固定44ab：basic01 原19551 wholeFAIL保留，7top/43sub与修后basic02原87193的2top/9sub合计9top/52sub分段通过，4包vet通过。compile01原34561实际0、1886输入一致/唯一top；native01原30712实际0，sup787240 Wait0/129.710s、原log128.869s，1top2sub PASS及1887输入不变、七资源14absence和全部Wait/私有/runtime/desc/TCP双尾齐。唯一主审已接受有限wholePASS，本次随完整历史有限合入；root完成推送后再保全清理，当前未计入清理数，窗口已释放。止于非终态后继RoundInput；Determine新增Model/dispatch0，原fixture受控Model1+真实WSS1，下一Model/production/toolsHTTP STOP不变。 |
+| NextRoundProjection 独立树 | root 统筹分域实施；variables_review 编译/运行 | basic01 的 8 top / 42 sub 与 3 包 vet 已获独立接受；compile01/list 及 native 配方 prepare 正由 variables_review 执行，尚不计真实 PG 通过，不代表下一 Model 已执行。 |
 | Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |
 
 主目标仍是完成[开发计划](../docs/development/development-plan.md)中的D01–D28/E01，目前尚未完成；任何单片有限验收不代表整体目标或原STOP解除。

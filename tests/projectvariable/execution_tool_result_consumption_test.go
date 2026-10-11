@@ -36,7 +36,12 @@ type toolResultConsumptionFixture struct {
 
 func newToolResultConsumptionFixture(t *testing.T) *toolResultConsumptionFixture {
 	t.Helper()
-	v := newOperationReadFileFixture(t, true)
+	return newToolResultConsumptionFixtureWithPreparation(t, nil)
+}
+
+func newToolResultConsumptionFixtureWithPreparation(t *testing.T, beforePreparation func(*toolFactsFixture)) *toolResultConsumptionFixture {
+	t.Helper()
+	v := newOperationReadFileFixtureWithPreparation(t, true, beforePreparation)
 	executor, authority, store := v.executor(t, false)
 	done := startOperationReadFile(t, executor, v.facts.capture.created.ID, store)
 	pending := v.sql(t)
