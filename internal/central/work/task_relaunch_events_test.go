@@ -98,14 +98,27 @@ func TestTaskRelaunchFailureOriginsKeepLegacyEncoding(t *testing.T) {
 func TestTaskRelaunchFailureSchemaDoesNotRewriteClaimHistory(t *testing.T) {
 	old, _ := failureControlRecord(t)
 	r, actor := relaunchControlRequest(t)
-	dispatch, err := f.ParseID[f.Request](r.DispatchID)
-	if err != nil {
-		t.Fatal(err)
+	_, current, _, _, _, _, _ := newTaskLaunchControl(t)
+	r.ExpectedTaskVersion = old.Before.Version
+	origin := taskRelaunchRecord{Request: r, Task: old.Before.Clone(), Sprint: old.Sprint.Clone(), Milestone: current.milestone, CreatedAt: old.CreatedAt}
+	source := origin.source()
+	request := c.TaskLaunchFailureRequest{Relaunch: &r, DispatchVersion: 3, LaunchAttempt: 1}
+	facts := c.TaskLaunchFailureFacts{Relaunch: &source, Reason: old.Facts.Reason, OccurredAt: old.Facts.OccurredAt}
+	record, err := buildTaskFailureRecord(request, facts, schedulerClaimRecord{}, old.Before, old.Sprint, old.CurrentSprintID, old.Groups, old.QueryGeneration, old.Blocker.ID, old.Event.TaskEventIDs, old.Header.EventID, old.CreatedAt, &origin)
+	if err != nil || !record.Changed || record.Relaunch == nil || record.RelaunchEvent == nil || record.Event != nil || record.Header == nil || record.Header.SchemaVersion != c.TaskRelaunchFailureSchemaVersion {
+		t.Fatal("actual relaunch failure record construction", err)
 	}
-	source := c.TaskRelaunchSource{Request: r, MilestoneID: old.Before.MilestoneID, ReferenceDigest: digest([]byte("controlled relaunch source"))}
-	payload := c.TaskRelaunchFailed{DispatchID: dispatch, Origin: c.TaskDispatchRelaunch, Source: source, Actor: c.SchedulerTaskActor{CauseID: r.DispatchID}, BlockerID: old.Event.BlockerID, TaskEventIDs: append([]c.TaskEventID{}, old.Event.TaskEventIDs...), MilestoneID: old.Event.MilestoneID, SprintID: old.Event.SprintID, AgentID: old.Event.AgentID, FromState: old.Event.FromState, ToState: old.Event.ToState, Reason: old.Event.Reason, SourcePosition: old.Event.SourcePosition, TargetPosition: old.Event.TargetPosition}
-	header := *old.Header
-	header.SchemaVersion = c.TaskRelaunchFailureSchemaVersion
+	recordRaw, err := canonical(record)
+	var decoded taskFailureRecord
+	var recordFields map[string]json.RawMessage
+	if err != nil || json.Unmarshal(recordRaw, &decoded) != nil || validateTaskFailureRecord(&decoded) != nil || !sameValue(record, decoded) || json.Unmarshal(recordRaw, &recordFields) != nil || recordFields["claim"] != nil || recordFields["relaunch"] == nil || recordFields["relaunch_event"] == nil {
+		t.Fatal("actual schema5 record roundtrip or origin exclusivity", err)
+	}
+	decoded.Facts.Relaunch.ReferenceDigest = digest([]byte("different persisted origin"))
+	if validateTaskFailureRecord(&decoded) == nil {
+		t.Fatal("failure record lost its exact relaunch parent")
+	}
+	payload, header := *record.RelaunchEvent, *record.Header
 	catalog := event.NewCatalog()
 	factory, err := c.RegisterTaskLaunchFailureEvents(catalog)
 	if err != nil {
