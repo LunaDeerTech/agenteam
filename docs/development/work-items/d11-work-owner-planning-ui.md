@@ -241,3 +241,13 @@ Blocker status 默认为 unresolved，可选 resolved/all；顺序 `(created_at,
 真实 HTTP 观察保留原 `requestfailed` 事件；仅精确 GET 200 的 `ERR_ABORTED` 可由同一原请求的服务端完整正文长度/摘要、EOF/关闭/handler 返回、浏览器原正文收尾与原公开消费者的当前有效安全投影共同证明完成，不以 DOM 或补发 GET 替代。预声明的 Transfer 回执截断单独验证已提交事实；Logout POST 没有失败豁免。两场景覆盖桌面与 390 窄屏、键盘操作及恢复提示；四张截图的有限视觉检查只接受实际详情可见区域，完整七列整板、深色主题和其它宽度仍未视觉验收。原结果位于 `output/ai/agent-system-integration/task-review-web-06-control/result.json`。
 
 旧 Planning06、Recovery04 以及本片 native01–05 的 whole FAIL 均保留，后继成功不回填旧轮次。当前切片不恢复旧 Planning/Recovery 全矩阵，不交付 Explore/规划写入、跨列拖拽、Timeline 或 Execution 新读口、完整筛选、生产 SPA 发布及生产 runtime/ready；任务状态也不由 Model 结果在前端推导。原 STOP 与整卡未完成边界不变。
+
+## 12. Current Sprint 任务创建与指派切片（批 12A）
+
+本批在 §11 已交任务页面上增加两次独立确认，限定已有已初始化 Project 的 Current Sprint。当前 Human Owner 显式填写标题、类型、优先级及可选描述、Plan，调用原 [Task Planning](d11-task-planning.md) Create，成功结果为 `backlog/assignee=null/version=1`；类型、优先级不代选默认值。完整创建回执确认后才进入真实 Task 详情，再由用户明确选择[真实 Agent 目录](d10-agent-configuration.md)中的 Agent，单独确认 `backlog→todo`。指派使用当前 Task 原字符串版本，保留当前资格和完整阻塞检查；说明在此边可省略，不放宽原三条评审边的说明要求。
+
+客户端复用 [Work Owner HTTP](d11-work-owner-http.md)：Create 为 `POST /api/v1/projects/{P}/tasks`，原创建 Lookup 为 `POST /api/v1/projects/{P}/task-commands/lookup`；指派仍沿原 Transfer/Lookup。Task UUIDv7 仅在首次提交前生成，原 ID、key、Project、Sprint、完整请求及身份由 Session 私有意图冻结；create 与 transfer 分别持有独立意图和 key，不串联发送。创建结果 Unknown 时在原 Sprint 保留“查询原创建结果”，不依赖尚未确认存在的 Task 详情；只按原 key/request Lookup，`in_progress/not_observed` 不授权重发。返回原创建 Sprint 的入口同时检查当前 Project 归属，不能把原 Sprint ID 拼进另一 Project 的路径。身份、选择与页面代际变化继续隔离迟到结果。
+
+新表单复用正式 Ui 控件和主题 token，取消后由仍存活的父页面等待原取消及必要确认，再恢复同一 Sprint 的创建按钮焦点。此切片不自动启动 Sprint、不启用 Scheduler、不把 Task 进入 todo 等同于已运行或完成，也不交付后继 Task 编辑、排序、Blocker 写入或完整规划界面。
+
+当前验证：`frontend01` 的 25 个定向用例中 24 个通过，唯一失败为取消创建后焦点回归；原 13 文件格式检查、完整类型检查及生产构建通过，但该轮整体仍为 FAIL。焦点两组件窄修已完成并经有限静审接受，原失败用例及修后类型/构建补验待执行；真实浏览器创建、回执截断恢复、指派和主题/视口验收待执行。本节暂不声明浏览器闭环通过；§1–11 与旧 Planning06、Recovery04 失败事实保持，后继实际结果只更新本节验证结论。
