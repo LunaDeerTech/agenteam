@@ -367,15 +367,27 @@ test("[rename] Knowledge Owner existing-document rename", async ({ page }) => {
           return {
             overlay_present: document.querySelector(".ui-overlay") !== null,
             heading_present: heading !== null,
-            heading_focused: heading !== null && document.activeElement === heading,
+            heading_focused:
+              heading !== null && document.activeElement === heading,
             trigger_present: trigger !== null,
-            trigger_focused: trigger !== null && document.activeElement === trigger,
+            trigger_focused:
+              trigger !== null && document.activeElement === trigger,
             dark_theme: document.documentElement.dataset.theme === "dark",
-            reduced_motion: matchMedia("(prefers-reduced-motion: reduce)").matches,
-            horizontal_overflow: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) > document.documentElement.clientWidth + 1,
+            reduced_motion: matchMedia("(prefers-reduced-motion: reduce)")
+              .matches,
+            horizontal_overflow:
+              Math.max(
+                document.documentElement.scrollWidth,
+                document.body.scrollWidth,
+              ) >
+              document.documentElement.clientWidth + 1,
           };
         });
-        writeFileSync(join(evidence, "knowledge-rename-visual-failure.json"), JSON.stringify({ gate: currentReadGate, ...visual }), { mode: 0o600 });
+        writeFileSync(
+          join(evidence, "knowledge-rename-visual-failure.json"),
+          JSON.stringify({ gate: currentReadGate, ...visual }),
+          { mode: 0o600 },
+        );
       } catch {
         // The original assertion remains failed if its safe DOM snapshot is unavailable.
       }
