@@ -536,6 +536,28 @@ async function observeBrowserIO(
               );
               if (row.path === "/api/v1/session" && row.status === 200)
                 parsed = { user: parsed.user, session: parsed.session };
+              // Match the production public DTO, not the richer wire shape.
+              // The untouched original bytes remain bound by row.digest.
+              const kind = calls.find((call) => call.id === row.call_id)?.kind;
+              if (kind === "work.sprint") {
+                const { started_by, completed_by, ...sprint } = parsed;
+                parsed = sprint;
+              } else if (kind === "work.blockers") {
+                parsed = {
+                  ...parsed,
+                  items: parsed.items.map((item: any) => {
+                    const { metadata, created_by, resolved_by, ...blocker } =
+                      item;
+                    return {
+                      ...blocker,
+                      related_task_id:
+                        item.type === "rely_on"
+                          ? metadata.related_task_id
+                          : null,
+                    };
+                  }),
+                };
+              }
               row.typed_digest = await typedDigest(parsed);
             } catch {
               row.error = true;
