@@ -1,16 +1,14 @@
 # Agent F1 前置关系与并行接口建议
 
-## 当前批次与活动树
+## 当前交付与保留树
 
-第十批已正式开scope：基线main `65ec9395615282b4c18ad89e3126d04a9697b1b5`，root检查点 `b79b5012`。A仅有界Project发现与Scheduler多P owner；B为真实Agent安全目录HTTP前置。生产App runtime完整装配、ready和页面不属于本批。当前源码实际编写，尚无Go/native窗口或第十动态通过结论，约30%粗估及全部STOP不变。
+第十A有界Project发现/Scheduler多P owner与B真实Agent安全目录HTTP已正式交付main `6a6da44e01e6f51d934a6684b9071778313405b4`（push `d80b6f`、exact `eabf0a`）；delivery同tip已push `64bdcb`，root merge `ed5d6745`已push `6cc608`。当前零活动实现、零Go/cache/native窗口，不创建下一批活动。完整App runtime/config装配、生产initializer、ready及Work UI仍未完成，约30%粗估与全部STOP保持。
 
-A：content `/workspace/agenteam-task-transition` / `ai/project-scheduler-discovery`的合同 `1c0721f4`已推送，Reader与三项pure已保存为author `5bd7e928`并push（`791420`），full delivery已借入至`74bd4d74`；cleanup `/workspace/agenteam-skill-install-runtime-source` / `ai/project-runner-manager`基于`65ec9395`，新manager与测试正在写。完整delivery `/workspace/agenteam-task-flow-delivery` / `ai/project-runtime-support-delivery`现组合`815aeb8f`，初始`1a76f587`推送（`5c22ec`）已闭；coordination唯一新`project_runners_test.go`正在写。
+accepted SOURCE `2c59cf0d7eee18f968a688b4c7cc003211863ac2`：17 top race/七包vet、一次compile/list两top、A/B各native01两sub全部PASS，分别28.40s/26.95s。两组各四原Wait0、七ID14次absence、所有双尾/TCP0/adopted[]、1640输入首尾同（含889编译输入），secret最终有限接受；当前共享candidate01留存，不追加检查。
 
-B：work_ui `ai/agent-directory-http`基于`65ec9395`，合同author `b6a8ae0d`已push（`711420`）并借入full组合`815aeb8f`；独占reader/HTTP/appadapter/OpenAPI。work_ui已确认未建写native并正式交content，后者已启动full新`agent_directory_http_test.go`。旧共享仅`app/account.go`。secret待冻结后有限独审；skills_http只维护两既有入口并等待准确测试范围冻结，不提前新建runner、探资源或重测第九批。
+三作者Project `5bd7e928`、Manager `9a4a65df`、Agent目录 `235887d2`均已push。root再次普通sparse park各九目录（`bfd445`/`a30f23`/`9e1f0f`），clean后验 `b1d6f0`/`999f0d`/`37d9ca`；全部ignored/output/state/refs和物理树保留，供唯一原材料恢复及后继复用，不因本slice完成删除整树。
 
-第九accepted SOURCE `a3b72c72b4d8ba26610e7096a99113cf115f36a8`的14 top/三包vet、compile03/list、native02整top两sub49.09s最终接受，所有原Wait和资源尾闭合。原compile01/native01两FAIL、candidate02/03及第八candidate01/两容量FAIL原样保留；Execution成功不自动done，active Human交接、AgentRun写权、多轮/tools/Stream及生产app/initializer未因此完成。
-
-ToolRegistry原规则九目录普通sparse park实际 `4e3323`，后验 `8c7646`确认clean/protected保留；唯一容量读约537 MB高于5GiB，属于规划余量，保留第九candidate03不退休，所有FAIL/output/state/config/refs不动。D13/D18/D16旧park事实保持；后续仍以实际同进程fresh≥5GiB为硬门。恢复映射见[当前并行产品线与执行者](../current.md#当前并行产品线与执行者)，复现沿[既有组合recipe](../agent-system-integration/README.md)，不新增状态文件。
+ToolRegistry park `4e3323`及protected后验 `8c7646`保持；约537 MB只属当时规划余量。root在compile尾闭后仅精准退休第九全PASS candidate03可再生bin（`05777c`，65,919,007 B/allocated65,925,120 B），原source/results/recipe/inputs保留；第九FAIL candidate02、原compile01/native01 FAIL、第八candidate01/两容量FAIL和全部旧STOP不变。后续硬门仍为实际同进程fresh≥5GiB，当前不新增资源搜索或执行。恢复映射见[当前执行者](../current.md#当前执行者与保留树零活动实现)，复现沿[既有组合recipe](../agent-system-integration/README.md)。
 
 ## 前置阶段记录（历史）
 
