@@ -51,7 +51,12 @@ export async function taskScreenshot(page: Page, name: string) {
 
 type Tail = "finished" | "failed" | "closed";
 type SkillsHeaderDiagnostic = {
-  stage: "joined" | "header_promises" | "request_gate" | "response_id_gate" | "accepted";
+  stage:
+    | "joined"
+    | "header_promises"
+    | "request_gate"
+    | "response_id_gate"
+    | "accepted";
   request_fulfilled: boolean;
   response_fulfilled: boolean;
   host_present: boolean;
@@ -1647,21 +1652,32 @@ export async function observeTaskRequests(
         response.allHeaders(),
       ])
         .then(([sentResult, receivedResult]) => {
-          const sent = sentResult.status === "fulfilled" ? sentResult.value : undefined;
-          const received = receivedResult.status === "fulfilled" ? receivedResult.value : undefined;
+          const sent =
+            sentResult.status === "fulfilled" ? sentResult.value : undefined;
+          const received =
+            receivedResult.status === "fulfilled"
+              ? receivedResult.value
+              : undefined;
           const origin = new URL(entry.request.url());
           const id = received?.["x-request-id"];
           const diagnostic: SkillsHeaderDiagnostic = {
             stage: "joined",
             request_fulfilled: sentResult.status === "fulfilled",
             response_fulfilled: receivedResult.status === "fulfilled",
-            host_present: typeof sent?.host === "string" && sent.host.length > 0,
+            host_present:
+              typeof sent?.host === "string" && sent.host.length > 0,
             host_matches: sent?.host === origin.host,
-            authority_present: typeof sent?.[":authority"] === "string" && sent[":authority"].length > 0,
+            authority_present:
+              typeof sent?.[":authority"] === "string" &&
+              sent[":authority"].length > 0,
             authority_matches: sent?.[":authority"] === origin.host,
             cookie_present: Boolean(sent?.cookie),
             response_id_present: typeof id === "string" && id.length > 0,
-            response_id_valid: typeof id === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(id),
+            response_id_valid:
+              typeof id === "string" &&
+              /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+                id,
+              ),
           };
           entry.skillsHeaders = diagnostic;
           // Publish only closed predicates after both original promises retire.
@@ -1944,7 +1960,9 @@ export async function observeTaskRequests(
     return (
       profile.milestoneCreateWrites &&
       entry.request.method() === "GET" &&
-      ["project", "milestones", "milestone", "sprints", "agents"].includes(entry.name)
+      ["project", "milestones", "milestone", "sprints", "agents"].includes(
+        entry.name,
+      )
     );
   }
   function skillsPageRead(entry: Entry) {
