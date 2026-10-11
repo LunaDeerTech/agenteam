@@ -2,17 +2,17 @@
 
 ## 当前批次与活动树
 
-第十一批基于已交付main `6a6da44e01e6f51d934a6684b9071778313405b4`开始实施。A为正式七列Work看板及三Human评审边UI（无后端变更），B为单原ProjectAuthority RuntimeAccessDeny audit wrapper；full delivery `ai/work-review-runtime-delivery`保留完整组合。当前0 Go/npm/browser/native窗口，仅源实现、原methods与有限恢复准备，不声称验收。
+第十一B已交付main `381f6e71e0c11da1145b4ddef7a1574cdc7e64fa`（push `09f929`、exact `3cd699`）：SOURCE `64bdbb6f`的pure5/单包vet、compile/list及native两sub22.41s全PASS，B不重跑。A为七列Work看板及三Human评审边UI（无后端产品变更），当前尚未取得真实browser验收；全部原调用/资源尾已闭，0 Go/npm/browser/native窗口。
 
-唯一写者：work_ui在`/workspace/agenteam-work-ui` / `ai/work-review-ui`写A产品；coordination在independent `ai/work-review-web`写A四新browser paths（拟`TestTaskReviewWeb`两case）；content在TaskTransition `ai/project-runtime-audit`写B adapter/pure；cleanup在Source `ai/runtime-access-audit-native`写新真实fixture和两旧factory窄opt-in接缝。skills_http独占原三methods与两state入口，按actual top/mandatory冻结后适配；secret按冻源有限独审。donor仅窄恢复写入path，运行使用完整delivery，不整树hydrate。
+恢复tip：UI `/workspace/agenteam-work-ui` / `ai/work-review-ui`为`4a202946`；Web independent / `ai/work-review-web`为`f8c65163`；完整delivery `/workspace/agenteam-task-flow-delivery` / `ai/work-review-runtime-delivery`为`9e93eeaab533ea72ef9a870e9baef4d4309e14b0`。work_ui产品冻结；coordination唯一补原四browser paths的安全失败诊断，保存原Request序列/status/errorText及route/Session/readPromise事实，原failed断言不放宽，产品未猜修。skills_http独占原methods/两恢复入口与后继串行执行，secret有限审差额和原结果；donor仅窄恢复写入path，不整树hydrate。
 
-第十accepted SOURCE `2c59cf0d7eee18f968a688b4c7cc003211863ac2`的17/7、单compile两top、A/B四sub全PASS与最终独审保持；当前共享candidate01留存。三作者旧checkpoint与park/clean、ToolRegistry停放事实见current；旧第九FAIL candidate02、所有历史FAIL原件保留，第九全PASS03仅bin已精准退休`05777c`（65,919,007 B/allocated65,925,120 B），source/results/recipe不动。
+A前端有效结果为client/Session13、auth62、state3、page5及必要format/type/build PASS；compile02/list PASS、898输入，`task-review-web-race-02.test`保留，冻结dist为`output/ai/work-review-web/frontend-04/dist`。native01两sub均在openTask的原task/sprints requestfailed处失败，0 Human边获得实测接受；四主Wait及两Node均实际失败返回，七ID14次absence、全部双尾/TCP0、2403输入同，原FAIL不回填。
 
-第十一B已正式交付main `381f6e71e0c11da1145b4ddef7a1574cdc7e64fa`（push `09f929`、exact `3cd699`）：SOURCE `64bdbb6f`的pure5/单包vet、compile/list、native整top两sub22.41s全PASS，全部原Wait/资源尾闭合，窗口已归还。A仍在各自donor实现且未验收，当前0 Go/npm/browser/native窗口；B证据不重跑。
+原件位于delivery `output/ai/work-review-web/`（client-pure-01、frontend-01至05）及`output/ai/agent-system-integration/`下的`task-review-web-compile-01`、`task-review-web-compile-02`、`task-review-web-01-control`；PG原log为`/tmp/trw01/ui-e43a786756b24dc6.log`。frontend01缓存尾、02解析/type、03按钮、compile01错误import引发0Go输入枚举及native01业务FAIL保留；前端/dist、candidate02和全部原结果按实际输入复用。第十及更早接受范围/FAIL保持，精确bin退休事实如下，不删除恢复树。
 
 root已普通park指定ExecutionIdentity/ModelTextRuntime九目录（`038ac9`/`1f6f79`，原HEAD clean `bc57cb`/`e1ba20`），并只精准退休第十全PASS candidate01可再生bin（`86e15b`，66,400,625 B/allocated66,408,448 B）；source/recipe/results及全部FAIL不动。bounded后验`9822e2`确认protected保留，前树output原absent不变、后树output仍在，资源子任务关闭。
 
-第十一一次容量读高于5GiB 145,248,256 B，距额外500 MB规划余量缺354,751,744 B，未启动验证。PW1.56.1既有安装必需项与锁metadata一致，root Web安装只缺已有同版本的go-captcha-vue；复用现安装、不额外复制整套或下载，必要窄restore交root。Node v24.19.0实际确认，Chromium路径存在但本批未启动。后续硬门仍实际同进程fresh≥5GiB；完整App runtime/config装配、生产initializer、ready与未完成Work UI范围、全部STOP及约30%粗估不变。恢复映射见[当前执行者](../current.md#当前执行者与保留树)，既有[组合recipe](../agent-system-integration/README.md)不因本次准备冒新验收。
+第十一初始容量读仅作规划，后继每次实际同进程fresh≥5GiB硬门不变。root已三处窄软链复用既有同锁Web/PW1.56.1及go-captcha-vue（`106085`），模块解析PASS，不复制或下载；固定Node v24.19.0/批准Chromium已实际运行并退出。`NODE_DISABLE_COMPILE_CACHE=1`固定于后继，原缓存尾FAIL保留。完整App runtime/config装配、生产initializer、ready与未完成Work UI范围、全部STOP及约30%粗估不变。恢复映射见[当前执行者](../current.md#当前执行者与保留树)，既有[组合recipe](../agent-system-integration/README.md)不因A前端PASS升级真实浏览器验收。
 
 ## 前置阶段记录（历史）
 

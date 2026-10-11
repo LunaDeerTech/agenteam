@@ -4,7 +4,7 @@
 
 持续推进 D01–D28 的产品能力和真实组合，最终完成 E01 平台内游戏复刻验收。当前平台约完成 **30%（25%–35%）**，这是按设计能力及端到端闭环权重作的工程粗估，不是逐卡等权或客观审计。E01 尚未开始，其“至少 50% 游戏内容”是独立的未来验收目标。
 
-正式main `6a6da44e01e6f51d934a6684b9071778313405b4`已交付第十批A/B，push `d80b6f`、远端exact确认 `eabf0a`；delivery同tip已push `64bdcb`，root `ai/product-continuation` merge `ed5d6745`已push `6cc608`。第十accepted SOURCE `2c59cf0d7eee18f968a688b4c7cc003211863ac2`与原结果保留；第十一批已正式开始源码实现和资源/方法准备，尚无Go/npm/browser/native窗口。第九main `65ec9395`及其原结果继续保留。
+正式main `381f6e71e0c11da1145b4ddef7a1574cdc7e64fa`已交付第十一B（push `09f929`、远端exact `3cd699`）；第十main `6a6da44e`及第九main `65ec9395`的已接受结果保留。第十一A前端与编译已有有效PASS，但真实browser native01为FAIL，尚未验收；当前全部调用与资源尾已闭，0运行窗口。
 
 上一main `5b0a3eed54b8f0cb007b4450472bb24da1102a74` 已交付work-phase relaunch、持久访问计次及00058，并普通推送、远端exact确认；产品与实测SOURCE `146594e6a993eaaafb8be7aa427d20b7a1e41426`一致，root已正常merge/push（`3a9c708f`），delivery已ff/push同一main。前一main `af1c8acd`的Scheduler→AssociatedExecutor有限闭环保持接受。上一main `dc876501d06cecacfcbd4495828fc1b2ba9d1f87` 的53路径已正式交付。真实Execution direct-text首轮包含原子Snapshot/running/Started与首Round、正式Model consumer、单call实际join、Transcript/terminal及Model/环境租约退休；仍不含tools/stream、Task自动done或生产App自动执行。上一main `c413550cf4ddce16578b45cdc9170c664c421dbc` 已提交、普通推送并经远端ls-remote确认；28路径交付Model AgentRetry/00055及agentloop纯首轮请求投影，产品与实测源码`870b370b`一致，root已正常merge并推送。上一main `561a24439b1de6f5612dc431348c89b120486e8f` 已正式交付；11路径交付Task work/review版本场景Prompt和固定输入的typed Trigger/ExecutionContext，产品与实测源码`346003e6`一致。root已正常merge并推送，delivery已ff并推送同一main。上一main `41aa77663bf95e7c32cc54966a6f2ada48764782` 已正式交付；43路径交付受支持配置的Model/Environment/Mount捕获、版本化Prompt与完整preparation input/00053/00054，产品与实测源码`67804902`一致。root已正常merge并推送，delivery已ff并推送同一main。上一main `6fef88e8f40aa5a5ddee1e2729457f20199b6443` 已正式交付；23路径交付Skill/Tool初始捕获提供方、Execution私有准备授权及00051/00052，产品与实测源码`6c3200ed`一致，真实范围为非空同Tx捕获和缺完整Snapshot时原子回滚。上一main `bbf8b60f` 的15路径交付Project串行运行器及Work固定组snapshot/current读取，产品与实测源码`d2be346a`一致。上一main `6fa3e147` 的24路径交付原key到期重试、真实temporary checkpoint及耗尽原子技术失败结算/00050，产品与实测源码`08428005`一致。此前 main `fd939099` 的25路径交付显式retry配置、Claim不可变policy绑定/00049与真实Execution锁超时temporary证明；`031b5df9` 的29路径交付Owner原子解除blocker并blocked→todo、HTTP兼容、00048及显式参数retry policy库。前一main `6cf00865` 的282路径有限包包括Agent默认配置创建及其真实提供方、Task Human指派与HTTP、StartSprint与HTTP、Scheduler claim/created关联、Busy补偿、有界pending和单类技术失败结算，以及连续00037–00047迁移，原证据按各自输入接受。此前 `18a27db5` 的Human Skill安装/读取清理/Owner HTTP及00032–00036保持兼容，旧metadata、Knowledge读取、D13/D16/D18、Variables/phase/Batch/Guard与D09文本Runtime有限接受保留。默认生产initializer、完整F1/ToolExecution/Dispatcher仍未完成，不提升整体粗估。
 
@@ -18,7 +18,11 @@
 
 ## 当前并行产品线与执行者
 
-第十一批A为正式七列Work看板与三条Human评审边的UI接线（无后端变更），B为单原ProjectAuthority的RuntimeAccessDeny audit wrapper。完整delivery `ai/work-review-runtime-delivery`基于main `6a6da44e`；UI、browser、Project adapter与真实native由下列作者分别实施。当前仅源码/方法/恢复状态与有限资源准备，0 Go/npm/browser/native窗口；不声称验收通过。第十已交付证据不重测，完整App runtime/config装配、生产initializer、ready、未完成Work UI范围及旧STOP/~30%粗估保持。 第十一B已正式交付main `381f6e71e0c11da1145b4ddef7a1574cdc7e64fa`（push `09f929`、exact `3cd699`）：SOURCE `64bdbb6f`的pure5/单包vet、compile/list、native整top两sub22.41s全PASS，全部原Wait/资源尾闭合，窗口已归还。A仍在各自donor实现且未验收，当前0 Go/npm/browser/native窗口；B证据不重跑。
+第十一B已main交付：SOURCE `64bdbb6f`的pure5/单包vet、compile/list及native整top两sub22.41s全PASS，原证据复用。A为七列Work看板与三条Human评审边UI，无后端产品变更；最终已保存组合SOURCE `9e93eeaab533ea72ef9a870e9baef4d4309e14b0`，原13项client/Session、auth62、state3、page5及必要format/type/build各自PASS，compile02/list PASS（898输入），`task-review-web-race-02.test`留存。生产dist复用`output/ai/work-review-web/frontend-04/dist`。
+
+A native01两sub在openTask的原task/sprints请求检查处FAIL，0 Human评审边获得真实浏览器验收；Go/driver/sup/outer与两Node均实际返回失败，七资源14次absence、所有双尾/TCP0及2403输入首尾一致，窗口已归还。coordination现仅在原四browser paths补失败时的安全请求/route/Session/readPromise诊断，原failed断言保持，产品未作猜测修复。完整App runtime/config、initializer、ready、未完成Work UI及旧STOP/~30%边界不变。
+
+原件根为`/workspace/agenteam-task-flow-delivery/output/ai/`：前端`work-review-web/client-pure-01`及`frontend-01`至`frontend-05`，编译`agent-system-integration/task-review-web-compile-01`（输入枚举0Go FAIL）与`-compile-02`（PASS），真实失败`agent-system-integration/task-review-web-01-control/result.json`及`/tmp/trw01/ui-e43a786756b24dc6.log`。原frontend01缓存尾、02解析/type、03按钮断言及native01 FAIL均不回填，candidate02/dist/全部原材料保留。
 
 ### 已完成组合（保留原输入事实）
 
@@ -56,12 +60,12 @@ Context有限包已随main `561a2443`的11路径正式交付，源码`346003e6`�
 
 | 执行者 | 当前工作、真实状态与下一步 |
 | --- | --- |
-| content / Project RuntimeAccess audit | `/workspace/agenteam-task-transition` / `ai/project-runtime-audit`：B单原ProjectAuthority wrapper与定向pure，源码正在实现；旧Project发现结果保留。 |
-| cleanup / B真实native | `/workspace/agenteam-skill-install-runtime-source` / `ai/runtime-access-audit-native`：独占新`execution_runtime_access_audit_test.go`及两旧factory最小opt-in接缝，默认路径保持；实际top/依赖冻结后再纳入口。 |
-| secret / 独立差额审查 | 第十接受结论保持；第十一待实际冻源后有限独审，不提前冒动态接受。 |
-| work_ui / Work评审UI | `/workspace/agenteam-work-ui` / `ai/work-review-ui`：正式七列看板与三Human评审边UI，复用现后端；旧目录HTTP和历史FAIL保留。 |
-| skills_http / 资源与方法 | `/workspace/agenteam-task-flow-delivery` / `ai/work-review-runtime-delivery`：唯一两状态及原三methods写者，等实际top/mandatory闭集后适配；有限依赖/容量准备，无Go/npm/browser/native执行。 |
-| coordination / A真实browser | `/workspace/agenteam-work-ui-independent` / `ai/work-review-web`：独占四新paths，`TestTaskReviewWeb`拟两case review-complete/lost-confirmation-lookup-and-session-revocation，复用真实图与原七资源；旧PW安装和FAIL保留，尚未验收。 |
+| content / Project RuntimeAccess audit | `/workspace/agenteam-task-transition` / `ai/project-runtime-audit`：B已随main `381f6e71`交付，A page测试修复已有5项PASS；无运行窗口。 |
+| cleanup / B真实native | `/workspace/agenteam-skill-install-runtime-source` / `ai/runtime-access-audit-native`：B真实两case与默认factory控制已交付，原接缝及证据保留，不重复验证。 |
+| secret / 独立差额审查 | B及A前端/compile有限接受；A native01仅确认实际FAIL与完整退出尾，不升级交付。后继仅审安全诊断差额及原结果。 |
+| work_ui / Work评审UI | `/workspace/agenteam-work-ui` / `ai/work-review-ui`已保存tip `4a202946`：产品冻结，前端有效PASS；原browser请求失败尚待证据，不猜修产品。 |
+| skills_http / 资源与方法 | `/workspace/agenteam-task-flow-delivery` / `ai/work-review-runtime-delivery`已保存tip `9e93eeaa`：原三methods已审，compile02/candidate02及native01 FAIL保留；唯一后继执行者，当前0窗口，先等诊断freeze。 |
+| coordination / A真实browser | `/workspace/agenteam-work-ui-independent` / `ai/work-review-web`已保存tip `f8c65163`：唯一原四browser paths诊断写者；两case首轮均在openTask失败，安全失败证据补充中，原业务断言与预算不改。 |
 | cleanup / content | `/workspace/agenteam-skill-install` / `ai/skill-install`：Human Install/LookupInstall、普通读取与清理已随main有限交付；domain安装读取重放、原Object/Audit事实及普通清理两sub真实通过，定向pure/race/vet证据按版本复用。旧树已可逆sparse停放，原ignored材料保留；原Project/外人码/素材/Audit查询夹具FAIL保留。真实Source配置装配已进Agent创建链，AgentRun/Runtime实际调用仍未验。 |
 | coordination | 统筹合同、唯一写者及必要恢复说明，不作为参与设计或编码范围的独立验收者。 |
 | 已冻结Runtime/Registry | `/workspace/agenteam-tool-operation` / `ai/tool-operation` 与 `/workspace/agenteam-tool-registry` / `ai/tool-registry`：Runtime created、canonical-v1、Registry donor及Execution取消修正的有限实现/组合纯检查保留。neutral标准Schema核心已独审并单独5top race/vet通过；AgentSystem中的真实Registry Schema适配器`d26e89eb`已推送并独审接受。统一实际MVS的`regexp2 1.12.0`后，核心5＋适配3共8top race及schema/runtime两包vet全部通过，原Wait及group/runtime双尾闭合、缓存归还；`jsonschema/v6 6.0.3`不变。旧适配01/02依赖元数据缺失导致0top、vet未跑的FAIL保留；生产绑定、真实Execution授权和AgentRun发布仍未完成。 |
@@ -100,7 +104,7 @@ FeatureIntegration `/workspace/agenteam-feature-integration`（`4d1b605e`）九�
 
 第十资源准备的ToolRegistry `fab8764c`九目录park事实保持（actual0 `4e3323`、后验 `8c7646`）；当时约537 MB仅为规划余量。compile全尾后，root仅精准退休第九全PASS可再生bin `scheduler-review-dispatch-race-03.test`（`05777c`，65,919,007 B/allocated65,925,120 B），原source/recipe/results/inputs及FAIL candidate02完整保留；当前第十共享candidate01不动。交付后三作者Project `5bd7e928`、Manager `9a4a65df`、Agent目录 `235887d2`九目录再次普通sparse park（`bfd445`/`a30f23`/`9e1f0f`，clean后验 `b1d6f0`/`999f0d`/`37d9ca`）；全部ignored/output/state/refs与物理树保留用于恢复和后继，不删除整体旧任务。资源子任务关闭，后续仍以实际同进程fresh≥5GiB为硬门，不沿旧容量快照启动。
 
-第十一资源准备的唯一容量读为5,513,957,376 B，高于5GiB 145,248,256 B，距额外500 MB规划缓冲尚缺354,751,744 B；未据此启动验证或自行清理。independent原`tests/account-captcha-web/node_modules`的PW三包1.56.1及必需项与现锁metadata一致；root原`web/node_modules`与锁一致但缺`go-captcha-vue`，可从既有同2.0.7安装窄恢复，整套依赖不复制/下载。固定Node实际v24.19.0，已批准Chromium两路径存在但本批未启动；准确restore由root执行，后续actual fresh≥5GiB硬门不降。 同批root已据限定metadata普通park ExecutionIdentity/ModelTextRuntime九目录（`038ac9`/`1f6f79`，原HEAD clean `bc57cb`/`e1ba20`），并只精准退休第十全PASS可再生candidate01（`86e15b`，66,400,625 B/allocated66,408,448 B）；全部失败材料、source/recipe/results不动。后验`9822e2`确认protected完整，前树output原absent不变、后树output保留；资源准备关闭，不重复容量探测。
+第十一资源准备的唯一容量读为5,513,957,376 B，高于5GiB 145,248,256 B，距额外500 MB规划缓冲尚缺354,751,744 B；该旧数值不作启动证明。既有PW1.56.1、Web安装及同版go-captcha-vue经root三处窄软链复用（`106085`），实际模块解析已PASS，未复制/下载依赖。固定Node v24.19.0与已批准Chromium已用于A native01，调用均已退出；后继固定`NODE_DISABLE_COMPILE_CACHE=1`，原frontend01缓存尾FAIL不删，实际fresh≥5GiB硬门不降。同批root已普通park ExecutionIdentity/ModelTextRuntime九目录（`038ac9`/`1f6f79`，原HEAD clean `bc57cb`/`e1ba20`），并只精准退休第十全PASS可再生candidate01（`86e15b`，66,400,625 B/allocated66,408,448 B）；全部失败材料、source/recipe/results不动。后验`9822e2`确认protected完整，前树output原absent不变、后树output保留；资源准备关闭，不重复容量探测。
 
 现存热缓存 `/workspace/agenteam-project-variable-lifecycle/output/ai/project-variable-lifecycle/go-build` 仍由root串行分配，各树使用私有XDG/telemetry/runtime；截至第十批所有Go/cache/native调用和资源均已退役，窗口归还root，不沿旧容量快照启动。下次验证前须为编译缓存及候选增量预留余量，同进程fresh≥5GiB硬门不变。SprintStart HTTP、technical-blocker单类失败及Human原子解除已有限验收并随main交付，旧矩阵未重复运行；完整Dispatcher、Task UI和生产绑定仍未完成。解除回todo不自动claim或重开failed Dispatch。显式配置、Claim持久policy、真实锁超时temporary证明及后继checkpoint/next_retry_at/原keyRetryDue/Work耗尽结算均已有限交付。Project串行runner与work-phase relaunch/持久cooldown已有限交付，第九批review自动调度已有限交付，生产app绑定仍未完成；不能用policy额度推断已创建与否或耗尽结算。完整capture仍要求所有原提供方同Tx原子参与，缺项拒绝且零input；显式false不绕过真实目录与初始化。原topic和ignored FAIL/输入/日志按恢复用途保留，本轮不新建归档。
 
