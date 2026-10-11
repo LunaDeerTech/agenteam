@@ -8,7 +8,12 @@ const observations = new WeakMap<
 test.afterEach(async ({ page }, testInfo) => {
   // Runs even when openTask's original-request assertion fails. The observer
   // retains only the bounded safe metadata; no body or Session token is saved.
-  observations.get(page)?.save(testInfo.status);
+  const seen = observations.get(page);
+  try {
+    await seen?.retire();
+  } finally {
+    seen?.save(testInfo.status);
+  }
 });
 
 const button = (page: Page, name: string) =>
@@ -155,6 +160,7 @@ test("original rework confirmation and Session revocation [lost-confirmation-loo
   await expect(page).toHaveURL(/\/login(?:\?|$)/);
   await expect(page.getByText(data.title, { exact: true })).toHaveCount(0);
   await seen.verify();
+  await seen.endDocument();
   await page.goto(data.route);
   await expect(page).toHaveURL(/\/login(?:\?|$)/);
   await expect(
