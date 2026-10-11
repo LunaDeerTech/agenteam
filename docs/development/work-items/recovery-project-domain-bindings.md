@@ -344,3 +344,9 @@ Runner的取消与Stop/Drain只覆盖本次遍历及准入调用，不停止共�
 每次新Dispatch仍须原同Store、完整锁和Schedule EX下的当前Project enabled/CurrentSprint、Task版本与assignee、真实Agent资格、无blocker/pending/active、额度及空闲slot。relaunch的已证AgentBusy只关闭原Dispatch为skipped，不恢复Task或重置已耗尽cooldown。已证最终Launch失败沿原原子Finalize处理：Work重读当前适用关系，保留用户后改字段，适用时同Tx写technical blocker、blocked状态、typed历史与schema 5 Outbox事件；已不适用则保留当前Task。旧claim失败记录、FK与codec保持兼容，Unknown和普通未分类错误不冒最终失败。
 
 来源`146594e6`已完成定向18项独立top及四包vet、compile04/list；有效通过证据复用，修复后仅补受影响项。native04真实1 top/2 sub整轮wholePASS（25.59s），验证持久访问计次跨新owner恢复后创建新Dispatch/Execution且Task仍为in_progress，以及relaunch来源的真实最终失败、schema 5事件与原Tx整体回滚、同key正常结算重放。四原Wait0、七资源14次absence及全部退出双尾闭合，1614输入首尾一致。原pure01/02/03及native01/02/03 FAIL均保留。review因正式状态writer缺失继续Deferred；blocked系统reconciliation、完整多轮/tools/Stream及生产app/initializer绑定仍未完成，既有STOP不变。结果与重跑方式继续使用[既有组合说明](../../../.agent-state/agent-system-integration/README.md)。
+
+## 有限后继：Human Owner review 三边（开发中）
+
+第八批实现`in_progress→in_review`、`in_review→done`、`in_review→todo`，复用原Transfer/Lookup、schema 1及同Tx状态、assignee、comment/history写入，不新增迁移。三边均要求comment；交接reviewer和退回todo的下一assignee须显式提供，done省略则保原reviewer。仅目标todo要求零unresolved blocker，原Owner、pending/occupancy及完整锁重验保持。
+
+本片限定Human无active Execution，遇active明确DependencyUnbound，不将规格允许的执行内交接永久判非法；Execution成功不自动使Task done。Work、HTTP（含安全`COMMENT_REQUIRED`→409映射）与真实PG 1 top/2 sub正在并行开发，首sub沿原真实TLS执行链取前置，尚未动态验证。AgentRun写权、review自动调度、生产app绑定及原STOP不因此开放。

@@ -4,11 +4,11 @@
 
 正式main `5b0a3eed54b8f0cb007b4450472bb24da1102a74`已交付第七批work-phase `in_progress` relaunch、持久访问计次、Work不可变来源/schema 5及00058，并远端exact确认。root正常merge/push（`3a9c708f`），delivery已ff/push同一main，产品与实测SOURCE `146594e6`一致；前批main `af1c8acd`及其已接受范围保持。
 
-本批18项独立top/四包vet与compile04/list已接受；native04真实1 top/2 sub、25.59s整轮wholePASS，跨owner计次恢复→新Execution与relaunch最终失败原Tx回滚/重放已验证。四原Wait0、七ID14次absence、全部双尾关闭，1614输入稳定。原pure01/02/03、native01/02/03 FAIL及07候选、输入、日志原位保留。当前0 Go/cache/native、资源及源码写者，窗口归root；约30%粗估、生产initializer/App未绑定与全部旧STOP不变。
+第七批18项独立top/四包vet与compile04/list已接受；native04真实1 top/2 sub、25.59s整轮wholePASS，跨owner计次恢复→新Execution与relaunch最终失败原Tx回滚/重放已验证。四原Wait0、七ID14次absence、全部双尾关闭，1614输入稳定。原pure01/02/03、native01/02/03 FAIL及对应候选、输入、日志原位保留；仅全PASS候选04已由root精确退休，大小与原退出记录见current。第七批窗口已归还root；约30%粗估、生产initializer/App未绑定与全部旧STOP不变。
 
-本批唯一完整code tree为`/workspace/agenteam-task-flow-delivery` / `ai/scheduler-relaunch-delivery`（`5b0a3eed`）。Work donor `ai/work-relaunch-origin`（`65642401`）与Scheduler donor `ai/scheduler-work-relaunch`（`615135bb`）均已park，恢复源码须hydrate；旧TaskHumanHTTP（`f8fba80e`）、WorkUI（`2d2`）、independentUI（`b18449e6`）及PVLifecycle（`0654efe3`）也已park，outputs/状态/FAIL/refs保留。independentUI回收164,458,496 B，protected及ignored node_modules存在已验证；仅第六批全PASS候选64,844,964 B已精确退休，07 FAIL候选不删。具体恢复位置见[当前并行产品线与执行者](../current.md#当前并行产品线与执行者)，方法沿[既有组合recipe](../agent-system-integration/README.md)，不沿下表历史分工安排写入或清理。
+第八批当前活动映射：content唯一Work/Foundation，`/workspace/agenteam-task-transition` / `ai/work-human-review`（`e2e6c1df`）精准恢复8个原path并新增1个测试，其余code仍parked；work_ui唯一HTTP，`/workspace/agenteam-task-human-http` / `ai/work-review-http`（`96358549`）恢复5个path。`/workspace/agenteam-task-flow-delivery` / `ai/work-review-delivery`（`6f6e3ccc`）是唯一完整code与runner树，coordination唯一写`tests/projectvariable/task_review_test.go`，skills_http持方法与运行器，secret负责冻结差额有限审。方法`316c60fb`已先保存，源码未跑Go；当前无Go/cache/native活动。cleanup的Scheduler donor `ai/scheduler-work-relaunch`（`615135bb`）继续park，本批只做有限架构边界、两份状态映射及本批恢复工作项，不新增Scheduler实现。其它旧停放树、全部outputs/状态/FAIL/refs保留。具体恢复位置见[当前并行产品线与执行者](../current.md#当前并行产品线与执行者)，方法沿[既有组合recipe](../agent-system-integration/README.md)，不沿下表历史分工安排写入或清理。
 
-下一最小Human Owner review三边仅已有规划、待排程：`in_progress→in_review`、`in_review→done`、`in_review→todo`，复用Work原Transfer原子写与HTTP原Transfer/Lookup，尚未实现；review自动Dispatch、完整多轮/tools/Stream及生产app/initializer不因此完成。
+第八批Human Owner三边已在开发：`in_progress→in_review`、`in_review→done`、`in_review→todo`复用原Transfer/Lookup/schema 1，无新迁移。限定无active Execution，三新边遇active明确DependencyUnbound：created/preparing期间改Task可令capture拒绝，而当前准备失败只退claim、不保证Execution终态；此限制不改写规格允许的活动执行交接。done省略assignee保旧reviewer，显式指派验当前资格；仅目标todo要求零unresolved。原Owner、pending/occupancy及同Tx门保留，不冒AgentRun授权；review自动Dispatch、多轮/tools/Stream及生产app/initializer不因此完成。
 
 ## 前置阶段记录（历史）
 
