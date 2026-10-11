@@ -1,6 +1,6 @@
 # D22：read-file 成功结果的单次 Transcript 消费
 
-状态：2026-10-11 首片源码与基础控制已分段通过，首次 PG compile/list 已通过，消费 native 尚未运行。从初始 Operation 候选 `2d4` 合入上游 `b553` 的完整开发历史与窄修源码：上游 native01/02/03 均 wholeFAIL，原 `d40fc527` codec 红控保留；最新 PG 的两行 `f.Progress` 类型修正已静审，compile04/list 原 35958 实际 0，native04 正在原窗口运行，尚未整体验收。此合并只统一实际编译输入，不构成交付接受，不通过更换 harness 绕过上游未验范围。
+状态：2026-10-11 首片源码与基础控制已分段通过，基础与编译已通过，首次消费 native01 已 actual wholePASS，并获最终独立有限接受。从初始 Operation 候选 `2d4` 合入上游 `b553` 的完整开发历史与窄修源码：上游 native01/02/03 均 wholeFAIL，原 `d40fc527` codec 红控保留；最新 PG 的两行 `f.Progress` 类型修正已静审，compile04/list 原 35958 实际 0，native04 已获有限 wholePASS 独立接受；上游范围不自动代替本片消费验收。此合并只统一实际编译输入，不构成交付接受，不通过更换 harness 绕过上游未验范围。
 
 ## 本片边界
 
@@ -31,7 +31,7 @@ Execution 消费者在同一事务取得完整锁、借用真实结果并复核�
 
 基础控制核严格关联、错误/Unknown 拒绝、脱敏编码、同 Store/全锁/私有 plan、重复与候选观察。真实 PG 复用本树正式 Owner、原持久 ToolCall、认证 WSS 与 Workspace.Manager 的成功结果；Model 仍为明确的 JSONCaller 替身。两场景限定为正常完整结果/重复与新 consumer 恢复，以及事务末回滚零部分/实际 COMMIT 后回执丢失再仅观察。检查原 ToolCall/Round、旧 Transcript、Op/Attempt 和 wire/Model 次数不被消费改写。仍使用既有真实资源/Wait/TCP 退出门，不重复已接受的上游矩阵。
 
-上述真实 PG 目标尚未执行；基础控制的实际结果见下，不代替真实链验收。所有 Git 操作和共享资源窗口由 root 统一处理。
+上述两场景已在 native01 实际运行通过，具体范围与原退出事实见下。所有 Git 操作和共享资源窗口由 root 统一处理。
 
 当前实现提供显式 `NewToolResultConsumer(actual *ToolCallDriver, results ReadFileResultAuthority)`，`Consume` / `Lookup` / `ResolveUnknown` 与 `Stop` / `Drain` / `Joined`；无默认装配。Execution 新纯控为 4 top（其中候选关联 8 sub），在 basic03 实际通过；Tool 2 top/8 sub 与 AgentLoop 3 top 已在 basic02 实际通过。
 
@@ -41,4 +41,8 @@ Execution 消费者在同一事务取得完整锁、借用真实结果并复核�
 
 basic03 原工具 67354 实际退出 0：Execution 4 top/8 sub race（PID 719933）实际 0 / 8.606s，5 个相关包 vet（PID 720093）实际 0 / 69.289s，每阶段 749 项输入前后相同。复用前轮未变的 Tool/Loop 5 top，合计 9 top 分段通过；basic02 整体 FAIL 与首 deps 配方退出 1 均保留，不改写为单轮全绿。原件见 `output/ai/execution-tool-result-consumption/checks/basic02/` 与 `basic03/`。
 
-首次 `compile01` 原工具 20575 实际退出 0：Go 728189 采用离线 max1/race-c 编译，实际 0 / 77.557s；原二进制 list 729441 实际 0 / 1.054s，唯一枚举 `TestExecutionToolResultConsumption`。1838 项输入在编译前后及 list 后相同，81 个同包 Go 文件完整纳入；runtime 1839 项仅增加该实际编译产物。原件位于 `output/ai/execution-tool-result-consumption/compile01/`。`native01/` 已静态准备原配方与记录器，预算、7 资源、实际 Wait 与自动 TCP baseline/delta 双空门不变；尚未启动，不能把编译与准备视作 PG 通过。
+首次 `compile01` 原工具 20575 实际退出 0：Go 728189 采用离线 max1/race-c 编译，实际 0 / 77.557s；原二进制 list 729441 实际 0 / 1.054s，唯一枚举 `TestExecutionToolResultConsumption`。1838 项输入在编译前后及 list 后相同，81 个同包 Go 文件完整纳入；runtime 1839 项仅增加该实际编译产物。原件位于 `output/ai/execution-tool-result-consumption/compile01/`。`native01/` 复用此二进制与冻结输入，原预算、7 资源、实际 Wait 与自动 TCP baseline/delta 双空门不变。
+
+首次 `native01` 原工具 54636 由执行者亲收实际退出 0 / 138.224s（supervisor 734423）；原日志 `/tmp/etr01/pg-c3a6148f50c846438a01103bd33187f7.log` 中精确 1 top/2 sub PASS 46.62s。正常场景 19.26s：真实 65536 字节结果同事务写消费记录/seq3/Execution version，重复与新 consumer 观察仍唯一记录，正式 Owner 撤权后拒绝当前读，wire/Model 各 1。故障场景 27.36s：完整 callback 后真实回滚零部分，再真正 COMMIT 后受控丢弃回执，保原候选只观察，仍唯一消费且 wire/Model 各 1。原 Round/Call/参数/旧 Transcript 不改、没有第二 Model 或终态退休。Project 仍使用持久测试 Skills receipt，仅 Model JSONCaller 为受控端口，不宣称生产 Project initializer 或真实 tools HTTP。
+
+原 Go 736222 与 driver 734450 实际 Wait 0，7 个原资源 ID 均两次 absent，descendants、private、runtime 及 HOST_TCP 原自动差额两次为空，1839 项输入前后相同；原 supervisor terminal 0 / 136.944s、外层 JSON exit 0 与实际工具尾完整。全部原件位于 `output/ai/execution-tool-result-consumption/native01/`，包括明确执行者实际 Wait 来源的 `tool-terminal.json`。首 deps 保守门退出 1、basic02 编译 FAIL 与上游旧 FAIL 继续保留，不回填早轮通过。最终交付只到本片成功结果的单次、非终态 Transcript 检查点，默认生产绑定与所有原 STOP 保持。
