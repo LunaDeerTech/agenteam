@@ -82,7 +82,7 @@ func (s *DirectTextSession) Result(ctx context.Context) (mc.ModelResponse, error
 		// is a separate caller action on the retained handle, never an automatic retry.
 		return zero, run.err
 	}
-	run.err = validateTextResponse(run.request.Request().CallID, response)
+	run.err = validateSessionResponse(run.request, response)
 	if run.err == nil {
 		owned := response.Clone()
 		run.response = &owned
@@ -142,7 +142,7 @@ func (s *sessionState) recoverResult(ctx context.Context) (mc.ModelResponse, err
 		s.response, s.err = nil, loopPortError(err)
 		return zero, s.err
 	}
-	if err := validateTextResponse(s.request.Request().CallID, response); err != nil {
+	if err := validateSessionResponse(s.request, response); err != nil {
 		s.response, s.err = nil, err
 		return zero, err
 	}

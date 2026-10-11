@@ -83,6 +83,9 @@ func (s *directTextState) callAndFinish(ctx context.Context, run *directTextCall
 	run.uncertainty = ""
 	callErr = run.invocation.callError
 	s.mu.Unlock()
+	if callErr == nil && s.tools != nil {
+		return s.saveToolCallFacts(ctx, run, response)
+	}
 	if callErr == nil && !stableDirectTextResponse(response, run.round.Fields().CallID) {
 		callErr = fault(f.InvalidState)
 		run.invocation.callError = callErr

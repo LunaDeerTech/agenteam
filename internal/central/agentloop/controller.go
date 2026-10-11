@@ -64,6 +64,13 @@ func NewDirectTextController(models mc.JSONCaller) (*DirectTextController, error
 // the Round has committed. A still-owned Execution cannot acquire a second
 // session, including while its original startup or Model result is Unknown.
 func (c *DirectTextController) Accept(request DirectTextRequest) (*DirectTextSession, error) {
+	if request.toolCall {
+		return nil, unsupported()
+	}
+	return c.accept(request)
+}
+
+func (c *DirectTextController) accept(request DirectTextRequest) (*DirectTextSession, error) {
 	if c == nil || c.state == nil {
 		return nil, loopFault(f.DependencyUnbound)
 	}

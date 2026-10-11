@@ -40,6 +40,18 @@ func (d *DirectTextDriver) ResolveUnknown(ctx context.Context, execution i.Execu
 	wait, done := directTextRecoveryContext(run.ctx, ctx)
 	defer done()
 	switch stage {
+	case "tool-checkpoint":
+		found, err := s.observeToolCallCheckpoint(wait, run)
+		if err != nil {
+			return s.receipt(run), errors.Join(original, err)
+		}
+		if !found {
+			return s.receipt(run), original
+		}
+		return s.receipt(run), nil
+	case "tool-writing":
+		return s.saveToolCallFacts(wait, run, run.toolFacts.response)
+
 	case "start":
 		found, observeErr := s.observeStart(wait, run)
 		if observeErr != nil {
