@@ -51,7 +51,7 @@ type TaskFailureStateChanged struct {
 }
 
 func (v TaskFailureStateChanged) Validate() error {
-	if v.FromState != TaskStateInProgress || v.ToState != TaskStateBlocked || v.ReasonCode != TaskLaunchFailureHistoryReason {
+	if (v.FromState != TaskStateInProgress && v.FromState != TaskStateInReview) || v.ToState != TaskStateBlocked || v.ReasonCode != TaskLaunchFailureHistoryReason {
 		return invalid("/payload", "INVALID_TASK_FAILURE_HISTORY")
 	}
 	return nil

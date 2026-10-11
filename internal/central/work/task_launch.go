@@ -74,7 +74,7 @@ func taskLaunchInput(ctx context.Context, actor i.Actor, r ec.LaunchRequest) err
 	if d.Kind != i.Service || d.ServiceName != i.Scheduler || d.ProjectID != r.ProjectID.String() || d.CauseRef != r.Lineage.DispatchID {
 		return fault(f.Forbidden)
 	}
-	if r.Trigger.Kind != "task" || r.Purpose != "task/work" || r.Lineage.DispatchID == "" {
+	if r.Trigger.Kind != "task" || (r.Purpose != "task/work" && r.Purpose != "task/review") || r.Lineage.DispatchID == "" {
 		return fault(f.CapabilityUnsupported)
 	}
 	if r.Meta.IdempotencyKey != f.IdempotencyKey("scheduler_dispatch:"+r.Lineage.DispatchID) {
@@ -215,6 +215,9 @@ func (p *TaskLaunchProvider) currentSource(ctx context.Context, tx f.Tx, actor i
 		relaunchDigest = origin.source().ReferenceDigest
 		version = origin.Task.Version
 	} else {
+		if r.Purpose != "task/work" {
+			return zero, fault(f.Forbidden)
+		}
 		claim, e := loadSchedulerClaim(ctx, x, r.ProjectID, intent.DispatchID)
 		if e != nil {
 			return zero, e
@@ -238,7 +241,7 @@ func (p *TaskLaunchProvider) currentSource(ctx context.Context, tx f.Tx, actor i
 	// An eligible concurrent title/description change before discovery is legal.
 	// It is the newly observed version, not the historical claim postimage, that
 	// must remain unchanged through this plan's final validation.
-	if task.Version < version || task.State != c.TaskStateInProgress || task.SprintID != intent.SprintID || task.AssigneeAgentID == nil || *task.AssigneeAgentID != r.AgentID {
+	if task.Version < version || task.State != taskRelaunchState(r.Purpose) || task.SprintID != intent.SprintID || task.AssigneeAgentID == nil || *task.AssigneeAgentID != r.AgentID {
 		return zero, fault(f.InvalidState)
 	}
 	sprint, err := loadSprint(ctx, x, r.ProjectID, task.SprintID, project.Project.CurrentSprintID)
