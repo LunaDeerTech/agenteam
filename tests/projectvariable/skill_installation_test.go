@@ -39,6 +39,7 @@ import (
 // inserted by test SQL. Runtime/foreign-process recovery stays unbound.
 type skillInstallationFixture struct {
 	base     *variableHTTPFixture
+	creator  *project.Service
 	service  *skill.Service
 	objects  *object.Service
 	manifest pc.RequiredManifest
@@ -261,7 +262,7 @@ func newSkillInstallationFixtureWithAuthority(t *testing.T, factory func(*hookSt
 	if err = store.QueryRow(ctxFor(t), `SELECT EXISTS(SELECT 1 FROM agenteam_skill.initializations i JOIN agenteam_skill.skills s ON s.project_id=i.project_id AND s.creation_id=i.creation_id AND s.id=i.skill_id AND s.revision_id=i.revision_id WHERE i.project_id=$1 AND i.phase='published' AND s.protected AND s.serving)`, target.ProjectID.String()).Scan(&published); err != nil || !published {
 		t.Fatal("target did not use real protected publication", err)
 	}
-	return &skillInstallationFixture{base: base, service: service, objects: objects, manifest: manifest, project: *created.Project, s3: s3, bucket: bucket}
+	return &skillInstallationFixture{base: base, creator: creator, service: service, objects: objects, manifest: manifest, project: *created.Project, s3: s3, bucket: bucket}
 }
 
 // Only acceptance/remaining participant stage facts are an explicit upstream
