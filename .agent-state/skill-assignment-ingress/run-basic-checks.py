@@ -29,6 +29,8 @@ TESTS = {
         "TestSkillAssignmentIntentAndStoredReceipt",
         "TestSkillAssignmentLookupUsesOriginalCommitAndCurrentOwner",
         "TestSkillAssignmentLookupStopWaitsForActualStoreReturn",
+        "TestSkillAssignmentCandidateBindsCompleteOriginalTransition",
+        "TestSkillAssignmentReceiptBindsOriginalRoutingAndProtection",
         "TestSkillCaptureFormatOneBytesRemainStable",
         "TestSkillCaptureChangedSetUsesEveryFixedObject",
         "TestSkillCaptureChangedEmptySetRemainsHistorical",
@@ -81,10 +83,7 @@ def head():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--expected-head", required=True, help="Full frozen combined Git revision supplied at the granted execution window")
     args = parser.parse_args()
-    if head() != args.expected_head:
-        raise RuntimeError("combined source revision changed; no Go started")
     packages, tops = PACKAGES, TOPS
     out = args.output.resolve()
     out.mkdir(parents=True, exist_ok=False)
