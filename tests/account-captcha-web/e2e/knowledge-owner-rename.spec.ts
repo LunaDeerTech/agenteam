@@ -193,9 +193,9 @@ test("[rename] Knowledge Owner existing-document rename", async ({ page }) => {
       // Counts are from this Request's live events. The failed branch must
       // never create/abandon a Response.finished() Promise.
       const original = matches[0];
-      expect(
-        record.method === "POST" ? ["finished"] : ["finished", "failed"],
-      ).toContain(original.terminal);
+      expect(["finished", "failed"]).toContain(original.terminal);
+      // Failed remains a real failed Request. The POST branch is eligible
+      // only through the exact committed Rename conjunction below.
       expect(original.finished_calls).toBe(
         original.terminal === "finished" ? 1 : 0,
       );
@@ -230,6 +230,15 @@ test("[rename] Knowledge Owner existing-document rename", async ({ page }) => {
       );
       kinds.add(published.method);
       if (record.method === "POST") {
+        expect(record.kind).toBe("rename");
+        expect(record.committed_verified).toBe(true);
+        expect(record.app_handler_returned).toBe(true);
+        expect(record.original_eof).toBe(true);
+        expect(record.original_closed).toBe(true);
+        expect(record.request_body_sha256).toBe(createHash("sha256").update(JSON.stringify({expected_version:"1",title:data.title})).digest("hex"));
+        expect(original.request_headers_calls).toBe(1);
+        expect(original.request_headers_state).toBe("returned");
+        expect(original.request_headers_joined).toBe(true);
         writes++;
         expect(published.method).toBe("startRename");
         expect(published.same_receipt).toBe(true);

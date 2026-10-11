@@ -19,6 +19,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"strings"
 	"sync"
@@ -29,6 +30,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/account"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	kc "github.com/LunaDeerTech/agenteam/internal/central/knowledge/contract"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
@@ -88,11 +90,22 @@ func TestKnowledgeOwnerRenameWeb(t *testing.T) {
 	t.Cleanup(func() { _ = listener.Close() })
 	origin := "http://" + listener.Addr().String()
 	cfg := guardConfiguration(t, append(guardEnvironment(t, db), "AGENTEAM_CENTRAL_PUBLIC_ORIGIN="+origin, "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=5s"))
+	observations := &knowledgeRenameObservations{evidence: evidence, inputHash: inputHash, run: t.Name(), origin: origin, tails: map[string]*knowledgeRenameTail{}}
 	var core *account.Service
 	var owned *resources
 	deps := dependencies{observeAccount: func(v *account.Service) { core = v }, bind: func(c context.Context, cfg config.Config, store database, owner *resources, d *dependencies) error {
 		owned = owner
-		return bindAccounts(c, cfg, store, owner, d)
+		if err := bindAccounts(c, cfg, store, owner, d); err != nil {
+			return err
+		}
+		a, ok := owner.accounts().(*accountAssembly)
+		if !ok {
+			return errors.New("original Account assembly absent")
+		}
+		a.mu.Lock()
+		a.handler = observations.observeHandler(a.handler)
+		a.mu.Unlock()
+		return nil
 	}}
 	output := newEventLog()
 	logger, err := logging.New(logging.Central, slog.LevelInfo, output)
@@ -150,7 +163,6 @@ func TestKnowledgeOwnerRenameWeb(t *testing.T) {
 	proxy.ErrorHandler = func(w http.ResponseWriter, _ *http.Request, _ error) {
 		http.Error(w, "Owned backend unavailable", http.StatusBadGateway)
 	}
-	observations := &knowledgeRenameObservations{evidence: evidence, inputHash: inputHash, run: t.Name()}
 	proxy.ModifyResponse = observations.capture
 	server := &http.Server{ReadHeaderTimeout: 5 * time.Second}
 	// Asset paths remain under the actual frozen assets directory.
@@ -291,6 +303,51 @@ func TestKnowledgeOwnerRenameWeb(t *testing.T) {
 	observations.mu.Lock()
 	observations.project = projectID.String()
 	observations.target = parentID.String()
+	observations.expectedBody, err = json.Marshal(map[string]any{"expected_version": "1", "title": renamedTitle})
+	check("original rename request", err)
+	observations.verify = func(c context.Context, rid f.ID[f.Request], key f.IdempotencyKey, response []byte) error {
+		version := f.Version(1)
+		command := f.CommandMeta{RequestID: rid, IdempotencyKey: key, ExpectedVersion: &version}
+		digest, err := kc.UpdateDigest(actor, command, projectID, parentID, kc.UpdateRequest{Title: &renamedTitle}, nil)
+		if err != nil {
+			return err
+		}
+		lookup, err := documents.service.LookupCommand(c, actor, kc.LookupRequest{ProjectID: projectID, Command: kc.Update, Key: key, SemanticDigest: digest})
+		if err != nil {
+			return err
+		}
+		if lookup.Validate() != nil || lookup.State != kc.Committed || lookup.Receipt == nil || !lookup.Receipt.Changed || lookup.Receipt.Document == nil || lookup.Receipt.Document.Title != renamedTitle || lookup.Receipt.Document.ContentVersion != 2 || lookup.Receipt.Document.ObjectID != original.ObjectID {
+			return errors.New("same original rename command not committed")
+		}
+		// Match the complete formal HTTP projection to the original command's
+		// immutable receipt, never a later GET. ObjectID remains checked above.
+		document, err := json.Marshal(lookup.Receipt.Document)
+		if err != nil {
+			return err
+		}
+		var projected map[string]any
+		var actual map[string]any
+		if json.Unmarshal(document, &projected) != nil || json.Unmarshal(response, &actual) != nil {
+			return errors.New("rename receipt projection invalid")
+		}
+		delete(projected, "object_id")
+		if len(projected) != 12 || !reflect.DeepEqual(actual, map[string]any{"document": projected}) {
+			return errors.New("original HTTP and command receipts differ")
+		}
+		var documentRows, commands, activeReaders, changes int
+		err = conn.QueryRow(c, `SELECT
+ (SELECT count(*) FROM agenteam_knowledge.documents WHERE project_id=$1 AND id=$2 AND title=$3 AND content_version=2 AND current_object_id=$4 AND indexing_status='pending'),
+ (SELECT count(*) FROM agenteam_knowledge.commands WHERE project_id=$1),
+ (SELECT count(*) FROM agenteam_object.object_leases WHERE owner_kind='reader' AND state='active'),
+ (SELECT count(*) FROM agenteam_knowledge.command_events e JOIN agenteam_knowledge.commands c ON c.id=e.command_id WHERE c.project_id=$1 AND c.command_name='update' AND c.command_key=$5 AND e.event_type='knowledge.content_changed' AND e.payload->>'content_version'='2' AND e.payload->'changes'='["title"]'::jsonb AND e.payload->>'object_id'=$4::text)`, projectID.String(), parentID.String(), renamedTitle, original.ObjectID.String(), string(key)).Scan(&documentRows, &commands, &activeReaders, &changes)
+		if err != nil {
+			return err
+		}
+		if documentRows != 1 || commands != 2 || activeReaders != 0 || changes != 1 {
+			return errors.New("original rename committed facts incomplete")
+		}
+		return nil
+	}
 	observations.mu.Unlock()
 	payload := map[string]any{"email": email, "password": password, "user_id": actor.Details().UserID, "username": username, "project_id": projectID.String(), "project_name": "knowledge-rename", "document_id": parentID.String(), "text": parentText, "title": renamedTitle, "input_hash": inputHash}
 	raw, err := json.Marshal(payload)
@@ -374,6 +431,58 @@ type knowledgeRenameObservations struct {
 	writes                                    int
 	count                                     int
 	err                                       error
+	origin                                    string
+	expectedBody                              []byte
+	tails                                     map[string]*knowledgeRenameTail
+	verify                                    func(context.Context, f.ID[f.Request], f.IdempotencyKey, []byte) error
+}
+
+type knowledgeRenameTail struct {
+	done                  chan struct{}
+	returned              bool
+	key                   f.IdempotencyKey
+	bodyDigest, keyDigest [sha256.Size]byte
+}
+
+// This passive wrapper observes the actual upstream App Account handler. It
+// neither substitutes a domain provider nor treats proxy return as App return.
+func (o *knowledgeRenameObservations) observeHandler(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		o.mu.Lock()
+		selected := o.project != "" && r.Method == http.MethodPost && r.URL.Path == "/api/v1/projects/"+o.project+"/knowledge/documents/"+o.target+"/rename"
+		expected := bytes.Clone(o.expectedBody)
+		o.mu.Unlock()
+		if !selected {
+			next.ServeHTTP(w, r)
+			return
+		}
+		raw, err := io.ReadAll(io.LimitReader(r.Body, (16<<10)+1))
+		closed := r.Body.Close()
+		defer clear(raw)
+		key := f.IdempotencyKey(r.Header.Get("Idempotency-Key"))
+		rid := httpapi.RequestID(r.Context())
+		if err != nil || closed != nil || len(raw) > 16<<10 || r.ContentLength != int64(len(raw)) || !bytes.Equal(raw, expected) || key.Validate() != nil || len(r.Header.Values("Idempotency-Key")) != 1 || rid.Validate() != nil || r.URL.RawQuery != "" || len(r.Header.Values("Origin")) != 1 || r.Header.Get("Origin") != o.origin || r.Header.Get("Content-Type") != "application/json" {
+			o.mu.Lock()
+			o.err = errors.New("original rename request binding invalid")
+			o.mu.Unlock()
+			http.Error(w, "original request observation failed", http.StatusBadGateway)
+			return
+		}
+		tail := &knowledgeRenameTail{done: make(chan struct{}), key: key, bodyDigest: sha256.Sum256(raw), keyDigest: sha256.Sum256([]byte(key))}
+		o.mu.Lock()
+		if len(o.tails) != 0 {
+			o.err = errors.New("duplicate original rename handler")
+			o.mu.Unlock()
+			http.Error(w, "original request observation duplicate", http.StatusBadGateway)
+			return
+		}
+		o.tails[rid.String()] = tail
+		o.mu.Unlock()
+		r.Body = io.NopCloser(bytes.NewReader(raw))
+		defer close(tail.done)
+		next.ServeHTTP(w, r)
+		tail.returned = true
+	})
 }
 
 func (o *knowledgeRenameObservations) capture(response *http.Response) error {
@@ -410,6 +519,22 @@ func (o *knowledgeRenameObservations) capture(response *http.Response) error {
 	if _, err := f.ParseID[f.Request](response.Header.Get("X-Request-ID")); err != nil {
 		return fail()
 	}
+	var writeTail *knowledgeRenameTail
+	if response.Request.Method == http.MethodPost {
+		rid, err := f.ParseID[f.Request](response.Header.Get("X-Request-ID"))
+		writeTail = o.tails[rid.String()]
+		if err != nil || len(response.Header.Values("X-Request-ID")) != 1 || writeTail == nil || writeTail.key != o.key || o.verify == nil {
+			return fail()
+		}
+		select {
+		case <-writeTail.done:
+		case <-response.Request.Context().Done():
+			return fail()
+		}
+		if !writeTail.returned || o.verify(response.Request.Context(), rid, writeTail.key, raw) != nil {
+			return fail()
+		}
+	}
 	sum := fmt.Sprintf("%x", sha256.Sum256(raw))
 	name := "body-" + sum + ".json"
 	if err := os.WriteFile(filepath.Join(o.evidence, name), raw, 0600); err != nil {
@@ -417,6 +542,12 @@ func (o *knowledgeRenameObservations) capture(response *http.Response) error {
 	}
 	o.count++
 	meta := map[string]any{"sequence": o.count, "source_run": o.run, "input_hash": o.inputHash, "method": response.Request.Method, "path": response.Request.URL.Path, "query": response.Request.URL.RawQuery, "status": response.StatusCode, "request_id": response.Header.Get("X-Request-ID"), "content_length": response.ContentLength, "body_file": name, "body_sha256": sum}
+	if writeTail != nil {
+		meta["kind"] = "rename"
+		meta["request_body_sha256"] = fmt.Sprintf("%x", writeTail.bodyDigest)
+		meta["idempotency_key_sha256"] = fmt.Sprintf("%x", writeTail.keyDigest)
+		meta["original_eof"], meta["original_closed"], meta["app_handler_returned"], meta["committed_verified"] = true, true, true, true
+	}
 	encoded, err := json.Marshal(meta)
 	if err != nil {
 		return fail()

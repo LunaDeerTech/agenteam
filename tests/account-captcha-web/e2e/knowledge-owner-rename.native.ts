@@ -1,5 +1,6 @@
 import type { Page, Request, Response as PWResponse } from "@playwright/test";
 import { join } from "node:path";
+import { createHash } from "node:crypto";
 import { writeFile } from "node:fs/promises";
 import { writeFileSync } from "node:fs";
 import {
@@ -140,6 +141,18 @@ export function installRenameNative(config: {
       owner_error: false,
     };
     rows.push(row);
+    if (method === "POST") {
+      // Hash only this original transport call's already-serialized bytes.
+      // No cloned Request/body read or replacement fetch is introduced.
+      const headers = new Headers(init?.headers);
+      const key = headers.get("idempotency-key");
+      if (typeof init?.body !== "string" || !key) row.owner_error = true;
+      else {
+        const hex = (digest: ArrayBuffer) => [...new Uint8Array(digest)].map(v => v.toString(16).padStart(2,"0")).join("");
+        observe(crypto.subtle.digest("SHA-256", new TextEncoder().encode(init.body)), digest => { row.request_body_sha256=hex(digest); }, () => {row.owner_error=true;});
+        observe(crypto.subtle.digest("SHA-256", new TextEncoder().encode(key)), digest => { row.idempotency_key_sha256=hex(digest); }, () => {row.owner_error=true;});
+      }
+    }
     let result: Promise<Response>;
     try {
       result = Reflect.apply(originalFetch, this, [input, init]);
@@ -561,6 +574,20 @@ export function renameOriginalCompleted(
 ) {
   const n = native?.rows?.find((v: any) => v.request_id === pw?.request_id);
   const p = publication?.rows?.find((v: any) => v.id === n?.call_id);
+  const hash = (v: unknown) => typeof v === "string" && /^[0-9a-f]{64}$/.test(v);
+  const committedRename = pw?.method === "POST" && p?.method === "startRename" &&
+    pw.path?.endsWith("/rename") && pw.query === "" &&
+    native.rows.filter((v: any) => v.method === "POST").length === 1 &&
+    publication.rows.filter((v: any) => v.method === "startRename").length === 1 &&
+    sidecar?.kind === "rename" && sidecar.original_eof === true &&
+    sidecar.original_closed === true && sidecar.app_handler_returned === true &&
+    sidecar.committed_verified === true && pw.request_headers_calls === 1 &&
+    pw.request_headers_state === "returned" && pw.request_headers_joined === true &&
+    hash(sidecar.request_body_sha256) && hash(sidecar.idempotency_key_sha256) &&
+    sidecar.request_body_sha256 === pw.request_body_sha256 &&
+    sidecar.request_body_sha256 === n?.request_body_sha256 &&
+    sidecar.idempotency_key_sha256 === pw.idempotency_key_sha256 &&
+    sidecar.idempotency_key_sha256 === n?.idempotency_key_sha256;
   const retired = (v: any) =>
     v?.retired === true &&
     v.reason === "explicit" &&
@@ -598,7 +625,7 @@ export function renameOriginalCompleted(
       pw.finished_state === "null" &&
       pw.finished_null === true &&
       pw.failure_kind === "not_observed") ||
-      (pw.method === "GET" &&
+      ((pw.method === "GET" || committedRename) &&
         pw.terminal === "failed" &&
         pw.finished === false &&
         pw.finished_count === 0 &&
@@ -609,7 +636,7 @@ export function renameOriginalCompleted(
         pw.finished_null === false &&
         pw.failure_kind === "net::ERR_ABORTED")) &&
     (pw.method === "GET" ||
-      (pw.method === "POST" &&
+      (committedRename &&
         p.method === "startRename" &&
         p.same_receipt === true &&
         p.confirmed === true)) &&
@@ -788,6 +815,9 @@ export function createRenameDiagnostic(config: {
       terminal_open: row.terminal_open === true,
       terminal_in_budget: row.terminal_in_budget === true,
       request_valid: row.request_valid === true,
+      request_headers_calls: Number.isSafeInteger(row.request_headers_calls) ? row.request_headers_calls : null,
+      request_headers_state: ["not_entered","entered","returned","rejected"].includes(row.request_headers_state) ? row.request_headers_state : "invalid",
+      request_headers_joined: row.request_headers_joined === true,
       post_material:
         row.method === "POST"
           ? Object.fromEntries(
@@ -969,6 +999,7 @@ export async function observeRename(
     terminal: Promise<Terminal>;
     resolve: (value: Terminal) => void;
     finished?: Promise<Error | null>;
+    requestReady: Promise<void>;
   };
   const rows = new Map<Request, any>(),
     slots = new Map<Request, Slot>(),
@@ -983,11 +1014,11 @@ export async function observeRename(
     request: Request,
     url: URL,
     material: { post: PostMaterial | null },
+    headers: Record<string,string> = {},
   ) => {
     if (request.method() === "POST") {
-      const headers = request.headers();
-      // Retain only fixed predicate results from the same original Request.
-      // Provisional headers and every existing POST gate remain unchanged.
+      // Only actual allHeaders from this original Request can prove Origin.
+      // Raw header values are never retained in rows or diagnostics.
       material.post = Object.freeze({
         no_fragment: !url.hash,
         single_document: config.documents.length === 1,
@@ -1064,8 +1095,8 @@ export async function observeRename(
     }
     const url = new URL(request.url());
     const material: { post: PostMaterial | null } = { post: null };
-    const requestValid = validRequest(request, url, material);
-    const row = {
+    const requestValid = request.method() === "GET" && validRequest(request, url, material);
+    const row: any = {
       sequence: rows.size + 1,
       method: request.method(),
       path: url.pathname,
@@ -1075,6 +1106,11 @@ export async function observeRename(
       request_count: 1,
       response_count: 0,
       request_valid: requestValid,
+      request_headers_calls: 0,
+      request_headers_state: "not_entered",
+      request_headers_joined: request.method() !== "POST",
+      request_body_sha256: null as string | null,
+      idempotency_key_sha256: null as string | null,
       post_material: material.post,
       post_material_failure: material.post
         ? (postMaterialPredicates.find((key) => !material.post![key]) ?? "none")
@@ -1095,8 +1131,30 @@ export async function observeRename(
     let resolve!: (value: Terminal) => void;
     const terminal = new Promise<Terminal>((done) => (resolve = done));
     rows.set(request, row);
-    slots.set(request, { row, terminal, resolve });
-    if (!row.request_valid) invalidate(row);
+    const slot: Slot = { row, terminal, resolve, requestReady: Promise.resolve() };
+    slots.set(request, slot);
+    if (row.method === "POST") {
+      row.request_headers_calls++;
+      row.request_headers_state="entered";
+      const tail=(async () => {
+        const headers=await request.allHeaders();
+        row.request_headers_state="returned";
+        row.request_valid=validRequest(request,url,material,headers);
+        row.post_material=material.post;
+        row.post_material_failure=postMaterialPredicates.find(key => !material.post![key]) ?? "none";
+        const body=request.postDataBuffer();
+        const key=headers["idempotency-key"];
+        if (!row.request_valid || body===null || !key || closed || Date.now()>=expiresAt) { invalidate(row); return; }
+        row.request_body_sha256=createHash("sha256").update(body).digest("hex");
+        row.idempotency_key_sha256=createHash("sha256").update(key).digest("hex");
+      })().catch(() => { row.request_headers_state="rejected"; invalidate(row); }).then(() => {
+        tails.delete(tail);
+        row.request_headers_joined=true;
+        diagnostic.event("request",row,tails.size);
+      });
+      slot.requestReady=tail;
+      tails.add(tail);
+    } else if (!row.request_valid) invalidate(row);
     diagnostic.event("request", row, tails.size);
   };
   const terminalEvent = (request: Request, kind: "finished" | "failed") => {
@@ -1130,7 +1188,11 @@ export async function observeRename(
         } catch {
           row.failure_kind = "unavailable";
         }
-        if (row.method !== "GET" || row.failure_kind !== "net::ERR_ABORTED")
+        // Preserve the failure as observed. The sole exact Rename may only
+        // pass later with its complete committed-command conjunction.
+        const exactRename = row.method === "POST" && config.documents.length === 1 &&
+          row.path === `${prefix}/${config.documents[0]}/rename` && row.query === "";
+        if ((!exactRename && row.method !== "GET") || row.failure_kind !== "net::ERR_ABORTED")
           invalidate(row);
       }
       settle(slot, kind);
@@ -1182,6 +1244,7 @@ export async function observeRename(
           : "invalid";
       diagnostic.event("header-return", row, tails.size);
       if (row.header_request_id === "invalid") invalidate(row);
+      await slot.requestReady;
       const terminal = await slot.terminal;
       diagnostic.event("terminal-return", row, tails.size);
       if (
@@ -1440,7 +1503,7 @@ export async function observeRename(
           };
         });
         diagnostic.sample(sample.observers);
-        return sample.idle;
+        return sample.idle && [...rows.values()].every(row => row.request_headers_joined === true);
       } catch (error) {
         diagnostic.event("idle-reject", undefined, tails.size);
         throw error;
