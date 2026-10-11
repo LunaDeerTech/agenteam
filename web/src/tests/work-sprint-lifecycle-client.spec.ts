@@ -3,19 +3,49 @@ import { createWorkSprintLifecycleAPI, captureSprintStartInput } from '../api/wo
 import type { Fetch } from '../api/client'
 
 const id = (n: number) => `01990000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
-const p = id(1), s = id(2), owner = id(3), at = '2026-10-11T10:00:00.000001Z'
+const p = id(1),
+  s = id(2),
+  owner = id(3),
+  at = '2026-10-11T10:00:00.000001Z'
 const startPath = `/api/v1/projects/${p}/sprints/${s}/start`
 const lookupPath = `/api/v1/projects/${p}/sprint-lifecycle-commands/lookup`
 const original = { expected_version: '9007199254740993', request: {} }
 const write = { csrfToken: 'S'.repeat(43), key: 'K'.repeat(32) }
 function receipt() {
   return {
-    sprint: { id: s, project_id: p, milestone_id: id(4), title: 'Sprint title', description: 'Original\ntext', manual_rank: '8'.repeat(32), version: '9007199254740994', created_at: at, updated_at: at, state: 'current', started_at: at, started_by: { kind: 'human', user_id: owner }, completed_at: null, completed_by: null },
-    project: { id: p, owner_user_id: owner, name: 'Project-One', normalized_name: 'project-one', description: '', lifecycle: 'active', version: '2', current_sprint_id: s, created_at: at, updated_at: at },
+    sprint: {
+      id: s,
+      project_id: p,
+      milestone_id: id(4),
+      title: 'Sprint title',
+      description: 'Original\ntext',
+      manual_rank: '8'.repeat(32),
+      version: '9007199254740994',
+      created_at: at,
+      updated_at: at,
+      state: 'current',
+      started_at: at,
+      started_by: { kind: 'human', user_id: owner },
+      completed_at: null,
+      completed_by: null,
+    },
+    project: {
+      id: p,
+      owner_user_id: owner,
+      name: 'Project-One',
+      normalized_name: 'project-one',
+      description: '',
+      lifecycle: 'active',
+      version: '2',
+      current_sprint_id: s,
+      created_at: at,
+      updated_at: at,
+    },
     event_id: id(5),
   }
 }
-const json = (v: unknown) => new Response(JSON.stringify(v), { headers: { 'Content-Type': 'application/json' } })
+const json = (v: unknown) =>
+  new Response(JSON.stringify(v), { headers: { 'Content-Type': 'application/json' } })
 
 describe('Sprint Start wire contract', () => {
   it('captures the explicit empty request and decodes the complete immutable original Start receipt', async () => {
@@ -34,7 +64,10 @@ describe('Sprint Start wire contract', () => {
     expect(path).toBe(startPath)
     expect(init.method).toBe('POST')
     expect(JSON.parse(init.body as string)).toEqual(original)
-    expect(init.headers).toMatchObject({ 'Idempotency-Key': write.key, 'X-CSRF-Token': write.csrfToken })
+    expect(init.headers).toMatchObject({
+      'Idempotency-Key': write.key,
+      'X-CSRF-Token': write.csrfToken,
+    })
     expect(init.credentials).toBe('same-origin')
     expect(Object.hasOwn(result.project, 'scheduler_enabled')).toBe(false)
   })
@@ -50,7 +83,11 @@ describe('Sprint Start wire contract', () => {
       expect(path).toBe(lookupPath)
       expect(init.method).toBe('POST')
       expect(init.headers).toMatchObject({ 'Idempotency-Key': write.key })
-      expect(JSON.parse(init.body as string)).toEqual({ command: 'work.sprint.start', target_id: s, ...original })
+      expect(JSON.parse(init.body as string)).toEqual({
+        command: 'work.sprint.start',
+        target_id: s,
+        ...original,
+      })
     }
     expect(fetch).toHaveBeenCalledTimes(3)
   })
@@ -58,23 +95,45 @@ describe('Sprint Start wire contract', () => {
   it('rejects absent or nonempty requests before transport and rejects inconsistent or duplicate successful receipts', async () => {
     const fetch = vi.fn<Fetch>()
     const api = createWorkSprintLifecycleAPI(fetch)
-    for (const value of [{ expected_version: '1' }, { expected_version: '1', request: null }, { expected_version: 1, request: {} }, { expected_version: '1', request: { enable: true } }]) {
+    for (const value of [
+      { expected_version: '1' },
+      { expected_version: '1', request: null },
+      { expected_version: 1, request: {} },
+      { expected_version: '1', request: { enable: true } },
+    ]) {
       expect(() => captureSprintStartInput(value)).toThrowError('invalid-input')
     }
-    expect(() => api.start(id(1).replace('-7000-', '-4000-'), s, original, write)).toThrowError('invalid-input')
+    expect(() => api.start(id(1).replace('-7000-', '-4000-'), s, original, write)).toThrowError(
+      'invalid-input',
+    )
     expect(fetch).not.toHaveBeenCalled()
     const broken = [
       { ...receipt(), project: { ...receipt().project, current_sprint_id: id(9) } },
       { ...receipt(), sprint: { ...receipt().sprint, version: original.expected_version } },
-      { ...receipt(), sprint: { ...receipt().sprint, started_by: { kind: 'human', user_id: id(9) } } },
-      { ...receipt(), project: { ...receipt().project, updated_at: '2026-10-11T10:00:00.000002Z' } },
+      {
+        ...receipt(),
+        sprint: { ...receipt().sprint, started_by: { kind: 'human', user_id: id(9) } },
+      },
+      {
+        ...receipt(),
+        project: { ...receipt().project, updated_at: '2026-10-11T10:00:00.000002Z' },
+      },
     ]
     for (const value of broken) {
       fetch.mockResolvedValueOnce(json(value))
-      await expect(api.start(p, s, original, write)).rejects.toMatchObject({ kind: 'invalid-response' })
+      await expect(api.start(p, s, original, write)).rejects.toMatchObject({
+        kind: 'invalid-response',
+      })
     }
-    fetch.mockResolvedValueOnce(new Response(`{"status":"not_observed","status":"committed","receipt":${JSON.stringify(receipt())}}`, { headers: { 'Content-Type': 'application/json' } }))
-    await expect(api.lookup(p, s, original, write)).rejects.toMatchObject({ kind: 'invalid-response' })
+    fetch.mockResolvedValueOnce(
+      new Response(
+        `{"status":"not_observed","status":"committed","receipt":${JSON.stringify(receipt())}}`,
+        { headers: { 'Content-Type': 'application/json' } },
+      ),
+    )
+    await expect(api.lookup(p, s, original, write)).rejects.toMatchObject({
+      kind: 'invalid-response',
+    })
     expect(fetch).toHaveBeenCalledTimes(5)
   })
 })

@@ -44,43 +44,153 @@ export type SprintStartLookup =
   | Readonly<{ status: 'committed'; receipt: SprintStartReceipt }>
   | Readonly<{ status: 'in_progress' | 'not_observed'; receipt: null }>
 export interface WorkSprintLifecycleAPI {
-  start(project: string, sprint: string, input: SprintStartInput, write: WriteOptions): Promise<SprintStartReceipt>
-  lookup(project: string, sprint: string, input: SprintStartInput, write: WriteOptions): Promise<SprintStartLookup>
+  start(
+    project: string,
+    sprint: string,
+    input: SprintStartInput,
+    write: WriteOptions,
+  ): Promise<SprintStartReceipt>
+  lookup(
+    project: string,
+    sprint: string,
+    input: SprintStartInput,
+    write: WriteOptions,
+  ): Promise<SprintStartLookup>
 }
 
 function requireValue(value: unknown): asserts value {
   if (!value) throw new AccountFailure('invalid-response')
 }
 function input<T>(fn: () => T): T {
-  try { return fn() } catch { throw new AccountFailure('invalid-input') }
+  try {
+    return fn()
+  } catch {
+    throw new AccountFailure('invalid-input')
+  }
 }
 export function captureSprintStartInput(value: unknown): SprintStartInput {
   return input(() => {
     const v = shape(value, ['expected_version', 'request'])
     shape(v.request, [])
-    return Object.freeze({ expected_version: workVersion(v.expected_version), request: Object.freeze({}) })
+    return Object.freeze({
+      expected_version: workVersion(v.expected_version),
+      request: Object.freeze({}),
+    })
   })
 }
-function receipt(value: unknown, projectID: string, sprintID: string, original: SprintStartInput): SprintStartReceipt {
+function receipt(
+  value: unknown,
+  projectID: string,
+  sprintID: string,
+  original: SprintStartInput,
+): SprintStartReceipt {
   const v = shape(value, ['sprint', 'project', 'event_id'])
-  const s = shape(v.sprint, ['id', 'project_id', 'milestone_id', 'title', 'description', 'manual_rank', 'version', 'created_at', 'updated_at', 'state', 'started_at', 'started_by', 'completed_at', 'completed_by'])
-  const p = shape(v.project, ['id', 'owner_user_id', 'name', 'normalized_name', 'description', 'lifecycle', 'version', 'current_sprint_id', 'created_at', 'updated_at'])
+  const s = shape(v.sprint, [
+    'id',
+    'project_id',
+    'milestone_id',
+    'title',
+    'description',
+    'manual_rank',
+    'version',
+    'created_at',
+    'updated_at',
+    'state',
+    'started_at',
+    'started_by',
+    'completed_at',
+    'completed_by',
+  ])
+  const p = shape(v.project, [
+    'id',
+    'owner_user_id',
+    'name',
+    'normalized_name',
+    'description',
+    'lifecycle',
+    'version',
+    'current_sprint_id',
+    'created_at',
+    'updated_at',
+  ])
   const actor = shape(s.started_by, ['kind', 'user_id'])
   const owner = workID(p.owner_user_id)
-  const created = parseSystemInstant(s.created_at), updated = parseSystemInstant(s.updated_at), started = parseSystemInstant(s.started_at)
-  const projectCreated = parseSystemInstant(p.created_at), projectUpdated = parseSystemInstant(p.updated_at)
-  const rank = string(s.manual_rank, 32, 32), sprintVersion = workVersion(s.version), projectVersion = workVersion(p.version)
-  const name = string(p.name, 1, 64), description = string(p.description, 0, 8192)
-  requireValue(/^[A-Za-z0-9._-]+$/.test(name) && name !== '.' && name !== '..' && p.normalized_name === name.toLowerCase())
-  requireValue(!/[\u0000-\u0008\u000b-\u001f\u007f]/u.test(description) && !/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(description) && new TextEncoder().encode(description).byteLength <= 8192)
-  requireValue(workID(s.id) === sprintID && workID(s.project_id) === projectID && workID(p.id) === projectID && workID(p.current_sprint_id) === sprintID)
-  requireValue(s.state === 'current' && p.lifecycle === 'active' && actor.kind === 'human' && workID(actor.user_id) === owner && s.completed_at === null && s.completed_by === null)
-  requireValue(BigInt(sprintVersion) === BigInt(original.expected_version) + 1n && BigInt(projectVersion) > 1n)
-  requireValue(created <= started && started <= updated && projectCreated <= projectUpdated && updated === projectUpdated)
+  const created = parseSystemInstant(s.created_at),
+    updated = parseSystemInstant(s.updated_at),
+    started = parseSystemInstant(s.started_at)
+  const projectCreated = parseSystemInstant(p.created_at),
+    projectUpdated = parseSystemInstant(p.updated_at)
+  const rank = string(s.manual_rank, 32, 32),
+    sprintVersion = workVersion(s.version),
+    projectVersion = workVersion(p.version)
+  const name = string(p.name, 1, 64),
+    description = string(p.description, 0, 8192)
+  requireValue(
+    /^[A-Za-z0-9._-]+$/.test(name) &&
+      name !== '.' &&
+      name !== '..' &&
+      p.normalized_name === name.toLowerCase(),
+  )
+  requireValue(
+    !/[\u0000-\u0008\u000b-\u001f\u007f]/u.test(description) &&
+      !/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(
+        description,
+      ) &&
+      new TextEncoder().encode(description).byteLength <= 8192,
+  )
+  requireValue(
+    workID(s.id) === sprintID &&
+      workID(s.project_id) === projectID &&
+      workID(p.id) === projectID &&
+      workID(p.current_sprint_id) === sprintID,
+  )
+  requireValue(
+    s.state === 'current' &&
+      p.lifecycle === 'active' &&
+      actor.kind === 'human' &&
+      workID(actor.user_id) === owner &&
+      s.completed_at === null &&
+      s.completed_by === null,
+  )
+  requireValue(
+    BigInt(sprintVersion) === BigInt(original.expected_version) + 1n && BigInt(projectVersion) > 1n,
+  )
+  requireValue(
+    created <= started &&
+      started <= updated &&
+      projectCreated <= projectUpdated &&
+      updated === projectUpdated,
+  )
   requireValue(/^[0-9a-f]{32}$/.test(rank) && rank !== '0'.repeat(32) && rank !== 'f'.repeat(32))
   return Object.freeze({
-    sprint: Object.freeze({ id: sprintID, project_id: projectID, milestone_id: workID(s.milestone_id), title: workText(s.title, 1024, true), description: workText(s.description, 32768), manual_rank: rank, version: sprintVersion, created_at: created, updated_at: updated, state: 'current', started_at: started, started_by: Object.freeze({ kind: 'human', user_id: owner }), completed_at: null, completed_by: null }),
-    project: Object.freeze({ id: projectID, owner_user_id: owner, name, normalized_name: name.toLowerCase(), description, lifecycle: 'active', version: projectVersion, current_sprint_id: sprintID, created_at: projectCreated, updated_at: projectUpdated }),
+    sprint: Object.freeze({
+      id: sprintID,
+      project_id: projectID,
+      milestone_id: workID(s.milestone_id),
+      title: workText(s.title, 1024, true),
+      description: workText(s.description, 32768),
+      manual_rank: rank,
+      version: sprintVersion,
+      created_at: created,
+      updated_at: updated,
+      state: 'current',
+      started_at: started,
+      started_by: Object.freeze({ kind: 'human', user_id: owner }),
+      completed_at: null,
+      completed_by: null,
+    }),
+    project: Object.freeze({
+      id: projectID,
+      owner_user_id: owner,
+      name,
+      normalized_name: name.toLowerCase(),
+      description,
+      lifecycle: 'active',
+      version: projectVersion,
+      current_sprint_id: sprintID,
+      created_at: projectCreated,
+      updated_at: projectUpdated,
+    }),
     event_id: workID(v.event_id),
   })
 }
@@ -90,17 +200,42 @@ export function createWorkSprintLifecycleAPI(fetcher?: Fetch): WorkSprintLifecyc
     start(project, sprint, value, write) {
       const original = captureSprintStartInput(value)
       const scope = input(() => ({ projectID: workID(project), target: workID(sprint) }))
-      return call('sprintStart', v => receipt(v, project, sprint, original), { ...scope, signal: write.signal ?? new AbortController().signal, csrf: write.csrfToken, key: write.key, body: original })
+      return call('sprintStart', (v) => receipt(v, project, sprint, original), {
+        ...scope,
+        signal: write.signal ?? new AbortController().signal,
+        csrf: write.csrfToken,
+        key: write.key,
+        body: original,
+      })
     },
     lookup(project, sprint, value, write) {
       const original = captureSprintStartInput(value)
       const scope = input(() => ({ projectID: workID(project), target: workID(sprint) }))
-      return call('sprintStartLookup', (value): SprintStartLookup => {
-        const v = shape(value, ['status', 'receipt'])
-        if (v.status === 'committed') return Object.freeze({ status: 'committed', receipt: receipt(v.receipt, project, sprint, original) })
-        requireValue((v.status === 'in_progress' || v.status === 'not_observed') && v.receipt === null)
-        return Object.freeze({ status: v.status as 'in_progress' | 'not_observed', receipt: null })
-      }, { projectID: scope.projectID, signal: write.signal ?? new AbortController().signal, csrf: write.csrfToken, key: write.key, body: { command: 'work.sprint.start', target_id: scope.target, ...original } })
+      return call(
+        'sprintStartLookup',
+        (value): SprintStartLookup => {
+          const v = shape(value, ['status', 'receipt'])
+          if (v.status === 'committed')
+            return Object.freeze({
+              status: 'committed',
+              receipt: receipt(v.receipt, project, sprint, original),
+            })
+          requireValue(
+            (v.status === 'in_progress' || v.status === 'not_observed') && v.receipt === null,
+          )
+          return Object.freeze({
+            status: v.status as 'in_progress' | 'not_observed',
+            receipt: null,
+          })
+        },
+        {
+          projectID: scope.projectID,
+          signal: write.signal ?? new AbortController().signal,
+          csrf: write.csrfToken,
+          key: write.key,
+          body: { command: 'work.sprint.start', target_id: scope.target, ...original },
+        },
+      )
     },
   }
 }

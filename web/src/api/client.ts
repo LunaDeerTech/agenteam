@@ -59,7 +59,11 @@ const endpoints = {
   reviewSprints: ['GET', '/api/v1/projects/{project_id}/sprints', 200],
   reviewSprint: ['GET', '/api/v1/projects/{project_id}/sprints/{target}', 200],
   sprintStart: ['POST', '/api/v1/projects/{project_id}/sprints/{target}/start', 200],
-  sprintStartLookup: ['POST', '/api/v1/projects/{project_id}/sprint-lifecycle-commands/lookup', 200],
+  sprintStartLookup: [
+    'POST',
+    '/api/v1/projects/{project_id}/sprint-lifecycle-commands/lookup',
+    200,
+  ],
   reviewTasks: ['GET', '/api/v1/projects/{project_id}/tasks', 200],
   reviewTask: ['GET', '/api/v1/projects/{project_id}/tasks/{target}', 200],
   reviewBlockers: ['GET', '/api/v1/projects/{project_id}/tasks/{target}/blockers', 200],

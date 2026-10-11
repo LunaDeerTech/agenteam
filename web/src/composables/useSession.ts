@@ -1698,7 +1698,8 @@ export function createSessionController(
       revision === revisionNow() &&
       sameIdentity(identity, personalContext.identity) &&
       (kind === 'personal' ||
-        (isSprintLifecycleAction(kind) || isAgentConfigurationAction(kind) ||
+        (isSprintLifecycleAction(kind) ||
+        isAgentConfigurationAction(kind) ||
         isWorkReviewAction(kind) ||
         kind === 'knowledge-read' ||
         isProjectAction(kind) ||
@@ -1768,7 +1769,9 @@ export function createSessionController(
       })
       .catch((error: unknown) => {
         const e =
-          isSprintLifecycleAction(kind) || isAgentConfigurationAction(kind) || isWorkReviewAction(kind)
+          isSprintLifecycleAction(kind) ||
+          isAgentConfigurationAction(kind) ||
+          isWorkReviewAction(kind)
             ? projectFailure(identity, op, error)
             : kind === 'knowledge-read'
               ? knowledgeFailure(current, error)
@@ -4109,9 +4112,19 @@ export function createSessionController(
     error: string | null = null,
   ) {
     sprintProgressContext = { identity: original.identity, csrf: original.csrf }
-    sprintLifecycleState.progress = Object.freeze({ projectID: original.projectID, sprintID: original.sprintID, phase, receipt, observation, error })
+    sprintLifecycleState.progress = Object.freeze({
+      projectID: original.projectID,
+      sprintID: original.sprintID,
+      phase,
+      receipt,
+      observation,
+      error,
+    })
   }
-  function performSprintStart(original: SprintStartIntent, lookup: boolean): Promise<SprintStartReceipt | SprintStartLookup> {
+  function performSprintStart(
+    original: SprintStartIntent,
+    lookup: boolean,
+  ): Promise<SprintStartReceipt | SprintStartLookup> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     if (!sprintStartCurrent(original)) return Promise.reject(new AccountFailure('invalid-input'))
     const kind: SprintLifecycleAction = lookup ? 'sprint-start-lookup' : 'sprint-start'
@@ -4119,62 +4132,119 @@ export function createSessionController(
     const live = () => sprintStartCurrent(original) && revision === sprintLifecycleRevisions[kind]
     let dispatched = false
     if (!lookup) publishSprintStart(original, 'submitting')
-    return runAuthorized<SprintStartReceipt | SprintStartLookup>(original.identity, async (op, current) => {
-      if (!current() || !live()) throw new AccountFailure('cancelled')
-      if (JSON.stringify(original.input) !== original.body) throw new AccountFailure('invalid-input')
-      dispatched = true
-      const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
-      const value = await (lookup
-        ? sprintLifecycleAPI.lookup(original.projectID, original.sprintID, original.input, write)
-        : sprintLifecycleAPI.start(original.projectID, original.sprintID, original.input, write))
-      const receipt = 'status' in value ? value.receipt : value
-      if (receipt && (receipt.project.owner_user_id !== original.identity.userID || receipt.sprint.started_by.user_id !== original.identity.userID))
-        throw new AccountFailure('invalid-response')
-      return value
-    }, undefined, kind).then(value => {
-      if (!live()) throw new AccountFailure('cancelled')
-      if ('status' in value && value.status !== 'committed') {
-        original.uncertain = true
-        publishSprintStart(original, 'uncertain', null, value.status)
+    return runAuthorized<SprintStartReceipt | SprintStartLookup>(
+      original.identity,
+      async (op, current) => {
+        if (!current() || !live()) throw new AccountFailure('cancelled')
+        if (JSON.stringify(original.input) !== original.body)
+          throw new AccountFailure('invalid-input')
+        dispatched = true
+        const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
+        const value = await (lookup
+          ? sprintLifecycleAPI.lookup(original.projectID, original.sprintID, original.input, write)
+          : sprintLifecycleAPI.start(original.projectID, original.sprintID, original.input, write))
+        const receipt = 'status' in value ? value.receipt : value
+        if (
+          receipt &&
+          (receipt.project.owner_user_id !== original.identity.userID ||
+            receipt.sprint.started_by.user_id !== original.identity.userID)
+        )
+          throw new AccountFailure('invalid-response')
         return value
-      }
-      publishSprintStart(original, 'confirmed', 'status' in value ? value.receipt : value, lookup ? 'committed' : 'none')
-      sprintStartIntent = null
-      return value
-    }, error => {
-      const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
-      if (live()) {
-        const p = failure.problem
-        const rejected = !dispatched || (!!p && ['not_started', 'not_committed'].includes(p.commit_state) && p.code !== 'IDEMPOTENCY_KEY_REUSED')
-        original.uncertain ||= lookup || !rejected
-        publishSprintStart(original, original.uncertain ? 'uncertain' : 'rejected', null, lookup ? 'failed' : 'none', p?.code ?? failure.kind)
-      }
-      throw failure
-    })
+      },
+      undefined,
+      kind,
+    ).then(
+      (value) => {
+        if (!live()) throw new AccountFailure('cancelled')
+        if ('status' in value && value.status !== 'committed') {
+          original.uncertain = true
+          publishSprintStart(original, 'uncertain', null, value.status)
+          return value
+        }
+        publishSprintStart(
+          original,
+          'confirmed',
+          'status' in value ? value.receipt : value,
+          lookup ? 'committed' : 'none',
+        )
+        sprintStartIntent = null
+        return value
+      },
+      (error) => {
+        const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (live()) {
+          const p = failure.problem
+          const rejected =
+            !dispatched ||
+            (!!p &&
+              ['not_started', 'not_committed'].includes(p.commit_state) &&
+              p.code !== 'IDEMPOTENCY_KEY_REUSED')
+          original.uncertain ||= lookup || !rejected
+          publishSprintStart(
+            original,
+            original.uncertain ? 'uncertain' : 'rejected',
+            null,
+            lookup ? 'failed' : 'none',
+            p?.code ?? failure.kind,
+          )
+        }
+        throw failure
+      },
+    )
   }
   // A completed command is a receipt, not a locally synthesized Project refresh.
   const workSprintLifecycle = {
     get progress(): WorkSprintLifecycleProgress | null {
       const value = sprintLifecycleState.progress
-      return value ? Object.freeze({ ...value, contextValid: !!sprintProgressContext && projectContext(sprintProgressContext) }) : null
+      return value
+        ? Object.freeze({
+            ...value,
+            contextValid: !!sprintProgressContext && projectContext(sprintProgressContext),
+          })
+        : null
     },
-    start(projectID: string, sprintID: string, value: SprintStartInput): Promise<SprintStartReceipt | SprintStartLookup> {
+    start(
+      projectID: string,
+      sprintID: string,
+      value: SprintStartInput,
+    ): Promise<SprintStartReceipt | SprintStartLookup> {
       try {
         const identity = personalIdentity()
-        if (owner || sprintStartIntent || personalIntent || pending) throw new AccountFailure('busy')
-        if (!uuid7.test(projectID) || !uuid7.test(sprintID)) throw new AccountFailure('invalid-input')
+        if (owner || sprintStartIntent || personalIntent || pending)
+          throw new AccountFailure('busy')
+        if (!uuid7.test(projectID) || !uuid7.test(sprintID))
+          throw new AccountFailure('invalid-input')
         const input = captureSprintStartInput(value)
-        const original: SprintStartIntent = { identity, csrf: sessionCSRF, projectID, sprintID, input, key: newKey(), body: JSON.stringify(input), uncertain: false }
+        const original: SprintStartIntent = {
+          identity,
+          csrf: sessionCSRF,
+          projectID,
+          sprintID,
+          input,
+          key: newKey(),
+          body: JSON.stringify(input),
+          uncertain: false,
+        }
         sprintStartIntent = original
         return performSprintStart(original, false)
-      } catch (error) { return Promise.reject(error) }
+      } catch (error) {
+        return Promise.reject(error)
+      }
     },
     checkOriginal(): Promise<SprintStartReceipt | SprintStartLookup> {
       if (!sprintStartIntent?.uncertain) return Promise.reject(new AccountFailure('invalid-input'))
       return performSprintStart(sprintStartIntent, true)
     },
     editRejected() {
-      if (owner || !sprintStartIntent || !sprintStartCurrent(sprintStartIntent) || sprintStartIntent.uncertain || sprintLifecycleState.progress?.phase !== 'rejected') throw new AccountFailure('busy')
+      if (
+        owner ||
+        !sprintStartIntent ||
+        !sprintStartCurrent(sprintStartIntent) ||
+        sprintStartIntent.uncertain ||
+        sprintLifecycleState.progress?.phase !== 'rejected'
+      )
+        throw new AccountFailure('busy')
       sprintStartIntent = null
       sprintProgressContext = null
       sprintLifecycleState.progress = null

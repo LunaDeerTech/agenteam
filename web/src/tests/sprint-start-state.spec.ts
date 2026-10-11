@@ -11,14 +11,62 @@ import type { ProjectWorkspace } from '../composables/useProjectWorkspace'
 
 const id = (n: number) => `01990000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
 const time = '2026-10-11T10:00:00.000000Z'
-const p = id(1), m = id(2), s = id(3)
-const base = { project_id: p, manual_rank: '8'.repeat(32), version: '7', created_at: time, updated_at: time }
+const p = id(1),
+  m = id(2),
+  s = id(3)
+const base = {
+  project_id: p,
+  manual_rank: '8'.repeat(32),
+  version: '7',
+  created_at: time,
+  updated_at: time,
+}
 const milestone = { ...base, id: m, title: '里程碑', description: '' }
-const planned: Sprint = { ...base, id: s, milestone_id: m, title: '待启动迭代', description: '', state: 'planned', started_at: null, completed_at: null }
-const originalProject: Project = { id: p, owner_user_id: id(8), name: 'Demo', normalized_name: 'demo', description: '', lifecycle: 'active', version: '3', current_sprint_id: null, created_at: time, updated_at: time, archived_at: null }
+const planned: Sprint = {
+  ...base,
+  id: s,
+  milestone_id: m,
+  title: '待启动迭代',
+  description: '',
+  state: 'planned',
+  started_at: null,
+  completed_at: null,
+}
+const originalProject: Project = {
+  id: p,
+  owner_user_id: id(8),
+  name: 'Demo',
+  normalized_name: 'demo',
+  description: '',
+  lifecycle: 'active',
+  version: '3',
+  current_sprint_id: null,
+  created_at: time,
+  updated_at: time,
+  archived_at: null,
+}
 const receipt: SprintStartReceipt = {
-  sprint: { ...planned, version: '8', state: 'current', started_at: time, started_by: { kind: 'human', user_id: id(8) }, completed_at: null, completed_by: null },
-  project: { id: p, owner_user_id: id(8), name: 'Demo', normalized_name: 'demo', description: '', lifecycle: 'active', version: '4', current_sprint_id: s, created_at: time, updated_at: time },
+  sprint: {
+    ...planned,
+    version: '8',
+    state: 'current',
+    started_at: time,
+    started_by: { kind: 'human', user_id: id(8) },
+    completed_at: null,
+    completed_by: null,
+  },
+  project: {
+    id: p,
+    owner_user_id: id(8),
+    name: 'Demo',
+    normalized_name: 'demo',
+    description: '',
+    lifecycle: 'active',
+    version: '4',
+    current_sprint_id: s,
+    created_at: time,
+    updated_at: time,
+  },
   event_id: id(20),
 }
 type Port = SessionController['workSprintLifecycle']
@@ -27,11 +75,16 @@ const tails: Promise<unknown>[] = []
 const releases: (() => void)[] = []
 function held<T>(fallback: T) {
   let resolve!: (value: T) => void
-  const promise = new Promise<T>((r) => { resolve = r })
+  const promise = new Promise<T>((r) => {
+    resolve = r
+  })
   releases.push(() => resolve(fallback))
   return { promise, resolve }
 }
-function track<T>(promise: Promise<T>) { tails.push(promise); return promise }
+function track<T>(promise: Promise<T>) {
+  tails.push(promise)
+  return promise
+}
 afterEach(async () => {
   releases.splice(0).forEach((release) => release())
   await Promise.allSettled(tails.splice(0))
@@ -45,14 +98,30 @@ async function fixture() {
   const identity = { userID: id(8), sessionID: id(9), epoch: 1 }
   const personal = shallowReactive<{ identity: typeof identity | null }>({ identity })
   const authState = shallowReactive({ phase: 'authenticated', busy: false })
-  const context = shallowRef<ProjectWorkspace['currentReadContext']['value']>({ identity, projectID: p, generation: 1, readGeneration: 1 })
+  const context = shallowRef<ProjectWorkspace['currentReadContext']['value']>({
+    identity,
+    projectID: p,
+    generation: 1,
+    readGeneration: 1,
+  })
   const detail = shallowReactive<{ project: Project | null }>({ project: { ...originalProject } })
   const home = shallowRef('/owner/demo')
   let storedSprint: Sprint = planned
   let currentProject: Project = { ...originalProject }
   const progress = shallowRef<Port['progress']>(null)
-  const publish = (phase: NonNullable<Port['progress']>['phase'], value: SprintStartReceipt | null = null) => {
-    progress.value = { projectID: p, sprintID: s, phase, contextValid: true, observation: value ? 'committed' : 'none', receipt: value, error: null }
+  const publish = (
+    phase: NonNullable<Port['progress']>['phase'],
+    value: SprintStartReceipt | null = null,
+  ) => {
+    progress.value = {
+      projectID: p,
+      sprintID: s,
+      phase,
+      contextValid: true,
+      observation: value ? 'committed' : 'none',
+      receipt: value,
+      error: null,
+    }
   }
   const commit = () => {
     storedSprint = receipt.sprint
@@ -62,9 +131,16 @@ async function fixture() {
   }
   const api = {
     start: vi.fn<Port['start']>(async () => commit()),
-    checkOriginal: vi.fn<Port['checkOriginal']>(async () => ({ status: 'not_observed', receipt: null })),
-    editRejected: vi.fn(() => { progress.value = null }),
-    get progress() { return progress.value },
+    checkOriginal: vi.fn<Port['checkOriginal']>(async () => ({
+      status: 'not_observed',
+      receipt: null,
+    })),
+    editRejected: vi.fn(() => {
+      progress.value = null
+    }),
+    get progress() {
+      return progress.value
+    },
   } satisfies Port
   const reads = {
     progress: null,
@@ -76,17 +152,47 @@ async function fixture() {
     tasks: vi.fn(async () => ({ items: [] })),
     abandonRead: vi.fn(),
   }
-  const readCurrent = vi.fn(async () => { detail.project = { ...currentProject } })
-  const auth = { state: authState, personalContext: personal, workReview: reads, workSprintLifecycle: api } as unknown as SessionController
-  const workspace = { currentReadContext: context, detail, paths: computed(() => ({ home: home.value })), readCurrent } as unknown as ProjectWorkspace
-  const navigate = vi.fn(async (path: string) => { owner.afterNavigation(path) })
+  const readCurrent = vi.fn(async () => {
+    detail.project = { ...currentProject }
+  })
+  const auth = {
+    state: authState,
+    personalContext: personal,
+    workReview: reads,
+    workSprintLifecycle: api,
+  } as unknown as SessionController
+  const workspace = {
+    currentReadContext: context,
+    detail,
+    paths: computed(() => ({ home: home.value })),
+    readCurrent,
+  } as unknown as ProjectWorkspace
+  const navigate = vi.fn(async (path: string) => {
+    owner.afterNavigation(path)
+  })
   const owner = createProjectTasks(auth, workspace, navigate)
   owners.push(owner)
   owner.afterNavigation('/owner/demo/tasks')
   await flushPromises()
-  return { owner, api, reads, readCurrent, context, detail, personal, authState, home, progress, publish, commit,
-    setProject: (value: Project) => { currentProject = value },
-    setSprint: (value: Sprint) => { storedSprint = value },
+  return {
+    owner,
+    api,
+    reads,
+    readCurrent,
+    context,
+    detail,
+    personal,
+    authState,
+    home,
+    progress,
+    publish,
+    commit,
+    setProject: (value: Project) => {
+      currentProject = value
+    },
+    setSprint: (value: Sprint) => {
+      storedSprint = value
+    },
   }
 }
 
@@ -114,7 +220,10 @@ describe('Sprint Start page owner', () => {
     f.owner.openSprintStart()
     const starting = track(f.owner.submitSprintStart())
     await flushPromises()
-    expect(f.api.start).toHaveBeenCalledExactlyOnceWith(p, s, { expected_version: '7', request: {} })
+    expect(f.api.start).toHaveBeenCalledExactlyOnceWith(p, s, {
+      expected_version: '7',
+      request: {},
+    })
     expect(f.readCurrent).toHaveBeenCalledTimes(1)
     expect(f.detail.project?.current_sprint_id).toBeNull()
     expect(f.owner.state.sprint?.state).toBe('planned')
@@ -133,13 +242,16 @@ describe('Sprint Start page owner', () => {
     const f = await fixture()
     await f.owner.selectSprint(s)
     await flushPromises()
-    f.api.start.mockImplementationOnce(async () => { f.publish('uncertain'); throw new AccountFailure('transport') })
+    f.api.start.mockImplementationOnce(async () => {
+      f.publish('uncertain')
+      throw new AccountFailure('transport')
+    })
     f.owner.openSprintStart()
     await f.owner.submitSprintStart()
     expect(f.owner.sprintProgress.value?.phase).toBe('uncertain')
     expect(f.owner.canStartSprint.value).toBe(false)
     expect(f.readCurrent).not.toHaveBeenCalled()
-    const leaving = f.owner.confirmLeave('/owner/demo/tasks/sprints/'+id(4))
+    const leaving = f.owner.confirmLeave('/owner/demo/tasks/sprints/' + id(4))
     expect(f.owner.confirmation.open).toBe(true)
     f.owner.confirm()
     expect(await leaving).toBe(true)
@@ -152,22 +264,31 @@ describe('Sprint Start page owner', () => {
     f.home.value = '/owner/other'
     f.detail.project = { ...originalProject, id: id(5) }
     f.context.value = { ...f.context.value!, projectID: id(5) }
-    f.owner.afterNavigation('/owner/other/tasks/sprints/'+id(4))
+    f.owner.afterNavigation('/owner/other/tasks/sprints/' + id(4))
     await flushPromises()
     expect(f.owner.sprintPendingHere.value).toBeNull()
     f.home.value = '/owner/demo'
     f.detail.project = originalProject
     f.context.value = { ...f.context.value!, projectID: p }
-    f.owner.afterNavigation('/owner/demo/tasks/sprints/'+s)
+    f.owner.afterNavigation('/owner/demo/tasks/sprints/' + s)
     await flushPromises()
     await f.owner.lookupSprintStart()
     expect(f.api.checkOriginal).toHaveBeenCalledTimes(1)
     expect(f.readCurrent).not.toHaveBeenCalled()
-    f.api.checkOriginal.mockImplementationOnce(async () => ({ status: 'committed', receipt: f.commit() }))
+    f.api.checkOriginal.mockImplementationOnce(async () => ({
+      status: 'committed',
+      receipt: f.commit(),
+    }))
     // The old command receipt is valid even if a later lifecycle operation changed current.
     f.readCurrent.mockImplementationOnce(async () => {
       f.detail.project = { ...originalProject, version: '6', current_sprint_id: id(4) }
-      f.setSprint({ ...planned, state: 'completed', version: '9', started_at: time, completed_at: time })
+      f.setSprint({
+        ...planned,
+        state: 'completed',
+        version: '9',
+        started_at: time,
+        completed_at: time,
+      })
     })
     await f.owner.lookupSprintStart()
     expect(f.api.start).toHaveBeenCalledTimes(1)
@@ -182,13 +303,27 @@ describe('Sprint Start page owner', () => {
     const f = await fixture()
     await f.owner.selectSprint(s)
     await flushPromises()
-    f.api.start.mockImplementationOnce(async () => { f.publish('rejected'); throw new AccountFailure('problem', { type: 'urn:agenteam:problem:version', title: 'Conflict', status: 409, code: 'VERSION_CONFLICT', commit_state: 'not_started', detail: '', instance: '/api/v1/projects/'+p+'/sprints/'+s+'/start', request_id: id(30) }) })
+    f.api.start.mockImplementationOnce(async () => {
+      f.publish('rejected')
+      throw new AccountFailure('problem', {
+        type: 'urn:agenteam:problem:version',
+        title: 'Conflict',
+        status: 409,
+        code: 'VERSION_CONFLICT',
+        commit_state: 'not_started',
+        detail: '',
+        instance: '/api/v1/projects/' + p + '/sprints/' + s + '/start',
+        request_id: id(30),
+      })
+    })
     f.owner.openSprintStart()
     await f.owner.submitSprintStart()
     expect(f.owner.canStartSprint.value).toBe(false)
     expect(f.owner.sprintStart.message).toContain('Sprint 已发生变化')
     f.setSprint({ ...planned, version: '8' })
-    f.readCurrent.mockImplementationOnce(async () => { throw new AccountFailure('transport') })
+    f.readCurrent.mockImplementationOnce(async () => {
+      throw new AccountFailure('transport')
+    })
     await f.owner.rereadSprintStart()
     expect(f.owner.sprintStart.message).toContain('读取失败')
     expect(f.api.start).toHaveBeenCalledTimes(1)
@@ -196,7 +331,10 @@ describe('Sprint Start page owner', () => {
     expect(f.owner.state.sprint?.version).toBe('8')
     expect(f.owner.canStartSprint.value).toBe(true)
     const late = held<SprintStartReceipt>(receipt)
-    f.api.start.mockImplementationOnce(async () => { f.publish('submitting'); return late.promise })
+    f.api.start.mockImplementationOnce(async () => {
+      f.publish('submitting')
+      return late.promise
+    })
     f.owner.openSprintStart()
     const starting = track(f.owner.submitSprintStart())
     await flushPromises()
