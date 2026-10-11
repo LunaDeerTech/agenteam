@@ -1,6 +1,6 @@
 # Skill 当前分配与 Execution pending ingress
 
-状态：以 main `19df3fea` 建立独立源码候选，现合入正式 main `7c874adc` 的已交付 65/66 及完整历史；本片最小基础检查分段通过，PG compile02/list 已通过，首次 native01 wholeFAIL；Project producer 接线缺口待修复验证，尚未交付。交付边界是当前 Human Owner 的 Skill 分配命令及其同事务持久 ingress；不执行 Model，不产生下一轮 RoundInput，不改变默认生产未绑定及已有 STOP。
+状态：以 main `19df3fea` 建立独立源码候选，现合入正式 main `7c874adc` 的已交付 65/66 及完整历史；本片基础分段检查与 Project 窄修控制通过，PG compile03/list 和 native02 已实际 wholePASS，唯一主审有限接受，待 root 正式 Git 集成；原 basic01、compile01、native01 FAIL 保留。交付边界是当前 Human Owner 的 Skill 分配命令及其同事务持久 ingress；不执行 Model，不产生下一轮 RoundInput，不改变默认生产未绑定及已有 STOP。
 
 ## 正式依据与分域
 
@@ -45,7 +45,7 @@ Ingress 不 Acquire 新锁、不另开 Tx、不调用 Model。Agent EX 与 Launc
 
 ## 最小真实链与未验证范围
 
-计划先用真实 Owner、Agent、已发布 Skill 和 Execution Launch(created)，不调用 Model：正式 Assign 同时推进版本/序列并写 pending/ref；同 key Lookup 不重复；真实无 active 返回并持久 no_active；sink 失败回滚整个命令。随后检查初始化重放/新 preparing 当前集合与固定历史 capture，及 Remove/重新分配的新 identity。纯替身不代替 Agent 当前授权、Execution slot 或 revision/Object 引用。
+已验真实 Owner、Agent、已发布 Skill 与 Execution Launch(created)，Model 调用为零：正式 Assign / Remove、四引用 owner 同 Tx 版本维护、typed Audit/Outbox、pending/ref 与固定历史、同 key 回放和 Lookup、no_active 历史、final 真回滚，以及真实 Committed 后受控 ack-loss 只观察原事实。该链使用显式领域装配和 Project 持久 test Skills receipt，不以测试 Project receipt 冒充生产 Skills initializer。初始化/current capture 兼容仍按对应受控基础检查接受，不扩为新 preparing 全链。
 
 Skill producer、current/命令读取、typed Audit/Event/实际事实 authority 与 00067、Agent/Execution/四 owner 以及 capture 兼容与专属控均已冻结。基础原件位于 `output/ai/skill-assignment-ingress/checks/basic01/` 和 `basic02/`：basic01 工具 82378、Go 746836 实际 exit 1 / 145.503s，32 top / 141 sub 通过，唯一失败为 Mount 测试替身缺少 Query 方法而未编译该包，vet 未执行；basic02 工具 39722 实际 exit 0，补齐 Mount 1 top / 9 sub（Go 751539，4.657s）及原 11 包 vet（Go 751635，75.608s），依赖核对 Go 751490 亦实际 0。两次各自 918 输入前后相等，跨次仅 Mount 测试修正；基础期间新增 profile 不在该 Go 闭包，不宣称整树 HEAD 未变。合计 33 top / 150 sub 分段通过，不称单轮全绿，原 basic01 FAIL 保留。
 
@@ -53,6 +53,10 @@ Skill producer、current/命令读取、typed Audit/Event/实际事实 authority
 
 真实 PG 保持原 Launch created / Model0 的一 top 两 sub。compile01 原工具 17832 实际 FAIL，原因是 PG fixture 两处类型接线错误，未 list；`20fee0c4` 窄修后 compile02 原工具 29133 实际 0，精确 list 唯一 top。1868 输入各轮前后不变，跨轮仅该 fixture 变化；运行闭包为原输入加 binary 共 1869 项。原 compile01 FAIL 保留。
 
-native01 原工具 53013 实际 exit 1（supervisor 761393 Wait 1 / 118.399s），两个 sub 均 FAIL。第一 sub 的原 AssignSkill 返回 `DEPENDENCY_UNBOUND`，成功 receipt 断言未执行；第二 sub 的 final callback 回滚复合断言亦因同一错误失败，不能记作实际回滚后验或 Unknown 恢复通过。Go/driver 原 Wait、七资源十四次 absence、desc/private/runtime 双尾、自动 HOST_TCP delta 两次 empty 和输入不变门全部齐，资源已释放，整轮仍 FAIL。独审静态定位 Project.Discover / ValidateInTx 的 producer 闭集遗漏 Skill，产品作者正在处理；该确定代码缺口不冒充原日志的内部阶段记录，尚无修后实际通过。原件及实际命令入口见[本片运行说明](../../../.agent-state/skill-assignment-ingress/README.md)，不重写失败或自动重试。
+native01 原工具 53013 实际 exit 1（supervisor 761393 Wait 1 / 118.399s），两个 sub 均 FAIL。第一 sub 的原 AssignSkill 返回 `DEPENDENCY_UNBOUND`，成功 receipt 断言未执行；第二 sub 的 final callback 回滚复合断言亦因同一错误失败，不能记作实际回滚后验或 Unknown 恢复通过。Go/driver 原 Wait、七资源十四次 absence、desc/private/runtime 双尾、自动 HOST_TCP delta 两次 empty 和输入不变门全部齐，资源已释放，整轮仍 FAIL。独审静态定位 Project.Discover / ValidateInTx 的 producer 闭集遗漏 Skill；该代码缺口不冒充原日志的内部阶段记录，原整轮 FAIL 保持。原件及实际命令入口见[本片运行说明](../../../.agent-state/skill-assignment-ingress/README.md)，不重写失败或自动重试。
+
+Project gate 窄修 `6151c756` 经新增 basic03 原工具 24439 验证：2 top / 19 sub race（13.154s）及 Project/contract 两包 vet（3.747s）实际 0，456 输入含 67 各阶段不变；与前述 33 top / 150 sub、11 包 vet 分段合用，不称单轮全绿。compile03 原工具 88871 实际 0，Go 770353 / 33.698s、list 770888 / 1.098s；1870 编译输入前后/list 后同，跨轮仅已审 Project 三路径差额。
+
+native02 原工具 91341 实际 0、supervisor 772115 Wait 0 / 114.126s，原日志 terminal 0 / 113.205s；1 top / 2 sub PASS 23.85s（12.12s / 11.73s），Go 773688 与 driver 772116 Wait 0。1871 运行输入不变、同七资源十四次 absence、desc/private/runtime 双尾、75 秒原自动 HOST_TCP delta 双空以及完整 metadata case/Wait 门均通过。唯一主审已给最终有限 wholePASS 接受，无待补同输入验证；原件入口沿本片运行说明。当前仍待 root 集成，不能外推默认生产绑定、00068/DetermineRoundInput、下一 Model、Transcript 应用或资源退休。
 
 capture 控制的受控 SQL/历史兼容范围不冒充完整 Preparing/capture 真实 PG。工具链和真实 PG 仅由 root 在实际资源窗口安排。上游 Operation 与 ToolResult 单次消费已正式有限交付并完整保全，不扩展为本片通过或下一轮执行。原 Object runtime join、OpenAI tools A/B、SPA concurrent-publication、Jina/Image STOP、生产 initializer/默认执行绑定保持。

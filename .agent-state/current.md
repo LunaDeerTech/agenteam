@@ -1,12 +1,12 @@
 # Skill assignment ingress 工作分支
 
-2026-10-11。本树 `/workspace/agenteam-skill-assignment-ingress` 从 main `19df3fea` 建立，现合入正式 main `7c874adc`，分支 `ai/skill-assignment-ingress-20261011`。`skill_package_review` 负责本分支正文与 Skill/00067；Execution、Agent 与四引用域按[本卡](../docs/development/work-items/d10-skill-assignment-ingress.md)唯一写者并行。root 负责 Git、集成和资源排期。本片基础已分段通过，PG compile02/list 通过但 native01 wholeFAIL，Project producer 接线缺口待修复验证；下列 main 已交付、完整历史与清理索引原样保留。正式交付边界见[任务台账](../docs/development/agent-team/tasks.md)，分段接受不等于当前 main 单次全量通过。
+2026-10-11。本树 `/workspace/agenteam-skill-assignment-ingress` 从 main `19df3fea` 建立，现合入正式 main `7c874adc`，分支 `ai/skill-assignment-ingress-20261011`。`skill_package_review` 负责本分支正文与 Skill/00067；Execution、Agent 与四引用域按[本卡](../docs/development/work-items/d10-skill-assignment-ingress.md)唯一写者并行。root 负责 Git、集成和资源排期。本片基础与 Project 补控分段通过，compile03/list 和 native02 wholePASS 已独审有限接受，待 root 正式集成，原失败保留；下列 main 已交付、完整历史与清理索引原样保留。正式交付边界见[任务台账](../docs/development/agent-team/tasks.md)，分段接受不等于当前 main 单次全量通过。
 
 ## 当前开发
 
 | 任务 / 分支 | 负责人 | 状态与下一步 |
 | --- | --- | --- |
-| Skill Assignment ingress — `ai/skill-assignment-ingress-20261011` | skill_package_review lead；recovery_lead Execution/运行；skill_assignment_agent Agent | 基础 33 top / 150 sub 分段与 11 包 vet 通过，原 basic01 FAIL 保留；profile01 一正七反通过。compile01 因 PG 两处类型接线 FAIL，`20fee0c4` 窄修后 compile02/list 实际 0；1868 输入跨轮仅 PG 文件变化。native01 原工具53013 wholeFAIL：两 sub 均 DEPENDENCY_UNBOUND，七资源/Wait/双尾/TCP/input门齐，窗口已释放。Project.Discover / ValidateInTx producer 闭集漏 Skill 已静态定位，待原作者修复和新验证，不记 assignment/回滚/Unknown 通过。详见[本卡](../docs/development/work-items/d10-skill-assignment-ingress.md)及[原件入口](skill-assignment-ingress/README.md)；不含 DetermineRoundInput、下一轮或 Transcript 应用。 |
+| Skill Assignment ingress — `ai/skill-assignment-ingress-20261011` | skill_package_review lead；recovery_lead Execution/运行；skill_assignment_agent Agent | 基础 33 top / 150 sub + 原 11 包 vet、Project 新增 2 top / 19 sub + 两包 vet 分段通过。compile01 FAIL、compile02/03 list PASS；native01 wholeFAIL 保留。native02 原91341实际0，sup772115 / 114.126s，raw113.205s，1871输入与全部资源/Wait/TCP门齐，唯一主审有限 wholePASS 接受；待root集成。真实 Owner Assign/Remove、四owner/typed Audit/Outbox/Ingress 同Tx、历史/回滚/Committed ackloss只Lookup，止于created / Model0与显式图/test Project Skills；不含 preparing全链、68、下一Model或默认绑定。详见[本卡](../docs/development/work-items/d10-skill-assignment-ingress.md)与[原件入口](skill-assignment-ingress/README.md)。 |
 | Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |
 
 主目标仍是完成[开发计划](../docs/development/development-plan.md)中的D01–D28/E01，目前尚未完成；任何单片有限验收不代表整体目标或原STOP解除。
