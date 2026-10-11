@@ -128,6 +128,14 @@ import {
   type MilestoneCreateReceipt,
   type MilestoneCreateLookup,
 } from '../api/work-milestone-planning'
+import {
+  createWorkSprintPlanningAPI,
+  captureSprintUpdateInput,
+  type WorkSprintPlanningAPI,
+  type SprintUpdateInput,
+  type SprintUpdateReceipt,
+  type SprintUpdateLookup,
+} from '../api/work-sprint-planning'
 import { readonly, shallowReactive } from 'vue'
 import {
   createAccountAPI,
@@ -467,6 +475,11 @@ type MilestoneUpdateIntent = Omit<MilestoneCreateIntent, 'input'> & { input: Mil
 export type MilestoneUpdateProgress = Omit<MilestoneCreateProgress, 'result'> & {
   readonly result: MilestoneUpdateReceipt | null
 }
+type SprintPlanningAction = 'sprint-update' | 'sprint-update-lookup'
+type SprintUpdateIntent = Omit<SprintStartIntent, 'input'> & { input: SprintUpdateInput }
+export type SprintUpdateProgress = Omit<WorkSprintLifecycleProgress, 'receipt'> & {
+  readonly result: SprintUpdateReceipt | null
+}
 type WorkReviewAction = 'work-review-read' | 'work-review-transfer' | 'work-review-lookup'
 type WorkReviewIntent = {
   identity: PersonalIdentity
@@ -787,6 +800,7 @@ type Action =
   | WorkReviewAction
   | SprintLifecycleAction
   | MilestonePlanningAction
+  | SprintPlanningAction
   | ProjectVariableAction
   | KnowledgeCommandAction
   | AgentConfigurationAction
@@ -915,6 +929,7 @@ export function createSessionController(
     taskTimeline?: WorkTaskTimelineAPI
     agentConfiguration?: AgentConfigurationAPI
     projectVariables?: ProjectVariablesAPI
+    sprintPlanning?: WorkSprintPlanningAPI
     milestonePlanning?: WorkMilestonePlanningAPI
     sprintLifecycle?: WorkSprintLifecycleAPI
     skills?: SkillOwnerAPI
@@ -925,6 +940,7 @@ export function createSessionController(
   }> = {},
 ) {
   const projectVariablesAPI = commandAPIs.projectVariables ?? createProjectVariablesAPI()
+  const sprintPlanningAPI = commandAPIs.sprintPlanning ?? createWorkSprintPlanningAPI()
   const milestonePlanningAPI = commandAPIs.milestonePlanning ?? createWorkMilestonePlanningAPI()
   const skillsAPI = commandAPIs.skills ?? createSkillOwnerAPI()
   const schedulerAPI = commandAPIs.scheduler ?? createProjectSchedulerAPI()
@@ -1039,6 +1055,17 @@ export function createSessionController(
   let variableIntent: ProjectVariableIntent | null = null
   const variableState = shallowReactive<{
     progress: Omit<ProjectVariableProgress, 'contextValid'> | null
+  }>({ progress: null })
+  const sprintPlanningRevisions: Record<SprintPlanningAction, number> = {
+    'sprint-update': 0,
+    'sprint-update-lookup': 0,
+  }
+  const isSprintPlanningAction = (kind: Action): kind is SprintPlanningAction =>
+    Object.hasOwn(sprintPlanningRevisions, kind)
+  let sprintUpdateIntent: SprintUpdateIntent | null = null
+  let sprintUpdateContext: Pick<SprintStartIntent, 'identity' | 'csrf'> | null = null
+  const sprintUpdateState = shallowReactive<{
+    progress: Omit<SprintUpdateProgress, 'contextValid'> | null
   }>({ progress: null })
   const milestonePlanningRevisions: Record<MilestonePlanningAction, number> = {
     'milestone-create': 0,
@@ -1276,6 +1303,7 @@ export function createSessionController(
       clearProjectState()
       clearSchedulerState()
       clearAgentConfigurationState()
+      clearSprintUpdateState()
       clearMilestonePlanningState()
       clearVariableState()
       clearSprintLifecycleState()
@@ -1348,6 +1376,7 @@ export function createSessionController(
       clearProjectState()
       clearSchedulerState()
       clearAgentConfigurationState()
+      clearSprintUpdateState()
       clearMilestonePlanningState()
       clearVariableState()
       clearSprintLifecycleState()
@@ -1904,6 +1933,7 @@ export function createSessionController(
       | WorkReviewAction
       | SprintLifecycleAction
       | MilestonePlanningAction
+      | SprintPlanningAction
       | ProjectVariableAction
       | KnowledgeCommandAction
       | AgentConfigurationAction
@@ -1916,6 +1946,7 @@ export function createSessionController(
       if (isVariableAction(kind)) return variableRevisions[kind]
       if (kind === 'skill-read') return skillRevision
       if (isKnowledgeCommand(kind)) return knowledgeCommandRevisions[kind]
+      if (isSprintPlanningAction(kind)) return sprintPlanningRevisions[kind]
       if (isMilestonePlanningAction(kind)) return milestonePlanningRevisions[kind]
       if (isSprintLifecycleAction(kind)) return sprintLifecycleRevisions[kind]
       if (isAgentConfigurationAction(kind)) return agentConfigurationRevisions[kind]
@@ -1972,6 +2003,7 @@ export function createSessionController(
         (isSchedulerAction(kind) ||
         isVariableAction(kind) ||
         isKnowledgeCommand(kind) ||
+        isSprintPlanningAction(kind) ||
         isMilestonePlanningAction(kind) ||
         isSprintLifecycleAction(kind) ||
         isAgentConfigurationAction(kind) ||
@@ -2052,7 +2084,8 @@ export function createSessionController(
               : new AccountFailure('transport')
           : isVariableAction(kind)
             ? variableFailure(op, current, identity, error)
-            : isMilestonePlanningAction(kind) ||
+            : isSprintPlanningAction(kind) ||
+                isMilestonePlanningAction(kind) ||
                 isSprintLifecycleAction(kind) ||
                 isAgentConfigurationAction(kind) ||
                 isWorkReviewAction(kind)
@@ -4772,6 +4805,14 @@ export function createSessionController(
       },
     )
   }
+  function clearSprintUpdateState() {
+    ++sprintPlanningRevisions['sprint-update']
+    ++sprintPlanningRevisions['sprint-update-lookup']
+    sprintUpdateIntent = null
+    sprintUpdateContext = null
+    sprintUpdateState.progress = null
+    if (owner?.kind === 'sprint-update' || owner?.kind === 'sprint-update-lookup') owner.abandon?.()
+  }
   function clearMilestoneUpdateState() {
     ++milestonePlanningRevisions['milestone-update']
     ++milestonePlanningRevisions['milestone-update-lookup']
@@ -4996,6 +5037,7 @@ export function createSessionController(
         if (
           owner ||
           milestoneUpdateIntent ||
+          sprintUpdateIntent ||
           milestoneCreateIntent ||
           sprintStartIntent ||
           sprintCreateIntent ||
@@ -5047,6 +5089,170 @@ export function createSessionController(
         owner.abandon?.()
     },
   }
+  function sprintUpdateCurrent(original: SprintUpdateIntent) {
+    return sprintUpdateIntent === original && projectContext(original)
+  }
+  function publishSprintUpdate(
+    original: SprintUpdateIntent,
+    phase: SprintUpdateProgress['phase'],
+    result: SprintUpdateReceipt | null = null,
+    observation: SprintUpdateProgress['observation'] = 'none',
+    error: string | null = null,
+  ) {
+    sprintUpdateContext = { identity: original.identity, csrf: original.csrf }
+    sprintUpdateState.progress = Object.freeze({
+      projectID: original.projectID,
+      sprintID: original.sprintID,
+      phase,
+      result,
+      observation,
+      error,
+    })
+  }
+  function performSprintUpdate(
+    original: SprintUpdateIntent,
+    lookup: boolean,
+  ): Promise<SprintUpdateReceipt | SprintUpdateLookup> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    if (!sprintUpdateCurrent(original)) return Promise.reject(new AccountFailure('invalid-input'))
+    const kind: SprintPlanningAction = lookup ? 'sprint-update-lookup' : 'sprint-update'
+    const revision = sprintPlanningRevisions[kind]
+    const live = () => sprintUpdateCurrent(original) && revision === sprintPlanningRevisions[kind]
+    let dispatched = false
+    if (!lookup) publishSprintUpdate(original, 'submitting')
+    return runAuthorized<SprintUpdateReceipt | SprintUpdateLookup>(
+      original.identity,
+      async (op, current) => {
+        if (!current() || !live()) throw new AccountFailure('cancelled')
+        if (JSON.stringify(original.input) !== original.body)
+          throw new AccountFailure('invalid-input')
+        dispatched = true
+        const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
+        return lookup
+          ? sprintPlanningAPI.lookupUpdate(
+              original.projectID,
+              original.sprintID,
+              original.input,
+              write,
+            )
+          : sprintPlanningAPI.update(original.projectID, original.sprintID, original.input, write)
+      },
+      undefined,
+      kind,
+    ).then(
+      (value) => {
+        if (!live()) throw new AccountFailure('cancelled')
+        if ('state' in value && value.state !== 'committed') {
+          original.uncertain = true
+          publishSprintUpdate(original, 'uncertain', null, value.state)
+          return value
+        }
+        publishSprintUpdate(
+          original,
+          'confirmed',
+          'state' in value ? value.result : value,
+          lookup ? 'committed' : 'none',
+        )
+        sprintUpdateIntent = null
+        return value
+      },
+      (error) => {
+        const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (live()) {
+          const p = failure.problem
+          if (p && [403, 404].includes(p.status)) {
+            clearSprintUpdateState()
+            throw failure
+          }
+          const rejected =
+            !dispatched ||
+            (!!p &&
+              ['not_started', 'not_committed'].includes(p.commit_state) &&
+              p.code !== 'IDEMPOTENCY_KEY_REUSED')
+          original.uncertain ||= lookup || !rejected
+          publishSprintUpdate(
+            original,
+            original.uncertain ? 'uncertain' : 'rejected',
+            null,
+            lookup ? 'failed' : 'none',
+            p?.code ?? failure.kind,
+          )
+        }
+        throw failure
+      },
+    )
+  }
+  const workSprintEditing = {
+    get progress(): SprintUpdateProgress | null {
+      const value = sprintUpdateState.progress
+      return value
+        ? Object.freeze({
+            ...value,
+            contextValid: !!sprintUpdateContext && projectContext(sprintUpdateContext),
+          })
+        : null
+    },
+    update(
+      projectID: string,
+      sprintID: string,
+      value: SprintUpdateInput,
+    ): Promise<SprintUpdateReceipt | SprintUpdateLookup> {
+      try {
+        const identity = personalIdentity()
+        if (
+          owner ||
+          sprintUpdateIntent ||
+          milestoneUpdateIntent ||
+          milestoneCreateIntent ||
+          sprintStartIntent ||
+          sprintCreateIntent ||
+          workReviewIntent ||
+          personalIntent ||
+          pending
+        )
+          throw new AccountFailure('busy')
+        if (!uuid7.test(projectID) || !uuid7.test(sprintID))
+          throw new AccountFailure('invalid-input')
+        const input = captureSprintUpdateInput(value)
+        const original: SprintUpdateIntent = {
+          identity,
+          csrf: sessionCSRF,
+          projectID,
+          sprintID,
+          input,
+          key: newKey(),
+          body: JSON.stringify(input),
+          uncertain: false,
+        }
+        sprintUpdateIntent = original
+        return performSprintUpdate(original, false)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    checkOriginal(): Promise<SprintUpdateReceipt | SprintUpdateLookup> {
+      if (!sprintUpdateIntent?.uncertain) return Promise.reject(new AccountFailure('invalid-input'))
+      return performSprintUpdate(sprintUpdateIntent, true)
+    },
+    editRejected() {
+      if (
+        owner ||
+        !sprintUpdateIntent ||
+        !sprintUpdateCurrent(sprintUpdateIntent) ||
+        sprintUpdateIntent.uncertain ||
+        sprintUpdateState.progress?.phase !== 'rejected'
+      )
+        throw new AccountFailure('busy')
+      clearSprintUpdateState()
+    },
+    forgetUnavailable(projectID: string) {
+      if (sprintUpdateState.progress?.projectID === projectID) clearSprintUpdateState()
+    },
+    abandon() {
+      if (owner?.kind === 'sprint-update' || owner?.kind === 'sprint-update-lookup')
+        owner.abandon?.()
+    },
+  }
   const workMilestonePlanning = {
     get progress(): MilestoneCreateProgress | null {
       const value = milestoneCreateState.progress
@@ -5067,6 +5273,7 @@ export function createSessionController(
           owner ||
           milestoneCreateIntent ||
           milestoneUpdateIntent ||
+          sprintUpdateIntent ||
           sprintStartIntent ||
           sprintCreateIntent ||
           personalIntent ||
@@ -5139,6 +5346,7 @@ export function createSessionController(
           owner ||
           milestoneCreateIntent ||
           milestoneUpdateIntent ||
+          sprintUpdateIntent ||
           sprintCreateIntent ||
           sprintStartIntent ||
           personalIntent ||
@@ -5203,6 +5411,7 @@ export function createSessionController(
           owner ||
           milestoneCreateIntent ||
           milestoneUpdateIntent ||
+          sprintUpdateIntent ||
           sprintStartIntent ||
           sprintCreateIntent ||
           personalIntent ||
@@ -5386,7 +5595,14 @@ export function createSessionController(
     startTransfer(projectID: string, taskID: string, value: ReviewInput) {
       try {
         const identity = personalIdentity()
-        if (owner || workReviewIntent || milestoneUpdateIntent || personalIntent || pending)
+        if (
+          owner ||
+          workReviewIntent ||
+          milestoneUpdateIntent ||
+          sprintUpdateIntent ||
+          personalIntent ||
+          pending
+        )
           throw new AccountFailure('busy')
         if (!uuid7.test(projectID) || !uuid7.test(taskID)) throw new AccountFailure('invalid-input')
         const input = captureReviewInput(value)
@@ -5410,7 +5626,14 @@ export function createSessionController(
     startReady(projectID: string, taskID: string, value: ReadyInput) {
       try {
         const identity = personalIdentity()
-        if (owner || workReviewIntent || milestoneUpdateIntent || personalIntent || pending)
+        if (
+          owner ||
+          workReviewIntent ||
+          milestoneUpdateIntent ||
+          sprintUpdateIntent ||
+          personalIntent ||
+          pending
+        )
           throw new AccountFailure('busy')
         if (!uuid7.test(projectID) || !uuid7.test(taskID)) throw new AccountFailure('invalid-input')
         const input = captureReadyInput(value)
@@ -5434,7 +5657,14 @@ export function createSessionController(
     startCreate(projectID: string, value: TaskCreateDraft) {
       try {
         const identity = personalIdentity()
-        if (owner || workReviewIntent || milestoneUpdateIntent || personalIntent || pending)
+        if (
+          owner ||
+          workReviewIntent ||
+          milestoneUpdateIntent ||
+          sprintUpdateIntent ||
+          personalIntent ||
+          pending
+        )
           throw new AccountFailure('busy')
         if (!uuid7.test(projectID)) throw new AccountFailure('invalid-input')
         const draft = captureTaskCreateDraft(value),
@@ -5460,7 +5690,14 @@ export function createSessionController(
     startEdit(projectID: string, taskID: string, value: TaskUpdateInput) {
       try {
         const identity = personalIdentity()
-        if (owner || workReviewIntent || milestoneUpdateIntent || personalIntent || pending)
+        if (
+          owner ||
+          workReviewIntent ||
+          milestoneUpdateIntent ||
+          sprintUpdateIntent ||
+          personalIntent ||
+          pending
+        )
           throw new AccountFailure('busy')
         if (!uuid7.test(projectID) || !uuid7.test(taskID)) throw new AccountFailure('invalid-input')
         const input = captureTaskUpdateInput(value)
@@ -7773,6 +8010,7 @@ export function createSessionController(
     workSprintLifecycle,
     workMilestonePlanning,
     workMilestoneEditing,
+    workSprintEditing,
     projectVariables,
     agentConfiguration,
     projectAudit,

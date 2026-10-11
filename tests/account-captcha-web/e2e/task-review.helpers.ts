@@ -160,6 +160,7 @@ export async function observeBrowserIO(
     const originalEdits: any[] = [];
     const originalAgentEdits: any[] = [];
     const originalMilestoneEdits: any[] = [];
+    const originalSprintEdits: any[] = [];
     let originalSprintStart: any;
     let originalSprintCreate: any;
     let originalMilestoneCreate: any;
@@ -342,6 +343,14 @@ export async function observeBrowserIO(
           const source = originalMilestoneEdits.at(-1), progress = auth.workMilestoneEditing.progress;
           writeInputs.set(call, { source, current: progress?.phase === "uncertain" && progress.contextValid === true && progress.projectID === source?.project && progress.milestoneID === source?.milestone });
         }
+        if (kind === "sprintEdit.update") {
+          const original = { call, project: args[0], sprint: args[1], input: JSON.parse(JSON.stringify(args[2])) };
+          originalSprintEdits.push(original);
+          writeInputs.set(call, original);
+        } else if (kind === "sprintEdit.checkOriginal") {
+          const source = originalSprintEdits.at(-1), progress = auth.workSprintEditing.progress;
+          writeInputs.set(call, { source, current: progress?.phase === "uncertain" && progress.contextValid === true && progress.projectID === source?.project && progress.sprintID === source?.sprint });
+        }
         if (kind === "scheduler.startUpdate") {
           const original = { call, project: args[0], input: JSON.parse(JSON.stringify(args[1])) };
           originalSchedulerWrites.push(original);
@@ -431,6 +440,12 @@ export async function observeBrowserIO(
               const result = kind === "milestone.update" ? value : value.result;
               call.result_current = progress?.phase === "confirmed" && progress.contextValid === true && progress.projectID === source.project && progress.milestoneID === source.milestone && result != null && progress.result === result;
             }
+            if (kind === "sprintEdit.update" || kind === "sprintEdit.checkOriginal") {
+              const original = writeInputs.get(call), source = kind === "sprintEdit.update" ? original : original.source;
+              const progress = auth.workSprintEditing.progress;
+              const result = kind === "sprintEdit.update" ? value : value.result;
+              call.result_current = progress?.phase === "confirmed" && progress.contextValid === true && progress.projectID === source.project && progress.sprintID === source.sprint && result != null && progress.result === result;
+            }
             if (kind === "scheduler.startUpdate" || kind === "scheduler.checkOriginal") {
               const original = writeInputs.get(call), progress = auth.projectScheduler.progress;
               call.result_current = progress?.phase === "confirmed" && progress.contextValid === true &&
@@ -512,6 +527,7 @@ export async function observeBrowserIO(
         skillsTarget: string | undefined,
         milestoneCreate: boolean,
         editMilestone: string | undefined,
+        editSprint: string | undefined,
         variableWrites: boolean,
         knowledgeTextWrites: boolean,
         schedulerWrites = false,
@@ -766,6 +782,13 @@ export async function observeBrowserIO(
           }, "PATCH");
           consumer(auth.workMilestoneEditing, "checkOriginal", "milestone.checkOriginal", () => "/api/v1/projects/" + project + "/structure-commands/lookup", "POST");
         }
+        if (editSprint) {
+          consumer(auth.workSprintEditing, "update", "sprintEdit.update", (a) => {
+            if (a[0] !== project || a[1] !== editSprint) throw Error("SPRINT_UPDATE_CONSUMER_SCOPE");
+            return "/api/v1/projects/" + project + "/sprints/" + editSprint;
+          }, "PATCH");
+          consumer(auth.workSprintEditing, "checkOriginal", "sprintEdit.checkOriginal", () => "/api/v1/projects/" + project + "/structure-commands/lookup", "POST");
+        }
         if (milestoneCreate) {
           consumer(
             auth.workMilestonePlanning,
@@ -848,6 +871,7 @@ export async function observeBrowserIO(
         originalEdits.length = 0;
         originalAgentEdits.length = 0;
         originalMilestoneEdits.length = 0;
+        originalSprintEdits.length = 0;
         originalSprintStart = undefined;
         originalSprintCreate = undefined;
         originalMilestoneCreate = undefined;
@@ -1090,6 +1114,12 @@ export async function observeBrowserIO(
             if (matches) original.key = key;
           } else if (call.kind === "milestone.checkOriginal") {
             matches = original.current && original.source?.call.rejected === true && original.source.call.settled === true && key === original.source.key && equal(parsed, { command: "work.milestone.update", target_id: original.source.milestone, expected_version: original.source.input.expected_version, request: original.source.input.request });
+          }
+          if (call.kind === "sprintEdit.update") {
+            matches = originalSprintEdits.every(old => old === original || (typeof old.key === "string" && old.key !== key)) && equal(parsed, original.input);
+            if (matches) original.key = key;
+          } else if (call.kind === "sprintEdit.checkOriginal") {
+            matches = original.current && original.source?.call.rejected === true && original.source.call.settled === true && key === original.source.key && equal(parsed, { command: "work.sprint.update", target_id: original.source.sprint, expected_version: original.source.input.expected_version, request: original.source.input.request });
           }
           if (call.kind === "scheduler.startUpdate") {
             matches = originalSchedulerWrites.every(old => old === original ||
@@ -1521,6 +1551,7 @@ export type TaskObservationProfile = {
     | "skill-owner-read"
     | "milestone-create"
     | "milestone-edit"
+    | "sprint-edit"
     | "project-variables"
     | "knowledge-text"
     | "project-scheduler";
@@ -1536,6 +1567,7 @@ export type TaskObservationProfile = {
     | "work.sprint.create"
     | "work.milestone.create"
     | "work.milestone.update"
+    | "work.sprint.update"
     | "update"
     | null;
   intakeWrites?: true;
@@ -1549,6 +1581,7 @@ export type TaskObservationProfile = {
   skillsReads?: true;
   milestoneCreateWrites?: true;
   milestoneUpdateWrites?: true;
+  sprintUpdateWrites?: true;
   variableWrites?: true;
   knowledgeTextWrites?: true;
   schedulerWrites?: true;
@@ -1570,8 +1603,8 @@ export function observeReview(page: Page, data: ReviewMaterial) {
 // classifier and at most its one declared committed-response delivery fault.
 // Only explicitly opted-in Intake, Edit or Agent fixtures can additionally prove
 // their closed write sets. Other POST completion rules remain identical.
-export function requireCommittedLookup(value: Record<string, unknown>, milestoneUpdate = false) {
-  expect(milestoneUpdate ? value.state : value.status).toBe("committed");
+export function requireCommittedLookup(value: Record<string, unknown>, structureUpdate = false) {
+  expect(structureUpdate ? value.state : value.status).toBe("committed");
 }
 
 export async function observeTaskRequests(
@@ -1773,6 +1806,14 @@ export async function observeTaskRequests(
       !["milestone-edit-normal", "milestone-edit-lost"].includes(data.mode) ||
       profile.cut !== (data.mode === "milestone-edit-lost" ? "update" : undefined)))
     throw Error("MILESTONE_UPDATE_PROFILE_MISMATCH");
+  if ((profile.sprintUpdateWrites || profile.prefix === "sprint-edit") &&
+    (profile.sprintUpdateWrites !== true || profile.prefix !== "sprint-edit" || profile.lookupCommand !== "work.sprint.update" ||
+      profile.intakeWrites || profile.agentConfiguration || profile.editWrites || profile.timelineReads || profile.agentEditWrites || profile.agentModelPolicy || profile.sprintStartWrites || profile.sprintCreateWrites || profile.skillsReads || profile.milestoneCreateWrites || profile.milestoneUpdateWrites || profile.variableWrites || profile.knowledgeTextWrites || profile.schedulerWrites ||
+      !data.sprint_id || !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.sprint_id) ||
+      !data.milestone_id || !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.milestone_id) ||
+      !["sprint-edit-normal", "sprint-edit-lost"].includes(data.mode) ||
+      profile.cut !== (data.mode === "sprint-edit-lost" ? "update" : undefined)))
+    throw Error("SPRINT_UPDATE_PROFILE_MISMATCH");
   if (profile.schedulerWrites &&
       (profile.prefix !== "project-scheduler" || profile.lookupCommand !== "update" ||
        !["pause-limit-and-resume", "lost-update-confirmation-only-lookup"].includes(data.mode) ||
@@ -1973,6 +2014,7 @@ export async function observeTaskRequests(
           skillsTarget,
           milestoneCreate,
           editMilestone,
+          editSprint,
           variableWrites,
           knowledgeTextWrites,
           schedulerWrites,
@@ -1997,6 +2039,7 @@ export async function observeTaskRequests(
             skillsTarget,
             milestoneCreate,
             editMilestone,
+          editSprint,
             variableWrites,
             knowledgeTextWrites,
             schedulerWrites,
@@ -2020,6 +2063,7 @@ export async function observeTaskRequests(
           skillsTarget: profile.skillsReads ? data.skill_id : undefined,
           milestoneCreate: profile.milestoneCreateWrites === true,
           editMilestone: profile.milestoneUpdateWrites ? data.milestone_id : undefined,
+          editSprint: profile.sprintUpdateWrites ? data.sprint_id : undefined,
           variableWrites: profile.variableWrites === true,
           knowledgeTextWrites: profile.knowledgeTextWrites === true,
           schedulerWrites: profile.schedulerWrites === true,
@@ -2175,7 +2219,8 @@ export async function observeTaskRequests(
   function sprintPageRead(entry: Entry) {
     return (
       entry.request.method() === "GET" &&
-      ((profile.sprintStartWrites &&
+      ((profile.sprintUpdateWrites && ["project", "sprint", "sprints", "milestone", "milestones", "agents", "tasks"].includes(entry.name)) ||
+        (profile.sprintStartWrites &&
         ["project", "sprint", "tasks"].includes(entry.name)) ||
         (profile.sprintCreateWrites &&
           [
@@ -2202,6 +2247,12 @@ export async function observeTaskRequests(
     if (!profile.milestoneUpdateWrites) return false;
     const url = new URL(entry.request.url()), prefix = `/api/v1/projects/${data.project_id}`;
     return !url.search && ((entry.name === "update" && entry.request.method() === "PATCH" && url.pathname === `${prefix}/milestones/${data.milestone_id}`) ||
+      (entry.name === "lookup" && entry.request.method() === "POST" && url.pathname === `${prefix}/structure-commands/lookup`));
+  }
+  function sprintUpdateWrite(entry: Entry) {
+    if (!profile.sprintUpdateWrites) return false;
+    const url = new URL(entry.request.url()), prefix = `/api/v1/projects/${data.project_id}`;
+    return !url.search && ((entry.name === "update" && entry.request.method() === "PATCH" && url.pathname === `${prefix}/sprints/${data.sprint_id}`) ||
       (entry.name === "lookup" && entry.request.method() === "POST" && url.pathname === `${prefix}/structure-commands/lookup`));
   }
   function milestonePageRead(entry: Entry) {
@@ -2260,6 +2311,7 @@ export async function observeTaskRequests(
     const sprintCreate = sprintCreateWrite(entry);
     const milestoneCreate = milestoneCreateWrite(entry);
     const milestoneUpdate = milestoneUpdateWrite(entry);
+    const sprintUpdate = sprintUpdateWrite(entry);
     const variable = variableWrite(entry);
     const knowledgeText = knowledgeTextWrite(entry);
     const scheduler = schedulerWrite(entry);
@@ -2272,10 +2324,11 @@ export async function observeTaskRequests(
       sprintCreate ||
       milestoneCreate ||
       milestoneUpdate ||
+      sprintUpdate ||
       variable ||
       knowledgeText || scheduler;
     const method =
-      (edit || agentEdit || milestoneUpdate || variable || scheduler) && entry.name === "update"
+      (edit || agentEdit || milestoneUpdate || sprintUpdate || variable || scheduler) && entry.name === "update"
         ? "PATCH"
         : write
           ? "POST"
@@ -2354,13 +2407,15 @@ export async function observeTaskRequests(
     if (schedulerReadEntry(entry)) expect(c.kind).toBe({ session: "restore", resolve: "project.resolve", projects: "project.list", project: "project.get", scheduler: "scheduler.get" }[entry.name]);
     if (write) {
       if (scheduler) expect(c.result_current).toBe(true);
-      if (sprintCreate || milestoneCreate || milestoneUpdate || variable || knowledgeText) expect(c.result_current).toBe(true);
+      if (sprintCreate || milestoneCreate || milestoneUpdate || sprintUpdate || variable || knowledgeText) expect(c.result_current).toBe(true);
       const kinds: Record<string, string> = scheduler
         ? { update: "scheduler.startUpdate", lookup: "scheduler.checkOriginal" }
         : knowledgeText
         ? { create: "knowledgeText.write", update: "knowledgeText.write" }
         : variable
         ? { create: "variable.create", update: "variable.update" }
+        : sprintUpdate
+        ? { update: "sprintEdit.update", lookup: "sprintEdit.checkOriginal" }
         : milestoneUpdate
         ? { update: "milestone.update", lookup: "milestone.checkOriginal" }
         : milestoneCreate
@@ -2407,7 +2462,7 @@ export async function observeTaskRequests(
       }
       if (entry.name === "lookup") {
         if (profile.schedulerWrites) expect(c.typed.state).toBe("committed");
-        else requireCommittedLookup(c.typed, profile.milestoneUpdateWrites === true);
+        else requireCommittedLookup(c.typed, profile.milestoneUpdateWrites === true || profile.sprintUpdateWrites === true);
         originalLookup();
       }
     }
@@ -2529,6 +2584,7 @@ export async function observeTaskRequests(
           sprintCreateWrite(entry) ||
           milestoneCreateWrite(entry) ||
           milestoneUpdateWrite(entry) ||
+          sprintUpdateWrite(entry) ||
           variableWrite(entry) ||
           knowledgeTextWrite(entry) ||
           schedulerWrite(entry) ||
@@ -2590,6 +2646,7 @@ export async function observeTaskRequests(
         sprintCreateWrite(entry) ||
         milestoneCreateWrite(entry) ||
         milestoneUpdateWrite(entry) ||
+          sprintUpdateWrite(entry) ||
         milestonePageRead(entry) ||
         variableWrite(entry) ||
         variablePageRead(entry) ||
@@ -2668,7 +2725,8 @@ export async function observeTaskRequests(
         ? "create"
         : profile.lookupCommand === "work.task.update" ||
             profile.lookupCommand === "agent.update" ||
-            profile.lookupCommand === "work.milestone.update"
+            profile.lookupCommand === "work.milestone.update" ||
+            profile.lookupCommand === "work.sprint.update"
           ? "update"
           : profile.lookupCommand === "work.sprint.start"
             ? "start"
@@ -2688,7 +2746,7 @@ export async function observeTaskRequests(
                 ? data.milestone_id
                 : profile.lookupCommand === "agent.update"
                 ? data.agent_id
-                : profile.lookupCommand === "work.sprint.start"
+                : profile.lookupCommand === "work.sprint.start" || profile.lookupCommand === "work.sprint.update"
                   ? data.sprint_id
                   : data.task_id,
             expected_version: sent.expected_version,
@@ -2716,6 +2774,12 @@ export async function observeTaskRequests(
     expect(profile.variableWrites).toBe(true);
     const rows = entries.filter((e) => e.name === name && e.checked && e.body);
     expect(rows.length, "original Variable public read must complete").toBeGreaterThan(0);
+    return rows.at(-1)!.body as Record<string, any>;
+  }
+  function sprintEditRead(name: "project" | "sprint" | "sprints" | "milestone" | "milestones" | "agents" | "tasks") {
+    expect(profile.sprintUpdateWrites).toBe(true);
+    const rows = entries.filter(e => e.name === name && e.checked && e.body);
+    expect(rows.length, "original Sprint Edit public read must complete").toBeGreaterThan(0);
     return rows.at(-1)!.body as Record<string, any>;
   }
   function milestoneRead(
@@ -2836,7 +2900,7 @@ export async function observeTaskRequests(
               }
             : {}),
           ...(profile.schedulerWrites ? { updates: entries.filter(e => e.name === "update").length, schedulerReads: entries.filter(e => e.name === "scheduler").length } : {}),
-          ...(profile.agentEditWrites || profile.agentModelPolicy || profile.milestoneUpdateWrites
+          ...(profile.agentEditWrites || profile.agentModelPolicy || profile.milestoneUpdateWrites || profile.sprintUpdateWrites
             ? { updates: entries.filter((e) => e.name === "update").length }
             : {}),
           ...(profile.sprintCreateWrites
@@ -2929,6 +2993,7 @@ export async function observeTaskRequests(
     sprintCreateRead,
     skillsRead,
     milestoneRead,
+    sprintEditRead,
     variableRead,
     knowledgeTextRead,
     schedulerRead,

@@ -29,6 +29,7 @@ import {
   type MilestoneUpdateReceipt,
   type MilestoneCreateReceipt,
 } from '../api/work-milestone-planning'
+import { captureSprintUpdateInput, type SprintUpdateReceipt } from '../api/work-sprint-planning'
 import { captureTaskCreateDraft, type TaskCreateDraft } from '../api/work-task-planning'
 import {
   compareTaskTimelineEvents,
@@ -182,6 +183,20 @@ export function createProjectTasks(
     message: '',
   })
   let milestoneEditIdentity = ''
+  const sprintEdit = reactive({
+    open: false,
+    projectID: '',
+    sprintID: '',
+    version: '',
+    title: '',
+    description: '',
+    touched: { title: false, description: false },
+    conflict: false,
+    readVersion: '',
+    needsRead: false,
+    message: '',
+  })
+  let sprintEditIdentity = ''
   const milestoneCreation = reactive({
     open: false,
     projectID: '',
@@ -317,7 +332,55 @@ export function createProjectTasks(
       !edit.open &&
       !draft.action &&
       !milestoneEditPending.value &&
-      !milestoneEdit.needsRead,
+      !milestoneEdit.needsRead &&
+      !sprintEditBlocked.value,
+  )
+  const sprintEditPending = computed(() => {
+    const p = auth.workSprintEditing?.progress
+    return p && ['submitting', 'uncertain'].includes(p.phase) ? p : null
+  })
+  const sprintEditProgress = computed(() => {
+    const p = auth.workSprintEditing?.progress
+    return visible.value && p?.projectID === workspace.currentReadContext.value?.projectID
+      ? p
+      : null
+  })
+  const sprintEditBlocked = computed(
+    () => !!sprintEditPending.value || sprintEdit.open || sprintEdit.needsRead,
+  )
+  const sprintEditDirty = computed(
+    () => sprintEdit.open && (sprintEdit.touched.title || sprintEdit.touched.description),
+  )
+  const sprintEditStale = computed(
+    () =>
+      sprintEdit.conflict ||
+      (sprintEdit.open &&
+        (sprintEdit.sprintID !== state.sprint?.id || sprintEdit.version !== state.sprint?.version)),
+  )
+  const canEditSprint = computed(
+    () =>
+      visible.value &&
+      state.phase === 'ready' &&
+      !!state.sprint &&
+      ['planned', 'current'].includes(state.sprint.state) &&
+      !state.task &&
+      workspace.detail.project?.lifecycle === 'active' &&
+      !pending.value &&
+      !milestonePending.value &&
+      !milestoneCreation.open &&
+      !milestoneCreation.needsRead &&
+      !milestoneEditBlocked.value &&
+      !sprintPending.value &&
+      !sprintCreatePending.value &&
+      !sprintStart.open &&
+      !sprintStart.needsRead &&
+      !sprintCreation.open &&
+      !sprintCreation.needsRead &&
+      !creation.open &&
+      !edit.open &&
+      !draft.action &&
+      !sprintEditPending.value &&
+      !sprintEdit.needsRead,
   )
   const milestonePending = computed(() => {
     const p = auth.workMilestonePlanning.progress
@@ -338,6 +401,7 @@ export function createProjectTasks(
       !pending.value &&
       !milestonePending.value &&
       !milestoneEditBlocked.value &&
+      !sprintEditBlocked.value &&
       !sprintPending.value &&
       !sprintCreatePending.value &&
       !sprintStart.open &&
@@ -425,6 +489,7 @@ export function createProjectTasks(
       !sprintCreatePending.value &&
       !milestonePending.value &&
       !milestoneEditBlocked.value &&
+      !sprintEditBlocked.value &&
       !milestoneCreation.open &&
       !milestoneCreation.needsRead &&
       !sprintPending.value &&
@@ -471,6 +536,7 @@ export function createProjectTasks(
       !sprintCreatePending.value &&
       !milestonePending.value &&
       !milestoneEditBlocked.value &&
+      !sprintEditBlocked.value &&
       !milestoneCreation.open &&
       !milestoneCreation.needsRead &&
       !sprintCreation.open &&
@@ -509,6 +575,7 @@ export function createProjectTasks(
       !!sprintCreatePending.value ||
       !!milestonePending.value ||
       milestoneEditBlocked.value ||
+      sprintEditBlocked.value ||
       milestoneCreation.open ||
       milestoneCreation.needsRead ||
       sprintCreation.open ||
@@ -528,6 +595,7 @@ export function createProjectTasks(
       !sprintCreatePending.value &&
       !milestonePending.value &&
       !milestoneEditBlocked.value &&
+      !sprintEditBlocked.value &&
       !milestoneCreation.open &&
       !milestoneCreation.needsRead &&
       !sprintCreation.open &&
@@ -549,6 +617,7 @@ export function createProjectTasks(
       !sprintCreatePending.value &&
       !milestonePending.value &&
       !milestoneEditBlocked.value &&
+      !sprintEditBlocked.value &&
       !milestoneCreation.open &&
       !milestoneCreation.needsRead &&
       !sprintCreation.open &&
@@ -583,6 +652,7 @@ export function createProjectTasks(
       !!sprintCreatePending.value ||
       !!milestonePending.value ||
       milestoneEditBlocked.value ||
+      sprintEditBlocked.value ||
       milestoneCreation.open ||
       milestoneCreation.needsRead ||
       sprintCreation.open ||
@@ -648,6 +718,36 @@ export function createProjectTasks(
     return (
       (milestoneEdit.projectID === project && (!target || milestoneEdit.milestoneID === target)) ||
       (progress?.projectID === project && (!target || progress.milestoneID === target))
+    )
+  }
+  function clearSprintEdit() {
+    Object.assign(sprintEdit, {
+      open: false,
+      projectID: '',
+      sprintID: '',
+      version: '',
+      title: '',
+      description: '',
+      touched: { title: false, description: false },
+      conflict: false,
+      readVersion: '',
+      needsRead: false,
+      message: '',
+    })
+    sprintEditIdentity = ''
+  }
+  function forgetSprintAccess(project: string) {
+    auth.workSprintEditing?.forgetUnavailable(project)
+    clearSprintEdit()
+    state.sprint = null
+    state.sprints = []
+    state.sprintNext = undefined
+  }
+  function hasSprintEdit(project: string, target?: string) {
+    const progress = auth.workSprintEditing?.progress
+    return (
+      (sprintEdit.projectID === project && (!target || sprintEdit.sprintID === target)) ||
+      (progress?.projectID === project && (!target || progress.sprintID === target))
     )
   }
   function clearMilestoneCreation() {
@@ -732,6 +832,7 @@ export function createProjectTasks(
     createdMilestoneFocus.value = null
     clearMilestoneCreation()
     clearMilestoneEdit()
+    clearSprintEdit()
     clearTimeline(true)
     manualMilestone = null
     state.phase = 'idle'
@@ -1019,6 +1120,7 @@ export function createProjectTasks(
     state.message = ''
     state.detailCurrent = false
     clearTimeline()
+    let refusedSprint: { project: string; target: string } | null = null
     let refusedMilestone: { project: string; target: string } | null = null
     await read(
       async (p, step) => {
@@ -1031,7 +1133,19 @@ export function createProjectTasks(
             : manualMilestone
               ? null
               : workspace.detail.project?.current_sprint_id)
-        const sprint = sid ? await step(() => auth.workReview.sprint(p, sid)) : null
+        let sprint: Sprint | null = null
+        if (sid) {
+          try {
+            sprint = await step(() => auth.workReview.sprint(p, sid))
+          } catch (error) {
+            if (
+              error instanceof AccountFailure &&
+              [401, 403, 404].includes(error.problem?.status ?? 0)
+            )
+              refusedSprint = { project: p, target: sid }
+            throw error
+          }
+        }
         const target = sprint?.milestone_id ?? manualMilestone
         let milestone: Milestone | null = null
         if (target) {
@@ -1082,6 +1196,8 @@ export function createProjectTasks(
       },
       (error) => {
         // read() only invokes this callback for the still-current read generation.
+        if (refusedSprint && hasSprintEdit(refusedSprint.project, refusedSprint.target))
+          forgetSprintAccess(refusedSprint.project)
         if (refusedMilestone && hasMilestoneEdit(refusedMilestone.project, refusedMilestone.target))
           forgetMilestoneAccess(refusedMilestone.project)
         state.phase = 'error'
@@ -1346,6 +1462,241 @@ export function createProjectTasks(
         state.phase = 'error'
         state.message = '当前 Milestone 不可用或无权访问，编辑内容已清除。'
       } else milestoneEdit.message = '未取得原保存结果，可在原请求结束后再次查询。'
+    }
+  }
+  function sameSprintEdit(own: number, project: string, target: string, identity: string) {
+    return (
+      live(own, project) &&
+      identityKey(project) === identity &&
+      !state.task &&
+      state.sprint?.id === target
+    )
+  }
+  function releaseRejectedSprintEdit() {
+    if (
+      !auth.state.busy &&
+      auth.workSprintEditing?.progress?.phase === 'rejected' &&
+      auth.workSprintEditing.progress.contextValid
+    )
+      auth.workSprintEditing.editRejected()
+  }
+  function openSprintEdit() {
+    const current = state.sprint
+    if (!current || busy.value || !canEditSprint.value || sprintEdit.open) return
+    releaseRejectedSprintEdit()
+    releaseRejectedMilestone()
+    releaseRejectedMilestoneEdit()
+    if (sprintProgress.value?.phase === 'rejected' && sprintProgress.value.contextValid)
+      auth.workSprintLifecycle.editRejected()
+    if (sprintCreateProgress.value?.phase === 'rejected' && sprintCreateProgress.value.contextValid)
+      auth.workSprintLifecycle.editRejectedCreate()
+    clearSprintEdit()
+    Object.assign(sprintEdit, {
+      open: true,
+      projectID: current.project_id,
+      sprintID: current.id,
+      version: current.version,
+      title: current.title,
+      description: current.description,
+    })
+    sprintEditIdentity = identityKey(current.project_id)
+  }
+  function touchSprintEdit(field: 'title' | 'description', value: string) {
+    if (!sprintEdit.open || busy.value || !canEditSprint.value || sprintEditStale.value) return
+    sprintEdit[field] = value
+    sprintEdit.touched[field] = true
+  }
+  function cancelSprintEdit() {
+    if (busy.value || sprintEditPending.value) return
+    releaseRejectedSprintEdit()
+    clearSprintEdit()
+  }
+  async function readEditedSprint(confirmed: boolean) {
+    const project = sprintEdit.projectID,
+      target = sprintEdit.sprintID,
+      own = generation,
+      identity = sprintEditIdentity
+    if (busy.value || sprintEditPending.value || !sameSprintEdit(own, project, target, identity))
+      return
+    await read(
+      async (_p, step) => {
+        const current = await step(() => auth.workReview.sprint(project, target))
+        const page = await step(() =>
+          auth.workReview.sprints(project, current.milestone_id, { limit: 50 }),
+        )
+        if (
+          current.id !== target ||
+          current.project_id !== project ||
+          current.milestone_id !== state.milestone?.id
+        )
+          throw new AccountFailure('invalid-response')
+        return { current, page }
+      },
+      ({ current, page }) => {
+        if (!sameSprintEdit(own, project, target, identity)) return
+        state.sprint = current
+        state.sprints = page.items
+        state.sprintNext = page.next_cursor
+        sprintEdit.readVersion = current.version
+        if (confirmed) {
+          sprintEdit.needsRead = false
+          sprintEdit.message =
+            auth.workSprintEditing.progress?.result?.changed === false
+              ? '保存已确认，原操作没有改变内容；当前 Sprint 已重新读取。'
+              : '保存已确认，当前 Sprint 已重新读取。'
+        } else
+          sprintEdit.message =
+            current.state === 'completed'
+              ? '当前 Sprint 已完成，不能继续修改。原输入已保留，可取消编辑。'
+              : '已读取当前 Sprint。核对详情与保留输入后，可明确使用当前版本继续编辑。'
+      },
+      (error) => {
+        if (
+          error instanceof AccountFailure &&
+          [401, 403, 404].includes(error.problem?.status ?? 0)
+        ) {
+          forgetSprintAccess(project)
+          state.phase = 'error'
+          state.message = '当前 Sprint 不可用或无权访问，编辑内容已清除。'
+          return
+        }
+        if (sameSprintEdit(own, project, target, identity))
+          sprintEdit.message = confirmed
+            ? '保存已确认，当前内容读取失败。请重新读取，不要再次保存。'
+            : '当前 Sprint 读取失败，已保留原版本和输入。'
+      },
+    )
+  }
+  async function rereadSprintEdit() {
+    const progress = sprintEditProgress.value
+    if (
+      busy.value ||
+      progress?.phase !== 'confirmed' ||
+      !progress.contextValid ||
+      state.sprint?.id !== progress.sprintID ||
+      state.task
+    )
+      return
+    Object.assign(sprintEdit, {
+      projectID: progress.projectID,
+      sprintID: progress.sprintID,
+      needsRead: true,
+    })
+    sprintEditIdentity = identityKey(progress.projectID)
+    await readEditedSprint(true)
+  }
+  async function reloadSprintEdit() {
+    if (!sprintEdit.open || !sprintEditStale.value || busy.value || sprintEditPending.value) return
+    sprintEdit.readVersion = ''
+    await readEditedSprint(false)
+  }
+  function adoptSprintVersion() {
+    const current = state.sprint
+    if (
+      !sprintEdit.open ||
+      busy.value ||
+      !canEditSprint.value ||
+      !sprintEditStale.value ||
+      !current ||
+      !sprintEdit.readVersion ||
+      current.version !== sprintEdit.readVersion ||
+      current.id !== sprintEdit.sprintID
+    )
+      return
+    releaseRejectedSprintEdit()
+    sprintEdit.version = current.version
+    if (!sprintEdit.touched.title) sprintEdit.title = current.title
+    if (!sprintEdit.touched.description) sprintEdit.description = current.description
+    sprintEdit.conflict = false
+    sprintEdit.readVersion = ''
+    sprintEdit.message = '已使用当前版本，保留本次修改。请核对后明确保存。'
+  }
+  async function acceptSprintEdit(receipt: SprintUpdateReceipt, own: number, identity: string) {
+    const current = receipt.sprint
+    if (!sameSprintEdit(own, current.project_id, current.id, identity)) return
+    clearSprintEdit()
+    Object.assign(sprintEdit, {
+      projectID: current.project_id,
+      sprintID: current.id,
+      needsRead: true,
+      message: '保存已确认，正在读取当前 Sprint。',
+    })
+    sprintEditIdentity = identity
+    // Receipt is historical: publish the current object only from the independent reads.
+    state.sprintNext = undefined
+    await readEditedSprint(true)
+  }
+  async function submitSprintEdit() {
+    const project = sprintEdit.projectID,
+      target = sprintEdit.sprintID,
+      own = generation,
+      identity = sprintEditIdentity
+    if (
+      !sprintEdit.open ||
+      !canEditSprint.value ||
+      !sprintEditDirty.value ||
+      sprintEditStale.value ||
+      busy.value ||
+      !sameSprintEdit(own, project, target, identity)
+    )
+      return
+    try {
+      const input = captureSprintUpdateInput({
+        expected_version: sprintEdit.version,
+        request: {
+          ...(sprintEdit.touched.title ? { title: sprintEdit.title } : {}),
+          ...(sprintEdit.touched.description ? { description: sprintEdit.description } : {}),
+        },
+      })
+      releaseRejectedSprintEdit()
+      const value = await auth.workSprintEditing.update(project, target, input)
+      const receipt = 'state' in value ? value.result : value
+      if (receipt) await acceptSprintEdit(receipt, own, identity)
+    } catch (error) {
+      if (!sameSprintEdit(own, project, target, identity)) return
+      if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
+        forgetSprintAccess(project)
+        state.phase = 'error'
+        state.message = '当前 Sprint 不可用或无权访问，编辑内容已清除。'
+        return
+      }
+      if (
+        error instanceof AccountFailure &&
+        ['VERSION_CONFLICT', 'INVALID_STATE'].includes(error.problem?.code ?? '')
+      ) {
+        sprintEdit.conflict = true
+        sprintEdit.readVersion = ''
+        sprintEdit.message = 'Sprint 已发生变化，原版本和输入已保留。请先重新读取并核对。'
+      } else
+        sprintEdit.message =
+          error instanceof AccountFailure && error.kind === 'invalid-input'
+            ? '请核对标题与描述：标题须含非空白字符、最多 256 个字符；描述最多 32768 字节。'
+            : '未确认保存结果，请查看原操作状态。'
+    }
+  }
+  async function lookupSprintEdit() {
+    const progress = sprintEditProgress.value,
+      own = generation
+    if (
+      busy.value ||
+      progress?.phase !== 'uncertain' ||
+      !progress.contextValid ||
+      state.sprint?.id !== progress.sprintID ||
+      state.task
+    )
+      return
+    const identity = identityKey(progress.projectID)
+    try {
+      const value = await auth.workSprintEditing.checkOriginal()
+      const receipt = 'state' in value ? value.result : value
+      if (receipt) await acceptSprintEdit(receipt, own, identity)
+    } catch (error) {
+      if (!sameSprintEdit(own, progress.projectID, progress.sprintID, identity)) return
+      if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
+        forgetSprintAccess(progress.projectID)
+        state.phase = 'error'
+        state.message = '当前 Sprint 不可用或无权访问，编辑内容已清除。'
+      } else sprintEdit.message = '未取得原保存结果，可在原请求结束后再次查询。'
     }
   }
   function openMilestoneCreation() {
@@ -2089,7 +2440,8 @@ export function createProjectTasks(
       sprintPending.value ||
       sprintCreatePending.value ||
       milestonePending.value ||
-      milestoneEditPending.value
+      milestoneEditPending.value ||
+      sprintEditPending.value
         ? '操作结果尚未确认。离开不会重发，返回原 Milestone、Sprint 或任务后可继续查询原结果。'
         : '离开将放弃尚未提交的工作输入。'
     confirmation.open = true
@@ -2103,6 +2455,7 @@ export function createProjectTasks(
     resolveLeave = null
     if (yes) {
       releaseRejectedMilestoneEdit()
+      releaseRejectedSprintEdit()
       clearDraft()
       clearCreation()
       clearEdit()
@@ -2110,12 +2463,14 @@ export function createProjectTasks(
       clearSprintCreation()
       clearMilestoneCreation()
       clearMilestoneEdit()
+      clearSprintEdit()
     }
     resolve?.(yes)
   }
   function afterNavigation(to: string) {
     if (to === route.value) return
     releaseRejectedMilestoneEdit()
+    releaseRejectedSprintEdit()
     const milestoneFocus = createdMilestoneFocus.value
     if (
       milestoneFocus &&
@@ -2136,6 +2491,7 @@ export function createProjectTasks(
     clearSprintCreation()
     clearMilestoneCreation()
     clearMilestoneEdit()
+    clearSprintEdit()
     clearTimeline(true)
     state.task = null
     state.detailCurrent = false
@@ -2164,10 +2520,11 @@ export function createProjectTasks(
           read &&
           read.identity &&
           identityKey(read.projectID) === read.identity &&
-          projectPath() === read.path &&
-          hasMilestoneEdit(read.projectID)
-        )
-          forgetMilestoneAccess(read.projectID)
+          projectPath() === read.path
+        ) {
+          if (hasMilestoneEdit(read.projectID)) forgetMilestoneAccess(read.projectID)
+          if (hasSprintEdit(read.projectID)) forgetSprintAccess(read.projectID)
+        }
       } else if (phase !== 'checking') milestoneProjectRead = null
     },
     { flush: 'sync' },
@@ -2230,6 +2587,20 @@ export function createProjectTasks(
     rereadMilestoneEdit,
     reloadMilestoneEdit,
     adoptMilestoneVersion,
+    sprintEdit,
+    sprintEditPending,
+    sprintEditProgress,
+    sprintEditDirty,
+    sprintEditStale,
+    canEditSprint,
+    openSprintEdit,
+    touchSprintEdit,
+    cancelSprintEdit,
+    submitSprintEdit,
+    lookupSprintEdit,
+    rereadSprintEdit,
+    reloadSprintEdit,
+    adoptSprintVersion,
     milestoneCreation,
     milestonePending,
     milestoneProgress,

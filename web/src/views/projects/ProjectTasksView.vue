@@ -6,6 +6,7 @@ import TaskReviewDetail from '../../components/work/TaskReviewDetail.vue'
 import TaskCreateForm from '../../components/work/TaskCreateForm.vue'
 import MilestoneCreateForm from '../../components/work/MilestoneCreateForm.vue'
 import MilestoneEditForm from '../../components/work/MilestoneEditForm.vue'
+import SprintEditForm from '../../components/work/SprintEditForm.vue'
 import SprintCreateForm from '../../components/work/SprintCreateForm.vue'
 import { useProjectTasks } from '../../composables/useProjectTasks'
 const owner = useProjectTasks(),
@@ -50,6 +51,42 @@ async function saveMilestoneEdit(action: 'save' | 'lookup' | 'read' = 'save') {
     owner.milestoneEditProgress.value?.phase === 'confirmed'
   )
     milestoneHeading.value?.focus()
+}
+const sprintEditButton = ref<{ $el: HTMLButtonElement } | null>(null)
+async function cancelSprintEdit() {
+  const project = owner.sprintEdit.projectID,
+    target = owner.sprintEdit.sprintID
+  owner.cancelSprintEdit()
+  await nextTick()
+  if (
+    !owner.sprintEdit.open &&
+    owner.visible.value &&
+    owner.projectID.value === project &&
+    state.sprint?.id === target &&
+    !state.task
+  ) {
+    const button = sprintEditButton.value?.$el
+    if (button && !button.disabled) button.focus()
+    else sprintHeading.value?.focus()
+  }
+}
+async function saveSprintEdit(action: 'save' | 'lookup' | 'read' = 'save') {
+  const project = owner.projectID.value,
+    target = state.sprint?.id
+  if (action === 'lookup') await owner.lookupSprintEdit()
+  else if (action === 'read') await owner.rereadSprintEdit()
+  else await owner.submitSprintEdit()
+  await nextTick()
+  if (
+    owner.visible.value &&
+    owner.projectID.value === project &&
+    state.sprint?.id === target &&
+    !state.task &&
+    !owner.sprintEdit.open &&
+    !owner.sprintEdit.needsRead &&
+    owner.sprintEditProgress.value?.phase === 'confirmed'
+  )
+    sprintHeading.value?.focus()
 }
 watch(
   () => owner.milestoneCreationFocus.value,
@@ -240,6 +277,56 @@ function returnToCreation() {
           >
         </template>
       </section>
+      <section v-if="owner.sprintEditProgress.value" aria-label="Sprint 保存状态">
+        <p v-if="owner.sprintEditProgress.value.phase === 'submitting'" role="status">
+          正在保存 Sprint。
+        </p>
+        <template v-if="owner.sprintEditProgress.value.phase === 'uncertain'">
+          <p role="status">Sprint 保存结果尚未确认。请查证原保存，勿再次提交。</p>
+          <p v-if="owner.sprintEditProgress.value.observation === 'not_observed'" role="status">
+            尚未观察到原保存结果，可再次查询。
+          </p>
+          <p v-if="owner.sprintEditProgress.value.observation === 'in_progress'" role="status">
+            原保存仍在处理中，可稍后再次查询。
+          </p>
+          <UiButton
+            v-if="state.sprint?.id === owner.sprintEditProgress.value.sprintID && !state.task"
+            :disabled="owner.busy.value || !owner.sprintEditProgress.value.contextValid"
+            @click="saveSprintEdit('lookup')"
+            >查询原 Sprint 保存结果</UiButton
+          >
+          <UiButton
+            v-else
+            :disabled="owner.busy.value || !owner.sprintEditProgress.value.contextValid"
+            @click="owner.selectSprint(owner.sprintEditProgress.value.sprintID)"
+            >返回待确认 Sprint</UiButton
+          >
+        </template>
+        <template
+          v-if="
+            owner.sprintEditProgress.value.phase === 'confirmed' &&
+            (owner.sprintEdit.needsRead ||
+              state.sprint?.id !== owner.sprintEditProgress.value.sprintID)
+          "
+        >
+          <p role="status">原 Sprint 保存已确认，当前内容需要重新读取。</p>
+          <UiButton
+            v-if="state.sprint?.id === owner.sprintEditProgress.value.sprintID && !state.task"
+            :disabled="owner.busy.value || !owner.sprintEditProgress.value.contextValid"
+            @click="saveSprintEdit('read')"
+            >读取已确认的 Sprint</UiButton
+          >
+          <UiButton
+            v-else
+            :disabled="owner.busy.value || !owner.sprintEditProgress.value.contextValid"
+            @click="owner.selectSprint(owner.sprintEditProgress.value.sprintID)"
+            >返回已确认 Sprint</UiButton
+          >
+        </template>
+      </section>
+      <p v-if="owner.sprintEditPending.value && !owner.sprintEditProgress.value" role="status">
+        有一项 Sprint 保存结果待确认，请返回原 Project 查询结果。
+      </p>
       <p v-if="owner.milestonePending.value && !owner.milestoneProgress.value" role="status">
         有一项 Milestone 创建结果待确认，请返回原 Project 查询结果。
       </p>
@@ -509,6 +596,13 @@ function returnToCreation() {
               <h2 ref="sprintHeading" tabindex="-1">{{ state.sprint.title }}</h2>
               <UiBadge>{{ sprintLabels[state.sprint.state] }}</UiBadge>
               <UiButton
+                v-if="!state.task && !owner.sprintEdit.open && !owner.sprintEditPending.value"
+                ref="sprintEditButton"
+                :disabled="owner.busy.value || !owner.canEditSprint.value"
+                @click="owner.openSprintEdit()"
+                >编辑 Sprint</UiButton
+              >
+              <UiButton
                 v-if="
                   state.sprint.state === 'planned' &&
                   !owner.sprintStart.open &&
@@ -527,6 +621,23 @@ function returnToCreation() {
                 >新建任务</UiButton
               >
             </header>
+            <p v-if="!state.task" class="sprint-description">
+              {{ state.sprint.description || '暂无描述。' }}
+            </p>
+            <SprintEditForm
+              v-if="!state.task && owner.sprintEdit.open && !owner.sprintEditPending.value"
+              :owner="owner"
+              @cancel="cancelSprintEdit"
+              @submit="saveSprintEdit()" />
+            <p
+              v-if="!state.task && !owner.sprintEdit.open && owner.sprintEdit.message"
+              role="status"
+            >
+              {{ owner.sprintEdit.message }}
+            </p>
+            <p v-if="!state.task && state.sprint.state === 'completed'">
+              已完成的 Sprint 不可修改标题或描述。
+            </p>
             <p
               v-if="
                 state.sprint.state === 'planned' &&
@@ -601,7 +712,8 @@ function returnToCreation() {
   </section>
 </template>
 <style scoped>
-.milestone-description {
+.milestone-description,
+.sprint-description {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }

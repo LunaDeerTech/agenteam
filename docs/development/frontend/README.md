@@ -93,6 +93,14 @@ npm run preview --prefix web
 
 结果未知时仅查询原保存，不自动重发或改写原 key/版本。编辑与创建在唯一 Session 内互斥，确认放弃只释放明确拒绝；同 Session checking/503 保留草稿与 Unknown，绑定目标或同 Project 的真实失权清理私有材料。[限定交付卡](../work-items/d11-milestone-edit-ui.md)记录正常编辑/no-op/清空、真实丢回执恢复、五图与完整资源尾的独立接受，保留首轮观察方法失败和 lost 的实际 GET aborted。该结果不包含 Sprint 编辑、排序/删除、完整权限浏览器矩阵或生产 initializer。
 
+## Sprint 标题与描述编辑
+
+已有 initialized、active Project 的当前 Human Owner 可在任务页面选择 planned/current Sprint，编辑标题和描述；只保存触达字段，空描述明确清空，原字节不 trim。completed 连同值保存也禁用，不改变父 Milestone、排序、生命周期、Project Current 或隐式启动状态。
+
+版本冲突保草稿，须显式读取并采用当前版本后再保存；重读已 completed 时不可继续提交。结果未知只查原 key、版本及完整 patch，不自动重发；历史确认与当前 Get/List 分开。与已有规划/Task 操作互斥，同 Session checking/503 保留，真实绑定拒绝或身份变化清理，取消和保存有键盘焦点恢复。
+
+[限定交付卡](../work-items/d11-sprint-edit-ui.md)记录受控恢复与真实两场景：planned 三次修改/no-op/清空及显式 Get/List，正式 current 丢回执后唯一原 Lookup；业务和完整退出尾已独立接受。normal60请求中52 finished，lost31中29 finished，其余原 aborted/cut均保实际终态与消费联证。五图仅接受可见范围，窄屏清空图底部按钮未入图，相关DOM/键盘断言分列；原编译记录器及控制FAIL保留。不完成 Sprint完成/rollover、排序/删除、完整权限矩阵、生产初始化或完整D11/D27。
+
 ## Project Scheduler 调度配置
 
 当前 Human Owner 可从项目设置进入 `/:username/:project_name/settings/scheduler`，暂停/启用自动调度，并明确选择正整数并发上限或“不限制”。暂停保留所设上限，不结束已有执行；启用不自动启动 planned Sprint。表单保留完整 int64 字符串与原版本，冲突后明确读取和采用当前版本；归档后只读，原未决意图仍可查询，但不能重放写入。
