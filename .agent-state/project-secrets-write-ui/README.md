@@ -34,3 +34,15 @@ patch --batch --fuzz=0 -p1 < .agent-state/project-secrets-write-ui/early-product
 `native01-inputs.patch` 仅将 `tests/account-captcha-web/e2e/project-secret-write.spec.ts` 从 `c964e62d39cf1863395b914776feef706dd0a971` 恢复到 `e764c08155af31627159c09f2d3450d77363d9cf` 的原定位写法。已在私有目录实际 `patch --batch --fuzz=0 -p1`，退出 0，整个文件逐字等于旧 Git 对象，SHA256 `4fb15a414346505a0990778098cfd97254bacb941195ddef59937191cdb4b3dc` 与原 native01 输入记录一致。其余产品、Go、observer 和原 dist 不变；无需恢复整树。
 
 原 native01 是完整退出的 wholeFAIL：normal 停在空目录可见性断言；lost 已过 seed 详情，停于 required 材料字段的 exact label 焦点定位。没有发生写入/Lookup，没有失败截图或 raw locator count，不补造。原件在 `output/ai/project-secrets-write-ui/native01/`，后续定向 DOM 反例和修后结果在 checks；保留原结果，不用后续成功覆盖。
+
+## 正式交付与本机保全
+
+本片已随 main `22d0a0b6` 正式有限交付；native02 的 22 组联证、4 张图和完整退出门已独立接受，原 native01 及基础检查 FAIL 均保留。旧 task-current 不覆盖 main 全局索引。
+
+原 `output/ai/project-secrets-write-ui/` 已同文件系统无覆盖迁至 main 的 `output/ai/retired-20261011/project-secrets-write-ui/`，其原有相对结构、inode 和内容保留。下列补充材料在该目录内：
+
+- `retained-inputs/output/ai/knowledge-delete-ui/method-secret-merge01/`：实际组合控制的原输出，不漏收第二个输出根。
+- `retained-inputs/web/dist/`：最后构建的 84 个物理资产；原 `dist-02/` 与早期构建资产仍在完整任务输出内。
+- `retention/tmp/psw-406773/` 和 `retention/tmp/psw-064a37/`：各轮实际命名的 log、owned.json、request.json 逐字副本；原 `/tmp` 未移动或改写。精确来源、目标及核对结果见 `retention/migration.json`。
+
+保全只调整本机位置，不重写原 invocation 中的绝对路径或原 FAIL。两套依赖和原 worktree/分支尚由 root 按正式清理条件处理；共享 SkillHTTP cache 与 SkillsMilestoneResume modules 未动。跨设备先恢复正式 main 源码与本目录必要差额，再按锁文件恢复依赖；本机 ignored 输出不等于已上传远端。
