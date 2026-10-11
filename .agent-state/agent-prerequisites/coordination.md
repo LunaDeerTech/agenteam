@@ -2,13 +2,13 @@
 
 ## 当前批次与活动树
 
-当前为第九批自动review dispatch，基线正式main `d4a86261`。Work作者 `/workspace/agenteam-task-transition` / `ai/work-review-dispatch`（`7e04711e`）已推送，最后新test已冻结并纳入组合；Scheduler作者 `/workspace/agenteam-skill-install-runtime-source` / `ai/scheduler-review-dispatch`基于同一main，生产与helper已冻结并纳入组合。work_ui三个新pure及coordination唯一真实fixture `tests/projectvariable/scheduler_review_test.go`已freeze（整top `TestSchedulerReviewDispatch` / 两sub），尚无动态结论。
+第九批自动review dispatch/00059已正式交付main `65ec9395615282b4c18ad89e3126d04a9697b1b5`，push `194042`与远端exact `246c14`已确认；delivery同tip已推送，root `ai/product-continuation`的merge `384ed605`已推送。最终accepted SOURCE `a3b72c72b4d8ba26610e7096a99113cf115f36a8`；当前零活动实现、零Go/cache/native与资源窗口，不新增下一批目标。
 
-唯一完整树 `/workspace/agenteam-task-flow-delivery` / `ai/review-dispatch-delivery`的组合SOURCE `389c40a3`已保存并推送（`26138e`），三方法checkpoint `736f37b8`亦已远端保存。secret已有限接受Work/59与三方法，Scheduler、新test及fixture继续有限审；skills_http收口两既有恢复记录，准备成熟whole-top入口的14 top/三包vet→compile→native。当前0 Go/cache/native在途，等待root窗口，不沿历史分工写源或清理。
+14 top race/三包vet通过，后续仅fixture窄修，原pure复用；compile03/list与native02 wholePASS，真实1 top/2 sub共49.09s，四原Wait0、七ID14次absence、全部双尾/TCP0/adopted[]及1620输入一致，secret最终原件有限接受。原compile01 TextPart类型FAIL、native01后验SQLSTATE42703 FAIL及candidate02完整保留；第八candidate01和两容量FAIL、其余历史材料也不动。Execution成功不自动done；active Human交接、AgentRun写权、多轮/tools/Stream及生产app/initializer与其它STOP不因此完成，约30%粗估不变。
 
-第八批已正式交付：SOURCE `8cfbe24d21938947787fcfeb7633b64a72866e94`的12 top、四包vet、compile01/list与native02最终接受，真实1 top/2 sub（34.54s）、原Wait与资源尾闭合、1616输入一致。原candidate01及pure01/native01两容量FAIL完整保留，恢复README `245f2285`已保存。Human三边仍限无active profile；Execution成功不自动done，active评审、AgentRun写权、多轮/tools/Stream及生产app/initializer与其它旧STOP不因此完成。约30%工程粗估不变。
+Work `/workspace/agenteam-task-transition` / `ai/work-review-dispatch`（`917772a8`）与Scheduler `/workspace/agenteam-skill-install-runtime-source` / `ai/scheduler-review-dispatch`（`78714ad4`）均已推送，九tracked目录再次普通sparse park（actual0 `35775b`/`054b3c`，clean `c495d6`/`c0e582`）。唯一完整delivery `/workspace/agenteam-task-flow-delivery` / `ai/review-dispatch-delivery`及两作者树/refs继续按恢复用途保留，不因有限slice完成删除整树；所有ignored/output/state与FAIL原位保留。
 
-D13/D18/D16九tracked目录已按原规则普通可逆sparse park，限定后验clean/protected材料保留；output/state/config/rootfiles、refs与全部FAIL未动。约586 MB仅为缓存与候选增量的规划余量，资源预备已关闭，后续实际调用仍须同进程fresh≥5GiB。详细当前映射见[当前并行产品线与执行者](../current.md#当前并行产品线与执行者)，复现沿[既有组合recipe](../agent-system-integration/README.md)，不新增恢复文件或回填旧结果。
+D13/D18/D16此前九目录普通sparse预备及protected保留事实保持，约586 MB仅为当时规划余量，不作为后继启动证明；下次实际调用仍须同进程fresh≥5GiB。当前结果与恢复位置见[当前并行产品线与执行者](../current.md#当前并行产品线与执行者)，复现沿[既有组合recipe](../agent-system-integration/README.md)，不新增恢复文件或回填旧结果。
 
 ## 前置阶段记录（历史）
 
