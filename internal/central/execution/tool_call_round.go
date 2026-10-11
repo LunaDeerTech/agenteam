@@ -3,6 +3,7 @@ package execution
 import (
 	"context"
 	"encoding/json"
+	"log/slog"
 
 	c "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -16,6 +17,7 @@ type executionRound interface {
 	Fields() c.DirectTextRoundFields
 	CanonicalBytes() []byte
 	Digest() f.Digest
+	LogValue() slog.Value
 }
 type toolExecutionRound struct{ c.ToolCallRound }
 
