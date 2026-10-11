@@ -50,6 +50,7 @@ type ProjectRunResult struct {
 	ProjectID       i.ProjectID
 	CurrentSprintID *wc.SprintID
 	Visits          []ProjectTaskVisit
+	Executions      []ProjectExecutionVisit
 }
 
 // ProjectRunError carries the final bounded observation when continuous Run
@@ -80,6 +81,10 @@ func (ProjectRunResult) LogValue() slog.Value {
 func cloneProjectRunResult(v ProjectRunResult) ProjectRunResult {
 	v.CurrentSprintID = cloneSprintID(v.CurrentSprintID)
 	v.Visits = slices.Clone(v.Visits)
+	v.Executions = slices.Clone(v.Executions)
+	for n := range v.Executions {
+		v.Executions[n].Execution = v.Executions[n].Execution.Clone()
+	}
 	for n := range v.Visits {
 		entry := &v.Visits[n]
 		if entry.DispatchID != nil {
@@ -108,11 +113,16 @@ type ProjectRunner struct {
 	visitor     *PendingVisitor
 	options     ProjectRunnerOptions
 	// Private read seam; construction always fixes the real bounded SQL reader.
-	readPending func(context.Context, postgres.SQLExecutor, i.ProjectID) ([]traversalPending, error)
-	mu          sync.Mutex
-	stopped     bool
-	call        *projectRunCall
-	drained     chan struct{}
+	readPending       func(context.Context, postgres.SQLExecutor, i.ProjectID) ([]traversalPending, error)
+	readLaunched      func(context.Context, postgres.SQLExecutor, i.ProjectID, string, string, int) ([]*dispatchRecord, error)
+	executions        ec.AssociatedExecutor
+	executionPageSize int
+	executionAfter    *DispatchID
+	executionThrough  *DispatchID
+	mu                sync.Mutex
+	stopped           bool
+	call              *projectRunCall
+	drained           chan struct{}
 }
 type projectRunCall struct {
 	owner  *ProjectRunner
@@ -261,11 +271,17 @@ func waitProjectTick(ctx context.Context, tick time.Duration) error {
 	}
 }
 func (s *ProjectRunner) traverse(ctx context.Context) (ProjectRunResult, error) {
+	out := ProjectRunResult{ProjectID: s.options.ProjectID}
+	seen := make(map[i.ExecutionID]DispatchID)
+	if err := s.visitExecutionPage(ctx, &out, seen); err != nil {
+		return out, err
+	}
 	plan, err := s.captureTraversal(ctx)
 	if err != nil {
-		return ProjectRunResult{}, err
+		return out, err
 	}
-	out := ProjectRunResult{ProjectID: s.options.ProjectID, CurrentSprintID: cloneSprintID(plan.sprint), Visits: make([]ProjectTaskVisit, 0, len(plan.entries))}
+	out.CurrentSprintID = cloneSprintID(plan.sprint)
+	out.Visits = make([]ProjectTaskVisit, 0, len(plan.entries))
 	paused := !plan.enabled
 	for _, entry := range plan.entries {
 		if err = ctx.Err(); err != nil {
@@ -273,9 +289,12 @@ func (s *ProjectRunner) traverse(ctx context.Context) (ProjectRunResult, error) 
 		}
 		visit, endRound, readErr := s.visitTask(ctx, entry, plan.sprint, paused)
 		out.Visits = append(out.Visits, visit)
+		if readErr == nil && visit.Err == nil && s.executions != nil && visit.Dispatch.Summary().Status == Launched {
+			readErr = s.advanceExecution(ctx, visit.Dispatch, &out, seen)
+		}
 		if err = waitProjectTick(ctx, s.options.TickInterval); err != nil {
-			if uncertainProjectVisit(visit.Err) {
-				return out, errors.Join(visit.Err, err)
+			if uncertainProjectVisit(visit.Err) || uncertainProjectVisit(readErr) {
+				return out, errors.Join(visit.Err, readErr, err)
 			}
 			return out, err
 		}
@@ -289,7 +308,7 @@ func (s *ProjectRunner) traverse(ctx context.Context) (ProjectRunResult, error) 
 			return out, nil
 		}
 	}
-	if len(plan.entries) == 0 {
+	if len(plan.entries) == 0 && len(out.Executions) == 0 {
 		err = waitProjectTick(ctx, s.options.TickInterval)
 	}
 	return out, err

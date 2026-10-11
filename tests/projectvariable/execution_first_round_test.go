@@ -384,8 +384,13 @@ func (r *firstRoundCredentialReads) requireDestroyed(t *testing.T, want int) {
 // no fixture table supplying running, Round, Call, or credential permission.
 func newFirstRoundFixture(t *testing.T, held bool) *firstRoundFixture {
 	t.Helper()
+	return newFirstRoundFixtureWithSource(t, held, false)
+}
+
+func newFirstRoundFixtureWithSource(t *testing.T, held, deferLaunch bool) *firstRoundFixture {
+	t.Helper()
 	x := &firstRoundFixture{}
-	x.capture = newModelEnvironmentFixtureWithPorts(t,
+	x.capture = newModelEnvironmentFixtureWithSource(t,
 		func(v *taskTransitionFixture, owner *execution.Authority) captureModelPorts {
 			modelActor, err := i.RegisterService(i.ModelRuntime)
 			firstRoundRequire(t, err)
@@ -439,7 +444,7 @@ func newFirstRoundFixture(t *testing.T, held bool) *firstRoundFixture {
 			// resulting Model request has its captured Tool list edited later.
 			policy.DeniedToolIDs = []i.ToolID{v.agent.tool.ToolID}
 			firstRoundRequire(t, policy.Validate())
-		})
+		}, deferLaunch)
 	t.Cleanup(func() { x.close(t) })
 	v := x.capture.v
 	invocations, err := usage.NewAuthority(v.base.tracked, usage.Authorizations{

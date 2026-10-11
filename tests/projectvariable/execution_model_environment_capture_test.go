@@ -31,6 +31,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/project"
 	pv "github.com/LunaDeerTech/agenteam/internal/central/projectvariable"
 	vc "github.com/LunaDeerTech/agenteam/internal/central/projectvariable/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/scheduler"
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/skill"
@@ -313,6 +314,8 @@ func (o *observedExecutionMounts) CaptureExecutionMountsInTx(ctx context.Context
 
 type modelEnvironmentFixture struct {
 	v                  *taskTransitionFixture
+	claims             *scheduler.Coordinator
+	launchPolicy       ec.Policy
 	created            ec.Summary
 	request            ec.LaunchRequest
 	attempt            string
@@ -338,6 +341,17 @@ func newModelEnvironmentFixture(t *testing.T) *modelEnvironmentFixture {
 func newModelEnvironmentFixtureWithPorts(t *testing.T,
 	modelFactory func(*taskTransitionFixture, *execution.Authority) captureModelPorts,
 	beforeClaim func(*taskTransitionFixture, *model.Service, *ec.Policy),
+) *modelEnvironmentFixture {
+	t.Helper()
+	return newModelEnvironmentFixtureWithSource(t, modelFactory, beforeClaim, false)
+}
+
+// Deferred setup leaves the real todo and all providers ready for the
+// Scheduler runner. It creates no Claim, Launch or preparation input.
+func newModelEnvironmentFixtureWithSource(t *testing.T,
+	modelFactory func(*taskTransitionFixture, *execution.Authority) captureModelPorts,
+	beforeClaim func(*taskTransitionFixture, *model.Service, *ec.Policy),
+	deferLaunch bool,
 ) *modelEnvironmentFixture {
 	t.Helper()
 	v, claims := newSchedulerClaimFixture(t)
@@ -395,6 +409,17 @@ func newModelEnvironmentFixtureWithPorts(t *testing.T,
 	if beforeClaim != nil {
 		beforeClaim(v, models, &policy)
 	}
+	x := &modelEnvironmentFixture{v: v, claims: claims, launchPolicy: policy.Clone(), authority: authority, configuration: configuration, task: task,
+		ordinary: ordinary, secret: secretVariable, credential: credential,
+		skills: &observedSkillCapture{provider: skills}, tools: &observedToolCapture{provider: tools},
+		models: &observedExecutionModel{provider: modelCapture}, environment: &observedExecutionEnvironment{provider: environment},
+		environmentSecrets: environmentSecrets,
+		mounts:             &observedExecutionMounts{provider: mounts}}
+	if deferLaunch {
+		// Async consumers must use these original providers directly, not the
+		// single-Execution observation taps tied to the fields assigned below.
+		return x
+	}
 	dispatch, err := claims.ClaimTask(ctxFor(t), claim, policy)
 	if err != nil {
 		t.Fatal("formal capture source Claim", err)
@@ -412,12 +437,7 @@ func newModelEnvironmentFixtureWithPorts(t *testing.T,
 	if launches != 1 || created.Status != ec.Created || created.SnapshotID != nil || launched.Summary().ExecutionID == nil || *launched.Summary().ExecutionID != created.ID {
 		t.Fatal("capture source was not the actual associated created Execution")
 	}
-	x := &modelEnvironmentFixture{v: v, created: created, request: request, authority: authority, configuration: configuration, task: task,
-		ordinary: ordinary, secret: secretVariable, credential: credential,
-		skills: &observedSkillCapture{provider: skills}, tools: &observedToolCapture{provider: tools},
-		models: &observedExecutionModel{provider: modelCapture}, environment: &observedExecutionEnvironment{provider: environment},
-		environmentSecrets: environmentSecrets,
-		mounts:             &observedExecutionMounts{provider: mounts}}
+	x.created, x.request = created, request
 	x.models.observe = x.observeModel
 	x.environment.observe = x.observeEnvironment
 	return x
