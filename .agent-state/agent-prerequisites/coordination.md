@@ -4,11 +4,13 @@
 
 第十一B已交付main `381f6e71e0c11da1145b4ddef7a1574cdc7e64fa`（push `09f929`、exact `3cd699`）：SOURCE `64bdbb6f`的pure5/单包vet、compile/list及native两sub22.41s全PASS，B不重跑。A为七列Work看板及三Human评审边UI（无后端产品变更），当前尚未取得真实browser验收；全部原调用/资源尾已闭，0 Go/npm/browser/native窗口。
 
-恢复tip：UI `/workspace/agenteam-work-ui` / `ai/work-review-ui`为`4a202946`；Web independent / `ai/work-review-web`为`f8c65163`；完整delivery `/workspace/agenteam-task-flow-delivery` / `ai/work-review-runtime-delivery`为`9e93eeaab533ea72ef9a870e9baef4d4309e14b0`。work_ui产品冻结；coordination唯一补原四browser paths的安全失败诊断，保存原Request序列/status/errorText及route/Session/readPromise事实，原failed断言不放宽，产品未猜修。skills_http独占原methods/两恢复入口与后继串行执行，secret有限审差额和原结果；donor仅窄恢复写入path，不整树hydrate。
+恢复来源：UI `/workspace/agenteam-work-ui` / `ai/work-review-ui`最近保存`1a9283f5`，Web independent / `ai/work-review-web`的诊断两JS已组合`7afc76cb`；完整delivery `/workspace/agenteam-task-flow-delivery` / `ai/work-review-runtime-delivery`为`e43b8c399fa803eed030152561f203b90d340e57`。共享body正常EOF不cancel、未EOF单次cancel实际join及早拒fallback已修并冻结；skills_http唯一维护原recipe/恢复入口与执行窗口，secret有限验收原件。A仅WIP，不入main。
 
-A前端有效结果为client/Session13、auth62、state3、page5及必要format/type/build PASS；compile02/list PASS、898输入，`task-review-web-race-02.test`保留，冻结dist为`output/ai/work-review-web/frontend-04/dist`。native01两sub均在openTask的原task/sprints requestfailed处失败，0 Human边获得实测接受；四主Wait及两Node均实际失败返回，七ID14次absence、全部双尾/TCP0、2403输入同，原FAIL不回填。
+frontend06定向24＋精确旧7控、两path格式、type/build全PASS；未选39不计通过，auth62/state3原PASS复用。新dist为`output/ai/work-review-web/frontend-06/dist`；Go898编译输入未变，compile02/list与`task-review-web-race-02.test`原候选复用。native03两sub55.86s仍在初始Session/Project requestfailed observer处FAIL，0 Human边；两Node实际Wait后success=false，四主Wait1，七ID14次absence、全部双尾/TCP0/adopted[]及2403输入一致，0活动窗口。
 
-原件位于delivery `output/ai/work-review-web/`（client-pure-01、frontend-01至05）及`output/ai/agent-system-integration/`下的`task-review-web-compile-01`、`task-review-web-compile-02`、`task-review-web-01-control`；PG原log为`/tmp/trw01/ui-e43a786756b24dc6.log`。frontend01缓存尾、02解析/type、03按钮、compile01错误import引发0Go输入枚举及native01业务FAIL保留；前端/dist、candidate02和全部原结果按实际输入复用。第十及更早接受范围/FAIL保持，精确bin退休事实如下，不删除恢复树。
+03安全证据所观察17次fetch未出现reader/body cancel或signal abort；相应200已EOF/closed后仍有PW ERR_ABORTED。coordination/content已收敛到fixture遗漏既有Knowledge originalCompleted严格联证，coordination负责原四paths内同请求服务端长度/SHA、EOF/cleanup、typed消费与唯一PW终态，限定GET200/exact ERR_ABORTED；产品/frontend06不变，新差额未验证，须root新source/窗口后才运行。frontend旧FAIL、compile01及native01/02/03、candidate02与全部dist/原件保留，不回填。
+
+原件索引：delivery既有`.agent-state/agent-system-integration/README.md`的Work评审UI段；本轮`output/ai/work-review-web/frontend-06/result.json`、`native-03-evidence/task-review-*.json`、`output/ai/agent-system-integration/task-review-web-03-control/{result.json,supervisor.log}`，原PG `/tmp/trw03/ui-9341bf3fdb50447d.log`。不复制前批流水或删除恢复树。
 
 root已普通park指定ExecutionIdentity/ModelTextRuntime九目录（`038ac9`/`1f6f79`，原HEAD clean `bc57cb`/`e1ba20`），并只精准退休第十全PASS candidate01可再生bin（`86e15b`，66,400,625 B/allocated66,408,448 B）；source/recipe/results及全部FAIL不动。bounded后验`9822e2`确认protected保留，前树output原absent不变、后树output仍在，资源子任务关闭。
 

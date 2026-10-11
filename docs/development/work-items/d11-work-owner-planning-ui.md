@@ -2,6 +2,8 @@
 
 状态：rev1 草稿，2026-10-09，§10 工程选择已由负责人采纳，待独立 SPEC 审查；未实施、未运行产品验证。正式前置为 main `f1c94ee5` 的 [Work Owner HTTP/root](d11-work-owner-http.md)。本卡不以活动 Model 工作树内容作为已接受依赖。
 
+> §1–10 保留原 Explore 规划界面的规格与当时状态；2026-10-11 新增的任务评审切片及实际验证边界见 [§11](#11-任务评审界面限定切片2026-10-11)。整张规划界面卡尚未交付，后续局部结果不回填旧轮次。
+
 ## 1. 完整结果与边界
 
 已有 initialized Project 的当前 Human Owner 可从明确的“任务规划”入口进入 Explore：按 Milestone → Sprint → Task 浏览真实分页结构，创建/编辑 Milestone、Sprint，创建未指派 backlog Task，编辑普通字段与 Plan、调整同组顺序，并新增、分页查看、解除 `rely_on` 和无外域引用的 `waiting_for_human` Blocker。响应丢失后，通过本界面在首次发送前保存的原意图查证，必要时由用户明确同义重放；历史回执与当前对象分别展示。
@@ -216,3 +218,20 @@ Blocker status 默认为 unresolved，可选 resolved/all；顺序 `(created_at,
 2. Task create 的type/priority初始为空、用户必须明确选择；避免无产品来源的 `task/medium` 默认。Plan首版纯文本阅读/textarea编辑，不新增Markdown renderer依赖。
 3. 所有页固定50、仅opaque前后页；排序以明确“某对象之前/组尾”操作实现，暂不加拖拽或跨页“上移/置顶”推测。
 4. 恢复只覆盖同完整identity的内存原意图；真正Session/CSRF改变或刷新销毁，不新增跨Session界面。归档历史恢复沿正式服务Read→receipt→新写门禁，不因Project非active隐藏历史操作。
+
+
+## 11. 任务评审界面限定切片（2026-10-11）
+
+本批在 main `6a6da44e` 已有 Human Transfer/Lookup、三条评审边和[真实 Agent 安全目录](d10-agent-configuration.md)之上新增前端消费者，无后端、DDL 或依赖锁变更。实现已冻结、独立有限源码审已接受；修复后的 `frontend06` 共 31 项定向检查、两个修复文件的格式检查、全量类型检查和生产构建已通过。真实浏览器 `native03` 两个子场景仍失败，本批界面尚未完成验收。
+
+正式导航为“任务”，路由恰 `/{owner}/{project}/tasks`、`tasks/sprints/{SprintID}`、`tasks/{TaskID}`。默认从当前 Owner Project Get 的 `current_sprint_id` 读取真实 Sprint/Milestone；无 Current 时保留结构选择，不自动选择或启动 planned/completed Sprint。七列按各自 `state+sprint_id` 读取服务端分页与顺序；Task 深链校验真实父链，详情抽屉关闭回所属 Sprint。手选 Milestone 回任务入口并清 Sprint/Task，当前 App 内刷新保留手选；整页重载重新遵守入口默认，身份或 Project 改变清理原选择。
+
+详情呈现 Task 当前状态、原字符串版本、说明、Plan、关联结构和 Blocker。`in_progress→in_review` 与 `in_review→todo` 显式选择真实 Agent 并填写说明；`in_review→done` 填写说明、省略 Agent 以保留 reviewer。只有退回 todo 要求零 unresolved Blocker，界面不将该条件加到提交评审或接受完成。选择项和负责人来自 Agent List/Get，显示 `display_name`，未配置时回退 `name`；目录不提供 busy 或运行授权。最终 Owner、版本、活动执行和业务资格仍由原 Transfer 服务判定。
+
+所有读写经原 Session 单一请求所有者；App 持有页面状态，临时 checking 隐藏保护内容但保留同身份草稿。首次提交前私有冻结原 Project/Task、version、request、key 和 CSRF；结果不确定仅提供原键 Lookup，`in_progress/not_observed` 保持未决，不重发 Transfer、不用当前 GET 代替原回执。真正身份失效清保护数据和原意图，迟到响应不得发布到新身份或对象；可见取消不提前释放仍在返回的 body/cancel 尾。
+
+共享客户端区分实际 EOF 与提前中止：JSON、空正文和头像读取在原 `reader.read()` 返回 `done=true` 后只释放 reader，不再调用 `reader.cancel()` 或外层 `body.cancel()`；即使随后 JSON/DTO 校验拒绝，也不重复取消已完成正文。EOF 前异常或 abort 仍等待原一次 cancel Promise，释放锁后才确认该 body 已收尾；外层仅对未被 reader 收尾的早期拒绝响应执行并等待清理。容量、严格解码、身份门及 Session 原调用退出要求不变。定向测试通过不证明浏览器 `requestfailed` 的因果已经解决，原失败结果仍保留。
+
+本批真实浏览器契约为 `review-complete` 与 `lost-confirmation-lookup-and-session-revocation`：使用真实已终态 Work 执行素材、Account/Owner 与 Agent 目录，分别验证提交评审后接受完成，以及返工提交后精确丢回执、仅 Lookup 恢复和正式 Logout。组合源 `e43b8c` 的 `native03` 两个子场景分别停在原 Session、Project 请求的 `requestfailed`，尚未执行 Human 三边动作或回执截断恢复。每个子场景的 17 次 fetch 均已观察到完整 EOF，reader/body cancel 及 signal abort 均为零；这证明冗余 cancel 已消除，不足以解释或接受浏览器的失败终态。原调用与资源退出均已闭合，失败结果保留；后续诊断转向网络层，桌面/窄屏、键盘和真实业务闭环仍待验，不以受控前端测试代替浏览器或持久事实。
+
+旧 Planning06、Recovery04 的 whole FAIL 保留：原成功响应后的 finished/aborted 观察未闭合，后续持久验证不足以回填当次成功。当前切片不恢复旧 Planning/Recovery 全矩阵，不交付 Explore/规划写入、跨列拖拽、Timeline 或 Execution 新读口、完整筛选、生产 SPA 发布及生产 runtime/ready；任务状态也不由 Model 结果在前端推导。原 STOP 与整卡未完成边界不变。
