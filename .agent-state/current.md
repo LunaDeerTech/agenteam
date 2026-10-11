@@ -7,16 +7,17 @@
 | 任务 / 分支 | 负责人 | 状态与下一步 |
 | --- | --- | --- |
 | Execution ToolCall 事实 — `ai/execution-tool-call-facts-20261011` | recovery_lead 交付；Tool 域 runner_read_file；runtime_recovery 独审 | 本次集成正式交付有限片：原句柄实际 Joined 后同事务写保护参数 / ToolCall / Transcript 与 running/tool-pending；34 + 26 top 分段 race、适用 vet、native03 原两场景 wholePASS 已独立接受。原 unit / Model 控制与 native01/02 FAIL 保留；仅 Model JSONCaller 受控，不含 ToolOperation / Runner 派发或生产 tools。00063/00064 随本片，完整分支历史保留；原树 / output / tmp 等正式保存后保全清理。 |
-| 单次 read-file Operation/Attempt 基础 | root 统筹并行实施 | 独立树 `/workspace/agenteam-runner-read-file-operation` 已建，基线 `1b10c29c`；Tool 存储基础与 Runner RequestID 接缝正在纯源码实施，尚未测试、未验收，不提前计作执行链已打通。 |
+| 单次 read-file Operation/Attempt 基础 | root 统筹并行实施 | 两组基础与compile01/list实际通过；native01两处旧夹具断言和TCP尾1条TIME_WAIT导致wholeFAIL。2ead/872夹具修正已保存、未重编未复验，不能计作执行链已打通。 |
 | Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |
 
 ## 本片恢复与下一步
 
 - 主目标：真实 ToolCall → 单次 read-file Operation/Attempt → 完整持久结果，不包含下一轮 Model/Transcript 或自动重试。正式写域见 [D18/D22 工作卡](../docs/development/work-items/d18-runner-read-file-operation.md)。Tool lead 为 skill_package_review，Execution 由 skills_milestone_review、Mount/Runner 由 knowledge_delete_fixture 实现，variables_review 写最小 PG 方法，runtime_recovery 独审。
-- Tool 基础 `d3dc0b18` 已保存，迁移65两变量改原列 `%TYPE` 的 `86c298c9` 已有限静审；原install编码/摘要未改，read-file完整payload沿原512KiB协议上限。Runner固定RID接缝 `6f87bfff`、Execution live callback `4b73635e`、Mount metadata-only目标投影 `0eeeea0e` 已保存。以上本片新源码尚未编译或动态验证，不计真实执行链已通。
+- Tool 基础 `d3dc0b18` 已保存，迁移65两变量改原列 `%TYPE` 的 `86c298c9` 已有限静审；原install编码/摘要未改，read-file完整payload沿原512KiB协议上限。Runner固定RID接缝 `6f87bfff`、Execution live callback `4b73635e`、Mount metadata-only目标投影 `0eeeea0e` 已保存。三接口19top race/三包vet与Tool16top34sub race/两包vet分段通过；666/509输入各自前后相同，不计真实执行链已通。
 - 上游最初 `6e0b925c` 作为未验收开发依赖合入，现已由 main `95c092bc` 正式有限交付 ToolFacts，原native01/02 FAIL及修后03实际wholePASS均保留；该验收不包含本片ToolOperation/Runner。此合并带入原PG聚合SQL修正，不复制未提交WIP。
-- producer首片已保存f803e0f4；独审两处静态must-fix现窄修冻结：最终schema/依赖错误区分且不污染未提交原候选；Lookup独立实际返回登记与停止门。新增两个判别top待最小Tool runtime/contract检查，不称原反例已动态复现。原三接口19top race/vet已actual0且666项输入相同、不含本runtime；新PG两sub方法已冻结，原Stop后Lookup次序随本修正调整，尚未编译/native。原consumer contract保持冻结。
-- 原ToolFacts PG helper的受控root/正式首次material窄handoff由原owner在本树后续修改；新PG方法只以Model JSON端口为明确替身，Execution/Tool/currentMount/WSS/Manager保持真实。所有Go/cache/native窗口由root统筹，本分支未启动任何工具链或服务。首轮先核依赖稳定后的最小有效范围，不重复已交旧矩阵。
+- producer两处静态must-fix已修并经适用基础控制：最终schema/依赖错误区分；Lookup独立实际返回登记与停止门。原consumer contract保持冻结。compile01 race编译与精确list实际0，1827输入前后相同，binary `89e84ed1…a8ec78f`；唯一PG top的两个sub未增加场景。
+- native01原工具32554实际1/140.340s，**wholeFAIL**：65536结果场景尚未进入Operation便被旧canonical64断言拒绝；清Mount场景到达新业务后验后，被旧joined尾的Operation0断言拒绝。Go/driver实际Wait1、七资源14absence/private/runtime/desc双尾与1828输入不变齐；原75s HOST_TCP仍余1条TIME_WAIT差额，不能称退出门全过。原 `output/ai/runner-read-file-operation/{compile01,native01}/` 与 `/tmp/rfo01/pg-8c62651ea7e34711ac66556710e69e16.log` 保留，窗口已实际释放。
+- 2eadbbde/872ebdb3仅修两fixture：原facts默认64/0不变；新PG显式场景canonical与阶段Operation0/1，复用全部旧强断言，再核exact原Operation/Attempt/结果/wire及实际Join。gofmt/diff-check完成，尚未重编/复验。此前basic复用；独审确认原harness STOP仅限本轮失败，但TIME_WAIT归属未明，不能称已解决TCP。修正接受后由root另授编译/运行，保持原预算与全部门，不自动启动native02。Model JSON仍唯一端口替身，不改生产默认nil或其他STOP。
 
 ## 保留与清理
 
