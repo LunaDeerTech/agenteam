@@ -25,7 +25,7 @@ func (*taskLaunchFailureMarker) LogValue() slog.Value {
 }
 
 func resourceConstraintRejectionRequest(r ec.LaunchRequest) bool {
-	return r.Validate() == nil && r.Trigger.Kind == "task" && r.Purpose == "task/work" && r.Lineage.DispatchID != "" &&
+	return r.Validate() == nil && r.Trigger.Kind == "task" && (r.Purpose == "task/work" || r.Purpose == "task/review") && r.Lineage.DispatchID != "" &&
 		r.Meta.IdempotencyKey == f.IdempotencyKey("scheduler_dispatch:"+r.Lineage.DispatchID) &&
 		r.Lineage.RetryOf == nil && r.Lineage.RegenerateOf == nil && r.Lineage.ContributionGeneration == nil && r.Lineage.ContributionAttempt == nil &&
 		len(r.Policy.AllowedResourceConstraints) > 0

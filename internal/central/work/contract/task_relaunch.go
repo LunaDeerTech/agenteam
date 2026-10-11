@@ -17,7 +17,9 @@ const (
 	TaskDispatchRelaunch  TaskDispatchOriginKind = "relaunch"
 )
 
-// TaskRelaunchRequest describes a new dispatch for an existing work phase.
+// TaskRelaunchRequest describes a new dispatch for an existing work or review
+// phase. Purpose binds in_progress/task/work or in_review/task/review; AgentID
+// is the current assignee (the reviewer in the review phase).
 // It is not a todo claim and never authorizes a Task state or rank mutation.
 // The Scheduler's original private discovery/applying call is required before
 // protected reads; public fields, a Service actor or historical rows are not a grant.
@@ -33,7 +35,7 @@ type TaskRelaunchRequest struct {
 }
 
 func (v TaskRelaunchRequest) Validate() error {
-	if v.ProjectID.Validate() != nil || v.TaskID.Validate() != nil || v.AgentID.Validate() != nil || v.CurrentSprintID.Validate() != nil || v.ExpectedTaskVersion.Validate() != nil || v.RequestID.Validate() != nil || v.Purpose != "task/work" {
+	if v.ProjectID.Validate() != nil || v.TaskID.Validate() != nil || v.AgentID.Validate() != nil || v.CurrentSprintID.Validate() != nil || v.ExpectedTaskVersion.Validate() != nil || v.RequestID.Validate() != nil || (v.Purpose != "task/work" && v.Purpose != "task/review") {
 		return invalid("", "INVALID_TASK_RELAUNCH")
 	}
 	if _, err := f.ParseID[f.Request](v.DispatchID); err != nil {

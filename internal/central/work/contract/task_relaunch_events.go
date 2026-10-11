@@ -39,7 +39,7 @@ func (v TaskRelaunchFailed) Validate() error {
 		if len(v.TaskEventIDs) != 1 || v.SourcePosition != nil || v.TargetPosition != nil {
 			return invalid("", "INVALID_TASK_RELAUNCH_FAILED")
 		}
-	} else if v.FromState == TaskStateInProgress {
+	} else if (v.Source.Request.Purpose == "task/work" && v.FromState == TaskStateInProgress) || (v.Source.Request.Purpose == "task/review" && v.FromState == TaskStateInReview) {
 		if len(v.TaskEventIDs) != 2 || v.SourcePosition == nil || v.TargetPosition == nil || v.SourcePosition.Validate() != nil || v.TargetPosition.Validate() != nil || v.SourcePosition.State != v.FromState || v.TargetPosition.State != v.ToState || v.SourcePosition.SprintID != v.SprintID || v.TargetPosition.SprintID != v.SprintID || v.SourcePosition.Priority != v.TargetPosition.Priority {
 			return invalid("", "INVALID_TASK_RELAUNCH_FAILED")
 		}
