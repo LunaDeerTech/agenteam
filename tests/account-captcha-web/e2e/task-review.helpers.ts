@@ -134,6 +134,7 @@ async function observeBrowserIO(
     // hashes and boolean matches can enter the persisted observation.
     const writeInputs = new WeakMap<object, any>();
     let originalCreate: any;
+    let originalAgentCreate: any;
     const tails = new Set<Promise<void>>();
     const restorers: (() => void)[] = [];
     let retired = false,
@@ -235,6 +236,25 @@ async function observeBrowserIO(
               progress.projectID === originalCreate?.project &&
               progress.taskID === originalCreate?.request?.task_id,
           });
+        } else if (kind === "agent.startCreate") {
+          if (originalAgentCreate) failed = true;
+          originalAgentCreate = {
+            call,
+            project: args[0],
+            fields: JSON.parse(JSON.stringify(args[1])),
+          };
+          writeInputs.set(call, originalAgentCreate);
+        } else if (kind === "agent.checkOriginal") {
+          const progress = auth.agentConfiguration.progress;
+          writeInputs.set(call, {
+            source: originalAgentCreate,
+            current:
+              progress?.kind === "create" &&
+              progress.phase === "uncertain" &&
+              progress.contextValid === true &&
+              progress.projectID === originalAgentCreate?.project &&
+              progress.agentID === originalAgentCreate?.request?.agent_id,
+          });
         }
         let result: Promise<any>;
         try {
@@ -280,7 +300,7 @@ async function observeBrowserIO(
       });
     }
     host.__taskReviewProof = {
-      consumers(value: any, project: string, intakeWrites: boolean) {
+      consumers(value: any, project: string, intakeWrites: boolean, agentConfiguration: boolean) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
         consumer(auth, "restore", "restore", () => "/api/v1/session");
@@ -297,6 +317,7 @@ async function observeBrowserIO(
                   ? "/resolve"
                   : ""),
           );
+        if (!agentConfiguration) {
         const paths: Record<string, string> = {
           milestones: "milestones",
           milestone: "milestones",
@@ -358,6 +379,25 @@ async function observeBrowserIO(
             "POST",
           );
         }
+        } else {
+          // This profile observes only Agent Create, its original Lookup and
+          // the public directory/configuration/model reads used by that page.
+          const paths: Record<string, string> = {
+            list: "/agents", getConfiguration: "/agents", models: "/available-chat-models",
+          };
+          for (const method of Object.keys(paths))
+            consumer(auth.agentConfiguration, method, "agent." + method, (a) => {
+              if (a[0] !== project) throw Error("AGENT_CONFIGURATION_CONSUMER_SCOPE");
+              return "/api/v1/projects/" + project + paths[method] +
+                (method === "getConfiguration" ? "/" + a[1] + "/configuration" : "");
+            });
+          consumer(auth.agentConfiguration, "startCreate", "agent.startCreate", (a) => {
+            if (a[0] !== project) throw Error("AGENT_CONFIGURATION_CONSUMER_SCOPE");
+            return "/api/v1/projects/" + project + "/agents";
+          }, "POST");
+          consumer(auth.agentConfiguration, "checkOriginal", "agent.checkOriginal", () =>
+            "/api/v1/projects/" + project + "/agent-commands/lookup", "POST");
+        }
       },
       snapshot() {
         return {
@@ -381,6 +421,7 @@ async function observeBrowserIO(
         for (const restore of restorers.reverse()) restore();
         for (const call of calls) writeInputs.delete(call);
         originalCreate = undefined;
+        originalAgentCreate = undefined;
         return this.snapshot();
       },
     };
@@ -527,6 +568,20 @@ async function observeBrowserIO(
                 command: "work.task.create",
                 request: original.source.request,
               });
+          } else if (call.kind === "agent.startCreate") {
+            const { agent_id, ...fields } = parsed.request ?? {};
+            matches = Object.keys(parsed).join() === "request" &&
+              typeof agent_id === "string" &&
+              /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(agent_id) &&
+              equal(fields, original.fields);
+            if (matches) {
+              original.request = parsed.request;
+              original.key = key;
+            }
+          } else if (call.kind === "agent.checkOriginal") {
+            matches = original.current && original.source?.call.rejected === true &&
+              original.source.call.settled === true && key === original.source.key &&
+              equal(parsed, { command: "agent.create", request: original.source.request });
           }
           call.request_bound = row.request_bound = matches;
           track(
@@ -839,11 +894,16 @@ export type TaskObservationProfile = {
   dist: string;
   evidence: string;
   inputHash: string;
-  prefix: "task-review" | "task-intake";
+  prefix: "task-review" | "task-intake" | "task-edit" | "agent-configuration";
   endpoint: (request: Request) => string | undefined;
-  cut?: "transfer" | "create";
-  lookupCommand: "work.task.transfer" | "work.task.create";
+  cut?: "transfer" | "create" | "update";
+  lookupCommand:
+    | "work.task.transfer"
+    | "work.task.create"
+    | "work.task.update"
+    | "agent.create";
   intakeWrites?: true;
+  agentConfiguration?: true;
 };
 
 export function observeReview(page: Page, data: ReviewMaterial) {
@@ -860,8 +920,8 @@ export function observeReview(page: Page, data: ReviewMaterial) {
 
 // Shared observation machinery only. Each fixture supplies a closed endpoint
 // classifier and at most its one declared committed-response delivery fault.
-// Only the explicitly opted-in Intake fixture can additionally prove its three
-// original writes. GET and all other POST completion rules remain identical.
+// Only explicitly opted-in Intake or Agent fixtures can additionally prove
+// their closed write sets. Other POST completion rules remain identical.
 export async function observeTaskRequests(
   page: Page,
   data: TaskObservationMaterial,
@@ -873,6 +933,11 @@ export async function observeTaskRequests(
       profile.lookupCommand !== "work.task.create")
   )
     throw Error("TASK_INTAKE_WRITE_PROFILE_MISMATCH");
+  if (profile.agentConfiguration &&
+      (profile.intakeWrites || profile.prefix !== "agent-configuration" ||
+       profile.lookupCommand !== "agent.create" ||
+       !["default-create-config-and-directory", "lost-create-confirmation-only-lookup"].includes(data.mode)))
+    throw Error("AGENT_CONFIGURATION_PROFILE_MISMATCH");
   const entries: Entry[] = [];
   const events: Record<string, unknown>[] = [];
   const browserEvents: BrowserDiagnostic[] = [];
@@ -981,7 +1046,7 @@ export async function observeTaskRequests(
     entryHandlers++;
     try {
       await page.evaluate(
-        async ({ binding, project, intakeWrites }) => {
+        async ({ binding, project, intakeWrites, agentConfiguration }) => {
           const module = await import(/* @vite-ignore */ binding.asset);
           const useSession = module[binding.exportName];
           if (typeof useSession !== "function")
@@ -993,12 +1058,14 @@ export async function observeTaskRequests(
             auth,
             project,
             intakeWrites,
+            agentConfiguration,
           );
         },
         {
           binding,
           project: data.project_id,
           intakeWrites: profile.intakeWrites === true,
+          agentConfiguration: profile.agentConfiguration === true,
         },
       );
       await route.continue();
@@ -1056,8 +1123,21 @@ export async function observeTaskRequests(
     );
   }
 
+  function agentWrite(entry: Entry) {
+    if (!profile.agentConfiguration || entry.request.method() !== "POST") return false;
+    const url = new URL(entry.request.url());
+    if (url.search) return false;
+    const prefix = `/api/v1/projects/${data.project_id}`;
+    return (entry.name === "create" && url.pathname === prefix + "/agents") ||
+      (entry.name === "lookup" && url.pathname === prefix + "/agent-commands/lookup");
+  }
+  function agentPageRead(entry: Entry) {
+    return profile.agentConfiguration && entry.request.method() === "GET" &&
+      ["agent-directory", "agent-configuration", "agent-models"].includes(entry.name);
+  }
+
   function joint(entry: Entry, proof: any) {
-    const write = intakeWrite(entry);
+    const write = intakeWrite(entry) || agentWrite(entry);
     const method = write ? "POST" : "GET";
     expect(entry.request.method()).toBe(method);
     expect(entry.status).toBe(200);
@@ -1123,7 +1203,9 @@ export async function observeTaskRequests(
     expect(c.typed_digest).toMatch(/^[0-9a-f]{64}$/);
     expect(n.typed_digest).toBe(c.typed_digest);
     if (write) {
-      const kinds: Record<string, string> = {
+      const kinds: Record<string, string> = profile.agentConfiguration ? {
+        create: "agent.startCreate", lookup: "agent.checkOriginal",
+      } : {
         create: "work.startCreate",
         ready: "work.startReady",
         lookup: "work.checkOriginal",
@@ -1188,7 +1270,7 @@ export async function observeTaskRequests(
       }
       if (
         state === "failed" &&
-        (entry.request.method() === "GET" || intakeWrite(entry)) &&
+        (entry.request.method() === "GET" || intakeWrite(entry) || agentWrite(entry)) &&
         response?.status() === 200 &&
         entry.failure === "net::ERR_ABORTED"
       ) {
@@ -1238,9 +1320,9 @@ export async function observeTaskRequests(
       entry.body = JSON.parse(raw.toString("utf8"));
       expect(typeof entry.body).toBe("object");
       expect(entry.body).not.toBeNull();
-      if (intakeWrite(entry)) {
-        // Even genuine requestfinished must match the original public receipt
-        // and committed facts; the additional proof does not replace its tail.
+      if (intakeWrite(entry) || agentWrite(entry) || agentPageRead(entry)) {
+        // Even genuine requestfinished must match the original public value
+        // and Go proof (including commit for writes); this does not replace its tail.
         const consumed = joint(entry, proof);
         expect(consumed).toEqual(entry.body);
         entry.body = consumed;
@@ -1249,7 +1331,7 @@ export async function observeTaskRequests(
     }
   }
   function receipt(
-    name: "transfer" | "lookup" | "create" | "ready",
+    name: "transfer" | "lookup" | "create" | "ready" | "update",
     index: number,
   ): Record<string, any> {
     const values = entries.filter(
@@ -1268,18 +1350,23 @@ export async function observeTaskRequests(
       .map((entry) => entry.request);
   }
   function originalLookup() {
+    const creation = profile.lookupCommand === "work.task.create" || profile.lookupCommand === "agent.create";
     const originals = requests(
-      profile.lookupCommand === "work.task.create" ? "create" : "transfer",
+      creation
+        ? "create"
+        : profile.lookupCommand === "work.task.update"
+          ? "update"
+          : "transfer",
     );
     const lookups = requests("lookup");
     expect(originals).toHaveLength(1);
     expect(lookups).toHaveLength(1);
     const sent = originals[0]!.postDataJSON();
     expect(lookups[0]!.postDataJSON()).toEqual(
-      profile.lookupCommand === "work.task.create"
-        ? { command: "work.task.create", request: sent.request }
+      creation
+        ? { command: profile.lookupCommand, request: sent.request }
         : {
-            command: "work.task.transfer",
+            command: profile.lookupCommand,
             target_id: data.task_id,
             expected_version: sent.expected_version,
             request: sent.request,
@@ -1289,6 +1376,12 @@ export async function observeTaskRequests(
       originals[0]!.headers()["idempotency-key"],
     );
     expect(dropped).toBe(1);
+  }
+  function agentRead(name: "agent-directory" | "agent-configuration" | "agent-models") {
+    expect(profile.agentConfiguration).toBe(true);
+    const found = entries.filter((entry) => entry.name === name && entry.checked && entry.body);
+    expect(found.length, "original Agent page read must complete").toBeGreaterThan(0);
+    return found[found.length - 1]!.body as Record<string, any>;
   }
   function agentOption(id: string): string {
     const pages = entries.filter(
@@ -1328,6 +1421,15 @@ export async function observeTaskRequests(
                 ready: entries.filter((e) => e.name === "ready").length,
               }
             : {}),
+          ...(profile.prefix === "task-edit"
+            ? {
+                updates: entries.filter((e) => e.name === "update").length,
+                ready: entries.filter((e) => e.name === "ready").length,
+              }
+            : {}),
+          ...(profile.agentConfiguration ? {
+            creates: entries.filter((e) => e.name === "create").length,
+          } : {}),
           lookups: entries.filter((e) => e.name === "lookup").length,
           test_status: testStatus,
           route: diagnosticURL(page.url()),
@@ -1397,6 +1499,7 @@ export async function observeTaskRequests(
     originalLookup,
     requests,
     agentOption,
+    agentRead,
     save,
     endDocument,
     retire,
