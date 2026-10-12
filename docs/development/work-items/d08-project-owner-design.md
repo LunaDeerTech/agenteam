@@ -247,6 +247,16 @@ Audit库与Secret库本身没有自主Project执行/外部业务worker：它们�
 
 该子步骤不删除两 lane 的 closed project_calls、不触碰 D04 credential/加密 payload/receipt/lease、不触碰其他 Project。现 manifest 中 Secret 与 Artifact/Object 在该母 participant 之后，不能把 D04 Secret Cleanup 作为本步骤前置形成循环。driver 保存原 Agent applied 恢复锚及 Skills 子进度，Variables 完成后母 participant 仍 pending/domains；Agent immutable command 与两域 closed-call 历史的正式终局退休、D04 checker/adapter 和默认完整 Registry 仍是独立缺口。本片无迁移，不提前放宽旧 retained-call trigger。
 
+### Agent/Variables 终局尾（候选）
+
+固定终局构造器仅在真实 Agent、Skills、Variables 子步骤均完成的 schema 5 后进入新的显式 Run。实际 Agent 与 ordinary/Secret 原 pair 分别持有控制调用，嵌套覆盖唯一 caller Tx 的原 Store 返回；本 Project 的业务调用和 retained Unknown 必须实际归零，只排除自身终局控制，不用全局 Joined 阻塞另一 Project。登记行标为 joined/business_closed 不证明原关闭事务已返回：同 pair 原 active/retained 仍阻挡，同 process 未知 instance 拒绝，foreign process 必须通过原 ProcessGuard 的真实停止证明并在 caller Tx 重验本域行。
+
+原 Project EX、完整 last-Agent 引用锁 union、current Delete/domains/full manifest 与独立 terminal claim scope 下，先由 Agent 真实 owner 重建并确认最后完整 Before/五域引用，再由两 owner 删除自己的合法终局数据。Agent 只清 completed commands 和 joined 登记行，planned 命令仍 Busy；Variables 只清 business_closed 登记行，前序 metadata 必须保持为空，D04 不参与本步骤。两个 owner 的 set-based DELETE 与精确计数、最后 command 锚的删除、母 participant Completed 及 schema 6 receipt 在同一个原事务提交。任何错误整笔回滚；本片沿原 ctx 预算，不声称任意历史数量可在预算内完成，也不提供部分批次进度。
+
+schema 6 保存 Project/operation/version、原 claim process/attempt/fence、真实 SQL transaction ID、原 schema 5 摘要及两 pair 的原 process/instance，取代旧 command 锚。物理提交后的原调用未返回时，不得由另一 driver 仅凭已可见 receipt 或空表确认。Unknown 实际已应用时只核精确 receipt、原 owner 返回/停止证明及各域真实空事实，不再读取已删除 command；原 claim 与完整 schema 5 未改变的 NotApplied 确认只读本域合法事实，并在同事务终结原 claim，实际确认返回后另一显式 Run 才可再次应用。确认自身 Unknown 仍保留原 owner 与 attempt，不内部重试删除。
+
+前向迁移 00078 仅给合法终局 command/closed-call DELETE 增加当前 Project 状态约束，保留原 Agent command UPDATE 和两类 call INSERT/UPDATE 保护；数据库条件不能证明 caller、同事务刚删除或实际返回，授权仍归各 owner 的原私有 scope。该尾仅完成 agent-skills-variables participant，operation 仍 cleaning/domains；后续 Secret、Artifact/Object、Outbox、Audit、finalizer 和默认完整 Registry 各保留真实门槛。本节为实施合同，动态结果另据实际验收记录。
+
 
 固定 Agent→Skills 子步骤按 [D10 §4.3](d10-agent-configuration.md#43-project-永久删除中的有限原子退休) 消费真实退休端口。Agent 子步骤的完整 canonical/引用变更与本域 applied checkpoint 必须在同一个原 caller Tx 提交；不能沿普通 provider-return 后另 Tx 记进度的路径丢失退休归属。checkpoint 仅存原 completed Agent command 的身份、版本和完整 Before 摘要，恢复必须回该不可变前像和实际各域状态。一次 Run 的原提交/回调返回由原 cleanup driver 持有，后继 Run 才可进入 Skills；父仍 `pending/domains`，旧 ForSkills 与 Outbox/Audit 构造不扩大权限。本片不把受控 accepted/其它 participant 前置或局部成功当默认完整 Delete。
 
