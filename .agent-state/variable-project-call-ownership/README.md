@@ -2,7 +2,7 @@
 
 These methods cover the explicit ordinary/Secret project business call owner in [the task card](../../docs/development/work-items/d08-variable-project-call-ownership.md). No method controls, Go checks, compile, or native run for this profile have been performed. Existing Agent results do not establish this profile's behavior.
 
-The method baseline is `33feecbd6e50ec94fb32c258f980f3332e5c70ee`. The worktree was created from `a117e958c901a6146168c7837b3da0cc20377c2b`; its forthcoming normal main merge must preserve all existing profiles and any complete Runner descriptor helper/branches. The new profile is the only shared metadata addition. `profile-controls.py` must establish whole shared AST equality after removing only that new key against the final pinned baseline. The current pre-merge sources have not passed that baseline check.
+The method baseline is `c4e91d01b60b5accc549be45a1b50d2c1e2830b5`. The worktree was created from `a117e958c901a6146168c7837b3da0cc20377c2b`; its 24 authored paths were fixed at `abf96dd547b35c8beccc3b04ce7e58b98a3984f2`, then the normal main merge produced `d1aa12e47095446cd1176590373c2617fca3dce6`. The shared merge retained the unique Variables key and every existing Model/Agent/App/Runner profile, including the complete Runner descriptor helper and both selector branches. Static comparison removes only the Variables key and checks the entire shared AST against the merged main baseline; [the narrow binding proof](../../output/ai/variable-project-call-ownership/baseline-pin01.json) records that comparison and the original merge evidence. `profile-controls.py` still performs its original full AST/effective-map checks at execution. No controls or Go check for this combined profile has run.
 
 ## Scope
 
