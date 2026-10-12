@@ -592,6 +592,11 @@ METADATA_GROUPS = {
         'TestSkillInstallationOwnerHTTP/install-lookup-catalog-and-read',
         'TestSkillInstallationOwnerHTTP/current-owner-and-csrf',
     }),
+    '^TestSchedulerProjectStop$': frozenset((
+        'TestSchedulerProjectStop',
+        'TestSchedulerProjectStop/committed-stop-isolates-project-and-discards-stale-page',
+        'TestSchedulerProjectStop/driver-scope-and-authorization-unknown',
+    )),
 }
 
 
