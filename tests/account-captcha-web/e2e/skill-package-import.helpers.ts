@@ -51,6 +51,8 @@ export async function observeImport(page: Page, data: ImportMaterial) {
         receipt: { skill_id: string; revision: string; version: string };
       }
     | undefined;
+  let lastPublic: Record<string, any> | null = null;
+  let lastNative: Record<string, any>[] = [];
   const fail = (code: string) => {
     failure ||= code;
   };
@@ -129,7 +131,7 @@ export async function observeImport(page: Page, data: ImportMaterial) {
     installing++;
     try {
       await page.evaluate(
-        async ({ binding, project }) => {
+        async ({ binding, project, owner }) => {
           const module = await import(/* @vite-ignore */ binding.asset);
           const useSession = module[binding.exportName];
           if (typeof useSession !== "function")
@@ -143,8 +145,107 @@ export async function observeImport(page: Page, data: ImportMaterial) {
             false,
             false,
           );
+          // Observe the actual public install promise without replacing its
+          // result, issuing another request, or reading another response body.
+          const install = auth.skillImport.start;
+          const state = {
+            calls: 0,
+            pending: 0,
+            returned: false,
+            rejected: false,
+            failed: false,
+            current: false,
+            retired: false,
+            project_id: "",
+            receipt: null as null | Record<string, string>,
+          };
+          const tracked = function (
+            this: unknown,
+            projectID: string,
+            text: string,
+          ) {
+            state.calls++;
+            state.pending++;
+            state.project_id = projectID;
+            if (
+              state.retired ||
+              state.calls !== 1 ||
+              projectID !== project ||
+              typeof text !== "string"
+            )
+              state.failed = true;
+            let result: Promise<unknown>;
+            try {
+              result = Reflect.apply(install, this, [projectID, text]);
+            } catch (error) {
+              state.pending--;
+              state.returned = true;
+              state.rejected = true;
+              throw error;
+            }
+            void Promise.resolve(result).then(
+              (value: any) => {
+                try {
+                  state.returned = true;
+                  if (
+                    !value ||
+                    Object.keys(value).sort().join() !==
+                      "revision,skill_id,version" ||
+                    typeof value.skill_id !== "string" ||
+                    value.revision !== "1" ||
+                    value.version !== "1"
+                  ) {
+                    state.failed = true;
+                  } else {
+                    state.receipt = {
+                      skill_id: value.skill_id,
+                      revision: value.revision,
+                      version: value.version,
+                    };
+                  }
+                  const progress = auth.skillImport.progress;
+                  state.current =
+                    auth.state.phase === "authenticated" &&
+                    auth.state.user?.id === owner &&
+                    auth.personalContext.phase === "current" &&
+                    progress?.contextValid === true &&
+                    progress.projectID === project &&
+                    progress.phase === "confirmed" &&
+                    progress.skillID === value?.skill_id;
+                } catch {
+                  state.failed = true;
+                } finally {
+                  state.pending--;
+                }
+              },
+              () => {
+                state.returned = true;
+                state.rejected = true;
+                state.pending--;
+              },
+            );
+            return result;
+          };
+          auth.skillImport.start = tracked;
+          (window as any).__skillImportOriginal = {
+            snapshot: () => ({
+              ...state,
+              receipt: state.receipt ? { ...state.receipt } : null,
+            }),
+            finish() {
+              if (state.pending !== 0 || auth.skillImport.start !== tracked)
+                state.failed = true;
+              auth.skillImport.start = install;
+              state.retired = true;
+              return {
+                pending: state.pending,
+                failed: state.failed,
+                retired: state.retired,
+              };
+            },
+          };
         },
-        { binding, project: data.project_id },
+        { binding, project: data.project_id, owner: data.owner_id },
       );
       await route.continue();
     } catch {
@@ -168,6 +269,34 @@ export async function observeImport(page: Page, data: ImportMaterial) {
     const native = await page.evaluate(() =>
       (window as any).__taskReviewProof.snapshot(),
     );
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () => (window as any).__skillImportOriginal.snapshot().pending,
+        ),
+      )
+      .toBe(0);
+    lastPublic = await page.evaluate(() =>
+      (window as any).__skillImportOriginal.snapshot(),
+    );
+    lastNative = native.rows.map((row: any) => ({
+      request_id: row.request_id,
+      fetch_returned: row.fetch_returned,
+      fetch_rejected: row.fetch_rejected,
+      error: row.error,
+      aborted: row.aborted,
+      readers: row.readers,
+      reads: row.reads,
+      read_returns: row.read_returns,
+      eof: row.eof,
+      closed: row.closed,
+      release: row.release,
+      reader_cancel: row.reader_cancel,
+      stream_cancel: row.stream_cancel,
+      bytes: row.bytes,
+      digest: row.digest,
+    }));
+    expect(lastPublic?.failed).toBe(false);
     expect(native.failed).toBe(false);
     expect(native.current).toBe(true);
     expect(native.not_busy).toBe(true);
@@ -204,8 +333,60 @@ export async function observeImport(page: Page, data: ImportMaterial) {
       expect(row.stream_cancel).toBe(0);
       expect(record.content_length).toBe(row.bytes);
       expect(record.body_sha256).toBe(row.digest);
+      const isInstall = e.request.method() === "POST";
+      let receipt:
+        { skill_id: string; revision: string; version: string } | undefined;
+      if (isInstall) {
+        // This sole write profile is not a generic exception for failed POSTs.
+        expect(url.pathname).toBe(prefix + "/skills");
+        expect(url.search).toBe("");
+        expect(
+          entries.filter((entry) => entry.request.method() === "POST"),
+        ).toHaveLength(1);
+        expect(lastPublic).toMatchObject({
+          calls: 1,
+          pending: 0,
+          returned: true,
+          rejected: false,
+          failed: false,
+          current: true,
+          project_id: data.project_id,
+        });
+        receipt = lastPublic!.receipt;
+        expect(Object.keys(receipt!).sort()).toEqual([
+          "revision",
+          "skill_id",
+          "version",
+        ]);
+        expect(receipt!.skill_id).toMatch(uuid);
+        expect(receipt!.revision).toBe("1");
+        expect(receipt!.version).toBe("1");
+        const disk = readFileSync(
+          join(process.env.AGENTEAM_AUTH_WEB_PRIVATE!, "SKILL.md"),
+        );
+        expect(disk.length).toBe(data.file_size);
+        expect(hash(disk)).toBe(data.file_sha256);
+        const text = new TextDecoder("utf-8", { fatal: true }).decode(disk);
+        expect(e.request.postDataJSON()).toEqual({
+          request: {
+            skill_id: receipt!.skill_id,
+            mode: "create",
+            source: {
+              kind: "text_files",
+              files: [{ path: "SKILL.md", utf8_text: text }],
+            },
+          },
+        });
+        expect(e.request.headers()["idempotency-key"]).toMatch(
+          /^[A-Za-z0-9._:/-]{1,128}$/,
+        );
+        expect(e.request.headers()["x-csrf-token"]).toMatch(
+          /^[A-Za-z0-9_-]{43}$/,
+        );
+        expect(original).toBeUndefined();
+      }
       if (e.terminal === "failed") {
-        expect(e.request.method()).toBe("GET");
+        if (!isInstall) expect(e.request.method()).toBe("GET");
         expect(e.request.failure()?.errorText).toBe("net::ERR_ABORTED");
       } else {
         expect(e.terminal).toBe("finished");
@@ -213,40 +394,10 @@ export async function observeImport(page: Page, data: ImportMaterial) {
         const bytes = await e.response!.body();
         expect(bytes.length).toBe(row.bytes);
         expect(hash(bytes)).toBe(row.digest);
-        if (e.request.method() === "POST") {
-          const receipt = JSON.parse(bytes.toString("utf8"));
-          expect(Object.keys(receipt).sort()).toEqual([
-            "revision",
-            "skill_id",
-            "version",
-          ]);
-          expect(receipt.skill_id).toMatch(uuid);
-          expect(receipt.revision).toBe("1");
-          expect(receipt.version).toBe("1");
-          const disk = readFileSync(
-            join(process.env.AGENTEAM_AUTH_WEB_PRIVATE!, "SKILL.md"),
-          );
-          const text = new TextDecoder("utf-8", { fatal: true }).decode(disk);
-          expect(e.request.postDataJSON()).toEqual({
-            request: {
-              skill_id: receipt.skill_id,
-              mode: "create",
-              source: {
-                kind: "text_files",
-                files: [{ path: "SKILL.md", utf8_text: text }],
-              },
-            },
-          });
-          expect(e.request.headers()["idempotency-key"]).toMatch(
-            /^[A-Za-z0-9._:/-]{1,128}$/,
-          );
-          expect(e.request.headers()["x-csrf-token"]).toMatch(
-            /^[A-Za-z0-9_-]{43}$/,
-          );
-          expect(original).toBeUndefined();
-          original = { requestID: e.requestID!, receipt };
-        }
+        if (isInstall)
+          expect(JSON.parse(bytes.toString("utf8"))).toEqual(receipt);
       }
+      if (isInstall) original = { requestID: e.requestID!, receipt: receipt! };
       e.checked = true;
     }
     return original?.receipt;
@@ -272,6 +423,21 @@ export async function observeImport(page: Page, data: ImportMaterial) {
           expect(end.failed).toBe(false);
           expect(end.retired).toBe(true);
           expect(end.pending).toBe(0);
+          await expect
+            .poll(() =>
+              page.evaluate(
+                () => (window as any).__skillImportOriginal.snapshot().pending,
+              ),
+            )
+            .toBe(0);
+          const publicEnd = await page.evaluate(() =>
+            (window as any).__skillImportOriginal.finish(),
+          );
+          expect(publicEnd).toEqual({
+            pending: 0,
+            failed: false,
+            retired: true,
+          });
           await page.unroute(entryURL, install);
           await page.goto("about:blank");
         }
@@ -318,11 +484,21 @@ export async function observeImport(page: Page, data: ImportMaterial) {
           failure,
           observers_removed: retired,
           all_observed: entries.every((e) => e.checked),
+          public_install: lastPublic,
+          native_rows: lastNative,
           requests: entries.map((e) => ({
             method: e.request.method(),
             request_id: e.requestID,
             status: e.response?.status(),
             terminal: e.terminal,
+            error_text:
+              e.terminal === "failed"
+                ? /^net::ERR_[A-Z_]+$/.test(
+                    e.request.failure()?.errorText ?? "",
+                  )
+                  ? e.request.failure()!.errorText
+                  : "OTHER"
+                : null,
             responses: e.responses,
             checked: e.checked,
           })),

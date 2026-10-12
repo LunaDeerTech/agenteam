@@ -16,7 +16,7 @@ import {
 test("imports an existing file and downloads its immutable revision", async ({
   page,
   context,
-}, info) => {
+}) => {
   const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE!;
   const data: ImportMaterial = JSON.parse(
     readFileSync(join(directory, "skill-import-material.json"), "utf8"),
@@ -47,6 +47,7 @@ test("imports an existing file and downloads its immutable revision", async ({
   const seen = await observeImport(page, data);
   let receipt:
     { skill_id: string; revision: string; version: string } | undefined;
+  let importCompleted = false;
   try {
     await page.goto(data.route);
     const region = page.getByRole("region", {
@@ -124,11 +125,12 @@ test("imports an existing file and downloads its immutable revision", async ({
     ).toHaveAttribute("href", data.route + "/" + receipt!.skill_id);
     await seen.retire();
     seen.complete();
+    importCompleted = true;
   } finally {
     try {
       await seen.retire();
     } finally {
-      seen.save(info.status);
+      seen.save(importCompleted ? "passed" : "failed");
       await page.close();
     }
   }
@@ -145,6 +147,7 @@ test("imports an existing file and downloads its immutable revision", async ({
   expect(installed.skill.protected).toBe(false);
   const downloadPage = await context.newPage();
   const download = await observePackage(downloadPage, installed);
+  let downloadCompleted = false;
   try {
     await downloadPage.setViewportSize({ width: 1440, height: 960 });
     await downloadPage.emulateMedia({
@@ -209,11 +212,12 @@ test("imports an existing file and downloads its immutable revision", async ({
     await packageScreenshot(downloadPage, "import-390-dark-downloaded");
     await download.retire();
     download.complete();
+    downloadCompleted = true;
   } finally {
     try {
       await download.retire();
     } finally {
-      download.save(info.status);
+      download.save(downloadCompleted ? "passed" : "failed");
       await downloadPage.close();
     }
   }
