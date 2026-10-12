@@ -199,6 +199,11 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestAgentProjectLocalStop$': frozenset((
+        'TestAgentProjectLocalStop',
+        'TestAgentProjectLocalStop/archive-original-mutation-and-project-isolation',
+        'TestAgentProjectLocalStop/delete-directory-and-original-return',
+    )),
     '^TestNextRoundModelRequest$': frozenset((
         'TestNextRoundModelRequest',
         'TestNextRoundModelRequest/committed-command-input-request-and-history',
