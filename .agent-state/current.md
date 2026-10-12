@@ -1,10 +1,14 @@
-# Runner write-file Operation 候选
+# Runner write-file Operation 已验候选
 
-2026-10-12。本树 `/workspace/agenteam-runner-write-file-operation`，分支 `ai/runner-write-file-operation-20261011`；原基线main `105ff95f`，本次组合正式main `095d3359`（含已交Projection和WSS）。root已沿同分支/e2dd普通remove/add将原tmp树迁至当前workspace路径（24319实际0/ef98f9），未丢独有ignored，迁址不计为任务清理。后续命令只用当前路径。
+2026-10-12。本树 `/workspace/agenteam-runner-write-file-operation`，实际分支 `ai/runner-write-file-operation-20261012`；原基线 main `105ff95f`，组合 main `095d3359`（含已交 Projection 和 WSS），已验技术输入 `c1530e95`。root 已沿同分支/e2dd 普通 remove/add 将原 tmp 树迁至当前 workspace 路径，未丢独有 ignored，迁址不计为任务清理。当前有限验收已通过，等待 root 正式 Git 交付；本片合入 main、完整历史可达、推送及树/本地/远端清理均尚未发生。
 
-本片实现持久ToolCall→当前write专属授权同Tx Operation/Attempt→原COMMIT实际返回→同RID Claim/WSS一次→原发布结果与retired同Tx。合同/Registry、Tool runtime、Mount/Runner与Execution/Loop源码已获有限静审接受，PG和方法已落源码；全部尚未运行Go或真实PG，不记动态通过。read/write票据与profile闭集隔离，普通write不增加Admin或人工审批门；默认未绑定、tools HTTP及全部原STOP保持。详见[本卡](../docs/development/work-items/d15-runner-write-file-operation.md)。
+本片已真实闭合持久 ToolCall→当前 write 专属授权同 Tx Operation/Attempt→原 COMMIT 实际返回→同 RID Claim/WSS 一次→原发布结果与 retired 同 Tx。`basic01` 的 unused import 编译 FAIL 保留；原六包 34 top / 109 sub 与窄补 `basic02` 的 10 top / 36 sub 分阶段共 44 top / 145 sub PASS，八包 vet PASS，829 输入各轮前后相同。`methods01` 1 正 / 7 反及旧映射保留通过；`compile01` 与精确 list 实际 0，1,928 编译输入相同，runtime 1,929 仅增加实物 binary。
 
-root统筹Git/资源/集成；recovery_lead负责Tool runtime/本卡，skills_milestone_review负责合同/Registry及唯一迁移69，variables_review负责Execution/Loop和本次current正文，skill_package_review负责Mount/Central Runner，knowledge_delete_fixture负责PG与方法，runtime_recovery为唯一principal。技术源保持冻结，Go/cache/native仅按root另授窗口运行；当前仅文档合并，不触方法作者的两harness。
+`native01` 原工具 34580 actual 0：Go 858887 / driver 857092 原 Wait 0，supervisor 857048 Wait 0 / 165.703 s；1 top / 2 sub PASS（68.27 s），七资源十四次 absence、desc/private/runtime 双空、HOST_TCP 自动差额双空与输入不变齐，唯一主审已最终接受。首链证明提交原返回前零 wire、原返回后一次 512 KiB 写与丢最终回执后只 Lookup；次链证明正式撤销 Mount 后零 wire、旧 bytes 不变、not_dispatched 退休。受控 Model JSONCaller 和原 Project test Skills receipt 的边界保持，没有后继 Model/Transcript 消费、默认绑定或 tools HTTP 解禁。详见[本卡](../docs/development/work-items/d15-runner-write-file-operation.md)与[方法和恢复说明](runner-write-file-operation/README.md)。
+
+root 统筹 Git/资源/集成；原各域作者保留源码所有权，knowledge_delete_fixture 负责 PG/方法与当前最终三文档，runtime_recovery 为唯一 principal。原所有执行进程已实际退出，技术输入与原 output 停写；当前只同步最终文档，不重跑已接受检查。
+
+本片原 output 已由工具 94730 actual 0 同文件系统 `NOREPLACE` 迁至 main 工作树 `output/ai/retired-20261012/runner-write-file-operation/`：95 文件 / 97,809,643 B / 15 目录全 metadata/hash/inode 相同，四份 tmp 副本 7,292 B 齐、原 tmp 保留；旁目录 `runner-write-file-operation-preservation/` 保存 manifest、25 maps / 1,931 历史 blob 核验及原 Wait。历史已匹配本分支 `79d88efc` / `c1530e95`，未提前记 main 可达或已清理；迁后本树 untracked/ignored 0，保护缓存不动。详见本片恢复说明。
 
 ## 已交付上游与全局保留
 

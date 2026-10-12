@@ -1,6 +1,6 @@
 # D15/D18/D22 单 write-file Operation
 
-状态：2026-10-12 源码静审已接受，尚未编译或真实运行。初始基线 main `105ff95f`，独立树现已迁至 `/workspace/agenteam-runner-write-file-operation`。已交 Runner 本地 Write 与 trusted TLS/WSS 只提供下游能力，不代本片 Central 当前授权、Operation/Attempt 或默认装配。
+状态：2026-10-12 基础检查及真实 PG/认证 TLS/WSS 的 1 top / 2 sub 首链已获独立验收，等待 root 正式 Git 交付。初始基线 main `105ff95f`，技术组合 `c1530e95` 已包含已交 Projection/WSS；独立树位于 `/workspace/agenteam-runner-write-file-operation`。本片已闭合显式 Central 当前授权、Operation/Attempt 与原单次 Runner 写入，不代表生产默认装配。
 
 正式依据：[Model/Tool](d01-contracts/model-tool.md)、[Runner execution-runtime §6](../../architecture/runner/execution-runtime.md#6-write-file)、[原 read-file Operation](d18-runner-read-file-operation.md)及[已交 write-file WSS](d15-runner-write-file-adapter.md)。本片只把持久 ToolCall 接到一次原 write-file 操作及原结果持久化，不消费 Transcript，不启动后继 Model。
 
@@ -15,6 +15,12 @@
 
 ## 写域与验证
 
-`recovery_lead` 负责 Tool runtime 的独立 write_file authority/executor/attempt/lookup/profile/repository/schema、新必要控制与本卡/current；`skills_milestone_review` 负责 Tool contract/Registry/capture/迁移69；`variables_review` 负责 Execution/Loop；`skill_package_review` 负责 Mount/Central Runner。唯一 principal 为 runtime_recovery，root负责所有 Git及资源窗口。
+`recovery_lead` 负责 Tool runtime 的独立 write_file authority/executor/attempt/lookup/profile/repository/schema；`skills_milestone_review` 负责 Tool contract/Registry/capture/迁移69；`variables_review` 负责 Execution/Loop；`skill_package_review` 负责 Mount/Central Runner；`knowledge_delete_fixture` 负责真实 PG、方法与最终三文档。唯一 principal 为 runtime_recovery，root 负责所有 Git 及资源窗口。
 
-先验证新增闭集、实际Message codec、publication/durable/completion保存、原参数借用/副本/清理、RID/阶段拒绝、Unknown与Stop/实际返回，再由独立方法作者接真实PG+认证WSS+Manager首链。当前仅源码/gofmt，未运行Go、PG、服务或网络；既有通过证据不冒充本片通过。生产 initializer/ready、完整registry/default executor、真实tools HTTP、OpenAI独立A/B及原STOP均保持。
+基础检查覆盖新增闭集、实际 Message codec、publication/durable/completion 保存、参数借用/副本/清理、RID/阶段拒绝、Unknown 与 Stop/实际返回。`basic01` 因测试的未使用 import 编译失败，整轮 FAIL 原样保留；其中六包 34 top / 109 sub PASS。窄修后 `basic02` 仅补 runtime 10 top / 36 sub 及原八包 vet，全部 PASS；分阶段合计 44 top / 145 sub 和八包 vet，两轮各自 829 输入前后同。profile 1 正例 / 7 反例与旧 AST/有效映射保留通过。
+
+`compile01` 原 race/integration-c 与精确 list 均实际 0，1,928 编译输入前后同，runtime 1,929 仅增加实际 binary。`native01` 的 `TestWriteFileOperation/committed-attempt-write-and-lookup` 验证真实 Attempt 提交但 hold 原返回时零 wire，原返回后同持久 RID 唯一 write-file WSS，512 KiB 独立完整读取，最终 DB COMMIT 后丢回执仅原 Lookup 恢复、无重发；`revoke-before-claim-no-dispatch` 验证 Attempt 已返回、Claim 前正式 Owner 撤销 Mount 后零 wire、原 bytes 不变及 `not_dispatched` 退休。原工具 34580 / supervisor 857048 实际退出 0，Go / driver 原 Wait 0；七资源双 absence、全部 private/runtime/descendants 尾、HOST_TCP 自动差额双空和输入不变通过。方法与完整原件定位见[恢复说明](../../../.agent-state/runner-write-file-operation/README.md)。
+
+本链使用受控 Model JSONCaller 和原 Project 持久 test Skills receipt；真实 Owner/Agent/Registry/Preparation/Execution、PG 事务、认证 WSS、Handler/Manager/Root 与独立读取已执行。它只完成一次 write Operation 与结果持久化：没有后继 Model、Transcript 消费、终态 Execution 退休或生产默认接线。生产 initializer/ready、完整 registry/default executor、真实 tools HTTP、OpenAI 独立 A/B 及原 STOP 均保持，未将测试后验 readback 用作产品成功推断。
+
+完整 output 的 95 个文件、97,809,643 B 已同文件系统无覆盖保全至 main 工作树的 `output/ai/retired-20261012/runner-write-file-operation/`，四份 tmp 原件副本及逐项证明在旁目录 `runner-write-file-operation-preservation/`，原 tmp 保留。历史输入逐字对应本分支两个原检查点，main 完整历史可达、正式推送与树/分支清理仍待 root；本地保全不代替 Git 交付。完整数量、路径和核验限制见上述恢复说明。
