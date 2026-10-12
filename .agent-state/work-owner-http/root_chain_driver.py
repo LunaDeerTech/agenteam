@@ -18,6 +18,29 @@ MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 # One closed same-package PG family: adding a scenario changes required
 # inputs and expected test data, never the resource/Wait/tail implementation.
 METADATA_INPUTS = {
+    '^TestRoundModelCallReservation$': (
+        'tests/projectvariable/round_model_call_reservation_test.go',
+        'tests/projectvariable/next_round_model_request_test.go',
+        'tests/projectvariable/run_command_result_consumption_test.go',
+        'tests/projectvariable/run_command_operation_test.go',
+        'db/migrations/00066_execution_tool_result_consumptions.sql',
+        'db/migrations/00068_execution_round_inputs.sql',
+        'db/migrations/00071_execution_run_command_results.sql',
+        'db/migrations/00072_execution_round_model_requests.sql',
+        'db/migrations/00073_execution_round_model_claims.sql',
+        'internal/central/execution/contract/round_model_call.go',
+        'internal/central/execution/round_model_call.go',
+        'internal/central/execution/round_model_call_owner.go',
+        'internal/central/execution/round_model_call_repository.go',
+        'internal/central/execution/contract/next_round_request_codec.go',
+        'internal/central/execution/contract/round_model_request.go',
+        'internal/central/execution/round_model_request.go',
+        'internal/central/execution/round_model_request_owner.go',
+        'internal/central/execution/round_model_request_repository.go',
+        'internal/central/agentloop/next_round_request.go',
+        'internal/central/object/process_binding.go',
+        '.agent-state/round-model-call-reservation/profile-controls.py',
+    ),
     '^TestAgentProjectCallOwnership$': (
         'tests/projectvariable/agent_project_call_ownership_test.go',
         'tests/projectvariable/agent_project_call_ownership_fixture_test.go',
