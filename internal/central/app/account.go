@@ -69,6 +69,7 @@ type accountAssembly struct {
 	agentDirectory  accountWork
 	agentInstall    accountWork
 	agents          *agentConfigurationAssembly
+	variableCalls   *projectVariableCallAssembly
 	variables       accountWork
 	secretVariables accountWork
 	projects        accountWork
@@ -178,11 +179,17 @@ func (a *accountAssembly) works() []accountWork {
 		work = append(work, a.runners)
 	}
 	// Variables, Work and Project calls release Account Activity before core retires.
-	if a.variables != nil {
-		work = append(work, a.variables)
-	}
-	if a.secretVariables != nil {
-		work = append(work, a.secretVariables)
+	if a.variableCalls != nil {
+		work = append(work, a.variableCalls)
+	} else {
+		// Preserve independently constructed legacy views. The default pair
+		// owns both lanes once, even though both views remain available.
+		if a.variables != nil {
+			work = append(work, a.variables)
+		}
+		if a.secretVariables != nil {
+			work = append(work, a.secretVariables)
+		}
 	}
 	if a.planning != nil {
 		work = append(work, a.planning)
@@ -268,10 +275,12 @@ func (a *accountAssembly) Force(ctx context.Context) error {
 	// additionally prevents shared-provider retirement below.
 	for _, work := range a.works() {
 		result = errors.Join(result, work.Force(original))
-		// Runtime terminal/lease cleanup and both Agent lanes still use the
+		// Inspect the actual work entry so a late-installed pair is also gated.
+		variableCalls, ownsVariables := work.(*projectVariableCallAssembly)
+		// Runtime terminal/lease cleanup and both Agent/Variable lanes use the
 		// shared providers. Expiring a force budget does not make them disposable.
 		// The root retains its separate bounded Store.ForceClose policy.
-		if executions != nil && work == executions && !executions.Joined() || agents != nil && work == agents && !agents.Joined() || install != nil && work == install && !install.Joined() {
+		if executions != nil && work == executions && !executions.Joined() || agents != nil && work == agents && !agents.Joined() || install != nil && work == install && !install.Joined() || ownsVariables && !variableCalls.Joined() {
 			return errors.Join(result, foundation.NewFault(foundation.DependencyUnavailable, foundation.NotStarted))
 		}
 	}
@@ -539,20 +548,18 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if !accounts.install(ctx, func() { accounts.core = core }) {
 		return context.Canceled
 	}
-	variables, err := createProjectVariables(cfg, db, projectUsage.variables, projectUsage.projects, authority, auditor, journal, variableEvents)
+	variableCalls, err := createOwnedProjectVariables(cfg, db, projectUsage.variables, secretWrites, secrets, projectUsage.projects, authority, auditor, journal, variableEvents, secretVariableEvents, objects)
 	if err != nil {
 		return err
 	}
-	if !accounts.install(ctx, func() { accounts.variables = variables }) {
+	if !accounts.install(ctx, func() {
+		accounts.variableCalls = variableCalls
+		accounts.variables = variableCalls.variables
+		accounts.secretVariables = variableCalls.secretVariables
+	}) {
 		return context.Canceled
 	}
-	secretVariables, err := createProjectSecretVariables(cfg, db, projectUsage.variables, secretWrites, secrets, projectUsage.projects, authority, auditor, journal, secretVariableEvents)
-	if err != nil {
-		return err
-	}
-	if !accounts.install(ctx, func() { accounts.secretVariables = secretVariables }) {
-		return context.Canceled
-	}
+	variables, secretVariables := variableCalls.variables, variableCalls.secretVariables
 	projectReads, err := createProjectRead(cfg, db, projectUsage.projects)
 	if err != nil {
 		return err

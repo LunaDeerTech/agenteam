@@ -31,6 +31,7 @@ func createProjectSecretWriteAuthority(db database, projects *project.Authority)
 type projectSecretVariablesAssembly struct {
 	service         *projectvariable.SecretService
 	calls           workCommandCalls
+	owner           *projectVariableCallAssembly
 	mu              sync.Mutex
 	stopped, joined bool
 }
@@ -51,6 +52,10 @@ func createProjectSecretVariables(cfg config.Config, db database, authority *pro
 }
 
 func (b *projectSecretVariablesAssembly) StopAdmission() {
+	if b.owner != nil {
+		b.owner.StopAdmission()
+		return
+	}
 	b.mu.Lock()
 	b.stopped = true
 	b.mu.Unlock()
@@ -58,6 +63,9 @@ func (b *projectSecretVariablesAssembly) StopAdmission() {
 }
 
 func (b *projectSecretVariablesAssembly) Drain(ctx context.Context) error {
+	if b.owner != nil {
+		return b.owner.Drain(ctx)
+	}
 	b.StopAdmission()
 	if err := b.calls.Drain(ctx); err != nil {
 		return err
@@ -71,6 +79,9 @@ func (b *projectSecretVariablesAssembly) Drain(ctx context.Context) error {
 func (b *projectSecretVariablesAssembly) Force(ctx context.Context) error { return b.Drain(ctx) }
 
 func (b *projectSecretVariablesAssembly) Joined() bool {
+	if b.owner != nil {
+		return b.owner.Joined()
+	}
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	return b.stopped && b.joined

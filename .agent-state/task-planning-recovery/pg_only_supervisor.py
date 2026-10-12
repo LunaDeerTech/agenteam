@@ -199,6 +199,11 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestVariableProjectCallApp$': frozenset((
+        'TestVariableProjectCallApp',
+        'TestVariableProjectCallApp/default-http-shared-variable-owner',
+        'TestVariableProjectCallApp/secret-checkpoint-drains-before-guard',
+    )),
     '^TestVariableProjectCallOwnership$': frozenset((
         'TestVariableProjectCallOwnership',
         'TestVariableProjectCallOwnership/committed-lanes-registration-and-exact-row-fence',
