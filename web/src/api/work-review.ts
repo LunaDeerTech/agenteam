@@ -23,6 +23,8 @@ export const taskLabels: Record<TaskState, string> = {
 }
 const priorities = ['critical', 'high', 'medium', 'low'] as const
 const types = ['feature', 'bug', 'task', 'spike', 'chore'] as const
+export const taskPriorities = priorities
+export const taskTypes = types
 export type MilestoneSummary = Readonly<{
   id: string
   project_id: string
@@ -60,7 +62,14 @@ export type Blocker = Readonly<{
 }>
 export type Page<T> = Readonly<{ items: readonly T[]; next_cursor?: string }>
 export type PageQuery = Readonly<{ limit?: number; cursor?: string }>
-export type TaskQuery = PageQuery & Readonly<{ sprint_id: string; state: TaskState; text?: string }>
+export type TaskQuery = PageQuery &
+  Readonly<{
+    sprint_id: string
+    state: TaskState
+    text?: string
+    priority?: TaskSummary['priority']
+    type?: TaskSummary['type']
+  }>
 export type ReviewInput = Readonly<{
   expected_version: string
   request: Readonly<{
@@ -556,7 +565,7 @@ export function createWorkReviewAPI(fetcher?: Fetch): WorkReviewAPI {
     },
     tasks(project, q, signal) {
       const captured = input(() => {
-        const v = shape(q, ['sprint_id', 'state'], ['limit', 'cursor', 'text'])
+        const v = shape(q, ['sprint_id', 'state'], ['limit', 'cursor', 'text', 'priority', 'type'])
         return {
           ...query({
             ...(v.limit === undefined ? {} : { limit: v.limit as number }),
@@ -565,6 +574,8 @@ export function createWorkReviewAPI(fetcher?: Fetch): WorkReviewAPI {
           sprint_id: workID(v.sprint_id),
           state: enumeration(v.state, taskStates),
           ...(v.text === undefined ? {} : { text: workText(v.text, 1024, true) }),
+          ...(v.priority === undefined ? {} : { priority: enumeration(v.priority, priorities) }),
+          ...(v.type === undefined ? {} : { type: enumeration(v.type, types) }),
         }
       })
       return call(
@@ -576,6 +587,8 @@ export function createWorkReviewAPI(fetcher?: Fetch): WorkReviewAPI {
             (item) => {
               const r = parseTask(item, project, undefined, true) as TaskSummary
               requireValue(r.sprint_id === captured.sprint_id && r.state === captured.state)
+              requireValue(captured.priority === undefined || r.priority === captured.priority)
+              requireValue(captured.type === undefined || r.type === captured.type)
               return r
             },
             (a, b) => priorities.indexOf(a.priority) - priorities.indexOf(b.priority) || rank(a, b),

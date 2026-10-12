@@ -105,6 +105,8 @@ function diagnosticURL(value: string): string {
         /^(backlog|todo|in_progress|blocked|in_review|done|cancelled)$/.test(
           item,
         )) ||
+      (key === "priority" && /^(critical|high|medium|low)$/.test(item)) ||
+      (key === "type" && /^(feature|bug|task|spike|chore)$/.test(item)) ||
       (["sprint_id", "milestone_id"].includes(key) &&
         /^[0-9a-f-]{36}$/.test(item));
     query.append(key, safe ? item : "<redacted>");

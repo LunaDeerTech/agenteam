@@ -11,6 +11,8 @@ import {
 import { AccountFailure } from '../api/client'
 import {
   taskStates,
+  taskPriorities,
+  taskTypes,
   workText,
   type TaskState,
   type Task,
@@ -142,14 +144,31 @@ export function createProjectTasks(
   const columns = reactive(
     Object.fromEntries(taskStates.map((s) => [s, emptyColumn()])) as Record<TaskState, TaskColumn>,
   )
-  const search = reactive({ draft: '', text: '', message: '' })
+  const search = reactive({
+    draft: '',
+    text: '',
+    message: '',
+    priorityDraft: '' as TaskSummary['priority'] | '',
+    typeDraft: '' as TaskSummary['type'] | '',
+    priority: '' as TaskSummary['priority'] | '',
+    type: '' as TaskSummary['type'] | '',
+  })
+  const filtersActive = computed(() => !!(search.text || search.priority || search.type))
   const searchEmpty = computed(
     () =>
-      !!search.text &&
+      filtersActive.value &&
       taskStates.every((s) => columns[s].phase === 'ready' && !columns[s].items.length),
   )
   function resetSearch() {
-    Object.assign(search, { draft: '', text: '', message: '' })
+    Object.assign(search, {
+      draft: '',
+      text: '',
+      message: '',
+      priorityDraft: '',
+      typeDraft: '',
+      priority: '',
+      type: '',
+    })
   }
   const names = shallowReactive(new Map<string, DirectoryAgent>())
   const draft = reactive<{
@@ -931,6 +950,8 @@ export function createProjectTasks(
             state: s,
             limit: 50,
             ...(search.text ? { text: search.text } : {}),
+            ...(search.priority ? { priority: search.priority } : {}),
+            ...(search.type ? { type: search.type } : {}),
             ...(cursor ? { cursor } : {}),
           }),
         )
@@ -960,13 +981,21 @@ export function createProjectTasks(
     let text: string
     try {
       text = search.draft === '' ? '' : workText(search.draft, 1024, true)
+      if (
+        (search.priorityDraft && !taskPriorities.includes(search.priorityDraft)) ||
+        (search.typeDraft && !taskTypes.includes(search.typeDraft))
+      )
+        throw new AccountFailure('invalid-input')
     } catch {
-      search.message = '请输入最多 256 个字符的关键词，不含控制字符或纯空白。'
+      search.message =
+        '请输入最多 256 个字符的关键词，不含控制字符或纯空白，并选择有效的优先级和类型。'
       return
     }
     retire()
     const own = generation
     search.text = text
+    search.priority = search.priorityDraft
+    search.type = search.typeDraft
     search.message = ''
     for (const s of taskStates) Object.assign(columns[s], emptyColumn())
     for (const s of taskStates) {
@@ -977,6 +1006,8 @@ export function createProjectTasks(
   async function clearSearch() {
     if (!state.sprint || !visible.value || busy.value) return
     search.draft = ''
+    search.priorityDraft = ''
+    search.typeDraft = ''
     await applySearch()
   }
   async function loadAgents(more = false) {
@@ -2609,6 +2640,7 @@ export function createProjectTasks(
     columns,
     search,
     searchEmpty,
+    filtersActive,
     applySearch,
     clearSearch,
     draft,

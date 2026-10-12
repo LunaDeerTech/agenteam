@@ -35,25 +35,29 @@ func TestTaskSearchWeb(t *testing.T) {
 }
 
 type taskSearchWeb struct {
-	shell      *taskReviewWeb
-	domain     *taskTransitionFixture
-	target     wc.Task
-	foreign    wc.Task
-	first      []wc.TaskID
-	terms      []string
-	before     []byte
-	completed  map[string]map[wc.TaskState]int
-	detailRead int
+	shell          *taskReviewWeb
+	domain         *taskTransitionFixture
+	target         wc.Task
+	foreign        wc.Task
+	typeDecoy      wc.Task
+	priorityDecoy  wc.Task
+	filteredCursor string
+	cursorPages    int
+	first          []wc.TaskID
+	terms          []string
+	before         []byte
+	completed      map[string]map[wc.TaskState]int
+	detailRead     int
 }
 
 func newTaskSearchWeb(t *testing.T, d *taskTransitionFixture) *taskSearchWeb {
 	t.Helper()
 	w := &taskSearchWeb{domain: d, terms: []string{"TitleNeedle_%", "DescriptionNeedle_%", "PlanNeedle_%"}, completed: make(map[string]map[wc.TaskState]int)}
-	create := func(project wc.ProjectID, sprint wc.SprintID, key, title, description, plan string) wc.Task {
+	create := func(project wc.ProjectID, sprint wc.SprintID, key, title, description, plan string, priority wc.TaskPriority, typ wc.TaskType) wc.Task {
 		t.Helper()
 		result, err := d.tasks.CreateTask(ctxFor(t), d.base.ownerBrowser.actor, meta(t, key, nil), project, wc.TaskCreate{
 			TaskID: id[wc.Task](t), SprintID: sprint, Title: title, Description: description, Plan: plan,
-			Type: wc.TaskTypeTask, Priority: wc.TaskPriorityMedium,
+			Type: typ, Priority: priority,
 		})
 		firstRoundRequire(t, err)
 		if result.Validate() != nil || !result.Changed || result.Task.State != wc.TaskStateBacklog || result.Task.Version != 1 {
@@ -61,13 +65,17 @@ func newTaskSearchWeb(t *testing.T, d *taskTransitionFixture) *taskSearchWeb {
 		}
 		return result.Task.Clone()
 	}
-	// One original Task plus fifty ordinary writes put the appended target
-	// beyond the UI's first fifty. The actual Reader below verifies that fact.
-	for n := 0; n < 49; n++ {
-		create(d.task.ProjectID, d.task.SprintID, fmt.Sprintf("search-filler-%02d", n), fmt.Sprintf("Search filler %02d", n), "Ordinary Task description", "Ordinary Task plan")
+	// Fifty matching committed rows put the target beyond both the unfiltered
+	// and the high/bug first page; changing draft controls must not change the
+	// already applied cursor's binding. Expected IDs come from original writes.
+	for n := 0; n < 50; n++ {
+		row := create(d.task.ProjectID, d.task.SprintID, fmt.Sprintf("search-filler-%02d", n), fmt.Sprintf("Search filler %02d", n), "Ordinary Task description", "Ordinary Task plan", wc.TaskPriorityHigh, wc.TaskTypeBug)
+		w.first = append(w.first, row.ID)
 	}
-	create(d.task.ProjectID, d.task.SprintID, "search-literal-decoy", "TitleNeedleXY wildcard decoy", "DescriptionNeedleXY", "PlanNeedleXY")
-	w.target = create(d.task.ProjectID, d.task.SprintID, "search-target", w.terms[0]+" outside the first page", w.terms[1]+" in the stored description", w.terms[2]+" in the stored plan")
+	create(d.task.ProjectID, d.task.SprintID, "search-literal-decoy", "TitleNeedleXY wildcard decoy", "DescriptionNeedleXY", "PlanNeedleXY", wc.TaskPriorityMedium, wc.TaskTypeTask)
+	w.target = create(d.task.ProjectID, d.task.SprintID, "search-target", w.terms[0]+" outside the first page", w.terms[1]+" in the stored description", w.terms[2]+" in the stored plan", wc.TaskPriorityHigh, wc.TaskTypeBug)
+	w.typeDecoy = create(d.task.ProjectID, d.task.SprintID, "search-type-decoy", w.terms[0]+" other type", w.terms[1], w.terms[2], wc.TaskPriorityHigh, wc.TaskTypeFeature)
+	w.priorityDecoy = create(d.task.ProjectID, d.task.SprintID, "search-priority-decoy", w.terms[0]+" other priority", w.terms[1], w.terms[2], wc.TaskPriorityLow, wc.TaskTypeBug)
 	backlog := wc.TaskStateBacklog
 	page, err := d.taskReader.ListTasks(ctxFor(t), d.base.ownerBrowser.actor, d.task.ProjectID,
 		wc.TaskFilter{SprintID: &d.task.SprintID, State: &backlog}, f.PageRequest{Limit: 50})
@@ -75,11 +83,10 @@ func newTaskSearchWeb(t *testing.T, d *taskTransitionFixture) *taskSearchWeb {
 	if len(page.Items) != 50 || page.NextCursor == "" {
 		t.Fatal("search fixture must have a real second Task page")
 	}
-	for _, row := range page.Items {
-		if row.ID == w.target.ID {
+	for n, row := range page.Items {
+		if row.ID == w.target.ID || row.ID != w.first[n] {
 			t.Fatal("search target unexpectedly appears on the first page")
 		}
-		w.first = append(w.first, row.ID)
 	}
 	// Another real project owned by the same Human contains the identical
 	// keywords. Search must retain the selected Project/Sprint boundary.
@@ -90,7 +97,7 @@ func newTaskSearchWeb(t *testing.T, d *taskTransitionFixture) *taskSearchWeb {
 	sprint := wc.CreateSprintRequest{SprintID: id[pc.Sprint](t), MilestoneID: milestone.MilestoneID, Title: "Other search sprint", Description: "Must not leak into the selected Sprint"}
 	_, err = d.structure.CreateSprint(ctxFor(t), d.base.ownerBrowser.actor, meta(t, "search-other-sprint", nil), other.ID, sprint)
 	firstRoundRequire(t, err)
-	w.foreign = create(other.ID, sprint.SprintID, "search-foreign-target", "Other Project "+w.terms[0], w.terms[1], w.terms[2])
+	w.foreign = create(other.ID, sprint.SprintID, "search-foreign-target", "Other Project "+w.terms[0], w.terms[1], w.terms[2], wc.TaskPriorityHigh, wc.TaskTypeBug)
 	w.before, err = w.facts(ctxFor(t))
 	firstRoundRequire(t, err)
 	ready := make(chan struct{})
@@ -102,7 +109,8 @@ func newTaskSearchWeb(t *testing.T, d *taskTransitionFixture) *taskSearchWeb {
 			return map[string]any{"mode": taskSearchMode, "cookie": d.base.ownerBrowser.cookie,
 				"project_id": d.task.ProjectID, "sprint_id": d.task.SprintID, "target": w.target,
 				"foreign_id": w.foreign.ID, "first_ids": w.first, "terms": w.terms,
-				"route": "/" + username + "/" + d.base.project.NormalizedName + "/tasks"}
+				"text_ids": []wc.TaskID{w.target.ID, w.typeDecoy.ID, w.priorityDecoy.ID},
+				"route":    "/" + username + "/" + d.base.project.NormalizedName + "/tasks"}
 		},
 	})
 	close(ready)
@@ -117,17 +125,29 @@ func (w *taskSearchWeb) observe(r *http.Request) error {
 		return nil
 	}
 	q := r.URL.Query()
-	if q.Get("sprint_id") != w.target.SprintID.String() || q.Get("limit") != "50" || q.Has("cursor") || wc.TaskState(q.Get("state")).Validate() != nil {
+	if q.Get("sprint_id") != w.target.SprintID.String() || q.Get("limit") != "50" || wc.TaskState(q.Get("state")).Validate() != nil {
 		return errors.New("search lost its exact Sprint, state or first-page budget")
 	}
 	for key, values := range q {
-		if len(values) != 1 || (key != "sprint_id" && key != "state" && key != "limit" && key != "text") {
+		if len(values) != 1 || (key != "sprint_id" && key != "state" && key != "limit" && key != "text" && key != "priority" && key != "type" && key != "cursor") {
 			return errors.New("search supplied an unexpected or duplicate query field")
 		}
 	}
 	text := q.Get("text")
 	if q.Has("text") && text != w.terms[0] && text != w.terms[1] && text != w.terms[2] && text != strings.ToLower(w.terms[0]) {
 		return errors.New("search changed the literal keyword")
+	}
+	priority, typ := q.Get("priority"), q.Get("type")
+	if !((priority == "" && typ == "" && !q.Has("priority") && !q.Has("type")) || (priority == "high" && typ == "bug") || (priority == "low" && typ == "feature")) {
+		return errors.New("search changed the applied enum pair")
+	}
+	if q.Has("cursor") {
+		w.shell.mu.Lock()
+		cursor := w.filteredCursor
+		w.shell.mu.Unlock()
+		if text != "" || priority != "high" || typ != "bug" || q.Get("state") != "backlog" || cursor == "" || q.Get("cursor") != cursor {
+			return errors.New("search cursor did not retain its original applied filters")
+		}
 	}
 	return nil
 }
@@ -152,10 +172,12 @@ func (w *taskSearchWeb) response(r *http.Response) error {
 	}
 	var page struct {
 		Items []struct {
-			ID        wc.TaskID    `json:"id"`
-			ProjectID wc.ProjectID `json:"project_id"`
-			SprintID  wc.SprintID  `json:"sprint_id"`
-			State     wc.TaskState `json:"state"`
+			ID        wc.TaskID       `json:"id"`
+			ProjectID wc.ProjectID    `json:"project_id"`
+			SprintID  wc.SprintID     `json:"sprint_id"`
+			State     wc.TaskState    `json:"state"`
+			Priority  wc.TaskPriority `json:"priority"`
+			Type      wc.TaskType     `json:"type"`
 		} `json:"items"`
 		Next string `json:"next_cursor"`
 	}
@@ -164,29 +186,45 @@ func (w *taskSearchWeb) response(r *http.Response) error {
 	}
 	q := r.Request.URL.Query()
 	text, state := q.Get("text"), wc.TaskState(q.Get("state"))
+	priority, typ := q.Get("priority"), q.Get("type")
 	ids := make([]wc.TaskID, 0, len(page.Items))
 	for _, row := range page.Items {
-		if row.ProjectID != w.target.ProjectID || row.SprintID != w.target.SprintID || row.State != state || row.ID == w.foreign.ID {
+		if row.ProjectID != w.target.ProjectID || row.SprintID != w.target.SprintID || row.State != state || row.ID == w.foreign.ID || (priority != "" && string(row.Priority) != priority) || (typ != "" && string(row.Type) != typ) {
 			return errors.New("search crossed the original Project or Sprint")
 		}
 		ids = append(ids, row.ID)
 	}
-	want := []wc.TaskID{}
+	want, next := []wc.TaskID{}, false
 	if state == wc.TaskStateBacklog {
-		if text == "" {
-			want = w.first
-		} else if text != strings.ToLower(w.terms[0]) {
+		switch {
+		case q.Has("cursor"):
 			want = []wc.TaskID{w.target.ID}
+		case priority == "low" && typ == "feature":
+		case text == "":
+			want, next = w.first, true
+		case text != strings.ToLower(w.terms[0]):
+			want = []wc.TaskID{w.target.ID}
+			if priority == "" {
+				want = append(want, w.typeDecoy.ID, w.priorityDecoy.ID)
+			}
 		}
 	}
-	if !reflect.DeepEqual(ids, want) || ((page.Next != "") != (state == wc.TaskStateBacklog && text == "")) {
-		return errors.New("server search did not return the independent expected page")
+	if !reflect.DeepEqual(ids, want) || ((page.Next != "") != next) {
+		return errors.New("server filters did not return the independent expected page")
 	}
 	w.shell.mu.Lock()
-	if w.completed[text] == nil {
-		w.completed[text] = make(map[wc.TaskState]int)
+	if q.Has("cursor") {
+		w.cursorPages++
+	} else {
+		if state == wc.TaskStateBacklog && text == "" && priority == "high" && typ == "bug" {
+			w.filteredCursor = page.Next
+		}
+		key := text + "|" + priority + "|" + typ
+		if w.completed[key] == nil {
+			w.completed[key] = make(map[wc.TaskState]int)
+		}
+		w.completed[key][state]++
 	}
-	w.completed[text][state]++
 	w.shell.mu.Unlock()
 	return nil
 }
@@ -211,7 +249,14 @@ func (w *taskSearchWeb) verify(t *testing.T) {
 	if w.detailRead == 0 {
 		t.Fatal("browser did not read the actual matching Task detail")
 	}
-	for _, term := range append(append([]string{""}, w.terms...), strings.ToLower(w.terms[0])) {
+	if w.cursorPages != 1 || w.filteredCursor == "" {
+		t.Fatal("browser did not consume the original filtered continuation")
+	}
+	queries := []string{"||", "|high|bug", w.terms[0] + "||", w.terms[0] + "|low|feature", strings.ToLower(w.terms[0]) + "|high|bug"}
+	for _, term := range w.terms {
+		queries = append(queries, term+"|high|bug")
+	}
+	for _, term := range queries {
 		for _, state := range []wc.TaskState{wc.TaskStateBacklog, wc.TaskStateTodo, wc.TaskStateInProgress, wc.TaskStateInReview, wc.TaskStateBlocked, wc.TaskStateDone, wc.TaskStateCancelled} {
 			if w.completed[term][state] == 0 {
 				t.Fatal("browser did not complete every server-filtered column")

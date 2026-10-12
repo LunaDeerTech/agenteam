@@ -17,8 +17,31 @@ import MilestoneEditForm from '../../components/work/MilestoneEditForm.vue'
 import SprintEditForm from '../../components/work/SprintEditForm.vue'
 import SprintCreateForm from '../../components/work/SprintCreateForm.vue'
 import { useProjectTasks } from '../../composables/useProjectTasks'
+const filterPriorities = [
+  { value: '', label: '全部优先级' },
+  { value: 'critical', label: '紧急' },
+  { value: 'high', label: '高' },
+  { value: 'medium', label: '中' },
+  { value: 'low', label: '低' },
+]
+const filterTypes = [
+  { value: '', label: '全部类型' },
+  { value: 'feature', label: '功能' },
+  { value: 'bug', label: '缺陷' },
+  { value: 'task', label: '任务' },
+  { value: 'spike', label: '调研' },
+  { value: 'chore', label: '维护' },
+]
 const owner = useProjectTasks(),
   state = owner.state
+function selectFilterPriority(value: string) {
+  if (filterPriorities.some((option) => option.value === value))
+    owner.search.priorityDraft = value as typeof owner.search.priorityDraft
+}
+function selectFilterType(value: string) {
+  if (filterTypes.some((option) => option.value === value))
+    owner.search.typeDraft = value as typeof owner.search.typeDraft
+}
 const sidebar = ref(false)
 const createButton = ref<{ $el: HTMLButtonElement } | null>(null)
 const startButton = ref<{ $el: HTMLButtonElement } | null>(null)
@@ -709,18 +732,56 @@ function returnToCreation() {
                   :readonly="owner.busy.value"
                 />
               </UiField>
+              <div class="task-search-properties">
+                <UiField v-slot="field" label="筛选优先级">
+                  <UiSelect
+                    :id="field.id"
+                    label="筛选优先级"
+                    :model-value="owner.search.priorityDraft"
+                    :options="filterPriorities"
+                    :disabled="owner.busy.value"
+                    @update:model-value="selectFilterPriority"
+                  />
+                </UiField>
+                <UiField v-slot="field" label="筛选类型">
+                  <UiSelect
+                    :id="field.id"
+                    label="筛选类型"
+                    :model-value="owner.search.typeDraft"
+                    :options="filterTypes"
+                    :disabled="owner.busy.value"
+                    @update:model-value="selectFilterType"
+                  />
+                </UiField>
+              </div>
               <div class="task-search-actions">
                 <UiButton type="submit" :disabled="owner.busy.value">搜索</UiButton>
                 <UiButton
-                  :disabled="owner.busy.value || (!owner.search.text && !owner.search.draft)"
+                  :disabled="
+                    owner.busy.value ||
+                    (!owner.filtersActive.value &&
+                      !owner.search.draft &&
+                      !owner.search.priorityDraft &&
+                      !owner.search.typeDraft)
+                  "
                   @click="owner.clearSearch()"
-                  >清除搜索</UiButton
+                  >清除筛选</UiButton
                 >
               </div>
             </form>
-            <p v-if="owner.search.text" class="task-search-status" role="status">
-              {{ owner.searchEmpty.value ? '没有匹配的任务，可清除搜索。' : '搜索结果' }}
-              <span>关键词：{{ owner.search.text }}</span>
+            <p v-if="owner.filtersActive.value" class="task-search-status" role="status">
+              {{ owner.searchEmpty.value ? '没有匹配的任务，可清除筛选。' : '筛选结果' }}
+              <span v-if="owner.search.text">关键词：{{ owner.search.text }}</span>
+              <span v-if="owner.search.priority"
+                >优先级：{{
+                  filterPriorities.find((option) => option.value === owner.search.priority)?.label
+                }}</span
+              >
+              <span v-if="owner.search.type"
+                >类型：{{
+                  filterTypes.find((option) => option.value === owner.search.type)?.label
+                }}</span
+              >
             </p>
             <TaskBoard
               :columns="owner.columns"
@@ -841,6 +902,13 @@ function returnToCreation() {
   flex: 1 1 260px;
   min-width: 0;
 }
+.task-search-properties {
+  flex: 1 1 320px;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--content-gap);
+}
 .task-search-actions {
   display: flex;
   flex-wrap: wrap;
@@ -848,6 +916,9 @@ function returnToCreation() {
   padding-top: 26px;
 }
 .task-search-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--content-gap);
   overflow-wrap: anywhere;
 }
 .sprint-heading {
