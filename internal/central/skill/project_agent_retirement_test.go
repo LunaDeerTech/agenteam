@@ -305,7 +305,7 @@ func TestProjectAgentRetirementSkillConfirmationAndOriginalReturn(t *testing.T) 
 }
 
 func TestProjectAgentRetirementSkillOnlyDisabledHead(t *testing.T) {
-	for _, mode := range []string{"disabled-head", "assignment-or-history", "foreign-head", "invalid-sequence", "enabled-grant", "original-scan-error", "delete-count-miss"} {
+	for _, mode := range []string{"disabled-head", "assignment-or-history", "foreign-head", "invalid-sequence", "enabled-without-grant", "original-scan-error", "delete-count-miss"} {
 		t.Run(mode, func(t *testing.T) {
 			a, s, ctx, c := retirementRefFixture(t)
 			r := c.Request
@@ -316,10 +316,9 @@ func TestProjectAgentRetirementSkillOnlyDisabledHead(t *testing.T) {
 			if mode == "invalid-sequence" {
 				seq = 2
 			}
-			if mode == "enabled-grant" {
+			if mode == "enabled-without-grant" {
 				enabled = true
 				assignment = retirementRefID[pc.Operation](t, 12).String()
-				total, initial = 1, 1
 			}
 			command := "original-agent-creation"
 			binding := "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"

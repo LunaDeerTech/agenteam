@@ -176,7 +176,11 @@ Project Delete 的内部清理与普通 Human 删除分开授权。本片仅在�
 
 首个可执行范围是：Execution owner 按 Agent 身份检查**全部状态历史均不存在**；无托管 Mount/Runner workspace；Skills 仅有真实创建生成的 disabled 初始 head，assignment 为零，且无 grant/change/delivery 或 Execution binding 历史。超出这些已实现 owner 形态返回 Busy/明确错误，不能仅凭活动索引空、disabled 标志或空 binding 集合代替退休。Tool、Mount、Model、Secret、Skills 五个真实引用 owner 即使对应选择为空也必须绑定并检查完整前像；不删除共享 Tool/Model/Secret 资源，不替代未来运行历史清理。
 
-已有 grant 的不可变触发器仍禁止 DELETE，包括 enabled 创建产生的首条 assignment；本片不绕过或修改历史迁移。紧随其后的缺口是 Project 永久清理专用的正式 grant 删除例外及 Skills owner 消费，需要新迁移和真实历史清理路径；当前有限成功不覆盖 enabled 或曾变更的 Agent。
+上述首片保留 enabled 初始 grant 的不可变 DELETE 拒绝，其结果不追认为支持 enabled。后继以新迁移 `00076` 和同一 Skills owner 增加有限例外：仅允许真实创建生成、仍 enabled、sequence=1、change_id/removed_at 均为空的唯一初始 grant；其 Project/Agent/Skill/assignment identity 与 created_at 必须匹配原 enabled 初始 head。先删除这条 grant，再删除原 head，精确影响行数各为一，均在原 Agent/引用/checkpoint 事务内。disabled 且零 assignment 的原路径继续保留。
+
+新数据库例外要求 current Project Delete 的 cleaning/domains、匹配 owner/version 的 operation、running claim 与已停止 participant、canonical Agent 缺席，以及全部 Execution、ingress 和后续 Skills 历史缺席。这些仅是额外状态约束，不能识别当前调用者的 process/attempt/fence，也不证明本事务刚删除 Agent；真正授权仍来自原同 Store 活 Tx、完整锁及私有 Applied witness。旧 `00067` 不改，其 DELETE 拒绝与 UPDATE 不可变保护在不符合新例外时原样执行。恢复确认仍拒绝任何残留 grant/head，不因本例外接受空引用作为许可。
+
+有 assignment command/change/current/pending、额外 grant、Execution binding 或 ingress 的 Agent 仍 Busy；本后继不删除这些历史，也不改变普通 Human 操作。下一缺口是由各真实 owner 在 Project 永久删除中收束变更及 ingress 历史，不能由 Skills 绕过触发器。此处仅冻结实施边界，真实新迁移与 enabled 路径结果以随后实际验收为准。
 
 Work 专用口在原同 Store 活 Tx、Project EX/Schedule EX/Agent EX 和私有 Agent prepared witness 下确认 Project 的不可逆删除门已关闭指派使用资格；本 Project 所有 terminal/nonterminal Task 的 assignee、状态、版本、事件与 receipt 均保持原值，不伪造 Unassign、cancelled 或 Work Cleanup。跨 Project 的异常引用拒绝。这个检查只能被同 Tx 的实际 Agent 退休消费，不能用于 Archive、普通 DeleteAgent 或单独授予运行/删除权限。
 
@@ -189,6 +193,12 @@ Project driver 持有原事务及 caller 的实际返回；取消、物理提交
 `5b26c570` 的 `TestProjectAgentRetirement` native02 三组实际通过（64.00s），原 Run/Node-free fixture/Store 与六项资源均已实际退出。正例只含 disabled 初始 head、零 assignment/变更历史、全状态 Execution 历史为空且无 managed Mount；真实 todo Task 的 assignee、版本和历史保留。原 Agent canonical、五域引用与 Project applied checkpoint 同事务退休，物理提交后的原 Store 返回屏障阻止 owner 提前退出；进程内实际 Committed 的 acknowledgement mask 返回 Unknown 后，仅原 operation/immutable command/完整 Before 摘要与各 owner 确认恢复，不重发退休。真实 enabled grant 仍返回 Busy，整笔 canonical/引用删除回滚。随后实际 Skills 清理可完成子域，母 participant 始终 pending/domains，不授完整 Delete 或默认 Registry。
 
 原 pure 首次 Secret 错误映射断言 FAIL 和 native01 三组 FAIL 保留；native01 仅记录 INTERNAL_ERROR/屏障未到，未保存 SQLSTATE，不能追认它们均由后续静态确定并修复的 Mount/Secret UUID–TEXT 比较缺陷造成。[修后实际结果](../../../output/ai/project-agent-retirement-delivery/native02/result.json)与[原 native01 日志](../../../output/ai/project-agent-retirement-delivery/native01/browser.log)分别保留；后继 enabled 初始 grant 的新迁移不计入本结果。
+
+### 4.3.2 初始 enabled grant 有限真实结果（2026-10-12）
+
+`f27e05fe` 的 `TestProjectAgentRetirement` native02 三组实际通过（50.45s），Go、原 fixture/supervisor 和六项资源均实际退出。真实存量在 75 版本创建 enabled seq1 Agent 与 Task，再升级 76 并重复迁移保持业务事实；普通 grant UPDATE/DELETE 及不满足清理条件的操作仍受保护。原同事务 canonical/五域引用/初始 grant-head/checkpoint 退休、原 Store 返回屏障及进程内 Committed acknowledgement mask 的 Unknown 恢复通过；正式 Assign 历史仍 Busy 并整笔回滚，母 participant 保持 pending/domains，不包含 00077 历史例外或完整 Delete。
+
+native01 为 whole FAIL：第一升级/保护组与第三历史 Busy 组通过，Unknown 组在后续 Skills 清理原返回等待处失败。native02 仅增加安全 round/return 诊断后通过，失败分支未触发，原失败原因仍未知，不能宣称已定位或修复。[本次实际结果](../../../output/ai/project-agent-initial-grant-retirement-delivery/native02/result.json)与[原失败日志](../../../output/ai/project-agent-initial-grant-retirement-delivery/native01/browser.log)分别保留。
 
 ## 5. F1 命令、历史与提交结果
 
