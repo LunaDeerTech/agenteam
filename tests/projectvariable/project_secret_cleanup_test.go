@@ -212,6 +212,13 @@ func (v *secretCleanupPG) secretCounts(t *testing.T) [6]int {
 	return n
 }
 
+func (v *secretCleanupPG) secretSnapshot(t *testing.T) string {
+	t.Helper()
+	var receipts string
+	outboxCleanupRequire(t, v.p2.base.raw.QueryRow(ctxFor(t), `SELECT COALESCE(jsonb_agg(to_jsonb(r) ORDER BY id),'[]')::text FROM agenteam_secret.secret_command_receipts r`).Scan(&receipts))
+	return v.variablesCleanupPG.d04Snapshot(t) + "\n" + receipts
+}
+
 func (v *secretCleanupPG) preservedSnapshot(t *testing.T) string {
 	t.Helper()
 	var raw string
@@ -313,10 +320,12 @@ func (v *secretCleanupPG) downstream(t *testing.T) (i.Actor, sc.LifecycleCause) 
 func (v *secretCleanupPG) refuseDirect(t *testing.T, ctx context.Context, code f.Code) {
 	t.Helper()
 	a, c := v.downstream(t)
-	before := v.d04Snapshot(t)
-	r, err := v.deps.d04.CleanupProject(ctx, a, c, v.p2.project.ID, nil)
+	run, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+	before := v.secretSnapshot(t)
+	r, err := v.deps.d04.CleanupProject(run, a, c, v.p2.project.ID, nil)
 	var problem *f.Fault
-	if !errors.As(err, &problem) || problem.Code != code || !reflect.DeepEqual(r, sc.CleanupReport{}) || v.d04Snapshot(t) != before {
+	if !errors.As(err, &problem) || problem.Code != code || !reflect.DeepEqual(r, sc.CleanupReport{}) || v.secretSnapshot(t) != before {
 		agentRetirementDiagnostic(t, "secret-direct-without-live-issuer", err)
 		t.Fatal("public lifecycle identity or empty rows bypassed the original Secret gate")
 	}
@@ -332,11 +341,11 @@ func (v *secretCleanupPG) finish(t *testing.T, d *project.LifecycleCleanupDriver
 	}
 	v.state(t, "completed", "terminal")
 	v.refuseDirect(t, context.Background(), f.InvalidState)
-	before, calls := v.d04Snapshot(t), v.secret.calls.Load()
+	before, calls := v.secretSnapshot(t), v.secret.calls.Load()
 	call = v.run(t, d)
 	outboxCleanupWait(t, call.done, "original completed Secret replay")
 	outboxCleanupRequire(t, call.err)
-	if v.secret.calls.Load() != calls || v.d04Snapshot(t) != before {
+	if v.secret.calls.Load() != calls || v.secretSnapshot(t) != before {
 		t.Fatal("completed Secret replay reinvoked or changed its provider")
 	}
 	v.state(t, "completed", "terminal")
@@ -416,20 +425,20 @@ func testProjectSecretCleanupUnknown(t *testing.T) {
 	store.mu.Unlock()
 	call := v.run(t, d)
 	outboxCleanupWait(t, call.done, "original D04 local acknowledgement Unknown")
-	var problem *f.Fault
+	var problem, providerFault *f.Fault
 	v.secret.mu.Lock()
 	providerErr, report := v.secret.err, v.secret.report
 	v.secret.mu.Unlock()
-	if !masked.Load() || !v.matches(original) || deletes.Load() <= 0 || !errors.As(call.err, &problem) || problem.Code != f.CommitUnknown || problem.CommitState != f.Unknown || problem.CauseID != attempt.String() || !errors.Is(call.err, providerErr) || report.Details().State != "" {
+	if !masked.Load() || !v.matches(original) || deletes.Load() <= 0 || !errors.As(call.err, &problem) || problem.Code != f.CommitUnknown || problem.CommitState != f.Unknown || problem.CauseID != attempt.String() || !errors.As(providerErr, &providerFault) || problem != providerFault || report.Details().State != "" {
 		agentRetirementDiagnostic(t, "secret-original-unknown", call.err)
 		t.Fatal("D04 Unknown lost its exact original attempt/cause or exposed progress")
 	}
 	if v.secretCounts(t) != [6]int{2, 1, 0, 3, 0, 0} {
 		t.Fatal("Unknown projection changed the original physical head deletion")
 	}
-	v.state(t, "required", "terminal")
+	v.state(t, "required", "running")
 	v.clearHooks()
-	before := v.d04Snapshot(t)
+	before := v.secretSnapshot(t)
 	deletes = v.observeDeletes(t)
 	v.barrier = newSchedulerStopBarrier()
 	defer v.barrier.open()
@@ -449,7 +458,7 @@ func testProjectSecretCleanupUnknown(t *testing.T) {
 	case <-time.After(5 * time.Second):
 		t.Fatal("original Secret confirmation barrier not reached")
 	}
-	if deletes.Load() != 0 || v.d04Snapshot(t) != before {
+	if deletes.Load() != 0 || v.secretSnapshot(t) != before {
 		t.Fatal("Unknown confirmation performed deletion or changed original ciphertext metadata")
 	}
 	v.state(t, "required", "running")
@@ -459,7 +468,7 @@ func testProjectSecretCleanupUnknown(t *testing.T) {
 	outboxCleanupRequire(t, call.err)
 	v.clearHooks()
 	v.state(t, "pending", "terminal")
-	if v.d04Snapshot(t) != before {
+	if v.secretSnapshot(t) != before {
 		t.Fatal("read-only confirmation changed its retained remainder")
 	}
 	v.secret.mu.Lock()
@@ -475,12 +484,12 @@ func testProjectSecretCleanupReference(t *testing.T) {
 	v := newSecretCleanupPG(t, 1, true)
 	d := v.driver(t)
 	v.ready(t, d)
-	before, counts := v.d04Snapshot(t), v.secretCounts(t)
+	before, counts := v.secretSnapshot(t), v.secretCounts(t)
 	deletes := v.observeDeletes(t)
 	call := v.run(t, d)
 	outboxCleanupWait(t, call.done, "actual formal Provider reference Pending")
 	outboxCleanupRequire(t, call.err)
-	if deletes.Load() != 0 || v.secretCounts(t) != counts || v.d04Snapshot(t) != before {
+	if deletes.Load() != 0 || v.secretCounts(t) != counts || v.secretSnapshot(t) != before {
 		t.Fatal("Secret cleanup ignored its real Provider-owned Project reference")
 	}
 	v.clearHooks()
