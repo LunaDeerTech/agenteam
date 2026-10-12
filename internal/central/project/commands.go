@@ -58,7 +58,7 @@ func semanticReplay(cmd *commandRecord, actor identity.Actor, d foundation.Diges
 	return nil, nil
 }
 func (s *Service) UpdateProject(ctx context.Context, actor identity.Actor, meta foundation.CommandMeta, id c.ProjectID, request c.UpdateProjectRequest) (c.ProjectRef, error) {
-	ctx, done, e := s.begin(ctx)
+	ctx, done, e := s.begin(ctx, id)
 	if e != nil {
 		return c.ProjectRef{}, e
 	}

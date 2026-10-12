@@ -90,6 +90,9 @@ type variableHTTPFixture struct {
 	afterOwners func()
 	// Only the Artifact cleanup fixture opts into its real additional providers.
 	artifactAssembly *artifactCleanupPGAssembly
+	// Only the finalizer slice opts into formal Delete acceptance on the
+	// original creator and its concrete lifecycle/process authorities.
+	finalizerAssembly *projectFinalizePGAssembly
 
 	db                                       *pgfixture.Database
 	raw                                      *postgres.Store

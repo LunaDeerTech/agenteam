@@ -27,6 +27,7 @@ type lifecycleCleanupOwner struct {
 	claim    *lifecycleStopClaim // retained only after its original Run returned
 	prior    *lifecycleStopClaim // an Unknown replacement may have kept this row
 	terminal *lifecycleCleanupRound
+	final    *lifecycleFinalizeRound
 }
 
 type lifecycleCleanupState struct {
@@ -44,6 +45,7 @@ type lifecycleCleanupState struct {
 	terminalAgents    ac.ProjectTerminalCleanupDomain
 	terminalVariables c.ProjectTerminalCleanupDomain
 	registration      identity.ServiceRegistration
+	finalizer         *Service
 	mu                sync.Mutex
 	stopped           bool
 	calls             map[c.ProjectID]context.CancelFunc
@@ -89,9 +91,15 @@ func (d *LifecycleCleanupDriver) Run(ctx context.Context, project c.ProjectID, o
 		return portError(err)
 	}
 	st := d.state
+	var retainedFinal *lifecycleFinalizeRound
+	if st.finalizer != nil {
+		st.mu.Lock()
+		retainedFinal = st.owners[operation].final
+		st.mu.Unlock()
+	}
 	// The original authority owns this short-lived admission across driver
 	// instances, including the final Store return after physical COMMIT.
-	release, err := st.authority.beginCleanupCall(ctx, project)
+	release, err := st.authority.beginCleanupCall(ctx, project, retainedFinal)
 	if err != nil {
 		return err
 	}
@@ -114,12 +122,19 @@ func (d *LifecycleCleanupDriver) Run(ctx context.Context, project c.ProjectID, o
 	}
 	st.mu.Unlock()
 	var round *lifecycleCleanupRound
+	var final *lifecycleFinalizeRound
 	settled := false
 	defer func() {
 		cancel()
+		if settled {
+			st.authority.releaseFinalize(final)
+		}
 		st.mu.Lock()
-		if settled || round == nil && !owned {
+		if settled || st.finalizer != nil && final == nil || round == nil && final == nil && !owned {
 			delete(st.owners, operation)
+		} else if final != nil {
+			claim := final.claim
+			st.owners[operation] = lifecycleCleanupOwner{project: project, claim: &claim, final: final}
 		} else if round != nil {
 			claim := round.claim
 			owner := lifecycleCleanupOwner{project: project, claim: &claim, prior: round.previous}
@@ -134,6 +149,11 @@ func (d *LifecycleCleanupDriver) Run(ctx context.Context, project c.ProjectID, o
 		st.changed = make(chan struct{})
 		st.mu.Unlock()
 	}()
+	if st.finalizer != nil {
+		final = old.final
+		final, settled, err = st.runFinalize(run, project, operation, final)
+		return err
+	}
 	var replay bool
 	round, replay, err = st.start(run, project, operation)
 	if err != nil {

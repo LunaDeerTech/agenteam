@@ -75,6 +75,16 @@ func (s *Service) joined(attempt string) {
 	st.joined[attempt] = true
 	st.mu.Unlock()
 }
+
+func (s *Service) creationReturned(ctx context.Context, attempt string) {
+	st := s.state()
+	call, _ := ctx.Value(projectServiceCallKey{}).(*call)
+	st.mu.Lock()
+	defer st.mu.Unlock()
+	if _, active := st.calls[call]; active && call != nil {
+		call.creationReturns = append(call.creationReturns, attempt)
+	}
+}
 func (s *Service) claimCanJoin(ctx context.Context, claim *workClaim) error {
 	if claim == nil || claim.phase == "terminal" {
 		return nil
