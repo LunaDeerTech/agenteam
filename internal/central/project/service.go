@@ -49,9 +49,12 @@ type serviceState struct {
 	joined           map[string]bool
 }
 type call struct {
-	ctx    context.Context
-	cancel context.CancelFunc
+	ctx             context.Context
+	cancel          context.CancelFunc
+	creationReturns []string
 }
+
+type projectServiceCallKey struct{}
 
 func sameStore(a, b Store) bool {
 	return reflect.TypeOf(a) == reflect.TypeOf(b) && reflect.TypeOf(a).Comparable() && a == b
@@ -88,10 +91,26 @@ func (s *Service) state() *serviceState {
 	}
 	return s.data()
 }
-func (s *Service) begin(ctx context.Context) (context.Context, func(), error) {
+func (s *Service) begin(ctx context.Context, projects ...c.ProjectID) (context.Context, func(), error) {
 	st := s.state()
 	if st == nil {
 		return nil, nil, fault(foundation.DependencyUnbound)
+	}
+	// Targeted mutations and final registration share this admission lock.
+	// The original call remains registered through every outer return tail;
+	// cancellation and a terminal command row do not remove it.
+	var admission *lifecycleCleanupCalls
+	if len(projects) == 1 && st.deps.Authority.state() != nil {
+		if lifecycle, ok := st.deps.Authority.state().lifecycle.(*LifecycleAuthority); ok && lifecycle != nil {
+			admission = &lifecycle.cleanupCalls
+		}
+	}
+	if admission != nil {
+		admission.mu.Lock()
+		defer admission.mu.Unlock()
+		if admission.finals[projects[0]] != nil {
+			return nil, nil, fault(foundation.ResourceBusy)
+		}
 	}
 	st.mu.Lock()
 	defer st.mu.Unlock()
@@ -99,14 +118,31 @@ func (s *Service) begin(ctx context.Context) (context.Context, func(), error) {
 		return nil, nil, fault(foundation.ShuttingDown)
 	}
 	run, cancel := context.WithCancel(ctx)
-	c := &call{run, cancel}
-	st.calls[c] = struct{}{}
+	invocation := &call{ctx: run, cancel: cancel}
+	run = context.WithValue(run, projectServiceCallKey{}, invocation)
+	st.calls[invocation] = struct{}{}
+	if admission != nil {
+		if admission.projectCalls == nil {
+			admission.projectCalls = make(map[*call]c.ProjectID)
+		}
+		admission.projectCalls[invocation] = projects[0]
+	}
 	var once sync.Once
 	done := func() {
 		once.Do(func() {
 			cancel()
+			if admission != nil {
+				admission.mu.Lock()
+				defer admission.mu.Unlock()
+			}
 			st.mu.Lock()
-			delete(st.calls, c)
+			for _, attempt := range invocation.creationReturns {
+				st.joined[attempt] = true
+			}
+			delete(st.calls, invocation)
+			if admission != nil {
+				delete(admission.projectCalls, invocation)
+			}
 			close(st.changed)
 			st.changed = make(chan struct{})
 			st.mu.Unlock()

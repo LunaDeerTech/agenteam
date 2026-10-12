@@ -12,7 +12,7 @@ import (
 )
 
 func (s *Service) BeginArchive(ctx context.Context, actor identity.Actor, meta foundation.CommandMeta, project c.ProjectID) (c.LifecycleOperation, error) {
-	ctx, done, err := s.begin(ctx)
+	ctx, done, err := s.begin(ctx, project)
 	if err != nil {
 		return c.LifecycleOperation{}, err
 	}
@@ -35,7 +35,7 @@ func (s *Service) BeginArchive(ctx context.Context, actor identity.Actor, meta f
 }
 
 func (s *Service) BeginDeleteProject(ctx context.Context, actor identity.Actor, meta foundation.CommandMeta, project c.ProjectID, request c.DeleteProjectRequest) (c.LifecycleResult, error) {
-	ctx, done, err := s.begin(ctx)
+	ctx, done, err := s.begin(ctx, project)
 	if err != nil {
 		return c.LifecycleResult{}, err
 	}
