@@ -39,6 +39,8 @@ func (c *Client) connectionHello(id p.ID, version string) p.Hello {
 		hello.Capabilities = []string{p.ReadFileOperation}
 	case writeFileExecutor:
 		hello.Capabilities = []string{p.WriteFileOperation}
+	case runCommandExecutor:
+		hello.Capabilities = []string{p.RunCommandOperation}
 	case directoryExecutor:
 		hello.Capabilities = []string{p.ListDirectoryOperation, p.FindFilesOperation}
 	}

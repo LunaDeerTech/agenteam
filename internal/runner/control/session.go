@@ -255,6 +255,17 @@ func (s *session) reject(request p.Request, code p.Code) error {
 func (s *session) stream(ctx context.Context, active *activeRequest, request p.Request, stream, data string) (result error) {
 	active.mu.Lock()
 	defer active.mu.Unlock()
+	if _, command := s.executor.(commandTailAdmission); command && !active.terminal && !active.streamFailed && ctx.Err() != nil {
+		select {
+		case <-s.wire.stopCh:
+			// A known wire failure is not a command cancellation exception.
+		default:
+			// This cancelled tail has not reached the queue. Preserve sequence
+			// and wire state; Handler records incomplete output and still joins
+			// the original child. All actual send errors retain the old path.
+			return errCommandTailCancelled
+		}
+	}
 	defer func() {
 		if result != nil {
 			active.streamFailed = true
