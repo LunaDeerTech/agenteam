@@ -50,6 +50,7 @@ description: 在 agenteam 新建或恢复测试 harness、真实数据库和进�
 
 真实 PG 的 seed 每个公开 API 失败都带固定 stage，并复用现有 safeFault 诊断，不输出凭据或内容；断言 Joined 等观测前先核清其全局或项目作用域及实际返回语义；验证某步零新增时比较同一原事务内的前后差值，不用累计绝对计数代替。
 DB 内部 Tx context 不等于外层业务调用 context，原返回屏障须观测对应调用。相同 Cause 可跨 lookup 与 mutation，hook 必须核实际阶段 tuple；仅合法未匹配阶段可跳过，SQL 错误或错误 tuple 不能吞掉。
+数据库快照与参数转换须逐目标表核当前 schema/domain 定义，不可跨模块类推 safe_id 类型。
 
 先确认选择器确实命中预期场景，再运行适用子集；`--list`、编译成功、`no tests to run` 和 skipped 不记作行为通过。相关输入及依赖未变时复用已有结果，修复后补跑受影响检查，不用放宽断言、加长预算或重试次数掩盖失败。
 

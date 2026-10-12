@@ -37,7 +37,7 @@ func (s *agentPreparationScope) borrowSchedulerStop(ctx context.Context) (*sched
 	}
 	// Only the original step may start an independent control. A saved loan
 	// cannot revive its ancestor scope, even through context.WithoutCancel.
-	if ctx.Value(agentPreparationLoanKey{}) != nil || ctx.Value(schedulerStopLoanKey{}) != nil || ctx.Value(executionStopLoanKey{}) != nil || ctx.Value(artifactSourceStopLoanKey{}) != nil {
+	if ctx.Value(agentPreparationLoanKey{}) != nil || ctx.Value(schedulerStopLoanKey{}) != nil || ctx.Value(executionStopLoanKey{}) != nil || ctx.Value(artifactSourceStopLoanKey{}) != nil || ctx.Value(workStopLoanKey{}) != nil {
 		return nil, fault(f.Forbidden)
 	}
 	if s.schedulerStops == nil {

@@ -86,6 +86,13 @@ func (s *Service) execute(ctx context.Context, actor i.Actor, meta f.CommandMeta
 		return c.StructureMutation{}, err
 	}
 	lookup := c.CommandLookupRequest{ProjectID: in.Project, Command: in.Command, Key: key, Semantic: semantic}
+	entry.project, entry.class = in.Project, projectCallMutation
+	if owned := s.state().ownership; owned != nil {
+		ctx, err = owned.admit(ctx, entry, actor, projectCallStructure)
+		if err != nil {
+			return c.StructureMutation{}, err
+		}
+	}
 	for round := 0; round < 3; round++ {
 		var prepared *commandRecord
 		var completed *c.StructureMutation
@@ -245,6 +252,11 @@ func (s *Service) execute(ctx context.Context, actor i.Actor, meta f.CommandMeta
 // Read authorization deliberately precedes receipt identity and every new-write
 // check. Completed history never needs the target to remain at its old version.
 func (s *Service) current(ctx context.Context, tx f.Tx, actor i.Actor, q c.CommandLookupRequest) (postgres.SQLExecutor, pc.ProjectRef, *commandRecord, *c.StructureMutation, error) {
+	if owned := s.state().ownership; owned != nil {
+		if err := owned.requireRunning(ctx, tx, q.ProjectID, projectCallStructure); err != nil {
+			return nil, pc.ProjectRef{}, nil, nil, err
+		}
+	}
 	x, err := s.state().store.InTx(tx)
 	if err != nil {
 		return nil, pc.ProjectRef{}, nil, nil, portError(err)
@@ -291,11 +303,18 @@ func (s *Service) LookupCommand(ctx context.Context, actor i.Actor, q c.CommandL
 	if err := q.Validate(); err != nil {
 		return c.CommandLookup{}, err
 	}
-	ctx, _, done, err := s.begin(ctx)
+	ctx, entry, done, err := s.begin(ctx)
 	if err != nil {
 		return c.CommandLookup{}, err
 	}
 	defer done()
+	entry.project, entry.class = q.ProjectID, projectCallRead
+	if owned := s.state().ownership; owned != nil {
+		ctx, err = owned.admit(ctx, entry, actor, projectCallStructure)
+		if err != nil {
+			return c.CommandLookup{}, err
+		}
+	}
 	return s.lookup(ctx, actor, q)
 }
 func (s *Service) lookup(ctx context.Context, actor i.Actor, q c.CommandLookupRequest) (c.CommandLookup, error) {
@@ -345,7 +364,18 @@ func (s *Service) confirmUnknown(ctx context.Context, entry *call, actor i.Actor
 		cancel()
 	}
 	st.mu.Unlock()
-	defer func() { cancel(); st.mu.Lock(); delete(entry.confirmations, token); st.mu.Unlock() }()
+	if st.ownership != nil {
+		st.ownership.confirmation(entry, token, true)
+	}
+	defer func() {
+		cancel()
+		if st.ownership != nil {
+			st.ownership.confirmation(entry, token, false)
+		}
+		st.mu.Lock()
+		delete(entry.confirmations, token)
+		st.mu.Unlock()
+	}()
 	value, err := s.lookup(confirm, actor, q)
 	if err != nil {
 		return c.StructureMutation{}, txError(original)

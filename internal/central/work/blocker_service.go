@@ -18,12 +18,13 @@ type BlockerDependencies struct {
 }
 type BlockerService struct{ data func() *blockerServiceState }
 type blockerServiceState struct {
-	store   Store
-	deps    BlockerDependencies
-	mu      sync.Mutex
-	stopped bool
-	calls   map[*call]struct{}
-	changed chan struct{}
+	ownership *projectCallOwnershipState
+	store     Store
+	deps      BlockerDependencies
+	mu        sync.Mutex
+	stopped   bool
+	calls     map[*call]struct{}
+	changed   chan struct{}
 }
 
 func NewBlocker(store Store, deps BlockerDependencies) (*BlockerService, error) {
@@ -61,12 +62,18 @@ func (s *BlockerService) begin(ctx context.Context) (context.Context, *call, fun
 	var once sync.Once
 	done := func() {
 		once.Do(func() {
+			if st.ownership != nil {
+				st.ownership.finish(entry)
+			}
 			cancel()
 			st.mu.Lock()
 			delete(st.calls, entry)
 			close(st.changed)
 			st.changed = make(chan struct{})
 			st.mu.Unlock()
+			if st.ownership != nil {
+				st.ownership.returned(entry)
+			}
 		})
 	}
 	return run, entry, done, nil
@@ -95,6 +102,9 @@ func (s *BlockerService) Drain(ctx context.Context) error {
 		st.mu.Lock()
 		if len(st.calls) == 0 {
 			st.mu.Unlock()
+			if st.ownership != nil && !st.ownership.laneJoined(projectCallBlocker) {
+				return st.ownership.drainReturned(ctx, projectCallBlocker)
+			}
 			return nil
 		}
 		changed := st.changed

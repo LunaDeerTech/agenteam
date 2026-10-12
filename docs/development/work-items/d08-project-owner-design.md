@@ -243,6 +243,14 @@ Audit库与Secret库本身没有自主Project执行/外部业务worker：它们�
 
 ## 9. 既有依赖的真实适配与必需窄补
 
+### Work 显式调用归属与停止（限定范围）
+
+显式 Work 工厂绑定同 Store、原 ProcessGuard/process 和新实例身份，只拥有 structure、task、blocker、transition、sprint 五个原 Service 的完整公有调用。迁移 00080 的 project_calls 从 running 单调进入 business_closed，原命令、Audit/Event、确认及 Store 尾均须实际返回；closed 行、取消或空本地集合不能替代原返回。同进程未知实例仍 Pending，foreign 只接受原 ProcessGuard 停止证明并在原 Tx 重核精确集合；技术历史保留，本片不提供 Cleanup。
+
+Work Stop 仅消费原 LifecycleStopDriver 当前 invoke 的独立私有 loan；原同 Store Project EX 授权事务实际 Committed 返回后才能取消捕获的同 P 原调用，各后继 Tx 再核同一 active loan、exact claim/cause、完整冻结 manifest 和 work participant。Archive 只收 mutation，Delete 同时收 read，B 不受全局停止；父 scope 封闭后等待所有原 loan 实际返回，保存 context 不能跨 Agent、Scheduler、Execution 或 ArtifactSource 借权。独立 Reader 与调度借入 caller Tx 不在五 Service 停止结果内；owned 构造下 TransferTaskInTx 没有覆盖 caller Store 返回的原私有见证时拒绝，旧构造业务兼容。这里不默认绑定 App/部分 Registry，也不声称完整 Delete。
+
+`f46591b9` 的 `TestProjectWorkStop` native02 三组实际通过（42.96s）：五个显式 lane 的真实命令、79→80/repeat、原 Store 返回屏障与 B 可用；技术 Unknown 保留原 attempt/cause，后继同 Tx 零写确认实际返回后下一显式调用才关闭；Archive 保留原 read/已完成重放并拒新 mutation。基础 33 top/75 sub 与两包 vet 通过，原 Wait 和六项资源均已清退，见[结果](../../../output/ai/project-work-stop-delivery/native02/result.json)与[日志](../../../output/ai/project-work-stop-delivery/native02/browser.log)。原 basic01/02 FAIL、native01 三组 snapshot `42883` 保留；修复仅按 Work 各目标表实际 UUID 类型更正快照参数转换，不外推独立 Reader、调度 borrower、Work Cleanup、foreign death 或默认 App/完整 Delete。
+
 ### Variables metadata 子步骤（限定验收）
 
 固定 Agent→Skills 清理组合新增后继 Variables metadata 子步骤，由实际 `ProjectCallOwnership` 的 ordinary/Secret 双 lane 消费。每轮 provider 的原控制调用计入两 lane 的实际返回；不调用全局 Stop 影响另一 Project，也不在 cleaning 阶段借用仅 stopping 有效的旧 Stop 授权。每个原短事务先取得 Project EX，核同 Store/live Tx、完整 current Delete/manifest/domains 与该 driver 的独立 Variables 私有 claim scope；Agent/Skills/Outbox/Audit 或已结束 callback 不能借用。

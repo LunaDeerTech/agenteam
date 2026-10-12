@@ -71,6 +71,11 @@ func transitionRequest(ctx context.Context, actor i.Actor, meta f.CommandMeta, p
 	return in, q, nil
 }
 func (s *TaskTransitionService) transitionCurrent(ctx context.Context, tx f.Tx, actor i.Actor, q c.TaskTransitionLookupRequest) (postgres.SQLExecutor, *transitionRecord, *c.TaskTransitionMutation, error) {
+	if owned := s.state().ownership; owned != nil {
+		if err := owned.requireRunning(ctx, tx, q.ProjectID, projectCallTransition); err != nil {
+			return nil, nil, nil, err
+		}
+	}
 	x, err := s.state().store.InTx(tx)
 	if err != nil {
 		return nil, nil, nil, portError(err)
@@ -279,6 +284,14 @@ func (s *TaskTransitionService) PrepareTaskTransition(ctx context.Context, actor
 	if err != nil {
 		return c.TaskTransitionPreparation{}, err
 	}
+	// Preparation persists a planned command; it is a mutation call too.
+	entry.project, entry.class = p, projectCallMutation
+	if owned := s.state().ownership; owned != nil {
+		ctx, err = owned.admit(ctx, entry, actor, projectCallTransition)
+		if err != nil {
+			return c.TaskTransitionPreparation{}, err
+		}
+	}
 	for range 3 {
 		out, unknown, e := s.prepareTransition(ctx, actor, in, q)
 		if unknown != nil {
@@ -352,6 +365,12 @@ func (s *TaskTransitionService) transferTransitionInTx(ctx context.Context, tx f
 	return current.After.Clone(), nil
 }
 func (s *TaskTransitionService) TransferTaskInTx(ctx context.Context, tx f.Tx, actor i.Actor, p c.PreparedTaskTransition) (c.TaskTransitionMutation, error) {
+	// The borrowed transaction has no owned caller-return witness. Keep this
+	// legacy composition port closed on the explicitly owned service until its
+	// caller supplies that actual whole-call lifetime.
+	if st := s.state(); st != nil && st.ownership != nil {
+		return c.TaskTransitionMutation{}, fault(f.DependencyUnbound)
+	}
 	ctx, _, done, err := s.begin(ctx)
 	if err != nil {
 		return c.TaskTransitionMutation{}, err
@@ -372,6 +391,13 @@ func (s *TaskTransitionService) TransferTask(ctx context.Context, actor i.Actor,
 	in, q, err := transitionRequest(ctx, actor, meta, p, task, request)
 	if err != nil {
 		return c.TaskTransitionMutation{}, err
+	}
+	entry.project, entry.class = p, projectCallMutation
+	if owned := s.state().ownership; owned != nil {
+		ctx, err = owned.admit(ctx, entry, actor, projectCallTransition)
+		if err != nil {
+			return c.TaskTransitionMutation{}, err
+		}
 	}
 	id, _ := c.TaskTransitionIdentity(p, meta.IdempotencyKey)
 	for range 3 {
@@ -416,7 +442,7 @@ func (s *TaskTransitionService) TransferTask(ctx context.Context, actor i.Actor,
 	return c.TaskTransitionMutation{}, fault(f.ResourceBusy)
 }
 func (s *TaskTransitionService) LookupTaskTransition(ctx context.Context, actor i.Actor, q c.TaskTransitionLookupRequest) (c.TaskTransitionLookup, error) {
-	ctx, _, done, err := s.begin(ctx)
+	ctx, entry, done, err := s.begin(ctx)
 	if err != nil {
 		return c.TaskTransitionLookup{}, err
 	}
@@ -426,6 +452,13 @@ func (s *TaskTransitionService) LookupTaskTransition(ctx context.Context, actor 
 	}
 	if err = q.Validate(); err != nil {
 		return c.TaskTransitionLookup{}, err
+	}
+	entry.project, entry.class = q.ProjectID, projectCallRead
+	if owned := s.state().ownership; owned != nil {
+		ctx, err = owned.admit(ctx, entry, actor, projectCallTransition)
+		if err != nil {
+			return c.TaskTransitionLookup{}, err
+		}
 	}
 	return s.lookupTransition(ctx, actor, q)
 }
@@ -472,7 +505,18 @@ func (s *TaskTransitionService) confirmTransitionUnknown(ctx context.Context, en
 		cancel()
 	}
 	st.mu.Unlock()
-	defer func() { cancel(); st.mu.Lock(); delete(entry.confirmations, token); st.mu.Unlock() }()
+	if st.ownership != nil {
+		st.ownership.confirmation(entry, token, true)
+	}
+	defer func() {
+		cancel()
+		if st.ownership != nil {
+			st.ownership.confirmation(entry, token, false)
+		}
+		st.mu.Lock()
+		delete(entry.confirmations, token)
+		st.mu.Unlock()
+	}()
 	out, err := s.lookupTransition(confirm, actor, q)
 	if err != nil {
 		return c.TaskTransitionMutation{}, txError(original)

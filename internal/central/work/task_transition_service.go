@@ -30,12 +30,13 @@ type TaskTransitionService struct {
 	data func() *taskTransitionServiceState
 }
 type taskTransitionServiceState struct {
-	store   Store
-	deps    TaskTransitionDependencies
-	mu      sync.Mutex
-	stopped bool
-	calls   map[*call]struct{}
-	changed chan struct{}
+	ownership *projectCallOwnershipState
+	store     Store
+	deps      TaskTransitionDependencies
+	mu        sync.Mutex
+	stopped   bool
+	calls     map[*call]struct{}
+	changed   chan struct{}
 }
 
 func NewTaskTransition(store Store, deps TaskTransitionDependencies) (*TaskTransitionService, error) {
@@ -73,12 +74,18 @@ func (s *TaskTransitionService) begin(ctx context.Context) (context.Context, *ca
 	var once sync.Once
 	done := func() {
 		once.Do(func() {
+			if st.ownership != nil {
+				st.ownership.finish(entry)
+			}
 			cancel()
 			st.mu.Lock()
 			delete(st.calls, entry)
 			close(st.changed)
 			st.changed = make(chan struct{})
 			st.mu.Unlock()
+			if st.ownership != nil {
+				st.ownership.returned(entry)
+			}
 		})
 	}
 	return run, entry, done, nil
@@ -107,6 +114,9 @@ func (s *TaskTransitionService) Drain(ctx context.Context) error {
 		st.mu.Lock()
 		if len(st.calls) == 0 {
 			st.mu.Unlock()
+			if st.ownership != nil && !st.ownership.laneJoined(projectCallTransition) {
+				return st.ownership.drainReturned(ctx, projectCallTransition)
+			}
 			return nil
 		}
 		changed := st.changed
