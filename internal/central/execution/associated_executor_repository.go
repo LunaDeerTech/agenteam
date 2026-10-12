@@ -64,6 +64,9 @@ func (s *associatedExecutorState) inspectAssociation(ctx context.Context, projec
 		if err := store.AcquireAll(ctx, tx, locks); err != nil {
 			return portError(err)
 		}
+		if err := requireProjectCallInTx(ctx, tx, store); err != nil {
+			return err
+		}
 		x, err := store.InTx(tx)
 		if err != nil {
 			return portError(err)
@@ -121,6 +124,15 @@ func (s *associatedExecutorState) inspectAssociation(ctx context.Context, projec
 	}
 	if err = ctx.Err(); err != nil {
 		return associatedFacts{}, err
+	}
+	if s.projectCalls != nil {
+		job, ok := ctx.Value(associatedContextKey{}).(*associatedCall)
+		if !ok || job == nil || job.project != project || job.dispatch != dispatch {
+			return associatedFacts{}, fault(f.DependencyUnbound)
+		}
+		if err = markAssociatedInspected(ctx, job); err != nil {
+			return associatedFacts{}, err
+		}
 	}
 	return facts, nil
 }

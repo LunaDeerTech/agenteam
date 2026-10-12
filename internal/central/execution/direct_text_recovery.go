@@ -14,7 +14,7 @@ import (
 // uncertainty uses the same accepted session/JSON handle; it cannot BeginChat
 // again. A known failed cleanup checkpoint may be retried after a fresh read,
 // without repeating the Model call. Absence never proves rollback.
-func (d *DirectTextDriver) ResolveUnknown(ctx context.Context, execution i.ExecutionID) (receipt c.DirectTextReceipt, err error) {
+func (d *DirectTextDriver) resolveUnknown(ctx context.Context, execution i.ExecutionID) (receipt c.DirectTextReceipt, err error) {
 	if d == nil || d.state == nil {
 		return receipt, fault(f.DependencyUnbound)
 	}
@@ -116,6 +116,9 @@ func (s *directTextState) observeStart(ctx context.Context, run *directTextCall)
 		if err := s.store.AcquireAll(ctx, tx, run.locks); err != nil {
 			return portError(err)
 		}
+		if err := requireProjectCallInTx(ctx, tx, s.store); err != nil {
+			return err
+		}
 		x, err := s.store.InTx(tx)
 		if err != nil {
 			return portError(err)
@@ -174,6 +177,9 @@ func (s *directTextState) observeTerminal(ctx context.Context, run *directTextCa
 	result := s.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		if err := s.store.AcquireAll(ctx, tx, run.locks); err != nil {
 			return portError(err)
+		}
+		if err := requireProjectCallInTx(ctx, tx, s.store); err != nil {
+			return err
 		}
 		x, err := s.store.InTx(tx)
 		if err != nil {

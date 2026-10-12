@@ -179,6 +179,9 @@ func (s *directTextState) prepareTerminal(ctx context.Context, run *directTextCa
 		if err := s.store.AcquireAll(ctx, tx, run.runtimeLocks); err != nil {
 			return portError(err)
 		}
+		if err := requireProjectCallInTx(ctx, tx, s.store); err != nil {
+			return err
+		}
 		x, err := s.store.InTx(tx)
 		if err != nil {
 			return portError(err)
@@ -277,6 +280,9 @@ func (s *directTextState) commitTerminal(ctx context.Context, run *directTextCal
 	result := s.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		if err := s.store.AcquireAll(ctx, tx, run.locks); err != nil {
 			return portError(err)
+		}
+		if err := requireProjectCallInTx(ctx, tx, s.store); err != nil {
+			return err
 		}
 		x, err := s.store.InTx(tx)
 		if err != nil {

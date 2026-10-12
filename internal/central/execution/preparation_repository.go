@@ -128,6 +128,9 @@ func (s *preparationState) start(ctx context.Context, request c.PreparationReque
 		if err := s.store.AcquireAll(ctx, tx, locks); err != nil {
 			return portError(err)
 		}
+		if err := requireProjectCallInTx(ctx, tx, s.store); err != nil {
+			return err
+		}
 		x, err := s.store.InTx(tx)
 		if err != nil {
 			return portError(err)
@@ -242,6 +245,9 @@ func (s *preparationState) finish(ctx context.Context, request c.PreparationRequ
 	result := s.store.WithinTx(ctx, claim.cause(), func(ctx context.Context, tx f.Tx) error {
 		if err := s.store.AcquireAll(ctx, tx, locks); err != nil {
 			return portError(err)
+		}
+		if err := requireProjectCallInTx(ctx, tx, s.store); err != nil {
+			return err
 		}
 		x, err := s.store.InTx(tx)
 		if err != nil {

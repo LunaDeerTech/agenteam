@@ -66,7 +66,7 @@ func newDirectTextDriver(store Store, a *Authority, deps DirectTextDependencies,
 // Loop session without I/O, commits Snapshot/running/Started and RoundInput,
 // then invokes that one session. Completion changes Execution only, never Task.
 // Unknown keeps its exact run/session/candidates for ResolveUnknown.
-func (d *DirectTextDriver) Start(ctx context.Context, execution i.ExecutionID) (receipt c.DirectTextReceipt, err error) {
+func (d *DirectTextDriver) start(ctx context.Context, execution i.ExecutionID) (receipt c.DirectTextReceipt, err error) {
 	if d == nil || d.state == nil {
 		return receipt, fault(f.DependencyUnbound)
 	}
@@ -140,6 +140,9 @@ func (s *directTextState) readInitial(ctx context.Context, run *directTextCall) 
 	result := s.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		if e := s.store.AcquireAll(ctx, tx, locks); e != nil {
 			return portError(e)
+		}
+		if err := requireProjectCallInTx(ctx, tx, s.store); err != nil {
+			return err
 		}
 		x, e := s.store.InTx(tx)
 		if e != nil {
@@ -318,6 +321,9 @@ func (s *directTextState) start(ctx context.Context, run *directTextCall) error 
 		if err := s.store.AcquireAll(ctx, tx, run.locks); err != nil {
 			return portError(err)
 		}
+		if err := requireProjectCallInTx(ctx, tx, s.store); err != nil {
+			return err
+		}
 		x, err := s.store.InTx(tx)
 		if err != nil {
 			return portError(err)
@@ -457,6 +463,7 @@ func (d *DirectTextDriver) Stop() {
 		return
 	}
 	s := d.state
+	s.projectCalls.stopLane(projectLaneDirect)
 	s.mu.Lock()
 	s.stopped = true
 	for _, run := range s.calls {
@@ -470,8 +477,9 @@ func (d *DirectTextDriver) Joined() bool {
 	}
 	s := d.state
 	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.stopped && len(s.calls) == 0
+	done := s.stopped && len(s.calls) == 0
+	s.mu.Unlock()
+	return done && s.projectCalls.laneJoined(projectLaneDirect)
 }
 func (d *DirectTextDriver) Drain(ctx context.Context) error {
 	if ctx == nil {
@@ -486,7 +494,10 @@ func (d *DirectTextDriver) Drain(ctx context.Context) error {
 		s.mu.Lock()
 		if len(s.calls) == 0 {
 			s.mu.Unlock()
-			return ctx.Err()
+			if err := ctx.Err(); err != nil {
+				return err
+			}
+			return s.projectCalls.drainReturned(ctx, projectLaneDirect)
 		}
 		changed := s.changed
 		var retained error
