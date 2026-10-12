@@ -21,6 +21,7 @@ type controlAuthority interface {
 
 type controlSession struct {
 	readFile      bool // Only the authenticated, current Hello/Status capability.
+	writeFile     bool
 	listDirectory bool
 	findFiles     bool
 	wire          *controlWire
@@ -195,6 +196,7 @@ func (s *controlSession) receive(ctx context.Context, message p.Message) error {
 		s.mu.Lock()
 		s.active = true
 		s.readFile = slices.Contains(value.Capabilities, p.ReadFileOperation)
+		s.writeFile = slices.Contains(value.Capabilities, p.WriteFileOperation)
 		s.listDirectory = slices.Contains(value.Capabilities, p.ListDirectoryOperation)
 		s.findFiles = slices.Contains(value.Capabilities, p.FindFilesOperation)
 		s.deadline = time.Now().Add(time.Duration(ack.HeartbeatTimeoutMS) * time.Millisecond)
@@ -231,6 +233,7 @@ func (s *controlSession) receive(ctx context.Context, message p.Message) error {
 		}
 		s.mu.Lock()
 		s.readFile = slices.Contains(value.Capabilities, p.ReadFileOperation)
+		s.writeFile = slices.Contains(value.Capabilities, p.WriteFileOperation)
 		s.listDirectory = slices.Contains(value.Capabilities, p.ListDirectoryOperation)
 		s.findFiles = slices.Contains(value.Capabilities, p.FindFilesOperation)
 		s.mu.Unlock()
