@@ -100,11 +100,20 @@ func loadCommittedRoundProjection(ctx context.Context, x postgres.SQLExecutor, i
 	if err != nil {
 		return source, unavailable(nil)
 	}
-	binding := tc.ReadFileResultBinding{Call: call, OperationID: op, AttemptID: a, RequestID: p.ID(request), InputDigest: f.Digest(inputDigest), Fingerprint: f.Digest(fingerprint), TerminalDigest: f.Digest(terminal), Outcome: "success", Attempted: true, ResultDigest: f.Digest(result), ResultBytes: f.Progress(resultBytes)}
-	if binding.Validate() != nil || binding.OperationID != fields.Source.OperationID || binding.AttemptID != fields.Source.AttemptID || binding.ResultDigest != fields.Source.ResultDigest || call.CallID != fields.Source.CallID {
+	binding := sealedToolResultBinding{Call: call, OperationID: op, AttemptID: a, RequestID: p.ID(request), InputDigest: f.Digest(inputDigest), Fingerprint: f.Digest(fingerprint), TerminalDigest: f.Digest(terminal), Outcome: "success", Attempted: true, ResultDigest: f.Digest(result), ResultBytes: f.Progress(resultBytes)}
+	if binding.validate() != nil || binding.OperationID != fields.Source.OperationID || binding.AttemptID != fields.Source.AttemptID || binding.ResultDigest != fields.Source.ResultDigest || call.CallID != fields.Source.CallID {
 		return source, unavailable(nil)
 	}
-	source = c.RoundProjectionSource{SchemaVersion: 1, Input: input, Snapshot: old.snapshot, Predecessor: round.ToolCallRound, Result: binding, Arguments: bytes.Clone(old.toolPending.original)}
+	source = c.RoundProjectionSource{SchemaVersion: 1, Input: input, Snapshot: old.snapshot, Predecessor: round.ToolCallRound, Arguments: bytes.Clone(old.toolPending.original)}
+	switch call.RunnerBinding {
+	case tc.ReadFileRegistration().Binding:
+		source.Result = tc.ReadFileResultBinding(binding)
+	case tc.WriteFileRegistration().Binding:
+		written := tc.WriteFileResultBinding(binding)
+		source.WriteResult = &written
+	default:
+		return source, unavailable(nil)
+	}
 	rows, err := x.Query(ctx, `SELECT sequence,round_id::text,kind,message,digest FROM agenteam_execution.transcript_entries WHERE execution_id=$1 AND sequence<=3 ORDER BY sequence`, fields.ExecutionID.String())
 	if err != nil {
 		return source, unavailable(err)
@@ -183,6 +192,10 @@ func lendRoundProjection(ctx context.Context, source c.RoundProjectionSource, co
 	// cannot prevent cleanup of the original loans. It receives no mutable alias
 	// to persistent store data or the private ownership bookkeeping.
 	borrowed := source
+	if source.WriteResult != nil {
+		copy := *source.WriteResult
+		borrowed.WriteResult = &copy
+	}
 	borrowed.Transcript = append([]c.RoundProjectionEntry(nil), source.Transcript...)
 	defer clearRoundProjectionLoan(&source)
 	defer clear(borrowed.Transcript)

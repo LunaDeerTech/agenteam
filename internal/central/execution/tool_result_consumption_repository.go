@@ -29,6 +29,13 @@ func toolResultBindingJSON(v tc.ReadFileResultBinding) ([]byte, error) {
 	if v.Validate() != nil {
 		return nil, invalid()
 	}
+	return sealedToolResultBindingJSON(sealedToolResultBinding(v))
+}
+
+func sealedToolResultBindingJSON(v sealedToolResultBinding) ([]byte, error) {
+	if v.validate() != nil {
+		return nil, invalid()
+	}
 	b := v.Call
 	return directTextJSON(map[string]any{
 		"project_id": b.ProjectID.String(), "agent_id": b.AgentID.String(), "execution_id": b.ExecutionID.String(),
@@ -48,6 +55,9 @@ func sameToolResultConsumption(a, b *toolResultConsumption) bool {
 }
 
 func (s *ToolResultConsumer) transactToolResult(ctx context.Context, e i.ExecutionID, write bool) (*toolResultConsumption, bool, f.CommitResult, error) {
+	if s.writeResults != nil {
+		return s.transactWriteFileResult(ctx, e, write)
+	}
 	var zero f.CommitResult
 	plan, err := s.results.DiscoverReadFileResult(ctx, e)
 	if err != nil {
@@ -154,6 +164,11 @@ func consumeToolResultInTx(ctx context.Context, x postgres.SQLExecutor, expected
 	if err != nil || previous != nil || !write {
 		return previous, previous != nil, err
 	}
+	return insertToolResultConsumption(ctx, x, sealedToolResultBinding(actual), actualJSON, projection, row, stored)
+}
+
+func insertToolResultConsumption(ctx context.Context, x postgres.SQLExecutor, actual sealedToolResultBinding, actualJSON []byte, projection agentloop.ToolResultProjection, row *executionRecord, stored *directTextRecord) (*toolResultConsumption, bool, error) {
+	b := actual.Call
 	if row.summary.Version == math.MaxInt64 || row.summary.Version < stored.toolPending.version {
 		return nil, false, fault(f.InvalidState)
 	}
@@ -197,6 +212,13 @@ func consumeToolResultInTx(ctx context.Context, x postgres.SQLExecutor, expected
 }
 
 func loadToolResultConsumption(ctx context.Context, x postgres.SQLExecutor, b tc.ReadFileResultBinding, binding []byte, projection agentloop.ToolResultProjection, current f.Version) (*toolResultConsumption, error) {
+	return loadSealedToolResultConsumption(ctx, x, sealedToolResultBinding(b), binding, projection, current)
+}
+
+func loadSealedToolResultConsumption(ctx context.Context, x postgres.SQLExecutor, b sealedToolResultBinding, binding []byte, projection agentloop.ToolResultProjection, current f.Version) (*toolResultConsumption, error) {
+	if b.validate() != nil {
+		return nil, invalid()
+	}
 	var round, invocation, call, operation, attempt, request, input, fingerprint, terminal, result, bindingDigest, messageDigest string
 	var resultBytes, sequence, version int64
 	var raw []byte
