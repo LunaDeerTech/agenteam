@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "source_ref": "448f6adea22d62dcb71255a3c834dbb8f1b95d84",
+  "origin": "unchanged legacy BuildNextRoundModelRequest and synthetic test fixtures; not PG",
+  "vectors": [
+    {
+      "name": "read-control",
+      "request_file": "read-control.request.json",
+      "semantic_file": "read-control.semantic.json",
+      "request_bytes": 11815,
+      "semantic_bytes": 10968,
+      "request_digest": "sha256:bbd2c154cd57c1accebdbf03ade75dea2a88d31d043e5246ddaf3454b6a69bfc",
+      "input_digest": "sha256:df8d172c5fd6b51b9addc744d276dd7807545b73e032c9ebfa38fead91acf73d",
+      "fields": {
+        "SchemaVersion": "1",
+        "ProjectID": "01900000-0000-7000-8000-000000000001",
+        "AgentID": "01900000-0000-7000-8000-000000000002",
+        "ExecutionID": "01900000-0000-7000-8000-000000000003",
+        "RoundInputID": "01900000-0000-7000-8000-0000000003e8",
+        "RoundInputDigest": "sha256:5d05e5fae346387bbdefe941056bf23aa189b1439dc9ce0e81b94e722886a75a",
+        "SnapshotID": "01900000-0000-7000-8000-000000000388",
+        "SnapshotDigest": "sha256:7d9fb81df0d0974cd8c80c7ff1103be11dfc197d352d8b4eee35cf4987e7e8af",
+        "ProjectionDigest": "sha256:d8a4d9a0e779a1890b479ccdbd90e2941a74e973d4cacc929e9e8b529ee07f54",
+        "CallID": "01900000-0000-7000-8000-000000000961",
+        "InputDigest": "sha256:df8d172c5fd6b51b9addc744d276dd7807545b73e032c9ebfa38fead91acf73d"
+      }
+    },
+    {
+      "name": "write-maximum",
+      "request_file": "write-maximum.request.json",
+      "semantic_file": "write-maximum.semantic.json",
+      "request_bytes": 710731,
+      "semantic_bytes": 709884,
+      "request_digest": "sha256:df467333fa06e7cf6eb600b61a60a9a25142e400fc33be266f62f0c127ee8950",
+      "input_digest": "sha256:466c9bb5b6b60e4ddd4f3e2ceaaaf5acc49876ba545a6d88b8fc094be9ae134d",
+      "fields": {
+        "SchemaVersion": "1",
+        "ProjectID": "01900000-0000-7000-8000-000000000001",
+        "AgentID": "01900000-0000-7000-8000-000000000002",
+        "ExecutionID": "01900000-0000-7000-8000-000000000003",
+        "RoundInputID": "01900000-0000-7000-8000-0000000003e8",
+        "RoundInputDigest": "sha256:51a82a72d22a58c36cd6cc09f4beb5c431fe07630144d1ed91cb7bfc04bd542d",
+        "SnapshotID": "01900000-0000-7000-8000-000000000388",
+        "SnapshotDigest": "sha256:4f7688253837ed25918a70899e9244c5f0eaabb6ad9526652166a8bcaeba6f7f",
+        "ProjectionDigest": "sha256:1376fa9bed43a72bc0e8797d56c6ffb9db4b8cfdd31ed5758dc7d5a1701a717f",
+        "CallID": "01900000-0000-7000-8000-000000000961",
+        "InputDigest": "sha256:466c9bb5b6b60e4ddd4f3e2ceaaaf5acc49876ba545a6d88b8fc094be9ae134d"
+      }
+    },
+    {
+      "name": "command-escaped-nonzero",
+      "request_file": "command-escaped-nonzero.request.json",
+      "semantic_file": "command-escaped-nonzero.semantic.json",
+      "request_bytes": 1170367,
+      "semantic_bytes": 1169520,
+      "request_digest": "sha256:0fc5822ef51ede082baa7642c8eba09806ab80c9d95ee36d8902c7abad5b87d7",
+      "input_digest": "sha256:4bf69fe2d2693e151f80bea66e7b39ff3400c291f0f9fe081ccc9e7c201251b7",
+      "fields": {
+        "SchemaVersion": "1",
+        "ProjectID": "01900000-0000-7000-8000-000000000001",
+        "AgentID": "01900000-0000-7000-8000-000000000002",
+        "ExecutionID": "01900000-0000-7000-8000-000000000003",
+        "RoundInputID": "01900000-0000-7000-8000-0000000003e8",
+        "RoundInputDigest": "sha256:051f8e2aacc13300e96a0be97547217a19aee3bfdbf3613790f90bb6c0a45c1d",
+        "SnapshotID": "01900000-0000-7000-8000-000000000388",
+        "SnapshotDigest": "sha256:2117bbef30f5ccdddaf15fed888ccd93f3e10b18cee5d37bc1eaa61747f08133",
+        "ProjectionDigest": "sha256:6efdb71d0ecf05790fb669a0c99b79ad44f69f42763e00438abe2db0609a5e40",
+        "CallID": "01900000-0000-7000-8000-000000000961",
+        "InputDigest": "sha256:4bf69fe2d2693e151f80bea66e7b39ff3400c291f0f9fe081ccc9e7c201251b7"
+      }
+    }
+  ]
+}

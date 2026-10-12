@@ -1,0 +1,120 @@
+package agentloop
+
+import (
+	"bytes"
+	"context"
+	"crypto/sha256"
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"testing"
+
+	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	tc "github.com/LunaDeerTech/agenteam/internal/central/tool/contract"
+	p "github.com/LunaDeerTech/agenteam/internal/runnerprotocol"
+)
+
+// This temporary capture entry calls only the unchanged, delivered codec and
+// synthetic fixtures from 448f6ade. It is not a production implementation or
+// evidence of a PG/Model call. Preserve its source with the capture evidence,
+// then remove it from the final package once the fixed testdata is retained.
+func TestCaptureLegacySuccessorGolden(t *testing.T) {
+	output := os.Getenv("AGENTEAM_LEGACY_SUCCESSOR_OUTPUT")
+	if output == "" {
+		t.Skip("explicit legacy golden capture output is not configured")
+	}
+	if !filepath.IsAbs(output) {
+		t.Fatal("legacy capture output must be an absolute fresh directory")
+	}
+	// Mkdir fails if anything already occupies the target, including a symlink.
+	// Do not clean partial output on failure: the recorder retains original
+	// artifacts and decides whether a separate future capture is authorized.
+	if err := os.Mkdir(output, 0700); err != nil {
+		t.Fatal("create fresh legacy capture directory:", err)
+	}
+	writeExclusive := func(t *testing.T, name string, raw []byte) {
+		t.Helper()
+		file, err := os.OpenFile(filepath.Join(output, name), os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
+		if err != nil {
+			t.Fatal("create exclusive legacy capture file:", err)
+		}
+		n, writeErr := file.Write(raw)
+		var syncErr error
+		if writeErr == nil && n == len(raw) {
+			syncErr = file.Sync()
+		}
+		closeErr := file.Close()
+		if writeErr != nil || n != len(raw) || syncErr != nil || closeErr != nil {
+			t.Fatal("legacy capture file did not fully write, sync, and close")
+		}
+	}
+	digest := func(raw []byte) string { return fmt.Sprintf("sha256:%x", sha256.Sum256(raw)) }
+	type vector struct {
+		Name          string                         `json:"name"`
+		RequestFile   string                         `json:"request_file"`
+		SemanticFile  string                         `json:"semantic_file"`
+		RequestBytes  int                            `json:"request_bytes"`
+		SemanticBytes int                            `json:"semantic_bytes"`
+		RequestDigest string                         `json:"request_digest"`
+		InputDigest   string                         `json:"input_digest"`
+		Fields        ec.NextRoundModelRequestFields `json:"fields"`
+	}
+	manifest := struct {
+		Version   int      `json:"version"`
+		SourceRef string   `json:"source_ref"`
+		Origin    string   `json:"origin"`
+		Vectors   []vector `json:"vectors"`
+	}{
+		Version:   1,
+		SourceRef: "448f6adea22d62dcb71255a3c834dbb8f1b95d84",
+		Origin:    "unchanged legacy BuildNextRoundModelRequest and synthetic test fixtures; not PG",
+	}
+	for _, name := range []string{"read-control", "write-maximum", "command-escaped-nonzero"} {
+		t.Run(name, func(t *testing.T) {
+			var source ec.RoundProjectionSource
+			switch name {
+			case "read-control":
+				source = roundProjectionFixture(t, true)
+			case "write-maximum":
+				source = writeRoundProjectionFixture(t, bytes.Repeat([]byte{0, 255}, p.MaxWriteFileBytes/2), nil)
+			case "command-escaped-nonzero":
+				stdout := bytes.Repeat([]byte{0}, p.MaxRunCommandStreamBytes)
+				stderr := bytes.Repeat([]byte{1}, p.MaxRunCommandStreamBytes)
+				report := commandToolResultTestReport(stdout, stderr)
+				report.ExitCode = 23
+				source = commandRoundProjectionFixture(t, tc.RunCommandResultBundle{Report: report, Stdout: stdout, Stderr: stderr}, "failure", "command_exit_nonzero")
+			}
+			got, err := BuildNextRoundModelRequest(context.Background(), source, requestID[mc.Call](t, 2401))
+			requestOK(t, err)
+			requestOK(t, got.Validate())
+			raw := got.CanonicalBytes()
+			defer clear(raw)
+			// RawMessage extracts the original semantic bytes. It must never be
+			// re-encoded using a new or test-local semantic implementation.
+			var original struct {
+				Semantic json.RawMessage `json:"semantic"`
+			}
+			requestOK(t, json.Unmarshal(raw, &original))
+			defer clear(original.Semantic)
+			if len(original.Semantic) == 0 || digest(raw) != string(got.Digest()) || digest(original.Semantic) != string(got.InputDigest()) || got.Request().Input.Digest != got.InputDigest() || got.Fields().InputDigest != got.InputDigest() {
+				t.Fatal("original canonical bytes and original two digests disagree")
+			}
+			r := vector{
+				Name: name, RequestFile: name + ".request.json", SemanticFile: name + ".semantic.json",
+				RequestBytes: len(raw), SemanticBytes: len(original.Semantic),
+				RequestDigest: string(got.Digest()), InputDigest: string(got.InputDigest()), Fields: got.Fields(),
+			}
+			writeExclusive(t, r.RequestFile, raw)
+			writeExclusive(t, r.SemanticFile, original.Semantic)
+			manifest.Vectors = append(manifest.Vectors, r)
+		})
+	}
+	if t.Failed() || len(manifest.Vectors) != 3 {
+		t.Fatal("legacy capture did not complete all three original vectors")
+	}
+	raw, err := json.MarshalIndent(manifest, "", "  ")
+	requestOK(t, err)
+	writeExclusive(t, "manifest.json", append(raw, '\n'))
+}
