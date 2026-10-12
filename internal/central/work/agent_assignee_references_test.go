@@ -194,7 +194,7 @@ func assigneeRefAccess(t *testing.T, actor i.Actor, project i.ProjectID) pc.Proj
 	if err != nil {
 		t.Fatal(err)
 	}
-	ref := pc.ProjectRef{ID: project, OwnerUserID: user, Name: "assignee reference", NormalizedName: "assignee reference", Lifecycle: pc.Active, Version: 1, CreatedAt: at, UpdatedAt: at}
+	ref := pc.ProjectRef{ID: project, OwnerUserID: user, Name: "assignee-reference", NormalizedName: "assignee-reference", Lifecycle: pc.Active, Version: 1, CreatedAt: at, UpdatedAt: at}
 	access, err := pc.NewProjectAccess(actor, ref, at)
 	if err != nil {
 		t.Fatal(err)
