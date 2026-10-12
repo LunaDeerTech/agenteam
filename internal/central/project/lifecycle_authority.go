@@ -203,6 +203,20 @@ func (a *LifecycleAuthority) ValidateLifecycleInTx(ctx context.Context, tx found
 // cause/manifest checks remain shared with Stop/Inspect, but their terminal
 // identity acceptance is never sufficient to authorize a cleanup write.
 func (a *LifecycleAuthority) validateSkillsCleanupInTx(ctx context.Context, tx foundation.Tx, project c.ProjectID, cause c.LifecycleCause) error {
+	if err := a.validateSkillsCleanupFactsInTx(ctx, tx, project, cause); err != nil {
+		return err
+	}
+	// Direct canonical callers retain their existing contract. Driver calls
+	// additionally require the precise Skills substep, never an Agent loan.
+	if ctx != nil && ctx.Value(lifecycleCleanupScopeKey{}) != nil {
+		return a.requireSkillsCleanupClaimInTx(ctx, tx, cause, project)
+	}
+	return nil
+}
+
+// Both fixed child steps share the parent's canonical domains prerequisites;
+// their private active claim checks remain separate at each entry point.
+func (a *LifecycleAuthority) validateSkillsCleanupFactsInTx(ctx context.Context, tx foundation.Tx, project c.ProjectID, cause c.LifecycleCause) error {
 	if cause.Action != c.Delete {
 		return fault(foundation.Forbidden)
 	}
@@ -223,17 +237,7 @@ func (a *LifecycleAuthority) validateSkillsCleanupInTx(ctx context.Context, tx f
 	if err != nil {
 		return err
 	}
-	if err := skillsCleanupProgress(r); err != nil {
-		return err
-	}
-	// Preserve the existing direct canonical Skills cleanup contract. When
-	// invoked by our driver, every original provider transaction additionally
-	// consumes that driver's active exact claim; a saved or cross-family
-	// private context cannot be reused after its original callback returns.
-	if ctx != nil && ctx.Value(lifecycleCleanupScopeKey{}) != nil {
-		return a.requireSkillsCleanupClaimInTx(ctx, tx, cause, project)
-	}
-	return nil
+	return skillsCleanupProgress(r)
 }
 
 func skillsCleanupProgress(r *lifecycleRecord) error {
