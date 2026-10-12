@@ -940,7 +940,11 @@ func TestExecutionProjectCallOriginalChildRecoveryRetiresParent(t *testing.T) {
 	deps := ProjectCallDependencies{Service: Dependencies{Authority: authority, Agents: preparation.launch, Task: preparation.launch},
 		Preparation: PreparationDependencies{Agents: preparation.launch, Projects: projects, Processes: preparation.processes, Task: preparation},
 		Direct:      direct, Associated: AssociatedExecutorOptions{MaxOwned: 2, RecoveryInterval: time.Hour}}
-	pair, err := newProjectCallOwnership(store, deps, &executionCallProof{store: store}, oc.ProcessID(preparation.processes.process.String()), &executionCallAuthority{store})
+	process, err := f.ParseID[oc.Process](preparation.processes.process.String())
+	if err != nil {
+		t.Fatal(err)
+	}
+	pair, err := newProjectCallOwnership(store, deps, &executionCallProof{store: store}, process, &executionCallAuthority{store})
 	if err != nil {
 		t.Fatal(err)
 	}

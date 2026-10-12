@@ -79,7 +79,11 @@ func newExecutionEntryPair(t *testing.T) (*ProjectCallOwnership, *executionEntry
 		t.Fatal(err)
 	}
 	process := newTestID[oc.Process](t)
-	processes := &preparationProcesses{process: outbox.ProcessID(process.String())}
+	ownerProcess, err := f.ParseID[outbox.Process](process.String())
+	if err != nil {
+		t.Fatal(err)
+	}
+	processes := &preparationProcesses{process: ownerProcess}
 	agents := &struct{ ac.ExecutionConfiguration }{}
 	catalog := event.NewCatalog()
 	lifecycle, err := ec.RegisterDirectTextEvents(catalog)
