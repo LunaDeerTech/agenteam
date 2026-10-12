@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
-import { UiButton, UiDrawer, UiState, UiSelect, UiField, UiBadge } from '../../components/ui'
+import {
+  UiButton,
+  UiDrawer,
+  UiState,
+  UiSelect,
+  UiField,
+  UiBadge,
+  UiInput,
+} from '../../components/ui'
 import TaskBoard from '../../components/work/TaskBoard.vue'
 import TaskReviewDetail from '../../components/work/TaskReviewDetail.vue'
 import TaskCreateForm from '../../components/work/TaskCreateForm.vue'
@@ -680,6 +688,40 @@ function returnToCreation() {
               v-if="owner.creation.open && !owner.pending.value"
               :owner="owner"
               @cancel="cancelCreation" />
+            <form
+              class="task-search"
+              role="search"
+              aria-label="Sprint 任务搜索"
+              @submit.prevent="owner.applySearch()"
+            >
+              <UiField
+                v-slot="field"
+                label="搜索任务"
+                hint="在所选 Sprint 的标题、描述和计划中搜索，区分大小写。"
+                :error="owner.search.message"
+              >
+                <UiInput
+                  :id="field.id"
+                  v-model="owner.search.draft"
+                  type="search"
+                  :aria-describedby="field.describedby"
+                  :invalid="field.invalid"
+                  :readonly="owner.busy.value"
+                />
+              </UiField>
+              <div class="task-search-actions">
+                <UiButton type="submit" :disabled="owner.busy.value">搜索</UiButton>
+                <UiButton
+                  :disabled="owner.busy.value || (!owner.search.text && !owner.search.draft)"
+                  @click="owner.clearSearch()"
+                  >清除搜索</UiButton
+                >
+              </div>
+            </form>
+            <p v-if="owner.search.text" class="task-search-status" role="status">
+              {{ owner.searchEmpty.value ? '没有匹配的任务，可清除搜索。' : '搜索结果' }}
+              <span>关键词：{{ owner.search.text }}</span>
+            </p>
             <TaskBoard
               :columns="owner.columns"
               :busy="owner.busy.value"
@@ -787,6 +829,26 @@ function returnToCreation() {
 }
 .tasks-content {
   min-width: 0;
+}
+.task-search {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--content-gap);
+  margin-bottom: var(--space);
+}
+.task-search > .ui-field {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+.task-search-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--content-gap);
+  padding-top: 26px;
+}
+.task-search-status {
+  overflow-wrap: anywhere;
 }
 .sprint-heading {
   margin-bottom: var(--space);

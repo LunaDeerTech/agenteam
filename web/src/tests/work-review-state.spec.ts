@@ -9,6 +9,8 @@ import {
   type ReviewInput,
   type ReviewReceipt,
   type ReviewLookup,
+  type Page,
+  type TaskSummary,
 } from '../api/work-review'
 import type {
   TaskCreateDraft,
@@ -82,7 +84,7 @@ function fixture(current: string | null = id(3)) {
     milestone: vi.fn(async () => milestone),
     sprints: vi.fn(async () => ({ items: [sprint] })),
     sprint: vi.fn(async (_p: string, target: string) => ({ ...sprint, id: target })),
-    tasks: vi.fn(async (_p: string, q: TaskQuery) => ({
+    tasks: vi.fn(async (_p: string, q: TaskQuery): Promise<Page<TaskSummary>> => ({
       items: q.state === stored.state ? [{ ...stored, sprint_id: q.sprint_id }] : [],
     })),
     task: vi.fn(async (_p: string, target: string) => ({ ...stored, id: target })),
@@ -178,6 +180,108 @@ afterEach(() => {
   owner?.dispose()
   owner = undefined
   vi.restoreAllMocks()
+})
+describe('Task keyword state', () => {
+  it('searches all seven columns, resets pagination and keeps the applied query when opening details', async () => {
+    const f = fixture()
+    f.api.tasks.mockImplementation(async (_p, q) => ({
+      items: q.state === 'in_progress' ? [{ ...task, id: q.cursor ? id(42) : task.id }] : [],
+      ...(q.state === 'in_progress' && !q.cursor
+        ? { next_cursor: q.text ? 'search-next' : 'all-next' }
+        : {}),
+    }))
+    f.owner.afterNavigation('/owner/demo/tasks')
+    await flushPromises()
+    expect(f.owner.columns.in_progress.next).toBe('all-next')
+    f.api.tasks.mockClear()
+    f.owner.search.draft = 'literal %_'
+    await f.owner.applySearch()
+    expect(f.api.tasks.mock.calls.map(([, q]) => q)).toEqual(
+      taskStates.map((state) => ({
+        sprint_id: id(3),
+        state,
+        limit: 50,
+        text: 'literal %_',
+      })),
+    )
+    expect(f.owner.columns.in_progress.next).toBe('search-next')
+    await f.owner.loadColumn('in_progress', true)
+    expect(f.api.tasks.mock.calls.at(-1)?.[1]).toMatchObject({
+      text: 'literal %_',
+      cursor: 'search-next',
+    })
+    expect(f.owner.columns.in_progress.items.map((row) => row.id)).toEqual([id(4), id(42)])
+    await f.owner.selectTask(id(4))
+    await flushPromises()
+    expect(f.owner.state.task?.id).toBe(id(4))
+    expect(f.owner.search.text).toBe('literal %_')
+    await f.owner.closeTask()
+    await flushPromises()
+    f.api.tasks.mockClear()
+    await f.owner.clearSearch()
+    expect(f.api.tasks.mock.calls.map(([, q]) => q)).toEqual(
+      taskStates.map((state) => ({
+        sprint_id: id(3),
+        state,
+        limit: 50,
+      })),
+    )
+    expect(f.owner.columns.in_progress.items.map((row) => row.id)).toEqual([id(4)])
+    expect(f.owner.search).toEqual({ draft: '', text: '', message: '' })
+  })
+
+  it('clears a keyword on Sprint change and exposes empty results without dropping invalid input', async () => {
+    const f = fixture()
+    f.owner.afterNavigation('/owner/demo/tasks')
+    await flushPromises()
+    f.api.tasks.mockClear()
+    f.owner.search.draft = '  '
+    await f.owner.applySearch()
+    expect(f.api.tasks).not.toHaveBeenCalled()
+    expect(f.owner.search.draft).toBe('  ')
+    expect(f.owner.search.message).toContain('纯空白')
+    f.api.tasks.mockResolvedValue({ items: [] })
+    f.owner.search.draft = 'not found'
+    await f.owner.applySearch()
+    expect(f.owner.searchEmpty.value).toBe(true)
+    await f.owner.selectSprint(id(33))
+    await flushPromises()
+    expect(f.owner.search.text).toBe('')
+    expect(f.owner.searchEmpty.value).toBe(false)
+    expect(f.api.tasks.mock.calls.at(-1)?.[1]).not.toHaveProperty('text')
+  })
+
+  it('does not publish an old search page after project retirement or retain its keyword', async () => {
+    const f = fixture()
+    f.owner.afterNavigation('/owner/demo/tasks')
+    await flushPromises()
+    let release!: (page: Page<TaskSummary>) => void
+    const response = new Promise<Page<TaskSummary>>((resolve) => {
+      release = resolve
+    })
+    f.api.tasks.mockImplementationOnce(() => response)
+    f.owner.search.draft = 'old-project'
+    const searching = f.owner.applySearch()
+    try {
+      await flushPromises()
+      expect(f.owner.busy.value).toBe(true)
+      f.context.value = { ...f.context.value!, projectID: id(91) }
+      await flushPromises()
+      expect(f.owner.search.text).toBe('')
+      release({
+        items: [{ ...task, state: 'backlog', title: 'late old match' }],
+        next_cursor: 'old-cursor',
+      })
+      await searching
+      await flushPromises()
+      expect(f.owner.columns.backlog.items).toEqual([])
+      expect(f.owner.columns.backlog.next).toBeUndefined()
+      expect(f.owner.search.draft).toBe('')
+    } finally {
+      release({ items: [] })
+      await searching
+    }
+  })
 })
 describe('Work review selection and publication owner', () => {
   it('keeps edit presence, captured version and late results bound to the original unassigned backlog', async () => {

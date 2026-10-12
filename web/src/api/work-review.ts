@@ -60,7 +60,7 @@ export type Blocker = Readonly<{
 }>
 export type Page<T> = Readonly<{ items: readonly T[]; next_cursor?: string }>
 export type PageQuery = Readonly<{ limit?: number; cursor?: string }>
-export type TaskQuery = PageQuery & Readonly<{ sprint_id: string; state: TaskState }>
+export type TaskQuery = PageQuery & Readonly<{ sprint_id: string; state: TaskState; text?: string }>
 export type ReviewInput = Readonly<{
   expected_version: string
   request: Readonly<{
@@ -556,7 +556,7 @@ export function createWorkReviewAPI(fetcher?: Fetch): WorkReviewAPI {
     },
     tasks(project, q, signal) {
       const captured = input(() => {
-        const v = shape(q, ['sprint_id', 'state'], ['limit', 'cursor'])
+        const v = shape(q, ['sprint_id', 'state'], ['limit', 'cursor', 'text'])
         return {
           ...query({
             ...(v.limit === undefined ? {} : { limit: v.limit as number }),
@@ -564,6 +564,7 @@ export function createWorkReviewAPI(fetcher?: Fetch): WorkReviewAPI {
           }),
           sprint_id: workID(v.sprint_id),
           state: enumeration(v.state, taskStates),
+          ...(v.text === undefined ? {} : { text: workText(v.text, 1024, true) }),
         }
       })
       return call(
