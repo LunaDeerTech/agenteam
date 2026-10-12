@@ -10,12 +10,20 @@ async function press(page: Page, control: Locator) {
   await expect(control).toHaveCount(1); await expect(control).toBeEnabled();
   await control.focus(); await expect(control).toBeFocused(); await page.keyboard.press("Enter");
 }
-async function navigateSettings(page: Page, path: string) {
-  // Navigate through the existing RouterLink; keep the original Session and
-  // observer in this document, including its public-call identities.
+async function navigateSettings(page: Page, path: string, seen: Awaited<ReturnType<typeof observeSecretDelete>>) {
   const link = page.getByRole("navigation", { name: "项目设置", exact: true }).locator(`a[href="${path}"]`);
-  await expect(link).toBeVisible(); await press(page, link);
-  await expect(page).toHaveURL(new RegExp(path.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$"));
+  await expect(link).toBeVisible();
+  const href = await link.getAttribute("href");
+  expect(href).toBe(path);
+  const target = new URL(href!, page.url());
+  expect(target.origin).toBe(new URL(page.url()).origin);
+  // This case covers full-document navigation to the actual settings link.
+  // Complete and retire the old document before navigation; do not turn a
+  // retired SPA read into a successful current read or replay a failed request.
+  await seen.verify();
+  await seen.endDocument();
+  await page.goto(target.href);
+  await expect(page).toHaveURL(target.href);
 }
 test("referenced Secret is Busy until its Agent allowlist is cleared, then deletes safely", async ({ page }) => {
   const data = secretDeleteMaterial();
@@ -43,7 +51,7 @@ test("referenced Secret is Busy until its Agent allowlist is cleared, then delet
   await expect(detail.locator("dd").first()).toHaveText("1"); await expect(remove).toBeEnabled(); await seen.busy();
   await secretDeleteScreenshot(page, "1440-light-busy");
 
-  seen.stage("agent-original-configuration"); await navigateSettings(page, data.agent_route);
+  seen.stage("agent-original-configuration"); await navigateSettings(page, data.agent_route, seen);
   const agents = page.getByRole("region", { name: "Agent 目录", exact: true });
   const entry = agents.getByRole("button").filter({ has: page.locator("strong").filter({ hasText: new RegExp(`^${data.agent_name}$`) }) });
   await expect(entry).toHaveCount(1); await press(page, entry);
@@ -62,16 +70,24 @@ test("referenced Secret is Busy until its Agent allowlist is cleared, then delet
   await expect(editor).toHaveCount(0); await expect(fact("版本")).toHaveText("2"); await expect(fact("Secret Variable 引用")).toHaveText("白名单为空");
   await expect(page.getByRole("button", { name: "编辑配置", exact: true })).toBeEnabled(); await seen.cleared();
 
-  seen.stage("return-and-reread"); await navigateSettings(page, data.route);
-  await expect(catalog.getByRole("listitem")).toHaveCount(2); await seen.returned();
+  const priorDirectories = seen.requests("secrets").length;
+  seen.stage("return-and-reread"); await navigateSettings(page, data.route, seen);
+  await expect(catalog.getByRole("listitem")).toHaveCount(2);
+  expect(seen.requests("secrets")).toHaveLength(priorDirectories + 1);
+  await seen.returned();
+  const priorDetails = seen.requests("secret").length;
   await press(page, catalog.getByRole("button", { name: data.target.name, exact: true }));
-  await expect(detail.getByRole("heading", { name: data.target.name, exact: true })).toBeVisible(); await seen.selected();
+  await expect(detail.getByRole("heading", { name: data.target.name, exact: true })).toBeVisible();
+  expect(seen.requests("secret")).toHaveLength(priorDetails + 1);
+  await seen.selected();
   await press(page, remove); await expect(dialog).toBeVisible();
   seen.stage("delete"); await press(page, dialog.getByRole("button", { name: "确认删除", exact: true }));
   await expect(dialog).toHaveCount(0); await expect(detail).toHaveCount(0);
   await expect(catalog.getByRole("listitem")).toHaveCount(1);
   await expect(catalog.getByRole("button", { name: data.target.name, exact: true })).toHaveCount(0);
-  await expect(catalog.getByRole("button", { name: data.remaining.name, exact: true })).toBeEnabled(); await seen.deleted();
+  await expect(catalog.getByRole("button", { name: data.remaining.name, exact: true })).toBeEnabled();
+  expect(seen.requests("secrets")).toHaveLength(priorDirectories + 2);
+  await seen.deleted();
   await press(page, catalog.getByRole("button", { name: data.remaining.name, exact: true }));
   await expect(detail.getByRole("heading", { name: data.remaining.name, exact: true })).toBeVisible();
   await expect(detail.locator("dd").first()).toHaveText("1");
@@ -79,5 +95,6 @@ test("referenced Secret is Busy until its Agent allowlist is cleared, then delet
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   expect(await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches)).toBe(true);
   await secretDeleteScreenshot(page, "390-dark-current");
+  expect(seen.requests("secret")).toHaveLength(priorDetails + 2);
   seen.stage("complete"); await seen.finish();
 });
