@@ -194,6 +194,12 @@ Project driver 持有原事务及 caller 的实际返回；取消、物理提交
 
 原 pure 首次 Secret 错误映射断言 FAIL 和 native01 三组 FAIL 保留；native01 仅记录 INTERNAL_ERROR/屏障未到，未保存 SQLSTATE，不能追认它们均由后续静态确定并修复的 Mount/Secret UUID–TEXT 比较缺陷造成。[修后实际结果](../../../output/ai/project-agent-retirement-delivery/native02/result.json)与[原 native01 日志](../../../output/ai/project-agent-retirement-delivery/native01/browser.log)分别保留；后继 enabled 初始 grant 的新迁移不计入本结果。
 
+### 4.3.2 初始 enabled grant 有限真实结果（2026-10-12）
+
+`f27e05fe` 的 `TestProjectAgentRetirement` native02 三组实际通过（50.45s），Go、原 fixture/supervisor 和六项资源均实际退出。真实存量在 75 版本创建 enabled seq1 Agent 与 Task，再升级 76 并重复迁移保持业务事实；普通 grant UPDATE/DELETE 及不满足清理条件的操作仍受保护。原同事务 canonical/五域引用/初始 grant-head/checkpoint 退休、原 Store 返回屏障及进程内 Committed acknowledgement mask 的 Unknown 恢复通过；正式 Assign 历史仍 Busy 并整笔回滚，母 participant 保持 pending/domains，不包含 00077 历史例外或完整 Delete。
+
+native01 为 whole FAIL：第一升级/保护组与第三历史 Busy 组通过，Unknown 组在后续 Skills 清理原返回等待处失败。native02 仅增加安全 round/return 诊断后通过，失败分支未触发，原失败原因仍未知，不能宣称已定位或修复。[本次实际结果](../../../output/ai/project-agent-initial-grant-retirement-delivery/native02/result.json)与[原失败日志](../../../output/ai/project-agent-initial-grant-retirement-delivery/native01/browser.log)分别保留。
+
 ## 5. F1 命令、历史与提交结果
 
 以下是完整配置阶段的目标接口；只有§2.2真实前置和外域类型补齐后才进入实施，不纳入初始C1的可编译声明：
