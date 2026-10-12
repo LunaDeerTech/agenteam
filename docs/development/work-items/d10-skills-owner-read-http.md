@@ -57,7 +57,7 @@ Native首轮24202→c0f5e4已取得原outer actual0：3top/6sub全部PASS，Go/d
 
 默认 Central 在同一 Store、Project Authority、Account Service 与实际 Object/ProcessAuthority 上构造真实 Skills Service，以同一实例和 AccountBoundary 处理本卡两条路由。Object 按 Avatar、Knowledge、SkillRevision 固定 owner 分派，保留当前权限和原维护事务；初始化 Audit wrapper 组合原 Object 私有 witness 与 Skills facts。实际进程持有 Skills 的 Stop/Drain/Joined，不以 HTTP 返回代替领域退役。
 
-生产 Project initializer 保持 unbound。D08 §7 与 D10 设计 §§1、14 要求完整 participant manifest 和共享 guard 后才启用；公开 Create HTTP 尚未开放不豁免内部默认创建。原 `649e6ad3` 根测试的业务与退出尾 PASS 保留，但其默认 initializer 接缝被后续规范独审拒绝，已在 `0747b02c` 撤回。
+本轮历史交付时生产 Project initializer 保持 unbound：当时 D08 §7 与 D10 设计 §§1、14 要求完整 participant manifest 和共享 guard 后才启用，公开 Create HTTP 未开放不豁免内部默认创建。2026-10-12 root 已正式采纳创建与破坏性生命周期分别按能力开放，后继实现与验收见[默认项目创建](d08-project-creation-app-ui.md)；该修订不追认下述旧接线或改写原通过/撤回结论。原 `649e6ad3` 根测试的业务与退出尾 PASS 保留，但其默认 initializer 接缝被后续规范独审拒绝，已在 `0747b02c` 撤回。
 
 整改后的 `TestKnowledgeSkillsDefaultRootComposition` 原单 top/零 sub 完整 PASS：先证默认 Create 返回 `DEPENDENCY_UNBOUND`/`not_committed`，13 项 Project/Skill/Object/Audit/Event 事实为零；再由显式 test-only Project 服务使用同 Store、原 Audit、真实 Skill/Object 端口建立读取数据，并实际 Stop/Drain/Joined。它不替换默认服务、不以 SQL 写 ready。随后才验证默认 Skills 目录、Knowledge 正文 GET/HEAD、Avatar 维护与原进程退出。用例 7.39s，Go243371/driver241594/outer241447 均实际 Wait0，七资源/private/runtime/desc/TCP 双尾和 inputs 一致齐，总111.577s。该结果接受既有数据的默认读取组合，不接受生产初始化或完整 participant。
 

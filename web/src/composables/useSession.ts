@@ -313,6 +313,14 @@ import {
   type ProjectLookup,
 } from '../api/project-owner'
 import {
+  createProjectCreationAPI,
+  captureProjectCreate,
+  newProjectID,
+  type ProjectCreationAPI,
+  type ProjectCreateInput,
+  type ProjectCreationResult,
+} from '../api/project-creation'
+import {
   createProjectAuditAPI,
   captureProjectAuditID,
   type ProjectAuditAPI,
@@ -581,6 +589,25 @@ export type ProjectSchedulerProgress = Readonly<{
   canRetryOriginal: boolean
 }>
 type ProjectAction = 'project-read' | 'project-update' | 'project-lookup'
+type ProjectCreationAction = 'project-create' | 'project-creation-read'
+export type ProjectCreationProgress = Readonly<{
+  projectID: string
+  name: string
+  phase: 'submitting' | 'uncertain' | 'accepted' | 'failed' | 'rejected' | 'ready'
+  result: ProjectCreationResult | null
+  contextValid: boolean
+  canResume: boolean
+}>
+type ProjectCreationIntent = {
+  identity: PersonalIdentity
+  csrf: string
+  key: string
+  input: ProjectCreateInput | null
+  body: string | null
+  creationID?: string
+  unsettled: boolean
+  keyConflict: boolean
+}
 type ProjectAuditAction = 'project-audit-list' | 'project-audit-get'
 export type ProjectProgress = Readonly<{
   targetID: string
@@ -871,6 +898,7 @@ type Action =
   | SMTPDeliveryAction
   | OutboundPolicyAction
   | ProjectAction
+  | ProjectCreationAction
   | SchedulerAction
   | WorkReviewAction
   | SprintLifecycleAction
@@ -1007,6 +1035,7 @@ export function createSessionController(
     agentRunnerMounts?: AgentRunnerMountsAPI
     agentConfiguration?: AgentConfigurationAPI
     projectVariables?: ProjectVariablesAPI
+    projectCreation?: ProjectCreationAPI
     sprintPlanning?: WorkSprintPlanningAPI
     milestonePlanning?: WorkMilestonePlanningAPI
     sprintLifecycle?: WorkSprintLifecycleAPI
@@ -1024,6 +1053,7 @@ export function createSessionController(
 ) {
   const runnersAPI = commandAPIs.systemRunners ?? createSystemRunnersAPI()
   const projectVariablesAPI = commandAPIs.projectVariables ?? createProjectVariablesAPI()
+  const projectCreationAPI = commandAPIs.projectCreation ?? createProjectCreationAPI()
   const sprintPlanningAPI = commandAPIs.sprintPlanning ?? createWorkSprintPlanningAPI()
   const milestonePlanningAPI = commandAPIs.milestonePlanning ?? createWorkMilestonePlanningAPI()
   const skillsAPI = commandAPIs.skills ?? createSkillOwnerAPI()
@@ -1218,6 +1248,16 @@ export function createSessionController(
     'project-update': 0,
     'project-lookup': 0,
   }
+  const projectCreationRevisions: Record<ProjectCreationAction, number> = {
+    'project-create': 0,
+    'project-creation-read': 0,
+  }
+  const isProjectCreationAction = (kind: Action): kind is ProjectCreationAction =>
+    Object.hasOwn(projectCreationRevisions, kind)
+  let projectCreationIntent: ProjectCreationIntent | null = null
+  const projectCreationState = shallowReactive<{
+    progress: Omit<ProjectCreationProgress, 'contextValid' | 'canResume'> | null
+  }>({ progress: null })
   const knowledgeCommandRevisions: Record<KnowledgeCommandAction, number> = {
     'knowledge-rename': 0,
     'knowledge-lookup': 0,
@@ -1414,6 +1454,7 @@ export function createSessionController(
     if (invalidate) {
       clearProjectModelState()
       clearProjectState()
+      clearProjectCreationState()
       clearSchedulerState()
       clearAgentConfigurationState()
       clearSprintUpdateState()
@@ -1490,6 +1531,7 @@ export function createSessionController(
     if (!same) {
       clearProjectModelState()
       clearProjectState()
+      clearProjectCreationState()
       clearSchedulerState()
       clearAgentConfigurationState()
       clearSprintUpdateState()
@@ -2051,6 +2093,7 @@ export function createSessionController(
       | SMTPDeliveryAction
       | OutboundPolicyAction
       | ProjectAction
+      | ProjectCreationAction
   | SchedulerAction
       | WorkReviewAction
       | SprintLifecycleAction
@@ -2077,6 +2120,7 @@ export function createSessionController(
       if (isMilestonePlanningAction(kind)) return milestonePlanningRevisions[kind]
       if (isSprintLifecycleAction(kind)) return sprintLifecycleRevisions[kind]
       if (isAgentConfigurationAction(kind)) return agentConfigurationRevisions[kind]
+      if (isProjectCreationAction(kind)) return projectCreationRevisions[kind]
       return isWorkReviewAction(kind)
         ? workReviewRevisions[kind]
         : kind === 'knowledge-read'
@@ -2141,6 +2185,7 @@ export function createSessionController(
         kind === 'secret-read' ||
         kind === 'usage-read' ||
         isProjectAction(kind) ||
+        isProjectCreationAction(kind) ||
         isProjectAuditAction(kind) ||
         isProjectModelAction(kind)
           ? state.phase === 'authenticated' &&
@@ -2231,7 +2276,7 @@ export function createSessionController(
                     ? projectModelFailure(kind, current, error)
                     : isProjectAuditAction(kind)
                       ? projectAuditFailure(current, error)
-                      : isProjectAction(kind)
+                      : isProjectAction(kind) || isProjectCreationAction(kind)
                         ? projectFailure(identity, op, error)
                         : kind !== 'personal'
                           ? systemFailure(identity, op, current, error)
@@ -6241,6 +6286,187 @@ export function createSessionController(
       original.payload.body = null
     }
   }
+  function clearProjectCreationState() {
+    ++projectCreationRevisions['project-create']
+    ++projectCreationRevisions['project-creation-read']
+    if (projectCreationIntent) {
+      projectCreationIntent.input = null
+      projectCreationIntent.body = null
+    }
+    projectCreationIntent = null
+    projectCreationState.progress = null
+    if (owner && isProjectCreationAction(owner.kind)) owner.abandon?.()
+  }
+  function performProjectCreation(
+    original: ProjectCreationIntent,
+    read = false,
+  ): Promise<ProjectCreationResult> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    const input = original.input
+    if (
+      !input ||
+      original !== projectCreationIntent ||
+      !projectContext(original) ||
+      (read && !original.creationID)
+    )
+      return Promise.reject(new AccountFailure('invalid-input'))
+    const kind: ProjectCreationAction = read ? 'project-creation-read' : 'project-create'
+    const revision = projectCreationRevisions[kind]
+    const live = () =>
+      projectCreationIntent === original &&
+      revision === projectCreationRevisions[kind] &&
+      projectContext(original)
+    const publish = (
+      phase: ProjectCreationProgress['phase'],
+      result: ProjectCreationResult | null,
+    ) => {
+      projectCreationState.progress = Object.freeze({
+        projectID: input.project_id,
+        name: input.name,
+        phase,
+        result,
+      })
+    }
+    let dispatched = false
+    if (!read) publish('submitting', projectCreationState.progress?.result ?? null)
+    return runAuthorized(
+      original.identity,
+      async (op, current) => {
+        if (!current() || !live()) throw new AccountFailure('cancelled')
+        if (JSON.stringify(input) !== original.body) throw new AccountFailure('invalid-input')
+        dispatched = true
+        const result = await (read
+          ? projectCreationAPI.get(
+              original.identity.userID,
+              input.project_id,
+              original.creationID!,
+              op.abort.signal,
+            )
+          : projectCreationAPI.create(original.identity.userID, input, {
+              csrfToken: original.csrf,
+              key: original.key,
+              signal: op.abort.signal,
+            }))
+        if (
+          result.state === 'accepted' &&
+          original.creationID &&
+          original.creationID !== result.operation.id
+        )
+          throw new AccountFailure('invalid-response')
+        return result
+      },
+      undefined,
+      kind,
+    ).then(
+      (result) => {
+        if (!live()) throw new AccountFailure('cancelled')
+        if (result.state === 'accepted') {
+          original.creationID = result.operation.id
+          original.unsettled = true
+          publish(result.operation.state === 'failed' ? 'failed' : 'accepted', result)
+        } else {
+          publish('ready', result)
+          if (!live()) throw new AccountFailure('cancelled')
+          original.input = null
+          original.body = null
+          projectCreationIntent = null
+        }
+        return result
+      },
+      (error: unknown) => {
+        const failure =
+          error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (
+          projectCreationIntent === original &&
+          sameIdentity(original.identity, personalContext.identity)
+        ) {
+          const p = failure.problem
+          const rejected =
+            !dispatched ||
+            (p &&
+              ['not_started', 'not_committed'].includes(p.commit_state) &&
+              ((p.status === 400 && p.code === 'INVALID_ARGUMENT') ||
+                (p.status === 409 &&
+                  p.code === 'RESOURCE_BUSY' &&
+                  p.field_errors?.length === 1 &&
+                  p.field_errors[0]?.path === '/name' &&
+                  p.field_errors[0].code === 'NAME_TAKEN')))
+          original.keyConflict ||= p?.code === 'IDEMPOTENCY_KEY_REUSED'
+          original.unsettled ||= read || !rejected || original.keyConflict
+          publish(
+            original.unsettled ? 'uncertain' : 'rejected',
+            projectCreationState.progress?.result ?? null,
+          )
+        }
+        throw failure
+      },
+    )
+  }
+  const projectCreation = {
+    get progress(): ProjectCreationProgress | null {
+      const value = projectCreationState.progress
+      if (!value) return null
+      const contextValid = !!projectCreationIntent && projectContext(projectCreationIntent)
+      return Object.freeze({
+        ...value,
+        contextValid,
+        canResume:
+          contextValid &&
+          !!projectCreationIntent?.input &&
+          !projectCreationIntent.keyConflict &&
+          !state.busy,
+      })
+    },
+    start(value: Readonly<{ name: string; description: string }>) {
+      try {
+        const identity = personalIdentity()
+        if (owner || projectCreationIntent || personalIntent || pending)
+          throw new AccountFailure('busy')
+        const input = captureProjectCreate({
+          project_id: newProjectID(),
+          name: value.name,
+          description: value.description,
+        })
+        const original: ProjectCreationIntent = {
+          identity,
+          csrf: sessionCSRF,
+          key: newKey(),
+          input,
+          body: JSON.stringify(input),
+          unsettled: false,
+          keyConflict: false,
+        }
+        projectCreationIntent = original
+        return performProjectCreation(original)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    resume() {
+      if (!projectCreationIntent || !projectCreation.progress?.canResume)
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performProjectCreation(projectCreationIntent)
+    },
+    check() {
+      if (!projectCreationIntent?.creationID)
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performProjectCreation(projectCreationIntent, true)
+    },
+    editRejected() {
+      if (
+        owner ||
+        projectCreationState.progress?.phase !== 'rejected' ||
+        !projectCreationIntent ||
+        projectCreationIntent.unsettled
+      )
+        throw new AccountFailure('invalid-input')
+      clearProjectCreationState()
+    },
+    clearReady() {
+      if (!owner && projectCreationState.progress?.phase === 'ready')
+        clearProjectCreationState()
+    },
+  }
   function clearProjectState() {
     const retiring = owner && isProjectAction(owner.kind) ? owner : null
     for (const key of Object.keys(projectRevisions) as ProjectAction[]) ++projectRevisions[key]
@@ -8655,6 +8881,7 @@ export function createSessionController(
     state: readonly(state),
     personalContext: readonly(personalContext),
     projects,
+    projectCreation,
     projectScheduler,
     workReview,
     workSprintLifecycle,

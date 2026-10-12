@@ -144,7 +144,7 @@ func TestProjectUpdateRootPureActualDrain(t *testing.T) {
 }
 func TestProjectUpdateRootPureRouteOwnership(t *testing.T) {
 	const p = "/api/v1/projects/01900000-0000-7000-8000-000000000001"
-	for _, tc := range []struct{ method, path, owner string }{{"PATCH", p, "update"}, {"DELETE", p, "update"}, {"HEAD", p, "read"}, {"GET", p, "read"}, {"POST", p + "/commands/lookup", "update"}, {"HEAD", p + "/commands/lookup", "update"}, {"POST", "/api/v1/projects", "read"}, {"GET", "/api/v1/projects/resolve", "usage"}, {"POST", p + "/archive", "old"}, {"GET", "/api/v1/system/model-selection/meeting-summary", "old"}, {"PATCH", p + "/", "old"}} {
+	for _, tc := range []struct{ method, path, owner string }{{"PATCH", p, "update"}, {"DELETE", p, "update"}, {"HEAD", p, "read"}, {"GET", p, "read"}, {"POST", p + "/commands/lookup", "update"}, {"HEAD", p + "/commands/lookup", "update"}, {"POST", "/api/v1/projects", "update"}, {"GET", "/api/v1/project-creations/" + updateRootID[pc.Creation]().String(), "update"}, {"GET", "/api/v1/projects/resolve", "usage"}, {"POST", p + "/archive", "old"}, {"GET", "/api/v1/system/model-selection/meeting-summary", "old"}, {"PATCH", p + "/", "old"}} {
 		t.Run(tc.method+tc.path, func(t *testing.T) {
 			r := httptest.NewRequest(tc.method, tc.path+"?private", strings.NewReader("input"))
 			body, url := r.Body, r.URL

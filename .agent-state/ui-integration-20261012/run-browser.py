@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the two reviewed UI cases through the repository's real fixture chain.
+"""Run a reviewed UI scope through the repository's real fixture chain.
 
 No new services, full-source hashing, or global network/cleanup policy. Original
 Go and Playwright budgets stay in their fixtures. Record actual child waits and
@@ -18,6 +18,12 @@ import time
 SELECTOR = '^(TestTaskSearchWeb|TestProjectVariablesWeb)$'
 EXPECTED = {'TestTaskSearchWeb', 'TestTaskSearchWeb/server-search-beyond-first-page',
             'TestProjectVariablesWeb', 'TestProjectVariablesWeb/create-update-clear-and-delete'}
+CREATE_SELECTOR = '^(TestProjectCreationApp|TestProjectCreationRecoveryApp)$'
+CREATE_EXPECTED = {'TestProjectCreationApp',
+                   'TestProjectCreationApp/default-create-and-configure',
+                   'TestProjectCreationApp/create-through-browser',
+                   'TestProjectCreationRecoveryApp',
+                   'TestProjectCreationRecoveryApp/cancelled-create-restarts-original-intent'}
 
 def save(path, value):
     with path.open('x') as stream:
@@ -52,14 +58,23 @@ def main():
     p.add_argument('--input-hash', required=True)
     p.add_argument('--pg-current-only', action='store_true',
                    help='explicitly omit the unused PG16 negative-control fixture')
+    p.add_argument('--project-creation', action='store_true',
+                   help='run the reviewed default-App creation, browser and recovery scope')
     a = p.parse_args()
+    selector = CREATE_SELECTOR if a.project_creation else SELECTOR
+    expected = CREATE_EXPECTED if a.project_creation else EXPECTED
+    node_count = 1 if a.project_creation else 2
+    web_scopes = ([('AGENTEAM_PROJECT_CREATION_WEB', 'project-creation')]
+                  if a.project_creation else
+                  [('AGENTEAM_TASK_SEARCH_WEB', 'task-search'),
+                   ('AGENTEAM_PROJECT_VARIABLES_WEB', 'variable-delete')])
     for path in (a.root, a.binary, a.output, a.runtime, a.dist):
         assert path.is_absolute()
     assert a.binary.is_file() and (a.dist / 'index.html').is_file()
     assert re.fullmatch('[0-9a-f]{64}', a.input_hash)
     a.output.mkdir(mode=0o700)
     a.runtime.mkdir(mode=0o700)
-    for name in ('task-search', 'variable-delete'):
+    for prefix, name in web_scopes:
         (a.output / name).mkdir(mode=0o700)
     if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0):
         raise OSError(ctypes.get_errno(), 'subreaper unavailable')
@@ -70,15 +85,14 @@ def main():
     env.pop('AGENTEAM_FIXTURE_PG_CURRENT_ONLY', None)
     if a.pg_current_only:
         env['AGENTEAM_FIXTURE_PG_CURRENT_ONLY'] = '1'
-    for prefix, name in (('AGENTEAM_TASK_SEARCH_WEB', 'task-search'),
-                         ('AGENTEAM_PROJECT_VARIABLES_WEB', 'variable-delete')):
+    for prefix, name in web_scopes:
         env.update({prefix+'_DIST': str(a.dist), prefix+'_EVIDENCE': str(a.output/name),
                     prefix+'_INPUT_HASH': a.input_hash})
-    command = ['sh', 'scripts/test-objects.sh', '-run', SELECTOR]
+    command = ['sh', 'scripts/test-objects.sh', '-run', selector]
     save(a.output/'invocation.json', {'command':command,'cwd':str(a.root),
          'input_hash':a.input_hash,'binary':str(a.binary),'dist':str(a.dist),
          'runtime':str(a.runtime),'supervisor_pid':os.getpid(),
-         'pg_current_only':a.pg_current_only})
+         'pg_current_only':a.pg_current_only,'project_creation':a.project_creation})
     began = time.monotonic()
     failed = False
     adopted = []
@@ -139,13 +153,13 @@ def main():
     raw = (a.output/'browser.log').read_text()
     runs = re.findall(r'^=== RUN\s+(\S+)\s*$', raw, re.M)
     results = re.findall(r'^\s*--- (PASS|FAIL|SKIP): (\S+) \(', raw, re.M)
-    exact = (len(runs)==4 and set(runs)==EXPECTED and len(results)==4
-             and all(s=='PASS' for s,n in results) and {n for s,n in results}==EXPECTED
+    exact = (len(runs)==len(expected) and set(runs)==expected and len(results)==len(expected)
+             and all(s=='PASS' for s,n in results) and {n for s,n in results}==expected
              and not re.search(r'^FAIL(?:\s|$)|^panic:|WARNING: DATA RACE',raw,re.M))
     go_waits = re.findall(r'^D03 explicit test actual_wait pid=(\d+) code=(-?\d+) selector=(.*)$',raw,re.M)
     node_waits = re.findall(r'Node actual_wait pid=(\d+) success=(true|false)',raw)
-    exact &= (len(go_waits)==1 and go_waits[0][1:]==('0',SELECTOR)
-              and len(node_waits)==2 and all(ok=='true' for pid,ok in node_waits))
+    exact &= (len(go_waits)==1 and go_waits[0][1:]==('0',selector)
+              and len(node_waits)==node_count and all(ok=='true' for pid,ok in node_waits))
     resources=[]
     record=a.output/'owned-resources.json'
     if record.is_file():

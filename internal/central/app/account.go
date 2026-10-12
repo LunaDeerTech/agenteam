@@ -277,10 +277,11 @@ func (a *accountAssembly) Force(ctx context.Context) error {
 		result = errors.Join(result, work.Force(original))
 		// Inspect the actual work entry so a late-installed pair is also gated.
 		variableCalls, ownsVariables := work.(*projectVariableCallAssembly)
+		projectCalls, ownsProjects := work.(*projectCommandWork)
 		// Runtime terminal/lease cleanup and both Agent/Variable lanes use the
 		// shared providers. Expiring a force budget does not make them disposable.
 		// The root retains its separate bounded Store.ForceClose policy.
-		if executions != nil && work == executions && !executions.Joined() || agents != nil && work == agents && !agents.Joined() || install != nil && work == install && !install.Joined() || ownsVariables && !variableCalls.Joined() {
+		if executions != nil && work == executions && !executions.Joined() || agents != nil && work == agents && !agents.Joined() || install != nil && work == install && !install.Joined() || ownsVariables && !variableCalls.Joined() || ownsProjects && !projectCalls.Joined() {
 			return errors.Join(result, foundation.NewFault(foundation.DependencyUnavailable, foundation.NotStarted))
 		}
 	}
@@ -616,7 +617,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 			return err
 		}
 	}
-	projectCommands, err := createProjectUpdate(cfg, db, projectUsage.projects, authority, auditor, journal, projectEvents, processes)
+	projectCommands, err := createProjectCommands(cfg, db, projectUsage.projects, authority, auditor, journal, projectEvents, processes, skills)
 	if err != nil {
 		return err
 	}
