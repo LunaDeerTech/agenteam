@@ -20,7 +20,8 @@ type CommittedWriteFileCallPlan interface {
 // It lends a cloned argument slice synchronously once in the caller's same-Store
 // Tx after the complete lock union is held; the slice is cleared on return.
 // It neither lends a current-Agent witness nor authorizes any new invocation.
-// consume may not retain the loan, acquire locks, begin a Tx or perform I/O.
+// consume may read or persist through the same Tx. It may not retain the loan,
+// acquire locks, begin another Tx, or perform Model/Runner or other external I/O.
 // A safe caller binding, args DTO or stopped dispatch owner is no substitute.
 type CommittedWriteFileCallAuthority interface {
 	DiscoverCommittedWriteFileCall(context.Context, i.ExecutionID) (CommittedWriteFileCallPlan, error)
