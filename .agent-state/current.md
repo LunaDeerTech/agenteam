@@ -1,10 +1,22 @@
-# main 全局工作与恢复索引
+# 当前工作：Write 交付与 Command 后继
 
-2026-10-12。本索引位于 `/workspace/agenteam` 正式main，由variables_review维护正文，root统筹Git、资源窗口和集成。RoundInput只读投影已随完整历史合入main `b0467431`，唯一主审已接受有限wholePASS；原件已无覆盖保全，main `095d3359` 推送实际0，原Projection树、本地分支及远端引用均已实际清理。见[本片卡](../docs/development/work-items/d22-next-round-projection.md)与[方法/恢复说明](next-round-projection/README.md)。
+2026-10-12。本索引位于 `/workspace/agenteam` 正式 main 工作树，root 统筹 Git、资源窗口与集成。Runner write-file Operation 已有限验收并保全，原分支最终文档 `98083527` 正在由 root 作完整历史合并；当前尚未完成 merge commit、main 可达核验、推送或该任务树/本地/远端清理。已验技术输入 `c1530e95`，原树 `/workspace/agenteam-runner-write-file-operation`、分支 `ai/runner-write-file-operation-20261012`；先前临时树迁址不计为任务清理。
 
-## 当前状态
+Runner Command argv 独立片待集成，其结果不由 Write 验收替代。新 Runner Command WSS 树 `/workspace/agenteam-runner-command-wss` 与工作分支已建立，codec、Handler/control 及真实 Runner TLS/WSS 首链仍在实施、尚未验收；范围不含 Central/PG 或默认接线，也不解除历史 tools HTTP STOP。
 
-- 当前开发：Runner write-file Operation已沿同一分支迁至 `/workspace/agenteam-runner-write-file-operation`，源码/方法组合实施中，尚未运行Go或真实PG；迁址不计为已完成任务清理，默认生产绑定与全部旧STOP保持。
+本片已真实闭合持久 ToolCall→当前 write 专属授权同 Tx Operation/Attempt→原 COMMIT 实际返回→同 RID Claim/WSS 一次→原发布结果与 retired 同 Tx。`basic01` 的 unused import 编译 FAIL 保留；原六包 34 top / 109 sub 与窄补 `basic02` 的 10 top / 36 sub 分阶段共 44 top / 145 sub PASS，八包 vet PASS，829 输入各轮前后相同。`methods01` 1 正 / 7 反及旧映射保留通过；`compile01` 与精确 list 实际 0，1,928 编译输入相同，runtime 1,929 仅增加实物 binary。
+
+`native01` 原工具 34580 actual 0：Go 858887 / driver 857092 原 Wait 0，supervisor 857048 Wait 0 / 165.703 s；1 top / 2 sub PASS（68.27 s），七资源十四次 absence、desc/private/runtime 双空、HOST_TCP 自动差额双空与输入不变齐，唯一主审已最终接受。首链证明提交原返回前零 wire、原返回后一次 512 KiB 写与丢最终回执后只 Lookup；次链证明正式撤销 Mount 后零 wire、旧 bytes 不变、not_dispatched 退休。受控 Model JSONCaller 和原 Project test Skills receipt 的边界保持，没有后继 Model/Transcript 消费、默认绑定或 tools HTTP 解禁。详见[本卡](../docs/development/work-items/d15-runner-write-file-operation.md)与[方法和恢复说明](runner-write-file-operation/README.md)。
+
+root 统筹 Git/资源/集成；原各域作者保留源码所有权，knowledge_delete_fixture 负责 Write PG/方法与本次 current 合并，runtime_recovery 为唯一 principal。Write 原所有执行进程已实际退出，技术输入与原 output 停写；本次只同步文档，不重跑已接受检查。
+
+本片原 output 已由工具 94730 actual 0 同文件系统 `NOREPLACE` 迁至 main 工作树 `output/ai/retired-20261012/runner-write-file-operation/`：95 文件 / 97,809,643 B / 15 目录全 metadata/hash/inode 相同，四份 tmp 副本 7,292 B 齐、原 tmp 保留；旁目录 `runner-write-file-operation-preservation/` 保存 manifest、25 maps / 1,931 历史 blob 核验及原 Wait。历史已匹配 Write 原分支 `79d88efc` / `c1530e95`，未提前记 main 可达或已清理；迁后原 Write 树 untracked/ignored 0，保护缓存不动。详见本片恢复说明。
+
+## 已交付上游与全局保留
+
+以下保留 main 当前已核清理35树/36本地/70远端、legacy141待核/keep1及正式材料位置；Write 本地验收与保全、Command 后继实施均不增加清理计数。
+
+- RoundInput 只读投影已随完整历史合入 main `b0467431`，唯一主审已接受有限 wholePASS；原件已无覆盖保全，main `095d3359` 推送实际0，原 Projection 树、本地分支及远端引用均已实际清理。见[本片卡](../docs/development/work-items/d22-next-round-projection.md)与[方法/恢复说明](next-round-projection/README.md)。以下为其原验收与保全事实。
 - 只读原已提交RoundInput及绑定的历史参数、完整结果、三消息、Control和固定Tool目录；实际reader返回前不发布。当前配置撤销不改历史投影，也不由历史观察授新执行权限。无下一Model/Runner派发或默认生产接线。
 - basic01原22796 actual0：8top/42sub race与三包vet，657输入六份同。compile03原66456与exact-list均实际0，1901编译输入前后同；runtime1902仅增加实物binary，包含已验WSS上游与失败点Statfs诊断，未重跑已接受基础。
 - native03原72578亲收actual0：1top1sub23.50s；sup827584 /113.320s，Go829170/driver827585 Wait0；七资源14absence、desc/private/runtime双空、自动HOST_TCP差额双空与输入不变全部齐。主审已接受真实已提交事实、无写Tx、深拷贝/历史稳定及新增Model/WSS为0的有限链路。原件现位于 main `output/ai/retired-20261012/next-round-projection/native03/`。

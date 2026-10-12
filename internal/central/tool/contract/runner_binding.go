@@ -9,7 +9,13 @@ import (
 	"log/slog"
 )
 
-const RunnerReadFileKey = "runner:read-file"
+const (
+	RunnerReadFileKey  = "runner:read-file"
+	RunnerWriteFileKey = "runner:write-file"
+)
+
+// ValidRunnerKey is deliberately a closed metadata set, not arbitrary Runner operations.
+func ValidRunnerKey(key string) bool { return key == RunnerReadFileKey || key == RunnerWriteFileKey }
 
 // RunnerBinding names a protocol contract, not an online Runner or dispatch grant.
 type RunnerBinding struct {
@@ -19,7 +25,7 @@ type RunnerBinding struct {
 }
 
 func (v RunnerBinding) Validate() error {
-	if v.OperationName != "read-file" || v.OperationRevision != "1" || v.ProtocolMajor != 1 {
+	if (v.OperationName != "read-file" && v.OperationName != "write-file") || v.OperationRevision != "1" || v.ProtocolMajor != 1 {
 		return invalidRegistry()
 	}
 	return nil
@@ -58,14 +64,18 @@ func ReadFileRegistration() RunnerRegistration {
 }
 
 func (v RunnerRegistration) Validate(ctx context.Context) error {
-	if ctx == nil || v.Binding.Validate() != nil || v.ScopeResolverID != "runner.read-file" || v.RiskClassifierID != "runner.read-file" || v.Class != OrdinaryTool {
+	if ctx == nil || v.Binding.Validate() != nil || v.ScopeResolverID != ScopeResolverID("runner."+v.Binding.OperationName) || v.RiskClassifierID != RiskClassifierID("runner."+v.Binding.OperationName) || v.Class != OrdinaryTool {
 		return invalidRegistry()
 	}
 	a, err := CanonicalDefinition(ctx, v.Definition)
 	if err != nil {
 		return err
 	}
-	b, err := CanonicalDefinition(ctx, ReadFileDefinition())
+	want := ReadFileDefinition()
+	if v.Binding.OperationName == "write-file" {
+		want = WriteFileDefinition()
+	}
+	b, err := CanonicalDefinition(ctx, want)
 	if err != nil {
 		return err
 	}
