@@ -282,6 +282,16 @@ Artifact 的原 provider 调用返回后，Project 才能保存该 participant C
 
 本片 adapter 的 Artifact RequestStop/InspectStop 明确 DependencyUnbound。真实验收若使用受控 acceptedDelete 或 Artifact stop 前置，必须与真实 cleanup 结果分开表述；不称默认完整 Delete。真正 Artifact 项目停止、source typed loan、默认 App 的 ProjectCleanupAccess/Artifact 路由及完整 Registry/finalizer 是后继明确缺口。本片不修改默认 App 装配、不恢复旧 Object 网络 probe STOP；本节尚不宣称动态验收通过。
 
+### Artifact 原调用停止（候选）
+
+后继显式 ProjectCallOwnership 构造绑定原 Artifact Service、同一个 Object Service、实际 ProcessGuard/process 与 ProjectStopAuthority；构造不做 I/O，不接受假 guard 或通过公开 setter 给既有 Service 补成功状态。旧 Artifact.New 的业务 API 保持兼容，但没有该真实绑定时 RequestProjectStop/InspectProjectStop 明确 DependencyUnbound。组合根必须将该 owner 的 Stop/Drain/Joined 纳入 guard 退出顺序，不能在其原调用或未决事务仍在时先释放 guard。
+
+Artifact owner 在首业务 SQL 前登记完整原调用，并覆盖 Create、Upload、Read/List 的末尾 Audit、Cancel/Converge 以及所有 Object I/O 后的回写；每次登记和返回检查均使用同 Store 的实际 Tx 与原 ProcessGuard。前向迁移 00079 仅扩现有 project_work 的 read/converge 技术类别与 nullable instance_id，不把读调用冒充 creation，不回填旧行归属。历史 NULL 或同 process 的未知 instance 不能凭 joined_at 或空本地集合判定原返回；外进程只能用该 exact ProcessGuard 的停止证明。取消是请求，业务函数、body/reader 与原 Store 调用的实际返回才是关闭证据。
+
+Artifact Request/Inspect 复用既有 ArtifactStopComponent 和 ProjectStopAuthority：当前 exact operation/action/version、Project SH、完整 manifest 和原 live Tx 每轮重核；gate 事务实际确认返回后才取消所捕获的原 epoch 调用。Archive 保留合法读语义，Delete 必须等待读及其 Audit/SQL 尾；旧 archive cause 不能取消 Restore 后新调用。只读 Inspect 与失败/Unknown 不能造 stopped，所有未确认 source 或 lease 继续 Pending；本片不把旧 CancelSourceLease 的 caller 返回当其 background release 已返回，source 正向收束仍需后继 typed loan。
+
+新的显式 Artifact/Object 组合 adapter 依次消费两原 Service 的 Stop/Inspect；只有 component/cause 严格匹配且两者完整实际返回 Stopped 才聚合 Stopped。没有对应注册 reference kind 的原细粒度 ID 不改名伪装为 object/artifact，聚合保守状态与安全 reason。原 cleanup-only 构造保留，原 LifecycleStopDriver 直接消费新 adapter；不因此绑定默认 App 或部分 Registry，也不声称其它 domain/finalizer 已完成。本节为候选实现合同，动态结果按后续真实验收记录。
+
 ### 9.1 D05 项目停止能力
 
 固定 D05 只有 CleanupProject，没有项目范围 RequestStop/InspectStop。下列 C0 已经独立定向审查并由 root 采纳，代码依据为 `6319d03`；typed 口实现与真实 D05 stop/inspect 分阶段交付，契约成立不代表停止能力已绑定。Project 不越域查表推断空闲。
