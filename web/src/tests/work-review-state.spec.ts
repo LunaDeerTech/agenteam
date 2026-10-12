@@ -195,6 +195,10 @@ describe('Task keyword state', () => {
     expect(f.owner.columns.in_progress.next).toBe('all-next')
     f.api.tasks.mockClear()
     f.owner.search.draft = 'literal %_'
+    f.owner.search.priorityDraft = 'high'
+    f.owner.search.typeDraft = 'task'
+    await flushPromises()
+    expect(f.api.tasks).not.toHaveBeenCalled()
     await f.owner.applySearch()
     expect(f.api.tasks.mock.calls.map(([, q]) => q)).toEqual(
       taskStates.map((state) => ({
@@ -202,13 +206,19 @@ describe('Task keyword state', () => {
         state,
         limit: 50,
         text: 'literal %_',
+        priority: 'high',
+        type: 'task',
       })),
     )
     expect(f.owner.columns.in_progress.next).toBe('search-next')
+    f.owner.search.priorityDraft = 'low'
+    f.owner.search.typeDraft = 'bug'
     await f.owner.loadColumn('in_progress', true)
     expect(f.api.tasks.mock.calls.at(-1)?.[1]).toMatchObject({
       text: 'literal %_',
       cursor: 'search-next',
+      priority: 'high',
+      type: 'task',
     })
     expect(f.owner.columns.in_progress.items.map((row) => row.id)).toEqual([id(4), id(42)])
     await f.owner.selectTask(id(4))
@@ -227,7 +237,15 @@ describe('Task keyword state', () => {
       })),
     )
     expect(f.owner.columns.in_progress.items.map((row) => row.id)).toEqual([id(4)])
-    expect(f.owner.search).toEqual({ draft: '', text: '', message: '' })
+    expect(f.owner.search).toEqual({
+      draft: '',
+      text: '',
+      message: '',
+      priorityDraft: '',
+      typeDraft: '',
+      priority: '',
+      type: '',
+    })
   })
 
   it('clears a keyword on Sprint change and exposes empty results without dropping invalid input', async () => {
@@ -242,13 +260,22 @@ describe('Task keyword state', () => {
     expect(f.owner.search.message).toContain('纯空白')
     f.api.tasks.mockResolvedValue({ items: [] })
     f.owner.search.draft = 'not found'
+    f.owner.search.priorityDraft = 'low'
+    f.owner.search.typeDraft = 'bug'
     await f.owner.applySearch()
     expect(f.owner.searchEmpty.value).toBe(true)
     await f.owner.selectSprint(id(33))
     await flushPromises()
     expect(f.owner.search.text).toBe('')
+    expect(f.owner.search.priority).toBe('')
+    expect(f.owner.search.type).toBe('')
+    expect(f.owner.search.priorityDraft).toBe('')
+    expect(f.owner.search.typeDraft).toBe('')
     expect(f.owner.searchEmpty.value).toBe(false)
-    expect(f.api.tasks.mock.calls.at(-1)?.[1]).not.toHaveProperty('text')
+    const query = f.api.tasks.mock.calls.at(-1)?.[1]
+    expect(query).not.toHaveProperty('text')
+    expect(query).not.toHaveProperty('priority')
+    expect(query).not.toHaveProperty('type')
   })
 
   it('does not publish an old search page after project retirement or retain its keyword', async () => {
@@ -261,6 +288,8 @@ describe('Task keyword state', () => {
     })
     f.api.tasks.mockImplementationOnce(() => response)
     f.owner.search.draft = 'old-project'
+    f.owner.search.priorityDraft = 'high'
+    f.owner.search.typeDraft = 'task'
     const searching = f.owner.applySearch()
     try {
       await flushPromises()
@@ -277,10 +306,53 @@ describe('Task keyword state', () => {
       expect(f.owner.columns.backlog.items).toEqual([])
       expect(f.owner.columns.backlog.next).toBeUndefined()
       expect(f.owner.search.draft).toBe('')
+      expect(f.owner.search.priority).toBe('')
+      expect(f.owner.search.type).toBe('')
+      expect(f.owner.search.priorityDraft).toBe('')
+      expect(f.owner.search.typeDraft).toBe('')
     } finally {
       release({ items: [] })
       await searching
     }
+  })
+})
+describe('Task enum filters state', () => {
+  it('supports enum-only empty results and keeps invalid selections out of the current query', async () => {
+    const f = fixture()
+    f.owner.afterNavigation('/owner/demo/tasks')
+    await flushPromises()
+    f.api.tasks.mockResolvedValue({ items: [] })
+    f.api.tasks.mockClear()
+    f.owner.search.priorityDraft = 'critical'
+    f.owner.search.typeDraft = 'spike'
+    await f.owner.applySearch()
+    expect(f.api.tasks.mock.calls.map(([, q]) => q)).toEqual(
+      taskStates.map((state) => ({
+        sprint_id: id(3),
+        state,
+        limit: 50,
+        priority: 'critical',
+        type: 'spike',
+      })),
+    )
+    expect(f.owner.filtersActive.value).toBe(true)
+    expect(f.owner.searchEmpty.value).toBe(true)
+    f.api.tasks.mockClear()
+    Object.assign(f.owner.search, { priorityDraft: 'unknown' })
+    await f.owner.applySearch()
+    expect(f.api.tasks).not.toHaveBeenCalled()
+    expect(f.owner.search.priority).toBe('critical')
+    expect(f.owner.search.message).toContain('有效的优先级和类型')
+    await f.owner.clearSearch()
+    expect(f.owner.filtersActive.value).toBe(false)
+    expect(f.owner.searchEmpty.value).toBe(false)
+    expect(f.api.tasks.mock.calls.map(([, q]) => q)).toEqual(
+      taskStates.map((state) => ({
+        sprint_id: id(3),
+        state,
+        limit: 50,
+      })),
+    )
   })
 })
 describe('Work review selection and publication owner', () => {

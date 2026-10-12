@@ -5,6 +5,7 @@ import {
   captureReadyInput,
   createWorkReviewAPI,
   type ReviewInput,
+  type TaskQuery,
 } from '../api/work-review'
 
 const id = (n: number) => '01900000-0000-7000-8000-' + n.toString(16).padStart(12, '0')
@@ -131,6 +132,93 @@ describe('Task keyword client', () => {
         ),
       ).rejects.toMatchObject({ kind: 'invalid-response' })
     }
+  })
+})
+
+describe('Task enum filters client', () => {
+  it('encodes applied enum filters with text and cursor and omits unselected filters', async () => {
+    const { description: _description, plan: _plan, ...summary } = task()
+    const fetcher = vi.fn<Fetch>(async () => response({ items: [summary] }))
+    const api = createWorkReviewAPI(fetcher)
+    for (const cursor of [undefined, 'filtered-page']) {
+      await expect(
+        api.tasks(
+          project,
+          {
+            sprint_id: id(3),
+            state: 'in_review',
+            limit: 50,
+            priority: 'high',
+            type: 'task',
+            text: 'literal %_',
+            ...(cursor ? { cursor } : {}),
+          },
+          signal(),
+        ),
+      ).resolves.toEqual({ items: [summary] })
+      const [path, init] = fetcher.mock.calls.at(-1)!
+      expect(init.method).toBe('GET')
+      expect(
+        Object.fromEntries(new URL(path as string, 'https://example.test').searchParams),
+      ).toEqual({
+        sprint_id: id(3),
+        state: 'in_review',
+        limit: '50',
+        priority: 'high',
+        type: 'task',
+        text: 'literal %_',
+        ...(cursor ? { cursor } : {}),
+      })
+    }
+    await api.tasks(project, { sprint_id: id(3), state: 'in_review' }, signal())
+    const params = new URL(fetcher.mock.calls.at(-1)![0] as string, 'https://example.test')
+      .searchParams
+    expect(params.has('priority')).toBe(false)
+    expect(params.has('type')).toBe(false)
+  })
+
+  it('rejects invalid enums before transport and mismatching applied filters instead of hiding rows', async () => {
+    const { description: _description, plan: _plan, ...summary } = task()
+    const fetcher = vi.fn<Fetch>(async () => response({ items: [summary] }))
+    const api = createWorkReviewAPI(fetcher)
+    for (const filter of [
+      { priority: 'urgent' },
+      { type: 'story' },
+      { priority: '' },
+      { type: '' },
+    ]) {
+      await expect(
+        Promise.resolve().then(() =>
+          api.tasks(
+            project,
+            {
+              sprint_id: id(3),
+              state: 'in_review',
+              ...filter,
+            } as TaskQuery,
+            signal(),
+          ),
+        ),
+      ).rejects.toMatchObject({ kind: 'invalid-input' })
+    }
+    expect(fetcher).not.toHaveBeenCalled()
+    for (const filter of [{ priority: 'low' }, { type: 'bug' }] as const) {
+      await expect(
+        api.tasks(
+          project,
+          {
+            sprint_id: id(3),
+            state: 'in_review',
+            ...filter,
+          },
+          signal(),
+        ),
+      ).rejects.toMatchObject({ kind: 'invalid-response' })
+    }
+    // An unfiltered, valid summary is still accepted: the client does not narrow it locally.
+    await expect(
+      api.tasks(project, { sprint_id: id(3), state: 'in_review' }, signal()),
+    ).resolves.toEqual({ items: [summary] })
   })
 })
 

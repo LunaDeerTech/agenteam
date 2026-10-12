@@ -1643,7 +1643,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
             endpoint === 'taskTimeline'
               ? ['cursor', 'order', 'types']
               : endpoint === 'reviewTasks'
-                ? ['cursor', 'text']
+                ? ['cursor', 'text', 'priority', 'type']
                 : ['cursor'],
           )
           const limit = string(query.limit, 1, 3)
@@ -1684,6 +1684,10 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
                 'cancelled',
               ].includes(item)
             )
+              throw new Error()
+            if (key === 'priority' && !['critical', 'high', 'medium', 'low'].includes(item))
+              throw new Error()
+            if (key === 'type' && !['feature', 'bug', 'task', 'spike', 'chore'].includes(item))
               throw new Error()
             if (key === 'order' && !['asc', 'desc'].includes(item)) throw new Error()
             if (key === 'types') {
