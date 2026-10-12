@@ -64,10 +64,13 @@ func newAgentVariablesTerminalPGShape(t *testing.T, upgrade, foreign, empty bool
 
 // The Secret slice retains this actual prefix and seeds only through formal
 // owners before accepted Delete. Legacy terminal cases keep nil/default ports.
-func newAgentVariablesTerminalPGConfigured(t *testing.T, upgrade, foreign, empty, originalSecretAuthority bool, prepare func(*agentVariablesTerminalPG)) *agentVariablesTerminalPG {
+func newAgentVariablesTerminalPGConfigured(t *testing.T, upgrade, foreign, empty, originalSecretAuthority bool, prepare func(*agentVariablesTerminalPG), originals ...*variableHTTPFixture) *agentVariablesTerminalPG {
 	t.Helper()
 	v := &agentVariablesTerminalPG{emptyBusiness: empty}
-	var bases []*variableHTTPFixture
+	if len(originals) > 1 || len(originals) == 1 && (originals[0] == nil || upgrade) {
+		t.Fatal("invalid optional original terminal fixture")
+	}
+	bases := append([]*variableHTTPFixture(nil), originals...)
 	if upgrade {
 		db := pgfixture.NewDatabase(t)
 		migrate(t, db, migrationPrefix(t, "00077"))
@@ -112,6 +115,9 @@ func newAgentVariablesTerminalPGConfigured(t *testing.T, upgrade, foreign, empty
 			if !observed.Matches(cause, scope) || !observed.Details().RegisteredJoined || observed.Details().PendingCalls != 0 || observed.Details().HasMore {
 				t.Fatal("original Agent business return was not confirmed")
 			}
+		}
+		if setup := v.p2.base.artifactAssembly; setup != nil && setup.stop != nil {
+			setup.stop(actor, cause, scope)
 		}
 	}, bases...)
 	return v
