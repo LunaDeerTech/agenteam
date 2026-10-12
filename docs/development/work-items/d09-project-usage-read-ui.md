@@ -8,7 +8,14 @@ root 已授权在现有调用记录页增加“按日汇总”视图；以下 20
 
 逐日显示六项 nullable 用量总和及各自 `known_count`、`unknown_count`，两项计数之和必须等于 `confirmed_invocations`；`dispatch_unknown` 另列，不混入用量分母。全部 int64 保留十进制字符串，只有已知用量才计入总和；全未知显示“未知”，合法零与未知分开。分组日期按 UTC 递增且不得重复，行与页 `as_of` 必须一致。空响应保留真实空态，不补造零行。API/Session 继续使用原 `usage-read` 实际 I/O owner，checking、项目/路径变化、取消和迟到结果不能发布旧观察。
 
-首候选 `f49c8ffd` 的五个定向前端文件共 28 项、类型检查和生产构建已实际通过（`frontend01`，原 `75471/98373e`）；真实后端/浏览器验收尚在准备，不据纯控声明通过。后继真实准备须经正式 Writer 写入超过 50 条安全数值记录并含未知用量，核完整服务端分组、空项目与项目隔离。准备使用受控 Facts 和明确 UTC 日期，不冒充生产 Runtime producer 已绑定；不复用旧列表中重复 MaxInt64 值造成溢出的数据作为汇总正例。
+本后继产品及必要验收已获非作者接受。首候选 `f49c8ffd` 的五个定向前端文件共 28 项、类型检查和生产构建实际通过（原 `75471/98373e`）；未把纯控当作真实后端通过。首场真实 `browser01` 原 `46125/4c2f77` 整轮退出 0，1 top / 1 sub 58.80 秒，但独立截图复核发现 390px 暗色表格长行名与数值、表头相互重叠，**业务检查 PASS，视觉验收未通过**，见[原结果](../../../output/ai/project-usage-summary-delivery/browser01/result.json)与[原视觉 finding](../../../output/ai/project-usage-summary-delivery/browser01/visual-review.json)。该缺陷及旧图保留，不追认首轮界面合格。
+
+修复只将汇总表改为有界、具名且可键盘聚焦的横向滚动区，采用最小列宽与自动布局保留全部指标和完整整数；未改变 API、服务端计算或六项 nullable 数值。原视图控增加滚动区焦点断言；[frontend02](../../../output/ai/project-usage-summary-delivery/frontend02/result.json) 仅复验受影响的 5 项视图测试（4.605 秒）、类型检查（28.053 秒）和构建（2.247 秒），原 Wait 均 0，没有重复无关 28 项或重编 Go。
+
+修后真实 `browser02` 原 `7211/1da682` 整轮退出 0，`TestProjectUsageSummaryWeb/daily-server-aggregate` 70.99 秒；原 Go 1627747、Node 1629405、fixture 1626485 及四个收养子进程实际返回，六个自有资源均 absence，私有目录、runtime 与子进程尾为空，有限后核 `e211b1` 通过，见[实际结果](../../../output/ai/project-usage-summary-delivery/browser02/result.json)。同一原 Go binary 配合修后资产与原浏览器用例取得 3 次 List、3 次 summary 的完整响应、public consumer 与 Go EOF/Close 联证。1440 浅色和 390 深色均以实际文本边界断言排除相邻单元格重叠；窄屏容器有界且可横滚，原 ArrowRight 操作使 scrollLeft 增长。[桌面图](../../../output/ai/project-usage-summary-delivery/browser02/usage-summary/summary-1440-light.png)、[窄屏原位图](../../../output/ai/project-usage-summary-delivery/browser02/usage-summary/summary-390-dark.png)、[窄屏滚动图](../../../output/ai/project-usage-summary-delivery/browser02/usage-summary/summary-390-dark-scrolled.png)已由非作者亲看接受；滚动图只证明该次位移及可见区域，不声称它展示最右端全部列。
+
+真实前置通过正式 Writer 和自有 wire 为目标项目写入 52 条安全数值记录（25 条有用量、27 条未知），同一 Owner 的另一项目另有 1 条，第三项目为空。两个 UTC 日期是 reserve 前的受控 Facts 时间，不是实际过去发生的模型调用；Go 独立核服务端全量分组、各自分母、同窗/as_of、空项目、项目隔离及只读后账本不变，浏览器不从 List 的首 50 条相加。测试未调用外部 Provider，也未证明生产 Runtime producer 已绑定；完整 D09、全部撤权/取消矩阵、Tool/Agent 执行链与既有 STOP 不由本片完成。
+
 
 ## 范围与真实来源
 
