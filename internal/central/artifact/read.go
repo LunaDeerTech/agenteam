@@ -101,7 +101,7 @@ func (s *Service) readArtifact(ctx context.Context, v ac.Invocation, ref ac.Arti
 		if err != nil {
 			return err
 		}
-		return s.appendReadAudit(ctx, tx, v, au.ArtifactRead, resource, metadata, key)
+		return s.appendReadAudit(ctx, tx, v, au.ArtifactRead, resource, metadata, key, meta)
 	})
 	if err = commitError(result); err != nil {
 		return ac.ReadResult{}, err

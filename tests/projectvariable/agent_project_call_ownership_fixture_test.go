@@ -477,6 +477,9 @@ func newAgentOwnershipInstallationFixture(t *testing.T, allowRuntimeClose func()
 	if err != nil {
 		t.Fatal(err)
 	}
+	if base.artifactAssembly != nil {
+		manifest = base.artifactAssembly.manifest(t, manifest)
+	}
 	lifecycle, err := project.NewLifecycleAuthority(store, manifest, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -485,7 +488,11 @@ func newAgentOwnershipInstallationFixture(t *testing.T, allowRuntimeClose func()
 	if err != nil {
 		t.Fatal(err)
 	}
-	projects, err := project.NewAuthority(store, project.AuthorityDependencies{Sessions: base.accounts, Routes: base.accounts, Lifecycle: lifecycle, AuditFacts: map[ac.Producer]ac.ProjectFactAuthority{ac.ObjectProducer: facts}})
+	projectFacts := map[ac.Producer]ac.ProjectFactAuthority{ac.ObjectProducer: facts}
+	if base.artifactAssembly != nil {
+		projectFacts[ac.ArtifactProducer] = base.artifactAssembly.projectAuditFacts(t, store)
+	}
+	projects, err := project.NewAuthority(store, project.AuthorityDependencies{Sessions: base.accounts, Routes: base.accounts, Lifecycle: lifecycle, AuditFacts: projectFacts})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -573,7 +580,11 @@ func newAgentOwnershipInstallationFixture(t *testing.T, allowRuntimeClose func()
 		_ = backend.Close()
 		t.Fatal(err)
 	}
-	objects, err := object.New(store, backend, spool, aud, object.Authorizations{Planner: authority, Resources: authority, Read: authority, Gate: authority, Cleanup: authority, Processes: guard, ProjectStop: lifecycle})
+	objectAuth := object.Authorizations{Planner: authority, Resources: authority, Read: authority, Gate: authority, Cleanup: authority, Processes: guard, ProjectStop: lifecycle}
+	if base.artifactAssembly != nil {
+		objectAuth = base.artifactAssembly.bind(t, store, projects, authority, aud, objectAuth)
+	}
+	objects, err := object.New(store, backend, spool, aud, objectAuth)
 	if err != nil {
 		_ = spool.Close()
 		_ = backend.Close()
