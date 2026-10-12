@@ -24,6 +24,17 @@ func validateAssociated(project i.ProjectID, dispatch c.AssociatedDispatch) erro
 // checked Execution facts. Driver-specific current authority is still checked
 // by the original preparation and DirectText methods before their writes/I/O.
 func (s *associatedExecutorState) inspect(ctx context.Context, project i.ProjectID, dispatch c.AssociatedDispatch) (associatedFacts, error) {
+	return s.inspectAssociation(ctx, project, dispatch, false)
+}
+
+// Late admissions after the first Project stop must independently prove the
+// current Project gate. This read never adopts a driver claim or starts work.
+func (s *associatedExecutorState) admitProject(ctx context.Context, project i.ProjectID, dispatch c.AssociatedDispatch) error {
+	_, err := s.inspectAssociation(ctx, project, dispatch, true)
+	return err
+}
+
+func (s *associatedExecutorState) inspectAssociation(ctx context.Context, project i.ProjectID, dispatch c.AssociatedDispatch, admission bool) (associatedFacts, error) {
 	if ctx == nil || validateAssociated(project, dispatch) != nil {
 		return associatedFacts{}, invalid()
 	}
@@ -72,6 +83,11 @@ func (s *associatedExecutorState) inspect(ctx context.Context, project i.Project
 		}
 		if row.summary.ID != dispatch.ExecutionID || row.summary.ProjectID != project || row.summary.AgentID != dispatch.AgentID || row.launch.ProjectID != project || row.launch.AgentID != dispatch.AgentID || row.launch.Meta.IdempotencyKey != dispatch.Key || row.launch.Trigger.Kind != "task" || row.launch.Lineage.DispatchID != dispatch.DispatchID {
 			return fault(f.ConfirmationStale)
+		}
+		if admission {
+			if _, err := s.preparation.state.projects.RequirePreparingProjectInTx(ctx, tx, project); err != nil {
+				return portError(err)
+			}
 		}
 		facts.status = row.summary.Status
 		if row.summary.Status.Terminal() || row.summary.Status == c.Running || row.summary.Status == c.Waiting {
