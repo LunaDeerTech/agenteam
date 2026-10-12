@@ -135,6 +135,8 @@ agenteam_run_dir=/chosen/task-output/run-unique
 
 Node 安装需匹配 package.json/lock、Node 与平台，复用前核对；不要整树复制另一任务的 node_modules。使用共享安装的工具入口或链接须符合原工具解析方式，并把 Vite/Vitest 等可写缓存与构建产物配置到本轮目录，不在正在共享的安装目录运行 npm ci。Go cache 正常读写遵守 Go 自身并发协议；清缓存、更新共享依赖与迁移路径不能与实际消费者并行。固定 MinIO/浏览器、不可变 fixture 文件和 Docker 镜像也沿原版本复用；现有活跃资源待原 Wait 和 owner 退出后再迁移，不能为清树先挪路径。详见[资源规则](../docs/development/agent-team/README.md#worktree-与测试资源复用)。
 
+新的必要 Go 编译可显式选用 `-trimpath`，减少 worktree 绝对源码路径对共享缓存命中的影响；不设置全局 `GOFLAGS`，也不为优化重建已验证候选。`runtime.Caller` 的文件路径不能用于定位仓库：需要从源码构建子程序的 SMTP fixture 从实际 cwd 逐级查找固定 `go.mod` module，错误模块或找不到时明确拒绝，保持固定 `AGENTEAM_GO` 与 Go 1.27.1 检查。缓存回收先评估可用空间和待跑夹具峰值，在实际消费者退出后有界淘汰可再生条目、保留近期内容；mtime 只是近似 LRU，不证明无人使用。不例行全清 `GOCACHE`，本机单轮采用的容量目标不作为所有环境固定上限。
+
 预编译的定向 PG 套件若已核实不需要 unsupported-PG 反控，可以显式设置 `AGENTEAM_FIXTURE_PG_CURRENT_ONLY=1`，同时保留原 `AGENTEAM_FIXTURE_TEST_BINARY/CWD` 和真实选择器检查；默认不设，仍运行完整版本。不得对全套测试批量默认开启，缺反控环境必须失败。原自有 DB/nonce、实际 Wait、完整退出和资源归属门不变；资源列表采用本轮实际生成 ID，不伪造未启动的 PG16。
 
 ## 上游同步、联调与正式交付
