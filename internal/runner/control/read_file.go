@@ -34,7 +34,9 @@ func (readFileExecutor) mask(string) (string, error)      { return "", ErrProtoc
 
 func (c *Client) connectionHello(id p.ID, version string) p.Hello {
 	hello := clientHello(id, version)
-	switch c.executor.(type) {
+	switch executor := c.executor.(type) {
+	case ownedReadExecutor:
+		hello.Capabilities = executor.selected.Names()
 	case readFileExecutor:
 		hello.Capabilities = []string{p.ReadFileOperation}
 	case writeFileExecutor:

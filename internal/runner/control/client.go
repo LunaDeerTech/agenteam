@@ -16,14 +16,16 @@ import (
 	"time"
 
 	"github.com/LunaDeerTech/agenteam/internal/runner/identity"
+	"github.com/LunaDeerTech/agenteam/internal/runner/operations"
 	p "github.com/LunaDeerTech/agenteam/internal/runnerprotocol"
 )
 
 // Options are copied at construction. A nonzero EnrollmentToken means explicit
 // credential enrollment; a normal reconnect never reuses an enrollment token.
 // Configuration may be omitted when the private identity file already exists.
-// Operations is empty or read-file. The latter constructs resources only after
-// Run obtains the real identity lock; it cannot be mixed with an external executor.
+// Operations selects any subset of read-file, list-directory and find-files.
+// Resources are constructed only after Run obtains the real identity lock;
+// configured operations cannot be mixed with an external executor.
 type Options struct {
 	IdentityFile     string
 	Operations       string
@@ -73,6 +75,8 @@ type Client struct {
 	done             chan struct{}
 	executor         operationExecutor // Fixed before the first connection; never changed on reconnect.
 	ownReadFile      func(identity.Configuration) (operationExecutor, ownedReadFileManager, error)
+	selection        operations.Selection
+	ownOperations    func(identity.Configuration, operations.Selection) (operationExecutor, ownedReadFileManager, error)
 	open             func(string) (ownedIdentity, error)
 	device           func(identity.Configuration, *x509.CertPool) (deviceBackend, error)
 	wait             func(context.Context, time.Duration) error
@@ -84,7 +88,8 @@ func (*Client) MarshalJSON() ([]byte, error) { return []byte(`"runner_control_cl
 func (*Client) LogValue() slog.Value         { return slog.StringValue("runner_control_client") }
 
 func New(options Options) (*Client, error) {
-	if options.Operations != "" && options.Operations != p.ReadFileOperation {
+	selection, selectionErr := operations.Parse(options.Operations)
+	if selectionErr != nil {
 		return nil, identity.ErrInvalid
 	}
 	if options.EnrollmentToken.Valid() && options.EnrollmentSource != nil {
@@ -117,8 +122,10 @@ func New(options Options) (*Client, error) {
 		return nil, ErrProtocol
 	}
 	return &Client{options: options, done: make(chan struct{}),
-		ownReadFile: newOwnedReadFile,
-		open:        func(path string) (ownedIdentity, error) { return identity.Open(path) },
+		ownReadFile:   newOwnedReadFile,
+		selection:     selection,
+		ownOperations: newOwnedOperations,
+		open:          func(path string) (ownedIdentity, error) { return identity.Open(path) },
 		device: func(c identity.Configuration, roots *x509.CertPool) (deviceBackend, error) {
 			return newDeviceClient(c, roots)
 		},
@@ -211,11 +218,21 @@ func (c *Client) Run(ctx context.Context) (result error) {
 	if err = owned.Err(); err != nil {
 		return err
 	}
-	if options.Operations == p.ReadFileOperation {
-		if c.ownReadFile == nil {
-			return identity.ErrUnavailable
+	if options.Operations != "" {
+		var executor operationExecutor
+		var manager ownedReadFileManager
+		var makeErr error
+		if options.Operations == p.ReadFileOperation {
+			if c.ownReadFile == nil {
+				return identity.ErrUnavailable
+			}
+			executor, manager, makeErr = c.ownReadFile(id.Configuration())
+		} else {
+			if c.ownOperations == nil {
+				return identity.ErrUnavailable
+			}
+			executor, manager, makeErr = c.ownOperations(id.Configuration(), c.selection)
 		}
-		executor, manager, makeErr := c.ownReadFile(id.Configuration())
 		// Even an unsuccessful construction can transfer a partial owner. Keep it
 		// on this Run stack before inspecting the error or caller cancellation.
 		if manager != nil {
