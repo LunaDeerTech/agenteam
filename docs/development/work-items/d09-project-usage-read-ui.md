@@ -2,6 +2,14 @@
 
 2026-10-11。工作树 `/workspace/agenteam-project-usage-read-ui`，分支 `ai/project-usage-read-ui-20261011`；已由 root 快进至 Secrets 已交主线 `7e0a123e`。作者 agent_display_settings，独审 recovery_lead，root 独占 Git。产品、真实正常读取链和退出尾已获 recovery_lead 有限独立接受；等待 root 保存并集成，完整 D09 未完成。
 
+## 2026-10-12 后继：按日服务端汇总
+
+root 已授权在现有调用记录页增加“按日汇总”视图；以下 2026-10-11 段落中的“仅 List、不含 summary”描述原交付范围。新视图调用正式 `GET /api/v1/projects/{id}/model-usage/summary`，固定 `group_by=day`、`limit=100`，使用原近 30×24 小时 UTC `[from,to)` 窗口；最多跨 31 个 UTC 日期，要求整页无后续 cursor，绝不将当前 50 条明细相加。切换视图保留窗口，显式刷新重新捕获窗口；不新增八维 Dashboard、费用估算或 Provider 请求。
+
+逐日显示六项 nullable 用量总和及各自 `known_count`、`unknown_count`，两项计数之和必须等于 `confirmed_invocations`；`dispatch_unknown` 另列，不混入用量分母。全部 int64 保留十进制字符串，只有已知用量才计入总和；全未知显示“未知”，合法零与未知分开。分组日期按 UTC 递增且不得重复，行与页 `as_of` 必须一致。空响应保留真实空态，不补造零行。API/Session 继续使用原 `usage-read` 实际 I/O owner，checking、项目/路径变化、取消和迟到结果不能发布旧观察。
+
+首候选 `f49c8ffd` 的五个定向前端文件共 28 项、类型检查和生产构建已实际通过（`frontend01`，原 `75471/98373e`）；真实后端/浏览器验收尚在准备，不据纯控声明通过。后继真实准备须经正式 Writer 写入超过 50 条安全数值记录并含未知用量，核完整服务端分组、空项目与项目隔离。准备使用受控 Facts 和明确 UTC 日期，不冒充生产 Runtime producer 已绑定；不复用旧列表中重复 MaxInt64 值造成溢出的数据作为汇总正例。
+
 ## 范围与真实来源
 
 复用 [Owner Usage HTTP](d09-project-usage-read-http.md) §§1–5、[OpenAPI](../../../api/openapi/project-usage.json) 与 `usage/contract`、`usage/query.go`。入口为项目设置“模型与 Provider → 调用记录”，路径 `/{username}/{project_name}/settings/model-usage`。仅调用稳定 Project ID 的 `GET /api/v1/projects/{id}/model-usage`；不加入 summary、总量推算、估价、Provider 请求或 Dashboard。
