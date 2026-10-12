@@ -39,7 +39,7 @@ func cleanupDriverFixture(t *testing.T, store Store, call func(context.Context, 
 		t.Fatal(err)
 	}
 	project, operation := testID[identity.Project](t), testID[c.Operation](t)
-	round := lifecycleCleanupRound{claim: lifecycleStopClaim{project: project, operation: operation, process: d.state.process, attempt: testID[struct{}](t).String(), fence: 1, phase: "running"}, cause: c.LifecycleCause{OperationID: operation, Action: c.Delete, ProjectVersion: 3}, operationVersion: 4, rowVersion: 2}
+	round := lifecycleCleanupRound{claim: lifecycleStopClaim{project: project, operation: operation, process: d.state.process, attempt: testID[struct{}](t).String(), fence: 1, phase: "running"}, cause: c.LifecycleCause{OperationID: operation, Action: c.Delete, ProjectVersion: 3}, operationVersion: 4, rowVersion: 2, participant: c.OutboxParticipant}
 	return d, round
 }
 

@@ -181,8 +181,22 @@ func (a *Authority) CheckServiceLookup(ctx context.Context, actor identity.Actor
 	return fault(foundation.DependencyUnbound)
 }
 func (a *Authority) CheckCleanupInTx(ctx context.Context, tx foundation.Tx, actor identity.Actor, cause audit.LifecycleCause, project identity.ProjectID) error {
-	// Cleanup sequencing belongs to the later participant/finalizer adapter.
-	return fault(foundation.DependencyUnbound)
+	facts, err := a.lifecycleAuthority()
+	if err != nil {
+		return err
+	}
+	current, err := auditLifecycleCause(cause)
+	if err != nil {
+		return err
+	}
+	target, err := lifecycleActorProject(actor, current)
+	if err != nil {
+		return err
+	}
+	if target != project {
+		return fault(foundation.Forbidden)
+	}
+	return facts.validateAuditCleanupInTx(ctx, tx, project, current)
 }
 
 var _ audit.ProjectAuthority = (*Authority)(nil)
