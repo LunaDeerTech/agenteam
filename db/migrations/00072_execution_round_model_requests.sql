@@ -67,6 +67,3 @@ END;
 $$;
 -- +goose StatementEnd
 CREATE CONSTRAINT TRIGGER execution_round_model_request_pair AFTER INSERT ON agenteam_execution.round_model_requests DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION agenteam_execution.guard_round_model_request_pair();
-
--- +goose Down
-DO $$ BEGIN RAISE EXCEPTION 'forward-only migration'; END $$;

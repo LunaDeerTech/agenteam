@@ -1,6 +1,8 @@
 """Frozen NRMR-1 pure request and Execution owner controls in a root Go window.
 
-Eight new tops / 45 declared subs in two test packages, plus three vet packages.
+Full: eight new tops / 45 declared subs in two test packages, plus three vet packages.
+Migration-source-only: one real embedded-source top and one postgres vet package;
+loading the source does not apply SQL.
 Original closure/Wait algorithms are unchanged. This script never starts PG,
 Runner, Model, HTTP or native resource fixtures.
 """
@@ -27,6 +29,16 @@ NEW_TESTS = {'./internal/central/execution': ['TestExecutionRoundModelRequestSto
 COMPAT_TESTS = {}
 TESTS = {package: names + COMPAT_TESTS.get(package, []) for package, names in NEW_TESTS.items()}
 VET_PACKAGES = ['./internal/central/execution', './internal/central/agentloop', './internal/central/execution/contract']
+MIGRATION_SOURCE_TESTS = {
+    './internal/central/postgres': ['TestEmbeddedSourceLoadsAllMigrations'],
+}
+MIGRATION_SOURCE_VET_PACKAGES = ['./internal/central/postgres']
+MIGRATION_SOURCE_REQUIRED_SOURCES = {
+    'internal/central/postgres/embedded_source_test.go',
+    'internal/central/postgres/source.go',
+    'db/migrations/embed.go',
+    'db/migrations/00072_execution_round_model_requests.sql',
+}
 ENV = dict(
     GOTOOLCHAIN="local", GOENV="off", GOWORK="off", GOPROXY="off",
     GOSUMDB="off", GOTELEMETRY="off", GOFLAGS="-mod=readonly -p=1",
@@ -76,9 +88,13 @@ def decode_stream(raw):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--scope", choices=("full",), default="full")
+    parser.add_argument("--scope", choices=("full", "migration-source-only"), default="full")
     args = parser.parse_args()
     tests, new_tests, compat_tests = TESTS, NEW_TESTS, COMPAT_TESTS
+    vet_packages, required_sources = VET_PACKAGES, REQUIRED_SOURCES
+    if args.scope == "migration-source-only":
+        tests, new_tests, compat_tests = MIGRATION_SOURCE_TESTS, MIGRATION_SOURCE_TESTS, {}
+        vet_packages, required_sources = MIGRATION_SOURCE_VET_PACKAGES, MIGRATION_SOURCE_REQUIRED_SOURCES
     packages = list(tests)
     out = args.output.resolve()
     out.mkdir(parents=True, exist_ok=False)
@@ -144,7 +160,7 @@ def main():
     paths = {"go.mod", "go.sum"} | protected
     for stage, flags, targets in [
         ("deps-race01", ["-race"], packages),
-        ("deps-vet01", [], VET_PACKAGES),
+        ("deps-vet01", [], vet_packages),
     ]:
         run(stage, [GO, "list", *flags, "-deps", "-test", "-json", *targets])
         discovered, local_packages = set(), []
@@ -166,9 +182,9 @@ def main():
     save("deps-closure.json", dict(
         scope=args.scope,
         closures=closures, input_count=len(paths), missing_pre_discovery_inputs=missing,
-        new_top_tests=new_tests, related_old_top_tests=compat_tests, vet_packages=VET_PACKAGES,
+        new_top_tests=new_tests, related_old_top_tests=compat_tests, vet_packages=vet_packages,
     ))
-    if missing or not REQUIRED_SOURCES.issubset(paths):
+    if missing or not required_sources.issubset(paths):
         raise RuntimeError("actual closure missing or reaching unbound source; no test started")
     before = {name: prior[name] for name in sorted(paths)}
     after = manifest(paths)
@@ -198,7 +214,7 @@ def main():
     ))
     if not selected:
         raise RuntimeError("selected top was missing, extra, duplicated or did not pass")
-    run("vet01", [GO, "vet", "-p", "1", *VET_PACKAGES], after)
+    run("vet01", [GO, "vet", "-p", "1", *vet_packages], after)
 
 
 if __name__ == "__main__":
