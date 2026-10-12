@@ -155,6 +155,9 @@ func (s *preparationState) capturedInput(ctx context.Context, request c.Preparat
 		if err := s.store.AcquireAll(ctx, tx, locks); err != nil {
 			return portError(err)
 		}
+		if err := requireProjectCallInTx(ctx, tx, s.store); err != nil {
+			return err
+		}
 		x, err := s.store.InTx(tx)
 		if err != nil {
 			return portError(err)

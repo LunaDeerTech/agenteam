@@ -44,16 +44,17 @@ type directTextCall struct {
 }
 
 type directTextState struct {
-	store     Store
-	authority *Authority
-	processes oc.ProcessAuthority
-	process   oc.ProcessID
-	deps      DirectTextDependencies
-	tools     *toolCallDependencies
-	mu        sync.Mutex
-	stopped   bool
-	calls     map[i.ExecutionID]*directTextCall
-	changed   chan struct{}
+	projectCalls *projectCallState
+	store        Store
+	authority    *Authority
+	processes    oc.ProcessAuthority
+	process      oc.ProcessID
+	deps         DirectTextDependencies
+	tools        *toolCallDependencies
+	mu           sync.Mutex
+	stopped      bool
+	calls        map[i.ExecutionID]*directTextCall
+	changed      chan struct{}
 }
 
 // These copies are facts for the Model-owned matcher. They are not a grant

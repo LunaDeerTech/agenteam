@@ -39,6 +39,7 @@ type PreparationDependencies struct {
 // CurrentProcess is an identity check, not a pin of that guard.
 type PreparationDriver struct{ state *preparationState }
 type preparationState struct {
+	projectCalls  *projectCallState
 	store         Store
 	authority     *Authority
 	agents        ac.ExecutionConfiguration
@@ -90,7 +91,7 @@ func NewPreparationDriver(store Store, authority *Authority, deps PreparationDep
 // entire capture back. Mount metadata and references come from the real
 // provider; capturing them does not seal a Snapshot, enter running or publish
 // Started. A committed input is reused without recapturing current sources.
-func (d *PreparationDriver) Run(ctx context.Context, execution i.ExecutionID) (err error) {
+func (d *PreparationDriver) run(ctx context.Context, execution i.ExecutionID) (err error) {
 	if ctx == nil || execution.Validate() != nil {
 		return invalid()
 	}
@@ -186,7 +187,7 @@ func (d *PreparationDriver) Run(ctx context.Context, execution i.ExecutionID) (e
 // cannot arrive. A known original attempt can be marked terminal only after
 // its original physical call returned, under the same complete lock union.
 // Successful resolution retires ownership only, not preparation or Execution.
-func (d *PreparationDriver) ResolveUnknown(ctx context.Context, execution i.ExecutionID) error {
+func (d *PreparationDriver) resolveUnknown(ctx context.Context, execution i.ExecutionID) error {
 	if ctx == nil || execution.Validate() != nil {
 		return invalid()
 	}
@@ -230,6 +231,7 @@ func (d *PreparationDriver) Stop() {
 		return
 	}
 	s := d.state
+	s.projectCalls.stopLane(projectLanePreparation)
 	s.mu.Lock()
 	s.stopped = true
 	for _, run := range s.calls {
@@ -253,7 +255,7 @@ func (d *PreparationDriver) Drain(ctx context.Context) error {
 		changed := s.changed
 		s.mu.Unlock()
 		if done {
-			return nil
+			return s.projectCalls.drainReturned(ctx, projectLanePreparation)
 		}
 		select {
 		case <-ctx.Done():
@@ -268,8 +270,9 @@ func (d *PreparationDriver) Joined() bool {
 	}
 	s := d.state
 	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.stopped && len(s.calls) == 0
+	done := s.stopped && len(s.calls) == 0
+	s.mu.Unlock()
+	return done && s.projectCalls.laneJoined(projectLanePreparation)
 }
 
 func (s *preparationState) capture(ctx context.Context, request c.PreparationRequest, claim preparationClaim) (err error) {
@@ -414,6 +417,9 @@ func (s *preparationState) capture(ctx context.Context, request c.PreparationReq
 	result := s.store.WithinTx(ctx, claim.cause(), func(ctx context.Context, tx f.Tx) error {
 		if err := s.store.AcquireAll(ctx, tx, locks); err != nil {
 			return portError(err)
+		}
+		if err := requireProjectCallInTx(ctx, tx, s.store); err != nil {
+			return err
 		}
 		proof := &preparationWitness{owner: s.authority.state, driver: s, tx: tx, request: request.Clone(), claim: claim, locks: append([]f.LockRequest(nil), locks...)}
 		if err := proof.require(ctx, tx, request); err != nil {
