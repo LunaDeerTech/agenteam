@@ -60,7 +60,11 @@ func (a *LifecycleAuthority) ValidateInTx(ctx context.Context, tx foundation.Tx,
 	}
 	d := request.Details()
 	if d.LifecycleStep == oc.LifecycleCleanup {
-		return fault(foundation.DependencyUnbound)
+		cause, err := outboxLifecycleCause(d.Lifecycle)
+		if err != nil {
+			return err
+		}
+		return a.validateOutboxCleanupInTx(ctx, tx, d.ProjectID, cause)
 	}
 	x, err := a.lifecycleExecutor(ctx, tx, d.ProjectID)
 	if err != nil {

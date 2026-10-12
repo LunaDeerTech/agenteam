@@ -177,6 +177,9 @@ func (a *LifecycleAuthority) ValidateLifecycleInTx(ctx context.Context, tx found
 		return err
 	}
 	if phase == c.CleanupPhase {
+		if participant == c.OutboxParticipant {
+			return a.validateOutboxCleanupInTx(ctx, tx, project, cause)
+		}
 		if participant != c.SkillsParticipant {
 			return fault(foundation.DependencyUnbound)
 		}
@@ -193,7 +196,7 @@ func (a *LifecycleAuthority) ValidateLifecycleInTx(ctx context.Context, tx found
 	return fact.authorize(false)
 }
 
-// Only the current Skills domain-cleanup step is implemented. The original
+// This is the current Skills domain-cleanup step. The original
 // cause/manifest checks remain shared with Stop/Inspect, but their terminal
 // identity acceptance is never sufficient to authorize a cleanup write.
 func (a *LifecycleAuthority) validateSkillsCleanupInTx(ctx context.Context, tx foundation.Tx, project c.ProjectID, cause c.LifecycleCause) error {
