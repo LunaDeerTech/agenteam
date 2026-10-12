@@ -16,17 +16,29 @@ import (
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	projecthttp "github.com/LunaDeerTech/agenteam/internal/central/project/http"
 	"github.com/LunaDeerTech/agenteam/internal/central/project/schedulerhttp"
+	"github.com/LunaDeerTech/agenteam/internal/central/skill"
 )
 
-// Pure construction retains the existing authority, store, actual process
-// guard. Creation remains unbound until the full lifecycle manifest and its
-// actual stop/guard integration are accepted (D08 §7, D10 §14).
+// Retain the metadata-only constructor for isolated existing consumers.
 func createProjectUpdate(cfg config.Config, db database, projects *project.Authority, accounts *account.Authority, auditor *audit.Service, journal *outbox.Service, events pc.ProjectEvents, processes accountProcessAuthority) (*project.Service, error) {
+	return newProjectCommands(cfg, db, projects, accounts, auditor, journal, events, processes, nil)
+}
+
+// The default root binds the actual Skill owner. Creation and destructive
+// lifecycle have separate capability gates; no partial Registry is installed.
+func createProjectCommands(cfg config.Config, db database, projects *project.Authority, accounts *account.Authority, auditor *audit.Service, journal *outbox.Service, events pc.ProjectEvents, processes accountProcessAuthority, initializer *skill.Service) (*project.Service, error) {
+	if initializer == nil {
+		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+	}
+	return newProjectCommands(cfg, db, projects, accounts, auditor, journal, events, processes, initializer)
+}
+
+func newProjectCommands(cfg config.Config, db database, projects *project.Authority, accounts *account.Authority, auditor *audit.Service, journal *outbox.Service, events pc.ProjectEvents, processes accountProcessAuthority, initializer pc.ProjectSkillInitializer) (*project.Service, error) {
 	store, ok := db.(project.Store)
 	if !ok || runtimeInformationNil(store) || accounts == nil || auditor == nil || journal == nil || processes.guard == nil {
 		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
 	}
-	return project.New(store, project.Dependencies{Authority: projects, Activity: accounts, Audit: auditor, Events: journal, ProjectEvents: events, Processes: projectCommandProcess{processes}, Cursors: cfg.CursorKeyring()}, project.DefaultConfig())
+	return project.New(store, project.Dependencies{Authority: projects, Activity: accounts, Audit: auditor, Events: journal, ProjectEvents: events, Processes: projectCommandProcess{processes}, Cursors: cfg.CursorKeyring(), Initializer: initializer}, project.DefaultConfig())
 }
 
 // The IDs have distinct nominal types but identify the very same root process.
@@ -95,7 +107,15 @@ func projectUpdateHandler(service *project.Service, core *account.Service, origi
 	if err != nil {
 		return nil, err
 	}
+	creation, err := projecthttp.NewCreationHTTPHandler(service, boundary)
+	if err != nil {
+		return nil, err
+	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if projecthttp.HandlesCreationRequest(r.Method, r.URL.Path) {
+			creation.ServeHTTP(w, r)
+			return
+		}
 		if schedulerhttp.HandlesPath(r.URL.Path) {
 			scheduler.ServeHTTP(w, r)
 			return
@@ -105,7 +125,7 @@ func projectUpdateHandler(service *project.Service, core *account.Service, origi
 }
 func projectUpdateRoutes(existing, updates http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if schedulerhttp.HandlesPath(r.URL.Path) || projecthttp.HandlesUpdateRequest(r.Method, r.URL.Path) {
+		if schedulerhttp.HandlesPath(r.URL.Path) || projecthttp.HandlesCreationRequest(r.Method, r.URL.Path) || projecthttp.HandlesUpdateRequest(r.Method, r.URL.Path) {
 			updates.ServeHTTP(w, r)
 			return
 		}

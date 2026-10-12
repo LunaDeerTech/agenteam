@@ -184,7 +184,7 @@ ProjectSkillInitializer.ConfirmInitializedInTx(ctx, tx, service_actor, request, 
   -> InitializationReceipt {creation_id,project_id,add_skills_id,revision}
 ```
 
-Plan 是 provider 私有 issuer + 完整 request/actor mapping +复制 RequiredLocks 的 opaque 值；Discover 只规划，不授权；Confirm 必须同调用方 Tx/完整已持锁重验真实 Skill 所属 Project、protected Add Skills、已发布且可引用的 revision/对象，以及 exact 初始化记录，不接受 caller 标记 completed。无锁补取/嵌套 Tx/外部 I/O。D10 加入 Project manifest 的 `agent-skills-variables` 参与者之后才能启用该 adapter。
+Plan 是 provider 私有 issuer + 完整 request/actor mapping +复制 RequiredLocks 的 opaque 值；Discover 只规划，不授权；Confirm 必须同调用方 Tx/完整已持锁重验真实 Skill 所属 Project、protected Add Skills、已发布且可引用的 revision/对象，以及 exact 初始化记录，不接受 caller 标记 completed。无锁补取/嵌套 Tx/外部 I/O。创建能力与破坏性生命周期按真实能力分别开放：该 adapter 的默认绑定以本节真实初始化、原身份失败恢复及 App 原调用退出验收为前置，不以尚未开放的 Archive/Delete 参与者完成作为创建前置。真实初始化仍不得被空对象、no-op provider 或 caller DTO 替代；新建项目已启用的所有领域必须计入未来 Archive/Delete 的完整 manifest。
 
 新增封闭服务职责 `identity.ProjectInitialization`（值 `project-initialization`），只由组合根注册。Actor ProjectID 为原保留 Project，CauseRef 为 CreationID；Project Authority 核实未完成 creation、原 ID/key、当前初始化门禁和该服务职责。不得复用 archive/delete cause 伪造初始化，也不给此服务通用读写项目能力。
 
@@ -196,13 +196,13 @@ Plan 是 provider 私有 issuer + 完整 request/actor mapping +复制 RequiredL
 4. provider completed 后 Tx 外 DiscoverConfirmation；同 Project EX 和其完整计划锁下 ConfirmInitializedInTx，检查 creation 尚在原身份/阶段，原子写 initialized_at、completed、固定 Add Skills reference、Project 创建 Event/Audit/最终 result。version 对可用 Project 初始仍为 1；初始化阶段用 creation.version，不伪造多次业务更新。
 5. 首请求可在原 caller 总预算内得到 ready/201；持久 accepted 后未完成返回 202/status URL。明确失败返回安全 Fault 并可用 GetCreation 查询 failed；重试相同 Create key 恢复同 creation。后台恢复不重复 revision，重启和响应丢失都不产生第二个 Project。
 
-没有 D10 adapter 时，D08 服务库的 Create 正向由隔离测试 initializer 验边界，生产仅 fail-closed。该事实写进台账；D10 真实创建及失败/恢复/清理组合通过前，不宣称用户已经能创建完整项目。
+没有 D10 adapter 时，D08 服务库的 Create 正向由隔离测试 initializer 验边界，生产仅 fail-closed。该事实写进台账；D10 真实创建、失败/原 key 恢复及实际 App 退出组合通过前，不宣称用户已经能创建项目；清理组合是开放破坏性生命周期的独立前置。本次能力拆分及真实 UI 接入见[默认项目创建](d08-project-creation-app-ui.md)，不宣称完整 D08/D10 或删除交付。
 
 ## 8. 生命周期编排
 
 状态边保持 D01：active→archiving→archived→active；active/archived→deleting→物理删除。archiving 与 deleting 互斥；failed operation 保留原 gate/名称/完成进度，不自动恢复 active。用户先恢复/完成原归档操作再提出 delete；不额外发明取消归档处理中命令。
 
-Registry 来自受信任组合根，条目固定 name、contract_version、enabled owner module、stop/cleanup 能力、清理先后关系。缺必要绑定是明确缺陷；不能按“当前没数据”“目录为空”“还没看到事件”自动删 required participant。初始 D08 已存在领域要求 `artifact-object,secret,outbox,audit`；启用 D10 初始化时再要求 `agent-skills-variables`。D28 完整集合沿 D01，各模块启用时登记，不能沿用 D08 小集合冒称全平台清理。
+Registry 来自受信任组合根，条目固定 name、contract_version、enabled owner module、stop/cleanup 能力、清理先后关系。缺必要绑定是明确缺陷；不能按“当前没数据”“目录为空”“还没看到事件”自动删 required participant。初始 D08 已存在领域要求 `artifact-object,secret,outbox,audit`；部署包含 D10 初始化或 Agent/Variables 实际数据能力时，Archive/Delete 的 manifest 还必须包含完整 `agent-skills-variables`；此要求作用于破坏性操作的新接受，不阻塞已具真实初始化与恢复能力的创建。Registry 缺失继续在生命周期接受前拒绝，不以空实现开放操作。D28 完整集合沿 D01，各模块启用时登记，不能沿用 D08 小集合冒称全平台清理。
 
 接受操作时把 required manifest 与版本/digest 同 Tx 持久化，之后不缩减。部署升级恢复旧 operation 必须保留兼容 adapter；移除或缺版本使该 operation pending/failed，不当作已完成。新模块注册不得在已有 deleting/archiving 项目上建立普通数据；当前 operation 的集合同步只能在保证没有遗漏既存数据的工程升级规格下增加，不能随进程重启默默替换。
 

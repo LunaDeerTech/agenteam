@@ -114,6 +114,8 @@ const endpoints = {
   lookupProjectSecret: ['POST', '/api/v1/projects/{project_id}/secret-variables/commands/lookup', 200],
   listProjectUsage: ['GET', '/api/v1/projects/{project_id}/model-usage', 200],
   createProjectVariable: ['POST', '/api/v1/projects/{project_id}/variables', 200],
+  createOwnerProject: ['POST', '/api/v1/projects', 201],
+  getProjectCreation: ['GET', '/api/v1/project-creations/{id}', 200],
   updateProjectVariable: ['PATCH', '/api/v1/projects/{project_id}/variables/{target}', 200],
   lookupProjectVariable: ['POST', '/api/v1/projects/{project_id}/variables/commands/lookup', 200],
   milestoneUpdate: ['PATCH', '/api/v1/projects/{project_id}/milestones/{target}', 200],
@@ -1044,6 +1046,8 @@ type ProjectModelOptions<E extends ProjectModelEndpoint> = E extends
       : { signal: AbortSignal; projectID: string; body: unknown; csrf: string; key: string }
 
 type ProjectEndpoint =
+  | 'createOwnerProject'
+  | 'getProjectCreation'
   | 'getProjectScheduler'
   | 'updateProjectScheduler'
   | 'lookupProjectScheduler'
@@ -1058,10 +1062,14 @@ type ProjectOptions<E extends ProjectEndpoint> = E extends 'listOwnerProjects'
   ? { signal: AbortSignal; projects: ProjectWireQuery }
   : E extends 'resolveOwnerProject'
     ? { signal: AbortSignal; projectAddress: ProjectWireAddress }
-    : E extends 'getOwnerProject' | 'getProjectScheduler'
+    : E extends 'getOwnerProject' | 'getProjectScheduler' | 'getProjectCreation'
       ? { signal: AbortSignal; target: string }
-      : { signal: AbortSignal; target: string; body: unknown; csrf: string; key: string }
+      : E extends 'createOwnerProject'
+        ? { signal: AbortSignal; body: unknown; csrf: string; key: string }
+        : { signal: AbortSignal; target: string; body: unknown; csrf: string; key: string }
 const projectEndpoints: readonly ProjectEndpoint[] = [
+  'createOwnerProject',
+  'getProjectCreation',
   'getProjectScheduler',
   'updateProjectScheduler',
   'lookupProjectScheduler',
@@ -2092,7 +2100,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       headers['Content-Type'] = options.avatar.mediaType
       headers['If-Match'] = `"${options.avatar.version}"`
     } else if (method !== 'GET') {
-      const maximum =
+      const maximum = endpoint === 'createOwnerProject' ? 16384 :
         (secretCommandEndpoints as readonly string[]).includes(endpoint) ? 1024 * 1024 :
         (runnerEndpoints as readonly string[]).includes(endpoint) ? 32768 :
         endpoint === 'updateProjectScheduler' ? 4096 : endpoint === 'lookupProjectScheduler' ? 1024 :
@@ -2189,7 +2197,8 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
         return parse(blob)
       }
       const contentType = response.headers.get('Content-Type')?.split(';')[0]?.trim().toLowerCase()
-      const success = response.status === status
+      const success =
+        response.status === status || (endpoint === 'createOwnerProject' && response.status === 202)
       if (contentType !== (success ? 'application/json' : 'application/problem+json'))
         throw new AccountFailure('invalid-response')
       let value: unknown
@@ -2270,6 +2279,8 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           ) ||
             (runnerEndpoints as readonly string[]).includes(endpoint) ||
             endpoint === 'listProjectUsage' ||
+            endpoint === 'createOwnerProject' ||
+            endpoint === 'getProjectCreation' ||
             (secretReadEndpoints as readonly string[]).includes(endpoint) ||
             (secretCommandEndpoints as readonly string[]).includes(endpoint) ||
             (skillEndpoints as readonly string[]).includes(endpoint) ||
@@ -2290,6 +2301,15 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           problem(value, response.status, response.headers.get('X-Request-ID')),
         )
       try {
+        if (endpoint === 'createOwnerProject') {
+          const creation = object(value)
+          if (response.status === 201 && creation.state !== 'ready') throw new Error()
+          if (
+            response.status === 202 &&
+            (creation.state !== 'accepted' || response.headers.get('Location') !== creation.status_url)
+          )
+            throw new Error()
+        }
         return parse(value)
       } catch {
         throw new AccountFailure('invalid-response')
