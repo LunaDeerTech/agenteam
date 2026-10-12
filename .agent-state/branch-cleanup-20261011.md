@@ -218,3 +218,15 @@ root明确授权的唯一Git执行者将最终 `7853aa4ff8e0ead1f7117b9c02771f9e
 main正常push PID1141903实际0、fresh main PID1141935精确匹配97935367且tracking一致；feature `ai/round-model-call-reservation-20261012` fresh PID1141941实际为空。普通worktree remove PID1141945、local branch-d PID1141985均0；再次fresh PID1141986为空，显式main/ai fetch-prune PID1141992为0，本地/tracking及旧树均空。原89124/653162亲Wait0，见[实际后验](../output/ai/round-model-call-reservation-delivery/cleanup01/result.json)。本分支未推过远端，未人为创建临时远端，不计remote删除。
 
 本次只增加1树/1本地，累计 **45 WorkTrees / 46本地分支 / 85远端引用**；legacy135待核、原keep1及全部STOP/保护依赖不变。Agent持久调用归属仍在独立树，native02 FAIL和修后d64a未动态验证的界限保留；下一Model Invoke桥仅独立工作准备，不计交付或清理，总体平台目标未完成。
+
+## 2026-10-12 Agent 持久归属、撤回规划树与 App 实际清理
+
+Agent最终 `149fa2137235a11e78f6be5deefe86c39f491cfd`（受测 `153232f6`）正常no-ff合main `a117e958c901a6146168c7837b3da0cc20377c2b`，原95ef04实际0；push/fresh/tracking原21202/f4604c实际0。App最终 `903b87a75169ef788e591eac2845bc85a350fbe1`（受测 `7e202fcb`）正常no-ff合main `33feecbd6e50ec94fb32c258f980f3332e5c70ee`，原971606实际0；push/fresh/tracking原92172/81193c实际0。两者技术字节逐blob对齐并保完整祖先，不因文档或合入重测。
+
+[Agent保全](../output/ai/retired-20261012/agent-project-call-ownership-preservation/result.json)原85525/92e7ef实际0：438files/321,511,278B/41dirs、63maps/2059历史版本、12tmp副本；[App保全](../output/ai/retired-20261012/agent-project-call-app-preservation/result.json)原91842/b55591实际0：88files/99,022,474B/11dirs、24maps/2055版本、4tmp副本7397B。完整目录均同FS NOREPLACE，path/SHA/stat/inode前后相同，原tmp保留。Agent跨Model2041路径/84records复用旧证明；[跨App补证](../output/ai/retired-20261012/agent-project-call-app-preservation/agent-cross-main-supplement.json)完整闭合1132历史版本/35records。Agent02/04FAIL、01/03prepared-only、05PASS和App首次PASS、全部Wait/工具转录来源不变；cache77/38/514可再生包体未归档，不冒工具或缓存由Git恢复。
+
+保全独核Agent d4d04f/b184e5、App5e5b23接受后，[Agent清理](../output/ai/agent-project-call-ownership-delivery/cleanup01/result.json)原9948/4163ca与[App清理](../output/ai/agent-project-call-app-delivery/cleanup01/result.json)原30264/96f71f均实际0：普通worktree remove及local branch-d，fresh feature远端前后为空，显式main/ai prune与local/tracking空。两feature从未为清理新推远端，不计远端删除。
+
+撤回的 `ai/round-model-call-authority-20261012` 仅main祖先 `41cea003` 的只读规划树，tracked/untracked/ignored均空、无已知live借用。原fresh fda5a4因HTTP503在任何删除前退出1，原失败保留；后继一次fresh成功为空，[普通remove/-d](../output/ai/round-model-call-authority-cleanup/cleanup02/result.json)原47085/5e4d10实际0。无独有实现/产物，无远端创建或删除。
+
+本批实际增加3树/3本地/0远端，累计 **48 WorkTrees / 49本地分支 / 85远端引用**；legacy135待核、keep1不变。Variables新树从已交main a117创建（11159/458f65实际0/max74），仅卡先存cb6b2bda后源码独立实施；Runner普通合main33fe后方法基线静修中，尚未运行。新建树不计清理，所有既有STOP/原FAIL/保护依赖与整体未完成保持。

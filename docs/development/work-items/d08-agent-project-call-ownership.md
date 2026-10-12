@@ -1,6 +1,6 @@
 # D08 Agent 持久调用归属与 foreign 停止观察
 
-状态：本片产品、迁移 74、必要纯控及真实 PG 已实现并完成限定验收；native05 在 `153232f6dc32a3550f34981282cde3ebe8b5e25f` 实际完整 PASS。原 native02/04 FAIL、native01/03 prepared-only 容量 HOLD 及后续编译前 HOLD 均保留；不外推 App PG 或完整 participant。起始基线 `3ac9f2a6e62e7aa31b744695444c7e844e195ebc`，工作树 `/workspace/agenteam-agent-project-call-ownership`，分支 `ai/agent-project-call-ownership-20261012`。已正常带入共享 Object 前置和迁移 73，迁移源连续至 74；尚不据此宣称已合入 main 或清理工作树。只依赖本树及明确引入的共享前置，无旧交付 worktree 的 source/bin/output/cache 依赖。
+状态：本片产品、迁移 74、必要纯控及真实 PG 已实现并完成限定验收；native05 在 `153232f6dc32a3550f34981282cde3ebe8b5e25f` 实际完整 PASS。原 native02/04 FAIL、native01/03 prepared-only 容量 HOLD 及后续编译前 HOLD 均保留；不外推 App PG 或完整 participant。起始基线 `3ac9f2a6e62e7aa31b744695444c7e844e195ebc`，原工作树 `/workspace/agenteam-agent-project-call-ownership` 与本地分支 `ai/agent-project-call-ownership-20261012` 已完成普通清理。已正常带入共享 Object 前置和迁移 73，迁移源连续至 74；完整历史已正常合入并推送 main `a117e958`，原件保全独核接受后才清树；远端原本不存在，不计远端删除。只依赖本树及明确引入的共享前置，无旧交付 worktree 的 source/bin/output/cache 依赖。
 
 ## 最小单片及依据
 
@@ -88,3 +88,7 @@ native05 原工具 `22538`／final `dca864` 为 0，supervisor `1183622` Wait 0�
 native01/03 仅 prepared 后容量 HOLD；sequence03 编译前容量 HOLD 也未运行测试。native02 的实际 FAIL 和缺少 child 内部诊断保留，随后仅修正原已初始化 bucket 复用并补安全有界诊断。native04 仍实际 FAIL，诊断仅确证 child Runtime 的 DEPENDENCY_UNBOUND；静态发现 nil Planner 空库恢复与已有 Skill/Object 图矛盾后，`153232f6` 才改用完整正式图。原日志未区分两个 no-Planner 拒绝谓词，不能倒填。两轮修正不放宽业务、guard 或锁门，native05 是修后新一轮真实结果。
 
 原失败、prepared-only、容量 HOLD、77／38／514 项精确缓存删除原件及完整结果索引见[验收 README](../../../.agent-state/agent-project-call-ownership/README.md#recorded-failures-holds-and-final-result)。514 项可再生缓存删除不等于源码/失败记录清理或全 cache 清空，未归档缓存包正文；tool-observation 只是 assistant 对原工具完成的转录。此片只完成接入协议的 registered ownership，未证明 App PG、全 legacy/global Joined 或完整生命周期参与者。
+
+## 交付与恢复位置
+
+受测 `153232f6` 与最终文档 `149fa213` 均由正式 main 完整历史恢复；原 basic/native 证据复用，未因文档或集成重测。原 `85525/92e7ef` 实际 0 将 438 文件、321,511,278B、41 目录同FS NOREPLACE保留，63 输入图的 2,059 历史源码版本和12份tmp副本完整，原tmp不删。02/04 FAIL、01/03 prepared-only、05 PASS、原缓存例外和工具观察来源均不改。保全独核后普通清理 `9948/4163ca` 实际0；feature远端fresh为空，未虚计删除。正式位置与跨Model/App恢复限制见[恢复说明](../../../.agent-state/agent-project-call-ownership/README.md#main-delivery-and-retained-evidence)，本片技术边界不因交付扩大。

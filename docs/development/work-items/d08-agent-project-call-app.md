@@ -1,6 +1,6 @@
 # D08 App Agent 调用归属装配与退出闭环
 
-状态：三个 App 装配文件、专用基础控和首次真实 HTTP/PG 链已有限验收。basic 在 `763576b88b4ed6f819b3a067ac8007c7bfd3352f` 实际通过 5 top / 6 sub 及一个 App vet；合入上游完整 Skill/Object 夹具修正后，`7e202fcb1c471c13f812e6880500e2d7bff3345b` 的 profile、compile/list 和 native01 whole 均实际通过，原 basic 真实输入相同并复用。本片无失败运行或重试。上游 Agent native02/native04 的原 FAIL、native03 容量 HOLD 均保留，不回填为本片结果。当前可交付集成；尚不在本卡提前记合入、推送、原件保全或树清理。
+状态：三个 App 装配文件、专用基础控和首次真实 HTTP/PG 链已有限验收。basic 在 `763576b88b4ed6f819b3a067ac8007c7bfd3352f` 实际通过 5 top / 6 sub 及一个 App vet；合入上游完整 Skill/Object 夹具修正后，`7e202fcb1c471c13f812e6880500e2d7bff3345b` 的 profile、compile/list 和 native01 whole 均实际通过，原 basic 真实输入相同并复用。本片无失败运行或重试。上游 Agent native02/native04 的原 FAIL、native03 容量 HOLD 均保留，不回填为本片结果。完整历史已正常合入并推送 main `33feecbd`；原件保全独核接受后已普通清理旧树和本地分支，feature远端原本不存在，不计远端删除。
 
 本片让默认 App 的 Agent 配置、Runner Mount 配置读取及目录 HTTP 使用同一个真实 `agent.ProjectCallOwnership`，并由一个 `accountWork` 管理其完整退出。沿 [Agent 管理规范](../../architecture/agent-management.md)、[持久调用归属卡](d08-agent-project-call-ownership.md)及[团队流程](../agent-team/README.md)。不新增迁移，不改变 Agent 业务权限、命令回执、原预算或公开默认构造；不交付 Project fullparticipant、初始化、引用清理或 legacy global join。
 
@@ -51,3 +51,7 @@ PG 失败保留规则：若原 App 或 guard 尚未实际释放，夹具先记�
 本片真实 PG 只覆盖默认 App 双 lane 与原 directory-return/checkpoint/guard 退出顺序；不外推 StopDriver、foreign death、真实 COMMIT-Unknown 或 Force PG。Unknown/Force 仅按基础控受控范围记证，原上游失败不改。上述 PG 失败保留规则及原 2s HTTP、finish、graceful/整轮预算均未放宽。
 
 [project_update.go](../../../internal/central/app/project_update.go) 的 Initializer/LifecycleRegistry 继续未绑定；完整 Skills/Variables 排空、Execution/Agent/Skill 引用退休、完整 enabled manifest 与有序 cleanup 仍是后继。Object runtime join、Knowledge、真实 tools HTTP 等既有 STOP 不变；本片不改变其实现或用替身绕过，不宣称完整 D08、生产 Project 创建或全平台生命周期完成。
+
+## 交付与原件恢复
+
+最终文档 `903b87a7` 与受测 `7e202fcb` 已由正式 main 完整历史保留。原保全 `91842/b55591` 实际0：88文件、99,022,474B、11目录同FS NOREPLACE逐SHA/stat/inode相同，24图的2,055历史路径版本可恢复，4份tmp副本7,397B齐且原件保留。Agent缓存证据所引1,132源码版本和35输出records已逐项闭合到main及迁后路径；独核 `5e5b23` 接受后才执行普通清理 `30264/96f71f` 实际0。远端原空、显式main/ai prune及tracking空不虚计远端删除。详见[恢复说明](../../../.agent-state/agent-project-call-app/README.md#main-delivery-and-retained-evidence)。原上游FAIL/HOLD、外部工具与可见性限制及本片有限范围均保留。
