@@ -13,26 +13,38 @@ import (
 )
 
 type sourceReadsState struct {
-	service  *Service
-	resolver oc.SourceResolver
-	issuer   oc.SourceIssuer
-	mu       sync.Mutex
-	leases   map[oc.LeaseID]*sourceLeaseState
+	service   *Service
+	resolver  oc.SourceResolver
+	issuer    oc.SourceIssuer
+	authority oc.ProjectSourceStopAuthority
+	mu        sync.Mutex
+	leases    map[oc.LeaseID]*sourceLeaseState
 }
 type sourceLeaseState struct {
-	id                       oc.LeaseID
-	origin                   foundation.Tx
-	actor                    identity.Actor
-	source                   oc.ResolvedSource
-	process                  oc.ProcessID
-	mu                       sync.Mutex
-	busy, started, cancelled bool
-	joined, released         bool
-	cancel                   context.CancelFunc
-	done                     chan struct{}
-	reader                   *oc.ObjectReader
-	result                   error
-	work                     *projectWorkHandle
+	id                         oc.LeaseID
+	origin                     foundation.Tx
+	actor                      identity.Actor
+	source                     oc.ResolvedSource
+	process                    oc.ProcessID
+	mu                         sync.Mutex
+	busy, started, cancelled   bool
+	joined, released           bool
+	cancel                     context.CancelFunc
+	done                       chan struct{}
+	reader                     *oc.ObjectReader
+	result                     error
+	work                       *projectWorkHandle
+	owner                      *sourceReadsState
+	command                    foundation.CommandIdentity
+	target                     identity.ProjectID
+	retained                   bool
+	original                   foundation.CommitResult
+	originalError              error
+	releaseRunning, stopActive bool
+	acquireReturned            bool
+	acquisition                foundation.CommitResult
+	closeDone                  chan struct{}
+	stopScope                  *projectSourceStopScope
 }
 type SourceReads struct{ data func() *sourceReadsState }
 
@@ -88,12 +100,15 @@ func (r *SourceReads) AcquireSourceInTx(ctx context.Context, tx foundation.Tx, a
 	if err != nil {
 		return oc.SourceLease{}, unavailable(err)
 	}
-	h := &sourceLeaseState{id: id, origin: tx, actor: actor, source: source, process: s.state().process}
+	h := &sourceLeaseState{id: id, origin: tx, actor: actor, source: source, process: s.state().process, owner: state}
 	project := workProject(source.Details().Owner)
 	if project.Validate() == nil {
 		h.work = s.projectWorkHandle(context.Background(), projectWork{id: raw, project: project, process: s.state().process, kind: "source", resource: raw, object: source.Details().Meta.ID})
 		handle, _ := oc.NewSourceLease(state.issuer, id)
 		h.work.stop = func(ctx context.Context) error { return r.CancelSourceLease(ctx, handle) }
+		if !nilPort(state.authority) {
+			h.work.source = h
+		}
 		if err = s.registerProjectWork(ctx, tx, h.work, locked.Locks()); err != nil {
 			return oc.SourceLease{}, err
 		}
@@ -143,6 +158,17 @@ func (r *SourceReads) OpenLeasedSource(ctx context.Context, actor identity.Actor
 	// commit. Calling within the origin callback would also nest transactions.
 	if _, err = s.state().store.InTx(h.origin); err == nil {
 		return nil, failure(foundation.ResourceBusy, nil)
+	}
+	if !nilPort(state.authority) {
+		h.mu.Lock()
+		returned, retained, original := h.acquireReturned, h.retained, h.originalError
+		h.mu.Unlock()
+		if retained {
+			return nil, original
+		}
+		if !returned {
+			return nil, failure(foundation.ResourceBusy, nil)
+		}
 	}
 	op, finish, err := s.begin(ctx)
 	if err != nil {
@@ -200,7 +226,7 @@ func (r *SourceReads) OpenLeasedSource(ctx context.Context, actor identity.Actor
 		}
 		return nil
 	})
-	if err = commitError(result); err != nil {
+	if err = sourceCommitError(h, result); err != nil {
 		return nil, err
 	}
 	h.mu.Lock()
@@ -213,24 +239,38 @@ func (r *SourceReads) OpenLeasedSource(ctx context.Context, actor identity.Actor
 	// From this point the handle can never issue another GET, including after a
 	// transport failure. A new attempt requires a newly authorized lease.
 	release := func() error {
-		cleanup, cleanupDone := s.cleanupContext()
-		defer cleanupDone()
-		err := s.releaseInternalContext(cleanup, h.id, h.source.Details().Meta.ID)
+		if nilPort(state.authority) {
+			cleanup, cleanupDone := s.cleanupContext()
+			defer cleanupDone()
+			err := s.releaseInternalContext(cleanup, h.id, h.source.Details().Meta.ID)
+			cancel()
+			s.finishProjectWorkContext(cleanup, h.work)
+			finish()
+			h.mu.Lock()
+			h.result, h.joined, h.released, h.busy = err, true, err == nil, false
+			h.cancel, h.reader = nil, nil
+			close(h.done)
+			h.mu.Unlock()
+			if err == nil {
+				r.forget(h)
+			}
+			return err
+		}
+		cleanup, cleanupDone := r.sourceCleanupContext(h)
+		err := r.releaseSource(cleanup, h)
 		cancel()
-		s.finishProjectWorkContext(cleanup, h.work)
 		finish()
+		// This registration ends before publishing done; the reader's outer Close
+		// still has to return and is separately joined by Cancel/Stop.
+		cleanupDone()
 		h.mu.Lock()
 		h.result = err
 		h.joined = true
 		h.released = err == nil
 		h.busy = false
 		h.cancel = nil
-		h.reader = nil
 		close(h.done)
 		h.mu.Unlock()
-		if err == nil {
-			r.forget(h)
-		}
 		return err
 	}
 	body, err := s.state().backend.get(work, obj.key, int64(obj.meta.ByteSize), nil)
@@ -261,6 +301,104 @@ func (r *SourceReads) OpenLeasedSource(ctx context.Context, actor identity.Actor
 }
 
 func (r *SourceReads) CancelSourceLease(ctx context.Context, lease oc.SourceLease) error {
+	if r != nil && r.data != nil && nilPort(r.data().authority) {
+		return r.cancelLegacySourceLease(ctx, lease)
+	}
+	h, err := r.registered(lease)
+	if err != nil || h == nil {
+		return err
+	}
+	if ctx == nil {
+		return invalid()
+	}
+	s := r.data().service
+	if _, err = s.state().store.InTx(h.origin); err == nil {
+		return failure(foundation.ResourceBusy, nil)
+	}
+	h.mu.Lock()
+	if !h.acquireReturned || h.stopActive {
+		h.mu.Unlock()
+		return failure(foundation.ResourceBusy, nil)
+	}
+	h.cancelled = true
+	if h.cancel != nil {
+		h.cancel()
+	}
+	reader, done, busy := h.reader, h.done, h.busy
+	h.mu.Unlock()
+	if reader != nil {
+		// Keep this Close's actual return distinct from the release callback's done.
+		closed := r.closeProjectSourceReader(h, reader)
+		select {
+		case <-closed:
+		case <-ctx.Done():
+			return unavailable(ctx.Err())
+		}
+	} else if busy {
+		select {
+		case <-done:
+		case <-ctx.Done():
+			return unavailable(ctx.Err())
+		}
+	}
+	if err = ctx.Err(); err != nil {
+		return unavailable(err)
+	}
+	h.mu.Lock()
+	if h.retained {
+		err = h.originalError
+		h.mu.Unlock()
+		return err
+	}
+	if h.released {
+		h.mu.Unlock()
+		if nilPort(r.data().authority) {
+			r.forget(h)
+		}
+		return nil
+	}
+	if h.busy || h.started && !h.joined {
+		h.mu.Unlock()
+		return failure(foundation.ResourceBusy, nil)
+	}
+	cleanup, finished := s.cleanupContext()
+	if cleanup.Err() != nil {
+		finished()
+		h.mu.Unlock()
+		return failure(foundation.ShuttingDown, nil)
+	}
+	h.busy = true
+	h.done = make(chan struct{})
+	done = h.done
+	h.mu.Unlock()
+	go func() {
+		err := r.releaseSource(cleanup, h)
+		finished()
+		h.mu.Lock()
+		h.result = err
+		h.joined = true
+		h.released = err == nil
+		h.started = true
+		h.busy = false
+		close(h.done)
+		h.mu.Unlock()
+	}()
+	select {
+	case <-ctx.Done():
+		return unavailable(ctx.Err())
+	case <-done:
+		h.mu.Lock()
+		err = h.result
+		h.mu.Unlock()
+		if err == nil && nilPort(r.data().authority) {
+			r.forget(h)
+		}
+		return err
+	}
+}
+
+// Preserve the original unbound SourceReads recovery path.
+func (r *SourceReads) cancelLegacySourceLease(ctx context.Context, lease oc.SourceLease) error {
 	h, err := r.registered(lease)
 	if err != nil {
 		return err

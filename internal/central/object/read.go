@@ -357,10 +357,24 @@ func (s *Service) releaseInternal(id oc.LeaseID, object oc.ObjectID) error {
 // The supplied context is the one shared cleanup/force budget, not a fresh one.
 func (s *Service) releaseInternalContext(ctx context.Context, id oc.LeaseID, object oc.ObjectID) error {
 	r := s.state()
+	result := s.releaseInternalResult(ctx, recoveryCause(), id, object)
+	err := commitError(result)
+	if err == nil {
+		r.mu.Lock()
+		delete(s.state().closedLeases, id)
+		r.mu.Unlock()
+	}
+	return err
+}
+
+// Source cleanup consumes the original result before any next writer starts.
+// Ordinary reader release retains its existing error projection above.
+func (s *Service) releaseInternalResult(ctx context.Context, cause foundation.TransactionCause, id oc.LeaseID, object oc.ObjectID) foundation.CommitResult {
+	r := s.state()
 	r.mu.Lock()
 	r.closedLeases[id] = object
 	r.mu.Unlock()
-	result := s.withinAccess(ctx, recoveryCause(), s.maintenanceRequest(oc.ReleaseReaderAccess, object, oc.AccessRequestDetails{LeaseID: id}), func(ctx context.Context, tx foundation.Tx, plan oc.AccessLockPlan, locked oc.LockedAccess) error {
+	return s.withinAccess(ctx, cause, s.maintenanceRequest(oc.ReleaseReaderAccess, object, oc.AccessRequestDetails{LeaseID: id}), func(ctx context.Context, tx foundation.Tx, _ oc.AccessLockPlan, _ oc.LockedAccess) error {
 		e, err := executor(s, tx)
 		if err != nil {
 			return err
@@ -368,13 +382,6 @@ func (s *Service) releaseInternalContext(ctx context.Context, id oc.LeaseID, obj
 		_, err = e.Exec(ctx, `UPDATE agenteam_object.object_leases SET state='released',released_at=clock_timestamp() WHERE id=$1 AND object_id=$2 AND process_id=$3 AND owner_kind IN ('reader','source') AND state='active'`, id.String(), object.String(), r.process.String())
 		return unavailableIf(err)
 	})
-	err := commitError(result)
-	if err == nil {
-		r.mu.Lock()
-		delete(r.closedLeases, id)
-		r.mu.Unlock()
-	}
-	return err
 }
 
 func (s *Service) AcquireLeaseInTx(ctx context.Context, tx foundation.Tx, actor identity.Actor, id oc.ObjectID, owner oc.LeaseOwner, plan oc.AccessLockPlan, locked oc.LockedAccess) (oc.ObjectLease, error) {
