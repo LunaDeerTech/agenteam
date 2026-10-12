@@ -1,6 +1,6 @@
 # D08 Agent 持久调用归属与 foreign 停止观察
 
-状态：设计候选，待独立设计审；本卡不授权产品、DDL 或真实资源执行。基线 `3ac9f2a6e62e7aa31b744695444c7e844e195ebc`，工作树 `/workspace/agenteam-agent-project-call-ownership`，分支 `ai/agent-project-call-ownership-20261012`。基线迁移最大号实际为 72；73 由 Model 预留，本片仅预留 74，写迁移前由唯一 Git owner 再核编号。只依赖本树及后续明确引入的共享前置，无旧交付 worktree 的 source/bin/output/cache 依赖。
+状态：本片产品、迁移 74、必要纯控及真实 PG 已实现并完成限定验收；native05 在 `153232f6dc32a3550f34981282cde3ebe8b5e25f` 实际完整 PASS。原 native02/04 FAIL、native01/03 prepared-only 容量 HOLD 及后续编译前 HOLD 均保留；不外推 App PG 或完整 participant。起始基线 `3ac9f2a6e62e7aa31b744695444c7e844e195ebc`，工作树 `/workspace/agenteam-agent-project-call-ownership`，分支 `ai/agent-project-call-ownership-20261012`。已正常带入共享 Object 前置和迁移 73，迁移源连续至 74；尚不据此宣称已合入 main 或清理工作树。只依赖本树及明确引入的共享前置，无旧交付 worktree 的 source/bin/output/cache 依赖。
 
 ## 最小单片及依据
 
@@ -12,11 +12,11 @@
 
 ## 共享前置与显式装配
 
-root 已确定唯一共享 Object 前置签名：`func (g *object.ProcessGuard) RequireCurrentProcessInTx(ctx context.Context, tx foundation.Tx, expected objectcontract.ProcessID) error`。这是待实现的正式新接口，不能假称当前已有。由唯一 Object 作者在 Model worktree 单独实现并保存，再由 Git owner 带入本树；Agent 作者不修改 Object 文件。
+共享 Object 前置已独立实现并带入：`func (g *object.ProcessGuard) RequireCurrentProcessInTx(ctx context.Context, tx foundation.Tx, expected objectcontract.ProcessID) error`。由唯一 Object 作者在 Model worktree 单独实现并保存，再由 Git owner 带入本树；Agent 作者未修改 Object 文件。
 
 该接口用原 guard 的短锁取得/核验 bound、live、expected identity；锁外调用其原 `Service.Store.InTx(tx)`，验证实际 live Tx 属于同 Store，并在返回前重验 guard 状态及 ctx。不能锁内调用外部 Store，不能只按同 DSN/ProcessID 推断同 Store。它不执行 SQL、不授业务权限、不 pin guard、不证明 foreign 死亡，也不改变 `ConfirmStopped`。组合根必须继续持有同一 guard，直到所有借用者及其实际 SQL/退出尾 join。
 
-拟定显式入口 `agent.NewProjectCallOwnership(store Store, deps Dependencies, keys cursor.Keyring, guard *object.ProcessGuard, expected objectcontract.ProcessID) (*ProjectCallOwnership, error)`。返回对象以只读访问器给出固定的 `Service()`、`DirectoryReader()` 及 `LocalStopper()`；工厂在发布任何指针前完成两实例、同 Agent/Project Authority、同 Store、同 ownership 的组合。不得把已有服务以 setter 改成另一种模式，也不接受调用方提交任意 call/process 字段作为证明。
+已实现显式入口 `agent.NewProjectCallOwnership(store Store, deps Dependencies, keys cursor.Keyring, guard *object.ProcessGuard, expected objectcontract.ProcessID) (*ProjectCallOwnership, error)`。返回对象以只读访问器给出固定的 `Service()`、`DirectoryReader()` 及 `LocalStopper()`；工厂在发布任何指针前完成两实例、同 Agent/Project Authority、同 Store、同 ownership 的组合。不得把已有服务以 setter 改成另一种模式，也不接受调用方提交任意 call/process 字段作为证明。
 
 显式组合另提供 `Stop()`、`Drain(ctx) error`、`Joined() bool`：Stop 关闭两实例原准入；Drain 先等待原调用/confirmation/checkpoint 实际返回，再只为已保留的原 CallID/returned 证明执行内部结算。这个停后通道不调用公开 Observe/LocalStopper 的 `begin`，也不向已关闭 callSet 插入新 control；它仍归原 ownership/lane，内部 checkpoint 的实际返回及未确认事实计入 owned 模式的 Service、Directory 和组合 Drain/Joined。默认模式不改，停后公开新调用继续被拒绝，无私有原证明不能借此获得准入。
 
@@ -26,7 +26,7 @@ root 已确定唯一共享 Object 前置签名：`func (g *object.ProcessGuard) 
 
 ## 持久事实、准入与原返回
 
-拟新增 `agenteam_agent.project_calls`；74 只预留 `00074_agent_project_call_ownership.sql`，当前不落 DDL。最小事实为随机稳定 CallID、ProjectID、ProcessID、组合实例 ID、lane（service/directory）、class（mutation/read）、单调 phase（running/joined）及登记/退休时间。CallID 在首次登记前生成且不复用；不可改绑 project/process/lane/class，不存配置、Secret、SQL 文本或业务回执，不用幂等 key 作为 CallID。CallID 主键；Project FK 为 RESTRICT，ProcessID 的真实性由原 guard 校验而非 UUID 自证；lane/class/phase 与 joined 时间一致性设约束，directory 仅允许 read。按 `(project_id,class,id) WHERE phase='running'` 查询未终局集合，不可变 tuple 和单调 phase 由 schema 约束/触发器拒绝改绑及复活。终局行保留，本片没有 TTL、物理清理或 cascade；DDL 仍须按 Agent schema 规范独审。
+已通过 `00074_agent_project_call_ownership.sql` 增加 `agenteam_agent.project_calls`。最小事实为随机稳定 CallID、ProjectID、ProcessID、组合实例 ID、lane（service/directory）、class（mutation/read）、单调 phase（running/joined）及登记/退休时间。CallID 在首次登记前生成且不复用；不可改绑 project/process/lane/class，不存配置、Secret、SQL 文本或业务回执，不用幂等 key 作为 CallID。CallID 主键；Project FK 为 RESTRICT，ProcessID 的真实性由原 guard 校验而非 UUID 自证；lane/class/phase 与 joined 时间一致性设约束，directory 仅允许 read。按 `(project_id,class,id) WHERE phase='running'` 查询未终局集合，不可变 tuple 和单调 phase 由 schema 约束/触发器拒绝改绑及复活。终局行保留，本片没有 TTL、物理清理或 cascade；DDL 已随本片完成限定独审及真实迁移使用。
 
 | 调用 | ledger 归属 |
 | --- | --- |
@@ -57,13 +57,13 @@ root 已确定唯一共享 Object 前置签名：`func (g *object.ProcessGuard) 
 
 ## 预期写域、顺序与验收
 
-当前唯一写域是本卡。后续实现须 root 单独授权并分配作者/独审；预计范围如下，不以表格自动取得写权。
+以下保留本片设计限定域；实施已由 root 分配作者和独审，实际受测范围与结果见下节，不以表格自动取得后续写权。
 
 | 文件域 | 必要内容 |
 | --- | --- |
 | `internal/central/agent/{calls.go,service.go,directory.go,commands.go,command_store.go,reader.go,runner_mounts.go}` | 显式新模式、原调用/confirmation 归属及每个原 Tx 的 call fence；旧构造分支保持 |
 | 新 `internal/central/agent/project_call_{ownership,repository,observer}.go` 及专控 `_test.go` | 工厂、私有事实、原返回/记账、有限观察；必要辅助保持该私有文件族 |
-| 预留迁移 74、必要 schema 控 | 唯一新增 Agent call 事实，不改旧业务回执或 Project claims |
+| 迁移 74、必要 schema 控 | 唯一新增 Agent call 事实，不改旧业务回执或 Project claims |
 | 新 `tests/projectvariable/agent_project_call_ownership*_test.go`，必要显式 testsupport 入口 | 真 PG、真 ProcessGuard、原子进程/实际 SQL 终局与原 Wait；复用已交付 fixture 能力 |
 | Object 共享前置 | 由另一唯一作者先交付 `RequireCurrentProcessInTx`，本片只消费；不另改死亡算法 |
 
@@ -72,9 +72,19 @@ root 已确定唯一共享 Object 前置签名：`func (g *object.ProcessGuard) 
 1. **默认兼容和实际装配**：旧构造及真实 app 路由不触新表；显式双实例正例。构造前未绑定 guard 不冒 readiness；首个登记拒绝 unbound/closed/wrong process/cross Store 的真实原 Tx，旧默认路径不因新前置不可用失败。
 2. **准入与结果边界**：登记 COMMIT 实际返回前零业务，NotCommitted/Unknown 零业务；同 key 双调用拥有不同 CallID；六 read 均登记。业务已知提交不被退休失败改判，失败记账在 Drain/报告可见；无行、重绑/缺 row/terminal fence 都不能假阳性或重发业务。
 3. **原返回与确认**：原 Tx callback 返回、物理 COMMIT 返回、业务主体返回、confirmation 返回、最终 checkpoint 返回分别设置确定性 barrier。先 stop/先 confirmation 两序仍同父；取消不提前 retired；registration/finalization Unknown 留精确证明，重观察只读取/补记原 CallID，control 计入双 owner 全局 Drain。
-4. **真实 foreign 及 SQL 尾**：两个实际进程、同部署/同 spool 的实际 guard，原 live foreign 稳定 pending；保留 child 原 Wait/exit 后获得精确死亡证明。仍持 Project SH 的真实 PG 原事务未终局时，观察者不能提交 joined；其结束后才可过 Project EX；另测旧 Tx 死后晚获锁仍被 running fence 拒绝。此边界用真实 PG 锁/原 backend 事实，不能仅用内存 channel 或假 ConfirmStopped。
+4. **真实 foreign 及 SQL 尾**：两个实际进程、同部署/同 spool 的实际 guard，原 live foreign 稳定 pending；保留 child 原 Wait/exit 后获得精确死亡证明。仍持 Project SH 的真实 PG 原事务未终局时，观察者不能提交 joined；其结束后才可过 Project EX。另用仍存活的真实 owned 入口及明确 terminal-row 夹具验证晚获锁的 running fence 拒绝，不称死 child 继续执行业务。此边界用真实 PG 锁/原 backend 事实，不能仅用内存 channel 或假 ConfirmStopped。
 5. **选择、有限观察与范围**：Archive mutation/保读，Delete 两 owner read，跨 Project 不误退；同 process 无私有证明、foreign alive/证明错误、页溢出、新行、错 actor/cause/version 均不报 RegisteredJoined。实际 provider 驱动 accepted→stopping，participant 行保 required，Agent/引用/业务回执保全，旧 LocalJoined 仅两个实例。真实原 Wait、资源全尾和适用 race/vet 另留执行证据，本卡不写预期 PASS。
 
 ## 不包含与设计关闭点
 
-不实现远程取消、租约续命/抢占、引用退休、Agent 删除、历史 FK 清理、Model/Execution 调用、完整生命周期 Registry、默认 initializer 或 Project 创建开放；进程死亡证明不能代替任何引用所有者的释放授权。共享前置尚未带入是实施阻塞项；卡内表约束、返回证明容量和观察页上限须经设计独审，不以 nil/no-op 或无限重试代替。若需要扩大 app、Object 或外域 provider 事务写域，先报告具体不闭合边界，由 root 指派共享 owner 和次序。
+不实现远程取消、租约续命/抢占、引用退休、Agent 删除、历史 FK 清理、Model/Execution 调用、完整生命周期 Registry、默认 initializer 或 Project 创建开放；进程死亡证明不能代替任何引用所有者的释放授权。共享前置已在原真实登记/终局事务中消费；表约束、返回证明容量和观察页上限保持已审设计，不以 nil/no-op 或无限重试代替。若需要扩大 app、Object 或外域 provider 事务写域，先报告具体不闭合边界，由 root 指派共享 owner 和次序。
+
+## 实际验收与保留记录
+
+原 basic 在 `e752c0bd` 完成 9 top / 32 sub、两个 race 包与两个 vet；原工具 `92042`／`8a4938` 为 0，378 项编译输入和 outer 20 项前后相同。它不覆盖后来 PG 夹具的修改。最终 `153232f6` 的 sequence03 原 controls、compile、唯一 selector list、prepare05 全部返回 0；2050 项编译输入加唯一 binary 得 2051 项 runtime 输入，outer 41 项保持。
+
+native05 原工具 `22538`／final `dca864` 为 0，supervisor `1183622` Wait 0／119.121s，driver `1183644` 与 Go `1185264` 均 Wait 0；1 top / 2 sub 实际 PASS，25.43s（12.99／12.43）。原 child `1185631` 实际 SIGKILL＋唯一 Wait -1＋reader EOF；backend 142／observer 140、原 COMMIT 与 proxy HeldJoined 的实际终局门齐全。post `3783bd` 为 0，2051 输入、四份请求/recorder 身份与受测 HEAD clean 相同，7 个资源 ID／14 次缺席观测、descendant/private/runtime 双尾及 TCP 双 delta-empty 全部通过，无 race warning。
+
+native01/03 仅 prepared 后容量 HOLD；sequence03 编译前容量 HOLD 也未运行测试。native02 的实际 FAIL 和缺少 child 内部诊断保留，随后仅修正原已初始化 bucket 复用并补安全有界诊断。native04 仍实际 FAIL，诊断仅确证 child Runtime 的 DEPENDENCY_UNBOUND；静态发现 nil Planner 空库恢复与已有 Skill/Object 图矛盾后，`153232f6` 才改用完整正式图。原日志未区分两个 no-Planner 拒绝谓词，不能倒填。两轮修正不放宽业务、guard 或锁门，native05 是修后新一轮真实结果。
+
+原失败、prepared-only、容量 HOLD、77／38／514 项精确缓存删除原件及完整结果索引见[验收 README](../../../.agent-state/agent-project-call-ownership/README.md#recorded-failures-holds-and-final-result)。514 项可再生缓存删除不等于源码/失败记录清理或全 cache 清空，未归档缓存包正文；tool-observation 只是 assistant 对原工具完成的转录。此片只完成接入协议的 registered ownership，未证明 App PG、全 legacy/global Joined 或完整生命周期参与者。

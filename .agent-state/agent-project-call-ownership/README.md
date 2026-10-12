@@ -1,8 +1,8 @@
 # Agent Project call ownership validation
 
-The bounded basic checks passed at `e752c0bda5d00f6f04260b811028932511f1c21a`. PG source and methods passed their limited static reviews; **this slice has not compiled or run its PG profile**. The [work item](../../docs/development/work-items/d08-agent-project-call-ownership.md) defines the opt-in boundary.
+The bounded basic checks passed at `e752c0bda5d00f6f04260b811028932511f1c21a`. After two recorded native failures and separately reviewed fixture corrections, **native05 passed the exact PG profile at `153232f6dc32a3550f34981282cde3ebe8b5e25f`**, including original process/SQL returns and all resource tails. The [work item](../../docs/development/work-items/d08-agent-project-call-ownership.md) defines the opt-in boundary; this result does not establish App PG or a complete lifecycle participant.
 
-The normal merge at technical head `1e06f67b75ae735d34cca4b8debfd20096451633` combines saved Agent PG sources `ab4da6f0` and methods `9d42e8c6` with the validated Model technical tip `4f76ef40eb0b8129940a21e2e36c55d0e03eaa83`. This combined head has not compiled or run the Agent PG profile. The basic result below belongs to its original `e752c0bd` / `92042` execution and is not a new test of the combined head.
+The normal merge at technical head `1e06f67b75ae735d34cca4b8debfd20096451633` combined saved Agent PG sources `ab4da6f0` and methods `9d42e8c6` with the validated Model technical tip `4f76ef40eb0b8129940a21e2e36c55d0e03eaa83`. The final PG result uses the later reviewed fixture correction at `153232f6`; the basic result below belongs to its original `e752c0bd` / `92042` execution and is not a new basic run at the later head.
 
 ## Original basic result
 
@@ -12,7 +12,7 @@ All 378 actual compiler inputs and 20 outer method/source inputs matched before 
 
 The unchanged basic method retains offline Go 1.27.1, max1/race/count1/p1, actual race/plain dependency discovery, embedded inputs, exact JSON selection and actual Popen/Wait. The real loader accepted the continuous migration source including 73 and 74; it did not apply SQL or prove database constraints. Package-local Store and process-proof controls do not establish actual process death or original server transaction completion. The separately accepted shared Object controls are not promoted to a PG result.
 
-## Pending PostgreSQL profile
+## Validated PostgreSQL profile
 
 The exact parent selector is `^TestAgentProjectCallOwnership$`, one top with two subtests:
 
@@ -27,9 +27,9 @@ Static review corrected the original foreign Create replay to a completed non-na
 
 ## Authorized execution method
 
-The methods reuse this tree's delivered [local-stop method](../agent-project-local-stop/run-pg-checks.py). The combined shared harness includes both the delivered Model profile and this Agent profile. Relative to Model technical tip `4f76ef40eb0b8129940a21e2e36c55d0e03eaa83`, removal of only this Agent selector must leave both complete shared ASTs and all existing effective maps unchanged. The profile control uses that actual Model tip as `BASE`; the original whole-AST comparison and one-positive/seven-negative gates are unchanged. The profile control contains one positive and seven negative cases; **they have not yet run for this profile**. No resource or Wait algorithm was added.
+The methods reuse this tree's delivered [local-stop method](../agent-project-local-stop/run-pg-checks.py). The combined shared harness includes both the delivered Model profile and this Agent profile. Relative to Model technical tip `4f76ef40eb0b8129940a21e2e36c55d0e03eaa83`, removal of only this Agent selector must leave both complete shared ASTs and all existing effective maps unchanged. The profile control uses that actual Model tip as `BASE`; the original whole-AST comparison and one-positive/seven-negative gates are unchanged. Those controls passed in the recorded final sequence. No resource or Wait algorithm was added.
 
-After independent review and a root-authorized exclusive Go/cache window, the planned commands are:
+The original execution recipes below used fresh numbered outputs in assigned windows. They are retained for reference; completed outputs must not be reused, and no additional run is implied:
 
 ```sh
 python3 -B .agent-state/agent-project-call-ownership/profile-controls.py
@@ -42,6 +42,24 @@ The compile stage runs one offline race-c and an exact binary list, recording ac
 Preparation only consumes successful compile/list records and verifies original input and binary identities, then emits a fresh native request and a capacity snapshot. It does not start services or constitute a test result. Under a separate explicit native window, the emitted `native01/record-native.py` records the original supervisor's actual Wait. It remains byte-identical at SHA-256 `56a32b0d45a633c3c85306d098730318327c02f4ee9c5267c8d712e9880d4f20`.
 
 The original seven-resource supervisor retains the 6-minute test timeout, 540+60-second driver budgets, exact resource observations, descendant/private/runtime tails and automatic HOST_TCP double delta-empty within 75 seconds. No filtering, manual TCP baseline, new cleanup authority or hidden retry is introduced. A nonzero result, input drift or incomplete tail stops the chain and preserves the original result; compile/list/prepare/native directories are never silently reused or overwritten. Existing cache/tool paths remain the authorized infrastructure; no retired feature worktree source, binary or output is an input.
+
+## Recorded failures, holds and final result
+
+All original outputs remain distinct. `native01` and `native03` were prepared only and held for capacity; neither started a native test. The [native03 preflight](../../output/ai/agent-project-call-ownership/native03/preflight-observation.json) records the unmet 4.1 GB floor; its preflight assertion HOLD (`e74732`) was not a test failure. The later [sequence03 preflight HOLD](../../output/ai/agent-project-call-ownership/sequence03-preflight/hold.json) observed 3,414,687,744 available bytes and started no controls, compilation, preparation or native process.
+
+| Original native run | Actual outcome and retained diagnosis |
+| --- | --- |
+| [native02](../../output/ai/agent-project-call-ownership/native02/post-check.json) | Tool `10372` / `798f63` returned 1; supervisor `1131651` Wait 1 in 123.976 s. Local passed in 12.04 s; foreign failed in 15.58 s with child exit 1 before COMMIT readiness. Original internal child diagnostics were not retained, so its exact failing phase remains unknown. |
+| [native04](../../output/ai/agent-project-call-ownership/native04/post-check.json) | Tool `73833` / `e6e773` returned 1; supervisor `1154256` Wait 1 in 128.460 s. Local passed in 21.73 s; foreign failed in 12.11 s. Joined child diagnostics observed `runtime:DEPENDENCY_UNBOUND`, actual Wait exit 1 and scanner EOF. They did not identify the exact inner SQL predicate. |
+| [native05](../../output/ai/agent-project-call-ownership/native05/post-check.json) | Tool `22538` / `dca864` returned 0; supervisor `1183622` Wait 0 in 119.121 s, driver `1183644` and Go `1185264` each Wait 0. Exact parent selection passed: one top / two subtests, 25.43 s total (local 12.99 s; foreign 12.43 s). |
+
+The first dynamic-failure correction (`d64a8f8c`) made child and observer use the original task-owned, already initialized Skill bucket, retaining the original nonce checks, spool and real guard. It also added bounded safe stage/FaultCode diagnostics, read only after actual child Wait and reader join. This addressed a statically proven store-identity/bucket mismatch; it does not retroactively identify native02's missing diagnostic. After native04, source inspection established that the empty-database `phaseGuardRuntime` with nil Planner was incompatible with the fixture's real published Skill/Object graph. The second correction (`153232f6`) uses the full original Skill/Object/Install/Audit graph for child and observer, retaining their owners until actual return before Runtime/guard cleanup. Native04 did not distinguish the no-Planner rejection predicates at the original `runtime.go:134` and `startup.go:228`; the later PASS does not fill in that missing observation. Product code, authority rules, business Update replay and the strict Project SH-to-EX boundary were not relaxed.
+
+The final [sequence03 result](../../output/ai/agent-project-call-ownership/sequence03/post-check.json) is tool `99557` / `c3e4d6`, exit 0: outer `1182392` returned 0 in 38.182 s; controls `1182439` returned 0 (one positive / seven negatives), Go compile `1182488` returned 0 in 33.044 s, exact list `1182849` returned 0 in 1.053 s, and prepare `1182917` returned 0 in 0.972 s. Its 2,050 compile inputs and three maps matched; runtime added only binary `e4c315a936729c2ccc65ad8cf06ca9b846c4f487673c869be5cf59b82f8ee007` (91,833,324 bytes), yielding 2,051 inputs. All 41 outer inputs matched. Compared with compile02, only the authorized three PG source hashes changed.
+
+Native05's original foreign child `1185631` was actually SIGKILLed and reaped by its original Wait (exit -1), with reader EOF. Original business backend `142` and observer backend `140` established the lock boundary; actual proxy COMMIT and HeldJoined completed before retirement. The [original terminal](../../output/ai/agent-project-call-ownership/native05/terminal.json) and post-check (`3783bd`, exit 0) retain all 2,051 post-run hashes, the four request/recorder identities, clean tested HEAD, exact metadata and no race warning. Seven exact resource IDs have fourteen absence observations; descendant, private, runtime and HOST_TCP double tails are empty. Raw original log: `/tmp/apco05/pg-4ece22e2b53e474ca4606a6330c29c97.log`. [Tool-observation](../../output/ai/agent-project-call-ownership/native05/tool-observation.json) is assistant-observed transcription of the original completion, not a provider-exported artifact.
+
+Capacity work is separate from validation. The original cache removals [01](../../output/ai/agent-project-call-ownership/cache-removal01/result.json) (77 files), [02](../../output/ai/agent-project-call-ownership/cache-removal02/result.json) (38 files), and [03](../../output/ai/agent-project-call-ownership/cache-removal03/result.json) (514 files) retain their own records. The final 514-file removal used exact [manifest](../../output/ai/agent-project-call-ownership/cache-recovery06/manifest.json) `e8b6e9de65fcadc02c5cf3073abf39fd9b3e864cb954bbf6f336e5a4d5832336` and [unlink journal](../../output/ai/agent-project-call-ownership/cache-removal03/unlink-journal.jsonl): 3,221,299,200 allocated bytes, all 514 absent, 3,184 current Agent/App inputs, 378 protected records, 25 proof inputs and 119 retained Model artifacts preserved, with both binaries and four-identity sets unchanged. Package bodies were not hashed or archived; they were regenerable cache outputs. The deletion was not a whole-cache purge, mtime alone did not prove non-use, and available-space changes are not isolated attribution or an ENOSPC guarantee. Earlier insufficient candidate inventories remain under `cache-recovery04/05`; prepare/start capacity observations are snapshots, not peak guarantees.
 
 ## Product boundary
 
