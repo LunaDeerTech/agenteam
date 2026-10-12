@@ -35,6 +35,10 @@ SKILL_EXPECTED = {'TestSkillPackageImportWeb',
                   'TestSkillPackageImportWeb/existing-file-import-and-fixed-revision-download'}
 TASK_SELECTOR = '^TestTaskSearchWeb$'
 TASK_EXPECTED = {'TestTaskSearchWeb', 'TestTaskSearchWeb/server-search-beyond-first-page'}
+RUNNER_SELECTOR = '^TestRunnerDirectoryApp$'
+RUNNER_EXPECTED = {'TestRunnerDirectoryApp',
+                   'TestRunnerDirectoryApp/selected-directory-reads-and-identity-restart',
+                   'TestRunnerDirectoryApp/selection-isolation-and-before-device-validation'}
 
 def save(path, value):
     with path.open('x') as stream:
@@ -65,7 +69,8 @@ def main():
     p.add_argument('--binary', type=Path, required=True)
     p.add_argument('--output', type=Path, required=True)
     p.add_argument('--runtime', type=Path, required=True)
-    p.add_argument('--dist', type=Path, required=True)
+    p.add_argument('--dist', type=Path)
+    p.add_argument('--runner-binary', type=Path)
     p.add_argument('--input-hash', required=True)
     p.add_argument('--pg-current-only', action='store_true',
                    help='explicitly omit the unused PG16 negative-control fixture')
@@ -80,19 +85,25 @@ def main():
                        help='run the reviewed existing-file Skill package import scope')
     scope.add_argument('--task-search', action='store_true',
                        help='run the reviewed Task search and enum filters scope')
+    scope.add_argument('--runner-directory', action='store_true',
+                       help='run the reviewed real Runner CLI with its separate prebuilt command')
     a = p.parse_args()
-    selector = (TASK_SELECTOR if a.task_search else
+    selector = (RUNNER_SELECTOR if a.runner_directory else
+                TASK_SELECTOR if a.task_search else
                 SKILL_SELECTOR if a.skill_package_import else
                 USAGE_SELECTOR if a.project_usage_summary else
                 SECRET_SELECTOR if a.secret_delete else
                 CREATE_SELECTOR if a.project_creation else SELECTOR)
-    expected = (TASK_EXPECTED if a.task_search else
+    expected = (RUNNER_EXPECTED if a.runner_directory else
+                TASK_EXPECTED if a.task_search else
                 SKILL_EXPECTED if a.skill_package_import else
                 USAGE_EXPECTED if a.project_usage_summary else
                 SECRET_EXPECTED if a.secret_delete else
                 CREATE_EXPECTED if a.project_creation else EXPECTED)
-    node_count = 1 if a.project_creation or a.secret_delete or a.project_usage_summary or a.skill_package_import or a.task_search else 2
-    web_scopes = ([('AGENTEAM_TASK_SEARCH_WEB', 'task-search')]
+    node_count = (0 if a.runner_directory else
+                  1 if a.project_creation or a.secret_delete or a.project_usage_summary or a.skill_package_import or a.task_search else 2)
+    web_scopes = ([] if a.runner_directory else
+                  [('AGENTEAM_TASK_SEARCH_WEB', 'task-search')]
                   if a.task_search else
                   [('AGENTEAM_SKILL_IMPORT_WEB', 'skill-import')]
                   if a.skill_package_import else
@@ -104,9 +115,17 @@ def main():
                   if a.project_creation else
                   [('AGENTEAM_TASK_SEARCH_WEB', 'task-search'),
                    ('AGENTEAM_PROJECT_VARIABLES_WEB', 'variable-delete')])
-    for path in (a.root, a.binary, a.output, a.runtime, a.dist):
+    for path in (a.root, a.binary, a.output, a.runtime):
         assert path.is_absolute()
-    assert a.binary.is_file() and (a.dist / 'index.html').is_file()
+    assert a.binary.is_file()
+    if a.runner_directory:
+        assert a.dist is None and a.runner_binary is not None
+        assert (a.runner_binary.is_absolute() and a.runner_binary.is_file()
+                and a.runner_binary.resolve() == a.runner_binary
+                and os.access(a.runner_binary, os.X_OK))
+    else:
+        assert a.runner_binary is None
+        assert a.dist is not None and a.dist.is_absolute() and (a.dist / 'index.html').is_file()
     assert re.fullmatch('[0-9a-f]{64}', a.input_hash)
     a.output.mkdir(mode=0o700)
     a.runtime.mkdir(mode=0o700)
@@ -121,12 +140,16 @@ def main():
     env.pop('AGENTEAM_FIXTURE_PG_CURRENT_ONLY', None)
     if a.pg_current_only:
         env['AGENTEAM_FIXTURE_PG_CURRENT_ONLY'] = '1'
+    if a.runner_directory:
+        env['AGENTEAM_RUNNER_BINARY'] = str(a.runner_binary)
     for prefix, name in web_scopes:
         env.update({prefix+'_DIST': str(a.dist), prefix+'_EVIDENCE': str(a.output/name),
                     prefix+'_INPUT_HASH': a.input_hash})
     command = ['sh', 'scripts/test-objects.sh', '-run', selector]
     save(a.output/'invocation.json', {'command':command,'cwd':str(a.root),
-         'input_hash':a.input_hash,'binary':str(a.binary),'dist':str(a.dist),
+         'input_hash':a.input_hash,'binary':str(a.binary),'dist':str(a.dist) if a.dist else None,
+         'runner_directory':a.runner_directory,
+         'runner_binary':str(a.runner_binary) if a.runner_binary else None,
          'runtime':str(a.runtime),'supervisor_pid':os.getpid(),
          'pg_current_only':a.pg_current_only,'project_creation':a.project_creation,
          'secret_delete':a.secret_delete,'project_usage_summary':a.project_usage_summary,
@@ -198,6 +221,10 @@ def main():
     node_waits = re.findall(r'Node actual_wait pid=(\d+) success=(true|false)',raw)
     exact &= (len(go_waits)==1 and go_waits[0][1:]==('0',selector)
               and len(node_waits)==node_count and all(ok=='true' for pid,ok in node_waits))
+    runner_waits = re.findall(r'runner_cli_original_wait pid=(\d+) exit=(\d+)', raw)
+    if a.runner_directory:
+        exact &= (len(runner_waits)==9 and len({pid for pid,code in runner_waits})==9
+                  and [code for pid,code in runner_waits]==['0','0','0','0','0','1','2','2','2'])
     resources=[]
     record=a.output/'owned-resources.json'
     if record.is_file():
@@ -221,7 +248,8 @@ def main():
     if not leftovers: a.runtime.rmdir()
     result={'fixture_pid':child.pid,'fixture_actual_wait_exit':actual,
             'elapsed_seconds':round(time.monotonic()-began,3),'exact_tests':bool(exact),
-            'go_actual_waits':go_waits,'node_actual_waits':node_waits,'adopted_actual_waits':adopted,
+            'go_actual_waits':go_waits,'node_actual_waits':node_waits,
+            'runner_actual_waits':runner_waits,'adopted_actual_waits':adopted,
             'resources':resources,'private_directories_absent':directories_absent,
             'runtime_leftovers':leftovers,'remaining_children':children(),'exit_code':int(not okay)}
     save(a.output/'result.json',result)
