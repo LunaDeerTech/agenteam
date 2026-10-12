@@ -205,6 +205,14 @@ func newOutboxCleanupPGWithSeed(t *testing.T, beforeAccepted func(*outboxCleanup
 	outboxCleanupRequire(t, v.stop.Drain(ctxFor(t)))
 	v.requireQueue(t, v.a.ID, 1, "dead_letter", wantEvents)
 	v.requireState(t, "stopping", "", "required", "terminal", stopRounds)
+	if beforeAccepted == nil {
+		var atEnd bool
+		err = v.base.raw.QueryRow(ctxFor(t), `SELECT l.scan_sequence=e.sequence AND l.recovery_pass=0 FROM agenteam_outbox.project_lifecycle l JOIN agenteam_outbox.events e ON e.project_id=l.project_id WHERE l.project_id=$1`, v.a.ID.String()).Scan(&atEnd)
+		outboxCleanupRequire(t, err)
+		if !atEnd {
+			t.Fatal("original stop did not preserve its exact completed scan position")
+		}
+	}
 	v.stageOutbox(t)
 	v.stable = v.canonical(t)
 	return v
@@ -330,6 +338,26 @@ func (v *outboxCleanupPG) requireReceipt(t *testing.T, phase string) {
 	}
 }
 
+func (v *outboxCleanupPG) completePendingScan(t *testing.T, driver *project.LifecycleCleanupDriver, fence int64) {
+	t.Helper()
+	// Stop left its cursor at the sole Event. The first Cleanup therefore
+	// commits an empty tail scan and resets that cursor; it does not delete the
+	// Event. Consume this one explicit Pending round before the deletion round.
+	call := v.run(t, driver)
+	outboxCleanupWait(t, call.done, "original empty-tail cleanup round")
+	outboxCleanupRequire(t, call.err)
+	v.requireState(t, "cleaning", "outbox", "pending", "terminal", fence)
+	v.requireQueue(t, v.a.ID, 1, "dead_letter")
+	v.requireReceipt(t, "cleaning")
+	var reset bool
+	err := v.base.raw.QueryRow(ctxFor(t), `SELECT scan_sequence=0 AND recovery_pass=1 FROM agenteam_outbox.project_lifecycle WHERE project_id=$1 AND operation_id=$2`, v.a.ID.String(), v.cause.OperationID.String()).Scan(&reset)
+	outboxCleanupRequire(t, err)
+	if !reset {
+		t.Fatal("Pending did not persist the exact empty-tail scan reset")
+	}
+	v.requireIsolated(t)
+}
+
 func (v *outboxCleanupPG) canonical(t *testing.T) string {
 	t.Helper()
 	var value string
@@ -372,6 +400,8 @@ func testOutboxCleanupReturn(t *testing.T) {
 		t.Fatal("public cause manufactured cleanup authority", err)
 	}
 	v.requireQueue(t, v.a.ID, 1, "dead_letter")
+	driver := v.newDriver(t)
+	v.completePendingScan(t, driver, 2)
 	barrier := newSchedulerStopBarrier()
 	v.barriers = append(v.barriers, barrier)
 	var held atomic.Bool
@@ -382,14 +412,13 @@ func testOutboxCleanupReturn(t *testing.T) {
 		}
 	}
 	v.base.tracked.mu.Unlock()
-	driver := v.newDriver(t)
 	call := v.run(t, driver)
 	barrier.await(t)
 	// Physical D06 COMMIT is independently visible while its original Store
 	// return, adapter and driver have not returned. Project cannot advance yet.
 	v.requireQueue(t, v.a.ID, 0, "dead_letter")
 	v.requireReceipt(t, "completed")
-	v.requireState(t, "cleaning", "outbox", "required", "running", 2)
+	v.requireState(t, "cleaning", "outbox", "pending", "running", 3)
 	v.requireIsolated(t)
 	driver.Stop()
 	// This bounded observation returns an error while the original call is
@@ -411,7 +440,7 @@ func testOutboxCleanupReturn(t *testing.T) {
 	if call.err == nil {
 		t.Fatal("cancelled original round published successful progress")
 	}
-	v.requireState(t, "cleaning", "outbox", "required", "terminal", 2)
+	v.requireState(t, "cleaning", "outbox", "pending", "terminal", 3)
 	v.base.tracked.mu.Lock()
 	v.base.tracked.afterResult = nil
 	v.base.tracked.mu.Unlock()
@@ -420,7 +449,7 @@ func testOutboxCleanupReturn(t *testing.T) {
 	next := v.run(t, v.newDriver(t))
 	outboxCleanupWait(t, next.done, "original completed receipt replay")
 	outboxCleanupRequire(t, next.err)
-	v.requireState(t, "cleaning", "audit", "completed", "terminal", 3)
+	v.requireState(t, "cleaning", "audit", "completed", "terminal", 4)
 	v.requireQueue(t, v.a.ID, 0, "dead_letter")
 	v.requireIsolated(t)
 	v.close(t)
@@ -470,10 +499,11 @@ func testOutboxCleanupUnknown(t *testing.T) {
 	v.requireQueue(t, v.a.ID, 1, "dead_letter")
 	// Same original operation, explicit new call. Unknown is never treated as
 	// rollback; this group's mask changed only the read-only preflight result.
+	v.completePendingScan(t, driver, 3)
 	next := v.run(t, driver)
 	outboxCleanupWait(t, next.done, "explicit original operation cleanup")
 	outboxCleanupRequire(t, next.err)
-	v.requireState(t, "cleaning", "audit", "completed", "terminal", 3)
+	v.requireState(t, "cleaning", "audit", "completed", "terminal", 4)
 	v.requireQueue(t, v.a.ID, 0, "dead_letter")
 	v.requireIsolated(t)
 	v.close(t)
