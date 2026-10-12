@@ -273,7 +273,7 @@ func (w *projectSecretDeleteWeb) response(r *http.Response) error {
 	if write {
 		if in.kind == "busy" {
 			var problem httpapi.Problem
-			if r.StatusCode != http.StatusConflict || agentWebDecode(raw, &problem) != nil || problem.Code != f.ResourceBusy || problem.CommitState != f.NotCommitted || problem.RequestID.String() != r.Header.Get("X-Request-ID") || !slices.Equal(problem.FieldErrors, []f.FieldError{{Path: "/variable_id", Code: "SECRET_VARIABLE_REFERENCED"}}) {
+			if r.StatusCode != http.StatusConflict || agentWebDecode(raw, &problem) != nil || problem.Code != f.ResourceBusy || problem.CommitState != f.NotCommitted || problem.RequestID.String() != r.Header.Get("X-Request-ID") || len(problem.FieldErrors) != 0 {
 				return errors.New("referenced Secret DELETE did not return the original Busy problem")
 			}
 			after, err := w.snapshot(r.Request.Context())
