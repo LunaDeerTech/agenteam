@@ -105,6 +105,13 @@ func outboxCleanupRequire(t *testing.T, err error) {
 
 func newOutboxCleanupPG(t *testing.T) *outboxCleanupPG {
 	t.Helper()
+	return newOutboxCleanupPGWithSeed(t, nil)
+}
+
+// The optional preparation runs real commands before accepted Delete. Existing
+// Outbox tests keep their original one-event, one-round setup unchanged.
+func newOutboxCleanupPGWithSeed(t *testing.T, beforeAccepted func(*outboxCleanupPG) int) *outboxCleanupPG {
+	t.Helper()
 	v := &outboxCleanupPG{base: newVariableHTTPFixture(t), handler: &outboxCleanupPGHandler{}}
 	storage, _ := phaseGuardStorage(t, "")
 	spool := filepath.Join(t.TempDir(), "spool")
@@ -148,11 +155,20 @@ func newOutboxCleanupPG(t *testing.T) *outboxCleanupPG {
 	v.requireQueue(t, v.a.ID, 1, "pending")
 	v.requireQueue(t, v.b.ID, 1, "pending")
 	v.foreign = v.snapshot(t, v.b.ID)
+	wantEvents := 1
+	if beforeAccepted != nil {
+		wantEvents = beforeAccepted(v)
+		if wantEvents < 1 {
+			t.Fatal("seed omitted the original Project event")
+		}
+		v.requireQueue(t, v.a.ID, 1, "pending", wantEvents)
+	}
 	v.cause = pc.LifecycleCause{OperationID: id[pc.Operation](t), Action: pc.Delete, ProjectVersion: v.a.Version + 1}
 	v.stageAccepted(t)
 	v.adapter, err = project.NewOutboxLifecycleParticipant(v.facts, v.box)
 	outboxCleanupRequire(t, err)
 	v.tap = &outboxCleanupPGTap{ProjectLifecycleParticipant: v.adapter}
+	stopped := false
 	v.stop, err = project.NewLifecycleStopDriver(v.base.tracked, v.facts, v.process, func(ctx context.Context, actor i.Actor, cause pc.LifecycleCause, scope pc.ScopeRef) error {
 		if cause != v.cause || scope.ProjectID != v.a.ID {
 			return errors.New("original stop identity changed")
@@ -162,17 +178,33 @@ func newOutboxCleanupPG(t *testing.T) *outboxCleanupPG {
 		if err != nil {
 			return err
 		}
-		if !report.Matches(pc.OutboxParticipant, cause, scope) || report.Details().State != pc.Stopped {
+		if !report.Matches(pc.OutboxParticipant, cause, scope) {
+			return errors.New("real nonempty D06 stop identity changed")
+		}
+		stopped = report.Details().State == pc.Stopped
+		if !stopped && (beforeAccepted == nil || report.Details().State != pc.StopPending) {
 			return errors.New("real nonempty D06 stop was not confirmed")
 		}
 		return nil
 	})
 	outboxCleanupRequire(t, err)
-	outboxCleanupRequire(t, v.stop.Run(ctxFor(t), v.a.ID, v.cause.OperationID))
+	maxRounds := 1
+	if beforeAccepted != nil {
+		// D06 scans at most 100 actual events per original stop call.
+		maxRounds = wantEvents/100 + 2
+	}
+	var stopRounds int64
+	for !stopped && stopRounds < int64(maxRounds) {
+		outboxCleanupRequire(t, v.stop.Run(ctxFor(t), v.a.ID, v.cause.OperationID))
+		stopRounds++
+	}
+	if !stopped {
+		t.Fatal("real D06 stop did not complete within its known event batches")
+	}
 	v.stop.Stop()
 	outboxCleanupRequire(t, v.stop.Drain(ctxFor(t)))
-	v.requireQueue(t, v.a.ID, 1, "dead_letter")
-	v.requireState(t, "stopping", "", "required", "terminal", 1)
+	v.requireQueue(t, v.a.ID, 1, "dead_letter", wantEvents)
+	v.requireState(t, "stopping", "", "required", "terminal", stopRounds)
 	v.stageOutbox(t)
 	v.stable = v.canonical(t)
 	return v
@@ -261,13 +293,19 @@ func (v *outboxCleanupPG) scope() pc.ScopeRef {
 	return pc.ScopeRef{Kind: pc.ProjectScope, ProjectID: v.a.ID}
 }
 
-func (v *outboxCleanupPG) requireQueue(t *testing.T, project i.ProjectID, want int, phase string) {
+func (v *outboxCleanupPG) requireQueue(t *testing.T, project i.ProjectID, want int, phase string, expectedEvents ...int) {
 	t.Helper()
+	wantEvents := want
+	if len(expectedEvents) == 1 {
+		wantEvents = expectedEvents[0]
+	} else if len(expectedEvents) != 0 {
+		t.Fatal("ambiguous event expectation")
+	}
 	var events, deliveries, exact, attempts int
 	err := v.base.raw.QueryRow(ctxFor(t), `SELECT (SELECT count(*) FROM agenteam_outbox.events WHERE project_id=$1),(SELECT count(*) FROM agenteam_outbox.deliveries WHERE project_id=$1),(SELECT count(*) FROM agenteam_outbox.deliveries WHERE project_id=$1 AND phase=$2 AND handler_id='project.cleanup-fixture' AND current_attempt_id IS NULL),(SELECT count(*) FROM agenteam_outbox.attempts a JOIN agenteam_outbox.deliveries d ON d.id=a.delivery_id WHERE d.project_id=$1)`, project.String(), phase).Scan(&events, &deliveries, &exact, &attempts)
 	outboxCleanupRequire(t, err)
-	if events != want || deliveries != want || exact != want || attempts != 0 {
-		t.Fatalf("actual D06 queue differs: %d/%d/%d/%d want %d", events, deliveries, exact, attempts, want)
+	if events != wantEvents || deliveries != want || exact != want || attempts != 0 {
+		t.Fatalf("actual D06 queue differs: %d/%d/%d/%d want events %d/deliveries %d", events, deliveries, exact, attempts, wantEvents, want)
 	}
 }
 
