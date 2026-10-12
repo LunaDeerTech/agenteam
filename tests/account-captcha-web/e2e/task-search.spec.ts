@@ -315,8 +315,14 @@ test("server search reaches Tasks beyond the first page [server-search-beyond-fi
       cursor,
     });
     const nextBody = seen.taskSearchRead(continued.request());
-    expect(nextBody.items).toEqual([data.target]);
-    expect(nextBody.next_cursor).toBeNull();
+    // List returns the formal Task summary; the full body is checked by the
+    // independent detail request below. A final page omits next_cursor.
+    const {
+      description: _description,
+      plan: _plan,
+      ...targetSummary
+    } = data.target;
+    expect(nextBody).toEqual({ items: [targetSummary] });
     observations.push({
       text: "",
       priority: "high",
