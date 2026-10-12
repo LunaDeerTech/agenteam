@@ -3,6 +3,7 @@ import { AccountFailure } from '../api/client'
 import {
   captureProjectSecretUpdate,
   captureProjectSecretValue,
+  type ProjectSecretReceipt,
 } from '../api/project-secret-commands'
 import type { ProjectSecretMetadata } from '../api/project-secrets'
 import { useSession, type SessionController } from './useSession'
@@ -29,6 +30,8 @@ export function useProjectSecretEditor(
     materialRevision: 0,
     formRevision: 0,
   })
+  const deletion = reactive({ open: false, name: '', version: '' })
+  let deleteTarget: ProjectSecretMetadata | null = null
   let base: ProjectSecretMetadata | null = null,
     disposed = false,
     generation = 0
@@ -55,8 +58,27 @@ export function useProjectSecretEditor(
   const writable = computed(() => visible.value && workspace.detail.project?.lifecycle === 'active')
   const canOpen = computed(
     () =>
-      !blocked.value && writable.value && !unresolved.value && !auth.projectSecretCommands.progress,
+      !blocked.value &&
+      writable.value &&
+      !deletion.open &&
+      !unresolved.value &&
+      !auth.projectSecretCommands.progress,
   )
+  const canDelete = computed(
+    () =>
+      canOpen.value &&
+      !state.open &&
+      reader.detail.phase === 'ready' &&
+      !!reader.detail.value &&
+      reader.detail.value.id === reader.selected.value &&
+      !(state.conflict && base === reader.detail.value),
+  )
+  function cancelDelete() {
+    deletion.open = false
+    deletion.name = ''
+    deletion.version = ''
+    deleteTarget = null
+  }
   const canSave = computed(
     () =>
       state.open &&
@@ -71,6 +93,7 @@ export function useProjectSecretEditor(
     () => !blocked.value && progress.value?.phase === 'uncertain' && !!progress.value.contextValid,
   )
   function clear(message = '') {
+    cancelDelete()
     ++generation
     ++state.materialRevision
     ++state.formRevision
@@ -127,7 +150,10 @@ export function useProjectSecretEditor(
       return
     }
     if (progress.value?.phase === 'uncertain') {
-      state.message = '提交结果尚未确认。材料已清除；只能检查原请求，不能重复提交。'
+      state.message =
+        progress.value.identity.kind === 'delete'
+          ? '删除结果尚未确认。只能检查原请求，不能再次删除。'
+          : '提交结果尚未确认。材料已清除；只能检查原请求，不能重复提交。'
       return
     }
     state.conflict = state.mode !== 'create' && e.problem?.code === 'VERSION_CONFLICT'
@@ -139,10 +165,73 @@ export function useProjectSecretEditor(
           ? '请检查名称、描述和 Secret 值的格式。'
           : '本次提交未完成。已输入的材料不会保留，请检查后重新输入。'
   }
-  function confirmed(target: string) {
-    clear('请求已确认，正在独立读取当前记录。')
+  function confirmed(target: string, deleted = false) {
+    clear(
+      deleted
+        ? 'Secret 已删除，正在独立重新读取目录。历史记录保留。'
+        : '请求已确认，正在独立读取当前记录。',
+    )
     auth.projectSecretCommands.finishConfirmed()
-    reader.refreshAfterWrite(target)
+    if (deleted) reader.refreshAfterDelete()
+    else reader.refreshAfterWrite(target)
+  }
+  function acceptReceipt(receipt: ProjectSecretReceipt) {
+    if (receipt.command === 'project.secret_variable.delete') confirmed(receipt.deleted.id, true)
+    else confirmed(receipt.variable.id)
+  }
+  function requestDelete() {
+    if (!canDelete.value) return
+    const current = reader.detail.value!
+    clear()
+    deleteTarget = current
+    Object.assign(deletion, { open: true, name: current.name, version: current.version })
+  }
+  async function confirmDelete() {
+    const original = deleteTarget
+    if (
+      !deletion.open ||
+      !original ||
+      blocked.value ||
+      !writable.value ||
+      auth.projectSecretCommands.progress ||
+      reader.detail.value !== original ||
+      reader.selected.value !== original.id
+    ) {
+      cancelDelete()
+      return
+    }
+    const capturedKey = key.value,
+      serial = generation
+    cancelDelete()
+    try {
+      const result = await auth.projectSecretCommands.delete(
+        original.project_id,
+        original.id,
+        original.version,
+      )
+      if (serial !== generation || capturedKey !== key.value || !visible.value) return
+      if (!('status' in result)) acceptReceipt(result)
+    } catch (error) {
+      if (serial !== generation || capturedKey !== key.value || !visible.value) return
+      const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+      if ([401, 403, 404, 410].includes(e.problem?.status ?? 0)) {
+        failure(e)
+        return
+      }
+      if (progress.value?.phase === 'uncertain') {
+        state.message = '删除结果尚未确认。只能检查原请求，不能再次删除。'
+        return
+      }
+      state.conflict = e.problem?.code === 'VERSION_CONFLICT'
+      base = original
+      state.message = state.conflict
+        ? '记录已经变化。请重新读取详情，再确认要删除的版本。'
+        : e.problem?.code === 'RESOURCE_BUSY'
+          ? 'Secret 仍被引用，无法删除。请先解除引用后再重试。'
+          : '删除未完成。当前记录保留，请检查后重试。'
+      if (progress.value?.phase === 'rejected' && progress.value.contextValid)
+        auth.projectSecretCommands.editRejected()
+    }
   }
   async function submit(takeMaterial: () => string) {
     if (!canSave.value) return
@@ -180,7 +269,7 @@ export function useProjectSecretEditor(
       value = undefined
       const result = await operation
       if (serial !== generation || capturedKey !== key.value || !visible.value) return
-      if (!('status' in result)) confirmed(result.variable.id)
+      if (!('status' in result)) acceptReceipt(result)
     } catch (error) {
       if (serial === generation && capturedKey === key.value && visible.value) failure(error)
     } finally {
@@ -194,7 +283,7 @@ export function useProjectSecretEditor(
     try {
       const result = await auth.projectSecretCommands.lookup()
       if (serial !== generation || capturedKey !== key.value || !visible.value) return
-      if ('status' in result && result.status === 'committed') confirmed(result.receipt.variable.id)
+      if ('status' in result && result.status === 'committed') acceptReceipt(result.receipt)
       else state.message = '尚未观察到原请求提交；这不证明它已回滚。请稍后再次检查原请求。'
     } catch (error) {
       if (serial === generation && capturedKey === key.value && visible.value) failure(error)
@@ -225,6 +314,11 @@ export function useProjectSecretEditor(
   }
   return {
     state,
+    deletion,
+    canDelete,
+    requestDelete,
+    cancelDelete,
+    confirmDelete,
     visible,
     progress,
     blocked,
@@ -239,7 +333,7 @@ export function useProjectSecretEditor(
     readConfirmed() {
       const pending = progress.value
       if (!blocked.value && pending?.phase === 'confirmed' && pending.contextValid)
-        confirmed(pending.identity.targetID)
+        confirmed(pending.identity.targetID, pending.identity.kind === 'delete')
     },
     dispose() {
       if (disposed) return

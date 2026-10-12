@@ -824,7 +824,12 @@ func migrate(t *testing.T, db *pgfixture.Database, sources ...postgres.Source) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if result := m.Migrate(ctxFor(t)); !result.Migrated {
+	ctx := ctxFor(t)
+	started := time.Now()
+	if result := m.Migrate(ctx); !result.Migrated {
+		// Keep context classification explicit: the safe migration code alone
+		// does not distinguish a history mismatch from an interrupted query.
+		t.Logf("project migration diagnostic elapsed=%s ctx_deadline=%t ctx_canceled=%t fault_deadline=%t fault_canceled=%t", time.Since(started), errors.Is(ctx.Err(), context.DeadlineExceeded), errors.Is(ctx.Err(), context.Canceled), errors.Is(result.Fault, context.DeadlineExceeded), errors.Is(result.Fault, context.Canceled))
 		// This isolated fixture has only fixed migration SQL at this stage.
 		// Keep connection data, parameters, Detail and the raw cause private.
 		var pg *pgconn.PgError

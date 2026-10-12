@@ -1,4 +1,5 @@
 import { AccountFailure, accountTransport, shape, string, uuid7, type Fetch } from './client'
+import { parseSystemInstant } from './system-account'
 import { parseProjectSecretMetadata, type ProjectSecretMetadata } from './project-secrets'
 
 // Transient transport inputs: never Session progress or retry storage.
@@ -11,14 +12,33 @@ export type ProjectSecretCreate = Readonly<{
 export type ProjectSecretUpdate = Readonly<{ name?: string; description?: string; value?: string }>
 export type ProjectSecretIdentity =
   | Readonly<{ kind: 'create'; projectID: string; targetID: string }>
-  | Readonly<{ kind: 'update'; projectID: string; targetID: string; expectedVersion: string }>
-export type ProjectSecretReceipt = Readonly<{
+  | Readonly<{
+      kind: 'update' | 'delete'
+      projectID: string
+      targetID: string
+      expectedVersion: string
+    }>
+export type ProjectSecretWriteReceipt = Readonly<{
   command: 'project.secret_variable.create' | 'project.secret_variable.update'
   changed: boolean
   variable: ProjectSecretMetadata
   event_id: string | null
   audit_id: string | null
 }>
+export type ProjectSecretDeleteReceipt = Readonly<{
+  command: 'project.secret_variable.delete'
+  changed: true
+  deleted: Readonly<{
+    id: string
+    project_id: string
+    type: 'secret'
+    version: string
+    deleted_at: string
+  }>
+  event_id: string
+  audit_id: string
+}>
+export type ProjectSecretReceipt = ProjectSecretWriteReceipt | ProjectSecretDeleteReceipt
 export type ProjectSecretLookup =
   | Readonly<{ status: 'committed'; receipt: ProjectSecretReceipt }>
   | Readonly<{ status: 'not_observed'; receipt: null }>
@@ -29,7 +49,7 @@ export interface ProjectSecretCommandsAPI {
     csrf: string,
     key: string,
     signal: AbortSignal,
-  ): Promise<ProjectSecretReceipt>
+  ): Promise<ProjectSecretWriteReceipt>
   update(
     projectID: string,
     targetID: string,
@@ -38,7 +58,15 @@ export interface ProjectSecretCommandsAPI {
     csrf: string,
     key: string,
     signal: AbortSignal,
-  ): Promise<ProjectSecretReceipt>
+  ): Promise<ProjectSecretWriteReceipt>
+  delete(
+    projectID: string,
+    targetID: string,
+    expectedVersion: string,
+    csrf: string,
+    key: string,
+    signal: AbortSignal,
+  ): Promise<ProjectSecretDeleteReceipt>
   lookup(
     identity: ProjectSecretIdentity,
     csrf: string,
@@ -127,9 +155,9 @@ export function captureProjectSecretIdentity(value: unknown): ProjectSecretIdent
       shape(v, ['kind', 'projectID', 'targetID'])
       return Object.freeze({ kind: 'create', projectID, targetID })
     }
-    requireValue(v.kind === 'update')
+    requireValue(v.kind === 'update' || v.kind === 'delete')
     return Object.freeze({
-      kind: 'update',
+      kind: v.kind,
       projectID,
       targetID,
       expectedVersion: version(v.expectedVersion),
@@ -143,14 +171,15 @@ export function projectSecretLookupBody(
   return Object.freeze({
     command: `project.secret_variable.${original.kind}`,
     target_id: original.targetID,
-    ...(original.kind === 'update' ? { expected_version: original.expectedVersion } : {}),
+    ...(original.kind !== 'create' ? { expected_version: original.expectedVersion } : {}),
   })
 }
-function receipt(
+function writeReceipt(
   value: unknown,
   original: ProjectSecretIdentity,
   supplied?: Readonly<{ name?: string; description?: string; replaces?: boolean }>,
-): ProjectSecretReceipt {
+): ProjectSecretWriteReceipt {
+  requireValue(original.kind !== 'delete')
   const v = shape(value, ['command', 'changed', 'variable', 'event_id', 'audit_id'])
   requireValue(
     v.command === `project.secret_variable.${original.kind}` && typeof v.changed === 'boolean',
@@ -172,11 +201,44 @@ function receipt(
     )
   }
   return Object.freeze({
-    command: v.command as ProjectSecretReceipt['command'],
+    command: v.command as ProjectSecretWriteReceipt['command'],
     changed: v.changed,
     variable,
     event_id: eventID,
     audit_id: auditID,
+  })
+}
+function deleteReceipt(
+  value: unknown,
+  original: ProjectSecretIdentity,
+): ProjectSecretDeleteReceipt {
+  requireValue(original.kind === 'delete')
+  const v = shape(value, ['command', 'changed', 'deleted', 'event_id', 'audit_id'])
+  requireValue(v.command === 'project.secret_variable.delete' && v.changed === true)
+  const d = shape(v.deleted, ['id', 'project_id', 'type', 'version', 'deleted_at'])
+  const targetID = id(d.id),
+    projectID = id(d.project_id),
+    deletedVersion = version(d.version)
+  const deletedAt = parseSystemInstant(d.deleted_at)
+  requireValue(
+    targetID === original.targetID &&
+      projectID === original.projectID &&
+      d.type === 'secret' &&
+      BigInt(deletedVersion) === BigInt(original.expectedVersion) + 1n &&
+      deletedAt !== '0001-01-01T00:00:00.000000Z',
+  )
+  return Object.freeze({
+    command: 'project.secret_variable.delete',
+    changed: true,
+    deleted: Object.freeze({
+      id: targetID,
+      project_id: projectID,
+      type: 'secret',
+      version: deletedVersion,
+      deleted_at: deletedAt,
+    }),
+    event_id: id(v.event_id),
+    audit_id: id(v.audit_id),
   })
 }
 export function createProjectSecretCommandsAPI(fetcher?: Fetch): ProjectSecretCommandsAPI {
@@ -191,7 +253,7 @@ export function createProjectSecretCommandsAPI(fetcher?: Fetch): ProjectSecretCo
       })
       // Receipt validation closes over safe metadata, never the material.
       const supplied = Object.freeze({ name: captured.name, description: captured.description })
-      return request('createProjectSecret', (value) => receipt(value, original, supplied), {
+      return request('createProjectSecret', (value) => writeReceipt(value, original, supplied), {
         signal,
         projectID: original.projectID,
         csrf,
@@ -212,13 +274,29 @@ export function createProjectSecretCommandsAPI(fetcher?: Fetch): ProjectSecretCo
         ...('description' in captured ? { description: captured.description } : {}),
         replaces: 'value' in captured,
       })
-      return request('updateProjectSecret', (value) => receipt(value, original, supplied), {
+      return request('updateProjectSecret', (value) => writeReceipt(value, original, supplied), {
         signal,
         projectID: original.projectID,
         target: original.targetID,
         csrf,
         key,
         body: { expected_version: expectedVersion, request: captured },
+      })
+    },
+    delete(projectID, targetID, expectedVersion, csrf, key, signal) {
+      const original = captureProjectSecretIdentity({
+        kind: 'delete',
+        projectID,
+        targetID,
+        expectedVersion,
+      })
+      return request('deleteProjectSecret', (value) => deleteReceipt(value, original), {
+        signal,
+        projectID: original.projectID,
+        target: original.targetID,
+        csrf,
+        key,
+        body: { expected_version: expectedVersion },
       })
     },
     lookup(identity, csrf, key, signal) {
@@ -232,7 +310,13 @@ export function createProjectSecretCommandsAPI(fetcher?: Fetch): ProjectSecretCo
             return Object.freeze({ status: 'not_observed', receipt: null })
           }
           requireValue(v.status === 'committed')
-          return Object.freeze({ status: 'committed', receipt: receipt(v.receipt, original) })
+          return Object.freeze({
+            status: 'committed',
+            receipt:
+              original.kind === 'delete'
+                ? deleteReceipt(v.receipt, original)
+                : writeReceipt(v.receipt, original),
+          })
         },
         {
           signal,

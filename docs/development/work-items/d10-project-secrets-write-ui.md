@@ -45,3 +45,11 @@ native02 的原工具 16188 由方法作者亲收 actual0，supervisor 实际返
 normal 13 请求为 12 finished + 1 Create 的实际 ERR_ABORTED，13 份原联证齐；lost 9 请求为 8 finished + 1 PATCH 的实际 CONTENT_LENGTH_MISMATCH，9 份原联证齐，不能概称全部请求 finished。两子例各有宽屏浅色/窄屏深色图，截图前原材料 DOM 已清空。build04 含 type actual0，84 资产与原 dist-02 逐字同，复用既有 binary/Session binding；没有为定位返修重编产品或 Go。原件位于 `output/ai/project-secrets-write-ui/native02/`，主审已核 22 份联证、4 张实际截图、26 份持久事实 JSON 与原全部退出门，最终有限接受。
 
 本次实际覆盖 runtime-off 默认 App 配置链，不外推 Secret 删除、运行注入、完整 D10、生产 Project initializer 或既有 STOP。native01 原 spec 的精确小恢复 patch 见本片恢复说明；全部历史失败仍保留。
+
+## 后继：Secret 逻辑删除实际验收
+
+后继已增加普通 Project Owner 的删除入口，前述“不包含删除”仅指原创建/编辑片。删除须明确确认，取消恢复原按钮焦点且不发写；使用当前独立 GET 的版本和原命令身份，Unknown 只允许原 Lookup，不能自动重删或更换键。材料及其摘要不进入页面、公开状态或证据。[聚焦检查](../../../output/ai/project-secret-delete-delivery/author-frontend01/result.json)的四文件 28 项及完整类型检查通过，组合资产构建通过。
+
+受测 `027cb` 的 [browser05](../../../output/ai/project-secret-delete-delivery/browser05/result.json) 原 `83052/1d8735` actual0，[原外层 Wait](../../../output/ai/project-secret-delete-delivery/browser05-outer.json)为 0（64.117s），Go 单子例 29.41s、Node 成功，四个收养子进程与六个原资源均实际退出，post `b0d63c` 通过。真实 Owner 浏览器依次取消零写、收到原 DELETE 的 409 Busy、进入独立文档的 Agent 编辑页一次清除原 allowlist，再独立进入 Secrets 文档重新读取并一次 DELETE 成功；随后独立目录/剩余项读取，Go 核原身份 Lookup 与逻辑删除墓碑。两张实际宽屏浅色/窄屏深色图已复核。此结果不声称同一 SPA 文档内整链成功，不扩展为材料物理擦除、运行注入或全局生命周期终局。
+
+[保留原件](../../../output/ai/project-secret-delete-delivery/)含 browser01–04 的全部失败：01 为迁移历史不一致，原首因未确定；02 实际收到桥接 502，没有对应 DELETE 的完整响应证明，不回填为原 409；03、04 的观察器终态断言失败仍保留，04 的 SPA 流程不追认为通过。05 的成功不覆盖这些失败，原 STOP 不变。

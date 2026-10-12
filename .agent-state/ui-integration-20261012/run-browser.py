@@ -24,6 +24,17 @@ CREATE_EXPECTED = {'TestProjectCreationApp',
                    'TestProjectCreationApp/create-through-browser',
                    'TestProjectCreationRecoveryApp',
                    'TestProjectCreationRecoveryApp/cancelled-create-restarts-original-intent'}
+SECRET_SELECTOR = '^TestProjectSecretDeleteWeb$'
+SECRET_EXPECTED = {'TestProjectSecretDeleteWeb',
+                   'TestProjectSecretDeleteWeb/busy-reference-then-delete'}
+USAGE_SELECTOR = '^TestProjectUsageSummaryWeb$'
+USAGE_EXPECTED = {'TestProjectUsageSummaryWeb',
+                  'TestProjectUsageSummaryWeb/daily-server-aggregate'}
+SKILL_SELECTOR = '^TestSkillPackageImportWeb$'
+SKILL_EXPECTED = {'TestSkillPackageImportWeb',
+                  'TestSkillPackageImportWeb/existing-file-import-and-fixed-revision-download'}
+TASK_SELECTOR = '^TestTaskSearchWeb$'
+TASK_EXPECTED = {'TestTaskSearchWeb', 'TestTaskSearchWeb/server-search-beyond-first-page'}
 
 def save(path, value):
     with path.open('x') as stream:
@@ -58,13 +69,38 @@ def main():
     p.add_argument('--input-hash', required=True)
     p.add_argument('--pg-current-only', action='store_true',
                    help='explicitly omit the unused PG16 negative-control fixture')
-    p.add_argument('--project-creation', action='store_true',
-                   help='run the reviewed default-App creation, browser and recovery scope')
+    scope = p.add_mutually_exclusive_group()
+    scope.add_argument('--project-creation', action='store_true',
+                       help='run the reviewed default-App creation, browser and recovery scope')
+    scope.add_argument('--secret-delete', action='store_true',
+                       help='run the reviewed referenced-Secret deletion scope')
+    scope.add_argument('--project-usage-summary', action='store_true',
+                       help='run the reviewed daily Usage summary scope')
+    scope.add_argument('--skill-package-import', action='store_true',
+                       help='run the reviewed existing-file Skill package import scope')
+    scope.add_argument('--task-search', action='store_true',
+                       help='run the reviewed Task search and enum filters scope')
     a = p.parse_args()
-    selector = CREATE_SELECTOR if a.project_creation else SELECTOR
-    expected = CREATE_EXPECTED if a.project_creation else EXPECTED
-    node_count = 1 if a.project_creation else 2
-    web_scopes = ([('AGENTEAM_PROJECT_CREATION_WEB', 'project-creation')]
+    selector = (TASK_SELECTOR if a.task_search else
+                SKILL_SELECTOR if a.skill_package_import else
+                USAGE_SELECTOR if a.project_usage_summary else
+                SECRET_SELECTOR if a.secret_delete else
+                CREATE_SELECTOR if a.project_creation else SELECTOR)
+    expected = (TASK_EXPECTED if a.task_search else
+                SKILL_EXPECTED if a.skill_package_import else
+                USAGE_EXPECTED if a.project_usage_summary else
+                SECRET_EXPECTED if a.secret_delete else
+                CREATE_EXPECTED if a.project_creation else EXPECTED)
+    node_count = 1 if a.project_creation or a.secret_delete or a.project_usage_summary or a.skill_package_import or a.task_search else 2
+    web_scopes = ([('AGENTEAM_TASK_SEARCH_WEB', 'task-search')]
+                  if a.task_search else
+                  [('AGENTEAM_SKILL_IMPORT_WEB', 'skill-import')]
+                  if a.skill_package_import else
+                  [('AGENTEAM_PROJECT_USAGE_SUMMARY_WEB', 'usage-summary')]
+                  if a.project_usage_summary else
+                  [('AGENTEAM_PROJECT_SECRET_DELETE_WEB', 'secret-delete')]
+                  if a.secret_delete else
+                  [('AGENTEAM_PROJECT_CREATION_WEB', 'project-creation')]
                   if a.project_creation else
                   [('AGENTEAM_TASK_SEARCH_WEB', 'task-search'),
                    ('AGENTEAM_PROJECT_VARIABLES_WEB', 'variable-delete')])
@@ -80,7 +116,7 @@ def main():
         raise OSError(ctypes.get_errno(), 'subreaper unavailable')
     env = dict(os.environ, TMPDIR=str(a.runtime), AGENTEAM_AUTH_WEB_RUNTIME=str(a.runtime),
                AGENTEAM_FIXTURE_TEST_BINARY=str(a.binary),
-               AGENTEAM_FIXTURE_TEST_CWD=str(a.root / 'tests/projectvariable'),
+               AGENTEAM_FIXTURE_TEST_CWD=str(a.root / ('tests/model' if a.project_usage_summary else 'tests/projectvariable')),
                AGENTEAM_FIXTURE_OWNED_RECORD=str(a.output / 'owned-resources.json'))
     env.pop('AGENTEAM_FIXTURE_PG_CURRENT_ONLY', None)
     if a.pg_current_only:
@@ -92,7 +128,9 @@ def main():
     save(a.output/'invocation.json', {'command':command,'cwd':str(a.root),
          'input_hash':a.input_hash,'binary':str(a.binary),'dist':str(a.dist),
          'runtime':str(a.runtime),'supervisor_pid':os.getpid(),
-         'pg_current_only':a.pg_current_only,'project_creation':a.project_creation})
+         'pg_current_only':a.pg_current_only,'project_creation':a.project_creation,
+         'secret_delete':a.secret_delete,'project_usage_summary':a.project_usage_summary,
+         'skill_package_import':a.skill_package_import,'task_search':a.task_search})
     began = time.monotonic()
     failed = False
     adopted = []
