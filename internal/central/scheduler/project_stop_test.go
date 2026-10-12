@@ -193,7 +193,7 @@ func TestSchedulerProjectStopWaitsForTargetActualReturnOnly(t *testing.T) {
 
 func projectStopUnknown(t *testing.T, p i.ProjectID) error {
 	t.Helper()
-	cause, err := f.NewRecoveryCause("scheduler-project-stop-test", p.String())
+	cause, err := f.NewRecoveryCause("scheduler-project-stop-test", p.String(), "")
 	if err != nil {
 		t.Fatal(err)
 	}
