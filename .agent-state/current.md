@@ -1,20 +1,22 @@
-# 当前工作：Write 交付与 Command 后继
+# 当前工作：Write / Command 合入与 Command WSS
 
-2026-10-12。本索引位于 `/workspace/agenteam` 正式 main 工作树，root 统筹 Git、资源窗口与集成。Runner write-file Operation 已有限验收并保全，原分支最终文档 `98083527` 正在由 root 作完整历史合并；当前尚未完成 merge commit、main 可达核验、推送或该任务树/本地/远端清理。已验技术输入 `c1530e95`，原树 `/workspace/agenteam-runner-write-file-operation`、分支 `ai/runner-write-file-operation-20261012`；先前临时树迁址不计为任务清理。
+2026-10-12。本索引位于 `/workspace/agenteam` 正式 main 工作树，root 统筹 Git、资源窗口与集成。Runner write-file Operation 已有限验收并保全，完整历史已合入本地主线 `fff1f829`，尚未记main推送或该任务树/本地/远端清理。已验技术输入 `c1530e95`，原树 `/workspace/agenteam-runner-write-file-operation`、分支 `ai/runner-write-file-operation-20261012`；先前临时树迁址不计为任务清理。
 
-Runner Command argv 独立片待集成，其结果不由 Write 验收替代。新 Runner Command WSS 树 `/workspace/agenteam-runner-command-wss` 与工作分支已建立，codec、Handler/control 及真实 Runner TLS/WSS 首链仍在实施、尚未验收；范围不含 Central/PG 或默认接线，也不解除历史 tools HTTP STOP。
+Runner Command argv 独立片已获唯一主审有限接受，最终分支 `5920a949` 正在由root完整历史合入。原技术/方法 `2664c9c6` 的basic01：14个行为top/20sub race PASS、3个helper仅Skip、三包vet实际0；原20601亲收0（2709b5），wrapper850742 /19.852s，各原Wait和SID双空齐，1111输入三份相同。52文件/1,996,308 B/5目录已跨FS复制至 `output/ai/retired-20261012/runner-command-owner/`，逐字和mode/uid/gid/nsmtime等，dev/inode不同且原件仍保留。44仓库历史版本及合成main当前源码待本次commit后限定核对，尚未推送或清理。见[Command卡](../docs/development/work-items/d16-runner-command-owner.md)与[恢复说明](runner-command-owner/README.md)。范围仍为Linux trusted-host argv/cwd owner，不是进程sandbox，也不证明逃逸整树退出。
+
+新 Runner Command WSS 树 `/workspace/agenteam-runner-command-wss` 与工作分支已建立，codec、Handler/control 及真实 Runner TLS/WSS 首链仍在实施、尚未验收；范围不含 Central/PG 或默认接线，也不解除历史 tools HTTP STOP。
 
 本片已真实闭合持久 ToolCall→当前 write 专属授权同 Tx Operation/Attempt→原 COMMIT 实际返回→同 RID Claim/WSS 一次→原发布结果与 retired 同 Tx。`basic01` 的 unused import 编译 FAIL 保留；原六包 34 top / 109 sub 与窄补 `basic02` 的 10 top / 36 sub 分阶段共 44 top / 145 sub PASS，八包 vet PASS，829 输入各轮前后相同。`methods01` 1 正 / 7 反及旧映射保留通过；`compile01` 与精确 list 实际 0，1,928 编译输入相同，runtime 1,929 仅增加实物 binary。
 
 `native01` 原工具 34580 actual 0：Go 858887 / driver 857092 原 Wait 0，supervisor 857048 Wait 0 / 165.703 s；1 top / 2 sub PASS（68.27 s），七资源十四次 absence、desc/private/runtime 双空、HOST_TCP 自动差额双空与输入不变齐，唯一主审已最终接受。首链证明提交原返回前零 wire、原返回后一次 512 KiB 写与丢最终回执后只 Lookup；次链证明正式撤销 Mount 后零 wire、旧 bytes 不变、not_dispatched 退休。受控 Model JSONCaller 和原 Project test Skills receipt 的边界保持，没有后继 Model/Transcript 消费、默认绑定或 tools HTTP 解禁。详见[本卡](../docs/development/work-items/d15-runner-write-file-operation.md)与[方法和恢复说明](runner-write-file-operation/README.md)。
 
-root 统筹 Git/资源/集成；原各域作者保留源码所有权，knowledge_delete_fixture 负责 Write PG/方法与本次 current 合并，runtime_recovery 为唯一 principal。Write 原所有执行进程已实际退出，技术输入与原 output 停写；本次只同步文档，不重跑已接受检查。
+root 统筹 Git/资源/集成；原各域作者保留源码所有权，knowledge_delete_fixture 负责 Write PG/方法，variables_review负责本次main current合并，runtime_recovery为唯一principal。Write 原所有执行进程已实际退出，技术输入与原 output 停写；本次只同步文档，不重跑已接受检查。
 
-本片原 output 已由工具 94730 actual 0 同文件系统 `NOREPLACE` 迁至 main 工作树 `output/ai/retired-20261012/runner-write-file-operation/`：95 文件 / 97,809,643 B / 15 目录全 metadata/hash/inode 相同，四份 tmp 副本 7,292 B 齐、原 tmp 保留；旁目录 `runner-write-file-operation-preservation/` 保存 manifest、25 maps / 1,931 历史 blob 核验及原 Wait。历史已匹配 Write 原分支 `79d88efc` / `c1530e95`，未提前记 main 可达或已清理；迁后原 Write 树 untracked/ignored 0，保护缓存不动。详见本片恢复说明。
+本片原 output 已由工具 94730 actual 0 同文件系统 `NOREPLACE` 迁至 main 工作树 `output/ai/retired-20261012/runner-write-file-operation/`：95 文件 / 97,809,643 B / 15 目录全 metadata/hash/inode 相同，四份 tmp 副本 7,292 B 齐、原 tmp 保留；旁目录 `runner-write-file-operation-preservation/` 保存 manifest、25 maps / 1,931 历史 blob 核验及原 Wait。历史已匹配 Write 原分支 `79d88efc` / `c1530e95`，本次完整历史已保留于本地主线，尚未推送或清理；迁后原 Write 树 untracked/ignored 0，保护缓存不动。详见本片恢复说明。
 
 ## 已交付上游与全局保留
 
-以下保留 main 当前已核清理35树/36本地/70远端、legacy141待核/keep1及正式材料位置；Write 本地验收与保全、Command 后继实施均不增加清理计数。
+以下保留 main 当前已核清理35树/36本地/70远端、legacy141待核/keep1及正式材料位置；Write与Command的验收、保全及本地主线合入均不增加清理计数。
 
 - RoundInput 只读投影已随完整历史合入 main `b0467431`，唯一主审已接受有限 wholePASS；原件已无覆盖保全，main `095d3359` 推送实际0，原 Projection 树、本地分支及远端引用均已实际清理。见[本片卡](../docs/development/work-items/d22-next-round-projection.md)与[方法/恢复说明](next-round-projection/README.md)。以下为其原验收与保全事实。
 - 只读原已提交RoundInput及绑定的历史参数、完整结果、三消息、Control和固定Tool目录；实际reader返回前不发布。当前配置撤销不改历史投影，也不由历史观察授新执行权限。无下一Model/Runner派发或默认生产接线。
