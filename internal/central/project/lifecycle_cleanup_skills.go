@@ -120,5 +120,11 @@ func skillsParentCleanupReport(round lifecycleCleanupRound, child c.CleanupRepor
 }
 
 func (a *LifecycleAuthority) requireSkillsCleanupClaimInTx(ctx context.Context, tx f.Tx, cause c.LifecycleCause, project c.ProjectID) error {
+	if ctx != nil {
+		witness, _ := ctx.Value(lifecycleCleanupScopeKey{}).(*lifecycleCleanupScope)
+		if witness != nil && witness.round.agentStep {
+			return fault(f.Forbidden)
+		}
+	}
 	return a.requireCleanupClaimInTx(ctx, tx, cause, project, c.SkillsParticipant)
 }

@@ -239,6 +239,8 @@ Audit库与Secret库本身没有自主Project执行/外部业务worker：它们�
 
 ## 9. 既有依赖的真实适配与必需窄补
 
+固定 Agent→Skills 子步骤按 [D10 §4.3](d10-agent-configuration.md#43-project-永久删除中的有限原子退休) 消费真实退休端口。Agent 子步骤的完整 canonical/引用变更与本域 applied checkpoint 必须在同一个原 caller Tx 提交；不能沿普通 provider-return 后另 Tx 记进度的路径丢失退休归属。checkpoint 仅存原 completed Agent command 的身份、版本和完整 Before 摘要，恢复必须回该不可变前像和实际各域状态。一次 Run 的原提交/回调返回由原 cleanup driver 持有，后继 Run 才可进入 Skills；父仍 `pending/domains`，旧 ForSkills 与 Outbox/Audit 构造不扩大权限。本片不把受控 accepted/其它 participant 前置或局部成功当默认完整 Delete。
+
 ### 9.1 D05 项目停止能力
 
 固定 D05 只有 CleanupProject，没有项目范围 RequestStop/InspectStop。下列 C0 已经独立定向审查并由 root 采纳，代码依据为 `6319d03`；typed 口实现与真实 D05 stop/inspect 分阶段交付，契约成立不代表停止能力已绑定。Project 不越域查表推断空闲。

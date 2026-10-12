@@ -170,6 +170,26 @@ F1没有 DeleteAgent、DisableAgent 或 lifecycle participant，因此本卡不�
 
 该接缝同时出现在 [Task transitions 草稿](d11-task-transitions.md)中，两卡互相引用只表示待审约定；必须分别取得SPEC接受、真实F1和Work实现验收才可宣称可指派/可删除。
 
+### 4.3 Project 永久删除中的有限原子退休
+
+Project Delete 的内部清理与普通 Human 删除分开授权。本片仅在原 Project `cleaning/domains`、完整 required manifest 的 stop 已确认、原 cleanup driver 的同实例活动 claim（Project/operation/process/attempt/fence）下退休 Agent。公开 Service Actor、Cause、阶段行或原 stop-round 配置快照均不能单独发许可。旧 §4.2 Human 当前引用检查、terminal Task 不可变规则不变。
+
+首个可执行范围是：Execution owner 按 Agent 身份检查**全部状态历史均不存在**；无托管 Mount/Runner workspace；Skills 仅有真实创建生成的 disabled 初始 head，assignment 为零，且无 grant/change/delivery 或 Execution binding 历史。超出这些已实现 owner 形态返回 Busy/明确错误，不能仅凭活动索引空、disabled 标志或空 binding 集合代替退休。Tool、Mount、Model、Secret、Skills 五个真实引用 owner 即使对应选择为空也必须绑定并检查完整前像；不删除共享 Tool/Model/Secret 资源，不替代未来运行历史清理。
+
+已有 grant 的不可变触发器仍禁止 DELETE，包括 enabled 创建产生的首条 assignment；本片不绕过或修改历史迁移。紧随其后的缺口是 Project 永久清理专用的正式 grant 删除例外及 Skills owner 消费，需要新迁移和真实历史清理路径；当前有限成功不覆盖 enabled 或曾变更的 Agent。
+
+Work 专用口在原同 Store 活 Tx、Project EX/Schedule EX/Agent EX 和私有 Agent prepared witness 下确认 Project 的不可逆删除门已关闭指派使用资格；本 Project 所有 terminal/nonterminal Task 的 assignee、状态、版本、事件与 receipt 均保持原值，不伪造 Unassign、cancelled 或 Work Cleanup。跨 Project 的异常引用拒绝。这个检查只能被同 Tx 的实际 Agent 退休消费，不能用于 Archive、普通 DeleteAgent 或单独授予运行/删除权限。
+
+原 Project caller 一次取得全部 owner 锁 union。Agent 验证完整 canonical Before 与匹配该 Project/Agent/config version 的原 completed command 后，删除自身 allowlists/canonical；私有 applied witness 供五个 owner 在同一 Tx 内收束各自索引/初始头。没有新 `retired` 枚举或合成版本递增。该 Tx 同时写入既有 Project participant 私有 checkpoint 的 applied 锚点（Agent、原版本、command ID、完整 Before 摘要），任何 owner 错误整笔回滚。完整 Before 保留在原不可变 `commands.after_config`，不塞入新的持久表或截短成配置子集；Task/Agent command/Audit 历史由其原 owner 后续 Project Cleanup 清理。
+
+Project driver 持有原事务及 caller 的实际返回；取消、物理提交可见或 Agent 行缺席都不替代原返回。Unknown 保留原 owner/cause，后继 Run 必须核相同 operation 的 applied checkpoint、原不可变 command 的完整 Before/version/摘要及所有 owner 的实际退休事实，缺 checkpoint 不能根据空表宣告成功。原子退休后可由同一固定 driver 继续真实 Skills 清理，但母 participant 仍为 `pending/domains`；不开放默认完整 Registry、HTTP DeleteAgent 或完整 Project Delete。本段是实施契约，动态结果另据实际运行记录。
+
+### 4.3.1 首片有限真实结果（2026-10-12）
+
+`5b26c570` 的 `TestProjectAgentRetirement` native02 三组实际通过（64.00s），原 Run/Node-free fixture/Store 与六项资源均已实际退出。正例只含 disabled 初始 head、零 assignment/变更历史、全状态 Execution 历史为空且无 managed Mount；真实 todo Task 的 assignee、版本和历史保留。原 Agent canonical、五域引用与 Project applied checkpoint 同事务退休，物理提交后的原 Store 返回屏障阻止 owner 提前退出；进程内实际 Committed 的 acknowledgement mask 返回 Unknown 后，仅原 operation/immutable command/完整 Before 摘要与各 owner 确认恢复，不重发退休。真实 enabled grant 仍返回 Busy，整笔 canonical/引用删除回滚。随后实际 Skills 清理可完成子域，母 participant 始终 pending/domains，不授完整 Delete 或默认 Registry。
+
+原 pure 首次 Secret 错误映射断言 FAIL 和 native01 三组 FAIL 保留；native01 仅记录 INTERNAL_ERROR/屏障未到，未保存 SQLSTATE，不能追认它们均由后续静态确定并修复的 Mount/Secret UUID–TEXT 比较缺陷造成。[修后实际结果](../../../output/ai/project-agent-retirement-delivery/native02/result.json)与[原 native01 日志](../../../output/ai/project-agent-retirement-delivery/native01/browser.log)分别保留；后继 enabled 初始 grant 的新迁移不计入本结果。
+
 ## 5. F1 命令、历史与提交结果
 
 以下是完整配置阶段的目标接口；只有§2.2真实前置和外域类型补齐后才进入实施，不纳入初始C1的可编译声明：

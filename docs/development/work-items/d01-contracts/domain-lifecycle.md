@@ -131,6 +131,8 @@ CleanupReport {state: completed|pending|failed, checkpoint?, remaining_refs[], f
 
 required participants 随已启用的正式模块装配确定；D28 必须包括 Work、Agent/Skills/Variables、Knowledge/Retrieval/Memory、Executor、Scheduler、Meeting、Governance、Artifact/Object、Runner managed resources/Tunnel、MCP Project connections、Usage、Audit、Outbox/Delivery、Views。单模块隔离验收不宣称已经完成全项目清理。
 
+Project 永久删除中允许 [D10 的有限 Agent 原子退休](../d10-agent-configuration.md#43-project-永久删除中的有限原子退休)：在原活动 cleanup claim 和全部已持有锁下，Work 保留 Task/终态指派历史，只确认不可逆 Project gate 已撤去其新使用资格；该确认必须由同 Tx 的实际 Agent canonical 与所属引用 owner 退休消费。它不改变普通 Human 当前引用谓词，不等于 Work 历史清理。首片仅支持无 Execution 全状态历史、无托管 Mount、Skills 为 disabled 初始 head 且零 assignment/变更/binding 历史的 Agent；同 Tx applied checkpoint 与原 command 前像负责提交结果恢复。尚未实现的领域/运行历史继续阻止完整 Project 删除，母 participant 不因这个子步骤而 completed。
+
 最终清理事务在删除 Project/释放名称的同时持久最小 ProjectDeletionReceipt。它不含名称、路径、正文、项目Audit副本或可恢复资源，仅保留上列原命令完成事实，不依赖 Project live 外键；不是软删除或额外删除平台。202 的 status_url 按 operation_id 定位，最终响应丢失后原 Owner 的当前有效 Session 仍可查询 completed；原 delete key/digest 重放仅返回此 receipt。command_key_hash 用于 `(deleted_project_id,original_owner_user_id,key)` 的安全定位，不保原业务参数。其他用户/系统管理员无该项目权限时不能查该 receipt，同 key异义仍冲突。旧项目名称已可重用，receipt 不占名称，后台不得借 receipt 对新同名项目执行清理。
 
 ## Meeting 删除与取消
