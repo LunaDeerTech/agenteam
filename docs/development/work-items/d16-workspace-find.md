@@ -62,3 +62,11 @@ func (*Root) Find(context.Context, FindRequest) (FindResult, error)
 独审 agent_display_settings 已逐段核实现，并亲读两轮日志/result、比对当前 11 个 Go 文件与 `go.mod/go.sum` 同四份前后清单逐项相等；接受上述有限成果，无遗留 must-fix。原工具 Wait0 来自作者亲见，独审没有冒称重新运行。无需重复已通过输入。
 
 当前全部自有 Go/cache 任务已实际退出，没有服务、浏览器或 host TCP 观测窗口占用。结果只证明本地 Linux Root 的 Find/Read 与所列生命周期/边界；不代表生产 Mount/Tool/权限装配、完整 D16 或非 Linux 动态验收。
+
+## 已交付材料恢复
+
+本片已随 main `43590d1f` 有限交付，原任务树和分支已清理。原 race/vet、日志、输入表及材料位置说明保留在 main 的 `output/ai/workspace-find/`；两轮各 12 个源码输入均可从该 main 历史逐字恢复，原记录中的绝对路径与退出事实没有改写。
+
+旧私有 `go-build` 缓存另于 `cache-archive01/go-build.tar.gz` 无损归档。全部 1,755 文件、257 目录逐成员内容和 path/mode/uid/gid/纳秒 mtime 校验通过，原 dev/inode 保存在前后清单中；归档 SHA-256 为 `07133e6591df282b85055be8eba25f036c8330ec3f725c38c5ff767eb6ae29cd`。随后经单独授权，仅按该闭集释放旧缓存，原工具 `94607` 实际退出 0，源路径已不存在；归档、原验收材料及共享热缓存、只读 modules、MinIO 均未删除或修改。
+
+恢复步骤见本地 [RECOVER.md](../../../output/ai/workspace-find/cache-archive01/RECOVER.md)，实际释放记录见 [release01/result.json](../../../output/ai/workspace-find/cache-archive01/release01/result.json)。恢复应使用新的空目录，核原内容与 metadata；新 dev/inode 另记映射，不能伪称仍是原 inode。归档属于本机保全原件，不随 Git 自动传输；跨设备须一并提供并核 SHA。原 race/vet 输入不包含缓存身份，可按原工具链和源码重建，但不能把新构建改写成旧验收。本次空间整理不证明 Projection 的原 ENOSPC 已解决。

@@ -37,6 +37,8 @@ func (c *Client) connectionHello(id p.ID, version string) p.Hello {
 	switch c.executor.(type) {
 	case readFileExecutor:
 		hello.Capabilities = []string{p.ReadFileOperation}
+	case writeFileExecutor:
+		hello.Capabilities = []string{p.WriteFileOperation}
 	case directoryExecutor:
 		hello.Capabilities = []string{p.ListDirectoryOperation, p.FindFilesOperation}
 	}
