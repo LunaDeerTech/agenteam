@@ -105,7 +105,7 @@ func (s *ProjectAgentRetirementReferences) RequireProjectAgentReferencesRetiredI
 		return err
 	}
 	var remaining bool
-	err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_projectvariable.secret_references WHERE owner_kind='agent' AND owner_id=$1) OR EXISTS(SELECT 1 FROM agenteam_projectvariable.execution_environments WHERE agent_id=$1)`, c.Request.AgentID.String()).Scan(&remaining)
+	err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_projectvariable.secret_references WHERE owner_kind='agent' AND owner_id=$1::text::uuid) OR EXISTS(SELECT 1 FROM agenteam_projectvariable.execution_environments WHERE agent_id=$1::text)`, c.Request.AgentID.String()).Scan(&remaining)
 	if err != nil {
 		return unavailable(err)
 	}

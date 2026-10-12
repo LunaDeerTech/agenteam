@@ -170,7 +170,44 @@ func newAgentRetirementPG(t *testing.T, enabled, withTask bool) *agentRetirement
 	v.requireReferences(t, true, enabled)
 	v.history = v.historySnapshot(t)
 	v.enterCleanup(t)
+	store.mu.Lock()
+	store.afterResult = func(cause f.TransactionCause, result f.CommitResult) {
+		v.diagnoseResult(t, cause, result)
+	}
+	store.mu.Unlock()
+	t.Cleanup(v.clearHooks)
 	return v
+}
+
+// Only inspect the original returned failure. No SQL, arguments, identifiers,
+// driver message or credentials are formatted, and no transaction is replayed.
+func agentRetirementDiagnostic(t *testing.T, stage string, err error) {
+	t.Helper()
+	if err == nil {
+		return
+	}
+	code, state, databaseCode, sqlState := "none", "none", "none", ""
+	var fault *f.Fault
+	if errors.As(err, &fault) {
+		code, state = string(fault.Code.Safe()), string(fault.CommitState.Safe())
+	}
+	var databaseError *postgres.Error
+	if errors.As(err, &databaseError) {
+		databaseCode, sqlState = string(databaseError.Code()), databaseError.SQLState()
+	}
+	t.Logf("AGENT_RETIREMENT_FAILURE stage=%s code=%s commit_state=%s database_code=%s sqlstate=%q cause_deadline=%t cause_canceled=%t", stage, code, state, databaseCode, sqlState, errors.Is(err, context.DeadlineExceeded), errors.Is(err, context.Canceled))
+}
+
+func (v *agentRetirementPG) diagnoseResult(t *testing.T, cause f.TransactionCause, result f.CommitResult) {
+	stage := ""
+	if v.lifecycleTransaction(cause) {
+		stage = "lifecycle-transaction"
+	} else if cause.Kind() == f.RecoveryCause && cause.Details().Owner == "agent-project-retirement" {
+		stage = "agent-read-transaction"
+	}
+	if stage != "" && result.State() != f.Committed {
+		agentRetirementDiagnostic(t, stage, result.Fault())
+	}
 }
 
 func (v *agentRetirementPG) newDriver(t *testing.T) *project.LifecycleCleanupDriver {
@@ -404,6 +441,7 @@ func testProjectAgentRetirementReturn(t *testing.T) {
 	store := v.p2.base.tracked
 	store.mu.Lock()
 	store.afterResult = func(cause f.TransactionCause, result f.CommitResult) {
+		v.diagnoseResult(t, cause, result)
 		if v.lifecycleTransaction(cause) && observed.Load() {
 			v.barrier.hold(result)
 		}
@@ -411,7 +449,19 @@ func testProjectAgentRetirementReturn(t *testing.T) {
 	store.mu.Unlock()
 	defer v.clearHooks()
 	call := v.run(t, driver)
-	v.barrier.await(t)
+	wait, end := context.WithTimeout(ctxFor(t), 5*time.Second)
+	defer end()
+	select {
+	case result := <-v.barrier.entered:
+		if result.State() != f.Committed {
+			t.Fatal("Agent retirement barrier did not observe the original physical COMMIT")
+		}
+	case <-call.done:
+		agentRetirementDiagnostic(t, "original-run-before-barrier", call.err)
+		t.Fatal("original retirement returned before its required COMMIT barrier", call.err)
+	case <-wait.Done():
+		t.Fatal("Agent retirement original Store return barrier was not reached")
+	}
 	v.requireReferences(t, false, false)
 	cp := v.checkpoint(t, true)
 	if cp.AgentsDone || cp.Skills.State != "pending" || v.tap.calls.Load() != 0 {
@@ -467,6 +517,7 @@ func testProjectAgentRetirementUnknown(t *testing.T) {
 	outboxCleanupWait(t, call.done, "original locally masked atomic retirement return")
 	result, ok := project.UnknownAttempt(call.err)
 	if !masked.Load() || !ok || !outboxCleanupFault(call.err, f.CommitUnknown) || result.AttemptID() != attempt || !reflect.DeepEqual(result.Cause().Details(), originalCause.Details()) {
+		agentRetirementDiagnostic(t, "original-run-unknown", call.err)
 		t.Fatal("original acknowledgement Unknown lost its cause/attempt", call.err)
 	}
 	v.requireReferences(t, false, false)
@@ -490,6 +541,7 @@ func testProjectAgentRetirementEnabled(t *testing.T) {
 	call := v.run(t, v.newDriver(t))
 	outboxCleanupWait(t, call.done, "real enabled Skill assignment retirement refusal")
 	if !outboxCleanupFault(call.err, f.ResourceBusy) {
+		agentRetirementDiagnostic(t, "original-run-enabled", call.err)
 		t.Fatal("enabled immutable Skill grant was accepted for retirement", call.err)
 	}
 	v.checkpoint(t, false)
