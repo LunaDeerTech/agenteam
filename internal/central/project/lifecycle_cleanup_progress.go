@@ -48,6 +48,11 @@ func cleanupRoundReport(round lifecycleCleanupRound, report c.CleanupReport) err
 			return err
 		}
 	}
+	if round.participant == c.ExecutionParticipant {
+		if err := executionRetirementRoundReport(round, report); err != nil {
+			return err
+		}
+	}
 	if round.participant == c.SkillsParticipant && round.terminalStep {
 		if d.State != c.CleanupCompleted || d.SafeReason != "" || d.Checkpoint == nil || d.Checkpoint.Schema() != 6 {
 			return unavailable(nil)

@@ -567,6 +567,10 @@ DeliverProject 逐次校验真实 DeliveryIdentity、effect 与原 Project gate�
 
 LifecycleActorResolver 只从当前持久 operation 或最小完成 receipt 构造原 ProjectLifecycle Actor。完成后的 resolver 只允许既有子域 terminal receipt检查，不能授权新 cleanup/append；不能信任请求里的 OperationID/Version 自己构造权限。
 
+Execution 退休候选只由显式 `NewLifecycleCleanupDriverForExecutions` 消费原四 owner consumer；同 Store/原 LifecycleAuthority 的独立 private family 在每个 Tx 核 Project EX + ProjectSchedule EX、current Delete、完整 manifest、all-stopped、Scheduler completed 与 exact Execution cleanup claim。一次原预算 Tx 原子退休一个完整 E：Prepared 下由 Tool、PV→Secret、Skill、Mount 原 provider 校验并删本域引用，随后 Execution 删其支持的 history/canonical，Applied 下 Skill 写 immutable queued proof，同 Tx 写小 typed checkpoint；parent 保持 domains。proof 保存原 queued receipt、完整 pending/command 摘要和原 claim/transaction，后续 Agent Applied 精确消费后才删，普通 Lookup 和旧 no-active 口不放宽。八种未绑定 Tool/round 扩展非空仍 Pending，不声称任意 history 规模的分批进度；正文及完整 history 不进入 checkpoint。
+
+注册、退休和空 calls 尾的 Unknown 都保原 cause/attempt/私 round；下一显式 Run 仅读完整前像或原 atomic checkpoint/后像，原 Store 确认实际返回后，另一次 Run 才可写。四槽与同 P 准入复用原 authority，B 独立；closed/terminal 或缺行不能替代原 owner 返回。已知提交由同 driver 保存 accepted checkpoint 后继续；失去原 provider plan 的新实例不能从 Applied DTO 恢复引用证明，保持 Pending。最后 E/非 NULL E ingress 全空且原 pair/foreign proof 核闭，才退休合法 closed 83 calls 并记 Execution completed；旧 no-active ingress 留后续 Agent/Skill。00084 增加支持域的 DELETE 例外、Skill proof，以及原创建 Tx 内由私 hook 将 running call 的 original_result 从 NULL 一次绑定为精确创建事实的闭集分支；旧身份与其余 INSERT/UPDATE 保护尾保留，closed call 不可补写或改写来源。此为候选合同，未绑定默认 App/Registry，不宣 Execution 扩展调用或完整 Delete 已验收。
+
 ## 10. typed Event 与 Audit
 
 事件 producer/aggregate_type 均 `project`，schema_version=1，Project scope；aggregate_id 为稳定 ProjectID，aggregate_version 为提交后的 Project.version。事件不含 name/description/path、Cookie/Secret、原错误、participant checkpoint。消费者 D25 重读当前 canonical/Owner，不以事件 payload 重建已删除 Project；乱序按版本保护，同版本不同 EventID 不丢 sibling。

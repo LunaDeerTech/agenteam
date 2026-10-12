@@ -80,21 +80,23 @@ type projectCallEntry struct {
 	childOutcomes                                    []error
 }
 type projectCallState struct {
-	store       Store
-	proof       projectCallProcessProof
-	process     oc.ProcessID
-	instance    f.ID[projectCallInstance]
-	authority   ec.ProjectStopAuthority
-	service     *Service
-	preparation *PreparationDriver
-	direct      *DirectTextDriver
-	associated  *AssociatedExecutor
-	mu          sync.Mutex
-	stopped     bool
-	closedLanes map[projectCallLane]bool
-	owners      map[f.ID[projectCallID]]*projectCallEntry
-	stops       map[i.ProjectID]*ownedProjectStop
-	changed     chan struct{}
+	store             Store
+	proof             projectCallProcessProof
+	process           oc.ProcessID
+	instance          f.ID[projectCallInstance]
+	authority         ec.ProjectStopAuthority
+	service           *Service
+	preparation       *PreparationDriver
+	direct            *DirectTextDriver
+	associated        *AssociatedExecutor
+	mu                sync.Mutex
+	stopped           bool
+	closedLanes       map[projectCallLane]bool
+	owners            map[f.ID[projectCallID]]*projectCallEntry
+	stops             map[i.ProjectID]*ownedProjectStop
+	retirements       map[i.ProjectID]*executionRetirementControl
+	retirementOrigins bool
+	changed           chan struct{}
 }
 type ProjectCallOwnership struct{ state *projectCallState }
 
@@ -282,7 +284,11 @@ func (s *projectCallState) admit(ctx context.Context, project i.ProjectID, lane 
 	}
 	s.mu.Lock()
 	laneStopped := s.closedLanes[lane]
+	retiring := s.retirements[project] != nil
 	s.mu.Unlock()
+	if retiring {
+		return ctx, nil, fault(f.ResourceBusy)
+	}
 	if laneStopped {
 		return ctx, nil, fault(f.ShuttingDown)
 	}
@@ -305,7 +311,7 @@ func (s *projectCallState) admit(ctx context.Context, project i.ProjectID, lane 
 			return ctx, nil, fault(f.ResourceBusy)
 		}
 	}
-	if s.stopped || s.closedLanes[lane] || s.stops[project] != nil || len(s.owners) >= maxProjectCallOwners {
+	if s.stopped || s.closedLanes[lane] || s.stops[project] != nil || s.retirements[project] != nil || len(s.owners) >= maxProjectCallOwners {
 		s.mu.Unlock()
 		return ctx, nil, fault(f.ResourceBusy)
 	}
@@ -384,6 +390,9 @@ func (s *projectCallState) reserveAssociated(ctx context.Context, job *associate
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	if s.retirements[job.project] != nil {
+		return nil, fault(f.ResourceBusy)
+	}
 	if old := job.projectCall; old != nil && s.owners[old.record.ID] == old {
 		if !old.returned || old.settling || s.projectKeyBusyLocked(job.project, projectLaneAssociated, identity, old) {
 			return nil, fault(f.ResourceBusy)
@@ -709,7 +718,7 @@ func (p *ProjectCallOwnership) Drain(ctx context.Context) error {
 	}
 	for {
 		s.mu.Lock()
-		done := len(s.stops) == 0
+		done := len(s.stops) == 0 && len(s.retirements) == 0
 		changed := s.changed
 		s.mu.Unlock()
 		if done {
@@ -728,7 +737,7 @@ func (p *ProjectCallOwnership) Joined() bool {
 	}
 	s := p.state
 	s.mu.Lock()
-	done := s.stopped && len(s.owners) == 0 && len(s.stops) == 0
+	done := s.stopped && len(s.owners) == 0 && len(s.stops) == 0 && len(s.retirements) == 0
 	s.mu.Unlock()
 	return done && s.service.Joined() && s.preparation.Joined() && s.direct.Joined() && s.associated.Joined()
 }

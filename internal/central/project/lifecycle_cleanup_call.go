@@ -15,12 +15,24 @@ type lifecycleCleanupCalls struct {
 	mu           sync.Mutex
 	active       map[c.ProjectID]*lifecycleCleanupCall
 	finals       map[c.ProjectID]*lifecycleFinalizeRound
+	executions   map[c.ProjectID]*executionCleanupRound
 	projectCalls map[*call]c.ProjectID
 }
 
 type lifecycleCleanupCall struct{ project c.ProjectID }
 
 func (a *LifecycleAuthority) beginCleanupCall(ctx context.Context, project c.ProjectID, final ...*lifecycleFinalizeRound) (func(), error) {
+	if len(final) > 1 {
+		return nil, invalid()
+	}
+	var permitted *lifecycleFinalizeRound
+	if len(final) == 1 {
+		permitted = final[0]
+	}
+	return a.beginCleanupOwnedCall(ctx, project, permitted, nil)
+}
+
+func (a *LifecycleAuthority) beginCleanupOwnedCall(ctx context.Context, project c.ProjectID, permitted *lifecycleFinalizeRound, execution *executionCleanupRound) (func(), error) {
 	if !a.bound() {
 		return nil, fault(f.DependencyUnbound)
 	}
@@ -36,20 +48,21 @@ func (a *LifecycleAuthority) beginCleanupCall(ctx context.Context, project c.Pro
 	if err := ctx.Err(); err != nil {
 		return nil, portError(err)
 	}
-	var permitted *lifecycleFinalizeRound
-	if len(final) == 1 {
-		permitted = final[0]
-	}
-	if len(final) > 1 || st.finals[project] != nil && st.finals[project] != permitted {
+	if st.finals[project] != nil && st.finals[project] != permitted || st.executions[project] != nil && st.executions[project] != execution {
 		return nil, fault(f.ResourceBusy)
 	}
 	count := len(st.finals)
-	for p := range st.active {
+	for p := range st.executions {
 		if st.finals[p] == nil {
 			count++
 		}
 	}
-	if st.active[project] != nil || st.finals[project] == nil && count >= 4 {
+	for p := range st.active {
+		if st.finals[p] == nil && st.executions[p] == nil {
+			count++
+		}
+	}
+	if st.active[project] != nil || st.finals[project] == nil && st.executions[project] == nil && count >= 4 {
 		return nil, fault(f.ResourceBusy)
 	}
 	if st.active == nil {
@@ -64,6 +77,32 @@ func (a *LifecycleAuthority) beginCleanupCall(ctx context.Context, project c.Pro
 			delete(st.active, project)
 		}
 	}, nil
+}
+
+func (a *LifecycleAuthority) retainExecutionCleanup(round *executionCleanupRound) error {
+	st := &a.cleanupCalls
+	st.mu.Lock()
+	defer st.mu.Unlock()
+	if round == nil || st.active[round.round.claim.project] == nil || st.executions[round.round.claim.project] != nil && st.executions[round.round.claim.project] != round {
+		return fault(f.ResourceBusy)
+	}
+	if st.executions == nil {
+		st.executions = make(map[c.ProjectID]*executionCleanupRound)
+	}
+	st.executions[round.round.claim.project] = round
+	return nil
+}
+
+func (a *LifecycleAuthority) releaseExecutionCleanup(round *executionCleanupRound) {
+	if round == nil {
+		return
+	}
+	st := &a.cleanupCalls
+	st.mu.Lock()
+	defer st.mu.Unlock()
+	if st.executions[round.round.claim.project] == round {
+		delete(st.executions, round.round.claim.project)
+	}
 }
 
 func (a *LifecycleAuthority) retainFinalize(round *lifecycleFinalizeRound) error {

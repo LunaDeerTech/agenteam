@@ -207,6 +207,10 @@ func (s *preparationState) start(ctx context.Context, request c.PreparationReque
 		if tag.RowsAffected() != 1 {
 			return fault(f.ConfirmationStale)
 		}
+		digest, _ := request.Launch.Digest()
+		if err = bindRetirementOriginInTx(ctx, tx, s.store, request.Launch.ProjectID, request.Launch.AgentID, digest, executionRetirementOrigin{1, "preparation", request.ExecutionID.String(), claim.attempt.String(), "", claim.fence, digest.String()}); err != nil {
+			return err
+		}
 		return ctx.Err()
 	})
 	return commitError(result)

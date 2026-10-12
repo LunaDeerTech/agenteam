@@ -368,6 +368,11 @@ func (s *directTextState) start(ctx context.Context, run *directTextCall) error 
 		if err = insertDirectText(ctx, x, run, run.event.Header().EventID); err != nil {
 			return err
 		}
+		digest, _ := run.request.Launch.Digest()
+		snapshot := run.snapshot.Fields()
+		if err = bindRetirementOriginInTx(ctx, tx, s.store, run.request.Launch.ProjectID, run.request.Launch.AgentID, digest, executionRetirementOrigin{1, "snapshot", run.request.ExecutionID.String(), snapshot.ID.String(), snapshot.StartID.String(), int64(run.summary.Version + 1), run.snapshot.Digest().String()}); err != nil {
+			return err
+		}
 		actor, _ := i.NewAgentRun(run.request.Launch.ProjectID, run.request.Launch.AgentID, run.request.ExecutionID)
 		if _, err = s.deps.Agents.ReadExecutionConfigurationInTx(ctx, tx, ac.ExecutionConfigurationRequest{Actor: actor, ProjectID: run.request.Launch.ProjectID, AgentID: run.request.Launch.AgentID, ExecutionID: run.request.ExecutionID, Stage: ac.ExecutionConfigurationCurrent}); err != nil {
 			return portError(err)
