@@ -44,6 +44,7 @@ const initialEdit = () => ({
   approvalPolicy: 'default' as AgentApprovalPolicy,
   approvalModelID: '',
   runnerMounts: [] as RunnerMountDeclaration[],
+  runnerChoices: [] as AvailableRunner[],
   secretIDs: [] as string[],
   touched: {} as Partial<Record<EditField | EditPolicyField, true>>,
   conflict: false,
@@ -63,6 +64,7 @@ const initialDraft = () => ({
   approvalPolicy: '' as '' | AgentApprovalPolicy,
   approvalModelID: '',
   runnerMounts: [] as RunnerMountDeclaration[],
+  runnerChoices: [] as AvailableRunner[],
   secretIDs: [] as string[],
   addSkills: true,
   installSkill: true,
@@ -270,8 +272,26 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
     })),
   ])
   const runnerStatus = { online: '在线', offline: '离线', incompatible: '协议不兼容' }
+  // Only selected observations survive a page refresh. They are display/choice
+  // data for this form, never an existence or mutation-authority proof.
+  function selectedRunnerChoices(
+    rows: readonly RunnerMountDeclaration[],
+    previous: readonly AvailableRunner[],
+    incoming: readonly AvailableRunner[] = [],
+  ) {
+    const selected = new Set(rows.map((row) => row.runner_id))
+    const known = new Map([...previous, ...incoming].map((runner) => [runner.id, runner]))
+    return [...known.values()].filter((runner) => selected.has(runner.id))
+  }
+  const runnerCandidates = computed(() => {
+    const selected = draft.open ? draft.runnerChoices : edit.open ? edit.runnerChoices : []
+    return [...new Map([...selected, ...state.runners].map((r) => [r.id, r])).values()]
+  })
   const runnerOptions = computed(() =>
-    state.runners.map((r) => ({ value: r.id, label: `${r.name}（${runnerStatus[r.status]}）` })),
+    runnerCandidates.value.map((r) => ({
+      value: r.id,
+      label: `${r.name}（${runnerStatus[r.status]}）`,
+    })),
   )
   const editMountsReady = computed(
     () =>
@@ -288,7 +308,7 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
       if (
         captured.some(
           (row) =>
-            !state.runners.some((r) => r.id === row.runner_id) &&
+            !runnerCandidates.value.some((r) => r.id === row.runner_id) &&
             !previous.some((r) => r.runner_id === row.runner_id),
         )
       )
@@ -312,10 +332,14 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
     if (busy.value || !canCreate.value || rows.length > 128) return
     if (editing) {
       if (!edit.open || !canEdit.value || editStale.value || !editMountsReady.value) return
+      edit.runnerChoices = selectedRunnerChoices(rows, edit.runnerChoices, state.runners)
       edit.runnerMounts = rows.map((row) => ({ ...row }))
       edit.touched.runner_mounts = true
       edit.message = ''
-    } else if (draft.open) draft.runnerMounts = rows.map((row) => ({ ...row }))
+    } else if (draft.open) {
+      draft.runnerChoices = selectedRunnerChoices(rows, draft.runnerChoices, state.runners)
+      draft.runnerMounts = rows.map((row) => ({ ...row }))
+    }
   }
   const secretOptions = computed(() =>
     state.secrets.map((secret) => ({ value: secret.id, label: secret.name })),
@@ -447,6 +471,8 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
     )
   }
   function retire() {
+    draft.runnerChoices = []
+    edit.runnerChoices = []
     ++generation
     requested = false
     auth.agentConfiguration.abandonRead()
@@ -566,6 +592,18 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
           state.runnerMessage = 'Runner 目录已变化，请从第一页重新读取。'
           return
         }
+        if (draft.open)
+          draft.runnerChoices = selectedRunnerChoices(
+            draft.runnerMounts,
+            draft.runnerChoices,
+            page.items,
+          )
+        if (edit.open)
+          edit.runnerChoices = selectedRunnerChoices(
+            edit.runnerMounts,
+            edit.runnerChoices,
+            page.items,
+          )
         state.runners = more ? [...state.runners, ...page.items] : page.items
         state.runnerNext = page.next_cursor
         state.runnerPhase = 'ready'

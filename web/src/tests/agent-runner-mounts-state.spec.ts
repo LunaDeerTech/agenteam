@@ -153,6 +153,66 @@ async function fixture() {
   }
 }
 describe('Agent Runner current configuration and drafts', () => {
+  it.each(['creation', 'edit'] as const)(
+    'keeps a selected second-page Runner usable after refreshing the first page (%s)',
+    async (mode) => {
+      const f = await fixture()
+      const first = Array.from({ length: 50 }, (_, n) => ({
+        ...runner,
+        id: id(100 + n),
+        name: `First page ${n}`,
+      }))
+      const selected = { ...runner, id: id(200), name: 'Second page worker' }
+      f.api.runners.mockImplementation(async (_project, query) =>
+        query.cursor ? { items: [selected] } : { items: first, next_cursor: 'second-page' },
+      )
+      if (mode === 'creation') {
+        await f.owner.openCreation()
+        f.owner.draft.name = 'New-Agent'
+        f.owner.selectModel(id(3))
+        f.owner.draft.injectAgentsMD = 'yes'
+        f.owner.chooseApproval('default')
+      } else {
+        await f.owner.selectAgent(id(2))
+        await f.owner.openEdit()
+      }
+      await f.owner.loadRunners(true)
+      const declaration = [{ runner_id: selected.id, workspace: 'selected.dir' }]
+      f.owner.changeMounts(mode === 'edit', declaration)
+      await f.owner.loadRunners()
+      expect(f.api.runners.mock.calls.at(-1)).toEqual([id(1), { limit: 50 }])
+      expect(f.owner.state.runners).toEqual(first)
+      expect(f.owner.state.runnerNext).toBe('second-page')
+      expect(f.owner.runnerOptions.value.filter((option) => option.value === selected.id)).toEqual([
+        { value: selected.id, label: 'Second page worker（离线）' },
+      ])
+      if (mode === 'creation') {
+        expect(f.owner.draft.runnerMounts).toEqual(declaration)
+        expect(f.owner.draftMountMessage.value).toBe('')
+        expect(f.owner.canSubmit.value).toBe(true)
+        await f.owner.submitCreation()
+        expect(f.api.startCreate).toHaveBeenCalledTimes(1)
+        expect(f.api.startCreate.mock.calls[0]![1].runner_mounts).toEqual(declaration)
+        expect(f.api.startCreate.mock.calls[0]![1]).not.toHaveProperty('allowed_mount_ids')
+      } else {
+        expect(f.owner.edit.runnerMounts).toEqual(declaration)
+        expect(f.owner.editMountMessage.value).toBe('')
+        expect(f.owner.canSave.value).toBe(true)
+        await f.owner.submitEdit()
+        expect(f.api.startUpdate).toHaveBeenCalledExactlyOnceWith(id(1), id(2), {
+          expected_version: '1',
+          request: { runner_mounts: declaration },
+        })
+      }
+      // A successful form retires its observations; the page itself never grew.
+      expect(f.owner.runnerOptions.value.some((option) => option.value === selected.id)).toBe(false)
+      expect(f.owner.state.runners).toEqual(first)
+      await f.owner.openCreation()
+      f.owner.changeMounts(false, declaration)
+      expect(f.owner.draftMountMessage.value).not.toBe('')
+      expect(f.owner.canSubmit.value).toBe(false)
+    },
+  )
   it('submits the offline Runner declaration and publishes fresh Get results instead of the receipt', async () => {
     const f = await fixture()
     await f.owner.openCreation()
@@ -254,6 +314,7 @@ describe('Agent Runner current configuration and drafts', () => {
     const f = await fixture()
     await f.owner.openCreation()
     f.owner.draft.name = 'kept draft'
+    f.owner.changeMounts(false, [{ runner_id: runner.id, workspace: 'kept.dir' }])
     let release!: (v: { items: (typeof runner)[] }) => void
     f.api.runners.mockImplementationOnce(
       () =>
@@ -266,6 +327,7 @@ describe('Agent Runner current configuration and drafts', () => {
     f.context.value = null
     expect(f.owner.visible.value).toBe(false)
     expect(f.owner.state.runners).toEqual([])
+    expect(f.owner.runnerOptions.value).toEqual([])
     expect(f.owner.draft.name).toBe('kept draft')
     release({ items: [runner] })
     await pending
@@ -309,6 +371,7 @@ describe('current-scope refusal across Agent settings reads', () => {
     await f.owner.submitCreation()
     expect(f.owner.draft.open).toBe(false)
     expect(f.owner.draft.runnerMounts).toEqual([])
+    expect(f.owner.runnerOptions.value).toEqual([])
     expect(f.owner.canCreate.value).toBe(false)
     await f.owner.submitCreation()
     expect(f.api.startCreate).toHaveBeenCalledTimes(1)
@@ -344,6 +407,7 @@ describe('current-scope refusal across Agent settings reads', () => {
       expect(f.owner.state.mounts).toBeNull()
       expect(f.owner.state.items).toEqual([])
       expect(f.owner.edit.open).toBe(false)
+      expect(f.owner.runnerOptions.value).toEqual([])
       await f.owner.submitEdit()
       expect(f.api.startUpdate).not.toHaveBeenCalled()
       await f.owner.refresh()
