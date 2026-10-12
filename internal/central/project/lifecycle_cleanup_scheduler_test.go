@@ -215,7 +215,7 @@ func TestLifecycleCleanupSchedulerRetainedRound(t *testing.T) {
 					if !errors.Is(err, s.readErr) {
 						t.Error("did not reach exact canonical read", err)
 					}
-					result = f.NotCommittedResult(err)
+					result = f.NotCommittedResult(f.NewFault(f.DependencyUnavailable, f.NotCommitted).WithCause(err))
 				} else if mode == "new-unknown" {
 					result = f.UnknownResult(testID[f.TransactionAttempt](t), cause)
 				}
