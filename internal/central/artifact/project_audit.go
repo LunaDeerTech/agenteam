@@ -11,6 +11,8 @@ import (
 	au "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/object"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 )
 
 // ProjectAuditAuthority checks Artifact facts only. Project independently checks
@@ -32,13 +34,43 @@ type projectAuditCommand struct {
 	cause    string
 }
 type projectAuditWitness struct {
-	active  atomic.Bool
-	store   Store
-	tx      f.Tx
-	entry   au.Entry
-	key     au.AppendKey
-	meta    ac.Metadata
-	command *projectAuditCommand
+	active   atomic.Bool
+	store    Store
+	tx       f.Tx
+	entry    au.Entry
+	key      au.AppendKey
+	meta     ac.Metadata
+	command  *projectAuditCommand
+	download *projectAuditDownload
+}
+type projectAuditDownload struct {
+	target oc.DownloadTarget
+	event  oc.DownloadEvent
+}
+
+// Sources reaches this only after validating the original target/plan. The
+// checker also consumes Object's private issuing scope and actual grant row.
+func (s *Sources) appendDownloadIssuedAudit(ctx context.Context, tx f.Tx, entry au.Entry, key au.AppendKey, target oc.DownloadTarget, event oc.DownloadEvent) error {
+	store := s.state().owners.state().store
+	x, err := store.InTx(tx)
+	if err != nil {
+		return portError(err)
+	}
+	if nilPort(x) {
+		return failure(f.DependencyUnbound, nil)
+	}
+	row, found, err := loadArtifact(ctx, x, target.Details().Source.Details().Owner.Details().ID)
+	if err != nil {
+		return err
+	}
+	if !found {
+		return failure(f.Forbidden, nil)
+	}
+	w := &projectAuditWitness{store: store, tx: tx, entry: entry, key: key, meta: row.meta, download: &projectAuditDownload{target: target, event: event}}
+	w.active.Store(true)
+	defer w.active.Store(false)
+	_, err = s.state().audit.AppendInTx(context.WithValue(ctx, projectAuditWitnessKey{}, w), tx, entry, key)
+	return portOrNil(err)
 }
 
 // Only the real publication/read tail calls this, after its complete original
@@ -80,7 +112,7 @@ func (a *ProjectAuditAuthority) CheckProjectAuditInTx(ctx context.Context, tx f.
 	if e.Actor.Details().Kind != identity.Human || e.Scope.Details().Kind != identity.ProjectScope ||
 		e.Resource.Details().Kind != au.ArtifactResource || e.Outcome != au.Success ||
 		e.Associations != (au.Associations{}) || k.Producer != au.ArtifactProducer || k.Ordinal != 0 ||
-		(e.Action != au.ArtifactCreate && e.Action != au.ArtifactRead) {
+		(e.Action != au.ArtifactCreate && e.Action != au.ArtifactRead && e.Action != au.ArtifactDownload) {
 		return failure(f.Forbidden, nil)
 	}
 	w, ok := ctx.Value(projectAuditWitnessKey{}).(*projectAuditWitness)
@@ -128,6 +160,33 @@ func (a *ProjectAuditAuthority) CheckProjectAuditInTx(ctx context.Context, tx f.
 			return failure(f.Forbidden, nil)
 		}
 	} else if w.command != nil {
+		return failure(f.Forbidden, nil)
+	}
+	if e.Action == au.ArtifactDownload {
+		download := w.download
+		if download == nil || download.target.Validate() != nil || download.event.Validate() != nil || download.event.Phase != oc.DownloadIssued {
+			return failure(f.Forbidden, nil)
+		}
+		target, event := download.target.Details(), download.event
+		current, err := artifactSource(row, target.Source.Details().Reference)
+		if err != nil {
+			return err
+		}
+		if !sameSource(current, target.Source) || target.Filename != m.Name {
+			return failure(f.Forbidden, nil)
+		}
+		cause, err := jsonDigest([]string{"download", event.GrantID.String(), event.AttemptID.String(), string(event.Phase)})
+		if err != nil {
+			return err
+		}
+		expected, err := au.ArtifactMetadata(au.ArtifactDownload, au.ArtifactMetadataFields{ArtifactID: m.Reference.ArtifactID.String(), ObjectID: m.Object.ID.String(), MediaType: auditMedia(m.Object.MediaType), ByteSize: event.Length, Phase: au.IssuedPhase})
+		if err != nil || k.CauseRef != cause.String() || !bytes.Equal(expected.JSON(), e.Metadata.JSON()) {
+			return failure(f.Forbidden, nil)
+		}
+		if err = object.CheckDownloadIssuedInTx(ctx, tx, a.store, e.Actor, download.target, event); err != nil {
+			return portError(err)
+		}
+	} else if w.download != nil {
 		return failure(f.Forbidden, nil)
 	}
 	if !w.active.Load() {
