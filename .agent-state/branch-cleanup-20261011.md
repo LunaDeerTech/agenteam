@@ -105,3 +105,11 @@ Write的95个原件及tmp副本已同FS保全，完整历史main可达，见[Wri
 root随后推送main原58288 actual0（bb35d2），fresh远端tip仍精确为 `50d52bb52be24673d99d8412bbe41222e5561028`；exact-lease删除 `ai/knowledge-rename-integration` 原48286 actual0（bb02e7），fresh远端空、显式fetch/prune与tracking空原56468 actual0（a047b6）。此候选没有对应本地分支或worktree，本次仅增加1个远端删除：累计 **37 WorkTrees / 38本地分支 / 73远端引用**，legacy141→140待核，原显式keep1不变。
 
 完整Git历史仅保证已提交字节可恢复。前述有界检查未找到的旧树/output、`/tmp/krn04`日志、compile/dist、截图及未提交现场仍缺失或未证；未遍历全部归档，不声称原件确定毁损，也不声称此次合并补回了这些材料。原README、旧FAIL与缺口说明继续保留；没有删除或改写任何运行原件。ignored proof不随Git自动传输，跨设备需要另行保留上述小proof；已提交源码本身由正式main历史恢复。
+
+## 2026-10-12 Runner Command WSS实际清理
+
+最终tip `ed78b1e42b2521141046f8ffd86da4340dcf185b` 已随完整历史main `16f834fad013a8416b7b795d01648a021535e0e5` 合入，推送25306 actual0（120ec8）。原20top/43sub、三包vet与首次1top/1sub真实WSS全尾有限接受保持；main补proof0f81c1实际0确认75路径历史可恢复，旧树clean，无需重测。
+
+原output92文件/23,492,506B/10目录已同FS无覆盖保全至main `output/ai/retired-20261012/runner-command-wss/`，逐项metadata/hash/inode相同；五份tmp副本1,329B及旁目录全部原证明保持，原tmp保留。细节及外部受保护依赖见[恢复说明](runner-command-wss/README.md)。
+
+root普通移除 `/workspace/agenteam-runner-command-wss` 及本地 `ai/runner-command-wss-20261012`，fresh tip核对18477 actual0（de5f60）；远端exact-lease删除95005 actual0（299567），后继fresh空、fetch/prune和tracking空42368 actual0（e1eabc）。本批增加1树/1本地/1远端，累计 **38 WorkTrees / 39本地分支 / 74远端引用**，legacy140待核、原显式keep1不变。新Command Operation树实施未验，不计作清理；旧FAIL、STOP、保护缓存与总体未完成范围不变。

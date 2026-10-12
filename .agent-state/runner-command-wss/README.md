@@ -1,6 +1,6 @@
 # Runner run-command WSS
 
-2026-10-12，组合 `6131333449527f84bd9de70e0f3c6d56daf442c4` 的基础、编译和首次真实 WSS 已获唯一 principal 有限 whole 接受。工作树为 `/workspace/agenteam-runner-command-wss`；本片 main 集成、最终推送及树/分支清理尚未发生。对应[专属卡](../../docs/development/work-items/d15-runner-command-wss.md)与正式[Control 协议](../../docs/architecture/runner/control-protocol.md)、[Execution Runtime](../../docs/architecture/runner/execution-runtime.md)。
+2026-10-12，组合 `6131333449527f84bd9de70e0f3c6d56daf442c4` 的基础、编译和首次真实 WSS 已获唯一 principal 有限 whole 接受。最终 `ed78b1e4` 已随完整历史main `16f834fa` 合入并推送（25306 actual0/120ec8）；原 `/workspace/agenteam-runner-command-wss` 树及两端分支已实际清理。对应[专属卡](../../docs/development/work-items/d15-runner-command-wss.md)与正式[Control 协议](../../docs/architecture/runner/control-protocol.md)、[Execution Runtime](../../docs/architecture/runner/execution-runtime.md)。
 
 本片只能显式构造 env-free run-command Handler/Control executor。输入 argv/cwd 与真实退出事实不能用来授予 Central 权限；default New/cmd 仍未绑定。已知调用报告 success 与命令 exit 0 分开，取消后实际丢弃的输出必须标不完整。字节计数只代表原 outbox 接纳，取消 sentinel 不掩盖真实发送失败。
 
@@ -20,8 +20,13 @@
 
 完整原 output 已由工具 `62814` 亲收 actual 0（chunk `2e4596`，PID 875560 / 1.444 s），同文件系统 dev 27 `NOREPLACE` 迁至 `/workspace/agenteam/output/ai/retired-20261012/runner-command-wss/`。92 文件 / 23,492,506 B / 10 目录（含根）的 path、SHA、size、dev、inode、mode、uid、gid、nsmtime 前后完全相同，保留 `methods01`、`basic01`、`compile01`、`native01` 及各原 outer 目录和实物 binary。独立证明在旁目录 `runner-command-wss-preservation/`：`output-before.json`、`output-after.json`、`source-history.json`、`process-audit.json`、`external-copies.json`、`result.json`、`tool-terminal.json`、`post-preservation-check.json`。
 
-15 份 input map 涉及的 75 个仓库历史 blob 已逐项匹配原组合 `61313334`，1,433 项外部或产物实物核对齐；此时只证明原分支历史恢复，main 完整历史祖先关系仍待 root 集成核实。原 Go 1.27.1 工具链、SkillHTTP 热 GOCACHE 和 SkillsMilestoneResume 只读 GOMODCACHE 仍按原 invocation 定位，未迁移或删除。18 个已知 PID 在保全时可见 `/proc` 范围缺席，该观察不代替各原 Wait，也不声称逃逸整树不存在。
+15 份 input map 涉及的 75 个仓库历史 blob 已逐项匹配原组合 `61313334`，1,433 项外部或产物实物核对齐；随后main补核0f81c1实际0确认全部75路径历史版本可从正式main恢复，原树当时clean；独立证明为 `main-history-supplement.json` 和 `main-history-tool.json`，不改原source-history。原 Go 1.27.1 工具链、SkillHTTP 热 GOCACHE 和 SkillsMilestoneResume 只读 GOMODCACHE 仍按原 invocation 定位，未迁移或删除。18 个已知 PID 在保全时可见 `/proc` 范围缺席，该观察不代替各原 Wait，也不声称逃逸整树不存在。
 
 `native01/terminal.json` 记录本次 supervisor 872062 的实际 Wait；`native01/result.json` 记录 test 872063 与资源/TCP/输入结论。`native01/outer-terminal.json` 是此前 **prepare** wrapper 870148 的原件，保留原值，不当作 native 外层回执。工具 session 36451 的亲收转录另存证明目录 `native-tool-observation.json`，明确为 assistant-observed，不伪称 provider 原始记录；原 output 未追加或改写。原 `/tmp/rcwss01/{invocation,process,tcp-baseline}.json`、`test.log`、`native.log` 共五文件 / 1,329 B 已排他逐字复制至证明目录 `external/rcwss01/`，原 `/tmp` 保留。
 
 源码与配方分别见 [run-checks.py](run-checks.py)、[profile-controls.py](profile-controls.py)、[run-native-checks.py](run-native-checks.py) 与 [record-native.py](record-native.py)。原 record SHA `b38417777a70e0106a15420016e1375491fc5a3b66fb23b3f2fdd9051eefa8c9` 保持；原调用中的绝对路径是历史身份，保全不重写。后继如需新运行，重新生成新输出和 fresh namespace，不能直接把旧配方移址后当成同次运行。当前所有原进程已退出，源码/方法冻结；本次文档同步不重测。
+
+
+## 实际交付与清理
+
+root已普通移除原worktree和本地 `ai/runner-command-wss-20261012`，并fresh核对精确tip `ed78b1e42b2521141046f8ffd86da4340dcf185b`（18477 actual0/de5f60）。远端exact-lease删除95005 actual0（299567）；后继fresh空、fetch/prune及tracking空42368 actual0（e1eabc）。已保全的main retired原件与证明不动，原tmp仍保留。本次增加1树/1本地/1远端，全局累计38/39/74、legacy140待核/keep1；其它历史FAIL、STOP及保护缓存保持。
