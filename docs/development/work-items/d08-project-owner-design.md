@@ -261,7 +261,9 @@ Work Stop 仅消费原 LifecycleStopDriver 当前 invoke 的独立私有 loan；
 
 显式 `NewLifecycleCleanupDriverForScheduler` 仅接受固定 Scheduler participant，复用原 LifecycleAuthority/P 调用登记与四槽，不装配默认 Registry。新 `NewSchedulerProjectCleanupAuthority` 每个原 Tx 核同 Store、Project EX + ProjectSchedule EX、当前 Delete/cleaning/domains、完整冻结 manifest、全部 stopped、声明的清理前驱及 exact running claim；Stop 和其他清理 family 均不能借权。Scheduler 完成仍保父 domains，不提前转 Outbox，也不要求 Execution 或 Work 先清空而倒置外键依赖。schema 1 checkpoint 只记录 P/op/version、原 process/instance 和 runtimes/relaunch_visits/dispatches/calls/completed 阶段，不代替原 owner 返回证明。
 
-provider 的首 Unknown 保留原 Project round/cause，下一显式 Run 先只读重核原 claim、行版本和 checkpoint，再调用同 provider 的只读确认；未确认或原 Store 未返不得换 claim/推进写入。provider 确认实际返回后的 Project checkpoint 沿原驱动独立 Unknown 协议。00082 只增加 00081 合法 business_closed 尾的严格 DELETE 状态例外：当前 Delete 清理轮、全域 stopped、本域三张业务表全空且无 running call；原 INSERT/UPDATE 身份及单调保护逐字保留。数据库状态不是 caller/returned/foreign-death proof。此独立首批只有契约、Project 固定消费和迁移；Scheduler provider 的自有顺序删除、原返回/Unknown 及真实 PG 尚待接入，不声称 Scheduler Cleanup 或完整 Delete 已通过。
+provider 的首 Unknown 保留原 Project round/cause，下一显式 Run 先只读重核原 claim、行版本和 checkpoint，再调用同 provider 的只读确认；未确认或原 Store 未返不得换 claim/推进写入。provider 确认实际返回后的 Project checkpoint 沿原驱动独立 Unknown 协议。00082 只增加 00081 合法 business_closed 尾的严格 DELETE 状态例外：当前 Delete 清理轮、全域 stopped、本域三张业务表全空且无 running call；原 INSERT/UPDATE 身份及单调保护逐字保留。数据库状态不是 caller/returned/foreign-death proof。
+
+已落候选 `NewProjectCleanupParticipant` 固定原七 lane pair，共享最多四个 P 的原清理调用/retained Unknown；每个原 Tx 再核 ProcessGuard 与 Project 私门。清理按 task_runtimes→relaunch_visits→dispatches→合法 closed project_calls，每轮只删一张表的有序前 100 行并核完整原记录与精确行数；foreign 原停止证明只能在只读 preflight 实返后取得，mutation Tx 再核原集合。Unknown 后继仅只读确认，实际返回后仍报 Pending，下一显式轮才继续写入；未证明的旧 process/instance checkpoint 不能被 Pending 报告重新绑定。Execution/Work 自有历史不跨删，parent 仍 domains。provider/迁移的真实 PG 尚待验证，不声称 Scheduler Cleanup 或完整 Delete 已通过。
 
 ### Variables metadata 子步骤（限定验收）
 
