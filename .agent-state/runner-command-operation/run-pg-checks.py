@@ -88,7 +88,7 @@ def compile_pg(out, driver):
     save(out, 'inputs-before.json', before)
     required = {str(path) for path in (ROOT / 'tests/projectvariable').glob('*.go')}
     required.update(str(path) for path in (ROOT / 'db/migrations').glob('*.sql'))
-    if not required.issubset(before) or str(ROOT / 'db/migrations/00069_runner_command_operations.sql') not in before:
+    if not required.issubset(before) or str(ROOT / 'db/migrations/00070_runner_command_operations.sql') not in before:
         raise ValueError('original profile omitted same-package sources or migration inputs')
     binary = out / 'projectvariable.test'
     command = [str(driver.GO), 'test', '-race', '-tags=integration', '-c',

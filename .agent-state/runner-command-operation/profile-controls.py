@@ -51,7 +51,7 @@ for path in FILES:
     results.append({'path': path, 'old_ast_and_effective_maps_unchanged': list(names)})
 
 assert scopes[0]['TARGETS'][SELECTOR] == 'tests/projectvariable'
-assert scopes[0]['METADATA_INPUTS'][SELECTOR] == ('tests/projectvariable/run_command_operation_test.go', 'db/migrations/00069_runner_command_operations.sql', 'internal/central/tool/runtime/run_command_executor.go', 'internal/central/tool/runtime/run_command_authority.go', 'internal/central/mount/command.go', 'internal/central/runner/http/command_dispatch.go', '.agent-state/runner-command-operation/profile-controls.py')
+assert scopes[0]['METADATA_INPUTS'][SELECTOR] == ('tests/projectvariable/run_command_operation_test.go', 'db/migrations/00070_runner_command_operations.sql', 'internal/central/tool/runtime/run_command_executor.go', 'internal/central/tool/runtime/run_command_authority.go', 'internal/central/mount/command.go', 'internal/central/runner/http/command_dispatch.go', '.agent-state/runner-command-operation/profile-controls.py')
 expected = ('TestRunCommandOperation',
             'TestRunCommandOperation/committed-attempt-command-and-lookup',
             'TestRunCommandOperation/environment-added-before-claim-no-dispatch')
