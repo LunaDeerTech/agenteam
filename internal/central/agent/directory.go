@@ -47,7 +47,7 @@ func (r *DirectoryReader) read(ctx context.Context, actor i.Actor, project i.Pro
 	if r == nil || r.state == nil {
 		return fault(f.DependencyUnbound)
 	}
-	ctx, done, err := r.state.calls.begin(ctx)
+	ctx, _, done, err := r.state.calls.beginProject(ctx, project, readCall)
 	if err != nil {
 		return err
 	}

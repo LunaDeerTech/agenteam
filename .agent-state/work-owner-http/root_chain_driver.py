@@ -18,6 +18,25 @@ MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 # One closed same-package PG family: adding a scenario changes required
 # inputs and expected test data, never the resource/Wait/tail implementation.
 METADATA_INPUTS = {
+    '^TestAgentProjectLocalStop$': (
+        'tests/projectvariable/agent_project_lifecycle_test.go',
+        'tests/projectvariable/agent_project_lifecycle_fixture_test.go',
+        'tests/projectvariable/agent_configuration_create_test.go',
+        'tests/projectvariable/agent_configuration_facts_test.go',
+        'tests/projectvariable/skill_installation_test.go',
+        'tests/projectvariable/project_phase_stop_fixture_test.go',
+        'tests/testsupport/agentconfiguration/assembly.go',
+        'internal/central/agent/project_lifecycle.go',
+        'internal/central/agent/calls.go',
+        'internal/central/agent/service.go',
+        'internal/central/agent/commands.go',
+        'internal/central/agent/reader.go',
+        'internal/central/agent/runner_mounts.go',
+        'internal/central/agent/directory.go',
+        'internal/central/project/lifecycle_stop_round.go',
+        'db/migrations/00072_execution_round_model_requests.sql',
+        '.agent-state/agent-project-local-stop/profile-controls.py',
+    ),
     '^TestNextRoundModelRequest$': (
         'tests/projectvariable/next_round_model_request_test.go',
         'tests/projectvariable/run_command_result_consumption_test.go',

@@ -20,7 +20,7 @@ func (s *Service) UpdateAgent(ctx context.Context, actor i.Actor, meta f.Command
 
 func (s *Service) execute(ctx context.Context, in commandInput) (c.AgentMutation, error) {
 	empty := c.AgentMutation{}
-	ctx, done, err := s.begin(ctx)
+	ctx, call, done, err := s.beginProject(ctx, in.project, mutationCall)
 	if err != nil {
 		return empty, err
 	}
@@ -30,7 +30,7 @@ func (s *Service) execute(ctx context.Context, in commandInput) (c.AgentMutation
 	}
 	r, replay, result := s.prepareCommand(ctx, in)
 	if result.State() == f.Unknown {
-		return s.confirmUnknown(ctx, in, result)
+		return s.confirmUnknown(ctx, call, in, result)
 	}
 	if err = commitError(result); err != nil {
 		return empty, err
@@ -56,7 +56,7 @@ func (s *Service) execute(ctx context.Context, in commandInput) (c.AgentMutation
 	}
 	r, replay, result = s.freezeTools(ctx, in, r, resolved)
 	if result.State() == f.Unknown {
-		return s.confirmUnknown(ctx, in, result)
+		return s.confirmUnknown(ctx, call, in, result)
 	}
 	if err = commitError(result); err != nil {
 		return empty, err
@@ -73,7 +73,7 @@ func (s *Service) execute(ctx context.Context, in commandInput) (c.AgentMutation
 	}
 	out, result := s.commitCommand(ctx, in, r, deps)
 	if result.State() == f.Unknown {
-		return s.confirmUnknown(ctx, in, result)
+		return s.confirmUnknown(ctx, call, in, result)
 	}
 	if err = commitError(result); err != nil {
 		return empty, err
@@ -166,11 +166,11 @@ func (s *Service) commitCommand(ctx context.Context, in commandInput, prepared *
 // returns through this function. It never starts another writer. Register the
 // independent <=3s context with the same call owner so Stop cancels it and Drain
 // still waits for the original physical Tx/rows and confirmation to return.
-func (s *Service) confirmUnknown(ctx context.Context, in commandInput, original f.CommitResult) (c.AgentMutation, error) {
+func (s *Service) confirmUnknown(ctx context.Context, call *ownedCall, in commandInput, original f.CommitResult) (c.AgentMutation, error) {
 	empty := c.AgentMutation{}
 	confirmation, cancel := context.WithTimeout(context.WithoutCancel(ctx), 3*time.Second)
 	defer cancel()
-	confirmation, done, err := s.begin(confirmation)
+	confirmation, done, err := s.state.calls.beginConfirmation(confirmation, call)
 	if err != nil {
 		return empty, commitError(original)
 	}

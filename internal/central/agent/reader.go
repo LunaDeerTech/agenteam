@@ -9,7 +9,7 @@ import (
 )
 
 func (s *Service) GetAgent(ctx context.Context, actor i.Actor, project i.ProjectID, agent i.AgentID) (c.AgentConfig, error) {
-	ctx, done, err := s.begin(ctx)
+	ctx, _, done, err := s.beginProject(ctx, project, readCall)
 	if err != nil {
 		return c.AgentConfig{}, err
 	}
@@ -51,7 +51,7 @@ func (s *Service) GetAgent(ctx context.Context, actor i.Actor, project i.Project
 }
 
 func (s *Service) LookupAgentCommand(ctx context.Context, actor i.Actor, project i.ProjectID, command c.CommandName, key f.IdempotencyKey, semantic f.Digest) (c.AgentCommandLookup, error) {
-	ctx, done, err := s.begin(ctx)
+	ctx, _, done, err := s.beginProject(ctx, project, readCall)
 	if err != nil {
 		return c.AgentCommandLookup{}, err
 	}
