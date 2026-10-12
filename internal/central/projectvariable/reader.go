@@ -32,7 +32,7 @@ func readLocks(a i.Actor, p c.ProjectID) []f.LockRequest {
 	return locks
 }
 func (s *Service) GetVariable(ctx context.Context, a i.Actor, p c.ProjectID, id c.VariableID) (c.Variable, error) {
-	ctx, _, done, e := s.beginProject(ctx, p, readCall)
+	ctx, entry, done, e := s.beginProject(ctx, p, readCall)
 	if e != nil {
 		return c.Variable{}, e
 	}
@@ -48,10 +48,18 @@ func (s *Service) GetVariable(ctx context.Context, a i.Actor, p c.ProjectID, id 
 		return c.Variable{}, e
 	}
 	st := s.state()
+	ctx, e = st.ownership.admit(ctx, entry, a, projectCallOrdinary)
+	defer st.ownership.finish(ctx)
+	if e != nil {
+		return c.Variable{}, e
+	}
 	var out c.Variable
 	result := st.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		if e := st.store.AcquireAll(ctx, tx, readLocks(a, p)); e != nil {
 			return portError(e)
+		}
+		if e := st.ownership.requireRunning(ctx, tx, p, projectCallOrdinary); e != nil {
+			return e
 		}
 		if _, e := st.deps.Projects.RequireOwnerInTx(ctx, tx, a, p, i.Read); e != nil {
 			return portError(e)
@@ -136,7 +144,7 @@ func pageToken(keys cursor.Keyring, b cursor.Binding, gen int64, v c.VariableSum
 }
 func (s *Service) ListVariables(ctx context.Context, a i.Actor, p c.ProjectID, q f.PageRequest) (f.Page[c.VariableSummary], error) {
 	empty := f.Page[c.VariableSummary]{}
-	ctx, _, done, e := s.beginProject(ctx, p, readCall)
+	ctx, entry, done, e := s.beginProject(ctx, p, readCall)
 	if e != nil {
 		return empty, e
 	}
@@ -156,10 +164,18 @@ func (s *Service) ListVariables(ctx context.Context, a i.Actor, p c.ProjectID, q
 		return empty, e
 	}
 	st := s.state()
+	ctx, e = st.ownership.admit(ctx, entry, a, projectCallOrdinary)
+	defer st.ownership.finish(ctx)
+	if e != nil {
+		return empty, e
+	}
 	out := f.Page[c.VariableSummary]{Items: []c.VariableSummary{}}
 	result := st.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		if e := st.store.AcquireAll(ctx, tx, readLocks(a, p)); e != nil {
 			return portError(e)
+		}
+		if e := st.ownership.requireRunning(ctx, tx, p, projectCallOrdinary); e != nil {
+			return e
 		}
 		if _, e := st.deps.Projects.RequireOwnerInTx(ctx, tx, a, p, i.Read); e != nil {
 			return portError(e)

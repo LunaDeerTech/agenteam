@@ -22,6 +22,9 @@ func (s *SecretService) readTx(ctx context.Context, actor i.Actor, project c.Pro
 		if err := st.store.AcquireAll(ctx, tx, locks); err != nil {
 			return portError(err)
 		}
+		if err := st.ownership.requireRunning(ctx, tx, project, projectCallSecret); err != nil {
+			return err
+		}
 		access, err := st.deps.Projects.RequireOwnerInTx(ctx, tx, actor, project, i.Read)
 		if err != nil {
 			return portError(err)
@@ -45,7 +48,7 @@ func (s *SecretService) readTx(ctx context.Context, actor i.Actor, project c.Pro
 }
 func (s *SecretService) GetSecretVariable(ctx context.Context, actor i.Actor, project c.ProjectID, id c.VariableID) (c.SecretVariable, error) {
 	empty := c.SecretVariable{}
-	ctx, _, done, err := s.beginProject(ctx, project, readCall)
+	ctx, entry, done, err := s.beginProject(ctx, project, readCall)
 	if err != nil {
 		return empty, err
 	}
@@ -55,6 +58,12 @@ func (s *SecretService) GetSecretVariable(ctx context.Context, actor i.Actor, pr
 	}
 	if id.Validate() != nil {
 		return empty, fault(f.InvalidArgument)
+	}
+	st := s.state()
+	ctx, err = st.ownership.admit(ctx, entry, actor, projectCallSecret)
+	defer st.ownership.finish(ctx)
+	if err != nil {
+		return empty, err
 	}
 	var out c.SecretVariable
 	err = s.readTx(ctx, actor, project, "get", func(ctx context.Context, x postgres.SQLExecutor) error {
@@ -108,7 +117,7 @@ func secretPageToken(keys cursor.Keyring, binding cursor.Binding, generation int
 }
 func (s *SecretService) ListSecretVariables(ctx context.Context, actor i.Actor, project c.ProjectID, q f.PageRequest) (f.Page[c.SecretVariable], error) {
 	empty := f.Page[c.SecretVariable]{}
-	ctx, _, done, err := s.beginProject(ctx, project, readCall)
+	ctx, entry, done, err := s.beginProject(ctx, project, readCall)
 	if err != nil {
 		return empty, err
 	}
@@ -124,6 +133,11 @@ func (s *SecretService) ListSecretVariables(ctx context.Context, actor i.Actor, 
 		return empty, err
 	}
 	st := s.state()
+	ctx, err = st.ownership.admit(ctx, entry, actor, projectCallSecret)
+	defer st.ownership.finish(ctx)
+	if err != nil {
+		return empty, err
+	}
 	out := f.Page[c.SecretVariable]{Items: []c.SecretVariable{}}
 	err = s.readTx(ctx, actor, project, "list", func(ctx context.Context, x postgres.SQLExecutor) error {
 		generation, err := secretGeneration(ctx, x, project)
@@ -192,7 +206,7 @@ func (s *SecretService) ListSecretVariables(ctx context.Context, actor i.Actor, 
 
 func (s *SecretService) LookupSecretVariableCommand(ctx context.Context, actor i.Actor, q c.SecretVariableCommandLookupRequest) (c.SecretVariableCommandLookup, error) {
 	empty := c.SecretVariableCommandLookup{}
-	ctx, _, done, err := s.beginProject(ctx, q.Fields().ProjectID, readCall)
+	ctx, entry, done, err := s.beginProject(ctx, q.Fields().ProjectID, readCall)
 	if err != nil {
 		return empty, err
 	}
@@ -209,6 +223,11 @@ func (s *SecretService) LookupSecretVariableCommand(ctx context.Context, actor i
 	}
 	r := request.Fields()
 	st := s.state()
+	ctx, err = st.ownership.admit(ctx, entry, actor, projectCallSecret)
+	defer st.ownership.finish(ctx)
+	if err != nil {
+		return empty, err
+	}
 	// Absence is observed under the original command lock and current Read.
 	// It must not require a current live target, expected version or Mutate.
 	var saved *secretCommandRecord

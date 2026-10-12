@@ -57,6 +57,8 @@ ObserveStop 先作为原双 control，在短 Tx 取得 Project SH，核 guard �
 
 产品唯一作者写 `internal/central/projectvariable/{service,secret_service,commands,reader,secret_commands,secret_reader,secret_write_authority,project_lifecycle}.go` 的必要差额及新的私有 `project_call_*` 文件族、迁移 75；不改 Object、Secret、Agent、App 或其他 schema。独立作者负责必要纯控、真实 PG 三新 `tests/projectvariable/variable_project_call_ownership{,_fixture,_process}_test.go`（`TestVariableProjectCallOwnership`，1 top / 3 sub）和复用方法。单卡精准 checkpoint 后统一放行各 writer；集中保存只短暂停其他写域。Go/cache/真实资源窗口由 root 协调，所有作者不自行 Git。
 
+PG foreign 夹具新增的 spool 交接时序尚待本片动态验证：child 在 registration 实际 Committed、原 Store return 仍受屏障保持期间，仅对 idle Object.Service StopAdmission 并实际 Drain 以释放 spool；不调用 Runtime.Drain，不释放真实 guard，也不消去 pair 的原调用归属。observer 才能在同一 spool inode 上完整 Initialize，真实 ConfirmStopped 对仍存活的 child 返回 Busy 后，再放行原 Variables 业务；后续只借同 Store/guard，不调用已停止的 Object 业务。此前置不代表 Runtime、D04 或全图 Joined；pair 原返回及 Store/guard 仍须保持到原 owner 实际退出或其进程实际死亡，不能借既有 Agent 验收推定本时序已通过。
+
 1. **非空入口与默认兼容：** 真实 pair、same Store/authorities/guard，普通与 Secret 各六入口实际建立非空事实和独立 CallID；旧构造无 ledger。registration 实际 COMMIT 未原返回、NotCommitted/Unknown 均零业务/nonce；wrong Store/guard/process/FK/tuple 不放行。
 2. **完整原返回：** 真实入口及必要受控 Store barrier 区分 Prepare、confirmation、Destroy、业务 Store、结算原返回；原 Unknown 维持同 parent。无 row 的 Unknown/local pending 与已 closed 但本地未返均不能报成功；Stop 后仅原 ID 结算，cap 与失败原结果保持。
 3. **业务 fence 与选择：** 真实登记后，在独立 Project EX 下对 exact row 注入合法 terminal 状态，分别验证普通及 Secret authority 原业务门拒绝、零新业务；这是明确 SQL 夹具，不冒 foreign 死亡。Archive mutation/Delete read、跨 Project、control、100＋1/逐批进展均保持。Secret 已消耗 nonce 不伪称业务已写，也不据 Project EX 宣告技术 Tx 终局。

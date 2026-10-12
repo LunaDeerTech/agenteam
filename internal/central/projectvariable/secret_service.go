@@ -29,12 +29,13 @@ type SecretDependencies struct {
 // SecretService owns only its calls. Stop/Drain never stop shared dependencies.
 type SecretService struct{ data func() *secretServiceState }
 type secretServiceState struct {
-	store   Store
-	deps    SecretDependencies
-	mu      sync.Mutex
-	stopped bool
-	calls   map[*call]struct{}
-	changed chan struct{}
+	store     Store
+	deps      SecretDependencies
+	mu        sync.Mutex
+	stopped   bool
+	calls     map[*call]struct{}
+	changed   chan struct{}
+	ownership *projectCallOwnershipState
 }
 
 func NewSecret(store Store, deps SecretDependencies) (*SecretService, error) {
@@ -120,7 +121,7 @@ func (s *SecretService) Drain(ctx context.Context) error {
 		st.mu.Lock()
 		if len(st.calls) == 0 {
 			st.mu.Unlock()
-			return nil
+			return st.ownership.drainReturned(ctx, projectCallSecret)
 		}
 		changed := st.changed
 		st.mu.Unlock()
@@ -130,4 +131,15 @@ func (s *SecretService) Drain(ctx context.Context) error {
 			return ctx.Err()
 		}
 	}
+}
+
+// Joined covers this instance and its retained original registered calls only.
+func (s *SecretService) Joined() bool {
+	st := s.state()
+	if st == nil {
+		return false
+	}
+	st.mu.Lock()
+	defer st.mu.Unlock()
+	return len(st.calls) == 0 && st.ownership.laneJoined(projectCallSecret)
 }

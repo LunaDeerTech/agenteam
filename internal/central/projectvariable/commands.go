@@ -29,6 +29,9 @@ func (s *Service) DeleteVariable(ctx context.Context, a i.Actor, m f.CommandMeta
 func (s *Service) current(ctx context.Context, tx f.Tx, a i.Actor, q c.VariableCommandLookupRequest) (postgres.SQLExecutor, *commandRecord, *c.VariableMutation, error) {
 	st := s.state()
 	query := q.Fields()
+	if err := st.ownership.requireRunning(ctx, tx, query.ProjectID, projectCallOrdinary); err != nil {
+		return nil, nil, nil, err
+	}
 	access, e := st.deps.Projects.RequireOwnerInTx(ctx, tx, a, query.ProjectID, i.Read)
 	if e != nil {
 		return nil, nil, nil, portError(e)
@@ -104,6 +107,11 @@ func (s *Service) execute(ctx context.Context, a i.Actor, m f.CommandMeta, in co
 		return empty, e
 	}
 	st := s.state()
+	ctx, e = st.ownership.admit(ctx, call, a, projectCallOrdinary)
+	defer st.ownership.finish(ctx)
+	if e != nil {
+		return empty, e
+	}
 	var prepared *commandRecord
 	var out *c.VariableMutation
 	result := st.store.WithinTx(ctx, commandCause(identity), func(ctx context.Context, tx f.Tx) error {
@@ -497,11 +505,23 @@ func validateRecord(r *commandRecord, a i.Actor) error {
 	return nil
 }
 func (s *Service) LookupVariableCommand(ctx context.Context, a i.Actor, q c.VariableCommandLookupRequest) (c.VariableCommandLookup, error) {
-	ctx, _, done, e := s.beginProject(ctx, q.Fields().ProjectID, readCall)
+	ctx, entry, done, e := s.beginProject(ctx, q.Fields().ProjectID, readCall)
 	if e != nil {
 		return c.VariableCommandLookup{}, e
 	}
 	defer done()
+	if q.Validate() != nil {
+		return c.VariableCommandLookup{}, fault(f.InvalidArgument)
+	}
+	if e = readInput(a, q.Fields().ProjectID); e != nil {
+		return c.VariableCommandLookup{}, e
+	}
+	st := s.state()
+	ctx, e = st.ownership.admit(ctx, entry, a, projectCallOrdinary)
+	defer st.ownership.finish(ctx)
+	if e != nil {
+		return c.VariableCommandLookup{}, e
+	}
 	return s.lookup(ctx, a, q)
 }
 func (s *Service) lookup(ctx context.Context, a i.Actor, q c.VariableCommandLookupRequest) (c.VariableCommandLookup, error) {

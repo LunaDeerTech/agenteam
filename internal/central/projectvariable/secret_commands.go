@@ -79,6 +79,9 @@ func (s *SecretService) prepareSecret(ctx context.Context, intent sc.ProjectVari
 		if err := st.store.AcquireAll(ctx, tx, locks); err != nil {
 			return portError(err)
 		}
+		if err := st.ownership.requireRunning(ctx, tx, r.ProjectID, projectCallSecret); err != nil {
+			return err
+		}
 		observed, err := st.deps.Secrets.MatchProjectVariableIntentInTx(ctx, tx, raw)
 		if err != nil {
 			return portError(err)
@@ -198,7 +201,14 @@ func (s *SecretService) executeSecret(ctx context.Context, actor i.Actor, meta f
 	if err != nil {
 		return empty, err
 	}
-	defer intent.Destroy()
+	st := s.state()
+	// Safe material cleanup remains part of the original owner, before its
+	// returned proof and metadata-only checkpoint become available.
+	defer func() { intent.Destroy(); st.ownership.finish(ctx) }()
+	ctx, err = st.ownership.admit(ctx, call, actor, projectCallSecret)
+	if err != nil {
+		return empty, err
+	}
 	for attempt := 0; attempt < 2; attempt++ {
 		prepared, err := s.prepareSecret(ctx, intent)
 		if err != nil {
@@ -239,6 +249,9 @@ func (s *SecretService) applySecret(prepared *secretPreparedCall, intent sc.Proj
 	result := st.store.WithinTx(prepared.ctx, commandCause(r.Identity), func(ctx context.Context, tx f.Tx) error {
 		if err := st.store.AcquireAll(ctx, tx, prepared.locks); err != nil {
 			return portError(err)
+		}
+		if err := st.ownership.requireRunning(ctx, tx, r.ProjectID, projectCallSecret); err != nil {
+			return err
 		}
 		observation, err := st.deps.Secrets.MatchProjectVariableIntentInTx(ctx, tx, prepared.raw)
 		if err != nil {
@@ -352,6 +365,9 @@ func (s *SecretService) confirmSecretUnknown(ctx context.Context, entry *call, r
 	result := st.store.WithinTx(confirm, commandCause(r.Identity), func(ctx context.Context, tx f.Tx) error {
 		if err := st.store.AcquireAll(ctx, tx, locks); err != nil {
 			return portError(err)
+		}
+		if err := st.ownership.requireRunning(ctx, tx, r.ProjectID, projectCallSecret); err != nil {
+			return err
 		}
 		// Retain the original prepared intent. Identity-only Lookup could match
 		// another semantic command committed after an unobserved rollback.
