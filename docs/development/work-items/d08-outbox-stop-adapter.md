@@ -38,3 +38,13 @@ opaque Name 与预检 Tx 实际返回后的同步 stop 调用分别设安全 pan
 收口复读正式合同发现 opaque panic 边界遗漏。原 `panic-repro01-*` 绑定未修改的 `0f49aced` 生产字节：构造 Name、当前 Request/Inspect Name、预检实际返回后的 Inspect 四项 FAIL，原事务 panic 继续 unwind 的反控 PASS；原工具 43013 实际退出 1，保留原件。后继 `ad78260a` 仅两个生产/纯测试文件补同步边界；`unit04-*` 六 top / 二十六 sub race 实际 0 / 10.394s，`vet02-*` 实际 0 / 0.815s，两次输入前后相同，原工具 22576 实际退出 0。Request 的新增纯控直接验证 opaque 调用边界，不伪称 receipt 纯夹具能授权 canonical stopping；正常 Request 全路径来自上述 PG。
 
 后继 `ad78260a` 差额已由非作者独审接受，正常路径与普通错误/Unknown 转发不变，可复用上述 `0f49aced` 的正常真实链，按分段证据组合接受；不称 `ad78260a` 新跑了整套 native。unit04/vet02 invocation 的 source_checkpoint 保留原基底 `0f49aced`，其中精确源 SHA 已核对等于 `ad78260a`，不改原记录。普通 delivery、实际 callback 的完整旧矩阵、Artifact adapter、完整 registry、Cleanup、生产 initializer/ready 与旧网络 fault probe STOP 均未由本片解除。
+
+## 有限后继：真实 Outbox 清理与 Project 进度
+
+`NewOutboxLifecycleParticipant` 现将原 D06 Cleanup 接到 `NewLifecycleCleanupDriver`，旧 stop-only 构造保持兼容。每个原 D06 事务均核同 Store、当前 Delete/cleaning/outbox、完整 manifest、前置域 completed 及当前活动私有 claim；只有原同步调用返回后，driver 才在原 Project EX 事务结算进度。Pending 留在 outbox，Completed 才推进 audit；错误或 Unknown 不推进。进入 audit/final 后，新增的 `CheckAppendInTx` 当前阶段屏障在合法原私有事实核验后、Audit INSERT 前拒绝新 Project Audit；此屏障的纯控不冒充真实 Object 失败写入 PG 验收。
+
+受测来源 `8bc98fe47f954d8132477e670ee1067ef072e6b0` 的 [basic01](../../../output/ai/project-outbox-cleanup-delivery/basic01/result.json) 为 21 top / 63 sub race 与 Project vet 全 PASS。[native01 原 FAIL](../../../output/ai/project-outbox-cleanup-delivery/native01/browser.log) 保留：测试误将首次 cleanup-batch 当作删除批，实际观察队列仍为 1、Project 仍 pending。D06 Stop 保留末 Event 的扫描位置，第一次 Cleanup 合法完成空尾扫描、归零游标并返回 Pending。唯一 PG 修正显式核验并消费该已知 Pending 轮，再等待真正删除批；零剩余、完成回执、阶段及原返回断言和预算不变。[compile02/list](../../../output/ai/project-outbox-cleanup-delivery/compile02/result.json) 重新通过。
+
+[native02](../../../output/ai/project-outbox-cleanup-delivery/native02/result.json) 原 `29709/497081` whole PASS：1 top / 2 sub 共 25.98s（14.02s / 11.95s），两个原成功 marker 齐；[supervisor](../../../output/ai/project-outbox-cleanup-delivery/native02-outer.json) PID 1715203 Wait 0 / 56.622s，fixture 1715204、Go 1716817 原 Wait 0。[退出核对](../../../output/ai/project-outbox-cleanup-delivery/native02/post.json)确认输入不变、六个自有资源及私目录实际清退、无剩余子进程。真实链覆盖非空 D06 队列、物理提交后持住原 Store 返回、Stop/Drain 等原返回、完成回执重放，以及预检进程内 ackmask Unknown 零下游清理和过期 scope 拒绝；保留另一 Project、原历史和实际 guard。
+
+accepted Delete、其他域 completed 是明确受控前置；Project setup 使用持久测试 Skills receipt。结果止于 cleaning/audit，不执行 Audit 清理或 Project finalizer，不证明完整 Registry、默认 Delete 闭环、foreign 全局终局或网络丢 ack；旧 STOP 保持。

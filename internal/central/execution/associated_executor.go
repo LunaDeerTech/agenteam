@@ -24,19 +24,22 @@ type AssociatedExecutorOptions struct {
 type AssociatedExecutor struct{ state *associatedExecutorState }
 
 type associatedExecutorState struct {
-	mu               sync.Mutex
-	drainMu          sync.Mutex
-	options          AssociatedExecutorOptions
-	preparation      *PreparationDriver
-	direct           *DirectTextDriver
-	ops              associatedExecutorOps
-	started, stopped bool
-	root             context.Context
-	cancel           context.CancelFunc
-	changed          chan struct{}
-	ready            chan struct{}
-	workers          int
-	jobs             map[i.ExecutionID]*associatedCall
+	mu                sync.Mutex
+	drainMu           sync.Mutex
+	options           AssociatedExecutorOptions
+	preparation       *PreparationDriver
+	direct            *DirectTextDriver
+	ops               associatedExecutorOps
+	started, stopped  bool
+	root              context.Context
+	cancel            context.CancelFunc
+	changed           chan struct{}
+	ready             chan struct{}
+	workers           int
+	jobs              map[i.ExecutionID]*associatedCall
+	admissions        map[i.ExecutionID]*associatedAdmission
+	stopControls      map[*projectStopControl]struct{}
+	requiresAdmission bool
 }
 
 // All production functions below are fixed by the constructor. This private
@@ -44,6 +47,7 @@ type associatedExecutorState struct {
 // preparation/Model permission. Real SQL and both driver proofs remain required
 // in the production graph.
 type associatedExecutorOps struct {
+	admit              func(context.Context, i.ProjectID, c.AssociatedDispatch) error
 	inspect            func(context.Context, i.ProjectID, c.AssociatedDispatch) (associatedFacts, error)
 	prepare            func(context.Context, i.ExecutionID) error
 	recoverPreparation func(context.Context, i.ExecutionID) error
@@ -65,17 +69,18 @@ type associatedOwners struct {
 }
 type associatedContextKey struct{}
 type associatedCall struct {
-	project  i.ProjectID
-	dispatch c.AssociatedDispatch
-	ctx      context.Context
-	cancel   context.CancelFunc
-	phase    c.ExecutionAdvancePhase
-	status   c.Status
-	active   bool
-	retained bool
-	owners   associatedOwners
-	err      error
-	next     time.Time
+	project        i.ProjectID
+	dispatch       c.AssociatedDispatch
+	ctx            context.Context
+	cancel         context.CancelFunc
+	phase          c.ExecutionAdvancePhase
+	status         c.Status
+	active         bool
+	retained       bool
+	projectStopped bool
+	owners         associatedOwners
+	err            error
+	next           time.Time
 }
 
 func NewAssociatedExecutor(preparation *PreparationDriver, direct *DirectTextDriver, options AssociatedExecutorOptions) (*AssociatedExecutor, error) {
@@ -99,7 +104,7 @@ func NewAssociatedExecutor(preparation *PreparationDriver, direct *DirectTextDri
 		return nil, fault(f.ShuttingDown)
 	}
 	s := &associatedExecutorState{options: options, preparation: preparation, direct: direct, changed: make(chan struct{}), ready: make(chan struct{}), jobs: make(map[i.ExecutionID]*associatedCall)}
-	s.ops = associatedExecutorOps{inspect: s.inspect, prepare: preparation.Run, recoverPreparation: preparation.ResolveUnknown, start: direct.Start, recoverStart: direct.ResolveUnknown, owners: s.ownedCalls}
+	s.ops = associatedExecutorOps{admit: s.admitProject, inspect: s.inspect, prepare: preparation.Run, recoverPreparation: preparation.ResolveUnknown, start: direct.Start, recoverStart: direct.ResolveUnknown, owners: s.ownedCalls}
 	return &AssociatedExecutor{state: s}, nil
 }
 
@@ -133,7 +138,7 @@ func (e *AssociatedExecutor) Run(ctx context.Context) error {
 	e.Stop()
 	for {
 		s.mu.Lock()
-		if s.workers == 0 {
+		if s.activeCallsReturnedLocked() {
 			err := s.retainedLocked()
 			s.mu.Unlock()
 			if err != nil {
@@ -179,7 +184,7 @@ func (e *AssociatedExecutor) Advance(ctx context.Context, project i.ProjectID, d
 		}
 		// Stop forbids further asynchronous work. Explicit Drain owns any
 		// remaining convergence; it cannot dispatch a first Model call.
-		if job.retained && !job.active && !s.stopped && !time.Now().Before(job.next) {
+		if job.retained && !job.active && !job.projectStopped && !s.stopped && !time.Now().Before(job.next) {
 			job.active = true
 			job.next = time.Now().Add(s.options.RecoveryInterval)
 			s.workers++
@@ -190,15 +195,32 @@ func (e *AssociatedExecutor) Advance(ctx context.Context, project i.ProjectID, d
 	if s.stopped || s.root.Err() != nil {
 		return c.ExecutionAdvance{}, fault(f.ShuttingDown)
 	}
-	if len(s.jobs) >= s.options.MaxOwned {
+	if admission := s.admissions[dispatch.ExecutionID]; admission != nil {
+		if admission.project != project || admission.dispatch != dispatch {
+			return c.ExecutionAdvance{}, fault(f.ConfirmationStale)
+		}
 		return c.ExecutionAdvance{}, fault(f.ResourceBusy)
 	}
+	if len(s.jobs)+len(s.admissions) >= s.options.MaxOwned {
+		return c.ExecutionAdvance{}, fault(f.ResourceBusy)
+	}
+	if s.requiresAdmission {
+		return s.admitAssociatedLocked(ctx, project, dispatch)
+	}
+	return s.startAssociatedLocked(project, dispatch), nil
+}
+
+func (s *associatedExecutorState) startAssociatedLocked(project i.ProjectID, dispatch c.AssociatedDispatch) c.ExecutionAdvance {
 	job := &associatedCall{project: project, dispatch: dispatch, phase: c.ExecutionAccepted, active: true}
 	job.ctx, job.cancel = context.WithCancel(context.WithValue(s.root, associatedContextKey{}, job))
 	s.jobs[dispatch.ExecutionID] = job
 	s.workers++
 	go s.execute(job, false, job.ctx)
-	return s.observationLocked(job), nil
+	return s.observationLocked(job)
+}
+
+func (s *associatedExecutorState) activeCallsReturnedLocked() bool {
+	return s.workers == 0 && len(s.admissions) == 0 && len(s.stopControls) == 0
 }
 
 func (s *associatedExecutorState) observationLocked(job *associatedCall) c.ExecutionAdvance {
@@ -233,6 +255,12 @@ func (e *AssociatedExecutor) Stop() {
 	for _, job := range s.jobs {
 		job.cancel()
 	}
+	for _, admission := range s.admissions {
+		admission.cancel()
+	}
+	for control := range s.stopControls {
+		control.cancel()
+	}
 	s.notifyLocked()
 	s.mu.Unlock()
 }
@@ -244,7 +272,7 @@ func (e *AssociatedExecutor) Joined() bool {
 	s := e.state
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	return s.stopped && s.workers == 0 && s.retainedLocked() == nil
+	return s.stopped && s.activeCallsReturnedLocked() && s.retainedLocked() == nil
 }
 
 // Drain first waits for the original calls. It may then make at most one paced
@@ -268,7 +296,7 @@ func (e *AssociatedExecutor) Drain(ctx context.Context) error {
 			return err
 		}
 		s.mu.Lock()
-		if s.workers == 0 {
+		if s.activeCallsReturnedLocked() {
 			s.mu.Unlock()
 			break
 		}
@@ -293,6 +321,10 @@ func (e *AssociatedExecutor) Drain(ctx context.Context) error {
 			return err
 		}
 		s.mu.Lock()
+		if s.jobs[job.dispatch.ExecutionID] != job || job.active || !job.retained {
+			s.mu.Unlock()
+			continue
+		}
 		job.active = true
 		job.next = time.Now().Add(s.options.RecoveryInterval)
 		s.workers++
@@ -398,7 +430,7 @@ func (s *associatedExecutorState) advanceOwned(ctx context.Context, job *associa
 		return out
 	}
 	s.mu.Lock()
-	stopped := s.stopped
+	stopped := s.stopped || job.projectStopped
 	s.mu.Unlock()
 	if stopped {
 		// Explicit cleanup can retire a preparation owner but must not start
@@ -451,7 +483,7 @@ func (s *associatedExecutorState) startPrepared(ctx context.Context, job *associ
 		return out
 	}
 	s.mu.Lock()
-	stopped := s.stopped
+	stopped := s.stopped || job.projectStopped
 	s.mu.Unlock()
 	if stopped || ctx.Err() != nil {
 		out.err = ctx.Err()

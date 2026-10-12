@@ -40,3 +40,13 @@
 作者 3 顶层、32 子项与独立 1 顶层、3 子项均由未放宽的各自实际窗口完成：Go/driver/outer 原 Wait、两个精确资源双退役、private/runtime/desc、TCP 双样本与输入一致性全部收尾。入口发现及闭集映射另获有限独审；其工具只用于恢复执行，不作为产品授权或 PG 结果替代。
 
 正式交付仅含该单一产品文件、相邻 pure 测试、作者与独立 PG 测试、本卡和 D08 台账条目。独立 PG 源按其已验版本原样纳入。环境监督工具、缓存、二进制、原始日志及逐轮检查点保留任务分支，不混入产品交付。受控阶段/参与者事实不证明真实 Skills cleanup、D05 最后同事务组合或生产 registry/root 已绑定；这些后继工作及 Object Runtime join 停止项保持。
+
+## 2026-10-12：真实 Skills 子步骤消费
+
+固定 `NewLifecycleCleanupDriverForSkills` 现消费原 Skills Service 的实际 Cleanup。它沿原 Project authority、同 Store/原 claim 保持 callback 和原 Store 返回归属，父 schema 2 独立包裹 Skills 原 schema 1 checkpoint。子域 Completed 后后继 Run 只确认已持久结果，不再调用 provider；母 participant 始终 `pending/domains`，没有将 Skills 单独包装成完整 `agent-skills-variables` participant。
+
+必要基础检查实际通过 14 顶层、74 子项及 Project vet。技术输入 `319a6cb3d8a53802f5c7130c5bac6eb046ee07b8` 的 `TestProjectSkillsCleanup` 在 native02（21383/07ed9e）实际 1 顶层、2 子项通过，27.98 秒。正向是真实 Project Create/AddSkills 与 Human Install/原 Lookup/原包读取，随后原 Skill/Object Stop、物理包及元数据清理；最后 purge 物理提交已可见但原 Store 尚未返回时，原 Run/Drain 仍等待，释放后由后继实际确认子域完成。负向是真实 Model/Agent 创建且 AddSkills disabled，assignment 行为零而 initialization head 仍存在，实际清理返回 Pending、包/元数据/引用保留。未用 SQL 抹引用，不把 disabled 当退休。
+
+原 compile01 未使用 import 编译失败与 native01 正向通过、负向缺少真实 Tool Registry identity 的 `DEPENDENCY_UNBOUND` 保留；分别删除未用 import、补回既有 Agent fixture 的原绑定/Registry EX reconcile 后，compile03/list 与 native02 通过。native02 的 Go/fixture/supervisor 原 Wait 均为 0，6 个任务资源、私有目录与运行子进程实际退出（post 89eba3）。无浏览器、无旧网络故障 probe；accepted Delete 与其余 participant 前置仍明确受控。没有证明 Execution binding head 的退休、整个 Work/Agent/Variables 清理或默认完整 Project Delete。
+
+稳定记录：[native02 实际通过与原退出](../../../output/ai/project-skills-cleanup-delivery/native02/result.json)、[native01 原失败](../../../output/ai/project-skills-cleanup-delivery/native01/browser.log)。

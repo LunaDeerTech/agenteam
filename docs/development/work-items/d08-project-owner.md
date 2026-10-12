@@ -2,6 +2,14 @@
 
 当前状态（2026-10-12）：[默认 App 项目创建与原意图恢复](d08-project-creation-app-ui.md)已通过真实 HTTP/浏览器/PG/MinIO 验收并交付；新 Project 的真实 Skill/Object 初始化及同 key 失败恢复可用。创建与破坏性生命周期按能力分别开放，Archive/Delete 仍未开放，D08 模块未完成。下文 rev2 开工与分段记录保留当时事实，不作为当前默认 initializer 未绑定的判断。
 
+### 已验 Audit 清理子链（2026-10-12）
+
+显式双端口 `NewLifecycleCleanupDriverWithAudit` 已接入真实 Outbox/Audit owner，每次 `Run` 只消费当前阶段并等待原返回，再以原 claim 的排他事务保存进度。[实际 PG](../../../tests/projectvariable/project_audit_cleanup_test.go)通过真实 D06 Pending 轮进入 audit，以正式 Project 创建及 499 次 Update 产生的 501 条 Audit 验证两批 `501→1→0`；物理提交后持住原 Store 返回时，driver 不提前推进，实际返回后保存 Pending，再由下一轮进入 final。其他 Project 与 System Audit 保持不变，普通 Project 写入仍被拒绝。
+
+定向 basic01 的 Project 包 race **15 top / 74 sub** 与 vet 均通过；native02（`24998/d6f371`）whole PASS，`TestProjectAuditCleanup` 的 **1 top / 2 sub** 实际 63.62s，supervisor、fixture、Go 原 Wait 均为 0，6 项 owned 资源及私有目录清退。第二子例通过进程内原 Store 返回的 acknowledgment mask 保留 Unknown，原确认实际返回、过期 scope 拒绝，随后显式同 operation 继续至 final；这不证明网络丢响应或 foreign 进程终局。
+
+native01（`14683/0997dd`）整体 FAIL：首子例在进入 audit 前仅报告两条 `INTERNAL_ERROR`，第二子例实际 PASS。native02 只新增失败分支的安全错误链诊断，生产逻辑、断言和原预算未变；本次未触发该诊断，首轮底层原因仍未知，不能解释为已修复超时或产品缺陷。原失败及 basic01、compile01/02、native01/02 的小型运行记录随交付保留于 main 的 `output/ai/project-audit-cleanup-delivery/`。本片的 accepted Delete、其他领域 completed 及测试 Skills receipt 是受控前置；不代证这些领域已清理，不执行 finalizer、不删除 Project、不绑定默认完整 Registry，也不开放 Archive/Delete。
+
 历史 rev2：S01 规格获 root 采纳；B01 正式契约/纯规则库提交推送 `199554b`；B02 存储与 Owner/创建/元数据服务、00013 和 fixture 接缝提交推送 `6319d03`。
 
 共享规格：[D08 实施规格](d08-project-owner-design.md)。业务基线固定 `062ae2c050e2f6fa1549d2e67f924b4e5160d754`，49项输入指纹及冻结稿位于 `/tmp/agenteam-d08-design-rev2-nm2kwP/`；后续卡下发时须补足新采纳依赖的准确提交/manifest，不继承活动工作区为已验事实。独立报告 `/tmp/agenteam-d08-independent-spec-review-cofn9wvo/review-report.md` SHA-256为 `287c4c85491f7574af0e8358efae7d77dbb5214d8b0d9f767ceb5118491808a7`，121项证据索引为 `20efa17c2ae2c866ef55ba7cafa108f56cd1322a6f34e23825bf7359b51fdfa4`；仅证明定向静态规格通过，不代表业务已经运行。

@@ -18,6 +18,7 @@ import (
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/object"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	"github.com/LunaDeerTech/agenteam/internal/central/project"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/skill"
@@ -411,6 +412,22 @@ func (v *skillsCleanupPG) disabledAgent(t *testing.T) i.AgentID {
 	outboxCleanupRequire(t, err)
 	processes := captureProviderProcesses{guard: v.guard}
 	base := &agentCreateFixture{p2: v.p2, guard: v.guard, providers: graph.Providers()}
+	// False defaults still require the actual installed Tool identity. Use the
+	// same bound producer/Registry transaction as the real Agent-create fixture.
+	v.p2.base.tx(t, []f.LockRequest{registry.RegistryLock(f.Exclusive)}, func(ctx context.Context, tx f.Tx, _ postgres.SQLExecutor) error {
+		if err := v.p2.service.RequireInstallBindingInTx(ctx, tx, v.installer, v.process); err != nil {
+			return err
+		}
+		registration, err := source.DescribeInTx(ctx, tx)
+		if err != nil {
+			return err
+		}
+		if err = source.CheckBindingInTx(ctx, tx, registration); err != nil {
+			return err
+		}
+		base.tool, err = base.providers.Registry.ReconcileBuiltinInTx(ctx, tx, builtin.SkillInstallStableKey)
+		return err
+	})
 	base.modelID = base.createModel(t, fixtureProcess{processes.CurrentProcess()})
 	v.agents, err = graph.NewService(v.p2.base.keys, processes)
 	outboxCleanupRequire(t, err)

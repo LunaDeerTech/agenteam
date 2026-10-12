@@ -39,6 +39,22 @@ RUNNER_SELECTOR = '^TestRunnerDirectoryApp$'
 RUNNER_EXPECTED = {'TestRunnerDirectoryApp',
                    'TestRunnerDirectoryApp/selected-directory-reads-and-identity-restart',
                    'TestRunnerDirectoryApp/selection-isolation-and-before-device-validation'}
+EXECUTION_SELECTOR = '^TestExecutionProjectStop$'
+EXECUTION_EXPECTED = {'TestExecutionProjectStop',
+                      'TestExecutionProjectStop/project-isolation-and-original-model-return',
+                      'TestExecutionProjectStop/original-preparation-unknown-retained'}
+OUTBOX_SELECTOR = '^TestProjectOutboxCleanup$'
+OUTBOX_EXPECTED = {'TestProjectOutboxCleanup',
+                   'TestProjectOutboxCleanup/original-d06-return-before-project-progress',
+                   'TestProjectOutboxCleanup/unknown-preflight-and-expired-owner'}
+AUDIT_SELECTOR = '^TestProjectAuditCleanup$'
+AUDIT_EXPECTED = {'TestProjectAuditCleanup',
+                  'TestProjectAuditCleanup/outbox-to-audit-500-plus-one-original-return',
+                  'TestProjectAuditCleanup/original-unknown-confirmation-and-expired-scope'}
+SKILLS_CLEANUP_SELECTOR = '^TestProjectSkillsCleanup$'
+SKILLS_CLEANUP_EXPECTED = {'TestProjectSkillsCleanup',
+                           'TestProjectSkillsCleanup/real-packages-and-original-return',
+                           'TestProjectSkillsCleanup/disabled-agent-retains-initialization'}
 
 def save(path, value):
     with path.open('x') as stream:
@@ -87,22 +103,38 @@ def main():
                        help='run the reviewed Task search and enum filters scope')
     scope.add_argument('--runner-directory', action='store_true',
                        help='run the reviewed real Runner CLI with its separate prebuilt command')
+    scope.add_argument('--execution-project-stop', action='store_true',
+                       help='run the reviewed Project-scoped Execution stop integration scope')
+    scope.add_argument('--outbox-cleanup', action='store_true',
+                       help='run the reviewed Project Outbox cleanup integration scope')
+    scope.add_argument('--audit-cleanup', action='store_true',
+                       help='run the reviewed Project Audit cleanup integration scope')
+    scope.add_argument('--skills-cleanup', action='store_true',
+                       help='run the reviewed Project Skills cleanup integration scope')
     a = p.parse_args()
-    selector = (RUNNER_SELECTOR if a.runner_directory else
+    selector = (SKILLS_CLEANUP_SELECTOR if a.skills_cleanup else
+                AUDIT_SELECTOR if a.audit_cleanup else
+                OUTBOX_SELECTOR if a.outbox_cleanup else
+                EXECUTION_SELECTOR if a.execution_project_stop else
+                RUNNER_SELECTOR if a.runner_directory else
                 TASK_SELECTOR if a.task_search else
                 SKILL_SELECTOR if a.skill_package_import else
                 USAGE_SELECTOR if a.project_usage_summary else
                 SECRET_SELECTOR if a.secret_delete else
                 CREATE_SELECTOR if a.project_creation else SELECTOR)
-    expected = (RUNNER_EXPECTED if a.runner_directory else
+    expected = (SKILLS_CLEANUP_EXPECTED if a.skills_cleanup else
+                AUDIT_EXPECTED if a.audit_cleanup else
+                OUTBOX_EXPECTED if a.outbox_cleanup else
+                EXECUTION_EXPECTED if a.execution_project_stop else
+                RUNNER_EXPECTED if a.runner_directory else
                 TASK_EXPECTED if a.task_search else
                 SKILL_EXPECTED if a.skill_package_import else
                 USAGE_EXPECTED if a.project_usage_summary else
                 SECRET_EXPECTED if a.secret_delete else
                 CREATE_EXPECTED if a.project_creation else EXPECTED)
-    node_count = (0 if a.runner_directory else
+    node_count = (0 if a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup else
                   1 if a.project_creation or a.secret_delete or a.project_usage_summary or a.skill_package_import or a.task_search else 2)
-    web_scopes = ([] if a.runner_directory else
+    web_scopes = ([] if a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup else
                   [('AGENTEAM_TASK_SEARCH_WEB', 'task-search')]
                   if a.task_search else
                   [('AGENTEAM_SKILL_IMPORT_WEB', 'skill-import')]
@@ -123,6 +155,8 @@ def main():
         assert (a.runner_binary.is_absolute() and a.runner_binary.is_file()
                 and a.runner_binary.resolve() == a.runner_binary
                 and os.access(a.runner_binary, os.X_OK))
+    elif a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup:
+        assert a.dist is None and a.runner_binary is None
     else:
         assert a.runner_binary is None
         assert a.dist is not None and a.dist.is_absolute() and (a.dist / 'index.html').is_file()
@@ -148,7 +182,9 @@ def main():
     command = ['sh', 'scripts/test-objects.sh', '-run', selector]
     save(a.output/'invocation.json', {'command':command,'cwd':str(a.root),
          'input_hash':a.input_hash,'binary':str(a.binary),'dist':str(a.dist) if a.dist else None,
-         'runner_directory':a.runner_directory,
+         'runner_directory':a.runner_directory,'execution_project_stop':a.execution_project_stop,
+         'outbox_cleanup':a.outbox_cleanup,'audit_cleanup':a.audit_cleanup,
+         'skills_cleanup':a.skills_cleanup,
          'runner_binary':str(a.runner_binary) if a.runner_binary else None,
          'runtime':str(a.runtime),'supervisor_pid':os.getpid(),
          'pg_current_only':a.pg_current_only,'project_creation':a.project_creation,
