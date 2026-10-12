@@ -5,9 +5,11 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -29,10 +31,14 @@ type writeResultStore struct {
 	history       bool
 	txs, acquires int
 	corrupt       string
+	onTx          func(context.Context)
 }
 
 func (s *writeResultStore) WithinTx(ctx context.Context, cause f.TransactionCause, fn func(context.Context, f.Tx) error) f.CommitResult {
 	s.txs++
+	if s.onTx != nil {
+		s.onTx(ctx)
+	}
 	return s.operationStoreControl.WithinTx(ctx, cause, fn)
 }
 func (s *writeResultStore) InTx(tx f.Tx) (postgres.SQLExecutor, error) {
@@ -93,13 +99,17 @@ func (p committedWritePlanControl) Binding() tc.ToolCallBinding  { return p.bind
 func (committedWritePlanControl) RequiredLocks() []f.LockRequest { return nil }
 
 type committedWriteControl struct {
-	store     *writeResultStore
-	binding   tc.ToolCallBinding
-	raw, loan []byte
-	mode      string
+	store      *writeResultStore
+	binding    tc.ToolCallBinding
+	raw, loan  []byte
+	mode       string
+	onDiscover func(context.Context)
 }
 
-func (c *committedWriteControl) DiscoverCommittedWriteFileCall(context.Context, i.ExecutionID) (tc.CommittedWriteFileCallPlan, error) {
+func (c *committedWriteControl) DiscoverCommittedWriteFileCall(ctx context.Context, _ i.ExecutionID) (tc.CommittedWriteFileCallPlan, error) {
+	if c.onDiscover != nil {
+		c.onDiscover(ctx)
+	}
 	return committedWritePlanControl{c.binding}, nil
 }
 func (c *committedWriteControl) WithCommittedWriteFileCallInTx(ctx context.Context, tx f.Tx, _ tc.CommittedWriteFileCallPlan, consume func(context.Context, tc.ToolCallBinding, []byte) error) error {
@@ -352,4 +362,73 @@ func TestWriteFileResultLoanWaitsForOriginalReturnAndClearsFailure(t *testing.T)
 	if plan, err := r.DiscoverWriteFileResult(context.Background(), e.binding.ExecutionID); err == nil || plan != nil {
 		t.Fatal("Unknown original transaction published a discovered result")
 	}
+}
+
+// This checks actual context scopes without sleeping or increasing any budget.
+// The original shared discovery deadline fails the inherited-caller assertion.
+func TestWriteFileResultDiscoveryDeadlineScopes(t *testing.T) {
+	for _, tc := range []struct {
+		name   string
+		budget time.Duration
+	}{
+		{"caller-deadline", 20 * time.Second}, {"shorter-caller", time.Second},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			r, s, e, _ := writeResultFixture(t, true, nil)
+			parent, cancel := context.WithTimeout(context.Background(), tc.budget)
+			defer cancel()
+			parentDeadline, _ := parent.Deadline()
+			discovered := false
+			e.onDiscover = func(ctx context.Context) {
+				discovered = true
+				deadline, ok := ctx.Deadline()
+				if ctx != parent || !ok || !deadline.Equal(parentDeadline) {
+					t.Fatal("history discovery shortened or detached the original caller context")
+				}
+			}
+			var scopes []context.Context
+			var deadlines []time.Time
+			s.onTx = func(ctx context.Context) {
+				entered := time.Now()
+				deadline, ok := ctx.Deadline()
+				if !ok || !deadline.After(entered) || deadline.After(entered.Add(2*time.Second)) || deadline.After(parentDeadline) || ctx == parent {
+					t.Fatal("short transaction lost its bounded child scope")
+				}
+				if tc.budget < 2*time.Second && !deadline.Equal(parentDeadline) {
+					t.Fatal("shorter caller deadline changed")
+				}
+				scopes = append(scopes, ctx)
+				deadlines = append(deadlines, deadline)
+			}
+			plan, err := r.DiscoverWriteFileResult(parent, e.binding.ExecutionID)
+			if err != nil || plan == nil || !discovered || len(scopes) != 2 || scopes[0] == scopes[1] || parent.Err() != nil {
+				t.Fatal("discovery did not complete with two independent original transaction scopes", err)
+			}
+			if tc.budget > 2*time.Second && !deadlines[1].After(deadlines[0]) {
+				t.Fatal("second transaction reused the first transaction deadline")
+			}
+			for _, scope := range scopes {
+				if !errors.Is(scope.Err(), context.Canceled) {
+					t.Fatal("returned transaction scope was not retired")
+				}
+			}
+		})
+	}
+	t.Run("caller-cancel-during-first-transaction", func(t *testing.T) {
+		r, s, e, _ := writeResultFixture(t, true, nil)
+		parent, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+		defer cancel()
+		var original context.Context
+		s.onTx = func(ctx context.Context) {
+			original = ctx
+			cancel()
+			if !errors.Is(ctx.Err(), context.Canceled) {
+				t.Fatal("caller cancellation did not reach the actual transaction")
+			}
+		}
+		plan, err := r.DiscoverWriteFileResult(parent, e.binding.ExecutionID)
+		if plan != nil || !errors.Is(err, context.Canceled) || s.txs != 1 || original == nil || !errors.Is(original.Err(), context.Canceled) {
+			t.Fatal("cancelled discovery published a plan or continued to another transaction")
+		}
+	})
 }

@@ -57,6 +57,10 @@ func (v *writeFileResultPlan) Binding() tc.WriteFileResultBinding {
 }
 
 func writeFileResultTransaction(ctx context.Context, d *writeFileResultReaderData, cause f.TransactionCause, locks []f.LockRequest, consume func(context.Context, f.Tx, postgres.SQLExecutor) error) error {
+	// Match Write Lookup: bound each short transaction independently; historical
+	// discovery and the complete sequence remain subject to the caller context.
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
 	completed, calls := false, 0
 	result := d.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		calls++
@@ -98,8 +102,6 @@ func (r *WriteFileResultReader) DiscoverWriteFileResult(ctx context.Context, exe
 	if r == nil || r.data == nil || execution.Validate() != nil {
 		return nil, fail(f.InvalidArgument)
 	}
-	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
-	defer cancel()
 	d := r.data()
 	call, err := d.executions.DiscoverCommittedWriteFileCall(ctx, execution)
 	if err != nil {

@@ -3,6 +3,8 @@
 The closed scope is twelve new tops and five affected compatibility tops across
 three test packages, with five vet packages. Original closure/Wait records stay;
 this script never starts PG, Runner, Model, HTTP or native resource fixtures.
+The closed reader-followup scope selects only the affected reader controls and
+their runtime package vet; the default full selection remains unchanged.
 """
 
 import argparse
@@ -39,6 +41,18 @@ VET_PACKAGES = ['./internal/central/tool/runtime',
  './internal/central/agentloop',
  './internal/central/tool/contract',
  './internal/central/execution/contract']
+READER_NEW_TESTS = {'./internal/central/tool/runtime': ['TestWriteFileResultDiscoveryDeadlineScopes']}
+READER_COMPAT_TESTS = {'./internal/central/tool/runtime': NEW_TESTS['./internal/central/tool/runtime']}
+READER_REQUIRED_SOURCES = {
+    'db/migrations/00066_execution_tool_result_consumptions.sql',
+    'db/migrations/00068_execution_round_inputs.sql',
+    'db/migrations/00069_runner_write_file_operations.sql',
+    'db/migrations/00070_runner_command_operations.sql',
+    'internal/central/tool/contract/committed_write_file_call.go',
+    'internal/central/tool/contract/write_file_result.go',
+    'internal/central/tool/runtime/write_file_result.go',
+    'internal/central/tool/runtime/write_file_result_test.go',
+}
 ENV = dict(
     GOTOOLCHAIN="local", GOENV="off", GOWORK="off", GOPROXY="off",
     GOSUMDB="off", GOTELEMETRY="off", GOFLAGS="-mod=readonly -p=1",
@@ -88,9 +102,14 @@ def decode_stream(raw):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--scope", choices=("full",), default="full")
+    parser.add_argument("--scope", choices=("full", "reader-followup"), default="full")
     args = parser.parse_args()
     tests, new_tests, compat_tests = TESTS, NEW_TESTS, COMPAT_TESTS
+    vet_packages, required_sources = VET_PACKAGES, REQUIRED_SOURCES
+    if args.scope == "reader-followup":
+        new_tests, compat_tests = READER_NEW_TESTS, READER_COMPAT_TESTS
+        tests = {package: names + compat_tests.get(package, []) for package, names in new_tests.items()}
+        vet_packages, required_sources = list(tests), READER_REQUIRED_SOURCES
     packages = list(tests)
     out = args.output.resolve()
     out.mkdir(parents=True, exist_ok=False)
@@ -156,7 +175,7 @@ def main():
     paths = {"go.mod", "go.sum"} | protected
     for stage, flags, targets in [
         ("deps-race01", ["-race"], packages),
-        ("deps-vet01", [], VET_PACKAGES),
+        ("deps-vet01", [], vet_packages),
     ]:
         run(stage, [GO, "list", *flags, "-deps", "-test", "-json", *targets])
         discovered, local_packages = set(), []
@@ -178,9 +197,9 @@ def main():
     save("deps-closure.json", dict(
         scope=args.scope,
         closures=closures, input_count=len(paths), missing_pre_discovery_inputs=missing,
-        new_top_tests=new_tests, related_old_top_tests=compat_tests, vet_packages=VET_PACKAGES,
+        new_top_tests=new_tests, related_old_top_tests=compat_tests, vet_packages=vet_packages,
     ))
-    if missing or not REQUIRED_SOURCES.issubset(paths):
+    if missing or not required_sources.issubset(paths):
         raise RuntimeError("actual closure missing or reaching unbound source; no test started")
     before = {name: prior[name] for name in sorted(paths)}
     after = manifest(paths)
@@ -210,7 +229,7 @@ def main():
     ))
     if not selected:
         raise RuntimeError("selected top was missing, extra, duplicated or did not pass")
-    run("vet01", [GO, "vet", "-p", "1", *VET_PACKAGES], after)
+    run("vet01", [GO, "vet", "-p", "1", *vet_packages], after)
 
 
 if __name__ == "__main__":
