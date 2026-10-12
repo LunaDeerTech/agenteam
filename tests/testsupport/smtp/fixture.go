@@ -22,7 +22,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -87,8 +86,14 @@ func Start(ctx context.Context) (_ *Fixture, err error) {
 	if err != nil || strings.TrimSpace(string(version)) != "go1.27.1" {
 		return nil, errors.New("SMTP fixture Go version mismatch")
 	}
-	_, file, _, _ := runtime.Caller(0)
-	root := filepath.Clean(filepath.Join(filepath.Dir(file), "../../.."))
+	wd, err := os.Getwd()
+	if err != nil {
+		return nil, fmt.Errorf("SMTP fixture working directory: %w", err)
+	}
+	root, err := repositoryRoot(wd)
+	if err != nil {
+		return nil, err
+	}
 	cmd := exec.CommandContext(ctx, goBinary, "build", "-o", filepath.Join(dir, "server"), "./tests/testsupport/smtp/cmd/server")
 	cmd.Dir = root
 	cmd.Env = append(os.Environ(), "GOTOOLCHAIN=local", "CGO_ENABLED=0")
@@ -135,6 +140,33 @@ func Start(ctx context.Context) (_ *Fixture, err error) {
 	fmt.Printf("D07 SMTP fixture private_socket=%s image=%s nonce=%s\n", f.PrivateIP, pg.Image, f.Nonce)
 	return f, nil
 }
+
+// Source paths embedded in a binary may be trimmed or refer to another
+// checkout. Build the server from the caller's actual repository instead.
+func repositoryRoot(start string) (string, error) {
+	if !filepath.IsAbs(start) {
+		return "", errors.New("SMTP fixture requires an absolute working directory")
+	}
+	root := filepath.Clean(start)
+	for {
+		module, err := os.ReadFile(filepath.Join(root, "go.mod"))
+		if err == nil {
+			if !bytes.HasPrefix(module, []byte("module github.com/LunaDeerTech/agenteam\n")) {
+				return "", errors.New("SMTP fixture repository module mismatch")
+			}
+			return root, nil
+		}
+		if !errors.Is(err, os.ErrNotExist) {
+			return "", fmt.Errorf("SMTP fixture repository module: %w", err)
+		}
+		parent := filepath.Dir(root)
+		if parent == root {
+			return "", errors.New("SMTP fixture repository module was not found")
+		}
+		root = parent
+	}
+}
+
 func (f *Fixture) Verify(ctx context.Context) error {
 	ip, e := netip.ParseAddr(f.PrivateIP)
 	if e != nil || outbound.Classify(ip) != outbound.Private || len(f.ContainerID) != 64 || len(f.NetworkID) != 64 {
