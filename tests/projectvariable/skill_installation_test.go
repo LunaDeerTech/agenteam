@@ -38,14 +38,15 @@ import (
 // backend, Audit and P2. No installation, attempt, receipt or serving Skill is
 // inserted by test SQL. Runtime/foreign-process recovery stays unbound.
 type skillInstallationFixture struct {
-	base     *variableHTTPFixture
-	creator  *project.Service
-	service  *skill.Service
-	objects  *object.Service
-	manifest pc.RequiredManifest
-	project  pc.ProjectRef
-	s3       *minio.Client
-	bucket   string
+	base      *variableHTTPFixture
+	creator   *project.Service
+	service   *skill.Service
+	objects   *object.Service
+	manifest  pc.RequiredManifest
+	lifecycle *project.LifecycleAuthority
+	project   pc.ProjectRef
+	s3        *minio.Client
+	bucket    string
 }
 
 func newSkillInstallationFixture(t *testing.T) *skillInstallationFixture {

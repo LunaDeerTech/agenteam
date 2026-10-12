@@ -42,7 +42,10 @@ type variableOwnershipDependencies struct {
 // These are the existing nonempty D10/D04 ports, sharing one actual Store and
 // Project authority. The ProcessGuard comes from Runtime.Initialize, never
 // from this construction or a same-DSN replacement.
-func variableOwnershipAssemble(store *hookStore, accounts *account.Authority, keys cursor.Keyring, manifest pc.RequiredManifest, process objc.ProcessID) (out variableOwnershipDependencies, err error) {
+func variableOwnershipAssemble(store *hookStore, accounts *account.Authority, keys cursor.Keyring, manifest pc.RequiredManifest, process objc.ProcessID, cleanupProjects ...*project.Authority) (out variableOwnershipDependencies, err error) {
+	if len(cleanupProjects) > 1 || len(cleanupProjects) == 1 && cleanupProjects[0] == nil {
+		return out, f.NewFault(f.InvalidArgument, f.NotCommitted)
+	}
 	authority, err := pv.NewAuthority(store)
 	if err != nil {
 		return out, err
@@ -71,7 +74,13 @@ func variableOwnershipAssemble(store *hookStore, accounts *account.Authority, ke
 	if err != nil {
 		return out, err
 	}
-	projectSecrets, err := project.NewSecretAuthority(projects)
+	// Only the later Secret cleanup slice supplies the original lifecycle owner.
+	// The ordinary Audit/write graph above keeps its original concrete ports.
+	secretProjects := projects
+	if len(cleanupProjects) == 1 {
+		secretProjects = cleanupProjects[0]
+	}
+	projectSecrets, err := project.NewSecretAuthority(secretProjects)
 	if err != nil {
 		return out, err
 	}
