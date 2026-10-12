@@ -40,7 +40,7 @@ func cleanupRoundReport(round lifecycleCleanupRound, report c.CleanupReport) err
 	d := report.Details()
 	// Fixed ports expose progress without resource refs. Audit preserves its
 	// diagnostic checkpoint; Skills always wraps its child progress as pending.
-	if len(d.RemainingRefs) != 0 || d.State != c.CleanupCompleted && d.State != c.CleanupPending || (round.participant == c.AuditParticipant || round.participant == c.SecretParticipant) && d.Checkpoint == nil {
+	if len(d.RemainingRefs) != 0 || d.State != c.CleanupCompleted && d.State != c.CleanupPending || (round.participant == c.AuditParticipant || round.participant == c.SecretParticipant || round.participant == c.ArtifactObjectParticipant) && d.Checkpoint == nil {
 		return unavailable(nil)
 	}
 	if round.participant == c.SkillsParticipant && round.terminalStep {
@@ -141,6 +141,15 @@ func (st *lifecycleCleanupState) finishInTx(ctx context.Context, tx f.Tx, round 
 		previous := stage
 		if details.State == c.CleanupCompleted {
 			stage = next
+		}
+		if round.participant == c.ArtifactObjectParticipant && details.State == c.CleanupCompleted {
+			complete, e := artifactCleanupCompletesDomains(r)
+			if e != nil {
+				return e
+			}
+			if complete {
+				stage = "outbox"
+			}
 		}
 		tag, err = x.Exec(ctx, `UPDATE agenteam_project.lifecycle_operations SET cleanup_stage=$3,version=$4,updated_at=$5 WHERE id=$1 AND project_id=$2 AND state='cleaning' AND cleanup_stage=$7 AND version=$6`, round.claim.operation.String(), round.claim.project.String(), stage, int64(version), now.Time(), int64(round.operationVersion), previous)
 		if err = affected(tag, err); err != nil {

@@ -37,6 +37,7 @@ type lifecycleCleanupState struct {
 	participant       c.ProjectLifecycleParticipant
 	audit             c.ProjectLifecycleParticipant
 	secret            c.ProjectLifecycleParticipant
+	artifact          c.ProjectLifecycleParticipant
 	skills            SkillsCleanupDomain
 	agents            ac.ProjectRetirementConsumer
 	variables         pvc.ProjectCleanupDomain
@@ -88,6 +89,13 @@ func (d *LifecycleCleanupDriver) Run(ctx context.Context, project c.ProjectID, o
 		return portError(err)
 	}
 	st := d.state
+	// The original authority owns this short-lived admission across driver
+	// instances, including the final Store return after physical COMMIT.
+	release, err := st.authority.beginCleanupCall(ctx, project)
+	if err != nil {
+		return err
+	}
+	defer release()
 	st.mu.Lock()
 	if st.stopped {
 		st.mu.Unlock()
@@ -127,7 +135,6 @@ func (d *LifecycleCleanupDriver) Run(ctx context.Context, project c.ProjectID, o
 		st.mu.Unlock()
 	}()
 	var replay bool
-	var err error
 	round, replay, err = st.start(run, project, operation)
 	if err != nil {
 		return err
@@ -167,10 +174,10 @@ func (d *LifecycleCleanupDriver) Run(ctx context.Context, project c.ProjectID, o
 		return err
 	}
 	report, callErr := st.invoke(run, *round)
-	// A Secret Unknown still owns its original D04 attempt. Keep this local
+	// A domain Unknown still owns its original provider attempt. Keep this local
 	// Project claim too; a second driver cannot bypass the retained owner.
 	var unknown *f.Fault
-	if round.participant == c.SecretParticipant && errors.As(callErr, &unknown) && unknown.CommitState == f.Unknown {
+	if (round.participant == c.SecretParticipant || round.participant == c.ArtifactObjectParticipant) && errors.As(callErr, &unknown) && unknown.CommitState == f.Unknown {
 		return callErr
 	}
 

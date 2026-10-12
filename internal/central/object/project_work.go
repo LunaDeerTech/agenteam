@@ -390,6 +390,12 @@ func (s *Service) joinProjectWork(ctx context.Context, h *projectWorkHandle) err
 	if h == nil {
 		return nil
 	}
+	if _, marked := ctx.Value(projectCleanupContextKey{}).(*projectCleanupContext); marked && s.currentProjectCleanup(ctx) == nil {
+		return failure(foundation.Forbidden, nil)
+	}
+	if c := s.currentProjectCleanup(ctx); c != nil && c.call.retained && !c.confirmation {
+		return projectCleanupUnknown(c.call.original)
+	}
 	r := s.state()
 	r.mu.Lock()
 	if h.joinRetired {
@@ -467,6 +473,15 @@ func (s *Service) joinProjectWork(ctx context.Context, h *projectWorkHandle) err
 		if err := r.store.AcquireAll(ctx, tx, locks); err != nil {
 			return unavailable(err)
 		}
+		if c := s.currentProjectCleanup(ctx); c != nil {
+			if c.confirmation || w.project != c.call.cause.ProjectID {
+				return failure(foundation.Forbidden, nil)
+			}
+			cause, _ := oc.NewProjectCleanupCause(c.call.cause)
+			if err := r.auth.Cleanup.CheckProjectCleanupInTx(ctx, tx, c.call.actor, cause); err != nil {
+				return portError(err)
+			}
+		}
 		x, err := executor(s, tx)
 		if err != nil {
 			return err
@@ -484,6 +499,7 @@ func (s *Service) joinProjectWork(ctx context.Context, h *projectWorkHandle) err
 		_, err = x.Exec(ctx, `UPDATE agenteam_object.project_work SET joined_at=COALESCE(joined_at,clock_timestamp()) WHERE id=$1`, w.id)
 		return unavailableIf(err)
 	})
+	s.captureProjectCleanup(ctx, result)
 	if err = commitError(result); err != nil {
 		return err
 	}
@@ -725,6 +741,15 @@ func (s *Service) accessWorkAfter(ctx context.Context, tx foundation.Tx, request
 		return invalid()
 	}
 	if err = s.maintenanceAdmission(ctx, e, d.ObjectID); err != nil {
+		if hasCode(err, foundation.InvalidState) && s.currentProjectCleanup(ctx) != nil {
+			// This is the original CleanupProject's private lifetime. Its complete
+			// plan held P EX and rechecked the current Project claim before the
+			// callback; recheck it here before admitting physical maintenance.
+			if authorizeErr := s.checkProjectCleanupAccess(ctx, tx, request); authorizeErr != nil {
+				return authorizeErr
+			}
+			err = nil
+		}
 		if hasCode(err, foundation.InvalidState) {
 			allowed, authorizeErr := s.authorizeStoppedSkillCleanup(ctx, tx, e, d.ObjectID)
 			if authorizeErr != nil {

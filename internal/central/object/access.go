@@ -366,16 +366,32 @@ func (s *Service) accessFacts(ctx context.Context, e postgres.SQLExecutor, reque
 // withinAccess discovers before opening the transaction. Every internal phase
 // uses the same explicit plan/token path as external business composition.
 func (s *Service) withinAccess(ctx context.Context, cause foundation.TransactionCause, request oc.AccessRequest, fn func(context.Context, foundation.Tx, oc.AccessLockPlan, oc.LockedAccess) error) foundation.CommitResult {
+	cleanup := s.currentProjectCleanup(ctx)
+	if _, marked := ctx.Value(projectCleanupContextKey{}).(*projectCleanupContext); marked && cleanup == nil {
+		return rejectedAccess(failure(foundation.Forbidden, nil))
+	}
+	if cleanup != nil && cleanup.call.retained && !cleanup.confirmation {
+		return cleanup.call.original
+	}
 	plan, err := s.DiscoverAccess(ctx, request)
 	if err != nil {
 		return rejectedAccess(err)
 	}
-	return s.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
-		locked, err := s.AcquireAccessPlansInTx(ctx, tx, []oc.AccessLockPlan{plan}, nil)
+	var extra []foundation.LockRequest
+	if cleanup != nil {
+		key, _ := foundation.ProjectLock(cleanup.call.cause.ProjectID.String())
+		extra = []foundation.LockRequest{{Key: key, Mode: foundation.Exclusive}}
+	}
+	validated := false
+	result := s.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
+		locked, err := s.AcquireAccessPlansInTx(ctx, tx, []oc.AccessLockPlan{plan}, extra)
 		if err != nil {
 			return err
 		}
 		if err = s.ValidateAccessPlanInTx(ctx, tx, request, plan, locked); err != nil {
+			return err
+		}
+		if err = s.checkProjectCleanupAccess(ctx, tx, request); err != nil {
 			return err
 		}
 		before, err := s.accessWorkBefore(ctx, tx, request, locked)
@@ -389,8 +405,17 @@ func (s *Service) withinAccess(ctx context.Context, cause foundation.Transaction
 		if err = fn(auditCtx, tx, plan, locked); err != nil {
 			return err
 		}
-		return s.accessWorkAfter(ctx, tx, request, locked, before)
+		if err = s.accessWorkAfter(ctx, tx, request, locked, before); err != nil {
+			return err
+		}
+		validated = true
+		return nil
 	})
+	s.captureProjectCleanup(ctx, result)
+	if cleanup != nil && result.State() == foundation.Committed && (!validated || ctx.Err() != nil) {
+		return rejectedAccess(unavailable(ctx.Err()))
+	}
+	return result
 }
 func rejectedAccess(err error) foundation.CommitResult {
 	var f *foundation.Fault

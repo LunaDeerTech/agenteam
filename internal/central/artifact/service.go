@@ -16,17 +16,20 @@ import (
 )
 
 type serviceState struct {
-	store    Store
-	owners   *OwnerProvider
-	objects  oc.Objects
-	uploads  oc.Uploads
-	cleaner  oc.Cleaner
-	reads    oc.SourceReads
-	resolver oc.SourceResolver
-	audit    au.Appender
-	cursors  cursor.Keyring
-	mu       sync.Mutex
-	leases   map[foundation.Digest]oc.SourceLease
+	store         Store
+	owners        *OwnerProvider
+	objects       oc.Objects
+	uploads       oc.Uploads
+	cleaner       oc.Cleaner
+	reads         oc.SourceReads
+	resolver      oc.SourceResolver
+	audit         au.Appender
+	cursors       cursor.Keyring
+	mu            sync.Mutex
+	leases        map[foundation.Digest]oc.SourceLease
+	leaseProjects map[foundation.Digest]identity.ProjectID
+	cleanupMu     sync.Mutex
+	cleanupCalls  map[identity.ProjectID]*projectCleanupCall
 }
 type Service struct{ data func() *serviceState }
 
@@ -36,7 +39,7 @@ func New(store Store, owners *OwnerProvider, objects oc.Objects, uploads oc.Uplo
 	}
 	// Source ports can be explicitly unbound in the composition root; source
 	// creation rejects that state. Inline/upload never invent source providers.
-	r := &serviceState{store: store, owners: owners, objects: objects, uploads: uploads, cleaner: cleaner, reads: reads, resolver: resolver, audit: auditing, cursors: cursors, leases: map[foundation.Digest]oc.SourceLease{}}
+	r := &serviceState{store: store, owners: owners, objects: objects, uploads: uploads, cleaner: cleaner, reads: reads, resolver: resolver, audit: auditing, cursors: cursors, leases: map[foundation.Digest]oc.SourceLease{}, leaseProjects: map[foundation.Digest]identity.ProjectID{}}
 	return &Service{func() *serviceState { return r }}, nil
 }
 func (s *Service) state() *serviceState      { return s.data() }

@@ -276,6 +276,20 @@ D04 沿现有每批 100 条的头扫描与 FK 顺序清理 Project credential、
 
 `0d879c55` 的 `TestProjectSecretCleanup` native03 三组实际通过（61.14s）：真实跨 100 条头扫描、原 Store 返回屏障、原 Unknown 后只读确认，以及正式 Model provider 引用保留 Pending；确认原事务内 DELETE 计数 410→410、增量零且快照相同。Go/fixture 原调用已退出，六项资源清退，无 Node；[实际结果](../../../output/ai/project-secret-cleanup-delivery/native03/result.json)与[原日志](../../../output/ai/project-secret-cleanup-delivery/native03/browser.log)保留。native01 无计数值的 FAIL 和 native02 把既有累计计数当本次增量的 FAIL 均保留，不倒填 native01 观测；PostgreSQL 17 pending/trans 计数行为有原适配器源码依据。Project pure 首轮 fixture 缺完整 manifest 直接依赖的 FAIL 也保留。验收仅至 Secret participant 完成或真实引用 Pending，operation 仍 domains；未新增真实 lease 反例，不称完整 Delete。
 
+### Artifact/Object 实际清理与 Outbox 交接（候选）
+
+固定组合只调用原 Artifact.CleanupProject，由它消费同 Store、同一个原 Object Service；不另起第二次 Object 清理。首片覆盖真实 Human inline/upload 的 Artifact、Object/MinIO、metadata 和 download 清理。每个原事务及 Unknown 只读确认均要求 Project EX、当前 Delete/operation/version、完整 manifest、全部 stop、声明前驱和当前 ArtifactObject 私有 claim，并绑定母 participant 的原 schema 6；公开 cause、Service 名称或空表都不能代替授权。Secret 与 Artifact/Object 是业务 owner 之后的兄弟依赖，固定 driver 先 Secret 后 Artifact 不增加 manifest 依赖。
+
+非空业务通过原 Human ArtifactCreate（inline/upload）、ArtifactRead 和 IssueDownload 入口生成；签发下载本身也追加 ArtifactDownload issued Audit，不必先打开下载流。Project 分派先验证当前 Session/Owner 及读写生命周期，再调用同 Store 的本域事实 checker；checker 只接受原 publication/read/download-issue 尾部私有、同 live Tx、完整 Entry/Key 的临时见证，并重读 canonical metadata 与创建原 command。issued 还须消费 Object 在原 grant INSERT 后创建的私有作用域，核原 Service/Store/Tx、完整 target/event、原锁和持久 grant；两个见证均到原 Append 实际返回才失效。见证不含 payload/read text，没有公开成功授权口；下载 started/sent/failed、其它 Artifact action/source/AgentRun 不由此获得授权，不能用只读 Owner 身份代替真实业务事实。
+
+Artifact 在任何 metadata mutation 前按原锁和当前 gate 检查 source/lease；尚未确认的 source 或活句柄保留 Pending，本片不先调用旧 CancelSourceLease 再吞掉 Unknown。仅清理路径保存原 provider attempt/cause 与原调用归属，首次 Unknown 立即停止后续变更；下一显式调用仅重新授权并只读确认，原确认实际返回后才能释放该 owner，再由后继调用继续。Object 停止后的维护只接受其私有 cleanup context，并在同事务重核当前 Project 清理 gate；普通维护和既有 Skill/Runner 例外不扩大。
+
+Artifact 的原 provider 调用返回后，Project 才能保存该 participant Completed；仅全部其它业务 domain 已真实 Completed 时，同一个 checkpoint 事务推进至 outbox，否则留在 domains。所有 CleanupDriver.Run 共用原 LifecycleAuthority 的短期项目调用登记，在首 SQL 前占用、原 Run 退出时释放：同 P 的另一 driver 在原 checkpoint Store 返回仍在途时 Busy，另一 P 可进入；登记最多保留四个正在执行的项目，不持久保存，不代替 SQL current claim，也不改变 Unknown 原 owner。后继 Outbox 仍使用其原 cleanup gate 与实际返回。
+
+本片 adapter 的 Artifact RequestStop/InspectStop 明确 DependencyUnbound。真实验收若使用受控 acceptedDelete 或 Artifact stop 前置，必须与真实 cleanup 结果分开表述；不称默认完整 Delete。真正 Artifact 项目停止、source typed loan、默认 App 的 ProjectCleanupAccess/Artifact 路由及完整 Registry/finalizer 是后继明确缺口。本片不修改默认 App 装配、不恢复旧 Object 网络 probe STOP。
+
+`b40dac98` 的 `TestProjectArtifactCleanup` native03 三组实际通过（52.89s）：真实 inline/upload、Read、issued download 与 MinIO/metadata 清理，原 checkpoint Store 返回仍在途时同 Authority 第二 driver 被拒且另一 Project 可读，原返回后显式进入 Outbox；Artifact/Object 各自原 Unknown 后只读确认及零删除增量均通过。Go/fixture 原 Wait 全部退出，六项资源清退；[实际结果](../../../output/ai/project-artifact-object-cleanup-delivery/native03/result.json)与[原日志](../../../output/ai/project-artifact-object-cleanup-delivery/native03/browser.log)保留。native01 无 stage 的 FAIL 不倒填具体入口，native02 的 IssueDownload FORBIDDEN 保留；签发下载也需正式 Audit 的缺口已补。acceptedDelete、其它声明前置及 Artifact Stop 受控，Object Stop 与后半清理链真实，不称默认完整 Delete，也不覆盖 source 正向收束或后继 00079 技术尾。
+
 ### 9.1 D05 项目停止能力
 
 固定 D05 只有 CleanupProject，没有项目范围 RequestStop/InspectStop。下列 C0 已经独立定向审查并由 root 采纳，代码依据为 `6319d03`；typed 口实现与真实 D05 stop/inspect 分阶段交付，契约成立不代表停止能力已绑定。Project 不越域查表推断空闲。

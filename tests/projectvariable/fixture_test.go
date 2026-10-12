@@ -88,6 +88,8 @@ type variableHTTPFixture struct {
 	// Opt-in integration handoff after every originally registered setup owner
 	// has retired, while this fixture still owns its Store and database.
 	afterOwners func()
+	// Only the Artifact cleanup fixture opts into its real additional providers.
+	artifactAssembly *artifactCleanupPGAssembly
 
 	db                                       *pgfixture.Database
 	raw                                      *postgres.Store

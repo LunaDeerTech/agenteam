@@ -17,6 +17,7 @@ type LifecycleAuthority struct {
 	store        Store
 	declarations map[lifecycleParticipantKey]c.ParticipantRegistration
 	issuer       oc.PlanIssuer
+	cleanupCalls lifecycleCleanupCalls
 }
 
 func NewLifecycleAuthority(store Store, current c.RequiredManifest, compatible []c.ParticipantRegistration) (*LifecycleAuthority, error) {
@@ -177,6 +178,9 @@ func (a *LifecycleAuthority) ValidateLifecycleInTx(ctx context.Context, tx found
 		return err
 	}
 	if phase == c.CleanupPhase {
+		if participant == c.ArtifactObjectParticipant {
+			return a.validateArtifactCleanupInTx(ctx, tx, project, cause)
+		}
 		if participant == c.SecretParticipant {
 			return a.validateSecretCleanupInTx(ctx, tx, project, cause)
 		}
