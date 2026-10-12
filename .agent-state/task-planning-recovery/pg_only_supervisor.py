@@ -199,6 +199,11 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestWriteFileOperation$': frozenset((
+        'TestWriteFileOperation',
+        'TestWriteFileOperation/committed-attempt-write-and-lookup',
+        'TestWriteFileOperation/revoke-before-claim-no-dispatch',
+    )),
     '^TestExecutionRoundInput$': frozenset((
         'TestExecutionRoundInput',
         'TestExecutionRoundInput/assignment-first-replacement-and-replay',
