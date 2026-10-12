@@ -2,6 +2,7 @@ import { test, expect, type Request, type Response } from "@playwright/test";
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { observeTaskRequests } from "./task-review.helpers";
 
 const uuid7 =
   /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
@@ -15,7 +16,9 @@ type Material = {
 
 // The original verified-TLS bridge writes this proof after reading and closing
 // the response and returning from its handler. No route or response is mocked.
-async function originalJSON(response: Response, status = 200) {
+async function originalCreateJSON(response: Response) {
+  const status = 201;
+  expect(response.request().method()).toBe("POST");
   expect(response.status()).toBe(status);
   expect(await response.finished()).toBeNull();
   const bytes = await response.body();
@@ -46,7 +49,7 @@ async function originalJSON(response: Response, status = 200) {
 
 test("creates and enters a project through the default App [create-and-enter]", async ({
   page,
-}) => {
+}, testInfo) => {
   const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE!;
   const evidence = process.env.AGENTEAM_PROJECT_CREATION_WEB_EVIDENCE!;
   const data: Material = JSON.parse(
@@ -72,6 +75,33 @@ test("creates and enters a project through the default App [create-and-enter]", 
   const observeError = () => faults.push("page-error");
   page.on("request", observeRequest);
   page.on("pageerror", observeError);
+  const observation = { mode: data.mode, cookie: data.cookie, project_id: "" };
+  const seen = await observeTaskRequests(page, observation, {
+    dist: process.env.AGENTEAM_PROJECT_CREATION_WEB_DIST!,
+    evidence,
+    inputHash: process.env.AGENTEAM_PROJECT_CREATION_WEB_INPUT_HASH!,
+    prefix: "project-creation",
+    lookupCommand: null,
+    endpoint(request) {
+      const path = new URL(request.url()).pathname;
+      if (request.method() !== "GET") return undefined;
+      if (path === "/api/v1/projects") return "projects";
+      if (path === "/api/v1/projects/resolve") return "resolve";
+      if (
+        observation.project_id &&
+        path === `/api/v1/projects/${observation.project_id}`
+      )
+        return "project";
+      if (path.startsWith("/api/v1/projects/"))
+        throw Error("PROJECT_CREATION_READ_SCOPE");
+      return undefined;
+    },
+  });
+  async function originalRead(response: Response) {
+    expect(response.status()).toBe(200);
+    await seen.verify();
+    return seen.projectCreationRead(response.request());
+  }
   const isList = (response: Response) =>
     response.request().method() === "GET" &&
     new URL(response.url()).pathname === "/api/v1/projects";
@@ -100,21 +130,19 @@ test("creates and enters a project through the default App [create-and-enter]", 
   try {
     await page.setViewportSize({ width: 1440, height: 960 });
     await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
-    await page
-      .context()
-      .addCookies([
-        {
-          name: "agenteam_local_session",
-          value: data.cookie,
-          url: process.env.AGENTEAM_AUTH_WEB_ORIGIN!,
-          httpOnly: true,
-          sameSite: "Lax",
-          secure: false,
-        },
-      ]);
+    await page.context().addCookies([
+      {
+        name: "agenteam_local_session",
+        value: data.cookie,
+        url: process.env.AGENTEAM_AUTH_WEB_ORIGIN!,
+        httpOnly: true,
+        sameSite: "Lax",
+        secure: false,
+      },
+    ]);
     const firstRead = page.waitForResponse(isList);
     await page.goto("/projects");
-    const before = await originalJSON(await firstRead);
+    const before = await originalRead(await firstRead);
     expect(
       before.items.some(
         (item: { name: string }) => item.name === data.draft.name,
@@ -162,11 +190,12 @@ test("creates and enters a project through the default App [create-and-enter]", 
     const response = await createdResponse;
     // This normal integration path requires real initialization to complete.
     // Accepted/failed/Unknown recovery is not manufactured by this browser case.
-    const result = await originalJSON(response, 201);
+    const result = await originalCreateJSON(response);
     expect(Object.keys(result).sort()).toEqual(["project", "state"]);
     expect(result.state).toBe("ready");
     const project = result.project;
     expect(project.id).toMatch(uuid7);
+    observation.project_id = project.id;
     expect(project).toMatchObject({
       owner_user_id: data.owner_id,
       name: data.draft.name,
@@ -185,7 +214,7 @@ test("creates and enters a project through the default App [create-and-enter]", 
       /^[A-Za-z0-9._:/-]{1,128}$/,
     );
     expect(writes[0]!.headers()["x-csrf-token"]).toMatch(/^[A-Za-z0-9_-]{43}$/);
-    const listed = await originalJSON(await refreshedRead);
+    const listed = await originalRead(await refreshedRead);
     expect(listed.items).toContainEqual({
       id: project.id,
       name: project.name,
@@ -209,8 +238,8 @@ test("creates and enters a project through the default App [create-and-enter]", 
         new URL(r.url()).pathname === `/api/v1/projects/${project.id}`,
     );
     await form.getByRole("link", { name: "进入项目", exact: true }).click();
-    expect(await originalJSON(await resolvedResponse)).toEqual(project);
-    expect(await originalJSON(await detailResponse)).toEqual(project);
+    expect(await originalRead(await resolvedResponse)).toEqual(project);
+    expect(await originalRead(await detailResponse)).toEqual(project);
     await expect(page).toHaveURL(
       new URL(address, process.env.AGENTEAM_AUTH_WEB_ORIGIN!).href,
     );
@@ -232,9 +261,10 @@ test("creates and enters a project through the default App [create-and-enter]", 
     await screenshot("390-dark-project");
 
     // A new document reads the durable listing rather than reusing creation state.
+    await seen.endDocument();
     const reloadedRead = page.waitForResponse(isList);
     await page.goto("/projects");
-    const reloaded = await originalJSON(await reloadedRead);
+    const reloaded = await originalRead(await reloadedRead);
     expect(reloaded.items).toContainEqual({
       id: project.id,
       name: project.name,
@@ -258,5 +288,10 @@ test("creates and enters a project through the default App [create-and-enter]", 
   } finally {
     page.off("request", observeRequest);
     page.off("pageerror", observeError);
+    try {
+      await seen.retire();
+    } finally {
+      seen.save(testInfo.status);
+    }
   }
 });

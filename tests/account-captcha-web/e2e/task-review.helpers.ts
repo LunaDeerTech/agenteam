@@ -1875,6 +1875,7 @@ export type TaskObservationProfile = {
     | "task-review"
     | "task-intake"
     | "task-search"
+    | "project-creation"
     | "task-edit"
     | "agent-configuration"
     | "agent-edit"
@@ -2098,6 +2099,12 @@ export async function observeTaskRequests(
     if (profile.lookupCommand !== null || data.mode !== "server-search-beyond-first-page" ||
         !data.task_id || !data.sprint_id || Object.keys(profile).some(key => !allowed.includes(key)))
       throw Error("TASK_SEARCH_READ_PROFILE_MISMATCH");
+  }
+  if (profile.prefix === "project-creation") {
+    const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand"];
+    if (profile.lookupCommand !== null || data.mode !== "create-and-enter" ||
+        data.project_id !== "" || Object.keys(profile).some(key => !allowed.includes(key)))
+      throw Error("PROJECT_CREATION_READ_PROFILE_MISMATCH");
   }
   requireSecretWriteProfile(profile, data);
   requireUsageReadProfile(profile, data);
@@ -2734,6 +2741,13 @@ export async function observeTaskRequests(
     );
   }
 
+  function projectCreationReadEntry(entry: Entry) {
+    if (profile.prefix !== "project-creation" || entry.request.method() !== "GET") return false;
+    const path = new URL(entry.request.url()).pathname;
+    return (entry.name === "projects" && path === "/api/v1/projects") ||
+      (entry.name === "resolve" && path === "/api/v1/projects/resolve") ||
+      (entry.name === "project" && !!data.project_id && path === `/api/v1/projects/${data.project_id}`);
+  }
   function taskSearchReadEntry(entry: Entry) {
     if (profile.prefix !== "task-search" || entry.request.method() !== "GET") return false;
     const path = new URL(entry.request.url()).pathname;
@@ -3014,6 +3028,7 @@ export async function observeTaskRequests(
     expect(c.typed).not.toBeNull();
     expect(c.typed_digest).toMatch(/^[0-9a-f]{64}$/);
     expect(n.typed_digest).toBe(c.typed_digest);
+    if (projectCreationReadEntry(entry)) expect(c.kind).toBe({ projects: "project.list", resolve: "project.resolve", project: "project.get" }[entry.name]);
     if (taskSearchReadEntry(entry)) expect(c.kind).toBe(`work.${entry.name}`);
     if (timelinePageRead(entry)) expect(c.kind).toBe("work.events");
     if (skillsPageRead(entry))
@@ -3338,6 +3353,7 @@ export async function observeTaskRequests(
         agentPageRead(entry) ||
         timelinePageRead(entry) ||
         taskSearchReadEntry(entry) ||
+        projectCreationReadEntry(entry) ||
         skillsPageRead(entry)
       ) {
         // Even genuine requestfinished must match the original public value
@@ -3385,6 +3401,16 @@ export async function observeTaskRequests(
     return entries
       .filter((entry) => entry.name === name)
       .map((entry) => entry.request);
+  }
+  function projectCreationRead(request: Request): Record<string, any> {
+    if (profile.prefix !== "project-creation") throw Error("PROJECT_CREATION_READ_PROFILE_REQUIRED");
+    const values = entries.filter(entry => entry.request === request);
+    expect(values).toHaveLength(1);
+    const entry = values[0]!;
+    expect(projectCreationReadEntry(entry) && entry.checked).toBe(true);
+    expect(entry.requestID).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+    expect(entry.body).toBeTruthy();
+    return entry.body as Record<string, any>;
   }
   function taskSearchRead(request: Request): Record<string, any> {
     if (profile.prefix !== "task-search") throw Error("TASK_SEARCH_READ_PROFILE_REQUIRED");
@@ -3757,6 +3783,7 @@ export async function observeTaskRequests(
     originalLookup,
     requests,
     taskSearchRead,
+    projectCreationRead,
     agentOption,
     agentRead,
     sprintRead,
