@@ -273,6 +273,7 @@ const (
 	OutboxParticipant         ParticipantName = "outbox"
 	AuditParticipant          ParticipantName = "audit"
 	SkillsParticipant         ParticipantName = "agent-skills-variables"
+	WorkParticipant           ParticipantName = "work"
 )
 
 func (n ParticipantName) Validate() error              { return event.StableName(n).Validate() }
