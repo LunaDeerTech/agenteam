@@ -1,6 +1,6 @@
 # Runner read-file App 方法
 
-范围见 [任务卡](../../docs/development/work-items/d15-runner-read-file-app.md)。方法仅增加显式 Runner CLI `read-file` 的必要控制与真实 PG/TLS/WSS 小链；不扩 Central 授权、默认操作集合或原 tools HTTP STOP。当前方法源码待独立审查，尚未执行 Go/basic、两份编译或 native。
+范围见 [任务卡](../../docs/development/work-items/d15-runner-read-file-app.md)。方法仅增加显式 Runner CLI `read-file` 的必要控制与真实 PG/TLS/WSS 小链；不扩 Central 授权、默认操作集合或原 tools HTTP STOP。原方法已独立静审接受；当前组合尚未执行 Go/basic、两份编译或 native。
 
 ## 基础控制
 
@@ -48,8 +48,14 @@ python3 -B output/ai/runner-read-file-app/native01/record-native.py
 
 [原 supervisor](../task-planning-recovery/pg_only_supervisor.py) 保有 540+60 秒、Go 6m、原七资源双缺席、private/runtime/descendants 双尾、75 秒自动 TCP baseline delta 双空及原 actual Wait；FAIL 本轮停止，保原件，不重试、换 namespace、预热 baseline 或过滤 TIME_WAIT。方法不解除任何已有产品 STOP。
 
-[profile-controls.py](profile-controls.py) 离线检查 metadata 1 正/7 反，以及专属 descriptor 正/反控；仅 synthetic 小文件，不执行它们。剥离本 key/helper/两 branch 后的完整共享 AST 与 baseline `3a495115` 的预先记录 hash 相同，旧 effective maps/函数/预算保持；`TARGETS` 原推导不改。运行命令如下，不涉及 Go/服务：
+[profile-controls.py](profile-controls.py) 离线检查 metadata 1 正/7 反，以及专属 descriptor 正/反控；仅 synthetic 小文件，不执行它们。剥离本 key/helper/两 branch 后的完整共享 AST 与 baseline `33feecbd6e50ec94fb32c258f980f3332e5c70ee` 的预先记录 hash 相同，旧 effective maps/函数/预算保持；`TARGETS` 原推导不改。运行命令如下，不涉及 Go/服务：
 
 ```sh
 python3 -B .agent-state/runner-read-file-app/profile-controls.py --output output/ai/runner-read-file-app/profile01
 ```
+
+当前组合头为 `88dfa691582480cc10f3e6bf081431c1c84184ea`：Runner `4c715a5e` 普通合入 main `33feecbd` 后，`256e27ac` 曾遗漏原 descriptor helper/两分支；静态 prewrite 检查 `4f98bf` 在修改前拒绝，`88dfa691` 仅恢复原 `4c715a5e` 三段字节。原提交与 [静态发现](../../output/ai/runner-read-file-app/baseline-prewrite01.json) 保留，不属于 Go/PG 运行失败。
+
+本次仅将 `BASE` 与两枚 `BASE_AST_SHA` 对齐该 main；剥除 Runner 唯一 key/helper/两 branch 后，完整共享 AST 与 main 原件相同，包含既有 Model、Agent、App profiles。selector、descriptor、预算和 Wait 算法不变。
+
+旧 [profile01](../../output/ai/runner-read-file-app/profile01/) 与 [profile02](../../output/ai/runner-read-file-app/profile02/) 都在原 `3a495115` 基线实际离线通过（各 metadata 1 正/7 反、descriptor 1 正/17 反）。profile02 绑定最终 README 字节；其间只整理 recorder 调用示例，未发生 profile01 失败。原小证据保留，不等于新组合已运行；新组合实际离线控制及 Go/PG 仍待独立窗口。

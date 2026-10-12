@@ -10,7 +10,7 @@ import tempfile
 import time
 
 ROOT = Path(__file__).resolve().parents[2]
-BASE = '3a495115'
+BASE = '33feecbd6e50ec94fb32c258f980f3332e5c70ee'
 SELECTOR = '^TestRunnerReadFileApp$'
 FILES = (
     '.agent-state/work-owner-http/root_chain_driver.py',
@@ -19,8 +19,8 @@ FILES = (
 # Captured from these exact pre-edit shared files at BASE. No Git execution is
 # needed for this offline check; reviewers can independently reproduce the AST.
 BASE_AST_SHA = (
-    '6a4ac0af5d5e37dbaa9b6f50a758c36c304eb160fa67472ca8aade30598aac3c',
-    '77aefb8ccb467d6dddafb6782b8f9b0fe4a994a1b980ae61ea848695575bfff8',
+    '7f14171cf5522bad6e5f5a055f5049a311eed6c73dbec11e14e342154051bed4',
+    '7bc96a7ee3cfb6344bda1aaf86d64cead9b20276b4f5c76057baf09991145e6c',
 )
 EXPECTED = ('TestRunnerReadFileApp',
             'TestRunnerReadFileApp/explicit-cli-range-and-identity-restart',
