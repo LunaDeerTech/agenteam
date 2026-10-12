@@ -33,6 +33,9 @@ Ingress 不 Acquire 新锁、不另开 Tx、不调用 Model。Agent EX 与 Launc
 
 每个 change_id 的 ingress receipt 不可变：第一次的 queued Execution 或 no_active 决定原样重放，后来启动的新 Execution 不能吸收旧 change。queued 行仅表示 pending，不代表已进入某轮或 waiting 已恢复。
 
+Project Delete 专属退休的后继例外见 [Agent 退休闭包](d10-agent-configuration.md#44-后继无-execution-的-completed-skill-指派历史)：同一原 caller Tx 和私有 Applied witness 下，由 Execution owner 核全状态历史为空、完整原 receipt 集合只含 no-active 决定，才允许删除本域 ingress；Skills owner 随后清理已完成的对应历史。00077 只更换这张 ingress 表的专用 DELETE guard，queued、UPDATE、pending 保护及共享 Snapshot/Transcript/RoundInput 不可变规则不变。原 Lookup/replay 在普通 Project 生命周期中仍保持此处的不可变合同；数据库状态不能替代原 caller 授权。
+
+
 原意图与候选通过完整转换绑定：Assign 的 Skill/enabled、Remove 的原 grant identity、Added/Removed 与完整 After 集合逐项相符，并重建全部 Before 集合验证原 digest。`runtime_receipt` 仅在真实 ingress 调用成功返回后与 completed 回执同 Tx 冻结，planned 必须为空；历史回执以独立原路由证明构建期望值，queued 还核 Skill 自有 pending 的完整原身份，no_active 拒绝存在 pending。`30c31358` 已静态关闭这两项 decoder must-fix，两个判别 top 的 16 个子例在 basic01 首次实际通过；未运行修前反例，不记作动态红绿。
 
 `RequireAssignmentChangeInTx` 读取同 Tx 实际 Skill change 并核完整 DTO；`ProtectAssignmentChangeInTx` 写入/重验 Skill 自域的 exact Execution/change/revision/package/Object 映射。新表通过真实 immutable revision 身份外键保护，原 revision → Object 引用继续由 Skill 持有，清理必须检查这些保护行。不存在 caller 自报 DTO 即获得引用或授权的路径。
