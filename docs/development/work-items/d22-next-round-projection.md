@@ -1,6 +1,6 @@
 # 已提交后继 RoundInput 的只读投影
 
-状态：独立树 `agenteam-next-round-projection`，起点 `71b13d5c`。产品、基础和 PG 方法已获有限静态接受；basic01 的 8 top / 42 sub race、三包 vet，以及两次 compile/list/prepare 已实际通过并获独立接受。native01（`c30623db`）与仅增失败诊断的 native02（`5b04b4fc`）均 **wholeFAIL**：fixture 最前置创建私有目录失败，未到投影业务。02 明确记录 ENOSPC，01 原 errno 仍未知。上游 68 已随完整历史 main `bf7c882a` 有限交付，不代替本片真实 PG 验收。
+状态：本片在组合源 `272c74fa` 上完成有限验收，唯一主审 `runtime_recovery` 已接受：basic01 的 8 top / 42 sub race、三包 vet；compile03/list/prepare；native03 的真实 1 top / 1 sub 与全部退出、TCP 和输入门。原 native01、native02 wholeFAIL 完整保留：前者原 errno 未知，后者记录 ENOSPC，均未到投影业务；第三轮成功不解释旧失败原因。上游 68 已随完整历史 main `bf7c882a` 有限交付。
 
 依据：[输入确定点](d01-contracts/execution-orchestration.md#技能变更与下一轮输入确定点)、[68 RoundInput](d22-execution-round-input.md)。本片只把已提交的首个后继输入投影为数据；不发 ModelRequest、不调用下一 Model/Runner，不接生产默认或解除 tools HTTP 及其它原 STOP。
 
@@ -24,4 +24,14 @@ native01 原工具 10165 亲见退出 1，supervisor798335 / 76.456s 实际 1；
 
 native02 原73449亲见退出1，supervisor804805 / 78.008s 实际1（原监督日志77.063s），Go806502/driver804825 Wait1。唯一 top/sub 仍在0.00s原 `MkdirTemp` 失败，新增闭集诊断 `errno=space` 精确对应 `syscall.ENOSPC`；当时 parent stat/Getwd无错误，parent为0700目录且owner_known/owned/linked为真。七资源双 absence、desc/private/runtime双空、75s内原自动 HOST_TCP delta双空与1894输入不变全部齐。原件在 `native02/`，raw log `/tmp/nrp02/pg-c442cb0e32194dd9b836b211d41ea603.log`。没有到达投影或任何本片业务后验，不记PG通过；02诊断不能补造01首因，也未证明ENOSPC来自字节、inode或其它文件系统限制。
 
-原尾后同一 parent 的一次受控 mkdir/rmdir 均实际0、身份匹配且清理后不存在，外层46cd46实际0，记录在 main 的 [projection-parent-mkdir01.json](/workspace/agenteam/output/ai/projection-parent-mkdir01.json)。这只能说明该次当前态可创建并清理，不证明原运行故障已解决。原 PG 作者持有失败点 Statfs 最小诊断增量；目前尚未为其重编，也未授权第三次 native，不算修复。真实联调仍须沿原68提交调用 `NewRoundProjector(d).Project(ctx,E,next)`，不得换原预算/退出门或以自造DTO替代。tools HTTP等全部STOP保持。
+原尾后同一 parent 的一次受控 mkdir/rmdir 均实际0、身份匹配且清理后不存在，外层46cd46实际0，记录在 main 的 [projection-parent-mkdir01.json](/workspace/agenteam/output/ai/projection-parent-mkdir01.json)。这只能说明该次当前态；无损容量处理与随后第三轮成功均不能补造01原errno，也不能解释02 ENOSPC来自字节、inode或其它限制。失败点 Statfs 诊断 `e3ed` 已纳入第三次编译；第三轮未进入该失败分支，故没有新的失败现场 Statfs 记录。
+
+
+组合 `272c74fa` 包含正式 main `b6f158c3` 的已验 Runner WSS 增量与上述诊断。compile03 原66456亲收0：Go824578 / 91.883s、唯一 `TestNextRoundProjection` 的 list826190 / 1.077s 均实际0；1901输入三份相同，对02恰8新增、2变化、无删除，变化只来自已验WSS与原helper诊断。prepare原1cbe27实际0，运行1902项仅新增实物 binary `b961923cf557d7a2dfaa8cf5fcbaa48f7aee7d76250547f16c63606e4de88ec8`（87,980,429 B）。原件在 `compile03/` 和 `native03/preparation-observation.json`，未重跑已接受基础。
+
+native03 原72578由执行者亲收 actual0（chunk `aa6095`）：supervisor827584 / 113.320s，原监督日志112.293s；Go829170、driver827585均原Wait0。`TestNextRoundProjection/committed-input-projection` 实际23.50s通过：正式Determine提交后，由真实reader投影原system、完整三消息/64KiB六字段结果、Control与固定目录；原scope/projection事务各实际返回并无write XID，重复投影和借用/访问器变异不改持久事实，正式撤去当前Skill后历史投影仍逐字相同，新增Model/WSS为0。七资源14次absence、desc/private/runtime双空、75s内原自动HOST_TCP差额双空及1902输入不变全部齐。原日志 `/tmp/nrp03/pg-f8d01279a05c414b92550c3afaea7741.log` 与 `native03/{terminal,outer-observation}.json`、`outer.log` 保留；主审已有限whole接受，不需追加运行。
+
+本片交付止于已提交首个后继RoundInput的只读投影，不发下一ModelRequest、不授新Tool/Runner执行、不接默认生产；tools HTTP及其它历史STOP仍保持。证据位置、方法与恢复范围见[本片说明](../../../.agent-state/next-round-projection/README.md)。
+
+
+原件已同FS无覆盖迁至 main `output/ai/retired-20261012/next-round-projection/`：106文件 /271,750,879 B及25目录，路径/SHA/size/dev/inode/mode/nsmtime逐项相同。本文前述output路径均为原运行位置，现按相同相对路径访问该保留根；原tmp三轮各4文件另存至旁目录 `next-round-projection-preservation/nrp01–03/`，原tmp不动。23份map的1,905仓库历史版本已匹配原三个检查点，完整main历史可达仍由root合入后核；外部依赖保持保护，可见性限制及证明映射见[恢复说明](../../../.agent-state/next-round-projection/README.md)。树/分支尚未清理，不增加全局删除计数。

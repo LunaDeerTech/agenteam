@@ -1,8 +1,8 @@
-# 已提交 RoundInput 投影的基础检查
+# 已提交 RoundInput 投影：方法与恢复
 
-产品范围见[本片卡](../../docs/development/work-items/d22-next-round-projection.md)。`run-basic-checks.py` 复用上游 68 的记录方式，仅选择本片 **8 个新 top**：Execution reader 4、Execution contract 1、AgentLoop 3。成功且精确命中后，只 vet 这三个包；不重跑原基础矩阵，不启动 PG、Model、Runner 或 HTTP。子例数量以实际 JSON 输出为准；目前方法仅静态准备，尚未运行 Go。
+产品范围见[本片卡](../../docs/development/work-items/d22-next-round-projection.md)。`run-basic-checks.py` 复用上游 68 的记录方式，仅选择本片 **8 个新 top**：Execution reader 4、Execution contract 1、AgentLoop 3。成功且精确命中后，只 vet 这三个包；不重跑原基础矩阵，不启动 PG、Model、Runner 或 HTTP。实际basic01为8 top /42 sub race与三包vet通过，原22796 actual0，657输入六份相同；不把受控基础当真实PG证明。
 
-root 完成上游 68 的正式组合、固定输入并授予唯一 Go/cache 窗口后，在本树运行：
+以下为原基础调用，仅在root明确安排的新资源窗口用于复现，fresh输出不得覆盖原件：
 
 ```sh
 python3 -B .agent-state/next-round-projection/run-basic-checks.py --output output/ai/next-round-projection/checks/basic01
@@ -12,4 +12,14 @@ python3 -B .agent-state/next-round-projection/run-basic-checks.py --output outpu
 
 固定 Go 为 `/workspace/toolchains/go1.27.1/bin/go`，并绑定其 SHA；`GOTOOLCHAIN=local`、`GOPROXY=off`、`GOSUMDB=off`、`-mod=readonly`、`GOMAXPROCS=1`。共享热缓存只用 `agenteam-skill-package-http/output/ai/skill-package-http/go-build`，只读 modules 来自 `agenteam-skills-milestone-resume/output/ai/skills-milestone-resume/go-mod`，必须按 root 的实际 writer 交接使用。闭包记录是仓库源、嵌入文件、脚本和 Go 二进制，不声称保存整个外部 toolchain/module tree。
 
-本基础方法不拥有 PG profile、七资源或 TCP 门。真实 PG 由独立方法作者接上游 68 的真实提交后实施；基础通过也不等于下一 Model 调用、当前执行授权或生产默认接入。
+本基础方法不拥有PG profile、七资源或TCP门；原真实方法见[pg-method.md](pg-method.md)。组合 `272c74fa` 的compile03/list实际0，1901编译输入前后相同，runtime1902仅增加87,980,429 B的实物binary（SHA `b961923cf557d7a2dfaa8cf5fcbaa48f7aee7d76250547f16c63606e4de88ec8`）。native03原72578亲收actual0，sup827584 /113.320s；1top1sub23.50s及全部Wait/七资源双absence/desc-private-runtime双空/原自动TCP双空/输入不变已获唯一主审有限接受。实际只读已提交RoundInput历史、完整投影及深拷贝稳定性通过，新增Model/WSS为0；不生成下一ModelRequest、不授执行或接默认生产。
+
+原native01、02 wholeFAIL完整保留。两轮均0.00s在继承fixture的MkdirTemp前置失败，未到投影；01原errno缺失，02实际ENOSPC。第二次失败点Statfs诊断已由compile03编入，03未触发该分支。后来mkdir成功、释放容量或第三轮通过都不解释原ENOSPC原因，不补造01原errno；全部旧STOP保持。
+
+原 `output/ai/next-round-projection/` 已由独立保全作者以同文件系统 `renameat2(RENAME_NOREPLACE)` 整体迁至 main `output/ai/retired-20261012/next-round-projection/`。106个普通文件、271,750,879 B、25个目录（含根）的路径、SHA、size、device/inode、mode及纳秒mtime前后逐项相同；全部checks、compile01–03三个binary、native01–03配方/结果及两轮FAIL原样保留。源output已不存在，树与分支尚未由root清理。
+
+证明单独保存在 main `output/ai/retired-20261012/next-round-projection-preservation/`：`output-before.json`、`output-after.json`、`preservation-result.json`、`source-recovery.json`和`process-audit.json`，没有改写原output内的记录。`/tmp/nrp01`、`/tmp/nrp02`、`/tmp/nrp03` 各4个原件（log、owned/request、4 B telemetry）共12文件已排他复制至该证明目录对应子目录，字节/mtime/mode保持，原tmp全部留存；main原 `projection-parent-mkdir01.json` 也另存副本且原位保留。实际保全工具331a6b退出0。
+
+23份原输入map的1,905个仓库历史文件版本（1,902路径）已逐字匹配原 `c30623db`、`5b04b4fc`、`272c74fa` 三个检查点，未发现缺失版本；三个实物binary均匹配原map。审计时这些检查点只在原分支历史，须由root完整历史合main后再完成main可达核验，不能把本地材料迁移当远端源码保存。外部Go与MinIO的原SHA已核且未移动，SkillHTTP热cache、SkillsMilestoneResume只读modules/MinIO保持保护；没有声称保存整个外部toolchain/module tree或故障时宿主状态。
+
+原执行者确认全部运行实际退出；当前可见 `/proc` 未见原树进程路径，已知PID均不存在。扫描存在1,410次权限拒绝观察，故该项只证明原Wait与当前可见范围，不宣称覆盖不可见namespace或未知owner。未见独有untracked成果或输出外ignored材料，当前作者确认无下游绝对路径运行依赖。原01未知errno、02ENOSPC原因未明及全部历史STOP始终保留。
