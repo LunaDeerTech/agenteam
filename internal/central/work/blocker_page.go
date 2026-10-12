@@ -16,13 +16,14 @@ import (
 
 type BlockerReader struct{ data func() *blockerReaderState }
 type blockerReaderState struct {
+	ownership *projectCallOwnershipState
 	store     Store
 	authority *Authority
 	cursors   cursor.Keyring
 }
 
-// NewBlockerReader only binds existing providers. Its synchronous calls and
-// Rows belong to the caller; the production root joins their HTTP requests.
+// NewBlockerReader retains the legacy caller-owned request lifetime. Use the
+// reader returned by NewProjectCallOwnershipWithReaders for project stopping.
 func NewBlockerReader(store Store, authority *Authority, keys cursor.Keyring) (*BlockerReader, error) {
 	if nilPort(store) || authority.state() == nil || !sameStore(store, authority.state().store) {
 		return nil, fault(f.DependencyUnbound)
@@ -118,6 +119,11 @@ func (r *BlockerReader) ListTaskBlockersPage(ctx context.Context, actor i.Actor,
 	if st == nil {
 		return empty, fault(f.DependencyUnbound)
 	}
+	ctx, done, err := st.ownership.beginRead(ctx, actor, project, projectCallBlocker)
+	if err != nil {
+		return empty, err
+	}
+	defer done()
 	cause, err := readCause("task-blockers.page")
 	if err != nil {
 		return empty, err
@@ -130,6 +136,9 @@ func (r *BlockerReader) ListTaskBlockersPage(ctx context.Context, actor i.Actor,
 	result := st.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		if err := st.store.AcquireAll(ctx, tx, locks); err != nil {
 			return portError(err)
+		}
+		if err := st.ownership.requireRunning(ctx, tx, project, projectCallBlocker); err != nil {
+			return err
 		}
 		// blockerScope proves this Store's live Tx and complete held locks, then
 		// rechecks current Session/Owner before any Work query or cursor decode.
