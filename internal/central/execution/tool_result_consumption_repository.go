@@ -55,6 +55,9 @@ func sameToolResultConsumption(a, b *toolResultConsumption) bool {
 }
 
 func (s *ToolResultConsumer) transactToolResult(ctx context.Context, e i.ExecutionID, write bool) (*toolResultConsumption, bool, f.CommitResult, error) {
+	if s.commandResults != nil {
+		return s.transactRunCommandResult(ctx, e, write)
+	}
 	if s.writeResults != nil {
 		return s.transactWriteFileResult(ctx, e, write)
 	}

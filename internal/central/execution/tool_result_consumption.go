@@ -18,15 +18,16 @@ import (
 // retire its references. Every public call remains owned until its actual
 // transaction/reader return; Stop requests cancellation and Drain joins it.
 type ToolResultConsumer struct {
-	driver       *ToolCallDriver
-	results      tc.ReadFileResultAuthority
-	writeResults tc.WriteFileResultAuthority
-	store        Store
-	mu           sync.Mutex
-	stopped      bool
-	active       map[i.ExecutionID]context.CancelFunc
-	pending      map[i.ExecutionID]*toolResultUnknown
-	changed      chan struct{}
+	driver         *ToolCallDriver
+	results        tc.ReadFileResultAuthority
+	writeResults   tc.WriteFileResultAuthority
+	commandResults tc.RunCommandResultAuthority
+	store          Store
+	mu             sync.Mutex
+	stopped        bool
+	active         map[i.ExecutionID]context.CancelFunc
+	pending        map[i.ExecutionID]*toolResultUnknown
+	changed        chan struct{}
 }
 
 type toolResultUnknown struct {

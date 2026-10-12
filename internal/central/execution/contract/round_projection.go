@@ -26,8 +26,8 @@ type RoundProjectionReader interface {
 // RoundProjectionSource is a callback-only loan, not caller-supplied evidence of
 // commitment. Arguments preserves the original protected Model argument bytes;
 // canonical Transcript messages alone cannot prove their original spelling.
-// Exactly one of Result and WriteResult binds the original bytes and their
-// independently checked canonical form. Neither is dispatch authority.
+// Exactly one of Result, WriteResult and CommandResult binds the original bytes
+// and their independently checked canonical form. None is dispatch authority.
 // Input contains the fixed final Skill directory and optional typed control;
 // ControlCanonical is nil exactly when there is no committed control.
 type RoundProjectionSource struct {
@@ -37,6 +37,7 @@ type RoundProjectionSource struct {
 	Predecessor      ToolCallRound
 	Result           tc.ReadFileResultBinding
 	WriteResult      *tc.WriteFileResultBinding
+	CommandResult    *tc.RunCommandResultBinding
 	Arguments        []byte
 	Transcript       []RoundProjectionEntry
 	ControlCanonical []byte

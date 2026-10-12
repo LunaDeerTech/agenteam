@@ -28,7 +28,7 @@ type roundInputSource struct {
 }
 
 // All reads are Execution-owned. No Tool dispatch/Model call or caller receipt
-// is used to establish the original full successful result already sealed by 66.
+// is used to establish the original full result already sealed by the consumption owner.
 func loadRoundInputSource(ctx context.Context, x postgres.SQLExecutor, e i.ExecutionID) (*roundInputSource, error) {
 	row, err := loadExecution(ctx, x, e)
 	if err != nil {
@@ -73,7 +73,15 @@ func loadRoundInputSource(ctx context.Context, x postgres.SQLExecutor, e i.Execu
 	if err != nil {
 		return nil, unavailable(nil)
 	}
-	b := sealedToolResultBinding{Call: call, OperationID: operation, AttemptID: attemptID, RequestID: p.ID(request), InputDigest: f.Digest(inputDigest), Fingerprint: f.Digest(fingerprint), TerminalDigest: f.Digest(terminal), Outcome: "success", Attempted: true, ResultDigest: f.Digest(result), ResultBytes: f.Progress(resultBytes)}
+	b := sealedToolResultBinding{Call: call, OperationID: operation, AttemptID: attemptID, RequestID: p.ID(request), InputDigest: f.Digest(inputDigest), Fingerprint: f.Digest(fingerprint), TerminalDigest: f.Digest(terminal), ResultDigest: f.Digest(result), ResultBytes: f.Progress(resultBytes)}
+	if call.RunnerBinding == tc.RunCommandRegistration().Binding {
+		b, err = loadCommandSealedBinding(ctx, x, b)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		b.Outcome, b.Attempted = "success", true
+	}
 	binding, err := sealedToolResultBindingJSON(b)
 	if err != nil {
 		return nil, unavailable(nil)
@@ -83,11 +91,16 @@ func loadRoundInputSource(ctx context.Context, x postgres.SQLExecutor, e i.Execu
 		return nil, unavailable(nil)
 	}
 	r := m.Parts[0].ToolResult
-	if r.CallID != call.CallID || r.IsError || len(r.Parts) != 1 || r.Parts[0].Text == nil {
+	if r.CallID != call.CallID || (call.RunnerBinding != tc.RunCommandRegistration().Binding && r.IsError) || len(r.Parts) != 1 || r.Parts[0].Text == nil {
 		return nil, unavailable(nil)
 	}
 	if b.Call.RunnerBinding == tc.WriteFileRegistration().Binding {
 		if err = validateWriteReceiptArguments(ctx, old.toolPending.original, []byte(r.Parts[0].Text.Text)); err != nil {
+			return nil, err
+		}
+	}
+	if b.Call.RunnerBinding == tc.RunCommandRegistration().Binding {
+		if err = validateRunCommandResultArguments(ctx, old.toolPending.original, []byte(r.Parts[0].Text.Text)); err != nil {
 			return nil, err
 		}
 	}
