@@ -36,3 +36,17 @@ patch --batch --fuzz=0 -p1 < .agent-state/agent-secret-allowlist-ui/checking-rep
 unit01 的整轮实际 34 PASS/1 FAIL 来自新页 fixture 使用“描述”而现有编辑标签是“Agent 描述”。当时 invocation 仅记录提交基准及未提交 fixture 调整，未记录逐项源码 SHA，也没有完整原源码字节快照。因此不制作声称还原 unit01 全输入的补丁；从后来文件反改一个标签只能构造相同错误，不能当作恢复了历史字节。此限制与原 FAIL 一并保留。
 
 完整本地原件目前仍在工作树 `output/ai/agent-secret-allowlist-ui/`：checks 中原 unit01/checking-repro01 与修后结果、methods 中原 controls01 源/观察结果及 controls02、两代 dist、compile-web01 和 native01 全证据。原监督日志为 `/tmp/asaw01/ui-206e564776804426.log`。本步骤尚未迁移输出或依赖，绝对路径记录不改写；正式退役时由 root 安排完整原件保全及实际恢复位置说明。静态 PW 定位修正没有动态 FAIL，不保存无须接续的 WIP；不复制全树或创建 archive 分支。
+
+## 2026-10-12：已关闭编译产物的无损归档
+
+下列退役裸 ELF 已从原保全位置精确移除，完整字节保存在 [archive02/run02](../../output/ai/retired-compile-binaries/archive02/run02/README.md) 的 gzip6/PAX 包中。恢复这些 binary 必须先解归档；原编译/native 记录、输入 maps、源码恢复材料和历史 FAIL/log 保持原样。此前迁移保全的 inode 相等结论仍是当时事实，不代表下列裸路径今天仍存在。
+
+| 包内 member（相对 `output/ai/`） | 字节 | SHA-256 |
+| --- | ---: | --- |
+| `retired-20261011/agent-secret-allowlist-ui/compile-web01/projectvariable.test` | 81662502 | `9d064e0639c83aa84a4260de550fda6962f78d9b1cfb5e8789687c00a24a0213` |
+
+唯一归档为 [history-binaries.tar.gz](../../output/ai/retired-compile-binaries/archive02/run02/history-binaries.tar.gz)，720,004,425 B，SHA-256 `9f3da6012aacd41f3cc49a7e1b7d657ccf601e74368aee6ad52b75918e71a20b`。原 21 文件全集见 [specs](../../output/ai/retired-compile-binaries/archive02/run02/specs.json)；本任务只涉及上表条目。
+
+归档前后全部原文件和编译/native 记录身份相等，解流逐项核对 SHA、size、mode、uid/gid、nsmtime 及 PAX 历史 dev/inode。原归档工具 71444 实际 0；删除前再次完整验证，原工具 79461 实际 0，仅 unlink 固定 21 个裸 ELF，不删除目录。证明见 [归档结果](../../output/ai/retired-compile-binaries/archive02/run02/result.json)、[移除结果](../../output/ai/retired-compile-binaries/removal02/result.json) 与 [精确移除清单](../../output/ai/retired-compile-binaries/removal02/deleted.jsonl)。归档适配首轮 60924 的字段名错误及原失败材料另存父目录，未算作产品或 PG 失败。
+
+恢复时先验证归档摘要，再解到新的空目录，按 manifest/PAX 恢复原字节、权限、uid/gid（有权限时）及精确 nsmtime，并复核 SHA/size。解包会分配新 inode，不能伪造原 inode/ctime；原绝对路径和输入 map 不改写。重新执行需独立源和经授权的新输入绑定，不直接复用旧 namespace。此归档未碰当前 Write Receipt、任何 Command binary、热 cache 或只读 modules，也不证明 ENOSPC 根因或后继运行必然成功。

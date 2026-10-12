@@ -58,3 +58,17 @@ python3 -B output/ai/runner-write-file-wss/native01/record-native.py
 所有原工具/Go/supervisor已亲收实际Wait，记录仍在各原result/tool-terminal；迁移前本任务记录的PID均已不存在，该观察不替代原Wait。methods/basic/compile/native全部仓库内输入共63个路径，逐项SHA等于main可达 `5d8cf4c4` 对应blob；方法README的旧输入亦在该提交。静态Close修前 `61e33774`、修后 `5d8cf4c4` 与最终文档 `25840576` 全历史由main保存，无需额外恢复patch、动态FAIL文件或永久归档分支。1431个外部输入属于原工具链/模块路径，未迁移或删除；SkillHTTP热cache与SkillsMilestoneResume只读modules继续保护。
 
 本任务作者后继从已交付main取源码，无旧树source/output/binary/cache的绝对运行依赖；没有在途Go/Node/服务或网络调用。保全说明已随main `58a1b1e1`推送（原68131实际0）。root核定最终tip `25840576` 为main祖先后，普通worktree remove与普通branch -d均实际0（chunk `095069`）；此前fresh ls-remote `f5f55c`实际0为空，该分支从未推送，没有远端删除动作。清理仅增加1树/1本地分支，全局现34/35/64，146待核与keep1不变；证据、binary、原tmp和受保护依赖未删除。
+
+## 2026-10-12：已关闭编译产物的无损归档
+
+下列退役裸 ELF 已从原保全位置精确移除，完整字节保存在 [archive02/run02](../../output/ai/retired-compile-binaries/archive02/run02/README.md) 的 gzip6/PAX 包中。恢复这些 binary 必须先解归档；原编译/native 记录、输入 maps、源码恢复材料和历史 FAIL/log 保持原样。此前迁移保全的 inode 相等结论仍是当时事实，不代表下列裸路径今天仍存在。
+
+| 包内 member（相对 `output/ai/`） | 字节 | SHA-256 |
+| --- | ---: | --- |
+| `retired-20261011/runner-write-file-wss/compile01/write-file-wss.test` | 17991296 | `151c6b630a9ff97eb8bd4aa20c48ec703cc86460fbb661e29560d22b4f0f4cec` |
+
+唯一归档为 [history-binaries.tar.gz](../../output/ai/retired-compile-binaries/archive02/run02/history-binaries.tar.gz)，720,004,425 B，SHA-256 `9f3da6012aacd41f3cc49a7e1b7d657ccf601e74368aee6ad52b75918e71a20b`。原 21 文件全集见 [specs](../../output/ai/retired-compile-binaries/archive02/run02/specs.json)；本任务只涉及上表条目。
+
+归档前后全部原文件和编译/native 记录身份相等，解流逐项核对 SHA、size、mode、uid/gid、nsmtime 及 PAX 历史 dev/inode。原归档工具 71444 实际 0；删除前再次完整验证，原工具 79461 实际 0，仅 unlink 固定 21 个裸 ELF，不删除目录。证明见 [归档结果](../../output/ai/retired-compile-binaries/archive02/run02/result.json)、[移除结果](../../output/ai/retired-compile-binaries/removal02/result.json) 与 [精确移除清单](../../output/ai/retired-compile-binaries/removal02/deleted.jsonl)。归档适配首轮 60924 的字段名错误及原失败材料另存父目录，未算作产品或 PG 失败。
+
+恢复时先验证归档摘要，再解到新的空目录，按 manifest/PAX 恢复原字节、权限、uid/gid（有权限时）及精确 nsmtime，并复核 SHA/size。解包会分配新 inode，不能伪造原 inode/ctime；原绝对路径和输入 map 不改写。重新执行需独立源和经授权的新输入绑定，不直接复用旧 namespace。此归档未碰当前 Write Receipt、任何 Command binary、热 cache 或只读 modules，也不证明 ENOSPC 根因或后继运行必然成功。

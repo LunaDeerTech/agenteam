@@ -48,3 +48,18 @@ compile03 原工具 88871 实际 0，Go 770353 Wait 0 / 33.698s，list 770888 Wa
 native02 原工具 91341 亲收实际 exit 0，supervisor 772115 Wait 0 / 114.126s，原日志 terminal 0 / 113.205s。一个 top、两个 sub 全 PASS：23.85s（12.12s / 11.73s）；Go 773688、driver 772116 原 Wait 均为 0。七个相同资源 ID 的十四次 absence、desc/private/runtime 双尾、原 75 秒门内自动 HOST_TCP delta 两次 empty、1871 输入不变及 metadata 实际 case/Wait 门全部齐。原日志 `/tmp/sai02/pg-c18b9e6796504edd9e6faa56f814c970.log` 与 `native02/{outer.log,terminal.json,tool-terminal.json}` 均保留，资源窗口已释放。
 
 唯一主审已亲核原件并接受本片有限 wholePASS：正式 Owner Assign / Remove、四引用 owner 同 Tx 版本维护、真实 typed Audit/Outbox、queued 与历史路由、final 真回滚，以及实际 Committed 后受控丢回执、只 Lookup 原事实。真实链止于 created / Model0，使用显式领域装配和 Project 持久 test Skills receipt；不代表生产 Project initializer、默认绑定、完整 Preparing/capture、00068/DetermineRoundInput、下一 Model 或 Transcript 应用。basic01、compile01、native01 的实际 FAIL 完整保留，已有 STOP 不变。
+
+## 2026-10-12：已关闭编译产物的无损归档
+
+下列退役裸 ELF 已从原保全位置精确移除，完整字节保存在 [archive02/run02](../../output/ai/retired-compile-binaries/archive02/run02/README.md) 的 gzip6/PAX 包中。恢复这些 binary 必须先解归档；原编译/native 记录、输入 maps、源码恢复材料和历史 FAIL/log 保持原样。此前迁移保全的 inode 相等结论仍是当时事实，不代表下列裸路径今天仍存在。
+
+| 包内 member（相对 `output/ai/`） | 字节 | SHA-256 |
+| --- | ---: | --- |
+| `retired-20261011/skill-assignment-ingress/compile02/projectvariable.test` | 87037290 | `f67747ddf76674c9ecd92d3004ec11b962f78f80379edfe4dc3eac76bd9b8eb0` |
+| `retired-20261011/skill-assignment-ingress/compile03/projectvariable.test` | 87056060 | `a7fd1a15079d6a8481f02d6a1300dc1b9c4c9fc7fe62f2cc48722d13e84ff286` |
+
+唯一归档为 [history-binaries.tar.gz](../../output/ai/retired-compile-binaries/archive02/run02/history-binaries.tar.gz)，720,004,425 B，SHA-256 `9f3da6012aacd41f3cc49a7e1b7d657ccf601e74368aee6ad52b75918e71a20b`。原 21 文件全集见 [specs](../../output/ai/retired-compile-binaries/archive02/run02/specs.json)；本任务只涉及上表条目。
+
+归档前后全部原文件和编译/native 记录身份相等，解流逐项核对 SHA、size、mode、uid/gid、nsmtime 及 PAX 历史 dev/inode。原归档工具 71444 实际 0；删除前再次完整验证，原工具 79461 实际 0，仅 unlink 固定 21 个裸 ELF，不删除目录。证明见 [归档结果](../../output/ai/retired-compile-binaries/archive02/run02/result.json)、[移除结果](../../output/ai/retired-compile-binaries/removal02/result.json) 与 [精确移除清单](../../output/ai/retired-compile-binaries/removal02/deleted.jsonl)。归档适配首轮 60924 的字段名错误及原失败材料另存父目录，未算作产品或 PG 失败。
+
+恢复时先验证归档摘要，再解到新的空目录，按 manifest/PAX 恢复原字节、权限、uid/gid（有权限时）及精确 nsmtime，并复核 SHA/size。解包会分配新 inode，不能伪造原 inode/ctime；原绝对路径和输入 map 不改写。重新执行需独立源和经授权的新输入绑定，不直接复用旧 namespace。此归档未碰当前 Write Receipt、任何 Command binary、热 cache 或只读 modules，也不证明 ENOSPC 根因或后继运行必然成功。

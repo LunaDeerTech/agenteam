@@ -46,3 +46,17 @@ patch --batch --fuzz=0 -p1 < .agent-state/project-secrets-write-ui/early-product
 - `retention/tmp/psw-406773/` 和 `retention/tmp/psw-064a37/`：各轮实际命名的 log、owned.json、request.json 逐字副本；原 `/tmp` 未移动或改写。精确来源、目标及核对结果见 `retention/migration.json`。
 
 保全只调整本机位置，不重写原 invocation 中的绝对路径或原 FAIL。root 已完成原 worktree 普通移除；本地分支仅因 squash 非祖先被 `-d` 拒绝后，针对已交分支窄 `-D`。远端以最终 tip `7a6d683b691a836a477945a0422d208a8526f514` 的精确 lease 删除成功，成功的 fresh ls-remote 为空、explicit prune 实际退出0，worktree 列表已无原树。共享 SkillHTTP cache 与 SkillsMilestoneResume modules 未动。跨设备先恢复正式 main 源码与本目录必要差额，再按锁文件恢复依赖；本机 ignored 输出不等于已上传远端。
+
+## 2026-10-12：已关闭编译产物的无损归档
+
+下列退役裸 ELF 已从原保全位置精确移除，完整字节保存在 [archive02/run02](../../output/ai/retired-compile-binaries/archive02/run02/README.md) 的 gzip6/PAX 包中。恢复这些 binary 必须先解归档；原编译/native 记录、输入 maps、源码恢复材料和历史 FAIL/log 保持原样。此前迁移保全的 inode 相等结论仍是当时事实，不代表下列裸路径今天仍存在。
+
+| 包内 member（相对 `output/ai/`） | 字节 | SHA-256 |
+| --- | ---: | --- |
+| `retired-20261011/project-secrets-write-ui/compile-app01/project-secret-write-app-race.test` | 77858588 | `8d90b1e3af6ce4396b80fa21355f97b7d675ff0af0354dccab1f4e7251b17347` |
+
+唯一归档为 [history-binaries.tar.gz](../../output/ai/retired-compile-binaries/archive02/run02/history-binaries.tar.gz)，720,004,425 B，SHA-256 `9f3da6012aacd41f3cc49a7e1b7d657ccf601e74368aee6ad52b75918e71a20b`。原 21 文件全集见 [specs](../../output/ai/retired-compile-binaries/archive02/run02/specs.json)；本任务只涉及上表条目。
+
+归档前后全部原文件和编译/native 记录身份相等，解流逐项核对 SHA、size、mode、uid/gid、nsmtime 及 PAX 历史 dev/inode。原归档工具 71444 实际 0；删除前再次完整验证，原工具 79461 实际 0，仅 unlink 固定 21 个裸 ELF，不删除目录。证明见 [归档结果](../../output/ai/retired-compile-binaries/archive02/run02/result.json)、[移除结果](../../output/ai/retired-compile-binaries/removal02/result.json) 与 [精确移除清单](../../output/ai/retired-compile-binaries/removal02/deleted.jsonl)。归档适配首轮 60924 的字段名错误及原失败材料另存父目录，未算作产品或 PG 失败。
+
+恢复时先验证归档摘要，再解到新的空目录，按 manifest/PAX 恢复原字节、权限、uid/gid（有权限时）及精确 nsmtime，并复核 SHA/size。解包会分配新 inode，不能伪造原 inode/ctime；原绝对路径和输入 map 不改写。重新执行需独立源和经授权的新输入绑定，不直接复用旧 namespace。此归档未碰当前 Write Receipt、任何 Command binary、热 cache 或只读 modules，也不证明 ENOSPC 根因或后继运行必然成功。

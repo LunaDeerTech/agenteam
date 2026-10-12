@@ -1,6 +1,8 @@
 # 当前工作：Write-file 结果消费
 
-2026-10-12。本索引位于 `/workspace/agenteam` 正式 main 工作树；root 统筹，variables_review 执行本次明确授权的 Git 与全局记录。当前活动为 `/workspace/agenteam-write-file-result-consumption`，分支 `ai/write-file-result-consumption-20261012`、base `4ebde5a78a43f734d76e0c512fb0ec0c61170b9c`：实施已持久 write-file 结果的历史读取、同 Tx 消费与后继 RoundInput/只读投影。仅源码实施，尚未 Go 或验收；不启动下一 Model，不包含 Command 结果消费、默认生产绑定或 tools HTTP 解禁。
+2026-10-12。本索引位于 `/workspace/agenteam` 正式 main 工作树；root 统筹，variables_review 执行本次明确授权的 Git 与全局记录。当前活动为 `/workspace/agenteam-write-file-result-consumption`，分支 `ai/write-file-result-consumption-20261012`、base `4ebde5a78a43f734d76e0c512fb0ec0c61170b9c`，受测源码 `0b9a96ab`：实施已持久 write-file 结果的历史读取、同 Tx 消费与后继 RoundInput/只读投影。原17top/78sub、5包vet和compile/list/prepare条件链65706实际0；真实PG尚未通过，不启动下一Model，不包含Command结果消费、默认生产绑定或tools HTTP解禁。
+
+Write消费native01原69794 wholeFAIL：两sub在MkdirTemp实际ENOSPC前置失败、未进入消费者业务；随后已验证归档并精确移除退役裸ELF，净回收953,503,744B，不能据此回填首轮或证明ENOSPC根因已消失。native02原62998/972b5f whole actual1已越过该前置：首次历史Consume泛化失败、次例DEPENDENCY_UNAVAILABLE，另有fixture活Store delegate替换的两处race；消费者根因尚未知，待只读诊断与窄修。原Go/driver及outer均已实际退出，七资源与TCP双尾空、1992输入和四方法身份不变；两轮原FAIL完整保留，退出成功不计PG业务通过。
 
 Runner Command Operation 已随完整历史 main `4ebde5a7` 有限交付并与最终功能提交 `1065b7eb` 一起推送成功。41top/207sub race、10包vet、首次真实1top/2sub及全部原Wait/资源/TCP/输入尾已唯一主审接受；当前 ApprovalAllow、完整当前环境为空才可发送，exit23如实为Tool失败，真实final COMMIT丢回执后仅Lookup。76文件/96,100,547B/13目录与4份tmp副本已保全，20输入图中的1,979仓库历史版本main可恢复；旧树、本地及远端引用现均完成普通/精确lease清理。见[本片卡](../docs/development/work-items/d15-runner-command-operation.md)、[恢复说明](runner-command-operation/README.md)及[清理记录](branch-cleanup-20261011.md#2026-10-12-central-command-operation实际清理)。不包含Transcript消费、下一Model、生产默认绑定或旧STOP解禁。
 
