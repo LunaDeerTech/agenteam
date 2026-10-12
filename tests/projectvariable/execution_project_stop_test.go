@@ -547,8 +547,10 @@ func (s *executionStopFixture) close(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 			err := s.driver.Drain(ctx)
 			cancel()
-			if err != nil || !s.driver.Joined() {
-				t.Error("original driver is not joined; retaining graph", err)
+			// The driver exposes Drain, not Joined. Its original Run return
+			// was awaited above; Drain also waits for its actual owned calls.
+			if err != nil {
+				t.Error("original driver Drain failed; retaining graph", err)
 				select {}
 			}
 		}
