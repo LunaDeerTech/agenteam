@@ -4,6 +4,7 @@ package projectvariable_test
 
 import (
 	"context"
+	"encoding/hex"
 	"errors"
 	"path/filepath"
 	"strings"
@@ -39,6 +40,30 @@ type agentCallOwnershipFixture struct {
 	*agentProjectLifecycleFixture
 	graph *assembly.Assembly
 	pair  *agent.ProjectCallOwnership
+}
+
+// The database already has a confirmed identity in the real installation
+// bucket. Reuse that exact task-owned bucket; never initialize a new empty
+// bucket against the confirmed database or create/copy its control marker.
+func agentOwnershipStorage(bucket string) (object.StorageConfig, error) {
+	remote, err := objectfixture.Load()
+	if err != nil {
+		return object.StorageConfig{}, err
+	}
+	if len(remote.Nonce) < 12 {
+		return object.StorageConfig{}, errors.New("invalid owned Object nonce")
+	}
+	prefix := "skill-install-" + remote.Nonce[:12] + "-"
+	suffix := strings.TrimPrefix(bucket, prefix)
+	decoded, err := hex.DecodeString(suffix)
+	if !strings.HasPrefix(bucket, prefix) || err != nil || len(decoded) != 8 || hex.EncodeToString(decoded) != suffix {
+		return object.StorageConfig{}, errors.New("bucket is outside the original owned installation")
+	}
+	values := map[string]string{"ENDPOINT": remote.Endpoint(), "BUCKET": bucket, "ACCESS_KEY": remote.AccessKey, "SECRET_KEY": remote.SecretKey, "TLS_MODE": "verify-full", "CA_FILE": remote.CAFile}
+	return object.LoadStorageConfig(func(name string) (string, bool) {
+		value, ok := values[strings.TrimPrefix(name, object.EnvironmentPrefix)]
+		return value, ok
+	})
 }
 
 func newAgentCallOwnershipFixture(t *testing.T) *agentCallOwnershipFixture {

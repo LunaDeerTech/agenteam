@@ -162,7 +162,11 @@ func testAgentOwnershipForeign(t *testing.T) {
 	// Its new call still has service/mutation ownership.
 	// Registration commits first; the held COMMIT is the ORIGINAL business
 	// prepare/replay Tx, not registration or a metadata retirement checkpoint.
-	storage, bucket := phaseGuardStorage(t, "")
+	bucket := v.p2.bucket
+	storage, err := agentOwnershipStorage(bucket)
+	if err != nil {
+		t.Fatal("original installation storage", agentOwnershipSafeCode(err))
+	}
 	spool := filepath.Join(t.TempDir(), "agent-call-spool")
 	proxy, err := commitproxy.New(ctxFor(t), net.JoinHostPort("127.0.0.1", v.p2.base.db.Fixture.Port))
 	if err != nil {
@@ -178,8 +182,13 @@ func testAgentOwnershipForeign(t *testing.T) {
 			cancelObserve()
 		}
 		proxy.Release()
-		if child != nil && !child.join(t) {
-			return
+		if child != nil {
+			joined := child.join(t)
+			if !joined {
+				t.Log("Agent child diagnostics unavailable: original Wait and reader not both joined")
+				return
+			}
+			child.report(t)
 		}
 		if observeDone != nil {
 			phaseAwait(t, observeDone)
@@ -201,7 +210,7 @@ func testAgentOwnershipForeign(t *testing.T) {
 	select {
 	case writerPID = <-child.pid:
 	case <-child.done:
-		t.Fatal("child original replay failed before COMMIT", child.waitErr)
+		t.Fatal("child original replay failed before COMMIT; original Wait and bounded diagnostics follow")
 	case <-time.After(15 * time.Second):
 		t.Fatal("child actual replay PID missing")
 	}
