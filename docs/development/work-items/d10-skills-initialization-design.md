@@ -1,6 +1,6 @@
 # D10 Skills 初始化与内容规格
 
-状态：rev3，2026-10-10。P1 固定编码与纯口不变；P2 初始化／持久不可变内容／当前 Owner／精确 Stop 和 00027 有限库按 §§10–15 实现并接受，实际证据见[主卡](d10-skills-initialization.md)。§16 精确 Cleanup 库已另行有限接受；§§1–8 保留完整结果的目标和后段验收边界，生产 initializer、完整 participant 与 Runtime 不因库完成而视为交付。
+状态：rev3，2026-10-10。P1 固定编码与纯口不变；P2 初始化／持久不可变内容／当前 Owner／精确 Stop 和 00027 有限库按 §§10–15 实现并接受，实际证据见[主卡](d10-skills-initialization.md)。§16 精确 Cleanup 库已另行有限接受；§§1–8 保留完整结果的目标和后段验收边界。后续[默认项目创建](d08-project-creation-app-ui.md)于 2026-10-12 完成真实 App 初始化、HTTP/UI 创建及原意图失败恢复验收；这不代证完整 participant、Archive/Delete 或全局 Runtime 就绪。
 
 历史 S01 `/tmp` 草案不是当前 DDL 来源；00027 为本次正式库模型。Object 原生 Audit checker、Project 初始化／收敛 wrapper 及有限 Skills CleanupPhase 已在 main，P2 消费初始化/读/Stop 子口，§16 后续精确清理库已闭合；完整多域 participant 仍未完成。
 
@@ -16,7 +16,7 @@
 
 | 前置 | 当前事实与边界 |
 | --- | --- |
-| D08 初始化 | 正式 `ProjectSkillInitializer` 四方法、私有 plan issuer、初始化写 gate 和失败收敛 gate 已在 main。P2 同 Store/current Project/Creation/key 消费，不改其成功语义；生产 D08 initializer 和创建 HTTP/root 尚未接通。 |
+| D08 初始化 | 正式 `ProjectSkillInitializer` 四方法、私有 plan issuer、初始化写 gate 和失败收敛 gate 已在 main。P2 同 Store/current Project/Creation/key 消费，不改其成功语义；生产 D08 initializer、创建 HTTP/root 与 UI 已由[默认创建片](d08-project-creation-app-ui.md)真实接通并验证，完整破坏性生命周期另行满足 Registry 前置。 |
 | D05 初始化权限 | 本次 Object 窄分支仅允许 ProjectInitialization + SkillRevision + 同 Project、CreationCause 与 Actor.CauseRef 同一 UUIDv7。真实 Skill Authority 再核当前原请求和完整私有 plan；Service Read 只用于 exact Lookup，不能开正文/Stat/transfer，其它原变体不变。 |
 | D05 initiator | 仅上述已授权 Service 分支持久原 CreationID，Human/Agent 原路径保留。不改 Audit 的 action/resource/producer 或旧 SQL 约束。 |
 | 初始化 Object Audit | 正式 Project 初始化 wrapper 与 Object native checker 已在 main；本次新增 Skill facts 将当前原 Creation gate、本域完整 object/attempt 映射和原私有 witness 在同一 Tx 闭合。真实 D05 发布正向及公开字段伪 witness 拒绝已有限验收，不泛放未初始化 Project 的其它事实。 |

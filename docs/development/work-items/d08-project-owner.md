@@ -1,12 +1,14 @@
 # D08 Project 与 Owner 工作项
 
-修订：rev2，已获独立静态审查通过并由 root 采纳，现正式归位。当前阶段：S01 规格完成；B01 正式契约/纯规则库已独立验收并提交推送 `199554b`；B02 存储与 Owner/创建/元数据服务、00013 和 fixture 接缝已独立验收并提交推送 `6319d03`。D08 模块仍未完成，B03 完整生命周期、B04 HTTP/app 与 D10 真实 Skill 初始化尚待实施和集成。
+当前状态（2026-10-12）：[默认 App 项目创建与原意图恢复](d08-project-creation-app-ui.md)已通过真实 HTTP/浏览器/PG/MinIO 验收并交付；新 Project 的真实 Skill/Object 初始化及同 key 失败恢复可用。创建与破坏性生命周期按能力分别开放，Archive/Delete 仍未开放，D08 模块未完成。下文 rev2 开工与分段记录保留当时事实，不作为当前默认 initializer 未绑定的判断。
+
+历史 rev2：S01 规格获 root 采纳；B01 正式契约/纯规则库提交推送 `199554b`；B02 存储与 Owner/创建/元数据服务、00013 和 fixture 接缝提交推送 `6319d03`。
 
 共享规格：[D08 实施规格](d08-project-owner-design.md)。业务基线固定 `062ae2c050e2f6fa1549d2e67f924b4e5160d754`，49项输入指纹及冻结稿位于 `/tmp/agenteam-d08-design-rev2-nm2kwP/`；后续卡下发时须补足新采纳依赖的准确提交/manifest，不继承活动工作区为已验事实。独立报告 `/tmp/agenteam-d08-independent-spec-review-cofn9wvo/review-report.md` SHA-256为 `287c4c85491f7574af0e8358efae7d77dbb5214d8b0d9f767ceb5118491808a7`，121项证据索引为 `20efa17c2ae2c866ef55ba7cafa108f56cd1322a6f34e23825bf7359b51fdfa4`；仅证明定向静态规格通过，不代表业务已经运行。
 
 rev2已按root工程裁决固定Create请求的稳定target ProjectID。所有重试保留target+key，命令scope为project/[targetID]；不同target是新意图，不能借换ID当Unknown重试。永久删除仍仅保原最小delete receipt，服务端据此永久拒绝旧target，不新增Create key墓碑或已删内容。
 
-## 开工状态
+## rev2 开工状态（历史）
 
 - B01 已完成：12 个新 Project contract 文件独立验收并提交推送 `199554b`，只消费固定已验 foundation/identity/event；没有提前绑定生产服务。
 - B02 已完成：7 个纯契约/角色/Audit 闭集结果已提交 `769ec8c`；其余 21 源与 00013/fixture 接缝在固定 `da5caab`（含已验 A2/00012）上完成真实验收，提交推送 `6319d03`。稳定 ID 服务与已验 A1 CurrentUserRoute 的路径组合不依赖完整账号 HTTP。

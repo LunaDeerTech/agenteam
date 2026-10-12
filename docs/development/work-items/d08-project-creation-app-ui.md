@@ -1,6 +1,6 @@
 # 默认 App 项目创建与原身份恢复
 
-2026-10-12，基线 `f7d62f186ace2bdd6b40bd7d88fc8c3e67715b96`，树 `agenteam-project-creation-app-ui`。root 已授权真实后端、前端与普通 App/PG/MinIO 联调；当前为实现中，尚无本片通过结果。
+2026-10-12，默认 App 创建与原意图恢复已完成限定验收并交付 main `25ee6e3df39782bd7957bfa4e12f84edeedd426d`；真实组合受测版本为 `600681fc`。原开发基线 `f7d62f186ace2bdd6b40bd7d88fc8c3e67715b96`、树 `agenteam-project-creation-app-ui`。当前用户可从项目列表创建项目，完成真实 Skills/Object 初始化并进入项目；Archive/Delete 未开放，完整 D08/D10 未完成。
 
 本片将 [D08 §7/§8](d08-project-owner-design.md) 与 [D10 §1/§14](d10-skills-initialization-design.md) 的默认 initializer/full manifest 联动改为分能力开放。创建仍须真实四口初始化、完整锁 union/sameTx 确认、原 key 恢复和所有原调用返回；Archive/Delete 仍须完整 Registry 后才可接受。旧 `649e6ad3` 接线及 `0747b02c` 规范撤回历史保留。没有新 DDL、假 ready、空 Registry、full participant 或删除能力。
 
@@ -18,3 +18,12 @@ HTTP：`POST /api/v1/projects` 接 16 KiB strict `{project_id,name,description?}
 4. Project/Skills/Object 原调用未返回时，正常 Drain 和 Force 不越过未 Joined 的 Project；释放后亲收实际退出与 guard，含原预算及根 Store.ForceClose 例外。浏览器核 pending/failed/Unknown/恢复状态、键盘焦点及窄宽/明暗显示。
 
 [Object safe 修复](d05-object-runtime-join-safe.md) 的 native01/02/03 有限通过可复用，旧 Runtime join 明确缺陷不再笼统阻塞本片。旧被禁网络探针、事务代理/截断/异常 backend 保留或改派重建不恢复；不重跑未改旧整矩阵。本片不宣称全模块 ready、Cleanup、foreign join、完整 Delete 或 E01。
+
+## 实际结果与验收边界
+
+- 前端创建 API/Session/表单 8 项控制与类型检查通过；后端 HTTP/App 定向 race（含默认 vet）11 top / 37 sub 全部通过，涵盖 201/202 union、当前 Owner、原请求返回、Force 下游门及 late install。原 [前端记录](../../../output/ai/project-creation-author-checks/frontend01/result.json)与[后端记录](../../../output/ai/project-creation-author-checks/backend01/result.json)保留；组合[类型检查/生产构建](../../../output/ai/project-creation-delivery/frontend01/result.json)通过。
+- 原 `5267 → edf33b` 实际退出 0，两个真实 top / 三个 sub 全部通过：`TestProjectCreationApp/default-create-and-configure` 24.52s、`create-through-browser` 44.87s、`TestProjectCreationRecoveryApp/cancelled-create-restarts-original-intent` 23.60s。原 Go、Node、App 及收养子进程实际返回，六个自有容器/网络和私有目录均退出，未留 runtime/child；见[原日志](../../../output/ai/project-creation-delivery/browser01/browser.log)、[原结果](../../../output/ai/project-creation-delivery/browser01/result.json)与[外层 Wait](../../../output/ai/project-creation-delivery/browser01-outer.json)。这是普通真实 App/PG/MinIO 链，不使用被禁网络故障探针。
+- 正常链通过公开 Session/CSRF/TLS 创建，核原 Add Skills revision、Object 发布与 MinIO 包字节；同 ID/key/body 再 POST 及 GET/HEAD status 返回原结果，跨 Owner 与同 key 异义拒绝。新 Project 通过正式 Provider/Model 配置后使用 Agent、普通变量与 Secret 入口。浏览器从项目列表完成一次 POST、重读目录并进入新项目，原响应与当前消费闭合，保留桌面浅色及窄屏深色截图。
+- 恢复链以真实 owned PostgreSQL SHARE 表锁阻住首次 Skill 初始化 INSERT；确认原等待后仅取消原 HTTP client，亲收 client/bridge 返回、原 SQL 消失及产品 failed/terminal checkpoint。释放原锁、旧 App/guard 实际退出后，重启默认 App，以同 ProjectID/key/body、同 creation/initialization key 完成唯一真实发布。此例证明已知 failed 的原意图恢复，不冒真实网络丢响应或 COMMIT Unknown；浏览器 pending/failed/Unknown 的状态处理由受控前端验证承担，不称这些状态均已跑真实浏览器。
+
+旧 `649e6ad3` 业务 PASS 与 `0747b02c` 规范撤回、其他历史失败均保持原结论。本片不开放 Archive/Delete，不代证完整 participant、引用退休、foreign 终局、生产部署 ready 或 E01。

@@ -1,6 +1,6 @@
 # D10：Skills 初始化与不可变内容
 
-状态：rev3，2026-10-10。P1 和 P2 初始化／不可变内容／当前 Owner 读取／精确 Stop 库及 00027 已有限接受；本次在正式 Runner 前缀之上交付。后续精确 Skills Cleanup 库已有限接受（见末节）；生产 initializer／完整多域 participant、创建 HTTP/root 与 Agent/Tool/Runner 消费仍未完成，Object Runtime join 停止项保持。本文不代表 D10 完成。
+当前状态（2026-10-12）：P1/P2 与精确 Skills Cleanup 库的有限交付保持；[默认项目创建](d08-project-creation-app-ui.md)已进一步接通生产 initializer 与创建 HTTP/UI，并通过真实初始化、原意图失败恢复及 App 退出验收。完整多域 participant、Archive/Delete 与完整 D10 仍未完成，其他消费能力按各自正式工作项判断。Object safe 修复的限定通过可复用，被禁网络故障探针不恢复。下文 rev3（2026-10-10）的分段证据与原失败保留，不因新结果改写。
 
 依据：[开发计划](../development-plan.md)、[Skills 架构](../../architecture/agent-skills.md)、[D01 资源/Skills 契约](d01-contracts/resources-skills.md)、[本工作项规格](d10-skills-initialization-design.md)。S01 候选基线 `71dc17671631632bb26e251ad8491e74092ac975`，原主卡 SHA `a258ed11366946529082e885b5ec1e74d033687d1aec60d69000691862811b88`；独立结论 `/tmp/agenteam-d10-s01-review-4r1gg40i/report.md` SHA `49381427440c1f2a09219361e8a1b902ecb8c0db1d1700a35350050f6136f990` 无新增硬阻断，只采纳规格，不证明真实链路。
 

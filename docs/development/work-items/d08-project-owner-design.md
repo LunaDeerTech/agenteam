@@ -196,7 +196,7 @@ Plan 是 provider 私有 issuer + 完整 request/actor mapping +复制 RequiredL
 4. provider completed 后 Tx 外 DiscoverConfirmation；同 Project EX 和其完整计划锁下 ConfirmInitializedInTx，检查 creation 尚在原身份/阶段，原子写 initialized_at、completed、固定 Add Skills reference、Project 创建 Event/Audit/最终 result。version 对可用 Project 初始仍为 1；初始化阶段用 creation.version，不伪造多次业务更新。
 5. 首请求可在原 caller 总预算内得到 ready/201；持久 accepted 后未完成返回 202/status URL。明确失败返回安全 Fault 并可用 GetCreation 查询 failed；重试相同 Create key 恢复同 creation。后台恢复不重复 revision，重启和响应丢失都不产生第二个 Project。
 
-没有 D10 adapter 时，D08 服务库的 Create 正向由隔离测试 initializer 验边界，生产仅 fail-closed。该事实写进台账；D10 真实创建、失败/原 key 恢复及实际 App 退出组合通过前，不宣称用户已经能创建项目；清理组合是开放破坏性生命周期的独立前置。本次能力拆分及真实 UI 接入见[默认项目创建](d08-project-creation-app-ui.md)，不宣称完整 D08/D10 或删除交付。
+没有 D10 adapter 时，D08 服务库的 Create 正向由隔离测试 initializer 验边界，生产仅 fail-closed。该事实写进台账；D10 真实创建、失败/原 key 恢复及实际 App 退出组合通过前，不宣称用户已经能创建项目；清理组合是开放破坏性生命周期的独立前置。本次能力拆分及真实 UI 接入见[默认项目创建](d08-project-creation-app-ui.md)：2026-10-12 默认创建、真实初始化、浏览器进入项目和取消后重启同原意图恢复已通过限定验收并交付；不宣称完整 D08/D10 或删除交付。
 
 ## 8. 生命周期编排
 
