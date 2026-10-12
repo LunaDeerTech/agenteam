@@ -259,13 +259,15 @@ Work Stop 仅消费原 LifecycleStopDriver 当前 invoke 的独立私有 loan；
 
 `01183207` 的 `TestProjectSchedulerStop` native01 三组实际通过（41.03s）：80→81/repeat、七条入口的真实登记（拒绝入口不冒业务成功）、原 manager/runner Store 返回屏障与 B 可用；技术 Unknown 及真实 KnownNotCreated 原回执均保原 attempt/cause，经同 Tx 零写确认实际返回后才继续显式推进。基础 36 top/98 sub 与两包 vet 通过，原 Wait 和六项资源均已清退，见[结果](../../../output/ai/project-scheduler-stop-delivery/native01/result.json)与[日志](../../../output/ai/project-scheduler-stop-delivery/native01/browser.log)。未 Invoke Execution，不外推 Archive、Scheduler Cleanup、foreign death、默认 Registry 或完整 Delete。
 
-### Scheduler 清理的 Project 接入（独立候选）
+### Scheduler 清理的 Project 接入（限定验收）
 
 显式 `NewLifecycleCleanupDriverForScheduler` 仅接受固定 Scheduler participant，复用原 LifecycleAuthority/P 调用登记与四槽，不装配默认 Registry。新 `NewSchedulerProjectCleanupAuthority` 每个原 Tx 核同 Store、Project EX + ProjectSchedule EX、当前 Delete/cleaning/domains、完整冻结 manifest、全部 stopped、声明的清理前驱及 exact running claim；Stop 和其他清理 family 均不能借权。Scheduler 完成仍保父 domains，不提前转 Outbox，也不要求 Execution 或 Work 先清空而倒置外键依赖。schema 1 checkpoint 只记录 P/op/version、原 process/instance 和 runtimes/relaunch_visits/dispatches/calls/completed 阶段，不代替原 owner 返回证明。
 
 provider 的首 Unknown 保留原 Project round/cause，下一显式 Run 先只读重核原 claim、行版本和 checkpoint，再调用同 provider 的只读确认；未确认或原 Store 未返不得换 claim/推进写入。provider 确认实际返回后的 Project checkpoint 沿原驱动独立 Unknown 协议。00082 只增加 00081 合法 business_closed 尾的严格 DELETE 状态例外：当前 Delete 清理轮、全域 stopped、本域三张业务表全空且无 running call；原 INSERT/UPDATE 身份及单调保护逐字保留。数据库状态不是 caller/returned/foreign-death proof。
 
-已落候选 `NewProjectCleanupParticipant` 固定原七 lane pair，共享最多四个 P 的原清理调用/retained Unknown；每个原 Tx 再核 ProcessGuard 与 Project 私门。清理按 task_runtimes→relaunch_visits→dispatches→合法 closed project_calls，每轮只删一张表的有序前 100 行并核完整原记录与精确行数；foreign 原停止证明只能在只读 preflight 实返后取得，mutation Tx 再核原集合。Unknown 后继仅只读确认，实际返回后仍报 Pending，下一显式轮才继续写入；未证明的旧 process/instance checkpoint 不能被 Pending 报告重新绑定。Execution/Work 自有历史不跨删，parent 仍 domains。provider/迁移的真实 PG 尚待验证，不声称 Scheduler Cleanup 或完整 Delete 已通过。
+`NewProjectCleanupParticipant` 固定原七 lane pair，共享最多四个 P 的原清理调用/retained Unknown；每个原 Tx 再核 ProcessGuard 与 Project 私门。清理按 task_runtimes→relaunch_visits→dispatches→合法 closed project_calls，每轮只删一张表的有序前 100 行并核完整原记录与精确行数；foreign 原停止证明只能在只读 preflight 实返后取得，mutation Tx 再核原集合。Unknown 后继仅只读确认，实际返回后仍报 Pending，下一显式轮才继续写入；未证明的旧 process/instance checkpoint 不能被 Pending 报告重新绑定。Execution/Work 自有历史不跨删，parent 仍 domains。
+
+`0dff9b69` 的 `TestProjectSchedulerCleanup` native01 两组实际通过（36.88s）：81→82/repeat、真实 task_runtime/dispatch/closed-call 分批退休、原 provider 与 Project checkpoint 返回屏障、同 Authority 竞争及 B 保持；原提交确认丢失保 attempt/cause 和 Project round，同 Tx 零写确认实际返回后下一显式轮才继续。基础 22 top/97 sub 与两包 vet 通过，原 Wait 和六项资源均清退，见[结果](../../../output/ai/project-scheduler-cleanup-delivery/native01/result.json)与[日志](../../../output/ai/project-scheduler-cleanup-delivery/native01/browser.log)。保留 Project basic01 测试 Fault 类型编译 FAIL、provider basic01 checkpoint version JSON 投影 FAIL，修正仅对应 fixture 类型。其它 Stop 前置受控，parent 仍 domains；未覆盖非空 relaunch_visits、未 Invoke Execution，不外推默认 App/Registry 或完整 Delete。
 
 ### Execution 四 owner 的 Delete 停止（独立候选）
 
