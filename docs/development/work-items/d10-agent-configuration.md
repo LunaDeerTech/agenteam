@@ -184,6 +184,12 @@ Work 专用口在原同 Store 活 Tx、Project EX/Schedule EX/Agent EX 和私有
 
 Project driver 持有原事务及 caller 的实际返回；取消、物理提交可见或 Agent 行缺席都不替代原返回。Unknown 保留原 owner/cause，后继 Run 必须核相同 operation 的 applied checkpoint、原不可变 command 的完整 Before/version/摘要及所有 owner 的实际退休事实，缺 checkpoint 不能根据空表宣告成功。原子退休后可由同一固定 driver 继续真实 Skills 清理，但母 participant 仍为 `pending/domains`；不开放默认完整 Registry、HTTP DeleteAgent 或完整 Project Delete。本段是实施契约，动态结果另据实际运行记录。
 
+### 4.3.1 首片有限真实结果（2026-10-12）
+
+`5b26c570` 的 `TestProjectAgentRetirement` native02 三组实际通过（64.00s），原 Run/Node-free fixture/Store 与六项资源均已实际退出。正例只含 disabled 初始 head、零 assignment/变更历史、全状态 Execution 历史为空且无 managed Mount；真实 todo Task 的 assignee、版本和历史保留。原 Agent canonical、五域引用与 Project applied checkpoint 同事务退休，物理提交后的原 Store 返回屏障阻止 owner 提前退出；进程内实际 Committed 的 acknowledgement mask 返回 Unknown 后，仅原 operation/immutable command/完整 Before 摘要与各 owner 确认恢复，不重发退休。真实 enabled grant 仍返回 Busy，整笔 canonical/引用删除回滚。随后实际 Skills 清理可完成子域，母 participant 始终 pending/domains，不授完整 Delete 或默认 Registry。
+
+原 pure 首次 Secret 错误映射断言 FAIL 和 native01 三组 FAIL 保留；native01 仅记录 INTERNAL_ERROR/屏障未到，未保存 SQLSTATE，不能追认它们均由后续静态确定并修复的 Mount/Secret UUID–TEXT 比较缺陷造成。[修后实际结果](../../../output/ai/project-agent-retirement-delivery/native02/result.json)与[原 native01 日志](../../../output/ai/project-agent-retirement-delivery/native01/browser.log)分别保留；后继 enabled 初始 grant 的新迁移不计入本结果。
+
 ## 5. F1 命令、历史与提交结果
 
 以下是完整配置阶段的目标接口；只有§2.2真实前置和外域类型补齐后才进入实施，不纳入初始C1的可编译声明：
