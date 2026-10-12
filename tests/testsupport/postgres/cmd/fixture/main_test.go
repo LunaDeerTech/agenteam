@@ -93,3 +93,65 @@ func TestExplicitFixtureTargetUsesExactBinaryCWDAndOriginalSixMinutes(t *testing
 		}
 	}
 }
+
+func TestExplicitFixturePGCurrentOnlyRequiresExplicitTarget(t *testing.T) {
+	dir := t.TempDir()
+	binary := filepath.Join(dir, "owned.test")
+	if err := os.WriteFile(binary, []byte("not executed by this pure test"), 0500); err != nil {
+		t.Fatal(err)
+	}
+	target, err := selectedTestTarget(binary, dir, "^TestExact$")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, target := range []*fixtureTestTarget{nil, target} {
+		if current, err := selectedPGCurrentOnly("", target); err != nil || current {
+			t.Fatal("default full PG chain changed")
+		}
+		for _, value := range []string{"0", "true", " 1", "1 ", "01", "2"} {
+			if current, err := selectedPGCurrentOnly(value, target); err == nil || current {
+				t.Fatal("invalid PG mode was accepted")
+			}
+		}
+	}
+	if current, err := selectedPGCurrentOnly("1", nil); err == nil || current {
+		t.Fatal("current-only weakened the default multi-package chain")
+	}
+	if current, err := selectedPGCurrentOnly("1", target); err != nil || !current {
+		t.Fatal("explicit validated target could not select current-only PG")
+	}
+}
+
+func TestExplicitFixturePGCurrentOnlyOmitsUnsupportedEnvironmentAndResources(t *testing.T) {
+	base := []string{"KEEP=owned", pgfixture.UnsupportedEnv + "=/unrelated/first", pgfixture.UnsupportedEnv + "=/unrelated/second"}
+	original := append([]string{}, base...)
+	if env := unsupportedFixtureEnvironment(base, ""); !reflect.DeepEqual(env, []string{"KEEP=owned"}) {
+		t.Fatal("current-only inherited or generated an unsupported descriptor environment")
+	}
+	if env := unsupportedFixtureEnvironment(base, "/owned/unsupported-fixture.json"); !reflect.DeepEqual(env, []string{"KEEP=owned", pgfixture.UnsupportedEnv + "=/owned/unsupported-fixture.json"}) {
+		t.Fatal("full mode lost its actual unsupported descriptor")
+	}
+	if !reflect.DeepEqual(base, original) {
+		t.Fatal("fixture environment preparation mutated its input")
+	}
+	t.Setenv(pgfixture.UnsupportedEnv, "")
+	if descriptor, err := pgfixture.LoadUnsupported(); err == nil || descriptor != nil {
+		t.Fatal("missing unsupported fixture was accepted")
+	}
+	pg := pgfixture.Descriptor{ContainerID: "pg17", NetworkID: "pg-net", Nonce: "pg-nonce", Password: "private-password"}
+	object := objectfixture.Descriptor{ContainerID: "object", NetworkID: "object-net", Nonce: "object-nonce", Directory: "/owned/object"}
+	outbound := netfixture.Descriptor{ContainerID: "outbound", NetworkID: "outbound-net", Nonce: "outbound-nonce"}
+	record := chainRecord("/owned/pg", pg, pgfixture.Descriptor{}, object, outbound, "/owned/outbound")
+	want := []ownedChainResource{
+		{"container", "object", objectfixture.Label, "object-nonce"},
+		{"network", "object-net", objectfixture.Label, "object-nonce"},
+		{"container", "outbound", netfixture.Label, "outbound-nonce"},
+		{"network", "outbound-net", netfixture.Label, "outbound-nonce"},
+		{"container", "pg17", pgfixture.Label, "pg-nonce"},
+		{"network", "pg-net", pgfixture.Label, "pg-nonce"},
+	}
+	raw, err := json.Marshal(record)
+	if err != nil || !reflect.DeepEqual(record.Resources, want) || len(record.Directories) != 3 || strings.Contains(string(raw), "private") {
+		t.Fatal("current-only record invented a resource or lost actual ownership")
+	}
+}
