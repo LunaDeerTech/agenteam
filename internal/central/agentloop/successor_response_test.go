@@ -13,7 +13,9 @@ import (
 	"time"
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
 )
 
 // Controlled historical source exercises only the pure request/response seam.
@@ -57,6 +59,31 @@ func successorResponseRebind(t *testing.T, request mc.ModelRequest) mc.ModelRequ
 
 const successorNumberSchema = `{"type":"object","required":["n"],"properties":{"n":{"$ref":"#/$defs/n"}},"$defs":{"n":{"type":"number","minimum":1}},"additionalProperties":false}`
 
+// These opaque identities contain non-nil functions, which DeepEqual cannot
+// compare even with themselves. Compare their complete identities first; then
+// exclude only those already checked handles from two independent copies.
+func successorResponseSameRequest(a, b mc.ModelRequest) bool {
+	if !a.Actor.Equal(b.Actor) || !a.Model.LeaseOwner.Equal(b.Model.LeaseOwner) ||
+		(a.Model.Snapshot.CredentialRef == nil) != (b.Model.Snapshot.CredentialRef == nil) ||
+		(a.Model.CredentialLease == nil) != (b.Model.CredentialLease == nil) {
+		return false
+	}
+	if a.Model.Snapshot.CredentialRef != nil && !a.Model.Snapshot.CredentialRef.Equal(*b.Model.Snapshot.CredentialRef) {
+		return false
+	}
+	if a.Model.CredentialLease != nil && !a.Model.CredentialLease.CredentialRef.Equal(b.Model.CredentialLease.CredentialRef) {
+		return false
+	}
+	a, b = a.Clone(), b.Clone()
+	a.Actor, b.Actor = i.Actor{}, i.Actor{}
+	a.Model.LeaseOwner, b.Model.LeaseOwner = sc.CredentialLeaseOwner{}, sc.CredentialLeaseOwner{}
+	a.Model.Snapshot.CredentialRef, b.Model.Snapshot.CredentialRef = nil, nil
+	if a.Model.CredentialLease != nil {
+		a.Model.CredentialLease.CredentialRef, b.Model.CredentialLease.CredentialRef = sc.CredentialRef{}, sc.CredentialRef{}
+	}
+	return reflect.DeepEqual(a, b)
+}
+
 func TestSuccessorResponsePreservesCompleteTextAndSingleCall(t *testing.T) {
 	for _, name := range []string{"text", "empty-text", "call-with-text", "numeric-lexeme"} {
 		t.Run(name, func(t *testing.T) {
@@ -83,7 +110,7 @@ func TestSuccessorResponsePreservesCompleteTextAndSingleCall(t *testing.T) {
 			if !ok || got.Kind() != want || got.FinishReason() != response.FinishReason || got.CallID() != response.CallID || got.InvocationID() != response.InvocationID || !reflect.DeepEqual(got.Usage(), response.Usage) || !reflect.DeepEqual(full, originalResponse) {
 				t.Fatal("complete response lost original parts, arguments, identity or Usage")
 			}
-			if !reflect.DeepEqual(request, originalRequest) || !reflect.DeepEqual(response, originalResponse) {
+			if !successorResponseSameRequest(request, originalRequest) || !reflect.DeepEqual(response, originalResponse) {
 				t.Fatal("pure validation changed the original request/response")
 			}
 		})
