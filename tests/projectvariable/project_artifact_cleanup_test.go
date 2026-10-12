@@ -19,6 +19,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/artifact"
 	art "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
+	au "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
@@ -53,6 +54,13 @@ func (*artifactCleanupPGAssembly) manifest(t *testing.T, original pc.RequiredMan
 	manifest, err := pc.NewRequiredManifest(entries)
 	outboxCleanupRequire(t, err)
 	return manifest
+}
+
+func (*artifactCleanupPGAssembly) projectAuditFacts(t *testing.T, store *hookStore) au.ProjectFactAuthority {
+	t.Helper()
+	facts, err := artifact.NewProjectAuditAuthority(store)
+	outboxCleanupRequire(t, err)
+	return facts
 }
 
 func (a *artifactCleanupPGAssembly) bind(t *testing.T, store *hookStore, projects *project.Authority, skills *skill.Authority, auditing *audit.Service, auth object.Authorizations) object.Authorizations {
@@ -587,7 +595,7 @@ func testProjectArtifactCleanupUnknown(t *testing.T, child bool) {
 	var original f.CommitResult
 	store.mu.Lock()
 	store.transformResult = func(c f.TransactionCause, r f.CommitResult) f.CommitResult {
-		if captured.Load() && c.Kind() == selected.Kind() && c.Details().Owner == selected.Details().Owner && c.Details().RecoveryRunID == selected.Details().RecoveryRunID && r.State() == f.Committed && masked.CompareAndSwap(false, true) {
+		if captured.Load() && c.Kind() == selected.Kind() && c.Details().Owner == selected.Details().Owner && c.Details().RecoveryRunID == selected.Details().RecoveryRunID && c.Details().CheckpointRef == selected.Details().CheckpointRef && r.State() == f.Committed && masked.CompareAndSwap(false, true) {
 			original = f.UnknownResult(attempt, c)
 			return original
 		}

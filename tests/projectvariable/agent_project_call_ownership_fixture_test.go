@@ -488,7 +488,11 @@ func newAgentOwnershipInstallationFixture(t *testing.T, allowRuntimeClose func()
 	if err != nil {
 		t.Fatal(err)
 	}
-	projects, err := project.NewAuthority(store, project.AuthorityDependencies{Sessions: base.accounts, Routes: base.accounts, Lifecycle: lifecycle, AuditFacts: map[ac.Producer]ac.ProjectFactAuthority{ac.ObjectProducer: facts}})
+	projectFacts := map[ac.Producer]ac.ProjectFactAuthority{ac.ObjectProducer: facts}
+	if base.artifactAssembly != nil {
+		projectFacts[ac.ArtifactProducer] = base.artifactAssembly.projectAuditFacts(t, store)
+	}
+	projects, err := project.NewAuthority(store, project.AuthorityDependencies{Sessions: base.accounts, Routes: base.accounts, Lifecycle: lifecycle, AuditFacts: projectFacts})
 	if err != nil {
 		t.Fatal(err)
 	}
