@@ -5,7 +5,7 @@ from pathlib import Path
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[2]
-BASE = 'ad1280af7d7eccc4632cf3062f80700a918d2110'
+BASE = '095d3359df0f6c159b1551e45de8b800af2002b8'
 SELECTOR = '^TestWriteFileOperation$'
 FILES = (
     '.agent-state/work-owner-http/root_chain_driver.py',

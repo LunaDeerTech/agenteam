@@ -1,6 +1,6 @@
 # D15/D18/D22 单 write-file Operation
 
-状态：2026-10-12 源码实施，尚未编译或真实运行。基线 main `105ff95f`，独立树 `/tmp/agenteam-runner-write-file-operation`。已交 Runner 本地 Write 与 trusted TLS/WSS 只提供下游能力，不代本片 Central 当前授权、Operation/Attempt 或默认装配。
+状态：2026-10-12 源码静审已接受，尚未编译或真实运行。初始基线 main `105ff95f`，独立树现已迁至 `/workspace/agenteam-runner-write-file-operation`。已交 Runner 本地 Write 与 trusted TLS/WSS 只提供下游能力，不代本片 Central 当前授权、Operation/Attempt 或默认装配。
 
 正式依据：[Model/Tool](d01-contracts/model-tool.md)、[Runner execution-runtime §6](../../architecture/runner/execution-runtime.md#6-write-file)、[原 read-file Operation](d18-runner-read-file-operation.md)及[已交 write-file WSS](d15-runner-write-file-adapter.md)。本片只把持久 ToolCall 接到一次原 write-file 操作及原结果持久化，不消费 Transcript，不启动后继 Model。
 

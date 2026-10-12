@@ -27,6 +27,14 @@ METADATA_INPUTS = {
         'internal/central/runner/http/write_file_dispatch.go',
         '.agent-state/runner-write-file-operation/profile-controls.py',
     ),
+    '^TestNextRoundProjection$': (
+        'tests/projectvariable/next_round_projection_test.go',
+        'db/migrations/00068_execution_round_inputs.sql',
+        'internal/central/execution/contract/round_projection.go',
+        'internal/central/execution/round_projection.go',
+        'internal/central/agentloop/round_projection.go',
+        '.agent-state/next-round-projection/profile-controls.py',
+    ),
     '^TestExecutionRoundInput$': (
         'tests/projectvariable/execution_round_input_test.go',
         'db/migrations/00068_execution_round_inputs.sql',

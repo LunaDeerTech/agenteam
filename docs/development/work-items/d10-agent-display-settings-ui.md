@@ -58,3 +58,9 @@ normal 18 个请求为 **17 finished + 1 PATCH 200 / ERR_ABORTED**，该 703-byt
 六图仅接受实际可见区域：1440 浅色表单包括两个新字段；390 深色清空图只到显示名称，颜色与底部提交未入图；lost uncertain 图为配置中段，Unknown 提示未入图，使用同轮 DOM 断言证明。键盘 Tab/Enter、取消回焦、减少动效和 overflow 有真实操作断言，不扩大为所有二十字段的完整视觉/无障碍审计。
 
 原件在 `output/ai/agent-edit-web/native-display01/`（invocation、terminal、inputs-before/after、evidence）及 `/tmp/adw01/ui-ffa0a2551d5848bf.log`；原 page01 回填失败、旧 list01 范围和仓库既有 Agent 历史 FAIL 保持，不回填。本线已停写产品/fixture，当前无后台进程、cache writer或自有服务，窗口明确交给 Task；Skills 包下载与 Task 历史筛选仍为独立未交付工作，不合并为本结果。
+
+## 本地保全副本的压缩恢复
+
+2026-10-12，`output/ai/agent-display-settings/retained-inputs` 的 8,185 个条目已完整归档为同级 `retained-inputs-archive01/retained-inputs.tar.gz`（SHA-256 `0800b1f3c4e26cdcd9281093268f0b0a7e36eb86c27f38b240f13f14dcf87acf`）。逐成员内容、链接目标、权限、属主及纳秒 mtime 与归档前后清单核合后，按独立授权仅释放该原副本；`release01/` 保存逐项删除及实际退出记录。原 `PRESERVATION.md`、其他 FAIL/PASS、日志及 `agent-edit-web` 的 binary/dist/evidence 保持。
+
+恢复须按本机 [RECOVER.md](../../../output/ai/agent-display-settings/retained-inputs-archive01/RECOVER.md) 写入新的排他目录并逐项核验；原 dev/inode 保存在清单中，恢复会产生新 inode。归档位于 Git 忽略目录，跨设备需另行传送并核对上述 SHA；这次压缩没有重跑验收，也不证明 Projection 的原 ENOSPC 已解决。

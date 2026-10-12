@@ -204,6 +204,10 @@ METADATA_GROUPS = {
         'TestWriteFileOperation/committed-attempt-write-and-lookup',
         'TestWriteFileOperation/revoke-before-claim-no-dispatch',
     )),
+    '^TestNextRoundProjection$': frozenset((
+        'TestNextRoundProjection',
+        'TestNextRoundProjection/committed-input-projection',
+    )),
     '^TestExecutionRoundInput$': frozenset((
         'TestExecutionRoundInput',
         'TestExecutionRoundInput/assignment-first-replacement-and-replay',
