@@ -192,3 +192,18 @@ root明确授权的唯一Git执行者将最终 `67780ac4f01cb66305b93de89cfdf8f7
 [完整保全](../output/ai/retired-20261012/next-round-model-request-preservation/result.json)原31435/a4431a实际0，child1048802 Wait0/2.790s：同FS NOREPLACE迁到main `output/ai/retired-20261012/next-round-model-request`，159文件/190,552,654B/21目录全路径/SHA/stat/inode前后同；44输入图中2020仓库历史版本逐blob匹配两受测ref且main可恢复。两binary、native01 loader前置FAIL与native02 PASS全部原样，两套实际tmp共8小副本齐且原tmp保留；独立主审已接受保全。外部依赖仅原路径/SHA、不冒归档恢复，详见[恢复说明](next-round-model-request/README.md#main-delivery-and-retirement)。
 
 旧树tracked/普通untracked/ignored皆空；原Wait/knownPID门及后继owner有界声明确认无旧绝对live依赖，不冒全局FD可见。fresh PID1049718精确等最终82f后，普通worktree remove PID1049722、普通branch -d PID1049765均0；单ref exact-lease删除PID1049766、fresh空PID1049795、显式main/ai fetch-prune PID1049807均0。原66407/5caa23亲Wait0确认旧树/local/tracking全空，见[清理后验](../output/ai/next-round-model-request-git/cleanup01/result.json)。本次增加1树/1本地/1远端，累计 **42 WorkTrees / 43本地分支 / 83远端引用**，legacy135待核/原keep1不变。两个新后继树从受测448f独立创建（12680/796021实际0）只进入任务卡/静态源码，不计清理或验收；原FAIL、保护依赖、全部STOP与总体未完成边界不变。
+
+
+## 2026-10-12 Model successor与Agent本地停止实际清理
+
+Model final `ffb32399b74df8b049006e0f2b1f750eb9fa9f7f` 正常no-ff合入main `541ff359fd6b2a47818139855d24157feafffc17`；Agent final `a2d2fc08e455412d5130aa578af8f13409fcde32` 再正常no-ff合入共同main `3ac9f2a6e62e7aa31b744695444c7e844e195ebc`，保留原ed4与两片完整历史。各自交付的18/19paths与合成main逐字同，原受测9d1/a9e/fe6历史可恢复；未把全Agent受测闭包说成与合成main完全相同。Model basic02完整11top83sub/3vet、Agent basic10top29sub/1vet及首次实际native02有限wholePASS均沿原独审接受，无产品重测。
+
+main与两feature atomic push及fresh成功；原wrapper99187/f5a248 actual1只因Model首次local tracking尚无，失败原件保留。独立90761/14e437 actual0完成再次fresh三exact、显式main/ai fetch及tracking exact，没有重复push，见[同步后验](../output/ai/model-agent-delivery-20261012/tracking02/result.json)。
+
+[Model保全](../output/ai/retired-20261012/model-successor-contract-preservation/result.json)原14274/c62a48 actual0，child1083497 Wait0/1.576s：同FS NOREPLACE迁91files/12,592,209B/7dirs，19输入图1926仓库历史版本main可恢复，逐项625旧448f与临时capture Go→tracked.txt/rawcopy恢复映射齐。[Agent保全](../output/ai/retired-20261012/agent-project-local-stop-preservation/result.json)原29094/81f9c4 actual0，child1083663 Wait0/2.433s：同FS NOREPLACE迁135files/100,697,866B/15dirs，25输入图2022历史版本、4tmp副本齐且原tmp保留。两个output逐项SHA和全部stat/inode前后同；Model原basic01 FAIL、Agent native01仅prepared/native02PASS、原Wait/尾门和工具观察来源不改。
+
+[跨树恢复](../output/ai/retired-20261012/agent-project-local-stop-preservation/cross-model-recovery.json)将Agent cache保护的四套658 Model路径及13输出records逐原basic01/outer hash、历史blob和迁后原身份闭合，不以stat-only记录冒hash输入图。两树保持到唯一主审985c8b有限独核接受后才删除；外部工具chain/modules/MinIO仅原路径/hash，cache145已移除可再生包体未归档限制保持，详见两片README。
+
+fresh PID1084764精确命中上述两个finaltip后，Model普通worktree remove PID1084768/local-d PID1084812、Agent普通remove PID1084813/local-d PID1084835全部0；atomic双exactlease删除PID1084836、fresh双空PID1084863、显式main/ai fetch-prune PID1084867均0。原33918/0059bc亲Wait0确认旧tree/local/tracking空，见[清理原件](../output/ai/model-agent-delivery-20261012/cleanup01/result.json)。已知PID/owner停写和后继无旧绝对live依赖是有界证据，不冒全局FD可见。
+
+本次实际增加2树/2本地/2远端，累计 **44 WorkTrees / 45本地分支 / 85远端引用**，legacy135待核/原keep1不变。后继round-model-call-reservation与agent-project-call-ownership从共同main3ac9独立建树，原61039/980bd8 actual0、初始clean、迁移max72；只任务卡设计未Go/未验收，创建不计清理。所有原FAIL、工具观察限制、STOP、保护依赖、默认未绑定及总体未完成事实保持。
