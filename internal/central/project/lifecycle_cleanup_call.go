@@ -8,16 +8,19 @@ import (
 	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 )
 
-// Only active Run calls are retained. This local loan protects the original
-// Store return; it neither authorizes SQL nor replaces the persisted claim.
+// Active Run calls and the bounded original finalizer rounds share admission.
+// The latter retain an ambiguous registration even if it rolled back to the
+// preceding terminal claim. Neither entry authorizes SQL or replaces a claim.
 type lifecycleCleanupCalls struct {
-	mu     sync.Mutex
-	active map[c.ProjectID]*lifecycleCleanupCall
+	mu           sync.Mutex
+	active       map[c.ProjectID]*lifecycleCleanupCall
+	finals       map[c.ProjectID]*lifecycleFinalizeRound
+	projectCalls map[*call]c.ProjectID
 }
 
 type lifecycleCleanupCall struct{ project c.ProjectID }
 
-func (a *LifecycleAuthority) beginCleanupCall(ctx context.Context, project c.ProjectID) (func(), error) {
+func (a *LifecycleAuthority) beginCleanupCall(ctx context.Context, project c.ProjectID, final ...*lifecycleFinalizeRound) (func(), error) {
 	if !a.bound() {
 		return nil, fault(f.DependencyUnbound)
 	}
@@ -33,7 +36,20 @@ func (a *LifecycleAuthority) beginCleanupCall(ctx context.Context, project c.Pro
 	if err := ctx.Err(); err != nil {
 		return nil, portError(err)
 	}
-	if st.active[project] != nil || len(st.active) >= 4 {
+	var permitted *lifecycleFinalizeRound
+	if len(final) == 1 {
+		permitted = final[0]
+	}
+	if len(final) > 1 || st.finals[project] != nil && st.finals[project] != permitted {
+		return nil, fault(f.ResourceBusy)
+	}
+	count := len(st.finals)
+	for p := range st.active {
+		if st.finals[p] == nil {
+			count++
+		}
+	}
+	if st.active[project] != nil || st.finals[project] == nil && count >= 4 {
 		return nil, fault(f.ResourceBusy)
 	}
 	if st.active == nil {
@@ -48,4 +64,35 @@ func (a *LifecycleAuthority) beginCleanupCall(ctx context.Context, project c.Pro
 			delete(st.active, project)
 		}
 	}, nil
+}
+
+func (a *LifecycleAuthority) retainFinalize(round *lifecycleFinalizeRound) error {
+	st := &a.cleanupCalls
+	st.mu.Lock()
+	defer st.mu.Unlock()
+	if round == nil || st.active[round.claim.project] == nil || st.finals[round.claim.project] != nil && st.finals[round.claim.project] != round {
+		return fault(f.ResourceBusy)
+	}
+	for _, project := range st.projectCalls {
+		if project == round.claim.project {
+			return fault(f.ResourceBusy)
+		}
+	}
+	if st.finals == nil {
+		st.finals = make(map[c.ProjectID]*lifecycleFinalizeRound)
+	}
+	st.finals[round.claim.project] = round
+	return nil
+}
+
+func (a *LifecycleAuthority) releaseFinalize(round *lifecycleFinalizeRound) {
+	if round == nil {
+		return
+	}
+	st := &a.cleanupCalls
+	st.mu.Lock()
+	defer st.mu.Unlock()
+	if st.finals[round.claim.project] == round {
+		delete(st.finals, round.claim.project)
+	}
 }

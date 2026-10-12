@@ -14,7 +14,7 @@ import (
 )
 
 func (s *Service) CreateProject(ctx context.Context, actor identity.Actor, meta foundation.CommandMeta, request c.CreateProjectRequest) (c.CreationResult, error) {
-	ctx, done, e := s.begin(ctx)
+	ctx, done, e := s.begin(ctx, request.ProjectID)
 	if e != nil {
 		return c.CreationResult{}, e
 	}
@@ -274,9 +274,10 @@ func (s *Service) advanceCreation(ctx context.Context, id c.CreationID) (c.Creat
 		return creationResult(r, p)
 	}
 	defer func() {
-		if !claim.terminalKnown {
-			s.joined(claim.attempt)
-		}
+		// The finalizer needs the original public call's return, including a
+		// terminal COMMIT whose Store return was held. Publication is deferred
+		// to that call's existing done function, not the SQL callback.
+		s.creationReturned(ctx, claim.attempt)
 	}()
 	actor, e := s.initializationActor(r)
 	if e != nil {
