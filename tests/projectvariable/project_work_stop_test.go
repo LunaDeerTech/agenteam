@@ -395,11 +395,7 @@ func (v *workStopPG) snapshot(t *testing.T, ledger bool) string {
 	}
 	var parts []string
 	for _, table := range tables {
-		parameter := "$1::text"
-		if table == "project_calls" {
-			parameter += "::uuid"
-		}
-		parts = append(parts, fmt.Sprintf("(SELECT jsonb_agg(to_jsonb(x) ORDER BY to_jsonb(x)::text) FROM agenteam_work.%s x WHERE project_id=%s)", table, parameter))
+		parts = append(parts, fmt.Sprintf("(SELECT jsonb_agg(to_jsonb(x) ORDER BY to_jsonb(x)::text) FROM agenteam_work.%s x WHERE project_id=$1::uuid)", table))
 	}
 	var value string
 	workStopRequire(t, "business-snapshot", v.base.raw.QueryRow(ctxFor(t), "SELECT jsonb_build_array("+strings.Join(parts, ",")+")::text", v.target.ID.String()).Scan(&value))
