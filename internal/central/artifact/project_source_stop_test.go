@@ -197,7 +197,7 @@ func TestArtifactProjectSourceStopSelection(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		command, err := commandIdentity(target, newTestID[struct{}](t).String(), "create")
+		command, err := commandIdentity(target, f.IdempotencyKey(newTestID[struct{}](t).String()), "create")
 		if err != nil {
 			t.Fatal(err)
 		}
