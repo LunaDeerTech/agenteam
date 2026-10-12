@@ -115,6 +115,7 @@ const endpoints = {
   listProjectUsage: ['GET', '/api/v1/projects/{project_id}/model-usage', 200],
   createProjectVariable: ['POST', '/api/v1/projects/{project_id}/variables', 200],
   updateProjectVariable: ['PATCH', '/api/v1/projects/{project_id}/variables/{target}', 200],
+  deleteProjectVariable: ['DELETE', '/api/v1/projects/{project_id}/variables/{target}', 200],
   lookupProjectVariable: ['POST', '/api/v1/projects/{project_id}/variables/commands/lookup', 200],
   milestoneUpdate: ['PATCH', '/api/v1/projects/{project_id}/milestones/{target}', 200],
   milestoneUpdateLookup: ['POST', '/api/v1/projects/{project_id}/structure-commands/lookup', 200],
@@ -1150,6 +1151,7 @@ type WorkReviewEndpoint =
   | 'getProjectVariable'
   | 'createProjectVariable'
   | 'updateProjectVariable'
+  | 'deleteProjectVariable'
   | 'lookupProjectVariable'
   | 'milestoneUpdate'
   | 'milestoneUpdateLookup'
@@ -1188,6 +1190,7 @@ const workReviewEndpoints: readonly WorkReviewEndpoint[] = [
   'getProjectVariable',
   'createProjectVariable',
   'updateProjectVariable',
+  'deleteProjectVariable',
   'lookupProjectVariable',
   'milestoneUpdate',
   'milestoneUpdateLookup',
