@@ -300,6 +300,8 @@ Artifact Request/Inspect 复用既有 ArtifactStopComponent 和 ProjectStopAutho
 
 新的显式 Artifact/Object 组合 adapter 依次消费两原 Service 的 Stop/Inspect；只有 component/cause 严格匹配且两者完整实际返回 Stopped 才聚合 Stopped。没有对应注册 reference kind 的原细粒度 ID 不改名伪装为 object/artifact，聚合保守状态与安全 reason。原 cleanup-only 构造保留，原 LifecycleStopDriver 直接消费新 adapter；不因此绑定默认 App 或部分 Registry，也不声称其它 domain/finalizer 已完成。本节为候选实现合同，动态结果按后续真实验收记录。
 
+`984dd6f5` 的 `TestProjectArtifactStop` native03 两组实际通过（42.16s）：78→79/repeat、真实公有 Read 的原 Store 返回屏障、另一 Project 可用、Artifact/Object 真 Stop，以及原 Stop Unknown 的只读确认；后续 Artifact 清掉本域 joined work，保留当前 Delete 最小 stopped receipt，Object 自域技术尾仍保留。必要基础 22top77sub、新增 maintenance 1top10sub 和三个包 vet 均通过；Go/fixture 原调用已退出，六项资源清退，无 Node，见[实际结果](../../../output/ai/project-artifact-stop-delivery/native03/result.json)与[原日志](../../../output/ai/project-artifact-stop-delivery/native03/browser.log)。首轮两个纯控编译 FAIL、native01/02 FAIL 均保留：01 的 Tx callback context 不代表外层公有调用 context，且组合 Object Stop 需按真实扫描进度推进；02 后修复了私有 cleanup scope 拒绝同 P/op 派生 ObjectMaintenance 的静态缺陷，不回填原日志缺失的 lane 或深层 Tx 位置。本结果不包含 source 收束、foreign death 正向、默认 Registry 或完整 Delete。
+
 ### 9.1 D05 项目停止能力
 
 固定 D05 只有 CleanupProject，没有项目范围 RequestStop/InspectStop。下列 C0 已经独立定向审查并由 root 采纳，代码依据为 `6319d03`；typed 口实现与真实 D05 stop/inspect 分阶段交付，契约成立不代表停止能力已绑定。Project 不越域查表推断空闲。
