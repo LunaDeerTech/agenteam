@@ -29,8 +29,18 @@ type projectCleanupContext struct {
 
 func (r *serviceState) originalCleanupCall(ctx context.Context, subject ac.AccessSubject, intent identity.AccessIntent) bool {
 	owner, _ := ctx.Value(projectCleanupContextKey{}).(projectCleanupContext)
-	if intent != identity.Lifecycle || owner.state != r || owner.call == nil || subject.ProjectID != owner.call.cause.ProjectID || !subject.Actor.Equal(owner.call.actor) {
+	if intent != identity.Lifecycle || owner.state != r || owner.call == nil || subject.ProjectID != owner.call.cause.ProjectID {
 		return false
+	}
+	if !subject.Actor.Equal(owner.call.actor) {
+		// The original cleanup derives this exact actor for Object maintenance
+		// and its final Artifact transaction. It still uses the same private
+		// call and the current Project gate in every transaction.
+		registration, _ := identity.RegisterService(identity.ObjectMaintenance)
+		maintenance, err := registration.Actor(owner.call.cause.OperationID.String(), identityScope(owner.call.cause.ProjectID))
+		if err != nil || !subject.Actor.Equal(maintenance) {
+			return false
+		}
 	}
 	r.cleanupMu.Lock()
 	defer r.cleanupMu.Unlock()
