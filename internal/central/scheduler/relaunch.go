@@ -32,16 +32,17 @@ func (RelaunchVisit) MarshalJSON() ([]byte, error) { return []byte(`"scheduler_r
 // Execution and retry-policy dependencies. It never turns a relaunch into a
 // todo claim and never owns the shared Execution executor's lifetime.
 type RelaunchCoordinator struct {
-	coordinator *Coordinator
-	tasks       wc.SchedulerTaskRelaunches
-	current     wc.SchedulerTaskReader
-	occupancy   ec.WorkOccupancyReader
-	skipCount   int64
-	mu          sync.Mutex
-	stopped     bool
-	calls       map[*relaunchCall]struct{}
-	unknown     map[DispatchID]*relaunchCall
-	drained     chan struct{}
+	projectCalls *projectCallState
+	coordinator  *Coordinator
+	tasks        wc.SchedulerTaskRelaunches
+	current      wc.SchedulerTaskReader
+	occupancy    ec.WorkOccupancyReader
+	skipCount    int64
+	mu           sync.Mutex
+	stopped      bool
+	calls        map[*relaunchCall]struct{}
+	unknown      map[DispatchID]*relaunchCall
+	drained      chan struct{}
 }
 
 // NewRelaunchCoordinator requires an explicit skip count, including an explicit

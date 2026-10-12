@@ -28,6 +28,7 @@ type LaunchHandoffDependencies struct {
 // known rejection leaves pending/known_not_created for the future Work-owned
 // compensation; it never silently marks that Task skipped or failed.
 type LaunchHandoff struct {
+	projectCalls  *projectCallState
 	authority     *PendingAuthority
 	deps          LaunchHandoffDependencies
 	retryProjects ProjectSchedulerGate
@@ -148,7 +149,7 @@ func (s *LaunchHandoff) Drain(ctx context.Context) error {
 	}
 	select {
 	case <-s.drained:
-		return nil
+		return s.projectCalls.drainReturned(ctx, projectLaneHandoff)
 	case <-ctx.Done():
 		return ctx.Err()
 	}
@@ -158,14 +159,15 @@ func (s *LaunchHandoff) Joined() bool {
 		return true
 	}
 	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.stopped && len(s.calls) == 0
+	joined := s.stopped && len(s.calls) == 0
+	s.mu.Unlock()
+	return joined && s.projectCalls.laneJoined(projectLaneHandoff)
 }
 
 // LaunchOnce permits a send only to the caller whose not_sent -> unknown
 // marker was known committed. A marker CommitUnknown issues no handoff and no
 // Launch. A crash in that gap is intentionally recoverable by lookup only.
-func (s *LaunchHandoff) LaunchOnce(ctx context.Context, p i.ProjectID, id DispatchID) (out Dispatch, err error) {
+func (s *LaunchHandoff) launchOnce(ctx context.Context, p i.ProjectID, id DispatchID) (out Dispatch, err error) {
 	return s.launch(ctx, p, id, false)
 }
 
@@ -240,7 +242,7 @@ func (s *LaunchHandoff) launch(ctx context.Context, p i.ProjectID, id DispatchID
 // It also resumes this driver's retained unknown after Stop. A fresh driver
 // can observe a crash survivor using its durable original Dispatch identity.
 // Not observed is deliberately inconclusive, including a crash before send.
-func (s *LaunchHandoff) Lookup(ctx context.Context, p i.ProjectID, id DispatchID) (out Dispatch, err error) {
+func (s *LaunchHandoff) lookup(ctx context.Context, p i.ProjectID, id DispatchID) (out Dispatch, err error) {
 	ctx, call, err := s.begin(ctx, p, id, true)
 	if err != nil {
 		return Dispatch{}, err

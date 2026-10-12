@@ -21,12 +21,13 @@ type BusyCompensatorDependencies struct {
 // in the same transaction. Neither a public error nor a generic known failure
 // is a Busy receipt. Construction is immutable and performs no I/O.
 type BusyCompensator struct {
-	authority *PendingAuthority
-	deps      BusyCompensatorDependencies
-	mu        sync.Mutex
-	stopped   bool
-	calls     map[DispatchID]*busyCall
-	drained   chan struct{}
+	projectCalls *projectCallState
+	authority    *PendingAuthority
+	deps         BusyCompensatorDependencies
+	mu           sync.Mutex
+	stopped      bool
+	calls        map[DispatchID]*busyCall
+	drained      chan struct{}
 }
 type busyStage uint8
 
@@ -150,7 +151,7 @@ func (s *BusyCompensator) Drain(ctx context.Context) error {
 	}
 	select {
 	case <-s.drained:
-		return nil
+		return s.projectCalls.drainReturned(ctx, projectLaneBusy)
 	case <-ctx.Done():
 		return ctx.Err()
 	}
@@ -160,8 +161,9 @@ func (s *BusyCompensator) Joined() bool {
 		return true
 	}
 	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.stopped && len(s.calls) == 0
+	joined := s.stopped && len(s.calls) == 0
+	s.mu.Unlock()
+	return joined && s.projectCalls.laneJoined(projectLaneBusy)
 }
 
 func busyCommand(p i.ProjectID, id DispatchID) f.CommandIdentity {
@@ -230,7 +232,7 @@ func (s *BusyCompensator) read(ctx context.Context, call *busyCall) (*dispatchRe
 	return out, nil
 }
 
-func (s *BusyCompensator) CompensateAgentBusy(ctx context.Context, p i.ProjectID, id DispatchID) (out Dispatch, err error) {
+func (s *BusyCompensator) compensateAgentBusy(ctx context.Context, p i.ProjectID, id DispatchID) (out Dispatch, err error) {
 	ctx, call, err := s.begin(ctx, p, id, false)
 	if err != nil {
 		return Dispatch{}, err
@@ -344,7 +346,7 @@ func (s *BusyCompensator) CompensateAgentBusy(ctx context.Context, p i.ProjectID
 // Stop. It never invokes Work or Launch. An unobserved skipped result retains
 // the original unknown physical attempt; a known rollback may be retried by
 // the caller as the same Dispatch, with fresh discovery and current facts.
-func (s *BusyCompensator) Lookup(ctx context.Context, p i.ProjectID, id DispatchID) (out Dispatch, err error) {
+func (s *BusyCompensator) lookup(ctx context.Context, p i.ProjectID, id DispatchID) (out Dispatch, err error) {
 	ctx, call, err := s.begin(ctx, p, id, true)
 	if err != nil {
 		return Dispatch{}, err

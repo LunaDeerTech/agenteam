@@ -28,14 +28,15 @@ type CoordinatorDependencies struct {
 // traversal, timer, dispatcher process or a Task source that is not installed.
 // Authority -> Work -> Coordinator is an immutable, acyclic construction order.
 type Coordinator struct {
-	authority   *PendingAuthority
-	deps        CoordinatorDependencies
-	retryPolicy LaunchRetryPolicy
-	mu          sync.Mutex
-	stopped     bool
-	calls       map[*claimCall]struct{}
-	unknown     map[DispatchID]*claimCall
-	drained     chan struct{}
+	projectCalls *projectCallState
+	authority    *PendingAuthority
+	deps         CoordinatorDependencies
+	retryPolicy  LaunchRetryPolicy
+	mu           sync.Mutex
+	stopped      bool
+	calls        map[*claimCall]struct{}
+	unknown      map[DispatchID]*claimCall
+	drained      chan struct{}
 }
 type claimStage uint8
 
@@ -180,7 +181,7 @@ func (s *Coordinator) Drain(ctx context.Context) error {
 	}
 	select {
 	case <-s.drained:
-		return nil
+		return s.projectCalls.drainReturned(ctx, projectLaneCoordinator)
 	case <-ctx.Done():
 		return ctx.Err()
 	}
@@ -190,14 +191,15 @@ func (s *Coordinator) Joined() bool {
 		return true
 	}
 	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.stopped && len(s.calls) == 0
+	joined := s.stopped && len(s.calls) == 0
+	s.mu.Unlock()
+	return joined && s.projectCalls.laneJoined(projectLaneCoordinator)
 }
 
 // ClaimTask preserves the caller's one original Dispatch identity. The caller
 // obtains candidate IDs from Work; this method revalidates every current fact.
 // CommitUnknown returns no Dispatch and retains the original call ownership.
-func (s *Coordinator) ClaimTask(ctx context.Context, r wc.TaskClaimRequest, policy ec.Policy) (out Dispatch, err error) {
+func (s *Coordinator) claimTask(ctx context.Context, r wc.TaskClaimRequest, policy ec.Policy) (out Dispatch, err error) {
 	ctx, call, err := s.admit(ctx, r, policy)
 	if err != nil {
 		return Dispatch{}, err

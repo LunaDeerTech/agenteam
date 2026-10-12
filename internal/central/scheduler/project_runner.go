@@ -117,9 +117,10 @@ func uncertainProjectVisit(err error) bool {
 // does not claim that any borrowed owner's unresolved attempt has retired.
 // There is no goroutine, timer or I/O at construction and no application bind.
 type ProjectRunner struct {
-	coordinator *Coordinator
-	visitor     *PendingVisitor
-	options     ProjectRunnerOptions
+	projectCalls *projectCallState
+	coordinator  *Coordinator
+	visitor      *PendingVisitor
+	options      ProjectRunnerOptions
 	// Private read seam; construction always fixes the real bounded SQL reader.
 	readPending       func(context.Context, postgres.SQLExecutor, i.ProjectID) ([]traversalPending, error)
 	readLaunched      func(context.Context, postgres.SQLExecutor, i.ProjectID, string, string, int) ([]*dispatchRecord, error)
@@ -147,8 +148,11 @@ func NewProjectRunner(coordinator *Coordinator, visitor *PendingVisitor, options
 	if options.Relaunch != nil && options.Relaunch.coordinator != coordinator {
 		return nil, fault(f.DependencyUnbound)
 	}
+	if visitor.projectCalls != coordinator.projectCalls || options.Relaunch != nil && options.Relaunch.projectCalls != coordinator.projectCalls {
+		return nil, fault(f.DependencyUnbound)
+	}
 	options.LaunchPolicy = options.LaunchPolicy.Clone()
-	return &ProjectRunner{coordinator: coordinator, visitor: visitor, options: options, readPending: loadTraversalPending, drained: make(chan struct{})}, nil
+	return &ProjectRunner{projectCalls: coordinator.projectCalls, coordinator: coordinator, visitor: visitor, options: options, readPending: loadTraversalPending, drained: make(chan struct{})}, nil
 }
 func (s *ProjectRunner) begin(ctx context.Context) (context.Context, *projectRunCall, error) {
 	if ctx == nil {
@@ -223,7 +227,7 @@ func (s *ProjectRunner) Drain(ctx context.Context) error {
 	}
 	select {
 	case <-s.drained:
-		return nil
+		return s.projectCalls.drainReturned(ctx, projectLaneRunner, s.options.ProjectID)
 	case <-ctx.Done():
 		return ctx.Err()
 	}
@@ -233,8 +237,9 @@ func (s *ProjectRunner) Joined() bool {
 		return true
 	}
 	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.stopped && s.call == nil
+	joined := s.stopped && s.call == nil
+	s.mu.Unlock()
+	return joined && s.projectCalls.laneJoined(projectLaneRunner, s.options.ProjectID)
 }
 
 // Run keeps the Project registration for its entire lifetime, rebuilding the
@@ -242,7 +247,7 @@ func (s *ProjectRunner) Joined() bool {
 // waits one tick, so the next round adds no second delay. A scan failure stops
 // this call; definite per-Task domain refusals are observations and do not
 // starve later entries. An uncertain mutation stops with its original handle. Context cancellation stops the original in-flight call and timer.
-func (s *ProjectRunner) Run(ctx context.Context) error {
+func (s *ProjectRunner) run(ctx context.Context) error {
 	ctx, call, err := s.begin(ctx)
 	if err != nil {
 		return err
@@ -260,7 +265,7 @@ func (s *ProjectRunner) Run(ctx context.Context) error {
 // as Run. It cannot overlap another Run/RunTraversal for the same Project and
 // PendingAuthority instance, even through a different runner instance. This
 // is in-process serialization, not a cross-process Scheduler leader lease.
-func (s *ProjectRunner) RunTraversal(ctx context.Context) (ProjectRunResult, error) {
+func (s *ProjectRunner) runTraversal(ctx context.Context) (ProjectRunResult, error) {
 	ctx, call, err := s.begin(ctx)
 	if err != nil {
 		return ProjectRunResult{}, err

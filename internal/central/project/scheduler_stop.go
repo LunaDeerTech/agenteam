@@ -27,7 +27,12 @@ func NewSchedulerStopAuthority(driver *LifecycleStopDriver, directory *Scheduler
 }
 
 type schedulerStopLoanKey struct{}
-type schedulerStopLoan struct{ scope *agentPreparationScope }
+type schedulerStopLoan struct {
+	scope *agentPreparationScope
+	// Only the full Scheduler binding issues transaction-consumable loans.
+	// The existing local ProjectRunners authority leaves issuer nil.
+	issuer *SchedulerProjectStopAuthority
+}
 
 func (s *agentPreparationScope) borrowSchedulerStop(ctx context.Context) (*schedulerStopLoan, error) {
 	s.mu.Lock()

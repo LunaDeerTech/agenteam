@@ -52,7 +52,7 @@ func NewLaunchHandoffWithRetry(a *PendingAuthority, deps LaunchHandoffDependenci
 // RetryDue performs at most one same-key send. No policy, a not-yet-due
 // rejection, or a paused/current-Sprint mismatch returns the stored receipt
 // with InvalidState and no write. Unknown ownership permits only Lookup.
-func (s *LaunchHandoff) RetryDue(ctx context.Context, p i.ProjectID, id DispatchID) (Dispatch, error) {
+func (s *LaunchHandoff) retryDue(ctx context.Context, p i.ProjectID, id DispatchID) (Dispatch, error) {
 	if s == nil || nilPort(s.retryProjects) {
 		return Dispatch{}, fault(f.DependencyUnbound)
 	}

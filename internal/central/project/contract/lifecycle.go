@@ -274,6 +274,7 @@ const (
 	AuditParticipant          ParticipantName = "audit"
 	SkillsParticipant         ParticipantName = "agent-skills-variables"
 	WorkParticipant           ParticipantName = "work"
+	SchedulerParticipant      ParticipantName = "scheduler"
 )
 
 func (n ParticipantName) Validate() error              { return event.StableName(n).Validate() }

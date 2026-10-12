@@ -251,6 +251,14 @@ Work Stop 仅消费原 LifecycleStopDriver 当前 invoke 的独立私有 loan；
 
 `f46591b9` 的 `TestProjectWorkStop` native02 三组实际通过（42.96s）：五个显式 lane 的真实命令、79→80/repeat、原 Store 返回屏障与 B 可用；技术 Unknown 保留原 attempt/cause，后继同 Tx 零写确认实际返回后下一显式调用才关闭；Archive 保留原 read/已完成重放并拒新 mutation。基础 33 top/75 sub 与两包 vet 通过，原 Wait 和六项资源均已清退，见[结果](../../../output/ai/project-work-stop-delivery/native02/result.json)与[日志](../../../output/ai/project-work-stop-delivery/native02/browser.log)。原 basic01/02 FAIL、native01 三组 snapshot `42883` 保留；修复仅按 Work 各目标表实际 UUID 类型更正快照参数转换，不外推独立 Reader、调度 borrower、Work Cleanup、foreign death 或默认 App/完整 Delete。
 
+### Scheduler 显式调用归属与 Delete 停止（限定验收）
+
+显式 Scheduler 工厂绑定同 Store、原 ProcessGuard/process 与实例身份，覆盖 Coordinator、PendingVisitor、LaunchHandoff、BusyCompensator、LaunchFailureFinalizer、RelaunchCoordinator 六个原 owner 及 ProjectRunner 第七 lane；manager 的原调用尾也必须实际返回。迁移 00081 仅新增本域 project_calls：持久完整 P/process/instance/lane、原调用 canonical identity/digest，身份不可变，running 单调进入 business_closed，历史禁止删除。closed 行、取消、无本地 handle 均不能代替原 Store、借入 Tx 或外层调用实返；同进程未知实例仍 Pending，foreign 仅凭原 ProcessGuard 停止证明并同 Tx 重核。
+
+新 `NewSchedulerProjectStopAuthority` 仅接受 Delete 当前停止轮：原同 Store 的 Project EX 与 ProjectSchedule EX 授权事务实际 Committed 返回后进入回调，每个后继 Tx 重新消费原私有 issuer/loan、exact current claim/cause、完整冻结 manifest 及 scheduler participant。父 scope 等待实际 callback/Store 尾；旧 manager-only 权限与 Agent、Execution、ArtifactSource、Work family 均不能借用新门。旧 SchedulerStopAuthority 行为保留，不扩 Archive 取消语义。Stop 不调用会写 association 的 Lookup 或 Advance；Handoff 原 Unknown 只消费既有 exact Launched/KnownNotCreated，Found 但尚未关联仍 Pending。Execution 接管后的生命周期归其原 owner。本片不提供 Scheduler Cleanup，不绑定默认 App/部分 Registry，也不把七 lane stopped 当作完整 Delete。
+
+`01183207` 的 `TestProjectSchedulerStop` native01 三组实际通过（41.03s）：80→81/repeat、七条入口的真实登记（拒绝入口不冒业务成功）、原 manager/runner Store 返回屏障与 B 可用；技术 Unknown 及真实 KnownNotCreated 原回执均保原 attempt/cause，经同 Tx 零写确认实际返回后才继续显式推进。基础 36 top/98 sub 与两包 vet 通过，原 Wait 和六项资源均已清退，见[结果](../../../output/ai/project-scheduler-stop-delivery/native01/result.json)与[日志](../../../output/ai/project-scheduler-stop-delivery/native01/browser.log)。未 Invoke Execution，不外推 Archive、Scheduler Cleanup、foreign death、默认 Registry 或完整 Delete。
+
 ### Variables metadata 子步骤（限定验收）
 
 固定 Agent→Skills 清理组合新增后继 Variables metadata 子步骤，由实际 `ProjectCallOwnership` 的 ordinary/Secret 双 lane 消费。每轮 provider 的原控制调用计入两 lane 的实际返回；不调用全局 Stop 影响另一 Project，也不在 cleaning 阶段借用仅 stopping 有效的旧 Stop 授权。每个原短事务先取得 Project EX，核同 Store/live Tx、完整 current Delete/manifest/domains 与该 driver 的独立 Variables 私有 claim scope；Agent/Skills/Outbox/Audit 或已结束 callback 不能借用。

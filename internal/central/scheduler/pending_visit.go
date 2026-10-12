@@ -40,14 +40,15 @@ type PendingVisitResult struct {
 // Unknown ownership. Stop/Drain/Joined here cover this visitor's actual calls;
 // they do not retire or replace either driver's own lifecycle or Lookup.
 type PendingVisitor struct {
-	authority *PendingAuthority
-	handoff   *LaunchHandoff
-	busy      *BusyCompensator
-	failure   *LaunchFailureFinalizer
-	mu        sync.Mutex
-	stopped   bool
-	calls     map[i.ProjectID]*pendingVisitCall
-	drained   chan struct{}
+	projectCalls *projectCallState
+	authority    *PendingAuthority
+	handoff      *LaunchHandoff
+	busy         *BusyCompensator
+	failure      *LaunchFailureFinalizer
+	mu           sync.Mutex
+	stopped      bool
+	calls        map[i.ProjectID]*pendingVisitCall
+	drained      chan struct{}
 }
 type pendingVisitContextKey struct{}
 type pendingVisitCall struct {
@@ -141,7 +142,7 @@ func (s *PendingVisitor) Drain(ctx context.Context) error {
 	}
 	select {
 	case <-s.drained:
-		return nil
+		return s.projectCalls.drainReturned(ctx, projectLaneVisitor)
 	case <-ctx.Done():
 		return ctx.Err()
 	}
@@ -151,11 +152,12 @@ func (s *PendingVisitor) Joined() bool {
 		return true
 	}
 	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.stopped && len(s.calls) == 0
+	joined := s.stopped && len(s.calls) == 0
+	s.mu.Unlock()
+	return joined && s.projectCalls.laneJoined(projectLaneVisitor)
 }
 
-func (s *PendingVisitor) VisitNext(ctx context.Context, p i.ProjectID, after *DispatchID) (PendingVisitResult, error) {
+func (s *PendingVisitor) visitNext(ctx context.Context, p i.ProjectID, after *DispatchID) (PendingVisitResult, error) {
 	// Copy caller-owned cursor before any callback. It selects rows, never
 	// grants permission or substitutes for their canonical Dispatch identity.
 	cursor := ""
@@ -181,7 +183,7 @@ func (s *PendingVisitor) VisitNext(ctx context.Context, p i.ProjectID, after *Di
 // Visit visits one original identity selected by a bounded traversal. It uses
 // the same lifecycle, current scan and downstream owners as VisitNext; it
 // does not reuse a snapshot row as a current scheduling permit.
-func (s *PendingVisitor) Visit(ctx context.Context, p i.ProjectID, id DispatchID) (PendingVisitResult, error) {
+func (s *PendingVisitor) visitIdentity(ctx context.Context, p i.ProjectID, id DispatchID) (PendingVisitResult, error) {
 	if id.Validate() != nil {
 		return PendingVisitResult{}, invalid()
 	}
