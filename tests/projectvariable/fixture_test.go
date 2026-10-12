@@ -551,7 +551,8 @@ func variableHTTPPath(project pc.ProjectID, suffix string) string {
 }
 
 // All positive identity facts come from the real Account service above.
-// These callback hooks observe the real Store and never replace CommitResult.
+// The callbacks observe the real Store. The optional acknowledgement hook can
+// project its actual return only; it never replaces the Store or transaction.
 type fixtureStore interface {
 	project.Store
 	audit.Store
@@ -562,13 +563,17 @@ type hookStore struct {
 	mu          sync.Mutex
 	after       func(context.Context, f.Tx, f.TransactionCause) error
 	afterResult func(f.TransactionCause, f.CommitResult)
-	beforeLocks func(context.Context, f.Tx, []f.LockRequest) error
+	// Optional test-only acknowledgement boundary. The delegate remains fixed;
+	// this hook receives only its actual return, after the original observer.
+	transformResult func(f.TransactionCause, f.CommitResult) f.CommitResult
+	beforeLocks     func(context.Context, f.Tx, []f.LockRequest) error
 }
 
 func (s *hookStore) WithinTx(ctx context.Context, cause f.TransactionCause, fn func(context.Context, f.Tx) error) f.CommitResult {
 	s.mu.Lock()
 	after := s.after
 	afterResult := s.afterResult
+	transformResult := s.transformResult
 	s.mu.Unlock()
 	result := s.fixtureStore.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		if err := fn(ctx, tx); err != nil {
@@ -581,6 +586,9 @@ func (s *hookStore) WithinTx(ctx context.Context, cause f.TransactionCause, fn f
 	})
 	if afterResult != nil {
 		afterResult(cause, result)
+	}
+	if transformResult != nil {
+		return transformResult(cause, result)
 	}
 	return result
 }

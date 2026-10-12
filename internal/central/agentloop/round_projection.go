@@ -174,23 +174,45 @@ func (p *RoundProjector) Project(ctx context.Context, execution i.ExecutionID, n
 
 func projectRoundSource(ctx context.Context, execution i.ExecutionID, next ec.RoundID, source ec.RoundProjectionSource) (RoundProjection, error) {
 	var zero RoundProjection
-	if source.SchemaVersion != 1 || source.Input.Validate() != nil || source.Snapshot.Validate() != nil || source.Predecessor.Validate() != nil || source.Result.Validate() != nil || len(source.Transcript) != 3 {
+	if source.SchemaVersion != 1 || source.Input.Validate() != nil || source.Snapshot.Validate() != nil || source.Predecessor.Validate() != nil || len(source.Transcript) != 3 {
+		return zero, invalid()
+	}
+	// The committed reader selects one exact captured profile. A second or
+	// malformed binding cannot be treated as a fallback to another operation.
+	call := source.Result.Call
+	operation, attempt, resultDigest := source.Result.OperationID, source.Result.AttemptID, source.Result.ResultDigest
+	runnerBinding, maxArguments := tc.ReadFileRegistration().Binding, 32<<10
+	if source.WriteResult != nil {
+		if !reflect.DeepEqual(source.Result, tc.ReadFileResultBinding{}) || source.WriteResult.Validate() != nil {
+			return zero, invalid()
+		}
+		call = source.WriteResult.Call
+		operation, attempt, resultDigest = source.WriteResult.OperationID, source.WriteResult.AttemptID, source.WriteResult.ResultDigest
+		runnerBinding, maxArguments = tc.WriteFileRegistration().Binding, p.MaxMessageBytes
+	} else if source.Result.Validate() != nil {
 		return zero, invalid()
 	}
 	q, snapshot, predecessor := source.Input.Fields(), source.Snapshot.Fields(), source.Predecessor.Fields()
 	old := predecessor.Round
 	fields := snapshot.Context.Input().Fields()
-	call := source.Result.Call
 	if q.Validate() != nil || q.ExecutionID != execution || q.RoundID != next || q.SnapshotID != snapshot.ID || q.SnapshotDigest != source.Snapshot.Digest() || q.PredecessorRoundID != old.ID || fields.Request.ExecutionID != execution || old.ExecutionID != execution || old.SnapshotID != snapshot.ID || old.StartID != snapshot.StartID || old.ContextDigest != snapshot.Context.Digest() || !reflect.DeepEqual(q.Initial, fields.Skills) || call.ProjectID != fields.Request.Launch.ProjectID || call.AgentID != fields.Request.Launch.AgentID || call.ExecutionID != execution || call.RoundID != old.ID.String() || call.SnapshotID != snapshot.ID.String() || call.InputBindingID != old.InputBindingID.String() || call.LogicalCallID != old.CallID {
 		return zero, invalid()
 	}
-	if len(fields.Tools) != 1 || fields.Tools[0].ToolID != call.Spec.ToolID || fields.Tools[0].SpecRevision != call.Spec.SpecRevision || fields.Tools[0].ModelVisibleName != call.ModelVisibleName || fields.Tools[0].BindingSnapshot.RunnerBinding != call.RunnerBinding || predecessor.Tool.Name != call.ModelVisibleName || call.Binding != (tc.BuiltinBinding{}) || call.RunnerBinding != tc.ReadFileRegistration().Binding {
+	if len(fields.Tools) != 1 || fields.Tools[0].ToolID != call.Spec.ToolID || fields.Tools[0].SpecRevision != call.Spec.SpecRevision || fields.Tools[0].ModelVisibleName != call.ModelVisibleName || fields.Tools[0].BindingSnapshot.RunnerBinding != call.RunnerBinding || predecessor.Tool.Name != call.ModelVisibleName || call.Binding != (tc.BuiltinBinding{}) || call.RunnerBinding != runnerBinding {
 		return zero, invalid()
 	}
-	if len(source.Arguments) > 32<<10 || f.Progress(len(source.Arguments)) != call.Input.Bytes || toolResultDigest(source.Arguments) != call.Input.SHA256 {
+	if len(source.Arguments) > maxArguments || f.Progress(len(source.Arguments)) != call.Input.Bytes || toolResultDigest(source.Arguments) != call.Input.SHA256 {
 		return zero, invalid()
 	}
-	arguments, err := tc.DecodeReadFileToolArguments(ctx, source.Arguments)
+	var arguments tc.ReadFileToolArguments
+	var writeArguments tc.WriteFileToolArguments
+	var err error
+	if source.WriteResult == nil {
+		arguments, err = tc.DecodeReadFileToolArguments(ctx, source.Arguments)
+	} else {
+		writeArguments, err = tc.DecodeWriteFileToolArguments(ctx, source.Arguments)
+		defer clear(writeArguments.Arguments.Data)
+	}
 	if err != nil {
 		return zero, invalid()
 	}
@@ -199,7 +221,7 @@ func projectRoundSource(ctx context.Context, execution i.ExecutionID, next ec.Ro
 		return zero, invalid()
 	}
 	defer clear(canonicalArguments)
-	if q.Source.CallID != call.CallID || q.Source.OperationID != source.Result.OperationID || q.Source.AttemptID != source.Result.AttemptID || q.Source.ResultDigest != source.Result.ResultDigest {
+	if q.Source.CallID != call.CallID || q.Source.OperationID != operation || q.Source.AttemptID != attempt || q.Source.ResultDigest != resultDigest {
 		return zero, invalid()
 	}
 	messages := []mc.Message{old.Messages[0].Clone()}
@@ -251,13 +273,27 @@ func projectRoundSource(ctx context.Context, execution i.ExecutionID, next ec.Ro
 	if result.CallID != call.CallID || result.IsError || len(result.Parts) != 1 || result.Parts[0].Text == nil || source.Transcript[2].Digest != q.Source.MessageDigest {
 		return zero, invalid()
 	}
-	projection, err := ProjectReadFileToolResult(ctx, source.Result, []byte(result.Parts[0].Text.Text))
+	var projection ToolResultProjection
+	rawResult := []byte(result.Parts[0].Text.Text)
+	defer clear(rawResult)
+	if source.WriteResult == nil {
+		projection, err = ProjectReadFileToolResult(ctx, source.Result, rawResult)
+	} else {
+		projection, err = ProjectWriteFileToolResult(ctx, *source.WriteResult, rawResult)
+	}
 	if err != nil || !bytes.Equal(projection.CanonicalBytes(), source.Transcript[2].CanonicalMessage) {
 		return zero, invalid()
 	}
-	read, err := p.DecodeReadFileResult([]byte(result.Parts[0].Text.Text))
-	if err != nil || read.Path != arguments.Arguments.Path || read.Offset != arguments.Arguments.Offset || read.Encoding != arguments.Arguments.Encoding || read.BytesRead > arguments.Arguments.Length || !read.EOF && read.BytesRead != arguments.Arguments.Length {
-		return zero, invalid()
+	if source.WriteResult == nil {
+		read, err := p.DecodeReadFileResult(rawResult)
+		if err != nil || read.Path != arguments.Arguments.Path || read.Offset != arguments.Arguments.Offset || read.Encoding != arguments.Arguments.Encoding || read.BytesRead > arguments.Arguments.Length || !read.EOF && read.BytesRead != arguments.Arguments.Length {
+			return zero, invalid()
+		}
+	} else {
+		write, err := p.DecodeWriteFileResult(rawResult)
+		if err != nil || write.Path != writeArguments.Arguments.Path || write.BytesWritten != len(writeArguments.Arguments.Data) {
+			return zero, invalid()
+		}
 	}
 	if q.Control == nil {
 		if source.ControlCanonical != nil {

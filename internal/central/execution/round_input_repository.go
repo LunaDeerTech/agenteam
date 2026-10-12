@@ -8,7 +8,6 @@ import (
 	"slices"
 	"time"
 
-	"github.com/LunaDeerTech/agenteam/internal/central/agentloop"
 	c "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
@@ -74,8 +73,8 @@ func loadRoundInputSource(ctx context.Context, x postgres.SQLExecutor, e i.Execu
 	if err != nil {
 		return nil, unavailable(nil)
 	}
-	b := tc.ReadFileResultBinding{Call: call, OperationID: operation, AttemptID: attemptID, RequestID: p.ID(request), InputDigest: f.Digest(inputDigest), Fingerprint: f.Digest(fingerprint), TerminalDigest: f.Digest(terminal), Outcome: "success", Attempted: true, ResultDigest: f.Digest(result), ResultBytes: f.Progress(resultBytes)}
-	binding, err := toolResultBindingJSON(b)
+	b := sealedToolResultBinding{Call: call, OperationID: operation, AttemptID: attemptID, RequestID: p.ID(request), InputDigest: f.Digest(inputDigest), Fingerprint: f.Digest(fingerprint), TerminalDigest: f.Digest(terminal), Outcome: "success", Attempted: true, ResultDigest: f.Digest(result), ResultBytes: f.Progress(resultBytes)}
+	binding, err := sealedToolResultBindingJSON(b)
 	if err != nil {
 		return nil, unavailable(nil)
 	}
@@ -87,14 +86,19 @@ func loadRoundInputSource(ctx context.Context, x postgres.SQLExecutor, e i.Execu
 	if r.CallID != call.CallID || r.IsError || len(r.Parts) != 1 || r.Parts[0].Text == nil {
 		return nil, unavailable(nil)
 	}
-	projection, err := agentloop.ProjectReadFileToolResult(ctx, b, []byte(r.Parts[0].Text.Text))
+	if b.Call.RunnerBinding == tc.WriteFileRegistration().Binding {
+		if err = validateWriteReceiptArguments(ctx, old.toolPending.original, []byte(r.Parts[0].Text.Text)); err != nil {
+			return nil, err
+		}
+	}
+	projection, err := b.project(ctx, []byte(r.Parts[0].Text.Text))
 	if err != nil {
 		return nil, portError(err)
 	}
 	if !bytes.Equal(message, projection.CanonicalBytes()) {
 		return nil, unavailable(nil)
 	}
-	consumed, err := loadToolResultConsumption(ctx, x, b, binding, projection, row.summary.Version)
+	consumed, err := loadSealedToolResultConsumption(ctx, x, b, binding, projection, row.summary.Version)
 	if err != nil {
 		return nil, err
 	}
