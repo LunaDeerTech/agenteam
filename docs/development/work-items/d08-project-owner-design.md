@@ -239,6 +239,15 @@ Audit库与Secret库本身没有自主Project执行/外部业务worker：它们�
 
 ## 9. 既有依赖的真实适配与必需窄补
 
+### Variables metadata 子步骤（候选）
+
+固定 Agent→Skills 清理组合新增后继 Variables metadata 子步骤，由实际 `ProjectCallOwnership` 的 ordinary/Secret 双 lane 消费。每轮 provider 的原控制调用计入两 lane 的实际返回；不调用全局 Stop 影响另一 Project，也不在 cleaning 阶段借用仅 stopping 有效的旧 Stop 授权。每个原短事务先取得 Project EX，核同 Store/live Tx、完整 current Delete/manifest/domains 与该 driver 的独立 Variables 私有 claim scope；Agent/Skills/Outbox/Audit 或已结束 callback 不能借用。
+
+本域实际原调用、retained Unknown 或仍 running 的登记行保留 Pending，不凭 business_closed 行或空 SQL 宣称本地原返回。存在 Secret 引用、Execution environment/secret reference 历史则 Busy。每轮按有界头扫描清理 ordinary/Secret history、commands、全部 canonical variable（含存活记录和墓碑）及两类 query generation；FK 顺序保持，只有本域 metadata 全空才报告子步骤 Completed。原 Unknown 保留其 attempt/cause，原 Store 实返前不发布报告，后续仍从头确认，不跳游标。
+
+该子步骤不删除两 lane 的 closed project_calls、不触碰 D04 credential/加密 payload/receipt/lease、不触碰其他 Project。现 manifest 中 Secret 与 Artifact/Object 在该母 participant 之后，不能把 D04 Secret Cleanup 作为本步骤前置形成循环。driver 保存原 Agent applied 恢复锚及 Skills 子进度，Variables 完成后母 participant 仍 pending/domains；Agent immutable command 与两域 closed-call 历史的正式终局退休、D04 checker/adapter 和默认完整 Registry 仍是独立缺口。本片无迁移，不提前放宽旧 retained-call trigger。
+
+
 固定 Agent→Skills 子步骤按 [D10 §4.3](d10-agent-configuration.md#43-project-永久删除中的有限原子退休) 消费真实退休端口。Agent 子步骤的完整 canonical/引用变更与本域 applied checkpoint 必须在同一个原 caller Tx 提交；不能沿普通 provider-return 后另 Tx 记进度的路径丢失退休归属。checkpoint 仅存原 completed Agent command 的身份、版本和完整 Before 摘要，恢复必须回该不可变前像和实际各域状态。一次 Run 的原提交/回调返回由原 cleanup driver 持有，后继 Run 才可进入 Skills；父仍 `pending/domains`，旧 ForSkills 与 Outbox/Audit 构造不扩大权限。本片不把受控 accepted/其它 participant 前置或局部成功当默认完整 Delete。
 
 ### 9.1 D05 项目停止能力
