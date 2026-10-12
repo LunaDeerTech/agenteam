@@ -519,7 +519,7 @@ func TestVariableCallOwnershipMapsEveryEntry(t *testing.T) {
 				return &r
 			}
 			v := f.Version(1)
-			meta := f.CommandMeta{IdempotencyKey: "entry-key"}
+			meta := f.CommandMeta{RequestID: testID[f.Request](73), IdempotencyKey: "entry-key"}
 			updateMeta := meta
 			updateMeta.ExpectedVersion = &v
 			value := "owned-value-canary"
@@ -529,10 +529,19 @@ func TestVariableCallOwnershipMapsEveryEntry(t *testing.T) {
 			var err error
 			switch name {
 			case "ordinary-create":
+				if err := c.ValidateCommandMeta(c.CreateCommand, meta); err != nil {
+					t.Fatal("invalid ordinary-create test metadata", err)
+				}
 				_, err = h.pair.Service().CreateVariable(context.Background(), h.actor, meta, h.record.Project, *h.record.Input.Create)
 			case "ordinary-update":
+				if err := c.ValidateCommandMeta(c.UpdateCommand, updateMeta); err != nil {
+					t.Fatal("invalid ordinary-update test metadata", err)
+				}
 				_, err = h.pair.Service().UpdateVariable(context.Background(), h.actor, updateMeta, h.record.Project, h.record.Target, update)
 			case "ordinary-delete":
+				if err := c.ValidateCommandMeta(c.DeleteCommand, updateMeta); err != nil {
+					t.Fatal("invalid ordinary-delete test metadata", err)
+				}
 				_, err = h.pair.Service().DeleteVariable(context.Background(), h.actor, updateMeta, h.record.Project, h.record.Target)
 			case "ordinary-get":
 				_, err = h.pair.Service().GetVariable(context.Background(), h.actor, h.record.Project, h.record.Target)
@@ -541,6 +550,9 @@ func TestVariableCallOwnershipMapsEveryEntry(t *testing.T) {
 			case "ordinary-lookup":
 				err = h.lookup(context.Background(), projectCallOrdinary)
 			case "secret-create":
+				if err := c.ValidateSecretCommandMeta(c.SecretCreateCommand, meta); err != nil {
+					t.Fatal("invalid secret-create test metadata", err)
+				}
 				material, e := sc.NewSecretMaterial([]byte(value))
 				if e != nil {
 					t.Fatal(e)
@@ -553,8 +565,14 @@ func TestVariableCallOwnershipMapsEveryEntry(t *testing.T) {
 				defer create.Destroy()
 				_, err = h.pair.SecretService().CreateSecretVariable(context.Background(), h.actor, meta, h.record.Project, create)
 			case "secret-update":
+				if err := c.ValidateSecretCommandMeta(c.SecretUpdateCommand, updateMeta); err != nil {
+					t.Fatal("invalid secret-update test metadata", err)
+				}
 				_, err = h.pair.SecretService().UpdateSecretVariable(context.Background(), h.actor, updateMeta, h.record.Project, h.record.Target, secretUpdate)
 			case "secret-delete":
+				if err := c.ValidateSecretCommandMeta(c.SecretDeleteCommand, updateMeta); err != nil {
+					t.Fatal("invalid secret-delete test metadata", err)
+				}
 				_, err = h.pair.SecretService().DeleteSecretVariable(context.Background(), h.actor, updateMeta, h.record.Project, h.record.Target)
 			case "secret-get":
 				_, err = h.pair.SecretService().GetSecretVariable(context.Background(), h.actor, h.record.Project, h.record.Target)
@@ -877,9 +895,13 @@ func TestVariableCallOwnershipSecretPrepareAndDestroyReturnBeforeRetirement(t *t
 		t.Fatal(err)
 	}
 	defer create.Destroy()
+	meta := f.CommandMeta{RequestID: testID[f.Request](74), IdempotencyKey: "destroy-key"}
+	if err := c.ValidateSecretCommandMeta(c.SecretCreateCommand, meta); err != nil {
+		t.Fatal("invalid Prepare/Destroy test metadata", err)
+	}
 	returned := make(chan error, 1)
 	go func() {
-		_, err := h.pair.SecretService().CreateSecretVariable(context.Background(), h.actor, f.CommandMeta{IdempotencyKey: "destroy-key"}, h.record.Project, create)
+		_, err := h.pair.SecretService().CreateSecretVariable(context.Background(), h.actor, meta, h.record.Project, create)
 		returned <- err
 	}()
 	joined := false
@@ -890,7 +912,15 @@ func TestVariableCallOwnershipSecretPrepareAndDestroyReturnBeforeRetirement(t *t
 			ownershipWait(t, returned)
 		}
 	})
-	original := ownershipWait(t, prepareEntered)
+	var original context.Context
+	select {
+	case original = <-prepareEntered:
+	case err = <-returned:
+		joined = true
+		t.Fatal("original Secret create returned before Prepare entry", err)
+	case <-time.After(5 * time.Second):
+		t.Fatal("original Secret create did not reach Prepare entry")
+	}
 	w := original.Value(projectCallContextKey{}).(projectCallWitness)
 	check := func() {
 		h.pair.state.mu.Lock()
