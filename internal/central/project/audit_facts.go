@@ -15,7 +15,7 @@ func copyAuditFacts(source map[audit.Producer]audit.ProjectFactAuthority) (map[a
 	facts := make(map[audit.Producer]audit.ProjectFactAuthority, len(source))
 	for producer, provider := range source {
 		switch producer {
-		case audit.SecretProducer, audit.ProjectVariableProducer, audit.KnowledgeProducer, audit.ObjectProducer, audit.AccessProducer, audit.AgentProducer, audit.SkillProducer:
+		case audit.SecretProducer, audit.ProjectVariableProducer, audit.KnowledgeProducer, audit.ObjectProducer, audit.ArtifactProducer, audit.AccessProducer, audit.AgentProducer, audit.SkillProducer:
 			if nilPort(provider) {
 				return nil, fault(foundation.DependencyUnbound)
 			}
@@ -57,6 +57,9 @@ func (a *Authority) checkDomainAuditInTx(ctx context.Context, tx foundation.Tx, 
 	}
 	if k.Producer == audit.ObjectProducer {
 		return a.checkObjectAuditInTx(ctx, tx, entry, key)
+	}
+	if k.Producer == audit.ArtifactProducer {
+		return a.checkArtifactAuditInTx(ctx, tx, entry, key)
 	}
 	if k.Producer == audit.AccessProducer {
 		return a.checkModelAccessAuditInTx(ctx, tx, entry, key)

@@ -173,7 +173,7 @@ func (s *Service) metadata(ctx context.Context, v ac.Invocation, ref ac.Artifact
 	}
 	return out, nil
 }
-func (s *Service) appendReadAudit(ctx context.Context, tx foundation.Tx, v ac.Invocation, action au.Action, resource au.Resource, metadata au.Metadata, keyDigest foundation.Digest) error {
+func (s *Service) appendReadAudit(ctx context.Context, tx foundation.Tx, v ac.Invocation, action au.Action, resource au.Resource, metadata au.Metadata, keyDigest foundation.Digest, facts ...ac.Metadata) error {
 	d := v.Details()
 	scope, _ := identity.InProject(d.ProjectID)
 	entry, err := au.NewEntry(au.EntryFields{Scope: scope, Actor: d.Actor, Action: action, Outcome: au.Success, Resource: resource, Metadata: metadata, Associations: au.Associations{ExecutionID: d.ExecutionID, OperationID: d.OperationID, ToolID: d.ToolID, ToolCallID: d.ToolCallID}})
@@ -183,6 +183,9 @@ func (s *Service) appendReadAudit(ctx context.Context, tx foundation.Tx, v ac.In
 	key, err := au.NewAppendKey(au.ArtifactProducer, keyDigest.String(), 0)
 	if err != nil {
 		return err
+	}
+	if action == au.ArtifactRead && len(facts) == 1 {
+		return s.appendProjectAudit(ctx, tx, entry, key, facts[0], nil)
 	}
 	_, err = s.state().audit.AppendInTx(ctx, tx, entry, key)
 	return portOrNil(err)
