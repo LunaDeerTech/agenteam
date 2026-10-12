@@ -19,6 +19,7 @@ type directoryState struct {
 	authority *Authority
 	keys      cursor.Keyring
 	calls     *callSet
+	ownership *projectCallOwnershipState
 }
 
 func NewDirectoryReader(store Store, authority *Authority, keys cursor.Keyring) (*DirectoryReader, error) {
@@ -28,7 +29,7 @@ func NewDirectoryReader(store Store, authority *Authority, keys cursor.Keyring) 
 	if keys.Validate() != nil {
 		return nil, invalid()
 	}
-	return &DirectoryReader{&directoryState{store, authority, keys, newCalls()}}, nil
+	return &DirectoryReader{&directoryState{store: store, authority: authority, keys: keys, calls: newCalls()}}, nil
 }
 func (r *DirectoryReader) Stop() {
 	if r != nil && r.state != nil {
@@ -40,18 +41,24 @@ func (r *DirectoryReader) Drain(ctx context.Context) error {
 		return fault(f.DependencyUnbound)
 	}
 	r.Stop()
-	return r.state.calls.drain(ctx)
+	if err := r.state.calls.drain(ctx); err != nil {
+		return err
+	}
+	return r.state.ownership.drainReturned(ctx, projectCallDirectory)
 }
-func (r *DirectoryReader) Joined() bool { return r != nil && r.state != nil && r.state.calls.joined() }
+func (r *DirectoryReader) Joined() bool {
+	return r != nil && r.state != nil && r.state.calls.joined() && r.state.ownership.laneJoined(projectCallDirectory)
+}
 func (r *DirectoryReader) read(ctx context.Context, actor i.Actor, project i.ProjectID, locks []f.LockRequest, fn func(context.Context, postgres.SQLExecutor) error) error {
 	if r == nil || r.state == nil {
 		return fault(f.DependencyUnbound)
 	}
-	ctx, _, done, err := r.state.calls.beginProject(ctx, project, readCall)
+	ctx, call, done, err := r.state.calls.beginProject(ctx, project, readCall)
 	if err != nil {
 		return err
 	}
 	defer done()
+	defer func() { r.state.ownership.finish(ctx) }()
 	if err = currentActor(actor); err != nil {
 		return err
 	}
@@ -62,9 +69,16 @@ func (r *DirectoryReader) read(ctx context.Context, actor i.Actor, project i.Pro
 	if err != nil {
 		return err
 	}
+	ctx, err = r.state.ownership.admit(ctx, call, actor, projectCallDirectory)
+	if err != nil {
+		return err
+	}
 	result := r.state.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		if err := r.state.store.AcquireAll(ctx, tx, locks); err != nil {
 			return portError(err)
+		}
+		if err := r.state.ownership.requireRunning(ctx, tx); err != nil {
+			return err
 		}
 		grant, err := r.state.authority.state.projects.RequireOwnerInTx(ctx, tx, actor, project, i.Read)
 		if err != nil {

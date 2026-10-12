@@ -205,10 +205,20 @@ METADATA_GROUPS = {
         'TestRunnerReadFileApp/default-empty-capability-unsupported',
         'TestRunnerReadFileApp/invalid-root-and-explicit-config-before-connect',
     )),
+    '^TestAgentProjectCallApp$': frozenset((
+        'TestAgentProjectCallApp',
+        'TestAgentProjectCallApp/default-http-shared-call-owner',
+        'TestAgentProjectCallApp/directory-return-checkpoint-drains-before-guard',
+    )),
     '^TestRoundModelCallReservation$': frozenset((
         'TestRoundModelCallReservation',
         'TestRoundModelCallReservation/committed-request-reservation-and-history',
         'TestRoundModelCallReservation/reservation-rollback-and-commit-loss-lookup',
+    )),
+    '^TestAgentProjectCallOwnership$': frozenset((
+        'TestAgentProjectCallOwnership',
+        'TestAgentProjectCallOwnership/local-original-return-and-terminal-fence',
+        'TestAgentProjectCallOwnership/foreign-death-before-original-sql-terminal',
     )),
     '^TestAgentProjectLocalStop$': frozenset((
         'TestAgentProjectLocalStop',

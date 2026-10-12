@@ -47,11 +47,27 @@ func agentDirectoryHandler(a *agentDirectoryAssembly, core *account.Service, ori
 	if a == nil || a.reader == nil {
 		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
+	return agentDirectoryReaderHandler(a.reader, core, origin)
+}
+
+// The default App borrows this fixed reader from its configuration owner;
+// creating the handler creates no second accountWork or exit lifecycle.
+func agentOwnedDirectoryHandler(a *agentConfigurationAssembly, core *account.Service, origin string) (http.Handler, error) {
+	if a == nil || a.ownership == nil || a.service != a.ownership.Service() {
+		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
+	}
+	return agentDirectoryReaderHandler(a.ownership.DirectoryReader(), core, origin)
+}
+
+func agentDirectoryReaderHandler(reader *agent.DirectoryReader, core *account.Service, origin string) (http.Handler, error) {
+	if reader == nil {
+		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
+	}
 	boundary, err := account.NewHTTPBoundary(core, origin)
 	if err != nil {
 		return nil, err
 	}
-	return agenthttp.NewDirectoryHTTPHandler(a.reader, boundary)
+	return agenthttp.NewDirectoryHTTPHandler(reader, boundary)
 }
 func agentDirectoryRoutes(existing, reads http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

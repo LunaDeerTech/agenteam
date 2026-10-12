@@ -138,6 +138,9 @@ func completeCommand(ctx context.Context, x postgres.SQLExecutor, r *commandReco
 // never lets a different writer learn whether the same key has other meaning.
 func (s *Service) currentCommand(ctx context.Context, tx f.Tx, in commandInput) (postgres.SQLExecutor, *commandRecord, *c.AgentMutation, error) {
 	st := s.state
+	if err := st.ownership.requireRunning(ctx, tx); err != nil {
+		return nil, nil, nil, err
+	}
 	grant, err := st.deps.Authority.state.projects.RequireOwnerInTx(ctx, tx, in.actor, in.project, i.Read)
 	if err != nil {
 		return nil, nil, nil, portError(err)

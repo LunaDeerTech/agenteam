@@ -26,6 +26,36 @@ METADATA_INPUTS = {
         '.agent-state/runner-read-file-app/profile-controls.py',
         '.agent-state/runner-read-file-app/record-native.py',
     ),
+    '^TestAgentProjectCallApp$': (
+        'tests/projectvariable/agent_project_call_app_test.go',
+        'tests/projectvariable/agent_configuration_app_test.go',
+        'tests/projectvariable/agent_configuration_create_test.go',
+        'tests/projectvariable/agent_configuration_facts_test.go',
+        'tests/projectvariable/skill_installation_test.go',
+        'tests/projectvariable/fixture_test.go',
+        'tests/testsupport/agentconfiguration/assembly.go',
+        'internal/central/app/account.go',
+        'internal/central/app/agent_configuration.go',
+        'internal/central/app/agent_directory.go',
+        'internal/central/agent/project_call_ownership.go',
+        'internal/central/agent/project_call_repository.go',
+        'internal/central/agent/project_call_observer.go',
+        'internal/central/agent/calls.go',
+        'internal/central/agent/service.go',
+        'internal/central/agent/commands.go',
+        'internal/central/agent/command_plan.go',
+        'internal/central/agent/command_store.go',
+        'internal/central/agent/reader.go',
+        'internal/central/agent/runner_mounts.go',
+        'internal/central/agent/directory.go',
+        'internal/central/object/process.go',
+        'internal/central/object/process_binding.go',
+        'db/migrations/embed.go',
+        'db/migrations/00073_execution_round_model_claims.sql',
+        'db/migrations/00074_agent_project_call_ownership.sql',
+        '.agent-state/project-variables-independent/commitproxy/proxy.go',
+        '.agent-state/agent-project-call-app/profile-controls.py',
+    ),
     '^TestRoundModelCallReservation$': (
         'tests/projectvariable/round_model_call_reservation_test.go',
         'tests/projectvariable/next_round_model_request_test.go',
@@ -48,6 +78,39 @@ METADATA_INPUTS = {
         'internal/central/agentloop/next_round_request.go',
         'internal/central/object/process_binding.go',
         '.agent-state/round-model-call-reservation/profile-controls.py',
+    ),
+    '^TestAgentProjectCallOwnership$': (
+        'tests/projectvariable/agent_project_call_ownership_test.go',
+        'tests/projectvariable/agent_project_call_ownership_fixture_test.go',
+        'tests/projectvariable/agent_project_call_ownership_process_test.go',
+        'tests/projectvariable/agent_project_lifecycle_test.go',
+        'tests/projectvariable/agent_project_lifecycle_fixture_test.go',
+        'tests/projectvariable/agent_configuration_create_test.go',
+        'tests/projectvariable/agent_configuration_facts_test.go',
+        'tests/projectvariable/skill_installation_test.go',
+        'tests/projectvariable/project_phase_stop_fixture_test.go',
+        'tests/projectvariable/project_phase_recovery_guard_test.go',
+        'tests/projectvariable/fixture_test.go',
+        'tests/testsupport/agentconfiguration/assembly.go',
+        'internal/central/agent/project_call_ownership.go',
+        'internal/central/agent/project_call_repository.go',
+        'internal/central/agent/project_call_observer.go',
+        'internal/central/agent/project_lifecycle.go',
+        'internal/central/agent/calls.go',
+        'internal/central/agent/service.go',
+        'internal/central/agent/commands.go',
+        'internal/central/agent/command_plan.go',
+        'internal/central/agent/command_store.go',
+        'internal/central/agent/reader.go',
+        'internal/central/agent/runner_mounts.go',
+        'internal/central/agent/directory.go',
+        'internal/central/object/process.go',
+        'internal/central/object/process_binding.go',
+        'internal/central/project/lifecycle_stop_round.go',
+        'db/migrations/00073_execution_round_model_claims.sql',
+        'db/migrations/00074_agent_project_call_ownership.sql',
+        '.agent-state/project-variables-independent/commitproxy/proxy.go',
+        '.agent-state/agent-project-call-ownership/profile-controls.py',
     ),
     '^TestAgentProjectLocalStop$': (
         'tests/projectvariable/agent_project_lifecycle_test.go',
@@ -599,82 +662,6 @@ def input_paths(binary):
     return sorted(paths)
 
 
-def runner_read_file_app_inputs(binary):
-    """Only this profile may supply its two prebuilt commands and compile union."""
-    def regular(raw):
-        if not isinstance(raw, str) or not raw:
-            raise ValueError('Runner profile requires a canonical input path')
-        path = Path(raw)
-        if (not path.is_absolute() or path.is_symlink() or not path.is_file()
-                or str(path) != raw or path.resolve(strict=True) != path):
-            raise ValueError('Runner profile requires regular inputs without symlinks')
-        return path
-
-    def digest_shape(value):
-        return (isinstance(value, str) and len(value) == 64
-                and all(c in '0123456789abcdef' for c in value))
-
-    descriptor = regular(os.environ.get('AGENTEAM_RUNNER_READ_FILE_APP_INPUTS', ''))
-    if descriptor.stat().st_size > 8 << 20:
-        raise ValueError('Runner compile descriptor exceeds its metadata bound')
-    def unique(pairs):
-        result = {}
-        for key, value in pairs:
-            if key in result:
-                raise ValueError('duplicate Runner compile descriptor key')
-            result[key] = value
-        return result
-    value = json.loads(descriptor.read_text(), object_pairs_hook=unique)
-    if (not isinstance(value, dict)
-            or set(value) != {'schema', 'selector', 'artifacts', 'source_inputs', 'compiler_inputs'}
-            or type(value['schema']) is not int or value['schema'] != 1
-            or value['selector'] != '^TestRunnerReadFileApp$'):
-        raise ValueError('exact Runner read-file compile descriptor required')
-    artifacts, sources, closures = value['artifacts'], value['source_inputs'], value['compiler_inputs']
-    if (not isinstance(artifacts, dict) or set(artifacts) != {'runner', 'pg'}
-            or not isinstance(sources, dict) or not 1 <= len(sources) <= 40000
-            or not isinstance(closures, dict) or set(closures) != {'runner', 'pg'}):
-        raise ValueError('complete two-command Runner compilation required')
-    paths = {descriptor}
-    for kind in ('runner', 'pg'):
-        artifact = artifacts[kind]
-        if (not isinstance(artifact, dict) or set(artifact) != {'path', 'sha256', 'size_bytes'}
-                or not digest_shape(artifact['sha256']) or type(artifact['size_bytes']) is not int
-                or artifact['size_bytes'] <= 0):
-            raise ValueError('complete Runner artifact identity required')
-        path = regular(artifact['path'])
-        if (path == GO or not os.access(path, os.X_OK)
-                or path.stat().st_size != artifact['size_bytes'] or sha(path) != artifact['sha256']):
-            raise ValueError('original Runner artifact changed')
-        paths.add(path)
-        closure = closures[kind]
-        if (not isinstance(closure, list) or not closure
-                or any(not isinstance(name, str) for name in closure)
-                or closure != sorted(set(closure)) or not set(closure).issubset(sources)):
-            raise ValueError('actual Runner compiler closure is incomplete')
-    if (descriptor.name != 'runner-read-file-inputs.json'
-            or artifacts['runner']['path'] != str(descriptor.parent / 'agenteam-runner')
-            or artifacts['pg']['path'] != str(descriptor.parent / 'projectvariable.test')
-            or artifacts['runner']['path'] != os.environ.get('AGENTEAM_RUNNER_BINARY')
-            or artifacts['pg']['path'] != str(Path(binary))):
-        raise ValueError('Runner and PG binary identities must match the original invocation')
-    required = {'runner': REPOSITORY / 'cmd/agenteam-runner/main.go',
-                'pg': REPOSITORY / 'tests/projectvariable/runner_read_file_app_linux_test.go'}
-    if any(str(path) not in closures[kind] for kind, path in required.items()):
-        raise ValueError('required original command or PG source missing')
-    for name, expected in sources.items():
-        path = regular(name)
-        if not digest_shape(expected) or sha(path) != expected:
-            raise ValueError('original Runner compilation source changed')
-        paths.add(path)
-    if (str(GO) not in sources or artifacts['runner']['path'] in sources
-            or artifacts['pg']['path'] in sources or str(descriptor) in sources):
-        raise ValueError('compile sources and produced Runner artifacts must be distinct')
-    return paths, {'descriptor': str(descriptor), 'sha256': sha(descriptor),
-                   'artifacts': artifacts, 'source_count': len(sources),
-                   'compiler_counts': {kind: len(items) for kind, items in closures.items()}}
-
-
 def metadata_inputs(binary, selector='^TestAgentConfigurationMetadata$'):
     if selector not in METADATA_INPUTS:
         raise ValueError('exact configuration family selector required')
@@ -693,8 +680,6 @@ def metadata_inputs(binary, selector='^TestAgentConfigurationMetadata$'):
         paths.update(task_review_ui_inputs(selector))
     if selector == APP_RUNTIME:
         paths.update(app_runtime_inputs())
-    if selector == '^TestRunnerReadFileApp$':
-        paths.update(runner_read_file_app_inputs(binary)[0])
     if any(not p.is_file() or p.is_symlink() or p.resolve(strict=True) != p for p in paths):
         raise ValueError('regular complete configuration metadata inputs required')
     return sorted(paths)
@@ -1168,8 +1153,6 @@ def configuration(binary, selector, directory):
             'cwd': str(REPOSITORY / TARGETS[selector]),
             'directory': str(directory), 'runtime': str(directory / 'runtime'),
             'test_timeout': '6m', 'resources': 7}
-    if selector == '^TestRunnerReadFileApp$':
-        plan['runner_read_file_app'] = runner_read_file_app_inputs(binary)[1]
     if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_RUNNER_MOUNTS_UI, SYSTEM_RUNNER_MANAGEMENT_UI, AGENT_SECRET_ALLOWLIST_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_DELETE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_SECRET_WRITE_UI, PROJECT_USAGE_UI):
         plan['task_review_ui'] = task_review_ui_configuration(directory, selector)
     if selector == APP_RUNTIME:

@@ -18,6 +18,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/model"
 	"github.com/LunaDeerTech/agenteam/internal/central/mount"
 	"github.com/LunaDeerTech/agenteam/internal/central/object"
+	objc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/project"
@@ -220,34 +221,52 @@ func (a *Assembly) Providers() Providers {
 // authority. The caller owns Stop/Drain/Joined for the returned Agent service;
 // this helper creates no Outbox Runtime or background process of its own.
 func (a *Assembly) NewService(keys cursor.Keyring, processes oc.ProcessAuthority) (*agent.Service, error) {
+	deps, err := a.dependencies(keys, processes)
+	if err != nil {
+		return nil, err
+	}
+	return agent.New(a.store, deps)
+}
+
+// NewProjectCallOwnership opts in both actual Agent instances. The same real
+// dependency graph is used; no guard or runtime readiness is supplied here.
+func (a *Assembly) NewProjectCallOwnership(keys cursor.Keyring, processes oc.ProcessAuthority, guard *object.ProcessGuard, expected objc.ProcessID) (*agent.ProjectCallOwnership, error) {
+	deps, err := a.dependencies(keys, processes)
+	if err != nil {
+		return nil, err
+	}
+	return agent.NewProjectCallOwnership(a.store, deps, keys, guard, expected)
+}
+
+func (a *Assembly) dependencies(keys cursor.Keyring, processes oc.ProcessAuthority) (agent.Dependencies, error) {
 	if a == nil || nilPort(a.store) {
-		return nil, unbound()
+		return agent.Dependencies{}, unbound()
 	}
 	p := a.providers
 	tools, err := registry.NewConfiguration(p.Registry, p.Agents, a.installSource)
 	if err != nil {
-		return nil, err
+		return agent.Dependencies{}, err
 	}
 	if a.installSource == "" || nilPort(processes) {
-		return nil, unbound()
+		return agent.Dependencies{}, unbound()
 	}
 	auditor, err := audit.New(a.store, keys, audit.Authorizations{
 		Accounts: p.Accounts, Sessions: p.Accounts, System: p.Accounts, Projects: p.AuditProjects, Models: p.Models,
 	})
 	if err != nil {
-		return nil, err
+		return agent.Dependencies{}, err
 	}
 	journal, err := outbox.New(a.store, a.catalog, outbox.Authorizations{
 		Producers: map[event.StableName]oc.ProducerAuthority{agentc.AgentProducer: p.AgentEvents},
 		Projects:  p.Projects, Processes: processes, Sessions: p.Accounts, System: p.Accounts, Audit: auditor, Cursors: keys,
 	})
 	if err != nil {
-		return nil, err
+		return agent.Dependencies{}, err
 	}
-	return agent.New(a.store, agent.Dependencies{
+	return agent.Dependencies{
 		RunnerCandidates: p.RunnerCandidates, RunnerCursorKeys: keys,
 		Authority: p.Agents, EventAuthority: p.AgentEvents, Events: journal, Audit: auditor, Activity: p.Accounts,
 		Models: p.ModelReferences, Tools: tools, ToolReferences: tools, Mounts: p.Mounts,
 		Secrets: p.SecretDirectory, SecretReferences: p.SecretReferences, Skills: p.Skills,
-	})
+	}, nil
 }
