@@ -151,3 +151,16 @@ SprintStart历史合入并未减少本候选缺口，原[plan](../output/ai/bran
 main push PID930787实际Wait0后，fresh查询PID930814实际0且精确匹配上述tip；单ref exact-lease删除PID930837实际0，fresh PID930843实际0且为空，显式main与ai/* fetch/prune PID930868实际0。原15760/38b8b0 actual0确认tracking、本地同名分支与worktree均空，见[最终引用核验](../output/ai/branch-cleanup-20261012/agent-sprint-history/remote-verification.json)。本候选原无本地分支或树，仅增加1个远端删除：累计 **39 WorkTrees / 40本地分支 / 78远端引用**，legacy138→137待核，原显式keep1不变。current及当前Write受测输入未动，活动任务不计为交付或清理。
 
 原共同frontend01的41PASS/1FAIL、Agent native01回焦断言FAIL、Sprint native01标题label FAIL与native02创建后路由回焦FAIL全部保留；后继分段通过不回填。旧执行树、组合output与 `/tmp/scr03/ui-ed204c1faa154bfd.log` 在原有界精确路径检查中未见，未遍历全部归档，不声称毁损或排除其它副本。此次Git合入仅恢复已提交源码，未补回ignored日志、binary/dist、截图、原Wait或未提交现场；单独sprint-focus保留项、其它材料HOLD、全部STOP、保护缓存及总体未完成范围不变。小proof属于ignored材料，跨设备须另行保留；已提交源码由已推送main完整历史恢复。
+
+## 2026-10-12 Sprint Start两个已保留祖先引用清理
+
+SprintStart完整历史已由 `bd240d2a` 保留；本轮固定已推送main `e812cac9bfa966aeca574888312bdd1387f843c9`，两候选tip本身均为其祖先、独有提交为0，无需新history merge或重复源码blob核验：
+
+| 远端分支 | 删除前精确tip |
+| --- | --- |
+| `ai/sprint-start-client` | `9a752be941116f5d081c7987e8bdea4e463bc35d` |
+| `ai/sprint-start-fixture` | `b97ead000b42f9b5aec1750f5aadfcd40da9e951` |
+
+本地前核e82627 actual0确认main clean、两祖先关系、无同名local/worktree；七份当前Write实际配方对两ref/tip及旧执行目录均无命中，旧目录依赖复用已确认owner的有界声明，不扩为全局FD或未知配方证明。见[前置记录](../output/ai/branch-cleanup-20261012/sprint-start-subrefs/preconditions.json)。fresh查询PID941755实际0确认main已推送且两tip精确相同，单次atomic双exact-lease删除PID941780实际0，fresh双空PID941786实际0，显式main/ai fetch-prune PID941815实际0；原38626/859288 actual0确认两tracking为空，见[实际引用后验](../output/ai/branch-cleanup-20261012/sprint-start-subrefs/remote-verification.json)。本轮只增加2个远端删除，累计 **39 WorkTrees / 40本地分支 / 80远端引用**，legacy137→135待核，原keep1不变；没有本地树或分支删除。
+
+旧SprintStart frontend01 FAIL、分段接受与STOP边界，以及未找到旧执行树/output/tmp原件的有界限制，继续沿前述SprintStart历史保留记录。已提交历史可恢复不等于恢复ignored日志、binary/dist、截图、原Wait或未提交现场；本轮没有新产品验证、运行材料扫描或删除。current及Write产品/方法不随此清理改变，当前夹具返修检查点单独保存，不冒动态通过。
