@@ -1,6 +1,6 @@
 # Round Model Call reservation validation
 
-Status: the bounded basic checks passed at `6c843253ef8366a4080f3f7d1a2da8420db66fba`. The separate PG profile is prepared for review; PG compilation, SQL apply and native execution have not run. The [work item](../../docs/development/work-items/d22-round-model-call-reservation.md) defines the reservation-only scope.
+Status: bounded basic checks passed at `6c843253ef8366a4080f3f7d1a2da8420db66fba`; the first real PG round, `native01`, passed as a whole at technical HEAD `4f76ef40eb0b8129940a21e2e36c55d0e03eaa83`. This verifies reservation and original commit-receipt recovery, not a successor Model invocation. Integration into main and branch/worktree cleanup are separate delivery steps. The [work item](../../docs/development/work-items/d22-round-model-call-reservation.md) defines the reservation-only scope.
 
 The completed basic invocation ran once from this worktree in the root-authorized exclusive Go/cache window:
 
@@ -11,7 +11,7 @@ python3 -B .agent-state/round-model-call-reservation/run-basic-checks.py --outpu
 The exact basic selection is 6 new top tests / 28 declared subtests in
 `./internal/central/execution`, plus the existing `TestEmbeddedSourceLoadsAllMigrations`
 in `./internal/central/postgres` (one top, no subtests). Both selected packages run
-with race instrumentation, then vet for those two packages. Thus the planned
+with race instrumentation, then vet for those two packages. Thus the completed
 selection is 7 top tests / 28 subtests / two vet packages. Actual JSON RUN/PASS
 records confirmed those counts, without failure or skip. No other old test matrix was selected.
 
@@ -22,7 +22,7 @@ it does not apply SQL or establish deferred constraints on PostgreSQL.
 The script preserves the already accepted basic algorithm: fixed offline Go
 1.27.1, `-p=1`, actual race/plain dependency discovery, input maps before and after
 each stage, original Popen/Wait, exact JSON selection, and immediate stop on
-nonzero exit or input drift. A thin outer recorder will retain the method's real
+nonzero exit or input drift. A thin outer recorder retained the method's real
 Wait and original tool-completion observation. No automatic retry is authorized.
 
 Inputs are determined by the actual package closure, including same-package
@@ -45,11 +45,70 @@ These package-local Store and process-proof controls do not establish a real Pos
 
 The shared Object-only basic evidence is recorded separately under
 `.agent-state/process-guard-binding/README.md`; it is not re-run or promoted to a
-real PG result here. Subsequent PG compilation/list/prepare/native work requires
+real PG result here. The PG compilation/list/prepare/native work below used
 its own frozen profile and separate root authorization. These methods do not
 perform process-death experiments or change runtime defaults.
 
-## PG profile and authorized commands
+## PG compilation and preparation
+
+Original `sequence01` tool session `98671`, completion `abd9ec`, returned 0.
+Outer PID 1111637 finished in 87.965 s; all 31 recorded method/source inputs
+remained unchanged. Offline profile controls passed one positive and seven
+negative cases. Compile wrapper PID 1111752 actually returned 0 in 86.128 s;
+its Go PID 1111754 returned 0 in 82.785 s. List PID 1112976 returned 0 in
+1.050 s with the sole top `TestRoundModelCallReservation`. Preparation PID
+1113045 returned 0 in 1.039 s and started no native resources.
+
+The three compile/list maps of 2042 inputs matched. Runtime added only the
+binary, giving 2043 inputs. All 92 same-package Go files and the complete
+migration sequence through 73 were bound. The binary is 91,414,828 bytes,
+SHA-256 `9937265d4b193f21648b25a0d9a30875bbe3561596c30baf730f814ba36d7bff`.
+Fresh preparation used `/tmp/rmcr01`; its 3,989,389,312 available bytes and
+1,702,140 available inodes were a capacity snapshot, not runtime peak evidence.
+The pre-start capacity fluctuation was reviewed before authorizing this single
+native attempt; it was not a failed native round or a retry.
+
+## First actual native round
+
+Original tool session `11528`, completion `728984`, returned 0. Supervisor PID
+1115121 actually returned 0 in 141.678 s; driver PID 1115126 and Go PID 1116761
+each recorded actual Wait 0. The exact selector ran **1 top / 2 subtests** in
+38.47 s:
+
+| Subtest | Actual duration |
+| --- | --- |
+| `committed-request-reservation-and-history` | 20.24 s |
+| `reservation-rollback-and-commit-loss-lookup` | 18.23 s |
+
+Real PostgreSQL applied the migration source including 73. The tests passed
+against the original committed 68/72 history and same-Store ProcessGuard. The
+rollback left zero reservation rows; the physical COMMIT/held-return barrier,
+Stop/Drain and acknowledgement-loss case recovered only its original complete
+candidate. Each case retained one immutable reservation, unchanged original
+request/Execution/transcript and Invocation/Usage facts, and the setup's one
+controlled Model call plus one real Command WSS request. Reservation added zero
+Model or Runner calls.
+
+All seven exact resources had 14 absence observations. Descendant, private and
+runtime double-empty tails, automatic HOST_TCP double delta-empty observations,
+and exact metadata RUN/PASS/Wait checks completed. The independent post-check
+matched all 2043 runtime inputs and all four recorder identities; the tested
+technical HEAD remained clean. This is whole-run PASS, including actual process
+returns and resource tails.
+
+Original records remain under `output/ai/round-model-call-reservation/` in
+`basic01/`, `basic01-outer/`, `sequence01/`, `compile01/` and `native01/`.
+The [sequence post-check](../../output/ai/round-model-call-reservation/sequence01/post-check.json),
+[native terminal](../../output/ai/round-model-call-reservation/native01/terminal.json),
+[tool observation](../../output/ai/round-model-call-reservation/native01/tool-observation.json)
+and [native post-check](../../output/ai/round-model-call-reservation/native01/post-check.json)
+retain the original results. The raw log is
+`/tmp/rmcr01/pg-45c857cdfa174c6bb9a9882f3f54c058.log`.
+Tool observations are assistant-received transcripts of the original tool
+completion; they are not provider-exported files. These records and used
+namespaces are not instructions to rerun or overwrite them.
+
+## Frozen PG profile and completed commands
 
 The exact selector `^TestRoundModelCallReservation$` requires one top and two
 subtests: `committed-request-reservation-and-history` and
@@ -78,14 +137,15 @@ positive plus seven rejected metadata-result cases:
 python3 -B .agent-state/round-model-call-reservation/profile-controls.py
 ```
 
-After method review and a root-authorized exclusive Go/cache window, compile
-once and list the exact top; this command starts no services:
+The completed compile/list invocation ran once in the authorized exclusive
+Go/cache window and started no services:
 
 ```sh
 python3 -B .agent-state/round-model-call-reservation/run-pg-checks.py compile --output output/ai/round-model-call-reservation/compile01
 ```
 
-After actual successful compile/list returns, prepare a fresh native request:
+After actual successful compile/list returns, this invocation prepared the
+fresh native request:
 
 ```sh
 python3 -B .agent-state/round-model-call-reservation/run-pg-checks.py prepare --compile output/ai/round-model-call-reservation/compile01 --output output/ai/round-model-call-reservation/native01 --namespace /tmp/rmcr01
@@ -95,10 +155,10 @@ Preparation runs no Go or service. It requires unchanged compile/list/runtime
 input maps and exact binary identity. The profile has 21 explicit required paths;
 the unchanged driver includes every same-package source, all embedded migrations
 through actual migration 73, shared support, conservative internal sources and
-runtime tools. Counts of discovered inputs are recorded when compilation runs.
+runtime tools. The actual input counts are recorded above.
 Capacity at preparation is a snapshot, not a guarantee of runtime peak space.
 
-Only a separately authorized native window may run the copied thin recorder:
+The separately authorized native window used the copied thin recorder:
 
 ```sh
 python3 -B output/ai/round-model-call-reservation/native01/record-native.py
