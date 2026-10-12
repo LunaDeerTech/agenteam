@@ -2,6 +2,7 @@ package secret
 
 import (
 	"context"
+	"errors"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
@@ -11,11 +12,12 @@ import (
 const CleanupBatchSize = 100
 
 // CleanupProject participates in the D08 persisted deleting/stopped gate. A
-// checkpoint binds the operation; each batch scans from the head so retries or
-// unknown commits cannot skip rows. Live domain references return pending.
+// checkpoint binds the operation; each batch scans from the head. An original
+// Unknown is retained by this Service until a later explicit, read-only call
+// returns Committed. Live domain references return pending.
 func (s *Service) CleanupProject(ctx context.Context, actor identity.Actor, cause sc.LifecycleCause, project identity.ProjectID, checkpoint *sc.CleanupCheckpoint) (sc.CleanupReport, error) {
 	empty := sc.CleanupReport{}
-	if project.Validate() != nil || cause.Validate() != nil {
+	if ctx == nil || project.Validate() != nil || cause.Validate() != nil {
 		return empty, invalid()
 	}
 	d, a := cause.Details(), actor.Details()
@@ -25,7 +27,11 @@ func (s *Service) CleanupProject(ctx context.Context, actor identity.Actor, caus
 	if checkpoint != nil && (checkpoint.ProjectID != project || checkpoint.OperationID != d.OperationID) {
 		return empty, invalid()
 	}
-	port := s.state().auth.Projects
+	if s == nil || s.data == nil || s.state() == nil || nilPort(s.state().store) {
+		return empty, unavailable(nil)
+	}
+	state := s.state()
+	port := state.auth.Projects
 	if nilPort(port) {
 		return empty, failure(AuthorizationUnbound, foundation.DependencyUnbound, nil)
 	}
@@ -33,25 +39,50 @@ func (s *Service) CleanupProject(ctx context.Context, actor identity.Actor, caus
 	if err != nil {
 		return empty, invalid()
 	}
+	owner, err := state.borrowProjectCleanup(actor, d, project)
+	if err != nil {
+		return empty, err
+	}
+	defer state.releaseProjectCleanup(project, owner)
+	confirm := owner.retained
+	if err = ctx.Err(); err != nil {
+		if confirm {
+			return empty, errors.Join(projectCleanupUnknown(owner.original), unavailable(err))
+		}
+		return empty, unavailable(err)
+	}
+	validated := false
 	report := sc.CleanupReport{Checkpoint: sc.CleanupCheckpoint{ProjectID: project, OperationID: d.OperationID}}
-	result := s.state().store.WithinTx(ctx, transactionCause, func(ctx context.Context, tx foundation.Tx) error {
+	result := state.store.WithinTx(ctx, transactionCause, func(ctx context.Context, tx foundation.Tx) error {
 		key, _ := foundation.ProjectLock(project.String())
-		if err := s.state().store.Acquire(ctx, tx, key, foundation.Exclusive); err != nil {
+		if err := state.store.Acquire(ctx, tx, key, foundation.Exclusive); err != nil {
 			return unavailable(err)
 		}
 		if err := port.CheckCleanupInTx(ctx, tx, actor, cause, project); err != nil {
 			return authorization(err)
 		}
-		e, err := s.state().store.InTx(tx)
+		e, err := state.store.InTx(tx)
 		if err != nil {
+			return unavailable(err)
+		}
+		if err := ctx.Err(); err != nil {
 			return unavailable(err)
 		}
 		var retained bool
 		if err = e.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_secret.secret_references WHERE project_id=$1) OR EXISTS(SELECT 1 FROM agenteam_secret.secret_leases WHERE project_id=$1 AND NOT released)`, project.String()).Scan(&retained); err != nil {
 			return unavailable(err)
 		}
+		if err = ctx.Err(); err != nil {
+			return unavailable(err)
+		}
 		if retained {
+			validated = true
 			return nil
+		}
+		if confirm {
+			report.Completed, err = projectCleanupEmpty(ctx, e, project)
+			validated = err == nil
+			return err
 		}
 		// Tombstones have no payload and do not protect a value. Their removal is
 		// authorized only here or in a successful credential deletion transaction.
@@ -67,13 +98,30 @@ func (s *Service) CleanupProject(ctx context.Context, actor identity.Actor, caus
 		if err = cleanupProjectVariableReceipts(ctx, e, project); err != nil {
 			return err
 		}
-		if err = e.QueryRow(ctx, `SELECT NOT EXISTS(SELECT 1 FROM agenteam_secret.secret_payloads WHERE scope='project' AND project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_secret.secrets WHERE scope='project' AND project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_secret.secret_command_receipts WHERE scope='project' AND project_id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_secret.project_variable_receipts WHERE project_id=$1)`, project.String()).Scan(&report.Completed); err != nil {
-			return unavailable(err)
-		}
-		return nil
+		report.Completed, err = projectCleanupEmpty(ctx, e, project)
+		validated = err == nil
+		return err
 	})
-	if err = commitError(result); err != nil {
+	if confirm {
+		// Confirmation reports current cleanup facts, not the physical outcome of
+		// the original attempt. Its original return must precede releasing it.
+		if result.State() != foundation.Committed || !validated || ctx.Err() != nil {
+			confirmationErr := projectCleanupResultError(result)
+			if ctx.Err() != nil || !validated {
+				confirmationErr = errors.Join(confirmationErr, unavailable(ctx.Err()))
+			}
+			return empty, errors.Join(projectCleanupUnknown(owner.original), confirmationErr)
+		}
+		owner.retained = false
+	} else if result.State() == foundation.Unknown {
+		owner.original, owner.retained = result, true
+		return empty, projectCleanupUnknown(result)
+	}
+	if err = projectCleanupResultError(result); err != nil {
 		return empty, err
+	}
+	if !validated || ctx.Err() != nil {
+		return empty, unavailable(ctx.Err())
 	}
 	return report, nil
 }
