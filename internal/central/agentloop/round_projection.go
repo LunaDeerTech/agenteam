@@ -182,7 +182,16 @@ func projectRoundSource(ctx context.Context, execution i.ExecutionID, next ec.Ro
 	call := source.Result.Call
 	operation, attempt, resultDigest := source.Result.OperationID, source.Result.AttemptID, source.Result.ResultDigest
 	runnerBinding, maxArguments := tc.ReadFileRegistration().Binding, 32<<10
-	if source.WriteResult != nil {
+	isError := false
+	if source.CommandResult != nil {
+		if !reflect.DeepEqual(source.Result, tc.ReadFileResultBinding{}) || source.WriteResult != nil || source.CommandResult.Validate() != nil {
+			return zero, invalid()
+		}
+		call = source.CommandResult.Call
+		operation, attempt, resultDigest = source.CommandResult.OperationID, source.CommandResult.AttemptID, source.CommandResult.ResultDigest
+		runnerBinding, maxArguments = tc.RunCommandRegistration().Binding, p.MaxMessageBytes
+		isError = source.CommandResult.Outcome != "success"
+	} else if source.WriteResult != nil {
 		if !reflect.DeepEqual(source.Result, tc.ReadFileResultBinding{}) || source.WriteResult.Validate() != nil {
 			return zero, invalid()
 		}
@@ -207,7 +216,9 @@ func projectRoundSource(ctx context.Context, execution i.ExecutionID, next ec.Ro
 	var arguments tc.ReadFileToolArguments
 	var writeArguments tc.WriteFileToolArguments
 	var err error
-	if source.WriteResult == nil {
+	if source.CommandResult != nil {
+		_, err = tc.DecodeRunCommandToolArguments(ctx, source.Arguments)
+	} else if source.WriteResult == nil {
 		arguments, err = tc.DecodeReadFileToolArguments(ctx, source.Arguments)
 	} else {
 		writeArguments, err = tc.DecodeWriteFileToolArguments(ctx, source.Arguments)
@@ -270,13 +281,15 @@ func projectRoundSource(ctx context.Context, execution i.ExecutionID, next ec.Ro
 		return zero, invalid()
 	}
 	result := messages[3].Parts[0].ToolResult
-	if result.CallID != call.CallID || result.IsError || len(result.Parts) != 1 || result.Parts[0].Text == nil || source.Transcript[2].Digest != q.Source.MessageDigest {
+	if result.CallID != call.CallID || result.IsError != isError || len(result.Parts) != 1 || result.Parts[0].Text == nil || source.Transcript[2].Digest != q.Source.MessageDigest {
 		return zero, invalid()
 	}
 	var projection ToolResultProjection
 	rawResult := []byte(result.Parts[0].Text.Text)
 	defer clear(rawResult)
-	if source.WriteResult == nil {
+	if source.CommandResult != nil {
+		projection, err = ProjectRunCommandToolResult(ctx, *source.CommandResult, rawResult)
+	} else if source.WriteResult == nil {
 		projection, err = ProjectReadFileToolResult(ctx, source.Result, rawResult)
 	} else {
 		projection, err = ProjectWriteFileToolResult(ctx, *source.WriteResult, rawResult)
@@ -284,12 +297,12 @@ func projectRoundSource(ctx context.Context, execution i.ExecutionID, next ec.Ro
 	if err != nil || !bytes.Equal(projection.CanonicalBytes(), source.Transcript[2].CanonicalMessage) {
 		return zero, invalid()
 	}
-	if source.WriteResult == nil {
+	if source.CommandResult == nil && source.WriteResult == nil {
 		read, err := p.DecodeReadFileResult(rawResult)
 		if err != nil || read.Path != arguments.Arguments.Path || read.Offset != arguments.Arguments.Offset || read.Encoding != arguments.Arguments.Encoding || read.BytesRead > arguments.Arguments.Length || !read.EOF && read.BytesRead != arguments.Arguments.Length {
 			return zero, invalid()
 		}
-	} else {
+	} else if source.WriteResult != nil {
 		write, err := p.DecodeWriteFileResult(rawResult)
 		if err != nil || write.Path != writeArguments.Arguments.Path || write.BytesWritten != len(writeArguments.Arguments.Data) {
 			return zero, invalid()
