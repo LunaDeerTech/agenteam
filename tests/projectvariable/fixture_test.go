@@ -563,6 +563,7 @@ type fixtureStore interface {
 type hookStore struct {
 	fixtureStore
 	mu          sync.Mutex
+	before      func(context.Context, f.Tx, f.TransactionCause) error
 	after       func(context.Context, f.Tx, f.TransactionCause) error
 	afterResult func(f.TransactionCause, f.CommitResult)
 	// Optional test-only acknowledgement boundary. The delegate remains fixed;
@@ -573,11 +574,17 @@ type hookStore struct {
 
 func (s *hookStore) WithinTx(ctx context.Context, cause f.TransactionCause, fn func(context.Context, f.Tx) error) f.CommitResult {
 	s.mu.Lock()
+	before := s.before
 	after := s.after
 	afterResult := s.afterResult
 	transformResult := s.transformResult
 	s.mu.Unlock()
 	result := s.fixtureStore.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+		if before != nil {
+			if err := before(ctx, tx, cause); err != nil {
+				return err
+			}
+		}
 		if err := fn(ctx, tx); err != nil {
 			return err
 		}
