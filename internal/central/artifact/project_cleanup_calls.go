@@ -13,6 +13,9 @@ import (
 type artifactCleanupWork struct {
 	ID, Project, Process, Instance, Source string
 	Joined, SourceUse                      bool
+	Kind, Command, Lease                   string
+	SourceJoined                           bool
+	SourceCommand                          *artifactCleanupSourceCommand
 }
 type artifactCleanupStop struct {
 	Operation, Action, State, Process, Instance, After string
@@ -34,7 +37,7 @@ type artifactCleanupCallsProof struct {
 func readArtifactCleanupCalls(ctx context.Context, x postgres.SQLExecutor, project i.ProjectID) (artifactCleanupCalls, error) {
 	var raw []byte
 	err := x.QueryRow(ctx, `SELECT jsonb_build_object(
- 'Work',COALESCE((SELECT jsonb_agg(jsonb_build_object('ID',id,'Project',project_id,'Process',process_id,'Instance',COALESCE(instance_id::text,''),'Source',COALESCE(source_project_id::text,''),'Joined',joined_at IS NOT NULL,'SourceUse',source_lease_id IS NOT NULL OR source_revoked_by IS NOT NULL OR source_joined_at IS NOT NULL) ORDER BY id) FROM agenteam_artifact.project_work WHERE project_id=$1 OR source_project_id=$1),'[]'::jsonb),
+ 'Work',COALESCE((SELECT jsonb_agg(jsonb_build_object('ID',w.id,'Project',w.project_id,'Process',w.process_id,'Instance',COALESCE(w.instance_id::text,''),'Source',COALESCE(w.source_project_id::text,''),'Joined',w.joined_at IS NOT NULL,'SourceUse',w.source_lease_id IS NOT NULL OR w.source_revoked_by IS NOT NULL OR w.source_joined_at IS NOT NULL,'Kind',w.kind,'Command',COALESCE(encode(w.command_hash,'hex'),''),'Lease',COALESCE(w.source_lease_id::text,''),'SourceJoined',w.source_joined_at IS NOT NULL,'SourceCommand',CASE WHEN c.command_hash IS NULL THEN NULL ELSE jsonb_build_object('Key',c.command_key,'Project',c.project_id,'Path',c.path,'State',c.state,'Lease',COALESCE(c.source_lease_id::text,''),'Source',c.source) END) ORDER BY w.id) FROM agenteam_artifact.project_work w LEFT JOIN agenteam_artifact.commands c ON c.command_hash=w.command_hash WHERE w.project_id=$1 OR w.source_project_id=$1),'[]'::jsonb),
  'Stops',COALESCE((SELECT jsonb_agg(jsonb_build_object('Operation',operation_id,'Action',action,'State',state,'Process',COALESCE(owner_process_id::text,''),'Instance',COALESCE(owner_instance_id::text,''),'Version',project_version,'Scan',scan_kind,'After',COALESCE(scan_after::text,'')) ORDER BY operation_id) FROM agenteam_artifact.project_stops WHERE project_id=$1),'[]'::jsonb))`, project.String()).Scan(&raw)
 	var facts artifactCleanupCalls
 	if err != nil {
@@ -109,9 +112,16 @@ func (st *projectCallOwnershipState) cleanupCallIdentities(facts artifactCleanup
 			return foreign, false
 		}
 	}
+	sourceCommands, sourceLeases := map[string]bool{}, map[string]bool{}
 	for _, work := range facts.Work {
-		if work.Project != cause.ProjectID.String() || !work.Joined || work.Source != "" || work.SourceUse || !identity(work.Process, work.Instance) {
+		if work.Project != cause.ProjectID.String() || !work.Joined || !identity(work.Process, work.Instance) {
 			return foreign, false
+		}
+		if work.Source != "" || work.SourceUse {
+			if !work.closedSource(cause.ProjectID) || sourceCommands[work.Command] || sourceLeases[work.Lease] {
+				return foreign, false
+			}
+			sourceCommands[work.Command], sourceLeases[work.Lease] = true, true
 		}
 	}
 	// An explicitly owned composition requires its real current Delete stop
@@ -199,12 +209,18 @@ func (s *Service) cleanupCallsInTx(ctx context.Context, tx f.Tx, x postgres.SQLE
 	if original.state != s.state() || original.call == nil || !s.state().originalCleanupCall(ctx, subject(original.call.actor, d.ProjectID), i.Lifecycle) || proof == nil || proof.owner != original.call || proof.state != st {
 		return false, false, failure(f.Forbidden, nil)
 	}
-	ids := make([]string, 0, min(len(facts.Work), 100))
-	for _, work := range facts.Work {
-		if len(ids) == 100 {
-			break
+	selected := facts.Work[:min(len(facts.Work), 100)]
+	ids := make([]string, 0, len(selected))
+	var sources []artifactCleanupWork
+	for _, work := range selected {
+		if work.SourceUse || work.Source != "" {
+			sources = append(sources, work)
+		} else {
+			ids = append(ids, work.ID)
 		}
-		ids = append(ids, work.ID)
+	}
+	if err := retireCleanupSourceCalls(ctx, x, d.ProjectID, sources); err != nil {
+		return false, false, err
 	}
 	if len(ids) > 0 {
 		tag, err := x.Exec(ctx, `DELETE FROM agenteam_artifact.project_work WHERE project_id=$1 AND id=ANY($2::uuid[]) AND joined_at IS NOT NULL AND source_project_id IS NULL AND source_lease_id IS NULL AND source_revoked_by IS NULL AND source_joined_at IS NULL`, d.ProjectID.String(), ids)
@@ -215,7 +231,7 @@ func (s *Service) cleanupCallsInTx(ctx context.Context, tx f.Tx, x postgres.SQLE
 			return false, false, failure(f.VersionConflict, nil)
 		}
 	}
-	if len(facts.Work) > len(ids) {
+	if len(facts.Work) > len(selected) {
 		return true, false, ctx.Err()
 	}
 	old := make([]string, 0, len(facts.Stops))

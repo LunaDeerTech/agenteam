@@ -29,6 +29,7 @@ type projectWork struct {
 }
 
 type projectWorkHandle struct {
+	source                            *sourceLeaseState
 	work                              projectWork
 	operation                         *operation
 	locks                             []foundation.LockRequest
@@ -396,6 +397,18 @@ func (s *Service) joinProjectWork(ctx context.Context, h *projectWorkHandle) err
 	if c := s.currentProjectCleanup(ctx); c != nil && c.call.retained && !c.confirmation {
 		return projectCleanupUnknown(c.call.original)
 	}
+	source := s.sourceContext(ctx)
+	if h.source != nil {
+		h.source.mu.Lock()
+		retained, original := h.source.retained, h.source.originalError
+		h.source.mu.Unlock()
+		if retained {
+			return original
+		}
+		if source == nil {
+			return failure(foundation.ResourceBusy, nil)
+		}
+	}
 	r := s.state()
 	r.mu.Lock()
 	if h.joinRetired {
@@ -465,13 +478,28 @@ func (s *Service) joinProjectWork(ctx context.Context, h *projectWorkHandle) err
 	if err != nil {
 		return err
 	}
-	result := r.store.WithinTx(ctx, recoveryCause(), func(ctx context.Context, tx foundation.Tx) error {
+	cause := recoveryCause()
+	if source != nil && source.stop != nil {
+		extra, err := source.stop.request.RequiredLocks()
+		if err != nil {
+			return err
+		}
+		locks, err = oc.NormalizeAccessLocks(append(locks, extra...))
+		if err != nil {
+			return err
+		}
+		cause, _ = foundation.NewRecoveryCause("artifact-source-join", source.handle.id.String(), source.stop.request.Details().Cause.Details().OperationID.String())
+	}
+	result := r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
 		r.mu.Lock()
 		h.joinPending, h.joinOrigin = true, tx
 		h.joinLocks = append([]foundation.LockRequest(nil), locks...)
 		r.mu.Unlock()
 		if err := r.store.AcquireAll(ctx, tx, locks); err != nil {
 			return unavailable(err)
+		}
+		if err := s.requireSourceStop(ctx, tx, source); err != nil {
+			return portError(err)
 		}
 		if c := s.currentProjectCleanup(ctx); c != nil {
 			if c.confirmation || w.project != c.call.cause.ProjectID {
@@ -499,6 +527,11 @@ func (s *Service) joinProjectWork(ctx context.Context, h *projectWorkHandle) err
 		_, err = x.Exec(ctx, `UPDATE agenteam_object.project_work SET joined_at=COALESCE(joined_at,clock_timestamp()) WHERE id=$1`, w.id)
 		return unavailableIf(err)
 	})
+	if source != nil {
+		if err := sourceCommitError(source.handle, result); err != nil {
+			return err
+		}
+	}
 	s.captureProjectCleanup(ctx, result)
 	if err = commitError(result); err != nil {
 		return err

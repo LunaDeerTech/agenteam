@@ -398,15 +398,14 @@ func (s *Service) cleanupProject(ctx context.Context, actor identity.Actor, caus
 		if err != nil || !technicalReady {
 			return err
 		}
-		var pending int64
-		if err := e.QueryRow(ctx, `SELECT count(*) FROM agenteam_artifact.commands WHERE project_id=$1 AND source_lease_id IS NOT NULL`, d.ProjectID.String()).Scan(&pending); err != nil {
-			return unavailable(err)
-		}
-		if pending > 0 {
-			out.Remaining = foundation.Progress(pending)
-			return nil
-		}
 		if err := downloads.PurgeProjectDownloadsInTx(ctx, tx, maintenance, cause, finalPlan, locked); err != nil {
+			return err
+		}
+		// Source work needs its complete original command until both are retired
+		// in this transaction. A bounded partial tail commits Pending and leaves
+		// the remaining command/work pairs intact for the next explicit call.
+		_, technicalClean, err := s.cleanupCallsInTx(ctx, tx, e, cause, true)
+		if err != nil || !technicalClean {
 			return err
 		}
 		// Recovery facts survived until every source use and physical object was
@@ -419,10 +418,6 @@ func (s *Service) cleanupProject(ctx context.Context, actor identity.Actor, caus
 			if _, err := e.Exec(ctx, query, d.ProjectID.String()); err != nil {
 				return unavailable(err)
 			}
-		}
-		_, technicalClean, err := s.cleanupCallsInTx(ctx, tx, e, cause, true)
-		if err != nil || !technicalClean {
-			return err
 		}
 		_, err = e.Exec(ctx, `UPDATE agenteam_artifact.cleanup SET state='completed',updated_at=clock_timestamp() WHERE project_id=$1`, d.ProjectID.String())
 		if err != nil {

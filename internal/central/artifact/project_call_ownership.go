@@ -44,17 +44,18 @@ type artifactStopCall struct {
 	original         f.CommitResult
 }
 type projectCallOwnershipState struct {
-	service   *Service
-	proof     projectCallProcessProof
-	process   oc.ProcessID
-	instance  f.ID[artifactInstanceID]
-	authority oc.ProjectStopAuthority
-	mu        sync.Mutex
-	stopped   bool
-	controls  int
-	owners    map[f.ID[artifactCallID]]*artifactCall
-	stops     map[i.ProjectID]*artifactStopCall
-	changed   chan struct{}
+	service         *Service
+	proof           projectCallProcessProof
+	process         oc.ProcessID
+	instance        f.ID[artifactInstanceID]
+	authority       oc.ProjectStopAuthority
+	sourceAuthority oc.ProjectSourceStopAuthority
+	mu              sync.Mutex
+	stopped         bool
+	controls        int
+	owners          map[f.ID[artifactCallID]]*artifactCall
+	stops           map[i.ProjectID]*artifactStopCall
+	changed         chan struct{}
 }
 
 // ProjectCallOwnership is an explicit composition. Its caller must keep the
@@ -122,7 +123,11 @@ func (p *ProjectCallOwnership) Joined() bool {
 	s.service.state().cleanupMu.Lock()
 	clean := len(s.service.state().cleanupCalls) == 0
 	s.service.state().cleanupMu.Unlock()
-	return joined && clean
+	r := s.service.state()
+	r.mu.Lock()
+	sources := len(r.projectSources) == 0 && (nilPort(s.sourceAuthority) || len(r.leases) == 0)
+	r.mu.Unlock()
+	return joined && clean && sources
 }
 func (p *ProjectCallOwnership) Drain(ctx context.Context) error {
 	if ctx == nil {

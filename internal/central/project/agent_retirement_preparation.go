@@ -31,18 +31,19 @@ type agentPreparationClaim struct {
 }
 
 type agentPreparationScope struct {
-	driver         *lifecycleStopState
-	claim          lifecycleStopClaim
-	cause          c.LifecycleCause
-	actor          i.Actor
-	ctx            context.Context
-	cancel         context.CancelFunc
-	mu             sync.Mutex
-	active         bool
-	loans          map[*agentPreparationLoan]struct{}
-	schedulerStops map[*schedulerStopLoan]struct{}
-	executionStops map[*executionStopLoan]struct{}
-	changed        chan struct{}
+	driver          *lifecycleStopState
+	claim           lifecycleStopClaim
+	cause           c.LifecycleCause
+	actor           i.Actor
+	ctx             context.Context
+	cancel          context.CancelFunc
+	mu              sync.Mutex
+	active          bool
+	loans           map[*agentPreparationLoan]struct{}
+	schedulerStops  map[*schedulerStopLoan]struct{}
+	executionStops  map[*executionStopLoan]struct{}
+	artifactSources map[*artifactSourceStopLoan]struct{}
+	changed         chan struct{}
 }
 
 type agentPreparationLoan struct {
@@ -95,7 +96,7 @@ func (s *agentPreparationScope) borrow(ctx context.Context, tx f.Tx, request c.A
 	}
 	// A stop control is a different synchronous loan. Its saved context cannot
 	// inherit this scope to create an Agent read after that control ends.
-	if ctx.Value(schedulerStopLoanKey{}) != nil || ctx.Value(executionStopLoanKey{}) != nil {
+	if ctx.Value(schedulerStopLoanKey{}) != nil || ctx.Value(executionStopLoanKey{}) != nil || ctx.Value(artifactSourceStopLoanKey{}) != nil {
 		return nil, fault(f.Forbidden)
 	}
 	parent, _ := ctx.Value(agentPreparationLoanKey{}).(*agentPreparationLoan)
@@ -127,7 +128,7 @@ func (s *agentPreparationScope) close() {
 	s.cancel()
 	for {
 		s.mu.Lock()
-		if len(s.loans) == 0 && len(s.schedulerStops) == 0 && len(s.executionStops) == 0 {
+		if len(s.loans) == 0 && len(s.schedulerStops) == 0 && len(s.executionStops) == 0 && len(s.artifactSources) == 0 {
 			s.mu.Unlock()
 			return
 		}
