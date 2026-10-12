@@ -18,6 +18,17 @@ func TestRunnerOperationsClosedConfiguration(t *testing.T) {
 		{"omitted", "", false, true},
 		{"empty", "", true, true},
 		{"read-file", "read-file", true, true},
+		{"directory", "list-directory,find-files", true, true},
+		{"list-only", "list-directory", true, true},
+		{"find-only", "find-files", true, true},
+		{"reordered-directory-selection", "find-files,list-directory", true, true},
+		{"read-and-list", "list-directory,read-file", true, true},
+		{"read-and-find", "read-file,find-files", true, true},
+		{"duplicate-directory-operation", "list-directory,find-files,find-files", true, false},
+		{"all-reads", "find-files,read-file,list-directory", true, true},
+		{"empty-entry", "read-file,,find-files", true, false},
+		{"trailing-comma", "find-files,", true, false},
+		{"leading-comma", ",list-directory", true, false},
 		{"unknown", "PRIVATE_OPERATION_CANARY", true, false},
 		{"duplicate", "read-file,read-file", true, false},
 		{"other-operation", "write-file", true, false},
@@ -90,12 +101,14 @@ func TestRunnerOperationsStoredIdentityCheckStaysOffline(t *testing.T) {
 	if err = file.Close(); err != nil {
 		t.Fatal(err)
 	}
-	cfg, err := loadValues(map[string]string{Prefix + "IDENTITY_FILE": path, Prefix + "OPERATIONS": p.ReadFileOperation})
-	if err != nil || cfg.OfflineCheck(false) != nil || cfg.Operations() != p.ReadFileOperation {
-		t.Fatal("stored-only identity was rejected by offline operation validation", err)
-	}
-	if _, configured := cfg.Device(); configured {
-		t.Fatal("offline check substituted stored identity into explicit configuration")
+	for _, operations := range []string{p.ReadFileOperation, p.ListDirectoryOperation, p.FindFilesOperation, p.ReadFileOperation + "," + p.ListDirectoryOperation + "," + p.FindFilesOperation} {
+		cfg, err := loadValues(map[string]string{Prefix + "IDENTITY_FILE": path, Prefix + "OPERATIONS": operations})
+		if err != nil || cfg.OfflineCheck(false) != nil || cfg.Operations() != operations {
+			t.Fatal("stored-only identity was rejected by offline operation validation", err)
+		}
+		if _, configured := cfg.Device(); configured {
+			t.Fatal("offline check substituted stored identity into explicit configuration")
+		}
 	}
 	if _, err := os.Lstat(missingRoot); !os.IsNotExist(err) {
 		t.Fatal("offline operation check created or opened a deployment root", err)

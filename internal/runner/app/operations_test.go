@@ -24,6 +24,10 @@ func TestRunnerRootPassesClosedOperations(t *testing.T) {
 		{"default", "", false},
 		{"stored-read-file", p.ReadFileOperation, false},
 		{"enrollment-read-file", p.ReadFileOperation, true},
+		{"stored-list", p.ListDirectoryOperation, false},
+		{"stored-find", p.FindFilesOperation, false},
+		{"stored-all", p.FindFilesOperation + "," + p.ReadFileOperation + "," + p.ListDirectoryOperation, false},
+		{"enrollment-directory", p.ListDirectoryOperation + "," + p.FindFilesOperation, true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			original := processConfig(t)

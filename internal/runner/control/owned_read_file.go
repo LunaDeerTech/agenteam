@@ -3,9 +3,12 @@ package control
 import (
 	"context"
 
+	"github.com/LunaDeerTech/agenteam/internal/runner/directory"
 	"github.com/LunaDeerTech/agenteam/internal/runner/identity"
+	"github.com/LunaDeerTech/agenteam/internal/runner/operations"
 	"github.com/LunaDeerTech/agenteam/internal/runner/readfile"
 	"github.com/LunaDeerTech/agenteam/internal/runner/workspace"
+	p "github.com/LunaDeerTech/agenteam/internal/runnerprotocol"
 )
 
 // This private owner stays on the original Client.Run stack. Tests can wrap an
@@ -19,12 +22,81 @@ type ownedReadFileManager interface {
 // A returned manager, including alongside an error, transfers to Client.Run for
 // synchronous Stop/Drain before identity.Close and Client.done.
 func newOwnedReadFile(configuration identity.Configuration) (operationExecutor, ownedReadFileManager, error) {
+	manager, err := newOwnedWorkspace(configuration)
+	if manager == nil {
+		return nil, nil, err
+	}
+	if err != nil {
+		return nil, manager, err
+	}
+	handler, err := readfile.New(manager)
+	if err != nil {
+		return nil, manager, err
+	}
+	return readFileExecutor{handler: handler}, manager, nil
+}
+
+// All selected read handlers borrow exactly one Manager from the locked identity.
+func newOwnedOperations(configuration identity.Configuration, selected operations.Selection) (operationExecutor, ownedReadFileManager, error) {
+	manager, err := newOwnedWorkspace(configuration)
+	if manager == nil {
+		return nil, nil, err
+	}
+	if err != nil {
+		return nil, manager, err
+	}
+	executor := ownedReadExecutor{selected: selected}
+	if selected.Contains(p.ReadFileOperation) {
+		executor.read, err = readfile.New(manager)
+		if err != nil {
+			return nil, manager, err
+		}
+	}
+	if selected.Contains(p.ListDirectoryOperation) || selected.Contains(p.FindFilesOperation) {
+		executor.directory, err = directory.New(manager)
+		if err != nil {
+			return nil, manager, err
+		}
+	}
+	return executor, manager, nil
+}
+
+type ownedReadExecutor struct {
+	selected  operations.Selection
+	read      *readfile.Handler
+	directory *directory.Handler
+}
+
+func (e ownedReadExecutor) accepts(request p.Request) bool {
+	if !e.selected.Contains(request.OperationName) {
+		return false
+	}
+	if request.OperationName == p.ReadFileOperation {
+		return e.read.Accepts(request)
+	}
+	return e.directory.Accepts(request)
+}
+func (e ownedReadExecutor) execute(ctx context.Context, request p.Request, _ func(string, string) error) (p.Response, error) {
+	if !e.accepts(request) {
+		return p.Response{}, ErrProtocol
+	}
+	if request.OperationName == p.ReadFileOperation {
+		return e.read.Execute(ctx, request)
+	}
+	return e.directory.Execute(ctx, request)
+}
+func (ownedReadExecutor) maskingReady() bool          { return false }
+func (ownedReadExecutor) mask(string) (string, error) { return "", ErrProtocol }
+
+// Transfer one Manager to the original Client.Run cleanup stack, including
+// partial construction errors. No new root is inferred from a request.
+func newOwnedWorkspace(configuration identity.Configuration) (*workspace.Manager, error) {
 	if err := configuration.Validate(); err != nil {
-		return nil, nil, identity.ErrInvalid
+		return nil, identity.ErrInvalid
 	}
 	directory, err := openReadFileRoot(configuration.RootPath)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	manager, makeErr := workspace.New(directory)
 	// workspace.New duplicates the original fd before returning. Closing our
@@ -34,17 +106,10 @@ func newOwnedReadFile(configuration identity.Configuration) (operationExecutor, 
 		if closeErr != nil {
 			makeErr = workspace.ErrUnavailable
 		}
-		if manager != nil {
-			return nil, manager, makeErr
-		}
-		return nil, nil, makeErr
+		return manager, makeErr
 	}
 	if manager == nil {
-		return nil, nil, workspace.ErrUnavailable
+		return nil, workspace.ErrUnavailable
 	}
-	handler, err := readfile.New(manager)
-	if err != nil {
-		return nil, manager, err
-	}
-	return readFileExecutor{handler: handler}, manager, nil
+	return manager, nil
 }

@@ -2,11 +2,11 @@
 
 迁移00026对应的 Linux/amd64 Runner identity/control 空 registry 已完成限定实现与验收，详见 [D15 规格](../work-items/d15-runner-control.md#101-linuxamd64-有限-00026-验收结果)。Central 与 Runner 默认入口已接设备管理、一次性登记、Ed25519 私有身份和出站 WSS；作者业务、独立风险补集、正式 OS 三格及新 main 组合的双 cmd/CLI 结果按明确版本复用，不能称当前 HEAD 一次全量或完整 D15 通过。
 
-生产 operation registry 为空，hello 的 capability 列表相应为空。设备在线不代表可以执行命令、访问 Workspace 或使用 Data Channel；Agent Mount、D16 operation、D17 数据面和 D18 Tool Runtime 的真实绑定仍是独立集成门槛。整体 `ready=false` / `/readyz` 503 的既有限制不变。
+默认未配置操作时，hello 的 capability 列表为空。现有命令入口允许通过 `OPERATIONS` 显式选择已实现的 `read-file`、`list-directory`、`find-files` revision `"1"`，可以单选或组合；仅在原身份锁内成功构造可信 root 的资源后公告选中能力。目录 CLI 扩展已通过定向基础检查与真实 CLI/PG/WSS 验收，范围见 [D16 目录适配器当前接线](../work-items/d16-runner-directory-adapter.md#当前cli接线)。设备在线与 Agent 挂载配置本身都不是执行许可；当前 Agent/Mount 核验、原 Execution/Operation 授权、D17 数据面和 D18 Tool Runtime 保持各自集成边界，不启用 write/run 或 Agent 执行循环。整体 `ready=false` / `/readyz` 503 的既有限制不变。
 
 ## 配置与私有身份
 
-Runner 只读取下列 `AGENTEAM_RUNNER_` 环境变量；未知字段、存在但为空的值均拒绝，不自动读取 `.env`。Token 不接受环境变量或命令行参数。
+Runner 只读取下列 `AGENTEAM_RUNNER_` 环境变量；未知字段拒绝，除 `OPERATIONS` 明确允许空值外，存在但为空的值均拒绝；不自动读取 `.env`。Token 不接受环境变量或命令行参数。
 
 | 变量 | 语义 |
 | --- | --- |
@@ -14,6 +14,7 @@ Runner 只读取下列 `AGENTEAM_RUNNER_` 环境变量；未知字段、存在�
 | `CENTRAL_URL` | 首次登记时与下两项一同必填；HTTPS origin，无路径前缀、query、fragment 或 userinfo |
 | `ID` | 系统管理员创建 Runner 时确定的 canonical UUIDv7 |
 | `ROOT_PATH` | 与 Central 记录一致的绝对、clean Linux/macOS 工作根；创建后不可修改 |
+| `OPERATIONS` | 可选，默认空；以逗号分隔的 `read-file`、`list-directory`、`find-files` 显式集合，顺序不限；不接受未知项、重复项、空项或空白。只公告选中项，未选项拒绝 |
 | `CA_FILE` | 可选部署 PEM CA 文件，追加到系统 trust roots；不关闭证书链或 hostname 校验 |
 | `LOG_LEVEL` | 默认 `info`，仅 `debug/info/warn/error` |
 | `SHUTDOWN_TIMEOUT` | 默认 `10s`，100ms–5m；第一次停止后的原总预算 |
@@ -63,7 +64,7 @@ online 是当前数据库连接的有界视图：hello 已完成、两种 genera
 
 Central 的 Runner owner 位于 Account/DB 之前停止，拥有升级后的 socket、reader/writer、连接观察器和实际事务回调。`http.Server.Shutdown` 不负责已hijack的WebSocket；close、context取消或HTTP active归零都不能替代这些尾部真实返回。Force沿root原context/deadline，不能刷新预算或把未join标为成功。
 
-Runner 停止新请求、取消已接收请求及重连，再等待实际运行时、socket/worker退出，最后释放身份文件锁。当前D16/D17 owner为空只表示未绑定，不是其退出验证。局部状态日志仅使用固定状态和布尔值，不打印token、签名、私钥、raw public key或配置值。
+Runner 停止新请求、取消已接收请求及重连，再等待实际运行时、socket/worker退出，最后释放身份文件锁。启用只读操作时，原 `Client.Run` 在 session/worker 实际返回后同步等待唯一 Workspace Manager 的 Stop/Drain，再释放 identity；清理失败不伪装为成功。D17 未绑定不表示已完成其退出验证。局部状态日志仅使用固定状态和布尔值，不打印token、签名、私钥、raw public key或配置值。
 
 首期平台目标仍为 Linux kernel≥5.15及macOS≥14、amd64/arm64；本次实际接受只到 Linux/amd64。macOS、其他CPU、跨UID与断电持久性未验，Windows不支持。有限结果不解除既有Object runtime join等停止项，也不补实际操作、Mount、D16/D17/D18绑定。
 
@@ -77,4 +78,4 @@ Linux正式OS测试使用真实默认cmd、自有PID/starttime/exe、blocking fd
 
 [D16 Workspace manager](../work-items/d16-runner-workspace.md) 已有限独立接受：`internal/runner/workspace` 从可信、已打开的 Runner root fd 复制自有句柄，以 canonical Project/Agent UUID 和严格单段逻辑 name 创建或打开 `<root>/<project>/<agent>/<name>`，通过受管理 Handle 调用现有 Read/List/Find。它不把协议 `workspace_id` 当作目录名，不暴露 host path 或脱管 fd。
 
-新建和既有目录遵循卡内 owner/0700 与三层无链接规则，Stop 拒新并取消，Drain 等原 I/O 和关闭实际返回；失败或取消可能留下已创建目录，不自动删除。Linux 本地真实目录及生命周期控、race/vet 已验；非 Linux 拒绝源存在但未动态验收。当前 Mount 解析/授权、Agent 配置调用链、生产 Control/executor 与 initializer 均未绑定，默认拒绝和 ready=false 保持。
+新建和既有目录遵循卡内 owner/0700 与三层无链接规则，Stop 拒新并取消，Drain 等原 I/O 和关闭实际返回；失败或取消可能留下已创建目录，不自动删除。Linux 本地真实目录及生命周期控、race/vet 已验；非 Linux 拒绝源存在但未动态验收。当前 Agent Mount 配置及同事务当前事实解析已有正式实现；CLI 所选只读操作共用原锁定身份的唯一 Manager。上游 Execution/Operation 授权提供方仍未生产绑定，真实适配器验收中的 D15 §7 严格替身不构成完整 Tool/Agent 运行时接入，默认空能力和 ready=false 保持。

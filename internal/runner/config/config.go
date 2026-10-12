@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/LunaDeerTech/agenteam/internal/runner/identity"
+	"github.com/LunaDeerTech/agenteam/internal/runner/operations"
 	p "github.com/LunaDeerTech/agenteam/internal/runnerprotocol"
 )
 
@@ -115,7 +116,7 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 }
 
 func (c Config) Validate() error {
-	if c.operations != "" && c.operations != p.ReadFileOperation {
+	if _, err := operations.Parse(c.operations); err != nil {
 		return invalid("OPERATIONS")
 	}
 	if c.logLevel != slog.LevelDebug && c.logLevel != slog.LevelInfo && c.logLevel != slog.LevelWarn && c.logLevel != slog.LevelError {

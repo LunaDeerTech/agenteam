@@ -1,5 +1,20 @@
 # D16 list-directory / find-files 有限适配器
 
+## 当前CLI接线
+
+原目录 Handler 已接到真实 `cmd/agenteam-runner` → Config → App → `Client.Run`。`AGENTEAM_RUNNER_OPERATIONS` 是仅含 `read-file`、`list-directory`、`find-files` 的显式集合，允许任意子集与顺序，默认空；未知、重复、空项与空白拒绝，不把旧单项阶段限制解释为长期互斥 profile。Config 与 Control 使用同一有限 parser，Hello 按固定顺序仅公告选中能力；目录 Handler 内两种能力仍各自经过选择门。原显式构造器的调用方资源归属不变，不与配置装配混用。
+
+所有所选 Handler 共用一个由原 identity 锁定配置打开的 Workspace Manager；保持 session/worker 实际返回 → Manager Stop/Drain 原返回 → identity Close → Client.done 的顺序。原默认空与单独 `read-file` 兼容，不新增 Grant、模型工具 HTTP、write/run、Data Channel 或 Agent 执行循环。Runner 是系统级资源，项目 Owner 给 Agent 配置 Runner 与资源目录名称；挂载配置不替代 Execution/Operation 授权。
+
+新增 `TestRunnerDirectoryApp`（[真实 CLI 验收源](../../../tests/projectvariable/runner_directory_app_linux_test.go)）要求方法预构建的真实 `AGENTEAM_RUNNER_BINARY`，不在测试里构建/跳过。复用正式系统 Runner、Owner Agent/Mount、TLS/WSS 与原进程回收夹具：目录组合登记并读 List/Find，原身份重启后组合 read-file；单 List 拒绝未选能力，默认空且不打开缺失 root；离线检查、坏 root、显式身份冲突、未知与重复项在设备协议/能力公告前拒绝。四个实际在线子进程及五个离线/拒绝子进程均须取得原 Wait；正常 SIGTERM 还核真实 handler/连接退役、原身份锁释放。上游 Operation 继续明确为 D15 §7 严格替身，不声称生产 ToolCall/Agent loop 或零 TCP SYN。
+
+当前接线已完成有限非作者源码审与真实验收，技术候选为 `c5c3f22dba09bfcc3bf3319cb9773de850139b48`。[定向基础结果](../../../output/ai/runner-directory-cli-delivery/basic01/result.json)原 `13989/517f19` 实际退出 0：race 为 12 top / 46 sub（含原两项 CLI），4 包 vet 全部通过；[双二进制编译结果](../../../output/ai/runner-directory-cli-delivery/compile01/result.json)原 `93168/c724d9` 实际退出 0，分别构建真实 Runner 命令和唯一 PG selector，没有在测试内另建命令。
+
+[首次真实结果](../../../output/ai/runner-directory-cli-delivery/native01/result.json)及[原日志](../../../output/ai/runner-directory-cli-delivery/native01/browser.log)原 `41374/7c8f18` 实际退出 0：`TestRunnerDirectoryApp` 1 top / 2 sub 共 19.94s（两子例 2.82s / 4.32s），[supervisor 原 Wait](../../../output/ai/runner-directory-cli-delivery/native01-outer.json)为 0 / 77.903s，Go 原 Wait 0。9 个 CLI 原 Wait 精确为 `0,0,0,0,0,1,2,2,2`；正式登记、身份重启、真实 List/Find/组合 read-file、单项能力拒绝、默认空及设备协议前拒绝各原成功标记均到达，六个自有资源、私目录与剩余子进程全部清退，后验 `aaace2` 确认输入与技术候选不变。默认空未打开缺失 root，负例只证明设备协议/能力公告前拒绝，不宣称零 TCP SYN。Project setup 仍用 Project Service 与持久测试 Skills receipt，Operation 仍是上述 D15 §7 严格替身；本次不证明完整 Execution authority、生产 Skills 初始化或 Agent 工具循环。下方原显式适配器交付历史不改写。
+
+## 原显式适配器交付
+
+
 状态：本片有限交付，基线 main65fc8687；源码/方法、基础 race/vet 与首次真实 PG/WSS 整轮已由 runtime_recovery 独立验收，无 must-fix。不代表整个 D16 或生产 Agent 工具链完成。
 
 依据：[执行运行时 §4/8](../../architecture/runner/execution-runtime.md)、[Agent Workspace](../../architecture/runner/agent-workspace.md)、[本地 List](d16-runner-filesystem-read.md)、[本地 Find](d16-workspace-find.md)、[已交付 read-file 接线](d15-runner-read-file-adapter.md)。
