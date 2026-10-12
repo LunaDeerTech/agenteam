@@ -1,6 +1,6 @@
-# 已提交后继 RoundInput 投影工作分支
+# main 全局工作与恢复索引
 
-2026-10-12。本树 `/workspace/agenteam-next-round-projection`，分支 `ai/next-round-projection-20261011`，起点 `71b13d5c`，最终技术组合 `272c74fa`（含正式main `b6f158c3`）。variables_review负责Execution reader/合同/控制及记录，AgentLoop、PG和方法由各原作者负责；root统筹Git、资源窗口和集成。唯一主审已接受本片有限wholePASS，技术源已冻结，原件已无覆盖保全，树与分支尚未清理。见[本片卡](../docs/development/work-items/d22-next-round-projection.md)与[方法/恢复说明](next-round-projection/README.md)。本树索引不覆盖main全局状态。
+2026-10-12。本索引位于 `/workspace/agenteam` 正式main，由variables_review维护正文，root统筹Git、资源窗口和集成。RoundInput只读投影已随完整历史合入main `b0467431`，唯一主审已接受有限wholePASS；原件已无覆盖保全，原Projection树与分支尚未清理。见[本片卡](../docs/development/work-items/d22-next-round-projection.md)与[方法/恢复说明](next-round-projection/README.md)。
 
 ## 当前状态
 
@@ -8,8 +8,8 @@
 - basic01原22796 actual0：8top/42sub race与三包vet，657输入六份同。compile03原66456与exact-list均实际0，1901编译输入前后同；runtime1902仅增加实物binary，包含已验WSS上游与失败点Statfs诊断，未重跑已接受基础。
 - native03原72578亲收actual0：1top1sub23.50s；sup827584 /113.320s，Go829170/driver827585 Wait0；七资源14absence、desc/private/runtime双空、自动HOST_TCP差额双空与输入不变全部齐。主审已接受真实已提交事实、无写Tx、深拷贝/历史稳定及新增Model/WSS为0的有限链路。原件现位于 main `output/ai/retired-20261012/next-round-projection/native03/`。
 - native01原10165、native02原73449 wholeFAIL完整保留，均0.00s最前MkdirTemp失败未到投影；01原errno未知，02实际ENOSPC。原尾后受控mkdir成功与容量释放仅各自时点事实，03通过不解释旧ENOSPC；03未触发失败Statfs分支。各原Wait/退出/TCP/input证据不覆盖。
-- 原output106文件/271,750,879 B/25目录已同FS无覆盖迁入main `output/ai/retired-20261012/next-round-projection/`，全部路径/SHA/size/dev/inode/mode/nsmtime前后一致；旁目录`next-round-projection-preservation/`保存核验与三轮tmp各4文件副本，原tmp保留。23map/1,905仓库历史版本已匹配原三个检查点，完整main可达待root合入后核；外部工具链/modules/MinIO保护及可见`/proc`限制见[恢复说明](next-round-projection/README.md)。树/分支尚未删除，计数不增加。
-- 上游68 main `bf7c882a`、Runner write-file WSS main `570da7a2`均已有限交付并完成原树/本地分支清理；下列保留段沿本次组合main `b6f158c3`，不预写后续清理结果。当前本树记录34树/35本地/64远端、146待核/keep1，合main时由root协调最新实值。
+- 原output106文件/271,750,879 B/25目录已同FS无覆盖迁入main `output/ai/retired-20261012/next-round-projection/`，全部路径/SHA/size/dev/inode/mode/nsmtime前后一致；旁目录`next-round-projection-preservation/`保存核验与三轮tmp各4文件副本，原tmp保留。23map/1,905仓库历史版本已匹配原三个检查点；root在完整历史合main后确认 `c30623db`、`5b04b4fc`、`272c74fa`、最终文档 `7b08aa00` 均main祖先（c2c99a实际0）；外部工具链/modules/MinIO保护及可见`/proc`限制见[恢复说明](next-round-projection/README.md)。树/分支尚未删除，计数不增加。
+- 上游68 main `bf7c882a`、Runner write-file WSS main `570da7a2`均已有限交付并完成原树/本地分支清理；当前已核清理累计34树/35本地/67远端、143待核/keep1，下列三条remote完整删除与源码恢复证据保持。Projection尚未删除，不预记后续计数。
 
 主目标仍是完成[开发计划](../docs/development/development-plan.md)中的D01–D28/E01，目前尚未完成；任何单片有限验收不代表整体目标或原STOP解除。
 

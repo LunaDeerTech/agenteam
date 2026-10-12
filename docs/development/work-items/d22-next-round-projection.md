@@ -1,6 +1,6 @@
 # 已提交后继 RoundInput 的只读投影
 
-状态：本片在组合源 `272c74fa` 上完成有限验收，唯一主审 `runtime_recovery` 已接受：basic01 的 8 top / 42 sub race、三包 vet；compile03/list/prepare；native03 的真实 1 top / 1 sub 与全部退出、TCP 和输入门。原 native01、native02 wholeFAIL 完整保留：前者原 errno 未知，后者记录 ENOSPC，均未到投影业务；第三轮成功不解释旧失败原因。上游 68 已随完整历史 main `bf7c882a` 有限交付。
+状态：本片在组合源 `272c74fa` 上完成有限验收，已随完整历史合入main `b0467431`；唯一主审 `runtime_recovery` 已接受：basic01 的 8 top / 42 sub race、三包 vet；compile03/list/prepare；native03 的真实 1 top / 1 sub 与全部退出、TCP 和输入门。原 native01、native02 wholeFAIL 完整保留：前者原 errno 未知，后者记录 ENOSPC，均未到投影业务；第三轮成功不解释旧失败原因。上游 68 已随完整历史 main `bf7c882a` 有限交付。
 
 依据：[输入确定点](d01-contracts/execution-orchestration.md#技能变更与下一轮输入确定点)、[68 RoundInput](d22-execution-round-input.md)。本片只把已提交的首个后继输入投影为数据；不发 ModelRequest、不调用下一 Model/Runner，不接生产默认或解除 tools HTTP 及其它原 STOP。
 
@@ -34,4 +34,4 @@ native03 原72578由执行者亲收 actual0（chunk `aa6095`）：supervisor8275
 本片交付止于已提交首个后继RoundInput的只读投影，不发下一ModelRequest、不授新Tool/Runner执行、不接默认生产；tools HTTP及其它历史STOP仍保持。证据位置、方法与恢复范围见[本片说明](../../../.agent-state/next-round-projection/README.md)。
 
 
-原件已同FS无覆盖迁至 main `output/ai/retired-20261012/next-round-projection/`：106文件 /271,750,879 B及25目录，路径/SHA/size/dev/inode/mode/nsmtime逐项相同。本文前述output路径均为原运行位置，现按相同相对路径访问该保留根；原tmp三轮各4文件另存至旁目录 `next-round-projection-preservation/nrp01–03/`，原tmp不动。23份map的1,905仓库历史版本已匹配原三个检查点，完整main历史可达仍由root合入后核；外部依赖保持保护，可见性限制及证明映射见[恢复说明](../../../.agent-state/next-round-projection/README.md)。树/分支尚未清理，不增加全局删除计数。
+原件已同FS无覆盖迁至 main `output/ai/retired-20261012/next-round-projection/`：106文件 /271,750,879 B及25目录，路径/SHA/size/dev/inode/mode/nsmtime逐项相同。本文前述output路径均为原运行位置，现按相同相对路径访问该保留根；原tmp三轮各4文件另存至旁目录 `next-round-projection-preservation/nrp01–03/`，原tmp不动。23份map的1,905仓库历史版本已匹配原三个检查点；root在完整历史合入后核定三个检查点及最终文档 `7b08aa00` 均main祖先（c2c99a实际0）；外部依赖保持保护，可见性限制及证明映射见[恢复说明](../../../.agent-state/next-round-projection/README.md)。树/分支尚未清理，不增加全局删除计数。

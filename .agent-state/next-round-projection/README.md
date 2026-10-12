@@ -20,6 +20,6 @@ python3 -B .agent-state/next-round-projection/run-basic-checks.py --output outpu
 
 证明单独保存在 main `output/ai/retired-20261012/next-round-projection-preservation/`：`output-before.json`、`output-after.json`、`preservation-result.json`、`source-recovery.json`和`process-audit.json`，没有改写原output内的记录。`/tmp/nrp01`、`/tmp/nrp02`、`/tmp/nrp03` 各4个原件（log、owned/request、4 B telemetry）共12文件已排他复制至该证明目录对应子目录，字节/mtime/mode保持，原tmp全部留存；main原 `projection-parent-mkdir01.json` 也另存副本且原位保留。实际保全工具331a6b退出0。
 
-23份原输入map的1,905个仓库历史文件版本（1,902路径）已逐字匹配原 `c30623db`、`5b04b4fc`、`272c74fa` 三个检查点，未发现缺失版本；三个实物binary均匹配原map。审计时这些检查点只在原分支历史，须由root完整历史合main后再完成main可达核验，不能把本地材料迁移当远端源码保存。外部Go与MinIO的原SHA已核且未移动，SkillHTTP热cache、SkillsMilestoneResume只读modules/MinIO保持保护；没有声称保存整个外部toolchain/module tree或故障时宿主状态。
+23份原输入map的1,905个仓库历史文件版本（1,902路径）已逐字匹配原 `c30623db`、`5b04b4fc`、`272c74fa` 三个检查点，未发现缺失版本；三个实物binary均匹配原map。审计时这些检查点只在原分支历史；root随后完整历史合入main `b0467431`，并实际确认这三个检查点及最终文档 `7b08aa00` 均main祖先（c2c99a实际0）。源码历史可达已闭合，远端推送与原树/分支实际清理由root分别记录，不能用材料迁移替代。外部Go与MinIO的原SHA已核且未移动，SkillHTTP热cache、SkillsMilestoneResume只读modules/MinIO保持保护；没有声称保存整个外部toolchain/module tree或故障时宿主状态。
 
 原执行者确认全部运行实际退出；当前可见 `/proc` 未见原树进程路径，已知PID均不存在。扫描存在1,410次权限拒绝观察，故该项只证明原Wait与当前可见范围，不宣称覆盖不可见namespace或未知owner。未见独有untracked成果或输出外ignored材料，当前作者确认无下游绝对路径运行依赖。原01未知errno、02ENOSPC原因未明及全部历史STOP始终保留。
