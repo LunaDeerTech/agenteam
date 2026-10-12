@@ -675,5 +675,5 @@ func newAgentOwnershipInstallationFixture(t *testing.T, allowRuntimeClose func()
 	if err = store.QueryRow(ctxFor(t), `SELECT EXISTS(SELECT 1 FROM agenteam_skill.initializations i JOIN agenteam_skill.skills s ON s.project_id=i.project_id AND s.creation_id=i.creation_id AND s.id=i.skill_id AND s.revision_id=i.revision_id WHERE i.project_id=$1 AND i.phase='published' AND s.protected AND s.serving)`, target.ProjectID.String()).Scan(&published); err != nil || !published {
 		t.Fatal("target did not use real protected publication", err)
 	}
-	return &skillInstallationFixture{base: base, creator: creator, service: service, objects: objects, manifest: manifest, project: *created.Project, s3: s3, bucket: bucket}
+	return &skillInstallationFixture{base: base, creator: creator, service: service, objects: objects, manifest: manifest, lifecycle: lifecycle, project: *created.Project, s3: s3, bucket: bucket}
 }

@@ -89,10 +89,19 @@ func newVariablesCleanupPGWith(t *testing.T, prepare func(*variablesCleanupPG), 
 // pairs and initialized Project/Skills still traverse their original owners.
 func newVariablesCleanupPGShape(t *testing.T, seed bool, prepare func(*variablesCleanupPG), stop func(i.Actor, pc.LifecycleCause, pc.ScopeRef), bases ...*variableHTTPFixture) *variablesCleanupPG {
 	t.Helper()
+	return newVariablesCleanupPGConfigured(t, seed, false, prepare, stop, bases...)
+}
+
+func newVariablesCleanupPGConfigured(t *testing.T, seed, originalSecretAuthority bool, prepare func(*variablesCleanupPG), stop func(i.Actor, pc.LifecycleCause, pc.ScopeRef), bases ...*variableHTTPFixture) *variablesCleanupPG {
+	t.Helper()
 	v := &variablesCleanupPG{skillsCleanupPG: newSkillsCleanupPG(t, bases...)}
 	t.Cleanup(func() { v.close(t) })
 	var err error
-	v.deps, err = variableOwnershipAssemble(v.p2.base.tracked, v.p2.base.accounts, v.p2.base.keys, v.p2.manifest, v.process)
+	var secretProjects []*project.Authority
+	if originalSecretAuthority {
+		secretProjects = append(secretProjects, v.projects)
+	}
+	v.deps, err = variableOwnershipAssemble(v.p2.base.tracked, v.p2.base.accounts, v.p2.base.keys, v.p2.manifest, v.process, secretProjects...)
 	outboxCleanupRequire(t, err)
 	outboxCleanupRequire(t, v.deps.d04.Initialize(ctxFor(t)))
 	v.pair, err = pv.NewProjectCallOwnership(v.p2.base.tracked, v.deps.ordinary, v.deps.secrets, v.guard, v.process)

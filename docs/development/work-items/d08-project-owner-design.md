@@ -264,6 +264,18 @@ schema 6 保存 Project/operation/version、原 claim process/attempt/fence、�
 
 固定 Agent→Skills 子步骤按 [D10 §4.3](d10-agent-configuration.md#43-project-永久删除中的有限原子退休) 消费真实退休端口。Agent 子步骤的完整 canonical/引用变更与本域 applied checkpoint 必须在同一个原 caller Tx 提交；不能沿普通 provider-return 后另 Tx 记进度的路径丢失退休归属。checkpoint 仅存原 completed Agent command 的身份、版本和完整 Before 摘要，恢复必须回该不可变前像和实际各域状态。一次 Run 的原提交/回调返回由原 cleanup driver 持有，后继 Run 才可进入 Skills；父仍 `pending/domains`，旧 ForSkills 与 Outbox/Audit 构造不扩大权限。本片不把受控 accepted/其它 participant 前置或局部成功当默认完整 Delete。
 
+### D04 Secret 实际清理（限定验收）
+
+固定 Secret 清理构造器继承 Agent/Skills/Variables 终局组合，使用同一个原 D04 Service。第一次取得 Secret claim 前，先对母 participant 的 schema 6 及原 claim 调用两 terminal owner 的真实确认并等其原调用返回，再在原 Project EX 事务重核原 receipt/claim 后登记 Secret attempt。不能仅凭母状态 Completed 或空表跨过其原返回；后继 Secret attempt 仍须核同一 schema 6、当前 Delete/Project version、完整 manifest、全部 stop 与声明前驱以及当前 Secret 私有 claim。计数只记录该固定 driver 已执行的首轮前置，不是公开授权。
+
+`SecretAuthority.CheckCleanupInTx` 在 D04 每个原事务中检查同 Store/live Tx 和 Project EX；公开 LifecycleCause 的 deleting 标记只表示请求意图。Secret 必须声明并等待 agent-skills-variables Completed，Artifact/Object 是否也是前驱按冻结 manifest 核定；不能把 Secret 清理反置成 Variables metadata 前置。原 Agent、Skills、Variables、terminal、Outbox、Audit scope 和已经结束的 callback 均不能借用 Secret claim。
+
+D04 沿现有每批 100 条的头扫描与 FK 顺序清理 Project credential、加密 payload、command/project-variable receipts 及可删除的 released lease 墓碑；有引用或未释放 lease 时保留 Pending。检查点仅绑定 Project/operation，不作为跳页游标。仅此 CleanupProject 路径保存原 Unknown attempt/cause：下一显式调用先用原授权事务只读确认，原确认实际 Committed 返回后才能释放该原 owner，后继调用再执行删除；不改 Secret 其它业务的错误映射、不内部重试删除、不重建 Service 丢弃原 owner。
+
+本片无迁移，不开放默认完整 Registry，不清 System 或另一 Project，不替代 Artifact/Object、Outbox、Audit 与 finalizer。母终局与其它域的既有受控前置和真实结果分别保留。
+
+`0d879c55` 的 `TestProjectSecretCleanup` native03 三组实际通过（61.14s）：真实跨 100 条头扫描、原 Store 返回屏障、原 Unknown 后只读确认，以及正式 Model provider 引用保留 Pending；确认原事务内 DELETE 计数 410→410、增量零且快照相同。Go/fixture 原调用已退出，六项资源清退，无 Node；[实际结果](../../../output/ai/project-secret-cleanup-delivery/native03/result.json)与[原日志](../../../output/ai/project-secret-cleanup-delivery/native03/browser.log)保留。native01 无计数值的 FAIL 和 native02 把既有累计计数当本次增量的 FAIL 均保留，不倒填 native01 观测；PostgreSQL 17 pending/trans 计数行为有原适配器源码依据。Project pure 首轮 fixture 缺完整 manifest 直接依赖的 FAIL 也保留。验收仅至 Secret participant 完成或真实引用 Pending，operation 仍 domains；未新增真实 lease 反例，不称完整 Delete。
+
 ### 9.1 D05 项目停止能力
 
 固定 D05 只有 CleanupProject，没有项目范围 RequestStop/InspectStop。下列 C0 已经独立定向审查并由 root 采纳，代码依据为 `6319d03`；typed 口实现与真实 D05 stop/inspect 分阶段交付，契约成立不代表停止能力已绑定。Project 不越域查表推断空闲。

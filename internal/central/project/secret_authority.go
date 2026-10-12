@@ -43,8 +43,26 @@ func (a *SecretAuthority) CheckMutationInTx(ctx context.Context, tx foundation.T
 	return err
 }
 
-func (*SecretAuthority) CheckCleanupInTx(context.Context, foundation.Tx, identity.Actor, secret.LifecycleCause, identity.ProjectID) error {
-	return fault(foundation.DependencyUnbound)
+func (a *SecretAuthority) CheckCleanupInTx(ctx context.Context, tx foundation.Tx, actor identity.Actor, cause secret.LifecycleCause, project identity.ProjectID) error {
+	if !a.bound() {
+		return fault(foundation.DependencyUnbound)
+	}
+	facts, err := a.authority.lifecycleAuthority()
+	if err != nil {
+		return err
+	}
+	current, err := secretLifecycleCause(cause)
+	if err != nil {
+		return err
+	}
+	target, err := lifecycleActorProject(actor, current)
+	if err != nil {
+		return err
+	}
+	if target != project {
+		return fault(foundation.Forbidden)
+	}
+	return facts.validateSecretCleanupInTx(ctx, tx, project, current)
 }
 
 var _ secret.ProjectAuthority = (*SecretAuthority)(nil)

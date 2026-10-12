@@ -35,6 +35,9 @@ func (st *lifecycleCleanupState) cleanupProgress(r *lifecycleRecord) (c.Particip
 		return "", false, unavailable(nil)
 	}
 	if st.skills != nil {
+		if st.secret != nil && terminalParticipantCompleted(r) {
+			return secretDriverProgress(r)
+		}
 		if st.terminalAgents != nil && terminalParticipantCompleted(r) {
 			return c.SkillsParticipant, false, nil
 		}
@@ -71,6 +74,10 @@ func (st *lifecycleCleanupState) cleanupPort(name c.ParticipantName) (SkillsClea
 		if !nilPort(st.participant) {
 			return st.participant, nil
 		}
+	case c.SecretParticipant:
+		if !nilPort(st.secret) {
+			return st.secret, nil
+		}
 	case c.AuditParticipant:
 		if !nilPort(st.audit) {
 			return st.audit, nil
@@ -89,7 +96,7 @@ func cleanupStages(name c.ParticipantName) (current, next string, err error) {
 		return "outbox", "audit", nil
 	case c.AuditParticipant:
 		return "audit", "final", nil
-	case c.SkillsParticipant:
+	case c.SkillsParticipant, c.SecretParticipant:
 		return "domains", "domains", nil
 	default:
 		return "", "", invalid()
@@ -106,6 +113,9 @@ func validateCleanupCheckpoint(participant c.ParticipantName, checkpoint *c.Clea
 		if checkpoint == nil {
 			return nil
 		}
+	case c.SecretParticipant:
+		_, err := decodeSecretCleanupCheckpoint(checkpoint, cause, c.ScopeRef{Kind: c.ProjectScope, ProjectID: project})
+		return err
 	case c.AuditParticipant:
 		_, err := decodeAuditCleanupCheckpoint(checkpoint, cause, c.ScopeRef{Kind: c.ProjectScope, ProjectID: project})
 		return err

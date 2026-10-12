@@ -34,6 +34,8 @@ type serviceState struct {
 	keys          Keyring
 	audit         ac.Appender
 	auth          Authorizations
+	cleanupMu     sync.Mutex
+	cleanupCalls  map[identity.ProjectID]*projectCleanupCall
 	nonceMu       sync.Mutex
 	nonces        map[foundation.Version]*nonceRange
 	mu            sync.Mutex

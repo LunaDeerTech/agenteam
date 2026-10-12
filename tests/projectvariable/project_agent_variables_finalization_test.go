@@ -59,6 +59,13 @@ func newAgentVariablesTerminalPG(t *testing.T, upgrade, foreign bool) *agentVari
 }
 func newAgentVariablesTerminalPGShape(t *testing.T, upgrade, foreign, empty bool) *agentVariablesTerminalPG {
 	t.Helper()
+	return newAgentVariablesTerminalPGConfigured(t, upgrade, foreign, empty, false, nil)
+}
+
+// The Secret slice retains this actual prefix and seeds only through formal
+// owners before accepted Delete. Legacy terminal cases keep nil/default ports.
+func newAgentVariablesTerminalPGConfigured(t *testing.T, upgrade, foreign, empty, originalSecretAuthority bool, prepare func(*agentVariablesTerminalPG)) *agentVariablesTerminalPG {
+	t.Helper()
 	v := &agentVariablesTerminalPG{emptyBusiness: empty}
 	var bases []*variableHTTPFixture
 	if upgrade {
@@ -74,10 +81,13 @@ func newAgentVariablesTerminalPGShape(t *testing.T, upgrade, foreign, empty bool
 		base = assembleVariableHTTPFixture(t, db, raw, &hookStore{fixtureStore: raw})
 		bases = append(bases, base)
 	}
-	v.variablesCleanupPG = newVariablesCleanupPGShape(t, !empty, func(base *variablesCleanupPG) {
+	v.variablesCleanupPG = newVariablesCleanupPGConfigured(t, !empty, originalSecretAuthority, func(base *variablesCleanupPG) {
 		v.variablesCleanupPG = base
 		t.Cleanup(func() { v.close(t) })
 		v.prepareAgent(t, foreign)
+		if prepare != nil {
+			prepare(v)
+		}
 		if upgrade {
 			before, metadata, d04 := v.ownerSnapshot(t), v.metadataSnapshot(t, v.p2.project.ID), v.d04Snapshot(t)
 			migrate(t, v.p2.base.db, migrationPrefix(t, "00078"))

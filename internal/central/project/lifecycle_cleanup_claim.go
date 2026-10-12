@@ -23,6 +23,8 @@ type lifecycleCleanupRound struct {
 	terminalConfirm            bool
 	terminalUnapplied          bool
 	terminalUnappliedConfirmed bool
+	secretParentStep           bool
+	secretParentCheckpoint     *c.CleanupCheckpoint
 }
 
 func (st *lifecycleCleanupState) canJoin(ctx context.Context, claim *lifecycleStopClaim) error {
@@ -64,6 +66,10 @@ func (st *lifecycleCleanupState) current(ctx context.Context, x postgres.SQLExec
 }
 
 func (st *lifecycleCleanupState) start(ctx context.Context, project c.ProjectID, operation c.OperationID) (*lifecycleCleanupRound, bool, error) {
+	return st.startWithSecretParent(ctx, project, operation, nil)
+}
+
+func (st *lifecycleCleanupState) startWithSecretParent(ctx context.Context, project c.ProjectID, operation c.OperationID, parent *lifecycleCleanupRound) (*lifecycleCleanupRound, bool, error) {
 	previous, err := loadLifecycleStopClaim(ctx, st.store, operation)
 	if err != nil {
 		return nil, false, err
@@ -109,6 +115,22 @@ func (st *lifecycleCleanupState) start(ctx context.Context, project c.ProjectID,
 		if (actual == nil) != (previous == nil) || actual != nil && *actual != *previous {
 			return fault(f.ResourceBusy)
 		}
+		if replay && round.participant == c.SecretParticipant {
+			_, attempts, cp, e := cleanupParticipantRow(ctx, x, *round)
+			if e != nil {
+				return e
+			}
+			if attempts == 0 || cp == nil {
+				return unavailable(nil)
+			}
+			selected, e := st.selectSecretParent(ctx, x, round, actual, attempts, r.operation.Version, parent)
+			if e != nil {
+				return e
+			}
+			if selected {
+				return unavailable(nil)
+			}
+		}
 		if replay {
 			// A completed checkpoint atomically terminates its original claim.
 			// A running foreign claim is not turned into a local success report.
@@ -121,6 +143,16 @@ func (st *lifecycleCleanupState) start(ctx context.Context, project c.ProjectID,
 		rowVersion, attempts, checkpoint, err := cleanupParticipantRow(ctx, x, *round)
 		if err != nil {
 			return err
+		}
+		if round.participant == c.SecretParticipant {
+			selected, e := st.selectSecretParent(ctx, x, round, actual, attempts, r.operation.Version, parent)
+			if e != nil {
+				return e
+			}
+			if selected {
+				validated = true
+				return nil
+			}
 		}
 		if round.participant == c.SkillsParticipant {
 			if st.terminalAgents != nil {

@@ -40,7 +40,7 @@ func cleanupRoundReport(round lifecycleCleanupRound, report c.CleanupReport) err
 	d := report.Details()
 	// Fixed ports expose progress without resource refs. Audit preserves its
 	// diagnostic checkpoint; Skills always wraps its child progress as pending.
-	if len(d.RemainingRefs) != 0 || d.State != c.CleanupCompleted && d.State != c.CleanupPending || round.participant == c.AuditParticipant && d.Checkpoint == nil {
+	if len(d.RemainingRefs) != 0 || d.State != c.CleanupCompleted && d.State != c.CleanupPending || (round.participant == c.AuditParticipant || round.participant == c.SecretParticipant) && d.Checkpoint == nil {
 		return unavailable(nil)
 	}
 	if round.participant == c.SkillsParticipant && round.terminalStep {

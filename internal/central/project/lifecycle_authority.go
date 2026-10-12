@@ -177,6 +177,9 @@ func (a *LifecycleAuthority) ValidateLifecycleInTx(ctx context.Context, tx found
 		return err
 	}
 	if phase == c.CleanupPhase {
+		if participant == c.SecretParticipant {
+			return a.validateSecretCleanupInTx(ctx, tx, project, cause)
+		}
 		if participant == c.AuditParticipant {
 			return a.validateAuditCleanupInTx(ctx, tx, project, cause)
 		}
