@@ -34,8 +34,11 @@ func (st *lifecycleCleanupState) cleanupProgress(r *lifecycleRecord) (c.Particip
 	if r == nil {
 		return "", false, unavailable(nil)
 	}
-	if st.skills != nil {
+	if st.skills != nil && !(st.artifact != nil && r.cleanupStage != "domains") {
 		if st.secret != nil && terminalParticipantCompleted(r) {
+			if st.artifact != nil && cleanupDomainCompleted(r, c.SecretParticipant) {
+				return artifactDriverProgress(r)
+			}
 			return secretDriverProgress(r)
 		}
 		if st.terminalAgents != nil && terminalParticipantCompleted(r) {
@@ -74,6 +77,10 @@ func (st *lifecycleCleanupState) cleanupPort(name c.ParticipantName) (SkillsClea
 		if !nilPort(st.participant) {
 			return st.participant, nil
 		}
+	case c.ArtifactObjectParticipant:
+		if !nilPort(st.artifact) {
+			return st.artifact, nil
+		}
 	case c.SecretParticipant:
 		if !nilPort(st.secret) {
 			return st.secret, nil
@@ -96,7 +103,7 @@ func cleanupStages(name c.ParticipantName) (current, next string, err error) {
 		return "outbox", "audit", nil
 	case c.AuditParticipant:
 		return "audit", "final", nil
-	case c.SkillsParticipant, c.SecretParticipant:
+	case c.SkillsParticipant, c.SecretParticipant, c.ArtifactObjectParticipant:
 		return "domains", "domains", nil
 	default:
 		return "", "", invalid()
@@ -113,6 +120,9 @@ func validateCleanupCheckpoint(participant c.ParticipantName, checkpoint *c.Clea
 		if checkpoint == nil {
 			return nil
 		}
+	case c.ArtifactObjectParticipant:
+		_, err := decodeArtifactCleanupCheckpoint(checkpoint, cause, c.ScopeRef{Kind: c.ProjectScope, ProjectID: project})
+		return err
 	case c.SecretParticipant:
 		_, err := decodeSecretCleanupCheckpoint(checkpoint, cause, c.ScopeRef{Kind: c.ProjectScope, ProjectID: project})
 		return err

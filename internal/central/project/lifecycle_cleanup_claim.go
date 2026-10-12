@@ -25,6 +25,7 @@ type lifecycleCleanupRound struct {
 	terminalUnappliedConfirmed bool
 	secretParentStep           bool
 	secretParentCheckpoint     *c.CleanupCheckpoint
+	artifactParentCheckpoint   *c.CleanupCheckpoint
 }
 
 func (st *lifecycleCleanupState) canJoin(ctx context.Context, claim *lifecycleStopClaim) error {
@@ -129,6 +130,20 @@ func (st *lifecycleCleanupState) startWithSecretParent(ctx context.Context, proj
 			}
 			if selected {
 				return unavailable(nil)
+			}
+		}
+		if round.participant == c.ArtifactObjectParticipant {
+			if replay {
+				_, attempts, cp, e := cleanupParticipantRow(ctx, x, *round)
+				if e != nil {
+					return e
+				}
+				if attempts == 0 || cp == nil {
+					return unavailable(nil)
+				}
+			}
+			if e := st.selectArtifactParent(ctx, x, round, actual); e != nil {
+				return e
 			}
 		}
 		if replay {
