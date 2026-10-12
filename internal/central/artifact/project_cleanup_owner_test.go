@@ -254,6 +254,8 @@ func (v *cleanupOwnerFixture) row(_ context.Context, tx f.Tx, query string, args
 	}
 	p.reads++
 	switch {
+	case strings.HasPrefix(query, "SELECT jsonb_build_object(\n 'Work'"):
+		return cleanupOwnerRow{values: []any{[]byte(`{"Work":[],"Stops":[]}`)}}
 	case strings.Contains(query, "source_lease_id IS NOT NULL"):
 		return cleanupOwnerRow{values: []any{p.source}}
 	case strings.HasPrefix(query, "SELECT operation_id::text"):
