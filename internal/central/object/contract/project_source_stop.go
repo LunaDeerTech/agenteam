@@ -41,6 +41,11 @@ func NewProjectSourceStopRequest(d ProjectSourceStopDetails) (ProjectSourceStopR
 	if p != d.SourceProjectID && p != d.TargetProjectID {
 		return ProjectSourceStopRequest{}, bad()
 	}
+	// Archive revokes this Project's prospective creation, not another active
+	// Project's legitimate read of an archived source. Delete closes both sides.
+	if d.Cause.Details().Action == ProjectStopArchive && p != d.TargetProjectID {
+		return ProjectSourceStopRequest{}, bad()
+	}
 	return ProjectSourceStopRequest{func() ProjectSourceStopDetails { return d }}, nil
 }
 func (r ProjectSourceStopRequest) Validate() error {

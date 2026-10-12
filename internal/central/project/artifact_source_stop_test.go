@@ -119,7 +119,7 @@ func TestArtifactSourceStopRequiresOriginalIssuer(t *testing.T) {
 }
 
 func TestArtifactSourceStopExactRequest(t *testing.T) {
-	for _, mode := range []string{"same-project", "cross-project-locks", "unrelated-stop", "wrong-command-owner", "empty-handle", "different-issuer"} {
+	for _, mode := range []string{"same-project", "cross-project-locks", "unrelated-stop", "wrong-command-owner", "empty-handle", "different-issuer", "archive-source-only"} {
 		t.Run(mode, func(t *testing.T) {
 			_, _, _, _, req := artifactSourceStopFixture(t, nil)
 			d := req.Details()
@@ -140,6 +140,13 @@ func TestArtifactSourceStopExactRequest(t *testing.T) {
 				wantValid = false
 			case "different-issuer":
 				d.Lease, _ = oc.NewSourceLease(oc.NewSourceIssuer(), d.Lease.ID())
+			case "archive-source-only":
+				d.TargetProjectID = testID[i.Project](t)
+				d.Command, _ = f.NewCommandIdentity("artifact", []string{d.TargetProjectID.String()}, "create", d.Command.Key())
+				cause := d.Cause.Details()
+				cause.Action = oc.ProjectStopArchive
+				d.Cause, _ = oc.NewProjectStopCause(cause)
+				wantValid = false
 			}
 			changed, err := oc.NewProjectSourceStopRequest(d)
 			if !wantValid {
