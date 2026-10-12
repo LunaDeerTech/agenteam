@@ -113,3 +113,13 @@ root随后推送main原58288 actual0（bb35d2），fresh远端tip仍精确为 `5
 原output92文件/23,492,506B/10目录已同FS无覆盖保全至main `output/ai/retired-20261012/runner-command-wss/`，逐项metadata/hash/inode相同；五份tmp副本1,329B及旁目录全部原证明保持，原tmp保留。细节及外部受保护依赖见[恢复说明](runner-command-wss/README.md)。
 
 root普通移除 `/workspace/agenteam-runner-command-wss` 及本地 `ai/runner-command-wss-20261012`，fresh tip核对18477 actual0（de5f60）；远端exact-lease删除95005 actual0（299567），后继fresh空、fetch/prune和tracking空42368 actual0（e1eabc）。本批增加1树/1本地/1远端，累计 **38 WorkTrees / 39本地分支 / 74远端引用**，legacy140待核、原显式keep1不变。新Command Operation树实施未验，不计作清理；旧FAIL、STOP、保护缓存与总体未完成范围不变。
+
+## 2026-10-12 D13 Plain Text Parser：历史已保留，远端清理完成
+
+原候选 `ai/d13-plain-text-parser` 的tip为 `de79e04f6d0149523eff23563c70fe02233f33d6`，最终tree与已交main祖先 `5abcc5f045b0d705db25f5e72942f8fde02e234f` 相同；此前KEEP所指的17个历史源码版本缺口现已闭合。此次真正的 `merge --no-ff --no-commit -s ours` 后提交为 `433bbe595b7f3fefdbc23fd5fd780928367b9d12`，有序两父为 `125a61896c1ead22885f20bf65f821654835cdca` 与该候选tip；结果tree仍为第一父的 `ecf2061d3eedc666aaec1d0869b2e16c7511446b`，文件零变化，未重新接受旧失败实现。
+
+原[plan](../output/ai/branch-cleanup-20261012/d13-history/plan.json)与[版本清单](../output/ai/branch-cleanup-20261012/d13-history/source-versions.json)保持不变：9个独有提交、3个外部父均为合后main祖先；完整81路径/124版本共2,244,330B逐项按原commit:path验证blob、size与SHA，其中本分支及合并解决范围为13路径/36版本。首次后验包装8ba7d4 actual1使用默认路径历史简化，仅枚举107版本；[原失败记录](../output/ai/branch-cleanup-20261012/d13-history/failed-post-proof.json)保留，不误判为源码丢失。后继99ddb9 actual0及独核d139a7 actual0确认 `--full-history` 的第一父107→合后124、17缺口全闭，见[完整后验](../output/ai/branch-cleanup-20261012/d13-history/post-merge.json)。未运行产品测试，原FAIL/STOP与D13有限完成范围不变。
+
+main推送PID901989实际Wait0后，fresh查询PID902017实际0精确匹配上述tip；仅该远端的exact-lease删除PID902040实际0，fresh查询PID902048实际0且为空。初次仅main refspec的fetch未覆盖ai tracking，包装43764/38cfc3 actual1如实保留；随后显式main与ai全范围fetch/prune PID902369实际0（7e5866），D13 tracking、本地分支和worktree均为空，见[最终引用核验](../output/ai/branch-cleanup-20261012/d13-history/remote-verification.json)。本候选原无本地分支或树，本次仅增加1个远端删除：累计 **38 WorkTrees / 39本地分支 / 75远端引用**，legacy140→139待核，原显式keep1不变。
+
+本次仅保证已提交源码历史可恢复。已记录的旧树/output与 `/tmp/d13-p01` 原日志在有界精确路径检查中未见；没有遍历全部归档，不声称原件毁损，也未补回ignored运行原件、binary或未提交现场。类型/大小与17版本有界凭据模式检查及其限制均在plan中；没有输出敏感值或扩大为完整secret保证。小proof属于ignored材料，跨设备须另行保留；全部已提交源码由已推送main完整历史恢复。其它STOP、保护树和未核候选不变。
