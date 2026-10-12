@@ -22,8 +22,11 @@ import (
 // Options are copied at construction. A nonzero EnrollmentToken means explicit
 // credential enrollment; a normal reconnect never reuses an enrollment token.
 // Configuration may be omitted when the private identity file already exists.
+// Operations is empty or read-file. The latter constructs resources only after
+// Run obtains the real identity lock; it cannot be mixed with an external executor.
 type Options struct {
 	IdentityFile     string
+	Operations       string
 	Configuration    *identity.Configuration
 	EnrollmentToken  p.EnrollmentToken
 	EnrollmentSource func(context.Context) (p.EnrollmentToken, error)
@@ -68,7 +71,8 @@ type Client struct {
 	started, stopped bool
 	cancel           context.CancelFunc
 	done             chan struct{}
-	executor         operationExecutor // Immutable; only NewReadFile explicitly binds it.
+	executor         operationExecutor // Fixed before the first connection; never changed on reconnect.
+	ownReadFile      func(identity.Configuration) (operationExecutor, ownedReadFileManager, error)
 	open             func(string) (ownedIdentity, error)
 	device           func(identity.Configuration, *x509.CertPool) (deviceBackend, error)
 	wait             func(context.Context, time.Duration) error
@@ -80,6 +84,9 @@ func (*Client) MarshalJSON() ([]byte, error) { return []byte(`"runner_control_cl
 func (*Client) LogValue() slog.Value         { return slog.StringValue("runner_control_client") }
 
 func New(options Options) (*Client, error) {
+	if options.Operations != "" && options.Operations != p.ReadFileOperation {
+		return nil, identity.ErrInvalid
+	}
 	if options.EnrollmentToken.Valid() && options.EnrollmentSource != nil {
 		return nil, identity.ErrInvalid
 	}
@@ -100,7 +107,8 @@ func New(options Options) (*Client, error) {
 		options.Roots = options.Roots.Clone()
 	}
 	// Validate the same Hello contract consumed by the native connection, before
-	// taking ownership of private credentials. No operation or feature is offered.
+	// taking ownership of private credentials. Selected resources do not exist yet,
+	// so this preliminary Hello offers no operation or feature.
 	id, err := p.NewID()
 	if err != nil {
 		return nil, ErrTransport
@@ -109,7 +117,8 @@ func New(options Options) (*Client, error) {
 		return nil, ErrProtocol
 	}
 	return &Client{options: options, done: make(chan struct{}),
-		open: func(path string) (ownedIdentity, error) { return identity.Open(path) },
+		ownReadFile: newOwnedReadFile,
+		open:        func(path string) (ownedIdentity, error) { return identity.Open(path) },
 		device: func(c identity.Configuration, roots *x509.CertPool) (deviceBackend, error) {
 			return newDeviceClient(c, roots)
 		},
@@ -138,6 +147,9 @@ func (c *Client) Run(ctx context.Context) (result error) {
 	defer func() { cancel(); close(c.done) }()
 	if err := owned.Err(); err != nil {
 		return err
+	}
+	if options.Operations != "" && c.executor != nil {
+		return identity.ErrInvalid
 	}
 	file, err := c.open(options.IdentityFile)
 	if err != nil {
@@ -198,6 +210,34 @@ func (c *Client) Run(ctx context.Context) (result error) {
 	}
 	if err = owned.Err(); err != nil {
 		return err
+	}
+	if options.Operations == p.ReadFileOperation {
+		if c.ownReadFile == nil {
+			return identity.ErrUnavailable
+		}
+		executor, manager, makeErr := c.ownReadFile(id.Configuration())
+		// Even an unsuccessful construction can transfer a partial owner. Keep it
+		// on this Run stack before inspecting the error or caller cancellation.
+		if manager != nil {
+			defer func() {
+				manager.Stop()
+				if closeErr := manager.Drain(context.Background()); closeErr != nil {
+					// A close failure must not be hidden by context.Canceled; App's
+					// existing shutdown path treats cancellation alone as normal.
+					result = closeErr
+				}
+			}()
+		}
+		if makeErr != nil {
+			return makeErr
+		}
+		if err = owned.Err(); err != nil {
+			return err
+		}
+		if manager == nil || executor == nil {
+			return identity.ErrUnavailable
+		}
+		c.executor = executor
 	}
 	device, err := c.device(id.Configuration(), options.Roots)
 	if err != nil {

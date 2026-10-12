@@ -64,7 +64,7 @@ func run(ctx context.Context, cfg config.Config, logger *logging.Logger, signals
 		logger.Failed(logging.Starting, lifecycle.InitializationFailed)
 		return err
 	}
-	options := control.Options{IdentityFile: cfg.IdentityFile(), RunnerVersion: "development", Roots: roots, Observe: func(_ context.Context, state control.ConnectionState) {
+	options := control.Options{IdentityFile: cfg.IdentityFile(), Operations: cfg.Operations(), RunnerVersion: "development", Roots: roots, Observe: func(_ context.Context, state control.ConnectionState) {
 		logger.RunnerConnection(logging.RunnerConnectionState(state))
 	}}
 	if device, configured := cfg.Device(); configured {
