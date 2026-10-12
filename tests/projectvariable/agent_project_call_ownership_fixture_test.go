@@ -461,9 +461,17 @@ func agentOwnershipLockWait(t *testing.T, raw *postgres.Store, key f.LockKey, ho
 // helper has no cleanup gate. Only actual pair.Joined permits either callback;
 // a failed bounded drain keeps the guard held until this test process exits.
 // The caller stops the parent test after a failed local subtest.
-func newAgentOwnershipInstallationFixture(t *testing.T, allowRuntimeClose func() bool, factory func(*hookStore, *project.Authority, *object.ProcessGuard, objc.ProcessID) (*skill.Authority, error)) *skillInstallationFixture {
+func newAgentOwnershipInstallationFixture(t *testing.T, allowRuntimeClose func() bool, factory func(*hookStore, *project.Authority, *object.ProcessGuard, objc.ProcessID) (*skill.Authority, error), bases ...*variableHTTPFixture) *skillInstallationFixture {
 	t.Helper()
-	base := newVariableHTTPFixture(t) // newDatabase migrates the current continuous embedded source.
+	if len(bases) > 1 || len(bases) == 1 && bases[0] == nil {
+		t.Fatal("invalid optional original database fixture")
+	}
+	var base *variableHTTPFixture
+	if len(bases) == 1 {
+		base = bases[0] // A real older-prefix fixture for an in-place migration test.
+	} else {
+		base = newVariableHTTPFixture(t)
+	}
 	store := base.tracked
 	manifest, err := agentOwnershipManifest()
 	if err != nil {

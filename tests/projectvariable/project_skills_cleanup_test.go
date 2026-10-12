@@ -78,7 +78,7 @@ type skillsCleanupPG struct {
 	closed            bool
 }
 
-func newSkillsCleanupPG(t *testing.T) *skillsCleanupPG {
+func newSkillsCleanupPG(t *testing.T, bases ...*variableHTTPFixture) *skillsCleanupPG {
 	t.Helper()
 	v := &skillsCleanupPG{}
 	v.p2 = newAgentOwnershipInstallationFixture(t, func() bool { return v.p2 == nil || v.closed }, func(store *hookStore, projects *project.Authority, guard *object.ProcessGuard, process oc.ProcessID) (*skill.Authority, error) {
@@ -99,7 +99,7 @@ func newSkillsCleanupPG(t *testing.T) *skillsCleanupPG {
 			}
 		})
 		return skill.NewAuthorityWithInstallExecution(store, projects, v.installer)
-	})
+	}, bases...)
 	t.Cleanup(func() { v.close(t) })
 	v.tap = &skillsCleanupPGTap{service: v.p2.service}
 	actual, err := v.guard.CurrentProcess()
