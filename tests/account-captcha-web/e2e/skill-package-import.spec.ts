@@ -146,7 +146,7 @@ test("imports an existing file and downloads its immutable revision", async ({
   expect(installed.revision).toBe("1");
   expect(installed.skill.protected).toBe(false);
   const downloadPage = await context.newPage();
-  const download = await observePackage(downloadPage, installed);
+  const download = await observePackage(downloadPage, installed, true);
   let downloadCompleted = false;
   try {
     await downloadPage.setViewportSize({ width: 1440, height: 960 });

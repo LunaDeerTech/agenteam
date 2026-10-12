@@ -86,7 +86,11 @@ type Entry = {
 // Reuse the original JSON-reader/public-consumer observers for metadata only.
 // They preserve each original call and Promise; binary bytes and terminals are
 // never replaced. A failed original GET remains failed in the evidence.
-export async function observePackage(page: Page, data: PackageMaterial) {
+export async function observePackage(
+  page: Page,
+  data: PackageMaterial,
+  observeImportedBinary = false,
+) {
   const entries: Entry[] = [];
   const evidence = process.env.AGENTEAM_SKILL_PACKAGE_WEB_EVIDENCE!;
   const prefix = `/api/v1/projects/${data.project_id}`;
@@ -95,6 +99,7 @@ export async function observePackage(page: Page, data: PackageMaterial) {
     stage = "installed",
     stopped = false;
   let browserFile: { length: number; sha256: string } | undefined;
+  let binaryProof: any;
   let nativeRetired = false,
     nativePending: number | undefined;
   const metadataKinds: Record<string, string> = {
@@ -120,7 +125,7 @@ export async function observePackage(page: Page, data: PackageMaterial) {
     installing++;
     try {
       await page.evaluate(
-        async ({ binding, project, skill }) => {
+        async ({ binding, project, skill, importedBinary }) => {
           const module = await import(/* @vite-ignore */ binding.asset);
           const useSession = module[binding.exportName];
           if (typeof useSession !== "function")
@@ -143,8 +148,359 @@ export async function observePackage(page: Page, data: PackageMaterial) {
             false,
             false,
           );
+          if (importedBinary) {
+            // This opt-in observes only the imported, fixed revision. It does
+            // not add binary bodies to the shared JSON metadata observer.
+            const path = `/api/v1/projects/${project}/skills/${skill}/revisions/${importedBinary.revision}/package`;
+            const state = {
+              pending: 0,
+              failed: false,
+              retired: false,
+              calls: 0,
+              request_id: "",
+              status: 0,
+              length: "",
+              bytes: 0,
+              digest: "",
+              fetch_returned: false,
+              fetch_rejected: false,
+              aborted: false,
+              readers: 0,
+              reads: 0,
+              read_returns: 0,
+              eof: false,
+              closed: false,
+              release: 0,
+              reader_cancel: 0,
+              stream_cancel: 0,
+              public_calls: 0,
+              public_pending: 0,
+              public_returned: false,
+              public_rejected: false,
+              public_current: false,
+              public_bytes: 0,
+              public_digest: "",
+            };
+            let stream: ReadableStream<Uint8Array> | null = null;
+            let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
+            let signal: AbortSignal | null | undefined;
+            const chunks: Uint8Array[] = [];
+            const sha = async (bytes: Uint8Array) =>
+              Array.from(
+                new Uint8Array(await crypto.subtle.digest("SHA-256", bytes)),
+                (value) => value.toString(16).padStart(2, "0"),
+              ).join("");
+            const track = (
+              promise: Promise<any>,
+              yes: (value: any) => any,
+              no: () => any = () => {
+                state.failed = true;
+              },
+            ) => {
+              state.pending++;
+              void Promise.resolve(promise).then(
+                async (value) => {
+                  try {
+                    await yes(value);
+                  } catch {
+                    state.failed = true;
+                  } finally {
+                    state.pending--;
+                  }
+                },
+                async () => {
+                  try {
+                    await no();
+                  } catch {
+                    state.failed = true;
+                  } finally {
+                    state.pending--;
+                  }
+                },
+              );
+            };
+            const abort = () => {
+              state.aborted = true;
+            };
+            const originalFetch = window.fetch;
+            const fetch = function (
+              this: Window,
+              input: RequestInfo | URL,
+              init?: RequestInit,
+            ) {
+              let url: URL;
+              try {
+                url = new URL(
+                  input instanceof Request ? input.url : String(input),
+                  location.href,
+                );
+              } catch {
+                return originalFetch.call(this, input, init);
+              }
+              const method =
+                init?.method ??
+                (input instanceof Request ? input.method : "GET");
+              const selected =
+                url.origin === location.origin &&
+                url.pathname === path &&
+                !url.search &&
+                method === "GET";
+              if (selected) {
+                state.calls++;
+                if (
+                  state.retired ||
+                  state.calls !== 1 ||
+                  state.public_pending !== 1
+                )
+                  state.failed = true;
+                signal =
+                  init?.signal ??
+                  (input instanceof Request ? input.signal : null);
+                state.aborted = signal?.aborted ?? false;
+                signal?.addEventListener("abort", abort);
+              }
+              const result = originalFetch.call(this, input, init);
+              if (selected)
+                track(
+                  result,
+                  (response) => {
+                    state.fetch_returned = true;
+                    state.request_id =
+                      response.headers.get("x-request-id") ?? "";
+                    state.status = response.status;
+                    state.length = response.headers.get("content-length") ?? "";
+                    stream = response.body;
+                    if (!stream) state.failed = true;
+                  },
+                  () => {
+                    state.fetch_rejected = true;
+                  },
+                );
+              return result;
+            };
+            const getReader = ReadableStream.prototype.getReader;
+            const wrappedGetReader = function (
+              this: ReadableStream,
+              ...args: any[]
+            ) {
+              const result = Reflect.apply(getReader, this, args);
+              if (this === stream) {
+                if (++state.readers !== 1) state.failed = true;
+                reader = result;
+                track(result.closed, () => {
+                  state.closed = true;
+                });
+              }
+              return result;
+            };
+            const read = ReadableStreamDefaultReader.prototype.read;
+            const wrappedRead = function (
+              this: ReadableStreamDefaultReader,
+              ...args: any[]
+            ) {
+              const result = Reflect.apply(read, this, args);
+              if (this === reader) {
+                state.reads++;
+                track(result, async (value) => {
+                  state.read_returns++;
+                  if (state.eof) {
+                    state.failed = true;
+                    return;
+                  }
+                  if (!value.done) {
+                    if (!(value.value instanceof Uint8Array)) {
+                      state.failed = true;
+                      return;
+                    }
+                    state.bytes += value.value.byteLength;
+                    if (state.bytes > importedBinary.size) {
+                      state.failed = true;
+                      return;
+                    }
+                    chunks.push(value.value.slice());
+                    return;
+                  }
+                  state.eof = true;
+                  const bytes = new Uint8Array(state.bytes);
+                  let at = 0;
+                  for (const chunk of chunks) {
+                    bytes.set(chunk, at);
+                    at += chunk.length;
+                    chunk.fill(0);
+                  }
+                  chunks.length = 0;
+                  try {
+                    state.digest = await sha(bytes);
+                  } finally {
+                    bytes.fill(0);
+                  }
+                });
+              }
+              return result;
+            };
+            const cancel = ReadableStreamDefaultReader.prototype.cancel;
+            const wrappedCancel = function (
+              this: ReadableStreamDefaultReader,
+              ...args: any[]
+            ) {
+              const result = Reflect.apply(cancel, this, args);
+              if (this === reader) {
+                state.reader_cancel++;
+                track(result, () => {});
+              }
+              return result;
+            };
+            const streamCancel = ReadableStream.prototype.cancel;
+            const wrappedStreamCancel = function (
+              this: ReadableStream,
+              ...args: any[]
+            ) {
+              const result = Reflect.apply(streamCancel, this, args);
+              if (this === stream) {
+                state.stream_cancel++;
+                track(result, () => {});
+              }
+              return result;
+            };
+            const release = ReadableStreamDefaultReader.prototype.releaseLock;
+            const wrappedRelease = function (
+              this: ReadableStreamDefaultReader,
+              ...args: any[]
+            ) {
+              const result = Reflect.apply(release, this, args);
+              if (this === reader) state.release++;
+              return result;
+            };
+            const download = auth.skills.download;
+            const wrappedDownload = function (this: unknown, ...args: any[]) {
+              state.public_calls++;
+              state.public_pending++;
+              const identity = auth.personalContext.identity;
+              const captured = identity && { ...identity };
+              if (
+                state.retired ||
+                state.public_calls !== 1 ||
+                args[0] !== project ||
+                args[1] !== skill ||
+                args[2] !== importedBinary.revision
+              )
+                state.failed = true;
+              let result: Promise<Blob>;
+              try {
+                result = Reflect.apply(download, this, args);
+              } catch (error) {
+                state.public_pending--;
+                state.public_rejected = true;
+                throw error;
+              }
+              track(
+                result,
+                async (value) => {
+                  try {
+                    state.public_returned = true;
+                    state.public_current =
+                      auth.state.phase === "authenticated" &&
+                      auth.personalContext.phase === "current" &&
+                      !!captured &&
+                      ["userID", "sessionID", "epoch"].every(
+                        (key) =>
+                          captured[key] ===
+                          auth.personalContext.identity?.[key],
+                      ) &&
+                      auth.state.user?.id === captured.userID &&
+                      auth.state.session?.id === captured.sessionID;
+                    if (
+                      !(value instanceof Blob) ||
+                      value.size !== importedBinary.size ||
+                      value.type !== "application/zip"
+                    ) {
+                      state.failed = true;
+                      return;
+                    }
+                    state.public_bytes = value.size;
+                    const bytes = new Uint8Array(await value.arrayBuffer());
+                    try {
+                      state.public_digest = await sha(bytes);
+                    } finally {
+                      bytes.fill(0);
+                    }
+                  } finally {
+                    state.public_pending--;
+                  }
+                },
+                () => {
+                  state.public_rejected = true;
+                  state.public_pending--;
+                },
+              );
+              return result;
+            };
+            const hooks: [any, string, any, any][] = [
+              [window, "fetch", originalFetch, fetch],
+              [
+                ReadableStream.prototype,
+                "getReader",
+                getReader,
+                wrappedGetReader,
+              ],
+              [
+                ReadableStreamDefaultReader.prototype,
+                "read",
+                read,
+                wrappedRead,
+              ],
+              [
+                ReadableStreamDefaultReader.prototype,
+                "cancel",
+                cancel,
+                wrappedCancel,
+              ],
+              [
+                ReadableStream.prototype,
+                "cancel",
+                streamCancel,
+                wrappedStreamCancel,
+              ],
+              [
+                ReadableStreamDefaultReader.prototype,
+                "releaseLock",
+                release,
+                wrappedRelease,
+              ],
+              [auth.skills, "download", download, wrappedDownload],
+            ];
+            for (const [object, key, , wrapper] of hooks) object[key] = wrapper;
+            (window as any).__importedPackageOriginal = {
+              snapshot: () => ({ ...state }),
+              finish() {
+                if (state.pending !== 0 || state.public_pending !== 0)
+                  state.failed = true;
+                for (const [
+                  object,
+                  key,
+                  original,
+                  wrapper,
+                ] of hooks.reverse()) {
+                  if (object[key] !== wrapper) state.failed = true;
+                  object[key] = original;
+                }
+                signal?.removeEventListener("abort", abort);
+                for (const chunk of chunks) chunk.fill(0);
+                chunks.length = 0;
+                state.retired = true;
+                return { ...state };
+              },
+            };
+          }
         },
-        { binding, project: data.project_id, skill: data.skill.id },
+        {
+          binding,
+          project: data.project_id,
+          skill: data.skill.id,
+          importedBinary: observeImportedBinary
+            ? { revision: data.revision, size: data.byte_size }
+            : null,
+        },
       );
       await route.continue();
     } catch {
@@ -274,6 +630,19 @@ export async function observePackage(page: Page, data: PackageMaterial) {
   page.on("requestfailed", failed);
   page.on("close", closed);
   async function checkpoint() {
+    if (observeImportedBinary) {
+      await expect
+        .poll(() =>
+          page.evaluate(
+            () => (window as any).__importedPackageOriginal.snapshot().pending,
+          ),
+        )
+        .toBe(0);
+      binaryProof = await page.evaluate(() =>
+        (window as any).__importedPackageOriginal.snapshot(),
+      );
+      expect(binaryProof.failed).toBe(false);
+    }
     await expect
       .poll(() =>
         page.evaluate(
@@ -369,6 +738,61 @@ export async function observePackage(page: Page, data: PackageMaterial) {
         original_closed: true,
         handler_returned: true,
       });
+      if (e.name === "package" && observeImportedBinary) {
+        stage = "original_imported_binary";
+        expect(binaryProof).toMatchObject({
+          pending: 0,
+          failed: false,
+          retired: false,
+          calls: 1,
+          request_id: e.requestID,
+          status: 200,
+          length: String(data.byte_size),
+          bytes: data.byte_size,
+          digest: data.sha256,
+          fetch_returned: true,
+          fetch_rejected: false,
+          aborted: false,
+          readers: 1,
+          eof: true,
+          closed: true,
+          release: 1,
+          reader_cancel: 0,
+          stream_cancel: 0,
+          public_calls: 1,
+          public_pending: 0,
+          public_returned: true,
+          public_rejected: false,
+          public_current: true,
+          public_bytes: data.byte_size,
+          public_digest: data.sha256,
+        });
+        expect(binaryProof.reads).toBeGreaterThan(0);
+        expect(binaryProof.read_returns).toBe(binaryProof.reads);
+        expect(record).toMatchObject({
+          content_length: binaryProof.bytes,
+          body_sha256: binaryProof.digest,
+          content_type: "application/zip",
+          content_disposition: 'attachment; filename="skill-package.zip"',
+          cache_control: "no-store",
+          nosniff: true,
+          package_verified: true,
+        });
+        expect(browserFile).toEqual({
+          length: binaryProof.bytes,
+          sha256: binaryProof.digest,
+        });
+        e.native = { ...binaryProof };
+        if (e.terminal === "failed") {
+          expect(e.failure).toBe("net::ERR_ABORTED");
+          expect(e.finished).toBe(0);
+          expect(e.failed).toBe(1);
+          e.length = binaryProof.bytes;
+          e.sha256 = binaryProof.digest;
+          e.checked = true;
+          continue;
+        }
+      }
       if (e.terminal === "failed") {
         stage = "original_failed_metadata";
         expect(Object.hasOwn(metadataKinds, e.name)).toBe(true);
@@ -473,6 +897,26 @@ export async function observePackage(page: Page, data: PackageMaterial) {
       try {
         if (!page.isClosed()) {
           await expect.poll(() => installing).toBe(0);
+          if (observeImportedBinary) {
+            await expect
+              .poll(() =>
+                page.evaluate(
+                  () =>
+                    (window as any).__importedPackageOriginal.snapshot()
+                      .pending,
+                ),
+              )
+              .toBe(0);
+            binaryProof = await page.evaluate(() =>
+              (window as any).__importedPackageOriginal.finish(),
+            );
+            expect(binaryProof).toMatchObject({
+              pending: 0,
+              public_pending: 0,
+              failed: false,
+              retired: true,
+            });
+          }
           await expect
             .poll(() =>
               page.evaluate(
@@ -551,6 +995,7 @@ export async function observePackage(page: Page, data: PackageMaterial) {
             native_retired: nativeRetired,
             native_pending: nativePending,
             browser_file_verified: browserFile !== undefined,
+            ...(observeImportedBinary ? { imported_binary: binaryProof } : {}),
             all_observed: entries.length > 0 && entries.every((e) => e.checked),
             requests: entries.map((e) => ({
               name: e.name,
