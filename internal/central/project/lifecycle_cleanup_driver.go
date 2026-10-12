@@ -15,7 +15,8 @@ import (
 // constructor binds Outbox only; the explicit WithAudit constructor also binds
 // Audit. Every earlier domain must already be canonically completed. Neither
 // constructor supplies a complete registry or performs Project deletion. A nil
-// Run result can also mean a persisted pending round.
+// Run result can also mean a persisted pending round. ForSkills instead binds
+// only one domain substep and always leaves its combined participant pending.
 type LifecycleCleanupDriver struct{ state *lifecycleCleanupState }
 
 type lifecycleCleanupOwner struct {
@@ -31,6 +32,7 @@ type lifecycleCleanupState struct {
 	process      oc.ProcessID
 	participant  c.ProjectLifecycleParticipant
 	audit        c.ProjectLifecycleParticipant
+	skills       SkillsCleanupDomain
 	registration identity.ServiceRegistration
 	mu           sync.Mutex
 	stopped      bool
@@ -149,6 +151,17 @@ func (st *lifecycleCleanupState) invoke(ctx context.Context, round lifecycleClea
 	if err = validateCleanupCheckpoint(round.participant, round.checkpoint, round.cause, round.claim.project); err != nil {
 		return report, err
 	}
+	checkpoint := round.checkpoint
+	if round.participant == c.SkillsParticipant {
+		var progress skillsCleanupCheckpoint
+		progress, checkpoint, err = decodeSkillsCleanupCheckpoint(checkpoint, round.cause, c.ScopeRef{Kind: c.ProjectScope, ProjectID: round.claim.project})
+		if err != nil {
+			return report, err
+		}
+		if progress.State == c.CleanupCompleted {
+			return report, fault(f.InvalidState)
+		}
+	}
 	actorScope, err := identity.InProject(round.claim.project)
 	if err != nil {
 		return report, invalid()
@@ -169,12 +182,18 @@ func (st *lifecycleCleanupState) invoke(ctx context.Context, round lifecycleClea
 			report, err = c.CleanupReport{}, unavailable(nil)
 		}
 	}()
-	report, err = participant.Cleanup(ctx, actor, round.cause, c.ScopeRef{Kind: c.ProjectScope, ProjectID: round.claim.project}, round.checkpoint)
+	report, err = participant.Cleanup(ctx, actor, round.cause, c.ScopeRef{Kind: c.ProjectScope, ProjectID: round.claim.project}, checkpoint)
 	if err != nil {
 		return c.CleanupReport{}, portError(err)
 	}
 	if err = ctx.Err(); err != nil {
 		return c.CleanupReport{}, portError(err)
+	}
+	if round.participant == c.SkillsParticipant {
+		report, err = skillsParentCleanupReport(round, report)
+		if err != nil {
+			return c.CleanupReport{}, err
+		}
 	}
 	if err = cleanupRoundReport(round, report); err != nil {
 		return c.CleanupReport{}, err

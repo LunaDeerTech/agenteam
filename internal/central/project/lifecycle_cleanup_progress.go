@@ -38,9 +38,12 @@ func cleanupRoundReport(round lifecycleCleanupRound, report c.CleanupReport) err
 		return unavailable(nil)
 	}
 	d := report.Details()
-	// Both fixed adapters expose only aggregate completion, not resource refs.
-	// Audit preserves its own diagnostic checkpoint; it is never a skip cursor.
+	// Fixed ports expose progress without resource refs. Audit preserves its
+	// diagnostic checkpoint; Skills always wraps its child progress as pending.
 	if len(d.RemainingRefs) != 0 || d.State != c.CleanupCompleted && d.State != c.CleanupPending || round.participant == c.AuditParticipant && d.Checkpoint == nil {
+		return unavailable(nil)
+	}
+	if round.participant == c.SkillsParticipant && (d.State != c.CleanupPending || d.Checkpoint == nil || d.SafeReason != c.ReasonWorkPending) {
 		return unavailable(nil)
 	}
 	return validateCleanupCheckpoint(round.participant, d.Checkpoint, round.cause, round.claim.project)

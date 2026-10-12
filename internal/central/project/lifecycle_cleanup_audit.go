@@ -34,6 +34,9 @@ func (st *lifecycleCleanupState) cleanupProgress(r *lifecycleRecord) (c.Particip
 	if r == nil {
 		return "", false, unavailable(nil)
 	}
+	if st.skills != nil {
+		return c.SkillsParticipant, false, skillsCleanupProgress(r)
+	}
 	if r.operation.State == c.OperationCleaning && r.cleanupStage == "audit" {
 		if st.audit != nil {
 			return c.AuditParticipant, false, auditCleanupProgress(r)
@@ -59,13 +62,19 @@ func (st *lifecycleCleanupState) cleanupProgress(r *lifecycleRecord) (c.Particip
 	return c.OutboxParticipant, false, outboxCleanupProgress(r)
 }
 
-func (st *lifecycleCleanupState) cleanupPort(name c.ParticipantName) (c.ProjectLifecycleParticipant, error) {
+func (st *lifecycleCleanupState) cleanupPort(name c.ParticipantName) (SkillsCleanupDomain, error) {
 	switch name {
 	case c.OutboxParticipant:
-		return st.participant, nil
+		if !nilPort(st.participant) {
+			return st.participant, nil
+		}
 	case c.AuditParticipant:
 		if !nilPort(st.audit) {
 			return st.audit, nil
+		}
+	case c.SkillsParticipant:
+		if !nilPort(st.skills) {
+			return st.skills, nil
 		}
 	}
 	return nil, fault(f.DependencyUnbound)
@@ -77,6 +86,8 @@ func cleanupStages(name c.ParticipantName) (current, next string, err error) {
 		return "outbox", "audit", nil
 	case c.AuditParticipant:
 		return "audit", "final", nil
+	case c.SkillsParticipant:
+		return "domains", "domains", nil
 	default:
 		return "", "", invalid()
 	}
@@ -94,6 +105,9 @@ func validateCleanupCheckpoint(participant c.ParticipantName, checkpoint *c.Clea
 		}
 	case c.AuditParticipant:
 		_, err := decodeAuditCleanupCheckpoint(checkpoint, cause, c.ScopeRef{Kind: c.ProjectScope, ProjectID: project})
+		return err
+	case c.SkillsParticipant:
+		_, _, err := decodeSkillsCleanupCheckpoint(checkpoint, cause, c.ScopeRef{Kind: c.ProjectScope, ProjectID: project})
 		return err
 	}
 	return unavailable(nil)
