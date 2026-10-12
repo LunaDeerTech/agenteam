@@ -296,6 +296,8 @@ Artifact owner 在首业务 SQL 前登记完整原调用，并覆盖 Create、Up
 
 Artifact Request/Inspect 复用既有 ArtifactStopComponent 和 ProjectStopAuthority：当前 exact operation/action/version、Project SH、完整 manifest 和原 live Tx 每轮重核；gate 事务实际确认返回后才取消所捕获的原 epoch 调用。Archive 保留合法读语义，Delete 必须等待读及其 Audit/SQL 尾；旧 archive cause 不能取消 Restore 后新调用。只读 Inspect 与失败/Unknown 不能造 stopped，所有未确认 source 或 lease 继续 Pending；本片不把旧 CancelSourceLease 的 caller 返回当其 background release 已返回，source 正向收束仍需后继 typed loan。
 
+同一原 Artifact Cleanup 在 Project EX 和当前私有 claim 下退休本域技术尾：原实例实际返回或 exact foreign ProcessGuard 停止证明齐备后，才删除合法 joined、无未确认 source 的 project_work 与旧 archive stopped receipts，仅保留当前 Delete 的最小 stopped receipt。初始 completed 重放、最终完成和 Unknown 只读确认均核这条边界；未决调用、未知归属或 source 保持 Pending。Cleanup 自身是独立私有 control，不登记业务 work，也不能用全局 Joined 排除另一 Project 或冒原返回；本域不跨 SQL 删除 Object 的技术尾，metadata 空不表示两域所有历史已退休。
+
 新的显式 Artifact/Object 组合 adapter 依次消费两原 Service 的 Stop/Inspect；只有 component/cause 严格匹配且两者完整实际返回 Stopped 才聚合 Stopped。没有对应注册 reference kind 的原细粒度 ID 不改名伪装为 object/artifact，聚合保守状态与安全 reason。原 cleanup-only 构造保留，原 LifecycleStopDriver 直接消费新 adapter；不因此绑定默认 App 或部分 Registry，也不声称其它 domain/finalizer 已完成。本节为候选实现合同，动态结果按后续真实验收记录。
 
 ### 9.1 D05 项目停止能力

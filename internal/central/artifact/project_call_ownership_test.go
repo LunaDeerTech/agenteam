@@ -214,6 +214,25 @@ func artifactCallJSON(value any) postgres.Row {
 	return cleanupOwnerRow{values: []any{raw}, err: err}
 }
 func (v *artifactCallFixture) row(ctx context.Context, tx f.Tx, query string, args []any) postgres.Row {
+	if strings.Contains(query, "'Work',") && strings.Contains(query, "'Stops',") {
+		v.mu.Lock()
+		defer v.mu.Unlock()
+		facts := artifactCleanupCalls{Work: []artifactCleanupWork{}, Stops: []artifactCleanupStop{}}
+		for _, record := range v.calls {
+			if record.Project.String() == args[0] {
+				facts.Work = append(facts.Work, artifactCleanupWork{ID: record.ID.String(), Project: record.Project.String(), Process: record.Process.String(), Instance: record.Instance, Joined: record.Joined})
+			}
+		}
+		for _, stop := range v.stops {
+			d := stop.cause.Details()
+			if stop.state != "" && d.ProjectID.String() == args[0] {
+				facts.Stops = append(facts.Stops, artifactCleanupStop{Operation: d.OperationID.String(), Action: string(d.Action), State: stop.state, Process: stop.owner.process, Instance: stop.owner.instance, Version: int64(d.ProjectVersion)})
+			}
+		}
+		sort.Slice(facts.Work, func(a, b int) bool { return facts.Work[a].ID < facts.Work[b].ID })
+		sort.Slice(facts.Stops, func(a, b int) bool { return facts.Stops[a].Operation < facts.Stops[b].Operation })
+		return artifactCallJSON(facts)
+	}
 	if strings.Contains(query, "source_lease_id IS NOT NULL") {
 		v.mu.Lock()
 		defer v.mu.Unlock()
@@ -733,6 +752,20 @@ func TestArtifactProjectStopRejectsOtherInstanceReceipts(t *testing.T) {
 func TestArtifactProjectStopIncludesCleanupAndSources(t *testing.T) {
 	t.Run("cleanup-original-return", func(t *testing.T) {
 		v, p := newArtifactCallFixture(t)
+		stop := v.stop(t, p)
+		report, err := v.service.RequestProjectStop(context.Background(), stop.actor, stop.cause)
+		if err != nil || !report.Matches(oc.ArtifactStopComponent, stop.cause) || report.Details().State != oc.ProjectStopped {
+			t.Fatal("current Delete did not obtain its original stopped receipt", err)
+		}
+		operation, err := f.ParseID[oc.CleanupOperation](stop.cause.Details().OperationID.String())
+		if err != nil {
+			t.Fatal(err)
+		}
+		cleanupCause, err := oc.NewProjectCleanupCause(oc.ProjectCleanupDetails{ProjectID: p, OperationID: operation, Version: stop.cause.Details().ProjectVersion})
+		if err != nil {
+			t.Fatal(err)
+		}
+		v.facts[p].actor, v.facts[p].cause = stop.actor, cleanupCause
 		v.facts[p].state = "completed"
 		barrier := newArtifactCallBarrier()
 		v.store.after = func(_ context.Context, cause f.TransactionCause, result f.CommitResult) f.CommitResult {
@@ -749,14 +782,20 @@ func TestArtifactProjectStopIncludesCleanupAndSources(t *testing.T) {
 				cleanupOwnerWait(t, done)
 			}
 		})
-		go func() { _, err := v.run(context.Background(), v.service, p); done <- err }()
+		go func() {
+			out, err := v.run(context.Background(), v.service, p)
+			if err == nil && out.State != oc.CleanupCompleted {
+				err = errors.New("current Delete receipt did not permit completed cleanup replay")
+			}
+			done <- err
+		}()
 		cleanupOwnerWait(t, barrier.entered)
 		v.pair.Stop()
-		if v.pair.Joined() || v.facts[p].checks != 1 {
+		if v.pair.Joined() || v.facts[p].checks == 0 {
 			t.Fatal("cleanup original bypassed its gate or was not owned")
 		}
 		barrier.unblock()
-		err := cleanupOwnerWait(t, done)
+		err = cleanupOwnerWait(t, done)
 		joined = true
 		if err != nil {
 			t.Fatal("owned cleanup failed", err)

@@ -171,6 +171,17 @@ func (s *Service) CleanupProject(ctx context.Context, actor identity.Actor, caus
 		call.retained = false
 		return out, nil
 	}
+	run, ready, err := s.prepareCleanupCalls(run, actor, cause, call)
+	if err != nil || !ready {
+		if call.retained {
+			return zero, errors.Join(call.failure(), err)
+		}
+		if err != nil {
+			return zero, err
+		}
+		d := cause.Details()
+		return oc.ProjectCleanupResult{State: oc.CleanupPending, ProjectID: d.ProjectID, OperationID: d.OperationID}, nil
+	}
 	out, err := s.cleanupProject(run, actor, cause)
 	if call.retained {
 		return zero, errors.Join(call.failure(), err)
@@ -183,7 +194,7 @@ func (s *Service) CleanupProject(ctx context.Context, actor identity.Actor, caus
 func (s *Service) confirmProjectCleanup(ctx context.Context, actor identity.Actor, cause oc.ProjectCleanupCause, call *projectCleanupCall) (oc.ProjectCleanupResult, error) {
 	d := cause.Details()
 	out := oc.ProjectCleanupResult{State: oc.CleanupPending, ProjectID: d.ProjectID, OperationID: d.OperationID}
-	result := s.withinCleanup(ctx, actor, cause, nil, nil, func(ctx context.Context, _ foundation.Tx, e postgres.SQLExecutor, _ oc.LockedAccess) error {
+	result := s.withinCleanup(ctx, actor, cause, nil, nil, func(ctx context.Context, tx foundation.Tx, e postgres.SQLExecutor, _ oc.LockedAccess) error {
 		pending, err := s.projectCleanupSourcesPending(ctx, e, d.ProjectID)
 		if err != nil {
 			return err
@@ -204,7 +215,11 @@ func (s *Service) confirmProjectCleanup(ctx context.Context, actor identity.Acto
 		if err := e.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_artifact.artifacts WHERE project_id=$1) OR EXISTS(SELECT 1 FROM agenteam_artifact.commands WHERE project_id=$1) OR EXISTS(SELECT 1 FROM agenteam_artifact.upload_intents WHERE project_id=$1)`, d.ProjectID.String()).Scan(&remains); err != nil {
 			return unavailable(err)
 		}
-		if !pending && !remains && state == "completed" {
+		_, technicalClean, err := s.cleanupCallsInTx(ctx, tx, e, cause, false)
+		if err != nil {
+			return err
+		}
+		if !pending && !remains && technicalClean && state == "completed" {
 			out.State = oc.CleanupCompleted
 		}
 		return nil
