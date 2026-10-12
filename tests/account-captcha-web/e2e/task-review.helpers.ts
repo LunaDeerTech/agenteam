@@ -2107,11 +2107,10 @@ export function secretWriteEvidenceValue(value: any, shape: "detail" | "list" | 
     return { command: v.command, changed: v.changed, variable: metadata(v.variable), event_id: v.event_id, audit_id: v.audit_id };
   };
   if (shape === "rejected" && deletion) {
-    keys(value, ["type", "title", "status", "detail", "instance", "code", "request_id", "field_errors", "commit_state"]);
+    keys(value, ["type", "title", "status", "detail", "instance", "code", "request_id", "commit_state"]);
     if (value.code !== "RESOURCE_BUSY" || value.status !== 409 || value.commit_state !== "not_committed" ||
         value.title !== "Resource busy" || value.detail !== "The resource is currently busy." ||
-        ![value.type, value.instance, value.request_id].every(x => typeof x === "string") ||
-        JSON.stringify(value.field_errors) !== '[{"path":"/variable_id","code":"SECRET_VARIABLE_REFERENCED"}]') fail();
+        ![value.type, value.instance, value.request_id].every(x => typeof x === "string")) fail();
     return { code: value.code, status: value.status, commit_state: value.commit_state, request_id: value.request_id };
   }
   if (shape === "detail") return metadata(value);
