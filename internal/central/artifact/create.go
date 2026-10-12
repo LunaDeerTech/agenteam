@@ -223,7 +223,12 @@ func (s *Service) acquireCommandSource(ctx context.Context, req createRequest, c
 	})
 	if lease.Validate() == nil {
 		r.mu.Lock()
-		r.leases[digestBytes([]byte(req.identity.Canonical()))] = lease
+		key := digestBytes([]byte(req.identity.Canonical()))
+		r.leases[key] = lease
+		if r.leaseProjects == nil {
+			r.leaseProjects = make(map[foundation.Digest]identity.ProjectID)
+		}
+		r.leaseProjects[key] = req.invocation.Details().ProjectID
 		r.mu.Unlock()
 	}
 	if err = commitError(result); err != nil {
@@ -244,6 +249,7 @@ func (s *Service) cancelSource(lease oc.SourceLease) {
 		for key, handle := range r.leases {
 			if handle.ID() == lease.ID() {
 				delete(r.leases, key)
+				delete(r.leaseProjects, key)
 			}
 		}
 		r.mu.Unlock()

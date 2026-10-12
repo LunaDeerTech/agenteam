@@ -482,7 +482,7 @@ func (s *Service) cleanObjectAttempts(ctx context.Context, object oc.ObjectID, i
 func (s *Service) noteCleanupFailure(ctx context.Context, c cleanupClaim, reason error) error {
 	var bounded context.Context
 	var cancel context.CancelFunc
-	if ctx.Value(runtimeRecoveryBudgetKey{}) == true {
+	if ctx.Value(runtimeRecoveryBudgetKey{}) == true || s.currentProjectCleanup(ctx) != nil {
 		bounded, cancel = s.cleanupCheckpointWithinBudget(ctx)
 	} else {
 		bounded, cancel = s.cleanupContext()
@@ -584,19 +584,14 @@ func (s *Service) finalizeCleanup(ctx context.Context, object oc.ObjectID) (oc.C
 	return state, nil
 }
 
-func (s *Service) CleanupProject(ctx context.Context, actor identity.Actor, cause oc.ProjectCleanupCause) (oc.ProjectCleanupResult, error) {
+func (s *Service) cleanupProjectBatch(ctx context.Context, actor identity.Actor, cause oc.ProjectCleanupCause) (oc.ProjectCleanupResult, error) {
 	if actor.Validate() != nil || cause.Validate() != nil {
 		return oc.ProjectCleanupResult{}, invalid()
 	}
 	if nilPort(s.state().auth.Cleanup) {
 		return oc.ProjectCleanupResult{}, failure(foundation.DependencyUnbound, nil)
 	}
-	op, finish, err := s.begin(ctx)
-	if err != nil {
-		return oc.ProjectCleanupResult{}, err
-	}
-	defer finish()
-	ctx = op.ctx
+	var err error
 	d := cause.Details()
 	out := oc.ProjectCleanupResult{State: oc.CleanupPending, ProjectID: d.ProjectID, OperationID: d.OperationID}
 	var objects []oc.ObjectID

@@ -101,6 +101,7 @@ type serviceState struct {
 	projectWork                    map[string]*projectWorkHandle
 	projectWriters                 map[*projectWorkWriter]bool
 	projectJoins                   map[string]*projectWorkHandle
+	projectCleanups                map[identity.ProjectID]*projectCleanupCall
 	joinCursor                     string
 	transfers                      *TransferService
 }
@@ -277,7 +278,7 @@ func (s *Service) Drain(ctx context.Context) error {
 // Both Service and its ProcessGuard use this predicate while holding mu.
 func (r *serviceState) workJoinedLocked() bool {
 	return len(r.operations) == 0 && len(r.cleanupRequests) == 0 && !r.maintenance.Running && !r.backendClosing &&
-		len(r.projectWork) == 0 && len(r.projectWriters) == 0 && len(r.projectJoins) == 0
+		len(r.projectWork) == 0 && len(r.projectWriters) == 0 && len(r.projectJoins) == 0 && len(r.projectCleanups) == 0
 }
 
 func (r *serviceState) notifyWorkLocked() {
