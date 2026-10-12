@@ -266,3 +266,18 @@ Agent最终 `149fa2137235a11e78f6be5deefe86c39f491cfd`（受测 `153232f6`）正
 [精确保全](../output/ai/retired-20261012/work-agent-assignee-references-preservation/result.json)原1837/de0e07 actual0，outer1315026/child1315029 Wait0/3.699s：120files/99,747,633B/13dirs同FS NOREPLACE，全部path SHA/stat/inode前后同；31maps2076main Git版本含原FAIL/修正输入，无重构例外。单binary、14Wait、四身份、tmp4copy8232B且原tmp保留，2external仅原hash/stat保护。原只读plan02/76122 schema前置FAIL、03精确适配和全部原件保留，见[恢复说明](work-agent-assignee-references/README.md#main-delivery-and-retirement)。独立9afec6接受后才清理，有限PID/owner声明不冒全局FD证明。
 
 [普通清理](../output/ai/work-agent-assignee-references-delivery/cleanup01/result.json)原60325/28e6b6 actual0：仅本片旧tree普通worktree remove及 `ai/work-agent-assignee-references-20261012` 普通branch-d；fresh远端前后为空，显式main/ai fetch-prune后local/tracking空。未创建远端，也没有远端删除。实际仅+1树/+1本地，累计 **52 WorkTrees / 53本地分支 / 85远端引用**，legacy135待核/keep1不变；本轮未新建后继树。135属于尚待定向证明的历史引用，不作永久保护结论，也未广扫或新增删除候选；全部FAIL/STOP、保护依赖与整体目标未完成保持。
+
+
+## 2026-10-12 Runner选择刷新与三条历史远端引用清理
+
+Runner选择刷新修复 `dc304753269f1f4e7f8cafa3a1fe91bacff203b0` 已正常合入并推送 main `457d938feeb45205246592475b3e102d905db751`。原37950/ffa22c实际0完成7项定向用例、两个修改文件的格式检查和完整vue-tsc；未运行browser或Go。[验证原件](../output/ai/retired-20261012/runner-selection-refresh/validation01/terminal.json)共21文件/15,202B，经[同FS无覆盖保全](../output/ai/runner-selection-refresh-delivery/preservation01/result.json)247269实际0及runtime d2eda2有限独核，原SHA/stat/inode相同。
+
+[清理结果](../output/ai/runner-selection-refresh-delivery/cleanup01/result.json)68387/e378f3实际0：Runner旧树普通remove、本地分支普通-d，feature远端前后原空；仅下表3条历史远端完成fresh精确tip核对、exact-lease删除与后验空。原tip均不是main祖先；变更内容已与对应main提交逐blob精确匹配，原commit/tree小对象共18,360B原样保留，不称原tip已merge。详见[固定候选](../output/ai/branch-cleanup-20261012/bounded12-after-work01/final-candidates.json)与[源码恢复映射](../output/ai/branch-cleanup-20261012/bounded12-after-work01/candidate-source-recovery.json)。
+
+| 删除的远端引用 | 原tip | 内容对应main提交 |
+| --- | --- | --- |
+| `ai/app-runtime-query-fix` | `bea8467705f4f9732652f48a10c62e0af850c500` | `deec8a506b98a77b120446e7e4360740557ac861` |
+| `ai/scheduler-retry-policy` | `cf1c088e9c28a590b2d6a9d51b1fea8a322f7aa6` | `150eca50403af2bdaaeecd2d68b5801e318bf7a7` |
+| `ai/agent-sprint-configuration-docs` | `6f30b7f8430807497d73365d2577f02a4e44d4f3` | `29666627a5685c59ad10205571ebf7f1ced447ef` |
+
+本次实际增加1树/1本地/3远端，累计 **53 WorkTrees / 54本地分支 / 88远端引用**。原135项仅核删上述3项，剩132待核/keep1；本批另8条live引用保留，1条此前已缺失不计新删除。活动Agent退役准备树/card240f仅静态实施、未Go，不计清理或正式退役；全部既有STOP与历史FAIL保持。
