@@ -26,6 +26,8 @@ type lifecycleCleanupRound struct {
 	secretParentStep           bool
 	secretParentCheckpoint     *c.CleanupCheckpoint
 	artifactParentCheckpoint   *c.CleanupCheckpoint
+	schedulerUnknown           bool
+	schedulerError             error
 }
 
 func (st *lifecycleCleanupState) canJoin(ctx context.Context, claim *lifecycleStopClaim) error {
@@ -97,7 +99,11 @@ func (st *lifecycleCleanupState) startWithSecretParent(ctx context.Context, proj
 	}
 	validated, replay := false, false
 	result := st.store.WithinTx(ctx, round.claim.cause(), func(ctx context.Context, tx f.Tx) error {
-		if err := st.store.AcquireAll(ctx, tx, []f.LockRequest{projectLock(project, f.Exclusive)}); err != nil {
+		locks := []f.LockRequest{projectLock(project, f.Exclusive)}
+		if st.scheduler != nil {
+			locks = append(locks, schedulerLock(project))
+		}
+		if err := st.store.AcquireAll(ctx, tx, locks); err != nil {
 			return unavailable(err)
 		}
 		x, err := st.authority.lifecycleExecutor(ctx, tx, project)
@@ -115,6 +121,22 @@ func (st *lifecycleCleanupState) startWithSecretParent(ctx context.Context, proj
 		}
 		if (actual == nil) != (previous == nil) || actual != nil && *actual != *previous {
 			return fault(f.ResourceBusy)
+		}
+		if replay && round.participant == c.SchedulerParticipant {
+			_, attempts, checkpoint, e := cleanupParticipantRow(ctx, x, *round)
+			if e != nil {
+				return e
+			}
+			if attempts < 1 || checkpoint == nil {
+				return unavailable(nil)
+			}
+			report, e := c.NewCleanupReport(c.SchedulerParticipant, round.cause, c.ScopeRef{Kind: c.ProjectScope, ProjectID: project}, c.CleanupDetails{State: c.CleanupCompleted, Checkpoint: checkpoint})
+			if e != nil {
+				return e
+			}
+			if e = schedulerCleanupReport(*round, report); e != nil {
+				return e
+			}
 		}
 		if replay && round.participant == c.SecretParticipant {
 			_, attempts, cp, e := cleanupParticipantRow(ctx, x, *round)

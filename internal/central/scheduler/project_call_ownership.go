@@ -101,6 +101,7 @@ type projectCallState struct {
 	stopped     bool
 	owners      map[f.ID[projectCallID]]*projectCallEntry
 	stops       map[i.ProjectID]*ownedProjectStop
+	cleanups    map[i.ProjectID]*ownedProjectCleanup
 	changed     chan struct{}
 }
 
@@ -228,6 +229,12 @@ func (s *projectCallState) admit(ctx context.Context, project i.ProjectID, lane 
 	if err := ctx.Err(); err != nil {
 		return ctx, nil, err
 	}
+	s.mu.Lock()
+	cleaning := s.cleanups[project] != nil
+	s.mu.Unlock()
+	if cleaning {
+		return ctx, nil, fault(f.ResourceBusy)
+	}
 	if err := s.resumePrevious(ctx, project, lane, identity); err != nil {
 		return ctx, nil, err
 	}
@@ -236,7 +243,7 @@ func (s *projectCallState) admit(ctx context.Context, project i.ProjectID, lane 
 		return ctx, nil, portError(err)
 	}
 	s.mu.Lock()
-	if s.projectKeyBusyLocked(project, lane, identity.Key(), nil) {
+	if s.cleanups[project] != nil || s.projectKeyBusyLocked(project, lane, identity.Key(), nil) {
 		s.mu.Unlock()
 		return ctx, nil, fault(f.ResourceBusy)
 	}
@@ -389,6 +396,11 @@ func (s *projectCallState) laneJoined(lane projectCallLane, projects ...i.Projec
 		}
 	}
 	if lane == "" {
+		for p := range s.cleanups {
+			if len(projects) == 0 || p == projects[0] {
+				return false
+			}
+		}
 		for p := range s.stops {
 			if len(projects) == 0 || p == projects[0] {
 				return false
@@ -486,7 +498,7 @@ func (p *ProjectCallOwnership) Drain(ctx context.Context) error {
 	}
 	for {
 		s.mu.Lock()
-		done := len(s.stops) == 0
+		done := len(s.stops) == 0 && len(s.cleanups) == 0
 		changed := s.changed
 		s.mu.Unlock()
 		if done {
@@ -505,7 +517,7 @@ func (p *ProjectCallOwnership) Joined() bool {
 	}
 	s := p.state
 	s.mu.Lock()
-	done := s.stopped && len(s.owners) == 0 && len(s.stops) == 0
+	done := s.stopped && len(s.owners) == 0 && len(s.stops) == 0 && len(s.cleanups) == 0
 	s.mu.Unlock()
 	return done && s.coordinator.Joined() && s.visitor.Joined() && s.handoff.Joined() && s.busy.Joined() && s.failure.Joined() && s.relaunch.Joined()
 }
