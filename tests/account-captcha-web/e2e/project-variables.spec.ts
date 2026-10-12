@@ -10,7 +10,7 @@ async function press(page:Page,name:string){
   const button=page.getByRole("button",{name,exact:true});
   await expect(button).toBeEnabled();await button.focus();await expect(button).toBeFocused();await page.keyboard.press("Enter");
 }
-test("creates, edits and explicitly clears one ordinary Variable [create-update-and-clear]",async({page})=>{
+test("creates, edits, clears and explicitly deletes one ordinary Variable [create-update-clear-and-delete]",async({page})=>{
   const data=projectVariablesMaterial();
   await page.setViewportSize({width:1440,height:960});
   await page.emulateMedia({colorScheme:"light",reducedMotion:"reduce"});
@@ -73,6 +73,21 @@ test("creates, edits and explicitly clears one ordinary Variable [create-update-
   await press(page,"确认保存变量");await expect(page.locator(".ui-overlay")).toHaveCount(0);await expect(edit).toHaveCount(0);
   await current(3,data.changed_description,"");
   await projectVariablesScreenshot(page,data,"390-dark-empty");
+  await press(page,"删除变量");
+  await expect(page.getByRole("dialog")).toContainText(`${data.draft.name}（版本 3）`);
+  expect(seen.requests("delete")).toHaveLength(0);
+  await press(page,"取消");
+  await expect(page.locator(".ui-overlay")).toHaveCount(0);
+  await expect(page.getByRole("button",{name:"删除变量",exact:true})).toBeFocused();
+  await press(page,"删除变量");
+  await press(page,"确认删除变量");
+  await expect(page.locator(".ui-overlay")).toHaveCount(0);
+  await expect(screen.getByText("已确认删除，并重新读取当前目录。",{exact:true})).toBeVisible();
+  await expect(screen.getByText("项目暂无普通变量。",{exact:true})).toBeVisible();
+  await expect(detail).toHaveCount(0);
+  await expect(page.getByRole("button",{name:"新建变量",exact:true})).toBeFocused();
+  await seen.verify();seen.requireDeletion();
+  await projectVariablesScreenshot(page,data,"390-dark-deleted");
   await expect(page).toHaveURL(new URL(data.route,process.env.AGENTEAM_AUTH_WEB_ORIGIN!).href);
   expect(seen.requests("create")).toHaveLength(1);expect(seen.requests("update")).toHaveLength(2);expect(seen.requests("lookup")).toHaveLength(0);
   await seen.endDocument();

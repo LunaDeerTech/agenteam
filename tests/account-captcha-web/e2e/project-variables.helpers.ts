@@ -5,7 +5,7 @@ import { observeTaskRequests } from "./task-review.helpers";
 
 const id = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 export type ProjectVariablesMaterial = {
-  mode: "create-update-and-clear";
+  mode: "create-update-clear-and-delete";
   cookie: string;
   project_id: string;
   route: string;
@@ -15,7 +15,7 @@ export type ProjectVariablesMaterial = {
 };
 export function projectVariablesMaterial(): ProjectVariablesMaterial {
   const data = JSON.parse(readFileSync(join(process.env.AGENTEAM_AUTH_WEB_PRIVATE!, "project-variables-material.json"), "utf8"));
-  expect(data.mode).toBe("create-update-and-clear");
+  expect(data.mode).toBe("create-update-clear-and-delete");
   expect(data.project_id).toMatch(id);
   expect(data.route).toMatch(/^\/[^/?#]+\/[^/?#]+\/settings\/variables$/);
   expect(data.draft).toEqual({name:"BROWSER_ORDINARY",description:"Ordinary project setting.",value:"public-fixture-initial\nKeep the complete value."});
@@ -27,6 +27,7 @@ export async function observeProjectVariables(page:Page,data:ProjectVariablesMat
   const prefix=`/api/v1/projects/${data.project_id}`;
   let target:string|undefined;
   let updates=0;
+  let deletes=0;
   const classify=(request:Request):string|undefined=>{
     const url=new URL(request.url()),path=url.pathname,method=request.method();
     if(!path.startsWith("/api/"))return undefined;
@@ -42,6 +43,11 @@ export async function observeProjectVariables(page:Page,data:ProjectVariablesMat
       expect(request.postDataJSON()).toEqual({expected_version:String(updates+1),request:updates===0?{description:data.changed_description,value:data.changed_value}:{value:""}});
       updates++;return "update";
     }
+    if(method==="DELETE"&&target&&path===prefix+"/variables/"+target&&!url.search){
+      expect(updates).toBe(2);expect(deletes).toBe(0);
+      expect(request.postDataJSON()).toEqual({expected_version:"3"});
+      deletes++;return "delete";
+    }
     if(method!=="GET")throw Error("UNOBSERVED_PROJECT_VARIABLE_WRITE");
     const global:Record<string,string>={"/api/v1/session":"session","/api/v1/me":"profile","/api/v1/me/preferences":"preferences","/api/v1/auth/bootstrap":"bootstrap","/api/v1/projects/resolve":"resolve","/api/v1/projects":"projects"};
     if(global[path])return global[path];
@@ -56,6 +62,16 @@ export async function observeProjectVariables(page:Page,data:ProjectVariablesMat
   const receipts:Record<string,any>[]=[];
   return {...seen,
     targetID(){expect(target).toMatch(id);return target!;},
+    requireDeletion(){
+      expect(seen.requests("create")).toHaveLength(1);expect(seen.requests("update")).toHaveLength(2);expect(seen.requests("delete")).toHaveLength(1);expect(seen.requests("lookup")).toHaveLength(0);
+      const result=seen.receipt("delete",0);
+      expect(Object.keys(result).sort()).toEqual(["audit_id","changed","command","deleted","event_id"]);
+      expect(result).toEqual({command:"project.variable.delete",changed:true,deleted:{id:target,project_id:data.project_id,type:"variable",version:"4",deleted_at:result.deleted.deleted_at},event_id:result.event_id,audit_id:result.audit_id});
+      expect(result.deleted.deleted_at).toMatch(/^\d{4}-\d{2}-\d{2}T/);expect(result.event_id).toMatch(id);expect(result.audit_id).toMatch(id);
+      expect(seen.variableRead("variables")).toEqual({items:[]});
+      const writes=[...seen.requests("create"),...seen.requests("update"),...seen.requests("delete")];
+      expect(new Set(writes.map(r=>r.headers()["idempotency-key"])).size).toBe(4);
+    },
     requireVersion(version:1|2|3){
       expect(seen.requests("create")).toHaveLength(1);
       expect(seen.requests("update")).toHaveLength(version-1);

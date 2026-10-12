@@ -472,13 +472,13 @@ export async function observeBrowserIO(
           originalTextWrites.push(original);
           writeInputs.set(call, original);
         }
-        if (kind === "variable.create" || kind === "variable.update") {
+        if (kind === "variable.create" || kind === "variable.update" || kind === "variable.delete") {
           const original = {
             call,
             project: args[0],
-            variable: kind === "variable.update" ? args[1] : undefined,
-            expectedVersion: kind === "variable.update" ? args[2] : undefined,
-            fields: JSON.parse(JSON.stringify(args[kind === "variable.create" ? 1 : 3])),
+            variable: kind !== "variable.create" ? args[1] : undefined,
+            expectedVersion: kind !== "variable.create" ? args[2] : undefined,
+            fields: kind === "variable.delete" ? undefined : JSON.parse(JSON.stringify(args[kind === "variable.create" ? 1 : 3])),
           };
           originalVariableWrites.push(original);
           writeInputs.set(call, original);
@@ -590,13 +590,13 @@ export async function observeBrowserIO(
                 progress.projectID === original.project && progress.documentID === original.intent.document_id &&
                 progress.command === original.intent.command && progress.receipt === value.document;
             }
-            if (kind === "variable.create" || kind === "variable.update") {
+            if (kind === "variable.create" || kind === "variable.update" || kind === "variable.delete") {
               const original = writeInputs.get(call);
               const progress = auth.projectVariables.progress;
               call.result_current =
                 progress?.phase === "confirmed" &&
                 progress.contextValid === true &&
-                progress.kind === (kind === "variable.create" ? "create" : "update") &&
+                progress.kind === kind.slice("variable.".length) &&
                 progress.projectID === original.project &&
                 progress.targetID === (original.variable ?? original.request?.variable_id) &&
                 progress.receipt === value;
@@ -848,6 +848,10 @@ export async function observeBrowserIO(
             if (a[0] !== project) throw Error("PROJECT_VARIABLE_WRITE_SCOPE");
             return "/api/v1/projects/" + project + "/variables/" + a[1];
           }, "PATCH");
+          consumer(auth.projectVariables, "delete", "variable.delete", (a) => {
+            if (a[0] !== project) throw Error("PROJECT_VARIABLE_WRITE_SCOPE");
+            return "/api/v1/projects/" + project + "/variables/" + a[1];
+          }, "DELETE");
         } else if (!agentConfiguration && !editAgent) {
           const paths: Record<string, string> = {
             milestones: "milestones",
@@ -1455,7 +1459,7 @@ export async function observeBrowserIO(
               original.key = key;
               original.request = request;
             }
-          } else if (call.kind === "variable.update") {
+          } else if (call.kind === "variable.update" || call.kind === "variable.delete") {
             const creation = originalVariableWrites[0];
             matches =
               creation?.call.kind === "variable.create" &&
@@ -1463,7 +1467,7 @@ export async function observeBrowserIO(
               original.variable === creation.request?.variable_id &&
               originalVariableWrites.every((old) => old === original ||
                 (typeof old.key === "string" && old.key !== key)) &&
-              equal(parsed, { expected_version: original.expectedVersion, request: original.fields });
+              equal(parsed, call.kind === "variable.delete" ? { expected_version: original.expectedVersion } : { expected_version: original.expectedVersion, request: original.fields });
             if (matches) original.key = key;
           }
           if (call.kind === "milestone.create") {
@@ -2271,7 +2275,7 @@ export async function observeTaskRequests(
       profile.sprintStartWrites || profile.sprintCreateWrites || profile.skillsReads ||
       profile.milestoneCreateWrites || profile.prefix !== "project-variables" ||
       profile.lookupCommand !== null || profile.cut !== undefined ||
-      data.mode !== "create-update-and-clear")
+      !["create-update-and-clear", "create-update-clear-and-delete"].includes(data.mode))
   )
     throw Error("PROJECT_VARIABLE_WRITE_PROFILE_MISMATCH");
   if (profile.knowledgeTextWrites &&
@@ -2817,7 +2821,7 @@ export async function observeTaskRequests(
     const prefix = `/api/v1/projects/${data.project_id}/variables`;
     if (url.search) return false;
     return (entry.name === "create" && entry.request.method() === "POST" && url.pathname === prefix) ||
-      (entry.name === "update" && entry.request.method() === "PATCH" &&
+      ((entry.name === "update" && entry.request.method() === "PATCH" || entry.name === "delete" && entry.request.method() === "DELETE") &&
         url.pathname.startsWith(prefix + "/") &&
         /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(url.pathname.slice(prefix.length + 1)));
   }
@@ -2925,6 +2929,7 @@ export async function observeTaskRequests(
       variable ||
       knowledgeText || scheduler || runner || systemRunner || knowledgeDelete || secret;
     const method =
+      variable && entry.name === "delete" ? "DELETE" :
       (edit || agentEdit || milestoneUpdate || sprintUpdate || variable || scheduler || runner || systemRunner || secret) && entry.name === "update"
         ? "PATCH"
         : write || deletePreview
@@ -3041,7 +3046,7 @@ export async function observeTaskRequests(
         : knowledgeText
         ? { create: "knowledgeText.write", update: "knowledgeText.write" }
         : variable
-        ? { create: "variable.create", update: "variable.update" }
+        ? { create: "variable.create", update: "variable.update", delete: "variable.delete" }
         : sprintUpdate
         ? { update: "sprintEdit.update", lookup: "sprintEdit.checkOriginal" }
         : milestoneUpdate
