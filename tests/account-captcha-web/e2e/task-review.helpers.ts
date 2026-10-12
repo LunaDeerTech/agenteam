@@ -323,6 +323,9 @@ export async function observeBrowserIO(
             input: { ...(kind === "secretWrite.update" ? args[3] : args[1]) } };
           call.paste_bound = consumeSecretMaterial(original.input.value, Object.hasOwn(original.input, "value"));
           originalSecretWrites.push(original); writeInputs.set(call, original);
+        } else if (kind === "secretWrite.delete") {
+          const original = { call, project: args[0], target: args[1], expected: args[2] };
+          originalSecretWrites.push(original); writeInputs.set(call, original);
         } else if (kind === "secretWrite.lookup") {
           const source = originalSecretWrites.at(-1), progress = auth.projectSecretCommands.progress;
           call.paste_bound = source?.call.paste_bound === true && pendingSecretMaterial === undefined;
@@ -642,6 +645,15 @@ export async function observeBrowserIO(
           },
           () => {
             call.rejected = call.settled = true;
+            if (kind === "secretWrite.delete") {
+              const original = writeInputs.get(call), progress = auth.projectSecretCommands.progress;
+              call.current = current() && before === identity();
+              identities.set(call, identity());
+              call.not_busy = auth.state.busy === false;
+              call.result_current = progress?.phase === "rejected" && !progress.uncertain && progress.contextValid === true &&
+                progress.identity.kind === "delete" && progress.identity.projectID === original.project &&
+                progress.identity.targetID === original.target && progress.identity.expectedVersion === original.expected && progress.key === original.key;
+            }
           },
         );
         return result;
@@ -677,6 +689,7 @@ export async function observeBrowserIO(
         systemRunnerManagement = false,
         secretWrite = false,
         knowledgeDelete: { mode: string; root: string } | undefined = undefined,
+        secretDelete: string | undefined = undefined,
       ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
@@ -703,11 +716,25 @@ export async function observeBrowserIO(
                   !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(a[1]))) throw Error("SECRET_WRITE_READ_SCOPE");
               return prefix + (method === "get" ? "/" + a[1] : "");
             });
-          for (const method of ["create", "update", "lookup"])
+          for (const method of secretDelete ? ["delete"] : ["create", "update", "lookup"])
             consumer(auth.projectSecretCommands, method, "secretWrite." + method, a => {
-              if (method === "lookup" ? a.length !== 0 : a[0] !== project || a.length !== (method === "create" ? 2 : 4)) throw Error("SECRET_WRITE_COMMAND_SCOPE");
-              return prefix + (method === "lookup" ? "/commands/lookup" : method === "update" ? "/" + a[1] : "");
-            }, method === "update" ? "PATCH" : "POST");
+              if (method === "lookup" ? a.length !== 0 : a[0] !== project || a.length !== (method === "create" ? 2 : method === "delete" ? 3 : 4)) throw Error("SECRET_WRITE_COMMAND_SCOPE");
+              return prefix + (method === "lookup" ? "/commands/lookup" : method === "update" || method === "delete" ? "/" + a[1] : "");
+            }, method === "delete" ? "DELETE" : method === "update" ? "PATCH" : "POST");
+          if (secretDelete) {
+            const base = "/api/v1/projects/" + project;
+            for (const method of ["list", "getConfiguration", "models", "runners", "runnerMounts"])
+              consumer(auth.agentConfiguration, method, "agent." + method, a => {
+                const single = method === "getConfiguration" || method === "runnerMounts";
+                if (a[0] !== project || (single && a[1] !== secretDelete)) throw Error("SECRET_DELETE_AGENT_SCOPE");
+                return base + (method === "models" ? "/available-chat-models" : method === "runners" ? "/available-runners" :
+                  "/agents" + (single ? "/" + secretDelete + (method === "getConfiguration" ? "/configuration" : "/runner-mounts") : ""));
+              });
+            consumer(auth.agentConfiguration, "startUpdate", "agentEdit.startUpdate", a => {
+              if (a[0] !== project || a[1] !== secretDelete || a.length !== 3) throw Error("SECRET_DELETE_AGENT_SCOPE");
+              return base + "/agents/" + secretDelete + "/configuration";
+            }, "PATCH");
+          }
         } else if (systemRunnerManagement) {
           const prefix = "/api/v1/system/runners";
           consumer(auth.system.runners, "list", "systemRunner.list", a => {
@@ -1285,6 +1312,13 @@ export async function observeBrowserIO(
               originalSecretWrites.every(old => old === original || old.key !== key);
             original.input = undefined;
             if (matches) { original.target = target; original.key = key; }
+          } else if (call.kind === "secretWrite.delete") {
+            const progress = auth.projectSecretCommands.progress;
+            matches = equal(parsed, { expected_version: original.expected }) &&
+              progress?.identity.kind === "delete" && progress.identity.projectID === original.project &&
+              progress.identity.targetID === original.target && progress.identity.expectedVersion === original.expected && progress.key === key &&
+              originalSecretWrites.every(old => old === original || old.key !== key);
+            if (matches) original.key = key;
           } else if (call.kind === "secretWrite.lookup") {
             matches = original.current && original.source?.call.rejected === true && original.source.call.settled === true &&
               key === original.source.key && equal(parsed, { command: "project.secret_variable.update", target_id: original.source.target, expected_version: original.source.expected });
@@ -1675,7 +1709,7 @@ export async function observeBrowserIO(
                 new TextDecoder("utf-8", { fatal: true }).decode(body),
               );
               if (sensitive) {
-                parsed = host.__secretWriteEvidenceValue(parsed, secretKind === "secret.list" ? "list" : secretKind === "secret.get" ? "detail" : secretKind === "secretWrite.lookup" ? "lookup" : "receipt");
+                parsed = host.__secretWriteEvidenceValue(parsed, secretKind === "secretWrite.delete" && row.status === 409 ? "rejected" : secretKind === "secret.list" ? "list" : secretKind === "secret.get" ? "detail" : secretKind === "secretWrite.lookup" ? "lookup" : "receipt");
                 row.digest = await digest(body);
               }
               if (row.path === "/api/v1/session" && row.status === 200)
@@ -1888,6 +1922,7 @@ export type TaskObservationProfile = {
     | "project-scheduler"
     | "project-secrets"
     | "project-secret-write"
+    | "project-secret-delete"
     | "project-usage"
     | "agent-runner-mounts"
     | "agent-secret-allowlist"
@@ -1908,6 +1943,7 @@ export type TaskObservationProfile = {
     | "update"
     | "runner.create"
     | "project.secret_variable.update"
+    | "project.secret_variable.delete"
     | "delete-subtree"
     | null;
   intakeWrites?: true;
@@ -1928,6 +1964,7 @@ export type TaskObservationProfile = {
   knowledgeDeleteWrites?: true;
   secretReads?: true;
   secretWrite?: true;
+  secretDelete?: true;
   usageReads?: true;
   systemRunnerManagement?: true;
   systemRunnerWireHeaders?: (expected: { method: string; url: string; status: number; requestID: string }) => Promise<UsageWireProof>;
@@ -2024,6 +2061,14 @@ export function requireAgentSecretProfile(profile: TaskObservationProfile, data:
       (!lost && data.agent_id !== undefined)) throw Error("AGENT_SECRET_PROFILE_MISMATCH");
 }
 export function requireSecretWriteProfile(profile: TaskObservationProfile, data: TaskObservationMaterial) {
+  if (profile.secretDelete !== undefined || profile.prefix === "project-secret-delete") {
+    const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand", "secretWrite", "secretDelete"];
+    if (profile.secretDelete !== true || profile.secretWrite !== true || profile.prefix !== "project-secret-delete" ||
+        data.mode !== "busy-reference-then-delete" || profile.lookupCommand !== "project.secret_variable.delete" ||
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.agent_id ?? "") ||
+        Object.keys(profile).some(key => !allowed.includes(key))) throw Error("SECRET_DELETE_PROFILE_MISMATCH");
+    return;
+  }
   if (profile.secretWrite === undefined && profile.prefix !== "project-secret-write") return;
   const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand", "cut", "secretWrite"];
   if (profile.secretWrite !== true || profile.prefix !== "project-secret-write" ||
@@ -2033,7 +2078,7 @@ export function requireSecretWriteProfile(profile: TaskObservationProfile, data:
 }
 // The same closed projection runs before response hashing in the original
 // browser reader, public consumer and Node observer. It never accepts a value.
-export function secretWriteEvidenceValue(value: any, shape: "detail" | "list" | "receipt" | "lookup"): any {
+export function secretWriteEvidenceValue(value: any, shape: "detail" | "list" | "receipt" | "lookup" | "rejected", deletion = false): any {
   const fail = () => { throw Error("SECRET_WRITE_UNSAFE_RESPONSE"); };
   const keys = (v: any, expected: string[]) => {
     if (!v || typeof v !== "object" || Array.isArray(v) || Object.keys(v).sort().join() !== expected.slice().sort().join()) fail();
@@ -2044,22 +2089,41 @@ export function secretWriteEvidenceValue(value: any, shape: "detail" | "list" | 
     return { id: v.id, project_id: v.project_id, type: v.type, name: v.name, description: v.description, version: v.version, created_at: v.created_at, updated_at: v.updated_at };
   };
   const receipt = (v: any) => {
+    if (deletion) {
+      keys(v, ["command", "changed", "deleted", "event_id", "audit_id"]);
+      keys(v.deleted, ["id", "project_id", "type", "version", "deleted_at"]);
+      if (v.command !== "project.secret_variable.delete" || v.changed !== true || v.deleted.type !== "secret" ||
+          ![v.event_id, v.audit_id, v.deleted.id, v.deleted.project_id, v.deleted.version, v.deleted.deleted_at].every(x => typeof x === "string")) fail();
+      return { command: v.command, changed: v.changed, deleted: { ...v.deleted }, event_id: v.event_id, audit_id: v.audit_id };
+    }
     keys(v, ["command", "changed", "variable", "event_id", "audit_id"]);
     if (!["project.secret_variable.create", "project.secret_variable.update"].includes(v.command) || v.changed !== true || typeof v.event_id !== "string" || typeof v.audit_id !== "string") fail();
     return { command: v.command, changed: v.changed, variable: metadata(v.variable), event_id: v.event_id, audit_id: v.audit_id };
   };
+  if (shape === "rejected" && deletion) {
+    keys(value, ["type", "title", "status", "detail", "instance", "code", "request_id", "field_errors", "commit_state"]);
+    if (value.code !== "RESOURCE_BUSY" || value.status !== 409 || value.commit_state !== "not_committed" ||
+        value.title !== "Resource busy" || value.detail !== "The resource is currently busy." ||
+        ![value.type, value.instance, value.request_id].every(x => typeof x === "string") ||
+        JSON.stringify(value.field_errors) !== '[{"path":"/variable_id","code":"SECRET_VARIABLE_REFERENCED"}]') fail();
+    return { code: value.code, status: value.status, commit_state: value.commit_state, request_id: value.request_id };
+  }
   if (shape === "detail") return metadata(value);
   if (shape === "receipt") return receipt(value);
-  if (shape === "list") { keys(value, ["items"]); if (!Array.isArray(value.items) || value.items.length > 1) fail(); return { items: value.items.map(metadata) }; }
+  if (shape === "list") { keys(value, ["items"]); if (!Array.isArray(value.items) || value.items.length > (deletion ? 2 : 1)) fail(); return { items: value.items.map(metadata) }; }
   if (shape === "lookup") { keys(value, ["status", "receipt"]); if (value.status !== "committed") fail(); return { status: value.status, receipt: receipt(value.receipt) }; }
   return fail();
 }
-export function secretWriteEvidenceProof(proof: any) {
+export function secretWriteEvidenceProof(proof: any, deleteProfile = false) {
   const fields = {
-    go: ["input_hash", "request_id", "method", "url_sha256", "status", "content_length", "body_sha256", "original_eof", "original_closed", "handler_returned", "request_host_matches", "kind", "request_bound", "input_verified", "committed_verified", "idempotency_key_sha256", "receipt_cut"],
+    go: ["input_hash", "request_id", "method", "url_sha256", "status", "content_length", "body_sha256", "original_eof", "original_closed", "handler_returned", "request_host_matches", "kind", "request_bound", "input_verified", "committed_verified", "rejected_verified", "idempotency_key_sha256", "receipt_cut"],
     native: ["id", "call_id", "method", "path", "request_id", "status", "length", "bytes", "digest", "typed_digest", "fetch_returned", "fetch_rejected", "readers", "reads", "read_returns", "eof", "closed", "release", "reader_cancel", "stream_cancel", "aborted", "error", "request_bound", "idempotency_key_sha256"],
     consumer: ["id", "kind", "method", "path", "bound", "fulfilled", "settled", "rejected", "current", "not_busy", "typed_digest", "result_current", "request_bound", "paste_bound", "idempotency_key_sha256"],
   };
+  if (deleteProfile && proof.native?.method === "PATCH") {
+    for (const part of ["go", "native", "consumer"] as const) fields[part].push("request_body_sha256");
+  }
+  if (deleteProfile) fields.go.push("handler_return_source");
   const result: any = { seq: proof.seq, request_id: proof.request_id, ...(proof.declared_cut ? { declared_cut: true } : {}) };
   for (const part of ["go", "native", "consumer"] as const) {
     const source = proof[part];
@@ -2506,7 +2570,7 @@ export async function observeTaskRequests(
   page.on("requestfailed", failed);
   page.on("response", response);
   page.on("close", closed);
-  if (profile.secretWrite) await page.addInitScript({ content: `Object.defineProperty(window, "__secretWriteEvidenceValue", { value: (${secretWriteEvidenceValue.toString()}) });` });
+  if (profile.secretWrite) await page.addInitScript({ content: `Object.defineProperty(window, "__secretWriteEvidenceValue", { value: (value, shape) => (${secretWriteEvidenceValue.toString()})(value, shape, ${profile.secretDelete === true}) });` });
   if (profile.systemRunnerManagement) await page.addInitScript({ content: `Object.defineProperty(window, "__systemRunnerEvidenceValue", { value: (${systemRunnerEvidenceValue.toString()}) });` });
   if (profile.knowledgeDeleteWrites) await page.addInitScript({ content: `Object.defineProperty(window, "__knowledgeDeleteEvidenceValue", { value: (${knowledgeDeleteEvidenceValue.toString()}) });` });
   await observeBrowserIO(page, (event) => {
@@ -2544,6 +2608,7 @@ export async function observeTaskRequests(
           systemRunnerManagement,
           secretWrite,
           knowledgeDelete,
+          secretDelete,
         }) => {
           const module = await import(/* @vite-ignore */ binding.asset);
           const useSession = module[binding.exportName];
@@ -2576,6 +2641,7 @@ export async function observeTaskRequests(
           systemRunnerManagement,
           secretWrite,
           knowledgeDelete,
+          secretDelete,
           );
         },
         {
@@ -2607,6 +2673,7 @@ export async function observeTaskRequests(
           systemRunnerManagement: profile.systemRunnerManagement === true,
           secretWrite: profile.secretWrite === true,
           knowledgeDelete: profile.knowledgeDeleteWrites ? { mode: data.mode, root: data.root_id! } : undefined,
+          secretDelete: profile.secretDelete ? data.agent_id : undefined,
         },
       );
       await route.continue();
@@ -2699,16 +2766,16 @@ export async function observeTaskRequests(
     return (
       (profile.agentConfiguration ||
         profile.agentEditWrites ||
-        profile.agentModelPolicy) &&
+        profile.agentModelPolicy || profile.secretDelete) &&
       entry.request.method() === "GET" &&
-      ["agent-directory", "agent-configuration", "agent-models"].includes(
+      ["agent-directory", "agent-configuration", "agent-models", ...(profile.secretDelete ? ["agent-runners", "agent-mounts"] : [])].includes(
         entry.name,
       )
     );
   }
 
   function agentEditWrite(entry: Entry) {
-    if (!profile.agentEditWrites && !profile.agentModelPolicy) return false;
+    if (!profile.agentEditWrites && !profile.agentModelPolicy && !profile.secretDelete) return false;
     const url = new URL(entry.request.url());
     if (url.search) return false;
     const prefix = `/api/v1/projects/${data.project_id}`;
@@ -2871,6 +2938,8 @@ export async function observeTaskRequests(
   function secretWriteEntry(entry: Entry) {
     if (!profile.secretWrite) return false;
     const url = new URL(entry.request.url()), prefix = `/api/v1/projects/${data.project_id}/secret-variables`;
+    if (profile.secretDelete) return entry.name === "delete" && entry.request.method() === "DELETE" && !url.search &&
+      url.pathname.startsWith(prefix + "/") && /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(url.pathname.slice(prefix.length + 1));
     return !url.search && ((entry.name === "create" && entry.request.method() === "POST" && url.pathname === prefix) ||
       (entry.name === "lookup" && entry.request.method() === "POST" && url.pathname === prefix + "/commands/lookup") ||
       (entry.name === "update" && entry.request.method() === "PATCH" && url.pathname.startsWith(prefix + "/") &&
@@ -2897,7 +2966,7 @@ export async function observeTaskRequests(
     return profile.knowledgeDeleteWrites && entry.request.method() === "GET" &&
       ["session", "resolve", "projects", "project", "documents", "document", "ancestors", "content"].includes(entry.name);
   }
-  function joint(entry: Entry, proof: any) {
+  function joint(entry: Entry, proof: any, rejectedDelete = false) {
     const edit = editWrite(entry);
     const agentEdit = agentEditWrite(entry);
     const sprint = sprintWrite(entry);
@@ -2925,13 +2994,14 @@ export async function observeTaskRequests(
       variable ||
       knowledgeText || scheduler || runner || systemRunner || knowledgeDelete || secret;
     const method =
+      profile.secretDelete && entry.name === "delete" ? "DELETE" :
       (edit || agentEdit || milestoneUpdate || sprintUpdate || variable || scheduler || runner || systemRunner || secret) && entry.name === "update"
         ? "PATCH"
         : write || deletePreview
           ? "POST"
           : "GET";
     expect(entry.request.method()).toBe(method);
-    expect(entry.status).toBe(200);
+    expect(entry.status).toBe(rejectedDelete ? 409 : 200);
     expect(entry.responseCount).toBe(1);
     expect(entry.finishedCount).toBe(entry.terminal === "finished" ? 1 : 0);
     expect(entry.failedCount).toBe(entry.terminal === "failed" ? 1 : 0);
@@ -2959,7 +3029,7 @@ export async function observeTaskRequests(
     expect(record.input_hash).toBe(profile.inputHash);
     expect(record.request_id).toBe(entry.requestID);
     expect(record.method).toBe(method);
-    expect(record.status).toBe(200);
+    expect(record.status).toBe(rejectedDelete ? 409 : 200);
     expect(record.url_sha256).toBe(
       createHash("sha256")
         .update(expectedURL.pathname + expectedURL.search)
@@ -2968,9 +3038,10 @@ export async function observeTaskRequests(
     expect(
       record.original_eof && record.original_closed && record.handler_returned,
     ).toBe(true);
+    if (profile.secretDelete) expect(record.handler_return_source).toBe("owned_tls_bridge");
     expect(n.path).toBe(expectedURL.pathname);
     expect(n.method).toBe(method);
-    expect(n.status).toBe(200);
+    expect(n.status).toBe(rejectedDelete ? 409 : 200);
     expect(n.fetch_returned).toBe(true);
     expect(n.fetch_rejected || n.error || n.aborted).toBe(false);
     expect(n.readers).toBe(1);
@@ -2988,11 +3059,27 @@ export async function observeTaskRequests(
     expect(c.bound).toBe(1);
     expect(c.method).toBe(method);
     expect(c.path).toBe(n.path);
+    if (rejectedDelete) {
+      expect(profile.secretDelete && secret && entry.name === "delete").toBe(true);
+      expect(c.kind).toBe("secretWrite.delete");
+      expect(c.rejected && c.settled && c.current && c.not_busy && !c.fulfilled && c.result_current).toBe(true);
+      expect(c.request_bound && n.request_bound).toBe(true);
+      expect(record.rejected_verified).toBe(true);
+      expect(record.committed_verified).toBe(false);
+      const keyHash = createHash("sha256").update(entry.request.headers()["idempotency-key"]!).digest("hex");
+      for (const source of [record, n, c]) {
+        expect(source.idempotency_key_sha256).toBe(keyHash);
+        expect(Object.hasOwn(source, "request_body_sha256")).toBe(false);
+      }
+      proofs.push({ seq: entry.seq, request_id: entry.requestID, native: n, consumer: { ...c, typed: undefined }, go: record });
+      return { code: "RESOURCE_BUSY", commit_state: "not_committed" };
+    }
     expect(c.fulfilled && c.settled && c.current && c.not_busy).toBe(true);
     expect(c.rejected).toBe(false);
     expect(c.typed).not.toBeNull();
     expect(c.typed_digest).toMatch(/^[0-9a-f]{64}$/);
     expect(n.typed_digest).toBe(c.typed_digest);
+    if (profile.secretDelete && agentPageRead(entry)) expect(c.kind).toBe({ "agent-directory": "agent.list", "agent-configuration": "agent.getConfiguration", "agent-models": "agent.models", "agent-runners": "agent.runners", "agent-mounts": "agent.runnerMounts" }[entry.name]);
     if (timelinePageRead(entry)) expect(c.kind).toBe("work.events");
     if (skillsPageRead(entry))
       expect(c.kind).toBe(
@@ -3024,12 +3111,12 @@ export async function observeTaskRequests(
     if (schedulerReadEntry(entry)) expect(c.kind).toBe({ session: "restore", resolve: "project.resolve", projects: "project.list", project: "project.get", scheduler: "scheduler.get" }[entry.name]);
     if (systemRunnerReadEntry(entry)) expect(c.kind).toBe({ session: "restore", projects: "project.list", "runner-list": "systemRunner.list", "runner-detail": "systemRunner.get" }[entry.name]);
     if (write) {
-      if (secret) { expect(c.result_current).toBe(true); expect(c.paste_bound).toBe(true); }
+      if (secret) { expect(c.result_current).toBe(true); if (!profile.secretDelete) expect(c.paste_bound).toBe(true); }
       if (systemRunner) { expect(c.result_current).toBe(true); if (c.typed.token_available === true) expect(c.material_matches).toBe(true); }
       if (scheduler || knowledgeDelete) expect(c.result_current).toBe(true);
       if (sprintCreate || milestoneCreate || milestoneUpdate || sprintUpdate || variable || knowledgeText) expect(c.result_current).toBe(true);
       const kinds: Record<string, string> = secret
-        ? { create: "secretWrite.create", update: "secretWrite.update", lookup: "secretWrite.lookup" }
+        ? { create: "secretWrite.create", update: "secretWrite.update", delete: "secretWrite.delete", lookup: "secretWrite.lookup" }
         : systemRunner
         ? { create: "systemRunner.start", update: "systemRunner.start", enrollment: "systemRunner.start", revoke: "systemRunner.start", lookup: "systemRunner.checkOriginal" }
         : knowledgeDelete
@@ -3225,6 +3312,14 @@ export async function observeTaskRequests(
         entry.checked = true;
         continue;
       }
+      if (profile.secretDelete && entry.name === "delete" && entry.status === 409) {
+        expect(state === "finished" || (state === "failed" && entry.failure === "net::ERR_ABORTED")).toBe(true);
+        // A known domain rejection remains a rejection. Its original native
+        // reader, public rejection and Go no-write proof must all agree.
+        entry.body = joint(entry, proof, true);
+        entry.checked = true;
+        continue;
+      }
       if (
         state === "failed" &&
         (entry.request.method() === "GET" ||
@@ -3288,8 +3383,8 @@ export async function observeTaskRequests(
         r.status() === 200 || revoked,
         `unexpected ${entry.name} status`,
       ).toBe(true);
-      if (profile.secretWrite && ["secrets", "secret", "create", "update", "lookup"].includes(entry.name)) {
-        try { entry.body = secretWriteEvidenceValue(JSON.parse(raw.toString("utf8")), entry.name === "secrets" ? "list" : entry.name === "secret" ? "detail" : entry.name === "lookup" ? "lookup" : "receipt"); }
+      if (profile.secretWrite && ["secrets", "secret", "create", "update", "delete", "lookup"].includes(entry.name) && !(profile.secretDelete && agentEditWrite(entry))) {
+        try { entry.body = secretWriteEvidenceValue(JSON.parse(raw.toString("utf8")), entry.name === "secrets" ? "list" : entry.name === "secret" ? "detail" : entry.name === "lookup" ? "lookup" : "receipt", profile.secretDelete === true); }
         catch { throw Error("SECRET_WRITE_UNSAFE_RESPONSE"); }
       } else entry.body = JSON.parse(raw.toString("utf8"));
       if (profile.systemRunnerManagement) entry.body = systemRunnerEvidenceValue(entry.body);
@@ -3362,6 +3457,12 @@ export async function observeTaskRequests(
     return entries
       .filter((entry) => entry.name === name)
       .map((entry) => entry.request);
+  }
+  function secretDeleteRead(name: "secrets" | "secret" | "agent-configuration" | "agent-directory") {
+    if (!profile.secretDelete) throw Error("SECRET_DELETE_PROFILE_REQUIRED");
+    const values = entries.filter(entry => entry.name === name && entry.checked && entry.request.method() === "GET");
+    expect(values.length).toBeGreaterThan(0);
+    return values.at(-1)!.body as Record<string, any>;
   }
   function originalLookup() {
     if (profile.lookupCommand === null)
@@ -3670,7 +3771,7 @@ export async function observeTaskRequests(
           browser_events_truncated:
             browserEventsTruncated ||
             browserEvents.some((event) => event.seq === 2048),
-          joint_proofs: profile.secretWrite ? proofs.map(secretWriteEvidenceProof) : proofs,
+          joint_proofs: profile.secretWrite ? proofs.map(proof => secretWriteEvidenceProof(proof, profile.secretDelete === true)) : proofs,
           observer_retirements: retirements,
         },
         null,
@@ -3732,6 +3833,7 @@ export async function observeTaskRequests(
     knowledgeTitleRead,
     knowledgeDeleteRead,
     secretRead,
+    secretDeleteRead,
     usageRead,
     runnerMountRead,
     agentSecretRead,
