@@ -200,7 +200,9 @@ Project driver 持有原事务及 caller 的实际返回；取消、物理提交
 
 Skill 指派仅推进 Agent version 与原数据库返回的 updated_at，不生成 Agent Update 命令。新 Plan/checkpoint schema 4 可锚定原 immutable command：只覆盖这两个实际标量，要求 version 严格大于原值、updated_at 严格晚于原值，并在同一原 Tx 将重建的完整 Config 与当前 Before 全字段相等及完整 digest 一并核实。checkpoint 原子保存原 command ID、准确 version/updated_at 与 digest；Unknown 恢复必须通过原 applied checkpoint、cause/claim 和该 immutable command 重建后再逐 owner 确认。schema 3 保持原完整 After 精确匹配路径，不能猜时间、推算其他字段、只凭 canonical 缺席确认或要求调用者额外执行 Agent.Update。
 
-前向迁移 00077 为上述 Project Delete 增加 completed Skill command/change/grant 及专用 no-active ingress 的 DELETE 例外，保留普通 UPDATE 不可变规则；不修改旧迁移或共享 Execution immutable guard。数据库的 current Delete/cleaning/domains/running claim、canonical 缺席及无 Execution 等条件只是额外状态约束，不证明当前 caller、同 Tx 刚删除或原事务返回。父 participant 仍 pending/domains，不开放默认完整 Registry/Delete；此节是后继候选合同，真实升级及原子恢复验收结果另按实际记录。
+前向迁移 00077 为上述 Project Delete 增加 completed Skill command/change/grant 及专用 no-active ingress 的 DELETE 例外，保留普通 UPDATE 不可变规则；不修改旧迁移或共享 Execution immutable guard。数据库的 current Delete/cleaning/domains/running claim、canonical 缺席及无 Execution 等条件只是额外状态约束，不证明当前 caller、同 Tx 刚删除或原事务返回。父 participant 仍 pending/domains，不开放默认完整 Registry/Delete；限定真实结果见下段。
+
+`669a70d0` 的 `TestProjectAgentRetirement` native01 三组实际通过（50.77s）：真实 76→77 升级及重复迁移、正式 Assign→Remove 且不补 Agent.Update、schema 4 完整 Before 的准确重建、原同 Tx 返回屏障与进程内实际 Committed acknowledgement mask 的 Unknown 确认均通过；真实 planned command 在 Skills 后段返回 Busy，使 canonical/各域引用整笔回滚。原 Go/fixture 实际退出，六项自有资源清退，无 Node；[实际结果](../../../output/ai/project-agent-assignment-history-retirement-delivery/native01/result.json)与[原运行日志](../../../output/ai/project-agent-assignment-history-retirement-delivery/native01/browser.log)保留。范围仍为无任何 Execution、无 managed Mount 的 Agent 及受支持 completed 指派历史，母 participant 始终 pending/domains；不包含 Variables 清理、完整 Registry 或完整 Project Delete。此前首片及 00076 的原 FAIL 与限定结果不追改。
 
 
 ## 5. F1 命令、历史与提交结果
