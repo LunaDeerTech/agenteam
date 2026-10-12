@@ -648,6 +648,13 @@ type operationCommandFixture struct {
 
 func newOperationCommandFixture(t *testing.T) *operationCommandFixture {
 	t.Helper()
+	return newOperationCommandFixtureWithChild(t, "TestRunCommandOperationChild", []string{"run-command-operation-child", "literal ; $(not-shell)"}, nil)
+}
+
+// The optional test child is selected before the real Model/ToolCall producer.
+// The old entry retains its exact argv; no persisted call is rewritten.
+func newOperationCommandFixtureWithChild(t *testing.T, selector string, argv []string, wrap func(http.Handler) http.Handler) *operationCommandFixture {
+	t.Helper()
 	directory := readFileAdapterPrivateDirectory(t)
 	rootPath := filepath.Join(directory, "root")
 	readFileAdapterOK(t, os.Mkdir(rootPath, 0700), "owned command Runner root")
@@ -662,7 +669,7 @@ func newOperationCommandFixture(t *testing.T) *operationCommandFixture {
 	}
 	program, err := os.Executable()
 	readFileAdapterOK(t, err, "actual owned argv helper executable")
-	arguments := p.RunCommandArguments{Mode: "argv", Program: program, Args: []string{"-test.run=^TestRunCommandOperationChild$", "--", "run-command-operation-child", "literal ; $(not-shell)"}, CWD: "."}
+	arguments := p.RunCommandArguments{Mode: "argv", Program: program, Args: append([]string{"-test.run=^" + selector + "$", "--"}, argv...), CWD: "."}
 	v := &operationCommandFixture{facts: facts, rootPath: rootPath, arguments: arguments}
 	original, err := json.Marshal(struct {
 		Mount   string   `json:"mount_id"`
@@ -718,7 +725,11 @@ func newOperationCommandFixture(t *testing.T) *operationCommandFixture {
 	device, err := runnerhttp.NewDeviceHandler(runners)
 	readFileAdapterOK(t, err, "real device HTTP handler")
 	v.device, v.wire, v.manager = device, wire, manager
-	server := newReadFileAdapterServer(t, wire.wrap(device), runners)
+	var actualHandler http.Handler = wire.wrap(device)
+	if wrap != nil {
+		actualHandler = wrap(actualHandler)
+	}
+	server := newReadFileAdapterServer(t, actualHandler, runners)
 	t.Cleanup(func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
