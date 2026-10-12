@@ -199,6 +199,12 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestAgentRetirementPreparation$': frozenset((
+        'TestAgentRetirementPreparation',
+        'TestAgentRetirementPreparation/committed-stop-round-config-snapshot',
+        'TestAgentRetirementPreparation/same-transaction-and-callback-boundaries',
+        'TestAgentRetirementPreparation/original-loan-return-before-driver-drain',
+    )),
     '^TestWorkAgentAssigneeReferences$': frozenset((
         'TestWorkAgentAssigneeReferences',
         'TestWorkAgentAssigneeReferences/same-transaction-current-and-terminal-references',
