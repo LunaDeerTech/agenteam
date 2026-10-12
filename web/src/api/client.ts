@@ -81,6 +81,8 @@ const endpoints = {
     '/api/v1/projects/{project_id}/knowledge/documents/text-commands/lookup',
     200,
   ],
+  installProjectSkill: ['POST', '/api/v1/projects/{project_id}/skills', 200],
+  lookupSkillInstallation: ['POST', '/api/v1/projects/{project_id}/skills/commands/lookup', 200],
   listProjectSkills: ['GET', '/api/v1/projects/{project_id}/skills/catalog', 200],
   getProjectSkill: ['GET', '/api/v1/projects/{project_id}/skills/{target}', 200],
   getSkillPackage: [
@@ -1102,6 +1104,9 @@ type KnowledgeCommandOptions<E extends KnowledgeCommandEndpoint> = {
   ? { target: string }
   : { target?: never })
 
+const skillInstallEndpoints = ['installProjectSkill', 'lookupSkillInstallation'] as const
+type SkillInstallEndpoint = (typeof skillInstallEndpoints)[number]
+type SkillInstallOptions = { signal: AbortSignal; projectID: string; body: unknown; csrf: string; key: string }
 const skillEndpoints = ['listProjectSkills', 'getProjectSkill', 'getSkillPackage'] as const
 const secretCommandEndpoints = ['createProjectSecret', 'updateProjectSecret', 'lookupProjectSecret'] as const
 type SecretCommandEndpoint = (typeof secretCommandEndpoints)[number]
@@ -1277,6 +1282,11 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     parse: (value: unknown) => T,
     options: SecretReadOptions<E>,
   ): Promise<T>
+  function request<T>(
+    endpoint: SkillInstallEndpoint,
+    parse: (value: unknown) => T,
+    options: SkillInstallOptions,
+  ): Promise<T>
   function request<T, E extends SkillEndpoint>(
     endpoint: E,
     parse: (value: unknown) => T,
@@ -1380,6 +1390,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       | KnowledgeCommandEndpoint
       | KnowledgeEndpoint
       | SkillEndpoint
+      | SkillInstallEndpoint
       | SecretReadEndpoint
       | SecretCommandEndpoint
       | 'listProjectUsage'
@@ -1546,6 +1557,15 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           if (!uuid7.test(target)) throw new Error()
           path = path.replace('{target}', target)
         }
+      } catch { throw new AccountFailure('invalid-input') }
+    } else if ((skillInstallEndpoints as readonly string[]).includes(endpoint)) {
+      try {
+        shape(options, ['signal', 'projectID', 'body', 'csrf', 'key'])
+        const project = string(options.projectID, 36, 36),
+          csrf = string(options.csrf, 43, 43), key = string(options.key, 1, 128)
+        if (!uuid7.test(project) || !(options.signal instanceof AbortSignal) ||
+            /[^A-Za-z0-9_-]/.test(csrf) || /[^A-Za-z0-9._:/-]/.test(key)) throw new Error()
+        path = basePath.replace('{project_id}', project)
       } catch { throw new AccountFailure('invalid-input') }
     } else if ((skillEndpoints as readonly string[]).includes(endpoint)) {
       try {
@@ -2119,7 +2139,8 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       headers['If-Match'] = `"${options.avatar.version}"`
     } else if (method !== 'GET') {
       const maximum = endpoint === 'createOwnerProject' ? 16384 :
-        (secretCommandEndpoints as readonly string[]).includes(endpoint) ? 1024 * 1024 :
+        ((secretCommandEndpoints as readonly string[]).includes(endpoint) ||
+          (skillInstallEndpoints as readonly string[]).includes(endpoint)) ? 1024 * 1024 :
         (runnerEndpoints as readonly string[]).includes(endpoint) ? 32768 :
         endpoint === 'updateProjectScheduler' ? 4096 : endpoint === 'lookupProjectScheduler' ? 1024 :
         endpoint === 'knowledgeTextLookup'
@@ -2238,7 +2259,9 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
                 ? 4096
                 : (knowledgeTextEndpoints as readonly string[]).includes(endpoint) && success
                   ? 16384
-                  : (skillEndpoints as readonly string[]).includes(endpoint) && success
+                  : (skillInstallEndpoints as readonly string[]).includes(endpoint) && success
+                    ? 1024
+                    : (skillEndpoints as readonly string[]).includes(endpoint) && success
                     ? endpoint === 'listProjectSkills'
                       ? 100 * 65536 + 8192 + 1024
                       : 65536
@@ -2301,6 +2324,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
             endpoint === 'getProjectCreation' ||
             (secretReadEndpoints as readonly string[]).includes(endpoint) ||
             (secretCommandEndpoints as readonly string[]).includes(endpoint) ||
+            (skillInstallEndpoints as readonly string[]).includes(endpoint) ||
             (skillEndpoints as readonly string[]).includes(endpoint) ||
             (workReviewEndpoints as readonly string[]).includes(endpoint) ||
             (knowledgeCommandEndpoints as readonly string[]).includes(endpoint) ||
