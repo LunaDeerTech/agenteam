@@ -331,11 +331,12 @@ func (b *ownedReadFileDrainBarrier) release()         { b.releasePhysical(); b.r
 
 type ownedReadFileHeldReader struct {
 	*sessionSocket
-	entered, release chan struct{}
-	enterOnce, once  sync.Once
+	started, entered, release  chan struct{}
+	startOnce, enterOnce, once sync.Once
 }
 
 func (r *ownedReadFileHeldReader) read() ([]byte, error) {
+	r.startOnce.Do(func() { close(r.started) })
 	raw, err := r.sessionSocket.read()
 	if err != nil {
 		r.enterOnce.Do(func() { close(r.entered) })
@@ -365,12 +366,15 @@ func TestOwnedReadFileOriginalReturnKeepsIdentity(t *testing.T) {
 				barrier.manager = manager
 				return executor, barrier, nil
 			}
-			socket := &ownedReadFileHeldReader{sessionSocket: clientSocket(), entered: make(chan struct{}), release: make(chan struct{})}
+			socket := &ownedReadFileHeldReader{sessionSocket: clientSocket(), started: make(chan struct{}), entered: make(chan struct{}), release: make(chan struct{})}
 			ownedReadFileDevice(t, c, configuration, socket)
 			run := startOwnedReadFileRun(t, c, func() { socket.unblock(); barrier.release() })
 			if nextMessage(t, socket.sessionSocket).Type() != p.HelloType {
 				t.Fatal("owned session did not enter the original wire")
 			}
+			// Hello is produced by the independent writer. Cancellation must
+			// follow the actual reader entry for its return barrier to apply.
+			await(t, socket.started)
 			c.Stop()
 			await(t, socket.entered)
 			run.requireHeld(t, path)
