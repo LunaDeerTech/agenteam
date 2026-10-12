@@ -66,3 +66,20 @@ python3 -B .agent-state/write-file-result-consumption/run-pg-checks.py prepare -
 `/tmp/wfrc01`—`04` 各原log、owned/request与telemetry小文件共16份已排他复制到旁证明目录`external/`，逐字节及mode/uid/gid/nsmtime核同，原tmp未动。副本的dev/inode独立，不冒原身份。只核原已知PID当前不可见、原Wait与作者停写声明、旧树无其它ignored/普通untracked；不扩大为全局FD或未知配方保证。新Command方法owner确认后继无旧树绝对live依赖。
 
 随后普通worktree remove PID966524、普通branch -d PID966546均0；fresh精确等最终tip后，单ref exact-lease删除PID966551实际0，fresh空及显式main/ai prune均0。原30239亲Wait0（e3f243），无force树删除、无保全副本删除。见[Git实际清理](../../output/ai/write-file-result-consumption-git/cleanup01/result.json)。原运行目录虽已移走，所有已保全失败、来源局限和STOP保持；本片不包含下一Model、再次Tool执行、默认生产装配或tools HTTP解禁。
+
+
+## 历史编译二进制归档补充（archive03）
+
+2026-10-12，本片下列裸二进制已无损收入共同 [archive03](../../output/ai/retired-compile-binaries/archive03/README.md)，随后经独立授权从原 retained 路径精确移除。完整字节现保存在 [history-binaries.tar.gz](../../output/ai/retired-compile-binaries/archive03/history-binaries.tar.gz)：298,117,374 B，SHA-256 `e72c0e3c62242e4ef0fa552bdfdfb634b97290d6c58de90026c7997a77b9922a`。表中成员名相对原 `/workspace/agenteam/output/ai`，并保留原 compile 路径关系。
+
+| 归档成员 | 字节 | SHA-256 |
+| --- | ---: | --- |
+| `retired-20261012/write-file-result-consumption/compile01/projectvariable.test` | 90,149,222 | `02297942ea521b9a8bbed28c6dda1ee3a9bad0cf926db000a6a4f317413060eb` |
+| `retired-20261012/write-file-result-consumption/compile02/projectvariable.test` | 90,183,565 | `659eed4a3217527b2d5f1f0ed10bee291987e511876891ef3696ca37a0e0ee52` |
+| `retired-20261012/write-file-result-consumption/compile03/projectvariable.test` | 90,184,357 | `b1771f2165ae68dc2c5ba2315e39557096ca628bf1f07519f41877ddccbfa77a` |
+
+原 phase1 工具 28190 实际 0（`662de4`），outer 988070 / child 988073 实际 Wait 0 / 50.927s；当轮完整解流验证九成员并保留全部裸件。后续 phase2 工具 59243 实际 0（`e2e194`），outer 990023 / child 990026 实际 Wait 0 / 8.168s：先重新验证整包、九成员内容与元数据及原件身份，再只 unlink 这九个获授权 ELF，目录和其它文件删除数均为 0。实际清单见 [removal03](../../output/ai/retired-compile-binaries/removal03/README.md)、[result.json](../../output/ai/retired-compile-binaries/removal03/result.json) 和 [deleted.jsonl](../../output/ai/retired-compile-binaries/removal03/deleted.jsonl)。原 139 份关联记录、FAIL、输入 maps 和归档 full stat 均未改变；当前 Command 2,007 输入与四身份保持。整批相对裸件基线净减少 394,043,392 B 已分配空间（小证明文件另计），不据此宣称 ENOSPC 已解决或新运行必定成功。
+
+恢复时先核整个归档 SHA 和 [manifest](../../output/ai/retired-compile-binaries/archive03/manifest.json)、[before.json](../../output/ai/retired-compile-binaries/archive03/before.json)、[specs.json](../../output/ai/retired-compile-binaries/archive03/specs.json) 中的精确成员关系，再仅向新的隔离目录排他提取所需成员。例如使用 `tar --extract --gzip --file <归档绝对路径> --directory <新隔离目录> --keep-old-files --same-permissions --same-owner --numeric-owner -- <上表成员名>`；不得覆盖现有文件或写入当前 source/cache。提取后逐件核 SHA/size、mode、uid/gid 和纳秒 mtime；权限不足以恢复元数据或任一核验不符即停止，不能记为恢复完成。完整边界见共同归档恢复说明。
+
+前文的文件数量、裸件保留和迁移 inode 相同是原保全时的历史事实。重新提取会分配新 inode 并产生新的 ctime，dev 取决于恢复目标文件系统，旧身份只保留在原 manifest/PAX 记录中，不能称新文件重建了原 inode；原日志、结果和 maps 不改写。恢复不是重跑授权或新的 PASS，热 cache、只读 modules、工具链与当前二进制不在本次删除范围。

@@ -1,6 +1,8 @@
 # 当前工作：Run-command 结果消费
 
-2026-10-12。本索引位于 `/workspace/agenteam` 正式 main 工作树；root 统筹，variables_review 执行明确授权的 Git 与全局记录。当前独立树 `/workspace/agenteam-run-command-result-consumption`，分支 `ai/run-command-result-consumption-20261012`、base `ac02502698af864c20a65fd83d35467511f014be`，已实际创建并由各域作者开始静态实施，尚未Go/PG验收。新树仅继承正式主线源码，不依已退役Write树绝对运行路径；不启动下一Model、不改默认生产绑定或tools HTTP STOP。
+2026-10-12。本索引位于 `/workspace/agenteam` 正式 main 工作树；root 统筹，variables_review 执行明确授权的 Git 与全局记录。当前独立树 `/workspace/agenteam-run-command-result-consumption`，分支 `ai/run-command-result-consumption-20261012`、base `ac02502698af864c20a65fd83d35467511f014be`、固定源码 `1ab01c81352f254ee45123ed29a08f40b1c310c1`。方法1正/7反、基础23top/139sub与5包vet、compile/list均实际通过；真实消费者PG尚未通过。新树仅继承正式主线源码，不依已退役Write树绝对运行路径；不启动下一Model、不改默认生产绑定或tools HTTP STOP。
+
+Command结果消费原native01只完成prepared、没有实际运行；首次实际native位于native02，原75881/626ce1亲收wholeactual1，supervisor991784 Wait1/78.957s，两sub在owned MkdirTemp实际ENOSPC前置失败、均0.00s，消费者业务未进入。原七资源14absence、TCP双空、2007输入与四方法身份同及全部Wait/退出尾齐，唯一主审已接受失败范围和完整收尾，不计业务通过。此前archive03/removal03已验证归档并精确移除9个退役冷ELF，净回收394,043,392B；这只是容量时点事实，不证明ENOSPC已解决。当前仅读定位环境占用，后继重跑未授权，原FAIL/准备与运行边界保持。
 
 Write-file 结果消费已随完整历史 main `ac025026` 交付并推送（受测 `98d23247`、最终两文档 `67780ac4`）。分阶段18top/81sub与5包vet、三次compile/list通过；native04原83628/c81c0b wholeactual0，1top/2sub107.10s、supervisor956700 Wait0/199.212s，1992输入/四身份、七资源双缺席、desc/private/runtime及自动TCP双空齐，唯一主审接受有限链。218文件/284,884,747B/42目录已同FS无覆盖保全，56输入图中1,997历史源码版本main可恢复、四tmp各4副本齐且原件保留。原树/本地分支普通删除及远端精确lease删除、fresh空/显式main+ai prune均实际成功；当前累计40树/41本地/81远端、legacy135待核/keep1。见[本片卡](../docs/development/work-items/d22-write-file-result-consumption.md)、[恢复说明](write-file-result-consumption/README.md)及[清理记录](branch-cleanup-20261011.md#2026-10-12-write-file结果消费实际清理)。
 

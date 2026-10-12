@@ -31,3 +31,20 @@ root 已完成并推送仅保留已交付开发历史的 `ours` merge `66d45ce1b
 被动 `/proc` 可读部分最后未见目标路径持有，首个并行盘点快照有一个短暂未归属的只读 FD，后续消失；大量进程/FD 权限不可读，因此这不能单独证明宿主无活动进程。清理依据仍须结合原命令实际退出与 owner 停写确认，不以扫描代替原 Wait。两个 node_modules 可从已保留锁文件恢复；外部共享 Go cache/modules 不属于本树，不搬移或删除它们。
 
 历史合并、无覆盖迁移及结果核对完成后，root 已普通移除原 worktree，本地 branch -d 实际成功；远端原 tip `352be73e28762b22ee15f84fa3a7d542c6e7b4e0` 精确 lease 删除工具 4661 实际退出 0，fresh 查询为空、prune 0。清理累计为 28 个 WorkTree / 29 个本地分支 / 60 个远端引用（含后继已核 main 祖先的 Skills/Milestone 旧引用），旧待核 147 个、显式保留 1 个不变，见[主线 current](../current.md)。本片不含删除、UI 原命令重放、Agent/Runner 环境注入、生产 Project initializer 或完整 Variables 生命周期；原 STOP 不随清理解除。
+
+
+## 历史编译二进制归档补充（archive03）
+
+2026-10-12，本片下列裸二进制已无损收入共同 [archive03](../../output/ai/retired-compile-binaries/archive03/README.md)，随后经独立授权从原 retained 路径精确移除。完整字节现保存在 [history-binaries.tar.gz](../../output/ai/retired-compile-binaries/archive03/history-binaries.tar.gz)：298,117,374 B，SHA-256 `e72c0e3c62242e4ef0fa552bdfdfb634b97290d6c58de90026c7997a77b9922a`。表中成员名相对原 `/workspace/agenteam/output/ai`，并保留原 compile 路径关系。
+
+| 归档成员 | 字节 | SHA-256 |
+| --- | ---: | --- |
+| `retired-20261011/project-variables-resume/output/ai/project-variables-web/compile-01/project-variables-race.test` | 79,402,223 | `23c95e9452eeaac17c331643a934c9099e9a4670c95aaba230f239b91bfd012d` |
+
+原 phase1 工具 28190 实际 0（`662de4`），outer 988070 / child 988073 实际 Wait 0 / 50.927s；当轮完整解流验证九成员并保留全部裸件。后续 phase2 工具 59243 实际 0（`e2e194`），outer 990023 / child 990026 实际 Wait 0 / 8.168s：先重新验证整包、九成员内容与元数据及原件身份，再只 unlink 这九个获授权 ELF，目录和其它文件删除数均为 0。实际清单见 [removal03](../../output/ai/retired-compile-binaries/removal03/README.md)、[result.json](../../output/ai/retired-compile-binaries/removal03/result.json) 和 [deleted.jsonl](../../output/ai/retired-compile-binaries/removal03/deleted.jsonl)。原 139 份关联记录、FAIL、输入 maps 和归档 full stat 均未改变；当前 Command 2,007 输入与四身份保持。整批相对裸件基线净减少 394,043,392 B 已分配空间（小证明文件另计），不据此宣称 ENOSPC 已解决或新运行必定成功。
+
+恢复时先核整个归档 SHA 和 [manifest](../../output/ai/retired-compile-binaries/archive03/manifest.json)、[before.json](../../output/ai/retired-compile-binaries/archive03/before.json)、[specs.json](../../output/ai/retired-compile-binaries/archive03/specs.json) 中的精确成员关系，再仅向新的隔离目录排他提取所需成员。例如使用 `tar --extract --gzip --file <归档绝对路径> --directory <新隔离目录> --keep-old-files --same-permissions --same-owner --numeric-owner -- <上表成员名>`；不得覆盖现有文件或写入当前 source/cache。提取后逐件核 SHA/size、mode、uid/gid 和纳秒 mtime；权限不足以恢复元数据或任一核验不符即停止，不能记为恢复完成。完整边界见共同归档恢复说明。
+
+前文的文件数量、裸件保留和迁移 inode 相同是原保全时的历史事实。重新提取会分配新 inode 并产生新的 ctime，dev 取决于恢复目标文件系统，旧身份只保留在原 manifest/PAX 记录中，不能称新文件重建了原 inode；原日志、结果和 maps 不改写。恢复不是重跑授权或新的 PASS，热 cache、只读 modules、工具链与当前二进制不在本次删除范围。
+
+本片二进制的历史依据仍只是 `retention/output-before.json` 的 `entries[1049]` 保全观测；原逐项 compile 输入 maps 和部分未提交 FAIL 输入没有保存。本次归档只保全现存二进制，不补造缺失 maps、失败源码或旧工具回执。

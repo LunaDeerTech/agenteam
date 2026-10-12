@@ -27,3 +27,21 @@ Secret Web owner确认dependencies01同锁物理私有、17个包内链接均无
 | `/tmp/kdw03/` | 同上：`ui-1eac6d76eacf4fc9.log`及owned/request；`original-tmp/kdw03/`。 |
 
 可再生node_modules、私有Go临时目录及缓存不额外复制；不能触保护的SkillHTTP热Go cache或SkillsResume只读modules/MinIO。原JSON中的历史绝对路径保留，通过本表与retention.json映射，不改写原证据。正式临时材料中的会话/令牌按原方法已经退休，本说明和补丁不保存私密材料。
+
+
+## 历史编译二进制归档补充（archive03）
+
+2026-10-12，本片下列裸二进制已无损收入共同 [archive03](../../output/ai/retired-compile-binaries/archive03/README.md)，随后经独立授权从原 retained 路径精确移除。完整字节现保存在 [history-binaries.tar.gz](../../output/ai/retired-compile-binaries/archive03/history-binaries.tar.gz)：298,117,374 B，SHA-256 `e72c0e3c62242e4ef0fa552bdfdfb634b97290d6c58de90026c7997a77b9922a`。表中成员名相对原 `/workspace/agenteam/output/ai`，并保留原 compile 路径关系。
+
+| 归档成员 | 字节 | SHA-256 |
+| --- | ---: | --- |
+| `retired-20261011/knowledge-subtree-delete-ui/runtime/compile-app01/knowledge-delete-app-race.test` | 77,645,511 | `df47e82db6caf768cc867c20f0bcf7119fa4b49e4d95f4e4082f13ec8bb4d475` |
+| `retired-20261011/knowledge-subtree-delete-ui/runtime/compile-app02/knowledge-delete-app-race.test` | 77,648,417 | `2f98e5d29ebbdfb11f2db3cba84113ee69a1282b90b40c27bd5500ae5fb592a6` |
+
+原 phase1 工具 28190 实际 0（`662de4`），outer 988070 / child 988073 实际 Wait 0 / 50.927s；当轮完整解流验证九成员并保留全部裸件。后续 phase2 工具 59243 实际 0（`e2e194`），outer 990023 / child 990026 实际 Wait 0 / 8.168s：先重新验证整包、九成员内容与元数据及原件身份，再只 unlink 这九个获授权 ELF，目录和其它文件删除数均为 0。实际清单见 [removal03](../../output/ai/retired-compile-binaries/removal03/README.md)、[result.json](../../output/ai/retired-compile-binaries/removal03/result.json) 和 [deleted.jsonl](../../output/ai/retired-compile-binaries/removal03/deleted.jsonl)。原 139 份关联记录、FAIL、输入 maps 和归档 full stat 均未改变；当前 Command 2,007 输入与四身份保持。整批相对裸件基线净减少 394,043,392 B 已分配空间（小证明文件另计），不据此宣称 ENOSPC 已解决或新运行必定成功。
+
+恢复时先核整个归档 SHA 和 [manifest](../../output/ai/retired-compile-binaries/archive03/manifest.json)、[before.json](../../output/ai/retired-compile-binaries/archive03/before.json)、[specs.json](../../output/ai/retired-compile-binaries/archive03/specs.json) 中的精确成员关系，再仅向新的隔离目录排他提取所需成员。例如使用 `tar --extract --gzip --file <归档绝对路径> --directory <新隔离目录> --keep-old-files --same-permissions --same-owner --numeric-owner -- <上表成员名>`；不得覆盖现有文件或写入当前 source/cache。提取后逐件核 SHA/size、mode、uid/gid 和纳秒 mtime；权限不足以恢复元数据或任一核验不符即停止，不能记为恢复完成。完整边界见共同归档恢复说明。
+
+前文的文件数量、裸件保留和迁移 inode 相同是原保全时的历史事实。重新提取会分配新 inode 并产生新的 ctime，dev 取决于恢复目标文件系统，旧身份只保留在原 manifest/PAX 记录中，不能称新文件重建了原 inode；原日志、结果和 maps 不改写。恢复不是重跑授权或新的 PASS，热 cache、只读 modules、工具链与当前二进制不在本次删除范围。
+
+两件原 binary 的 SHA 依据仍是对应 native01/native03 输入图；原 compile result 没有 binary size 或完整文件元数据，本次批准身份是归档前的实物观测，不回填为旧编译证据。早期未提交输入、native01 原 raw 定位错误/count 和 native02 Lookup502 内部 stage 等原缺口保持。
