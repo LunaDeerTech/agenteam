@@ -27,12 +27,14 @@ type Config struct {
 	caFile          string
 	device          identity.Configuration
 	hasDevice       bool
+	operations      string
 }
 
 func (c Config) LogLevel() slog.Level                   { return c.logLevel }
 func (c Config) ShutdownTimeout() time.Duration         { return c.shutdownTimeout }
 func (c Config) IdentityFile() string                   { return c.identityFile }
 func (c Config) Device() (identity.Configuration, bool) { return c.device, c.hasDevice }
+func (c Config) Operations() string                     { return c.operations }
 func (Config) Format(w fmt.State, _ rune)               { _, _ = io.WriteString(w, "runner_configuration") }
 func (Config) MarshalJSON() ([]byte, error)             { return []byte(`"runner_configuration"`), nil }
 func (Config) LogValue() slog.Value                     { return slog.StringValue("runner_configuration") }
@@ -53,7 +55,7 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 			continue
 		}
 		switch strings.TrimPrefix(key, Prefix) {
-		case "LOG_LEVEL", "SHUTDOWN_TIMEOUT", "IDENTITY_FILE", "CENTRAL_URL", "ID", "ROOT_PATH", "CA_FILE":
+		case "LOG_LEVEL", "SHUTDOWN_TIMEOUT", "IDENTITY_FILE", "CENTRAL_URL", "ID", "ROOT_PATH", "CA_FILE", "OPERATIONS":
 		default:
 			return Config{}, &Error{field: Prefix + "*", reason: "unsupported"}
 		}
@@ -68,6 +70,7 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 		return fallback
 	}
 	var c Config
+	c.operations = value("OPERATIONS", "")
 	switch value("LOG_LEVEL", "info") {
 	case "debug":
 		c.logLevel = slog.LevelDebug
@@ -112,6 +115,9 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 }
 
 func (c Config) Validate() error {
+	if c.operations != "" && c.operations != p.ReadFileOperation {
+		return invalid("OPERATIONS")
+	}
 	if c.logLevel != slog.LevelDebug && c.logLevel != slog.LevelInfo && c.logLevel != slog.LevelWarn && c.logLevel != slog.LevelError {
 		return invalid("LOG_LEVEL")
 	}

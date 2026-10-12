@@ -199,6 +199,12 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestRunnerReadFileApp$': frozenset((
+        'TestRunnerReadFileApp',
+        'TestRunnerReadFileApp/explicit-cli-range-and-identity-restart',
+        'TestRunnerReadFileApp/default-empty-capability-unsupported',
+        'TestRunnerReadFileApp/invalid-root-and-explicit-config-before-connect',
+    )),
     '^TestRoundModelCallReservation$': frozenset((
         'TestRoundModelCallReservation',
         'TestRoundModelCallReservation/committed-request-reservation-and-history',
