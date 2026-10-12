@@ -9,6 +9,7 @@ import (
 	ac "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/object"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 )
 
@@ -186,6 +187,13 @@ func (s *Service) acquireCommandSource(ctx context.Context, req createRequest, c
 	}
 	cause, _ := foundation.NewCommandsCause(req.identity)
 	var lease oc.SourceLease
+	if st := r.ownership; st != nil && !nilPort(st.sourceAuthority) {
+		reads, ok := r.reads.(*object.SourceReads)
+		if !ok {
+			return commandRow{}, oc.SourceLease{}, failure(foundation.DependencyUnbound, nil)
+		}
+		ctx = context.WithValue(ctx, artifactSourceAcquisitionKey{}, reads)
+	}
 	result := s.within(ctx, invocationSubject(req.invocation), identity.Mutate, cause, []oc.AccessLockPlan{plan}, createLocks(req.identity, c.ref.ArtifactID.String()), func(ctx context.Context, tx foundation.Tx, locked oc.LockedAccess) error {
 		e, err := r.store.InTx(tx)
 		if err != nil {
@@ -217,6 +225,9 @@ func (s *Service) acquireCommandSource(ctx context.Context, req createRequest, c
 		if err != nil {
 			return err
 		}
+		if err = s.bindProjectSource(ctx, tx, req, source, lease); err != nil {
+			return err
+		}
 		if isNew {
 			next := c
 			next.sourceLease = lease.ID()
@@ -227,6 +238,9 @@ func (s *Service) acquireCommandSource(ctx context.Context, req createRequest, c
 	})
 
 	if err = commitError(result); err != nil {
+		if result.State() == foundation.NotCommitted && lease.Validate() == nil {
+			s.discardProjectSourceAcquisition(lease)
+		}
 		return commandRow{}, oc.SourceLease{}, err
 	}
 	c.sourceLease = lease.ID()
@@ -239,6 +253,10 @@ func (s *Service) cancelSource(lease oc.SourceLease) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	if s.state().reads.CancelSourceLease(ctx, lease) == nil {
+		if st := s.state().ownership; st != nil && !nilPort(st.sourceAuthority) {
+			_ = s.returnedProjectSource(ctx, lease)
+			return
+		}
 		r := s.state()
 		r.mu.Lock()
 		for key, handle := range r.leases {

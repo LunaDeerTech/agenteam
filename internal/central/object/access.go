@@ -373,6 +373,10 @@ func (s *Service) withinAccess(ctx context.Context, cause foundation.Transaction
 	if cleanup != nil && cleanup.call.retained && !cleanup.confirmation {
 		return cleanup.call.original
 	}
+	source := s.sourceContext(ctx)
+	if source != nil && source.stop != nil && !source.stop.active.Load() {
+		return rejectedAccess(failure(foundation.Forbidden, nil))
+	}
 	plan, err := s.DiscoverAccess(ctx, request)
 	if err != nil {
 		return rejectedAccess(err)
@@ -382,6 +386,13 @@ func (s *Service) withinAccess(ctx context.Context, cause foundation.Transaction
 		key, _ := foundation.ProjectLock(cleanup.call.cause.ProjectID.String())
 		extra = []foundation.LockRequest{{Key: key, Mode: foundation.Exclusive}}
 	}
+	if source != nil && source.stop != nil {
+		locks, err := source.stop.request.RequiredLocks()
+		if err != nil {
+			return rejectedAccess(err)
+		}
+		extra = append(extra, locks...)
+	}
 	validated := false
 	result := s.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
 		locked, err := s.AcquireAccessPlansInTx(ctx, tx, []oc.AccessLockPlan{plan}, extra)
@@ -390,6 +401,9 @@ func (s *Service) withinAccess(ctx context.Context, cause foundation.Transaction
 		}
 		if err = s.ValidateAccessPlanInTx(ctx, tx, request, plan, locked); err != nil {
 			return err
+		}
+		if err = s.requireSourceStop(ctx, tx, source); err != nil {
+			return portError(err)
 		}
 		if err = s.checkProjectCleanupAccess(ctx, tx, request); err != nil {
 			return err
@@ -411,8 +425,11 @@ func (s *Service) withinAccess(ctx context.Context, cause foundation.Transaction
 		validated = true
 		return nil
 	})
+	if source != nil {
+		_ = sourceCommitError(source.handle, result)
+	}
 	s.captureProjectCleanup(ctx, result)
-	if cleanup != nil && result.State() == foundation.Committed && (!validated || ctx.Err() != nil) {
+	if (cleanup != nil || source != nil) && result.State() == foundation.Committed && (!validated || ctx.Err() != nil) {
 		return rejectedAccess(unavailable(ctx.Err()))
 	}
 	return result
