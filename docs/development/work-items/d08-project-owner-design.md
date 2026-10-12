@@ -303,6 +303,8 @@ Source 停止扩展只借用原 LifecycleStopDriver 当前 invoke 的独立私�
 该扩展的 SourceCreate Audit 只开放 Human、同 Project 的 ArtifactFile→Artifact：原 publication 私有见证保存完整 resolved source 与原 lease ID，事实 checker 重核同 Tx 原 pending command、source/target canonical metadata 和 typed SourceKind/ID/revision；实际 source Acquire/Read 与 publication resolver 校验仍由原业务链承担。其它 source kind、跨 Project publication 与 AgentRun 不获新增授权；本片尚未动态验收。
 
 
+已闭 Source 的后继清理仅接收同 P ArtifactFile 的原 command/work/lease 完整映射、source_joined 与原返回/实例证明；未确认、重复或漂移映射及跨 P source 侧仍 Pending。原 Object 物理清理完成后，在同一当前 Cleanup Tx 内按最多 100 条 work 的有界批次成对退休本域 source work 与已 deleted command；未消费的完整映射保留到后继显式调用，最后才清普通 commands/intents 和旧 archive receipt，保当前 Delete 最小 stopped receipt。不跨 SQL 删除 Object 数据，不新增公开授权或迁移，Unknown 仍只读确认原事务。
+
 新的显式 Artifact/Object 组合 adapter 依次消费两原 Service 的 Stop/Inspect；只有 component/cause 严格匹配且两者完整实际返回 Stopped 才聚合 Stopped。没有对应注册 reference kind 的原细粒度 ID 不改名伪装为 object/artifact，聚合保守状态与安全 reason。原 cleanup-only 构造保留，原 LifecycleStopDriver 直接消费新 adapter；不因此绑定默认 App 或部分 Registry，也不声称其它 domain/finalizer 已完成。本节为候选实现合同，动态结果按后续真实验收记录。
 
 ### 9.1 D05 项目停止能力
