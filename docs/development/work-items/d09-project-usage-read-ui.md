@@ -2,6 +2,21 @@
 
 2026-10-11。工作树 `/workspace/agenteam-project-usage-read-ui`，分支 `ai/project-usage-read-ui-20261011`；已由 root 快进至 Secrets 已交主线 `7e0a123e`。作者 agent_display_settings，独审 recovery_lead，root 独占 Git。产品、真实正常读取链和退出尾已获 recovery_lead 有限独立接受；等待 root 保存并集成，完整 D09 未完成。
 
+## 2026-10-12 后继：按日服务端汇总
+
+root 已授权在现有调用记录页增加“按日汇总”视图；以下 2026-10-11 段落中的“仅 List、不含 summary”描述原交付范围。新视图调用正式 `GET /api/v1/projects/{id}/model-usage/summary`，固定 `group_by=day`、`limit=100`，使用原近 30×24 小时 UTC `[from,to)` 窗口；最多跨 31 个 UTC 日期，要求整页无后续 cursor，绝不将当前 50 条明细相加。切换视图保留窗口，显式刷新重新捕获窗口；不新增八维 Dashboard、费用估算或 Provider 请求。
+
+逐日显示六项 nullable 用量总和及各自 `known_count`、`unknown_count`，两项计数之和必须等于 `confirmed_invocations`；`dispatch_unknown` 另列，不混入用量分母。全部 int64 保留十进制字符串，只有已知用量才计入总和；全未知显示“未知”，合法零与未知分开。分组日期按 UTC 递增且不得重复，行与页 `as_of` 必须一致。空响应保留真实空态，不补造零行。API/Session 继续使用原 `usage-read` 实际 I/O owner，checking、项目/路径变化、取消和迟到结果不能发布旧观察。
+
+本后继产品及必要验收已获非作者接受。首候选 `f49c8ffd` 的五个定向前端文件共 28 项、类型检查和生产构建实际通过（原 `75471/98373e`）；未把纯控当作真实后端通过。首场真实 `browser01` 原 `46125/4c2f77` 整轮退出 0，1 top / 1 sub 58.80 秒，但独立截图复核发现 390px 暗色表格长行名与数值、表头相互重叠，**业务检查 PASS，视觉验收未通过**，见[原结果](../../../output/ai/project-usage-summary-delivery/browser01/result.json)与[原视觉 finding](../../../output/ai/project-usage-summary-delivery/browser01/visual-review.json)。该缺陷及旧图保留，不追认首轮界面合格。
+
+修复只将汇总表改为有界、具名且可键盘聚焦的横向滚动区，采用最小列宽与自动布局保留全部指标和完整整数；未改变 API、服务端计算或六项 nullable 数值。原视图控增加滚动区焦点断言；[frontend02](../../../output/ai/project-usage-summary-delivery/frontend02/result.json) 仅复验受影响的 5 项视图测试（4.605 秒）、类型检查（28.053 秒）和构建（2.247 秒），原 Wait 均 0，没有重复无关 28 项或重编 Go。
+
+修后真实 `browser02` 原 `7211/1da682` 整轮退出 0，`TestProjectUsageSummaryWeb/daily-server-aggregate` 70.99 秒；原 Go 1627747、Node 1629405、fixture 1626485 及四个收养子进程实际返回，六个自有资源均 absence，私有目录、runtime 与子进程尾为空，有限后核 `e211b1` 通过，见[实际结果](../../../output/ai/project-usage-summary-delivery/browser02/result.json)。同一原 Go binary 配合修后资产与原浏览器用例取得 3 次 List、3 次 summary 的完整响应、public consumer 与 Go EOF/Close 联证。1440 浅色和 390 深色均以实际文本边界断言排除相邻单元格重叠；窄屏容器有界且可横滚，原 ArrowRight 操作使 scrollLeft 增长。[桌面图](../../../output/ai/project-usage-summary-delivery/browser02/usage-summary/summary-1440-light.png)、[窄屏原位图](../../../output/ai/project-usage-summary-delivery/browser02/usage-summary/summary-390-dark.png)、[窄屏滚动图](../../../output/ai/project-usage-summary-delivery/browser02/usage-summary/summary-390-dark-scrolled.png)已由非作者亲看接受；滚动图只证明该次位移及可见区域，不声称它展示最右端全部列。
+
+真实前置通过正式 Writer 和自有 wire 为目标项目写入 52 条安全数值记录（25 条有用量、27 条未知），同一 Owner 的另一项目另有 1 条，第三项目为空。两个 UTC 日期是 reserve 前的受控 Facts 时间，不是实际过去发生的模型调用；Go 独立核服务端全量分组、各自分母、同窗/as_of、空项目、项目隔离及只读后账本不变，浏览器不从 List 的首 50 条相加。测试未调用外部 Provider，也未证明生产 Runtime producer 已绑定；完整 D09、全部撤权/取消矩阵、Tool/Agent 执行链与既有 STOP 不由本片完成。
+
+
 ## 范围与真实来源
 
 复用 [Owner Usage HTTP](d09-project-usage-read-http.md) §§1–5、[OpenAPI](../../../api/openapi/project-usage.json) 与 `usage/contract`、`usage/query.go`。入口为项目设置“模型与 Provider → 调用记录”，路径 `/{username}/{project_name}/settings/model-usage`。仅调用稳定 Project ID 的 `GET /api/v1/projects/{id}/model-usage`；不加入 summary、总量推算、估价、Provider 请求或 Dashboard。

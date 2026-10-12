@@ -69,8 +69,10 @@ import {
   createProjectUsageAPI,
   captureProjectUsageID,
   captureProjectUsageQuery,
+  captureProjectUsageDailyQuery,
   type ProjectUsageAPI,
   type ProjectUsageQuery,
+  type ProjectUsageDailyQuery,
 } from '../api/project-usage'
 import {
   createSkillPackageAPI,
@@ -8186,6 +8188,21 @@ export function createSessionController(
         return runAuthorized(
           identity,
           (op) => projectUsageAPI.list(project, captured, op.abort.signal),
+          undefined,
+          'usage-read',
+        )
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    daily(projectID: string, query: ProjectUsageDailyQuery) {
+      try {
+        const identity = personalIdentity(),
+          project = captureProjectUsageID(projectID)
+        const captured = captureProjectUsageDailyQuery(query)
+        return runAuthorized(
+          identity,
+          (op) => projectUsageAPI.daily(project, captured, op.abort.signal),
           undefined,
           'usage-read',
         )

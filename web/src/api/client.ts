@@ -113,6 +113,7 @@ const endpoints = {
   updateProjectSecret: ['PATCH', '/api/v1/projects/{project_id}/secret-variables/{target}', 200],
   lookupProjectSecret: ['POST', '/api/v1/projects/{project_id}/secret-variables/commands/lookup', 200],
   listProjectUsage: ['GET', '/api/v1/projects/{project_id}/model-usage', 200],
+  aggregateProjectUsage: ['GET', '/api/v1/projects/{project_id}/model-usage/summary', 200],
   createProjectVariable: ['POST', '/api/v1/projects/{project_id}/variables', 200],
   createOwnerProject: ['POST', '/api/v1/projects', 201],
   getProjectCreation: ['GET', '/api/v1/project-creations/{id}', 200],
@@ -1116,6 +1117,8 @@ type SecretReadOptions<E extends SecretReadEndpoint> = E extends 'listProjectSec
   : { signal: AbortSignal; projectID: string; target: string }
 type UsageReadQuery = Readonly<{ from: string; to: string; limit: number; cursor?: string }>
 type UsageReadOptions = { signal: AbortSignal; projectID: string; usageQuery: UsageReadQuery }
+type UsageDailyQuery = Readonly<{ from: string; to: string; group_by: 'day'; limit: 100 }>
+type UsageDailyOptions = { signal: AbortSignal; projectID: string; usageQuery: UsageDailyQuery }
 type SkillEndpoint = (typeof skillEndpoints)[number]
 type SkillWireQuery = Readonly<{ limit: number; cursor?: string }>
 type SkillOptions<E extends SkillEndpoint> = E extends 'listProjectSkills'
@@ -1267,6 +1270,11 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     parse: (value: unknown) => T,
     options: UsageReadOptions,
   ): Promise<T>
+  function request<T>(
+    endpoint: 'aggregateProjectUsage',
+    parse: (value: unknown) => T,
+    options: UsageDailyOptions,
+  ): Promise<T>
   function request<T, E extends SecretCommandEndpoint>(
     endpoint: E,
     parse: (value: unknown) => T,
@@ -1383,6 +1391,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       | SecretReadEndpoint
       | SecretCommandEndpoint
       | 'listProjectUsage'
+      | 'aggregateProjectUsage'
       | ProjectEndpoint
       | ProjectAuditEndpoint
       | ProjectModelEndpoint
@@ -1417,7 +1426,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       projects?: ProjectWireQuery
       skillQuery?: SkillWireQuery
       secretQuery?: SecretReadQuery
-      usageQuery?: UsageReadQuery
+      usageQuery?: UsageReadQuery | UsageDailyQuery
       revision?: string
       progress?: SkillPackageProgress
       knowledgeChildren?: KnowledgeChildrenWire
@@ -1469,12 +1478,16 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       } catch {
         throw new AccountFailure('invalid-input')
       }
-    } else if (endpoint === 'listProjectUsage') {
+    } else if (endpoint === 'listProjectUsage' || endpoint === 'aggregateProjectUsage') {
       try {
         shape(options, ['signal', 'projectID', 'usageQuery'])
         const project = string(options.projectID, 36, 36)
         if (!uuid7.test(project) || !(options.signal instanceof AbortSignal)) throw new Error()
-        const q = shape(options.usageQuery, ['from', 'to', 'limit'], ['cursor'])
+        const daily = endpoint === 'aggregateProjectUsage'
+        const q = daily
+          ? shape(options.usageQuery, ['from', 'to', 'limit', 'group_by'])
+          : shape(options.usageQuery, ['from', 'to', 'limit'], ['cursor'])
+        if (daily && (q.group_by !== 'day' || q.limit !== 100)) throw new Error()
         const from = string(q.from, 27, 27),
           to = string(q.to, 27, 27),
           limit = q.limit
@@ -1489,6 +1502,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
         )
           throw new Error()
         const params = new URLSearchParams({ from, to, limit: String(limit) })
+        if (daily) params.set('group_by', 'day')
         if (Object.hasOwn(q, 'cursor')) {
           const token = string(q.cursor, 1, 8192)
           if (
@@ -2228,7 +2242,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           (runnerEndpoints as readonly string[]).includes(endpoint) && success ? (endpoint === 'listSystemRunners' ? 2 * 1024 * 1024 : 65536) :
           endpoint === 'availableAgentRunners' && success ? 2 * 1024 * 1024 :
           endpoint === 'agentRunnerMounts' && success ? 512 * 1024 :
-          endpoint === 'listProjectUsage' && success
+          (endpoint === 'listProjectUsage' || endpoint === 'aggregateProjectUsage') && success
             ? 1024 * 1024
             : ((secretReadEndpoints as readonly string[]).includes(endpoint) || (secretCommandEndpoints as readonly string[]).includes(endpoint)) && success
               ? endpoint === 'listProjectSecrets'
@@ -2296,7 +2310,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
             endpoint,
           ) ||
             (runnerEndpoints as readonly string[]).includes(endpoint) ||
-            endpoint === 'listProjectUsage' ||
+            endpoint === 'listProjectUsage' || endpoint === 'aggregateProjectUsage' ||
             endpoint === 'createOwnerProject' ||
             endpoint === 'getProjectCreation' ||
             (secretReadEndpoints as readonly string[]).includes(endpoint) ||

@@ -677,6 +677,7 @@ export async function observeBrowserIO(
         systemRunnerManagement = false,
         secretWrite = false,
         knowledgeDelete: { mode: string; root: string } | undefined = undefined,
+        usageSummaryReads = false,
       ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
@@ -787,6 +788,14 @@ export async function observeBrowserIO(
                 (Object.hasOwn(query, "cursor") && (typeof query.cursor !== "string" || !query.cursor.length)))
               throw Error("PROJECT_USAGE_READ_SCOPE");
             return "/api/v1/projects/" + project + "/model-usage";
+          });
+          if (usageSummaryReads) consumer(auth.projectUsage, "daily", "usage.daily", (a) => {
+            const query = a[1];
+            if (a.length !== 2 || a[0] !== project || !query || Object.keys(query).sort().join() !== "from,to" ||
+                !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(query.from) ||
+                !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(query.to) || query.from >= query.to)
+              throw Error("PROJECT_USAGE_SUMMARY_SCOPE");
+            return "/api/v1/projects/" + project + "/model-usage/summary";
           });
         } else if (secretReads) {
           for (const method of ["list", "get"])
@@ -1935,6 +1944,7 @@ export type TaskObservationProfile = {
   secretReads?: true;
   secretWrite?: true;
   usageReads?: true;
+  usageSummaryReads?: true;
   systemRunnerManagement?: true;
   systemRunnerWireHeaders?: (expected: { method: string; url: string; status: number; requestID: string }) => Promise<UsageWireProof>;
   agentSecretAllowlist?: true;
@@ -1966,6 +1976,13 @@ export function requireCommittedLookup(value: Record<string, unknown>, structure
 }
 
 export function requireUsageReadProfile(profile: TaskObservationProfile, data: TaskObservationMaterial) {
+  if (profile.usageSummaryReads || profile.prefix === "project-usage-summary") {
+    const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand", "usageReads", "usageSummaryReads", "usageWireHeaders"];
+    if (profile.usageReads !== true || profile.usageSummaryReads !== true || profile.prefix !== "project-usage-summary" ||
+        profile.lookupCommand !== null || data.mode !== "daily-server-aggregate" || typeof profile.usageWireHeaders !== "function" ||
+        Object.keys(profile).some(key => !allowed.includes(key))) throw Error("PROJECT_USAGE_SUMMARY_PROFILE_MISMATCH");
+    return;
+  }
   if (!profile.usageReads && profile.prefix !== "project-usage") {
     if (profile.usageWireHeaders !== undefined) throw Error("PROJECT_USAGE_PROFILE_MISMATCH");
     return;
@@ -2562,6 +2579,7 @@ export async function observeTaskRequests(
           systemRunnerManagement,
           secretWrite,
           knowledgeDelete,
+          usageSummaryReads,
         }) => {
           const module = await import(/* @vite-ignore */ binding.asset);
           const useSession = module[binding.exportName];
@@ -2594,6 +2612,7 @@ export async function observeTaskRequests(
           systemRunnerManagement,
           secretWrite,
           knowledgeDelete,
+          usageSummaryReads,
           );
         },
         {
@@ -2621,6 +2640,7 @@ export async function observeTaskRequests(
           knowledgeTitleReads: profile.knowledgeTitleReads === true,
           secretReads: profile.secretReads === true,
           usageReads: profile.usageReads === true,
+          usageSummaryReads: profile.usageSummaryReads === true,
           runnerMounts: (profile.agentRunnerMounts || profile.agentSecretAllowlist) ? { mode: data.mode, agent: data.agent_id, ...(profile.agentSecretAllowlist ? { secretAllowlist: true as const } : {}) } : undefined,
           systemRunnerManagement: profile.systemRunnerManagement === true,
           secretWrite: profile.secretWrite === true,
@@ -2878,7 +2898,7 @@ export async function observeTaskRequests(
   }
   function usageReadEntry(entry: Entry) {
     return profile.usageReads && entry.request.method() === "GET" &&
-      ["session", "resolve", "projects", "project", "usage"].includes(entry.name);
+      (["session", "resolve", "projects", "project", "usage"].includes(entry.name) || profile.usageSummaryReads && entry.name === "summary");
   }
   function schedulerWrite(entry: Entry) {
     if (!profile.schedulerWrites) return false;
@@ -3056,7 +3076,7 @@ export async function observeTaskRequests(
       }
     }
     if (secretReadEntry(entry)) expect(c.kind).toBe({session:"restore", resolve:"project.resolve", projects:"project.list", project:"project.get", secrets:"secret.list", secret:"secret.get"}[entry.name]);
-    if (usageReadEntry(entry)) expect(c.kind).toBe({session:"restore", resolve:"project.resolve", projects:"project.list", project:"project.get", usage:"usage.list"}[entry.name]);
+    if (usageReadEntry(entry)) expect(c.kind).toBe({session:"restore", resolve:"project.resolve", projects:"project.list", project:"project.get", usage:"usage.list", summary:"usage.daily"}[entry.name]);
     if (runnerReadEntry(entry)) expect(c.kind).toBe({ session: "restore", resolve: "project.resolve", projects: "project.list", project: "project.get", "agent-directory": "agent.list", "agent-configuration": "agent.getConfiguration", "agent-models": "agent.models", "agent-runners": "agent.runners", "agent-mounts": "agent.runnerMounts", "agent-secrets": "secret.list" }[entry.name]);
     if (schedulerReadEntry(entry)) expect(c.kind).toBe({ session: "restore", resolve: "project.resolve", projects: "project.list", project: "project.get", scheduler: "scheduler.get" }[entry.name]);
     if (systemRunnerReadEntry(entry)) expect(c.kind).toBe({ session: "restore", projects: "project.list", "runner-list": "systemRunner.list", "runner-detail": "systemRunner.get" }[entry.name]);
@@ -3553,6 +3573,12 @@ export async function observeTaskRequests(
     expect(profile.agentSecretAllowlist).toBe(true);
     return runnerMountRead(name);
   }
+  function usageSummaryRead(request: Request) {
+    expect(profile.usageSummaryReads).toBe(true);
+    const row = entries.find(e => e.request === request);
+    expect(row?.checked && row.body && usageReadEntry(row) && ["usage", "summary"].includes(row.name), "original Usage summary GET must complete").toBeTruthy();
+    return row!.body as Record<string, any>;
+  }
   function usageRead(index: number) {
     expect(profile.usageReads).toBe(true);
     const rows = entries.filter(e => e.name === "usage" && e.checked && e.body);
@@ -3797,6 +3823,7 @@ export async function observeTaskRequests(
     knowledgeDeleteRead,
     secretRead,
     usageRead,
+    usageSummaryRead,
     runnerMountRead,
     agentSecretRead,
     systemRunnerRead,
