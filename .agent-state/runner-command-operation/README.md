@@ -1,6 +1,6 @@
 # Runner command Operation
 
-本片首次方法控制、基础检查、compile/list/prepare 与独立 native01 均已实际返回 0；native 原 1 top / 2 sub 和完整资源、TCP、输入尾门通过。正式边界与分工见[工作卡](../../docs/development/work-items/d15-runner-command-operation.md)。范围仅为一次显式 Runner Command Operation，具体原件见下文。
+本片已随完整历史 main `4ebde5a78a43f734d76e0c512fb0ec0c61170b9c` 有限交付并推送；最终功能提交为 `1065b7eb470e0f6286233a92e3b71d6b214284b8`。首次方法控制、基础检查、compile/list/prepare 与独立 native01 均已实际返回 0，原 1 top / 2 sub 和完整资源、TCP、输入尾门已由唯一 principal 接受。正式边界与分工见[工作卡](../../docs/development/work-items/d15-runner-command-operation.md)。范围仅为一次显式 Runner Command Operation，具体原件见下文。
 
 Runtime 显式构造 `NewRunCommandAuthority(store, guard, process, executionAuthority)`，再绑定实际 `mount.NewCommandResolver` / `runnerhttp.NewCommandDispatcher` 和 `NewRunCommandExecutor`。唯一执行输入是 Execution ID；`ExecuteRunCommand` 不接受裸 argv、RID 或 committed flag。`LookupRunCommand` 只观察同一 Operation，不开启新派发或写恢复。Outcome 默认 JSON/fmt/log 脱敏，`Result()` 显式返回原报告、复制的 stdout/stderr 和可用标记。
 
@@ -11,7 +11,7 @@ Runtime 显式构造 `NewRunCommandAuthority(store, guard, process, executionAut
 - `committed-attempt-command-and-lookup`：真实 Attempt COMMIT 原返回前零 wire；实际 exit23 与完整 stdout/stderr；最终实际 COMMIT 后受控丢回执，原 Lookup 恢复且不重发。
 - `environment-added-before-claim-no-dispatch`：Attempt 返回后、Claim 前由普通 Owner 增有效环境 entry（空字符串也非空集合），原请求拒绝且零 wire。
 
-基础控、实际依赖闭包、race-c/list、fresh native 请求及原 actual Wait/资源/TCP 门均沿 root 单独授窗执行。编译准备与实际 native 分别授权，原运行没有重试或跨失败续跑。此记录不表示已合 main、推送、迁移原件或清理活动树。
+基础控、实际依赖闭包、race-c/list、fresh native 请求及原 actual Wait/资源/TCP 门均沿 root 单独授窗执行。编译准备与实际 native 分别授权，原运行没有重试或跨失败续跑。主线交付、原件保全及旧树/本地/远端引用清理现均已实际完成；具体恢复位置见下文。
 
 ## 真实装配与判据
 
@@ -46,7 +46,7 @@ python3 -B .agent-state/runner-command-operation/run-pg-checks.py prepare --comp
 
 ## 实际结果与原始证据
 
-执行源固定为 `3ce4e7c4c095ebf8b7dc007913ce672e8ca16e27`。原件根为本树 `output/ai/runner-command-operation/`；以下 PID 均有原 Popen/Wait 记录，不以尾后进程查询代替原 Wait。
+执行源固定为 `3ce4e7c4c095ebf8b7dc007913ce672e8ca16e27`。原件现完整保留于 main `output/ai/retired-20261012/runner-command-operation/`；以下 PID 均有原 Popen/Wait 记录，不以尾后进程查询代替原 Wait。
 
 | 阶段 | 实际结果 | 原件 |
 | --- | --- | --- |
@@ -62,4 +62,12 @@ python3 -B .agent-state/runner-command-operation/run-pg-checks.py prepare --comp
 
 七资源的原 ID/nonce 与 `owned.json` 相同，两轮共 14 次 absence；原 descendants、private、runtime 双尾空，原 HOST_TCP 基线差额双空，supervisor `inputs_unchanged=True terminal=0`。`native01/inputs-after.json` 与原 1979 项 runtime map 全等；`native-tool-observation.json` 保存工具 29984 的 assistant-observed 亲收转录。prepare 容量记录仅是准备时观测：3,709,665,280 B / 1,736,454 free inode，不代表运行峰值。
 
-全部执行仅在 `/workspace/agenteam-runner-command-operation`。原热 GOCACHE 和只读 GOMODCACHE 沿脚本固定路径保护，不复制或改锁；全部 Git 操作由 root 完成。受控 JSON Model、原 Project test Skills receipt 边界保持；验收不涵盖新 Transcript 消费、下一 Model、默认生产绑定、Secret 环境执行、完整 Approval 自动流程或 tools HTTP 解禁。
+上述原执行均在现已退役的 `/workspace/agenteam-runner-command-operation`；恢复时使用正式 main 源码与下列保全副本，不能再访问旧 cwd。原热 GOCACHE 和只读 GOMODCACHE 沿脚本固定路径保护，不复制或改锁；Git 由 root 统筹并授权唯一执行者。受控 JSON Model、原 Project test Skills receipt 边界保持；验收不涵盖新 Transcript 消费、下一 Model、默认生产绑定、Secret 环境执行、完整 Approval 自动流程或 tools HTTP 解禁。
+
+## 保全与实际清理
+
+完整 output 的 76 文件 / 96,100,547 B / 13 目录已由原工具20416 actual0（1d381f）在 dev27 上以 `RENAME_NOREPLACE` 无覆盖迁至 main `output/ai/retired-20261012/runner-command-operation/`，逐路径 SHA、size、dev/inode、mode及时间身份前后相同。四份 `/tmp/rco01` 原件共7,377 B已另复制，原tmp保持；旁目录 `runner-command-operation-preservation/` 保存原manifest、recovery-map、实际Wait与可见性限制。依赖确认只覆盖已知owner/配方，不冒全局FD或未知任务证明。
+
+原20份输入图中的1,979路径版本/1,979 blobs已逐字对应受测 `3ce4e7c4`；[main补证明](../../output/ai/retired-20261012/runner-command-operation-preservation/main-history-supplement.json)实际0（0a436b）确认受测提交和最终 `1065b7eb` 均main祖先，全部历史版本在main重新读取后SHA一致。外部工具链、热cache、只读modules和MinIO仍沿受保护实际路径；不将外部依赖算作仓库恢复，也不重跑未改变的产品验证。小proof及原日志为ignored材料，跨设备需另行复制；已提交源码由正式main历史恢复。
+
+main与功能分支atomic push PID903835实际Wait0（原55841/8658d0）后，旧树已普通worktree remove PID904921 Wait0，本地branch -d PID904943 Wait0，均未force。fresh远端精确等最终tip后，单ref exact-lease删除PID904990 Wait0；fresh查询为空与显式main/ai fetch-prune、tracking/local/tree为空由原83894/402548 actual0闭合。旧output早已迁移，未随树删除丢弃原件。最终清理事实见[台账](../branch-cleanup-20261011.md#2026-10-12-central-command-operation实际清理)；后继Write结果消费使用独立新树，不依赖旧绝对运行路径。

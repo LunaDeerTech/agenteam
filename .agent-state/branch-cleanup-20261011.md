@@ -123,3 +123,11 @@ root普通移除 `/workspace/agenteam-runner-command-wss` 及本地 `ai/runner-c
 main推送PID901989实际Wait0后，fresh查询PID902017实际0精确匹配上述tip；仅该远端的exact-lease删除PID902040实际0，fresh查询PID902048实际0且为空。初次仅main refspec的fetch未覆盖ai tracking，包装43764/38cfc3 actual1如实保留；随后显式main与ai全范围fetch/prune PID902369实际0（7e5866），D13 tracking、本地分支和worktree均为空，见[最终引用核验](../output/ai/branch-cleanup-20261012/d13-history/remote-verification.json)。本候选原无本地分支或树，本次仅增加1个远端删除：累计 **38 WorkTrees / 39本地分支 / 75远端引用**，legacy140→139待核，原显式keep1不变。
 
 本次仅保证已提交源码历史可恢复。已记录的旧树/output与 `/tmp/d13-p01` 原日志在有界精确路径检查中未见；没有遍历全部归档，不声称原件毁损，也未补回ignored运行原件、binary或未提交现场。类型/大小与17版本有界凭据模式检查及其限制均在plan中；没有输出敏感值或扩大为完整secret保证。小proof属于ignored材料，跨设备须另行保留；全部已提交源码由已推送main完整历史恢复。其它STOP、保护树和未核候选不变。
+
+## 2026-10-12 Central Command Operation实际清理
+
+受测源码 `3ce4e7c4c095ebf8b7dc007913ce672e8ca16e27` 与最终两文档提交 `1065b7eb470e0f6286233a92e3b71d6b214284b8` 已完整合入main `4ebde5a78a43f734d76e0c512fb0ec0c61170b9c`，44合入路径逐blob等候选，原受测提交为main祖先。main与功能分支的atomic push PID903835实际Wait0（原55841/8658d0）；41top/207sub、10vet及首次1top/2sub wholePASS只按原有限范围复用，无产品重测。
+
+完整output已由20416 actual0（1d381f）在dev27无覆盖迁至main `output/ai/retired-20261012/runner-command-operation/`，76文件/96,100,547B/13目录逐项字节与原inode/stat保持；四份tmp副本7,377B齐、原tmp保留。旁目录的main补证0a436b实际0确认20输入图中全部1,979路径版本/1,979blobs从main历史实读SHA相同，原proof不覆盖；旧树tracked/untracked/ignored均空、已知owner无旧绝对路径活动依赖。详情及外部依赖/可见性限制见[恢复说明](runner-command-operation/README.md)。
+
+随后普通worktree remove PID904921实际0、普通branch -d PID904943实际0；fresh查询PID904944实际0精确等上述最终tip，单远端exact-lease删除PID904990实际0，fresh查询PID904996实际0且为空，显式main/ai fetch-prune PID905028实际0。原83894/402548 actual0确认旧树路径、local及tracking均空，没有force或删除原保全副本。此次增加1树/1本地/1远端，累计 **39 WorkTrees / 40本地分支 / 76远端引用**，legacy139待核、原keep1不变。新Write结果消费树从main4ebde5a7独立创建，仅源码在制，未计作清理或验收；全部原FAIL、STOP和保护依赖不变。

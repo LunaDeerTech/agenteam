@@ -1,6 +1,6 @@
 # D15/D18/D22 单 run-command Operation
 
-状态：2026-10-12 在 `/workspace/agenteam-runner-command-operation` 完成显式 Central run-command 接线及首次真实链验证。基础定向 race、vet、PG 编译/list 和 native01 均实际通过；唯一 principal 已完成 native01 whole PASS 的有限独立验收，可交主线。当前仍为显式构造入口，不开放生产默认绑定。
+状态：2026-10-12 显式 Central run-command 接线及首次真实链已随完整历史 main `4ebde5a7` 交付并推送；原工作树及本地/远端分支现均已实际清理。基础定向 race、vet、PG 编译/list 和 native01 均实际通过；唯一 principal 已完成 native01 whole PASS 的有限独立验收。当前仍为显式构造入口，不开放生产默认绑定。
 
 正式依据：[Model/Tool](d01-contracts/model-tool.md)、[Runner execution-runtime](../../architecture/runner/execution-runtime.md)、[Control 协议](../../architecture/runner/control-protocol.md)及[已交 write-file Operation](d15-runner-write-file-operation.md)。本片只把真实持久 ToolCall 接到一次 command Operation，并保存完整可信调用报告和双流；不消费 Transcript、不启动下一 Model。
 
@@ -29,3 +29,7 @@ native01 原工具 `29984` 由执行作者亲收 actual 0；supervisor `894697` 
 此真实链使用正式 Owner/Registry/Agent/Execution/ProjectVariable/Mount 及 Runner 登记、认证 WSS、Manager 和本地 command owner；Model JSONCaller 仍为受控端口，Project 仍沿用原 test Skills receipt。PG 的 Unknown 是实际 COMMIT 后受控回执丢失，不宣称物理数据库结果未知，也不证明真实 tools HTTP 或完整模型工具循环。
 
 本片不开放 production initializer/default executor/完整 registry，不实现真实 tools HTTP、Approval owner、SecretUsage 注入/masking、下一轮 Model、Transcript 消费、Execution 终态退休或 ManagedProcess；全部原 STOP 不变。
+
+## 主线恢复与清理
+
+受测源码 `3ce4e7c4` 与最终文档提交 `1065b7eb` 均已为main祖先；两份最终文档之外没有改变受测技术输入，合入的44路径与候选逐blob一致。原76文件/96,100,547B/13目录及四份tmp副本已无覆盖保全，20输入图的1,979历史版本main可逐字恢复；原Wait与证据来源限制保持。旧树及本地分支使用普通remove/-d，远端fresh最终tip后精确lease删除，成功空查询与main/ai prune齐；详见[恢复说明](../../../.agent-state/runner-command-operation/README.md)。后继Write结果消费为独立在制片，不回填本片未涵盖的Transcript或下一Model能力。
