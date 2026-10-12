@@ -107,6 +107,10 @@ func validateCleanupCheckpoint(participant c.ParticipantName, checkpoint *c.Clea
 		_, err := decodeAuditCleanupCheckpoint(checkpoint, cause, c.ScopeRef{Kind: c.ProjectScope, ProjectID: project})
 		return err
 	case c.SkillsParticipant:
+		if checkpoint != nil && checkpoint.Schema() == 5 {
+			_, _, err := decodeVariablesCleanupCheckpoint(checkpoint, cause, project)
+			return err
+		}
 		if checkpoint != nil && (checkpoint.Schema() == 3 || checkpoint.Schema() == 4) {
 			_, err := decodeAgentsCleanupCheckpoint(checkpoint, cause, project)
 			return err
