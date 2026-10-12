@@ -19,7 +19,7 @@ import (
 )
 
 const NextRoundModelRequestSchemaVersion f.Version = 1
-const NextRoundModelInputSchemaVersion f.Version = 3
+const NextRoundModelInputSchemaVersion f.Version = mc.SuccessorInputSchemaVersion
 
 // The complete request contains one existing projection (at most 16 MiB),
 // its captured model (bounded by the original 8 MiB preparation input), and
@@ -68,37 +68,19 @@ type nextRoundModelRequestData struct {
 	digest    f.Digest
 }
 
-// This explicit actor representation cannot silently lose Actor through
-// ModelRequest's json:"-" or acquire a Human/Service identity on decoding.
-type nextRoundActorWire struct {
-	Kind        i.ActorKind   `json:"kind"`
-	ProjectID   i.ProjectID   `json:"project_id"`
-	AgentID     i.AgentID     `json:"agent_id"`
-	ExecutionID i.ExecutionID `json:"execution_id"`
-}
-type nextRoundSemanticWire struct {
-	SchemaVersion  f.Version          `json:"schema_version"`
-	Actor          nextRoundActorWire `json:"actor"`
-	Model          resolvedModelWire  `json:"model"`
-	Messages       []mc.Message       `json:"messages"`
-	Tools          []mc.Tool          `json:"tools"`
-	ToolChoice     mc.ToolChoice      `json:"tool_choice"`
-	ResponseFormat mc.ResponseFormat  `json:"response_format"`
-	RetryClass     mc.RetryClass      `json:"retry_class"`
-}
 type nextRoundRequestWire struct {
-	SchemaVersion    f.Version             `json:"schema_version"`
-	ProjectID        i.ProjectID           `json:"project_id"`
-	AgentID          i.AgentID             `json:"agent_id"`
-	ExecutionID      i.ExecutionID         `json:"execution_id"`
-	RoundInputID     RoundID               `json:"round_input_id"`
-	RoundInputDigest f.Digest              `json:"round_input_digest"`
-	SnapshotID       SnapshotID            `json:"snapshot_id"`
-	SnapshotDigest   f.Digest              `json:"snapshot_digest"`
-	ProjectionDigest f.Digest              `json:"projection_digest"`
-	CallID           mc.CallID             `json:"call_id"`
-	Input            mc.InputIdentity      `json:"input"`
-	Semantic         nextRoundSemanticWire `json:"semantic"`
+	SchemaVersion    f.Version        `json:"schema_version"`
+	ProjectID        i.ProjectID      `json:"project_id"`
+	AgentID          i.AgentID        `json:"agent_id"`
+	ExecutionID      i.ExecutionID    `json:"execution_id"`
+	RoundInputID     RoundID          `json:"round_input_id"`
+	RoundInputDigest f.Digest         `json:"round_input_digest"`
+	SnapshotID       SnapshotID       `json:"snapshot_id"`
+	SnapshotDigest   f.Digest         `json:"snapshot_digest"`
+	ProjectionDigest f.Digest         `json:"projection_digest"`
+	CallID           mc.CallID        `json:"call_id"`
+	Input            mc.InputIdentity `json:"input"`
+	Semantic         json.RawMessage  `json:"semantic"`
 }
 
 // New constructs a candidate; only the original binder's actual Committed
@@ -119,22 +101,22 @@ func NewNextRoundModelRequest(ctx context.Context, v NextRoundModelRequestInput)
 	if a.Kind != i.AgentRun || a.ProjectID != v.ProjectID.String() || a.AgentID != v.AgentID.String() || a.ExecutionID != v.ExecutionID.String() || consumer.Kind != mc.AgentConsumer || consumer.Purpose != mc.AgentGeneration || consumer.ProjectID != v.ProjectID || consumer.AgentID == nil || *consumer.AgentID != v.AgentID || consumer.ExecutionID == nil || *consumer.ExecutionID != v.ExecutionID || v.Model.LeaseOwner.Details().Kind != sc.ExecutionOwner || v.Model.LeaseOwner.Details().ID != v.ExecutionID.String() || len(v.Tools) != 1 || len(v.Messages) < 5 || len(v.Messages) > 6 {
 		return zero, invalid()
 	}
-	semantic := nextRoundSemanticWire{NextRoundModelInputSchemaVersion, nextRoundActorWire{i.AgentRun, v.ProjectID, v.AgentID, v.ExecutionID}, modelWire(v.Model), v.Messages, v.Tools, mc.ToolChoice{Kind: "auto"}, mc.ResponseFormat{Kind: "text"}, mc.AgentRetry}
-	// Count before constructing JSON buffers, including escaping in every
-	// original message. Then hash the complete semantic request without a
-	// self-referential InputIdentity or a newly allocated logical CallID.
-	inputRaw, err := nextRoundRequestJSON(ctx, semantic)
+	semantic, err := mc.NewSuccessorSemantic(ctx, mc.SuccessorSemanticParts{
+		Actor: v.Actor, Model: v.Model, Messages: v.Messages, Tools: v.Tools,
+		ToolChoice: mc.ToolChoice{Kind: "auto"}, ResponseFormat: mc.ResponseFormat{Kind: "text"}, RetryClass: mc.AgentRetry,
+	})
 	if err != nil {
 		return zero, err
 	}
+	inputRaw := semantic.CanonicalBytes()
 	defer clear(inputRaw)
-	inputDigest := TriggerInputDigest(inputRaw)
+	inputDigest := semantic.Digest()
 	execution := v.ExecutionID
-	request := mc.ModelRequest{Actor: v.Actor, CallID: v.CallID, Consumer: consumer.Clone(), Model: v.Model, Input: mc.InputIdentity{ExecutionID: &execution, RoundID: v.RoundInputID.String(), Digest: inputDigest, SchemaVersion: NextRoundModelInputSchemaVersion}, Messages: v.Messages, Tools: v.Tools, ToolChoice: semantic.ToolChoice, ResponseFormat: semantic.ResponseFormat, RetryClass: semantic.RetryClass}
+	request := mc.ModelRequest{Actor: v.Actor, CallID: v.CallID, Consumer: consumer.Clone(), Model: v.Model, Input: mc.InputIdentity{ExecutionID: &execution, RoundID: v.RoundInputID.String(), Digest: inputDigest, SchemaVersion: NextRoundModelInputSchemaVersion}, Messages: v.Messages, Tools: v.Tools, ToolChoice: mc.ToolChoice{Kind: "auto"}, ResponseFormat: mc.ResponseFormat{Kind: "text"}, RetryClass: mc.AgentRetry}
 	if request.Validate() != nil {
 		return zero, invalid()
 	}
-	wire := nextRoundRequestWire{NextRoundModelRequestSchemaVersion, v.ProjectID, v.AgentID, v.ExecutionID, v.RoundInputID, v.RoundInputDigest, v.SnapshotID, v.SnapshotDigest, v.ProjectionDigest, v.CallID, request.Input, semantic}
+	wire := nextRoundRequestWire{NextRoundModelRequestSchemaVersion, v.ProjectID, v.AgentID, v.ExecutionID, v.RoundInputID, v.RoundInputDigest, v.SnapshotID, v.SnapshotDigest, v.ProjectionDigest, v.CallID, request.Input, inputRaw}
 	raw, err := nextRoundRequestJSON(ctx, wire)
 	if err != nil {
 		return zero, err
@@ -162,18 +144,16 @@ func DecodeNextRoundModelRequest(ctx context.Context, raw []byte) (NextRoundMode
 		return zero, err
 	}
 	var w nextRoundRequestWire
-	if len(raw) > MaxNextRoundModelRequestBytes || directTextDecode(raw, &w) != nil || w.SchemaVersion != NextRoundModelRequestSchemaVersion || w.Semantic.SchemaVersion != NextRoundModelInputSchemaVersion || w.Semantic.Actor.Kind != i.AgentRun || w.Semantic.Actor.ProjectID != w.ProjectID || w.Semantic.Actor.AgentID != w.AgentID || w.Semantic.Actor.ExecutionID != w.ExecutionID || w.Semantic.ToolChoice != (mc.ToolChoice{Kind: "auto"}) || w.Semantic.ResponseFormat.Kind != "text" || w.Semantic.ResponseFormat.Name != "" || len(w.Semantic.ResponseFormat.Schema) != 0 || w.Semantic.RetryClass != mc.AgentRetry {
+	if len(raw) > MaxNextRoundModelRequestBytes || directTextDecode(raw, &w) != nil || w.SchemaVersion != NextRoundModelRequestSchemaVersion {
 		return zero, invalid()
 	}
-	actor, err := i.NewAgentRun(w.ProjectID, w.AgentID, w.ExecutionID)
+	defer clear(w.Semantic)
+	semantic, err := mc.DecodeSuccessorSemantic(ctx, w.Semantic)
 	if err != nil {
-		return zero, invalid()
+		return zero, err
 	}
-	model, err := w.Semantic.Model.model()
-	if err != nil {
-		return zero, invalid()
-	}
-	v, err := NewNextRoundModelRequest(ctx, NextRoundModelRequestInput{w.ProjectID, w.AgentID, w.ExecutionID, w.RoundInputID, w.RoundInputDigest, w.SnapshotID, w.SnapshotDigest, w.ProjectionDigest, w.CallID, actor, model, w.Semantic.Messages, w.Semantic.Tools})
+	parts := semantic.Parts()
+	v, err := NewNextRoundModelRequest(ctx, NextRoundModelRequestInput{w.ProjectID, w.AgentID, w.ExecutionID, w.RoundInputID, w.RoundInputDigest, w.SnapshotID, w.SnapshotDigest, w.ProjectionDigest, w.CallID, parts.Actor, parts.Model, parts.Messages, parts.Tools})
 	if err != nil {
 		return zero, err
 	}
