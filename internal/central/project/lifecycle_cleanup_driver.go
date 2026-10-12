@@ -10,6 +10,7 @@ import (
 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+	pvc "github.com/LunaDeerTech/agenteam/internal/central/projectvariable/contract"
 )
 
 // LifecycleCleanupDriver owns one synchronous cleanup round. The original
@@ -35,6 +36,7 @@ type lifecycleCleanupState struct {
 	audit        c.ProjectLifecycleParticipant
 	skills       SkillsCleanupDomain
 	agents       ac.ProjectRetirementConsumer
+	variables    pvc.ProjectCleanupDomain
 	registration identity.ServiceRegistration
 	mu           sync.Mutex
 	stopped      bool
@@ -159,13 +161,27 @@ func (st *lifecycleCleanupState) invoke(ctx context.Context, round lifecycleClea
 	}
 	checkpoint := round.checkpoint
 	if round.participant == c.SkillsParticipant {
-		var progress skillsCleanupCheckpoint
-		progress, checkpoint, err = st.skillsProgress(checkpoint, round.cause, round.claim.project)
-		if err != nil {
-			return report, err
-		}
-		if progress.State == c.CleanupCompleted {
-			return report, fault(f.InvalidState)
+		if round.variablesStep {
+			if nilPort(st.variables) || round.agentStep {
+				return report, fault(f.Forbidden)
+			}
+			progress, _, e := decodeVariablesCleanupCheckpoint(checkpoint, round.cause, round.claim.project)
+			if e != nil {
+				return report, e
+			}
+			if progress.State == c.CleanupCompleted {
+				return report, fault(f.InvalidState)
+			}
+			participant, checkpoint = st.variables, nil
+		} else {
+			var progress skillsCleanupCheckpoint
+			progress, checkpoint, err = st.skillsProgress(checkpoint, round.cause, round.claim.project)
+			if err != nil {
+				return report, err
+			}
+			if progress.State == c.CleanupCompleted {
+				return report, fault(f.InvalidState)
+			}
 		}
 	}
 	actorScope, err := identity.InProject(round.claim.project)
@@ -196,9 +212,13 @@ func (st *lifecycleCleanupState) invoke(ctx context.Context, round lifecycleClea
 		return c.CleanupReport{}, portError(err)
 	}
 	if round.participant == c.SkillsParticipant {
-		report, err = skillsParentCleanupReport(round, report)
-		if err == nil && st.agents != nil {
-			report, err = agentsSkillsCleanupReport(round, report)
+		if round.variablesStep {
+			report, err = variablesParentCleanupReport(round, report)
+		} else {
+			report, err = skillsParentCleanupReport(round, report)
+			if err == nil && st.agents != nil {
+				report, err = agentsSkillsCleanupReport(round, report)
+			}
 		}
 		if err != nil {
 			return c.CleanupReport{}, err

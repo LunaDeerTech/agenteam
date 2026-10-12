@@ -18,6 +18,7 @@ type lifecycleCleanupRound struct {
 	participant      c.ParticipantName
 	checkpoint       *c.CleanupCheckpoint
 	agentStep        bool
+	variablesStep    bool
 }
 
 func (st *lifecycleCleanupState) canJoin(ctx context.Context, claim *lifecycleStopClaim) error {
@@ -118,18 +119,12 @@ func (st *lifecycleCleanupState) start(ctx context.Context, project c.ProjectID,
 			return err
 		}
 		if round.participant == c.SkillsParticipant {
-			progress, _, err := st.skillsProgress(checkpoint, round.cause, project)
+			var substepReplay bool
+			round.agentStep, round.variablesStep, substepReplay, err = st.selectDomainStep(checkpoint, round.cause, project)
 			if err != nil {
 				return err
 			}
-			if st.agents != nil {
-				agents, err := decodeAgentsCleanupCheckpoint(checkpoint, round.cause, project)
-				if err != nil {
-					return err
-				}
-				round.agentStep = !agents.AgentsDone
-			}
-			if !round.agentStep && progress.State == c.CleanupCompleted {
+			if substepReplay {
 				for _, row := range r.participants {
 					if row.name == c.SkillsParticipant && row.cleanup != "pending" {
 						return unavailable(nil)

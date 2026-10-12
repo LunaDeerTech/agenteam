@@ -270,6 +270,13 @@ func newSkillInstallationFixtureWithAuthority(t *testing.T, factory func(*hookSt
 // not a complete Project scheduler or other-participant join acceptance.
 func (v *skillInstallationFixture) enterCleanup(t *testing.T) (identity.Actor, pc.LifecycleCause, pc.ScopeRef) {
 	t.Helper()
+	return v.enterCleanupWith(t, nil)
+}
+
+// A dependent owner may synchronously stop while the original committed
+// operation is still stopping. The default fixture has no additional call.
+func (v *skillInstallationFixture) enterCleanupWith(t *testing.T, stop func(identity.Actor, pc.LifecycleCause, pc.ScopeRef)) (identity.Actor, pc.LifecycleCause, pc.ScopeRef) {
+	t.Helper()
 	cause := pc.LifecycleCause{OperationID: id[pc.Operation](t), Action: pc.Delete, ProjectVersion: v.project.Version + 1}
 	scope := pc.ScopeRef{Kind: pc.ProjectScope, ProjectID: v.project.ID}
 	raw, err := json.Marshal(v.manifest.Entries())
@@ -307,6 +314,9 @@ func (v *skillInstallationFixture) enterCleanup(t *testing.T) (identity.Actor, p
 	actor, err := registration.Actor(cause.OperationID.String(), projectScope)
 	if err != nil {
 		t.Fatal(err)
+	}
+	if stop != nil {
+		stop(actor, cause, scope)
 	}
 	stopped, err := v.service.RequestStop(ctxFor(t), actor, cause, scope)
 	if err == nil && stopped.Details().State != pc.Stopped {

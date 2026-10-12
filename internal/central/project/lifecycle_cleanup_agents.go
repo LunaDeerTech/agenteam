@@ -114,7 +114,7 @@ func (st *lifecycleCleanupState) skillsProgress(cp *c.CleanupCheckpoint, cause c
 	if st.agents == nil {
 		return decodeSkillsCleanupCheckpoint(cp, cause, scope)
 	}
-	data, err := decodeAgentsCleanupCheckpoint(cp, cause, p)
+	data, err := st.agentsProgress(cp, cause, p)
 	if err != nil {
 		return skillsCleanupCheckpoint{}, nil, err
 	}
@@ -163,7 +163,7 @@ func (a *LifecycleAuthority) requireAgentCleanupStepInTx(ctx context.Context, tx
 		return invalid()
 	}
 	witness, _ := ctx.Value(lifecycleCleanupScopeKey{}).(*lifecycleCleanupScope)
-	if witness == nil || witness.state == nil || witness.state.agents == nil || !witness.round.agentStep {
+	if witness == nil || witness.state == nil || witness.state.agents == nil || !witness.round.agentStep || witness.round.variablesStep {
 		return fault(f.Forbidden)
 	}
 	return a.requireCleanupClaimInTx(ctx, tx, cause, p, c.SkillsParticipant)
