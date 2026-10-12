@@ -94,10 +94,11 @@ func TestSkillsCleanupDispatchStaysClosed(t *testing.T) {
 	a := lifecycleTestAuthority(t) // Any Store access panics: all below fail before it.
 	actor, _, cause := lifecycleTestActor(t)
 	ctx, tx := context.Background(), foundation.NewTx()
-	for _, participant := range []c.ParticipantName{c.ArtifactObjectParticipant, c.SecretParticipant, c.AuditParticipant, "unregistered"} {
+	for _, participant := range []c.ParticipantName{c.ArtifactObjectParticipant, c.SecretParticipant, "unregistered"} {
 		hasCode(t, a.ValidateLifecycleInTx(ctx, tx, actor, cause, participant, c.CleanupPhase), foundation.DependencyUnbound)
 	}
 	hasCode(t, a.ValidateLifecycleInTx(ctx, tx, actor, cause, c.OutboxParticipant, c.CleanupPhase), foundation.Forbidden) // Archive.
+	hasCode(t, a.ValidateLifecycleInTx(ctx, tx, actor, cause, c.AuditParticipant, c.CleanupPhase), foundation.Forbidden)  // Archive.
 	hasCode(t, a.ValidateLifecycleInTx(ctx, tx, actor, cause, c.SkillsParticipant, c.CleanupPhase), foundation.Forbidden) // Archive.
 	cause.Action = c.Delete
 	hasCode(t, a.ValidateLifecycleInTx(ctx, tx, testActor(t), cause, c.SkillsParticipant, c.CleanupPhase), foundation.Forbidden)

@@ -9,30 +9,41 @@ import (
 	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 )
 
-func cleanupOutboxRow(ctx context.Context, x postgres.SQLExecutor, operation c.OperationID) (version, attempts int64, err error) {
-	var checkpoint bool
-	err = x.QueryRow(ctx, `SELECT version,attempt_count,(checkpoint IS NOT NULL OR checkpoint_schema IS NOT NULL) FROM agenteam_project.lifecycle_participants WHERE operation_id=$1 AND participant_name='outbox'`, operation.String()).Scan(&version, &attempts, &checkpoint)
+func cleanupParticipantRow(ctx context.Context, x postgres.SQLExecutor, round lifecycleCleanupRound) (version, attempts int64, checkpoint *c.CleanupCheckpoint, err error) {
+	var schema *int64
+	var raw []byte
+	err = x.QueryRow(ctx, `SELECT version,attempt_count,checkpoint_schema,checkpoint FROM agenteam_project.lifecycle_participants WHERE operation_id=$1 AND participant_name=$2`, round.claim.operation.String(), string(round.participant)).Scan(&version, &attempts, &schema, &raw)
 	if err != nil {
-		return 0, 0, unavailable(err)
+		return 0, 0, nil, unavailable(err)
 	}
-	if version < 1 || attempts < 0 || checkpoint {
-		return 0, 0, unavailable(nil)
+	if version < 1 || attempts < 0 || (schema == nil) != (raw == nil) {
+		return 0, 0, nil, unavailable(nil)
 	}
-	return version, attempts, nil
+	if schema != nil {
+		value, err := c.NewCleanupCheckpoint(round.participant, round.cause, c.ScopeRef{Kind: c.ProjectScope, ProjectID: round.claim.project}, f.Version(*schema), raw)
+		if err != nil {
+			return 0, 0, nil, unavailable(err)
+		}
+		checkpoint = &value
+	}
+	if err := validateCleanupCheckpoint(round.participant, checkpoint, round.cause, round.claim.project); err != nil {
+		return 0, 0, nil, err
+	}
+	return version, attempts, checkpoint, nil
 }
 
 func cleanupRoundReport(round lifecycleCleanupRound, report c.CleanupReport) error {
 	scope := c.ScopeRef{Kind: c.ProjectScope, ProjectID: round.claim.project}
-	if !report.Matches(c.OutboxParticipant, round.cause, scope) {
+	if !report.Matches(round.participant, round.cause, scope) {
 		return unavailable(nil)
 	}
 	d := report.Details()
-	// This fixed D06 adapter has its own persistent scan and only aggregate
-	// counts. No external cursor or invented resource references can advance it.
-	if d.Checkpoint != nil || len(d.RemainingRefs) != 0 || d.State != c.CleanupCompleted && d.State != c.CleanupPending {
+	// Both fixed adapters expose only aggregate completion, not resource refs.
+	// Audit preserves its own diagnostic checkpoint; it is never a skip cursor.
+	if len(d.RemainingRefs) != 0 || d.State != c.CleanupCompleted && d.State != c.CleanupPending || round.participant == c.AuditParticipant && d.Checkpoint == nil {
 		return unavailable(nil)
 	}
-	return nil
+	return validateCleanupCheckpoint(round.participant, d.Checkpoint, round.cause, round.claim.project)
 }
 
 func (st *lifecycleCleanupState) finish(ctx context.Context, round lifecycleCleanupRound, report c.CleanupReport, callErr error) error {
@@ -57,14 +68,14 @@ func (st *lifecycleCleanupState) finish(ctx context.Context, round lifecycleClea
 		if actual == nil || *actual != round.claim {
 			return fault(f.ResourceBusy)
 		}
-		cause, r, replay, err := st.current(ctx, x, round.claim.project, round.claim.operation)
+		cause, r, participant, replay, err := st.current(ctx, x, round.claim.project, round.claim.operation)
 		if err != nil {
 			return err
 		}
-		if replay || cause != round.cause || r.operation.Version != round.operationVersion {
+		if replay || participant != round.participant || cause != round.cause || r.operation.Version != round.operationVersion {
 			return fault(f.InvalidState)
 		}
-		rowVersion, _, err := cleanupOutboxRow(ctx, x, round.claim.operation)
+		rowVersion, _, _, err := cleanupParticipantRow(ctx, x, round)
 		if err != nil {
 			return err
 		}
@@ -84,15 +95,24 @@ func (st *lifecycleCleanupState) finish(ctx context.Context, round lifecycleClea
 				return err
 			}
 			details := report.Details()
-			tag, err := x.Exec(ctx, `UPDATE agenteam_project.lifecycle_participants SET cleanup_state=$3,safe_reason=NULLIF($4,''),safe_pending_refs='[]'::jsonb,next_attempt_at=NULL,version=version+1 WHERE operation_id=$1 AND participant_name='outbox' AND version=$2 AND cleanup_state IN ('required','pending') AND checkpoint IS NULL AND checkpoint_schema IS NULL`, round.claim.operation.String(), rowVersion, string(details.State), string(details.SafeReason))
+			var schema any
+			var checkpoint []byte
+			if details.Checkpoint != nil {
+				schema, checkpoint = int64(details.Checkpoint.Schema()), details.Checkpoint.Bytes()
+			}
+			tag, err := x.Exec(ctx, `UPDATE agenteam_project.lifecycle_participants SET cleanup_state=$3,safe_reason=NULLIF($4,''),safe_pending_refs='[]'::jsonb,next_attempt_at=NULL,checkpoint_schema=$6,checkpoint=$7,version=version+1 WHERE operation_id=$1 AND participant_name=$5 AND version=$2 AND cleanup_state IN ('required','pending')`, round.claim.operation.String(), rowVersion, string(details.State), string(details.SafeReason), string(round.participant), schema, checkpoint)
 			if err = affected(tag, err); err != nil {
 				return err
 			}
-			stage := "outbox"
-			if details.State == c.CleanupCompleted {
-				stage = "audit"
+			stage, next, err := cleanupStages(round.participant)
+			if err != nil {
+				return err
 			}
-			tag, err = x.Exec(ctx, `UPDATE agenteam_project.lifecycle_operations SET cleanup_stage=$3,version=$4,updated_at=$5 WHERE id=$1 AND project_id=$2 AND state='cleaning' AND cleanup_stage='outbox' AND version=$6`, round.claim.operation.String(), round.claim.project.String(), stage, int64(version), now.Time(), int64(round.operationVersion))
+			previous := stage
+			if details.State == c.CleanupCompleted {
+				stage = next
+			}
+			tag, err = x.Exec(ctx, `UPDATE agenteam_project.lifecycle_operations SET cleanup_stage=$3,version=$4,updated_at=$5 WHERE id=$1 AND project_id=$2 AND state='cleaning' AND cleanup_stage=$7 AND version=$6`, round.claim.operation.String(), round.claim.project.String(), stage, int64(version), now.Time(), int64(round.operationVersion), previous)
 			if err = affected(tag, err); err != nil {
 				return err
 			}

@@ -11,10 +11,11 @@ import (
 	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 )
 
-// LifecycleCleanupDriver owns one synchronous Outbox cleanup round. Its
-// prerequisite is canonical Delete/cleaning/outbox with every earlier domain
-// completed. It neither supplies a complete registry nor performs Audit cleanup
-// or Project deletion. A nil Run result can also mean a persisted pending round.
+// LifecycleCleanupDriver owns one synchronous cleanup round. The original
+// constructor binds Outbox only; the explicit WithAudit constructor also binds
+// Audit. Every earlier domain must already be canonically completed. Neither
+// constructor supplies a complete registry or performs Project deletion. A nil
+// Run result can also mean a persisted pending round.
 type LifecycleCleanupDriver struct{ state *lifecycleCleanupState }
 
 type lifecycleCleanupOwner struct {
@@ -29,6 +30,7 @@ type lifecycleCleanupState struct {
 	processes    oc.ProcessAuthority
 	process      oc.ProcessID
 	participant  c.ProjectLifecycleParticipant
+	audit        c.ProjectLifecycleParticipant
 	registration identity.ServiceRegistration
 	mu           sync.Mutex
 	stopped      bool
@@ -119,7 +121,7 @@ func (d *LifecycleCleanupDriver) Run(ctx context.Context, project c.ProjectID, o
 		return nil
 	}
 	report, callErr := st.invoke(run, *round)
-	// The original adapter (including all D06 calls) has returned. Cancellation
+	// The original adapter (including all domain calls) has returned. Cancellation
 	// cannot substitute for that return or detach this bounded checkpoint.
 	checkpoint, end := context.WithTimeout(context.WithoutCancel(run), 3*time.Second)
 	finishErr := st.finish(checkpoint, *round, report, callErr)
@@ -139,6 +141,13 @@ type lifecycleCleanupScope struct {
 func (st *lifecycleCleanupState) invoke(ctx context.Context, round lifecycleCleanupRound) (report c.CleanupReport, err error) {
 	if err = ctx.Err(); err != nil {
 		return report, portError(err)
+	}
+	participant, err := st.cleanupPort(round.participant)
+	if err != nil {
+		return report, err
+	}
+	if err = validateCleanupCheckpoint(round.participant, round.checkpoint, round.cause, round.claim.project); err != nil {
+		return report, err
 	}
 	actorScope, err := identity.InProject(round.claim.project)
 	if err != nil {
@@ -160,7 +169,7 @@ func (st *lifecycleCleanupState) invoke(ctx context.Context, round lifecycleClea
 			report, err = c.CleanupReport{}, unavailable(nil)
 		}
 	}()
-	report, err = st.participant.Cleanup(ctx, actor, round.cause, c.ScopeRef{Kind: c.ProjectScope, ProjectID: round.claim.project}, nil)
+	report, err = participant.Cleanup(ctx, actor, round.cause, c.ScopeRef{Kind: c.ProjectScope, ProjectID: round.claim.project}, round.checkpoint)
 	if err != nil {
 		return c.CleanupReport{}, portError(err)
 	}
@@ -174,6 +183,10 @@ func (st *lifecycleCleanupState) invoke(ctx context.Context, round lifecycleClea
 }
 
 func (a *LifecycleAuthority) requireOutboxCleanupClaimInTx(ctx context.Context, tx f.Tx, cause c.LifecycleCause, project c.ProjectID) error {
+	return a.requireCleanupClaimInTx(ctx, tx, cause, project, c.OutboxParticipant)
+}
+
+func (a *LifecycleAuthority) requireCleanupClaimInTx(ctx context.Context, tx f.Tx, cause c.LifecycleCause, project c.ProjectID, participant c.ParticipantName) error {
 	if ctx == nil || cause.Validate() != nil || project.Validate() != nil {
 		return invalid()
 	}
@@ -181,8 +194,11 @@ func (a *LifecycleAuthority) requireOutboxCleanupClaimInTx(ctx context.Context, 
 		return portError(err)
 	}
 	witness, _ := ctx.Value(lifecycleCleanupScopeKey{}).(*lifecycleCleanupScope)
-	if witness == nil || witness.state == nil || witness.state.authority != a || witness.round.cause != cause || witness.round.claim.project != project {
+	if witness == nil || witness.state == nil || witness.state.authority != a || witness.round.cause != cause || witness.round.claim.project != project || witness.round.participant != participant {
 		return fault(f.Forbidden)
+	}
+	if _, err := witness.state.cleanupPort(participant); err != nil {
+		return err
 	}
 	// Holding this mutex through the original SQL return prevents scope closure
 	// from racing an already admitted exact-claim check. No detached work begins.

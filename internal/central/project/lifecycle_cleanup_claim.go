@@ -15,6 +15,8 @@ type lifecycleCleanupRound struct {
 	cause            c.LifecycleCause
 	operationVersion f.Version
 	rowVersion       int64
+	participant      c.ParticipantName
+	checkpoint       *c.CleanupCheckpoint
 }
 
 func (st *lifecycleCleanupState) canJoin(ctx context.Context, claim *lifecycleStopClaim) error {
@@ -33,35 +35,26 @@ func (st *lifecycleCleanupState) canJoin(ctx context.Context, claim *lifecycleSt
 	return portError(st.processes.ConfirmStopped(ctx, claim.process))
 }
 
-func (st *lifecycleCleanupState) current(ctx context.Context, x postgres.SQLExecutor, project c.ProjectID, operation c.OperationID) (c.LifecycleCause, *lifecycleRecord, bool, error) {
+func (st *lifecycleCleanupState) current(ctx context.Context, x postgres.SQLExecutor, project c.ProjectID, operation c.OperationID) (c.LifecycleCause, *lifecycleRecord, c.ParticipantName, bool, error) {
 	r, err := loadLifecycleOperation(ctx, x, project, operation)
 	if err != nil {
-		return c.LifecycleCause{}, nil, false, err
+		return c.LifecycleCause{}, nil, "", false, err
 	}
 	if r == nil {
-		return c.LifecycleCause{}, nil, false, fault(f.NotFound)
+		return c.LifecycleCause{}, nil, "", false, fault(f.NotFound)
 	}
 	cause := c.LifecycleCause{OperationID: operation, Action: r.operation.Action, ProjectVersion: r.operation.ProjectVersion}
 	if cause.Validate() != nil || cause.Action != c.Delete {
-		return c.LifecycleCause{}, nil, false, fault(f.Forbidden)
+		return c.LifecycleCause{}, nil, "", false, fault(f.Forbidden)
 	}
-	if _, err = st.authority.lifecycleFact(ctx, x, project, cause, c.OutboxParticipant); err != nil {
-		return c.LifecycleCause{}, nil, false, err
+	participant, replay, err := st.cleanupProgress(r)
+	if err != nil {
+		return c.LifecycleCause{}, nil, "", false, err
 	}
-	// Only a read of the canonical post-checkpoint state can settle a previous
-	// Unknown completion. It never repeats Outbox after the Audit barrier.
-	if r.operation.State == c.OperationCleaning && r.cleanupStage == "audit" {
-		for _, row := range r.participants {
-			if row.stop != "stopped" || row.name != c.AuditParticipant && row.cleanup != "completed" || row.name == c.AuditParticipant && row.cleanup != "required" {
-				return c.LifecycleCause{}, nil, false, fault(f.InvalidState)
-			}
-		}
-		return cause, r, true, nil
+	if _, err = st.authority.lifecycleFact(ctx, x, project, cause, participant); err != nil {
+		return c.LifecycleCause{}, nil, "", false, err
 	}
-	if err = outboxCleanupProgress(r); err != nil {
-		return c.LifecycleCause{}, nil, false, err
-	}
-	return cause, r, false, nil
+	return cause, r, participant, replay, nil
 }
 
 func (st *lifecycleCleanupState) start(ctx context.Context, project c.ProjectID, operation c.OperationID) (*lifecycleCleanupRound, bool, error) {
@@ -99,7 +92,7 @@ func (st *lifecycleCleanupState) start(ctx context.Context, project c.ProjectID,
 			return err
 		}
 		var r *lifecycleRecord
-		round.cause, r, replay, err = st.current(ctx, x, project, operation)
+		round.cause, r, round.participant, replay, err = st.current(ctx, x, project, operation)
 		if err != nil {
 			return err
 		}
@@ -119,7 +112,7 @@ func (st *lifecycleCleanupState) start(ctx context.Context, project c.ProjectID,
 			validated = true
 			return nil
 		}
-		rowVersion, attempts, err := cleanupOutboxRow(ctx, x, operation)
+		rowVersion, attempts, checkpoint, err := cleanupParticipantRow(ctx, x, *round)
 		if err != nil {
 			return err
 		}
@@ -135,11 +128,12 @@ func (st *lifecycleCleanupState) start(ctx context.Context, project c.ProjectID,
 		if err != nil {
 			return unavailable(err)
 		}
-		tag, err := x.Exec(ctx, `UPDATE agenteam_project.lifecycle_participants SET attempt_count=attempt_count+1,version=version+1,next_attempt_at=NULL WHERE operation_id=$1 AND participant_name='outbox' AND version=$2 AND cleanup_state IN ('required','pending')`, operation.String(), rowVersion)
+		tag, err := x.Exec(ctx, `UPDATE agenteam_project.lifecycle_participants SET attempt_count=attempt_count+1,version=version+1,next_attempt_at=NULL WHERE operation_id=$1 AND participant_name=$3 AND version=$2 AND cleanup_state IN ('required','pending')`, operation.String(), rowVersion, string(round.participant))
 		if err = affected(tag, err); err != nil {
 			return err
 		}
 		round.operationVersion, round.rowVersion = r.operation.Version, rowVersion+1
+		round.checkpoint = checkpoint
 		validated = true
 		return nil
 	})
