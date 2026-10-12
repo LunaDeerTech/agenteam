@@ -38,6 +38,18 @@ python3 -B .agent-state/runner-command-owner/run-checks.py basic --output output
 python3 -B .agent-state/runner-command-owner/run-checks.py self-check --output output/ai/runner-command-owner/methods01
 ```
 
-各阶段原 invocation/process/identity/result、ownership JSONL、日志与 input maps 保存新输出目录，失败不覆盖。`outer-terminal.json` 只表示 wrapper 返回；执行者还须亲收外层工具 actual Wait，并另存 tool-terminal，区分退出码与资源释放。当前尚未运行 Go/race/vet/真实命令，生产与控源码静态接受不代实际通过。
+各阶段原 invocation/process/identity/result、ownership JSONL、日志与 input maps 保存新输出目录，失败不覆盖。`outer-terminal.json` 只表示 wrapper 返回；执行者还须亲收外层工具 actual Wait，并另存 tool-terminal，区分退出码与资源释放。
 
 方法源码已通过离线语法解析与 inert help。最终 `methods02` 原 Python PID 837453 实际 Wait0/0.100s，1 正 / 7 反与 stat parser 控通过，脚本和 Python 二项输入前后相等；原执行见 `output/ai/runner-command-owner/methods02-tool-terminal.json`。此前 `methods01` 的初版纯解析 0 原件仍保留；本次增加实际输入/异常未释放记录后使用新的目录，正式方法证据以 `methods02` 为准。它不证明 Go 编译、子进程、pidfd、实际 `/proc` 可见性或退出资源门通过。
+
+首次 `basic01` 已按固定技术/方法 `2664c9c6` 实际完成：原工具20601亲收actual0（chunk2709b5），wrapper850742实际0/19.852s。race Go850848实际0/15.257s，精确14行为top/20sub PASS、3helper仅Skip；vet Go851160实际0/2.167s。四次deps各自原Wait0，1,111项实际输入三份逐项相同；所有阶段原Popen Wait、本SID双empty与无不可见缺口均已记录，窗口明确释放。唯一主审已最终有限接受；正式main合入与清理仍由root另行完成，不提前记已交付。
+
+## 保全与恢复位置
+
+完整副本已由指定作者一次实际复制核验（原chunk `ca7244` actual0/0.683s）至 `/workspace/agenteam/output/ai/retired-20261012/runner-command-owner`：52个普通文件、1,996,308B、5个目录，包含methods01/02、basic01全部原阶段、input maps及tool-terminal。证明另在同级 `runner-command-owner-preservation/{output-before,output-after,destination,source-recovery,process-audit,preservation-result,tool-terminal}.json`。
+
+这是dev34→dev27的跨文件系统新副本，不是rename。源前后清单严格相同，目标相对path、SHA、size、mode、uid/gid、nsmtime逐项相等；新device/inode不同，不能声称恢复原inode。目录size/nlink等文件系统差异单独保留，不等同，atime/ctime不承诺。原 `/tmp/agenteam-runner-command-owner/output/ai/runner-command-owner` 仍完整保留，尚未删除或清理本树。
+
+五份原input map中，basic三份均1,111项；44个仓库历史输入版本逐字对应tested `2664c9c6` 且任务分支可达，正式main完整history可达待root合入后核实。1,068个外部输入（含methods的Python）现有SHA相同，仍留原受保护工具链/modules路径，未复制或修改这些依赖。44个已记录PID当前均不在；这是有限当前观察，原Go/outer Wait与SID日志仍是实际退出依据，不扩大成全局可见性证明。
+
+恢复时按上述新副本前缀读取历史记录，原日志里的绝对路径保持原样；另获验证授权时从正式保存源码及原环境重新准备fresh输出，不能直接在旧证据目录重跑。ignored output副本并不由Git自动携带，跨设备还需传输材料并按保全清单核SHA。范围仅Linux本地trusted-host argv/cwd桥；无WSS/Central/default/macOS/逃逸整树证明，其它主线事项、35/36/70清理累计、141待核与keep1及所有STOP不变，不把本Command提前计作已清理。
