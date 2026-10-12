@@ -99,7 +99,7 @@ func newAgentVariablesTerminalPGShape(t *testing.T, upgrade, foreign, empty bool
 			}
 			observed, err := pair.ObserveStop(ctxFor(t), actor, cause, scope)
 			outboxCleanupRequire(t, err)
-			if !observed.Matches(cause, scope) || !observed.Details().RegisteredJoined || observed.Details().PendingCalls != 0 || observed.Details().More {
+			if !observed.Matches(cause, scope) || !observed.Details().RegisteredJoined || observed.Details().PendingCalls != 0 || observed.Details().HasMore {
 				t.Fatal("original Agent business return was not confirmed")
 			}
 		}
@@ -791,7 +791,8 @@ func testAgentVariablesTerminalForeign(t *testing.T) {
 	before, state := v.ownerSnapshot(t), v.state(t)
 	call := v.run(t, driver)
 	outboxCleanupWait(t, call.done, "original live foreign-instance terminal refusal")
-	if !f.HasCode(call.err, f.ResourceBusy) {
+	var busy *f.Fault
+	if !errors.As(call.err, &busy) || busy.Code != f.ResourceBusy {
 		agentRetirementDiagnostic(t, "terminal-foreign-live-instance", call.err)
 		t.Fatal("live process with another real instance was accepted as the original stopped owner")
 	}
@@ -915,7 +916,8 @@ func testAgentVariablesTerminalEmptyConfirmation(t *testing.T) {
 	v.drivers = append(v.drivers, other)
 	competitor := v.run(t, other)
 	outboxCleanupWait(t, competitor.done, "new driver and pairs while original empty confirmation is held")
-	if !f.HasCode(competitor.err, f.ResourceBusy) || !reflect.DeepEqual(v.state(t), running) || v.ownerSnapshot(t) != beforeOwners || !newAgents.Joined() || !newVariables.Joined() {
+	var busy *f.Fault
+	if !errors.As(competitor.err, &busy) || busy.Code != f.ResourceBusy || !reflect.DeepEqual(v.state(t), running) || v.ownerSnapshot(t) != beforeOwners || !newAgents.Joined() || !newVariables.Joined() {
 		agentRetirementDiagnostic(t, "terminal-empty-competing-driver", competitor.err)
 		t.Fatal("empty ledger allowed another driver or pair to take over before original confirmation returned")
 	}
