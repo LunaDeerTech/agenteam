@@ -246,14 +246,23 @@ func TestArtifactSourceCleanupFacts(t *testing.T) {
 				row.SourceCommand.Path = "content"
 			case "command-project":
 				row.SourceCommand.Project = newTestID[i.Project](t).String()
-			case "source-metadata", "source-project", "source-kind":
+			case "source-metadata":
+				var wire map[string]json.RawMessage
+				if err := json.Unmarshal(row.SourceCommand.Source, &wire); err != nil {
+					t.Fatal(err)
+				}
+				wire["object"] = json.RawMessage(`"invalid-object-id"`)
+				var err error
+				row.SourceCommand.Source, err = json.Marshal(wire)
+				if err != nil {
+					t.Fatal(err)
+				}
+			case "source-project", "source-kind":
 				var wire sourceWire
 				if err := json.Unmarshal(row.SourceCommand.Source, &wire); err != nil {
 					t.Fatal(err)
 				}
-				if mode == "source-metadata" {
-					wire.Object = oc.ObjectID{}
-				} else if mode == "source-project" {
+				if mode == "source-project" {
 					wire.Project = newTestID[i.Project](t).String()
 					wire.Reference.Project = wire.Project
 				} else {
