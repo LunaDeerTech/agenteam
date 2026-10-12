@@ -38,6 +38,8 @@ pair 构造无 I/O，允许原 concrete guard 尚未 bound；这不证明 Store 
 3. **Unknown 与原返回：** 基础控复用上游已验语义，验证 App 联合 owner 不遗漏登记 Unknown、原 confirmation、退休 Unknown 或目录 pending；登记未确认零业务，原业务 known/unknown 不被 Drain 重写。受控 Store 的结果不冒真实 PG commit-loss；本片不额外重做上游 foreign 死亡矩阵。
 4. **真实关停：** 用原 live HTTP/PG 调用及确定性锁/返回屏障覆盖目录未返回时的正常 App Drain；Stop 后无新准入，原 call/checkpoint 未终局时按依赖保留 provider/guard。屏障须在原 graceful 预算内释放，随后亲收原 HTTP、SQL、pair、App 及测试资源的实际完成；超时只记失败/未 Joined。基础控另覆盖启动取消、mutation 未返回，以及 Force 下联合 owner/guard 不虚报完成；不承诺 Force 后 Store 永久可用。真实夹具不得以 sleep、取消信号或伪报告代原 Join。
 
+PG 失败保留规则：若原 App 或 guard 尚未实际释放，夹具先记录安全失败，再维持进程与 fixture 存活，只等待原实际释放或原 Go 6 分钟／外层 540+60 秒硬预算终止；这不代表本地 Drain/Join 成功，不刷新预算、不重试或进入后继子例。正常 PASS 仍须原 `app.Run` 实际返回 nil、原迁移 74 调用 joined、guard 释放及全部原资源尾门通过。
+
 ## 待兑现与边界
 
 上游 Agent 修正的真实验收、上述 App 装配控制与真实 HTTP/退出链均待实际结果；现有受测结论按输入范围复用，不从卡或接口存在推导通过。真实 App fixture 的有界关停屏障和 Unknown 注入位置在实施时核准，不能为便利新增产品 test hook、扩大 shutdown 预算或越过 Store/guard 证明。

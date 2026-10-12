@@ -199,6 +199,11 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestAgentProjectCallApp$': frozenset((
+        'TestAgentProjectCallApp',
+        'TestAgentProjectCallApp/default-http-shared-call-owner',
+        'TestAgentProjectCallApp/directory-return-checkpoint-drains-before-guard',
+    )),
     '^TestRoundModelCallReservation$': frozenset((
         'TestRoundModelCallReservation',
         'TestRoundModelCallReservation/committed-request-reservation-and-history',
