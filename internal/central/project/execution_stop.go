@@ -25,7 +25,12 @@ func NewExecutionStopAuthority(driver *LifecycleStopDriver, executorStore Store)
 }
 
 type executionStopLoanKey struct{}
-type executionStopLoan struct{ scope *agentPreparationScope }
+type executionStopLoan struct {
+	scope *agentPreparationScope
+	// Only the full four-owner binding issues transaction-consumable loans.
+	// The existing local AssociatedExecutor authority leaves issuer nil.
+	issuer *ExecutionProjectStopAuthority
+}
 
 func (s *agentPreparationScope) borrowExecutionStop(ctx context.Context) (*executionStopLoan, error) {
 	s.mu.Lock()

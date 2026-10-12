@@ -18,9 +18,10 @@ type Dependencies struct {
 	Meeting   c.TriggerProvider
 }
 type Service struct {
-	store Store
-	deps  Dependencies
-	calls *callSet
+	store        Store
+	deps         Dependencies
+	calls        *callSet
+	projectCalls *projectCallState
 }
 
 // Construction performs no I/O. Each Trigger is explicitly bound; absence is
@@ -29,7 +30,7 @@ func New(store Store, deps Dependencies) (*Service, error) {
 	if nilPort(store) || !reflect.TypeOf(store).Comparable() || deps.Authority == nil || deps.Authority.state == nil || deps.Authority.state.store != store || nilPort(deps.Agents) {
 		return nil, fault(f.DependencyUnbound)
 	}
-	return &Service{store, deps, newCalls()}, nil
+	return &Service{store: store, deps: deps, calls: newCalls()}, nil
 }
 func (s *Service) begin(ctx context.Context) (context.Context, func(), error) {
 	if s == nil || s.calls == nil {
@@ -46,11 +47,16 @@ func (s *Service) Drain(ctx context.Context) error {
 	if s == nil || s.calls == nil {
 		return fault(f.DependencyUnbound)
 	}
-	return s.calls.drain(ctx)
+	if err := s.calls.drain(ctx); err != nil {
+		return err
+	}
+	return s.projectCalls.drainReturned(ctx, projectLaneService)
 }
-func (s *Service) Joined() bool { return s != nil && s.calls != nil && s.calls.joined() }
+func (s *Service) Joined() bool {
+	return s != nil && s.calls != nil && s.calls.joined() && s.projectCalls.laneJoined(projectLaneService)
+}
 
-func (s *Service) Launch(ctx context.Context, actor i.Actor, request c.LaunchRequest) (c.LaunchResult, error) {
+func (s *Service) launch(ctx context.Context, actor i.Actor, request c.LaunchRequest) (c.LaunchResult, error) {
 	ctx, done, err := s.begin(ctx)
 	if err != nil {
 		return c.LaunchResult{}, err
@@ -110,6 +116,9 @@ func (s *Service) Launch(ctx context.Context, actor i.Actor, request c.LaunchReq
 			acquireErr = err
 			return portError(err)
 		}
+		if err := requireProjectCallInTx(ctx, tx, s.store); err != nil {
+			return err
+		}
 		x, err := s.store.InTx(tx)
 		if err != nil {
 			return portError(err)
@@ -168,7 +177,7 @@ func (s *Service) Launch(ctx context.Context, actor i.Actor, request c.LaunchReq
 	return output, nil
 }
 
-func (s *Service) LookupLaunch(ctx context.Context, actor i.Actor, key c.LaunchLookupKey, expected f.Digest) (c.LaunchLookup, error) {
+func (s *Service) lookupLaunch(ctx context.Context, actor i.Actor, key c.LaunchLookupKey, expected f.Digest) (c.LaunchLookup, error) {
 	ctx, done, err := s.begin(ctx)
 	if err != nil {
 		return c.LaunchLookup{}, err
@@ -202,6 +211,9 @@ func (s *Service) lookup(ctx context.Context, actor i.Actor, key c.LaunchLookupK
 	result := s.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		if err := s.store.AcquireAll(ctx, tx, locks); err != nil {
 			return portError(err)
+		}
+		if err := requireProjectCallInTx(ctx, tx, s.store); err != nil {
+			return err
 		}
 		x, err := s.store.InTx(tx)
 		if err != nil {

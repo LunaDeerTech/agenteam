@@ -24,6 +24,7 @@ type AssociatedExecutorOptions struct {
 type AssociatedExecutor struct{ state *associatedExecutorState }
 
 type associatedExecutorState struct {
+	projectCalls      *projectCallState
 	mu                sync.Mutex
 	drainMu           sync.Mutex
 	options           AssociatedExecutorOptions
@@ -69,6 +70,7 @@ type associatedOwners struct {
 }
 type associatedContextKey struct{}
 type associatedCall struct {
+	projectCall    *projectCallEntry
 	project        i.ProjectID
 	dispatch       c.AssociatedDispatch
 	ctx            context.Context
@@ -141,6 +143,13 @@ func (e *AssociatedExecutor) Run(ctx context.Context) error {
 		if s.activeCallsReturnedLocked() {
 			err := s.retainedLocked()
 			s.mu.Unlock()
+			if s.projectCalls != nil {
+				returned, changed := s.projectCalls.projectCallsReturned(projectLaneAssociated)
+				if !returned {
+					<-changed
+					continue
+				}
+			}
 			if err != nil {
 				return err
 			}
@@ -185,6 +194,13 @@ func (e *AssociatedExecutor) Advance(ctx context.Context, project i.ProjectID, d
 		// Stop forbids further asynchronous work. Explicit Drain owns any
 		// remaining convergence; it cannot dispatch a first Model call.
 		if job.retained && !job.active && !job.projectStopped && !s.stopped && !time.Now().Before(job.next) {
+			if s.projectCalls != nil {
+				entry, err := s.projectCalls.reserveAssociated(job.ctx, job)
+				if err != nil {
+					return s.observationLocked(job), preserveAssociatedError(job.err, err)
+				}
+				job.projectCall = entry
+			}
 			job.active = true
 			job.next = time.Now().Add(s.options.RecoveryInterval)
 			s.workers++
@@ -204,6 +220,9 @@ func (e *AssociatedExecutor) Advance(ctx context.Context, project i.ProjectID, d
 	if len(s.jobs)+len(s.admissions) >= s.options.MaxOwned {
 		return c.ExecutionAdvance{}, fault(f.ResourceBusy)
 	}
+	if s.projectCalls != nil {
+		return s.startOwnedAssociatedLocked(project, dispatch)
+	}
 	if s.requiresAdmission {
 		return s.admitAssociatedLocked(ctx, project, dispatch)
 	}
@@ -217,6 +236,25 @@ func (s *associatedExecutorState) startAssociatedLocked(project i.ProjectID, dis
 	s.workers++
 	go s.execute(job, false, job.ctx)
 	return s.observationLocked(job)
+}
+
+// Called with s.mu held. Reservation is local only: the worker owns the
+// registration transaction and its entire original return. Advance never waits
+// on that SQL or inherits the traversal's cancellation lifetime.
+func (s *associatedExecutorState) startOwnedAssociatedLocked(project i.ProjectID, dispatch c.AssociatedDispatch) (c.ExecutionAdvance, error) {
+	job := &associatedCall{project: project, dispatch: dispatch, phase: c.ExecutionAccepted, active: true}
+	job.ctx, job.cancel = context.WithCancel(context.WithValue(s.root, associatedContextKey{}, job))
+	s.jobs[dispatch.ExecutionID] = job
+	entry, err := s.projectCalls.reserveAssociated(job.ctx, job)
+	if err != nil {
+		delete(s.jobs, dispatch.ExecutionID)
+		job.cancel()
+		return c.ExecutionAdvance{}, err
+	}
+	job.projectCall = entry
+	s.workers++
+	go s.execute(job, false, job.ctx)
+	return s.observationLocked(job), nil
 }
 
 func (s *associatedExecutorState) activeCallsReturnedLocked() bool {
@@ -247,6 +285,7 @@ func (e *AssociatedExecutor) Stop() {
 		return
 	}
 	s := e.state
+	s.projectCalls.stopLane(projectLaneAssociated)
 	s.mu.Lock()
 	s.stopped = true
 	if s.cancel != nil {
@@ -271,8 +310,9 @@ func (e *AssociatedExecutor) Joined() bool {
 	}
 	s := e.state
 	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.stopped && s.activeCallsReturnedLocked() && s.retainedLocked() == nil
+	done := s.stopped && s.activeCallsReturnedLocked() && s.retainedLocked() == nil
+	s.mu.Unlock()
+	return done && s.projectCalls.laneJoined(projectLaneAssociated)
 }
 
 // Drain first waits for the original calls. It may then make at most one paced
@@ -325,6 +365,15 @@ func (e *AssociatedExecutor) Drain(ctx context.Context) error {
 			s.mu.Unlock()
 			continue
 		}
+		if s.projectCalls != nil {
+			entry, err := s.projectCalls.reserveAssociated(context.WithValue(ctx, associatedContextKey{}, job), job)
+			if err != nil {
+				original := job.err
+				s.mu.Unlock()
+				return preserveAssociatedError(original, err)
+			}
+			job.projectCall = entry
+		}
 		job.active = true
 		job.next = time.Now().Add(s.options.RecoveryInterval)
 		s.workers++
@@ -342,7 +391,10 @@ func (e *AssociatedExecutor) Drain(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	return ctx.Err()
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	return s.projectCalls.drainReturned(ctx, projectLaneAssociated)
 }
 
 type associatedOutcome struct {
@@ -354,14 +406,17 @@ type associatedOutcome struct {
 
 func (s *associatedExecutorState) execute(job *associatedCall, recoverOriginal bool, ctx context.Context) {
 	outcome := associatedOutcome{phase: c.ExecutionDeferred}
+	entry := job.projectCall
 	defer func() {
 		if recover() != nil {
 			outcome.err = unavailable(nil)
+			if s.projectCalls != nil {
+				outcome.err = f.NewFault(f.CommitUnknown, f.Unknown)
+			}
 			outcome.forget = false
 		}
 		owners := s.ops.owners(job)
 		s.mu.Lock()
-		job.active = false
 		job.owners = owners
 		job.retained = owners.preparation || owners.direct
 		job.phase, job.status, job.err = outcome.phase, outcome.status, outcome.err
@@ -373,6 +428,24 @@ func (s *associatedExecutorState) execute(job *associatedCall, recoverOriginal b
 			if job.err == nil {
 				job.err = fault(f.ResourceBusy)
 			}
+		}
+		originalErr := job.err
+		s.mu.Unlock()
+		// Both borrowed drivers and all original body defers have returned.
+		// Keep the worker active until its technical checkpoint also returns.
+		if entry != nil {
+			originalErr = s.projectCalls.finish(entry, originalErr)
+		}
+		pending := entry != nil && s.projectCalls.projectCallPending(entry)
+		s.mu.Lock()
+		job.active = false
+		job.err = originalErr
+		job.retained = job.retained || pending
+		if job.retained {
+			job.phase = c.ExecutionRetained
+			if job.err == nil {
+				job.err = fault(f.ResourceBusy)
+			}
 			job.next = time.Now().Add(s.options.RecoveryInterval)
 		} else if outcome.forget {
 			delete(s.jobs, job.dispatch.ExecutionID)
@@ -381,7 +454,31 @@ func (s *associatedExecutorState) execute(job *associatedCall, recoverOriginal b
 		s.workers--
 		s.notifyLocked()
 		s.mu.Unlock()
+		if entry != nil {
+			s.projectCalls.returned(entry)
+		}
 	}()
+	if s.projectCalls != nil {
+		var runOriginal bool
+		var err error
+		ctx, runOriginal, err = s.projectCalls.registerAssociated(ctx, entry)
+		if err != nil || !runOriginal {
+			s.mu.Lock()
+			outcome.phase, outcome.status = job.phase, job.status
+			s.mu.Unlock()
+			outcome.err, outcome.forget = err, true
+			return
+		}
+		s.mu.Lock()
+		requireAdmission := s.requiresAdmission
+		s.mu.Unlock()
+		if requireAdmission {
+			if err = s.ops.admit(ctx, job.project, job.dispatch); err != nil {
+				outcome.err, outcome.forget = err, true
+				return
+			}
+		}
+	}
 	outcome = s.advanceOwned(ctx, job, recoverOriginal)
 }
 
@@ -393,6 +490,9 @@ func (s *associatedExecutorState) advanceOwned(ctx context.Context, job *associa
 		return out
 	}
 	if recoverOriginal {
+		s.mu.Lock()
+		prior := job.err
+		s.mu.Unlock()
 		owners := s.ops.owners(job)
 		switch {
 		case owners.preparation:
@@ -401,11 +501,19 @@ func (s *associatedExecutorState) advanceOwned(ctx context.Context, job *associa
 			recoveredDirect = true
 			_, out.err = s.ops.recoverStart(ctx, job.dispatch.ExecutionID)
 		default:
-			out.err = fault(f.InvalidState)
-			return out
+			// A child may already have returned through its original explicit
+			// Resolve. Only the bound parent's preserved recovery evidence can
+			// authorize continuing this job when no local child remains.
+			if s.projectCalls == nil || !s.projectCalls.parentRecovered(job.projectCall) {
+				out.err = fault(f.InvalidState)
+				return out
+			}
 		}
 		if owned := s.ops.owners(job); owned.preparation || owned.direct {
 			return out
+		}
+		if s.projectCalls != nil {
+			s.projectCalls.recoveredProjectCall(job.projectCall, prior)
 		}
 		// A nil preparation recovery only retires the old attempt. The
 		// canonical input below, not that nil, decides whether Start is possible.
