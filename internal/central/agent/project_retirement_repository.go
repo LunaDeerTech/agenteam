@@ -39,10 +39,48 @@ func checkRetirementCommand(ctx context.Context, x postgres.SQLExecutor, plan c.
 	if err != nil {
 		return err
 	}
-	if record.Target != plan.Change.Request.AgentID || !sameValue(record.After, plan.Change.Before) {
+	if record.Target != plan.Change.Request.AgentID {
 		return fault(f.VersionConflict)
 	}
+	if err = validateRetirementCommandBefore(record.After, plan); err != nil {
+		return err
+	}
 	return portError(ctx.Err())
+}
+
+func validateRetirementCommandBefore(after c.AgentConfig, plan c.ProjectRetirementPlan) error {
+	if err := plan.Validate(); err != nil {
+		return err
+	}
+	before, err := retirementBeforeFromCommand(after, plan.Change.Request.ExpectedVersion, plan.BeforeUpdatedAt)
+	if err != nil {
+		return err
+	}
+	if !sameValue(before, plan.Change.Before) {
+		return fault(f.VersionConflict)
+	}
+	return nil
+}
+
+// Assignment mutations change only these two canonical scalars. The immutable
+// command remains unchanged; the caller's actual complete Before and digest
+// must still match this reconstruction before any retirement can be applied.
+func retirementBeforeFromCommand(after c.AgentConfig, version f.Version, updatedAt *f.Instant) (c.AgentConfig, error) {
+	if after.Validate() != nil || version.Validate() != nil {
+		return c.AgentConfig{}, invalid()
+	}
+	fields := after.Fields()
+	if updatedAt == nil {
+		if version != fields.Core.Version {
+			return c.AgentConfig{}, fault(f.VersionConflict)
+		}
+		return after.Clone(), nil
+	}
+	if updatedAt.Validate() != nil || version <= fields.Core.Version || !updatedAt.Time().After(fields.Core.UpdatedAt.Time()) {
+		return c.AgentConfig{}, fault(f.VersionConflict)
+	}
+	fields.Core.Version, fields.Core.UpdatedAt = version, *updatedAt
+	return c.NewAgentConfig(fields)
 }
 func (r *ProjectRetirement) DiscoverProjectRetirement(ctx context.Context, actor i.Actor, cause pc.LifecycleCause, p i.ProjectID) (*c.ProjectRetirementPlan, error) {
 	var plan *c.ProjectRetirementPlan
@@ -67,9 +105,17 @@ func (r *ProjectRetirement) DiscoverProjectRetirement(ctx context.Context, actor
 		if err != nil {
 			return unavailable(err)
 		}
-		// Completed commands are immutable. Select the actual full postimage, not
-		// a latest version inferred from a missing Agent or a public receipt DTO.
-		err = x.QueryRow(ctx, `SELECT id::text FROM agenteam_agent.commands WHERE project_id=$1 AND target_id=$2 AND state='completed' AND after_config=$3::jsonb ORDER BY id DESC LIMIT 1`, p.String(), id.String(), encoded).Scan(&raw)
+		// Prefer an exact immutable postimage. Otherwise require every field
+		// except version/time to match, and retain both actual current scalars.
+		// The complete typed command is independently reloaded below.
+		core := before.Fields().Core
+		var exact bool
+		err = x.QueryRow(ctx, `SELECT id::text,after_config=$3::jsonb FROM agenteam_agent.commands
+ WHERE project_id=$1 AND target_id=$2 AND state='completed'
+ AND (after_config=$3::jsonb OR (
+  after_config-'version'-'updated_at'=$3::jsonb-'version'-'updated_at'
+  AND (after_config->>'version')::bigint<$4 AND (after_config->>'updated_at')::timestamptz<$5))
+ ORDER BY (after_config=$3::jsonb) DESC,(after_config->>'version')::bigint DESC,id DESC LIMIT 1`, p.String(), id.String(), encoded, int64(core.Version), core.UpdatedAt.Time()).Scan(&raw, &exact)
 		if errors.Is(err, pgx.ErrNoRows) {
 			return fault(f.ResourceBusy)
 		}
@@ -85,6 +131,10 @@ func (r *ProjectRetirement) DiscoverProjectRetirement(ctx context.Context, actor
 			return err
 		}
 		value := c.ProjectRetirementPlan{Change: c.ProjectRetirementChange{Request: c.ProjectRetirementRequest{Actor: actor, ProjectID: p, AgentID: id, Cause: cause, ExpectedVersion: before.Fields().Core.Version}, Before: before}, CommandID: command, BeforeDigest: digest}
+		if !exact {
+			at := core.UpdatedAt
+			value.BeforeUpdatedAt = &at
+		}
 		if err = value.Validate(); err != nil {
 			return err
 		}
@@ -99,21 +149,32 @@ func (r *ProjectRetirement) DiscoverProjectRetirement(ctx context.Context, actor
 	}
 	return plan, nil
 }
-func (r *ProjectRetirement) RestoreProjectRetirement(ctx context.Context, actor i.Actor, cause pc.LifecycleCause, p i.ProjectID, a i.AgentID, version f.Version, command c.AgentCommandID, digest f.Digest) (c.ProjectRetirementPlan, error) {
+func (r *ProjectRetirement) RestoreProjectRetirement(ctx context.Context, actor i.Actor, cause pc.LifecycleCause, p i.ProjectID, a i.AgentID, version f.Version, command c.AgentCommandID, digest f.Digest, updatedAt *f.Instant) (c.ProjectRetirementPlan, error) {
 	var plan c.ProjectRetirementPlan
 	if a.Validate() != nil || version.Validate() != nil || command.Validate() != nil || digest.Validate() != nil {
 		return plan, invalid()
+	}
+	if updatedAt != nil {
+		at := *updatedAt
+		if at.Validate() != nil {
+			return plan, invalid()
+		}
+		updatedAt = &at
 	}
 	err := r.read(ctx, actor, cause, p, func(ctx context.Context, x postgres.SQLExecutor) error {
 		record, err := loadRetirementCommand(ctx, x, p, command)
 		if err != nil {
 			return err
 		}
-		plan = c.ProjectRetirementPlan{Change: c.ProjectRetirementChange{Request: c.ProjectRetirementRequest{Actor: actor, ProjectID: p, AgentID: a, Cause: cause, ExpectedVersion: version}, Before: record.After.Clone()}, CommandID: command, BeforeDigest: digest}
+		before, err := retirementBeforeFromCommand(record.After, version, updatedAt)
+		if err != nil {
+			return err
+		}
+		plan = c.ProjectRetirementPlan{Change: c.ProjectRetirementChange{Request: c.ProjectRetirementRequest{Actor: actor, ProjectID: p, AgentID: a, Cause: cause, ExpectedVersion: version}, Before: before}, CommandID: command, BeforeDigest: digest, BeforeUpdatedAt: updatedAt}
 		if record.Target != a {
 			return fault(f.Forbidden)
 		}
-		return plan.Validate()
+		return validateRetirementCommandBefore(record.After, plan)
 	})
 	if err != nil {
 		return c.ProjectRetirementPlan{}, err

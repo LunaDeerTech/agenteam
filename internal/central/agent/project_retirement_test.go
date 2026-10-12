@@ -189,7 +189,7 @@ func TestAgentProjectRetirementReadNeedsActualReturn(t *testing.T) {
 					}
 					returned <- err
 				} else {
-					value, err := r.RestoreProjectRetirement(ctx, req.Actor, req.Cause, req.ProjectID, req.AgentID, req.ExpectedVersion, plan.CommandID, plan.BeforeDigest)
+					value, err := r.RestoreProjectRetirement(ctx, req.Actor, req.Cause, req.ProjectID, req.AgentID, req.ExpectedVersion, plan.CommandID, plan.BeforeDigest, nil)
 					if value.Validate() == nil {
 						t.Error("Unknown restoration returned a plan")
 					}

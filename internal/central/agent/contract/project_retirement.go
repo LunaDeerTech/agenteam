@@ -118,13 +118,17 @@ type ProjectRetirementReferences interface {
 	RequireProjectAgentReferencesRetiredInTx(context.Context, f.Tx, ProjectRetirementChange) error
 }
 
-// The original completed command supplies the complete immutable Before even
-// after deletion. Project persists only this exact anchor and digest in its
-// existing private checkpoint, atomically with the retirement transaction.
+// A completed command supplies the immutable configuration fields. Nil
+// BeforeUpdatedAt keeps the original exact-postimage contract. Otherwise only
+// version and updated_at may differ: Agent must reconstruct from that command
+// and compare the entire result with the actual current Before in the original
+// transaction. Project persists the exact time with version/command/digest;
+// recovery reconstructs and hashes the complete configuration, never a guess.
 type ProjectRetirementPlan struct {
-	Change       ProjectRetirementChange
-	CommandID    AgentCommandID
-	BeforeDigest f.Digest
+	Change          ProjectRetirementChange
+	CommandID       AgentCommandID
+	BeforeDigest    f.Digest
+	BeforeUpdatedAt *f.Instant
 }
 
 func ProjectRetirementBeforeDigest(before AgentConfig) (f.Digest, error) {
@@ -147,11 +151,18 @@ func (p ProjectRetirementPlan) Validate() error {
 	if p.CommandID.Validate() != nil || p.BeforeDigest.Validate() != nil || err != nil || p.BeforeDigest != digest {
 		return invalid("", "INVALID_PROJECT_AGENT_RETIREMENT_PLAN")
 	}
+	if p.BeforeUpdatedAt != nil && (p.BeforeUpdatedAt.Validate() != nil || *p.BeforeUpdatedAt != p.Change.Before.Fields().Core.UpdatedAt) {
+		return invalid("", "INVALID_PROJECT_AGENT_RETIREMENT_PLAN")
+	}
 	return nil
 }
 
 func (p ProjectRetirementPlan) Clone() ProjectRetirementPlan {
 	p.Change = p.Change.Clone()
+	if p.BeforeUpdatedAt != nil {
+		at := *p.BeforeUpdatedAt
+		p.BeforeUpdatedAt = &at
+	}
 	return p
 }
 
@@ -164,7 +175,7 @@ type ProjectRetirementConsumer interface {
 	RequireProjectAgentsEmptyInTx(context.Context, f.Tx, i.Actor, pc.LifecycleCause, i.ProjectID) error
 	ProjectRetirementLocks(ProjectRetirementPlan) ([]f.LockRequest, error)
 	RetireProjectAgentInTx(context.Context, f.Tx, ProjectRetirementPlan) error
-	RestoreProjectRetirement(context.Context, i.Actor, pc.LifecycleCause, i.ProjectID, i.AgentID, f.Version, AgentCommandID, f.Digest) (ProjectRetirementPlan, error)
+	RestoreProjectRetirement(context.Context, i.Actor, pc.LifecycleCause, i.ProjectID, i.AgentID, f.Version, AgentCommandID, f.Digest, *f.Instant) (ProjectRetirementPlan, error)
 	RequireProjectAgentRetiredInTx(context.Context, f.Tx, ProjectRetirementPlan) error
 }
 

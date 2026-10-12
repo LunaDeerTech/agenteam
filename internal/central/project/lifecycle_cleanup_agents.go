@@ -29,11 +29,22 @@ func NewLifecycleCleanupDriverWithAgents(store Store, projects *Authority, proce
 }
 
 type agentCleanupApplied struct {
-	Agent   identity.AgentID  `json:"agent_id"`
-	Version f.Version         `json:"version"`
-	Command ac.AgentCommandID `json:"command_id"`
-	Digest  f.Digest          `json:"before_digest"`
+	Agent           identity.AgentID  `json:"agent_id"`
+	Version         f.Version         `json:"version"`
+	Command         ac.AgentCommandID `json:"command_id"`
+	Digest          f.Digest          `json:"before_digest"`
+	BeforeUpdatedAt *f.Instant        `json:"before_updated_at,omitempty"`
 }
+
+func agentCleanupAnchor(plan ac.ProjectRetirementPlan) agentCleanupApplied {
+	plan = plan.Clone()
+	return agentCleanupApplied{Agent: plan.Change.Request.AgentID, Version: plan.Change.Request.ExpectedVersion, Command: plan.CommandID, Digest: plan.BeforeDigest, BeforeUpdatedAt: plan.BeforeUpdatedAt}
+}
+func sameAgentCleanupAnchor(a, b agentCleanupApplied) bool {
+	return a.Agent == b.Agent && a.Version == b.Version && a.Command == b.Command && a.Digest == b.Digest &&
+		(a.BeforeUpdatedAt == nil && b.BeforeUpdatedAt == nil || a.BeforeUpdatedAt != nil && b.BeforeUpdatedAt != nil && *a.BeforeUpdatedAt == *b.BeforeUpdatedAt)
+}
+
 type agentsCleanupCheckpoint struct {
 	Project    string                  `json:"project_id"`
 	Operation  string                  `json:"operation_id"`
@@ -53,7 +64,7 @@ func decodeAgentsCleanupCheckpoint(cp *c.CleanupCheckpoint, cause c.LifecycleCau
 	if cp == nil {
 		return initial, nil
 	}
-	if !cp.Matches(c.SkillsParticipant, cause, scope) || cp.Schema() != 3 || len(cp.Bytes()) > 8192 {
+	if !cp.Matches(c.SkillsParticipant, cause, scope) || cp.Schema() != 3 && cp.Schema() != 4 || len(cp.Bytes()) > 8192 {
 		return initial, unavailable(nil)
 	}
 	var data agentsCleanupCheckpoint
@@ -66,6 +77,13 @@ func decodeAgentsCleanupCheckpoint(cp *c.CleanupCheckpoint, cause c.LifecycleCau
 		return initial, unavailable(err)
 	}
 	if a := data.Applied; a != nil && (a.Agent.Validate() != nil || a.Version.Validate() != nil || a.Command.Validate() != nil || a.Digest.Validate() != nil) {
+		return initial, unavailable(nil)
+	}
+	if cp.Schema() == 4 {
+		if data.Applied == nil || data.Applied.BeforeUpdatedAt == nil || data.Applied.BeforeUpdatedAt.Validate() != nil {
+			return initial, unavailable(nil)
+		}
+	} else if data.Applied != nil && data.Applied.BeforeUpdatedAt != nil {
 		return initial, unavailable(nil)
 	}
 	child, err := data.skillsCheckpoint(cause, p)
@@ -112,7 +130,11 @@ func agentsCleanupReport(round lifecycleCleanupRound, data agentsCleanupCheckpoi
 		return c.CleanupReport{}, unavailable(err)
 	}
 	scope := c.ScopeRef{Kind: c.ProjectScope, ProjectID: round.claim.project}
-	cp, err := c.NewCleanupCheckpoint(c.SkillsParticipant, round.cause, scope, 3, raw)
+	schema := f.Version(3)
+	if data.Applied != nil && data.Applied.BeforeUpdatedAt != nil {
+		schema = 4
+	}
+	cp, err := c.NewCleanupCheckpoint(c.SkillsParticipant, round.cause, scope, schema, raw)
 	if err != nil {
 		return c.CleanupReport{}, unavailable(err)
 	}
@@ -172,8 +194,8 @@ func (a *LifecycleAuthority) requireAgentCleanupAppliedInTx(ctx context.Context,
 	if err != nil {
 		return err
 	}
-	want := agentCleanupApplied{Agent: req.AgentID, Version: req.ExpectedVersion, Command: plan.CommandID, Digest: plan.BeforeDigest}
-	if data.Applied == nil || *data.Applied != want {
+	want := agentCleanupAnchor(plan)
+	if data.Applied == nil || !sameAgentCleanupAnchor(*data.Applied, want) {
 		return fault(f.Forbidden)
 	}
 	return portError(ctx.Err())
@@ -212,7 +234,12 @@ func (st *lifecycleCleanupState) runAgentStep(ctx context.Context, round lifecyc
 	}
 	var previous *ac.ProjectRetirementPlan
 	if applied := data.Applied; applied != nil {
-		restored, e := st.agents.RestoreProjectRetirement(run, actor, round.cause, round.claim.project, applied.Agent, applied.Version, applied.Command, applied.Digest)
+		var updatedAt *f.Instant
+		if applied.BeforeUpdatedAt != nil {
+			at := *applied.BeforeUpdatedAt
+			updatedAt = &at
+		}
+		restored, e := st.agents.RestoreProjectRetirement(run, actor, round.cause, round.claim.project, applied.Agent, applied.Version, applied.Command, applied.Digest, updatedAt)
 		if e != nil {
 			return st.agentStepError(ctx, round, portError(e))
 		}
@@ -263,8 +290,8 @@ func (st *lifecycleCleanupState) runAgentStep(ctx context.Context, round lifecyc
 			if e := st.agents.RetireProjectAgentInTx(txctx, tx, plan.Clone()); e != nil {
 				return portError(e)
 			}
-			r := plan.Change.Request
-			data.Applied = &agentCleanupApplied{Agent: r.AgentID, Version: r.ExpectedVersion, Command: plan.CommandID, Digest: plan.BeforeDigest}
+			anchor := agentCleanupAnchor(*plan)
+			data.Applied = &anchor
 		}
 		if e := txctx.Err(); e != nil {
 			return portError(e)
