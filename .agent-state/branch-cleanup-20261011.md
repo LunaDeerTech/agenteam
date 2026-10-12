@@ -183,3 +183,12 @@ root明确授权的唯一Git执行者将最终 `67780ac4f01cb66305b93de89cfdf8f7
 [完整保全](../output/ai/retired-20261012/run-command-result-consumption-preservation/result.json)原92796/363620实际0，child1025879 Wait0/4.770s：同FS NOREPLACE迁至main `output/ai/retired-20261012/run-command-result-consumption`，152文件/100,974,708B/23目录全部路径/SHA/stat/inode前后同；29输入图中的2007仓库历史版本逐blob匹配原1ab且main可恢复。两个实际tmp共8小副本齐，原tmp保留；native01仅prepared、native02原ENOSPC FAIL、native03 PASS原样保存。独立主审已接受保全；外部依赖及78可再生cache包体未归档限制见[恢复说明](run-command-result-consumption/README.md#main-delivery-and-retirement)。
 
 旧树tracked/普通untracked/ignored皆空，原Wait与owner声明确认退出，新NRMR无旧绝对live依赖；可见knownPID核对不冒全局FD证明。fresh远端PID1026895精确等最终0ace后，普通worktree remove PID1026919与普通branch -d PID1026942均0；单ref exact-lease删除PID1026943、fresh空PID1026972及显式main/ai fetch-prune PID1026976均0。原6839/ac8726亲Wait0确认旧树/local/tracking全部为空，见[清理后验](../output/ai/run-command-result-consumption-git/cleanup01/result.json)。本次增加1树/1本地/1远端，累计 **41 WorkTrees / 42本地分支 / 82远端引用**，legacy135待核/原keep1不变。新NRMR树只冻结源码与方法、未动态验收，不计清理；全部FAIL、STOP、保护依赖与总体未完成范围保持。
+
+
+## 2026-10-12 NRMR-1实际清理
+
+受测 `5f4b9a4ec00d49bbbccb3641a89c10d8be20e673`、修后 `448f6adea22d62dcb71255a3c834dbb8f1b95d84` 与最终文档 `82f2643649fafffec583b8fb4a4f67a9092e901b` 已正常no-ff完整合入main `be71c42c4c68ae54ce76d3dca6b34974ad208203`。main/feature atomic push、fresh exact与tracking同步原40773/56f072亲Wait0，两tree clean；分阶段9top45sub/4vet与native02 1top2sub wholePASS沿唯一主审有限接受复用，无产品重测。
+
+[完整保全](../output/ai/retired-20261012/next-round-model-request-preservation/result.json)原31435/a4431a实际0，child1048802 Wait0/2.790s：同FS NOREPLACE迁到main `output/ai/retired-20261012/next-round-model-request`，159文件/190,552,654B/21目录全路径/SHA/stat/inode前后同；44输入图中2020仓库历史版本逐blob匹配两受测ref且main可恢复。两binary、native01 loader前置FAIL与native02 PASS全部原样，两套实际tmp共8小副本齐且原tmp保留；独立主审已接受保全。外部依赖仅原路径/SHA、不冒归档恢复，详见[恢复说明](next-round-model-request/README.md#main-delivery-and-retirement)。
+
+旧树tracked/普通untracked/ignored皆空；原Wait/knownPID门及后继owner有界声明确认无旧绝对live依赖，不冒全局FD可见。fresh PID1049718精确等最终82f后，普通worktree remove PID1049722、普通branch -d PID1049765均0；单ref exact-lease删除PID1049766、fresh空PID1049795、显式main/ai fetch-prune PID1049807均0。原66407/5caa23亲Wait0确认旧树/local/tracking全空，见[清理后验](../output/ai/next-round-model-request-git/cleanup01/result.json)。本次增加1树/1本地/1远端，累计 **42 WorkTrees / 43本地分支 / 83远端引用**，legacy135待核/原keep1不变。两个新后继树从受测448f独立创建（12680/796021实际0）只进入任务卡/静态源码，不计清理或验收；原FAIL、保护依赖、全部STOP与总体未完成边界不变。
