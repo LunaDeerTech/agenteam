@@ -7,7 +7,9 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"reflect"
+	"sync"
 	"testing"
 	"time"
 
@@ -21,6 +23,7 @@ import (
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	"github.com/LunaDeerTech/agenteam/internal/central/skill"
+	tc "github.com/LunaDeerTech/agenteam/internal/central/tool/contract"
 	toolruntime "github.com/LunaDeerTech/agenteam/internal/central/tool/runtime"
 	p "github.com/LunaDeerTech/agenteam/internal/runnerprotocol"
 )
@@ -29,10 +32,165 @@ import (
 // This stage has no Runner or Model producer of its own. Its Store hooks only
 // observe the original transaction body and, in one case, lose its COMMIT ack.
 type writeResultConsumptionFixture struct {
-	operation *operationWriteFileFixture
-	terminal  operationWriteFileSQL
-	expected  p.WriteFileResult
-	before    toolResultConsumptionState
+	operation  *operationWriteFileFixture
+	terminal   operationWriteFileSQL
+	expected   p.WriteFileResult
+	before     toolResultConsumptionState
+	diagnostic writeResultDiagnostic
+}
+
+// These test-only records contain closed stage/code/context facts, never an
+// error string, SQL, arguments, receipt bytes or a caller-provided label.
+type writeResultDiagnostic struct {
+	mu           sync.Mutex
+	lines        []string
+	finalReturns int
+	finalLoans   int
+}
+
+func writeResultFaultCode(err error) string {
+	if err == nil {
+		return "none"
+	}
+	var fault *f.Fault
+	if errors.As(err, &fault) && fault != nil {
+		return string(fault.Code.Safe())
+	}
+	return "non_fault"
+}
+
+func writeResultContextState(ctx context.Context) string {
+	if ctx == nil {
+		return "none"
+	}
+	switch ctx.Err() {
+	case nil:
+		return "live"
+	case context.Canceled:
+		return "cancelled"
+	case context.DeadlineExceeded:
+		return "deadline"
+	default:
+		return "other"
+	}
+}
+
+func (d *writeResultDiagnostic) stage(stage string, ctx context.Context, started time.Time, err error, callbacks int, callbackErr error, callbackCtx context.Context) {
+	deadline, hasDeadline := ctx.Deadline()
+	remaining := int64(0)
+	if hasDeadline {
+		remaining = time.Until(deadline).Milliseconds()
+	}
+	line := fmt.Sprintf("stage=%s code=%s context=%s deadline=%t remaining_ms=%d elapsed_ms=%d callbacks=%d callback_code=%s callback_context=%s error_deadline=%t error_cancelled=%t", stage, writeResultFaultCode(err), writeResultContextState(ctx), hasDeadline, remaining, time.Since(started).Milliseconds(), callbacks, writeResultFaultCode(callbackErr), writeResultContextState(callbackCtx), errors.Is(err, context.DeadlineExceeded), errors.Is(err, context.Canceled))
+	d.mu.Lock()
+	d.lines = append(d.lines, line)
+	d.mu.Unlock()
+}
+
+func (d *writeResultDiagnostic) final(result f.CommitResult) {
+	code := "none"
+	if fault := result.Fault(); fault != nil {
+		code = string(fault.Code.Safe())
+	}
+	d.mu.Lock()
+	d.finalReturns++
+	d.lines = append(d.lines, fmt.Sprintf("stage=final_tx_return cause=execution.tool-result.consume actual_return=true physical_state=%s code=%s", result.State(), code))
+	d.mu.Unlock()
+}
+
+func (d *writeResultDiagnostic) dump(t *testing.T) {
+	t.Helper()
+	d.mu.Lock()
+	lines := append([]string(nil), d.lines...)
+	finalReturns, finalLoans := d.finalReturns, d.finalLoans
+	d.mu.Unlock()
+	t.Logf("write_result_diagnostic final_tx_actual_returns=%d final_result_loan_calls=%d", finalReturns, finalLoans)
+	for _, line := range lines {
+		t.Log("write_result_diagnostic " + line)
+	}
+}
+
+type writeResultObservedHistory struct {
+	actual     tc.CommittedWriteFileCallAuthority
+	diagnostic *writeResultDiagnostic
+}
+
+func (o *writeResultObservedHistory) DiscoverCommittedWriteFileCall(ctx context.Context, e i.ExecutionID) (tc.CommittedWriteFileCallPlan, error) {
+	started := time.Now()
+	plan, err := o.actual.DiscoverCommittedWriteFileCall(ctx, e)
+	o.diagnostic.stage("history_discover_return", ctx, started, err, 0, nil, nil)
+	return plan, err
+}
+
+func (o *writeResultObservedHistory) WithCommittedWriteFileCallInTx(ctx context.Context, tx f.Tx, plan tc.CommittedWriteFileCallPlan, consume func(context.Context, tc.ToolCallBinding, []byte) error) error {
+	started := time.Now()
+	callbacks := 0
+	var callbackErr error
+	var callbackCtx context.Context
+	err := o.actual.WithCommittedWriteFileCallInTx(ctx, tx, plan, func(inner context.Context, binding tc.ToolCallBinding, raw []byte) error {
+		callbacks++
+		callbackCtx = inner
+		callbackErr = consume(inner, binding, raw)
+		return callbackErr
+	})
+	o.diagnostic.stage("history_loan_return", ctx, started, err, callbacks, callbackErr, callbackCtx)
+	return err
+}
+
+type writeResultObservedReader struct {
+	actual     tc.WriteFileResultAuthority
+	diagnostic *writeResultDiagnostic
+}
+
+func (o *writeResultObservedReader) DiscoverWriteFileResult(ctx context.Context, e i.ExecutionID) (tc.WriteFileResultPlan, error) {
+	started := time.Now()
+	plan, err := o.actual.DiscoverWriteFileResult(ctx, e)
+	o.diagnostic.stage("result_discover_return", ctx, started, err, 0, nil, nil)
+	return plan, err
+}
+
+func (o *writeResultObservedReader) WithWriteFileResultInTx(ctx context.Context, tx f.Tx, plan tc.WriteFileResultPlan, consume func(context.Context, tc.WriteFileResultBinding, []byte) error) error {
+	started := time.Now()
+	o.diagnostic.mu.Lock()
+	o.diagnostic.finalLoans++
+	o.diagnostic.mu.Unlock()
+	callbacks := 0
+	var callbackErr error
+	var callbackCtx context.Context
+	err := o.actual.WithWriteFileResultInTx(ctx, tx, plan, func(inner context.Context, binding tc.WriteFileResultBinding, raw []byte) error {
+		callbacks++
+		callbackCtx = inner
+		callbackErr = consume(inner, binding, raw)
+		return callbackErr
+	})
+	o.diagnostic.stage("result_loan_return", ctx, started, err, callbacks, callbackErr, callbackCtx)
+	return err
+}
+
+// A result hook receives the original immutable Store delegate's actual
+// return. Only the exact consumption cause can lose one committed receipt.
+type writeResultCommitLoss struct {
+	mu       sync.Mutex
+	match    func(f.TransactionCause) bool
+	attempt  f.ID[f.TransactionAttempt]
+	fired    bool
+	physical f.CommitResult
+}
+
+func (s *writeResultCommitLoss) transform(cause f.TransactionCause, result f.CommitResult) f.CommitResult {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if !s.fired && result.State() == f.Committed && s.match(cause) {
+		s.fired, s.physical = true, result
+		return f.UnknownResult(s.attempt, cause)
+	}
+	return result
+}
+
+func (s *writeResultCommitLoss) observed() (bool, f.CommitResult) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.fired, s.physical
 }
 
 func newWriteResultConsumptionFixture(t *testing.T) *writeResultConsumptionFixture {
@@ -72,6 +230,15 @@ func newWriteResultConsumptionFixture(t *testing.T) *writeResultConsumptionFixtu
 	x.before, err = x.read(ctxFor(t), v.facts.capture.v.base.raw)
 	readFileAdapterOK(t, err, "independent unconsumed write checkpoint")
 	x.requireState(t, x.before, false)
+	tracked := v.facts.capture.v.base.tracked
+	tracked.mu.Lock()
+	tracked.afterResult = func(cause f.TransactionCause, result f.CommitResult) {
+		if x.matches(cause) {
+			x.diagnostic.final(result)
+		}
+	}
+	tracked.mu.Unlock()
+	t.Cleanup(func() { roundInputClearHooks(tracked) })
 	t.Cleanup(func() {
 		v.facts.driver.Stop()
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -87,9 +254,11 @@ func newWriteResultConsumptionFixture(t *testing.T) *writeResultConsumptionFixtu
 func (v *writeResultConsumptionFixture) consumer(t *testing.T) *execution.ToolResultConsumer {
 	t.Helper()
 	facts := v.operation.facts
-	reader, err := toolruntime.NewWriteFileResultReader(facts.capture.v.base.tracked, facts.driver)
+	history := &writeResultObservedHistory{actual: facts.driver, diagnostic: &v.diagnostic}
+	reader, err := toolruntime.NewWriteFileResultReader(facts.capture.v.base.tracked, history)
 	readFileAdapterOK(t, err, "real historical Write receipt reader")
-	consumer, err := execution.NewWriteFileResultConsumer(facts.driver, reader)
+	observed := &writeResultObservedReader{actual: reader, diagnostic: &v.diagnostic}
+	consumer, err := execution.NewWriteFileResultConsumer(facts.driver, observed)
 	readFileAdapterOK(t, err, "explicit Write result consumer")
 	t.Cleanup(func() { stopToolResultConsumer(t, consumer) })
 	return consumer
@@ -266,7 +435,12 @@ func TestWriteFileResultConsumption(t *testing.T) {
 		}
 		consumer := v.consumer(t)
 		e := v.operation.facts.capture.created.ID
-		receipt, err := consumer.Consume(ctxFor(t), e)
+		ctx, started := ctxFor(t), time.Now()
+		receipt, err := consumer.Consume(ctx, e)
+		v.diagnostic.stage("consume_return", ctx, started, err, 0, nil, nil)
+		if err != nil {
+			v.diagnostic.dump(t)
+		}
 		readFileAdapterOK(t, err, "first historical write consumption after current revocation")
 		committed := v.requireDurable(t, true)
 		v.requireReceipt(t, receipt, committed)
@@ -304,21 +478,28 @@ func TestWriteFileResultConsumption(t *testing.T) {
 			seen = true
 			return nil
 		})
+		loss := &writeResultCommitLoss{match: v.matches, attempt: id[f.TransactionAttempt](t)}
 		store.mu.Lock()
-		store.afterResult = func(cause f.TransactionCause, _ f.CommitResult) {
+		store.afterResult = func(cause f.TransactionCause, result f.CommitResult) {
 			if v.matches(cause) {
 				consumeTransactions++
+				v.diagnostic.final(result)
 			}
 		}
+		store.transformResult = loss.transform
 		store.mu.Unlock()
-		originalStore := store.fixtureStore
-		loss := &captureCommitReceiptLoss{fixtureStore: originalStore, match: v.matches, attempt: id[f.TransactionAttempt](t)}
-		store.fixtureStore = loss
 		t.Cleanup(func() {
 			roundInputClearHooks(store)
-			store.fixtureStore = originalStore
+			store.mu.Lock()
+			store.transformResult = nil
+			store.mu.Unlock()
 		})
-		absent, err := consumer.Consume(ctxFor(t), e)
+		ctx, started := ctxFor(t), time.Now()
+		absent, err := consumer.Consume(ctx, e)
+		v.diagnostic.stage("consume_return", ctx, started, err, 0, nil, nil)
+		if writeResultFaultCode(err) != string(f.CommitUnknown) {
+			v.diagnostic.dump(t)
+		}
 		requireCode(t, err, f.CommitUnknown)
 		original, retained := execution.UnknownAttempt(err)
 		fired, physical := loss.observed()
