@@ -22,6 +22,9 @@ func secretCleanupRecord(t *testing.T) *lifecycleRecord {
 		if entries[n].Name == c.SecretParticipant || entries[n].Name == c.ArtifactObjectParticipant {
 			entries[n].CleanupAfter = []c.ParticipantName{c.SkillsParticipant}
 		}
+		if entries[n].Name == c.OutboxParticipant {
+			entries[n].CleanupAfter = append(entries[n].CleanupAfter, c.SkillsParticipant)
+		}
 	}
 	r := &lifecycleRecord{operation: c.LifecycleOperation{Action: c.Delete, State: c.OperationCleaning}, cleanupStage: "domains", manifest: registryTestManifest(t, entries)}
 	for _, entry := range r.manifest.Entries() {
