@@ -24,6 +24,9 @@ CREATE_EXPECTED = {'TestProjectCreationApp',
                    'TestProjectCreationApp/create-through-browser',
                    'TestProjectCreationRecoveryApp',
                    'TestProjectCreationRecoveryApp/cancelled-create-restarts-original-intent'}
+SECRET_SELECTOR = '^TestProjectSecretDeleteWeb$'
+SECRET_EXPECTED = {'TestProjectSecretDeleteWeb',
+                   'TestProjectSecretDeleteWeb/busy-reference-then-delete'}
 
 def save(path, value):
     with path.open('x') as stream:
@@ -58,13 +61,20 @@ def main():
     p.add_argument('--input-hash', required=True)
     p.add_argument('--pg-current-only', action='store_true',
                    help='explicitly omit the unused PG16 negative-control fixture')
-    p.add_argument('--project-creation', action='store_true',
-                   help='run the reviewed default-App creation, browser and recovery scope')
+    scope = p.add_mutually_exclusive_group()
+    scope.add_argument('--project-creation', action='store_true',
+                       help='run the reviewed default-App creation, browser and recovery scope')
+    scope.add_argument('--secret-delete', action='store_true',
+                       help='run the reviewed referenced-Secret deletion scope')
     a = p.parse_args()
-    selector = CREATE_SELECTOR if a.project_creation else SELECTOR
-    expected = CREATE_EXPECTED if a.project_creation else EXPECTED
-    node_count = 1 if a.project_creation else 2
-    web_scopes = ([('AGENTEAM_PROJECT_CREATION_WEB', 'project-creation')]
+    selector = (SECRET_SELECTOR if a.secret_delete else
+                CREATE_SELECTOR if a.project_creation else SELECTOR)
+    expected = (SECRET_EXPECTED if a.secret_delete else
+                CREATE_EXPECTED if a.project_creation else EXPECTED)
+    node_count = 1 if a.project_creation or a.secret_delete else 2
+    web_scopes = ([('AGENTEAM_PROJECT_SECRET_DELETE_WEB', 'secret-delete')]
+                  if a.secret_delete else
+                  [('AGENTEAM_PROJECT_CREATION_WEB', 'project-creation')]
                   if a.project_creation else
                   [('AGENTEAM_TASK_SEARCH_WEB', 'task-search'),
                    ('AGENTEAM_PROJECT_VARIABLES_WEB', 'variable-delete')])
@@ -92,7 +102,8 @@ def main():
     save(a.output/'invocation.json', {'command':command,'cwd':str(a.root),
          'input_hash':a.input_hash,'binary':str(a.binary),'dist':str(a.dist),
          'runtime':str(a.runtime),'supervisor_pid':os.getpid(),
-         'pg_current_only':a.pg_current_only,'project_creation':a.project_creation})
+         'pg_current_only':a.pg_current_only,'project_creation':a.project_creation,
+         'secret_delete':a.secret_delete})
     began = time.monotonic()
     failed = False
     adopted = []
