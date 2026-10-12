@@ -199,6 +199,12 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestWorkAgentAssigneeReferences$': frozenset((
+        'TestWorkAgentAssigneeReferences',
+        'TestWorkAgentAssigneeReferences/same-transaction-current-and-terminal-references',
+        'TestWorkAgentAssigneeReferences/authority-and-transaction-boundaries',
+        'TestWorkAgentAssigneeReferences/caller-lock-release-before-original-return',
+    )),
     '^TestVariableProjectCallApp$': frozenset((
         'TestVariableProjectCallApp',
         'TestVariableProjectCallApp/default-http-shared-variable-owner',

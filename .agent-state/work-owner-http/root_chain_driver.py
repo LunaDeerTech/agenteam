@@ -18,6 +18,31 @@ MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 # One closed same-package PG family: adding a scenario changes required
 # inputs and expected test data, never the resource/Wait/tail implementation.
 METADATA_INPUTS = {
+    '^TestWorkAgentAssigneeReferences$': (
+        'tests/projectvariable/work_agent_assignee_references_test.go',
+        'tests/projectvariable/task_transition_scheduler_test.go',
+        'tests/projectvariable/agent_configuration_create_test.go',
+        'tests/projectvariable/agent_configuration_facts_test.go',
+        'tests/projectvariable/skill_installation_test.go',
+        'tests/projectvariable/fixture_test.go',
+        'tests/testsupport/agentconfiguration/assembly.go',
+        'internal/central/work/contract/agent_assignee_references.go',
+        'internal/central/work/agent_assignee_references.go',
+        'internal/central/work/service.go',
+        'internal/central/work/contract/structure.go',
+        'internal/central/work/repository.go',
+        'internal/central/work/reader.go',
+        'internal/central/work/task_repository.go',
+        'internal/central/agent/current.go',
+        'internal/central/agent/contract/reference.go',
+        'internal/central/project/authority.go',
+        'db/migrations/embed.go',
+        'db/migrations/00022_task_planning.sql',
+        'db/migrations/00041_task_transitions.sql',
+        'db/migrations/00045_task_scheduler_claims.sql',
+        'db/migrations/00075_project_variable_call_ownership.sql',
+        '.agent-state/work-agent-assignee-references/profile-controls.py',
+    ),
     '^TestVariableProjectCallApp$': (
         'tests/projectvariable/variable_project_call_app_test.go',
         'tests/projectvariable/agent_project_call_app_test.go',
