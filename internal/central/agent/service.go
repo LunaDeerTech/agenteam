@@ -54,10 +54,14 @@ func New(store Store, deps Dependencies) (*Service, error) {
 	return &Service{&serviceState{store, deps, newCalls()}}, nil
 }
 func (s *Service) begin(ctx context.Context) (context.Context, func(), error) {
+	ctx, _, done, err := s.beginProject(ctx, i.ProjectID{}, controlCall)
+	return ctx, done, err
+}
+func (s *Service) beginProject(ctx context.Context, project i.ProjectID, kind callKind) (context.Context, *ownedCall, func(), error) {
 	if s == nil || s.state == nil {
-		return nil, nil, fault(f.DependencyUnbound)
+		return nil, nil, nil, fault(f.DependencyUnbound)
 	}
-	return s.state.calls.begin(ctx)
+	return s.state.calls.beginProject(ctx, project, kind)
 }
 func (s *Service) Stop() {
 	if s != nil && s.state != nil {

@@ -36,7 +36,7 @@ func runnerCandidateBinding(project i.ProjectID, owner string) (cursor.Binding, 
 
 func (s *Service) ListAvailableRunners(ctx context.Context, actor i.Actor, project i.ProjectID, page f.PageRequest) (f.Page[rc.ConfigurationCandidate], error) {
 	empty := f.Page[rc.ConfigurationCandidate]{}
-	ctx, done, err := s.begin(ctx)
+	ctx, _, done, err := s.beginProject(ctx, project, readCall)
 	if err != nil {
 		return empty, err
 	}
@@ -136,7 +136,7 @@ func (s *Service) ListAvailableRunners(ctx context.Context, actor i.Actor, proje
 
 func (s *Service) GetRunnerMounts(ctx context.Context, actor i.Actor, project i.ProjectID, agent i.AgentID) (c.AgentRunnerMounts, error) {
 	empty := c.AgentRunnerMounts{}
-	ctx, done, err := s.begin(ctx)
+	ctx, _, done, err := s.beginProject(ctx, project, readCall)
 	if err != nil {
 		return empty, err
 	}
