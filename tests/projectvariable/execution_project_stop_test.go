@@ -236,9 +236,9 @@ func (s *executionStopFixture) terminal(t *testing.T, p i.ProjectID, e i.Executi
  (SELECT count(*) FROM agenteam_execution.preparation_inputs WHERE execution_id=$1),
  (SELECT count(*) FROM agenteam_execution.preparation_attempts WHERE execution_id=$1 AND phase='terminal'),
  (SELECT count(*) FROM agenteam_execution.rounds r JOIN agenteam_execution.executions e ON e.id=r.execution_id WHERE e.id=$1 AND r.terminal_status=e.status AND r.terminal_version=e.version AND r.finished_at=e.completed_at),
- (SELECT count(*) FROM agenteam_model.invocations WHERE execution_id=$1 AND final_status=$2),
- (SELECT count(*) FROM agenteam_model.calls c JOIN agenteam_model.invocations v ON v.call_id=c.id WHERE v.execution_id=$1 AND c.phase=$2 AND c.retired),
- (SELECT count(*) FROM agenteam_model.calls c JOIN agenteam_model.invocations v ON v.call_id=c.id JOIN agenteam_secret.secret_leases l ON l.id=c.lease_id WHERE v.execution_id=$1 AND l.released)`, e.String(), string(status)).Scan(&counts[0], &counts[1], &counts[2], &counts[3], &counts[4], &counts[5])
+ (SELECT count(*) FROM agenteam_model.invocations WHERE execution_id::text=$1 AND final_status=$2),
+ (SELECT count(*) FROM agenteam_model.calls c JOIN agenteam_model.invocations v ON v.call_id=c.id WHERE v.execution_id::text=$1 AND c.phase=$2 AND c.retired),
+ (SELECT count(*) FROM agenteam_model.calls c JOIN agenteam_model.invocations v ON v.call_id=c.id JOIN agenteam_secret.secret_leases l ON l.id=c.lease_id WHERE v.execution_id::text=$1 AND l.released)`, e.String(), string(status)).Scan(&counts[0], &counts[1], &counts[2], &counts[3], &counts[4], &counts[5])
 	firstRoundRequire(t, err)
 	if counts != ([6]int64{1, 1, 1, 1, 1, 1}) {
 		t.Fatal("original preparation/round/Invocation terminal facts differ", counts)
@@ -481,7 +481,7 @@ func testExecutionStopUnknown(t *testing.T) {
 	s.lifecycle.requireClaim(t, "terminal")
 	var phase, status string
 	var rounds, invocations, attempts int64
-	err = v.base.raw.QueryRow(ctxFor(t), `SELECT e.status,a.phase,(SELECT count(*) FROM agenteam_execution.rounds WHERE execution_id=e.id),(SELECT count(*) FROM agenteam_model.invocations WHERE execution_id=e.id),(SELECT count(*) FROM agenteam_execution.preparation_attempts n WHERE n.execution_id=e.id) FROM agenteam_execution.executions e JOIN agenteam_execution.preparation_attempts a ON a.execution_id=e.id WHERE e.id=$1`, a.ExecutionID.String()).Scan(&status, &phase, &rounds, &invocations, &attempts)
+	err = v.base.raw.QueryRow(ctxFor(t), `SELECT e.status,a.phase,(SELECT count(*) FROM agenteam_execution.rounds WHERE execution_id=e.id),(SELECT count(*) FROM agenteam_model.invocations WHERE execution_id::text=e.id),(SELECT count(*) FROM agenteam_execution.preparation_attempts n WHERE n.execution_id=e.id) FROM agenteam_execution.executions e JOIN agenteam_execution.preparation_attempts a ON a.execution_id=e.id WHERE e.id=$1`, a.ExecutionID.String()).Scan(&status, &phase, &rounds, &invocations, &attempts)
 	firstRoundRequire(t, err)
 	if status != "preparing" || phase != "terminal" || rounds != 0 || invocations != 0 || attempts != 1 || s.inputClaimSnapshot(t, a.ExecutionID) != stable {
 		t.Fatal("recovery entered a first Model or invented Execution terminal")
