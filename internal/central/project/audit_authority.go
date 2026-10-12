@@ -14,6 +14,20 @@ import (
 )
 
 func (a *Authority) CheckAppendInTx(ctx context.Context, tx foundation.Tx, entry audit.Entry, key audit.AppendKey) error {
+	// Keep the existing identity and exact producer-fact checks first. They do
+	// not append Audit; this final gate still runs in the caller's original
+	// transaction, before Audit can persist the entry.
+	if err := a.checkAppendFactsInTx(ctx, tx, entry, key); err != nil {
+		return err
+	}
+	project, err := parseID[identity.Project](entry.Fields().Scope.Details().ProjectID)
+	if err != nil {
+		return err
+	}
+	return a.checkAuditLifecycleBarrierInTx(ctx, tx, project)
+}
+
+func (a *Authority) checkAppendFactsInTx(ctx context.Context, tx foundation.Tx, entry audit.Entry, key audit.AppendKey) error {
 	if a.state() == nil {
 		return fault(foundation.DependencyUnbound)
 	}
