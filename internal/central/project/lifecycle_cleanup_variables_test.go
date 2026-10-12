@@ -228,7 +228,7 @@ func TestLifecycleCleanupVariablesOriginalReturn(t *testing.T) {
 			}
 			entered, release := make(chan struct{}), make(chan struct{})
 			failure := errors.New("original Variables error")
-			cause, err := f.NewJobCause("variables-cleanup", round.claim.operation.String(), "batch")
+			cause, err := f.NewJobCause("variables-cleanup", round.claim.operation.String(), testID[struct{}](t).String())
 			if err != nil {
 				t.Fatal(err)
 			}
