@@ -33,6 +33,8 @@ USAGE_EXPECTED = {'TestProjectUsageSummaryWeb',
 SKILL_SELECTOR = '^TestSkillPackageImportWeb$'
 SKILL_EXPECTED = {'TestSkillPackageImportWeb',
                   'TestSkillPackageImportWeb/existing-file-import-and-fixed-revision-download'}
+TASK_SELECTOR = '^TestTaskSearchWeb$'
+TASK_EXPECTED = {'TestTaskSearchWeb', 'TestTaskSearchWeb/server-search-beyond-first-page'}
 
 def save(path, value):
     with path.open('x') as stream:
@@ -76,17 +78,23 @@ def main():
                        help='run the reviewed daily Usage summary scope')
     scope.add_argument('--skill-package-import', action='store_true',
                        help='run the reviewed existing-file Skill package import scope')
+    scope.add_argument('--task-search', action='store_true',
+                       help='run the reviewed Task search and enum filters scope')
     a = p.parse_args()
-    selector = (SKILL_SELECTOR if a.skill_package_import else
+    selector = (TASK_SELECTOR if a.task_search else
+                SKILL_SELECTOR if a.skill_package_import else
                 USAGE_SELECTOR if a.project_usage_summary else
                 SECRET_SELECTOR if a.secret_delete else
                 CREATE_SELECTOR if a.project_creation else SELECTOR)
-    expected = (SKILL_EXPECTED if a.skill_package_import else
+    expected = (TASK_EXPECTED if a.task_search else
+                SKILL_EXPECTED if a.skill_package_import else
                 USAGE_EXPECTED if a.project_usage_summary else
                 SECRET_EXPECTED if a.secret_delete else
                 CREATE_EXPECTED if a.project_creation else EXPECTED)
-    node_count = 1 if a.project_creation or a.secret_delete or a.project_usage_summary or a.skill_package_import else 2
-    web_scopes = ([('AGENTEAM_SKILL_IMPORT_WEB', 'skill-import')]
+    node_count = 1 if a.project_creation or a.secret_delete or a.project_usage_summary or a.skill_package_import or a.task_search else 2
+    web_scopes = ([('AGENTEAM_TASK_SEARCH_WEB', 'task-search')]
+                  if a.task_search else
+                  [('AGENTEAM_SKILL_IMPORT_WEB', 'skill-import')]
                   if a.skill_package_import else
                   [('AGENTEAM_PROJECT_USAGE_SUMMARY_WEB', 'usage-summary')]
                   if a.project_usage_summary else
@@ -122,7 +130,7 @@ def main():
          'runtime':str(a.runtime),'supervisor_pid':os.getpid(),
          'pg_current_only':a.pg_current_only,'project_creation':a.project_creation,
          'secret_delete':a.secret_delete,'project_usage_summary':a.project_usage_summary,
-         'skill_package_import':a.skill_package_import})
+         'skill_package_import':a.skill_package_import,'task_search':a.task_search})
     began = time.monotonic()
     failed = False
     adopted = []
