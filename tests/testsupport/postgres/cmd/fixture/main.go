@@ -41,11 +41,18 @@ func run() (code int) {
 	if err != nil {
 		return fail("invalid explicit fixture test binary, cwd or selector")
 	}
+	currentOnly, err := selectedPGCurrentOnly(os.Getenv("AGENTEAM_FIXTURE_PG_CURRENT_ONLY"), target)
+	if err != nil {
+		return fail("invalid current-only PG mode: expected empty, or 1 with an explicit test binary")
+	}
 	if target != nil {
 		// Listing executes no selected test and precedes PG resource creation. A
 		// package TestMain may still build its actual application binaries.
 		list := target.command(ctx, true)
 		list.Env = append(os.Environ(), "GOTOOLCHAIN=local")
+		if currentOnly {
+			list.Env = unsupportedFixtureEnvironment(list.Env, "")
+		}
 		list.Stderr = os.Stderr
 		raw, err := list.Output()
 		if err != nil || !target.matchesListing(string(raw)) {
@@ -82,6 +89,9 @@ func run() (code int) {
 			name string
 			id   *string
 		}{{name, &containerID}, {name + "-pg16", &unsupportedID}} {
+			if currentOnly && owned.name == name+"-pg16" {
+				continue
+			}
 			if *owned.id == "" {
 				output, _ := pgfixture.Docker(cleanup, "inspect", "--format", "{{json .}}", owned.name)
 				var found pgfixture.ContainerInspection
@@ -186,45 +196,51 @@ func run() (code int) {
 	if err := os.WriteFile(path, encoded, 0600); err != nil {
 		return fail("fixture file failed")
 	}
-	output, err = pgfixture.Docker(ctx, "run", "--detach", "--name", name+"-pg16", "--label", pgfixture.Label+"="+nonce, "--network", name, "--publish", "127.0.0.1::5432", "--tmpfs", "/var/lib/postgresql/data:rw,nosuid,size=512m", "--mount", "type=bind,src="+directory+",dst=/fixture,readonly", "--env-file", envFile, pgfixture.UnsupportedImage, "bash", "-c", command)
-	if err != nil {
-		return fail("unsupported-version fixture creation failed")
-	}
-	unsupportedID = strings.TrimSpace(string(output))
-	for {
-		if _, err := pgfixture.Docker(ready, "exec", unsupportedID, "pg_isready", "-h", "127.0.0.1", "-U", "fixture_owner", "-d", "fixture_control"); err == nil {
-			break
+	var unsupported pgfixture.Descriptor
+	unsupportedPath := ""
+	versionFixtures := []*pgfixture.Descriptor{&fixture}
+	if !currentOnly {
+		output, err = pgfixture.Docker(ctx, "run", "--detach", "--name", name+"-pg16", "--label", pgfixture.Label+"="+nonce, "--network", name, "--publish", "127.0.0.1::5432", "--tmpfs", "/var/lib/postgresql/data:rw,nosuid,size=512m", "--mount", "type=bind,src="+directory+",dst=/fixture,readonly", "--env-file", envFile, pgfixture.UnsupportedImage, "bash", "-c", command)
+		if err != nil {
+			return fail("unsupported-version fixture creation failed")
 		}
-		select {
-		case <-ready.Done():
-			return fail("unsupported-version fixture startup failed")
-		case <-ticker.C:
+		unsupportedID = strings.TrimSpace(string(output))
+		for {
+			if _, err := pgfixture.Docker(ready, "exec", unsupportedID, "pg_isready", "-h", "127.0.0.1", "-U", "fixture_owner", "-d", "fixture_control"); err == nil {
+				break
+			}
+			select {
+			case <-ready.Done():
+				return fail("unsupported-version fixture startup failed")
+			case <-ticker.C:
+			}
 		}
+		output, err = pgfixture.Docker(ctx, "inspect", "--format", "{{json .}}", unsupportedID)
+		if err != nil || json.Unmarshal(output, &inspected) != nil {
+			return fail("unsupported-version fixture inspect failed")
+		}
+		ports = inspected.NetworkSettings.Ports["5432/tcp"]
+		if len(ports) != 1 {
+			return fail("unsupported-version fixture port missing")
+		}
+		unsupported = fixture
+		unsupported.ContainerID = unsupportedID
+		unsupported.Port = ports[0].HostPort
+		unsupported.Image = pgfixture.UnsupportedImage
+		if err := unsupported.Verify(); err != nil {
+			return fail("unsupported-version fixture verification failed")
+		}
+		encoded, err = json.Marshal(unsupported)
+		if err != nil {
+			return fail("unsupported-version fixture serialization failed")
+		}
+		unsupportedPath = filepath.Join(directory, "unsupported-fixture.json")
+		if err := os.WriteFile(unsupportedPath, encoded, 0600); err != nil {
+			return fail("unsupported-version fixture file failed")
+		}
+		versionFixtures = append(versionFixtures, &unsupported)
 	}
-	output, err = pgfixture.Docker(ctx, "inspect", "--format", "{{json .}}", unsupportedID)
-	if err != nil || json.Unmarshal(output, &inspected) != nil {
-		return fail("unsupported-version fixture inspect failed")
-	}
-	ports = inspected.NetworkSettings.Ports["5432/tcp"]
-	if len(ports) != 1 {
-		return fail("unsupported-version fixture port missing")
-	}
-	unsupported := fixture
-	unsupported.ContainerID = unsupportedID
-	unsupported.Port = ports[0].HostPort
-	unsupported.Image = pgfixture.UnsupportedImage
-	if err := unsupported.Verify(); err != nil {
-		return fail("unsupported-version fixture verification failed")
-	}
-	encoded, err = json.Marshal(unsupported)
-	if err != nil {
-		return fail("unsupported-version fixture serialization failed")
-	}
-	unsupportedPath := filepath.Join(directory, "unsupported-fixture.json")
-	if err := os.WriteFile(unsupportedPath, encoded, 0600); err != nil {
-		return fail("unsupported-version fixture file failed")
-	}
-	for _, fixture := range []*pgfixture.Descriptor{&fixture, &unsupported} {
+	for _, fixture := range versionFixtures {
 		conn, err := fixture.Connect(ready, "fixture_control")
 		if err != nil {
 			return fail("fixture version connection failed")
@@ -262,7 +278,7 @@ func run() (code int) {
 	cmd.WaitDelay = 3 * time.Second
 	// Forced interruption can prevent the Go tool from cleaning go-build paths.
 	// Keep all test/build temporary files inside our own final RemoveAll scope.
-	cmd.Env = append(os.Environ(), pgfixture.Env+"="+path, pgfixture.UnsupportedEnv+"="+unsupportedPath, "GOTOOLCHAIN=local", "TMPDIR="+directory)
+	cmd.Env = append(unsupportedFixtureEnvironment(os.Environ(), unsupportedPath), pgfixture.Env+"="+path, "GOTOOLCHAIN=local", "TMPDIR="+directory)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	err = cmd.Run()
@@ -280,9 +296,9 @@ func run() (code int) {
 }
 func fail(message string) int { fmt.Fprintln(os.Stderr, message); return 1 }
 
-// Explicit precompiled mode changes only the final test consumer. Both the
-// original object/outbound/PG resource chain and its default multi-package
-// invocation remain intact when these two environment variables are absent.
+// Explicit precompiled mode changes the final test consumer. The original full
+// resource chain remains the default; only a separately requested current-only
+// PG mode omits PG16, and that mode requires this explicit consumer.
 type fixtureTestTarget struct {
 	binary, directory, filter string
 	pattern                   *regexp.Regexp
@@ -303,7 +319,7 @@ type ownedChainRecord struct {
 // The original fixtures remain the only Docker resource creators/cleaners.
 // This projection has no credentials, CA material, URL or private descriptor.
 func chainRecord(directory string, pg, unsupported pgfixture.Descriptor, object objectfixture.Descriptor, outbound netfixture.Descriptor, outboundDirectory string) ownedChainRecord {
-	return ownedChainRecord{
+	record := ownedChainRecord{
 		Kind: "work-owner-root-chain",
 		Resources: []ownedChainResource{
 			{"container", object.ContainerID, objectfixture.Label, object.Nonce},
@@ -311,11 +327,14 @@ func chainRecord(directory string, pg, unsupported pgfixture.Descriptor, object 
 			{"container", outbound.ContainerID, netfixture.Label, outbound.Nonce},
 			{"network", outbound.NetworkID, netfixture.Label, outbound.Nonce},
 			{"container", pg.ContainerID, pgfixture.Label, pg.Nonce},
-			{"container", unsupported.ContainerID, pgfixture.Label, pg.Nonce},
-			{"network", pg.NetworkID, pgfixture.Label, pg.Nonce},
 		},
 		Directories: []string{object.Directory, outboundDirectory, directory},
 	}
+	if unsupported.ContainerID != "" {
+		record.Resources = append(record.Resources, ownedChainResource{"container", unsupported.ContainerID, pgfixture.Label, pg.Nonce})
+	}
+	record.Resources = append(record.Resources, ownedChainResource{"network", pg.NetworkID, pgfixture.Label, pg.Nonce})
+	return record
 }
 
 func writeOwnedChainRecord(path, directory string, pg, unsupported pgfixture.Descriptor) error {
@@ -367,6 +386,33 @@ func selectedTestTarget(binary, directory, filter string) (*fixtureTestTarget, e
 		return nil, bad
 	}
 	return &fixtureTestTarget{binary, directory, filter, pattern}, nil
+}
+
+// The smaller PG resource set is opt-in for one previously validated binary.
+// A selector alone cannot weaken the default multi-package fixture coverage.
+func selectedPGCurrentOnly(value string, target *fixtureTestTarget) (bool, error) {
+	if value == "" {
+		return false, nil
+	}
+	if value != "1" || target == nil {
+		return false, errors.New("invalid current-only PG fixture selection")
+	}
+	return true, nil
+}
+
+// Never inherit an unrelated unsupported fixture. An omitted PG16 descriptor
+// has no environment entry, so LoadUnsupported-dependent tests fail explicitly.
+func unsupportedFixtureEnvironment(base []string, path string) []string {
+	env := make([]string, 0, len(base)+1)
+	for _, entry := range base {
+		if !strings.HasPrefix(entry, pgfixture.UnsupportedEnv+"=") {
+			env = append(env, entry)
+		}
+	}
+	if path != "" {
+		env = append(env, pgfixture.UnsupportedEnv+"="+path)
+	}
+	return env
 }
 
 func (v *fixtureTestTarget) matchesListing(raw string) bool {
