@@ -81,12 +81,16 @@ func newEntryOwnership(t *testing.T) (*ProjectCallOwnership, *entryRegistrationS
 	if err != nil {
 		t.Fatal(err)
 	}
+	sprintProjects, err := project.NewSprintLifecycle(projects, a)
+	if err != nil {
+		t.Fatal(err)
+	}
 	deps := ProjectCallDependencies{
 		Structure:   Dependencies{Authority: a, Events: &denialEvents{}, WorkEvents: structure, Activity: &denialActivity{}},
 		Tasks:       TaskDependencies{Authority: a, Structure: reader, Pending: &denialTaskPending{}, Events: &denialEvents{}, TaskEvents: tasks, Activity: &denialActivity{}},
 		Transitions: TaskTransitionDependencies{Authority: a, Structure: reader, Pending: &denialTransitionPending{}, Occupancy: &denialTransitionOccupancy{}, Agents: &denialTransitionAgents{}, Events: &denialEvents{}, TaskEvents: transitions, Activity: &denialActivity{}},
 		Blockers:    BlockerDependencies{Authority: a, Structure: reader, Events: &denialEvents{}, BlockerEvents: blockers, Activity: &denialActivity{}},
-		Sprints:     SprintLifecycleDependencies{Authority: a, Projects: projects, Events: &denialEvents{}, SprintEvents: sprints, Activity: &denialActivity{}},
+		Sprints:     SprintLifecycleDependencies{Authority: a, Projects: sprintProjects, Events: &denialEvents{}, SprintEvents: sprints, Activity: &denialActivity{}},
 	}
 	pair, err := newProjectCallOwnership(store, deps, entryProcessProof{}, pureID[oc.Process](t, 80), &entryStopAuthority{})
 	if err != nil {
