@@ -300,7 +300,9 @@ Artifact Request/Inspect 复用既有 ArtifactStopComponent 和 ProjectStopAutho
 
 Source 停止扩展只借用原 LifecycleStopDriver 当前 invoke 的独立私有 loan；同一原 LifecycleAuthority/Store 绑定完整 actor/cause、原 Artifact create command、issued SourceLease、source/target Project 与 Object。授权事务实际返回后，Artifact 在双 Project EX 与当前 claim 下重核本域 command/lease 映射并等待原 Store 返回，再同步调用原 Object handle；每个 release/join/只读确认 Tx 都重新检查同一 active loan、原 claim 与当前 stopping manifest。父 scope 封闭时等待 loan 的实际 callback 返回，取消、h.done 或复制旧 context 不替代 reader Close、cleanup control 与原 Store 尾；Unknown 保首个原 attempt/cause，下一显式调用只读确认，确认原返回后才允许后续工作。旧未绑定构造继续对未确认 source 返回 Pending，不默认注册参与者，也不恢复旧网络 probe。
 
-该扩展的 SourceCreate Audit 只开放 Human、同 Project 的 ArtifactFile→Artifact：原 publication 私有见证保存完整 resolved source 与原 lease ID，事实 checker 重核同 Tx 原 pending command、source/target canonical metadata 和 typed SourceKind/ID/revision；实际 source Acquire/Read 与 publication resolver 校验仍由原业务链承担。其它 source kind、跨 Project publication 与 AgentRun 不获新增授权；本片尚未动态验收。
+该扩展的 SourceCreate Audit 只开放 Human、同 Project 的 ArtifactFile→Artifact：原 publication 私有见证保存完整 resolved source 与原 lease ID，事实 checker 重核同 Tx 原 pending command、source/target canonical metadata 和 typed SourceKind/ID/revision；实际 source Acquire/Read 与 publication resolver 校验仍由原业务链承担。其它 source kind、跨 Project publication 与 AgentRun 不获新增授权。
+
+`6f955` 的 Source native02 两组实际通过（28.96s）：真实同 P SourceCreate/Read、原 Acquire/release Store 返回屏障、owned cancel、两次原 Unknown 只读确认均无新增写入且事实不变，B 独立可用；25 top/102 sub 与三包 vet 通过，原进程及六项资源均退出。[结果](../../../output/ai/project-artifact-source-stop-delivery/native02/result.json)与[日志](../../../output/ai/project-artifact-source-stop-delivery/native02/browser.log)保留。native01 的安全 INTERNAL_ERROR 失败不回填 SQLSTATE 或内层运行记录；后继修正了同 Cause 前置 lookup 的测试 hook 匹配。已闭 Source 的历史清理仍是后继片，不外推完整 Cleanup、默认 Registry、foreign death 或完整 Delete。
 
 
 新的显式 Artifact/Object 组合 adapter 依次消费两原 Service 的 Stop/Inspect；只有 component/cause 严格匹配且两者完整实际返回 Stopped 才聚合 Stopped。没有对应注册 reference kind 的原细粒度 ID 不改名伪装为 object/artifact，聚合保守状态与安全 reason。原 cleanup-only 构造保留，原 LifecycleStopDriver 直接消费新 adapter；不因此绑定默认 App 或部分 Registry，也不声称其它 domain/finalizer 已完成。本节为候选实现合同，动态结果按后续真实验收记录。
