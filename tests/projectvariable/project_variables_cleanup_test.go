@@ -74,7 +74,22 @@ type variablesCleanupPG struct {
 
 func newVariablesCleanupPG(t *testing.T) *variablesCleanupPG {
 	t.Helper()
-	v := &variablesCleanupPG{skillsCleanupPG: newSkillsCleanupPG(t)}
+	return newVariablesCleanupPGWith(t, nil, nil)
+}
+
+// The default metadata fixture remains unchanged. The terminal-owner slice
+// adds actual Agent calls before accepted Delete and stops that original pair
+// in the same real stopping window; it never manufactures closed ledger rows.
+func newVariablesCleanupPGWith(t *testing.T, prepare func(*variablesCleanupPG), stop func(i.Actor, pc.LifecycleCause, pc.ScopeRef), bases ...*variableHTTPFixture) *variablesCleanupPG {
+	t.Helper()
+	return newVariablesCleanupPGShape(t, true, prepare, stop, bases...)
+}
+
+// The empty-business shape deliberately makes no Variable calls. Its real
+// pairs and initialized Project/Skills still traverse their original owners.
+func newVariablesCleanupPGShape(t *testing.T, seed bool, prepare func(*variablesCleanupPG), stop func(i.Actor, pc.LifecycleCause, pc.ScopeRef), bases ...*variableHTTPFixture) *variablesCleanupPG {
+	t.Helper()
+	v := &variablesCleanupPG{skillsCleanupPG: newSkillsCleanupPG(t, bases...)}
 	t.Cleanup(func() { v.close(t) })
 	var err error
 	v.deps, err = variableOwnershipAssemble(v.p2.base.tracked, v.p2.base.accounts, v.p2.base.keys, v.p2.manifest, v.process)
@@ -86,10 +101,19 @@ func newVariablesCleanupPG(t *testing.T) *variablesCleanupPG {
 	outboxCleanupRequire(t, err)
 	v.variables = &variablesCleanupTap{ProjectCleanupDomain: cleanup}
 	v.consumer = v.emptyAgentConsumer(t)
-	v.seed(t, v.p2.project.ID, true)
-	foreignPlain, foreignSecret := v.seed(t, v.p2.base.project.ID, false)
+	var foreignPlain, foreignSecret i.ProjectVariableID
+	if seed {
+		v.seed(t, v.p2.project.ID, true)
+		foreignPlain, foreignSecret = v.seed(t, v.p2.base.project.ID, false)
+	}
+	if prepare != nil {
+		prepare(v)
+	}
 	v.captureObjects(t, 1)
 	_, cause, _ := v.p2.enterCleanupWith(t, func(actor i.Actor, cause pc.LifecycleCause, scope pc.ScopeRef) {
+		if stop != nil {
+			stop(actor, cause, scope)
+		}
 		stopped, err := v.pair.LocalStopper().RequestStop(ctxFor(t), actor, cause, scope)
 		outboxCleanupRequire(t, err)
 		if !stopped.Matches(cause, scope) || !stopped.Details().LocalJoined || stopped.Details().PendingCalls != 0 {
@@ -105,12 +129,14 @@ func newVariablesCleanupPG(t *testing.T) *variablesCleanupPG {
 	v.otherParticipants = v.otherSnapshot(t)
 	// Stopping A must not globally stop these instances: B still uses both real
 	// services. The returned calls are included in the subsequent immutable tail.
-	plain, err := v.pair.Service().GetVariable(ctxFor(t), v.p2.base.ownerBrowser.actor, v.p2.base.project.ID, foreignPlain)
-	outboxCleanupRequire(t, err)
-	secret, err := v.pair.SecretService().GetSecretVariable(ctxFor(t), v.p2.base.ownerBrowser.actor, v.p2.base.project.ID, foreignSecret)
-	outboxCleanupRequire(t, err)
-	if plain.Fields().ID != foreignPlain || secret.Fields().ID != foreignSecret {
-		t.Fatal("other Project's original services did not remain usable")
+	if seed {
+		plain, err := v.pair.Service().GetVariable(ctxFor(t), v.p2.base.ownerBrowser.actor, v.p2.base.project.ID, foreignPlain)
+		outboxCleanupRequire(t, err)
+		secret, err := v.pair.SecretService().GetSecretVariable(ctxFor(t), v.p2.base.ownerBrowser.actor, v.p2.base.project.ID, foreignSecret)
+		outboxCleanupRequire(t, err)
+		if plain.Fields().ID != foreignPlain || secret.Fields().ID != foreignSecret {
+			t.Fatal("other Project's original services did not remain usable")
+		}
 	}
 	v.foreign = v.foreignSnapshot(t)
 	v.foreignVariables = v.metadataSnapshot(t, v.p2.base.project.ID)
@@ -119,6 +145,12 @@ func newVariablesCleanupPG(t *testing.T) *variablesCleanupPG {
 	var total, closed, instances int
 	err = v.p2.base.raw.QueryRow(ctxFor(t), `SELECT count(*),count(*) FILTER(WHERE phase='business_closed'),count(DISTINCT instance_id) FROM agenteam_projectvariable.project_calls WHERE project_id IN ($1,$2)`, v.p2.project.ID.String(), v.p2.base.project.ID.String()).Scan(&total, &closed, &instances)
 	outboxCleanupRequire(t, err)
+	if !seed {
+		if total != 0 || closed != 0 || instances != 0 || v.counts(t) != [7]int{} || !v.pair.Joined() {
+			t.Fatal("empty-business setup manufactured Variables or registered calls")
+		}
+		return v
+	}
 	if total != 14 || closed != 14 || instances != 1 || !v.pair.Joined() {
 		t.Fatal("formal two-lane calls have not actually returned with their original durable tail", total, closed, instances)
 	}
@@ -149,7 +181,12 @@ func (v *variablesCleanupPG) emptyAgentConsumer(t *testing.T) *agent.ProjectReti
 	outboxCleanupRequire(t, err)
 	graph, err := assembly.New(store, assembly.Options{Accounts: v.p2.base.accounts, BuiltinSources: map[string]registry.BuiltinSource{builtin.SkillInstallStableKey: source}, InstallSourceKey: builtin.SkillInstallStableKey})
 	outboxCleanupRequire(t, err)
-	owner := graph.Providers().Agents
+	return v.agentConsumer(t, graph.Providers().Agents)
+}
+
+func (v *variablesCleanupPG) agentConsumer(t *testing.T, owner *agent.Authority) *agent.ProjectRetirement {
+	t.Helper()
+	store := v.p2.base.tracked
 	wg, err := work.NewProjectAgentRetirement(store, owner)
 	outboxCleanupRequire(t, err)
 	eg, err := execution.NewProjectAgentRetirement(store, owner)

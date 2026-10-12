@@ -22,27 +22,30 @@ import (
 type LifecycleCleanupDriver struct{ state *lifecycleCleanupState }
 
 type lifecycleCleanupOwner struct {
-	project c.ProjectID
-	claim   *lifecycleStopClaim // retained only after its original Run returned
-	prior   *lifecycleStopClaim // an Unknown replacement may have kept this row
+	project  c.ProjectID
+	claim    *lifecycleStopClaim // retained only after its original Run returned
+	prior    *lifecycleStopClaim // an Unknown replacement may have kept this row
+	terminal *lifecycleCleanupRound
 }
 
 type lifecycleCleanupState struct {
-	store        Store
-	authority    *LifecycleAuthority
-	processes    oc.ProcessAuthority
-	process      oc.ProcessID
-	participant  c.ProjectLifecycleParticipant
-	audit        c.ProjectLifecycleParticipant
-	skills       SkillsCleanupDomain
-	agents       ac.ProjectRetirementConsumer
-	variables    pvc.ProjectCleanupDomain
-	registration identity.ServiceRegistration
-	mu           sync.Mutex
-	stopped      bool
-	calls        map[c.ProjectID]context.CancelFunc
-	owners       map[c.OperationID]lifecycleCleanupOwner
-	changed      chan struct{}
+	store             Store
+	authority         *LifecycleAuthority
+	processes         oc.ProcessAuthority
+	process           oc.ProcessID
+	participant       c.ProjectLifecycleParticipant
+	audit             c.ProjectLifecycleParticipant
+	skills            SkillsCleanupDomain
+	agents            ac.ProjectRetirementConsumer
+	variables         pvc.ProjectCleanupDomain
+	terminalAgents    ac.ProjectTerminalCleanupDomain
+	terminalVariables c.ProjectTerminalCleanupDomain
+	registration      identity.ServiceRegistration
+	mu                sync.Mutex
+	stopped           bool
+	calls             map[c.ProjectID]context.CancelFunc
+	owners            map[c.OperationID]lifecycleCleanupOwner
+	changed           chan struct{}
 }
 
 func NewLifecycleCleanupDriver(store Store, authority *LifecycleAuthority, processes oc.ProcessAuthority, participant c.ProjectLifecycleParticipant) (*LifecycleCleanupDriver, error) {
@@ -109,7 +112,12 @@ func (d *LifecycleCleanupDriver) Run(ctx context.Context, project c.ProjectID, o
 			delete(st.owners, operation)
 		} else if round != nil {
 			claim := round.claim
-			st.owners[operation] = lifecycleCleanupOwner{project: project, claim: &claim, prior: round.previous}
+			owner := lifecycleCleanupOwner{project: project, claim: &claim, prior: round.previous}
+			if round.terminalStep {
+				saved := *round
+				owner.terminal = &saved
+			}
+			st.owners[operation] = owner
 		}
 		delete(st.calls, project)
 		close(st.changed)
@@ -125,6 +133,16 @@ func (d *LifecycleCleanupDriver) Run(ctx context.Context, project c.ProjectID, o
 	if replay {
 		settled = true
 		return nil
+	}
+	if round.terminalStep {
+		settled, err = st.runTerminalStep(run, *round)
+		if settled && round.terminalUnapplied {
+			// Keep the running claim owned until the next explicit Run. Publishing
+			// terminal here would let another local instance bypass this return.
+			round.terminalUnappliedConfirmed = true
+			settled = false
+		}
+		return err
 	}
 	if round.agentStep {
 		settled, err = st.runAgentStep(run, *round)

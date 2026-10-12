@@ -10,15 +10,19 @@ import (
 )
 
 type lifecycleCleanupRound struct {
-	claim            lifecycleStopClaim
-	previous         *lifecycleStopClaim
-	cause            c.LifecycleCause
-	operationVersion f.Version
-	rowVersion       int64
-	participant      c.ParticipantName
-	checkpoint       *c.CleanupCheckpoint
-	agentStep        bool
-	variablesStep    bool
+	claim                      lifecycleStopClaim
+	previous                   *lifecycleStopClaim
+	cause                      c.LifecycleCause
+	operationVersion           f.Version
+	rowVersion                 int64
+	participant                c.ParticipantName
+	checkpoint                 *c.CleanupCheckpoint
+	agentStep                  bool
+	variablesStep              bool
+	terminalStep               bool
+	terminalConfirm            bool
+	terminalUnapplied          bool
+	terminalUnappliedConfirmed bool
 }
 
 func (st *lifecycleCleanupState) canJoin(ctx context.Context, claim *lifecycleStopClaim) error {
@@ -119,8 +123,20 @@ func (st *lifecycleCleanupState) start(ctx context.Context, project c.ProjectID,
 			return err
 		}
 		if round.participant == c.SkillsParticipant {
+			if st.terminalAgents != nil {
+				selected, e := st.selectTerminalRound(round, actual, checkpoint, r.operation.Version, rowVersion)
+				if e != nil {
+					return e
+				}
+				if selected && round.terminalConfirm {
+					validated = true
+					return nil
+				}
+			}
 			var substepReplay bool
-			round.agentStep, round.variablesStep, substepReplay, err = st.selectDomainStep(checkpoint, round.cause, project)
+			if !round.terminalStep {
+				round.agentStep, round.variablesStep, substepReplay, err = st.selectDomainStep(checkpoint, round.cause, project)
+			}
 			if err != nil {
 				return err
 			}
