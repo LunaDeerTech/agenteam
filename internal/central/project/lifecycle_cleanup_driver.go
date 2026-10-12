@@ -2,6 +2,7 @@ package project
 
 import (
 	"context"
+	"errors"
 	"sync"
 	"time"
 
@@ -35,6 +36,7 @@ type lifecycleCleanupState struct {
 	process           oc.ProcessID
 	participant       c.ProjectLifecycleParticipant
 	audit             c.ProjectLifecycleParticipant
+	secret            c.ProjectLifecycleParticipant
 	skills            SkillsCleanupDomain
 	agents            ac.ProjectRetirementConsumer
 	variables         pvc.ProjectCleanupDomain
@@ -134,6 +136,22 @@ func (d *LifecycleCleanupDriver) Run(ctx context.Context, project c.ProjectID, o
 		settled = true
 		return nil
 	}
+	if round.secretParentStep {
+		settled, err = st.runTerminalStep(run, *round)
+		if err != nil || !settled {
+			return err
+		}
+		parent := round
+		settled = false
+		round, replay, err = st.startWithSecretParent(run, project, operation, parent)
+		if err != nil {
+			return err
+		}
+		if replay {
+			settled = true
+			return nil
+		}
+	}
 	if round.terminalStep {
 		settled, err = st.runTerminalStep(run, *round)
 		if settled && round.terminalUnapplied {
@@ -149,6 +167,13 @@ func (d *LifecycleCleanupDriver) Run(ctx context.Context, project c.ProjectID, o
 		return err
 	}
 	report, callErr := st.invoke(run, *round)
+	// A Secret Unknown still owns its original D04 attempt. Keep this local
+	// Project claim too; a second driver cannot bypass the retained owner.
+	var unknown *f.Fault
+	if round.participant == c.SecretParticipant && errors.As(callErr, &unknown) && unknown.CommitState == f.Unknown {
+		return callErr
+	}
+
 	// The original adapter (including all domain calls) has returned. Cancellation
 	// cannot substitute for that return or detach this bounded checkpoint.
 	checkpoint, end := context.WithTimeout(context.WithoutCancel(run), 3*time.Second)
