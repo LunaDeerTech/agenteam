@@ -39,6 +39,9 @@ type Options struct {
 	// Accounts must be the fixture's real authority created against this Store.
 	// Its live Session checks retain the original Store/Tx ownership checks.
 	Accounts *account.Authority
+	// Lifecycle optionally binds the fixture's real lifecycle authority. A nil
+	// value preserves the ordinary configuration-only graph.
+	Lifecycle *project.LifecycleAuthority
 	// Sources are actual domain backends fixed at construction. A test source,
 	// handler label, registration row or nonnil port is not backend readiness.
 	BuiltinSources   map[string]registry.BuiltinSource
@@ -117,14 +120,18 @@ func New(store Store, options Options) (*Assembly, error) {
 	if err != nil {
 		return nil, err
 	}
-	p.Projects, err = project.NewAuthority(store, project.AuthorityDependencies{
+	projectDependencies := project.AuthorityDependencies{
 		Sessions: p.Accounts, Routes: p.Accounts,
 		AuditFacts: map[ac.Producer]ac.ProjectFactAuthority{
 			ac.AgentProducer: agentFacts, ac.SecretProducer: secretFacts,
 			ac.ObjectProducer: objectFacts, ac.KnowledgeProducer: knowledgeFacts,
 			ac.ProjectVariableProducer: p.Variables,
 		},
-	})
+	}
+	if options.Lifecycle != nil {
+		projectDependencies.Lifecycle = options.Lifecycle
+	}
+	p.Projects, err = project.NewAuthority(store, projectDependencies)
 	if err != nil {
 		return nil, err
 	}
