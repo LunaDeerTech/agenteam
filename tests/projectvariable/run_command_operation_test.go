@@ -395,10 +395,10 @@ func newOperationCommandFacts(t *testing.T, privateRoot string, seed func(*runne
 	c, b := v.capture, v.capture.v.base
 	// Retain the real source fixture, but formally remove its ordinary entry
 	// before Launch. Its unselected Secret remains stored, not injected.
-	ordinary := c.ordinary.Fields()
-	removed, err := b.service.DeleteVariable(ctxFor(t), b.ownerBrowser.actor, meta(t, "command-environment-empty", &ordinary.Version), b.project.ID, ordinary.ID)
+	ordinaryFields := c.ordinary.Fields()
+	removed, err := b.service.DeleteVariable(ctxFor(t), b.ownerBrowser.actor, meta(t, "command-environment-empty", &ordinaryFields.Version), b.project.ID, ordinaryFields.ID)
 	firstRoundRequire(t, err)
-	if removed.Validate() != nil || !removed.Fields().Changed || removed.Fields().Deleted == nil || removed.Fields().Deleted.ID != ordinary.ID || removed.Fields().Deleted.Version != ordinary.Version+1 {
+	if removed.Validate() != nil || !removed.Fields().Changed || removed.Fields().Deleted == nil || removed.Fields().Deleted.ID != ordinaryFields.ID || removed.Fields().Deleted.Version != ordinaryFields.Version+1 {
 		t.Fatal("formal ordinary environment removal did not commit")
 	}
 	modelCapture, err := model.NewToolCallFactsCapture(modelService, c.authority)
