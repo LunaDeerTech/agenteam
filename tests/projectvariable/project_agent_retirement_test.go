@@ -536,9 +536,44 @@ func (v *agentRetirementPG) grantProtection(t *testing.T, mode string) {
 	}
 }
 
+// Observe only the original synchronous provider call; preserve its context,
+// checkpoint, result and actual return. The outer deadline is not the private
+// Skills two-second child deadline and must not be reported as that deadline.
+type agentRetirementSkillsDiagnostic struct {
+	project.SkillsCleanupDomain
+	t *testing.T
+}
+
+func (p agentRetirementSkillsDiagnostic) Cleanup(ctx context.Context, actor i.Actor, cause pc.LifecycleCause, scope pc.ScopeRef, checkpoint *pc.CleanupCheckpoint) (pc.CleanupReport, error) {
+	phase := "none"
+	if checkpoint != nil {
+		var hint struct {
+			Phase string `json:"phase"`
+		}
+		if json.Unmarshal(checkpoint.Bytes(), &hint) == nil {
+			switch hint.Phase {
+			case "gated", "pending", "completed":
+				phase = hint.Phase
+			default:
+				phase = "other"
+			}
+		}
+	}
+	start := time.Now()
+	deadline, bounded := ctx.Deadline()
+	remaining := time.Duration(0)
+	if bounded {
+		remaining = time.Until(deadline)
+	}
+	report, err := p.SkillsCleanupDomain.Cleanup(ctx, actor, cause, scope, checkpoint)
+	p.t.Logf("AGENT_RETIREMENT_SKILLS_RETURN input_phase=%s original_elapsed=%s outer_deadline_present=%t outer_budget_at_entry=%s outer_deadline_expired=%t outer_canceled=%t error=%t", phase, time.Since(start), bounded, remaining, errors.Is(ctx.Err(), context.DeadlineExceeded), errors.Is(ctx.Err(), context.Canceled), err != nil)
+	agentRetirementDiagnostic(p.t, "original-skills-provider-return", err)
+	return report, err
+}
+
 func (v *agentRetirementPG) newDriver(t *testing.T) *project.LifecycleCleanupDriver {
 	t.Helper()
-	driver, err := project.NewLifecycleCleanupDriverWithAgents(v.p2.base.tracked, v.projects, captureProviderProcesses{guard: v.guard}, v.consumer, v.tap)
+	driver, err := project.NewLifecycleCleanupDriverWithAgents(v.p2.base.tracked, v.projects, captureProviderProcesses{guard: v.guard}, v.consumer, agentRetirementSkillsDiagnostic{SkillsCleanupDomain: v.tap, t: t})
 	outboxCleanupRequire(t, err)
 	v.drivers = append(v.drivers, driver)
 	return driver
@@ -807,8 +842,12 @@ func (v *agentRetirementPG) finishSkills(t *testing.T, driver *project.Lifecycle
 	// Each explicit next round consumes actual Pending. Both installed packages
 	// use the original separately returned physical/history/metadata rounds.
 	for round := 0; round < 24 && cp.Skills.State == "pending"; round++ {
+		started := time.Now()
+		t.Logf("AGENT_RETIREMENT_SKILLS_ROUND round=%d state=%s", round+1, cp.Skills.State)
 		call = v.run(t, driver)
 		outboxCleanupWait(t, call.done, "original Skills cleanup round after Agent retirement")
+		t.Logf("AGENT_RETIREMENT_SKILLS_ROUND_RETURN round=%d original_elapsed=%s error=%t", round+1, time.Since(started), call.err != nil)
+		agentRetirementDiagnostic(t, "original-skills-round-return", call.err)
 		outboxCleanupRequire(t, call.err)
 		cp = v.checkpoint(t, true)
 		if !cp.AgentsDone {

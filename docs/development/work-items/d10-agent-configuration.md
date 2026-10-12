@@ -188,6 +188,12 @@ Work 专用口在原同 Store 活 Tx、Project EX/Schedule EX/Agent EX 和私有
 
 Project driver 持有原事务及 caller 的实际返回；取消、物理提交可见或 Agent 行缺席都不替代原返回。Unknown 保留原 owner/cause，后继 Run 必须核相同 operation 的 applied checkpoint、原不可变 command 的完整 Before/version/摘要及所有 owner 的实际退休事实，缺 checkpoint 不能根据空表宣告成功。原子退休后可由同一固定 driver 继续真实 Skills 清理，但母 participant 仍为 `pending/domains`；不开放默认完整 Registry、HTTP DeleteAgent 或完整 Project Delete。本段是实施契约，动态结果另据实际运行记录。
 
+### 4.3.1 首片有限真实结果（2026-10-12）
+
+`5b26c570` 的 `TestProjectAgentRetirement` native02 三组实际通过（64.00s），原 Run/Node-free fixture/Store 与六项资源均已实际退出。正例只含 disabled 初始 head、零 assignment/变更历史、全状态 Execution 历史为空且无 managed Mount；真实 todo Task 的 assignee、版本和历史保留。原 Agent canonical、五域引用与 Project applied checkpoint 同事务退休，物理提交后的原 Store 返回屏障阻止 owner 提前退出；进程内实际 Committed 的 acknowledgement mask 返回 Unknown 后，仅原 operation/immutable command/完整 Before 摘要与各 owner 确认恢复，不重发退休。真实 enabled grant 仍返回 Busy，整笔 canonical/引用删除回滚。随后实际 Skills 清理可完成子域，母 participant 始终 pending/domains，不授完整 Delete 或默认 Registry。
+
+原 pure 首次 Secret 错误映射断言 FAIL 和 native01 三组 FAIL 保留；native01 仅记录 INTERNAL_ERROR/屏障未到，未保存 SQLSTATE，不能追认它们均由后续静态确定并修复的 Mount/Secret UUID–TEXT 比较缺陷造成。[修后实际结果](../../../output/ai/project-agent-retirement-delivery/native02/result.json)与[原 native01 日志](../../../output/ai/project-agent-retirement-delivery/native01/browser.log)分别保留；后继 enabled 初始 grant 的新迁移不计入本结果。
+
 ### 4.4 后继：无 Execution 的 completed Skill 指派历史
 
 在 Project Delete 专属同一原事务退休中，新增显式 Skills/Execution ingress 组合支持 completed Assign/Remove/no-op 历史，包括仍启用、已停用及已移除的 grant。Skills 必须验证完整初始化头、全部原 command/receipt、连续 change/state/current 链及全部 grant；任何 planned command、pending ref 或 Execution binding 仍拒绝。Execution owner 独立确认该 Agent 全状态 Execution 历史为空，并按完整原 RuntimeChange/receipt 集合退休仅 `no_active_execution` ingress。它实际返回后，Skills 才依次删除 current、grant、change、completed command 和初始化头；各域仍消费同 Store、完整锁及原私有 Applied witness，任一错误整笔回滚。旧不带 ingress 的构造器保持初始头/初始 grant 的范围。
@@ -195,6 +201,7 @@ Project driver 持有原事务及 caller 的实际返回；取消、物理提交
 Skill 指派仅推进 Agent version 与原数据库返回的 updated_at，不生成 Agent Update 命令。新 Plan/checkpoint schema 4 可锚定原 immutable command：只覆盖这两个实际标量，要求 version 严格大于原值、updated_at 严格晚于原值，并在同一原 Tx 将重建的完整 Config 与当前 Before 全字段相等及完整 digest 一并核实。checkpoint 原子保存原 command ID、准确 version/updated_at 与 digest；Unknown 恢复必须通过原 applied checkpoint、cause/claim 和该 immutable command 重建后再逐 owner 确认。schema 3 保持原完整 After 精确匹配路径，不能猜时间、推算其他字段、只凭 canonical 缺席确认或要求调用者额外执行 Agent.Update。
 
 前向迁移 00077 为上述 Project Delete 增加 completed Skill command/change/grant 及专用 no-active ingress 的 DELETE 例外，保留普通 UPDATE 不可变规则；不修改旧迁移或共享 Execution immutable guard。数据库的 current Delete/cleaning/domains/running claim、canonical 缺席及无 Execution 等条件只是额外状态约束，不证明当前 caller、同 Tx 刚删除或原事务返回。父 participant 仍 pending/domains，不开放默认完整 Registry/Delete；此节是后继候选合同，真实升级及原子恢复验收结果另按实际记录。
+
 
 ## 5. F1 命令、历史与提交结果
 
