@@ -27,6 +27,9 @@ CREATE_EXPECTED = {'TestProjectCreationApp',
 SECRET_SELECTOR = '^TestProjectSecretDeleteWeb$'
 SECRET_EXPECTED = {'TestProjectSecretDeleteWeb',
                    'TestProjectSecretDeleteWeb/busy-reference-then-delete'}
+USAGE_SELECTOR = '^TestProjectUsageSummaryWeb$'
+USAGE_EXPECTED = {'TestProjectUsageSummaryWeb',
+                  'TestProjectUsageSummaryWeb/daily-server-aggregate'}
 
 def save(path, value):
     with path.open('x') as stream:
@@ -66,13 +69,19 @@ def main():
                        help='run the reviewed default-App creation, browser and recovery scope')
     scope.add_argument('--secret-delete', action='store_true',
                        help='run the reviewed referenced-Secret deletion scope')
+    scope.add_argument('--project-usage-summary', action='store_true',
+                       help='run the reviewed daily Usage summary scope')
     a = p.parse_args()
-    selector = (SECRET_SELECTOR if a.secret_delete else
+    selector = (USAGE_SELECTOR if a.project_usage_summary else
+                SECRET_SELECTOR if a.secret_delete else
                 CREATE_SELECTOR if a.project_creation else SELECTOR)
-    expected = (SECRET_EXPECTED if a.secret_delete else
+    expected = (USAGE_EXPECTED if a.project_usage_summary else
+                SECRET_EXPECTED if a.secret_delete else
                 CREATE_EXPECTED if a.project_creation else EXPECTED)
-    node_count = 1 if a.project_creation or a.secret_delete else 2
-    web_scopes = ([('AGENTEAM_PROJECT_SECRET_DELETE_WEB', 'secret-delete')]
+    node_count = 1 if a.project_creation or a.secret_delete or a.project_usage_summary else 2
+    web_scopes = ([('AGENTEAM_PROJECT_USAGE_SUMMARY_WEB', 'usage-summary')]
+                  if a.project_usage_summary else
+                  [('AGENTEAM_PROJECT_SECRET_DELETE_WEB', 'secret-delete')]
                   if a.secret_delete else
                   [('AGENTEAM_PROJECT_CREATION_WEB', 'project-creation')]
                   if a.project_creation else
@@ -90,7 +99,7 @@ def main():
         raise OSError(ctypes.get_errno(), 'subreaper unavailable')
     env = dict(os.environ, TMPDIR=str(a.runtime), AGENTEAM_AUTH_WEB_RUNTIME=str(a.runtime),
                AGENTEAM_FIXTURE_TEST_BINARY=str(a.binary),
-               AGENTEAM_FIXTURE_TEST_CWD=str(a.root / 'tests/projectvariable'),
+               AGENTEAM_FIXTURE_TEST_CWD=str(a.root / ('tests/model' if a.project_usage_summary else 'tests/projectvariable')),
                AGENTEAM_FIXTURE_OWNED_RECORD=str(a.output / 'owned-resources.json'))
     env.pop('AGENTEAM_FIXTURE_PG_CURRENT_ONLY', None)
     if a.pg_current_only:
@@ -103,7 +112,7 @@ def main():
          'input_hash':a.input_hash,'binary':str(a.binary),'dist':str(a.dist),
          'runtime':str(a.runtime),'supervisor_pid':os.getpid(),
          'pg_current_only':a.pg_current_only,'project_creation':a.project_creation,
-         'secret_delete':a.secret_delete})
+         'secret_delete':a.secret_delete,'project_usage_summary':a.project_usage_summary})
     began = time.monotonic()
     failed = False
     adopted = []
