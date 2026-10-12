@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -92,15 +93,23 @@ func newAuditGateFixture(t *testing.T, checker ac.ProjectFactAuthority) *auditGa
 	f := &auditGateFixture{actor: testActor(t), project: testID[identity.Project](t), lifecycle: c.Active, initialized: true}
 	f.store = &authorityStore{tx: foundation.NewTx(), order: &f.order}
 	now, creation := time.Now().UTC(), testID[c.Creation](t)
+	operation := testID[c.Operation](t).String()
 	f.store.row = func(q string, args ...any) postgres.Row {
 		if q == "SELECT clock_timestamp()" {
 			return valuesRow(now)
+		}
+		if strings.Contains(q, "FROM agenteam_project.lifecycle_operations") {
+			return valuesRow(f.project.String(), f.actor.Details().UserID, string(c.Delete), int64(1), string(c.OperationStopping), "", "")
 		}
 		var archived *time.Time
 		if f.lifecycle == c.Archived {
 			archived = &now
 		}
-		return valuesRow(f.project.String(), f.actor.Details().UserID, "Demo", "demo", "", string(f.lifecycle), int64(1), nil, now, now, archived, creation.String(), f.initialized, nil)
+		var current *string
+		if f.lifecycle == c.Deleting {
+			current = &operation
+		}
+		return valuesRow(f.project.String(), f.actor.Details().UserID, "Demo", "demo", "", string(f.lifecycle), int64(1), nil, now, now, archived, creation.String(), f.initialized, current)
 	}
 	sessions := sessionFunc(func(_ context.Context, tx foundation.Tx, actor identity.Actor) error {
 		f.order = append(f.order, "session")
