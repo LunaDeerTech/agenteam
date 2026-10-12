@@ -41,10 +41,16 @@ func (s *callOwnerStore) WithinTx(ctx context.Context, cause f.TransactionCause,
 	s.mu.Unlock()
 	if cause.Details().Owner == "work-call-register" && s.registration != nil {
 		w, ok := ctx.Value(projectCallContextKey{}).(projectCallWitness)
-		if !ok || w.owner == nil {
-			return f.NotCommittedResult(fault(f.Forbidden))
+		if ok && w.state != nil && w.owner != nil {
+			w.state.mu.Lock()
+			registering := !w.owner.bodyReturned
+			w.state.mu.Unlock()
+			if registering {
+				return s.registration(ctx, cause, w.owner)
+			}
 		}
-		return s.registration(ctx, cause, w.owner)
+		// Confirmation deliberately reuses the first registration cause; it
+		// must execute its original read callback, not this first-call hook.
 	}
 	tx := f.NewTx()
 	s.mu.Lock()

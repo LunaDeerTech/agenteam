@@ -114,9 +114,10 @@ func entryInvocations(t *testing.T, pair *ProjectCallOwnership) []entryInvocatio
 	br, _, _ := pureBlockerRecord(t, false)
 	xr, _, _ := pureTransitionRecord(t)
 	sp, _, _ := pureSprintStart(t)
+	requestID := pureID[f.Request](t, 81)
 	return []entryInvocation{
 		{"structure-write", projectCallStructure, projectCallMutation, sr.Project, func(ctx context.Context) error {
-			_, e := pair.Service().CreateMilestone(ctx, actor, f.CommandMeta{IdempotencyKey: sr.Key}, sr.Project, *sr.Input.CreateMilestone)
+			_, e := pair.Service().CreateMilestone(ctx, actor, f.CommandMeta{RequestID: requestID, IdempotencyKey: sr.Key}, sr.Project, *sr.Input.CreateMilestone)
 			return e
 		}},
 		{"structure-read", projectCallStructure, projectCallRead, sr.Project, func(ctx context.Context) error {
@@ -124,7 +125,7 @@ func entryInvocations(t *testing.T, pair *ProjectCallOwnership) []entryInvocatio
 			return e
 		}},
 		{"task-write", projectCallTask, projectCallMutation, tr.Project, func(ctx context.Context) error {
-			_, e := pair.TaskService().CreateTask(ctx, actor, f.CommandMeta{IdempotencyKey: tr.Key}, tr.Project, *tr.Input.Create)
+			_, e := pair.TaskService().CreateTask(ctx, actor, f.CommandMeta{RequestID: requestID, IdempotencyKey: tr.Key}, tr.Project, *tr.Input.Create)
 			return e
 		}},
 		{"task-read", projectCallTask, projectCallRead, tr.Project, func(ctx context.Context) error {
@@ -132,7 +133,7 @@ func entryInvocations(t *testing.T, pair *ProjectCallOwnership) []entryInvocatio
 			return e
 		}},
 		{"blocker-write", projectCallBlocker, projectCallMutation, br.Input.Project, func(ctx context.Context) error {
-			_, e := pair.BlockerService().AddTaskBlocker(ctx, actor, f.CommandMeta{IdempotencyKey: br.Key, ExpectedVersion: &br.Input.Expected}, br.Input.Project, br.Input.Target, *br.Input.Add)
+			_, e := pair.BlockerService().AddTaskBlocker(ctx, actor, f.CommandMeta{RequestID: requestID, IdempotencyKey: br.Key, ExpectedVersion: &br.Input.Expected}, br.Input.Project, br.Input.Target, *br.Input.Add)
 			return e
 		}},
 		{"blocker-read", projectCallBlocker, projectCallRead, br.Input.Project, func(ctx context.Context) error {
@@ -144,11 +145,11 @@ func entryInvocations(t *testing.T, pair *ProjectCallOwnership) []entryInvocatio
 			return e
 		}},
 		{"transition-prepare", projectCallTransition, projectCallMutation, xr.Input.Project, func(ctx context.Context) error {
-			_, e := pair.TaskTransitionService().PrepareTaskTransition(ctx, actor, f.CommandMeta{IdempotencyKey: xr.Key, ExpectedVersion: &xr.Input.Expected}, xr.Input.Project, xr.Input.Task, xr.Input.Request)
+			_, e := pair.TaskTransitionService().PrepareTaskTransition(ctx, actor, f.CommandMeta{RequestID: requestID, IdempotencyKey: xr.Key, ExpectedVersion: &xr.Input.Expected}, xr.Input.Project, xr.Input.Task, xr.Input.Request)
 			return e
 		}},
 		{"transition-write", projectCallTransition, projectCallMutation, xr.Input.Project, func(ctx context.Context) error {
-			_, e := pair.TaskTransitionService().TransferTask(ctx, actor, f.CommandMeta{IdempotencyKey: xr.Key, ExpectedVersion: &xr.Input.Expected}, xr.Input.Project, xr.Input.Task, xr.Input.Request)
+			_, e := pair.TaskTransitionService().TransferTask(ctx, actor, f.CommandMeta{RequestID: requestID, IdempotencyKey: xr.Key, ExpectedVersion: &xr.Input.Expected}, xr.Input.Project, xr.Input.Task, xr.Input.Request)
 			return e
 		}},
 		{"transition-read", projectCallTransition, projectCallRead, xr.Input.Project, func(ctx context.Context) error {
@@ -156,7 +157,7 @@ func entryInvocations(t *testing.T, pair *ProjectCallOwnership) []entryInvocatio
 			return e
 		}},
 		{"sprint-write", projectCallSprint, projectCallMutation, sp.Input.Project, func(ctx context.Context) error {
-			_, e := pair.SprintLifecycleService().StartSprint(ctx, actor, f.CommandMeta{IdempotencyKey: sp.Key, ExpectedVersion: &sp.Input.Expected}, sp.Input.Project, sp.Input.Sprint)
+			_, e := pair.SprintLifecycleService().StartSprint(ctx, actor, f.CommandMeta{RequestID: requestID, IdempotencyKey: sp.Key, ExpectedVersion: &sp.Input.Expected}, sp.Input.Project, sp.Input.Sprint)
 			return e
 		}},
 		{"sprint-read", projectCallSprint, projectCallRead, sp.Input.Project, func(ctx context.Context) error {
