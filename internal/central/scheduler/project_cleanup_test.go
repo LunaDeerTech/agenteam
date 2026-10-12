@@ -290,10 +290,10 @@ func requireSchedulerCleanup(t *testing.T, v *schedulerCleanupFixture, report pc
 	var data struct {
 		Project   string `json:"project_id"`
 		Operation string `json:"operation_id"`
-		Version   int64  `json:"project_version"`
+		Version   string `json:"project_version"`
 		Stage     string `json:"stage"`
 	}
-	if json.Unmarshal(cp.Bytes(), &data) != nil || data.Project != v.base.p.String() || data.Operation != v.base.cause.OperationID.String() || data.Version != int64(v.base.cause.ProjectVersion) || data.Stage != stage {
+	if json.Unmarshal(cp.Bytes(), &data) != nil || data.Project != v.base.p.String() || data.Operation != v.base.cause.OperationID.String() || data.Version != v.base.cause.ProjectVersion.String() || data.Stage != stage {
 		t.Fatal("checkpoint no longer describes the actual bounded progress")
 	}
 	return cp
