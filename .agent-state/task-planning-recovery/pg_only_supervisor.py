@@ -199,6 +199,10 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestNextRoundProjection$': frozenset((
+        'TestNextRoundProjection',
+        'TestNextRoundProjection/committed-input-projection',
+    )),
     '^TestExecutionRoundInput$': frozenset((
         'TestExecutionRoundInput',
         'TestExecutionRoundInput/assignment-first-replacement-and-replay',

@@ -1,13 +1,15 @@
-# 全局协调索引
+# 已提交后继 RoundInput 投影工作分支
 
-2026-10-11。Execution RoundInput（68）已随完整开发历史 main `bf7c882a` 有限交付并推送；recovery_lead 维护本次保全记录，root 负责 Git、清理和资源排期。正式交付边界见[任务台账](../docs/development/agent-team/tasks.md)与[68 本卡](../docs/development/work-items/d22-execution-round-input.md)。main `53ac76fe` 的全局保全、清理和保护记录保持；68 原件保全及树/本地分支清理已实际完成并计入下列累计，分段接受不等于 main 单次全量通过。
+2026-10-12。本树 `/workspace/agenteam-next-round-projection`，分支 `ai/next-round-projection-20261011`，起点 `71b13d5c`，最终技术组合 `272c74fa`（含正式main `b6f158c3`）。variables_review负责Execution reader/合同/控制及记录，AgentLoop、PG和方法由各原作者负责；root统筹Git、资源窗口和集成。唯一主审已接受本片有限wholePASS，技术源已冻结，原件已无覆盖保全，树与分支尚未清理。见[本片卡](../docs/development/work-items/d22-next-round-projection.md)与[方法/恢复说明](next-round-projection/README.md)。本树索引不覆盖main全局状态。
 
-## 当前开发
+## 当前状态
 
-| 任务 / 分支 | 负责人 | 状态与下一步 |
-| --- | --- | --- |
-| NextRoundProjection 独立树 | root 统筹分域实施；variables_review 编译/运行 | basic01 的 8 top / 42 sub 与 3 包 vet 已获独立接受；native02 原工具 73449 实际 1，安全诊断明确 ENOSPC，仍在目录前置阶段失败、未进入投影业务，全部 Wait/资源/TCP/输入尾已闭合。当前容量 hold，未自动重试；native01 原首因未定及两轮 FAIL 保留，不计真实 PG 通过或下一 Model 已执行。 |
-| Knowledge Move UI — `ai/knowledge-move-ui-20261011` | skills_milestone_review 实施，skill_package_review 独审 | Move05 业务与视觉有限通过，whole 因 TCP 尾 FAIL 已停；原 FAIL 和完整退出门保留，未形成正式交付。 |
+- 只读原已提交RoundInput及绑定的历史参数、完整结果、三消息、Control和固定Tool目录；实际reader返回前不发布。当前配置撤销不改历史投影，也不由历史观察授新执行权限。无下一Model/Runner派发或默认生产接线。
+- basic01原22796 actual0：8top/42sub race与三包vet，657输入六份同。compile03原66456与exact-list均实际0，1901编译输入前后同；runtime1902仅增加实物binary，包含已验WSS上游与失败点Statfs诊断，未重跑已接受基础。
+- native03原72578亲收actual0：1top1sub23.50s；sup827584 /113.320s，Go829170/driver827585 Wait0；七资源14absence、desc/private/runtime双空、自动HOST_TCP差额双空与输入不变全部齐。主审已接受真实已提交事实、无写Tx、深拷贝/历史稳定及新增Model/WSS为0的有限链路。原件现位于 main `output/ai/retired-20261012/next-round-projection/native03/`。
+- native01原10165、native02原73449 wholeFAIL完整保留，均0.00s最前MkdirTemp失败未到投影；01原errno未知，02实际ENOSPC。原尾后受控mkdir成功与容量释放仅各自时点事实，03通过不解释旧ENOSPC；03未触发失败Statfs分支。各原Wait/退出/TCP/input证据不覆盖。
+- 原output106文件/271,750,879 B/25目录已同FS无覆盖迁入main `output/ai/retired-20261012/next-round-projection/`，全部路径/SHA/size/dev/inode/mode/nsmtime前后一致；旁目录`next-round-projection-preservation/`保存核验与三轮tmp各4文件副本，原tmp保留。23map/1,905仓库历史版本已匹配原三个检查点，完整main可达待root合入后核；外部工具链/modules/MinIO保护及可见`/proc`限制见[恢复说明](next-round-projection/README.md)。树/分支尚未删除，计数不增加。
+- 上游68 main `bf7c882a`、Runner write-file WSS main `570da7a2`均已有限交付并完成原树/本地分支清理；下列保留段沿本次组合main `b6f158c3`，不预写后续清理结果。当前本树记录34树/35本地/64远端、146待核/keep1，合main时由root协调最新实值。
 
 主目标仍是完成[开发计划](../docs/development/development-plan.md)中的D01–D28/E01，目前尚未完成；任何单片有限验收不代表整体目标或原STOP解除。
 
