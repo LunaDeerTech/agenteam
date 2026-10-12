@@ -209,6 +209,23 @@ func (r *assignmentCommand) receipt() (sc.AssignmentMutation, error) {
 	return out.Clone(), nil
 }
 func loadAssignmentCommand(ctx context.Context, x postgres.SQLExecutor, in assignmentInput) (*assignmentCommand, error) {
+	r, err := loadAssignmentCommandRecord(ctx, x, in)
+	if err != nil || r == nil {
+		return r, err
+	}
+	if r.State == "completed" {
+		if err = validateAssignmentRouting(ctx, x, r); err != nil {
+			return nil, err
+		}
+	}
+	return r, ctx.Err()
+}
+
+// Decode and validate every immutable command field. Ordinary reads still
+// require live routing through loadAssignmentCommand. The retirement reader
+// additionally checks the original Applied proof before accepting retired
+// queued routing; this decoder alone is never an authorization grant.
+func loadAssignmentCommandRecord(ctx context.Context, x postgres.SQLExecutor, in assignmentInput) (*assignmentCommand, error) {
 	var id, actor, digest, state string
 	var input, candidate, receipt, runtimeReceipt []byte
 	var created time.Time
@@ -241,9 +258,6 @@ func loadAssignmentCommand(ctx context.Context, x postgres.SQLExecutor, in assig
 	}
 	if r.State == "completed" {
 		if _, err = r.receipt(); err != nil {
-			return nil, err
-		}
-		if err = validateAssignmentRouting(ctx, x, r); err != nil {
 			return nil, err
 		}
 	}
@@ -501,6 +515,19 @@ func applyAssignmentState(ctx context.Context, x postgres.SQLExecutor, r *assign
 // Event/ingress lookup uses the original stored caller only as immutable source
 // data. Authorization is checked separately against the current caller/witness.
 func loadAssignmentByID(ctx context.Context, x postgres.SQLExecutor, project i.ProjectID, agent i.AgentID, id sc.AssignmentChangeID) (*assignmentCommand, error) {
+	r, err := loadAssignmentRecordByID(ctx, x, project, agent, id)
+	if err != nil {
+		return nil, err
+	}
+	if r.State == "completed" {
+		if err = validateAssignmentRouting(ctx, x, r); err != nil {
+			return nil, err
+		}
+	}
+	return r, ctx.Err()
+}
+
+func loadAssignmentRecordByID(ctx context.Context, x postgres.SQLExecutor, project i.ProjectID, agent i.AgentID, id sc.AssignmentChangeID) (*assignmentCommand, error) {
 	var key string
 	var raw, candidate []byte
 	err := x.QueryRow(ctx, `SELECT idempotency_key,input,candidate FROM agenteam_skill.assignment_commands WHERE project_id=$1 AND agent_id=$2 AND id=$3`, project.String(), agent.String(), id.String()).Scan(&key, &raw, &candidate)
@@ -529,7 +556,7 @@ func loadAssignmentByID(ctx context.Context, x postgres.SQLExecutor, project i.P
 	if e != nil {
 		return nil, unavailable(e)
 	}
-	r, e := loadAssignmentCommand(ctx, x, in)
+	r, e := loadAssignmentCommandRecord(ctx, x, in)
 	if e != nil {
 		return nil, e
 	}
