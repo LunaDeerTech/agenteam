@@ -11,6 +11,7 @@ import {
 import { AccountFailure } from '../api/client'
 import {
   taskStates,
+  workText,
   type TaskState,
   type Task,
   type TaskSummary,
@@ -141,6 +142,15 @@ export function createProjectTasks(
   const columns = reactive(
     Object.fromEntries(taskStates.map((s) => [s, emptyColumn()])) as Record<TaskState, TaskColumn>,
   )
+  const search = reactive({ draft: '', text: '', message: '' })
+  const searchEmpty = computed(
+    () =>
+      !!search.text &&
+      taskStates.every((s) => columns[s].phase === 'ready' && !columns[s].items.length),
+  )
+  function resetSearch() {
+    Object.assign(search, { draft: '', text: '', message: '' })
+  }
   const names = shallowReactive(new Map<string, DirectoryAgent>())
   const draft = reactive<{
     action: ReviewInput['request']['target_state'] | ''
@@ -828,6 +838,7 @@ export function createProjectTasks(
     auth.workReview.abandonRead()
   }
   function clearData() {
+    resetSearch()
     createdSprintFocus.value = null
     createdMilestoneFocus.value = null
     clearMilestoneCreation()
@@ -919,6 +930,7 @@ export function createProjectTasks(
             sprint_id: sprint.id,
             state: s,
             limit: 50,
+            ...(search.text ? { text: search.text } : {}),
             ...(cursor ? { cursor } : {}),
           }),
         )
@@ -942,6 +954,30 @@ export function createProjectTasks(
         old.message = explain(error)
       },
     )
+  }
+  async function applySearch() {
+    if (!state.sprint || !visible.value || busy.value) return
+    let text: string
+    try {
+      text = search.draft === '' ? '' : workText(search.draft, 1024, true)
+    } catch {
+      search.message = '请输入最多 256 个字符的关键词，不含控制字符或纯空白。'
+      return
+    }
+    retire()
+    const own = generation
+    search.text = text
+    search.message = ''
+    for (const s of taskStates) Object.assign(columns[s], emptyColumn())
+    for (const s of taskStates) {
+      if (own !== generation || !visible.value || busy.value) return
+      await loadColumn(s)
+    }
+  }
+  async function clearSearch() {
+    if (!state.sprint || !visible.value || busy.value) return
+    search.draft = ''
+    await applySearch()
   }
   async function loadAgents(more = false) {
     const cursor = more ? state.agentNext : undefined
@@ -1192,7 +1228,10 @@ export function createProjectTasks(
         state.detailCurrent = !!value.task
         state.blockers = []
         state.blockerNext = undefined
-        if (changed) for (const s of taskStates) Object.assign(columns[s], emptyColumn())
+        if (changed) {
+          resetSearch()
+          for (const s of taskStates) Object.assign(columns[s], emptyColumn())
+        }
       },
       (error) => {
         // read() only invokes this callback for the still-current read generation.
@@ -2568,6 +2607,10 @@ export function createProjectTasks(
     state,
     timeline,
     columns,
+    search,
+    searchEmpty,
+    applySearch,
+    clearSearch,
     draft,
     creation,
     edit,
