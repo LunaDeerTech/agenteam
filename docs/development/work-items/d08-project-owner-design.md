@@ -249,6 +249,8 @@ Audit库与Secret库本身没有自主Project执行/外部业务worker：它们�
 
 Work Stop 仅消费原 LifecycleStopDriver 当前 invoke 的独立私有 loan；原同 Store Project EX 授权事务实际 Committed 返回后才能取消捕获的同 P 原调用，各后继 Tx 再核同一 active loan、exact claim/cause、完整冻结 manifest 和 work participant。Archive 只收 mutation，Delete 同时收 read，B 不受全局停止；父 scope 封闭后等待所有原 loan 实际返回，保存 context 不能跨 Agent、Scheduler、Execution 或 ArtifactSource 借权。独立 Reader 与调度借入 caller Tx 不在五 Service 停止结果内；owned 构造下 TransferTaskInTx 没有覆盖 caller Store 返回的原私有见证时拒绝，旧构造业务兼容。这里不默认绑定 App/部分 Registry，也不声称完整 Delete。
 
+`f46591b9` 的 `TestProjectWorkStop` native02 三组实际通过（42.96s）：五个显式 lane 的真实命令、79→80/repeat、原 Store 返回屏障与 B 可用；技术 Unknown 保留原 attempt/cause，后继同 Tx 零写确认实际返回后下一显式调用才关闭；Archive 保留原 read/已完成重放并拒新 mutation。基础 33 top/75 sub 与两包 vet 通过，原 Wait 和六项资源均已清退，见[结果](../../../output/ai/project-work-stop-delivery/native02/result.json)与[日志](../../../output/ai/project-work-stop-delivery/native02/browser.log)。原 basic01/02 FAIL、native01 三组 snapshot `42883` 保留；修复仅按 Work 各目标表实际 UUID 类型更正快照参数转换，不外推独立 Reader、调度 borrower、Work Cleanup、foreign death 或默认 App/完整 Delete。
+
 ### Scheduler 显式调用归属与 Delete 停止（候选范围）
 
 显式 Scheduler 工厂绑定同 Store、原 ProcessGuard/process 与实例身份，覆盖 Coordinator、PendingVisitor、LaunchHandoff、BusyCompensator、LaunchFailureFinalizer、RelaunchCoordinator 六个原 owner 及 ProjectRunner 第七 lane；manager 的原调用尾也必须实际返回。迁移 00081 仅新增本域 project_calls：持久完整 P/process/instance/lane、原调用 canonical identity/digest，身份不可变，running 单调进入 business_closed，历史禁止删除。closed 行、取消、无本地 handle 均不能代替原 Store、借入 Tx 或外层调用实返；同进程未知实例仍 Pending，foreign 仅凭原 ProcessGuard 停止证明并同 Tx 重核。

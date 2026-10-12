@@ -85,6 +85,9 @@ func (s *Coordinator) ResolveClaim(ctx context.Context, r wc.TaskClaimRequest) (
 		return Dispatch{}, err
 	}
 	out, err = s.resolveClaim(ctx, r)
+	if err == nil {
+		s.projectCalls.recoveredProjectCall(entry, nil)
+	}
 	bodyErr = err
 	return
 }
@@ -208,6 +211,9 @@ func (s *LaunchHandoff) Lookup(ctx context.Context, p i.ProjectID, id DispatchID
 		return Dispatch{}, err
 	}
 	out, err = s.lookup(ctx, p, id)
+	if err == nil {
+		s.projectCalls.recoveredProjectCall(entry, nil)
+	}
 	bodyErr = err
 	return
 }
@@ -298,6 +304,9 @@ func (s *BusyCompensator) Lookup(ctx context.Context, p i.ProjectID, id Dispatch
 		return Dispatch{}, err
 	}
 	out, err = s.lookup(ctx, p, id)
+	if err == nil {
+		s.projectCalls.recoveredProjectCall(entry, nil)
+	}
 	bodyErr = err
 	return
 }
@@ -358,6 +367,9 @@ func (s *LaunchFailureFinalizer) Lookup(ctx context.Context, p i.ProjectID, id D
 		return Dispatch{}, err
 	}
 	out, err = s.lookup(ctx, p, id)
+	if err == nil {
+		s.projectCalls.recoveredProjectCall(entry, nil)
+	}
 	bodyErr = err
 	return
 }
@@ -419,6 +431,9 @@ func (s *RelaunchCoordinator) ResolveRelaunch(ctx context.Context, r wc.TaskRela
 		return RelaunchVisit{}, err
 	}
 	out, err = s.resolveRelaunch(ctx, r)
+	if err == nil {
+		s.projectCalls.recoveredProjectCall(entry, nil)
+	}
 	bodyErr = err
 	return
 }

@@ -362,6 +362,7 @@ func (s *ProjectRunners) runOne(ctx context.Context, v *managedRunner, prior err
 		if err = ctx.Err(); err != nil {
 			return
 		}
+		s.projectCalls.recoveredProjectCall(entry, prior)
 		s.mu.Lock()
 		if s.stopped || v.stopping {
 			s.mu.Unlock()
