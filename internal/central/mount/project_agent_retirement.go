@@ -62,7 +62,7 @@ func (s *ProjectAgentRetirementReferences) executor(ctx context.Context, tx f.Tx
 }
 func noProjectAgentMountResources(ctx context.Context, x postgres.SQLExecutor, c ac.ProjectRetirementChange) error {
 	var resources bool
-	err := x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_mount.mounts WHERE agent_id=$1) OR EXISTS(SELECT 1 FROM agenteam_mount.runner_workspaces WHERE agent_id=$1) OR EXISTS(SELECT 1 FROM agenteam_mount.execution_captures WHERE agent_id=$1) OR EXISTS(SELECT 1 FROM agenteam_mount.execution_uses WHERE agent_id=$1)`, c.Request.AgentID.String()).Scan(&resources)
+	err := x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_mount.mounts WHERE agent_id=$1::text::uuid) OR EXISTS(SELECT 1 FROM agenteam_mount.runner_workspaces WHERE agent_id=$1::text::uuid) OR EXISTS(SELECT 1 FROM agenteam_mount.execution_captures WHERE agent_id=$1::text) OR EXISTS(SELECT 1 FROM agenteam_mount.execution_uses WHERE agent_id=$1::text)`, c.Request.AgentID.String()).Scan(&resources)
 	if err != nil {
 		return portError(err)
 	}
