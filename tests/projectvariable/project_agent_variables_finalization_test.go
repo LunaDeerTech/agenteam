@@ -181,23 +181,21 @@ func (v *agentVariablesTerminalPG) prepareAgent(t *testing.T, foreign bool) {
 		outboxCleanupRequire(t, err)
 		_, err = v.otherPair.Service().GetAgent(ctxFor(t), b.ownerBrowser.actor, v.p2.project.ID, target)
 		outboxCleanupRequire(t, err)
-		if !v.otherPair.Joined() {
-			t.Fatal("other instance's original read did not return")
-		}
 	}
-	var service, reads, foreignCount, commands int
+	var service, reads, foreignCount, commands, pending int
 	err = b.raw.QueryRow(ctxFor(t), `SELECT
  (SELECT count(*) FROM agenteam_agent.project_calls WHERE project_id=$1 AND lane='service' AND phase='joined'),
  (SELECT count(*) FROM agenteam_agent.project_calls WHERE project_id=$1 AND lane='directory' AND phase='joined'),
  (SELECT count(*) FROM agenteam_agent.project_calls WHERE project_id=$2 AND phase='joined'),
- (SELECT count(*) FROM agenteam_agent.commands WHERE project_id=$1 AND state='completed')`, v.p2.project.ID.String(), b.project.ID.String()).Scan(&service, &reads, &foreignCount, &commands)
+ (SELECT count(*) FROM agenteam_agent.commands WHERE project_id=$1 AND state='completed'),
+ (SELECT count(*) FROM agenteam_agent.project_calls WHERE project_id IN ($1,$2) AND phase!='joined')`, v.p2.project.ID.String(), b.project.ID.String()).Scan(&service, &reads, &foreignCount, &commands, &pending)
 	outboxCleanupRequire(t, err)
 	want := 2
 	if foreign {
 		want++
 	}
-	if service != want || reads != 1 || foreignCount != 1 || commands != 1 || !v.agentPair.Joined() {
-		t.Fatal("formal Agent commands and original returned ledger differ")
+	if service != want || reads != 1 || foreignCount != 1 || commands != 1 || pending != 0 {
+		t.Fatal("formal Agent commands and original returned ledger differ", service, reads, foreignCount, commands, pending)
 	}
 }
 
@@ -225,11 +223,13 @@ func (v *agentVariablesTerminalPG) close(t *testing.T) {
 			v.bRead.open()
 			v.bRead.cancel()
 		}
-		for _, driver := range v.drivers {
-			driver.Stop()
-		}
+		// Releasing a test barrier must let its original confirmation return
+		// before global Stop can cancel it and correctly retain an Unknown.
 		for _, call := range v.calls {
 			outboxCleanupWait(t, call.done, "original terminal driver before owner cleanup")
+		}
+		for _, driver := range v.drivers {
+			driver.Stop()
 		}
 		if v.bRead != nil {
 			v.bRead.open()
@@ -579,10 +579,46 @@ func (v *agentVariablesTerminalPG) holdOtherRead(t *testing.T) {
 		t.Fatal("other Project's actual business barrier was not reached")
 	}
 	v.preserved(t)
-	if v.agentPair.Joined() {
-		t.Fatal("held B reader was reported globally joined")
+	v.requireOtherReadHeld(t)
+}
+
+// A returned business call is established by its original function and durable
+// joined record. Agent.Joined additionally requires a global Stop, so it is
+// intentionally used only by the final real Stop/Drain cleanup helper.
+func (v *agentVariablesTerminalPG) requireOtherReadHeld(t *testing.T) {
+	t.Helper()
+	select {
+	case <-v.bRead.done:
+		t.Fatal("B original reader returned before its release")
+	default:
 	}
 }
+
+// These public request fields supply no Project authority. The call must be
+// rejected by the exact concrete owner's already-active/retained private call,
+// before either authorization SQL or this deliberately inert callback can run.
+func (v *agentVariablesTerminalPG) requireAgentTerminalRetained(t *testing.T, want f.Code) {
+	t.Helper()
+	registration, err := i.RegisterService(i.ProjectLifecycle)
+	outboxCleanupRequire(t, err)
+	scope, err := i.InProject(v.p2.project.ID)
+	outboxCleanupRequire(t, err)
+	actor, err := registration.Actor(v.cause.OperationID.String(), scope)
+	outboxCleanupRequire(t, err)
+	req := pc.ProjectTerminalCleanupRequest{Actor: actor, Cause: v.cause, ProjectID: v.p2.project.ID, Owner: v.agentTerminal.ProjectTerminalCleanupIdentity()}
+	outboxCleanupRequire(t, req.Validate())
+	called := false
+	result, err := v.agentTerminal.WithProjectTerminalCleanup(ctxFor(t), req, func(context.Context) (f.CommitResult, error) {
+		called = true
+		return f.NotCommittedResult(nil), errors.New("unexpected retained-owner admission")
+	})
+	var problem *f.Fault
+	if called || result.State() != f.NotCommitted || !errors.As(err, &problem) || problem.Code != want {
+		agentRetirementDiagnostic(t, "terminal-original-owner-reentry", err)
+		t.Fatal("original Agent terminal owner did not retain its exact private call")
+	}
+}
+
 func (v *agentVariablesTerminalPG) releaseOtherRead(t *testing.T) {
 	t.Helper()
 	v.bRead.open()
@@ -619,6 +655,7 @@ func testAgentVariablesTerminalReturn(t *testing.T) {
 	v.holdOtherRead(t)
 	seen := v.observeTerminal(t)
 	v.barrier = newSchedulerStopBarrier()
+	defer v.barrier.open()
 	store := v.p2.base.tracked
 	store.mu.Lock()
 	store.afterResult = func(c f.TransactionCause, r f.CommitResult) {
@@ -642,7 +679,8 @@ func testAgentVariablesTerminalReturn(t *testing.T) {
 		t.Fatal("terminal original Store-return barrier was not reached")
 	}
 	committed := v.observedReceipt(t, seen)
-	if v.agentPair.Service().Joined() || v.pair.Joined() {
+	v.requireAgentTerminalRetained(t, f.ResourceBusy)
+	if v.pair.Joined() {
 		t.Fatal("physical terminal commit released original owner controls")
 	}
 	select {
@@ -669,7 +707,8 @@ func testAgentVariablesTerminalReturn(t *testing.T) {
 	}
 	outboxCleanupRequire(t, driver.Drain(ctxFor(t)))
 	v.clearHooks()
-	if !v.agentPair.Service().Joined() || !v.pair.Joined() || v.agentPair.DirectoryReader().Joined() {
+	v.requireOtherReadHeld(t)
+	if !v.pair.Joined() {
 		t.Fatal("A controls or the independently held B reader lost their original return boundaries")
 	}
 	// A new driver confirms the durable typed receipt; the original immutable
@@ -681,11 +720,9 @@ func testAgentVariablesTerminalReturn(t *testing.T) {
 	if state := v.receipt(t); !reflect.DeepEqual(state, committed) {
 		t.Fatal("receipt confirmation rewrote its original transaction or claim")
 	}
-	if v.agentPair.DirectoryReader().Joined() {
-		t.Fatal("A confirmation consumed B's original pending call")
-	}
+	v.requireOtherReadHeld(t)
 	v.releaseOtherRead(t)
-	if !v.agentPair.Joined() || !v.pair.Joined() {
+	if !v.pair.Joined() {
 		t.Fatal("original pairs failed to join after all real calls returned")
 	}
 	v.close(t)
@@ -722,8 +759,9 @@ func testAgentVariablesTerminalUnknown(t *testing.T) {
 		agentRetirementDiagnostic(t, "terminal-original-rollback-unknown", unapplied.err)
 		t.Fatal("original terminal rollback or local Unknown identity was lost")
 	}
+	v.requireAgentTerminalRetained(t, f.InvalidState)
 	running := v.state(t)
-	if running.Schema != 5 || running.Parent != "pending" || running.Phase != "running" || !bytes.Equal(running.Raw, beforeState.Raw) || v.ownerSnapshot(t) != beforeOwners || v.agentPair.Joined() || v.pair.Joined() {
+	if running.Schema != 5 || running.Parent != "pending" || running.Phase != "running" || !bytes.Equal(running.Raw, beforeState.Raw) || v.ownerSnapshot(t) != beforeOwners || v.pair.Joined() {
 		t.Fatal("rolled-back Unknown changed metadata or discarded its original controls")
 	}
 	v.preserved(t)
@@ -733,7 +771,7 @@ func testAgentVariablesTerminalUnknown(t *testing.T) {
 	agentRetirementDiagnostic(t, "terminal-not-applied-confirmation", unapplied.err)
 	outboxCleanupRequire(t, unapplied.err)
 	confirmed := v.state(t)
-	if confirmed.Schema != 5 || confirmed.Parent != "pending" || confirmed.Phase != "running" || confirmed.Attempt != running.Attempt || confirmed.Fence != running.Fence || !bytes.Equal(confirmed.Raw, beforeState.Raw) || v.ownerSnapshot(t) != beforeOwners || !v.agentPair.Joined() || !v.pair.Joined() {
+	if confirmed.Schema != 5 || confirmed.Parent != "pending" || confirmed.Phase != "running" || confirmed.Attempt != running.Attempt || confirmed.Fence != running.Fence || !bytes.Equal(confirmed.Raw, beforeState.Raw) || v.ownerSnapshot(t) != beforeOwners || !v.pair.Joined() {
 		t.Fatal("NotApplied confirmation mutated data, replaced its claim or did not join original controls")
 	}
 	v.preserved(t)
@@ -760,7 +798,8 @@ func testAgentVariablesTerminalUnknown(t *testing.T) {
 		t.Fatal("terminal acknowledgement Unknown lost its original local identity")
 	}
 	committed := v.observedReceipt(t, seen)
-	if v.agentPair.Joined() || v.pair.Joined() {
+	v.requireAgentTerminalRetained(t, f.InvalidState)
+	if v.pair.Joined() {
 		t.Fatal("Unknown discarded its original Agent or Variables controls")
 	}
 	v.clearHooks()
@@ -768,7 +807,7 @@ func testAgentVariablesTerminalUnknown(t *testing.T) {
 	outboxCleanupWait(t, call.done, "terminal Unknown receipt-only confirmation")
 	agentRetirementDiagnostic(t, "terminal-unknown-confirmation", call.err)
 	outboxCleanupRequire(t, call.err)
-	if !v.agentPair.Joined() || !v.pair.Joined() {
+	if !v.pair.Joined() {
 		t.Fatal("actual confirmation return did not retire original Unknown controls")
 	}
 	if state := v.receipt(t); !reflect.DeepEqual(state, committed) {
@@ -800,7 +839,7 @@ func testAgentVariablesTerminalForeign(t *testing.T) {
 	if after.Schema != 5 || after.Parent != "pending" || !bytes.Equal(after.Raw, state.Raw) || v.ownerSnapshot(t) != before || v.counts(t) != [7]int{} {
 		t.Fatal("foreign owner refusal removed terminal data or changed parent progress")
 	}
-	if !v.agentPair.Joined() || !v.otherPair.Joined() || !v.pair.Joined() {
+	if !v.pair.Joined() {
 		t.Fatal("known foreign-owner refusal detached an original call")
 	}
 	v.preserved(t)
@@ -844,12 +883,14 @@ func testAgentVariablesTerminalEmptyConfirmation(t *testing.T) {
 		agentRetirementDiagnostic(t, "terminal-empty-rollback-unknown", call.err)
 		t.Fatal("empty original rollback did not retain its actual local Unknown")
 	}
+	v.requireAgentTerminalRetained(t, f.InvalidState)
 	running := v.state(t)
-	if running.Schema != 5 || running.Parent != "pending" || running.Phase != "running" || !bytes.Equal(running.Raw, v.prior) || v.ownerSnapshot(t) != beforeOwners || v.agentPair.Joined() || v.pair.Joined() {
+	if running.Schema != 5 || running.Parent != "pending" || running.Phase != "running" || !bytes.Equal(running.Raw, v.prior) || v.ownerSnapshot(t) != beforeOwners || v.pair.Joined() {
 		t.Fatal("empty Unknown lost its original pending owner")
 	}
 	v.clearHooks()
 	v.barrier = newSchedulerStopBarrier()
+	defer v.barrier.open()
 	var confirmed atomic.Bool
 	originalCause := func(c f.TransactionCause) bool {
 		return v.lifecycle(c) && reflect.DeepEqual(c.Details(), original.Details())
@@ -895,7 +936,8 @@ func testAgentVariablesTerminalEmptyConfirmation(t *testing.T) {
 	case <-wait.Done():
 		t.Fatal("empty NotApplied original confirmation barrier was not reached")
 	}
-	if !reflect.DeepEqual(v.state(t), running) || v.ownerSnapshot(t) != beforeOwners || v.agentPair.Joined() || v.pair.Joined() {
+	v.requireAgentTerminalRetained(t, f.ResourceBusy)
+	if !reflect.DeepEqual(v.state(t), running) || v.ownerSnapshot(t) != beforeOwners || v.pair.Joined() {
 		t.Fatal("empty confirmation physical commit released its original owner before return")
 	}
 	newAgents, err := v.newAgentPair()
@@ -917,7 +959,7 @@ func testAgentVariablesTerminalEmptyConfirmation(t *testing.T) {
 	competitor := v.run(t, other)
 	outboxCleanupWait(t, competitor.done, "new driver and pairs while original empty confirmation is held")
 	var busy *f.Fault
-	if !errors.As(competitor.err, &busy) || busy.Code != f.ResourceBusy || !reflect.DeepEqual(v.state(t), running) || v.ownerSnapshot(t) != beforeOwners || !newAgents.Joined() || !newVariables.Joined() {
+	if !errors.As(competitor.err, &busy) || busy.Code != f.ResourceBusy || !reflect.DeepEqual(v.state(t), running) || v.ownerSnapshot(t) != beforeOwners || !newVariables.Joined() {
 		agentRetirementDiagnostic(t, "terminal-empty-competing-driver", competitor.err)
 		t.Fatal("empty ledger allowed another driver or pair to take over before original confirmation returned")
 	}
@@ -930,7 +972,7 @@ func testAgentVariablesTerminalEmptyConfirmation(t *testing.T) {
 	outboxCleanupWait(t, call.done, "actual empty NotApplied confirmation return")
 	outboxCleanupRequire(t, call.err)
 	v.clearHooks()
-	if !reflect.DeepEqual(v.state(t), running) || v.ownerSnapshot(t) != beforeOwners || !v.agentPair.Joined() || !v.pair.Joined() {
+	if !reflect.DeepEqual(v.state(t), running) || v.ownerSnapshot(t) != beforeOwners || !v.pair.Joined() {
 		t.Fatal("original read-only confirmation changed its claim or did not release controls at return")
 	}
 	applied := v.observeTerminal(t)
