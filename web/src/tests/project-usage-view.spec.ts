@@ -6,6 +6,7 @@ import { createProjectWorkspace, projectWorkspaceKey } from '../composables/useP
 import ProjectUsageView from '../views/projects/ProjectUsageView.vue'
 import ProjectSettingsView from '../views/projects/ProjectSettingsView.vue'
 import ProjectNav from '../components/layout/ProjectNav.vue'
+import { dailyAsOf, dailyPage } from './project-usage-summary.fixture'
 import { projectRoute, safeReturnTarget } from '../router/auth'
 import {
   usageBase,
@@ -86,6 +87,51 @@ async function setup() {
   return { ...f, workspace, router, wrapper }
 }
 describe('Project usage read page', () => {
+  it('shows daily server totals and each denominator without summing the current list, with keyboard focus and an empty state', async () => {
+    const f = await setup()
+    f.intercept((path, init) =>
+      path.includes('/model-usage/summary?')
+        ? Promise.resolve(usageJSON(dailyPage()))
+        : f.normal(path, init),
+    )
+    await button(f.wrapper, '按日汇总').trigger('click')
+    await flushPromises()
+    expect(button(f.wrapper, '按日汇总').attributes('aria-pressed')).toBe('true')
+    expect(document.activeElement).toBe(f.wrapper.get('.usage-page > h2').element)
+    const summary = f.wrapper.get('[aria-label="按日用量汇总"]')
+    expect(summary.text()).toContain(dailyAsOf)
+    expect(summary.text()).toContain('已确认调用51')
+    expect(summary.text()).toContain('派发情况未知2')
+    const rows = summary.findAll('tbody tr')
+    expect(rows).toHaveLength(6)
+    expect(rows[0]!.findAll('td').map((cell) => cell.text())).toEqual([
+      '9007199254740993',
+      '50',
+      '1',
+    ])
+    expect(rows[1]!.findAll('td').map((cell) => cell.text())).toEqual(['0', '49', '2'])
+    expect(rows[2]!.findAll('td').map((cell) => cell.text())).toEqual([
+      '9223372036854775807',
+      '1',
+      '50',
+    ])
+    expect(rows[3]!.findAll('td').map((cell) => cell.text())).toEqual(['未知', '0', '51'])
+    expect(f.wrapper.find('.usage-list').exists()).toBe(false)
+    expect(f.wrapper.find('[aria-label="调用记录分页"]').exists()).toBe(false)
+    f.intercept((path, init) =>
+      path.includes('/model-usage/summary?')
+        ? Promise.resolve(usageJSON(dailyPage([])))
+        : f.normal(path, init),
+    )
+    await button(f.wrapper, '刷新按日汇总').trigger('click')
+    await flushPromises()
+    expect(f.wrapper.text()).toContain('本次时间范围内没有用量汇总。')
+    expect(f.wrapper.findAll('.usage-day')).toHaveLength(0)
+    await button(f.wrapper, '调用明细').trigger('click')
+    await flushPromises()
+    expect(f.wrapper.find('.usage-list').exists()).toBe(true)
+    expect(f.wrapper.find('.usage-daily').exists()).toBe(false)
+  })
   it('shows exact historical values and local details, preserves null versus zero, and restores selection focus', async () => {
     const f = await setup(),
       select = f.wrapper.get<HTMLButtonElement>('.usage-select')

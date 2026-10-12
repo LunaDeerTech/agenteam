@@ -101,8 +101,51 @@ export type ProjectUsagePage = Readonly<{
   items: readonly ProjectUsageRecord[]
   next_cursor: string | null
 }>
+export const usageSummaryFields = [
+  'input',
+  'output',
+  'total',
+  'cached_input',
+  'cache_write',
+  'reasoning',
+] as const
+export type ProjectUsageFieldSummary = Readonly<{
+  sum: string | null
+  known_count: string
+  unknown_count: string
+}>
+const summaryCounts = [
+  'confirmed_invocations',
+  'dispatch_unknown',
+  'succeeded',
+  'failed',
+  'cancelled',
+  'unknown',
+] as const
+export type ProjectUsageSummary = Readonly<
+  Record<(typeof summaryCounts)[number], string> &
+    Record<(typeof usageSummaryFields)[number], ProjectUsageFieldSummary> & { as_of: string }
+>
+export type ProjectUsageDay = Readonly<{
+  key: Readonly<{ by: 'day'; id: null; day: string }>
+  summary: ProjectUsageSummary
+}>
+export type ProjectUsageDailyQuery = Readonly<{ from: string; to: string }>
+export type CapturedUsageDailyQuery = Readonly<
+  ProjectUsageDailyQuery & { group_by: 'day'; limit: 100 }
+>
+export type ProjectUsageDailyPage = Readonly<{
+  items: readonly ProjectUsageDay[]
+  next_cursor: null
+  as_of: string
+}>
 export interface ProjectUsageAPI {
   list(projectID: string, query: ProjectUsageQuery, signal: AbortSignal): Promise<ProjectUsagePage>
+  daily(
+    projectID: string,
+    query: ProjectUsageDailyQuery,
+    signal: AbortSignal,
+  ): Promise<ProjectUsageDailyPage>
 }
 const encoder = new TextEncoder()
 function requireValue(condition: boolean): asserts condition {
@@ -194,6 +237,81 @@ export function captureUsageWindow(now = Date.now()): CapturedUsageQuery {
   } catch {
     throw new AccountFailure('invalid-input')
   }
+}
+export function captureProjectUsageDailyQuery(value: unknown): CapturedUsageDailyQuery {
+  try {
+    const raw = shape(value, ['from', 'to'], ['group_by', 'limit'])
+    const from = parseSystemInstant(raw.from),
+      to = parseSystemInstant(raw.to)
+    // Keep the original microseconds when calculating the maximum window.
+    const maximum =
+      new Date(Date.parse(from) + 30 * 86400000).toISOString().slice(0, 23) + from.slice(23)
+    requireValue(
+      from < to &&
+        to <= maximum &&
+        (!Object.hasOwn(raw, 'group_by') || raw.group_by === 'day') &&
+        (!Object.hasOwn(raw, 'limit') || raw.limit === 100),
+    )
+    return Object.freeze({ from, to, group_by: 'day', limit: 100 })
+  } catch {
+    throw new AccountFailure('invalid-input')
+  }
+}
+export function parseProjectUsageDailyPage(
+  value: unknown,
+  query: ProjectUsageDailyQuery,
+): ProjectUsageDailyPage {
+  const q = captureProjectUsageDailyQuery(query),
+    raw = shape(value, ['items', 'next_cursor', 'as_of'])
+  const as_of = parseSystemInstant(raw.as_of)
+  // A 30 × 24-hour window intersects at most 31 UTC days, below limit 100.
+  // A cursor would mean this response is incomplete; never label a page a total.
+  requireValue(Array.isArray(raw.items) && raw.items.length <= 31 && raw.next_cursor === null)
+  const items = raw.items.map((value): ProjectUsageDay => {
+    const row = shape(value, ['key', 'summary']),
+      key = shape(row.key, ['by', 'id', 'day'])
+    const day = string(key.day, 10, 10),
+      start = day + 'T00:00:00.000000Z'
+    requireValue(key.by === 'day' && key.id === null && /^\d{4}-\d{2}-\d{2}$/.test(day))
+    parseSystemInstant(start)
+    requireValue(start < q.to && Date.parse(start) + 86400000 > Date.parse(q.from))
+    const s = shape(row.summary, [...summaryCounts, ...usageSummaryFields, 'as_of'])
+    requireValue(parseSystemInstant(s.as_of) === as_of)
+    const counts = Object.fromEntries(
+      summaryCounts.map((name) => [name, integer(s[name])]),
+    ) as Record<(typeof summaryCounts)[number], string>
+    const confirmed = BigInt(counts.confirmed_invocations),
+      all = confirmed + BigInt(counts.dispatch_unknown)
+    requireValue(
+      all <= 9223372036854775807n &&
+        BigInt(counts.succeeded) +
+          BigInt(counts.failed) +
+          BigInt(counts.cancelled) +
+          BigInt(counts.unknown) <=
+          all,
+    )
+    const fields = Object.fromEntries(
+      usageSummaryFields.map((name) => {
+        const field = shape(s[name], ['sum', 'known_count', 'unknown_count'])
+        const known_count = integer(field.known_count),
+          unknown_count = integer(field.unknown_count)
+        const sum = field.sum === null ? null : integer(field.sum)
+        requireValue(BigInt(known_count) + BigInt(unknown_count) === confirmed)
+        requireValue(
+          known_count === '0' && confirmed > 0n
+            ? sum === null
+            : sum !== null && (known_count !== '0' || sum === '0'),
+        )
+        return [name, Object.freeze({ sum, known_count, unknown_count })]
+      }),
+    ) as Record<(typeof usageSummaryFields)[number], ProjectUsageFieldSummary>
+    return Object.freeze({
+      key: Object.freeze({ by: 'day', id: null, day }),
+      summary: Object.freeze({ ...counts, ...fields, as_of }),
+    })
+  })
+  requireValue(items.every((row, index) => index === 0 || items[index - 1]!.key.day < row.key.day))
+  return Object.freeze({ items: Object.freeze(items), next_cursor: null, as_of })
 }
 export function compareProjectUsage(a: ProjectUsageRecord, b: ProjectUsageRecord): number {
   return a.started_at > b.started_at
@@ -385,6 +503,19 @@ export function parseProjectUsagePage(
 export function createProjectUsageAPI(fetcher?: Fetch): ProjectUsageAPI {
   const request = accountTransport(fetcher)
   return {
+    async daily(projectID, query, signal) {
+      const project = captureProjectUsageID(projectID),
+        captured = captureProjectUsageDailyQuery(query)
+      return request(
+        'aggregateProjectUsage',
+        (value) => parseProjectUsageDailyPage(value, captured),
+        {
+          signal,
+          projectID: project,
+          usageQuery: captured,
+        },
+      )
+    },
     async list(projectID, query, signal) {
       const project = captureProjectUsageID(projectID),
         captured = captureProjectUsageQuery(query)

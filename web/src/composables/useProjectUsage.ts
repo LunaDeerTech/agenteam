@@ -4,6 +4,7 @@ import {
   captureUsageWindow,
   compareProjectUsage,
   type CapturedUsageQuery,
+  type ProjectUsageDay,
   type ProjectUsageRecord,
 } from '../api/project-usage'
 import { useSession, type PersonalIdentity, type SessionController } from './useSession'
@@ -11,7 +12,8 @@ import { useProjectWorkspace, type ProjectWorkspace } from './useProjectWorkspac
 
 type Context = NonNullable<ProjectWorkspace['currentReadContext']['value']>
 type Phase = 'waiting' | 'loading' | 'ready' | 'error' | 'unavailable'
-type Read = { index: number; query: CapturedUsageQuery }
+type Mode = 'records' | 'daily'
+type Read = { mode: Mode; index: number; query: CapturedUsageQuery }
 type PageBoundary = { cursor?: string; ids: ReadonlySet<string>; last: ProjectUsageRecord | null }
 const sameIdentity = (a: PersonalIdentity | null, b: PersonalIdentity | null) =>
   !!a && !!b && a.userID === b.userID && a.sessionID === b.sessionID && a.epoch === b.epoch
@@ -39,8 +41,13 @@ export function useProjectUsage(
     message: '',
   })
   const window = shallowRef<CapturedUsageQuery | null>(null),
+    mode = shallowRef<Mode>('records'),
     selected = shallowRef<ProjectUsageRecord | null>(null),
     scope = shallowRef<Context | null>(null)
+  const daily = shallowReactive({
+    items: Object.freeze([]) as readonly ProjectUsageDay[],
+    asOf: '',
+  })
   const queue = shallowReactive<{ active: number | null; pending: Read | null }>({
     active: null,
     pending: null,
@@ -72,6 +79,8 @@ export function useProjectUsage(
     () => !live() || auth.state.busy || reading.value || queue.pending !== null,
   )
   function clear() {
+    daily.items = Object.freeze([])
+    daily.asOf = ''
     page.items = Object.freeze([])
     page.nextCursor = null
     page.index = 0
@@ -93,7 +102,7 @@ export function useProjectUsage(
     page.phase = 'waiting'
     try {
       window.value = captureUsageWindow(now())
-      queue.pending = { index: 0, query: window.value }
+      queue.pending = { mode: mode.value, index: 0, query: window.value }
       pump()
     } catch {
       page.phase = 'error'
@@ -113,6 +122,8 @@ export function useProjectUsage(
     page.items = Object.freeze([])
     page.nextCursor = null
     page.message = ''
+    daily.items = Object.freeze([])
+    daily.asOf = ''
     selected.value = null
     void execute(task, captured, serial, path)
   }
@@ -120,6 +131,17 @@ export function useProjectUsage(
     const current = () =>
       live() && serial === generation && sameContext(captured, scope.value) && path === boundRoute
     try {
+      if (task.mode === 'daily') {
+        const result = await auth.projectUsage.daily(captured.projectID, {
+          from: task.query.from,
+          to: task.query.to,
+        })
+        if (!current()) return
+        daily.items = result.items
+        daily.asOf = result.as_of
+        page.phase = 'ready'
+        return
+      }
       const result = await auth.projectUsage.list(captured.projectID, task.query)
       if (!current()) return
       const prefix = history.slice(0, task.index)
@@ -201,8 +223,9 @@ export function useProjectUsage(
     { immediate: true, flush: 'sync' },
   )
   function move(index: number, cursor: string | undefined) {
-    if (blocked.value || page.phase !== 'ready' || !window.value) return
+    if (mode.value !== 'records' || blocked.value || page.phase !== 'ready' || !window.value) return
     queue.pending = {
+      mode: 'records',
       index,
       query: Object.freeze({ ...window.value, ...(cursor === undefined ? {} : { cursor }) }),
     }
@@ -210,13 +233,30 @@ export function useProjectUsage(
   }
   return {
     page: readonly(page),
+    mode: readonly(mode),
+    daily: readonly(daily),
     window: readonly(window),
     selected: readonly(selected),
     visible,
     reading,
     blocked,
+    showMode(value: Mode) {
+      if (blocked.value || mode.value === value) return
+      const captured = window.value
+      mode.value = value
+      if (!captured) {
+        firstPage()
+        return
+      }
+      retire()
+      clear()
+      window.value = captured
+      page.phase = 'waiting'
+      queue.pending = { mode: value, index: 0, query: captured }
+      pump()
+    },
     select(id: string) {
-      if (!blocked.value && page.phase === 'ready')
+      if (mode.value === 'records' && !blocked.value && page.phase === 'ready')
         selected.value = page.items.find((item) => item.id === id) ?? null
     },
     closeDetail() {

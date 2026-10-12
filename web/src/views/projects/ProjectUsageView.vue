@@ -2,7 +2,11 @@
 import { computed, nextTick, onBeforeUnmount, ref } from 'vue'
 import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
 import { UiButton, UiCard, UiState } from '../../components/ui'
-import { usageTokenFields, type ProjectUsageRecord } from '../../api/project-usage'
+import {
+  usageSummaryFields,
+  usageTokenFields,
+  type ProjectUsageRecord,
+} from '../../api/project-usage'
 import { useProjectUsage } from '../../composables/useProjectUsage'
 import { useProjectWorkspace } from '../../composables/useProjectWorkspace'
 import { skillsNavigationReadReady } from '../../router/auth'
@@ -53,6 +57,14 @@ const tokenLabels = {
   cache_write_tokens: '缓存写入 Token',
   reasoning_tokens: '推理 Token',
 }
+const summaryLabels = {
+  input: '输入 Token',
+  output: '输出 Token',
+  total: '总 Token',
+  cached_input: '缓存命中输入 Token',
+  cache_write: '缓存写入 Token',
+  reasoning: '推理 Token',
+}
 const resultLabel = (item: ProjectUsageRecord) =>
   item.final ? finals[item.final.status] : '尚无最终记录'
 async function select(id: string, event: MouseEvent) {
@@ -75,6 +87,11 @@ async function changePage(direction: 'next' | 'previous') {
   await nextTick()
   if (owner.visible.value) pageHeading.value?.focus()
 }
+async function changeView(mode: 'records' | 'daily') {
+  owner.showMode(mode)
+  await nextTick()
+  if (owner.visible.value) pageHeading.value?.focus()
+}
 onBeforeRouteLeave(() => owner.cancel())
 onBeforeRouteUpdate((to, from) => {
   if (to.fullPath !== from.fullPath) owner.cancel()
@@ -90,25 +107,45 @@ onBeforeUnmount(() => owner.dispose())
         <p>查看近 30 天的模型调用。名称按调用时记录显示，未知用量不会记为零。</p>
       </div>
       <div class="usage-actions">
-        <UiButton :disabled="owner.blocked.value" @click="owner.refresh()">刷新调用记录</UiButton>
+        <UiButton :disabled="owner.blocked.value" @click="owner.refresh()">{{
+          owner.mode.value === 'daily' ? '刷新按日汇总' : '刷新调用记录'
+        }}</UiButton>
         <UiButton v-if="owner.reading.value" variant="ghost" @click="owner.cancel()"
           >停止读取</UiButton
         >
       </div>
     </header>
+    <div class="usage-actions" role="group" aria-label="调用记录视图">
+      <UiButton
+        :aria-pressed="owner.mode.value === 'records'"
+        :disabled="owner.blocked.value"
+        @click="changeView('records')"
+        >调用明细</UiButton
+      >
+      <UiButton
+        :aria-pressed="owner.mode.value === 'daily'"
+        :disabled="owner.blocked.value"
+        @click="changeView('daily')"
+        >按日汇总</UiButton
+      >
+    </div>
     <p v-if="owner.visible.value && owner.window.value" class="usage-window">
       查询时间（UTC）：<time :datetime="owner.window.value.from">{{
         owner.window.value.from
       }}</time>
       至 <time :datetime="owner.window.value.to">{{ owner.window.value.to }}</time
-      >（不含结束时间）。返回上一页会重新读取该页。
+      >（不含结束时间）。<template v-if="owner.mode.value === 'records'"
+        >返回上一页会重新读取该页。</template
+      >
     </p>
-    <h2 ref="pageHeading" tabindex="-1">调用明细</h2>
+    <h2 ref="pageHeading" tabindex="-1">
+      {{ owner.mode.value === 'daily' ? '按日汇总' : '调用明细' }}
+    </h2>
     <UiState v-if="!owner.visible.value" kind="loading" title="正在确认调用记录访问身份" />
     <UiState
       v-else-if="page.phase === 'waiting' || page.phase === 'loading'"
       kind="loading"
-      title="正在读取调用记录"
+      :title="owner.mode.value === 'daily' ? '正在读取按日汇总' : '正在读取调用记录'"
     />
     <UiState
       v-else-if="page.phase === 'error' || page.phase === 'unavailable'"
@@ -116,6 +153,73 @@ onBeforeUnmount(() => owner.dispose())
       title="调用记录暂不可用"
       :description="page.message"
     />
+    <section v-else-if="owner.mode.value === 'daily'" class="usage-daily" aria-label="按日用量汇总">
+      <p>
+        按 UTC 日期汇总查询范围内的服务端记录。已知总量仅包含有该项用量的调用；未知用量不记为零。
+      </p>
+      <p>
+        统计截至（UTC）：<time :datetime="owner.daily.asOf">{{ owner.daily.asOf }}</time>
+      </p>
+      <p v-if="owner.daily.items.length === 0" role="status">本次时间范围内没有用量汇总。</p>
+      <article
+        v-for="day in owner.daily.items"
+        :key="day.key.day"
+        class="usage-day"
+        :aria-label="day.key.day + ' 用量汇总'"
+      >
+        <h3>{{ day.key.day }}（UTC）</h3>
+        <dl class="usage-day-counts">
+          <div>
+            <dt>已确认调用</dt>
+            <dd>{{ day.summary.confirmed_invocations }}</dd>
+          </div>
+          <div>
+            <dt>派发情况未知</dt>
+            <dd>{{ day.summary.dispatch_unknown }}</dd>
+          </div>
+          <div>
+            <dt>成功</dt>
+            <dd>{{ day.summary.succeeded }}</dd>
+          </div>
+          <div>
+            <dt>失败</dt>
+            <dd>{{ day.summary.failed }}</dd>
+          </div>
+          <div>
+            <dt>已取消</dt>
+            <dd>{{ day.summary.cancelled }}</dd>
+          </div>
+          <div>
+            <dt>结果未知</dt>
+            <dd>{{ day.summary.unknown }}</dd>
+          </div>
+        </dl>
+        <table class="usage-summary-table">
+          <caption>
+            {{
+              day.key.day
+            }}
+            Token 用量
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">用量项目</th>
+              <th scope="col">已知总量</th>
+              <th scope="col">用量已知调用</th>
+              <th scope="col">用量未知调用</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="field in usageSummaryFields" :key="field">
+              <th scope="row">{{ summaryLabels[field] }}</th>
+              <td>{{ day.summary[field].sum ?? '未知' }}</td>
+              <td>{{ day.summary[field].known_count }}</td>
+              <td>{{ day.summary[field].unknown_count }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </article>
+    </section>
     <template v-else>
       <p v-if="page.items.length === 0" role="status">本次时间范围内没有调用记录。</p>
       <div class="usage-content">
@@ -349,6 +453,43 @@ dt {
 .usage-page time,
 .usage-page dd,
 .usage-page h2 {
+  overflow-wrap: anywhere;
+}
+.usage-daily,
+.usage-day {
+  min-width: 0;
+  display: grid;
+  gap: var(--content-gap);
+}
+.usage-day {
+  padding-block: var(--content-gap);
+  border-bottom: 1px solid var(--border);
+}
+.usage-day h3,
+.usage-day-counts,
+.usage-day-counts dd {
+  margin: 0;
+}
+.usage-day-counts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--content-gap);
+}
+.usage-summary-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+.usage-summary-table caption {
+  text-align: left;
+  margin-bottom: var(--content-gap);
+}
+.usage-summary-table th,
+.usage-summary-table td {
+  padding: var(--space);
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
   overflow-wrap: anywhere;
 }
 .usage-pagination {
