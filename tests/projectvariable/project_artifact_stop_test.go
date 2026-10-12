@@ -168,6 +168,7 @@ func (s *artifactStopPG) clearHooks() {
 	store := s.base.p2.base.tracked
 	store.setAfter(nil)
 	store.mu.Lock()
+	store.enter = nil
 	store.before, store.afterResult, store.transformResult = nil, nil, nil
 	store.mu.Unlock()
 }
@@ -202,6 +203,14 @@ func (s *artifactStopPG) holdRead(t *testing.T) (*skillsCleanupPGCall, *schedule
 	barrier := s.barrier()
 	var mu sync.Mutex
 	var selected string
+	var callers sync.Map
+	store.mu.Lock()
+	store.enter = func(ctx context.Context, cause f.TransactionCause) {
+		if ctx.Value(artifactStopReadObservation{}) == true && cause.Kind() == f.RecoveryCause && cause.Details().Owner == "artifact" {
+			callers.Store(cause.Details().RecoveryRunID, ctx)
+		}
+	}
+	store.mu.Unlock()
 	store.setAfter(func(ctx context.Context, tx f.Tx, cause f.TransactionCause) error {
 		if ctx.Value(artifactStopReadObservation{}) != true || cause.Kind() != f.RecoveryCause || cause.Details().Owner != "artifact" {
 			return nil
@@ -215,9 +224,13 @@ func (s *artifactStopPG) holdRead(t *testing.T) (*skillsCleanupPGCall, *schedule
 			return err
 		}
 		if count == prior+1 {
+			caller, ok := callers.LoadAndDelete(cause.Details().RecoveryRunID)
+			if !ok {
+				return errors.New("original Artifact Audit caller context was not observed")
+			}
 			mu.Lock()
 			selected = cause.Details().RecoveryRunID
-			s.readContext = ctx
+			s.readContext = caller.(context.Context)
 			mu.Unlock()
 		}
 		return nil
@@ -276,6 +289,53 @@ func (s *artifactStopPG) observe(t *testing.T, inspect bool, want pc.StopState) 
 		t.Fatal("real Artifact/Object Stop report differs", report.Details().State)
 	}
 }
+
+// Object advances one of its five bounded lanes per original invocation. This
+// fixture has no unfinished work/upload/lease in lanes 0..2 and exactly one
+// issued download grant in lane 3. Consume those explicit Pending results;
+// neither the adapter nor an Artifact stopped receipt completes Object's scan.
+func (s *artifactStopPG) completeStop(t *testing.T, inspect bool) {
+	t.Helper()
+	v := s.base
+	var work, uploads, leases int
+	outboxCleanupRequire(t, v.p2.base.raw.QueryRow(ctxFor(t), `SELECT (SELECT count(*) FROM agenteam_object.project_work WHERE project_id=$1 AND joined_at IS NULL),(SELECT count(*) FROM agenteam_object.uploads WHERE project_id=$1 AND disposition='reserved'),(SELECT count(*) FROM agenteam_object.object_leases l JOIN agenteam_object.objects o ON o.id=l.object_id WHERE o.project_id=$1 AND l.state='active')`, s.scope.ProjectID.String()).Scan(&work, &uploads, &leases))
+	if work != 0 || uploads != 0 || leases != 0 {
+		t.Fatal("original returned Artifact fixture still has Object work before download lane", work, uploads, leases)
+	}
+	read := func() (state string, lane int, after string, grants int) {
+		t.Helper()
+		outboxCleanupRequire(t, v.p2.base.raw.QueryRow(ctxFor(t), `SELECT COALESCE((SELECT state FROM agenteam_object.project_stops WHERE project_id=$1 AND operation_id=$2),''),COALESCE((SELECT scan_kind FROM agenteam_object.project_stops WHERE project_id=$1 AND operation_id=$2),0),COALESCE((SELECT scan_after::text FROM agenteam_object.project_stops WHERE project_id=$1 AND operation_id=$2),''),(SELECT count(*) FROM agenteam_download.grants WHERE project_id=$1 AND NOT revoked)`, s.scope.ProjectID.String(), s.cause.OperationID.String()).Scan(&state, &lane, &after, &grants))
+		return
+	}
+	state, first, after, grants := read()
+	if (state != "" && state != "stopping") || first < 0 || first > 3 || after != "" || grants != 1 {
+		t.Fatal("original Object scan did not retain the issued download grant", state, first, after != "", grants)
+	}
+	var artifactReceipt string
+	for lane := first; lane <= 3; lane++ {
+		want := pc.StopPending
+		if lane == 3 {
+			want = pc.Stopped
+		}
+		s.observe(t, inspect, want)
+		s.requireState(t, "stopped", true)
+		currentArtifactReceipt := s.stopReceipt(t)
+		if artifactReceipt != "" && currentArtifactReceipt != artifactReceipt {
+			t.Fatal("Object scan changed the original completed Artifact receipt")
+		}
+		artifactReceipt = currentArtifactReceipt
+		state, next, after, grants := read()
+		t.Logf("PROJECT_ARTIFACT_STOP_SCAN original_lane=%d returned_state=%s next_lane=%d remaining_download_grants=%d", lane, want, next, grants)
+		if lane < 3 {
+			if state != "stopping" || next != lane+1 || after != "" || grants != 1 {
+				t.Fatal("original Pending scan did not advance exactly one empty lane", state, next, after != "", grants)
+			}
+		} else if state != "stopped" || next != 0 || after != "" || grants != 0 {
+			t.Fatal("original download lane did not revoke its grant and confirm Object Stopped", state, next, after != "", grants)
+		}
+	}
+}
+
 func (s *artifactStopPG) stopHeldRead(t *testing.T, read *skillsCleanupPGCall, held *schedulerStopBarrier) {
 	t.Helper()
 	s.observe(t, false, pc.StopPending)
@@ -296,7 +356,7 @@ func (s *artifactStopPG) stopHeldRead(t *testing.T, read *skillsCleanupPGCall, h
 	// own joined checkpoint, rather than global Joined, delimit Stop.
 	outboxCleanupRequire(t, read.err)
 	s.clearHooks()
-	s.observe(t, true, pc.Stopped)
+	s.completeStop(t, true)
 	s.requireState(t, "stopped", true)
 	s.receipt = s.stopReceipt(t)
 	s.base.otherReadable(t)
@@ -442,7 +502,7 @@ func (s *artifactStopPG) unknownStop(t *testing.T) {
 	if s.snapshot(t) != before {
 		t.Fatal("actual read-only confirmation return changed original receipt")
 	}
-	s.observe(t, false, pc.Stopped)
+	s.completeStop(t, false)
 	s.requireState(t, "stopped", true)
 	s.receipt = s.stopReceipt(t)
 	v.otherReadable(t)
