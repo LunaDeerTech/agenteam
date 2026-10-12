@@ -29,7 +29,7 @@ native04 已实际 whole PASS：原工具 83628、Go 958337、driver 956720 和 
 
 ## 分段验证与原件
 
-原件均在 `output/ai/write-file-result-consumption/`，没有覆盖或删除：
+原件现完整保留于 main `output/ai/retired-20261012/write-file-result-consumption/`；下列相对路径均以该根为准，原输出内文件未覆盖或删除：
 
 - `methods01`、`methods02`、`methods03`：各原 1 正 / 7 反通过，各轮 10 方法输入前后相同；轮间源码和方法的授权差额按各自记录保留。
 - `basic01`：17 top / 78 sub 与 5 包 vet 实际通过，843 项输入六图相同。该结果是既有基线；后续 reader 范围单独记录，不回写此轮。
@@ -42,7 +42,7 @@ native04 已实际 whole PASS：原工具 83628、Go 958337、driver 956720 和 
 
 四次 native 的原 Go / driver / outer Wait、七资源 14 次 absence、desc/private/runtime 双尾、HOST_TCP 双空、1992 项前后输入及四身份均完整保留。最终原工具 83628 亲收 exit 0 / chunk `c81c0b`，supervisor 原实际 Wait 0 / 199.212s；日志内 `SUPERVISOR inputs_unchanged=True terminal=0 elapsed=198.237s` 与外层计时分别保留。工具亲收转录在 `native04/native-tool-observation.json`，明确标为 assistant-observed，不能当作 provider 原生回执。`native04/terminal.json` 是此次真实 outer 结果，`post-native-observation.json` 与 `input-hashes-after.json` 保存后验边界。
 
-原 native04 主日志为 `/tmp/wfrc04/pg-762a4bf901a542e08ea49693c2743c45.log`，同 nonce 目录的 `owned.json`、`request.json` 原件保留。前三轮分别位于 `/tmp/wfrc01`、`/tmp/wfrc02`、`/tmp/wfrc03`，各轮配方、输入和工具回执在对应 `native01`—`native03` 输出目录。上述 native04 限定业务与全尾已完成独立复核。尚未在此记录 main 合并、推送、保全迁移或树/分支清理。
+原 native04 主日志为 `/tmp/wfrc04/pg-762a4bf901a542e08ea49693c2743c45.log`，同 nonce 目录的 `owned.json`、`request.json` 原件保留。前三轮分别位于 `/tmp/wfrc01`、`/tmp/wfrc02`、`/tmp/wfrc03`，各轮配方、输入和工具回执在对应 `native01`—`native03` 输出目录。上述 native04 限定业务与全尾已完成独立复核。完整历史已随 main `ac025026` 正式交付并推送；保全与树/ref实际清理见下节。
 
 已执行的 sequence03 按 methods03 → reader basic02 → compile03/list → prepare04-only 串行条件推进，原工具 83881 完整返回 0；只有实际 0 且输入相同才继续。native04 在独立授权后由原 recorder 单次执行。下面保留准确方法入口供原件复核，不构成再次运行授权：
 
@@ -53,4 +53,16 @@ python3 -B .agent-state/write-file-result-consumption/run-pg-checks.py compile -
 python3 -B .agent-state/write-file-result-consumption/run-pg-checks.py prepare --compile output/ai/write-file-result-consumption/compile03 --output output/ai/write-file-result-consumption/native04 --namespace /tmp/wfrc04
 ```
 
-执行根只使用 `/workspace/agenteam-write-file-result-consumption`，不引用已退役活动树的绝对 binary/output 路径。热 GOCACHE 与只读 GOMODCACHE 沿原方法固定位置保护，不复制或更换锁。源码/静态通过不计真实 PG，通过范围也不包括下一 Model、再次 Tool 执行、默认绑定、终态退休或 tools HTTP 解禁。全部 Git 操作由 root 及其明确指定的 Git 执行者完成。
+原执行根为 `/workspace/agenteam-write-file-result-consumption`，现已普通清理；上述命令保留原调用语境，不应在已删除路径续跑。历史源码从正式 main 恢复，原 binary/output 从下述保全根取得；新任务使用自身独立树与产物。热 GOCACHE 与只读 GOMODCACHE 沿原方法固定位置保护，不复制或更换锁。源码/静态通过不计真实 PG，通过范围也不包括下一 Model、再次 Tool 执行、默认绑定、终态退休或 tools HTTP 解禁。全部 Git 操作由 root 及其明确指定的 Git 执行者完成。
+
+## 正式交付与保全
+
+完整开发历史与最终文档 `67780ac4f01cb66305b93de89cfdf8f79364465c` 已以正常 no-ff 合入 main `ac02502698af864c20a65fd83d35467511f014be`。main/feature atomic push PID965246实际0，fresh与显式main/ai tracking同步原20394亲Wait0；集成未修改受测技术字节，不重跑已接受检查。
+
+保全原28079亲Wait0（47e291），Python966046实际0/4.883s：完整 output 的218文件/284,884,747B与42目录经同FS `renameat2(RENAME_NOREPLACE)` 迁至[原件目录](../../output/ai/retired-20261012/write-file-result-consumption/)，逐path/SHA/size/dev/inode/mode/uid/gid/nsmtime前后全等。全部四native、三compile、原FAIL、Wait与assistant-observed工具转录身份保持；[旁目录证明](../../output/ai/retired-20261012/write-file-result-consumption-preservation/result.json)与迁移前后清单不混入原输出。
+
+[历史输入证明](../../output/ai/retired-20261012/write-file-result-consumption-preservation/source-history.json)覆盖56输入图、1,997个仓库path/SHA版本，逐blob匹配 `0b9a96ab`、`ff03f4ec`、`98d23247`，三者及最终文档均main祖先。三个实物binary作为原输出保留。两个外部输入仅保原Go/MinIO路径与SHA，不冒已复制或由Git恢复；原hotcache、只读modules和MinIO保护不动。
+
+`/tmp/wfrc01`—`04` 各原log、owned/request与telemetry小文件共16份已排他复制到旁证明目录`external/`，逐字节及mode/uid/gid/nsmtime核同，原tmp未动。副本的dev/inode独立，不冒原身份。只核原已知PID当前不可见、原Wait与作者停写声明、旧树无其它ignored/普通untracked；不扩大为全局FD或未知配方保证。新Command方法owner确认后继无旧树绝对live依赖。
+
+随后普通worktree remove PID966524、普通branch -d PID966546均0；fresh精确等最终tip后，单ref exact-lease删除PID966551实际0，fresh空及显式main/ai prune均0。原30239亲Wait0（e3f243），无force树删除、无保全副本删除。见[Git实际清理](../../output/ai/write-file-result-consumption-git/cleanup01/result.json)。原运行目录虽已移走，所有已保全失败、来源局限和STOP保持；本片不包含下一Model、再次Tool执行、默认生产装配或tools HTTP解禁。

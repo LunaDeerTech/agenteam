@@ -1,6 +1,8 @@
-# 当前工作：Write-file 结果消费已交付，后继 Command 结果消费准备
+# 当前工作：Run-command 结果消费
 
-2026-10-12。本索引位于 `/workspace/agenteam` 正式 main 工作树；root 统筹，variables_review 执行明确授权的 Git 与全局记录。Write-file 结果消费随本次完整历史合入有限交付（受测源码 `98d23247`、最终两文档 `67780ac4`）：已持久结果的历史读取、同 Tx 消费及后继 RoundInput/只读投影通过；撤销当前派发权限不抹除已提交历史，真实 COMMIT 丢回执后原/新 consumer 仅 Lookup，不重发。分阶段共18top/81sub及5包vet通过，三次compile/list实际0；native04原83628/c81c0b wholeactual0，1top/2sub107.10s、supervisor956700 Wait0/199.212s，1992输入/四方法身份、七资源双缺席、desc/private/runtime与自动TCP双空齐，唯一主审已接受。见[本片卡](../docs/development/work-items/d22-write-file-result-consumption.md)与[方法/恢复说明](write-file-result-consumption/README.md)。尚未保全或删除本片树/ref；当前计数39树/40本地/80远端、legacy135待核/keep1。后继 Command 结果消费尚待从本次实际推送主线创建独立树，不包含下一Model、默认生产绑定或tools HTTP解禁。
+2026-10-12。本索引位于 `/workspace/agenteam` 正式 main 工作树；root 统筹，variables_review 执行明确授权的 Git 与全局记录。当前独立树 `/workspace/agenteam-run-command-result-consumption`，分支 `ai/run-command-result-consumption-20261012`、base `ac02502698af864c20a65fd83d35467511f014be`，已实际创建并由各域作者开始静态实施，尚未Go/PG验收。新树仅继承正式主线源码，不依已退役Write树绝对运行路径；不启动下一Model、不改默认生产绑定或tools HTTP STOP。
+
+Write-file 结果消费已随完整历史 main `ac025026` 交付并推送（受测 `98d23247`、最终两文档 `67780ac4`）。分阶段18top/81sub与5包vet、三次compile/list通过；native04原83628/c81c0b wholeactual0，1top/2sub107.10s、supervisor956700 Wait0/199.212s，1992输入/四身份、七资源双缺席、desc/private/runtime及自动TCP双空齐，唯一主审接受有限链。218文件/284,884,747B/42目录已同FS无覆盖保全，56输入图中1,997历史源码版本main可恢复、四tmp各4副本齐且原件保留。原树/本地分支普通删除及远端精确lease删除、fresh空/显式main+ai prune均实际成功；当前累计40树/41本地/81远端、legacy135待核/keep1。见[本片卡](../docs/development/work-items/d22-write-file-result-consumption.md)、[恢复说明](write-file-result-consumption/README.md)及[清理记录](branch-cleanup-20261011.md#2026-10-12-write-file结果消费实际清理)。
 
 前三轮原FAIL完整保留：native01原69794在MkdirTemp实际ENOSPC前置失败、未进入业务；已验证归档后净回收953,503,744B只代表容量事实。native02原62998/972b5f业务断言及fixture运行中delegate替换race失败；native03原78288/98b5a6确认历史reader共享2s discovery耗尽，外层仍有17.8s，未见该轮race。修后各短Tx沿原2s、历史阶段继承caller context，未另设全程总预算；PG/driver/资源/TCP门不变。四轮完整Wait、原日志与退出尾保留，04成功不回填01–03；durablefalse/late completion仅pure控制，不冒真实PG分支。
 
@@ -8,7 +10,7 @@ Runner Command Operation 已随完整历史 main `4ebde5a7` 有限交付并与�
 
 Runner Command WSS 已随完整历史main `16f834fa` 有限交付并推送（25306 actual0/120ec8）：实际20top/43sub race、三包vet及首次1top/1sub真实TLS/WSS全尾通过。92文件/23,492,506B/10目录与五份tmp副本已保全，75仓库历史输入main可恢复；root已普通移除旧树/本地分支并精确lease删除远端。仅Runner显式argv/cwd执行与退出报告，不含Central授权、PG或默认绑定，见[本片卡](../docs/development/work-items/d15-runner-command-wss.md)及[恢复说明](runner-command-wss/README.md)。
 
-Runner write-file Operation 已有限验收，完整历史随 `fff1f829` 合入；Runner Command argv 独立片随后随 `6a27bc3d` 完整合入，main 推送原1815 actual0（0d33eb）。两片原树、本地分支及远端引用均已实际清理；原材料保全与删除回执见[清理记录](branch-cleanup-20261011.md#2026-10-12-write--command实际清理)。最新累计39树/40本地/80远端，legacy135待核、keep1不变；新Write结果消费树不计作清理。
+Runner write-file Operation 已有限验收，完整历史随 `fff1f829` 合入；Runner Command argv 独立片随后随 `6a27bc3d` 完整合入，main 推送原1815 actual0（0d33eb）。两片原树、本地分支及远端引用均已实际清理；原材料保全与删除回执见[清理记录](branch-cleanup-20261011.md#2026-10-12-write--command实际清理)。最新累计40树/41本地/81远端，legacy135待核、keep1不变；新Command结果消费树不计作清理。
 
 Command 原技术/方法 `2664c9c6` 的basic01：14个行为top/20sub race PASS、3个helper仅Skip、三包vet实际0；原20601亲收0（2709b5），wrapper850742 /19.852s，各原Wait和SID双空齐，1111输入三份相同。44项仓库输入与合成main `6a27bc3d` 逐字一致，44个历史输入版本可由main恢复，未因文档或集成重复测试。52文件/1,996,308 B/5目录的跨FS副本完整保留于 `output/ai/retired-20261012/runner-command-owner/`；dev/inode为新身份，原 `/tmp` output已随普通worktree清理删除。见[Command卡](../docs/development/work-items/d16-runner-command-owner.md)与[恢复说明](runner-command-owner/README.md)。范围仍为Linux trusted-host argv/cwd owner，不是进程sandbox，也不证明逃逸整树退出。
 
@@ -22,7 +24,7 @@ Write 原 output 已由工具 94730 actual 0 同文件系统 `NOREPLACE` 迁至 
 
 ## 已交付上游与全局保留
 
-以下保留 main 当前已核清理39树/40本地/80远端、legacy135待核/keep1及正式材料位置；所有累计仅按 root 统筹、执行者已实际完成的清理计数。
+以下保留 main 当前已核清理40树/41本地/81远端、legacy135待核/keep1及正式材料位置；所有累计仅按 root 统筹、执行者已实际完成的清理计数。
 
 - RoundInput 只读投影已随完整历史合入 main `b0467431`，唯一主审已接受有限 wholePASS；原件已无覆盖保全，main `095d3359` 推送实际0，原 Projection 树、本地分支及远端引用均已实际清理。见[本片卡](../docs/development/work-items/d22-next-round-projection.md)与[方法/恢复说明](next-round-projection/README.md)。以下为其原验收与保全事实。
 - 只读原已提交RoundInput及绑定的历史参数、完整结果、三消息、Control和固定Tool目录；实际reader返回前不发布。当前配置撤销不改历史投影，也不由历史观察授新执行权限。无下一Model/Runner派发或默认生产接线。
@@ -30,7 +32,7 @@ Write 原 output 已由工具 94730 actual 0 同文件系统 `NOREPLACE` 迁至 
 - native03原72578亲收actual0：1top1sub23.50s；sup827584 /113.320s，Go829170/driver827585 Wait0；七资源14absence、desc/private/runtime双空、自动HOST_TCP差额双空与输入不变全部齐。主审已接受真实已提交事实、无写Tx、深拷贝/历史稳定及新增Model/WSS为0的有限链路。原件现位于 main `output/ai/retired-20261012/next-round-projection/native03/`。
 - native01原10165、native02原73449 wholeFAIL完整保留，均0.00s最前MkdirTemp失败未到投影；01原errno未知，02实际ENOSPC。原尾后受控mkdir成功与容量释放仅各自时点事实，03通过不解释旧ENOSPC；03未触发失败Statfs分支。各原Wait/退出/TCP/input证据不覆盖。
 - 原output106文件/271,750,879 B/25目录已同FS无覆盖迁入main `output/ai/retired-20261012/next-round-projection/`，全部路径/SHA/size/dev/inode/mode/nsmtime前后一致；旁目录`next-round-projection-preservation/`保存核验与三轮tmp各4文件副本，原tmp保留。23map/1,905仓库历史版本已匹配原三个检查点；root在完整历史合main后确认 `c30623db`、`5b04b4fc`、`272c74fa`、最终文档 `7b08aa00` 均main祖先（c2c99a实际0）；外部工具链/modules/MinIO保护及可见`/proc`限制见[恢复说明](next-round-projection/README.md)。root普通worktree remove与branch -d均实际0；Projection远端原tip `272c74fa` 经exact-lease删除、fresh空查询与prune/local-tracking空核验实际0，已计入下列累计。
-- 上游68 main `bf7c882a`、Runner write-file WSS main `570da7a2`均已有限交付并完成原树/本地分支清理；当前已核清理累计39树/40本地/80远端、135待核/keep1；此前三条及两条legacy remote完整删除与源码恢复证据保持，先前WriteOperation迁址未计作清理。
+- 上游68 main `bf7c882a`、Runner write-file WSS main `570da7a2`均已有限交付并完成原树/本地分支清理；当前已核清理累计40树/41本地/81远端、135待核/keep1；此前三条及两条legacy remote完整删除与源码恢复证据保持，先前WriteOperation迁址未计作清理。
 
 主目标仍是完成[开发计划](../docs/development/development-plan.md)中的D01–D28/E01，目前尚未完成；任何单片有限验收不代表整体目标或原STOP解除。
 
@@ -59,7 +61,7 @@ Write 原 output 已由工具 94730 actual 0 同文件系统 `NOREPLACE` 迁至 
 - ProjectVariablesResume 已随 main `3e28f10a` 有限交付；`66d45ce1` 仅保留完整开发历史、文件树零变化。全部原 output 和三份 tmp 必需副本已无覆盖保全，119 个已提交历史版本 main 可达；早期未提交失败输入缺口如实保留，见[恢复说明](project-variables-resume/README.md)。原树已普通移除，本地 branch -d 实际成功；远端原 tip 精确 lease 删除工具 4661 实际 0，fresh 查询为空、prune 0，三项清理已计入下列总数。
 - ObjectSafe 保留原件与失败。Move 活跃树保留，未核其他树不自动清理。
 - Runner directory 已随 main `4e5e70ce` 有限交付并推送，28 个相关 race top、六包 vet 与真实 PG/WSS 整轮独立接受；原树、本地分支及远端引用均已清理。完整 output 已同文件系统无覆盖迁至 main `output/ai/retired-20261011/runner-directory-adapter/`，其中 `retention/` 保存原 `/tmp/rda01` log/owned/request 的逐字副本和路径映射；原 `/tmp` 保留。本片无失败输入需补恢复差额，上游严格授权替身、生产默认 nil executor/旧 STOP 保留。
-- 已完成清理共 39 个 WorkTree、40 个本地分支、80 个远端引用；其中 27 个额外远端引用为严格 main 祖先，没有对应本地分支或树，另有已删除的本地 work296。root 已确认前述三棵退役树不存在、对应 local/tracking 为空，精确 lease 删除、ls-remote 空结果及 main+ai prune 均实际成功。Directory 普通 worktree remove 成功，branch -d 因非祖先拒绝后仅对已交 squash 分支执行窄 -D；最新 tip 精确 lease 删除、成功空查询、prune 和 local/tracking 空结果均已闭合。另有 D16 filesystem、D18 NameProjection、SearchBenchmark 三个完整 scope 已交且无独占依赖的旧远端引用，经 fresh tip 核对、精确 lease 删除、成功空查询及 prune 后完成清理，没有新增本地分支或树。新增清理 `ai/work-review-runtime-delivery`：tip `f4190ad7` 全部历史经 main 可达，无本地分支、worktree 或活动依赖；root fresh tip 核对后精确 lease 删除成功，ls-remote 成功为空，prune 后远端跟踪引用为空，无需新增恢复材料。原 154 个待核引用现剩 135 个，1 个显式保留历史引用仍未动，其他活动分支按 owner 保留。`ai/skills-milestone-integration` 的全部历史已为 main 祖先、无 local/tree 或活动依赖；root 核定 tip `fc0fb130` 后精确 lease 删除工具 74385 实际 0，fresh 查询为空、prune 完成，已计入上述远端累计。
+- 已完成清理共 40 个 WorkTree、41 个本地分支、81 个远端引用；其中 27 个额外远端引用为严格 main 祖先，没有对应本地分支或树，另有已删除的本地 work296。root 已确认前述三棵退役树不存在、对应 local/tracking 为空，精确 lease 删除、ls-remote 空结果及 main+ai prune 均实际成功。Directory 普通 worktree remove 成功，branch -d 因非祖先拒绝后仅对已交 squash 分支执行窄 -D；最新 tip 精确 lease 删除、成功空查询、prune 和 local/tracking 空结果均已闭合。另有 D16 filesystem、D18 NameProjection、SearchBenchmark 三个完整 scope 已交且无独占依赖的旧远端引用，经 fresh tip 核对、精确 lease 删除、成功空查询及 prune 后完成清理，没有新增本地分支或树。新增清理 `ai/work-review-runtime-delivery`：tip `f4190ad7` 全部历史经 main 可达，无本地分支、worktree 或活动依赖；root fresh tip 核对后精确 lease 删除成功，ls-remote 成功为空，prune 后远端跟踪引用为空，无需新增恢复材料。原 154 个待核引用现剩 135 个，1 个显式保留历史引用仍未动，其他活动分支按 owner 保留。`ai/skills-milestone-integration` 的全部历史已为 main 祖先、无 local/tree 或活动依赖；root 核定 tip `fc0fb130` 后精确 lease 删除工具 74385 实际 0，fresh 查询为空、prune 完成，已计入上述远端累计。
 
 
 - 两条无 local/tree 或活动依赖的旧 remote 已完成 fresh tip 核对、双 exact-lease 原子删除、成功空查询及 prune：`ai/task-timeline-http`（`1e6b3db2809ce0e62de6c8c2042a0eaf3b9b67f5`）完整 6 路径及 6 个提交版本逐字保留于 main 祖先 `bfebd676`；`ai/agent-directory-http`（`235887d2f615ed6bd6863d9c8b4a1b1e548f32d2`）完整 14 路径等于 main 祖先 `2c59cf0d`，跨三提交的 15 个文件版本均可从 main 历史恢复，无需新增材料。

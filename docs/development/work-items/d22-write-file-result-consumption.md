@@ -1,6 +1,6 @@
 # D22 Write 回执消费与后继只读投影
 
-状态：2026-10-12 在 `/workspace/agenteam-write-file-result-consumption` 从正式主线 `4ebde5a7` 完成显式 Write 回执消费、Determine 与只读 Projection。分阶段基础检查、最终 compile/list 与 native04 实际通过，唯一 principal 已接受 native04 whole PASS 的有限结论，可交主线。native01–03 原 whole FAIL 和全部输入、日志、终态继续保留。
+状态：2026-10-12 已随完整历史 main `ac02502698af864c20a65fd83d35467511f014be` 有限交付并实际推送。分阶段基础检查、最终 compile/list 与 native04 通过，唯一 principal 已接受 whole PASS；native01–03 原 whole FAIL 完整保留。完整原件已无覆盖保全，原树/本地分支普通删除及远端精确lease清理全部实际完成，详见[恢复说明](../../../.agent-state/write-file-result-consumption/README.md)。
 
 依据：[Model/Tool 契约](d01-contracts/model-tool.md)、[Write Operation](d15-runner-write-file-operation.md)、[原结果消费](d22-execution-tool-result-consumption.md)、[DetermineRoundInput](d22-execution-round-input.md)及[只读 round projection](d22-next-round-projection.md)。本片只接受已持久、已知完成发布的 Write 回执，追加原 Execution seq3 和版本，再沿既有 Determine 与只读 Projection；不启动下一 Model、不改默认装配、无新迁移。
 

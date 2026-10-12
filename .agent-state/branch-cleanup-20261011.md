@@ -164,3 +164,13 @@ SprintStart完整历史已由 `bd240d2a` 保留；本轮固定已推送main `e81
 本地前核e82627 actual0确认main clean、两祖先关系、无同名local/worktree；七份当前Write实际配方对两ref/tip及旧执行目录均无命中，旧目录依赖复用已确认owner的有界声明，不扩为全局FD或未知配方证明。见[前置记录](../output/ai/branch-cleanup-20261012/sprint-start-subrefs/preconditions.json)。fresh查询PID941755实际0确认main已推送且两tip精确相同，单次atomic双exact-lease删除PID941780实际0，fresh双空PID941786实际0，显式main/ai fetch-prune PID941815实际0；原38626/859288 actual0确认两tracking为空，见[实际引用后验](../output/ai/branch-cleanup-20261012/sprint-start-subrefs/remote-verification.json)。本轮只增加2个远端删除，累计 **39 WorkTrees / 40本地分支 / 80远端引用**，legacy137→135待核，原keep1不变；没有本地树或分支删除。
 
 旧SprintStart frontend01 FAIL、分段接受与STOP边界，以及未找到旧执行树/output/tmp原件的有界限制，继续沿前述SprintStart历史保留记录。已提交历史可恢复不等于恢复ignored日志、binary/dist、截图、原Wait或未提交现场；本轮没有新产品验证、运行材料扫描或删除。current及Write产品/方法不随此清理改变，当前夹具返修检查点单独保存，不冒动态通过。
+
+## 2026-10-12 Write-file结果消费实际清理
+
+root明确授权的唯一Git执行者将最终 `67780ac4f01cb66305b93de89cfdf8f79364465c` 正常no-ff合入main `ac02502698af864c20a65fd83d35467511f014be`，精确双父为原c59bf538与候选67780ac4，受测技术字节不变、完整开发历史可达。main与feature atomic push PID965246实际0，fresh精确两tip与显式main/ai tracking同步原20394亲Wait0（3f0985）。分阶段18top81sub/5vet和native04有限wholePASS沿原独审接受复用，01–03 FAIL不回填，无产品重测。
+
+[完整保全](../output/ai/retired-20261012/write-file-result-consumption-preservation/result.json)原28079亲Wait0（47e291）：dev27无覆盖迁完整output至main `output/ai/retired-20261012/write-file-result-consumption/`，218文件/284,884,747B/42目录逐项SHA与全部stat/inode前后同。56maps的1,997仓库历史版本精确匹配三原受测ref且均main可达；四轮tmp共16小副本齐、原tmp保留。外部Go/MinIO仅记录原路径SHA，modules/cache保护不动；恢复和可见性限制见[本片README](write-file-result-consumption/README.md)。
+
+旧树tracked/普通untracked/ignored均空、knownPID不可见且原owner确认实际全退，新Command方法只依自身树与受保护依赖。普通worktree remove PID966524实际0、普通branch -d PID966546实际0；fresh PID966547精确等最终67780ac4，单ref exact-lease删除PID966551实际0，fresh PID966606为空，显式main/ai fetch-prune PID966610实际0。原30239亲Wait0（e3f243）确认旧树/local/tracking全空，见[实际后验](../output/ai/write-file-result-consumption-git/cleanup01/result.json)。
+
+本次增加1树/1本地/1远端，累计 **40 WorkTrees / 41本地分支 / 81远端引用**，legacy135待核/原keep1不变。新 `/workspace/agenteam-run-command-result-consumption` 从实际已推送main ac025026独立创建（15591 Wait0/98a648），仅静态实施，不计清理或验收；旧FAIL、保护树、默认未绑定、tools HTTP STOP与总体未完成边界保持。
