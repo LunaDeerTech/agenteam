@@ -45,7 +45,7 @@ func (*Page) UnmarshalJSON([]byte) error { return invalid() }
 func (Page) Format(w fmt.State, _ rune)  { _, _ = io.WriteString(w, "artifact_page") }
 func (Page) LogValue() slog.Value        { return slog.StringValue("artifact_page") }
 
-func (s *Service) ListArtifacts(ctx context.Context, v ac.Invocation, filter ac.ListFilter, page foundation.PageRequest) (Page, error) {
+func (s *Service) listArtifacts(ctx context.Context, v ac.Invocation, filter ac.ListFilter, page foundation.PageRequest) (Page, error) {
 	if v.Validate() != nil || filter.Validate() != nil {
 		return Page{}, invalid()
 	}

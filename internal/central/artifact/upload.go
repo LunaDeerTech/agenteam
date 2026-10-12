@@ -133,7 +133,7 @@ func (u uploadIntent) receiptValue() (oc.UploadReceipt, error) {
 // BeginUpload persists a real prospective Artifact identity after current
 // Human/Project authorization. It is an internal business composition port;
 // production has no unauthenticated upload/Artifact route.
-func (s *Service) BeginUpload(ctx context.Context, v ac.Invocation, command foundation.CommandMeta, display ac.Display, media string, length int64, expectedSHA *foundation.Digest) (ac.UploadTarget, error) {
+func (s *Service) beginUpload(ctx context.Context, v ac.Invocation, command foundation.CommandMeta, display ac.Display, media string, length int64, expectedSHA *foundation.Digest) (ac.UploadTarget, error) {
 	command = copyCommand(command)
 	if v.Validate() != nil || v.Details().Actor.Details().Kind != identity.Human || command.Validate() != nil || display.Validate() != nil || length < 0 || length > oc.MaxObjectSize {
 		return ac.UploadTarget{}, invalid()
@@ -244,7 +244,7 @@ func matchesIntent(u uploadIntent, v ac.Invocation, target ac.UploadTarget) erro
 	}
 	return nil
 }
-func (s *Service) UploadPayload(ctx context.Context, v ac.Invocation, target ac.UploadTarget, body io.ReadCloser) (oc.PutResult, error) {
+func (s *Service) uploadPayload(ctx context.Context, v ac.Invocation, target ac.UploadTarget, body io.ReadCloser) (oc.PutResult, error) {
 	target.Command = copyCommand(target.Command)
 	if nilPort(body) {
 		return oc.PutResult{}, invalid()
@@ -365,7 +365,7 @@ func (s *Service) UploadPayload(ctx context.Context, v ac.Invocation, target ac.
 	return out, nil
 }
 
-func (s *Service) CreateFromUpload(ctx context.Context, v ac.Invocation, command foundation.CommandMeta, display ac.Display, receipt oc.UploadReceipt) (ac.Metadata, error) {
+func (s *Service) createFromUpload(ctx context.Context, v ac.Invocation, command foundation.CommandMeta, display ac.Display, receipt oc.UploadReceipt) (ac.Metadata, error) {
 	req, err := makeRequest(v, command, display, "upload", "", 0, "", oc.BusinessFileRef{}, receipt)
 	if err != nil {
 		return ac.Metadata{}, err

@@ -14,7 +14,7 @@ import (
 // CancelUpload cancels this domain's prospective identity. A consumed Artifact
 // is never deleted by this endpoint. The exact cancellation remains durable
 // until Object cleanup and the original source (if any) actually converge.
-func (s *Service) CancelUpload(ctx context.Context, v ac.Invocation, target ac.UploadTarget) (oc.CleanupState, error) {
+func (s *Service) cancelUpload(ctx context.Context, v ac.Invocation, target ac.UploadTarget) (oc.CleanupState, error) {
 	target.Command = copyCommand(target.Command)
 	if v.Validate() != nil || v.Details().Actor.Details().Kind != identity.Human || target.Reference.Validate() != nil || !target.Owner.Equal(artifactOwner(target.Reference)) || v.Details().ProjectID != target.Reference.ProjectID || target.Command.Validate() != nil {
 		return oc.CleanupPending, invalid()
@@ -50,7 +50,7 @@ func (s *Service) CancelUpload(ctx context.Context, v ac.Invocation, target ac.U
 
 // CancelCreation is an internal incomplete-command convergence port, not a
 // delete-artifact Core Tool. Current authority precedes all history checks.
-func (s *Service) CancelCreation(ctx context.Context, v ac.Invocation, key foundation.IdempotencyKey) (oc.CleanupState, error) {
+func (s *Service) cancelCreation(ctx context.Context, v ac.Invocation, key foundation.IdempotencyKey) (oc.CleanupState, error) {
 	if v.Validate() != nil || key.Validate() != nil {
 		return oc.CleanupPending, invalid()
 	}

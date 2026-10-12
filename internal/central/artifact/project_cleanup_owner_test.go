@@ -339,6 +339,7 @@ func TestArtifactProjectCleanupSourcesRemainPending(t *testing.T) {
 				}
 				if mode == "other-project-local" {
 					v.state.leaseProjects[key] = newTestID[i.Project](t)
+					v.state.leaseSources = map[f.Digest]string{key: ""} // Known System source; neither side is this Project.
 					v.facts[p].state = "completed"
 				}
 			}

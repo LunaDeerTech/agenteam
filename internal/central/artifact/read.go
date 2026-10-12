@@ -15,7 +15,7 @@ import (
 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 )
 
-func (s *Service) ReadArtifact(ctx context.Context, v ac.Invocation, ref ac.ArtifactRef, preview ac.PreviewRequest) (ac.ReadResult, error) {
+func (s *Service) readArtifact(ctx context.Context, v ac.Invocation, ref ac.ArtifactRef, preview ac.PreviewRequest) (ac.ReadResult, error) {
 	preview, err := preview.Normalize()
 	if err != nil {
 		return ac.ReadResult{}, err

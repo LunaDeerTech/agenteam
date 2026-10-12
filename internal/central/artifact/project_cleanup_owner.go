@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	ac "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/object"
@@ -24,6 +25,16 @@ type projectCleanupContextKey struct{}
 type projectCleanupContext struct {
 	state *serviceState
 	call  *projectCleanupCall
+}
+
+func (r *serviceState) originalCleanupCall(ctx context.Context, subject ac.AccessSubject, intent identity.AccessIntent) bool {
+	owner, _ := ctx.Value(projectCleanupContextKey{}).(projectCleanupContext)
+	if intent != identity.Lifecycle || owner.state != r || owner.call == nil || subject.ProjectID != owner.call.cause.ProjectID || !subject.Actor.Equal(owner.call.actor) {
+		return false
+	}
+	r.cleanupMu.Lock()
+	defer r.cleanupMu.Unlock()
+	return r.cleanupCalls[subject.ProjectID] == owner.call && owner.call.active
 }
 
 // RequireProjectCleanupBinding validates the fixed cleanup composition only.
@@ -66,10 +77,15 @@ func (r *serviceState) borrowProjectCleanup(actor identity.Actor, cause oc.Proje
 }
 func (r *serviceState) releaseProjectCleanup(call *projectCleanupCall) {
 	r.cleanupMu.Lock()
-	defer r.cleanupMu.Unlock()
 	call.active = false
 	if !call.retained {
 		delete(r.cleanupCalls, call.cause.ProjectID)
+	}
+	r.cleanupMu.Unlock()
+	if r.ownership != nil {
+		r.ownership.mu.Lock()
+		r.ownership.signalLocked()
+		r.ownership.mu.Unlock()
 	}
 }
 
@@ -102,14 +118,15 @@ func (s *Service) projectCleanupSourcesPending(ctx context.Context, e postgres.S
 	pending := false
 	for key := range r.leases {
 		p, known := r.leaseProjects[key]
-		if !known || p.Validate() != nil || p == project {
+		source, sourceKnown := r.leaseSources[key]
+		if !known || !sourceKnown || p.Validate() != nil || p == project || source == project.String() {
 			pending = true
 			break
 		}
 	}
 	r.mu.Unlock()
 	var durable bool
-	if err := e.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_artifact.commands WHERE project_id=$1 AND source_lease_id IS NOT NULL)`, project.String()).Scan(&durable); err != nil {
+	if err := e.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_artifact.commands WHERE source_lease_id IS NOT NULL AND (project_id=$1::text::uuid OR source->>'project'=$1::text OR source IS NULL))`, project.String()).Scan(&durable); err != nil {
 		return false, unavailable(err)
 	}
 	if err := ctx.Err(); err != nil {
@@ -127,6 +144,13 @@ func (s *Service) CleanupProject(ctx context.Context, actor identity.Actor, caus
 		return zero, failure(foundation.DependencyUnbound, nil)
 	}
 	r := s.state()
+	if r.ownership != nil {
+		done, err := r.ownership.beginControl()
+		if err != nil {
+			return zero, err
+		}
+		defer done()
+	}
 	call, err := r.borrowProjectCleanup(actor, cause.Details())
 	if err != nil {
 		return zero, err
