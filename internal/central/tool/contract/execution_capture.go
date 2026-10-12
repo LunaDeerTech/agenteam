@@ -165,7 +165,7 @@ func (v ExecutionTool) Validate() error {
 	if (SpecRef{ToolID: v.ToolID, SpecRevision: v.SpecRevision}).Validate() != nil || v.ModelVisibleName != "tool_"+strings.ReplaceAll(v.ToolID.String(), "-", "") || !validBindingChoice(b.Binding, b.RunnerBinding) || !stablePart(string(b.ScopeResolverID)) || !stablePart(string(b.RiskClassifierID)) || (b.Class != OrdinaryTool && b.Class != CoreTool) {
 		return operationInvalid()
 	}
-	if b.RunnerBinding != (RunnerBinding{}) && (b.ScopeResolverID != "runner.read-file" || b.RiskClassifierID != "runner.read-file" || b.Class != OrdinaryTool) {
+	if b.RunnerBinding != (RunnerBinding{}) && (b.ScopeResolverID != ScopeResolverID("runner."+b.RunnerBinding.OperationName) || b.RiskClassifierID != RiskClassifierID("runner."+b.RunnerBinding.OperationName) || b.Class != OrdinaryTool) {
 		return operationInvalid()
 	}
 	return nil

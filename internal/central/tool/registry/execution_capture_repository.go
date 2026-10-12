@@ -85,7 +85,7 @@ func (r *Registry) currentCaptureTool(ctx context.Context, tx f.Tx, x postgres.S
 	if v.Ref.Validate() != nil {
 		return currentTool{}, false, fail(f.InvalidState)
 	}
-	if v.Key == tc.RunnerReadFileKey {
+	if tc.ValidRunnerKey(v.Key) {
 		out, err := r.currentRunner(ctx, tx, x, v, raw)
 		return out, err == nil, err
 	}

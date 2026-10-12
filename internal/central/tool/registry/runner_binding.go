@@ -47,7 +47,7 @@ func (s *readFileMetadataSource) CheckBindingInTx(ctx context.Context, tx f.Tx, 
 	if err := s.current(ctx, tx); err != nil {
 		return err
 	}
-	if !v.Active {
+	if !v.Active || v.Binding != tc.ReadFileRegistration().Binding {
 		return fail(f.InvalidArgument)
 	}
 	return v.Validate(ctx)
@@ -55,13 +55,16 @@ func (s *readFileMetadataSource) CheckBindingInTx(ctx context.Context, tx f.Tx, 
 
 func (r *Registry) runnerSource(ctx context.Context, tx f.Tx, key string) (tc.RunnerRegistration, []byte, error) {
 	s := r.data()
-	if s == nil || key != tc.RunnerReadFileKey || nilPort(s.runners[key]) {
+	if s == nil || !tc.ValidRunnerKey(key) || nilPort(s.runners[key]) {
 		return tc.RunnerRegistration{}, nil, fail(f.DependencyUnbound)
 	}
 	source := s.runners[key]
 	v, err := source.DescribeInTx(ctx, tx)
 	if err != nil {
 		return tc.RunnerRegistration{}, nil, portError(err)
+	}
+	if v.Definition.StableKey != key {
+		return tc.RunnerRegistration{}, nil, fail(f.InvalidState)
 	}
 	if err = v.Validate(ctx); err != nil {
 		return tc.RunnerRegistration{}, nil, portError(err)
@@ -112,7 +115,7 @@ func (r *Registry) ReconcileRunnerInTx(ctx context.Context, tx f.Tx, key string)
 	if err := captureContext(ctx); err != nil {
 		return tc.SpecRef{}, err
 	}
-	if key != tc.RunnerReadFileKey {
+	if !tc.ValidRunnerKey(key) {
 		return tc.SpecRef{}, fail(f.InvalidArgument)
 	}
 	x, err := r.executor(ctx, tx, []f.LockRequest{RegistryLock(f.Exclusive)})
@@ -178,7 +181,7 @@ func (r *Registry) RequireCurrentRunnerInTx(ctx context.Context, tx f.Tx, spec t
 	if err := captureContext(ctx); err != nil {
 		return err
 	}
-	if spec.Validate() != nil || binding.Validate() != nil || scope != "runner.read-file" || risk != "runner.read-file" {
+	if spec.Validate() != nil || binding.Validate() != nil || scope != tc.ScopeResolverID("runner."+binding.OperationName) || risk != tc.RiskClassifierID("runner."+binding.OperationName) {
 		return fail(f.InvalidArgument)
 	}
 	x, err := r.executor(ctx, tx, []f.LockRequest{RegistryLock(f.Shared), toolLock(spec.ToolID, f.Shared)})

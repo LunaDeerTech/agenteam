@@ -77,7 +77,7 @@ func (r *Registry) currentTool(ctx context.Context, tx f.Tx, x postgres.SQLExecu
 	if v.Ref.Validate() != nil {
 		return currentTool{}, fail(f.InvalidState)
 	}
-	if v.Key == tc.RunnerReadFileKey {
+	if tc.ValidRunnerKey(v.Key) {
 		return r.currentRunner(ctx, tx, x, v, raw)
 	}
 	v.Definition, err = decodeDefinition(ctx, raw, v.Key)
