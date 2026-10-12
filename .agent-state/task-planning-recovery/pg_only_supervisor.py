@@ -205,6 +205,17 @@ METADATA_GROUPS = {
         'TestVariableProjectCallOwnership/lifecycle-selection-and-original-confirmation',
         'TestVariableProjectCallOwnership/foreign-death-before-original-project-sql-terminal',
     )),
+    '^TestRunnerReadFileApp$': frozenset((
+        'TestRunnerReadFileApp',
+        'TestRunnerReadFileApp/explicit-cli-range-and-identity-restart',
+        'TestRunnerReadFileApp/default-empty-capability-unsupported',
+        'TestRunnerReadFileApp/invalid-root-and-explicit-config-before-connect',
+    )),
+    '^TestAgentProjectCallApp$': frozenset((
+        'TestAgentProjectCallApp',
+        'TestAgentProjectCallApp/default-http-shared-call-owner',
+        'TestAgentProjectCallApp/directory-return-checkpoint-drains-before-guard',
+    )),
     '^TestRoundModelCallReservation$': frozenset((
         'TestRoundModelCallReservation',
         'TestRoundModelCallReservation/committed-request-reservation-and-history',
