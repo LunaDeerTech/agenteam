@@ -281,3 +281,12 @@ Runner选择刷新修复 `dc304753269f1f4e7f8cafa3a1fe91bacff203b0` 已正常合
 | `ai/agent-sprint-configuration-docs` | `6f30b7f8430807497d73365d2577f02a4e44d4f3` | `29666627a5685c59ad10205571ebf7f1ced447ef` |
 
 本次实际增加1树/1本地/3远端，累计 **53 WorkTrees / 54本地分支 / 88远端引用**。原135项仅核删上述3项，剩132待核/keep1；本批另8条live引用保留，1条此前已缺失不计新删除。活动Agent退役准备树/card240f仅静态实施、未Go，不计清理或正式退役；全部既有STOP与历史FAIL保持。
+
+
+## 2026-10-12 Agent退役准备快照实际交付与清理
+
+受测 `0c8532d881ef8688ca9e3b711ea5e387690f10c7`、最终文档 `345a877142f5938ccfe5776c3d8126c752d7c242` 已完整合入并推送 main `e4cf974eacd303c46e763cf9524db8ad61cec1b1`，fresh确认一致。原basic9top41sub/两包race及2vet、controls/单binary compile/list/prepare、native71336/d2c944实际1top3sub全链PASS沿限定结果复用，不因文档或迁址重测。
+
+[保全](../output/ai/retired-20261012/agent-retirement-preparation-preservation/result.json)原5299/3e722f实际Wait0/3.512s：90文件/98,257,065B/11目录同FS无覆盖迁至 `output/ai/retired-20261012/agent-retirement-preparation`，原SHA/stat/inode一致；24图2082Git源码版本可恢复，tmp4副本7803B且原件保留，2个外部工具仅保护原路径身份、不冒Git恢复。runtime008de1有限独核接受。原[source01](../output/ai/agent-retirement-preparation-delivery/source01/tool-observation.json)e23bc8静态解析FAIL保留，不是产品或业务运行FAIL；实际验收与恢复边界见[本片README](agent-retirement-preparation/README.md#main-delivery-and-retirement)。
+
+[普通清理](../output/ai/agent-retirement-preparation-delivery/cleanup01/result.json)27426/409777实际0，outer1490716：仅旧树普通remove与本地branch-d，fresh远端前后均不存在，0远端删除；显式main+task-prefix fetch/prune无残ref。本次+1树/+1本地，累计 **54 WorkTrees / 55本地分支 / 88远端引用**，132待核/keep1不变。新Scheduler树基于e4cf、卡176b3a后静态实施，不计清理或验收。本片仍仅受控accepted前置后的真实StopDriver只读配置/回调返回，不冒Agent退休、完整Registry或外层Store尾；全部既有STOP保持。
