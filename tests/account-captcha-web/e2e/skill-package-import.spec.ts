@@ -71,9 +71,14 @@ test("imports an existing file and downloads its immutable revision", async ({
       exact: true,
     });
     await open.focus();
+    await expect(open).toBeFocused();
     await page.keyboard.press("Enter");
-    const file = region.getByLabel("SKILL.md 文件", { exact: true });
+    // getByLabel matches the complete label text, including UiField's hidden
+    // required marker; the accessible name correctly excludes that marker.
+    const file = region.getByLabel("SKILL.md 文件 *", { exact: true });
     await expect(file).toHaveAttribute("type", "file");
+    await expect(file).toHaveAccessibleName("SKILL.md 文件");
+    await expect(file).toBeVisible();
     await expect(region.locator("textarea,input:not([type=file])")).toHaveCount(
       0,
     );
