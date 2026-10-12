@@ -134,7 +134,7 @@ export function createUsageWireState(origin: string) {
   };
 }
 
-async function observeUsageWire(page: Page, origin: string) {
+export async function observeUsageWire(page: Page, origin: string) {
   const state = createUsageWireState(origin), session = await page.context().newCDPSession(page);
   const names = { request: "Network.requestWillBeSent", requestExtra: "Network.requestWillBeSentExtraInfo", response: "Network.responseReceived", responseExtra: "Network.responseReceivedExtraInfo", cached: "Network.requestServedFromCache" } as const;
   const listeners = Object.entries(names).map(([kind, name]) => ({ name, listener: (event: any) => state.feed(kind, event) }));
