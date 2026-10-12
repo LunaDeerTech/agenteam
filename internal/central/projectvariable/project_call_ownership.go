@@ -61,6 +61,7 @@ type projectCallOwnershipState struct {
 	writes   *SecretWriteAuthority
 	mu       sync.Mutex
 	owners   map[f.ID[projectCallIdentity]]*projectCallOwner
+	cleanup  *projectCleanupOwnership
 	changed  chan struct{}
 }
 
