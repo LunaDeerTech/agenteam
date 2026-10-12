@@ -1,0 +1,165 @@
+package project
+
+import (
+	"context"
+	"math"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+)
+
+type lifecycleCleanupRound struct {
+	claim            lifecycleStopClaim
+	previous         *lifecycleStopClaim
+	cause            c.LifecycleCause
+	operationVersion f.Version
+	rowVersion       int64
+}
+
+func (st *lifecycleCleanupState) canJoin(ctx context.Context, claim *lifecycleStopClaim) error {
+	if claim == nil || claim.phase == "terminal" {
+		return nil
+	}
+	if claim.process == st.process {
+		st.mu.Lock()
+		owner, ok := st.owners[claim.operation]
+		st.mu.Unlock()
+		if !ok || (owner.claim == nil || *owner.claim != *claim) && (owner.prior == nil || *owner.prior != *claim) {
+			return fault(f.ResourceBusy)
+		}
+		return nil
+	}
+	return portError(st.processes.ConfirmStopped(ctx, claim.process))
+}
+
+func (st *lifecycleCleanupState) current(ctx context.Context, x postgres.SQLExecutor, project c.ProjectID, operation c.OperationID) (c.LifecycleCause, *lifecycleRecord, bool, error) {
+	r, err := loadLifecycleOperation(ctx, x, project, operation)
+	if err != nil {
+		return c.LifecycleCause{}, nil, false, err
+	}
+	if r == nil {
+		return c.LifecycleCause{}, nil, false, fault(f.NotFound)
+	}
+	cause := c.LifecycleCause{OperationID: operation, Action: r.operation.Action, ProjectVersion: r.operation.ProjectVersion}
+	if cause.Validate() != nil || cause.Action != c.Delete {
+		return c.LifecycleCause{}, nil, false, fault(f.Forbidden)
+	}
+	if _, err = st.authority.lifecycleFact(ctx, x, project, cause, c.OutboxParticipant); err != nil {
+		return c.LifecycleCause{}, nil, false, err
+	}
+	// Only a read of the canonical post-checkpoint state can settle a previous
+	// Unknown completion. It never repeats Outbox after the Audit barrier.
+	if r.operation.State == c.OperationCleaning && r.cleanupStage == "audit" {
+		for _, row := range r.participants {
+			if row.stop != "stopped" || row.name != c.AuditParticipant && row.cleanup != "completed" || row.name == c.AuditParticipant && row.cleanup != "required" {
+				return c.LifecycleCause{}, nil, false, fault(f.InvalidState)
+			}
+		}
+		return cause, r, true, nil
+	}
+	if err = outboxCleanupProgress(r); err != nil {
+		return c.LifecycleCause{}, nil, false, err
+	}
+	return cause, r, false, nil
+}
+
+func (st *lifecycleCleanupState) start(ctx context.Context, project c.ProjectID, operation c.OperationID) (*lifecycleCleanupRound, bool, error) {
+	previous, err := loadLifecycleStopClaim(ctx, st.store, operation)
+	if err != nil {
+		return nil, false, err
+	}
+	if previous != nil && previous.project != project {
+		return nil, false, fault(f.Forbidden)
+	}
+	if err = st.canJoin(ctx, previous); err != nil {
+		return nil, false, err
+	}
+	if err = ctx.Err(); err != nil {
+		return nil, false, portError(err)
+	}
+	attempt, err := f.NewID[struct{}]()
+	if err != nil {
+		return nil, false, unavailable(err)
+	}
+	round := &lifecycleCleanupRound{claim: lifecycleStopClaim{project: project, operation: operation, process: st.process, attempt: attempt.String(), fence: 1, phase: "running"}, previous: previous}
+	if previous != nil {
+		if previous.fence == math.MaxInt64 {
+			return nil, false, fault(f.InvalidState)
+		}
+		round.claim.fence = previous.fence + 1
+	}
+	validated, replay := false, false
+	result := st.store.WithinTx(ctx, round.claim.cause(), func(ctx context.Context, tx f.Tx) error {
+		if err := st.store.AcquireAll(ctx, tx, []f.LockRequest{projectLock(project, f.Exclusive)}); err != nil {
+			return unavailable(err)
+		}
+		x, err := st.authority.lifecycleExecutor(ctx, tx, project)
+		if err != nil {
+			return err
+		}
+		var r *lifecycleRecord
+		round.cause, r, replay, err = st.current(ctx, x, project, operation)
+		if err != nil {
+			return err
+		}
+		actual, err := loadLifecycleStopClaim(ctx, x, operation)
+		if err != nil {
+			return err
+		}
+		if (actual == nil) != (previous == nil) || actual != nil && *actual != *previous {
+			return fault(f.ResourceBusy)
+		}
+		if replay {
+			// A completed checkpoint atomically terminates its original claim.
+			// A running foreign claim is not turned into a local success report.
+			if actual == nil || actual.phase != "terminal" {
+				return fault(f.ResourceBusy)
+			}
+			validated = true
+			return nil
+		}
+		rowVersion, attempts, err := cleanupOutboxRow(ctx, x, operation)
+		if err != nil {
+			return err
+		}
+		if rowVersion == math.MaxInt64 || attempts == math.MaxInt64 {
+			return fault(f.InvalidState)
+		}
+		if actual == nil {
+			_, err = x.Exec(ctx, `INSERT INTO agenteam_project.work_claims(work_kind,work_id,project_id,process_id,attempt_id,fence,phase) VALUES('lifecycle',$1,$2,$3,$4,1,'running')`, operation.String(), project.String(), round.claim.process.String(), round.claim.attempt)
+		} else {
+			tag, e := x.Exec(ctx, `UPDATE agenteam_project.work_claims SET process_id=$2,attempt_id=$3,fence=$4,phase='running' WHERE work_kind='lifecycle' AND work_id=$1 AND project_id=$5 AND process_id=$6 AND attempt_id=$7 AND fence=$8 AND phase=$9`, operation.String(), round.claim.process.String(), round.claim.attempt, round.claim.fence, project.String(), previous.process.String(), previous.attempt, previous.fence, previous.phase)
+			err = affected(tag, e)
+		}
+		if err != nil {
+			return unavailable(err)
+		}
+		tag, err := x.Exec(ctx, `UPDATE agenteam_project.lifecycle_participants SET attempt_count=attempt_count+1,version=version+1,next_attempt_at=NULL WHERE operation_id=$1 AND participant_name='outbox' AND version=$2 AND cleanup_state IN ('required','pending')`, operation.String(), rowVersion)
+		if err = affected(tag, err); err != nil {
+			return err
+		}
+		round.operationVersion, round.rowVersion = r.operation.Version, rowVersion+1
+		validated = true
+		return nil
+	})
+	if err = commitError(result); err != nil {
+		if result.State() == f.Unknown && !replay {
+			return round, false, err
+		}
+		return nil, false, err
+	}
+	if !validated {
+		return nil, false, unavailable(nil)
+	}
+	if err = ctx.Err(); err != nil {
+		if replay {
+			return nil, false, portError(err)
+		}
+		return round, false, portError(err)
+	}
+	if replay {
+		return nil, true, nil
+	}
+	return round, false, nil
+}
