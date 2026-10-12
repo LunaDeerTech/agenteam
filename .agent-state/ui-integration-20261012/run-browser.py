@@ -60,6 +60,14 @@ AGENT_RETIREMENT_EXPECTED = {'TestProjectAgentRetirement',
                             'TestProjectAgentRetirement/canonical-references-and-original-return',
                             'TestProjectAgentRetirement/original-unknown-and-applied-anchor',
                             'TestProjectAgentRetirement/enabled-assignment-rolls-back-retirement'}
+AGENT_INITIAL_GRANT_EXPECTED = {'TestProjectAgentRetirement',
+                               'TestProjectAgentRetirement/canonical-references-and-original-return',
+                               'TestProjectAgentRetirement/original-unknown-and-applied-anchor',
+                               'TestProjectAgentRetirement/assignment-history-rolls-back-retirement'}
+AGENT_ASSIGNMENT_HISTORY_EXPECTED = {'TestProjectAgentRetirement',
+                                    'TestProjectAgentRetirement/canonical-references-and-original-return',
+                                    'TestProjectAgentRetirement/original-unknown-and-applied-anchor',
+                                    'TestProjectAgentRetirement/planned-assignment-rolls-back-retirement'}
 
 def save(path, value):
     with path.open('x') as stream:
@@ -118,8 +126,12 @@ def main():
                        help='run the reviewed Project Skills cleanup integration scope')
     scope.add_argument('--agent-retirement', action='store_true',
                        help='run the reviewed Project Agent retirement integration scope')
+    scope.add_argument('--agent-initial-grant', action='store_true',
+                       help='run the reviewed Agent initial-grant retirement and migration scope')
+    scope.add_argument('--agent-assignment-history', action='store_true',
+                       help='run the reviewed Agent assignment-history retirement and migration scope')
     a = p.parse_args()
-    selector = (AGENT_RETIREMENT_SELECTOR if a.agent_retirement else
+    selector = (AGENT_RETIREMENT_SELECTOR if a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history else
                 SKILLS_CLEANUP_SELECTOR if a.skills_cleanup else
                 AUDIT_SELECTOR if a.audit_cleanup else
                 OUTBOX_SELECTOR if a.outbox_cleanup else
@@ -130,7 +142,9 @@ def main():
                 USAGE_SELECTOR if a.project_usage_summary else
                 SECRET_SELECTOR if a.secret_delete else
                 CREATE_SELECTOR if a.project_creation else SELECTOR)
-    expected = (AGENT_RETIREMENT_EXPECTED if a.agent_retirement else
+    expected = (AGENT_ASSIGNMENT_HISTORY_EXPECTED if a.agent_assignment_history else
+                AGENT_INITIAL_GRANT_EXPECTED if a.agent_initial_grant else
+                AGENT_RETIREMENT_EXPECTED if a.agent_retirement else
                 SKILLS_CLEANUP_EXPECTED if a.skills_cleanup else
                 AUDIT_EXPECTED if a.audit_cleanup else
                 OUTBOX_EXPECTED if a.outbox_cleanup else
@@ -141,9 +155,9 @@ def main():
                 USAGE_EXPECTED if a.project_usage_summary else
                 SECRET_EXPECTED if a.secret_delete else
                 CREATE_EXPECTED if a.project_creation else EXPECTED)
-    node_count = (0 if a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement else
+    node_count = (0 if a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history else
                   1 if a.project_creation or a.secret_delete or a.project_usage_summary or a.skill_package_import or a.task_search else 2)
-    web_scopes = ([] if a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement else
+    web_scopes = ([] if a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history else
                   [('AGENTEAM_TASK_SEARCH_WEB', 'task-search')]
                   if a.task_search else
                   [('AGENTEAM_SKILL_IMPORT_WEB', 'skill-import')]
@@ -164,7 +178,7 @@ def main():
         assert (a.runner_binary.is_absolute() and a.runner_binary.is_file()
                 and a.runner_binary.resolve() == a.runner_binary
                 and os.access(a.runner_binary, os.X_OK))
-    elif a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement:
+    elif a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history:
         assert a.dist is None and a.runner_binary is None
     else:
         assert a.runner_binary is None
@@ -194,6 +208,8 @@ def main():
          'runner_directory':a.runner_directory,'execution_project_stop':a.execution_project_stop,
          'outbox_cleanup':a.outbox_cleanup,'audit_cleanup':a.audit_cleanup,
          'skills_cleanup':a.skills_cleanup,'agent_retirement':a.agent_retirement,
+         'agent_initial_grant':a.agent_initial_grant,
+         'agent_assignment_history':a.agent_assignment_history,
          'runner_binary':str(a.runner_binary) if a.runner_binary else None,
          'runtime':str(a.runtime),'supervisor_pid':os.getpid(),
          'pg_current_only':a.pg_current_only,'project_creation':a.project_creation,

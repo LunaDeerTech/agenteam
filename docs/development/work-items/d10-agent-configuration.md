@@ -194,13 +194,21 @@ Project driver 持有原事务及 caller 的实际返回；取消、物理提交
 
 原 pure 首次 Secret 错误映射断言 FAIL 和 native01 三组 FAIL 保留；native01 仅记录 INTERNAL_ERROR/屏障未到，未保存 SQLSTATE，不能追认它们均由后续静态确定并修复的 Mount/Secret UUID–TEXT 比较缺陷造成。[修后实际结果](../../../output/ai/project-agent-retirement-delivery/native02/result.json)与[原 native01 日志](../../../output/ai/project-agent-retirement-delivery/native01/browser.log)分别保留；后继 enabled 初始 grant 的新迁移不计入本结果。
 
+### 4.3.2 初始 enabled grant 有限真实结果（2026-10-12）
+
+`f27e05fe` 的 `TestProjectAgentRetirement` native02 三组实际通过（50.45s），Go、原 fixture/supervisor 和六项资源均实际退出。真实存量在 75 版本创建 enabled seq1 Agent 与 Task，再升级 76 并重复迁移保持业务事实；普通 grant UPDATE/DELETE 及不满足清理条件的操作仍受保护。原同事务 canonical/五域引用/初始 grant-head/checkpoint 退休、原 Store 返回屏障及进程内 Committed acknowledgement mask 的 Unknown 恢复通过；正式 Assign 历史仍 Busy 并整笔回滚，母 participant 保持 pending/domains，不包含 00077 历史例外或完整 Delete。
+
+native01 为 whole FAIL：第一升级/保护组与第三历史 Busy 组通过，Unknown 组在后续 Skills 清理原返回等待处失败。native02 仅增加安全 round/return 诊断后通过，失败分支未触发，原失败原因仍未知，不能宣称已定位或修复。[本次实际结果](../../../output/ai/project-agent-initial-grant-retirement-delivery/native02/result.json)与[原失败日志](../../../output/ai/project-agent-initial-grant-retirement-delivery/native01/browser.log)分别保留。
+
 ### 4.4 后继：无 Execution 的 completed Skill 指派历史
 
 在 Project Delete 专属同一原事务退休中，新增显式 Skills/Execution ingress 组合支持 completed Assign/Remove/no-op 历史，包括仍启用、已停用及已移除的 grant。Skills 必须验证完整初始化头、全部原 command/receipt、连续 change/state/current 链及全部 grant；任何 planned command、pending ref 或 Execution binding 仍拒绝。Execution owner 独立确认该 Agent 全状态 Execution 历史为空，并按完整原 RuntimeChange/receipt 集合退休仅 `no_active_execution` ingress。它实际返回后，Skills 才依次删除 current、grant、change、completed command 和初始化头；各域仍消费同 Store、完整锁及原私有 Applied witness，任一错误整笔回滚。旧不带 ingress 的构造器保持初始头/初始 grant 的范围。
 
 Skill 指派仅推进 Agent version 与原数据库返回的 updated_at，不生成 Agent Update 命令。新 Plan/checkpoint schema 4 可锚定原 immutable command：只覆盖这两个实际标量，要求 version 严格大于原值、updated_at 严格晚于原值，并在同一原 Tx 将重建的完整 Config 与当前 Before 全字段相等及完整 digest 一并核实。checkpoint 原子保存原 command ID、准确 version/updated_at 与 digest；Unknown 恢复必须通过原 applied checkpoint、cause/claim 和该 immutable command 重建后再逐 owner 确认。schema 3 保持原完整 After 精确匹配路径，不能猜时间、推算其他字段、只凭 canonical 缺席确认或要求调用者额外执行 Agent.Update。
 
-前向迁移 00077 为上述 Project Delete 增加 completed Skill command/change/grant 及专用 no-active ingress 的 DELETE 例外，保留普通 UPDATE 不可变规则；不修改旧迁移或共享 Execution immutable guard。数据库的 current Delete/cleaning/domains/running claim、canonical 缺席及无 Execution 等条件只是额外状态约束，不证明当前 caller、同 Tx 刚删除或原事务返回。父 participant 仍 pending/domains，不开放默认完整 Registry/Delete；此节是后继候选合同，真实升级及原子恢复验收结果另按实际记录。
+前向迁移 00077 为上述 Project Delete 增加 completed Skill command/change/grant 及专用 no-active ingress 的 DELETE 例外，保留普通 UPDATE 不可变规则；不修改旧迁移或共享 Execution immutable guard。数据库的 current Delete/cleaning/domains/running claim、canonical 缺席及无 Execution 等条件只是额外状态约束，不证明当前 caller、同 Tx 刚删除或原事务返回。父 participant 仍 pending/domains，不开放默认完整 Registry/Delete；限定真实结果见下段。
+
+`669a70d0` 的 `TestProjectAgentRetirement` native01 三组实际通过（50.77s）：真实 76→77 升级及重复迁移、正式 Assign→Remove 且不补 Agent.Update、schema 4 完整 Before 的准确重建、原同 Tx 返回屏障与进程内实际 Committed acknowledgement mask 的 Unknown 确认均通过；真实 planned command 在 Skills 后段返回 Busy，使 canonical/各域引用整笔回滚。原 Go/fixture 实际退出，六项自有资源清退，无 Node；[实际结果](../../../output/ai/project-agent-assignment-history-retirement-delivery/native01/result.json)与[原运行日志](../../../output/ai/project-agent-assignment-history-retirement-delivery/native01/browser.log)保留。范围仍为无任何 Execution、无 managed Mount 的 Agent 及受支持 completed 指派历史，母 participant 始终 pending/domains；不包含 Variables 清理、完整 Registry 或完整 Project Delete。此前首片及 00076 的原 FAIL 与限定结果不追改。
 
 
 ## 5. F1 命令、历史与提交结果
