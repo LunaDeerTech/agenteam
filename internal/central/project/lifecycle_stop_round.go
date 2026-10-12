@@ -94,7 +94,7 @@ func (d *LifecycleStopDriver) Run(ctx context.Context, project c.ProjectID, oper
 		return err
 	}
 	// COMMIT confirmation is not permission to ignore a canceled original call.
-	stepErr := st.invoke(run, project, operation, cause)
+	stepErr := st.invoke(agentPreparationClaimContext(run, st, *claim, cause), project, operation, cause)
 
 	// The original provider call has actually returned. The original Run owns
 	// this bounded checkpoint too; Stop/Drain cannot pass it in the background.
@@ -132,6 +132,11 @@ func (st *lifecycleStopState) invoke(ctx context.Context, project c.ProjectID, o
 	}
 	stepCtx, end := context.WithTimeout(ctx, 2*time.Second)
 	defer end()
+	stepCtx, closeScope, err := st.agentPreparationStep(stepCtx, actor, cause, project)
+	if err != nil {
+		return err
+	}
+	defer closeScope()
 	err = callLifecycleLocalStop(st.step, stepCtx, actor, cause, scope)
 	if err == nil {
 		err = stepCtx.Err()
