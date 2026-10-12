@@ -286,7 +286,9 @@ Artifact 在任何 metadata mutation 前按原锁和当前 gate 检查 source/le
 
 Artifact 的原 provider 调用返回后，Project 才能保存该 participant Completed；仅全部其它业务 domain 已真实 Completed 时，同一个 checkpoint 事务推进至 outbox，否则留在 domains。所有 CleanupDriver.Run 共用原 LifecycleAuthority 的短期项目调用登记，在首 SQL 前占用、原 Run 退出时释放：同 P 的另一 driver 在原 checkpoint Store 返回仍在途时 Busy，另一 P 可进入；登记最多保留四个正在执行的项目，不持久保存，不代替 SQL current claim，也不改变 Unknown 原 owner。后继 Outbox 仍使用其原 cleanup gate 与实际返回。
 
-本片 adapter 的 Artifact RequestStop/InspectStop 明确 DependencyUnbound。真实验收若使用受控 acceptedDelete 或 Artifact stop 前置，必须与真实 cleanup 结果分开表述；不称默认完整 Delete。真正 Artifact 项目停止、source typed loan、默认 App 的 ProjectCleanupAccess/Artifact 路由及完整 Registry/finalizer 是后继明确缺口。本片不修改默认 App 装配、不恢复旧 Object 网络 probe STOP；本节尚不宣称动态验收通过。
+本片 adapter 的 Artifact RequestStop/InspectStop 明确 DependencyUnbound。真实验收若使用受控 acceptedDelete 或 Artifact stop 前置，必须与真实 cleanup 结果分开表述；不称默认完整 Delete。真正 Artifact 项目停止、source typed loan、默认 App 的 ProjectCleanupAccess/Artifact 路由及完整 Registry/finalizer 是后继明确缺口。本片不修改默认 App 装配、不恢复旧 Object 网络 probe STOP。
+
+`b40dac98` 的 `TestProjectArtifactCleanup` native03 三组实际通过（52.89s）：真实 inline/upload、Read、issued download 与 MinIO/metadata 清理，原 checkpoint Store 返回仍在途时同 Authority 第二 driver 被拒且另一 Project 可读，原返回后显式进入 Outbox；Artifact/Object 各自原 Unknown 后只读确认及零删除增量均通过。Go/fixture 原 Wait 全部退出，六项资源清退；[实际结果](../../../output/ai/project-artifact-object-cleanup-delivery/native03/result.json)与[原日志](../../../output/ai/project-artifact-object-cleanup-delivery/native03/browser.log)保留。native01 无 stage 的 FAIL 不倒填具体入口，native02 的 IssueDownload FORBIDDEN 保留；签发下载也需正式 Audit 的缺口已补。acceptedDelete、其它声明前置及 Artifact Stop 受控，Object Stop 与后半清理链真实，不称默认完整 Delete，也不覆盖 source 正向收束或后继 00079 技术尾。
 
 ### Artifact 原调用停止（候选）
 
@@ -300,12 +302,16 @@ Artifact Request/Inspect 复用既有 ArtifactStopComponent 和 ProjectStopAutho
 
 Source 停止扩展只借用原 LifecycleStopDriver 当前 invoke 的独立私有 loan；同一原 LifecycleAuthority/Store 绑定完整 actor/cause、原 Artifact create command、issued SourceLease、source/target Project 与 Object。授权事务实际返回后，Artifact 在双 Project EX 与当前 claim 下重核本域 command/lease 映射并等待原 Store 返回，再同步调用原 Object handle；每个 release/join/只读确认 Tx 都重新检查同一 active loan、原 claim 与当前 stopping manifest。父 scope 封闭时等待 loan 的实际 callback 返回，取消、h.done 或复制旧 context 不替代 reader Close、cleanup control 与原 Store 尾；Unknown 保首个原 attempt/cause，下一显式调用只读确认，确认原返回后才允许后续工作。旧未绑定构造继续对未确认 source 返回 Pending，不默认注册参与者，也不恢复旧网络 probe。
 
-该扩展的 SourceCreate Audit 只开放 Human、同 Project 的 ArtifactFile→Artifact：原 publication 私有见证保存完整 resolved source 与原 lease ID，事实 checker 重核同 Tx 原 pending command、source/target canonical metadata 和 typed SourceKind/ID/revision；实际 source Acquire/Read 与 publication resolver 校验仍由原业务链承担。其它 source kind、跨 Project publication 与 AgentRun 不获新增授权；本片尚未动态验收。
+该扩展的 SourceCreate Audit 只开放 Human、同 Project 的 ArtifactFile→Artifact：原 publication 私有见证保存完整 resolved source 与原 lease ID，事实 checker 重核同 Tx 原 pending command、source/target canonical metadata 和 typed SourceKind/ID/revision；实际 source Acquire/Read 与 publication resolver 校验仍由原业务链承担。其它 source kind、跨 Project publication 与 AgentRun 不获新增授权。
+
+`6f955` 的 Source native02 两组实际通过（28.96s）：真实同 P SourceCreate/Read、原 Acquire/release Store 返回屏障、owned cancel、两次原 Unknown 只读确认均无新增写入且事实不变，B 独立可用；25 top/102 sub 与三包 vet 通过，原进程及六项资源均退出。[结果](../../../output/ai/project-artifact-source-stop-delivery/native02/result.json)与[日志](../../../output/ai/project-artifact-source-stop-delivery/native02/browser.log)保留。native01 的安全 INTERNAL_ERROR 失败不回填 SQLSTATE 或内层运行记录；后继修正了同 Cause 前置 lookup 的测试 hook 匹配。已闭 Source 的历史清理仍是后继片，不外推完整 Cleanup、默认 Registry、foreign death 或完整 Delete。
 
 
 已闭 Source 的后继清理仅接收同 P ArtifactFile 的原 command/work/lease 完整映射、source_joined 与原返回/实例证明；未确认、重复或漂移映射及跨 P source 侧仍 Pending。原 Object 物理清理完成后，在同一当前 Cleanup Tx 内按最多 100 条 work 的有界批次成对退休本域 source work 与已 deleted command；未消费的完整映射保留到后继显式调用，最后才清普通 commands/intents 和旧 archive receipt，保当前 Delete 最小 stopped receipt。不跨 SQL 删除 Object 数据，不新增公开授权或迁移，Unknown 仍只读确认原事务。
 
 新的显式 Artifact/Object 组合 adapter 依次消费两原 Service 的 Stop/Inspect；只有 component/cause 严格匹配且两者完整实际返回 Stopped 才聚合 Stopped。没有对应注册 reference kind 的原细粒度 ID 不改名伪装为 object/artifact，聚合保守状态与安全 reason。原 cleanup-only 构造保留，原 LifecycleStopDriver 直接消费新 adapter；不因此绑定默认 App 或部分 Registry，也不声称其它 domain/finalizer 已完成。本节为候选实现合同，动态结果按后续真实验收记录。
+
+`984dd6f5` 的 `TestProjectArtifactStop` native03 两组实际通过（42.16s）：78→79/repeat、真实公有 Read 的原 Store 返回屏障、另一 Project 可用、Artifact/Object 真 Stop，以及原 Stop Unknown 的只读确认；后续 Artifact 清掉本域 joined work，保留当前 Delete 最小 stopped receipt，Object 自域技术尾仍保留。必要基础 22top77sub、新增 maintenance 1top10sub 和三个包 vet 均通过；Go/fixture 原调用已退出，六项资源清退，无 Node，见[实际结果](../../../output/ai/project-artifact-stop-delivery/native03/result.json)与[原日志](../../../output/ai/project-artifact-stop-delivery/native03/browser.log)。首轮两个纯控编译 FAIL、native01/02 FAIL 均保留：01 的 Tx callback context 不代表外层公有调用 context，且组合 Object Stop 需按真实扫描进度推进；02 后修复了私有 cleanup scope 拒绝同 P/op 派生 ObjectMaintenance 的静态缺陷，不回填原日志缺失的 lane 或深层 Tx 位置。本结果不包含 source 收束、foreign death 正向、默认 Registry 或完整 Delete。
 
 ### 9.1 D05 项目停止能力
 

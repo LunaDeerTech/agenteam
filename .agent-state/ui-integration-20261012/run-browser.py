@@ -83,6 +83,21 @@ SECRET_CLEANUP_EXPECTED = {'TestProjectSecretCleanup',
                            'TestProjectSecretCleanup/head-batches-and-original-return',
                            'TestProjectSecretCleanup/original-unknown-readonly-confirmation',
                            'TestProjectSecretCleanup/formal-provider-reference-remains-pending'}
+ARTIFACT_CLEANUP_SELECTOR = '^TestProjectArtifactCleanup$'
+ARTIFACT_CLEANUP_EXPECTED = {'TestProjectArtifactCleanup',
+                             'TestProjectArtifactCleanup/inline-upload-and-original-checkpoint-return',
+                             'TestProjectArtifactCleanup/artifact-original-unknown-readonly-confirmation',
+                             'TestProjectArtifactCleanup/object-original-unknown-readonly-confirmation'}
+
+ARTIFACT_STOP_SELECTOR = '^TestProjectArtifactStop$'
+ARTIFACT_STOP_EXPECTED = {'TestProjectArtifactStop',
+                          'TestProjectArtifactStop/migration78-to79-and-original-public-return',
+                          'TestProjectArtifactStop/original-stop-unknown-readonly-confirmation'}
+
+ARTIFACT_SOURCE_STOP_SELECTOR = '^TestProjectArtifactSourceStop$'
+ARTIFACT_SOURCE_STOP_EXPECTED = {'TestProjectArtifactSourceStop',
+                                 'TestProjectArtifactSourceStop/original-source-acquisition-and-release-return',
+                                 'TestProjectArtifactSourceStop/original-source-unknown-readonly-confirmation'}
 
 def save(path, value):
     with path.open('x') as stream:
@@ -151,8 +166,17 @@ def main():
                        help='run the reviewed Agent and Variables terminal owner cleanup scope')
     scope.add_argument('--secret-cleanup', action='store_true',
                        help='run the reviewed Project Secret cleanup integration scope')
+    scope.add_argument('--artifact-object-cleanup', action='store_true',
+                       help='run the reviewed Project Artifact and Object cleanup scope')
+    scope.add_argument('--artifact-stop', action='store_true',
+                       help='run the reviewed real Artifact Stop and technical cleanup scope')
+    scope.add_argument('--artifact-source-stop', action='store_true',
+                       help='run the reviewed typed Artifact Source Stop integration scope')
     a = p.parse_args()
-    selector = (SECRET_CLEANUP_SELECTOR if a.secret_cleanup else
+    selector = (ARTIFACT_SOURCE_STOP_SELECTOR if a.artifact_source_stop else
+                ARTIFACT_STOP_SELECTOR if a.artifact_stop else
+                ARTIFACT_CLEANUP_SELECTOR if a.artifact_object_cleanup else
+                SECRET_CLEANUP_SELECTOR if a.secret_cleanup else
                 AGENT_VARIABLES_FINALIZATION_SELECTOR if a.agent_variables_finalization else
                 VARIABLES_CLEANUP_SELECTOR if a.variables_cleanup else
                 AGENT_RETIREMENT_SELECTOR if a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history else
@@ -166,7 +190,10 @@ def main():
                 USAGE_SELECTOR if a.project_usage_summary else
                 SECRET_SELECTOR if a.secret_delete else
                 CREATE_SELECTOR if a.project_creation else SELECTOR)
-    expected = (SECRET_CLEANUP_EXPECTED if a.secret_cleanup else
+    expected = (ARTIFACT_SOURCE_STOP_EXPECTED if a.artifact_source_stop else
+                ARTIFACT_STOP_EXPECTED if a.artifact_stop else
+                ARTIFACT_CLEANUP_EXPECTED if a.artifact_object_cleanup else
+                SECRET_CLEANUP_EXPECTED if a.secret_cleanup else
                 AGENT_VARIABLES_FINALIZATION_EXPECTED if a.agent_variables_finalization else
                 VARIABLES_CLEANUP_EXPECTED if a.variables_cleanup else
                 AGENT_ASSIGNMENT_HISTORY_EXPECTED if a.agent_assignment_history else
@@ -182,9 +209,9 @@ def main():
                 USAGE_EXPECTED if a.project_usage_summary else
                 SECRET_EXPECTED if a.secret_delete else
                 CREATE_EXPECTED if a.project_creation else EXPECTED)
-    node_count = (0 if a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup else
+    node_count = (0 if a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop else
                   1 if a.project_creation or a.secret_delete or a.project_usage_summary or a.skill_package_import or a.task_search else 2)
-    web_scopes = ([] if a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup else
+    web_scopes = ([] if a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop else
                   [('AGENTEAM_TASK_SEARCH_WEB', 'task-search')]
                   if a.task_search else
                   [('AGENTEAM_SKILL_IMPORT_WEB', 'skill-import')]
@@ -205,7 +232,7 @@ def main():
         assert (a.runner_binary.is_absolute() and a.runner_binary.is_file()
                 and a.runner_binary.resolve() == a.runner_binary
                 and os.access(a.runner_binary, os.X_OK))
-    elif a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup:
+    elif a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop:
         assert a.dist is None and a.runner_binary is None
     else:
         assert a.runner_binary is None
@@ -240,6 +267,8 @@ def main():
          'variables_cleanup':a.variables_cleanup,
          'agent_variables_finalization':a.agent_variables_finalization,
          'secret_cleanup':a.secret_cleanup,
+         'artifact_object_cleanup':a.artifact_object_cleanup,'artifact_stop':a.artifact_stop,
+         'artifact_source_stop':a.artifact_source_stop,
          'runner_binary':str(a.runner_binary) if a.runner_binary else None,
          'runtime':str(a.runtime),'supervisor_pid':os.getpid(),
          'pg_current_only':a.pg_current_only,'project_creation':a.project_creation,

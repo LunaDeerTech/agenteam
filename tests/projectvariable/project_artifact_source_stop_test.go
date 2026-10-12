@@ -155,9 +155,15 @@ func (s *artifactSourceStopPG) holdAcquisition(t *testing.T, unknown bool) (*ski
 		if err != nil {
 			return err
 		}
+		var matches int
 		var exact bool
-		err = x.QueryRow(ctx, `SELECT l.id::text,w.id::text,c.state='pending' AND c.path='source' AND l.state='active' AND l.owner_kind='source' AND l.owner_id=l.id AND l.process_id=$4 AND w.process_id=$4 AND w.instance_id IS NOT NULL AND w.source_project_id=c.project_id AND w.source_lease_id=l.id AND w.joined_at IS NULL AND w.source_joined_at IS NULL FROM agenteam_artifact.commands c JOIN agenteam_object.object_leases l ON l.id=c.source_lease_id JOIN agenteam_artifact.project_work w ON w.command_hash=c.command_hash WHERE c.project_id=$1 AND c.command_key=$2 AND l.object_id=$3`, v.p2.project.ID.String(), s.command.Key().String(), s.source.Details().Object.ID.String(), v.process.String()).Scan(&s.lease, &s.work, &exact)
-		if err == nil && !exact {
+		err = x.QueryRow(ctx, `SELECT count(*),coalesce(min(l.id::text),''),coalesce(min(w.id::text),''),coalesce(bool_and(l.id IS NOT NULL AND w.id IS NOT NULL AND c.state='pending' AND c.path='source' AND l.object_id=$3 AND l.state='active' AND l.owner_kind='source' AND l.owner_id=l.id AND l.process_id=$4 AND w.process_id=$4 AND w.instance_id IS NOT NULL AND w.source_project_id=c.project_id AND w.source_lease_id=l.id AND w.joined_at IS NULL AND w.source_joined_at IS NULL),false) FROM agenteam_artifact.commands c LEFT JOIN agenteam_object.object_leases l ON l.id=c.source_lease_id LEFT JOIN agenteam_artifact.project_work w ON w.command_hash=c.command_hash WHERE c.project_id=$1 AND c.command_key=$2`, v.p2.project.ID.String(), s.command.Key().String(), s.source.Details().Object.ID.String(), v.process.String()).Scan(&matches, &s.lease, &s.work, &exact)
+		// The original lookup uses the same CommandsCause before acquisition.
+		// Only an absent command may pass without the original lease/work tuple.
+		if err == nil && matches == 0 {
+			return nil
+		}
+		if err == nil && (matches != 1 || !exact) {
 			return errors.New("original source acquisition lost its command/lease/work tuple")
 		}
 		if err == nil {
