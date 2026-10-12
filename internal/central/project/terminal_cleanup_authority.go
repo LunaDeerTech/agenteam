@@ -110,7 +110,7 @@ func (a *LifecycleAuthority) requireTerminalCleanupClaimInTx(ctx context.Context
 		if actual.phase != "terminal" {
 			return fault(f.ResourceBusy)
 		}
-	} else if actual.phase != "running" && !(request.NotApplied && actual.phase == "terminal") {
+	} else if actual.phase != "running" {
 		return fault(f.ResourceBusy)
 	}
 	_, _, cp, err := cleanupParticipantRow(ctx, x, w.round)

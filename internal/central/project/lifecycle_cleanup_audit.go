@@ -35,6 +35,9 @@ func (st *lifecycleCleanupState) cleanupProgress(r *lifecycleRecord) (c.Particip
 		return "", false, unavailable(nil)
 	}
 	if st.skills != nil {
+		if st.terminalAgents != nil && terminalParticipantCompleted(r) {
+			return c.SkillsParticipant, false, nil
+		}
 		return c.SkillsParticipant, false, skillsCleanupProgress(r)
 	}
 	if r.operation.State == c.OperationCleaning && r.cleanupStage == "audit" {
@@ -107,6 +110,10 @@ func validateCleanupCheckpoint(participant c.ParticipantName, checkpoint *c.Clea
 		_, err := decodeAuditCleanupCheckpoint(checkpoint, cause, c.ScopeRef{Kind: c.ProjectScope, ProjectID: project})
 		return err
 	case c.SkillsParticipant:
+		if checkpoint != nil && checkpoint.Schema() == 6 {
+			_, err := decodeTerminalCleanupCheckpoint(checkpoint, cause, project)
+			return err
+		}
 		if checkpoint != nil && checkpoint.Schema() == 5 {
 			_, _, err := decodeVariablesCleanupCheckpoint(checkpoint, cause, project)
 			return err

@@ -62,6 +62,7 @@ type projectCallOwnershipState struct {
 	mu        sync.Mutex
 	owners    map[f.ID[projectCallIdentity]]*projectCallOwner
 	changed   chan struct{}
+	terminal  *agentTerminalOwners
 }
 
 // ProjectCallOwnership is an explicitly opted-in pair. Its registered-call

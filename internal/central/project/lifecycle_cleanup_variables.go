@@ -153,7 +153,7 @@ func (a *LifecycleAuthority) requireVariablesCleanupClaimInTx(ctx context.Contex
 		return invalid()
 	}
 	witness, _ := ctx.Value(lifecycleCleanupScopeKey{}).(*lifecycleCleanupScope)
-	if witness == nil || witness.state == nil || nilPort(witness.state.variables) || !witness.round.variablesStep || witness.round.agentStep {
+	if witness == nil || witness.state == nil || nilPort(witness.state.variables) || !witness.round.variablesStep || witness.round.agentStep || witness.round.terminalStep {
 		return fault(f.Forbidden)
 	}
 	return a.requireCleanupClaimInTx(ctx, tx, cause, project, c.SkillsParticipant)

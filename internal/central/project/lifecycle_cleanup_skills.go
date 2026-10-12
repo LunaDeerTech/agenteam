@@ -122,7 +122,7 @@ func skillsParentCleanupReport(round lifecycleCleanupRound, child c.CleanupRepor
 func (a *LifecycleAuthority) requireSkillsCleanupClaimInTx(ctx context.Context, tx f.Tx, cause c.LifecycleCause, project c.ProjectID) error {
 	if ctx != nil {
 		witness, _ := ctx.Value(lifecycleCleanupScopeKey{}).(*lifecycleCleanupScope)
-		if witness != nil && (witness.round.agentStep || witness.round.variablesStep) {
+		if witness != nil && (witness.round.agentStep || witness.round.variablesStep || witness.round.terminalStep) {
 			return fault(f.Forbidden)
 		}
 	}

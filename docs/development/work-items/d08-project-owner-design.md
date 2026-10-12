@@ -253,7 +253,7 @@ Audit库与Secret库本身没有自主Project执行/外部业务worker：它们�
 
 原 Project EX、完整 last-Agent 引用锁 union、current Delete/domains/full manifest 与独立 terminal claim scope 下，先由 Agent 真实 owner 重建并确认最后完整 Before/五域引用，再由两 owner 删除自己的合法终局数据。Agent 只清 completed commands 和 joined 登记行，planned 命令仍 Busy；Variables 只清 business_closed 登记行，前序 metadata 必须保持为空，D04 不参与本步骤。两个 owner 的 set-based DELETE 与精确计数、最后 command 锚的删除、母 participant Completed 及 schema 6 receipt 在同一个原事务提交。任何错误整笔回滚；本片沿原 ctx 预算，不声称任意历史数量可在预算内完成，也不提供部分批次进度。
 
-schema 6 保存 Project/operation/version、原 claim process/attempt/fence、真实 SQL transaction ID、原 schema 5 摘要及两 pair 的原 process/instance，取代旧 command 锚。物理提交后的原调用未返回时，不得由另一 driver 仅凭已可见 receipt 或空表确认。Unknown 实际已应用时只核精确 receipt、原 owner 返回/停止证明及各域真实空事实，不再读取已删除 command；原 claim 与完整 schema 5 未改变的 NotApplied 确认只读本域合法事实，并在同事务终结原 claim，实际确认返回后另一显式 Run 才可再次应用。确认自身 Unknown 仍保留原 owner 与 attempt，不内部重试删除。
+schema 6 保存 Project/operation/version、原 claim process/attempt/fence、真实 SQL transaction ID、原 schema 5 摘要及两 pair 的原 process/instance，取代旧 command 锚。物理提交后的原调用未返回时，不得由另一 driver 仅凭已可见 receipt 或空表确认。Unknown 实际已应用时只核精确 receipt、原 owner 返回/停止证明及各域真实空事实，不再读取已删除 command；原 claim 与完整 schema 5 未改变的 NotApplied 确认只读本域合法事实，原 claim 保持 running。实际确认返回后，同一 driver 才记住已确认状态，由下一显式 Run 取得新 claim 再应用；另一同进程 driver 不能跳过原 owner，foreign owner 仍须真实停止证明。确认自身 Unknown 仍保留原 owner 与 attempt，不内部重试删除。
 
 前向迁移 00078 仅给合法终局 command/closed-call DELETE 增加当前 Project 状态约束，保留原 Agent command UPDATE 和两类 call INSERT/UPDATE 保护；数据库条件不能证明 caller、同事务刚删除或实际返回，授权仍归各 owner 的原私有 scope。该尾仅完成 agent-skills-variables participant，operation 仍 cleaning/domains；后续 Secret、Artifact/Object、Outbox、Audit、finalizer 和默认完整 Registry 各保留真实门槛。本节为实施合同，动态结果另据实际验收记录。
 

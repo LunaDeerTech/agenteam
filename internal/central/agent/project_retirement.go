@@ -109,6 +109,7 @@ type projectRetirementWitnessKey struct{}
 type projectRetirementWitness struct {
 	mu                      sync.Mutex
 	open, applied, recovery bool
+	terminal                bool
 	consumer                *ProjectRetirement
 	tx                      f.Tx
 	plan                    c.ProjectRetirementPlan
@@ -134,7 +135,16 @@ func (a *Authority) requireProjectRetirement(ctx context.Context, tx f.Tx, chang
 	if !w.open || w.applied != applied || w.recovery && !applied {
 		return fault(f.Forbidden)
 	}
-	x, err := w.consumer.original(ctx, tx, w.plan, w.recovery)
+	var x postgres.SQLExecutor
+	var err error
+	if w.terminal {
+		if !applied || !w.recovery {
+			return fault(f.Forbidden)
+		}
+		x, err = w.consumer.terminalOriginal(ctx, tx, w.plan)
+	} else {
+		x, err = w.consumer.original(ctx, tx, w.plan, w.recovery)
+	}
 	if err != nil {
 		return err
 	}
