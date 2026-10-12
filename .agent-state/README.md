@@ -89,18 +89,51 @@ git log --oneline "origin/$task_branch" --not "$task_branch"
 
 **原 Codex 会话仍在推进时，不接管同一分支。** 为不冲突的新目标从已确认基线另建唯一 `ai/<task>-<session>` 分支和 worktree，记录各自归属，不抢写原分支 `current.md` 或 Git。只有明确交接并确认原写者及相关后台写入停止后，才能由接任 root 接管同一分支；同一时刻仍保持单写。状态看起来陈旧不能替代会话交接。
 
-确定接续归属后，新环境从远端任务分支创建本地 worktree：
+确定接续归属后，新环境从远端任务分支创建本地 worktree，沿下节 helper 默认 sparse：
 
 ```sh
 task_tree=/chosen/path/task-name
-git worktree add --no-track -b "$task_branch" "$task_tree" "origin/$task_branch"
+python3 scripts/ai-worktree.py create --branch "$task_branch" --base "origin/$task_branch" "$task_tree"
+# 核对计划与唯一写会话后，由 Git 负责人实际创建。
+python3 scripts/ai-worktree.py create --apply --branch "$task_branch" --base "origin/$task_branch" "$task_tree"
 ```
 
 `--no-track` 不依赖默认 upstream 推断；创建新任务时从确认过的起点分支/提交建树也使用此选项，避免从 `origin/main` 起步却误跟踪主分支。显式 fetch 不修改仓库的持久 fetch refspec，后续仍须使用上述全量 `ai/*` 获取方式。
 
-若本地任务分支已存在，先保留并比较本地与远端提交；未被其他 worktree 使用时，以 `git worktree add "$task_tree" "$task_branch"` 接续它。已经存在的 worktree 直接复用，不强制重复挂载同一分支。同步需要时由 root 做正常快进或明确整合，文件冲突交文件 owner 修复。
+若本地任务分支已存在，helper 拒绝创建，不覆盖它。先保留并比较本地与远端提交；未被其他 worktree 使用时，以 `git worktree add --no-checkout "$task_tree" "$task_branch"` 接续，再按下节设置 sparse/首次初始化。已经存在的 worktree 直接复用，不强制重复挂载同一分支。同步需要时由 root 做正常快进或明确整合，文件冲突交文件 owner 修复。
 
 进入所选目录，读取任务 `current.md`、核对实际源码与必要材料，只恢复缺少的依赖，从明确下一步继续。旧代理 ID、进程和终端不会自动复活；重新创建合适执行者并恢复必要命令，先确认现存进程与自有资源归属，不能凭历史状态重跑或清理另一会话资源。环境说明见[恢复指南](../docs/development/agent-team/recovery-2026-10-08-environment.md)，其中旧机器路径须按本环境调整。
+
+## 新建稀疏工作树与共享依赖
+
+[ai-worktree.py](../scripts/ai-worktree.py) 的 `create` 默认仅计划，`--apply` 才写 Git。它将显式 base 解析为 commit，创建新 `ai/` 分支时不推断 upstream；拒绝已有分支、已有目录及嵌套在其他 worktree 内的目标。随后只在新树执行以下首次初始化，不 reset 既有工作区。任何步骤失败都保留现场供 Git 负责人检查，不自动删除分支或目录：
+
+```sh
+git -C "$task_tree" sparse-checkout set --no-cone --stdin <<'PATTERNS'
+/*
+!/docs/development/agent-team/*verification-evidence*/objects/
+!/docs/development/agent-team/*verification-evidence*/**/objects/
+PATTERNS
+git -C "$task_tree" read-tree -mu HEAD
+git -C "$task_tree" status --short --branch
+```
+
+`read-tree` 此处只初始化刚 `--no-checkout` 创建、无 WIP 的树；不得照抄到活跃树。sparse 只省工作区物化，原历史文件仍可 `git show <revision>:<path>` 读取；特定旧测试确需某对象时由 owner 定位后恢复那份输入，不关闭 sparse 全量回填。主仓保留的合同和源码以真实 Git 版本为准。
+
+共享路径选在 worktree 外，例如 `/chosen/shared/agenteam`，具体版本沿工具链与锁文件核对；它不是生产配置，也不由 helper 自动下载、复制或迁移。新任务先查现存匹配内容，只恢复缺项：
+
+```sh
+agenteam_shared_root=/chosen/shared/agenteam
+export GOCACHE="$agenteam_shared_root/go-build/go1.27.1"
+export GOMODCACHE="$agenteam_shared_root/go-mod"
+export npm_config_cache="$agenteam_shared_root/npm-cache"
+# 本轮目录另行创建并交给原 fixture；不可指向共享缓存或他人的输出。
+agenteam_run_dir=/chosen/task-output/run-unique
+```
+
+Node 安装需匹配 package.json/lock、Node 与平台，复用前核对；不要整树复制另一任务的 node_modules。使用共享安装的工具入口或链接须符合原工具解析方式，并把 Vite/Vitest 等可写缓存与构建产物配置到本轮目录，不在正在共享的安装目录运行 npm ci。Go cache 正常读写遵守 Go 自身并发协议；清缓存、更新共享依赖与迁移路径不能与实际消费者并行。固定 MinIO/浏览器、不可变 fixture 文件和 Docker 镜像也沿原版本复用；现有活跃资源待原 Wait 和 owner 退出后再迁移，不能为清树先挪路径。详见[资源规则](../docs/development/agent-team/README.md#worktree-与测试资源复用)。
+
+预编译的定向 PG 套件若已核实不需要 unsupported-PG 反控，可以显式设置 `AGENTEAM_FIXTURE_PG_CURRENT_ONLY=1`，同时保留原 `AGENTEAM_FIXTURE_TEST_BINARY/CWD` 和真实选择器检查；默认不设，仍运行完整版本。不得对全套测试批量默认开启，缺反控环境必须失败。原自有 DB/nonce、实际 Wait、完整退出和资源归属门不变；资源列表采用本轮实际生成 ID，不伪造未启动的 PG16。
 
 ## 上游同步、联调与正式交付
 
@@ -136,6 +169,30 @@ git -C "$repo_tree" ls-remote --heads origin "refs/heads/$task_branch"
 
 所有条件成立后，逐个使用 `git -C "$repo_tree" worktree remove "$task_tree"` 和 `git -C "$repo_tree" branch -d "$task_branch"`。`-d` 是否通过不是主线交付证据；如仅因 squash、cherry-pick 或原子整合未形成祖先关系而被拒绝，执行负责人已核实全部实际成果和必要材料可从 `main` 或明确保留的远端引用恢复，且无独有未保存成果、无任何 worktree 挂载或活跃依赖时，root 可对**这个已核定的冗余本地引用**使用 `branch -D`。该例外只删除冗余引用，不授权丢弃改动、未交付内容、未保存证据或强制移除 worktree；任何条件不确定就保留。
 
-删除远端前，root 再次 fetch 候选引用并用 `ls-remote` 核对实际 tip，确认与清理结论的输入一致且没有活跃 writer，随后才逐个执行 `git -C "$repo_tree" push origin --delete "$task_branch"`。普通删除命令不会锁定上一次查询的 tip；预先查询也不能替代明确的单写归属与停写。发现远端前进、归属变化或无法排除并发写入时停止清理并重新核对，不强推覆盖，也不把远端缺失的旧任务自动重新发布。删除后再次查询远端并显式 fetch/prune 刷新本地远端跟踪引用。
+远端备份仍是任务分支：正式 main 已交付且任务完整结束后，本地/远端一起收尾，不能只删一侧。删除远端前，root 再次 fetch 候选引用并用 `ls-remote` 核对实际 tip，确认与结论一致且没有活跃 writer，再做带精确 lease 的空 ref 删除。下例的 `observed_tip` 必须是刚核实的完整提交 ID，不能用旧聊天值或省略：
+
+```sh
+git -C "$repo_tree" push --no-follow-tags \
+  --force-with-lease="refs/heads/$task_branch:$observed_tip" \
+  origin ":refs/heads/$task_branch"
+git -C "$repo_tree" ls-remote --heads origin "refs/heads/$task_branch"
+```
+
+这是防并发的删除，不是覆盖历史的 force push。tip 前进、归属变化或任何查询失败立即停，不能刷新 expected tip 后盲删。第二条成功且输出为空才证明远端缺失；此前保留本地可恢复来源。远端缺失确认后，查看 `git config --get-all remote.origin.fetch`，只移除为这个任务添加的精确条目（兼容带 `+` 和不带 `+`），保留 main、通配和其他任务配置：
+
+```sh
+for task_refspec in "refs/heads/$task_branch:refs/remotes/origin/$task_branch" \
+                    "+refs/heads/$task_branch:refs/remotes/origin/$task_branch"; do
+  if git -C "$repo_tree" config --fixed-value --get-all remote.origin.fetch "$task_refspec"; then
+    git -C "$repo_tree" config --fixed-value --unset-all remote.origin.fetch "$task_refspec" || exit
+  fi
+done
+git -C "$repo_tree" fetch --prune origin
+git -C "$repo_tree" for-each-ref --format='%(refname) %(objectname)' "refs/remotes/origin/$task_branch"
+```
+
+受限 refspec 的 prune 可能不再覆盖刚移除配置的 tracking ref；若仍存在，只在重新核对该 ref 的当前 tip 后用 `git update-ref -d <精确tracking-ref> <该tip>` 删除，再核本地分支、远端分支、tracking 和精确配置均已收口。不得 `unset-all remote.origin.fetch` 不带匹配值，也不改其他环境的工作区。
+
+用户明确清理非活跃旧分支而其中仍有独有历史时，先在工作树之外创建包含所有候选精确 refs 的完整 bundle（不使用排除历史的增量参数），`git bundle verify`、`list-heads` 对齐候选 tips，并在小型空仓库实际恢复需要保留的引用。bundle 是源码历史恢复材料，ignored 文件/进程不会包含在内，需另按既有规则保留。确认可恢复且无活跃依赖后才删这些旧引用，不要求为了备份永久保留远端分支，也不宣称它们已合入 main；用户未授权的活跃、阻塞或归属不明任务仍不删除。
 
 远端删除不影响其他机器或离线环境的本地分支、worktree 和文件。该环境下次恢复时先保留本地改动，读取最新工作规范、协调索引和主线交付，按上文 fetch/prune 清除过期远端跟踪引用。已完成且已删除的旧任务不再执行自动 checkpoint/push；有独有未保存成果时先核归属并另行保存，需要新增工作时从确认基线建立新任务分支。只有本机对应对象重新满足清理条件后，root 才移除其本地 worktree 与分支；不把 remote prune 或 `git worktree prune` 当作删除其他环境目录、结束进程或保存成果的手段。

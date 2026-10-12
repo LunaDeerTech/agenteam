@@ -82,6 +82,8 @@ Keep credentials in ignored `.env*` files or root `secrets/`; commit sanitized e
 
 保存触发点、命令、多 worktree 记录和跨设备接续以[状态与恢复说明](.agent-state/README.md)为准，[当前检查点](.agent-state/current.md)只保存当前任务分支的恢复信息。恢复先核对本地改动、远端活动分支和唯一写会话；另一会话仍在运行时不得抢占其分支或覆盖 `current.md`。push 未成功须明确尚未远端保存。常规 commit/push 授权不包含部署、强推、丢弃改动或覆盖其他会话工作。
 
+新 worktree 由 Git 负责人使用 [ai-worktree.py](scripts/ai-worktree.py) 先设置 sparse 再首次 checkout，默认不物化旧 `verification-evidence*/objects` 大副本；源码、规则与合同照常保留。工具、锁定依赖和镜像在 worktree 外复用，数据库、临时目录与输出每轮独立；具体边界见[资源复用规则](docs/development/agent-team/README.md#worktree-与测试资源复用)。工作分支可推远端备份，正式 main 交付后须连同本地分支、远端分支及该任务的精确 fetchspec/跟踪引用一起收尾，不把备份分支永久积存。
+
 正式 `main` 交付推送确认后及交接、恢复时，主线程按[已完成分支与 worktree 清理](docs/development/agent-team/README.md#已完成分支与-worktree-清理)主动收尾；常规清理无需逐次确认，具体操作与跨环境恢复见[状态说明](.agent-state/README.md#清理操作与跨环境接续)。
 
 首次接任务只读本文件、[团队流程](docs/development/agent-team/README.md)、目标规格及相关技能；后续补读变化。派工字段见[精简简报](docs/development/agent-team/task-template.md)。Vue 测试读取 `vue-testing-best-practices`；真实浏览器与测试 harness 使用仓库内 `agenteam-test-engineering`，环境已有 `playwright` 技能可补充使用。工作流文档变更只检查相关配置解析、链接、一致性和格式，不跑无关产品测试，也不新增验收归档。
