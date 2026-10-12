@@ -665,7 +665,11 @@ func newAgentOwnershipInstallationFixture(t *testing.T, allowRuntimeClose func()
 	if err != nil {
 		t.Fatal(err)
 	}
-	creator, err := project.New(store, project.Dependencies{Authority: projects, Activity: base.accounts, Audit: aud, Events: box, ProjectEvents: types, Initializer: service, Processes: fixtureProcess{outboxProcess}, Cursors: base.keys}, project.DefaultConfig())
+	creatorDeps := project.Dependencies{Authority: projects, Activity: base.accounts, Audit: aud, Events: box, ProjectEvents: types, Initializer: service, Processes: fixtureProcess{outboxProcess}, Cursors: base.keys}
+	if base.finalizerAssembly != nil {
+		creatorDeps = base.finalizerAssembly.creator(t, manifest, guard, creatorDeps)
+	}
+	creator, err := project.New(store, creatorDeps, project.DefaultConfig())
 	if err != nil {
 		t.Fatal(err)
 	}

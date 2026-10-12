@@ -278,6 +278,9 @@ func (v *skillInstallationFixture) enterCleanup(t *testing.T) (identity.Actor, p
 // operation is still stopping. The default fixture has no additional call.
 func (v *skillInstallationFixture) enterCleanupWith(t *testing.T, stop func(identity.Actor, pc.LifecycleCause, pc.ScopeRef)) (identity.Actor, pc.LifecycleCause, pc.ScopeRef) {
 	t.Helper()
+	if v.base.finalizerAssembly != nil {
+		return v.base.finalizerAssembly.enterCleanup(t, v, stop)
+	}
 	cause := pc.LifecycleCause{OperationID: id[pc.Operation](t), Action: pc.Delete, ProjectVersion: v.project.Version + 1}
 	scope := pc.ScopeRef{Kind: pc.ProjectScope, ProjectID: v.project.ID}
 	raw, err := json.Marshal(v.manifest.Entries())
