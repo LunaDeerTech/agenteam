@@ -30,6 +30,9 @@ SECRET_EXPECTED = {'TestProjectSecretDeleteWeb',
 USAGE_SELECTOR = '^TestProjectUsageSummaryWeb$'
 USAGE_EXPECTED = {'TestProjectUsageSummaryWeb',
                   'TestProjectUsageSummaryWeb/daily-server-aggregate'}
+SKILL_SELECTOR = '^TestSkillPackageImportWeb$'
+SKILL_EXPECTED = {'TestSkillPackageImportWeb',
+                  'TestSkillPackageImportWeb/existing-file-import-and-fixed-revision-download'}
 
 def save(path, value):
     with path.open('x') as stream:
@@ -71,15 +74,21 @@ def main():
                        help='run the reviewed referenced-Secret deletion scope')
     scope.add_argument('--project-usage-summary', action='store_true',
                        help='run the reviewed daily Usage summary scope')
+    scope.add_argument('--skill-package-import', action='store_true',
+                       help='run the reviewed existing-file Skill package import scope')
     a = p.parse_args()
-    selector = (USAGE_SELECTOR if a.project_usage_summary else
+    selector = (SKILL_SELECTOR if a.skill_package_import else
+                USAGE_SELECTOR if a.project_usage_summary else
                 SECRET_SELECTOR if a.secret_delete else
                 CREATE_SELECTOR if a.project_creation else SELECTOR)
-    expected = (USAGE_EXPECTED if a.project_usage_summary else
+    expected = (SKILL_EXPECTED if a.skill_package_import else
+                USAGE_EXPECTED if a.project_usage_summary else
                 SECRET_EXPECTED if a.secret_delete else
                 CREATE_EXPECTED if a.project_creation else EXPECTED)
-    node_count = 1 if a.project_creation or a.secret_delete or a.project_usage_summary else 2
-    web_scopes = ([('AGENTEAM_PROJECT_USAGE_SUMMARY_WEB', 'usage-summary')]
+    node_count = 1 if a.project_creation or a.secret_delete or a.project_usage_summary or a.skill_package_import else 2
+    web_scopes = ([('AGENTEAM_SKILL_IMPORT_WEB', 'skill-import')]
+                  if a.skill_package_import else
+                  [('AGENTEAM_PROJECT_USAGE_SUMMARY_WEB', 'usage-summary')]
                   if a.project_usage_summary else
                   [('AGENTEAM_PROJECT_SECRET_DELETE_WEB', 'secret-delete')]
                   if a.secret_delete else
@@ -112,7 +121,8 @@ def main():
          'input_hash':a.input_hash,'binary':str(a.binary),'dist':str(a.dist),
          'runtime':str(a.runtime),'supervisor_pid':os.getpid(),
          'pg_current_only':a.pg_current_only,'project_creation':a.project_creation,
-         'secret_delete':a.secret_delete,'project_usage_summary':a.project_usage_summary})
+         'secret_delete':a.secret_delete,'project_usage_summary':a.project_usage_summary,
+         'skill_package_import':a.skill_package_import})
     began = time.monotonic()
     failed = False
     adopted = []
