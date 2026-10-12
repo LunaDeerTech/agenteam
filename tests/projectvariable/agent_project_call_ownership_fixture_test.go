@@ -13,9 +13,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
 	"github.com/LunaDeerTech/agenteam/internal/central/agent"
 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
 	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
@@ -148,7 +150,175 @@ func newAgentCallOwnershipFixture(t *testing.T) *agentCallOwnershipFixture {
 // never a substitute for Joined or a retry worker.
 var agentOwnershipFailedCleanup struct {
 	sync.Mutex
-	pairs []*agent.ProjectCallOwnership
+	pairs    []*agent.ProjectCallOwnership
+	runtimes []*agentOwnershipRuntime
+}
+
+// Both foreign instances recover an existing Skill/Object database. The empty
+// phase-guard fixture cannot authorize that recovery. This graph uses the same
+// concrete authorities and construction order as the installation prerequisite.
+type agentOwnershipRuntime struct {
+	backend   *object.Backend
+	spool     *object.Spool
+	guard     *object.ProcessGuard
+	installer *toolruntime.InstallAuthority
+	authority *skill.Authority
+	objects   *object.Service
+	runtime   *object.Runtime
+	skills    *skill.Service
+	pair      *agent.ProjectCallOwnership
+}
+
+func agentOwnershipManifest() (pc.RequiredManifest, error) {
+	return pc.NewRequiredManifest([]pc.ParticipantRegistration{
+		{Name: pc.SkillsParticipant, ContractVersion: 1, OwnerModule: "skills", ReferenceKinds: []pc.ReferenceKind{"skill-initialization", "skill-installation", "skill-package-reader", "skill-object-cleanup"}},
+		{Name: pc.ArtifactObjectParticipant, ContractVersion: 1, OwnerModule: "artifact-object", ReferenceKinds: []pc.ReferenceKind{"object"}, CleanupAfter: []pc.ParticipantName{pc.SkillsParticipant}},
+		{Name: pc.SecretParticipant, ContractVersion: 1, OwnerModule: "secret", ReferenceKinds: []pc.ReferenceKind{"secret"}, CleanupAfter: []pc.ParticipantName{pc.SkillsParticipant}},
+		{Name: pc.OutboxParticipant, ContractVersion: 1, OwnerModule: "outbox", CleanupAfter: []pc.ParticipantName{pc.ArtifactObjectParticipant, pc.SecretParticipant, pc.SkillsParticipant}},
+		{Name: pc.AuditParticipant, ContractVersion: 1, OwnerModule: "audit", CleanupAfter: []pc.ParticipantName{pc.OutboxParticipant}},
+	})
+}
+
+// Even an error returns the partial owner; the caller immediately installs its
+// cleanup before inspecting err. Construction never binds a guard or skips the
+// real Runtime.Initialize recovery and storage probes.
+func newAgentOwnershipRuntime(store *hookStore, accounts *account.Authority, keys cursor.Keyring, storage object.StorageConfig, path string, process objc.ProcessID) (*agentOwnershipRuntime, error) {
+	r := &agentOwnershipRuntime{}
+	manifest, err := agentOwnershipManifest()
+	if err != nil {
+		return r, err
+	}
+	lifecycle, err := project.NewLifecycleAuthority(store, manifest, nil)
+	if err != nil {
+		return r, err
+	}
+	facts, err := object.NewProjectAuditAuthority(store)
+	if err != nil {
+		return r, err
+	}
+	projects, err := project.NewAuthority(store, project.AuthorityDependencies{Sessions: accounts, Routes: accounts, Lifecycle: lifecycle, AuditFacts: map[ac.Producer]ac.ProjectFactAuthority{ac.ObjectProducer: facts}})
+	if err != nil {
+		return r, err
+	}
+	r.backend, err = object.NewBackend(storage)
+	if err != nil {
+		return r, err
+	}
+	r.spool, err = object.OpenSpool(path, process)
+	if err != nil {
+		return r, err
+	}
+	r.guard, err = object.OpenProcessGuard(r.spool, process)
+	if err != nil {
+		return r, err
+	}
+	// The real constructor permits an unbound guard here; actual dispatch and
+	// Registry binding still require this exact process after initialization.
+	r.installer, err = toolruntime.NewInstallAuthority(store, r.guard, process)
+	if err != nil {
+		return r, err
+	}
+	r.authority, err = skill.NewAuthorityWithInstallExecution(store, projects, r.installer)
+	if err != nil {
+		return r, err
+	}
+	initialFacts, err := skill.NewInitializationAuditFacts(r.authority, facts)
+	if err != nil {
+		return r, err
+	}
+	initialAudit, err := project.NewInitializationAuditAuthority(projects, initialFacts)
+	if err != nil {
+		return r, err
+	}
+	cleanupAudit, err := skill.NewLifecycleAuditAuthority(initialAudit, r.authority, facts)
+	if err != nil {
+		return r, err
+	}
+	auditor, err := audit.New(store, keys, audit.Authorizations{Sessions: accounts, System: accounts, Accounts: accounts, Projects: cleanupAudit})
+	if err != nil {
+		return r, err
+	}
+	r.objects, err = object.New(store, r.backend, r.spool, auditor, object.Authorizations{Planner: r.authority, Resources: r.authority, Read: r.authority, Gate: r.authority, Cleanup: r.authority, Processes: r.guard, ProjectStop: lifecycle})
+	if err != nil {
+		return r, err
+	}
+	endpoint, err := object.LoadTransferEndpoint(func(string) (string, bool) { return "", false }, storage)
+	if err != nil {
+		return r, err
+	}
+	transfers, err := object.NewTransferService(r.objects, nil, endpoint)
+	if err != nil {
+		return r, err
+	}
+	r.runtime, err = object.NewRuntime(r.objects, r.guard, transfers)
+	return r, err
+}
+
+func (r *agentOwnershipRuntime) retain() {
+	if r == nil {
+		return
+	}
+	agentOwnershipFailedCleanup.Lock()
+	agentOwnershipFailedCleanup.runtimes = append(agentOwnershipFailedCleanup.runtimes, r)
+	agentOwnershipFailedCleanup.Unlock()
+}
+
+func (r *agentOwnershipRuntime) drain(ctx context.Context) error {
+	if r == nil {
+		return nil
+	}
+	if r.pair != nil {
+		r.pair.Stop()
+		if err := r.pair.Drain(ctx); err != nil {
+			return err
+		}
+		if !r.pair.Joined() {
+			return f.NewFault(f.ResourceBusy, f.NotStarted)
+		}
+	}
+	if r.skills != nil {
+		if err := r.skills.Drain(ctx); err != nil {
+			return err
+		}
+		if !r.skills.Joined() {
+			return f.NewFault(f.ResourceBusy, f.NotStarted)
+		}
+	}
+	if r.installer != nil {
+		r.installer.Stop()
+		if err := r.installer.Drain(ctx); err != nil {
+			return err
+		}
+		if !r.installer.Joined() {
+			return f.NewFault(f.ResourceBusy, f.NotStarted)
+		}
+	}
+	if r.runtime != nil {
+		r.runtime.StopAdmission()
+		return r.runtime.Drain(ctx) // Actual service return precedes guard.finish.
+	}
+	if r.objects != nil {
+		r.objects.StopAdmission()
+		if err := r.objects.Drain(ctx); err != nil {
+			return err
+		}
+	}
+	if r.guard != nil {
+		if err := r.guard.Close(); err != nil {
+			return err
+		}
+	}
+	if r.objects == nil { // Otherwise Service.Drain owns these physical closes.
+		if r.spool != nil {
+			if err := r.spool.Close(); err != nil {
+				return err
+			}
+		}
+		if r.backend != nil {
+			return r.backend.Close()
+		}
+	}
+	return nil
 }
 
 func drainAgentCallPair(t *testing.T, pair *agent.ProjectCallOwnership) bool {
@@ -295,13 +465,7 @@ func newAgentOwnershipInstallationFixture(t *testing.T, allowRuntimeClose func()
 	t.Helper()
 	base := newVariableHTTPFixture(t) // newDatabase migrates the current continuous embedded source.
 	store := base.tracked
-	manifest, err := pc.NewRequiredManifest([]pc.ParticipantRegistration{
-		{Name: pc.SkillsParticipant, ContractVersion: 1, OwnerModule: "skills", ReferenceKinds: []pc.ReferenceKind{"skill-initialization", "skill-installation", "skill-package-reader", "skill-object-cleanup"}},
-		{Name: pc.ArtifactObjectParticipant, ContractVersion: 1, OwnerModule: "artifact-object", ReferenceKinds: []pc.ReferenceKind{"object"}, CleanupAfter: []pc.ParticipantName{pc.SkillsParticipant}},
-		{Name: pc.SecretParticipant, ContractVersion: 1, OwnerModule: "secret", ReferenceKinds: []pc.ReferenceKind{"secret"}, CleanupAfter: []pc.ParticipantName{pc.SkillsParticipant}},
-		{Name: pc.OutboxParticipant, ContractVersion: 1, OwnerModule: "outbox", CleanupAfter: []pc.ParticipantName{pc.ArtifactObjectParticipant, pc.SecretParticipant, pc.SkillsParticipant}},
-		{Name: pc.AuditParticipant, ContractVersion: 1, OwnerModule: "audit", CleanupAfter: []pc.ParticipantName{pc.OutboxParticipant}},
-	})
+	manifest, err := agentOwnershipManifest()
 	if err != nil {
 		t.Fatal(err)
 	}

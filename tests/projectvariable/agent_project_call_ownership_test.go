@@ -18,7 +18,6 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/agent"
 	ac "github.com/LunaDeerTech/agenteam/internal/central/agent/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
-	"github.com/LunaDeerTech/agenteam/internal/central/object"
 	objc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
@@ -173,11 +172,17 @@ func testAgentOwnershipForeign(t *testing.T) {
 		t.Fatal("owned complete COMMIT proxy", err)
 	}
 	var child *agentOwnershipChild
-	var runtime *object.Runtime
+	var owned *agentOwnershipRuntime
 	var observer *agent.ProjectCallOwnership
 	var observeDone chan struct{}
 	var cancelObserve context.CancelFunc
 	defer func() {
+		drained := false
+		defer func() {
+			if !drained {
+				owned.retain()
+			}
+		}()
 		if cancelObserve != nil {
 			cancelObserve()
 		}
@@ -199,10 +204,11 @@ func testAgentOwnershipForeign(t *testing.T) {
 			t.Error("original COMMIT proxy did not join", err)
 			return
 		}
-		if observer != nil && !drainAgentCallPair(t, observer) {
-			return // Never release its guard while an original owner remains.
+		if err := owned.drain(ctx); err != nil {
+			t.Error("observer original dependency graph did not join", agentOwnershipSafeCode(err))
+			return
 		}
-		phaseGuardRetireRuntime(t, runtime)
+		drained = true
 	}()
 	oldProcess := id[objc.Process](t)
 	child = startAgentOwnershipChild(t, agentOwnershipInput{Database: v.p2.base.db.Name, Proxy: proxy.Address(), Bucket: bucket, Spool: spool, Process: oldProcess.String(), Project: p.ID.String(), User: actor.Details().UserID, Session: actor.Details().SessionID, Target: seed.Fields().AgentID, Request: update, Meta: updateMeta})
@@ -231,15 +237,22 @@ func testAgentOwnershipForeign(t *testing.T) {
 		t.Fatal("completed replay lost its original mutation class", err)
 	}
 	newProcess := id[objc.Process](t)
-	var guard *object.ProcessGuard
-	runtime, _, guard = phaseGuardRuntime(t, v.p2.base.tracked, v.p2.base.audit, storage, spool, newProcess)
-	if err = runtime.Initialize(ctxFor(t)); err != nil {
-		t.Fatal("real observer guard initialize", err)
+	owned, err = newAgentOwnershipRuntime(v.p2.base.tracked, v.p2.base.accounts, v.p2.base.keys, storage, spool, newProcess)
+	if err != nil {
+		t.Fatal("real observer dependency graph", agentOwnershipSafeCode(err))
+	}
+	if err = owned.runtime.Initialize(ctxFor(t)); err != nil {
+		t.Fatal("real observer guard initialize", agentOwnershipSafeCode(err))
+	}
+	guard := owned.guard
+	if current, err := guard.CurrentProcess(); err != nil || current != newProcess {
+		t.Fatal("real observer guard did not bind its exact process", agentOwnershipSafeCode(err))
 	}
 	observer, err = v.graph.NewProjectCallOwnership(v.p2.base.keys, &phaseGuardProcesses{guard: guard, process: newProcess}, guard, newProcess)
 	if err != nil {
 		t.Fatal(err)
 	}
+	owned.pair = observer
 	requireCode(t, guard.ConfirmStopped(ctxFor(t), oldProcess), f.ResourceBusy)
 	if err = child.cmd.Process.Kill(); err != nil {
 		t.Fatal("explicit child SIGKILL", err)
