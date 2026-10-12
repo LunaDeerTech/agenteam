@@ -2,6 +2,14 @@
 
 状态：2026-10-11 当前 Human Owner 的详情下载正常链、浅深两图与资源全尾已有限独立接受，随本次变更交付。产品与测试由 `skills_milestone_review` 实施，`skill_package_review` 未参与实现并独立核过产品、方法、原件与图片；其 outer 终态结论引用作者亲见原工具退出。
 
+## 2026-10-12：Owner 导入已有单文件包
+
+后继已完成真实默认 App 的导入闭环：先真实创建并初始化新 Project，Owner 从磁盘选择已有 `SKILL.md`，取消零安装请求，确认后按原文件字节唯一安装，经目录、详情下载固定 revision 的 ZIP。浏览器保存包、Go 原安装 key 的 Lookup、Skill/Revision/Object 引用与包内原文件字节均核对；不提供手工元数据/正文编辑器，不生成或静默规范化 frontmatter，不增加 Agent 分配、脚本执行或 ZIP/Git 上传能力。支持范围仅为现 `text_files` 协议下的单文件标准包；下文 2026-10-11 的未安装/initializer 未绑定等表述保留为当时历史，当前默认创建能力沿已交付的 Project 创建与恢复闭环。
+
+前端新增 7 项及原目录/下载 24 项共 31/31 通过；首次 tsc 的 nullable 控制器错误及后继单行修复保留，修后 tsc/build 通过。真实 [browser04](../../../output/ai/skill-package-import-delivery/browser04/result.json) 为 `TestSkillPackageImportWeb` 1 top / 1 sub、32.08s PASS，原工具 `43432/d11704` 实际 0；[outer 原 Wait](../../../output/ai/skill-package-import-delivery/browser04-outer.json) 为 0 / 67.577s。Node、Go、四个 Chromium 原 Wait 成功，六个本轮资源及私有目录实际退出；1440 浅色与 390 深色图由非作者亲看接受。
+
+原 [browser01](../../../output/ai/skill-package-import-delivery/browser01/result.json)、[browser02](../../../output/ai/skill-package-import-delivery/browser02/result.json)、[browser03](../../../output/ai/skill-package-import-delivery/browser03/result.json) FAIL 保留：01 为 required 标签定位不匹配，尚未上传；02 安装 POST 被旧 GET 终态观察门拒绝，其未保存的具体浏览器失败类别仍未知；03 固定修订包 GET 的真实 `ERR_ABORTED` 已有原落盘及 Go 收尾，但缺原 binary native/public 返回联合证明。两次观察补差均只限本片精确请求：04 安装与固定修订下载必须同时绑定原请求、原 EOF/关闭、实际公共 receipt/Blob 返回、Go 同一响应和保存字节，才接受精确已知终态；旧默认元数据与下载规则未放宽。不回填前三轮缺失事实，不宣称真实丢包恢复、旧 STOP 或完整 D10 生命周期通过。
+
 ## 可见行为与边界
 
 在已有 initialized Project 的 Skills 目录进入详情，用户下载当前详情所示的固定 revision。契约沿[包 HTTP](d10-skill-owner-package-http.md)、[OpenAPI](../../../api/openapi/skill-package.json)和[项目设置设计](../../frontend-design/layouts/project-settings.md#31-项目-skills-库与分配)。revision 保持正 int64 原字符串，单次 GET 使用当前 Session/Owner 授权；不先 HEAD，不自动重试或调用命令 Lookup。页面提供进度、取消和安全失败反馈，重新下载须由用户明确操作。

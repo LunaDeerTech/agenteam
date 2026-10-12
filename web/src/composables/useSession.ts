@@ -1,3 +1,4 @@
+import { createSkillImportAPI, captureSkillImport, type SkillImportAPI, type SkillImportInput, type SkillImportReceipt } from '../api/skill-import'
 import {
   createProjectSecretCommandsAPI, captureProjectSecretCreate, captureProjectSecretUpdate,
   captureProjectSecretIdentity, type ProjectSecretCommandsAPI, type ProjectSecretIdentity,
@@ -619,6 +620,23 @@ export type ProjectProgress = Readonly<{
   contextValid: boolean
   canRetryOriginal: boolean
 }>
+type SkillImportAction = 'skill-install' | 'skill-install-lookup'
+export type SkillImportProgress = Readonly<{
+  projectID: string
+  skillID: string
+  phase: 'submitting' | 'uncertain' | 'confirmed' | 'rejected'
+  receipt: SkillImportReceipt | null
+  contextValid: boolean
+}>
+type SkillImportOriginal = {
+  projectID: string
+  skillID: string
+  identity: PersonalIdentity
+  csrf: string
+  key: string
+  input: SkillImportInput | null
+  body: string | null
+}
 type KnowledgeCommandAction =
   'knowledge-rename' | 'knowledge-lookup' | 'knowledge-text-write' | 'knowledge-text-lookup' | 'knowledge-delete-preview' | 'knowledge-delete' | 'knowledge-delete-lookup'
 export type KnowledgeCommandProgress = Readonly<{
@@ -909,6 +927,7 @@ type Action =
   | ProjectVariableAction
   | ProjectSecretAction
   | KnowledgeCommandAction
+  | SkillImportAction
   | AgentConfigurationAction
   | ProjectAuditAction
   | ProjectModelAction
@@ -1042,6 +1061,7 @@ export function createSessionController(
     milestonePlanning?: WorkMilestonePlanningAPI
     sprintLifecycle?: WorkSprintLifecycleAPI
     skills?: SkillOwnerAPI
+    skillImport?: SkillImportAPI
     projectSecrets?: ProjectSecretsAPI
     projectSecretCommands?: ProjectSecretCommandsAPI
     projectUsage?: ProjectUsageAPI
@@ -1058,6 +1078,7 @@ export function createSessionController(
   const projectCreationAPI = commandAPIs.projectCreation ?? createProjectCreationAPI()
   const sprintPlanningAPI = commandAPIs.sprintPlanning ?? createWorkSprintPlanningAPI()
   const milestonePlanningAPI = commandAPIs.milestonePlanning ?? createWorkMilestonePlanningAPI()
+  const skillImportAPI = commandAPIs.skillImport ?? createSkillImportAPI()
   const skillsAPI = commandAPIs.skills ?? createSkillOwnerAPI()
   const secretCommandsAPI = commandAPIs.projectSecretCommands ?? createProjectSecretCommandsAPI()
   const projectSecretsAPI = commandAPIs.projectSecrets ?? createProjectSecretsAPI()
@@ -1260,6 +1281,10 @@ export function createSessionController(
   const projectCreationState = shallowReactive<{
     progress: Omit<ProjectCreationProgress, 'contextValid' | 'canResume'> | null
   }>({ progress: null })
+  const skillImportRevisions: Record<SkillImportAction, number> = { 'skill-install': 0, 'skill-install-lookup': 0 }
+  const isSkillImport = (kind: Action): kind is SkillImportAction => Object.hasOwn(skillImportRevisions, kind)
+  let skillImportIntent: SkillImportOriginal | null = null
+  const skillImportState = shallowReactive<{ progress: Omit<SkillImportProgress, 'contextValid'> | null }>({ progress: null })
   const knowledgeCommandRevisions: Record<KnowledgeCommandAction, number> = {
     'knowledge-rename': 0,
     'knowledge-lookup': 0,
@@ -1466,6 +1491,7 @@ export function createSessionController(
       clearSprintLifecycleState()
       clearKnowledgeCommand()
       clearKnowledgeText()
+      clearSkillImport()
       clearKnowledgeDelete()
       clearWorkReviewState()
       clearInvitationState()
@@ -1543,6 +1569,7 @@ export function createSessionController(
       clearSprintLifecycleState()
       clearKnowledgeCommand()
       clearKnowledgeText()
+      clearSkillImport()
       clearKnowledgeDelete()
       clearWorkReviewState()
       ++personalRevision
@@ -2104,6 +2131,7 @@ export function createSessionController(
       | ProjectVariableAction
   | ProjectSecretAction
       | KnowledgeCommandAction
+  | SkillImportAction
       | AgentConfigurationAction
       | ProjectAuditAction
       | ProjectModelAction = 'personal',
@@ -2114,6 +2142,7 @@ export function createSessionController(
       if (isSchedulerAction(kind)) return schedulerRevisions[kind]
       if (isVariableAction(kind)) return variableRevisions[kind]
       if (isSecretCommand(kind)) return secretCommandRevisions[kind]
+      if (isSkillImport(kind)) return skillImportRevisions[kind]
       if (kind === 'skill-read') return skillRevision
       if (kind === 'secret-read') return secretReadRevision
       if (kind === 'usage-read') return usageReadRevision
@@ -2176,6 +2205,7 @@ export function createSessionController(
         (isSchedulerAction(kind) ||
         isVariableAction(kind) ||
         isSecretCommand(kind) ||
+        isSkillImport(kind) ||
         isKnowledgeCommand(kind) ||
         isSprintPlanningAction(kind) ||
         isMilestonePlanningAction(kind) ||
@@ -2255,7 +2285,7 @@ export function createSessionController(
       .catch((error: unknown) => {
         const e = isSchedulerAction(kind)
           ? schedulerFailure(identity, op, current, error)
-          : isKnowledgeCommand(kind)
+          : isKnowledgeCommand(kind) || isSkillImport(kind)
             ? current()
               ? projectFailure(identity, op, error)
               : error instanceof AccountFailure
@@ -8146,6 +8176,85 @@ export function createSessionController(
       return Promise.reject(error)
     }
   }
+  function clearSkillImport() {
+    const retiring = owner && isSkillImport(owner.kind) ? owner : null
+    ++skillImportRevisions['skill-install']
+    ++skillImportRevisions['skill-install-lookup']
+    if (skillImportIntent) { skillImportIntent.input = null; skillImportIntent.body = null }
+    skillImportIntent = null
+    skillImportState.progress = null
+    retiring?.abandon?.()
+  }
+  function performSkillImport(original: SkillImportOriginal, lookup = false): Promise<SkillImportReceipt> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    if (skillImportIntent !== original || !original.input || !projectContext(original))
+      return Promise.reject(new AccountFailure('invalid-input'))
+    const kind: SkillImportAction = lookup ? 'skill-install-lookup' : 'skill-install',
+      revision = skillImportRevisions[kind]
+    const live = () => skillImportIntent === original && revision === skillImportRevisions[kind] && projectContext(original)
+    const publish = (phase: SkillImportProgress['phase'], receipt: SkillImportReceipt | null = null) => {
+      skillImportState.progress = Object.freeze({ projectID: original.projectID, skillID: original.skillID, phase, receipt })
+    }
+    let dispatched = false
+    if (!lookup) publish('submitting')
+    return runAuthorized(original.identity, async (op, current) => {
+      const input = original.input
+      if (!input || !current() || !live()) throw new AccountFailure('cancelled')
+      if (JSON.stringify(input) !== original.body) throw new AccountFailure('invalid-input')
+      dispatched = true
+      const write = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
+      return lookup
+        ? skillImportAPI.lookup(original.projectID, input, write)
+        : skillImportAPI.install(original.projectID, input, write)
+    }, undefined, kind).then((receipt) => {
+      if (!live()) throw new AccountFailure('cancelled')
+      publish('confirmed', receipt)
+      original.input = null
+      original.body = null
+      return receipt
+    }, (error: unknown) => {
+      const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
+      if (live()) {
+        // Only local/pre-dispatch validation or the service's explicit initial
+        // input rejection allows editing. A Lookup fault never erases the intent:
+        // missing, reserved and failed are not permission to create another key.
+        const rejected = !lookup && (!dispatched ||
+          (failure.problem?.code === 'INVALID_ARGUMENT' && failure.problem.commit_state === 'not_started'))
+        publish(rejected ? 'rejected' : 'uncertain')
+      }
+      throw failure
+    })
+  }
+  const skillImport = {
+    get progress(): SkillImportProgress | null {
+      const value = skillImportState.progress
+      return value ? Object.freeze({ ...value, contextValid: !!skillImportIntent && projectContext(skillImportIntent) }) : null
+    },
+    start(projectID: string, text: string) {
+      try {
+        const identity = personalIdentity()
+        if (owner || skillImportIntent || personalIntent || pending) throw new AccountFailure('busy')
+        const skillID = newTaskID(), input = captureSkillImport({ request: {
+          skill_id: skillID, mode: 'create', source: { kind: 'text_files', files: [{ path: 'SKILL.md', utf8_text: text }] },
+        } })
+        const original: SkillImportOriginal = { projectID: captureSkillID(projectID), skillID, identity,
+          csrf: sessionCSRF, key: newKey(), input, body: JSON.stringify(input) }
+        skillImportIntent = original
+        return performSkillImport(original)
+      } catch (error) { return Promise.reject(error) }
+    },
+    lookup() {
+      if (skillImportState.progress?.phase !== 'uncertain' || !skillImportIntent)
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performSkillImport(skillImportIntent, true)
+    },
+    clearSettled() {
+      if (owner || !skillImportIntent || !projectContext(skillImportIntent) ||
+          !['confirmed', 'rejected'].includes(skillImportState.progress?.phase ?? ''))
+        throw new AccountFailure('invalid-input')
+      clearSkillImport()
+    },
+  }
   function skillRead<T>(capture: () => (signal: AbortSignal) => Promise<T>): Promise<T> {
     try {
       const identity = personalIdentity(),
@@ -8914,6 +9023,7 @@ export function createSessionController(
     agentConfiguration,
     projectAudit,
     skills,
+    skillImport,
     projectSecrets,
     projectSecretCommands,
     projectUsage,
