@@ -1,6 +1,6 @@
 # Variables 普通/Secret 持久调用归属接入默认 App
 
-状态：上游核心片的动态接受前置已满足，App 本片已获限定实现授权，当前尚无 App 本片测试结果。工作树 `/workspace/agenteam-variable-project-call-app`，分支 `ai/variable-project-call-app-20261012`，实际建树基线及已交付 main 为 `9293ace4604b11529293ac6b26cb4c266ea65b2f`，当前迁移最大号 75；本片不新增迁移。正式卡精准 checkpoint 后，产品、独立纯控、PG 与方法分域并行。
+状态：App 本片三处生产接线、必要纯控与真实 PG 验收已完成；basic01、controls/compile/list/prepare 和首次 native01 均实际通过。受测源码 `156da848e9f9b91bba1ad2fc88a9085d0f7d2da2`，当前收口最终文档，正式 main 交付另记。工作树 `/workspace/agenteam-variable-project-call-app`，分支 `ai/variable-project-call-app-20261012`，建树及方法基线为已交付 main `9293ace4604b11529293ac6b26cb4c266ea65b2f`，迁移最大号保持 75；本片不新增迁移。
 
 上游[持久调用归属卡](d08-variable-project-call-ownership.md)及[已验方法结果](../../../.agent-state/variable-project-call-ownership/README.md)记录受测技术源码 `a64ed9e2983d162457190e40d18e96f5280415f2`：basic02 原 `69647/e79f0c` actual 0，12 top / 38 sub、两个包 race 与两个 vet；native01 原 `66862/c2458c` actual 0，1 top / 3 sub，真实资源及输入 post 已接受。上游 basic01 原 FAIL 保留，实际通过只覆盖 registered Project business calls；fixture STOPPING 不冒完整 StopDriver/participant，Project EX 不证明 D04 全局技术 SQL 终局，更不代本片 App PG。此处引用本树受版本控制的来源，不依赖将清理旧树的绝对 source/bin/output 路径。
 
@@ -50,7 +50,7 @@ pair 构造无 I/O/worker，允许 guard 此时尚未 bind。这不是运行就�
 2. 普通与 Secret 各一个真实入口在原 registration Store-return 屏障期间，由 App owner 同时保有调用；受控 Unknown 保留原身份且零业务/Secret Prepare，停止后原结算未返回时 Joined 为 false，Force 不退休下游。受控 Store 结果不冒真实 COMMIT loss，concrete 零 guard 只用于拒绝，不伪造 bound 状态或新增生产 fake seam。
 3. 两 view 的实际 Joined 与唯一 owner 一致；停止/Force 后原子晚到 install 不遗失任一 lane，消费原 ctx/预算且不重复排入 works。纯控检查原调用实际返回，不仅检查内部字段或调用次数镜像。基础方法只运行新增控、上述两个兼容 top 与 App vet，最终计数从实际源码提取。
 
-真实验收唯一新增 `tests/projectvariable/variable_project_call_app_test.go`，建议 `TestVariableProjectCallApp` 固定 **1 top / 2 sub**：
+真实验收唯一新增 `tests/projectvariable/variable_project_call_app_test.go`，实际 `TestVariableProjectCallApp` 固定 **1 top / 2 sub**：
 
 1. `default-http-shared-variable-owner`：复用[真实 App handoff](../../../tests/projectvariable/agent_project_call_app_test.go)的正式非空 Project/Skill 图，setup 原 owner/guard 全退后启动公开 `app.Run`，使用原验证 TLS、真实 Session/CSRF/Owner。选择普通与 Secret 各 Create、Get、Lookup，合计 **六个公开入口**；检查两 mutation/四 read 为六个 distinct closed CallID，same process/instance、canonical process claim，以及真实命令回执、Secret D04 receipt和安全读投影。跨 Owner 请求拒绝且零登记，不输出 Secret plaintext。六个入口用于证明默认双 lane 接线、写入与既有回执读取；本片不宣称已重新执行全部十二入口，Update/Delete/List 及领域完整入口/fence/foreign/nonce矩阵复用已接受核心片与原 HTTP 契约测试。
 2. `secret-checkpoint-drains-before-guard`：使用默认 App 的真实 Secret Get。在 task-owned Project SH blocker 下，原登记/read 可完成而退休 Project EX 等待；按确切原 backend/transaction/lock 身份取消一次原 checkpoint statement，使其真实 NotCommitted 返回，核已知 HTTP 200 不被结算失败改写、同 CallID 仍 running。随后真实 SIGTERM，确认 App 原 Drain 正在结算同 CallID、原 guard flock 仍占用且 App 尚未返回；在原 graceful 预算内释放 blocker，亲收 HTTP、SQL、pair、App 原返回及 guard/process claim 退休。此例不是 COMMIT Unknown/foreign death/Force PG，不增加新 wire gate、fake report 或重试框架。
@@ -62,3 +62,14 @@ pair 构造无 I/O/worker，允许 guard 此时尚未 bind。这不是运行就�
 ## 开工与交付边界
 
 core 动态前置及共同基线已确认。正式卡单独保存后启动上述限定实现，产品、纯控、PG、方法各文件只有一个 writer；产品及测试分别由未参与该实现的作者独审。Go、服务和 Git 仍由 root 按实际窗口安排，源码作者不自行启动。core 通过不代本片 App 结果，原 FAIL/HOLD/未运行事实继续保留；不得用 always-reject 适配器、partial Registry 或人工清引用冒完成。
+
+
+## 实际验收
+
+完整索引见[方法 README](../../../.agent-state/variable-project-call-app/README.md#actual-validation)。原工具返回保存在 assistant-observed 转录中，不冒 provider 原生导出；所有输入一致结论属于原运行观察点，最终文档改动不冒仍有原 outer 文档 SHA。
+
+- **basic01：** 原 `51459/1c50c2` actual 0，method PID 1273383 Wait 0 / 287.275 s，race PID 1273494 Wait 0 / 156.829 s，vet PID 1275599 Wait 0 / 128.105 s；四个新 top / 七 sub 加两个旧 legacy top / 零 sub，共 **6 top / 7 sub、App 一包 vet**，无 fail/skip。[原 post](../../../output/ai/variable-project-call-app/basic01-outer/post-check.json) 核六份 1138 输入图及 21 outer 同。受控 Store Unknown 与 concrete unbound guard 的拒绝控制不代真实 PG COMMIT loss 或成功 bound 证明。
+- **controls / compile / prepare：** 原 `37348/0da0ce` actual 0，outer PID 1278026 / 46.737 s；controls PID 1278073 为 1 正 / 7 反控，实际 Go PID 1278122、exact-list PID 1278696、prepare PID 1278765 均 Wait 0。[sequence post](../../../output/ai/variable-project-call-app/sequence01/post-check.json) 核 2069 compile 三图一致、加唯一 binary 后 2070 runtime、43 outer 同，含全部既有迁移与 101 同包 Go 源。[原 binary](../../../output/ai/variable-project-call-app/compile01/binary.json) 为 92,656,152 B，SHA `14320ece7545a1d7edccf8135e59d97419abc2056a51eb3f55b12b5f2579ccc5`；prepare 仍只记原准备，不覆盖为执行通过。
+- **首次 native01 whole PASS：** 原 `53840/56d7d0` actual 0，supervisor PID 1279902 Wait 0 / 112.131 s，driver PID 1279924、Go PID 1281535 Wait 0；1 top / 2 sub 为 21.56 s（10.62 / 10.93 s）。[原 post](../../../output/ai/variable-project-call-app/native01/post-check.json) 核全部 2070 实物 SHA、四身份和原受测 HEAD 同，7 ID 两轮 14 次 absent、desc/private/runtime 双空、TCP 双 delta_empty、无 race。原 raw 为 `/tmp/vpca01/pg-cfdc7919d62642d0af96113381f803d2.log`，无重跑。本片没有失败尝试；上游 core basic01 原失败继续由原记录保留，不混为 App FAIL。
+
+实际 marker 覆盖默认 `app.Run` 六 HTTP 入口、same process/instance 的六独立闭合 CallID、真实 D04 receipt及越权零登记；Secret 原已知 HTTP 返回后，精确取消的 checkpoint 实际 NotCommitted，不改写业务结果，SIGTERM 沿同 CallID 原 Drain 实际结算后才放 guard。真实 bound guard 证明来自本 PG。setup 使用 Project service 与持久测试 Skills receipt，不冒 Project 创建 HTTP 或 production Skills 验收；此片也不证明 full Lifecycle、foreign death、Force PG 或全局 D04 技术 SQL Join。根级 Store.ForceClose 的原预算/断 socket 政策及未 Joined 时联合 guard 门保持，不能宣称 Force 后 Store 永久可用。最终 Git 交付、保全和普通清理待各自实际回执，不提前计入。
