@@ -23,11 +23,12 @@ import (
 type LifecycleCleanupDriver struct{ state *lifecycleCleanupState }
 
 type lifecycleCleanupOwner struct {
-	project  c.ProjectID
-	claim    *lifecycleStopClaim // retained only after its original Run returned
-	prior    *lifecycleStopClaim // an Unknown replacement may have kept this row
-	terminal *lifecycleCleanupRound
-	final    *lifecycleFinalizeRound
+	project   c.ProjectID
+	claim     *lifecycleStopClaim // retained only after its original Run returned
+	prior     *lifecycleStopClaim // an Unknown replacement may have kept this row
+	terminal  *lifecycleCleanupRound
+	final     *lifecycleFinalizeRound
+	scheduler *lifecycleCleanupRound
 }
 
 type lifecycleCleanupState struct {
@@ -39,6 +40,7 @@ type lifecycleCleanupState struct {
 	audit             c.ProjectLifecycleParticipant
 	secret            c.ProjectLifecycleParticipant
 	artifact          c.ProjectLifecycleParticipant
+	scheduler         c.ProjectLifecycleParticipant
 	skills            SkillsCleanupDomain
 	agents            ac.ProjectRetirementConsumer
 	variables         pvc.ProjectCleanupDomain
@@ -138,6 +140,10 @@ func (d *LifecycleCleanupDriver) Run(ctx context.Context, project c.ProjectID, o
 		} else if round != nil {
 			claim := round.claim
 			owner := lifecycleCleanupOwner{project: project, claim: &claim, prior: round.previous}
+			if round.schedulerUnknown {
+				saved := *round
+				owner.scheduler = &saved
+			}
 			if round.terminalStep {
 				saved := *round
 				owner.terminal = &saved
@@ -155,7 +161,16 @@ func (d *LifecycleCleanupDriver) Run(ctx context.Context, project c.ProjectID, o
 		return err
 	}
 	var replay bool
-	round, replay, err = st.start(run, project, operation)
+	if old.scheduler != nil {
+		saved := *old.scheduler
+		round = &saved
+		err = st.resumeScheduler(run, saved)
+		if err != nil {
+			return lifecycleStopRoundError(err, saved.schedulerError)
+		}
+	} else {
+		round, replay, err = st.start(run, project, operation)
+	}
 	if err != nil {
 		return err
 	}
@@ -197,8 +212,24 @@ func (d *LifecycleCleanupDriver) Run(ctx context.Context, project c.ProjectID, o
 	// A domain Unknown still owns its original provider attempt. Keep this local
 	// Project claim too; a second driver cannot bypass the retained owner.
 	var unknown *f.Fault
-	if (round.participant == c.SecretParticipant || round.participant == c.ArtifactObjectParticipant) && errors.As(callErr, &unknown) && unknown.CommitState == f.Unknown {
+	if (round.participant == c.SecretParticipant || round.participant == c.ArtifactObjectParticipant || round.participant == c.SchedulerParticipant) && errors.As(callErr, &unknown) && unknown.CommitState == f.Unknown {
+		if round.participant == c.SchedulerParticipant {
+			round.schedulerUnknown = true
+			if round.schedulerError == nil {
+				round.schedulerError = callErr
+			}
+			return round.schedulerError
+		}
 		return callErr
+	}
+	if round.schedulerUnknown && callErr != nil {
+		return lifecycleStopRoundError(callErr, round.schedulerError)
+	}
+	if round.participant == c.SchedulerParticipant && callErr == nil {
+		// The provider's retained confirmation has actually returned. A later
+		// Project checkpoint Unknown belongs to the ordinary checkpoint protocol,
+		// not to a still-running provider round.
+		round.schedulerUnknown, round.schedulerError = false, nil
 	}
 
 	// The original adapter (including all domain calls) has returned. Cancellation

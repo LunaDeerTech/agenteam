@@ -6,6 +6,7 @@ import (
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/scheduler/contract"
 )
 
 // NewLifecycleCleanupDriverWithAudit binds two fixed cleanup participants to
@@ -33,6 +34,9 @@ func NewLifecycleCleanupDriverWithAudit(store Store, authority *LifecycleAuthori
 func (st *lifecycleCleanupState) cleanupProgress(r *lifecycleRecord) (c.ParticipantName, bool, error) {
 	if r == nil {
 		return "", false, unavailable(nil)
+	}
+	if st.scheduler != nil {
+		return schedulerDriverProgress(r)
 	}
 	if st.skills != nil && !(st.artifact != nil && r.cleanupStage != "domains") {
 		if st.secret != nil && terminalParticipantCompleted(r) {
@@ -73,6 +77,10 @@ func (st *lifecycleCleanupState) cleanupProgress(r *lifecycleRecord) (c.Particip
 
 func (st *lifecycleCleanupState) cleanupPort(name c.ParticipantName) (SkillsCleanupDomain, error) {
 	switch name {
+	case c.SchedulerParticipant:
+		if !nilPort(st.scheduler) {
+			return st.scheduler, nil
+		}
 	case c.OutboxParticipant:
 		if !nilPort(st.participant) {
 			return st.participant, nil
@@ -103,7 +111,7 @@ func cleanupStages(name c.ParticipantName) (current, next string, err error) {
 		return "outbox", "audit", nil
 	case c.AuditParticipant:
 		return "audit", "final", nil
-	case c.SkillsParticipant, c.SecretParticipant, c.ArtifactObjectParticipant:
+	case c.SkillsParticipant, c.SecretParticipant, c.ArtifactObjectParticipant, c.SchedulerParticipant:
 		return "domains", "domains", nil
 	default:
 		return "", "", invalid()
@@ -116,6 +124,9 @@ func (a *LifecycleAuthority) requireAuditCleanupClaimInTx(ctx context.Context, t
 
 func validateCleanupCheckpoint(participant c.ParticipantName, checkpoint *c.CleanupCheckpoint, cause c.LifecycleCause, project c.ProjectID) error {
 	switch participant {
+	case c.SchedulerParticipant:
+		_, err := sc.DecodeProjectCleanupCheckpoint(checkpoint, cause, c.ScopeRef{Kind: c.ProjectScope, ProjectID: project})
+		return portError(err)
 	case c.OutboxParticipant:
 		if checkpoint == nil {
 			return nil

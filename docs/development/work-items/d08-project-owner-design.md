@@ -255,6 +255,12 @@ Work Stop 仅消费原 LifecycleStopDriver 当前 invoke 的独立私有 loan；
 
 新 `NewSchedulerProjectStopAuthority` 仅接受 Delete 当前停止轮：原同 Store 的 Project EX 与 ProjectSchedule EX 授权事务实际 Committed 返回后进入回调，每个后继 Tx 重新消费原私有 issuer/loan、exact current claim/cause、完整冻结 manifest 及 scheduler participant。父 scope 等待实际 callback/Store 尾；旧 manager-only 权限与 Agent、Execution、ArtifactSource、Work family 均不能借用新门。旧 SchedulerStopAuthority 行为保留，不扩 Archive 取消语义。Stop 不调用会写 association 的 Lookup 或 Advance；Handoff 原 Unknown 只消费既有 exact Launched/KnownNotCreated，Found 但尚未关联仍 Pending。Execution 接管后的生命周期归其原 owner。本片不提供 Scheduler Cleanup，不绑定默认 App/部分 Registry，也不把七 lane stopped 当作完整 Delete。
 
+### Scheduler 清理的 Project 接入（独立候选）
+
+显式 `NewLifecycleCleanupDriverForScheduler` 仅接受固定 Scheduler participant，复用原 LifecycleAuthority/P 调用登记与四槽，不装配默认 Registry。新 `NewSchedulerProjectCleanupAuthority` 每个原 Tx 核同 Store、Project EX + ProjectSchedule EX、当前 Delete/cleaning/domains、完整冻结 manifest、全部 stopped、声明的清理前驱及 exact running claim；Stop 和其他清理 family 均不能借权。Scheduler 完成仍保父 domains，不提前转 Outbox，也不要求 Execution 或 Work 先清空而倒置外键依赖。schema 1 checkpoint 只记录 P/op/version、原 process/instance 和 runtimes/relaunch_visits/dispatches/calls/completed 阶段，不代替原 owner 返回证明。
+
+provider 的首 Unknown 保留原 Project round/cause，下一显式 Run 先只读重核原 claim、行版本和 checkpoint，再调用同 provider 的只读确认；未确认或原 Store 未返不得换 claim/推进写入。provider 确认实际返回后的 Project checkpoint 沿原驱动独立 Unknown 协议。00082 只增加 00081 合法 business_closed 尾的严格 DELETE 状态例外：当前 Delete 清理轮、全域 stopped、本域三张业务表全空且无 running call；原 INSERT/UPDATE 身份及单调保护逐字保留。数据库状态不是 caller/returned/foreign-death proof。此独立首批只有契约、Project 固定消费和迁移；Scheduler provider 的自有顺序删除、原返回/Unknown 及真实 PG 尚待接入，不声称 Scheduler Cleanup 或完整 Delete 已通过。
+
 ### Variables metadata 子步骤（限定验收）
 
 固定 Agent→Skills 清理组合新增后继 Variables metadata 子步骤，由实际 `ProjectCallOwnership` 的 ordinary/Secret 双 lane 消费。每轮 provider 的原控制调用计入两 lane 的实际返回；不调用全局 Stop 影响另一 Project，也不在 cleaning 阶段借用仅 stopping 有效的旧 Stop 授权。每个原短事务先取得 Project EX，核同 Store/live Tx、完整 current Delete/manifest/domains 与该 driver 的独立 Variables 私有 claim scope；Agent/Skills/Outbox/Audit 或已结束 callback 不能借用。

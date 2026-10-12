@@ -43,6 +43,11 @@ func cleanupRoundReport(round lifecycleCleanupRound, report c.CleanupReport) err
 	if len(d.RemainingRefs) != 0 || d.State != c.CleanupCompleted && d.State != c.CleanupPending || (round.participant == c.AuditParticipant || round.participant == c.SecretParticipant || round.participant == c.ArtifactObjectParticipant) && d.Checkpoint == nil {
 		return unavailable(nil)
 	}
+	if round.participant == c.SchedulerParticipant {
+		if err := schedulerCleanupReport(round, report); err != nil {
+			return err
+		}
+	}
 	if round.participant == c.SkillsParticipant && round.terminalStep {
 		if d.State != c.CleanupCompleted || d.SafeReason != "" || d.Checkpoint == nil || d.Checkpoint.Schema() != 6 {
 			return unavailable(nil)
@@ -61,7 +66,11 @@ func (st *lifecycleCleanupState) finish(ctx context.Context, round lifecycleClea
 	}
 	validated := false
 	result := st.store.WithinTx(ctx, round.claim.cause(), func(ctx context.Context, tx f.Tx) error {
-		if err := st.store.AcquireAll(ctx, tx, []f.LockRequest{projectLock(round.claim.project, f.Exclusive)}); err != nil {
+		locks := []f.LockRequest{projectLock(round.claim.project, f.Exclusive)}
+		if round.participant == c.SchedulerParticipant {
+			locks = append(locks, schedulerLock(round.claim.project))
+		}
+		if err := st.store.AcquireAll(ctx, tx, locks); err != nil {
 			return unavailable(err)
 		}
 		if err := st.finishInTx(ctx, tx, round, report, callErr); err != nil {
