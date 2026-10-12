@@ -38,20 +38,21 @@ type Dependencies struct {
 }
 type Service struct{ state *serviceState }
 type serviceState struct {
-	store Store
-	deps  Dependencies
-	calls *callSet
+	store     Store
+	deps      Dependencies
+	calls     *callSet
+	ownership *projectCallOwnershipState
 }
 
 // Construction performs no I/O and does not supply absent capabilities. All
 // providers remain mandatory for the full F1 shape, including empty arrays and
-// false defaults. The default application does not bind this service yet.
+// false defaults. Durable project-call ownership requires its explicit factory.
 func New(store Store, deps Dependencies) (*Service, error) {
 	if nilPort(store) || !reflect.TypeOf(store).Comparable() || deps.Authority == nil || deps.Authority.state == nil || deps.Authority.state.store != store || deps.EventAuthority == nil || deps.EventAuthority.owner == nil || deps.EventAuthority.owner.state != deps.Authority.state || !deps.EventAuthority.events.Valid() ||
 		nilPort(deps.Events) || nilPort(deps.Audit) || nilPort(deps.Activity) || nilPort(deps.Models) || nilPort(deps.Tools) || nilPort(deps.ToolReferences) || nilPort(deps.Mounts) || nilPort(deps.Secrets) || nilPort(deps.SecretReferences) || nilPort(deps.Skills) {
 		return nil, fault(f.DependencyUnbound)
 	}
-	return &Service{&serviceState{store, deps, newCalls()}}, nil
+	return &Service{&serviceState{store: store, deps: deps, calls: newCalls()}}, nil
 }
 func (s *Service) begin(ctx context.Context) (context.Context, func(), error) {
 	ctx, _, done, err := s.beginProject(ctx, i.ProjectID{}, controlCall)
@@ -72,8 +73,13 @@ func (s *Service) Drain(ctx context.Context) error {
 	if s == nil || s.state == nil {
 		return fault(f.DependencyUnbound)
 	}
-	return s.state.calls.drain(ctx)
+	if err := s.state.calls.drain(ctx); err != nil {
+		return err
+	}
+	return s.state.ownership.drainReturned(ctx, projectCallService)
 }
-func (s *Service) Joined() bool            { return s != nil && s.state != nil && s.state.calls.joined() }
+func (s *Service) Joined() bool {
+	return s != nil && s.state != nil && s.state.calls.joined() && s.state.ownership.laneJoined(projectCallService)
+}
 func (Service) Format(w fmt.State, _ rune) { _, _ = io.WriteString(w, "agent_service") }
 func (Service) LogValue() slog.Value       { return slog.StringValue("agent_service") }

@@ -204,6 +204,11 @@ METADATA_GROUPS = {
         'TestRoundModelCallReservation/committed-request-reservation-and-history',
         'TestRoundModelCallReservation/reservation-rollback-and-commit-loss-lookup',
     )),
+    '^TestAgentProjectCallOwnership$': frozenset((
+        'TestAgentProjectCallOwnership',
+        'TestAgentProjectCallOwnership/local-original-return-and-terminal-fence',
+        'TestAgentProjectCallOwnership/foreign-death-before-original-sql-terminal',
+    )),
     '^TestAgentProjectLocalStop$': frozenset((
         'TestAgentProjectLocalStop',
         'TestAgentProjectLocalStop/archive-original-mutation-and-project-isolation',

@@ -36,11 +36,12 @@ func runnerCandidateBinding(project i.ProjectID, owner string) (cursor.Binding, 
 
 func (s *Service) ListAvailableRunners(ctx context.Context, actor i.Actor, project i.ProjectID, page f.PageRequest) (f.Page[rc.ConfigurationCandidate], error) {
 	empty := f.Page[rc.ConfigurationCandidate]{}
-	ctx, _, done, err := s.beginProject(ctx, project, readCall)
+	ctx, call, done, err := s.beginProject(ctx, project, readCall)
 	if err != nil {
 		return empty, err
 	}
 	defer done()
+	defer func() { s.state.ownership.finish(ctx) }()
 	if err = currentActor(actor); err != nil {
 		return empty, err
 	}
@@ -51,6 +52,10 @@ func (s *Service) ListAvailableRunners(ctx context.Context, actor i.Actor, proje
 	keys := s.state.deps.RunnerCursorKeys
 	if nilPort(directory) || keys.Validate() != nil {
 		return empty, fault(f.DependencyUnbound)
+	}
+	ctx, err = s.state.ownership.admit(ctx, call, actor, projectCallService)
+	if err != nil {
+		return empty, err
 	}
 	locks, err := directory.ConfigurationCandidateLocks([]rc.RunnerID{})
 	if err != nil {
@@ -72,6 +77,9 @@ func (s *Service) ListAvailableRunners(ctx context.Context, actor i.Actor, proje
 	result := s.state.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		if err := s.state.store.AcquireAll(ctx, tx, locks); err != nil {
 			return portError(err)
+		}
+		if err := s.state.ownership.requireRunning(ctx, tx); err != nil {
+			return err
 		}
 		grant, err := s.state.deps.Authority.state.projects.RequireOwnerInTx(ctx, tx, actor, project, i.Read)
 		if err != nil {
@@ -136,11 +144,12 @@ func (s *Service) ListAvailableRunners(ctx context.Context, actor i.Actor, proje
 
 func (s *Service) GetRunnerMounts(ctx context.Context, actor i.Actor, project i.ProjectID, agent i.AgentID) (c.AgentRunnerMounts, error) {
 	empty := c.AgentRunnerMounts{}
-	ctx, _, done, err := s.beginProject(ctx, project, readCall)
+	ctx, call, done, err := s.beginProject(ctx, project, readCall)
 	if err != nil {
 		return empty, err
 	}
 	defer done()
+	defer func() { s.state.ownership.finish(ctx) }()
 	if err = currentActor(actor); err != nil {
 		return empty, err
 	}
@@ -155,10 +164,17 @@ func (s *Service) GetRunnerMounts(ctx context.Context, actor i.Actor, project i.
 	if err != nil {
 		return empty, err
 	}
+	ctx, err = s.state.ownership.admit(ctx, call, actor, projectCallService)
+	if err != nil {
+		return empty, err
+	}
 	var out c.AgentRunnerMounts
 	result := s.state.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		if err := s.state.store.AcquireAll(ctx, tx, []f.LockRequest{userLock(actor, f.Shared), projectLock(project, f.Shared), agentLock(agent, f.Shared)}); err != nil {
 			return portError(err)
+		}
+		if err := s.state.ownership.requireRunning(ctx, tx); err != nil {
+			return err
 		}
 		grant, err := s.state.deps.Authority.state.projects.RequireOwnerInTx(ctx, tx, actor, project, i.Read)
 		if err != nil {
