@@ -116,6 +116,26 @@ func (st *lifecycleCleanupState) start(ctx context.Context, project c.ProjectID,
 		if err != nil {
 			return err
 		}
+		if round.participant == c.SkillsParticipant {
+			progress, _, err := decodeSkillsCleanupCheckpoint(checkpoint, round.cause, c.ScopeRef{Kind: c.ProjectScope, ProjectID: project})
+			if err != nil {
+				return err
+			}
+			if progress.State == c.CleanupCompleted {
+				for _, row := range r.participants {
+					if row.name == c.SkillsParticipant && row.cleanup != "pending" {
+						return unavailable(nil)
+					}
+				}
+				if actual == nil || actual.phase != "terminal" {
+					return fault(f.ResourceBusy)
+				}
+				// Confirm only this completed substep. The combined participant
+				// remains pending/domains and no downstream owner is invoked.
+				validated, replay = true, true
+				return nil
+			}
+		}
 		if rowVersion == math.MaxInt64 || attempts == math.MaxInt64 {
 			return fault(f.InvalidState)
 		}

@@ -223,7 +223,17 @@ func (a *LifecycleAuthority) validateSkillsCleanupInTx(ctx context.Context, tx f
 	if err != nil {
 		return err
 	}
-	return skillsCleanupProgress(r)
+	if err := skillsCleanupProgress(r); err != nil {
+		return err
+	}
+	// Preserve the existing direct canonical Skills cleanup contract. When
+	// invoked by our driver, every original provider transaction additionally
+	// consumes that driver's active exact claim; a saved or cross-family
+	// private context cannot be reused after its original callback returns.
+	if ctx != nil && ctx.Value(lifecycleCleanupScopeKey{}) != nil {
+		return a.requireSkillsCleanupClaimInTx(ctx, tx, cause, project)
+	}
+	return nil
 }
 
 func skillsCleanupProgress(r *lifecycleRecord) error {
