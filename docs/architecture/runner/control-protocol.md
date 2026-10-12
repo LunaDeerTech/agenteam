@@ -338,6 +338,40 @@ Runner 自身仍在线时也可以在无法确定 operation 最终状态时显�
 
 更多时候，unknown 由 Central 因连接中断推导。
 
+### 9.1 run-command@1 的完整调用报告
+
+`run-command@1` 的 argv-only profile 明确定义一个 operation 专属例外：只有进程实际 Start、原 Wait 已取得可信退出状态、原进程 owner 与 Workspace Handle 的 Drain 已实际返回，且 Control wire 没有失败，才能以 `success` 携带 `state="completed"` 的完整调用报告。这里成功形成的是**调用报告**，不是 exit code 为零、命令业务成功或副作用回滚。已知非零退出、信号结束，以及取消、timeout 或本地输出/关闭错误后的已知结束，都必须保留具体事实；不能从通用 success 单独推断命令成功。
+
+这不是放宽通用 Response：Success 顶层 `code/safe_message` 仍为空，Failure、Cancelled、Unknown 仍不带 payload。此例外也不扩展到其他 operation。消费者必须按 `run-command@1` 解码并检查下列结果字段。
+
+本 profile 请求 payload 是闭集：`{workspace_name,arguments:{mode,program,args,cwd}}`，全部必需且非 null；`mode` 固定 `argv`，`args` 必须是字符串数组，空数组和空字符串参数合法。直接 exec 指定的规范绝对 `program`，不做 PATH 查找或命令字符串解析；显式选择 Bash 等解释器作为 program 不被禁止。`program` 最多 4096 字节，最多 256 个参数，program 与参数总原始字节最多 64 KiB，拒绝 NUL/非法 UTF-8；cwd 沿 Workspace 相对目录规则，`.` 表示根目录。workspace_name 是可信映射的逻辑名，不是主机路径或授权票据。该 profile 不接受 `environment`（包括显式空对象）或 `idempotency_key`，不添加 payload timeout；原 envelope deadline 保持原语义，未提供时不补默认业务期限。shell mode、可注入环境与生产默认绑定不在此 profile 内。
+
+专属结果 payload 的闭集如下，除 `completion_code` 外全部必需且非 null：
+
+| 字段 | 精确含义 |
+| --- | --- |
+| `state` | 固定 `completed`，事实前提为上述真实 Start、Wait、Drain 与健康 wire |
+| `exit_code`、`signal` | Linux 正常退出为实际整数 0..255 与 signal=0；信号结束为 exit_code=-1 与正 signal，不构造 128+signal |
+| `cancelled`、`timed_out` | 显式 bool；timed_out 必须同时 cancelled；取消请求不证明副作用未发生 |
+| `duration_ms` | 0..MaxInt64 的规范十进制字符串；围绕原 RunCommand 的单调耗时，含其 Wait、管道及内部清理，不表示 CPU 时间或审批等待 |
+| `stdout_bytes`、`stderr_bytes` | 各 0..65536 的规范十进制字符串；原发送队列成功接纳的 UTF-8 字节数，不声称 socket 写完或 peer 消费 |
+| `stdout_truncated`、`stderr_truncated` | 各流达到现有本地 64 KiB 输出限额后发生截断的 bool；不隐式增加新总量限额 |
+| `output_complete` | 原输出读取/交付是否完整退出；取消丢尾、非法文本或 I/O 故障必须为 false；已声明的限额截断另由 truncated 表达 |
+| `process_group_termination_confirmed` | 只说明原进程组终止确认，不能证明 escaped 子树、宿主隔离或 Managed Process 生命周期 |
+| `completion_code?` | 仅 `INTERNAL_ERROR/CANCELLED/TIMEOUT`，不含原错误文本；内部输出/关闭错误优先于 timeout，timeout 优先于 cancel。非零退出本身不添加 code |
+
+无 completion_code 时必须没有 cancelled/timed_out 且 output_complete=true；TIMEOUT 要求 timed_out，CANCELLED 要求 cancelled 且非 timed_out。INTERNAL_ERROR 可与并发取消同时存在。纯限额截断可以与 output_complete=true 同时出现，不能因此假称完整未截断内容。
+
+| 实际边界 | wire 终态 |
+| --- | --- |
+| 参数、路径、构造或 Start 失败 | Failure 加稳定 code，无进程报告 |
+| 未 Start 已取消 | Cancelled 加 CANCELLED/TIMEOUT，无 payload；原 admission 发现过期 deadline 的 Failure/TIMEOUT 不变 |
+| 已 Start，但缺少可信实际 Wait 或退出事实矛盾 | Unknown，无 payload |
+| 已知退出且原 Drain 全部返回、wire 健康 | Success 加完整报告；包括非零 exit、自发 signal、明确 flags/code 的取消/timeout/本地 I/O 错误 |
+| stream 发送失败、断线或原 wire 已失败 | 保原失败与实际退出等待，不能借后来 Wait 伪造 Success；未收到 terminal 的 peer 沿原 Unknown 规则 |
+
+流仍使用原 stdout/stderr、request/operation identity 与每流 sequence，并在 terminal 之前封口。沿现有每 frame 16 KiB 文本与完整 Message 1 MiB 上限；原本地回调最多 8 KiB、每流最多 64 KiB。每流独立暂存最多 3 字节不完整 UTF-8 前缀，跨 chunk 拼合后才入队；合法 U+FFFD 保留，非法序列不能静默替换或 base64 冒充文本。非法序列或未截断 EOF 残码以固定本地 I/O 错误触发原 owner 停止/Wait，报告 output_complete=false。限额切在码点中间时丢弃未完整尾并保 truncated，不把未入队字节计数。取消后可排空并丢弃尾部，但必须标记 output_complete=false；只在原请求锁内处理健康 run-command 的取消尾，不能吞掉已发生的真实发送失败。只有 peer 实际收到 terminal，才可结合原队列 FIFO 核对其之前的 stream frames。
+
 ## 10. Error Code
 
 Runner 返回稳定机器可读 code。

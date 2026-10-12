@@ -213,6 +213,8 @@ environment
 
 Runner 直接执行 program + args，不经过 shell 字符串解析。
 
+有限 `run-command@1` argv-only wire profile 见 [Control Protocol §9.1](control-protocol.md#91-run-command1-的完整调用报告)。它明确拒绝 shell mode 与环境注入，但不禁止显式将 Bash 等解释器作为 program 直接执行。其 cwd 仍沿真实 Workspace Handle，固定环境、不继承 Runner 环境；原 envelope deadline 可选，不增加默认业务 timeout。该 profile 不表示下节 shell mode、SecretEnv 或生产默认执行入口已经接通。
+
 适用于：
 
 - 普通 CLI；
@@ -386,6 +388,10 @@ Runner 为每个 active command 保存 cancellation handle。
 具体 OS signal / API 由平台实现适配。
 
 第一阶段不要求所有平台完全使用相同 signal。
+
+对于上述 `run-command@1` argv-only profile，步骤 5 有一个明确专属例外：只有实际 Start、原 Wait、原进程 owner 和 Workspace Handle Drain 已返回且 wire 健康时，使用 `success` 携带 `state="completed"` 的完整调用报告。非零退出、signal、取消、timeout 和本地 I/O/关闭错误通过 exit/signal、cancelled/timed_out、output_complete 和限定 completion_code 如实表达；success 只表示已形成可判读报告，不表示 exit=0、命令业务成功或副作用回滚。消费者必须读取这些字段，不能仅看通用 outcome。字段与状态矩阵以 [Control Protocol §9.1](control-protocol.md#91-run-command1-的完整调用报告) 为准，不从旧 success 定义或其他 operation 类推此例外。
+
+未 Start 的取消继续无 payload 的 cancelled；Start 失败为 failure，缺失可信实际 Wait 为 unknown。输出非法 UTF-8、取消丢尾或本地 I/O 故障必须显式 output_complete=false；真正的 wire/stream 发送失败仍停止原连接并收原 Wait/Drain，不能因进程随后退出改送貌似成功的报告。输出字节数仅是原发送队列成功接纳的 UTF-8 bytes，不能当作已写网络或 peer 已消费。任何取消都不自动重发命令、不保证撤销副作用，也不证明逃逸子进程已经终止。
 
 ## 18. Child Process Tree
 
