@@ -72,7 +72,7 @@ func CanonicalDefinition(ctx context.Context, d Definition) ([]byte, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	if !(ValidBuiltinKey(d.StableKey) || d.StableKey == RunnerReadFileKey) || len(d.Name) == 0 || len(d.Name) > 128 || !utf8.ValidString(d.Name) || strings.ContainsRune(d.Name, 0) || len(d.Description) > MaxDescriptionBytes || !utf8.ValidString(d.Description) || strings.ContainsRune(d.Description, 0) {
+	if !(ValidBuiltinKey(d.StableKey) || ValidRunnerKey(d.StableKey)) || len(d.Name) == 0 || len(d.Name) > 128 || !utf8.ValidString(d.Name) || strings.ContainsRune(d.Name, 0) || len(d.Description) > MaxDescriptionBytes || !utf8.ValidString(d.Description) || strings.ContainsRune(d.Description, 0) {
 		return nil, invalidRegistry()
 	}
 	if d.Annotations != nil {

@@ -42,14 +42,18 @@ python3 -B .agent-state/runner-command-owner/run-checks.py self-check --output o
 
 方法源码已通过离线语法解析与 inert help。最终 `methods02` 原 Python PID 837453 实际 Wait0/0.100s，1 正 / 7 反与 stat parser 控通过，脚本和 Python 二项输入前后相等；原执行见 `output/ai/runner-command-owner/methods02-tool-terminal.json`。此前 `methods01` 的初版纯解析 0 原件仍保留；本次增加实际输入/异常未释放记录后使用新的目录，正式方法证据以 `methods02` 为准。它不证明 Go 编译、子进程、pidfd、实际 `/proc` 可见性或退出资源门通过。
 
-首次 `basic01` 已按固定技术/方法 `2664c9c6` 实际完成：原工具20601亲收actual0（chunk2709b5），wrapper850742实际0/19.852s。race Go850848实际0/15.257s，精确14行为top/20sub PASS、3helper仅Skip；vet Go851160实际0/2.167s。四次deps各自原Wait0，1,111项实际输入三份逐项相同；所有阶段原Popen Wait、本SID双empty与无不可见缺口均已记录，窗口明确释放。唯一主审已最终有限接受；正式main合入与清理仍由root另行完成，不提前记已交付。
+首次 `basic01` 已按固定技术/方法 `2664c9c6` 实际完成：原工具20601亲收actual0（chunk2709b5），wrapper850742实际0/19.852s。race Go850848实际0/15.257s，精确14行为top/20sub PASS、3helper仅Skip；vet Go851160实际0/2.167s。四次deps各自原Wait0，1,111项实际输入三份逐项相同；所有阶段原Popen Wait、本SID双empty与无不可见缺口均已记录，窗口明确释放。唯一主审已最终有限接受；完整历史已随main `6a27bc3d` 合入并推送（原1815 actual0/0d33eb），原树及两端分支已完成实际清理。
 
 ## 保全与恢复位置
 
 完整副本已由指定作者一次实际复制核验（原chunk `ca7244` actual0/0.683s）至 `/workspace/agenteam/output/ai/retired-20261012/runner-command-owner`：52个普通文件、1,996,308B、5个目录，包含methods01/02、basic01全部原阶段、input maps及tool-terminal。证明另在同级 `runner-command-owner-preservation/{output-before,output-after,destination,source-recovery,process-audit,preservation-result,tool-terminal}.json`。
 
-这是dev34→dev27的跨文件系统新副本，不是rename。源前后清单严格相同，目标相对path、SHA、size、mode、uid/gid、nsmtime逐项相等；新device/inode不同，不能声称恢复原inode。目录size/nlink等文件系统差异单独保留，不等同，atime/ctime不承诺。原 `/tmp/agenteam-runner-command-owner/output/ai/runner-command-owner` 仍完整保留，尚未删除或清理本树。
+这是dev34→dev27的跨文件系统新副本，不是rename。源前后清单严格相同，目标相对path、SHA、size、mode、uid/gid、nsmtime逐项相等；新device/inode不同，不能声称恢复原inode。目录size/nlink等文件系统差异单独保留，不等同，atime/ctime不承诺。核验时原 `/tmp/agenteam-runner-command-owner/output/ai/runner-command-owner` 保持不变；随后已随普通worktree清理删除。上列retired副本完整保留，原记录内绝对路径不改写。
 
-五份原input map中，basic三份均1,111项；44个仓库历史输入版本逐字对应tested `2664c9c6` 且任务分支可达，正式main完整history可达待root合入后核实。1,068个外部输入（含methods的Python）现有SHA相同，仍留原受保护工具链/modules路径，未复制或修改这些依赖。44个已记录PID当前均不在；这是有限当前观察，原Go/outer Wait与SID日志仍是实际退出依据，不扩大成全局可见性证明。
+五份原input map中，basic三份均1,111项。合成main `6a27bc3d` 已逐项核对：44项仓库输入与原SHA相同，44个历史输入版本逐字对应tested `2664c9c6`，tested及最终 `5920a949` 均main祖先；输入未变，原验证复用而不重跑。补证明为旁目录 `main-integration-6a27bc3d.json` 与 `main-integration-6a27bc3d-completion.json`（原核验b51386 actual0）。同轮复核源/目标52文件及metadata仍与保全证明相同，旧树仅这52个ignored原件，无其它独有输出。1,068个外部输入（basic的1,067项及methods的Python）在保全核验时SHA相同，仍留原受保护工具链/modules路径，未复制或修改这些依赖。44个已记录PID在核验时均不在；作者确认无后台或下游旧绝对路径运行依赖，新WSS使用自身树源码。这些有限观察不代替原Go/outer Wait与SID事实，也不扩大成全局可见性证明。
 
-恢复时按上述新副本前缀读取历史记录，原日志里的绝对路径保持原样；另获验证授权时从正式保存源码及原环境重新准备fresh输出，不能直接在旧证据目录重跑。ignored output副本并不由Git自动携带，跨设备还需传输材料并按保全清单核SHA。范围仅Linux本地trusted-host argv/cwd桥；无WSS/Central/default/macOS/逃逸整树证明，其它主线事项、35/36/70清理累计、141待核与keep1及所有STOP不变，不把本Command提前计作已清理。
+恢复时按上述新副本前缀读取历史记录，原日志里的绝对路径保持原样；另获验证授权时从正式保存源码及原环境重新准备fresh输出，不能直接在旧证据目录重跑。ignored output副本并不由Git自动携带，跨设备还需传输材料并按保全清单核SHA。范围仅Linux本地trusted-host argv/cwd桥；无WSS/Central/default/macOS/逃逸整树证明，原FAIL与所有STOP保持。
+
+## 实际清理
+
+root已普通移除原 `/tmp/agenteam-runner-command-owner` worktree及本地分支（3da004 actual0）；最终tip `5920a949ce99fa5b36d47b45878f8bcdbd231035` 的完整历史在main。与Write分支共同fresh核对精确tip（cb992a actual0）后，atomic exact-lease删除原11874 actual0（d6485e）；后继fresh远端空、fetch/prune及tracking空原16888 actual0（6e2531）。原output随树清理删除，retired副本与旁目录原证明均保留。两片实际清理后的全局累计为37 WorkTree/38本地/72远端，legacy141待核、keep1不变，详见[清理记录](../branch-cleanup-20261011.md#2026-10-12-write--command实际清理)。

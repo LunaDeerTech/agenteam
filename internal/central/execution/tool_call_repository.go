@@ -51,17 +51,17 @@ func newToolCallCandidate(run *directTextCall, response mc.ModelResponse) (*tool
 	if part == nil || part.Name != fields.Tools[0].ModelVisibleName {
 		return nil, fault(f.InvalidState)
 	}
-	args, err := tc.DecodeReadFileToolArguments(run.ctx, part.Arguments)
+	mountID, err := toolCallMountID(run.ctx, fields.Tools[0].BindingSnapshot.RunnerBinding, part.Arguments)
 	if err != nil {
 		return nil, portError(err)
 	}
 	found := false
 	for _, mount := range fields.Mounts.Mounts {
-		if mount.ID == args.MountID {
+		if mount.ID == mountID {
 			found = true
 		}
 	}
-	if !found || !slices.Contains(fields.Agent.Fields().AllowedMountIDs, args.MountID) {
+	if !found || !slices.Contains(fields.Agent.Fields().AllowedMountIDs, mountID) {
 		return nil, fault(f.Forbidden)
 	}
 	canonical, err := cursor.CanonicalJSON(part.Arguments)
@@ -245,7 +245,7 @@ func loadToolCallFacts(ctx context.Context, x postgres.SQLExecutor, stored *dire
 	if err != nil || !bytes.Equal(responseArgs, canonical) {
 		return nil, unavailable(nil)
 	}
-	if _, err = tc.DecodeReadFileToolArguments(ctx, original); err != nil {
+	if _, err = toolCallMountID(ctx, rb, original); err != nil {
 		return nil, unavailable(nil)
 	}
 	v.payload = id

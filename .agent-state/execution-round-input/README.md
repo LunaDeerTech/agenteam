@@ -47,3 +47,11 @@ python3 -B .agent-state/execution-round-input/run-pg-checks.py prepare --compile
 `compile` 仅原 `-race -tags=integration -c -p=1` 与精确唯一 top 的 list，实际 `Popen.wait` 后保存结果。`prepare` 只复核成功编译/list、binary 与原闭包，生成 fresh namespace 配方，不启动 native、检查 TCP 或创建服务。`record-native.py` 逐字复用 67 的薄记录器：原输入复核后启动唯一 supervisor 并实际 Wait，不拥有清理、资源判据或附加重试。
 
 此处保留原准备方法；实际 compile01 和独立授窗的 native01 已通过，后继复现仍须 root 另授窗口，不从方法准备推定新的运行通过。原 67 的失败与修后验证记录不在本目录改写。
+
+## 历史编译二进制归档补充
+
+2026-10-12，本片 `compile01` 中的 一个 `projectvariable.test`（共 87,745,702 B）已纳入单个[无损归档与恢复说明](../../output/ai/retired-compile-binaries/archive01/README.md)。归档成员前缀为 `retired-20261011/execution-round-input/`，其后保留原 `compileNN/projectvariable.test` 相对路径；精确原路径、成员名、SHA、size、mode、uid/gid、纳秒 mtime 及旧 compile 记录关系见 [before.json](../../output/ai/retired-compile-binaries/archive01/before.json)。恢复前先验证归档和成员摘要，再无覆盖还原所需二进制。
+
+阶段1工具 31394 实际退出 0，完整解流验证全部九个成员；阶段2在再次核对归档、成员及原件身份/内容后，仅删除获授权的九个裸二进制，原工具 89889 实际退出 0。本片上述裸件现已从 retained 路径移除，完整字节仍在归档中；实际删除清单和容量观察见 [removal01/result.json](../../output/ai/retired-compile-binaries/removal01/result.json)。旧 compile/native 输入映射、结果、日志、FAIL 和保全证明均未改写。
+
+前文文件数量、裸件保留及 inode 相同等叙述是原整体迁移时的历史事实。重新提取会分配新 inode，不能宣称重建原 inode 或改写旧运行记录；原失败边界、外部保护依赖与有限验收范围保持。

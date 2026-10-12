@@ -19,6 +19,7 @@ import (
 	"path/filepath"
 	"sync"
 	"sync/atomic"
+	"syscall"
 	"testing"
 	"time"
 
@@ -276,6 +277,43 @@ func readFileAdapterPrivateDirectory(t *testing.T) string {
 	// Production identity rejects world-writable /tmp ancestors. This exact
 	// checkout-owned directory contains only this test's generated materials.
 	directory, err := os.MkdirTemp(".", ".runner-read-file-")
+	if err != nil {
+		// Preserve the original failure while exposing only a closed errno class
+		// and contemporaneous parent facts; never format the native error/path.
+		classify := func(value error) string {
+			if value == nil {
+				return "none"
+			}
+			for _, known := range []struct {
+				code syscall.Errno
+				name string
+			}{{syscall.EACCES, "access"}, {syscall.EPERM, "permission"}, {syscall.ENOSPC, "space"}, {syscall.EDQUOT, "quota"}, {syscall.ENOENT, "missing"}, {syscall.ENOTDIR, "not_directory"}, {syscall.EROFS, "read_only"}, {syscall.ELOOP, "symlink_loop"}, {syscall.ENAMETOOLONG, "name_length"}, {syscall.ESTALE, "stale"}, {syscall.EIO, "io"}, {syscall.EEXIST, "exists"}, {syscall.EMFILE, "process_files"}, {syscall.ENFILE, "system_files"}} {
+				if errors.Is(value, known.code) {
+					return known.name
+				}
+			}
+			return "other"
+		}
+		parent, statErr := os.Stat(".")
+		_, cwdErr := os.Getwd()
+		var mode uint32
+		var device uint64
+		var directory, ownerKnown, owned, linked bool
+		if statErr == nil {
+			mode, directory = uint32(parent.Mode().Perm()), parent.IsDir()
+			if native, ok := parent.Sys().(*syscall.Stat_t); ok {
+				ownerKnown, owned, linked = true, native.Uid == uint32(os.Geteuid()), native.Nlink > 0
+				device = uint64(native.Dev)
+			}
+		}
+		t.Logf("owned_private_directory errno=%s parent_stat=%s parent_known=%t parent_directory=%t parent_mode=%04o parent_owner_known=%t parent_owned=%t parent_linked=%t cwd=%s", classify(err), classify(statErr), statErr == nil, directory, mode, ownerKnown, owned, linked, classify(cwdErr))
+		var fs syscall.Statfs_t
+		fsErr := syscall.Statfs(".", &fs)
+		if fsErr != nil {
+			fs = syscall.Statfs_t{}
+		}
+		t.Logf("owned_private_directory_fs statfs=%s statfs_known=%t type=%#x bsize=%d blocks=%d bfree=%d bavail=%d files=%d ffree=%d parent_device_known=%t parent_device=%d uid=%d euid=%d gid=%d egid=%d", classify(fsErr), fsErr == nil, fs.Type, fs.Bsize, fs.Blocks, fs.Bfree, fs.Bavail, fs.Files, fs.Ffree, ownerKnown, device, os.Getuid(), os.Geteuid(), os.Getgid(), os.Getegid())
+	}
 	readFileAdapterOK(t, err, "owned private directory")
 	directory, err = filepath.Abs(directory)
 	readFileAdapterOK(t, err, "owned absolute directory")

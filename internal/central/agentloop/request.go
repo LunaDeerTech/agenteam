@@ -17,6 +17,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+	tc "github.com/LunaDeerTech/agenteam/internal/central/tool/contract"
 )
 
 // DirectTextRequest is the first-request projection, not a Controller or a
@@ -24,8 +25,9 @@ import (
 // message digest. Explicit Request access includes backend-only Model/lease
 // references; only its Messages are model-visible input.
 type DirectTextRequest struct {
-	data     func() (f.Digest, mc.ModelRequest)
-	toolCall bool
+	data          func() (f.Digest, mc.ModelRequest)
+	toolCall      bool
+	runnerBinding tc.RunnerBinding
 }
 
 func (v DirectTextRequest) Validate() error {

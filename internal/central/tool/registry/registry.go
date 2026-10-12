@@ -71,7 +71,7 @@ func New(store Store, options Options) (*Registry, error) {
 	}
 	runners := make(map[string]RunnerSource, len(options.RunnerSources))
 	for key, source := range options.RunnerSources {
-		if key != tc.RunnerReadFileKey {
+		if !tc.ValidRunnerKey(key) {
 			return nil, fail(f.InvalidArgument)
 		}
 		if nilPort(source) {

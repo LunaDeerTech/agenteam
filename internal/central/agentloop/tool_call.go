@@ -13,23 +13,41 @@ import (
 // ToolCallController is an explicit, separately constructed first-turn owner.
 // It shares actual handle retirement with DirectText, never its no-tools gate.
 // No default initializer constructs this controller.
-type ToolCallController struct{ owner *DirectTextController }
+type ToolCallController struct {
+	owner   *DirectTextController
+	binding tc.RunnerBinding
+}
 
 func NewToolCallController(models mc.JSONCaller) (*ToolCallController, error) {
+	return newToolCallController(models, tc.ReadFileRegistration().Binding)
+}
+
+// NewWriteFileToolCallController is an explicit write-only profile, not a
+// default Model or Runner binding. Original read/no-tools constructors stay closed.
+func NewWriteFileToolCallController(models mc.JSONCaller) (*ToolCallController, error) {
+	return newToolCallController(models, tc.WriteFileRegistration().Binding)
+}
+
+func newToolCallController(models mc.JSONCaller, binding tc.RunnerBinding) (*ToolCallController, error) {
 	owner, err := NewDirectTextController(models)
 	if err != nil {
 		return nil, err
 	}
-	return &ToolCallController{owner}, nil
+	return &ToolCallController{owner: owner, binding: binding}, nil
 }
 func (c *ToolCallController) Accept(request DirectTextRequest) (*DirectTextSession, error) {
 	if c == nil || c.owner == nil {
 		return nil, loopFault(f.DependencyUnbound)
 	}
-	if !request.toolCall {
+	if !request.toolCall || !c.AcceptsRunnerBinding(request.runnerBinding) {
 		return nil, unsupported()
 	}
 	return c.owner.accept(request)
+}
+
+// AcceptsRunnerBinding reports only this explicit local profile, never authority.
+func (c *ToolCallController) AcceptsRunnerBinding(binding tc.RunnerBinding) bool {
+	return c != nil && c.owner != nil && binding.Validate() == nil && c.binding == binding
 }
 func (c *ToolCallController) Stop() {
 	if c != nil && c.owner != nil {
@@ -47,6 +65,14 @@ func (c *ToolCallController) Joined() bool { return c != nil && c.owner != nil &
 // The caller obtained definition in its real current Tool transaction. This
 // builder binds exact bytes to the captured name/spec; it grants no authority.
 func BuildToolCallRequest(ctx context.Context, captured ec.ExecutionContext, actor i.Actor, roundID string, callID mc.CallID, definition tc.Definition) (DirectTextRequest, error) {
+	return buildToolCallRequest(ctx, captured, actor, roundID, callID, definition, tc.ReadFileRegistration())
+}
+
+func BuildWriteFileToolCallRequest(ctx context.Context, captured ec.ExecutionContext, actor i.Actor, roundID string, callID mc.CallID, definition tc.Definition) (DirectTextRequest, error) {
+	return buildToolCallRequest(ctx, captured, actor, roundID, callID, definition, tc.WriteFileRegistration())
+}
+
+func buildToolCallRequest(ctx context.Context, captured ec.ExecutionContext, actor i.Actor, roundID string, callID mc.CallID, definition tc.Definition, profile tc.RunnerRegistration) (DirectTextRequest, error) {
 	var zero DirectTextRequest
 	if err := contextError(ctx); err != nil {
 		return zero, err
@@ -62,7 +88,7 @@ func BuildToolCallRequest(ctx context.Context, captured ec.ExecutionContext, act
 	if a.Kind != i.AgentRun || a.ProjectID != v.Request.Launch.ProjectID.String() || a.AgentID != v.Request.Launch.AgentID.String() || a.ExecutionID != v.Request.ExecutionID.String() {
 		return zero, loopFault(f.Forbidden)
 	}
-	if len(v.Tools) != 1 || v.Tools[0].BindingSnapshot.RunnerBinding.Validate() != nil || definition.StableKey != "runner:read-file" || !v.Model.Snapshot.Capabilities.ToolCalls || v.Model.Snapshot.Capabilities.ParallelToolCalls || v.Agent.Fields().Core.InjectAgentsMD || v.Agent.Fields().Core.ReasoningEffort != nil || len(v.Request.Launch.Policy.AllowedResourceConstraints) != 0 {
+	if len(v.Tools) != 1 || v.Tools[0].BindingSnapshot.RunnerBinding != profile.Binding || definition.StableKey != profile.Definition.StableKey || !v.Model.Snapshot.Capabilities.ToolCalls || v.Model.Snapshot.Capabilities.ParallelToolCalls || v.Agent.Fields().Core.InjectAgentsMD || v.Agent.Fields().Core.ReasoningEffort != nil || len(v.Request.Launch.Policy.AllowedResourceConstraints) != 0 {
 		return zero, unsupported()
 	}
 	canonical, err := tc.CanonicalDefinition(ctx, definition)
@@ -85,7 +111,7 @@ func BuildToolCallRequest(ctx context.Context, captured ec.ExecutionContext, act
 		return zero, invalid()
 	}
 	owned := r.Clone()
-	return DirectTextRequest{data: func() (f.Digest, mc.ModelRequest) { return captured.Digest(), owned.Clone() }, toolCall: true}, nil
+	return DirectTextRequest{data: func() (f.Digest, mc.ModelRequest) { return captured.Digest(), owned.Clone() }, toolCall: true, runnerBinding: profile.Binding}, nil
 }
 
 func validateSessionResponse(request DirectTextRequest, response mc.ModelResponse) error {
@@ -103,8 +129,19 @@ func validateSessionResponse(request DirectTextRequest, response mc.ModelRespons
 			if part.ToolCall.Name != r.Tools[0].Name {
 				return invalid()
 			}
-			if _, err := tc.DecodeReadFileToolArguments(context.Background(), part.ToolCall.Arguments); err != nil {
-				return err
+			switch request.runnerBinding {
+			case tc.ReadFileRegistration().Binding:
+				if _, err := tc.DecodeReadFileToolArguments(context.Background(), part.ToolCall.Arguments); err != nil {
+					return err
+				}
+			case tc.WriteFileRegistration().Binding:
+				args, err := tc.DecodeWriteFileToolArguments(context.Background(), part.ToolCall.Arguments)
+				clear(args.Arguments.Data)
+				if err != nil {
+					return err
+				}
+			default:
+				return unsupported()
 			}
 		} else if part.Text == nil {
 			return unsupported()
