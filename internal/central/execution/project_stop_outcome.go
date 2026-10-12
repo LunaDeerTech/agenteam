@@ -3,6 +3,7 @@ package execution
 import (
 	"context"
 	"errors"
+	"slices"
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
@@ -60,7 +61,7 @@ func (s *projectCallState) captureProjectOutcome(e *projectCallEntry, original e
 			v.associationRead = detail.Kind == f.RecoveryCause && detail.Owner == "execution.associated-read" && detail.RecoveryRunID == e.execution.String()
 		}
 	}
-	if uncertainProjectVisit(original) {
+	if uncertainProjectVisit(original) || v.parentOnly && original != nil {
 		return v, original
 	}
 	return nil, nil
@@ -321,18 +322,22 @@ func (s *projectCallState) confirmDirectInTx(ctx context.Context, tx f.Tx, x pos
 	return true, ctx.Err()
 }
 
-func (s *projectCallState) resumePrevious(ctx context.Context, p i.ProjectID, lane projectCallLane, identity f.CommandIdentity, recovery bool) error {
+func (s *projectCallState) resumePrevious(ctx context.Context, p i.ProjectID, lane projectCallLane, identity f.CommandIdentity, recovery bool, template *projectCallEntry) error {
 	s.mu.Lock()
-	if s.projectKeyBusyLocked(p, lane, identity.Key(), nil) {
+	if s.projectKeyBusyLocked(p, lane, identity, nil) {
 		s.mu.Unlock()
 		return fault(f.ResourceBusy)
 	}
 	var prior *projectCallEntry
 	for _, e := range s.owners {
-		if e.record.Project == p && e.record.Lane == lane && e.identity.Key() == identity.Key() && e.returned {
+		if e.record.Project == p && e.record.Lane == lane && sameProjectInvocationKey(e.identity, identity) && e.returned {
 			prior = e
 			break
 		}
+	}
+	if prior != nil && lane == projectLaneService && (template == nil || prior.launchKey != template.launchKey || prior.launchDigest != template.launchDigest || !prior.actor.Equal(template.actor)) {
+		s.mu.Unlock()
+		return fault(f.IdempotencyKeyReused)
 	}
 	if prior == nil || recovery && prior.registrationKnown && prior.unknown == nil && prior.outcomeErr != nil {
 		s.mu.Unlock()
@@ -372,9 +377,9 @@ func (s *projectCallState) projectLeafLocked(e *projectCallEntry) *projectCallEn
 	}
 	return nil
 }
-func (s *projectCallState) projectKeyBusyLocked(p i.ProjectID, lane projectCallLane, key f.IdempotencyKey, except *projectCallEntry) bool {
+func (s *projectCallState) projectKeyBusyLocked(p i.ProjectID, lane projectCallLane, identity f.CommandIdentity, except *projectCallEntry) bool {
 	for _, e := range s.owners {
-		if e != except && e.record.Project == p && e.record.Lane == lane && e.identity.Key() == key && (!e.returned || e.settling) {
+		if e != except && e.record.Project == p && e.record.Lane == lane && sameProjectInvocationKey(e.identity, identity) && (!e.returned || e.settling) {
 			return true
 		}
 	}
@@ -430,7 +435,7 @@ func sameProjectOutcomeError(original, target error) bool {
 	return ok && other && a.AttemptID().Validate() == nil && a.AttemptID() == b.AttemptID()
 }
 func (s *projectCallState) rememberParentErrorLocked(e *projectCallEntry, original error) {
-	if e.parent == nil || original == nil {
+	if e.parent == nil || original == nil || !uncertainProjectVisit(original) && e.outcomeErr == nil {
 		return
 	}
 	for _, saved := range e.parent.childOutcomes {
@@ -463,4 +468,8 @@ func (s *projectCallState) parentRecovered(e *projectCallEntry) bool {
 		}
 	}
 	return true
+}
+
+func sameProjectInvocationKey(a, b f.CommandIdentity) bool {
+	return a.Validate() == nil && b.Validate() == nil && a.Key() == b.Key() && a.Namespace() == b.Namespace() && slices.Equal(a.OwnerIDs(), b.OwnerIDs())
 }

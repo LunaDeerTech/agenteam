@@ -195,7 +195,7 @@ func (s *projectCallState) settle(ctx context.Context, e *projectCallEntry, stop
 		s.mu.Unlock()
 		return false, nil
 	}
-	if s.projectKeyBusyLocked(e.record.Project, e.record.Lane, e.identity.Key(), e) {
+	if s.projectKeyBusyLocked(e.record.Project, e.record.Lane, e.identity, e) {
 		s.mu.Unlock()
 		return false, fault(f.ResourceBusy)
 	}

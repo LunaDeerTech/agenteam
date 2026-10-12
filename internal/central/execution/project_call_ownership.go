@@ -58,6 +58,7 @@ type projectCallEntry struct {
 	activeMethod                                     string
 	ctx                                              context.Context
 	cancel                                           context.CancelFunc
+	serviceDone                                      func()
 	actor                                            i.Actor
 	launchKey                                        ec.LaunchLookupKey
 	launchDigest                                     f.Digest
@@ -90,6 +91,7 @@ type projectCallState struct {
 	associated  *AssociatedExecutor
 	mu          sync.Mutex
 	stopped     bool
+	closedLanes map[projectCallLane]bool
 	owners      map[f.ID[projectCallID]]*projectCallEntry
 	stops       map[i.ProjectID]*ownedProjectStop
 	changed     chan struct{}
@@ -187,12 +189,45 @@ func (s *projectCallState) admitService(ctx context.Context, actor i.Actor, key 
 	if ctx == nil || launchActor(actor) != nil || key.Validate() != nil || expected.Validate() != nil || (method != "launch" && method != "lookup_launch") {
 		return ctx, nil, invalid()
 	}
+	if err := ctx.Err(); err != nil {
+		return ctx, nil, err
+	}
 	identity, err := f.NewCommandIdentity("execution", []string{key.ProjectID.String(), key.AgentID.String()}, method, key.IdempotencyKey)
 	if err != nil {
 		return ctx, nil, err
 	}
+	// Only an exact original unresolved invocation may bypass the stopped
+	// legacy callSet. Fresh reads and writes use its real admission, not a
+	// snapshot of its stopped bit, before any technical transaction begins.
+	if method == "lookup_launch" {
+		s.mu.Lock()
+		for _, old := range s.owners {
+			if old.record.Lane == projectLaneService && old.launchKey == key && old.launchDigest == expected && old.actor.Equal(actor) && old.returned && !old.settling && old.registrationKnown && old.unknown == nil && old.outcomeErr != nil {
+				if s.projectKeyBusyLocked(key.ProjectID, projectLaneService, identity, old) {
+					s.mu.Unlock()
+					return ctx, nil, fault(f.ResourceBusy)
+				}
+				s.borrowProjectCallLocked(ctx, old, method)
+				s.mu.Unlock()
+				return old.ctx, old, nil
+			}
+		}
+		s.mu.Unlock()
+	}
+	run, done, err := s.service.begin(ctx)
+	if err != nil {
+		return ctx, nil, err
+	}
 	template := &projectCallEntry{actor: actor, launchKey: key, launchDigest: expected}
-	return s.admit(ctx, key.ProjectID, projectLaneService, identity, template, method == "lookup_launch")
+	run, e, err := s.admit(run, key.ProjectID, projectLaneService, identity, template, method == "lookup_launch")
+	if e == nil {
+		done()
+		return run, nil, err
+	}
+	s.mu.Lock()
+	e.serviceDone = done
+	s.mu.Unlock()
+	return run, e, err
 }
 func (s *projectCallState) admitDriver(ctx context.Context, execution i.ExecutionID, lane projectCallLane, method string) (context.Context, *projectCallEntry, error) {
 	if s == nil {
@@ -211,7 +246,7 @@ func (s *projectCallState) admitDriver(ctx context.Context, execution i.Executio
 		s.mu.Lock()
 		for _, e := range s.owners {
 			if e.record.Lane == lane && e.execution == execution && e.returned && e.registrationKnown && e.unknown == nil && e.outcomeErr != nil && !e.settling {
-				if s.projectKeyBusyLocked(e.record.Project, lane, e.identity.Key(), e) {
+				if s.projectKeyBusyLocked(e.record.Project, lane, e.identity, e) {
 					s.mu.Unlock()
 					return ctx, nil, fault(f.ResourceBusy)
 				}
@@ -245,16 +280,22 @@ func (s *projectCallState) admit(ctx context.Context, project i.ProjectID, lane 
 	if err := ctx.Err(); err != nil {
 		return ctx, nil, err
 	}
-	if err := s.resumePrevious(ctx, project, lane, identity, recovery); err != nil {
+	s.mu.Lock()
+	laneStopped := s.closedLanes[lane]
+	s.mu.Unlock()
+	if laneStopped {
+		return ctx, nil, fault(f.ShuttingDown)
+	}
+	if err := s.resumePrevious(ctx, project, lane, identity, recovery, template); err != nil {
 		return ctx, nil, err
 	}
 	s.mu.Lock()
-	if s.projectKeyBusyLocked(project, lane, identity.Key(), nil) {
+	if s.projectKeyBusyLocked(project, lane, identity, nil) {
 		s.mu.Unlock()
 		return ctx, nil, fault(f.ResourceBusy)
 	}
 	for _, old := range s.owners {
-		if old.record.Project == project && old.record.Lane == lane && old.identity.Key() == identity.Key() && old.returned {
+		if old.record.Project == project && old.record.Lane == lane && sameProjectInvocationKey(old.identity, identity) && old.returned {
 			if recovery && old.registrationKnown && old.unknown == nil && old.outcomeErr != nil && !old.settling && old.launchKey == template.launchKey && old.launchDigest == template.launchDigest && old.actor.Equal(template.actor) {
 				s.borrowProjectCallLocked(ctx, old, identity.Command())
 				s.mu.Unlock()
@@ -264,7 +305,7 @@ func (s *projectCallState) admit(ctx context.Context, project i.ProjectID, lane 
 			return ctx, nil, fault(f.ResourceBusy)
 		}
 	}
-	if s.stopped || s.stops[project] != nil || len(s.owners) >= maxProjectCallOwners {
+	if s.stopped || s.closedLanes[lane] || s.stops[project] != nil || len(s.owners) >= maxProjectCallOwners {
 		s.mu.Unlock()
 		return ctx, nil, fault(f.ResourceBusy)
 	}
@@ -344,7 +385,7 @@ func (s *projectCallState) reserveAssociated(ctx context.Context, job *associate
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if old := job.projectCall; old != nil && s.owners[old.record.ID] == old {
-		if !old.returned || old.settling || s.projectKeyBusyLocked(job.project, projectLaneAssociated, identity.Key(), old) {
+		if !old.returned || old.settling || s.projectKeyBusyLocked(job.project, projectLaneAssociated, identity, old) {
 			return nil, fault(f.ResourceBusy)
 		}
 		// This is the same original job. It may recover after global stop without
@@ -354,7 +395,7 @@ func (s *projectCallState) reserveAssociated(ctx context.Context, job *associate
 		old.technicalOnly = technical
 		return old, nil
 	}
-	if s.stopped || s.stops[job.project] != nil || len(s.owners) >= maxProjectCallOwners || s.projectKeyBusyLocked(job.project, projectLaneAssociated, identity.Key(), nil) {
+	if s.stopped || s.closedLanes[projectLaneAssociated] || s.stops[job.project] != nil || len(s.owners) >= maxProjectCallOwners || s.projectKeyBusyLocked(job.project, projectLaneAssociated, identity, nil) {
 		return nil, fault(f.ResourceBusy)
 	}
 	return s.newEntryLocked(ctx, job.project, projectLaneAssociated, identity, &projectCallEntry{execution: d.ExecutionID, job: job, launchDigest: d.Digest})
@@ -453,6 +494,18 @@ func (s *projectCallState) returned(e *projectCallEntry) {
 	}
 	s.mu.Lock()
 	cancel := e.cancel
+	done := e.serviceDone
+	e.serviceDone = nil
+	s.mu.Unlock()
+	// The original callSet return is part of this outer call. It may itself
+	// block; do not advertise a returned P owner or allow reborrowing first.
+	if done != nil {
+		done()
+	}
+	if cancel != nil {
+		cancel()
+	}
+	s.mu.Lock()
 	retire := false
 	if s.owners[e.record.ID] == e {
 		e.returned = true
@@ -469,9 +522,6 @@ func (s *projectCallState) returned(e *projectCallEntry) {
 		e.settling = false
 		s.signalLocked()
 		s.mu.Unlock()
-	}
-	if cancel != nil {
-		cancel()
 	}
 }
 
@@ -697,4 +747,35 @@ func (s *projectCallState) projectCallsReturned(lane projectCallLane) (bool, <-c
 		}
 	}
 	return true, s.changed
+}
+
+// Each original driver Stop closes only its own lane. Fresh registration and
+// this marker share the same local linearization point; admitted original
+// Store calls remain counted through their actual return.
+func (s *projectCallState) stopLane(lane projectCallLane) {
+	if s == nil {
+		return
+	}
+	s.mu.Lock()
+	if s.closedLanes == nil {
+		s.closedLanes = map[projectCallLane]bool{}
+	}
+	if s.closedLanes[lane] {
+		s.mu.Unlock()
+		return
+	}
+	s.closedLanes[lane] = true
+	var cancels []context.CancelFunc
+	for _, e := range s.owners {
+		if e.record.Lane == lane {
+			cancels = append(cancels, e.cancel)
+		}
+	}
+	s.signalLocked()
+	s.mu.Unlock()
+	for _, cancel := range cancels {
+		if cancel != nil {
+			cancel()
+		}
+	}
 }
