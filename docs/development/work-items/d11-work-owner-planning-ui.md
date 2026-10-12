@@ -315,3 +315,11 @@ cleanup有限接受1440×960浅色创建表单和390×844深色planned结果两�
 [定向前端结果](../../../output/ai/ui-integration-delivery/frontend01/results.json)中本片 5 项、共同类型检查与生产构建通过。真实 `TestTaskSearchWeb/server-search-beyond-first-page` 在已初始化 Project 与实际 App/Chromium 上通过（50.87s）：目标在当前 Sprint 第 52 条，先确认不在第一页，再分别按三个字段搜索，核跨 Project 隔离、大小写及字面符号、详情、Enter/清除和宽屏浅色/窄屏深色。Go 后验确认只读事实不变；原 Node、Go、supervisor 与资源尾均结束，见[共同原结果](../../../output/ai/ui-integration-delivery/browser02/result.json)、[截图与消费证明](../../../output/ai/ui-integration-delivery/browser02/task-search/)。
 
 首轮 browser01 在搜索前的初始读取等待 `Response.finished` 失败，原网络失败类别未观测；修复仅将新 spec 接入既有原请求/实际消费/Go EOF 联证，未知网络失败仍拒绝，没有替代请求或延长预算。[首轮原失败](../../../output/ai/ui-integration-delivery/browser01-outer.json)保留，不回填为已知 `ERR_ABORTED`。本次不恢复原 Planning/Recovery 或 Tools/Model STOP。
+
+## 19. 当前 Sprint 的服务端优先级与类型筛选（2026-10-12）
+
+沿 §18 的七列搜索增加正式 priority/type 闭集选项，用户明确应用后与关键词作服务端 AND 查询；每列从第一页重读，后续 cursor 仍绑定已应用条件，尚未应用的草稿不改变分页。清除同时重置三项条件，切 Project/Sprint 与请求代际继续隔离旧结果；不从首屏 50 条本地筛选，不新增 Task 写入或执行能力。[定向前端检查](../../../output/ai/task-filters-delivery/frontend01/result.json)的 8 项、完整类型检查与生产构建均通过。
+
+真实 `TestTaskSearchWeb/server-search-beyond-first-page` 的 [browser02](../../../output/ai/task-filters-delivery/browser02/result.json) 原 `56387/6a2cb9` actual0（业务 55.61s，[外层原 Wait](../../../output/ai/task-filters-delivery/browser02-outer.json) 0、85.022s），post `f34056` 通过。实际验证 50 个 high/bug 首屏项及下一页目标、改草稿后仍以原 high/bug cursor 继续、关键词与两枚举相与、同词不同枚举及异 Project 排除、空结果/清除、原三个字段字面搜索与详情；Go 后验保持业务事实零写。Node/Go/fixture/supervisor 原调用均成功返回，四个收养进程与六个原资源退出。三张宽屏浅色/窄屏深色实际截图已独立有限接受，原关键词大小写与 `%`/`_` 字面规则保持。
+
+[首轮 browser01](../../../output/ai/task-filters-delivery/browser01/browser.log) 的 FAIL 保留：续页已返回正式 Task 摘要，测试却把它与含 description/plan 的完整夹具对象比较。只将新断言改为原公开摘要投影，完整正文仍由后续原详情 Get 核对；产品、原请求完成/消费联证及预算未放宽。后继通过不回填首次失败，也不扩大 §18 的只读范围或解除旧 Planning/Recovery、Tools/Model STOP。
