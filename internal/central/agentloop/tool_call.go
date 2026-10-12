@@ -28,6 +28,12 @@ func NewWriteFileToolCallController(models mc.JSONCaller) (*ToolCallController, 
 	return newToolCallController(models, tc.WriteFileRegistration().Binding)
 }
 
+// NewRunCommandToolCallController explicitly captures a command call. It does
+// not approve or dispatch it and never changes the default no-tools profile.
+func NewRunCommandToolCallController(models mc.JSONCaller) (*ToolCallController, error) {
+	return newToolCallController(models, tc.RunCommandRegistration().Binding)
+}
+
 func newToolCallController(models mc.JSONCaller, binding tc.RunnerBinding) (*ToolCallController, error) {
 	owner, err := NewDirectTextController(models)
 	if err != nil {
@@ -70,6 +76,10 @@ func BuildToolCallRequest(ctx context.Context, captured ec.ExecutionContext, act
 
 func BuildWriteFileToolCallRequest(ctx context.Context, captured ec.ExecutionContext, actor i.Actor, roundID string, callID mc.CallID, definition tc.Definition) (DirectTextRequest, error) {
 	return buildToolCallRequest(ctx, captured, actor, roundID, callID, definition, tc.WriteFileRegistration())
+}
+
+func BuildRunCommandToolCallRequest(ctx context.Context, captured ec.ExecutionContext, actor i.Actor, roundID string, callID mc.CallID, definition tc.Definition) (DirectTextRequest, error) {
+	return buildToolCallRequest(ctx, captured, actor, roundID, callID, definition, tc.RunCommandRegistration())
 }
 
 func buildToolCallRequest(ctx context.Context, captured ec.ExecutionContext, actor i.Actor, roundID string, callID mc.CallID, definition tc.Definition, profile tc.RunnerRegistration) (DirectTextRequest, error) {
@@ -138,6 +148,10 @@ func validateSessionResponse(request DirectTextRequest, response mc.ModelRespons
 				args, err := tc.DecodeWriteFileToolArguments(context.Background(), part.ToolCall.Arguments)
 				clear(args.Arguments.Data)
 				if err != nil {
+					return err
+				}
+			case tc.RunCommandRegistration().Binding:
+				if _, err := tc.DecodeRunCommandToolArguments(context.Background(), part.ToolCall.Arguments); err != nil {
 					return err
 				}
 			default:
