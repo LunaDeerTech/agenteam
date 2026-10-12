@@ -1,6 +1,6 @@
 # D08/D10 Agent Project 本地停止提供方
 
-状态：设计候选，待独立审查；本卡不表示产品已实现或授权启动真实资源。实施、验证窗口及唯一写者由 root 后续派工确定。组合基线为 `448f6adea22d62dcb71255a3c834dbb8f1b95d84`；工作树 `/workspace/agenteam-agent-project-local-stop`，分支 `ai/agent-project-local-stop-20261012`。
+状态：本地提供方已实现，有限独审、Agent basic 与首条真实 PG 验收通过；交付整合另行记录。受测 HEAD 为 `fe6beb28031caf5b80ee55feda4a476253d9db4b`，组合基线为 `448f6adea22d62dcb71255a3c834dbb8f1b95d84`；工作树 `/workspace/agenteam-agent-project-local-stop`，分支 `ai/agent-project-local-stop-20261012`。本卡结果只覆盖下述两个实际实例。
 
 ## 目标与依赖
 
@@ -8,7 +8,7 @@
 
 沿用 [D08 初始化与生命周期规则](d08-project-owner-design.md#7-项目创建与正式-skill-初始化)、[Variables 本地停止及单轮 Stop Driver 协议](recovery-project-domain-bindings.md)和现有 `ProjectAuthority.ValidateLifecycleInTx`。Agent 的当前权限、完整业务锁集合、引用提供方、原提交/Unknown 协议继续由其原入口负责。本片不实现新的业务 SQL、迁移或外域授权。
 
-当前 `agent/calls.go` 仅追踪全实例调用；`commands.go` 的 Unknown confirmation 在 `WithoutCancel` 后独立登记；`DirectoryReader` 又拥有另一套 callSet。因此不能用全局 `Service.Stop` 代替 Project 范围停止，也不能只覆盖配置写入而遗漏目录及 Runner 配置读取。
+`agent/calls.go` 现按 Project/class 登记原调用，`commands.go` 的 Unknown confirmation 在 `WithoutCancel` 后仍连续归属原 mutation；提供方同时观察 `Service` 和 `DirectoryReader` 的原 callSet。目录及 Runner 配置读取均进入对应 read 登记，进程级 Stop/Drain 保留原全实例退出语义。
 
 必读 [团队流程](../agent-team/README.md)、[Go 技能](../../../.agents/skills/agenteam-go-development/SKILL.md)、[验证技能](../../../.agents/skills/agenteam-verification/SKILL.md)及上述协议的相关段落；真实 fixture 作者另读 [测试技能](../../../.agents/skills/agenteam-test-engineering/SKILL.md)。不重读全部历史矩阵。
 
@@ -41,10 +41,12 @@ stop-requested 只属于捕获的原调用，不产生永久 Project 本地 gate
 | `internal/central/agent/{calls.go,service.go,commands.go,reader.go,runner_mounts.go,directory.go}` | 调用 Project/class 登记、原 mutation/confirmation 连续归属及必要私有辅助；原业务逻辑与权限不改 |
 | `internal/central/agent/project_lifecycle.go`、`project_lifecycle_test.go` | 新本地提供方、报告和定向控制测试 |
 | `internal/central/agent/{calls_test.go,command_lifetime_test.go}` | 仅受上述登记变更影响的原测试适配及全局退出回归 |
-| `tests/projectvariable/agent_project_local_stop_test.go`、`agent_project_local_stop_fixture_test.go` | 独有真实组合与确定性 barrier；复用已有生产提供方和 fixture 能力，不覆盖旧验收 |
-| 本卡 | 已确认范围、实际验证结果与未完成边界 |
+| `tests/projectvariable/agent_project_lifecycle_test.go`、`agent_project_lifecycle_fixture_test.go` | 独有真实组合与确定性 barrier；复用已有生产提供方和 fixture 能力，不覆盖旧验收 |
+| `tests/testsupport/agentconfiguration/assembly.go` | 可选真实 LifecycleAuthority，沿同 Store 的原构造图绑定；nil 保留原组合语义 |
+| `.agent-state/agent-project-local-stop/`；共享 `root_chain_driver.py`、`pg_only_supervisor.py` 的本片 profile | 复用原验证方法，仅限定 selector、输入与结果计数；资源及 Wait 协议不改 |
+| 本卡及本片 README | 已确认范围、实际验证结果与未完成边界 |
 
-若真实接线确需额外路径，由实现者先报告具体依赖及最小增量，再由 root 协调所有权。共享脚本/harness、旧 PG fixture、SQL/迁移、公共合同、app、Model、Execution 均不在写域；不修改 `.agent-state/current.md`。与未来 Model 纯契约实现可以独立 worktree 并行；共享真实资源窗口由 root 协调，执行者不做 Git 操作。
+上述 assembly seam 和两个共享 profile 是 root 单独分配的必要验证增量；旧 PG fixture、SQL/迁移、公共合同、app、Model、Execution 均未因此开放修改。不修改 `.agent-state/current.md`。Model 纯契约实现使用独立 worktree 并行；共享真实资源窗口由 root 协调，执行者不做 Git 操作。
 
 ## 五项必要验收
 
@@ -53,6 +55,16 @@ stop-requested 只属于捕获的原调用，不产生永久 Project 本地 gate
 3. **confirmation 与退出竞争**：先 stop 后 confirmation、先 confirmation 后 stop 两种顺序；原 mutation/confirmation 或 control held 时仍不 join，实际 return 后才退休；进程级 Stop/Drain 不越过原 control/confirmation。使用确定性 barrier，保原 Unknown 和预算，不靠 sleep 猜调度。
 4. **首条真实 PG 链**：真实 Account、同 Store/Project Authority、Agent Service 全部真实依赖与 DirectoryReader。fixture 只建立尚未生产开放的合法 initialized Project 和 accepted operation/完整冻结 manifest 前置；由原 `LifecycleStopDriver` 实际提交 `accepted→stopping` 后调用新提供方，不以测试 SQL 写本轮 phase/claim 结果。实际原业务在 gate 前 barrier 持有，验证提交后取消、原调用 held 时 pending、释放并真实返回后 LocalJoined；另一 Project 继续可用，Archive 合法读保留，Delete 覆盖目录读。participant 状态不被写成 stopped/completed。fixture 不假冒生产 Create/Archive 或完整 Registry 已可用，不伪造成功报告。
 5. **收敛与有限兼容**：定向 Agent race/vet 和受影响原 lifetime 回归；纯控回答问题后尽早进入上述真实组合，输入未变的通过证据复用。所有实际调用即使断言失败也必须真实 join，按既有 owned fixture 核原 Wait/资源退出尾；原失败保留。正式交付由未参与实现者核验适用行为和真实证据，不扩大为整个 Agent/D08 验收。
+
+## 实际验收结果
+
+方法及结果详见[验证记录](../../../.agent-state/agent-project-local-stop/README.md)。`sequence01` 原工具 `94116/d4d54c` 实际退出 0：profile 1 正例／7 负例通过，27 项方法／源码输入前后相同；Agent race 精确 **10 top／29 sub**，单包 vet 通过，285 个输入的六份 maps 相同。Go 编译及精确 sole-top list 均实际返回 0；编译 2021 个输入的三份 maps 相同，运行集合仅增加测试 binary，合计 2022。
+
+`native01` 只完成 prepare，容量快照 2,785,267,712 B 触发 hold，未启动原生验证。随后按 root 明确授权，仅回收 145 个精确列出的可再生旧 Go 包缓存 `-d` 文件，释放分配量 2,163,302,400 B；Agent 2022、Model 655／22 的 union 2680、49 份记录及四个身份保护相同。该例外不是全缓存清理或用 mtime 推定无引用，也未永久保留被回收原物。`prepare02` 原工具 `17869/6dfef3` 实际返回 0，使用新 namespace `/tmp/apls02`；4,726,820,864 B／1,704,318 inode 仅为启动前快照。
+
+唯一实际原生轮次 **native02 PASS**：原工具 `5391/a0d6c9` 实际退出 0；Supervisor PID 1075262 原 Wait 0／108.910 s，Driver PID 1075263 和 Go PID 1076914 原 Wait 均为 0。真实 PG 精确 **1 top／2 sub**，17.94 s；Archive 9.67 s、Delete 8.27 s。实际 COMMIT-return／BEGIN-held 原调用返回屏障、Archive mutation 选择、Delete 双 owner read、跨项目保留及既有 Agent／引用／event 保全均通过。七个精确资源有 14 次缺席观察，descendant／private／runtime 双空及 HOST_TCP 双 delta-empty 齐全；2022 个实际输入与四个身份的 post 核对相同，无 race。
+
+首个方法保存曾因 basic 文件末尾多一个 LF 静态检查失败，修正后才保存受测方法；原失败记录保留。另一个 Model worktree 的 test FAIL 属其自身验证，本卡不把它或 prepared-only 容量 hold 记为 Agent 业务失败。本轮未据此声明已合入 main 或已清理工作树／分支。
 
 ## 本片不解除的缺口
 
