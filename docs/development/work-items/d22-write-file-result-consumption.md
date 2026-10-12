@@ -24,6 +24,6 @@ Determine 复用既有68的 cutoff、Skill 绑定及唯一 successor；Projectio
 
 skills_milestone_review 负责 Tool 历史合同与私有结果 reader；skill_package_review 负责 Execution 历史 authority、66 consumer、68 source 与 Projection reader；recovery_lead 负责 Loop receipt/round projection 和本卡；独立 fixture 作者负责 PG、方法及 README；variables_review 负责 Git 与全局状态，runtime_recovery 为唯一 principal。
 
-Loop 已新增 5 个源码控制入口，覆盖完整回执、迟到完成状态、脱敏/复制、512KiB 原调用历史及混合绑定和回执错配；受影响旧 Read 投影按必要范围验证，不重跑无关 Runner 矩阵。计划真实 PG 保持 1 top / 2 sub：正式 Write 持久回执后撤去当前 Tool/Mount，消费、Determine 与 Projection 仍保持原事实且不增加 wire/Model；另以真实 callback rollback 和实际 COMMIT 后受控丢回执验证零部分与仅 Lookup 恢复。方法通过与实际事务/资源退出分开记录，尚未运行不记通过。
+Loop 已新增 5 个源码控制入口，覆盖完整回执、迟到完成状态、脱敏/复制、512KiB 原调用历史及混合绑定和回执错配；受影响旧 Read 投影按必要范围验证，不重跑无关 Runner 矩阵。已冻结的真实 PG 保持 1 top / 2 sub：正式 Write 持久回执后撤去当前 Tool/Mount，首次消费、Determine 与 Projection 仍保持原事实且不增加 wire/Model；另以实际 COMMIT 后受控丢回执验证原 consumer 与新 consumer 仅 Lookup 原消费记录。本片未新增 callback rollback 场景，共用66写入机制的原回滚证据沿原片保留，不计作本轮运行。方法通过与实际事务/资源退出分开记录，尚未运行不记通过。
 
 所有原 tools HTTP、默认 executor/initializer 与其他 STOP 保留；本片不声称下一 Model、多轮工具执行或完整生产接入完成。
