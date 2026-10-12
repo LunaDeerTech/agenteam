@@ -246,6 +246,9 @@ export function useProjectSecrets(
       if (!live()) return
       firstPage(captureProjectSecretID(target))
     },
+    refreshAfterDelete() {
+      if (live()) firstPage()
+    },
     deny() {
       retire()
       clear()

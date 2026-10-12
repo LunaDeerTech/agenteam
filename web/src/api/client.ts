@@ -111,6 +111,7 @@ const endpoints = {
   getProjectSecret: ['GET', '/api/v1/projects/{project_id}/secret-variables/{target}', 200],
   createProjectSecret: ['POST', '/api/v1/projects/{project_id}/secret-variables', 200],
   updateProjectSecret: ['PATCH', '/api/v1/projects/{project_id}/secret-variables/{target}', 200],
+  deleteProjectSecret: ['DELETE', '/api/v1/projects/{project_id}/secret-variables/{target}', 200],
   lookupProjectSecret: ['POST', '/api/v1/projects/{project_id}/secret-variables/commands/lookup', 200],
   listProjectUsage: ['GET', '/api/v1/projects/{project_id}/model-usage', 200],
   createProjectVariable: ['POST', '/api/v1/projects/{project_id}/variables', 200],
@@ -1103,11 +1104,11 @@ type KnowledgeCommandOptions<E extends KnowledgeCommandEndpoint> = {
   : { target?: never })
 
 const skillEndpoints = ['listProjectSkills', 'getProjectSkill', 'getSkillPackage'] as const
-const secretCommandEndpoints = ['createProjectSecret', 'updateProjectSecret', 'lookupProjectSecret'] as const
+const secretCommandEndpoints = ['createProjectSecret', 'updateProjectSecret', 'deleteProjectSecret', 'lookupProjectSecret'] as const
 type SecretCommandEndpoint = (typeof secretCommandEndpoints)[number]
 type SecretCommandOptions<E extends SecretCommandEndpoint> = {
   signal: AbortSignal; projectID: string; body: unknown; csrf: string; key: string
-} & (E extends 'updateProjectSecret' ? { target: string } : { target?: never })
+} & (E extends 'updateProjectSecret' | 'deleteProjectSecret' ? { target: string } : { target?: never })
 const secretReadEndpoints = ['listProjectSecrets', 'getProjectSecret'] as const
 type SecretReadEndpoint = (typeof secretReadEndpoints)[number]
 type SecretReadQuery = Readonly<{ limit: number; cursor?: string }>
@@ -1507,7 +1508,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       }
     } else if ((secretCommandEndpoints as readonly string[]).includes(endpoint)) {
       try {
-        const update = endpoint === 'updateProjectSecret'
+        const update = endpoint === 'updateProjectSecret' || endpoint === 'deleteProjectSecret'
         shape(options, ['signal', 'projectID', 'body', 'csrf', 'key', ...(update ? ['target'] : [])])
         const project = string(options.projectID, 36, 36)
         const csrf = string(options.csrf, 43, 43), key = string(options.key, 1, 128)

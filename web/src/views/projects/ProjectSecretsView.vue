@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
-import { UiButton, UiCard, UiState } from '../../components/ui'
+import { UiButton, UiCard, UiDialog, UiState } from '../../components/ui'
 import ProjectSecretEditor from '../../components/projects/ProjectSecretEditor.vue'
 import { useProjectSecretEditor } from '../../composables/useProjectSecretEditor'
 import { useProjectSecrets } from '../../composables/useProjectSecrets'
@@ -16,6 +16,53 @@ const editor = useProjectSecretEditor(owner)
 const page = owner.page,
   detail = owner.detail
 const detailHeading = ref<HTMLElement | null>(null)
+const deleteButton = ref<{ $el: HTMLButtonElement } | null>(null)
+const createButton = ref<{ $el: HTMLButtonElement } | null>(null)
+let deleteFocus: { target: typeof detail.value; trigger: HTMLButtonElement } | null = null
+function requestDelete() {
+  const trigger = deleteButton.value?.$el
+  if (!trigger || !editor.canDelete.value) return
+  deleteFocus = { target: detail.value, trigger }
+  editor.requestDelete()
+}
+async function restoreDeleteFocus() {
+  const original = deleteFocus
+  deleteFocus = null
+  await nextTick()
+  if (
+    original &&
+    owner.visible.value &&
+    editor.canDelete.value &&
+    detail.value === original.target &&
+    deleteButton.value?.$el === original.trigger &&
+    original.trigger.isConnected &&
+    !original.trigger.disabled &&
+    !original.trigger.closest('[inert]')
+  )
+    original.trigger.focus({ preventScroll: true })
+}
+async function cancelDelete() {
+  editor.cancelDelete()
+  await restoreDeleteFocus()
+}
+async function confirmDelete() {
+  await editor.confirmDelete()
+  await restoreDeleteFocus()
+  if (owner.visible.value && !owner.selected.value) {
+    await nextTick()
+    createButton.value?.$el.focus({ preventScroll: true })
+  }
+}
+watch(
+  () => [owner.selected.value, detail.value],
+  () => {
+    if (editor.deletion.open && detail.value !== deleteFocus?.target) {
+      editor.cancelDelete()
+      deleteFocus = null
+    }
+  },
+  { flush: 'sync' },
+)
 let selectionTrigger: HTMLElement | null = null
 let editorTrigger: HTMLElement | null = null
 function openEditor(mode: 'create' | 'metadata' | 'replace', event: MouseEvent) {
@@ -68,7 +115,10 @@ onBeforeUnmount(() => {
         <p>管理名称、描述与 Secret 材料。已有值不会返回；输入的材料仅用于本次提交。</p>
       </div>
       <div class="secrets-actions">
-        <UiButton :disabled="!editor.canOpen.value" @click="openEditor('create', $event)"
+        <UiButton
+          ref="createButton"
+          :disabled="!editor.canOpen.value"
+          @click="openEditor('create', $event)"
           >创建 Secret</UiButton
         >
         <UiButton :disabled="owner.blocked.value" @click="owner.refresh()">重新读取目录</UiButton>
@@ -77,6 +127,17 @@ onBeforeUnmount(() => {
         >
       </div>
     </header>
+    <UiDialog v-model:open="editor.deletion.open" title="删除 Secret？" @close="cancelDelete">
+      <p>
+        确认删除 {{ editor.deletion.name }}（版本
+        {{ editor.deletion.version }}）？这会将其从当前目录移除，历史记录仍会保留。
+      </p>
+      <p>被 Agent 等资源引用时无法删除。此操作不会读取或显示 Secret 值。</p>
+      <template #footer>
+        <UiButton variant="ghost" @click="cancelDelete">取消</UiButton>
+        <UiButton variant="danger" @click="confirmDelete">确认删除</UiButton>
+      </template>
+    </UiDialog>
     <ProjectSecretEditor :owner="editor" @close="closeEditor" />
     <p v-if="editor.visible.value && editor.state.message" role="status">
       {{ editor.state.message }}
@@ -85,14 +146,25 @@ onBeforeUnmount(() => {
       v-if="editor.visible.value && editor.progress.value?.phase === 'uncertain'"
       class="secrets-recovery"
     >
-      <p>原请求尚未确认。材料已清除；检查原请求不会再次提交材料。</p>
+      <p v-if="editor.progress.value?.identity.kind === 'delete'">
+        删除结果尚未确认；检查原请求不会再次发送删除。
+      </p>
+      <p v-else>原请求尚未确认。材料已清除；检查原请求不会再次提交材料。</p>
       <UiButton :disabled="!editor.canLookup.value" @click="editor.lookup()">检查原请求</UiButton>
     </div>
     <div v-if="editor.visible.value && editor.progress.value?.phase === 'confirmed'">
-      <p>原请求已确认。请独立读取当前记录。</p>
-      <UiButton :disabled="editor.blocked.value" @click="editor.readConfirmed()"
-        >读取已确认的记录</UiButton
-      >
+      <p>
+        {{
+          editor.progress.value?.identity.kind === 'delete'
+            ? '删除已确认。请独立重新读取目录。'
+            : '原请求已确认。请独立读取当前记录。'
+        }}
+      </p>
+      <UiButton :disabled="editor.blocked.value" @click="editor.readConfirmed()">{{
+        editor.progress.value?.identity.kind === 'delete'
+          ? '重新读取删除后的目录'
+          : '读取已确认的记录'
+      }}</UiButton>
     </div>
     <UiState v-if="!owner.visible.value" kind="loading" title="正在确认 Secrets 访问身份" />
     <UiState
@@ -154,6 +226,13 @@ onBeforeUnmount(() => {
               >
               <UiButton :disabled="!editor.canOpen.value" @click="openEditor('replace', $event)"
                 >替换 Secret 值</UiButton
+              >
+              <UiButton
+                ref="deleteButton"
+                variant="danger"
+                :disabled="!editor.canDelete.value"
+                @click="requestDelete"
+                >删除 Secret</UiButton
               >
             </div>
             <p class="secret-description">{{ detail.value.description || '暂无描述' }}</p>

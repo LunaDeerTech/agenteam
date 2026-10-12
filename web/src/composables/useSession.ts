@@ -4560,6 +4560,11 @@ export function createSessionController(
         return startSecret({ kind: 'update', projectID, targetID, expectedVersion }, (csrf, key, signal) => secretCommandsAPI.update(projectID, targetID, expectedVersion, request, csrf, key, signal))
       } catch (error) { return Promise.reject(error instanceof AccountFailure ? error : new AccountFailure('invalid-input')) }
     },
+    delete(projectID: string, targetID: string, expectedVersion: string) {
+      try {
+        return startSecret({ kind: 'delete', projectID, targetID, expectedVersion }, (csrf, key, signal) => secretCommandsAPI.delete(projectID, targetID, expectedVersion, csrf, key, signal))
+      } catch (error) { return Promise.reject(error instanceof AccountFailure ? error : new AccountFailure('invalid-input')) }
+    },
     lookup() {
       if (!secretIntent?.uncertain || secretCommandState.progress?.phase !== 'uncertain') return Promise.reject(new AccountFailure('invalid-input'))
       return performSecret(secretIntent)
