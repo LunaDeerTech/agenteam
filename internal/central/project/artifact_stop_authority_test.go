@@ -87,7 +87,8 @@ func TestArtifactStopAuthorityOriginalTransaction(t *testing.T) {
 
 func TestArtifactStopAuthorityDiscoveryIsNotGrant(t *testing.T) {
 	a, store, request, deps := artifactStopAuthorityFixture(t)
-	if len(store.seen()) != 0 || len(deps.Locks()) != 1 || deps.Locks()[0] != projectLock(request.Details().Cause.Details().ProjectID, f.Shared) {
+	want := projectLock(request.Details().Cause.Details().ProjectID, f.Shared)
+	if len(store.seen()) != 0 || len(deps.Locks()) != 1 || deps.Locks()[0].Key.Canonical() != want.Key.Canonical() || deps.Locks()[0].Mode != want.Mode {
 		t.Fatal("discovery consumed SQL or different Project locks", store.seen())
 	}
 	d := request.Details()

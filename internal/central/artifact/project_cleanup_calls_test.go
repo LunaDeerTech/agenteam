@@ -250,7 +250,7 @@ func (*cleanupTechnicalFixture) ValidateProjectStopInTx(context.Context, f.Tx, o
 // cleanup owner and Store. Business/Object cleanup is deliberately not faked.
 func (v *cleanupTechnicalFixture) retire(ctx context.Context, p i.ProjectID) (bool, bool, error) {
 	fact := v.facts[p]
-	call, err := v.state.borrowProjectCleanup(fact.actor, fact.cause)
+	call, err := v.state.borrowProjectCleanup(fact.actor, fact.cause.Details())
 	if err != nil {
 		return false, false, err
 	}
