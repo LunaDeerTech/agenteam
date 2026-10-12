@@ -28,3 +28,11 @@ native01–03 和 codec 红的失败事实保持；native04 通过不解释 nati
 当前 Result Consumption、Skill Assignment 的负责人确认无旧树绝对运行路径依赖；七个其它 worktree 的源码 / 脚本 / 运行元数据和 symlink 检查也未发现路径借用，仅两份协调文档仍提及旧位置。核对范围见 `retention/dependency-check.json`，不将其扩大为全宿主进程排他证明。共享 SkillHTTP 热 Go cache、SkillsMilestoneResume 只读 modules / MinIO 及固定工具链仍在原保护位置，没有随本次保全移动。
 
 root 已在 main 推送成功后完成原 WorkTree 的普通 `worktree remove`，以及本地 `ai/runner-read-file-operation-20261011` 的普通 `branch -d`，两步均实际 0；本地 tip 为 `42aa5bf5`，没有使用强制删除。fresh 查询确认远端 tip 为 `4ac043e0683c8ae2374d4623c70b092b6515f47b` 后，精确 lease 删除原工具 99189 实际 0，随后 fresh `ls-remote` 成功且为空、explicit prune 实际 0。材料保全与 WorkTree / 本地 / 远端分支清理均已完成；全局累计及后续任务以[当前索引](../current.md)为准。
+
+## 历史编译二进制归档补充
+
+2026-10-12，本片 `compile01`、`compile02`、`compile03`、`compile04` 中的 四个 `projectvariable.test`（共 343,153,327 B）已纳入单个[无损归档与恢复说明](../../output/ai/retired-compile-binaries/archive01/README.md)。归档成员前缀为 `retired-20261011/runner-read-file-operation/`，其后保留原 `compileNN/projectvariable.test` 相对路径；精确原路径、成员名、SHA、size、mode、uid/gid、纳秒 mtime 及旧 compile 记录关系见 [before.json](../../output/ai/retired-compile-binaries/archive01/before.json)。恢复前先验证归档和成员摘要，再无覆盖还原所需二进制。
+
+阶段1工具 31394 实际退出 0，完整解流验证全部九个成员；阶段2在再次核对归档、成员及原件身份/内容后，仅删除获授权的九个裸二进制，原工具 89889 实际退出 0。本片上述裸件现已从 retained 路径移除，完整字节仍在归档中；实际删除清单和容量观察见 [removal01/result.json](../../output/ai/retired-compile-binaries/removal01/result.json)。旧 compile/native 输入映射、结果、日志、FAIL 和保全证明均未改写。
+
+前文文件数量、裸件保留及 inode 相同等叙述是原整体迁移时的历史事实。重新提取会分配新 inode，不能宣称重建原 inode 或改写旧运行记录；原失败边界、外部保护依赖与有限验收范围保持。

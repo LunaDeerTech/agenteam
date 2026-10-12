@@ -22,3 +22,11 @@
 本线所有原工具及资源已退出，原树无源码 writer、正常 untracked 或剩余 output 文件；没有本树 node_modules、Go cache/module、dist 或私有共享二进制依赖。原 Go 执行只使用独立 SkillHTTP 热 cache、SkillsMilestoneResume 只读 modules/MinIO 与固定工具链，这些外部保护目录不随本片清理。后继源码应从 main 获取，后继证据只使用上述保全路径。
 
 本片清理已实际完成：main `5905df69` 推送工具 83333 实际 0，保留完整 `c84a1257` / `f20f52b1` 开发历史与保全说明；原工作树普通移除成功，本地分支 `-d`（原 tip `f20f52b1`）成功。远端 fresh tip `0bf996ab156b16ab16ca10fe34a5cc321775ab77` 经精确 lease 删除，工具 37215 实际 0，再 fresh 查询为空、prune 0。上述旧目录和引用只作为原件身份保留，不再是活动依赖。Operation 另片此前也已完整清理；全局累计现为 30 个 WorkTree、31 个本地分支、62 个远端引用，另 147 个旧引用待核、1 个显式保留不变。
+
+## 历史编译二进制归档补充
+
+2026-10-12，本片 `compile01` 中的 一个 `projectvariable.test`（共 86,062,174 B）已纳入单个[无损归档与恢复说明](../../output/ai/retired-compile-binaries/archive01/README.md)。归档成员前缀为 `retired-20261011/execution-tool-result-consumption/`，其后保留原 `compileNN/projectvariable.test` 相对路径；精确原路径、成员名、SHA、size、mode、uid/gid、纳秒 mtime 及旧 compile 记录关系见 [before.json](../../output/ai/retired-compile-binaries/archive01/before.json)。恢复前先验证归档和成员摘要，再无覆盖还原所需二进制。
+
+阶段1工具 31394 实际退出 0，完整解流验证全部九个成员；阶段2在再次核对归档、成员及原件身份/内容后，仅删除获授权的九个裸二进制，原工具 89889 实际退出 0。本片上述裸件现已从 retained 路径移除，完整字节仍在归档中；实际删除清单和容量观察见 [removal01/result.json](../../output/ai/retired-compile-binaries/removal01/result.json)。旧 compile/native 输入映射、结果、日志、FAIL 和保全证明均未改写。
+
+前文文件数量、裸件保留及 inode 相同等叙述是原整体迁移时的历史事实。重新提取会分配新 inode，不能宣称重建原 inode 或改写旧运行记录；原失败边界、外部保护依赖与有限验收范围保持。

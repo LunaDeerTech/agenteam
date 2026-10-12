@@ -23,3 +23,11 @@ python3 -B .agent-state/next-round-projection/run-basic-checks.py --output outpu
 23份原输入map的1,905个仓库历史文件版本（1,902路径）已逐字匹配原 `c30623db`、`5b04b4fc`、`272c74fa` 三个检查点，未发现缺失版本；三个实物binary均匹配原map。审计时这些检查点只在原分支历史；root随后完整历史合入main `b0467431`，并实际确认这三个检查点及最终文档 `7b08aa00` 均main祖先（c2c99a实际0）。源码历史可达及main推送已闭合；root以原远端tip `272c74fa` exact-lease删除原19766实际0，后继fresh查询为空、fetch/prune及local/tracking为空原91249实际0。Projection树/本地/远端均清理完成，没有重写或删除原保全材料。外部Go与MinIO的原SHA已核且未移动，SkillHTTP热cache、SkillsMilestoneResume只读modules/MinIO保持保护；没有声称保存整个外部toolchain/module tree或故障时宿主状态。
 
 原执行者确认全部运行实际退出；当前可见 `/proc` 未见原树进程路径，已知PID均不存在。扫描存在1,410次权限拒绝观察，故该项只证明原Wait与当前可见范围，不宣称覆盖不可见namespace或未知owner。未见独有untracked成果或输出外ignored材料，当前作者确认无下游绝对路径运行依赖。原01未知errno、02ENOSPC原因未明及全部历史STOP始终保留。
+
+## 历史编译二进制归档补充
+
+2026-10-12，本片 `compile01`、`compile02`、`compile03` 中的 三个 `projectvariable.test`（共 263,912,885 B）已纳入单个[无损归档与恢复说明](../../output/ai/retired-compile-binaries/archive01/README.md)。归档成员前缀为 `retired-20261012/next-round-projection/`，其后保留原 `compileNN/projectvariable.test` 相对路径；精确原路径、成员名、SHA、size、mode、uid/gid、纳秒 mtime 及旧 compile 记录关系见 [before.json](../../output/ai/retired-compile-binaries/archive01/before.json)。恢复前先验证归档和成员摘要，再无覆盖还原所需二进制。
+
+阶段1工具 31394 实际退出 0，完整解流验证全部九个成员；阶段2在再次核对归档、成员及原件身份/内容后，仅删除获授权的九个裸二进制，原工具 89889 实际退出 0。本片上述裸件现已从 retained 路径移除，完整字节仍在归档中；实际删除清单和容量观察见 [removal01/result.json](../../output/ai/retired-compile-binaries/removal01/result.json)。旧 compile/native 输入映射、结果、日志、FAIL 和保全证明均未改写。
+
+前文文件数量、裸件保留及 inode 相同等叙述是原整体迁移时的历史事实。重新提取会分配新 inode，不能宣称重建原 inode 或改写旧运行记录；原失败边界、外部保护依赖与有限验收范围保持。
