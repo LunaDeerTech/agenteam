@@ -12,7 +12,7 @@ import (
 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 )
 
-func (s *Service) CreateFromContent(ctx context.Context, v ac.Invocation, meta foundation.CommandMeta, display ac.Display, media, content string) (ac.Metadata, error) {
+func (s *Service) createFromContent(ctx context.Context, v ac.Invocation, meta foundation.CommandMeta, display ac.Display, media, content string) (ac.Metadata, error) {
 	if err := ac.ValidateInline(content); err != nil {
 		return ac.Metadata{}, err
 	}
@@ -44,7 +44,7 @@ func (s *Service) CreateFromContent(ctx context.Context, v ac.Invocation, meta f
 	defer s.state().uploads.DiscardPrepared(p)
 	return s.publishPrepared(ctx, req, c, p)
 }
-func (s *Service) CreateFromSource(ctx context.Context, v ac.Invocation, meta foundation.CommandMeta, display ac.Display, ref oc.BusinessFileRef) (ac.Metadata, error) {
+func (s *Service) createFromSource(ctx context.Context, v ac.Invocation, meta foundation.CommandMeta, display ac.Display, ref oc.BusinessFileRef) (ac.Metadata, error) {
 	req, err := makeRequest(v, meta, display, "source", "", 0, "", ref, oc.UploadReceipt{})
 	if err != nil {
 		return ac.Metadata{}, err
@@ -210,6 +210,10 @@ func (s *Service) acquireCommandSource(ctx context.Context, req createRequest, c
 			return failure(foundation.VersionConflict, nil)
 		}
 		lease, err = r.reads.AcquireSourceInTx(ctx, tx, req.invocation.Details().Actor, source, plan, locked)
+		// Keep any issued handle on both sides before the original Store
+		// returns, including the original error path. Its source Project cannot
+		// report Stopped merely because the command targets another Project.
+		s.rememberProjectSource(req, source, lease)
 		if err != nil {
 			return err
 		}
@@ -221,16 +225,7 @@ func (s *Service) acquireCommandSource(ctx context.Context, req createRequest, c
 		_, err = e.Exec(ctx, `UPDATE agenteam_artifact.commands SET source_lease_id=$2 WHERE command_hash=$1`, digestRaw(digestBytes([]byte(req.identity.Canonical()))), lease.ID().String())
 		return portOrNil(err)
 	})
-	if lease.Validate() == nil {
-		r.mu.Lock()
-		key := digestBytes([]byte(req.identity.Canonical()))
-		r.leases[key] = lease
-		if r.leaseProjects == nil {
-			r.leaseProjects = make(map[foundation.Digest]identity.ProjectID)
-		}
-		r.leaseProjects[key] = req.invocation.Details().ProjectID
-		r.mu.Unlock()
-	}
+
 	if err = commitError(result); err != nil {
 		return commandRow{}, oc.SourceLease{}, err
 	}
@@ -250,8 +245,28 @@ func (s *Service) cancelSource(lease oc.SourceLease) {
 			if handle.ID() == lease.ID() {
 				delete(r.leases, key)
 				delete(r.leaseProjects, key)
+				delete(r.leaseSources, key)
 			}
 		}
 		r.mu.Unlock()
 	}
+}
+
+func (s *Service) rememberProjectSource(req createRequest, source oc.ResolvedSource, lease oc.SourceLease) {
+	if lease.Validate() != nil {
+		return
+	}
+	r := s.state()
+	key := digestBytes([]byte(req.identity.Canonical()))
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.leases[key] = lease
+	if r.leaseProjects == nil {
+		r.leaseProjects = make(map[foundation.Digest]identity.ProjectID)
+	}
+	if r.leaseSources == nil {
+		r.leaseSources = make(map[foundation.Digest]string)
+	}
+	r.leaseProjects[key] = req.invocation.Details().ProjectID
+	r.leaseSources[key] = source.Details().Owner.Details().ProjectID
 }

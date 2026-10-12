@@ -28,8 +28,10 @@ type serviceState struct {
 	mu            sync.Mutex
 	leases        map[foundation.Digest]oc.SourceLease
 	leaseProjects map[foundation.Digest]identity.ProjectID
+	leaseSources  map[foundation.Digest]string
 	cleanupMu     sync.Mutex
 	cleanupCalls  map[identity.ProjectID]*projectCleanupCall
+	ownership     *projectCallOwnershipState
 }
 type Service struct{ data func() *serviceState }
 
@@ -39,7 +41,7 @@ func New(store Store, owners *OwnerProvider, objects oc.Objects, uploads oc.Uplo
 	}
 	// Source ports can be explicitly unbound in the composition root; source
 	// creation rejects that state. Inline/upload never invent source providers.
-	r := &serviceState{store: store, owners: owners, objects: objects, uploads: uploads, cleaner: cleaner, reads: reads, resolver: resolver, audit: auditing, cursors: cursors, leases: map[foundation.Digest]oc.SourceLease{}, leaseProjects: map[foundation.Digest]identity.ProjectID{}}
+	r := &serviceState{store: store, owners: owners, objects: objects, uploads: uploads, cleaner: cleaner, reads: reads, resolver: resolver, audit: auditing, cursors: cursors, leases: map[foundation.Digest]oc.SourceLease{}, leaseProjects: map[foundation.Digest]identity.ProjectID{}, leaseSources: map[foundation.Digest]string{}}
 	return &Service{func() *serviceState { return r }}, nil
 }
 func (s *Service) state() *serviceState      { return s.data() }
@@ -73,7 +75,7 @@ func (s *Service) within(ctx context.Context, subject ac.AccessSubject, intent i
 		return rejected(unavailable(nil))
 	}
 	extra = append(append([]foundation.LockRequest{}, extra...), deps.Locks()...)
-	return r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
+	result := r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
 		var locked oc.LockedAccess
 		var err error
 		if len(plans) > 0 {
@@ -99,8 +101,17 @@ func (s *Service) within(ctx context.Context, subject ac.AccessSubject, intent i
 		if err = r.owners.authorize(ctx, tx, subject, intent); err != nil {
 			return err
 		}
+		if r.ownership != nil && ctx.Value(artifactCallRegistrationKey{}) != r.ownership && !r.originalCleanupCall(ctx, subject, intent) {
+			if err = r.ownership.requireRunning(ctx, tx); err != nil {
+				return err
+			}
+		}
 		return fn(ctx, tx, locked)
 	})
+	if r.ownership != nil {
+		r.ownership.captureResult(ctx, result)
+	}
+	return result
 }
 func createLocks(c foundation.CommandIdentity, artifact string) []foundation.LockRequest {
 	key, _ := foundation.CommandLock(c)

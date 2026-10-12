@@ -290,6 +290,20 @@ Artifact 的原 provider 调用返回后，Project 才能保存该 participant C
 
 `b40dac98` 的 `TestProjectArtifactCleanup` native03 三组实际通过（52.89s）：真实 inline/upload、Read、issued download 与 MinIO/metadata 清理，原 checkpoint Store 返回仍在途时同 Authority 第二 driver 被拒且另一 Project 可读，原返回后显式进入 Outbox；Artifact/Object 各自原 Unknown 后只读确认及零删除增量均通过。Go/fixture 原 Wait 全部退出，六项资源清退；[实际结果](../../../output/ai/project-artifact-object-cleanup-delivery/native03/result.json)与[原日志](../../../output/ai/project-artifact-object-cleanup-delivery/native03/browser.log)保留。native01 无 stage 的 FAIL 不倒填具体入口，native02 的 IssueDownload FORBIDDEN 保留；签发下载也需正式 Audit 的缺口已补。acceptedDelete、其它声明前置及 Artifact Stop 受控，Object Stop 与后半清理链真实，不称默认完整 Delete，也不覆盖 source 正向收束或后继 00079 技术尾。
 
+### Artifact 原调用停止（候选）
+
+后继显式 ProjectCallOwnership 构造绑定原 Artifact Service、同一个 Object Service、实际 ProcessGuard/process 与 ProjectStopAuthority；构造不做 I/O，不接受假 guard 或通过公开 setter 给既有 Service 补成功状态。旧 Artifact.New 的业务 API 保持兼容，但没有该真实绑定时 RequestProjectStop/InspectProjectStop 明确 DependencyUnbound。组合根必须将该 owner 的 Stop/Drain/Joined 纳入 guard 退出顺序，不能在其原调用或未决事务仍在时先释放 guard。
+
+Artifact owner 在首业务 SQL 前登记完整原调用，并覆盖 Create、Upload、Read/List 的末尾 Audit、Cancel/Converge 以及所有 Object I/O 后的回写；每次登记和返回检查均使用同 Store 的实际 Tx 与原 ProcessGuard。前向迁移 00079 扩现有 project_work 的 read/converge 技术类别与 nullable instance_id，并给 project_stops 增加成对 nullable 的原 owner process/instance；不把读调用冒充 creation，不回填旧行归属。历史 NULL 或同 process 的未知 instance 不能凭 joined_at、stopped 行或空本地集合判定原返回；外进程只能用该 exact ProcessGuard 的停止证明。取消是请求，业务函数、body/reader 与原 Store 调用的实际返回才是关闭证据。
+
+Artifact Request/Inspect 复用既有 ArtifactStopComponent 和 ProjectStopAuthority：当前 exact operation/action/version、Project SH、完整 manifest 和原 live Tx 每轮重核；gate 事务实际确认返回后才取消所捕获的原 epoch 调用。Archive 保留合法读语义，Delete 必须等待读及其 Audit/SQL 尾；旧 archive cause 不能取消 Restore 后新调用。只读 Inspect 与失败/Unknown 不能造 stopped，所有未确认 source 或 lease 继续 Pending；本片不把旧 CancelSourceLease 的 caller 返回当其 background release 已返回，source 正向收束仍需后继 typed loan。
+
+同一原 Artifact Cleanup 在 Project EX 和当前私有 claim 下退休本域技术尾：原实例实际返回或 exact foreign ProcessGuard 停止证明齐备后，才删除合法 joined、无未确认 source 的 project_work 与旧 archive stopped receipts，仅保留当前 Delete 的最小 stopped receipt。初始 completed 重放、最终完成和 Unknown 只读确认均核这条边界；未决调用、未知归属或 source 保持 Pending。Cleanup 自身是独立私有 control，不登记业务 work，也不能用全局 Joined 排除另一 Project 或冒原返回；本域不跨 SQL 删除 Object 的技术尾，metadata 空不表示两域所有历史已退休。
+
+新的显式 Artifact/Object 组合 adapter 依次消费两原 Service 的 Stop/Inspect；只有 component/cause 严格匹配且两者完整实际返回 Stopped 才聚合 Stopped。没有对应注册 reference kind 的原细粒度 ID 不改名伪装为 object/artifact，聚合保守状态与安全 reason。原 cleanup-only 构造保留，原 LifecycleStopDriver 直接消费新 adapter；不因此绑定默认 App 或部分 Registry，也不声称其它 domain/finalizer 已完成。本节为候选实现合同，动态结果按后续真实验收记录。
+
+`984dd6f5` 的 `TestProjectArtifactStop` native03 两组实际通过（42.16s）：78→79/repeat、真实公有 Read 的原 Store 返回屏障、另一 Project 可用、Artifact/Object 真 Stop，以及原 Stop Unknown 的只读确认；后续 Artifact 清掉本域 joined work，保留当前 Delete 最小 stopped receipt，Object 自域技术尾仍保留。必要基础 22top77sub、新增 maintenance 1top10sub 和三个包 vet 均通过；Go/fixture 原调用已退出，六项资源清退，无 Node，见[实际结果](../../../output/ai/project-artifact-stop-delivery/native03/result.json)与[原日志](../../../output/ai/project-artifact-stop-delivery/native03/browser.log)。首轮两个纯控编译 FAIL、native01/02 FAIL 均保留：01 的 Tx callback context 不代表外层公有调用 context，且组合 Object Stop 需按真实扫描进度推进；02 后修复了私有 cleanup scope 拒绝同 P/op 派生 ObjectMaintenance 的静态缺陷，不回填原日志缺失的 lane 或深层 Tx 位置。本结果不包含 source 收束、foreign death 正向、默认 Registry 或完整 Delete。
+
 ### 9.1 D05 项目停止能力
 
 固定 D05 只有 CleanupProject，没有项目范围 RequestStop/InspectStop。下列 C0 已经独立定向审查并由 root 采纳，代码依据为 `6319d03`；typed 口实现与真实 D05 stop/inspect 分阶段交付，契约成立不代表停止能力已绑定。Project 不越域查表推断空闲。

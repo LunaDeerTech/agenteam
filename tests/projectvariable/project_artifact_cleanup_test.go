@@ -214,9 +214,17 @@ type artifactCleanupPG struct {
 }
 
 func newArtifactCleanupPG(t *testing.T) *artifactCleanupPG {
+	return newArtifactCleanupPGConfigured(t, nil, nil)
+}
+
+// The Stop slice supplies its real older-prefix database and replaces only the
+// Artifact service with its original owned pair before accepted Delete.
+func newArtifactCleanupPGConfigured(t *testing.T, base *variableHTTPFixture, prepare func(*artifactCleanupPG, *artifactCleanupPGAssembly)) *artifactCleanupPG {
 	t.Helper()
 	v := &artifactCleanupPG{}
-	base := newVariableHTTPFixture(t)
+	if base == nil {
+		base = newVariableHTTPFixture(t)
+	}
 	assembly := &artifactCleanupPGAssembly{}
 	base.artifactAssembly = assembly
 	v.agentVariablesTerminalPG = newAgentVariablesTerminalPGConfigured(t, false, false, false, true, func(prefix *agentVariablesTerminalPG) {
@@ -250,6 +258,9 @@ func newArtifactCleanupPG(t *testing.T) *artifactCleanupPG {
 			}
 		}
 		v.skillsCleanupPG.foreign = v.foreignSnapshot(t)
+		if prepare != nil {
+			prepare(v, assembly)
+		}
 	}, base)
 	participant, err := project.NewArtifactLifecycleParticipant(v.p2.lifecycle, v.service)
 	outboxCleanupRequire(t, err)

@@ -8,9 +8,15 @@ import (
 	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 )
 
-func (a *LifecycleAuthority) DiscoverProjectStop(_ context.Context, request obj.ProjectStopRequest) (obj.AccessDependencies, error) {
+func (a *LifecycleAuthority) DiscoverProjectStop(ctx context.Context, request obj.ProjectStopRequest) (obj.AccessDependencies, error) {
 	if !a.bound() {
 		return obj.AccessDependencies{}, fault(foundation.DependencyUnbound)
+	}
+	if ctx == nil {
+		return obj.AccessDependencies{}, invalid()
+	}
+	if err := ctx.Err(); err != nil {
+		return obj.AccessDependencies{}, portError(err)
 	}
 	binding, err := obj.ProjectStopBinding(request)
 	if err != nil {
@@ -21,6 +27,9 @@ func (a *LifecycleAuthority) DiscoverProjectStop(_ context.Context, request obj.
 
 func (a *LifecycleAuthority) ValidateProjectStopInTx(ctx context.Context, tx foundation.Tx, request obj.ProjectStopRequest, dependencies obj.AccessDependencies) (obj.ProjectStopAuthorization, error) {
 	var grant obj.ProjectStopAuthorization
+	if !tx.Valid() {
+		return grant, invalid()
+	}
 	expected, err := a.DiscoverProjectStop(ctx, request)
 	if err != nil {
 		return grant, err
@@ -38,12 +47,18 @@ func (a *LifecycleAuthority) ValidateProjectStopInTx(ctx context.Context, tx fou
 	if err != nil {
 		return grant, err
 	}
+	if nilPort(x) {
+		return grant, fault(foundation.DependencyUnbound)
+	}
 	fact, err := a.lifecycleFact(ctx, x, cause.ProjectID, c.LifecycleCause{OperationID: op, Action: c.LifecycleAction(cause.Action), ProjectVersion: cause.ProjectVersion}, c.ArtifactObjectParticipant)
 	if err != nil {
 		return grant, err
 	}
 	if err = fact.authorize(d.Step == obj.InspectProjectStopStep); err != nil {
 		return grant, err
+	}
+	if err = ctx.Err(); err != nil {
+		return grant, portError(err)
 	}
 	mode := obj.ContinueProjectStop
 	if fact.state != c.OperationStopping {

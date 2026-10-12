@@ -14,7 +14,7 @@ import (
 // CancelUpload cancels this domain's prospective identity. A consumed Artifact
 // is never deleted by this endpoint. The exact cancellation remains durable
 // until Object cleanup and the original source (if any) actually converge.
-func (s *Service) CancelUpload(ctx context.Context, v ac.Invocation, target ac.UploadTarget) (oc.CleanupState, error) {
+func (s *Service) cancelUpload(ctx context.Context, v ac.Invocation, target ac.UploadTarget) (oc.CleanupState, error) {
 	target.Command = copyCommand(target.Command)
 	if v.Validate() != nil || v.Details().Actor.Details().Kind != identity.Human || target.Reference.Validate() != nil || !target.Owner.Equal(artifactOwner(target.Reference)) || v.Details().ProjectID != target.Reference.ProjectID || target.Command.Validate() != nil {
 		return oc.CleanupPending, invalid()
@@ -50,7 +50,7 @@ func (s *Service) CancelUpload(ctx context.Context, v ac.Invocation, target ac.U
 
 // CancelCreation is an internal incomplete-command convergence port, not a
 // delete-artifact Core Tool. Current authority precedes all history checks.
-func (s *Service) CancelCreation(ctx context.Context, v ac.Invocation, key foundation.IdempotencyKey) (oc.CleanupState, error) {
+func (s *Service) cancelCreation(ctx context.Context, v ac.Invocation, key foundation.IdempotencyKey) (oc.CleanupState, error) {
 	if v.Validate() != nil || key.Validate() != nil {
 		return oc.CleanupPending, invalid()
 	}
@@ -190,11 +190,20 @@ func (s *Service) cleanupProject(ctx context.Context, actor identity.Actor, caus
 	out := oc.ProjectCleanupResult{State: oc.CleanupPending, ProjectID: d.ProjectID, OperationID: d.OperationID}
 	r := s.state()
 	sourcesPending := false
-	result := s.withinCleanup(ctx, actor, cause, nil, nil, func(ctx context.Context, _ foundation.Tx, e postgres.SQLExecutor, _ oc.LockedAccess) error {
+	technicalPending := false
+	result := s.withinCleanup(ctx, actor, cause, nil, nil, func(ctx context.Context, tx foundation.Tx, e postgres.SQLExecutor, _ oc.LockedAccess) error {
 		var err error
 		sourcesPending, err = s.projectCleanupSourcesPending(ctx, e, d.ProjectID)
 		if err != nil || sourcesPending {
 			return err
+		}
+		technicalReady, technicalClean, err := s.cleanupCallsInTx(ctx, tx, e, cause, false)
+		if err != nil {
+			return err
+		}
+		technicalPending = !technicalReady
+		if technicalPending {
+			return nil
 		}
 		var operation, state string
 		var version int64
@@ -209,7 +218,7 @@ func (s *Service) cleanupProject(ctx context.Context, actor identity.Actor, caus
 		if operation != d.OperationID.String() || version != int64(d.Version) {
 			return failure(foundation.Forbidden, nil)
 		}
-		if state == "completed" {
+		if state == "completed" && technicalClean {
 			out.State = oc.CleanupCompleted
 		}
 		return nil
@@ -217,7 +226,7 @@ func (s *Service) cleanupProject(ctx context.Context, actor identity.Actor, caus
 	if err := commitError(result); err != nil {
 		return out, err
 	}
-	if sourcesPending || out.State == oc.CleanupCompleted {
+	if sourcesPending || technicalPending || out.State == oc.CleanupCompleted {
 		return out, nil
 	}
 	// Discovery only; the complete selected set is reread under the EX Project
@@ -385,6 +394,10 @@ func (s *Service) cleanupProject(ctx context.Context, actor identity.Actor, caus
 		if err != nil || pendingSource {
 			return err
 		}
+		technicalReady, _, err := s.cleanupCallsInTx(ctx, tx, e, cause, false)
+		if err != nil || !technicalReady {
+			return err
+		}
 		var pending int64
 		if err := e.QueryRow(ctx, `SELECT count(*) FROM agenteam_artifact.commands WHERE project_id=$1 AND source_lease_id IS NOT NULL`, d.ProjectID.String()).Scan(&pending); err != nil {
 			return unavailable(err)
@@ -406,6 +419,10 @@ func (s *Service) cleanupProject(ctx context.Context, actor identity.Actor, caus
 			if _, err := e.Exec(ctx, query, d.ProjectID.String()); err != nil {
 				return unavailable(err)
 			}
+		}
+		_, technicalClean, err := s.cleanupCallsInTx(ctx, tx, e, cause, true)
+		if err != nil || !technicalClean {
+			return err
 		}
 		_, err = e.Exec(ctx, `UPDATE agenteam_artifact.cleanup SET state='completed',updated_at=clock_timestamp() WHERE project_id=$1`, d.ProjectID.String())
 		if err != nil {

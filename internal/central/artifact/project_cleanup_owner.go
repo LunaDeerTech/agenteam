@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	ac "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/object"
@@ -24,6 +25,26 @@ type projectCleanupContextKey struct{}
 type projectCleanupContext struct {
 	state *serviceState
 	call  *projectCleanupCall
+}
+
+func (r *serviceState) originalCleanupCall(ctx context.Context, subject ac.AccessSubject, intent identity.AccessIntent) bool {
+	owner, _ := ctx.Value(projectCleanupContextKey{}).(projectCleanupContext)
+	if intent != identity.Lifecycle || owner.state != r || owner.call == nil || subject.ProjectID != owner.call.cause.ProjectID {
+		return false
+	}
+	if !subject.Actor.Equal(owner.call.actor) {
+		// The original cleanup derives this exact actor for Object maintenance
+		// and its final Artifact transaction. It still uses the same private
+		// call and the current Project gate in every transaction.
+		registration, _ := identity.RegisterService(identity.ObjectMaintenance)
+		maintenance, err := registration.Actor(owner.call.cause.OperationID.String(), identityScope(owner.call.cause.ProjectID))
+		if err != nil || !subject.Actor.Equal(maintenance) {
+			return false
+		}
+	}
+	r.cleanupMu.Lock()
+	defer r.cleanupMu.Unlock()
+	return r.cleanupCalls[subject.ProjectID] == owner.call && owner.call.active
 }
 
 // RequireProjectCleanupBinding validates the fixed cleanup composition only.
@@ -66,10 +87,15 @@ func (r *serviceState) borrowProjectCleanup(actor identity.Actor, cause oc.Proje
 }
 func (r *serviceState) releaseProjectCleanup(call *projectCleanupCall) {
 	r.cleanupMu.Lock()
-	defer r.cleanupMu.Unlock()
 	call.active = false
 	if !call.retained {
 		delete(r.cleanupCalls, call.cause.ProjectID)
+	}
+	r.cleanupMu.Unlock()
+	if r.ownership != nil {
+		r.ownership.mu.Lock()
+		r.ownership.signalLocked()
+		r.ownership.mu.Unlock()
 	}
 }
 
@@ -102,14 +128,15 @@ func (s *Service) projectCleanupSourcesPending(ctx context.Context, e postgres.S
 	pending := false
 	for key := range r.leases {
 		p, known := r.leaseProjects[key]
-		if !known || p.Validate() != nil || p == project {
+		source, sourceKnown := r.leaseSources[key]
+		if !known || !sourceKnown || p.Validate() != nil || p == project || source == project.String() {
 			pending = true
 			break
 		}
 	}
 	r.mu.Unlock()
 	var durable bool
-	if err := e.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_artifact.commands WHERE project_id=$1 AND source_lease_id IS NOT NULL)`, project.String()).Scan(&durable); err != nil {
+	if err := e.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_artifact.commands WHERE source_lease_id IS NOT NULL AND (project_id=$1::text::uuid OR source->>'project'=$1::text OR source IS NULL))`, project.String()).Scan(&durable); err != nil {
 		return false, unavailable(err)
 	}
 	if err := ctx.Err(); err != nil {
@@ -127,6 +154,13 @@ func (s *Service) CleanupProject(ctx context.Context, actor identity.Actor, caus
 		return zero, failure(foundation.DependencyUnbound, nil)
 	}
 	r := s.state()
+	if r.ownership != nil {
+		done, err := r.ownership.beginControl()
+		if err != nil {
+			return zero, err
+		}
+		defer done()
+	}
 	call, err := r.borrowProjectCleanup(actor, cause.Details())
 	if err != nil {
 		return zero, err
@@ -147,6 +181,17 @@ func (s *Service) CleanupProject(ctx context.Context, actor identity.Actor, caus
 		call.retained = false
 		return out, nil
 	}
+	run, ready, err := s.prepareCleanupCalls(run, actor, cause, call)
+	if err != nil || !ready {
+		if call.retained {
+			return zero, errors.Join(call.failure(), err)
+		}
+		if err != nil {
+			return zero, err
+		}
+		d := cause.Details()
+		return oc.ProjectCleanupResult{State: oc.CleanupPending, ProjectID: d.ProjectID, OperationID: d.OperationID}, nil
+	}
 	out, err := s.cleanupProject(run, actor, cause)
 	if call.retained {
 		return zero, errors.Join(call.failure(), err)
@@ -159,7 +204,7 @@ func (s *Service) CleanupProject(ctx context.Context, actor identity.Actor, caus
 func (s *Service) confirmProjectCleanup(ctx context.Context, actor identity.Actor, cause oc.ProjectCleanupCause, call *projectCleanupCall) (oc.ProjectCleanupResult, error) {
 	d := cause.Details()
 	out := oc.ProjectCleanupResult{State: oc.CleanupPending, ProjectID: d.ProjectID, OperationID: d.OperationID}
-	result := s.withinCleanup(ctx, actor, cause, nil, nil, func(ctx context.Context, _ foundation.Tx, e postgres.SQLExecutor, _ oc.LockedAccess) error {
+	result := s.withinCleanup(ctx, actor, cause, nil, nil, func(ctx context.Context, tx foundation.Tx, e postgres.SQLExecutor, _ oc.LockedAccess) error {
 		pending, err := s.projectCleanupSourcesPending(ctx, e, d.ProjectID)
 		if err != nil {
 			return err
@@ -180,7 +225,11 @@ func (s *Service) confirmProjectCleanup(ctx context.Context, actor identity.Acto
 		if err := e.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_artifact.artifacts WHERE project_id=$1) OR EXISTS(SELECT 1 FROM agenteam_artifact.commands WHERE project_id=$1) OR EXISTS(SELECT 1 FROM agenteam_artifact.upload_intents WHERE project_id=$1)`, d.ProjectID.String()).Scan(&remains); err != nil {
 			return unavailable(err)
 		}
-		if !pending && !remains && state == "completed" {
+		_, technicalClean, err := s.cleanupCallsInTx(ctx, tx, e, cause, false)
+		if err != nil {
+			return err
+		}
+		if !pending && !remains && technicalClean && state == "completed" {
 			out.State = oc.CleanupCompleted
 		}
 		return nil
