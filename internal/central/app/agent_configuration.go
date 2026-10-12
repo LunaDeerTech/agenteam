@@ -56,21 +56,66 @@ func (w *agentInstallWork) Force(ctx context.Context) error { return w.Drain(ctx
 func (w *agentInstallWork) Joined() bool                    { return w.authority.Joined() }
 
 type agentConfigurationAssembly struct {
-	store    agent.Store
-	service  *agent.Service
-	registry *registry.Registry
-	mu       sync.Mutex
-	stopped  bool
-	initDone chan struct{}
-	initStop context.CancelFunc
+	store     agent.Store
+	service   *agent.Service
+	ownership *agent.ProjectCallOwnership
+	registry  *registry.Registry
+	mu        sync.Mutex
+	stopped   bool
+	initDone  chan struct{}
+	initStop  context.CancelFunc
 }
 
-// All providers are fixed before Agent.New. The same Skill Authority/Service
-// is used by Object, initialization, Owner reads and Execution capture.
+// Keep the existing configuration-only constructor independent of call
+// ownership. The default App uses the explicit owned constructor below.
 func createAgentConfiguration(db database, projects *project.Authority, accounts *account.Authority,
 	agents *agent.Authority, agentEvents *agent.EventAuthority, models *model.Authority,
 	skills *skill.Service, skillAuthority *skill.Authority, installer *agentInstallWork,
 	auditor *audit.Service, journal *outbox.Service, cursorKeys ...cursor.Keyring) (*agentConfigurationAssembly, error) {
+	providers, err := createAgentConfigurationProviders(db, projects, accounts, agents, agentEvents, models, skills, skillAuthority, installer, auditor, journal, cursorKeys...)
+	if err != nil {
+		return nil, err
+	}
+	service, err := agent.New(providers.store, providers.dependencies)
+	if err != nil {
+		return nil, err
+	}
+	return &agentConfigurationAssembly{store: providers.store, service: service, registry: providers.registry}, nil
+}
+
+// Construction fixes both real Agent instances before either is published.
+// The original guard may still be unbound: its live Store/Tx and process are
+// proved by each actual registration/checkpoint, never by this constructor.
+func createOwnedAgentConfiguration(db database, projects *project.Authority, accounts *account.Authority,
+	agents *agent.Authority, agentEvents *agent.EventAuthority, models *model.Authority,
+	skills *skill.Service, skillAuthority *skill.Authority, installer *agentInstallWork,
+	auditor *audit.Service, journal *outbox.Service, objects *objectAssembly, keys cursor.Keyring) (*agentConfigurationAssembly, error) {
+	if objects == nil || objects.guard == nil || objects.process.Validate() != nil {
+		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
+	}
+	providers, err := createAgentConfigurationProviders(db, projects, accounts, agents, agentEvents, models, skills, skillAuthority, installer, auditor, journal, keys)
+	if err != nil {
+		return nil, err
+	}
+	ownership, err := agent.NewProjectCallOwnership(providers.store, providers.dependencies, keys, objects.guard, objects.process)
+	if err != nil {
+		return nil, err
+	}
+	return &agentConfigurationAssembly{store: providers.store, service: ownership.Service(), ownership: ownership, registry: providers.registry}, nil
+}
+
+type agentConfigurationProviders struct {
+	store        agent.Store
+	registry     *registry.Registry
+	dependencies agent.Dependencies
+}
+
+// Both constructors use the same fixed real providers. The Skill Authority
+// and Service are also shared by Object, Owner reads and Execution capture.
+func createAgentConfigurationProviders(db database, projects *project.Authority, accounts *account.Authority,
+	agents *agent.Authority, agentEvents *agent.EventAuthority, models *model.Authority,
+	skills *skill.Service, skillAuthority *skill.Authority, installer *agentInstallWork,
+	auditor *audit.Service, journal *outbox.Service, cursorKeys ...cursor.Keyring) (*agentConfigurationProviders, error) {
 	store, ok := db.(agent.Store)
 	if !ok || runtimeInformationNil(store) || projects == nil || accounts == nil || agents == nil || agentEvents == nil || models == nil || skills == nil || skillAuthority == nil || installer == nil || installer.authority == nil || auditor == nil || journal == nil {
 		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
@@ -132,15 +177,12 @@ func createAgentConfiguration(db database, projects *project.Authority, accounts
 	if err != nil {
 		return nil, err
 	}
-	service, err := agent.New(store, agent.Dependencies{
+	dependencies := agent.Dependencies{
 		RunnerCandidates: runners, RunnerCursorKeys: keys, Authority: agents, EventAuthority: agentEvents, Events: journal, Audit: auditor, Activity: accounts,
 		Models: modelRefs, Tools: tools, ToolReferences: tools, Mounts: mounts,
 		Secrets: secrets, SecretReferences: secretRefs, Skills: initial,
-	})
-	if err != nil {
-		return nil, err
 	}
-	return &agentConfigurationAssembly{store: store, service: service, registry: registered}, nil
+	return &agentConfigurationProviders{store: store, registry: registered, dependencies: dependencies}, nil
 }
 
 // Called after the original Object.Initialize has bound the ProcessGuard and
@@ -198,6 +240,10 @@ func (a *agentConfigurationAssembly) StopAdmission() {
 	if cancel != nil {
 		cancel()
 	}
+	if a.ownership != nil {
+		a.ownership.Stop()
+		return
+	}
 	a.service.Stop()
 }
 func (a *agentConfigurationAssembly) Drain(ctx context.Context) error {
@@ -211,6 +257,9 @@ func (a *agentConfigurationAssembly) Drain(ctx context.Context) error {
 		case <-ctx.Done():
 			return ctx.Err()
 		}
+	}
+	if a.ownership != nil {
+		return a.ownership.Drain(ctx)
 	}
 	return a.service.Drain(ctx)
 }
@@ -228,6 +277,9 @@ func (a *agentConfigurationAssembly) Joined() bool {
 		default:
 			return false
 		}
+	}
+	if a.ownership != nil {
+		return a.ownership.Joined()
 	}
 	return a.service.Joined()
 }

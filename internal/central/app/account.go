@@ -188,6 +188,8 @@ func (a *accountAssembly) works() []accountWork {
 		work = append(work, a.planning)
 	}
 	if a.agentDirectory != nil {
+		// Retained for independently constructed legacy readers. The default
+		// App's owned directory belongs only to a.agents below.
 		work = append(work, a.agentDirectory)
 	}
 	if a.agents != nil {
@@ -266,8 +268,9 @@ func (a *accountAssembly) Force(ctx context.Context) error {
 	// additionally prevents shared-provider retirement below.
 	for _, work := range a.works() {
 		result = errors.Join(result, work.Force(original))
-		// The opt-in Runtime's original terminal/lease cleanup still uses the
+		// Runtime terminal/lease cleanup and both Agent lanes still use the
 		// shared providers. Expiring a force budget does not make them disposable.
+		// The root retains its separate bounded Store.ForceClose policy.
 		if executions != nil && work == executions && !executions.Joined() || agents != nil && work == agents && !agents.Joined() || install != nil && work == install && !install.Joined() {
 			return errors.Join(result, foundation.NewFault(foundation.DependencyUnavailable, foundation.NotStarted))
 		}
@@ -521,13 +524,6 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if !accounts.install(ctx, func() { accounts.planning = planning }) {
 		return context.Canceled
 	}
-	directory, err := createAgentDirectoryWithAuthority(cfg, db, agentAuthority)
-	if err != nil {
-		return err
-	}
-	if !accounts.install(ctx, func() { accounts.agentDirectory = directory }) {
-		return context.Canceled
-	}
 	models, err := model.New(modelStore, modelAuthority, model.Dependencies{Secret: secrets, Audit: auditor, Events: journal, ConfigurationEvents: modelEvents, Cursors: cfg.CursorKeyring()})
 	if err != nil {
 		return err
@@ -594,7 +590,9 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if !accounts.install(ctx, func() { accounts.skills = &skillWork{service: skills} }) {
 		return context.Canceled
 	}
-	agentConfiguration, err := createAgentConfiguration(db, projectUsage.projects, authority, agentAuthority, agentProducer, modelAuthority, skills, contentAuthorities.skills, install, auditor, journal, cfg.CursorKeyring())
+	// Skills uses the original Agent authority, not the Agent service. All
+	// providers are now fixed, so publish both Agent lanes as one lifecycle owner.
+	agentConfiguration, err := createOwnedAgentConfiguration(db, projectUsage.projects, authority, agentAuthority, agentProducer, modelAuthority, skills, contentAuthorities.skills, install, auditor, journal, objects, cfg.CursorKeyring())
 	if err != nil {
 		return err
 	}
@@ -707,7 +705,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
-	directoryHandler, err := agentDirectoryHandler(directory, core, cfg.PublicOrigin())
+	directoryHandler, err := agentOwnedDirectoryHandler(agentConfiguration, core, cfg.PublicOrigin())
 	if err != nil {
 		return err
 	}
