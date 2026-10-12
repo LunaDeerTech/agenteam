@@ -25,9 +25,22 @@ def save(path, value):
         stream.write('\n')
 
 def children():
-    # Only this subreaper's actual children; never select host infra by name.
-    raw = Path(f'/proc/{os.getpid()}/task/{os.getpid()}/children').read_text()
-    return [int(v) for v in raw.split()]
+    # Same parent-map walk as the existing PG supervisor. Some kernels omit
+    # /proc/<pid>/task/<tid>/children; /proc/*/stat remains the supported source.
+    parents = {}
+    for stat in Path('/proc').glob('[0-9]*/stat'):
+        try:
+            fields = stat.read_text().rsplit(')', 1)[1].split()
+            parents[int(stat.parent.name)] = int(fields[1])
+        except (FileNotFoundError, ProcessLookupError, PermissionError):
+            pass
+    result = {os.getpid()}
+    changed = True
+    while changed:
+        added = {pid for pid, parent in parents.items() if parent in result} - result
+        changed = bool(added)
+        result |= added
+    return sorted(result - {os.getpid()})
 
 def main():
     p = argparse.ArgumentParser()
@@ -101,6 +114,7 @@ def main():
                 break
             if pid:
                 adopted.append({'pid':pid,'actual_wait_status':status})
+                log.write(f'UI adopted_actual_wait pid={pid} status={status}\n')
                 failed |= status != 0
             elif time.monotonic() < deadline:
                 time.sleep(.02)
@@ -116,7 +130,9 @@ def main():
                         pid, status = os.waitpid(-1, os.WNOHANG)
                     except ChildProcessError:
                         break
-                    if pid: adopted.append({'pid':pid,'actual_wait_status':status})
+                    if pid:
+                        adopted.append({'pid':pid,'actual_wait_status':status})
+                        log.write(f'UI adopted_actual_wait pid={pid} status={status}\n')
                     else: time.sleep(.02)
                 break
         log.flush()

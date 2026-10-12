@@ -1,7 +1,7 @@
-import { test, expect, type Response } from "@playwright/test";
-import { createHash } from "node:crypto";
+import { test, expect, type Request, type Response } from "@playwright/test";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { observeTaskRequests } from "./task-review.helpers";
 
 const states = [
   "backlog",
@@ -31,46 +31,49 @@ type Material = {
   };
 };
 
-// Each observed body is matched to the original verified-TLS handler's proof
-// from newTaskWebShell. No response, Session or browser fetch is replaced.
-async function originalJSON(response: Response) {
-  expect(response.status()).toBe(200);
-  expect(await response.finished()).toBeNull();
-  const bytes = await response.body();
-  const id = response.headers()["x-request-id"];
-  expect(id).toMatch(
-    /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
-  );
-  const url = new URL(response.url());
-  const proof = JSON.parse(
-    readFileSync(
-      join(
-        process.env.AGENTEAM_TASK_SEARCH_WEB_EVIDENCE!,
-        `task-search-server-search-beyond-first-page-response-${id}.json`,
-      ),
-      "utf8",
-    ),
-  );
-  expect(proof).toEqual({
-    input_hash: process.env.AGENTEAM_TASK_SEARCH_WEB_INPUT_HASH,
-    request_id: id,
-    method: "GET",
-    url_sha256: createHash("sha256")
-      .update(url.pathname + url.search)
-      .digest("hex"),
-    status: 200,
-    content_length: bytes.length,
-    body_sha256: createHash("sha256").update(bytes).digest("hex"),
-    original_eof: true,
-    original_closed: true,
-    handler_returned: true,
-  });
-  return JSON.parse(bytes.toString("utf8"));
+// This closed classifier admits only the original read-only navigation and
+// current Project/Sprint Task reads. No retry, lookup or business write is used.
+function classify(request: Request, data: Material): string | undefined {
+  const { pathname } = new URL(request.url());
+  if (!pathname.startsWith("/api/")) return undefined;
+  if (request.method() !== "GET") throw Error("TASK_SEARCH_WRITE_FORBIDDEN");
+  const global: Record<string, string> = {
+    "/api/v1/session": "session",
+    "/api/v1/me": "profile",
+    "/api/v1/me/preferences": "preferences",
+    "/api/v1/auth/bootstrap": "bootstrap",
+    "/api/v1/projects/resolve": "resolve",
+    "/api/v1/projects": "projects",
+  };
+  if (global[pathname]) return global[pathname];
+  const prefix = `/api/v1/projects/${data.project_id}`;
+  if (pathname === prefix) return "project";
+  if (!pathname.startsWith(prefix + "/"))
+    throw Error("TASK_SEARCH_PROJECT_SCOPE");
+  const path = pathname.slice(prefix.length);
+  const reads: Record<string, string> = {
+    "/milestones": "milestones",
+    "/sprints": "sprints",
+    "/tasks": "tasks",
+    "/agents": "agents",
+    [`/sprints/${data.sprint_id}`]: "sprint",
+    [`/tasks/${data.target.id}`]: "task",
+    [`/tasks/${data.target.id}/blockers`]: "blockers",
+    [`/tasks/${data.target.id}/events`]: "events",
+  };
+  if (reads[path]) return reads[path];
+  if (
+    /^\/milestones\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+      path,
+    )
+  )
+    return "milestone";
+  throw Error("UNOBSERVED_TASK_SEARCH_ENDPOINT");
 }
 
 test("server search reaches Tasks beyond the first page [server-search-beyond-first-page]", async ({
   page,
-}) => {
+}, testInfo) => {
   const data: Material = JSON.parse(
     readFileSync(
       join(process.env.AGENTEAM_AUTH_WEB_PRIVATE!, "task-search-material.json"),
@@ -95,6 +98,18 @@ test("server search reaches Tasks beyond the first page [server-search-beyond-fi
       secure: false,
     },
   ]);
+  const seen = await observeTaskRequests(
+    page,
+    { ...data, task_id: data.target.id },
+    {
+      dist: process.env.AGENTEAM_TASK_SEARCH_WEB_DIST!,
+      evidence,
+      inputHash: process.env.AGENTEAM_TASK_SEARCH_WEB_INPUT_HASH!,
+      prefix: "task-search",
+      endpoint: (request) => classify(request, data),
+      lookupCommand: null,
+    },
+  );
   const form = page.getByRole("search", {
     name: "Sprint 任务搜索",
     exact: true,
@@ -122,6 +137,9 @@ test("server search reaches Tasks beyond the first page [server-search-beyond-fi
       }),
     );
     const responses = await Promise.all([...waits, action()]);
+    // Use the original request terminal plus native reader/public consumer and
+    // Go EOF/Close proof. A failed terminal is never treated as requestfinished.
+    await seen.verify();
     for (let n = 0; n < states.length; n++) {
       const response = responses[n] as Response;
       const query = new URL(response.url()).searchParams;
@@ -129,7 +147,7 @@ test("server search reaches Tasks beyond the first page [server-search-beyond-fi
       expect(query.get("limit")).toBe("50");
       expect(query.has("cursor")).toBe(false);
       expect(query.has("text")).toBe(text !== "");
-      const value = await originalJSON(response);
+      const value = seen.taskSearchRead(response.request());
       const ids = value.items.map(
         (row: {
           id: string;
@@ -222,7 +240,7 @@ test("server search reaches Tasks beyond the first page [server-search-beyond-fi
       detail,
       columns(data.terms[0]!, () => target.click()),
     ]);
-    expect(await originalJSON(response)).toEqual(data.target);
+    expect(seen.taskSearchRead(response.request())).toEqual(data.target);
     const drawer = page.getByRole("dialog", { name: "任务详情", exact: true });
     await expect(
       drawer.getByRole("heading", { name: data.target.title, exact: true }),
@@ -245,20 +263,25 @@ test("server search reaches Tasks beyond the first page [server-search-beyond-fi
     await screenshot("clear-narrow-dark");
     expect(faults).toEqual([]);
   } finally {
-    page.off("pageerror", onError);
-    mkdirSync(evidence, { recursive: true, mode: 0o700 });
-    writeFileSync(
-      join(evidence, "task-search-browser-observations.json"),
-      JSON.stringify(
-        {
-          input_hash: process.env.AGENTEAM_TASK_SEARCH_WEB_INPUT_HASH,
-          observations,
-          faults,
-        },
-        null,
-        2,
-      ) + "\n",
-      { mode: 0o600 },
-    );
+    try {
+      await seen.retire();
+    } finally {
+      seen.save(testInfo.status);
+      page.off("pageerror", onError);
+      mkdirSync(evidence, { recursive: true, mode: 0o700 });
+      writeFileSync(
+        join(evidence, "task-search-browser-observations.json"),
+        JSON.stringify(
+          {
+            input_hash: process.env.AGENTEAM_TASK_SEARCH_WEB_INPUT_HASH,
+            observations,
+            faults,
+          },
+          null,
+          2,
+        ) + "\n",
+        { mode: 0o600 },
+      );
+    }
   }
 });

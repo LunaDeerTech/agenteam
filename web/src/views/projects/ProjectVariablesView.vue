@@ -6,7 +6,8 @@ import { useProjectVariables } from '../../composables/useProjectVariables'
 const owner = useProjectVariables(),
   detailHeading = ref<HTMLElement | null>(null),
   createButton = ref<{ $el: HTMLButtonElement } | null>(null),
-  editButton = ref<{ $el: HTMLButtonElement } | null>(null)
+  editButton = ref<{ $el: HTMLButtonElement } | null>(null),
+  deleteButton = ref<{ $el: HTMLButtonElement } | null>(null)
 watch(
   () => [owner.detail.phase, owner.detail.variable?.id, owner.detail.variable?.version] as const,
   async () => {
@@ -21,6 +22,23 @@ async function cancel() {
     await nextTick()
     if (owner.visible.value) (create ? createButton : editButton).value?.$el.focus()
   }
+}
+async function confirmDelete() {
+  const original = owner.detail.variable,
+    trigger = deleteButton.value?.$el
+  await owner.deleteVariable()
+  // Closing the dialog restores focus before Vue re-enables this sibling button.
+  await nextTick()
+  if (
+    owner.visible.value &&
+    owner.canDelete.value &&
+    owner.detail.variable === original &&
+    trigger === deleteButton.value?.$el &&
+    trigger?.isConnected &&
+    !trigger.disabled &&
+    !trigger.closest('[inert]')
+  )
+    trigger.focus({ preventScroll: true })
 }
 watch(
   () => owner.message.value,
@@ -162,9 +180,10 @@ watch(
             >编辑变量</UiButton
           >
           <UiButton
+            ref="deleteButton"
             variant="danger"
             :disabled="!owner.canDelete.value"
-            @click="owner.deleteVariable()"
+            @click="confirmDelete"
             >删除变量</UiButton
           >
         </template>

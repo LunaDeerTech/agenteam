@@ -1874,6 +1874,7 @@ export type TaskObservationProfile = {
   prefix:
     | "task-review"
     | "task-intake"
+    | "task-search"
     | "task-edit"
     | "agent-configuration"
     | "agent-edit"
@@ -2092,6 +2093,12 @@ export async function observeTaskRequests(
   data: TaskObservationMaterial,
   profile: TaskObservationProfile,
 ) {
+  if (profile.prefix === "task-search") {
+    const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand"];
+    if (profile.lookupCommand !== null || data.mode !== "server-search-beyond-first-page" ||
+        !data.task_id || !data.sprint_id || Object.keys(profile).some(key => !allowed.includes(key)))
+      throw Error("TASK_SEARCH_READ_PROFILE_MISMATCH");
+  }
   requireSecretWriteProfile(profile, data);
   requireUsageReadProfile(profile, data);
   requireAgentRunnerProfile(profile, data);
@@ -2588,7 +2595,7 @@ export async function observeTaskRequests(
           intakeWrites: profile.intakeWrites === true,
           agentConfiguration: profile.agentConfiguration === true,
           editTask: profile.editWrites ? data.task_id : undefined,
-          timelineTask: profile.timelineReads ? data.task_id : undefined,
+          timelineTask: profile.timelineReads || profile.prefix === "task-search" ? data.task_id : undefined,
           editAgent:
             profile.agentEditWrites || profile.agentModelPolicy
               ? data.agent_id
@@ -2725,6 +2732,15 @@ export async function observeTaskRequests(
         entry.request.method() === "POST" &&
         url.pathname === `${prefix}/agent-commands/lookup`)
     );
+  }
+
+  function taskSearchReadEntry(entry: Entry) {
+    if (profile.prefix !== "task-search" || entry.request.method() !== "GET") return false;
+    const path = new URL(entry.request.url()).pathname;
+    const prefix = `/api/v1/projects/${data.project_id}/tasks`;
+    return (entry.name === "tasks" && path === prefix) ||
+      (entry.name === "task" && path === `${prefix}/${data.task_id}`) ||
+      (entry.name === "events" && path === `${prefix}/${data.task_id}/events`);
   }
 
   function timelinePageRead(entry: Entry) {
@@ -2998,6 +3014,7 @@ export async function observeTaskRequests(
     expect(c.typed).not.toBeNull();
     expect(c.typed_digest).toMatch(/^[0-9a-f]{64}$/);
     expect(n.typed_digest).toBe(c.typed_digest);
+    if (taskSearchReadEntry(entry)) expect(c.kind).toBe(`work.${entry.name}`);
     if (timelinePageRead(entry)) expect(c.kind).toBe("work.events");
     if (skillsPageRead(entry))
       expect(c.kind).toBe(
@@ -3320,6 +3337,7 @@ export async function observeTaskRequests(
         agentWrite(entry) ||
         agentPageRead(entry) ||
         timelinePageRead(entry) ||
+        taskSearchReadEntry(entry) ||
         skillsPageRead(entry)
       ) {
         // Even genuine requestfinished must match the original public value
@@ -3368,6 +3386,19 @@ export async function observeTaskRequests(
       .filter((entry) => entry.name === name)
       .map((entry) => entry.request);
   }
+  function taskSearchRead(request: Request): Record<string, any> {
+    if (profile.prefix !== "task-search") throw Error("TASK_SEARCH_READ_PROFILE_REQUIRED");
+    // Preserve the original Playwright Request identity, including repeated
+    // equal-URL reads after navigation. Never issue a replacement read.
+    const values = entries.filter(entry => entry.request === request);
+    expect(values).toHaveLength(1);
+    const entry = values[0]!;
+    expect(taskSearchReadEntry(entry) && entry.checked).toBe(true);
+    expect(entry.requestID).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+    expect(entry.body).toBeTruthy();
+    return entry.body as Record<string, any>;
+  }
+
   function originalLookup() {
     if (profile.lookupCommand === null)
       throw Error("TASK_TIMELINE_HAS_NO_WRITE_LOOKUP");
@@ -3725,6 +3756,7 @@ export async function observeTaskRequests(
     receipt,
     originalLookup,
     requests,
+    taskSearchRead,
     agentOption,
     agentRead,
     sprintRead,
