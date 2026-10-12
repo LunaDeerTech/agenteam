@@ -58,6 +58,13 @@ func (s *TaskService) executeTask(ctx context.Context, a i.Actor, m f.CommandMet
 		return c.TaskMutation{}, err
 	}
 	q := c.TaskCommandLookupRequest{ProjectID: in.Project, Command: in.Command, IdempotencyKey: key, SemanticDigest: semantic}
+	entry.project, entry.class = in.Project, projectCallMutation
+	if owned := s.state().ownership; owned != nil {
+		ctx, err = owned.admit(ctx, entry, a, projectCallTask)
+		if err != nil {
+			return c.TaskMutation{}, err
+		}
+	}
 	for round := 0; round < 3; round++ {
 		var source taskGroup
 		if in.Create != nil {
@@ -297,6 +304,11 @@ func mapTaskConflict(err error, in taskInput) error {
 	return err
 }
 func (s *TaskService) taskCurrent(ctx context.Context, tx f.Tx, a i.Actor, q c.TaskCommandLookupRequest) (postgres.SQLExecutor, *taskRecord, *c.TaskMutation, error) {
+	if owned := s.state().ownership; owned != nil {
+		if err := owned.requireRunning(ctx, tx, q.ProjectID, projectCallTask); err != nil {
+			return nil, nil, nil, err
+		}
+	}
 	x, err := s.state().store.InTx(tx)
 	if err != nil {
 		return nil, nil, nil, portError(err)
@@ -335,7 +347,7 @@ func (s *TaskService) taskCurrent(ctx context.Context, tx f.Tx, a i.Actor, q c.T
 	return x, r, nil, nil
 }
 func (s *TaskService) LookupTaskCommand(ctx context.Context, a i.Actor, q c.TaskCommandLookupRequest) (c.TaskCommandLookup, error) {
-	ctx, _, done, err := s.begin(ctx)
+	ctx, entry, done, err := s.begin(ctx)
 	if err != nil {
 		return c.TaskCommandLookup{}, err
 	}
@@ -345,6 +357,13 @@ func (s *TaskService) LookupTaskCommand(ctx context.Context, a i.Actor, q c.Task
 	}
 	if err = q.Validate(); err != nil {
 		return c.TaskCommandLookup{}, err
+	}
+	entry.project, entry.class = q.ProjectID, projectCallRead
+	if owned := s.state().ownership; owned != nil {
+		ctx, err = owned.admit(ctx, entry, a, projectCallTask)
+		if err != nil {
+			return c.TaskCommandLookup{}, err
+		}
 	}
 	return s.lookupTask(ctx, a, q)
 }
@@ -391,7 +410,18 @@ func (s *TaskService) confirmTaskUnknown(ctx context.Context, entry *call, a i.A
 		cancel()
 	}
 	st.mu.Unlock()
-	defer func() { cancel(); st.mu.Lock(); delete(entry.confirmations, token); st.mu.Unlock() }()
+	if st.ownership != nil {
+		st.ownership.confirmation(entry, token, true)
+	}
+	defer func() {
+		cancel()
+		if st.ownership != nil {
+			st.ownership.confirmation(entry, token, false)
+		}
+		st.mu.Lock()
+		delete(entry.confirmations, token)
+		st.mu.Unlock()
+	}()
 	out, err := s.lookupTask(confirm, a, q)
 	if err != nil {
 		return c.TaskMutation{}, txError(original)

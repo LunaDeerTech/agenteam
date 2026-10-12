@@ -53,6 +53,13 @@ func (s *BlockerService) executeBlocker(ctx context.Context, a i.Actor, m f.Comm
 	}
 	q := c.TaskBlockerCommandLookupRequest{ProjectID: in.Project, Command: in.Command, IdempotencyKey: m.IdempotencyKey, SemanticDigest: semantic}
 	st := s.state()
+	entry.project, entry.class = in.Project, projectCallMutation
+	if st.ownership != nil {
+		ctx, err = st.ownership.admit(ctx, entry, a, projectCallBlocker)
+		if err != nil {
+			return c.TaskBlockerMutation{}, err
+		}
+	}
 	for round := 0; round < 3; round++ {
 		var source c.SprintID
 		var replay *c.TaskBlockerMutation
@@ -285,6 +292,11 @@ func blockerTaskGate(t c.Task, expected f.Version) error {
 }
 
 func (s *BlockerService) blockerCurrent(ctx context.Context, tx f.Tx, a i.Actor, q c.TaskBlockerCommandLookupRequest) (postgres.SQLExecutor, *blockerRecord, *c.TaskBlockerMutation, error) {
+	if owned := s.state().ownership; owned != nil {
+		if err := owned.requireRunning(ctx, tx, q.ProjectID, projectCallBlocker); err != nil {
+			return nil, nil, nil, err
+		}
+	}
 	x, e := s.state().store.InTx(tx)
 	if e != nil {
 		return nil, nil, nil, portError(e)
@@ -320,7 +332,7 @@ func (s *BlockerService) blockerCurrent(ctx context.Context, tx f.Tx, a i.Actor,
 	return x, r, nil, nil
 }
 func (s *BlockerService) LookupTaskBlockerCommand(ctx context.Context, a i.Actor, q c.TaskBlockerCommandLookupRequest) (c.TaskBlockerCommandLookup, error) {
-	ctx, _, done, e := s.begin(ctx)
+	ctx, entry, done, e := s.begin(ctx)
 	if e != nil {
 		return c.TaskBlockerCommandLookup{}, e
 	}
@@ -330,6 +342,13 @@ func (s *BlockerService) LookupTaskBlockerCommand(ctx context.Context, a i.Actor
 	}
 	if e = q.Validate(); e != nil {
 		return c.TaskBlockerCommandLookup{}, e
+	}
+	entry.project, entry.class = q.ProjectID, projectCallRead
+	if owned := s.state().ownership; owned != nil {
+		ctx, e = owned.admit(ctx, entry, a, projectCallBlocker)
+		if e != nil {
+			return c.TaskBlockerCommandLookup{}, e
+		}
 	}
 	return s.lookupBlocker(ctx, a, q)
 }
@@ -376,7 +395,18 @@ func (s *BlockerService) confirmBlockerUnknown(ctx context.Context, entry *call,
 		cancel()
 	}
 	st.mu.Unlock()
-	defer func() { cancel(); st.mu.Lock(); delete(entry.confirmations, token); st.mu.Unlock() }()
+	if st.ownership != nil {
+		st.ownership.confirmation(entry, token, true)
+	}
+	defer func() {
+		cancel()
+		if st.ownership != nil {
+			st.ownership.confirmation(entry, token, false)
+		}
+		st.mu.Lock()
+		delete(entry.confirmations, token)
+		st.mu.Unlock()
+	}()
 	out, e := s.lookupBlocker(confirm, a, q)
 	if e != nil {
 		return c.TaskBlockerMutation{}, txError(original)

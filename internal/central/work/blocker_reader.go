@@ -169,7 +169,7 @@ func loadBlocker(ctx context.Context, s *blockerScope, id c.TaskBlockerID) (*blo
 }
 
 func (s *BlockerService) ListTaskBlockers(ctx context.Context, a i.Actor, p c.ProjectID, t c.TaskID, status c.TaskBlockerStatus) ([]c.TaskBlocker, error) {
-	ctx, _, done, e := s.begin(ctx)
+	ctx, entry, done, e := s.begin(ctx)
 	if e != nil {
 		return nil, e
 	}
@@ -188,10 +188,22 @@ func (s *BlockerService) ListTaskBlockers(ctx context.Context, a i.Actor, p c.Pr
 	if e != nil {
 		return nil, e
 	}
+	entry.project, entry.class = p, projectCallRead
+	if owned := s.state().ownership; owned != nil {
+		ctx, e = owned.admit(ctx, entry, a, projectCallBlocker)
+		if e != nil {
+			return nil, e
+		}
+	}
 	out := []c.TaskBlocker{}
 	result := s.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		if e := s.state().store.AcquireAll(ctx, tx, locks); e != nil {
 			return portError(e)
+		}
+		if owned := s.state().ownership; owned != nil {
+			if e := owned.requireRunning(ctx, tx, p, projectCallBlocker); e != nil {
+				return e
+			}
 		}
 		scope, e := s.state().deps.Authority.blockerScope(ctx, tx, a, p, t, false)
 		if e != nil {

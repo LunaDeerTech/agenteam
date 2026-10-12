@@ -20,12 +20,13 @@ type TaskDependencies struct {
 }
 type TaskService struct{ data func() *taskServiceState }
 type taskServiceState struct {
-	store   Store
-	deps    TaskDependencies
-	mu      sync.Mutex
-	stopped bool
-	calls   map[*call]struct{}
-	changed chan struct{}
+	ownership *projectCallOwnershipState
+	store     Store
+	deps      TaskDependencies
+	mu        sync.Mutex
+	stopped   bool
+	calls     map[*call]struct{}
+	changed   chan struct{}
 }
 
 func NewTask(store Store, deps TaskDependencies) (*TaskService, error) {
@@ -63,12 +64,18 @@ func (s *TaskService) begin(ctx context.Context) (context.Context, *call, func()
 	var once sync.Once
 	done := func() {
 		once.Do(func() {
+			if st.ownership != nil {
+				st.ownership.finish(entry)
+			}
 			cancel()
 			st.mu.Lock()
 			delete(st.calls, entry)
 			close(st.changed)
 			st.changed = make(chan struct{})
 			st.mu.Unlock()
+			if st.ownership != nil {
+				st.ownership.returned(entry)
+			}
 		})
 	}
 	return run, entry, done, nil
@@ -97,6 +104,9 @@ func (s *TaskService) Drain(ctx context.Context) error {
 		st.mu.Lock()
 		if len(st.calls) == 0 {
 			st.mu.Unlock()
+			if st.ownership != nil && !st.ownership.laneJoined(projectCallTask) {
+				return st.ownership.drainReturned(ctx, projectCallTask)
+			}
 			return nil
 		}
 		changed := st.changed

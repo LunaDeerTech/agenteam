@@ -47,7 +47,7 @@ func (s *SprintLifecycleService) Drain(ctx context.Context) error {
 	if s == nil || s.base == nil {
 		return nil
 	}
-	return s.base.Drain(ctx)
+	return s.base.drain(ctx, projectCallSprint)
 }
 func (s *SprintLifecycleService) StartSprint(ctx context.Context, actor i.Actor, meta f.CommandMeta, project c.ProjectID, sprint c.SprintID) (c.SprintStartMutation, error) {
 	if !s.bound() {
@@ -81,6 +81,13 @@ func (s *SprintLifecycleService) StartSprint(ctx context.Context, actor i.Actor,
 	}
 	q := c.SprintStartLookupRequest{ProjectID: project, Key: key, Semantic: semantic}
 	st := s.base.state()
+	entry.project, entry.class = project, projectCallMutation
+	if st.ownership != nil {
+		ctx, err = st.ownership.admit(ctx, entry, actor, projectCallSprint)
+		if err != nil {
+			return c.SprintStartMutation{}, err
+		}
+	}
 	for range 3 {
 		var prepared *sprintStartRecord
 		var completed *c.SprintStartMutation
@@ -263,6 +270,11 @@ func (s *SprintLifecycleService) StartSprint(ctx context.Context, actor i.Actor,
 }
 func (s *SprintLifecycleService) current(ctx context.Context, tx f.Tx, actor i.Actor, q c.SprintStartLookupRequest) (postgres.SQLExecutor, pc.ProjectRef, *sprintStartRecord, *c.SprintStartMutation, error) {
 	st := s.base.state()
+	if st.ownership != nil {
+		if err := st.ownership.requireRunning(ctx, tx, q.ProjectID, projectCallSprint); err != nil {
+			return nil, pc.ProjectRef{}, nil, nil, err
+		}
+	}
 	x, err := st.store.InTx(tx)
 	if err != nil {
 		return nil, pc.ProjectRef{}, nil, nil, portError(err)
@@ -306,11 +318,18 @@ func (s *SprintLifecycleService) LookupStartSprint(ctx context.Context, actor i.
 	if err := q.Validate(); err != nil {
 		return c.SprintStartLookup{}, err
 	}
-	ctx, _, done, err := s.base.begin(ctx)
+	ctx, entry, done, err := s.base.begin(ctx)
 	if err != nil {
 		return c.SprintStartLookup{}, err
 	}
 	defer done()
+	entry.project, entry.class = q.ProjectID, projectCallRead
+	if owned := s.base.state().ownership; owned != nil {
+		ctx, err = owned.admit(ctx, entry, actor, projectCallSprint)
+		if err != nil {
+			return c.SprintStartLookup{}, err
+		}
+	}
 	return s.lookup(ctx, actor, q)
 }
 func (s *SprintLifecycleService) lookup(ctx context.Context, actor i.Actor, q c.SprintStartLookupRequest) (c.SprintStartLookup, error) {
@@ -360,7 +379,18 @@ func (s *SprintLifecycleService) confirm(ctx context.Context, entry *call, actor
 		cancel()
 	}
 	st.mu.Unlock()
-	defer func() { cancel(); st.mu.Lock(); delete(entry.confirmations, token); st.mu.Unlock() }()
+	if st.ownership != nil {
+		st.ownership.confirmation(entry, token, true)
+	}
+	defer func() {
+		cancel()
+		if st.ownership != nil {
+			st.ownership.confirmation(entry, token, false)
+		}
+		st.mu.Lock()
+		delete(entry.confirmations, token)
+		st.mu.Unlock()
+	}()
 	value, err := s.lookup(run, actor, q)
 	if err != nil {
 		return c.SprintStartMutation{}, txError(original)

@@ -43,14 +43,18 @@ func (a *Authority) state() *authorityState {
 
 type Service struct{ data func() *serviceState }
 type serviceState struct {
-	store   Store
-	deps    Dependencies
-	mu      sync.Mutex
-	stopped bool
-	calls   map[*call]struct{}
-	changed chan struct{}
+	ownership *projectCallOwnershipState
+	store     Store
+	deps      Dependencies
+	mu        sync.Mutex
+	stopped   bool
+	calls     map[*call]struct{}
+	changed   chan struct{}
 }
 type call struct {
+	project       c.ProjectID
+	class         projectCallClass
+	owner         *projectCallOwner
 	cancel        context.CancelFunc
 	confirmations map[*confirmation]struct{}
 }
@@ -91,12 +95,18 @@ func (s *Service) begin(ctx context.Context) (context.Context, *call, func(), er
 	var once sync.Once
 	done := func() {
 		once.Do(func() {
+			if st.ownership != nil {
+				st.ownership.finish(entry)
+			}
 			cancel()
 			st.mu.Lock()
 			delete(st.calls, entry)
 			close(st.changed)
 			st.changed = make(chan struct{})
 			st.mu.Unlock()
+			if st.ownership != nil {
+				st.ownership.returned(entry)
+			}
 		})
 	}
 	return run, entry, done, nil
@@ -117,6 +127,9 @@ func (s *Service) Stop() {
 	}
 }
 func (s *Service) Drain(ctx context.Context) error {
+	return s.drain(ctx, projectCallStructure)
+}
+func (s *Service) drain(ctx context.Context, lane projectCallLane) error {
 	st := s.state()
 	if st == nil {
 		return nil
@@ -125,6 +138,9 @@ func (s *Service) Drain(ctx context.Context) error {
 		st.mu.Lock()
 		if len(st.calls) == 0 {
 			st.mu.Unlock()
+			if st.ownership != nil && !st.ownership.laneJoined(lane) {
+				return st.ownership.drainReturned(ctx, lane)
+			}
 			return nil
 		}
 		changed := st.changed
