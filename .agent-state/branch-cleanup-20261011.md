@@ -239,3 +239,12 @@ Agent最终 `149fa2137235a11e78f6be5deefe86c39f491cfd`（受测 `153232f6`）正
 [原样保全](../output/ai/retired-20261012/runner-read-file-app-preservation/result.json)原27518/f27d37实际0，child1238487 Wait0/10.543s：同FS NOREPLACE迁154文件/121,577,374B/16目录，path/SHA/stat/inode全等；44maps含2066个main Git历史版本+1个唯一未提交README的精确SHA重构副本，2231外部输入不冒Git恢复；双binary/descriptor、四tmp副本9,748B、原tmp与全部FAIL/Wait保留。重构3faa来源与非原blob/inode限制见[恢复说明](runner-read-file-app/README.md#主线交付与原件恢复)。
 
 独核48ed09接受后，[普通清理](../output/ai/runner-read-file-app-delivery/cleanup01/result.json)原48056/5a7423实际0：worktree remove与local branch-d均0，fresh feature远端前后为空，显式main/ai prune、本地与tracking均空；未人为推临时feature，不计远端删除。本次仅+1树/+1本地，累计 **49 WorkTrees / 50本地分支 / 85远端引用**，legacy135待核/keep1不变。Variables已独立合入此main并完成BASE差额静审，当前d3548d42清洁尚未Go；其新树不计清理。全部既有STOP与整体目标未完成保持。
+
+
+## 2026-10-12 Variables项目业务调用归属实际清理
+
+受测 `a64ed9e2983d162457190e40d18e96f5280415f2` 与最终两文档 `e56138c449d913115dfe9134f9994f34b8c083f5` 正常 no-ff 合入 main `9293ace4604b11529293ac6b26cb4c266ea65b2f`，有序父为原 main6c4cf6a1 与 e561；[原集成](../output/ai/variable-project-call-ownership-delivery/integrate01/result.json)423613 actual0确认全部技术 blobs 等受测，原 d3548 basic01 FAIL 与修正历史完整可达。main [push/fresh/tracking](../output/ai/variable-project-call-ownership-delivery/push01/result.json) 原62632/5b6b22 actual0；未发布临时 feature。12top38sub/2vet、controls/compile/list 及 native01 原66862/c2458c 1top3sub wholePASS沿原有限验收，不冒 App/完整participant或D04全局join。
+
+[精确保全](../output/ai/retired-20261012/variable-project-call-ownership-preservation/result.json)原59235/a410e6 actual0，outer1266458/child1266461 Wait0/4.348s：121files/100,060,633B/13dirs同FS NOREPLACE，全部path SHA/stat/inode前后同。31图中的2070repo版本main Git可恢复，无重构例外；单binary、原basic01 FAIL与所有PASS/Wait/fouridentity均保留。4tmp副本8416B且原tmp保留；2external仅原路径实际hash/stat保护，不冒Git或包体归档。独立c7c1b3接受后才清理；已知PID核与owner声明不冒全局FD证明。
+
+[普通清理](../output/ai/variable-project-call-ownership-delivery/cleanup01/result.json)原90676/a2f8dc actual0：仅旧 `/workspace/agenteam-variable-project-call-ownership` 普通worktree remove及 `ai/variable-project-call-ownership-20261012` 普通branch-d；fresh远端前后为空，显式main/ai fetch-prune后local/tracking空。未创建远端，也没有远端删除。实际仅+1树/+1本地，累计 **50 WorkTrees / 51本地分支 / 85远端引用**，legacy135待核/keep1不变。新App树从已交main9293创建并单卡1278866d后静态实施，未Go、不计清理；全部FAIL/STOP/保护依赖与整体目标未完成保持。
