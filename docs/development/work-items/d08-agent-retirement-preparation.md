@@ -1,6 +1,6 @@
 # Project 原停止轮次授权的 Agent 退役准备快照
 
-状态：限定实施已获授权，尚未运行本片验收。工作树 `/workspace/agenteam-agent-retirement-preparation`，分支 `ai/agent-retirement-preparation-20261012`，创建基线 `db80a9c4d0f2863c6246adfea8949229086aa858`。只提供真实 Project Delete 执行 owner 的同步读取能力，为后继合法 retirement phase 提供完整配置前像；不报告 Agent 已退休，不改 canonical、当前引用或历史，不新增迁移、App 默认接线、后台 worker、phase 枚举或完整 LifecycleRegistry。
+状态：限定实现与实际验收已通过，受测版本 `0c8532d881ef8688ca9e3b711ea5e387690f10c7`，待正式主线交付。工作树 `/workspace/agenteam-agent-retirement-preparation`，分支 `ai/agent-retirement-preparation-20261012`，创建基线 `db80a9c4d0f2863c6246adfea8949229086aa858`。只提供真实 Project Delete 执行 owner 的同步读取能力，为后继合法 retirement phase 提供完整配置前像；不报告 Agent 已退休，不改 canonical、当前引用或历史，不新增迁移、App 默认接线、后台 worker、phase 枚举或完整 LifecycleRegistry。
 
 ## 可调用链与所有权
 
@@ -47,3 +47,10 @@ Project owner只承认这个 driver 原活动 scope；Agent reader必须用具�
 - **原返回**：真实读取在同步 loan callback 内完成后，保留该原 callback 的实际返回屏障；即使 step先返、Stop或截止时间发生，原 Run/Drain仍 pending。释放并亲收这个 callback及原 owner.With方法返回后，scope才退出、原 claim attempt 才可 terminal。该 PG不声称 hold 内核SQL，也不把 reader已返回之后的上层 Store.WithinTx返回尾算 loan未返。全部实际资源退出，失败保留尚未Join的原owner；不把attempt终局扩成Agent退休或participant停止。
 
 Agent active→deleting/version推进及各领域完整 before/after refs退休仍属于后继正式设计；本片不先写这个 mutation，也不将快照或无 Work指派解释为删除许可。
+
+
+## 实际验收结果
+
+受测版本的 basic 原58407/0d7f8c实际0：9top/41sub全部通过，Project与Agent两包race及两包vet通过，535输入六图和13项外层输入相同。原98657/6f2eff实际0完成1正/7反控制、单PG binary编译、精确list及fresh prepare；2080编译输入仅加原binary成为2081运行输入，29项外层输入相同。见[方法与原件索引](../../../.agent-state/agent-retirement-preparation/README.md#actual-validation)。
+
+首次native原71336/d2c944实际0，supervisor1478997原Wait0/138.852s，driver1478998与Go1480740均原Wait0；1top/3sub实际35.24s（12.42/12.13/10.69s）。[原post](../../../output/ai/agent-retirement-preparation/native01/post-check.json)确认2081输入/四身份、受测HEAD、7资源14次absence、desc/private/runtime双空及原75s门内TCP双空，未报告race。只证明受控accepted Delete前置后的真实StopDriver→stopping/running claim→原Tx完整配置读取，以及读取后同步loan callback的实际返回阻住Run/Drain和attempt checkpoint；不冒内核SQL持有或外层Store返回尾。配置、引用与历史未退休，其他participant仍required；本结果不授Agent删除，不包含生产BeginDelete、完整LifecycleRegistry或Project创建HTTP/完整production Skills验收，全部既有STOP保持。
