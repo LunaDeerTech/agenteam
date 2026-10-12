@@ -272,6 +272,16 @@ D04 沿现有每批 100 条的头扫描与 FK 顺序清理 Project credential、
 
 本片无迁移，不开放默认完整 Registry，不清 System 或另一 Project，不替代 Artifact/Object、Outbox、Audit 与 finalizer。母终局与其它域的既有受控前置和真实结果分别保留；本节为实施合同，尚不宣称 Secret 动态验收通过。
 
+### Artifact/Object 实际清理与 Outbox 交接（候选）
+
+固定组合只调用原 Artifact.CleanupProject，由它消费同 Store、同一个原 Object Service；不另起第二次 Object 清理。首片覆盖真实 Human inline/upload 的 Artifact、Object/MinIO、metadata 和 download 清理。每个原事务及 Unknown 只读确认均要求 Project EX、当前 Delete/operation/version、完整 manifest、全部 stop、声明前驱和当前 ArtifactObject 私有 claim，并绑定母 participant 的原 schema 6；公开 cause、Service 名称或空表都不能代替授权。Secret 与 Artifact/Object 是业务 owner 之后的兄弟依赖，固定 driver 先 Secret 后 Artifact 不增加 manifest 依赖。
+
+Artifact 在任何 metadata mutation 前按原锁和当前 gate 检查 source/lease；尚未确认的 source 或活句柄保留 Pending，本片不先调用旧 CancelSourceLease 再吞掉 Unknown。仅清理路径保存原 provider attempt/cause 与原调用归属，首次 Unknown 立即停止后续变更；下一显式调用仅重新授权并只读确认，原确认实际返回后才能释放该 owner，再由后继调用继续。Object 停止后的维护只接受其私有 cleanup context，并在同事务重核当前 Project 清理 gate；普通维护和既有 Skill/Runner 例外不扩大。
+
+Artifact 的原 provider 调用返回后，Project 才能保存该 participant Completed；仅全部其它业务 domain 已真实 Completed 时，同一个 checkpoint 事务推进至 outbox，否则留在 domains。所有 CleanupDriver.Run 共用原 LifecycleAuthority 的短期项目调用登记，在首 SQL 前占用、原 Run 退出时释放：同 P 的另一 driver 在原 checkpoint Store 返回仍在途时 Busy，另一 P 可进入；登记最多保留四个正在执行的项目，不持久保存，不代替 SQL current claim，也不改变 Unknown 原 owner。后继 Outbox 仍使用其原 cleanup gate 与实际返回。
+
+本片 adapter 的 Artifact RequestStop/InspectStop 明确 DependencyUnbound。真实验收若使用受控 acceptedDelete 或 Artifact stop 前置，必须与真实 cleanup 结果分开表述；不称默认完整 Delete。真正 Artifact 项目停止、source typed loan、默认 App 的 ProjectCleanupAccess/Artifact 路由及完整 Registry/finalizer 是后继明确缺口。本片不修改默认 App 装配、不恢复旧 Object 网络 probe STOP；本节尚不宣称动态验收通过。
+
 ### 9.1 D05 项目停止能力
 
 固定 D05 只有 CleanupProject，没有项目范围 RequestStop/InspectStop。下列 C0 已经独立定向审查并由 root 采纳，代码依据为 `6319d03`；typed 口实现与真实 D05 stop/inspect 分阶段交付，契约成立不代表停止能力已绑定。Project 不越域查表推断空闲。
