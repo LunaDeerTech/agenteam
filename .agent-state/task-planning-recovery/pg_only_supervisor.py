@@ -199,6 +199,11 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestAgentProjectCallOwnership$': frozenset((
+        'TestAgentProjectCallOwnership',
+        'TestAgentProjectCallOwnership/local-original-return-and-terminal-fence',
+        'TestAgentProjectCallOwnership/foreign-death-before-original-sql-terminal',
+    )),
     '^TestAgentProjectLocalStop$': frozenset((
         'TestAgentProjectLocalStop',
         'TestAgentProjectLocalStop/archive-original-mutation-and-project-isolation',
