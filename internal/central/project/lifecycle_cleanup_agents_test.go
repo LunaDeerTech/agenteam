@@ -110,13 +110,22 @@ func TestLifecycleCleanupAgentsRejectsCheckpointDrift(t *testing.T) {
 			return bytes.Replace(b, []byte(`"skills_state":"pending"`), []byte(`"skills_state":"completed"`), 1)
 		}},
 		{"bad-anchor", func(b []byte) []byte {
-			var d agentsCleanupCheckpoint
-			if err := json.Unmarshal(b, &d); err != nil {
+			// Use valid JSON in canonical field order, with only the Agent ID
+			// invalid. Zero typed IDs/versions would fail Marshal before the
+			// checkpoint's typed parser was ever reached.
+			anchor := struct {
+				Agent   string `json:"agent_id"`
+				Version string `json:"version"`
+				Command string `json:"command_id"`
+				Digest  string `json:"before_digest"`
+			}{"invalid-agent-id", "1", testID[ac.AgentCommand](t).String(), "sha256:" + string(bytes.Repeat([]byte("a"), 64))}
+			raw, err := json.Marshal(anchor)
+			if err != nil {
 				t.Fatal(err)
 			}
-			d.Applied = &agentCleanupApplied{}
-			out, _ := json.Marshal(d)
-			return out
+			field := append([]byte(`"agent_applied":`), raw...)
+			field = append(field, []byte(`,"skills_progress":`)...)
+			return bytes.Replace(b, []byte(`"skills_progress":`), field, 1)
 		}},
 	} {
 		t.Run(tc.name, func(t *testing.T) {

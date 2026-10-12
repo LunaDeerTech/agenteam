@@ -202,6 +202,15 @@ func retirementRefCode(err error, code f.Code) bool {
 	return errors.As(err, &fault) && fault.Code == code
 }
 
+// SQL/cancellation causes stay private in this package: the public error must
+// not unwrap them. Inspect only the existing private cell to prove that the
+// original returned failure was retained, without publishing its contents.
+func retirementRefPrivateError(err, original error) bool {
+	var hidden privateFailure
+	return retirementRefCode(err, f.DependencyUnavailable) && !errors.Is(err, original) &&
+		errors.As(err, &hidden) && hidden.value != nil && errors.Is(hidden.value(), original)
+}
+
 func TestProjectAgentRetirementSecretRequiresAppliedOwner(t *testing.T) {
 	for _, mode := range []string{"foreign-tx", "expired-tx", "project-sh", "schedule-sh", "agent-sh", "expired-owner", "public-dto", "cancelled", "nil-context"} {
 		t.Run(mode, func(t *testing.T) {
@@ -296,7 +305,7 @@ func TestProjectAgentRetirementSecretConfirmationAndOriginalReturn(t *testing.T)
 		select {
 		case err := <-done:
 			joined = true
-			if !errors.Is(err, context.Canceled) || s.writes != 0 {
+			if !retirementRefPrivateError(err, context.Canceled) || s.writes != 0 {
 				t.Fatal("cancelled original read published completion", err)
 			}
 		case <-time.After(time.Second):
@@ -356,7 +365,7 @@ func TestProjectAgentRetirementSecretRequiresCompleteBefore(t *testing.T) {
 			if mode != "delete-count-miss" && s.writes != 0 {
 				t.Fatal("rejected Secret preimage reached delete")
 			}
-			if mode == "original-scan-error" && !errors.Is(err, sentinel) {
+			if mode == "original-scan-error" && !retirementRefPrivateError(err, sentinel) {
 				t.Fatal("original Scan error lost", err)
 			}
 		})
