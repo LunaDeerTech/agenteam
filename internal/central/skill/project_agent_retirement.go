@@ -8,9 +8,10 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 )
 
-// Only an actual disabled initialization head with no assignments or runtime
-// history can retire here. Existing immutable-grant triggers remain intact;
-// enabled initial grants and later commands require their own future cleanup.
+// Only an unchanged initialization head and its optional initial grant can
+// retire here. Later assignments, commands and runtime history stay protected.
+// The initial grant's narrow Project-only database exception is not authority;
+// both shapes consume the same original private Applied witness below.
 type ProjectAgentRetirementReferences struct {
 	store Store
 	owner ac.ProjectRetirementOwner
@@ -61,8 +62,21 @@ func (s *ProjectAgentRetirementReferences) executor(ctx context.Context, tx f.Tx
 	return x, nil
 }
 func projectAgentSkillsNoHistory(ctx context.Context, x postgres.SQLExecutor, c ac.ProjectRetirementChange) error {
+	return projectAgentSkillsHistory(ctx, x, c, false)
+}
+func projectAgentSkillsHistory(ctx context.Context, x postgres.SQLExecutor, c ac.ProjectRetirementChange, allowInitial bool) error {
+	grant := `EXISTS(SELECT 1 FROM agenteam_skill.agent_assignments WHERE agent_id=$1)`
+	if allowInitial {
+		// No Project predicate may hide an extra or foreign Agent grant. Only
+		// the exact unchanged initialization grant is excluded from history.
+		grant = `EXISTS(SELECT 1 FROM agenteam_skill.agent_assignments a WHERE a.agent_id=$1 AND NOT EXISTS (
+ SELECT 1 FROM agenteam_skill.agent_assignment_heads h WHERE h.project_id=a.project_id AND h.agent_id=a.agent_id
+ AND h.add_skills_enabled AND h.assignment_sequence=1 AND h.initial_assignment_id=a.id
+ AND h.initial_skill_id=a.skill_id AND h.created_at=a.created_at
+ AND a.assignment_sequence=1 AND a.change_id IS NULL AND a.enabled AND a.removed_at IS NULL))`
+	}
 	var history bool
-	err := x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_skill.agent_assignments WHERE agent_id=$1) OR EXISTS(SELECT 1 FROM agenteam_skill.execution_binding_heads WHERE agent_id=$1) OR EXISTS(SELECT 1 FROM agenteam_skill.execution_bindings WHERE agent_id=$1) OR EXISTS(SELECT 1 FROM agenteam_skill.assignment_commands WHERE agent_id=$1) OR EXISTS(SELECT 1 FROM agenteam_skill.assignment_changes WHERE agent_id=$1) OR EXISTS(SELECT 1 FROM agenteam_skill.assignment_current WHERE agent_id=$1) OR EXISTS(SELECT 1 FROM agenteam_skill.assignment_pending_refs WHERE agent_id=$1)`, c.Request.AgentID.String()).Scan(&history)
+	err := x.QueryRow(ctx, `SELECT `+grant+` OR EXISTS(SELECT 1 FROM agenteam_skill.execution_binding_heads WHERE agent_id=$1) OR EXISTS(SELECT 1 FROM agenteam_skill.execution_bindings WHERE agent_id=$1) OR EXISTS(SELECT 1 FROM agenteam_skill.assignment_commands WHERE agent_id=$1) OR EXISTS(SELECT 1 FROM agenteam_skill.assignment_changes WHERE agent_id=$1) OR EXISTS(SELECT 1 FROM agenteam_skill.assignment_current WHERE agent_id=$1) OR EXISTS(SELECT 1 FROM agenteam_skill.assignment_pending_refs WHERE agent_id=$1)`, c.Request.AgentID.String()).Scan(&history)
 	if err != nil {
 		return unavailable(err)
 	}
@@ -76,7 +90,7 @@ func (s *ProjectAgentRetirementReferences) RetireProjectAgentReferencesInTx(ctx 
 	if err != nil {
 		return err
 	}
-	if err = projectAgentSkillsNoHistory(ctx, x, c); err != nil {
+	if err = projectAgentSkillsHistory(ctx, x, c, true); err != nil {
 		return err
 	}
 	r := c.Request
@@ -93,13 +107,32 @@ func (s *ProjectAgentRetirementReferences) RetireProjectAgentReferencesInTx(ctx 
 	if err != nil {
 		return err
 	}
-	if before == nil || before.enabled || before.assignment != nil || before.sequence != 1 {
+	if before == nil || before.sequence != 1 {
 		return fault(f.ResourceBusy)
 	}
 	if err = ctx.Err(); err != nil {
 		return portError(err)
 	}
-	tag, err := x.Exec(ctx, `DELETE FROM agenteam_skill.agent_assignment_heads WHERE project_id=$1 AND agent_id=$2 AND creation_command=$3 AND plan_revision=$4 AND request_binding=$5 AND NOT add_skills_enabled AND assignment_sequence=1 AND initial_assignment_id IS NULL`, r.ProjectID.String(), r.AgentID.String(), before.command, int64(before.planRevision), string(before.binding))
+	headQuery := `DELETE FROM agenteam_skill.agent_assignment_heads WHERE project_id=$1 AND agent_id=$2 AND creation_command=$3 AND plan_revision=$4 AND request_binding=$5 AND NOT add_skills_enabled AND assignment_sequence=1 AND initial_assignment_id IS NULL`
+	headArgs := []any{r.ProjectID.String(), r.AgentID.String(), before.command, int64(before.planRevision), string(before.binding)}
+	if before.enabled {
+		// The complete reader validated the head's original grant identity.
+		// Delete while that head still exists for the database exception; both
+		// directions of the initialization FK remain deferred to the same Tx.
+		tag, err := x.Exec(ctx, `DELETE FROM agenteam_skill.agent_assignments WHERE project_id=$1 AND agent_id=$2 AND id=$3 AND skill_id=$4 AND created_at=$5 AND enabled AND assignment_sequence=1 AND change_id IS NULL AND removed_at IS NULL`, r.ProjectID.String(), r.AgentID.String(), before.assignment.String(), before.skill.String(), before.created.Time())
+		if err != nil {
+			return unavailable(err)
+		}
+		if tag.RowsAffected() != 1 {
+			return fault(f.ResourceBusy)
+		}
+		if err = ctx.Err(); err != nil {
+			return portError(err)
+		}
+		headQuery = `DELETE FROM agenteam_skill.agent_assignment_heads WHERE project_id=$1 AND agent_id=$2 AND creation_command=$3 AND plan_revision=$4 AND request_binding=$5 AND add_skills_enabled AND assignment_sequence=1 AND initial_assignment_id=$6`
+		headArgs = append(headArgs, before.assignment.String())
+	}
+	tag, err := x.Exec(ctx, headQuery, headArgs...)
 	if err != nil {
 		return unavailable(err)
 	}

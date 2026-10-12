@@ -176,7 +176,11 @@ Project Delete 的内部清理与普通 Human 删除分开授权。本片仅在�
 
 首个可执行范围是：Execution owner 按 Agent 身份检查**全部状态历史均不存在**；无托管 Mount/Runner workspace；Skills 仅有真实创建生成的 disabled 初始 head，assignment 为零，且无 grant/change/delivery 或 Execution binding 历史。超出这些已实现 owner 形态返回 Busy/明确错误，不能仅凭活动索引空、disabled 标志或空 binding 集合代替退休。Tool、Mount、Model、Secret、Skills 五个真实引用 owner 即使对应选择为空也必须绑定并检查完整前像；不删除共享 Tool/Model/Secret 资源，不替代未来运行历史清理。
 
-已有 grant 的不可变触发器仍禁止 DELETE，包括 enabled 创建产生的首条 assignment；本片不绕过或修改历史迁移。紧随其后的缺口是 Project 永久清理专用的正式 grant 删除例外及 Skills owner 消费，需要新迁移和真实历史清理路径；当前有限成功不覆盖 enabled 或曾变更的 Agent。
+上述首片保留 enabled 初始 grant 的不可变 DELETE 拒绝，其结果不追认为支持 enabled。后继以新迁移 `00076` 和同一 Skills owner 增加有限例外：仅允许真实创建生成、仍 enabled、sequence=1、change_id/removed_at 均为空的唯一初始 grant；其 Project/Agent/Skill/assignment identity 与 created_at 必须匹配原 enabled 初始 head。先删除这条 grant，再删除原 head，精确影响行数各为一，均在原 Agent/引用/checkpoint 事务内。disabled 且零 assignment 的原路径继续保留。
+
+新数据库例外要求 current Project Delete 的 cleaning/domains、匹配 owner/version 的 operation、running claim 与已停止 participant、canonical Agent 缺席，以及全部 Execution、ingress 和后续 Skills 历史缺席。这些仅是额外状态约束，不能识别当前调用者的 process/attempt/fence，也不证明本事务刚删除 Agent；真正授权仍来自原同 Store 活 Tx、完整锁及私有 Applied witness。旧 `00067` 不改，其 DELETE 拒绝与 UPDATE 不可变保护在不符合新例外时原样执行。恢复确认仍拒绝任何残留 grant/head，不因本例外接受空引用作为许可。
+
+有 assignment command/change/current/pending、额外 grant、Execution binding 或 ingress 的 Agent 仍 Busy；本后继不删除这些历史，也不改变普通 Human 操作。下一缺口是由各真实 owner 在 Project 永久删除中收束变更及 ingress 历史，不能由 Skills 绕过触发器。此处仅冻结实施边界，真实新迁移与 enabled 路径结果以随后实际验收为准。
 
 Work 专用口在原同 Store 活 Tx、Project EX/Schedule EX/Agent EX 和私有 Agent prepared witness 下确认 Project 的不可逆删除门已关闭指派使用资格；本 Project 所有 terminal/nonterminal Task 的 assignee、状态、版本、事件与 receipt 均保持原值，不伪造 Unassign、cancelled 或 Work Cleanup。跨 Project 的异常引用拒绝。这个检查只能被同 Tx 的实际 Agent 退休消费，不能用于 Archive、普通 DeleteAgent 或单独授予运行/删除权限。
 
