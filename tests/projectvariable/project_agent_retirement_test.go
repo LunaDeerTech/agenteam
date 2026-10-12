@@ -47,12 +47,13 @@ import (
 // A todo Task and its immutable history survive; no terminal Task or completed
 // Execution is fabricated. Variables remain pending, so this is not a complete
 // LifecycleRegistry, BeginDelete/default-App path, or Project finalizer. The
-// successful shape is enabled AddSkills with its one unchanged initial grant;
-// a real later Assign and its no-active-Execution ingress remain non-retirable.
+// successful shape includes enabled AddSkills and formal Assign -> Remove
+// history, with one actual no-active ingress and no extra Agent Update. A
+// formally planned but uncommitted assignment remains a whole-Tx Busy barrier.
 func TestProjectAgentRetirement(t *testing.T) {
 	t.Run("canonical-references-and-original-return", testProjectAgentRetirementReturn)
 	t.Run("original-unknown-and-applied-anchor", testProjectAgentRetirementUnknown)
-	t.Run("assignment-history-rolls-back-retirement", testProjectAgentRetirementHistory)
+	t.Run("planned-assignment-rolls-back-retirement", testProjectAgentRetirementHistory)
 }
 
 // This transparent delegate observes the actual Model call's private context;
@@ -98,6 +99,9 @@ type agentRetirementPG struct {
 	task              *taskTransitionFixture
 	taskHistory       string
 	assignmentHistory bool
+	plannedAssignment bool
+	assignmentAdded   sc.AssignmentMutation
+	assignmentRemoved sc.AssignmentMutation
 	skillsReached     atomic.Bool
 }
 
@@ -131,8 +135,9 @@ func (s *agentRetirementSkillTap) RetireProjectAgentReferencesInTx(ctx context.C
 	return s.ProjectRetirementReferences.RetireProjectAgentReferencesInTx(ctx, tx, change)
 }
 
-// Form the unsupported history entirely through the existing D18 producer.
-// No Execution is started: its real ingress records no_active_execution.
+// Form the completed history entirely through the existing D18 producer.
+// Assign emits one real no_active_execution receipt; Remove emits no runtime
+// request. No extra Agent.Update is used to manufacture a current anchor.
 func (v *agentRetirementPG) assignHistory(t *testing.T) {
 	t.Helper()
 	b, a := v.p2.base, v.configuration
@@ -193,45 +198,102 @@ func (v *agentRetirementPG) assignHistory(t *testing.T) {
 	if assigned.Validate() != nil || !assigned.Changed || assigned.AgentVersion != 2 || assigned.AssignmentSequence != 2 || assigned.Assignment == nil || assigned.Assignment.SkillID != installed.SkillID || assigned.Runtime == nil || assigned.Runtime.Queued || assigned.Runtime.ExecutionID != nil {
 		t.Fatal("formal assignment did not preserve its no-active-Execution receipt")
 	}
+	removed, err := commands.RemoveSkill(ctxFor(t), b.ownerBrowser.actor, meta(t, "retirement-history-remove", &assigned.AgentVersion), v.p2.project.ID, v.target, assigned.Assignment.ID)
+	outboxCleanupRequire(t, err)
+	if removed.Validate() != nil || !removed.Changed || removed.AgentVersion != 3 || removed.AssignmentSequence != 3 || removed.Runtime != nil || removed.Assignment != nil || removed.ChangeID == assigned.ChangeID {
+		t.Fatal("formal Remove did not preserve the original version/sequence and absent runtime receipt")
+	}
+	v.assignmentAdded, v.assignmentRemoved = assigned.Clone(), removed.Clone()
+	current, err := v.agents.GetAgent(ctxFor(t), b.ownerBrowser.actor, v.p2.project.ID, v.target)
+	outboxCleanupRequire(t, err)
+	// Only canonical version and its exact updated_at changed. The immutable
+	// creation command remains v1; the production cp4 must restore this v3 body.
+	original := v.before.Fields()
+	if current.Fields().Core.Version != 3 || !current.Fields().Core.UpdatedAt.Time().After(original.Core.UpdatedAt.Time()) {
+		t.Fatal("formal Assign/Remove did not advance the actual current Agent")
+	}
+	original.Core.Version, original.Core.UpdatedAt = current.Fields().Core.Version, current.Fields().Core.UpdatedAt
+	expected, err := ac.NewAgentConfig(original)
+	outboxCleanupRequire(t, err)
+	if !reflect.DeepEqual(expected.Fields(), current.Fields()) {
+		t.Fatal("Assign/Remove changed more than the original Agent version and timestamp")
+	}
+	v.before = current.Clone()
+	if v.plannedAssignment {
+		v.leavePlannedAssignment(t, commands, installed.SkillID)
+	}
 	service.Stop()
 	outboxCleanupRequire(t, service.Drain(ctxFor(t)))
 	if !service.Joined() {
 		t.Fatal("original assignment owner has not returned")
 	}
-	// D18 advances the canonical version but does not manufacture an Agent
-	// command. This fixture's real Update supplies the exact full current Before
-	// anchor so the test reaches the later Skill gate. It is not a user-facing
-	// requirement or a proof of retirement after Assign without this update.
-	description := "Retain the original assignment history"
-	update, err := ac.NewAgentUpdate(ac.AgentUpdateFields{Description: &description})
-	outboxCleanupRequire(t, err)
-	changed, err := v.agents.UpdateAgent(ctxFor(t), b.ownerBrowser.actor, meta(t, "retirement-history-anchor", &assigned.AgentVersion), v.p2.project.ID, v.target, update)
-	outboxCleanupRequire(t, err)
-	if changed.Validate() != nil || !changed.Fields().Changed || changed.Fields().Agent.Fields().Core.Version != 3 {
-		t.Fatal("formal Agent Update did not anchor the complete current version")
-	}
-	v.before = changed.Fields().Agent.Clone()
-	var commandsCount, changes, current, ingressCount, pending, executions int
-	err = b.raw.QueryRow(ctxFor(t), `SELECT
- (SELECT count(*) FROM agenteam_skill.assignment_commands WHERE agent_id::text=$1 AND state='completed'),
- (SELECT count(*) FROM agenteam_skill.assignment_changes WHERE agent_id::text=$1),
- (SELECT count(*) FROM agenteam_skill.assignment_current WHERE agent_id::text=$1 AND assignment_sequence=2),
- (SELECT count(*) FROM agenteam_execution.skill_assignment_ingress WHERE agent_id::text=$1 AND outcome='no_active_execution' AND execution_id IS NULL),
- (SELECT count(*) FROM agenteam_skill.assignment_pending_refs WHERE agent_id::text=$1),
- (SELECT count(*) FROM agenteam_execution.executions WHERE agent_id::text=$1)`, v.target.String()).Scan(&commandsCount, &changes, &current, &ingressCount, &pending, &executions)
-	outboxCleanupRequire(t, err)
-	if commandsCount != 1 || changes != 1 || current != 1 || ingressCount != 1 || pending != 0 || executions != 0 {
-		t.Fatal("formal assignment history or actual no-active ingress differs")
-	}
+	v.requireAssignmentHistory(t, true)
 }
 
-func newAgentRetirementPG(t *testing.T, withTask, withHistory bool) *agentRetirementPG {
+// A real discovery commits the planned command. Only the final original
+// callback is rejected after its completed write, so that entire final Tx rolls
+// back. This leaves a genuine recoverable candidate, not a manufactured row.
+func (v *agentRetirementPG) leavePlannedAssignment(t *testing.T, commands *skill.AssignmentCommands, skillID sc.SkillID) {
+	t.Helper()
+	store := v.p2.base.tracked
+	version := v.before.Fields().Core.Version
+	metadata := meta(t, "retirement-history-planned", &version)
+	identity, err := f.NewCommandIdentity("project", []string{v.p2.project.ID.String(), v.target.String()}, "skill.assign", metadata.IdempotencyKey)
+	outboxCleanupRequire(t, err)
+	sentinel := errors.New("controlled original assignment final rollback")
+	var observed, returned bool
+	var original f.CommitResult
+	matches := func(cause f.TransactionCause) bool {
+		return cause.Kind() == f.CommandsCause && cause.Details().Primary.Canonical() == identity.Canonical()
+	}
+	store.setAfter(func(ctx context.Context, tx f.Tx, cause f.TransactionCause) error {
+		if !matches(cause) {
+			return nil
+		}
+		x, err := store.InTx(tx)
+		if err != nil {
+			return err
+		}
+		var completed bool
+		err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_skill.assignment_commands WHERE project_id=$1 AND agent_id=$2 AND command_name='skill.assign' AND idempotency_key=$3 AND state='completed')`, v.p2.project.ID.String(), v.target.String(), string(metadata.IdempotencyKey)).Scan(&completed)
+		if err != nil {
+			return err
+		}
+		if completed {
+			observed = true
+			return sentinel
+		}
+		return nil
+	})
+	store.mu.Lock()
+	store.afterResult = func(cause f.TransactionCause, result f.CommitResult) {
+		if matches(cause) && observed {
+			returned, original = true, result
+		}
+	}
+	store.mu.Unlock()
+	defer v.clearHooks()
+	_, err = commands.AssignSkill(ctxFor(t), v.p2.base.ownerBrowser.actor, metadata, v.p2.project.ID, v.target, skillID, true)
+	if !observed || !returned || original.State() != f.NotCommitted || !errors.Is(original.Fault(), sentinel) || !errors.Is(err, sentinel) {
+		agentRetirementDiagnostic(t, "planned-assignment-final-return", err)
+		t.Fatal("formal planned candidate was not left by the original final rollback")
+	}
+	v.clearHooks()
+	current, err := v.agents.GetAgent(ctxFor(t), v.p2.base.ownerBrowser.actor, v.p2.project.ID, v.target)
+	outboxCleanupRequire(t, err)
+	if !reflect.DeepEqual(current.Fields(), v.before.Fields()) {
+		t.Fatal("rolled-back assignment changed the canonical Agent")
+	}
+
+}
+
+func newAgentRetirementPG(t *testing.T, withTask, withPlanned bool) *agentRetirementPG {
 	t.Helper()
 	var bases []*variableHTTPFixture
 	if withTask {
-		// The successful original grant and Task facts predate migration 76.
+		// Real enabled grants, Assign/Remove and Task facts predate migration 77.
 		db := pgfixture.NewDatabase(t)
-		migrate(t, db, migrationPrefix(t, "00075"))
+		migrate(t, db, migrationPrefix(t, "00076"))
 		raw := openStore(t, db.Config(t, nil))
 		var base *variableHTTPFixture
 		t.Cleanup(func() {
@@ -242,7 +304,7 @@ func newAgentRetirementPG(t *testing.T, withTask, withHistory bool) *agentRetire
 		base = assembleVariableHTTPFixture(t, db, raw, &hookStore{fixtureStore: raw})
 		bases = append(bases, base)
 	}
-	v := &agentRetirementPG{skillsCleanupPG: newSkillsCleanupPG(t, bases...), assignmentHistory: withHistory}
+	v := &agentRetirementPG{skillsCleanupPG: newSkillsCleanupPG(t, bases...), assignmentHistory: true, plannedAssignment: withPlanned}
 	store := v.p2.base.tracked
 	source, err := toolruntime.NewInstallSource(v.installer, v.p2.service)
 	outboxCleanupRequire(t, err)
@@ -281,15 +343,20 @@ func newAgentRetirementPG(t *testing.T, withTask, withHistory bool) *agentRetire
 		t.Fatal("original Agent creation did not return its exact configuration")
 	}
 	v.before = receipt.Fields().Agent.Clone()
-	if withHistory {
-		v.assignHistory(t)
-	}
 	encoded, err := json.Marshal(v.before)
 	outboxCleanupRequire(t, err)
 	var raw string
 	outboxCleanupRequire(t, v.p2.base.raw.QueryRow(ctxFor(t), `SELECT id::text FROM agenteam_agent.commands WHERE project_id=$1 AND target_id=$2 AND state='completed' AND after_config=$3::jsonb`, v.p2.project.ID.String(), v.target.String(), encoded).Scan(&raw))
 	v.command, err = f.ParseID[ac.AgentCommand](raw)
 	outboxCleanupRequire(t, err)
+	v.assignHistory(t)
+	var originalAnchor bool
+	outboxCleanupRequire(t, v.p2.base.raw.QueryRow(ctxFor(t), `SELECT
+ (SELECT count(*) FROM agenteam_agent.commands WHERE target_id::text=$1)=1
+ AND EXISTS(SELECT 1 FROM agenteam_agent.commands WHERE id::text=$2 AND target_id::text=$1 AND state='completed' AND command_name='agent.create' AND after_config->>'version'='1')`, v.target.String(), v.command.String()).Scan(&originalAnchor))
+	if !originalAnchor {
+		t.Fatal("assignment history manufactured or replaced the immutable Agent command anchor")
+	}
 	workGate, err := work.NewProjectAgentRetirement(store, a.providers.Agents)
 	outboxCleanupRequire(t, err)
 	executionGate, err := execution.NewProjectAgentRetirement(store, a.providers.Agents)
@@ -303,7 +370,9 @@ func newAgentRetirementPG(t *testing.T, withTask, withHistory bool) *agentRetire
 	outboxCleanupRequire(t, err)
 	secrets, err := projectvariable.NewProjectAgentRetirementReferences(store, a.providers.Agents)
 	outboxCleanupRequire(t, err)
-	skills, err := skill.NewProjectAgentRetirementReferences(store, a.providers.Agents)
+	retirementIngress, err := execution.NewProjectAgentIngressRetirement(store, a.providers.Agents)
+	outboxCleanupRequire(t, err)
+	skills, err := skill.NewProjectAgentRetirementReferencesWithIngress(store, a.providers.Agents, retirementIngress)
 	outboxCleanupRequire(t, err)
 	// The original concrete Project authority owns the Skills/driver lifecycle.
 	// The ordinary Agent assembly retains its own same-Store read authority;
@@ -316,25 +385,24 @@ func newAgentRetirementPG(t *testing.T, withTask, withHistory bool) *agentRetire
 	}
 	if withTask {
 		old := v.grantGuardSnapshot(t)
-		refs, history := v.referenceSnapshot(t), v.historySnapshot(t)
-		migrate(t, v.p2.base.db, migrationPrefix(t, "00076"))
-		migrate(t, v.p2.base.db, migrationPrefix(t, "00076"))
-		if v.grantGuardSnapshot(t) != old || v.referenceSnapshot(t) != refs || v.historySnapshot(t) != history || v.task.databaseSnapshot(t) != v.taskHistory {
-			t.Fatal("upgrade or repeat changed the original enabled grant or business history")
+		refs, history, assignments := v.referenceSnapshot(t), v.historySnapshot(t), v.assignmentSnapshot(t)
+		migrate(t, v.p2.base.db, migrationPrefix(t, "00077"))
+		migrate(t, v.p2.base.db, migrationPrefix(t, "00077"))
+		if v.grantGuardSnapshot(t) != old || v.referenceSnapshot(t) != refs || v.historySnapshot(t) != history || v.assignmentSnapshot(t) != assignments || v.task.databaseSnapshot(t) != v.taskHistory {
+			t.Fatal("upgrade or repeat changed the original completed assignment/ingress or business history")
 		}
 		v.grantProtection(t, "active-delete")
 		v.grantProtection(t, "immutable-update")
+		v.grantProtection(t, "active-command-delete")
+		v.grantProtection(t, "active-change-delete")
+		v.grantProtection(t, "active-ingress-delete")
 	}
 	v.agents.Stop()
 	outboxCleanupRequire(t, v.agents.Drain(ctxFor(t)))
 	if !v.agents.Joined() {
 		t.Fatal("original Agent creation owner has not returned")
 	}
-	objects := 1
-	if withHistory {
-		objects++
-	}
-	v.captureObjects(t, objects)
+	v.captureObjects(t, 2)
 	v.requireReferences(t, true, enabled)
 	v.history = v.historySnapshot(t)
 	v.enterCleanup(t)
@@ -399,9 +467,11 @@ func (v *agentRetirementPG) grantGuardSnapshot(t *testing.T) string {
 
 // Negative database invariants only. Controlled claim/stage/canonical changes
 // never commit, issue a private Go witness, or stand in for a successful caller.
+// The phase/claim negative cases retain the no-active ingress as well: they
+// prove rejection of that invalid combination, not one exclusive reject cause.
 func (v *agentRetirementPG) grantProtection(t *testing.T, mode string) {
 	t.Helper()
-	before, refs := v.grantGuardSnapshot(t), v.referenceSnapshot(t)
+	before, refs, assignments := v.grantGuardSnapshot(t), v.referenceSnapshot(t), v.assignmentSnapshot(t)
 	projectLock, _ := f.ProjectLock(v.p2.project.ID.String())
 	scheduleLock, _ := f.ProjectScheduleLock(v.p2.project.ID.String())
 	agentLock, _ := f.AgentLock(v.target.String())
@@ -439,8 +509,15 @@ func (v *agentRetirementPG) grantProtection(t *testing.T, mode string) {
 			}
 		}
 		query := `DELETE FROM agenteam_skill.agent_assignments WHERE project_id=$1 AND agent_id=$2 AND assignment_sequence=1`
-		if mode == "immutable-update" {
+		switch mode {
+		case "immutable-update":
 			query = `UPDATE agenteam_skill.agent_assignments SET enabled=false WHERE project_id=$1 AND agent_id=$2 AND assignment_sequence=1`
+		case "active-command-delete":
+			query = `DELETE FROM agenteam_skill.assignment_commands WHERE project_id::text=$1 AND agent_id::text=$2 AND command_name='skill.assign'`
+		case "active-change-delete":
+			query = `DELETE FROM agenteam_skill.assignment_changes WHERE project_id::text=$1 AND agent_id::text=$2 AND assignment_sequence=2`
+		case "active-ingress-delete":
+			query = `DELETE FROM agenteam_execution.skill_assignment_ingress WHERE project_id=$1 AND agent_id=$2`
 		}
 		reached = true
 		_, err = x.Exec(ctx, query, v.p2.project.ID.String(), v.target.String())
@@ -454,7 +531,7 @@ func (v *agentRetirementPG) grantProtection(t *testing.T, mode string) {
 		agentRetirementDiagnostic(t, "grant-schema-guard", result.Fault())
 		t.Fatal("original grant database guard did not reject and roll back", mode)
 	}
-	if v.grantGuardSnapshot(t) != before || v.referenceSnapshot(t) != refs {
+	if v.grantGuardSnapshot(t) != before || v.referenceSnapshot(t) != refs || v.assignmentSnapshot(t) != assignments {
 		t.Fatal("database guard probe changed canonical, grant, references or original claim", mode)
 	}
 }
@@ -509,10 +586,11 @@ type agentRetirementCheckpoint struct {
 	Version    f.Version `json:"project_version"`
 	AgentsDone bool      `json:"agents_done"`
 	Applied    *struct {
-		Agent   i.AgentID         `json:"agent_id"`
-		Version f.Version         `json:"version"`
-		Command ac.AgentCommandID `json:"command_id"`
-		Digest  f.Digest          `json:"before_digest"`
+		Agent     i.AgentID         `json:"agent_id"`
+		Version   f.Version         `json:"version"`
+		Command   ac.AgentCommandID `json:"command_id"`
+		Digest    f.Digest          `json:"before_digest"`
+		UpdatedAt *f.Instant        `json:"before_updated_at"`
 	} `json:"agent_applied,omitempty"`
 	Skills struct {
 		Project    string    `json:"project_id"`
@@ -543,12 +621,12 @@ func (v *agentRetirementPG) checkpoint(t *testing.T, present bool) agentRetireme
 		}
 		return cp
 	}
-	if schema == nil || *schema != 3 || json.Unmarshal(raw, &cp) != nil || cleanup != "pending" || cp.Project != v.p2.project.ID.String() || cp.Operation != v.cause.OperationID.String() || cp.Version != v.cause.ProjectVersion || cp.Applied == nil {
-		t.Fatal("original schema3 checkpoint lost its exact retirement identity")
+	if schema == nil || *schema != 4 || json.Unmarshal(raw, &cp) != nil || cleanup != "pending" || cp.Project != v.p2.project.ID.String() || cp.Operation != v.cause.OperationID.String() || cp.Version != v.cause.ProjectVersion || cp.Applied == nil {
+		t.Fatal("original schema4 checkpoint lost its exact retirement identity")
 	}
 	digest, err := ac.ProjectRetirementBeforeDigest(v.before)
 	outboxCleanupRequire(t, err)
-	if cp.Applied.Agent != v.target || cp.Applied.Version != v.before.Fields().Core.Version || cp.Applied.Command != v.command || cp.Applied.Digest != digest || cp.Skills.Project != cp.Project || cp.Skills.Operation != cp.Operation || cp.Skills.Version != cp.Version || cp.Skills.State != "pending" && cp.Skills.State != "completed" {
+	if cp.Applied.Agent != v.target || cp.Applied.Version != v.before.Fields().Core.Version || cp.Applied.Command != v.command || cp.Applied.Digest != digest || cp.Applied.UpdatedAt == nil || !cp.Applied.UpdatedAt.Time().Equal(v.before.Fields().Core.UpdatedAt.Time()) || cp.Skills.Project != cp.Project || cp.Skills.Operation != cp.Operation || cp.Skills.Version != cp.Version || cp.Skills.State != "pending" && cp.Skills.State != "completed" {
 		t.Fatal("checkpoint changed the immutable full Before anchor or child scope")
 	}
 	if cp.Skills.Checkpoint != nil && (cp.Skills.Checkpoint.Schema != 1 || len(cp.Skills.Checkpoint.Bytes) == 0) {
@@ -599,6 +677,74 @@ func (v *agentRetirementPG) referenceSnapshot(t *testing.T) string {
 	return value
 }
 
+// All historical tables retired by this feature are compared independently
+// from the immutable Agent commands, audit/events and Task facts that survive.
+func (v *agentRetirementPG) assignmentSnapshot(t *testing.T) string {
+	t.Helper()
+	var value string
+	err := v.p2.base.raw.QueryRow(ctxFor(t), `SELECT jsonb_build_array(
+ (SELECT jsonb_agg(to_jsonb(c) ORDER BY id) FROM agenteam_skill.assignment_commands c WHERE agent_id::text=$1),
+ (SELECT jsonb_agg(to_jsonb(c) ORDER BY id) FROM agenteam_skill.assignment_changes c WHERE agent_id::text=$1),
+ (SELECT jsonb_agg(to_jsonb(c) ORDER BY agent_id) FROM agenteam_skill.assignment_current c WHERE agent_id::text=$1),
+ (SELECT jsonb_agg(to_jsonb(c) ORDER BY change_id) FROM agenteam_skill.assignment_pending_refs c WHERE agent_id::text=$1),
+ (SELECT jsonb_agg(to_jsonb(c) ORDER BY change_id) FROM agenteam_execution.skill_assignment_ingress c WHERE agent_id::text=$1),
+ (SELECT jsonb_agg(to_jsonb(c) ORDER BY id) FROM agenteam_skill.agent_assignments c WHERE agent_id::text=$1),
+ (SELECT to_jsonb(c) FROM agenteam_skill.agent_assignment_heads c WHERE agent_id::text=$1)
+ )::text`, v.target.String()).Scan(&value)
+	outboxCleanupRequire(t, err)
+	return value
+}
+
+func (v *agentRetirementPG) requireAssignmentHistory(t *testing.T, present bool) {
+	t.Helper()
+	var commands, completed, planned, changes, current, ingress, pending, executions, grants, removed, heads int
+	err := v.p2.base.raw.QueryRow(ctxFor(t), `SELECT
+ (SELECT count(*) FROM agenteam_skill.assignment_commands WHERE agent_id::text=$1),
+ (SELECT count(*) FROM agenteam_skill.assignment_commands WHERE agent_id::text=$1 AND state='completed'),
+ (SELECT count(*) FROM agenteam_skill.assignment_commands WHERE agent_id::text=$1 AND state='planned'),
+ (SELECT count(*) FROM agenteam_skill.assignment_changes WHERE agent_id::text=$1),
+ (SELECT count(*) FROM agenteam_skill.assignment_current WHERE agent_id::text=$1),
+ (SELECT count(*) FROM agenteam_execution.skill_assignment_ingress WHERE agent_id::text=$1),
+ (SELECT count(*) FROM agenteam_skill.assignment_pending_refs WHERE agent_id::text=$1),
+ (SELECT count(*) FROM agenteam_execution.executions WHERE agent_id::text=$1),
+ (SELECT count(*) FROM agenteam_skill.agent_assignments WHERE agent_id::text=$1),
+ (SELECT count(*) FROM agenteam_skill.agent_assignments WHERE agent_id::text=$1 AND removed_at IS NOT NULL),
+ (SELECT count(*) FROM agenteam_skill.agent_assignment_heads WHERE agent_id::text=$1)`, v.target.String()).Scan(&commands, &completed, &planned, &changes, &current, &ingress, &pending, &executions, &grants, &removed, &heads)
+	outboxCleanupRequire(t, err)
+	want, plannedWant := 0, 0
+	if present {
+		want = 1
+		if v.plannedAssignment {
+			plannedWant = 1
+		}
+	}
+	if commands != 2*want+plannedWant || completed != 2*want || planned != plannedWant || changes != 2*want || current != want || ingress != want || pending != 0 || executions != 0 || grants != 2*want || removed != want || heads != want {
+		t.Fatal("actual assignment/current/ingress corpus differs", commands, completed, planned, changes, current, ingress, pending, executions, grants, removed, heads)
+	}
+	if !present {
+		return
+	}
+	var exact bool
+	err = v.p2.base.raw.QueryRow(ctxFor(t), `SELECT
+ EXISTS(SELECT 1 FROM agenteam_skill.assignment_changes WHERE id::text=$2 AND agent_id::text=$1 AND assignment_sequence=2 AND agent_version=2)
+ AND EXISTS(SELECT 1 FROM agenteam_skill.assignment_changes WHERE id::text=$3 AND agent_id::text=$1 AND assignment_sequence=3 AND agent_version=3)
+ AND EXISTS(SELECT 1 FROM agenteam_skill.assignment_current WHERE agent_id::text=$1 AND assignment_sequence=3 AND change_id::text=$3)
+ AND EXISTS(SELECT 1 FROM agenteam_execution.skill_assignment_ingress WHERE agent_id=$1 AND change_id=$2 AND outcome='no_active_execution' AND execution_id IS NULL)`, v.target.String(), v.assignmentAdded.ChangeID.String(), v.assignmentRemoved.ChangeID.String()).Scan(&exact)
+	outboxCleanupRequire(t, err)
+	if !exact {
+		t.Fatal("formal Assign/Remove lost its original changes and sole no-active ingress")
+	}
+	for _, expected := range []sc.AssignmentMutation{v.assignmentAdded, v.assignmentRemoved} {
+		var raw []byte
+		err = v.p2.base.raw.QueryRow(ctxFor(t), `SELECT receipt FROM agenteam_skill.assignment_commands WHERE id::text=$1 AND agent_id::text=$2 AND state='completed'`, expected.ChangeID.String(), v.target.String()).Scan(&raw)
+		outboxCleanupRequire(t, err)
+		var actual sc.AssignmentMutation
+		if json.Unmarshal(raw, &actual) != nil || !reflect.DeepEqual(actual, expected) {
+			t.Fatal("persistent assignment receipt differs from the actual returned receipt")
+		}
+	}
+}
+
 func (v *agentRetirementPG) historySnapshot(t *testing.T) string {
 	t.Helper()
 	var value string
@@ -606,11 +752,6 @@ func (v *agentRetirementPG) historySnapshot(t *testing.T) string {
  (SELECT jsonb_agg(to_jsonb(c) ORDER BY id) FROM agenteam_agent.commands c WHERE target_id::text=$1),
  (SELECT jsonb_agg(to_jsonb(a) ORDER BY id) FROM agenteam_audit.audit_records a WHERE resource_id::text=$1),
  (SELECT jsonb_agg(to_jsonb(e) ORDER BY id) FROM agenteam_outbox.events e WHERE aggregate_id::text=$1),
- (SELECT jsonb_agg(to_jsonb(c) ORDER BY id) FROM agenteam_skill.assignment_commands c WHERE agent_id::text=$1),
- (SELECT jsonb_agg(to_jsonb(c) ORDER BY id) FROM agenteam_skill.assignment_changes c WHERE agent_id::text=$1),
- (SELECT jsonb_agg(to_jsonb(c) ORDER BY agent_id) FROM agenteam_skill.assignment_current c WHERE agent_id::text=$1),
- (SELECT jsonb_agg(to_jsonb(c) ORDER BY change_id) FROM agenteam_skill.assignment_pending_refs c WHERE agent_id::text=$1),
- (SELECT jsonb_agg(to_jsonb(c) ORDER BY change_id) FROM agenteam_execution.skill_assignment_ingress c WHERE agent_id::text=$1),
  (SELECT jsonb_agg(to_jsonb(m) ORDER BY id) FROM agenteam_model.models m),
  (SELECT jsonb_agg(to_jsonb(p) ORDER BY id) FROM agenteam_model.providers p)
  )::text`, v.target.String()).Scan(&value)
@@ -646,7 +787,7 @@ func (v *agentRetirementPG) observeApplied(t *testing.T) *atomic.Bool {
 			return err
 		}
 		var applied bool
-		err = x.QueryRow(ctx, `SELECT NOT EXISTS(SELECT 1 FROM agenteam_agent.agents WHERE id::text=$1) AND EXISTS(SELECT 1 FROM agenteam_project.lifecycle_participants WHERE operation_id::text=$2 AND participant_name='agent-skills-variables' AND checkpoint_schema=3 AND convert_from(checkpoint,'UTF8')::jsonb->'agent_applied'->>'agent_id'=$1)`, v.target.String(), v.cause.OperationID.String()).Scan(&applied)
+		err = x.QueryRow(ctx, `SELECT NOT EXISTS(SELECT 1 FROM agenteam_agent.agents WHERE id::text=$1) AND EXISTS(SELECT 1 FROM agenteam_project.lifecycle_participants WHERE operation_id::text=$2 AND participant_name='agent-skills-variables' AND checkpoint_schema=4 AND convert_from(checkpoint,'UTF8')::jsonb->'agent_applied'->>'agent_id'=$1)`, v.target.String(), v.cause.OperationID.String()).Scan(&applied)
 		if err == nil && applied {
 			observed.Store(true)
 		}
@@ -698,8 +839,8 @@ func (v *agentRetirementPG) finishSkills(t *testing.T, driver *project.Lifecycle
 	if checked != 1 || retired != 1 {
 		t.Fatal("recovery did not confirm the exact original owners or resent retirement")
 	}
-	// Each explicit next round consumes actual Pending. The inherited one
-	// package pipeline has separately returned physical/history/metadata rounds.
+	// Each explicit next round consumes actual Pending. Both installed packages
+	// use the original separately returned physical/history/metadata rounds.
 	for round := 0; round < 24 && cp.Skills.State == "pending"; round++ {
 		started := time.Now()
 		t.Logf("AGENT_RETIREMENT_SKILLS_ROUND round=%d state=%s", round+1, cp.Skills.State)
@@ -719,6 +860,7 @@ func (v *agentRetirementPG) finishSkills(t *testing.T, driver *project.Lifecycle
 	}
 	v.empty(t)
 	v.requireReferences(t, false, false)
+	v.requireAssignmentHistory(t, false)
 	v.unchanged(t)
 	count := v.tap.calls.Load()
 	call = v.run(t, driver)
@@ -759,6 +901,7 @@ func testProjectAgentRetirementReturn(t *testing.T) {
 		t.Fatal("Agent retirement original Store return barrier was not reached")
 	}
 	v.requireReferences(t, false, false)
+	v.requireAssignmentHistory(t, false)
 	cp := v.checkpoint(t, true)
 	if cp.AgentsDone || cp.Skills.State != "pending" || v.tap.calls.Load() != 0 {
 		t.Fatal("physical Agent commit advanced another substep before its original return")
@@ -786,7 +929,7 @@ func testProjectAgentRetirementReturn(t *testing.T) {
 	v.expiredModelWitness(t)
 	v.finishSkills(t, v.newDriver(t))
 	v.close(t)
-	t.Log("PROJECT_AGENT_RETIREMENT_RETURN real_enabled_initial_grant=true upgrade75_to76_and_repeat=true immutable_grant_guards=true two_model_roles=true original_task_history=true atomic_checkpoint=true original_return_held=true exact_anchor_confirmed=true skills_consumed=true parent_pending_domains=true")
+	t.Log("PROJECT_AGENT_RETIREMENT_RETURN real_assign_remove=true no_agent_update=true upgrade76_to77_and_repeat=true immutable_grant_guards=true two_model_roles=true original_task_history=true exact_current_before_timestamp=true schema4_atomic_checkpoint=true assignment_ingress_retired=true original_return_held=true exact_anchor_confirmed=true skills_consumed=true parent_pending_domains=true")
 }
 
 func testProjectAgentRetirementUnknown(t *testing.T) {
@@ -817,6 +960,7 @@ func testProjectAgentRetirementUnknown(t *testing.T) {
 		t.Fatal("original acknowledgement Unknown lost its cause/attempt", call.err)
 	}
 	v.requireReferences(t, false, false)
+	v.requireAssignmentHistory(t, false)
 	if v.checkpoint(t, true).AgentsDone || v.tap.calls.Load() != 0 {
 		t.Fatal("Unknown was treated as rollback or completed Agent enumeration")
 	}
@@ -828,30 +972,31 @@ func testProjectAgentRetirementUnknown(t *testing.T) {
 	// not authorize any reference owner's confirmation.
 	v.finishSkills(t, driver)
 	v.close(t)
-	t.Log("PROJECT_AGENT_RETIREMENT_UNKNOWN local_committed_ackmask=true original_attempt_cause=true applied_anchor_preserved=true original_return_then_confirmation=true no_resend=true skills_consumed=true parent_pending_domains=true")
+	t.Log("PROJECT_AGENT_RETIREMENT_UNKNOWN real_assign_remove=true no_agent_update=true schema4_exact_before_time=true assignment_ingress_retired=true local_committed_ackmask=true original_attempt_cause=true applied_anchor_preserved=true original_return_then_confirmation=true no_resend=true skills_consumed=true parent_pending_domains=true")
 }
 
 func testProjectAgentRetirementHistory(t *testing.T) {
 	v := newAgentRetirementPG(t, false, true)
-	before, references := v.retained(t), v.referenceSnapshot(t)
+	before, references, assignments := v.retained(t), v.referenceSnapshot(t), v.assignmentSnapshot(t)
 	call := v.run(t, v.newDriver(t))
-	outboxCleanupWait(t, call.done, "real Skill assignment history retirement refusal")
+	outboxCleanupWait(t, call.done, "original planned Skill assignment retirement refusal")
 	if !outboxCleanupFault(call.err, f.ResourceBusy) {
 		agentRetirementDiagnostic(t, "original-run-history", call.err)
-		t.Fatal("historical Skill assignment was accepted for retirement", call.err)
+		t.Fatal("planned Skill assignment was accepted for retirement", call.err)
 	}
 	if !v.skillsReached.Load() {
 		t.Fatal("retirement was rejected before the actual Skill history gate")
 	}
 	v.checkpoint(t, false)
 	v.requireReferences(t, true, true)
-	if v.retained(t) != before || v.referenceSnapshot(t) != references || v.tap.calls.Load() != 0 {
+	v.requireAssignmentHistory(t, true)
+	if v.retained(t) != before || v.referenceSnapshot(t) != references || v.assignmentSnapshot(t) != assignments || v.tap.calls.Load() != 0 {
 		t.Fatal("late Skill refusal committed partial canonical/reference removal")
 	}
 	v.nativePresent(t)
 	v.unchanged(t)
 	v.close(t)
-	t.Log("PROJECT_AGENT_RETIREMENT_BUSY real_assignment_history=true original_no_active_execution_ingress=true current_agent_command_anchor=true actual_skill_gate_reached=true original_error=true canonical_and_all_references_rollback=true no_skills_cleanup=true parent_pending_domains=true")
+	t.Log("PROJECT_AGENT_RETIREMENT_BUSY formal_planned_candidate=true original_final_rollback=true completed_assign_remove_preserved=true original_no_active_execution_ingress=true no_agent_update=true actual_skill_gate_reached=true original_error=true canonical_and_all_references_rollback=true no_skills_cleanup=true parent_pending_domains=true")
 }
 
 // Reuse the existing formal Task composition on this same Store/P/Agent. No

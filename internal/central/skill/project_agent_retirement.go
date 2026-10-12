@@ -6,6 +6,7 @@ import (
 	ac "github.com/LunaDeerTech/agenteam/internal/central/agent/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/skill/contract"
 )
 
 // Only an unchanged initialization head and its optional initial grant can
@@ -13,15 +14,31 @@ import (
 // The initial grant's narrow Project-only database exception is not authority;
 // both shapes consume the same original private Applied witness below.
 type ProjectAgentRetirementReferences struct {
-	store Store
-	owner ac.ProjectRetirementOwner
+	store   Store
+	owner   ac.ProjectRetirementOwner
+	ingress sc.ProjectAgentIngressRetirement
 }
 
 func NewProjectAgentRetirementReferences(store Store, owner ac.ProjectRetirementOwner) (*ProjectAgentRetirementReferences, error) {
 	if nilPort(store) || nilPort(owner) {
 		return nil, fault(f.DependencyUnbound)
 	}
-	return &ProjectAgentRetirementReferences{store, owner}, nil
+	return &ProjectAgentRetirementReferences{store: store, owner: owner}, nil
+}
+
+// This explicit composition also retires completed assignment history whose
+// original Execution owner confirms only no-active ingress. The old constructor
+// retains its initialization-only contract when this dependency is absent.
+func NewProjectAgentRetirementReferencesWithIngress(store Store, owner ac.ProjectRetirementOwner, ingress sc.ProjectAgentIngressRetirement) (*ProjectAgentRetirementReferences, error) {
+	if nilPort(ingress) {
+		return nil, fault(f.DependencyUnbound)
+	}
+	s, err := NewProjectAgentRetirementReferences(store, owner)
+	if err != nil {
+		return nil, err
+	}
+	s.ingress = ingress
+	return s, nil
 }
 func (*ProjectAgentRetirementReferences) ProjectRetirementReferenceKind() ac.ProjectRetirementReferenceKind {
 	return ac.ProjectRetirementSkillReferences
@@ -90,6 +107,9 @@ func (s *ProjectAgentRetirementReferences) RetireProjectAgentReferencesInTx(ctx 
 	if err != nil {
 		return err
 	}
+	if s.ingress != nil {
+		return s.retireAssignmentHistory(ctx, tx, x, c)
+	}
 	if err = projectAgentSkillsHistory(ctx, x, c, true); err != nil {
 		return err
 	}
@@ -145,6 +165,11 @@ func (s *ProjectAgentRetirementReferences) RequireProjectAgentReferencesRetiredI
 	x, err := s.executor(ctx, tx, c)
 	if err != nil {
 		return err
+	}
+	if s.ingress != nil {
+		if err = s.ingress.RequireProjectAgentIngressRetiredInTx(ctx, tx, c.Clone()); err != nil {
+			return portError(err)
+		}
 	}
 	if err = projectAgentSkillsNoHistory(ctx, x, c); err != nil {
 		return err

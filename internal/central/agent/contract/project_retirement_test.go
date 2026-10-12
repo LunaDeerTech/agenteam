@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"time"
 
 	ac "github.com/LunaDeerTech/agenteam/internal/central/agent/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -102,5 +103,27 @@ func TestProjectRetirementPlanKeepsPrivateBody(t *testing.T) {
 	}
 	if err := p.Validate(); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestProjectRetirementPlanBindsExactUpdatedAt(t *testing.T) {
+	p := projectRetirementPlan(t)
+	at := p.Change.Before.Fields().Core.UpdatedAt
+	p.BeforeUpdatedAt = &at
+	if err := p.Validate(); err != nil {
+		t.Fatal(err)
+	}
+	copy := p.Clone()
+	changed, err := f.NewInstant(at.Time().Add(time.Microsecond))
+	if err != nil {
+		t.Fatal(err)
+	}
+	*copy.BeforeUpdatedAt = changed
+	if *p.BeforeUpdatedAt != at || copy.Validate() == nil {
+		t.Fatal("exact update time or clone ownership lost")
+	}
+	p.BeforeUpdatedAt = nil
+	if err := p.Validate(); err != nil {
+		t.Fatal("old exact-command plan rejected", err)
 	}
 }
