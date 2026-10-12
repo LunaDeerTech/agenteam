@@ -92,6 +92,8 @@ type ProjectRunners struct {
 	cycleOpen                 bool
 	deferred                  uint64
 	discoveryError            error
+	generation                uint64
+	stopControls              map[*projectStopControl]struct{}
 }
 
 type managedRunner struct {
@@ -99,6 +101,7 @@ type managedRunner struct {
 	seen, active, stopping bool
 	err                    error
 	next                   time.Time
+	cancel                 context.CancelFunc
 }
 
 // The constructor fixes these functions to the original concrete runners.
@@ -199,6 +202,7 @@ func (s *ProjectRunners) discover(ctx context.Context) {
 		return
 	}
 	request := s.position.Clone()
+	generation := s.generation
 	if !s.cycleOpen {
 		s.cycleOpen, s.deferred = true, 0
 		for _, v := range s.projects {
@@ -216,6 +220,12 @@ func (s *ProjectRunners) discover(ctx context.Context) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.stopped {
+		return
+	}
+	// A confirmed Project stop invalidates the whole captured page before it
+	// can alter seen/position or stop unrelated runners. A fresh cycle reads
+	// the original concrete directory, which excludes deleting Projects.
+	if generation != s.generation {
 		return
 	}
 	s.discoveryError = err
@@ -249,8 +259,7 @@ func (s *ProjectRunners) discover(ctx context.Context) {
 	if page.Complete {
 		for p, v := range s.projects {
 			if !v.seen && !v.stopping {
-				v.stopping = true
-				s.ops.stop(v.runner)
+				s.stopManagedLocked(v)
 			}
 			if v.stopping && !v.active && !uncertainProjectVisit(v.err) && s.ops.joined(v.runner) {
 				delete(s.projects, p)
@@ -277,8 +286,10 @@ func (s *ProjectRunners) startDue(ctx context.Context) {
 			continue
 		}
 		v.active = true
+		owned, cancel := context.WithCancel(ctx)
+		v.cancel = cancel
 		prior := v.err
-		go s.runOne(ctx, v, prior)
+		go s.runOne(owned, v, prior)
 	}
 	s.notifyLocked()
 }
@@ -302,20 +313,48 @@ func (s *ProjectRunners) runOne(ctx context.Context, v *managedRunner, prior err
 				err = errors.Join(prior, err)
 			}
 		}
+		if v.cancel != nil {
+			v.cancel()
+			v.cancel = nil
+		}
 		v.active, v.err, v.next = false, err, time.Now().Add(s.options.DiscoveryInterval)
+		if v.stopping && !uncertainProjectVisit(v.err) && s.ops.joined(v.runner) && s.projects[v.runner.options.ProjectID] == v {
+			delete(s.projects, v.runner.options.ProjectID)
+		}
 		s.notifyLocked()
 		s.mu.Unlock()
 	}()
+	if err = ctx.Err(); err != nil {
+		return
+	}
+	s.mu.Lock()
+	stopped := s.stopped || v.stopping
+	s.mu.Unlock()
+	if stopped {
+		err = fault(f.ShuttingDown)
+		return
+	}
 	if uncertainProjectVisit(prior) {
 		err = s.ops.recover(ctx, v.runner, prior)
 		if err != nil {
 			return
 		}
-		prior = nil
+		if err = ctx.Err(); err != nil {
+			return
+		}
 		s.mu.Lock()
+		if s.stopped || v.stopping {
+			s.mu.Unlock()
+			err = fault(f.ShuttingDown)
+			return
+		}
+		prior = nil
 		v.err = nil
 		s.notifyLocked()
 		s.mu.Unlock()
+	}
+	if err = ctx.Err(); err != nil {
+		return
 	}
 	err = s.ops.run(ctx, v.runner)
 }
@@ -457,9 +496,11 @@ func (s *ProjectRunners) Stop() {
 	if s.cancel != nil {
 		s.cancel()
 	}
+	for call := range s.stopControls {
+		call.cancel()
+	}
 	for _, v := range s.projects {
-		v.stopping = true
-		s.ops.stop(v.runner)
+		s.stopManagedLocked(v)
 	}
 	s.notifyLocked()
 }
@@ -476,7 +517,7 @@ func (s *ProjectRunners) retainedLocked() error {
 func (s *ProjectRunners) waitReturned(ctx context.Context, includeRun bool) error {
 	for {
 		s.mu.Lock()
-		active := includeRun && s.running
+		active := includeRun && s.running || len(s.stopControls) != 0
 		for _, v := range s.projects {
 			active = active || v.active
 		}
@@ -493,8 +534,9 @@ func (s *ProjectRunners) waitReturned(ctx context.Context, includeRun bool) erro
 	}
 }
 
-// Drain waits only this manager's actual runners. A retained Unknown remains
-// observable and occupies its slot; it is not discarded to claim a clean join.
+// Drain waits for this manager's actual runners and lifecycle controls. A
+// retained Unknown remains observable and occupies its slot; it is not
+// discarded to claim a clean join.
 // No cleanup call stops any borrowed Coordinator, Visitor, or executor.
 func (s *ProjectRunners) Drain(ctx context.Context) error {
 	if ctx == nil {
@@ -521,7 +563,7 @@ func (s *ProjectRunners) Joined() bool {
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if !s.stopped || s.running || s.retainedLocked() != nil {
+	if !s.stopped || s.running || len(s.stopControls) != 0 || s.retainedLocked() != nil {
 		return false
 	}
 	for _, v := range s.projects {

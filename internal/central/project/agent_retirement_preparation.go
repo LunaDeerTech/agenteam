@@ -31,16 +31,17 @@ type agentPreparationClaim struct {
 }
 
 type agentPreparationScope struct {
-	driver  *lifecycleStopState
-	claim   lifecycleStopClaim
-	cause   c.LifecycleCause
-	actor   i.Actor
-	ctx     context.Context
-	cancel  context.CancelFunc
-	mu      sync.Mutex
-	active  bool
-	loans   map[*agentPreparationLoan]struct{}
-	changed chan struct{}
+	driver         *lifecycleStopState
+	claim          lifecycleStopClaim
+	cause          c.LifecycleCause
+	actor          i.Actor
+	ctx            context.Context
+	cancel         context.CancelFunc
+	mu             sync.Mutex
+	active         bool
+	loans          map[*agentPreparationLoan]struct{}
+	schedulerStops map[*schedulerStopLoan]struct{}
+	changed        chan struct{}
 }
 
 type agentPreparationLoan struct {
@@ -91,6 +92,11 @@ func (s *agentPreparationScope) borrow(ctx context.Context, tx f.Tx, request c.A
 	if !s.active || s.ctx.Err() != nil {
 		return nil, fault(f.InvalidState)
 	}
+	// A Scheduler control is a different synchronous loan. Its saved context
+	// cannot inherit this scope to create an Agent read after that control ends.
+	if ctx.Value(schedulerStopLoanKey{}) != nil {
+		return nil, fault(f.Forbidden)
+	}
 	parent, _ := ctx.Value(agentPreparationLoanKey{}).(*agentPreparationLoan)
 	if parent != nil && (!s.ancestorsActive(parent) || parent.tx != tx || !sameAgentPreparationRequest(parent.request, request)) {
 		return nil, fault(f.Forbidden)
@@ -111,7 +117,8 @@ func (s *agentPreparationScope) release(loan *agentPreparationLoan) {
 
 // Only invoke closes a scope, after the fixed step returned. With releases its
 // own loan without waiting for children, so a callback never waits on itself.
-// Closing cancels and seals admission before waiting for actual loan returns.
+// Closing cancels and seals admission before waiting for actual Agent read and
+// Scheduler control loan returns. Neither loan may close its own scope.
 func (s *agentPreparationScope) close() {
 	s.mu.Lock()
 	s.active = false
@@ -119,7 +126,7 @@ func (s *agentPreparationScope) close() {
 	s.cancel()
 	for {
 		s.mu.Lock()
-		if len(s.loans) == 0 {
+		if len(s.loans) == 0 && len(s.schedulerStops) == 0 {
 			s.mu.Unlock()
 			return
 		}
