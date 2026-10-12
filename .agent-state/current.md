@@ -1,3 +1,9 @@
+# Runner write-file Operation 候选
+
+2026-10-12：独立 `/tmp/agenteam-runner-write-file-operation`，基线 main `105ff95f`。本片实现持久 ToolCall→当前授权同Tx Operation/Attempt→原COMMIT实际返回→Claim/WSS一次→真实退出→原发布结果与retired同Tx；尚未编译/运行，默认未绑定与原STOP保持。详见[本卡](../docs/development/work-items/d15-runner-write-file-operation.md)。recovery_lead 只写 Tool runtime 与本卡/current；其余域已按root分工，迁移69唯一writer为skills_milestone_review。当前只源码/静态，Go/native窗口另由root排。
+
+以下保留基线全局索引，历史清理数不由本任务自行推进。
+
 # 全局协调索引
 
 2026-10-11。Execution RoundInput（68）已随完整开发历史 main `bf7c882a` 有限交付并推送；recovery_lead 维护本次保全记录，root 负责 Git、清理和资源排期。正式交付边界见[任务台账](../docs/development/agent-team/tasks.md)与[68 本卡](../docs/development/work-items/d22-execution-round-input.md)。main `53ac76fe` 的全局保全、清理和保护记录保持；68 原件保全及树/本地分支清理已实际完成并计入下列累计，分段接受不等于 main 单次全量通过。
