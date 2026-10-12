@@ -1,6 +1,8 @@
 # Agent Project call ownership validation
 
-The bounded basic checks passed at `e752c0bda5d00f6f04260b811028932511f1c21a`. PG source and methods are prepared for separate review and authorization; **this slice has not compiled or run its PG profile**. The [work item](../../docs/development/work-items/d08-agent-project-call-ownership.md) defines the opt-in boundary.
+The bounded basic checks passed at `e752c0bda5d00f6f04260b811028932511f1c21a`. PG source and methods passed their limited static reviews; **this slice has not compiled or run its PG profile**. The [work item](../../docs/development/work-items/d08-agent-project-call-ownership.md) defines the opt-in boundary.
+
+The normal merge at technical head `1e06f67b75ae735d34cca4b8debfd20096451633` combines saved Agent PG sources `ab4da6f0` and methods `9d42e8c6` with the validated Model technical tip `4f76ef40eb0b8129940a21e2e36c55d0e03eaa83`. This combined head has not compiled or run the Agent PG profile. The basic result below belongs to its original `e752c0bd` / `92042` execution and is not a new test of the combined head.
 
 ## Original basic result
 
@@ -25,7 +27,7 @@ Static review corrected the original foreign Create replay to a completed non-na
 
 ## Authorized execution method
 
-The methods reuse this tree's delivered [local-stop method](../agent-project-local-stop/run-pg-checks.py). Shared harness changes add only this exact profile; removal of that key must leave both shared ASTs and existing effective maps equal to baseline `e752c0bda5d00f6f04260b811028932511f1c21a`. The profile control contains one positive and seven negative cases; **they have not yet run for this profile**. No resource or Wait algorithm was added.
+The methods reuse this tree's delivered [local-stop method](../agent-project-local-stop/run-pg-checks.py). The combined shared harness includes both the delivered Model profile and this Agent profile. Relative to Model technical tip `4f76ef40eb0b8129940a21e2e36c55d0e03eaa83`, removal of only this Agent selector must leave both complete shared ASTs and all existing effective maps unchanged. The profile control uses that actual Model tip as `BASE`; the original whole-AST comparison and one-positive/seven-negative gates are unchanged. The profile control contains one positive and seven negative cases; **they have not yet run for this profile**. No resource or Wait algorithm was added.
 
 After independent review and a root-authorized exclusive Go/cache window, the planned commands are:
 
