@@ -249,6 +249,12 @@ Audit库与Secret库本身没有自主Project执行/外部业务worker：它们�
 
 Work Stop 仅消费原 LifecycleStopDriver 当前 invoke 的独立私有 loan；原同 Store Project EX 授权事务实际 Committed 返回后才能取消捕获的同 P 原调用，各后继 Tx 再核同一 active loan、exact claim/cause、完整冻结 manifest 和 work participant。Archive 只收 mutation，Delete 同时收 read，B 不受全局停止；父 scope 封闭后等待所有原 loan 实际返回，保存 context 不能跨 Agent、Scheduler、Execution 或 ArtifactSource 借权。独立 Reader 与调度借入 caller Tx 不在五 Service 停止结果内；owned 构造下 TransferTaskInTx 没有覆盖 caller Store 返回的原私有见证时拒绝，旧构造业务兼容。这里不默认绑定 App/部分 Registry，也不声称完整 Delete。
 
+### Scheduler 显式调用归属与 Delete 停止（候选范围）
+
+显式 Scheduler 工厂绑定同 Store、原 ProcessGuard/process 与实例身份，覆盖 Coordinator、PendingVisitor、LaunchHandoff、BusyCompensator、LaunchFailureFinalizer、RelaunchCoordinator 六个原 owner 及 ProjectRunner 第七 lane；manager 的原调用尾也必须实际返回。迁移 00081 仅新增本域 project_calls：持久完整 P/process/instance/lane、原调用 canonical identity/digest，身份不可变，running 单调进入 business_closed，历史禁止删除。closed 行、取消、无本地 handle 均不能代替原 Store、借入 Tx 或外层调用实返；同进程未知实例仍 Pending，foreign 仅凭原 ProcessGuard 停止证明并同 Tx 重核。
+
+新 `NewSchedulerProjectStopAuthority` 仅接受 Delete 当前停止轮：原同 Store 的 Project EX 与 ProjectSchedule EX 授权事务实际 Committed 返回后进入回调，每个后继 Tx 重新消费原私有 issuer/loan、exact current claim/cause、完整冻结 manifest 及 scheduler participant。父 scope 等待实际 callback/Store 尾；旧 manager-only 权限与 Agent、Execution、ArtifactSource、Work family 均不能借用新门。旧 SchedulerStopAuthority 行为保留，不扩 Archive 取消语义。Stop 不调用会写 association 的 Lookup 或 Advance；Handoff 原 Unknown 只消费既有 exact Launched/KnownNotCreated，Found 但尚未关联仍 Pending。Execution 接管后的生命周期归其原 owner。本片不提供 Scheduler Cleanup，不绑定默认 App/部分 Registry，也不把七 lane stopped 当作完整 Delete。
+
 ### Variables metadata 子步骤（限定验收）
 
 固定 Agent→Skills 清理组合新增后继 Variables metadata 子步骤，由实际 `ProjectCallOwnership` 的 ordinary/Secret 双 lane 消费。每轮 provider 的原控制调用计入两 lane 的实际返回；不调用全局 Stop 影响另一 Project，也不在 cleaning 阶段借用仅 stopping 有效的旧 Stop 授权。每个原短事务先取得 Project EX，核同 Store/live Tx、完整 current Delete/manifest/domains 与该 driver 的独立 Variables 私有 claim scope；Agent/Skills/Outbox/Audit 或已结束 callback 不能借用。
