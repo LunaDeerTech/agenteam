@@ -257,3 +257,12 @@ Agent最终 `149fa2137235a11e78f6be5deefe86c39f491cfd`（受测 `153232f6`）正
 [精确保全](../output/ai/retired-20261012/variable-project-call-app-preservation/result.json)原84801/862283 actual0，outer1287626/child1287629 Wait0/5.596s：90files/99,816,068B/11dirs同FS NOREPLACE，全部path SHA/stat/inode前后同；24maps2071源码版本main Git可恢复，无重构例外。单binary、原Wait/四身份及全部结果原样；tmp4copy7458B且原tmp保留，2external仅原路径hash/stat保护，不冒Git或包体归档。独立432560接受后才清理，有限PID/owner声明不冒全局FD证明。
 
 [普通清理](../output/ai/variable-project-call-app-delivery/cleanup01/result.json)原94310/c9cf15 actual0：仅旧App tree普通worktree remove及本地 `ai/variable-project-call-app-20261012` 普通branch-d；fresh远端前后为空，显式main/ai fetch-prune后local/tracking空。未创建远端，也没有远端删除。实际仅+1树/+1本地，累计 **51 WorkTrees / 52本地分支 / 85远端引用**，legacy135待核/keep1不变。Work后继树从已交main987ca创建并单卡156ce126后并行实施，尚未Go、不计清理；全部历史FAIL/STOP、保护依赖与整体目标未完成保持。
+
+
+## 2026-10-12 Work Agent指派引用事实口实际清理
+
+受测 `f9548b17e33c8fdab474f9dc6148ff713e2dd8aa` 与最终两文档 `3bb16f8e6c6380cabef70f8b986183688a04ec7a` 正常 no-ff 合入 main `60d7e7487b3b64b593cddf5d32ec5e19642557d5`，保留原be50及全部源码祖先。[集成](../output/ai/work-agent-assignee-references-delivery/integrate01/result.json)4f8a51 actual0核技术 blobs 等受测；[push/fresh/tracking](../output/ai/work-agent-assignee-references-delivery/push01/result.json)原88282/3e0e84 actual0。原basic01 22945/cfb42d FAIL及f92d/c589源码完整保留，f954只修测试两处名称；basic02 5top32sub/work race+2vet、controls/单binary及native01原16513/a3e934 1top3sub wholePASS沿原有限验收，不外推Agent存在/退休、Task writer或foreign Join。
+
+[精确保全](../output/ai/retired-20261012/work-agent-assignee-references-preservation/result.json)原1837/de0e07 actual0，outer1315026/child1315029 Wait0/3.699s：120files/99,747,633B/13dirs同FS NOREPLACE，全部path SHA/stat/inode前后同；31maps2076main Git版本含原FAIL/修正输入，无重构例外。单binary、14Wait、四身份、tmp4copy8232B且原tmp保留，2external仅原hash/stat保护。原只读plan02/76122 schema前置FAIL、03精确适配和全部原件保留，见[恢复说明](work-agent-assignee-references/README.md#main-delivery-and-retirement)。独立9afec6接受后才清理，有限PID/owner声明不冒全局FD证明。
+
+[普通清理](../output/ai/work-agent-assignee-references-delivery/cleanup01/result.json)原60325/28e6b6 actual0：仅本片旧tree普通worktree remove及 `ai/work-agent-assignee-references-20261012` 普通branch-d；fresh远端前后为空，显式main/ai fetch-prune后local/tracking空。未创建远端，也没有远端删除。实际仅+1树/+1本地，累计 **52 WorkTrees / 53本地分支 / 85远端引用**，legacy135待核/keep1不变；本轮未新建后继树。135属于尚待定向证明的历史引用，不作永久保护结论，也未广扫或新增删除候选；全部FAIL/STOP、保护依赖与整体目标未完成保持。
