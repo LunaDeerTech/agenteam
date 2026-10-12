@@ -15,3 +15,12 @@ ALTER TABLE agenteam_artifact.project_work
 -- establish return. This column is an identity, never a Project authorization.
 ALTER TABLE agenteam_artifact.project_work
   ADD COLUMN instance_id agenteam_object.safe_id;
+
+-- A stopped row alone cannot prove that its original checkpoint call returned.
+-- Keep the issuing owner identity even when the work ledger was already empty.
+-- Legacy receipts remain unowned; neither identity is inferred or backfilled.
+ALTER TABLE agenteam_artifact.project_stops
+  ADD COLUMN owner_process_id agenteam_object.safe_id,
+  ADD COLUMN owner_instance_id agenteam_object.safe_id,
+  ADD CONSTRAINT artifact_project_stop_owner_pair
+    CHECK ((owner_process_id IS NULL) = (owner_instance_id IS NULL));
