@@ -141,3 +141,13 @@ main推送PID901989实际Wait0后，fresh查询PID902017实际0精确匹配上�
 main push PID924357实际Wait0后，fresh查询PID924385实际0且精确等上述tip；仅该远端的exact-lease删除PID924389实际0，后继fresh PID924416实际0且为空，显式main与ai/* fetch/prune PID924440实际0。原10299/39881e actual0确认tracking、本地同名分支与worktree均空，见[最终引用核验](../output/ai/branch-cleanup-20261012/sprint-start-history/remote-verification.json)。本候选原无本地分支或树，仅增加1个远端删除：累计 **39 WorkTrees / 40本地分支 / 77远端引用**，legacy139→138待核，原显式keep1不变。current待当前Write任务后续统一更新，本轮未改。
 
 本次只保留已提交源码。原frontend01的15PASS/1FAIL、TS18047及build未启动事实不回填；旧compile01是较早输入PASS，不能误记native失败。原文档指向的旧执行树、output和 `/tmp/ssw01/ui-10a2f04e582244ca.log` 在先前有界精确路径检查中未见，未遍历全部归档，不声称毁损或排除其它副本；ignored日志、binary/dist、截图、原Wait与未提交现场均未由此次Git历史合入恢复。原FAIL、全部STOP、保护缓存及总体未完成范围不变。小proof为ignored材料，跨设备需另行保留，已提交源码由已推送main完整历史恢复。
+
+## 2026-10-12 Agent / Sprint配置：历史已保留，远端清理完成
+
+本轮由 root 明确授权的唯一 Git 执行者完成，未扩大其它候选。`ai/agent-sprint-configuration-integration` 的精确tip为 `fe5e2a564839bf29defcaa14cc59ba538e895119`，最终tree与已交main祖先 `29666627a5685c59ad10205571ebf7f1ced447ef` 相同。真正的 `merge --no-ff --no-commit -s ours` 产生 `f5eca8c88f77552c029237815d8e54be37f43d04`，有序两父为原main `99a9a33a690e87ca86efc2af1d52dc47a1f456cc` 与该候选tip；结果tree仍为第一父的 `9378dd87632e1f3f5a9e49ef912e98824a16a74e`，文件零变化。原32dfb0 actual0确认合并与提交，没有运行产品测试或重新接受旧失败实现。
+
+SprintStart历史合入并未减少本候选缺口，原[plan](../output/ai/branch-cleanup-20261012/agent-sprint-history/plan.json)与[逐版本清单](../output/ai/branch-cleanup-20261012/agent-sprint-history/source-versions.json)仍固定59已可达、38待保留。后验82186/5910d6 actual0确认12个线性独有提交及唯一外部父均为main祖先，35路径/97版本共3,539,228B按原commit:path逐blob、type、size与SHA实读一致；限定路径 `--full-history` 为59→97，38缺口共1,151,303B全部闭合，见[实际后验](../output/ai/branch-cleanup-20261012/agent-sprint-history/post-merge.json)。原小proof未改，有界凭据启发式的三处命中仅为field_errors到password字段的验证文案，不输出原值、不扩大为全仓无敏感材料保证。
+
+main push PID930787实际Wait0后，fresh查询PID930814实际0且精确匹配上述tip；单ref exact-lease删除PID930837实际0，fresh PID930843实际0且为空，显式main与ai/* fetch/prune PID930868实际0。原15760/38b8b0 actual0确认tracking、本地同名分支与worktree均空，见[最终引用核验](../output/ai/branch-cleanup-20261012/agent-sprint-history/remote-verification.json)。本候选原无本地分支或树，仅增加1个远端删除：累计 **39 WorkTrees / 40本地分支 / 78远端引用**，legacy138→137待核，原显式keep1不变。current及当前Write受测输入未动，活动任务不计为交付或清理。
+
+原共同frontend01的41PASS/1FAIL、Agent native01回焦断言FAIL、Sprint native01标题label FAIL与native02创建后路由回焦FAIL全部保留；后继分段通过不回填。旧执行树、组合output与 `/tmp/scr03/ui-ed204c1faa154bfd.log` 在原有界精确路径检查中未见，未遍历全部归档，不声称毁损或排除其它副本。此次Git合入仅恢复已提交源码，未补回ignored日志、binary/dist、截图、原Wait或未提交现场；单独sprint-focus保留项、其它材料HOLD、全部STOP、保护缓存及总体未完成范围不变。小proof属于ignored材料，跨设备须另行保留；已提交源码由已推送main完整历史恢复。
