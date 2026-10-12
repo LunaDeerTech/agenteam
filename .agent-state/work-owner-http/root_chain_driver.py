@@ -18,6 +18,15 @@ MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 # One closed same-package PG family: adding a scenario changes required
 # inputs and expected test data, never the resource/Wait/tail implementation.
 METADATA_INPUTS = {
+    '^TestRunCommandOperation$': (
+        'tests/projectvariable/run_command_operation_test.go',
+        'db/migrations/00070_runner_command_operations.sql',
+        'internal/central/tool/runtime/run_command_executor.go',
+        'internal/central/tool/runtime/run_command_authority.go',
+        'internal/central/mount/command.go',
+        'internal/central/runner/http/command_dispatch.go',
+        '.agent-state/runner-command-operation/profile-controls.py',
+    ),
     '^TestWriteFileOperation$': (
         'tests/projectvariable/write_file_operation_test.go',
         'db/migrations/00069_runner_write_file_operations.sql',

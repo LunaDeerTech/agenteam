@@ -199,6 +199,11 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestRunCommandOperation$': frozenset((
+        'TestRunCommandOperation',
+        'TestRunCommandOperation/committed-attempt-command-and-lookup',
+        'TestRunCommandOperation/environment-added-before-claim-no-dispatch',
+    )),
     '^TestWriteFileOperation$': frozenset((
         'TestWriteFileOperation',
         'TestWriteFileOperation/committed-attempt-write-and-lookup',
