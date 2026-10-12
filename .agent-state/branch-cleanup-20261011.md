@@ -290,3 +290,21 @@ Runner选择刷新修复 `dc304753269f1f4e7f8cafa3a1fe91bacff203b0` 已正常合
 [保全](../output/ai/retired-20261012/agent-retirement-preparation-preservation/result.json)原5299/3e722f实际Wait0/3.512s：90文件/98,257,065B/11目录同FS无覆盖迁至 `output/ai/retired-20261012/agent-retirement-preparation`，原SHA/stat/inode一致；24图2082Git源码版本可恢复，tmp4副本7803B且原件保留，2个外部工具仅保护原路径身份、不冒Git恢复。runtime008de1有限独核接受。原[source01](../output/ai/agent-retirement-preparation-delivery/source01/tool-observation.json)e23bc8静态解析FAIL保留，不是产品或业务运行FAIL；实际验收与恢复边界见[本片README](agent-retirement-preparation/README.md#main-delivery-and-retirement)。
 
 [普通清理](../output/ai/agent-retirement-preparation-delivery/cleanup01/result.json)27426/409777实际0，outer1490716：仅旧树普通remove与本地branch-d，fresh远端前后均不存在，0远端删除；显式main+task-prefix fetch/prune无残ref。本次+1树/+1本地，累计 **54 WorkTrees / 55本地分支 / 88远端引用**，132待核/keep1不变。新Scheduler树基于e4cf、卡176b3a后静态实施，不计清理或验收。本片仍仅受控accepted前置后的真实StopDriver只读配置/回调返回，不冒Agent退休、完整Registry或外层Store尾；全部既有STOP保持。
+
+
+## 2026-10-12 Scheduler项目停止片交付与两条历史远端清理
+
+Scheduler受测 `898ed8ebd91e0a272ad3eec07ca8d4721f133969`、最终文档 `ecda1596d4061f097c50c9c95bef98e6fadd0789` 已正常完整合入并推送 main `1b1a1cb927465e572ff312d62b568a7c290b1415`；[交付回执](../output/ai/scheduler-project-stop-delivery/main01/result.json)94751/1df347实际0核技术树同受测、fresh一致。首basic01 86231/f2eb4b编译FAIL保留，仅测试补必需第三参数后basic02 15top34sub/两包race与2vet、controls/单binary和native5554/d9b30e 1top2sub wholePASS；不因迁址重测或扩大本manager/Delete-only范围。
+
+[保全](../output/ai/retired-20261012/scheduler-project-stop-preservation/result.json)原8921/c0f341 Wait0/4.778s：122文件/101,136,754B/13目录同FS无覆盖迁至 `output/ai/retired-20261012/scheduler-project-stop`，SHA/stat/inode相同；31图2088Git源码版本、tmp4副本7250B且原件保留，2external不冒Git恢复。runtime0d2b21有限独核接受，原source/fix/FAIL/PASS全部保留，见[恢复说明](scheduler-project-stop/README.md#main-delivery-and-retirement)。
+
+[普通清理](../output/ai/scheduler-project-stop-delivery/cleanup01/result.json)原65933/61eaed实际0，outer1517258：仅旧树普通worktree remove与本地branch-d；feature从未推送，远端fresh前后均不存在，新增remote为0，显式main+task-prefix fetch/prune无残ref。本片只增加1树/1本地。
+
+此前另有[两条远端精确清理](../output/ai/branch-cleanup-20261012/bounded2-after-agent-prep01/delete01/result.json)85879/cd0a11实际0，fresh精确lease删除后均空、只清对应tracking，未增加本地或树删除。原tips均非main祖先；分别10/7个changed blobs及完整patch字节等对应main提交，16份原commit/tree元数据共15,950B保留，见[固定候选](../output/ai/branch-cleanup-20261012/bounded2-after-agent-prep01/final-candidates.json)与[恢复证明](../output/ai/branch-cleanup-20261012/bounded2-after-agent-prep01/recovery-proof.json)。不把内容等价改称原tip已merge。
+
+| 删除的远端引用 | 原tip | 内容对应main提交 |
+| --- | --- | --- |
+| `ai/agent-edit-current-ui` | `7d9ed5ef3f985d87d5372d58b5fce37c4e584bfe` | `98ba43a83643fa5ec6a65486efc62325ebca10da` |
+| `ai/central-execution-runtime` | `d1b991dd99e497d035dcdd4ed10b1f7d855955c9` | `22c8261ff17a4ee4762fbb0fa3ede48dec377f33` |
+
+上述两远端使待核132降至130，再计本片树/本地清理，最新累计 **55 WorkTrees / 56本地分支 / 90远端引用**，130待核/keep1。本次无新增后继活动树授权，旧4树及keep1不动；全部既有STOP、历史失败及整体平台未完成事实保持。

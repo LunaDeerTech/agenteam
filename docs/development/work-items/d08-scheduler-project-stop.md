@@ -1,6 +1,6 @@
 # Scheduler 按项目停止与原调用返回
 
-状态：本片已实现并完成限定 basic 与真实 PG 整链验收，受测版本 `898ed8ebd91e0a272ad3eec07ca8d4721f133969`；首轮 basic 编译失败保留如下。树 `/workspace/agenteam-scheduler-project-stop`，分支 `ai/scheduler-project-stop-20261012`，基线 `e4cf974eacd303c46e763cf9524db8ad61cec1b1`，迁移上限 75；本片不新增迁移。只停止一个真实 manager 所有的目标 Project runner；不清 Task assignee、不停止共享 Execution/Coordinator/Visitor，不证明 foreign 终局或完整 participant，不接 App 默认 Registry。
+状态：本片已实现并完成限定 basic 与真实 PG 整链验收，受测版本 `898ed8ebd91e0a272ad3eec07ca8d4721f133969`；首轮 basic 编译失败保留如下。原树 `/workspace/agenteam-scheduler-project-stop` 与本地分支 `ai/scheduler-project-stop-20261012` 已普通清理，基线 `e4cf974eacd303c46e763cf9524db8ad61cec1b1`，迁移上限 75；本片不新增迁移。只停止一个真实 manager 所有的目标 Project runner；不清 Task assignee、不停止共享 Execution/Coordinator/Visitor，不证明 foreign 终局或完整 participant，不接 App 默认 Registry。
 
 ## 原调用链与固定接口
 
@@ -43,8 +43,10 @@ runner 业务 Unknown 两序留纯控，不为了 PG 清理伪造 Joined；任�
 
 ## 实际验收
 
-- [basic01 原 FAIL](../../../output/ai/scheduler-project-stop/basic01-outer/post-check.json)：`86231/f2eb4b` actual exit 1；Project 7 top / 30 sub 已 PASS，Scheduler 新测试缺 `NewRecoveryCause` 第三个参数而未执行，vet 与后继未启动。唯一修正是在该测试补空 `checkpointRef`，形成受测 `898ed8e`；没有产品修正，不抹原编译失败。
-- [basic02](../../../output/ai/scheduler-project-stop/basic02-outer/post-check.json)：`59860/2c2a82` actual exit 0，15 top / 34 sub、Project/Scheduler 两包 race 与两包 vet 全 PASS；573 六图及 14 outer 输入一致。[sequence01](../../../output/ai/scheduler-project-stop/sequence01/post-check.json) `45610/a0ee44` actual exit 0，controls 1+/7-、单 binary compile/list/prepare 原 Wait 全 0，2,085 compile → 2,086 runtime 输入一致。
-- [native01 whole PASS](../../../output/ai/scheduler-project-stop/native01/post-check.json)：`5554/d9b30e` actual exit 0；supervisor 1508414 Wait 0 / 151.351s，driver 1508435 与 Go 1510238 原 Wait 0。1 top / 2 sub 共 36.49s（17.74s / 18.75s）；2,086 输入、四身份及受测 HEAD 相同，7 资源/14 次缺失、双尾与 TCP75 双空、无 race warning。完整方法和原件索引见 [验证说明](../../../.agent-state/scheduler-project-stop/README.md#actual-results)。
+- [basic01 原 FAIL](../../../output/ai/retired-20261012/scheduler-project-stop/basic01-outer/post-check.json)：`86231/f2eb4b` actual exit 1；Project 7 top / 30 sub 已 PASS，Scheduler 新测试缺 `NewRecoveryCause` 第三个参数而未执行，vet 与后继未启动。唯一修正是在该测试补空 `checkpointRef`，形成受测 `898ed8e`；没有产品修正，不抹原编译失败。
+- [basic02](../../../output/ai/retired-20261012/scheduler-project-stop/basic02-outer/post-check.json)：`59860/2c2a82` actual exit 0，15 top / 34 sub、Project/Scheduler 两包 race 与两包 vet 全 PASS；573 六图及 14 outer 输入一致。[sequence01](../../../output/ai/retired-20261012/scheduler-project-stop/sequence01/post-check.json) `45610/a0ee44` actual exit 0，controls 1+/7-、单 binary compile/list/prepare 原 Wait 全 0，2,085 compile → 2,086 runtime 输入一致。
+- [native01 whole PASS](../../../output/ai/retired-20261012/scheduler-project-stop/native01/post-check.json)：`5554/d9b30e` actual exit 0；supervisor 1508414 Wait 0 / 151.351s，driver 1508435 与 Go 1510238 原 Wait 0。1 top / 2 sub 共 36.49s（17.74s / 18.75s）；2,086 输入、四身份及受测 HEAD 相同，7 资源/14 次缺失、双尾与 TCP75 双空、无 race warning。完整方法和原件索引见 [验证说明](../../../.agent-state/scheduler-project-stop/README.md#actual-results)。
 
 以上仅证明本 manager 的 Delete-only 停止、真实 A/B 隔离和私有 scope 下原调用返回；accepted Delete 与授权 ackmask 的受控边界不变。物理 COMMIT 后的原 Store 返回屏障不冒 SQL 锁仍持有；不证明 foreign/global 终局、Task 关系清退、Agent 退休或 full Registry。
+
+本片已随最终文档 `ecda1596d4061f097c50c9c95bef98e6fadd0789` 正常合入并推送 main `1b1a1cb927465e572ff312d62b568a7c290b1415`，技术字节与受测 `898ed8eb` 同。122文件/101,136,754B/13目录同FS无覆盖保全后独核接受；31图2088Git源码版本、tmp4副本7250B及原FAIL/修正/PASS均保留。原65933/61eaed实际0普通清理旧树与本地分支，feature从未推送、远端前后原空，未增加远端删除。见[主线交付与恢复](../../../.agent-state/scheduler-project-stop/README.md#main-delivery-and-retirement)。
