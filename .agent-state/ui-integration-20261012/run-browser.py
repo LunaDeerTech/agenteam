@@ -72,6 +72,17 @@ VARIABLES_CLEANUP_SELECTOR = '^TestProjectVariablesCleanup$'
 VARIABLES_CLEANUP_EXPECTED = {'TestProjectVariablesCleanup',
                               'TestProjectVariablesCleanup/owned-lanes-batches-and-original-return',
                               'TestProjectVariablesCleanup/original-unknown-and-metadata-only-recovery'}
+AGENT_VARIABLES_FINALIZATION_SELECTOR = '^TestProjectAgentVariablesFinalization$'
+AGENT_VARIABLES_FINALIZATION_EXPECTED = {'TestProjectAgentVariablesFinalization',
+                                        'TestProjectAgentVariablesFinalization/terminal-receipt-and-original-return',
+                                        'TestProjectAgentVariablesFinalization/original-unknown-and-receipt-confirmation',
+                                        'TestProjectAgentVariablesFinalization/foreign-live-instance-retains-terminal-data',
+                                        'TestProjectAgentVariablesFinalization/empty-not-applied-original-return-fences-new-pairs'}
+SECRET_CLEANUP_SELECTOR = '^TestProjectSecretCleanup$'
+SECRET_CLEANUP_EXPECTED = {'TestProjectSecretCleanup',
+                           'TestProjectSecretCleanup/head-batches-and-original-return',
+                           'TestProjectSecretCleanup/original-unknown-readonly-confirmation',
+                           'TestProjectSecretCleanup/formal-provider-reference-remains-pending'}
 
 def save(path, value):
     with path.open('x') as stream:
@@ -136,8 +147,14 @@ def main():
                        help='run the reviewed Agent assignment-history retirement and migration scope')
     scope.add_argument('--variables-cleanup', action='store_true',
                        help='run the reviewed Project Variables cleanup integration scope')
+    scope.add_argument('--agent-variables-finalization', action='store_true',
+                       help='run the reviewed Agent and Variables terminal owner cleanup scope')
+    scope.add_argument('--secret-cleanup', action='store_true',
+                       help='run the reviewed Project Secret cleanup integration scope')
     a = p.parse_args()
-    selector = (VARIABLES_CLEANUP_SELECTOR if a.variables_cleanup else
+    selector = (SECRET_CLEANUP_SELECTOR if a.secret_cleanup else
+                AGENT_VARIABLES_FINALIZATION_SELECTOR if a.agent_variables_finalization else
+                VARIABLES_CLEANUP_SELECTOR if a.variables_cleanup else
                 AGENT_RETIREMENT_SELECTOR if a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history else
                 SKILLS_CLEANUP_SELECTOR if a.skills_cleanup else
                 AUDIT_SELECTOR if a.audit_cleanup else
@@ -149,7 +166,9 @@ def main():
                 USAGE_SELECTOR if a.project_usage_summary else
                 SECRET_SELECTOR if a.secret_delete else
                 CREATE_SELECTOR if a.project_creation else SELECTOR)
-    expected = (VARIABLES_CLEANUP_EXPECTED if a.variables_cleanup else
+    expected = (SECRET_CLEANUP_EXPECTED if a.secret_cleanup else
+                AGENT_VARIABLES_FINALIZATION_EXPECTED if a.agent_variables_finalization else
+                VARIABLES_CLEANUP_EXPECTED if a.variables_cleanup else
                 AGENT_ASSIGNMENT_HISTORY_EXPECTED if a.agent_assignment_history else
                 AGENT_INITIAL_GRANT_EXPECTED if a.agent_initial_grant else
                 AGENT_RETIREMENT_EXPECTED if a.agent_retirement else
@@ -163,9 +182,9 @@ def main():
                 USAGE_EXPECTED if a.project_usage_summary else
                 SECRET_EXPECTED if a.secret_delete else
                 CREATE_EXPECTED if a.project_creation else EXPECTED)
-    node_count = (0 if a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup else
+    node_count = (0 if a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup else
                   1 if a.project_creation or a.secret_delete or a.project_usage_summary or a.skill_package_import or a.task_search else 2)
-    web_scopes = ([] if a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup else
+    web_scopes = ([] if a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup else
                   [('AGENTEAM_TASK_SEARCH_WEB', 'task-search')]
                   if a.task_search else
                   [('AGENTEAM_SKILL_IMPORT_WEB', 'skill-import')]
@@ -186,7 +205,7 @@ def main():
         assert (a.runner_binary.is_absolute() and a.runner_binary.is_file()
                 and a.runner_binary.resolve() == a.runner_binary
                 and os.access(a.runner_binary, os.X_OK))
-    elif a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup:
+    elif a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup:
         assert a.dist is None and a.runner_binary is None
     else:
         assert a.runner_binary is None
@@ -219,6 +238,8 @@ def main():
          'agent_initial_grant':a.agent_initial_grant,
          'agent_assignment_history':a.agent_assignment_history,
          'variables_cleanup':a.variables_cleanup,
+         'agent_variables_finalization':a.agent_variables_finalization,
+         'secret_cleanup':a.secret_cleanup,
          'runner_binary':str(a.runner_binary) if a.runner_binary else None,
          'runtime':str(a.runtime),'supervisor_pid':os.getpid(),
          'pg_current_only':a.pg_current_only,'project_creation':a.project_creation,
