@@ -241,24 +241,5 @@ func decodeRunCommandStoredResult(ref runCommandResultReference, raw, stdout, st
 // A known report is not necessarily a successful command. Code selection never
 // consumes stderr or program text. The original flags remain in the report.
 func classifyRunCommandResult(result p.RunCommandResult) (outcome, code string) {
-	if result.CompletionCode != nil {
-		switch *result.CompletionCode {
-		case p.InternalError:
-			return "failure", string(p.InternalError)
-		case p.Timeout:
-			return "cancelled", string(p.Timeout)
-		case p.CancelledCode:
-			return "cancelled", string(p.CancelledCode)
-		}
-	}
-	if result.Cancelled || result.TimedOut || !result.OutputComplete {
-		return "failure", "output_incomplete"
-	}
-	if result.Signal != 0 {
-		return "failure", "command_signaled"
-	}
-	if result.ExitCode != 0 {
-		return "failure", "command_exit_nonzero"
-	}
-	return "success", ""
+	return tc.ClassifyRunCommandResult(result)
 }
