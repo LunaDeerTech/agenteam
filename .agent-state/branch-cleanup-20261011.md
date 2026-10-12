@@ -174,3 +174,12 @@ root明确授权的唯一Git执行者将最终 `67780ac4f01cb66305b93de89cfdf8f7
 旧树tracked/普通untracked/ignored均空、knownPID不可见且原owner确认实际全退，新Command方法只依自身树与受保护依赖。普通worktree remove PID966524实际0、普通branch -d PID966546实际0；fresh PID966547精确等最终67780ac4，单ref exact-lease删除PID966551实际0，fresh PID966606为空，显式main/ai fetch-prune PID966610实际0。原30239亲Wait0（e3f243）确认旧树/local/tracking全空，见[实际后验](../output/ai/write-file-result-consumption-git/cleanup01/result.json)。
 
 本次增加1树/1本地/1远端，累计 **40 WorkTrees / 41本地分支 / 81远端引用**，legacy135待核/原keep1不变。新 `/workspace/agenteam-run-command-result-consumption` 从实际已推送main ac025026独立创建（15591 Wait0/98a648），仅静态实施，不计清理或验收；旧FAIL、保护树、默认未绑定、tools HTTP STOP与总体未完成边界保持。
+
+
+## 2026-10-12 Command结果消费实际清理
+
+受测 `1ab01c81352f254ee45123ed29a08f40b1c310c1` 与最终两文档 `0ace633ab7768754c945f5379fce0b61847a8924` 已正常no-ff完整合入main `f1de19746a1997ddb0492c4073afdac07c7ae6a7`。main与feature atomic push、fresh精确核对及必要tracking同步原77337/e7542c亲Wait0，两tree clean；23top139sub/5vet、native03 1top2sub wholePASS沿唯一主审有限接受复用，无产品重测。
+
+[完整保全](../output/ai/retired-20261012/run-command-result-consumption-preservation/result.json)原92796/363620实际0，child1025879 Wait0/4.770s：同FS NOREPLACE迁至main `output/ai/retired-20261012/run-command-result-consumption`，152文件/100,974,708B/23目录全部路径/SHA/stat/inode前后同；29输入图中的2007仓库历史版本逐blob匹配原1ab且main可恢复。两个实际tmp共8小副本齐，原tmp保留；native01仅prepared、native02原ENOSPC FAIL、native03 PASS原样保存。独立主审已接受保全；外部依赖及78可再生cache包体未归档限制见[恢复说明](run-command-result-consumption/README.md#main-delivery-and-retirement)。
+
+旧树tracked/普通untracked/ignored皆空，原Wait与owner声明确认退出，新NRMR无旧绝对live依赖；可见knownPID核对不冒全局FD证明。fresh远端PID1026895精确等最终0ace后，普通worktree remove PID1026919与普通branch -d PID1026942均0；单ref exact-lease删除PID1026943、fresh空PID1026972及显式main/ai fetch-prune PID1026976均0。原6839/ac8726亲Wait0确认旧树/local/tracking全部为空，见[清理后验](../output/ai/run-command-result-consumption-git/cleanup01/result.json)。本次增加1树/1本地/1远端，累计 **41 WorkTrees / 42本地分支 / 82远端引用**，legacy135待核/原keep1不变。新NRMR树只冻结源码与方法、未动态验收，不计清理；全部FAIL、STOP、保护依赖与总体未完成范围保持。

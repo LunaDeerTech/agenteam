@@ -1,6 +1,6 @@
 # D22 Command 已知报告消费与后继只读投影
 
-状态：2026-10-12 显式 Command 已知报告消费已完成 scoped basic、编译与 `native03` whole actual 0；唯一 principal 已独验最终有限 wholePASS，允许保全并合入main。测试产品、PG 与方法固定为 `1ab01c81352f254ee45123ed29a08f40b1c310c1`，来自正式主线 `ac025026`，工作树 `/workspace/agenteam-run-command-result-consumption`。本次结果文档在测试后修改，最终文档提交不会替换原 tested 输入；尚不声称主线交付、清理或整体目标完成。
+状态：2026-10-12 显式 Command 已知报告消费已完成 scoped basic、编译与 `native03` whole actual 0，唯一 principal 已独验最终有限 wholePASS；受测产品、PG 与方法固定 `1ab01c81352f254ee45123ed29a08f40b1c310c1`，最终两文档 `0ace633a` 已随完整历史 main `f1de1974` 合入并推送。原完整output已无覆盖保全、历史版本main可恢复；旧工作树、本地分支和远端引用均已按普通/精确lease流程实际清理。最终文档不替换原tested输入，不表示整体目标完成。
 
 依据：[Model/Tool 契约](d01-contracts/model-tool.md)、[Command Operation](d15-runner-command-operation.md)、[Write 回执消费](d22-write-file-result-consumption.md)、[DetermineRoundInput](d22-execution-round-input.md)和[只读 Projection](d22-next-round-projection.md)。本片从70已持久的完整 Command 报告追加原 Execution seq3 与版本，沿68 Determine 后只读投影；不启动下一 Model，不重新派发。
 
@@ -40,6 +40,8 @@ skills_milestone_review 负责 Tool 历史合同、bundle codec、共享分类�
 
 容量整理另获两次明确授权：`cache-recovery01`固定78个可再生Go包缓存，人工旧缓存cutoff为2026-10-12T00:00:00Z（不是Popen时间/原Go Trim阈值/无引用证明）；`cache-removal01`逐原stat/header重核后仅精确unlink这78个regular `-d`，原`f1db57` actual0、outer1013030/child1013033 Wait0 /0.313s，allocated释放1,078,173,696B，索引和目录保留。没有归档派生包bytes，后继helper可能重建并使容量回涨；原2007/四身份/source/binary/modules/MinIO及验收原件保持。
 
-PG parent available实采3,005,591,552→4,082,937,856B；native03 prepare观察4,082,470,912B。共享FS差额不孤立归因，也不把整理视作后继容量成功保证。本片[方法与实际结果说明](../../../.agent-state/run-command-result-consumption/README.md)集中链接[sequence](../../../output/ai/run-command-result-consumption/sequence01/terminal.json)、[native03有限结果](../../../output/ai/run-command-result-consumption/native03/post-check.json)、[native02原失败](../../../output/ai/run-command-result-consumption/native02/post-check.json)与[精确缓存释放](../../../output/ai/run-command-result-consumption/cache-removal01/result.json)小proof；原output及/tmp原日志未改写。
+PG parent available实采3,005,591,552→4,082,937,856B；native03 prepare观察4,082,470,912B。共享FS差额不孤立归因，也不把整理视作后继容量成功保证。本片[方法与实际结果说明](../../../.agent-state/run-command-result-consumption/README.md)集中链接[sequence](../../../output/ai/retired-20261012/run-command-result-consumption/sequence01/terminal.json)、[native03有限结果](../../../output/ai/retired-20261012/run-command-result-consumption/native03/post-check.json)、[native02原失败](../../../output/ai/retired-20261012/run-command-result-consumption/native02/post-check.json)与[精确缓存释放](../../../output/ai/retired-20261012/run-command-result-consumption/cache-removal01/result.json)小proof；原output及/tmp原日志未改写。
 
 本片只显式构造。原 Model JSONCaller 与 Project test Skills receipt 边界、tools HTTP 及其他 STOP 保留；不接默认装配，不实现下一 Model、通用 waiting owner、多轮执行或 Execution 终态退休，不表示整体目标完成。
+
+保全包括152文件/100,974,708B/23目录、29图/2007仓库历史版本和两套实际tmp共8副本，原tmp保留；原native01仅prepared、02 FAIL与容量例外限制均不回填。保全与普通清理实际回执、外部依赖及跨设备恢复限制见[恢复说明](../../../.agent-state/run-command-result-consumption/README.md#main-delivery-and-retirement)。
