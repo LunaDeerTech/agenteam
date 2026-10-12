@@ -102,6 +102,11 @@ describe('Project usage read page', () => {
     expect(summary.text()).toContain(dailyAsOf)
     expect(summary.text()).toContain('已确认调用51')
     expect(summary.text()).toContain('派发情况未知2')
+    const scroll = summary.get('[role="region"][aria-label$="Token 用量，可横向滚动"]')
+    expect(scroll.attributes('tabindex')).toBe('0')
+    ;(scroll.element as HTMLElement).focus()
+    expect(document.activeElement).toBe(scroll.element)
+    expect(scroll.find('table').exists()).toBe(true)
     const rows = summary.findAll('tbody tr')
     expect(rows).toHaveLength(6)
     expect(rows[0]!.findAll('td').map((cell) => cell.text())).toEqual([

@@ -304,18 +304,16 @@ test("uses full server aggregates across UTC days and isolates project scope [da
   const data = material();
   await page.setViewportSize({ width: 1440, height: 960 });
   await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
-  await page
-    .context()
-    .addCookies([
-      {
-        name: "__Host-agenteam_session",
-        value: data.cookie,
-        url: data.origin,
-        httpOnly: true,
-        secure: true,
-        sameSite: "Lax",
-      },
-    ]);
+  await page.context().addCookies([
+    {
+      name: "__Host-agenteam_session",
+      value: data.cookie,
+      url: data.origin,
+      httpOnly: true,
+      secure: true,
+      sameSite: "Lax",
+    },
+  ]);
   const seen = await observe(page, data);
   observations.set(page, seen);
   for (const [index, project] of data.projects.entries()) {
@@ -385,7 +383,45 @@ test("uses full server aggregates across UTC days and isolates project scope [da
           row.summary[name].unknown_count,
         ]);
     }
+    async function tableGeometry(narrow: boolean) {
+      const scrolls = daily.locator(".usage-summary-scroll");
+      await expect(scrolls).toHaveCount(project.expected.length);
+      for (let n = 0; n < project.expected.length; n++) {
+        const scroll = scrolls.nth(n);
+        await expect(scroll).toHaveAttribute("tabindex", "0");
+        await expect(scroll).toHaveAttribute(
+          "aria-label",
+          project.expected[n]!.key.day + " Token 用量，可横向滚动",
+        );
+        const geometry = await scroll.evaluate((element) => {
+          const box = element.getBoundingClientRect();
+          const rows = Array.from(element.querySelectorAll("tr"));
+          const separated = rows.every((row) => {
+            const cells = Array.from(row.querySelectorAll("th,td"));
+            const text = cells.map((cell) => {
+              const range = document.createRange();
+              range.selectNodeContents(cell);
+              return range.getBoundingClientRect();
+            });
+            return text.every(
+              (rect, i) =>
+                rect.width > 0 &&
+                (i === 0 || text[i - 1]!.right <= rect.left + 1),
+            );
+          });
+          return {
+            contained: box.left >= -1 && box.right <= innerWidth + 1,
+            overflow: element.scrollWidth > element.clientWidth,
+            separated,
+          };
+        });
+        expect(geometry.contained).toBe(true);
+        expect(geometry.separated).toBe(true);
+        if (narrow) expect(geometry.overflow).toBe(true);
+      }
+    }
     if (index === 0) {
+      await tableGeometry(false);
       await page.screenshot({
         path: join(
           process.env.AGENTEAM_PROJECT_USAGE_SUMMARY_WEB_EVIDENCE!,
@@ -404,10 +440,26 @@ test("uses full server aggregates across UTC days and isolates project scope [da
         )
         .toBe(true);
       await daily.scrollIntoViewIfNeeded();
+      await tableGeometry(true);
       await page.screenshot({
         path: join(
           process.env.AGENTEAM_PROJECT_USAGE_SUMMARY_WEB_EVIDENCE!,
           "summary-390-dark.png",
+        ),
+        animations: "disabled",
+      });
+      const scrolling = daily.locator(".usage-summary-scroll").first();
+      await scrolling.focus();
+      await expect(scrolling).toBeFocused();
+      const left = await scrolling.evaluate((element) => element.scrollLeft);
+      await page.keyboard.press("ArrowRight");
+      await expect
+        .poll(() => scrolling.evaluate((element) => element.scrollLeft))
+        .toBeGreaterThan(left);
+      await page.screenshot({
+        path: join(
+          process.env.AGENTEAM_PROJECT_USAGE_SUMMARY_WEB_EVIDENCE!,
+          "summary-390-dark-scrolled.png",
         ),
         animations: "disabled",
       });

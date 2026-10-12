@@ -194,30 +194,37 @@ onBeforeUnmount(() => owner.dispose())
             <dd>{{ day.summary.unknown }}</dd>
           </div>
         </dl>
-        <table class="usage-summary-table">
-          <caption>
-            {{
-              day.key.day
-            }}
-            Token 用量
-          </caption>
-          <thead>
-            <tr>
-              <th scope="col">用量项目</th>
-              <th scope="col">已知总量</th>
-              <th scope="col">用量已知调用</th>
-              <th scope="col">用量未知调用</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="field in usageSummaryFields" :key="field">
-              <th scope="row">{{ summaryLabels[field] }}</th>
-              <td>{{ day.summary[field].sum ?? '未知' }}</td>
-              <td>{{ day.summary[field].known_count }}</td>
-              <td>{{ day.summary[field].unknown_count }}</td>
-            </tr>
-          </tbody>
-        </table>
+        <div
+          class="usage-summary-scroll"
+          role="region"
+          :aria-label="day.key.day + ' Token 用量，可横向滚动'"
+          tabindex="0"
+        >
+          <table class="usage-summary-table">
+            <caption>
+              {{
+                day.key.day
+              }}
+              Token 用量
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">用量项目</th>
+                <th scope="col">已知总量</th>
+                <th scope="col">用量已知调用</th>
+                <th scope="col">用量未知调用</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="field in usageSummaryFields" :key="field">
+                <th scope="row">{{ summaryLabels[field] }}</th>
+                <td>{{ day.summary[field].sum ?? '未知' }}</td>
+                <td>{{ day.summary[field].known_count }}</td>
+                <td>{{ day.summary[field].unknown_count }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </article>
     </section>
     <template v-else>
@@ -475,9 +482,19 @@ dt {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--content-gap);
 }
+.usage-summary-scroll {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+}
+.usage-summary-scroll:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 .usage-summary-table {
   width: 100%;
-  table-layout: fixed;
+  min-width: 44rem;
+  table-layout: auto;
   border-collapse: collapse;
 }
 .usage-summary-table caption {
@@ -490,7 +507,7 @@ dt {
   border-bottom: 1px solid var(--border);
   text-align: left;
   vertical-align: top;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
 }
 .usage-pagination {
   margin-top: var(--content-gap);
