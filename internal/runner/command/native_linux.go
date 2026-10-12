@@ -152,6 +152,18 @@ func signalGroup(pid int, signal unix.Signal) error {
 	return err
 }
 
+func signalOwnedChild(process *os.Process, signal unix.Signal) error {
+	groupErr := signalGroup(process.Pid, signal)
+	// A trusted command can move out of its original process group. Always
+	// signal the original process handle too; Go retains its pidfd where
+	// supported, and this child is not reaped until the later original Wait.
+	childErr := process.Signal(signal)
+	if errors.Is(childErr, os.ErrProcessDone) || errors.Is(childErr, unix.ESRCH) {
+		childErr = nil
+	}
+	return errors.Join(groupErr, childErr)
+}
+
 func (o *linuxOwner) run(ctx context.Context, request Request, sink Sink) (result Result, resultErr error) {
 	result.ExitCode = -1
 	if err := ctx.Err(); err != nil {
@@ -202,7 +214,7 @@ func (o *linuxOwner) run(ctx context.Context, request Request, sink Sink) (resul
 	case <-collector.failure:
 	}
 	if !terminated {
-		if err := signalGroup(cmd.Process.Pid, unix.SIGTERM); err != nil {
+		if err := signalOwnedChild(cmd.Process, unix.SIGTERM); err != nil {
 			resultErr = ErrUnavailable
 		}
 		timer := time.NewTimer(terminationGrace)
@@ -217,7 +229,7 @@ func (o *linuxOwner) run(ctx context.Context, request Request, sink Sink) (resul
 	// original unreaped child anchors this group until after this signal. ECHILD
 	// would mean an external reaper broke ownership: do not signal a reused ID.
 	if !errors.Is(observationErr, unix.ECHILD) {
-		if err := signalGroup(cmd.Process.Pid, unix.SIGKILL); err != nil {
+		if err := signalOwnedChild(cmd.Process, unix.SIGKILL); err != nil {
 			resultErr = errors.Join(resultErr, ErrUnavailable)
 		}
 	}

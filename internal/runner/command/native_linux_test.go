@@ -152,7 +152,7 @@ func TestCommandStartFailureAndSinkErrorKeepSafeFacts(t *testing.T) {
 }
 
 func TestCommandCancellationWaitsForActualChildAndGroup(t *testing.T) {
-	for _, mode := range []string{"group", "ignore-term"} {
+	for _, mode := range []string{"group", "ignore-term", "moved-group"} {
 		t.Run(mode, func(t *testing.T) {
 			owner := commandTestOwner(t, t.TempDir())
 			ctx, cancel := context.WithCancel(context.Background())
@@ -164,7 +164,7 @@ func TestCommandCancellationWaitsForActualChildAndGroup(t *testing.T) {
 			var runErr error
 			go func() {
 				defer close(done)
-				result, runErr = owner.Run(ctx, commandTestRequest(t, mode), func(_ context.Context, _ Stream, b []byte) error {
+				result, runErr = owner.Run(ctx, commandTestRequest(t, mode, strconv.Itoa(syscall.Getpgrp())), func(_ context.Context, _ Stream, b []byte) error {
 					_, _ = output.Write(b)
 					if bytes.Contains(output.Bytes(), []byte("ready\n")) {
 						select {
@@ -191,7 +191,7 @@ func TestCommandCancellationWaitsForActualChildAndGroup(t *testing.T) {
 			if !errors.Is(runErr, context.Canceled) || !result.Started || !result.Waited || !result.Cancelled || !result.ProcessGroupTerminationConfirmed {
 				t.Fatalf("cancel actual result mismatch: %+v, %v", result, runErr)
 			}
-			if mode == "ignore-term" && result.Signal != int(syscall.SIGKILL) {
+			if mode != "group" && result.Signal != int(syscall.SIGKILL) {
 				t.Fatal("TERM-resistant child not actually KILLed")
 			}
 			if mode == "group" && !bytes.Contains(output.Bytes(), []byte("child-waited\n")) {
@@ -295,7 +295,16 @@ func TestCommandProcessHelper(t *testing.T) {
 		}
 		_, _ = os.Stdout.WriteString("child-waited\n")
 		os.Exit(0)
-	case "ignore-term":
+	case "ignore-term", "moved-group":
+		if args[0] == "moved-group" {
+			if len(args) != 2 {
+				os.Exit(97)
+			}
+			group, err := strconv.Atoi(args[1])
+			if err != nil || syscall.Setpgid(0, group) != nil {
+				os.Exit(98)
+			}
+		}
 		signal.Ignore(syscall.SIGTERM)
 		_, _ = os.Stdout.WriteString("ready\n")
 		for {
