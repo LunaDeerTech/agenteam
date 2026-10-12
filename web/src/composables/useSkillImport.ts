@@ -21,7 +21,10 @@ export function useSkillImport(
   const visible = computed(() => !disposed && !!context.value)
   const progress = computed(() => {
     const value = auth.skillImport.progress
-    return visible.value && value?.projectID === context.value?.projectID && value.contextValid
+    return visible.value &&
+      value &&
+      value.projectID === context.value?.projectID &&
+      value.contextValid
       ? value
       : null
   })
