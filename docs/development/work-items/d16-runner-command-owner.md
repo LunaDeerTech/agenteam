@@ -14,8 +14,8 @@
 
 固定技术/方法 `2664c9c6` 的首次 `basic01` 已完成原执行：Go850848 race实际0/15.257s，精确14个行为top、20个sub PASS，3个子进程helper仅默认Skip；三包vet851160实际0/2.167s。覆盖真实argv/cwd/env、输出边界、非零退出与启动失败、原child/group与移组取消，以及Run/Sink/Close未返回时不得提前joined；桥实际验证containment与Root/Manager admission保持。没有新增旧域矩阵。
 
-原工具20601由作者亲收actual0（chunk2709b5），wrapper850742实际0/19.852s；四次实际race/plain依赖发现皆0，1,111项输入before/after-unit/after逐项相同。所有Popen原Wait与私有SID双空齐全、无不可见观察缺口，窗口已释放；这些SID事实不证明逃逸整树退出。唯一主审已最终有限接受，可交main，尚不提前记正式合入。
+原工具20601由作者亲收actual0（chunk2709b5），wrapper850742实际0/19.852s；四次实际race/plain依赖发现皆0，1,111项输入before/after-unit/after逐项相同。所有Popen原Wait与私有SID双空齐全、无不可见观察缺口，窗口已释放；这些SID事实不证明逃逸整树退出。唯一主审已最终有限接受，完整历史已随main `6a27bc3d` 合入并推送（原1815 actual0/0d33eb）。合成main的44项仓库输入与原记录逐字相同，44个历史版本main可恢复；输入未变，原验证直接复用，无需重测。
 
-完整52个output文件（1,996,308B）及5目录已实际跨文件系统复制至main `output/ai/retired-20261012/runner-command-owner`；旁 `runner-command-owner-preservation` 保存源前后、目标逐字及metadata证明。dev34→27的新副本不保原inode，原output未删；main完整源码历史可达和树/分支清理由root后续核实，尚不计完成。精确恢复边界见[方法说明](../../../.agent-state/runner-command-owner/README.md)。
+完整52个output文件（1,996,308B）及5目录已实际跨文件系统复制至main `output/ai/retired-20261012/runner-command-owner`；旁 `runner-command-owner-preservation` 保存源前后、目标逐字及metadata证明。dev34→27的新副本不保原inode，源前后和目标逐字/metadata核验相同。root已普通清理原树及本地分支，并完成精确lease远端删除、fresh空查询和prune；原 `/tmp` output随树清理删除，retired完整副本与原证明保持。精确恢复边界见[方法说明](../../../.agent-state/runner-command-owner/README.md)。
 
 验收范围仅Linux本地可信argv/cwd桥，不含macOS、WSS、PG、迁移、Central Operation授权、Secret注入、shell、下一Model或Transcript消费；默认nil executor、完整initializer/ready与原tools HTTP A/B等STOP保持。本片不宣称完整run-command或逃逸子进程树保证。

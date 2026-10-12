@@ -82,3 +82,16 @@
 当前worktree清单与本地heads无此同名项。只检查 `/workspace`、`/tmp`、main `output/ai`及两个retired层的直接子目录，未发现同名Rename树/output；原说明指向的 `/workspace/agenteam-skills-owner-ui`、`/workspace/agenteam-skill-install-runtime-source`、对应main output同名根、main `output/ai/knowledge-owner-rename` 和 `/tmp/krn04/ui-2055baa1eebc48dc.log` 当时均不存在。未遍历全部输出、压缩归档或其它旧引用，**不据此声称原件毁损或不存在替代副本**，也没有证明全部旧helper/FAIL材料与owner依赖已解除。
 
 结论为KEEP，不新增删除计数、不新增到原显式keep1。另两个更大metadata候选 `agent-sprint-configuration-integration`（12个独有提交）与 `sprint-start-integration`（15个）未深查，不因整tree等价列为可删除；D13、sprint-focus、branch-cleanup-workflow及旧secret原KEEP不在本轮重审范围。
+
+## 2026-10-12 Write / Command实际清理
+
+以下仅记录root已亲收的实际结果。Write完整历史随main `fff1f829` 合入，Command随后随 `6a27bc3db548caaf0a04e02fbc1bc70933cd619f` 完整合入；main推送原1815 actual0（0d33eb）。两原树均已普通worktree remove，本地分支普通删除：
+
+| 分支 | 删除前精确tip | 原树 | 普通树/本地删除 |
+| --- | --- | --- | --- |
+| `ai/runner-write-file-operation-20261012` | `98083527258e0478f83694c90f228f7f9c36b208` | `/workspace/agenteam-runner-write-file-operation` | bfcaa3 actual0 |
+| `ai/runner-command-owner-20261012` | `5920a949ce99fa5b36d47b45878f8bcdbd231035` | `/tmp/agenteam-runner-command-owner` | 3da004 actual0 |
+
+两ref fresh查询cb992a actual0，精确tip与上表相同；atomic exact-lease删除原11874 actual0（d6485e），后继fresh远端空、fetch/prune和tracking空原16888 actual0（6e2531）。本批增加2树/2本地/2远端，累计 **37 WorkTrees / 38本地分支 / 72远端引用**；legacy141待核、原显式keep1不变。新Command WSS树实施中，未计作清理。
+
+Write的95个原件及tmp副本已同FS保全，完整历史main可达，见[Write恢复说明](runner-write-file-operation/README.md)。Command的52文件/1,996,308B/5目录已dev34→27无覆盖复制，源前后及目标SHA/size/mode/uid/gid/nsmtime一致，新dev/inode身份不能恢复原inode；原 `/tmp` output现随普通树清理删除，main retired完整副本保留。Command合成main的44项仓库输入逐字等原记录，44个历史版本main可达，三份1111输入图不变，原验证复用无需重测；独立补证明见 `output/ai/retired-20261012/runner-command-owner-preservation/main-integration-6a27bc3d{,-completion}.json`，详情见[Command恢复说明](runner-command-owner/README.md)。原件、旧FAIL/退出证据、外部受保护cache/modules及所有STOP不改写；本批不扩大整体功能完成范围。
