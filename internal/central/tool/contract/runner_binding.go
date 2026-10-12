@@ -10,12 +10,15 @@ import (
 )
 
 const (
-	RunnerReadFileKey  = "runner:read-file"
-	RunnerWriteFileKey = "runner:write-file"
+	RunnerReadFileKey   = "runner:read-file"
+	RunnerWriteFileKey  = "runner:write-file"
+	RunnerRunCommandKey = "runner:run-command"
 )
 
 // ValidRunnerKey is deliberately a closed metadata set, not arbitrary Runner operations.
-func ValidRunnerKey(key string) bool { return key == RunnerReadFileKey || key == RunnerWriteFileKey }
+func ValidRunnerKey(key string) bool {
+	return key == RunnerReadFileKey || key == RunnerWriteFileKey || key == RunnerRunCommandKey
+}
 
 // RunnerBinding names a protocol contract, not an online Runner or dispatch grant.
 type RunnerBinding struct {
@@ -25,7 +28,7 @@ type RunnerBinding struct {
 }
 
 func (v RunnerBinding) Validate() error {
-	if (v.OperationName != "read-file" && v.OperationName != "write-file") || v.OperationRevision != "1" || v.ProtocolMajor != 1 {
+	if (v.OperationName != "read-file" && v.OperationName != "write-file" && v.OperationName != "run-command") || v.OperationRevision != "1" || v.ProtocolMajor != 1 {
 		return invalidRegistry()
 	}
 	return nil
@@ -72,8 +75,11 @@ func (v RunnerRegistration) Validate(ctx context.Context) error {
 		return err
 	}
 	want := ReadFileDefinition()
-	if v.Binding.OperationName == "write-file" {
+	switch v.Binding.OperationName {
+	case "write-file":
 		want = WriteFileDefinition()
+	case "run-command":
+		want = RunCommandDefinition()
 	}
 	b, err := CanonicalDefinition(ctx, want)
 	if err != nil {

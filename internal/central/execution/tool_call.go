@@ -11,6 +11,7 @@ import (
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	pvc "github.com/LunaDeerTech/agenteam/internal/central/projectvariable/contract"
 	tc "github.com/LunaDeerTech/agenteam/internal/central/tool/contract"
 )
 
@@ -19,14 +20,16 @@ type ToolCallMetadata interface {
 	ReadDefinitionInTx(context.Context, f.Tx, tc.SpecRef) (tc.Definition, error)
 }
 type ToolCallDependencies struct {
-	Base  DirectTextDependencies
-	Loop  *agentloop.ToolCallController
-	Tools ToolCallMetadata
+	Base               DirectTextDependencies
+	Loop               *agentloop.ToolCallController
+	Tools              ToolCallMetadata
+	CurrentEnvironment pvc.CurrentProcessEnvironment
 }
 type toolCallDependencies struct {
-	loop     *agentloop.ToolCallController
-	metadata ToolCallMetadata
-	binding  tc.RunnerBinding
+	loop               *agentloop.ToolCallController
+	metadata           ToolCallMetadata
+	binding            tc.RunnerBinding
+	currentEnvironment pvc.CurrentProcessEnvironment
 }
 
 // This explicitly constructed first-round driver persists a nonterminal
@@ -42,7 +45,7 @@ func newProfileToolCallDriver(store Store, a *Authority, deps ToolCallDependenci
 	if deps.Loop == nil || !deps.Loop.AcceptsRunnerBinding(binding) || nilPort(deps.Tools) || deps.Base.Loop != nil {
 		return nil, fault(f.DependencyUnbound)
 	}
-	d, err := newDirectTextDriver(store, a, deps.Base, &toolCallDependencies{loop: deps.Loop, metadata: deps.Tools, binding: binding})
+	d, err := newDirectTextDriver(store, a, deps.Base, &toolCallDependencies{loop: deps.Loop, metadata: deps.Tools, binding: binding, currentEnvironment: deps.CurrentEnvironment})
 	if err != nil {
 		return nil, err
 	}
@@ -117,10 +120,16 @@ func (s *directTextState) buildToolCallRequest(ctx context.Context, run *directT
 	if err := commitError(result); err != nil {
 		return agentloop.DirectTextRequest{}, err
 	}
-	if s.tools.profile() == tc.WriteFileRegistration().Binding {
+	switch s.tools.profile() {
+	case tc.ReadFileRegistration().Binding:
+		return agentloop.BuildToolCallRequest(ctx, built, actor, round.String(), call, definition)
+	case tc.WriteFileRegistration().Binding:
 		return agentloop.BuildWriteFileToolCallRequest(ctx, built, actor, round.String(), call, definition)
+	case tc.RunCommandRegistration().Binding:
+		return agentloop.BuildRunCommandToolCallRequest(ctx, built, actor, round.String(), call, definition)
+	default:
+		return agentloop.DirectTextRequest{}, fault(f.CapabilityUnsupported)
 	}
-	return agentloop.BuildToolCallRequest(ctx, built, actor, round.String(), call, definition)
 }
 func (s *directTextState) requireCurrentToolFacts(ctx context.Context, tx f.Tx, run *directTextCall) error {
 	actor, _ := i.NewAgentRun(run.request.Launch.ProjectID, run.request.Launch.AgentID, run.request.ExecutionID)

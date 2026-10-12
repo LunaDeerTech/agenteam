@@ -34,6 +34,9 @@ func toolCallMountID(ctx context.Context, binding tc.RunnerBinding, raw []byte) 
 		args, err := tc.DecodeWriteFileToolArguments(ctx, raw)
 		clear(args.Arguments.Data)
 		return args.MountID, err
+	case tc.RunCommandRegistration().Binding:
+		args, err := tc.DecodeRunCommandToolArguments(ctx, raw)
+		return args.MountID, err
 	default:
 		return i.MountID{}, fault(f.CapabilityUnsupported)
 	}

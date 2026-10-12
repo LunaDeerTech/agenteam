@@ -11,6 +11,7 @@ import (
 	c "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 	tc "github.com/LunaDeerTech/agenteam/internal/central/tool/contract"
 )
 
@@ -95,6 +96,16 @@ func (d *ToolCallDriver) DiscoverToolCall(ctx context.Context, b tc.ToolCallBind
 	}
 	input := stored.snapshot.Fields().Context.Input()
 	locks := toolFactsRequest(input, input.Fields().Agent).RequiredLocks()
+	if b.RunnerBinding == tc.RunCommandRegistration().Binding {
+		request, err := commandEnvironmentRequest(b)
+		if err != nil {
+			return nil, err
+		}
+		locks, err = oc.NormalizeLocks(append(locks, request.RequiredLocks()...))
+		if err != nil {
+			return nil, err
+		}
+	}
 	return &toolCallPlan{owner: d, binding: b, locks: locks, snapshot: stored.snapshot.Digest(), round: stored.round.Digest()}, ctx.Err()
 }
 
@@ -181,6 +192,15 @@ func (d *ToolCallDriver) withToolCallInTx(ctx context.Context, tx f.Tx, b tc.Too
 		return err
 	}
 	if consume != nil {
+		if b.RunnerBinding == tc.RunCommandRegistration().Binding {
+			witness, err := newCommandCurrentWitness(d, tx, p, agent)
+			if err != nil {
+				return err
+			}
+			witness.active.Store(true)
+			defer witness.retire()
+			authorized = context.WithValue(authorized, commandCurrentKey{}, witness)
+		}
 		// Never lend repository-owned storage: mutation by the consumer cannot
 		// replace the original protected bytes, and the loan expires on return.
 		borrowed := bytes.Clone(stored.toolPending.original)

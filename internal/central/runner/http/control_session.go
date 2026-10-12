@@ -22,6 +22,7 @@ type controlAuthority interface {
 type controlSession struct {
 	readFile      bool // Only the authenticated, current Hello/Status capability.
 	writeFile     bool
+	command       bool
 	listDirectory bool
 	findFiles     bool
 	wire          *controlWire
@@ -38,12 +39,14 @@ type controlSession struct {
 	pending       map[p.ID]*controlCall
 	completed     map[p.ID]struct{}
 	wake          chan struct{}
+	retired       chan struct{} // Wire/observer returned and session calls retired.
 }
 
 type controlCall struct {
 	request   p.Request
 	ctx       context.Context
 	stream    func(context.Context, p.Stream) error
+	command   *commandOutput // Only the dedicated command path owns these streams.
 	attempted bool
 	cancelled bool
 	terminal  *p.Response
@@ -60,7 +63,7 @@ type controlResult struct {
 }
 
 func newControlSession(w *controlWire, a controlAuthority, c service.Connection, runner p.ID) *controlSession {
-	return &controlSession{wire: w, authority: a, connection: c, runner: runner, deadline: time.Now().Add(5 * time.Second), seen: make(map[p.ID]struct{}), pending: make(map[p.ID]*controlCall), completed: make(map[p.ID]struct{}), wake: make(chan struct{}, 1)}
+	return &controlSession{wire: w, authority: a, connection: c, runner: runner, deadline: time.Now().Add(5 * time.Second), seen: make(map[p.ID]struct{}), pending: make(map[p.ID]*controlCall), completed: make(map[p.ID]struct{}), wake: make(chan struct{}, 1), retired: make(chan struct{})}
 }
 
 func (s *controlSession) nextDeadline() time.Time {
@@ -197,6 +200,7 @@ func (s *controlSession) receive(ctx context.Context, message p.Message) error {
 		s.active = true
 		s.readFile = slices.Contains(value.Capabilities, p.ReadFileOperation)
 		s.writeFile = slices.Contains(value.Capabilities, p.WriteFileOperation)
+		s.command = slices.Contains(value.Capabilities, p.RunCommandOperation)
 		s.listDirectory = slices.Contains(value.Capabilities, p.ListDirectoryOperation)
 		s.findFiles = slices.Contains(value.Capabilities, p.FindFilesOperation)
 		s.deadline = time.Now().Add(time.Duration(ack.HeartbeatTimeoutMS) * time.Millisecond)
@@ -234,6 +238,7 @@ func (s *controlSession) receive(ctx context.Context, message p.Message) error {
 		s.mu.Lock()
 		s.readFile = slices.Contains(value.Capabilities, p.ReadFileOperation)
 		s.writeFile = slices.Contains(value.Capabilities, p.WriteFileOperation)
+		s.command = slices.Contains(value.Capabilities, p.RunCommandOperation)
 		s.listDirectory = slices.Contains(value.Capabilities, p.ListDirectoryOperation)
 		s.findFiles = slices.Contains(value.Capabilities, p.FindFilesOperation)
 		s.mu.Unlock()
@@ -269,6 +274,7 @@ func (s *controlSession) finishCalls() {
 		call.finish()
 	}
 	clear(s.pending)
+	close(s.retired)
 }
 func (c *controlCall) finish() {
 	if !c.closed {
@@ -357,6 +363,11 @@ func (s *controlSession) response(value p.Response) error {
 	if call == nil || !call.attempted || call.terminal != nil || call.request.OperationID != value.OperationID {
 		return controlProtocolFailure{p.CorrelationInvalid}
 	}
+	if call.command != nil {
+		if err := call.command.response(value); err != nil {
+			return err
+		}
+	}
 	call.terminal = &value
 	delete(s.pending, value.RequestID)
 	s.completed[value.RequestID] = struct{}{}
@@ -368,11 +379,16 @@ func (s *controlSession) stream(ctx context.Context, value p.Stream) error {
 	s.mu.Lock()
 	call := s.pending[value.RequestID]
 	sequence, e := strconv.ParseUint(string(value.Sequence), 10, 64)
-	if call == nil || !call.attempted || call.terminal != nil || call.request.OperationID != value.OperationID || call.stream == nil || e != nil || sequence == 0 || call.sequences[value.Stream] == ^uint64(0) || sequence != call.sequences[value.Stream]+1 {
+	if call == nil || !call.attempted || call.terminal != nil || call.request.OperationID != value.OperationID || (call.stream == nil && call.command == nil) || e != nil || sequence == 0 || call.sequences[value.Stream] == ^uint64(0) || sequence != call.sequences[value.Stream]+1 {
 		s.mu.Unlock()
 		return controlProtocolFailure{p.CorrelationInvalid}
 	}
 	call.sequences[value.Stream] = sequence
+	if call.command != nil {
+		err := call.command.stream(value)
+		s.mu.Unlock()
+		return err
+	}
 	s.mu.Unlock()
 	if e := call.ctx.Err(); e != nil {
 		return e
