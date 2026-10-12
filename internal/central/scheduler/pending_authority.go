@@ -54,6 +54,9 @@ func (a *PendingAuthority) inTx(ctx context.Context, tx f.Tx, p i.ProjectID) (po
 	if err = a.store.RequireHeldLocks(ctx, tx, pendingLocks(p)); err != nil {
 		return nil, portError(err)
 	}
+	if err = requireProjectCallInTx(ctx, tx, a, p); err != nil {
+		return nil, err
+	}
 	return x, ctx.Err()
 }
 

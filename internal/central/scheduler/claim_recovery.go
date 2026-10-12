@@ -12,7 +12,7 @@ import (
 // not a negative commit proof: original ownership and error remain unchanged.
 // It is permitted after Stop so an actual observation can finish the old call;
 // it cannot issue a new claim, Task mutation or Launch through the old context.
-func (s *Coordinator) ResolveClaim(ctx context.Context, r wc.TaskClaimRequest) (Dispatch, error) {
+func (s *Coordinator) resolveClaim(ctx context.Context, r wc.TaskClaimRequest) (Dispatch, error) {
 	if ctx == nil || r.Validate() != nil {
 		return Dispatch{}, invalid()
 	}

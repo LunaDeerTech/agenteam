@@ -80,6 +80,7 @@ func (ManagedProject) MarshalJSON() ([]byte, error) {
 // bounded, paced keyset cycle, not a grant or a cross-process leader election.
 // Construction has no I/O. All borrowed domain owners keep their own lifetime.
 type ProjectRunners struct {
+	projectCalls              *projectCallState
 	deps                      ProjectRunnersDependencies
 	options                   ProjectRunnersOptions
 	ops                       managedRunnerOps
@@ -121,8 +122,11 @@ func NewProjectRunners(deps ProjectRunnersDependencies, options ProjectRunnersOp
 	if nilPort(deps.Projects) || deps.Coordinator == nil || deps.Coordinator.authority == nil || deps.Visitor == nil || deps.Visitor.authority != deps.Coordinator.authority || nilPort(deps.Coordinator.deps.Projects) || nilPort(deps.Tasks) || deps.Relaunch == nil || deps.Relaunch.coordinator != deps.Coordinator || deps.Relaunch.skipCount != options.RelaunchSkipCount || nilPort(deps.Executions) || deps.Executions.Ready() == nil {
 		return nil, fault(f.DependencyUnbound)
 	}
+	if deps.Visitor.projectCalls != deps.Coordinator.projectCalls || deps.Relaunch.projectCalls != deps.Coordinator.projectCalls {
+		return nil, fault(f.DependencyUnbound)
+	}
 	options.LaunchPolicy = options.LaunchPolicy.Clone()
-	s := &ProjectRunners{deps: deps, options: options, projects: make(map[i.ProjectID]*managedRunner), changed: make(chan struct{}), position: pc.SchedulerProjectPageRequest{Limit: options.ProjectPageSize}}
+	s := &ProjectRunners{projectCalls: deps.Coordinator.projectCalls, deps: deps, options: options, projects: make(map[i.ProjectID]*managedRunner), changed: make(chan struct{}), position: pc.SchedulerProjectPageRequest{Limit: options.ProjectPageSize}}
 	s.ops = managedRunnerOps{
 		create: func(p i.ProjectID) (*ProjectRunner, error) {
 			return NewProjectRunnerWithExecutions(deps.Coordinator, deps.Visitor, ProjectRunnerOptions{ProjectID: p, TickInterval: options.TickInterval, LaunchPolicy: options.LaunchPolicy, Tasks: deps.Tasks, Relaunch: deps.Relaunch}, deps.Executions, options.ExecutionPageSize)
@@ -296,11 +300,11 @@ func (s *ProjectRunners) startDue(ctx context.Context) {
 
 func (s *ProjectRunners) runOne(ctx context.Context, v *managedRunner, prior error) {
 	var err error
+	var entry *projectCallEntry
 	defer func() {
 		if recover() != nil {
 			err = unavailable(nil)
 		}
-		s.mu.Lock()
 		if uncertainProjectVisit(prior) && err != nil {
 			var original *ProjectRunError
 			if errors.As(prior, &original) {
@@ -313,6 +317,10 @@ func (s *ProjectRunners) runOne(ctx context.Context, v *managedRunner, prior err
 				err = errors.Join(prior, err)
 			}
 		}
+		if entry != nil {
+			err = s.projectCalls.finish(entry, err)
+		}
+		s.mu.Lock()
 		if v.cancel != nil {
 			v.cancel()
 			v.cancel = nil
@@ -323,8 +331,20 @@ func (s *ProjectRunners) runOne(ctx context.Context, v *managedRunner, prior err
 		}
 		s.notifyLocked()
 		s.mu.Unlock()
+		if entry != nil {
+			s.projectCalls.returned(entry)
+		}
 	}()
 	if err = ctx.Err(); err != nil {
+		return
+	}
+	identity, identityErr := projectEntryIdentity(v.runner.options.ProjectID, "managed_project_run", "managed_project_runner")
+	if identityErr != nil {
+		err = identityErr
+		return
+	}
+	ctx, entry, err = s.projectCalls.admit(ctx, v.runner.options.ProjectID, projectLaneRunner, identity)
+	if err != nil {
 		return
 	}
 	s.mu.Lock()
@@ -550,11 +570,12 @@ func (s *ProjectRunners) Drain(ctx context.Context) error {
 		return err
 	}
 	s.mu.Lock()
-	defer s.mu.Unlock()
-	if err := s.retainedLocked(); err != nil {
+	err := s.retainedLocked()
+	s.mu.Unlock()
+	if err != nil {
 		return err
 	}
-	return ctx.Err()
+	return s.projectCalls.drainReturned(ctx, "")
 }
 
 func (s *ProjectRunners) Joined() bool {
@@ -562,14 +583,16 @@ func (s *ProjectRunners) Joined() bool {
 		return false
 	}
 	s.mu.Lock()
-	defer s.mu.Unlock()
 	if !s.stopped || s.running || len(s.stopControls) != 0 || s.retainedLocked() != nil {
+		s.mu.Unlock()
 		return false
 	}
 	for _, v := range s.projects {
 		if v.active || !s.ops.joined(v.runner) {
+			s.mu.Unlock()
 			return false
 		}
 	}
-	return true
+	s.mu.Unlock()
+	return s.projectCalls.laneJoined("")
 }

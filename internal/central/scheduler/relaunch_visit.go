@@ -132,7 +132,7 @@ func (s *RelaunchCoordinator) Drain(ctx context.Context) error {
 	}
 	select {
 	case <-s.drained:
-		return nil
+		return s.projectCalls.drainReturned(ctx, projectLaneRelaunch)
 	case <-ctx.Done():
 		return ctx.Err()
 	}
@@ -142,8 +142,9 @@ func (s *RelaunchCoordinator) Joined() bool {
 		return true
 	}
 	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.stopped && len(s.calls) == 0
+	joined := s.stopped && len(s.calls) == 0
+	s.mu.Unlock()
+	return joined && s.projectCalls.laneJoined(projectLaneRelaunch)
 }
 
 func (s *RelaunchCoordinator) projectInTx(ctx context.Context, tx f.Tx, r wc.TaskRelaunchRequest, enabled bool) (pc.SchedulerProject, error) {
@@ -162,7 +163,7 @@ func (s *RelaunchCoordinator) projectInTx(ctx context.Context, tx f.Tx, r wc.Tas
 
 // VisitRelaunch performs at most one durable cooldown visit or a new immutable
 // Work-origin/pending pair. It never calls Launch and never waits for a Model.
-func (s *RelaunchCoordinator) VisitRelaunch(ctx context.Context, r wc.TaskRelaunchRequest, policy ec.Policy) (RelaunchVisit, error) {
+func (s *RelaunchCoordinator) visitRelaunch(ctx context.Context, r wc.TaskRelaunchRequest, policy ec.Policy) (RelaunchVisit, error) {
 	ctx, call, err := s.beginRelaunch(ctx, r, policy)
 	if err != nil {
 		return RelaunchVisit{}, err
@@ -418,7 +419,7 @@ func sameRelaunchRuntime(a, b *relaunchRuntime) bool {
 
 // ResolveRelaunch only observes the original immutable visit. Absence, changed
 // bytes or failed reads retain the original physical error and owner.
-func (s *RelaunchCoordinator) ResolveRelaunch(ctx context.Context, r wc.TaskRelaunchRequest) (RelaunchVisit, error) {
+func (s *RelaunchCoordinator) resolveRelaunch(ctx context.Context, r wc.TaskRelaunchRequest) (RelaunchVisit, error) {
 	if ctx == nil || r.Validate() != nil {
 		return RelaunchVisit{}, invalid()
 	}
