@@ -1,6 +1,6 @@
 # D15 Runner 生产入口显式启用 read-file
 
-状态：受测 `7c5e0784` 已完成实现、basic02 的 7 top / 20 sub 与三包 vet、双 binary 编译/list，以及 native01 的 1 top / 3 sub 有限 whole PASS；原 basic01 FAIL 保留。最终文档待保存和主线交付。本片已将 `read-file@1` 接入真实 Runner 配置、`cmd` 与 `app.Run`，不代表完整 Agent／Model 工具循环已接通。
+状态：受测 `7c5e0784` 已完成实现、basic02 的 7 top / 20 sub 与三包 vet、双 binary 编译/list，以及 native01 的 1 top / 3 sub 有限 whole PASS；原 basic01 FAIL 保留。最终文档 `059fc302` 已完整合入并推送 main `c4e91d01`；原件保全独核接受后已普通清理旧树/本地分支，feature远端原空，不计远端删除。本片已将 `read-file@1` 接入真实 Runner 配置、`cmd` 与 `app.Run`，不代表完整 Agent／Model 工具循环已接通。
 
 依据：[Runner Control](d15-runner-control.md)、[已交 read-file 适配器](d15-runner-read-file-adapter.md)、[本地 Workspace 能力](d16-runner-workspace.md)、[Workspace 契约](../../architecture/runner/agent-workspace.md)、[Control 协议](../../architecture/runner/control-protocol.md)。原设计基线为 `41cea003`；实际组合包含 main `33feecbd`，受测源为 `7c5e0784ce940ab417ce8a3b9b1119d239aadbcd`，不新增迁移。
 
@@ -52,6 +52,11 @@ App 保持原 shutdown／Force 总预算。若其等待预算耗尽，报告未 
 
 - basic01 `28081/247ad7` actual 1：6 top / 19 sub PASS，`cleanup-error` 的原返回屏障未到达，vet 未运行。日志未捕获线程调度；静态定位为缺少实际 reader-entry 同步。`7c5e0784` 只修该测试的同步门，未改产品、方法或预算。basic02 `42212/c2ea87` actual 0：7 top / 20 sub 与三包 vet，78 输入六图/11 outer 同，仅该测试文件相对旧图一 hash 变化。
 - 原 profile01/02 均实际离线 PASS，无先前失败；合 main 时 `256e27ac` 遗漏 descriptor helper/两分支，被静态 `4f98bf` 拦住，`88dfa691` 恢复原已审字节。它们不属于 Go/native FAIL。profile03 实际通过 metadata 1 正/7 反、descriptor 1 正/17 反；sequence01 `25933/6d8284` actual 0 完成两个真实 go-list 闭包、双 build、exact list 和 prepare，4291 compile union → 4294 runtime 输入。
-- native01 `81653/bcad54` actual 0：supervisor `1226336` Wait 0 / 118.538s，driver/Go 均 0；1 top / 3 sub 15.47s（2.50/2.44/1.35s）。九个 CLI child 的真实 Wait 为 `[0,0,0,0,0,1,2,2,2]`，非零为预期配置拒绝。七资源 14 次缺席、原 descendants/private/runtime 双尾、TCP delta 双空、4294 输入/四身份同、无 race，未重试。实际两次范围读取、identity-only restart、默认空 capability 与进入设备协议/能力公告前拒绝均有原 marker（未监测 TCP SYN，不宣称零 TCP 尝试）；详见[原 post](../../../output/ai/runner-read-file-app/native01/post-check.json)。
+- native01 `81653/bcad54` actual 0：supervisor `1226336` Wait 0 / 118.538s，driver/Go 均 0；1 top / 3 sub 15.47s（2.50/2.44/1.35s）。九个 CLI child 的真实 Wait 为 `[0,0,0,0,0,1,2,2,2]`，非零为预期配置拒绝。七资源 14 次缺席、原 descendants/private/runtime 双尾、TCP delta 双空、4294 输入/四身份同、无 race，未重试。实际两次范围读取、identity-only restart、默认空 capability 与进入设备协议/能力公告前拒绝均有原 marker（未监测 TCP SYN，不宣称零 TCP 尝试）；详见[原 post](../../../output/ai/retired-20261012/runner-read-file-app/native01/post-check.json)。
 
 验收限定为生产 Runner CLI 入口到真实认证 WSS 文件读取及原资源退出。fixture 当前 Agent/Mount、session 与 Runner 真实，但 `readFileAdapterAuthority` 仍是 strict Operation-authority substitute，不是实际 Execution/ToolCall producer；不能外推 Central 默认工具执行、Agent/Model loop、tools HTTP、Secret 环境解析或完整 D15/D16。原 STOP 保持，本片尚未合入/推送、保全或清理。
+
+
+## 交付与恢复位置
+
+正式main保留受测7c5e、原basic01失败版本及全部分支历史，17个非文档交付路径与受测blob相同。原保全27518/f27d37实际0保持154文件/121,577,374B/16目录全部SHA/stat/inode，两binary/descriptor及四tmp副本9,748B齐，原tmp保留。44图中2066版本main Git可恢复；唯一未提交的profile01 README仅以独立重构字节匹配原3faa SHA，不冒原blob/inode；2231外部输入另列保护边界。独核48ed09接受后才普通清理48056/5a7423实际0，fresh远端原空且prune/local/tracking空。见[正式恢复说明](../../../.agent-state/runner-read-file-app/README.md#主线交付与原件恢复)。原FAIL、原调度不可追溯限制与本片有限范围不因交付扩大。

@@ -230,3 +230,12 @@ Agent最终 `149fa2137235a11e78f6be5deefe86c39f491cfd`（受测 `153232f6`）正
 撤回的 `ai/round-model-call-authority-20261012` 仅main祖先 `41cea003` 的只读规划树，tracked/untracked/ignored均空、无已知live借用。原fresh fda5a4因HTTP503在任何删除前退出1，原失败保留；后继一次fresh成功为空，[普通remove/-d](../output/ai/round-model-call-authority-cleanup/cleanup02/result.json)原47085/5e4d10实际0。无独有实现/产物，无远端创建或删除。
 
 本批实际增加3树/3本地/0远端，累计 **48 WorkTrees / 49本地分支 / 85远端引用**；legacy135待核、keep1不变。Variables新树从已交main a117创建（11159/458f65实际0/max74），仅卡先存cb6b2bda后源码独立实施；Runner普通合main33fe后方法基线静修中，尚未运行。新建树不计清理，所有既有STOP/原FAIL/保护依赖与整体未完成保持。
+
+
+## 2026-10-12 Runner显式read-file生产入口实际清理
+
+受测7c5e与最终文档 `059fc30203d323d5035869f8e742c7be4c2827d9` 正常no-ff合入main `c4e91d01b60b5accc549be45a1b50d2c1e2830b5`，原b63628实际0核17个非文档路径blob等受测；main push/fresh/tracking原45061/924ba9实际0。basic02 7top20sub/3vet、双binary/descriptor与首次native01原81653/bcad54 wholePASS仅沿原有限验收复用，basic01原28081/247ad7 FAIL完整保留。
+
+[原样保全](../output/ai/retired-20261012/runner-read-file-app-preservation/result.json)原27518/f27d37实际0，child1238487 Wait0/10.543s：同FS NOREPLACE迁154文件/121,577,374B/16目录，path/SHA/stat/inode全等；44maps含2066个main Git历史版本+1个唯一未提交README的精确SHA重构副本，2231外部输入不冒Git恢复；双binary/descriptor、四tmp副本9,748B、原tmp与全部FAIL/Wait保留。重构3faa来源与非原blob/inode限制见[恢复说明](runner-read-file-app/README.md#主线交付与原件恢复)。
+
+独核48ed09接受后，[普通清理](../output/ai/runner-read-file-app-delivery/cleanup01/result.json)原48056/5a7423实际0：worktree remove与local branch-d均0，fresh feature远端前后为空，显式main/ai prune、本地与tracking均空；未人为推临时feature，不计远端删除。本次仅+1树/+1本地，累计 **49 WorkTrees / 50本地分支 / 85远端引用**，legacy135待核/keep1不变。Variables已独立合入此main并完成BASE差额静审，当前d3548d42清洁尚未Go；其新树不计清理。全部既有STOP与整体目标未完成保持。
