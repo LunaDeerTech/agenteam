@@ -175,5 +175,5 @@ func (s *Service) appendCreate(ctx context.Context, tx foundation.Tx, req create
 	if err != nil {
 		return err
 	}
-	return s.appendProjectAudit(ctx, tx, entry, key, meta, &projectAuditCommand{identity: req.identity, digest: req.digest, path: c.path, cause: c.cause})
+	return s.appendProjectAudit(ctx, tx, entry, key, meta, &projectAuditCommand{identity: req.identity, digest: req.digest, path: c.path, cause: c.cause, source: c.source, sourceLease: c.sourceLease})
 }

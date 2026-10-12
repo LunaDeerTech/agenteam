@@ -13,6 +13,7 @@ import (
 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/object"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 )
 
 // ProjectAuditAuthority checks Artifact facts only. Project independently checks
@@ -28,10 +29,12 @@ func NewProjectAuditAuthority(store Store) (*ProjectAuditAuthority, error) {
 
 type projectAuditWitnessKey struct{}
 type projectAuditCommand struct {
-	identity f.CommandIdentity
-	digest   f.Digest
-	path     string
-	cause    string
+	identity    f.CommandIdentity
+	digest      f.Digest
+	path        string
+	cause       string
+	source      oc.ResolvedSource
+	sourceLease oc.LeaseID
 }
 type projectAuditWitness struct {
 	active   atomic.Bool
@@ -142,7 +145,7 @@ func (a *ProjectAuditAuthority) CheckProjectAuditInTx(ctx context.Context, tx f.
 	}
 	if e.Action == au.ArtifactCreate {
 		command := w.command
-		if command == nil || command.identity.Validate() != nil || (command.path != "content" && command.path != "upload") {
+		if command == nil || command.identity.Validate() != nil || (command.path != "content" && command.path != "upload" && command.path != "source") {
 			return failure(f.Forbidden, nil)
 		}
 		expectedKey, err := audit.CommandAppendKey(au.ArtifactProducer, command.identity, 0)
@@ -157,6 +160,13 @@ func (a *ProjectAuditAuthority) CheckProjectAuditInTx(ctx context.Context, tx f.
 			current.originalActor != stableActor(e.Actor) || current.creatorKind != identity.Human || current.creator != e.Actor.Details().UserID ||
 			current.digest != command.digest || current.path != command.path || current.cause != command.cause || row.cause != command.cause ||
 			current.execution != "" || current.operation != "" || current.tool != "" || current.toolCall != "" {
+			return failure(f.Forbidden, nil)
+		}
+		if command.path == "source" {
+			if err = checkProjectAuditSource(ctx, x, command, current, m, e.Metadata); err != nil {
+				return err
+			}
+		} else if command.source.Validate() == nil || command.sourceLease.Validate() == nil {
 			return failure(f.Forbidden, nil)
 		}
 	} else if w.command != nil {
@@ -196,3 +206,41 @@ func (a *ProjectAuditAuthority) CheckProjectAuditInTx(ctx context.Context, tx f.
 }
 
 var _ au.ProjectFactAuthority = (*ProjectAuditAuthority)(nil)
+
+// The publication witness is minted only after the original source read and
+// same-Tx resolver validation. Match its complete captured source and lease to
+// the original pending command, then read the source's own canonical metadata.
+// This closes only Human, same-Project ArtifactFile publication; it grants no
+// permission to acquire a lease or read another domain's Object rows.
+func checkProjectAuditSource(ctx context.Context, x postgres.SQLExecutor, command *projectAuditCommand, current commandRow, target ac.MetadataDetails, metadata au.Metadata) error {
+	if command.source.Validate() != nil || command.sourceLease.Validate() != nil || current.sourceLease != command.sourceLease || !sameSource(current.source, command.source) {
+		return failure(f.Forbidden, nil)
+	}
+	source := command.source.Details()
+	ref := source.Reference.Details()
+	if ref.Kind != oc.ArtifactFile || ref.ProjectID != target.Reference.ProjectID || ref.ArtifactID == target.Reference.ArtifactID.String() {
+		return failure(f.Forbidden, nil)
+	}
+	row, found, err := loadArtifact(ctx, x, ref.ArtifactID)
+	if err != nil {
+		return err
+	}
+	if !found {
+		return failure(f.Forbidden, nil)
+	}
+	actual, err := artifactSource(row, source.Reference)
+	if err != nil {
+		return err
+	}
+	if !sameSource(actual, command.source) {
+		return failure(f.Forbidden, nil)
+	}
+	expected, err := au.ArtifactMetadata(au.ArtifactCreate, au.ArtifactMetadataFields{
+		ArtifactID: target.Reference.ArtifactID.String(), ObjectID: target.Object.ID.String(), MediaType: auditMedia(target.Object.MediaType),
+		ByteSize: target.Object.ByteSize, Phase: au.PublishedPhase, SourceKind: au.SourceKind(oc.ArtifactFile), SourceID: ref.ArtifactID, SourceRevision: source.Revision,
+	})
+	if err != nil || !bytes.Equal(expected.JSON(), metadata.JSON()) {
+		return failure(f.Forbidden, nil)
+	}
+	return nil
+}

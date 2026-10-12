@@ -50,6 +50,9 @@ func (s *projectAuditStore) QueryRow(ctx context.Context, query string, args ...
 		} else if !strings.Contains(query, "FROM agenteam_artifact.artifacts ") {
 			return errors.New("unexpected controlled query")
 		}
+		if kind == "artifact" && len(args) == 1 && v.sourceMeta.Validate() == nil && args[0] == v.sourceMeta.Details().Reference.ArtifactID.String() {
+			kind = "source"
+		}
 		if v.beforeScan != nil {
 			v.beforeScan(ctx, kind)
 		}
@@ -59,14 +62,17 @@ func (s *projectAuditStore) QueryRow(ctx context.Context, query string, args ...
 		if len(args) != 1 {
 			return errors.New("wrong row identity arity")
 		}
-		if kind == "artifact" {
-			if args[0] != v.meta.Details().Reference.ArtifactID.String() {
+		if kind == "artifact" || kind == "source" {
+			if kind == "artifact" && args[0] != v.meta.Details().Reference.ArtifactID.String() {
 				return errors.New("wrong artifact lookup")
 			}
-			if v.missingArtifact {
+			if kind == "artifact" && v.missingArtifact || kind == "source" && v.missingSource {
 				return pgx.ErrNoRows
 			}
 			m := v.storedMeta.Details()
+			if kind == "source" {
+				m = v.storedSource.Details()
+			}
 			return (cleanupOwnerRow{values: []any{m.Reference.ArtifactID.String(), m.Reference.FileID.String(), m.Reference.ProjectID.String(), m.Object.ID.String(), string(m.Kind), m.Name, m.Description, m.Object.MediaType, int64(m.Object.ByteSize), digestRaw(m.Object.SHA256), int64(m.Object.Version), m.Object.CreatedAt.Time(), int64(m.Version), string(i.Human), m.CreatedByUserID, v.rowCause, m.ExecutionID, m.OperationID, "", "", m.CreatedAt.Time()}}).Scan(out...)
 		}
 		hash, ok := args[0].([]byte)
@@ -77,7 +83,19 @@ func (s *projectAuditStore) QueryRow(ctx context.Context, query string, args ...
 			return pgx.ErrNoRows
 		}
 		c := v.storedCommand
-		return (cleanupOwnerRow{values: []any{string(c.identity.Key()), c.ref.ProjectID.String(), c.ref.ArtifactID.String(), c.ref.FileID.String(), c.originalActor, digestRaw(c.digest), c.cause, c.path, string(c.kind), c.state, c.display.Name, c.display.Description, c.media, c.size, digestRaw(c.sha), []byte(nil), "", c.object.String(), "", "", string(c.creatorKind), c.creator, c.execution, c.operation, c.tool, c.toolCall, c.created.Time()}}).Scan(out...)
+		var source []byte
+		if c.source.Validate() == nil {
+			var err error
+			source, err = encodeSource(c.source)
+			if err != nil {
+				return err
+			}
+		}
+		lease := ""
+		if c.sourceLease.Validate() == nil {
+			lease = c.sourceLease.String()
+		}
+		return (cleanupOwnerRow{values: []any{string(c.identity.Key()), c.ref.ProjectID.String(), c.ref.ArtifactID.String(), c.ref.FileID.String(), c.originalActor, digestRaw(c.digest), c.cause, c.path, string(c.kind), c.state, c.display.Name, c.display.Description, c.media, c.size, digestRaw(c.sha), source, lease, c.object.String(), "", "", string(c.creatorKind), c.creator, c.execution, c.operation, c.tool, c.toolCall, c.created.Time()}}).Scan(out...)
 	})
 }
 
@@ -92,6 +110,8 @@ type projectAuditFixture struct {
 	service                         *Service
 	authority                       *ProjectAuditAuthority
 	meta, storedMeta                ac.Metadata
+	sourceMeta, storedSource        ac.Metadata
+	missingSource                   bool
 	command, storedCommand          commandRow
 	request                         createRequest
 	read                            bool
@@ -533,5 +553,187 @@ func TestProjectAuditWaitsForOriginalScan(t *testing.T) {
 				t.Fatal("cancelled Append left live witness")
 			}
 		})
+	}
+}
+
+func projectAuditSourceFor(t *testing.T, meta ac.Metadata) oc.ResolvedSource {
+	t.Helper()
+	m := meta.Details()
+	ref, err := oc.NewBusinessFileRef(oc.BusinessFileDetails{Kind: oc.ArtifactFile, ProjectID: m.Reference.ProjectID, ArtifactID: m.Reference.ArtifactID.String(), FileID: m.Reference.FileID.String()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	source, err := artifactSource(artifactRow{meta: meta}, ref)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return source
+}
+
+func newProjectAuditSourceFixture(t *testing.T) *projectAuditFixture {
+	t.Helper()
+	v := newProjectAuditFixture(t, "source")
+	m := v.meta.Details()
+	m.Reference.ArtifactID, m.Reference.FileID = newTestID[ac.ArtifactEntity](t), newTestID[ac.File](t)
+	m.Object.ID = newTestID[oc.StoredObject](t)
+	m.Name = "existing-source.txt"
+	var err error
+	v.sourceMeta, err = ac.NewMetadata(m)
+	if err != nil {
+		t.Fatal(err)
+	}
+	v.storedSource = v.sourceMeta
+	v.command.source = projectAuditSourceFor(t, v.sourceMeta)
+	v.command.sourceLease = newTestID[oc.Lease](t)
+	v.storedCommand = v.command
+	return v
+}
+
+// The publication helper supplies the complete original source/lease. These
+// controls check local facts, not SourceReads authority, bytes or a PG commit.
+func TestProjectAuditSourceCreation(t *testing.T) {
+	for _, mode := range []string{"same-project", "missing-source", "canonical-object", "canonical-revision", "lease-drift", "missing-lease", "command-source-drift", "foreign-project", "other-kind", "self-source", "content-with-source"} {
+		t.Run(mode, func(t *testing.T) {
+			v := newProjectAuditSourceFixture(t)
+			switch mode {
+			case "missing-source":
+				v.missingSource = true
+			case "canonical-object", "canonical-revision":
+				m := v.sourceMeta.Details()
+				if mode == "canonical-object" {
+					m.Object.ID = newTestID[oc.StoredObject](t)
+				} else {
+					m.Version++
+				}
+				var err error
+				v.storedSource, err = ac.NewMetadata(m)
+				if err != nil {
+					t.Fatal(err)
+				}
+			case "lease-drift":
+				v.storedCommand.sourceLease = newTestID[oc.Lease](t)
+			case "missing-lease":
+				v.command.sourceLease = oc.LeaseID{}
+			case "command-source-drift":
+				d := v.command.source.Details()
+				d.Revision++
+				var err error
+				v.storedCommand.source, err = oc.NewResolvedSource(d)
+				if err != nil {
+					t.Fatal(err)
+				}
+			case "foreign-project":
+				m := v.sourceMeta.Details()
+				m.Reference.ProjectID = newTestID[i.Project](t)
+				var err error
+				m.Object.Scope, err = i.InProject(m.Reference.ProjectID)
+				if err != nil {
+					t.Fatal(err)
+				}
+				v.sourceMeta, err = ac.NewMetadata(m)
+				if err != nil {
+					t.Fatal(err)
+				}
+				v.storedSource = v.sourceMeta
+				v.command.source = projectAuditSourceFor(t, v.sourceMeta)
+				v.storedCommand.source = v.command.source
+			case "other-kind":
+				d := v.command.source.Details()
+				document := newTestID[struct{}](t).String()
+				var err error
+				d.Reference, err = oc.NewBusinessFileRef(oc.BusinessFileDetails{Kind: oc.KnowledgeFile, ProjectID: v.meta.Details().Reference.ProjectID, DocumentID: document, Revision: d.Revision})
+				if err != nil {
+					t.Fatal(err)
+				}
+				d.Owner, err = oc.NewObjectOwner(oc.Knowledge, document, v.meta.Details().Reference.ProjectID.String())
+				if err != nil {
+					t.Fatal(err)
+				}
+				v.command.source, err = oc.NewResolvedSource(d)
+				if err != nil {
+					t.Fatal(err)
+				}
+				v.storedCommand.source = v.command.source
+			case "self-source":
+				v.command.source = projectAuditSourceFor(t, v.meta)
+				v.storedCommand.source = v.command.source
+			case "content-with-source":
+				v.command.path, v.storedCommand.path = "content", "content"
+			}
+			err := v.append(context.Background())
+			if mode != "same-project" {
+				projectAuditCode(t, err, f.Forbidden)
+				return
+			}
+			if err != nil || v.reads != 3 {
+				t.Fatal("actual source publication did not read target, command and source", err, v.reads)
+			}
+			w := v.saved.Value(projectAuditWitnessKey{}).(*projectAuditWitness)
+			if w.command == nil || !sameSource(w.command.source, v.command.source) || w.command.sourceLease != v.command.sourceLease || w.active.Load() {
+				t.Fatal("original source/lease capture or return lifetime changed")
+			}
+			before := v.reads
+			projectAuditCode(t, v.authority.CheckProjectAuditInTx(v.saved, v.store.tx, v.entry, v.key), f.Forbidden)
+			if v.reads != before {
+				t.Fatal("returned source witness reached canonical SQL")
+			}
+		})
+	}
+}
+
+func TestProjectAuditSourceScanReturn(t *testing.T) {
+	v := newProjectAuditSourceFixture(t)
+	entered, release := make(chan struct{}), make(chan struct{})
+	var once sync.Once
+	free := func() { once.Do(func() { close(release) }) }
+	ctx, cancel := context.WithCancel(context.Background())
+	done := make(chan error, 1)
+	joined := false
+	t.Cleanup(func() {
+		cancel()
+		free()
+		if !joined {
+			select {
+			case <-done:
+			case <-time.After(5 * time.Second):
+				t.Error("original source Scan did not return")
+			}
+		}
+	})
+	v.beforeScan = func(_ context.Context, kind string) {
+		if kind == "source" {
+			close(entered)
+			<-release
+		}
+	}
+	go func() { done <- v.append(ctx) }()
+	select {
+	case <-entered:
+	case <-time.After(5 * time.Second):
+		t.Fatal("original source canonical Scan not reached")
+	}
+	cancel()
+	w := v.saved.Value(projectAuditWitnessKey{}).(*projectAuditWitness)
+	if !w.active.Load() {
+		t.Fatal("cancel retired the active original source witness")
+	}
+	select {
+	case <-done:
+		joined = true
+		t.Fatal("cancel substituted for source Scan return")
+	default:
+	}
+	free()
+	select {
+	case err := <-done:
+		joined = true
+		if !errors.Is(err, context.Canceled) {
+			t.Fatal("cancelled original source Scan became authorization", err)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("released source Scan did not return")
+	}
+	if w.active.Load() {
+		t.Fatal("source witness survived original Append return")
 	}
 }
