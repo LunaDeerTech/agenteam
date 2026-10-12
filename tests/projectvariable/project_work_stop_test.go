@@ -85,7 +85,7 @@ func workStopRequire(t *testing.T, stage string, err error) {
 	}
 }
 
-func newWorkStopPG(t *testing.T, upgrade bool) *workStopPG {
+func newWorkStopPG(t *testing.T, upgrade bool, withReaders ...bool) *workStopPG {
 	t.Helper()
 	var base *variableHTTPFixture
 	if upgrade {
@@ -194,7 +194,7 @@ func newWorkStopPG(t *testing.T, upgrade bool) *workStopPG {
 			}
 		}
 	}
-	v.pair = v.newPair(t)
+	v.pair = v.newPair(t, withReaders...)
 	v.driver, err = project.NewLifecycleStopDriver(base.tracked, v.life, processes, func(ctx context.Context, a i.Actor, c pc.LifecycleCause, s pc.ScopeRef) error {
 		if c != v.cause || !s.Equal(v.scope) || v.step == nil {
 			return errors.New("Work original Stop scope changed")
@@ -207,11 +207,16 @@ func newWorkStopPG(t *testing.T, upgrade bool) *workStopPG {
 	v.seed(t, agentID)
 	return v
 }
-func (v *workStopPG) newPair(t *testing.T) *work.ProjectCallOwnership {
+func (v *workStopPG) newPair(t *testing.T, withReaders ...bool) *work.ProjectCallOwnership {
 	t.Helper()
 	a, err := project.NewWorkStopAuthority(v.life, v.base.tracked)
 	workStopRequire(t, "stop-authority", err)
-	p, err := work.NewProjectCallOwnership(v.base.tracked, v.deps, v.skills.guard, v.skills.process, a)
+	var p *work.ProjectCallOwnership
+	if len(withReaders) == 1 && withReaders[0] {
+		p, err = work.NewProjectCallOwnershipWithReaders(v.base.tracked, v.deps, v.base.keys, v.skills.guard, v.skills.process, a)
+	} else {
+		p, err = work.NewProjectCallOwnership(v.base.tracked, v.deps, v.skills.guard, v.skills.process, a)
+	}
 	workStopRequire(t, "owned-factory", err)
 	v.pairs = append(v.pairs, p)
 	return p

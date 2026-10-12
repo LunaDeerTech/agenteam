@@ -167,6 +167,30 @@ func (s *projectCallOwnershipState) requireRunning(ctx context.Context, tx f.Tx,
 	return ctx.Err()
 }
 
+// A placement read borrows a live original Work call. This never registers or
+// retires an owner: only that caller can observe its enclosing Store return.
+func (s *projectCallOwnershipState) requirePlacementBorrow(ctx context.Context, tx f.Tx, project i.ProjectID) error {
+	if s == nil {
+		return nil
+	}
+	if ctx == nil {
+		return fault(f.InvalidArgument)
+	}
+	w, ok := ctx.Value(projectCallContextKey{}).(projectCallWitness)
+	if !ok || w.state != s || w.owner == nil {
+		return fault(f.DependencyUnbound)
+	}
+	s.mu.Lock()
+	lane := w.owner.record.Lane
+	s.mu.Unlock()
+	switch lane {
+	case projectCallTask, projectCallBlocker, projectCallTransition:
+		return s.requireRunning(ctx, tx, project, lane)
+	default:
+		return fault(f.DependencyUnbound)
+	}
+}
+
 func (s *projectCallOwnershipState) callTx(ctx context.Context, cause f.TransactionCause, r projectCallRecord, stop *projectStopCall, fn func(context.Context, postgres.SQLExecutor) error) f.CommitResult {
 	return s.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		if err := s.store.AcquireAll(ctx, tx, []f.LockRequest{projectLock(r.Project, f.Exclusive)}); err != nil {

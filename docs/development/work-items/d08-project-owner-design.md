@@ -251,6 +251,8 @@ Work Stop 仅消费原 LifecycleStopDriver 当前 invoke 的独立私有 loan；
 
 `f46591b9` 的 `TestProjectWorkStop` native02 三组实际通过（42.96s）：五个显式 lane 的真实命令、79→80/repeat、原 Store 返回屏障与 B 可用；技术 Unknown 保留原 attempt/cause，后继同 Tx 零写确认实际返回后下一显式调用才关闭；Archive 保留原 read/已完成重放并拒新 mutation。基础 33 top/75 sub 与两包 vet 通过，原 Wait 和六项资源均已清退，见[结果](../../../output/ai/project-work-stop-delivery/native02/result.json)与[日志](../../../output/ai/project-work-stop-delivery/native02/browser.log)。原 basic01/02 FAIL、native01 三组 snapshot `42883` 保留；修复仅按 Work 各目标表实际 UUID 类型更正快照参数转换，不外推独立 Reader、调度 borrower、Work Cleanup、foreign death 或默认 App/完整 Delete。
 
+后继显式 `NewProjectCallOwnershipWithReaders` 将三类独立 Reader 的八个完整调用纳入同一 pair 的 structure/task/blocker read 归属；构造自己的 Reader 图并供原 Task/Blocker/Transition 借用，不替换调用方旧 Reader，借入 Tx 只消费同 pair、精确 P/lane 的活私见证。`4dc202a8` 的 native01 三组实际通过（36.73s）：八个非空读取、原 Store/方法返回屏障、B 隔离；技术 Unknown 保首次返回值及 attempt/cause，经同 Tx 零写确认实际返回后继续；Archive 不取消原 read，后续八个读取仍成功且业务历史不变。基础 10 top/20 sub 与 vet 通过，原 Wait 和六项资源均清退，见[结果](../../../output/ai/project-work-reader-stop-delivery/native01/result.json)与[日志](../../../output/ai/project-work-reader-stop-delivery/native01/browser.log)。本片无新 schema，默认 App 未绑定，不外推独立调度/Execution borrower、Work Cleanup、foreign death 或完整 Delete。
+
 ### Scheduler 显式调用归属与 Delete 停止（限定验收）
 
 显式 Scheduler 工厂绑定同 Store、原 ProcessGuard/process 与实例身份，覆盖 Coordinator、PendingVisitor、LaunchHandoff、BusyCompensator、LaunchFailureFinalizer、RelaunchCoordinator 六个原 owner 及 ProjectRunner 第七 lane；manager 的原调用尾也必须实际返回。迁移 00081 仅新增本域 project_calls：持久完整 P/process/instance/lane、原调用 canonical identity/digest，身份不可变，running 单调进入 business_closed，历史禁止删除。closed 行、取消、无本地 handle 均不能代替原 Store、借入 Tx 或外层调用实返；同进程未知实例仍 Pending，foreign 仅凭原 ProcessGuard 停止证明并同 Tx 重核。
