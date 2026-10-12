@@ -62,6 +62,7 @@ type projectCallOwnershipState struct {
 	mu       sync.Mutex
 	owners   map[f.ID[projectCallIdentity]]*projectCallOwner
 	cleanup  *projectCleanupOwnership
+	terminal *projectTerminalOwnership
 	changed  chan struct{}
 }
 
