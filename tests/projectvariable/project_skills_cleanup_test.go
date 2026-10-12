@@ -18,7 +18,6 @@ import (
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/object"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
-	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	"github.com/LunaDeerTech/agenteam/internal/central/project"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/skill"
