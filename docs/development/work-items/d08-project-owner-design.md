@@ -280,7 +280,7 @@ D04 沿现有每批 100 条的头扫描与 FK 顺序清理 Project credential、
 
 固定组合只调用原 Artifact.CleanupProject，由它消费同 Store、同一个原 Object Service；不另起第二次 Object 清理。首片覆盖真实 Human inline/upload 的 Artifact、Object/MinIO、metadata 和 download 清理。每个原事务及 Unknown 只读确认均要求 Project EX、当前 Delete/operation/version、完整 manifest、全部 stop、声明前驱和当前 ArtifactObject 私有 claim，并绑定母 participant 的原 schema 6；公开 cause、Service 名称或空表都不能代替授权。Secret 与 Artifact/Object 是业务 owner 之后的兄弟依赖，固定 driver 先 Secret 后 Artifact 不增加 manifest 依赖。
 
-非空业务通过原 Human ArtifactCreate（inline/upload）与 ArtifactRead 入口生成。Project 的 Artifact Audit 分派先验证当前 Session/Owner 及读写生命周期，再调用同 Store 的本域事实 checker；checker 只接受原 publication/read 尾部私有、同 live Tx、完整 Entry/Key 的临时见证，并重读 canonical metadata 与创建原 command。见证不含 payload/read text，原 Append 返回即失效；没有公开成功授权口。其它 Artifact action/source/AgentRun 不由这条有限接线获得授权，不能用只读 Owner 身份代替真实业务事实。
+非空业务通过原 Human ArtifactCreate（inline/upload）、ArtifactRead 和 IssueDownload 入口生成；签发下载本身也追加 ArtifactDownload issued Audit，不必先打开下载流。Project 分派先验证当前 Session/Owner 及读写生命周期，再调用同 Store 的本域事实 checker；checker 只接受原 publication/read/download-issue 尾部私有、同 live Tx、完整 Entry/Key 的临时见证，并重读 canonical metadata 与创建原 command。issued 还须消费 Object 在原 grant INSERT 后创建的私有作用域，核原 Service/Store/Tx、完整 target/event、原锁和持久 grant；两个见证均到原 Append 实际返回才失效。见证不含 payload/read text，没有公开成功授权口；下载 started/sent/failed、其它 Artifact action/source/AgentRun 不由此获得授权，不能用只读 Owner 身份代替真实业务事实。
 
 Artifact 在任何 metadata mutation 前按原锁和当前 gate 检查 source/lease；尚未确认的 source 或活句柄保留 Pending，本片不先调用旧 CancelSourceLease 再吞掉 Unknown。仅清理路径保存原 provider attempt/cause 与原调用归属，首次 Unknown 立即停止后续变更；下一显式调用仅重新授权并只读确认，原确认实际返回后才能释放该 owner，再由后继调用继续。Object 停止后的维护只接受其私有 cleanup context，并在同事务重核当前 Project 清理 gate；普通维护和既有 Skill/Runner 例外不扩大。
 

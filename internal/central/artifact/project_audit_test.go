@@ -177,6 +177,105 @@ func (v *projectAuditFixture) append(ctx context.Context) error {
 	}
 	return v.service.appendReadAudit(ctx, v.store.tx, v.request.invocation, au.ArtifactRead, resource, metadata, digestBytes([]byte("read-intent")), v.meta)
 }
+
+func projectAuditIssuedInput(t *testing.T, v *projectAuditFixture) (oc.DownloadTarget, oc.DownloadEvent, au.Entry, au.AppendKey) {
+	t.Helper()
+	m := v.meta.Details()
+	ref, err := oc.NewBusinessFileRef(oc.BusinessFileDetails{Kind: oc.ArtifactFile, ProjectID: m.Reference.ProjectID, ArtifactID: m.Reference.ArtifactID.String(), FileID: m.Reference.FileID.String()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	source, err := artifactSource(artifactRow{meta: v.meta, cause: v.rowCause}, ref)
+	if err != nil {
+		t.Fatal(err)
+	}
+	target, err := oc.NewDownloadTarget(oc.DownloadTargetDetails{Source: source, Filename: m.Name})
+	if err != nil {
+		t.Fatal(err)
+	}
+	event := oc.DownloadEvent{GrantID: newTestID[oc.DownloadGrant](t), Phase: oc.DownloadIssued, Length: m.Object.ByteSize}
+	if err := event.Validate(); err != nil {
+		t.Fatal(err)
+	}
+	meta, err := au.ArtifactMetadata(au.ArtifactDownload, au.ArtifactMetadataFields{ArtifactID: m.Reference.ArtifactID.String(), ObjectID: m.Object.ID.String(), MediaType: auditMedia(m.Object.MediaType), ByteSize: event.Length, Phase: au.IssuedPhase})
+	if err != nil {
+		t.Fatal(err)
+	}
+	resource, err := au.NewResource(au.ArtifactResource, m.Reference.ArtifactID.String())
+	if err != nil {
+		t.Fatal(err)
+	}
+	entry, err := au.NewEntry(au.EntryFields{Scope: m.Object.Scope, Actor: v.request.invocation.Details().Actor, Action: au.ArtifactDownload, Outcome: au.Success, Resource: resource, Metadata: meta})
+	if err != nil {
+		t.Fatal(err)
+	}
+	digest, err := jsonDigest([]string{"download", event.GrantID.String(), event.AttemptID.String(), string(event.Phase)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	key, err := au.NewAppendKey(au.ArtifactProducer, digest.String(), 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return target, event, entry, key
+}
+
+func TestProjectAuditDownloadIssuedScope(t *testing.T) {
+	for _, mode := range []string{"missing-artifact", "no-object-issuing-scope", "expired"} {
+		t.Run(mode, func(t *testing.T) {
+			v := newProjectAuditFixture(t, "read")
+			target, event, entry, key := projectAuditIssuedInput(t, v)
+			owners, err := NewOwnerProvider(v.store, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			calls := 0
+			state := sourceState{owners: owners, audit: projectAuditAppender(func(ctx context.Context, tx f.Tx, e au.Entry, k au.AppendKey) (au.AppendReceipt, error) {
+				calls++
+				v.saved = ctx
+				w := ctx.Value(projectAuditWitnessKey{}).(*projectAuditWitness)
+				if !w.active.Load() || w.command != nil || w.download == nil || w.download.event != event || w.download.target.Details().Filename != target.Details().Filename || !sameSource(w.download.target.Details().Source, target.Details().Source) || !sameProjectAuditEntry(e, entry) || k.Details() != key.Details() {
+					t.Fatal("actual Source append lost its exact captured issued facts")
+				}
+				if mode == "expired" {
+					return au.AppendReceipt{}, nil
+				}
+				// A public event plus Artifact's witness cannot impersonate the
+				// private Object grant INSERT scope. The real success is a PG test.
+				return au.AppendReceipt{}, v.authority.CheckProjectAuditInTx(ctx, tx, e, k)
+			})}
+			sources := &Sources{data: func() sourceState { return state }}
+			if mode == "missing-artifact" {
+				v.missingArtifact = true
+			}
+			err = sources.appendDownloadIssuedAudit(context.Background(), v.store.tx, entry, key, target, event)
+			if mode == "expired" {
+				if err != nil || calls != 1 {
+					t.Fatal("original controlled Append did not return", err)
+				}
+			} else {
+				projectAuditCode(t, err, f.Forbidden)
+			}
+			if mode == "missing-artifact" {
+				if calls != 0 || v.reads != 1 {
+					t.Fatal("missing canonical Artifact minted an issuing witness")
+				}
+				return
+			}
+			if mode == "no-object-issuing-scope" && (calls != 1 || v.reads != 2) {
+				t.Fatal("original canonical facts not read before Object scope rejection", v.reads)
+			}
+			if v.saved.Value(projectAuditWitnessKey{}).(*projectAuditWitness).active.Load() {
+				t.Fatal("issued witness survived Append")
+			}
+			before := v.reads
+			projectAuditCode(t, v.authority.CheckProjectAuditInTx(v.saved, v.store.tx, entry, key), f.Forbidden)
+			if v.reads != before {
+				t.Fatal("expired Source witness reached canonical SQL")
+			}
+		})
+	}
+}
 func projectAuditCode(t *testing.T, err error, code f.Code) {
 	t.Helper()
 	var actual *f.Fault

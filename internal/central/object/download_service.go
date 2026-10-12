@@ -227,7 +227,7 @@ func (d *Downloads) IssueDownload(ctx context.Context, actor identity.Actor, ref
 		if err != nil {
 			return unavailable(err)
 		}
-		return r.provider.AppendDownloadInTx(ctx, tx, actor, target, oc.DownloadEvent{GrantID: grant, Phase: oc.DownloadIssued, Length: target.Details().Source.Details().Meta.ByteSize}, plan, locked)
+		return d.appendIssuedAudit(ctx, tx, actor, c, plan, locked)
 	})
 	if result.State() == foundation.Unknown {
 		// Acquiring the same EX record lock waits for the original writer's actual

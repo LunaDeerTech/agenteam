@@ -280,20 +280,27 @@ func (v *artifactCleanupPG) invocation(t *testing.T, project i.ProjectID) art.In
 
 func (v *artifactCleanupPG) seedArtifacts(t *testing.T, assembly *artifactCleanupPGAssembly) {
 	t.Helper()
+	require := func(stage string, err error) {
+		t.Helper()
+		if err != nil {
+			agentRetirementDiagnostic(t, "artifact-seed-"+stage, err)
+			t.Fatalf("formal Artifact seed failed at %s", stage)
+		}
+	}
 	p := v.p2.project.ID
 	inline, err := v.service.CreateFromContent(ctxFor(t), v.invocation(t, p), meta(t, "cleanup-inline", nil), art.Display{Name: "inline.txt"}, "text/plain", "原始 inline bytes\n")
-	outboxCleanupRequire(t, err)
+	require("create-content", err)
 	target, err := v.service.BeginUpload(ctxFor(t), v.invocation(t, p), meta(t, "cleanup-upload", nil), art.Display{Name: "upload.txt"}, "text/plain", 12, nil)
-	outboxCleanupRequire(t, err)
+	require("begin-upload", err)
 	stored, err := v.service.UploadPayload(ctxFor(t), v.invocation(t, p), target, io.NopCloser(strings.NewReader("upload bytes")))
-	outboxCleanupRequire(t, err)
+	require("upload-payload", err)
 	upload, err := v.service.CreateFromUpload(ctxFor(t), v.invocation(t, p), meta(t, "cleanup-upload-create", nil), art.Display{Name: "upload.txt"}, stored.Receipt)
-	outboxCleanupRequire(t, err)
+	require("create-from-upload", err)
 	if inline.Details().Kind != art.Generated || upload.Details().Kind != art.UserUpload || stored.Meta.ID != upload.Details().Object.ID {
 		t.Fatal("formal Artifact publication did not preserve inline/upload identities")
 	}
 	v.other, err = v.service.CreateFromContent(ctxFor(t), v.invocation(t, v.p2.base.project.ID), meta(t, "foreign-artifact", nil), art.Display{Name: "other.txt"}, "text/plain", "other Project body")
-	outboxCleanupRequire(t, err)
+	require("other-project-create", err)
 	for _, value := range []art.Metadata{inline, upload} {
 		var native skillsCleanupPGObject
 		outboxCleanupRequire(t, v.p2.base.raw.QueryRow(ctxFor(t), `SELECT id::text,candidate_key,byte_size FROM agenteam_object.objects WHERE id=$1 AND state='available'`, value.Details().Object.ID.String()).Scan(&native.id, &native.key, &native.size))
@@ -301,24 +308,24 @@ func (v *artifactCleanupPG) seedArtifacts(t *testing.T, assembly *artifactCleanu
 	}
 	v.native(t, true)
 	preview, err := v.service.ReadArtifact(ctxFor(t), v.invocation(t, p), inline.Details().Reference, art.PreviewRequest{})
-	outboxCleanupRequire(t, err)
+	require("read-artifact", err)
 	if preview.Details().Text != "原始 inline bytes\n" {
 		t.Fatal("formal Artifact reader changed original bytes")
 	}
 	// A real issued download grant is metadata to retire, not a fabricated row.
 	sources, err := artifact.NewSources(assembly.owners, v.p2.objects, assembly.audit)
-	outboxCleanupRequire(t, err)
+	require("sources-binding", err)
 	material := func(b byte) string { return base64.StdEncoding.EncodeToString(bytes.Repeat([]byte{b}, 32)) }
 	keys, err := secret.LoadKeyring(fmt.Sprintf(`{"format":1,"current_version":"1","keys":[{"version":"1","key_b64":%q}]}`, material(21)), v.p2.base.keys)
-	outboxCleanupRequire(t, err)
+	require("secret-keyring", err)
 	downloadKeys, err := object.LoadDownloadKeyring(fmt.Sprintf(`{"format":1,"current_kid":"cleanup","keys":[{"kid":"cleanup","key_b64":%q}]}`, material(22)), v.p2.base.keys, keys)
-	outboxCleanupRequire(t, err)
+	require("download-keyring", err)
 	downloads, err := object.NewDownloads(v.p2.objects, sources, downloadKeys)
-	outboxCleanupRequire(t, err)
+	require("download-binding", err)
 	ref, err := inline.Details().Reference.BusinessFile()
-	outboxCleanupRequire(t, err)
+	require("business-file-reference", err)
 	_, err = downloads.IssueDownload(ctxFor(t), v.p2.base.ownerBrowser.actor, ref, oc.DownloadAttachment, time.Minute)
-	outboxCleanupRequire(t, err)
+	require("issue-download", err)
 	if v.counts(t) != [5]int{2, 2, 1, 2, 1} {
 		t.Fatal("formal Artifact/Object/download seed differs", v.counts(t))
 	}

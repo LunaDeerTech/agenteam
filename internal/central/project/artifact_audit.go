@@ -2,6 +2,7 @@ package project
 
 import (
 	"context"
+	"encoding/json"
 
 	au "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -20,6 +21,14 @@ func (a *Authority) checkArtifactAuditInTx(ctx context.Context, tx f.Tx, entry a
 	case au.ArtifactCreate:
 		intent = identity.Mutate
 	case au.ArtifactRead:
+	case au.ArtifactDownload:
+		var meta struct {
+			Phase au.ContentPhase `json:"phase"`
+			Sent  string          `json:"sent_bytes"`
+		}
+		if json.Unmarshal(e.Metadata.JSON(), &meta) != nil || meta.Phase != au.IssuedPhase || meta.Sent != "0" {
+			return fault(f.Forbidden)
+		}
 	default:
 		return fault(f.Forbidden)
 	}

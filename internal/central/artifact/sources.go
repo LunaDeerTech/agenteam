@@ -286,6 +286,9 @@ func (s *Sources) AppendDownloadInTx(ctx context.Context, tx foundation.Tx, acto
 	if err != nil {
 		return err
 	}
+	if v.Phase == oc.DownloadIssued && actor.Details().Kind == identity.Human && m.Scope.Details().Kind == identity.ProjectScope {
+		return s.appendDownloadIssuedAudit(ctx, tx, entry, key, target, event)
+	}
 	_, err = s.state().audit.AppendInTx(ctx, tx, entry, key)
 	return portOrNil(err)
 }

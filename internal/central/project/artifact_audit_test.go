@@ -20,6 +20,9 @@ func artifactAuditGateEntry(t *testing.T, v *auditGateFixture, action au.Action)
 	if action == au.ArtifactCreate {
 		fields.Phase, fields.SourceKind, fields.SentBytes = au.PublishedPhase, au.InlineSource, 0
 	}
+	if action == au.ArtifactDownload {
+		fields.Phase, fields.SentBytes = au.IssuedPhase, 0
+	}
 	if action == au.ArtifactList {
 		resource, _ = au.NewResource(au.ArtifactCollectionResource, v.project.String())
 		fields = au.ArtifactMetadataFields{Phase: au.ListedPhase, Count: 0}
@@ -40,12 +43,15 @@ func artifactAuditGateEntry(t *testing.T, v *auditGateFixture, action au.Action)
 }
 
 func TestArtifactAuditCurrentOwnerAndExactFacts(t *testing.T) {
-	for _, mode := range []string{"create", "read", "archived-read", "archived-create", "deleting-read", "revoked-session", "missing-provider"} {
+	for _, mode := range []string{"create", "read", "archived-read", "archived-create", "deleting-read", "revoked-session", "missing-provider", "issued", "archived-issued", "deleting-issued", "revoked-issued"} {
 		t.Run(mode, func(t *testing.T) {
 			v := newAuditGateFixture(t, nil)
 			action := au.ArtifactRead
 			if mode == "create" || mode == "archived-create" {
 				action = au.ArtifactCreate
+			}
+			if mode == "issued" || mode == "archived-issued" || mode == "deleting-issued" || mode == "revoked-issued" {
+				action = au.ArtifactDownload
 			}
 			entry, key := artifactAuditGateEntry(t, v, action)
 			type marker struct{}
@@ -60,13 +66,13 @@ func TestArtifactAuditCurrentOwnerAndExactFacts(t *testing.T) {
 			})
 			want := f.Code("")
 			switch mode {
-			case "archived-read":
+			case "archived-read", "archived-issued":
 				v.lifecycle = c.Archived
 			case "archived-create":
 				v.lifecycle, want = c.Archived, f.ProjectNotActive
-			case "deleting-read":
+			case "deleting-read", "deleting-issued":
 				v.lifecycle, want = c.Deleting, f.ProjectNotActive
-			case "revoked-session":
+			case "revoked-session", "revoked-issued":
 				v.sessionErr, want = fault(f.SessionRevoked), f.SessionRevoked
 			case "missing-provider":
 				delete(v.a.state().auditFacts, au.ArtifactProducer)
@@ -88,14 +94,36 @@ func TestArtifactAuditCurrentOwnerAndExactFacts(t *testing.T) {
 }
 
 func TestArtifactAuditClosedDispatch(t *testing.T) {
-	for _, mode := range []string{"list", "ordinal", "wrong-producer", "provider-error"} {
+	for _, mode := range []string{"list", "ordinal", "wrong-producer", "provider-error", "download-started", "download-sent", "download-failed"} {
 		t.Run(mode, func(t *testing.T) {
 			v := newAuditGateFixture(t, nil)
 			action := au.ArtifactRead
 			if mode == "list" {
 				action = au.ArtifactList
 			}
+			if mode == "download-started" || mode == "download-sent" || mode == "download-failed" {
+				action = au.ArtifactDownload
+			}
 			entry, key := artifactAuditGateEntry(t, v, action)
+			if action == au.ArtifactDownload {
+				fields := entry.Fields()
+				meta := au.ArtifactMetadataFields{ArtifactID: fields.Resource.Details().ID, ObjectID: testID[struct{}](t).String(), MediaType: "text/plain", ByteSize: 3, Phase: au.StartedPhase}
+				if mode == "download-sent" {
+					meta.Phase, meta.SentBytes = au.SentPhase, 3
+				}
+				if mode == "download-failed" {
+					meta.Phase, meta.Reason, fields.Outcome = au.FailedPhase, au.Cancelled, au.Failed
+				}
+				var err error
+				fields.Metadata, err = au.ArtifactMetadata(au.ArtifactDownload, meta)
+				if err != nil {
+					t.Fatal(err)
+				}
+				entry, err = au.NewEntry(fields)
+				if err != nil {
+					t.Fatal(err)
+				}
+			}
 			if mode == "ordinal" {
 				key, _ = au.NewAppendKey(au.ArtifactProducer, key.Details().CauseRef, 1)
 			}
