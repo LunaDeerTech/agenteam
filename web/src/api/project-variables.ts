@@ -37,13 +37,33 @@ export type ProjectVariableCommand =
       expectedVersion: string
       request: ProjectVariableUpdate
     }>
-export type ProjectVariableReceipt = Readonly<{
+  | Readonly<{
+      kind: 'delete'
+      projectID: string
+      targetID: string
+      expectedVersion: string
+    }>
+export type ProjectVariableSavedReceipt = Readonly<{
   command: 'project.variable.create' | 'project.variable.update'
   changed: boolean
   variable: ProjectVariable
   event_id: string | null
   audit_id: string | null
 }>
+export type ProjectVariableDeletedReceipt = Readonly<{
+  command: 'project.variable.delete'
+  changed: true
+  deleted: Readonly<{
+    id: string
+    project_id: string
+    type: 'variable'
+    version: string
+    deleted_at: string
+  }>
+  event_id: string
+  audit_id: string
+}>
+export type ProjectVariableReceipt = ProjectVariableSavedReceipt | ProjectVariableDeletedReceipt
 export type ProjectVariableLookup =
   | Readonly<{ status: 'committed'; receipt: ProjectVariableReceipt }>
   | Readonly<{ status: 'not_observed' | 'in_progress'; receipt: null }>
@@ -60,7 +80,7 @@ export interface ProjectVariablesAPI {
     csrf: string,
     key: string,
     signal: AbortSignal,
-  ): Promise<ProjectVariableReceipt>
+  ): Promise<ProjectVariableSavedReceipt>
   update(
     projectID: string,
     targetID: string,
@@ -69,7 +89,15 @@ export interface ProjectVariablesAPI {
     csrf: string,
     key: string,
     signal: AbortSignal,
-  ): Promise<ProjectVariableReceipt>
+  ): Promise<ProjectVariableSavedReceipt>
+  delete(
+    projectID: string,
+    targetID: string,
+    expectedVersion: string,
+    csrf: string,
+    key: string,
+    signal: AbortSignal,
+  ): Promise<ProjectVariableDeletedReceipt>
   lookup(
     command: ProjectVariableCommand,
     csrf: string,
@@ -207,6 +235,15 @@ export function captureProjectVariableCommand(value: unknown): ProjectVariableCo
         request: captureProjectVariableUpdate(v.request),
       })
     }
+    if (v.kind === 'delete') {
+      shape(v, ['kind', 'projectID', 'targetID', 'expectedVersion'])
+      return Object.freeze({
+        kind: 'delete',
+        projectID,
+        targetID: id(v.targetID),
+        expectedVersion: version(v.expectedVersion),
+      })
+    }
     throw new AccountFailure('invalid-input')
   })
 }
@@ -220,7 +257,9 @@ export function projectVariableBody(
   return Object.freeze(
     c.kind === 'create'
       ? { request: c.request }
-      : { expected_version: c.expectedVersion, request: c.request },
+      : c.kind === 'delete'
+        ? { expected_version: c.expectedVersion }
+        : { expected_version: c.expectedVersion, request: c.request },
   )
 }
 function parseSummaryFields(
@@ -299,13 +338,35 @@ export function parseProjectVariableReceipt(
   command: ProjectVariableCommand,
 ): ProjectVariableReceipt {
   const c = captureProjectVariableCommand(command)
-  const v = shape(value, [
-    'command',
-    'changed',
-    'event_id',
-    'audit_id',
-    'variable',
-  ])
+  if (c.kind === 'delete') {
+    const v = shape(value, ['command', 'changed', 'deleted', 'event_id', 'audit_id'])
+    const d = shape(v.deleted, ['id', 'project_id', 'type', 'version', 'deleted_at'])
+    const target = id(d.id),
+      project = id(d.project_id),
+      revision = version(d.version)
+    requireValue(
+      v.command === 'project.variable.delete' &&
+        v.changed === true &&
+        target === c.targetID &&
+        project === c.projectID &&
+        d.type === 'variable' &&
+        BigInt(revision) === BigInt(c.expectedVersion) + 1n,
+    )
+    return Object.freeze({
+      command: 'project.variable.delete',
+      changed: true,
+      deleted: Object.freeze({
+        id: target,
+        project_id: project,
+        type: 'variable',
+        version: revision,
+        deleted_at: instant(d.deleted_at),
+      }),
+      event_id: id(v.event_id),
+      audit_id: id(v.audit_id),
+    })
+  }
+  const v = shape(value, ['command', 'changed', 'event_id', 'audit_id', 'variable'])
   requireValue(v.command === `project.variable.${c.kind}` && typeof v.changed === 'boolean')
   const event = v.event_id === null ? null : id(v.event_id),
     audit = v.audit_id === null ? null : id(v.audit_id)
@@ -326,6 +387,14 @@ export function parseProjectVariableReceipt(
     event_id: event,
     audit_id: audit,
   })
+}
+function parseSavedReceipt(
+  value: unknown,
+  command: ProjectVariableCommand,
+): ProjectVariableSavedReceipt {
+  const receipt = parseProjectVariableReceipt(value, command)
+  if (receipt.command === 'project.variable.delete') throw new AccountFailure('invalid-response')
+  return receipt
 }
 export function parseProjectVariableLookup(
   value: unknown,
@@ -349,7 +418,10 @@ export function createProjectVariablesAPI(fetcher?: Fetch): ProjectVariablesAPI 
         q = captureProjectVariableQuery(query)
       return request('listProjectVariables', (v) => parseProjectVariablePage(v, project, q), {
         projectID: project,
-        workQuery: { limit: String(q.limit), ...(q.cursor === undefined ? {} : { cursor: q.cursor }) },
+        workQuery: {
+          limit: String(q.limit),
+          ...(q.cursor === undefined ? {} : { cursor: q.cursor }),
+        },
         signal,
       })
     },
@@ -364,7 +436,7 @@ export function createProjectVariablesAPI(fetcher?: Fetch): ProjectVariablesAPI 
     },
     async create(projectID, original, csrf, key, signal) {
       const c = captureProjectVariableCommand({ kind: 'create', projectID, request: original })
-      return request('createProjectVariable', (v) => parseProjectVariableReceipt(v, c), {
+      return request('createProjectVariable', (v) => parseSavedReceipt(v, c), {
         projectID: c.projectID,
         body: projectVariableBody(c),
         csrf,
@@ -380,7 +452,7 @@ export function createProjectVariablesAPI(fetcher?: Fetch): ProjectVariablesAPI 
         expectedVersion,
         request: original,
       })
-      return request('updateProjectVariable', (v) => parseProjectVariableReceipt(v, c), {
+      return request('updateProjectVariable', (v) => parseSavedReceipt(v, c), {
         projectID: c.projectID,
         target: projectVariableTarget(c),
         body: projectVariableBody(c),
@@ -388,6 +460,31 @@ export function createProjectVariablesAPI(fetcher?: Fetch): ProjectVariablesAPI 
         key,
         signal,
       })
+    },
+    async delete(projectID, targetID, expectedVersion, csrf, key, signal) {
+      const c = captureProjectVariableCommand({
+        kind: 'delete',
+        projectID,
+        targetID,
+        expectedVersion,
+      })
+      return request(
+        'deleteProjectVariable',
+        (value) => {
+          const receipt = parseProjectVariableReceipt(value, c)
+          if (receipt.command !== 'project.variable.delete')
+            throw new AccountFailure('invalid-response')
+          return receipt
+        },
+        {
+          projectID: c.projectID,
+          target: projectVariableTarget(c),
+          body: projectVariableBody(c),
+          csrf,
+          key,
+          signal,
+        },
+      )
     },
     async lookup(command, csrf, key, signal) {
       const c = captureProjectVariableCommand(command)

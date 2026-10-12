@@ -115,6 +115,7 @@ const endpoints = {
   listProjectUsage: ['GET', '/api/v1/projects/{project_id}/model-usage', 200],
   createProjectVariable: ['POST', '/api/v1/projects/{project_id}/variables', 200],
   updateProjectVariable: ['PATCH', '/api/v1/projects/{project_id}/variables/{target}', 200],
+  deleteProjectVariable: ['DELETE', '/api/v1/projects/{project_id}/variables/{target}', 200],
   lookupProjectVariable: ['POST', '/api/v1/projects/{project_id}/variables/commands/lookup', 200],
   milestoneUpdate: ['PATCH', '/api/v1/projects/{project_id}/milestones/{target}', 200],
   milestoneUpdateLookup: ['POST', '/api/v1/projects/{project_id}/structure-commands/lookup', 200],
@@ -1150,6 +1151,7 @@ type WorkReviewEndpoint =
   | 'getProjectVariable'
   | 'createProjectVariable'
   | 'updateProjectVariable'
+  | 'deleteProjectVariable'
   | 'lookupProjectVariable'
   | 'milestoneUpdate'
   | 'milestoneUpdateLookup'
@@ -1188,6 +1190,7 @@ const workReviewEndpoints: readonly WorkReviewEndpoint[] = [
   'getProjectVariable',
   'createProjectVariable',
   'updateProjectVariable',
+  'deleteProjectVariable',
   'lookupProjectVariable',
   'milestoneUpdate',
   'milestoneUpdateLookup',
@@ -1629,7 +1632,11 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           const query = shape(
             options.workQuery,
             ['limit', ...fields],
-            endpoint === 'taskTimeline' ? ['cursor', 'order', 'types'] : ['cursor'],
+            endpoint === 'taskTimeline'
+              ? ['cursor', 'order', 'types']
+              : endpoint === 'reviewTasks'
+                ? ['cursor', 'text']
+                : ['cursor'],
           )
           const limit = string(query.limit, 1, 3)
           if (
@@ -1644,7 +1651,18 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
             throw new Error()
           const params = new URLSearchParams()
           for (const [key, value] of Object.entries(query)) {
-            const item = string(value, 1, key === 'cursor' ? 8192 : key === 'types' ? 128 : 64)
+            const item = string(
+              value,
+              1,
+              key === 'cursor' ? 8192 : key === 'types' ? 128 : key === 'text' ? 1024 : 64,
+            )
+            if (
+              key === 'text' &&
+              (new TextEncoder().encode(item).byteLength > 1024 ||
+                [...item].length > 256 ||
+                /^\p{White_Space}*$/u.test(item))
+            )
+              throw new Error()
             if (key.endsWith('_id') && !uuid7.test(item)) throw new Error()
             if (
               key === 'state' &&

@@ -505,7 +505,7 @@ type ProjectVariableIntent = {
 export type ProjectVariableProgress = Readonly<{
   projectID: string
   targetID: string
-  kind: 'create' | 'update'
+  kind: 'create' | 'update' | 'delete'
   phase: 'submitting' | 'uncertain' | 'rejected' | 'confirmed'
   receipt: ProjectVariableReceipt | null
   observation: 'none' | 'committed' | 'in_progress' | 'not_observed' | 'failed'
@@ -4617,6 +4617,8 @@ export function createSessionController(
         dispatched = true
         if (lookup)
           return projectVariablesAPI.lookup(c, original.csrf, original.key, op.abort.signal)
+        if (c.kind === 'delete')
+          return projectVariablesAPI.delete(c.projectID, c.targetID, c.expectedVersion, original.csrf, original.key, op.abort.signal)
         return c.kind === 'create'
           ? projectVariablesAPI.create(
               c.projectID,
@@ -4729,6 +4731,8 @@ export function createSessionController(
     },
     update: (p: string, v: string, expectedVersion: string, request: ProjectVariableUpdate) =>
       startVariable({ kind: 'update', projectID: p, targetID: v, expectedVersion, request }),
+    delete: (p: string, v: string, expectedVersion: string) =>
+      startVariable({ kind: 'delete', projectID: p, targetID: v, expectedVersion }),
     checkOriginal() {
       if (!variableIntent?.uncertain || variableState.progress?.phase !== 'uncertain')
         return Promise.reject(new AccountFailure('invalid-input'))

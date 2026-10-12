@@ -12,7 +12,7 @@ if (
   !executablePath ||
   !evidence ||
   !selected ||
-  !["create-update-and-clear"].includes(selected)
+  !["create-update-clear-and-delete"].includes(selected)
 )
   throw new Error("OWNED_PROJECT_VARIABLES_FIXTURE_REQUIRED");
 const url = new URL(origin);

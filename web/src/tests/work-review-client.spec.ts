@@ -61,6 +61,79 @@ const problemResponse = (body: ReturnType<typeof problem>) =>
     headers: { 'Content-Type': 'application/problem+json', 'X-Request-ID': id(90) },
   })
 
+describe('Task keyword client', () => {
+  it('preserves literal text through first-page and cursor requests without filtering summaries', async () => {
+    const { description: _description, plan: _plan, ...summary } = task()
+    const fetcher = vi.fn<Fetch>(async () => response({ items: [summary] }))
+    const api = createWorkReviewAPI(fetcher)
+    const text = ' 计划 A%_&+?' + '汉'.repeat(70)
+    for (const cursor of [undefined, 'original-search-cursor']) {
+      expect(
+        await api.tasks(
+          project,
+          { sprint_id: id(3), state: 'in_review', text, limit: 50, ...(cursor ? { cursor } : {}) },
+          signal(),
+        ),
+      ).toEqual({ items: [summary] })
+      const [path, init] = fetcher.mock.calls.at(-1)!
+      const url = new URL(path as string, 'https://example.test')
+      expect(url.pathname).toBe(`/api/v1/projects/${project}/tasks`)
+      expect(Object.fromEntries(url.searchParams)).toEqual({
+        sprint_id: id(3),
+        state: 'in_review',
+        text,
+        limit: '50',
+        ...(cursor ? { cursor } : {}),
+      })
+      expect(init.method).toBe('GET')
+    }
+    // The match may be in description/plan, which are absent from the summary.
+    expect(summary.title).not.toContain(text)
+    await api.tasks(project, { sprint_id: id(3), state: 'in_review' }, signal())
+    expect(
+      new URL(fetcher.mock.calls.at(-1)![0] as string, 'https://example.test').searchParams.has(
+        'text',
+      ),
+    ).toBe(false)
+  })
+
+  it('rejects invalid keywords before transport and retains the original project and Sprint checks', async () => {
+    const fetcher = vi.fn<Fetch>(async () => response({ items: [] }))
+    const api = createWorkReviewAPI(fetcher)
+    for (const text of ['', ' \u3000', 'line\nbreak', 'x'.repeat(257), '\uD800']) {
+      await expect(
+        Promise.resolve().then(() =>
+          api.tasks(
+            project,
+            {
+              sprint_id: id(3),
+              state: 'in_review',
+              text,
+            },
+            signal(),
+          ),
+        ),
+      ).rejects.toMatchObject({ kind: 'invalid-input' })
+    }
+    expect(fetcher).not.toHaveBeenCalled()
+    const { description: _description, plan: _plan, ...summary } = task()
+    for (const change of [{ project_id: id(99) }, { sprint_id: id(99) }, { state: 'todo' }]) {
+      fetcher.mockImplementationOnce(async () => response({ items: [{ ...summary, ...change }] }))
+      await expect(
+        api.tasks(
+          project,
+          {
+            sprint_id: id(3),
+            state: 'in_review',
+            text: 'keyword',
+          },
+          signal(),
+        ),
+      ).rejects.toMatchObject({ kind: 'invalid-response' })
+    }
+  })
+})
+
 describe('Human review closed client', () => {
   it('sends the three existing Transfer intents and preserves exact comments and string versions', async () => {
     const bodies = [receipt(), receipt('done'), receipt('todo')]
