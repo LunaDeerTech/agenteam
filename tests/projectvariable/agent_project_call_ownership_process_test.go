@@ -23,11 +23,9 @@ import (
 
 	"github.com/LunaDeerTech/agenteam/internal/central/account"
 	ac "github.com/LunaDeerTech/agenteam/internal/central/agent/contract"
-	"github.com/LunaDeerTech/agenteam/internal/central/audit"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	objc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
-	"github.com/LunaDeerTech/agenteam/internal/central/project"
 	"github.com/LunaDeerTech/agenteam/internal/central/skill"
 	"github.com/LunaDeerTech/agenteam/internal/central/tool/builtin"
 	"github.com/LunaDeerTech/agenteam/internal/central/tool/registry"
@@ -256,14 +254,6 @@ func agentOwnershipChildMain(t *testing.T, path string) {
 	if err = accounts.Initialize(ctxFor(t)); err != nil {
 		fail(err)
 	}
-	projects, err := project.NewAuthority(store, project.AuthorityDependencies{Sessions: accounts, Routes: accounts})
-	if err != nil {
-		fail(err)
-	}
-	auditor, err := audit.New(store, keys, audit.Authorizations{Accounts: accounts, Sessions: accounts, System: accounts, Projects: projects})
-	if err != nil {
-		fail(err)
-	}
 	setStage("identity")
 	process, err := f.ParseID[objc.Process](input.Process)
 	if err != nil {
@@ -291,21 +281,30 @@ func agentOwnershipChildMain(t *testing.T, path string) {
 		fail(err)
 	}
 	setStage("runtime")
-	runtime, objects, guard := phaseGuardRuntime(t, store, auditor, storage, input.Spool, process)
-	if err = runtime.Initialize(ctxFor(t)); err != nil {
-		phaseGuardRetireRuntime(t, runtime)
-		fail(err)
-	}
-	setStage("install")
-	installer, err := toolruntime.NewInstallAuthority(store, guard, process)
+	owned, err := newAgentOwnershipRuntime(store, accounts, keys, storage, input.Spool, process)
+	defer func() {
+		agentOwnershipEmit("cleanup", "ENTER")
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		defer cancel()
+		if err := owned.drain(ctx); err != nil {
+			owned.retain()
+			agentOwnershipEmit("cleanup", agentOwnershipSafeCode(err))
+			t.Error("child original dependency graph did not join")
+		}
+	}()
 	if err != nil {
-		phaseGuardRetireRuntime(t, runtime)
 		fail(err)
 	}
-	authority, err := skill.NewAuthorityWithInstallExecution(store, projects, installer)
-	if err != nil {
+	if err = owned.runtime.Initialize(ctxFor(t)); err != nil {
 		fail(err)
 	}
+	if current, err := owned.guard.CurrentProcess(); err != nil || current != process {
+		if err == nil {
+			err = f.NewFault(f.InvalidState, f.NotStarted)
+		}
+		fail(err)
+	}
+	objects, guard, installer, authority := owned.objects, owned.guard, owned.installer, owned.authority
 	setStage("skill")
 	bundle, err := skill.AddSkills(ctxFor(t))
 	if err != nil {
@@ -315,6 +314,7 @@ func agentOwnershipChildMain(t *testing.T, path string) {
 	if err != nil {
 		fail(err)
 	}
+	owned.skills = skills
 	source, err := toolruntime.NewInstallSource(installer, skills)
 	if err != nil {
 		fail(err)
@@ -329,35 +329,15 @@ func agentOwnershipChildMain(t *testing.T, path string) {
 	if err != nil {
 		fail(err)
 	}
+	owned.pair = pair
 	release, entered := newPhaseRelease(), make(chan struct{})
 	done := make(chan struct{})
 	started := false
 	defer func() {
-		agentOwnershipEmit("cleanup", "ENTER")
 		release.release()
 		if started {
 			phaseAwait(t, done)
 		}
-		pair.Stop()
-		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-		defer cancel()
-		if err := pair.Drain(ctx); err != nil || !pair.Joined() {
-			agentOwnershipEmit("cleanup", agentOwnershipSafeCode(err))
-			t.Error("child original calls did not join")
-			return
-		}
-		if err := skills.Drain(ctx); err != nil {
-			agentOwnershipEmit("cleanup", agentOwnershipSafeCode(err))
-			t.Error("child dependency did not drain")
-			return
-		}
-		installer.Stop()
-		if err := installer.Drain(ctx); err != nil {
-			agentOwnershipEmit("cleanup", agentOwnershipSafeCode(err))
-			t.Error("child dependency did not drain")
-			return
-		}
-		phaseGuardRetireRuntime(t, runtime)
 	}()
 	command, err := ac.AgentCommandIdentity(projectID, ac.UpdateAgentCommand, input.Meta.IdempotencyKey)
 	if err != nil {
