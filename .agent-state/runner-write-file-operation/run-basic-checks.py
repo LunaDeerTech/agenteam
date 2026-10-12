@@ -115,8 +115,14 @@ def decode_stream(raw):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--scope", choices=("full", "runtime-followup"), default="full")
     args = parser.parse_args()
     tests, new_tests, compat_tests = TESTS, NEW_TESTS, COMPAT_TESTS
+    if args.scope == "runtime-followup":
+        package = "./internal/central/tool/runtime"
+        new_tests = {package: NEW_TESTS[package]}
+        compat_tests = {}
+        tests = {package: TESTS[package]}
     packages = list(tests)
     out = args.output.resolve()
     out.mkdir(parents=True, exist_ok=False)
@@ -145,6 +151,7 @@ def main():
                 raise RuntimeError("frozen inputs changed before " + stage)
         save(stage + "-invocation.json", dict(
             cwd=str(ROOT), command=command, environment_overrides=ENV,
+            scope=args.scope,
             wrapper_sha256=fixed_harness[harness], go_binary_sha256=fixed_harness[GO],
             source_head=head(),
         ))
@@ -201,6 +208,7 @@ def main():
         closures[stage] = dict(packages=targets, local_packages=local_packages, paths=sorted(discovered))
     missing = sorted(paths - prior.keys())
     save("deps-closure.json", dict(
+        scope=args.scope,
         closures=closures, input_count=len(paths), missing_pre_discovery_inputs=missing,
         new_top_tests=new_tests, related_old_top_tests=compat_tests, vet_packages=VET_PACKAGES,
     ))
@@ -228,6 +236,7 @@ def main():
     actual_tops = [item for item in started if "/" not in item[1]]
     selected = sorted(actual_tops) == sorted(required) and all(passed.count(item) == 1 for item in required)
     save("unit01-selection.json", dict(
+        scope=args.scope,
         required=required, actual_top_runs=actual_tops, passed=passed,
         new_top_count=sum(map(len, new_tests.values())), related_old_top_count=sum(map(len, compat_tests.values())), exact_selection_passed=selected,
     ))
