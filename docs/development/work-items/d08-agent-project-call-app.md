@@ -1,6 +1,6 @@
 # D08 App Agent 调用归属装配与退出闭环
 
-状态：三个 App 装配文件及专用基础控已实现；受测 HEAD `763576b88b4ed6f819b3a067ac8007c7bfd3352f` 的 basic 已实际通过，范围为 5 个顶层测试、6 个子测试及一个 App vet，App PG 尚未执行。本树起始基线为 `d64a8f8cc03167b4582a9ea64aa277dfa48da9ac`。上游 Agent native02、native04 的实际 FAIL 保留，native03 仅容量 HOLD；后续完整 Skill/Object 夹具修正 `153232f6dc32a3550f34981282cde3ebe8b5e25f` 仍待真实验收，不能称 native PASS。正式交付须先合入已接受的上游结果。
+状态：三个 App 装配文件、专用基础控和首次真实 HTTP/PG 链已有限验收。basic 在 `763576b88b4ed6f819b3a067ac8007c7bfd3352f` 实际通过 5 top / 6 sub 及一个 App vet；合入上游完整 Skill/Object 夹具修正后，`7e202fcb1c471c13f812e6880500e2d7bff3345b` 的 profile、compile/list 和 native01 whole 均实际通过，原 basic 真实输入相同并复用。本片无失败运行或重试。上游 Agent native02/native04 的原 FAIL、native03 容量 HOLD 均保留，不回填为本片结果。当前可交付集成；尚不在本卡提前记合入、推送、原件保全或树清理。
 
 本片让默认 App 的 Agent 配置、Runner Mount 配置读取及目录 HTTP 使用同一个真实 `agent.ProjectCallOwnership`，并由一个 `accountWork` 管理其完整退出。沿 [Agent 管理规范](../../architecture/agent-management.md)、[持久调用归属卡](d08-agent-project-call-ownership.md)及[团队流程](../agent-team/README.md)。不新增迁移，不改变 Agent 业务权限、命令回执、原预算或公开默认构造；不交付 Project fullparticipant、初始化、引用清理或 legacy global join。
 
@@ -29,21 +29,25 @@ pair 构造无 I/O，允许原 concrete guard 尚未 bound；这不证明 Store 
 | [app/agent_directory.go](../../../internal/central/app/agent_directory.go) | 目录 handler 接收该固定 pair 的 reader；保留原路径路由与公开域构造兼容 |
 | [app/account.go](../../../internal/central/app/account.go) | 延后目录接线，原 install 登记唯一联合 owner，默认 HTTP 双 lane 与 Force provider 顺序 |
 
-必要基础控限上述真实接缝：`app/agent_configuration_test.go`、`agent_directory_test.go`、`account_lifecycle_test.go` 中受影响的装配/退出/路由控制，必要时一个专用 `app/agent_project_call_app_test.go`。不重跑整个 App 或 Agent 矩阵来替代差额证明。真实链复用 [TestAgentConfigurationApp](../../../tests/projectvariable/agent_configuration_app_test.go) 的公开 `app.Run`、setup owner 全退后交接、原 HTTP Session/CSRF/Owner 和资源退出能力；新增场景优先放 `tests/projectvariable/agent_project_call_app_test.go`，只对共享 helper 作必要窄接缝，不改原业务断言。本卡不预设已存在的 hook/完整方法，实施时按真实接口确定最小范围。
+实际新增基础控仅 [agent_project_call_ownership_test.go](../../../internal/central/app/agent_project_call_ownership_test.go)，5 top / 6 sub，并执行一个 App vet；没有扩跑整个 App/Agent 矩阵。真实链为独立 [agent_project_call_app_test.go](../../../tests/projectvariable/agent_project_call_app_test.go)，1 top / 2 sub，复用公开 `app.Run`、setup owner 全退后交接、原 HTTP Session/CSRF/Owner 及资源退出能力。未改旧 fixture/assembly、预算或生产 test hook。
 
 ## 最小验收
 
 1. **构造与兼容：** 真实固定 pair 无构造 SQL/worker，Service/Directory 同源且只一个 accountWork；缺失提供方/guard/keys fail closed。未 bound 时不得入账或业务执行；原域默认构造保持原行为，正常/取消的部分装配均可由原 owner 收回。
 2. **公开 App 双 lane：** setup 原所有 owner 已退出后启动真实 `app.Run`，当前 Owner 经正式 HTTP 执行配置 mutation 和目录 read；独立 SQL 核相同 process/instance、正确 lane/class、不同实际 CallID 及真实返回后的 joined。原配置 Get/Lookup、目录路由和权限拒绝保持；无 Model/Runner 执行要求。
 3. **Unknown 与原返回：** 基础控复用上游已验语义，验证 App 联合 owner 不遗漏登记 Unknown、原 confirmation、退休 Unknown 或目录 pending；登记未确认零业务，原业务 known/unknown 不被 Drain 重写。受控 Store 的结果不冒真实 PG commit-loss；本片不额外重做上游 foreign 死亡矩阵。
-4. **真实关停：** 用原 live HTTP/PG 调用及确定性锁/返回屏障覆盖目录未返回时的正常 App Drain；Stop 后无新准入，原 call/checkpoint 未终局时按依赖保留 provider/guard。屏障须在原 graceful 预算内释放，随后亲收原 HTTP、SQL、pair、App 及测试资源的实际完成；超时只记失败/未 Joined。基础控另覆盖启动取消、mutation 未返回，以及 Force 下联合 owner/guard 不虚报完成；不承诺 Force 后 Store 永久可用。真实夹具不得以 sleep、取消信号或伪报告代原 Join。
+4. **真实关停：** 用原 live HTTP/PG 调用及确定性锁/返回屏障覆盖 HTTP 已知返回、原目录调用退休 checkpoint 尚未终局时的正常 App Drain；Stop 后无新准入，原 call/checkpoint 未终局时按依赖保留 provider/guard。屏障须在原 graceful 预算内释放，随后亲收原 HTTP、SQL、pair、App 及测试资源的实际完成；超时只记失败/未 Joined。基础控另覆盖启动取消、mutation 未返回，以及 Force 下联合 owner/guard 不虚报完成；不承诺 Force 后 Store 永久可用。真实夹具不得以 sleep、取消信号或伪报告代原 Join。
 
 PG 失败保留规则：若原 App 或 guard 尚未实际释放，夹具先记录安全失败，再维持进程与 fixture 存活，只等待原实际释放或原 Go 6 分钟／外层 540+60 秒硬预算终止；这不代表本地 Drain/Join 成功，不刷新预算、不重试或进入后继子例。正常 PASS 仍须原 `app.Run` 实际返回 nil、原迁移 74 调用 joined、guard 释放及全部原资源尾门通过。
 
-## 待兑现与边界
+## 实际验收与后继边界
 
 已完成的基础控仅为 [agent_project_call_ownership_test.go](../../../internal/central/app/agent_project_call_ownership_test.go) 的 5 top / 6 sub，各 RUN/PASS 一次，无 FAIL、SKIP 或 race warning；同包 vet 通过。原 method `1169230` Wait `0`／`303.568s`，race `1169361` 为 `0`／`164.018s`，vet `1171621` 为 `0`／`136.935s`，两次依赖发现均 `0`。原工具 `96017`／final `5b813a` 返回 `0`；1133 项输入的六份 maps 和实际 post hash 相同，outer 16 项相同，受测 HEAD clean，post `4cdc39` 为 `0`。具体原件见[方法与结果](../../../.agent-state/agent-project-call-app/README.md#recorded-basic-result)；其中 tool-observation 仅为 assistant 对原工具完成结果的转录，不是 provider-native 导出。
 
-上游 Agent 修正的真实验收与本片真实 HTTP/PG 退出链仍待实际结果；基础控不证明真实 COMMIT、进程死亡或完整 participant，也不覆盖或改写上游已有失败。现有受测结论只按原输入和选择范围复用；方法、源码、测试选择及上述 PG 失败保留规则均未改变，不新增产品 test hook、扩大 shutdown 预算或越过 Store/guard 证明。
+真实 profile 原 `1191648` actual `0`，1 正 / 7 反。compile Go `1191716` 为 `0`／`34.602s`，exact list `1192260` 为 `0`／`1.053s`，prepare `1192329` 为 `0`／`1.021s`；原 sequence 工具 `94694`／final `baf93c` actual `0`。2052 项 compile 前后/list 相同，含实际同包 96 Go 源及全部迁移至 74；原 38 项 sequence 输入相同。runtime 增加原实际 binary 后为 2053 项。未重跑已通过 basic，也不将 prepare 计为 native。
+
+首次 native 原工具 `69540`／final `731bb9` actual `0`；supervisor `1192901` Wait `0`／`117.740s`，driver `1192921`、Go `1194521` 均实际 `0`。`TestAgentProjectCallApp` 及两个子例全部 PASS，`24.32s`（`12.99s`／`11.33s`）。原实际 SQL/HTTP 证明同一 pair 的 service mutation 1 次、service read 3 次、directory read 2 次，共六个 distinct joined CallID，拒绝请求零登记；第二子例证明 HTTP 200 后原目录 checkpoint 尚未退休时 guard 保持，原同 CallID Drain 取得事务终局后才释放。七资源 14 次精确 absence、desc/private/runtime 双尾、TCP 两次 delta-empty、2053 项实际输入及四 recorder 身份全部相同，无 race warning、源码漂移或重试。原 post `abf250` actual `0`，完整小证据见[方法结果](../../../.agent-state/agent-project-call-app/README.md#recorded-compile-and-native-result)。tool-observation 仍仅 assistant 亲收转录；原 outer 文档输入图是历史事实，不因本次最终文档修改而声称当前文档 SHA 相同。
+
+本片真实 PG 只覆盖默认 App 双 lane 与原 directory-return/checkpoint/guard 退出顺序；不外推 StopDriver、foreign death、真实 COMMIT-Unknown 或 Force PG。Unknown/Force 仅按基础控受控范围记证，原上游失败不改。上述 PG 失败保留规则及原 2s HTTP、finish、graceful/整轮预算均未放宽。
 
 [project_update.go](../../../internal/central/app/project_update.go) 的 Initializer/LifecycleRegistry 继续未绑定；完整 Skills/Variables 排空、Execution/Agent/Skill 引用退休、完整 enabled manifest 与有序 cleanup 仍是后继。Object runtime join、Knowledge、真实 tools HTTP 等既有 STOP 不变；本片不改变其实现或用替身绕过，不宣称完整 D08、生产 Project 创建或全平台生命周期完成。
