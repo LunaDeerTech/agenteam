@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 
+	ac "github.com/LunaDeerTech/agenteam/internal/central/agent/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
@@ -33,6 +34,7 @@ type lifecycleCleanupState struct {
 	participant  c.ProjectLifecycleParticipant
 	audit        c.ProjectLifecycleParticipant
 	skills       SkillsCleanupDomain
+	agents       ac.ProjectRetirementConsumer
 	registration identity.ServiceRegistration
 	mu           sync.Mutex
 	stopped      bool
@@ -122,6 +124,10 @@ func (d *LifecycleCleanupDriver) Run(ctx context.Context, project c.ProjectID, o
 		settled = true
 		return nil
 	}
+	if round.agentStep {
+		settled, err = st.runAgentStep(run, *round)
+		return err
+	}
 	report, callErr := st.invoke(run, *round)
 	// The original adapter (including all domain calls) has returned. Cancellation
 	// cannot substitute for that return or detach this bounded checkpoint.
@@ -154,7 +160,7 @@ func (st *lifecycleCleanupState) invoke(ctx context.Context, round lifecycleClea
 	checkpoint := round.checkpoint
 	if round.participant == c.SkillsParticipant {
 		var progress skillsCleanupCheckpoint
-		progress, checkpoint, err = decodeSkillsCleanupCheckpoint(checkpoint, round.cause, c.ScopeRef{Kind: c.ProjectScope, ProjectID: round.claim.project})
+		progress, checkpoint, err = st.skillsProgress(checkpoint, round.cause, round.claim.project)
 		if err != nil {
 			return report, err
 		}
@@ -191,6 +197,9 @@ func (st *lifecycleCleanupState) invoke(ctx context.Context, round lifecycleClea
 	}
 	if round.participant == c.SkillsParticipant {
 		report, err = skillsParentCleanupReport(round, report)
+		if err == nil && st.agents != nil {
+			report, err = agentsSkillsCleanupReport(round, report)
+		}
 		if err != nil {
 			return c.CleanupReport{}, err
 		}
