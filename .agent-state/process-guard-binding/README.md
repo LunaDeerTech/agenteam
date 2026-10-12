@@ -39,9 +39,12 @@ match Agent byte for byte. The only separately identified entries are this
 Model-only execution method and the shared fixed Go executable. Agent did not
 run a second copy of the checks.
 
-Original records are under `output/ai/process-guard-binding/basic01` and
+Original records are now under `output/ai/retired-20261012/process-guard-binding/basic01` and
 `basic01-outer`, including `post-check.json` and `tool-observation.json`; the
 latter is explicitly an assistant observation of the original tool completion,
 not a provider-exported artifact. The result covers controlled original Store
 and guard state checks only; it does not establish real PostgreSQL binding,
 flock ownership, or foreign process death. No PG/native resources were started.
+
+
+The shared source is retained in normal main history through the Model reservation delivery `97935367`. Its entire 34-file / 2,133,253-byte output root moved by same-filesystem NOREPLACE with all hashes and inode/stat identities unchanged, alongside the Model root; see the [preservation result](../../output/ai/retired-20261012/round-model-call-reservation-preservation/result.json) and [original basic post-check](../../output/ai/retired-20261012/process-guard-binding/basic01-outer/post-check.json). The 250-input maps and 248 tested Agent repository bytes remain their original bounded evidence. The old Model worktree and local branch were ordinarily removed only after independent preservation acceptance. This did not run another Object check or promote it to a PG/foreign-process result.

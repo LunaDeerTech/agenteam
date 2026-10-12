@@ -1,6 +1,6 @@
 # Round Model Call reservation validation
 
-Status: bounded basic checks passed at `6c843253ef8366a4080f3f7d1a2da8420db66fba`; the first real PG round, `native01`, passed as a whole at technical HEAD `4f76ef40eb0b8129940a21e2e36c55d0e03eaa83`. This verifies reservation and original commit-receipt recovery, not a successor Model invocation. Integration into main and branch/worktree cleanup are separate delivery steps. The [work item](../../docs/development/work-items/d22-round-model-call-reservation.md) defines the reservation-only scope.
+Status: bounded basic checks passed at `6c843253ef8366a4080f3f7d1a2da8420db66fba`; the first real PG round, `native01`, passed as a whole at technical HEAD `4f76ef40eb0b8129940a21e2e36c55d0e03eaa83`. This verifies reservation and original commit-receipt recovery, not a successor Model invocation. Final documentation `7853aa4ff8e0ead1f7117b9c02771f9e9d2df543` and the tested technical history were normally merged into main `979353672a83afeca1bac9f722f7a6536e10bd2d`, pushed, preserved and cleaned up as recorded below. The [work item](../../docs/development/work-items/d22-round-model-call-reservation.md) defines the reservation-only scope.
 
 The completed basic invocation ran once from this worktree in the root-authorized exclusive Go/cache window:
 
@@ -37,7 +37,7 @@ Original basic tool session `56248`, completion `3eeb89`, returned 0. Outer PID
 PID 1103654 returned 0 in 84.153 s; vet PID 1104831 returned 0 in 54.614 s. Both
 dependency discoveries returned 0. All six maps of 707 actual compiler inputs
 matched, as did the 15 outer inputs; independent post-check `282000` returned 0.
-Original records remain under `output/ai/round-model-call-reservation/basic01/`
+Original records now remain under `output/ai/retired-20261012/round-model-call-reservation/basic01/`
 and `basic01-outer/`. `tool-observation.json` is an assistant-observed transcript
 of the original tool completion, not a provider-owned output file.
 
@@ -96,12 +96,12 @@ matched all 2043 runtime inputs and all four recorder identities; the tested
 technical HEAD remained clean. This is whole-run PASS, including actual process
 returns and resource tails.
 
-Original records remain under `output/ai/round-model-call-reservation/` in
+Original records now remain under `output/ai/retired-20261012/round-model-call-reservation/` in
 `basic01/`, `basic01-outer/`, `sequence01/`, `compile01/` and `native01/`.
-The [sequence post-check](../../output/ai/round-model-call-reservation/sequence01/post-check.json),
-[native terminal](../../output/ai/round-model-call-reservation/native01/terminal.json),
-[tool observation](../../output/ai/round-model-call-reservation/native01/tool-observation.json)
-and [native post-check](../../output/ai/round-model-call-reservation/native01/post-check.json)
+The [sequence post-check](../../output/ai/retired-20261012/round-model-call-reservation/sequence01/post-check.json),
+[native terminal](../../output/ai/retired-20261012/round-model-call-reservation/native01/terminal.json),
+[tool observation](../../output/ai/retired-20261012/round-model-call-reservation/native01/tool-observation.json)
+and [native post-check](../../output/ai/retired-20261012/round-model-call-reservation/native01/post-check.json)
 retain the original results. The raw log is
 `/tmp/rmcr01/pg-45c857cdfa174c6bb9a9882f3f54c058.log`.
 Tool observations are assistant-received transcripts of the original tool
@@ -176,3 +176,16 @@ overwritten. A business pass alone does not establish whole-run success.
 This work does not invoke a successor Model, read credentials, dispatch HTTP,
 write a second response checkpoint, change the capture-only runtime/default
 assembly, or lift the existing tools HTTP STOP.
+
+
+## Main delivery and retirement
+
+Ordinary no-ff merge `979353672a83afeca1bac9f722f7a6536e10bd2d` has ordered parents `07590d7465b78e99db4b178b1a20447f96775831` and final feature `7853aa4ff8e0ead1f7117b9c02771f9e9d2df543`. Technical `4f76ef40` and shared Object `8734a19a` remain ancestors; all 19 feature-delivered paths match main blobs. This preserves the original tested inputs without claiming that every other active worktree has the same compiler closure.
+
+[Preservation result](../../output/ai/retired-20261012/round-model-call-reservation-preservation/result.json) records original `76944/f562f2` Wait 0, child 1139479 / 3.492 s. Two complete outputs moved by same-filesystem `RENAME_NOREPLACE`: `round-model-call-reservation` has 85 files / 96,802,453 bytes / 11 directories; `process-guard-binding` has 34 files / 2,133,253 bytes / 3 directories. Every path/SHA/size/dev/inode/mode/uid/gid/nsmtime matched. [Source history](../../output/ai/retired-20261012/round-model-call-reservation-preservation/source-history.json) verifies 30 original maps and 2,047 repository path/hash versions through 11 main-ancestor checkpoints, including the shared Object 250-input checks. External Go/MinIO paths and hashes are recorded only; their objects were not moved or claimed restored from Git.
+
+Four [tmp copies](../../output/ai/retired-20261012/round-model-call-reservation-preservation/external-copies.json), totalling 7,668 bytes, retain `/tmp/rmcr01` log/owned/request/telemetry records with original bytes/mode/mtime; originals remain in place and copies have new inode identities. All original actual Wait, resources, input maps and native01 PASS remain. Tool observations are explicitly assistant-observed transcripts, not provider-exported artifacts.
+
+The [Agent cache77 cross-reference proof](../../output/ai/retired-20261012/round-model-call-reservation-preservation/agent-cache77-cross-model-recovery.json) maps 2,041 Model paths in each original 4,092-entry stat list and 84 Model records in each 164-record evidence list to original runtime hashes, main history and relocated identities. Agent's own 2,051-input native02 FAIL, compiled binary and all 145 original output files stay in the Agent tree. Its permitted three-file PG repair was not a frozen preservation input. Cache77 package bodies were previously removed under exact authority and were not archived; stat-only records never substitute for original hash maps. Known-PID and owner cessation facts are bounded observations, not global FD visibility.
+
+After independent preservation acceptance `e140fb`, original `89124/653162` Wait 0 completed main push/fresh verification, ordinary worktree removal and local `branch -d`, then explicit main/ai fetch-prune. [Cleanup result](../../output/ai/round-model-call-reservation-delivery/cleanup01/result.json) records that the feature remote did not exist before cleanup and remained absent; no temporary remote was pushed or deleted. Main history retains the source. The original command examples above document completed runs and must not overwrite preserved outputs or reused namespaces. Invocation/default/HTTP STOP and all limited-scope conclusions remain unchanged.

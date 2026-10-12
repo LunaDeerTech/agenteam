@@ -207,3 +207,14 @@ main与两feature atomic push及fresh成功；原wrapper99187/f5a248 actual1只�
 fresh PID1084764精确命中上述两个finaltip后，Model普通worktree remove PID1084768/local-d PID1084812、Agent普通remove PID1084813/local-d PID1084835全部0；atomic双exactlease删除PID1084836、fresh双空PID1084863、显式main/ai fetch-prune PID1084867均0。原33918/0059bc亲Wait0确认旧tree/local/tracking空，见[清理原件](../output/ai/model-agent-delivery-20261012/cleanup01/result.json)。已知PID/owner停写和后继无旧绝对live依赖是有界证据，不冒全局FD可见。
 
 本次实际增加2树/2本地/2远端，累计 **44 WorkTrees / 45本地分支 / 85远端引用**，legacy135待核/原keep1不变。后继round-model-call-reservation与agent-project-call-ownership从共同main3ac9独立建树，原61039/980bd8 actual0、初始clean、迁移max72；只任务卡设计未Go/未验收，创建不计清理。所有原FAIL、工具观察限制、STOP、保护依赖、默认未绑定及总体未完成事实保持。
+
+
+## 2026-10-12 Model调用预留实际交付与清理
+
+root明确授权的唯一Git执行者将最终 `7853aa4ff8e0ead1f7117b9c02771f9e9d2df543` 正常no-ff合入main `979353672a83afeca1bac9f722f7a6536e10bd2d`，精确双父为原07590d74与7853；受测4f76及共享Object873完整历史均main祖先，19交付路径blob逐项相等。原e4d0ad actual0完成合并；basic7top28sub/2vet与native01原11528/728984 1top2sub wholePASS沿独审有限接受复用，不重测、不外推后继Model Invoke。
+
+[双根保全](../output/ai/retired-20261012/round-model-call-reservation-preservation/result.json)原76944/f562f2 actual0，child1139479 Wait0/3.492s：同FS NOREPLACE迁Model85文件/96,802,453B/11目录和共享Object34文件/2,133,253B/3目录，全path/SHA/stat/inode相同；30输入图中2047仓库历史版本通过11main祖先逐blob可恢复。四份tmp小副本7668B齐且原件保留，外部2工具路径仅原hash不冒Git恢复。Agent缓存77保护图中的2041个Model路径、84份Model记录已逐原hash/历史/迁后identity闭合；Agent145原输出及native02 FAIL/binary留原树，其正在合法修复的3PG源不宣冻结。独立e140fb接受后才进入清理；可再生cache77包体未归档、工具观测来源及可见性限制见[恢复说明](round-model-call-reservation/README.md#main-delivery-and-retirement)。
+
+main正常push PID1141903实际0、fresh main PID1141935精确匹配97935367且tracking一致；feature `ai/round-model-call-reservation-20261012` fresh PID1141941实际为空。普通worktree remove PID1141945、local branch-d PID1141985均0；再次fresh PID1141986为空，显式main/ai fetch-prune PID1141992为0，本地/tracking及旧树均空。原89124/653162亲Wait0，见[实际后验](../output/ai/round-model-call-reservation-delivery/cleanup01/result.json)。本分支未推过远端，未人为创建临时远端，不计remote删除。
+
+本次只增加1树/1本地，累计 **45 WorkTrees / 46本地分支 / 85远端引用**；legacy135待核、原keep1及全部STOP/保护依赖不变。Agent持久调用归属仍在独立树，native02 FAIL和修后d64a未动态验证的界限保留；下一Model Invoke桥仅独立工作准备，不计交付或清理，总体平台目标未完成。

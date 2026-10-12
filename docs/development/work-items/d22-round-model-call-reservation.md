@@ -1,6 +1,6 @@
 # D22 RoundModelCall 预留与提交回执恢复
 
-状态：2026-10-12，已实现并完成有限验证，当前尚未合入 main。技术版本 `4f76ef40eb0b8129940a21e2e36c55d0e03eaa83` 的首次 native01 整轮通过；基础 7 top / 28 sub 与两包 vet 通过。前向迁移 **73** 已随真实 PG setup 加载并 apply。本卡完成预留与原提交回执恢复，不代表实际后继 Model 调用可用。
+状态：2026-10-12，已实现并完成有限验证，完整历史已正常合入并推送 main `97935367`，原树与本地分支已普通清理；远端 feature 从未创建，不计远端删除。技术版本 `4f76ef40eb0b8129940a21e2e36c55d0e03eaa83` 的首次 native01 整轮通过；基础 7 top / 28 sub 与两包 vet 通过。前向迁移 **73** 已随真实 PG setup 加载并 apply。本卡完成预留与原提交回执恢复，不代表实际后继 Model 调用可用。
 
 依据：[持久下一请求](d22-next-round-model-request.md)、[纯后继请求与响应契约](d22-model-successor-contract.md)、[Model 输入与重试所有权](d01-contracts/model-tool.md#model-解析与调用)、[恢复事实与持久边界](d01-contracts/execution-orchestration.md#恢复事实与持久边界)。实施遵循[团队流程](../agent-team/README.md)；已接受的同输入证据复用，不重做完整 D22。
 
@@ -56,10 +56,10 @@
 
 ## 实际验证与交付边界
 
-- [basic01 原结果与独核](../../../output/ai/round-model-call-reservation/basic01-outer/post-check.json)：受测 `6c843253ef8366a4080f3f7d1a2da8420db66fba`，原工具 `56248` / `3eeb89` 实际 exit 0；方法 PID 1103545 Wait 0 / 141.022s。race 的 6 个新增 top / 28 sub 加原 EmbeddedSource 1 top，以及 execution、postgres 两包 vet 均通过，无 FAIL/skip；707 个实际编译输入的六份 map 相同。此基础结果只证明受控边界与真实 migration source 加载，不代 SQL apply。
-- [compile01](../../../output/ai/round-model-call-reservation/compile01/result.json) Go PID 1111754 实际 exit 0 / 82.785s；[精确 list](../../../output/ai/round-model-call-reservation/compile01/list-result.json) PID 1112976 实际 exit 0 / 1.050s。首次 [native01 原工具观测](../../../output/ai/round-model-call-reservation/native01/tool-observation.json)为 session `11528` / completion `728984`，actual exit 0；[supervisor 原 Wait](../../../output/ai/round-model-call-reservation/native01/terminal.json) PID 1115121 为 0 / 141.678s。driver 1115126、Go 1116761 原 Wait 均为 0；唯一 top / 两 sub 全 PASS，业务 38.47s（20.24s、18.23s）。
-- [native01 完整独核](../../../output/ai/round-model-call-reservation/native01/post-check.json)确认实际 SQL apply、业务及全部退出门：7 个精确资源共 14 次 absence，descendant/private/runtime 双空、原自动 HOST_TCP 双次 delta 空、metadata RUN/PASS/Wait 均齐；2043 runtime inputs 与原四身份保持相同。原日志 `/tmp/rmcr01/pg-45c857cdfa174c6bb9a9882f3f54c058.log` 保留。没有重试或放宽原资源/时间门。
+- [basic01 原结果与独核](../../../output/ai/retired-20261012/round-model-call-reservation/basic01-outer/post-check.json)：受测 `6c843253ef8366a4080f3f7d1a2da8420db66fba`，原工具 `56248` / `3eeb89` 实际 exit 0；方法 PID 1103545 Wait 0 / 141.022s。race 的 6 个新增 top / 28 sub 加原 EmbeddedSource 1 top，以及 execution、postgres 两包 vet 均通过，无 FAIL/skip；707 个实际编译输入的六份 map 相同。此基础结果只证明受控边界与真实 migration source 加载，不代 SQL apply。
+- [compile01](../../../output/ai/retired-20261012/round-model-call-reservation/compile01/result.json) Go PID 1111754 实际 exit 0 / 82.785s；[精确 list](../../../output/ai/retired-20261012/round-model-call-reservation/compile01/list-result.json) PID 1112976 实际 exit 0 / 1.050s。首次 [native01 原工具观测](../../../output/ai/retired-20261012/round-model-call-reservation/native01/tool-observation.json)为 session `11528` / completion `728984`，actual exit 0；[supervisor 原 Wait](../../../output/ai/retired-20261012/round-model-call-reservation/native01/terminal.json) PID 1115121 为 0 / 141.678s。driver 1115126、Go 1116761 原 Wait 均为 0；唯一 top / 两 sub 全 PASS，业务 38.47s（20.24s、18.23s）。
+- [native01 完整独核](../../../output/ai/retired-20261012/round-model-call-reservation/native01/post-check.json)确认实际 SQL apply、业务及全部退出门：7 个精确资源共 14 次 absence，descendant/private/runtime 双空、原自动 HOST_TCP 双次 delta 空、metadata RUN/PASS/Wait 均齐；2043 runtime inputs 与原四身份保持相同。原日志 `/tmp/rmcr01/pg-45c857cdfa174c6bb9a9882f3f54c058.log` 保留。没有重试或放宽原资源/时间门。
 
 两条真实 PG 链完成完整来源与唯一 reservation、同实例重放/新实例仅观察、真实 rollback 零部分、physical COMMIT 后原 Store-return 屏障和 Unknown 原候选 Lookup 恢复。原 72 字节/摘要、56/66/68、Transcript、Execution version 与 Invocation/Usage 均保持；每个 setup 的受控 Model JSONCaller 和真实 Command WSS 各一次，reservation 阶段新增为零。方法与完整原件入口见[本片 README](../../../.agent-state/round-model-call-reservation/README.md)。
 
-本片仍未合入 main，未完成交付保全/清理。下一项「owned reservation 到真实 ConsumerAuthority Invoke 准入桥」仅为后继候选，尚未实施；本片不授 Invoke/CredentialRead，不建立真正 Model handle/attempt/response checkpoint，不修改 Runtime/default、capture-only revision 或 tools HTTP A/B STOP。
+本片已完成 main 交付与清理；两个输出根共119文件、30输入图/2047仓库历史版本、4tmp副本及Agent cache77跨树恢复映射完整保留，见[保全结果](../../../output/ai/retired-20261012/round-model-call-reservation-preservation/result.json)。下一项「owned reservation 到真实 ConsumerAuthority Invoke 准入桥」仅为后继候选，尚未实施；本片不授 Invoke/CredentialRead，不建立真正 Model handle/attempt/response checkpoint，不修改 Runtime/default、capture-only revision 或 tools HTTP A/B STOP。
