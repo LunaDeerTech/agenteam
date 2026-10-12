@@ -248,3 +248,12 @@ Agent最终 `149fa2137235a11e78f6be5deefe86c39f491cfd`（受测 `153232f6`）正
 [精确保全](../output/ai/retired-20261012/variable-project-call-ownership-preservation/result.json)原59235/a410e6 actual0，outer1266458/child1266461 Wait0/4.348s：121files/100,060,633B/13dirs同FS NOREPLACE，全部path SHA/stat/inode前后同。31图中的2070repo版本main Git可恢复，无重构例外；单binary、原basic01 FAIL与所有PASS/Wait/fouridentity均保留。4tmp副本8416B且原tmp保留；2external仅原路径实际hash/stat保护，不冒Git或包体归档。独立c7c1b3接受后才清理；已知PID核与owner声明不冒全局FD证明。
 
 [普通清理](../output/ai/variable-project-call-ownership-delivery/cleanup01/result.json)原90676/a2f8dc actual0：仅旧 `/workspace/agenteam-variable-project-call-ownership` 普通worktree remove及 `ai/variable-project-call-ownership-20261012` 普通branch-d；fresh远端前后为空，显式main/ai fetch-prune后local/tracking空。未创建远端，也没有远端删除。实际仅+1树/+1本地，累计 **50 WorkTrees / 51本地分支 / 85远端引用**，legacy135待核/keep1不变。新App树从已交main9293创建并单卡1278866d后静态实施，未Go、不计清理；全部FAIL/STOP/保护依赖与整体目标未完成保持。
+
+
+## 2026-10-12 Variables App实际交付与清理
+
+受测 `156da848e9f9b91bba1ad2fc88a9085d0f7d2da2` 与最终两文档 `0e6caf04fe67d495e3ce4ca7ca23d704844b3c5f` 正常 no-ff 合入 main `987ca6c42fb2c316fe8ce6564711f2afdedfbd75`，保留原 e01 清理记录及全部祖先。[原集成](../output/ai/variable-project-call-app-delivery/integrate01/result.json) bbac94 actual0核全部技术 blobs 等受测；[push/fresh/tracking](../output/ai/variable-project-call-app-delivery/push01/result.json)原39679/dcfaed actual0。basic01 6top7sub/App race+1vet、controls/单binary compile/list/prepare与native01原53840/56d7d0 1top2sub wholePASS沿原有限验收复用，不冒完整participant或D04全局technicaljoin。
+
+[精确保全](../output/ai/retired-20261012/variable-project-call-app-preservation/result.json)原84801/862283 actual0，outer1287626/child1287629 Wait0/5.596s：90files/99,816,068B/11dirs同FS NOREPLACE，全部path SHA/stat/inode前后同；24maps2071源码版本main Git可恢复，无重构例外。单binary、原Wait/四身份及全部结果原样；tmp4copy7458B且原tmp保留，2external仅原路径hash/stat保护，不冒Git或包体归档。独立432560接受后才清理，有限PID/owner声明不冒全局FD证明。
+
+[普通清理](../output/ai/variable-project-call-app-delivery/cleanup01/result.json)原94310/c9cf15 actual0：仅旧App tree普通worktree remove及本地 `ai/variable-project-call-app-20261012` 普通branch-d；fresh远端前后为空，显式main/ai fetch-prune后local/tracking空。未创建远端，也没有远端删除。实际仅+1树/+1本地，累计 **51 WorkTrees / 52本地分支 / 85远端引用**，legacy135待核/keep1不变。Work后继树从已交main987ca创建并单卡156ce126后并行实施，尚未Go、不计清理；全部历史FAIL/STOP、保护依赖与整体目标未完成保持。
