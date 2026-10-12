@@ -1,6 +1,6 @@
 # D22 已提交后继输入的持久 Model 请求绑定
 
-状态：2026-10-12 源码与必要专控已落地并冻结，尚未运行 Go/PG。Execution 五个产品文件已获独立静态接受；专控仍按限定差额审查，静态接受不等于动态通过。专用树 `/workspace/agenteam-next-round-model-request` / `ai/next-round-model-request-20261012` 基于 `1ab01c81352f254ee45123ed29a08f40b1c310c1`；其中 Command 结果消费尚待实际 PG 验收与正式主线交付，继承源码不等于依赖已验收。实现与检查窗口分别授权，当前仅源码工作。
+状态：2026-10-12 源码与必要专控已落地并冻结，尚未运行 Go/PG。Execution 五个产品文件及两域 8 top / 45 sub 专控已获限定静态接受，静态接受不等于动态通过。专用树 `/workspace/agenteam-next-round-model-request` / `ai/next-round-model-request-20261012` 基于 `1ab01c81352f254ee45123ed29a08f40b1c310c1`；Command 结果消费已获真实 wholePASS 并以完整历史合入 main `f1de19746a1997ddb0492c4073afdac07c7ae6a7`（受测 `1ab01c81352f254ee45123ed29a08f40b1c310c1`、最终文档 `0ace`）；本树基底仍为上述受测版本，依赖验收不代表 NRMR 已通过动态验证。实现与检查窗口分别授权，当前仅源码工作。
 
 依据：[Model 调用与固定输入](d01-contracts/model-tool.md#model-解析与调用)、[重试所有权](d01-contracts/model-tool.md#model-stream重试与计量)、[下一轮输入确定点](d01-contracts/execution-orchestration.md#技能变更与下一轮输入确定点)、[RoundInput](d22-execution-round-input.md)、[历史 Projection](d22-next-round-projection.md)、[Write 消费](d22-write-file-result-consumption.md)与[Command 消费](d22-run-command-result-consumption.md)。实施按[团队流程](../agent-team/README.md)及对应 Go、数据库、测试技能，不重复旧完整矩阵。
 
@@ -46,7 +46,7 @@ Execution 在同 Tx 真实历史 loan 内调用 Loop 的纯 `BuildNextRoundModel
 | 独立 PG/方法 | `tests/projectvariable/next_round_model_request_test.go` 与专属必要方法 | 真实结果消费→Determine→请求绑定/独立 SQL/Lookup，不伪造 authority |
 | Model/Tool 边界审查 | 本片只读已有合同与拒绝门 | 不新增 Tool reader/派发口，不修改 adapter/default registry |
 
-类型与 canonical 编码一次冻结，不由两域复制算法；迁移和共享接缝各单 writer。Command 可作未验收开发组合，正式交付须明确其实际接受范围。新增 Execution 专控 4 top / 20 sub、Loop/codec 专控 4 top / 25 sub 均未运行；资源窗口另排，不改主线 current。
+类型与 canonical 编码一次冻结，不由两域复制算法；迁移和共享接缝各单 writer。Command 依赖已验收并合入主线；其有限交付范围不扩展为下一 Model 执行。新增 Execution 专控 4 top / 20 sub、Loop/codec 专控 4 top / 25 sub 均未运行；资源窗口另排，不改主线 current。
 
 ## 必要验收（尚未运行）
 
