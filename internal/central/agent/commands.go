@@ -25,7 +25,12 @@ func (s *Service) execute(ctx context.Context, in commandInput) (c.AgentMutation
 		return empty, err
 	}
 	defer done()
+	defer func() { s.state.ownership.finish(ctx) }()
 	if err = in.validate(); err != nil {
+		return empty, err
+	}
+	ctx, err = s.state.ownership.admit(ctx, call, in.actor, projectCallService)
+	if err != nil {
 		return empty, err
 	}
 	r, replay, result := s.prepareCommand(ctx, in)

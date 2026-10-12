@@ -9,11 +9,12 @@ import (
 )
 
 func (s *Service) GetAgent(ctx context.Context, actor i.Actor, project i.ProjectID, agent i.AgentID) (c.AgentConfig, error) {
-	ctx, _, done, err := s.beginProject(ctx, project, readCall)
+	ctx, call, done, err := s.beginProject(ctx, project, readCall)
 	if err != nil {
 		return c.AgentConfig{}, err
 	}
 	defer done()
+	defer func() { s.state.ownership.finish(ctx) }()
 	if err = currentActor(actor); err != nil {
 		return c.AgentConfig{}, err
 	}
@@ -24,11 +25,18 @@ func (s *Service) GetAgent(ctx context.Context, actor i.Actor, project i.Project
 	if err != nil {
 		return c.AgentConfig{}, err
 	}
+	ctx, err = s.state.ownership.admit(ctx, call, actor, projectCallService)
+	if err != nil {
+		return c.AgentConfig{}, err
+	}
 	var out c.AgentConfig
 	st := s.state
 	result := st.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		if err := st.store.AcquireAll(ctx, tx, []f.LockRequest{userLock(actor, f.Shared), projectLock(project, f.Shared), agentLock(agent, f.Shared)}); err != nil {
 			return portError(err)
+		}
+		if err := st.ownership.requireRunning(ctx, tx); err != nil {
+			return err
 		}
 		grant, err := st.deps.Authority.state.projects.RequireOwnerInTx(ctx, tx, actor, project, i.Read)
 		if err != nil {
@@ -51,11 +59,12 @@ func (s *Service) GetAgent(ctx context.Context, actor i.Actor, project i.Project
 }
 
 func (s *Service) LookupAgentCommand(ctx context.Context, actor i.Actor, project i.ProjectID, command c.CommandName, key f.IdempotencyKey, semantic f.Digest) (c.AgentCommandLookup, error) {
-	ctx, _, done, err := s.beginProject(ctx, project, readCall)
+	ctx, call, done, err := s.beginProject(ctx, project, readCall)
 	if err != nil {
 		return c.AgentCommandLookup{}, err
 	}
 	defer done()
+	defer func() { s.state.ownership.finish(ctx) }()
 	if err = currentActor(actor); err != nil {
 		return c.AgentCommandLookup{}, err
 	}
@@ -70,11 +79,18 @@ func (s *Service) LookupAgentCommand(ctx context.Context, actor i.Actor, project
 	if err != nil {
 		return c.AgentCommandLookup{}, invalid()
 	}
+	ctx, err = s.state.ownership.admit(ctx, call, actor, projectCallService)
+	if err != nil {
+		return c.AgentCommandLookup{}, err
+	}
 	var out c.AgentCommandLookup
 	st := s.state
 	result := st.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		if err := st.store.AcquireAll(ctx, tx, []f.LockRequest{commandLock(identity), userLock(actor, f.Shared), projectLock(project, f.Shared)}); err != nil {
 			return portError(err)
+		}
+		if err := st.ownership.requireRunning(ctx, tx); err != nil {
+			return err
 		}
 		grant, err := st.deps.Authority.state.projects.RequireOwnerInTx(ctx, tx, actor, project, i.Read)
 		if err != nil {
