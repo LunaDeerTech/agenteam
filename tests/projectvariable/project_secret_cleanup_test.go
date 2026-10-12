@@ -304,24 +304,80 @@ func (v *secretCleanupPG) matches(c f.TransactionCause) bool {
 	return c.Kind() == f.RecoveryCause && d.Owner == "secret-project-cleanup" && d.RecoveryRunID == v.cause.OperationID.String() && d.CheckpointRef == ""
 }
 
-func (v *secretCleanupPG) observeDeletes(t *testing.T) *atomic.Int64 {
-	t.Helper()
-	deletes := &atomic.Int64{}
-	deletes.Store(-1)
+type secretCleanupDeleteObservation struct {
+	atomic.Int64
+	before, after atomic.Int64
+}
+
+func (v *secretCleanupPG) clearHooks() {
+	v.variablesCleanupPG.clearHooks()
 	store := v.p2.base.tracked
+	store.mu.Lock()
+	store.before = nil
+	store.mu.Unlock()
+}
+
+func (v *secretCleanupPG) observeDeletes(t *testing.T) *secretCleanupDeleteObservation {
+	t.Helper()
+	deletes := &secretCleanupDeleteObservation{}
+	deletes.Store(-1)
+	deletes.before.Store(-1)
+	deletes.after.Store(-1)
+	store := v.p2.base.tracked
+	var mu sync.Mutex
+	baselines := make(map[f.Tx]int64)
+	read := func(ctx context.Context, tx f.Tx) (int64, error) {
+		x, err := store.InTx(tx)
+		if err != nil {
+			return 0, err
+		}
+		var n int64
+		err = x.QueryRow(ctx, `SELECT COALESCE(sum(n_tup_del),0)::bigint FROM pg_stat_xact_user_tables WHERE schemaname='agenteam_secret'`).Scan(&n)
+		return n, err
+	}
+	// PostgreSQL 17 find_tabstat_entry() includes the backend's pending base
+	// counts as well as its live transaction counts. Measure around this exact
+	// original callback, on the same live Tx, rather than interpreting the
+	// absolute value as this callback's deletes. No flush or reset is issued.
+	store.mu.Lock()
+	store.before = func(ctx context.Context, tx f.Tx, c f.TransactionCause) error {
+		if !v.matches(c) {
+			return nil
+		}
+		n, err := read(ctx, tx)
+		if err != nil {
+			return err
+		}
+		mu.Lock()
+		baselines[tx] = n
+		mu.Unlock()
+		return nil
+	}
+	store.mu.Unlock()
 	store.setAfter(func(ctx context.Context, tx f.Tx, c f.TransactionCause) error {
 		if !v.matches(c) {
 			return nil
 		}
-		x, err := store.InTx(tx)
+		n, err := read(ctx, tx)
 		if err != nil {
 			return err
 		}
-		var n int64
-		if err = x.QueryRow(ctx, `SELECT COALESCE(sum(n_tup_del),0)::bigint FROM pg_stat_xact_user_tables WHERE schemaname='agenteam_secret'`).Scan(&n); err == nil {
-			deletes.Store(n)
+		mu.Lock()
+		before, observed := baselines[tx]
+		delete(baselines, tx)
+		mu.Unlock()
+		if !observed || n < before {
+			return errors.New("original Secret transaction deletion baseline is missing or decreased")
 		}
-		return err
+		deletes.before.Store(before)
+		deletes.after.Store(n)
+		deletes.Store(n - before)
+		return nil
+	})
+	t.Cleanup(func() {
+		store.mu.Lock()
+		store.before = nil
+		store.mu.Unlock()
 	})
 	return deletes
 }
@@ -483,6 +539,7 @@ func testProjectSecretCleanupUnknown(t *testing.T) {
 		t.Fatal("original Secret confirmation barrier not reached")
 	}
 	confirmedSnapshot := v.secretSnapshot(t)
+	t.Logf("PROJECT_SECRET_CONFIRMATION_COUNTS callback_before=%d callback_after=%d original_tx_deletes=%d snapshot_equal=%t", deletes.before.Load(), deletes.after.Load(), deletes.Load(), confirmedSnapshot == before)
 	if deletes.Load() != 0 || confirmedSnapshot != before {
 		t.Logf("PROJECT_SECRET_CONFIRMATION_DIAGNOSTIC original_tx_deletes=%d snapshot_equal=%t changed_tables=%v remaining=%v", deletes.Load(), confirmedSnapshot == before, secretCleanupChangedTables(t, before, confirmedSnapshot), v.secretCounts(t))
 		t.Fatal("Unknown confirmation performed deletion or changed original ciphertext metadata")
