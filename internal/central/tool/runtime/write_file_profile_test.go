@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	model "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
 	mount "github.com/LunaDeerTech/agenteam/internal/central/mount/contract"
