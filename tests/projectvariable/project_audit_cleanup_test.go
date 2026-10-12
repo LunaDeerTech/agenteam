@@ -16,6 +16,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
 	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	"github.com/LunaDeerTech/agenteam/internal/central/project"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 )
@@ -184,8 +185,12 @@ func (v *auditCleanupPG) enterAudit(t *testing.T) {
 	// at the tail; an empty-tail Pending round resets that cursor before the
 	// remaining batches. Continue only known Pending, using this same driver.
 	for n := 0; n < v.wantEvents/100+2; n++ {
+		started := time.Now()
 		call := v.run(t, v.driver)
 		outboxCleanupWait(t, call.done, "original Outbox cleanup round")
+		if call.err != nil {
+			auditCleanupRoundDiagnostic(t, n+1, time.Since(started), call.err)
+		}
 		outboxCleanupRequire(t, call.err)
 		stage, state, claim, checkpoint := v.state(t)
 		if state != "required" || claim != "terminal" || checkpoint != nil || v.countAudit(t) != initial {
@@ -207,6 +212,28 @@ func (v *auditCleanupPG) enterAudit(t *testing.T) {
 		}
 	}
 	t.Fatal("Outbox did not reach Audit within its known remaining batches")
+}
+
+func auditCleanupRoundDiagnostic(t *testing.T, round int, elapsed time.Duration, err error) {
+	t.Helper()
+	branches := []error{err}
+	if joined, ok := err.(interface{ Unwrap() []error }); ok {
+		branches = joined.Unwrap()
+	}
+	// Inspect only the original returned error chain. Do not replay a transaction
+	// or format its private SQL/driver cause; a missing code remains explicit.
+	for n, branch := range branches {
+		code, state, databaseCode, sqlState := "none", "none", "none", ""
+		var fault *f.Fault
+		if errors.As(branch, &fault) {
+			code, state = string(fault.Code.Safe()), string(fault.CommitState.Safe())
+		}
+		var databaseError *postgres.Error
+		if errors.As(branch, &databaseError) {
+			databaseCode, sqlState = string(databaseError.Code()), databaseError.SQLState()
+		}
+		t.Logf("AUDIT_OUTBOX_ROUND_FAILURE round=%d elapsed_ms=%d branch=%d/%d code=%s commit_state=%s database_code=%s sqlstate=%q cause_deadline=%t cause_canceled=%t", round, elapsed.Milliseconds(), n+1, len(branches), code, state, databaseCode, sqlState, errors.Is(branch, context.DeadlineExceeded), errors.Is(branch, context.Canceled))
+	}
 }
 
 // This is a real ordinary command denial, not a synthetic Object witness or
