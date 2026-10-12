@@ -1,6 +1,6 @@
 # D15 Runner run-command WSS 有限适配
 
-工作树 `/workspace/agenteam-runner-command-wss`，以已验本地 Command owner 的 `5920a949` 为组合起点。当前只完成源码接线准备，尚未编译、基础验证或真实 WSS 验收。
+工作树 `/workspace/agenteam-runner-command-wss`，以已验本地 Command owner 的 `5920a949` 为组合起点。Handler/stream、显式 Control 绑定、codec 与正式专属语义已形成源码并获有限静态审查接受；新增控制仅源码冻结，尚未编译、基础验证或真实 WSS 验收。
 
 本片接通显式 run-command / revision 1：可信 Workspace Manager → contained cwd 桥 → 原单次 argv Owner；回传受限 UTF-8 stdout/stderr 与真实 Start/Wait/Drain 后的完整调用报告。普通构造与生产 cmd 仍 nil executor；没有 Central 授予、Enrollment/Client.Run 验收、Secret 环境注入、ManagedProcess 或新的工具 HTTP 验证。
 
@@ -16,6 +16,8 @@
 
 ## 待执行验证
 
-源码/控制冻结后由唯一 principal 增量静审。再由 root 排期执行新增 codec、Handler/Control 的必要 race/vet，以及唯一真实 TLS/WSS 首链；复用本地 Command 已通过且未变的证据，不重跑旧全矩阵。真实 WSS 仅绑定 Session 与 Manager，不冒 Central 权限或 enrollment；原实际 Wait、私有进程身份/退出与自动 HOST_TCP 基线差额门保持。无 PG/Docker 就不编造七个 PG 资源。
+源码/控制冻结后由唯一 principal 增量静审。再由 root 排期执行新增 codec 4 top、Handler/stream 7 top、Control 3 top 的必要 race 与三包 vet；原 stream/cancel/runtime-error/deadline 四控及 Write/Directory hello 两控覆盖实际公共分支差额。本地 Command 已通过且未变的证据复用，不重跑旧全矩阵；上述入口当前均未执行。
+
+真实 TLS/WSS 首链固定 `TestRunCommandWSS/exit-and-cancel`，子进程 helper `TestRunCommandWSSChild` 默认 Skip，不计行为通过。同一真实 Session 先执行非零 argv/双流，再取消原 child；仅绑定 Session 与 Manager，不冒 Central 权限或 enrollment。原实际 Wait、私有进程身份/退出与自动 HOST_TCP 基线差额门保持；60s test/70s owner 等待与 75s TCP 差额预算沿原方法，由方法作者生成具体配方。无 PG/Docker 就不编造七个 PG 资源。
 
 方法与当前状态见[本片 README](../../../.agent-state/runner-command-wss/README.md)。完整初始化、ready、默认绑定、OpenAI tools A/B、Object join、SPA publication 与来源获取等既有 STOP 不变。
