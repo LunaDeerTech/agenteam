@@ -285,6 +285,14 @@ func (s *Service) projectStop(ctx context.Context, actor i.Actor, cause oc.Proje
 	for _, cancel := range cancels {
 		cancel()
 	}
+	// Source work is converged only after the original stop gate has returned.
+	sourcePending := false
+	if !readOnly {
+		sourcePending, err = s.convergeProjectSources(ctx, actor, cause)
+		if err != nil {
+			return artifactStopFailure(cause, err)
+		}
+	}
 	// ConfirmStopped runs outside every caller Tx. It proves only the selected
 	// foreign process; current-process unknown instances never obtain it.
 	foreign, unknown, err := st.foreignStopProcesses(ctx, request, call)
@@ -299,7 +307,7 @@ func (s *Service) projectStop(ctx context.Context, actor i.Actor, cause oc.Proje
 			unknown = true
 		}
 	}
-	pending := unknown
+	pending := unknown || sourcePending
 	validated = false
 	checkpoint := st.stopTx(ctx, request, func(ctx context.Context, x postgres.SQLExecutor, grant oc.ProjectStopAuthorization) error {
 		state, err := readArtifactStop(ctx, x, cause)

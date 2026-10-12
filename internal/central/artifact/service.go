@@ -12,26 +12,28 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/object"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 )
 
 type serviceState struct {
-	store         Store
-	owners        *OwnerProvider
-	objects       oc.Objects
-	uploads       oc.Uploads
-	cleaner       oc.Cleaner
-	reads         oc.SourceReads
-	resolver      oc.SourceResolver
-	audit         au.Appender
-	cursors       cursor.Keyring
-	mu            sync.Mutex
-	leases        map[foundation.Digest]oc.SourceLease
-	leaseProjects map[foundation.Digest]identity.ProjectID
-	leaseSources  map[foundation.Digest]string
-	cleanupMu     sync.Mutex
-	cleanupCalls  map[identity.ProjectID]*projectCleanupCall
-	ownership     *projectCallOwnershipState
+	store          Store
+	owners         *OwnerProvider
+	objects        oc.Objects
+	uploads        oc.Uploads
+	cleaner        oc.Cleaner
+	reads          oc.SourceReads
+	resolver       oc.SourceResolver
+	audit          au.Appender
+	cursors        cursor.Keyring
+	mu             sync.Mutex
+	leases         map[foundation.Digest]oc.SourceLease
+	leaseProjects  map[foundation.Digest]identity.ProjectID
+	leaseSources   map[foundation.Digest]string
+	cleanupMu      sync.Mutex
+	cleanupCalls   map[identity.ProjectID]*projectCleanupCall
+	ownership      *projectCallOwnershipState
+	projectSources map[foundation.Digest]*artifactProjectSource
 }
 type Service struct{ data func() *serviceState }
 
@@ -75,7 +77,11 @@ func (s *Service) within(ctx context.Context, subject ac.AccessSubject, intent i
 		return rejected(unavailable(nil))
 	}
 	extra = append(append([]foundation.LockRequest{}, extra...), deps.Locks()...)
-	result := r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
+	transaction := r.store.WithinTx
+	if reads, ok := ctx.Value(artifactSourceAcquisitionKey{}).(*object.SourceReads); ok && reads == r.reads {
+		transaction = reads.WithinProjectSourceAcquisition
+	}
+	result := transaction(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
 		var locked oc.LockedAccess
 		var err error
 		if len(plans) > 0 {

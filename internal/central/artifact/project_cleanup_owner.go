@@ -126,7 +126,7 @@ func (s *Service) projectCleanupSourcesPending(ctx context.Context, e postgres.S
 	}
 	r.mu.Unlock()
 	var durable bool
-	if err := e.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_artifact.commands WHERE source_lease_id IS NOT NULL AND (project_id=$1::text::uuid OR source->>'project'=$1::text OR source IS NULL))`, project.String()).Scan(&durable); err != nil {
+	if err := e.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_artifact.commands c WHERE c.source_lease_id IS NOT NULL AND (c.project_id=$1::text::uuid OR c.source->>'project'=$1::text OR c.source IS NULL) AND NOT EXISTS(SELECT 1 FROM agenteam_artifact.project_work w WHERE w.command_hash=c.command_hash AND w.project_id=c.project_id AND w.source_lease_id=c.source_lease_id AND w.source_project_id::text=c.source->>'project' AND w.source_joined_at IS NOT NULL))`, project.String()).Scan(&durable); err != nil {
 		return false, unavailable(err)
 	}
 	if err := ctx.Err(); err != nil {
