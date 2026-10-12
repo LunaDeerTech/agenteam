@@ -16,6 +16,7 @@ import (
 
 type TaskReader struct{ data func() *taskReaderState }
 type taskReaderState struct {
+	ownership *projectCallOwnershipState
 	store     Store
 	authority *Authority
 	structure *Reader
@@ -37,6 +38,14 @@ func (r *TaskReader) state() *taskReaderState {
 		return nil
 	}
 	return r.data()
+}
+
+func (r *TaskReader) beginRead(ctx context.Context, actor i.Actor, project c.ProjectID) (context.Context, func(), error) {
+	st := r.state()
+	if st == nil {
+		return nil, nil, fault(f.DependencyUnbound)
+	}
+	return st.ownership.beginRead(ctx, actor, project, projectCallTask)
 }
 
 func (r *TaskReader) read(ctx context.Context, actor i.Actor, project c.ProjectID, extra []f.LockRequest, fn func(context.Context, postgres.SQLExecutor) error) error {
@@ -63,6 +72,9 @@ func (r *TaskReader) read(ctx context.Context, actor i.Actor, project c.ProjectI
 		if err != nil {
 			return portError(err)
 		}
+		if err := st.ownership.requireRunning(ctx, tx, project, projectCallTask); err != nil {
+			return err
+		}
 		access, err := st.authority.state().projects.RequireOwnerInTx(ctx, tx, actor, project, i.Read)
 		if err != nil {
 			return portError(err)
@@ -85,8 +97,13 @@ func (r *TaskReader) GetTask(ctx context.Context, actor i.Actor, project c.Proje
 	if id.Validate() != nil {
 		return c.Task{}, fault(f.InvalidArgument)
 	}
+	ctx, done, err := r.beginRead(ctx, actor, project)
+	if err != nil {
+		return c.Task{}, err
+	}
+	defer done()
 	var out c.Task
-	err := r.read(ctx, actor, project, []f.LockRequest{taskLock(id.String(), f.Shared)}, func(ctx context.Context, x postgres.SQLExecutor) error {
+	err = r.read(ctx, actor, project, []f.LockRequest{taskLock(id.String(), f.Shared)}, func(ctx context.Context, x postgres.SQLExecutor) error {
 		v, err := loadTask(ctx, x, project, id)
 		if err != nil {
 			return err
@@ -198,9 +215,14 @@ func (r *TaskReader) ListTasks(ctx context.Context, actor i.Actor, project c.Pro
 	if page.Validate() != nil || len(page.Cursor) > cursor.MaxTokenBytes {
 		return f.Page[c.Task]{}, fault(f.InvalidArgument)
 	}
+	ctx, done, err := r.beginRead(ctx, actor, project)
+	if err != nil {
+		return f.Page[c.Task]{}, err
+	}
+	defer done()
 	filter = filter.Clone()
 	out := f.Page[c.Task]{Items: []c.Task{}}
-	err := r.read(ctx, actor, project, nil, func(ctx context.Context, x postgres.SQLExecutor) error {
+	err = r.read(ctx, actor, project, nil, func(ctx context.Context, x postgres.SQLExecutor) error {
 		generation, err := loadTaskQueryGeneration(ctx, x, project)
 		if err != nil {
 			return err
@@ -296,6 +318,9 @@ func (r *TaskReader) HasTasksInSprintInTx(ctx context.Context, tx f.Tx, actor i.
 	locks := []f.LockRequest{userLock(actor.Details().UserID, f.Shared), projectLock(project, f.Shared), taskScheduleLock(project, f.Exclusive), sprintLock(sprint.String(), f.Shared)}
 	if err = st.store.RequireHeldLocks(ctx, tx, locks); err != nil {
 		return false, portError(err)
+	}
+	if err = st.ownership.requireRunning(ctx, tx, project, projectCallTask); err != nil {
+		return false, err
 	}
 	access, err := st.authority.state().projects.RequireOwnerInTx(ctx, tx, actor, project, i.Read)
 	if err != nil {
