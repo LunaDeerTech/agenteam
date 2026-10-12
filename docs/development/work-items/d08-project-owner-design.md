@@ -267,6 +267,12 @@ provider 的首 Unknown 保留原 Project round/cause，下一显式 Run 先只�
 
 已落候选 `NewProjectCleanupParticipant` 固定原七 lane pair，共享最多四个 P 的原清理调用/retained Unknown；每个原 Tx 再核 ProcessGuard 与 Project 私门。清理按 task_runtimes→relaunch_visits→dispatches→合法 closed project_calls，每轮只删一张表的有序前 100 行并核完整原记录与精确行数；foreign 原停止证明只能在只读 preflight 实返后取得，mutation Tx 再核原集合。Unknown 后继仅只读确认，实际返回后仍报 Pending，下一显式轮才继续写入；未证明的旧 process/instance checkpoint 不能被 Pending 报告重新绑定。Execution/Work 自有历史不跨删，parent 仍 domains。provider/迁移的真实 PG 尚待验证，不声称 Scheduler Cleanup 或完整 Delete 已通过。
 
+### Execution 四 owner 的 Delete 停止（独立候选）
+
+显式 owned 工厂覆盖原 Launch/Lookup Service、Preparation、DirectText 和 Associated 四个 owner，绑定同 Store、原 ProcessGuard/process 与实例身份；迁移 00083 新增本域 project_calls，Project/Process 外键使用其真实 UUID 类型，完整原调用 canonical identity/digest 不可变，running 单调进入 business_closed 且历史禁止删除。Launch 的 identity 在尚未生成 Execution 时已固定，其他入口保完整原 Execution/dispatch 关联；closed、取消或空本地表不证明原 Store、资源尾或外层调用实际返回。Associated.Run 是无 SQL 的全局 lifetime，不计为某 P 的活调用，也不用于停止 B。
+
+新 `NewExecutionProjectStopAuthority` 只接受 Delete 原停止轮；原同 Store 的 Project EX + ProjectSchedule EX 授权事务实际 Committed 返回后才能进入回调，各后继 Tx 再核同一 active issuer/loan、exact current claim/cause、完整冻结 manifest 和 execution participant。旧 manager-only Execution 权限与 Agent、Scheduler、Work、ArtifactSource family 均不能借用。Preparation/DirectText 的 owned 入口在首个 Execution 查询前，必须消费原 Associated 实例的 exact job/P/Execution/dispatch 私有见证；无见证拒绝，旧构造业务兼容。原 Unknown 保留原 cause/attempt 与实际 owner；停止不借正常 Resolve 首次 Invoke 或写 association，不能确证原结果/尾返回时保持 Pending，同进程未知实例亦不凭 closed 放行，foreign 须原 ProcessGuard 停止证明并同 Tx 重核。此处仅 Project/shared/登记 schema 候选，provider 与真实验收待接；未默认装配的 Tool/ToolResult 扩展仍 Unbound，不提供 Execution Cleanup、Archive 或默认 App/完整 Delete。
+
 ### Variables metadata 子步骤（限定验收）
 
 固定 Agent→Skills 清理组合新增后继 Variables metadata 子步骤，由实际 `ProjectCallOwnership` 的 ordinary/Secret 双 lane 消费。每轮 provider 的原控制调用计入两 lane 的实际返回；不调用全局 Stop 影响另一 Project，也不在 cleaning 阶段借用仅 stopping 有效的旧 Stop 授权。每个原短事务先取得 Project EX，核同 Store/live Tx、完整 current Delete/manifest/domains 与该 driver 的独立 Variables 私有 claim scope；Agent/Skills/Outbox/Audit 或已结束 callback 不能借用。
