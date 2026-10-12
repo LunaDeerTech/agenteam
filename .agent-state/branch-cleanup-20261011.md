@@ -131,3 +131,13 @@ main推送PID901989实际Wait0后，fresh查询PID902017实际0精确匹配上�
 完整output已由20416 actual0（1d381f）在dev27无覆盖迁至main `output/ai/retired-20261012/runner-command-operation/`，76文件/96,100,547B/13目录逐项字节与原inode/stat保持；四份tmp副本7,377B齐、原tmp保留。旁目录的main补证0a436b实际0确认20输入图中全部1,979路径版本/1,979blobs从main历史实读SHA相同，原proof不覆盖；旧树tracked/untracked/ignored均空、已知owner无旧绝对路径活动依赖。详情及外部依赖/可见性限制见[恢复说明](runner-command-operation/README.md)。
 
 随后普通worktree remove PID904921实际0、普通branch -d PID904943实际0；fresh查询PID904944实际0精确等上述最终tip，单远端exact-lease删除PID904990实际0，fresh查询PID904996实际0且为空，显式main/ai fetch-prune PID905028实际0。原83894/402548 actual0确认旧树路径、local及tracking均空，没有force或删除原保全副本。此次增加1树/1本地/1远端，累计 **39 WorkTrees / 40本地分支 / 76远端引用**，legacy139待核、原keep1不变。新Write结果消费树从main4ebde5a7独立创建，仅源码在制，未计作清理或验收；全部原FAIL、STOP和保护依赖不变。
+
+## 2026-10-12 Sprint Start：历史已保留，远端清理完成
+
+本轮由 root 明确授权的唯一 Git 执行者完成。候选 `ai/sprint-start-integration` 的精确 tip 为 `cf03276979cd12c65eb301d3d1ff1fba5267543b`，最终 tree 与已交 main 祖先 `1f98aa985ee708c05470e4b017110c85fa3d1a8f` 相同。真正的 `merge --no-ff --no-commit -s ours` 产生 `bd240d2a3dac1114d539916d432e319ad00d50a5`，有序两父为原 main `0b007df6a55a69afbda68b5d599da437b567fcea` 与该候选 tip；结果 tree 仍为第一父的 `88bcf941f2feb4a17e2ef929171d035c3199ead4`，文件零变化。原27f450 actual0确认合并与提交；没有运行产品测试或重新接受旧失败实现。
+
+原[plan](../output/ai/branch-cleanup-20261012/sprint-start-history/plan.json)和[逐版本清单](../output/ai/branch-cleanup-20261012/sprint-start-history/source-versions.json)未改。后验14607/1c4d59 actual0确认15个独有提交（含6个merge）及唯一外部父均为 main 祖先；22路径/53版本共2,449,250B按原commit:path逐项实读blob、size、SHA一致。限定路径 `--full-history` 从第一父35版本到合后53版本，18个历史缺口共599,626B全部闭合，见[实际后验](../output/ai/branch-cleanup-20261012/sprint-start-history/post-merge.json)。有界类型/凭据模式检查及其限制沿原plan，不宣称全仓无敏感材料。
+
+main push PID924357实际Wait0后，fresh查询PID924385实际0且精确等上述tip；仅该远端的exact-lease删除PID924389实际0，后继fresh PID924416实际0且为空，显式main与ai/* fetch/prune PID924440实际0。原10299/39881e actual0确认tracking、本地同名分支与worktree均空，见[最终引用核验](../output/ai/branch-cleanup-20261012/sprint-start-history/remote-verification.json)。本候选原无本地分支或树，仅增加1个远端删除：累计 **39 WorkTrees / 40本地分支 / 77远端引用**，legacy139→138待核，原显式keep1不变。current待当前Write任务后续统一更新，本轮未改。
+
+本次只保留已提交源码。原frontend01的15PASS/1FAIL、TS18047及build未启动事实不回填；旧compile01是较早输入PASS，不能误记native失败。原文档指向的旧执行树、output和 `/tmp/ssw01/ui-10a2f04e582244ca.log` 在先前有界精确路径检查中未见，未遍历全部归档，不声称毁损或排除其它副本；ignored日志、binary/dist、截图、原Wait与未提交现场均未由此次Git历史合入恢复。原FAIL、全部STOP、保护缓存及总体未完成范围不变。小proof为ignored材料，跨设备需另行保留，已提交源码由已推送main完整历史恢复。
