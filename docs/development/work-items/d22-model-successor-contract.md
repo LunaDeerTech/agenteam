@@ -1,6 +1,6 @@
 # D22 后继 Model 语义与单调用响应纯合同
 
-状态：2026-10-12 设计卡，尚未授权产品实现或运行验证。专用树 `/workspace/agenteam-model-successor-contract` / `ai/model-successor-contract-20261012` 基于已通过 NRMR 的 `448f6adea22d62dcb71255a3c834dbb8f1b95d84`；NRMR 已以完整历史合入并推送 main `be71c42c4c68ae54ce76d3dca6b34974ad208203`。本片只准备下一调用所需的纯数据合同，不称下一 Model 已接通。
+状态：2026-10-12 已实现并完成有限纯合同验证。受测 `a9e69b7c8eb67318cf7c69d3bb7686d85e780d39` 的 basic02 原完整 11 top / 83 sub 与三包 vet 均通过；basic01 原 wholeFAIL 完整保留。本卡未提前宣称本片已合 main、推送、保全或清理。专用树 `/workspace/agenteam-model-successor-contract` / `ai/model-successor-contract-20261012` 基于已通过 NRMR 的 `448f6adea22d62dcb71255a3c834dbb8f1b95d84`；NRMR 已以完整历史合入并推送 main `be71c42c4c68ae54ce76d3dca6b34974ad208203`。本片只准备下一调用所需的纯数据合同，不称下一 Model 已接通。
 
 依据：[D01 Model 固定输入](d01-contracts/model-tool.md#model-解析与调用)、[完整响应与重试所有权](d01-contracts/model-tool.md#model-stream重试与计量)、[原 schema 校验](d01-contracts/model-tool.md#toolspecbinding-与可信调用)、[D22 输入确定点](d01-contracts/execution-orchestration.md#技能变更与下一轮输入确定点)、[Parallel Tool Calls](../../architecture/platform-infrastructure/model-system/chat-model-runtime.md#parallel-tool-calls)、[NRMR](d22-next-round-model-request.md)及[真实 HTTP STOP](recovery-d09-openai-chat-tools-wire.md)。继承卡中的旧进度文字不覆盖上述已交付事实。
 
@@ -14,13 +14,13 @@
 
 ## 共享接口与唯一实现
 
-拟接口在实现前一次冻结，均为同步纯函数，无 Store、resolver、Model Caller 或 credential port：
+已落接口均为同步纯函数，无 Store、resolver、Model Caller 或 credential port：
 
-- Model contract：`NewSuccessorSemantic(ctx, SuccessorSemanticParts)` / `DecodeSuccessorSemantic(ctx, raw)` 返回私有拥有的 `SuccessorSemantic`；显式 `CanonicalBytes/Digest/Parts` 返回独立副本，默认格式化/JSON/日志脱敏。Parts 含可信 Actor、完整 ResolvedModel、Messages、Tools 及明确的 auto/text/AgentRetry；schema 固定为 3。有效值只证明完整语义，不证明来源或调用授权。
+- Model contract：`ValidateSuccessorRequest(ctx, request)` 统一核 C0/schema3/input digest；`NewSuccessorSemantic(ctx, SuccessorSemanticParts)` / `DecodeSuccessorSemantic(ctx, raw)` 返回私有拥有的 `SuccessorSemantic`；显式 `CanonicalBytes/Digest/Parts` 返回独立副本，默认格式化/JSON/日志脱敏。Parts 含可信 Actor、完整 ResolvedModel、Messages、Tools 及明确的 auto/text/AgentRetry；schema 固定为 3。有效值只证明完整语义，不证明来源或调用授权。
 - Execution：现 `NewNextRoundModelRequest/DecodeNextRoundModelRequest` 保持公开形状，由上述唯一算法产生/读取原 semantic JSON，再按原外包装核 P/A/E、68 RoundInput、Snapshot、Projection、CallID 与 InputIdentity。不保留第二套 schema3 生产编码或摘要算法；旧 preparation/schema1/2 编码不随此抽取改写。
 - Loop：`ValidateSuccessorResponse(ctx, request mc.ModelRequest, response mc.ModelResponse)` 返回私有拥有的分类值；仅完整成功分类可显式取完整响应副本，其余分类没有可执行 ToolCall 候选。先校原 schema3 semantic digest、请求身份/profile 与 ModelResponse C0 形状，再按下节分类。CallID 必须匹配；InvocationID 仅校合法形状并保留，实际 Invoke 所有者/attempt 的真实性由后续调用实现核验，本纯函数不能证明。
 
-完整 semantic 字段顺序/表示和 canonical 算法以[已交 codec](../../../internal/central/execution/contract/next_round_request_codec.go)为准：显式 AgentRun P/A/E、Consumer、Model ConfigSnapshot 全字段、CredentialRef Details、LeaseOwner Details/LeaseID、顺序 messages/完整 Tool schema、choice/response/retry。`ModelRequest.Actor` 默认 JSON 被忽略，Secret 引用拒绝默认 Unmarshal，因此必须可回读完整 DTO；不得用默认 ModelRequest JSON 或日志形式算摘要。语义摘要不含 logical CallID 或自身摘要；外包装继续绑定稳定 CallID 与含语义摘要的 InputIdentity。计数包含 JSON escaping，原大小门、数值词法、克隆和借用清理不放宽。
+完整 semantic 字段顺序/表示保留旧 448f 编码，由[Model 唯一 codec](../../../internal/central/model/contract/successor_input.go)实现，[Execution wrapper](../../../internal/central/execution/contract/next_round_request_codec.go)薄委托：显式 AgentRun P/A/E、Consumer、Model ConfigSnapshot 全字段、CredentialRef Details、LeaseOwner Details/LeaseID、顺序 messages/完整 Tool schema、choice/response/retry。`ModelRequest.Actor` 默认 JSON 被忽略，Secret 引用拒绝默认 Unmarshal，因此必须可回读完整 DTO；不得用默认 ModelRequest JSON 或日志形式算摘要。语义摘要不含 logical CallID 或自身摘要；外包装继续绑定稳定 CallID 与含语义摘要的 InputIdentity。计数包含 JSON escaping，原大小门、数值词法、克隆和借用清理不放宽。
 
 ## 单调用 auto 响应闭集
 
@@ -38,18 +38,27 @@
 
 ## 文件与分工
 
-| 唯一写域 | 拟文件与责任 |
+| 唯一写域 | 实际文件与责任 |
 | --- | --- |
 | Model 纯合同作者 | `internal/central/model/contract/successor_input.go` 与专控：schema3 完整 DTO、唯一 canonical/digest、回读/副本/脱敏；不引入高层 import |
 | Execution 兼容作者 | `internal/central/execution/contract/next_round_request_codec.go` 与兼容专控：薄委托、原包装和两层摘要逐字保持；不动 binder/72/持久记录 |
 | Loop 响应作者 | `internal/central/agentloop/successor_response.go` 与专控：版本化 auto 闭集，复用原纯 schema；不修改旧 controller/session/retry |
 
-共享 Model 类型由第一域唯一 writer；两域消费该同版接口，不各自复制 semantic wire。实现授权后先冻结最小接口，再并行源码。后继真实执行仍须独立 durable request→私有 Invoke/CredentialRead/Finalize、Committed before unique Begin、实际 Result/Close/Joined 与响应 checkpoint 设计；本卡不补这些缺口。
+共享 Model 类型由第一域唯一 writer；两域消费该同版接口，不各自复制 semantic wire。三域及必要控制已按冻结接口实现；独立静审与下述动态验收各保留自身范围。后继真实执行仍须独立 durable request→私有 Invoke/CredentialRead/Finalize、Committed before unique Begin、实际 Result/Close/Joined 与响应 checkpoint 设计；本卡不补这些缺口。
 
-## 必要验收（未运行）
+## 已完成的有限验收
 
 1. **独立旧字节基线：** 重构前以已交 `448f6ade` 原算法和固定安全 fixture 确定并保存 Read/Write/Command canonical golden、原 input/request 两 digest 与来源版本；改后逐字相同，新的 helper 不参与 expected 生成，也不常驻第二生产算法。已有实际 canonical 可作额外原件比对，不输出私有正文；只做新 codec 自身 round-trip 不算兼容证明。
 2. **完整身份与纯 codec：** Actor/model/consumer/lease、消息/Tools/schema/profile 任一语义变化进入摘要；CallID 只改变原外层摘要。错误身份、非 canonical/重复/未知字段、逃逸后越界拒绝；深副本、默认脱敏、取消实际返回保全。Model 无高层反 import，原 schema1/2 与预算不变。
 3. **完整响应正反控：** text-stop、单 call 加 text 均通过；多 call 整体 unsupported；错 CallID/name、畸形/半 JSON、schema 不符与 finish/parts 不符不能产生成功候选。用原 schema 严格校验，不只测自造布尔判断。
 4. **中断与兼容：** length/content_filter/cancelled/error/unknown 保真实非成功分类，原响应及可靠 Usage 不被改写；不把 frame/tool_call_end 当 terminal。旧 required/count==1 与新 auto 的必要兼容控并存，不扩旧运行矩阵。
-5. **有限集成：** 必要纯 Go 控与相关包 vet 证明上述数据边界；不需 PG/native 或真实 Model/credential/Runner 调用来冒充本片完成。默认/runtime/capture-only、HTTP STOP、16 MiB wire、56/68/72 与存储零差额；实际运行另获资源窗口授权。
+5. **有限集成：** 必要纯 Go 控与相关包 vet 证明上述数据边界；不需 PG/native 或真实 Model/credential/Runner 调用来冒充本片完成。默认/runtime/capture-only、HTTP STOP、16 MiB wire、56/68/72 与存储零差额；原实际运行与资源窗口记录如下，不因通过纯控开启真实调用。
+
+
+## 原执行记录与范围
+
+- **旧 golden：** 原工具 `65068/c40ba4` actual0；deps `1056100`、capture `1056147` 均原 Wait0。未改旧 `448f6ade` 的真实 builder/codec 生成固定合成 Read/Write/Command，一个 top / 三个 sub；625 旧 repository 输入逐原版本相同，628 全输入前后同。七文件 3,787,213 B 的 manifest SHA 为 `6f559fe198c72b86e05aba51bca77ab5495cd93f63385df8766f5f82357b0781`。原 capture 源/方法已留证，临时 top 已撤出最终包；这不是 PG/Model/Runner 实际调用。
+- **basic01 wholeFAIL：** 原 `51218/120b05` actual1，race `1067056` Wait1 / 86.682s；10 top / 79 sub PASS，另一个 top / 四个 sub FAIL，vet 未运行。事后确认是测试用 DeepEqual 比较 func-backed 不透明请求值；仅测试修复 `a9e69b7c`，用真实身份 Equal 加完整剩余字段比较，产品和 golden 不变。原 FAIL 与原先未分配诊断的 post 保留，不倒填原日志。
+- **basic02 wholePASS：** 原 `61850/66a3f9` actual0，outer `1072022` / child `1072047` Wait0 / 52.985s；race `1072160` Wait0 / 18.300s，精确 11 top / 83 sub 各 run/pass 一次，无 fail/skip；三包 vet `1072406` Wait0 / 32.199s。655 项六份输入图、22 项外层输入、七个原 golden 不变；相对 basic01 同 keys 仅上述测试文件一 hash 改变。
+
+完整证据与链接见[本片 README](../../../.agent-state/model-successor-contract/README.md)、[basic01 原 post](../../../output/ai/model-successor-contract/basic01-outer/post-check.json)及[basic02 原 post](../../../output/ai/model-successor-contract/basic02-outer/post-check.json)。11/83 由新 9 top / 68 sub 加旧 Loop 两 top / 15 sub 组成，不把 68 当总 sub。已验范围是完整 semantic 身份/唯一编码、旧72包装与两摘要兼容、有限 auto 响应及 context/预算门的纯控制；没有下一 Model 执行、实际 Invocation 证明或 HTTP/Provider 成功。本片无 PG/native 方法，runtime/default/capture-only 与 tools HTTP STOP 保持。
