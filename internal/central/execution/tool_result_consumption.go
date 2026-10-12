@@ -13,20 +13,21 @@ import (
 	tc "github.com/LunaDeerTech/agenteam/internal/central/tool/contract"
 )
 
-// ToolResultConsumer appends one already durable successful result. It does
+// ToolResultConsumer appends one already durable known result. It does
 // not own an executor, invoke Model, change the immutable pending Round, or
 // retire its references. Every public call remains owned until its actual
 // transaction/reader return; Stop requests cancellation and Drain joins it.
 type ToolResultConsumer struct {
-	driver       *ToolCallDriver
-	results      tc.ReadFileResultAuthority
-	writeResults tc.WriteFileResultAuthority
-	store        Store
-	mu           sync.Mutex
-	stopped      bool
-	active       map[i.ExecutionID]context.CancelFunc
-	pending      map[i.ExecutionID]*toolResultUnknown
-	changed      chan struct{}
+	driver         *ToolCallDriver
+	results        tc.ReadFileResultAuthority
+	writeResults   tc.WriteFileResultAuthority
+	commandResults tc.RunCommandResultAuthority
+	store          Store
+	mu             sync.Mutex
+	stopped        bool
+	active         map[i.ExecutionID]context.CancelFunc
+	pending        map[i.ExecutionID]*toolResultUnknown
+	changed        chan struct{}
 }
 
 type toolResultUnknown struct {

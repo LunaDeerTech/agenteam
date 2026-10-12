@@ -100,7 +100,15 @@ func loadCommittedRoundProjection(ctx context.Context, x postgres.SQLExecutor, i
 	if err != nil {
 		return source, unavailable(nil)
 	}
-	binding := sealedToolResultBinding{Call: call, OperationID: op, AttemptID: a, RequestID: p.ID(request), InputDigest: f.Digest(inputDigest), Fingerprint: f.Digest(fingerprint), TerminalDigest: f.Digest(terminal), Outcome: "success", Attempted: true, ResultDigest: f.Digest(result), ResultBytes: f.Progress(resultBytes)}
+	binding := sealedToolResultBinding{Call: call, OperationID: op, AttemptID: a, RequestID: p.ID(request), InputDigest: f.Digest(inputDigest), Fingerprint: f.Digest(fingerprint), TerminalDigest: f.Digest(terminal), ResultDigest: f.Digest(result), ResultBytes: f.Progress(resultBytes)}
+	if call.RunnerBinding == tc.RunCommandRegistration().Binding {
+		binding, err = loadCommandSealedBinding(ctx, x, binding)
+		if err != nil {
+			return source, err
+		}
+	} else {
+		binding.Outcome, binding.Attempted = "success", true
+	}
 	if binding.validate() != nil || binding.OperationID != fields.Source.OperationID || binding.AttemptID != fields.Source.AttemptID || binding.ResultDigest != fields.Source.ResultDigest || call.CallID != fields.Source.CallID {
 		return source, unavailable(nil)
 	}
@@ -111,6 +119,9 @@ func loadCommittedRoundProjection(ctx context.Context, x postgres.SQLExecutor, i
 	case tc.WriteFileRegistration().Binding:
 		written := tc.WriteFileResultBinding(binding)
 		source.WriteResult = &written
+	case tc.RunCommandRegistration().Binding:
+		command := tc.RunCommandResultBinding(binding)
+		source.CommandResult = &command
 	default:
 		return source, unavailable(nil)
 	}

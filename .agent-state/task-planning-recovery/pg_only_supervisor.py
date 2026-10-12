@@ -199,6 +199,11 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestRunCommandResultConsumption$': frozenset((
+        'TestRunCommandResultConsumption',
+        'TestRunCommandResultConsumption/revoked-dispatch-grants-consume-and-project',
+        'TestRunCommandResultConsumption/cancelled-report-commit-loss-lookup-and-project',
+    )),
     '^TestWriteFileResultConsumption$': frozenset((
         'TestWriteFileResultConsumption',
         'TestWriteFileResultConsumption/revoked-dispatch-grants-consume-and-project',
