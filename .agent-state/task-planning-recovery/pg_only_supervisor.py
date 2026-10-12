@@ -199,6 +199,12 @@ METADATA_CASES = frozenset({
 
 
 METADATA_GROUPS = {
+    '^TestVariableProjectCallOwnership$': frozenset((
+        'TestVariableProjectCallOwnership',
+        'TestVariableProjectCallOwnership/committed-lanes-registration-and-exact-row-fence',
+        'TestVariableProjectCallOwnership/lifecycle-selection-and-original-confirmation',
+        'TestVariableProjectCallOwnership/foreign-death-before-original-project-sql-terminal',
+    )),
     '^TestRunnerReadFileApp$': frozenset((
         'TestRunnerReadFileApp',
         'TestRunnerReadFileApp/explicit-cli-range-and-identity-restart',

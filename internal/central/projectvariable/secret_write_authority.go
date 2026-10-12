@@ -73,6 +73,9 @@ func (a *SecretWriteAuthority) current(ctx context.Context, tx f.Tx, request sc.
 	if err = st.store.RequireHeldLocks(ctx, tx, secretRequestBaseLocks(request)); err != nil {
 		return nil, portError(err)
 	}
+	if err = a.requireOwnedProjectCall(ctx, tx, r.ProjectID); err != nil {
+		return nil, err
+	}
 	access, err := st.projects.RequireOwnerInTx(ctx, tx, r.Actor, r.ProjectID, intent)
 	if err != nil {
 		return nil, portError(err)

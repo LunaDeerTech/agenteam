@@ -181,6 +181,9 @@ func (s *ProjectCallStopper) inspect(ctx context.Context, actor i.Actor, cause p
 			pending++
 		}
 	}
+	selected := func(entry *call) bool { return selectedProjectCall(entry, cause, scope) }
+	pending += a.ownership.retainedProjectCalls(projectCallOrdinary, a.calls, selected)
+	pending += b.ownership.retainedProjectCalls(projectCallSecret, b.calls, selected)
 	details := ProjectCallStopDetails{ProjectID: scope.ProjectID, OperationID: cause.OperationID, Action: cause.Action, ProjectVersion: cause.ProjectVersion, PendingCalls: pending, LocalJoined: pending == 0}
 	return ProjectCallStopReport{data: func() ProjectCallStopDetails { return details }}, nil
 }

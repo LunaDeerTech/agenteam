@@ -51,12 +51,13 @@ func (a *Authority) state() *authorityState {
 
 type Service struct{ data func() *serviceState }
 type serviceState struct {
-	store   Store
-	deps    Dependencies
-	mu      sync.Mutex
-	stopped bool
-	calls   map[*call]struct{}
-	changed chan struct{}
+	store     Store
+	deps      Dependencies
+	mu        sync.Mutex
+	stopped   bool
+	calls     map[*call]struct{}
+	changed   chan struct{}
+	ownership *projectCallOwnershipState
 }
 type callKind uint8
 
@@ -150,7 +151,7 @@ func (s *Service) Drain(ctx context.Context) error {
 		st.mu.Lock()
 		if len(st.calls) == 0 {
 			st.mu.Unlock()
-			return nil
+			return st.ownership.drainReturned(ctx, projectCallOrdinary)
 		}
 		changed := st.changed
 		st.mu.Unlock()
@@ -163,3 +164,14 @@ func (s *Service) Drain(ctx context.Context) error {
 }
 
 var _ c.Queries = (*Service)(nil)
+
+// Joined covers this instance and its retained original registered calls only.
+func (s *Service) Joined() bool {
+	st := s.state()
+	if st == nil {
+		return false
+	}
+	st.mu.Lock()
+	defer st.mu.Unlock()
+	return len(st.calls) == 0 && st.ownership.laneJoined(projectCallOrdinary)
+}
