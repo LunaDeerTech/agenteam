@@ -26,6 +26,7 @@ type ToolCallDependencies struct {
 type toolCallDependencies struct {
 	loop     *agentloop.ToolCallController
 	metadata ToolCallMetadata
+	binding  tc.RunnerBinding
 }
 
 // This explicitly constructed first-round driver persists a nonterminal
@@ -34,10 +35,14 @@ type toolCallDependencies struct {
 type ToolCallDriver struct{ driver *DirectTextDriver }
 
 func NewToolCallDriver(store Store, a *Authority, deps ToolCallDependencies) (*ToolCallDriver, error) {
-	if deps.Loop == nil || nilPort(deps.Tools) || deps.Base.Loop != nil {
+	return newProfileToolCallDriver(store, a, deps, tc.ReadFileRegistration().Binding)
+}
+
+func newProfileToolCallDriver(store Store, a *Authority, deps ToolCallDependencies, binding tc.RunnerBinding) (*ToolCallDriver, error) {
+	if deps.Loop == nil || !deps.Loop.AcceptsRunnerBinding(binding) || nilPort(deps.Tools) || deps.Base.Loop != nil {
 		return nil, fault(f.DependencyUnbound)
 	}
-	d, err := newDirectTextDriver(store, a, deps.Base, &toolCallDependencies{deps.Loop, deps.Tools})
+	d, err := newDirectTextDriver(store, a, deps.Base, &toolCallDependencies{loop: deps.Loop, metadata: deps.Tools, binding: binding})
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +81,7 @@ func toolFactsRequest(input c.PreparationInput, agent ac.AgentConfig) tc.Executi
 func (s *directTextState) buildToolCallRequest(ctx context.Context, run *directTextCall, built c.ExecutionContext, actor i.Actor, round c.RoundID, call mc.CallID) (agentloop.DirectTextRequest, error) {
 	var definition tc.Definition
 	v := run.input.input.Fields()
-	if len(v.Tools) != 1 || v.Tools[0].BindingSnapshot.RunnerBinding.Validate() != nil {
+	if len(v.Tools) != 1 || v.Tools[0].BindingSnapshot.RunnerBinding != s.tools.profile() {
 		return agentloop.DirectTextRequest{}, fault(f.CapabilityUnsupported)
 	}
 	request := toolFactsRequest(run.input.input, v.Agent)
@@ -112,6 +117,9 @@ func (s *directTextState) buildToolCallRequest(ctx context.Context, run *directT
 	if err := commitError(result); err != nil {
 		return agentloop.DirectTextRequest{}, err
 	}
+	if s.tools.profile() == tc.WriteFileRegistration().Binding {
+		return agentloop.BuildWriteFileToolCallRequest(ctx, built, actor, round.String(), call, definition)
+	}
 	return agentloop.BuildToolCallRequest(ctx, built, actor, round.String(), call, definition)
 }
 func (s *directTextState) requireCurrentToolFacts(ctx context.Context, tx f.Tx, run *directTextCall) error {
@@ -124,11 +132,15 @@ func (s *directTextState) requireCurrentToolFacts(ctx context.Context, tx f.Tx, 
 		return portError(err)
 	}
 	if run.toolFacts != nil {
-		args, err := tc.DecodeReadFileToolArguments(ctx, run.toolFacts.original)
+		fields := run.input.input.Fields()
+		if len(fields.Tools) != 1 || fields.Tools[0].BindingSnapshot.RunnerBinding != s.tools.profile() {
+			return fault(f.Forbidden)
+		}
+		mountID, err := toolCallMountID(ctx, fields.Tools[0].BindingSnapshot.RunnerBinding, run.toolFacts.original)
 		if err != nil {
 			return err
 		}
-		if !slices.Contains(agent.Fields().AllowedMountIDs, args.MountID) {
+		if !slices.Contains(agent.Fields().AllowedMountIDs, mountID) {
 			return fault(f.Forbidden)
 		}
 	}

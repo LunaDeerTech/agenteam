@@ -45,6 +45,9 @@ func (d *ToolCallDriver) DiscoverReadFileCall(ctx context.Context, e i.Execution
 	if err != nil {
 		return nil, err
 	}
+	if binding.RunnerBinding != tc.ReadFileRegistration().Binding {
+		return nil, fault(f.Forbidden)
+	}
 	plan, err := d.DiscoverToolCall(ctx, binding)
 	if err != nil {
 		return nil, err
@@ -60,7 +63,7 @@ func (d *ToolCallDriver) WithReadFileCallInTx(ctx context.Context, tx f.Tx, plan
 		return invalid()
 	}
 	p, ok := plan.(*readFileCallPlan)
-	if !ok || p == nil || p.call == nil || p.call.owner != d {
+	if !ok || p == nil || p.call == nil || p.call.owner != d || p.call.binding.RunnerBinding != tc.ReadFileRegistration().Binding {
 		return fault(f.Forbidden)
 	}
 	return d.withToolCallInTx(ctx, tx, p.call.binding, p.call, consume)
