@@ -1,6 +1,6 @@
 # Agent Project call App validation
 
-These methods are prepared for the [App work item](../../docs/development/work-items/d08-agent-project-call-app.md). No method control, basic check, compile, or native test has run for this profile. The PG source is owned separately and must be frozen and reviewed before compilation. The methods use base `d64a8f8cc03167b4582a9ea64aa277dfa48da9ac`; existing Agent ownership and Model reservation profiles remain intact.
+The [App work item](../../docs/development/work-items/d08-agent-project-call-app.md) has passed its controlled basic check at `763576b88b4ed6f819b3a067ac8007c7bfd3352f`. PG profile controls, compilation and native execution remain unrun. The PG source is owned separately and must be frozen and reviewed before compilation. The methods use base `d64a8f8cc03167b4582a9ea64aa277dfa48da9ac`; existing Agent ownership and Model reservation profiles remain intact.
 
 ## Minimal basic scope
 
@@ -16,6 +16,14 @@ These [App controls](../../internal/central/app/agent_project_call_ownership_tes
 
 The [basic wrapper](run-basic-checks.py) preserves offline Go 1.27.1, max1/race/count1/p1, actual race/plain dependency discovery, embedded inputs, exact JSON selection and original Popen/Wait. Twelve required source paths anchor the changed assembly, real ownership dependency and existing migration embeds; the actual compiler closure determines the complete input set. This slice adds no migration.
 
+## Recorded basic result
+
+The original basic method PID `1169230` returned Wait `0` in `303.568s`; its race test PID `1169361` returned `0` in `164.018s`, and App vet PID `1171621` returned `0` in `136.935s`. Both original dependency-discovery processes also returned `0`. The [exact selection](../../output/ai/agent-project-call-app/basic01/unit01-selection.json) and [post-check](../../output/ai/agent-project-call-app/basic01-outer/post-check.json) confirm five top tests and six subtests, each RUN/PASS exactly once, with no FAIL, SKIP or race warning. All six maps contain the same 1,133 compiler/runtime inputs; the actual post-run hashes match, all 16 outer inputs match, and the tested HEAD was clean. This proves the selected App controls and one App vet only; `tests/projectvariable` and `tests/testsupport/agentconfiguration` had no intersection with that compiler closure.
+
+The original [terminal](../../output/ai/agent-project-call-app/basic01-outer/terminal.json) records that no native run started. Tool session `96017`, final chunk `5b813a`, returned `0`; [tool-observation](../../output/ai/agent-project-call-app/basic01-outer/tool-observation.json) is an assistant-observed transcription, not a provider-native export. The post-check completed with `0` (`4cdc39`). These are the original results, not a rerun or expanded selection.
+
+Upstream Agent ownership native02 and native04 remain recorded failures; native03 was a capacity hold without native execution. The subsequent full Skill/Object fixture correction `153232f6dc32a3550f34981282cde3ebe8b5e25f` still awaits real validation. The App basic result does not turn those failures into passes, establish App PG behavior, or complete a lifecycle participant.
+
 ## Pending real PostgreSQL and App profile
 
 The exact selector is `^TestAgentProjectCallApp$`, one top with two subtests in the independently owned [PG file](../../tests/projectvariable/agent_project_call_app_test.go):
@@ -29,7 +37,7 @@ The setup and the injected PostgreSQL cancellation remain explicit fixture bound
 
 ## Commands and unchanged resource method
 
-These are execution recipes, not passing evidence. Use fresh output directories and run only in the assigned Go/cache window:
+These are method recipes; the completed basic result is recorded above, while the remaining commands have no passing evidence. Never reuse the completed `basic01` output or rerun it without a new assigned window. Use fresh output directories and run only in the assigned Go/cache window:
 
 ```sh
 python3 -B .agent-state/agent-project-call-app/profile-controls.py

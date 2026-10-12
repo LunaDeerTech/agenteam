@@ -1,12 +1,12 @@
 # D08 App Agent 调用归属装配与退出闭环
 
-状态：设计候选，仅本卡获写入授权；未实现、未执行。本树基线 `d64a8f8cc03167b4582a9ea64aa277dfa48da9ac`，包含迁移 74 和 Agent foreign 夹具修正，修正仍待真实验收，不能称 native PASS。正式交付须先合入已接受的上游结果。
+状态：三个 App 装配文件及专用基础控已实现；受测 HEAD `763576b88b4ed6f819b3a067ac8007c7bfd3352f` 的 basic 已实际通过，范围为 5 个顶层测试、6 个子测试及一个 App vet，App PG 尚未执行。本树起始基线为 `d64a8f8cc03167b4582a9ea64aa277dfa48da9ac`。上游 Agent native02、native04 的实际 FAIL 保留，native03 仅容量 HOLD；后续完整 Skill/Object 夹具修正 `153232f6dc32a3550f34981282cde3ebe8b5e25f` 仍待真实验收，不能称 native PASS。正式交付须先合入已接受的上游结果。
 
 本片让默认 App 的 Agent 配置、Runner Mount 配置读取及目录 HTTP 使用同一个真实 `agent.ProjectCallOwnership`，并由一个 `accountWork` 管理其完整退出。沿 [Agent 管理规范](../../architecture/agent-management.md)、[持久调用归属卡](d08-agent-project-call-ownership.md)及[团队流程](../agent-team/README.md)。不新增迁移，不改变 Agent 业务权限、命令回执、原预算或公开默认构造；不交付 Project fullparticipant、初始化、引用清理或 legacy global join。
 
 ## 固定装配点与接口
 
-现 [account.go](../../../internal/central/app/account.go) 在 Skill Service 构造前独立调用 `createAgentDirectoryWithAuthority`，之后才以 `createAgentConfiguration` 建写服务。将默认 App 的目录实例创建移到既有 Skill Service、InstallAuthority、Registry/四引用提供方均已齐备的配置装配点，统一调用现有 `agent.NewProjectCallOwnership(store, deps, keys, objects.guard, objects.process)`。配置 assembly 持有这个固定 pair；配置及 Runner Mount handler 使用其 `Service()`，目录 handler 使用其 `DirectoryReader()`。不得先建原服务再 setter 转换、用假 pair 填空，或只替换其中一个 lane。
+原 [account.go](../../../internal/central/app/account.go) 在 Skill Service 构造前独立调用 `createAgentDirectoryWithAuthority`，之后才以 `createAgentConfiguration` 建写服务。本片已将默认 App 的目录实例创建移到既有 Skill Service、InstallAuthority、Registry/四引用提供方均已齐备的配置装配点，统一调用现有 `agent.NewProjectCallOwnership(store, deps, keys, objects.guard, objects.process)`。配置 assembly 持有这个固定 pair；配置及 Runner Mount handler 使用其 `Service()`，目录 handler 使用其 `DirectoryReader()`。不得先建原服务再 setter 转换、用假 pair 填空，或只替换其中一个 lane。
 
 此顺序无构造环：原 Agent Authority 已先建立；[Skill AgentInitializer](../../../internal/central/skill/agent_initialization.go) 只依赖该 Authority 的创建口，不依赖 Agent Service/Directory。Skill Service 依赖原 Object/InstallAuthority，Work planning 依赖原 Agent Authority，也不依赖目录实例。原 Account core、Object service、Skill service 的创建顺序保持；仅目录实例延后，HTTP 路由仍在整图构造完成后发布。
 
@@ -42,6 +42,8 @@ PG 失败保留规则：若原 App 或 guard 尚未实际释放，夹具先记�
 
 ## 待兑现与边界
 
-上游 Agent 修正的真实验收、上述 App 装配控制与真实 HTTP/退出链均待实际结果；现有受测结论按输入范围复用，不从卡或接口存在推导通过。真实 App fixture 的有界关停屏障和 Unknown 注入位置在实施时核准，不能为便利新增产品 test hook、扩大 shutdown 预算或越过 Store/guard 证明。
+已完成的基础控仅为 [agent_project_call_ownership_test.go](../../../internal/central/app/agent_project_call_ownership_test.go) 的 5 top / 6 sub，各 RUN/PASS 一次，无 FAIL、SKIP 或 race warning；同包 vet 通过。原 method `1169230` Wait `0`／`303.568s`，race `1169361` 为 `0`／`164.018s`，vet `1171621` 为 `0`／`136.935s`，两次依赖发现均 `0`。原工具 `96017`／final `5b813a` 返回 `0`；1133 项输入的六份 maps 和实际 post hash 相同，outer 16 项相同，受测 HEAD clean，post `4cdc39` 为 `0`。具体原件见[方法与结果](../../../.agent-state/agent-project-call-app/README.md#recorded-basic-result)；其中 tool-observation 仅为 assistant 对原工具完成结果的转录，不是 provider-native 导出。
+
+上游 Agent 修正的真实验收与本片真实 HTTP/PG 退出链仍待实际结果；基础控不证明真实 COMMIT、进程死亡或完整 participant，也不覆盖或改写上游已有失败。现有受测结论只按原输入和选择范围复用；方法、源码、测试选择及上述 PG 失败保留规则均未改变，不新增产品 test hook、扩大 shutdown 预算或越过 Store/guard 证明。
 
 [project_update.go](../../../internal/central/app/project_update.go) 的 Initializer/LifecycleRegistry 继续未绑定；完整 Skills/Variables 排空、Execution/Agent/Skill 引用退休、完整 enabled manifest 与有序 cleanup 仍是后继。Object runtime join、Knowledge、真实 tools HTTP 等既有 STOP 不变；本片不改变其实现或用替身绕过，不宣称完整 D08、生产 Project 创建或全平台生命周期完成。
