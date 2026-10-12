@@ -253,3 +253,11 @@ Authority首轮完整真实FAIL（9.58s），Go/driver实际Wait、两资源/des
 修后作者defaultroot app两子现完整PASS（正常退出6.13s、Force6.09s）：四路真实Tx/PID与取消后未join、原Force context/deadline及必要DB.ForceClose、释放后实际调用返回/Drain均保持原门槛通过。Go/driver实际Wait、七资源/private/runtime/desc/TCP双尾、exact_tops和输入不变闭合；原36769整体FAIL保留。候选受影响app/native两包已完成一次必要race-c与精确发现，旧入口/matrix/process构建复用。当前仅剩native04 KeepAliveAndClose真实复验及最终接受，不称已交付main。
 
 最后仅复验修后native KeepAliveAndClose，两子完整PASS（2.17s）：同连接跨旧deadline复用、真实空body EOF1/Close1、库读完成后Close失败的ErrAbortHandler/零响应与实际handler join均通过。Go/driver实际Wait0、runtime/private/desc/TCP双尾及输入不变齐；原84865整FAIL与缺失诊断保持。结合已通过且输入未变的Deadline/Backpressure范围，作者全部限定矩阵、独立三风险补集及候选必要构建闭合，本卡限定后端结果已独立接受；无新增产品修复或预算放宽。
+
+## 后继普通变量删除界面（2026-10-12）
+
+main `2d13d162` 增加普通变量详情中的明确删除确认。使用正式 DELETE 的原目标、版本与幂等键，取消不发送命令；Unknown 只查询原意图，确认删除后清除旧详情并独立重读目录。历史命令与审计不被擦除，也不把普通变量回执或显示能力扩展到 Secret。上述原后端验收范围保持，本段只记录后继界面接入。
+
+[共同前端检查](../../../output/ai/ui-integration-delivery/frontend01/results.json)中普通变量 33 项通过；焦点修正后的本页 5 项、完整类型检查与生产构建也通过。真实 `TestProjectVariablesWeb` 在原 App/Chromium 上完成创建、修改、清空与删除（30.14s），核取消零写、实际 DELETE、原 Lookup、目录回读、后端持久事实，以及键盘焦点/宽屏浅色/窄屏深色；见[原结果](../../../output/ai/ui-integration-delivery/browser02/result.json)、[页面截图与响应证明](../../../output/ai/ui-integration-delivery/browser02/variable-delete/)。
+
+首轮真实浏览器发现取消后原按钮仍 disabled，通用 layer 过早恢复焦点；仅本页等待原 controller 返回及 Vue DOM 更新后，向同详情、仍连接且已启用的原按钮恢复焦点，未放宽浏览器断言。[首轮原失败](../../../output/ai/ui-integration-delivery/browser01-outer.json)保留。两片实际退出后已交付，Task/普通变量/旧集成三个本地及远端分支和精确跟踪项均已清理；集成工作树实体与依赖复用于后继项目创建，不复制运行产物。

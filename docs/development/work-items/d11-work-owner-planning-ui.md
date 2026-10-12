@@ -307,3 +307,11 @@ cleanup有限接受1440×960浅色创建表单和390×844深色planned结果两�
 该结果不代验真实 Unknown 浏览器矩阵、完整撤权、全规划 UI 或整个 D11/D27。原 Planning04/05/06、Recovery/Authority 各 FAIL 保持；生产 Project initializer、`ready=false`/503 与旧 STOP 不变。精确输入、命令及原件见[恢复 recipe](../../../.agent-state/agent-system-integration/README.md#skills目录与首milestone恢复交付2026-10-11)。
 
 后续[既有 Milestone 标题/描述编辑](d11-milestone-edit-ui.md)已作为独立切片有限接受，包含正常修改/no-op/清空、原 Lookup 恢复与当前 Get/List；不扩大本节首创建链的原验收范围，也不完成其余规划 UI。
+
+## 18. 当前 Sprint 的任务关键词搜索（2026-10-12）
+
+已随 main `2d13d162` 交付当前 Sprint 七列看板的服务端关键词搜索。输入或按 Enter 确认后，各列按同一 `text` 从第一页读取；清除恢复无关键词查询，后续分页保留原条件。关键词按后端既有规则对 title、description、plan 作区分大小写的字面匹配，`%`、`_` 不作为通配符；不是对首屏缓存做本地筛选。切项目、Sprint 或请求代际仍使旧结果失效，不扩其它筛选、Task 写入或执行能力。
+
+[定向前端结果](../../../output/ai/ui-integration-delivery/frontend01/results.json)中本片 5 项、共同类型检查与生产构建通过。真实 `TestTaskSearchWeb/server-search-beyond-first-page` 在已初始化 Project 与实际 App/Chromium 上通过（50.87s）：目标在当前 Sprint 第 52 条，先确认不在第一页，再分别按三个字段搜索，核跨 Project 隔离、大小写及字面符号、详情、Enter/清除和宽屏浅色/窄屏深色。Go 后验确认只读事实不变；原 Node、Go、supervisor 与资源尾均结束，见[共同原结果](../../../output/ai/ui-integration-delivery/browser02/result.json)、[截图与消费证明](../../../output/ai/ui-integration-delivery/browser02/task-search/)。
+
+首轮 browser01 在搜索前的初始读取等待 `Response.finished` 失败，原网络失败类别未观测；修复仅将新 spec 接入既有原请求/实际消费/Go EOF 联证，未知网络失败仍拒绝，没有替代请求或延长预算。[首轮原失败](../../../output/ai/ui-integration-delivery/browser01-outer.json)保留，不回填为已知 `ERR_ABORTED`。本次不恢复原 Planning/Recovery 或 Tools/Model STOP。
