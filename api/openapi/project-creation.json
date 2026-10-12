@@ -1,0 +1,370 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Project creation and original-identity recovery",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/projects": {
+      "post": {
+        "operationId": "projectCreate",
+        "description": "One fixed project_id, key and payload per intent. Explicitly replay that original POST to resume an accepted/unknown creation; never silently allocate another target or key. Requires current Human Session, Origin and CSRF. Body limit 16384 bytes; duplicate/unknown/case-alias fields, null scalars and trailing JSON are rejected. No lifecycle Registry is implied.",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/IdempotencyKey"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Original Account session CSRF token; same-origin browser boundary remains required."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Initialized Project; replay may show the current renamed or archived Project.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ready"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Durably accepted; inspect operation.state, including failed, and retain original intent.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "Location": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "pattern": "^/api/v1/project-creations/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                },
+                "description": "Exactly the response status_url, with the same creation identity."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Accepted"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Original safe Account/Project Fault and CommitState; unknown retains the original creation intent. No raw provider error.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/project-creations/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "projectCreationGet",
+        "description": "Current owner only. This observes the original operation and does not advance it. A failed operation is never a ready Project. No query or request body.",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Original creation status or currently readable initialized Project.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/Ready"
+                    },
+                    {
+                      "$ref": "#/components/schemas/Accepted"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Original safe Account/Project Fault and CommitState; unknown retains the original creation intent. No raw provider error.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "operationId": "projectCreationHead",
+        "description": "Same current-owner read and complete representation validation as GET, Content-Length retained, without response body.",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Same status read without a body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Same error status/headers without a body."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "browserSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-agenteam_session",
+        "description": "Original Account session cookie; configured loopback HTTP uses agenteam_local_session. No bearer or caller-supplied Actor."
+      }
+    },
+    "schemas": {
+      "CreateInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "name": {
+            "$ref": "./project-owner.json#/components/schemas/ProjectName"
+          },
+          "description": {
+            "$ref": "./project-owner.json#/components/schemas/Description"
+          }
+        },
+        "required": [
+          "project_id",
+          "name"
+        ]
+      },
+      "CreationOperation": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "accepted",
+              "initializing",
+              "failed"
+            ]
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "safe_reason": {
+            "type": "string",
+            "enum": [
+              "dependency_unbound",
+              "dependency_unavailable",
+              "work_pending",
+              "outcome_unknown",
+              "operation_failed"
+            ]
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "updated_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        },
+        "required": [
+          "id",
+          "project_id",
+          "state",
+          "version",
+          "created_at",
+          "updated_at"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "const": "failed"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "safe_reason"
+              ]
+            }
+          }
+        ]
+      },
+      "Ready": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "state": {
+            "const": "ready"
+          },
+          "project": {
+            "$ref": "./project-owner.json#/components/schemas/Project"
+          }
+        },
+        "required": [
+          "state",
+          "project"
+        ]
+      },
+      "Accepted": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "state": {
+            "const": "accepted"
+          },
+          "operation": {
+            "$ref": "#/components/schemas/CreationOperation"
+          },
+          "status_url": {
+            "type": "string",
+            "pattern": "^/api/v1/project-creations/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+          }
+        },
+        "required": [
+          "state",
+          "operation",
+          "status_url"
+        ]
+      },
+      "CreationResult": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Ready"
+          },
+          {
+            "$ref": "#/components/schemas/Accepted"
+          }
+        ]
+      }
+    }
+  }
+}

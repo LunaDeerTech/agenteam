@@ -208,6 +208,9 @@ function receipt(value: unknown, target: string, owner: string, captured: Projec
   if (captured.description !== undefined) requireValue(result.description === captured.description)
   return result as Project
 }
+export function parseProjectRef(value: unknown, ownerID: string, targetID: string): Project {
+  return project(value, ownerID, targetID, false) as Project
+}
 function page(value: unknown, query: ProjectQuery): ProjectPage {
   const v = shape(value, ['items', 'next_cursor'])
   requireValue(Array.isArray(v.items) && v.items.length <= query.limit)

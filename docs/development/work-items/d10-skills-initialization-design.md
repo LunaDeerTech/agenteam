@@ -10,7 +10,7 @@
 
 可以独立于 D09 模型配置和未绑定 Tool/Mount 运行：包由仓库内审定文本构成，验证/打包不调用模型、不联网、不执行脚本、不建立 Agent。目录/读取是当前 Human Owner 的服务口。本卡不实现外部安装入口、Agent 分配、Tool 暴露、Runner staging 或 Agent 配置；它们以后消费同一 stable SkillID、不可变 revision、manifest 与对象 owner。无对应生产 API，不用默认成功实现宽接口。
 
-依据：[开发计划](../development-plan.md) D10；[Skills](../../architecture/agent-skills.md) §§1–9；D01 [resources-skills](d01-contracts/resources-skills.md)、[domain-lifecycle](d01-contracts/domain-lifecycle.md) 删除矩阵；[D08 设计](d08-project-owner-design.md) §7 和正式 `project/contract/initialization.go`。D08 启用 initializer **同时**必须注册真实 `agent-skills-variables` participant，不能只消除创建端口的 unbound。
+依据：[开发计划](../development-plan.md) D10；[Skills](../../architecture/agent-skills.md) §§1–9；D01 [resources-skills](d01-contracts/resources-skills.md)、[domain-lifecycle](d01-contracts/domain-lifecycle.md) 删除矩阵；[D08 设计](d08-project-owner-design.md) §7 和正式 `project/contract/initialization.go`。2026-10-12 起按 root 采纳的[默认项目创建](d08-project-creation-app-ui.md)能力拆分执行：D08 启用 initializer 必须完成真实初始化、原 key 失败恢复及 App 退出验收；开放 Archive/Delete 另须完整真实 `agent-skills-variables` 等 participant。不能只改非 nil 消除缺绑定，也不能用创建通过代替停止/清理能力。原同步启用约定及其撤回记录保留为历史，当前以前述分能力规则为准。
 
 ## 2. 当前前置与有限绑定
 
@@ -163,7 +163,7 @@ D08 active-only 初始化 Audit wrapper 保持原样。本 P2 没有 CleanupAuth
 | D05 release | NewCleanupReleaseAccess 精确增加 SkillRevision+ProjectDeleted；具体原 implementation可复用。原 Avatar/Knowledge全变体及其它 owner拒绝不能变。 |
 | D08 lifecycle | Project main 已交付有限 Skills CleanupPhase gate，核 operation/action/version/Project/required participant 当前 Cleaning、原Owner和删除gate。本 P2 不消费完整Cleanup，不查Project私表，也不以初始化active gate替代；后续真实Skills/Object清理组合仍是独立门槛。 |
 | Audit 构造 | 复用已正式两个 checker/wrapper，新 Skill组合不改共享Audit闭集/迁移。初始化 facts为本次本域精确代码，真实Object witness正反与原Action/ordinal/key已有限验收；lifecycle外层另属后段，不在本 P2。 |
-| Root/生命周期 manifest | root依据届时实际启用 Variables等域精确组合 `agent-skills-variables`，保其它既有 participant/owner routes及依赖顺序。没有完整组合/实际停止guard验收不绑定生产 initializer。这里不授权 app旧源，不恢复 Object runtime join停止项。 |
+| Root/生命周期 manifest | Archive/Delete 开放前 root依据实际启用 Variables等域精确组合 `agent-skills-variables`，保其它既有 participant/owner routes及依赖顺序。生产 initializer 可在真实创建/原 key 恢复与 App 原调用退出验收后独立绑定；缺完整 Registry 时破坏性操作仍在接受前拒绝。本次 App 写域由默认创建卡单独授权，旧 Object 网络探针 STOP 不恢复；已交付 safe join 修复的限定通过证据可复用。 |
 
 这些条件分别报告未完成，不能因本域 PG PASS改写成整 D05/D08/D10已完成。若实现发现现有 formal port确实无法证明某当前事实，先给精确差异和风险，请root协调；不会以新通用allow端口绕过。
 

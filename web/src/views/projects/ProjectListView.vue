@@ -1,10 +1,26 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, nextTick, onUnmounted, ref } from 'vue'
 import { UiBadge, UiButton, UiSelect, UiState } from '../../components/ui'
 import { useProjectWorkspace } from '../../composables/useProjectWorkspace'
+import { createProjectCreation } from '../../composables/useProjectCreation'
+import ProjectCreateForm from '../../components/projects/ProjectCreateForm.vue'
 
 const s = useProjectWorkspace()
 const { visible, list, blocked, hasPrevious, hasNext } = s
+const creation = createProjectCreation(undefined, () => s.fromFirst())
+const createButton = ref<{ $el: HTMLButtonElement } | null>(null)
+const creationPanel = ref<HTMLElement | null>(null)
+async function showCreation() {
+  creation.show()
+  await nextTick()
+  if (creation.open.value) creationPanel.value?.querySelector<HTMLElement>('input, h2')?.focus()
+}
+async function closeCreation() {
+  creation.close()
+  await nextTick()
+  if (!creation.open.value) createButton.value?.$el.focus()
+}
+onUnmounted(creation.dispose)
 const lifecycleLabels = {
   active: '活跃',
   archiving: '正在归档',
@@ -25,6 +41,16 @@ const rows = computed(() => list.items.map((item) => ({ item, path: s.rowPath(it
     <UiState v-if="!visible || list.phase === 'checking'" kind="loading" title="正在确认当前身份" />
     <template v-else>
       <p class="meta">查看当前账号拥有的项目。</p>
+      <UiButton ref="createButton" :disabled="blocked" @click="showCreation">
+        {{
+          creation.progress.value && creation.progress.value.phase !== 'ready'
+            ? '查看创建状态'
+            : '新建项目'
+        }}
+      </UiButton>
+      <div v-if="creation.open.value" ref="creationPanel">
+        <ProjectCreateForm :owner="creation" @close="closeCreation" />
+      </div>
       <div class="list-toolbar" aria-label="项目筛选">
         <div class="filter-field">
           <label for="project-lifecycle-filter">项目状态</label>

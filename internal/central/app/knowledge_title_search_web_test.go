@@ -247,44 +247,14 @@ func knowledgeTitleSearchWeb(t *testing.T) {
 	meta := func() f.CommandMeta {
 		return f.CommandMeta{RequestID: guardID[f.Request](t), IdempotencyKey: f.IdempotencyKey(guardID[struct{}](t).String())}
 	}
-	blockedID := guardID[id.Project](t)
-	blocked, err := projects.service.CreateProject(ctx, actor, meta(), pc.CreateProjectRequest{ProjectID: blockedID, Name: "title-search", Description: "Default initializer stays unbound"})
-	var fault *f.Fault
-	if !errors.As(err, &fault) || fault.Code != f.DependencyUnbound || fault.CommitState != f.NotCommitted || blocked.State != "" || blocked.Project != nil || blocked.Operation != nil {
-		t.Fatal("default Project creation did not remain unbound/not_committed")
-	}
+	// Use the actual default Project/Skill/Object composition. Account owns its
+	// original call lifetime; no test-only initializer or ready SQL is installed.
 	conn := db.Connect(t)
-	var facts int
-	check("default unbound zero facts", conn.QueryRow(ctx, `SELECT
- (SELECT count(*) FROM agenteam_project.projects WHERE id=$1 OR (owner_user_id=$2 AND normalized_name='title-search'))+
- (SELECT count(*) FROM agenteam_project.creations WHERE project_id=$1)+
- (SELECT count(*) FROM agenteam_project.commands WHERE project_id=$1)+
- (SELECT count(*) FROM agenteam_skill.initializations WHERE project_id=$1)+
- (SELECT count(*) FROM agenteam_skill.skills WHERE project_id=$1)+
- (SELECT count(*) FROM agenteam_skill.revisions WHERE project_id=$1)+
- (SELECT count(*) FROM agenteam_skill.work WHERE project_id=$1)+
- (SELECT count(*) FROM agenteam_skill.object_attempts WHERE project_id=$1)+
- (SELECT count(*) FROM agenteam_object.uploads WHERE project_id=$1)+
- (SELECT count(*) FROM agenteam_object.objects WHERE project_id=$1)+
- (SELECT count(*) FROM agenteam_audit.audit_records WHERE project_id=$1)+
- (SELECT count(*) FROM agenteam_outbox.events WHERE project_id=$1)`, blockedID.String(), actor.Details().UserID).Scan(&facts))
-	if facts != 0 {
-		t.Fatal("default unbound produced facts")
-	}
-	fixture := rootCompositionProjectFixture(t, cfg, owned, objects, skills.service)
-	fixtureOwner := &projectCommandWork{service: fixture}
-	t.Cleanup(func() {
-		if !fixtureOwner.Joined() {
-			check("test-only Project cleanup", fixtureOwner.Drain(ctx))
-		}
-	})
 	projectID := guardID[id.Project](t)
-	created, createErr := fixture.CreateProject(ctx, actor, meta(), pc.CreateProjectRequest{ProjectID: projectID, Name: "title-search", Description: "Existing documents for the bounded UI read"})
-	drainErr := fixtureOwner.Drain(ctx)
-	check("test-only real Project", createErr)
-	check("test-only actual Drain", drainErr)
-	if !fixtureOwner.Joined() || created.Validate() != nil || created.State != pc.CreationReady || created.Project == nil || created.Project.ID != projectID {
-		t.Fatal("isolated real Project did not confirm and join")
+	created, createErr := projects.service.CreateProject(ctx, actor, meta(), pc.CreateProjectRequest{ProjectID: projectID, Name: "title-search", Description: "Existing documents for the bounded UI read"})
+	check("default real Project", createErr)
+	if created.Validate() != nil || created.State != pc.CreationReady || created.Project == nil || created.Project.ID != projectID {
+		t.Fatal("default real Project did not confirm")
 	}
 
 	parentID, documentID := guardID[kc.Document](t), guardID[kc.Document](t)
@@ -376,7 +346,7 @@ func knowledgeTitleSearchWeb(t *testing.T) {
 		t.Fatal("root did not join within original browser budget")
 	}
 	check("root actual result", rootErr)
-	if !fixtureOwner.Joined() || !projects.Joined() || !skills.service.Joined() || !documents.Joined() || !assembly.Joined() || !owned.producersJoined() {
+	if !projects.Joined() || !skills.service.Joined() || !documents.Joined() || !assembly.Joined() || !owned.producersJoined() {
 		t.Fatal("original domain owners did not join")
 	}
 	check("released guard", syscall.Flock(int(claim.Fd()), syscall.LOCK_EX|syscall.LOCK_NB))
@@ -386,7 +356,7 @@ func knowledgeTitleSearchWeb(t *testing.T) {
 	if stopped != "stopped" {
 		t.Fatal("original process claim not stopped")
 	}
-	t.Log("Knowledge title search browser chain: original Node Wait, proxy/root join, domain retirement and guard facts complete; production initializer remains unbound")
+	t.Log("Knowledge title search browser chain: original Node Wait, proxy/root join, domain retirement and guard facts complete; default creation uses the actual initializer; destructive lifecycle remains unbound")
 }
 
 const knowledgeTitleSearchMode = "literal-title-and-current-read"
