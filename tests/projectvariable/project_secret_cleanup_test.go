@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -217,6 +218,29 @@ func (v *secretCleanupPG) secretSnapshot(t *testing.T) string {
 	var receipts string
 	outboxCleanupRequire(t, v.p2.base.raw.QueryRow(ctxFor(t), `SELECT COALESCE(jsonb_agg(to_jsonb(r) ORDER BY id),'[]')::text FROM agenteam_secret.secret_command_receipts r`).Scan(&receipts))
 	return v.variablesCleanupPG.d04Snapshot(t) + "\n" + receipts
+}
+
+// Diagnose only which fixed table snapshot changed; ciphertext, identities,
+// keys and nonce values are never logged. The full byte comparison stays below.
+func secretCleanupChangedTables(t *testing.T, before, after string) []string {
+	t.Helper()
+	left, leftReceipts, leftOK := strings.Cut(before, "\n")
+	right, rightReceipts, rightOK := strings.Cut(after, "\n")
+	var a, b []json.RawMessage
+	if !leftOK || !rightOK || json.Unmarshal([]byte(left), &a) != nil || json.Unmarshal([]byte(right), &b) != nil || len(a) != 7 || len(b) != 7 {
+		t.Fatal("invalid private Secret snapshot diagnostic shape")
+	}
+	names := []string{"secret_master_registry", "secret_control", "secret_payloads", "secrets", "project_variable_receipts", "secret_references", "secret_leases"}
+	var changed []string
+	for n, name := range names {
+		if !bytes.Equal(a[n], b[n]) {
+			changed = append(changed, name)
+		}
+	}
+	if leftReceipts != rightReceipts {
+		changed = append(changed, "secret_command_receipts")
+	}
+	return changed
 }
 
 func (v *secretCleanupPG) preservedSnapshot(t *testing.T) string {
@@ -458,7 +482,9 @@ func testProjectSecretCleanupUnknown(t *testing.T) {
 	case <-time.After(5 * time.Second):
 		t.Fatal("original Secret confirmation barrier not reached")
 	}
-	if deletes.Load() != 0 || v.secretSnapshot(t) != before {
+	confirmedSnapshot := v.secretSnapshot(t)
+	if deletes.Load() != 0 || confirmedSnapshot != before {
+		t.Logf("PROJECT_SECRET_CONFIRMATION_DIAGNOSTIC original_tx_deletes=%d snapshot_equal=%t changed_tables=%v remaining=%v", deletes.Load(), confirmedSnapshot == before, secretCleanupChangedTables(t, before, confirmedSnapshot), v.secretCounts(t))
 		t.Fatal("Unknown confirmation performed deletion or changed original ciphertext metadata")
 	}
 	v.state(t, "required", "running")
