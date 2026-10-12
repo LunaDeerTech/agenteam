@@ -120,6 +120,8 @@ git -C "$task_tree" status --short --branch
 
 `read-tree` 此处只初始化刚 `--no-checkout` 创建、无 WIP 的树；不得照抄到活跃树。sparse 只省工作区物化，原历史文件仍可 `git show <revision>:<path>` 读取；特定旧测试确需某对象时由 owner 定位后恢复那份输入，不关闭 sparse 全量回填。主仓保留的合同和源码以真实 Git 版本为准。
 
+隐藏目录也可能包含正式 Go 测试 import 的源码，定制 sparse 规则不可仅凭目录名将其视为历史证据；`.agent-state/project-variables-independent/commitproxy/` 必须保留。
+
 共享路径选在 worktree 外，例如 `/chosen/shared/agenteam`，具体版本沿工具链与锁文件核对；它不是生产配置，也不由 helper 自动下载、复制或迁移。新任务先查现存匹配内容，只恢复缺项：
 
 ```sh
