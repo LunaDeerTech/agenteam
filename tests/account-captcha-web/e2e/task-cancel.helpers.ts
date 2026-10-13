@@ -585,6 +585,182 @@ export async function observeTaskCancel(page: Page, data: Material) {
     },
   };
 }
+export async function taskCancelNavigationDiagnostic(
+  page: Page,
+  data: Material,
+  action: () => Promise<void>,
+) {
+  const observation = await page.evaluateHandle(
+    ({ title, first, second, sprint }) => {
+      const targets = () =>
+        Array.from(
+          document.querySelectorAll<HTMLButtonElement>("button.task-card"),
+        ).filter((element) => element.getAttribute("aria-label") === title);
+      const role = (element: EventTarget | null) => {
+        if (element instanceof HTMLButtonElement && targets().includes(element))
+          return "second-task";
+        if (element === document.body) return "body";
+        if (element instanceof HTMLButtonElement) return "other-button";
+        return element ? "other" : "none";
+      };
+      const snapshot = () => {
+        const elements = targets(),
+          target = elements.length === 1 ? elements[0] : undefined;
+        const dialogs = Array.from(
+          document.querySelectorAll<HTMLElement>('[role="dialog"]'),
+        ).filter(
+          (element) =>
+            element.getClientRects().length > 0 &&
+            !element.closest('[inert], [aria-hidden="true"]'),
+        );
+        const dialogNamed = (name: string) =>
+          dialogs.some(
+            (element) =>
+              element
+                .getAttribute("aria-labelledby")
+                ?.split(/\s+/)
+                .map((id) => document.getElementById(id)?.textContent ?? "")
+                .join(" ") === name,
+          );
+        const native = (window as Host).__taskReviewProof?.snapshot();
+        return {
+          route:
+            location.pathname === first
+              ? "first-task"
+              : location.pathname === second
+                ? "second-task"
+                : location.pathname === sprint
+                  ? "sprint"
+                  : "other",
+          target_count: elements.length,
+          target_connected: target?.isConnected ?? false,
+          target_disabled: target?.disabled ?? null,
+          target_inert: target ? !!target.closest("[inert]") : null,
+          active: role(document.activeElement),
+          visible_dialog_count: dialogs.length,
+          project_guard: dialogNamed("放弃项目修改？"),
+          task_guard: dialogNamed("离开任务"),
+          native_pending: native?.pending ?? null,
+          native_not_busy: native?.not_busy ?? null,
+        };
+      };
+      const initial = snapshot();
+      const events: Array<
+        ReturnType<typeof snapshot> & {
+          type: "keydown" | "click";
+          event_target: string;
+          default_prevented: boolean;
+        }
+      > = [];
+      let eventCount = 0;
+      const capture = (event: Event) => {
+        const type = event.type === "keydown" ? "keydown" : "click";
+        if (
+          type === "keydown" &&
+          (!(event instanceof KeyboardEvent) || event.key !== "Enter")
+        )
+          return;
+        if (type === "click" && role(event.target) !== "second-task") return;
+        eventCount++;
+        if (events.length < 4)
+          events.push({
+            ...snapshot(),
+            type,
+            event_target: role(event.target),
+            default_prevented: event.defaultPrevented,
+          });
+      };
+      document.addEventListener("keydown", capture, true);
+      document.addEventListener("click", capture, true);
+      return {
+        finish() {
+          document.removeEventListener("keydown", capture, true);
+          document.removeEventListener("click", capture, true);
+          return {
+            initial,
+            events,
+            event_count: eventCount,
+            final: snapshot(),
+            listeners_removed: true,
+          };
+        },
+      };
+    },
+    {
+      title: data.tasks[1].title,
+      first: new URL(data.route, data.origin).pathname,
+      second: new URL(data.route, data.origin).pathname.replace(
+        data.tasks[0].id,
+        data.tasks[1].id,
+      ),
+      sprint: new URL(data.sprint_route, data.origin).pathname,
+    },
+  );
+  let actionFailed = false;
+  try {
+    await action();
+  } catch (error) {
+    actionFailed = true;
+    throw error;
+  } finally {
+    let diagnostic: Record<string, unknown> = {},
+      collected = false,
+      disposed = false,
+      screenshot = false;
+    try {
+      diagnostic = await observation.evaluate((value) => value.finish());
+      collected = true;
+    } catch {
+      /* Preserve the original action failure, without recording raw errors. */
+    } finally {
+      try {
+        await observation.dispose();
+        disposed = true;
+      } catch {
+        /* Safe failure flag below. */
+      }
+    }
+    if (actionFailed) {
+      try {
+        await page.screenshot({
+          path: join(
+            process.env.AGENTEAM_TASK_CANCEL_WEB_EVIDENCE!,
+            "task-cancel-second-task-failure.png",
+          ),
+          animations: "disabled",
+        });
+        screenshot = true;
+      } catch {
+        /* The original locator error remains authoritative. */
+      }
+    }
+    try {
+      writeFileSync(
+        join(
+          process.env.AGENTEAM_TASK_CANCEL_WEB_EVIDENCE!,
+          "task-cancel-navigation-diagnostic.json",
+        ),
+        JSON.stringify(
+          {
+            ...diagnostic,
+            action_failed: actionFailed,
+            collected,
+            handle_disposed: disposed,
+            failure_screenshot: screenshot,
+          },
+          null,
+          2,
+        ),
+        { mode: 0o600 },
+      );
+      if (!actionFailed && (!collected || !disposed))
+        throw Error("TASK_CANCEL_NAVIGATION_DIAGNOSTIC_CLEANUP");
+    } catch (error) {
+      if (!actionFailed) throw error;
+    }
+  }
+}
+
 export async function taskCancelScreenshot(page: Page, name: string) {
   expect(
     await page.evaluate(

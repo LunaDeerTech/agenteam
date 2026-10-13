@@ -2,6 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import {
   observeTaskCancel,
   taskCancelMaterial,
+  taskCancelNavigationDiagnostic,
   taskCancelScreenshot,
 } from "./task-cancel.helpers";
 
@@ -34,18 +35,16 @@ test("explicitly cancels both original tasks, preserves relations, and completes
   const data = taskCancelMaterial();
   await page.setViewportSize({ width: 1440, height: 960 });
   await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
-  await page
-    .context()
-    .addCookies([
-      {
-        name: "agenteam_local_session",
-        value: data.cookie,
-        url: data.origin,
-        httpOnly: true,
-        sameSite: "Lax",
-        secure: false,
-      },
-    ]);
+  await page.context().addCookies([
+    {
+      name: "agenteam_local_session",
+      value: data.cookie,
+      url: data.origin,
+      httpOnly: true,
+      sameSite: "Lax",
+      secure: false,
+    },
+  ]);
   const observer = await observeTaskCancel(page, data);
   seen.set(page, observer);
   await page.goto(data.route);
@@ -105,10 +104,12 @@ test("explicitly cancels both original tasks, preserves relations, and completes
   await taskCancelScreenshot(page, "wide-light-cancelled-history");
   await press(page, "关闭任务详情");
   await expect(drawer).toHaveCount(0);
-  await press(page, data.tasks[1].title);
-  await expect(
-    drawer.getByRole("heading", { name: data.tasks[1].title, exact: true }),
-  ).toBeVisible();
+  await taskCancelNavigationDiagnostic(page, data, async () => {
+    await press(page, data.tasks[1].title);
+    await expect(
+      drawer.getByRole("heading", { name: data.tasks[1].title, exact: true }),
+    ).toBeVisible();
+  });
   await observer.verify();
   observer.stage("blocker-preserved");
   await page.setViewportSize({ width: 390, height: 844 });
