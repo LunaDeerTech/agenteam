@@ -58,6 +58,13 @@ func transitionEdge(before c.Task, request c.TaskTransfer) error {
 		return fault(f.DependencyUnbound)
 	}
 	switch {
+	case transitionCancelEdge(before, request):
+		// This capability changes state only. Retain the historical assignee
+		// (including nil) and every Blocker; no new assignment or resolution.
+		if request.AssigneeAgentID != nil || len(request.ResolveBlockerIDs) != 0 {
+			return fault(f.DependencyUnbound)
+		}
+		return nil
 	case before.State == c.TaskStateBacklog && request.TargetState == c.TaskStateTodo:
 		// Keep the existing backlog writer's supported intent unchanged.
 		if request.AssigneeAgentID == nil {
@@ -83,6 +90,16 @@ func transitionEdge(before c.Task, request c.TaskTransfer) error {
 		return field(f.CommentRequired, "/comment", "COMMENT_REQUIRED")
 	}
 	return nil
+}
+
+func transitionCancelEdge(before c.Task, request c.TaskTransfer) bool {
+	return request.TargetState == c.TaskStateCancelled && before.State.Validate() == nil && !before.State.Terminal()
+}
+
+// Cancelling does not select an Agent for new work. Retaining an old assignment
+// therefore requires no current-Agent fact, just like an omitted done reviewer.
+func transitionRetainsAssignee(before c.Task, request c.TaskTransfer) bool {
+	return transitionRetainsReviewer(before, request) || transitionCancelEdge(before, request) && request.AssigneeAgentID == nil
 }
 
 func transitionReviewEdge(before c.Task, request c.TaskTransfer) bool {

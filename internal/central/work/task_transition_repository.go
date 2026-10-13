@@ -128,7 +128,9 @@ func (v *transitionPlan) UnmarshalJSON(raw []byte) error {
 		return internal(nil)
 	}
 	if next.Agent == nil {
-		if next.Before.State != c.TaskStateInReview || next.After.Task.State != c.TaskStateDone || !sameValue(next.Before.AssigneeAgentID, next.After.Task.AssigneeAgentID) {
+		retainedDone := next.Before.State == c.TaskStateInReview && next.After.Task.State == c.TaskStateDone
+		retainedCancel := transitionCancelEdge(next.Before, c.TaskTransfer{TargetState: next.After.Task.State})
+		if (!retainedDone && !retainedCancel) || !sameValue(next.Before.AssigneeAgentID, next.After.Task.AssigneeAgentID) {
 			return internal(nil)
 		}
 	} else if next.Agent.Validate() != nil {
@@ -233,10 +235,13 @@ func applyTransition(ctx context.Context, x postgres.SQLExecutor, r *transitionR
 		return err
 	}
 	t := r.Plan.After.Task
-	if t.AssigneeAgentID == nil {
+	var assignee any
+	if t.AssigneeAgentID != nil {
+		assignee = t.AssigneeAgentID.String()
+	} else if t.State != c.TaskStateCancelled || r.Plan.Before.AssigneeAgentID != nil {
 		return internal(nil)
 	}
-	if err := taskAffected(x.Exec(ctx, `UPDATE agenteam_work.tasks SET state=$4,assignee_agent_id=$5,manual_rank=$6,version=$7,updated_at=$8 WHERE project_id=$1 AND id=$2 AND version=$3`, t.ProjectID.String(), t.ID.String(), int64(r.Input.Expected), string(t.State), t.AssigneeAgentID.String(), t.ManualRank, int64(t.Version), t.UpdatedAt.Time())); err != nil {
+	if err := taskAffected(x.Exec(ctx, `UPDATE agenteam_work.tasks SET state=$4,assignee_agent_id=$5,manual_rank=$6,version=$7,updated_at=$8 WHERE project_id=$1 AND id=$2 AND version=$3`, t.ProjectID.String(), t.ID.String(), int64(r.Input.Expected), string(t.State), assignee, t.ManualRank, int64(t.Version), t.UpdatedAt.Time())); err != nil {
 		return err
 	}
 	for _, g := range r.Plan.Groups {
