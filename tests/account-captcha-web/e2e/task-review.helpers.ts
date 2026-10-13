@@ -202,6 +202,7 @@ export async function observeBrowserIO(
     const originalMilestoneEdits: any[] = [];
     const originalMilestoneReorders: any[] = [];
     const originalSprintReorders: any[] = [];
+    const originalHumanBlockers: any[] = [];
     const originalSprintEdits: any[] = [];
     let originalSprintStart: any;
     let originalSprintCreate: any;
@@ -441,6 +442,10 @@ export async function observeBrowserIO(
           originalMilestoneReorders.push(original);
           writeInputs.set(call, original);
         }
+        if (kind === "humanBlocker.add" || kind === "humanBlocker.resolve") {
+          const original = { call, project: args[0], task: args[1], input: JSON.parse(JSON.stringify(args[2])) };
+          originalHumanBlockers.push(original); writeInputs.set(call, original);
+        }
         if (kind === "sprintReorder.reorder") {
           const original = { call, project: args[0], sprint: args[1], input: JSON.parse(JSON.stringify(args[2])) };
           originalSprintReorders.push(original);
@@ -572,6 +577,10 @@ export async function observeBrowserIO(
             if (kind === "milestoneReorder.reorder") {
               const original = writeInputs.get(call), progress = auth.workMilestoneReordering.progress;
               call.result_current = progress?.phase === "confirmed" && progress.contextValid === true && progress.projectID === original.project && progress.milestoneID === original.milestone && value != null && progress.result === value;
+            }
+            if (kind === "humanBlocker.add" || kind === "humanBlocker.resolve") {
+              const original = writeInputs.get(call), progress = auth.workTaskBlockers.progress;
+              call.result_current = progress?.phase === "confirmed" && progress.kind === (kind === "humanBlocker.add" ? "blocker-add" : "blocker-resolve") && progress.projectID === original.project && progress.taskID === original.task && value != null && progress.receipt === value && value.blocker.id === original.blocker;
             }
             if (kind === "sprintReorder.reorder") {
               const original = writeInputs.get(call), progress = auth.workSprintReordering.progress;
@@ -715,6 +724,7 @@ export async function observeBrowserIO(
         secretDelete: string | undefined = undefined,
         reorderMilestone: string | undefined = undefined,
         reorderSprint: string | undefined = undefined,
+        humanBlockerTask: string | undefined = undefined,
       ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
@@ -1099,6 +1109,13 @@ export async function observeBrowserIO(
             return "/api/v1/projects/" + project + "/milestones/" + reorderMilestone + "/reorder";
           }, "POST");
         }
+        if (humanBlockerTask) {
+          for (const method of ["add", "resolve"])
+            consumer(auth.workTaskBlockers, method, "humanBlocker." + method, a => {
+              if (a.length !== 3 || a[0] !== project || a[1] !== humanBlockerTask) throw Error("HUMAN_BLOCKER_CONSUMER_SCOPE");
+              return "/api/v1/projects/" + project + "/tasks/" + humanBlockerTask + "/blockers" + (method === "resolve" ? "/resolve" : "");
+            }, "POST");
+        }
         if (reorderSprint) {
           consumer(auth.workSprintReordering, "reorder", "sprintReorder.reorder", (a) => {
             if (a[0] !== project || a[1] !== reorderSprint) throw Error("SPRINT_REORDER_CONSUMER_SCOPE");
@@ -1210,6 +1227,7 @@ export async function observeBrowserIO(
         originalMilestoneEdits.length = 0;
         originalMilestoneReorders.length = 0;
         originalSprintReorders.length = 0;
+        originalHumanBlockers.length = 0;
         originalSprintEdits.length = 0;
         originalSprintStart = undefined;
         originalSprintCreate = undefined;
@@ -1484,6 +1502,15 @@ export async function observeBrowserIO(
           if (call.kind === "milestoneReorder.reorder") {
             matches = originalMilestoneReorders.every(old => old === original || (typeof old.key === "string" && old.key !== key)) && equal(parsed, original.input);
             if (matches) original.key = key;
+          }
+          if (call.kind === "humanBlocker.add" || call.kind === "humanBlocker.resolve") {
+            const { blocker_id, ...draft } = parsed.request ?? {};
+            matches = typeof blocker_id === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(blocker_id) &&
+              originalHumanBlockers.every(old => old === original || (typeof old.key === "string" && old.key !== key)) &&
+              (call.kind === "humanBlocker.add"
+                ? !Object.hasOwn(original.input.request, "blocker_id") && equal(parsed, { expected_version: original.input.expected_version, request: { ...original.input.request, blocker_id } }) && equal(draft, original.input.request)
+                : equal(parsed, original.input) && originalHumanBlockers[0]?.blocker === blocker_id && originalHumanBlockers[0]?.call.fulfilled === true);
+            if (matches) { original.key = key; original.blocker = blocker_id; }
           }
           if (call.kind === "sprintReorder.reorder") {
             matches = originalSprintReorders.every(old => old === original || (typeof old.key === "string" && old.key !== key)) && equal(parsed, original.input);
@@ -1967,6 +1994,7 @@ export type TaskObservationProfile = {
     | "task-assignee-filter"
     | "project-creation"
     | "task-edit"
+    | "task-human-blocker"
     | "agent-configuration"
     | "agent-edit"
     | "agent-model-policy"
@@ -2023,6 +2051,7 @@ export type TaskObservationProfile = {
   milestoneUpdateWrites?: true;
   milestoneReorderWrites?: true;
   sprintReorderWrites?: true;
+  humanBlockerWrites?: true;
   sprintUpdateWrites?: true;
   variableWrites?: true;
   knowledgeTextWrites?: true;
@@ -2231,6 +2260,13 @@ export async function observeTaskRequests(
         !["milestone-reorder-normal", "milestone-reorder-responsive"].includes(data.mode) || !data.milestone_id ||
         !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.milestone_id) ||
         Object.keys(profile).some(key => !allowed.includes(key))) throw Error("MILESTONE_REORDER_PROFILE_MISMATCH");
+  }
+  if (profile.humanBlockerWrites || profile.prefix === "task-human-blocker") {
+    const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand", "humanBlockerWrites"];
+    if (profile.humanBlockerWrites !== true || profile.prefix !== "task-human-blocker" || profile.lookupCommand !== null ||
+        !["human-blocker-wide", "human-blocker-narrow"].includes(data.mode) || !data.task_id ||
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.task_id) ||
+        Object.keys(profile).some(key => !allowed.includes(key))) throw Error("TASK_HUMAN_BLOCKER_PROFILE_MISMATCH");
   }
   if (profile.sprintReorderWrites || profile.prefix === "sprint-reorder") {
     const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand", "sprintReorderWrites"];
@@ -2717,6 +2753,7 @@ export async function observeTaskRequests(
           secretDelete,
           reorderMilestone,
           reorderSprint,
+          humanBlockerTask,
         }) => {
           const module = await import(/* @vite-ignore */ binding.asset);
           const useSession = module[binding.exportName];
@@ -2753,6 +2790,7 @@ export async function observeTaskRequests(
           secretDelete,
           reorderMilestone,
           reorderSprint,
+          humanBlockerTask,
           );
         },
         {
@@ -2761,7 +2799,7 @@ export async function observeTaskRequests(
           intakeWrites: profile.intakeWrites === true,
           agentConfiguration: profile.agentConfiguration === true,
           editTask: profile.editWrites ? data.task_id : undefined,
-          timelineTask: profile.timelineReads || profile.prefix === "task-search" || profile.prefix === "task-assignee-filter" ? data.task_id : undefined,
+          timelineTask: profile.timelineReads || profile.humanBlockerWrites || profile.prefix === "task-search" || profile.prefix === "task-assignee-filter" ? data.task_id : undefined,
           editAgent:
             profile.agentEditWrites || profile.agentModelPolicy
               ? data.agent_id
@@ -2788,6 +2826,7 @@ export async function observeTaskRequests(
           secretDelete: profile.secretDelete ? data.agent_id : undefined,
           reorderMilestone: profile.milestoneReorderWrites ? data.milestone_id : undefined,
           reorderSprint: profile.sprintReorderWrites ? data.sprint_id : undefined,
+          humanBlockerTask: profile.humanBlockerWrites ? data.task_id : undefined,
         },
       );
       await route.continue();
@@ -2989,6 +3028,15 @@ export async function observeTaskRequests(
     return entry.name === "reorder" && entry.request.method() === "POST" && !url.search &&
       url.pathname === `/api/v1/projects/${data.project_id}/milestones/${data.milestone_id}/reorder`;
   }
+  function humanBlockerWrite(entry: Entry) {
+    if (!profile.humanBlockerWrites || entry.request.method() !== "POST") return false;
+    const url = new URL(entry.request.url()), target = `/api/v1/projects/${data.project_id}/tasks/${data.task_id}/blockers`;
+    return !url.search && ((entry.name === "add" && url.pathname === target) || (entry.name === "resolve-blocker" && url.pathname === target + "/resolve"));
+  }
+  function humanBlockerReadEntry(entry: Entry) {
+    return profile.humanBlockerWrites && entry.request.method() === "GET" &&
+      ["project", "milestones", "milestone", "sprints", "sprint", "agents", "agent", "tasks", "task", "blockers", "events"].includes(entry.name);
+  }
   function sprintReorderWrite(entry: Entry) {
     if (!profile.sprintReorderWrites) return false;
     const url = new URL(entry.request.url());
@@ -3120,6 +3168,7 @@ export async function observeTaskRequests(
     const milestoneUpdate = milestoneUpdateWrite(entry);
     const milestoneReorder = milestoneReorderWrite(entry);
     const sprintReorder = sprintReorderWrite(entry);
+    const humanBlocker = humanBlockerWrite(entry);
     const sprintUpdate = sprintUpdateWrite(entry);
     const variable = variableWrite(entry);
     const knowledgeText = knowledgeTextWrite(entry);
@@ -3139,6 +3188,7 @@ export async function observeTaskRequests(
       milestoneUpdate ||
       milestoneReorder ||
       sprintReorder ||
+      humanBlocker ||
       sprintUpdate ||
       variable ||
       knowledgeText || scheduler || runner || systemRunner || knowledgeDelete || secret;
@@ -3232,6 +3282,7 @@ export async function observeTaskRequests(
     if (taskSearchReadEntry(entry)) expect(c.kind).toBe(`work.${entry.name}`);
     if (profile.secretDelete && agentPageRead(entry)) expect(c.kind).toBe({ "agent-directory": "agent.list", "agent-configuration": "agent.getConfiguration", "agent-models": "agent.models", "agent-runners": "agent.runners", "agent-mounts": "agent.runnerMounts" }[entry.name]);
     if (timelinePageRead(entry)) expect(c.kind).toBe("work.events");
+    if (humanBlockerReadEntry(entry)) expect(c.kind).toBe(entry.name === "project" ? "project.get" : "work." + entry.name);
     if (skillsPageRead(entry))
       expect(c.kind).toBe(
         entry.name === "skills-catalog" ? "skills.list" : "skills.get",
@@ -3265,7 +3316,7 @@ export async function observeTaskRequests(
       if (secret) { expect(c.result_current).toBe(true); if (!profile.secretDelete) expect(c.paste_bound).toBe(true); }
       if (systemRunner) { expect(c.result_current).toBe(true); if (c.typed.token_available === true) expect(c.material_matches).toBe(true); }
       if (scheduler || knowledgeDelete) expect(c.result_current).toBe(true);
-      if (sprintCreate || milestoneCreate || milestoneUpdate || milestoneReorder || sprintReorder || sprintUpdate || variable || knowledgeText) expect(c.result_current).toBe(true);
+      if (sprintCreate || milestoneCreate || milestoneUpdate || milestoneReorder || sprintReorder || humanBlocker || sprintUpdate || variable || knowledgeText) expect(c.result_current).toBe(true);
       const kinds: Record<string, string> = secret
         ? { create: "secretWrite.create", update: "secretWrite.update", delete: "secretWrite.delete", lookup: "secretWrite.lookup" }
         : systemRunner
@@ -3282,6 +3333,8 @@ export async function observeTaskRequests(
         ? { create: "variable.create", update: "variable.update", delete: "variable.delete" }
         : sprintUpdate
         ? { update: "sprintEdit.update", lookup: "sprintEdit.checkOriginal" }
+        : humanBlocker
+        ? { add: "humanBlocker.add", "resolve-blocker": "humanBlocker.resolve" }
         : sprintReorder
         ? { reorder: "sprintReorder.reorder" }
         : milestoneReorder
@@ -3487,6 +3540,7 @@ export async function observeTaskRequests(
           milestoneUpdateWrite(entry) ||
           milestoneReorderWrite(entry) ||
           sprintReorderWrite(entry) ||
+          humanBlockerWrite(entry) ||
           sprintUpdateWrite(entry) ||
           variableWrite(entry) ||
           knowledgeTextWrite(entry) ||
@@ -3558,6 +3612,7 @@ export async function observeTaskRequests(
         milestoneUpdateWrite(entry) ||
         milestoneReorderWrite(entry) ||
         sprintReorderWrite(entry) ||
+        humanBlockerWrite(entry) || humanBlockerReadEntry(entry) ||
           sprintUpdateWrite(entry) ||
         milestonePageRead(entry) ||
         variableWrite(entry) ||
@@ -3576,6 +3631,26 @@ export async function observeTaskRequests(
         // Even genuine requestfinished must match the original public value
         // and Go proof (including commit for writes); this does not replace its tail.
         const consumed = joint(entry, proof);
+        if (humanBlockerWrite(entry) || humanBlockerReadEntry(entry)) {
+          // The formal public Blocker decoder validates metadata/actors and
+          // exposes related_task_id. Go independently checks the complete wire
+          // and stored actors; compare precisely that original public value.
+          const blocker = (value: any) => {
+            const { metadata, created_by, resolved_by, ...detail } = value;
+            expect(detail.type).toBe("waiting_for_human");
+            expect(metadata).toEqual({});
+            expect(created_by.type).toBe("human");
+            expect(resolved_by === null).toBe(detail.resolved_at === null);
+            return { ...detail, related_task_id: null };
+          };
+          const wire = entry.body as any;
+          if (humanBlockerWrite(entry)) entry.body = { ...wire, blocker: blocker(wire.blocker) };
+          else if (entry.name === "blockers") entry.body = { ...wire, items: wire.items.map(blocker) };
+          else if (entry.name === "sprint") {
+            const { started_by, completed_by, ...detail } = wire;
+            entry.body = detail;
+          }
+        }
         if (sprintPageRead(entry) && entry.name === "sprint") {
           const { started_by, completed_by, ...detail } = entry.body as Record<
             string,
@@ -3601,7 +3676,7 @@ export async function observeTaskRequests(
     }
   }
   function receipt(
-    name: "transfer" | "lookup" | "create" | "ready" | "update" | "start" | "preview" | "delete" | "enrollment" | "revoke" | "reorder",
+    name: "transfer" | "lookup" | "create" | "ready" | "update" | "start" | "preview" | "delete" | "enrollment" | "revoke" | "reorder" | "add" | "resolve-blocker",
     index: number,
   ): Record<string, any> {
     const values = entries.filter(
@@ -3798,6 +3873,12 @@ export async function observeTaskRequests(
     expect(profile.variableWrites).toBe(true);
     const rows = entries.filter((e) => e.name === name && e.checked && e.body);
     expect(rows.length, "original Variable public read must complete").toBeGreaterThan(0);
+    return rows.at(-1)!.body as Record<string, any>;
+  }
+  function humanBlockerRead(name: "task" | "blockers" | "events") {
+    expect(profile.humanBlockerWrites).toBe(true);
+    const rows = entries.filter(e => e.name === name && humanBlockerReadEntry(e) && e.checked && e.body);
+    expect(rows.length, "original blocker public read must complete").toBeGreaterThan(0);
     return rows.at(-1)!.body as Record<string, any>;
   }
   function sprintEditRead(name: "project" | "sprint" | "sprints" | "milestone" | "milestones" | "agents" | "tasks") {
@@ -4021,6 +4102,7 @@ export async function observeTaskRequests(
     skillsRead,
     milestoneRead,
     sprintEditRead,
+    humanBlockerRead,
     variableRead,
     knowledgeTextRead,
     knowledgeTitleRead,
