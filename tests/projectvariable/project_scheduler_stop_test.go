@@ -92,10 +92,16 @@ func schedulerOwnedDrain(t *testing.T, owner interface {
 	}
 }
 
-func newSchedulerOwnedStopPG(t *testing.T, upgrade bool) *schedulerOwnedStopPG {
+func newSchedulerOwnedStopPG(t *testing.T, upgrade bool, retirement ...*executionRetirementPGAssembly) *schedulerOwnedStopPG {
 	t.Helper()
+	if len(retirement) > 1 || len(retirement) == 1 && (retirement[0] == nil || upgrade) {
+		t.Fatal("invalid optional retirement assembly")
+	}
 	var base *variableHTTPFixture
-	if upgrade {
+	if len(retirement) == 1 {
+		base = retirement[0].base
+		base.executionRetirementAssembly = retirement[0]
+	} else if upgrade {
 		db := pgfixture.NewDatabase(t)
 		migrate(t, db, migrationPrefix(t, "00080"))
 		raw := openStore(t, db.Config(t, nil))
@@ -107,15 +113,21 @@ func newSchedulerOwnedStopPG(t *testing.T, upgrade bool) *schedulerOwnedStopPG {
 	v.skills = newSkillsCleanupPG(t, base)
 	agentID := v.skills.disabledAgent(t)
 	entries := v.skills.p2.manifest.Entries()
-	entries = append(entries, pc.ParticipantRegistration{Name: pc.SchedulerParticipant, ContractVersion: 1, OwnerModule: "scheduler", ReferenceKinds: []pc.ReferenceKind{"scheduler-call"}})
-	for n := range entries {
-		if entries[n].Name == pc.OutboxParticipant || entries[n].Name == pc.AuditParticipant {
-			entries[n].CleanupAfter = append(entries[n].CleanupAfter, pc.SchedulerParticipant)
+	if len(retirement) == 0 {
+		entries = append(entries, pc.ParticipantRegistration{Name: pc.SchedulerParticipant, ContractVersion: 1, OwnerModule: "scheduler", ReferenceKinds: []pc.ReferenceKind{"scheduler-call"}})
+		for n := range entries {
+			if entries[n].Name == pc.OutboxParticipant || entries[n].Name == pc.AuditParticipant {
+				entries[n].CleanupAfter = append(entries[n].CleanupAfter, pc.SchedulerParticipant)
+			}
 		}
 	}
 	manifest, err := pc.NewRequiredManifest(entries)
 	schedulerOwnedRequire(t, "manifest", err)
-	v.life, err = project.NewLifecycleAuthority(base.tracked, manifest, nil)
+	if len(retirement) == 1 {
+		v.life = v.skills.p2.lifecycle
+	} else {
+		v.life, err = project.NewLifecycleAuthority(base.tracked, manifest, nil)
+	}
 	schedulerOwnedRequire(t, "lifecycle", err)
 	source, err := toolruntime.NewInstallSource(v.skills.installer, v.skills.p2.service)
 	schedulerOwnedRequire(t, "original-install-source", err)
