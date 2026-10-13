@@ -276,6 +276,10 @@ const (
 	WorkParticipant           ParticipantName = "work"
 	SchedulerParticipant      ParticipantName = "scheduler"
 	ExecutionParticipant      ParticipantName = "execution"
+	KnowledgeParticipant      ParticipantName = "knowledge"
+	UsageParticipant          ParticipantName = "usage"
+	ModelParticipant          ParticipantName = "model"
+	RunnerManagedParticipant  ParticipantName = "runner-managed"
 )
 
 func (n ParticipantName) Validate() error              { return event.StableName(n).Validate() }

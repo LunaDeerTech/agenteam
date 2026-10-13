@@ -23,6 +23,7 @@ import (
 // initialization wrapper is constructed later and belongs only to Audit.
 type projectUsageAssembly struct {
 	projects    *project.Authority
+	lifecycle   *project.LifecycleAuthority
 	reader      *usage.Service
 	variables   *projectvariable.Authority
 	objectFacts *object.ProjectAuditAuthority
@@ -40,6 +41,19 @@ func createProjectUsage(cfg config.Config, db database, accounts *account.Author
 // the actual Runtime Invocation provider before constructing Usage. No existing
 // Usage authority is rebound and no second Project authority is introduced.
 func createProjectUsageAuthority(db database, accounts *account.Authority) (*projectUsageAssembly, error) {
+	return newProjectUsageAuthority(db, accounts, nil)
+}
+
+// The default root supplies its original same-Store Life before any consumer
+// receives this Project authority. Legacy isolated constructors stay unbound.
+func createProjectUsageAuthorityWithLifecycle(db database, accounts *account.Authority, lifecycle *project.LifecycleAuthority) (*projectUsageAssembly, error) {
+	if lifecycle == nil {
+		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+	}
+	return newProjectUsageAuthority(db, accounts, lifecycle)
+}
+
+func newProjectUsageAuthority(db database, accounts *account.Authority, lifecycle *project.LifecycleAuthority) (*projectUsageAssembly, error) {
 	projectsStore, ok := db.(project.Store)
 	if !ok || runtimeInformationNil(projectsStore) || accounts == nil {
 		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
@@ -76,11 +90,15 @@ func createProjectUsageAuthority(db database, accounts *account.Authority) (*pro
 	if err != nil {
 		return nil, err
 	}
-	projects, err := project.NewAuthority(projectsStore, project.AuthorityDependencies{Sessions: accounts, Routes: accounts, AuditFacts: map[ac.Producer]ac.ProjectFactAuthority{ac.AgentProducer: agentFacts, ac.SecretProducer: secretFacts, ac.ProjectVariableProducer: variableFacts, ac.KnowledgeProducer: knowledgeFacts, ac.ObjectProducer: objectFacts}})
+	dependencies := project.AuthorityDependencies{Sessions: accounts, Routes: accounts, AuditFacts: map[ac.Producer]ac.ProjectFactAuthority{ac.AgentProducer: agentFacts, ac.SecretProducer: secretFacts, ac.ProjectVariableProducer: variableFacts, ac.KnowledgeProducer: knowledgeFacts, ac.ObjectProducer: objectFacts}}
+	if lifecycle != nil {
+		dependencies.Lifecycle = lifecycle
+	}
+	projects, err := project.NewAuthority(projectsStore, dependencies)
 	if err != nil {
 		return nil, err
 	}
-	return &projectUsageAssembly{projects: projects, variables: variableFacts, objectFacts: objectFacts}, nil
+	return &projectUsageAssembly{projects: projects, lifecycle: lifecycle, variables: variableFacts, objectFacts: objectFacts}, nil
 }
 
 func bindProjectUsage(cfg config.Config, db database, accounts *account.Authority, base *projectUsageAssembly, invocations uc.InvocationFacts) (*projectUsageAssembly, error) {

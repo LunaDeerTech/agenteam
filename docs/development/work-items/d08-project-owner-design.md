@@ -204,6 +204,19 @@ Plan 是 provider 私有 issuer + 完整 request/actor mapping +复制 RequiredL
 
 Registry 来自受信任组合根，条目固定 name、contract_version、enabled owner module、stop/cleanup 能力、清理先后关系。缺必要绑定是明确缺陷；不能按“当前没数据”“目录为空”“还没看到事件”自动删 required participant。初始 D08 已存在领域要求 `artifact-object,secret,outbox,audit`；部署包含 D10 初始化或 Agent/Variables 实际数据能力时，Archive/Delete 的 manifest 还必须包含完整 `agent-skills-variables`；此要求作用于破坏性操作的新接受，不阻塞已具真实初始化与恢复能力的创建。Registry 缺失继续在生命周期接受前拒绝，不以空实现开放操作。D28 完整集合沿 D01，各模块启用时登记，不能沿用 D08 小集合冒称全平台清理。
 
+默认 App 装配候选在首次 Project Authority 构造前建立同 Store 的唯一 LifecycleAuthority，并保留原 Session/Route/AuditFacts；后续 Usage 绑定只复制容器，所有领域继续消费同一 Project/Life 指针。当前声明固定为 `artifact-object,secret,outbox,audit,agent-skills-variables,work,scheduler,execution,knowledge,usage,model,runner-managed` 十二项，首次 contract_version 均为 1；运行时启动开关不缩减已有历史责任。四项新元数据由各自 `contract.ProjectLifecycleRegistration` 发布完整 name/version/owner/refs/CleanupAfter，每次返回独立切片；App 不改写同 name/version 的元数据，后续变更须增加版本并保留原 operation 的兼容声明。
+
+| 新声明 / owner module | 正式 ref kinds | CleanupAfter |
+| --- | --- | --- |
+| `knowledge` / `knowledge` | `document,knowledge-command` | 无 |
+| `usage` / `usage` | `invocation` | `execution` |
+| `model` / `model` | `model,model-call,provider,snapshot` | `agent-skills-variables,execution,usage` |
+| `runner-managed` / `mount` | `mount,workspace` | `execution` |
+
+Usage 自有 invocation/observation/summary 虽在 Model SQL schema，仍由 Usage 负责；Model 负责其余 Project 配置、命令、resolution/snapshot/call 历史。Runner managed 声明来自默认 Agent 配置实际建立的 Project Mount/workspace，不等于已实现物理 Invoke/清理。其余依赖固定为 Execution 在 Scheduler 后、Work 在 Scheduler/Execution 后、Agent/Skills/Variables 在 Execution/runner-managed 后、Secret 在 Agent/Skills/Variables/Model 后、Artifact/Object 在 Agent/Skills/Variables/Knowledge 后；Outbox 直接在所有业务声明后，Audit 在 Outbox 后。System Model/selector、System Runner、全局 Tool Registry、System Audit 与非本 P 共享资源保留。声明不开放新领域权限，缺实现的 Cleanup 仍 Unbound，默认 Project Service 的 Registry 继续 nil。
+
+该候选仅将默认五个 Work Service 与三类独立 Reader 接入同一原 WithReaders pair；原 Pending/Agent/Project/Store/ProcessGuard 均来自实际装配，旧私构造保持兼容。组合生命周期只持 pair 一次，Stop/Drain/Force/Joined 等原返回；Force 检查当前实际安装的 owned Work 项，晚安装且未退出时同样阻止下游共享 provider 退休。不新增 lifecycle HTTP 路由、Scheduler/Execution owned 装配或默认完整删除能力，尚待本片实际验收。
+
 接受操作时把 required manifest 与版本/digest 同 Tx 持久化，之后不缩减。部署升级恢复旧 operation 必须保留兼容 adapter；移除或缺版本使该 operation pending/failed，不当作已完成。新模块注册不得在已有 deleting/archiving 项目上建立普通数据；当前 operation 的集合同步只能在保证没有遗漏既存数据的工程升级规格下增加，不能随进程重启默默替换。
 
 ```text
