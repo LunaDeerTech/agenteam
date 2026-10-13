@@ -35,6 +35,11 @@ SKILL_EXPECTED = {'TestSkillPackageImportWeb',
                   'TestSkillPackageImportWeb/existing-file-import-and-fixed-revision-download'}
 TASK_SELECTOR = '^TestTaskSearchWeb$'
 TASK_EXPECTED = {'TestTaskSearchWeb', 'TestTaskSearchWeb/server-search-beyond-first-page'}
+RUNNER_WRITE_SELECTOR = '^TestRunnerWriteFileApp$'
+RUNNER_WRITE_EXPECTED = {'TestRunnerWriteFileApp',
+                         'TestRunnerWriteFileApp/enrollment-write-and-no-overwrite-conflict',
+                         'TestRunnerWriteFileApp/stored-identity-combined-read-write',
+                         'TestRunnerWriteFileApp/omitted-write-is-not-dispatched'}
 RUNNER_SELECTOR = '^TestRunnerDirectoryApp$'
 RUNNER_EXPECTED = {'TestRunnerDirectoryApp',
                    'TestRunnerDirectoryApp/selected-directory-reads-and-identity-restart',
@@ -273,6 +278,8 @@ def main():
                        help='run the reviewed existing-file Skill package import scope')
     scope.add_argument('--task-search', action='store_true',
                        help='run the reviewed Task search and enum filters scope')
+    scope.add_argument('--runner-write-file', action='store_true',
+                       help='run the reviewed explicit Runner write-file CLI scope')
     scope.add_argument('--runner-directory', action='store_true',
                        help='run the reviewed real Runner CLI with its separate prebuilt command')
     scope.add_argument('--execution-project-stop', action='store_true',
@@ -388,6 +395,7 @@ def main():
                 AUDIT_SELECTOR if a.audit_cleanup else
                 OUTBOX_SELECTOR if a.outbox_cleanup else
                 EXECUTION_SELECTOR if a.execution_project_stop else
+                RUNNER_WRITE_SELECTOR if a.runner_write_file else
                 RUNNER_SELECTOR if a.runner_directory else
                 TASK_SELECTOR if a.task_search else
                 SKILL_SELECTOR if a.skill_package_import else
@@ -432,15 +440,16 @@ def main():
                 AUDIT_EXPECTED if a.audit_cleanup else
                 OUTBOX_EXPECTED if a.outbox_cleanup else
                 EXECUTION_EXPECTED if a.execution_project_stop else
+                RUNNER_WRITE_EXPECTED if a.runner_write_file else
                 RUNNER_EXPECTED if a.runner_directory else
                 TASK_EXPECTED if a.task_search else
                 SKILL_EXPECTED if a.skill_package_import else
                 USAGE_EXPECTED if a.project_usage_summary else
                 SECRET_EXPECTED if a.secret_delete else
                 CREATE_EXPECTED if a.project_creation else EXPECTED)
-    node_count = (0 if a.app_runtime_final_text or a.app_task_execution_read or a.app_artifact_content or a.app_artifact_owner_http or a.app_human_artifact or a.runner_managed_cleanup or a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle else
+    node_count = (0 if a.runner_write_file or a.app_runtime_final_text or a.app_task_execution_read or a.app_artifact_content or a.app_artifact_owner_http or a.app_human_artifact or a.runner_managed_cleanup or a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle else
                   1 if a.app_runtime_final_text_web or a.app_task_execution_read_web or a.app_artifact_content_web or a.app_artifact_owner_web or a.project_creation or a.secret_delete or a.project_usage_summary or a.skill_package_import or a.task_search else 2)
-    web_scopes = ([] if a.app_runtime_final_text or a.app_task_execution_read or a.app_artifact_content or a.app_artifact_owner_http or a.app_human_artifact or a.runner_managed_cleanup or a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle else
+    web_scopes = ([] if a.runner_write_file or a.app_runtime_final_text or a.app_task_execution_read or a.app_artifact_content or a.app_artifact_owner_http or a.app_human_artifact or a.runner_managed_cleanup or a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle else
                   [('AGENTEAM_RUNTIME_FINAL_TEXT_WEB', 'runtime-final-text')]
                   if a.app_runtime_final_text_web else
                   [('AGENTEAM_TASK_EXECUTION_READ_WEB', 'task-execution-read')]
@@ -466,7 +475,7 @@ def main():
     for path in (a.root, a.binary, a.output, a.runtime):
         assert path.is_absolute()
     assert a.binary.is_file()
-    if a.runner_directory:
+    if a.runner_write_file or a.runner_directory:
         assert a.dist is None and a.runner_binary is not None
         assert (a.runner_binary.is_absolute() and a.runner_binary.is_file()
                 and a.runner_binary.resolve() == a.runner_binary
@@ -508,7 +517,7 @@ def main():
                AGENTEAM_FIXTURE_TEST_BINARY=str(a.binary),
                AGENTEAM_FIXTURE_TEST_CWD=str(a.root / ('internal/central/app' if a.app_runtime_final_text or a.app_runtime_final_text_web or a.app_task_execution_read or a.app_task_execution_read_web or a.app_artifact_content or a.app_artifact_content_web or a.app_artifact_owner_http or a.app_artifact_owner_web or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle or a.app_human_artifact else 'tests/model' if a.project_usage_summary else 'tests/projectvariable')),
                AGENTEAM_FIXTURE_OWNED_RECORD=str(a.output / 'owned-resources.json'))
-    if a.app_runtime_final_text or a.app_runtime_final_text_web or a.app_task_execution_read or a.app_task_execution_read_web or a.task_reorder or a.app_artifact_content or a.app_artifact_content_web or a.app_artifact_owner_http or a.app_artifact_owner_web or a.app_human_artifact:
+    if a.runner_write_file or a.app_runtime_final_text or a.app_runtime_final_text_web or a.app_task_execution_read or a.app_task_execution_read_web or a.task_reorder or a.app_artifact_content or a.app_artifact_content_web or a.app_artifact_owner_http or a.app_artifact_owner_web or a.app_human_artifact:
         # Ordinary task-owned scope: no live-provider environment or PG16.
         a.pg_current_only = True
         for name in tuple(env):
@@ -517,7 +526,7 @@ def main():
     env.pop('AGENTEAM_FIXTURE_PG_CURRENT_ONLY', None)
     if a.pg_current_only:
         env['AGENTEAM_FIXTURE_PG_CURRENT_ONLY'] = '1'
-    if a.runner_directory:
+    if a.runner_write_file or a.runner_directory:
         env['AGENTEAM_RUNNER_BINARY'] = str(a.runner_binary)
     for prefix, name in web_scopes:
         env.update({prefix+'_DIST': str(a.dist), prefix+'_EVIDENCE': str(a.output/name),
@@ -533,6 +542,7 @@ def main():
     command = ['sh', 'scripts/test-objects.sh', '-run', selector]
     save(a.output/'invocation.json', {'command':command,'cwd':str(a.root),
          'input_hash':a.input_hash,'binary':str(a.binary),'dist':str(a.dist) if a.dist else None,
+         **({'runner_write_file':True,'acceptance_method':'runner-write-file-owned-v1'} if a.runner_write_file else {}),
          'runner_directory':a.runner_directory,'execution_project_stop':a.execution_project_stop,
          'outbox_cleanup':a.outbox_cleanup,'audit_cleanup':a.audit_cleanup,
          'skills_cleanup':a.skills_cleanup,'agent_retirement':a.agent_retirement,
@@ -653,6 +663,9 @@ def main():
     exact &= (len(go_waits)==1 and go_waits[0][1:]==('0',selector)
               and len(node_waits)==node_count and all(ok=='true' for pid,ok in node_waits))
     runner_waits = re.findall(r'runner_cli_original_wait pid=(\d+) exit=(\d+)', raw)
+    if a.runner_write_file:
+        exact &= (len(runner_waits)==3 and len({pid for pid,code in runner_waits})==3
+                  and [code for pid,code in runner_waits]==['0','0','0'])
     if a.runner_directory:
         exact &= (len(runner_waits)==9 and len({pid for pid,code in runner_waits})==9
                   and [code for pid,code in runner_waits]==['0','0','0','0','0','1','2','2','2'])
@@ -683,6 +696,8 @@ def main():
             'runner_actual_waits':runner_waits,'adopted_actual_waits':adopted,
             'resources':resources,'private_directories_absent':directories_absent,
             'runtime_leftovers':leftovers,'remaining_children':children(),'exit_code':int(not okay)}
+    if a.runner_write_file:
+        result['acceptance_method'] = 'runner-write-file-owned-v1'
     if a.app_human_artifact:
         result['acceptance_method'] = 'human-artifact-owned-v1'
     if a.app_artifact_owner_http or a.app_artifact_owner_web:

@@ -23,6 +23,12 @@ Runtime enabled 时，TaskReader 在原 Execution 四服务 pair 的首次构造
 
 ## 验证与后继边界
 
-定向控制测试覆盖首次构造、同 pair、固定 P/Task/游标、safe 投影、登记/业务/关闭的原 Store 返回屏障与 Unknown、Project Stop、HTTP 输入与真实请求尾。它们不代替默认 App 的真实数据库与浏览器联调；分页 Rows、当前权限和真实历史 seed 由独立联调验证。
+定向验证已通过 15 个顶层测试、41 个子测试及 5 个包的 vet，覆盖首次构造、同 pair、固定 P/Task/游标、safe 投影、登记/业务/关闭的原 Store 返回屏障与 Unknown、Project Stop、HTTP 输入与真实请求尾。首次 Work 夹具失败及其窄修复验保留在 `output/ai/task-execution-read/go-basic01`、`go-basic02`。
+
+真实默认 App 的 `TestTaskExecutionReadDefaultApp/enabled-owner-and-disabled-history` 已在 `read-app-native04` 通过，原命令及全部自有资源实际退出。原 Coordinator/Handoff 正式创建 1 条 Execution；Runtime enabled 共用原 pair，原 manager、Guard 与数据库退出后，同数据库及部署密钥重启 Runtime disabled，只装配历史 reader。真实 Owner/Task scope、GET/HEAD、原 Store 返回屏障和读取技术关闭均通过；Execution、Task、完整 Audit 及 Snapshot/Preparation/Model/Tool 计数保持原样，Model 调用为零。真实 `limit=1` 验证的是这 1 条记录的末页，未宣称真实数据库多页；分页与游标边界由定向控制测试互补。
+
+前三轮 native 的完整 Audit 比较失败记录仍保留。其新增记录来自夹具正式邀请兑换后遗留材料的 `secret.delete`；现在在只读基线前调用原 Account.Recover，并绑定原创建/兑换命令、cleanup tuple、删除回执与同事务 Audit，未放宽读取及重启前后的全量比较。浏览器夹具复用同一准备步骤。
+
+`TestTaskExecutionReadWeb/history-detail-refresh-and-owner` 已在 `read-web-native02` 整轮通过：真实页面执行 3 次 List、5 次独立 Get，包含 1 次非 Owner 的 404 拒绝与恢复，页面阶段零写请求。连同正式页面辅助读取共 26 个原响应，全部对齐原 reader/consumer、完整响应与 handler 返回；原加载屏障、完整业务事实不变、Node 及自有进程/资源退出均通过。截图与结构化结果位于 `output/ai/task-execution-read/read-web-native02`，有限视觉结论见[前端结果](d22-task-execution-ui.md)。`read-web-native01` 的启动失败和 `browser-list01` 的 Playwright 参数语法失败保留；仅将新 spec 的 afterEach 首参改为合法对象解构后复验，未改产品或放宽判据。本片的历史 List/Get 纵向验收已闭合。
 
 真正的后继模型工具回路仍需 [`d22-round-model-call-reservation.md`](d22-round-model-call-reservation.md) 定义的 reservation 后实际 Begin/Result/Close/Invoke、原 credential/attempt/fence 与响应 checkpoint；不能用 [`d22-model-successor-contract.md`](d22-model-successor-contract.md) 的纯 schema3 分类放开现 text/schema1 门。Runtime snapshot/stream/resync 的 producer、flush 覆盖和 progress generation/revision 仍按 [Runtime View §20–21](../../architecture/agent-executor/runtime-view.md) 另行设计；本片不以 TaskEvents 或 Usage 代替。既有 ToolsHTTP、Object runtime join 等 STOP 不因新增读接口恢复。
