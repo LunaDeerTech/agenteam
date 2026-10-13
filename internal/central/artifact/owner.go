@@ -313,7 +313,7 @@ func (p *OwnerProvider) AuthorizeOwnerInTx(ctx context.Context, tx foundation.Tx
 		return oc.OwnerAuthorization{}, portError(err)
 	}
 	pid, _ := foundation.ParseID[identity.Project](owner.Details().ProjectID)
-	if err = p.authorize(ctx, tx, subject(actor, pid), intent); err != nil {
+	if err = p.authorizeOwnerScope(ctx, tx, actor, owner, intent); err != nil {
 		return oc.OwnerAuthorization{}, err
 	}
 	f, ok, err := ownerByID(ctx, e, owner.Details().ID)
@@ -328,11 +328,6 @@ func (p *OwnerProvider) AuthorizeOwnerInTx(ctx context.Context, tx foundation.Tx
 	}
 	if !f.exists && actor.Details().Kind != identity.Service && f.originalActor != stableActor(actor) {
 		return oc.OwnerAuthorization{}, failure(foundation.Forbidden, nil)
-	}
-	if actor.Details().Kind == identity.Service {
-		if err = p.checkTechnicalCause(ctx, e, actor, pid); err != nil {
-			return oc.OwnerAuthorization{}, err
-		}
 	}
 	existence := oc.ProspectiveOwner
 	if f.exists {
@@ -361,21 +356,13 @@ func (p *OwnerProvider) AuthorizeObjectReadInTx(ctx context.Context, tx foundati
 	return oc.NewOwnerAuthorization(d)
 }
 func (p *OwnerProvider) CheckInTx(ctx context.Context, tx foundation.Tx, actor identity.Actor, owner oc.ObjectOwner, intent identity.AccessIntent) error {
-	if owner.Validate() != nil || owner.Details().Kind != oc.Artifact {
-		return invalid()
-	}
-	pid, _ := foundation.ParseID[identity.Project](owner.Details().ProjectID)
-	if err := p.authorize(ctx, tx, subject(actor, pid), intent); err != nil {
+	if err := p.bound(); err != nil {
 		return err
 	}
-	if actor.Details().Kind == identity.Service {
-		e, err := p.state().store.InTx(tx)
-		if err != nil {
-			return portError(err)
-		}
-		return p.checkTechnicalCause(ctx, e, actor, pid)
+	if actor.Validate() != nil || owner.Validate() != nil || owner.Details().Kind != oc.Artifact {
+		return invalid()
 	}
-	return nil
+	return p.authorizeOwnerScope(ctx, tx, actor, owner, intent)
 }
 func (p *OwnerProvider) checkTechnicalCause(ctx context.Context, e postgres.SQLExecutor, actor identity.Actor, pid identity.ProjectID) error {
 	d := actor.Details()
@@ -383,7 +370,7 @@ func (p *OwnerProvider) checkTechnicalCause(ctx context.Context, e postgres.SQLE
 		return failure(foundation.Forbidden, nil)
 	}
 	var found bool
-	err := e.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_artifact.cleanup WHERE project_id=$1 AND operation_id::text=$2 AND state='pending') OR EXISTS(SELECT 1 FROM agenteam_artifact.upload_intents WHERE project_id=$1 AND target_upload_id::text=$2 AND state IN('cancel_requested','cancelled')) OR EXISTS(SELECT 1 FROM agenteam_artifact.commands WHERE project_id=$1 AND target_upload_id::text=$2 AND state IN('cancel_requested','cancelled'))`, pid.String(), d.CauseRef).Scan(&found)
+	err := e.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_artifact.cleanup WHERE project_id=$1 AND operation_id::text=$2 AND state='pending')`, pid.String(), d.CauseRef).Scan(&found)
 	if err != nil {
 		return unavailable(err)
 	}
@@ -415,13 +402,12 @@ func (p *OwnerProvider) CheckCleanupInTx(ctx context.Context, tx foundation.Tx, 
 		// This exact cause was committed by the original current owner before the
 		// Object service was allowed to revoke its reservation. It grants only
 		// convergence; the current Project gate remains a required real port.
-		pid, _ := foundation.ParseID[identity.Project](f.project)
 		registration, _ := identity.RegisterService(identity.ObjectMaintenance)
 		actor, err := registration.Actor(d.OperationID.String(), d.Owner.Scope())
 		if err != nil {
 			return invalid()
 		}
-		return p.authorize(ctx, tx, subject(actor, pid), identity.Converge)
+		return p.authorizeCancelledUpload(ctx, tx, actor, d.Owner, identity.Converge)
 	}
 	var version int64
 	err = e.QueryRow(ctx, `SELECT project_version FROM agenteam_artifact.cleanup WHERE project_id=$1 AND operation_id=$2 AND state='pending'`, f.project, d.OperationID.String()).Scan(&version)

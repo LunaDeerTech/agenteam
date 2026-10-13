@@ -45,6 +45,7 @@ type projectAuditWitness struct {
 	meta     ac.Metadata
 	command  *projectAuditCommand
 	download *projectAuditDownload
+	list     *projectAuditList
 }
 type projectAuditDownload struct {
 	target oc.DownloadTarget
@@ -113,14 +114,23 @@ func (a *ProjectAuditAuthority) CheckProjectAuditInTx(ctx context.Context, tx f.
 	}
 	e, k := entry.Fields(), key.Details()
 	if e.Actor.Details().Kind != identity.Human || e.Scope.Details().Kind != identity.ProjectScope ||
-		e.Resource.Details().Kind != au.ArtifactResource || e.Outcome != au.Success ||
+		e.Outcome != au.Success ||
 		e.Associations != (au.Associations{}) || k.Producer != au.ArtifactProducer || k.Ordinal != 0 ||
-		(e.Action != au.ArtifactCreate && e.Action != au.ArtifactRead && e.Action != au.ArtifactDownload) {
+		(e.Action != au.ArtifactCreate && e.Action != au.ArtifactRead && e.Action != au.ArtifactDownload && e.Action != au.ArtifactList) {
 		return failure(f.Forbidden, nil)
 	}
 	w, ok := ctx.Value(projectAuditWitnessKey{}).(*projectAuditWitness)
 	if !ok || w == nil || !w.active.Load() || w.tx != tx || !sameProjectAuditStore(w.store, a.store) ||
-		!sameProjectAuditEntry(w.entry, entry) || w.key.Validate() != nil || w.key.Details() != k || w.meta.Validate() != nil {
+		!sameProjectAuditEntry(w.entry, entry) || w.key.Validate() != nil || w.key.Details() != k {
+		return failure(f.Forbidden, nil)
+	}
+	if e.Action == au.ArtifactList {
+		if e.Resource.Details().Kind != au.ArtifactCollectionResource {
+			return failure(f.Forbidden, nil)
+		}
+		return a.checkListInTx(ctx, tx, w)
+	}
+	if e.Resource.Details().Kind != au.ArtifactResource || w.meta.Validate() != nil || w.list != nil {
 		return failure(f.Forbidden, nil)
 	}
 	m := w.meta.Details()
