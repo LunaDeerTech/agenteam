@@ -1,4 +1,14 @@
-# 当前工作：Human Blocker 与 Runner-managed 已限定验收
+# 当前工作：Usage Execution 筛选已限定验收，真实模型 Live 仍待修复
+
+2026-10-13。本次本地集成基线 main `e46a4b6e`。Usage Execution 筛选受测 `3be0dcce`，八个 spec 共 38 项测试、完整类型检查及 84 文件构建通过。[native02](../output/ai/usage-execution-filter-ui-delivery/native02/result.json) 原 `6420/fb4c3a` Wait 0/147.589s，Go 1 top/1 sub 45.15s、一个原 Node 用例 14.0s；九个 native PID、六项资源、三个私有目录及请求/运行退出尾全闭。真实默认 App 只读 HTTP，10 次列表与三次 daily 汇总读取、零写入；四图有限接受。Execution ID 来自受控 Runtime Facts，不代表生产 Execution 启动或外部 LLM 调用，B 未浏览器导航；原 locator strict FAIL、单行修正及 21 个原消费者退出后的唯一二进制处分均保留，见[汇总](../output/ai/usage-execution-filter-ui-delivery/summary.json)和[本片卡](../docs/development/work-items/d09-usage-execution-filter-ui.md)。受测提交至本次组合只有已审结果文档差额，复用原通过输入，不因 Git HEAD 进位重跑。
+
+真实模型 Live 仍在独立工作树，三轮原 native FAIL 与三份 binary disposition 保留，尚未作为通过结果合入 main。Transport observer 已有限静态审查并分组保存，PG 诊断另域冻结/审查；不据上述 Usage UI 的受控事实声称真实模型成功。
+
+当前八个工作树为 main、共享 validation、Live、Usage UI 四个带分支树与四个 protected detached STOP 树；本地分支 refs 仍为 14 个。十棵旧完成树已在 42 个独有小件先行保全、三方 SHA 与 fresh 状态/消费者门通过后仅移除工作树，refs、fetchspec、Git 公共对象及旧包均保留，见[证据映射](../output/ai/completed-worktree-retained-evidence-20261013.json)和[执行记录](../output/ai/completed-worktree-removal-20261013.json)。当次文件系统可用空间净增 614,514,688 B，仅为实测变化，不是永久容量保证。
+
+GitHub 认证仍失效，不重试网络；最新已 verify 的[增量 bundle06](../output/ai/pending-push-20261013-06/manifest.json)为 492,609 B/111 commits/12 refs，截止 main `e46a4b6e`。新 Live、Usage UI refs 与 validation 后继提交尚未纳入该包；它是本地增量档案，不代替远端备份。bundle07 仅待后续稳定阶段统一安排，尚未生成。原 Human、Runner、Knowledge、Agent、Sprint 结果与全部 STOP 见以下历史快照。
+
+## 前次摘要：Human Blocker 与 Runner-managed 交付时点（下文计数及包状态仅属该时点）
 
 2026-10-13。本次本地集成基线为 main `55238e723`；Human Blocker 受测 `659bc3eb`，58 项去重前端测试、完整类型检查及 84 文件构建通过。[native02](../output/ai/task-human-blocker-ui-delivery/native02/result.json) 原 `23728/959342` Wait 0/170.475s，Go 1 top/2 sub 共 79.72s、两个原 Node 调用、14 个 native PID 与六项资源、私有目录及 TCP 全尾闭合；四图已亲视有限接受。两组各 Add/Resolve 两次写入，版本 1/2/3、零 Transfer、B 不变。范围为 Work HTTP shell 的 Ready 界面门，不代表默认 App 生命周期或 Unknown 原生验收；原 basic01 两个 fixture FAIL、native01 两组 receipt 投影 FAIL 及窄修、复验、唯一二进制处置均保留，见[汇总](../output/ai/task-human-blocker-ui-delivery/summary.json)和[本片卡](../docs/development/work-items/d11-task-human-blocker-ui.md)。
 
