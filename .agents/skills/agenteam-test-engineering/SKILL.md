@@ -51,6 +51,7 @@ description: 在 agenteam 新建或恢复测试 harness、真实数据库和进�
 真实 PG 的 seed 每个公开 API 失败都带固定 stage，并复用现有 safeFault 诊断，不输出凭据或内容；断言 Joined 等观测前先核清其全局或项目作用域及实际返回语义；验证某步零新增时比较同一原事务内的前后差值，不用累计绝对计数代替。
 DB 内部 Tx context 不等于外层业务调用 context，原返回屏障须观测对应调用。相同 Cause 可跨 lookup 与 mutation，hook 必须核实际阶段 tuple；仅合法未匹配阶段可跳过，SQL 错误或错误 tuple 不能吞掉。
 数据库快照与参数转换须逐目标表核当前 schema/domain 定义，不可跨模块类推 safe_id 类型。
+完整 App 启动等待须复用生命周期启动 fixture 并监测原 run 提前退出，不能用短日志阶段等待覆盖迁移；退出预算仍单独遵守原约束。
 
 `ProcessID` 等 typed ID 按实际 owner 域构造，不能跨域强转封装类型；`f.Fault` 可能防御性复制，原错误身份用稳定 cause 核对，并独立确认原调用实际返回；私有 checkpoint JSON 投影须逐字段对照实际 schema 与已验 decoder（如 `skills_state` 不能误写为 `state`），缺字段不得当作真实状态。
 

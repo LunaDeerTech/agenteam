@@ -278,10 +278,11 @@ func (a *accountAssembly) Force(ctx context.Context) error {
 		// Inspect the actual work entry so a late-installed pair is also gated.
 		variableCalls, ownsVariables := work.(*projectVariableCallAssembly)
 		projectCalls, ownsProjects := work.(*projectCommandWork)
-		// Runtime terminal/lease cleanup and both Agent/Variable lanes use the
+		planning, ownsPlanning := work.(*workPlanningAssembly)
+		// Runtime terminal/lease cleanup and Agent/Variable/Work calls use the
 		// shared providers. Expiring a force budget does not make them disposable.
 		// The root retains its separate bounded Store.ForceClose policy.
-		if executions != nil && work == executions && !executions.Joined() || agents != nil && work == agents && !agents.Joined() || install != nil && work == install && !install.Joined() || ownsVariables && !variableCalls.Joined() || ownsProjects && !projectCalls.Joined() {
+		if executions != nil && work == executions && !executions.Joined() || agents != nil && work == agents && !agents.Joined() || install != nil && work == install && !install.Joined() || ownsVariables && !variableCalls.Joined() || ownsProjects && !projectCalls.Joined() || ownsPlanning && planning.ownership != nil && !planning.Joined() {
 			return errors.Join(result, foundation.NewFault(foundation.DependencyUnavailable, foundation.NotStarted))
 		}
 	}
@@ -336,14 +337,19 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		return err
 	}
 	_, runtimeEnabled := cfg.ExecutionRuntime()
-	var projectUsage *projectUsageAssembly
-	if runtimeEnabled {
-		projectUsage, err = createProjectUsageAuthority(db, authority)
-	} else {
-		projectUsage, err = createProjectUsage(cfg, db, authority)
-	}
+	lifecycle, err := createProjectLifecycleAuthority(db)
 	if err != nil {
 		return err
+	}
+	projectUsage, err := createProjectUsageAuthorityWithLifecycle(db, authority, lifecycle)
+	if err != nil {
+		return err
+	}
+	if !runtimeEnabled {
+		projectUsage, err = bindProjectUsage(cfg, db, authority, projectUsage, nil)
+		if err != nil {
+			return err
+		}
 	}
 	agentAuthority, err := createAgentConfigurationAuthority(db, projectUsage.projects)
 	if err != nil {
@@ -524,9 +530,9 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	}
 	var planning *workPlanningAssembly
 	if runtimeEnabled {
-		planning, err = createWorkPlanningWithProviders(cfg, db, workAuthority, authority, journal, workEvents, executionAuthorities.pending, agentAuthority, projectUsage.projects)
+		planning, err = createOwnedWorkPlanningWithProviders(cfg, db, workAuthority, authority, journal, workEvents, executionAuthorities.pending, agentAuthority, projectUsage.projects, projectUsage.lifecycle, objects)
 	} else {
-		planning, err = createWorkPlanningWithAgents(cfg, db, workAuthority, authority, journal, workEvents, agentAuthority, projectUsage.projects)
+		planning, err = createOwnedWorkPlanningWithAgents(cfg, db, workAuthority, authority, journal, workEvents, agentAuthority, projectUsage.projects, projectUsage.lifecycle, objects)
 	}
 	if err != nil {
 		return err

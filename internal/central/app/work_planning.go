@@ -65,6 +65,7 @@ type workCommandCalls interface {
 }
 
 type workPlanningAssembly struct {
+	ownership       *work.ProjectCallOwnership
 	structure       *work.Service
 	structureReader *work.Reader
 	tasks           *work.TaskService
@@ -187,6 +188,68 @@ func createWorkPlanningWithProviders(cfg config.Config, db database, authority *
 	return b, nil
 }
 
+// The default App installs one original five-service/three-reader owner before
+// exposing any of its views. Legacy constructors above keep their independent
+// services and do not start registering calls.
+func createOwnedWorkPlanningWithAgents(cfg config.Config, db database, authority *work.Authority, accounts *account.Authority, journal *outbox.Service, events workPlanningEvents, agents *agent.Authority, projects *project.Authority, lifecycle *project.LifecycleAuthority, objects *objectAssembly) (*workPlanningAssembly, error) {
+	store, ok := db.(work.Store)
+	if !ok || runtimeInformationNil(store) {
+		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+	}
+	pending, err := scheduler.NewPendingAuthority(store)
+	if err != nil {
+		return nil, err
+	}
+	return createOwnedWorkPlanningWithProviders(cfg, db, authority, accounts, journal, events, pending, agents, projects, lifecycle, objects)
+}
+
+func createOwnedWorkPlanningWithProviders(cfg config.Config, db database, authority *work.Authority, accounts *account.Authority, journal *outbox.Service, events workPlanningEvents, pending *scheduler.PendingAuthority, agents *agent.Authority, projects *project.Authority, lifecycle *project.LifecycleAuthority, objects *objectAssembly) (*workPlanningAssembly, error) {
+	store, ok := db.(work.Store)
+	if !ok || runtimeInformationNil(store) || authority == nil || accounts == nil || journal == nil || pending == nil || agents == nil || projects == nil || objects == nil || objects.guard == nil || objects.process.Validate() != nil || !events.structure.Valid() || !events.tasks.Valid() || !events.blockers.Valid() || !events.transitions.Valid() || !events.sprints.Valid() {
+		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+	}
+	stop, err := project.NewWorkStopAuthority(lifecycle, store)
+	if err != nil {
+		return nil, err
+	}
+	// The domain factory validates these ordinary placement dependencies, then
+	// replaces them with its private owned Reader before returning any service.
+	// This construction-only reader is never published or called.
+	placement, err := work.NewReader(store, authority, cfg.CursorKeyring())
+	if err != nil {
+		return nil, err
+	}
+	occupancy, err := execution.NewWorkOccupancy(store)
+	if err != nil {
+		return nil, err
+	}
+	pointer, err := project.NewSprintLifecycle(projects, authority)
+	if err != nil {
+		return nil, err
+	}
+	pair, err := work.NewProjectCallOwnershipWithReaders(store, work.ProjectCallDependencies{
+		Structure: work.Dependencies{Authority: authority, Events: journal, WorkEvents: events.structure, Activity: accounts},
+		Tasks:     work.TaskDependencies{Authority: authority, Structure: placement, Events: journal, TaskEvents: events.tasks, Activity: accounts, Pending: pending},
+		Transitions: work.TaskTransitionDependencies{
+			Agents: agents, Occupancy: occupancy, Pending: pending, Structure: placement,
+			Authority: authority, Events: journal, TaskEvents: events.transitions, Activity: accounts,
+		},
+		Blockers: work.BlockerDependencies{Authority: authority, Structure: placement, Events: journal, BlockerEvents: events.blockers, Activity: accounts},
+		Sprints:  work.SprintLifecycleDependencies{Authority: authority, Projects: pointer, Events: journal, SprintEvents: events.sprints, Activity: accounts},
+	}, cfg.CursorKeyring(), objects.guard, objects.process, stop)
+	if err != nil {
+		return nil, err
+	}
+	return &workPlanningAssembly{
+		ownership: pair,
+		structure: pair.Service(), structureReader: pair.Reader(),
+		tasks: pair.TaskService(), taskReader: pair.TaskReader(),
+		blockers: pair.BlockerService(), blockerReader: pair.BlockerReader(),
+		transitions: pair.TaskTransitionService(), sprints: pair.SprintLifecycleService(),
+		commands: []workCommandCalls{pair},
+	}, nil
+}
+
 func (b *workPlanningAssembly) StopAdmission() {
 	b.mu.Lock()
 	b.stopped = true
@@ -203,6 +266,9 @@ func (b *workPlanningAssembly) Drain(ctx context.Context) error {
 			return err
 		}
 	}
+	if b.ownership != nil && !b.ownership.Joined() {
+		return foundation.NewFault(foundation.DependencyUnavailable, foundation.NotStarted)
+	}
 	b.markJoined()
 	return nil
 }
@@ -214,6 +280,9 @@ func (b *workPlanningAssembly) Force(ctx context.Context) error {
 	var result error
 	for _, command := range b.commands {
 		result = errors.Join(result, command.Drain(ctx))
+	}
+	if result == nil && b.ownership != nil && !b.ownership.Joined() {
+		return foundation.NewFault(foundation.DependencyUnavailable, foundation.NotStarted)
 	}
 	if result == nil {
 		b.markJoined()
@@ -229,8 +298,12 @@ func (b *workPlanningAssembly) markJoined() {
 
 func (b *workPlanningAssembly) Joined() bool {
 	b.mu.Lock()
-	defer b.mu.Unlock()
-	return b.stopped && b.joined
+	stopped, joined := b.stopped, b.joined
+	b.mu.Unlock()
+	if b.ownership != nil {
+		return stopped && b.ownership.Joined()
+	}
+	return stopped && joined
 }
 
 func workPlanningHandler(b *workPlanningAssembly, core *account.Service, origin string) (http.Handler, error) {
