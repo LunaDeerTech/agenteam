@@ -12,14 +12,15 @@ import (
 // The latter retain an ambiguous registration even if it rolled back to the
 // preceding terminal claim. Neither entry authorizes SQL or replaces a claim.
 type lifecycleCleanupCalls struct {
-	mu           sync.Mutex
-	active       map[c.ProjectID]*lifecycleCleanupCall
-	finals       map[c.ProjectID]*lifecycleFinalizeRound
-	executions   map[c.ProjectID]*executionCleanupRound
-	works        map[c.ProjectID]*workCleanupRound
-	usages       map[c.ProjectID]*usageCleanupRound
-	knowledges   map[c.ProjectID]*knowledgeCleanupRound
-	projectCalls map[*call]c.ProjectID
+	mu            sync.Mutex
+	active        map[c.ProjectID]*lifecycleCleanupCall
+	finals        map[c.ProjectID]*lifecycleFinalizeRound
+	executions    map[c.ProjectID]*executionCleanupRound
+	works         map[c.ProjectID]*workCleanupRound
+	usages        map[c.ProjectID]*usageCleanupRound
+	knowledges    map[c.ProjectID]*knowledgeCleanupRound
+	runnerManaged map[c.ProjectID]*runnerManagedCleanupRound
+	projectCalls  map[*call]c.ProjectID
 }
 
 type lifecycleCleanupCall struct{ project c.ProjectID }
@@ -54,6 +55,10 @@ func (a *LifecycleAuthority) beginCleanupDomainCall(ctx context.Context, project
 	if len(knowledgeRounds) == 1 {
 		knowledge = knowledgeRounds[0]
 	}
+	return a.beginCleanupRunnerManagedCall(ctx, project, permitted, execution, permittedWork, usage, knowledge, nil)
+}
+
+func (a *LifecycleAuthority) beginCleanupRunnerManagedCall(ctx context.Context, project c.ProjectID, permitted *lifecycleFinalizeRound, execution *executionCleanupRound, permittedWork *workCleanupRound, usage *usageCleanupRound, knowledge *knowledgeCleanupRound, runnerManaged *runnerManagedCleanupRound) (func(), error) {
 	if !a.bound() {
 		return nil, fault(f.DependencyUnbound)
 	}
@@ -69,7 +74,7 @@ func (a *LifecycleAuthority) beginCleanupDomainCall(ctx context.Context, project
 	if err := ctx.Err(); err != nil {
 		return nil, portError(err)
 	}
-	if st.finals[project] != nil && st.finals[project] != permitted || st.executions[project] != nil && st.executions[project] != execution || st.works[project] != nil && st.works[project] != permittedWork || st.usages[project] != nil && st.usages[project] != usage || st.knowledges[project] != nil && st.knowledges[project] != knowledge {
+	if st.finals[project] != nil && st.finals[project] != permitted || st.executions[project] != nil && st.executions[project] != execution || st.works[project] != nil && st.works[project] != permittedWork || st.usages[project] != nil && st.usages[project] != usage || st.knowledges[project] != nil && st.knowledges[project] != knowledge || st.runnerManaged[project] != nil && st.runnerManaged[project] != runnerManaged {
 		return nil, fault(f.ResourceBusy)
 	}
 	count := len(st.finals)
@@ -93,12 +98,17 @@ func (a *LifecycleAuthority) beginCleanupDomainCall(ctx context.Context, project
 			count++
 		}
 	}
-	for p := range st.active {
+	for p := range st.runnerManaged {
 		if st.finals[p] == nil && st.executions[p] == nil && st.works[p] == nil && st.usages[p] == nil && st.knowledges[p] == nil {
 			count++
 		}
 	}
-	if st.active[project] != nil || st.finals[project] == nil && st.executions[project] == nil && st.works[project] == nil && st.usages[project] == nil && st.knowledges[project] == nil && count >= 4 {
+	for p := range st.active {
+		if st.finals[p] == nil && st.executions[p] == nil && st.works[p] == nil && st.usages[p] == nil && st.knowledges[p] == nil && st.runnerManaged[p] == nil {
+			count++
+		}
+	}
+	if st.active[project] != nil || st.finals[project] == nil && st.executions[project] == nil && st.works[project] == nil && st.usages[project] == nil && st.knowledges[project] == nil && st.runnerManaged[project] == nil && count >= 4 {
 		return nil, fault(f.ResourceBusy)
 	}
 	if st.active == nil {
@@ -244,5 +254,30 @@ func (a *LifecycleAuthority) releaseKnowledgeCleanup(round *knowledgeCleanupRoun
 	defer st.mu.Unlock()
 	if st.knowledges[round.round.claim.project] == round {
 		delete(st.knowledges, round.round.claim.project)
+	}
+}
+
+func (a *LifecycleAuthority) retainRunnerManagedCleanup(round *runnerManagedCleanupRound) error {
+	st := &a.cleanupCalls
+	st.mu.Lock()
+	defer st.mu.Unlock()
+	if round == nil || st.active[round.round.claim.project] == nil || st.runnerManaged[round.round.claim.project] != nil && st.runnerManaged[round.round.claim.project] != round {
+		return fault(f.ResourceBusy)
+	}
+	if st.runnerManaged == nil {
+		st.runnerManaged = make(map[c.ProjectID]*runnerManagedCleanupRound)
+	}
+	st.runnerManaged[round.round.claim.project] = round
+	return nil
+}
+func (a *LifecycleAuthority) releaseRunnerManagedCleanup(round *runnerManagedCleanupRound) {
+	if round == nil {
+		return
+	}
+	st := &a.cleanupCalls
+	st.mu.Lock()
+	defer st.mu.Unlock()
+	if st.runnerManaged[round.round.claim.project] == round {
+		delete(st.runnerManaged, round.round.claim.project)
 	}
 }

@@ -178,6 +178,9 @@ func (a *LifecycleAuthority) ValidateLifecycleInTx(ctx context.Context, tx found
 		return err
 	}
 	if phase == c.CleanupPhase {
+		if participant == c.RunnerManagedParticipant {
+			return a.validateRunnerManagedCleanupInTx(ctx, tx, project, cause)
+		}
 		if participant == c.KnowledgeParticipant {
 			return a.validateKnowledgeCleanupInTx(ctx, tx, project, cause)
 		}
