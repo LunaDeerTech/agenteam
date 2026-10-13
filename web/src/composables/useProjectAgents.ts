@@ -1035,7 +1035,7 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
   }
   async function leaveSkills() {
     if (!skills.dirty.value && !skills.pending.value) {
-      skills.reset()
+      skills.reset(true)
       return true
     }
     const yes = await ask(
@@ -1043,7 +1043,7 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
         ? '技能操作结果尚未确认。切换后仍须返回原 Agent 查询，不能重新提交。'
         : '放弃尚未提交的技能分配操作？',
     )
-    if (yes) skills.reset()
+    if (yes) skills.reset(true)
     return yes
   }
   async function showSkillOriginal() {
@@ -1087,7 +1087,7 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
     if (yes) {
       Object.assign(draft, initialDraft())
       Object.assign(edit, initialEdit())
-      skills.reset()
+      skills.reset(true)
     }
     return yes
   }

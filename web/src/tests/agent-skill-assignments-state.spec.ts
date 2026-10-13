@@ -7,6 +7,7 @@ import {
   id,
   json,
   pageFixture,
+  problem,
   project,
   skill,
 } from './agent-skill-assignments.fixture'
@@ -21,6 +22,62 @@ async function setup() {
   return f
 }
 describe('Agent Skills coherent directory and command selection', () => {
+  it('retires a known rejected Skills intent after confirmed navigation so an Agent PATCH can start', async () => {
+    const f = await setup()
+    f.setIntercept((path, init) => {
+      if (path === base + '/assign') return problem('VERSION_CONFLICT')
+      if (path.endsWith('/configuration') && init.method === 'PATCH')
+        return json({
+          changed: true,
+          event_ids: [id(80)],
+          agent: { ...f.state.config, version: '2', description: 'After leaving Skills' },
+        })
+    })
+    await f.owner.skills.open()
+    f.owner.skills.draft.selected = skill
+    f.owner.skills.choose('assign')
+    await f.owner.skills.submit()
+    expect(f.auth.agentSkills.progress?.phase).toBe('rejected')
+    const leaving = f.owner.confirmLeave('/owner/demo/tasks')
+    expect(f.owner.confirmation.open).toBe(true)
+    f.owner.finishConfirmation(true)
+    expect(await leaving).toBe(true)
+    f.owner.afterNavigation('/owner/demo/tasks')
+    expect(f.auth.agentSkills.progress).toBeNull()
+    await expect(
+      f.auth.agentConfiguration.startUpdate(project, agent, {
+        expected_version: '1',
+        request: { description: 'After leaving Skills' },
+      }),
+    ).resolves.toMatchObject({ changed: true })
+    expect(f.fetch.mock.calls.filter(([, init]) => init.method === 'PATCH')).toHaveLength(1)
+  })
+  it('keeps an uncertain Skills intent on confirmed navigation and queries its original key instead of freeing a write', async () => {
+    const f = await setup()
+    f.setIntercept((path) => {
+      if (path === base + '/assign') throw new TypeError('lost response')
+    })
+    await f.owner.skills.open()
+    f.owner.skills.draft.selected = skill
+    f.owner.skills.choose('assign')
+    await f.owner.skills.submit()
+    const leaving = f.owner.confirmLeave('/owner/demo/tasks')
+    f.owner.finishConfirmation(true)
+    expect(await leaving).toBe(true)
+    f.owner.afterNavigation('/owner/demo/tasks')
+    expect(f.auth.agentSkills.progress?.phase).toBe('uncertain')
+    await expect(
+      f.auth.agentConfiguration.startUpdate(project, agent, {
+        expected_version: '1',
+        request: { description: 'Must remain blocked' },
+      }),
+    ).rejects.toMatchObject({ kind: 'busy' })
+    await f.auth.agentSkills.checkOriginal()
+    expect(f.calls('/assign')).toHaveLength(1)
+    expect(new Headers(f.calls('/commands/lookup')[0]![1].headers).get('Idempotency-Key')).toBe(
+      new Headers(f.calls('/assign')[0]![1].headers).get('Idempotency-Key'),
+    )
+  })
   it('does not merge a later page from a changed Agent version and clears its cursor', async () => {
     const f = await setup(),
       rows = Array.from({ length: 25 }, (_, n) => assignment(n + 40))

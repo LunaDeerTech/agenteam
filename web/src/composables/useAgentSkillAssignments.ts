@@ -132,7 +132,10 @@ export function createAgentSkillAssignments(
     ++serial
     if (io.reading) auth.agentSkills?.abandonRead()
   }
-  function reset() {
+  function reset(discardRejected = false) {
+    const original = progress.value
+    if (discardRejected && original?.phase === 'rejected' && original.contextValid)
+      auth.agentSkills.editRejected()
     retire()
     clearObservations()
     clearDraft()

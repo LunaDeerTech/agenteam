@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
+import { watch } from 'vue'
 import {
   agent,
   base,
@@ -21,6 +22,40 @@ async function setup() {
   return f
 }
 describe('Agent Skills original Session intent', () => {
+  it.each(['confirmed', 'not_observed'] as const)(
+    'rejects %s publication if a synchronous observer leaves the Session',
+    async (publication) => {
+      const f = await setup()
+      if (publication === 'not_observed') {
+        f.setIntercept((path) => {
+          if (path === base + '/assign') throw new TypeError('lost response')
+        })
+        await expect(
+          f.auth.agentSkills.start(project, agent, command(), '1'),
+        ).rejects.toMatchObject({ kind: 'transport' })
+      }
+      const stop = watch(
+        () => f.auth.agentSkills.progress,
+        (value) => {
+          if (
+            publication === 'confirmed'
+              ? value?.phase === 'confirmed'
+              : value?.observation === 'not_observed'
+          )
+            f.auth.leave()
+        },
+        { flush: 'sync' },
+      )
+      clean.push(stop)
+      const result =
+        publication === 'confirmed'
+          ? f.auth.agentSkills.start(project, agent, command(), '1')
+          : f.auth.agentSkills.checkOriginal()
+      await expect(result).rejects.toMatchObject({ kind: 'cancelled' })
+      expect(f.auth.agentSkills.progress).toBeNull()
+      expect(f.calls('/assign')).toHaveLength(1)
+    },
+  )
   it('keeps original bytes/key across Unknown and not-observed; blocks config writes and retires confirmed intent', async () => {
     const f = await setup(),
       c = command()

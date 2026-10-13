@@ -5211,7 +5211,7 @@ export function createSessionController(
     receipt: AgentSkillMutation | null = null,
     observation: AgentSkillProgress['observation'] = 'none',
   ) {
-    agentSkillState.progress = Object.freeze({
+    const publication = Object.freeze({
       projectID: original.projectID,
       agentID: original.agentID,
       kind: original.command.kind,
@@ -5219,6 +5219,8 @@ export function createSessionController(
       receipt,
       observation,
     })
+    agentSkillState.progress = publication
+    return publication
   }
   function clearAgentSkillIntent() {
     ++agentConfigurationRevisions['agent-skill-write']
@@ -5276,14 +5278,26 @@ export function createSessionController(
     ).then(
       (value) => {
         if (!live()) throw new AccountFailure('cancelled')
+        let publication: NonNullable<typeof agentSkillState.progress>
         if ('state' in value && value.state === 'not_observed') {
           original.uncertain = true
-          publishAgentSkill(original, 'uncertain', null, 'not_observed')
+          publication = publishAgentSkill(original, 'uncertain', null, 'not_observed')
         } else {
           const receipt = 'state' in value ? value.receipt : value
           agentSkillIntent = null
-          publishAgentSkill(original, 'confirmed', receipt, lookup ? 'committed' : 'none')
+          publication = publishAgentSkill(
+            original, 'confirmed', receipt, lookup ? 'committed' : 'none',
+          )
         }
+        // A synchronous observer may leave or replace this domain during publication.
+        // Confirmed intents are already retired, so fence identity/revision/publication
+        // without requiring the old intent pointer to remain installed.
+        if (
+          !projectContext(original) ||
+          revision !== agentConfigurationRevisions[kind] ||
+          agentSkillState.progress !== publication
+        )
+          throw new AccountFailure('cancelled')
         return value
       },
       (error) => {
