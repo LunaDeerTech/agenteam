@@ -77,7 +77,30 @@ function installArtifactNative(config: { origin: string; projects: string[] }) {
     pending = new Set<Promise<void>>();
   let auth: any,
     failed = false,
-    retired = false;
+    retired = false,
+    failureReason = "";
+  const knownReasons = new Set([
+    "ARTIFACT_NATIVE_DESCRIPTOR",
+    "ARTIFACT_NATIVE_BOUND",
+    "ARTIFACT_NATIVE_SCOPE",
+    "ARTIFACT_ORIGINAL_PROMISE",
+    "ARTIFACT_UNEXPECTED_REJECTION",
+    "ARTIFACT_DUPLICATE_BIND",
+    "ARTIFACT_NATIVE_READONLY",
+    "ARTIFACT_NATIVE_CALL_BIND",
+    "ARTIFACT_NATIVE_BODY",
+    "ARTIFACT_DUPLICATE_EOF",
+    "ARTIFACT_CHUNK",
+    "ARTIFACT_BODY_BOUND",
+  ]);
+  function observerFailed(error?: unknown) {
+    failed = true;
+    if (!failureReason)
+      failureReason =
+        error instanceof Error && knownReasons.has(error.message)
+          ? error.message
+          : "ARTIFACT_OBSERVER_ERROR";
+  }
   const canonical = (value: any): any =>
     Array.isArray(value)
       ? value.map(canonical)
@@ -95,15 +118,11 @@ function installArtifactNative(config: { origin: string; projects: string[] }) {
   function watch(
     promise: Promise<any>,
     good: (value: any) => any,
-    bad: (error: any) => any = () => {
-      failed = true;
-    },
+    bad: (error: any) => any = observerFailed,
   ) {
     const tail = promise
       .then(good, bad)
-      .catch(() => {
-        failed = true;
-      })
+      .catch(observerFailed)
       .then(() => {
         pending.delete(tail);
       });
@@ -115,7 +134,7 @@ function installArtifactNative(config: { origin: string; projects: string[] }) {
       throw Error("ARTIFACT_NATIVE_DESCRIPTOR");
     Object.defineProperty(object, key, { ...descriptor, value: wrapper });
     restore.push(() => {
-      if (object[key] !== wrapper) failed = true;
+      if (object[key] !== wrapper) observerFailed();
       Object.defineProperty(object, key, descriptor);
     });
   }
@@ -183,6 +202,7 @@ function installArtifactNative(config: { origin: string; projects: string[] }) {
     snapshot() {
       return {
         failed,
+        failure_reason: failureReason,
         retired,
         pending: pending.size,
         not_busy: auth?.state.busy === false,
@@ -275,7 +295,7 @@ function installArtifactNative(config: { origin: string; projects: string[] }) {
                 configurable: true,
               });
               restore.push(() => {
-                if (object[key] !== wrapper) failed = true;
+                if (object[key] !== wrapper) observerFailed();
                 if (before) Object.defineProperty(object, key, before);
                 else delete object[key];
               });
@@ -353,8 +373,8 @@ function installArtifactNative(config: { origin: string; projects: string[] }) {
             row.fetch_rejected = true;
           },
         );
-      } catch {
-        failed = true;
+      } catch (error) {
+        observerFailed(error);
       }
       return result;
     },
@@ -389,7 +409,12 @@ export async function observeArtifacts(
     retired = false,
     completed = false,
     handlers = 0,
-    stage = "entry";
+    stage = "entry",
+    failureStage = "";
+  let nativeDiagnostic: Record<string, unknown> = {
+    available: false,
+    reason: "not_sampled",
+  };
   const owned = [data.project_id, data.other_project_id];
   const selected = (request: Request) =>
     new URL(request.url()).pathname.includes("/artifacts");
@@ -425,6 +450,7 @@ export async function observeArtifacts(
       });
     } catch {
       failure = true;
+      failureStage ||= "request_observation";
     }
   };
   const response = (response: Response) => {
@@ -446,6 +472,7 @@ export async function observeArtifacts(
       );
       if (row) row.failed = true;
       failure = true;
+      failureStage ||= "request_failed";
     }
   };
   page.on("request", request);
@@ -470,6 +497,7 @@ export async function observeArtifacts(
       await route.continue();
     } catch {
       failure = true;
+      failureStage ||= "singleton_binding";
       await route.abort();
     } finally {
       handlers--;
@@ -735,23 +763,85 @@ export async function observeArtifacts(
       completed = true;
     },
     async retire() {
-      if (retired) return;
-      await verify();
-      expect(handlers).toBe(0);
-      const n = await page.evaluate(() =>
-        (window as any).__artifactNative.finish(),
-      );
-      expect(n.pending).toBe(0);
-      expect(n.retired).toBe(true);
-      expect(n.failed).toBe(false);
-      await page.unroute(entryURL, install);
-      page.off("request", request);
-      page.off("response", response);
-      page.off("requestfinished", finished);
-      page.off("requestfailed", failed);
-      wire.complete();
-      await wire.close();
-      retired = true;
+      try {
+        if (retired) return;
+        await verify();
+        expect(handlers).toBe(0);
+        const n = await page.evaluate(() =>
+          (window as any).__artifactNative.finish(),
+        );
+        expect(n.pending).toBe(0);
+        expect(n.retired).toBe(true);
+        expect(n.failed).toBe(false);
+        await page.unroute(entryURL, install);
+        page.off("request", request);
+        page.off("response", response);
+        page.off("requestfinished", finished);
+        page.off("requestfailed", failed);
+        wire.complete();
+        await wire.close();
+        retired = true;
+      } finally {
+        // Snapshot only the original observer state while its document still
+        // exists. This neither consumes a response nor issues a new request.
+        try {
+          nativeDiagnostic = await page.evaluate(() => {
+            const owner = (window as any).__artifactNative;
+            if (!owner) return { available: false, reason: "not_installed" };
+            const n = owner.snapshot();
+            const number = (value: unknown) =>
+              typeof value === "number" && Number.isFinite(value)
+                ? value
+                : null;
+            return {
+              available: true,
+              failed: n.failed === true,
+              retired: n.retired === true,
+              pending: number(n.pending),
+              not_busy: n.not_busy === true,
+              failure_reason:
+                typeof n.failure_reason === "string" &&
+                /^ARTIFACT_[A-Z_]+$/.test(n.failure_reason)
+                  ? n.failure_reason
+                  : "",
+              calls: n.calls
+                .slice(0, 64)
+                .map((c: any) => ({
+                  method:
+                    c.method === "list" || c.method === "read"
+                      ? c.method
+                      : "invalid",
+                  bound: number(c.bound),
+                  settled: c.settled === true,
+                  fulfilled: c.fulfilled === true,
+                  rejected: c.rejected === true,
+                  typed_digest_present: typeof c.typed_digest === "string",
+                })),
+              rows: n.rows
+                .slice(0, 64)
+                .map((r: any) => ({
+                  status: number(r.status),
+                  request_id_present: typeof r.rid === "string",
+                  declared_length_present: typeof r.length === "string",
+                  fetch_returned: r.fetch_returned === true,
+                  fetch_rejected: r.fetch_rejected === true,
+                  readers: number(r.readers),
+                  reads: number(r.reads),
+                  read_returns: number(r.read_returns),
+                  eof: r.eof === true,
+                  release: number(r.release),
+                  cancels: number(r.cancels),
+                  cancel_returns: number(r.cancel_returns),
+                  bytes: number(r.bytes),
+                  digest_present: typeof r.digest === "string",
+                  failed: r.failed === true,
+                })),
+            };
+          });
+        } catch {
+          nativeDiagnostic = { available: false, reason: "snapshot_failed" };
+        }
+      }
     },
     save(status?: string, errors: readonly { stack?: string }[] = []) {
       writeFileSync(
@@ -764,6 +854,20 @@ export async function observeArtifacts(
             completed,
             retired,
             failed: failure,
+            first_failure_stage: failureStage,
+            native: nativeDiagnostic,
+            original_events: entries.map((e) => ({
+              url_sha256: digest(e.uri),
+              status: e.response?.status() ?? null,
+              finished: e.finished,
+              failed: e.failed,
+              checked: e.checked,
+            })),
+            auxiliary_events: {
+              count: auxiliary.length,
+              finished: auxiliary.filter((e) => e.finished).length,
+              failed: auxiliary.filter((e) => e.failed).length,
+            },
             error_locations: errors.map(
               (error) =>
                 error.stack?.match(
