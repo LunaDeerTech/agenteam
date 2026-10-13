@@ -66,6 +66,7 @@ import {
   type ProjectSecretsAPI,
   type ProjectSecretQuery,
 } from '../api/project-secrets'
+import { createProjectArtifactsAPI, captureArtifactID, captureArtifactRef, captureArtifactQuery, captureArtifactReadQuery, type ProjectArtifactsAPI, type ArtifactRef, type ArtifactQuery, type ArtifactReadQuery } from '../api/project-artifacts'
 import {
   createProjectUsageAPI,
   captureProjectUsageID,
@@ -948,6 +949,7 @@ type Action =
   | 'knowledge-read'
   | 'skill-read'
   | 'secret-read'
+  | 'artifact-read'
   | 'usage-read'
   | 'runtime-information-read'
   | 'invitation-read'
@@ -1109,6 +1111,7 @@ export function createSessionController(
     skillImport?: SkillImportAPI
     projectSecrets?: ProjectSecretsAPI
     projectSecretCommands?: ProjectSecretCommandsAPI
+    projectArtifacts?: ProjectArtifactsAPI
     projectUsage?: ProjectUsageAPI
     scheduler?: ProjectSchedulerAPI
     skillPackage?: SkillPackageAPI
@@ -1127,6 +1130,7 @@ export function createSessionController(
   const skillsAPI = commandAPIs.skills ?? createSkillOwnerAPI()
   const secretCommandsAPI = commandAPIs.projectSecretCommands ?? createProjectSecretCommandsAPI()
   const projectSecretsAPI = commandAPIs.projectSecrets ?? createProjectSecretsAPI()
+  const projectArtifactsAPI = commandAPIs.projectArtifacts ?? createProjectArtifactsAPI()
   const projectUsageAPI = commandAPIs.projectUsage ?? createProjectUsageAPI()
   const schedulerAPI = commandAPIs.scheduler ?? createProjectSchedulerAPI()
   const skillPackageAPI = commandAPIs.skillPackage ?? createSkillPackageAPI()
@@ -1182,6 +1186,7 @@ export function createSessionController(
     knowledgeRevision = 0,
     skillRevision = 0,
     secretReadRevision = 0,
+    artifactReadRevision = 0,
     usageReadRevision = 0,
     runtimeInformationRevision = 0
   let invitationReadRevision = 0,
@@ -2172,6 +2177,7 @@ export function createSessionController(
       | 'knowledge-read'
       | 'skill-read'
       | 'secret-read'
+      | 'artifact-read'
       | 'usage-read'
       | 'runtime-information-read'
       | 'invitation-read'
@@ -2208,6 +2214,7 @@ export function createSessionController(
       if (isSkillImport(kind)) return skillImportRevisions[kind]
       if (kind === 'skill-read') return skillRevision
       if (kind === 'secret-read') return secretReadRevision
+      if (kind === 'artifact-read') return artifactReadRevision
       if (kind === 'usage-read') return usageReadRevision
       if (isKnowledgeCommand(kind)) return knowledgeCommandRevisions[kind]
       if (isSprintPlanningAction(kind)) return sprintPlanningRevisions[kind]
@@ -2278,6 +2285,7 @@ export function createSessionController(
         kind === 'knowledge-read' ||
         kind === 'skill-read' ||
         kind === 'secret-read' ||
+        kind === 'artifact-read' ||
         kind === 'usage-read' ||
         isProjectAction(kind) ||
         isProjectCreationAction(kind) ||
@@ -2365,6 +2373,7 @@ export function createSessionController(
                 : kind === 'knowledge-read' ||
                     kind === 'skill-read' ||
                     kind === 'secret-read' ||
+                    kind === 'artifact-read' ||
                     kind === 'usage-read'
                   ? knowledgeFailure(current, error)
                   : isProjectModelAction(kind)
@@ -8849,6 +8858,25 @@ export function createSessionController(
     },
     abandon: clearSecretRead,
   }
+  function clearArtifactRead() {
+    ++artifactReadRevision
+    if (owner?.kind === 'artifact-read') owner.abandon?.()
+  }
+  const projectArtifacts = {
+    list(projectID: string, query: ArtifactQuery) {
+      try {
+        const identity = personalIdentity(), project = captureArtifactID(projectID), captured = captureArtifactQuery(query)
+        return runAuthorized(identity, op => projectArtifactsAPI.list(project, captured, op.abort.signal), undefined, 'artifact-read')
+      } catch (error) { return Promise.reject(error) }
+    },
+    read(target: ArtifactRef, query: ArtifactReadQuery) {
+      try {
+        const identity = personalIdentity(), capturedRef = captureArtifactRef(target), captured = captureArtifactReadQuery(query)
+        return runAuthorized(identity, op => projectArtifactsAPI.read(capturedRef, captured, op.abort.signal), undefined, 'artifact-read')
+      } catch (error) { return Promise.reject(error) }
+    },
+    abandon: clearArtifactRead,
+  }
   function clearUsageRead() {
     ++usageReadRevision
     if (owner?.kind === 'usage-read') owner.abandon?.()
@@ -9590,6 +9618,7 @@ export function createSessionController(
     skillImport,
     projectSecrets,
     projectSecretCommands,
+    projectArtifacts,
     projectUsage,
     knowledge,
     knowledgeDelete,

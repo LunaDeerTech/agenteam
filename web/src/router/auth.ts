@@ -56,13 +56,14 @@ export function projectRoute(value: unknown): {
     | '/settings/model-usage'
     | '/tasks'
     | `/tasks/${string}`
+    | '/artifacts'
     | '/knowledge'
     | `/knowledge/${string}`
   path: string
 } | null {
   if (typeof value !== 'string' || /[%\\?#]/.test(value)) return null
   const match =
-    /^\/([A-Za-z0-9][A-Za-z0-9-]{1,30}[A-Za-z0-9])\/([A-Za-z0-9._-]{1,64})(\/settings(?:\/(?:general|audit|agents|variables|secrets|scheduler|model-providers|available-models|model-usage|skills(?:\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?))?|\/tasks(?:\/(?:sprints\/)?[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?|\/knowledge(?:\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?)?$/.exec(
+    /^\/([A-Za-z0-9][A-Za-z0-9-]{1,30}[A-Za-z0-9])\/([A-Za-z0-9._-]{1,64})(\/settings(?:\/(?:general|audit|agents|variables|secrets|scheduler|model-providers|available-models|model-usage|skills(?:\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?))?|\/tasks(?:\/(?:sprints\/)?[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?|\/artifacts|\/knowledge(?:\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?)?$/.exec(
       value,
     )
   if (!match) return null

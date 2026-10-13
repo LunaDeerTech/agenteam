@@ -8,7 +8,7 @@
 
 ```text
 系统导航：Logo / 项目 / 系统设置       搜索 / Inbox / 用户
-项目导航：项目名 / 会议 / 任务 / 知识库 / 项目设置
+项目导航：项目名 / 会议 / 任务 / 知识库 / 产物 / 项目设置
 内容区域：项目首页或选中业务页面
 ```
 
@@ -20,7 +20,7 @@
 
 ## 3. 默认选择与跳转
 
-从项目列表进入时打开项目首页；点击项目名返回首页。会议普通入口打开新会议准备；任务普通入口打开 Kanban 并选择 Current Sprint；知识库不默认选文档；项目设置打开首个可访问内容项。
+从项目列表进入时打开项目首页；点击项目名返回首页。会议普通入口打开新会议准备；任务普通入口打开 Kanban 并选择 Current Sprint；知识库不默认选文档；产物打开当前项目列表，不默认选中内容；项目设置打开首个可访问内容项。
 
 直接链接优先指定会议、Task、Sprint、文档或设置项。浏览器返回恢复前一条导航记录所指对象；不会将未指定对象的普通会议入口解释成上次会话。
 
@@ -38,4 +38,4 @@
 
 ## 6. 相关架构
 
-[安全与治理](../../architecture/security-governance/README.md)、[项目与工作管理](../../architecture/project-work-management/README.md)。子布局：[会议](meetings.md)、[任务](tasks.md)、[知识库](knowledge-base.md)、[项目设置](project-settings.md)。
+[安全与治理](../../architecture/security-governance/README.md)、[项目与工作管理](../../architecture/project-work-management/README.md)。子布局：[会议](meetings.md)、[任务](tasks.md)、[知识库](knowledge-base.md)、[产物](artifacts.md)、[项目设置](project-settings.md)。
