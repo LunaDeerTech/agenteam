@@ -408,7 +408,15 @@ func (v *skillsCleanupPG) disabledAgent(t *testing.T) i.AgentID {
 	t.Helper()
 	source, err := toolruntime.NewInstallSource(v.installer, v.p2.service)
 	outboxCleanupRequire(t, err)
-	graph, err := assembly.New(v.p2.base.tracked, assembly.Options{Accounts: v.p2.base.accounts, BuiltinSources: map[string]registry.BuiltinSource{builtin.SkillInstallStableKey: source}, InstallSourceKey: builtin.SkillInstallStableKey})
+	var runner *runnerManagedPGAssembly
+	if option := v.p2.base.executionRetirementAssembly; option != nil {
+		runner = option.runner
+	}
+	options := assembly.Options{Accounts: v.p2.base.accounts, BuiltinSources: map[string]registry.BuiltinSource{builtin.SkillInstallStableKey: source}, InstallSourceKey: builtin.SkillInstallStableKey}
+	if runner != nil {
+		options.Lifecycle = v.p2.lifecycle
+	}
+	graph, err := assembly.New(v.p2.base.tracked, options)
 	outboxCleanupRequire(t, err)
 	processes := captureProviderProcesses{guard: v.guard}
 	base := &agentCreateFixture{p2: v.p2, guard: v.guard, providers: graph.Providers()}
@@ -429,12 +437,19 @@ func (v *skillsCleanupPG) disabledAgent(t *testing.T) i.AgentID {
 		return err
 	})
 	base.modelID = base.createModel(t, fixtureProcess{processes.CurrentProcess()})
-	v.agents, err = graph.NewService(v.p2.base.keys, processes)
+	if runner == nil {
+		v.agents, err = graph.NewService(v.p2.base.keys, processes)
+	} else {
+		v.agents, err = runner.bindAgent(t, v, graph)
+	}
 	outboxCleanupRequire(t, err)
 	disabled := false
 	target := id[i.Agent](t)
 	request, err := ac.NewAgentCreate(ac.AgentCreateFields{AgentID: target, Name: "retained-agent", Description: "Disabled Skill assignment remains owned", Instructions: "No execution is started", ModelRef: base.modelID, ApprovalPolicy: ac.ApprovalDefault, AllowedToolIDs: []i.ToolID{}, AllowedMountIDs: []i.MountID{}, AllowedSecretVariableIDs: []i.ProjectVariableID{}, AddSkillsEnabled: &disabled, InstallSkillEnabled: &disabled})
 	outboxCleanupRequire(t, err)
+	if runner != nil {
+		request = runner.request(t, v, request)
+	}
 	receipt, err := v.agents.CreateAgent(ctxFor(t), v.p2.base.ownerBrowser.actor, meta(t, id[struct{}](t).String(), nil), v.p2.project.ID, request)
 	outboxCleanupRequire(t, err)
 	if receipt.Validate() != nil || receipt.Fields().Agent.Fields().Core.ID != target {
@@ -445,8 +460,12 @@ func (v *skillsCleanupPG) disabledAgent(t *testing.T) i.AgentID {
 	if err != nil || heads != 1 || assignments != 0 {
 		t.Fatal("disabled Agent did not keep its actual initialization head", err, heads, assignments)
 	}
-	v.agents.Stop()
-	outboxCleanupRequire(t, v.agents.Drain(ctxFor(t)))
+	if runner == nil {
+		v.agents.Stop()
+		outboxCleanupRequire(t, v.agents.Drain(ctxFor(t)))
+	} else {
+		runner.created(t, receipt)
+	}
 	if !v.agents.Joined() {
 		t.Fatal("original Agent call owner did not return")
 	}

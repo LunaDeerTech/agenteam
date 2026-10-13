@@ -58,6 +58,7 @@ type executionRetirementPGAssembly struct {
 	fixture *executionRetirementPG
 	upgrade bool
 	work    *workCleanupPGAssembly
+	runner  *runnerManagedPGAssembly
 }
 
 // Observe only the original Store results during this opt-in seed. Opaque
@@ -142,6 +143,9 @@ func (a *executionRetirementPGAssembly) manifest(t *testing.T, original pc.Requi
 	}
 	if a.work != nil {
 		entries = a.work.manifest(entries)
+	}
+	if a.runner != nil {
+		entries = a.runner.manifest(entries)
 	}
 	manifest, err := pc.NewRequiredManifest(entries)
 	schedulerOwnedRequire(t, "retirement-complete-manifest", err)
