@@ -23,6 +23,7 @@ const requestBudget = 2 * time.Second
 type executionReader interface {
 	List(context.Context, id.Actor, id.ProjectID, string, f.PageRequest) (ec.TaskExecutionPage, error)
 	Get(context.Context, id.Actor, id.ProjectID, string, id.ExecutionID) (ec.TaskExecution, error)
+	GetRuntimeView(context.Context, id.Actor, id.ProjectID, string, id.ExecutionID) (ec.TaskRuntimeView, error)
 }
 type accountBoundary interface {
 	CheckRequest(http.ResponseWriter, *http.Request) error
@@ -46,6 +47,7 @@ func NewHTTPHandler(service *execution.TaskExecutionReader, boundary *account.HT
 type route struct {
 	project, task, execution string
 	valid, read              bool
+	runtime                  bool
 }
 
 func executionRoute(path string) route {
@@ -53,16 +55,22 @@ func executionRoute(path string) route {
 		return route{}
 	}
 	p := strings.Split(strings.TrimPrefix(path, projectPrefix), "/")
-	if (len(p) != 4 && len(p) != 5) || p[0] == "" || p[1] != "tasks" || p[2] == "" || p[3] != "executions" {
+	if (len(p) != 4 && len(p) != 5 && len(p) != 6) || p[0] == "" || p[1] != "tasks" || p[2] == "" || p[3] != "executions" {
 		return route{}
 	}
 	v := route{project: p[0], task: p[2], valid: true}
-	if len(p) == 5 {
+	if len(p) >= 5 {
 		if p[4] == "" {
 			return route{}
 		}
 		v.execution = p[4]
 		v.read = true
+	}
+	if len(p) == 6 {
+		if p[5] != "runtime-view" {
+			return route{}
+		}
+		v.runtime = true
 	}
 	return v
 }
@@ -83,6 +91,9 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, request *http.Request) {
 		request.Pattern = projectPrefix + "{project_id}/tasks/{task_id}/executions"
 		if route.read {
 			request.Pattern += "/{execution_id}"
+		}
+		if route.runtime {
+			request.Pattern += "/runtime-view"
 		}
 	}
 	r := request.WithContext(ctx)
@@ -180,6 +191,20 @@ func (h *handler) execute(w http.ResponseWriter, r *http.Request, route route) (
 	execution, err := f.ParseID[id.Execution](route.execution)
 	if err != nil || execution.String() != route.execution {
 		return nil, invalidInput()
+	}
+	if route.runtime {
+		out, err := h.reader.GetRuntimeView(r.Context(), actor, project, route.task, execution)
+		if err != nil {
+			return nil, err
+		}
+		if out.Execution.ID != execution || validExecution(out.Execution, project, route.task) != nil || out.ValidateProjection() != nil {
+			return nil, unavailableOutput()
+		}
+		raw, err := json.Marshal(out)
+		if err != nil || len(raw) > ec.MaxRuntimeViewBytes {
+			return nil, unavailableOutput()
+		}
+		return raw, nil
 	}
 	out, err := h.reader.Get(r.Context(), actor, project, route.task, execution)
 	if err != nil {

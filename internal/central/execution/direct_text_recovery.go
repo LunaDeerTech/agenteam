@@ -215,6 +215,9 @@ func (s *directTextState) observeTerminal(ctx context.Context, run *directTextCa
 		if !modelRetired || !environmentRetired {
 			return nil
 		}
+		if err = confirmDirectTextRuntime(ctx, x, run); err != nil {
+			return err
+		}
 		if err = s.verifyDirectTextMountUse(ctx, tx, run, row, stored, run.input); err != nil {
 			return err
 		}

@@ -3,6 +3,7 @@ import { nextTick, ref } from 'vue'
 import { UiBadge, UiButton, UiState } from '../ui'
 import type { TaskExecution } from '../../api/task-executions'
 import type { TaskExecutions } from '../../composables/useTaskExecutions'
+import TaskExecutionOutput from './TaskExecutionOutput.vue'
 const props = defineProps<{ owner: TaskExecutions; agentName: (id: string | null) => string }>()
 const section = ref<HTMLElement | null>(null)
 const heading = ref<HTMLElement | null>(null)
@@ -75,6 +76,15 @@ async function refresh(event: MouseEvent) {
     (document.activeElement !== document.body && document.activeElement !== trigger)
   )
     return
+  if (trigger.isConnected && !trigger.disabled) trigger.focus()
+  else if (props.owner.state.selectedID) detailHeading.value?.focus()
+  else heading.value?.focus()
+}
+async function loadOutput(event: MouseEvent) {
+  const trigger = event.currentTarget as HTMLButtonElement, focused = document.activeElement === trigger
+  await props.owner.loadOutput()
+  await nextTick()
+  if (!focused || !props.owner.visible.value || (document.activeElement !== document.body && document.activeElement !== trigger)) return
   if (trigger.isConnected && !trigger.disabled) trigger.focus()
   else if (props.owner.state.selectedID) detailHeading.value?.focus()
   else heading.value?.focus()
@@ -215,6 +225,7 @@ async function close() {
             <dd>{{ owner.state.detail.snapshot_id ?? '未生成' }}</dd>
           </div>
         </dl>
+        <TaskExecutionOutput v-if="owner.state.detail && owner.state.detailPhase === 'ready'" :owner="owner" @load="loadOutput" />
       </div>
       <template v-else>
         <UiButton :disabled="owner.blocked.value" @click="load(false, $event)"

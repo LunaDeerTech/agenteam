@@ -53,12 +53,21 @@ func (b *testBoundary) WriteProblem(w http.ResponseWriter, r *http.Request, err 
 }
 
 type testReader struct {
-	calls  int
-	err    error
-	page   f.PageRequest
-	before func(context.Context)
-	get    ec.TaskExecution
-	list   ec.TaskExecutionPage
+	runtime ec.TaskRuntimeView
+	calls   int
+	err     error
+	page    f.PageRequest
+	before  func(context.Context)
+	get     ec.TaskExecution
+	list    ec.TaskExecutionPage
+}
+
+func (p *testReader) GetRuntimeView(ctx context.Context, _ i.Actor, _ i.ProjectID, _ string, _ i.ExecutionID) (ec.TaskRuntimeView, error) {
+	p.calls++
+	if p.before != nil {
+		p.before(ctx)
+	}
+	return p.runtime, p.err
 }
 
 func (p *testReader) List(ctx context.Context, _ i.Actor, _ i.ProjectID, _ string, page f.PageRequest) (ec.TaskExecutionPage, error) {

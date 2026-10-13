@@ -408,6 +408,10 @@ AgentExecution failed
 
 持久化的是 Runtime Item 当前 / 最终 Snapshot，而不是每条 delta。
 
+当前可实现子阶段 `durable_final_text_v1` 只接现有 schema1 DirectText 的完整终态，具体 wire 与装配见 [D22 最终文本快照](../../development/work-items/d22-runtime-final-text.md)。原 Model Result/Drain 已真实 Joined 后，由原 Execution 终态事务同时保存 canonical 状态与完整快照；成功产生一个普通 `text/completed` Item，failed/cancelled 只有真实已持久化的空 Item 列表及安全终态。没有投影记录的历史终态、尚未开始的失败及非终态，分别明确报告未记录或尚未发布，不能由 canonical 终态推断最终投影已齐。
+
+该子阶段没有实时帧、节流 flush 或 WebSocket。其 `generation` 只标识原启动 SnapshotID，`included_update_progress=1` 与 Item `seq=1/revision=1` 是相互独立的持久字段；重启读取原值，不重置或转换为未来 stream epoch。它不满足下文活动 Runtime View 的订阅与恢复合同，也不暴露部分 Model 响应。
+
 概念记录：
 
 ```text

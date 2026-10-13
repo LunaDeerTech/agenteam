@@ -796,6 +796,7 @@ export function createProjectTasks(
   const executions = createTaskExecutions(executionScope, busy, {
     list: (p, t, q) => auth.workReview.executions(p, t, q),
     get: (p, t, e) => auth.workReview.execution(p, t, e),
+    output: (p, t, e) => auth.workReview.executionOutput(p, t, e),
   })
   const canStartSprint = computed(
     () =>

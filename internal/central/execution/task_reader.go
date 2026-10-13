@@ -28,6 +28,7 @@ type TaskExecutionReader struct {
 	calls *callSet
 }
 type taskExecutionRead struct {
+	runtime   bool
 	task      string
 	execution i.ExecutionID
 	limit     int
@@ -193,6 +194,9 @@ func (r *TaskExecutionReader) begin(ctx context.Context, actor i.Actor, project 
 	method := "list_task_executions"
 	if read.execution.Validate() == nil {
 		method = "get_task_execution"
+	}
+	if read.runtime {
+		method = "get_task_execution_runtime_view"
 	}
 	// Each GET is a new read, not replay of a business command. The original
 	// uncertain read remains owned until its own explicit shutdown confirmation.

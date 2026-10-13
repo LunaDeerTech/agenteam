@@ -1,0 +1,153 @@
+import { test, expect } from "@playwright/test";
+import {
+  runtimeTextMaterial,
+  observeRuntimeText,
+  runtimeTextScreenshot,
+} from "./runtime-final-text.helpers";
+
+let observed: Awaited<ReturnType<typeof observeRuntimeText>> | undefined;
+test.afterEach(async ({}, info) => {
+  if (observed)
+    await observed.save(
+      info.status ?? "unknown",
+      info.errors.flatMap((error) =>
+        [
+          ...(error.stack ?? "").matchAll(
+            /runtime-final-text\.(?:spec|helpers)\.ts:\d+:\d+/g,
+          ),
+        ].map((match) => match[0]),
+      ),
+    );
+  observed = undefined;
+});
+
+test("final-text-load-refresh-and-safe-render", async ({ page, context }) => {
+  const data = runtimeTextMaterial(),
+    content = data.runtime_view.snapshot!.items[0]!.data.content;
+  await context.addCookies([
+    {
+      name: "agenteam_local_session",
+      value: data.cookie,
+      url: data.origin,
+      httpOnly: true,
+      sameSite: "Strict",
+      secure: false,
+    },
+  ]);
+  await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  observed = await observeRuntimeText(page, data);
+  await page.goto(data.route);
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await expect(
+    page.getByRole("heading", { name: data.title, exact: true }),
+  ).toBeVisible();
+  const section = page.getByRole("region", { name: "执行记录", exact: true });
+  const open = section.getByRole("button", {
+    name: "查看执行记录",
+    exact: true,
+  });
+  await expect(open).toBeEnabled();
+  await observed.verify();
+  await open.focus();
+  await page.keyboard.press("Enter");
+  const row = section.getByRole("button", {
+    name: `任务执行 · ${data.execution.id}`,
+    exact: true,
+  });
+  await expect(row).toBeVisible();
+  await observed.verify();
+  await expect(section.getByText("执行成功", { exact: true })).toBeVisible();
+  await row.focus();
+  await page.keyboard.press("Enter");
+  const heading = section.getByRole("heading", {
+    name: "执行详情",
+    exact: true,
+  });
+  await expect(heading).toBeFocused();
+  await expect(section.locator(".execution-facts")).toBeVisible();
+  await observed.verify();
+  await expect(section.getByText("正常完成", { exact: true })).toBeVisible();
+  await expect(
+    section.getByText(data.execution.snapshot_id!, { exact: true }),
+  ).toBeVisible();
+  const output = section.getByRole("region", { name: "最终输出", exact: true });
+  const text = output.getByLabel("最终输出正文", { exact: true });
+  const load = output.getByRole("button", {
+    name: "加载最终输出",
+    exact: true,
+  });
+  await expect(load).toBeEnabled();
+  await expect(text).toHaveCount(0);
+  observed.stage("output-loading");
+  await load.focus();
+  await page.keyboard.press("Enter");
+  await observed.held();
+  await expect(
+    output.getByRole("heading", { name: "正在读取最终输出", exact: true }),
+  ).toBeVisible();
+  await expect(text).toHaveCount(0);
+  const refresh = output.getByRole("button", {
+    name: "刷新最终输出",
+    exact: true,
+  });
+  await expect(refresh).toBeDisabled();
+  await runtimeTextScreenshot(page, "wide-light-loading");
+  observed.release();
+  await expect(text).toBeVisible();
+  await observed.verify();
+  await expect.poll(() => text.textContent()).toBe(content);
+  await expect(text.locator("script,img,iframe,a")).toHaveCount(0);
+  expect(
+    await page.evaluate(() =>
+      Object.hasOwn(globalThis, "__runtime_text_executed"),
+    ),
+  ).toBe(false);
+  await expect(refresh).toBeEnabled();
+  await expect(refresh).toBeFocused();
+  await runtimeTextScreenshot(page, "wide-light-output");
+  observed.stage("explicit-output-refresh");
+  await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await refresh.focus();
+  await page.keyboard.press("Enter");
+  await expect(text).toBeVisible();
+  await observed.verify();
+  await expect.poll(() => text.textContent()).toBe(content);
+  await expect(text.locator("script,img,iframe,a")).toHaveCount(0);
+  expect(
+    await page.evaluate(() =>
+      Object.hasOwn(globalThis, "__runtime_text_executed"),
+    ),
+  ).toBe(false);
+  await text.focus();
+  await expect(text).toBeFocused();
+  expect(
+    await text.evaluate(
+      (node) =>
+        node.scrollHeight > node.clientHeight &&
+        node.clientHeight <= Math.min(320, innerHeight * 0.4) + 1,
+    ),
+  ).toBe(true);
+  await page.keyboard.press("End");
+  await expect
+    .poll(() => text.evaluate((node) => node.scrollTop > 0))
+    .toBe(true);
+  await page.keyboard.press("Home");
+  await expect.poll(() => text.evaluate((node) => node.scrollTop)).toBe(0);
+  await runtimeTextScreenshot(page, "narrow-dark-output");
+  await section
+    .getByRole("button", { name: "返回执行列表", exact: true })
+    .click();
+  await expect(row).toBeFocused();
+  await expect(text).toHaveCount(0);
+  await section
+    .getByRole("button", { name: "收起执行记录", exact: true })
+    .click();
+  await expect(open).toBeFocused();
+  await expect(
+    page.getByRole("heading", { name: data.title, exact: true }),
+  ).toBeVisible();
+  await observed.finish();
+});
