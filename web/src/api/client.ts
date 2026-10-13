@@ -153,6 +153,7 @@ const endpoints = {
   taskTimeline: ['GET', '/api/v1/projects/{project_id}/tasks/{target}/events', 200],
   listTaskExecutions: ['GET', '/api/v1/projects/{project_id}/tasks/{target}/executions', 200],
   getTaskExecution: ['GET', '/api/v1/projects/{project_id}/tasks/{target}/executions/{execution_id}', 200],
+  getTaskExecutionOutput: ['GET', '/api/v1/projects/{project_id}/tasks/{target}/executions/{execution_id}/runtime-view', 200],
   reviewTransfer: ['POST', '/api/v1/projects/{project_id}/tasks/{target}/transfer', 200],
   reviewLookup: ['POST', '/api/v1/projects/{project_id}/task-transition-commands/lookup', 200],
   taskCreate: ['POST', '/api/v1/projects/{project_id}/tasks', 200],
@@ -1226,6 +1227,7 @@ type WorkReviewEndpoint =
   | 'taskTimeline'
   | 'listTaskExecutions'
   | 'getTaskExecution'
+  | 'getTaskExecutionOutput'
   | 'reviewTransfer'
   | 'reviewLookup'
   | 'taskCreate'
@@ -1275,6 +1277,7 @@ const workReviewEndpoints: readonly WorkReviewEndpoint[] = [
   'taskTimeline',
   'listTaskExecutions',
   'getTaskExecution',
+  'getTaskExecutionOutput',
   'reviewTransfer',
   'reviewLookup',
   'taskCreate',
@@ -1751,7 +1754,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           'signal',
           'projectID',
           ...(target ? ['target'] : []),
-          ...(endpoint === 'getTaskExecution' ? ['executionID'] : []),
+          ...(['getTaskExecution', 'getTaskExecutionOutput'].includes(endpoint) ? ['executionID'] : []),
           ...(list ? ['workQuery'] : []),
           ...(method === 'GET' ? [] : ['body', 'csrf', 'key']),
         ])
@@ -1763,7 +1766,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           if (!uuid7.test(id)) throw new Error()
           path = path.replace('{target}', id)
         }
-        if (endpoint === 'getTaskExecution') {
+        if (['getTaskExecution', 'getTaskExecutionOutput'].includes(endpoint)) {
           const execution = string(options.executionID, 36, 36)
           if (!uuid7.test(execution)) throw new Error()
           path = path.replace('{execution_id}', execution)
@@ -2379,6 +2382,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           options.signal,
           lifecycle,
           (runnerEndpoints as readonly string[]).includes(endpoint) && success ? (endpoint === 'listSystemRunners' ? 2 * 1024 * 1024 : 65536) :
+          endpoint === 'getTaskExecutionOutput' && success ? 16 * 1024 * 1024 + 64 * 1024 :
           endpoint === 'listProjectArtifacts' && success ? 8 * 1024 * 1024 :
           endpoint === 'readProjectArtifact' && success ? 512 * 1024 :
           endpoint === 'availableAgentRunners' && success ? 2 * 1024 * 1024 :
