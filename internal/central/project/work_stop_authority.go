@@ -30,7 +30,7 @@ func (s *agentPreparationScope) borrowWorkStop(ctx context.Context) (*workStopLo
 	if !s.active || s.ctx.Err() != nil {
 		return nil, fault(f.InvalidState)
 	}
-	if ctx.Value(agentPreparationLoanKey{}) != nil || ctx.Value(schedulerStopLoanKey{}) != nil || ctx.Value(executionStopLoanKey{}) != nil || ctx.Value(artifactSourceStopLoanKey{}) != nil || ctx.Value(workStopLoanKey{}) != nil || ctx.Value(usageStopLoanKey{}) != nil || ctx.Value(knowledgeStopLoanKey{}) != nil || ctx.Value(knowledgeSourceStopLoanKey{}) != nil {
+	if ctx.Value(agentPreparationLoanKey{}) != nil || ctx.Value(schedulerStopLoanKey{}) != nil || ctx.Value(executionStopLoanKey{}) != nil || ctx.Value(artifactSourceStopLoanKey{}) != nil || ctx.Value(workStopLoanKey{}) != nil || ctx.Value(usageStopLoanKey{}) != nil || ctx.Value(knowledgeStopLoanKey{}) != nil || ctx.Value(runnerManagedStopLoanKey{}) != nil || ctx.Value(knowledgeSourceStopLoanKey{}) != nil {
 		return nil, fault(f.Forbidden)
 	}
 	if s.workStops == nil {

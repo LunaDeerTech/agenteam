@@ -31,6 +31,8 @@ type lifecycleCleanupRound struct {
 	workUnknown                bool
 	workError                  error
 	usageUnknown               bool
+	runnerManagedUnknown       bool
+	runnerManagedError         error
 	knowledgeUnknown           bool
 	knowledgeError             error
 	usageError                 error

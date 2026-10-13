@@ -5,8 +5,11 @@ import (
 	"errors"
 	"sync"
 
+	"github.com/LunaDeerTech/agenteam/internal/central/agent"
 	"github.com/LunaDeerTech/agenteam/internal/central/execution"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/mount"
+	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/scheduler"
 )
 
@@ -37,6 +40,9 @@ type executionRuntimeAssembly struct {
 	executionCalls                 *execution.ProjectCallOwnership
 	executionRetirement            *execution.ProjectExecutionRetirement
 	schedulerCalls                 *scheduler.ProjectCallOwnership
+	agentCalls                     *agent.ProjectCallOwnership
+	runnerManagedCalls             *mount.ProjectLifecycleOwnership
+	runnerManagedCleanup           pc.ProjectLifecycleParticipant
 }
 
 func (b *executionRuntimeAssembly) add(owner executionRuntimeWork) {

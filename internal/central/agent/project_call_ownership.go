@@ -52,17 +52,18 @@ type projectCallOwner struct {
 	err          error
 }
 type projectCallOwnershipState struct {
-	store     Store
-	proof     projectCallProcessProof
-	process   oc.ProcessID
-	instance  f.ID[projectCallInstance]
-	service   *Service
-	directory *DirectoryReader
-	stopper   *ProjectCallStopper
-	mu        sync.Mutex
-	owners    map[f.ID[projectCallIdentity]]*projectCallOwner
-	changed   chan struct{}
-	terminal  *agentTerminalOwners
+	runnerManaged *RunnerManagedProjectCalls
+	store         Store
+	proof         projectCallProcessProof
+	process       oc.ProcessID
+	instance      f.ID[projectCallInstance]
+	service       *Service
+	directory     *DirectoryReader
+	stopper       *ProjectCallStopper
+	mu            sync.Mutex
+	owners        map[f.ID[projectCallIdentity]]*projectCallOwner
+	changed       chan struct{}
+	terminal      *agentTerminalOwners
 }
 
 // ProjectCallOwnership is an explicitly opted-in pair. Its registered-call

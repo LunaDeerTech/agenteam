@@ -80,6 +80,7 @@ type projectCallEntry struct {
 	childOutcomes                                    []error
 }
 type projectCallState struct {
+	runnerManaged     *RunnerManagedProjectCalls
 	store             Store
 	proof             projectCallProcessProof
 	process           oc.ProcessID

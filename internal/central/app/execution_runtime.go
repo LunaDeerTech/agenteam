@@ -221,6 +221,17 @@ func constructExecutionRuntime(b *executionRuntimeAssembly, cfg config.Config, d
 	if owned == nil || owned.pair == nil || owned.retirement == nil {
 		return f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
+	managed, err := createOwnedRunnerManagedRuntime(store, projects.lifecycle, b.agentCalls, owned.pair, objects)
+	if managed != nil && managed.calls != nil {
+		b.add(runtimeWork(managed.calls))
+		b.runnerManagedCalls, b.runnerManagedCleanup = managed.calls, managed.cleanup
+	}
+	if err != nil {
+		return err
+	}
+	if managed == nil || managed.calls == nil || managed.cleanup == nil {
+		return f.NewFault(f.DependencyUnbound, f.NotStarted)
+	}
 	scheduled, err := createOwnedSchedulerRuntime(store, a.pending, scheduler.ProjectCallDependencies{
 		Coordinator:   scheduler.CoordinatorDependencies{Projects: projects.projects, Claims: claims, Executions: observations, Capacity: observations},
 		Handoff:       scheduler.LaunchHandoffDependencies{Executions: owned.pair.Service(), Observations: observations},

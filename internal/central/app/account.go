@@ -806,7 +806,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 			// The four-owner constructor requires this guard's actual binding.
 			// Earlier startup failures never install an empty constructing owner.
 			// No Run or Launch is reachable until Account.Start below this phase.
-			executions := &executionRuntimeAssembly{constructing: true}
+			executions := &executionRuntimeAssembly{constructing: true, agentCalls: agentConfiguration.ownership}
 			if !accounts.install(ctx, func() { accounts.executions = executions }) {
 				executions.constructionDone()
 				return objects, context.Canceled
