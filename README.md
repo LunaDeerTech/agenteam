@@ -36,6 +36,8 @@ docker compose -f docker-compose.dev.yaml up -d --build --wait --wait-timeout 12
 
 Compose 自动读取根 `.env`，可调项及默认值见 [.env.example](.env.example)；已有 shell 环境变量优先。首次下载镜像和 Go/npm 依赖需要网络与足够磁盘空间。命令会等待数据库、对象存储初始化和真实 Central 监听；成功后访问 **http://localhost:8080**（若修改 `AGENTEAM_DEV_PORT`，使用对应端口）。只有这个网页端口绑定宿主机 loopback，数据库和 MinIO 均不公开宿主端口。
 
+使用 Docker `vfs` 存储驱动时，应另留容器文件系统的空间：本次四服务配置（MinIO 使用本地同版本镜像覆盖）的实际运行容器额外占用约 3GB，此外还有 `.dev` 中的编译和依赖缓存；这不是所有环境的峰值或空间上限。
+
 只有四个服务：`database`（PostgreSQL/pgvector）、`minio`（对象存储）、`app`（Central）和 `web`（前端与 API 反代）。数据库由原镜像自动初始化；app 启动时准备本地目录、固定机器标识及五组独立随机密钥，随后降为配置的 UID/GID 编译并运行 Central。**bucket 是 MinIO 中存放对象的容器，不是另一个服务。** Central 仅在新数据库的存储身份仍为 `reserved` 时创建缺失的配置 bucket；已确认身份的旧数据库缺桶会拒绝启动，防止掩盖数据丢失。已有 bucket 仍须通过完整安全检查，不改策略、版本管理或生命周期规则。没有独立初始化容器或 mc 依赖。
 
 工具链镜像包含 Go 1.27.1 / Node 24.12.0，不打包项目源码。`up --build` 会复用未变的构建缓存；应用每次启动都从只读挂载的当前源码编译 Central、安装或复用锁定的前端依赖并构建页面，再运行真实入口。编译失败会停止应用，页面返回 503，不运行旧二进制。工具链未变时，日常修改源码只需：
