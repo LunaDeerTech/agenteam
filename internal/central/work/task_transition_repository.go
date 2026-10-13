@@ -130,7 +130,8 @@ func (v *transitionPlan) UnmarshalJSON(raw []byte) error {
 	if next.Agent == nil {
 		retainedDone := next.Before.State == c.TaskStateInReview && next.After.Task.State == c.TaskStateDone
 		retainedCancel := transitionCancelEdge(next.Before, c.TaskTransfer{TargetState: next.After.Task.State})
-		if (!retainedDone && !retainedCancel) || !sameValue(next.Before.AssigneeAgentID, next.After.Task.AssigneeAgentID) {
+		retainedBlock := transitionBlockEdge(next.Before, c.TaskTransfer{TargetState: next.After.Task.State})
+		if (!retainedDone && !retainedCancel && !retainedBlock) || !sameValue(next.Before.AssigneeAgentID, next.After.Task.AssigneeAgentID) {
 			return internal(nil)
 		}
 	} else if next.Agent.Validate() != nil {

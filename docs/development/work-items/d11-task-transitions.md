@@ -37,6 +37,14 @@
 
 本批组合16个定向 top 的 race 与四包 vet 通过；真实 TLS 正向/原 key 重放链及独立 caller Tx 全写后哨兵 rollback/同 key 恢复链，共2 top/2 sub 整轮通过，原进程退出、资源和全部尾门均闭合。`InTx` receipt 在外层 commit 前只是 tentative；rollback 保留原 planned intent 而不发布完成回执。Unknown 仍沿原 key/digest Lookup，不自动重发。完整状态矩阵、生产绑定和 Scheduler retry 不由本切片完成；原准备失败与候选复用依据保留在恢复记录，不改写为编译整轮通过。
 
+### 1.2 Human 显式标记受阻与原子恢复后继
+
+当前 Human Owner 的 `todo→blocked` 后继沿原 Transfer/Lookup 链，仅接收已有 Blocker 的显式状态流转；本能力不接受 `AddBlockers`、`ResolveBlockerIDs` 或显式 assignee。保留原 assignee，不因进入 blocked 选择新 Agent，也不新增 CurrentAgent 要求。准备与最终事务均读取真实未解 Blocker；数量为零返回正式 `TASK_BLOCKED_WITHOUT_BLOCKER` / 409。Outbox producer 在同一最终事务再次检查 blocked 至少保有一个未解原因，不能因本次没有 resolution rows 跳过该不变量。
+
+原 Owner/Session、active Project、planned/current Sprint、真实 active Execution/pending Dispatch 及 source/target group 门不变；存在占用仍拒绝 `RESOURCE_BUSY`，不取消执行或调度。Task 进入当前 blocked 同 priority 组尾，版本、排序/查询 generation、state history、一个 Outbox、completed receipt 与 Activity 沿同一事务提交，Blocker 创建来源及内容不变。恢复继续使用 §1.1 的原 `blocked→todo`：原子解决所选原因且最终全部解除，进入 todo 时验证当前合法 assignee；合法既有技术原因可随该原组合解除，不开放 Human 创建或 standalone 解除 technical。Unknown 保持原意图 Lookup，不自动重发。
+
+本后继的定向普通、真实 HTTP 与浏览器验收尚待执行；新增状态边不代表完整状态矩阵或执行中的阻塞组合已完成。
+
 ## 2. 完整边表、Actor 与提交不变量
 
 以下是正式边表的工程展开。H=当前 Project Owner Human；A=经真实当前 Execution/Tool authority 授权的同 Project AgentRun；R=A 且其 AgentID 等于转换前当前 reviewer。S=与持久 Scheduler/Executor cause 绑定的特定内部服务能力，不是任意 `identity.Service`。H 不需要伪装 Agent reviewer。
