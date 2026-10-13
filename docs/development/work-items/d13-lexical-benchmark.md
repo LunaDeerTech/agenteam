@@ -8,7 +8,15 @@
 
 正式依据是[开发计划 D13](../development-plan.md#d13-索引与混合检索)、[Retrieval §7、§25–29](../../architecture/knowledge-memory/retrieval-runtime.md)、[Indexing §3.6、§13、§17](../../architecture/knowledge-memory/knowledge-indexing.md)。第一阶段至少比较 `native_pg_fts`、`pgroonga`、`pg_search`。PostgreSQL FTS 的 `ts_rank` / `ts_rank_cd` 不称为 BM25；各 backend 的原始分数不直接相加或跨 backend 比大小。最终选型还需要固定 dense leg 的 hybrid RRF 对照，不能凭本卡 lexical 数据准备或单一指标完成选型。
 
-本卡不新增正式依赖、lock 文件、SQL、数据库扩展、Knowledge/Model 绑定或生产索引；不执行 embedding、reranker、模型调用、网络下载和真实数据库。后续真实候选运行需单独固定版本、许可证、执行接缝及资源授权。D13 的 parser、chunker、generation、scope 过滤、索引生命周期和全模块验收仍由后续工作承担。
+原数据/评分片不新增正式依赖、lock 文件、SQL、数据库扩展、Knowledge/Model 绑定或生产索引，不执行真实数据库。后续首个候选的有限边界见下节；不执行 embedding、reranker、模型调用或网络下载。真实候选运行需单独固定版本、许可证、执行接缝及资源授权。D13 的 parser、chunker、generation、scope 过滤、索引生命周期和全模块验收仍由后续工作承担。
+
+### 1.1 首个 PostgreSQL 原生 FTS 候选
+
+`native-pg-fts-v1` 只新增 `tests/search-benchmark/native_pg_fts.go`、其普通输入/输出控制与 integration entry，复用原无标签 export、score 和 PG-only nonce fixture。源码准备与真实运行分开；当前尚未编译、执行或评分，未完成任何后端选型。
+
+预评分配置已固定：原 digest `99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc` 的 PostgreSQL17.8，`simple` 内置分析器、exact index_text、`websearch_to_tsquery`、`ts_rank_cd` normalization0、同分 C/ASCII source ID、top20、单 GIN。所有72个 query 固定执行，不根据 qrels 调参、补词或过滤。一个持久连接先取完整结果，再5轮 warm 样本，合计432次真实查询；查询与索引计时边界、输出来源和资源规则见 [benchmark README](../../../tests/search-benchmark/README.md#首个真实候选native-pg-fts-v1)。这不是 BM25、冷缓存测量或生产容量结论。
+
+仍需独立源审、必要普通控制、真实64行索引→72条结果→原 score、实际 SQL/输出来源复核和 owned 退出。准确 package copyright 在未来同一已验证的 owned fixture 准备阶段、索引前读取核版本并保存；当前许可正文与传递依赖审阅仍待验证，不据镜像名称声称完成。无新依赖、生产迁移或正式索引；另两候选、固定 dense leg hybrid RRF、完整运维许可比较与最终 ADR 仍未完成。
 
 ## 2. 现状与文件归属
 

@@ -1,6 +1,6 @@
 # 中英混合文档离线评测
 
-这是固定原创数据与评分工具，尚无候选后端实测。它不依赖 Knowledge 服务，不连接数据库、不建立索引、不调用 embedding 或安装依赖。正式范围见 [D13 benchmark 工作项](../../docs/development/work-items/d13-lexical-benchmark.md)。
+这是固定原创数据与评分工具，尚无候选后端实测。原 Python 工具不依赖 Knowledge 服务，不连接数据库、不建立索引、不调用 embedding 或安装依赖。另有下文尚待真实验证的 PostgreSQL 原生 FTS adapter；它只消费原工具的无标签导出。正式范围见 [D13 benchmark 工作项](../../docs/development/work-items/d13-lexical-benchmark.md)。
 
 数据为 `lexical-v2`：32 篇虚构文档、64 个固定 section、64 个有答案 query 和 8 个无答案 query，以及 4608 个显式相关性等级。作者依据文档语义先写判断，未运行检索器或从候选结果生成 qrels。独立首轮发现通用问题漏标和同族跨split，已按原query字面补全支持及调整family；Knowledge的全量语义审与返修复核、Model的评分实现独验均已有限接受，无剩余must-fix。校验命令自身仍只证明结构，不证明语义质量。原`lexical-v1`保留在Git历史，旧导出/评分不能冒充新修订。
 
@@ -79,3 +79,46 @@ Recall@1/5/10/20与MRR@20把grade≥2视为相关；nDCG@1/5/10/20的增益是`2
 不把PostgreSQL的ts_rank/ts_rank_cd称为BM25。当前没有测得任何候选的索引体积、索引耗时或查询延迟。扩展、分词器、字典的准确许可证/NOTICE、PostgreSQL17兼容性、重建/更新/删除/升级成本都需后续真实材料与验证。
 
 数据为内部原创测试材料，对外再分发许可未在本卡授予。没有抓取第三方文档、词典或用户数据，不猜测仓库未提供的公开许可。此工具没有新增正式dependency/lock/SQL，未运行任何正式backend。最终选型仍需三候选实际比较和固定dense leg的hybrid RRF对照；本卡不完成D13或生产索引验收。
+
+## 首个真实候选：native-pg-fts-v1
+
+当前是源码候选，尚未执行、评分或完成许可证核验。配置在看候选成绩前固定，不读取 qrels 调整；低分、空查询表达式及无结果都保留。未改原数据、export、score、依赖或生产迁移。
+
+| 项目 | 固定方式 |
+| --- | --- |
+| 服务端 | 原隔离 fixture 的 `pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc`；实际 server_version_num 必须170008，Debian package 必须17.8-1.pgdg12+1，UTF8 |
+| 分析器 | `pg_catalog.simple` 的内置 default parser/simple dictionary；逐字 `index_text`，无外部中文词典、词干、停用词、标题加权或补充索引文本 |
+| 查询 | 原 query 文本作为参数交 `websearch_to_tsquery('pg_catalog.simple', $1)`，以 `@@` 匹配；无 fallback 或难查询过滤 |
+| 排序 | `ts_rank_cd(search_vector, query, 0)` 降序，同分 `source_id COLLATE "C"` 升序，最多20条；不是 BM25 |
+| 索引 | 新 nonce 所属空库中的64行表、stored generated tsvector、单 GIN；不加载 vector/pgroonga/pg_search，不强制 planner 使用索引 |
+| 次序 | 导出的 ASCII ID 顺序；先完整72查询得到结果并预热，再固定5轮各72条，合计432次 candidate SQL；每轮排名及分数必须一致 |
+| 查询耗时 | 同一持久 pgx TLS loopback 连接，从 `Query` 调用到所有行 scan、实际 EOF/Close 完成；72组各5个 warm 样本。不含 Docker exec、连接创建或评分；不声称 cold cache |
+| 索引耗时/体积 | 从 Begin 前至建表、64条插入、GIN、ANALYZE、commit 返回；不含 fixture 启动、输入/许可读取或验查。体积只用实际 GIN 的 `pg_relation_size`，不是整库/heap体积 |
+
+64条小语料的 planner 可能选择顺序扫描；建立 GIN 不证明所有查询使用它。这里的客户端时延和小集合质量不代表生产容量、吞吐或真实用户分布。`run.json` 沿原闭合格式；另有 `source.json` 记录实际版本、三份导出 SHA、SQL、index catalog 与样本数，`package-copyright.json` 保存同一 owned 容器的安装包原文。不同连接独立读回64条已提交的 ID/text，与导出逐字比对。完成输出在原数据库删除及连接关闭返回之后写入新目录，`complete.json` 最后写入；它仍不能代替外围 driver 的 actual Wait 和资源退出结果。
+
+版本/许可准备门：现有镜像元数据确认 PG17.8；镜像无许可 labels，尚未以本候选取得准确包版权正文，不据常识填写已验证。未来一次明确授权的 PG-only 窗口中，先从同一经过 nonce/ID/镜像核验的容器读取 `dpkg-query` 的 postgresql-17 版本及 `/usr/share/doc/postgresql-17/copyright`。读取失败、版本不同或缺少 PostgreSQL 原许可正文则在索引前失败。材料与 SHA 需独立审阅，文本存在本身不完成传递依赖、镜像再分发或升级运维审查。此候选不新增 tokenizer/词典/extension，不对镜像、仓库数据授予新许可。
+
+下面是待统一验证窗口使用的精确入口；当前不表示这些命令已运行。依赖和固定镜像必须已在本机，禁止借该入口下载或运行外部数据库。只复用共享工具/cache，输出目录各轮独立。
+
+```sh
+# 在仓库根；AGENTEAM_GO 指向已经核验的 Go1.27.1，GOTOOLCHAIN=local。
+# ordinary admission/publication: 2 top-level tests；不重跑原评分器控制。
+GOPROXY=off GOSUMDB=off "$AGENTEAM_GO" test ./tests/search-benchmark -run '^TestNativePGFTS(InputContract|Publication)$' -count=1
+# 在实际资源窗口之前，由统一验证者编译两个小入口并精确 list。
+GOPROXY=off GOSUMDB=off "$AGENTEAM_GO" test -tags=integration -race -c -o output/ai/search-benchmark/native-fts.test ./tests/search-benchmark
+GOPROXY=off GOSUMDB=off "$AGENTEAM_GO" build -o output/ai/search-benchmark/pg-only-driver .agent-state/task-planning-recovery/pg_only_driver.go
+output/ai/search-benchmark/native-fts.test -test.list '^TestNativePGFTSBenchmark$'
+python3 scripts/search-benchmark.py export --data tests/search-benchmark/data --output output/ai/search-benchmark/export-native-01
+AGENTEAM_NATIVE_FTS_EXPORT="$PWD/output/ai/search-benchmark/export-native-01" \
+AGENTEAM_NATIVE_FTS_OUTPUT="$PWD/output/ai/search-benchmark/native-01" \
+output/ai/search-benchmark/pg-only-driver \
+  --test-binary "$PWD/output/ai/search-benchmark/native-fts.test" \
+  --run '^TestNativePGFTSBenchmark$' \
+  --directory "$PWD/output/ai/search-benchmark/pg-owned-native-01"
+# 仅在该唯一 top PASS、实际 child Wait=0、精确容器/网络双次消失、
+# 私有凭据退场和 driver terminal exit=0/cleanup=true 后消费新输出。
+python3 scripts/search-benchmark.py score --data tests/search-benchmark/data --run output/ai/search-benchmark/native-01/run.json --output output/ai/search-benchmark/score-native-01
+```
+
+原 PG-only driver 的单轮上限包含 setup/body/cleanup 共120s（105s工作＋15s清理）；候选自身60s context，数据库退休与输出前判定不超过75s。外层调用者须保留其真实 wait 和精确 owned ID 退出记录，并设额外有界终止/回收时间，不把 Go 的 `-test.timeout=6m` 当整轮预算。首次失败保留原目录，不自动重试。仅预先固定的一次真实候选与一次原 score；许可与来源审阅、正式完整验收结论随后按实际结果更新。
