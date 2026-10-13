@@ -818,6 +818,13 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		if bindArtifactErr != nil {
 			return objects, bindArtifactErr
 		}
+		artifactReads, err := artifactReadHandler(artifacts, core, cfg.PublicOrigin())
+		if err != nil {
+			return objects, err
+		}
+		if !accounts.install(ctx, func() { accounts.handler = artifactReadRoutes(accounts.handler, artifactReads) }) {
+			return objects, context.Canceled
+		}
 		if runtimeEnabled {
 			// The four-owner constructor requires this guard's actual binding.
 			// Earlier startup failures never install an empty constructing owner.

@@ -165,6 +165,15 @@ APP_WORK_OWNERSHIP_EXPECTED = {'TestWorkProjectCallDefaultApp',
                                'TestWorkOwnerRootActualCommandJoin/graceful-three-calls',
                                'TestWorkOwnerRootActualCommandJoin/force-does-not-invent-join'}
 
+APP_ARTIFACT_OWNER_HTTP_SELECTOR = '^TestArtifactOwnerHTTPDefaultApp$'
+APP_ARTIFACT_OWNER_HTTP_EXPECTED = {
+    'TestArtifactOwnerHTTPDefaultApp',
+    'TestArtifactOwnerHTTPDefaultApp/pagination-current-owner-and-utf8-head',
+    'TestArtifactOwnerHTTPDefaultApp/original-reader-handler-and-owner-return'}
+APP_ARTIFACT_OWNER_WEB_SELECTOR = '^TestArtifactOwnerWeb$'
+APP_ARTIFACT_OWNER_WEB_EXPECTED = {
+    'TestArtifactOwnerWeb', 'TestArtifactOwnerWeb/catalog-and-bounded-read'}
+
 APP_HUMAN_ARTIFACT_SELECTOR = '^TestHumanArtifactDefaultApp$'
 APP_HUMAN_ARTIFACT_EXPECTED = {
     'TestHumanArtifactDefaultApp',
@@ -227,6 +236,7 @@ def main():
     p.add_argument('--output', type=Path, required=True)
     p.add_argument('--runtime', type=Path, required=True)
     p.add_argument('--dist', type=Path)
+    p.add_argument('--artifact-web-harness', type=Path)
     p.add_argument('--runner-binary', type=Path)
     p.add_argument('--input-hash', required=True)
     p.add_argument('--pg-current-only', action='store_true',
@@ -302,8 +312,14 @@ def main():
                        help='run only the reviewed default App Human Artifact ownership scope')
     scope.add_argument('--runner-managed-cleanup', action='store_true',
                        help='run only the reviewed Runner managed logical configuration cleanup scope')
+    scope.add_argument('--app-artifact-owner-http', action='store_true',
+                       help='run the reviewed default App Artifact owner HTTP scope')
+    scope.add_argument('--app-artifact-owner-web', action='store_true',
+                       help='run the reviewed Artifact owner browser in the same App binary')
     a = p.parse_args()
-    selector = (APP_HUMAN_ARTIFACT_SELECTOR if a.app_human_artifact else
+    selector = (APP_ARTIFACT_OWNER_HTTP_SELECTOR if a.app_artifact_owner_http else
+                APP_ARTIFACT_OWNER_WEB_SELECTOR if a.app_artifact_owner_web else
+                APP_HUMAN_ARTIFACT_SELECTOR if a.app_human_artifact else
                 RUNNER_MANAGED_CLEANUP_SELECTOR if a.runner_managed_cleanup else
                 APP_KNOWLEDGE_LIFECYCLE_SELECTOR if a.app_knowledge_lifecycle else
                 APP_USAGE_LIFECYCLE_SELECTOR if a.app_usage_lifecycle else
@@ -336,7 +352,9 @@ def main():
                 USAGE_SELECTOR if a.project_usage_summary else
                 SECRET_SELECTOR if a.secret_delete else
                 CREATE_SELECTOR if a.project_creation else SELECTOR)
-    expected = (APP_HUMAN_ARTIFACT_EXPECTED if a.app_human_artifact else
+    expected = (APP_ARTIFACT_OWNER_HTTP_EXPECTED if a.app_artifact_owner_http else
+                APP_ARTIFACT_OWNER_WEB_EXPECTED if a.app_artifact_owner_web else
+                APP_HUMAN_ARTIFACT_EXPECTED if a.app_human_artifact else
                 RUNNER_MANAGED_CLEANUP_EXPECTED if a.runner_managed_cleanup else
                 APP_KNOWLEDGE_LIFECYCLE_EXPECTED if a.app_knowledge_lifecycle else
                 APP_USAGE_LIFECYCLE_EXPECTED if a.app_usage_lifecycle else
@@ -371,9 +389,11 @@ def main():
                 USAGE_EXPECTED if a.project_usage_summary else
                 SECRET_EXPECTED if a.secret_delete else
                 CREATE_EXPECTED if a.project_creation else EXPECTED)
-    node_count = (0 if a.app_human_artifact or a.runner_managed_cleanup or a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle else
-                  1 if a.project_creation or a.secret_delete or a.project_usage_summary or a.skill_package_import or a.task_search else 2)
-    web_scopes = ([] if a.app_human_artifact or a.runner_managed_cleanup or a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle else
+    node_count = (0 if a.app_artifact_owner_http or a.app_human_artifact or a.runner_managed_cleanup or a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle else
+                  1 if a.app_artifact_owner_web or a.project_creation or a.secret_delete or a.project_usage_summary or a.skill_package_import or a.task_search else 2)
+    web_scopes = ([] if a.app_artifact_owner_http or a.app_human_artifact or a.runner_managed_cleanup or a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle else
+                  [('AGENTEAM_ARTIFACT_OWNER_WEB', 'artifact-owner')]
+                  if a.app_artifact_owner_web else
                   [('AGENTEAM_TASK_SEARCH_WEB', 'task-search')]
                   if a.task_search else
                   [('AGENTEAM_SKILL_IMPORT_WEB', 'skill-import')]
@@ -394,11 +414,17 @@ def main():
         assert (a.runner_binary.is_absolute() and a.runner_binary.is_file()
                 and a.runner_binary.resolve() == a.runner_binary
                 and os.access(a.runner_binary, os.X_OK))
-    elif a.app_human_artifact or a.runner_managed_cleanup or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle:
+    elif a.app_artifact_owner_http or a.app_human_artifact or a.runner_managed_cleanup or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle:
         assert a.dist is None and a.runner_binary is None
     else:
         assert a.runner_binary is None
         assert a.dist is not None and a.dist.is_absolute() and (a.dist / 'index.html').is_file()
+    if a.app_artifact_owner_web:
+        assert a.artifact_web_harness == Path('/workspace/agenteam-artifact-owner-ui/tests/account-captcha-web')
+        assert a.artifact_web_harness.is_dir() and a.artifact_web_harness.resolve() == a.artifact_web_harness
+        assert (a.artifact_web_harness / 'artifact-owner.config.js').is_file()
+    else:
+        assert a.artifact_web_harness is None
     assert re.fullmatch('[0-9a-f]{64}', a.input_hash)
     a.output.mkdir(mode=0o700)
     a.runtime.mkdir(mode=0o700)
@@ -408,9 +434,9 @@ def main():
         raise OSError(ctypes.get_errno(), 'subreaper unavailable')
     env = dict(os.environ, TMPDIR=str(a.runtime), AGENTEAM_AUTH_WEB_RUNTIME=str(a.runtime),
                AGENTEAM_FIXTURE_TEST_BINARY=str(a.binary),
-               AGENTEAM_FIXTURE_TEST_CWD=str(a.root / ('internal/central/app' if a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle or a.app_human_artifact else 'tests/model' if a.project_usage_summary else 'tests/projectvariable')),
+               AGENTEAM_FIXTURE_TEST_CWD=str(a.root / ('internal/central/app' if a.app_artifact_owner_http or a.app_artifact_owner_web or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle or a.app_human_artifact else 'tests/model' if a.project_usage_summary else 'tests/projectvariable')),
                AGENTEAM_FIXTURE_OWNED_RECORD=str(a.output / 'owned-resources.json'))
-    if a.app_human_artifact:
+    if a.app_artifact_owner_http or a.app_artifact_owner_web or a.app_human_artifact:
         # Ordinary task-owned App scope: no live-provider environment or PG16.
         a.pg_current_only = True
         for name in tuple(env):
@@ -424,6 +450,8 @@ def main():
     for prefix, name in web_scopes:
         env.update({prefix+'_DIST': str(a.dist), prefix+'_EVIDENCE': str(a.output/name),
                     prefix+'_INPUT_HASH': a.input_hash})
+    if a.app_artifact_owner_web:
+        env['AGENTEAM_ARTIFACT_OWNER_WEB_HARNESS'] = str(a.artifact_web_harness)
     command = ['sh', 'scripts/test-objects.sh', '-run', selector]
     save(a.output/'invocation.json', {'command':command,'cwd':str(a.root),
          'input_hash':a.input_hash,'binary':str(a.binary),'dist':str(a.dist) if a.dist else None,
@@ -454,6 +482,11 @@ def main():
          'runner_managed_cleanup':a.runner_managed_cleanup,
          **({'app_human_artifact':True, 'acceptance_method':'human-artifact-owned-v1'}
             if a.app_human_artifact else {}),
+         **({'app_artifact_owner_http':a.app_artifact_owner_http,
+             'app_artifact_owner_web':a.app_artifact_owner_web,
+             'artifact_web_harness':str(a.artifact_web_harness) if a.artifact_web_harness else None,
+             'acceptance_method':'artifact-owner-owned-v1'}
+            if a.app_artifact_owner_http or a.app_artifact_owner_web else {}),
          'runner_binary':str(a.runner_binary) if a.runner_binary else None,
          'runtime':str(a.runtime),'supervisor_pid':os.getpid(),
          'pg_current_only':a.pg_current_only,'project_creation':a.project_creation,
@@ -559,6 +592,8 @@ def main():
             'runtime_leftovers':leftovers,'remaining_children':children(),'exit_code':int(not okay)}
     if a.app_human_artifact:
         result['acceptance_method'] = 'human-artifact-owned-v1'
+    if a.app_artifact_owner_http or a.app_artifact_owner_web:
+        result['acceptance_method'] = 'artifact-owner-owned-v1'
     save(a.output/'result.json',result)
     print(json.dumps(result),flush=True)
     return int(not okay)
