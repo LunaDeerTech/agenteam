@@ -6,6 +6,8 @@ import {
   createWorkReviewAPI,
   type TransferInput,
   type CancelInput,
+  type TaskBlockResumeInput,
+  type Task,
   type ReviewReceipt,
 } from '../api/work-review'
 import { createAgentDirectoryAPI } from '../api/agent-directory'
@@ -701,5 +703,113 @@ describe('Task Cancel original Session intent', () => {
     })
     expect(f.auth.workReview.progress).toBeNull()
     await expect(f.auth.workReview.checkOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
+  })
+})
+
+describe('Task block/resume original intent', () => {
+  const commands: TaskBlockResumeInput[] = [
+    { expected_version: '4', request: { target_state: 'blocked' } },
+    { expected_version: '4', request: { target_state: 'todo', resolve_blocker_ids: [id(70)] } },
+  ]
+  const before = (command: TaskBlockResumeInput): Task => ({
+    ...receipt(command).task,
+    version: '4',
+    state: command.request.target_state === 'blocked' ? 'todo' : 'blocked',
+  })
+  it('requires the actual source snapshot and validates retained content/assignee on both direct targets', async () => {
+    for (const command of commands) {
+      const f = await fixture()
+      await expect(
+        f.auth.workReview.startTransfer(projectID, taskID, command),
+      ).rejects.toMatchObject({ kind: 'invalid-input' })
+      await expect(
+        f.auth.workReview.startTransfer(projectID, taskID, command, {
+          ...before(command),
+          version: '3',
+        }),
+      ).rejects.toMatchObject({ kind: 'invalid-input' })
+      expect(f.transfers()).toHaveLength(0)
+      await f.auth.workReview.startTransfer(projectID, taskID, command, before(command))
+      expect(f.auth.workReview.progress?.phase).toBe('confirmed')
+      expect(f.transfers()).toHaveLength(1)
+    }
+  })
+  it('retains each original payload, source snapshot and key through Unknown/Lookup without resending', async () => {
+    for (const command of commands) {
+      const f = await fixture(),
+        source = before(command)
+      const value = structuredClone(command)
+      f.intercept(async (path, init) => {
+        if (path === transferPath) return problem('COMMIT_UNKNOWN', 503, 'unknown')
+        if (path === lookupPath)
+          return json({
+            status: 'committed',
+            receipt: {
+              ...receipt(command),
+              task: { ...receipt(command).task, manual_rank: '9' + '0'.repeat(31) },
+            },
+          })
+        return f.normal(path, init)
+      })
+      await expect(
+        f.auth.workReview.startTransfer(projectID, taskID, value, source),
+      ).rejects.toMatchObject({ kind: 'problem' })
+      ;(source as { title: string }).title = 'changed after submission'
+      if ('resolve_blocker_ids' in value.request)
+        (value.request.resolve_blocker_ids as string[])[0] = id(71)
+      await expect(
+        f.auth.workReview.startTransfer(projectID, taskID, command, before(command)),
+      ).rejects.toMatchObject({ kind: 'busy' })
+      await f.auth.workReview.checkOriginal()
+      expect(f.auth.workReview.progress?.phase).toBe('confirmed')
+      expect(f.transfers()).toHaveLength(1)
+      expect(f.lookups()).toHaveLength(1)
+      const sent = f.transfers()[0]![1],
+        lookup = f.lookups()[0]![1]
+      expect(JSON.parse(lookup.body as string)).toEqual({
+        command: 'work.task.transfer',
+        target_id: taskID,
+        ...command,
+      })
+      expect(new Headers(lookup.headers).get('Idempotency-Key')).toBe(
+        new Headers(sent.headers).get('Idempotency-Key'),
+      )
+    }
+  })
+  it('keeps an invalid retained-assignee receipt uncertain and rejects the same invalid Lookup', async () => {
+    const f = await fixture(),
+      command = commands[0]!
+    const invalid = {
+      ...receipt(command),
+      task: { ...receipt(command).task, assignee_agent_id: id(31) },
+    }
+    f.intercept(async (path, init) =>
+      path === transferPath
+        ? json(invalid)
+        : path === lookupPath
+          ? json({ status: 'committed', receipt: invalid })
+          : f.normal(path, init),
+    )
+    await expect(
+      f.auth.workReview.startTransfer(projectID, taskID, command, before(command)),
+    ).rejects.toMatchObject({ kind: 'invalid-response' })
+    expect(f.auth.workReview.progress?.phase).toBe('uncertain')
+    await expect(f.auth.workReview.checkOriginal()).rejects.toMatchObject({
+      kind: 'invalid-response',
+    })
+    expect(f.auth.workReview.progress?.phase).toBe('uncertain')
+    expect(f.transfers()).toHaveLength(1)
+  })
+  it('forgets the new recovery intent on authority loss instead of retaining an unusable Lookup', async () => {
+    const f = await fixture(),
+      command = commands[1]!
+    f.intercept(async (path, init) =>
+      path === transferPath ? problem('FORBIDDEN', 403) : f.normal(path, init),
+    )
+    await expect(
+      f.auth.workReview.startTransfer(projectID, taskID, command, before(command)),
+    ).rejects.toMatchObject({ kind: 'problem' })
+    expect(f.auth.workReview.progress).toBeNull()
+    expect(f.lookups()).toHaveLength(0)
   })
 })

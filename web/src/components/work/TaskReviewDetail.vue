@@ -3,6 +3,7 @@ import { computed, nextTick, ref } from 'vue'
 import { UiButton, UiField, UiSelect, UiTextarea, UiState, UiBadge } from '../ui'
 import { taskLabels } from '../../api/work-review'
 import type { ProjectTasks } from '../../composables/useProjectTasks'
+import TaskBlockResumeForm from './TaskBlockResumeForm.vue'
 import TaskEditForm from './TaskEditForm.vue'
 import TaskReorderForm from './TaskReorderForm.vue'
 import TaskDependencyForm from './TaskDependencyForm.vue'
@@ -49,8 +50,24 @@ async function keepTask() {
   if (props.owner.visible.value && task.value?.id === target && !props.owner.draft.action)
     cancelTaskButton.value?.$el.focus()
 }
+let blockTrigger: HTMLButtonElement | null = null
+async function openTaskBlocking(event: MouseEvent) {
+  const target = task.value?.id
+  blockTrigger = event.currentTarget as HTMLButtonElement
+  props.owner.chooseAction(task.value?.state === 'todo' ? 'blocked' : 'todo')
+  await nextTick()
+  if (props.owner.visible.value && task.value?.id === target && props.owner.isBlockTransition.value)
+    detail.value?.querySelector<HTMLElement>('.block-resume-form input, .block-resume-form textarea')?.focus()
+}
+async function keepTaskBlocking() {
+  const target = task.value?.id
+  props.owner.keepTask()
+  await nextTick()
+  if (props.owner.visible.value && task.value?.id === target && !props.owner.draft.action && blockTrigger?.isConnected && !blockTrigger.disabled)
+    blockTrigger.focus()
+}
 async function submitReview() {
-  const cancelling = props.owner.draft.action === 'cancelled',
+  const cancelling = props.owner.draft.action === 'cancelled' || props.owner.isBlockTransition.value,
     target = task.value?.id, project = props.owner.projectID.value
   const saved = await props.owner.submit()
   await nextTick()
@@ -93,7 +110,7 @@ async function lookup() {
   if (original?.kind === 'reorder' && confirmed) await focusTaskReorder()
   if (original?.kind.startsWith('blocker-') && confirmed) await focusBlocker(true)
   if (original?.kind.startsWith('dependency-') && confirmed) await focusDependency(true)
-  if (original?.kind === 'review' && confirmed && task.value?.state === 'cancelled') {
+  if (original?.kind === 'review' && confirmed) {
     await nextTick()
     if (props.owner.visible.value && props.owner.projectID.value === original.projectID && task.value?.id === original.taskID)
       detail.value?.querySelector<HTMLElement>('h2')?.focus()
@@ -317,7 +334,7 @@ const canSubmit = computed(
         v-if="!['done', 'cancelled'].includes(task.state) && owner.draft.action !== 'cancelled'"
         ref="cancelTaskButton"
         variant="danger"
-        :disabled="owner.busy.value || !owner.canCancelTask.value"
+        :disabled="owner.busy.value || !owner.canCancelTask.value || owner.isBlockTransition.value"
         @click="openTaskCancel"
         >取消任务</UiButton
       >
@@ -327,6 +344,11 @@ const canSubmit = computed(
         @click="owner.chooseAction('todo')"
         >指派并加入待执行</UiButton
       >
+      <UiButton
+        v-if="['todo', 'blocked'].includes(task.state)"
+        :disabled="owner.busy.value || !owner.canManageTaskBlocking.value || !!owner.draft.action"
+        @click="openTaskBlocking"
+      >{{ task.state === 'todo' ? '标记受阻' : '解决阻塞并恢复待执行' }}</UiButton>
       <UiButton
         v-if="task.state === 'in_progress'"
         :disabled="owner.busy.value || owner.readOnly.value"
@@ -348,8 +370,14 @@ const canSubmit = computed(
     <p v-if="['done', 'cancelled'].includes(task.state)" role="status">
       此任务已结束，保留只读信息。
     </p>
+    <TaskBlockResumeForm
+      v-if="owner.isBlockTransition.value && !owner.pending.value"
+      :owner="owner"
+      @submit="submitReview"
+      @cancel="keepTaskBlocking"
+    />
     <form
-      v-if="owner.draft.action && !owner.pending.value && !owner.edit.open && !owner.humanBlocker.open && !owner.dependency.open && !owner.taskReorder.open"
+      v-if="owner.draft.action && !owner.isBlockTransition.value && !owner.pending.value && !owner.edit.open && !owner.humanBlocker.open && !owner.dependency.open && !owner.taskReorder.open"
       class="review-form"
       :aria-label="owner.draft.action === 'cancelled' ? '取消任务确认' : actionLabel"
       @submit.prevent="submitReview"
