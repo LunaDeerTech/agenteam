@@ -703,8 +703,18 @@ describe('Human review page with real UI controls', () => {
     await click('确认接受并完成')
     expect(f.transfers()).toHaveLength(1)
     expect(f.lookups()).toHaveLength(0)
-    expect(body().get('[role="dialog"]').text()).toContain('提交结果待确认')
-    expect(body().find('form').exists()).toBe(false)
+    const detail = body().get('[role="dialog"]')
+    expect(detail.text()).toContain('提交结果待确认')
+    expect(detail.find('form').exists()).toBe(false)
+    // The existing board search is read-only; only mutation forms must disappear.
+    expect(body().findAll('form').map((form) => form.attributes('aria-label'))).toEqual([
+      'Sprint 任务搜索',
+    ])
+    expect(
+      detail.findAll<HTMLButtonElement>('button').some((item) =>
+        ['编辑任务', '指派并加入待执行', '提交评审', '接受并完成', '退回修改'].includes(buttonLabel(item)),
+      ),
+    ).toBe(false)
     await click('查询原操作结果')
     expect(body().text()).toContain('尚未观察到原操作结果')
     f.observe('in_progress')
