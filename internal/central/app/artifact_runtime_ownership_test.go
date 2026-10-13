@@ -130,7 +130,10 @@ func TestArtifactHumanAppConstructionAndFixedDispatch(t *testing.T) {
 			case "nil-guard":
 				o.guard = nil
 			case "foreign-process":
-				o.process = updateRootID[oc.Process]()
+				o.process, err = f.NewID[oc.Process]()
+				if err != nil || o.process == v.objects.process {
+					t.Fatal("fixture did not create a distinct process", err)
+				}
 			case "nil-owner":
 				owners = nil
 			}
