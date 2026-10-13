@@ -200,6 +200,28 @@ func taskExecutionFacts(t *testing.T, v *workAppFixture) string {
 	return string(raw)
 }
 
+// Diagnose only the already-captured snapshots. Keep the original full
+// equality assertion and never emit records, identifiers, bodies or secrets.
+func taskExecutionFactDifferences(t *testing.T, before, after string) {
+	t.Helper()
+	var previous, current map[string]json.RawMessage
+	workAppCheck(t, "execution-facts-before-shape", json.Unmarshal([]byte(before), &previous))
+	workAppCheck(t, "execution-facts-after-shape", json.Unmarshal([]byte(after), &current))
+	for _, field := range []string{"execution", "task", "audit", "snapshots", "preparations", "models", "operations"} {
+		var counts [2]int64
+		for index, values := range []map[string]json.RawMessage{previous, current} {
+			if field == "execution" || field == "task" || field == "audit" {
+				var rows []json.RawMessage
+				workAppCheck(t, "execution-facts-array-shape", json.Unmarshal(values[field], &rows))
+				counts[index] = int64(len(rows))
+			} else {
+				workAppCheck(t, "execution-facts-count-shape", json.Unmarshal(values[field], &counts[index]))
+			}
+		}
+		t.Logf("EXECUTION_READ_FACT component=%s equal=%t before_count=%d after_count=%d", field, string(previous[field]) == string(current[field]), counts[0], counts[1])
+	}
+}
+
 func taskExecutionReadClosed(t *testing.T, v *workAppFixture, process string) {
 	t.Helper()
 	var total, live, origins int
@@ -374,7 +396,9 @@ func taskExecutionReadApp(t *testing.T) {
 	taskExecutionPage(t, taskExecutionGet(t, second, second.client, second.cookie, "GET", list+"?limit=1", 200).body, []ec.TaskExecution{expected})
 	taskExecutionDetail(t, taskExecutionGet(t, second, second.client, second.cookie, "GET", detail, 200).body, expected)
 	taskExecutionReadClosed(t, second, second.objects.process.String())
-	if taskExecutionFacts(t, second) != before {
+	after := taskExecutionFacts(t, second)
+	if after != before {
+		taskExecutionFactDifferences(t, before, after)
 		t.Fatal("disabled restart changed original history or invoked work")
 	}
 	second.requestStop()
