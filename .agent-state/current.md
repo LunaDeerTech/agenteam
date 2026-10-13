@@ -1,8 +1,8 @@
-# 当前工作：Human Blocker 已限定验收，Runner-managed 待真实 PG 验收
+# 当前工作：Human Blocker 与 Runner-managed 已限定验收
 
 2026-10-13。本次本地集成基线为 main `55238e723`；Human Blocker 受测 `659bc3eb`，58 项去重前端测试、完整类型检查及 84 文件构建通过。[native02](../output/ai/task-human-blocker-ui-delivery/native02/result.json) 原 `23728/959342` Wait 0/170.475s，Go 1 top/2 sub 共 79.72s、两个原 Node 调用、14 个 native PID 与六项资源、私有目录及 TCP 全尾闭合；四图已亲视有限接受。两组各 Add/Resolve 两次写入，版本 1/2/3、零 Transfer、B 不变。范围为 Work HTTP shell 的 Ready 界面门，不代表默认 App 生命周期或 Unknown 原生验收；原 basic01 两个 fixture FAIL、native01 两组 receipt 投影 FAIL 及窄修、复验、唯一二进制处置均保留，见[汇总](../output/ai/task-human-blocker-ui-delivery/summary.json)和[本片卡](../docs/development/work-items/d11-task-human-blocker-ui.md)。
 
-Runner-managed 在独立工作树，已审候选 `7a20f7e4` 的基础 41 top/133 sub 与六次 vet 已通过，真实 PG 尚待验收，不纳入本次 Human 交付。当前 16 个工作树为 12 个带分支树与四个 protected detached 保留树，旧 STOP 和未推 refs 均保留。GitHub 认证仍未恢复，禁止网络重试；最新已 verify 的[增量 bundle05](../output/ai/pending-push-20261013-05/manifest.json)为 380,468 B/91 commits/10 refs，截止 main `55238e723`，不包含新 Human / Runner 分支的后继提交，也不代替远端备份。bundle06 等 Runner 本轮实际结果后统一生成，当前未生成。
+Runner-managed 受测 `80575144`，基础 41 top/133 sub（五个测试包）与六次 vet、[native03](../output/ai/runner-managed-lifecycle-delivery/native03/result.json) 的 1 top/2 sub 已通过（44.20s；原 `89912/e8f139` Wait 0/82.194s）。实际 Execution Completed 后，原非空配置的不可变 proof 经 Agent Applied 消费；原 Store 返回与 Unknown 只读确认、B 和系统 Runner/凭据保留已验。四个原调用 PID、六项资源与私有目录全退；原 App compileFAIL0RUN、native01/02 FAIL、夹具窄修及三份二进制处置记录保留，见 [D08](../docs/development/work-items/d08-project-owner-design.md)与[汇总](../output/ai/runner-managed-lifecycle-delivery/summary.json)。此为显式原 owner assembly，Registry nil，未启 Runtime 保持 unbound；不代表默认 App 整体、Runner Invoke 或物理目录删除。当前 16 个工作树为 12 个带分支树与四个 protected detached 保留树，旧 STOP 和未推 refs 均保留。GitHub 认证仍未恢复，禁止网络重试；最新已 verify 的[增量 bundle05](../output/ai/pending-push-20261013-05/manifest.json)为 380,468 B/91 commits/10 refs，截止 main `55238e723`，不包含新 Human / Runner 分支的后继提交，也不代替远端备份。bundle06 等 Runner 本轮实际结果后统一生成，当前未生成。
 
 ## 前次摘要：Knowledge 交付时点（下文旧计数及包状态仅属该时点）
 
