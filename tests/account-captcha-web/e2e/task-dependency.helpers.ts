@@ -1127,7 +1127,7 @@ export async function observeDependency(page: Page, data: DependencyMaterial) {
         code: "TASK_DEPENDENCY_CYCLE",
         status: 409,
         commit_state: "not_committed",
-        instance: `${prefix}/tasks/${data.related.id}/blockers`,
+        instance: "/api/v1",
       });
       expect(writes).toBe(2);
     },

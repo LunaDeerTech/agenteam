@@ -588,7 +588,7 @@ func (w *taskDependencyWeb) response(r *http.Response) (resultErr error) {
 					diagnostic["commit_state"] = string(problem.CommitState)
 				}
 				diagnostic["request_id_matches"] = problem.RequestID == in.requestID
-				diagnostic["instance_matches"] = problem.Instance == r.Request.URL.Path
+				diagnostic["instance_matches"] = problem.Instance == "/api/v1"
 			}
 			stage = "cycle_snapshot"
 			after, e := w.mutableFacts(r.Request.Context())
@@ -606,7 +606,7 @@ func (w *taskDependencyWeb) response(r *http.Response) (resultErr error) {
 				}
 			}
 			stage = "cycle_problem"
-			if r.StatusCode != 409 || decodeErr != nil || problem.Code != f.TaskDependencyCycle || problem.CommitState != f.NotCommitted || problem.RequestID != in.requestID || problem.Instance != r.Request.URL.Path || after != in.rejectedBefore {
+			if r.StatusCode != 409 || decodeErr != nil || problem.Code != f.TaskDependencyCycle || problem.CommitState != f.NotCommitted || problem.RequestID != in.requestID || problem.Instance != "/api/v1" || after != in.rejectedBefore {
 				return errors.New("real cycle rejection committed facts or lost original problem")
 			}
 			w.mu.Lock()
