@@ -165,6 +165,13 @@ APP_WORK_OWNERSHIP_EXPECTED = {'TestWorkProjectCallDefaultApp',
                                'TestWorkOwnerRootActualCommandJoin/graceful-three-calls',
                                'TestWorkOwnerRootActualCommandJoin/force-does-not-invent-join'}
 
+APP_HUMAN_ARTIFACT_SELECTOR = '^TestHumanArtifactDefaultApp$'
+APP_HUMAN_ARTIFACT_EXPECTED = {
+    'TestHumanArtifactDefaultApp',
+    'TestHumanArtifactDefaultApp/inline-replay-audit-and-original-close',
+    'TestHumanArtifactDefaultApp/published-ack-unknown-and-readonly-replay',
+    'TestHumanArtifactDefaultApp/pending-creation-explicit-cancellation'}
+
 RUNNER_MANAGED_CLEANUP_SELECTOR = '^TestProjectRunnerManagedCleanup$'
 RUNNER_MANAGED_CLEANUP_EXPECTED = {
     'TestProjectRunnerManagedCleanup',
@@ -291,10 +298,13 @@ def main():
                        help='run only the original default Usage App lifecycle scope')
     scope.add_argument('--app-knowledge-lifecycle', action='store_true',
                        help='run only the original default Knowledge App lifecycle scope')
+    scope.add_argument('--app-human-artifact', action='store_true',
+                       help='run only the reviewed default App Human Artifact ownership scope')
     scope.add_argument('--runner-managed-cleanup', action='store_true',
                        help='run only the reviewed Runner managed logical configuration cleanup scope')
     a = p.parse_args()
-    selector = (RUNNER_MANAGED_CLEANUP_SELECTOR if a.runner_managed_cleanup else
+    selector = (APP_HUMAN_ARTIFACT_SELECTOR if a.app_human_artifact else
+                RUNNER_MANAGED_CLEANUP_SELECTOR if a.runner_managed_cleanup else
                 APP_KNOWLEDGE_LIFECYCLE_SELECTOR if a.app_knowledge_lifecycle else
                 APP_USAGE_LIFECYCLE_SELECTOR if a.app_usage_lifecycle else
                 APP_EXECUTION_SCHEDULER_OWNERSHIP_SELECTOR if a.app_execution_scheduler_ownership else
@@ -326,7 +336,8 @@ def main():
                 USAGE_SELECTOR if a.project_usage_summary else
                 SECRET_SELECTOR if a.secret_delete else
                 CREATE_SELECTOR if a.project_creation else SELECTOR)
-    expected = (RUNNER_MANAGED_CLEANUP_EXPECTED if a.runner_managed_cleanup else
+    expected = (APP_HUMAN_ARTIFACT_EXPECTED if a.app_human_artifact else
+                RUNNER_MANAGED_CLEANUP_EXPECTED if a.runner_managed_cleanup else
                 APP_KNOWLEDGE_LIFECYCLE_EXPECTED if a.app_knowledge_lifecycle else
                 APP_USAGE_LIFECYCLE_EXPECTED if a.app_usage_lifecycle else
                 APP_EXECUTION_SCHEDULER_OWNERSHIP_EXPECTED if a.app_execution_scheduler_ownership else
@@ -360,9 +371,9 @@ def main():
                 USAGE_EXPECTED if a.project_usage_summary else
                 SECRET_EXPECTED if a.secret_delete else
                 CREATE_EXPECTED if a.project_creation else EXPECTED)
-    node_count = (0 if a.runner_managed_cleanup or a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle else
+    node_count = (0 if a.app_human_artifact or a.runner_managed_cleanup or a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle else
                   1 if a.project_creation or a.secret_delete or a.project_usage_summary or a.skill_package_import or a.task_search else 2)
-    web_scopes = ([] if a.runner_managed_cleanup or a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle else
+    web_scopes = ([] if a.app_human_artifact or a.runner_managed_cleanup or a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle else
                   [('AGENTEAM_TASK_SEARCH_WEB', 'task-search')]
                   if a.task_search else
                   [('AGENTEAM_SKILL_IMPORT_WEB', 'skill-import')]
@@ -383,7 +394,7 @@ def main():
         assert (a.runner_binary.is_absolute() and a.runner_binary.is_file()
                 and a.runner_binary.resolve() == a.runner_binary
                 and os.access(a.runner_binary, os.X_OK))
-    elif a.runner_managed_cleanup or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle:
+    elif a.app_human_artifact or a.runner_managed_cleanup or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle:
         assert a.dist is None and a.runner_binary is None
     else:
         assert a.runner_binary is None
@@ -397,8 +408,14 @@ def main():
         raise OSError(ctypes.get_errno(), 'subreaper unavailable')
     env = dict(os.environ, TMPDIR=str(a.runtime), AGENTEAM_AUTH_WEB_RUNTIME=str(a.runtime),
                AGENTEAM_FIXTURE_TEST_BINARY=str(a.binary),
-               AGENTEAM_FIXTURE_TEST_CWD=str(a.root / ('internal/central/app' if a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle else 'tests/model' if a.project_usage_summary else 'tests/projectvariable')),
+               AGENTEAM_FIXTURE_TEST_CWD=str(a.root / ('internal/central/app' if a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle or a.app_human_artifact else 'tests/model' if a.project_usage_summary else 'tests/projectvariable')),
                AGENTEAM_FIXTURE_OWNED_RECORD=str(a.output / 'owned-resources.json'))
+    if a.app_human_artifact:
+        # Ordinary task-owned App scope: no live-provider environment or PG16.
+        a.pg_current_only = True
+        for name in tuple(env):
+            if name.startswith('DEV_CHAT_') or name == 'AGENTEAM_LIVE_CHAT_E2E':
+                env.pop(name)
     env.pop('AGENTEAM_FIXTURE_PG_CURRENT_ONLY', None)
     if a.pg_current_only:
         env['AGENTEAM_FIXTURE_PG_CURRENT_ONLY'] = '1'
@@ -435,6 +452,8 @@ def main():
          'app_usage_lifecycle':a.app_usage_lifecycle,
          'app_knowledge_lifecycle':a.app_knowledge_lifecycle,
          'runner_managed_cleanup':a.runner_managed_cleanup,
+         **({'app_human_artifact':True, 'acceptance_method':'human-artifact-owned-v1'}
+            if a.app_human_artifact else {}),
          'runner_binary':str(a.runner_binary) if a.runner_binary else None,
          'runtime':str(a.runtime),'supervisor_pid':os.getpid(),
          'pg_current_only':a.pg_current_only,'project_creation':a.project_creation,
@@ -538,6 +557,8 @@ def main():
             'runner_actual_waits':runner_waits,'adopted_actual_waits':adopted,
             'resources':resources,'private_directories_absent':directories_absent,
             'runtime_leftovers':leftovers,'remaining_children':children(),'exit_code':int(not okay)}
+    if a.app_human_artifact:
+        result['acceptance_method'] = 'human-artifact-owned-v1'
     save(a.output/'result.json',result)
     print(json.dumps(result),flush=True)
     return int(not okay)

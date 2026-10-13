@@ -131,12 +131,20 @@ func workAppJSON(t *testing.T, value any) []byte {
 
 func newWorkAppFixture(t *testing.T) *workAppFixture {
 	t.Helper()
+	return newWorkAppFixtureWith(t, nil)
+}
+
+func newWorkAppFixtureWith(t *testing.T, configure func(*modelRootApp, *dependencies)) *workAppFixture {
+	t.Helper()
 	v := &workAppFixture{store: &workAppStore{entered: make(chan workAppReturn, 1), release: make(chan struct{}), stopped: make(chan struct{})}, client: &http.Client{Transport: &http.Transport{Proxy: nil}, Timeout: 8 * time.Second}}
 	v.root = newModelRootApp(t, "5s", func(root *modelRootApp, deps *dependencies) {
 		deps.open = func(ctx context.Context, cfg postgres.Config) (database, error) {
 			raw, err := postgres.Open(ctx, cfg)
 			root.store.Store, v.store.Store = raw, raw
 			return v.store, err
+		}
+		if configure != nil {
+			configure(root, deps)
 		}
 	})
 	ctx, cancel := context.WithTimeout(context.Background(), 90*time.Second)

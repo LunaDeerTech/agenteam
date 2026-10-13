@@ -57,7 +57,7 @@ func (s *Service) listArtifacts(ctx context.Context, v ac.Invocation, filter ac.
 	}
 	d := v.Details()
 	scope, _ := identity.InProject(d.ProjectID)
-	queryDigest, err := jsonDigest(struct{ Resource, Project, Execution, Kind, Media, Name, Order string }{"artifact", d.ProjectID.String(), filter.ExecutionID, string(filter.Kind), filter.MediaType, filter.NameQuery, cursor.AuditOrder})
+	queryDigest, err := artifactListQuery(d.ProjectID, filter)
 	if err != nil {
 		return Page{}, err
 	}
@@ -90,25 +90,11 @@ func (s *Service) listArtifacts(ctx context.Context, v ac.Invocation, filter ac.
 		if err != nil {
 			return portError(err)
 		}
-		query := `SELECT ` + artifactColumns + ` FROM agenteam_artifact.artifacts WHERE project_id=$1 AND ($2='' OR execution_id::text=$2) AND ($3='' OR kind=$3) AND ($4='' OR media_type=$4) AND ($5='' OR name LIKE '%' || $5 || '%' ESCAPE '\') AND ($6::timestamptz IS NULL OR (created_at,id::text)<($6,$7)) ORDER BY created_at DESC,id DESC LIMIT $8`
-		rows, err := e.Query(ctx, query, d.ProjectID.String(), filter.ExecutionID, string(filter.Kind), filter.MediaType, escapeLike(filter.NameQuery), afterTime, afterID, page.Limit+1)
+		items, err := artifactListRows(ctx, e, d.ProjectID, filter, afterTime, afterID, page.Limit)
 		if err != nil {
-			return unavailable(err)
+			return err
 		}
-		items := []ac.Metadata{}
-		for rows.Next() {
-			row, _, err := scanArtifact(rows)
-			if err != nil {
-				rows.Close()
-				return err
-			}
-			items = append(items, row.meta)
-		}
-		err = rows.Err()
-		rows.Close()
-		if err != nil {
-			return unavailable(err)
-		}
+		list := projectAuditList{invocation: v, filter: filter, page: page, query: queryDigest, afterTime: afterTime, afterID: afterID, rows: items}
 		if len(items) > page.Limit {
 			items = items[:page.Limit]
 			last := items[len(items)-1].Details()
@@ -120,16 +106,7 @@ func (s *Service) listArtifacts(ctx context.Context, v ac.Invocation, filter ac.
 			}
 		}
 		out.Items = items
-		metadata, err := au.ArtifactMetadata(au.ArtifactList, au.ArtifactMetadataFields{Count: foundation.Progress(len(items)), Phase: au.ListedPhase})
-		if err != nil {
-			return err
-		}
-		resource, _ := au.NewResource(au.ArtifactCollectionResource, d.ProjectID.String())
-		key, err := jsonDigest([]string{"list", d.AttemptID.String(), binding.QueryDigest.String(), page.Cursor, fmt.Sprint(page.Limit), stableActor(d.Actor)})
-		if err != nil {
-			return err
-		}
-		return s.appendReadAudit(ctx, tx, v, au.ArtifactList, resource, metadata, key)
+		return s.appendProjectListAudit(ctx, tx, list)
 	})
 	if err = commitError(result); err != nil {
 		return Page{}, err

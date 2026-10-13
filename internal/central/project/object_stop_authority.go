@@ -8,6 +8,15 @@ import (
 	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 )
 
+// NewArtifactStopAuthority validates the original composition without I/O. It
+// returns that same Life, not a second authority or a caller-issued permission.
+func NewArtifactStopAuthority(authority *LifecycleAuthority, executorStore Store) (obj.ProjectStopAuthority, error) {
+	if !authority.bound() || nilPort(executorStore) || !sameStore(authority.store, executorStore) {
+		return nil, fault(foundation.DependencyUnbound)
+	}
+	return authority, nil
+}
+
 func (a *LifecycleAuthority) DiscoverProjectStop(ctx context.Context, request obj.ProjectStopRequest) (obj.AccessDependencies, error) {
 	if !a.bound() {
 		return obj.AccessDependencies{}, fault(foundation.DependencyUnbound)

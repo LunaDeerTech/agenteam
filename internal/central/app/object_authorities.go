@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	"github.com/LunaDeerTech/agenteam/internal/central/artifact"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/knowledge"
@@ -12,12 +13,13 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/skill"
 )
 
-// The root binds exactly these three real authorities. Selection is never an
+// The root fixes its real authorities at construction. Selection is never an
 // authorization attempt: errors from the selected domain are returned as-is.
 type objectAuthorities struct {
 	avatar      *account.AvatarAuthority
 	knowledge   *knowledge.Authority
 	skills      *skill.Authority
+	artifacts   *artifact.OwnerProvider
 	maintenance *object.MaintenanceOwnerResolver
 }
 
@@ -29,6 +31,10 @@ type objectOwnerAuthority interface {
 }
 
 func newObjectAuthorities(store object.Store, avatar *account.AvatarAuthority, documents *knowledge.Authority, skills *skill.Authority) (*objectAuthorities, error) {
+	return newObjectAuthoritiesWithArtifacts(store, avatar, documents, skills, nil)
+}
+
+func newObjectAuthoritiesWithArtifacts(store object.Store, avatar *account.AvatarAuthority, documents *knowledge.Authority, skills *skill.Authority, artifacts *artifact.OwnerProvider) (*objectAuthorities, error) {
 	if avatar == nil || documents == nil || skills == nil {
 		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
@@ -36,7 +42,7 @@ func newObjectAuthorities(store object.Store, avatar *account.AvatarAuthority, d
 	if err != nil {
 		return nil, err
 	}
-	return &objectAuthorities{avatar: avatar, knowledge: documents, skills: skills, maintenance: resolver}, nil
+	return &objectAuthorities{avatar: avatar, knowledge: documents, skills: skills, artifacts: artifacts, maintenance: resolver}, nil
 }
 
 func (a *objectAuthorities) owner(owner oc.ObjectOwner) (objectOwnerAuthority, error) {
@@ -50,6 +56,11 @@ func (a *objectAuthorities) owner(owner oc.ObjectOwner) (objectOwnerAuthority, e
 		return a.knowledge, nil
 	case oc.SkillRevision:
 		return a.skills, nil
+	case oc.Artifact:
+		if a.artifacts != nil {
+			return a.artifacts, nil
+		}
+		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
 	default:
 		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
@@ -153,6 +164,11 @@ func (a *objectAuthorities) CheckCleanupInTx(ctx context.Context, tx f.Tx, cause
 		return a.avatar.CheckCleanupInTx(ctx, tx, cause, object)
 	case oc.Knowledge:
 		return a.knowledge.CheckCleanupInTx(ctx, tx, cause, object)
+	case oc.Artifact:
+		if a.artifacts != nil {
+			return a.artifacts.CheckCleanupInTx(ctx, tx, cause, object)
+		}
+		return f.NewFault(f.DependencyUnbound, f.NotStarted)
 	default:
 		return f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
