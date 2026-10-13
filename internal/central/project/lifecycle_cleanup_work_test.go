@@ -315,6 +315,9 @@ func TestLifecycleCleanupWorkProjectUnknownReturn(t *testing.T) {
 				return c.CleanupReport{}, errors.New("unexpected provider")
 			}}
 			original := f.UnknownResult(testID[f.TransactionAttempt](t), w.round.claim.cause())
+			// This round reads the operation first; the inherited fixture must not
+			// decode that row as its optional first-claim projection.
+			s.claim, s.claimMissing = nil, false
 			s.within = func(ctx context.Context, cause f.TransactionCause, fn func(context.Context, f.Tx) error) f.CommitResult {
 				if err := fn(ctx, s.tx); !errors.Is(err, s.readErr) {
 					t.Error("did not reach original canonical SQL", err)
@@ -408,6 +411,8 @@ func TestLifecycleCleanupWorkKnownCheckpointRollback(t *testing.T) {
 		t.Error("repeated original provider")
 		return c.CleanupReport{}, nil
 	}}
+	// Checkpoint validation starts with the operation, not a claim row.
+	s.claim, s.claimMissing = nil, false
 	s.within = func(ctx context.Context, _ f.TransactionCause, fn func(context.Context, f.Tx) error) f.CommitResult {
 		err := fn(ctx, s.tx)
 		if !errors.Is(err, s.readErr) {
