@@ -33,5 +33,5 @@ defineEmits<{ load: [event: MouseEvent] }>()
 .output-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--content-gap); flex-wrap: wrap; }
 .output-heading h5 { font-size: 1rem; margin: 0; }
 .output-note { color: var(--muted); font-size: 0.875rem; margin: 0; }
-.output-text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; tab-size: 4; font: inherit; line-height: 1.6; min-width: 0; }
+.output-text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; tab-size: 4; font: inherit; line-height: 1.6; min-width: 0; max-height: min(320px, 40dvh); overflow: auto; }
 </style>

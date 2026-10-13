@@ -20,7 +20,7 @@ describe('Task Execution final output wire', () => {
   it('distinguishes pending, missing historical projection, successful empty text and terminal empty items', async () => {
     const values = [
       { execution: execution(), availability: 'pending', snapshot: null },
-      { execution: finalExecution(), availability: 'not_recorded', snapshot: null },
+      { execution: finalExecution({ started_at: null, reason: null }), availability: 'not_recorded', snapshot: null },
       output(''), output('', finalExecution({ status: 'failed', reason: 'model_failed' })),
       output('', finalExecution({ status: 'cancelled', reason: 'cancelled' })),
     ]
@@ -33,6 +33,15 @@ describe('Task Execution final output wire', () => {
       { ...original, execution: finalExecution({ project_id: id(90) }) },
       { ...original, execution: finalExecution({ task_id: id(91) }) },
       { ...original, execution: finalExecution({ id: id(92) }) },
+      { ...original, execution: finalExecution({ started_at: null }) },
+      { ...original, execution: finalExecution({ reason: null }) },
+      output('', finalExecution({ status: 'failed', reason: 'model_failed', started_at: null })),
+      output('', finalExecution({ status: 'cancelled', reason: null })),
+      { ...original,
+        execution: finalExecution({ started_at: '2026-10-13T10:00:00.000002Z', completed_at: '2026-10-13T10:00:00.000004Z' }),
+        snapshot: { ...snapshot, items: [{ ...item, started_at: '2026-10-13T10:00:00.000003Z',
+          updated_at: '2026-10-13T10:00:00.000004Z', completed_at: '2026-10-13T10:00:00.000004Z' }] },
+      },
       { ...original, availability: 'pending', snapshot: null },
       { ...original, execution: execution(), availability: 'not_recorded', snapshot: null },
       { ...original, snapshot: null },

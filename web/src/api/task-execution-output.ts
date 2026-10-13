@@ -46,7 +46,7 @@ export function parseTaskExecutionOutput(value: unknown, project: string, task: 
     requireValue(v.snapshot === null && (availability === 'pending' ? !terminal : terminal))
     return Object.freeze({ execution, availability, snapshot: null })
   }
-  requireValue(terminal && execution.snapshot_id !== null)
+  requireValue(terminal && execution.snapshot_id !== null && execution.started_at !== null && execution.reason !== null)
   const snapshot = shape(v.snapshot, ['schema', 'generation', 'included_update_progress', 'execution_version', 'items'])
   requireValue(snapshot.schema === 'durable_final_text_v1' && snapshot.generation === execution.snapshot_id &&
     snapshot.included_update_progress === '1' && snapshot.execution_version === execution.version &&
@@ -59,7 +59,7 @@ export function parseTaskExecutionOutput(value: unknown, project: string, task: 
     requireValue(typeof content === 'string' && content.length <= 16 * 1024 * 1024)
     const started = parseSystemInstant(item.started_at), updated = parseSystemInstant(item.updated_at), completed = parseSystemInstant(item.completed_at)
     requireValue(item.execution_id === execution.id && item.seq === '1' && item.type === 'text' && item.status === 'completed' && item.revision === '1' &&
-      reference.kind === 'execution_round' && reference.id === round && started >= execution.created_at && started <= completed &&
+      reference.kind === 'execution_round' && reference.id === round && started === execution.started_at && started <= completed &&
       updated === execution.completed_at && completed === execution.completed_at &&
       new TextEncoder().encode(content).byteLength <= 16 * 1024 * 1024 &&
       !/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(content))
