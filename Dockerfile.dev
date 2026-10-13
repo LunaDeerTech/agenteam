@@ -2,9 +2,22 @@
 # Toolchains only: application code and dependencies are mounted at runtime.
 FROM golang:1.27.1-alpine AS go
 FROM node:24.12.0-alpine
-RUN apk add --no-cache ca-certificates git
+RUN --mount=type=secret,id=dev_ca \
+    set -eu; \
+    if [ -f /run/secrets/dev_ca ]; then \
+        test -s /etc/ssl/cert.pem; \
+        mkdir -p /usr/local/share/ca-certificates; \
+        cp /run/secrets/dev_ca /usr/local/share/ca-certificates/dev-environment.crt; \
+        chmod 0644 /usr/local/share/ca-certificates/dev-environment.crt; \
+        printf '\n' >> /etc/ssl/cert.pem; \
+        cat /run/secrets/dev_ca >> /etc/ssl/cert.pem; \
+        printf '\n' >> /etc/ssl/cert.pem; \
+    fi; \
+    apk add --no-cache ca-certificates git; \
+    update-ca-certificates
 RUN rm -f /etc/machine-id && ln -s /dev-state/config/machine-id /etc/machine-id
 COPY --from=go /usr/local/go /usr/local/go
 ENV PATH="/usr/local/go/bin:${PATH}" GOTOOLCHAIN=local
+ENV NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
 RUN test "$(go env GOVERSION)" = go1.27.1 && test "$(node --version)" = v24.12.0
 WORKDIR /workspace

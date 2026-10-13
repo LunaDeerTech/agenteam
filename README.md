@@ -30,6 +30,8 @@ docker compose -f docker-compose.dev.yaml up -d
 docker compose -f docker-compose.dev.yaml logs -f app
 ```
 
+若开发网络需要额外受信 CA，可将上面的镜像构建命令换为 `docker build --no-cache --secret id=dev_ca,src=/path/to/trusted-ca.crt -f Dockerfile.dev -t agenteam-dev-toolchain:go1.27.1-node24.12.0 .`。输入应为 PEM 格式的受信 CA 证书，不含私钥；它会加入开发镜像的系统信任库，供包管理器、Go 和 Node/npm 校验证书。`--no-cache` 确保证书变更实际应用。普通环境无需该 secret，仍使用默认信任库。
+
 首次构建的是 Go 1.27.1 / Node 24.12.0 工具链镜像。应用每次启动都从挂载的当前源码编译 Central、安装或复用锁定的前端依赖并构建页面，再运行真实 Central 入口；首次下载镜像和依赖需要网络与足够磁盘空间。编译失败会停止应用，页面返回 503，不运行旧二进制。工具链或 `Dockerfile.dev` 未变时，无需重建镜像，修改源码后执行：
 
 ```sh
