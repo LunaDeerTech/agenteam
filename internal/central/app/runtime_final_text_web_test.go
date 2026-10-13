@@ -166,12 +166,12 @@ func runtimeFinalTextWeb(t *testing.T) {
 }
 
 type runtimeFinalTextWebObserver struct {
-	mu                                  sync.Mutex
+	mu                                              sync.Mutex
 	host, private, evidence, detailPath, outputPath string
-	active, failed, loadingUsed         bool
-	stage                               string
-	tails                               map[string]*artifactWebTail
-	accepted, lists, details, outputs   int
+	active, failed, loadingUsed                     bool
+	stage                                           string
+	tails                                           map[string]*artifactWebTail
+	accepted, lists, details, outputs               int
 }
 
 func (o *runtimeFinalTextWebObserver) fail(stage string) error {
@@ -274,7 +274,9 @@ func (o *runtimeFinalTextWebObserver) capture(response *http.Response) error {
 		return o.fail("handler_not_returned")
 	}
 	execution := strings.Contains(response.Request.URL.Path, "/executions")
-	if response.StatusCode != 200 { return o.fail("status") }
+	if response.StatusCode != 200 {
+		return o.fail("status")
+	}
 	record := map[string]any{"request_id": rid.String(), "method": "GET", "url_sha256": fmt.Sprintf("%x", sha256.Sum256([]byte(tail.uri))), "status": response.StatusCode, "content_length": len(raw), "body_sha256": fmt.Sprintf("%x", sha256.Sum256(raw)), "original_eof": true, "original_closed": true, "handler_returned": true, "request_host_matches": true}
 	encoded, err := json.Marshal(record)
 	if err != nil {
@@ -286,13 +288,17 @@ func (o *runtimeFinalTextWebObserver) capture(response *http.Response) error {
 	o.mu.Lock()
 	o.accepted++
 	if execution {
-        switch response.Request.URL.Path {
-        case o.outputPath: o.outputs++
-        case o.detailPath: o.details++
-        case strings.TrimSuffix(o.detailPath, "/"+filepath.Base(o.detailPath)): o.lists++
-        default: o.failed=true
-        }
-    }
+		switch response.Request.URL.Path {
+		case o.outputPath:
+			o.outputs++
+		case o.detailPath:
+			o.details++
+		case strings.TrimSuffix(o.detailPath, "/"+filepath.Base(o.detailPath)):
+			o.lists++
+		default:
+			o.failed = true
+		}
+	}
 	o.mu.Unlock()
 	response.Body = io.NopCloser(bytes.NewReader(raw))
 	return nil
