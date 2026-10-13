@@ -41,6 +41,7 @@ export function useProjectUsage(
     message: '',
   })
   const window = shallowRef<CapturedUsageQuery | null>(null),
+    executionID = shallowRef<string | null>(null),
     mode = shallowRef<Mode>('records'),
     selected = shallowRef<ProjectUsageRecord | null>(null),
     scope = shallowRef<Context | null>(null)
@@ -78,7 +79,7 @@ export function useProjectUsage(
   const blocked = computed(
     () => !live() || auth.state.busy || reading.value || queue.pending !== null,
   )
-  function clear() {
+  function clear(preserveWindow = false) {
     daily.items = Object.freeze([])
     daily.asOf = ''
     page.items = Object.freeze([])
@@ -86,7 +87,7 @@ export function useProjectUsage(
     page.index = 0
     page.message = ''
     selected.value = null
-    window.value = null
+    if (!preserveWindow) window.value = null
     history = []
   }
   function retire() {
@@ -101,7 +102,10 @@ export function useProjectUsage(
     clear()
     page.phase = 'waiting'
     try {
-      window.value = captureUsageWindow(now())
+      window.value = Object.freeze({
+        ...captureUsageWindow(now()),
+        ...(executionID.value === null ? {} : { execution_id: executionID.value }),
+      })
       queue.pending = { mode: mode.value, index: 0, query: window.value }
       pump()
     } catch {
@@ -135,6 +139,9 @@ export function useProjectUsage(
         const result = await auth.projectUsage.daily(captured.projectID, {
           from: task.query.from,
           to: task.query.to,
+          ...(task.query.execution_id === undefined
+            ? {}
+            : { execution_id: task.query.execution_id }),
         })
         if (!current()) return
         daily.items = result.items
@@ -175,7 +182,8 @@ export function useProjectUsage(
       const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
       const unavailable = [401, 403, 404, 410].includes(failure.problem?.status ?? 0)
       const stale = ['CURSOR_INVALID', 'CURSOR_STALE'].includes(failure.problem?.code ?? '')
-      clear()
+      clear(!unavailable && executionID.value !== null)
+      if (unavailable) executionID.value = null
       page.phase = unavailable ? 'unavailable' : 'error'
       page.message = unavailable
         ? '当前调用记录不存在或不可访问，请重新确认访问权限。'
@@ -210,6 +218,7 @@ export function useProjectUsage(
           boundRoute = ''
           retire()
           clear()
+          executionID.value = null
           page.phase = 'waiting'
         }
         return
@@ -217,6 +226,7 @@ export function useProjectUsage(
       if (!sameContext(scope.value, context) || boundRoute !== path) {
         scope.value = context
         boundRoute = path
+        executionID.value = null
         firstPage()
       } else pump()
     },
@@ -231,11 +241,34 @@ export function useProjectUsage(
     }
     pump()
   }
+  function filterExecution(value: string | null) {
+    if (blocked.value || value === executionID.value) return false
+    if (!window.value) {
+      executionID.value = value
+      firstPage()
+      return true
+    }
+    const { from, to, limit } = window.value
+    retire()
+    clear()
+    executionID.value = value
+    window.value = Object.freeze({
+      from,
+      to,
+      limit,
+      ...(value === null ? {} : { execution_id: value }),
+    })
+    page.phase = 'waiting'
+    queue.pending = { mode: mode.value, index: 0, query: window.value }
+    pump()
+    return true
+  }
   return {
     page: readonly(page),
     mode: readonly(mode),
     daily: readonly(daily),
     window: readonly(window),
+    executionID: readonly(executionID),
     selected: readonly(selected),
     visible,
     reading,
@@ -262,6 +295,14 @@ export function useProjectUsage(
     closeDetail() {
       if (!blocked.value) selected.value = null
     },
+    filterSelectedExecution() {
+      if (mode.value !== 'records' || page.phase !== 'ready' || !selected.value?.execution_id)
+        return false
+      return filterExecution(selected.value.execution_id)
+    },
+    clearExecutionFilter() {
+      return filterExecution(null)
+    },
     refresh() {
       if (!blocked.value) firstPage()
     },
@@ -273,7 +314,7 @@ export function useProjectUsage(
     },
     cancel() {
       retire()
-      clear()
+      clear(executionID.value !== null)
       page.phase = 'error'
       page.message = '读取已停止，请在原请求结束后明确刷新。'
     },
@@ -283,6 +324,7 @@ export function useProjectUsage(
       stop()
       retire()
       clear()
+      executionID.value = null
       scope.value = null
     },
   }

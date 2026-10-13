@@ -92,6 +92,13 @@ async function changeView(mode: 'records' | 'daily') {
   await nextTick()
   if (owner.visible.value) pageHeading.value?.focus()
 }
+async function changeExecution(clear = false) {
+  const changed = clear ? owner.clearExecutionFilter() : owner.filterSelectedExecution()
+  if (!changed) return
+  selectionTrigger = null
+  await nextTick()
+  if (owner.visible.value) pageHeading.value?.focus()
+}
 onBeforeRouteLeave(() => owner.cancel())
 onBeforeRouteUpdate((to, from) => {
   if (to.fullPath !== from.fullPath) owner.cancel()
@@ -127,6 +134,19 @@ onBeforeUnmount(() => owner.dispose())
         :disabled="owner.blocked.value"
         @click="changeView('daily')"
         >按日汇总</UiButton
+      >
+    </div>
+    <div
+      v-if="owner.visible.value && owner.executionID.value"
+      class="usage-actions usage-execution"
+      role="group"
+      aria-label="执行筛选"
+    >
+      <p>
+        当前执行：<span>{{ owner.executionID.value }}</span>
+      </p>
+      <UiButton :disabled="owner.blocked.value" @click="changeExecution(true)"
+        >清除执行筛选</UiButton
       >
     </div>
     <p v-if="owner.visible.value && owner.window.value" class="usage-window">
@@ -359,7 +379,15 @@ onBeforeUnmount(() => owner.dispose())
             </div>
             <div>
               <dt>Execution ID</dt>
-              <dd>{{ detail.execution_id ?? '无关联' }}</dd>
+              <dd>
+                {{ detail.execution_id ?? '无关联' }}
+                <UiButton
+                  v-if="detail.execution_id !== null"
+                  :disabled="owner.blocked.value || owner.executionID.value === detail.execution_id"
+                  @click="changeExecution()"
+                  >查看同一次执行的调用</UiButton
+                >
+              </dd>
             </div>
             <div>
               <dt>会议 ID</dt>
@@ -407,6 +435,11 @@ onBeforeUnmount(() => owner.dispose())
 }
 .usage-header {
   justify-content: space-between;
+}
+.usage-execution p {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
 }
 .usage-header p,
 .usage-window,

@@ -1,5 +1,7 @@
 # D09 Project 模型调用记录只读 UI
 
+同 Execution 的明细／日汇总筛选正在独立实施，当前合同和验证状态见[执行筛选工作项](d09-usage-execution-filter-ui.md)；下述历史通过结论不覆盖该新增筛选。
+
 2026-10-11。工作树 `/workspace/agenteam-project-usage-read-ui`，分支 `ai/project-usage-read-ui-20261011`；已由 root 快进至 Secrets 已交主线 `7e0a123e`。作者 agent_display_settings，独审 recovery_lead，root 独占 Git。产品、真实正常读取链和退出尾已获 recovery_lead 有限独立接受；等待 root 保存并集成，完整 D09 未完成。
 
 ## 2026-10-12 后继：按日服务端汇总
