@@ -1,0 +1,729 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "agenteam current Human Owner Artifact reads",
+    "version": "1.0.0",
+    "description": "GET/HEAD only. Current browser Session and Project Owner are rechecked by the original Service. Each request has a new server-owned business attempt independent of HTTP trace. One 2s budget begins at handler entry; cancellation never replaces actual reader, Audit, Store or handler return. Successful reads perform real Read Audit and project-call technical writes. Query keys decode once; unknown, duplicate, empty, malformed and noncanonical values are rejected. Request bodies, Content-Encoding, Range and If-Range are rejected. No create, upload, Source, signed download URL or raw Object access."
+  },
+  "paths": {
+    "/api/v1/projects/{project_id}/artifacts": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "execution_id",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "allowEmptyValue": false
+        },
+        {
+          "name": "kind",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "enum": [
+              "generated",
+              "user_upload"
+            ]
+          },
+          "allowEmptyValue": false
+        },
+        {
+          "name": "media_type",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "allowEmptyValue": false,
+          "description": "Exact normalized MIME, at most 256 UTF-8 bytes."
+        },
+        {
+          "name": "name_query",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "allowEmptyValue": false,
+          "description": "Case-sensitive literal substring; at most 256 UTF-8 bytes and no NUL; SQL wildcard characters are literal."
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 50
+          },
+          "allowEmptyValue": false,
+          "description": "Canonical positive decimal without a sign or leading zeros."
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8192
+          },
+          "allowEmptyValue": false,
+          "description": "Opaque original cursor bound to Project, all filters and created_at DESC / artifact_id DESC ordering. Omitted next_cursor means no next page."
+        }
+      ],
+      "get": {
+        "operationId": "artifactOwnerListGet",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current Owner authorized bounded JSON. HEAD performs the same original service read, typed Close and Read Audit, then encodes the same representation and suppresses the body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)$",
+                  "not": {
+                    "pattern": "[^0-9]"
+                  }
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArtifactPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "410": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "416": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "502": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      },
+      "head": {
+        "operationId": "artifactOwnerListHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current Owner authorized bounded JSON. HEAD performs the same original service read, typed Close and Read Audit, then encodes the same representation and suppresses the body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)$",
+                  "not": {
+                    "pattern": "[^0-9]"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "401": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "403": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "404": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "405": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "409": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "410": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "416": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "500": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "502": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "503": {
+            "$ref": "#/components/responses/HeadProblem"
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/artifacts/{artifact_id}/files/{file_id}/content": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "artifact_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "file_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "offset",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/Progress"
+          },
+          "allowEmptyValue": false,
+          "description": "Canonical unsigned decimal bytes, default 0, maximum 1073741824. Must be a UTF-8 boundary for text; beyond object size returns 416."
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65536,
+            "default": 8192
+          },
+          "allowEmptyValue": false,
+          "description": "Canonical positive decimal bytes. Text ends at a complete UTF-8 rune; a limit too small for the next rune may return empty text, unchanged next_offset and truncated=true."
+        }
+      ],
+      "get": {
+        "operationId": "artifactOwnerContentGet",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current Owner authorized bounded JSON. HEAD performs the same original service read, typed Close and Read Audit, then encodes the same representation and suppresses the body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)$",
+                  "not": {
+                    "pattern": "[^0-9]"
+                  }
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArtifactRead"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "410": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "416": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "502": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      },
+      "head": {
+        "operationId": "artifactOwnerContentHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current Owner authorized bounded JSON. HEAD performs the same original service read, typed Close and Read Audit, then encodes the same representation and suppresses the body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)$",
+                  "not": {
+                    "pattern": "[^0-9]"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "401": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "403": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "404": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "405": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "409": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "410": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "416": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "500": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "502": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "503": {
+            "$ref": "#/components/responses/HeadProblem"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "browserSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-agenteam_session",
+        "description": "Current authenticated browser Session (__Host-agenteam_session on HTTPS; agenteam_local_session on the configured HTTP development origin); each request still requires current Project Owner authorization."
+      }
+    },
+    "responses": {
+      "Problem": {
+        "description": "Safe RFC 9457 Problem retaining the original Fault and commit_state; no path, query, content or storage locator. Read Audit failure/unknown never returns a representation.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$",
+              "not": {
+                "pattern": "[^0-9]"
+              }
+            }
+          }
+        },
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "HeadProblem": {
+        "description": "Same status and headers as GET, with no body.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]*)$",
+              "not": {
+                "pattern": "[^0-9]"
+              }
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "ArtifactRef": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "project_id",
+          "artifact_id",
+          "file_id"
+        ],
+        "properties": {
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "artifact_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "file_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      },
+      "ObjectMetadata": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "media_type",
+          "byte_size",
+          "sha256"
+        ],
+        "properties": {
+          "media_type": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "not": {
+              "pattern": "[\\u0000-\\u001f\\u007f]"
+            }
+          },
+          "byte_size": {
+            "$ref": "./common.json#/components/schemas/Progress"
+          },
+          "sha256": {
+            "$ref": "./common.json#/components/schemas/Digest"
+          }
+        }
+      },
+      "ArtifactMetadata": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifact_ref",
+          "kind",
+          "name",
+          "object",
+          "created_at",
+          "version"
+        ],
+        "properties": {
+          "artifact_ref": {
+            "$ref": "#/components/schemas/ArtifactRef"
+          },
+          "kind": {
+            "enum": [
+              "generated",
+              "user_upload"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "1–255 UTF-8 bytes; no path separators or control characters.",
+            "not": {
+              "pattern": "[/\\\\\\u0000-\\u001f\\u007f-\\u009f]"
+            }
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "not": {
+              "pattern": "\\u0000"
+            },
+            "description": "At most 4096 UTF-8 bytes; omitted when empty."
+          },
+          "object": {
+            "$ref": "#/components/schemas/ObjectMetadata"
+          },
+          "source_execution_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "source_operation_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_by_user_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_by_agent_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          }
+        },
+        "oneOf": [
+          {
+            "required": [
+              "created_by_user_id"
+            ],
+            "not": {
+              "required": [
+                "created_by_agent_id"
+              ]
+            }
+          },
+          {
+            "required": [
+              "created_by_agent_id",
+              "source_execution_id"
+            ],
+            "not": {
+              "required": [
+                "created_by_user_id"
+              ]
+            }
+          }
+        ],
+        "dependentRequired": {
+          "source_operation_id": [
+            "source_execution_id"
+          ]
+        }
+      },
+      "ArtifactPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 200,
+            "items": {
+              "$ref": "#/components/schemas/ArtifactMetadata"
+            }
+          },
+          "next_cursor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8192,
+            "not": {
+              "pattern": "\\u0000"
+            }
+          }
+        }
+      },
+      "ArtifactRead": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifact",
+          "projection",
+          "offset",
+          "next_offset",
+          "truncated"
+        ],
+        "properties": {
+          "artifact": {
+            "$ref": "#/components/schemas/ArtifactMetadata"
+          },
+          "projection": {
+            "enum": [
+              "text",
+              "image_ref",
+              "file_ref"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 65536,
+            "description": "At most the requested UTF-8 byte limit; omitted for an empty text window."
+          },
+          "offset": {
+            "$ref": "./common.json#/components/schemas/Progress"
+          },
+          "next_offset": {
+            "$ref": "./common.json#/components/schemas/Progress"
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "invalid_utf8": {
+            "const": true
+          }
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "projection": {
+                "const": "text"
+              }
+            },
+            "not": {
+              "required": [
+                "invalid_utf8"
+              ]
+            }
+          },
+          {
+            "properties": {
+              "projection": {
+                "const": "image_ref"
+              },
+              "offset": {
+                "const": "0"
+              },
+              "next_offset": {
+                "const": "0"
+              },
+              "truncated": {
+                "const": false
+              }
+            },
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "text"
+                  ]
+                },
+                {
+                  "required": [
+                    "invalid_utf8"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "properties": {
+              "projection": {
+                "const": "file_ref"
+              },
+              "offset": {
+                "const": "0"
+              },
+              "next_offset": {
+                "const": "0"
+              },
+              "truncated": {
+                "const": false
+              }
+            },
+            "not": {
+              "required": [
+                "text"
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}
