@@ -422,6 +422,9 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if bindErr != nil {
 		return bindErr
 	}
+	if deps.observeProjectUsage != nil {
+		deps.observeProjectUsage(projectUsage)
+	}
 	modelAuthority, err := model.NewAuthority(modelStore, modelAuth)
 	if err != nil {
 		return err
