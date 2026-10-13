@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	auditc "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -220,6 +221,54 @@ func taskExecutionFactDifferences(t *testing.T, before, after string) {
 		}
 		t.Logf("EXECUTION_READ_FACT component=%s equal=%t before_count=%d after_count=%d", field, string(previous[field]) == string(current[field]), counts[0], counts[1])
 	}
+	if string(previous["audit"]) == string(current["audit"]) {
+		return
+	}
+	decodeAudit := func(raw json.RawMessage) map[string]json.RawMessage {
+		var rows []json.RawMessage
+		workAppCheck(t, "execution-audit-array-shape", json.Unmarshal(raw, &rows))
+		byID := make(map[string]json.RawMessage, len(rows))
+		for _, row := range rows {
+			var key struct {
+				ID string `json:"id"`
+			}
+			workAppCheck(t, "execution-audit-id-shape", json.Unmarshal(row, &key))
+			if key.ID == "" || byID[key.ID] != nil {
+				t.Fatal("invalid existing audit identity")
+			}
+			byID[key.ID] = row
+		}
+		return byID
+	}
+	oldRecords, newRecords := decodeAudit(previous["audit"]), decodeAudit(current["audit"])
+	oldUnchanged, added := true, 0
+	for key, row := range oldRecords {
+		if string(newRecords[key]) != string(row) {
+			oldUnchanged = false
+		}
+	}
+	for key, row := range newRecords {
+		if oldRecords[key] != nil {
+			continue
+		}
+		added++
+		if added > 8 {
+			continue
+		}
+		var entry struct {
+			Producer auditc.Producer `json:"producer"`
+			Action   auditc.Action   `json:"action"`
+			Outcome  auditc.Outcome  `json:"outcome"`
+			Scope    string          `json:"scope"`
+		}
+		workAppCheck(t, "execution-audit-closed-enum-shape", json.Unmarshal(row, &entry))
+		if entry.Producer.Valid() && entry.Action.Valid() && auditc.ProducerFor(entry.Action) == entry.Producer && entry.Outcome.Valid() {
+			t.Logf("EXECUTION_READ_AUDIT added_producer=%s action=%s outcome=%s system_scope=%t", entry.Producer, entry.Action, entry.Outcome, entry.Scope == "system")
+		} else {
+			t.Log("EXECUTION_READ_AUDIT added_enum_valid=false")
+		}
+	}
+	t.Logf("EXECUTION_READ_AUDIT original_records_unchanged=%t added_count=%d", oldUnchanged, added)
 }
 
 func taskExecutionReadClosed(t *testing.T, v *workAppFixture, process string) {
