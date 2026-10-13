@@ -41,6 +41,7 @@ type ProjectCallDependencies struct {
 	Preparation PreparationDependencies
 	Direct      DirectTextDependencies
 	Associated  AssociatedExecutorOptions
+	Read        *TaskReadDependencies
 }
 type projectCallRecord struct {
 	ID       f.ID[projectCallID]       `json:"id"`
@@ -60,6 +61,7 @@ type projectCallEntry struct {
 	cancel                                           context.CancelFunc
 	serviceDone                                      func()
 	actor                                            i.Actor
+	read                                             *taskExecutionRead
 	launchKey                                        ec.LaunchLookupKey
 	launchDigest                                     f.Digest
 	execution                                        i.ExecutionID
@@ -86,6 +88,7 @@ type projectCallState struct {
 	process           oc.ProcessID
 	instance          f.ID[projectCallInstance]
 	authority         ec.ProjectStopAuthority
+	reader            *TaskExecutionReader
 	service           *Service
 	preparation       *PreparationDriver
 	direct            *DirectTextDriver
@@ -146,6 +149,15 @@ func newProjectCallOwnership(store Store, deps ProjectCallDependencies, proof pr
 		return nil, portError(err)
 	}
 	s := &projectCallState{store: store, proof: proof, process: expected, instance: instance, authority: authority, service: service, preparation: preparation, direct: direct, associated: associated, owners: map[f.ID[projectCallID]]*projectCallEntry{}, stops: map[i.ProjectID]*ownedProjectStop{}, changed: make(chan struct{})}
+	if deps.Read != nil {
+		if deps.Read.Authority != deps.Service.Authority {
+			return nil, fault(f.DependencyUnbound)
+		}
+		s.reader, err = newTaskExecutionReader(s, *deps.Read)
+		if err != nil {
+			return nil, err
+		}
+	}
 	service.projectCalls, preparation.state.projectCalls, direct.state.projectCalls, associated.state.projectCalls = s, s, s, s
 	return &ProjectCallOwnership{s}, nil
 }
@@ -695,6 +707,9 @@ func (p *ProjectCallOwnership) Stop() {
 	for _, c := range cancels {
 		c()
 	}
+	if s.reader != nil {
+		s.reader.calls.stop()
+	}
 	s.associated.Stop()
 	s.service.Stop()
 	s.preparation.Stop()
@@ -709,6 +724,11 @@ func (p *ProjectCallOwnership) Drain(ctx context.Context) error {
 	}
 	p.Stop()
 	s := p.state
+	if s.reader != nil {
+		if err := s.reader.calls.drain(ctx); err != nil {
+			return err
+		}
+	}
 	for _, drain := range []func(context.Context) error{s.associated.Drain, s.service.Drain, s.preparation.Drain, s.direct.Drain} {
 		if err := drain(ctx); err != nil {
 			return err
@@ -740,7 +760,7 @@ func (p *ProjectCallOwnership) Joined() bool {
 	s.mu.Lock()
 	done := s.stopped && len(s.owners) == 0 && len(s.stops) == 0 && len(s.retirements) == 0
 	s.mu.Unlock()
-	return done && s.service.Joined() && s.preparation.Joined() && s.direct.Joined() && s.associated.Joined()
+	return done && (s.reader == nil || s.reader.calls.joined()) && s.service.Joined() && s.preparation.Joined() && s.direct.Joined() && s.associated.Joined()
 }
 
 // Retained outcomes need not be resolved for the original worker tail to have

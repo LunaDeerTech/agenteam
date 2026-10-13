@@ -20,6 +20,7 @@ import (
 
 const Env = "AGENTEAM_OUTBOUND_FIXTURE"
 const Label = "agenteam.d04.networkfixture"
+const RuntimeImage = "nginx@sha256:30f1c0d78e0ad60901648be663a710bdadf19e4c10ac6782c235200619158284"
 
 type Descriptor struct{ ContainerID, NetworkID, Nonce, ControlPort, PrivateIP, CAFile string }
 
@@ -72,7 +73,7 @@ func (d *Descriptor) Verify() error {
 			Networks map[string]struct{ NetworkID, IPAddress string }
 		}
 	}
-	if json.Unmarshal(raw, &inspected) != nil || inspected.ID != d.ContainerID || inspected.Name != "/agenteam-d04-net-"+d.Nonce || inspected.Config.Image != pgfixture.Image || inspected.Config.Labels[Label] != d.Nonce || !inspected.State.Running {
+	if json.Unmarshal(raw, &inspected) != nil || inspected.ID != d.ContainerID || inspected.Name != "/agenteam-d04-net-"+d.Nonce || inspected.Config.Image != RuntimeImage || inspected.Config.Labels[Label] != d.Nonce || !inspected.State.Running {
 		return errors.New("outbound container ownership mismatch")
 	}
 	ports := inspected.NetworkSettings.Ports["9000/tcp"]

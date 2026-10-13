@@ -1,0 +1,623 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Task execution history for current Human Owners",
+    "version": "1.0.0",
+    "description": "Only GET/HEAD. Same original Project/Task/Execution membership and current Session/Owner are checked on every request, including archived projects under the original Read gate. No admin bypass. Unknown/duplicate/empty/noncanonical query fields, request bodies, Range/If-Range and Content-Encoding are rejected. One 2s handler budget; cancellation waits for the actual domain/Store/HTTP tail. Read-only business access still registers and closes its technical execution-call owner. No runtime invocation, stream, resync, cancel, Task transition or payload retrieval."
+  },
+  "paths": {
+    "/api/v1/projects/{project_id}/tasks/{task_id}/executions": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "task_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 50
+          },
+          "description": "Canonical positive decimal; omitted means 50."
+        },
+        {
+          "name": "cursor",
+          "in": "query",
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8192
+          },
+          "description": "Opaque HMAC cursor bound to current Human user, Project, Task and created_at DESC,id DESC. Null next_cursor means no older page. Not a snapshot: refresh explicitly to observe newer executions."
+        }
+      ],
+      "get": {
+        "operationId": "taskExecutionListGet",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current Human Owner checked in the original read transaction; HEAD computes this representation and suppresses its body. Cache-Control: no-store.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskExecutionPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "operationId": "taskExecutionListHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current Human Owner checked in the original read transaction; HEAD computes this representation and suppresses its body. Cache-Control: no-store.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)$"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          },
+          "401": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          },
+          "403": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          },
+          "404": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          },
+          "405": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          },
+          "409": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          },
+          "410": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          },
+          "500": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          },
+          "502": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          },
+          "503": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/tasks/{task_id}/executions/{execution_id}": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "task_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "execution_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "taskExecutionDetailGet",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current Human Owner checked in the original read transaction; HEAD computes this representation and suppresses its body. Cache-Control: no-store.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskExecutionDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "operationId": "taskExecutionDetailHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current Human Owner checked in the original read transaction; HEAD computes this representation and suppresses its body. Cache-Control: no-store.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)$"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          },
+          "401": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          },
+          "403": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          },
+          "404": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          },
+          "405": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          },
+          "409": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          },
+          "410": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          },
+          "500": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          },
+          "502": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          },
+          "503": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "browserSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-agenteam_session",
+        "description": "Original Account boundary; local development uses its existing secure/local cookie rules."
+      }
+    },
+    "schemas": {
+      "TaskExecution": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "project_id",
+          "task_id",
+          "agent_id",
+          "purpose",
+          "status",
+          "version",
+          "created_at",
+          "started_at",
+          "completed_at",
+          "cancel_requested_at",
+          "snapshot_id",
+          "reason"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "task_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "agent_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "purpose": {
+            "enum": [
+              "task/work",
+              "task/review"
+            ]
+          },
+          "status": {
+            "enum": [
+              "created",
+              "preparing",
+              "running",
+              "waiting",
+              "succeeded",
+              "failed",
+              "cancelled"
+            ]
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Instant"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Instant"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cancel_requested_at": {
+            "anyOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Instant"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "snapshot_id": {
+            "anyOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "completed",
+                  "model_failed",
+                  "incomplete_response",
+                  "runtime_failed",
+                  "cancelled"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "description": "Canonical Execution belonging to this Project and Task trigger. Reason is null when no canonical terminal reason exists. Nonterminal cancel_requested_at means cancellation requested, not terminal completion. No transcript, prompt, runtime content, lease or private error is exposed."
+      },
+      "TaskExecutionPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "$ref": "#/components/schemas/TaskExecution"
+            }
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 8192
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "TaskExecutionDetail": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "execution"
+        ],
+        "properties": {
+          "execution": {
+            "$ref": "#/components/schemas/TaskExecution"
+          }
+        }
+      }
+    }
+  }
+}

@@ -9,6 +9,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -299,10 +300,15 @@ func (v *workAppFixture) request(ctx context.Context, method, path string, body 
 	if err != nil {
 		return workAppResponse{}, err
 	}
-	req.Host = "localhost:8080"
-	req.Header.Set("Origin", "http://localhost:8080")
+	origin, err := url.Parse(v.root.cfg.PublicOrigin())
+	if err != nil {
+		return workAppResponse{}, err
+	}
+	req.Host = origin.Host
+	req.Header.Set("Origin", origin.String())
 	req.Header.Set("Sec-Fetch-Site", "same-origin")
-	// newModelRootApp uses the original explicit localhost HTTP origin.
+	// The ordinary fixture retains localhost; owned browser fixtures supply
+	// their actual origin before constructing the same default App.
 	req.AddCookie(&http.Cookie{Name: "agenteam_local_session", Value: v.cookie})
 	if method != http.MethodGet {
 		req.Header.Set("Content-Type", "application/json")

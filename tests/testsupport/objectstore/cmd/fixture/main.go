@@ -171,7 +171,7 @@ func run() (code int) {
 	if certificates(filepath.Join(directory, "certs"), address) != nil {
 		return fail("object TLS fixture failed")
 	}
-	raw, e := pgfixture.Docker(ctx, "run", "--detach", "--name", name, "--label", objectfixture.Label+"="+nonce, "--network", network, "--ip", address, "--user", strconv.Itoa(os.Getuid())+":"+strconv.Itoa(os.Getgid()), "--env-file", filepath.Join(directory, "credentials.env"), "--mount", "type=bind,src="+directory+",dst=/fixture,readonly", "--mount", "type=bind,src="+filepath.Join(directory, "data")+",dst=/fixture/data", "--entrypoint", "/fixture/minio", pgfixture.Image, "server", "/fixture/data", "--address", ":9000", "--console-address", ":9001", "--certs-dir", "/fixture/certs", "--quiet")
+	raw, e := pgfixture.Docker(ctx, "run", "--detach", "--name", name, "--label", objectfixture.Label+"="+nonce, "--network", network, "--ip", address, "--user", strconv.Itoa(os.Getuid())+":"+strconv.Itoa(os.Getgid()), "--env-file", filepath.Join(directory, "credentials.env"), "--mount", "type=bind,src="+directory+",dst=/fixture,readonly", "--mount", "type=bind,src="+filepath.Join(directory, "data")+",dst=/fixture/data", "--entrypoint", "/fixture/minio", objectfixture.RuntimeImage, "server", "/fixture/data", "--address", ":9000", "--console-address", ":9001", "--certs-dir", "/fixture/certs", "--quiet")
 	if e != nil {
 		return fail("object fixture container failed")
 	}
@@ -205,7 +205,7 @@ func run() (code int) {
 	if os.WriteFile(path, raw, 0600) != nil {
 		return fail("object descriptor failed")
 	}
-	fmt.Printf("D05 object fixture isolated TLS=%s image=%s nonce=%s\n", address, pgfixture.Image, nonce)
+	fmt.Printf("D05 object fixture isolated TLS=%s image=%s nonce=%s\n", address, objectfixture.RuntimeImage, nonce)
 	cmd := exec.CommandContext(ctx, "sh", "scripts/test-security.sh", "-objects", "-run", *filter)
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGTERM) }

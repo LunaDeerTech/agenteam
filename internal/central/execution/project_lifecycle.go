@@ -110,16 +110,18 @@ func (s *projectCallState) cancelProjectCalls(project i.ProjectID) {
 		}
 	}
 	s.mu.Unlock()
-	a := s.associated.state
-	a.mu.Lock()
-	for _, job := range a.jobs {
-		if job.project == project {
-			job.projectStopped = true
-			cancels = append(cancels, job.cancel)
+	if s.associated != nil {
+		a := s.associated.state
+		a.mu.Lock()
+		for _, job := range a.jobs {
+			if job.project == project {
+				job.projectStopped = true
+				cancels = append(cancels, job.cancel)
+			}
 		}
+		a.notifyLocked()
+		a.mu.Unlock()
 	}
-	a.notifyLocked()
-	a.mu.Unlock()
 	for _, cancel := range cancels {
 		cancel()
 	}
