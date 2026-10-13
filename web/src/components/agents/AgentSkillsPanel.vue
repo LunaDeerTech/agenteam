@@ -2,7 +2,7 @@
 import { computed, nextTick, ref } from 'vue'
 import { UiButton, UiField, UiSelect, UiState } from '../ui'
 import type { AgentSkillsOwner } from '../../composables/useAgentSkillAssignments'
-const props = defineProps<{ owner: AgentSkillsOwner; agentID: string | null }>()
+const props = defineProps<{ owner: AgentSkillsOwner; agentId: string | null }>()
 const emit = defineEmits<{ close: []; original: [] }>()
 const heading = ref<HTMLElement | null>(null)
 const confirmation = ref<HTMLElement | null>(null)
@@ -56,7 +56,7 @@ function close() {
     <section v-if="uncertain" aria-label="技能操作结果恢复">
       <p role="status">技能操作结果待确认。请查询原操作，不要重复提交。</p>
       <UiButton
-        v-if="owner.progress.value?.agentID === agentID"
+        v-if="owner.progress.value?.agentID === agentId"
         :disabled="owner.busy.value || !owner.progress.value?.contextValid"
         @click="submit(true)"
         >查询原技能操作</UiButton
