@@ -455,7 +455,7 @@ type AssignmentLookup struct {
 
 func (s *AssignmentCommands) LookupAssignment(ctx context.Context, actor i.Actor, meta f.CommandMeta, request AssignmentRequest) (AssignmentLookup, error) {
 	var zero AssignmentLookup
-	if s == nil {
+	if s == nil || nilPort(s.deps.Agents) {
 		return zero, fault(f.DependencyUnbound)
 	}
 	call, err := s.deps.Service.begin(ctx, false)
@@ -479,6 +479,13 @@ func (s *AssignmentCommands) LookupAssignment(ctx context.Context, actor i.Actor
 		}
 		if err := s.owner(ctx, tx, in, i.Read); err != nil {
 			return err
+		}
+		ref, err := s.deps.Agents.ReadSkillAssignmentInTx(ctx, tx, in.agentRequest())
+		if err != nil {
+			return captureError(err)
+		}
+		if ref.ProjectID != request.ProjectID || ref.AgentID != request.AgentID || ref.ConfigVersion.Validate() != nil {
+			return unavailable(nil)
 		}
 		x, err := s.store().InTx(tx)
 		if err != nil {

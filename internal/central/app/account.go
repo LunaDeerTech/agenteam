@@ -32,6 +32,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo"
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
 	"github.com/LunaDeerTech/agenteam/internal/central/skill"
+	skillc "github.com/LunaDeerTech/agenteam/internal/central/skill/contract"
 	uc "github.com/LunaDeerTech/agenteam/internal/central/usage/contract"
 	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 )
@@ -539,7 +540,15 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
-	producers := map[event.StableName]oc.ProducerAuthority{agentc.AgentProducer: agentProducer, c.AccountProducer: authority, model.ModelProducer: modelAuthority, pc.ProjectProducer: projectUsage.projects, wc.WorkProducer: workAuthority, vc.VariableProducer: projectUsage.variables, kc.KnowledgeProducer: contentAuthorities.knowledge}
+	skillAssignmentEvents, err := skillc.RegisterAssignmentEvents(catalog)
+	if err != nil {
+		return err
+	}
+	skillAssignmentFacts, err := skill.NewAssignmentAuthority(contentAuthorities.skills, skillAssignmentEvents)
+	if err != nil {
+		return err
+	}
+	producers := map[event.StableName]oc.ProducerAuthority{agentc.AgentProducer: agentProducer, c.AccountProducer: authority, model.ModelProducer: modelAuthority, pc.ProjectProducer: projectUsage.projects, wc.WorkProducer: workAuthority, vc.VariableProducer: projectUsage.variables, kc.KnowledgeProducer: contentAuthorities.knowledge, skillc.AssignmentProducer: skillAssignmentFacts}
 	var executionEvents executionRuntimeEventSet
 	if runtimeEnabled {
 		executionEvents, err = defineExecutionRuntimeEvents(catalog)
@@ -636,6 +645,10 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	}
 	if !accounts.install(ctx, func() { accounts.skills = &skillWork{service: skills} }) {
 		return context.Canceled
+	}
+	skillAssignments, err := createSkillAssignments(db, skills, agentAuthority, skillAssignmentFacts, skillAssignmentEvents, auditor, journal)
+	if err != nil {
+		return err
 	}
 	// Skills uses the original Agent authority, not the Agent service. All
 	// providers are now fixed, so publish both Agent lanes as one lifecycle owner.
@@ -770,6 +783,10 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
+	skillAssignmentHTTP, err := skillAssignmentHandler(skillAssignments, cfg.CursorKeyring(), core, cfg.PublicOrigin())
+	if err != nil {
+		return err
+	}
 	if !accounts.install(ctx, func() {
 		accounts.handler = projectAuditRoutes(projectCredentialsRoutes(projectModelsRoutes(projectUpdateRoutes(projectReadRoutes(projectUsageRoutes(systemAuditRoutes(systemOutboundPolicyRoutes(systemModelRoutes(httpHandler, modelHandler), policyHandler), auditHandler), usageHandler), projectHandler), updateHandler), projectModelHandler), credentialHandler), projectAudit)
 		accounts.handler = workPlanningRoutes(accounts.handler, planningHandler)
@@ -780,6 +797,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		accounts.handler = runnerControlRoutes(accounts.handler, runnerAdmin, runnerDevice)
 		accounts.handler = knowledgeSkillRoutes(accounts.handler, knowledgeReads, knowledgeCommands, knowledgeContent, skillReads)
 		accounts.handler = skillManagementRoutes(accounts.handler, skillManagement)
+		accounts.handler = skillAssignmentRoutes(accounts.handler, skillAssignmentHTTP)
 	}) {
 		return context.Canceled
 	}

@@ -1,6 +1,6 @@
 # Skill 当前分配与 Execution pending ingress
 
-状态：以 main `19df3fea` 建立独立源码候选，现合入正式 main `7c874adc` 的已交付 65/66 及完整历史；本片基础分段检查与 Project 窄修控制通过，PG compile03/list 和 native02 已实际 wholePASS，唯一主审有限接受，待 root 正式 Git 集成；原 basic01、compile01、native01 FAIL 保留。交付边界是当前 Human Owner 的 Skill 分配命令及其同事务持久 ingress；不执行 Model，不产生下一轮 RoundInput，不改变默认生产未绑定及已有 STOP。
+状态：原 Skill 分配命令及同事务 ingress 库已进入正式主线，原基础与真实 PG 证据、失败和边界见下文。2026-10-13 后继默认 App、Owner HTTP 与 Agent Skills 管理 UI 已通过限定普通检查、真实 HTTP/浏览器及独立审查，随本次变更交付 main；受测来源与限制见末节。不执行 Model，不产生下一轮 RoundInput，不恢复已有 STOP。
 
 ## 正式依据与分域
 
@@ -63,3 +63,33 @@ Project gate 窄修 `6151c756` 经新增 basic03 原工具 24439 验证：2 top 
 native02 原工具 91341 实际 0、supervisor 772115 Wait 0 / 114.126s，原日志 terminal 0 / 113.205s；1 top / 2 sub PASS 23.85s（12.12s / 11.73s），Go 773688 与 driver 772116 Wait 0。1871 运行输入不变、同七资源十四次 absence、desc/private/runtime 双尾、75 秒原自动 HOST_TCP delta 双空以及完整 metadata case/Wait 门均通过。唯一主审已给最终有限 wholePASS 接受，无待补同输入验证；原件入口沿本片运行说明。当前仍待 root 集成，不能外推默认生产绑定、00068/DetermineRoundInput、下一 Model、Transcript 应用或资源退休。
 
 capture 控制的受控 SQL/历史兼容范围不冒充完整 Preparing/capture 真实 PG。工具链和真实 PG 仅由 root 在实际资源窗口安排。上游 Operation 与 ToolResult 单次消费已正式有限交付并完整保全，不扩展为本片通过或下一轮执行。原 Object runtime join、OpenAI tools A/B、SPA concurrent-publication、Jina/Image STOP、生产 initializer/默认执行绑定保持。
+
+## Owner HTTP 与 Agent Skills UI 接入（已有限验收）
+
+本次增量复用原 Assign / Remove / Lookup 与四域引用版本维护，不增加迁移、普通 Agent 配置写口、安装或 Agent Tool。项目设置规则见 [Skills 库与分配](../../frontend-design/layouts/project-settings.md#31-项目-skills-库与分配)，精确传输定义见 [Skill Assignment OpenAPI](../../../api/openapi/skill-assignment.json)。实现和验证由独立 sparse 工作树承载，Go/App/OpenAPI/本卡与 Vue 各有唯一写者，Git、合入和资源由统一负责人协调。
+
+默认 App 在唯一 Project Authority 构造前注册同 Store 的 `AssignmentAuditFacts`；同一个 Event Catalog 注册 assignment typed events，在原 Outbox 构造前注册真实 `AssignmentAuthority`。原 Agent Authority 同时注入 Tool、Mount、Model、Secret 四个真实版本引用 owner，原 Skill Service 继续拥有调用准入、退出与 Drain。`execution.NewSkillAssignmentIngress` 在 Runtime 开关关闭时仍实际读取 active slot，不能用配置开关合成 no-active；构造此窄端口不启动 Runtime、Scheduler、Model 或 Tool。
+
+HTTP 入口为 `/api/v1/projects/{project_id}/agents/{agent_id}/skills` 的 GET/HEAD，以及后缀 `/assign`、`/remove`、`/commands/lookup` 的 POST。读取总预算 2 秒，写入和 Lookup 30 秒，均包含原 HTTP/SQL 清理并继承更早 deadline。POST JSON 最大 8 KiB，输出最大 128 KiB；原 Account 身份、Origin/CSRF、Problem 与 RequestID 边界保持。拒绝未知/重复成员、无关查询和大小写别名。
+
+Assign 的完整 body 是 `{expected_version, request:{skill_id, enabled}}`，Remove 是 `{expected_version, request:{assignment_id}}`。Lookup 在相同完整 body 增加 `command: skill.assign | skill.remove`，保留原 `Idempotency-Key`；所有 version / sequence 使用公共正整数字符串。Mutation 保留原 8 字段与显式 nullable `assignment` / `runtime`；Lookup 只有 `not_observed` / `committed` 与 nullable receipt，未观察到不是未提交证明，不自动重发。
+
+当前列表包含禁用记录，返回 scope、同原读取事务取得的 Agent version、assignment sequence、items 与可选 next_cursor。初始 sequence 为 1。按 SkillID 升序分页，limit 缺省 25、上限 100；签名 cursor 绑定当前 User、Project、Agent、limit、SkillID 位置及 assignment sequence。集合变化返回 `CURSOR_STALE`，末页省略 next_cursor；独立的 Agent 配置版本变化不伪造 assignment generation。每页先由原 `ListAssignments` 校验完整 canonical 集合及 live grants，再切页，不将任意前若干项冒充全集。技能候选继续使用原项目库 catalog 的分页。
+
+Lookup 新增缺失的当前 initialized Agent 检查：在原已持锁事务、当前 Owner(Read) 后、读取原命令前，经 Agent owner 的 `ReadSkillAssignmentInTx` 复用现有 initialized/current 检查。合法历史读取允许 initialized deleting，不比较历史 expected_version，不调用 Discover、不额外开启事务，也不提前检查四域引用或 active gate。现有 Execute 重放顺序保持。
+
+UI 以 Agent 详情的明确管理入口读取 Skills；分配/禁用/撤销与普通 Agent PATCH 分开提交且互斥。启用或禁用变更都会退役旧 AssignmentID 并创建新身份；撤销使用原 AssignmentID，不能影响后来重新分配的身份。Add Skills 可以禁用，撤销不删除项目包。queued 只表示持久待应用，不能显示为已经进入下一轮、恢复 waiting 或扩大工具权限。未确认意图保留原 key 和 DTO，只提供显式 Lookup。
+
+普通检查原源码 `6f72d257`，`32732/a89948` 实际 Wait0：Agent/Skill/HTTP/App 四包14 top/61 sub race、四包vet及显式Python解释器的schema校验通过，零skip。UI共18个唯一case分段通过：client4/session6复用ui-basic01、state6来自ui-basic02、page2来自ui-basic03；最终 `541660e4` 的ui-basic04（`2949/2cb284` Wait0）首次完整type/build通过，不把分段结果写为一次全绿。原ui-basic01的catalog路径/隐藏按钮文字夹具FAIL、ui-basic02的Vue `agentID` prop与父`agent-id`不匹配产品FAIL、ui-basic03四处测试回调推断void的type FAIL均保留；分别窄修fixture、Panel本地`agentId`与显式`return undefined`，既有断言未放宽。
+
+browser轻控 `54858/94e8ca` Wait0：新helper/spec诊断0、原导入五项诊断保持、精确Playwright list1；integration编译 `8009/312618` Wait0且精确list3。所有真实HTTP/Web均使用 `541660e4` 对应同一ELF、dist与Node输入；后续Git组合只核实际接缝，不改写原动态受测来源。[完整事实汇总](../../../output/ai/agent-skill-assignment/summary.json)及 [实际Wait](../../../output/ai/agent-skill-assignment/actual-waits.json)保留各轮来源。
+
+真实HTTP `14004/32c588` Wait0/49.683秒，2 top/0 sub、Node0。首top以默认App、正式Project/Agent/Skill初始化，覆盖显式分配、禁用Add Skills、历史replay/Lookup、版本与跨scope拒绝、旧grant撤销保护、重新启用及实际同事务Agent/引用/Audit/Outbox/no-active ingress。第二top仅在必回滚事务中合规暂置已初始化Agent的lifecycle/version，检验initialized deleting窄只读门与完整前像恢复；不冒正式退休或HTTP deleting Lookup。旧Commit Unknown和active ingress库证据仍只复用原范围；新片不执行Model或DetermineRoundInput。
+
+真实Web `71946/39d94c` Wait0/47.296秒，1 top/0 sub、Node1。默认App的显式分配→禁用→重新启用→撤销共4个原POST、0 Lookup，Agent版本2→5、三份新grant identity及精确撤销/最终集合均由原回执与实际回读核验；初始Add Skills grant和两个项目包保留。Agent目录/configuration/runner-mounts/assignments各5次、catalog1次。28个原请求保留27finished+1 assignments ERR_ABORTED，28份原response/native正文摘要、EOF/Close、handler返回、四份原public Promise/receipt身份均闭合；不以后续读取替代原写确认。[实际proof](../../../output/ai/agent-skill-assignment/web-native01/proof-summary.json)保留原终态；不声明真实Unknown UI恢复通过。
+
+独审亲视四图：宽浅确认标题焦点及基于v1确认按钮；宽暗disabled记录、两条分配与panel标题焦点；窄浅仅成功消息/标题焦点及布局可见，启用行在下方；窄暗撤销成功、已加载1条与标题焦点，完整剩余builtin行仍在下方。后两业务行事实来自实际DOM/SQL，不冒截图可见；取消/关闭焦点由真实DOM断言。light/dark、1440/390、reduced motion及无横向溢出均在限定范围接受。
+
+HTTP/Web的自有容器、网络、PID、私有目录/runtime与后代均实际退出；唯一ELF已在fresh零消费者及正控后处置，metadata保留。Web完成chunk占位修正仅改post metadata；摘要首脚本误猜28全finished触发AssertionError后改为原27+1，原件均保留且不增加业务运行次数。所有FAIL、日志、原proof、四图与disposition随交付同FS保全。原薄入口只新增两个Skills scope，不扩大120秒总预算或重启既有停止项。
+
+最终组合 `be2a266f` 合入 D13 后只发生 thin 并集，本片App的Go依赖、HTTP/UI/browser源及锁相对真实基线 `541660e4` 逐字未变。独立接缝审查与 [实际AST补验](../../../output/ai/agent-skill-assignment/main-combination01/result.json)（`bf85af` exit0）确认59个scope覆盖双亲全部映射、Skills HTTP2/Node0、Web1/Node1与FTS1/Node0均保持；未重编Go、未重复真实窗，不以该组合替换原动态证据。

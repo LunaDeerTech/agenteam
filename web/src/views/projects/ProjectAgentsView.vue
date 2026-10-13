@@ -3,10 +3,22 @@ import { nextTick, ref } from 'vue'
 import { UiButton, UiState } from '../../components/ui'
 import AgentCreateForm from '../../components/agents/AgentCreateForm.vue'
 import AgentEditForm from '../../components/agents/AgentEditForm.vue'
+import AgentSkillsPanel from '../../components/agents/AgentSkillsPanel.vue'
 import { useProjectAgents } from '../../composables/useProjectAgents'
 const owner = useProjectAgents(),
   state = owner.state
 const editButton = ref<{ $el: HTMLButtonElement } | null>(null)
+const skillsButton = ref<{ $el: HTMLButtonElement } | null>(null)
+const skillsPanel = ref<{ focus: () => void } | null>(null)
+async function openSkills() {
+  await owner.skills.open()
+  await nextTick()
+  if (owner.skills.state.open && owner.visible.value) skillsPanel.value?.focus()
+}
+async function closeSkills() {
+  await nextTick()
+  skillsButton.value?.$el.focus()
+}
 async function cancelEdit() {
   const p = owner.projectID.value,
     a = state.selectedID
@@ -51,10 +63,16 @@ const approval = { default: '默认审批', auto: '模型自动审批', allow: '
     </header>
     <UiState v-if="!owner.visible.value" kind="loading" title="正在确认项目访问身份" />
     <template v-else>
-      <p v-if="!owner.canCreate.value && !owner.pending.value" role="status">
+      <p
+        v-if="!owner.canCreate.value && !owner.pending.value && !owner.skills.state.open"
+        role="status"
+      >
         当前项目为只读，不能创建或编辑 Agent。
       </p>
-      <p v-if="owner.pending.value && !owner.progress.value" role="status">
+      <p
+        v-if="owner.pending.value && !owner.progress.value && !owner.skills.progress.value"
+        role="status"
+      >
         另一项目的 Agent 操作结果待确认，请返回原项目查询原操作。
       </p>
       <p v-if="owner.progress.value?.phase === 'submitting'" role="status">
@@ -115,6 +133,14 @@ const approval = { default: '默认审批', auto: '模型自动审批', allow: '
           >
         </section>
         <section class="agent-content" aria-label="Agent 配置">
+          <AgentSkillsPanel
+            v-if="owner.skills.state.open || owner.skills.progress.value?.phase === 'uncertain'"
+            ref="skillsPanel"
+            :owner="owner.skills"
+            :agent-id="state.selectedID"
+            @close="closeSkills"
+            @original="owner.showSkillOriginal()"
+          />
           <AgentCreateForm
             v-if="owner.draft.open && !owner.pending.value"
             :owner="owner"
@@ -141,6 +167,13 @@ const approval = { default: '默认审批', auto: '模型自动审批', allow: '
             <template v-if="state.configuration && state.detailPhase === 'ready'">
               <h2>{{ state.configuration.display_name ?? state.configuration.name }}</h2>
               <p>目录和配置本身不授予执行权限。</p>
+              <UiButton
+                v-if="!owner.skills.state.open"
+                ref="skillsButton"
+                :disabled="owner.busy.value || !!owner.pending.value"
+                @click="openSkills"
+                >管理 Skills</UiButton
+              >
               <UiButton
                 ref="editButton"
                 :disabled="!owner.canEdit.value || owner.busy.value"

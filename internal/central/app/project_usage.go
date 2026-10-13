@@ -15,6 +15,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/project"
 	"github.com/LunaDeerTech/agenteam/internal/central/projectvariable"
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
+	"github.com/LunaDeerTech/agenteam/internal/central/skill"
 	"github.com/LunaDeerTech/agenteam/internal/central/usage"
 	uc "github.com/LunaDeerTech/agenteam/internal/central/usage/contract"
 	usagehttp "github.com/LunaDeerTech/agenteam/internal/central/usage/http"
@@ -96,7 +97,11 @@ func newProjectUsageAuthority(db database, accounts *account.Authority, lifecycl
 	if err != nil {
 		return nil, err
 	}
-	dependencies := project.AuthorityDependencies{Sessions: accounts, Routes: accounts, AuditFacts: map[ac.Producer]ac.ProjectFactAuthority{ac.AgentProducer: agentFacts, ac.SecretProducer: secretFacts, ac.ProjectVariableProducer: variableFacts, ac.KnowledgeProducer: knowledgeFacts, ac.ObjectProducer: objectFacts, ac.ArtifactProducer: artifactFacts}}
+	skillFacts, err := skill.NewAssignmentAuditFacts(projectsStore)
+	if err != nil {
+		return nil, err
+	}
+	dependencies := project.AuthorityDependencies{Sessions: accounts, Routes: accounts, AuditFacts: map[ac.Producer]ac.ProjectFactAuthority{ac.AgentProducer: agentFacts, ac.SecretProducer: secretFacts, ac.ProjectVariableProducer: variableFacts, ac.KnowledgeProducer: knowledgeFacts, ac.ObjectProducer: objectFacts, ac.ArtifactProducer: artifactFacts, ac.SkillProducer: skillFacts}}
 	if lifecycle != nil {
 		dependencies.Lifecycle = lifecycle
 	}
