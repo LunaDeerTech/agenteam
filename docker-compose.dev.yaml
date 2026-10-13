@@ -4,13 +4,21 @@ services:
   database:
     # PostgreSQL 17 + pgvector 0.8.1, matching the migration contract.
     image: pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+    entrypoint: ["/bin/sh", "/workspace/deploy/dev/service.sh", "database", "docker-entrypoint.sh"]
+    command: ["postgres"]
     environment:
       POSTGRES_USER: agenteam
       POSTGRES_DB: agenteam
-      POSTGRES_PASSWORD: "${AGENTEAM_DEV_DATABASE_PASSWORD:?Copy .env.example to .env and set the database password}"
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - ./.dev/postgres:/var/lib/postgresql/data
+      - type: bind
+        source: "${AGENTEAM_DEV_DATA_DIR:-./.dev}/postgres"
+        target: /var/lib/postgresql/data
+      - type: bind
+        source: "${AGENTEAM_DEV_DATA_DIR:-./.dev}/config"
+        target: /dev-state/config
+        read_only: true
+      - ./deploy/dev:/workspace/deploy/dev:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U agenteam -d agenteam"]
       interval: 2s
@@ -19,14 +27,20 @@ services:
     stop_grace_period: 30s
 
   minio:
-    image: "${AGENTEAM_DEV_MINIO_IMAGE:-quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z}"
+    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
+    entrypoint: ["/bin/sh", "/workspace/deploy/dev/service.sh", "minio", "/usr/bin/docker-entrypoint.sh", "minio"]
     command: ["server", "/data", "--console-address", ":9001", "--certs-dir", "/data/certs"]
     environment:
       HOME: /data
-      MINIO_ROOT_USER: "${AGENTEAM_DEV_MINIO_ROOT_USER:?Set the MinIO user in .env}"
-      MINIO_ROOT_PASSWORD: "${AGENTEAM_DEV_MINIO_ROOT_PASSWORD:?Set the MinIO password in .env}"
     volumes:
-      - ./.dev/minio:/data
+      - type: bind
+        source: "${AGENTEAM_DEV_DATA_DIR:-./.dev}/minio"
+        target: /data
+      - type: bind
+        source: "${AGENTEAM_DEV_DATA_DIR:-./.dev}/config"
+        target: /dev-state/config
+        read_only: true
+      - ./deploy/dev:/workspace/deploy/dev:ro
     stop_grace_period: 30s
 
   app:
@@ -40,11 +54,6 @@ services:
     working_dir: /workspace
     command: ["/bin/sh", "/workspace/deploy/dev/bootstrap.sh"]
     environment:
-      DEV_UID: "${AGENTEAM_DEV_UID:-1000}"
-      DEV_GID: "${AGENTEAM_DEV_GID:-1000}"
-      DEV_DATABASE_PASSWORD: "${AGENTEAM_DEV_DATABASE_PASSWORD:?Set the database password in .env}"
-      DEV_MINIO_ROOT_USER: "${AGENTEAM_DEV_MINIO_ROOT_USER:?Set the MinIO user in .env}"
-      DEV_MINIO_ROOT_PASSWORD: "${AGENTEAM_DEV_MINIO_ROOT_PASSWORD:?Set the MinIO password in .env}"
       HOME: /dev-state/home
       GOTOOLCHAIN: local
       CGO_ENABLED: "0"
@@ -69,7 +78,9 @@ services:
       AGENTEAM_CENTRAL_ACCOUNT_RECOVERY_LOG: /dev-state/account-recovery/recovery.jsonl
     volumes:
       - .:/workspace:ro
-      - ./.dev:/dev-state
+      - type: bind
+        source: "${AGENTEAM_DEV_DATA_DIR:-./.dev}"
+        target: /dev-state
       # These are mounts, not copies; dependency files live only in .dev/web.
       - ./web/src:/dev-state/web/src:ro
       - ./web/public:/dev-state/web/public:ro
@@ -95,8 +106,13 @@ services:
     volumes:
       - ./deploy/dev/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       # Mount the stable parent so restart app can replace current/ in place.
-      - ./.dev/frontend:/srv/frontend:ro
-      - ./.dev/nginx-cache:/var/cache/nginx
+      - type: bind
+        source: "${AGENTEAM_DEV_DATA_DIR:-./.dev}/frontend"
+        target: /srv/frontend
+        read_only: true
+      - type: bind
+        source: "${AGENTEAM_DEV_DATA_DIR:-./.dev}/nginx-cache"
+        target: /var/cache/nginx
     depends_on:
       app:
         condition: service_healthy
