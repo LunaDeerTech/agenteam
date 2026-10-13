@@ -111,7 +111,7 @@ func (p *testReader) ReadArtifact(ctx context.Context, v ac.Invocation, ref ac.A
 }
 func testHandler() (*handler, *testBoundary, *testReader) {
 	b, p := &testBoundary{}, &testReader{result: testRead()}
-	return &handler{p, b}, b, p
+	return &handler{reader: p, boundary: b}, b, p
 }
 
 type testWriter struct {
