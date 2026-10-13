@@ -463,11 +463,11 @@ func (v *skillsCleanupPG) disabledAgent(t *testing.T) i.AgentID {
 	if runner == nil {
 		v.agents.Stop()
 		outboxCleanupRequire(t, v.agents.Drain(ctxFor(t)))
+		if !v.agents.Joined() {
+			t.Fatal("original Agent call owner did not return")
+		}
 	} else {
 		runner.created(t, receipt)
-	}
-	if !v.agents.Joined() {
-		t.Fatal("original Agent call owner did not return")
 	}
 	return target
 }
