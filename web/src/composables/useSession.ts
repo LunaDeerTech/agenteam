@@ -556,7 +556,7 @@ type MilestonePlanningAction =
   | 'milestone-create-lookup'
   | 'milestone-update'
   | 'milestone-update-lookup'
-type MilestoneCreateIntent = Omit<SprintStartIntent, 'sprintID' | 'input'> & {
+type MilestoneCreateIntent = Omit<SprintStartIntent, 'sprintID' | 'input' | 'operation'> & {
   milestoneID: string
   input: MilestoneCreateInput
 }
