@@ -555,7 +555,11 @@ func (s *Service) finishProjectWork(h *projectWorkHandle) {
 	if h == nil {
 		return
 	}
-	ctx, done := s.cleanupContext()
+	var original context.Context
+	if h.operation != nil {
+		original = h.operation.ctx
+	}
+	ctx, done := s.cleanupContextWithValues(original)
 	defer done()
 	s.finishProjectWorkContext(ctx, h)
 }
@@ -604,7 +608,7 @@ func (s *Service) finishOperationWork(op *operation) {
 	if budget, ok := op.ctx.Value(boundedCleanupBudgetKey{}).(context.Context); ok {
 		ctx, done = s.cleanupCheckpointWithinBudget(budget)
 	} else {
-		ctx, done = s.cleanupContext()
+		ctx, done = s.cleanupContextWithValues(op.ctx)
 	}
 	defer done()
 	s.knowledgeObjectCleanup(ctx).captureHandles(handles)

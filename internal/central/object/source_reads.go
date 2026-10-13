@@ -25,6 +25,7 @@ type sourceReadsState struct {
 type sourceLeaseState struct {
 	id                         oc.LeaseID
 	origin                     foundation.Tx
+	originalValues             context.Context
 	actor                      identity.Actor
 	source                     oc.ResolvedSource
 	process                    oc.ProcessID
@@ -363,7 +364,7 @@ func (r *SourceReads) CancelSourceLease(ctx context.Context, lease oc.SourceLeas
 		h.mu.Unlock()
 		return failure(foundation.ResourceBusy, nil)
 	}
-	cleanup, finished := s.cleanupContext()
+	cleanup, finished := r.sourceCleanupContextWithValues(h.stopScope, h.originalValues)
 	if cleanup.Err() != nil {
 		finished()
 		h.mu.Unlock()

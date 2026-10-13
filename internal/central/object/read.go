@@ -320,13 +320,13 @@ func (s *Service) openRead(ctx context.Context, actor identity.Actor, owner oc.O
 	})
 	if err = commitError(result); err != nil {
 		if result.State() == foundation.Unknown {
-			_ = s.releaseInternal(leaseID, id)
+			_ = s.releaseInternalWithValues(op.ctx, leaseID, id)
 		}
 		return nil, err
 	}
 	body, err := s.state().backend.get(op.ctx, obj.key, int64(obj.meta.ByteSize), resolved)
 	if err != nil {
-		_ = s.releaseInternal(leaseID, id)
+		_ = s.releaseInternalWithValues(op.ctx, leaseID, id)
 		return nil, err
 	}
 	size, digest := int64(obj.meta.ByteSize), obj.meta.SHA256
@@ -334,7 +334,7 @@ func (s *Service) openRead(ctx context.Context, actor identity.Actor, owner oc.O
 		size = int64(resolved.Length)
 		digest = ""
 	}
-	reader, err := newIntegrityReader(op.ctx, body, size, digest, func() error { err := s.releaseInternal(leaseID, id); finish(); return err })
+	reader, err := newIntegrityReader(op.ctx, body, size, digest, func() error { err := s.releaseInternalWithValues(op.ctx, leaseID, id); finish(); return err })
 	if err != nil {
 		return nil, err
 	}
@@ -347,7 +347,10 @@ func (s *Service) openRead(ctx context.Context, actor identity.Actor, owner oc.O
 	return resultReader, nil
 }
 func (s *Service) releaseInternal(id oc.LeaseID, object oc.ObjectID) error {
-	ctx, cancel := s.cleanupContext()
+	return s.releaseInternalWithValues(nil, id, object)
+}
+func (s *Service) releaseInternalWithValues(original context.Context, id oc.LeaseID, object oc.ObjectID) error {
+	ctx, cancel := s.cleanupContextWithValues(original)
 	defer cancel()
 	return s.releaseInternalContext(ctx, id, object)
 }

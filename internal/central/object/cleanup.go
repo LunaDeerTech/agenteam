@@ -485,7 +485,7 @@ func (s *Service) noteCleanupFailure(ctx context.Context, c cleanupClaim, reason
 	if ctx.Value(runtimeRecoveryBudgetKey{}) == true || s.currentProjectCleanup(ctx) != nil {
 		bounded, cancel = s.cleanupCheckpointWithinBudget(ctx)
 	} else {
-		bounded, cancel = s.cleanupContext()
+		bounded, cancel = s.cleanupContextWithValues(ctx)
 	}
 	defer cancel()
 	result := s.withinAccess(bounded, recoveryCause(), s.checkpointRequest(c), func(ctx context.Context, tx foundation.Tx, plan oc.AccessLockPlan, locked oc.LockedAccess) error {

@@ -56,6 +56,7 @@ func (r *SourceReads) withinProjectSourceAcquisition(ctx context.Context, cause 
 		_ = sourceCommitError(h, result)
 		h.mu.Lock()
 		h.acquisition = result
+		h.originalValues = ctx
 		h.acquireReturned = true
 		h.mu.Unlock()
 	}
@@ -161,14 +162,17 @@ func (s *Service) requireSourceStop(ctx context.Context, tx f.Tx, c *sourceResul
 	return c.stop.require(ctx, tx)
 }
 func (r *SourceReads) sourceCleanupContext(h *sourceLeaseState) (context.Context, func()) {
-	s := r.data().service
-	cleanup, done := s.cleanupContext()
 	h.mu.Lock()
-	scope := h.stopScope
+	scope, original := h.stopScope, h.originalValues
 	h.mu.Unlock()
+	return r.sourceCleanupContextWithValues(scope, original)
+}
+func (r *SourceReads) sourceCleanupContextWithValues(scope *projectSourceStopScope, original context.Context) (context.Context, func()) {
+	s := r.data().service
 	if scope == nil {
-		return cleanup, done
+		return s.cleanupContextWithValues(original)
 	}
+	cleanup, done := s.cleanupContext()
 	// Keep the original loan's values/deadline, plus the existing cleanup/force
 	// registration. Ending either original budget forbids any subsequent SQL.
 	run, cancel := context.WithCancel(scope.ctx)

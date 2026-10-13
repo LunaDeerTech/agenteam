@@ -546,7 +546,7 @@ func (s *Service) UploadPrepared(ctx context.Context, actor identity.Actor, owne
 		if result.State() == foundation.Unknown && attempt.id.Validate() == nil && !noIO {
 			// The owned writer has not called storage. Persist its join proof;
 			// an unresolved claim never authorizes a speculative PUT.
-			_ = s.finishWriter(attempt, false, false, err)
+			_ = s.finishWriter(opCtx, attempt, false, false, err)
 		}
 		return oc.UploadAttempt{}, err
 	}
@@ -555,7 +555,7 @@ func (s *Service) UploadPrepared(ctx context.Context, actor identity.Actor, owne
 	}
 	body, err := r.spool.open(p)
 	if err != nil {
-		_ = s.finishWriter(attempt, false, false, err)
+		_ = s.finishWriter(opCtx, attempt, false, false, err)
 		return oc.UploadAttempt{}, err
 	}
 	putErr := r.backend.put(opCtx, attempt.key, p.Details().MediaType, attempt.size, attempt.digest, body, true)
@@ -566,7 +566,7 @@ func (s *Service) UploadPrepared(ctx context.Context, actor identity.Actor, owne
 	if verifyErr == nil && closeErr != nil {
 		verifyErr = unavailable(closeErr)
 	}
-	finishErr := s.finishWriter(attempt, verifyErr == nil, putErr == nil, verifyErr)
+	finishErr := s.finishWriter(opCtx, attempt, verifyErr == nil, putErr == nil, verifyErr)
 	if finishErr != nil {
 		return oc.UploadAttempt{}, finishErr
 	}
@@ -575,12 +575,12 @@ func (s *Service) UploadPrepared(ctx context.Context, actor identity.Actor, owne
 	}
 	return handle, nil
 }
-func (s *Service) finishWriter(a attemptRow, verified, terminal bool, ioErr error) error {
+func (s *Service) finishWriter(original context.Context, a attemptRow, verified, terminal bool, ioErr error) error {
 	r := s.state()
 	r.mu.Lock()
 	r.closedAttempts[a.id] = true
 	r.mu.Unlock()
-	ctx, cancel := s.cleanupContext()
+	ctx, cancel := s.cleanupContextWithValues(original)
 	defer cancel()
 	result := s.withinAccess(ctx, recoveryCause(), s.maintenanceRequest(oc.FinishWriterAccess, a.object, oc.AccessRequestDetails{AttemptID: a.id}), func(ctx context.Context, tx foundation.Tx, plan oc.AccessLockPlan, locked oc.LockedAccess) error {
 		e, err := executor(s, tx)
