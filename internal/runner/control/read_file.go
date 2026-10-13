@@ -37,6 +37,8 @@ func (c *Client) connectionHello(id p.ID, version string) p.Hello {
 	switch executor := c.executor.(type) {
 	case ownedOperationExecutor:
 		hello.Capabilities = executor.selected.Names()
+	case ownedCommandOperationExecutor:
+		hello.Capabilities = executor.selected.Names()
 	case readFileExecutor:
 		hello.Capabilities = []string{p.ReadFileOperation}
 	case writeFileExecutor:

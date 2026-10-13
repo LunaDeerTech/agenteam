@@ -95,7 +95,7 @@ func TestRunnerDirectoryApp(t *testing.T) {
 		conflict := runnerReadFileAppLaunch(t, v.binary, mismatch, nil, nil)
 		conflict.wait(t, 2, false)
 		conflict.noLeaks(t, v.token, v.seed, v.path, root)
-		for _, invalid := range []string{"list-directory,run-command", "find-files,find-files"} {
+		for _, invalid := range []string{"list-directory,run-command-unknown", "find-files,find-files"} {
 			process := runnerReadFileAppLaunch(t, v.binary, v.env(&invalid, false), nil, nil)
 			process.wait(t, 2, false)
 			process.noLeaks(t, v.token, v.seed, v.path, root)

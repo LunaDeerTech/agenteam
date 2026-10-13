@@ -25,3 +25,11 @@
 `native01/outer-terminal.json` 是 prepare 原进程 870148 的回执；本次 native 原 Wait 在 `terminal.json`（872062）与 `result.json`（872063），两者不混用。工具 36451 的亲收转录另存独立证明，标明 assistant-observed。完整 output 已由原工具 62814 actual 0 同文件系统 `NOREPLACE` 保全至 main 工作树 `output/ai/retired-20261012/runner-command-wss/`：92 文件 / 23,492,506 B / 10 目录全 metadata/hash/inode 同；五份 tmp 副本 1,329 B 齐、原 tmp 保留。旁目录 `runner-command-wss-preservation/` 保存实际核验；15 maps / 75 个仓库历史 blob 已匹配原 `61313334`，main补证明0f81c1实际0确认75路径历史恢复，root普通树/本地删除及fresh tip核对18477实际0、远端exact-lease删除95005实际0、fresh空/prune/tracking空42368实际0均已闭合。恢复路径、外部依赖与可见进程检查边界见 README。
 
 方法与当前状态见[本片 README](../../../.agent-state/runner-command-wss/README.md)。完整初始化、ready、默认绑定、OpenAI tools A/B、Object join、SPA publication 与来源获取等既有 STOP 不变。
+
+## 当前CLI接线
+
+生产 Runner CLI 允许在 `AGENTEAM_RUNNER_OPERATIONS` 中显式选择 `run-command`，可与已实现的文件操作组合；省略或空值仍不启用任何操作。原锁定 DeviceIdentity 的配置构造唯一 Workspace Manager，命令 Handler 与所有所选文件 Handler 借用同一 Manager，成功构造后才在 Hello 公告固定能力。仅所选命令的组合 executor 获得原取消尾策略与已知空注入集合的 UTF-8 输出处理；文件操作的原 Handler 不变。
+
+本接线复用 revision `"1"` 的直接 argv、原 deadline、非 nil Environment（含空 map）和 IdempotencyKey 拒绝规则，不支持环境注入。命令仍以 Runner 宿主用户身份执行，workspace cwd containment 不构成命令 sandbox。原 Command Owner 的实际 Wait、输出管道与 Handle Drain 先于完整报告；原 Client.Run 依次等待 session/worker 与 Manager Stop/Drain，最后释放身份锁，不以 Unknown 重新执行。
+
+真实 CLI 验证范围为登记、所选能力、受控 Central Operation、命令报告和重启；验证结果在本段补充。受控 Operation authority 不等于真实 Model/ToolCall 生产者，本项不完成 Model→Tool→Runner 循环、环境注入 revision 2、Managed Process 或任何既有停止项。
