@@ -210,6 +210,7 @@ export async function observeBrowserIO(
     let originalSprintStart: any;
     const originalSprintCompletions: any[] = [];
     const originalTaskCancellations: any[] = [];
+    const originalTaskBlockResumes: any[] = [];
     let originalSprintCreate: any;
     let originalMilestoneCreate: any;
     const originalVariableWrites: any[] = [];
@@ -547,6 +548,10 @@ export async function observeBrowserIO(
           };
           writeInputs.set(call, originalSprintCreate);
         }
+        if (kind === "taskBlockResume.transfer") {
+          const original = { call, project: args[0], task: args[1], input: JSON.parse(JSON.stringify(args[2])), before: JSON.parse(JSON.stringify(args[3])) };
+          originalTaskBlockResumes.push(original); writeInputs.set(call, original);
+        }
         if (kind === "taskCancel.transfer") {
           const original = { call, project: args[0], task: args[1], input: JSON.parse(JSON.stringify(args[2])) };
           originalTaskCancellations.push(original);
@@ -623,6 +628,11 @@ export async function observeBrowserIO(
             if (kind === "taskDependency.add" || kind === "taskDependency.resolve") {
               const original = writeInputs.get(call), progress = auth.workTaskDependencies.progress;
               call.result_current = progress?.phase === "confirmed" && progress.kind === (kind === "taskDependency.add" ? "dependency-add" : "dependency-resolve") && progress.projectID === original.project && progress.taskID === original.task && value != null && progress.receipt === value && value.blocker.id === original.blocker && JSON.stringify(canonical(value.task)) === JSON.stringify(canonical({ ...original.before, version: String(BigInt(original.before.version) + 1n), updated_at: value.task.updated_at, manual_rank: value.task.manual_rank }));
+            }
+            if (kind === "taskBlockResume.transfer") {
+              const original = writeInputs.get(call), progress = auth.workReview.progress;
+              // WorkReview retires its successful intent before returning the confirmed receipt.
+              call.result_current = progress?.kind === "review" && progress.phase === "confirmed" && progress.contextValid === false && progress.projectID === original.project && progress.taskID === original.task && value != null && progress.receipt === value && JSON.stringify(canonical(value.task)) === JSON.stringify(canonical({ ...original.before, state: original.input.request.target_state, assignee_agent_id: original.input.request.assignee_agent_id ?? original.before.assignee_agent_id, version: String(BigInt(original.before.version) + 1n), updated_at: value.task.updated_at, manual_rank: value.task.manual_rank }));
             }
             if (kind === "humanBlocker.add" || kind === "humanBlocker.resolve") {
               const original = writeInputs.get(call), progress = auth.workTaskBlockers.progress;
@@ -794,6 +804,7 @@ export async function observeBrowserIO(
         taskCancel: readonly string[] | undefined = undefined,
         taskDependency: { task: string; related: string } | undefined = undefined,
         knowledgeMoveTarget: string | undefined = undefined,
+        taskBlockResume: string | undefined = undefined,
       ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
@@ -1279,6 +1290,14 @@ export async function observeBrowserIO(
             },
             "POST",
           );
+        }
+        if (taskBlockResume) {
+          if (taskCancel || intakeWrites || editTask) throw Error("TASK_BLOCK_RESUME_DUPLICATE_TRANSFER");
+          consumer(auth.workReview, "startTransfer", "taskBlockResume.transfer", a => {
+            const target = a[2]?.request?.target_state, before = a[3];
+            if (a.length !== 4 || a[0] !== project || a[1] !== taskBlockResume || before?.project_id !== project || before?.id !== taskBlockResume || before?.version !== a[2]?.expected_version || !((target === "blocked" && before.state === "todo") || (target === "todo" && before.state === "blocked"))) throw Error("TASK_BLOCK_RESUME_CONSUMER_SCOPE");
+            return "/api/v1/projects/" + project + "/tasks/" + taskBlockResume + "/transfer";
+          }, "POST");
         }
         if (taskCancel) {
           consumer(auth.workReview, "startTransfer", "taskCancel.transfer", a => {
@@ -1799,6 +1818,14 @@ export async function observeBrowserIO(
               original.key = key;
               original.request = request;
             }
+          }
+          if (call.kind === "taskBlockResume.transfer") {
+            matches = equal(parsed, original.input) && Object.keys(parsed).sort().join() === "expected_version,request" &&
+              parsed.request !== null && typeof parsed.request === "object" && !Array.isArray(parsed.request) &&
+              ["blocked", "todo"].includes(parsed.request.target_state) &&
+              Object.keys(parsed.request).every(k => ["target_state", "comment", "assignee_agent_id", "resolve_blocker_ids"].includes(k)) &&
+              originalTaskBlockResumes.every(old => old === original || (typeof old.key === "string" && old.key !== key));
+            if (matches) original.key = key;
           }
           if (call.kind === "taskCancel.transfer") {
             matches = equal(parsed, original.input) && Object.keys(parsed).sort().join() === "expected_version,request" &&

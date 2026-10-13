@@ -123,7 +123,12 @@ afterEach(async () => {
   vi.restoreAllMocks()
 })
 
-async function page(state: Task['state'] = 'in_progress', empty = false, blocked = false) {
+async function page(
+  state: Task['state'] = 'in_progress',
+  empty = false,
+  blocked = false,
+  sprintState: 'planned' | 'current' | 'completed' = 'current',
+) {
   // Controlled HTTP facts feed the production codecs, Session owner and page
   // owner. These tests make no claim about server authorization or SQL writes.
   let current: Task = {
@@ -152,6 +157,11 @@ async function page(state: Task['state'] = 'in_progress', empty = false, blocked
   let original: TransferInput | ReadyInput | undefined
   const unexpected: string[] = []
   const commit = (input: TransferInput | ReadyInput) => {
+    if (
+      'resolve_blocker_ids' in input.request &&
+      input.request.resolve_blocker_ids.includes(id(70))
+    )
+      blockers = 'resolved'
     current = {
       ...current,
       state: input.request.target_state,
@@ -185,9 +195,17 @@ async function page(state: Task['state'] = 'in_progress', empty = false, blocked
     if (route === `${prefix}/milestones/${milestoneID}`) return json(milestone)
     if (route === `${prefix}/sprints`)
       return json({
-        items: [{ ...base(sprintID, sprint.title), milestone_id: milestoneID, state: 'current' }],
+        items: [{ ...base(sprintID, sprint.title), milestone_id: milestoneID, state: sprintState }],
       })
-    if (route === `${prefix}/sprints/${sprintID}`) return json(sprint)
+    if (route === `${prefix}/sprints/${sprintID}`)
+      return json({
+        ...sprint,
+        state: sprintState,
+        started_at: sprintState === 'planned' ? null : time,
+        started_by: sprintState === 'planned' ? null : sprint.started_by,
+        completed_at: sprintState === 'completed' ? time : null,
+        completed_by: sprintState === 'completed' ? sprint.started_by : null,
+      })
     if (route === `${prefix}/agents`) return json({ items: agents })
     if (route === `${prefix}/agents/${workerID}`) return json(agents[1])
     if (route === `${prefix}/agents/${reviewerID}`) return json(agents[0])
@@ -378,6 +396,10 @@ async function page(state: Task['state'] = 'in_progress', empty = false, blocked
   expect(tasks.busy.value).toBe(false)
   return {
     fetcher,
+    tasks,
+    changeTask() {
+      current = { ...current, version: String(BigInt(current.version) + 1n) }
+    },
     rejectTransfer(code: string) {
       transferRejected = code
     },
@@ -893,5 +915,105 @@ describe('Task Cancel controlled visible workflow', () => {
         new Headers(original.headers).get('Idempotency-Key'),
       )
     }
+  })
+})
+
+describe('Task blocking and atomic recovery page', () => {
+  it('marks a planned todo without changing its assignee, then explicitly selects one atomic recovery and restores focus', async () => {
+    const f = await page('todo', false, true, 'planned')
+    await click('标记受阻')
+    expect(document.activeElement).toBe(body().get('form[aria-label="标记受阻"] textarea').element)
+    await click('保留当前状态')
+    expect(document.activeElement).toBe(button('标记受阻').element)
+    expect(f.transfers()).toHaveLength(0)
+    await click('标记受阻')
+    await click('确认标记受阻')
+    expect(f.transfers()).toHaveLength(1)
+    expect(JSON.parse(f.transfers()[0]![1].body as string)).toEqual({
+      expected_version: '4',
+      request: { target_state: 'blocked' },
+    })
+    expect(body().get('.task-detail').text()).toContain('任务已标记受阻')
+    expect(document.activeElement).toBe(body().get('.task-detail h2').element)
+    await click('解决阻塞并恢复待执行')
+    const checkbox = body().get<HTMLInputElement>(
+      'form[aria-label="解决阻塞并恢复待执行"] input[type="checkbox"]',
+    )
+    expect(document.activeElement).toBe(checkbox.element)
+    expect(checkbox.element.checked).toBe(false)
+    expect(button('确认解决阻塞并恢复待执行').element.disabled).toBe(true)
+    await checkbox.setValue(true)
+    await click('确认解决阻塞并恢复待执行')
+    expect(f.transfers()).toHaveLength(2)
+    expect(JSON.parse(f.transfers()[1]![1].body as string)).toEqual({
+      expected_version: '5',
+      request: { target_state: 'todo', resolve_blocker_ids: [id(70)] },
+    })
+    expect(body().get('.task-detail').text()).toContain('已恢复待执行')
+    expect(body().get('.task-detail').text()).toContain('已解除')
+    expect(document.activeElement).toBe(body().get('.task-detail h2').element)
+    expect(f.fetcher.mock.calls.filter(([, init]) => init.method === 'POST')).toHaveLength(2)
+  })
+  it('keeps recovery Unknown on the original key and selection until Lookup and real reread finish', async () => {
+    const f = await page('blocked', false, true)
+    f.unknown()
+    await click('解决阻塞并恢复待执行')
+    await body()
+      .get('form[aria-label="解决阻塞并恢复待执行"] input[type="checkbox"]')
+      .setValue(true)
+    await click('确认解决阻塞并恢复待执行')
+    expect(body().find('form[aria-label="解决阻塞并恢复待执行"]').exists()).toBe(false)
+    expect(document.activeElement).toBe(button('查询原操作结果').element)
+    await click('查询原操作结果')
+    expect(body().text()).toContain('尚未观察到原操作结果')
+    f.observe('committed')
+    await click('查询原操作结果')
+    expect(f.transfers()).toHaveLength(1)
+    expect(f.lookups()).toHaveLength(2)
+    expect(body().get('.task-detail').text()).toContain('待执行')
+    expect(body().get('.task-detail').text()).toContain('已解除')
+    expect(document.activeElement).toBe(body().get('.task-detail h2').element)
+    const sent = f.transfers()[0]![1]
+    for (const [, lookup] of f.lookups()) {
+      expect(JSON.parse(lookup.body as string)).toEqual({
+        command: 'work.task.transfer',
+        target_id: taskID,
+        ...JSON.parse(sent.body as string),
+      })
+      expect(new Headers(lookup.headers).get('Idempotency-Key')).toBe(
+        new Headers(sent.headers).get('Idempotency-Key'),
+      )
+    }
+  })
+  it('keeps an opened resolution draft bound to its version and refuses unread blocker facts', async () => {
+    const f = await page('blocked', false, true)
+    await click('解决阻塞并恢复待执行')
+    await body()
+      .get('form[aria-label="解决阻塞并恢复待执行"] input[type="checkbox"]')
+      .setValue(true)
+    f.changeTask()
+    await f.tasks.refresh()
+    await flushPromises()
+    expect(body().text()).toContain('任务已变化，请选择“保留当前状态”')
+    expect(button('确认解决阻塞并恢复待执行').element.disabled).toBe(true)
+    expect(f.transfers()).toHaveLength(0)
+    await click('保留当前状态')
+    f.blockers('unavailable')
+    await f.tasks.refresh()
+    await flushPromises()
+    await click('解决阻塞并恢复待执行')
+    expect(button('确认解决阻塞并恢复待执行').element.disabled).toBe(true)
+    expect(f.transfers()).toHaveLength(0)
+  })
+  it('shows authoritative occupancy refusal and makes no extra unblock or execution command', async () => {
+    const f = await page('todo', false, true)
+    f.rejectTransfer('RESOURCE_BUSY')
+    await click('标记受阻')
+    await click('确认标记受阻')
+    expect(body().text()).toContain('任务有尚未结束的操作')
+    expect(body().text()).not.toContain('任务已标记受阻。')
+    expect(f.transfers()).toHaveLength(1)
+    expect(f.fetcher.mock.calls.filter(([, init]) => init.method === 'POST')).toHaveLength(1)
+    expect(button('确认标记受阻').element.disabled).toBe(true)
   })
 })

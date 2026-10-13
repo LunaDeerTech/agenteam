@@ -103,6 +103,7 @@ import {
 import {
   createWorkReviewAPI,
   captureTransferInput,
+  isTaskBlockResume,
   captureReadyInput,
   decodeWorkTask,
   type Task,
@@ -607,7 +608,7 @@ type WorkReviewIntent = {
   body: string
   uncertain: boolean
 } & (
-  | { kind: 'review'; input: TransferInput }
+  | { kind: 'review'; input: TransferInput; taskBefore?: Task }
   | { kind: 'ready'; input: ReadyInput }
   | { kind: 'create'; input: TaskCreateInput }
   | { kind: 'edit'; input: TaskUpdateInput }
@@ -6568,17 +6569,22 @@ export function createSessionController(
         dispatched = true
         const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
         const checkedBlockerReply = (value: WorkCommandReceipt | WorkCommandLookup) => {
-          if ('taskBefore' in original && (!('status' in value) || value.status === 'committed')) {
+          if ('taskBefore' in original && original.taskBefore && (!('status' in value) || value.status === 'committed')) {
             const receipt = 'status' in value ? value.receipt : value
             // Keep version-protected Task fields through Unknown/Lookup.
             // Another Task may rebalance manual_rank without changing this
             // Task's version. Only the backend's same-Tx before/after images
-            // can establish that this command preserved the current rank.
+            // can establish the preserved rank for Blocker writes or the
+            // appended target-group rank for a Task transition.
             const before = original.taskBefore
             for (const key of Object.keys(before) as (keyof Task)[]) {
-              if (key !== 'version' && key !== 'updated_at' && key !== 'manual_rank' && receipt.task[key] !== before[key])
+              if (key !== 'version' && key !== 'updated_at' && key !== 'manual_rank' &&
+                  !(original.kind === 'review' && (key === 'state' || key === 'assignee_agent_id')) && receipt.task[key] !== before[key])
                 throw new AccountFailure('invalid-response')
             }
+            if (original.kind === 'review' && receipt.task.assignee_agent_id !==
+                ('assignee_agent_id' in original.input.request ? original.input.request.assignee_agent_id : before.assignee_agent_id))
+              throw new AccountFailure('invalid-response')
             if (receipt.task.updated_at < before.updated_at)
               throw new AccountFailure('invalid-response')
           }
@@ -6616,9 +6622,9 @@ export function createSessionController(
           return lookup
             ? workReviewAPI.lookupReady(original.projectID, original.taskID, original.input, write)
             : workReviewAPI.ready(original.projectID, original.taskID, original.input, write)
-        return lookup
+        return (lookup
           ? workReviewAPI.lookup(original.projectID, original.taskID, original.input, write)
-          : workReviewAPI.transfer(original.projectID, original.taskID, original.input, write)
+          : workReviewAPI.transfer(original.projectID, original.taskID, original.input, write)).then(checkedBlockerReply)
       },
       undefined,
       kind,
@@ -6640,7 +6646,7 @@ export function createSessionController(
         if (live()) {
           const p = failure.problem
           if ((original.kind.startsWith('blocker-') || original.kind.startsWith('dependency-') ||
-            (original.kind === 'review' && original.input.request.target_state === 'cancelled')) && p && [403, 404].includes(p.status)) {
+            (original.kind === 'review' && (original.input.request.target_state === 'cancelled' || isTaskBlockResume(original.input)))) && p && [403, 404].includes(p.status)) {
             clearWorkReviewState()
             throw failure
           }
@@ -6705,14 +6711,14 @@ export function createSessionController(
     abandonRead: clearWorkReviewRead,
     forgetCancelUnavailable(projectID: string, taskID?: string) {
       const original = workReviewIntent
-      if (original?.kind === 'review' && original.input.request.target_state === 'cancelled' &&
+      if (original?.kind === 'review' && (original.input.request.target_state === 'cancelled' || isTaskBlockResume(original.input)) &&
           original.projectID === projectID && (!taskID || original.taskID === taskID)) {
         clearWorkReviewState()
         return true
       }
       return false
     },
-    startTransfer(projectID: string, taskID: string, value: TransferInput) {
+    startTransfer(projectID: string, taskID: string, value: TransferInput, before?: Task) {
       try {
         const identity = personalIdentity()
         if (
@@ -6728,9 +6734,14 @@ export function createSessionController(
           throw new AccountFailure('busy')
         if (!uuid7.test(projectID) || !uuid7.test(taskID)) throw new AccountFailure('invalid-input')
         const input = captureTransferInput(value)
-        if (input.request.target_state === 'cancelled' && (sprintStartIntent || sprintCreateIntent || milestoneCreateIntent))
+        if ((input.request.target_state === 'cancelled' || isTaskBlockResume(input)) && (sprintStartIntent || sprintCreateIntent || milestoneCreateIntent))
           throw new AccountFailure('busy')
+        const taskBefore = isTaskBlockResume(input)
+          ? captureBlockerTask(projectID, taskID, input.expected_version, before as Task) : undefined
+        if (taskBefore && taskBefore.state !== (input.request.target_state === 'blocked' ? 'todo' : 'blocked'))
+          throw new AccountFailure('invalid-input')
         const original: WorkReviewIntent = {
+          ...(taskBefore ? { taskBefore } : {}),
           kind: 'review',
           identity,
           csrf: sessionCSRF,
