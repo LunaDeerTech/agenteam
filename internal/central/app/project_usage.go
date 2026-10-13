@@ -6,6 +6,7 @@ import (
 
 	"github.com/LunaDeerTech/agenteam/internal/central/account"
 	"github.com/LunaDeerTech/agenteam/internal/central/agent"
+	"github.com/LunaDeerTech/agenteam/internal/central/artifact"
 	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -91,7 +92,11 @@ func newProjectUsageAuthority(db database, accounts *account.Authority, lifecycl
 	if err != nil {
 		return nil, err
 	}
-	dependencies := project.AuthorityDependencies{Sessions: accounts, Routes: accounts, AuditFacts: map[ac.Producer]ac.ProjectFactAuthority{ac.AgentProducer: agentFacts, ac.SecretProducer: secretFacts, ac.ProjectVariableProducer: variableFacts, ac.KnowledgeProducer: knowledgeFacts, ac.ObjectProducer: objectFacts}}
+	artifactFacts, err := artifact.NewProjectAuditAuthority(projectsStore)
+	if err != nil {
+		return nil, err
+	}
+	dependencies := project.AuthorityDependencies{Sessions: accounts, Routes: accounts, AuditFacts: map[ac.Producer]ac.ProjectFactAuthority{ac.AgentProducer: agentFacts, ac.SecretProducer: secretFacts, ac.ProjectVariableProducer: variableFacts, ac.KnowledgeProducer: knowledgeFacts, ac.ObjectProducer: objectFacts, ac.ArtifactProducer: artifactFacts}}
 	if lifecycle != nil {
 		dependencies.Lifecycle = lifecycle
 	}

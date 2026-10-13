@@ -77,6 +77,7 @@ type accountAssembly struct {
 	projects        accountWork
 	skills          accountWork
 	knowledge       accountWork
+	artifacts       *artifactCallAssembly
 	runners         accountWork
 	sink            accountWork
 	core            accountWork
@@ -223,6 +224,9 @@ func (a *accountAssembly) works() []accountWork {
 	if a.knowledge != nil {
 		work = append(work, a.knowledge)
 	}
+	if a.artifacts != nil {
+		work = append(work, a.artifacts)
+	}
 	// Mail finishes its durable completion through core after protocol I/O.
 	// Retiring core first would reject that last cleanup transaction.
 	if a.mail != nil {
@@ -289,10 +293,11 @@ func (a *accountAssembly) Force(ctx context.Context) error {
 		executions, ownsExecutions := work.(*executionRuntimeAssembly)
 		usage, ownsUsage := work.(*usageCallAssembly)
 		knowledge, ownsKnowledge := work.(*knowledgeCallAssembly)
+		artifacts, ownsArtifacts := work.(*artifactCallAssembly)
 		// Runtime terminal/lease cleanup and Agent/Variable/Work calls use the
 		// shared providers. Expiring a force budget does not make them disposable.
 		// The root retains its separate bounded Store.ForceClose policy.
-		if ownsKnowledge && !knowledge.Joined() || ownsUsage && !usage.Joined() || ownsExecutions && !executions.Joined() || agents != nil && work == agents && !agents.Joined() || install != nil && work == install && !install.Joined() || ownsVariables && !variableCalls.Joined() || ownsProjects && !projectCalls.Joined() || ownsPlanning && planning.ownership != nil && !planning.Joined() {
+		if ownsArtifacts && !artifacts.Joined() || ownsKnowledge && !knowledge.Joined() || ownsUsage && !usage.Joined() || ownsExecutions && !executions.Joined() || agents != nil && work == agents && !agents.Joined() || install != nil && work == install && !install.Joined() || ownsVariables && !variableCalls.Joined() || ownsProjects && !projectCalls.Joined() || ownsPlanning && planning.ownership != nil && !planning.Joined() {
 			return errors.Join(result, foundation.NewFault(foundation.DependencyUnavailable, foundation.NotStarted))
 		}
 	}
@@ -600,7 +605,11 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if !ok {
 		return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
 	}
-	objectAuthorities, err := newObjectAuthorities(objectStore, avatar, contentAuthorities.knowledge, contentAuthorities.skills)
+	artifactOwners, err := createArtifactOwners(db, projectUsage)
+	if err != nil {
+		return err
+	}
+	objectAuthorities, err := newObjectAuthoritiesWithArtifacts(objectStore, avatar, contentAuthorities.knowledge, contentAuthorities.skills, artifactOwners)
 	if err != nil {
 		return err
 	}
@@ -801,6 +810,13 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		}
 		if err := ctx.Err(); err != nil {
 			return objects, err
+		}
+		artifacts, bindArtifactErr := createOwnedArtifacts(cfg, db, artifactOwners, projectUsage, objects, auditor)
+		if artifacts != nil && !accounts.install(ctx, func() { accounts.artifacts = artifacts }) {
+			return objects, context.Canceled
+		}
+		if bindArtifactErr != nil {
+			return objects, bindArtifactErr
 		}
 		if runtimeEnabled {
 			// The four-owner constructor requires this guard's actual binding.

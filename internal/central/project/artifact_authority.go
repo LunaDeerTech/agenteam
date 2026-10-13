@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/LunaDeerTech/agenteam/internal/central/artifact"
 	ac "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
@@ -12,8 +13,8 @@ import (
 )
 
 // ArtifactAuthority binds current Human ownership and the private cleanup
-// family. Agent/Execution provenance and ordinary maintenance convergence are
-// deliberately unbound; an ObjectMaintenance label alone cannot authorize it.
+// family. Ordinary maintenance consumes Artifact's exact, live cancellation
+// witness. Agent/Execution provenance and a bare Service label grant nothing.
 type ArtifactAuthority struct{ projects Authority }
 
 func NewArtifactAuthority(projects *Authority) (*ArtifactAuthority, error) {
@@ -38,7 +39,11 @@ func (a *ArtifactAuthority) Discover(ctx context.Context, subject ac.AccessSubje
 	}
 	locks := []f.LockRequest{projectLock(subject.ProjectID, f.Shared)}
 	var actor any
-	if !subject.Maintenance {
+	if subject.Maintenance {
+		// The original maintenance callback checks a Converge service actor.
+		// Plan its EX mode before the transaction; never upgrade it late.
+		locks[0].Mode = f.Exclusive
+	} else {
 		d := subject.Actor.Details()
 		actor = d
 		switch d.Kind {
@@ -90,12 +95,26 @@ func (a *ArtifactAuthority) AuthorizeInTx(ctx context.Context, tx f.Tx, subject 
 		if intent != i.Read && intent != i.Mutate && intent != i.Converge {
 			return i.AccessGrant{}, fault(f.Forbidden)
 		}
+		if intent == i.Converge {
+			// The Artifact domain still checks the original prospective owner and
+			// command. Cancellation uses current ownership in active or archived
+			// Projects, without granting ordinary mutation on an archive.
+			access, err := a.projects.RequireOwnerInTx(ctx, tx, subject.Actor, subject.ProjectID, i.Read)
+			if err != nil {
+				return i.AccessGrant{}, err
+			}
+			scope, _ := i.InProject(subject.ProjectID)
+			return i.NewAccessGrant(subject.Actor, scope, i.Converge, access.CheckedAt(), access.Project().Version)
+		}
 		return a.projects.AuthorizeProject(ctx, tx, subject.Actor, subject.ProjectID, intent)
 	}
 	if intent != i.Lifecycle && intent != i.Converge {
 		return i.AccessGrant{}, fault(f.Forbidden)
 	}
 	w, _ := ctx.Value(lifecycleCleanupScopeKey{}).(*lifecycleCleanupScope)
+	if w == nil && subject.Actor.Details().ServiceName == i.ObjectMaintenance && intent == i.Converge {
+		return a.authorizeCancelledArtifactInTx(ctx, tx, subject)
+	}
 	if w == nil || w.round.participant != c.ArtifactObjectParticipant || w.round.claim.project != subject.ProjectID {
 		return i.AccessGrant{}, fault(f.Forbidden)
 	}
@@ -123,6 +142,45 @@ func (a *ArtifactAuthority) AuthorizeInTx(ctx context.Context, tx f.Tx, subject 
 	}
 	scope, _ := i.InProject(subject.ProjectID)
 	return i.NewAccessGrant(subject.Actor, scope, intent, now, current.ProjectVersion)
+}
+
+func (a *ArtifactAuthority) authorizeCancelledArtifactInTx(ctx context.Context, tx f.Tx, subject ac.AccessSubject) (i.AccessGrant, error) {
+	store := a.projects.state().store
+	if err := artifact.CheckCancelledUploadConvergenceInTx(ctx, tx, store, subject); err != nil {
+		return i.AccessGrant{}, portError(err)
+	}
+	x, err := store.InTx(tx)
+	if err != nil {
+		return i.AccessGrant{}, unavailable(err)
+	}
+	if nilPort(x) {
+		return i.AccessGrant{}, fault(f.DependencyUnbound)
+	}
+	p, err := loadProject(ctx, x, subject.ProjectID)
+	if err != nil {
+		return i.AccessGrant{}, err
+	}
+	if p == nil {
+		return i.AccessGrant{}, fault(f.NotFound)
+	}
+	initialized := c.InitializationPending
+	if p.initialized {
+		initialized = c.Initialized
+	}
+	// Ordinary convergence cannot enter deleting. That path still consumes the
+	// original lifecycle cleanup family above, with its exact current claim.
+	if err = c.CheckOwnerGate(p.ref.Lifecycle, initialized, i.Read); err != nil {
+		return i.AccessGrant{}, err
+	}
+	now, err := dbNow(ctx, x)
+	if err != nil {
+		return i.AccessGrant{}, err
+	}
+	if err = ctx.Err(); err != nil {
+		return i.AccessGrant{}, portError(err)
+	}
+	scope, _ := i.InProject(subject.ProjectID)
+	return i.NewAccessGrant(subject.Actor, scope, i.Converge, now, p.ref.Version)
 }
 
 func (a *ArtifactAuthority) CheckProjectCleanupInTx(ctx context.Context, tx f.Tx, actor i.Actor, cause oc.ProjectCleanupCause) error {

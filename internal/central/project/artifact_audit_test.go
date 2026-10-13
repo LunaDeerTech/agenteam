@@ -134,7 +134,7 @@ func TestArtifactAuditClosedDispatch(t *testing.T) {
 			v.a.state().auditFacts[au.ArtifactProducer] = auditFactFunc(func(context.Context, f.Tx, au.Entry, au.AppendKey) error { calls++; return fault(f.Forbidden) })
 			hasCode(t, v.a.CheckAppendInTx(context.Background(), v.store.tx, entry, key), f.Forbidden)
 			want := 0
-			if mode == "provider-error" {
+			if mode == "provider-error" || mode == "list" {
 				want = 1
 			}
 			if calls != want {

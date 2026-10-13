@@ -12,15 +12,24 @@ import (
 func (a *Authority) checkArtifactAuditInTx(ctx context.Context, tx f.Tx, entry au.Entry, key au.AppendKey) error {
 	e, k := entry.Fields(), key.Details()
 	if e.Scope.Details().Kind != identity.ProjectScope || e.Actor.Details().Kind != identity.Human ||
-		e.Resource.Details().Kind != au.ArtifactResource || e.Outcome != au.Success ||
+		e.Outcome != au.Success ||
 		e.Associations != (au.Associations{}) || k.Producer != au.ArtifactProducer || k.Ordinal != 0 {
 		return fault(f.Forbidden)
 	}
 	intent := identity.Read
+	resource := e.Resource.Details()
+	if e.Action == au.ArtifactList {
+		if resource.Kind != au.ArtifactCollectionResource || resource.ID != e.Scope.Details().ProjectID {
+			return fault(f.Forbidden)
+		}
+	} else if resource.Kind != au.ArtifactResource {
+		return fault(f.Forbidden)
+	}
 	switch e.Action {
 	case au.ArtifactCreate:
 		intent = identity.Mutate
 	case au.ArtifactRead:
+	case au.ArtifactList:
 	case au.ArtifactDownload:
 		var meta struct {
 			Phase au.ContentPhase `json:"phase"`
