@@ -71,7 +71,7 @@ python3 docs/development/work-items/e01-minecraft-java-1.21.1/behaviors.py --rul
 python3 docs/development/work-items/e01-minecraft-java-1.21.1/behaviors.py --concept mcj/1.21.1/tag/item/minecraft:enchantable/sharp_weapon
 ```
 
-检查对照已固定树中的三个 blob、来源字段投影、原概念全量对应及系统例证；`--rule` 返回精确原定义，`--concept` 只查询此投影支持的关系。查不到关系明确失败，不能据此判断原版没有该行为。`--collect` 和 `--write` 只接受尚未存在的新来源/目录，拒绝覆盖本候选。本次作者检查已通过；新规则投影尚待非作者增量审查，不替代全游戏完整性验证。Wiki 原 403 保留，本轮没有重试、切换访问方式或采集其他版本资料。
+检查对照已固定树中的三个 blob、来源字段投影、原概念全量对应及系统例证；`--rule` 返回精确原定义，`--concept` 只查询此投影支持的关系。查不到关系明确失败，不能据此判断原版没有该行为。`--collect` 和 `--write` 只接受尚未存在的新来源/目录，拒绝覆盖本候选。本次作者检查及非作者增量审查已通过，限定接受部分数据规则来源及字段投影；独审核对全部 2,731 条规则、12,382 个顶层字段定位及 11,276 条引用，并完成定向拒绝检查。不替代全游戏完整性验证，也不冻结计分。Wiki 原 403 保留，本轮没有重试、切换访问方式或采集其他版本资料。
 
 ## 尚缺的冻结材料
 

@@ -163,7 +163,7 @@
     {
       "id": "independent-completeness-review",
       "status": "not_started",
-      "evidence": "The prior source-only catalog projection has independent review, which is not full-game completeness review. The new data-rule projection is awaiting independent incremental review; all mcmeta views share one upstream extraction.",
+      "evidence": "The prior source-only catalog projection and the partial versioned data-rule source/field projection have independent review. Neither establishes full-game completeness, a frozen content baseline or scoring; all mcmeta views share one upstream extraction.",
       "missing": "Non-author source coverage, granularity, weights and critical-gate review before formal freezing."
     },
     {
