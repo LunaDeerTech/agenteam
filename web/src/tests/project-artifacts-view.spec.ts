@@ -21,6 +21,7 @@ const cleanups: (() => void)[] = []
 function button(wrapper: VueWrapper, label: string) {
   const found = wrapper
     .findAll<HTMLButtonElement>('button.ui-button')
+    .filter((item) => item.find('.button-label[aria-hidden="false"]').exists())
     .find((item) => item.get('.button-label[aria-hidden="false"]').text() === label)
   expect(found, label).toBeDefined()
   return found!

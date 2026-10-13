@@ -242,7 +242,18 @@ describe('Project production routes and public interactions', () => {
         .find('nav[aria-label="项目设置"]')
         .findAll('a')
         .map((link) => link.text()),
-    ).toEqual(['基本信息', '项目审计', 'Providers', '可用模型'])
+    ).toEqual([
+      '基本信息',
+      '目录与配置',
+      '变量目录',
+      '安全目录',
+      '项目技能库',
+      '调度配置',
+      '项目审计',
+      'Providers',
+      '可用模型',
+      '调用记录',
+    ])
   })
   it('retains URL and input when a Project navigation is cancelled, then explicitly discards', async () => {
     const f = await page('/owner/demo/settings/general')
