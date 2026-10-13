@@ -729,4 +729,82 @@ func TestKnowledgeProjectRejectedInputKeepsActualSourceClose(t *testing.T) {
 			}
 		}
 	}
+
+	t.Run("registration_not_committed_close_failure", func(t *testing.T) {
+		x := newKnowledgeProjectPureFixture(t)
+		registrationCause := errors.New("original registration refused")
+		closeCause := errors.New("original registered input Close failed")
+		x.store.result = func(tx *knowledgeProjectPureTx, normal f.CommitResult) (f.CommitResult, bool) {
+			if tx.cause.Details().Owner == "knowledge-call-register" && tx.cause.Details().CheckpointRef == x.a.String() {
+				return f.NotCommittedResult(fault(f.Forbidden).WithCause(registrationCause)), false
+			}
+			return normal, normal.State() == f.Committed
+		}
+		body := &contentCloseBody{started: make(chan struct{}), release: make(chan struct{}), err: closeCause}
+		source, err := kc.NewUploadSource(kc.PlainText, 0, f.Digest("sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"), body)
+		if err != nil {
+			t.Fatal(err)
+		}
+		meta := f.CommandMeta{RequestID: newID[f.Request](t), IdempotencyKey: "registration-refused-source-close"}
+		request := kc.CreateRequest{ProjectID: x.a, DocumentID: x.document, Title: "Valid request"}
+		if _, err := kc.CreateDigest(x.actor, meta, request, source); err != nil {
+			t.Fatal("fixture did not reach registration", err)
+		}
+		result, joined := make(chan error, 1), make(chan struct{})
+		go func() {
+			defer close(joined)
+			_, err := x.pair.Service().CreateDocument(context.Background(), x.actor, meta, request, source)
+			result <- err
+		}()
+		defer func() {
+			contentReaderRelease(body.release)
+			contentReaderAwait(t, joined, "registered rejection's original Close did not return")
+		}()
+		contentReaderAwait(t, body.started, "registered rejection did not close its original input")
+		if transactions, queries, writes := x.store.counts(); transactions != 1 || queries != 1 || writes != 1 {
+			t.Fatal("registration rejection reached additional business work")
+		}
+		x.store.mu.Lock()
+		ledgerEmpty := len(x.store.ledger) == 0
+		x.store.mu.Unlock()
+		if !ledgerEmpty {
+			t.Fatal("NotCommitted fixture retained its physical registration row")
+		}
+		actor, cause, scope := x.stopIdentity(t, x.a)
+		report, err := x.pair.RequestProjectStop(context.Background(), actor, cause, scope)
+		if err != nil || report.Details().State != pc.StopPending {
+			t.Fatal("absent ledger replaced the held original Close", err)
+		}
+		contentReaderRelease(body.release)
+		contentReaderAwait(t, joined, "failed original input Close did not return")
+		originalErr := <-result
+		knowledgeProjectAssertFault(t, originalErr, f.Forbidden)
+		if !errors.Is(originalErr, registrationCause) {
+			t.Fatal("Close failure replaced original registration refusal", originalErr)
+		}
+		if body.closes != 1 || body.reads != 0 {
+			t.Fatal("registration refusal consumed or repeated its original input")
+		}
+		report, err = x.pair.RequestProjectStop(context.Background(), actor, cause, scope)
+		if err != nil || report.Details().State != pc.StopPending {
+			t.Fatal("failed generic Close was mistaken for project join", err)
+		}
+		participant, err := NewProjectCleanupParticipant(x.pair, x.gate)
+		if err != nil {
+			t.Fatal(err)
+		}
+		cleanup, err := participant.Cleanup(context.Background(), actor, cause, scope, nil)
+		if err != nil || cleanup.Details().State != pc.CleanupPending {
+			t.Fatal("cleanup bypassed rejected registration's failed Close", err)
+		}
+		if _, err := x.pair.Service().GetDocument(context.Background(), x.actor, x.b, x.document); err != nil {
+			t.Fatal("retained project A input retired project B", err)
+		}
+		x.pair.Stop()
+		cancelled, cancel := context.WithCancel(context.Background())
+		cancel()
+		if err := x.pair.Drain(cancelled); !errors.Is(err, context.Canceled) || x.pair.Joined() {
+			t.Fatal("absent ledger erased original input ownership", err)
+		}
+	})
 }
