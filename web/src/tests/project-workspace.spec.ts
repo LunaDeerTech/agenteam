@@ -230,7 +230,14 @@ describe('Project production routes and public interactions', () => {
   })
   it('enters from the real list and keeps General as the default alongside Audit and model leaves', async () => {
     const f = await page()
+    let stopNavigation = () => {}
+    const navigation = new Promise<unknown>((resolve) => {
+      stopNavigation = f.router.afterEach((_to, _from, failure) => resolve(failure))
+    })
+    onTestFinished(() => stopNavigation())
     await f.wrapper.find('a[href="/owner/demo"]').trigger('click')
+    expect(await navigation).toBeUndefined()
+    stopNavigation()
     await flushPromises()
     expect(f.router.currentRoute.value.path).toBe('/owner/demo')
     await f.router.push('/owner/demo/settings')
