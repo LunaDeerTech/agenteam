@@ -38,7 +38,7 @@ python3 docs/development/work-items/e01-minecraft-java-1.21.1/catalog.py --sourc
 python3 docs/development/work-items/e01-minecraft-java-1.21.1/catalog.py --content mcj/1.21.1/recipe/minecraft:acacia_boat
 ```
 
-`--collect` 仅用于首次获取有界文本来源，已有 `sources.json` 时明确拒绝覆盖。要发布后续候选修订，保留本版及差异，按正式 E01 规则重新核验；不要删除现有证据后静默刷新。脚本只需 Python 3 标准库。本次实际采集及离线检查已运行通过；此为作者检查，不能冒充独立完整性审查。
+`--collect` 仅用于首次获取有界文本来源，已有 `sources.json` 时明确拒绝覆盖。要发布后续候选修订，保留本版及差异，按正式 E01 规则重新核验；不要删除现有证据后静默刷新。脚本只需 Python 3 标准库。本次实际采集及作者离线检查已运行通过；后继非作者来源投影复核也已通过，覆盖保存来源的全量映射、摘要/版本/Git 树一致性、双向查询及八项针对性拒绝检查。该限定结果不替代独立全游戏内容、行为粒度、权重和关键门槛审查。
 
 ## 尚缺的冻结材料
 

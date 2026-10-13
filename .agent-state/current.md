@@ -1,8 +1,10 @@
-# 当前工作：E01 轻量来源目录候选
+# 当前工作：Task Blocker 联调，E01 来源目录候选已复核
 
-本分支 `ai/e01-content-baseline-20261013` 基于 `bc76cac5`，唯一新增范围为 [E01 卡](../docs/development/work-items/platform-game-acceptance.md) 的候选入口及其 `e01-minecraft-java-1.21.1/` 数据目录。已实际取得并保存轻量固定来源，形成 20,672 个来源概念记录和 27,414 条关系；无游戏实现、模型调用、平台执行或覆盖率结论。目录检查入口为 `python3 docs/development/work-items/e01-minecraft-java-1.21.1/catalog.py`。
+Human Owner 非终态 Task Blocker 管理仍在独立分支 `ai/task-blocker-management-20261013`、工作树 `/workspace/agenteam-task-blocker-management` 实施和验证，尚未交付 main；root 继续统筹该片源码、真实链路和必要独审，不因本次文档交付重复产品测试。
 
-完整行为来源、计分叶子/权重、主要系统门槛及最终独立完整性冻结均未完成，D28 前置保持。当前为可审的来源资料候选；后续复用已有来源，不重新抓取大资源。Git 保存与最终交付由指定 Git 负责人执行。
+[E01 来源目录候选](../docs/development/work-items/e01-minecraft-java-1.21.1/README.md) 的 `53a829c2` 已通过非作者限定来源投影复核，随本片交付：20,672 个概念、27,414 条关系，保存来源的 20,613 条 registry 与 6,801 个 data 条目均可双向对应；54 项差异及 5 个元数据条目保持。来源摘要、版本和 Git 树核验、离线查询与针对性拒绝检查通过，不重新下载资源。目录检查入口仍为 `python3 docs/development/work-items/e01-minecraft-java-1.21.1/catalog.py`。
+
+本次只接受候选来源索引及其确定性投影，未完成全游戏行为来源、计分叶子/权重、关键门槛、独立全游戏完整性审查或 D28 后正式冻结；分母和覆盖率为空，没有游戏实现、平台执行或模型调用。`ai/e01-content-baseline-20261013` 在 main 推送确认后按常规清理工作树及本地、远端引用；Live、validation 和四个 STOP 树继续保留。后续复用已有来源推进具体缺口，长期目标仍未完成。
 
 ## 以下为恢复时继承的主线状态
 
