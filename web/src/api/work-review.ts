@@ -415,6 +415,9 @@ export function captureReadyInput(value: unknown): ReadyInput {
 export function decodeWorkTask(value: unknown, project: string, task: string): Task {
   return parseTask(value, project, task) as Task
 }
+export function decodeWorkBlocker(value: unknown, project: string, task: string): Blocker {
+  return parseBlocker(value, project, task)
+}
 function query(value: PageQuery): Readonly<Record<string, string>> {
   return input(() => {
     const q = shape(value, [], ['limit', 'cursor']),

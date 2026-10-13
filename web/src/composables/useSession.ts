@@ -126,6 +126,11 @@ import {
   type TaskUpdateLookup,
 } from '../api/work-task-edit'
 import {
+  createWorkTaskBlockersAPI, captureHumanBlockerDraft, captureHumanBlockerAdd, captureHumanBlockerResolve,
+  type WorkTaskBlockersAPI, type HumanBlockerDraft, type HumanBlockerAddInput,
+  type HumanBlockerResolveInput, type HumanBlockerReceipt, type HumanBlockerLookup,
+} from '../api/work-task-blockers'
+import {
   createWorkTaskTimelineAPI,
   type WorkTaskTimelineAPI,
   type TaskTimelineQuery,
@@ -588,9 +593,11 @@ type WorkReviewIntent = {
   | { kind: 'ready'; input: ReadyInput }
   | { kind: 'create'; input: TaskCreateInput }
   | { kind: 'edit'; input: TaskUpdateInput }
+  | { kind: 'blocker-add'; input: HumanBlockerAddInput }
+  | { kind: 'blocker-resolve'; input: HumanBlockerResolveInput }
 )
-type WorkCommandReceipt = ReviewReceipt | TaskCreateReceipt | TaskUpdateReceipt
-type WorkCommandLookup = ReviewLookup | TaskCreateLookup | TaskUpdateLookup
+type WorkCommandReceipt = ReviewReceipt | TaskCreateReceipt | TaskUpdateReceipt | HumanBlockerReceipt
+type WorkCommandLookup = ReviewLookup | TaskCreateLookup | TaskUpdateLookup | HumanBlockerLookup
 export type WorkReviewProgress = Readonly<{
   kind: WorkReviewIntent['kind']
   projectID: string
@@ -1078,6 +1085,7 @@ export function createSessionController(
   agentDirectoryAPI: AgentDirectoryAPI = createAgentDirectoryAPI(),
   taskPlanningAPI: WorkTaskPlanningAPI = createWorkTaskPlanningAPI(),
   commandAPIs: Readonly<{
+    taskBlockers?: WorkTaskBlockersAPI
     edit?: WorkTaskEditAPI
     taskTimeline?: WorkTaskTimelineAPI
     systemRunners?: SystemRunnersAPI
@@ -1113,6 +1121,7 @@ export function createSessionController(
   const projectUsageAPI = commandAPIs.projectUsage ?? createProjectUsageAPI()
   const schedulerAPI = commandAPIs.scheduler ?? createProjectSchedulerAPI()
   const skillPackageAPI = commandAPIs.skillPackage ?? createSkillPackageAPI()
+  const taskBlockersAPI = commandAPIs.taskBlockers ?? createWorkTaskBlockersAPI()
   const taskEditAPI = commandAPIs.edit ?? createWorkTaskEditAPI()
   const taskTimelineAPI = commandAPIs.taskTimeline ?? createWorkTaskTimelineAPI()
   const agentRunnerMountsAPI = commandAPIs.agentRunnerMounts ?? createAgentRunnerMountsAPI()
@@ -6150,6 +6159,7 @@ export function createSessionController(
         const identity = personalIdentity()
         if (
           owner ||
+          workReviewIntent ||
           milestoneCreateIntent ||
           milestoneReorderIntent ||
           sprintReorderIntent ||
@@ -6225,6 +6235,7 @@ export function createSessionController(
         const identity = personalIdentity()
         if (
           owner ||
+          workReviewIntent ||
           milestoneCreateIntent ||
           milestoneReorderIntent ||
           sprintReorderIntent ||
@@ -6292,6 +6303,7 @@ export function createSessionController(
         const identity = personalIdentity()
         if (
           owner ||
+          workReviewIntent ||
           milestoneCreateIntent ||
           milestoneReorderIntent ||
           sprintReorderIntent ||
@@ -6389,6 +6401,14 @@ export function createSessionController(
           throw new AccountFailure('invalid-input')
         dispatched = true
         const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
+        if (original.kind === 'blocker-add')
+          return lookup
+            ? taskBlockersAPI.lookup(original.projectID, original.taskID, 'work.task.blocker.add', original.input, write)
+            : taskBlockersAPI.add(original.projectID, original.taskID, original.input, write)
+        if (original.kind === 'blocker-resolve')
+          return lookup
+            ? taskBlockersAPI.lookup(original.projectID, original.taskID, 'work.task.blocker.resolve', original.input, write)
+            : taskBlockersAPI.resolve(original.projectID, original.taskID, original.input, write)
         if (original.kind === 'edit')
           return lookup
             ? taskEditAPI.lookup(original.projectID, original.taskID, original.input, write)
@@ -6424,6 +6444,10 @@ export function createSessionController(
         const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
         if (live()) {
           const p = failure.problem
+          if (original.kind.startsWith('blocker-') && p && [403, 404].includes(p.status)) {
+            clearWorkReviewState()
+            throw failure
+          }
           const rejected =
             !dispatched ||
             (!!p &&
@@ -6626,6 +6650,45 @@ export function createSessionController(
         throw new AccountFailure('busy')
       workReviewIntent = null
       workReviewState.progress = null
+    },
+  }
+  // Blocker commands share the existing Task intent and request owner. Unknown
+  // therefore cannot open a second Task writer or manufacture another key/ID.
+  function startHumanBlocker(projectID: string, taskID: string, value: HumanBlockerDraft | HumanBlockerResolveInput, add: boolean) {
+    try {
+      const identity = personalIdentity()
+      if (owner || workReviewIntent || milestoneCreateIntent || milestoneReorderIntent ||
+        milestoneUpdateIntent || sprintCreateIntent || sprintStartIntent || sprintReorderIntent ||
+        sprintUpdateIntent || personalIntent || pending) throw new AccountFailure('busy')
+      if (!uuid7.test(projectID) || !uuid7.test(taskID)) throw new AccountFailure('invalid-input')
+      const captured = add ? captureHumanBlockerDraft(value) : captureHumanBlockerResolve(value)
+      const command = add
+        ? { kind: 'blocker-add' as const, input: captureHumanBlockerAdd({ ...captured, request: { ...captured.request, blocker_id: newTaskID() } }) }
+        : { kind: 'blocker-resolve' as const, input: captureHumanBlockerResolve(captured) }
+      const original: WorkReviewIntent = {
+        ...command, identity, csrf: sessionCSRF, projectID, taskID, key: newKey(),
+        body: JSON.stringify(command.input), uncertain: false,
+      }
+      workReviewIntent = original
+      return performReview(original, false)
+    } catch (error) { return Promise.reject(error) }
+  }
+  const workTaskBlockers = {
+    get progress(): WorkReviewProgress | null {
+      const value = workReview.progress
+      return value?.kind.startsWith('blocker-') ? value : null
+    },
+    add: (projectID: string, taskID: string, value: HumanBlockerDraft) =>
+      startHumanBlocker(projectID, taskID, value, true),
+    resolve: (projectID: string, taskID: string, value: HumanBlockerResolveInput) =>
+      startHumanBlocker(projectID, taskID, value, false),
+    lookup() {
+      if (!workReviewIntent?.kind.startsWith('blocker-')) return Promise.reject(new AccountFailure('invalid-input'))
+      return workReview.checkOriginal()
+    },
+    forgetUnavailable(projectID: string, taskID?: string) {
+      const value = workReviewState.progress
+      if (value?.kind.startsWith('blocker-') && value.projectID === projectID && (!taskID || value.taskID === taskID)) clearWorkReviewState()
     },
   }
   function clearSchedulerRead() {
@@ -9445,6 +9508,7 @@ export function createSessionController(
     projectCreation,
     projectScheduler,
     workReview,
+    workTaskBlockers,
     workSprintLifecycle,
     workMilestonePlanning,
     workSprintReordering,

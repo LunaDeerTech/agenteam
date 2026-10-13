@@ -4,9 +4,36 @@ import { UiButton, UiField, UiSelect, UiTextarea, UiState, UiBadge } from '../ui
 import { taskLabels } from '../../api/work-review'
 import type { ProjectTasks } from '../../composables/useProjectTasks'
 import TaskEditForm from './TaskEditForm.vue'
+import TaskHumanBlockerForm from './TaskHumanBlockerForm.vue'
 import TaskTimeline from './TaskTimeline.vue'
 const props = defineProps<{ owner: ProjectTasks }>()
 const task = computed(() => props.owner.state.task)
+const addBlockerButton = ref<{ $el: HTMLButtonElement } | null>(null)
+let blockerTrigger: HTMLButtonElement | null = null
+let blockerTask = ''
+function openBlocker(event: MouseEvent, id?: string) {
+  blockerTrigger = event.currentTarget as HTMLButtonElement
+  blockerTask = task.value?.id ?? ''
+  props.owner.openHumanBlocker(id)
+}
+async function focusBlocker(saved = false) {
+  await nextTick()
+  if (!props.owner.visible.value || task.value?.id !== blockerTask || props.owner.pending.value) return
+  const target = saved ? addBlockerButton.value?.$el : blockerTrigger
+  if (target?.isConnected && !target.disabled) target.focus()
+}
+async function cancelBlocker() {
+  if (await props.owner.cancelHumanBlocker()) await focusBlocker()
+}
+async function submitBlocker() {
+  if (await props.owner.submitHumanBlocker()) await focusBlocker(true)
+}
+async function lookup() {
+  const original = props.owner.progress.value
+  if (original?.kind.startsWith('blocker-')) blockerTask = original.taskID
+  const confirmed = await props.owner.lookup()
+  if (original?.kind.startsWith('blocker-') && confirmed) await focusBlocker(true)
+}
 const editButton = ref<{ $el: HTMLButtonElement } | null>(null)
 async function cancelEdit() {
   const target = task.value?.id
@@ -91,6 +118,13 @@ const canSubmit = computed(
     </section>
     <section>
       <h3>阻塞与依赖</h3>
+      <UiButton
+        v-if="task.state === 'backlog' && task.assignee_agent_id === null && !owner.pending.value"
+        ref="addBlockerButton"
+        :disabled="owner.busy.value || !owner.canManageHumanBlockers.value || owner.humanBlocker.open"
+        @click="openBlocker($event)"
+        >添加人工阻塞</UiButton
+      >
       <UiState v-if="owner.state.blockerPhase === 'loading'" kind="loading" title="正在读取阻塞" />
       <template v-else-if="owner.state.blockerPhase === 'error'"
         ><p>未取得完整阻塞信息。</p>
@@ -108,6 +142,12 @@ const canSubmit = computed(
           <p>{{ b.description }}</p>
           <p v-if="b.related_task_id">关联任务：{{ b.related_task_id }}</p>
           <p v-if="b.resolution_comment">{{ b.resolution_comment }}</p>
+          <UiButton
+            v-if="b.type === 'waiting_for_human' && b.resolved_at === null && task.state === 'backlog' && task.assignee_agent_id === null && !owner.pending.value"
+            :disabled="owner.busy.value || !owner.canManageHumanBlockers.value || owner.humanBlocker.open"
+            @click="openBlocker($event, b.id)"
+            >解除人工阻塞</UiButton
+          >
         </li>
       </ul>
       <UiButton
@@ -116,6 +156,12 @@ const canSubmit = computed(
         @click="owner.loadBlockers(true)"
         >更多阻塞记录</UiButton
       >
+      <TaskHumanBlockerForm
+        v-if="owner.humanBlocker.open && !owner.pending.value"
+        :owner="owner"
+        @cancel="cancelBlocker"
+        @submit="submitBlocker"
+      />
     </section>
     <p v-if="owner.progress.value?.phase === 'uncertain'" role="status">
       提交结果待确认。请查询原操作结果，不要重复提交。
@@ -123,7 +169,7 @@ const canSubmit = computed(
     <UiButton
       v-if="owner.progress.value?.phase === 'uncertain'"
       :disabled="owner.busy.value || !owner.progress.value.contextValid"
-      @click="owner.lookup()"
+      @click="lookup"
       >查询原操作结果</UiButton
     >
     <p v-if="owner.progress.value?.observation === 'in_progress'" role="status">
@@ -140,7 +186,7 @@ const canSubmit = computed(
       :owner="owner"
       @cancel="cancelEdit"
     />
-    <div v-if="!owner.pending.value && !owner.edit.open" class="review-actions">
+    <div v-if="!owner.pending.value && !owner.edit.open && !owner.humanBlocker.open" class="review-actions">
       <UiButton
         v-if="task.state === 'backlog' && task.assignee_agent_id === null"
         ref="editButton"
@@ -176,7 +222,7 @@ const canSubmit = computed(
       此任务已结束，保留只读信息。
     </p>
     <form
-      v-if="owner.draft.action && !owner.pending.value && !owner.edit.open"
+      v-if="owner.draft.action && !owner.pending.value && !owner.edit.open && !owner.humanBlocker.open"
       class="review-form"
       @submit.prevent="owner.submit()"
     >

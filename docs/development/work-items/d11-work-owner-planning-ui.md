@@ -335,3 +335,7 @@ cleanup有限接受1440×960浅色创建表单和390×844深色planned结果两�
 ## 22. 同 Milestone 内的 Sprint 排序限定验收（2026-10-13）
 
 [Sprint 排序切片](d11-sprint-reorder-ui.md)已通过限定验收，在既有任务页面提供 planned/current Sprint 的同父 before/组尾操作，保留原版本、原意图 Lookup、候选分页及独立当前回读。10 个文件 73 项测试通过；首次 TS2322 仅修测试 Start request，完整类型检查和唯一用例复验、首次构建通过，原 FAIL 保留。默认 App 正式 HTTP 的 native01 1 top/2 sub 实际通过：两组各 53 个候选、第二页锚点、组尾/no-op、三次写入两次 changed，Current/Task/其它组及 B 不变，原调用、handler 和六资源退出闭合；宽屏浅色 planned、窄屏深色 current 四图有限接受。Runtime disabled，Unknown 与 completed/权限拒绝仍按受控单元范围，不新增跨父移动、Task 或生命周期操作，不改写 §20 或旧 STOP。
+
+## 23. Task 人工阻塞新增与解除（2026-10-13）
+
+[人工阻塞切片](d11-task-human-blocker-ui.md)已通过限定验收，仅覆盖未指派 backlog、planned/current Sprint 的 waiting_for_human 新增与解除。8 个文件 58 项分段前端结果、完整类型检查与 84 文件构建通过；真实 Work HTTP shell 的 native02 1 top/2 sub 与两个浏览器调用通过，两组各 Add/Resolve 两写、版本加二、零 Transfer，Task 状态/指派/排序及 B 不变。Ready 只验 UI 禁用/启用，未实际提交；原 Wait、六资源和退出尾闭合，宽浅/窄深四图按实际可见范围接受，available 图不冒称确认按钮可见。原 basic01 两 fixture 失败及 native01 观测器投影失败保留；Unknown 仅受控测试，不代默认 App、完整 Blocker 两类型/筛选、D11/D27 或 Project 生命周期，旧验收与 STOP 不改写。

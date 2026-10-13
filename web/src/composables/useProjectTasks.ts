@@ -48,6 +48,7 @@ import {
   type TaskTimelineType,
 } from '../api/work-task-timeline'
 import { captureTaskUpdateInput } from '../api/work-task-edit'
+import { captureHumanBlockerDraft, captureHumanBlockerResolve } from '../api/work-task-blockers'
 import { agentLabel, type DirectoryAgent } from '../api/agent-directory'
 import { workTaskRoute } from '../router/auth'
 import { type SessionController } from './useSession'
@@ -334,6 +335,11 @@ export function createProjectTasks(
   })
   const syncingSprint = ref(false)
   let sprintStartIdentity = ''
+  const humanBlocker = reactive({
+    open: false, mode: 'add' as 'add' | 'resolve', projectID: '', taskID: '', version: '',
+    blockerID: '', description: '', resolutionComment: '', message: '', conflict: false,
+  })
+  let humanBlockerIdentity = ''
   const confirmation = reactive({ open: false, message: '' })
   let resolveLeave: ((value: boolean) => void) | null = null
   const reading = ref(false)
@@ -459,6 +465,7 @@ export function createProjectTasks(
       !sprintCreation.needsRead &&
       !creation.open &&
       !edit.open &&
+      !humanBlocker.open &&
       !draft.action &&
       !sprintEditBlocked.value &&
       !sprintReorderPending.value &&
@@ -515,6 +522,7 @@ export function createProjectTasks(
       !sprintCreation.needsRead &&
       !creation.open &&
       !edit.open &&
+      !humanBlocker.open &&
       !draft.action &&
       !sprintReorderBlocked.value &&
       !milestoneReorderPending.value &&
@@ -541,6 +549,7 @@ export function createProjectTasks(
       !sprintCreation.needsRead &&
       !creation.open &&
       !edit.open &&
+      !humanBlocker.open &&
       !draft.action &&
       !milestoneReorderBlocked.value &&
       !sprintReorderBlocked.value &&
@@ -593,6 +602,7 @@ export function createProjectTasks(
       !sprintCreation.needsRead &&
       !creation.open &&
       !edit.open &&
+      !humanBlocker.open &&
       !draft.action &&
       !sprintEditPending.value &&
       !sprintEdit.needsRead,
@@ -627,6 +637,7 @@ export function createProjectTasks(
       !sprintCreation.needsRead &&
       !creation.open &&
       !edit.open &&
+      !humanBlocker.open &&
       !draft.action &&
       !milestoneCreation.needsRead,
   )
@@ -716,6 +727,7 @@ export function createProjectTasks(
       !sprintStart.needsRead &&
       !creation.open &&
       !edit.open &&
+      !humanBlocker.open &&
       !draft.action &&
       !sprintCreation.needsRead,
   )
@@ -764,6 +776,7 @@ export function createProjectTasks(
       !sprintCreation.needsRead &&
       !creation.open &&
       !edit.open &&
+      !humanBlocker.open &&
       !draft.action &&
       !sprintStart.needsRead &&
       sprintProgress.value?.phase !== 'confirmed',
@@ -790,6 +803,7 @@ export function createProjectTasks(
       !visible.value ||
       workspace.detail.project?.lifecycle !== 'active' ||
       state.sprint?.state !== 'current' ||
+      humanBlocker.open ||
       !state.detailCurrent ||
       !!pending.value ||
       !!sprintPending.value ||
@@ -852,6 +866,10 @@ export function createProjectTasks(
       !sprintStart.open &&
       !sprintStart.needsRead,
   )
+  const canManageHumanBlockers = computed(() => canEdit.value && !edit.open && !draft.action && state.blockerPhase === 'ready')
+  const humanBlockerStale = computed(() => humanBlocker.open && (humanBlocker.conflict ||
+    humanBlocker.projectID !== projectID.value || humanBlocker.taskID !== state.task?.id ||
+    humanBlocker.version !== state.task?.version || humanBlockerIdentity !== identityKey(humanBlocker.projectID)))
   const editDirty = computed(() => edit.open && editFields.some((field) => edit.touched[field]))
   const editStale = computed(
     () =>
@@ -874,6 +892,7 @@ export function createProjectTasks(
       !!draft.agentID ||
       creationDirty.value ||
       editDirty.value ||
+      humanBlocker.open ||
       !!pending.value ||
       !!sprintPending.value ||
       !!sprintCreatePending.value ||
@@ -1090,6 +1109,10 @@ export function createProjectTasks(
       message: '',
     })
   }
+  function clearHumanBlocker() {
+    Object.assign(humanBlocker, { open: false, mode: 'add', projectID: '', taskID: '', version: '', blockerID: '', description: '', resolutionComment: '', message: '', conflict: false })
+    humanBlockerIdentity = ''
+  }
   function clearEdit() {
     Object.assign(edit, {
       open: false,
@@ -1143,6 +1166,7 @@ export function createProjectTasks(
     clearDraft()
     clearCreation()
     clearEdit()
+    clearHumanBlocker()
     clearSprintStart()
     clearSprintCreation()
   }
@@ -1365,6 +1389,13 @@ export function createProjectTasks(
         state.blockerPhase = 'ready'
       },
       (error) => {
+        if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0) &&
+          (humanBlocker.open || auth.workTaskBlockers?.progress?.taskID === task.id)) {
+          auth.workTaskBlockers?.forgetUnavailable(task.project_id, task.id)
+          clearHumanBlocker()
+          invalidateHumanBlockerReads()
+          state.task = null
+        }
         state.blockerPhase = 'error'
         state.message = explain(error)
       },
@@ -1557,6 +1588,11 @@ export function createProjectTasks(
           hasMilestoneChange(refusedMilestone.project, refusedMilestone.target)
         )
           forgetMilestoneAccess(refusedMilestone.project)
+        if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0) && selected.kind === 'task') {
+          auth.workTaskBlockers?.forgetUnavailable(projectID.value ?? '', selected.id!)
+          clearHumanBlocker()
+          invalidateHumanBlockerReads()
+        }
         state.phase = 'error'
         state.message = explain(error)
         state.task = null
@@ -3363,27 +3399,103 @@ export function createProjectTasks(
       own = generation
     if (busy.value || !original?.contextValid || original.phase !== 'uncertain') return
     try {
-      const result = await auth.workReview.checkOriginal()
+      const isBlocker = original.kind.startsWith('blocker-')
+      const result = isBlocker ? await auth.workTaskBlockers.lookup() : await auth.workReview.checkOriginal()
       if ('status' in result && result.status !== 'committed') return
       if (!live(own, original.projectID) || state.task?.id !== original.taskID) return
       clearDraft()
       clearEdit()
+      clearHumanBlocker()
       const receipt = 'status' in result ? result.receipt : result
       state.feedback =
         original.kind === 'edit' && 'changed' in receipt && !receipt.changed
           ? '已确认原保存结果，任务内容没有变化。'
           : '已确认原操作结果。'
+      if (isBlocker) invalidateHumanBlockerReads()
       await refresh()
       if (original.kind === 'edit' && live(own, original.projectID) && state.phase === 'error')
         state.message = `${state.feedback} ${state.message}`
+      return isBlocker && live(own, original.projectID) && state.task?.id === original.taskID && state.detailCurrent
     } catch (error) {
-      if (live(own, original.projectID) && state.task?.id === original.taskID)
+      if (live(own, original.projectID) && state.task?.id === original.taskID) {
         state.message = explain(error)
+        if (original.kind.startsWith('blocker-') && error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
+          clearHumanBlocker()
+          invalidateHumanBlockerReads()
+          state.task = null
+        }
+      }
+    }
+  }
+  function invalidateHumanBlockerReads() {
+    state.detailCurrent = false
+    state.blockers = []
+    state.blockerNext = undefined
+    state.blockerPhase = 'idle'
+    clearTimeline()
+    for (const status of taskStates) Object.assign(columns[status], emptyColumn())
+  }
+  function openHumanBlocker(blockerID?: string) {
+    const task = state.task
+    if (!task || !canManageHumanBlockers.value || busy.value || humanBlocker.open) return
+    const blocker = blockerID ? state.blockers.find((item) => item.id === blockerID) : null
+    if (blockerID && (!blocker || blocker.type !== 'waiting_for_human' || blocker.resolved_at !== null)) return
+    clearHumanBlocker()
+    Object.assign(humanBlocker, {
+      open: true, mode: blocker ? 'resolve' : 'add', projectID: task.project_id,
+      taskID: task.id, version: task.version, blockerID: blocker?.id ?? '',
+    })
+    humanBlockerIdentity = identityKey(task.project_id)
+    state.feedback = ''
+    state.message = ''
+  }
+  async function cancelHumanBlocker() {
+    if (busy.value || pending.value) return false
+    const own = generation, project = humanBlocker.projectID, task = humanBlocker.taskID, identity = humanBlockerIdentity
+    if ((humanBlocker.description !== '' || humanBlocker.resolutionComment !== '') && !(await confirmLeave())) return false
+    if (!live(own, project) || state.task?.id !== task || identityKey(project) !== identity) return false
+    clearHumanBlocker()
+    return true
+  }
+  async function submitHumanBlocker() {
+    const task = state.task, p = projectID.value, own = generation
+    if (!task || !p || busy.value || !humanBlocker.open || !canManageHumanBlockers.value || humanBlockerStale.value) return
+    const identity = humanBlockerIdentity, mode = humanBlocker.mode
+    const current = () => live(own, p) && state.task?.id === task.id && identityKey(p) === identity
+    try {
+      const value = mode === 'add'
+        ? captureHumanBlockerDraft({ expected_version: humanBlocker.version, request: { type: 'waiting_for_human', description: humanBlocker.description, metadata: {} } })
+        : captureHumanBlockerResolve({ expected_version: humanBlocker.version, request: { blocker_id: humanBlocker.blockerID, resolution_comment: humanBlocker.resolutionComment === '' ? null : humanBlocker.resolutionComment } })
+      if (auth.workReview.progress?.phase === 'rejected') auth.workReview.editRejected()
+      const result = 'description' in value.request
+        ? await auth.workTaskBlockers.add(p, task.id, captureHumanBlockerDraft(value))
+        : await auth.workTaskBlockers.resolve(p, task.id, captureHumanBlockerResolve(value))
+      if ('status' in result || !('blocker' in result) || !current()) return
+      clearHumanBlocker()
+      invalidateHumanBlockerReads()
+      state.feedback = mode === 'add' ? '人工阻塞已添加。任务状态与指派保持不变。' : '人工阻塞已解除。任务状态与指派保持不变。'
+      await refresh()
+      return current() && state.detailCurrent
+    } catch (error) {
+      if (!current()) return
+      humanBlocker.message = error instanceof AccountFailure && error.kind === 'invalid-input'
+        ? '说明不能超过 1024 UTF-8 字节；解除说明留空表示无备注，非空时必须包含非空白字符。'
+        : explain(error)
+      if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
+        auth.workTaskBlockers.forgetUnavailable(p, task.id)
+        clearHumanBlocker()
+        invalidateHumanBlockerReads()
+        state.task = null
+        state.message = explain(error)
+      } else if (auth.workReview.progress?.phase === 'rejected') {
+        humanBlocker.conflict = true
+        state.detailCurrent = false
+      }
     }
   }
   function openEdit() {
     const task = state.task
-    if (!task || !canEdit.value || busy.value || draft.action || edit.open) return
+    if (!task || !canEdit.value || busy.value || draft.action || edit.open || humanBlocker.open) return
     clearEdit()
     Object.assign(edit, {
       projectID: task.project_id,
@@ -3544,6 +3656,7 @@ export function createProjectTasks(
       clearDraft()
       clearCreation()
       clearEdit()
+      clearHumanBlocker()
       clearSprintStart()
       clearSprintCreation()
       clearMilestoneCreation()
@@ -3576,6 +3689,7 @@ export function createProjectTasks(
     clearDraft()
     clearCreation()
     clearEdit()
+    clearHumanBlocker()
     clearSprintStart()
     clearSprintCreation()
     clearMilestoneCreation()
@@ -3617,6 +3731,8 @@ export function createProjectTasks(
           state.agents = []
           state.agentNext = undefined
           state.agentMessage = ''
+          auth.workTaskBlockers?.forgetUnavailable(read.projectID)
+          clearHumanBlocker()
           if (hasMilestoneChange(read.projectID)) forgetMilestoneAccess(read.projectID)
           if (hasSprintEdit(read.projectID)) forgetSprintAccess(read.projectID)
         }
@@ -3675,6 +3791,12 @@ export function createProjectTasks(
     draft,
     creation,
     edit,
+    humanBlocker,
+    canManageHumanBlockers,
+    humanBlockerStale,
+    openHumanBlocker,
+    cancelHumanBlocker,
+    submitHumanBlocker,
     sprintStart,
     projectID,
     sprintReorder,
