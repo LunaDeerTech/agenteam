@@ -564,7 +564,7 @@ func TestRunnerReadFileApp(t *testing.T) {
 		conflict := runnerReadFileAppLaunch(t, v.binary, mismatch, nil, nil)
 		conflict.wait(t, 2, false)
 		conflict.noLeaks(t, v.token, v.seed, v.path, root)
-		for _, value := range []string{"write-file", "read-file,read-file"} {
+		for _, value := range []string{"run-command", "read-file,read-file"} {
 			invalid := runnerReadFileAppLaunch(t, v.binary, v.env(&value, false), nil, nil)
 			invalid.wait(t, 2, false)
 			invalid.noLeaks(t, v.token, v.seed, v.path, root)

@@ -26,12 +26,16 @@ func TestRunnerOperationsClosedConfiguration(t *testing.T) {
 		{"read-and-find", "read-file,find-files", true, true},
 		{"duplicate-directory-operation", "list-directory,find-files,find-files", true, false},
 		{"all-reads", "find-files,read-file,list-directory", true, true},
+		{"write-file", "write-file", true, true},
+		{"read-and-write", "write-file,read-file", true, true},
+		{"all-filesystem", "write-file,find-files,read-file,list-directory", true, true},
+		{"duplicate-write", "write-file,write-file", true, false},
 		{"empty-entry", "read-file,,find-files", true, false},
 		{"trailing-comma", "find-files,", true, false},
 		{"leading-comma", ",list-directory", true, false},
 		{"unknown", "PRIVATE_OPERATION_CANARY", true, false},
 		{"duplicate", "read-file,read-file", true, false},
-		{"other-operation", "write-file", true, false},
+		{"other-operation", "run-command", true, false},
 		{"combination", "read-file,run-command", true, false},
 		{"whitespace", " read-file", true, false},
 	} {
@@ -101,7 +105,7 @@ func TestRunnerOperationsStoredIdentityCheckStaysOffline(t *testing.T) {
 	if err = file.Close(); err != nil {
 		t.Fatal(err)
 	}
-	for _, operations := range []string{p.ReadFileOperation, p.ListDirectoryOperation, p.FindFilesOperation, p.ReadFileOperation + "," + p.ListDirectoryOperation + "," + p.FindFilesOperation} {
+	for _, operations := range []string{p.ReadFileOperation, p.ListDirectoryOperation, p.FindFilesOperation, p.WriteFileOperation, p.ReadFileOperation + "," + p.ListDirectoryOperation + "," + p.FindFilesOperation + "," + p.WriteFileOperation} {
 		cfg, err := loadValues(map[string]string{Prefix + "IDENTITY_FILE": path, Prefix + "OPERATIONS": operations})
 		if err != nil || cfg.OfflineCheck(false) != nil || cfg.Operations() != operations {
 			t.Fatal("stored-only identity was rejected by offline operation validation", err)

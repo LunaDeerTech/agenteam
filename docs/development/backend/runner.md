@@ -2,7 +2,7 @@
 
 迁移00026对应的 Linux/amd64 Runner identity/control 空 registry 已完成限定实现与验收，详见 [D15 规格](../work-items/d15-runner-control.md#101-linuxamd64-有限-00026-验收结果)。Central 与 Runner 默认入口已接设备管理、一次性登记、Ed25519 私有身份和出站 WSS；作者业务、独立风险补集、正式 OS 三格及新 main 组合的双 cmd/CLI 结果按明确版本复用，不能称当前 HEAD 一次全量或完整 D15 通过。
 
-默认未配置操作时，hello 的 capability 列表为空。现有命令入口允许通过 `OPERATIONS` 显式选择已实现的 `read-file`、`list-directory`、`find-files` revision `"1"`，可以单选或组合；仅在原身份锁内成功构造可信 root 的资源后公告选中能力。目录 CLI 扩展已通过定向基础检查与真实 CLI/PG/WSS 验收，范围见 [D16 目录适配器当前接线](../work-items/d16-runner-directory-adapter.md#当前cli接线)。设备在线与 Agent 挂载配置本身都不是执行许可；当前 Agent/Mount 核验、原 Execution/Operation 授权、D17 数据面和 D18 Tool Runtime 保持各自集成边界，不启用 write/run 或 Agent 执行循环。整体 `ready=false` / `/readyz` 503 的既有限制不变。
+默认未配置操作时，hello 的 capability 列表为空。现有命令入口允许通过 `OPERATIONS` 显式选择已实现的 `read-file`、`list-directory`、`find-files`、`write-file` revision `"1"`，可以单选或组合；仅在原身份锁内成功构造可信 root 的资源后公告选中能力。目录 CLI 扩展已通过定向基础检查与真实 CLI/PG/WSS 验收，范围见 [D16 目录适配器当前接线](../work-items/d16-runner-directory-adapter.md#当前cli接线)；write-file CLI 接线已实现，动态验证待完成，范围见 [write-file 当前 CLI 接线](../work-items/d15-runner-write-file-adapter.md#当前cli接线)。设备在线与 Agent 挂载配置本身都不是执行许可；当前 Agent/Mount 核验、原 Execution/Operation 授权、D17 数据面和 D18 Tool Runtime 保持各自集成边界，不启用 run-command 或 Agent 执行循环。整体 `ready=false` / `/readyz` 503 的既有限制不变。
 
 ## 配置与私有身份
 
@@ -14,7 +14,7 @@ Runner 只读取下列 `AGENTEAM_RUNNER_` 环境变量；未知字段拒绝，�
 | `CENTRAL_URL` | 首次登记时与下两项一同必填；HTTPS origin，无路径前缀、query、fragment 或 userinfo |
 | `ID` | 系统管理员创建 Runner 时确定的 canonical UUIDv7 |
 | `ROOT_PATH` | 与 Central 记录一致的绝对、clean Linux/macOS 工作根；创建后不可修改 |
-| `OPERATIONS` | 可选，默认空；以逗号分隔的 `read-file`、`list-directory`、`find-files` 显式集合，顺序不限；不接受未知项、重复项、空项或空白。只公告选中项，未选项拒绝 |
+| `OPERATIONS` | 可选，默认空；以逗号分隔的 `read-file`、`list-directory`、`find-files`、`write-file` 显式集合，顺序不限；不接受未知项、重复项、空项或空白。只公告选中项，未选项拒绝 |
 | `CA_FILE` | 可选部署 PEM CA 文件，追加到系统 trust roots；不关闭证书链或 hostname 校验 |
 | `LOG_LEVEL` | 默认 `info`，仅 `debug/info/warn/error` |
 | `SHUTDOWN_TIMEOUT` | 默认 `10s`，100ms–5m；第一次停止后的原总预算 |

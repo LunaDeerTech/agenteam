@@ -4,13 +4,21 @@
 
 依据：[D15 §7](d15-runner-control.md#7-rpc端口与-unknown)、[本地 Write](d16-runner-write-file.md)、[Workspace](../../architecture/runner/agent-workspace.md)与[执行运行时](../../architecture/runner/execution-runtime.md)。
 
+## 当前CLI接线
+
+后继 CLI 接线已实现，尚未声明动态验收通过。`AGENTEAM_RUNNER_OPERATIONS=write-file` 显式启用原 `write-file@1`，也可与 `read-file`、`list-directory`、`find-files` 组合。未设置或空值仍无操作；未知、重复、空项和空白整体拒绝，未选择的能力不能执行。`--check-config` 保持离线，不打开运行 root、创建工作目录或连接设备。
+
+真实 `config.Load` → `app.Run` → `control.New` 沿原身份锁内读到的设备配置，给所有已选 Handler 只创建一个 pinned Workspace Manager。write Handler 构造成功后才公告能力，重连沿用原资源；session/worker 实际退出后，再同步 Stop/Drain Manager、释放 identity lock、结束 Client。旧 `NewWriteFile` 的外部 Manager 借用关系保持，与非空运行时 operations 不能混用。没有改变 atomic Write、512 KiB wire 上限、publication/durable/completion 结果或 Unknown 不自动重试的语义，不增加环境注入、command、Central 默认 Tool producer 或 Model 工具回路。
+
+定向单元测试覆盖配置和 App 传递、真实 Handler 写入及冲突、默认与未选能力拒绝、root/配置冲突、外部 owner 互斥及原 Manager 返回前保持身份锁。新增 `TestRunnerWriteFileApp` 复用原真实 CLI/PG/enrollment/TLS-WSS 夹具，验证完整二进制写入与独立磁盘读取、显式 no-overwrite 冲突、stored identity 重启、组合读取和未选写能力零 dispatch。它在 D15 §7 允许的 test-only Operation authority 替身内，用自有隔离库的 fixture 记录固定完整 intent/RID；只有原事务已知提交且实际返回才开放 Claim，并在当前同 Store/Tx、完整 locks 下重检精确记录与真实 Agent/Mount。该 fixture 表不是生产迁移或真实 ToolCall/Attempt producer。实际运行统一安排，原已有适配器证据与 STOP 不因源码完成而扩大。
+
 ## 接口与边界
 
 `runnerprotocol.WriteFileOperation="write-file"`、revision `"1"`，沿 wire v1.0。payload 精确为 `{workspace_name,arguments:{path,data_base64,overwrite}}`；workspace name 来自可信当前映射，P/A 决定目录作用域，Mount/Workspace UUID 不是目录名。该 DTO 和 Agent 项目配置均不是执行授权。本片不新增 Central grant、ticket、Tool Operation 或 dispatcher，不借 read-file 票据。
 
 arguments 仅相对 path、严格标准 padded base64 的完整文件字节与显式 overwrite。空文件合法；原始数据最大 524,288 B（512 KiB），base64 最多 699,052 B，解码后仍核原始大小；整帧继续原 1 MiB `NewMessage` / `Encode` 门。没有流式写入或别名编码；父目录必须存在，原 no-symlink 原子写入规则保持。本地库 1 MiB 上限没有因此变为 wire 上限。拒绝 environment 与 idempotency_key，未绑定 masking。
 
-装配为 `writefile.New(*workspace.Manager)` → `control.NewWriteFile(Options,*writefile.Handler)`。Manager 必须来自可信设备 root 的 `workspace.New`，由装配者持有至 `Client.Run` 实际退出。默认 `control.New`、cmd、生产 registry 与 ready 继续未绑定；显式构造只声明 write-file capability，不隐式加入 read-file 或 directory。
+原适配器装配为 `writefile.New(*workspace.Manager)` → `control.NewWriteFile(Options,*writefile.Handler)`。Manager 必须来自可信设备 root 的 `workspace.New`，由装配者持有至 `Client.Run` 实际退出；显式构造只声明 write-file capability，不隐式加入 read-file 或 directory。默认空配置仍未绑定操作，后继 CLI 的 opt-in 接线见上节；Central 生产 Tool registry 和 ready 的边界保持。
 
 ## Publication 与真实退出
 

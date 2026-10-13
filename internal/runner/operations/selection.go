@@ -1,4 +1,4 @@
-// Package operations parses the Runner's explicit, finite read capability set.
+// Package operations parses the Runner's explicit, finite filesystem capability set.
 package operations
 
 import (
@@ -38,7 +38,7 @@ func (s Selection) Contains(name string) bool {
 // Names returns a new slice in a fixed order, independent of configuration order.
 func (s Selection) Names() []string {
 	names := []string{}
-	for _, name := range []string{p.ReadFileOperation, p.ListDirectoryOperation, p.FindFilesOperation} {
+	for _, name := range []string{p.ReadFileOperation, p.ListDirectoryOperation, p.FindFilesOperation, p.WriteFileOperation} {
 		if s.Contains(name) {
 			names = append(names, name)
 		}
@@ -54,6 +54,8 @@ func operationBit(name string) uint8 {
 		return 2
 	case p.FindFilesOperation:
 		return 4
+	case p.WriteFileOperation:
+		return 8
 	default:
 		return 0
 	}

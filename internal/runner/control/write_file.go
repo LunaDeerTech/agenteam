@@ -9,7 +9,8 @@ import (
 
 // NewWriteFile explicitly binds only write-file revision 1. The caller owns
 // the trusted-root Manager behind handler until Client.Run actually joins.
-// New and the production command remain unbound; this is not a Central grant.
+// New and the production command default to no operations; configured write-file
+// uses their own locked-identity Manager. Neither path is a Central grant.
 func NewWriteFile(options Options, handler *writefile.Handler) (*Client, error) {
 	if !handler.Accepts(p.Request{OperationName: p.WriteFileOperation, OperationRevision: p.WriteFileRevision}) {
 		return nil, ErrProtocol
