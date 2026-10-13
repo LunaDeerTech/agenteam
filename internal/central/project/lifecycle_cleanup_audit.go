@@ -35,6 +35,9 @@ func (st *lifecycleCleanupState) cleanupProgress(r *lifecycleRecord) (c.Particip
 	if r == nil {
 		return "", false, unavailable(nil)
 	}
+	if st.executions != nil {
+		return c.ExecutionParticipant, cleanupDomainCompleted(r, c.ExecutionParticipant), executionCleanupProgress(r, true)
+	}
 	if st.scheduler != nil {
 		return schedulerDriverProgress(r)
 	}
@@ -111,7 +114,7 @@ func cleanupStages(name c.ParticipantName) (current, next string, err error) {
 		return "outbox", "audit", nil
 	case c.AuditParticipant:
 		return "audit", "final", nil
-	case c.SkillsParticipant, c.SecretParticipant, c.ArtifactObjectParticipant, c.SchedulerParticipant:
+	case c.SkillsParticipant, c.SecretParticipant, c.ArtifactObjectParticipant, c.SchedulerParticipant, c.ExecutionParticipant:
 		return "domains", "domains", nil
 	default:
 		return "", "", invalid()
@@ -124,6 +127,9 @@ func (a *LifecycleAuthority) requireAuditCleanupClaimInTx(ctx context.Context, t
 
 func validateCleanupCheckpoint(participant c.ParticipantName, checkpoint *c.CleanupCheckpoint, cause c.LifecycleCause, project c.ProjectID) error {
 	switch participant {
+	case c.ExecutionParticipant:
+		_, err := decodeExecutionRetirementCheckpoint(checkpoint, cause, project)
+		return err
 	case c.SchedulerParticipant:
 		_, err := sc.DecodeProjectCleanupCheckpoint(checkpoint, cause, c.ScopeRef{Kind: c.ProjectScope, ProjectID: project})
 		return portError(err)

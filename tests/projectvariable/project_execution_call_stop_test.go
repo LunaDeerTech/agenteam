@@ -76,13 +76,15 @@ func (m *executionCallNoModel) BeginChat(context.Context, mc.ModelRequest) (mc.J
 	return nil, f.NewFault(f.DependencyUnbound, f.NotCommitted)
 }
 
-func newExecutionCallPG(t *testing.T, upgrade bool) *executionCallPG {
+func newExecutionCallPG(t *testing.T, upgrade bool, retirement ...*executionRetirementPGAssembly) *executionCallPG {
 	t.Helper()
-	v := &executionCallPG{schedulerOwnedStopPG: newSchedulerOwnedStopPG(t, upgrade), models: &executionCallNoModel{}}
+	v := &executionCallPG{schedulerOwnedStopPG: newSchedulerOwnedStopPG(t, upgrade, retirement...), models: &executionCallNoModel{}}
 	if upgrade {
 		migrate(t, v.base.db, migrationPrefix(t, "00082"))
 	}
-	v.seedExecution(t)
+	if len(retirement) == 0 {
+		v.seedExecution(t)
+	}
 	if upgrade {
 		before := v.executionSnapshot(t, false)
 		// The actual legacy Launch/Handoff returned above. No legacy call is
@@ -97,15 +99,19 @@ func newExecutionCallPG(t *testing.T, upgrade bool) *executionCallPG {
 		}
 	}
 	entries := v.skills.p2.manifest.Entries()
-	entries = append(entries, pc.ParticipantRegistration{Name: pc.ExecutionParticipant, ContractVersion: 1, OwnerModule: "execution", ReferenceKinds: []pc.ReferenceKind{"execution-call"}})
-	for n := range entries {
-		if entries[n].Name == pc.OutboxParticipant || entries[n].Name == pc.AuditParticipant {
-			entries[n].CleanupAfter = append(entries[n].CleanupAfter, pc.ExecutionParticipant)
+	if len(retirement) == 0 {
+		entries = append(entries, pc.ParticipantRegistration{Name: pc.ExecutionParticipant, ContractVersion: 1, OwnerModule: "execution", ReferenceKinds: []pc.ReferenceKind{"execution-call"}})
+		for n := range entries {
+			if entries[n].Name == pc.OutboxParticipant || entries[n].Name == pc.AuditParticipant {
+				entries[n].CleanupAfter = append(entries[n].CleanupAfter, pc.ExecutionParticipant)
+			}
 		}
 	}
 	manifest, err := pc.NewRequiredManifest(entries)
 	schedulerOwnedRequire(t, "execution-manifest", err)
-	v.life, err = project.NewLifecycleAuthority(v.base.tracked, manifest, nil)
+	if len(retirement) == 0 {
+		v.life, err = project.NewLifecycleAuthority(v.base.tracked, manifest, nil)
+	}
 	schedulerOwnedRequire(t, "execution-lifecycle", err)
 	source, err := toolruntime.NewInstallSource(v.skills.installer, v.skills.p2.service)
 	schedulerOwnedRequire(t, "execution-original-install-source", err)
@@ -185,6 +191,14 @@ func newExecutionCallPG(t *testing.T, upgrade bool) *executionCallPG {
 		Associated:  execution.AssociatedExecutorOptions{MaxOwned: 2, RecoveryInterval: 20 * time.Millisecond},
 	}
 	v.owned = v.newExecutionPair(t)
+	if len(retirement) == 1 {
+		t.Cleanup(func() { v.closeExecution(t) })
+		retirement[0].beforeLaunch(t, v, providers, variables)
+		func() {
+			defer retirement[0].diagnoseSeed(t, v.base.tracked)()
+			v.seedExecution(t)
+		}()
+	}
 	v.stopDriver, err = project.NewLifecycleStopDriver(v.base.tracked, v.life, processes, func(ctx context.Context, actor i.Actor, cause pc.LifecycleCause, scope pc.ScopeRef) error {
 		if v.stopStep == nil || cause != v.cause || !scope.Equal(v.scope) {
 			return errors.New("Execution original Stop scope changed")
@@ -192,7 +206,9 @@ func newExecutionCallPG(t *testing.T, upgrade bool) *executionCallPG {
 		return v.stopStep(ctx, actor, cause, scope)
 	})
 	schedulerOwnedRequire(t, "execution-original-stop-driver", err)
-	t.Cleanup(func() { v.closeExecution(t) })
+	if len(retirement) == 0 {
+		t.Cleanup(func() { v.closeExecution(t) })
+	}
 	return v
 }
 
@@ -204,6 +220,7 @@ func (v *executionCallPG) seedExecution(t *testing.T) {
 	rejected, err := v.pair.Handoff().LaunchOnce(ctxFor(t), p, v.dispatch.Summary().ID)
 	reason, exact := wc.MatchTaskLaunchFailure(err, rejectedRequest)
 	if !exact || reason != wc.TaskLaunchFailureUnsupportedResourceConstraints || rejected.Summary().LaunchOutcome != scheduler.KnownNotCreated {
+		agentRetirementDiagnostic(t, "execution-seed-original-rejection", err)
 		t.Fatal("formal unsupported seed rejection absent", err)
 	}
 	_, err = v.pair.Failure().FinalizeLaunchFailure(ctxFor(t), p, v.dispatch.Summary().ID)

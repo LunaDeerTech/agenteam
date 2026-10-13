@@ -23,6 +23,7 @@ type assignmentRetirementHistory struct {
 	changes  []*assignmentCommand
 	grants   map[string]retirementGrant
 	ingress  []sc.ProjectAgentIngressRetirementEntry
+	proofs   []*executionRetirementProof
 	current  assignmentSet
 }
 
@@ -79,7 +80,7 @@ func loadAssignmentRetirementHistory(ctx context.Context, x postgres.SQLExecutor
 		if err != nil {
 			return nil, unavailable(err)
 		}
-		command, err := loadAssignmentByID(ctx, x, r.ProjectID, r.AgentID, id)
+		command, proof, err := loadAssignmentRetirementCommand(ctx, x, change, id)
 		if err != nil {
 			return nil, err
 		}
@@ -98,15 +99,36 @@ func loadAssignmentRetirementHistory(ctx context.Context, x postgres.SQLExecutor
 			if err != nil {
 				return nil, err
 			}
-			if receipt == nil || receipt.Queued || receipt.ExecutionID != nil {
+			if receipt == nil {
 				return nil, fault(f.ResourceBusy)
 			}
-			entry := sc.ProjectAgentIngressRetirementEntry{Change: *command.Candidate.Runtime, Receipt: receipt.Clone()}
-			if entry.Validate() != nil {
-				return nil, unavailable(nil)
+			if receipt.Queued {
+				if proof == nil || receipt.ExecutionID == nil {
+					return nil, fault(f.ResourceBusy)
+				}
+				h.proofs = append(h.proofs, proof)
+			} else {
+				entry := sc.ProjectAgentIngressRetirementEntry{Change: *command.Candidate.Runtime, Receipt: receipt.Clone()}
+				if entry.Validate() != nil {
+					return nil, unavailable(nil)
+				}
+				h.ingress = append(h.ingress, entry)
 			}
-			h.ingress = append(h.ingress, entry)
 		}
+	}
+	// Compare the complete Agent-wide proof set, including foreign Project
+	// rows and unexpected proofs for no-active commands.
+	var proofIDs []string
+	if err = x.QueryRow(ctx, `SELECT COALESCE(array_agg(change_id::text ORDER BY change_id),'{}'::text[]) FROM agenteam_skill.assignment_execution_retirement_proofs WHERE agent_id=$1`, r.AgentID.String()).Scan(&proofIDs); err != nil {
+		return nil, unavailable(err)
+	}
+	expectedProofIDs := make([]string, len(h.proofs))
+	for n, proof := range h.proofs {
+		expectedProofIDs[n] = proof.data.Pending.ChangeID.String()
+	}
+	slices.Sort(expectedProofIDs)
+	if !slices.Equal(proofIDs, expectedProofIDs) {
+		return nil, fault(f.ResourceBusy)
 	}
 	if err = h.verifyChain(); err != nil {
 		return nil, err
@@ -270,6 +292,18 @@ func (s *ProjectAgentRetirementReferences) retireAssignmentHistory(ctx context.C
 }
 
 func deleteAssignmentRetirementHistory(ctx context.Context, x postgres.SQLExecutor, change ac.ProjectRetirementChange, h *assignmentRetirementHistory) error {
+	for _, proof := range h.proofs {
+		tag, err := x.Exec(ctx, `DELETE FROM agenteam_skill.assignment_execution_retirement_proofs WHERE change_id=$1 AND project_id=$2 AND agent_id=$3 AND execution_id=$4 AND execution_version=$5 AND canonical_digest=$6 AND operation_id=$7 AND project_version=$8 AND claim_process=$9 AND claim_attempt=$10 AND fence=$11 AND transaction_id=$12 AND proof_data=$13 AND proof_digest=$14`, proof.data.Pending.ChangeID.String(), proof.binding.ProjectID.String(), proof.binding.AgentID.String(), proof.binding.ExecutionID.String(), int64(proof.binding.Version), string(proof.binding.CanonicalDigest), proof.commit.OperationID.String(), int64(proof.commit.ProjectVersion), proof.commit.ProcessID, proof.commit.AttemptID, proof.commit.Fence, proof.commit.TransactionID, proof.raw, string(proof.digest))
+		if err != nil {
+			return unavailable(err)
+		}
+		if tag.RowsAffected() != 1 {
+			return fault(f.ResourceBusy)
+		}
+		if err = ctx.Err(); err != nil {
+			return portError(err)
+		}
+	}
 	currentCount := int64(0)
 	if h.current.Sequence > 1 {
 		currentCount = 1

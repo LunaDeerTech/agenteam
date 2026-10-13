@@ -93,7 +93,7 @@ func projectAgentSkillsHistory(ctx context.Context, x postgres.SQLExecutor, c ac
  AND a.assignment_sequence=1 AND a.change_id IS NULL AND a.enabled AND a.removed_at IS NULL))`
 	}
 	var history bool
-	err := x.QueryRow(ctx, `SELECT `+grant+` OR EXISTS(SELECT 1 FROM agenteam_skill.execution_binding_heads WHERE agent_id=$1) OR EXISTS(SELECT 1 FROM agenteam_skill.execution_bindings WHERE agent_id=$1) OR EXISTS(SELECT 1 FROM agenteam_skill.assignment_commands WHERE agent_id=$1) OR EXISTS(SELECT 1 FROM agenteam_skill.assignment_changes WHERE agent_id=$1) OR EXISTS(SELECT 1 FROM agenteam_skill.assignment_current WHERE agent_id=$1) OR EXISTS(SELECT 1 FROM agenteam_skill.assignment_pending_refs WHERE agent_id=$1)`, c.Request.AgentID.String()).Scan(&history)
+	err := x.QueryRow(ctx, `SELECT `+grant+` OR EXISTS(SELECT 1 FROM agenteam_skill.execution_binding_heads WHERE agent_id=$1) OR EXISTS(SELECT 1 FROM agenteam_skill.execution_bindings WHERE agent_id=$1) OR EXISTS(SELECT 1 FROM agenteam_skill.assignment_commands WHERE agent_id=$1) OR EXISTS(SELECT 1 FROM agenteam_skill.assignment_changes WHERE agent_id=$1) OR EXISTS(SELECT 1 FROM agenteam_skill.assignment_current WHERE agent_id=$1) OR EXISTS(SELECT 1 FROM agenteam_skill.assignment_pending_refs WHERE agent_id=$1) OR EXISTS(SELECT 1 FROM agenteam_skill.assignment_execution_retirement_proofs WHERE agent_id=$1)`, c.Request.AgentID.String()).Scan(&history)
 	if err != nil {
 		return unavailable(err)
 	}

@@ -168,6 +168,9 @@ func (s *Service) launch(ctx context.Context, actor i.Actor, request c.LaunchReq
 		if err != nil {
 			return err
 		}
+		if err = bindRetirementOriginInTx(ctx, tx, s.store, request.ProjectID, request.AgentID, digest, executionRetirementOrigin{1, "created", execution.String(), execution.String(), "", 1, digest.String()}); err != nil {
+			return err
+		}
 		output = c.LaunchResult{Execution: created.summary.Clone()}
 		return nil
 	})

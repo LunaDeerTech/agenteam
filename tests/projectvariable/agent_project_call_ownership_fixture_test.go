@@ -480,6 +480,9 @@ func newAgentOwnershipInstallationFixture(t *testing.T, allowRuntimeClose func()
 	if base.artifactAssembly != nil {
 		manifest = base.artifactAssembly.manifest(t, manifest)
 	}
+	if base.executionRetirementAssembly != nil {
+		manifest = base.executionRetirementAssembly.manifest(t, manifest)
+	}
 	lifecycle, err := project.NewLifecycleAuthority(store, manifest, nil)
 	if err != nil {
 		t.Fatal(err)
