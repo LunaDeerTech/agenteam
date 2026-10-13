@@ -208,6 +208,7 @@ export async function observeBrowserIO(
     const originalSprintEdits: any[] = [];
     let originalSprintStart: any;
     const originalSprintCompletions: any[] = [];
+    const originalTaskCancellations: any[] = [];
     let originalSprintCreate: any;
     let originalMilestoneCreate: any;
     const originalVariableWrites: any[] = [];
@@ -533,6 +534,11 @@ export async function observeBrowserIO(
           };
           writeInputs.set(call, originalSprintCreate);
         }
+        if (kind === "taskCancel.transfer") {
+          const original = { call, project: args[0], task: args[1], input: JSON.parse(JSON.stringify(args[2])) };
+          originalTaskCancellations.push(original);
+          writeInputs.set(call, original);
+        }
         if (kind === "sprintCompletion.complete" || kind === "sprintCompletion.start") {
           const original = { call, project: args[0], sprint: args[1], input: JSON.parse(JSON.stringify(args[2])) };
           originalSprintCompletions.push(original);
@@ -764,6 +770,7 @@ export async function observeBrowserIO(
         executionTask: string | undefined = undefined,
         executionOutputTask: string | undefined = undefined,
         sprintCompletion: { first: string; next: string } | undefined = undefined,
+        taskCancel: readonly string[] | undefined = undefined,
       ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
@@ -1223,6 +1230,17 @@ export async function observeBrowserIO(
             },
             "POST",
           );
+        }
+        if (taskCancel) {
+          consumer(auth.workReview, "startTransfer", "taskCancel.transfer", a => {
+            if (a.length !== 3 || a[0] !== project || !taskCancel.includes(a[1]) || a[2]?.request?.target_state !== "cancelled") throw Error("TASK_CANCEL_SCOPE");
+            return "/api/v1/projects/" + project + "/tasks/" + a[1] + "/transfer";
+          }, "POST");
+          if (timelineTask) throw Error("TASK_CANCEL_DUPLICATE_TIMELINE");
+          consumer(auth.workReview, "events", "work.events", a => {
+            if (a[0] !== project || !taskCancel.includes(a[1])) throw Error("TASK_CANCEL_TIMELINE_SCOPE");
+            return "/api/v1/projects/" + project + "/tasks/" + a[1] + "/events";
+          });
         }
         if (sprintCompletion) {
           for (const method of ["complete", "start"])
@@ -1716,6 +1734,13 @@ export async function observeBrowserIO(
               original.key = key;
               original.request = request;
             }
+          }
+          if (call.kind === "taskCancel.transfer") {
+            matches = equal(parsed, original.input) && Object.keys(parsed).sort().join() === "expected_version,request" &&
+              parsed.request !== null && typeof parsed.request === "object" && !Array.isArray(parsed.request) && parsed.request.target_state === "cancelled" &&
+              Object.keys(parsed.request).every(k => k === "target_state" || k === "comment") &&
+              originalTaskCancellations.every(old => old === original || old.key !== key);
+            if (matches) original.key = key;
           }
           if (call.kind === "sprintCompletion.complete" || call.kind === "sprintCompletion.start") {
             matches = equal(parsed, original.input) && Object.keys(parsed).sort().join() === "expected_version,request" && parsed.request !== null && typeof parsed.request === "object" && !Array.isArray(parsed.request) && Object.keys(parsed.request).length === 0 && originalSprintCompletions.every(old => old === original || old.key !== key);
