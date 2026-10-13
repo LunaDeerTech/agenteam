@@ -60,6 +60,16 @@ func TestNativePGFTSBenchmark(t *testing.T) {
 	check := func(stage string, err error) {
 		t.Helper()
 		if err != nil {
+			// Preserve only the closed SQLSTATE, never driver messages or SQL.
+			var databaseError interface{ SQLState() string }
+			if errors.As(err, &databaseError) {
+				state := databaseError.SQLState()
+				if len(state) == 5 && strings.IndexFunc(state, func(r rune) bool {
+					return !(r >= '0' && r <= '9' || r >= 'A' && r <= 'Z')
+				}) == -1 {
+					t.Fatalf("native PG FTS %s failed (sqlstate=%s)", stage, state)
+				}
+			}
 			t.Fatalf("native PG FTS %s failed", stage)
 		}
 	}
@@ -116,9 +126,10 @@ func TestNativePGFTSBenchmark(t *testing.T) {
 	conn := connect()
 	var versionNum int
 	var version, encoding, collation, ctype string
+	// Since PostgreSQL 16, database locales are catalog fields, not GUCs.
 	check("server version and locale", conn.QueryRow(ctx, `SELECT current_setting('server_version_num')::int,
- current_setting('server_version'), current_setting('server_encoding'),
- current_setting('lc_collate'), current_setting('lc_ctype')`).Scan(&versionNum, &version, &encoding, &collation, &ctype))
+ current_setting('server_version'), current_setting('server_encoding'), datcollate, datctype
+FROM pg_catalog.pg_database WHERE datname = current_database()`).Scan(&versionNum, &version, &encoding, &collation, &ctype))
 	if versionNum != 170008 || encoding != "UTF8" {
 		t.Fatal("actual PostgreSQL 17.8 UTF8 server required")
 	}
