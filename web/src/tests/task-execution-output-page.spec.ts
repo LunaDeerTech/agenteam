@@ -16,6 +16,11 @@ afterEach(async () => {
   releases.splice(0).forEach(fn => fn()); wrappers.splice(0).forEach(wrapper => wrapper.unmount())
   owners.splice(0).forEach(owner => owner.dispose()); await flushPromises(); document.body.innerHTML = ''; vi.restoreAllMocks()
 })
+function visibleLabel(element: Element) {
+  const copy = element.cloneNode(true) as Element
+  copy.querySelectorAll('[aria-hidden="true"]').forEach(child => child.remove())
+  return copy.getAttribute('aria-label') ?? copy.textContent?.trim() ?? ''
+}
 async function fixture() {
   const identity = { userID: id(8), sessionID: id(9), epoch: 1 }
   const context = shallowRef<ProjectWorkspace['currentReadContext']['value']>({ identity, projectID: p, generation: 1, readGeneration: 1 })
@@ -50,7 +55,7 @@ async function fixture() {
   owners.push(owner); owner.afterNavigation(`/owner/demo/tasks/${t}`)
   const wrapper = mount(TaskReviewDetail, { props: { owner }, attachTo: document.body }); wrappers.push(wrapper); await flushPromises()
   const button = (text: string) => {
-    const result = wrapper.findAll('button').find(item => item.text() === text)
+    const result = wrapper.findAll('button').find(item => visibleLabel(item.element) === text)
     if (!result) throw new Error('Missing button: ' + text)
     return result
   }
