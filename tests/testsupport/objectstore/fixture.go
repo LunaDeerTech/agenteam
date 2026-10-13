@@ -25,6 +25,7 @@ import (
 
 const Env = "AGENTEAM_OBJECT_FIXTURE"
 const Label = "agenteam.d05.objectfixture"
+const RuntimeImage = "nginx@sha256:30f1c0d78e0ad60901648be663a710bdadf19e4c10ac6782c235200619158284"
 const BinarySHA = "dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8"
 const Release = "RELEASE.2025-10-15T17-29-55Z"
 const CachedBinary = "/tmp/agenteam-d05-r01-hxwb6ogm/bin/minio"
@@ -97,7 +98,7 @@ func (d *Descriptor) Verify() error {
 			Networks map[string]struct{ NetworkID, IPAddress string }
 		}
 	}
-	if json.Unmarshal(raw, &got) != nil || got.ID != d.ContainerID || got.Name != "/agenteam-d05-object-"+d.Nonce || got.Config.Image != pgfixture.Image || got.Config.Labels[Label] != d.Nonce || !got.State.Running || len(got.NetworkSettings.Ports["9000/tcp"]) != 0 {
+	if json.Unmarshal(raw, &got) != nil || got.ID != d.ContainerID || got.Name != "/agenteam-d05-object-"+d.Nonce || got.Config.Image != RuntimeImage || got.Config.Labels[Label] != d.Nonce || !got.State.Running || len(got.NetworkSettings.Ports["9000/tcp"]) != 0 {
 		return bad()
 	}
 	network := false

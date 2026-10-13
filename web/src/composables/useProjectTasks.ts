@@ -1,3 +1,4 @@
+import { createTaskExecutions, type TaskExecutionScope } from './useTaskExecutions'
 import {
   computed,
   inject,
@@ -783,6 +784,19 @@ export function createProjectTasks(
   const busy = computed(
     () => auth.state.busy || reading.value || syncingSprint.value || confirmation.open,
   )
+  const executionScope = computed<TaskExecutionScope | null>(() => {
+    const context = workspace.currentReadContext.value, task = state.task
+    const selected = workTaskRoute(route.value)
+    if (!visible.value || !context || !task || !state.detailCurrent ||
+        task.project_id !== context.projectID || selected?.kind !== 'task' || selected.id !== task.id) return null
+    const identity = context.identity
+    return { projectID: task.project_id, taskID: task.id,
+      key: `${identity.userID}/${identity.sessionID}/${identity.epoch}/${context.generation}/${context.readGeneration}/${route.value}/${task.id}` }
+  })
+  const executions = createTaskExecutions(executionScope, busy, {
+    list: (p, t, q) => auth.workReview.executions(p, t, q),
+    get: (p, t, e) => auth.workReview.execution(p, t, e),
+  })
   const canStartSprint = computed(
     () =>
       visible.value &&
@@ -4072,6 +4086,7 @@ export function createProjectTasks(
     { flush: 'post', immediate: true },
   )
   function dispose() {
+    executions.dispose()
     disposed = true
     retire()
     stop()
@@ -4081,6 +4096,7 @@ export function createProjectTasks(
   }
   return {
     state,
+    executions,
     timeline,
     columns,
     search,

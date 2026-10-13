@@ -37,6 +37,7 @@ type executionRuntimeAssembly struct {
 	initialize                     func(context.Context) error
 	executor                       *execution.AssociatedExecutor
 	manager                        *scheduler.ProjectRunners
+	taskReadDependencies           *execution.TaskReadDependencies
 	executionCalls                 *execution.ProjectCallOwnership
 	executionRetirement            *execution.ProjectExecutionRetirement
 	schedulerCalls                 *scheduler.ProjectCallOwnership

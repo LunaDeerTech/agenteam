@@ -115,7 +115,7 @@ func run() (code int) {
 		return fail("outbound network creation failed")
 	}
 	networkID = strings.TrimSpace(string(raw))
-	serverArgs := []string{"run", "--detach", "--name", name, "--label", netfixture.Label + "=" + nonce, "--network", networkID, "--mount", "type=bind,src=" + directory + ",dst=/fixture,readonly", "--entrypoint", "/fixture/server", pgfixture.Image, "-cert", "/fixture/server.crt", "-key", "/fixture/server.key", "-nonce", nonce}
+	serverArgs := []string{"run", "--detach", "--name", name, "--label", netfixture.Label + "=" + nonce, "--network", networkID, "--mount", "type=bind,src=" + directory + ",dst=/fixture,readonly", "--entrypoint", "/fixture/server", netfixture.RuntimeImage, "-cert", "/fixture/server.crt", "-key", "/fixture/server.key", "-nonce", nonce}
 	// Only this exact opt-in whole top requires real SystemResolver DNS. Other
 	// suites retain their original listeners and explicit resolver injection.
 	if *filter == "^TestAppExecutionRuntime$" {
@@ -165,7 +165,7 @@ func run() (code int) {
 	if os.WriteFile(path, raw, 0600) != nil {
 		return fail("outbound descriptor write failed")
 	}
-	fmt.Printf("D04 outbound fixture actual private_socket=%s image=%s nonce=%s\n", d.PrivateIP, pgfixture.Image, nonce)
+	fmt.Printf("D04 outbound fixture actual private_socket=%s image=%s nonce=%s\n", d.PrivateIP, netfixture.RuntimeImage, nonce)
 	arguments := []string{"scripts/test-postgres.sh", "-run", *filter}
 	if *objects {
 		arguments = append(arguments, "-objects")

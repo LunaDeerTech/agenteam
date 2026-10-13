@@ -8,6 +8,7 @@ import TaskReorderForm from './TaskReorderForm.vue'
 import TaskDependencyForm from './TaskDependencyForm.vue'
 import TaskHumanBlockerForm from './TaskHumanBlockerForm.vue'
 import TaskTimeline from './TaskTimeline.vue'
+import TaskExecutions from './TaskExecutions.vue'
 const props = defineProps<{ owner: ProjectTasks }>()
 const detail = ref<HTMLElement | null>(null)
 const task = computed(() => props.owner.state.task)
@@ -353,6 +354,7 @@ const canSubmit = computed(
       </p>
       <UiButton type="submit" :disabled="!canSubmit">确认{{ actionLabel }}</UiButton>
     </form>
+    <TaskExecutions :owner="owner.executions" :agent-name="owner.name" />
     <TaskTimeline
       :state="owner.timeline"
       :busy="owner.busy.value"

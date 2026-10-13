@@ -15,6 +15,7 @@ import (
 	audithttp "github.com/LunaDeerTech/agenteam/internal/central/audit/http"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/execution"
 	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	kc "github.com/LunaDeerTech/agenteam/internal/central/knowledge/contract"
@@ -66,6 +67,7 @@ type accountAssembly struct {
 	started         bool
 	forced          context.Context
 	executions      *executionRuntimeAssembly
+	executionReads  *executionReadAssembly
 	usageCalls      *usageCallAssembly
 	planning        accountWork
 	agentDirectory  accountWork
@@ -175,6 +177,9 @@ func (a *accountAssembly) works() []accountWork {
 	// shared Work/Skill/Account provider or the root ProcessGuard may retire.
 	if a.executions != nil {
 		work = append(work, a.executions)
+	}
+	if a.executionReads != nil {
+		work = append(work, a.executionReads)
 	}
 	// Model actual return precedes Usage technical closure; Usage also owns
 	// direct HTTP reads through this same pair. Neither may release providers early.
@@ -294,10 +299,11 @@ func (a *accountAssembly) Force(ctx context.Context) error {
 		usage, ownsUsage := work.(*usageCallAssembly)
 		knowledge, ownsKnowledge := work.(*knowledgeCallAssembly)
 		artifacts, ownsArtifacts := work.(*artifactCallAssembly)
+		executionReads, ownsExecutionReads := work.(*executionReadAssembly)
 		// Runtime terminal/lease cleanup and Agent/Variable/Work calls use the
 		// shared providers. Expiring a force budget does not make them disposable.
 		// The root retains its separate bounded Store.ForceClose policy.
-		if ownsArtifacts && !artifacts.Joined() || ownsKnowledge && !knowledge.Joined() || ownsUsage && !usage.Joined() || ownsExecutions && !executions.Joined() || agents != nil && work == agents && !agents.Joined() || install != nil && work == install && !install.Joined() || ownsVariables && !variableCalls.Joined() || ownsProjects && !projectCalls.Joined() || ownsPlanning && planning.ownership != nil && !planning.Joined() {
+		if ownsExecutionReads && !executionReads.Joined() || ownsArtifacts && !artifacts.Joined() || ownsKnowledge && !knowledge.Joined() || ownsUsage && !usage.Joined() || ownsExecutions && !executions.Joined() || agents != nil && work == agents && !agents.Joined() || install != nil && work == install && !install.Joined() || ownsVariables && !variableCalls.Joined() || ownsProjects && !projectCalls.Joined() || ownsPlanning && planning.ownership != nil && !planning.Joined() {
 			return errors.Join(result, foundation.NewFault(foundation.DependencyUnavailable, foundation.NotStarted))
 		}
 	}
@@ -825,11 +831,16 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		if !accounts.install(ctx, func() { accounts.handler = artifactReadRoutes(accounts.handler, artifactReads) }) {
 			return objects, context.Canceled
 		}
+		readDeps, err := createExecutionReadDependencies(cfg, db, projectUsage, planning, executionAuthorities)
+		if err != nil {
+			return objects, err
+		}
+		var taskReads *execution.TaskExecutionReader
 		if runtimeEnabled {
 			// The four-owner constructor requires this guard's actual binding.
 			// Earlier startup failures never install an empty constructing owner.
 			// No Run or Launch is reachable until Account.Start below this phase.
-			executions := &executionRuntimeAssembly{constructing: true, agentCalls: agentConfiguration.ownership}
+			executions := &executionRuntimeAssembly{constructing: true, agentCalls: agentConfiguration.ownership, taskReadDependencies: &readDeps}
 			if !accounts.install(ctx, func() { accounts.executions = executions }) {
 				executions.constructionDone()
 				return objects, context.Canceled
@@ -837,6 +848,23 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 			if err := constructExecutionRuntime(executions, cfg, db, authority, projectUsage, contentAuthorities.skills, workAuthority, executionAuthorities, objects, models, secrets, transport, journal, executionEvents, agentConfiguration.registry); err != nil {
 				return objects, err
 			}
+			taskReads = executions.executionCalls.TaskReader()
+		} else {
+			reads, err := createExecutionReads(db, projectUsage, objects, readDeps)
+			if reads != nil && !accounts.install(ctx, func() { accounts.executionReads = reads }) {
+				return objects, context.Canceled
+			}
+			if err != nil {
+				return objects, err
+			}
+			taskReads = reads.pair.TaskReader()
+		}
+		executionHTTP, err := executionReadHandler(taskReads, core, cfg.PublicOrigin())
+		if err != nil {
+			return objects, err
+		}
+		if !accounts.install(ctx, func() { accounts.handler = executionReadRoutes(accounts.handler, executionHTTP) }) {
+			return objects, context.Canceled
 		}
 		return objects, ctx.Err()
 	}

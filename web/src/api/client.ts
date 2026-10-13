@@ -154,6 +154,8 @@ const endpoints = {
   taskBlockerResolve: ['POST', '/api/v1/projects/{project_id}/tasks/{target}/blockers/resolve', 200],
   taskBlockerLookup: ['POST', '/api/v1/projects/{project_id}/tasks/{target}/blocker-commands/lookup', 200],
   taskTimeline: ['GET', '/api/v1/projects/{project_id}/tasks/{target}/events', 200],
+  listTaskExecutions: ['GET', '/api/v1/projects/{project_id}/tasks/{target}/executions', 200],
+  getTaskExecution: ['GET', '/api/v1/projects/{project_id}/tasks/{target}/executions/{execution_id}', 200],
   reviewTransfer: ['POST', '/api/v1/projects/{project_id}/tasks/{target}/transfer', 200],
   reviewLookup: ['POST', '/api/v1/projects/{project_id}/task-transition-commands/lookup', 200],
   taskCreate: ['POST', '/api/v1/projects/{project_id}/tasks', 200],
@@ -1230,6 +1232,8 @@ type WorkReviewEndpoint =
   | 'taskBlockerResolve'
   | 'taskBlockerLookup'
   | 'taskTimeline'
+  | 'listTaskExecutions'
+  | 'getTaskExecution'
   | 'reviewTransfer'
   | 'reviewLookup'
   | 'taskCreate'
@@ -1279,6 +1283,8 @@ const workReviewEndpoints: readonly WorkReviewEndpoint[] = [
   'taskBlockerResolve',
   'taskBlockerLookup',
   'taskTimeline',
+  'listTaskExecutions',
+  'getTaskExecution',
   'reviewTransfer',
   'reviewLookup',
   'taskCreate',
@@ -1298,6 +1304,7 @@ type WorkReviewOptions = {
   signal: AbortSignal
   projectID: string
   target?: string
+  executionID?: string
   workQuery?: Readonly<Record<string, string>>
   body?: unknown
   csrf?: string
@@ -1511,6 +1518,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       projectModels?: ProjectModelWireQuery
       projectAddress?: ProjectWireAddress
       projectID?: string
+      executionID?: string
       workQuery?: Readonly<Record<string, string>>
       target?: string
     },
@@ -1758,6 +1766,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           'dependencyTaskCandidates',
           'reviewBlockers',
           'taskTimeline',
+          'listTaskExecutions',
           'directoryAgents',
         ].includes(endpoint)
         const target = basePath.includes('{target}')
@@ -1765,6 +1774,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           'signal',
           'projectID',
           ...(target ? ['target'] : []),
+          ...(endpoint === 'getTaskExecution' ? ['executionID'] : []),
           ...(list ? ['workQuery'] : []),
           ...(method === 'GET' ? [] : ['body', 'csrf', 'key']),
         ])
@@ -1775,6 +1785,11 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           const id = string(options.target, 36, 36)
           if (!uuid7.test(id)) throw new Error()
           path = path.replace('{target}', id)
+        }
+        if (endpoint === 'getTaskExecution') {
+          const execution = string(options.executionID, 36, 36)
+          if (!uuid7.test(execution)) throw new Error()
+          path = path.replace('{execution_id}', execution)
         }
         if (list) {
           const fields =
@@ -1802,7 +1817,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
             Number(limit) >
               (endpoint === 'availableAgentRunners' || endpoint === 'dependencyTaskCandidates'
                 ? 50
-                : endpoint === 'listProjectVariables'
+                : endpoint === 'listProjectVariables' || endpoint === 'listTaskExecutions'
                   ? 100
                   : 200)
           )
@@ -2249,6 +2264,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
         throw new AccountFailure('invalid-input')
       }
     } else if (
+      Object.hasOwn(options, 'executionID') ||
       Object.hasOwn(options, 'workQuery') ||
       Object.hasOwn(options, 'projects') ||
       Object.hasOwn(options, 'projectModels') ||
