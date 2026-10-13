@@ -83,7 +83,22 @@ export type CancelInput = Readonly<{
   expected_version: string
   request: Readonly<{ target_state: 'cancelled'; comment?: string }>
 }>
-export type TransferInput = ReviewInput | CancelInput
+export type TaskBlockResumeInput = Readonly<{
+  expected_version: string
+  request: Readonly<
+    | { target_state: 'blocked'; comment?: string }
+    | {
+        target_state: 'todo'
+        resolve_blocker_ids: readonly string[]
+        assignee_agent_id?: string
+        comment?: string
+      }
+  >
+}>
+export type TransferInput = ReviewInput | CancelInput | TaskBlockResumeInput
+export function isTaskBlockResume(value: TransferInput): value is TaskBlockResumeInput {
+  return value.request.target_state === 'blocked' || 'resolve_blocker_ids' in value.request
+}
 export type ReadyInput = Readonly<{
   expected_version: string
   request: Readonly<{
@@ -415,11 +430,60 @@ export function captureCancelInput(value: unknown): CancelInput {
     })
   })
 }
+export function captureTaskBlockResumeInput(value: unknown): TaskBlockResumeInput {
+  return input(() => {
+    const v = shape(value, ['expected_version', 'request'])
+    const r = shape(
+      v.request,
+      ['target_state'],
+      ['comment', 'assignee_agent_id', 'resolve_blocker_ids'],
+    )
+    const comment = Object.hasOwn(r, 'comment')
+      ? { comment: workText(r.comment, 32768, false, true) }
+      : {}
+    if (r.target_state === 'blocked') {
+      requireValue(
+        !Object.hasOwn(r, 'assignee_agent_id') && !Object.hasOwn(r, 'resolve_blocker_ids'),
+      )
+      return freeze({
+        expected_version: workVersion(v.expected_version),
+        request: { target_state: 'blocked' as const, ...comment },
+      })
+    }
+    requireValue(
+      r.target_state === 'todo' &&
+        Array.isArray(r.resolve_blocker_ids) &&
+        r.resolve_blocker_ids.length > 0 &&
+        r.resolve_blocker_ids.length <= 16,
+    )
+    const ids = (r.resolve_blocker_ids as unknown[]).map(workID)
+    requireValue(new Set(ids).size === ids.length)
+    return freeze({
+      expected_version: workVersion(v.expected_version),
+      request: {
+        target_state: 'todo' as const,
+        resolve_blocker_ids: ids,
+        ...(Object.hasOwn(r, 'assignee_agent_id')
+          ? { assignee_agent_id: workID(r.assignee_agent_id) }
+          : {}),
+        ...comment,
+      },
+    })
+  })
+}
 export function captureTransferInput(value: unknown): TransferInput {
   return input(() => {
     const v = shape(value, ['expected_version', 'request'])
-    const r = shape(v.request, ['target_state'], ['comment', 'assignee_agent_id'])
-    return r.target_state === 'cancelled' ? captureCancelInput(value) : captureReviewInput(value)
+    const r = shape(
+      v.request,
+      ['target_state'],
+      ['comment', 'assignee_agent_id', 'resolve_blocker_ids'],
+    )
+    return r.target_state === 'blocked' || Object.hasOwn(r, 'resolve_blocker_ids')
+      ? captureTaskBlockResumeInput(value)
+      : r.target_state === 'cancelled'
+        ? captureCancelInput(value)
+        : captureReviewInput(value)
   })
 }
 export function captureReadyInput(value: unknown): ReadyInput {

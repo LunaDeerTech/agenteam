@@ -4,6 +4,8 @@ import {
   captureReviewInput,
   captureReadyInput,
   captureCancelInput,
+  captureTaskBlockResumeInput,
+  captureTransferInput,
   createWorkReviewAPI,
   type ReviewInput,
   type TaskQuery,
@@ -495,4 +497,52 @@ describe('Task Cancel strict Transfer input', () => {
       ).rejects.toMatchObject({ kind: 'invalid-response' })
     },
   )
+})
+
+describe('Task blocking and atomic recovery input', () => {
+  it('captures optional-comment mark and an immutable original resolution selection', () => {
+    expect(
+      captureTransferInput({ expected_version: '4', request: { target_state: 'blocked' } }),
+    ).toEqual({ expected_version: '4', request: { target_state: 'blocked' } })
+    const ids = [id(70), id(71)]
+    const captured = captureTaskBlockResumeInput({
+      expected_version: '4',
+      request: {
+        target_state: 'todo',
+        resolve_blocker_ids: ids,
+        comment: '  明确解决 🧩  ',
+      },
+    })
+    ids.reverse()
+    expect(captured.request).toEqual({
+      target_state: 'todo',
+      resolve_blocker_ids: [id(70), id(71)],
+      comment: '  明确解决 🧩  ',
+    })
+    expect(Object.isFrozen(captured.request)).toBe(true)
+    expect(
+      'resolve_blocker_ids' in captured.request &&
+        Object.isFrozen(captured.request.resolve_blocker_ids),
+    ).toBe(true)
+  })
+  it('rejects unsupported mark edits and ambiguous or incomplete atomic resolutions', () => {
+    for (const request of [
+      { target_state: 'blocked', assignee_agent_id: id(20) },
+      { target_state: 'blocked', resolve_blocker_ids: [id(70)] },
+      { target_state: 'blocked', add_blockers: [] },
+      { target_state: 'todo', resolve_blocker_ids: [] },
+      { target_state: 'todo', resolve_blocker_ids: [id(70), id(70)] },
+      {
+        target_state: 'todo',
+        resolve_blocker_ids: Array.from({ length: 17 }, (_, i) => id(i + 70)),
+      },
+      { target_state: 'todo', resolve_blocker_ids: [id(70)], assignee_agent_id: null },
+      { target_state: 'todo', resolve_blocker_ids: [id(70)], comment: '   ' },
+    ])
+      expect(() => captureTransferInput({ expected_version: '4', request })).toThrow()
+    // The old review edge still requires its original comment and recipient.
+    expect(() =>
+      captureTransferInput({ expected_version: '4', request: { target_state: 'todo' } }),
+    ).toThrow()
+  })
 })

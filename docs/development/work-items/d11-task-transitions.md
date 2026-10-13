@@ -1,6 +1,6 @@
 # D11 Task transition 与 reviewer 工程规格
 
-> 状态：工程规格、T0a/T0b 纯契约已独立接受。Human `backlog→todo`、真实当前 Agent/占用/调度前置及对应 HTTP 已有限交付；新增 Human `blocked→todo` 同事务解除 Blocker 已通过有限源码独审、定向纯检查和真实组合验证，见 §1.1。完整流转、AgentRun/reviewer 与生产装配仍未完成。
+> 状态：工程规格、T0a/T0b 纯契约已独立接受。Human `backlog→todo`、真实当前 Agent/占用/调度前置及对应 HTTP 已有限交付；Human `blocked→todo` 同事务解除 Blocker 已有限交付，见 §1.1；后继 `todo→blocked` 与显式原子恢复界面已通过有限独审和真实 HTTP/浏览器验收，随本次变更交付 main，见 §1.2。完整流转、AgentRun/reviewer 与生产装配仍未完成。
 >
 > 前置：[Task planning](d11-task-planning.md) 的规划库已正式交付并独立验收。本卡运行服务还须满足 §13 的真实 Agent/Blocker/执行前置；下述新增纯契约、状态决策及兼容方案可以分别审查，不因整个 Agent/Executor 尚未实现而全部停工。
 >
@@ -36,6 +36,26 @@
 前向 `00048_task_unblock.sql` 增加 `resolved_transition_operation_id` 指向原 transition command，并与旧 standalone resolution parent 严格互斥；不改旧迁移或创建来源。新增 plan 仅在存在解除时保存完整 Blocker before/after 与来源，旧 backlog plan/receipt 编码保持兼容。沿原 `work.task_transitioned` schema 1 记录 state、可选 assignee、排序后的 resolutions 和独立 comment；支持读取已解决 technical 不等于允许 Human 创建 technical 或用 standalone 命令解除。
 
 本批组合16个定向 top 的 race 与四包 vet 通过；真实 TLS 正向/原 key 重放链及独立 caller Tx 全写后哨兵 rollback/同 key 恢复链，共2 top/2 sub 整轮通过，原进程退出、资源和全部尾门均闭合。`InTx` receipt 在外层 commit 前只是 tentative；rollback 保留原 planned intent 而不发布完成回执。Unknown 仍沿原 key/digest Lookup，不自动重发。完整状态矩阵、生产绑定和 Scheduler retry 不由本切片完成；原准备失败与候选复用依据保留在恢复记录，不改写为编译整轮通过。
+
+### 1.2 Human 显式标记受阻与原子恢复后继
+
+当前 Human Owner 的 `todo→blocked` 后继沿原 Transfer/Lookup 链，仅接收已有 Blocker 的显式状态流转；本能力不接受 `AddBlockers`、`ResolveBlockerIDs` 或显式 assignee。保留原 assignee，不因进入 blocked 选择新 Agent，也不新增 CurrentAgent 要求。准备与最终事务均读取真实未解 Blocker；数量为零返回正式 `TASK_BLOCKED_WITHOUT_BLOCKER` / 409。Outbox producer 在同一最终事务再次检查 blocked 至少保有一个未解原因，不能因本次没有 resolution rows 跳过该不变量。
+
+原 Owner/Session、active Project、planned/current Sprint、真实 active Execution/pending Dispatch 及 source/target group 门不变；存在占用仍拒绝 `RESOURCE_BUSY`，不取消执行或调度。Task 进入当前 blocked 同 priority 组尾，版本、排序/查询 generation、state history、一个 Outbox、completed receipt 与 Activity 沿同一事务提交，Blocker 创建来源及内容不变。恢复继续使用 §1.1 的原 `blocked→todo`：原子解决所选原因且最终全部解除，进入 todo 时验证当前合法 assignee；合法既有技术原因可随该原组合解除，不开放 Human 创建或 standalone 解除 technical。Unknown 保持原意图 Lookup，不自动重发。
+
+任务详情沿原 WorkReview/Transfer 提供“标记受阻”与“解决阻塞并恢复待执行”。恢复须先读完当前阻塞分页，明确勾选本次全部未解决原因（最多 16 项），保留或选择合法执行 Agent；取消不写入并恢复入口焦点，成功后重新读取 Task、Timeline 与看板。前端保留任务完整前像与负责人；迁入目标组的 rank 沿正式回执变化，不误要求旧 rank 不变。Unknown 沿原完整意图 Lookup，不自动重发；真实丢回执与完整权限竞争矩阵不由本片浏览器正常链证明。
+
+[普通检查](../../../output/ai/task-block-resume/light-summary.json)覆盖三个 Go 包的 13 top/71 sub race、三包 vet，以及六个前端 spec 的 84 项（新增 10 项）、完整类型检查和构建。两个 schema 最终分别通过；首次 Work schema 因执行环境漏传固定 Python 路径而失败，仅该检查补验通过，原工具失败保留。继承用户公开认证入口改动后的 `66e71377` [定向补验](../../../output/ai/task-block-resume/final-merge-supplement.json)为 WorkReview Session 14 项及类型/构建，和原 84 项分别记述，不机械相加。新增浏览器 helper/spec 的语义诊断为零、精确 Playwright list 命中一个用例，旧共享导入的七项诊断保留，不称整套 harness 类型检查通过。
+
+真实 [HTTP 窗](../../../output/ai/task-block-resume/http-native01/post.json)原 `36127/67f7be` 实际 Wait 0/44.816 秒，1 top/1 sub、无 Node。真实 Owner/Agent/Task fixture 通过正式 Ready、Add、标记受阻、最后原因 standalone 解除拒绝及原子恢复链，并检查无原因标记受阻返回 `TASK_BLOCKED_WITHOUT_BLOCKER` / 409 且持久事实不变、历史 Lookup/同 key 重放不重复写入。Task、Blocker、history、Outbox、命令回执沿原事务断言验证，Scheduler 正式配置保持 disabled，无 Execution/Dispatch。
+
+默认 App [Web02](../../../output/ai/task-block-resume/web-native02/post.json)原 `96657/ce9876` 实际 Wait 0/58.518 秒，1 top/1 sub、原 Node 实际 Wait。Node 观测修订为 `54c50de4`，Go 与生产 dist 仍为 `66e71377` 的同一原候选，运行中输入未变。三个原 POST 分别 Add、标记受阻、原子恢复，Task version 2→3→4→5，负责人和无关前像保留；命令、Task、事件/历史的 PostgreSQL xmin，以及最后 Blocker 的 `resolved_transition_operation_id` 联证同一事务。66 个请求为 61 finished 与 5 ERR_ABORTED，三次写入均有原完整 200/EOF/Close/handler-returned 联证，不能将失败网络终态改写为 finished。observer retired/pending=0、CDP 已 detach；原 Go/Node/已知子进程、3 容器/3 网络、私有目录与 runtime 全部退出，whole_pass/owned_cleanup_closed 为 true。浏览器消费真实默认 App，但 Project/Agent 前置沿原测试 seed 的 Skills 初始化；本片不证明新 Agent Skills 生产装配或模型执行。
+
+四张实际截图经非作者亲看：宽浅人工原因草稿与原待执行 v2、文本焦点；宽浅受阻 v4、原负责人/未解除原因与标题焦点；窄暗显式勾选最后原因且保原负责人；窄暗恢复待执行 v5、原负责人与标题焦点。末图下方已解除行和操作按钮不在可见范围，相关结果只由实际 DOM 与 SQL 断言证明。
+
+与已交付 Knowledge Move 的最终组合 `94c2e46c` 完成[定向补验](../../../output/ai/task-block-resume/final-combination.json)：Move Session 与 WorkReview Session 两个 spec 共 22 项、完整类型/构建通过；四个新 helper/spec 的目标语义诊断为零，旧共享七项诊断保留。原 observer 前 33 参及 Move 第 34 参保持，Task 第 35 参和调用映射实核通过；Move 两模式与 Task 一模式分别 list 一个用例，thin AST/原 selector 集合检查通过。列表工具曾因自身 JSON set 序列化失败、尚未启动 Node，修正工具后完成待查列表，原失败保留。全部消费者实际退出；没有重跑 Go 或真实浏览器，原 HTTP/Web 动态结果继续绑定 `66e71377` / `54c50de4`，不冒称最终组合已有新的真实整轮。
+
+[容量预检失败](../../../output/ai/task-block-resume/capacity-preflight01.json)发生在业务 fixture/资源创建之前；[Web01](../../../output/ai/task-block-resume/web-native01/post.json)原 `76236/4b1ce7` Wait 1/63.050 秒也保留。Web01 的测试 observer 误要求 confirmed 返回后 `contextValid=true`，而原 WorkReview 已退休成功意图；仅修正新分支为 false 并说明含义，未改产品、Go、预算或重试策略，之后用同一二进制完成 Web02。新增状态边和上述有限接受不代表完整状态矩阵、执行中的阻塞组合、AgentRun、Agent Skills、D11/D27 或 E01 已完成，既有 STOP 不变。
 
 ## 2. 完整边表、Actor 与提交不变量
 

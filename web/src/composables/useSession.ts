@@ -8,6 +8,7 @@ import {
   type AgentSkillQuery,
 } from '../api/agent-skill-assignments'
 
+import { captureKnowledgeMove, createKnowledgeMoveAPI, type KnowledgeMoveAPI, type KnowledgeMoveInput, type KnowledgeMoveResult, type KnowledgeMoveLookup } from '../api/knowledge-move'
 import { randomUUID } from '../utils/random-uuid'
 import { createTaskExecutionOutputAPI, type TaskExecutionOutputAPI } from '../api/task-execution-output'
 import { createTaskExecutionsAPI, type TaskExecutionsAPI, type TaskExecutionQuery } from '../api/task-executions'
@@ -112,6 +113,7 @@ import {
 import {
   createWorkReviewAPI,
   captureTransferInput,
+  isTaskBlockResume,
   captureReadyInput,
   decodeWorkTask,
   workVersion,
@@ -639,7 +641,7 @@ type WorkReviewIntent = {
   body: string
   uncertain: boolean
 } & (
-  | { kind: 'review'; input: TransferInput }
+  | { kind: 'review'; input: TransferInput; taskBefore?: Task }
   | { kind: 'ready'; input: ReadyInput }
   | { kind: 'create'; input: TaskCreateInput }
   | { kind: 'edit'; input: TaskUpdateInput }
@@ -746,7 +748,7 @@ type ArtifactCreationOriginal = {
   keyConflict: boolean
 }
 type KnowledgeCommandAction =
-  'knowledge-rename' | 'knowledge-lookup' | 'knowledge-text-write' | 'knowledge-text-lookup' | 'knowledge-delete-preview' | 'knowledge-delete' | 'knowledge-delete-lookup'
+  'knowledge-move' | 'knowledge-move-lookup' | 'knowledge-rename' | 'knowledge-lookup' | 'knowledge-text-write' | 'knowledge-text-lookup' | 'knowledge-delete-preview' | 'knowledge-delete' | 'knowledge-delete-lookup'
 export type KnowledgeCommandProgress = Readonly<{
   projectID: string
   documentID: string
@@ -766,6 +768,7 @@ type KnowledgeCommandIntent = {
   uncertain: boolean
   keyConflict: boolean
 }
+type KnowledgeMoveIntent = Omit<KnowledgeCommandIntent, 'payload'> & { payload: { input: KnowledgeMoveInput | null; body: string | null } }
 export type KnowledgeTextProgress = KnowledgeCommandProgress &
   Readonly<{ command: 'create' | 'update' }>
 type KnowledgeTextOriginal = {
@@ -1185,6 +1188,7 @@ export function createSessionController(
     projectUsage?: ProjectUsageAPI
     scheduler?: ProjectSchedulerAPI
     skillPackage?: SkillPackageAPI
+    knowledgeMove?: KnowledgeMoveAPI
     knowledgeText?: KnowledgeTextAPI
     knowledgeDelete?: KnowledgeDeleteAPI
     knowledgeCommands?: KnowledgeCommandsAPI
@@ -1216,6 +1220,7 @@ export function createSessionController(
   const agentRunnerMountsAPI = commandAPIs.agentRunnerMounts ?? createAgentRunnerMountsAPI()
   const agentConfigurationAPI = commandAPIs.agentConfiguration ?? createAgentConfigurationAPI()
   const sprintLifecycleAPI = commandAPIs.sprintLifecycle ?? createWorkSprintLifecycleAPI()
+  const knowledgeMoveAPI = commandAPIs.knowledgeMove ?? createKnowledgeMoveAPI()
   const knowledgeTextAPI = commandAPIs.knowledgeText ?? createKnowledgeTextAPI()
   const knowledgeDeleteAPI = commandAPIs.knowledgeDelete ?? createKnowledgeDeleteAPI()
   const knowledgeCommandsAPI = commandAPIs.knowledgeCommands ?? createKnowledgeCommandsAPI()
@@ -1435,6 +1440,8 @@ export function createSessionController(
   let skillImportIntent: SkillImportOriginal | null = null
   const skillImportState = shallowReactive<{ progress: Omit<SkillImportProgress, 'contextValid'> | null }>({ progress: null })
   const knowledgeCommandRevisions: Record<KnowledgeCommandAction, number> = {
+    'knowledge-move': 0,
+    'knowledge-move-lookup': 0,
     'knowledge-rename': 0,
     'knowledge-lookup': 0,
     'knowledge-text-write': 0,
@@ -1449,6 +1456,8 @@ export function createSessionController(
   const isArtifactCreation = (kind: Action): kind is ArtifactCreationAction => Object.hasOwn(artifactCreationRevisions, kind)
   let artifactCreationIntent: ArtifactCreationOriginal | null = null
   const artifactCreationState = shallowReactive<{ progress: Omit<ArtifactCreationProgress, 'contextValid' | 'canRetryOriginal' | 'canCancel'> | null }>({ progress: null })
+  let knowledgeMoveIntent: KnowledgeMoveIntent | null = null
+  const knowledgeMoveState = shallowReactive<{ progress: Omit<KnowledgeCommandProgress, 'contextValid' | 'canRetryOriginal'> | null }>({ progress: null })
   let knowledgeIntent: KnowledgeCommandIntent | null = null
   const knowledgeCommandState = shallowReactive<{
     progress: Omit<KnowledgeCommandProgress, 'contextValid' | 'canRetryOriginal'> | null
@@ -1644,6 +1653,7 @@ export function createSessionController(
       clearSecretCommand()
       clearSprintLifecycleState()
       clearKnowledgeCommand()
+      clearKnowledgeMove()
       clearKnowledgeText()
       clearArtifactCreation()
       clearSkillImport()
@@ -1724,6 +1734,7 @@ export function createSessionController(
       clearSecretCommand()
       clearSprintLifecycleState()
       clearKnowledgeCommand()
+      clearKnowledgeMove()
       clearKnowledgeText()
       clearArtifactCreation()
       clearSkillImport()
@@ -6786,17 +6797,22 @@ export function createSessionController(
         dispatched = true
         const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
         const checkedBlockerReply = (value: WorkCommandReceipt | WorkCommandLookup) => {
-          if ('taskBefore' in original && (!('status' in value) || value.status === 'committed')) {
+          if ('taskBefore' in original && original.taskBefore && (!('status' in value) || value.status === 'committed')) {
             const receipt = 'status' in value ? value.receipt : value
             // Keep version-protected Task fields through Unknown/Lookup.
             // Another Task may rebalance manual_rank without changing this
             // Task's version. Only the backend's same-Tx before/after images
-            // can establish that this command preserved the current rank.
+            // can establish the preserved rank for Blocker writes or the
+            // appended target-group rank for a Task transition.
             const before = original.taskBefore
             for (const key of Object.keys(before) as (keyof Task)[]) {
-              if (key !== 'version' && key !== 'updated_at' && key !== 'manual_rank' && receipt.task[key] !== before[key])
+              if (key !== 'version' && key !== 'updated_at' && key !== 'manual_rank' &&
+                  !(original.kind === 'review' && (key === 'state' || key === 'assignee_agent_id')) && receipt.task[key] !== before[key])
                 throw new AccountFailure('invalid-response')
             }
+            if (original.kind === 'review' && receipt.task.assignee_agent_id !==
+                ('assignee_agent_id' in original.input.request ? original.input.request.assignee_agent_id : before.assignee_agent_id))
+              throw new AccountFailure('invalid-response')
             if (receipt.task.updated_at < before.updated_at)
               throw new AccountFailure('invalid-response')
           }
@@ -6834,9 +6850,9 @@ export function createSessionController(
           return lookup
             ? workReviewAPI.lookupReady(original.projectID, original.taskID, original.input, write)
             : workReviewAPI.ready(original.projectID, original.taskID, original.input, write)
-        return lookup
+        return (lookup
           ? workReviewAPI.lookup(original.projectID, original.taskID, original.input, write)
-          : workReviewAPI.transfer(original.projectID, original.taskID, original.input, write)
+          : workReviewAPI.transfer(original.projectID, original.taskID, original.input, write)).then(checkedBlockerReply)
       },
       undefined,
       kind,
@@ -6858,7 +6874,7 @@ export function createSessionController(
         if (live()) {
           const p = failure.problem
           if ((original.kind.startsWith('blocker-') || original.kind.startsWith('dependency-') ||
-            (original.kind === 'review' && original.input.request.target_state === 'cancelled')) && p && [403, 404].includes(p.status)) {
+            (original.kind === 'review' && (original.input.request.target_state === 'cancelled' || isTaskBlockResume(original.input)))) && p && [403, 404].includes(p.status)) {
             clearWorkReviewState()
             throw failure
           }
@@ -6923,14 +6939,14 @@ export function createSessionController(
     abandonRead: clearWorkReviewRead,
     forgetCancelUnavailable(projectID: string, taskID?: string) {
       const original = workReviewIntent
-      if (original?.kind === 'review' && original.input.request.target_state === 'cancelled' &&
+      if (original?.kind === 'review' && (original.input.request.target_state === 'cancelled' || isTaskBlockResume(original.input)) &&
           original.projectID === projectID && (!taskID || original.taskID === taskID)) {
         clearWorkReviewState()
         return true
       }
       return false
     },
-    startTransfer(projectID: string, taskID: string, value: TransferInput) {
+    startTransfer(projectID: string, taskID: string, value: TransferInput, before?: Task) {
       try {
         const identity = personalIdentity()
         if (
@@ -6946,9 +6962,14 @@ export function createSessionController(
           throw new AccountFailure('busy')
         if (!uuid7.test(projectID) || !uuid7.test(taskID)) throw new AccountFailure('invalid-input')
         const input = captureTransferInput(value)
-        if (input.request.target_state === 'cancelled' && (sprintStartIntent || sprintCreateIntent || milestoneCreateIntent))
+        if ((input.request.target_state === 'cancelled' || isTaskBlockResume(input)) && (sprintStartIntent || sprintCreateIntent || milestoneCreateIntent))
           throw new AccountFailure('busy')
+        const taskBefore = isTaskBlockResume(input)
+          ? captureBlockerTask(projectID, taskID, input.expected_version, before as Task) : undefined
+        if (taskBefore && taskBefore.state !== (input.request.target_state === 'blocked' ? 'todo' : 'blocked'))
+          throw new AccountFailure('invalid-input')
         const original: WorkReviewIntent = {
+          ...(taskBefore ? { taskBefore } : {}),
           kind: 'review',
           identity,
           csrf: sessionCSRF,
@@ -8707,7 +8728,7 @@ export function createSessionController(
     startRename(projectID: string, documentID: string, value: KnowledgeRenameInput) {
       try {
         const identity = personalIdentity()
-        if (owner || artifactCreationIntent || knowledgeIntent || knowledgeTextIntent || knowledgeDeleteIntent || personalIntent || pending)
+        if (owner || knowledgeMoveIntent || artifactCreationIntent || knowledgeIntent || knowledgeTextIntent || knowledgeDeleteIntent || personalIntent || pending)
           throw new AccountFailure('busy')
         const input = captureKnowledgeRename(value)
         const original: KnowledgeCommandIntent = {
@@ -8748,6 +8769,193 @@ export function createSessionController(
       clearKnowledgeCommand()
     },
     abandon: clearKnowledgeCommand,
+  }
+  function clearKnowledgeMovePayload(original: KnowledgeMoveIntent | null) {
+    if (original) {
+      original.payload.input = null
+      original.payload.body = null
+    }
+  }
+  function clearKnowledgeMove() {
+    const retiring =
+      owner && (owner.kind === 'knowledge-move' || owner.kind === 'knowledge-move-lookup')
+        ? owner
+        : null
+    ++knowledgeCommandRevisions['knowledge-move']
+    ++knowledgeCommandRevisions['knowledge-move-lookup']
+    clearKnowledgeMovePayload(knowledgeMoveIntent)
+    knowledgeMoveIntent = null
+    knowledgeMoveState.progress = null
+    retiring?.abandon?.()
+  }
+  function publishKnowledgeMove(
+    original: KnowledgeMoveIntent,
+    phase: KnowledgeCommandProgress['phase'],
+    receipt: KnowledgeDocument | null = null,
+    observation: KnowledgeCommandProgress['observation'] = 'none',
+  ) {
+    knowledgeMoveState.progress = Object.freeze({
+      projectID: original.projectID,
+      documentID: original.documentID,
+      phase,
+      receipt,
+      observation,
+    })
+  }
+  function performKnowledgeMove(
+    original: KnowledgeMoveIntent,
+    lookup = false,
+  ): Promise<KnowledgeMoveResult | KnowledgeMoveLookup> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    if (knowledgeMoveIntent !== original || !original.payload.input || !projectContext(original))
+      return Promise.reject(new AccountFailure('invalid-input'))
+    const kind: KnowledgeCommandAction = lookup ? 'knowledge-move-lookup' : 'knowledge-move'
+    const revision = knowledgeCommandRevisions[kind]
+    const live = () =>
+      knowledgeMoveIntent === original &&
+      revision === knowledgeCommandRevisions[kind] &&
+      projectContext(original)
+    let dispatched = false
+    if (!lookup) publishKnowledgeMove(original, 'submitting')
+    return runAuthorized<KnowledgeMoveResult | KnowledgeMoveLookup>(
+      original.identity,
+      async (op, current) => {
+        const input = original.payload.input
+        if (!input || !current() || !live()) throw new AccountFailure('cancelled')
+        if (JSON.stringify(input) !== original.payload.body)
+          throw new AccountFailure('invalid-input')
+        dispatched = true
+        try {
+          const write = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
+          return lookup
+            ? await knowledgeMoveAPI.lookup(
+                original.projectID,
+                original.documentID,
+                input,
+                write,
+              )
+            : await knowledgeMoveAPI.move(
+                original.projectID,
+                original.documentID,
+                input,
+                write,
+              )
+        } finally {
+          if (knowledgeMoveIntent !== original) clearKnowledgeMovePayload(original)
+        }
+      },
+      undefined,
+      kind,
+    ).then(
+      (value) => {
+        if (!live()) throw new AccountFailure('cancelled')
+        if ('state' in value && value.state !== 'committed') {
+          publishKnowledgeMove(original, 'uncertain', null, value.state)
+          if (!live()) throw new AccountFailure('cancelled')
+          return value
+        }
+        const receipt = 'state' in value ? value.receipt.document : value.document
+        publishKnowledgeMove(original, 'confirmed', receipt, lookup ? 'committed' : 'none')
+        if (!live()) throw new AccountFailure('cancelled')
+        clearKnowledgeMovePayload(original)
+        knowledgeMoveIntent = null
+        return value
+      },
+      (error: unknown) => {
+        const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (
+          knowledgeMoveIntent === original &&
+          revision === knowledgeCommandRevisions[kind] &&
+          sameIdentity(original.identity, personalContext.identity)
+        ) {
+          const p = e.problem
+          const known =
+            !dispatched ||
+            (!!p &&
+              ['not_started', 'not_committed'].includes(p.commit_state) &&
+              [
+                'INVALID_ARGUMENT',
+                'VERSION_CONFLICT',
+                'INVALID_STATE',
+                'PROJECT_NOT_ACTIVE',
+                'NOT_FOUND',
+                'FORBIDDEN',
+                'RESOURCE_DELETED',
+              ].includes(p.code))
+          original.keyConflict ||= p?.code === 'IDEMPOTENCY_KEY_REUSED'
+          original.uncertain ||= lookup || !known || original.keyConflict
+          publishKnowledgeMove(
+            original,
+            original.uncertain ? 'uncertain' : 'rejected',
+            null,
+            lookup ? 'failed' : 'none',
+          )
+        }
+        throw e
+      },
+    )
+  }
+  const knowledgeMove = {
+    get progress(): KnowledgeCommandProgress | null {
+      const value = knowledgeMoveState.progress
+      if (!value) return null
+      const contextValid = !!knowledgeMoveIntent && projectContext(knowledgeMoveIntent)
+      return Object.freeze({
+        ...value,
+        contextValid,
+        canRetryOriginal:
+          !!knowledgeMoveIntent?.payload.input &&
+          knowledgeMoveIntent.uncertain &&
+          !knowledgeMoveIntent.keyConflict &&
+          value.observation === 'not_observed' &&
+          contextValid &&
+          !state.busy,
+      })
+    },
+    startMove(projectID: string, documentID: string, value: KnowledgeMoveInput) {
+      try {
+        const identity = personalIdentity()
+        if (owner || knowledgeDeleteIntent || artifactCreationIntent || knowledgeMoveIntent || knowledgeIntent || knowledgeTextIntent || personalIntent || pending)
+          throw new AccountFailure('busy')
+        const input = captureKnowledgeMove(value)
+        const original: KnowledgeMoveIntent = {
+          projectID: captureKnowledgeID(projectID),
+          documentID: captureKnowledgeID(documentID),
+          identity,
+          csrf: sessionCSRF,
+          key: newKey(),
+          payload: { input, body: JSON.stringify(input) },
+          uncertain: false,
+          keyConflict: false,
+        }
+        knowledgeMoveIntent = original
+        return performKnowledgeMove(original)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    checkOriginal() {
+      if (!knowledgeMoveIntent?.uncertain || !projectContext(knowledgeMoveIntent))
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performKnowledgeMove(knowledgeMoveIntent, true)
+    },
+    retryOriginal() {
+      if (!knowledgeMoveIntent || !knowledgeMove.progress?.canRetryOriginal)
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performKnowledgeMove(knowledgeMoveIntent)
+    },
+    editRejected() {
+      if (
+        owner ||
+        !knowledgeMoveIntent ||
+        knowledgeMoveIntent.uncertain ||
+        knowledgeMoveState.progress?.phase !== 'rejected' ||
+        !projectContext(knowledgeMoveIntent)
+      )
+        throw new AccountFailure('invalid-input')
+      clearKnowledgeMove()
+    },
+    abandon: clearKnowledgeMove,
   }
   function clearKnowledgeDeletePayload(original: KnowledgeDeleteOriginal | null) {
     if (original) {
@@ -8891,7 +9099,7 @@ export function createSessionController(
       try {
         const identity = personalIdentity()
         const project = captureKnowledgeID(projectID), target = captureKnowledgeID(documentID)
-        if (owner || artifactCreationIntent || knowledgeDeleteIntent || knowledgeIntent || knowledgeTextIntent || personalIntent || pending)
+        if (owner || knowledgeMoveIntent || artifactCreationIntent || knowledgeDeleteIntent || knowledgeIntent || knowledgeTextIntent || personalIntent || pending)
           throw new AccountFailure('busy')
         return runAuthorized(identity, (op) => knowledgeDeleteAPI.preview(project, target,
           { csrfToken: sessionCSRF, signal: op.abort.signal }), undefined, 'knowledge-delete-preview')
@@ -8917,7 +9125,7 @@ export function createSessionController(
     startDelete(projectID: string, documentID: string, value: KnowledgeDeleteInput, previewIDs: readonly string[]) {
       try {
         const identity = personalIdentity()
-        if (owner || artifactCreationIntent || knowledgeIntent || knowledgeTextIntent || knowledgeDeleteIntent || personalIntent || pending)
+        if (owner || knowledgeMoveIntent || artifactCreationIntent || knowledgeIntent || knowledgeTextIntent || knowledgeDeleteIntent || personalIntent || pending)
           throw new AccountFailure('busy')
         const input = captureKnowledgeDelete(value)
         if (!Array.isArray(previewIDs) || previewIDs.length === 0) throw new AccountFailure('invalid-input')
@@ -9097,7 +9305,7 @@ export function createSessionController(
     start(projectID: string, value: KnowledgeTextIntent) {
       try {
         const identity = personalIdentity()
-        if (owner || artifactCreationIntent || knowledgeTextIntent || knowledgeIntent || knowledgeDeleteIntent || personalIntent || pending)
+        if (owner || knowledgeMoveIntent || artifactCreationIntent || knowledgeTextIntent || knowledgeIntent || knowledgeDeleteIntent || personalIntent || pending)
           throw new AccountFailure('busy')
         const input = captureKnowledgeText(value)
         const original: KnowledgeTextOriginal = {
@@ -9375,7 +9583,7 @@ export function createSessionController(
     start(projectID: string, value: ArtifactContentInput) {
       try {
         const identity = personalIdentity()
-        if (owner || artifactCreationIntent || knowledgeIntent || knowledgeTextIntent || knowledgeDeleteIntent || personalIntent || pending) throw new AccountFailure('busy')
+        if (owner || knowledgeMoveIntent || artifactCreationIntent || knowledgeIntent || knowledgeTextIntent || knowledgeDeleteIntent || personalIntent || pending) throw new AccountFailure('busy')
         const input = captureArtifactContent(value)
         const original: ArtifactCreationOriginal = { projectID: captureArtifactID(projectID), identity, csrf: sessionCSRF, key: newKey(), input, body: JSON.stringify(input), keyConflict: false }
         artifactCreationIntent = original
@@ -10167,6 +10375,7 @@ export function createSessionController(
     knowledge,
     knowledgeDelete,
     knowledgeCommands,
+    knowledgeMove,
     knowledgeText,
     projectModelSettings,
     personal,
