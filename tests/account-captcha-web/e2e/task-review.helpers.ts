@@ -200,6 +200,7 @@ export async function observeBrowserIO(
     const originalEdits: any[] = [];
     const originalAgentEdits: any[] = [];
     const originalMilestoneEdits: any[] = [];
+    const originalMilestoneReorders: any[] = [];
     const originalSprintEdits: any[] = [];
     let originalSprintStart: any;
     let originalSprintCreate: any;
@@ -434,6 +435,11 @@ export async function observeBrowserIO(
               progress.agentID === source?.agent,
           });
         }
+        if (kind === "milestoneReorder.reorder") {
+          const original = { call, project: args[0], milestone: args[1], input: JSON.parse(JSON.stringify(args[2])) };
+          originalMilestoneReorders.push(original);
+          writeInputs.set(call, original);
+        }
         if (kind === "milestone.update") {
           const original = { call, project: args[0], milestone: args[1], input: JSON.parse(JSON.stringify(args[2])) };
           originalMilestoneEdits.push(original);
@@ -556,6 +562,10 @@ export async function observeBrowserIO(
             if (kind === "systemRunner.start" || kind === "systemRunner.checkOriginal") {
               const progress = auth.system.runners.progress;
               call.result_current = progress?.phase === "confirmed" && progress.receipt === value?.receipt;
+            }
+            if (kind === "milestoneReorder.reorder") {
+              const original = writeInputs.get(call), progress = auth.workMilestoneReordering.progress;
+              call.result_current = progress?.phase === "confirmed" && progress.contextValid === true && progress.projectID === original.project && progress.milestoneID === original.milestone && value != null && progress.result === value;
             }
             if (kind === "milestone.update" || kind === "milestone.checkOriginal") {
               const original = writeInputs.get(call), source = kind === "milestone.update" ? original : original.source;
@@ -693,6 +703,7 @@ export async function observeBrowserIO(
         knowledgeDelete: { mode: string; root: string } | undefined = undefined,
         usageSummaryReads = false,
         secretDelete: string | undefined = undefined,
+        reorderMilestone: string | undefined = undefined,
       ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
@@ -1071,6 +1082,12 @@ export async function observeBrowserIO(
             );
           }
         }
+        if (reorderMilestone) {
+          consumer(auth.workMilestoneReordering, "reorder", "milestoneReorder.reorder", (a) => {
+            if (a[0] !== project || a[1] !== reorderMilestone) throw Error("MILESTONE_REORDER_CONSUMER_SCOPE");
+            return "/api/v1/projects/" + project + "/milestones/" + reorderMilestone + "/reorder";
+          }, "POST");
+        }
         if (editMilestone) {
           consumer(auth.workMilestoneEditing, "update", "milestone.update", (a) => {
             if (a[0] !== project || a[1] !== editMilestone) throw Error("MILESTONE_UPDATE_CONSUMER_SCOPE");
@@ -1174,6 +1191,7 @@ export async function observeBrowserIO(
         originalEdits.length = 0;
         originalAgentEdits.length = 0;
         originalMilestoneEdits.length = 0;
+        originalMilestoneReorders.length = 0;
         originalSprintEdits.length = 0;
         originalSprintStart = undefined;
         originalSprintCreate = undefined;
@@ -1444,6 +1462,10 @@ export async function observeBrowserIO(
                 expected_version: original.source.input.expected_version,
                 request: original.source.input.request,
               });
+          }
+          if (call.kind === "milestoneReorder.reorder") {
+            matches = originalMilestoneReorders.every(old => old === original || (typeof old.key === "string" && old.key !== key)) && equal(parsed, original.input);
+            if (matches) original.key = key;
           }
           if (call.kind === "milestone.update") {
             matches = originalMilestoneEdits.every(old => old === original || (typeof old.key === "string" && old.key !== key)) && equal(parsed, original.input);
@@ -1931,6 +1953,7 @@ export type TaskObservationProfile = {
     | "skill-owner-read"
     | "milestone-create"
     | "milestone-edit"
+    | "milestone-reorder"
     | "sprint-edit"
     | "project-variables"
     | "knowledge-text"
@@ -1974,6 +1997,7 @@ export type TaskObservationProfile = {
   skillsReads?: true;
   milestoneCreateWrites?: true;
   milestoneUpdateWrites?: true;
+  milestoneReorderWrites?: true;
   sprintUpdateWrites?: true;
   variableWrites?: true;
   knowledgeTextWrites?: true;
@@ -2176,6 +2200,13 @@ export async function observeTaskRequests(
   data: TaskObservationMaterial,
   profile: TaskObservationProfile,
 ) {
+  if (profile.milestoneReorderWrites || profile.prefix === "milestone-reorder") {
+    const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand", "milestoneReorderWrites"];
+    if (profile.milestoneReorderWrites !== true || profile.prefix !== "milestone-reorder" || profile.lookupCommand !== null ||
+        !["milestone-reorder-normal", "milestone-reorder-responsive"].includes(data.mode) || !data.milestone_id ||
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.milestone_id) ||
+        Object.keys(profile).some(key => !allowed.includes(key))) throw Error("MILESTONE_REORDER_PROFILE_MISMATCH");
+  }
   if (profile.prefix === "task-search") {
     const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand"];
     if (profile.lookupCommand !== null || data.mode !== "server-search-beyond-first-page" ||
@@ -2646,6 +2677,7 @@ export async function observeTaskRequests(
           knowledgeDelete,
           usageSummaryReads,
           secretDelete,
+          reorderMilestone,
         }) => {
           const module = await import(/* @vite-ignore */ binding.asset);
           const useSession = module[binding.exportName];
@@ -2680,6 +2712,7 @@ export async function observeTaskRequests(
           knowledgeDelete,
           usageSummaryReads,
           secretDelete,
+          reorderMilestone,
           );
         },
         {
@@ -2713,6 +2746,7 @@ export async function observeTaskRequests(
           secretWrite: profile.secretWrite === true,
           knowledgeDelete: profile.knowledgeDeleteWrites ? { mode: data.mode, root: data.root_id! } : undefined,
           secretDelete: profile.secretDelete ? data.agent_id : undefined,
+          reorderMilestone: profile.milestoneReorderWrites ? data.milestone_id : undefined,
         },
       );
       await route.continue();
@@ -2905,6 +2939,12 @@ export async function observeTaskRequests(
       !url.search
     );
   }
+  function milestoneReorderWrite(entry: Entry) {
+    if (!profile.milestoneReorderWrites) return false;
+    const url = new URL(entry.request.url());
+    return entry.name === "reorder" && entry.request.method() === "POST" && !url.search &&
+      url.pathname === `/api/v1/projects/${data.project_id}/milestones/${data.milestone_id}/reorder`;
+  }
   function milestoneUpdateWrite(entry: Entry) {
     if (!profile.milestoneUpdateWrites) return false;
     const url = new URL(entry.request.url()), prefix = `/api/v1/projects/${data.project_id}`;
@@ -2919,7 +2959,7 @@ export async function observeTaskRequests(
   }
   function milestonePageRead(entry: Entry) {
     return (
-      (profile.milestoneCreateWrites || profile.milestoneUpdateWrites) &&
+      (profile.milestoneCreateWrites || profile.milestoneUpdateWrites || profile.milestoneReorderWrites) &&
       entry.request.method() === "GET" &&
       ["project", "milestones", "milestone", "sprints", "agents"].includes(
         entry.name,
@@ -3028,6 +3068,7 @@ export async function observeTaskRequests(
     const sprintCreate = sprintCreateWrite(entry);
     const milestoneCreate = milestoneCreateWrite(entry);
     const milestoneUpdate = milestoneUpdateWrite(entry);
+    const milestoneReorder = milestoneReorderWrite(entry);
     const sprintUpdate = sprintUpdateWrite(entry);
     const variable = variableWrite(entry);
     const knowledgeText = knowledgeTextWrite(entry);
@@ -3045,6 +3086,7 @@ export async function observeTaskRequests(
       sprintCreate ||
       milestoneCreate ||
       milestoneUpdate ||
+      milestoneReorder ||
       sprintUpdate ||
       variable ||
       knowledgeText || scheduler || runner || systemRunner || knowledgeDelete || secret;
@@ -3171,7 +3213,7 @@ export async function observeTaskRequests(
       if (secret) { expect(c.result_current).toBe(true); if (!profile.secretDelete) expect(c.paste_bound).toBe(true); }
       if (systemRunner) { expect(c.result_current).toBe(true); if (c.typed.token_available === true) expect(c.material_matches).toBe(true); }
       if (scheduler || knowledgeDelete) expect(c.result_current).toBe(true);
-      if (sprintCreate || milestoneCreate || milestoneUpdate || sprintUpdate || variable || knowledgeText) expect(c.result_current).toBe(true);
+      if (sprintCreate || milestoneCreate || milestoneUpdate || milestoneReorder || sprintUpdate || variable || knowledgeText) expect(c.result_current).toBe(true);
       const kinds: Record<string, string> = secret
         ? { create: "secretWrite.create", update: "secretWrite.update", delete: "secretWrite.delete", lookup: "secretWrite.lookup" }
         : systemRunner
@@ -3188,6 +3230,8 @@ export async function observeTaskRequests(
         ? { create: "variable.create", update: "variable.update", delete: "variable.delete" }
         : sprintUpdate
         ? { update: "sprintEdit.update", lookup: "sprintEdit.checkOriginal" }
+        : milestoneReorder
+        ? { reorder: "milestoneReorder.reorder" }
         : milestoneUpdate
         ? { update: "milestone.update", lookup: "milestone.checkOriginal" }
         : milestoneCreate
@@ -3387,6 +3431,7 @@ export async function observeTaskRequests(
           sprintCreateWrite(entry) ||
           milestoneCreateWrite(entry) ||
           milestoneUpdateWrite(entry) ||
+          milestoneReorderWrite(entry) ||
           sprintUpdateWrite(entry) ||
           variableWrite(entry) ||
           knowledgeTextWrite(entry) ||
@@ -3456,6 +3501,7 @@ export async function observeTaskRequests(
         sprintCreateWrite(entry) ||
         milestoneCreateWrite(entry) ||
         milestoneUpdateWrite(entry) ||
+        milestoneReorderWrite(entry) ||
           sprintUpdateWrite(entry) ||
         milestonePageRead(entry) ||
         variableWrite(entry) ||
@@ -3499,7 +3545,7 @@ export async function observeTaskRequests(
     }
   }
   function receipt(
-    name: "transfer" | "lookup" | "create" | "ready" | "update" | "start" | "preview" | "delete" | "enrollment" | "revoke",
+    name: "transfer" | "lookup" | "create" | "ready" | "update" | "start" | "preview" | "delete" | "enrollment" | "revoke" | "reorder",
     index: number,
   ): Record<string, any> {
     const values = entries.filter(
@@ -3707,7 +3753,7 @@ export async function observeTaskRequests(
   function milestoneRead(
     name: "project" | "milestones" | "milestone" | "sprints" | "agents",
   ) {
-    expect(profile.milestoneCreateWrites || profile.milestoneUpdateWrites).toBe(true);
+    expect(profile.milestoneCreateWrites || profile.milestoneUpdateWrites || profile.milestoneReorderWrites).toBe(true);
     const rows = entries.filter((e) => e.name === name && e.checked && e.body);
     expect(
       rows.length,
@@ -3836,6 +3882,7 @@ export async function observeTaskRequests(
                 creates: entries.filter((e) => e.name === "create").length,
               }
             : {}),
+          ...(profile.milestoneReorderWrites ? { reorders: entries.filter(e => e.name === "reorder").length } : {}),
           lookups: entries.filter((e) => e.name === "lookup").length,
           test_status: testStatus,
           route: diagnosticURL(page.url()),
