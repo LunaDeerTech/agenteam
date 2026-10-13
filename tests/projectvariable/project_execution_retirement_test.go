@@ -57,6 +57,7 @@ type executionRetirementPGAssembly struct {
 	base    *variableHTTPFixture
 	fixture *executionRetirementPG
 	upgrade bool
+	work    *workCleanupPGAssembly
 }
 
 // Observe only the original Store results during this opt-in seed. Opaque
@@ -124,7 +125,7 @@ func (*executionRetirementPGAssembly) diagnoseSeed(t *testing.T, store *hookStor
 	}
 }
 
-func (*executionRetirementPGAssembly) manifest(t *testing.T, original pc.RequiredManifest) pc.RequiredManifest {
+func (a *executionRetirementPGAssembly) manifest(t *testing.T, original pc.RequiredManifest) pc.RequiredManifest {
 	t.Helper()
 	entries := original.Entries()
 	entries = append(entries,
@@ -138,6 +139,9 @@ func (*executionRetirementPGAssembly) manifest(t *testing.T, original pc.Require
 		case pc.OutboxParticipant, pc.AuditParticipant:
 			entries[n].CleanupAfter = append(entries[n].CleanupAfter, pc.SchedulerParticipant, pc.ExecutionParticipant)
 		}
+	}
+	if a.work != nil {
+		entries = a.work.manifest(entries)
 	}
 	manifest, err := pc.NewRequiredManifest(entries)
 	schedulerOwnedRequire(t, "retirement-complete-manifest", err)

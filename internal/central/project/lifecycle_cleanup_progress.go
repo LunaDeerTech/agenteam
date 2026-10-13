@@ -48,6 +48,11 @@ func cleanupRoundReport(round lifecycleCleanupRound, report c.CleanupReport) err
 			return err
 		}
 	}
+	if round.participant == c.WorkParticipant {
+		if err := workCleanupReport(round, report); err != nil {
+			return err
+		}
+	}
 	if round.participant == c.ExecutionParticipant {
 		if err := executionRetirementRoundReport(round, report); err != nil {
 			return err
@@ -72,7 +77,7 @@ func (st *lifecycleCleanupState) finish(ctx context.Context, round lifecycleClea
 	validated := false
 	result := st.store.WithinTx(ctx, round.claim.cause(), func(ctx context.Context, tx f.Tx) error {
 		locks := []f.LockRequest{projectLock(round.claim.project, f.Exclusive)}
-		if round.participant == c.SchedulerParticipant {
+		if round.participant == c.SchedulerParticipant || round.participant == c.WorkParticipant {
 			locks = append(locks, schedulerLock(round.claim.project))
 		}
 		if err := st.store.AcquireAll(ctx, tx, locks); err != nil {

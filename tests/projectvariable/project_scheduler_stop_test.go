@@ -161,6 +161,13 @@ func newSchedulerOwnedStopPG(t *testing.T, upgrade bool, retirement ...*executio
 	schedulerOwnedRequire(t, "failure-events", err)
 	projectEvents, err := pc.RegisterProjectEvents(catalog)
 	schedulerOwnedRequire(t, "project-events", err)
+	var ownedWork *workCleanupPGAssembly
+	if len(retirement) == 1 {
+		ownedWork = retirement[0].work
+	}
+	if ownedWork != nil {
+		ownedWork.registerEvents(t, catalog)
+	}
 	auditing, err := audit.New(base.tracked, base.keys, audit.Authorizations{Sessions: base.accounts, System: base.accounts, Accounts: base.accounts, Projects: providers.AuditProjects})
 	schedulerOwnedRequire(t, "actual-audit", err)
 	processes := captureProviderProcesses{guard: v.skills.guard}
@@ -185,17 +192,25 @@ func newSchedulerOwnedStopPG(t *testing.T, upgrade bool, retirement ...*executio
 	projection.project, projection.projectAuthority, projection.projects, projection.audit = v.skills.p2.project, providers.Projects, v.projects, auditing
 	w := &taskTransitionFixture{base: &projection, agentID: agentID, authority: wa, structureReader: reader, pending: pending, box: box, transitionEvents: transitions}
 	v.work = w
-	w.structure, err = work.New(base.tracked, work.Dependencies{Authority: wa, Events: box, WorkEvents: structures, Activity: base.accounts})
-	schedulerOwnedRequire(t, "work-service", err)
-	t.Cleanup(func() { schedulerOwnedDrain(t, w.structure) })
-	w.tasks, err = work.NewTask(base.tracked, work.TaskDependencies{Authority: wa, Structure: reader, Events: box, TaskEvents: tasks, Activity: base.accounts, Pending: pending})
-	schedulerOwnedRequire(t, "task-service", err)
-	t.Cleanup(func() { schedulerOwnedDrain(t, w.tasks) })
-	w.taskReader, err = work.NewTaskReader(base.tracked, wa, reader, base.keys)
-	schedulerOwnedRequire(t, "task-reader", err)
-	w.transitions, err = work.NewTaskTransition(base.tracked, work.TaskTransitionDependencies{Authority: wa, Structure: reader, Events: box, TaskEvents: transitions, Activity: base.accounts, Agents: providers.Agents, Occupancy: occupancy, Pending: pending})
-	schedulerOwnedRequire(t, "transition-service", err)
-	t.Cleanup(func() { schedulerOwnedDrain(t, w.transitions) })
+	if ownedWork != nil {
+		ownedWork.bind(t, v, work.ProjectCallDependencies{
+			Structure:   work.Dependencies{Authority: wa, Events: box, WorkEvents: structures, Activity: base.accounts},
+			Tasks:       work.TaskDependencies{Authority: wa, Structure: reader, Events: box, TaskEvents: tasks, Activity: base.accounts, Pending: pending},
+			Transitions: work.TaskTransitionDependencies{Authority: wa, Structure: reader, Events: box, TaskEvents: transitions, Activity: base.accounts, Agents: providers.Agents, Occupancy: occupancy, Pending: pending},
+		})
+	} else {
+		w.structure, err = work.New(base.tracked, work.Dependencies{Authority: wa, Events: box, WorkEvents: structures, Activity: base.accounts})
+		schedulerOwnedRequire(t, "work-service", err)
+		t.Cleanup(func() { schedulerOwnedDrain(t, w.structure) })
+		w.tasks, err = work.NewTask(base.tracked, work.TaskDependencies{Authority: wa, Structure: reader, Events: box, TaskEvents: tasks, Activity: base.accounts, Pending: pending})
+		schedulerOwnedRequire(t, "task-service", err)
+		t.Cleanup(func() { schedulerOwnedDrain(t, w.tasks) })
+		w.taskReader, err = work.NewTaskReader(base.tracked, wa, reader, base.keys)
+		schedulerOwnedRequire(t, "task-reader", err)
+		w.transitions, err = work.NewTaskTransition(base.tracked, work.TaskTransitionDependencies{Authority: wa, Structure: reader, Events: box, TaskEvents: transitions, Activity: base.accounts, Agents: providers.Agents, Occupancy: occupancy, Pending: pending})
+		schedulerOwnedRequire(t, "transition-service", err)
+		t.Cleanup(func() { schedulerOwnedDrain(t, w.transitions) })
+	}
 	claimWriter, err := work.NewSchedulerClaim(base.tracked, work.SchedulerClaimDependencies{Authority: wa, Scheduler: pending, Agents: current, Pending: pending, Occupancy: occupancy, Events: box, ClaimEvents: claims})
 	schedulerOwnedRequire(t, "claim-writer", err)
 	t.Cleanup(func() { schedulerOwnedDrain(t, claimWriter) })
@@ -273,7 +288,11 @@ func (v *schedulerOwnedStopPG) seedTask(t *testing.T) {
 		t.Fatal("formal Task transfer receipt invalid")
 	}
 	w.task = moved.Task
-	startSchedulerSprint(t, w)
+	if option := v.base.executionRetirementAssembly; option != nil && option.work != nil {
+		option.work.startSprint(t, w)
+	} else {
+		startSchedulerSprint(t, w)
+	}
 }
 
 func (v *schedulerOwnedStopPG) newPair(t *testing.T) *scheduler.ProjectCallOwnership {

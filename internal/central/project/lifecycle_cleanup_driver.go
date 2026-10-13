@@ -30,6 +30,7 @@ type lifecycleCleanupOwner struct {
 	terminal  *lifecycleCleanupRound
 	final     *lifecycleFinalizeRound
 	scheduler *lifecycleCleanupRound
+	work      *workCleanupRound
 	execution *executionCleanupRound
 }
 
@@ -43,6 +44,7 @@ type lifecycleCleanupState struct {
 	secret            c.ProjectLifecycleParticipant
 	artifact          c.ProjectLifecycleParticipant
 	scheduler         c.ProjectLifecycleParticipant
+	work              c.ProjectLifecycleParticipant
 	executions        ec.ProjectExecutionRetirementConsumer
 	skills            SkillsCleanupDomain
 	agents            ac.ProjectRetirementConsumer
@@ -98,6 +100,12 @@ func (d *LifecycleCleanupDriver) Run(ctx context.Context, project c.ProjectID, o
 	st := d.state
 	var retainedFinal *lifecycleFinalizeRound
 	var retainedExecution *executionCleanupRound
+	var retainedWork *workCleanupRound
+	if st.work != nil {
+		st.mu.Lock()
+		retainedWork = st.owners[operation].work
+		st.mu.Unlock()
+	}
 	if st.executions != nil {
 		st.mu.Lock()
 		retainedExecution = st.owners[operation].execution
@@ -110,7 +118,7 @@ func (d *LifecycleCleanupDriver) Run(ctx context.Context, project c.ProjectID, o
 	}
 	// The original authority owns this short-lived admission across driver
 	// instances, including the final Store return after physical COMMIT.
-	release, err := st.authority.beginCleanupOwnedCall(ctx, project, retainedFinal, retainedExecution)
+	release, err := st.authority.beginCleanupOwnedCall(ctx, project, retainedFinal, retainedExecution, retainedWork)
 	if err != nil {
 		return err
 	}
@@ -135,16 +143,21 @@ func (d *LifecycleCleanupDriver) Run(ctx context.Context, project c.ProjectID, o
 	var round *lifecycleCleanupRound
 	var final *lifecycleFinalizeRound
 	var execution *executionCleanupRound
+	var work *workCleanupRound
 	settled := false
 	defer func() {
 		cancel()
 		if settled {
 			st.authority.releaseFinalize(final)
 			st.authority.releaseExecutionCleanup(execution)
+			st.authority.releaseWorkCleanup(work)
 		}
 		st.mu.Lock()
-		if settled || st.finalizer != nil && final == nil || st.executions != nil && execution == nil || round == nil && final == nil && execution == nil && !owned {
+		if settled || st.finalizer != nil && final == nil || st.executions != nil && execution == nil || st.work != nil && work == nil || round == nil && final == nil && execution == nil && work == nil && !owned {
 			delete(st.owners, operation)
+		} else if work != nil {
+			claim := work.round.claim
+			st.owners[operation] = lifecycleCleanupOwner{project: project, claim: &claim, prior: work.round.previous, work: work}
 		} else if execution != nil {
 			claim := execution.round.claim
 			st.owners[operation] = lifecycleCleanupOwner{project: project, claim: &claim, execution: execution}
@@ -169,6 +182,11 @@ func (d *LifecycleCleanupDriver) Run(ctx context.Context, project c.ProjectID, o
 		st.changed = make(chan struct{})
 		st.mu.Unlock()
 	}()
+	if st.work != nil {
+		work = old.work
+		work, settled, err = st.runWorkCleanup(run, project, operation, work)
+		return err
+	}
 	if st.executions != nil {
 		execution = old.execution
 		execution, settled, err = st.runExecutionRetirement(run, project, operation, execution)
@@ -316,6 +334,9 @@ func (st *lifecycleCleanupState) invoke(ctx context.Context, round lifecycleClea
 	defer end()
 	witness := &lifecycleCleanupScope{state: st, round: round, open: true}
 	ctx = context.WithValue(ctx, lifecycleCleanupScopeKey{}, witness)
+	if round.participant == c.WorkParticipant {
+		ctx = context.WithValue(ctx, workCleanupScopeKey{}, witness)
+	}
 	defer func() {
 		witness.mu.Lock()
 		witness.open = false
