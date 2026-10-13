@@ -2,7 +2,7 @@
 
 工作树 `/workspace/agenteam-runner-command-wss`，以已验本地 Command owner 的 `5920a949` 为组合起点，最终技术组合 `61313334` 已通过基础、编译与首次真实 WSS，并获唯一 principal 有限 whole 接受。最终 `ed78b1e4` 已随完整历史main `16f834fa` 合入并推送（25306 actual0/120ec8），原树及本地/远端分支已实际清理。
 
-本片接通显式 run-command / revision 1：可信 Workspace Manager → contained cwd 桥 → 原单次 argv Owner；回传受限 UTF-8 stdout/stderr 与真实 Start/Wait/Drain 后的完整调用报告。普通构造与生产 cmd 仍 nil executor；没有 Central 授予、Enrollment/Client.Run 验收、Secret 环境注入、ManagedProcess 或新的工具 HTTP 验证。
+本片接通显式 run-command / revision 1：可信 Workspace Manager → contained cwd 桥 → 原单次 argv Owner；回传受限 UTF-8 stdout/stderr 与真实 Start/Wait/Drain 后的完整调用报告。该适配器原验收时普通构造与生产 cmd 仍 nil executor；原结果不含 Central 授予、Enrollment/Client.Run 验收、Secret 环境注入、ManagedProcess 或新的工具 HTTP 验证。后继显式 CLI 接线结果见下文。
 
 `recovery_lead` 实现 runcommand Handler/stream、Control 专属绑定与取消尾处理；`skills_milestone_review` 实现协议 codec 和两正式规范的专属结果例外；`knowledge_delete_fixture` 实现真实 WSS fixture 与方法并同步最终三份文档，`runtime_recovery` 独立验收。Git、保全调度与资源窗口由 root 管理。
 
@@ -32,4 +32,8 @@
 
 本接线复用 revision `"1"` 的直接 argv、原 deadline、非 nil Environment（含空 map）和 IdempotencyKey 拒绝规则，不支持环境注入。命令仍以 Runner 宿主用户身份执行，workspace cwd containment 不构成命令 sandbox。原 Command Owner 的实际 Wait、输出管道与 Handle Drain 先于完整报告；原 Client.Run 依次等待 session/worker 与 Manager Stop/Drain，最后释放身份锁，不以 Unknown 重新执行。
 
-真实 CLI 验证范围为登记、所选能力、受控 Central Operation、命令报告和重启；验证结果在本段补充。受控 Operation authority 不等于真实 Model/ToolCall 生产者，本项不完成 Model→Tool→Runner 循环、环境注入 revision 2、Managed Process 或任何既有停止项。
+限定普通验证为 12 个顶层、66 个子场景 race 通过，五包 vet 通过；真实 Runner 与 integration test 编译、精确测试选择均成功。首次真实 `TestRunnerCommandApp` 的一个顶层、三个子场景通过：默认登记后未选命令拒绝且没有启动 child；显式选择后保留字面 argv、Unicode stdout/stderr、固定最小子进程环境与 exit 23 完整调用报告；原取消 child 实际退出，取消后未入队的尾输出不发布，报告保留 `Cancelled=true` / `output_complete=false`；同一私有身份重启后命令和组合 read-file 都成功。受控 authority 以完整原意图和 RequestID 持有 fixture Attempt，原 Store 事务已知提交且实际返回后才进入 Claim，原事务中仍核验当前 Agent ApprovalAllow 与空注入集合。
+
+三个实际 Runner 进程和原 Go 测试均 Wait 0；外层原执行 Wait 0（47.972 秒），业务顶层 22.73 秒。后置检查中七个本轮 PID、三个容器及三个网络均已退出/不存在，私有目录与本轮 runtime 尾无遗留，验证输入不变。原命令、结果和退出证据保留在 `output/ai/runner-command-cli/`；无消费者的两个本轮编译二进制已精确清理，不复制共享依赖。该轮没有动态失败或重跑；历史 WSS 范围及旧失败记录保持。
+
+真实 CLI 验证使用受控 typed Central Operation authority，不等于真实 Model/ToolCall 生产者。未调用外部模型，不完成 Model→Tool→Runner 循环、环境注入 revision 2、Managed Process、全平台 ready 或任何既有停止项。
