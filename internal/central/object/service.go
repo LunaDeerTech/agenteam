@@ -377,6 +377,28 @@ func (s *Service) cleanupContext() (context.Context, context.CancelFunc) {
 		})
 	}
 }
+
+// cleanupContextWithValues keeps only the original outer call's values. Its
+// cancellation and deadline still come from the registered cleanup/Force
+// budget, so a canceled business caller can finish its own bounded tail.
+// Never pass a transaction callback context: it carries a live/expired Tx key.
+func (s *Service) cleanupContextWithValues(original context.Context) (context.Context, context.CancelFunc) {
+	cleanup, done := s.cleanupContext()
+	if original == nil {
+		return cleanup, done
+	}
+	deadline, ok := cleanup.Deadline()
+	if !ok { // The already-drained branch is canceled and has no deadline.
+		return cleanup, done
+	}
+	run, cancel := context.WithDeadline(context.WithoutCancel(original), deadline)
+	stop := context.AfterFunc(cleanup, cancel)
+	if cleanup.Err() != nil {
+		cancel()
+	}
+	return run, func() { stop(); cancel(); done() }
+}
+
 func (s *Service) authorize(ctx context.Context, tx foundation.Tx, actor identity.Actor, owner oc.ObjectOwner, intent identity.AccessIntent) (oc.OwnerAuthorization, error) {
 	if actor.Validate() != nil || owner.Validate() != nil {
 		return oc.OwnerAuthorization{}, invalid()

@@ -19,6 +19,7 @@ import (
 // lock union; it neither grants access nor substitutes for current Owner checks.
 type Authority struct{ data func() *authorityState }
 type authorityState struct {
+	ownership   *projectCallState
 	store       Store
 	projects    pc.ProjectAuthority
 	eventIssuer ob.PlanIssuer
@@ -98,6 +99,11 @@ func (a *Authority) ownerScope(ctx context.Context, tx f.Tx, actor id.Actor, own
 	if err = st.store.RequireHeldLocks(ctx, tx, locks); err != nil {
 		return nil, p, k, portError(err)
 	}
+	if st.ownership != nil {
+		if err = st.ownership.service.projectCallTx(ctx, tx, p); err != nil {
+			return nil, p, k, err
+		}
+	}
 	grant, err := st.projects.RequireOwnerInTx(ctx, tx, actor, p, intent)
 	if err != nil {
 		return nil, p, k, portError(err)
@@ -122,6 +128,11 @@ func (a *Authority) AuthorizeOwner(ctx context.Context, actor id.Actor, owner oc
 	}
 	if intent != id.Read && intent != id.Mutate {
 		return oc.OwnerAuthorization{}, fault(f.Forbidden)
+	}
+	if st.ownership != nil {
+		if err = st.ownership.service.requireProjectCall(ctx, p, nil, projectCallRead); err != nil {
+			return oc.OwnerAuthorization{}, err
+		}
 	}
 	locks, err := authorityLocks(actor, p, intent)
 	if err != nil {
@@ -253,6 +264,11 @@ func (a *Authority) CheckInTx(ctx context.Context, tx f.Tx, actor id.Actor, owne
 	if err = st.store.RequireHeldLocks(ctx, tx, locks); err != nil {
 		return portError(err)
 	}
+	if st.ownership != nil {
+		if err = st.ownership.service.projectCallTx(ctx, tx, p); err != nil {
+			return err
+		}
+	}
 	var found bool
 	err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_knowledge.object_cleanup c
  WHERE c.id=$1 AND c.project_id=$2 AND c.document_id=$3 AND c.reason='cancelled_upload'
@@ -273,6 +289,9 @@ func (a *Authority) Discover(ctx context.Context, request oc.AccessRequest) (oc.
 	if st == nil {
 		return oc.AccessDependencies{}, fault(f.DependencyUnbound)
 	}
+	if err := a.requireProjectAccess(ctx, request); err != nil {
+		return oc.AccessDependencies{}, err
+	}
 	return objectDependencies(ctx, st.store, request)
 }
 func (a *Authority) ValidateInTx(ctx context.Context, tx f.Tx, request oc.AccessRequest, expected oc.AccessDependencies) error {
@@ -289,6 +308,9 @@ func (a *Authority) ValidateInTx(ctx context.Context, tx f.Tx, request oc.Access
 	}
 	if err = st.store.RequireHeldLocks(ctx, tx, expected.Locks()); err != nil {
 		return portError(err)
+	}
+	if err = a.requireProjectAccess(ctx, request); err != nil {
+		return err
 	}
 	actual, err := objectDependencies(ctx, x, request)
 	if err != nil {
@@ -358,10 +380,27 @@ func objectDependencies(ctx context.Context, x postgres.SQLExecutor, request oc.
 }
 
 func knowledgeObjectOwner(ctx context.Context, x postgres.SQLExecutor, object oc.ObjectID) (oc.ObjectOwner, error) {
+	args := []any{object.String()}
+	scope := ""
+	if ctx != nil {
+		var projects []string
+		if w, ok := ctx.Value(projectCallContextKey{}).(projectCallWitness); ok && w.owner != nil {
+			for _, p := range w.owner.record.projects() {
+				projects = append(projects, p.String())
+			}
+		}
+		if w, ok := ctx.Value(projectCleanupContextKey{}).(projectCleanupWitness); ok && w.call != nil {
+			projects = []string{w.call.scope.ProjectID.String()}
+		}
+		if len(projects) != 0 {
+			scope = " AND project_id=ANY($2::uuid[])"
+			args = append(args, projects)
+		}
+	}
 	rows, err := x.Query(ctx, `SELECT DISTINCT project_id::text,document_id::text FROM (
- SELECT project_id,id AS document_id FROM agenteam_knowledge.documents WHERE current_object_id=$1
- UNION ALL SELECT project_id,document_id FROM agenteam_knowledge.publications WHERE object_id=$1
- UNION ALL SELECT project_id,document_id FROM agenteam_knowledge.object_cleanup WHERE object_id=$1) owners`, object.String())
+ SELECT project_id,id AS document_id FROM agenteam_knowledge.documents WHERE current_object_id=$1`+scope+`
+ UNION ALL SELECT project_id,document_id FROM agenteam_knowledge.publications WHERE object_id=$1`+scope+`
+ UNION ALL SELECT project_id,document_id FROM agenteam_knowledge.object_cleanup WHERE object_id=$1`+scope+`) owners`, args...)
 	if err != nil {
 		return oc.ObjectOwner{}, unavailable(err)
 	}
@@ -391,3 +430,41 @@ var _ oc.AccessPlanner = (*Authority)(nil)
 var _ oc.ResourceAuthority = (*Authority)(nil)
 var _ oc.ObjectReadAuthority = (*Authority)(nil)
 var _ oc.ProjectGate = (*Authority)(nil)
+
+func (a *Authority) requireProjectAccess(ctx context.Context, request oc.AccessRequest) error {
+	st := a.state()
+	if st == nil {
+		return fault(f.DependencyUnbound)
+	}
+	if st.ownership == nil {
+		return nil
+	}
+	if ctx == nil || request.Validate() != nil {
+		return fault(f.InvalidArgument)
+	}
+	d := request.Details()
+	var owner oc.ObjectOwner
+	switch d.Kind {
+	case oc.OwnerAccess, oc.ObjectReadAccess:
+		owner = d.Owner
+	case oc.SourceAccess:
+		owner = d.Source.Details().Owner
+	case oc.ObjectCleanupAccess, oc.CleanupReleaseAccess:
+		owner = d.Cleanup.Details().Owner
+	case oc.MaintenanceAccess:
+		if w, ok := ctx.Value(projectCallContextKey{}).(projectCallWitness); ok && w.owner != nil {
+			return st.ownership.service.requireProjectCall(ctx, w.owner.record.Project, nil, projectCallRead)
+		}
+		if w, ok := ctx.Value(projectCleanupContextKey{}).(projectCleanupWitness); ok && w.call != nil {
+			return st.ownership.service.requireProjectCall(ctx, w.call.scope.ProjectID, nil, projectCallRead)
+		}
+		return fault(f.DependencyUnbound)
+	default:
+		return fault(f.DependencyUnbound)
+	}
+	p, _, err := knowledgeOwner(owner)
+	if err != nil {
+		return err
+	}
+	return st.ownership.service.requireProjectCall(ctx, p, nil, projectCallRead)
+}

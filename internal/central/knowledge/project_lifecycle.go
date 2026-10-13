@@ -1,0 +1,331 @@
+package knowledge
+
+import (
+	"context"
+	"errors"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+)
+
+const maxProjectStopControls = 4
+const projectStopBatch = 100
+
+type projectStopCall struct {
+	actor    i.Actor
+	cause    pc.LifecycleCause
+	scope    pc.ScopeRef
+	active   bool
+	unknown  *f.CommitResult
+	before   []projectCallRecord
+	observed bool
+}
+
+// Project Delete stops only this original Knowledge/Source pair.
+func (p *ProjectCallOwnership) RequestProjectStop(ctx context.Context, actor i.Actor, cause pc.LifecycleCause, scope pc.ScopeRef) (pc.StopReport, error) {
+	return p.projectStop(ctx, actor, cause, scope, true)
+}
+
+func (p *ProjectCallOwnership) InspectProjectStop(ctx context.Context, actor i.Actor, cause pc.LifecycleCause, scope pc.ScopeRef) (pc.StopReport, error) {
+	return p.projectStop(ctx, actor, cause, scope, false)
+}
+
+func (p *ProjectCallOwnership) projectStop(ctx context.Context, actor i.Actor, cause pc.LifecycleCause, scope pc.ScopeRef, request bool) (pc.StopReport, error) {
+	if p == nil || p.state == nil {
+		return pc.StopReport{}, fault(f.DependencyUnbound)
+	}
+	if ctx == nil || actor.Validate() != nil || cause.Validate() != nil || pc.RequireProjectScope(scope) != nil || cause.Action != pc.Delete {
+		return pc.StopReport{}, fault(f.InvalidArgument)
+	}
+	if err := ctx.Err(); err != nil {
+		return pc.StopReport{}, err
+	}
+	s := p.state
+	s.mu.Lock()
+	// Cleanup must exclude a new Stop's original Store tail as well as
+	// business calls. Both controls register under this same project lock.
+	if s.cleanups[scope.ProjectID] != nil {
+		s.mu.Unlock()
+		return pc.StopReport{}, fault(f.ResourceBusy)
+	}
+	stop := s.stops[scope.ProjectID]
+	if stop != nil && (stop.active || !stop.actor.Equal(actor) || stop.cause != cause || !stop.scope.Equal(scope)) {
+		s.mu.Unlock()
+		return pc.StopReport{}, fault(f.ResourceBusy)
+	}
+	if stop == nil {
+		if s.stopped || len(s.stops) >= maxProjectStopControls {
+			s.mu.Unlock()
+			return pc.StopReport{}, fault(f.ResourceBusy)
+		}
+		stop = &projectStopCall{actor: actor, cause: cause, scope: scope}
+		s.stops[scope.ProjectID] = stop
+	}
+	stop.active = true
+	s.signalLocked()
+	s.mu.Unlock()
+	defer func() {
+		s.mu.Lock()
+		stop.active = false
+		if stop.unknown == nil && s.stops[scope.ProjectID] == stop {
+			delete(s.stops, scope.ProjectID)
+		}
+		s.signalLocked()
+		s.mu.Unlock()
+	}()
+	details := pc.StopDetails{State: pc.StopPending, SafeReason: pc.ReasonWorkPending}
+	err := s.stop.WithProjectStop(ctx, actor, cause, scope, func(run context.Context) error {
+		s.mu.Lock()
+		s.blocked[scope.ProjectID] = true
+		s.signalLocked()
+		s.mu.Unlock()
+		if request {
+			s.cancelProjectCalls(scope.ProjectID)
+		}
+		if stop.unknown != nil {
+			return s.confirmProjectStop(run, stop)
+		}
+		if s.projectBodiesPending(scope.ProjectID) {
+			return nil
+		}
+		sources, err := s.service.stopKnowledgeProjectSources(run, actor, cause, scope, !request)
+		if err != nil {
+			return err
+		}
+		if !sources {
+			return nil
+		}
+		if request {
+			if err = s.service.retryProjectPublicationRetirements(run, actor, cause, scope); err != nil {
+				return err
+			}
+		}
+		pending, next := s.projectCallsPending(scope.ProjectID)
+		if pending {
+			if next != nil {
+				_, err := s.settle(run, next, stop, !request)
+				s.retireOwner(next)
+				return err
+			}
+			return nil
+		}
+		stopped, err := s.convergeProjectStop(run, stop, request)
+		if err != nil {
+			return err
+		}
+		if stopped {
+			details = pc.StopDetails{State: pc.Stopped}
+		}
+		return nil
+	})
+	if err != nil {
+		// A failed later authorization/confirmation cannot replace the first
+		// ambiguous technical attempt retained by this exact stop call.
+		if stop.unknown != nil {
+			return pc.StopReport{}, txError(*stop.unknown)
+		}
+		return pc.StopReport{}, err
+	}
+	return pc.NewStopReport(pc.KnowledgeParticipant, cause, scope, details)
+}
+
+func (s *projectCallState) cancelProjectCalls(project i.ProjectID) {
+	s.mu.Lock()
+	var owners []*projectCallOwner
+	for _, o := range s.owners {
+		if o.record.touches(project) {
+			owners = append(owners, o)
+		}
+	}
+	s.mu.Unlock()
+	for _, o := range owners {
+		o.cancel()
+	}
+}
+func (s *projectCallState) projectCallsPending(project i.ProjectID) (bool, *projectCallOwner) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	pending := false
+	var next *projectCallOwner
+	for _, o := range s.owners {
+		if !o.record.touches(project) {
+			continue
+		}
+		pending = true
+		if o.returned && !o.settling && o.references == 0 && !o.retiring && (next == nil || o.record.ID.String() < next.record.ID.String()) {
+			next = o
+		}
+	}
+	return pending, next
+}
+
+func (s *projectCallState) stopTx(ctx context.Context, stop *projectStopCall, cause f.TransactionCause, fn func(context.Context, postgres.SQLExecutor) error) f.CommitResult {
+	return s.callTx(ctx, cause, projectCallRecord{Project: stop.scope.ProjectID}, stop, fn)
+}
+
+func (s *projectCallState) convergeProjectStop(ctx context.Context, stop *projectStopCall, request bool) (bool, error) {
+	cause, _ := f.NewRecoveryCause("knowledge-project-stop", stop.cause.OperationID.String(), stop.scope.ProjectID.String())
+	var before []projectCallRecord
+	validated := false
+	result := s.stopTx(ctx, stop, cause, func(ctx context.Context, x postgres.SQLExecutor) error {
+		var err error
+		before, err = listProjectCalls(ctx, x, stop.scope.ProjectID)
+		if err != nil {
+			return err
+		}
+		validated = true
+		return ctx.Err()
+	})
+	if result.State() == f.Unknown {
+		s.mu.Lock()
+		saved := result
+		stop.unknown = &saved
+		stop.before = append([]projectCallRecord(nil), before...)
+		stop.observed = validated
+		s.signalLocked()
+		s.mu.Unlock()
+		return false, txError(result)
+	}
+	if err := txError(result); err != nil {
+		return false, err
+	}
+	if !validated || ctx.Err() != nil {
+		return false, unavailable(ctx.Err())
+	}
+	foreign := map[oc.ProcessID]struct{}{}
+	for _, row := range before {
+		if row.Process == s.process {
+			if row.Instance != s.instance || row.Phase != "business_closed" {
+				return false, nil
+			}
+		} else {
+			foreign[row.Process] = struct{}{}
+		}
+	}
+	// Proof calls occur only after the original read transaction actually
+	// returns. The following transaction rechecks the complete identity set.
+	for process := range foreign {
+		if err := s.proof.ConfirmStopped(ctx, process); err != nil {
+			var problem *f.Fault
+			if errors.As(err, &problem) && (problem.Code == f.ResourceBusy || problem.Code == f.NotFound) {
+				return false, nil
+			}
+			return false, portError(err)
+		}
+	}
+	validated = false
+	remaining := false
+	result = s.stopTx(ctx, stop, cause, func(ctx context.Context, x postgres.SQLExecutor) error {
+		current, err := listProjectCalls(ctx, x, stop.scope.ProjectID)
+		if err != nil {
+			return err
+		}
+		if !equalProjectCalls(before, current) {
+			return fault(f.VersionConflict)
+		}
+		closed := 0
+		for _, row := range current {
+			if row.Phase == "business_closed" {
+				continue
+			}
+			if _, ok := foreign[row.Process]; !ok {
+				return fault(f.InvalidState)
+			}
+			if !request || closed == projectStopBatch {
+				remaining = true
+				continue
+			}
+			if err = closeProjectCall(ctx, x, row); err != nil {
+				return err
+			}
+			closed++
+		}
+		validated = true
+		return ctx.Err()
+	})
+	if result.State() == f.Unknown {
+		s.mu.Lock()
+		original := result
+		stop.unknown = &original
+		stop.before = append([]projectCallRecord(nil), before...)
+		stop.observed = true
+		s.signalLocked()
+		s.mu.Unlock()
+		return false, txError(result)
+	}
+	if err := txError(result); err != nil {
+		return false, err
+	}
+	if !validated || ctx.Err() != nil {
+		return false, unavailable(ctx.Err())
+	}
+	pending, _ := s.projectCallsPending(stop.scope.ProjectID)
+	return !remaining && !pending, nil
+}
+
+// Confirmation consumes only the original exact identity set and permits only
+// its monotonic running -> business_closed transition. It performs no writes;
+// a subsequent explicit request performs any remaining closure.
+func (s *projectCallState) confirmProjectStop(ctx context.Context, stop *projectStopCall) error {
+	original := *stop.unknown
+	validated := false
+	result := s.stopTx(ctx, stop, original.Cause(), func(ctx context.Context, x postgres.SQLExecutor) error {
+		current, err := listProjectCalls(ctx, x, stop.scope.ProjectID)
+		if err != nil {
+			return err
+		}
+		if stop.observed && len(current) != len(stop.before) {
+			return fault(f.InvalidState)
+		}
+		for n, row := range current {
+			if !stop.observed {
+				break
+			}
+			old := stop.before[n]
+			if !old.sameOwner(row) || old.Phase == "business_closed" && !row.equal(old) {
+				return fault(f.InvalidState)
+			}
+		}
+		validated = true
+		return ctx.Err()
+	})
+	if result.State() != f.Committed || !validated || ctx.Err() != nil {
+		return txError(original)
+	}
+	s.mu.Lock()
+	stop.unknown = nil
+	stop.before = nil
+	s.signalLocked()
+	s.mu.Unlock()
+	return nil
+}
+
+// Calls without a declared project cannot be laundered into a per-project Stop.
+// An unscoped original local call conservatively keeps every project pending.
+func (s *projectCallState) projectBodiesPending(p i.ProjectID) bool {
+	s.mu.Lock()
+	pending := false
+	for _, o := range s.owners {
+		if o.record.touches(p) && (!o.bodyReturned || o.returning || o.retiring) {
+			pending = true
+		}
+	}
+	s.mu.Unlock()
+	if pending {
+		return true
+	}
+	st := s.service.state()
+	st.mu.Lock()
+	unbound := false
+	for entry := range st.calls {
+		if !entry.owned {
+			unbound = true
+			break
+		}
+	}
+	st.mu.Unlock()
+	return pending || unbound
+}

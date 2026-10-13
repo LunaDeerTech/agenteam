@@ -9,15 +9,15 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 )
 
-func (s *Service) read(ctx context.Context, actor id.Actor, project id.ProjectID, fn func(context.Context, postgres.SQLExecutor) error) error {
+func (s *Service) read(ctx context.Context, actor id.Actor, project id.ProjectID, fn func(context.Context, postgres.SQLExecutor) error) (resultErr error) {
 	if err := readInput(ctx, actor, project); err != nil {
 		return err
 	}
-	ctx, done, err := s.begin(ctx)
+	ctx, entry, err := s.beginProjectCall(ctx, actor, project, nil, projectCallRead)
+	defer s.projectCallDone(entry, &resultErr)
 	if err != nil {
 		return err
 	}
-	defer done()
 	st := s.state()
 	cause, err := readCause()
 	if err != nil {
@@ -60,6 +60,9 @@ func (s *Service) readScope(ctx context.Context, tx f.Tx, actor id.Actor, projec
 	}
 	if err = st.store.RequireHeldLocks(ctx, tx, locks); err != nil {
 		return nil, portError(err)
+	}
+	if err = s.projectCallTx(ctx, tx, project); err != nil {
+		return nil, err
 	}
 	access, err := st.deps.Projects.RequireOwnerInTx(ctx, tx, actor, project, id.Read)
 	if err != nil {

@@ -47,7 +47,7 @@ func TestObjectMetadataPurgeAccessClosedScopeAndToken(t *testing.T) {
 			}
 			d := AccessRequestDetails{Operation: PurgeDeletedObjectMetadataAccess, ObjectID: object, Cleanup: cause}
 			r, err := NewObjectCleanupAccess(d)
-			want := kind == SkillRevision && reason == ProjectDeleted
+			want := (kind == SkillRevision || kind == Knowledge) && reason == ProjectDeleted
 			if (err == nil) != want {
 				t.Fatalf("purge closure %s/%s: accepted=%v", kind, reason, err == nil)
 			}

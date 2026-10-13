@@ -141,7 +141,7 @@ func (s *Service) validateDeleteScope(ctx context.Context, x postgres.SQLExecuto
 
 // DiscoverMutation may persist the original delete plan, but never deletes a
 // document. Final execution rechecks current identity, token, scope and plans.
-func (s *Service) DiscoverMutation(ctx context.Context, request kc.TreeMutation) (kc.MutationPlan, error) {
+func (s *Service) DiscoverMutation(ctx context.Context, request kc.TreeMutation) (resultValue kc.MutationPlan, resultErr error) {
 	if request.Validate() != nil {
 		return kc.MutationPlan{}, fault(f.InvalidArgument)
 	}
@@ -155,11 +155,11 @@ func (s *Service) DiscoverMutation(ctx context.Context, request kc.TreeMutation)
 	if err := readInput(ctx, d.Actor, d.ProjectID); err != nil {
 		return kc.MutationPlan{}, err
 	}
-	ctx, done, err := s.begin(ctx)
+	ctx, entry, err := s.beginProjectCall(ctx, d.Actor, d.ProjectID, nil, projectCallCommand)
+	defer s.projectCallDone(entry, &resultErr)
 	if err != nil {
 		return kc.MutationPlan{}, err
 	}
-	defer done()
 	semantic, err := kc.DeleteDigest(d.Actor, d.Meta, d.ProjectID, d.DocumentID, *d.Delete)
 	if err != nil {
 		return kc.MutationPlan{}, err

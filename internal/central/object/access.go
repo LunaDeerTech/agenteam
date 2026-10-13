@@ -373,6 +373,13 @@ func (s *Service) withinAccess(ctx context.Context, cause foundation.Transaction
 	if cleanup != nil && cleanup.call.retained && !cleanup.confirmation {
 		return cleanup.call.original
 	}
+	knowledge := s.knowledgeObjectCleanup(ctx)
+	if _, marked := ctx.Value(knowledgeObjectCleanupKey{}).(*knowledgeObjectCleanupCall); marked && knowledge == nil {
+		return rejectedAccess(failure(foundation.Forbidden, nil))
+	}
+	if result, retained := knowledge.retainedResult(); retained {
+		return result
+	}
 	source := s.sourceContext(ctx)
 	if source != nil && source.stop != nil && !source.stop.active.Load() {
 		return rejectedAccess(failure(foundation.Forbidden, nil))
@@ -382,12 +389,19 @@ func (s *Service) withinAccess(ctx context.Context, cause foundation.Transaction
 		return rejectedAccess(err)
 	}
 	var extra []foundation.LockRequest
+	if knowledge != nil {
+		locks, err := knowledge.requiredLocks()
+		if err != nil {
+			return rejectedAccess(err)
+		}
+		extra = append(extra, locks...)
+	}
 	if cleanup != nil {
 		key, _ := foundation.ProjectLock(cleanup.call.cause.ProjectID.String())
 		extra = []foundation.LockRequest{{Key: key, Mode: foundation.Exclusive}}
 	}
 	if source != nil && source.stop != nil {
-		locks, err := source.stop.request.RequiredLocks()
+		locks, err := source.stop.requiredLocks()
 		if err != nil {
 			return rejectedAccess(err)
 		}
@@ -406,6 +420,9 @@ func (s *Service) withinAccess(ctx context.Context, cause foundation.Transaction
 			return portError(err)
 		}
 		if err = s.checkProjectCleanupAccess(ctx, tx, request); err != nil {
+			return err
+		}
+		if err = s.requireKnowledgeObjectCleanup(ctx, tx, knowledge, request.Details().ObjectID); err != nil {
 			return err
 		}
 		before, err := s.accessWorkBefore(ctx, tx, request, locked)
@@ -429,7 +446,8 @@ func (s *Service) withinAccess(ctx context.Context, cause foundation.Transaction
 		_ = sourceCommitError(source.handle, result)
 	}
 	s.captureProjectCleanup(ctx, result)
-	if (cleanup != nil || source != nil) && result.State() == foundation.Committed && (!validated || ctx.Err() != nil) {
+	knowledge.capture(result)
+	if (cleanup != nil || source != nil || knowledge != nil) && result.State() == foundation.Committed && (!validated || ctx.Err() != nil) {
 		return rejectedAccess(unavailable(ctx.Err()))
 	}
 	return result

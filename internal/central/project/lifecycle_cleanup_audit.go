@@ -4,6 +4,7 @@ import (
 	"context"
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	kc "github.com/LunaDeerTech/agenteam/internal/central/knowledge/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/scheduler/contract"
@@ -39,6 +40,9 @@ func (st *lifecycleCleanupState) cleanupProgress(r *lifecycleRecord) (c.Particip
 	}
 	if st.executions != nil {
 		return c.ExecutionParticipant, cleanupDomainCompleted(r, c.ExecutionParticipant), executionCleanupProgress(r, true)
+	}
+	if st.knowledge != nil {
+		return knowledgeDriverProgress(r)
 	}
 	if st.usage != nil {
 		return usageDriverProgress(r)
@@ -88,6 +92,10 @@ func (st *lifecycleCleanupState) cleanupProgress(r *lifecycleRecord) (c.Particip
 
 func (st *lifecycleCleanupState) cleanupPort(name c.ParticipantName) (SkillsCleanupDomain, error) {
 	switch name {
+	case c.KnowledgeParticipant:
+		if !nilPort(st.knowledge) {
+			return st.knowledge, nil
+		}
 	case c.UsageParticipant:
 		if !nilPort(st.usage) {
 			return st.usage, nil
@@ -130,7 +138,7 @@ func cleanupStages(name c.ParticipantName) (current, next string, err error) {
 		return "outbox", "audit", nil
 	case c.AuditParticipant:
 		return "audit", "final", nil
-	case c.SkillsParticipant, c.SecretParticipant, c.ArtifactObjectParticipant, c.SchedulerParticipant, c.ExecutionParticipant, c.WorkParticipant, c.UsageParticipant:
+	case c.SkillsParticipant, c.SecretParticipant, c.ArtifactObjectParticipant, c.SchedulerParticipant, c.ExecutionParticipant, c.WorkParticipant, c.UsageParticipant, c.KnowledgeParticipant:
 		return "domains", "domains", nil
 	default:
 		return "", "", invalid()
@@ -143,6 +151,9 @@ func (a *LifecycleAuthority) requireAuditCleanupClaimInTx(ctx context.Context, t
 
 func validateCleanupCheckpoint(participant c.ParticipantName, checkpoint *c.CleanupCheckpoint, cause c.LifecycleCause, project c.ProjectID) error {
 	switch participant {
+	case c.KnowledgeParticipant:
+		_, err := kc.DecodeProjectCleanupCheckpoint(checkpoint, cause, c.ScopeRef{Kind: c.ProjectScope, ProjectID: project})
+		return portError(err)
 	case c.UsageParticipant:
 		_, err := uc.DecodeProjectCleanupCheckpoint(checkpoint, cause, c.ScopeRef{Kind: c.ProjectScope, ProjectID: project})
 		return portError(err)

@@ -38,6 +38,9 @@ func (r *SourceReads) WithinProjectSourceAcquisition(ctx context.Context, cause 
 	if r == nil || r.data == nil || nilPort(r.data().authority) || fn == nil {
 		return rejectedAccess(failure(f.DependencyUnbound, nil))
 	}
+	return r.withinProjectSourceAcquisition(ctx, cause, fn)
+}
+func (r *SourceReads) withinProjectSourceAcquisition(ctx context.Context, cause f.TransactionCause, fn func(context.Context, f.Tx) error) f.CommitResult {
 	var original f.Tx
 	result := r.data().service.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error { original = tx; return fn(ctx, tx) })
 	state := r.data()
@@ -53,6 +56,7 @@ func (r *SourceReads) WithinProjectSourceAcquisition(ctx context.Context, cause 
 		_ = sourceCommitError(h, result)
 		h.mu.Lock()
 		h.acquisition = result
+		h.originalValues = ctx
 		h.acquireReturned = true
 		h.mu.Unlock()
 	}
@@ -62,15 +66,21 @@ func (r *SourceReads) WithinProjectSourceAcquisition(ctx context.Context, cause 
 // Bind records the original caller relationship while that exact acquisition
 // transaction is live. It is not a Project grant and cannot rebind a lease.
 func (r *SourceReads) BindProjectSourceInTx(ctx context.Context, tx f.Tx, lease oc.SourceLease, target i.ProjectID, command f.CommandIdentity) error {
-	h, err := r.registered(lease)
-	if err != nil {
-		return err
-	}
-	if h == nil || ctx == nil || nilPort(r.data().authority) || h.origin != tx || target.Validate() != nil || command.Validate() != nil {
+	if r == nil || r.data == nil || nilPort(r.data().authority) || command.Validate() != nil {
 		return invalid()
 	}
 	owners := command.OwnerIDs()
 	if command.Namespace() != "artifact" || command.Command() != "create" || len(owners) != 1 || owners[0] != target.String() {
+		return invalid()
+	}
+	return r.bindProjectSourceInTx(ctx, tx, lease, target, command)
+}
+func (r *SourceReads) bindProjectSourceInTx(ctx context.Context, tx f.Tx, lease oc.SourceLease, target i.ProjectID, command f.CommandIdentity) error {
+	h, err := r.registered(lease)
+	if err != nil {
+		return err
+	}
+	if h == nil || ctx == nil || h.origin != tx || target.Validate() != nil || command.Validate() != nil {
 		return invalid()
 	}
 	s := r.data().service
@@ -111,14 +121,16 @@ type sourceResultContext struct {
 	stop    *projectSourceStopScope
 }
 type projectSourceStopScope struct {
-	active    atomic.Bool
-	ctx       context.Context
-	request   oc.ProjectSourceStopRequest
-	authority oc.ProjectSourceStopAuthority
+	active             atomic.Bool
+	ctx                context.Context
+	request            oc.ProjectSourceStopRequest
+	authority          oc.ProjectSourceStopAuthority
+	knowledgeRequest   oc.KnowledgeProjectSourceStopRequest
+	knowledgeAuthority oc.KnowledgeProjectSourceStopAuthority
 }
 
 func sourceCommitError(h *sourceLeaseState, result f.CommitResult) error {
-	if h.owner == nil || nilPort(h.owner.authority) {
+	if h.owner == nil || !h.owner.projectOwned() {
 		return commitError(result)
 	}
 	h.mu.Lock()
@@ -147,17 +159,20 @@ func (s *Service) requireSourceStop(ctx context.Context, tx f.Tx, c *sourceResul
 	if !c.stop.active.Load() || c.stop.ctx.Err() != nil {
 		return failure(f.Forbidden, nil)
 	}
-	return c.stop.authority.RequireProjectSourceStopInTx(ctx, tx, c.stop.request)
+	return c.stop.require(ctx, tx)
 }
 func (r *SourceReads) sourceCleanupContext(h *sourceLeaseState) (context.Context, func()) {
-	s := r.data().service
-	cleanup, done := s.cleanupContext()
 	h.mu.Lock()
-	scope := h.stopScope
+	scope, original := h.stopScope, h.originalValues
 	h.mu.Unlock()
+	return r.sourceCleanupContextWithValues(scope, original)
+}
+func (r *SourceReads) sourceCleanupContextWithValues(scope *projectSourceStopScope, original context.Context) (context.Context, func()) {
+	s := r.data().service
 	if scope == nil {
-		return cleanup, done
+		return s.cleanupContextWithValues(original)
 	}
+	cleanup, done := s.cleanupContext()
 	// Keep the original loan's values/deadline, plus the existing cleanup/force
 	// registration. Ending either original budget forbids any subsequent SQL.
 	run, cancel := context.WithCancel(scope.ctx)
@@ -186,7 +201,7 @@ func (r *SourceReads) releaseSource(ctx context.Context, h *sourceLeaseState) er
 	run := context.WithValue(ctx, sourceResultContextKey{}, &sourceResultContext{service: s, handle: h, stop: scope})
 	cause := recoveryCause()
 	if scope != nil {
-		cause, _ = f.NewRecoveryCause("artifact-source-release", h.id.String(), scope.request.Details().Cause.Details().OperationID.String())
+		cause = scope.cause("release", h.id)
 	}
 	result := s.releaseInternalResult(run, cause, h.id, h.source.Details().Meta.ID)
 	if err := sourceCommitError(h, result); err != nil {
@@ -215,7 +230,10 @@ func (r *SourceReads) StopProjectSource(ctx context.Context, request oc.ProjectS
 	if ctx == nil || request.Validate() != nil {
 		return false, invalid()
 	}
-	d := request.Details()
+	scope := &projectSourceStopScope{ctx: ctx, request: request, authority: r.data().authority}
+	return r.stopProjectSource(ctx, request.Details(), scope, false)
+}
+func (r *SourceReads) stopProjectSource(ctx context.Context, d oc.ProjectSourceStopDetails, scope *projectSourceStopScope, observe bool) (bool, error) {
 	h, err := r.registered(d.Lease)
 	if err != nil {
 		return false, err
@@ -237,7 +255,6 @@ func (r *SourceReads) StopProjectSource(ctx context.Context, request oc.ProjectS
 	original := h.originalError
 	retained := h.retained
 	h.mu.Unlock()
-	scope := &projectSourceStopScope{ctx: ctx, request: request, authority: r.data().authority}
 	scope.active.Store(true)
 	defer func() { scope.active.Store(false); h.mu.Lock(); h.stopActive = false; h.stopScope = nil; h.mu.Unlock() }()
 	if _, err = r.data().service.state().store.InTx(h.origin); err == nil {
@@ -266,6 +283,18 @@ func (r *SourceReads) StopProjectSource(ctx context.Context, request oc.ProjectS
 		return false, unavailable(ctx.Err())
 	}
 	h.mu.Lock()
+	if observe {
+		ready := h.released && !h.busy && !h.releaseRunning
+		if h.closeDone != nil {
+			select {
+			case <-h.closeDone:
+			default:
+				ready = false
+			}
+		}
+		h.mu.Unlock()
+		return ready, nil
+	}
 	if h.releaseRunning || h.busy && h.reader == nil {
 		h.mu.Unlock()
 		return false, nil
@@ -314,7 +343,14 @@ func (r *SourceReads) StopProjectSource(ctx context.Context, request oc.ProjectS
 }
 func (r *SourceReads) inspectProjectSource(ctx context.Context, h *sourceLeaseState, scope *projectSourceStopScope, validated *bool) f.CommitResult {
 	s := r.data().service
-	cause, _ := f.NewRecoveryCause("artifact-source-confirm", h.id.String(), scope.request.Details().Cause.Details().OperationID.String())
+	cause := scope.cause("confirm", h.id)
+	if !nilPort(scope.knowledgeAuthority) {
+		h.mu.Lock()
+		if h.retained && h.original.AttemptID().Validate() == nil && h.original.Cause().Validate() == nil {
+			cause = h.original.Cause()
+		}
+		h.mu.Unlock()
+	}
 	req := s.maintenanceRequest(oc.ReleaseReaderAccess, h.source.Details().Meta.ID, oc.AccessRequestDetails{LeaseID: h.id})
 	return s.withinAccess(ctx, cause, req, func(ctx context.Context, tx f.Tx, _ oc.AccessLockPlan, _ oc.LockedAccess) error {
 		e, err := executor(s, tx)

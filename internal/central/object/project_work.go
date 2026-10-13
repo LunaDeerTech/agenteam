@@ -397,6 +397,13 @@ func (s *Service) joinProjectWork(ctx context.Context, h *projectWorkHandle) err
 	if c := s.currentProjectCleanup(ctx); c != nil && c.call.retained && !c.confirmation {
 		return projectCleanupUnknown(c.call.original)
 	}
+	knowledge := s.knowledgeObjectCleanup(ctx)
+	if _, marked := ctx.Value(knowledgeObjectCleanupKey{}).(*knowledgeObjectCleanupCall); marked && knowledge == nil {
+		return failure(foundation.Forbidden, nil)
+	}
+	if result, retained := knowledge.retainedResult(); retained {
+		return projectCleanupUnknown(result)
+	}
 	source := s.sourceContext(ctx)
 	if h.source != nil {
 		h.source.mu.Lock()
@@ -480,7 +487,7 @@ func (s *Service) joinProjectWork(ctx context.Context, h *projectWorkHandle) err
 	}
 	cause := recoveryCause()
 	if source != nil && source.stop != nil {
-		extra, err := source.stop.request.RequiredLocks()
+		extra, err := source.stop.requiredLocks()
 		if err != nil {
 			return err
 		}
@@ -488,7 +495,7 @@ func (s *Service) joinProjectWork(ctx context.Context, h *projectWorkHandle) err
 		if err != nil {
 			return err
 		}
-		cause, _ = foundation.NewRecoveryCause("artifact-source-join", source.handle.id.String(), source.stop.request.Details().Cause.Details().OperationID.String())
+		cause = source.stop.cause("join", source.handle.id)
 	}
 	result := r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
 		r.mu.Lock()
@@ -509,6 +516,9 @@ func (s *Service) joinProjectWork(ctx context.Context, h *projectWorkHandle) err
 			if err := r.auth.Cleanup.CheckProjectCleanupInTx(ctx, tx, c.call.actor, cause); err != nil {
 				return portError(err)
 			}
+		}
+		if err := s.requireKnowledgeObjectCleanup(ctx, tx, knowledge, w.object); err != nil {
+			return err
 		}
 		x, err := executor(s, tx)
 		if err != nil {
@@ -533,6 +543,7 @@ func (s *Service) joinProjectWork(ctx context.Context, h *projectWorkHandle) err
 		}
 	}
 	s.captureProjectCleanup(ctx, result)
+	knowledge.capture(result)
 	if err = commitError(result); err != nil {
 		return err
 	}
@@ -544,7 +555,11 @@ func (s *Service) finishProjectWork(h *projectWorkHandle) {
 	if h == nil {
 		return
 	}
-	ctx, done := s.cleanupContext()
+	var original context.Context
+	if h.operation != nil {
+		original = h.operation.ctx
+	}
+	ctx, done := s.cleanupContextWithValues(original)
 	defer done()
 	s.finishProjectWorkContext(ctx, h)
 }
@@ -593,9 +608,10 @@ func (s *Service) finishOperationWork(op *operation) {
 	if budget, ok := op.ctx.Value(boundedCleanupBudgetKey{}).(context.Context); ok {
 		ctx, done = s.cleanupCheckpointWithinBudget(budget)
 	} else {
-		ctx, done = s.cleanupContext()
+		ctx, done = s.cleanupContextWithValues(op.ctx)
 	}
 	defer done()
+	s.knowledgeObjectCleanup(ctx).captureHandles(handles)
 	for _, h := range handles {
 		if ctx.Err() != nil {
 			return
