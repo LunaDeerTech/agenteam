@@ -28,6 +28,8 @@ type lifecycleCleanupRound struct {
 	artifactParentCheckpoint   *c.CleanupCheckpoint
 	schedulerUnknown           bool
 	schedulerError             error
+	workUnknown                bool
+	workError                  error
 }
 
 func (st *lifecycleCleanupState) canJoin(ctx context.Context, claim *lifecycleStopClaim) error {
@@ -100,7 +102,7 @@ func (st *lifecycleCleanupState) startWithSecretParent(ctx context.Context, proj
 	validated, replay := false, false
 	result := st.store.WithinTx(ctx, round.claim.cause(), func(ctx context.Context, tx f.Tx) error {
 		locks := []f.LockRequest{projectLock(project, f.Exclusive)}
-		if st.scheduler != nil {
+		if st.scheduler != nil || st.work != nil {
 			locks = append(locks, schedulerLock(project))
 		}
 		if err := st.store.AcquireAll(ctx, tx, locks); err != nil {
@@ -135,6 +137,22 @@ func (st *lifecycleCleanupState) startWithSecretParent(ctx context.Context, proj
 				return e
 			}
 			if e = schedulerCleanupReport(*round, report); e != nil {
+				return e
+			}
+		}
+		if replay && round.participant == c.WorkParticipant {
+			_, attempts, checkpoint, e := cleanupParticipantRow(ctx, x, *round)
+			if e != nil {
+				return e
+			}
+			if attempts < 1 || checkpoint == nil {
+				return unavailable(nil)
+			}
+			report, e := c.NewCleanupReport(c.WorkParticipant, round.cause, c.ScopeRef{Kind: c.ProjectScope, ProjectID: project}, c.CleanupDetails{State: c.CleanupCompleted, Checkpoint: checkpoint})
+			if e != nil {
+				return e
+			}
+			if e = workCleanupReport(*round, report); e != nil {
 				return e
 			}
 		}

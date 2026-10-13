@@ -573,6 +573,11 @@ Execution 退休候选只由显式 `NewLifecycleCleanupDriverForExecutions` 消�
 
 注册、退休和空 calls 尾的 Unknown 都保原 cause/attempt/私 round；下一显式 Run 仅读完整前像或原 atomic checkpoint/后像，原 Store 确认实际返回后，另一次 Run 才可写。四槽与同 P 准入复用原 authority，B 独立；closed/terminal 或缺行不能替代原 owner 返回。已知提交由同 driver 保存 accepted checkpoint 后继续；失去原 provider plan 的新实例不能从 Applied DTO 恢复引用证明，保持 Pending。最后 E/非 NULL E ingress 全空且原 pair/foreign proof 核闭，才退休合法 closed 83 calls 并记 Execution completed；旧 no-active ingress 留后续 Agent/Skill。00084 增加支持域的 DELETE 例外、Skill proof，以及原创建 Tx 内由私 hook 将 running call 的 original_result 从 NULL 一次绑定为精确创建事实的闭集分支；旧身份与其余 INSERT/UPDATE 保护尾保留，closed call 不可补写或改写来源。此为候选合同，未绑定默认 App/Registry，不宣 Execution 扩展调用或完整 Delete 已验收。
 
+
+Work history Cleanup 候选只由显式 `NewLifecycleCleanupDriverForWork` 调用原 WithReaders pair 的固定 provider；独立 Work private family 每 Tx 核同 Store/原 LifecycleAuthority、Project EX + ProjectSchedule EX、current Delete/cleaning/domains、完整 manifest/all-stopped、明示 Scheduler 与 Execution CleanupAfter 且均 completed、原 claim/fence/opVersion/rowVersion/完整旧 checkpoint。停止许可、Execution 退休许可、空表及 closed 行均不能替代本次授权或原调用返回，parent 保持 domains，不推进 Outbox。
+
+固定 19 阶段按本域 FK 先后处理 events、blockers、failure/busy/claim/relaunch、各 commands，再 tasks/order groups/query generations/sprints/milestones，最后 project_calls；复合键不得投影成单 id。provider 必须保完整原行与受界限批量。Project 的 Work 原 round 在同 authority 四槽内保留登记、provider 与末 checkpoint 的独立 Unknown；登记/末 checkpoint 保原 cause/attempt、完整 Project 行与 claim 前后像、原 provider 返回的 report anchor，登记回滚为缺行或旧 terminal 也不允许另一 driver 接管。下一显式轮仅只读确认，原 Store 实际返回后才由后轮继续写；无关项目仍可进入。00085 仅放行当前 Work 清理状态下、18 业务表全空且无 running call 的合法 closed 技术尾 DELETE，00080 原 INSERT/UPDATE 身份及单调规则逐字保留；原 WithReaders owner/instance 与 foreign process 证明仍由 Go 核实。本片依赖 Execution 退休候选，不预称该依赖已正式验收，默认 App/Registry 与完整 Delete 仍未绑定。
+
 ## 10. typed Event 与 Audit
 
 事件 producer/aggregate_type 均 `project`，schema_version=1，Project scope；aggregate_id 为稳定 ProjectID，aggregate_version 为提交后的 Project.version。事件不含 name/description/path、Cookie/Secret、原错误、participant checkpoint。消费者 D25 重读当前 canonical/Owner，不以事件 payload 重建已删除 Project；乱序按版本保护，同版本不同 EventID 不丢 sibling。
