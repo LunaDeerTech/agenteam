@@ -266,7 +266,7 @@ func (a *accountAssembly) Force(ctx context.Context) error {
 		a.forced = ctx
 	}
 	original := a.forced
-	executions, agents, install := a.executions, a.agents, a.agentInstall
+	agents, install := a.agents, a.agentInstall
 	a.mu.Unlock()
 	a.StopAdmission()
 	var result error
@@ -279,10 +279,11 @@ func (a *accountAssembly) Force(ctx context.Context) error {
 		variableCalls, ownsVariables := work.(*projectVariableCallAssembly)
 		projectCalls, ownsProjects := work.(*projectCommandWork)
 		planning, ownsPlanning := work.(*workPlanningAssembly)
+		executions, ownsExecutions := work.(*executionRuntimeAssembly)
 		// Runtime terminal/lease cleanup and Agent/Variable/Work calls use the
 		// shared providers. Expiring a force budget does not make them disposable.
 		// The root retains its separate bounded Store.ForceClose policy.
-		if executions != nil && work == executions && !executions.Joined() || agents != nil && work == agents && !agents.Joined() || install != nil && work == install && !install.Joined() || ownsVariables && !variableCalls.Joined() || ownsProjects && !projectCalls.Joined() || ownsPlanning && planning.ownership != nil && !planning.Joined() {
+		if ownsExecutions && !executions.Joined() || agents != nil && work == agents && !agents.Joined() || install != nil && work == install && !install.Joined() || ownsVariables && !variableCalls.Joined() || ownsProjects && !projectCalls.Joined() || ownsPlanning && planning.ownership != nil && !planning.Joined() {
 			return errors.Join(result, foundation.NewFault(foundation.DependencyUnavailable, foundation.NotStarted))
 		}
 	}
@@ -320,9 +321,9 @@ func (a accountProcessAuthority) ConfirmStopped(ctx context.Context, id c.Proces
 	return a.guard.ConfirmStopped(ctx, original)
 }
 
-// bindAccounts constructs every real provider before any domain initialization.
-// Returned callbacks capture already-constructed concrete services; none is an
-// authorization locator, and no callback performs a second construction.
+// bindAccounts fixes the original provider graph before domain initialization.
+// Execution's owned graph is constructed once after the original Object guard
+// has bound. Its callback captures these same providers, never a later locator.
 func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *resources, deps *dependencies) error {
 	store, ok := db.(account.Store)
 	if !ok {
@@ -613,16 +614,6 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if !accounts.install(ctx, func() { accounts.agents = agentConfiguration }) {
 		return context.Canceled
 	}
-	if runtimeEnabled {
-		executions := &executionRuntimeAssembly{constructing: true}
-		if !accounts.install(ctx, func() { accounts.executions = executions }) {
-			executions.constructionDone()
-			return context.Canceled
-		}
-		if err = constructExecutionRuntime(executions, cfg, db, authority, projectUsage, contentAuthorities.skills, workAuthority, executionAuthorities, objects, models, secrets, transport, journal, executionEvents, agentConfiguration.registry); err != nil {
-			return err
-		}
-	}
 	projectCommands, err := createProjectCommands(cfg, db, projectUsage.projects, authority, auditor, journal, projectEvents, processes, skills)
 	if err != nil {
 		return err
@@ -788,7 +779,26 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		return transport, transport.policy.Reload(ctx)
 	}
 	deps.objects = func(ctx context.Context, _ config.Config, _ database, _ *audit.Service) (objectStorage, error) {
-		return objects, objects.runtime.Initialize(ctx)
+		if err := objects.runtime.Initialize(ctx); err != nil {
+			return objects, err
+		}
+		if err := ctx.Err(); err != nil {
+			return objects, err
+		}
+		if runtimeEnabled {
+			// The four-owner constructor requires this guard's actual binding.
+			// Earlier startup failures never install an empty constructing owner.
+			// No Run or Launch is reachable until Account.Start below this phase.
+			executions := &executionRuntimeAssembly{constructing: true}
+			if !accounts.install(ctx, func() { accounts.executions = executions }) {
+				executions.constructionDone()
+				return objects, context.Canceled
+			}
+			if err := constructExecutionRuntime(executions, cfg, db, authority, projectUsage, contentAuthorities.skills, workAuthority, executionAuthorities, objects, models, secrets, transport, journal, executionEvents, agentConfiguration.registry); err != nil {
+				return objects, err
+			}
+		}
+		return objects, ctx.Err()
 	}
 	deps.outbox = func(config.Config, database, *audit.Service, objectStorage) (outboxStorage, error) {
 		return deliveries, nil
