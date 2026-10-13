@@ -5,6 +5,8 @@ import {
   moveMaterial,
   observeMove,
   moveScreenshot,
+  moveFailure,
+  type MoveMaterial,
 } from "./knowledge-move.helpers";
 const observations = new WeakMap<
   Page,
@@ -24,39 +26,51 @@ type Stage =
   | "dark-image"
   | "complete";
 const stages = new WeakMap<Page, Stage>();
+const materials = new WeakMap<Page, MoveMaterial>();
 test.afterEach(async ({ page }, info) => {
   const seen = observations.get(page);
   try {
-    await seen?.retire();
+    // Capture only the failed view before retiring the original consumers.
+    if (info.status !== "passed") {
+      try {
+        await moveFailure(page, materials.get(page));
+      } catch {
+        // Observation failure cannot bypass original consumer/resource cleanup.
+      }
+    }
   } finally {
-    seen?.save(info.status);
-    const locations = info.errors.flatMap((error) =>
-      [
-        ...(error.stack ?? "").matchAll(
-          /\b((?:knowledge-move\.(?:spec|helpers)|task-review\.helpers)\.ts):(\d+):(\d+)/g,
+    try {
+      await seen?.retire();
+    } finally {
+      seen?.save(info.status);
+      const locations = info.errors.flatMap((error) =>
+        [
+          ...(error.stack ?? "").matchAll(
+            /\b((?:knowledge-move\.(?:spec|helpers)|task-review\.helpers)\.ts):(\d+):(\d+)/g,
+          ),
+        ].map((match) => ({
+          file: match[1],
+          line: Number(match[2]),
+          column: Number(match[3]),
+        })),
+      );
+      writeFileSync(
+        join(
+          process.env.AGENTEAM_KNOWLEDGE_MOVE_WEB_EVIDENCE!,
+          `knowledge-move-${process.env.AGENTEAM_KNOWLEDGE_MOVE_WEB_CASE}-diagnostic.json`,
         ),
-      ].map((match) => ({
-        file: match[1],
-        line: Number(match[2]),
-        column: Number(match[3]),
-      })),
-    );
-    writeFileSync(
-      join(
-        process.env.AGENTEAM_KNOWLEDGE_MOVE_WEB_EVIDENCE!,
-        `knowledge-move-${process.env.AGENTEAM_KNOWLEDGE_MOVE_WEB_CASE}-diagnostic.json`,
-      ),
-      JSON.stringify(
-        {
-          stage: stages.get(page) ?? "material",
-          test_status: info.status,
-          locations,
-        },
-        null,
-        2,
-      ) + "\n",
-      { mode: 0o600 },
-    );
+        JSON.stringify(
+          {
+            stage: stages.get(page) ?? "material",
+            test_status: info.status,
+            locations,
+          },
+          null,
+          2,
+        ) + "\n",
+        { mode: 0o600 },
+      );
+    }
   }
 });
 async function press(page: Page, name: string) {
@@ -76,6 +90,7 @@ async function press(page: Page, name: string) {
 async function open(page: Page) {
   stages.set(page, "material");
   const data = moveMaterial();
+  materials.set(page, data);
   await page.setViewportSize({ width: 1440, height: 960 });
   await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
   await page.context().addCookies([
