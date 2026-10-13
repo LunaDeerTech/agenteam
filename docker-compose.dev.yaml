@@ -1,0 +1,134 @@
+name: agenteam-dev
+
+services:
+  init:
+    image: agenteam-dev-toolchain:go1.27.1-node24.12.0
+    pull_policy: never
+    user: "0:0"
+    command: ["node", "/workspace/deploy/dev/init.mjs"]
+    environment:
+      DEV_UID: "${AGENTEAM_DEV_UID:-1000}"
+      DEV_GID: "${AGENTEAM_DEV_GID:-1000}"
+    volumes:
+      - .:/workspace:ro
+      - ./.dev:/dev-state
+    restart: "no"
+
+  database:
+    # PostgreSQL 17 + pgvector 0.8.1, matching the migration contract.
+    image: pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+    environment:
+      POSTGRES_USER: agenteam
+      POSTGRES_DB: agenteam
+      POSTGRES_PASSWORD_FILE: /run/dev-config/database-password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - ./.dev/postgres:/var/lib/postgresql/data
+      - ./.dev/config:/run/dev-config:ro
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agenteam -d agenteam"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    stop_grace_period: 30s
+
+  minio:
+    image: "${AGENTEAM_DEV_MINIO_IMAGE:-quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z}"
+    user: "${AGENTEAM_DEV_UID:-1000}:${AGENTEAM_DEV_GID:-1000}"
+    command: ["server", "/data", "--console-address", ":9001", "--certs-dir", "/data/certs"]
+    environment:
+      HOME: /data
+      MINIO_ROOT_USER_FILE: /run/dev-config/minio-user
+      MINIO_ROOT_PASSWORD_FILE: /run/dev-config/minio-password
+    volumes:
+      - ./.dev/minio:/data
+      - ./.dev/config:/run/dev-config:ro
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    stop_grace_period: 30s
+
+  bucket:
+    image: "${AGENTEAM_DEV_MC_IMAGE:-quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z}"
+    entrypoint: ["/bin/sh", "/workspace/deploy/dev/bucket.sh"]
+    user: "${AGENTEAM_DEV_UID:-1000}:${AGENTEAM_DEV_GID:-1000}"
+    environment:
+      MC_CONFIG_DIR: /dev-mc
+    volumes:
+      - ./deploy/dev:/workspace/deploy/dev:ro
+      - ./.dev/config:/run/dev-config:ro
+      - ./.dev/mc:/dev-mc
+    depends_on:
+      minio:
+        condition: service_started
+    restart: "no"
+
+  app:
+    image: agenteam-dev-toolchain:go1.27.1-node24.12.0
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    user: "${AGENTEAM_DEV_UID:-1000}:${AGENTEAM_DEV_GID:-1000}"
+    init: true
+    working_dir: /workspace
+    command: ["/bin/sh", "/workspace/deploy/dev/start.sh"]
+    environment:
+      HOME: /dev-state/home
+      GOTOOLCHAIN: local
+      CGO_ENABLED: "0"
+      GOPATH: /dev-state/go
+      GOMODCACHE: /dev-state/go/pkg/mod
+      GOCACHE: /dev-state/go-build
+      GOTMPDIR: /dev-state/tmp
+      TMPDIR: /dev-state/tmp
+      npm_config_cache: /dev-state/npm-cache
+      XDG_CACHE_HOME: /dev-state/cache
+      NODE_COMPILE_CACHE: /dev-state/node-compile-cache
+      AGENTEAM_CENTRAL_LOG_LEVEL: info
+      AGENTEAM_CENTRAL_HTTP_ADDR: 0.0.0.0:8080
+      AGENTEAM_CENTRAL_PUBLIC_ORIGIN: "http://localhost:${AGENTEAM_DEV_PORT:-8080}"
+      AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT: 10s
+      AGENTEAM_CENTRAL_DATABASE_TLS_MODE: disable
+      AGENTEAM_CENTRAL_DATABASE_STARTUP_TIMEOUT: 2m
+      AGENTEAM_CENTRAL_OBJECT_ENDPOINT: http://minio:9000
+      AGENTEAM_CENTRAL_OBJECT_TLS_MODE: disable
+      AGENTEAM_CENTRAL_OBJECT_BUCKET: agenteam
+      AGENTEAM_CENTRAL_OBJECT_SPOOL_DIR: /dev-state/object-spool
+      AGENTEAM_CENTRAL_ACCOUNT_RECOVERY_LOG: /dev-state/account-recovery/recovery.jsonl
+    volumes:
+      - .:/workspace:ro
+      - ./.dev:/dev-state
+      # These are mounts, not copies; dependency files live only in .dev/web.
+      - ./web/src:/dev-state/web/src:ro
+      - ./web/public:/dev-state/web/public:ro
+    depends_on:
+      database:
+        condition: service_healthy
+      bucket:
+        condition: service_completed_successfully
+    healthcheck:
+      # readyz intentionally reports product readiness=false. Listening is the
+      # real process signal after its normal migrations and initialization.
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8080/livez').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 120
+      start_period: 10m
+    stop_grace_period: 30s
+
+  web:
+    image: nginx:1.28.0-alpine
+    ports:
+      - "127.0.0.1:${AGENTEAM_DEV_PORT:-8080}:8080"
+    volumes:
+      - ./deploy/dev/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # Mount the stable parent so restart app can replace current/ in place.
+      - ./.dev/frontend:/srv/frontend:ro
+      - ./.dev/nginx-cache:/var/cache/nginx
+    depends_on:
+      app:
+        condition: service_healthy
+    stop_grace_period: 15s

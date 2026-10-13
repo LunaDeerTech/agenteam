@@ -20,6 +20,40 @@ agenteam 是以项目为边界的 AI Agent 协作与执行平台，管理长期�
 
 ## 后端开发
 
+### 本地 Docker Compose 开发环境
+
+安装 Docker Engine 与 Docker Compose v2，在完整仓库根目录执行：
+
+```sh
+docker compose -f docker-compose.dev.yaml build app
+docker compose -f docker-compose.dev.yaml up -d
+docker compose -f docker-compose.dev.yaml logs -f app
+```
+
+若开发网络需要额外受信 CA，可将上面的镜像构建命令换为 `docker build --no-cache --secret id=dev_ca,src=/path/to/trusted-ca.crt -f Dockerfile.dev -t agenteam-dev-toolchain:go1.27.1-node24.12.0 .`。输入应为 PEM 格式的受信 CA 证书，不含私钥；它会加入开发镜像的系统信任库，供包管理器、Go 和 Node/npm 校验证书。`--no-cache` 确保证书变更实际应用。普通环境无需该 secret，仍使用默认信任库。
+
+首次构建的是 Go 1.27.1 / Node 24.12.0 工具链镜像。应用每次启动都从挂载的当前源码编译 Central、安装或复用锁定的前端依赖并构建页面，再运行真实 Central 入口；首次下载镜像和依赖需要网络与足够磁盘空间。编译失败会停止应用，页面返回 503，不运行旧二进制。工具链或 `Dockerfile.dev` 未变时，无需重建镜像，修改源码后执行：
+
+```sh
+docker compose -f docker-compose.dev.yaml restart app
+```
+
+看到 Central 的监听日志后访问 **http://localhost:8080**。只有 nginx 的此端口绑定宿主机 loopback；数据库和 MinIO 不公开宿主端口。需要换端口时，在上述命令前设置 `export AGENTEAM_DEV_PORT=18080`，随后访问 `http://localhost:18080`，并用 `up -d` 更新容器配置。须使用该精确地址，Host/Origin 仍由原 HTTP 安全边界校验。页面由开发用 nginx 提供，API 原样转发到 Central；这不是生产 SPA 嵌入的验收。`/livez` 用于已监听进程的健康检查，当前产品的 `/readyz` 仍返回 503。
+
+所有持久数据与开发产物位于已忽略的根目录 `.dev/`：PostgreSQL、MinIO、五组独立随机密钥、固定机器标识、Object spool/ProcessGuard、Account 恢复日志、Go/npm 缓存、唯一前端依赖目录、页面和二进制。初始化只在首次生成密钥，之后保留复用；原 Central 自行执行内嵌迁移及安全初始化，不另跑 SQL 种子。开发内网的数据库和对象存储显式使用各自正式 `TLS_MODE=disable` 配置，不改变模型出站、DNS 或应用权限规则，也不启用 Execution Runtime 或发起模型请求。
+
+容器内应用默认使用 UID/GID 1000；其他普通用户可先设置 `AGENTEAM_DEV_UID` 和 `AGENTEAM_DEV_GID` 为自己的正整数 UID/GID。初始化容器仅负责目录权限与本地随机配置。首次管理员邮箱为 `admin@mail.com`，随机口令仅记录在 `.dev/account-recovery/recovery.jsonl`；请在本机查看并妥善保护该文件，不要粘贴到普通日志或提交仓库。`.dev/config/central.env` 和数据库、对象数据须配套保留，不能只重置其中一项。
+
+```sh
+docker compose -f docker-compose.dev.yaml ps
+docker compose -f docker-compose.dev.yaml logs --tail=100 app
+docker compose -f docker-compose.dev.yaml down
+```
+
+普通 `down` 只停止并移除本组容器和网络，保留 `.dev/`，下次 `up -d` 可继续使用。不要将 `.dev/` 复制进其他工作树；为独立开发环境选择各自的 Compose project name 和数据目录，避免两个 Central 同时使用同一 spool。此配置没有新增 Runner、SMTP 或对外上传/模型能力，功能范围仍以当前任务台账为准。
+
+当前已验证工具链镜像构建、重复初始化保留原配置，以及宿主构建的 Central 配置校验。本环境的 MinIO 客户端镜像拉取被拒，尚未完成整组启动、浏览器访问和应用重启验收。
+
 使用 Go 1.27.1；脚本核对精确版本并禁止自动切换工具链。
 
 ```sh
