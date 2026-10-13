@@ -167,8 +167,9 @@ import {
   type SprintCreateLookup,
   type WorkSprintLifecycleAPI,
   type SprintStartInput,
-  type SprintStartReceipt,
-  type SprintStartLookup,
+  type SprintLifecycleReceipt,
+  type SprintLifecycleResult,
+  type SprintLifecycleOperation,
 } from '../api/work-sprint-lifecycle'
 import {
   createWorkMilestonePlanningAPI,
@@ -479,8 +480,9 @@ export type AgentConfigurationProgress = Readonly<{
   contextValid: boolean
 }>
 type SprintLifecycleAction =
-  'sprint-start' | 'sprint-start-lookup' | 'sprint-create' | 'sprint-create-lookup'
+  'sprint-start' | 'sprint-start-lookup' | 'sprint-complete' | 'sprint-complete-lookup' | 'sprint-create' | 'sprint-create-lookup'
 type SprintStartIntent = {
+  operation: SprintLifecycleOperation
   identity: PersonalIdentity
   csrf: string
   projectID: string
@@ -491,15 +493,16 @@ type SprintStartIntent = {
   uncertain: boolean
 }
 export type WorkSprintLifecycleProgress = Readonly<{
+  operation: SprintLifecycleOperation
   projectID: string
   sprintID: string
   phase: 'submitting' | 'uncertain' | 'confirmed' | 'rejected'
-  receipt: SprintStartReceipt | null
+  receipt: SprintLifecycleReceipt | null
   observation: 'none' | 'committed' | 'in_progress' | 'not_observed' | 'failed'
   error: string | null
   contextValid: boolean
 }>
-type SprintCreateIntent = Omit<SprintStartIntent, 'input'> & { input: SprintCreateInput }
+type SprintCreateIntent = Omit<SprintStartIntent, 'input' | 'operation'> & { input: SprintCreateInput }
 export type SprintCreateProgress = Readonly<{
   projectID: string
   sprintID: string
@@ -581,12 +584,12 @@ type SprintPlanningAction =
   | 'sprint-update-lookup'
   | 'sprint-reorder'
   | 'sprint-reorder-lookup'
-type SprintUpdateIntent = Omit<SprintStartIntent, 'input'> & { input: SprintUpdateInput }
-export type SprintUpdateProgress = Omit<WorkSprintLifecycleProgress, 'receipt'> & {
+type SprintUpdateIntent = Omit<SprintStartIntent, 'input' | 'operation'> & { input: SprintUpdateInput }
+export type SprintUpdateProgress = Omit<WorkSprintLifecycleProgress, 'receipt' | 'operation'> & {
   readonly result: SprintUpdateReceipt | null
 }
-type SprintReorderIntent = Omit<SprintStartIntent, 'input'> & { input: SprintReorderInput }
-export type SprintReorderProgress = Omit<WorkSprintLifecycleProgress, 'receipt'> & {
+type SprintReorderIntent = Omit<SprintStartIntent, 'input' | 'operation'> & { input: SprintReorderInput }
+export type SprintReorderProgress = Omit<WorkSprintLifecycleProgress, 'receipt' | 'operation'> & {
   readonly milestoneID: string
   readonly result: SprintReorderReceipt | null
 }
@@ -1280,6 +1283,8 @@ export function createSessionController(
     'work-review-lookup': 0,
   }
   const sprintLifecycleRevisions: Record<SprintLifecycleAction, number> = {
+    'sprint-complete': 0,
+    'sprint-complete-lookup': 0,
     'sprint-start': 0,
     'sprint-start-lookup': 0,
     'sprint-create': 0,
@@ -5194,6 +5199,8 @@ export function createSessionController(
     },
   }
   function clearSprintLifecycleState() {
+    ++sprintLifecycleRevisions['sprint-complete']
+    ++sprintLifecycleRevisions['sprint-complete-lookup']
     ++sprintLifecycleRevisions['sprint-start']
     ++sprintLifecycleRevisions['sprint-start-lookup']
     ++sprintLifecycleRevisions['sprint-create']
@@ -5212,12 +5219,13 @@ export function createSessionController(
   function publishSprintStart(
     original: SprintStartIntent,
     phase: WorkSprintLifecycleProgress['phase'],
-    receipt: SprintStartReceipt | null = null,
+    receipt: SprintLifecycleReceipt | null = null,
     observation: WorkSprintLifecycleProgress['observation'] = 'none',
     error: string | null = null,
   ) {
     sprintProgressContext = { identity: original.identity, csrf: original.csrf }
     sprintLifecycleState.progress = Object.freeze({
+      operation: original.operation,
       projectID: original.projectID,
       sprintID: original.sprintID,
       phase,
@@ -5229,15 +5237,17 @@ export function createSessionController(
   function performSprintStart(
     original: SprintStartIntent,
     lookup: boolean,
-  ): Promise<SprintStartReceipt | SprintStartLookup> {
+  ): Promise<SprintLifecycleResult> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     if (!sprintStartCurrent(original)) return Promise.reject(new AccountFailure('invalid-input'))
-    const kind: SprintLifecycleAction = lookup ? 'sprint-start-lookup' : 'sprint-start'
+    const kind: SprintLifecycleAction = original.operation === 'complete'
+      ? lookup ? 'sprint-complete-lookup' : 'sprint-complete'
+      : lookup ? 'sprint-start-lookup' : 'sprint-start'
     const revision = sprintLifecycleRevisions[kind]
     const live = () => sprintStartCurrent(original) && revision === sprintLifecycleRevisions[kind]
     let dispatched = false
     if (!lookup) publishSprintStart(original, 'submitting')
-    return runAuthorized<SprintStartReceipt | SprintStartLookup>(
+    return runAuthorized<SprintLifecycleResult>(
       original.identity,
       async (op, current) => {
         if (!current() || !live()) throw new AccountFailure('cancelled')
@@ -5245,14 +5255,20 @@ export function createSessionController(
           throw new AccountFailure('invalid-input')
         dispatched = true
         const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
-        const value = await (lookup
+        const complete = original.operation === 'complete'
+        const value = await (complete
+          ? lookup
+            ? sprintLifecycleAPI.lookupComplete(original.projectID, original.sprintID, original.input, write)
+            : sprintLifecycleAPI.complete(original.projectID, original.sprintID, original.input, write)
+          : lookup
           ? sprintLifecycleAPI.lookup(original.projectID, original.sprintID, original.input, write)
           : sprintLifecycleAPI.start(original.projectID, original.sprintID, original.input, write))
         const receipt = 'status' in value ? value.receipt : value
         if (
           receipt &&
           (receipt.project.owner_user_id !== original.identity.userID ||
-            receipt.sprint.started_by.user_id !== original.identity.userID)
+            (complete ? receipt.sprint.completed_by?.user_id !== original.identity.userID
+              : receipt.sprint.started_by.kind !== 'human' || receipt.sprint.started_by.user_id !== original.identity.userID))
         )
           throw new AccountFailure('invalid-response')
         return value
@@ -5280,6 +5296,10 @@ export function createSessionController(
         const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
         if (live()) {
           const p = failure.problem
+          if (p && [401, 403, 404].includes(p.status)) {
+            clearSprintLifecycleState()
+            throw failure
+          }
           const rejected =
             !dispatched ||
             (!!p &&
@@ -6279,6 +6299,43 @@ export function createSessionController(
     },
   }
   // A completed command is a receipt, not a locally synthesized Project refresh.
+  function beginSprintLifecycle(projectID: string, sprintID: string, value: SprintStartInput, operation: SprintLifecycleOperation): Promise<SprintLifecycleResult> {
+      try {
+        const identity = personalIdentity()
+        if (
+          owner ||
+          workReviewIntent ||
+          milestoneCreateIntent ||
+          milestoneReorderIntent ||
+          sprintReorderIntent ||
+          milestoneUpdateIntent ||
+          sprintUpdateIntent ||
+          sprintStartIntent ||
+          sprintCreateIntent ||
+          personalIntent ||
+          pending
+        )
+          throw new AccountFailure('busy')
+        if (!uuid7.test(projectID) || !uuid7.test(sprintID))
+          throw new AccountFailure('invalid-input')
+        const input = captureSprintStartInput(value)
+        const original: SprintStartIntent = {
+          operation,
+          identity,
+          csrf: sessionCSRF,
+          projectID,
+          sprintID,
+          input,
+          key: newKey(),
+          body: JSON.stringify(input),
+          uncertain: false,
+        }
+        sprintStartIntent = original
+        return performSprintStart(original, false)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+  }
   const workSprintLifecycle = {
     get createProgress(): SprintCreateProgress | null {
       const value = sprintCreateState.progress
@@ -6356,47 +6413,25 @@ export function createSessionController(
           })
         : null
     },
-    start(
-      projectID: string,
-      sprintID: string,
-      value: SprintStartInput,
-    ): Promise<SprintStartReceipt | SprintStartLookup> {
-      try {
-        const identity = personalIdentity()
-        if (
-          owner ||
-          workReviewIntent ||
-          milestoneCreateIntent ||
-          milestoneReorderIntent ||
-          sprintReorderIntent ||
-          milestoneUpdateIntent ||
-          sprintUpdateIntent ||
-          sprintStartIntent ||
-          sprintCreateIntent ||
-          personalIntent ||
-          pending
-        )
-          throw new AccountFailure('busy')
-        if (!uuid7.test(projectID) || !uuid7.test(sprintID))
-          throw new AccountFailure('invalid-input')
-        const input = captureSprintStartInput(value)
-        const original: SprintStartIntent = {
-          identity,
-          csrf: sessionCSRF,
-          projectID,
-          sprintID,
-          input,
-          key: newKey(),
-          body: JSON.stringify(input),
-          uncertain: false,
-        }
-        sprintStartIntent = original
-        return performSprintStart(original, false)
-      } catch (error) {
-        return Promise.reject(error)
-      }
+    start(projectID: string, sprintID: string, value: SprintStartInput): Promise<SprintLifecycleResult> {
+      return beginSprintLifecycle(projectID, sprintID, value, 'start')
     },
-    checkOriginal(): Promise<SprintStartReceipt | SprintStartLookup> {
+    complete(projectID: string, sprintID: string, value: SprintStartInput): Promise<SprintLifecycleResult> {
+      return beginSprintLifecycle(projectID, sprintID, value, 'complete')
+    },
+    forgetUnavailable(projectID: string) {
+      if (sprintStartIntent?.projectID !== projectID && sprintLifecycleState.progress?.projectID !== projectID) return
+      ++sprintLifecycleRevisions['sprint-start']
+      ++sprintLifecycleRevisions['sprint-start-lookup']
+      ++sprintLifecycleRevisions['sprint-complete']
+      ++sprintLifecycleRevisions['sprint-complete-lookup']
+      sprintStartIntent = null
+      sprintProgressContext = null
+      sprintLifecycleState.progress = null
+      if (owner && ['sprint-start', 'sprint-start-lookup', 'sprint-complete', 'sprint-complete-lookup'].includes(owner.kind))
+        owner.abandon?.()
+    },
+    checkOriginal(): Promise<SprintLifecycleResult> {
       if (!sprintStartIntent?.uncertain) return Promise.reject(new AccountFailure('invalid-input'))
       return performSprintStart(sprintStartIntent, true)
     },

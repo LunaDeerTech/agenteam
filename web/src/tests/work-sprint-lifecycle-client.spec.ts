@@ -238,3 +238,124 @@ describe('Sprint Create wire contract', () => {
     expect(fetch).toHaveBeenCalledTimes(5)
   })
 })
+
+function completedReceipt() {
+  const started = receipt()
+  return {
+    ...started,
+    sprint: {
+      ...started.sprint,
+      state: 'completed',
+      started_by: { kind: 'human', user_id: id(30) },
+      completed_at: at,
+      completed_by: { kind: 'human', user_id: owner },
+    },
+    project: { ...started.project, current_sprint_id: null },
+  }
+}
+describe('Sprint Complete full receipt and original lookup', () => {
+  it('keeps historical actor, requires the complete DTO and sends the empty request with original key', async () => {
+    const fetch = vi.fn<Fetch>(async () => json(completedReceipt()))
+    const api = createWorkSprintLifecycleAPI(fetch)
+    expect(await api.complete(p, s, original, write)).toEqual(completedReceipt())
+    expect(fetch.mock.calls[0]![0]).toBe(`/api/v1/projects/${p}/sprints/${s}/complete`)
+    expect(JSON.parse(fetch.mock.calls[0]![1].body as string)).toEqual(original)
+    expect(fetch.mock.calls[0]![1].headers).toMatchObject({ 'Idempotency-Key': write.key })
+    for (const status of ['in_progress', 'not_observed', 'committed'] as const) {
+      fetch.mockImplementationOnce(async () =>
+        json({ status, receipt: status === 'committed' ? completedReceipt() : null }),
+      )
+      expect(await api.lookupComplete(p, s, original, write)).toMatchObject({ status })
+      const [, init] = fetch.mock.calls.at(-1)!
+      expect(JSON.parse(init.body as string)).toEqual({
+        command: 'work.sprint.complete',
+        target_id: s,
+        ...original,
+      })
+      expect(init.headers).toMatchObject({ 'Idempotency-Key': write.key })
+    }
+  })
+  it.each([
+    [
+      'non-null current pointer',
+      (v: ReturnType<typeof completedReceipt>) => {
+        v.project.current_sprint_id = s as never
+      },
+    ],
+    [
+      'wrong completion owner',
+      (v: ReturnType<typeof completedReceipt>) => {
+        v.sprint.completed_by.user_id = id(31)
+      },
+    ],
+    [
+      'missing full Sprint field',
+      (v: ReturnType<typeof completedReceipt>) => {
+        delete (v.sprint as Partial<typeof v.sprint>).description
+      },
+    ],
+    [
+      'extra rollover material',
+      (v: ReturnType<typeof completedReceipt>) => {
+        Object.assign(v, { rollover: {} })
+      },
+    ],
+    [
+      'wrong version',
+      (v: ReturnType<typeof completedReceipt>) => {
+        v.sprint.version = original.expected_version
+      },
+    ],
+    [
+      'completion time diverges',
+      (v: ReturnType<typeof completedReceipt>) => {
+        v.sprint.completed_at = '2026-10-11T10:00:01.000001Z'
+      },
+    ],
+    [
+      'completion before start',
+      (v: ReturnType<typeof completedReceipt>) => {
+        v.sprint.started_at = '2026-10-11T10:00:01.000001Z'
+      },
+    ],
+    [
+      'cross-project historical agent',
+      (v: ReturnType<typeof completedReceipt>) => {
+        Object.assign(v.sprint, {
+          started_by: {
+            kind: 'agent_run',
+            project_id: id(50),
+            agent_id: id(51),
+            execution_id: id(52),
+          },
+        })
+      },
+    ],
+    [
+      'wrong Sprint identity',
+      (v: ReturnType<typeof completedReceipt>) => {
+        v.sprint.id = id(60)
+      },
+    ],
+  ])('rejects %s atomically', async (_label, mutate) => {
+    const invalid = completedReceipt()
+    mutate(invalid)
+    const api = createWorkSprintLifecycleAPI(async () => json(invalid))
+    await expect(api.complete(p, s, original, write)).rejects.toMatchObject({
+      kind: 'invalid-response',
+    })
+  })
+  it('accepts a same-project historical Agent without treating it as the completing human', async () => {
+    const value = completedReceipt()
+    const actor = { kind: 'agent_run', project_id: p, agent_id: id(51), execution_id: id(52) }
+    Object.assign(value.sprint, { started_by: actor })
+    const result = await createWorkSprintLifecycleAPI(async () => json(value)).complete(
+      p,
+      s,
+      original,
+      write,
+    )
+    expect(result.sprint.started_by).toEqual(actor)
+    expect(result.sprint.completed_by.user_id).toBe(owner)
+  })
+})

@@ -4,7 +4,11 @@ import { computed, shallowReactive, shallowRef } from 'vue'
 import { AccountFailure } from '../api/client'
 import type { Project } from '../api/project-owner'
 import type { Sprint } from '../api/work-review'
-import type { SprintStartReceipt } from '../api/work-sprint-lifecycle'
+import type {
+  SprintStartReceipt,
+  SprintCompleteReceipt,
+  SprintLifecycleReceipt,
+} from '../api/work-sprint-lifecycle'
 import { createProjectTasks, type ProjectTasks } from '../composables/useProjectTasks'
 import type { SessionController } from '../composables/useSession'
 import type { ProjectWorkspace } from '../composables/useProjectWorkspace'
@@ -69,6 +73,17 @@ const receipt: SprintStartReceipt = {
   },
   event_id: id(20),
 }
+const current: Sprint = { ...planned, state: 'current', started_at: time }
+const completedReceipt: SprintCompleteReceipt = {
+  ...receipt,
+  sprint: {
+    ...receipt.sprint,
+    state: 'completed',
+    completed_at: time,
+    completed_by: { kind: 'human', user_id: id(8) },
+  },
+  project: { ...receipt.project, current_sprint_id: null },
+}
 type Port = SessionController['workSprintLifecycle']
 const owners: ProjectTasks[] = []
 const tails: Promise<unknown>[] = []
@@ -92,7 +107,11 @@ afterEach(async () => {
   await flushPromises()
   vi.restoreAllMocks()
 })
-async function fixture() {
+async function fixture(operation: 'start' | 'complete' = 'start') {
+  const original =
+    operation === 'complete' ? { ...originalProject, current_sprint_id: s } : originalProject
+  const lifecycleReceipt: SprintLifecycleReceipt =
+    operation === 'complete' ? completedReceipt : receipt
   // Typed Session/Project responses isolate controller publication and navigation.
   // Real wire authorization, command ownership and SQL are covered independently.
   const identity = { userID: id(8), sessionID: id(9), epoch: 1 }
@@ -104,16 +123,17 @@ async function fixture() {
     generation: 1,
     readGeneration: 1,
   })
-  const detail = shallowReactive<{ project: Project | null }>({ project: { ...originalProject } })
+  const detail = shallowReactive<{ project: Project | null }>({ project: { ...original } })
   const home = shallowRef('/owner/demo')
-  let storedSprint: Sprint = planned
-  let currentProject: Project = { ...originalProject }
+  let storedSprint: Sprint = operation === 'complete' ? current : planned
+  let currentProject: Project = { ...original }
   const progress = shallowRef<Port['progress']>(null)
   const publish = (
     phase: NonNullable<Port['progress']>['phase'],
-    value: SprintStartReceipt | null = null,
+    value: SprintLifecycleReceipt | null = null,
   ) => {
     progress.value = {
+      operation,
       projectID: p,
       sprintID: s,
       phase,
@@ -124,10 +144,10 @@ async function fixture() {
     }
   }
   const commit = () => {
-    storedSprint = receipt.sprint
-    currentProject = { ...receipt.project, archived_at: null }
-    publish('confirmed', receipt)
-    return receipt
+    storedSprint = lifecycleReceipt.sprint
+    currentProject = { ...lifecycleReceipt.project, archived_at: null }
+    publish('confirmed', lifecycleReceipt)
+    return lifecycleReceipt
   }
   const api = {
     createProgress: null,
@@ -139,6 +159,11 @@ async function fixture() {
     }),
     editRejectedCreate: vi.fn(() => {
       throw new Error('Unexpected Sprint Create rejection')
+    }),
+    forgetUnavailable: vi.fn(),
+    complete: vi.fn<Port['complete']>(async () => {
+      if (operation !== 'complete') throw new Error('Unexpected Sprint Complete')
+      return commit()
     }),
     start: vi.fn<Port['start']>(async () => commit()),
     checkOriginal: vi.fn<Port['checkOriginal']>(async () => ({
@@ -369,5 +394,60 @@ describe('Sprint Start page owner', () => {
     expect(f.readCurrent).toHaveBeenCalledTimes(priorReads)
     expect(f.owner.state.sprint).toBeNull()
     expect(f.owner.sprintStart.message).toBe('')
+  })
+})
+
+describe('Sprint Complete current read and stale isolation', () => {
+  it('waits for the real Project read, then leaves an empty current pointer without starting or migrating tasks', async () => {
+    const f = await fixture('complete')
+    expect(f.owner.canCompleteSprint.value).toBe(true)
+    const read = held<void>(undefined)
+    f.readCurrent.mockImplementationOnce(async () => {
+      await read.promise
+      f.detail.project = { ...completedReceipt.project, archived_at: null }
+    })
+    f.owner.openSprintStart('complete')
+    const completing = track(f.owner.submitSprintStart())
+    await flushPromises()
+    expect(f.api.complete).toHaveBeenCalledExactlyOnceWith(p, s, {
+      expected_version: '7',
+      request: {},
+    })
+    expect(f.detail.project?.current_sprint_id).toBe(s)
+    expect(f.owner.state.sprint?.state).toBe('current')
+    read.resolve(undefined)
+    await completing
+    expect(f.detail.project?.current_sprint_id).toBeNull()
+    expect(f.owner.state.sprint).toBeNull() // root follows the actual current pointer
+    expect(f.api.start).not.toHaveBeenCalled()
+    expect(f.owner.sprintStart.message).toContain('Sprint 已完成')
+  })
+  it('blocks stale confirmation when version or current pointer changes', async () => {
+    const f = await fixture('complete')
+    f.owner.openSprintStart('complete')
+    f.owner.state.sprint = { ...current, version: '8' }
+    await f.owner.submitSprintStart()
+    expect(f.api.complete).not.toHaveBeenCalled()
+    f.owner.state.sprint = current
+    f.detail.project = { ...originalProject, current_sprint_id: id(20) }
+    await f.owner.submitSprintStart()
+    expect(f.api.complete).not.toHaveBeenCalled()
+    expect(f.owner.canCompleteSprint.value).toBe(false)
+  })
+  it('does not publish a late completion into another identity or issue current reads', async () => {
+    const f = await fixture('complete')
+    const reply = held(completedReceipt)
+    f.api.complete.mockImplementationOnce(() => reply.promise)
+    f.owner.openSprintStart('complete')
+    const completing = track(f.owner.submitSprintStart())
+    await flushPromises()
+    f.personal.identity = { ...f.personal.identity!, epoch: 2 }
+    f.context.value = { ...f.context.value!, identity: f.personal.identity }
+    await flushPromises()
+    reply.resolve(completedReceipt)
+    await completing
+    expect(f.readCurrent).not.toHaveBeenCalled()
+    expect(f.owner.sprintStart.confirmed).toBe(false)
+    expect(f.detail.project?.current_sprint_id).toBe(s)
   })
 })

@@ -2,6 +2,7 @@ import { AccountFailure, accountTransport, shape, string, type Fetch } from './c
 import type { WriteOptions } from './account'
 import { workID, workText, workVersion } from './work-review'
 import { parseSystemInstant } from './system-account'
+import { historyActor, type SprintActor } from './work-sprint-planning'
 
 export type SprintStartInput = Readonly<{
   expected_version: string
@@ -43,6 +44,26 @@ export type SprintStartReceipt = Readonly<{
 export type SprintStartLookup =
   | Readonly<{ status: 'committed'; receipt: SprintStartReceipt }>
   | Readonly<{ status: 'in_progress' | 'not_observed'; receipt: null }>
+export type CompletedSprint = Readonly<
+  Omit<StartedSprint, 'state' | 'started_by' | 'completed_at' | 'completed_by'> & {
+    state: 'completed'
+    started_by: SprintActor
+    completed_at: string
+    completed_by: Readonly<{ kind: 'human'; user_id: string }>
+  }
+>
+export type SprintCompleteReceipt = Readonly<{
+  sprint: CompletedSprint
+  project: Readonly<Omit<SprintStartProject, 'current_sprint_id'> & { current_sprint_id: null }>
+  event_id: string
+}>
+export type SprintCompleteLookup =
+  | Readonly<{ status: 'committed'; receipt: SprintCompleteReceipt }>
+  | Readonly<{ status: 'in_progress' | 'not_observed'; receipt: null }>
+export type SprintLifecycleReceipt = SprintStartReceipt | SprintCompleteReceipt
+export type SprintLifecycleResult =
+  SprintLifecycleReceipt | SprintStartLookup | SprintCompleteLookup
+export type SprintLifecycleOperation = 'start' | 'complete'
 export type SprintCreateDraft = Readonly<{
   milestone_id: string
   title: string
@@ -69,6 +90,18 @@ export type SprintCreateLookup =
   | Readonly<{ state: 'committed'; result: SprintCreateReceipt }>
   | Readonly<{ state: 'in_progress' | 'not_observed'; result: null }>
 export interface WorkSprintLifecycleAPI {
+  complete(
+    project: string,
+    sprint: string,
+    input: SprintStartInput,
+    write: WriteOptions,
+  ): Promise<SprintCompleteReceipt>
+  lookupComplete(
+    project: string,
+    sprint: string,
+    input: SprintStartInput,
+    write: WriteOptions,
+  ): Promise<SprintCompleteLookup>
   create(
     project: string,
     input: SprintCreateInput,
@@ -118,7 +151,8 @@ function receipt(
   projectID: string,
   sprintID: string,
   original: SprintStartInput,
-): SprintStartReceipt {
+  operation: SprintLifecycleOperation = 'start',
+): SprintLifecycleReceipt {
   const v = shape(value, ['sprint', 'project', 'event_id'])
   const s = shape(v.sprint, [
     'id',
@@ -148,7 +182,10 @@ function receipt(
     'created_at',
     'updated_at',
   ])
-  const actor = shape(s.started_by, ['kind', 'user_id'])
+  const actor = historyActor(s.started_by, projectID)
+  const completing = operation === 'complete'
+  const completed = completing ? parseSystemInstant(s.completed_at) : null
+  const completedActor = completing ? shape(s.completed_by, ['kind', 'user_id']) : null
   const owner = workID(p.owner_user_id)
   const created = parseSystemInstant(s.created_at),
     updated = parseSystemInstant(s.updated_at),
@@ -177,15 +214,21 @@ function receipt(
     workID(s.id) === sprintID &&
       workID(s.project_id) === projectID &&
       workID(p.id) === projectID &&
-      workID(p.current_sprint_id) === sprintID,
+      (completing ? p.current_sprint_id === null : workID(p.current_sprint_id) === sprintID),
   )
   requireValue(
-    s.state === 'current' &&
-      p.lifecycle === 'active' &&
-      actor.kind === 'human' &&
-      workID(actor.user_id) === owner &&
-      s.completed_at === null &&
-      s.completed_by === null,
+    p.lifecycle === 'active' &&
+      (completing
+        ? s.state === 'completed' &&
+          completedActor?.kind === 'human' &&
+          workID(completedActor.user_id) === owner &&
+          completed === updated &&
+          started <= completed
+        : s.state === 'current' &&
+          actor.kind === 'human' &&
+          actor.user_id === owner &&
+          s.completed_at === null &&
+          s.completed_by === null),
   )
   requireValue(
     BigInt(sprintVersion) === BigInt(original.expected_version) + 1n && BigInt(projectVersion) > 1n,
@@ -208,11 +251,11 @@ function receipt(
       version: sprintVersion,
       created_at: created,
       updated_at: updated,
-      state: 'current',
+      state: completing ? 'completed' : 'current',
       started_at: started,
-      started_by: Object.freeze({ kind: 'human', user_id: owner }),
-      completed_at: null,
-      completed_by: null,
+      started_by: actor,
+      completed_at: completed,
+      completed_by: completing ? Object.freeze({ kind: 'human', user_id: owner }) : null,
     }),
     project: Object.freeze({
       id: projectID,
@@ -222,12 +265,12 @@ function receipt(
       description,
       lifecycle: 'active',
       version: projectVersion,
-      current_sprint_id: sprintID,
+      current_sprint_id: completing ? null : sprintID,
       created_at: projectCreated,
       updated_at: projectUpdated,
     }),
     event_id: workID(v.event_id),
-  })
+  }) as SprintLifecycleReceipt
 }
 export function captureSprintCreateDraft(value: unknown): SprintCreateDraft {
   return input(() => {
@@ -358,16 +401,70 @@ export function createWorkSprintLifecycleAPI(fetcher?: Fetch): WorkSprintLifecyc
         },
       )
     },
+    complete(project, sprint, value, write) {
+      const original = captureSprintStartInput(value)
+      const scope = input(() => ({ projectID: workID(project), target: workID(sprint) }))
+      return call(
+        'sprintComplete',
+        (v) => receipt(v, project, sprint, original, 'complete') as SprintCompleteReceipt,
+        {
+          ...scope,
+          signal: write.signal ?? new AbortController().signal,
+          csrf: write.csrfToken,
+          key: write.key,
+          body: original,
+        },
+      )
+    },
+    lookupComplete(project, sprint, value, write) {
+      const original = captureSprintStartInput(value)
+      const scope = input(() => ({ projectID: workID(project), target: workID(sprint) }))
+      return call(
+        'sprintStartLookup',
+        (value): SprintCompleteLookup => {
+          const v = shape(value, ['status', 'receipt'])
+          if (v.status === 'committed')
+            return Object.freeze({
+              status: 'committed',
+              receipt: receipt(
+                v.receipt,
+                project,
+                sprint,
+                original,
+                'complete',
+              ) as SprintCompleteReceipt,
+            })
+          requireValue(
+            (v.status === 'in_progress' || v.status === 'not_observed') && v.receipt === null,
+          )
+          return Object.freeze({
+            status: v.status as 'in_progress' | 'not_observed',
+            receipt: null,
+          })
+        },
+        {
+          projectID: scope.projectID,
+          signal: write.signal ?? new AbortController().signal,
+          csrf: write.csrfToken,
+          key: write.key,
+          body: { command: 'work.sprint.complete', target_id: scope.target, ...original },
+        },
+      )
+    },
     start(project, sprint, value, write) {
       const original = captureSprintStartInput(value)
       const scope = input(() => ({ projectID: workID(project), target: workID(sprint) }))
-      return call('sprintStart', (v) => receipt(v, project, sprint, original), {
-        ...scope,
-        signal: write.signal ?? new AbortController().signal,
-        csrf: write.csrfToken,
-        key: write.key,
-        body: original,
-      })
+      return call(
+        'sprintStart',
+        (v) => receipt(v, project, sprint, original) as SprintStartReceipt,
+        {
+          ...scope,
+          signal: write.signal ?? new AbortController().signal,
+          csrf: write.csrfToken,
+          key: write.key,
+          body: original,
+        },
+      )
     },
     lookup(project, sprint, value, write) {
       const original = captureSprintStartInput(value)
@@ -379,7 +476,7 @@ export function createWorkSprintLifecycleAPI(fetcher?: Fetch): WorkSprintLifecyc
           if (v.status === 'committed')
             return Object.freeze({
               status: 'committed',
-              receipt: receipt(v.receipt, project, sprint, original),
+              receipt: receipt(v.receipt, project, sprint, original) as SprintStartReceipt,
             })
           requireValue(
             (v.status === 'in_progress' || v.status === 'not_observed') && v.receipt === null,

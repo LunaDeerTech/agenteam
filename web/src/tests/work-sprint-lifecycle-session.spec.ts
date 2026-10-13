@@ -62,6 +62,21 @@ function receipt(value: SprintStartInput) {
     event_id: id(13),
   }
 }
+function completed(value: SprintStartInput) {
+  const started = receipt(value)
+  return {
+    ...started,
+    sprint: {
+      ...started.sprint,
+      state: 'completed',
+      started_by: { kind: 'human', user_id: id(70) },
+      completed_at: at,
+      completed_by: { kind: 'human', user_id: id(1) },
+    },
+    project: { ...started.project, current_sprint_id: null },
+  }
+}
+const completePath = `/api/v1/projects/${p}/sprints/${s}/complete`
 const createPath = `/api/v1/projects/${p}/sprints`,
   createLookupPath = `/api/v1/projects/${p}/structure-commands/lookup`
 function created(input: SprintCreateInput) {
@@ -121,7 +136,8 @@ afterEach(async () => {
 async function fixture() {
   let current = session(),
     start: Fetch | null = null,
-    create: Fetch | null = null
+    create: Fetch | null = null,
+    complete: Fetch | null = null
   let status: 'committed' | 'in_progress' | 'not_observed' = 'committed'
   const fetch = vi.fn<Fetch>(async (path, init) => {
     if (path === '/api/v1/session') return json(current)
@@ -132,12 +148,19 @@ async function fixture() {
         state: status,
         result: status === 'committed' ? created(JSON.parse(init.body as string)) : null,
       })
+    if (path === completePath)
+      return complete ? complete(path, init) : json(completed(JSON.parse(init.body as string)))
     if (path === startPath)
       return start ? start(path, init) : json(receipt(JSON.parse(init.body as string)))
     if (path === lookupPath)
       return json({
         status,
-        receipt: status === 'committed' ? receipt(JSON.parse(init.body as string)) : null,
+        receipt:
+          status === 'committed'
+            ? JSON.parse(init.body as string).command === 'work.sprint.complete'
+              ? completed(JSON.parse(init.body as string))
+              : receipt(JSON.parse(init.body as string))
+            : null,
       })
     throw new Error('Unexpected Sprint request')
   })
@@ -153,6 +176,10 @@ async function fixture() {
     createLookups: () => fetch.mock.calls.filter(([path]) => path === createLookupPath),
     setCreate(v: Fetch | null) {
       create = v
+    },
+    completes: () => fetch.mock.calls.filter(([path]) => path === completePath),
+    setComplete(v: Fetch | null) {
+      complete = v
     },
     setStart(v: Fetch | null) {
       start = v
@@ -395,5 +422,83 @@ describe('Sprint Create original Session ownership', () => {
     })
     expect(f.creates()).toHaveLength(1)
     expect(f.createLookups()).toHaveLength(0)
+  })
+})
+
+describe('Sprint Complete shared Session ownership', () => {
+  it('retains original complete key/version through restoration and all lookup states, mutually excluding Start/Create', async () => {
+    const f = await fixture()
+    f.setComplete(async () => problem('COMMIT_UNKNOWN', 'unknown'))
+    const input = { expected_version: '9007199254740993', request: {} },
+      original = structuredClone(input)
+    const pending = f.auth.workSprintLifecycle.complete(p, s, input)
+    input.expected_version = '2'
+    await expect(pending).rejects.toMatchObject({ problem: { code: 'COMMIT_UNKNOWN' } })
+    expect(f.auth.workSprintLifecycle.progress).toMatchObject({
+      operation: 'complete',
+      phase: 'uncertain',
+    })
+    const first = f.completes()[0]![1]
+    expect(JSON.parse(first.body as string)).toEqual(original)
+    const key = (first.headers as Record<string, string>)['Idempotency-Key']
+    await expect(f.auth.workSprintLifecycle.start(p, s, input)).rejects.toMatchObject({
+      kind: 'busy',
+    })
+    await expect(
+      f.auth.workSprintLifecycle.create(p, { milestone_id: id(12), title: 'Next' }),
+    ).rejects.toMatchObject({ kind: 'busy' })
+    await f.auth.restore()
+    for (const status of ['in_progress', 'not_observed', 'committed'] as const) {
+      f.setStatus(status)
+      expect(await f.auth.workSprintLifecycle.checkOriginal()).toMatchObject({ status })
+      const init = f.lookups().at(-1)![1]
+      expect(JSON.parse(init.body as string)).toEqual({
+        command: 'work.sprint.complete',
+        target_id: s,
+        ...original,
+      })
+      expect(init.headers).toMatchObject({ 'Idempotency-Key': key })
+    }
+    expect(f.auth.workSprintLifecycle.progress).toMatchObject({
+      operation: 'complete',
+      phase: 'confirmed',
+      receipt: completed(original),
+    })
+    expect(f.completes()).toHaveLength(1)
+    expect(f.starts()).toHaveLength(0)
+    expect(f.creates()).toHaveLength(0)
+  })
+  it('holds the real timed-out completion tail, clears revoked material and isolates late success', async () => {
+    const f = await fixture()
+    vi.useFakeTimers()
+    let release!: () => void
+    f.setComplete(
+      async (_path, init) =>
+        new Promise<Response>((resolve) => {
+          release = () => resolve(json(completed(JSON.parse(init.body as string))))
+          releases.push(release)
+        }),
+    )
+    const pending = f.auth.workSprintLifecycle.complete(p, s, {
+      expected_version: '7',
+      request: {},
+    })
+    const rejected = expect(pending).rejects.toMatchObject({ kind: 'cancelled' })
+    await vi.advanceTimersByTimeAsync(30_000)
+    await rejected
+    expect(f.auth.state.busy).toBe(true)
+    await expect(f.auth.workSprintLifecycle.checkOriginal()).rejects.toMatchObject({ kind: 'busy' })
+    f.auth.workSprintLifecycle.forgetUnavailable(p)
+    expect(f.auth.workSprintLifecycle.progress).toBeNull()
+    expect(f.auth.state.busy).toBe(true)
+    release()
+    await flushPromises()
+    expect(f.auth.state.busy).toBe(false)
+    expect(f.auth.workSprintLifecycle.progress).toBeNull()
+    await expect(f.auth.workSprintLifecycle.checkOriginal()).rejects.toMatchObject({
+      kind: 'invalid-input',
+    })
+    expect(f.completes()).toHaveLength(1)
+    expect(f.lookups()).toHaveLength(0)
   })
 })

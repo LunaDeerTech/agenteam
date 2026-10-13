@@ -26,7 +26,7 @@ import {
   type Page,
   type ReviewInput,
 } from '../api/work-review'
-import { captureSprintCreateDraft, type SprintCreateReceipt } from '../api/work-sprint-lifecycle'
+import { captureSprintCreateDraft, type SprintCreateReceipt, type SprintLifecycleOperation } from '../api/work-sprint-lifecycle'
 import {
   captureMilestoneCreateDraft,
   captureMilestoneReorderInput,
@@ -339,7 +339,9 @@ export function createProjectTasks(
     identity: string
     path: string
   }> | null>(null)
+  // Start and Complete share one confirmation/recovery domain and Session command slot.
   const sprintStart = reactive({
+    operation: 'start' as SprintLifecycleOperation,
     open: false,
     projectID: '',
     sprintID: '',
@@ -798,15 +800,13 @@ export function createProjectTasks(
     get: (p, t, e) => auth.workReview.execution(p, t, e),
     output: (p, t, e) => auth.workReview.executionOutput(p, t, e),
   })
-  const canStartSprint = computed(
+  const canChangeSprint = computed(
     () =>
       visible.value &&
       state.phase === 'ready' &&
       !state.task &&
       workspace.detail.project?.lifecycle === 'active' &&
-      workspace.detail.project.current_sprint_id === null &&
-      state.sprint?.state === 'planned' &&
-      state.sprint.project_id === workspace.currentReadContext.value?.projectID &&
+      state.sprint?.project_id === workspace.currentReadContext.value?.projectID &&
       !pending.value &&
       !sprintPending.value &&
       !sprintCreatePending.value &&
@@ -824,15 +824,25 @@ export function createProjectTasks(
       !humanBlocker.open &&
       !dependency.open &&
       !draft.action &&
-      !sprintStart.needsRead &&
-      sprintProgress.value?.phase !== 'confirmed',
+      !sprintStart.needsRead,
   )
+  const canStartSprint = computed(() => canChangeSprint.value &&
+    workspace.detail.project?.current_sprint_id === null && state.sprint?.state === 'planned' &&
+    !(sprintProgress.value?.phase === 'confirmed' && sprintProgress.value.operation === 'start'))
+  const canCompleteSprint = computed(() => canChangeSprint.value &&
+    state.sprint?.state === 'current' && workspace.detail.project?.current_sprint_id === state.sprint.id &&
+    !(sprintProgress.value?.phase === 'confirmed' && sprintProgress.value.operation === 'complete'))
+  const sprintOperation = computed(() => sprintStart.open || sprintStart.needsRead
+    ? sprintStart.operation : sprintProgress.value?.operation ?? sprintStart.operation)
+  const sprintActionLabel = computed(() => sprintOperation.value === 'complete' ? '完成' : '启动')
+  const canSubmitSprintLifecycle = computed(() => sprintStart.operation === 'complete' ? canCompleteSprint.value : canStartSprint.value)
   const sprintStartStale = computed(
     () =>
       sprintStart.open &&
       (sprintStart.projectID !== workspace.currentReadContext.value?.projectID ||
         sprintStart.sprintID !== state.sprint?.id ||
-        sprintStart.version !== state.sprint?.version),
+        sprintStart.version !== state.sprint?.version ||
+        (sprintStart.operation === 'complete' && workspace.detail.project?.current_sprint_id !== sprintStart.sprintID)),
   )
   const sprintReadRecovery = computed(
     () =>
@@ -1091,6 +1101,8 @@ export function createProjectTasks(
     sprintEditIdentity = ''
   }
   function forgetSprintAccess(project: string) {
+    auth.workSprintLifecycle.forgetUnavailable?.(project)
+    clearSprintStart()
     auth.workSprintReordering?.forgetUnavailable(project)
     clearSprintReorder()
     auth.workSprintEditing?.forgetUnavailable(project)
@@ -1109,6 +1121,8 @@ export function createProjectTasks(
   function hasSprintEdit(project: string, target?: string) {
     const progress = auth.workSprintEditing?.progress
     return (
+      (sprintStart.projectID === project && (!target || sprintStart.sprintID === target)) ||
+      (auth.workSprintLifecycle.progress?.projectID === project && (!target || auth.workSprintLifecycle.progress.sprintID === target)) ||
       (sprintReorder.projectID === project && (!target || sprintReorder.sprintID === target)) ||
       (auth.workSprintReordering?.progress?.projectID === project &&
         (!target || auth.workSprintReordering.progress.sprintID === target)) ||
@@ -1147,6 +1161,7 @@ export function createProjectTasks(
   }
   function clearSprintStart() {
     Object.assign(sprintStart, {
+      operation: 'start',
       open: false,
       projectID: '',
       sprintID: '',
@@ -3246,14 +3261,15 @@ export function createProjectTasks(
     sprintCreationIdentity = identityKey(progress.projectID)
     await rereadCreatedSprint()
   }
-  function openSprintStart() {
+  function openSprintStart(operation: SprintLifecycleOperation = 'start') {
     const p = workspace.currentReadContext.value?.projectID,
       sprint = state.sprint
-    if (!p || !sprint || !canStartSprint.value || busy.value) return
+    if (!p || !sprint || !(operation === 'complete' ? canCompleteSprint.value : canStartSprint.value) || busy.value) return
     releaseRejectedMilestone()
     if (sprintCreateProgress.value?.phase === 'rejected' && sprintCreateProgress.value.contextValid)
       auth.workSprintLifecycle.editRejectedCreate()
     Object.assign(sprintStart, {
+      operation,
       open: true,
       projectID: p,
       sprintID: sprint.id,
@@ -3275,9 +3291,10 @@ export function createProjectTasks(
       identity = sprintStartIdentity
     if (busy.value || !sprintStart.needsRead || !sameSprintLocation(own, p, sid, identity)) return
     syncingSprint.value = true
+    const action = sprintStart.operation === 'complete' ? '完成' : '启动'
     sprintStart.message = sprintStart.confirmed
-      ? '启动已确认，正在读取当前项目信息。'
-      : '正在重新读取启动条件。'
+      ? `${action}已确认，正在读取当前项目信息。`
+      : `正在重新读取${action}条件。`
     let reload = false
     try {
       // A historical command receipt never replaces the current Project read.
@@ -3292,21 +3309,30 @@ export function createProjectTasks(
       state.sprints = state.sprints.map((row) => (row.id === sid ? sprint : row))
       if (
         sprintStart.confirmed &&
-        (workspace.detail.project?.current_sprint_id !== sid || sprint.state !== 'current')
+        (sprintStart.operation === 'complete'
+          ? workspace.detail.project?.current_sprint_id === sid || sprint.state !== 'completed'
+          : workspace.detail.project?.current_sprint_id !== sid || sprint.state !== 'current')
       ) {
-        sprintStart.message = '启动已确认，但当前 Sprint 已变化。请按当前项目信息重新选择。'
+        sprintStart.message = `${action}已确认，但当前 Sprint 已变化。请按当前项目信息重新选择。`
         return
       }
       sprintStart.needsRead = false
       sprintStart.message = sprintStart.confirmed
-        ? 'Sprint 已启动，已确认当前 Sprint。'
-        : '已重新读取启动条件，请核对后明确启动。'
+        ? sprintStart.operation === 'complete'
+          ? 'Sprint 已完成。可选择另一个待启动 Sprint，并明确启动。'
+          : 'Sprint 已启动，已确认当前 Sprint。'
+        : `已重新读取${action}条件，请核对后明确${action}。`
       reload = true
-    } catch {
-      if (sameSprintLocation(own, p, sid, identity))
-        sprintStart.message = sprintStart.confirmed
-          ? '启动已确认，当前信息读取失败。请重新读取，不要再次启动。'
-          : '启动条件读取失败，请重试读取。'
+    } catch (error) {
+      if (sameSprintLocation(own, p, sid, identity)) {
+        if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
+          forgetSprintAccess(p)
+          state.phase = 'error'
+          state.message = '当前 Sprint 不可用或无权访问，操作材料已清除。'
+        } else sprintStart.message = sprintStart.confirmed
+          ? `${action}已确认，当前信息读取失败。请重新读取，不要再次${action}。`
+          : `${action}条件读取失败，请重试读取。`
+      }
     } finally {
       syncingSprint.value = false
       if (!sameSprintLocation(own, p, sid, identity)) void pump()
@@ -3315,10 +3341,11 @@ export function createProjectTasks(
       await refresh()
     }
   }
-  async function acceptSprintStart(project: string, sprint: string, own: number, identity: string) {
+  async function acceptSprintStart(project: string, sprint: string, own: number, identity: string, operation: SprintLifecycleOperation) {
     if (!sameSprintLocation(own, project, sprint, identity)) return
     Object.assign(sprintStart, {
       open: false,
+      operation,
       projectID: project,
       sprintID: sprint,
       needsRead: true,
@@ -3332,24 +3359,38 @@ export function createProjectTasks(
       sid = sprintStart.sprintID,
       own = generation,
       identity = sprintStartIdentity
-    if (!sprintStart.open || !canStartSprint.value || sprintStartStale.value || busy.value) return
+    const operation = sprintStart.operation
+    const action = operation === 'complete' ? '完成' : '启动'
+    if (!sprintStart.open || !canSubmitSprintLifecycle.value || sprintStartStale.value || busy.value) return
     try {
       if (auth.workSprintLifecycle.progress?.phase === 'rejected')
         auth.workSprintLifecycle.editRejected()
-      const result = await auth.workSprintLifecycle.start(p, sid, {
+      const result = await auth.workSprintLifecycle[operation](p, sid, {
         expected_version: sprintStart.version,
         request: {},
       })
       const receipt = 'status' in result ? result.receipt : result
       if (!receipt || receipt.project.id !== p || receipt.sprint.id !== sid) return
-      await acceptSprintStart(p, sid, own, identity)
+      await acceptSprintStart(p, sid, own, identity, operation)
     } catch (error) {
       if (sameSprintLocation(own, p, sid, identity)) {
-        sprintStart.message =
+        if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
+          forgetSprintAccess(p)
+          state.phase = 'error'
+          state.message = '当前 Sprint 不可用或无权访问，操作材料已清除。'
+          return
+        }
+        const conflict = error instanceof AccountFailure ? error.problem?.field_errors?.find(field => field.path === '/sprint_id')?.code : undefined
+        const conflicts: Record<string, string> = {
+          UNFINISHED_TASKS: '仍有未完成任务，请先将全部任务完成或取消，再完成 Sprint。',
+          ACTIVE_EXECUTIONS: '仍有活动执行，请等待执行结束后再完成 Sprint。',
+          PENDING_DISPATCHES: '仍有待派发任务，请等待派发处理结束后再完成 Sprint。',
+        }
+        sprintStart.message = (operation === 'complete' && conflict && conflicts[conflict]) || (
           error instanceof AccountFailure &&
           ['VERSION_CONFLICT', 'SPRINT_VERSION_CONFLICT'].includes(error.problem?.code ?? '')
-            ? 'Sprint 已发生变化，请重新读取后核对，再明确启动。'
-            : '未确认 Sprint 启动。请查看原操作状态；明确拒绝后可重新读取。'
+            ? `Sprint 已发生变化，请重新读取后核对，再明确${action}。`
+            : `未确认 Sprint ${action}。请查看原操作状态；明确拒绝后可重新读取。`)
         if (auth.workSprintLifecycle.progress?.phase === 'rejected') {
           sprintStart.open = false
           sprintStart.needsRead = true
@@ -3360,7 +3401,7 @@ export function createProjectTasks(
   async function rereadConfirmedSprint() {
     const p = sprintProgress.value
     if (busy.value || p?.phase !== 'confirmed' || !p.contextValid) return
-    await acceptSprintStart(p.projectID, p.sprintID, generation, identityKey(p.projectID))
+    await acceptSprintStart(p.projectID, p.sprintID, generation, identityKey(p.projectID), p.operation)
   }
   async function lookupSprintStart() {
     const original = sprintProgress.value,
@@ -3376,10 +3417,15 @@ export function createProjectTasks(
         receipt.sprint.id !== original.sprintID
       )
         return
-      await acceptSprintStart(original.projectID, original.sprintID, own, identity)
-    } catch {
-      if (sameSprintLocation(own, original.projectID, original.sprintID, identity))
-        sprintStart.message = '未取得原启动结果，可在原请求结束后再次查询。'
+      await acceptSprintStart(original.projectID, original.sprintID, own, identity, original.operation)
+    } catch (error) {
+      if (sameSprintLocation(own, original.projectID, original.sprintID, identity)) {
+        if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
+          forgetSprintAccess(original.projectID)
+          state.phase = 'error'
+          state.message = '当前 Sprint 不可用或无权访问，操作材料已清除。'
+        } else sprintStart.message = `未取得原${original.operation === 'complete' ? '完成' : '启动'}结果，可在原请求结束后再次查询。`
+      }
     }
   }
   async function selectMilestone(id: string) {
@@ -4217,6 +4263,10 @@ export function createProjectTasks(
     sprintPendingHere,
     sprintProgress,
     canStartSprint,
+    canCompleteSprint,
+    canSubmitSprintLifecycle,
+    sprintActionLabel,
+    sprintOperation,
     sprintStartStale,
     sprintReadRecovery,
     openSprintStart,
