@@ -94,7 +94,14 @@ func readCause(name string) (f.TransactionCause, error) {
 type UnknownError struct{ data func() f.CommitResult }
 
 func (e *UnknownError) Error() string { return string(f.CommitUnknown) }
-func (e *UnknownError) Unwrap() error { return f.NewFault(f.CommitUnknown, f.Unknown) }
+func (e *UnknownError) Unwrap() error {
+	if e != nil && e.data != nil {
+		if original := e.data().Fault(); original != nil {
+			return original
+		}
+	}
+	return f.NewFault(f.CommitUnknown, f.Unknown)
+}
 func (e *UnknownError) Cause() f.TransactionCause {
 	if e == nil || e.data == nil {
 		return f.TransactionCause{}

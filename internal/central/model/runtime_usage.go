@@ -28,6 +28,7 @@ type runtimeMutation struct {
 	active, staged  bool
 	tx              f.Tx
 	originalUnknown error
+	originalResult  f.CommitResult
 }
 
 func (c *runtimeCall) invocationRequest(action uc.InvocationAction, record *runtimeRecord) (uc.InvocationRequest, error) {
@@ -178,7 +179,7 @@ func (c *runtimeCall) persist(ctx context.Context, action uc.InvocationAction, d
 		c.clearMutation(m)
 		return err
 	}
-	result := c.runtime.store.WithinTx(applyCtx, plan.Cause(), func(ctx context.Context, tx f.Tx) error {
+	result := c.withinUsage(applyCtx, plan.Cause(), func(ctx context.Context, tx f.Tx) error {
 		if err := c.runtime.store.AcquireAll(ctx, tx, locks); err != nil {
 			return runtimePortError(err)
 		}
@@ -248,6 +249,7 @@ func (c *runtimeCall) persist(ctx context.Context, action uc.InvocationAction, d
 		}
 		return nil
 	})
+	m.originalResult = result
 	switch result.State() {
 	case f.Committed:
 		c.acceptMutation(m)

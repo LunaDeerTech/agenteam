@@ -25,6 +25,7 @@ type projectUsageAssembly struct {
 	projects    *project.Authority
 	lifecycle   *project.LifecycleAuthority
 	reader      *usage.Service
+	usageCalls  *usageCallAssembly
 	variables   *projectvariable.Authority
 	objectFacts *object.ProjectAuditAuthority
 }

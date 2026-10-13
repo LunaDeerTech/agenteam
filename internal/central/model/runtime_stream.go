@@ -17,7 +17,9 @@ import (
 
 var _ mc.Chat = (*Runtime)(nil)
 
-func (r *Runtime) Chat(ctx context.Context, request mc.ModelRequest) (mc.ModelResponse, error) {
+func (r *Runtime) Chat(ctx context.Context, request mc.ModelRequest) (response mc.ModelResponse, err error) {
+	ctx, usage := r.usageOuter(ctx)
+	defer func() { err = usage.leave(err) }()
 	c, err := r.begin(ctx, request, wire.JSONResponse)
 	if err != nil {
 		return mc.ModelResponse{}, err
@@ -67,7 +69,9 @@ func (c *runtimeCall) resultJSON(ctx context.Context) (mc.ModelResponse, error) 
 
 type runtimeStream struct{ data func() *runtimeCall }
 
-func (r *Runtime) Stream(ctx context.Context, request mc.ModelRequest) (mc.ModelStream, error) {
+func (r *Runtime) Stream(ctx context.Context, request mc.ModelRequest) (stream mc.ModelStream, err error) {
+	ctx, usage := r.usageOuter(ctx)
+	defer func() { err = usage.leave(err) }()
 	c, err := r.begin(ctx, request, wire.SSEResponse)
 	if err != nil {
 		return nil, err
@@ -100,8 +104,9 @@ func (s *runtimeStream) Joined() bool {
 		return false
 	}
 	c.mu.Lock()
-	defer c.mu.Unlock()
-	return c.joined
+	joined := c.joined
+	c.mu.Unlock()
+	return joined && c.usageJoined()
 }
 func (s *runtimeStream) Close(ctx context.Context) error {
 	c := s.call()
@@ -110,11 +115,16 @@ func (s *runtimeStream) Close(ctx context.Context) error {
 	}
 	return c.close(ctx)
 }
-func (s *runtimeStream) Next(ctx context.Context) (mc.ModelFrame, error) {
+func (s *runtimeStream) Next(ctx context.Context) (frame mc.ModelFrame, err error) {
 	c := s.call()
 	if c == nil {
 		return mc.ModelFrame{}, fault(f.DependencyUnbound)
 	}
+	ctx, usage, err := c.borrowUsage(ctx)
+	if err != nil {
+		return mc.ModelFrame{}, err
+	}
+	defer func() { err = usage.leave(err) }()
 	if err := c.enter(ctx, false); err != nil {
 		return mc.ModelFrame{}, err
 	}

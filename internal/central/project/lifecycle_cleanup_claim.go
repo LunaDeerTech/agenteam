@@ -30,6 +30,8 @@ type lifecycleCleanupRound struct {
 	schedulerError             error
 	workUnknown                bool
 	workError                  error
+	usageUnknown               bool
+	usageError                 error
 }
 
 func (st *lifecycleCleanupState) canJoin(ctx context.Context, claim *lifecycleStopClaim) error {

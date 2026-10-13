@@ -138,6 +138,12 @@ type executionSchedulerApp struct {
 }
 
 func newExecutionSchedulerApp(t *testing.T) *executionSchedulerApp {
+	return newExecutionSchedulerAppWith(t, nil)
+}
+
+// Configure only test observation and the original Store boundary. The
+// default constructor retains the same real bindAccounts graph.
+func newExecutionSchedulerAppWith(t *testing.T, configure func(*dependencies, *executionSchedulerApp)) *executionSchedulerApp {
 	t.Helper()
 	v := &executionSchedulerApp{workAppFixture: &workAppFixture{client: &http.Client{Transport: &http.Transport{Proxy: nil}, Timeout: 8 * time.Second}}, store: &executionSchedulerAppStore{directory: make(chan executionSchedulerAppReturn, 1), lookup: make(chan executionSchedulerAppReturn, 1), directoryRelease: make(chan struct{}), lookupRelease: make(chan struct{}), stopped: make(chan struct{})}}
 	// Same root fixture and one provisioning call; the existing constructor's
@@ -165,6 +171,9 @@ func newExecutionSchedulerApp(t *testing.T) *executionSchedulerApp {
 		listen: func(ctx context.Context, network, address string) (net.Listener, error) {
 			return (&net.ListenConfig{}).Listen(ctx, network, address)
 		},
+	}
+	if configure != nil {
+		configure(&deps, v)
 	}
 	logger, err := logging.New(logging.Central, slog.LevelInfo, r.logs)
 	workAppCheck(t, "runtime-logger", err)
@@ -303,9 +312,13 @@ func (v *executionSchedulerApp) httpSeed(t *testing.T, suffix string, body any, 
 }
 
 func (v *executionSchedulerApp) seed(t *testing.T) {
+	v.seedWithProvider(t, "https://runtime-app.invalid/v1", nil)
+}
+
+func (v *executionSchedulerApp) seedWithProvider(t *testing.T, endpoint string, credential *sc.CredentialID) {
 	t.Helper()
 	var receipt mc.CommandReceipt
-	v.httpSeed(t, "/model-providers", map[string]any{"input": map[string]any{"name": "runtime-app-provider", "protocol": mc.OpenAIChat, "base_url": "https://runtime-app.invalid/v1", "enabled": true, "credential_ref": nil, "options": map[string]any{}}}, &receipt)
+	v.httpSeed(t, "/model-providers", map[string]any{"input": map[string]any{"name": "runtime-app-provider", "protocol": mc.OpenAIChat, "base_url": endpoint, "enabled": true, "credential_ref": credential, "options": map[string]any{}}}, &receipt)
 	provider, err := f.ParseID[mc.Provider](receipt.ResourceID)
 	workAppCheck(t, "runtime-provider-id", err)
 	v.httpSeed(t, "/models", map[string]any{"provider_id": provider, "input": map[string]any{"name": "runtime-app-model", "provider_model_id": "runtime-app-model", "type": mc.ChatModel, "enabled": true, "parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{}, "capabilities": map[string]any{"tool_calls": false, "parallel_tool_calls": false, "streaming": false, "reasoning": false, "input_modalities": []string{"text"}, "output_modalities": []string{"text"}, "reasoning_efforts": []string{}, "structured_output_modes": []string{}, "context_length": nil, "max_output": nil}}}, &receipt)

@@ -22,7 +22,9 @@ type runtimeJSONCall struct {
 	err               error
 }
 
-func (r *Runtime) BeginChat(ctx context.Context, request mc.ModelRequest) (mc.JSONCall, error) {
+func (r *Runtime) BeginChat(ctx context.Context, request mc.ModelRequest) (result mc.JSONCall, err error) {
+	ctx, usage := r.usageOuter(ctx)
+	defer func() { err = usage.leave(err) }()
 	call, err := r.begin(ctx, request, wire.JSONResponse)
 	if call == nil {
 		return nil, err
@@ -31,13 +33,28 @@ func (r *Runtime) BeginChat(ctx context.Context, request mc.ModelRequest) (mc.JS
 	return handle, err
 }
 
-func (h *runtimeJSONCall) Result(ctx context.Context) (mc.ModelResponse, error) {
+func (h *runtimeJSONCall) Result(ctx context.Context) (response mc.ModelResponse, err error) {
 	if err := runtimeContextError(ctx); err != nil {
 		return mc.ModelResponse{}, err
 	}
 	if h == nil || h.call == nil {
 		return mc.ModelResponse{}, fault(f.DependencyUnbound)
 	}
+	ctx, usage, err := h.call.borrowUsage(ctx)
+	if err != nil {
+		return mc.ModelResponse{}, err
+	}
+	defer func() {
+		original := err
+		err = usage.leave(err)
+		if original == nil && err != nil {
+			h.mu.Lock()
+			if h.returned && h.err == nil {
+				h.err = err
+			}
+			h.mu.Unlock()
+		}
+	}()
 	h.mu.Lock()
 	started, returned, original := h.started, h.returned, h.err
 	if !started {
@@ -65,7 +82,7 @@ func (h *runtimeJSONCall) Result(ctx context.Context) (mc.ModelResponse, error) 
 	// Result may have a shorter cancellation budget than BeginChat. Preserve
 	// the original context values and make cancellation stop that same call.
 	stop := context.AfterFunc(ctx, h.call.cancel)
-	response, err := h.call.resultJSON(ctx)
+	response, err = h.call.resultJSON(ctx)
 	stop()
 	h.mu.Lock()
 	h.returned, h.err = true, err
@@ -85,8 +102,9 @@ func (h *runtimeJSONCall) Joined() bool {
 		return false
 	}
 	h.call.mu.Lock()
-	defer h.call.mu.Unlock()
-	return h.call.joined
+	joined := h.call.joined
+	h.call.mu.Unlock()
+	return joined && h.call.usageJoined()
 }
 
 func (*runtimeJSONCall) Format(w fmt.State, _ rune)   { _, _ = io.WriteString(w, "model_json_call") }

@@ -313,6 +313,11 @@ func (s *Service) LookupInvocation(ctx context.Context, r uc.InvocationRequest) 
 	if e := s.writerReady(ctx, r); e != nil {
 		return uc.InvocationLookup{}, e
 	}
+	ctx, done, borrowErr := s.state().ownership.borrowInvocation(ctx, r)
+	if borrowErr != nil {
+		return uc.InvocationLookup{}, borrowErr
+	}
+	defer done()
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
 	p, e := s.DiscoverInvocation(ctx, r)

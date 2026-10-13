@@ -46,6 +46,7 @@ type runtimeCall struct {
 	completedJSON                            *wire.Result
 	completedJSONError                       error
 	err                                      error
+	usage                                    *runtimeUsageCall
 }
 
 func runtimePortError(err error) error {
@@ -106,6 +107,7 @@ func (r *Runtime) begin(ctx context.Context, request mc.ModelRequest, mode wire.
 	s.admissions[admission] = struct{}{}
 	s.mu.Unlock()
 	transferred := false
+	var usage *runtimeUsageCall
 	defer func() {
 		if !transferred {
 			stop()
@@ -114,6 +116,7 @@ func (r *Runtime) begin(ctx context.Context, request mc.ModelRequest, mode wire.
 		delete(s.admissions, admission)
 		close(admission.done)
 		s.mu.Unlock()
+		usage.admissionDone()
 	}()
 	request, err := prepareRuntimeInput(ctx, request, mode)
 	if err != nil {
@@ -155,6 +158,10 @@ func (r *Runtime) begin(ctx context.Context, request mc.ModelRequest, mode wire.
 	if err != nil {
 		return nil, unavailable(err)
 	}
+	usage, err = acquireRuntimeUsage(ctx, s, admission, request)
+	if err != nil {
+		return nil, err
+	}
 	// Current consumer authorization precedes the protected snapshot read.
 	p, at, err := runtimePreflight(ctx, s, request, invocation, consumer, plan)
 	if err != nil {
@@ -178,7 +185,7 @@ func (r *Runtime) begin(ctx context.Context, request mc.ModelRequest, mode wire.
 	}
 	value := uc.Invocation{ID: invocation, CallID: request.CallID, AttemptIndex: 1, Consumer: request.Consumer.Clone(), SnapshotID: request.Model.Snapshot.ID, Identity: request.Model.Snapshot.Identity, ProcessID: process, Fence: 1, Dispatch: uc.Reserved, StartedAt: at, Usage: mc.Usage{Source: mc.UnknownUsage}}
 	cancel := func() { cancelDeadline(); stop() }
-	c := &runtimeCall{runtime: s, request: request, mode: mode, ctx: ctx, cancel: cancel, gate: make(chan struct{}, 1), record: &runtimeRecord{binding: binding, digest: hash(raw), value: value, sequence: 1, phase: "accepted", version: 1}}
+	c := &runtimeCall{runtime: s, request: request, mode: mode, ctx: ctx, cancel: cancel, gate: make(chan struct{}, 1), record: &runtimeRecord{binding: binding, digest: hash(raw), value: value, sequence: 1, phase: "accepted", version: 1}, usage: usage}
 	if binding.AgentTiming != nil {
 		c.requestTimeout, c.retryBackoff = binding.AgentTiming.InitialRequestTimeout, binding.AgentTiming.InitialBackoff
 	}
@@ -187,6 +194,7 @@ func (r *Runtime) begin(ctx context.Context, request mc.ModelRequest, mode wire.
 	if err != nil {
 		return nil, err
 	}
+	usage.transfer(c)
 	// Start itself owns this gate until all acceptance/material/handoff work
 	// has returned. Stop/Drain may cancel it but must join that original work.
 	<-c.gate
@@ -404,8 +412,13 @@ func (c *runtimeCall) releaseLocal() {
 	s.mu.Unlock()
 }
 
-func (c *runtimeCall) close(ctx context.Context) error {
+func (c *runtimeCall) close(ctx context.Context) (err error) {
 	c.cancel()
+	ctx, usage, err := c.borrowUsage(ctx)
+	if err != nil {
+		return err
+	}
+	defer func() { err = usage.leave(err) }()
 	if err := c.enter(ctx, true); err != nil {
 		return err
 	}

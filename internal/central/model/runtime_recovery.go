@@ -19,7 +19,7 @@ func (c *runtimeCall) confirmMutation(ctx context.Context, m *runtimeMutation) e
 		return unknown
 	}
 	matched, absent := false, false
-	result := c.runtime.store.WithinTx(ctx, m.plan.Cause(), func(ctx context.Context, tx f.Tx) error {
+	result := c.withinUsage(context.WithValue(ctx, runtimeMutationKey{}, m), m.plan.Cause(), func(ctx context.Context, tx f.Tx) error {
 		if err := c.runtime.store.AcquireAll(ctx, tx, m.plan.RequiredLocks()); err != nil {
 			return runtimePortError(err)
 		}

@@ -18,6 +18,7 @@ type serviceState struct {
 	authority *Authority
 	deps      Dependencies
 	issuer    uc.PlanIssuer
+	ownership *projectCallOwnershipState
 }
 
 func New(store Store, a *Authority, d Dependencies) (*Service, error) {
@@ -27,7 +28,7 @@ func New(store Store, a *Authority, d Dependencies) (*Service, error) {
 	if d.Cursors.Validate() != nil {
 		return nil, fault(f.InvalidArgument)
 	}
-	v := &serviceState{store, a, d, uc.NewPlanIssuer()}
+	v := &serviceState{store: store, authority: a, deps: d, issuer: uc.NewPlanIssuer()}
 	return &Service{func() *serviceState { return v }}, nil
 }
 func (s *Service) state() *serviceState {
