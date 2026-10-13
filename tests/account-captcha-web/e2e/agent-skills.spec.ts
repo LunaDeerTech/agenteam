@@ -66,6 +66,7 @@ test("explicitly assigns, disables, enables and removes a Skill [assign-disable-
   await page.setViewportSize({ width: 1440, height: 960 });
   await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
   const seen = await observeAgentSkills(page, data);
+  let originalError: unknown;
   let completed = false,
     stage = "navigation";
   try {
@@ -74,11 +75,9 @@ test("explicitly assigns, disables, enables and removes a Skill [assign-disable-
       name: "Agent 目录",
       exact: true,
     });
-    const entry = directory
-      .getByRole("button")
-      .filter({
-        has: page.locator("strong").filter({ hasText: /^assignment-agent$/ }),
-      });
+    const entry = directory.getByRole("button").filter({
+      has: page.locator("strong").filter({ hasText: /^assignment-agent$/ }),
+    });
     await expect(entry).toHaveCount(1);
     await entry.focus();
     await page.keyboard.press("Enter");
@@ -106,7 +105,7 @@ test("explicitly assigns, disables, enables and removes a Skill [assign-disable-
     await press(page, "保留当前分配");
     await expect(confirmation(page)).toHaveCount(0);
     await expect(button(page, "分配技能")).toBeFocused();
-    expect(seen.requests("assign")).toHaveLength(0);
+    expect(seen.requests("assign").length).toBe(0);
     await press(page, "分配技能");
     await screenshot(page, "1440-light-confirm", 1440, "light");
     const heading = panel(page).getByRole("heading", {
@@ -165,37 +164,107 @@ test("explicitly assigns, disables, enables and removes a Skill [assign-disable-
     await seen.retire();
     seen.complete();
     completed = true;
+  } catch (error) {
+    originalError = error;
+    throw error;
   } finally {
-    if (!completed && !page.isClosed()) {
-      // Bounded fixed-stage diagnostics contain only the synthetic fixture UI.
-      const text = await page
-        .locator("body")
-        .innerText({ timeout: 1000 })
-        .catch(() => "unavailable");
-      writeFileSync(
-        join(
-          process.env.AGENTEAM_AGENT_SKILLS_WEB_EVIDENCE!,
-          "agent-skills-failure.json",
-        ),
-        JSON.stringify({ stage, visible: text.slice(0, 8192) }),
-        { mode: 0o600 },
-      );
-      await page
-        .screenshot({
+    let cleanupError: unknown;
+    const note = (error: unknown) => {
+      cleanupError ??= error;
+    };
+    try {
+      if (!completed && !page.isClosed()) {
+        const observedAt = new Date().toISOString();
+        const facts = await page
+          .evaluate(() => {
+            const safe = (element: Element | null) => {
+              if (!element) return null;
+              const label =
+                element.getAttribute("aria-label") ??
+                element.textContent?.trim() ??
+                "";
+              const fixed =
+                /^(管理 Skills|关闭技能管理|选择项目技能|分配技能|确认技能操作|保留当前分配|重新读取分配|读取项目技能|更多已分配技能|更多项目技能|清除技能选择|Agent Skills)$/;
+              const operation = /^(禁用技能|启用技能|撤销分配)(?: |$)/.exec(
+                label,
+              )?.[1];
+              return {
+                tag: element.tagName.toLowerCase(),
+                label: fixed.test(label) ? label : (operation ?? "other"),
+              };
+            };
+            const native = (window as any).__taskReviewProof?.snapshot();
+            const consumer = (window as any).__agentSkillsOriginal?.snapshot();
+            return {
+              route: location.pathname,
+              theme: ["light", "dark"].includes(
+                document.documentElement.dataset.theme ?? "",
+              )
+                ? document.documentElement.dataset.theme
+                : "other",
+              focus: safe(document.activeElement),
+              buttons: [...document.querySelectorAll("button")]
+                .slice(0, 32)
+                .map((b) => ({ ...safe(b), disabled: b.disabled })),
+              pending: {
+                native: native?.pending ?? null,
+                public: consumer?.pending ?? null,
+              },
+              readers:
+                native?.rows
+                  .slice(-8)
+                  .map((r: any) => ({
+                    request_id: r.request_id ?? null,
+                    eof: r.eof,
+                    closed: r.closed,
+                    release: r.release,
+                    reads: r.reads,
+                    read_returns: r.read_returns,
+                  })) ?? [],
+            };
+          })
+          .catch(() => ({ unavailable: true }));
+        writeFileSync(
+          join(
+            process.env.AGENTEAM_AGENT_SKILLS_WEB_EVIDENCE!,
+            "agent-skills-failure.json",
+          ),
+          JSON.stringify({ stage, observed_at: observedAt, ...facts }),
+          { mode: 0o600 },
+        );
+        await page.screenshot({
           path: join(
             process.env.AGENTEAM_AGENT_SKILLS_WEB_EVIDENCE!,
             "agent-skills-failure.png",
           ),
           timeout: 1500,
           animations: "disabled",
-        })
-        .catch(() => {});
-    }
-    try {
-      await seen.retire();
+        });
+      }
+    } catch (error) {
+      note(error);
     } finally {
-      seen.save(completed ? "passed" : "failed");
-      await page.close();
+      try {
+        await seen.retire();
+      } catch (error) {
+        note(error);
+      } finally {
+        try {
+          await page.close();
+          seen.pageClosed();
+        } catch (error) {
+          note(error);
+        } finally {
+          try {
+            seen.save(completed && cleanupError === undefined ? "passed" : "failed");
+          } catch (error) {
+            note(error);
+          }
+        }
+      }
     }
+    // Cleanup is attempted on every path without replacing the original failed assertion.
+    if (originalError === undefined && cleanupError !== undefined)
+      throw cleanupError;
   }
 });

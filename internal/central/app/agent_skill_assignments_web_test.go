@@ -162,7 +162,7 @@ func TestAgentSkillAssignmentsWeb(t *testing.T) {
 	o.path = assignmentPath
 	o.active = true
 	o.mu.Unlock()
-	result := agentSkillsWebBrowser(t, ctx, private, origin, dist, evidence, inputHash)
+	result := agentSkillsWebBrowser(t, ctx, private, origin, dist, evidence, inputHash, v.cookie, v.csrf)
 	o.mu.Lock()
 	failed, accepted := o.failed, o.accepted
 	receipts := append([]sc.AssignmentMutation(nil), o.receipts...)
@@ -350,7 +350,7 @@ func (o *agentSkillsWebObserver) save(t *testing.T) {
 		t.Error("Agent Skills diagnostic write failed")
 	}
 }
-func agentSkillsWebBrowser(t *testing.T, parent context.Context, private, origin, dist, evidence, inputHash string) map[string]any {
+func agentSkillsWebBrowser(t *testing.T, parent context.Context, private, origin, dist, evidence, inputHash string, privateValues ...string) map[string]any {
 	t.Helper()
 	harness, err := filepath.Abs("../../../tests/account-captcha-web")
 	workAppCheck(t, "skills-web-harness", err)
@@ -377,7 +377,7 @@ func agentSkillsWebBrowser(t *testing.T, parent context.Context, private, origin
 		cmd.Env = append(cmd.Env, name+"="+path)
 	}
 	cmd.Env = append(cmd.Env, "PLAYWRIGHT_NO_COPY_PROMPT=1", "AGENTEAM_AUTH_WEB_ORIGIN="+origin, "AGENTEAM_AUTH_WEB_PRIVATE="+private, "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium", "AGENTEAM_AGENT_SKILLS_WEB_DIST="+dist, "AGENTEAM_AGENT_SKILLS_WEB_EVIDENCE="+evidence, "AGENTEAM_AGENT_SKILLS_WEB_INPUT_HASH="+inputHash, "AGENTEAM_AGENT_SKILLS_WEB_CASE=assign-disable-enable-remove")
-	var output bytes.Buffer
+	var output agentSkillsNodeOutput
 	cmd.Stdout = &output
 	cmd.Stderr = &output
 	if err := cmd.Start(); err != nil {
@@ -397,6 +397,16 @@ func agentSkillsWebBrowser(t *testing.T, parent context.Context, private, origin
 	err = <-done
 	joined = true
 	t.Logf("AgentSkills Node actual_wait pid=%d success=%t", cmd.Process.Pid, err == nil)
+	rawOutput := output.Bytes()
+	for _, value := range privateValues {
+		if value != "" && bytes.Contains(rawOutput, []byte(value)) {
+			t.Fatal("Agent Skills Node output contained private session material; output not published")
+		}
+	}
+	workAppCheck(t, "skills-web-original-node-log", os.WriteFile(filepath.Join(evidence, "agent-skills-node.log"), rawOutput, 0600))
+	if output.overflow {
+		t.Fatal("Agent Skills original Node output exceeded 1 MiB; bounded prefix retained")
+	}
 	if err != nil || !regexp.MustCompile(`(?m)\b1 passed\b`).Match(output.Bytes()) {
 		t.Fatal("Agent Skills real browser did not pass its one case")
 	}
@@ -407,4 +417,30 @@ func agentSkillsWebBrowser(t *testing.T, parent context.Context, private, origin
 		t.Fatal("Agent Skills browser result invalid")
 	}
 	return result
+}
+
+// Keep original child diagnostics bounded without changing its write result.
+// Both pipes may share this writer; actual Wait precedes every read.
+type agentSkillsNodeOutput struct {
+	mu       sync.Mutex
+	data     bytes.Buffer
+	overflow bool
+}
+
+func (o *agentSkillsNodeOutput) Write(p []byte) (int, error) {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+	n := len(p)
+	room := (1 << 20) - o.data.Len()
+	if len(p) > room {
+		o.overflow = true
+		p = p[:room]
+	}
+	_, _ = o.data.Write(p)
+	return n, nil
+}
+func (o *agentSkillsNodeOutput) Bytes() []byte {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+	return append([]byte(nil), o.data.Bytes()...)
 }

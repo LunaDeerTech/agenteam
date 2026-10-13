@@ -73,6 +73,16 @@ export async function observeAgentSkills(
     retired = false,
     lastNative: any,
     lastPublic: any;
+  let retirementAttempted = false;
+  const retirement = {
+    public: false,
+    native: false,
+    route: false,
+    blank: false,
+    requests: false,
+    listeners: false,
+    page_closed: false,
+  };
   const fail = (stage: string) => {
     failure ||= stage;
   };
@@ -497,10 +507,21 @@ export async function observeAgentSkills(
     verify,
     requests,
     async retire() {
-      if (retired) return;
-      try {
+      if (retirementAttempted) return;
+      retirementAttempted = true;
+      let first: unknown;
+      const attempt = async (work: () => Promise<void>) => {
+        try {
+          await work();
+        } catch (error) {
+          first ??= error;
+        }
+      };
+      await attempt(async () => {
         await expect.poll(() => installing).toBe(0);
-        if (!page.isClosed()) {
+      });
+      if (!page.isClosed()) {
+        await attempt(async () => {
           await expect
             .poll(() =>
               page.evaluate(
@@ -510,14 +531,13 @@ export async function observeAgentSkills(
               ),
             )
             .toBe(0);
-          const publicEnd = await page.evaluate(() =>
+          const end = await page.evaluate(() =>
             (window as any).__agentSkillsOriginal?.finish(),
           );
-          expect(publicEnd).toEqual({
-            pending: 0,
-            failed: false,
-            retired: true,
-          });
+          expect(end).toEqual({ pending: 0, failed: false, retired: true });
+          retirement.public = true;
+        });
+        await attempt(async () => {
           await expect
             .poll(() =>
               page.evaluate(
@@ -531,20 +551,40 @@ export async function observeAgentSkills(
           expect(end.pending).toBe(0);
           expect(end.failed).toBe(false);
           expect(end.retired).toBe(true);
+          retirement.native = true;
+        });
+        await attempt(async () => {
           await page.unroute(entryURL, install);
+          retirement.route = true;
+        });
+        await attempt(async () => {
           await page.goto("about:blank");
-        }
+          retirement.blank = true;
+        });
+      }
+      await attempt(async () => {
         await expect
           .poll(() => entries.filter((e) => !e.terminal).length)
           .toBe(0);
         await Promise.all(entries.map((e) => e.headers));
-      } finally {
-        page.off("request", request);
-        page.off("response", response);
-        page.off("requestfinished", finished);
-        page.off("requestfailed", failed);
-        retired = true;
-      }
+        retirement.requests = true;
+      });
+      page.off("request", request);
+      page.off("response", response);
+      page.off("requestfinished", finished);
+      page.off("requestfailed", failed);
+      retirement.listeners = true;
+      retired =
+        retirement.public &&
+        retirement.native &&
+        retirement.route &&
+        retirement.blank &&
+        retirement.requests &&
+        retirement.listeners;
+      if (first !== undefined) throw first;
+    },
+    pageClosed() {
+      retirement.page_closed = page.isClosed();
     },
     complete() {
       expect(retired).toBe(true);
@@ -556,10 +596,10 @@ export async function observeAgentSkills(
         "directory",
         "mounts",
       ])
-        expect(requests(kind)).toHaveLength(5);
-      expect(requests("catalog")).toHaveLength(1);
-      expect(requests("assign")).toHaveLength(3);
-      expect(requests("remove")).toHaveLength(1);
+        expect(requests(kind).length).toBe(5);
+      expect(requests("catalog").length).toBe(1);
+      expect(requests("assign").length).toBe(3);
+      expect(requests("remove").length).toBe(1);
       const ids = requests("assign").map((e) => e.value!.assignment.id);
       expect(new Set(ids).size).toBe(3);
       writeFileSync(
@@ -585,6 +625,19 @@ export async function observeAgentSkills(
           failure,
           retired,
           original_requests: entries.length,
+          retirement,
+          terminals: entries.map((e) => ({
+            kind: e.kind,
+            request_id: e.requestID ?? null,
+            terminal: e.terminal ?? "pending",
+            responses: e.responses,
+            error:
+              e.terminal !== "failed"
+                ? null
+                : e.request.failure()?.errorText === "net::ERR_ABORTED"
+                  ? "ERR_ABORTED"
+                  : "other",
+          })),
           checked: entries.filter((e) => e.checked).length,
           writes: keys.size,
           public: lastPublic,
