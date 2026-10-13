@@ -115,6 +115,8 @@ const endpoints = {
   updateProjectSecret: ['PATCH', '/api/v1/projects/{project_id}/secret-variables/{target}', 200],
   deleteProjectSecret: ['DELETE', '/api/v1/projects/{project_id}/secret-variables/{target}', 200],
   lookupProjectSecret: ['POST', '/api/v1/projects/{project_id}/secret-variables/commands/lookup', 200],
+  listProjectArtifacts: ['GET', '/api/v1/projects/{project_id}/artifacts', 200],
+  readProjectArtifact: ['GET', '/api/v1/projects/{project_id}/artifacts/{artifact_id}/files/{file_id}/content', 200],
   listProjectUsage: ['GET', '/api/v1/projects/{project_id}/model-usage', 200],
   aggregateProjectUsage: ['GET', '/api/v1/projects/{project_id}/model-usage/summary', 200],
   createProjectVariable: ['POST', '/api/v1/projects/{project_id}/variables', 200],
@@ -1129,6 +1131,10 @@ type SecretReadQuery = Readonly<{ limit: number; cursor?: string }>
 type SecretReadOptions<E extends SecretReadEndpoint> = E extends 'listProjectSecrets'
   ? { signal: AbortSignal; projectID: string; secretQuery: SecretReadQuery }
   : { signal: AbortSignal; projectID: string; target: string }
+type ArtifactWireQuery = Readonly<{ limit: number; execution_id?: string; kind?: 'generated' | 'user_upload'; media_type?: string; name_query?: string; cursor?: string }>
+type ArtifactWireRead = Readonly<{ offset: string; limit: number }>
+type ArtifactListOptions = { signal: AbortSignal; projectID: string; artifactQuery: ArtifactWireQuery }
+type ArtifactReadOptions = { signal: AbortSignal; projectID: string; artifactID: string; fileID: string; artifactRead: ArtifactWireRead }
 type UsageReadQuery = Readonly<{
   from: string
   to: string
@@ -1307,6 +1313,8 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     parse: (value: unknown) => T,
     options: RunnerOptions,
   ): Promise<T>
+  function request<T>(endpoint: 'listProjectArtifacts', parse: (value: unknown) => T, options: ArtifactListOptions): Promise<T>
+  function request<T>(endpoint: 'readProjectArtifact', parse: (value: unknown) => T, options: ArtifactReadOptions): Promise<T>
   function request<T>(
     endpoint: 'listProjectUsage',
     parse: (value: unknown) => T,
@@ -1438,6 +1446,8 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       | SkillInstallEndpoint
       | SecretReadEndpoint
       | SecretCommandEndpoint
+      | 'listProjectArtifacts'
+      | 'readProjectArtifact'
       | 'listProjectUsage'
       | 'aggregateProjectUsage'
       | ProjectEndpoint
@@ -1474,6 +1484,10 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       projects?: ProjectWireQuery
       skillQuery?: SkillWireQuery
       secretQuery?: SecretReadQuery
+      artifactQuery?: ArtifactWireQuery
+      artifactRead?: ArtifactWireRead
+      artifactID?: string
+      fileID?: string
       usageQuery?: UsageReadQuery | UsageDailyQuery
       revision?: string
       progress?: SkillPackageProgress
@@ -1526,6 +1540,40 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       } catch {
         throw new AccountFailure('invalid-input')
       }
+    } else if (endpoint === 'listProjectArtifacts' || endpoint === 'readProjectArtifact') {
+      try {
+        const list = endpoint === 'listProjectArtifacts'
+        shape(options, ['signal', 'projectID', ...(list ? ['artifactQuery'] : ['artifactID', 'fileID', 'artifactRead'])])
+        const project = string(options.projectID, 36, 36)
+        if (!uuid7.test(project) || !(options.signal instanceof AbortSignal)) throw new Error()
+        path = basePath.replace('{project_id}', project)
+        const params = new URLSearchParams()
+        if (list) {
+          const q = shape(options.artifactQuery, ['limit'], ['execution_id', 'kind', 'media_type', 'name_query', 'cursor'])
+          if (!Number.isInteger(q.limit) || Number(q.limit) < 1 || Number(q.limit) > 200) throw new Error()
+          params.set('limit', String(q.limit))
+          for (const key of ['execution_id', 'kind', 'media_type', 'name_query', 'cursor']) {
+            if (!Object.hasOwn(q, key)) continue
+            const maximum = key === 'cursor' ? 8192 : 256
+            const value = string(q[key], 1, maximum)
+            if (new TextEncoder().encode(value).byteLength > maximum || value.includes('\0') ||
+              /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(value) ||
+              (key === 'execution_id' && !uuid7.test(value)) ||
+              (key === 'kind' && value !== 'generated' && value !== 'user_upload')) throw new Error()
+            params.set(key, value)
+          }
+        } else {
+          const artifact = string(options.artifactID, 36, 36), file = string(options.fileID, 36, 36)
+          if (!uuid7.test(artifact) || !uuid7.test(file)) throw new Error()
+          path = path.replace('{artifact_id}', artifact).replace('{file_id}', file)
+          const q = shape(options.artifactRead, ['offset', 'limit']), offset = string(q.offset, 1, 10)
+          if (!/^(0|[1-9][0-9]*)$/.test(offset) || BigInt(offset) > 1073741824n ||
+            !Number.isInteger(q.limit) || Number(q.limit) < 1 || Number(q.limit) > 65536) throw new Error()
+          params.set('offset', offset)
+          params.set('limit', String(q.limit))
+        }
+        path += '?' + params.toString()
+      } catch { throw new AccountFailure('invalid-input') }
     } else if (endpoint === 'listProjectUsage' || endpoint === 'aggregateProjectUsage') {
       try {
         shape(options, ['signal', 'projectID', 'usageQuery'])
@@ -2315,6 +2363,8 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           options.signal,
           lifecycle,
           (runnerEndpoints as readonly string[]).includes(endpoint) && success ? (endpoint === 'listSystemRunners' ? 2 * 1024 * 1024 : 65536) :
+          endpoint === 'listProjectArtifacts' && success ? 8 * 1024 * 1024 :
+          endpoint === 'readProjectArtifact' && success ? 512 * 1024 :
           endpoint === 'availableAgentRunners' && success ? 2 * 1024 * 1024 :
           endpoint === 'agentRunnerMounts' && success ? 512 * 1024 :
           (endpoint === 'listProjectUsage' || endpoint === 'aggregateProjectUsage') && success
@@ -2388,6 +2438,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
             endpoint,
           ) ||
             (runnerEndpoints as readonly string[]).includes(endpoint) ||
+            endpoint === 'listProjectArtifacts' || endpoint === 'readProjectArtifact' ||
             endpoint === 'listProjectUsage' || endpoint === 'aggregateProjectUsage' ||
             endpoint === 'createOwnerProject' ||
             endpoint === 'getProjectCreation' ||

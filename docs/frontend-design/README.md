@@ -24,6 +24,7 @@ agenteam 前端围绕用户自己的项目提供会议、工作规划、知识�
 │       ├── 会议 → 中央输入框准备 / 指定会议
 │       ├── 任务 → Kanban / Explore
 │       ├── 知识库 → 文档树 / 文档内容
+│       ├── 产物 → 列表 / 内容预览
 │       └── 项目设置
 ├── 系统设置（仅系统管理员）
 ├── 搜索浮层
@@ -41,6 +42,7 @@ agenteam 前端围绕用户自己的项目提供会议、工作规划、知识�
 | [会议](layouts/meetings.md) | 会话侧栏、新会议与消息内容 |
 | [任务视图](layouts/tasks.md) | Kanban、Explore、详情与操作 |
 | [知识库](layouts/knowledge-base.md) | 文档父子树、预览、编辑与删除 |
+| [产物](layouts/artifacts.md) | 当前项目的产物列表、筛选和内容预览 |
 | [设置框架](layouts/settings-shell.md) | 悬浮侧栏、二级菜单、表单交互 |
 | [系统设置](layouts/system-settings.md) | 系统配置栏目及字段 |
 | [项目设置](layouts/project-settings.md) | 项目配置栏目及字段 |

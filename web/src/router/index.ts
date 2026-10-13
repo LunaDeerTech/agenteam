@@ -134,6 +134,11 @@ export const router = createRouter({
           component: () => import('../views/projects/ProjectKnowledgeView.vue'),
         },
         {
+          path: 'artifacts',
+          name: 'project-artifacts',
+          component: () => import('../views/projects/ProjectArtifactsView.vue'),
+        },
+        {
           path: 'settings',
           component: () => import('../views/projects/ProjectSettingsView.vue'),
           redirect: (to) => {

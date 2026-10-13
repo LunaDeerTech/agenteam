@@ -27,6 +27,10 @@ const knowledgeCurrent = computed(() => {
     (current.suffix === '/knowledge' || current.suffix.startsWith('/knowledge/'))
   )
 })
+const artifactsCurrent = computed(() => {
+  const current = projectRoute(route.fullPath), target = projectRoute(props.home)
+  return !!current && !!target && current.username === target.username && current.project_name === target.project_name && current.suffix === '/artifacts'
+})
 const settingsCurrent = computed(() => {
   const current = projectRoute(route.fullPath),
     target = projectRoute(props.settings)
@@ -59,6 +63,9 @@ const settingsCurrent = computed(() => {
     >
     <RouterLink :to="home + '/knowledge'" :aria-current="knowledgeCurrent ? 'page' : undefined"
       >知识库</RouterLink
+    >
+    <RouterLink :to="home + '/artifacts'" :aria-current="artifactsCurrent ? 'page' : undefined"
+      >产物</RouterLink
     >
     <RouterLink :to="settings" :aria-current="settingsCurrent ? 'page' : undefined"
       >项目设置</RouterLink

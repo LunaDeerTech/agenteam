@@ -230,7 +230,14 @@ describe('Project production routes and public interactions', () => {
   })
   it('enters from the real list and keeps General as the default alongside Audit and model leaves', async () => {
     const f = await page()
+    let stopNavigation = () => {}
+    const navigation = new Promise<unknown>((resolve) => {
+      stopNavigation = f.router.afterEach((_to, _from, failure) => resolve(failure))
+    })
+    onTestFinished(() => stopNavigation())
     await f.wrapper.find('a[href="/owner/demo"]').trigger('click')
+    expect(await navigation).toBeUndefined()
+    stopNavigation()
     await flushPromises()
     expect(f.router.currentRoute.value.path).toBe('/owner/demo')
     await f.router.push('/owner/demo/settings')
@@ -242,7 +249,18 @@ describe('Project production routes and public interactions', () => {
         .find('nav[aria-label="项目设置"]')
         .findAll('a')
         .map((link) => link.text()),
-    ).toEqual(['基本信息', '项目审计', 'Providers', '可用模型'])
+    ).toEqual([
+      '基本信息',
+      '目录与配置',
+      '变量目录',
+      '安全目录',
+      '项目技能库',
+      '调度配置',
+      '项目审计',
+      'Providers',
+      '可用模型',
+      '调用记录',
+    ])
   })
   it('retains URL and input when a Project navigation is cancelled, then explicitly discards', async () => {
     const f = await page('/owner/demo/settings/general')
