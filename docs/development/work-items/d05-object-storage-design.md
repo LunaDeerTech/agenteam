@@ -65,7 +65,7 @@ MinIO 是可信 Deployment 基础连接，独立于 D04 DB 出站业务策略。
 
 实际组合入口为 `LoadDownloadKeyring(raw, cursor.Keyring, secret.Keyring)`：两环均须真实Validate成功，再排除全部当前/历史材料复用；Secret仅新增 `Keyring.ContainsMaterial([]byte) bool` 常量时间比较，不导出key、不重新解析Secret配置。下载签名环与AES用途隔离规则不变。
 
-region 固定 `us-east-1`，path-style；bucket 由部署/fixture 预建，缺失不静默创建。bucket 与 credential 专用且由平台独占管理：无匿名公开策略、versioning 从未启用（不能接受 Suspended）、Object Lock/default retention 禁用、**无 bucket lifecycle 规则**。启动主动查询全部前提，查询权限缺失/响应未知即失败，不修改既有配置、不以默认值推断安全；否则旧版本 payload 或自动删除技术 marker 都破坏永久清理。部署管理员在平台外篡改存储不属于正常业务契约。对象命名仅随机安全 ID：canonical candidate、staging、control 各独立前缀，不含 Project 名称/用户 filename。
+region 固定 `us-east-1`，path-style。Central 启动先确认原 DB `store_identity` 短事务成功；仅身份处于 `reserved` 且 SDK 明确返回 `NoSuchBucket` 时创建配置的 bucket。原事务未提交或结果未知时当轮不创建；`confirmed` 身份缺桶仍拒绝，防止掩盖存储丢失。创建仅发一次固定 region 的请求，不跟随 SDK 的 region 更正重试；只有成功或明确 `BucketAlreadyOwnedByYou` 竞争结果才继续完整复核，其他权限、网络或未知错误直接失败。`CheckBucket`、健康检查和 `--check-config` 不创建 bucket。bucket 与 credential 专用且由平台独占管理：无匿名公开策略、versioning 从未启用（不能接受 Suspended）、Object Lock/default retention 禁用、**无 bucket lifecycle 规则**。启动主动查询全部前提，查询权限缺失/响应未知即失败，不修改既有配置、不以默认值推断安全；否则旧版本 payload 或自动删除技术 marker 都破坏永久清理。部署管理员在平台外篡改存储不属于正常业务契约。对象命名仅随机安全 ID：canonical candidate、staging、control 各独立前缀，不含 Project 名称/用户 filename。
 
 [R02 只读配置证据](d05-object-storage-research.md#82-专用-bucket-的只读配置结果)给出可接受结果：GetBucketVersioning HTTP200且Status为空；GetObjectLockConfig明确 `ObjectLockConfigurationNotFoundError`；GetBucketLifecycle明确 `NoSuchLifecycleConfiguration`。其他码不能折算禁用；尤其 GetObjectRetention 的一般400/InvalidRequest不构成无retention证明，须以已确认无ObjectLock为前提。非空bucket policy首版拒绝，避免把无法完整判定的匿名授权策略当私有；部署凭据访问权来自明确的服务身份策略。
 

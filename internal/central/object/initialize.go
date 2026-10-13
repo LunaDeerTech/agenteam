@@ -9,7 +9,9 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-// Initialize verifies the pre-created private bucket and binds it to this DB.
+// Initialize creates a missing private bucket only for a reserved new store,
+// verifies its configuration and binds it to this DB. A confirmed store never
+// recreates a missing bucket or replaces its original control identity.
 // No external request runs with a transaction or advisory lock held. A reserved
 // DB identity survives either side's unknown commit and is never regenerated.
 func (s *Service) Initialize(ctx context.Context) error {
@@ -19,9 +21,6 @@ func (s *Service) Initialize(ctx context.Context) error {
 	}
 	defer finish()
 	ctx = op.ctx
-	if err = s.state().backend.CheckBucket(ctx); err != nil {
-		return err
-	}
 	key, _ := foundation.SystemConfigLock("object-store-identity")
 	var id oc.ObjectID
 	var phase string
@@ -58,6 +57,9 @@ func (s *Service) Initialize(ctx context.Context) error {
 		return unavailableIf(err)
 	})
 	if err = commitError(result); err != nil {
+		return err
+	}
+	if err = s.state().backend.initializeBucket(ctx, phase == "reserved"); err != nil {
 		return err
 	}
 	marker, err := s.state().backend.readControl(ctx)
