@@ -623,7 +623,8 @@ export async function observeBrowserIO(
             }
             if (kind === "taskBlockResume.transfer") {
               const original = writeInputs.get(call), progress = auth.workReview.progress;
-              call.result_current = progress?.kind === "review" && progress.phase === "confirmed" && progress.contextValid === true && progress.projectID === original.project && progress.taskID === original.task && value != null && progress.receipt === value && JSON.stringify(canonical(value.task)) === JSON.stringify(canonical({ ...original.before, state: original.input.request.target_state, assignee_agent_id: original.input.request.assignee_agent_id ?? original.before.assignee_agent_id, version: String(BigInt(original.before.version) + 1n), updated_at: value.task.updated_at, manual_rank: value.task.manual_rank }));
+              // WorkReview retires its successful intent before returning the confirmed receipt.
+              call.result_current = progress?.kind === "review" && progress.phase === "confirmed" && progress.contextValid === false && progress.projectID === original.project && progress.taskID === original.task && value != null && progress.receipt === value && JSON.stringify(canonical(value.task)) === JSON.stringify(canonical({ ...original.before, state: original.input.request.target_state, assignee_agent_id: original.input.request.assignee_agent_id ?? original.before.assignee_agent_id, version: String(BigInt(original.before.version) + 1n), updated_at: value.task.updated_at, manual_rank: value.task.manual_rank }));
             }
             if (kind === "humanBlocker.add" || kind === "humanBlocker.resolve") {
               const original = writeInputs.get(call), progress = auth.workTaskBlockers.progress;
