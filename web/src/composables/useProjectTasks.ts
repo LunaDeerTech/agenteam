@@ -28,6 +28,8 @@ import {
 import { captureSprintCreateDraft, type SprintCreateReceipt } from '../api/work-sprint-lifecycle'
 import {
   captureMilestoneCreateDraft,
+  captureMilestoneReorderInput,
+  type MilestoneReorderReceipt,
   captureMilestoneUpdateInput,
   type MilestoneUpdateReceipt,
   type MilestoneCreateReceipt,
@@ -198,6 +200,28 @@ export function createProjectTasks(
     touched: { title: false, description: false, type: false, priority: false, plan: false },
     message: '',
   })
+  const milestoneReorder = reactive({
+    open: false,
+    projectID: '',
+    milestoneID: '',
+    version: '',
+    mode: 'before' as 'before' | 'tail',
+    beforeID: '',
+    beforeTitle: '',
+    conflict: false,
+    readVersion: '',
+    needsRead: false,
+    message: '',
+  })
+  const milestoneCandidates = shallowReactive<{
+    phase: Phase | 'stale'
+    items: readonly MilestoneSummary[]
+    cursors: readonly (string | undefined)[]
+    page: number
+    next?: string
+    message: string
+  }>({ phase: 'idle', items: [], cursors: [undefined], page: 0, message: '' })
+  let milestoneReorderIdentity = ''
   const milestoneEdit = reactive({
     open: false,
     projectID: '',
@@ -340,6 +364,63 @@ export function createProjectTasks(
         (milestoneEdit.milestoneID !== state.milestone?.id ||
           milestoneEdit.version !== state.milestone?.version)),
   )
+  const milestoneReorderPending = computed(() => {
+    const p = auth.workMilestoneReordering?.progress
+    return p && ['submitting', 'uncertain'].includes(p.phase) ? p : null
+  })
+  const milestoneReorderProgress = computed(() => {
+    const p = auth.workMilestoneReordering?.progress
+    return visible.value && p?.projectID === projectID.value ? p : null
+  })
+  const milestoneReorderBlocked = computed(
+    () => !!milestoneReorderPending.value || milestoneReorder.open || milestoneReorder.needsRead,
+  )
+  const milestoneReorderStale = computed(
+    () =>
+      milestoneReorder.conflict ||
+      (milestoneReorder.open &&
+        (milestoneReorder.milestoneID !== state.milestone?.id ||
+          milestoneReorder.version !== state.milestone?.version)),
+  )
+  const milestoneReorderReady = computed(
+    () =>
+      canReorderMilestone.value &&
+      !milestoneReorderStale.value &&
+      milestoneReorder.open &&
+      (milestoneReorder.mode === 'tail' ||
+        (milestoneCandidates.phase === 'ready' &&
+          milestoneCandidates.items.some(
+            (m) =>
+              m.id === milestoneReorder.beforeID &&
+              m.id !== milestoneReorder.milestoneID &&
+              m.project_id === milestoneReorder.projectID,
+          ))),
+  )
+  const canReorderMilestone = computed(
+    () =>
+      visible.value &&
+      state.phase === 'ready' &&
+      !!state.milestone &&
+      !state.task &&
+      workspace.detail.project?.lifecycle === 'active' &&
+      !pending.value &&
+      !milestonePending.value &&
+      !milestoneCreation.open &&
+      !milestoneCreation.needsRead &&
+      !sprintPending.value &&
+      !sprintCreatePending.value &&
+      !sprintStart.open &&
+      !sprintStart.needsRead &&
+      !sprintCreation.open &&
+      !sprintCreation.needsRead &&
+      !creation.open &&
+      !edit.open &&
+      !draft.action &&
+      !milestoneReorderPending.value &&
+      !milestoneReorder.needsRead &&
+      !sprintEditBlocked.value &&
+      !milestoneEditBlocked.value,
+  )
   const canEditMilestone = computed(
     () =>
       visible.value &&
@@ -360,6 +441,7 @@ export function createProjectTasks(
       !creation.open &&
       !edit.open &&
       !draft.action &&
+      !milestoneReorderBlocked.value &&
       !milestoneEditPending.value &&
       !milestoneEdit.needsRead &&
       !sprintEditBlocked.value,
@@ -398,6 +480,7 @@ export function createProjectTasks(
       !milestonePending.value &&
       !milestoneCreation.open &&
       !milestoneCreation.needsRead &&
+      !milestoneReorderBlocked.value &&
       !milestoneEditBlocked.value &&
       !sprintPending.value &&
       !sprintCreatePending.value &&
@@ -429,6 +512,7 @@ export function createProjectTasks(
       workspace.detail.project?.lifecycle === 'active' &&
       !pending.value &&
       !milestonePending.value &&
+      !milestoneReorderBlocked.value &&
       !milestoneEditBlocked.value &&
       !sprintEditBlocked.value &&
       !sprintPending.value &&
@@ -517,6 +601,7 @@ export function createProjectTasks(
       !pending.value &&
       !sprintCreatePending.value &&
       !milestonePending.value &&
+      !milestoneReorderBlocked.value &&
       !milestoneEditBlocked.value &&
       !sprintEditBlocked.value &&
       !milestoneCreation.open &&
@@ -564,6 +649,7 @@ export function createProjectTasks(
       !sprintPending.value &&
       !sprintCreatePending.value &&
       !milestonePending.value &&
+      !milestoneReorderBlocked.value &&
       !milestoneEditBlocked.value &&
       !sprintEditBlocked.value &&
       !milestoneCreation.open &&
@@ -603,6 +689,7 @@ export function createProjectTasks(
       !!sprintPending.value ||
       !!sprintCreatePending.value ||
       !!milestonePending.value ||
+      milestoneReorderBlocked.value ||
       milestoneEditBlocked.value ||
       sprintEditBlocked.value ||
       milestoneCreation.open ||
@@ -623,6 +710,7 @@ export function createProjectTasks(
       !sprintPending.value &&
       !sprintCreatePending.value &&
       !milestonePending.value &&
+      !milestoneReorderBlocked.value &&
       !milestoneEditBlocked.value &&
       !sprintEditBlocked.value &&
       !milestoneCreation.open &&
@@ -645,6 +733,7 @@ export function createProjectTasks(
       !sprintPending.value &&
       !sprintCreatePending.value &&
       !milestonePending.value &&
+      !milestoneReorderBlocked.value &&
       !milestoneEditBlocked.value &&
       !sprintEditBlocked.value &&
       !milestoneCreation.open &&
@@ -680,6 +769,7 @@ export function createProjectTasks(
       !!sprintPending.value ||
       !!sprintCreatePending.value ||
       !!milestonePending.value ||
+      milestoneReorderBlocked.value ||
       milestoneEditBlocked.value ||
       sprintEditBlocked.value ||
       milestoneCreation.open ||
@@ -736,15 +826,21 @@ export function createProjectTasks(
     milestoneEditIdentity = ''
   }
   function forgetMilestoneAccess(project: string) {
+    auth.workMilestoneReordering?.forgetUnavailable(project)
     auth.workMilestoneEditing?.forgetUnavailable(project)
+    clearMilestoneReorder()
     clearMilestoneEdit()
     state.milestone = null
     state.milestones = []
     state.milestoneNext = undefined
   }
-  function hasMilestoneEdit(project: string, target?: string) {
+  function hasMilestoneChange(project: string, target?: string) {
     const progress = auth.workMilestoneEditing?.progress
     return (
+      (milestoneReorder.projectID === project &&
+        (!target || milestoneReorder.milestoneID === target)) ||
+      (auth.workMilestoneReordering?.progress?.projectID === project &&
+        (!target || auth.workMilestoneReordering.progress.milestoneID === target)) ||
       (milestoneEdit.projectID === project && (!target || milestoneEdit.milestoneID === target)) ||
       (progress?.projectID === project && (!target || progress.milestoneID === target))
     )
@@ -861,6 +957,7 @@ export function createProjectTasks(
     createdSprintFocus.value = null
     createdMilestoneFocus.value = null
     clearMilestoneCreation()
+    clearMilestoneReorder()
     clearMilestoneEdit()
     clearSprintEdit()
     clearTimeline(true)
@@ -1268,7 +1365,10 @@ export function createProjectTasks(
         // read() only invokes this callback for the still-current read generation.
         if (refusedSprint && hasSprintEdit(refusedSprint.project, refusedSprint.target))
           forgetSprintAccess(refusedSprint.project)
-        if (refusedMilestone && hasMilestoneEdit(refusedMilestone.project, refusedMilestone.target))
+        if (
+          refusedMilestone &&
+          hasMilestoneChange(refusedMilestone.project, refusedMilestone.target)
+        )
           forgetMilestoneAccess(refusedMilestone.project)
         state.phase = 'error'
         state.message = explain(error)
@@ -1295,6 +1395,348 @@ export function createProjectTasks(
       if (requested || !visible.value || busy.value) return
       await loadColumn(s)
     }
+  }
+  function clearMilestoneCandidates() {
+    Object.assign(milestoneCandidates, {
+      phase: 'idle',
+      items: [],
+      cursors: [undefined],
+      page: 0,
+      next: undefined,
+      message: '',
+    })
+  }
+  function clearMilestoneReorder() {
+    Object.assign(milestoneReorder, {
+      open: false,
+      projectID: '',
+      milestoneID: '',
+      version: '',
+      mode: 'before',
+      beforeID: '',
+      beforeTitle: '',
+      conflict: false,
+      readVersion: '',
+      needsRead: false,
+      message: '',
+    })
+    milestoneReorderIdentity = ''
+    clearMilestoneCandidates()
+  }
+  function releaseRejectedMilestoneReorder() {
+    const progress = auth.workMilestoneReordering?.progress
+    if (!auth.state.busy && progress?.phase === 'rejected' && progress.contextValid)
+      auth.workMilestoneReordering.editRejected()
+  }
+  function sameMilestoneReorder(own: number, project: string, target: string, identity: string) {
+    return (
+      live(own, project) &&
+      identityKey(project) === identity &&
+      !state.task &&
+      state.milestone?.id === target
+    )
+  }
+  async function openMilestoneReorder() {
+    const current = state.milestone
+    if (!current || busy.value || !canReorderMilestone.value || milestoneReorder.open) return
+    releaseRejectedMilestoneReorder()
+    releaseRejectedMilestoneEdit()
+    releaseRejectedSprintEdit()
+    releaseRejectedMilestone()
+    if (sprintProgress.value?.phase === 'rejected' && sprintProgress.value.contextValid)
+      auth.workSprintLifecycle.editRejected()
+    if (sprintCreateProgress.value?.phase === 'rejected' && sprintCreateProgress.value.contextValid)
+      auth.workSprintLifecycle.editRejectedCreate()
+    clearMilestoneReorder()
+    Object.assign(milestoneReorder, {
+      open: true,
+      projectID: current.project_id,
+      milestoneID: current.id,
+      version: current.version,
+    })
+    milestoneReorderIdentity = identityKey(current.project_id)
+    await loadMilestoneCandidates(0)
+  }
+  function setMilestoneReorderMode(mode: string) {
+    if (
+      busy.value ||
+      !canReorderMilestone.value ||
+      milestoneReorderStale.value ||
+      !milestoneReorder.open ||
+      (mode !== 'before' && mode !== 'tail')
+    )
+      return
+    milestoneReorder.mode = mode
+  }
+  function chooseMilestoneBefore(target: string) {
+    if (
+      busy.value ||
+      !canReorderMilestone.value ||
+      milestoneReorderStale.value ||
+      milestoneCandidates.phase !== 'ready'
+    )
+      return
+    const item = milestoneCandidates.items.find(
+      (m) =>
+        m.id === target &&
+        m.id !== milestoneReorder.milestoneID &&
+        m.project_id === milestoneReorder.projectID,
+    )
+    if (!item) return
+    milestoneReorder.beforeID = item.id
+    milestoneReorder.beforeTitle = item.title
+  }
+  async function loadMilestoneCandidates(page: number, restart = false) {
+    const project = milestoneReorder.projectID,
+      target = milestoneReorder.milestoneID,
+      identity = milestoneReorderIdentity,
+      own = generation
+    if (
+      !milestoneReorder.open ||
+      busy.value ||
+      milestoneReorderPending.value ||
+      !sameMilestoneReorder(own, project, target, identity) ||
+      !Number.isInteger(page) ||
+      page < 0 ||
+      (!restart && (milestoneCandidates.phase === 'stale' || page > milestoneCandidates.page + 1))
+    )
+      return
+    const cursor =
+      restart || page === 0
+        ? undefined
+        : page === milestoneCandidates.page + 1
+          ? milestoneCandidates.next
+          : milestoneCandidates.cursors[page]
+    if (page > 0 && !cursor) return
+    milestoneCandidates.phase = 'loading'
+    milestoneCandidates.message = ''
+    await read(
+      async (_p, step) =>
+        step(() =>
+          auth.workReview.milestones(project, { limit: 50, ...(cursor ? { cursor } : {}) }),
+        ),
+      (result) => {
+        if (!sameMilestoneReorder(own, project, target, identity) || !milestoneReorder.open) return
+        milestoneCandidates.items = result.items.filter((m) => m.id !== target)
+        milestoneCandidates.cursors = [
+          ...(restart ? [] : milestoneCandidates.cursors.slice(0, page)),
+          cursor,
+        ]
+        milestoneCandidates.page = page
+        milestoneCandidates.next = result.next_cursor
+        milestoneCandidates.phase = 'ready'
+        // A new page offers new anchors; never submit an invisible stale selection.
+        milestoneReorder.beforeID = ''
+        milestoneReorder.beforeTitle = ''
+      },
+      (error) => {
+        if (!sameMilestoneReorder(own, project, target, identity)) return
+        if (
+          error instanceof AccountFailure &&
+          [401, 403, 404].includes(error.problem?.status ?? 0)
+        ) {
+          forgetMilestoneAccess(project)
+          state.phase = 'error'
+          state.message = '当前 Milestone 不可用或无权访问，排序选择已清除。'
+          return
+        }
+        const stale =
+          error instanceof AccountFailure &&
+          ['CURSOR_INVALID', 'CURSOR_STALE'].includes(error.problem?.code ?? '')
+        if (stale) {
+          clearMilestoneCandidates()
+          milestoneReorder.beforeID = ''
+          milestoneReorder.beforeTitle = ''
+        }
+        milestoneCandidates.phase = stale ? 'stale' : 'error'
+        milestoneCandidates.message = stale
+          ? '候选顺序已发生变化，请从首页重新读取。'
+          : '未取得完整候选列表，请重新读取本页。'
+      },
+    )
+  }
+  function cancelMilestoneReorder() {
+    if (busy.value || milestoneReorderPending.value) return
+    releaseRejectedMilestoneReorder()
+    clearMilestoneReorder()
+  }
+  async function readReorderedMilestone(confirmed: boolean) {
+    const project = milestoneReorder.projectID,
+      target = milestoneReorder.milestoneID,
+      identity = milestoneReorderIdentity,
+      own = generation
+    if (
+      busy.value ||
+      milestoneReorderPending.value ||
+      !sameMilestoneReorder(own, project, target, identity)
+    )
+      return
+    await read(
+      async (_p, step) => {
+        const current = await step(() => auth.workReview.milestone(project, target))
+        const page = await step(() => auth.workReview.milestones(project, { limit: 50 }))
+        return { current, page }
+      },
+      ({ current, page }) => {
+        if (!sameMilestoneReorder(own, project, target, identity)) return
+        state.milestone = current
+        state.milestones = page.items
+        state.milestoneNext = page.next_cursor
+        milestoneReorder.readVersion = current.version
+        if (confirmed) {
+          milestoneReorder.needsRead = false
+          milestoneReorder.message =
+            auth.workMilestoneReordering.progress?.result?.changed === false
+              ? '顺序已确认，原操作无需调整；当前 Milestone 和顺序已重新读取。'
+              : '顺序已确认，当前 Milestone 和顺序已重新读取。'
+        } else
+          milestoneReorder.message =
+            '已读取当前 Milestone。核对后可明确使用当前版本，重新选择排序位置。'
+      },
+      (error) => {
+        if (
+          error instanceof AccountFailure &&
+          [401, 403, 404].includes(error.problem?.status ?? 0)
+        ) {
+          forgetMilestoneAccess(project)
+          state.phase = 'error'
+          state.message = '当前 Milestone 不可用或无权访问，排序选择已清除。'
+        } else if (sameMilestoneReorder(own, project, target, identity))
+          milestoneReorder.message = confirmed
+            ? '顺序已确认，当前内容读取失败。请重新读取，不要再次排序。'
+            : '当前 Milestone 读取失败，已保留原版本和排序选择。'
+      },
+    )
+  }
+  async function reloadMilestoneReorder() {
+    if (
+      !milestoneReorder.open ||
+      !milestoneReorderStale.value ||
+      busy.value ||
+      milestoneReorderPending.value
+    )
+      return
+    milestoneReorder.readVersion = ''
+    await readReorderedMilestone(false)
+  }
+  async function adoptMilestoneReorderVersion() {
+    const current = state.milestone
+    if (
+      !milestoneReorder.open ||
+      busy.value ||
+      !canReorderMilestone.value ||
+      !milestoneReorderStale.value ||
+      !current ||
+      !milestoneReorder.readVersion ||
+      current.version !== milestoneReorder.readVersion ||
+      current.id !== milestoneReorder.milestoneID
+    )
+      return
+    releaseRejectedMilestoneReorder()
+    milestoneReorder.version = current.version
+    milestoneReorder.conflict = false
+    milestoneReorder.readVersion = ''
+    // Revalidate anchors against a fresh group after a conflicting mutation.
+    await loadMilestoneCandidates(0, true)
+    milestoneReorder.message = '已使用当前版本。请核对排序位置，再明确确认。'
+  }
+  async function acceptMilestoneReorder(
+    receipt: MilestoneReorderReceipt,
+    own: number,
+    identity: string,
+  ) {
+    const current = receipt.milestone
+    if (!sameMilestoneReorder(own, current.project_id, current.id, identity)) return
+    clearMilestoneReorder()
+    Object.assign(milestoneReorder, {
+      projectID: current.project_id,
+      milestoneID: current.id,
+      needsRead: true,
+      message: '顺序已确认，正在读取当前内容。',
+    })
+    milestoneReorderIdentity = identity
+    state.milestoneNext = undefined
+    await readReorderedMilestone(true)
+  }
+  async function submitMilestoneReorder() {
+    const project = milestoneReorder.projectID,
+      target = milestoneReorder.milestoneID,
+      identity = milestoneReorderIdentity,
+      own = generation
+    if (
+      !milestoneReorderReady.value ||
+      busy.value ||
+      !sameMilestoneReorder(own, project, target, identity)
+    )
+      return
+    try {
+      const input = captureMilestoneReorderInput(
+        {
+          expected_version: milestoneReorder.version,
+          request: milestoneReorder.mode === 'tail' ? {} : { before_id: milestoneReorder.beforeID },
+        },
+        target,
+      )
+      releaseRejectedMilestoneReorder()
+      const value = await auth.workMilestoneReordering.reorder(project, target, input)
+      const receipt = 'state' in value ? value.result : value
+      if (receipt) await acceptMilestoneReorder(receipt, own, identity)
+    } catch (error) {
+      if (!sameMilestoneReorder(own, project, target, identity)) return
+      if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
+        forgetMilestoneAccess(project)
+        state.phase = 'error'
+        state.message = '当前 Milestone 不可用或无权访问，排序选择已清除。'
+      } else if (error instanceof AccountFailure && error.problem?.code === 'VERSION_CONFLICT') {
+        milestoneReorder.conflict = true
+        milestoneReorder.readVersion = ''
+        milestoneReorder.message =
+          'Milestone 已发生变化，原版本和排序选择已保留。请重新读取并核对。'
+      } else milestoneReorder.message = '尚未确认排序结果，请查看原操作状态。'
+    }
+  }
+  async function lookupMilestoneReorder() {
+    const progress = milestoneReorderProgress.value,
+      own = generation
+    if (
+      busy.value ||
+      progress?.phase !== 'uncertain' ||
+      !progress.contextValid ||
+      state.milestone?.id !== progress.milestoneID ||
+      state.task
+    )
+      return
+    const identity = identityKey(progress.projectID)
+    try {
+      const value = await auth.workMilestoneReordering.checkOriginal()
+      const receipt = 'state' in value ? value.result : value
+      if (receipt) await acceptMilestoneReorder(receipt, own, identity)
+    } catch (error) {
+      if (!sameMilestoneReorder(own, progress.projectID, progress.milestoneID, identity)) return
+      if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
+        forgetMilestoneAccess(progress.projectID)
+        state.phase = 'error'
+        state.message = '当前 Milestone 不可用或无权访问，排序选择已清除。'
+      } else milestoneReorder.message = '未取得原排序结果，可在原请求结束后再次查询。'
+    }
+  }
+  async function rereadMilestoneReorder() {
+    const progress = milestoneReorderProgress.value
+    if (
+      busy.value ||
+      progress?.phase !== 'confirmed' ||
+      !progress.contextValid ||
+      state.milestone?.id !== progress.milestoneID ||
+      state.task
+    )
+      return
+    Object.assign(milestoneReorder, {
+      projectID: progress.projectID,
+      milestoneID: progress.milestoneID,
+      needsRead: true,
+    })
+    milestoneReorderIdentity = identityKey(progress.projectID)
+    await readReorderedMilestone(true)
   }
   function sameMilestoneEdit(own: number, project: string, target: string, identity: string) {
     return (
@@ -2510,6 +2952,7 @@ export function createProjectTasks(
       sprintPending.value ||
       sprintCreatePending.value ||
       milestonePending.value ||
+      milestoneReorderPending.value ||
       milestoneEditPending.value ||
       sprintEditPending.value
         ? '操作结果尚未确认。离开不会重发，返回原 Milestone、Sprint 或任务后可继续查询原结果。'
@@ -2524,6 +2967,7 @@ export function createProjectTasks(
     const resolve = resolveLeave
     resolveLeave = null
     if (yes) {
+      releaseRejectedMilestoneReorder()
       releaseRejectedMilestoneEdit()
       releaseRejectedSprintEdit()
       clearDraft()
@@ -2532,6 +2976,7 @@ export function createProjectTasks(
       clearSprintStart()
       clearSprintCreation()
       clearMilestoneCreation()
+      clearMilestoneReorder()
       clearMilestoneEdit()
       clearSprintEdit()
     }
@@ -2539,6 +2984,7 @@ export function createProjectTasks(
   }
   function afterNavigation(to: string) {
     if (to === route.value) return
+    releaseRejectedMilestoneReorder()
     releaseRejectedMilestoneEdit()
     releaseRejectedSprintEdit()
     const milestoneFocus = createdMilestoneFocus.value
@@ -2560,6 +3006,7 @@ export function createProjectTasks(
     clearSprintStart()
     clearSprintCreation()
     clearMilestoneCreation()
+    clearMilestoneReorder()
     clearMilestoneEdit()
     clearSprintEdit()
     clearTimeline(true)
@@ -2592,7 +3039,7 @@ export function createProjectTasks(
           identityKey(read.projectID) === read.identity &&
           projectPath() === read.path
         ) {
-          if (hasMilestoneEdit(read.projectID)) forgetMilestoneAccess(read.projectID)
+          if (hasMilestoneChange(read.projectID)) forgetMilestoneAccess(read.projectID)
           if (hasSprintEdit(read.projectID)) forgetSprintAccess(read.projectID)
         }
       } else if (phase !== 'checking') milestoneProjectRead = null
@@ -2648,6 +3095,24 @@ export function createProjectTasks(
     edit,
     sprintStart,
     projectID,
+    milestoneReorder,
+    milestoneCandidates,
+    milestoneReorderPending,
+    milestoneReorderProgress,
+    milestoneReorderBlocked,
+    milestoneReorderStale,
+    milestoneReorderReady,
+    canReorderMilestone,
+    openMilestoneReorder,
+    setMilestoneReorderMode,
+    chooseMilestoneBefore,
+    loadMilestoneCandidates,
+    cancelMilestoneReorder,
+    submitMilestoneReorder,
+    lookupMilestoneReorder,
+    rereadMilestoneReorder,
+    reloadMilestoneReorder,
+    adoptMilestoneReorderVersion,
     milestoneEdit,
     milestoneEditPending,
     milestoneEditProgress,

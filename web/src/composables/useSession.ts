@@ -158,6 +158,10 @@ import {
   createWorkMilestonePlanningAPI,
   captureMilestoneCreateDraft,
   captureMilestoneCreateInput,
+  captureMilestoneReorderInput,
+  type MilestoneReorderInput,
+  type MilestoneReorderReceipt,
+  type MilestoneReorderLookup,
   captureMilestoneUpdateInput,
   type MilestoneUpdateInput,
   type MilestoneUpdateReceipt,
@@ -523,7 +527,12 @@ export type ProjectVariableProgress = Readonly<{
   contextValid: boolean
 }>
 type MilestonePlanningAction =
-  'milestone-create' | 'milestone-create-lookup' | 'milestone-update' | 'milestone-update-lookup'
+  | 'milestone-reorder'
+  | 'milestone-reorder-lookup'
+  | 'milestone-create'
+  | 'milestone-create-lookup'
+  | 'milestone-update'
+  | 'milestone-update-lookup'
 type MilestoneCreateIntent = Omit<SprintStartIntent, 'sprintID' | 'input'> & {
   milestoneID: string
   input: MilestoneCreateInput
@@ -540,6 +549,12 @@ export type MilestoneCreateProgress = Readonly<{
 type MilestoneUpdateIntent = Omit<MilestoneCreateIntent, 'input'> & { input: MilestoneUpdateInput }
 export type MilestoneUpdateProgress = Omit<MilestoneCreateProgress, 'result'> & {
   readonly result: MilestoneUpdateReceipt | null
+}
+type MilestoneReorderIntent = Omit<MilestoneCreateIntent, 'input'> & {
+  input: MilestoneReorderInput
+}
+export type MilestoneReorderProgress = Omit<MilestoneCreateProgress, 'result'> & {
+  readonly result: MilestoneReorderReceipt | null
 }
 type SprintPlanningAction = 'sprint-update' | 'sprint-update-lookup'
 type SprintUpdateIntent = Omit<SprintStartIntent, 'input'> & { input: SprintUpdateInput }
@@ -1228,6 +1243,8 @@ export function createSessionController(
     progress: Omit<SprintUpdateProgress, 'contextValid'> | null
   }>({ progress: null })
   const milestonePlanningRevisions: Record<MilestonePlanningAction, number> = {
+    'milestone-reorder': 0,
+    'milestone-reorder-lookup': 0,
     'milestone-create': 0,
     'milestone-create-lookup': 0,
     'milestone-update': 0,
@@ -1235,6 +1252,11 @@ export function createSessionController(
   }
   const isMilestonePlanningAction = (kind: Action): kind is MilestonePlanningAction =>
     Object.hasOwn(milestonePlanningRevisions, kind)
+  let milestoneReorderIntent: MilestoneReorderIntent | null = null
+  let milestoneReorderContext: Pick<SprintStartIntent, 'identity' | 'csrf'> | null = null
+  const milestoneReorderState = shallowReactive<{
+    progress: Omit<MilestoneReorderProgress, 'contextValid'> | null
+  }>({ progress: null })
   let milestoneUpdateIntent: MilestoneUpdateIntent | null = null
   let milestoneUpdateContext: Pick<SprintStartIntent, 'identity' | 'csrf'> | null = null
   const milestoneUpdateState = shallowReactive<{
@@ -5276,6 +5298,15 @@ export function createSessionController(
     sprintUpdateState.progress = null
     if (owner?.kind === 'sprint-update' || owner?.kind === 'sprint-update-lookup') owner.abandon?.()
   }
+  function clearMilestoneReorderState() {
+    ++milestonePlanningRevisions['milestone-reorder']
+    ++milestonePlanningRevisions['milestone-reorder-lookup']
+    milestoneReorderIntent = null
+    milestoneReorderContext = null
+    milestoneReorderState.progress = null
+    if (owner?.kind === 'milestone-reorder' || owner?.kind === 'milestone-reorder-lookup')
+      owner.abandon?.()
+  }
   function clearMilestoneUpdateState() {
     ++milestonePlanningRevisions['milestone-update']
     ++milestonePlanningRevisions['milestone-update-lookup']
@@ -5286,6 +5317,7 @@ export function createSessionController(
       owner.abandon?.()
   }
   function clearMilestonePlanningState() {
+    clearMilestoneReorderState()
     clearMilestoneUpdateState()
     ++milestonePlanningRevisions['milestone-create']
     ++milestonePlanningRevisions['milestone-create-lookup']
@@ -5379,6 +5411,179 @@ export function createSessionController(
         throw failure
       },
     )
+  }
+  function milestoneReorderCurrent(original: MilestoneReorderIntent) {
+    return milestoneReorderIntent === original && projectContext(original)
+  }
+  function publishMilestoneReorder(
+    original: MilestoneReorderIntent,
+    phase: MilestoneReorderProgress['phase'],
+    result: MilestoneReorderReceipt | null = null,
+    observation: MilestoneReorderProgress['observation'] = 'none',
+    error: string | null = null,
+  ) {
+    milestoneReorderContext = { identity: original.identity, csrf: original.csrf }
+    milestoneReorderState.progress = Object.freeze({
+      projectID: original.projectID,
+      milestoneID: original.milestoneID,
+      phase,
+      result,
+      observation,
+      error,
+    })
+  }
+  function performMilestoneReorder(
+    original: MilestoneReorderIntent,
+    lookup: boolean,
+  ): Promise<MilestoneReorderReceipt | MilestoneReorderLookup> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    if (!milestoneReorderCurrent(original))
+      return Promise.reject(new AccountFailure('invalid-input'))
+    const kind: MilestonePlanningAction = lookup ? 'milestone-reorder-lookup' : 'milestone-reorder'
+    const revision = milestonePlanningRevisions[kind]
+    const live = () =>
+      milestoneReorderCurrent(original) && revision === milestonePlanningRevisions[kind]
+    let dispatched = false
+    if (!lookup) publishMilestoneReorder(original, 'submitting')
+    return runAuthorized<MilestoneReorderReceipt | MilestoneReorderLookup>(
+      original.identity,
+      async (op, current) => {
+        if (!current() || !live()) throw new AccountFailure('cancelled')
+        if (JSON.stringify(original.input) !== original.body)
+          throw new AccountFailure('invalid-input')
+        dispatched = true
+        const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
+        return lookup
+          ? milestonePlanningAPI.lookupReorder(
+              original.projectID,
+              original.milestoneID,
+              original.input,
+              write,
+            )
+          : milestonePlanningAPI.reorder(
+              original.projectID,
+              original.milestoneID,
+              original.input,
+              write,
+            )
+      },
+      undefined,
+      kind,
+    ).then(
+      (value) => {
+        if (!live()) throw new AccountFailure('cancelled')
+        if ('state' in value && value.state !== 'committed') {
+          original.uncertain = true
+          publishMilestoneReorder(original, 'uncertain', null, value.state)
+          return value
+        }
+        publishMilestoneReorder(
+          original,
+          'confirmed',
+          'state' in value ? value.result : value,
+          lookup ? 'committed' : 'none',
+        )
+        milestoneReorderIntent = null
+        return value
+      },
+      (error) => {
+        const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (live()) {
+          const p = failure.problem
+          if (p && [403, 404].includes(p.status)) {
+            clearMilestoneReorderState()
+            throw failure
+          }
+          const rejected =
+            !dispatched ||
+            (!!p &&
+              ['not_started', 'not_committed'].includes(p.commit_state) &&
+              p.code !== 'IDEMPOTENCY_KEY_REUSED')
+          original.uncertain ||= lookup || !rejected
+          publishMilestoneReorder(
+            original,
+            original.uncertain ? 'uncertain' : 'rejected',
+            null,
+            lookup ? 'failed' : 'none',
+            p?.code ?? failure.kind,
+          )
+        }
+        throw failure
+      },
+    )
+  }
+  const workMilestoneReordering = {
+    get progress(): MilestoneReorderProgress | null {
+      const value = milestoneReorderState.progress
+      return value
+        ? Object.freeze({
+            ...value,
+            contextValid: !!milestoneReorderContext && projectContext(milestoneReorderContext),
+          })
+        : null
+    },
+    reorder(
+      projectID: string,
+      milestoneID: string,
+      value: MilestoneReorderInput,
+    ): Promise<MilestoneReorderReceipt | MilestoneReorderLookup> {
+      try {
+        const identity = personalIdentity()
+        if (
+          owner ||
+          milestoneReorderIntent ||
+          milestoneUpdateIntent ||
+          sprintUpdateIntent ||
+          milestoneCreateIntent ||
+          sprintStartIntent ||
+          sprintCreateIntent ||
+          workReviewIntent ||
+          personalIntent ||
+          pending
+        )
+          throw new AccountFailure('busy')
+        if (!uuid7.test(projectID) || !uuid7.test(milestoneID))
+          throw new AccountFailure('invalid-input')
+        const input = captureMilestoneReorderInput(value, milestoneID)
+        const original: MilestoneReorderIntent = {
+          identity,
+          csrf: sessionCSRF,
+          projectID,
+          milestoneID,
+          input,
+          key: newKey(),
+          body: JSON.stringify(input),
+          uncertain: false,
+        }
+        milestoneReorderIntent = original
+        return performMilestoneReorder(original, false)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    checkOriginal(): Promise<MilestoneReorderReceipt | MilestoneReorderLookup> {
+      if (!milestoneReorderIntent?.uncertain)
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performMilestoneReorder(milestoneReorderIntent, true)
+    },
+    editRejected() {
+      if (
+        owner ||
+        !milestoneReorderIntent ||
+        !milestoneReorderCurrent(milestoneReorderIntent) ||
+        milestoneReorderIntent.uncertain ||
+        milestoneReorderState.progress?.phase !== 'rejected'
+      )
+        throw new AccountFailure('busy')
+      clearMilestoneReorderState()
+    },
+    forgetUnavailable(projectID: string) {
+      if (milestoneReorderState.progress?.projectID === projectID) clearMilestoneReorderState()
+    },
+    abandon() {
+      if (owner?.kind === 'milestone-reorder' || owner?.kind === 'milestone-reorder-lookup')
+        owner.abandon?.()
+    },
   }
   function milestoneUpdateCurrent(original: MilestoneUpdateIntent) {
     return milestoneUpdateIntent === original && projectContext(original)
@@ -5499,6 +5704,7 @@ export function createSessionController(
         const identity = personalIdentity()
         if (
           owner ||
+          milestoneReorderIntent ||
           milestoneUpdateIntent ||
           sprintUpdateIntent ||
           milestoneCreateIntent ||
@@ -5665,6 +5871,7 @@ export function createSessionController(
         if (
           owner ||
           sprintUpdateIntent ||
+          milestoneReorderIntent ||
           milestoneUpdateIntent ||
           milestoneCreateIntent ||
           sprintStartIntent ||
@@ -5735,6 +5942,7 @@ export function createSessionController(
         if (
           owner ||
           milestoneCreateIntent ||
+          milestoneReorderIntent ||
           milestoneUpdateIntent ||
           sprintUpdateIntent ||
           sprintStartIntent ||
@@ -5808,6 +6016,7 @@ export function createSessionController(
         if (
           owner ||
           milestoneCreateIntent ||
+          milestoneReorderIntent ||
           milestoneUpdateIntent ||
           sprintUpdateIntent ||
           sprintCreateIntent ||
@@ -5873,6 +6082,7 @@ export function createSessionController(
         if (
           owner ||
           milestoneCreateIntent ||
+          milestoneReorderIntent ||
           milestoneUpdateIntent ||
           sprintUpdateIntent ||
           sprintStartIntent ||
@@ -6061,6 +6271,7 @@ export function createSessionController(
         if (
           owner ||
           workReviewIntent ||
+          milestoneReorderIntent ||
           milestoneUpdateIntent ||
           sprintUpdateIntent ||
           personalIntent ||
@@ -6092,6 +6303,7 @@ export function createSessionController(
         if (
           owner ||
           workReviewIntent ||
+          milestoneReorderIntent ||
           milestoneUpdateIntent ||
           sprintUpdateIntent ||
           personalIntent ||
@@ -6123,6 +6335,7 @@ export function createSessionController(
         if (
           owner ||
           workReviewIntent ||
+          milestoneReorderIntent ||
           milestoneUpdateIntent ||
           sprintUpdateIntent ||
           personalIntent ||
@@ -6156,6 +6369,7 @@ export function createSessionController(
         if (
           owner ||
           workReviewIntent ||
+          milestoneReorderIntent ||
           milestoneUpdateIntent ||
           sprintUpdateIntent ||
           personalIntent ||
@@ -9017,6 +9231,7 @@ export function createSessionController(
     workReview,
     workSprintLifecycle,
     workMilestonePlanning,
+    workMilestoneReordering,
     workMilestoneEditing,
     workSprintEditing,
     projectVariables,

@@ -323,3 +323,7 @@ cleanup有限接受1440×960浅色创建表单和390×844深色planned结果两�
 真实 `TestTaskSearchWeb/server-search-beyond-first-page` 的 [browser02](../../../output/ai/task-filters-delivery/browser02/result.json) 原 `56387/6a2cb9` actual0（业务 55.61s，[外层原 Wait](../../../output/ai/task-filters-delivery/browser02-outer.json) 0、85.022s），post `f34056` 通过。实际验证 50 个 high/bug 首屏项及下一页目标、改草稿后仍以原 high/bug cursor 继续、关键词与两枚举相与、同词不同枚举及异 Project 排除、空结果/清除、原三个字段字面搜索与详情；Go 后验保持业务事实零写。Node/Go/fixture/supervisor 原调用均成功返回，四个收养进程与六个原资源退出。三张宽屏浅色/窄屏深色实际截图已独立有限接受，原关键词大小写与 `%`/`_` 字面规则保持。
 
 [首轮 browser01](../../../output/ai/task-filters-delivery/browser01/browser.log) 的 FAIL 保留：续页已返回正式 Task 摘要，测试却把它与含 description/plan 的完整夹具对象比较。只将新断言改为原公开摘要投影，完整正文仍由后续原详情 Get 核对；产品、原请求完成/消费联证及预算未放宽。后继通过不回填首次失败，也不扩大 §18 的只读范围或解除旧 Planning/Recovery、Tools/Model STOP。
+
+## 20. Milestone 排序限定验收（2026-10-13）
+
+[Milestone 排序切片](d11-milestone-reorder-ui.md)已交独立审查，75 项定向前端测试、完整类型检查及构建通过；native02 的 1 top/2 sub 与两个浏览器调用实际通过，覆盖同项目跨页 before/组尾及四宽度浅深主题，B 不变。原 native01 磁盘耗尽中止与缓存退出失败保留；浏览器未新增 Unknown/丢响应场景，原 Lookup 恢复仅按该卡注明的受控测试范围验收，不外推完整 D11/D27、default Registry 或 E01。

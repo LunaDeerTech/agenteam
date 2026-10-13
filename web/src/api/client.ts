@@ -123,6 +123,8 @@ const endpoints = {
   updateProjectVariable: ['PATCH', '/api/v1/projects/{project_id}/variables/{target}', 200],
   deleteProjectVariable: ['DELETE', '/api/v1/projects/{project_id}/variables/{target}', 200],
   lookupProjectVariable: ['POST', '/api/v1/projects/{project_id}/variables/commands/lookup', 200],
+  milestoneReorder: ['POST', '/api/v1/projects/{project_id}/milestones/{target}/reorder', 200],
+  milestoneReorderLookup: ['POST', '/api/v1/projects/{project_id}/structure-commands/lookup', 200],
   milestoneUpdate: ['PATCH', '/api/v1/projects/{project_id}/milestones/{target}', 200],
   milestoneUpdateLookup: ['POST', '/api/v1/projects/{project_id}/structure-commands/lookup', 200],
   milestoneCreate: ['POST', '/api/v1/projects/{project_id}/milestones', 200],
@@ -1170,6 +1172,8 @@ type WorkReviewEndpoint =
   | 'updateProjectVariable'
   | 'deleteProjectVariable'
   | 'lookupProjectVariable'
+  | 'milestoneReorder'
+  | 'milestoneReorderLookup'
   | 'milestoneUpdate'
   | 'milestoneUpdateLookup'
   | 'milestoneCreate'
@@ -1209,6 +1213,8 @@ const workReviewEndpoints: readonly WorkReviewEndpoint[] = [
   'updateProjectVariable',
   'deleteProjectVariable',
   'lookupProjectVariable',
+  'milestoneReorder',
+  'milestoneReorderLookup',
   'milestoneUpdate',
   'milestoneUpdateLookup',
   'milestoneCreate',
