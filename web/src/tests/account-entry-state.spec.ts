@@ -3,6 +3,7 @@ import { flushPromises } from '@vue/test-utils'
 import { createAccountAPI, type SessionView } from '../api/account'
 import { AccountFailure, type Fetch } from '../api/client'
 import { createSessionController } from '../composables/useSession'
+import { createAccountEntry } from '../composables/useAccountEntry'
 
 const id = '01900000-0000-7000-8000-000000000001',
   second = '01900000-0000-7000-8000-000000000002'
@@ -99,6 +100,85 @@ afterEach(() => {
 })
 
 describe('public Account shared ownership', () => {
+  it('keeps recovery quiet until submission and publishes only the accepted delivery channel', async () => {
+    const f = fixture(false)
+    const entry = createAccountEntry(f.auth)
+    try {
+      entry.afterNavigation('/forgot-password', '')
+      await flushPromises()
+      expect(entry.state.phase).toBe('ready')
+      expect(entry.state.notice).toBe('')
+      expect(entry.state.channel).toBeNull()
+      expect(f.fetch).not.toHaveBeenCalled()
+      f.setMutation(async () => json({ accepted: true, delivery_channel: 'smtp' }, 202))
+      await entry.submit({ email: 'member@example.com' })
+      expect(f.fetch.mock.calls.map(([path]) => path)).toEqual([
+        '/api/v1/session',
+        '/api/v1/auth/bootstrap',
+        '/api/v1/password-resets/request',
+      ])
+      expect(f.fetch.mock.calls.at(-1)?.[1].headers).toMatchObject({
+        'X-CSRF-Token': anonymousCSRF,
+      })
+      expect(entry.state).toMatchObject({ phase: 'success', channel: 'smtp' })
+      expect(entry.draft.email).toBe('member@example.com')
+      await entry.submit({ email: 'invalid' })
+      expect(entry.state.channel).toBeNull()
+      expect(entry.state.notice).toBe('')
+      expect(entry.state.fields.email).toBeTruthy()
+      expect(f.fetch).toHaveBeenCalledTimes(3)
+    } finally {
+      entry.dispose()
+      f.auth.leave()
+    }
+  })
+  it('keeps recovery input after preparation fails and allows a new user attempt', async () => {
+    const f = fixture(false)
+    const entry = createAccountEntry(f.auth)
+    try {
+      entry.afterNavigation('/forgot-password', '')
+      f.setSession(async () => {
+        throw new Error('offline')
+      })
+      await entry.submit({ email: 'member@example.com' })
+      expect(entry.state).toMatchObject({
+        phase: 'ready',
+        channel: null,
+        notice: '暂时无法申请恢复方式，请稍后重试。',
+      })
+      expect(entry.draft.email).toBe('member@example.com')
+      expect(f.fetch.mock.calls.map(([path]) => path)).toEqual(['/api/v1/session'])
+      f.setSession(async () => problem('UNAUTHENTICATED', 401))
+      await entry.submit({ email: entry.draft.email })
+      expect(entry.state.phase).toBe('success')
+    } finally {
+      entry.dispose()
+      f.auth.leave()
+    }
+  })
+  it('reuses the original recovery POST on another submit after Unknown without preparing again', async () => {
+    const f = fixture(false)
+    const entry = createAccountEntry(f.auth)
+    try {
+      entry.afterNavigation('/forgot-password', '')
+      f.setMutation(async () => problem('COMMIT_UNKNOWN', 503, 'unknown'))
+      await entry.submit({ email: 'member@example.com' })
+      expect(entry.state.phase).toBe('uncertain')
+      f.setMutation(async () => json({ accepted: true, delivery_channel: 'backend_log' }, 202))
+      await entry.submit({ email: 'different@example.com' })
+      const writes = f.fetch.mock.calls.filter(([path]) => path.endsWith('/request'))
+      expect(writes).toHaveLength(2)
+      expect(writes[1]![1].body).toBe(writes[0]![1].body)
+      expect(writes[1]![1].headers).toEqual(writes[0]![1].headers)
+      expect(entry.draft.email).toBe('member@example.com')
+      expect(entry.state.phase).toBe('success')
+      expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/bootstrap'))).toHaveLength(1)
+      expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/session'))).toHaveLength(1)
+    } finally {
+      entry.dispose()
+      f.auth.leave()
+    }
+  })
   it('accepts an empty streamed 204 only at EOF, then holds the same owner for Session confirmation', async () => {
     const f = fixture()
     await f.auth.entry.prepare()

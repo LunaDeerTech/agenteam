@@ -6,7 +6,6 @@ import { useSession } from '../../composables/useSession'
 import UiButton from '../../components/ui/UiButton.vue'
 import UiInput from '../../components/ui/UiInput.vue'
 import UiField from '../../components/ui/UiField.vue'
-import UiState from '../../components/ui/UiState.vue'
 import RotateChallenge from '../../components/account/RotateChallenge.vue'
 import AppBrand from '../../components/layout/AppBrand.vue'
 
@@ -18,9 +17,19 @@ const email = ref(''),
   password = ref('')
 const heading = ref<HTMLElement | null>(null),
   form = ref<HTMLFormElement | null>(null)
-const inputLocked = computed(() => state.busy || state.challengeBusy || state.phase === 'uncertain')
-const showForm = computed(() => ['anonymous', 'authenticating', 'uncertain'].includes(state.phase))
+const submitted = ref(false),
+  submitting = ref(false)
+const inputLocked = computed(
+  () => submitting.value || state.challengeBusy || state.phase === 'uncertain',
+)
+const submitBusy = computed(() => submitting.value || (submitted.value && state.busy))
+const notice = computed(() =>
+  submitted.value && !submitting.value && !Object.keys(state.fields).length ? state.notice : '',
+)
 const switching = computed(() => isAccountSwitch(route.query.switch))
+const choosingAccount = computed(
+  () => switching.value && ['authenticated', 'signing-out'].includes(state.phase),
+)
 let navigating = false
 let clearingForm = false
 function clearForm() {
@@ -97,9 +106,8 @@ watch(
   { flush: 'pre' },
 )
 watch(
-  () => [state.phase, state.busy, state.canRetryOriginal] as const,
-  async ([phase, busy, retryable]) => {
-    if (phase === 'unavailable' || (phase === 'uncertain' && !busy && !retryable)) clearForm()
+  () => [state.phase, state.busy] as const,
+  async ([phase, busy]) => {
     if (switching.value && phase === 'anonymous' && !busy && !navigating) {
       navigating = true
       try {
@@ -122,17 +130,20 @@ watch(
       }
     }
   },
+  { immediate: true },
 )
 async function login() {
-  await auth.login(email.value, password.value)
+  if (submitBusy.value || state.challengeBusy) return
+  submitted.value = true
+  submitting.value = true
+  try {
+    await auth.login(email.value, password.value)
+  } finally {
+    submitting.value = false
+  }
 }
 async function refreshChallenge() {
   await auth.createChallenge()
-}
-async function restart() {
-  if (state.busy) return
-  clearForm()
-  await auth.restart()
 }
 async function closeChallenge() {
   auth.dismissChallenge()
@@ -141,6 +152,7 @@ async function closeChallenge() {
 }
 async function switchLogout() {
   clearForm()
+  submitted.value = true
   await auth.logout()
   // The state watcher requires confirmed anonymous state; a void return or
   // Unknown never removes the identity choice or establishes a new login.
@@ -168,24 +180,27 @@ onUnmounted(() => {
       </RouterLink>
       <h1 id="login-title" ref="heading" tabindex="-1">登录</h1>
       <p class="login-description">使用邮箱和密码继续。</p>
-      <div
-        v-if="switching && (state.phase === 'authenticated' || state.phase === 'signing-out')"
-        class="ui-stack"
-      >
+      <div v-if="choosingAccount" class="ui-stack">
         <p class="account-notice">当前账号：{{ state.user?.display_name || state.user?.email }}</p>
         <RouterLink :to="safeReturnTarget(route.query.return)">返回当前账号</RouterLink>
-        <UiButton :disabled="state.busy" @click="switchLogout">退出当前账号后登录</UiButton>
+        <p v-if="notice" role="alert" class="account-notice">{{ notice }}</p>
+        <UiButton
+          :disabled="state.busy"
+          :state="state.busy ? 'loading' : 'idle'"
+          loading-label="退出中"
+          @click="switchLogout"
+          >退出当前账号后登录</UiButton
+        >
         <p class="login-description">切换账号后，请重新打开原邀请或重置链接。</p>
       </div>
-      <UiState
-        v-if="state.phase === 'checking'"
-        :kind="state.busy ? 'loading' : 'error'"
-        :title="state.busy ? '正在确认会话' : '请重新确认当前会话'"
-      >
-        <UiButton v-if="!state.busy" @click="auth.restore">检查当前会话</UiButton>
-      </UiState>
-      <form v-if="showForm" ref="form" class="ui-stack" @submit.prevent="login">
-        <UiField v-slot="field" label="邮箱" id="login-email" :error="state.fields.email" required>
+      <form v-if="!choosingAccount" ref="form" class="ui-stack" @submit.prevent="login">
+        <UiField
+          v-slot="field"
+          label="邮箱"
+          id="login-email"
+          :error="submitted ? state.fields.email : undefined"
+          required
+        >
           <UiInput
             :id="field.id"
             v-model="email"
@@ -202,7 +217,7 @@ onUnmounted(() => {
           v-slot="field"
           label="密码"
           id="login-password"
-          :error="state.fields.password"
+          :error="submitted ? state.fields.password : undefined"
           required
         >
           <UiInput
@@ -233,35 +248,25 @@ onUnmounted(() => {
           @click="refreshChallenge"
           >开始旋转验证</UiButton
         >
+        <p v-if="notice" id="login-feedback" role="alert" class="account-notice">{{ notice }}</p>
         <UiButton
           variant="primary"
           type="submit"
           data-action="login"
-          :state="state.phase === 'authenticating' ? 'loading' : 'idle'"
+          :state="submitBusy ? 'loading' : state.phase === 'authenticated' ? 'success' : 'idle'"
+          loading-label="登录中"
+          success-label="已登录"
+          :aria-describedby="notice ? 'login-feedback' : undefined"
           :disabled="
-            state.busy ||
+            submitBusy ||
             state.challengeBusy ||
-            state.phase === 'uncertain' ||
-            (state.challengeRequired && !state.passReady)
+            (state.phase !== 'uncertain' && state.challengeRequired && !state.passReady)
           "
           >登录</UiButton
         >
       </form>
-      <RouterLink v-if="!switching || state.phase === 'anonymous'" to="/forgot-password"
-        >找回密码</RouterLink
-      >
-      <p v-if="state.notice" role="alert" class="account-notice">{{ state.notice }}</p>
-      <div
-        v-if="state.phase === 'uncertain' || state.phase === 'unavailable'"
-        class="recovery-actions"
-      >
-        <UiButton :disabled="state.busy" @click="auth.restore">检查当前会话</UiButton>
-        <UiButton v-if="state.canRetryOriginal" :disabled="state.busy" @click="auth.retryOriginal"
-          >重试原请求</UiButton
-        >
-        <UiButton variant="ghost" :disabled="state.busy" @click="restart"
-          >放弃原请求，重新开始</UiButton
-        >
+      <div v-if="!switching || state.phase === 'anonymous'" class="account-navigation">
+        <RouterLink to="/forgot-password">找回密码</RouterLink>
       </div>
     </section>
   </main>
@@ -294,10 +299,8 @@ onUnmounted(() => {
 .account-notice {
   overflow-wrap: anywhere;
 }
-.recovery-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+.account-navigation {
+  text-align: center;
 }
 @media (max-width: 450px) {
   .login-panel {

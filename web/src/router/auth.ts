@@ -415,16 +415,18 @@ export function installAuthentication(router: Router, auth: SessionController = 
       return true
     }
     if (!to.meta.authentication) return true
-    await auth.restore()
+    if (to.name === 'login') {
+      if (auth.state.phase === 'authenticated' && !isAccountSwitch(to.query.switch))
+        return safeReturnTarget(to.query.return)
+      // The public form renders immediately. Only protected navigation waits
+      // for authority; a background check cannot hide the login inputs.
+      if (!to.redirectedFrom?.meta.protected) void auth.restore(false)
+      return true
+    }
+    await auth.restore(false)
     if (to.meta.protected && auth.state.phase !== 'authenticated') {
       return { name: 'login', query: { return: safeReturnTarget(to.fullPath) }, replace: true }
     }
-    if (
-      to.name === 'login' &&
-      auth.state.phase === 'authenticated' &&
-      !isAccountSwitch(to.query.switch)
-    )
-      return safeReturnTarget(to.query.return)
     return true
   })
   router.afterEach((to, from, failure) => {

@@ -133,7 +133,7 @@ interface PublicEntrySessionMethods {
 }
 ```
 
-`prepare` 在同一次原 owner 中直接 GET Session，200按真实 view 更新稳定身份，认可的401清当前 Session事实；其它失败不假匿名。随后仅在未持有可用匿名上下文时调用 bootstrap，并保留已确认 Session/其CSRF。若已有可用匿名CSRF则复用，不为取渠道盲目旋转；保存该成功 bootstrap 的 channel 供准备说明，reset request 的真实202 channel才是该次正式回执。匿名 bootstrap 的成功不自动注销/覆盖仍有效 Session；全局 theme/个人草稿按真实身份规则处理。private publish 的本卡分支允许保留匿名上下文，原普通 login/restore 的清理含义不变。
+`prepare` 在同一次原 owner 中直接 GET Session，200按真实 view 更新稳定身份，认可的401清当前 Session事实；其它失败不假匿名。随后仅在未持有可用匿名上下文时调用 bootstrap，并保留已确认 Session/其CSRF。若已有可用匿名CSRF则复用，不为取渠道盲目旋转；bootstrap 的 channel 仅保留为内部准备结果，找回页面只显示 reset request 真实202返回的渠道。匿名 bootstrap 的成功不自动注销/覆盖仍有效 Session；全局 theme/个人草稿按真实身份规则处理。private publish 的本卡分支允许保留匿名上下文，原普通 login/restore 的清理含义不变。
 
 五个新方法及 prepare 全部进入原 `owner`，忙/尚有另一不确定写时在新 key/transport 前明确 `AccountFailure('busy')`，不合并不同读，也不把旧 run 的 void/no-op 当结果。原登录/注销/改密确认中不插公开操作；公开原意图未放弃时 auth/personal/visibility 不得旋转、覆盖它。新门面错误用原 AccountFailure，不送进只懂登录字段的 `failure()`。原30s可见预算、actual fetch/body/cancel 单一终局、generation隔离保留；迟到结果/finally不能更改后继页面、主题、busy、字段或导航。
 
@@ -141,7 +141,7 @@ interface PublicEntrySessionMethods {
 
 | 事件 | 可见与内部结果 |
 | --- | --- |
-| 初次/显式准备 | 同 owner 确认 Session 与匿名上下文，成功后才 inspect/允许找回提交；失败局部重试，不能将其它依赖错误当401 |
+| 初次/显式准备 | 邀请/重置先由同 owner 确认 Session 与匿名上下文再 inspect；找回首屏直接显示表单，点击提交才准备，准备成功后才发业务 POST。失败就近反馈并保留输入，不能将其它依赖错误当401 |
 | inspect200 | 显示对应表单/到期提示；只是当前有效观察，不保证稍后提交成功，最终由服务端判断 |
 | 新写严格201/202 | 对应写已确认，释放原写重试材料；邀请清密码/token并提示登录，request保留邮箱及实际渠道说明。202不是发送成功/账号存在证明 |
 | reset严格204 | 立即确认命令、清密码/token/原意图并发布 confirming-session；然后在**同一 owner**直接 GET Session，不能嵌套 restore。200可能是仍有效的另一用户Session，401可能是目标原Session已撤销；不猜目标身份。失败发布 session-unconfirmed，返回 ResetConfirmation，绝不把已确认改密降回Unknown/再发reset |
@@ -156,9 +156,9 @@ HTTP没有公开 Account command lookup。服务内部可能在底层Unknown后�
 
 ## 6. 页面 owner、导航及显式身份转换
 
-新增 `createAccountEntry(auth)` / `accountEntryKey` / `useAccountEntry`，位于 `useAccountEntry.ts`。App创建并provide同一个页面 owner；其职责限三页 draft、已校验链接结果、局部错误/进度、dirty确认与导航，不拥有第二份认证事实/API/CSRF队列。页面模式闭集 invitation/forgot/reset；组件只提交本页字段，由owner私有链接组装typed input。初始化、显式重新检查、重新请求、原请求重试分别有动作，不把onMounted/watch/visibility作自动重提。
+新增 `createAccountEntry(auth)` / `accountEntryKey` / `useAccountEntry`，位于 `useAccountEntry.ts`。App创建并provide同一个页面 owner；其职责限三页 draft、已校验链接结果、局部错误/进度、dirty确认与导航，不拥有第二份认证事实/API/CSRF队列。页面模式闭集 invitation/forgot/reset；组件只提交本页字段，由owner私有链接组装typed input。邀请/重置保留初次准备与显式重新检查；找回初次只显示表单，在点击提交后准备所需上下文。重新请求与原请求重试分别保留各自意图，不把onMounted/watch/visibility作自动重提。
 
-`router/auth.ts` 新增与既有 personalNavigation 同型的 `installAccountEntryNavigation(router, owner)`：owner提供 `confirmLeave(): Promise<boolean>`、`afterNavigation(to:string,from:string):void`，返回撤销安装函数。先询问来源页dirty，再作目标准备/授权；取消不会擦除草稿。新三路由 `meta.accountEntry` 为闭集模式，并保留认证域生命周期标记，guard对该分支不用通用 restore/已登录跳首页；App visibility/pageshow 不在公开域盲目调用 restore。初次准备/重查由公开 owner 明确调用 entry.prepare；正常可见性变化保留当前表单/原意图。
+`router/auth.ts` 新增与既有 personalNavigation 同型的 `installAccountEntryNavigation(router, owner)`：owner提供 `confirmLeave(): Promise<boolean>`、`afterNavigation(to:string,from:string):void`，返回撤销安装函数。先询问来源页dirty，再作目标准备/授权；取消不会擦除草稿。新三路由 `meta.accountEntry` 为闭集模式，并保留认证域生命周期标记，guard对该分支不用通用 restore/已登录跳首页；App visibility/pageshow 不在公开域盲目调用 restore。邀请/重置的初次准备、重查，以及找回点击提交后的准备均由公开 owner 明确调用 entry.prepare；正常可见性变化保留当前表单/原意图。
 
 有未提交密码/资料或uncertain时，返回、菜单、路由back与新链接替换须显示“继续编辑/放弃并离开”确认；找回已202后的普通邮箱不是未确认命令，不阻止正常离页。确认前不得清原材料。公开请求仍占 actual owner 时，SPA导航不能凭普通restore的void/no-op放行保护页；留当前页显示等待/稍后重试导航，不释放owner或暗中发第二次请求。浏览器硬离开只能做本地清理，不能承诺服务器回滚。新链接替换、相同route变化与 App unmount 均解除自己的监听/确认回调，旧代清理不能影响新代。
 
@@ -178,7 +178,7 @@ HTTP没有公开 Account command lookup。服务内部可能在底层Unknown后�
 
 邀请先校验再显示邮箱只读、username、display_name、password、confirmation；固定邮箱不作为可改请求字段。用户名占用/保留字与弱密码就近反馈，字段拒绝保留其它输入。失效链接提示联系管理员；不在公开页提供发邀请功能。
 
-找回只填邮箱。202统一提示“如果该邮箱可用，将按当前渠道提供恢复方式”，保留邮箱与明确再次申请按钮；smtp说明查看邮件，backend_log才说明请有权限访问受限后端日志的人协助转交。无账号存在性、token、恢复URL、jobID、投递日志/错误细节或送达承诺。客户端不能因smtp报错改成backend_log；重复请求不暗中延长有效期，由后端实际规则决定。
+找回只填邮箱，首屏不显示准备状态、技术检查/放弃按钮或渠道说明。点击提交后才准备 Session/匿名 CSRF，准备和请求期间主按钮显示加载；失败保留邮箱，在按钮附近显示一条简短错误，字段错误就近展示。真实202后统一提示“如果该邮箱可用，将按当前渠道提供恢复方式”，保留邮箱与明确再次申请按钮；smtp说明查看邮件，backend_log才说明请有权限访问受限后端日志的人协助转交，底部保留返回登录。无账号存在性、token、恢复URL、jobID、投递日志/错误细节或送达承诺。客户端不能因smtp报错改成backend_log；重复请求不暗中延长有效期，由后端实际规则决定。Unknown仍使用原key/context/body明确重试并保留必要离开确认，不通过重新准备生成新意图。
 
 重置只填新密码和确认密码；inspect不返回目标email，不能从当前Session/先前找回输入猜目标。失效可显式转到找回页；成功提示重新登录。管理员与普通用户相同，没有管理员快捷重置。复用当前Ui控件、主题tokens、自动填充与键盘语义；密码允许粘贴。进入页标题聚焦；失败焦点移到合适字段/错误区，异步结果不抢走用户已移开的焦点。成功先清敏感输入再布局取证，长email/错误可换行，无横向溢出。
 

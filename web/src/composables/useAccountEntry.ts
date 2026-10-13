@@ -70,6 +70,7 @@ export function createAccountEntry(
   let confirmationPromise: Promise<boolean> | null = null,
     resolveConfirmation: ((value: boolean) => void) | null = null
   let replacing = false
+  const busy = computed(() => auth.state.busy)
   const locked = computed(
     () =>
       auth.state.busy || ['submitting', 'uncertain', 'confirming-session'].includes(state.phase),
@@ -137,6 +138,10 @@ export function createAccountEntry(
     state.fields = fields
     if (auth.entry.progress?.phase === 'uncertain') {
       state.phase = 'uncertain'
+      if (state.mode === 'forgot') {
+        state.notice = '暂时无法确认提交结果，请重试。'
+        return
+      }
       state.notice = auth.entry.progress.contextValid
         ? '原请求结果仍未确认。只能重试原请求，或明确放弃。'
         : '原请求结果仍未知，原上下文已失效，无法重放。请明确放弃后继续。'
@@ -154,6 +159,17 @@ export function createAccountEntry(
       state.notice = '当前账号不能兑换此邀请。切换账号后，请重新打开原邀请链接。'
     } else {
       state.phase = state.mode === 'forgot' || state.expiresAt ? 'ready' : 'failed'
+      if (state.mode === 'forgot') {
+        state.channel = null
+        state.notice = Object.keys(fields).length
+          ? ''
+          : e.problem?.status === 429
+            ? '申请过于频繁，请稍后重试。'
+            : e.kind === 'busy'
+              ? '上一次操作尚未结束，请稍后重试。'
+              : '暂时无法申请恢复方式，请稍后重试。'
+        return
+      }
       state.notice =
         e.problem?.code === 'CSRF_FAILED'
           ? '公开入口上下文已失效，请重新检查。'
@@ -180,7 +196,7 @@ export function createAccountEntry(
     try {
       const result = await auth.entry.prepare()
       if (captured !== revision || disposed) return
-      state.channel = result.deliveryChannel
+      if (state.mode !== 'forgot') state.channel = result.deliveryChannel
       if (state.mode === 'invitation' && token) {
         const inspection = await auth.entry.inspectInvitation({ token })
         if (captured !== revision || disposed) return
@@ -228,7 +244,8 @@ export function createAccountEntry(
       }
       token = captured.token
     }
-    void prepare()
+    if (mode === 'forgot') state.phase = 'ready'
+    else void prepare()
   }
   function afterNavigation(to: string, from: string) {
     if (disposed) return
@@ -295,8 +312,9 @@ export function createAccountEntry(
     clearDraft()
     links.discard()
     finishConfirmation(false)
-    state.phase = state.mode === 'forgot' ? 'failed' : 'missing'
-    state.notice = state.mode === 'forgot' ? '请重新检查后申请恢复方式。' : '请重新打开原链接。'
+    state.phase = state.mode === 'forgot' ? 'ready' : 'missing'
+    state.notice = state.mode === 'forgot' ? '' : '请重新打开原链接。'
+    if (state.mode === 'forgot') state.channel = null
   }
   window.addEventListener('beforeunload', beforeUnload)
   window.addEventListener('pagehide', pageHidden)
@@ -329,7 +347,8 @@ export function createAccountEntry(
       if (draft.confirmation !== draft.password) fields.confirmation = '两次密码必须完全一致。'
     }
     state.fields = fields
-    if (Object.keys(fields).length) state.notice = '请检查标出的字段。'
+    if (Object.keys(fields).length)
+      state.notice = state.mode === 'forgot' ? '' : '请检查标出的字段。'
     return !Object.keys(fields).length
   }
   function accepted(result: EntryMutationResult) {
@@ -355,6 +374,11 @@ export function createAccountEntry(
     }
   }
   async function submit(values: Partial<Draft>) {
+    if (!disposed && state.mode === 'forgot' && state.phase === 'uncertain') {
+      // The visible submit action retries the frozen command, not edited input.
+      await retryOriginal()
+      return
+    }
     if (
       disposed ||
       locked.value ||
@@ -365,6 +389,12 @@ export function createAccountEntry(
     // Values are captured synchronously from the native form before the first await.
     for (const name of ['email', 'username', 'display_name', 'password', 'confirmation'] as const)
       if (typeof values[name] === 'string') draft[name] = values[name]
+    if (state.mode === 'forgot') {
+      state.phase = 'ready'
+      state.channel = null
+      state.notice = ''
+      state.requestID = ''
+    }
     if (!validate()) return
     const captured = revision,
       mode = state.mode
@@ -386,7 +416,12 @@ export function createAccountEntry(
     state.phase = 'submitting'
     state.notice = ''
     state.requestID = ''
+    if (mode === 'forgot') state.channel = null
     try {
+      if (mode === 'forgot') {
+        await auth.entry.prepare()
+        if (captured !== revision || disposed) return
+      }
       const result: EntryMutationResult =
         mode === 'forgot'
           ? { kind: 'reset-request', value: await auth.entry.requestPasswordReset(email) }
@@ -437,6 +472,7 @@ export function createAccountEntry(
     draft,
     confirmation: readonly(confirmation),
     locked,
+    busy,
     dirty,
     loginTarget,
     get canRetryOriginal() {

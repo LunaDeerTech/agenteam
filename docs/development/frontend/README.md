@@ -53,7 +53,7 @@ npm run preview --prefix web
 
 ## 骨架与新页面
 
-`/login` 使用独立认证布局。根路径 `/` 先检查真实 Session，再显示 AppShell、当前身份、退出操作、“首页”标题和空 Dashboard 容器。右上本人名称直达资料页，首页初始密码建议直达修改密码页，可继续使用系统。检查失败提供恢复入口，不显示旧的受保护内容。AppShell 内容区独立滚动，认证顶部区域在窄宽度或放大时可换行，保留品牌及退出操作。系统“项目”入口指向 `/projects`；ProjectNav 位于已授权的项目工作区内部，与系统导航并存。当前没有 Inbox、全局搜索或其它尚未实现的入口。
+`/login` 使用独立认证布局。根路径 `/` 和受保护路由先检查真实 Session；未登录或无法确认时进入正常登录表单，不显示旧的受保护内容，内部仍区分匿名与查询失败。直接打开普通 `/login` 时，有效 Session 进入首页或合法返回目标；首屏查询失败静默，不显示技术检查或放弃按钮。登录提交时确保完成必要的 Session/匿名 CSRF 准备，业务 POST 前验证；主按钮显示加载，失败在附近给一条简短错误并保留输入，字段错误就近显示。确认身份后显示 AppShell、当前身份、退出操作、“首页”标题和空 Dashboard 容器。右上本人名称直达资料页，首页初始密码建议直达修改密码页，可继续使用系统。AppShell 内容区独立滚动，认证顶部区域在窄宽度或放大时可换行，保留品牌及退出操作。系统“项目”入口指向 `/projects`；ProjectNav 位于已授权的项目工作区内部，与系统导航并存。当前没有 Inbox、全局搜索或其它尚未实现的入口。
 
 在 `router/index.ts` 的 `routes` 注册正式页面，使用懒加载 `component`，为需要导航的路由声明 `meta.navigation: { label, order }`。SystemNav 从路由元数据读取入口，不需要复制导航数组或改写骨架。认证路由通过 `router/auth.ts` 及单一 `useSession` 协调，登录返回目标保留原十四个精确静态路径：`/`、`/settings/profile`、`/settings/appearance`、`/settings/password`、`/system/users`、`/system/invitations`、`/system/providers`、`/system/models`、`/system/model-selection`、`/system/account-security`、`/system/smtp`、`/system/outbound-policy`、`/system/audit`、`/system/runtime-information`，并增加 `/projects` 及下节严格 Project 路径。`/settings`、`/system`、query/hash、数组、外部 URL、其余动态后缀与未知系统叶子均不是返回目标；未知路径显示未找到提示。系统导航只向当前已确认且未被系统权限拒绝的 admin 展示“系统设置”。
 
@@ -274,10 +274,10 @@ sh scripts/test-objects.sh -run '^(TestAccountProjectOwnerAuditWebNavigationAndL
 | 路由 | 实际操作 |
 | --- | --- |
 | `/invite` | 校验真实邀请链接、填写账号并兑换；成功后由用户明确登录，不自动创建Session |
-| `/forgot-password` | 提交找回申请并显示统一渠道说明；202不证明账号存在或已经投递 |
+| `/forgot-password` | 首屏显示邮箱表单；点击提交才准备所需上下文，真实202后显示统一渠道说明；底部返回登录；202不证明账号存在或已经投递 |
 | `/reset-password` | 校验链接、设置密码；确认后清输入并核对当前Session，不猜目标身份或自动改绑账号 |
 
-链接材料在history建立前移除，仅由私有页面owner持有；刷新后须重新打开原链接。有效Session可与匿名CSRF共存，三个公开写入仍使用匿名authority。`/login?switch=1`只提供显式身份选择，必须由用户点击注销；不额外扩展上述登录返回闭集。原写结果未知时保持原key/context/body供明确重试，不自动重发。
+链接材料在history建立前移除，仅由私有页面owner持有；刷新后须重新打开原链接。有效Session可与匿名CSRF共存，三个公开写入仍使用匿名authority。找回的 Session/匿名 CSRF 准备在业务 POST 前完成，准备或提交失败在主按钮附近显示一条短错误、保留邮箱，字段错误就近展示；不会先展示 SMTP/日志渠道说明。`/login?switch=1`只提供显式身份选择，必须由用户点击注销；不额外扩展上述登录返回闭集。原写结果未知时保持原key/context/body供明确重试，不自动重发，必要的离开确认保持。
 
 本卡151项pure/格式/类型/构建通过，四个新顶层和原认证四个、设置四个顶层按固定输入及未变语义分轮闭合；首红、CDP根因未知与观察修订保留。独立真实跨账号及已验management/ledger00018组合通过。测试clone只证明实际响应JSON形状，不证明原stream尾部；CSS `zoom=2`不是原生浏览器缩放。实际投递渠道为受限backend_log，没有新增真实SMTP、生产SPA托管或Vite开发代理浏览器验收，完整D26/D27仍未完成。
 

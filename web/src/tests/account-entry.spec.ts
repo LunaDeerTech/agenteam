@@ -221,11 +221,16 @@ describe('public Account pages and navigation', () => {
     'keeps generic recovery feedback and email for explicit repeat: %s',
     async (channel) => {
       const f = await page('/forgot-password', false, channel)
+      expect(f.fetch).not.toHaveBeenCalled()
+      expect(f.wrapper.find('[role="alert"]').exists()).toBe(false)
+      expect(f.wrapper.text()).not.toMatch(/恢复邮件|受限后端日志|重新检查|放弃原请求/)
       await f.wrapper.get('input[name="email"]').setValue('unknown@example.com')
       await f.wrapper.get('form').trigger('submit')
       await flushPromises()
       expect(f.wrapper.text()).toContain('如果该邮箱可用，将按当前渠道提供恢复方式。')
-      expect(f.wrapper.text()).toContain(channel === 'smtp' ? '请查看邮箱' : '受限后端日志')
+      expect(f.wrapper.text()).toContain(channel === 'smtp' ? '请留意恢复邮件' : '受限后端日志')
+      expect(f.wrapper.get('button[type="submit"]').attributes('aria-label')).toBe('已受理')
+      expect(f.wrapper.get('.entry-panel').element.lastElementChild?.textContent).toBe('返回登录')
       expect((f.wrapper.get('input[name="email"]').element as HTMLInputElement).value).toBe(
         'unknown@example.com',
       )
@@ -236,6 +241,84 @@ describe('public Account pages and navigation', () => {
       expect(document.querySelector('[role="dialog"]')).toBeNull()
     },
   )
+
+  it('keeps recovery fields and navigation stable when preparation fails after submit', async () => {
+    const f = await page('/forgot-password')
+    f.setSession(async () => problem('DEPENDENCY_UNAVAILABLE'))
+    await f.wrapper.get('input[name="email"]').setValue('unknown@example.com')
+    await f.wrapper.get('form').trigger('submit')
+    await flushPromises()
+    const feedback = f.wrapper.get('form [role="alert"]')
+    expect(feedback.text()).toContain('暂时无法')
+    expect(feedback.element.nextElementSibling).toBe(f.wrapper.get('button[type="submit"]').element)
+    expect(f.wrapper.get('input[name="email"]').element).toHaveProperty(
+      'value',
+      'unknown@example.com',
+    )
+    expect(f.wrapper.get('input[name="email"]').attributes('readonly')).toBeUndefined()
+    expect(f.wrapper.get('button[type="submit"]').attributes('disabled')).toBeUndefined()
+    expect(f.wrapper.findAll('button')).toHaveLength(1)
+    expect(f.wrapper.text()).not.toMatch(/重新检查|重试原请求|放弃原请求|恢复邮件|受限后端日志/)
+    expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/request'))).toHaveLength(0)
+    expect(f.wrapper.get('.entry-panel').element.lastElementChild?.textContent).toBe('返回登录')
+  })
+
+  it('keeps recovery validation beside the email without a global message or recovery actions', async () => {
+    const f = await page('/forgot-password')
+    await f.wrapper.get('input[name="email"]').setValue('invalid')
+    await f.wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(f.wrapper.get('input[name="email"]').attributes('aria-invalid')).toBe('true')
+    expect(f.wrapper.get('.field-note').text()).toContain('请输入完整的邮箱地址')
+    expect(f.wrapper.find('#forgot-feedback').exists()).toBe(false)
+    expect(f.wrapper.text()).not.toMatch(/请检查标出的字段|重新检查|放弃原请求/)
+    expect(document.activeElement).toBe(f.wrapper.get('input[name="email"]').element)
+    expect(f.fetch).not.toHaveBeenCalled()
+    expect(f.wrapper.findAll('button')).toHaveLength(1)
+  })
+
+  it('keeps the recovery button loading across preparation and prevents duplicate submissions', async () => {
+    const f = await page('/forgot-password')
+    const held = barrier<Response>()
+    f.setSession(() => held.promise)
+    await f.wrapper.get('input[name="email"]').setValue('unknown@example.com')
+    await f.wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(f.wrapper.get('button[type="submit"]').attributes('aria-busy')).toBe('true')
+    expect(f.wrapper.get('button[type="submit"]').attributes('aria-label')).toBe('正在申请')
+    expect(f.wrapper.get('input[name="email"]').attributes()).toHaveProperty('readonly')
+    await f.wrapper.get('form').trigger('submit')
+    held.resolve(problem('UNAUTHENTICATED', 401))
+    await flushPromises()
+    expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/request'))).toHaveLength(1)
+    expect(f.wrapper.get('button[type="submit"]').attributes('aria-label')).toBe('已受理')
+  })
+
+  it('retries an unknown recovery request through its original submit button with unchanged material', async () => {
+    const f = await page('/forgot-password')
+    f.setMutation(async () => problem('COMMIT_UNKNOWN'))
+    await f.wrapper.get('input[name="email"]').setValue('unknown@example.com')
+    await f.wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(f.wrapper.get('input[name="email"]').attributes()).toHaveProperty('readonly')
+    expect(f.wrapper.get('button[type="submit"]').attributes('disabled')).toBeUndefined()
+    expect(f.wrapper.findAll('button')).toHaveLength(1)
+    expect(f.wrapper.text()).not.toMatch(/重新检查|重试原请求|放弃原请求|受限后端日志/)
+    f.setMutation(async () => json({ accepted: true, delivery_channel: 'backend_log' }, 202))
+    await f.wrapper.get('form').trigger('submit')
+    await flushPromises()
+    const requests = f.fetch.mock.calls.filter(([path]) => path.endsWith('/request'))
+    expect(requests).toHaveLength(2)
+    expect(requests[1]![1].body).toBe(requests[0]![1].body)
+    const originalKey = new Headers(requests[0]![1].headers).get('Idempotency-Key')
+    expect(originalKey).toBeTruthy()
+    expect(new Headers(requests[1]![1].headers).get('Idempotency-Key')).toBe(originalKey)
+    expect(f.wrapper.get('button[type="submit"]').attributes('aria-label')).toBe('已受理')
+    expect(f.wrapper.get('input[name="email"]').element).toHaveProperty(
+      'value',
+      'unknown@example.com',
+    )
+  })
 
   it.each(['null', 'empty-stream'])(
     'clears reset secrets at 204 (%s) before GET and never resubmits after the check fails',
