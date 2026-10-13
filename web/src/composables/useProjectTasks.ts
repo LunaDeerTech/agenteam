@@ -96,6 +96,8 @@ function explain(error: unknown): string {
     INVALID_STATE: '任务当前状态不允许此操作，请重新读取。',
     TASK_DEPENDENCY_CYCLE: '该依赖会形成循环，请选择其他关联任务。',
     TASK_BLOCKERS_UNRESOLVED: '任务仍有未解除的阻塞。',
+    TASK_TERMINAL_IMMUTABLE: '任务已经结束，不能再添加或解除阻塞。请重新读取当前任务。',
+    LAST_BLOCKER_REQUIRES_TASK_TRANSITION: '这是受阻任务的最后一项未解除阻塞，需要与任务恢复一并处理，不能在这里单独解除。',
   }
   return messages[e.problem?.code ?? ''] ?? '未取得完整结果，请在当前请求结束后重新读取。'
 }
@@ -911,15 +913,15 @@ export function createProjectTasks(
       !sprintStart.open &&
       !sprintStart.needsRead,
   )
-  const canEdit = computed(
+  const canChangeTask = computed(
     () =>
       visible.value &&
       workspace.detail.project?.lifecycle === 'active' &&
       state.detailCurrent &&
       !!state.sprint &&
       ['planned', 'current'].includes(state.sprint.state) &&
-      state.task?.state === 'backlog' &&
-      state.task.assignee_agent_id === null &&
+      !!state.task &&
+      !['done', 'cancelled'].includes(state.task.state) &&
       !pending.value &&
       !sprintPending.value &&
       !sprintCreatePending.value &&
@@ -935,8 +937,9 @@ export function createProjectTasks(
       !sprintStart.open &&
       !sprintStart.needsRead,
   )
-  const canManageHumanBlockers = computed(() => canEdit.value && !taskReorder.open && !edit.open && !dependency.open && !draft.action && state.blockerPhase === 'ready')
-  const canManageDependencies = computed(() => canEdit.value && !taskReorder.open && !edit.open && !humanBlocker.open && !draft.action && state.blockerPhase === 'ready')
+  const canEdit = computed(() => canChangeTask.value && state.task?.state === 'backlog' && state.task.assignee_agent_id === null)
+  const canManageHumanBlockers = computed(() => canChangeTask.value && !taskReorder.open && !edit.open && !dependency.open && !draft.action && state.blockerPhase === 'ready')
+  const canManageDependencies = computed(() => canChangeTask.value && !taskReorder.open && !edit.open && !humanBlocker.open && !draft.action && state.blockerPhase === 'ready')
   const canReorderTask = computed(() => canEdit.value && !edit.open && !humanBlocker.open && !dependency.open && !draft.action)
   const taskReorderStale = computed(() => taskReorder.open && (
     taskReorder.conflict || taskReorder.projectID !== projectID.value ||
@@ -3643,8 +3646,8 @@ export function createProjectTasks(
         : captureHumanBlockerResolve({ expected_version: humanBlocker.version, request: { blocker_id: humanBlocker.blockerID, resolution_comment: humanBlocker.resolutionComment === '' ? null : humanBlocker.resolutionComment } })
       if (auth.workReview.progress?.phase === 'rejected') auth.workReview.editRejected()
       const result = 'description' in value.request
-        ? await auth.workTaskBlockers.add(p, task.id, captureHumanBlockerDraft(value))
-        : await auth.workTaskBlockers.resolve(p, task.id, captureHumanBlockerResolve(value))
+        ? await auth.workTaskBlockers.add(p, task.id, captureHumanBlockerDraft(value), task)
+        : await auth.workTaskBlockers.resolve(p, task.id, captureHumanBlockerResolve(value), task)
       if ('status' in result || !('blocker' in result) || !current()) return
       clearHumanBlocker()
       clearDependency()
@@ -3739,8 +3742,8 @@ export function createProjectTasks(
         : captureTaskDependencyResolve({ expected_version: dependency.version, request: { blocker_id: dependency.blockerID, resolution_comment: dependency.resolutionComment === '' ? null : dependency.resolutionComment } })
       if (auth.workReview.progress?.phase === 'rejected') auth.workReview.editRejected()
       const result = 'description' in value.request
-        ? await auth.workTaskDependencies.add(p, task.id, captureTaskDependencyDraft(value))
-        : await auth.workTaskDependencies.resolve(p, task.id, captureTaskDependencyResolve(value), related)
+        ? await auth.workTaskDependencies.add(p, task.id, captureTaskDependencyDraft(value), task)
+        : await auth.workTaskDependencies.resolve(p, task.id, captureTaskDependencyResolve(value), related, task)
       if ('status' in result || !('blocker' in result) || !current()) return
       clearDependency(); invalidateHumanBlockerReads()
       state.feedback = mode === 'add' ? '任务依赖已添加。' : '任务依赖已解除。'

@@ -207,14 +207,14 @@ const canSubmit = computed(
     <section>
       <h3>阻塞与依赖</h3>
       <UiButton
-        v-if="task.state === 'backlog' && task.assignee_agent_id === null && !owner.pending.value"
+        v-if="!['done', 'cancelled'].includes(task.state) && !owner.pending.value"
         ref="addBlockerButton"
         :disabled="owner.busy.value || !owner.canManageHumanBlockers.value || owner.humanBlocker.open"
         @click="openBlocker($event)"
         >添加人工阻塞</UiButton
       >
       <UiButton
-        v-if="task.state === 'backlog' && task.assignee_agent_id === null && !owner.pending.value"
+        v-if="!['done', 'cancelled'].includes(task.state) && !owner.pending.value"
         ref="addDependencyButton"
         :disabled="owner.busy.value || !owner.canManageDependencies.value || owner.dependency.open"
         @click="openDependency($event)"
@@ -238,14 +238,14 @@ const canSubmit = computed(
           <p v-if="b.related_task_id">关联任务：{{ b.related_task_id }}</p>
           <UiButton v-if="b.type === 'rely_on' && b.related_task_id" :disabled="owner.busy.value" @click="owner.viewDependency(b.id)">查看关联任务</UiButton>
           <UiButton
-            v-if="b.type === 'rely_on' && b.resolved_at === null && task.state === 'backlog' && task.assignee_agent_id === null && !owner.pending.value"
+            v-if="b.type === 'rely_on' && b.resolved_at === null && !['done', 'cancelled'].includes(task.state) && !owner.pending.value"
             :disabled="owner.busy.value || !owner.canManageDependencies.value || owner.dependency.open"
             @click="openDependency($event, b.id)"
             >解除任务依赖</UiButton
           >
           <p v-if="b.resolution_comment">{{ b.resolution_comment }}</p>
           <UiButton
-            v-if="b.type === 'waiting_for_human' && b.resolved_at === null && task.state === 'backlog' && task.assignee_agent_id === null && !owner.pending.value"
+            v-if="b.type === 'waiting_for_human' && b.resolved_at === null && !['done', 'cancelled'].includes(task.state) && !owner.pending.value"
             :disabled="owner.busy.value || !owner.canManageHumanBlockers.value || owner.humanBlocker.open"
             @click="openBlocker($event, b.id)"
             >解除人工阻塞</UiButton

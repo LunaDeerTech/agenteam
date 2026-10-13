@@ -23,6 +23,19 @@ const write = { csrfToken: 'S'.repeat(43), key: 'original-task-dependency-1' }
 const signal = new AbortController().signal
 
 describe('Task dependency closed HTTP contract', () => {
+  it('accepts assigned nonterminal dependency receipts and rejects terminal Tasks', async () => {
+    const original = receipt()
+    for (const state of ['backlog', 'todo', 'in_progress', 'in_review', 'blocked']) {
+      const value = { ...original, task: { ...original.task, state, assignee_agent_id: id(7) } }
+      await expect(createWorkTaskDependenciesAPI(async () => json(value)).add(p, t, addInput(), write))
+        .resolves.toMatchObject({ task: { state, assignee_agent_id: id(7) } })
+    }
+    for (const state of ['done', 'cancelled']) {
+      const value = { ...original, task: { ...original.task, state } }
+      await expect(createWorkTaskDependenciesAPI(async () => json(value)).add(p, t, addInput(), write))
+        .rejects.toMatchObject({ kind: 'invalid-response' })
+    }
+  })
   it('reads a full Project page in Sprint/state/priority/rank/ID order without loosening board queries', async () => {
     const items = [
       candidate(61, 'done'),
