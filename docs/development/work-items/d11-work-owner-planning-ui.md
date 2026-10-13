@@ -328,6 +328,6 @@ cleanup有限接受1440×960浅色创建表单和390×844深色planned结果两�
 
 [Milestone 排序切片](d11-milestone-reorder-ui.md)已交独立审查，75 项定向前端测试、完整类型检查及构建通过；native02 的 1 top/2 sub 与两个浏览器调用实际通过，覆盖同项目跨页 before/组尾及四宽度浅深主题，B 不变。原 native01 磁盘耗尽中止与缓存退出失败保留；浏览器未新增 Unknown/丢响应场景，原 Lookup 恢复仅按该卡注明的受控测试范围验收，不外推完整 D11/D27、default Registry 或 E01。
 
-## 21. 当前 Sprint 的 Agent 筛选（实现中）
+## 21. 当前 Sprint 的 Agent 筛选限定验收（2026-10-13）
 
-[Agent 筛选切片](d11-task-assignee-filter-ui.md)沿 §18–19 的服务端查询增加全部、未指派及真实项目 Agent 选择与目录分页。草稿明确应用、原 cursor 条件和身份代际保持；当前仅实现候选，前端与真实浏览器检查尚未运行，不改写先前切片的验收结论。
+[Agent 筛选切片](d11-task-assignee-filter-ui.md)已通过限定验收，沿 §18–19 的服务端查询增加全部、未指派及真实项目 Agent 选择与目录分页。草稿明确应用、原 cursor 条件和身份代际保持；43 项分段前端结果、完整类型检查与构建通过。真实 Work HTTP shell 的 native01 1 top/2 sub 验证 50+1 Agent 目录、同 Agent 任务分页、三态/组合筛选与详情往返，相关 A/B 业务事实不变，原 Wait 与六资源退出闭合；1440 浅色和 390 深色四图有限接受。原 basic01 两个旧断言失败及修正保留，不称默认 App 生命周期、完整权限或响应式矩阵通过，不改写先前切片及旧 STOP。
