@@ -32,6 +32,7 @@ type lifecycleCleanupOwner struct {
 	scheduler *lifecycleCleanupRound
 	work      *workCleanupRound
 	usage     *usageCleanupRound
+	knowledge *knowledgeCleanupRound
 	execution *executionCleanupRound
 }
 
@@ -47,6 +48,7 @@ type lifecycleCleanupState struct {
 	scheduler         c.ProjectLifecycleParticipant
 	work              c.ProjectLifecycleParticipant
 	usage             c.ProjectLifecycleParticipant
+	knowledge         c.ProjectLifecycleParticipant
 	executions        ec.ProjectExecutionRetirementConsumer
 	skills            SkillsCleanupDomain
 	agents            ac.ProjectRetirementConsumer
@@ -102,6 +104,12 @@ func (d *LifecycleCleanupDriver) Run(ctx context.Context, project c.ProjectID, o
 	st := d.state
 	var retainedFinal *lifecycleFinalizeRound
 	var retainedExecution *executionCleanupRound
+	var retainedKnowledge *knowledgeCleanupRound
+	if st.knowledge != nil {
+		st.mu.Lock()
+		retainedKnowledge = st.owners[operation].knowledge
+		st.mu.Unlock()
+	}
 	var retainedUsage *usageCleanupRound
 	if st.usage != nil {
 		st.mu.Lock()
@@ -126,7 +134,7 @@ func (d *LifecycleCleanupDriver) Run(ctx context.Context, project c.ProjectID, o
 	}
 	// The original authority owns this short-lived admission across driver
 	// instances, including the final Store return after physical COMMIT.
-	release, err := st.authority.beginCleanupDomainCall(ctx, project, retainedFinal, retainedExecution, retainedWork, retainedUsage)
+	release, err := st.authority.beginCleanupDomainCall(ctx, project, retainedFinal, retainedExecution, retainedWork, retainedUsage, retainedKnowledge)
 	if err != nil {
 		return err
 	}
@@ -153,6 +161,7 @@ func (d *LifecycleCleanupDriver) Run(ctx context.Context, project c.ProjectID, o
 	var execution *executionCleanupRound
 	var work *workCleanupRound
 	var usage *usageCleanupRound
+	var knowledge *knowledgeCleanupRound
 	settled := false
 	defer func() {
 		cancel()
@@ -161,10 +170,14 @@ func (d *LifecycleCleanupDriver) Run(ctx context.Context, project c.ProjectID, o
 			st.authority.releaseExecutionCleanup(execution)
 			st.authority.releaseWorkCleanup(work)
 			st.authority.releaseUsageCleanup(usage)
+			st.authority.releaseKnowledgeCleanup(knowledge)
 		}
 		st.mu.Lock()
-		if settled || st.finalizer != nil && final == nil || st.executions != nil && execution == nil || st.work != nil && work == nil || st.usage != nil && usage == nil || round == nil && final == nil && execution == nil && work == nil && usage == nil && !owned {
+		if settled || st.finalizer != nil && final == nil || st.executions != nil && execution == nil || st.work != nil && work == nil || st.usage != nil && usage == nil || st.knowledge != nil && knowledge == nil || round == nil && final == nil && execution == nil && work == nil && usage == nil && knowledge == nil && !owned {
 			delete(st.owners, operation)
+		} else if knowledge != nil {
+			claim := knowledge.round.claim
+			st.owners[operation] = lifecycleCleanupOwner{project: project, claim: &claim, prior: knowledge.round.previous, knowledge: knowledge}
 		} else if usage != nil {
 			claim := usage.round.claim
 			st.owners[operation] = lifecycleCleanupOwner{project: project, claim: &claim, prior: usage.round.previous, usage: usage}
@@ -195,6 +208,11 @@ func (d *LifecycleCleanupDriver) Run(ctx context.Context, project c.ProjectID, o
 		st.changed = make(chan struct{})
 		st.mu.Unlock()
 	}()
+	if st.knowledge != nil {
+		knowledge = old.knowledge
+		knowledge, settled, err = st.runKnowledgeCleanup(run, project, operation, knowledge)
+		return err
+	}
 	if st.usage != nil {
 		usage = old.usage
 		usage, settled, err = st.runUsageCleanup(run, project, operation, usage)
@@ -354,6 +372,9 @@ func (st *lifecycleCleanupState) invoke(ctx context.Context, round lifecycleClea
 	ctx = context.WithValue(ctx, lifecycleCleanupScopeKey{}, witness)
 	if round.participant == c.WorkParticipant {
 		ctx = context.WithValue(ctx, workCleanupScopeKey{}, witness)
+	}
+	if round.participant == c.KnowledgeParticipant {
+		ctx = context.WithValue(ctx, knowledgeCleanupScopeKey{}, witness)
 	}
 	if round.participant == c.UsageParticipant {
 		ctx = context.WithValue(ctx, usageCleanupScopeKey{}, witness)

@@ -272,6 +272,14 @@ Work Stop 仅消费原 LifecycleStopDriver 当前 invoke 的独立私有 loan；
 
 后继显式 `NewProjectCallOwnershipWithReaders` 将三类独立 Reader 的八个完整调用纳入同一 pair 的 structure/task/blocker read 归属；构造自己的 Reader 图并供原 Task/Blocker/Transition 借用，不替换调用方旧 Reader，借入 Tx 只消费同 pair、精确 P/lane 的活私见证。`4dc202a8` 的 native01 三组实际通过（36.73s）：八个非空读取、原 Store/方法返回屏障、B 隔离；技术 Unknown 保首次返回值及 attempt/cause，经同 Tx 零写确认实际返回后继续；Archive 不取消原 read，后续八个读取仍成功且业务历史不变。基础 10 top/20 sub 与 vet 通过，原 Wait 和六项资源均清退，见[结果](../../../output/ai/project-work-reader-stop-delivery/native01/result.json)与[日志](../../../output/ai/project-work-reader-stop-delivery/native01/browser.log)。本片无新 schema，默认 App 未绑定，不外推独立调度/Execution borrower、Work Cleanup、foreign death 或完整 Delete。
 
+### Knowledge 原调用、双 Project 来源与清理（实现候选）
+
+Knowledge 显式 pair 在首次构造时绑定同 Store、原 Authority、ProcessGuard/process 和唯一实例，按 core→SourceResolver→Object Knowledge 专用 SourceReads→Service 发布；默认 App 与原 Life 消费这一首图，构造不假探测尚未 Initialize 的 Guard，Registry 仍 nil。read、command、source、固定 P recovery 在首 SQL 前登记；来源复制的 target/source P 从原请求与 SourceInput 描述取得，双 P 任一停止都保留原调用，不能先全局扫描再补归属。原 Store、SourceInput.Close、ObjectReader.Close、publication retirement/join checkpoint 实际返回才可退休，取消和 business_closed 行都不证明返回。旧无 P RecoverCleanup 仅 legacy 使用，owned 固定 P 恢复覆盖所有 upper/page/remaining/record 读取。
+
+00087 为 Knowledge 增加双 P 技术调用表与独立 project_object_retirements。后者不伪装成 Human command，不修改既有 Object cleanup cause；原 Knowledge command、publication、cleanup 墓碑保留到对应 Object 物理工作和 metadata 实际退出。ProjectDeleted leaf 的 metadata 完成与原 Object anchors 的最后清除在同原 Tx 中精确收口。独立 Delete Stop family 只允许原 Knowledge loan 下的 Source 子 loan，逐 Tx 核双 P 完整锁、原 issuer/current claim/full manifest，原父 scope 等子 Store 与 callback 真实返回；Artifact issuer 不扩大。
+
+固定 Knowledge Cleanup driver 仅消费原 current Delete/domains、完整 required manifest、allStopped 与其声明前驱的私有轮。provider 固定同 pair；按 Object 资源退出、documents 叶到根及 command 依赖先后处理六张旧表，最后清合法 closed ledger。每轮由原记录大小与原事务预算限制，不能按 100 个大 JSON 无界聚合。Project 登记/末 checkpoint 和 provider Unknown 保首原 attempt/cause、完整前后像与已返 report，下一显式 Run 只读确认且等原 Store 实返，当轮不写，后次才推进；同 Life 四槽与同 P late admission 互斥，B 独立。本段为实现候选，尚未宣 Go/真实 PG 通过，不解除既有 KnowledgeMove、Object runtime join 或网络故障 STOP，也不宣默认全 Delete 已可用。
+
 ### Usage 原调用、Model 借用与清理（限定验收）
 
 Usage 显式 pair 固定同 Store、原 ProcessGuard/process 与实例，覆盖 List、Aggregate、GetExecutionSummary、RebuildExecutionSummary 和原 Model invocation 全调用。默认 App 在首次 Usage 构造即绑定原 Life，HTTP 与 Runtime 使用同一个 Service；构造不查 Guard 的 bound 状态，首登记事务才核原 Guard。Model 通过显式 owned getter 选择原 token，legacy Service 返回 nil；token 只能包原 Store 事务与真实返回，不替代原 InvocationFacts/plan/当前权限，也不授新 Invoke。原 Runtime admission、所有 public outer borrow、wire/Secret 尾与原确认事务必须实际返回；Stop 只取消原调用，不借恢复方法重放业务。首次 Runtime 登记另消费原 Project SH 下 initialized/active 门，已登记尾不重新借此新调用门。

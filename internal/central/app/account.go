@@ -288,10 +288,11 @@ func (a *accountAssembly) Force(ctx context.Context) error {
 		planning, ownsPlanning := work.(*workPlanningAssembly)
 		executions, ownsExecutions := work.(*executionRuntimeAssembly)
 		usage, ownsUsage := work.(*usageCallAssembly)
+		knowledge, ownsKnowledge := work.(*knowledgeCallAssembly)
 		// Runtime terminal/lease cleanup and Agent/Variable/Work calls use the
 		// shared providers. Expiring a force budget does not make them disposable.
 		// The root retains its separate bounded Store.ForceClose policy.
-		if ownsUsage && !usage.Joined() || ownsExecutions && !executions.Joined() || agents != nil && work == agents && !agents.Joined() || install != nil && work == install && !install.Joined() || ownsVariables && !variableCalls.Joined() || ownsProjects && !projectCalls.Joined() || ownsPlanning && planning.ownership != nil && !planning.Joined() {
+		if ownsKnowledge && !knowledge.Joined() || ownsUsage && !usage.Joined() || ownsExecutions && !executions.Joined() || agents != nil && work == agents && !agents.Joined() || install != nil && work == install && !install.Joined() || ownsVariables && !variableCalls.Joined() || ownsProjects && !projectCalls.Joined() || ownsPlanning && planning.ownership != nil && !planning.Joined() {
 			return errors.Join(result, foundation.NewFault(foundation.DependencyUnavailable, foundation.NotStarted))
 		}
 	}
@@ -606,13 +607,14 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err = objects.construct(cfg, db, auditor, objectAuthorities); err != nil {
 		return err
 	}
-	documents, err := createKnowledge(cfg, db, contentAuthorities.knowledge, projectUsage.projects, authority, objects, auditor, journal, knowledgeEvents)
-	if err != nil {
-		return err
-	}
-	if !accounts.install(ctx, func() { accounts.knowledge = &knowledgeWork{service: documents} }) {
+	knowledgeCalls, bindKnowledgeErr := createOwnedKnowledge(cfg, db, contentAuthorities.knowledge, projectUsage, authority, objects, auditor, journal, knowledgeEvents)
+	if knowledgeCalls != nil && !accounts.install(ctx, func() { accounts.knowledge = knowledgeCalls }) {
 		return context.Canceled
 	}
+	if bindKnowledgeErr != nil {
+		return bindKnowledgeErr
+	}
+	documents := knowledgeCalls.pair.Service()
 	skills, err := createSkills(ctx, contentAuthorities.skills, objects)
 	if err != nil {
 		return err

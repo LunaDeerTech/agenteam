@@ -48,6 +48,11 @@ func cleanupRoundReport(round lifecycleCleanupRound, report c.CleanupReport) err
 			return err
 		}
 	}
+	if round.participant == c.KnowledgeParticipant {
+		if err := knowledgeCleanupReport(round, report); err != nil {
+			return err
+		}
+	}
 	if round.participant == c.UsageParticipant {
 		if err := usageCleanupReport(round, report); err != nil {
 			return err
