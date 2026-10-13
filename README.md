@@ -52,6 +52,8 @@ docker compose -f docker-compose.dev.yaml down
 
 普通 `down` 只停止并移除本组容器和网络，保留 `.dev/`，下次 `up -d` 可继续使用。不要将 `.dev/` 复制进其他工作树；为独立开发环境选择各自的 Compose project name 和数据目录，避免两个 Central 同时使用同一 spool。此配置没有新增 Runner、SMTP 或对外上传/模型能力，功能范围仍以当前任务台账为准。
 
+当前已验证工具链镜像构建、重复初始化保留原配置，以及宿主构建的 Central 配置校验。本环境的 MinIO 客户端镜像拉取被拒，尚未完成整组启动、浏览器访问和应用重启验收。
+
 使用 Go 1.27.1；脚本核对精确版本并禁止自动切换工具链。
 
 ```sh
