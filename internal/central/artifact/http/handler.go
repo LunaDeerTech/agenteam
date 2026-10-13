@@ -1,4 +1,5 @@
-// Package artifacthttp exposes bounded Artifact reads to current Human Owners.
+// Package artifacthttp exposes bounded Artifact reads and content commands to
+// current Human Owners, retaining the original Service and lifecycle owner.
 package artifacthttp
 
 import (
@@ -30,6 +31,7 @@ type accountBoundary interface {
 }
 type handler struct {
 	reader   artifactReader
+	commands artifactCommands
 	boundary accountBoundary
 }
 
@@ -39,11 +41,12 @@ func NewHTTPHandler(service *artifact.Service, boundary *account.HTTPBoundary) (
 	if service == nil || boundary == nil {
 		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
-	return &handler{service, boundary}, nil
+	return &handler{reader: service, commands: service, boundary: boundary}, nil
 }
 
 type route struct {
 	project, artifact, file string
+	command                 string
 	valid, read             bool
 }
 
@@ -54,6 +57,12 @@ func artifactRoute(path string) route {
 	parts := strings.Split(strings.TrimPrefix(path, projectPrefix), "/")
 	if len(parts) == 2 && parts[0] != "" && parts[1] == "artifacts" {
 		return route{project: parts[0], valid: true}
+	}
+	if len(parts) == 3 && parts[0] != "" && parts[1] == "artifacts" && parts[2] == "create-content" {
+		return route{project: parts[0], command: "create-content", valid: true}
+	}
+	if len(parts) == 4 && parts[0] != "" && parts[1] == "artifacts" && parts[2] == "creation-commands" && (parts[3] == "lookup" || parts[3] == "cancel") {
+		return route{project: parts[0], command: parts[3], valid: true}
 	}
 	if len(parts) == 6 && parts[0] != "" && parts[1] == "artifacts" && parts[2] != "" && parts[3] == "files" && parts[4] != "" && parts[5] == "content" {
 		return route{project: parts[0], artifact: parts[2], file: parts[4], valid: true, read: true}
@@ -78,6 +87,10 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, request *http.Request) {
 		request.Pattern = projectPrefix + "{project_id}/artifacts"
 		if route.read {
 			request.Pattern += "/{artifact_id}/files/{file_id}/content"
+		} else if route.command == "create-content" {
+			request.Pattern += "/create-content"
+		} else if route.command != "" {
+			request.Pattern += "/creation-commands/" + route.command
 		}
 	}
 	r := request.WithContext(ctx)
@@ -140,6 +153,13 @@ func (h *handler) execute(w http.ResponseWriter, r *http.Request, route route) (
 	}
 	if !route.valid {
 		return nil, f.NewFault(f.NotFound, f.NotStarted)
+	}
+	if route.command != "" {
+		if r.Method != http.MethodPost {
+			w.Header().Set("Allow", "POST")
+			return nil, f.NewFault(f.MethodNotAllowed, f.NotStarted)
+		}
+		return h.executeCommand(w, r, route, actor)
 	}
 	if r.Method != http.MethodGet && r.Method != http.MethodHead {
 		w.Header().Set("Allow", "GET, HEAD")
