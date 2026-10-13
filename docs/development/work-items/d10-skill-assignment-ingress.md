@@ -1,6 +1,6 @@
 # Skill 当前分配与 Execution pending ingress
 
-状态：原 Skill 分配命令及同事务 ingress 库已进入正式主线，原基础与真实 PG 证据、失败和边界见下文。2026-10-13 后继正在接入默认 App、Owner HTTP 与 Agent Skills 管理 UI；本次源码尚未验证，不把库验收外推为 HTTP/UI 已完成。不执行 Model，不产生下一轮 RoundInput，不恢复已有 STOP。
+状态：原 Skill 分配命令及同事务 ingress 库已进入正式主线，原基础与真实 PG 证据、失败和边界见下文。2026-10-13 后继默认 App、Owner HTTP 与 Agent Skills 管理 UI 已通过限定普通检查、真实 HTTP/浏览器及独立审查，随本次变更交付 main；受测来源与限制见末节。不执行 Model，不产生下一轮 RoundInput，不恢复已有 STOP。
 
 ## 正式依据与分域
 
@@ -64,7 +64,7 @@ native02 原工具 91341 实际 0、supervisor 772115 Wait 0 / 114.126s，原日
 
 capture 控制的受控 SQL/历史兼容范围不冒充完整 Preparing/capture 真实 PG。工具链和真实 PG 仅由 root 在实际资源窗口安排。上游 Operation 与 ToolResult 单次消费已正式有限交付并完整保全，不扩展为本片通过或下一轮执行。原 Object runtime join、OpenAI tools A/B、SPA concurrent-publication、Jina/Image STOP、生产 initializer/默认执行绑定保持。
 
-## Owner HTTP 与 Agent Skills UI 接入（进行中）
+## Owner HTTP 与 Agent Skills UI 接入（已有限验收）
 
 本次增量复用原 Assign / Remove / Lookup 与四域引用版本维护，不增加迁移、普通 Agent 配置写口、安装或 Agent Tool。项目设置规则见 [Skills 库与分配](../../frontend-design/layouts/project-settings.md#31-项目-skills-库与分配)，精确传输定义见 [Skill Assignment OpenAPI](../../../api/openapi/skill-assignment.json)。实现和验证由独立 sparse 工作树承载，Go/App/OpenAPI/本卡与 Vue 各有唯一写者，Git、合入和资源由统一负责人协调。
 
@@ -80,6 +80,16 @@ Lookup 新增缺失的当前 initialized Agent 检查：在原已持锁事务、
 
 UI 以 Agent 详情的明确管理入口读取 Skills；分配/禁用/撤销与普通 Agent PATCH 分开提交且互斥。启用或禁用变更都会退役旧 AssignmentID 并创建新身份；撤销使用原 AssignmentID，不能影响后来重新分配的身份。Add Skills 可以禁用，撤销不删除项目包。queued 只表示持久待应用，不能显示为已经进入下一轮、恢复 waiting 或扩大工具权限。未确认意图保留原 key 和 DTO，只提供显式 Lookup。
 
-验证候选包括：HTTP 闭合 DTO/当前边界/未知投影、签名分页与 sequence 漂移、原 Lookup 当前 Agent 门；默认 App 真实 HTTP 覆盖显式分配、禁用 Add Skills、历史 replay/Lookup、版本与跨 scope 拒绝、原 grant 撤销保护、重新启用及实际同事务 Agent/引用/Audit/Outbox/no-active ingress。另一个隔离 PG 控制只在必回滚事务中暂置已正式初始化 Agent 的 lifecycle/version，遵守原不可变 trigger 的下一版本及严格更晚 DB instant，以验证 initialized deleting 的窄只读门及完整前像恢复；不冒充正式退休或 HTTP deleting Lookup。后端有限源码审查已接受，尚未执行这些新增 Go/PG 检查；旧 Commit Unknown 与 active ingress 的库证据仅复用其原范围。
+普通检查原源码 `6f72d257`，`32732/a89948` 实际 Wait0：Agent/Skill/HTTP/App 四包14 top/61 sub race、四包vet及显式Python解释器的schema校验通过，零skip。UI共18个唯一case分段通过：client4/session6复用ui-basic01、state6来自ui-basic02、page2来自ui-basic03；最终 `541660e4` 的ui-basic04（`2949/2cb284` Wait0）首次完整type/build通过，不把分段结果写为一次全绿。原ui-basic01的catalog路径/隐藏按钮文字夹具FAIL、ui-basic02的Vue `agentID` prop与父`agent-id`不匹配产品FAIL、ui-basic03四处测试回调推断void的type FAIL均保留；分别窄修fixture、Panel本地`agentId`与显式`return undefined`，既有断言未放宽。
 
-浏览器新增 `TestAgentSkillAssignmentsWeb` 只跑一条默认 App 链：显式分配、禁用、重新启用、撤销，共 4 写、0 Lookup；页面实际回读 assignments/configuration/Agent 目录及配置连带的 runner-mounts 各 5 次、catalog 1 次。保留初始 Add Skills grant 和两个项目包，核原 public Promise 的同一 receipt、confirmed 后意图退休、原 fetch/reader EOF/Close 与 handler 实际返回；不把后续读取替代原写确认。取消确认、操作成功与关闭均核真实焦点，4 张图覆盖 1440/390、light/dark、reduced motion 和无横向溢出。总预算保持 120 秒含退出，Playwright 45 秒、Node 原 Wait、代理/root/guard/DB 清理沿原方法；目前仅源码准备，未运行浏览器，不声明真实 Unknown UI 恢复通过。原薄入口仅增 `--app-skill-assignments-http`（两 top、Node 0）与 `--app-skill-assignments-web`（一 top、Node 1），不改旧 scope、预算或资源清理。
+browser轻控 `54858/94e8ca` Wait0：新helper/spec诊断0、原导入五项诊断保持、精确Playwright list1；integration编译 `8009/312618` Wait0且精确list3。所有真实HTTP/Web均使用 `541660e4` 对应同一ELF、dist与Node输入；后续Git组合只核实际接缝，不改写原动态受测来源。[完整事实汇总](../../../output/ai/agent-skill-assignment/summary.json)及 [实际Wait](../../../output/ai/agent-skill-assignment/actual-waits.json)保留各轮来源。
+
+真实HTTP `14004/32c588` Wait0/49.683秒，2 top/0 sub、Node0。首top以默认App、正式Project/Agent/Skill初始化，覆盖显式分配、禁用Add Skills、历史replay/Lookup、版本与跨scope拒绝、旧grant撤销保护、重新启用及实际同事务Agent/引用/Audit/Outbox/no-active ingress。第二top仅在必回滚事务中合规暂置已初始化Agent的lifecycle/version，检验initialized deleting窄只读门与完整前像恢复；不冒正式退休或HTTP deleting Lookup。旧Commit Unknown和active ingress库证据仍只复用原范围；新片不执行Model或DetermineRoundInput。
+
+真实Web `71946/39d94c` Wait0/47.296秒，1 top/0 sub、Node1。默认App的显式分配→禁用→重新启用→撤销共4个原POST、0 Lookup，Agent版本2→5、三份新grant identity及精确撤销/最终集合均由原回执与实际回读核验；初始Add Skills grant和两个项目包保留。Agent目录/configuration/runner-mounts/assignments各5次、catalog1次。28个原请求保留27finished+1 assignments ERR_ABORTED，28份原response/native正文摘要、EOF/Close、handler返回、四份原public Promise/receipt身份均闭合；不以后续读取替代原写确认。[实际proof](../../../output/ai/agent-skill-assignment/web-native01/proof-summary.json)保留原终态；不声明真实Unknown UI恢复通过。
+
+独审亲视四图：宽浅确认标题焦点及基于v1确认按钮；宽暗disabled记录、两条分配与panel标题焦点；窄浅仅成功消息/标题焦点及布局可见，启用行在下方；窄暗撤销成功、已加载1条与标题焦点，完整剩余builtin行仍在下方。后两业务行事实来自实际DOM/SQL，不冒截图可见；取消/关闭焦点由真实DOM断言。light/dark、1440/390、reduced motion及无横向溢出均在限定范围接受。
+
+HTTP/Web的自有容器、网络、PID、私有目录/runtime与后代均实际退出；唯一ELF已在fresh零消费者及正控后处置，metadata保留。Web完成chunk占位修正仅改post metadata；摘要首脚本误猜28全finished触发AssertionError后改为原27+1，原件均保留且不增加业务运行次数。所有FAIL、日志、原proof、四图与disposition随交付同FS保全。原薄入口只新增两个Skills scope，不扩大120秒总预算或重启既有停止项。
+
+最终组合 `be2a266f` 合入 D13 后只发生 thin 并集，本片App的Go依赖、HTTP/UI/browser源及锁相对真实基线 `541660e4` 逐字未变。独立接缝审查与 [实际AST补验](../../../output/ai/agent-skill-assignment/main-combination01/result.json)（`bf85af` exit0）确认59个scope覆盖双亲全部映射、Skills HTTP2/Node0、Web1/Node1与FTS1/Node0均保持；未重编Go、未重复真实窗，不以该组合替换原动态证据。
