@@ -175,7 +175,16 @@ test("explicitly assigns, disables, enables and removes a Skill [assign-disable-
     try {
       if (!completed && !page.isClosed()) {
         const observedAt = new Date().toISOString();
-        const facts = await page
+        const failurePath = join(
+          process.env.AGENTEAM_AGENT_SKILLS_WEB_EVIDENCE!,
+          "agent-skills-failure.json",
+        );
+        writeFileSync(
+          failurePath,
+          JSON.stringify({ stage, observed_at: observedAt, unavailable: true }),
+          { mode: 0o600 },
+        );
+        const diagnostic = page
           .evaluate(() => {
             const safe = (element: Element | null) => {
               if (!element) return null;
@@ -211,24 +220,31 @@ test("explicitly assigns, disables, enables and removes a Skill [assign-disable-
                 public: consumer?.pending ?? null,
               },
               readers:
-                native?.rows
-                  .slice(-8)
-                  .map((r: any) => ({
-                    request_id: r.request_id ?? null,
-                    eof: r.eof,
-                    closed: r.closed,
-                    release: r.release,
-                    reads: r.reads,
-                    read_returns: r.read_returns,
-                  })) ?? [],
+                native?.rows.slice(-8).map((r: any) => ({
+                  request_id: r.request_id ?? null,
+                  eof: r.eof,
+                  closed: r.closed,
+                  release: r.release,
+                  reads: r.reads,
+                  read_returns: r.read_returns,
+                })) ?? [],
             };
           })
           .catch(() => ({ unavailable: true }));
+        let diagnosticTimer: ReturnType<typeof setTimeout> | undefined;
+        const facts = await Promise.race([
+          diagnostic,
+          new Promise<{ unavailable: true }>((resolve) => {
+            diagnosticTimer = setTimeout(
+              () => resolve({ unavailable: true }),
+              750,
+            );
+          }),
+        ]).finally(() => {
+          if (diagnosticTimer !== undefined) clearTimeout(diagnosticTimer);
+        });
         writeFileSync(
-          join(
-            process.env.AGENTEAM_AGENT_SKILLS_WEB_EVIDENCE!,
-            "agent-skills-failure.json",
-          ),
+          failurePath,
           JSON.stringify({ stage, observed_at: observedAt, ...facts }),
           { mode: 0o600 },
         );
@@ -256,7 +272,9 @@ test("explicitly assigns, disables, enables and removes a Skill [assign-disable-
           note(error);
         } finally {
           try {
-            seen.save(completed && cleanupError === undefined ? "passed" : "failed");
+            seen.save(
+              completed && cleanupError === undefined ? "passed" : "failed",
+            );
           } catch (error) {
             note(error);
           }
