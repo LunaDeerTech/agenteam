@@ -63,6 +63,9 @@ func artifactOwnerWeb(t *testing.T) {
 	t.Cleanup(func() { _ = listener.Close() })
 	origin := "http://" + listener.Addr().String()
 	observer := &artifactWebObserver{host: listener.Addr().String(), private: private, evidence: evidence, inputHash: inputHash, tails: map[string]*artifactWebTail{}}
+	// Registered before the App fixture: capture the final original handler tails
+	// only after proxy/root cleanup, on success and on every t.Fatal path.
+	t.Cleanup(func() { observer.saveDiagnostic(t) })
 	// Existing nil-default seam is used before run. No live config/authority is
 	// replaced. The old Work fixture's HTTP request helper is deliberately unused.
 	v := newWorkAppFixtureWith(t, func(root *modelRootApp, d *dependencies) {
@@ -97,6 +100,10 @@ func artifactOwnerWeb(t *testing.T) {
 	proxy.Transport, proxy.ErrorLog = transport, log.New(io.Discard, "", 0)
 	proxy.ModifyResponse = observer.capture
 	proxy.ErrorHandler = func(w http.ResponseWriter, _ *http.Request, _ error) {
+		_ = observer.fail("proxy_error")
+		observer.mu.Lock()
+		observer.proxyErrors++
+		observer.mu.Unlock()
 		http.Error(w, "owned Artifact observation failed", 502)
 	}
 	server := &http.Server{ReadHeaderTimeout: 2 * time.Second, ErrorLog: log.New(io.Discard, "", 0), Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -292,14 +299,74 @@ type artifactWebObserver struct {
 	active, failed, loadingUsed                     bool
 	tails                                           map[string]*artifactWebTail
 	count, lists, reads, denials                    int
+	proxyErrors                                     int
+	failureStage                                    string
+	responses                                       []artifactWebResponseDiagnostic
 }
 
-func (o *artifactWebObserver) fail() error {
+// Only closed enums, counts and booleans survive. In particular, no URL,
+// header map, cookie, body, cursor, error text or private material is saved.
+type artifactWebResponseDiagnostic struct {
+	Status          int    `json:"status"`
+	Bytes           int    `json:"bytes"`
+	DeclaredLength  int64  `json:"declared_length"`
+	EOF             bool   `json:"original_eof"`
+	Closed          bool   `json:"original_closed"`
+	JSON            bool   `json:"valid_json"`
+	NoStore         bool   `json:"no_store"`
+	OneRequestID    bool   `json:"one_request_id"`
+	RequestIDValid  bool   `json:"request_id_valid"`
+	HandlerMatched  bool   `json:"handler_matched"`
+	HandlerReturned bool   `json:"handler_returned"`
+	ProblemCode     string `json:"problem_code"`
+	ProblemCommit   string `json:"problem_commit"`
+}
+
+func (o *artifactWebObserver) fail(stage string) error {
 	o.mu.Lock()
 	o.failed = true
+	if o.failureStage == "" {
+		o.failureStage = stage
+	}
 	o.mu.Unlock()
 	return errors.New("original Artifact observation failed")
 }
+func (o *artifactWebObserver) saveDiagnostic(t *testing.T) {
+	t.Helper()
+	o.mu.Lock()
+	returned, ended := 0, 0
+	for _, tail := range o.tails {
+		if tail.returned {
+			returned++
+		}
+		select {
+		case <-tail.done:
+			ended++
+		default:
+		}
+	}
+	record := struct {
+		InputHash       string                          `json:"input_hash"`
+		Failed          bool                            `json:"failed"`
+		FailureStage    string                          `json:"first_failure_stage"`
+		ProxyErrors     int                             `json:"proxy_errors"`
+		HandlerStarted  int                             `json:"handler_started"`
+		HandlerEnded    int                             `json:"handler_ended"`
+		HandlerReturned int                             `json:"handler_returned"`
+		Accepted        int                             `json:"accepted_responses"`
+		Responses       []artifactWebResponseDiagnostic `json:"responses"`
+	}{o.inputHash, o.failed, o.failureStage, o.proxyErrors, len(o.tails), ended, returned, o.count, append([]artifactWebResponseDiagnostic(nil), o.responses...)}
+	o.mu.Unlock()
+	raw, err := json.Marshal(record)
+	if err != nil {
+		t.Error("Artifact diagnostic encoding failed")
+		return
+	}
+	if err = os.WriteFile(filepath.Join(o.evidence, "artifact-owner-driver-diagnostic.json"), raw, 0600); err != nil {
+		t.Error("Artifact diagnostic write failed")
+	}
+}
+
 func (o *artifactWebObserver) handler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		o.mu.Lock()
@@ -311,7 +378,7 @@ func (o *artifactWebObserver) handler(next http.Handler) http.Handler {
 		}
 		rid := httpapi.RequestID(r.Context())
 		if r.Method != "GET" || r.Host != o.host || rid.Validate() != nil {
-			_ = o.fail()
+			_ = o.fail("request_identity")
 			http.Error(w, "owned read observation rejected", 502)
 			return
 		}
@@ -319,7 +386,7 @@ func (o *artifactWebObserver) handler(next http.Handler) http.Handler {
 		o.mu.Lock()
 		if o.tails[rid.String()] != nil || len(o.tails) >= 64 {
 			o.mu.Unlock()
-			_ = o.fail()
+			_ = o.fail("request_duplicate_or_bound")
 			http.Error(w, "owned read observation duplicate", 502)
 			return
 		}
@@ -339,19 +406,21 @@ func (o *artifactWebObserver) handler(next http.Handler) http.Handler {
 					break
 				}
 				if !errors.Is(err, os.ErrNotExist) {
-					_ = o.fail()
+					_ = o.fail("loading_release_observation")
 					return
 				}
 				select {
 				case <-ticker.C:
 				case <-r.Context().Done():
-					_ = o.fail()
+					_ = o.fail("loading_request_cancelled")
 					return
 				}
 			}
 		}
 		next.ServeHTTP(w, r)
+		o.mu.Lock()
 		tail.returned = true
+		o.mu.Unlock()
 	})
 }
 func (o *artifactWebObserver) capture(response *http.Response) error {
@@ -361,45 +430,74 @@ func (o *artifactWebObserver) capture(response *http.Response) error {
 	if !selected {
 		return nil
 	}
+	diagnostic := artifactWebResponseDiagnostic{Status: response.StatusCode, DeclaredLength: response.ContentLength}
+	defer func() {
+		o.mu.Lock()
+		if len(o.responses) < 64 {
+			o.responses = append(o.responses, diagnostic)
+		}
+		o.mu.Unlock()
+	}()
 	raw, readErr := io.ReadAll(io.LimitReader(response.Body, (8<<20)+1))
 	closeErr := response.Body.Close()
+	diagnostic.Bytes, diagnostic.EOF, diagnostic.Closed, diagnostic.JSON = len(raw), readErr == nil && len(raw) <= 8<<20, closeErr == nil, json.Valid(raw)
+	diagnostic.NoStore = response.Header.Get("Cache-Control") == "no-store"
+	diagnostic.OneRequestID = len(response.Header.Values("X-Request-ID")) == 1
+	if response.StatusCode != 200 {
+		var problem struct {
+			Code   f.Code        `json:"code"`
+			Commit f.CommitState `json:"commit_state"`
+		}
+		if json.Unmarshal(raw, &problem) == nil {
+			if problem.Code.Known() {
+				diagnostic.ProblemCode = string(problem.Code)
+			}
+			switch problem.Commit {
+			case f.NotStarted, f.NotCommitted, f.Committed, f.Unknown:
+				diagnostic.ProblemCommit = string(problem.Commit)
+			}
+		}
+	}
 	if readErr != nil || closeErr != nil || len(raw) > 8<<20 || response.ContentLength != int64(len(raw)) || !json.Valid(raw) || response.Header.Get("Cache-Control") != "no-store" || len(response.Header.Values("X-Request-ID")) != 1 {
-		return o.fail()
+		return o.fail("response_integrity")
 	}
 	rid, err := f.ParseID[f.Request](response.Header.Get("X-Request-ID"))
 	if err != nil {
-		return o.fail()
+		return o.fail("response_request_id")
 	}
+	diagnostic.RequestIDValid = true
 	o.mu.Lock()
 	tail := o.tails[rid.String()]
 	o.mu.Unlock()
 	if tail == nil || tail.uri != response.Request.URL.RequestURI() || tail.method != response.Request.Method {
-		return o.fail()
+		return o.fail("handler_correlation")
 	}
+	diagnostic.HandlerMatched = true
 	select {
 	case <-tail.done:
 	case <-response.Request.Context().Done():
-		return o.fail()
+		return o.fail("handler_wait_cancelled")
 	}
+	diagnostic.HandlerReturned = tail.returned
 	if !tail.returned {
-		return o.fail()
+		return o.fail("handler_not_returned")
 	}
 	if response.StatusCode != 200 && response.StatusCode != 404 {
-		return o.fail()
+		return o.fail("response_status")
 	}
 	if response.StatusCode == 404 {
 		var problem httpapi.Problem
 		if skillWebDecode(raw, &problem) != nil || problem.Code != f.NotFound || problem.CommitState != f.NotCommitted {
-			return o.fail()
+			return o.fail("response_problem")
 		}
 	}
 	record := map[string]any{"input_hash": o.inputHash, "request_id": rid.String(), "method": response.Request.Method, "url_sha256": fmt.Sprintf("%x", sha256.Sum256([]byte(tail.uri))), "status": response.StatusCode, "content_length": len(raw), "body_sha256": fmt.Sprintf("%x", sha256.Sum256(raw)), "original_eof": true, "original_closed": true, "handler_returned": true, "request_host_matches": true}
 	encoded, err := json.Marshal(record)
 	if err != nil {
-		return o.fail()
+		return o.fail("evidence_encode")
 	}
 	if err = os.WriteFile(filepath.Join(o.evidence, "artifact-owner-response-"+rid.String()+".json"), encoded, 0600); err != nil {
-		return o.fail()
+		return o.fail("evidence_write")
 	}
 	o.mu.Lock()
 	o.count++
