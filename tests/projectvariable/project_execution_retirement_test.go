@@ -713,8 +713,13 @@ func (v *executionRetirementPG) finishRetirement(t *testing.T) {
 	t.Helper()
 	v.requireRetirementFacts(t, true)
 	v.round(t)
+	v.finishRetiredExecution(t)
+}
+
+func (v *executionRetirementPG) finishRetiredExecution(t *testing.T) {
+	t.Helper()
 	v.progress(t, "empty", "completed", "terminal")
-	v.settled = true // Original empty-tail Run has actually returned above.
+	v.settled = true // The caller's original empty-tail Run has actually returned.
 	var calls int
 	schedulerOwnedRequire(t, "retirement-original-call-ledger-empty", v.base.raw.QueryRow(ctxFor(t), `SELECT count(*) FROM agenteam_execution.project_calls WHERE project_id=$1::uuid`, v.scope.ProjectID.String()).Scan(&calls))
 	if calls != 0 {

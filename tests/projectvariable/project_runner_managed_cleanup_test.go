@@ -515,7 +515,11 @@ func testRunnerManagedCleanup(t *testing.T, unknown bool) {
 		v.rejectProofRewrite(t)
 	}
 	v.requireProtected(t)
-	v.finishRetirement(t) // Original Agent Applied consumes Mount and queued-Skill proofs.
+	if !v.settled || !v.completed(t, pc.ExecutionParticipant) || !v.completed(t, pc.RunnerManagedParticipant) {
+		t.Fatal("original Execution and Runner cleanup must complete before Agent Applied")
+	}
+	v.requireRetirementFacts(t, true)
+	v.finishRetiredExecution(t) // Consume the proofs without replaying the completed Execution round.
 	var remaining int
 	schedulerOwnedRequire(t, "runner-proof-consumed-by-agent", v.base.raw.QueryRow(ctxFor(t), `SELECT (SELECT count(*) FROM agenteam_mount.agent_mount_heads WHERE project_id=$1::uuid)+(SELECT count(*) FROM agenteam_mount.project_agent_retirements WHERE project_id=$1::uuid)`, v.scope.ProjectID.String()).Scan(&remaining))
 	if remaining != 0 {
