@@ -3,6 +3,7 @@
 package app
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -27,6 +28,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	"github.com/LunaDeerTech/agenteam/internal/central/project"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+	"github.com/jackc/pgx/v5"
 )
 
 // These are the original default App instances. Only explicit Delete acceptance
@@ -404,7 +406,9 @@ func (v *knowledgeLifecycleApp) other(t *testing.T) {
 	t.Helper()
 	head, err := v.pair.Service().GetDocument(v.ctx, v.actor, v.b, v.otherDocument.ID)
 	workAppCheck(t, "knowledge-unrelated-project-read", err)
-	if head.Active == nil || !reflect.DeepEqual(*head.Active, v.otherDocument) {
+	// CreatorRef is opaque and contains a function; compare its complete formal
+	// document projection, including created_by, rather than function identity.
+	if head.Active == nil || !bytes.Equal(workAppJSON(t, *head.Active), workAppJSON(t, v.otherDocument)) {
 		t.Fatal("unrelated Knowledge document changed")
 	}
 }
@@ -581,6 +585,27 @@ func (v *knowledgeLifecycleApp) eventSnapshot(t *testing.T, ids []string) []byte
 	workAppCheck(t, "knowledge-outbox-original-event-image", v.admin.QueryRow(v.ctx, `SELECT COALESCE(jsonb_agg(to_jsonb(t) ORDER BY id),'[]'::jsonb) FROM agenteam_outbox.events t WHERE id=ANY($1::uuid[])`, ids).Scan(&raw))
 	return raw
 }
+
+// Only the failed original round is diagnosed. Do not log driver messages,
+// SQL, identifiers, document material, or private error causes.
+func (v *knowledgeLifecycleApp) cleanupFailure(t *testing.T, round int, err error) {
+	t.Helper()
+	if err == nil {
+		return
+	}
+	var databaseError *postgres.Error
+	databaseCode, sqlState := "none", ""
+	if errors.As(err, &databaseError) {
+		databaseCode, sqlState = string(databaseError.Code()), databaseError.SQLState()
+	}
+	var reference, object, metadata, completed int
+	phaseErr := v.admin.QueryRow(v.ctx, `SELECT
+ count(*) FILTER (WHERE phase='reference'), count(*) FILTER (WHERE phase='object'),
+ count(*) FILTER (WHERE phase='metadata'), count(*) FILTER (WHERE phase='completed')
+ FROM agenteam_knowledge.project_object_retirements WHERE project_id=$1::uuid`, v.a.String()).Scan(&reference, &object, &metadata, &completed)
+	t.Logf("KNOWLEDGE_CLEANUP_FAILURE round=%d database_code=%s sqlstate=%s canceled=%t deadline=%t no_rows=%t leaf_snapshot_ok=%t reference=%d object=%d metadata=%d completed=%d", round, databaseCode, sqlState, errors.Is(err, context.Canceled), errors.Is(err, context.DeadlineExceeded), errors.Is(err, pgx.ErrNoRows), phaseErr == nil, reference, object, metadata, completed)
+}
+
 func knowledgeAppCleanup(t *testing.T) {
 	v := newKnowledgeLifecycleApp(t)
 	v.seed(t)
@@ -626,6 +651,7 @@ func knowledgeAppCleanup(t *testing.T) {
 		case original = <-h.observed:
 			held = c
 		case <-c.done:
+			v.cleanupFailure(t, n+1, c.err)
 			workAppCheck(t, "knowledge-object-leaf-next-explicit-round", c.err)
 		case <-time.After(5 * time.Second):
 			t.Fatal("Knowledge cleanup round did not return or reach actual business deletion")
