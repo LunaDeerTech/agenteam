@@ -90,12 +90,14 @@ export type ProjectUsageQuery = Readonly<{
   to: string
   limit?: number
   cursor?: string
+  execution_id?: string
 }>
 export type CapturedUsageQuery = Readonly<{
   from: string
   to: string
   limit: number
   cursor?: string
+  execution_id?: string
 }>
 export type ProjectUsagePage = Readonly<{
   items: readonly ProjectUsageRecord[]
@@ -130,7 +132,7 @@ export type ProjectUsageDay = Readonly<{
   key: Readonly<{ by: 'day'; id: null; day: string }>
   summary: ProjectUsageSummary
 }>
-export type ProjectUsageDailyQuery = Readonly<{ from: string; to: string }>
+export type ProjectUsageDailyQuery = Readonly<{ from: string; to: string; execution_id?: string }>
 export type CapturedUsageDailyQuery = Readonly<
   ProjectUsageDailyQuery & { group_by: 'day'; limit: 100 }
 >
@@ -204,7 +206,7 @@ export function captureProjectUsageID(value: unknown): string {
 }
 export function captureProjectUsageQuery(value: unknown): CapturedUsageQuery {
   try {
-    const raw = shape(value, ['from', 'to'], ['limit', 'cursor'])
+    const raw = shape(value, ['from', 'to'], ['limit', 'cursor', 'execution_id'])
     const from = parseSystemInstant(raw.from),
       to = parseSystemInstant(raw.to)
     const limit = Object.hasOwn(raw, 'limit') ? raw.limit : 50
@@ -220,6 +222,7 @@ export function captureProjectUsageQuery(value: unknown): CapturedUsageQuery {
       to,
       limit,
       ...(Object.hasOwn(raw, 'cursor') ? { cursor: cursor(raw.cursor) } : {}),
+      ...(Object.hasOwn(raw, 'execution_id') ? { execution_id: id(raw.execution_id) } : {}),
     })
   } catch {
     throw new AccountFailure('invalid-input')
@@ -240,7 +243,7 @@ export function captureUsageWindow(now = Date.now()): CapturedUsageQuery {
 }
 export function captureProjectUsageDailyQuery(value: unknown): CapturedUsageDailyQuery {
   try {
-    const raw = shape(value, ['from', 'to'], ['group_by', 'limit'])
+    const raw = shape(value, ['from', 'to'], ['group_by', 'limit', 'execution_id'])
     const from = parseSystemInstant(raw.from),
       to = parseSystemInstant(raw.to)
     // Keep the original microseconds when calculating the maximum window.
@@ -252,7 +255,13 @@ export function captureProjectUsageDailyQuery(value: unknown): CapturedUsageDail
         (!Object.hasOwn(raw, 'group_by') || raw.group_by === 'day') &&
         (!Object.hasOwn(raw, 'limit') || raw.limit === 100),
     )
-    return Object.freeze({ from, to, group_by: 'day', limit: 100 })
+    return Object.freeze({
+      from,
+      to,
+      group_by: 'day',
+      limit: 100,
+      ...(Object.hasOwn(raw, 'execution_id') ? { execution_id: id(raw.execution_id) } : {}),
+    })
   } catch {
     throw new AccountFailure('invalid-input')
   }
@@ -493,6 +502,7 @@ export function parseProjectUsagePage(
         (item, index) =>
           item.started_at >= q.from &&
           item.started_at < q.to &&
+          (q.execution_id === undefined || item.execution_id === q.execution_id) &&
           (index === 0 || compareProjectUsage(items[index - 1]!, item) < 0),
       ),
   )

@@ -1128,9 +1128,21 @@ type SecretReadQuery = Readonly<{ limit: number; cursor?: string }>
 type SecretReadOptions<E extends SecretReadEndpoint> = E extends 'listProjectSecrets'
   ? { signal: AbortSignal; projectID: string; secretQuery: SecretReadQuery }
   : { signal: AbortSignal; projectID: string; target: string }
-type UsageReadQuery = Readonly<{ from: string; to: string; limit: number; cursor?: string }>
+type UsageReadQuery = Readonly<{
+  from: string
+  to: string
+  limit: number
+  cursor?: string
+  execution_id?: string
+}>
 type UsageReadOptions = { signal: AbortSignal; projectID: string; usageQuery: UsageReadQuery }
-type UsageDailyQuery = Readonly<{ from: string; to: string; group_by: 'day'; limit: 100 }>
+type UsageDailyQuery = Readonly<{
+  from: string
+  to: string
+  group_by: 'day'
+  limit: 100
+  execution_id?: string
+}>
 type UsageDailyOptions = { signal: AbortSignal; projectID: string; usageQuery: UsageDailyQuery }
 type SkillEndpoint = (typeof skillEndpoints)[number]
 type SkillWireQuery = Readonly<{ limit: number; cursor?: string }>
@@ -1518,8 +1530,8 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
         if (!uuid7.test(project) || !(options.signal instanceof AbortSignal)) throw new Error()
         const daily = endpoint === 'aggregateProjectUsage'
         const q = daily
-          ? shape(options.usageQuery, ['from', 'to', 'limit', 'group_by'])
-          : shape(options.usageQuery, ['from', 'to', 'limit'], ['cursor'])
+          ? shape(options.usageQuery, ['from', 'to', 'limit', 'group_by'], ['execution_id'])
+          : shape(options.usageQuery, ['from', 'to', 'limit'], ['cursor', 'execution_id'])
         if (daily && (q.group_by !== 'day' || q.limit !== 100)) throw new Error()
         const from = string(q.from, 27, 27),
           to = string(q.to, 27, 27),
@@ -1536,6 +1548,11 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           throw new Error()
         const params = new URLSearchParams({ from, to, limit: String(limit) })
         if (daily) params.set('group_by', 'day')
+        if (Object.hasOwn(q, 'execution_id')) {
+          const execution = string(q.execution_id, 36, 36)
+          if (!uuid7.test(execution)) throw new Error()
+          params.set('execution_id', execution)
+        }
         if (Object.hasOwn(q, 'cursor')) {
           const token = string(q.cursor, 1, 8192)
           if (
