@@ -1,3 +1,4 @@
+import { createTaskExecutionOutputAPI, type TaskExecutionOutputAPI } from '../api/task-execution-output'
 import { createTaskExecutionsAPI, type TaskExecutionsAPI, type TaskExecutionQuery } from '../api/task-executions'
 import { createSkillImportAPI, captureSkillImport, type SkillImportAPI, type SkillImportInput, type SkillImportReceipt } from '../api/skill-import'
 import {
@@ -1125,6 +1126,7 @@ export function createSessionController(
     taskReorder?: WorkTaskReorderAPI
     edit?: WorkTaskEditAPI
     taskExecutions?: TaskExecutionsAPI
+    taskExecutionOutput?: TaskExecutionOutputAPI
     taskTimeline?: WorkTaskTimelineAPI
     systemRunners?: SystemRunnersAPI
     agentRunnerMounts?: AgentRunnerMountsAPI
@@ -1168,6 +1170,7 @@ export function createSessionController(
   const taskReorderAPI = commandAPIs.taskReorder ?? createWorkTaskReorderAPI()
   const taskEditAPI = commandAPIs.edit ?? createWorkTaskEditAPI()
   const taskExecutionsAPI = commandAPIs.taskExecutions ?? createTaskExecutionsAPI()
+  const taskExecutionOutputAPI = commandAPIs.taskExecutionOutput ?? createTaskExecutionOutputAPI()
   const taskTimelineAPI = commandAPIs.taskTimeline ?? createWorkTaskTimelineAPI()
   const agentRunnerMountsAPI = commandAPIs.agentRunnerMounts ?? createAgentRunnerMountsAPI()
   const agentConfigurationAPI = commandAPIs.agentConfiguration ?? createAgentConfigurationAPI()
@@ -6568,6 +6571,8 @@ export function createSessionController(
       reviewRead((signal) => taskExecutionsAPI.list(p, t, q, signal)),
     execution: (p: string, t: string, e: string) =>
       reviewRead((signal) => taskExecutionsAPI.get(p, t, e, signal)),
+    executionOutput: (p: string, t: string, e: string) =>
+      reviewRead((signal) => taskExecutionOutputAPI.get(p, t, e, signal)),
     events: (p: string, t: string, q: TaskTimelineQuery) =>
       reviewRead((signal) => taskTimelineAPI.list(p, t, q, signal)),
     blockers: (p: string, t: string, q: PageQuery) =>

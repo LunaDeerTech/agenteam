@@ -1,5 +1,6 @@
 import { computed, shallowReactive, watch, type Ref } from 'vue'
 import { AccountFailure } from '../api/client'
+import type { TaskExecutionOutput } from '../api/task-execution-output'
 import {
   compareTaskExecutions,
   type TaskExecution,
@@ -12,6 +13,7 @@ type Phase = 'idle' | 'loading' | 'ready' | 'error'
 type Reads = {
   list(project: string, task: string, query: TaskExecutionQuery): Promise<TaskExecutionPage>
   get(project: string, task: string, execution: string): Promise<TaskExecution>
+  output(project: string, task: string, execution: string): Promise<TaskExecutionOutput>
 }
 function explanation(error: unknown) {
   const problem = error instanceof AccountFailure ? error.problem : undefined
@@ -40,6 +42,9 @@ export function createTaskExecutions(
     detail: null as TaskExecution | null,
     detailPhase: 'idle' as Phase,
     detailMessage: '',
+    output: null as TaskExecutionOutput | null,
+    outputPhase: 'idle' as Phase,
+    outputMessage: '',
     active: 0,
   })
   let generation = 0,
@@ -60,6 +65,9 @@ export function createTaskExecutions(
       detailPhase: 'idle',
       detailMessage: '',
       active: 0,
+      output: null,
+      outputPhase: 'idle',
+      outputMessage: '',
     })
   }
   const stop = watch(() => scope.value?.key ?? '', reset, { flush: 'sync' })
@@ -78,6 +86,12 @@ export function createTaskExecutions(
     state.selectedID = ''
     state.detailPhase = 'idle'
     state.detailMessage = ''
+    clearOutput()
+  }
+  function clearOutput() {
+    state.output = null
+    state.outputPhase = 'idle'
+    state.outputMessage = ''
   }
   async function load(more = false) {
     const captured = scope.value
@@ -94,6 +108,7 @@ export function createTaskExecutions(
     state.detail = null
     state.detailPhase = 'idle'
     state.detailMessage = ''
+    clearOutput()
     if (!more) {
       state.items = Object.freeze([])
       state.next = null
@@ -149,6 +164,7 @@ export function createTaskExecutions(
     state.detail = null
     state.detailPhase = 'loading'
     state.detailMessage = ''
+    clearOutput()
     try {
       const detail = await reads.get(captured.projectID, captured.taskID, id)
       if (!current(captured, serial)) return false
@@ -177,12 +193,48 @@ export function createTaskExecutions(
       if (current(captured, serial)) state.active = 0
     }
   }
+  async function loadOutput() {
+    const captured = scope.value, detail = state.detail
+    if (!captured || blocked.value || !detail || state.detailPhase !== 'ready' || state.selectedID !== detail.id) return false
+    const serial = ++generation
+    state.active = serial
+    clearOutput()
+    state.outputPhase = 'loading'
+    try {
+      const result = await reads.output(captured.projectID, captured.taskID, detail.id)
+      if (!current(captured, serial)) return false
+      if (result.execution.project_id !== captured.projectID || result.execution.task_id !== captured.taskID ||
+        result.execution.id !== detail.id || BigInt(result.execution.version) < BigInt(detail.version))
+        throw new AccountFailure('invalid-response')
+      // The canonical summary and final projection belong to one read; publish
+      // them together, never combine new output with an older detail version.
+      state.detail = result.execution
+      state.output = result
+      state.outputPhase = 'ready'
+      return true
+    } catch (error) {
+      if (!current(captured, serial)) return false
+      if (inaccessible(error)) {
+        clearReads()
+        state.phase = 'error'
+        state.retryMore = false
+        state.message = explanation(error)
+      } else {
+        state.outputPhase = 'error'
+        state.outputMessage = '未取得完整最终输出，请在当前请求结束后重试。'
+      }
+      return false
+    } finally {
+      if (current(captured, serial)) state.active = 0
+    }
+  }
   function back() {
     if (blocked.value) return false
     state.selectedID = ''
     state.detail = null
     state.detailPhase = 'idle'
     state.detailMessage = ''
+    clearOutput()
     return true
   }
   function close() {
@@ -195,6 +247,6 @@ export function createTaskExecutions(
     stop()
     reset()
   }
-  return { state, visible, blocked, load, select, back, close, dispose }
+  return { state, visible, blocked, load, select, loadOutput, back, close, dispose }
 }
 export type TaskExecutions = ReturnType<typeof createTaskExecutions>
