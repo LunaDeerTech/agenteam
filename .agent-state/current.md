@@ -1,4 +1,23 @@
-# 当前工作：D11 Task 依赖与 Human Artifact 已本地集成，Live 受外部 DNS 阻塞
+# 当前工作：Sprint 完成与 Task 取消已交付，继续推进平台目标
+
+2026-10-13 恢复核对时，主线为 `c4839c3333332afe39a8042e62a2e4fe57d75bf1`，工作区无未提交改动，`origin/main` 与成功的实时远端查询均为同一提交。当前不存在本地主线待推送差额；下方历史摘要中的 GitHub 认证失败、旧 main、分支数量和待推送包状态只描述原时点，不作为当前恢复指令。
+
+最近交付见 [Work Owner 规划卡](../docs/development/work-items/d11-work-owner-planning-ui.md) §25–26：当前 Sprint 显式完成、另一个 Sprint 显式启动，以及保留负责人/Blocker 的 Task 显式取消已合入主线。适用测试、真实浏览器流程及截图复核已按卡内限定范围通过，相关工作树与本地、远端分支已清理。Task 取消早期两次浏览器失败仍未确因，记录保留；不将后继通过回填为旧失败已修复，也不将这些交付表述为完整 Task 执行、Model/Tools 链或整体目标完成。
+
+恢复时保留的任务分支如下；实时远端查询确认两者与本地 tip 一致。它们不是本轮新增工作，也不因主线前进而自动重跑或整支合入。
+
+| 分支 | 本地工作树 | 保留用途与下一步 |
+| --- | --- | --- |
+| `ai/live-chat-execution-e2e-20261013`（`e50e913a`） | `/workspace/agenteam-live-chat-execution-e2e` | 保留真实模型调用原失败与诊断。04 仅证明 `dns_failed`、`Sent=false`，不自动重试；按该分支诊断卡接续。 |
+| `ai/project-cleanup-validation-20261012`（`7b3851a0`） | `/workspace/agenteam-ui-integration-20261012` | 保留共享验证材料与依赖；重新派工前核对实际消费者和相关差异，不抢占旧状态中的 owner。 |
+
+四个 detached 保留树为 `agenteam-knowledge-move-ui`、`agenteam-object-runtime-join-safe`、`agenteam-skill-package-http` 和 `agenteam-skills-milestone-resume`。本次只读核对中，main、上述两个任务树和四个保留树均无 tracked/untracked 改动；这不等于 ignored 材料或运行依赖可删。本次状态修正使用独立轻量分支 `ai/recovery-state-20261013`，验收交付后按常规同步清理其工作树及本地、远端分支；不扩清历史引用。
+
+下一步由主线程根据最新代码、相关正式卡和 [开发计划](../docs/development/development-plan.md) 选择已就绪的产品功能，按 [团队流程](../docs/development/agent-team/README.md) 派给执行者；旧代理名和资源窗口不自动继承。现有 [停止项](../docs/development/agent-team/tasks.md#停止项与真实阻塞) 保持，平台完整能力、系统集成及 [E01 实战验收](../docs/development/work-items/platform-game-acceptance.md) 仍未完成。
+
+## 历史摘要：D11 Task 依赖与 Human Artifact 交付时点
+
+以下历史正文及后续历史章节保留原验收、失败和材料位置；其认证、main、owner、分支计数和清理指令不覆盖上方当前状态。后续能力是否交付以相关正式卡及实际代码为准。
 
 2026-10-13。本次摘要更新前 main 为 `36642754`，仅合入已审 D11 与 Human Artifact 内容，未合入 Live 或 validation 整支。D11 的 75 项去重单元测试、完整类型检查及 84 文件构建通过；native04 业务 Go 1 top/1 sub、原 Node 与四图有限接受，但原 `19524/d42b49` 外层 Wait 1、whole=false 和全局 TCP 尾失败完整保留，TIME_WAIT 归属未证。独审接受 `task-dependency-owned-v1` 方法及原证据的业务/owned/input 限定评估，无第五轮真实运行，不追认原 whole PASS。见[本片卡](../docs/development/work-items/d11-task-dependency-ui.md)、[稳定 v2 汇总](../output/ai/task-dependency-ui-delivery/summary-v2.json)和[集成记录](../output/ai/task-dependency-ui-delivery/local-integration.json)。
 
@@ -102,7 +121,7 @@ root 统筹 Git/资源/集成；原各域作者保留源码所有权，knowledge
 
 Write 原 output 已由工具 94730 actual 0 同文件系统 `NOREPLACE` 迁至 main 工作树 `output/ai/retired-20261012/runner-write-file-operation/`：95 文件 / 97,809,643 B / 15 目录全 metadata/hash/inode 相同，四份 tmp 副本 7,292 B 齐、原 tmp 保留；旁目录 `runner-write-file-operation-preservation/` 保存 manifest、25 maps / 1,931 历史 blob 核验及原 Wait。历史已匹配 Write 原分支 `79d88efc` / `c1530e95`，完整历史已入 main 并推送，原树/本地/远端分支均已实际清理；保全副本与保护缓存不动。详见本片恢复说明。
 
-## 已交付上游与全局保留
+## 历史记录：已交付上游与全局保留
 
 以下保留 main 当前已核清理55树/56本地/90远端、legacy130待核/keep1及正式材料位置；所有累计仅按 root 统筹、执行者已实际完成的清理计数。
 
@@ -116,7 +135,7 @@ Write 原 output 已由工具 94730 actual 0 同文件系统 `NOREPLACE` 迁至 
 
 主目标仍是完成[开发计划](../docs/development/development-plan.md)中的D01–D28/E01，目前尚未完成；任何单片有限验收不代表整体目标或原STOP解除。
 
-## 保留与清理
+## 历史记录：保留与清理
 
 - KnowledgeRename仅历史合入`3822d11e`保持main文件树不变，9提交/55版本均main可恢复；原17源码缺口闭合，旧output/tmp与未提交现场缺失或未证限制未补回。原ref精确lease删除及fresh空/prune已实际完成，仅增加远端计数，见[清理记录](branch-cleanup-20261011.md#2026-10-12-knowledge-rename历史已保留远端清理完成)。
 
