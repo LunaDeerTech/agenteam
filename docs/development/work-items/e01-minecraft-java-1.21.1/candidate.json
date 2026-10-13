@@ -18,6 +18,108 @@
   "source_projection_summary": "summary.json",
   "source_projection_command": "python3 docs/development/work-items/e01-minecraft-java-1.21.1/catalog.py",
   "source_projection_is_e01_replay_command": false,
+  "behavior_preparation": {
+    "status": "partial_versioned_data_rules",
+    "sources": "behavior-sources.json",
+    "catalog": "behavior-catalog.json",
+    "check_command": "python3 docs/development/work-items/e01-minecraft-java-1.21.1/behaviors.py",
+    "rule_family_scope": ["recipe", "advancement", "enchantment"],
+    "rule_count_is_content_denominator": false,
+    "system_directory_complete": false,
+    "system_directory": [
+      {
+        "id": "item-production",
+        "support": "versioned_recipe_fields",
+        "rule_examples": ["mcj/1.21.1/data-rule/recipe/minecraft:acacia_boat", "mcj/1.21.1/data-rule/recipe/minecraft:baked_potato", "mcj/1.21.1/data-rule/recipe/minecraft:armor_dye"],
+        "catalog_examples": ["mcj/1.21.1/recipe_serializer/minecraft:crafting_shaped", "mcj/1.21.1/recipe_serializer/minecraft:smelting"],
+        "missing_behavior_sources": "Serializer algorithms, defaults, fuel, inventory consumption/remainders and UI interactions; special recipes and smithing trim cannot be reconstructed from missing result fields."
+      },
+      {
+        "id": "advancement-and-recipe-unlocks",
+        "support": "versioned_criteria_requirements_rewards",
+        "rule_examples": ["mcj/1.21.1/data-rule/advancement/minecraft:story/mine_stone", "mcj/1.21.1/data-rule/advancement/minecraft:story/mine_diamond"],
+        "catalog_examples": ["mcj/1.21.1/trigger_type/minecraft:inventory_changed"],
+        "missing_behavior_sources": "Advancement persistence/display/runtime semantics and all underlying action mechanics. Recipe-unlock advancements overlap recipe concepts and are not independent score leaves."
+      },
+      {
+        "id": "enchantments",
+        "support": "versioned_applicability_cost_effect_fields",
+        "rule_examples": ["mcj/1.21.1/data-rule/enchantment/minecraft:sharpness", "mcj/1.21.1/data-rule/enchantment/minecraft:mending", "mcj/1.21.1/data-rule/enchantment/minecraft:fortune"],
+        "catalog_examples": ["mcj/1.21.1/tag/item/minecraft:enchantable/sharp_weapon"],
+        "missing_behavior_sources": "Tag membership, effect interpreters, loot-table interactions, enchanting/anvil acquisition and runtime behavior. Fortune lacks an effects field here; this does not establish absence of its effect. Source selection weight is not E01 score."
+      },
+      {
+        "id": "survival-food-and-sleep",
+        "support": "related_recipe_and_advancement_rules_only",
+        "rule_examples": ["mcj/1.21.1/data-rule/advancement/minecraft:husbandry/balanced_diet", "mcj/1.21.1/data-rule/advancement/minecraft:adventure/sleep_in_bed", "mcj/1.21.1/data-rule/recipe/minecraft:baked_potato"],
+        "catalog_examples": ["mcj/1.21.1/item/minecraft:baked_potato"],
+        "missing_behavior_sources": "Health, hunger, saturation/exhaustion, nutrition/eating conditions, sleep eligibility, time skipping and hostile-spawn interactions. Related advancement predicates are not definitions of these mechanics."
+      },
+      {
+        "id": "combat-equipment-and-bosses",
+        "support": "related_advancement_and_enchantment_rules_only",
+        "rule_examples": ["mcj/1.21.1/data-rule/advancement/minecraft:adventure/kill_all_mobs", "mcj/1.21.1/data-rule/advancement/minecraft:end/kill_dragon", "mcj/1.21.1/data-rule/enchantment/minecraft:sharpness"],
+        "catalog_examples": ["mcj/1.21.1/entity_type/minecraft:ender_dragon"],
+        "missing_behavior_sources": "Damage computation and timing, equipment durability, projectile behavior, target AI, boss phases, death/drops and combat interactions. Kill-trigger conditions do not specify how combat works."
+      },
+      {
+        "id": "animals-farming-and-ai",
+        "support": "related_advancement_rules_only",
+        "rule_examples": ["mcj/1.21.1/data-rule/advancement/minecraft:husbandry/bred_all_animals", "mcj/1.21.1/data-rule/advancement/minecraft:husbandry/plant_seed"],
+        "catalog_examples": ["mcj/1.21.1/entity_type/minecraft:cow", "mcj/1.21.1/block/minecraft:wheat"],
+        "missing_behavior_sources": "Growth/light/hydration, breeding foods and cooldowns, taming, pathfinding, spawning/despawning and mob-specific behavior. Trigger names and registry identities are insufficient."
+      },
+      {
+        "id": "redstone-and-automation",
+        "support": "related_production_rules_and_resource_names_only",
+        "rule_examples": ["mcj/1.21.1/data-rule/recipe/minecraft:repeater", "mcj/1.21.1/data-rule/recipe/minecraft:comparator"],
+        "catalog_examples": ["mcj/1.21.1/block/minecraft:redstone_wire"],
+        "missing_behavior_sources": "Signal propagation, update order/ticks, comparator modes, pistons, block events, inventories, hoppers, dispensers and cross-system automation. Crafting a component does not define its circuit behavior."
+      },
+      {
+        "id": "world-generation-and-exploration",
+        "support": "related_advancement_rules_and_resource_names_only",
+        "rule_examples": ["mcj/1.21.1/data-rule/advancement/minecraft:adventure/adventuring_time"],
+        "catalog_examples": ["mcj/1.21.1/worldgen/biome/minecraft:plains", "mcj/1.21.1/worldgen/structure/minecraft:trial_chambers"],
+        "missing_behavior_sources": "Seed/noise/chunk generation, biome and structure placement, terrain/fluid behavior, loot and exploration interactions. A location criterion is not a world-generation specification."
+      },
+      {
+        "id": "dimensions-and-progression",
+        "support": "related_advancement_rules_only",
+        "rule_examples": ["mcj/1.21.1/data-rule/advancement/minecraft:story/enter_the_nether", "mcj/1.21.1/data-rule/advancement/minecraft:end/root"],
+        "catalog_examples": ["mcj/1.21.1/dimension/minecraft:the_nether", "mcj/1.21.1/dimension/minecraft:the_end"],
+        "missing_behavior_sources": "Portal construction, coordinate/linking/search rules, dimension travel, return paths and progression dependencies. Observing a dimension transition does not define these mechanics."
+      },
+      {
+        "id": "movement-and-transport",
+        "support": "related_advancement_rules_and_resource_names_only",
+        "rule_examples": ["mcj/1.21.1/data-rule/advancement/minecraft:nether/fast_travel", "mcj/1.21.1/data-rule/advancement/minecraft:adventure/fall_from_world_height"],
+        "catalog_examples": ["mcj/1.21.1/item/minecraft:elytra", "mcj/1.21.1/item/minecraft:acacia_boat"],
+        "missing_behavior_sources": "Input, movement/collision, swimming/climbing/flying, gravity, vehicles, rails and passenger behavior; travel criteria and boat recipes do not define them."
+      },
+      {
+        "id": "trading-and-villages",
+        "support": "resource_names_only",
+        "rule_examples": [],
+        "catalog_examples": ["mcj/1.21.1/entity_type/minecraft:villager", "mcj/1.21.1/villager_profession/minecraft:farmer"],
+        "missing_behavior_sources": "Versioned offers, professions/workstations, prices, restocking, reputation, villages, raids and optional trade-rebalance applicability. No trade-rule body was collected."
+      },
+      {
+        "id": "modes-ui-and-multiplayer",
+        "support": "no_behavior_source_in_this_increment",
+        "rule_examples": [],
+        "catalog_examples": [],
+        "missing_behavior_sources": "Mode/difficulty rules, Hardcore, Creative, Adventure, Spectator, menus/input/accessibility, player interaction, synchronization and server rules. No mode is excluded by this missing source coverage."
+      },
+      {
+        "id": "world-state-save-and-recovery",
+        "support": "no_behavior_source_in_this_increment",
+        "rule_examples": [],
+        "catalog_examples": [],
+        "missing_behavior_sources": "Time/weather, player/world persistence, death/respawn, save/exit/reload and recovery. The continuous E01 play route remains undefined and untested."
+      }
+    ]
+  },
   "scoring": {
     "leaf_mapping": null,
     "weights": null,
@@ -31,7 +133,7 @@
     {
       "id": "behavior-source-completeness",
       "status": "open",
-      "evidence": "Registry IDs and data file paths name resources but do not enumerate all gameplay behaviors. Wiki page revision metadata was retrieved; the subsequent revision-content request returned HTTP 403.",
+      "evidence": "Registry IDs and data file paths do not enumerate all gameplay behaviors. A bounded increment now projects 1290 recipe, 1399 advancement and 42 enchantment definitions from three pinned 1.21.1 JSON blobs; these are partial data rules, not a complete gameplay baseline. Wiki page revision metadata was retrieved; its revision-content request remains HTTP 403 and was not retried.",
       "missing": "Version-applicable full behavior/manual source index and source-to-behavior coverage, including survival, physics, AI, redstone, progression, modes, multiplayer and save/reload."
     },
     {
@@ -61,7 +163,7 @@
     {
       "id": "independent-completeness-review",
       "status": "not_started",
-      "evidence": "Only the author's deterministic source projection has been checked; both mcmeta views share one upstream extraction.",
+      "evidence": "The prior source-only catalog projection has independent review, which is not full-game completeness review. The new data-rule projection is awaiting independent incremental review; all mcmeta views share one upstream extraction.",
       "missing": "Non-author source coverage, granularity, weights and critical-gate review before formal freezing."
     },
     {
