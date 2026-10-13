@@ -1689,8 +1689,17 @@ def main():
             # connection in this shared host was owned by this invocation.
             tail_deadline = time.monotonic() + 75
             empty, delta = 0, set()
+            observed_delta = None
+            if args.run == TASK_DEPENDENCY_UI:
+                log.write('HOST_TCP scope_baseline=' + json.dumps(sorted(baseline)) + '\n')
             while time.monotonic() < tail_deadline and empty < 2:
                 delta = tcp() - baseline
+                if args.run == TASK_DEPENDENCY_UI and delta != observed_delta:
+                    # Full changed observations remain unattributed, including inode 0.
+                    log.write('HOST_TCP scope_delta=' + json.dumps({
+                        'elapsed_seconds': time.monotonic() - started,
+                        'rows': sorted(delta)}) + '\n')
+                    observed_delta = set(delta)
                 if not delta:
                     empty += 1
                     log.write(f'HOST_TCP delta_empty_observation={empty}\n')
@@ -1698,9 +1707,15 @@ def main():
                     empty = 0
                 if empty < 2: time.sleep(.1)
             if empty != 2:
-                code = 1
-                log.write(f'STOP host TCP delta tail not empty: {len(delta)} rows\n')
+                if args.run != TASK_DEPENDENCY_UI:
+                    code = 1
+                label = 'OBSERVE' if args.run == TASK_DEPENDENCY_UI else 'STOP'
+                log.write(f'{label} host TCP delta tail not empty: {len(delta)} rows\n')
                 sample = tcp_failure_sample(delta, 'supervisor')
+                if args.run == TASK_DEPENDENCY_UI:
+                    sample.update(truncated=False, rows=[dict(zip(
+                        ('family', 'localhex', 'remotehex', 'state', 'inode'), row))
+                        for row in sorted(delta)])
                 log.write('HOST_TCP failure_sample=' + json.dumps(sample, sort_keys=True) + '\n')
                 # stdout is retained in the task's existing private supervisor.log.
                 print(json.dumps({'host_tcp_failure': sample}, sort_keys=True), flush=True)
@@ -1752,6 +1767,15 @@ def main():
                 same = same and adapter.app_runtime_wrapper_same(args.binary, directory)
             if not same: code = 1
             if interrupted: code = 1
+            if args.run == TASK_DEPENDENCY_UI:
+                # Versioned scope: actual business/owned/inputs stay hard gates.
+                # Shared-host TCP is observed, never used to infer task ownership.
+                log.write('SCOPE_ASSESSMENT ' + json.dumps({
+                    'method': 'task-dependency-owned-v1', 'selector': args.run,
+                    'business_owned_inputs_exit': code,
+                    'host_tcp_empty_twice': empty == 2,
+                    'host_tcp_unattributed_rows': len(delta),
+                    'global_tcp_is_diagnostic': True}) + '\n')
             log.write(f'SUPERVISOR inputs_unchanged={same} terminal={code} elapsed={time.monotonic()-started:.3f}s\n')
         finally:
             for s, handler in old.items(): signal.signal(s, handler)
