@@ -131,6 +131,7 @@ func taskExecutionReadWeb(t *testing.T) {
 	if foreign.Details().UserID == v.actor.Details().UserID {
 		t.Fatal("nonowner account reused owner identity")
 	}
+	taskExecutionRecoverForeignInvitation(t, v.workAppFixture, "artifact-owner", "artifact-owner@example.com")
 	session := taskExecutionGet(t, v.workAppFixture, v.client, v.cookie, "GET", "/api/v1/session", 200)
 	var identity struct {
 		User struct {

@@ -205,7 +205,7 @@ func taskExecutionFacts(t *testing.T, v *workAppFixture) string {
 // Finish the formal foreign-account seed before measuring read-only behavior.
 // Redeem removes the invitation reference and queues its credential deletion;
 // otherwise the next default App's Account.Start legitimately recovers it.
-func taskExecutionRecoverForeignInvitation(t *testing.T, v *workAppFixture) {
+func taskExecutionRecoverForeignInvitation(t *testing.T, v *workAppFixture, username, email string) {
 	t.Helper()
 	var cleanup, owner, credential, digest string
 	var count int
@@ -217,7 +217,7 @@ func taskExecutionRecoverForeignInvitation(t *testing.T, v *workAppFixture) {
  WHERE c.owner_kind='invitation' AND c.purpose='system' AND c.version=1 AND c.phase IN ('delete','completed')
  AND created.phase='committed' AND created.actor_kind='human' AND created.user_id=$1::uuid AND created.session_id=$2::uuid
  AND redeemed.phase='committed' AND redeemed.result_code='COMPLETED' AND redeemed.actor_kind='browser'
- AND u.username='artifact-reader' AND u.email='artifact-reader@example.com'`, v.actor.Details().UserID, v.actor.Details().SessionID).Scan(&cleanup, &owner, &credential, &digest, &count))
+ AND u.username=$3 AND u.email=$4`, v.actor.Details().UserID, v.actor.Details().SessionID, username, email).Scan(&cleanup, &owner, &credential, &digest, &count))
 	if count != 1 {
 		t.Fatal("foreign invitation cleanup is not uniquely bound to its formal commands")
 	}
@@ -418,7 +418,7 @@ func taskExecutionReadApp(t *testing.T) {
 		t.Fatal("formal second Task receipt differs")
 	}
 	foreign := artifactOwnerHTTPForeignClient(t, &humanArtifactApp{workAppFixture: v.workAppFixture})
-	taskExecutionRecoverForeignInvitation(t, v.workAppFixture)
+	taskExecutionRecoverForeignInvitation(t, v.workAppFixture, "artifact-reader", "artifact-reader@example.com")
 	before := taskExecutionFacts(t, v.workAppFixture)
 	page := taskExecutionGet(t, v.workAppFixture, v.client, v.cookie, "GET", list+"?limit=1", 200)
 	taskExecutionPage(t, page.body, []ec.TaskExecution{expected})
