@@ -50,6 +50,7 @@ services:
 
   app:
     image: agenteam-dev-toolchain:go1.27.1-node24.12.0
+    pull_policy: never
     build:
       context: .
       dockerfile: Dockerfile.dev

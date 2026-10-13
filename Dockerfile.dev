@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1
+# Use BuildKit's bundled Dockerfile frontend without an external frontend image.
 # The default target contains tools; application source is mounted at runtime.
 FROM golang:1.27.1-alpine AS go
 FROM node:24.12.0-alpine AS dev-toolchain
