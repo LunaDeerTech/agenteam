@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -52,7 +53,7 @@ func runtimeCandidate(t *testing.T, text string) *directTextCall {
 func TestRuntimeFinalTextProducer(t *testing.T) {
 	for _, status := range []ec.Status{ec.Succeeded, ec.Failed, ec.Cancelled} {
 		t.Run(string(status), func(t *testing.T) {
-			run := runtimeCandidate(t, "<script>literal</script>\x00")
+			run := runtimeCandidate(t, "<script>literal</script>\t")
 			run.terminal.status = status
 			if status != ec.Succeeded {
 				run.terminal.response = nil
@@ -82,7 +83,7 @@ func TestRuntimeFinalTextProducer(t *testing.T) {
 				t.Fatal("original generation/version lost")
 			}
 			if status == ec.Succeeded {
-				if len(snapshot.Items) != 1 || snapshot.Items[0].Data.Content != "<script>literal</script>\x00\n末尾" {
+				if len(snapshot.Items) != 1 || snapshot.Items[0].Data.Content != "<script>literal</script>\t\n末尾" {
 					t.Fatal("text lost or rewritten")
 				}
 			} else if snapshot.Items == nil || len(snapshot.Items) != 0 {
@@ -97,6 +98,37 @@ func TestRuntimeFinalTextProducer(t *testing.T) {
 			x.args[7] = []byte(`{}`)
 			if err := confirmDirectTextRuntime(context.Background(), x, run); err == nil {
 				t.Fatal("partial projection confirmed")
+			}
+		})
+	}
+	// These deliberately invalid candidates exercise the producer's own bounds
+	// before any INSERT. They are not completed Model responses or PG facts.
+	for _, kind := range []string{"invalid-utf8", "parts-total", "encoded-total"} {
+		t.Run(kind, func(t *testing.T) {
+			run := runtimeCandidate(t, "original")
+			switch kind {
+			case "invalid-utf8":
+				run.terminal.response.Message.Parts[0].Text.Text = string([]byte{0xff})
+			case "parts-total":
+				run.terminal.response.Message.Parts[0].Text.Text = strings.Repeat("a", ec.MaxRuntimeTextBytes/2)
+				run.terminal.response.Message.Parts[1].Text.Text = strings.Repeat("b", ec.MaxRuntimeTextBytes/2+1)
+				if run.terminal.response.Validate() != nil {
+					t.Fatal("each individual TextPart must be valid for the aggregate-bound control")
+				}
+			case "encoded-total":
+				// JSON's HTML escaping expands each valid '<' to six bytes.
+				run.terminal.response.Message.Parts[0].Text.Text = strings.Repeat("<", ec.MaxRuntimeViewBytes/6+1)
+				snapshot, err := finalRuntimeSnapshot(run.round, run.terminal)
+				if err != nil || len(snapshot.Items[0].Data.Content) > ec.MaxRuntimeTextBytes {
+					t.Fatal("encoded-bound control must first accept the valid UTF-8 text total", err)
+				}
+				if raw, err := runtimeSnapshotBytes(snapshot); err == nil || raw != nil {
+					t.Fatal("encoded full snapshot exceeded its bound without rejection")
+				}
+			}
+			x := &runtimeSnapshotSQL{}
+			if err := saveDirectTextRuntime(context.Background(), x, run); err == nil || x.writes != 0 {
+				t.Fatal("invalid or oversized text reached projection INSERT", err, x.writes)
 			}
 		})
 	}
