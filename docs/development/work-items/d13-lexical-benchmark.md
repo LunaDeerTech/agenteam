@@ -12,11 +12,11 @@
 
 ### 1.1 首个 PostgreSQL 原生 FTS 候选
 
-`native-pg-fts-v1` 只新增 `tests/search-benchmark/native_pg_fts.go`、其普通输入/输出控制与 integration entry，复用原无标签 export、score 和 PG-only nonce fixture。源码准备与真实运行分开；当前尚未编译、执行或评分，未完成任何后端选型。
+`native-pg-fts-v1` 只新增 `tests/search-benchmark/native_pg_fts.go`、其普通输入/输出控制与 integration entry，复用原无标签 export、score 和 PG-only nonce fixture。源码准备与真实运行分开；候选 `1a7aadf5` 已完成普通输入/输出控制、integration 编译与精确 list，真实 PG 与评分未执行，未完成任何后端选型。
 
 预评分配置已固定：原 digest `99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc` 的 PostgreSQL17.8，`simple` 内置分析器、exact index_text、`websearch_to_tsquery`、`ts_rank_cd` normalization0、同分 C/ASCII source ID、top20、单 GIN。所有72个 query 固定执行，不根据 qrels 调参、补词或过滤。一个持久连接先取完整结果，再5轮 warm 样本，合计432次真实查询；查询与索引计时边界、输出来源和资源规则见 [benchmark README](../../../tests/search-benchmark/README.md#首个真实候选native-pg-fts-v1)。这不是 BM25、冷缓存测量或生产容量结论。
 
-仍需独立源审、必要普通控制、真实64行索引→72条结果→原 score、实际 SQL/输出来源复核和 owned 退出。准确 package copyright 在未来同一已验证的 owned fixture 准备阶段、索引前读取核版本并保存；当前许可正文与传递依赖审阅仍待验证，不据镜像名称声称完成。无新依赖、生产迁移或正式索引；另两候选、固定 dense leg hybrid RRF、完整运维许可比较与最终 ADR 仍未完成。
+[本次轻量检查](../../../output/ai/native-pg-fts/basic01/wait.json)原 `54200/36f5d8` 实际 Wait 0：普通 race 2 top/12 sub、integration 编译以及精确列举 `TestNativePGFTSBenchmark` 通过，无失败或跳过；所有命令消费者已退出，待验候选二进制保留。原 PG-only driver 的 5 GiB 启动门仍未满足（本次可用空间快照为 1,751,117,824 B），未启动 driver 或 PG、未 export/score，也未读取运行时许可正文。普通控制与列举不证明真实查询或候选成绩。仍需真实64行索引→72条结果→原 score、实际 SQL/输出来源复核和 owned 退出。准确 package copyright 在未来同一已验证的 owned fixture 准备阶段、索引前读取核版本并保存；当前许可正文与传递依赖审阅仍待验证，不据镜像名称声称完成。无新依赖、生产迁移或正式索引；另两候选、固定 dense leg hybrid RRF、完整运维许可比较与最终 ADR 仍未完成。
 
 ## 2. 现状与文件归属
 

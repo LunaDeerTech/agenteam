@@ -82,7 +82,7 @@ Recall@1/5/10/20与MRR@20把grade≥2视为相关；nDCG@1/5/10/20的增益是`2
 
 ## 首个真实候选：native-pg-fts-v1
 
-当前是源码候选，尚未执行、评分或完成许可证核验。配置在看候选成绩前固定，不读取 qrels 调整；低分、空查询表达式及无结果都保留。未改原数据、export、score、依赖或生产迁移。
+当前是源码候选；`1a7aadf5` 已通过普通 race 2 top/12 sub、integration 编译与精确 top list，原 `54200/36f5d8` 实际 Wait 0，见[轻量检查](../../output/ai/native-pg-fts/basic01/wait.json)。真实 PG、export/score 与运行时许可证核验均未执行，候选状态仍为 `not_run`。原 PG-only driver 需要 5 GiB 可用空间，本次检查尾快照仅 1,751,117,824 B；保留待验二进制，未降低资源门或启动数据库。配置在看候选成绩前固定，不读取 qrels 调整；低分、空查询表达式及无结果都保留。未改原数据、export、score、依赖或生产迁移。
 
 | 项目 | 固定方式 |
 | --- | --- |
@@ -99,7 +99,7 @@ Recall@1/5/10/20与MRR@20把grade≥2视为相关；nDCG@1/5/10/20的增益是`2
 
 版本/许可准备门：现有镜像元数据确认 PG17.8；镜像无许可 labels，尚未以本候选取得准确包版权正文，不据常识填写已验证。未来一次明确授权的 PG-only 窗口中，先从同一经过 nonce/ID/镜像核验的容器读取 `dpkg-query` 的 postgresql-17 版本及 `/usr/share/doc/postgresql-17/copyright`。读取失败、版本不同或缺少 PostgreSQL 原许可正文则在索引前失败。材料与 SHA 需独立审阅，文本存在本身不完成传递依赖、镜像再分发或升级运维审查。此候选不新增 tokenizer/词典/extension，不对镜像、仓库数据授予新许可。
 
-下面是待统一验证窗口使用的精确入口；当前不表示这些命令已运行。依赖和固定镜像必须已在本机，禁止借该入口下载或运行外部数据库。只复用共享工具/cache，输出目录各轮独立。
+下面是复现与后续统一验证窗口的精确入口；当前只实际完成上述普通检查、integration 编译与 list，driver 构建、导出、真实 PG 及 score 均未执行。依赖和固定镜像必须已在本机，禁止借该入口下载或运行外部数据库。只复用共享工具/cache，输出目录各轮独立。
 
 ```sh
 # 在仓库根；AGENTEAM_GO 指向已经核验的 Go1.27.1，GOTOOLCHAIN=local。
