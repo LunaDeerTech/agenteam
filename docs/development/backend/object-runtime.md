@@ -4,7 +4,9 @@
 
 ## 启动与存储身份
 
-Central 必须配置预建私有 bucket、固定主 endpoint、显式凭据、独立下载 keyring 和 spool 绝对路径。`OBJECT_TRANSFER_ENDPOINT` 可选择同一存储的 Runner 可达 origin；它与主 endpoint 共用 bucket、region、凭据和 TLS 策略。没有环境代理、默认 AWS 凭据链、SDK 自动重试或动态业务 URL。可信部署通道可按配置使用私网/loopback；它与运行时出站 SSRF 分类是两种不同边界。
+Central 必须配置专用私有 bucket、固定主 endpoint、显式凭据、独立下载 keyring 和 spool 绝对路径。`OBJECT_TRANSFER_ENDPOINT` 可选择同一存储的 Runner 可达 origin；它与主 endpoint 共用 bucket、region、凭据和 TLS 策略。没有环境代理、默认 AWS 凭据链、SDK 自动重试或动态业务 URL。可信部署通道可按配置使用私网/loopback；它与运行时出站 SSRF 分类是两种不同边界。
+
+首次初始化时，原 DB 存储身份事务明确提交且状态为 `reserved` 后，可创建明确缺失的配置 bucket；`confirmed` 的既有存储缺桶仍拒绝，不自动修复存储丢失。创建不改变既有 bucket 配置；权限、网络错误不能当作缺桶。只读检查和 `--check-config` 不创建。
 
 `NewRuntime(service, guard, transfers)` 只核绑定并构造。`Initialize` 在数据库阶段之后，与 Audit/Secret/出站初始化共用剩余 30s：检查 bucket 配置及 DB/control store identity，确认 ProcessGuard，再真实 PUT 32 个随机字节、经两个 origin 完整 GET 校验并 DELETE/核实 absence，然后执行恢复门禁。不同 identity、不同 probe 内容、配置查询失败或未收敛的未授权事实均拒绝；probe 从未完成不能算健康。初始化未确认时连 Stat/Discover 也拒绝，已准入的内部恢复沿原 context 工作。
 

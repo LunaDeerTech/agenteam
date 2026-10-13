@@ -1,33 +1,16 @@
-name: agenteam-dev
+name: "${COMPOSE_PROJECT_NAME:-agenteam-dev}"
 
 services:
-  init:
-    image: agenteam-dev-toolchain:go1.27.1-node24.12.0
-    pull_policy: never
-    user: "0:0"
-    command: ["node", "/workspace/deploy/dev/init.mjs"]
-    environment:
-      DEV_UID: "${AGENTEAM_DEV_UID:-1000}"
-      DEV_GID: "${AGENTEAM_DEV_GID:-1000}"
-    volumes:
-      - .:/workspace:ro
-      - ./.dev:/dev-state
-    restart: "no"
-
   database:
     # PostgreSQL 17 + pgvector 0.8.1, matching the migration contract.
     image: pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
     environment:
       POSTGRES_USER: agenteam
       POSTGRES_DB: agenteam
-      POSTGRES_PASSWORD_FILE: /run/dev-config/database-password
+      POSTGRES_PASSWORD: "${AGENTEAM_DEV_DATABASE_PASSWORD:?Copy .env.example to .env and set the database password}"
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - ./.dev/postgres:/var/lib/postgresql/data
-      - ./.dev/config:/run/dev-config:ro
-    depends_on:
-      init:
-        condition: service_completed_successfully
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U agenteam -d agenteam"]
       interval: 2s
@@ -37,45 +20,31 @@ services:
 
   minio:
     image: "${AGENTEAM_DEV_MINIO_IMAGE:-quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z}"
-    user: "${AGENTEAM_DEV_UID:-1000}:${AGENTEAM_DEV_GID:-1000}"
     command: ["server", "/data", "--console-address", ":9001", "--certs-dir", "/data/certs"]
     environment:
       HOME: /data
-      MINIO_ROOT_USER_FILE: /run/dev-config/minio-user
-      MINIO_ROOT_PASSWORD_FILE: /run/dev-config/minio-password
+      MINIO_ROOT_USER: "${AGENTEAM_DEV_MINIO_ROOT_USER:?Set the MinIO user in .env}"
+      MINIO_ROOT_PASSWORD: "${AGENTEAM_DEV_MINIO_ROOT_PASSWORD:?Set the MinIO password in .env}"
     volumes:
       - ./.dev/minio:/data
-      - ./.dev/config:/run/dev-config:ro
-    depends_on:
-      init:
-        condition: service_completed_successfully
     stop_grace_period: 30s
-
-  bucket:
-    image: "${AGENTEAM_DEV_MC_IMAGE:-quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z}"
-    entrypoint: ["/bin/sh", "/workspace/deploy/dev/bucket.sh"]
-    user: "${AGENTEAM_DEV_UID:-1000}:${AGENTEAM_DEV_GID:-1000}"
-    environment:
-      MC_CONFIG_DIR: /dev-mc
-    volumes:
-      - ./deploy/dev:/workspace/deploy/dev:ro
-      - ./.dev/config:/run/dev-config:ro
-      - ./.dev/mc:/dev-mc
-    depends_on:
-      minio:
-        condition: service_started
-    restart: "no"
 
   app:
     image: agenteam-dev-toolchain:go1.27.1-node24.12.0
     build:
       context: .
       dockerfile: Dockerfile.dev
-    user: "${AGENTEAM_DEV_UID:-1000}:${AGENTEAM_DEV_GID:-1000}"
+    # Root only prepares local files; bootstrap execs the original target UID.
+    user: "0:0"
     init: true
     working_dir: /workspace
-    command: ["/bin/sh", "/workspace/deploy/dev/start.sh"]
+    command: ["/bin/sh", "/workspace/deploy/dev/bootstrap.sh"]
     environment:
+      DEV_UID: "${AGENTEAM_DEV_UID:-1000}"
+      DEV_GID: "${AGENTEAM_DEV_GID:-1000}"
+      DEV_DATABASE_PASSWORD: "${AGENTEAM_DEV_DATABASE_PASSWORD:?Set the database password in .env}"
+      DEV_MINIO_ROOT_USER: "${AGENTEAM_DEV_MINIO_ROOT_USER:?Set the MinIO user in .env}"
+      DEV_MINIO_ROOT_PASSWORD: "${AGENTEAM_DEV_MINIO_ROOT_PASSWORD:?Set the MinIO password in .env}"
       HOME: /dev-state/home
       GOTOOLCHAIN: local
       CGO_ENABLED: "0"
@@ -107,8 +76,8 @@ services:
     depends_on:
       database:
         condition: service_healthy
-      bucket:
-        condition: service_completed_successfully
+      minio:
+        condition: service_started
     healthcheck:
       # readyz intentionally reports product readiness=false. Listening is the
       # real process signal after its normal migrations and initialization.

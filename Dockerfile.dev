@@ -13,7 +13,7 @@ RUN --mount=type=secret,id=dev_ca \
         cat /run/secrets/dev_ca >> /etc/ssl/cert.pem; \
         printf '\n' >> /etc/ssl/cert.pem; \
     fi; \
-    apk add --no-cache ca-certificates git; \
+    apk add --no-cache ca-certificates git su-exec; \
     update-ca-certificates
 RUN rm -f /etc/machine-id && ln -s /dev-state/config/machine-id /etc/machine-id
 COPY --from=go /usr/local/go /usr/local/go
