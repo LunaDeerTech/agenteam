@@ -483,7 +483,7 @@ describe('Project owner state and original requests', () => {
         init.method === 'PATCH'
           ? phase === 'uncertain'
             ? Promise.reject(new Error('lost'))
-            : problem('RESOURCE_BUSY', 409, 'not_committed')
+            : problem('INVALID_ARGUMENT', 400, 'not_committed')
           : f.normal(path, init),
       )
       f.workspace.draft.description = 'pending'
