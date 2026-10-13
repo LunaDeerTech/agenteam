@@ -15,7 +15,9 @@ keyring 占位值故意无效；部署须独立生成随机 32-byte 材料并使
 
 恢复日志使用固定规范绝对文件路径。部署先创建当前服务 UID 所有的 0700 父目录，不允许路径中的符号链接；文件须为同 UID 的 0600 常规文件，不存在时由启动创建。打开或权限核验失败阻止初始化。`--check-config` 仅验证路径，不打开/创建该文件，也不证明运行时权限合格；显式 CA 仍按既有规则读取。受限文件含敏感恢复材料，不能指向普通 stdout/stderr 或纳入通用日志采集；读取、备份及保留由部署操作者管理。
 
-`AGENTEAM_CENTRAL_PUBLIC_ORIGIN` 决定浏览器边界与邮件链接，正式部署须使用 HTTPS；仅字面 `localhost` 或 loopback 地址允许本地 HTTP，使用独立本地 Cookie 名。反向代理须保留 canonical Host，不以 `Host`、`X-Forwarded-*` 推导公共链接或安全模式。默认客户端 IP 只取 RemoteAddr。
+`AGENTEAM_CENTRAL_PUBLIC_ORIGIN` 决定浏览器边界与邮件链接，正式部署须使用 HTTPS；默认仅字面 `localhost` 或 loopback 地址允许本地 HTTP，使用独立本地 Cookie 名。反向代理须保留 canonical Host，不以 `Host`、`X-Forwarded-*` 推导公共链接或安全模式。默认客户端 IP 只取 RemoteAddr。
+
+`AGENTEAM_CENTRAL_DEV_MODE` 默认 `false`，只接受精确 `true` / `false`。设为 `true` 时允许通过任意域名或 IP 的 HTTP 地址开发测试，不检查请求的 Host、Origin、Sec-Fetch-Site，也不限制来源网段；即使 `PUBLIC_ORIGIN` 是 HTTPS，也统一使用普通、非 Secure Cookie。CSRF token、Session 与业务权限仍须验证。`PUBLIC_ORIGIN` 仍须为合法 URL，可使用远程 HTTP，并继续作为邮件和受限恢复日志中链接的固定基址；浏览器访问地址可与它不同，不从请求 Host 生成链接。关闭 Dev 模式即恢复默认来源与 Cookie 策略。
 
 首次启动幂等创建 `admin@mail.com` / `admin`，随机初始密码仅向上述受限日志尝试输出一次；重启不覆盖密码或重印。若该次输出丢失，走普通密码恢复。只有 SMTP 未配置时邀请/reset 使用受限日志；配置后发送失败不会改渠道。公共 bootstrap HTTP 只给浏览器上下文/CSRF 等安全投影，不返回初始密码。
 
@@ -43,7 +45,7 @@ keyring 占位值故意无效；部署须独立生成随机 32-byte 材料并使
 | `/system/users`、`/system/invitations*`、`/system/account-settings` | 当前管理员列表、邀请/重发/撤销与账户安全设置 |
 | `/system/smtp*`、`/system/mail-jobs*` | 当前管理员 SMTP 配置/取消配置/测试、安全任务状态与人工重试 |
 
-Host 必须匹配规范化 PublicOrigin；非安全方法要求同源 Origin，浏览器/Session 写请求验证相应 `X-CSRF-Token`。HTTPS Cookie 为 `__Host-agenteam_session` / `__Host-agenteam_browser`，`HttpOnly; Secure; SameSite=Lax; Path=/` 且无 Domain；本地 HTTP 使用 `agenteam_local_*`。每次当前身份/权限检查不被历史 receipt 或 cursor 替代；业务命令沿 OpenAPI 带幂等键和版本，拒绝未知字段。公共 HTTP middleware 由根只包装一次，响应、Problem 与日志使用同一 request ID。
+非 Dev 模式的 Host 必须匹配规范化 PublicOrigin，非安全方法要求同源 Origin；两种模式的浏览器/Session 写请求均验证相应 `X-CSRF-Token`。非 Dev 模式的 HTTPS Cookie 为 `__Host-agenteam_session` / `__Host-agenteam_browser`，`HttpOnly; Secure; SameSite=Lax; Path=/` 且无 Domain；本地 HTTP 或 Dev 模式使用非 Secure 的 `agenteam_local_*`，其余 Cookie 属性相同。每次当前身份/权限检查不被历史 receipt 或 cursor 替代；业务命令沿 OpenAPI 带幂等键和版本，拒绝未知字段。公共 HTTP middleware 由根只包装一次，响应、Problem 与日志使用同一 request ID。
 
 email 只读，本人可改 username/display_name/theme；username 按当前 DB 映射解析，改名后旧路径失效且无 alias。头像接单一原始 JPEG/PNG/WebP body，最多 5 MiB、边长 4096、总像素 16,777,216，拒动画/SVG/GIF、截断和尾随拼接；保持比例缩至 512×512 内、不放大，白底合成并重编码 JPEG，丢弃原元数据。命令摘要绑定完整原始 bytes，不能用重编码后的 SHA 替代输入语义。
 

@@ -35,6 +35,7 @@ type Config struct {
 	shutdownTimeout  time.Duration
 	httpAddr         string
 	publicOrigin     string
+	devMode          bool
 	database         postgres.Config
 	cursorKeys       cursor.Keyring
 	secretKeys       secret.Keyring
@@ -51,6 +52,7 @@ func (c Config) LogLevel() slog.Level                           { return c.logLe
 func (c Config) ShutdownTimeout() time.Duration                 { return c.shutdownTimeout }
 func (c Config) HTTPAddr() string                               { return c.httpAddr }
 func (c Config) PublicOrigin() string                           { return c.publicOrigin }
+func (c Config) DevMode() bool                                  { return c.devMode }
 func (c Config) Database() postgres.Config                      { return c.database }
 func (c Config) CursorKeyring() cursor.Keyring                  { return c.cursorKeys }
 func (c Config) SecretKeyring() secret.Keyring                  { return c.secretKeys }
@@ -96,7 +98,7 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 			continue
 		}
 		switch strings.TrimPrefix(key, Prefix) {
-		case "LOG_LEVEL", "SHUTDOWN_TIMEOUT", "HTTP_ADDR", "PUBLIC_ORIGIN", "CURSOR_KEYRING", "SECRET_KEYRING", "OUTBOUND_CA_FILE":
+		case "LOG_LEVEL", "SHUTDOWN_TIMEOUT", "HTTP_ADDR", "PUBLIC_ORIGIN", "DEV_MODE", "CURSOR_KEYRING", "SECRET_KEYRING", "OUTBOUND_CA_FILE":
 		case "ACCOUNT_KEYRING", "ACCOUNT_RECOVERY_LOG":
 		case "KNOWLEDGE_CONFIRMATION_KEYRING":
 		case schedulerRetryMaxAttempts, schedulerRetryInitialBackoff, schedulerRetryMaxBackoff:
@@ -137,7 +139,14 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 	if !validAddress(c.httpAddr) {
 		return Config{}, invalid("HTTP_ADDR")
 	}
-	c.publicOrigin, err = normalizeOrigin(value("PUBLIC_ORIGIN", "http://localhost:8080"))
+	switch value("DEV_MODE", "false") {
+	case "true":
+		c.devMode = true
+	case "false":
+	default:
+		return Config{}, invalid("DEV_MODE")
+	}
+	c.publicOrigin, err = normalizeOrigin(value("PUBLIC_ORIGIN", "http://localhost:8080"), c.devMode)
 	if err != nil {
 		return Config{}, invalid("PUBLIC_ORIGIN")
 	}
@@ -218,7 +227,7 @@ func (c Config) Validate() error {
 	if !validAddress(c.httpAddr) {
 		return invalid("HTTP_ADDR")
 	}
-	if normalized, err := normalizeOrigin(c.publicOrigin); err != nil || normalized != c.publicOrigin {
+	if normalized, err := normalizeOrigin(c.publicOrigin, c.devMode); err != nil || normalized != c.publicOrigin {
 		return invalid("PUBLIC_ORIGIN")
 	}
 	if c.database.Validate() != nil {
@@ -314,7 +323,7 @@ func validHost(host string) bool {
 	return true
 }
 
-func normalizeOrigin(raw string) (string, error) {
+func normalizeOrigin(raw string, devMode bool) (string, error) {
 	u, err := url.Parse(raw)
 	if err != nil || u.Opaque != "" || u.User != nil || u.ForceQuery || u.RawQuery != "" || strings.Contains(raw, "#") || u.Host == "" || !validHost(u.Hostname()) {
 		return "", invalid("PUBLIC_ORIGIN")
@@ -324,7 +333,7 @@ func normalizeOrigin(raw string) (string, error) {
 		return "", invalid("PUBLIC_ORIGIN")
 	}
 	host := strings.ToLower(u.Hostname())
-	if scheme == "http" && host != "localhost" {
+	if scheme == "http" && !devMode && host != "localhost" {
 		ip, err := netip.ParseAddr(host)
 		if err != nil || !ip.Unmap().IsLoopback() {
 			return "", invalid("PUBLIC_ORIGIN")

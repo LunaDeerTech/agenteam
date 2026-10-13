@@ -17,9 +17,14 @@ import (
 type csrfBoundary struct {
 	origin, host, sessionName, browserName string
 	secure                                 bool
+	devMode                                bool
 }
 
 func csrfNewBoundary(raw string) (csrfBoundary, error) {
+	return csrfNewBoundaryWithDevMode(raw, false)
+}
+
+func csrfNewBoundaryWithDevMode(raw string, devMode bool) (csrfBoundary, error) {
 	// Reuse the accepted origin parser. Options are deployment input, never
 	// inferred from Host or forwarded headers.
 	u, e := url.Parse(raw)
@@ -34,7 +39,7 @@ func csrfNewBoundary(raw string) (csrfBoundary, error) {
 	}
 	ip, ipErr := netip.ParseAddr(o.Host())
 	local := configuredHost == "localhost" || ipErr == nil && ip.Unmap().IsLoopback()
-	if o.Scheme() != "https" && !local {
+	if o.Scheme() != "https" && !local && !devMode {
 		return csrfBoundary{}, invalid()
 	}
 	canonical := o.String()
@@ -53,7 +58,7 @@ func csrfNewBoundary(raw string) (csrfBoundary, error) {
 		u.Host = strings.Replace(u.Host, o.Host(), o.Host()+".", 1)
 		canonical = u.String()
 	}
-	b := csrfBoundary{origin: canonical, host: u.Host, secure: o.Scheme() == "https", sessionName: "__Host-agenteam_session", browserName: "__Host-agenteam_browser"}
+	b := csrfBoundary{origin: canonical, host: u.Host, secure: o.Scheme() == "https" && !devMode, devMode: devMode, sessionName: "__Host-agenteam_session", browserName: "__Host-agenteam_browser"}
 	if !b.secure {
 		b.sessionName = "agenteam_local_session"
 		b.browserName = "agenteam_local_browser"
@@ -64,6 +69,9 @@ func csrfUnsafe(method string) bool {
 	return method != http.MethodGet && method != http.MethodHead && method != http.MethodOptions
 }
 func (b csrfBoundary) csrfCheck(r *http.Request) error {
+	if b.devMode {
+		return nil
+	}
 	// This runs outside routing, path normalization, identity lookup and body
 	// decoding. A proxy must preserve this canonical authority.
 	if r.Host != b.host {

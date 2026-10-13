@@ -1,3 +1,4 @@
+import { randomUUID } from '../utils/random-uuid'
 import { createTaskExecutionOutputAPI, type TaskExecutionOutputAPI } from '../api/task-execution-output'
 import { createTaskExecutionsAPI, type TaskExecutionsAPI, type TaskExecutionQuery } from '../api/task-executions'
 import { createSkillImportAPI, captureSkillImport, type SkillImportAPI, type SkillImportInput, type SkillImportReceipt } from '../api/skill-import'
@@ -1967,7 +1968,7 @@ export function createSessionController(
   }
   function newKey() {
     try {
-      return crypto.randomUUID()
+      return randomUUID()
     } catch {
       throw new AccountFailure('invalid-input')
     }

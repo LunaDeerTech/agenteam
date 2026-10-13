@@ -22,6 +22,7 @@ type Dependencies struct {
 	Trust        outbound.TrustStore
 	RecoveryLog  *recoverylog.Sink
 	PublicOrigin string
+	DevMode      bool
 }
 type Worker struct{ data func() *Dependencies }
 
@@ -30,7 +31,7 @@ func New(d Dependencies) (*Worker, error) {
 		return nil, invalid()
 	}
 	u, e := url.Parse(d.PublicOrigin)
-	if e != nil || u.Host == "" || u.User != nil || u.RawQuery != "" || u.Fragment != "" || u.Path != "" && u.Path != "/" || u.Scheme != "https" && !(u.Scheme == "http" && (u.Hostname() == "localhost" || net.ParseIP(u.Hostname()) != nil && net.ParseIP(u.Hostname()).IsLoopback())) {
+	if e != nil || u.Host == "" || u.User != nil || u.RawQuery != "" || u.Fragment != "" || u.Path != "" && u.Path != "/" || u.Scheme != "https" && !(u.Scheme == "http" && (d.DevMode || u.Hostname() == "localhost" || net.ParseIP(u.Hostname()) != nil && net.ParseIP(u.Hostname()).IsLoopback())) {
 		return nil, invalid()
 	}
 	d.PublicOrigin = strings.TrimSuffix(d.PublicOrigin, "/")
