@@ -15,6 +15,8 @@ import signal
 import subprocess
 import time
 
+NATIVE_PG_FTS_SELECTOR = '^TestNativePGFTSBenchmark$'
+NATIVE_PG_FTS_EXPECTED = {'TestNativePGFTSBenchmark'}
 TASK_STATE_FILTER_SELECTOR = '^TestTaskStateFilterWeb$'
 TASK_STATE_FILTER_EXPECTED = {'TestTaskStateFilterWeb',
     'TestTaskStateFilterWeb/default-app-state-pagination'}
@@ -291,10 +293,14 @@ def main():
     p.add_argument('--dist', type=Path)
     p.add_argument('--artifact-web-harness', type=Path)
     p.add_argument('--runner-binary', type=Path)
+    p.add_argument('--native-fts-export', type=Path)
+    p.add_argument('--native-fts-output', type=Path)
     p.add_argument('--input-hash', required=True)
     p.add_argument('--pg-current-only', action='store_true',
                    help='explicitly omit the unused PG16 negative-control fixture')
     scope = p.add_mutually_exclusive_group()
+    scope.add_argument('--native-pg-fts', action='store_true',
+                       help='run only the fixed native FTS candidate through the original current-only fixture chain')
     scope.add_argument('--task-state-filter', action='store_true',
                        help='run the default App state filter and original pagination browser scope')
     scope.add_argument('--task-blocker-http', action='store_true',
@@ -402,7 +408,8 @@ def main():
     scope.add_argument('--app-artifact-owner-web', action='store_true',
                        help='run the reviewed Artifact owner browser in the same App binary')
     a = p.parse_args()
-    selector = (TASK_STATE_FILTER_SELECTOR if a.task_state_filter else
+    selector = (NATIVE_PG_FTS_SELECTOR if a.native_pg_fts else
+                TASK_STATE_FILTER_SELECTOR if a.task_state_filter else
                 TASK_BLOCKER_HTTP_SELECTOR if a.task_blocker_http else
                 TASK_BLOCKER_WEB_SELECTOR if a.task_blocker_web else
                 TASK_CANCEL_SELECTOR if a.task_cancel else
@@ -453,7 +460,8 @@ def main():
                 USAGE_SELECTOR if a.project_usage_summary else
                 SECRET_SELECTOR if a.secret_delete else
                 CREATE_SELECTOR if a.project_creation else SELECTOR)
-    expected = (TASK_STATE_FILTER_EXPECTED if a.task_state_filter else
+    expected = (NATIVE_PG_FTS_EXPECTED if a.native_pg_fts else
+                TASK_STATE_FILTER_EXPECTED if a.task_state_filter else
                 TASK_BLOCKER_HTTP_EXPECTED if a.task_blocker_http else
                 TASK_BLOCKER_WEB_EXPECTED if a.task_blocker_web else
                 TASK_CANCEL_EXPECTED if a.task_cancel else
@@ -506,9 +514,9 @@ def main():
                 USAGE_EXPECTED if a.project_usage_summary else
                 SECRET_EXPECTED if a.secret_delete else
                 CREATE_EXPECTED if a.project_creation else EXPECTED)
-    node_count = (0 if a.task_blocker_http or a.sprint_complete_http or a.sprint_complete_cleanup or a.runner_command or a.runner_write_file or a.app_runtime_final_text or a.app_task_execution_read or a.app_artifact_content or a.app_artifact_owner_http or a.app_human_artifact or a.runner_managed_cleanup or a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle else
+    node_count = (0 if a.native_pg_fts or a.task_blocker_http or a.sprint_complete_http or a.sprint_complete_cleanup or a.runner_command or a.runner_write_file or a.app_runtime_final_text or a.app_task_execution_read or a.app_artifact_content or a.app_artifact_owner_http or a.app_human_artifact or a.runner_managed_cleanup or a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle else
                   1 if a.task_state_filter or a.task_blocker_web or a.task_cancel or a.sprint_complete_web or a.app_runtime_final_text_web or a.app_task_execution_read_web or a.app_artifact_content_web or a.app_artifact_owner_web or a.project_creation or a.secret_delete or a.project_usage_summary or a.skill_package_import or a.task_search else 2)
-    web_scopes = ([] if a.task_blocker_http or a.sprint_complete_http or a.sprint_complete_cleanup or a.runner_command or a.runner_write_file or a.app_runtime_final_text or a.app_task_execution_read or a.app_artifact_content or a.app_artifact_owner_http or a.app_human_artifact or a.runner_managed_cleanup or a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle else
+    web_scopes = ([] if a.native_pg_fts or a.task_blocker_http or a.sprint_complete_http or a.sprint_complete_cleanup or a.runner_command or a.runner_write_file or a.app_runtime_final_text or a.app_task_execution_read or a.app_artifact_content or a.app_artifact_owner_http or a.app_human_artifact or a.runner_managed_cleanup or a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle else
                   [('AGENTEAM_TASK_STATE_FILTER_WEB', 'task-state-filter')]
                   if a.task_state_filter else
                   [('AGENTEAM_TASK_BLOCKER_MANAGEMENT_WEB', 'task-blocker-management')]
@@ -542,12 +550,27 @@ def main():
     for path in (a.root, a.binary, a.output, a.runtime):
         assert path.is_absolute()
     assert a.binary.is_file()
+    if a.native_pg_fts:
+        assert a.native_fts_export is not None and a.native_fts_output is not None
+        assert (a.native_fts_export.is_absolute() and a.native_fts_export.is_dir()
+                and a.native_fts_export.resolve() == a.native_fts_export)
+        # The unchanged candidate validates the completed answer-free export
+        # before reading the owned descriptor or querying the package license.
+        for name in ('complete.json', 'corpus.jsonl', 'queries.jsonl'):
+            path = a.native_fts_export / name
+            assert path.is_file() and 0 < path.stat().st_size <= 2 << 20
+        assert (a.native_fts_output.is_absolute()
+                and a.native_fts_output.resolve() == a.native_fts_output
+                and not a.native_fts_output.exists() and not a.native_fts_output.is_symlink()
+                and a.native_fts_output not in (a.output, a.runtime))
+    else:
+        assert a.native_fts_export is None and a.native_fts_output is None
     if a.runner_command or a.runner_write_file or a.runner_directory:
         assert a.dist is None and a.runner_binary is not None
         assert (a.runner_binary.is_absolute() and a.runner_binary.is_file()
                 and a.runner_binary.resolve() == a.runner_binary
                 and os.access(a.runner_binary, os.X_OK))
-    elif a.task_blocker_http or a.sprint_complete_http or a.sprint_complete_cleanup or a.app_runtime_final_text or a.app_task_execution_read or a.app_artifact_content or a.app_artifact_owner_http or a.app_human_artifact or a.runner_managed_cleanup or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle:
+    elif a.native_pg_fts or a.task_blocker_http or a.sprint_complete_http or a.sprint_complete_cleanup or a.app_runtime_final_text or a.app_task_execution_read or a.app_artifact_content or a.app_artifact_owner_http or a.app_human_artifact or a.runner_managed_cleanup or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle:
         assert a.dist is None and a.runner_binary is None
     else:
         assert a.runner_binary is None
@@ -602,14 +625,17 @@ def main():
         raise OSError(ctypes.get_errno(), 'subreaper unavailable')
     env = dict(os.environ, TMPDIR=str(a.runtime), AGENTEAM_AUTH_WEB_RUNTIME=str(a.runtime),
                AGENTEAM_FIXTURE_TEST_BINARY=str(a.binary),
-               AGENTEAM_FIXTURE_TEST_CWD=str(a.root / ('internal/central/app' if a.app_runtime_final_text or a.app_runtime_final_text_web or a.app_task_execution_read or a.app_task_execution_read_web or a.app_artifact_content or a.app_artifact_content_web or a.app_artifact_owner_http or a.app_artifact_owner_web or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle or a.app_human_artifact else 'tests/model' if a.project_usage_summary else 'tests/projectvariable')),
+               AGENTEAM_FIXTURE_TEST_CWD=str(a.root / ('tests/search-benchmark' if a.native_pg_fts else 'internal/central/app' if a.app_runtime_final_text or a.app_runtime_final_text_web or a.app_task_execution_read or a.app_task_execution_read_web or a.app_artifact_content or a.app_artifact_content_web or a.app_artifact_owner_http or a.app_artifact_owner_web or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle or a.app_human_artifact else 'tests/model' if a.project_usage_summary else 'tests/projectvariable')),
                AGENTEAM_FIXTURE_OWNED_RECORD=str(a.output / 'owned-resources.json'))
-    if a.task_state_filter or a.task_blocker_http or a.task_blocker_web or a.task_cancel or a.sprint_complete_http or a.sprint_complete_cleanup or a.sprint_complete_web or a.runner_command or a.runner_write_file or a.app_runtime_final_text or a.app_runtime_final_text_web or a.app_task_execution_read or a.app_task_execution_read_web or a.task_reorder or a.app_artifact_content or a.app_artifact_content_web or a.app_artifact_owner_http or a.app_artifact_owner_web or a.app_human_artifact:
+    if a.native_pg_fts or a.task_state_filter or a.task_blocker_http or a.task_blocker_web or a.task_cancel or a.sprint_complete_http or a.sprint_complete_cleanup or a.sprint_complete_web or a.runner_command or a.runner_write_file or a.app_runtime_final_text or a.app_runtime_final_text_web or a.app_task_execution_read or a.app_task_execution_read_web or a.task_reorder or a.app_artifact_content or a.app_artifact_content_web or a.app_artifact_owner_http or a.app_artifact_owner_web or a.app_human_artifact:
         # Ordinary task-owned scope: no live-provider environment or PG16.
         a.pg_current_only = True
         for name in tuple(env):
             if name.startswith('DEV_CHAT_') or name == 'AGENTEAM_LIVE_CHAT_E2E':
                 env.pop(name)
+    if a.native_pg_fts:
+        env['AGENTEAM_NATIVE_FTS_EXPORT'] = str(a.native_fts_export)
+        env['AGENTEAM_NATIVE_FTS_OUTPUT'] = str(a.native_fts_output)
     env.pop('AGENTEAM_FIXTURE_PG_CURRENT_ONLY', None)
     if a.pg_current_only:
         env['AGENTEAM_FIXTURE_PG_CURRENT_ONLY'] = '1'
@@ -630,6 +656,10 @@ def main():
     command = ['sh', 'scripts/test-objects.sh', '-run', selector]
     save(a.output/'invocation.json', {'command':command,'cwd':str(a.root),
          'input_hash':a.input_hash,'binary':str(a.binary),'dist':str(a.dist) if a.dist else None,
+         **({'native_pg_fts':True, 'native_fts_export':str(a.native_fts_export),
+             'native_fts_output':str(a.native_fts_output),
+             'work_budget_seconds':105, 'total_budget_seconds':120}
+            if a.native_pg_fts else {}),
          **({'task_cancel':True} if a.task_cancel else {}),
          **({'sprint_complete_http':True} if a.sprint_complete_http else {}),
          **({'sprint_complete_cleanup':True} if a.sprint_complete_cleanup else {}),
@@ -704,7 +734,10 @@ def main():
                                  stderr=subprocess.STDOUT, start_new_session=True)
         print(json.dumps({'fixture_pid':child.pid,'supervisor_pid':os.getpid()}), flush=True)
         try:
-            actual = child.wait(timeout=540)
+            # D13 keeps the original 105s setup/body and 120s total boundary.
+            # Any timeout remains FAIL while the original cleanup still joins.
+            actual = child.wait(timeout=max(0, 105 - (time.monotonic() - began))
+                                if a.native_pg_fts else 540)
         except subprocess.TimeoutExpired:
             failed = True
             child.terminate()
@@ -783,12 +816,18 @@ def main():
           and all(r['absent'] for r in resources) and directories_absent
           and not leftovers and not children())
     if not leftovers: a.runtime.rmdir()
+    elapsed = time.monotonic() - began
+    if a.native_pg_fts:
+        okay &= elapsed <= 120  # Failure cleanup grace never extends acceptance.
     result={'fixture_pid':child.pid,'fixture_actual_wait_exit':actual,
-            'elapsed_seconds':round(time.monotonic()-began,3),'exact_tests':bool(exact),
+            'elapsed_seconds':round(elapsed,3),'exact_tests':bool(exact),
             'go_actual_waits':go_waits,'node_actual_waits':node_waits,
             'runner_actual_waits':runner_waits,'adopted_actual_waits':adopted,
             'resources':resources,'private_directories_absent':directories_absent,
             'runtime_leftovers':leftovers,'remaining_children':children(),'exit_code':int(not okay)}
+    if a.native_pg_fts:
+        result.update(native_pg_fts=True, work_budget_seconds=105,
+                      total_budget_seconds=120, within_total_budget=elapsed <= 120)
     if a.runner_command:
         result['acceptance_method'] = 'runner-command-owned-v1'
     if a.runner_write_file:
