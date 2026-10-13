@@ -1,4 +1,12 @@
-# 当前工作：Sprint 完成与 Task 取消已交付，继续推进平台目标
+# 当前工作：Human Owner 非终态 Task Blocker 管理
+
+2026-10-13。功能分支为 `ai/task-blocker-management-20261013`，工作树 `/workspace/agenteam-task-blocker-management`，组合基线为已推送 main `bc76cac5`。初始分支已正常远端备份；本片正在实施，尚未验收，不代表 D11 或长期目标完成。
+
+本轮由 root 统筹；`next_backend_delivery` 拥有后端和已分配契约，`next_frontend_delivery` 拥有前端及相关单元测试，`blocker_browser` 拥有原生/浏览器 fixture，`validation_runner` 管理共享依赖与实际检查窗口，`repo_recovery` 执行已授权 Git 操作及本状态文件。各写域与具体合同按本轮派工，公共文件变更先协调；当前技能/流程仍以仓库正式来源为准。
+
+下一步先完成合法非终态 Task 的人工阻塞与依赖管理、必要失败拒绝和真实回读，再组织限定源码审查、适用测试及真实默认 App 浏览器验收。共享依赖复用，数据库/缓存输出按轮隔离；保留下方 STOP、Live/validation 和四个 detached 树。每个稳定片段分组保存，正式交付后同步清理本地与远端工作分支。
+
+## 恢复核对：Sprint 完成与 Task 取消已交付
 
 2026-10-13 恢复核对时，主线为 `c4839c3333332afe39a8042e62a2e4fe57d75bf1`，工作区无未提交改动，`origin/main` 与成功的实时远端查询均为同一提交。当前不存在本地主线待推送差额；下方历史摘要中的 GitHub 认证失败、旧 main、分支数量和待推送包状态只描述原时点，不作为当前恢复指令。
 
