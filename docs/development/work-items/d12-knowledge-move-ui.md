@@ -1,6 +1,6 @@
 # D12 Knowledge 文档移动 UI
 
-历史候选基线为 main `1d41132a`，保存于 `0646b6bf`。产品与必要基础控已获独审接受，真实默认 App 两个业务场景及三张截图已有限接受；native04及唯一后继native05均因原宿主TCP差额尾不为空而wholeFAIL。第五次复验额度已用尽并停止重试，整片未完成、未合入主线。
+当前恢复候选 `73f7fa81` 已通过有限前端检查及真实默认 App 的 Move 正常、丢回执恢复两场景，按 `knowledge-move-owned-v1` 核实本次自有资源关闭；三张真实截图与动态结果已获非作者有限独审接受，随本次变更交付 main。历史 `0646b6bf` 的 native04/05 因全宿主 TCP 差额尾未空而 wholeFAIL，旧失败和未知归属保持，见下方历史记录。
 
 ## 范围与既有合同
 
@@ -18,7 +18,7 @@
 - 确认移动后独立当前 GET/祖先/正文读取，刷新来源和目标父目录；历史回执不直接覆盖当前观察。
 - 沿唯一 Session transport/owner、实际取消收尾、身份/Project/读取代际守卫和 rename/text 未保存确认。checking 不将原未知意图误当新身份清除。
 
-## 实施与验收
+## 原保存候选的实施与验收
 
 专属 API、controller、dialog、client/Session、ProjectKnowledgeView 和原读取 owner 刷新已接通，App/router 未改。针对性协议、Session取消收尾、页面未保存确认、归档与当前403/404拒绝清理控制通过；原失败及修后证据见 [当前记录](../../../.agent-state/current.md)。作者实施与自测不代独立验收。
 
@@ -36,4 +36,12 @@
 
 与已交 Knowledge Delete、Rename、Text 和 ArtifactCreation 合并：页面操作及路由保留各自未保存确认、当前读取与 dispose；Session 保留双方的未决原意图互斥，Move 发布进度后再次核当前 Session，拒绝同步身份退休后的迟到返回。Go setup 沿相邻 Title/Delete fixture 使用真实默认 Project/Skill/Object 创建，去除过时的默认未绑定断言及测试专用 initializer；不修改 Move/Unknown/账本/原退出业务断言。
 
-本次仅准备实现和有限验证。新运行器使用精确 top/两个 sub、两个不同 Node PID 的原 Wait，以及自有容器、网络、私有目录、运行目录和后代进程退出硬门；没有将历史全宿主 TCP 差额失败改为通过。运行范围和判据须独审接受，由主线程另行明确放行新集成窗口；本段不声称已有新的浏览器通过结果。
+适配及判据经非作者有限源码审查接受后，由主线程明确放行新受控窗口。运行器使用精确 top/两个 sub、两个不同 Node PID 的原 Wait，以及自有容器、网络、私有目录、运行目录和后代进程退出硬门，保留 120 秒/sub、45 秒浏览器与零重试。失败观察仅在原 consumer 退休前保存有界闭集 DOM 与遮蔽输入的截图；不改变成功行为、业务断言或原失败。
+
+恢复候选的[首轮轻验](../../../output/ai/knowledge-move-recovery/light-summary.json)为 8 spec/57 项：Move 37、Delete 12、Rename 3、ArtifactCreation 5，完整类型和生产构建通过。继承用户 `708a8f54` 的安全 UUID/开发登录及 `02e51334` 的公开认证入口后，最终候选 `73f7fa81` 的[受影响补验](../../../output/ai/knowledge-move-recovery/final-merge-supplement.json)为认证四 spec 加 Move Session 共 134 项，完整类型与构建通过；两组范围分别保留，不将重叠用例机械相加。新 Node helper/spec 零诊断、两模式 Playwright list 各 1 项；共享导入已有 5 项类型诊断保留，不称整套 harness 类型通过。App race 编译及精确 list 实际通过。
+
+恢复后的 [web-native01](../../../output/ai/knowledge-move-recovery/web-native01/result.json) 两 sub 在 setup 的 `original concrete domains missing` 失败，Node 尚未启动。原因是 fixture 沿用旧 `*knowledgeWork` 装配断言；仅按当前真实 `*knowledgeCallAssembly` 及其非空 pair 修正两行，保留原失败和业务断言，重新编译后执行新的受控窗口。
+
+[web-native02 原退出记录](../../../output/ai/knowledge-move-recovery/web-native02/post.json)为工具 `24882/fa2b9b` 实际退出 0、60.676 秒，1 top/2 sub 全部通过，两个不同 Node PID 均实际 Wait。normal 执行 2 次 Move/0 Lookup 完成根→父→根，23 请求中 22 finished、1 ERR_ABORTED；lost 执行 1 次 Move，在真实提交后的响应物理截断后仅以原完整双 parent 意图及同 key Lookup 1 次，17 请求中 15 finished、1 ERR_ABORTED、1 ERR_CONTENT_LENGTH_MISMATCH，无重发 Move。原失败网络终态与完整 native/public consumer/Go 同请求证明并存，不改记为 finished。
+
+本轮 fixture、Go、Node 与已知子进程实际退出，3 容器/3 网络及私有目录、runtime 均已清退，受测输入未变，`whole_pass` 与 `owned_cleanup_closed` 为 true。这个结果只覆盖本轮业务和自有资源，没有补证旧全宿主 TCP 差额的归属。三张实际截图经独审亲看：1440 浅色桌面确认目标父文档且目录已嵌套，390 深色 normal 确认回到根层，390 深色 lost 显示目标父与“移动已确认；已读取当前文档与位置”；对话框和主操作可读，未见横向溢出。两 observer 均 retired/pending=0。动态结果与上述三图获有限接受，未扩大到分页、防环矩阵、撤权竞争、全部 Unknown 情形、Source/Jina 或完整 D12。
