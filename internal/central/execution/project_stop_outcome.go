@@ -29,7 +29,7 @@ func (s *projectCallState) captureProjectOutcome(e *projectCallEntry, original e
 	v := &projectCallOutcome{}
 	switch e.record.Lane {
 	case projectLaneService:
-		v.readOnly = e.identity.Command() == "lookup_launch"
+		v.readOnly = e.read != nil || e.identity.Command() == "lookup_launch"
 	case projectLanePreparation:
 		p := s.preparation.state
 		p.mu.Lock()
@@ -168,6 +168,13 @@ func (s *projectCallState) confirmBusinessOutcome(ctx context.Context, e *projec
 	}
 	var extra []f.LockRequest
 	switch {
+	case e.read != nil:
+		// The original business transaction was read-only. Its uncertain ACK
+		// cannot have changed Execution or Work; only this exact technical
+		// owner is confirmed, without authorizing a fresh public read.
+		if !v.readOnly || s.reader == nil {
+			return original
+		}
 	case e.record.Lane == projectLaneService:
 		command, err := e.launchKey.Command()
 		if err != nil {
@@ -201,6 +208,8 @@ func (s *projectCallState) confirmBusinessOutcome(ctx context.Context, e *projec
 			return fault(f.ConfirmationStale)
 		}
 		switch {
+		case e.read != nil:
+			found = v.readOnly && s.reader != nil
 		case e.record.Lane == projectLaneService:
 			row, err := loadLaunch(ctx, x, e.launchKey)
 			if err != nil {

@@ -61,7 +61,13 @@ func (s *projectCallState) register(ctx context.Context, e *projectCallEntry) (f
 	validated := false
 	result := s.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		locks := []f.LockRequest{projectLock(r.Project)}
-		if r.Lane == projectLaneService {
+		if e.read != nil {
+			var err error
+			locks, err = s.reader.deps.Tasks.TaskReadLocks(e.actor, r.Project, e.read.task)
+			if err != nil {
+				return err
+			}
+		} else if r.Lane == projectLaneService {
 			locks = scopeLocks(e.actor, r.Project, e.launchKey.AgentID, f.Shared)
 			if e.actor.Details().Kind == i.Service && e.actor.Details().ServiceName == i.Scheduler {
 				command, err := e.launchKey.Command()
@@ -82,7 +88,11 @@ func (s *projectCallState) register(ctx context.Context, e *projectCallEntry) (f
 		if err := s.proof.RequireCurrentProcessInTx(ctx, tx, s.process); err != nil {
 			return portError(err)
 		}
-		if r.Lane == projectLaneService {
+		if e.read != nil {
+			if err := s.reader.requireTask(ctx, tx, e.actor, r.Project, e.read.task); err != nil {
+				return err
+			}
+		} else if r.Lane == projectLaneService {
 			if err := s.service.deps.Authority.requireScope(ctx, tx, e.actor, r.Project, e.launchKey.AgentID, i.Read); err != nil {
 				return err
 			}

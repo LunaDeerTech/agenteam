@@ -196,6 +196,7 @@ func constructExecutionRuntime(b *executionRuntimeAssembly, cfg config.Config, d
 		return err
 	}
 	owned, err := createOwnedExecutionRuntime(store, execution.ProjectCallDependencies{
+		Read:    b.taskReadDependencies,
 		Service: execution.Dependencies{Authority: a.execution, Agents: providers.configuration, Task: launchSource},
 		Preparation: execution.PreparationDependencies{
 			Agents: providers.configuration, Projects: projects.projects, Processes: processes,
