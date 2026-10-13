@@ -1,3 +1,4 @@
+import { createTaskExecutionsAPI, type TaskExecutionsAPI, type TaskExecutionQuery } from '../api/task-executions'
 import { createSkillImportAPI, captureSkillImport, type SkillImportAPI, type SkillImportInput, type SkillImportReceipt } from '../api/skill-import'
 import {
   createProjectSecretCommandsAPI, captureProjectSecretCreate, captureProjectSecretUpdate,
@@ -1098,6 +1099,7 @@ export function createSessionController(
     taskBlockers?: WorkTaskBlockersAPI
     taskDependencies?: WorkTaskDependenciesAPI
     edit?: WorkTaskEditAPI
+    taskExecutions?: TaskExecutionsAPI
     taskTimeline?: WorkTaskTimelineAPI
     systemRunners?: SystemRunnersAPI
     agentRunnerMounts?: AgentRunnerMountsAPI
@@ -1137,6 +1139,7 @@ export function createSessionController(
   const taskDependenciesAPI = commandAPIs.taskDependencies ?? createWorkTaskDependenciesAPI()
   const taskBlockersAPI = commandAPIs.taskBlockers ?? createWorkTaskBlockersAPI()
   const taskEditAPI = commandAPIs.edit ?? createWorkTaskEditAPI()
+  const taskExecutionsAPI = commandAPIs.taskExecutions ?? createTaskExecutionsAPI()
   const taskTimelineAPI = commandAPIs.taskTimeline ?? createWorkTaskTimelineAPI()
   const agentRunnerMountsAPI = commandAPIs.agentRunnerMounts ?? createAgentRunnerMountsAPI()
   const agentConfigurationAPI = commandAPIs.agentConfiguration ?? createAgentConfigurationAPI()
@@ -6520,6 +6523,10 @@ export function createSessionController(
     sprint: (p: string, t: string) => reviewRead((signal) => workReviewAPI.sprint(p, t, signal)),
     tasks: (p: string, q: TaskQuery) => reviewRead((signal) => workReviewAPI.tasks(p, q, signal)),
     task: (p: string, t: string) => reviewRead((signal) => workReviewAPI.task(p, t, signal)),
+    executions: (p: string, t: string, q: TaskExecutionQuery) =>
+      reviewRead((signal) => taskExecutionsAPI.list(p, t, q, signal)),
+    execution: (p: string, t: string, e: string) =>
+      reviewRead((signal) => taskExecutionsAPI.get(p, t, e, signal)),
     events: (p: string, t: string, q: TaskTimelineQuery) =>
       reviewRead((signal) => taskTimelineAPI.list(p, t, q, signal)),
     blockers: (p: string, t: string, q: PageQuery) =>
