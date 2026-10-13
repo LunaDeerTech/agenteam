@@ -8,6 +8,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/runner/operations"
 	"github.com/LunaDeerTech/agenteam/internal/runner/readfile"
 	"github.com/LunaDeerTech/agenteam/internal/runner/workspace"
+	"github.com/LunaDeerTech/agenteam/internal/runner/writefile"
 	p "github.com/LunaDeerTech/agenteam/internal/runnerprotocol"
 )
 
@@ -36,7 +37,7 @@ func newOwnedReadFile(configuration identity.Configuration) (operationExecutor, 
 	return readFileExecutor{handler: handler}, manager, nil
 }
 
-// All selected read handlers borrow exactly one Manager from the locked identity.
+// All selected handlers borrow exactly one Manager from the locked identity.
 func newOwnedOperations(configuration identity.Configuration, selected operations.Selection) (operationExecutor, ownedReadFileManager, error) {
 	manager, err := newOwnedWorkspace(configuration)
 	if manager == nil {
@@ -45,7 +46,7 @@ func newOwnedOperations(configuration identity.Configuration, selected operation
 	if err != nil {
 		return nil, manager, err
 	}
-	executor := ownedReadExecutor{selected: selected}
+	executor := ownedOperationExecutor{selected: selected}
 	if selected.Contains(p.ReadFileOperation) {
 		executor.read, err = readfile.New(manager)
 		if err != nil {
@@ -58,35 +59,54 @@ func newOwnedOperations(configuration identity.Configuration, selected operation
 			return nil, manager, err
 		}
 	}
+	if selected.Contains(p.WriteFileOperation) {
+		executor.write, err = writefile.New(manager)
+		if err != nil {
+			return nil, manager, err
+		}
+	}
 	return executor, manager, nil
 }
 
-type ownedReadExecutor struct {
+type ownedOperationExecutor struct {
 	selected  operations.Selection
 	read      *readfile.Handler
 	directory *directory.Handler
+	write     *writefile.Handler
 }
 
-func (e ownedReadExecutor) accepts(request p.Request) bool {
+func (e ownedOperationExecutor) accepts(request p.Request) bool {
 	if !e.selected.Contains(request.OperationName) {
 		return false
 	}
-	if request.OperationName == p.ReadFileOperation {
+	switch request.OperationName {
+	case p.ReadFileOperation:
 		return e.read.Accepts(request)
+	case p.ListDirectoryOperation, p.FindFilesOperation:
+		return e.directory.Accepts(request)
+	case p.WriteFileOperation:
+		return e.write.Accepts(request)
+	default:
+		return false
 	}
-	return e.directory.Accepts(request)
 }
-func (e ownedReadExecutor) execute(ctx context.Context, request p.Request, _ func(string, string) error) (p.Response, error) {
+func (e ownedOperationExecutor) execute(ctx context.Context, request p.Request, _ func(string, string) error) (p.Response, error) {
 	if !e.accepts(request) {
 		return p.Response{}, ErrProtocol
 	}
-	if request.OperationName == p.ReadFileOperation {
+	switch request.OperationName {
+	case p.ReadFileOperation:
 		return e.read.Execute(ctx, request)
+	case p.ListDirectoryOperation, p.FindFilesOperation:
+		return e.directory.Execute(ctx, request)
+	case p.WriteFileOperation:
+		return e.write.Execute(ctx, request)
+	default:
+		return p.Response{}, ErrProtocol
 	}
-	return e.directory.Execute(ctx, request)
 }
-func (ownedReadExecutor) maskingReady() bool          { return false }
-func (ownedReadExecutor) mask(string) (string, error) { return "", ErrProtocol }
+func (ownedOperationExecutor) maskingReady() bool          { return false }
+func (ownedOperationExecutor) mask(string) (string, error) { return "", ErrProtocol }
 
 // Transfer one Manager to the original Client.Run cleanup stack, including
 // partial construction errors. No new root is inferred from a request.

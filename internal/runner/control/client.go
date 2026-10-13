@@ -23,7 +23,7 @@ import (
 // Options are copied at construction. A nonzero EnrollmentToken means explicit
 // credential enrollment; a normal reconnect never reuses an enrollment token.
 // Configuration may be omitted when the private identity file already exists.
-// Operations selects any subset of read-file, list-directory and find-files.
+// Operations selects any subset of read-file, list-directory, find-files and write-file.
 // Resources are constructed only after Run obtains the real identity lock;
 // configured operations cannot be mixed with an external executor.
 type Options struct {
