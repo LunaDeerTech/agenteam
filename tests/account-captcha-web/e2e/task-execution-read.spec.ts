@@ -5,7 +5,7 @@ import {
   executionScreenshot,
 } from "./task-execution-read.helpers";
 let observed: Awaited<ReturnType<typeof observeExecutionReads>> | undefined;
-test.afterEach(async (_fixtures, info) => {
+test.afterEach(async ({}, info) => {
   if (observed)
     await observed.save(
       info.status ?? "unknown",
