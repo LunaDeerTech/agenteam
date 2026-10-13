@@ -47,6 +47,12 @@ func (p *ProjectCallOwnership) projectStop(ctx context.Context, actor i.Actor, c
 	}
 	s := p.state
 	s.mu.Lock()
+	// Cleanup must exclude a new Stop's original Store tail as well as
+	// business calls. Both controls register under this same project lock.
+	if s.cleanups[scope.ProjectID] != nil {
+		s.mu.Unlock()
+		return pc.StopReport{}, fault(f.ResourceBusy)
+	}
 	stop := s.stops[scope.ProjectID]
 	if stop != nil && (stop.active || !stop.actor.Equal(actor) || stop.cause != cause || !stop.scope.Equal(scope)) {
 		s.mu.Unlock()

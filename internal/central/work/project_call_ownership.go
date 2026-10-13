@@ -84,6 +84,7 @@ type projectCallOwnershipState struct {
 	stopped       bool
 	owners        map[f.ID[projectCallID]]*projectCallOwner
 	stops         map[i.ProjectID]*projectStopCall
+	cleanups      map[i.ProjectID]*ownedProjectCleanup
 	changed       chan struct{}
 }
 
@@ -274,7 +275,7 @@ func (p *ProjectCallOwnership) Drain(ctx context.Context) error {
 	}
 	for {
 		p.state.mu.Lock()
-		done := len(p.state.owners) == 0 && len(p.state.stops) == 0
+		done := len(p.state.owners) == 0 && len(p.state.stops) == 0 && len(p.state.cleanups) == 0
 		changed := p.state.changed
 		p.state.mu.Unlock()
 		if done {
@@ -293,7 +294,7 @@ func (p *ProjectCallOwnership) Joined() bool {
 	}
 	s := p.state
 	s.mu.Lock()
-	joined := s.stopped && len(s.owners) == 0 && len(s.stops) == 0
+	joined := s.stopped && len(s.owners) == 0 && len(s.stops) == 0 && len(s.cleanups) == 0
 	s.mu.Unlock()
 	if !joined {
 		return false
@@ -356,7 +357,7 @@ func (s *projectCallOwnershipState) admit(ctx context.Context, entry *call, acto
 	}
 	o := &projectCallOwner{record: r, entry: entry, ctx: ctx, confirmations: map[*confirmation]struct{}{}}
 	s.mu.Lock()
-	if s.stopped || len(s.owners) >= maxProjectCallOwners {
+	if s.stopped || s.cleanups[entry.project] != nil || len(s.owners) >= maxProjectCallOwners {
 		s.mu.Unlock()
 		return ctx, fault(f.ResourceBusy)
 	}
