@@ -144,6 +144,9 @@ const endpoints = {
   reviewTasks: ['GET', '/api/v1/projects/{project_id}/tasks', 200],
   reviewTask: ['GET', '/api/v1/projects/{project_id}/tasks/{target}', 200],
   reviewBlockers: ['GET', '/api/v1/projects/{project_id}/tasks/{target}/blockers', 200],
+  taskBlockerAdd: ['POST', '/api/v1/projects/{project_id}/tasks/{target}/blockers', 200],
+  taskBlockerResolve: ['POST', '/api/v1/projects/{project_id}/tasks/{target}/blockers/resolve', 200],
+  taskBlockerLookup: ['POST', '/api/v1/projects/{project_id}/tasks/{target}/blocker-commands/lookup', 200],
   taskTimeline: ['GET', '/api/v1/projects/{project_id}/tasks/{target}/events', 200],
   reviewTransfer: ['POST', '/api/v1/projects/{project_id}/tasks/{target}/transfer', 200],
   reviewLookup: ['POST', '/api/v1/projects/{project_id}/task-transition-commands/lookup', 200],
@@ -1195,6 +1198,9 @@ type WorkReviewEndpoint =
   | 'reviewTasks'
   | 'reviewTask'
   | 'reviewBlockers'
+  | 'taskBlockerAdd'
+  | 'taskBlockerResolve'
+  | 'taskBlockerLookup'
   | 'taskTimeline'
   | 'reviewTransfer'
   | 'reviewLookup'
@@ -1238,6 +1244,9 @@ const workReviewEndpoints: readonly WorkReviewEndpoint[] = [
   'reviewTasks',
   'reviewTask',
   'reviewBlockers',
+  'taskBlockerAdd',
+  'taskBlockerResolve',
+  'taskBlockerLookup',
   'taskTimeline',
   'reviewTransfer',
   'reviewLookup',
