@@ -93,6 +93,9 @@ type variableHTTPFixture struct {
 	// Only the finalizer slice opts into formal Delete acceptance on the
 	// original creator and its concrete lifecycle/process authorities.
 	finalizerAssembly *projectFinalizePGAssembly
+	// Only the Execution-retirement fixture supplies its complete declarations
+	// before the original Skill/Object lifecycle graph is constructed.
+	executionRetirementAssembly *executionRetirementPGAssembly
 
 	db                                       *pgfixture.Database
 	raw                                      *postgres.Store
