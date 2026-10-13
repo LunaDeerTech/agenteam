@@ -142,6 +142,7 @@ const endpoints = {
     200,
   ],
   reviewTasks: ['GET', '/api/v1/projects/{project_id}/tasks', 200],
+  dependencyTaskCandidates: ['GET', '/api/v1/projects/{project_id}/tasks', 200],
   reviewTask: ['GET', '/api/v1/projects/{project_id}/tasks/{target}', 200],
   reviewBlockers: ['GET', '/api/v1/projects/{project_id}/tasks/{target}/blockers', 200],
   taskBlockerAdd: ['POST', '/api/v1/projects/{project_id}/tasks/{target}/blockers', 200],
@@ -1208,6 +1209,7 @@ type WorkReviewEndpoint =
   | 'reviewSprints'
   | 'reviewSprint'
   | 'reviewTasks'
+  | 'dependencyTaskCandidates'
   | 'reviewTask'
   | 'reviewBlockers'
   | 'taskBlockerAdd'
@@ -1254,6 +1256,7 @@ const workReviewEndpoints: readonly WorkReviewEndpoint[] = [
   'reviewSprints',
   'reviewSprint',
   'reviewTasks',
+  'dependencyTaskCandidates',
   'reviewTask',
   'reviewBlockers',
   'taskBlockerAdd',
@@ -1681,6 +1684,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           'reviewMilestones',
           'reviewSprints',
           'reviewTasks',
+          'dependencyTaskCandidates',
           'reviewBlockers',
           'taskTimeline',
           'directoryAgents',
@@ -1715,15 +1719,17 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
             ['limit', ...fields],
             endpoint === 'taskTimeline'
               ? ['cursor', 'order', 'types']
-              : endpoint === 'reviewTasks'
-                ? ['cursor', 'text', 'priority', 'type', 'assignee_agent_id']
-                : ['cursor'],
+              : endpoint === 'dependencyTaskCandidates'
+                ? ['cursor', 'text']
+                : endpoint === 'reviewTasks'
+                  ? ['cursor', 'text', 'priority', 'type', 'assignee_agent_id']
+                  : ['cursor'],
           )
           const limit = string(query.limit, 1, 3)
           if (
             !/^[1-9][0-9]*$/.test(limit) ||
             Number(limit) >
-              (endpoint === 'availableAgentRunners'
+              (endpoint === 'availableAgentRunners' || endpoint === 'dependencyTaskCandidates'
                 ? 50
                 : endpoint === 'listProjectVariables'
                   ? 100
@@ -2346,6 +2352,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
                                     'reviewMilestones',
                                     'reviewSprints',
                                     'reviewTasks',
+                                    'dependencyTaskCandidates',
                                     'reviewBlockers',
                                   ].includes(endpoint)
                                 ? 5 * 1024 * 1024

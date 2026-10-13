@@ -4,9 +4,11 @@ import { UiButton, UiField, UiSelect, UiTextarea, UiState, UiBadge } from '../ui
 import { taskLabels } from '../../api/work-review'
 import type { ProjectTasks } from '../../composables/useProjectTasks'
 import TaskEditForm from './TaskEditForm.vue'
+import TaskDependencyForm from './TaskDependencyForm.vue'
 import TaskHumanBlockerForm from './TaskHumanBlockerForm.vue'
 import TaskTimeline from './TaskTimeline.vue'
 const props = defineProps<{ owner: ProjectTasks }>()
+const detail = ref<HTMLElement | null>(null)
 const task = computed(() => props.owner.state.task)
 const addBlockerButton = ref<{ $el: HTMLButtonElement } | null>(null)
 let blockerTrigger: HTMLButtonElement | null = null
@@ -28,11 +30,38 @@ async function cancelBlocker() {
 async function submitBlocker() {
   if (await props.owner.submitHumanBlocker()) await focusBlocker(true)
 }
+const refreshButton = ref<{ $el: HTMLButtonElement } | null>(null)
+const addDependencyButton = ref<{ $el: HTMLButtonElement } | null>(null)
+let dependencyTrigger: HTMLButtonElement | null = null
+let dependencyTask = ''
+async function openDependency(event: MouseEvent, id?: string) {
+  dependencyTrigger = event.currentTarget as HTMLButtonElement
+  dependencyTask = task.value?.id ?? ''
+  await props.owner.openDependency(id)
+  await nextTick()
+  if (props.owner.dependency.open && !props.owner.busy.value && task.value?.id === dependencyTask)
+    detail.value?.querySelector<HTMLElement>('form[aria-label="添加任务依赖"] input, form[aria-label="解除任务依赖"] textarea')?.focus()
+}
+async function focusDependency(saved = false) {
+  await nextTick()
+  if (!props.owner.visible.value || task.value?.id !== dependencyTask || props.owner.pending.value) return
+  const target = saved ? addDependencyButton.value?.$el : dependencyTrigger
+  if (target?.isConnected && !target.disabled) target.focus()
+  else if (!props.owner.busy.value) refreshButton.value?.$el.focus()
+}
+async function cancelDependency() {
+  if (await props.owner.cancelDependency()) await focusDependency()
+}
+async function submitDependency() {
+  if (await props.owner.submitDependency()) await focusDependency(true)
+}
 async function lookup() {
   const original = props.owner.progress.value
   if (original?.kind.startsWith('blocker-')) blockerTask = original.taskID
+  if (original?.kind.startsWith('dependency-')) dependencyTask = original.taskID
   const confirmed = await props.owner.lookup()
   if (original?.kind.startsWith('blocker-') && confirmed) await focusBlocker(true)
+  if (original?.kind.startsWith('dependency-') && confirmed) await focusDependency(true)
 }
 const editButton = ref<{ $el: HTMLButtonElement } | null>(null)
 async function cancelEdit() {
@@ -66,7 +95,7 @@ const canSubmit = computed(
 )
 </script>
 <template>
-  <div v-if="task" class="task-detail">
+  <div v-if="task" ref="detail" class="task-detail">
     <h2>{{ task.title }}</h2>
     <dl class="task-facts">
       <div>
@@ -125,6 +154,13 @@ const canSubmit = computed(
         @click="openBlocker($event)"
         >添加人工阻塞</UiButton
       >
+      <UiButton
+        v-if="task.state === 'backlog' && task.assignee_agent_id === null && !owner.pending.value"
+        ref="addDependencyButton"
+        :disabled="owner.busy.value || !owner.canManageDependencies.value || owner.dependency.open"
+        @click="openDependency($event)"
+        >添加任务依赖</UiButton
+      >
       <UiState v-if="owner.state.blockerPhase === 'loading'" kind="loading" title="正在读取阻塞" />
       <template v-else-if="owner.state.blockerPhase === 'error'"
         ><p>未取得完整阻塞信息。</p>
@@ -141,6 +177,13 @@ const canSubmit = computed(
           }}
           <p>{{ b.description }}</p>
           <p v-if="b.related_task_id">关联任务：{{ b.related_task_id }}</p>
+          <UiButton v-if="b.type === 'rely_on' && b.related_task_id" :disabled="owner.busy.value" @click="owner.viewDependency(b.id)">查看关联任务</UiButton>
+          <UiButton
+            v-if="b.type === 'rely_on' && b.resolved_at === null && task.state === 'backlog' && task.assignee_agent_id === null && !owner.pending.value"
+            :disabled="owner.busy.value || !owner.canManageDependencies.value || owner.dependency.open"
+            @click="openDependency($event, b.id)"
+            >解除任务依赖</UiButton
+          >
           <p v-if="b.resolution_comment">{{ b.resolution_comment }}</p>
           <UiButton
             v-if="b.type === 'waiting_for_human' && b.resolved_at === null && task.state === 'backlog' && task.assignee_agent_id === null && !owner.pending.value"
@@ -156,6 +199,7 @@ const canSubmit = computed(
         @click="owner.loadBlockers(true)"
         >更多阻塞记录</UiButton
       >
+      <TaskDependencyForm v-if="owner.dependency.open && !owner.pending.value" :owner="owner" @cancel="cancelDependency" @submit="submitDependency" />
       <TaskHumanBlockerForm
         v-if="owner.humanBlocker.open && !owner.pending.value"
         :owner="owner"
@@ -180,13 +224,13 @@ const canSubmit = computed(
     </p>
     <p v-if="owner.state.feedback" role="status">{{ owner.state.feedback }}</p>
     <p v-if="owner.state.message" role="alert">{{ owner.state.message }}</p>
-    <UiButton :disabled="owner.busy.value" @click="owner.refresh()">重新读取任务</UiButton>
+    <UiButton ref="refreshButton" :disabled="owner.busy.value" @click="owner.refresh()">重新读取任务</UiButton>
     <TaskEditForm
       v-if="owner.edit.open && !owner.pending.value"
       :owner="owner"
       @cancel="cancelEdit"
     />
-    <div v-if="!owner.pending.value && !owner.edit.open && !owner.humanBlocker.open" class="review-actions">
+    <div v-if="!owner.pending.value && !owner.edit.open && !owner.humanBlocker.open && !owner.dependency.open" class="review-actions">
       <UiButton
         v-if="task.state === 'backlog' && task.assignee_agent_id === null"
         ref="editButton"
@@ -222,7 +266,7 @@ const canSubmit = computed(
       此任务已结束，保留只读信息。
     </p>
     <form
-      v-if="owner.draft.action && !owner.pending.value && !owner.edit.open && !owner.humanBlocker.open"
+      v-if="owner.draft.action && !owner.pending.value && !owner.edit.open && !owner.humanBlocker.open && !owner.dependency.open"
       class="review-form"
       @submit.prevent="owner.submit()"
     >
