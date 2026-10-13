@@ -6,7 +6,8 @@ import {
   taskStates,
   type Task,
   type TaskQuery,
-  type TransferInput, type CancelInput,
+  type TransferInput,
+  type CancelInput,
   type ReviewReceipt,
   type ReviewLookup,
   type Page,
@@ -98,7 +99,9 @@ function fixture(current: string | null = id(3)) {
           ...stored,
           version: String(BigInt(stored.version) + 1n),
           state: input.request.target_state,
-          assignee_agent_id: ('assignee_agent_id' in input.request ? input.request.assignee_agent_id : undefined) ?? stored.assignee_agent_id,
+          assignee_agent_id:
+            ('assignee_agent_id' in input.request ? input.request.assignee_agent_id : undefined) ??
+            stored.assignee_agent_id,
         }
         return { task: stored, task_event_ids: [id(21)], event_ids: [id(22)] }
       },
@@ -664,21 +667,20 @@ describe('Work review selection and publication owner', () => {
   })
 })
 
-
 describe('Task Cancel confirmation scope', () => {
   it('allows all five nonterminal states, including planned membership, but never adopts a refreshed version silently', async () => {
     const f = fixture()
     f.owner.afterNavigation('/owner/demo/tasks/' + task.id)
     await flushPromises()
-    for(const state of ['backlog','todo','in_progress','in_review','blocked'] as const) {
-      f.owner.state.task = {...task,state}
+    for (const state of ['backlog', 'todo', 'in_progress', 'in_review', 'blocked'] as const) {
+      f.owner.state.task = { ...task, state }
       expect(f.owner.canCancelTask.value).toBe(true)
     }
-    f.owner.state.sprint = {...sprint,state:'planned',started_at:null}
+    f.owner.state.sprint = { ...sprint, state: 'planned', started_at: null }
     expect(f.owner.canCancelTask.value).toBe(true)
     f.owner.chooseAction('cancelled')
-    f.owner.draft.comment='原取消说明'
-    f.setStored({...task,version:'2'})
+    f.owner.draft.comment = '原取消说明'
+    f.setStored({ ...task, version: '2' })
     await f.owner.refresh()
     expect(f.owner.cancelStale.value).toBe(true)
     await f.owner.submit()
@@ -687,7 +689,10 @@ describe('Task Cancel confirmation scope', () => {
     f.owner.keepTask()
     f.owner.chooseAction('cancelled')
     await f.owner.submit()
-    expect(f.api.startTransfer).toHaveBeenCalledExactlyOnceWith(task.project_id,task.id,{expected_version:'2',request:{target_state:'cancelled'}})
+    expect(f.api.startTransfer).toHaveBeenCalledExactlyOnceWith(task.project_id, task.id, {
+      expected_version: '2',
+      request: { target_state: 'cancelled' },
+    })
     expect(f.owner.state.task?.assignee_agent_id).toBe(task.assignee_agent_id)
   })
   it('does not publish or reread a late cancel receipt after the identity changes on the same Task route', async () => {
@@ -695,18 +700,24 @@ describe('Task Cancel confirmation scope', () => {
     f.owner.afterNavigation('/owner/demo/tasks/' + task.id)
     await flushPromises()
     let release!: (value: ReviewReceipt) => void
-    const held = new Promise<ReviewReceipt>(resolve=>{release=resolve})
-    f.api.startTransfer.mockImplementationOnce(()=>held)
+    const held = new Promise<ReviewReceipt>((resolve) => {
+      release = resolve
+    })
+    f.api.startTransfer.mockImplementationOnce(() => held)
     f.owner.chooseAction('cancelled')
     const sending = f.owner.submit()
     try {
       await flushPromises()
-      f.personal.identity={...f.personal.identity!,epoch:2}
-      f.context.value={...f.context.value!,identity:f.personal.identity}
+      f.personal.identity = { ...f.personal.identity!, epoch: 2 }
+      f.context.value = { ...f.context.value!, identity: f.personal.identity }
       await flushPromises()
       f.api.task.mockClear()
     } finally {
-      release({task:{...task,state:'cancelled',version:'2'},task_event_ids:[id(21)],event_ids:[id(22)]})
+      release({
+        task: { ...task, state: 'cancelled', version: '2' },
+        task_event_ids: [id(21)],
+        event_ids: [id(22)],
+      })
       await sending
     }
     expect(f.api.task).not.toHaveBeenCalled()

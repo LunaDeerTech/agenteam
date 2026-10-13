@@ -500,7 +500,8 @@ function receipt(
   requireValue(
     BigInt(result.version) === BigInt(command.expected_version) + 1n &&
       result.state === command.request.target_state &&
-      (!('assignee_agent_id' in command.request) || command.request.assignee_agent_id === undefined ||
+      (!('assignee_agent_id' in command.request) ||
+        command.request.assignee_agent_id === undefined ||
         result.assignee_agent_id === command.request.assignee_agent_id),
   )
   requireValue(
@@ -600,9 +601,11 @@ export function createWorkReviewAPI(fetcher?: Fetch): WorkReviewAPI {
     },
     tasks(project, q, signal) {
       const captured = input(() => {
-        const v = shape(q, ['sprint_id', 'state'], [
-          'limit', 'cursor', 'text', 'priority', 'type', 'assignee_agent_id',
-        ])
+        const v = shape(
+          q,
+          ['sprint_id', 'state'],
+          ['limit', 'cursor', 'text', 'priority', 'type', 'assignee_agent_id'],
+        )
         return {
           ...query({
             ...(v.limit === undefined ? {} : { limit: v.limit as number }),
@@ -615,7 +618,10 @@ export function createWorkReviewAPI(fetcher?: Fetch): WorkReviewAPI {
           ...(v.type === undefined ? {} : { type: enumeration(v.type, types) }),
           ...(v.assignee_agent_id === undefined
             ? {}
-            : { assignee_agent_id: v.assignee_agent_id === null ? 'null' : workID(v.assignee_agent_id) }),
+            : {
+                assignee_agent_id:
+                  v.assignee_agent_id === null ? 'null' : workID(v.assignee_agent_id),
+              }),
         }
       })
       return call(

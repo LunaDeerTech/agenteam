@@ -316,6 +316,7 @@ const canSubmit = computed(
       <UiButton
         v-if="!['done', 'cancelled'].includes(task.state) && owner.draft.action !== 'cancelled'"
         ref="cancelTaskButton"
+        variant="danger"
         :disabled="owner.busy.value || !owner.canCancelTask.value"
         @click="openTaskCancel"
         >取消任务</UiButton
@@ -401,7 +402,7 @@ const canSubmit = computed(
       <p v-if="owner.draft.action === 'todo' && (unresolved.length || owner.state.blockerNext)">
         提交前需要读取并确认全部阻塞已解除。
       </p>
-      <UiButton ref="cancelConfirmButton" type="submit" :disabled="!canSubmit">确认{{ actionLabel }}</UiButton>
+      <UiButton ref="cancelConfirmButton" type="submit" :variant="owner.draft.action === 'cancelled' ? 'danger' : 'default'" :disabled="!canSubmit">确认{{ actionLabel }}</UiButton>
       <UiButton v-if="owner.draft.action === 'cancelled'" :disabled="owner.busy.value || !!owner.pending.value" @click="keepTask">保留任务</UiButton>
     </form>
     <TaskExecutions :owner="owner.executions" :agent-name="owner.name" />

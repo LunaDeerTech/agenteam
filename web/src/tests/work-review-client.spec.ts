@@ -422,45 +422,77 @@ describe('Human review closed client', () => {
   })
 })
 
-
 describe('Task Cancel strict Transfer input', () => {
   it('preserves optional comment presence and sends only cancelled using original Transfer and Lookup', async () => {
-    const value = {expected_version:'9007199254740993',request:{target_state:'cancelled' as const}}
-    const result = {...receipt(),task:{...task(),state:'cancelled',assignee_agent_id:null}}
+    const value = {
+      expected_version: '9007199254740993',
+      request: { target_state: 'cancelled' as const },
+    }
+    const result = {
+      ...receipt(),
+      task: { ...task(), state: 'cancelled', assignee_agent_id: null },
+    }
     const fetch = vi.fn<Fetch>(async () => response(result))
     const api = createWorkReviewAPI(fetch)
     expect(captureCancelInput(value)).toEqual(value)
     expect(Object.isFrozen(captureCancelInput(value).request)).toBe(true)
-    expect(await api.transfer(project,target,value,write)).toEqual(result)
+    expect(await api.transfer(project, target, value, write)).toEqual(result)
     expect(JSON.parse(fetch.mock.calls[0]![1].body as string)).toEqual(value)
-    for (const status of ['in_progress','not_observed','committed'] as const) {
-      fetch.mockImplementationOnce(async () => response({status,receipt:status==='committed'?result:null}))
-      expect(await api.lookup(project,target,value,write)).toMatchObject({status})
+    for (const status of ['in_progress', 'not_observed', 'committed'] as const) {
+      fetch.mockImplementationOnce(async () =>
+        response({ status, receipt: status === 'committed' ? result : null }),
+      )
+      expect(await api.lookup(project, target, value, write)).toMatchObject({ status })
       const init = fetch.mock.calls.at(-1)![1]
-      expect(JSON.parse(init.body as string)).toEqual({command:'work.task.transfer',target_id:target,...value})
+      expect(JSON.parse(init.body as string)).toEqual({
+        command: 'work.task.transfer',
+        target_id: target,
+        ...value,
+      })
       expect(new Headers(init.headers).get('Idempotency-Key')).toBe(write.key)
     }
     const comment = '  用户明确取消 🧩\n保留原字节  '
-    expect(captureCancelInput({...value,request:{...value.request,comment}}).request.comment).toBe(comment)
+    expect(
+      captureCancelInput({ ...value, request: { ...value.request, comment } }).request.comment,
+    ).toBe(comment)
   })
   it.each([
-    {target_state:'todo'}, {target_state:'cancelled',comment:''}, {target_state:'cancelled',comment:null},
-    {target_state:'cancelled',assignee_agent_id:id(20)}, {target_state:'cancelled',add_blockers:[]},
-    {target_state:'cancelled',resolve_blocker_ids:[]},
+    { target_state: 'todo' },
+    { target_state: 'cancelled', comment: '' },
+    { target_state: 'cancelled', comment: null },
+    { target_state: 'cancelled', assignee_agent_id: id(20) },
+    { target_state: 'cancelled', add_blockers: [] },
+    { target_state: 'cancelled', resolve_blocker_ids: [] },
   ])('rejects non-cancel or extra mutation fields before any network call: %j', async (request) => {
-    expect(() => captureCancelInput({expected_version:'4',request})).toThrow()
+    expect(() => captureCancelInput({ expected_version: '4', request })).toThrow()
     if (request.target_state !== 'cancelled') return
     const fetch = vi.fn<Fetch>()
-    expect(() => createWorkReviewAPI(fetch).transfer(project,target,{expected_version:'4',request} as never,write)).toThrow()
+    expect(() =>
+      createWorkReviewAPI(fetch).transfer(
+        project,
+        target,
+        { expected_version: '4', request } as never,
+        write,
+      ),
+    ).toThrow()
     expect(fetch).not.toHaveBeenCalled()
   })
-  it.each(['wrong-state','wrong-id','wrong-version','missing-plan'])('rejects malformed cancel receipt %s', async (fault) => {
-    const result = {...receipt(),task:{...task(),state:'cancelled'}}
-    if (fault==='wrong-state') result.task.state='done'
-    if (fault==='wrong-id') result.task.id=id(70)
-    if (fault==='wrong-version') result.task.version='9007199254740993'
-    if (fault==='missing-plan') delete (result.task as Partial<typeof result.task>).plan
-    await expect(createWorkReviewAPI(async () => response(result)).transfer(project,target,
-      {expected_version:'9007199254740993',request:{target_state:'cancelled'}},write)).rejects.toMatchObject({kind:'invalid-response'})
-  })
+  it.each(['wrong-state', 'wrong-id', 'wrong-version', 'missing-plan'])(
+    'rejects malformed cancel receipt %s',
+    async (fault) => {
+      const result = { ...receipt(), task: { ...task(), state: 'cancelled' } }
+      if (fault === 'wrong-state') result.task.state = 'done'
+      if (fault === 'wrong-id') result.task.id = id(70)
+      if (fault === 'wrong-version') result.task.version = '9007199254740993'
+      if (fault === 'missing-plan') delete (result.task as Partial<typeof result.task>).plan
+      await expect(
+        createWorkReviewAPI(async () => response(result)).transfer(
+          project,
+          target,
+          { expected_version: '9007199254740993', request: { target_state: 'cancelled' } },
+          write,
+        ),
+      ).rejects.toMatchObject({ kind: 'invalid-response' })
+    },
+  )
 })
