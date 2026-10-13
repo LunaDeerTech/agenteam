@@ -1,3 +1,4 @@
+import { createAgentSkillAssignments } from './useAgentSkillAssignments'
 import { computed, inject, reactive, ref, shallowReactive, watch, type InjectionKey } from 'vue'
 import { AccountFailure } from '../api/client'
 import {
@@ -185,15 +186,44 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
   })
   const pending = computed(() => {
     const p = auth.agentConfiguration.progress
-    return p && ['submitting', 'uncertain'].includes(p.phase) ? p : null
+    const skill = auth.agentSkills?.progress
+    return p && ['submitting', 'uncertain'].includes(p.phase)
+      ? p
+      : skill && ['submitting', 'uncertain'].includes(skill.phase)
+        ? skill
+        : null
   })
-  const busy = computed(() => reading.value || auth.state.busy || confirmation.open)
+  const busy = computed(
+    () => reading.value || auth.state.busy || confirmation.open || skills.reading.value,
+  )
+  const skills = createAgentSkillAssignments(
+    auth,
+    computed(() => ({
+      visible: visible.value,
+      projectID: projectID.value,
+      agentID: state.selectedID,
+      configuration: state.detailPhase === 'ready' ? state.configuration : null,
+      key: readContextKey(),
+      editable:
+        !state.accessDenied &&
+        workspace.detail.project?.lifecycle === 'active' &&
+        !draft.open &&
+        !edit.open,
+      blocked: reading.value || confirmation.open || draft.open || edit.open,
+    })),
+    async (id) => {
+      await loadConfiguration(id)
+      if (state.selectedID === id) await loadDirectory()
+    },
+    clearDenied,
+  )
   const canCreate = computed(
     () =>
       visible.value &&
       !state.accessDenied &&
       workspace.detail.project?.lifecycle === 'active' &&
-      !pending.value,
+      !pending.value &&
+      !skills.state.open,
   )
   const canEdit = computed(
     () =>
@@ -398,6 +428,8 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
   }
   function clearDenied(error: unknown) {
     if (!denied(error)) return false
+    if (projectID.value)
+      auth.agentSkills?.forgetUnavailable(projectID.value, state.selectedID ?? undefined)
     // Retire visible observations, never the Session's original uncertain command.
     // Only a new current directory read may reopen creation after this refusal.
     state.accessDenied = true
@@ -479,6 +511,7 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
     if (readingSecrets) auth.projectSecrets.abandon()
   }
   function clear() {
+    skills.reset()
     formInitialization.value = null
     secretCursors.clear()
     knownSecretIDs.clear()
@@ -761,6 +794,7 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
       p = projectID.value!
     if (draft.open && !(await cancelCreation())) return
     if (edit.open && !pending.value && !(await cancelEdit())) return
+    if (!(await leaveSkills())) return
     if (progress.value?.kind === 'update' && progress.value.phase === 'uncertain') {
       if (!(await ask('保存结果尚未确认。切换后仍须查询原 Agent 的原操作，不能重新保存。'))) return
       Object.assign(edit, initialEdit())
@@ -999,6 +1033,31 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
       }
     }
   }
+  async function leaveSkills() {
+    if (!skills.dirty.value && !skills.pending.value) {
+      skills.reset()
+      return true
+    }
+    const yes = await ask(
+      skills.pending.value
+        ? '技能操作结果尚未确认。切换后仍须返回原 Agent 查询，不能重新提交。'
+        : '放弃尚未提交的技能分配操作？',
+    )
+    if (yes) skills.reset()
+    return yes
+  }
+  async function showSkillOriginal() {
+    const p = skills.progress.value
+    if (busy.value || !p || p.projectID !== projectID.value) return
+    if (!(await leaveSkills())) return
+    const project = projectID.value
+    if (!visible.value || p.projectID !== project) return
+    retire()
+    state.selectedID = p.agentID
+    await loadConfiguration(p.agentID)
+    if (visible.value && projectID.value === project && state.selectedID === p.agentID)
+      skills.state.open = true
+  }
   function ask(message: string) {
     if (confirmation.open) return Promise.resolve(false)
     confirmation.open = true
@@ -1016,8 +1075,10 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
   async function confirmLeave(target?: string) {
     if (!visible.value || target === route.value) return true
     if (busy.value) return false
-    const uncertain = progress.value?.phase === 'uncertain' && progress.value.contextValid
-    if (!dirty.value && !editDirty.value && !uncertain) return true
+    const uncertain =
+      (progress.value?.phase === 'uncertain' && progress.value.contextValid) ||
+      (skills.progress.value?.phase === 'uncertain' && skills.progress.value.contextValid)
+    if (!dirty.value && !editDirty.value && !skills.dirty.value && !uncertain) return true
     const yes = await ask(
       uncertain
         ? '操作结果尚未确认。离开后仍需回到原项目查询原操作，不能重新提交。'
@@ -1026,6 +1087,7 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
     if (yes) {
       Object.assign(draft, initialDraft())
       Object.assign(edit, initialEdit())
+      skills.reset()
     }
     return yes
   }
@@ -1094,6 +1156,7 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
   )
   function dispose() {
     disposed = true
+    skills.dispose()
     retire()
     stop()
     finishConfirmation(false)
@@ -1101,6 +1164,8 @@ export function createProjectAgents(auth: SessionController, workspace: ProjectW
   }
   return {
     state,
+    skills,
+    showSkillOriginal,
     secretOptions,
     secretLabel,
     draftSecretMessage,

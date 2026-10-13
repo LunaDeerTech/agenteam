@@ -1,3 +1,13 @@
+import {
+  createAgentSkillAssignmentsAPI,
+  captureAgentSkillCommand,
+  type AgentSkillAssignmentsAPI,
+  type AgentSkillCommand,
+  type AgentSkillMutation,
+  type AgentSkillLookup,
+  type AgentSkillQuery,
+} from '../api/agent-skill-assignments'
+
 import { randomUUID } from '../utils/random-uuid'
 import { createTaskExecutionOutputAPI, type TaskExecutionOutputAPI } from '../api/task-execution-output'
 import { createTaskExecutionsAPI, type TaskExecutionsAPI, type TaskExecutionQuery } from '../api/task-executions'
@@ -104,6 +114,7 @@ import {
   captureTransferInput,
   captureReadyInput,
   decodeWorkTask,
+  workVersion,
   type Task,
   type ReadyInput,
   type WorkReviewAPI,
@@ -457,11 +468,33 @@ export type ProjectModelSettingsProgress = Readonly<{
   canRetryOriginal: boolean
 }>
 type AgentConfigurationAction =
+  | 'agent-skill-write'
+  | 'agent-skill-lookup'
   | 'agent-configuration-read'
   | 'agent-create'
   | 'agent-create-lookup'
   | 'agent-update'
   | 'agent-update-lookup'
+type AgentSkillIntent = {
+  identity: PersonalIdentity
+  csrf: string
+  projectID: string
+  agentID: string
+  key: string
+  command: AgentSkillCommand
+  body: string
+  sequence: string
+  uncertain: boolean
+}
+export type AgentSkillProgress = Readonly<{
+  projectID: string
+  agentID: string
+  kind: AgentSkillCommand['kind']
+  phase: 'submitting' | 'uncertain' | 'confirmed' | 'rejected'
+  receipt: AgentSkillMutation | null
+  observation: 'none' | 'committed' | 'not_observed' | 'failed'
+  contextValid: boolean
+}>
 type AgentCommandIntent = {
   identity: PersonalIdentity
   csrf: string
@@ -1127,6 +1160,7 @@ export function createSessionController(
   agentDirectoryAPI: AgentDirectoryAPI = createAgentDirectoryAPI(),
   taskPlanningAPI: WorkTaskPlanningAPI = createWorkTaskPlanningAPI(),
   commandAPIs: Readonly<{
+    agentSkillAssignments?: AgentSkillAssignmentsAPI
     taskBlockers?: WorkTaskBlockersAPI
     taskDependencies?: WorkTaskDependenciesAPI
     taskReorder?: WorkTaskReorderAPI
@@ -1157,6 +1191,7 @@ export function createSessionController(
     knowledgeTitleSearch?: KnowledgeTitleSearchAPI
   }> = {},
 ) {
+  const agentSkillAPI = commandAPIs.agentSkillAssignments ?? createAgentSkillAssignmentsAPI()
   const runnersAPI = commandAPIs.systemRunners ?? createSystemRunnersAPI()
   const projectVariablesAPI = commandAPIs.projectVariables ?? createProjectVariablesAPI()
   const projectCreationAPI = commandAPIs.projectCreation ?? createProjectCreationAPI()
@@ -1268,6 +1303,8 @@ export function createSessionController(
     materialRevision: number
   }>({ progress: null, hasMaterial: false, materialInvalid: false, materialRevision: 0 })
   const agentConfigurationRevisions: Record<AgentConfigurationAction, number> = {
+    'agent-skill-write': 0,
+    'agent-skill-lookup': 0,
     'agent-configuration-read': 0,
     'agent-create': 0,
     'agent-create-lookup': 0,
@@ -1276,6 +1313,10 @@ export function createSessionController(
   }
   const isAgentConfigurationAction = (kind: Action): kind is AgentConfigurationAction =>
     Object.hasOwn(agentConfigurationRevisions, kind)
+  let agentSkillIntent: AgentSkillIntent | null = null
+  const agentSkillState = shallowReactive<{
+    progress: Omit<AgentSkillProgress, 'contextValid'> | null
+  }>({ progress: null })
   let agentCommandIntent: AgentCommandIntent | null = null
   const agentConfigurationState = shallowReactive<{
     progress: Omit<AgentConfigurationProgress, 'contextValid'> | null
@@ -5025,6 +5066,8 @@ export function createSessionController(
     for (const kind of Object.keys(agentConfigurationRevisions) as AgentConfigurationAction[])
       ++agentConfigurationRevisions[kind]
     agentCommandIntent = null
+    agentSkillIntent = null
+    agentSkillState.progress = null
     agentConfigurationState.progress = null
     if (owner && isAgentConfigurationAction(owner.kind)) owner.abandon?.()
   }
@@ -5148,6 +5191,191 @@ export function createSessionController(
       return Promise.reject(error)
     }
   }
+  function agentSkillCurrent(original: AgentSkillIntent) {
+    return agentSkillIntent === original && projectContext(original)
+  }
+  function publishAgentSkill(
+    original: AgentSkillIntent,
+    phase: AgentSkillProgress['phase'],
+    receipt: AgentSkillMutation | null = null,
+    observation: AgentSkillProgress['observation'] = 'none',
+  ) {
+    agentSkillState.progress = Object.freeze({
+      projectID: original.projectID,
+      agentID: original.agentID,
+      kind: original.command.kind,
+      phase,
+      receipt,
+      observation,
+    })
+  }
+  function clearAgentSkillIntent() {
+    ++agentConfigurationRevisions['agent-skill-write']
+    ++agentConfigurationRevisions['agent-skill-lookup']
+    agentSkillIntent = null
+    agentSkillState.progress = null
+    if (owner && ['agent-skill-write', 'agent-skill-lookup'].includes(owner.kind))
+      owner.abandon?.()
+  }
+  function performAgentSkill(
+    original: AgentSkillIntent,
+    lookup: boolean,
+  ): Promise<AgentSkillMutation | AgentSkillLookup> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    if (!agentSkillCurrent(original))
+      return Promise.reject(new AccountFailure('invalid-input'))
+    const kind = lookup ? 'agent-skill-lookup' : 'agent-skill-write'
+    const revision = agentConfigurationRevisions[kind]
+    const live = () =>
+      agentSkillCurrent(original) && revision === agentConfigurationRevisions[kind]
+    let dispatched = false
+    if (!lookup) publishAgentSkill(original, 'submitting')
+    return runAuthorized<AgentSkillMutation | AgentSkillLookup>(
+      original.identity,
+      async (op, current) => {
+        if (!current() || !live()) throw new AccountFailure('cancelled')
+        if (JSON.stringify(original.command) !== original.body)
+          throw new AccountFailure('invalid-input')
+        dispatched = true
+        const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
+        const value = await (lookup
+          ? agentSkillAPI.lookup(
+              original.projectID,
+              original.agentID,
+              original.command,
+              write,
+            )
+          : agentSkillAPI.execute(
+              original.projectID,
+              original.agentID,
+              original.command,
+              write,
+            ))
+        const receipt = 'state' in value ? value.receipt : value
+        if (
+          receipt &&
+          BigInt(receipt.assignment_sequence) !==
+            BigInt(original.sequence) + (receipt.changed ? 1n : 0n)
+        )
+          throw new AccountFailure('invalid-response')
+        return value
+      },
+      undefined,
+      kind,
+    ).then(
+      (value) => {
+        if (!live()) throw new AccountFailure('cancelled')
+        if ('state' in value && value.state === 'not_observed') {
+          original.uncertain = true
+          publishAgentSkill(original, 'uncertain', null, 'not_observed')
+        } else {
+          const receipt = 'state' in value ? value.receipt : value
+          agentSkillIntent = null
+          publishAgentSkill(original, 'confirmed', receipt, lookup ? 'committed' : 'none')
+        }
+        return value
+      },
+      (error) => {
+        const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (live()) {
+          if (e.problem && [403, 404].includes(e.problem.status)) {
+            clearAgentSkillIntent()
+            throw e
+          }
+          const known =
+            !dispatched ||
+            (!!e.problem &&
+              ['not_started', 'not_committed'].includes(e.problem.commit_state) &&
+              e.problem.code !== 'IDEMPOTENCY_KEY_REUSED')
+          original.uncertain ||= lookup || !known
+          publishAgentSkill(
+            original,
+            original.uncertain ? 'uncertain' : 'rejected',
+            null,
+            lookup ? 'failed' : 'none',
+          )
+        }
+        throw e
+      },
+    )
+  }
+  const agentSkills = {
+    get progress(): AgentSkillProgress | null {
+      const p = agentSkillState.progress
+      return p
+        ? Object.freeze({
+            ...p,
+            contextValid: !!agentSkillIntent && agentSkillCurrent(agentSkillIntent),
+          })
+        : null
+    },
+    list: (p: string, a: string, q: AgentSkillQuery) =>
+      agentConfigurationRead((signal) => agentSkillAPI.list(p, a, q, signal)),
+    catalog: (p: string, q: SkillQuery) =>
+      agentConfigurationRead((signal) => skillsAPI.list(p, q, signal)),
+    metadata: (p: string, id: string) =>
+      agentConfigurationRead((signal) => skillsAPI.get(p, id, signal)),
+    abandonRead: clearAgentConfigurationRead,
+    start(
+      projectID: string,
+      agentID: string,
+      value: AgentSkillCommand,
+      assignmentSequence: string,
+    ) {
+      try {
+        const identity = personalIdentity()
+        if (owner || agentSkillIntent || agentCommandIntent || personalIntent || pending)
+          throw new AccountFailure('busy')
+        if (!uuid7.test(projectID) || !uuid7.test(agentID))
+          throw new AccountFailure('invalid-input')
+        const command = captureAgentSkillCommand(value)
+        let sequence: string
+        try {
+          sequence = workVersion(assignmentSequence)
+        } catch {
+          throw new AccountFailure('invalid-input')
+        }
+        const original: AgentSkillIntent = {
+          identity,
+          csrf: sessionCSRF,
+          projectID,
+          agentID,
+          key: newKey(),
+          command,
+          sequence,
+          body: JSON.stringify(command),
+          uncertain: false,
+        }
+        agentSkillIntent = original
+        return performAgentSkill(original, false)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    checkOriginal() {
+      if (!agentSkillIntent?.uncertain)
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performAgentSkill(agentSkillIntent, true)
+    },
+    editRejected() {
+      if (
+        owner ||
+        !agentSkillIntent ||
+        !agentSkillCurrent(agentSkillIntent) ||
+        agentSkillIntent.uncertain ||
+        agentSkillState.progress?.phase !== 'rejected'
+      )
+        throw new AccountFailure('busy')
+      clearAgentSkillIntent()
+    },
+    forgetUnavailable(projectID: string, agentID?: string) {
+      if (
+        agentSkillIntent?.projectID === projectID &&
+        (!agentID || agentSkillIntent.agentID === agentID)
+      )
+        clearAgentSkillIntent()
+    },
+  }
   function newAgentID() {
     const now = Date.now()
     if (!Number.isSafeInteger(now) || now < 0 || now > 0xffffffffffff)
@@ -5188,7 +5416,7 @@ export function createSessionController(
     startCreate(projectID: string, fields: Omit<AgentCreateFields, 'agent_id'>) {
       try {
         const identity = personalIdentity()
-        if (owner || agentCommandIntent || personalIntent || pending)
+        if (owner || agentCommandIntent || agentSkillIntent || personalIntent || pending)
           throw new AccountFailure('busy')
         if (
           !uuid7.test(projectID) ||
@@ -5218,7 +5446,7 @@ export function createSessionController(
     startUpdate(projectID: string, agentID: string, value: AgentUpdateInput) {
       try {
         const identity = personalIdentity()
-        if (owner || agentCommandIntent || personalIntent || pending)
+        if (owner || agentCommandIntent || agentSkillIntent || personalIntent || pending)
           throw new AccountFailure('busy')
         if (!uuid7.test(projectID) || !uuid7.test(agentID))
           throw new AccountFailure('invalid-input')
@@ -9927,6 +10155,7 @@ export function createSessionController(
     workSprintEditing,
     projectVariables,
     agentConfiguration,
+    agentSkills,
     projectAudit,
     skills,
     skillImport,
