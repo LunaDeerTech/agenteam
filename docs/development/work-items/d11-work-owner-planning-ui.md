@@ -352,4 +352,14 @@ cleanup有限接受1440×960浅色创建表单和390×844深色planned结果两�
 
 [消费证明](../../../output/ai/sprint-completion/web-native04/sprint-complete/sprint-complete-browser-proof.json)覆盖 74 个原请求：72 finished，Start 的实际 `ERR_ABORTED` 保留 failed 并由原完整字节、公开 Promise/reader 与 Go 返回事实联证，另一 failed 是明确的回执长度截断。全部原 consumer、route、CDP 与 App/HTTP/Node 尾退出，9 个进程及六个隔离资源已清退。四图已由非作者实际查看：1440 浅色完成确认及完成详情的标题焦点，390 深色恢复提示/查询按钮及完成标题焦点可见，无所见页级横溢；恢复按钮焦点环、窄屏下部看板和独立加载态不据截图宣称已见。
 
-原 ordinary/type、HTTP01 取消准备缺能力、cleanup01 选择器及 Web01 准备 key、Web02 LIFO 交接、Web03 pristine 项目版本冲突各失败保持原记录。HTTP 必要两子场景与清理子场景按后台所述分段通过；本轮真实成功对象均为空 Sprint，全部 done/cancelled 成员及 active/pending 拒绝仅受控单元覆盖，真实终态成员由 TaskCancel 后继补齐。不扩大为完整规划 UI、自动 rollover、Task 执行或 Model/Tools 链，既有 STOP 不变。
+原 ordinary/type、HTTP01 取消准备缺能力、cleanup01 选择器及 Web01 准备 key、Web02 LIFO 交接、Web03 pristine 项目版本冲突各失败保持原记录。HTTP 必要两子场景与清理子场景按后台所述分段通过；本轮真实成功对象均为空 Sprint，全部 done/cancelled 成员及 active/pending 拒绝仅受控单元覆盖，后继 §26 补齐真实全 cancelled 成员。不扩大为完整规划 UI、自动 rollover、Task 执行或 Model/Tools 链，既有 STOP 不变。
+
+## 26. Task 显式取消（2026-10-13）
+
+任务详情提供“取消任务”、独立确认和可选说明，说明终态不可恢复且保留负责人/阻塞；“保留任务”关闭确认并恢复入口焦点。确认只调用原 Transfer，成功后真实重读 Task、Timeline 与看板，不把取消任务当作取消 Execution。原意图未知时沿既有 Lookup，后端占用拒绝仍保持。产品前端 56 项、完整类型检查与 86 文件构建通过；新 helper/spec 目标语义诊断为零，旧传递源的 7 项诊断保留，不称整个 harness 类型检查通过，锁定 Playwright 入口检查仅发现原一个用例。
+
+真实 [Web03](../../../output/ai/task-cancel-ui/web-native03/result.json) 的 `TestTaskCancelWeb/explicit-cancel-preserves-relations-and-completes-sprint` 1 top/1 sub 与一个 Node 调用 whole PASS（外层 52.121s）。在默认 App、Runtime disabled 下，键盘先退出再确认已指派 todo 的取消，说明按纯文本呈现、原负责人保留；再取消带 unresolved 人工 Blocker 的未指派 backlog，保留完整 Blocker。两条取消均由真实 Task/Timeline/取消列和同 Tx 持久回执核实，再显式 Complete 原 Sprint，清空当前指针，完整 Task 行在 Complete 前后不变，补齐 §25 的真实全 cancelled 成员链。没有 Model 调用或 Execution 取消。
+
+[消费证明](../../../output/ai/task-cancel-ui/web-native03/task-cancel/task-cancel-browser-proof.json)包含 107 个原请求（104 GET、2 Cancel 与 1 Complete）：全部状态 200，102 finished、5 个实际 `ERR_ABORTED` 保留 failed 并经原完整字节、公开 Promise/reader 与 Go EOF/Close/handler 返回联合核实。原 consumer/route/CDP、App/Node 全部退出，9 个进程和六个隔离资源已清退。四图经非作者实际查看：1440 浅色确认的危险操作、输入字面文本和输入焦点，以及取消后的负责人/标题焦点；390 深色的取消状态/未指派/标题焦点，以及 Sprint 完成提示/标题焦点与禁用动作均可见。历史区、Blocker 区及最终下部筛选未入相应截图，保留事实依原动态断言，不由图片名称推断可见。
+
+ordinary01 编译失败、Web01 Login INTERNAL_ERROR 与 Web02 打开第二 Task 超时保持原记录；后两者未确因。Web03 新增观测只证明本轮按键与 click 到达已启用的第二 Task、导航成功，不追认以前失败已修复。真实范围限上述两条正常取消及全 cancelled Sprint 完成；Unknown、其余源状态与 active/pending 拒绝仍按受控测试范围，不扩大为完整规划 UI、真实 Task 执行或 Model/Tools 链，既有 STOP 不变。

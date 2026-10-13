@@ -502,7 +502,15 @@ Complete 复用原 Sprint owned call、Stop/Drain 和原意图 Lookup；Lookup �
 
 限定验证已通过：普通 Go 分段合计 28 top/40 sub、6 包 vet，launcher 3 项及 vet；真实 [HTTP02](../../../output/ai/sprint-completion/http-native02/result.json) 通过空 Sprint 完成、权限/版本拒绝、未完成任务拒绝、显式启动另一项，以及受控隐藏原 Store 已返回的提交与自动确认结果所形成的 Unknown，再用原意图 Lookup 恢复完整回执。保留 HTTP01 中已通过的原锁竞争子场景：TaskCreate 等待同 Owner 的首个 User 排它锁，完成提交后拒绝向已完成 Sprint 加入任务，未新增 Task；两必要子场景为分段通过，不称一次整组通过。[cleanup02](../../../output/ai/sprint-completion/cleanup-native02/result.json) 的原 `real-relations-upgrade-and-original-return` 子场景通过，原调用及六个隔离资源均退出。
 
-默认 App、Runtime disabled 的真实 [Web04](../../../output/ai/sprint-completion/web-native04/result.json) 通过两次 Complete、一次明确 Start 和一次原 Lookup，页面成功后重读 Project/Sprint，原 Task 全行保持不变；浏览器回执失落发生在原完整 200/EOF/Close/handler 返回及持久回执核实之后，不与 HTTP 的 Store ACK Unknown 混称。真实全终态成员、active/pending 拒绝尚未由本轮 PG 场景证明，仍按受控单元范围；TaskCancel 后继补真实终态成员链。原 ordinary/type、HTTP01 未实现取消准备、cleanup01 启动选择器，以及 Web01 非法准备 key、Web02 cleanup 顺序、Web03 未修改草稿被版本更新误判为冲突的失败均保留。此结果不完成自动 rollover、完整 Sprint lifecycle 或真实 Model 执行；[页面结果](../work-items/d11-work-owner-planning-ui.md#25-当前-sprint-显式完成2026-10-13)说明浏览器联证与视觉范围。
+默认 App、Runtime disabled 的真实 [Web04](../../../output/ai/sprint-completion/web-native04/result.json) 通过两次 Complete、一次明确 Start 和一次原 Lookup，页面成功后重读 Project/Sprint，原 Task 全行保持不变；浏览器回执失落发生在原完整 200/EOF/Close/handler 返回及持久回执核实之后，不与 HTTP 的 Store ACK Unknown 混称。真实全终态成员、active/pending 拒绝尚未由本轮 PG 场景证明，仍按受控单元范围；后继全 cancelled 成员的真实链见下节。原 ordinary/type、HTTP01 未实现取消准备、cleanup01 启动选择器，以及 Web01 非法准备 key、Web02 cleanup 顺序、Web03 未修改草稿被版本更新误判为冲突的失败均保留。此结果不完成自动 rollover、完整 Sprint lifecycle 或真实 Model 执行；[页面结果](../work-items/d11-work-owner-planning-ui.md#25-当前-sprint-显式完成2026-10-13)说明浏览器联证与视觉范围。
+
+## D11 Human Task 显式取消
+
+原 Task Transfer writer 已接通五种非终态到 `cancelled` 的取消，沿当前 Human Owner、原版本及同 Tx 占用/Pending 校验；请求只包含目标状态和可选说明，保留原负责人（含未指派）及全部 Blocker，不同时指派、添加或解除阻塞，也不取消 Execution。取消仍经原持久计划、完整锁集合、最终重验和原意图 Lookup；Task、历史、事件与回执同事务提交。
+
+限定 Go race 9 top/19 sub 与 vet、前端 56 项、完整类型检查、86 文件构建及新 harness 目标语义检查和单用例入口检查通过。真实 [TaskCancel Web03](../../../output/ai/task-cancel-ui/web-native03/result.json) 为默认 App、Runtime disabled 的 1 top/1 sub、一个 Node 调用，外层 52.121s whole PASS：正式创建/Ready 的已指派 todo Task 与带原人工 Blocker 的未指派 backlog Task 分别取消，核原负责人和 unresolved Blocker 保留、完整历史/事件/回执及各自同 Tx；随后显式完成同一 Sprint，清当前指针，两条终态 Task 的完整行在 Complete 前后相等。107 个原请求包含 104 GET 和这三次 POST，原完整响应与 handler 返回、真实消费及全部资源退出成立。
+
+ordinary01 编译失败、Web01 Login INTERNAL_ERROR 与 Web02 第二 Task 导航失败保留；后两者尚未确因，本轮只补安全诊断，没有据成功复验宣称修复。真实取消仅覆盖上述 backlog/todo 两条链，五状态、active/pending 拒绝等其余边界按受控测试范围；未执行真实 Model、取消 Execution 或验证取消 Unknown 的浏览器恢复，不外推 done 成员完成或完整 D11。页面与四图的有限范围见[结果说明](../work-items/d11-work-owner-planning-ui.md#26-task-显式取消2026-10-13)。
 
 ## Knowledge Owner 文本写入
 
