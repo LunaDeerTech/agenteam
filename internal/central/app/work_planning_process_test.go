@@ -42,6 +42,7 @@ type workRootHeldStore struct {
 	forceContext chan context.Context
 	forceOnce    sync.Once
 	holdReaders  bool
+	holdOwned    bool
 	dbStopped    chan struct{}
 	stopOnce     sync.Once
 }
@@ -49,6 +50,13 @@ type workRootHeldStore struct {
 func (s *workRootHeldStore) unhold() { s.releaseOnce.Do(func() { close(s.release) }) }
 func (s *workRootHeldStore) WithinTx(ctx context.Context, cause foundation.TransactionCause, fn func(context.Context, foundation.Tx) error) foundation.CommitResult {
 	hold := cause.Kind() == foundation.CommandsCause && strings.HasPrefix(string(cause.Details().Primary.Key()), "work-root-held-")
+	// The default bundle now registers the actual public call before business
+	// authorization. Hold that original transaction for these absent-Project
+	// lifetime probes; it must still return after cancellation/DB ForceClose.
+	// Successful nonempty HTTP/business is covered by the owned App fixture.
+	if s.holdOwned && cause.Kind() == foundation.RecoveryCause && cause.Details().Owner == "work-call-register" {
+		hold = true
+	}
 	if s.holdReaders && cause.Kind() == foundation.RecoveryCause {
 		switch cause.Details().Owner {
 		case "work.read", "work.task.read", "work.task-blockers.page":
@@ -101,7 +109,7 @@ func TestWorkOwnerRootActualReaderJoin(t *testing.T) {
 			if forced {
 				budget = "1s"
 			}
-			held := &workRootHeldStore{entered: make(chan workRootHeldCall, 3), release: make(chan struct{}), force: make(chan bool, 1), forceContext: make(chan context.Context, 1), holdReaders: true, dbStopped: make(chan struct{})}
+			held := &workRootHeldStore{entered: make(chan workRootHeldCall, 3), release: make(chan struct{}), force: make(chan bool, 1), forceContext: make(chan context.Context, 1), holdReaders: true, holdOwned: true, dbStopped: make(chan struct{})}
 			root := newModelRootApp(t, budget, func(root *modelRootApp, deps *dependencies) {
 				deps.open = func(ctx context.Context, cfg postgres.Config) (database, error) {
 					raw, err := postgres.Open(ctx, cfg)
@@ -184,8 +192,8 @@ func TestWorkOwnerRootActualReaderJoin(t *testing.T) {
 				}
 				select {
 				case actual := <-held.forceContext:
-					// With no held command Drain, DB may start before the shared
-					// force deadline expires. Its identity and deadline must survive.
+					// Owned Reader registration participates in Work Drain too.
+					// DB must still receive the original shared force context.
 					root.owned.mu.Lock()
 					original := root.owned.forced
 					root.owned.mu.Unlock()
@@ -300,7 +308,7 @@ func TestWorkOwnerRootActualCommandJoin(t *testing.T) {
 					if err != nil {
 						return nil, err
 					}
-					store = &workRootHeldStore{Store: raw, entered: make(chan workRootHeldCall, 3), release: make(chan struct{}), force: make(chan bool, 1)}
+					store = &workRootHeldStore{Store: raw, entered: make(chan workRootHeldCall, 3), release: make(chan struct{}), force: make(chan bool, 1), holdOwned: true}
 					return store, nil
 				},
 				observeAccount: func(v *account.Service) { core = v },
@@ -459,7 +467,8 @@ func TestWorkOwnerRootActualCommandJoin(t *testing.T) {
 				}
 			}
 			// No command was submitted twice and no fake Project was required: these
-			// are held read-only lookups against a canonical absent ID, not write proof.
+			// are held original registrations for lookups against a canonical absent
+			// ID. Cancellation rejects them before business; this is not write proof.
 			if _, err := planning.tasks.LookupTaskCommand(context.Background(), actor, wc.TaskCommandLookupRequest{ProjectID: projectID, Command: wc.TaskCommandCreate, IdempotencyKey: "work-root-late", SemanticDigest: semantic}); err == nil {
 				t.Fatal("stopped root accepted new Work")
 			}
