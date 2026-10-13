@@ -50,16 +50,7 @@ export async function taskScreenshot(page: Page, name: string) {
 }
 
 type Tail = "finished" | "failed" | "closed";
-export type UsageWireProof = {
-  source: "cdp_network_extra_info";
-  cdp_request_id: string;
-  request_id: string;
-  method: string;
-  url_sha256: string;
-  status: number;
-  host_present: true;
-  host_matches: true;
-};
+export type UsageWireProof = { source: "cdp_network_extra_info"; cdp_request_id: string; request_id: string; method: string; url_sha256: string; status: number; host_present: true; host_matches: true };
 type SkillsHeaderDiagnostic = {
   stage:
     | "joined"
@@ -151,27 +142,17 @@ type BrowserDiagnostic = {
 export function systemRunnerEvidenceValue(value: any): any {
   if (!value || typeof value !== "object") return value;
   if (!Object.hasOwn(value, "token_available")) {
-    if (Object.hasOwn(value, "enrollment_token"))
-      throw Error("SYSTEM_RUNNER_UNEXPECTED_MATERIAL");
+    if (Object.hasOwn(value, "enrollment_token")) throw Error("SYSTEM_RUNNER_UNEXPECTED_MATERIAL");
     return value;
   }
   if (value.token_available === true) {
-    if (
-      typeof value.enrollment_token !== "string" ||
-      !/^[A-Za-z0-9_-]{43}$/.test(value.enrollment_token) ||
-      typeof value.expires_at !== "string" ||
-      !value.receipt ||
-      value.state !== undefined
-    )
+    if (typeof value.enrollment_token !== "string" || !/^[A-Za-z0-9_-]{43}$/.test(value.enrollment_token) ||
+        typeof value.expires_at !== "string" || !value.receipt || value.state !== undefined)
       throw Error("SYSTEM_RUNNER_MATERIAL_SHAPE");
     const { enrollment_token: _discarded, ...safe } = value;
     return safe;
   }
-  if (
-    value.token_available !== false ||
-    Object.hasOwn(value, "enrollment_token") ||
-    Object.hasOwn(value, "expires_at")
-  )
+  if (value.token_available !== false || Object.hasOwn(value, "enrollment_token") || Object.hasOwn(value, "expires_at"))
     throw Error("SYSTEM_RUNNER_UNEXPECTED_MATERIAL");
   return value;
 }
@@ -179,18 +160,10 @@ export function systemRunnerEvidenceValue(value: any): any {
 // Only the declared preview may carry a confirmation capability. The original
 // wire/public values are bound privately before this safe evidence projection.
 export function knowledgeDeleteEvidenceValue(value: any): any {
-  if (
-    !value ||
-    typeof value !== "object" ||
-    Array.isArray(value) ||
-    Object.keys(value).sort().join() !==
-      "confirmation_token,expires_at,nodes,root_id,scope_digest" ||
-    typeof value.confirmation_token !== "string" ||
-    value.confirmation_token.length > 8192 ||
-    !/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]{43}$/.test(
-      value.confirmation_token,
-    )
-  )
+  if (!value || typeof value !== "object" || Array.isArray(value) ||
+      Object.keys(value).sort().join() !== "confirmation_token,expires_at,nodes,root_id,scope_digest" ||
+      typeof value.confirmation_token !== "string" || value.confirmation_token.length > 8192 ||
+      !/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]{43}$/.test(value.confirmation_token))
     throw Error("KNOWLEDGE_DELETE_PREVIEW_EVIDENCE_SHAPE");
   const { confirmation_token, ...safe } = value;
   return safe;
@@ -204,1259 +177,980 @@ export async function observeBrowserIO(
   await page.exposeBinding("__taskReviewDiagnostic", (_source, event) => {
     accept(event as BrowserDiagnostic);
   });
-  await page.addInitScript(
-    (metadataScope?: { project: string; skill: string }) => {
-      // These observers return the original fetch/read/cancel promises and the
-      // original Response/reader. They do not consume, clone or replace a body.
-      const send = (
-        window as unknown as {
-          __taskReviewDiagnostic: (event: unknown) => Promise<void>;
-        }
-      ).__taskReviewDiagnostic;
-      let sequence = 0;
-      let nextFetch = 0;
-      let nextSignal = 0;
-      const rows = new Map<number, any>();
-      const calls: any[] = [];
-      const originalCalls = new WeakMap<Promise<any>, any>();
-      const identities = new WeakMap<object, string>();
-      // Original public arguments and keys stay private to this document. Only
-      // hashes and boolean matches can enter the persisted observation.
-      const writeInputs = new WeakMap<object, any>();
-      let originalCreate: any;
-      let originalAgentCreate: any;
-      const originalEdits: any[] = [];
-      const originalTaskReorders: any[] = [];
-      let taskReorderRegistered = false;
-      const originalAgentEdits: any[] = [];
-      const originalMilestoneEdits: any[] = [];
-      const originalMilestoneReorders: any[] = [];
-      const originalSprintReorders: any[] = [];
-      const originalHumanBlockers: any[] = [];
-      const originalTaskDependencies: any[] = [];
-      const originalSprintEdits: any[] = [];
-      let originalSprintStart: any;
-      const originalSprintCompletions: any[] = [];
-      const originalTaskCancellations: any[] = [];
-      let originalSprintCreate: any;
-      let originalMilestoneCreate: any;
-      const originalVariableWrites: any[] = [];
-      const originalTextWrites: any[] = [];
-      const originalSchedulerWrites: any[] = [];
-      const originalSystemRunnerWrites: any[] = [];
-      const originalSecretWrites: any[] = [];
-      let secretWriteEnabled = false;
-      let pendingSecretMaterial: string | undefined;
-      function stageSecretMaterial(value: unknown) {
-        if (
-          !secretWriteEnabled ||
-          typeof value !== "string" ||
-          pendingSecretMaterial !== undefined
-        )
-          throw Error("SECRET_WRITE_MATERIAL_STAGE");
-        pendingSecretMaterial = value;
+  await page.addInitScript((metadataScope?: { project: string; skill: string }) => {
+    // These observers return the original fetch/read/cancel promises and the
+    // original Response/reader. They do not consume, clone or replace a body.
+    const send = (
+      window as unknown as {
+        __taskReviewDiagnostic: (event: unknown) => Promise<void>;
       }
-      function consumeSecretMaterial(value: unknown, present: boolean) {
-        const expected = pendingSecretMaterial;
-        pendingSecretMaterial = undefined;
-        return present
-          ? expected !== undefined &&
-              typeof value === "string" &&
-              value === expected
-          : expected === undefined;
-      }
-      let systemRunnerMaterial: string | undefined;
-      const systemRunnerMaterials = new WeakMap<
-        object,
-        { wire?: string; published?: string }
-      >();
-      function bindSystemRunnerMaterial(
-        call: any,
-        token: string,
-        source: "wire" | "published",
-      ) {
-        const values = systemRunnerMaterials.get(call) ?? {};
-        if (values[source] !== undefined)
-          throw Error("SYSTEM_RUNNER_DUPLICATE_MATERIAL");
-        values[source] = token;
-        if (values.wire !== undefined && values.published !== undefined) {
-          call.material_matches = values.wire === values.published;
-          systemRunnerMaterials.delete(call);
-        } else systemRunnerMaterials.set(call, values);
-      }
+    ).__taskReviewDiagnostic;
+    let sequence = 0;
+    let nextFetch = 0;
+    let nextSignal = 0;
+    const rows = new Map<number, any>();
+    const calls: any[] = [];
+    const originalCalls = new WeakMap<Promise<any>, any>();
+    const identities = new WeakMap<object, string>();
+    // Original public arguments and keys stay private to this document. Only
+    // hashes and boolean matches can enter the persisted observation.
+    const writeInputs = new WeakMap<object, any>();
+    let originalCreate: any;
+    let originalAgentCreate: any;
+    const originalEdits: any[] = [];
+    const originalTaskReorders: any[] = [];
+    let taskReorderRegistered = false;
+    const originalAgentEdits: any[] = [];
+    const originalMilestoneEdits: any[] = [];
+    const originalMilestoneReorders: any[] = [];
+    const originalSprintReorders: any[] = [];
+    const originalHumanBlockers: any[] = [];
+    const originalTaskDependencies: any[] = [];
+    const originalSprintEdits: any[] = [];
+    let originalSprintStart: any;
+    const originalSprintCompletions: any[] = [];
+    const originalTaskCancellations: any[] = [];
+    let originalSprintCreate: any;
+    let originalMilestoneCreate: any;
+    const originalVariableWrites: any[] = [];
+    const originalTextWrites: any[] = [];
+    const originalSchedulerWrites: any[] = [];
+    const originalSystemRunnerWrites: any[] = [];
+    const originalSecretWrites: any[] = [];
+    let secretWriteEnabled = false;
+    let pendingSecretMaterial: string | undefined;
+    function stageSecretMaterial(value: unknown) {
+      if (!secretWriteEnabled || typeof value !== "string" || pendingSecretMaterial !== undefined)
+        throw Error("SECRET_WRITE_MATERIAL_STAGE");
+      pendingSecretMaterial = value;
+    }
+    function consumeSecretMaterial(value: unknown, present: boolean) {
+      const expected = pendingSecretMaterial;
+      pendingSecretMaterial = undefined;
+      return present ? expected !== undefined && typeof value === "string" && value === expected : expected === undefined;
+    }
+    let systemRunnerMaterial: string | undefined;
+    const systemRunnerMaterials = new WeakMap<object, { wire?: string; published?: string }>();
+    function bindSystemRunnerMaterial(call: any, token: string, source: "wire" | "published") {
+      const values = systemRunnerMaterials.get(call) ?? {};
+      if (values[source] !== undefined) throw Error("SYSTEM_RUNNER_DUPLICATE_MATERIAL");
+      values[source] = token;
+      if (values.wire !== undefined && values.published !== undefined) {
+        call.material_matches = values.wire === values.published;
+        systemRunnerMaterials.delete(call);
+      } else systemRunnerMaterials.set(call, values);
+    }
 
-      let originalDeletePreview: any, originalDeletion: any;
-      const deleteMaterials = new WeakMap<
-        object,
-        { wire?: string; published?: string }
-      >();
-      function bindDeleteMaterial(
-        call: any,
-        token: string,
-        source: "wire" | "published",
-      ) {
-        const values = deleteMaterials.get(call) ?? {};
-        if (values[source] !== undefined)
-          throw Error("KNOWLEDGE_DELETE_DUPLICATE_MATERIAL");
-        values[source] = token;
-        if (values.wire !== undefined && values.published !== undefined) {
-          call.material_matches = values.wire === values.published;
-          deleteMaterials.delete(call);
-        } else deleteMaterials.set(call, values);
-      }
-      const tails = new Set<Promise<void>>();
-      const restorers: (() => void)[] = [];
-      let retired = false,
-        failed = false,
-        auth: any;
-      const host = window as any;
-      const canonical = (value: any): any =>
-        Array.isArray(value)
-          ? value.map(canonical)
-          : value !== null && typeof value === "object"
-            ? Object.fromEntries(
-                Object.keys(value)
-                  .sort()
-                  .map((key) => [key, canonical(value[key])]),
-              )
-            : value;
-      const digest = async (bytes: Uint8Array) =>
-        [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))]
-          .map((v) => v.toString(16).padStart(2, "0"))
-          .join("");
-      const typedDigest = (value: unknown) =>
-        digest(new TextEncoder().encode(JSON.stringify(canonical(value))));
-      const identity = () => {
-        const value = auth?.personalContext.identity;
-        return value
-          ? JSON.stringify([value.userID, value.sessionID, value.epoch])
-          : "";
-      };
-      const current = () =>
-        auth?.state.phase === "authenticated" &&
-        auth?.personalContext.phase === "current";
-      function track(
-        promise: Promise<any>,
-        good: (value: any) => any,
-        bad: (error: unknown) => any,
-      ) {
-        const tail = promise
-          .then(good, bad)
-          .catch(() => {
-            failed = true;
-          })
-          .then(() => {
-            tails.delete(tail);
-          });
-        tails.add(tail);
-      }
-      function consumer(
-        object: any,
-        method: string,
-        kind: string,
-        path: (args: any[]) => string,
-        httpMethod: string | ((args: any[]) => string) = "GET",
-      ) {
-        const original = object[method],
-          descriptor = Object.getOwnPropertyDescriptor(object, method);
-        if (typeof original !== "function" || !descriptor)
-          throw Error("TASK_REVIEW_PUBLIC_CONSUMER_MISSING");
-        const wrapper = function (this: any, ...args: any[]) {
-          if (calls.length >= 192) failed = true;
-          const before = identity();
-          const call: any = {
-            id: calls.length + 1,
-            kind,
-            method:
-              typeof httpMethod === "function" ? httpMethod(args) : httpMethod,
-            path: path(args),
-            bound: 0,
-            fulfilled: false,
-            settled: false,
-            rejected: false,
-            current: false,
-            not_busy: false,
-            typed_digest: null,
-            typed: null,
+    let originalDeletePreview: any, originalDeletion: any;
+    const deleteMaterials = new WeakMap<object, { wire?: string; published?: string }>();
+    function bindDeleteMaterial(call: any, token: string, source: "wire" | "published") {
+      const values = deleteMaterials.get(call) ?? {};
+      if (values[source] !== undefined) throw Error("KNOWLEDGE_DELETE_DUPLICATE_MATERIAL");
+      values[source] = token;
+      if (values.wire !== undefined && values.published !== undefined) {
+        call.material_matches = values.wire === values.published;
+        deleteMaterials.delete(call);
+      } else deleteMaterials.set(call, values);
+    }
+    const tails = new Set<Promise<void>>();
+    const restorers: (() => void)[] = [];
+    let retired = false,
+      failed = false,
+      auth: any;
+    const host = window as any;
+    const canonical = (value: any): any =>
+      Array.isArray(value)
+        ? value.map(canonical)
+        : value !== null && typeof value === "object"
+          ? Object.fromEntries(
+              Object.keys(value)
+                .sort()
+                .map((key) => [key, canonical(value[key])]),
+            )
+          : value;
+    const digest = async (bytes: Uint8Array) =>
+      [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))]
+        .map((v) => v.toString(16).padStart(2, "0"))
+        .join("");
+    const typedDigest = (value: unknown) =>
+      digest(new TextEncoder().encode(JSON.stringify(canonical(value))));
+    const identity = () => {
+      const value = auth?.personalContext.identity;
+      return value
+        ? JSON.stringify([value.userID, value.sessionID, value.epoch])
+        : "";
+    };
+    const current = () =>
+      auth?.state.phase === "authenticated" &&
+      auth?.personalContext.phase === "current";
+    function track(
+      promise: Promise<any>,
+      good: (value: any) => any,
+      bad: (error: unknown) => any,
+    ) {
+      const tail = promise
+        .then(good, bad)
+        .catch(() => {
+          failed = true;
+        })
+        .then(() => {
+          tails.delete(tail);
+        });
+      tails.add(tail);
+    }
+    function consumer(
+      object: any,
+      method: string,
+      kind: string,
+      path: (args: any[]) => string,
+      httpMethod: string | ((args: any[]) => string) = "GET",
+    ) {
+      const original = object[method],
+        descriptor = Object.getOwnPropertyDescriptor(object, method);
+      if (typeof original !== "function" || !descriptor)
+        throw Error("TASK_REVIEW_PUBLIC_CONSUMER_MISSING");
+      const wrapper = function (this: any, ...args: any[]) {
+        if (calls.length >= 192) failed = true;
+        const before = identity();
+        const call: any = {
+          id: calls.length + 1,
+          kind,
+          method: typeof httpMethod === "function" ? httpMethod(args) : httpMethod,
+          path: path(args),
+          bound: 0,
+          fulfilled: false,
+          settled: false,
+          rejected: false,
+          current: false,
+          not_busy: false,
+          typed_digest: null,
+          typed: null,
+        };
+        calls.push(call);
+        if (kind === "secretWrite.create" || kind === "secretWrite.update") {
+          const original = { call, project: args[0], target: kind === "secretWrite.update" ? args[1] : undefined,
+            expected: kind === "secretWrite.update" ? args[2] : undefined,
+            input: { ...(kind === "secretWrite.update" ? args[3] : args[1]) } };
+          call.paste_bound = consumeSecretMaterial(original.input.value, Object.hasOwn(original.input, "value"));
+          originalSecretWrites.push(original); writeInputs.set(call, original);
+        } else if (kind === "secretWrite.delete") {
+          const original = { call, project: args[0], target: args[1], expected: args[2] };
+          originalSecretWrites.push(original); writeInputs.set(call, original);
+        } else if (kind === "secretWrite.lookup") {
+          const source = originalSecretWrites.at(-1), progress = auth.projectSecretCommands.progress;
+          call.paste_bound = source?.call.paste_bound === true && pendingSecretMaterial === undefined;
+          writeInputs.set(call, { source, current: progress?.phase === "uncertain" && progress.contextValid === true &&
+            progress.identity.kind === "update" && progress.identity.projectID === source?.project &&
+            progress.identity.targetID === source?.target && progress.identity.expectedVersion === source?.expected && progress.key === source?.key });
+        } else if (kind === "systemRunner.start") {
+          const original = { call, command: JSON.parse(JSON.stringify(args[0])) };
+          originalSystemRunnerWrites.push(original); writeInputs.set(call, original);
+        } else if (kind === "systemRunner.checkOriginal") {
+          const source = originalSystemRunnerWrites.at(-1), progress = auth.system.runners.progress;
+          writeInputs.set(call, { source, current: progress?.phase === "uncertain" && progress.contextValid === true &&
+            JSON.stringify(canonical(progress.command)) === JSON.stringify(canonical(source?.command)) });
+        } else if (kind === "work.startCreate") {
+          if (originalCreate) failed = true;
+          originalCreate = {
+            call,
+            project: args[0],
+            draft: JSON.parse(JSON.stringify(args[1])),
           };
-          calls.push(call);
-          if (kind === "secretWrite.create" || kind === "secretWrite.update") {
-            const original = {
-              call,
-              project: args[0],
-              target: kind === "secretWrite.update" ? args[1] : undefined,
-              expected: kind === "secretWrite.update" ? args[2] : undefined,
-              input: { ...(kind === "secretWrite.update" ? args[3] : args[1]) },
-            };
-            call.paste_bound = consumeSecretMaterial(
-              original.input.value,
-              Object.hasOwn(original.input, "value"),
-            );
-            originalSecretWrites.push(original);
-            writeInputs.set(call, original);
-          } else if (kind === "secretWrite.delete") {
-            const original = {
-              call,
-              project: args[0],
-              target: args[1],
-              expected: args[2],
-            };
-            originalSecretWrites.push(original);
-            writeInputs.set(call, original);
-          } else if (kind === "secretWrite.lookup") {
-            const source = originalSecretWrites.at(-1),
-              progress = auth.projectSecretCommands.progress;
-            call.paste_bound =
-              source?.call.paste_bound === true &&
-              pendingSecretMaterial === undefined;
-            writeInputs.set(call, {
-              source,
-              current:
-                progress?.phase === "uncertain" &&
+          writeInputs.set(call, originalCreate);
+        } else if (kind === "work.startReady") {
+          writeInputs.set(call, {
+            project: args[0],
+            task: args[1],
+            input: JSON.parse(JSON.stringify(args[2])),
+            source: originalCreate,
+          });
+        } else if (kind === "work.checkOriginal") {
+          const progress = auth.workReview.progress;
+          writeInputs.set(call, {
+            source: originalCreate,
+            current:
+              progress?.kind === "create" &&
+              progress.phase === "uncertain" &&
+              progress.contextValid === true &&
+              progress.projectID === originalCreate?.project &&
+              progress.taskID === originalCreate?.request?.task_id,
+          });
+        } else if (kind === "edit.startEdit") {
+          const original = {
+            call,
+            project: args[0],
+            task: args[1],
+            input: JSON.parse(JSON.stringify(args[2])),
+          };
+          originalEdits.push(original);
+          writeInputs.set(call, original);
+        } else if (kind === "edit.startReady") {
+          writeInputs.set(call, {
+            project: args[0],
+            task: args[1],
+            input: JSON.parse(JSON.stringify(args[2])),
+          });
+        } else if (kind === "edit.checkOriginal") {
+          const source = originalEdits.at(-1);
+          const progress = auth.workReview.progress;
+          writeInputs.set(call, {
+            source,
+            current:
+              progress?.kind === "edit" &&
+              progress.phase === "uncertain" &&
+              progress.contextValid === true &&
+              progress.projectID === source?.project &&
+              progress.taskID === source?.task,
+          });
+        } else if (kind === "agent.startCreate") {
+          if (originalAgentCreate) failed = true;
+          originalAgentCreate = {
+            call,
+            project: args[0],
+            fields: JSON.parse(JSON.stringify(args[1])),
+          };
+          writeInputs.set(call, originalAgentCreate);
+        } else if (kind === "agent.checkOriginal") {
+          const progress = auth.agentConfiguration.progress;
+          writeInputs.set(call, {
+            source: originalAgentCreate,
+            current:
+              progress?.phase === "uncertain" &&
+              progress.contextValid === true &&
+              progress.projectID === originalAgentCreate?.project &&
+              progress.agentID === originalAgentCreate?.request?.agent_id,
+          });
+        } else if (kind === "agentEdit.startUpdate") {
+          const original = {
+            call,
+            project: args[0],
+            agent: args[1],
+            input: JSON.parse(JSON.stringify(args[2])),
+          };
+          originalAgentEdits.push(original);
+          writeInputs.set(call, original);
+        } else if (kind === "agentEdit.checkOriginal") {
+          const source = originalAgentEdits.at(-1);
+          const progress = auth.agentConfiguration.progress;
+          writeInputs.set(call, {
+            source,
+            current:
+              progress?.kind === "update" &&
+              progress.phase === "uncertain" &&
+              progress.contextValid === true &&
+              progress.projectID === source?.project &&
+              progress.agentID === source?.agent,
+          });
+        }
+        if (kind === "taskReorder.startReorder") {
+          const original = { call, project: args[0], task: args[1], input: JSON.parse(JSON.stringify(args[2])) };
+          originalTaskReorders.push(original); writeInputs.set(call, original);
+        } else if (kind === "taskReorder.checkOriginal") {
+          const source = originalTaskReorders.at(-1), progress = auth.workReview.progress;
+          writeInputs.set(call, { source, current: progress?.kind === "reorder" && progress.phase === "uncertain" && progress.contextValid === true && progress.projectID === source?.project && progress.taskID === source?.task });
+        }
+        if (kind === "milestoneReorder.reorder") {
+          const original = { call, project: args[0], milestone: args[1], input: JSON.parse(JSON.stringify(args[2])) };
+          originalMilestoneReorders.push(original);
+          writeInputs.set(call, original);
+        }
+        if (kind === "taskDependency.add" || kind === "taskDependency.resolve") {
+          const original = { call, project: args[0], task: args[1], input: JSON.parse(JSON.stringify(args[2])), related: kind === "taskDependency.resolve" ? args[3] : undefined, before: JSON.parse(JSON.stringify(args[kind === "taskDependency.add" ? 3 : 4])) };
+          originalTaskDependencies.push(original); writeInputs.set(call, original);
+        }
+        if (kind === "humanBlocker.add" || kind === "humanBlocker.resolve") {
+          const original = { call, project: args[0], task: args[1], input: JSON.parse(JSON.stringify(args[2])), before: JSON.parse(JSON.stringify(args[3])) };
+          originalHumanBlockers.push(original); writeInputs.set(call, original);
+        }
+        if (kind === "sprintReorder.reorder") {
+          const original = { call, project: args[0], sprint: args[1], input: JSON.parse(JSON.stringify(args[2])) };
+          originalSprintReorders.push(original);
+          writeInputs.set(call, original);
+        }
+        if (kind === "milestone.update") {
+          const original = { call, project: args[0], milestone: args[1], input: JSON.parse(JSON.stringify(args[2])) };
+          originalMilestoneEdits.push(original);
+          writeInputs.set(call, original);
+        } else if (kind === "milestone.checkOriginal") {
+          const source = originalMilestoneEdits.at(-1), progress = auth.workMilestoneEditing.progress;
+          writeInputs.set(call, { source, current: progress?.phase === "uncertain" && progress.contextValid === true && progress.projectID === source?.project && progress.milestoneID === source?.milestone });
+        }
+        if (kind === "sprintEdit.update") {
+          const original = { call, project: args[0], sprint: args[1], input: JSON.parse(JSON.stringify(args[2])) };
+          originalSprintEdits.push(original);
+          writeInputs.set(call, original);
+        } else if (kind === "sprintEdit.checkOriginal") {
+          const source = originalSprintEdits.at(-1), progress = auth.workSprintEditing.progress;
+          writeInputs.set(call, { source, current: progress?.phase === "uncertain" && progress.contextValid === true && progress.projectID === source?.project && progress.sprintID === source?.sprint });
+        }
+        if (kind === "scheduler.startUpdate") {
+          const original = { call, project: args[0], input: JSON.parse(JSON.stringify(args[1])) };
+          originalSchedulerWrites.push(original);
+          writeInputs.set(call, original);
+        } else if (kind === "scheduler.checkOriginal") {
+          const source = originalSchedulerWrites.at(-1), progress = auth.projectScheduler.progress;
+          writeInputs.set(call, { source, current: progress?.phase === "uncertain" &&
+            progress.contextValid === true && progress.projectID === source?.project });
+        }
+        if (kind === "knowledgeDelete.preview") {
+          if (originalDeletePreview) failed = true;
+          originalDeletePreview = { call, project: args[0], root: args[1] };
+          writeInputs.set(call, originalDeletePreview);
+        } else if (kind === "knowledgeDelete.startDelete") {
+          if (originalDeletion) failed = true;
+          originalDeletion = { call, project: args[0], root: args[1], input: JSON.parse(JSON.stringify(args[2])), nodes: [...args[3]], preview: originalDeletePreview };
+          writeInputs.set(call, originalDeletion);
+        } else if (kind === "knowledgeDelete.checkOriginal") {
+          const source = originalDeletion, progress = auth.knowledgeDelete.progress;
+          writeInputs.set(call, { source, current: progress?.phase === "uncertain" &&
+            progress.contextValid === true && progress.projectID === source?.project && progress.documentID === source?.root });
+        }
+        if (kind === "knowledgeText.write") {
+          const original = {call, project: args[0], intent: JSON.parse(JSON.stringify(args[1]))};
+          originalTextWrites.push(original);
+          writeInputs.set(call, original);
+        }
+        if (kind === "variable.create" || kind === "variable.update" || kind === "variable.delete") {
+          const original = {
+            call,
+            project: args[0],
+            variable: kind !== "variable.create" ? args[1] : undefined,
+            expectedVersion: kind !== "variable.create" ? args[2] : undefined,
+            fields: kind === "variable.delete" ? undefined : JSON.parse(JSON.stringify(args[kind === "variable.create" ? 1 : 3])),
+          };
+          originalVariableWrites.push(original);
+          writeInputs.set(call, original);
+        }
+        if (kind === "milestone.create") {
+          if (originalMilestoneCreate) failed = true;
+          originalMilestoneCreate = {
+            call,
+            project: args[0],
+            fields: JSON.parse(JSON.stringify(args[1])),
+          };
+          writeInputs.set(call, originalMilestoneCreate);
+        }
+        if (kind === "sprint.create") {
+          if (originalSprintCreate) failed = true;
+          originalSprintCreate = {
+            call,
+            project: args[0],
+            fields: JSON.parse(JSON.stringify(args[1])),
+          };
+          writeInputs.set(call, originalSprintCreate);
+        }
+        if (kind === "taskCancel.transfer") {
+          const original = { call, project: args[0], task: args[1], input: JSON.parse(JSON.stringify(args[2])) };
+          originalTaskCancellations.push(original);
+          writeInputs.set(call, original);
+        }
+        if (kind === "sprintCompletion.complete" || kind === "sprintCompletion.start") {
+          const original = { call, project: args[0], sprint: args[1], input: JSON.parse(JSON.stringify(args[2])) };
+          originalSprintCompletions.push(original);
+          writeInputs.set(call, original);
+        } else if (kind === "sprintCompletion.lookup") {
+          const source = originalSprintCompletions.at(-1), progress = auth.workSprintLifecycle.progress;
+          writeInputs.set(call, { source, current: source?.call.kind === "sprintCompletion.complete" && progress?.phase === "uncertain" && progress.contextValid === true && progress.projectID === source.project && progress.sprintID === source.sprint && progress.operation === "complete" });
+        }
+        if (kind === "sprint.start") {
+          if (originalSprintStart) failed = true;
+          originalSprintStart = {
+            call,
+            project: args[0],
+            sprint: args[1],
+            input: JSON.parse(JSON.stringify(args[2])),
+          };
+          writeInputs.set(call, originalSprintStart);
+        } else if (kind === "sprint.checkOriginal") {
+          const progress = auth.workSprintLifecycle.progress;
+          writeInputs.set(call, {
+            source: originalSprintStart,
+            current:
+              progress?.phase === "uncertain" &&
+              progress.contextValid === true &&
+              progress.projectID === originalSprintStart?.project &&
+              progress.sprintID === originalSprintStart?.sprint,
+          });
+        }
+        let result: Promise<any>;
+        try {
+          result = Reflect.apply(original, this, args);
+        } catch (error) {
+          call.rejected = call.settled = true;
+          throw error;
+        }
+        if (originalCalls.has(result)) {
+          calls.pop();
+          return result;
+        }
+        originalCalls.set(result, call);
+        track(
+          result,
+          async (value) => {
+            call.fulfilled = call.settled = true;
+            call.current =
+              current() && (kind === "restore" || before === identity());
+            identities.set(call, identity());
+            call.not_busy = auth.state.busy === false;
+            if (kind.startsWith("secretWrite.")) {
+              const original = writeInputs.get(call), source = kind === "secretWrite.lookup" ? original.source : original;
+              const progress = auth.projectSecretCommands.progress;
+              call.result_current = progress?.phase === "confirmed" && progress.contextValid === true &&
+                progress.identity.projectID === source.project && progress.identity.targetID === source.target &&
+                progress.receipt === (kind === "secretWrite.lookup" ? value?.receipt : value);
+            }
+            if (kind === "systemRunner.start" || kind === "systemRunner.checkOriginal") {
+              const progress = auth.system.runners.progress;
+              call.result_current = progress?.phase === "confirmed" && progress.receipt === value?.receipt;
+            }
+            if (kind === "taskReorder.startReorder" || kind === "taskReorder.checkOriginal") {
+              const original = writeInputs.get(call), source = original.source ?? original;
+              const progress = auth.workReview.progress, result = kind === "taskReorder.startReorder" ? value : value?.receipt;
+              call.result_current = progress?.kind === "reorder" && progress.phase === "confirmed" && progress.projectID === source.project && progress.taskID === source.task && result != null && progress.receipt === result;
+            }
+            if (kind === "milestoneReorder.reorder") {
+              const original = writeInputs.get(call), progress = auth.workMilestoneReordering.progress;
+              call.result_current = progress?.phase === "confirmed" && progress.contextValid === true && progress.projectID === original.project && progress.milestoneID === original.milestone && value != null && progress.result === value;
+            }
+            if (kind === "taskDependency.add" || kind === "taskDependency.resolve") {
+              const original = writeInputs.get(call), progress = auth.workTaskDependencies.progress;
+              call.result_current = progress?.phase === "confirmed" && progress.kind === (kind === "taskDependency.add" ? "dependency-add" : "dependency-resolve") && progress.projectID === original.project && progress.taskID === original.task && value != null && progress.receipt === value && value.blocker.id === original.blocker && JSON.stringify(canonical(value.task)) === JSON.stringify(canonical({ ...original.before, version: String(BigInt(original.before.version) + 1n), updated_at: value.task.updated_at, manual_rank: value.task.manual_rank }));
+            }
+            if (kind === "humanBlocker.add" || kind === "humanBlocker.resolve") {
+              const original = writeInputs.get(call), progress = auth.workTaskBlockers.progress;
+              call.result_current = progress?.phase === "confirmed" && progress.kind === (kind === "humanBlocker.add" ? "blocker-add" : "blocker-resolve") && progress.projectID === original.project && progress.taskID === original.task && value != null && progress.receipt === value && value.blocker.id === original.blocker && JSON.stringify(canonical(value.task)) === JSON.stringify(canonical({ ...original.before, version: String(BigInt(original.before.version) + 1n), updated_at: value.task.updated_at, manual_rank: value.task.manual_rank }));
+            }
+            if (kind === "sprintReorder.reorder") {
+              const original = writeInputs.get(call), progress = auth.workSprintReordering.progress;
+              call.result_current = progress?.phase === "confirmed" && progress.contextValid === true && progress.projectID === original.project && progress.sprintID === original.sprint && value != null && progress.result === value;
+            }
+            if (kind === "milestone.update" || kind === "milestone.checkOriginal") {
+              const original = writeInputs.get(call), source = kind === "milestone.update" ? original : original.source;
+              const progress = auth.workMilestoneEditing.progress;
+              const result = kind === "milestone.update" ? value : value.result;
+              call.result_current = progress?.phase === "confirmed" && progress.contextValid === true && progress.projectID === source.project && progress.milestoneID === source.milestone && result != null && progress.result === result;
+            }
+            if (kind === "sprintEdit.update" || kind === "sprintEdit.checkOriginal") {
+              const original = writeInputs.get(call), source = kind === "sprintEdit.update" ? original : original.source;
+              const progress = auth.workSprintEditing.progress;
+              const result = kind === "sprintEdit.update" ? value : value.result;
+              call.result_current = progress?.phase === "confirmed" && progress.contextValid === true && progress.projectID === source.project && progress.sprintID === source.sprint && result != null && progress.result === result;
+            }
+            if (kind === "scheduler.startUpdate" || kind === "scheduler.checkOriginal") {
+              const original = writeInputs.get(call), progress = auth.projectScheduler.progress;
+              call.result_current = progress?.phase === "confirmed" && progress.contextValid === true &&
+                progress.projectID === (original.source?.project ?? original.project) &&
+                progress.receipt === (kind === "scheduler.startUpdate" ? value : value.receipt);
+            }
+            if (kind === "knowledgeDelete.preview") {
+              host.__knowledgeDeleteEvidenceValue(value);
+              bindDeleteMaterial(call, value.confirmation_token, "published");
+              originalDeletePreview.token = value.confirmation_token;
+              originalDeletePreview.nodes = value.nodes.map((node: any) => node.id);
+              call.confirmation_token_sha256 = await digest(new TextEncoder().encode(value.confirmation_token));
+            }
+            if (kind === "knowledgeDelete.startDelete" || kind === "knowledgeDelete.checkOriginal") {
+              const original = writeInputs.get(call), source = original.source ?? original;
+              const progress = auth.knowledgeDelete.progress;
+              call.result_current = progress?.phase === "confirmed" &&
+                progress.projectID === source.project && progress.documentID === source.root &&
+                progress.receipt === (kind === "knowledgeDelete.startDelete" ? value : value.receipt);
+            }
+            if (kind === "knowledgeText.write") {
+              const original = writeInputs.get(call), progress = auth.knowledgeText.progress;
+              call.result_current = progress?.phase === "confirmed" &&
+                progress.projectID === original.project && progress.documentID === original.intent.document_id &&
+                progress.command === original.intent.command && progress.receipt === value.document;
+            }
+            if (kind === "variable.create" || kind === "variable.update" || kind === "variable.delete") {
+              const original = writeInputs.get(call);
+              const progress = auth.projectVariables.progress;
+              call.result_current =
+                progress?.phase === "confirmed" &&
                 progress.contextValid === true &&
-                progress.identity.kind === "update" &&
-                progress.identity.projectID === source?.project &&
-                progress.identity.targetID === source?.target &&
-                progress.identity.expectedVersion === source?.expected &&
-                progress.key === source?.key,
-            });
-          } else if (kind === "systemRunner.start") {
-            const original = {
-              call,
-              command: JSON.parse(JSON.stringify(args[0])),
-            };
-            originalSystemRunnerWrites.push(original);
-            writeInputs.set(call, original);
-          } else if (kind === "systemRunner.checkOriginal") {
-            const source = originalSystemRunnerWrites.at(-1),
-              progress = auth.system.runners.progress;
-            writeInputs.set(call, {
-              source,
-              current:
-                progress?.phase === "uncertain" &&
+                progress.kind === kind.slice("variable.".length) &&
+                progress.projectID === original.project &&
+                progress.targetID === (original.variable ?? original.request?.variable_id) &&
+                progress.receipt === value;
+            }
+            if (kind === "milestone.create") {
+              const progress = auth.workMilestonePlanning.progress;
+              call.result_current =
+                progress?.phase === "confirmed" &&
                 progress.contextValid === true &&
-                JSON.stringify(canonical(progress.command)) ===
-                  JSON.stringify(canonical(source?.command)),
-            });
-          } else if (kind === "work.startCreate") {
-            if (originalCreate) failed = true;
-            originalCreate = {
-              call,
-              project: args[0],
-              draft: JSON.parse(JSON.stringify(args[1])),
-            };
-            writeInputs.set(call, originalCreate);
-          } else if (kind === "work.startReady") {
-            writeInputs.set(call, {
-              project: args[0],
-              task: args[1],
-              input: JSON.parse(JSON.stringify(args[2])),
-              source: originalCreate,
-            });
-          } else if (kind === "work.checkOriginal") {
-            const progress = auth.workReview.progress;
-            writeInputs.set(call, {
-              source: originalCreate,
-              current:
-                progress?.kind === "create" &&
-                progress.phase === "uncertain" &&
+                progress.projectID === originalMilestoneCreate.project &&
+                progress.milestoneID ===
+                  originalMilestoneCreate.request?.milestone_id &&
+                progress.result === value;
+            }
+            if (kind === "sprint.create") {
+              const progress = auth.workSprintLifecycle.createProgress;
+              call.result_current =
+                progress?.phase === "confirmed" &&
                 progress.contextValid === true &&
-                progress.projectID === originalCreate?.project &&
-                progress.taskID === originalCreate?.request?.task_id,
-            });
-          } else if (kind === "edit.startEdit") {
-            const original = {
-              call,
-              project: args[0],
-              task: args[1],
-              input: JSON.parse(JSON.stringify(args[2])),
-            };
-            originalEdits.push(original);
-            writeInputs.set(call, original);
-          } else if (kind === "edit.startReady") {
-            writeInputs.set(call, {
-              project: args[0],
-              task: args[1],
-              input: JSON.parse(JSON.stringify(args[2])),
-            });
-          } else if (kind === "edit.checkOriginal") {
-            const source = originalEdits.at(-1);
-            const progress = auth.workReview.progress;
-            writeInputs.set(call, {
-              source,
-              current:
-                progress?.kind === "edit" &&
-                progress.phase === "uncertain" &&
-                progress.contextValid === true &&
-                progress.projectID === source?.project &&
-                progress.taskID === source?.task,
-            });
-          } else if (kind === "agent.startCreate") {
-            if (originalAgentCreate) failed = true;
-            originalAgentCreate = {
-              call,
-              project: args[0],
-              fields: JSON.parse(JSON.stringify(args[1])),
-            };
-            writeInputs.set(call, originalAgentCreate);
-          } else if (kind === "agent.checkOriginal") {
-            const progress = auth.agentConfiguration.progress;
-            writeInputs.set(call, {
-              source: originalAgentCreate,
-              current:
-                progress?.phase === "uncertain" &&
-                progress.contextValid === true &&
-                progress.projectID === originalAgentCreate?.project &&
-                progress.agentID === originalAgentCreate?.request?.agent_id,
-            });
-          } else if (kind === "agentEdit.startUpdate") {
-            const original = {
-              call,
-              project: args[0],
-              agent: args[1],
-              input: JSON.parse(JSON.stringify(args[2])),
-            };
-            originalAgentEdits.push(original);
-            writeInputs.set(call, original);
-          } else if (kind === "agentEdit.checkOriginal") {
-            const source = originalAgentEdits.at(-1);
-            const progress = auth.agentConfiguration.progress;
-            writeInputs.set(call, {
-              source,
-              current:
-                progress?.kind === "update" &&
-                progress.phase === "uncertain" &&
-                progress.contextValid === true &&
-                progress.projectID === source?.project &&
-                progress.agentID === source?.agent,
-            });
-          }
-          if (kind === "taskReorder.startReorder") {
-            const original = {
-              call,
-              project: args[0],
-              task: args[1],
-              input: JSON.parse(JSON.stringify(args[2])),
-            };
-            originalTaskReorders.push(original);
-            writeInputs.set(call, original);
-          } else if (kind === "taskReorder.checkOriginal") {
-            const source = originalTaskReorders.at(-1),
-              progress = auth.workReview.progress;
-            writeInputs.set(call, {
-              source,
-              current:
-                progress?.kind === "reorder" &&
-                progress.phase === "uncertain" &&
-                progress.contextValid === true &&
-                progress.projectID === source?.project &&
-                progress.taskID === source?.task,
-            });
-          }
-          if (kind === "milestoneReorder.reorder") {
-            const original = {
-              call,
-              project: args[0],
-              milestone: args[1],
-              input: JSON.parse(JSON.stringify(args[2])),
-            };
-            originalMilestoneReorders.push(original);
-            writeInputs.set(call, original);
-          }
-          if (
-            kind === "taskDependency.add" ||
-            kind === "taskDependency.resolve"
-          ) {
-            const original = {
-              call,
-              project: args[0],
-              task: args[1],
-              input: JSON.parse(JSON.stringify(args[2])),
-              related: kind === "taskDependency.resolve" ? args[3] : undefined,
-              before: JSON.parse(
-                JSON.stringify(args[kind === "taskDependency.add" ? 3 : 4]),
-              ),
-            };
-            originalTaskDependencies.push(original);
-            writeInputs.set(call, original);
-          }
-          if (kind === "humanBlocker.add" || kind === "humanBlocker.resolve") {
-            const original = {
-              call,
-              project: args[0],
-              task: args[1],
-              input: JSON.parse(JSON.stringify(args[2])),
-              before: JSON.parse(JSON.stringify(args[3])),
-            };
-            originalHumanBlockers.push(original);
-            writeInputs.set(call, original);
-          }
-          if (kind === "sprintReorder.reorder") {
-            const original = {
-              call,
-              project: args[0],
-              sprint: args[1],
-              input: JSON.parse(JSON.stringify(args[2])),
-            };
-            originalSprintReorders.push(original);
-            writeInputs.set(call, original);
-          }
-          if (kind === "milestone.update") {
-            const original = {
-              call,
-              project: args[0],
-              milestone: args[1],
-              input: JSON.parse(JSON.stringify(args[2])),
-            };
-            originalMilestoneEdits.push(original);
-            writeInputs.set(call, original);
-          } else if (kind === "milestone.checkOriginal") {
-            const source = originalMilestoneEdits.at(-1),
-              progress = auth.workMilestoneEditing.progress;
-            writeInputs.set(call, {
-              source,
-              current:
-                progress?.phase === "uncertain" &&
-                progress.contextValid === true &&
-                progress.projectID === source?.project &&
-                progress.milestoneID === source?.milestone,
-            });
-          }
-          if (kind === "sprintEdit.update") {
-            const original = {
-              call,
-              project: args[0],
-              sprint: args[1],
-              input: JSON.parse(JSON.stringify(args[2])),
-            };
-            originalSprintEdits.push(original);
-            writeInputs.set(call, original);
-          } else if (kind === "sprintEdit.checkOriginal") {
-            const source = originalSprintEdits.at(-1),
-              progress = auth.workSprintEditing.progress;
-            writeInputs.set(call, {
-              source,
-              current:
-                progress?.phase === "uncertain" &&
-                progress.contextValid === true &&
-                progress.projectID === source?.project &&
-                progress.sprintID === source?.sprint,
-            });
-          }
-          if (kind === "scheduler.startUpdate") {
-            const original = {
-              call,
-              project: args[0],
-              input: JSON.parse(JSON.stringify(args[1])),
-            };
-            originalSchedulerWrites.push(original);
-            writeInputs.set(call, original);
-          } else if (kind === "scheduler.checkOriginal") {
-            const source = originalSchedulerWrites.at(-1),
-              progress = auth.projectScheduler.progress;
-            writeInputs.set(call, {
-              source,
-              current:
-                progress?.phase === "uncertain" &&
-                progress.contextValid === true &&
-                progress.projectID === source?.project,
-            });
-          }
-          if (kind === "knowledgeDelete.preview") {
-            if (originalDeletePreview) failed = true;
-            originalDeletePreview = { call, project: args[0], root: args[1] };
-            writeInputs.set(call, originalDeletePreview);
-          } else if (kind === "knowledgeDelete.startDelete") {
-            if (originalDeletion) failed = true;
-            originalDeletion = {
-              call,
-              project: args[0],
-              root: args[1],
-              input: JSON.parse(JSON.stringify(args[2])),
-              nodes: [...args[3]],
-              preview: originalDeletePreview,
-            };
-            writeInputs.set(call, originalDeletion);
-          } else if (kind === "knowledgeDelete.checkOriginal") {
-            const source = originalDeletion,
-              progress = auth.knowledgeDelete.progress;
-            writeInputs.set(call, {
-              source,
-              current:
-                progress?.phase === "uncertain" &&
-                progress.contextValid === true &&
-                progress.projectID === source?.project &&
-                progress.documentID === source?.root,
-            });
-          }
-          if (kind === "knowledgeText.write") {
-            const original = {
-              call,
-              project: args[0],
-              intent: JSON.parse(JSON.stringify(args[1])),
-            };
-            originalTextWrites.push(original);
-            writeInputs.set(call, original);
-          }
-          if (
-            kind === "variable.create" ||
-            kind === "variable.update" ||
-            kind === "variable.delete"
-          ) {
-            const original = {
-              call,
-              project: args[0],
-              variable: kind !== "variable.create" ? args[1] : undefined,
-              expectedVersion: kind !== "variable.create" ? args[2] : undefined,
-              fields:
-                kind === "variable.delete"
-                  ? undefined
-                  : JSON.parse(
-                      JSON.stringify(args[kind === "variable.create" ? 1 : 3]),
-                    ),
-            };
-            originalVariableWrites.push(original);
-            writeInputs.set(call, original);
-          }
-          if (kind === "milestone.create") {
-            if (originalMilestoneCreate) failed = true;
-            originalMilestoneCreate = {
-              call,
-              project: args[0],
-              fields: JSON.parse(JSON.stringify(args[1])),
-            };
-            writeInputs.set(call, originalMilestoneCreate);
-          }
-          if (kind === "sprint.create") {
-            if (originalSprintCreate) failed = true;
-            originalSprintCreate = {
-              call,
-              project: args[0],
-              fields: JSON.parse(JSON.stringify(args[1])),
-            };
-            writeInputs.set(call, originalSprintCreate);
-          }
-          if (kind === "taskCancel.transfer") {
-            const original = {
-              call,
-              project: args[0],
-              task: args[1],
-              input: JSON.parse(JSON.stringify(args[2])),
-            };
-            originalTaskCancellations.push(original);
-            writeInputs.set(call, original);
-          }
-          if (
-            kind === "sprintCompletion.complete" ||
-            kind === "sprintCompletion.start"
-          ) {
-            const original = {
-              call,
-              project: args[0],
-              sprint: args[1],
-              input: JSON.parse(JSON.stringify(args[2])),
-            };
-            originalSprintCompletions.push(original);
-            writeInputs.set(call, original);
-          } else if (kind === "sprintCompletion.lookup") {
-            const source = originalSprintCompletions.at(-1),
-              progress = auth.workSprintLifecycle.progress;
-            writeInputs.set(call, {
-              source,
-              current:
-                source?.call.kind === "sprintCompletion.complete" &&
-                progress?.phase === "uncertain" &&
-                progress.contextValid === true &&
-                progress.projectID === source.project &&
-                progress.sprintID === source.sprint &&
-                progress.operation === "complete",
-            });
-          }
-          if (kind === "sprint.start") {
-            if (originalSprintStart) failed = true;
-            originalSprintStart = {
-              call,
-              project: args[0],
-              sprint: args[1],
-              input: JSON.parse(JSON.stringify(args[2])),
-            };
-            writeInputs.set(call, originalSprintStart);
-          } else if (kind === "sprint.checkOriginal") {
-            const progress = auth.workSprintLifecycle.progress;
-            writeInputs.set(call, {
-              source: originalSprintStart,
-              current:
-                progress?.phase === "uncertain" &&
-                progress.contextValid === true &&
-                progress.projectID === originalSprintStart?.project &&
-                progress.sprintID === originalSprintStart?.sprint,
-            });
-          }
-          let result: Promise<any>;
-          try {
-            result = Reflect.apply(original, this, args);
-          } catch (error) {
+                progress.projectID === originalSprintCreate.project &&
+                progress.milestoneID ===
+                  originalSprintCreate.fields.milestone_id &&
+                progress.sprintID === originalSprintCreate.request?.sprint_id &&
+                progress.result === value;
+            }
+            if (!value || typeof value !== "object") return;
+            if (
+              kind === "restore" &&
+              (Object.keys(value).sort().join() !== "session,user" ||
+                value.user.id !== auth.state.user?.id ||
+                value.session.id !== auth.state.session?.id)
+            )
+              return;
+            const published = kind.startsWith("secretWrite.") || (host.__secretWriteEvidenceValue && kind.startsWith("secret."))
+              ? host.__secretWriteEvidenceValue(value, kind === "secret.list" ? "list" : kind === "secret.get" ? "detail" : kind === "secretWrite.lookup" ? "lookup" : "receipt")
+              : kind.startsWith("systemRunner.") ? host.__systemRunnerEvidenceValue(value)  : kind === "knowledgeDelete.preview" ? host.__knowledgeDeleteEvidenceValue(value) : value;
+            if (kind.startsWith("systemRunner.") && value.token_available === true) {
+              bindSystemRunnerMaterial(call, value.enrollment_token, "published");
+              systemRunnerMaterial = value.enrollment_token;
+            }
+            call.typed = JSON.parse(JSON.stringify(published));
+            call.typed_digest = await typedDigest(published);
+          },
+          (error: any) => {
             call.rejected = call.settled = true;
-            throw error;
-          }
-          if (originalCalls.has(result)) {
-            calls.pop();
-            return result;
-          }
-          originalCalls.set(result, call);
-          track(
-            result,
-            async (value) => {
-              call.fulfilled = call.settled = true;
-              call.current =
-                current() && (kind === "restore" || before === identity());
+            if (kind.startsWith("sprintCompletion.")) {
+              call.current = current() && before === identity();
               identities.set(call, identity());
               call.not_busy = auth.state.busy === false;
-              if (kind.startsWith("secretWrite.")) {
-                const original = writeInputs.get(call),
-                  source =
-                    kind === "secretWrite.lookup" ? original.source : original;
-                const progress = auth.projectSecretCommands.progress;
-                call.result_current =
-                  progress?.phase === "confirmed" &&
-                  progress.contextValid === true &&
-                  progress.identity.projectID === source.project &&
-                  progress.identity.targetID === source.target &&
-                  progress.receipt ===
-                    (kind === "secretWrite.lookup" ? value?.receipt : value);
-              }
-              if (
-                kind === "systemRunner.start" ||
-                kind === "systemRunner.checkOriginal"
-              ) {
-                const progress = auth.system.runners.progress;
-                call.result_current =
-                  progress?.phase === "confirmed" &&
-                  progress.receipt === value?.receipt;
-              }
-              if (
-                kind === "taskReorder.startReorder" ||
-                kind === "taskReorder.checkOriginal"
-              ) {
-                const original = writeInputs.get(call),
-                  source = original.source ?? original;
-                const progress = auth.workReview.progress,
-                  result =
-                    kind === "taskReorder.startReorder"
-                      ? value
-                      : value?.receipt;
-                call.result_current =
-                  progress?.kind === "reorder" &&
-                  progress.phase === "confirmed" &&
-                  progress.projectID === source.project &&
-                  progress.taskID === source.task &&
-                  result != null &&
-                  progress.receipt === result;
-              }
-              if (kind === "milestoneReorder.reorder") {
-                const original = writeInputs.get(call),
-                  progress = auth.workMilestoneReordering.progress;
-                call.result_current =
-                  progress?.phase === "confirmed" &&
-                  progress.contextValid === true &&
-                  progress.projectID === original.project &&
-                  progress.milestoneID === original.milestone &&
-                  value != null &&
-                  progress.result === value;
-              }
-              if (
-                kind === "taskDependency.add" ||
-                kind === "taskDependency.resolve"
-              ) {
-                const original = writeInputs.get(call),
-                  progress = auth.workTaskDependencies.progress;
-                call.result_current =
-                  progress?.phase === "confirmed" &&
-                  progress.kind ===
-                    (kind === "taskDependency.add"
-                      ? "dependency-add"
-                      : "dependency-resolve") &&
-                  progress.projectID === original.project &&
-                  progress.taskID === original.task &&
-                  value != null &&
-                  progress.receipt === value &&
-                  value.blocker.id === original.blocker &&
-                  JSON.stringify(canonical(value.task)) ===
-                    JSON.stringify(
-                      canonical({
-                        ...original.before,
-                        version: String(BigInt(original.before.version) + 1n),
-                        updated_at: value.task.updated_at,
-                        manual_rank: value.task.manual_rank,
-                      }),
-                    );
-              }
-              if (
-                kind === "humanBlocker.add" ||
-                kind === "humanBlocker.resolve"
-              ) {
-                const original = writeInputs.get(call),
-                  progress = auth.workTaskBlockers.progress;
-                call.result_current =
-                  progress?.phase === "confirmed" &&
-                  progress.kind ===
-                    (kind === "humanBlocker.add"
-                      ? "blocker-add"
-                      : "blocker-resolve") &&
-                  progress.projectID === original.project &&
-                  progress.taskID === original.task &&
-                  value != null &&
-                  progress.receipt === value &&
-                  value.blocker.id === original.blocker &&
-                  JSON.stringify(canonical(value.task)) ===
-                    JSON.stringify(
-                      canonical({
-                        ...original.before,
-                        version: String(BigInt(original.before.version) + 1n),
-                        updated_at: value.task.updated_at,
-                        manual_rank: value.task.manual_rank,
-                      }),
-                    );
-              }
-              if (kind === "sprintReorder.reorder") {
-                const original = writeInputs.get(call),
-                  progress = auth.workSprintReordering.progress;
-                call.result_current =
-                  progress?.phase === "confirmed" &&
-                  progress.contextValid === true &&
-                  progress.projectID === original.project &&
-                  progress.sprintID === original.sprint &&
-                  value != null &&
-                  progress.result === value;
-              }
-              if (
-                kind === "milestone.update" ||
-                kind === "milestone.checkOriginal"
-              ) {
-                const original = writeInputs.get(call),
-                  source =
-                    kind === "milestone.update" ? original : original.source;
-                const progress = auth.workMilestoneEditing.progress;
-                const result =
-                  kind === "milestone.update" ? value : value.result;
-                call.result_current =
-                  progress?.phase === "confirmed" &&
-                  progress.contextValid === true &&
-                  progress.projectID === source.project &&
-                  progress.milestoneID === source.milestone &&
-                  result != null &&
-                  progress.result === result;
-              }
-              if (
-                kind === "sprintEdit.update" ||
-                kind === "sprintEdit.checkOriginal"
-              ) {
-                const original = writeInputs.get(call),
-                  source =
-                    kind === "sprintEdit.update" ? original : original.source;
-                const progress = auth.workSprintEditing.progress;
-                const result =
-                  kind === "sprintEdit.update" ? value : value.result;
-                call.result_current =
-                  progress?.phase === "confirmed" &&
-                  progress.contextValid === true &&
-                  progress.projectID === source.project &&
-                  progress.sprintID === source.sprint &&
-                  result != null &&
-                  progress.result === result;
-              }
-              if (
-                kind === "scheduler.startUpdate" ||
-                kind === "scheduler.checkOriginal"
-              ) {
-                const original = writeInputs.get(call),
-                  progress = auth.projectScheduler.progress;
-                call.result_current =
-                  progress?.phase === "confirmed" &&
-                  progress.contextValid === true &&
-                  progress.projectID ===
-                    (original.source?.project ?? original.project) &&
-                  progress.receipt ===
-                    (kind === "scheduler.startUpdate" ? value : value.receipt);
-              }
-              if (kind === "knowledgeDelete.preview") {
-                host.__knowledgeDeleteEvidenceValue(value);
-                bindDeleteMaterial(call, value.confirmation_token, "published");
-                originalDeletePreview.token = value.confirmation_token;
-                originalDeletePreview.nodes = value.nodes.map(
-                  (node: any) => node.id,
-                );
-                call.confirmation_token_sha256 = await digest(
-                  new TextEncoder().encode(value.confirmation_token),
-                );
-              }
-              if (
-                kind === "knowledgeDelete.startDelete" ||
-                kind === "knowledgeDelete.checkOriginal"
-              ) {
-                const original = writeInputs.get(call),
-                  source = original.source ?? original;
-                const progress = auth.knowledgeDelete.progress;
-                call.result_current =
-                  progress?.phase === "confirmed" &&
-                  progress.projectID === source.project &&
-                  progress.documentID === source.root &&
-                  progress.receipt ===
-                    (kind === "knowledgeDelete.startDelete"
-                      ? value
-                      : value.receipt);
-              }
-              if (kind === "knowledgeText.write") {
-                const original = writeInputs.get(call),
-                  progress = auth.knowledgeText.progress;
-                call.result_current =
-                  progress?.phase === "confirmed" &&
-                  progress.projectID === original.project &&
-                  progress.documentID === original.intent.document_id &&
-                  progress.command === original.intent.command &&
-                  progress.receipt === value.document;
-              }
-              if (
-                kind === "variable.create" ||
-                kind === "variable.update" ||
-                kind === "variable.delete"
-              ) {
-                const original = writeInputs.get(call);
-                const progress = auth.projectVariables.progress;
-                call.result_current =
-                  progress?.phase === "confirmed" &&
-                  progress.contextValid === true &&
-                  progress.kind === kind.slice("variable.".length) &&
-                  progress.projectID === original.project &&
-                  progress.targetID ===
-                    (original.variable ?? original.request?.variable_id) &&
-                  progress.receipt === value;
-              }
-              if (kind === "milestone.create") {
-                const progress = auth.workMilestonePlanning.progress;
-                call.result_current =
-                  progress?.phase === "confirmed" &&
-                  progress.contextValid === true &&
-                  progress.projectID === originalMilestoneCreate.project &&
-                  progress.milestoneID ===
-                    originalMilestoneCreate.request?.milestone_id &&
-                  progress.result === value;
-              }
-              if (kind === "sprint.create") {
-                const progress = auth.workSprintLifecycle.createProgress;
-                call.result_current =
-                  progress?.phase === "confirmed" &&
-                  progress.contextValid === true &&
-                  progress.projectID === originalSprintCreate.project &&
-                  progress.milestoneID ===
-                    originalSprintCreate.fields.milestone_id &&
-                  progress.sprintID ===
-                    originalSprintCreate.request?.sprint_id &&
-                  progress.result === value;
-              }
-              if (!value || typeof value !== "object") return;
-              if (
-                kind === "restore" &&
-                (Object.keys(value).sort().join() !== "session,user" ||
-                  value.user.id !== auth.state.user?.id ||
-                  value.session.id !== auth.state.session?.id)
-              )
-                return;
-              const published =
-                kind.startsWith("secretWrite.") ||
-                (host.__secretWriteEvidenceValue && kind.startsWith("secret."))
-                  ? host.__secretWriteEvidenceValue(
-                      value,
-                      kind === "secret.list"
-                        ? "list"
-                        : kind === "secret.get"
-                          ? "detail"
-                          : kind === "secretWrite.lookup"
-                            ? "lookup"
-                            : "receipt",
-                    )
-                  : kind.startsWith("systemRunner.")
-                    ? host.__systemRunnerEvidenceValue(value)
-                    : kind === "knowledgeDelete.preview"
-                      ? host.__knowledgeDeleteEvidenceValue(value)
-                      : value;
-              if (
-                kind.startsWith("systemRunner.") &&
-                value.token_available === true
-              ) {
-                bindSystemRunnerMaterial(
-                  call,
-                  value.enrollment_token,
-                  "published",
-                );
-                systemRunnerMaterial = value.enrollment_token;
-              }
-              call.typed = JSON.parse(JSON.stringify(published));
-              call.typed_digest = await typedDigest(published);
-            },
-            (error: any) => {
-              call.rejected = call.settled = true;
-              if (kind.startsWith("sprintCompletion.")) {
-                call.current = current() && before === identity();
-                identities.set(call, identity());
-                call.not_busy = auth.state.busy === false;
-              }
-              if (
-                kind === "taskReorder.startReorder" ||
-                kind === "taskReorder.checkOriginal"
-              ) {
-                const original = writeInputs.get(call),
-                  source = original.source ?? original,
-                  progress = auth.workReview.progress;
-                call.current = current() && before === identity();
-                identities.set(call, identity());
-                call.not_busy = auth.state.busy === false;
-                call.result_current =
-                  progress?.kind === "reorder" &&
-                  ["rejected", "uncertain"].includes(progress.phase) &&
-                  progress.contextValid === true &&
-                  progress.projectID === source.project &&
-                  progress.taskID === source.task;
-                if (
-                  error?.problem?.code === "TASK_VERSION_CONFLICT" &&
-                  error.problem.commit_state === "not_committed"
-                ) {
-                  call.rejection_code = "TASK_VERSION_CONFLICT";
-                  call.rejection_commit_state = "not_committed";
-                }
-              }
-              if (kind === "secretWrite.delete") {
-                const original = writeInputs.get(call),
-                  progress = auth.projectSecretCommands.progress;
-                call.current = current() && before === identity();
-                identities.set(call, identity());
-                call.not_busy = auth.state.busy === false;
-                call.result_current =
-                  progress?.phase === "rejected" &&
-                  !progress.uncertain &&
-                  progress.contextValid === true &&
-                  progress.identity.kind === "delete" &&
-                  progress.identity.projectID === original.project &&
-                  progress.identity.targetID === original.target &&
-                  progress.identity.expectedVersion === original.expected &&
-                  progress.key === original.key;
-              }
-            },
-          );
-          return result;
-        };
-        Object.defineProperty(object, method, {
-          ...descriptor,
-          value: wrapper,
-        });
-        restorers.push(() => {
-          if (object[method] !== wrapper) failed = true;
-          Object.defineProperty(object, method, descriptor);
-        });
-      }
-      host.__taskReviewProof = {
-        consumers(
-          value: any,
-          project: string,
-          intakeWrites: boolean,
-          agentConfiguration: boolean,
-          editTask: string | undefined,
-          timelineTask: string | undefined,
-          editAgent: string | undefined,
-          startSprint: string | undefined,
-          createMilestone: string | undefined,
-          skillsTarget: string | undefined,
-          milestoneCreate: boolean,
-          editMilestone: string | undefined,
-          editSprint: string | undefined,
-          variableWrites: boolean,
-          knowledgeTextWrites: boolean,
-          schedulerWrites = false,
-          knowledgeTitleReads = false,
-          secretReads = false,
-          usageReads = false,
-          runnerMounts:
-            | { mode: string; agent?: string; secretAllowlist?: true }
-            | undefined = undefined,
-          systemRunnerManagement = false,
-          secretWrite = false,
-          knowledgeDelete:
-            { mode: string; root: string } | undefined = undefined,
-          usageSummaryReads = false,
-          secretDelete: string | undefined = undefined,
-          reorderMilestone: string | undefined = undefined,
-          reorderSprint: string | undefined = undefined,
-          humanBlockerTask: string | undefined = undefined,
-          executionTask: string | undefined = undefined,
-          executionOutputTask: string | undefined = undefined,
-          sprintCompletion:
-            { first: string; next: string } | undefined = undefined,
-          taskCancel: readonly string[] | undefined = undefined,
-          taskDependency:
-            { task: string; related: string } | undefined = undefined,
-        ) {
-          if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
-          auth = value;
-          secretWriteEnabled = secretWrite;
-          consumer(auth, "restore", "restore", () => "/api/v1/session");
-          for (const method of ["get", "list", "resolve"])
-            consumer(
-              auth.projects,
-              method,
-              "project." + method,
-              (a) =>
-                "/api/v1/projects" +
-                (method === "get"
-                  ? "/" + a[0]
-                  : method === "resolve"
-                    ? "/resolve"
-                    : ""),
-            );
-          if (secretWrite) {
-            const prefix = "/api/v1/projects/" + project + "/secret-variables";
-            for (const method of ["list", "get"])
-              consumer(auth.projectSecrets, method, "secret." + method, (a) => {
-                if (
-                  a.length !== 2 ||
-                  a[0] !== project ||
-                  (method === "list"
-                    ? JSON.stringify(a[1]) !== '{"limit":50}'
-                    : !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-                        a[1],
-                      ))
-                )
-                  throw Error("SECRET_WRITE_READ_SCOPE");
-                return prefix + (method === "get" ? "/" + a[1] : "");
-              });
-            for (const method of secretDelete
-              ? ["delete"]
-              : ["create", "update", "lookup"])
-              consumer(
-                auth.projectSecretCommands,
-                method,
-                "secretWrite." + method,
-                (a) => {
-                  if (
-                    method === "lookup"
-                      ? a.length !== 0
-                      : a[0] !== project ||
-                        a.length !==
-                          (method === "create"
-                            ? 2
-                            : method === "delete"
-                              ? 3
-                              : 4)
-                  )
-                    throw Error("SECRET_WRITE_COMMAND_SCOPE");
-                  return (
-                    prefix +
-                    (method === "lookup"
-                      ? "/commands/lookup"
-                      : method === "update" || method === "delete"
-                        ? "/" + a[1]
-                        : "")
-                  );
-                },
-                method === "delete"
-                  ? "DELETE"
-                  : method === "update"
-                    ? "PATCH"
-                    : "POST",
-              );
-            if (secretDelete) {
-              const base = "/api/v1/projects/" + project;
-              for (const method of [
-                "list",
-                "getConfiguration",
-                "models",
-                "runners",
-                "runnerMounts",
-              ])
-                consumer(
-                  auth.agentConfiguration,
-                  method,
-                  "agent." + method,
-                  (a) => {
-                    const single =
-                      method === "getConfiguration" ||
-                      method === "runnerMounts";
-                    if (a[0] !== project || (single && a[1] !== secretDelete))
-                      throw Error("SECRET_DELETE_AGENT_SCOPE");
-                    return (
-                      base +
-                      (method === "models"
-                        ? "/available-chat-models"
-                        : method === "runners"
-                          ? "/available-runners"
-                          : "/agents" +
-                            (single
-                              ? "/" +
-                                secretDelete +
-                                (method === "getConfiguration"
-                                  ? "/configuration"
-                                  : "/runner-mounts")
-                              : ""))
-                    );
-                  },
-                );
-              consumer(
-                auth.agentConfiguration,
-                "startUpdate",
-                "agentEdit.startUpdate",
-                (a) => {
-                  if (
-                    a[0] !== project ||
-                    a[1] !== secretDelete ||
-                    a.length !== 3
-                  )
-                    throw Error("SECRET_DELETE_AGENT_SCOPE");
-                  return base + "/agents/" + secretDelete + "/configuration";
-                },
-                "PATCH",
-              );
             }
-          } else if (systemRunnerManagement) {
-            const prefix = "/api/v1/system/runners";
-            consumer(auth.system.runners, "list", "systemRunner.list", (a) => {
-              if (a.length !== 1 || JSON.stringify(a[0]) !== '{"limit":50}')
-                throw Error("SYSTEM_RUNNER_LIST_SCOPE");
-              return prefix;
+            if (kind === "taskReorder.startReorder" || kind === "taskReorder.checkOriginal") {
+              const original = writeInputs.get(call), source = original.source ?? original, progress = auth.workReview.progress;
+              call.current = current() && before === identity(); identities.set(call, identity()); call.not_busy = auth.state.busy === false;
+              call.result_current = progress?.kind === "reorder" && ["rejected", "uncertain"].includes(progress.phase) && progress.contextValid === true && progress.projectID === source.project && progress.taskID === source.task;
+              if (error?.problem?.code === "TASK_VERSION_CONFLICT" && error.problem.commit_state === "not_committed") {
+                call.rejection_code = "TASK_VERSION_CONFLICT"; call.rejection_commit_state = "not_committed";
+              }
+            }
+            if (kind === "secretWrite.delete") {
+              const original = writeInputs.get(call), progress = auth.projectSecretCommands.progress;
+              call.current = current() && before === identity();
+              identities.set(call, identity());
+              call.not_busy = auth.state.busy === false;
+              call.result_current = progress?.phase === "rejected" && !progress.uncertain && progress.contextValid === true &&
+                progress.identity.kind === "delete" && progress.identity.projectID === original.project &&
+                progress.identity.targetID === original.target && progress.identity.expectedVersion === original.expected && progress.key === original.key;
+            }
+          },
+        );
+        return result;
+      };
+      Object.defineProperty(object, method, { ...descriptor, value: wrapper });
+      restorers.push(() => {
+        if (object[method] !== wrapper) failed = true;
+        Object.defineProperty(object, method, descriptor);
+      });
+    }
+    host.__taskReviewProof = {
+      consumers(
+        value: any,
+        project: string,
+        intakeWrites: boolean,
+        agentConfiguration: boolean,
+        editTask: string | undefined,
+        timelineTask: string | undefined,
+        editAgent: string | undefined,
+        startSprint: string | undefined,
+        createMilestone: string | undefined,
+        skillsTarget: string | undefined,
+        milestoneCreate: boolean,
+        editMilestone: string | undefined,
+        editSprint: string | undefined,
+        variableWrites: boolean,
+        knowledgeTextWrites: boolean,
+        schedulerWrites = false,
+        knowledgeTitleReads = false,
+        secretReads = false,
+        usageReads = false,
+        runnerMounts: { mode: string; agent?: string; secretAllowlist?: true } | undefined = undefined,
+        systemRunnerManagement = false,
+        secretWrite = false,
+        knowledgeDelete: { mode: string; root: string } | undefined = undefined,
+        usageSummaryReads = false,
+        secretDelete: string | undefined = undefined,
+        reorderMilestone: string | undefined = undefined,
+        reorderSprint: string | undefined = undefined,
+        humanBlockerTask: string | undefined = undefined,
+        executionTask: string | undefined = undefined,
+        executionOutputTask: string | undefined = undefined,
+        sprintCompletion: { first: string; next: string } | undefined = undefined,
+        taskCancel: readonly string[] | undefined = undefined,
+        taskDependency: { task: string; related: string } | undefined = undefined,
+      ) {
+        if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
+        auth = value;
+        secretWriteEnabled = secretWrite;
+        consumer(auth, "restore", "restore", () => "/api/v1/session");
+        for (const method of ["get", "list", "resolve"])
+          consumer(
+            auth.projects,
+            method,
+            "project." + method,
+            (a) =>
+              "/api/v1/projects" +
+              (method === "get"
+                ? "/" + a[0]
+                : method === "resolve"
+                  ? "/resolve"
+                  : ""),
+          );
+        if (secretWrite) {
+          const prefix = "/api/v1/projects/" + project + "/secret-variables";
+          for (const method of ["list", "get"])
+            consumer(auth.projectSecrets, method, "secret." + method, a => {
+              if (a.length !== 2 || a[0] !== project || (method === "list" ? JSON.stringify(a[1]) !== '{"limit":50}' :
+                  !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(a[1]))) throw Error("SECRET_WRITE_READ_SCOPE");
+              return prefix + (method === "get" ? "/" + a[1] : "");
             });
-            consumer(auth.system.runners, "get", "systemRunner.get", (a) => {
-              if (
-                a.length !== 1 ||
-                !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-                  a[0],
-                )
-              )
-                throw Error("SYSTEM_RUNNER_GET_SCOPE");
-              return prefix + "/" + a[0];
+          for (const method of secretDelete ? ["delete"] : ["create", "update", "lookup"])
+            consumer(auth.projectSecretCommands, method, "secretWrite." + method, a => {
+              if (method === "lookup" ? a.length !== 0 : a[0] !== project || a.length !== (method === "create" ? 2 : method === "delete" ? 3 : 4)) throw Error("SECRET_WRITE_COMMAND_SCOPE");
+              return prefix + (method === "lookup" ? "/commands/lookup" : method === "update" || method === "delete" ? "/" + a[1] : "");
+            }, method === "delete" ? "DELETE" : method === "update" ? "PATCH" : "POST");
+          if (secretDelete) {
+            const base = "/api/v1/projects/" + project;
+            for (const method of ["list", "getConfiguration", "models", "runners", "runnerMounts"])
+              consumer(auth.agentConfiguration, method, "agent." + method, a => {
+                const single = method === "getConfiguration" || method === "runnerMounts";
+                if (a[0] !== project || (single && a[1] !== secretDelete)) throw Error("SECRET_DELETE_AGENT_SCOPE");
+                return base + (method === "models" ? "/available-chat-models" : method === "runners" ? "/available-runners" :
+                  "/agents" + (single ? "/" + secretDelete + (method === "getConfiguration" ? "/configuration" : "/runner-mounts") : ""));
+              });
+            consumer(auth.agentConfiguration, "startUpdate", "agentEdit.startUpdate", a => {
+              if (a[0] !== project || a[1] !== secretDelete || a.length !== 3) throw Error("SECRET_DELETE_AGENT_SCOPE");
+              return base + "/agents/" + secretDelete + "/configuration";
+            }, "PATCH");
+          }
+        } else if (systemRunnerManagement) {
+          const prefix = "/api/v1/system/runners";
+          consumer(auth.system.runners, "list", "systemRunner.list", a => {
+            if (a.length !== 1 || JSON.stringify(a[0]) !== '{"limit":50}') throw Error("SYSTEM_RUNNER_LIST_SCOPE");
+            return prefix;
+          });
+          consumer(auth.system.runners, "get", "systemRunner.get", a => {
+            if (a.length !== 1 || !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(a[0])) throw Error("SYSTEM_RUNNER_GET_SCOPE");
+            return prefix + "/" + a[0];
+          });
+          consumer(auth.system.runners, "start", "systemRunner.start", a => {
+            const c = a[0];
+            if (a.length !== 1 || !c || !["runner.create", "runner.update", "runner.enrollment.issue", "runner.revoke"].includes(c.command)) throw Error("SYSTEM_RUNNER_WRITE_SCOPE");
+            return prefix + (c.command === "runner.create" ? "" : "/" + c.target + (c.command === "runner.enrollment.issue" ? "/enrollment" : c.command === "runner.revoke" ? "/revoke" : ""));
+          }, a => a[0].command === "runner.update" ? "PATCH" : "POST");
+          consumer(auth.system.runners, "checkOriginal", "systemRunner.checkOriginal", a => {
+            const progress = auth.system.runners.progress;
+            if (a.length !== 0 || progress?.command.command !== "runner.create") throw Error("SYSTEM_RUNNER_LOOKUP_SCOPE");
+            return prefix + "/" + progress.command.target + "/commands/lookup";
+          }, "POST");
+        } else if (skillsTarget) {
+          consumer(auth.skills, "list", "skills.list", (a) => {
+            if (a[0] !== project || JSON.stringify(a[1]) !== '{"limit":25}')
+              throw Error("SKILL_CATALOG_CONSUMER_SCOPE");
+            return "/api/v1/projects/" + project + "/skills/catalog";
+          });
+          consumer(auth.skills, "get", "skills.get", (a) => {
+            if (a[0] !== project || a[1] !== skillsTarget)
+              throw Error("SKILL_DETAIL_CONSUMER_SCOPE");
+            return "/api/v1/projects/" + project + "/skills/" + skillsTarget;
+          });
+        } else if (runnerMounts) {
+          const prefix = "/api/v1/projects/" + project;
+          const target = () => runnerMounts.agent ?? originalAgentCreate?.request?.agent_id;
+          for (const method of ["list", "getConfiguration", "models", "runners", "runnerMounts"])
+            consumer(auth.agentConfiguration, method, "agent." + method, (a) => {
+              const single = method === "getConfiguration" || method === "runnerMounts";
+              if (a[0] !== project || (single && (!target() || a[1] !== target())))
+                throw Error("AGENT_RUNNER_READ_SCOPE");
+              return prefix + (method === "models" ? "/available-chat-models" : method === "runners" ? "/available-runners" :
+                "/agents" + (single ? "/" + a[1] + (method === "getConfiguration" ? "/configuration" : "/runner-mounts") : ""));
             });
+          consumer(auth.agentConfiguration, "startCreate", "agent.startCreate", (a) => {
+            if (runnerMounts.mode !== (runnerMounts.secretAllowlist ? "secret-allowlist-normal" : "runner-mounts-normal") || a[0] !== project)
+              throw Error("AGENT_RUNNER_CREATE_SCOPE");
+            return prefix + "/agents";
+          }, "POST");
+          consumer(auth.agentConfiguration, "startUpdate", "agentEdit.startUpdate", (a) => {
+            if (a[0] !== project || !target() || a[1] !== target()) throw Error("AGENT_RUNNER_UPDATE_SCOPE");
+            return prefix + "/agents/" + a[1] + "/configuration";
+          }, "PATCH");
+          consumer(auth.agentConfiguration, "checkOriginal", "agentEdit.checkOriginal", (a) => {
+            if (runnerMounts.mode !== (runnerMounts.secretAllowlist ? "secret-allowlist-lost" : "runner-mounts-lost") || a.length !== 0)
+              throw Error("AGENT_RUNNER_LOOKUP_SCOPE");
+            return prefix + "/agent-commands/lookup";
+          }, "POST");
+          if (runnerMounts.secretAllowlist)
+            consumer(auth.projectSecrets, "list", "secret.list", (a) => {
+              if (a.length !== 2 || a[0] !== project || JSON.stringify(a[1]) !== '{"limit":50}')
+                throw Error("AGENT_SECRET_DIRECTORY_SCOPE");
+              return prefix + "/secret-variables";
+            });
+        } else if (schedulerWrites) {
+          for (const method of ["get", "startUpdate", "checkOriginal"])
+            consumer(auth.projectScheduler, method, "scheduler." + method, (a) => {
+              if (method === "checkOriginal" ? a.length !== 0 || auth.projectScheduler.progress?.projectID !== project : a[0] !== project)
+                throw Error("PROJECT_SCHEDULER_CONSUMER_SCOPE");
+              return "/api/v1/projects/" + project + (method === "checkOriginal" ? "/commands/lookup" : "/scheduler");
+            }, method === "get" ? "GET" : method === "startUpdate" ? "PATCH" : "POST");
+        } else if (usageReads) {
+          consumer(auth.projectUsage, "list", "usage.list", (a) => {
+            const query = a[1];
+            if (a.length !== 2 || a[0] !== project || !query || query.limit !== 50 ||
+                Object.keys(query).sort().join() !== (Object.hasOwn(query, "cursor") ? "cursor,from,limit,to" : "from,limit,to") ||
+                !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(query.from) ||
+                !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(query.to) || query.from >= query.to ||
+                (Object.hasOwn(query, "cursor") && (typeof query.cursor !== "string" || !query.cursor.length)))
+              throw Error("PROJECT_USAGE_READ_SCOPE");
+            return "/api/v1/projects/" + project + "/model-usage";
+          });
+          if (usageSummaryReads) consumer(auth.projectUsage, "daily", "usage.daily", (a) => {
+            const query = a[1];
+            if (a.length !== 2 || a[0] !== project || !query || Object.keys(query).sort().join() !== "from,to" ||
+                !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(query.from) ||
+                !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(query.to) || query.from >= query.to)
+              throw Error("PROJECT_USAGE_SUMMARY_SCOPE");
+            return "/api/v1/projects/" + project + "/model-usage/summary";
+          });
+        } else if (secretReads) {
+          for (const method of ["list", "get"])
+            consumer(auth.projectSecrets, method, "secret." + method, (a) => {
+              if (a[0] !== project || (method === "list" &&
+                  (!a[1] || a[1].limit !== 50 || Object.keys(a[1]).some(key => !["limit", "cursor"].includes(key)) ||
+                   (Object.hasOwn(a[1], "cursor") && (typeof a[1].cursor !== "string" || !a[1].cursor.length)))) ||
+                  (method === "get" && !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(a[1])))
+                throw Error("PROJECT_SECRETS_READ_SCOPE");
+              return "/api/v1/projects/" + project + "/secret-variables" + (method === "get" ? "/" + a[1] : "");
+            });
+        } else if (knowledgeDelete) {
+          const prefix = "/api/v1/projects/" + project + "/knowledge/documents";
+          for (const method of ["children", "get", "ancestors", "readContent"])
+            consumer(auth.knowledge, method, "knowledge." + method, (a) => {
+              if (a[0] !== project) throw Error("KNOWLEDGE_DELETE_READ_SCOPE");
+              return prefix + (method === "children" ? "/children" : "/" + a[1] + (method === "get" ? "" : method === "ancestors" ? "/ancestors" : "/content"));
+            });
+          for (const method of ["preview", "startDelete", "checkOriginal"])
+            consumer(auth.knowledgeDelete, method, "knowledgeDelete." + method, (a) => {
+              if (method === "checkOriginal" ? a.length !== 0 || knowledgeDelete.mode !== "delete-lost" ||
+                  auth.knowledgeDelete.progress?.projectID !== project || auth.knowledgeDelete.progress?.documentID !== knowledgeDelete.root :
+                  a[0] !== project || a[1] !== knowledgeDelete.root)
+                throw Error("KNOWLEDGE_DELETE_WRITE_SCOPE");
+              return prefix + (method === "checkOriginal" ? "/commands/lookup" : "/" + knowledgeDelete.root + (method === "preview" ? "/delete-preview" : "/delete-subtree"));
+            }, "POST");
+        } else if (knowledgeTitleReads) {
+          const prefix = "/api/v1/projects/" + project + "/knowledge/documents";
+          for (const method of ["children", "searchTitles", "get", "ancestors", "readContent"])
+            consumer(auth.knowledge, method, "knowledge." + method, (a) => {
+              if (a[0] !== project) throw Error("KNOWLEDGE_TITLE_READ_SCOPE");
+              return prefix + (method === "children" ? "/children" : method === "searchTitles" ? "/search-titles" : "/" + a[1] + (method === "get" ? "" : method === "ancestors" ? "/ancestors" : "/content"));
+            });
+        } else if (knowledgeTextWrites) {
+          const prefix = "/api/v1/projects/" + project + "/knowledge/documents";
+          for (const method of ["children", "get", "ancestors", "readContent"])
+            consumer(auth.knowledge, method, "knowledge." + method, (a) => {
+              if (a[0] !== project) throw Error("KNOWLEDGE_TEXT_READ_SCOPE");
+              return prefix + (method === "children" ? "/children" : "/" + a[1] + (method === "get" ? "" : method === "ancestors" ? "/ancestors" : "/content"));
+            });
+          consumer(auth.knowledgeText, "start", "knowledgeText.write", (a) => {
+            if (a[0] !== project || !["create", "update"].includes(a[1]?.command)) throw Error("KNOWLEDGE_TEXT_WRITE_SCOPE");
+            return prefix + "/" + a[1].document_id + (a[1].command === "create" ? "/create-text" : "/replace-text");
+          }, "POST");
+        } else if (variableWrites) {
+          for (const method of ["list", "get"])
+            consumer(auth.projectVariables, method, "variable." + method, (a) => {
+              if (a[0] !== project ||
+                  (method === "list" && JSON.stringify(a[1]) !== '{"limit":50}'))
+                throw Error("PROJECT_VARIABLE_READ_SCOPE");
+              return "/api/v1/projects/" + project + "/variables" +
+                (method === "get" ? "/" + a[1] : "");
+            });
+          consumer(auth.projectVariables, "create", "variable.create", (a) => {
+            if (a[0] !== project) throw Error("PROJECT_VARIABLE_WRITE_SCOPE");
+            return "/api/v1/projects/" + project + "/variables";
+          }, "POST");
+          consumer(auth.projectVariables, "update", "variable.update", (a) => {
+            if (a[0] !== project) throw Error("PROJECT_VARIABLE_WRITE_SCOPE");
+            return "/api/v1/projects/" + project + "/variables/" + a[1];
+          }, "PATCH");
+          consumer(auth.projectVariables, "delete", "variable.delete", (a) => {
+            if (a[0] !== project) throw Error("PROJECT_VARIABLE_WRITE_SCOPE");
+            return "/api/v1/projects/" + project + "/variables/" + a[1];
+          }, "DELETE");
+        } else if (!agentConfiguration && !editAgent) {
+          const paths: Record<string, string> = {
+            milestones: "milestones",
+            milestone: "milestones",
+            sprints: "sprints",
+            sprint: "sprints",
+            tasks: "tasks",
+            task: "tasks",
+            blockers: "tasks",
+            agents: "agents",
+            agent: "agents",
+          };
+          for (const method of Object.keys(paths))
+            consumer(auth.workReview, method, "work." + method, (a) => {
+              if (a[0] !== project) throw Error("TASK_REVIEW_CONSUMER_SCOPE");
+              const single = [
+                "milestone",
+                "sprint",
+                "task",
+                "agent",
+                "blockers",
+              ].includes(method);
+              return (
+                "/api/v1/projects/" +
+                project +
+                "/" +
+                paths[method] +
+                (single ? "/" + a[1] : "") +
+                (method === "blockers" ? "/blockers" : "")
+              );
+            });
+          if (timelineTask)
+            consumer(auth.workReview, "events", "work.events", (a) => {
+              if (a[0] !== project || a[1] !== timelineTask)
+                throw Error("TASK_TIMELINE_CONSUMER_SCOPE");
+              return (
+                "/api/v1/projects/" +
+                project +
+                "/tasks/" +
+                timelineTask +
+                "/events"
+              );
+            });
+          if (executionTask) {
+            consumer(auth.workReview, "executions", "work.executions", (a) => {
+              if (a.length !== 3 || a[0] !== project || a[1] !== executionTask ||
+                  !a[2] || a[2].limit !== 50 || Object.keys(a[2]).some(k => !["limit", "cursor"].includes(k)) ||
+                  (Object.hasOwn(a[2], "cursor") && (typeof a[2].cursor !== "string" || !a[2].cursor)))
+                throw Error("TASK_EXECUTION_LIST_SCOPE");
+              return "/api/v1/projects/" + project + "/tasks/" + executionTask + "/executions";
+            });
+            consumer(auth.workReview, "execution", "work.execution", (a) => {
+              if (a.length !== 3 || a[0] !== project || a[1] !== executionTask ||
+                  !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(a[2]))
+                throw Error("TASK_EXECUTION_GET_SCOPE");
+              return "/api/v1/projects/" + project + "/tasks/" + executionTask + "/executions/" + a[2];
+            });
+          }
+          if (executionOutputTask) {
+            consumer(auth.workReview, "executionOutput", "work.executionOutput", (a) => {
+              if (a.length !== 3 || a[0] !== project || a[1] !== executionOutputTask ||
+                  !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(a[2]))
+                throw Error("TASK_EXECUTION_OUTPUT_SCOPE");
+              return "/api/v1/projects/" + project + "/tasks/" + executionOutputTask + "/executions/" + a[2] + "/runtime-view";
+            });
+          }
+          if (intakeWrites) {
             consumer(
-              auth.system.runners,
-              "start",
-              "systemRunner.start",
+              auth.workReview,
+              "startCreate",
+              "work.startCreate",
               (a) => {
-                const c = a[0];
-                if (
-                  a.length !== 1 ||
-                  !c ||
-                  ![
-                    "runner.create",
-                    "runner.update",
-                    "runner.enrollment.issue",
-                    "runner.revoke",
-                  ].includes(c.command)
-                )
-                  throw Error("SYSTEM_RUNNER_WRITE_SCOPE");
-                return (
-                  prefix +
-                  (c.command === "runner.create"
-                    ? ""
-                    : "/" +
-                      c.target +
-                      (c.command === "runner.enrollment.issue"
-                        ? "/enrollment"
-                        : c.command === "runner.revoke"
-                          ? "/revoke"
-                          : ""))
-                );
+                if (a[0] !== project) throw Error("TASK_INTAKE_CONSUMER_SCOPE");
+                return "/api/v1/projects/" + project + "/tasks";
               },
-              (a) => (a[0].command === "runner.update" ? "PATCH" : "POST"),
+              "POST",
             );
             consumer(
-              auth.system.runners,
-              "checkOriginal",
-              "systemRunner.checkOriginal",
+              auth.workReview,
+              "startReady",
+              "work.startReady",
               (a) => {
-                const progress = auth.system.runners.progress;
-                if (
-                  a.length !== 0 ||
-                  progress?.command.command !== "runner.create"
-                )
-                  throw Error("SYSTEM_RUNNER_LOOKUP_SCOPE");
+                if (a[0] !== project) throw Error("TASK_INTAKE_CONSUMER_SCOPE");
                 return (
-                  prefix + "/" + progress.command.target + "/commands/lookup"
+                  "/api/v1/projects/" + project + "/tasks/" + a[1] + "/transfer"
                 );
               },
               "POST",
             );
-          } else if (skillsTarget) {
-            consumer(auth.skills, "list", "skills.list", (a) => {
-              if (a[0] !== project || JSON.stringify(a[1]) !== '{"limit":25}')
-                throw Error("SKILL_CATALOG_CONSUMER_SCOPE");
-              return "/api/v1/projects/" + project + "/skills/catalog";
-            });
-            consumer(auth.skills, "get", "skills.get", (a) => {
-              if (a[0] !== project || a[1] !== skillsTarget)
-                throw Error("SKILL_DETAIL_CONSUMER_SCOPE");
-              return "/api/v1/projects/" + project + "/skills/" + skillsTarget;
-            });
-          } else if (runnerMounts) {
-            const prefix = "/api/v1/projects/" + project;
-            const target = () =>
-              runnerMounts.agent ?? originalAgentCreate?.request?.agent_id;
-            for (const method of [
-              "list",
-              "getConfiguration",
-              "models",
-              "runners",
-              "runnerMounts",
-            ])
+            consumer(
+              auth.workReview,
+              "checkOriginal",
+              "work.checkOriginal",
+              () => "/api/v1/projects/" + project + "/task-commands/lookup",
+              "POST",
+            );
+          }
+          if (editTask) {
+            for (const [method, httpMethod, suffix] of [
+              ["startEdit", "PATCH", ""],
+              ["startReady", "POST", "/transfer"],
+            ] as const)
               consumer(
-                auth.agentConfiguration,
+                auth.workReview,
                 method,
-                "agent." + method,
+                "edit." + method,
                 (a) => {
-                  const single =
-                    method === "getConfiguration" || method === "runnerMounts";
-                  if (
-                    a[0] !== project ||
-                    (single && (!target() || a[1] !== target()))
-                  )
-                    throw Error("AGENT_RUNNER_READ_SCOPE");
+                  if (a[0] !== project || a[1] !== editTask)
+                    throw Error("TASK_EDIT_CONSUMER_SCOPE");
                   return (
-                    prefix +
-                    (method === "models"
-                      ? "/available-chat-models"
-                      : method === "runners"
-                        ? "/available-runners"
-                        : "/agents" +
-                          (single
-                            ? "/" +
-                              a[1] +
-                              (method === "getConfiguration"
-                                ? "/configuration"
-                                : "/runner-mounts")
-                            : ""))
+                    "/api/v1/projects/" +
+                    project +
+                    "/tasks/" +
+                    editTask +
+                    suffix
                   );
                 },
+                httpMethod,
               );
+            consumer(
+              auth.workReview,
+              "checkOriginal",
+              "edit.checkOriginal",
+              () => "/api/v1/projects/" + project + "/task-commands/lookup",
+              "POST",
+            );
+          }
+        } else {
+          // Agent Create and Edit have separate write observers. Only their
+          // existing public page reads share this registration.
+          const paths: Record<string, string> = {
+            list: "/agents",
+            getConfiguration: "/agents",
+            models: "/available-chat-models",
+          };
+          for (const method of Object.keys(paths))
             consumer(
               auth.agentConfiguration,
-              "startCreate",
-              "agent.startCreate",
+              method,
+              "agent." + method,
               (a) => {
                 if (
-                  runnerMounts.mode !==
-                    (runnerMounts.secretAllowlist
-                      ? "secret-allowlist-normal"
-                      : "runner-mounts-normal") ||
-                  a[0] !== project
+                  a[0] !== project ||
+                  (editAgent &&
+                    method === "getConfiguration" &&
+                    a[1] !== editAgent)
                 )
-                  throw Error("AGENT_RUNNER_CREATE_SCOPE");
-                return prefix + "/agents";
+                  throw Error("AGENT_CONFIGURATION_CONSUMER_SCOPE");
+                return (
+                  "/api/v1/projects/" +
+                  project +
+                  paths[method] +
+                  (method === "getConfiguration"
+                    ? "/" + a[1] + "/configuration"
+                    : "")
+                );
               },
-              "POST",
             );
+          if (editAgent) {
             consumer(
               auth.agentConfiguration,
               "startUpdate",
               "agentEdit.startUpdate",
               (a) => {
-                if (a[0] !== project || !target() || a[1] !== target())
-                  throw Error("AGENT_RUNNER_UPDATE_SCOPE");
-                return prefix + "/agents/" + a[1] + "/configuration";
+                if (a[0] !== project || a[1] !== editAgent)
+                  throw Error("AGENT_EDIT_CONSUMER_SCOPE");
+                return (
+                  "/api/v1/projects/" +
+                  project +
+                  "/agents/" +
+                  editAgent +
+                  "/configuration"
+                );
               },
               "PATCH",
             );
@@ -1464,2002 +1158,941 @@ export async function observeBrowserIO(
               auth.agentConfiguration,
               "checkOriginal",
               "agentEdit.checkOriginal",
-              (a) => {
-                if (
-                  runnerMounts.mode !==
-                    (runnerMounts.secretAllowlist
-                      ? "secret-allowlist-lost"
-                      : "runner-mounts-lost") ||
-                  a.length !== 0
-                )
-                  throw Error("AGENT_RUNNER_LOOKUP_SCOPE");
-                return prefix + "/agent-commands/lookup";
-              },
+              () => "/api/v1/projects/" + project + "/agent-commands/lookup",
               "POST",
             );
-            if (runnerMounts.secretAllowlist)
-              consumer(auth.projectSecrets, "list", "secret.list", (a) => {
-                if (
-                  a.length !== 2 ||
-                  a[0] !== project ||
-                  JSON.stringify(a[1]) !== '{"limit":50}'
-                )
-                  throw Error("AGENT_SECRET_DIRECTORY_SCOPE");
-                return prefix + "/secret-variables";
-              });
-          } else if (schedulerWrites) {
-            for (const method of ["get", "startUpdate", "checkOriginal"])
-              consumer(
-                auth.projectScheduler,
-                method,
-                "scheduler." + method,
-                (a) => {
-                  if (
-                    method === "checkOriginal"
-                      ? a.length !== 0 ||
-                        auth.projectScheduler.progress?.projectID !== project
-                      : a[0] !== project
-                  )
-                    throw Error("PROJECT_SCHEDULER_CONSUMER_SCOPE");
-                  return (
-                    "/api/v1/projects/" +
-                    project +
-                    (method === "checkOriginal"
-                      ? "/commands/lookup"
-                      : "/scheduler")
-                  );
-                },
-                method === "get"
-                  ? "GET"
-                  : method === "startUpdate"
-                    ? "PATCH"
-                    : "POST",
-              );
-          } else if (usageReads) {
-            consumer(auth.projectUsage, "list", "usage.list", (a) => {
-              const query = a[1];
-              if (
-                a.length !== 2 ||
-                a[0] !== project ||
-                !query ||
-                query.limit !== 50 ||
-                Object.keys(query).sort().join() !==
-                  (Object.hasOwn(query, "cursor")
-                    ? "cursor,from,limit,to"
-                    : "from,limit,to") ||
-                !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(
-                  query.from,
-                ) ||
-                !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(
-                  query.to,
-                ) ||
-                query.from >= query.to ||
-                (Object.hasOwn(query, "cursor") &&
-                  (typeof query.cursor !== "string" || !query.cursor.length))
-              )
-                throw Error("PROJECT_USAGE_READ_SCOPE");
-              return "/api/v1/projects/" + project + "/model-usage";
-            });
-            if (usageSummaryReads)
-              consumer(auth.projectUsage, "daily", "usage.daily", (a) => {
-                const query = a[1];
-                if (
-                  a.length !== 2 ||
-                  a[0] !== project ||
-                  !query ||
-                  Object.keys(query).sort().join() !== "from,to" ||
-                  !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(
-                    query.from,
-                  ) ||
-                  !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(
-                    query.to,
-                  ) ||
-                  query.from >= query.to
-                )
-                  throw Error("PROJECT_USAGE_SUMMARY_SCOPE");
-                return "/api/v1/projects/" + project + "/model-usage/summary";
-              });
-          } else if (secretReads) {
-            for (const method of ["list", "get"])
-              consumer(auth.projectSecrets, method, "secret." + method, (a) => {
-                if (
-                  a[0] !== project ||
-                  (method === "list" &&
-                    (!a[1] ||
-                      a[1].limit !== 50 ||
-                      Object.keys(a[1]).some(
-                        (key) => !["limit", "cursor"].includes(key),
-                      ) ||
-                      (Object.hasOwn(a[1], "cursor") &&
-                        (typeof a[1].cursor !== "string" ||
-                          !a[1].cursor.length)))) ||
-                  (method === "get" &&
-                    !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-                      a[1],
-                    ))
-                )
-                  throw Error("PROJECT_SECRETS_READ_SCOPE");
-                return (
-                  "/api/v1/projects/" +
-                  project +
-                  "/secret-variables" +
-                  (method === "get" ? "/" + a[1] : "")
-                );
-              });
-          } else if (knowledgeDelete) {
-            const prefix =
-              "/api/v1/projects/" + project + "/knowledge/documents";
-            for (const method of [
-              "children",
-              "get",
-              "ancestors",
-              "readContent",
-            ])
-              consumer(auth.knowledge, method, "knowledge." + method, (a) => {
-                if (a[0] !== project)
-                  throw Error("KNOWLEDGE_DELETE_READ_SCOPE");
-                return (
-                  prefix +
-                  (method === "children"
-                    ? "/children"
-                    : "/" +
-                      a[1] +
-                      (method === "get"
-                        ? ""
-                        : method === "ancestors"
-                          ? "/ancestors"
-                          : "/content"))
-                );
-              });
-            for (const method of ["preview", "startDelete", "checkOriginal"])
-              consumer(
-                auth.knowledgeDelete,
-                method,
-                "knowledgeDelete." + method,
-                (a) => {
-                  if (
-                    method === "checkOriginal"
-                      ? a.length !== 0 ||
-                        knowledgeDelete.mode !== "delete-lost" ||
-                        auth.knowledgeDelete.progress?.projectID !== project ||
-                        auth.knowledgeDelete.progress?.documentID !==
-                          knowledgeDelete.root
-                      : a[0] !== project || a[1] !== knowledgeDelete.root
-                  )
-                    throw Error("KNOWLEDGE_DELETE_WRITE_SCOPE");
-                  return (
-                    prefix +
-                    (method === "checkOriginal"
-                      ? "/commands/lookup"
-                      : "/" +
-                        knowledgeDelete.root +
-                        (method === "preview"
-                          ? "/delete-preview"
-                          : "/delete-subtree"))
-                  );
-                },
-                "POST",
-              );
-          } else if (knowledgeTitleReads) {
-            const prefix =
-              "/api/v1/projects/" + project + "/knowledge/documents";
-            for (const method of [
-              "children",
-              "searchTitles",
-              "get",
-              "ancestors",
-              "readContent",
-            ])
-              consumer(auth.knowledge, method, "knowledge." + method, (a) => {
-                if (a[0] !== project) throw Error("KNOWLEDGE_TITLE_READ_SCOPE");
-                return (
-                  prefix +
-                  (method === "children"
-                    ? "/children"
-                    : method === "searchTitles"
-                      ? "/search-titles"
-                      : "/" +
-                        a[1] +
-                        (method === "get"
-                          ? ""
-                          : method === "ancestors"
-                            ? "/ancestors"
-                            : "/content"))
-                );
-              });
-          } else if (knowledgeTextWrites) {
-            const prefix =
-              "/api/v1/projects/" + project + "/knowledge/documents";
-            for (const method of [
-              "children",
-              "get",
-              "ancestors",
-              "readContent",
-            ])
-              consumer(auth.knowledge, method, "knowledge." + method, (a) => {
-                if (a[0] !== project) throw Error("KNOWLEDGE_TEXT_READ_SCOPE");
-                return (
-                  prefix +
-                  (method === "children"
-                    ? "/children"
-                    : "/" +
-                      a[1] +
-                      (method === "get"
-                        ? ""
-                        : method === "ancestors"
-                          ? "/ancestors"
-                          : "/content"))
-                );
-              });
-            consumer(
-              auth.knowledgeText,
-              "start",
-              "knowledgeText.write",
-              (a) => {
-                if (
-                  a[0] !== project ||
-                  !["create", "update"].includes(a[1]?.command)
-                )
-                  throw Error("KNOWLEDGE_TEXT_WRITE_SCOPE");
-                return (
-                  prefix +
-                  "/" +
-                  a[1].document_id +
-                  (a[1].command === "create" ? "/create-text" : "/replace-text")
-                );
-              },
-              "POST",
-            );
-          } else if (variableWrites) {
-            for (const method of ["list", "get"])
-              consumer(
-                auth.projectVariables,
-                method,
-                "variable." + method,
-                (a) => {
-                  if (
-                    a[0] !== project ||
-                    (method === "list" &&
-                      JSON.stringify(a[1]) !== '{"limit":50}')
-                  )
-                    throw Error("PROJECT_VARIABLE_READ_SCOPE");
-                  return (
-                    "/api/v1/projects/" +
-                    project +
-                    "/variables" +
-                    (method === "get" ? "/" + a[1] : "")
-                  );
-                },
-              );
-            consumer(
-              auth.projectVariables,
-              "create",
-              "variable.create",
-              (a) => {
-                if (a[0] !== project)
-                  throw Error("PROJECT_VARIABLE_WRITE_SCOPE");
-                return "/api/v1/projects/" + project + "/variables";
-              },
-              "POST",
-            );
-            consumer(
-              auth.projectVariables,
-              "update",
-              "variable.update",
-              (a) => {
-                if (a[0] !== project)
-                  throw Error("PROJECT_VARIABLE_WRITE_SCOPE");
-                return "/api/v1/projects/" + project + "/variables/" + a[1];
-              },
-              "PATCH",
-            );
-            consumer(
-              auth.projectVariables,
-              "delete",
-              "variable.delete",
-              (a) => {
-                if (a[0] !== project)
-                  throw Error("PROJECT_VARIABLE_WRITE_SCOPE");
-                return "/api/v1/projects/" + project + "/variables/" + a[1];
-              },
-              "DELETE",
-            );
-          } else if (!agentConfiguration && !editAgent) {
-            const paths: Record<string, string> = {
-              milestones: "milestones",
-              milestone: "milestones",
-              sprints: "sprints",
-              sprint: "sprints",
-              tasks: "tasks",
-              task: "tasks",
-              blockers: "tasks",
-              agents: "agents",
-              agent: "agents",
-            };
-            for (const method of Object.keys(paths))
-              consumer(auth.workReview, method, "work." + method, (a) => {
-                if (a[0] !== project) throw Error("TASK_REVIEW_CONSUMER_SCOPE");
-                const single = [
-                  "milestone",
-                  "sprint",
-                  "task",
-                  "agent",
-                  "blockers",
-                ].includes(method);
-                return (
-                  "/api/v1/projects/" +
-                  project +
-                  "/" +
-                  paths[method] +
-                  (single ? "/" + a[1] : "") +
-                  (method === "blockers" ? "/blockers" : "")
-                );
-              });
-            if (timelineTask)
-              consumer(auth.workReview, "events", "work.events", (a) => {
-                if (a[0] !== project || a[1] !== timelineTask)
-                  throw Error("TASK_TIMELINE_CONSUMER_SCOPE");
-                return (
-                  "/api/v1/projects/" +
-                  project +
-                  "/tasks/" +
-                  timelineTask +
-                  "/events"
-                );
-              });
-            if (executionTask) {
-              consumer(
-                auth.workReview,
-                "executions",
-                "work.executions",
-                (a) => {
-                  if (
-                    a.length !== 3 ||
-                    a[0] !== project ||
-                    a[1] !== executionTask ||
-                    !a[2] ||
-                    a[2].limit !== 50 ||
-                    Object.keys(a[2]).some(
-                      (k) => !["limit", "cursor"].includes(k),
-                    ) ||
-                    (Object.hasOwn(a[2], "cursor") &&
-                      (typeof a[2].cursor !== "string" || !a[2].cursor))
-                  )
-                    throw Error("TASK_EXECUTION_LIST_SCOPE");
-                  return (
-                    "/api/v1/projects/" +
-                    project +
-                    "/tasks/" +
-                    executionTask +
-                    "/executions"
-                  );
-                },
-              );
-              consumer(auth.workReview, "execution", "work.execution", (a) => {
-                if (
-                  a.length !== 3 ||
-                  a[0] !== project ||
-                  a[1] !== executionTask ||
-                  !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-                    a[2],
-                  )
-                )
-                  throw Error("TASK_EXECUTION_GET_SCOPE");
-                return (
-                  "/api/v1/projects/" +
-                  project +
-                  "/tasks/" +
-                  executionTask +
-                  "/executions/" +
-                  a[2]
-                );
-              });
-            }
-            if (executionOutputTask) {
-              consumer(
-                auth.workReview,
-                "executionOutput",
-                "work.executionOutput",
-                (a) => {
-                  if (
-                    a.length !== 3 ||
-                    a[0] !== project ||
-                    a[1] !== executionOutputTask ||
-                    !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-                      a[2],
-                    )
-                  )
-                    throw Error("TASK_EXECUTION_OUTPUT_SCOPE");
-                  return (
-                    "/api/v1/projects/" +
-                    project +
-                    "/tasks/" +
-                    executionOutputTask +
-                    "/executions/" +
-                    a[2] +
-                    "/runtime-view"
-                  );
-                },
-              );
-            }
-            if (intakeWrites) {
-              consumer(
-                auth.workReview,
-                "startCreate",
-                "work.startCreate",
-                (a) => {
-                  if (a[0] !== project)
-                    throw Error("TASK_INTAKE_CONSUMER_SCOPE");
-                  return "/api/v1/projects/" + project + "/tasks";
-                },
-                "POST",
-              );
-              consumer(
-                auth.workReview,
-                "startReady",
-                "work.startReady",
-                (a) => {
-                  if (a[0] !== project)
-                    throw Error("TASK_INTAKE_CONSUMER_SCOPE");
-                  return (
-                    "/api/v1/projects/" +
-                    project +
-                    "/tasks/" +
-                    a[1] +
-                    "/transfer"
-                  );
-                },
-                "POST",
-              );
-              consumer(
-                auth.workReview,
-                "checkOriginal",
-                "work.checkOriginal",
-                () => "/api/v1/projects/" + project + "/task-commands/lookup",
-                "POST",
-              );
-            }
-            if (editTask) {
-              for (const [method, httpMethod, suffix] of [
-                ["startEdit", "PATCH", ""],
-                ["startReady", "POST", "/transfer"],
-              ] as const)
-                consumer(
-                  auth.workReview,
-                  method,
-                  "edit." + method,
-                  (a) => {
-                    if (a[0] !== project || a[1] !== editTask)
-                      throw Error("TASK_EDIT_CONSUMER_SCOPE");
-                    return (
-                      "/api/v1/projects/" +
-                      project +
-                      "/tasks/" +
-                      editTask +
-                      suffix
-                    );
-                  },
-                  httpMethod,
-                );
-              consumer(
-                auth.workReview,
-                "checkOriginal",
-                "edit.checkOriginal",
-                () => "/api/v1/projects/" + project + "/task-commands/lookup",
-                "POST",
-              );
-            }
           } else {
-            // Agent Create and Edit have separate write observers. Only their
-            // existing public page reads share this registration.
-            const paths: Record<string, string> = {
-              list: "/agents",
-              getConfiguration: "/agents",
-              models: "/available-chat-models",
-            };
-            for (const method of Object.keys(paths))
-              consumer(
-                auth.agentConfiguration,
-                method,
-                "agent." + method,
-                (a) => {
-                  if (
-                    a[0] !== project ||
-                    (editAgent &&
-                      method === "getConfiguration" &&
-                      a[1] !== editAgent)
-                  )
-                    throw Error("AGENT_CONFIGURATION_CONSUMER_SCOPE");
-                  return (
-                    "/api/v1/projects/" +
-                    project +
-                    paths[method] +
-                    (method === "getConfiguration"
-                      ? "/" + a[1] + "/configuration"
-                      : "")
-                  );
-                },
-              );
-            if (editAgent) {
-              consumer(
-                auth.agentConfiguration,
-                "startUpdate",
-                "agentEdit.startUpdate",
-                (a) => {
-                  if (a[0] !== project || a[1] !== editAgent)
-                    throw Error("AGENT_EDIT_CONSUMER_SCOPE");
-                  return (
-                    "/api/v1/projects/" +
-                    project +
-                    "/agents/" +
-                    editAgent +
-                    "/configuration"
-                  );
-                },
-                "PATCH",
-              );
-              consumer(
-                auth.agentConfiguration,
-                "checkOriginal",
-                "agentEdit.checkOriginal",
-                () => "/api/v1/projects/" + project + "/agent-commands/lookup",
-                "POST",
-              );
-            } else {
-              consumer(
-                auth.agentConfiguration,
-                "startCreate",
-                "agent.startCreate",
-                (a) => {
-                  if (a[0] !== project)
-                    throw Error("AGENT_CONFIGURATION_CONSUMER_SCOPE");
-                  return "/api/v1/projects/" + project + "/agents";
-                },
-                "POST",
-              );
-              consumer(
-                auth.agentConfiguration,
-                "checkOriginal",
-                "agent.checkOriginal",
-                () => "/api/v1/projects/" + project + "/agent-commands/lookup",
-                "POST",
-              );
-            }
-          }
-          if (reorderMilestone) {
             consumer(
-              auth.workMilestoneReordering,
-              "reorder",
-              "milestoneReorder.reorder",
-              (a) => {
-                if (a[0] !== project || a[1] !== reorderMilestone)
-                  throw Error("MILESTONE_REORDER_CONSUMER_SCOPE");
-                return (
-                  "/api/v1/projects/" +
-                  project +
-                  "/milestones/" +
-                  reorderMilestone +
-                  "/reorder"
-                );
-              },
-              "POST",
-            );
-          }
-          if (taskDependency) {
-            consumer(
-              auth.workTaskDependencies,
-              "candidates",
-              "taskDependency.candidates",
-              (a) => {
-                if (
-                  a.length !== 2 ||
-                  a[0] !== project ||
-                  a[1]?.limit !== 50 ||
-                  Object.keys(a[1]).some(
-                    (k) => !["limit", "text", "cursor"].includes(k),
-                  )
-                )
-                  throw Error("TASK_DEPENDENCY_CANDIDATES_SCOPE");
-                return "/api/v1/projects/" + project + "/tasks";
-              },
-            );
-            for (const method of ["add", "resolve"])
-              consumer(
-                auth.workTaskDependencies,
-                method,
-                "taskDependency." + method,
-                (a) => {
-                  if (
-                    a.length !== (method === "add" ? 4 : 5) ||
-                    a[0] !== project ||
-                    a[1] !== taskDependency.task ||
-                    (method === "resolve" && a[3] !== taskDependency.related) ||
-                    (method === "add" &&
-                      a[2]?.request?.metadata?.related_task_id !==
-                        taskDependency.related)
-                  )
-                    throw Error("TASK_DEPENDENCY_CONSUMER_SCOPE");
-                  const before = a[method === "add" ? 3 : 4];
-                  if (
-                    !before ||
-                    before.project_id !== project ||
-                    before.id !== taskDependency.task ||
-                    before.version !== a[2]?.expected_version
-                  )
-                    throw Error("TASK_DEPENDENCY_ORIGINAL_TASK");
-                  return (
-                    "/api/v1/projects/" +
-                    project +
-                    "/tasks/" +
-                    taskDependency.task +
-                    "/blockers" +
-                    (method === "resolve" ? "/resolve" : "")
-                  );
-                },
-                "POST",
-              );
-          }
-          if (humanBlockerTask) {
-            for (const method of ["add", "resolve"])
-              consumer(
-                auth.workTaskBlockers,
-                method,
-                "humanBlocker." + method,
-                (a) => {
-                  if (
-                    a.length !== 4 ||
-                    a[0] !== project ||
-                    a[1] !== humanBlockerTask ||
-                    a[3]?.project_id !== project ||
-                    a[3]?.id !== humanBlockerTask ||
-                    a[3]?.version !== a[2]?.expected_version
-                  )
-                    throw Error("HUMAN_BLOCKER_CONSUMER_SCOPE");
-                  return (
-                    "/api/v1/projects/" +
-                    project +
-                    "/tasks/" +
-                    humanBlockerTask +
-                    "/blockers" +
-                    (method === "resolve" ? "/resolve" : "")
-                  );
-                },
-                "POST",
-              );
-          }
-          if (reorderSprint) {
-            consumer(
-              auth.workSprintReordering,
-              "reorder",
-              "sprintReorder.reorder",
-              (a) => {
-                if (a[0] !== project || a[1] !== reorderSprint)
-                  throw Error("SPRINT_REORDER_CONSUMER_SCOPE");
-                return (
-                  "/api/v1/projects/" +
-                  project +
-                  "/sprints/" +
-                  reorderSprint +
-                  "/reorder"
-                );
-              },
-              "POST",
-            );
-          }
-          if (editMilestone) {
-            consumer(
-              auth.workMilestoneEditing,
-              "update",
-              "milestone.update",
-              (a) => {
-                if (a[0] !== project || a[1] !== editMilestone)
-                  throw Error("MILESTONE_UPDATE_CONSUMER_SCOPE");
-                return (
-                  "/api/v1/projects/" + project + "/milestones/" + editMilestone
-                );
-              },
-              "PATCH",
-            );
-            consumer(
-              auth.workMilestoneEditing,
-              "checkOriginal",
-              "milestone.checkOriginal",
-              () =>
-                "/api/v1/projects/" + project + "/structure-commands/lookup",
-              "POST",
-            );
-          }
-          if (editSprint) {
-            consumer(
-              auth.workSprintEditing,
-              "update",
-              "sprintEdit.update",
-              (a) => {
-                if (a[0] !== project || a[1] !== editSprint)
-                  throw Error("SPRINT_UPDATE_CONSUMER_SCOPE");
-                return "/api/v1/projects/" + project + "/sprints/" + editSprint;
-              },
-              "PATCH",
-            );
-            consumer(
-              auth.workSprintEditing,
-              "checkOriginal",
-              "sprintEdit.checkOriginal",
-              () =>
-                "/api/v1/projects/" + project + "/structure-commands/lookup",
-              "POST",
-            );
-          }
-          if (milestoneCreate) {
-            consumer(
-              auth.workMilestonePlanning,
-              "create",
-              "milestone.create",
+              auth.agentConfiguration,
+              "startCreate",
+              "agent.startCreate",
               (a) => {
                 if (a[0] !== project)
-                  throw Error("MILESTONE_CREATE_CONSUMER_SCOPE");
-                return "/api/v1/projects/" + project + "/milestones";
+                  throw Error("AGENT_CONFIGURATION_CONSUMER_SCOPE");
+                return "/api/v1/projects/" + project + "/agents";
               },
+              "POST",
+            );
+            consumer(
+              auth.agentConfiguration,
+              "checkOriginal",
+              "agent.checkOriginal",
+              () => "/api/v1/projects/" + project + "/agent-commands/lookup",
               "POST",
             );
           }
-          if (createMilestone) {
-            consumer(
-              auth.workSprintLifecycle,
-              "create",
-              "sprint.create",
-              (a) => {
-                if (a[0] !== project || a[1]?.milestone_id !== createMilestone)
-                  throw Error("SPRINT_CREATE_CONSUMER_SCOPE");
-                return "/api/v1/projects/" + project + "/sprints";
-              },
-              "POST",
-            );
-          }
-          if (taskCancel) {
-            consumer(
-              auth.workReview,
-              "startTransfer",
-              "taskCancel.transfer",
-              (a) => {
-                if (
-                  a.length !== 3 ||
-                  a[0] !== project ||
-                  !taskCancel.includes(a[1]) ||
-                  a[2]?.request?.target_state !== "cancelled"
-                )
-                  throw Error("TASK_CANCEL_SCOPE");
-                return (
-                  "/api/v1/projects/" + project + "/tasks/" + a[1] + "/transfer"
-                );
-              },
-              "POST",
-            );
-            if (timelineTask) throw Error("TASK_CANCEL_DUPLICATE_TIMELINE");
-            consumer(auth.workReview, "events", "work.events", (a) => {
-              if (a[0] !== project || !taskCancel.includes(a[1]))
-                throw Error("TASK_CANCEL_TIMELINE_SCOPE");
+        }
+        if (reorderMilestone) {
+          consumer(auth.workMilestoneReordering, "reorder", "milestoneReorder.reorder", (a) => {
+            if (a[0] !== project || a[1] !== reorderMilestone) throw Error("MILESTONE_REORDER_CONSUMER_SCOPE");
+            return "/api/v1/projects/" + project + "/milestones/" + reorderMilestone + "/reorder";
+          }, "POST");
+        }
+        if (taskDependency) {
+          consumer(auth.workTaskDependencies, "candidates", "taskDependency.candidates", a => {
+            if (a.length !== 2 || a[0] !== project || a[1]?.limit !== 50 || Object.keys(a[1]).some(k => !["limit", "text", "cursor"].includes(k))) throw Error("TASK_DEPENDENCY_CANDIDATES_SCOPE");
+            return "/api/v1/projects/" + project + "/tasks";
+          });
+          for (const method of ["add", "resolve"])
+            consumer(auth.workTaskDependencies, method, "taskDependency." + method, a => {
+              if (a.length !== (method === "add" ? 4 : 5) || a[0] !== project || a[1] !== taskDependency.task || (method === "resolve" && a[3] !== taskDependency.related) || (method === "add" && a[2]?.request?.metadata?.related_task_id !== taskDependency.related)) throw Error("TASK_DEPENDENCY_CONSUMER_SCOPE");
+              const before = a[method === "add" ? 3 : 4];
+              if (!before || before.project_id !== project || before.id !== taskDependency.task || before.version !== a[2]?.expected_version) throw Error("TASK_DEPENDENCY_ORIGINAL_TASK");
+              return "/api/v1/projects/" + project + "/tasks/" + taskDependency.task + "/blockers" + (method === "resolve" ? "/resolve" : "");
+            }, "POST");
+        }
+        if (humanBlockerTask) {
+          for (const method of ["add", "resolve"])
+            consumer(auth.workTaskBlockers, method, "humanBlocker." + method, a => {
+              if (a.length !== 4 || a[0] !== project || a[1] !== humanBlockerTask || a[3]?.project_id !== project || a[3]?.id !== humanBlockerTask || a[3]?.version !== a[2]?.expected_version) throw Error("HUMAN_BLOCKER_CONSUMER_SCOPE");
+              return "/api/v1/projects/" + project + "/tasks/" + humanBlockerTask + "/blockers" + (method === "resolve" ? "/resolve" : "");
+            }, "POST");
+        }
+        if (reorderSprint) {
+          consumer(auth.workSprintReordering, "reorder", "sprintReorder.reorder", (a) => {
+            if (a[0] !== project || a[1] !== reorderSprint) throw Error("SPRINT_REORDER_CONSUMER_SCOPE");
+            return "/api/v1/projects/" + project + "/sprints/" + reorderSprint + "/reorder";
+          }, "POST");
+        }
+        if (editMilestone) {
+          consumer(auth.workMilestoneEditing, "update", "milestone.update", (a) => {
+            if (a[0] !== project || a[1] !== editMilestone) throw Error("MILESTONE_UPDATE_CONSUMER_SCOPE");
+            return "/api/v1/projects/" + project + "/milestones/" + editMilestone;
+          }, "PATCH");
+          consumer(auth.workMilestoneEditing, "checkOriginal", "milestone.checkOriginal", () => "/api/v1/projects/" + project + "/structure-commands/lookup", "POST");
+        }
+        if (editSprint) {
+          consumer(auth.workSprintEditing, "update", "sprintEdit.update", (a) => {
+            if (a[0] !== project || a[1] !== editSprint) throw Error("SPRINT_UPDATE_CONSUMER_SCOPE");
+            return "/api/v1/projects/" + project + "/sprints/" + editSprint;
+          }, "PATCH");
+          consumer(auth.workSprintEditing, "checkOriginal", "sprintEdit.checkOriginal", () => "/api/v1/projects/" + project + "/structure-commands/lookup", "POST");
+        }
+        if (milestoneCreate) {
+          consumer(
+            auth.workMilestonePlanning,
+            "create",
+            "milestone.create",
+            (a) => {
+              if (a[0] !== project)
+                throw Error("MILESTONE_CREATE_CONSUMER_SCOPE");
+              return "/api/v1/projects/" + project + "/milestones";
+            },
+            "POST",
+          );
+        }
+        if (createMilestone) {
+          consumer(
+            auth.workSprintLifecycle,
+            "create",
+            "sprint.create",
+            (a) => {
+              if (a[0] !== project || a[1]?.milestone_id !== createMilestone)
+                throw Error("SPRINT_CREATE_CONSUMER_SCOPE");
+              return "/api/v1/projects/" + project + "/sprints";
+            },
+            "POST",
+          );
+        }
+        if (taskCancel) {
+          consumer(auth.workReview, "startTransfer", "taskCancel.transfer", a => {
+            if (a.length !== 3 || a[0] !== project || !taskCancel.includes(a[1]) || a[2]?.request?.target_state !== "cancelled") throw Error("TASK_CANCEL_SCOPE");
+            return "/api/v1/projects/" + project + "/tasks/" + a[1] + "/transfer";
+          }, "POST");
+          if (timelineTask) throw Error("TASK_CANCEL_DUPLICATE_TIMELINE");
+          consumer(auth.workReview, "events", "work.events", a => {
+            if (a[0] !== project || !taskCancel.includes(a[1])) throw Error("TASK_CANCEL_TIMELINE_SCOPE");
+            return "/api/v1/projects/" + project + "/tasks/" + a[1] + "/events";
+          });
+        }
+        if (sprintCompletion) {
+          for (const method of ["complete", "start"])
+            consumer(auth.workSprintLifecycle, method, "sprintCompletion." + method, a => {
+              if (a.length !== 3 || a[0] !== project || ![sprintCompletion.first, sprintCompletion.next].includes(a[1]) || (method === "start" && a[1] !== sprintCompletion.next)) throw Error("SPRINT_COMPLETION_SCOPE");
+              return "/api/v1/projects/" + project + "/sprints/" + a[1] + "/" + method;
+            }, "POST");
+          consumer(auth.workSprintLifecycle, "checkOriginal", "sprintCompletion.lookup", a => {
+            if (a.length !== 0) throw Error("SPRINT_COMPLETION_LOOKUP_SCOPE");
+            return "/api/v1/projects/" + project + "/sprint-lifecycle-commands/lookup";
+          }, "POST");
+        }
+        if (startSprint) {
+          consumer(
+            auth.workSprintLifecycle,
+            "start",
+            "sprint.start",
+            (a) => {
+              if (a[0] !== project || a[1] !== startSprint)
+                throw Error("SPRINT_START_CONSUMER_SCOPE");
               return (
-                "/api/v1/projects/" + project + "/tasks/" + a[1] + "/events"
-              );
-            });
-          }
-          if (sprintCompletion) {
-            for (const method of ["complete", "start"])
-              consumer(
-                auth.workSprintLifecycle,
-                method,
-                "sprintCompletion." + method,
-                (a) => {
-                  if (
-                    a.length !== 3 ||
-                    a[0] !== project ||
-                    ![sprintCompletion.first, sprintCompletion.next].includes(
-                      a[1],
-                    ) ||
-                    (method === "start" && a[1] !== sprintCompletion.next)
-                  )
-                    throw Error("SPRINT_COMPLETION_SCOPE");
-                  return (
-                    "/api/v1/projects/" +
-                    project +
-                    "/sprints/" +
-                    a[1] +
-                    "/" +
-                    method
-                  );
-                },
-                "POST",
-              );
-            consumer(
-              auth.workSprintLifecycle,
-              "checkOriginal",
-              "sprintCompletion.lookup",
-              (a) => {
-                if (a.length !== 0)
-                  throw Error("SPRINT_COMPLETION_LOOKUP_SCOPE");
-                return (
-                  "/api/v1/projects/" +
-                  project +
-                  "/sprint-lifecycle-commands/lookup"
-                );
-              },
-              "POST",
-            );
-          }
-          if (startSprint) {
-            consumer(
-              auth.workSprintLifecycle,
-              "start",
-              "sprint.start",
-              (a) => {
-                if (a[0] !== project || a[1] !== startSprint)
-                  throw Error("SPRINT_START_CONSUMER_SCOPE");
-                return (
-                  "/api/v1/projects/" +
-                  project +
-                  "/sprints/" +
-                  startSprint +
-                  "/start"
-                );
-              },
-              "POST",
-            );
-            consumer(
-              auth.workSprintLifecycle,
-              "checkOriginal",
-              "sprint.checkOriginal",
-              () =>
                 "/api/v1/projects/" +
                 project +
-                "/sprint-lifecycle-commands/lookup",
-              "POST",
-            );
-          }
-        },
-        taskReorder(project: string, task: string) {
-          if (
-            !auth ||
-            retired ||
-            taskReorderRegistered ||
-            ![project, task].every((value) =>
-              /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-                value,
-              ),
-            )
-          )
-            throw Error("TASK_REORDER_REGISTRATION");
-          taskReorderRegistered = true;
-          consumer(
-            auth.workReview,
-            "startReorder",
-            "taskReorder.startReorder",
-            (args) => {
-              if (args.length !== 3 || args[0] !== project || args[1] !== task)
-                throw Error("TASK_REORDER_CONSUMER_SCOPE");
-              return (
-                "/api/v1/projects/" + project + "/tasks/" + task + "/reorder"
+                "/sprints/" +
+                startSprint +
+                "/start"
               );
             },
             "POST",
           );
           consumer(
-            auth.workReview,
+            auth.workSprintLifecycle,
             "checkOriginal",
-            "taskReorder.checkOriginal",
-            (args) => {
-              if (args.length !== 0) throw Error("TASK_REORDER_LOOKUP_SCOPE");
-              return "/api/v1/projects/" + project + "/task-commands/lookup";
-            },
+            "sprint.checkOriginal",
+            () =>
+              "/api/v1/projects/" +
+              project +
+              "/sprint-lifecycle-commands/lookup",
             "POST",
           );
+        }
+      },
+      taskReorder(project: string, task: string) {
+        if (!auth || retired || taskReorderRegistered || ![project, task].every(value => /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(value))) throw Error("TASK_REORDER_REGISTRATION");
+        taskReorderRegistered = true;
+        consumer(auth.workReview, "startReorder", "taskReorder.startReorder", args => {
+          if (args.length !== 3 || args[0] !== project || args[1] !== task) throw Error("TASK_REORDER_CONSUMER_SCOPE");
+          return "/api/v1/projects/" + project + "/tasks/" + task + "/reorder";
+        }, "POST");
+        consumer(auth.workReview, "checkOriginal", "taskReorder.checkOriginal", args => {
+          if (args.length !== 0) throw Error("TASK_REORDER_LOOKUP_SCOPE");
+          return "/api/v1/projects/" + project + "/task-commands/lookup";
+        }, "POST");
+      },
+      expectSecretMaterial(value: unknown) { stageSecretMaterial(value); },
+      runnerMaterialMatches(value: unknown) {
+        const matched = typeof value === "string" && systemRunnerMaterial !== undefined && value === systemRunnerMaterial;
+        if (matched) systemRunnerMaterial = undefined;
+        return matched;
+      },
+      snapshot() {
+        return {
+          retired,
+          failed,
+          pending: tails.size,
+          current: current(),
+          not_busy: auth?.state.busy === false,
+          rows: [...rows.values()],
+          calls: calls.map((c) => ({
+            ...c,
+            current: c.current && current() && identities.get(c) === identity(),
+          })),
+        };
+      },
+      finish() {
+        if (retired) return this.snapshot();
+        if (tails.size)
+          throw Error("TASK_REVIEW_ORIGINAL_OBSERVATIONS_PENDING");
+        retired = true;
+        for (const restore of restorers.reverse()) restore();
+        for (const call of calls) { writeInputs.delete(call); systemRunnerMaterials.delete(call); deleteMaterials.delete(call); }
+        originalDeletePreview = originalDeletion = undefined;
+        originalCreate = undefined;
+        originalAgentCreate = undefined;
+        originalEdits.length = 0;
+        originalTaskReorders.length = 0;
+        originalAgentEdits.length = 0;
+        originalMilestoneEdits.length = 0;
+        originalMilestoneReorders.length = 0;
+        originalSprintReorders.length = 0;
+        originalHumanBlockers.length = 0;
+        originalSprintEdits.length = 0;
+        originalSprintStart = undefined;
+        originalSprintCompletions.length = 0;
+        originalSprintCreate = undefined;
+        originalMilestoneCreate = undefined;
+        originalVariableWrites.length = 0;
+        originalTextWrites.length = 0;
+        originalSchedulerWrites.length = 0;
+        originalSystemRunnerWrites.length = 0;
+        for (const original of originalSecretWrites) original.input = undefined;
+        originalSecretWrites.length = 0;
+        if (pendingSecretMaterial !== undefined) failed = true;
+        pendingSecretMaterial = undefined;
+        systemRunnerMaterial = undefined;
+        return this.snapshot();
+      },
+    };
+    const signals = new WeakMap<AbortSignal, number>();
+    const streams = new WeakMap<ReadableStream, number>();
+    const readers = new WeakMap<ReadableStreamDefaultReader, number>();
+    const safeURL = (value: string) => {
+      const url = new URL(value, location.href);
+      // Browser observations need only the pathname. PW records the bounded
+      // safe query projection separately for each original Request.
+      return `${url.origin}${url.pathname}`;
+    };
+    const errorName = (error: unknown) =>
+      error instanceof Error &&
+      ["AbortError", "TypeError", "Error", "TimeoutError"].includes(error.name)
+        ? error.name
+        : "other";
+    const record = (kind: string, fields: Record<string, unknown> = {}) => {
+      if (sequence >= 2048) return;
+      const controls = [...document.querySelectorAll("button")].map(
+        (button) => {
+          if (button.getAttribute("aria-hidden") === "true") return undefined;
+          const label = button.getAttribute("aria-label")?.trim();
+          if (label) return label;
+          const visible = button.cloneNode(true) as HTMLElement;
+          visible
+            .querySelectorAll('[aria-hidden="true"]')
+            .forEach((node) => node.remove());
+          return visible.textContent?.replace(/\s+/g, " ").trim();
         },
-        expectSecretMaterial(value: unknown) {
-          stageSecretMaterial(value);
-        },
-        runnerMaterialMatches(value: unknown) {
-          const matched =
-            typeof value === "string" &&
-            systemRunnerMaterial !== undefined &&
-            value === systemRunnerMaterial;
-          if (matched) systemRunnerMaterial = undefined;
-          return matched;
-        },
-        snapshot() {
-          return {
-            retired,
-            failed,
-            pending: tails.size,
-            current: current(),
-            not_busy: auth?.state.busy === false,
-            rows: [...rows.values()],
-            calls: calls.map((c) => ({
-              ...c,
-              current:
-                c.current && current() && identities.get(c) === identity(),
-            })),
-          };
-        },
-        finish() {
-          if (retired) return this.snapshot();
-          if (tails.size)
-            throw Error("TASK_REVIEW_ORIGINAL_OBSERVATIONS_PENDING");
-          retired = true;
-          for (const restore of restorers.reverse()) restore();
-          for (const call of calls) {
-            writeInputs.delete(call);
-            systemRunnerMaterials.delete(call);
-            deleteMaterials.delete(call);
-          }
-          originalDeletePreview = originalDeletion = undefined;
-          originalCreate = undefined;
-          originalAgentCreate = undefined;
-          originalEdits.length = 0;
-          originalTaskReorders.length = 0;
-          originalAgentEdits.length = 0;
-          originalMilestoneEdits.length = 0;
-          originalMilestoneReorders.length = 0;
-          originalSprintReorders.length = 0;
-          originalHumanBlockers.length = 0;
-          originalSprintEdits.length = 0;
-          originalSprintStart = undefined;
-          originalSprintCompletions.length = 0;
-          originalSprintCreate = undefined;
-          originalMilestoneCreate = undefined;
-          originalVariableWrites.length = 0;
-          originalTextWrites.length = 0;
-          originalSchedulerWrites.length = 0;
-          originalSystemRunnerWrites.length = 0;
-          for (const original of originalSecretWrites)
-            original.input = undefined;
-          originalSecretWrites.length = 0;
-          if (pendingSecretMaterial !== undefined) failed = true;
-          pendingSecretMaterial = undefined;
-          systemRunnerMaterial = undefined;
-          return this.snapshot();
-        },
-      };
-      const signals = new WeakMap<AbortSignal, number>();
-      const streams = new WeakMap<ReadableStream, number>();
-      const readers = new WeakMap<ReadableStreamDefaultReader, number>();
-      const safeURL = (value: string) => {
-        const url = new URL(value, location.href);
-        // Browser observations need only the pathname. PW records the bounded
-        // safe query projection separately for each original Request.
-        return `${url.origin}${url.pathname}`;
-      };
-      const errorName = (error: unknown) =>
-        error instanceof Error &&
-        ["AbortError", "TypeError", "Error", "TimeoutError"].includes(
-          error.name,
-        )
-          ? error.name
-          : "other";
-      const record = (kind: string, fields: Record<string, unknown> = {}) => {
-        if (sequence >= 2048) return;
-        const controls = [...document.querySelectorAll("button")].map(
-          (button) => {
-            if (button.getAttribute("aria-hidden") === "true") return undefined;
-            const label = button.getAttribute("aria-label")?.trim();
-            if (label) return label;
-            const visible = button.cloneNode(true) as HTMLElement;
-            visible
-              .querySelectorAll('[aria-hidden="true"]')
-              .forEach((node) => node.remove());
-            return visible.textContent?.replace(/\s+/g, " ").trim();
-          },
+      );
+      try {
+        track(
+          send({
+            seq: ++sequence,
+            at: performance.timeOrigin + performance.now(),
+            document_at: performance.timeOrigin,
+            kind,
+            ...fields,
+            route: safeURL(location.href),
+            visibility: document.visibilityState,
+            logout_control: controls.includes("退出登录"),
+            session_check_control: controls.includes("检查当前会话"),
+          }),
+          () => {},
+          () => {},
         );
+      } catch {
+        // Closing the diagnostic channel must not alter the original call.
+      }
+    };
+    const originalFetch = window.fetch;
+    window.fetch = function (input, init) {
+      const result = originalFetch.call(this, input, init);
+      const rawURL = input instanceof Request ? input.url : String(input);
+      try {
+        if (!new URL(rawURL, location.href).pathname.startsWith("/api/"))
+          return result;
+      } catch {
+        return result;
+      }
+      if (metadataScope) {
+        // The package fixture reuses this existing JSON observation only for
+        // its closed metadata GET set. Its binary download keeps its separate
+        // original-finished/file-byte gate and never enters this JSON reader.
+        const url = new URL(rawURL, location.href);
+        const method = init?.method ?? (input instanceof Request ? input.method : "GET");
+        const project = "/api/v1/projects/" + metadataScope.project;
+        if (method !== "GET" || url.origin !== location.origin || ![
+          "/api/v1/session", "/api/v1/projects", "/api/v1/projects/resolve",
+          project, project + "/skills/catalog", project + "/skills/" + metadataScope.skill,
+        ].includes(url.pathname)) return result;
+      }
+      const id = ++nextFetch;
+      if (id > 192) failed = true;
+      const url = new URL(rawURL, location.href);
+      const method =
+        init?.method ?? (input instanceof Request ? input.method : "GET");
+      const candidates = calls.filter(
+        (call) =>
+          !call.settled &&
+          call.bound === 0 &&
+          call.path === url.pathname &&
+          call.method === method,
+      );
+      const call = candidates.length === 1 ? candidates[0] : undefined;
+      if (call) call.bound++;
+      const row: any = {
+        id,
+        call_id: call?.id ?? null,
+        method,
+        path: url.pathname,
+        request_id: null,
+        status: null,
+        length: null,
+        bytes: 0,
+        digest: null,
+        typed_digest: null,
+        fetch_returned: false,
+        fetch_rejected: false,
+        readers: 0,
+        reads: 0,
+        read_returns: 0,
+        eof: false,
+        closed: false,
+        release: 0,
+        reader_cancel: 0,
+        stream_cancel: 0,
+        aborted: false,
+        error: false,
+      };
+      rows.set(id, row);
+      if (call && writeInputs.has(call)) {
+        // Observe only the string body supplied to the original fetch; never
+        // read a Request stream or substitute a reconstructed command.
+        const original = writeInputs.get(call);
         try {
-          track(
-            send({
-              seq: ++sequence,
-              at: performance.timeOrigin + performance.now(),
-              document_at: performance.timeOrigin,
-              kind,
-              ...fields,
-              route: safeURL(location.href),
-              visibility: document.visibilityState,
-              logout_control: controls.includes("退出登录"),
-              session_check_control: controls.includes("检查当前会话"),
-            }),
-            () => {},
-            () => {},
+          const raw = init?.body;
+          const key = new Headers(init?.headers).get("idempotency-key");
+          if (
+            typeof raw !== "string" ||
+            new TextEncoder().encode(raw).length > 512 << 10 ||
+            (call.kind === "knowledgeDelete.preview" ? key !== null :
+              !key || !/^[A-Za-z0-9._:/-]{1,128}$/.test(key))
+          )
+            throw Error("TASK_INTAKE_ORIGINAL_REQUEST_MISSING");
+          const parsed = JSON.parse(raw);
+          const equal = (a: unknown, b: unknown) =>
+            JSON.stringify(canonical(a)) === JSON.stringify(canonical(b));
+          let matches = false;
+          if (call.kind === "secretWrite.create" || call.kind === "secretWrite.update") {
+            const progress = auth.projectSecretCommands.progress;
+            const target = call.kind === "secretWrite.create" ? parsed.request?.variable_id : original.target;
+            const request = call.kind === "secretWrite.create" ? { variable_id: target, ...original.input } : original.input;
+            matches = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(target) &&
+              equal(parsed, call.kind === "secretWrite.create" ? { request } : { expected_version: original.expected, request }) &&
+              progress?.identity.projectID === original.project && progress.identity.targetID === target && progress.key === key &&
+              originalSecretWrites.every(old => old === original || old.key !== key);
+            original.input = undefined;
+            if (matches) { original.target = target; original.key = key; }
+          } else if (call.kind === "secretWrite.delete") {
+            const progress = auth.projectSecretCommands.progress;
+            matches = equal(parsed, { expected_version: original.expected }) &&
+              progress?.identity.kind === "delete" && progress.identity.projectID === original.project &&
+              progress.identity.targetID === original.target && progress.identity.expectedVersion === original.expected && progress.key === key &&
+              originalSecretWrites.every(old => old === original || old.key !== key);
+            if (matches) original.key = key;
+          } else if (call.kind === "secretWrite.lookup") {
+            matches = original.current && original.source?.call.rejected === true && original.source.call.settled === true &&
+              key === original.source.key && equal(parsed, { command: "project.secret_variable.update", target_id: original.source.target, expected_version: original.source.expected });
+          } else if (call.kind === "systemRunner.start") {
+            matches = equal(parsed, original.command.request) && originalSystemRunnerWrites.every(old => old === original || old.key !== key);
+            if (matches) original.key = key;
+          } else if (call.kind === "systemRunner.checkOriginal") {
+            matches = original.current && original.source?.call.rejected === true && original.source.call.settled === true &&
+              original.source.command.command === "runner.create" && key === original.source.key &&
+              equal(parsed, { command: original.source.command.command, request: original.source.command.request });
+          } else if (call.kind === "work.startCreate") {
+            const { task_id, ...draft } = parsed.request ?? {};
+            matches =
+              Object.keys(parsed).join() === "request" &&
+              typeof task_id === "string" &&
+              /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+                task_id,
+              ) &&
+              equal(draft, original.draft);
+            if (matches) {
+              original.request = parsed.request;
+              original.key = key;
+            }
+          } else if (call.kind === "work.startReady") {
+            matches =
+              original.task === original.source?.request?.task_id &&
+              key !== original.source?.key &&
+              equal(parsed, original.input);
+          } else if (call.kind === "work.checkOriginal") {
+            matches =
+              original.current &&
+              original.source?.call.rejected === true &&
+              original.source.call.settled === true &&
+              key === original.source.key &&
+              equal(parsed, {
+                command: "work.task.create",
+                request: original.source.request,
+              });
+          } else if (call.kind === "taskReorder.startReorder") {
+            matches = originalTaskReorders.every(old => old === original || old.key !== key) && equal(parsed, original.input);
+            if (matches) original.key = key;
+          } else if (call.kind === "taskReorder.checkOriginal") {
+            matches = original.current && original.source?.call.rejected === true && original.source.call.settled === true && key === original.source.key &&
+              equal(parsed, { command: "work.task.reorder", target_id: original.source.task, ...original.source.input });
+          } else if (call.kind === "edit.startEdit") {
+            matches =
+              originalEdits.every(
+                (old) => old === original || old.key !== key,
+              ) && equal(parsed, original.input);
+            if (matches) original.key = key;
+          } else if (call.kind === "edit.startReady") {
+            matches =
+              originalEdits.length > 0 &&
+              originalEdits.every(
+                (old) =>
+                  old.project === original.project &&
+                  old.task === original.task &&
+                  typeof old.key === "string" &&
+                  old.key !== key,
+              ) &&
+              equal(parsed, original.input);
+          } else if (call.kind === "edit.checkOriginal") {
+            matches =
+              original.current &&
+              original.source?.call.rejected === true &&
+              original.source.call.settled === true &&
+              key === original.source.key &&
+              equal(parsed, {
+                command: "work.task.update",
+                target_id: original.source.task,
+                expected_version: original.source.input.expected_version,
+                request: original.source.input.request,
+              });
+          } else if (call.kind === "agent.startCreate") {
+            const { agent_id, ...fields } = parsed.request ?? {};
+            matches =
+              Object.keys(parsed).join() === "request" &&
+              typeof agent_id === "string" &&
+              /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+                agent_id,
+              ) &&
+              equal(fields, original.fields);
+            if (matches) {
+              original.request = parsed.request;
+              original.key = key;
+            }
+          } else if (call.kind === "agent.checkOriginal") {
+            matches =
+              original.current &&
+              original.source?.call.rejected === true &&
+              original.source.call.settled === true &&
+              key === original.source.key &&
+              equal(parsed, {
+                command: "agent.create",
+                request: original.source.request,
+              });
+          } else if (call.kind === "agentEdit.startUpdate") {
+            matches =
+              originalAgentEdits.every(
+                (old) =>
+                  old === original ||
+                  (typeof old.key === "string" && old.key !== key),
+              ) && equal(parsed, original.input);
+            if (matches) original.key = key;
+          } else if (call.kind === "agentEdit.checkOriginal") {
+            matches =
+              original.current &&
+              original.source?.call.rejected === true &&
+              original.source.call.settled === true &&
+              key === original.source.key &&
+              equal(parsed, {
+                command: "agent.update",
+                target_id: original.source.agent,
+                expected_version: original.source.input.expected_version,
+                request: original.source.input.request,
+              });
+          }
+          if (call.kind === "milestoneReorder.reorder") {
+            matches = originalMilestoneReorders.every(old => old === original || (typeof old.key === "string" && old.key !== key)) && equal(parsed, original.input);
+            if (matches) original.key = key;
+          }
+          if (call.kind === "taskDependency.add" || call.kind === "taskDependency.resolve") {
+            const { blocker_id, ...draft } = parsed.request ?? {};
+            matches = typeof blocker_id === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(blocker_id) &&
+              originalTaskDependencies.every(old => old === original || (typeof old.key === "string" && old.key !== key)) &&
+              (call.kind === "taskDependency.add"
+                ? !Object.hasOwn(original.input.request, "blocker_id") && equal(parsed, { expected_version: original.input.expected_version, request: { ...original.input.request, blocker_id } }) && equal(draft, original.input.request)
+                : equal(parsed, original.input) && originalTaskDependencies[0]?.blocker === blocker_id && originalTaskDependencies[0]?.call.fulfilled === true && original.related === originalTaskDependencies[0]?.input.request.metadata.related_task_id);
+            if (matches) { original.key = key; original.blocker = blocker_id; }
+          }
+          if (call.kind === "humanBlocker.add" || call.kind === "humanBlocker.resolve") {
+            const { blocker_id, ...draft } = parsed.request ?? {};
+            matches = typeof blocker_id === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(blocker_id) &&
+              originalHumanBlockers.every(old => old === original || (typeof old.key === "string" && old.key !== key)) &&
+              (call.kind === "humanBlocker.add"
+                ? !Object.hasOwn(original.input.request, "blocker_id") && equal(parsed, { expected_version: original.input.expected_version, request: { ...original.input.request, blocker_id } }) && equal(draft, original.input.request)
+                : equal(parsed, original.input) && originalHumanBlockers[0]?.blocker === blocker_id && originalHumanBlockers[0]?.call.fulfilled === true);
+            if (matches) { original.key = key; original.blocker = blocker_id; }
+          }
+          if (call.kind === "sprintReorder.reorder") {
+            matches = originalSprintReorders.every(old => old === original || (typeof old.key === "string" && old.key !== key)) && equal(parsed, original.input);
+            if (matches) original.key = key;
+          }
+          if (call.kind === "milestone.update") {
+            matches = originalMilestoneEdits.every(old => old === original || (typeof old.key === "string" && old.key !== key)) && equal(parsed, original.input);
+            if (matches) original.key = key;
+          } else if (call.kind === "milestone.checkOriginal") {
+            matches = original.current && original.source?.call.rejected === true && original.source.call.settled === true && key === original.source.key && equal(parsed, { command: "work.milestone.update", target_id: original.source.milestone, expected_version: original.source.input.expected_version, request: original.source.input.request });
+          }
+          if (call.kind === "sprintEdit.update") {
+            matches = originalSprintEdits.every(old => old === original || (typeof old.key === "string" && old.key !== key)) && equal(parsed, original.input);
+            if (matches) original.key = key;
+          } else if (call.kind === "sprintEdit.checkOriginal") {
+            matches = original.current && original.source?.call.rejected === true && original.source.call.settled === true && key === original.source.key && equal(parsed, { command: "work.sprint.update", target_id: original.source.sprint, expected_version: original.source.input.expected_version, request: original.source.input.request });
+          }
+          if (call.kind === "scheduler.startUpdate") {
+            matches = originalSchedulerWrites.every(old => old === original ||
+              (typeof old.key === "string" && old.key !== key)) && equal(parsed, original.input);
+            if (matches) original.key = key;
+          } else if (call.kind === "scheduler.checkOriginal") {
+            // Legacy Project Lookup binds only the key and command, not the
+            // Scheduler intent body. Never add that body to its wire request.
+            matches = original.current && original.source?.call.rejected === true &&
+              original.source.call.settled === true && key === original.source.key &&
+              equal(parsed, { command: "update" });
+          }
+          if (call.kind === "knowledgeDelete.preview") {
+            matches = key === null && equal(parsed, {});
+          } else if (call.kind === "knowledgeDelete.startDelete") {
+            const preview = original.preview;
+            matches = preview?.call.fulfilled === true && preview.call.settled === true && preview.call.material_matches === true &&
+              original.project === preview.project && original.root === preview.root &&
+              equal(original.nodes, preview.nodes) && equal(parsed, original.input) &&
+              equal(parsed, { confirmation_token: preview.token });
+            if (matches) original.key = key;
+          } else if (call.kind === "knowledgeDelete.checkOriginal") {
+            matches = original.current && original.source?.call.rejected === true && original.source.call.settled === true &&
+              key === original.source.key && equal(parsed, { command: "delete-subtree", document_id: original.source.root, request: original.source.input });
+          }
+          if (call.kind === "knowledgeDelete.startDelete" || call.kind === "knowledgeDelete.checkOriginal") {
+            const token = call.kind === "knowledgeDelete.startDelete" ? parsed.confirmation_token : parsed.request?.confirmation_token;
+            if (typeof token !== "string") throw Error("KNOWLEDGE_DELETE_ORIGINAL_TOKEN_MISSING");
+            track(digest(new TextEncoder().encode(token)), tokenHash => {
+              call.confirmation_token_sha256 = row.confirmation_token_sha256 = tokenHash;
+            }, () => { row.error = true; });
+          }
+          if (call.kind === "knowledgeText.write") {
+            matches = originalTextWrites.every(old => old === original || (typeof old.key === "string" && old.key !== key)) && equal(parsed, original.intent.request);
+            if (matches) original.key = key;
+          }
+          if (call.kind === "variable.create") {
+            const request = parsed?.request;
+            matches =
+              originalVariableWrites.length === 1 &&
+              Object.keys(parsed).join() === "request" &&
+              request !== null && typeof request === "object" && !Array.isArray(request) &&
+              /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(request.variable_id) &&
+              equal(request, { ...original.fields, variable_id: request.variable_id });
+            if (matches) {
+              original.key = key;
+              original.request = request;
+            }
+          } else if (call.kind === "variable.update" || call.kind === "variable.delete") {
+            const creation = originalVariableWrites[0];
+            matches =
+              creation?.call.kind === "variable.create" &&
+              original.project === creation.project &&
+              original.variable === creation.request?.variable_id &&
+              originalVariableWrites.every((old) => old === original ||
+                (typeof old.key === "string" && old.key !== key)) &&
+              equal(parsed, call.kind === "variable.delete" ? { expected_version: original.expectedVersion } : { expected_version: original.expectedVersion, request: original.fields });
+            if (matches) original.key = key;
+          }
+          if (call.kind === "milestone.create") {
+            const request = parsed?.request;
+            matches =
+              Object.keys(parsed).join() === "request" &&
+              request !== null &&
+              typeof request === "object" &&
+              !Array.isArray(request) &&
+              /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+                request.milestone_id,
+              ) &&
+              equal(request, {
+                ...original.fields,
+                milestone_id: request.milestone_id,
+              });
+            if (matches) {
+              original.key = key;
+              original.request = request;
+            }
+          }
+          if (call.kind === "sprint.create") {
+            const request = parsed?.request;
+            matches =
+              Object.keys(parsed).join() === "request" &&
+              request !== null &&
+              typeof request === "object" &&
+              !Array.isArray(request) &&
+              /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+                request.sprint_id,
+              ) &&
+              equal(request, {
+                ...original.fields,
+                sprint_id: request.sprint_id,
+              });
+            if (matches) {
+              original.key = key;
+              original.request = request;
+            }
+          }
+          if (call.kind === "taskCancel.transfer") {
+            matches = equal(parsed, original.input) && Object.keys(parsed).sort().join() === "expected_version,request" &&
+              parsed.request !== null && typeof parsed.request === "object" && !Array.isArray(parsed.request) && parsed.request.target_state === "cancelled" &&
+              Object.keys(parsed.request).every(k => k === "target_state" || k === "comment") &&
+              originalTaskCancellations.every(old => old === original || old.key !== key);
+            if (matches) original.key = key;
+          }
+          if (call.kind === "sprintCompletion.complete" || call.kind === "sprintCompletion.start") {
+            matches = equal(parsed, original.input) && Object.keys(parsed).sort().join() === "expected_version,request" && parsed.request !== null && typeof parsed.request === "object" && !Array.isArray(parsed.request) && Object.keys(parsed.request).length === 0 && originalSprintCompletions.every(old => old === original || old.key !== key);
+            if (matches) original.key = key;
+          } else if (call.kind === "sprintCompletion.lookup") {
+            matches = original.current && original.source?.call.rejected === true && original.source.call.settled === true && key === original.source.key && equal(parsed, { command: "work.sprint.complete", target_id: original.source.sprint, expected_version: original.source.input.expected_version, request: original.source.input.request });
+          }
+          if (call.kind === "sprint.start") {
+            matches =
+              equal(parsed, original.input) &&
+              Object.keys(parsed).sort().join() ===
+                "expected_version,request" &&
+              parsed.request !== null &&
+              typeof parsed.request === "object" &&
+              !Array.isArray(parsed.request) &&
+              Object.keys(parsed.request).length === 0;
+            if (matches) original.key = key;
+          } else if (call.kind === "sprint.checkOriginal") {
+            matches =
+              original.current &&
+              original.source?.call.rejected === true &&
+              original.source.call.settled === true &&
+              key === original.source.key &&
+              equal(parsed, {
+                command: "work.sprint.start",
+                target_id: original.source.sprint,
+                expected_version: original.source.input.expected_version,
+                request: original.source.input.request,
+              });
+          }
+          call.request_bound = row.request_bound = matches;
+          if (call.kind.startsWith("secretWrite.")) {
+            track(digest(new TextEncoder().encode(key)), keyHash => {
+              call.idempotency_key_sha256 = row.idempotency_key_sha256 = keyHash;
+            }, () => { row.error = true; });
+          } else track(
+            Promise.all([
+              digest(new TextEncoder().encode(raw)),
+              key === null ? Promise.resolve(null) : digest(new TextEncoder().encode(key)),
+            ]),
+            ([bodyHash, keyHash]) => {
+              call.request_body_sha256 = row.request_body_sha256 = bodyHash;
+              if (keyHash !== null) call.idempotency_key_sha256 = row.idempotency_key_sha256 = keyHash;
+            },
+            () => {
+              row.error = true;
+            },
           );
         } catch {
-          // Closing the diagnostic channel must not alter the original call.
+          row.error = true;
         }
+      }
+      const signal =
+        init?.signal ?? (input instanceof Request ? input.signal : undefined);
+      if (signal && !signals.has(signal)) signals.set(signal, ++nextSignal);
+      const signalID = signal ? signals.get(signal) : undefined;
+      record("fetch-call", {
+        fetch: id,
+        signal: signalID,
+        signal_source: init?.signal
+          ? "init"
+          : input instanceof Request
+            ? "request"
+            : "none",
+        url: safeURL(rawURL),
+        method:
+          init?.method ?? (input instanceof Request ? input.method : "GET"),
+        aborted: signal?.aborted ?? false,
+      });
+      const abort = () => {
+        row.aborted = true;
+        record("signal-abort", { fetch: id, signal: signalID });
       };
-      const originalFetch = window.fetch;
-      window.fetch = function (input, init) {
-        const result = originalFetch.call(this, input, init);
-        const rawURL = input instanceof Request ? input.url : String(input);
-        try {
-          if (!new URL(rawURL, location.href).pathname.startsWith("/api/"))
-            return result;
-        } catch {
-          return result;
-        }
-        if (metadataScope) {
-          // The package fixture reuses this existing JSON observation only for
-          // its closed metadata GET set. Its binary download keeps its separate
-          // original-finished/file-byte gate and never enters this JSON reader.
-          const url = new URL(rawURL, location.href);
-          const method =
-            init?.method ?? (input instanceof Request ? input.method : "GET");
-          const project = "/api/v1/projects/" + metadataScope.project;
-          if (
-            method !== "GET" ||
-            url.origin !== location.origin ||
-            ![
-              "/api/v1/session",
-              "/api/v1/projects",
-              "/api/v1/projects/resolve",
-              project,
-              project + "/skills/catalog",
-              project + "/skills/" + metadataScope.skill,
-            ].includes(url.pathname)
-          )
-            return result;
-        }
-        const id = ++nextFetch;
-        if (id > 192) failed = true;
-        const url = new URL(rawURL, location.href);
-        const method =
-          init?.method ?? (input instanceof Request ? input.method : "GET");
-        const candidates = calls.filter(
-          (call) =>
-            !call.settled &&
-            call.bound === 0 &&
-            call.path === url.pathname &&
-            call.method === method,
-        );
-        const call = candidates.length === 1 ? candidates[0] : undefined;
-        if (call) call.bound++;
-        const row: any = {
-          id,
-          call_id: call?.id ?? null,
-          method,
-          path: url.pathname,
-          request_id: null,
-          status: null,
-          length: null,
-          bytes: 0,
-          digest: null,
-          typed_digest: null,
-          fetch_returned: false,
-          fetch_rejected: false,
-          readers: 0,
-          reads: 0,
-          read_returns: 0,
-          eof: false,
-          closed: false,
-          release: 0,
-          reader_cancel: 0,
-          stream_cancel: 0,
-          aborted: false,
-          error: false,
-        };
-        rows.set(id, row);
-        if (call && writeInputs.has(call)) {
-          // Observe only the string body supplied to the original fetch; never
-          // read a Request stream or substitute a reconstructed command.
-          const original = writeInputs.get(call);
-          try {
-            const raw = init?.body;
-            const key = new Headers(init?.headers).get("idempotency-key");
-            if (
-              typeof raw !== "string" ||
-              new TextEncoder().encode(raw).length > 512 << 10 ||
-              (call.kind === "knowledgeDelete.preview"
-                ? key !== null
-                : !key || !/^[A-Za-z0-9._:/-]{1,128}$/.test(key))
-            )
-              throw Error("TASK_INTAKE_ORIGINAL_REQUEST_MISSING");
-            const parsed = JSON.parse(raw);
-            const equal = (a: unknown, b: unknown) =>
-              JSON.stringify(canonical(a)) === JSON.stringify(canonical(b));
-            let matches = false;
-            if (
-              call.kind === "secretWrite.create" ||
-              call.kind === "secretWrite.update"
-            ) {
-              const progress = auth.projectSecretCommands.progress;
-              const target =
-                call.kind === "secretWrite.create"
-                  ? parsed.request?.variable_id
-                  : original.target;
-              const request =
-                call.kind === "secretWrite.create"
-                  ? { variable_id: target, ...original.input }
-                  : original.input;
-              matches =
-                /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-                  target,
-                ) &&
-                equal(
-                  parsed,
-                  call.kind === "secretWrite.create"
-                    ? { request }
-                    : { expected_version: original.expected, request },
-                ) &&
-                progress?.identity.projectID === original.project &&
-                progress.identity.targetID === target &&
-                progress.key === key &&
-                originalSecretWrites.every(
-                  (old) => old === original || old.key !== key,
-                );
-              original.input = undefined;
-              if (matches) {
-                original.target = target;
-                original.key = key;
-              }
-            } else if (call.kind === "secretWrite.delete") {
-              const progress = auth.projectSecretCommands.progress;
-              matches =
-                equal(parsed, { expected_version: original.expected }) &&
-                progress?.identity.kind === "delete" &&
-                progress.identity.projectID === original.project &&
-                progress.identity.targetID === original.target &&
-                progress.identity.expectedVersion === original.expected &&
-                progress.key === key &&
-                originalSecretWrites.every(
-                  (old) => old === original || old.key !== key,
-                );
-              if (matches) original.key = key;
-            } else if (call.kind === "secretWrite.lookup") {
-              matches =
-                original.current &&
-                original.source?.call.rejected === true &&
-                original.source.call.settled === true &&
-                key === original.source.key &&
-                equal(parsed, {
-                  command: "project.secret_variable.update",
-                  target_id: original.source.target,
-                  expected_version: original.source.expected,
-                });
-            } else if (call.kind === "systemRunner.start") {
-              matches =
-                equal(parsed, original.command.request) &&
-                originalSystemRunnerWrites.every(
-                  (old) => old === original || old.key !== key,
-                );
-              if (matches) original.key = key;
-            } else if (call.kind === "systemRunner.checkOriginal") {
-              matches =
-                original.current &&
-                original.source?.call.rejected === true &&
-                original.source.call.settled === true &&
-                original.source.command.command === "runner.create" &&
-                key === original.source.key &&
-                equal(parsed, {
-                  command: original.source.command.command,
-                  request: original.source.command.request,
-                });
-            } else if (call.kind === "work.startCreate") {
-              const { task_id, ...draft } = parsed.request ?? {};
-              matches =
-                Object.keys(parsed).join() === "request" &&
-                typeof task_id === "string" &&
-                /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-                  task_id,
-                ) &&
-                equal(draft, original.draft);
-              if (matches) {
-                original.request = parsed.request;
-                original.key = key;
-              }
-            } else if (call.kind === "work.startReady") {
-              matches =
-                original.task === original.source?.request?.task_id &&
-                key !== original.source?.key &&
-                equal(parsed, original.input);
-            } else if (call.kind === "work.checkOriginal") {
-              matches =
-                original.current &&
-                original.source?.call.rejected === true &&
-                original.source.call.settled === true &&
-                key === original.source.key &&
-                equal(parsed, {
-                  command: "work.task.create",
-                  request: original.source.request,
-                });
-            } else if (call.kind === "taskReorder.startReorder") {
-              matches =
-                originalTaskReorders.every(
-                  (old) => old === original || old.key !== key,
-                ) && equal(parsed, original.input);
-              if (matches) original.key = key;
-            } else if (call.kind === "taskReorder.checkOriginal") {
-              matches =
-                original.current &&
-                original.source?.call.rejected === true &&
-                original.source.call.settled === true &&
-                key === original.source.key &&
-                equal(parsed, {
-                  command: "work.task.reorder",
-                  target_id: original.source.task,
-                  ...original.source.input,
-                });
-            } else if (call.kind === "edit.startEdit") {
-              matches =
-                originalEdits.every(
-                  (old) => old === original || old.key !== key,
-                ) && equal(parsed, original.input);
-              if (matches) original.key = key;
-            } else if (call.kind === "edit.startReady") {
-              matches =
-                originalEdits.length > 0 &&
-                originalEdits.every(
-                  (old) =>
-                    old.project === original.project &&
-                    old.task === original.task &&
-                    typeof old.key === "string" &&
-                    old.key !== key,
-                ) &&
-                equal(parsed, original.input);
-            } else if (call.kind === "edit.checkOriginal") {
-              matches =
-                original.current &&
-                original.source?.call.rejected === true &&
-                original.source.call.settled === true &&
-                key === original.source.key &&
-                equal(parsed, {
-                  command: "work.task.update",
-                  target_id: original.source.task,
-                  expected_version: original.source.input.expected_version,
-                  request: original.source.input.request,
-                });
-            } else if (call.kind === "agent.startCreate") {
-              const { agent_id, ...fields } = parsed.request ?? {};
-              matches =
-                Object.keys(parsed).join() === "request" &&
-                typeof agent_id === "string" &&
-                /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-                  agent_id,
-                ) &&
-                equal(fields, original.fields);
-              if (matches) {
-                original.request = parsed.request;
-                original.key = key;
-              }
-            } else if (call.kind === "agent.checkOriginal") {
-              matches =
-                original.current &&
-                original.source?.call.rejected === true &&
-                original.source.call.settled === true &&
-                key === original.source.key &&
-                equal(parsed, {
-                  command: "agent.create",
-                  request: original.source.request,
-                });
-            } else if (call.kind === "agentEdit.startUpdate") {
-              matches =
-                originalAgentEdits.every(
-                  (old) =>
-                    old === original ||
-                    (typeof old.key === "string" && old.key !== key),
-                ) && equal(parsed, original.input);
-              if (matches) original.key = key;
-            } else if (call.kind === "agentEdit.checkOriginal") {
-              matches =
-                original.current &&
-                original.source?.call.rejected === true &&
-                original.source.call.settled === true &&
-                key === original.source.key &&
-                equal(parsed, {
-                  command: "agent.update",
-                  target_id: original.source.agent,
-                  expected_version: original.source.input.expected_version,
-                  request: original.source.input.request,
-                });
-            }
-            if (call.kind === "milestoneReorder.reorder") {
-              matches =
-                originalMilestoneReorders.every(
-                  (old) =>
-                    old === original ||
-                    (typeof old.key === "string" && old.key !== key),
-                ) && equal(parsed, original.input);
-              if (matches) original.key = key;
-            }
-            if (
-              call.kind === "taskDependency.add" ||
-              call.kind === "taskDependency.resolve"
-            ) {
-              const { blocker_id, ...draft } = parsed.request ?? {};
-              matches =
-                typeof blocker_id === "string" &&
-                /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-                  blocker_id,
-                ) &&
-                originalTaskDependencies.every(
-                  (old) =>
-                    old === original ||
-                    (typeof old.key === "string" && old.key !== key),
-                ) &&
-                (call.kind === "taskDependency.add"
-                  ? !Object.hasOwn(original.input.request, "blocker_id") &&
-                    equal(parsed, {
-                      expected_version: original.input.expected_version,
-                      request: { ...original.input.request, blocker_id },
-                    }) &&
-                    equal(draft, original.input.request)
-                  : equal(parsed, original.input) &&
-                    originalTaskDependencies[0]?.blocker === blocker_id &&
-                    originalTaskDependencies[0]?.call.fulfilled === true &&
-                    original.related ===
-                      originalTaskDependencies[0]?.input.request.metadata
-                        .related_task_id);
-              if (matches) {
-                original.key = key;
-                original.blocker = blocker_id;
-              }
-            }
-            if (
-              call.kind === "humanBlocker.add" ||
-              call.kind === "humanBlocker.resolve"
-            ) {
-              const { blocker_id, ...draft } = parsed.request ?? {};
-              matches =
-                typeof blocker_id === "string" &&
-                /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-                  blocker_id,
-                ) &&
-                originalHumanBlockers.every(
-                  (old) =>
-                    old === original ||
-                    (typeof old.key === "string" && old.key !== key),
-                ) &&
-                (call.kind === "humanBlocker.add"
-                  ? !Object.hasOwn(original.input.request, "blocker_id") &&
-                    equal(parsed, {
-                      expected_version: original.input.expected_version,
-                      request: { ...original.input.request, blocker_id },
-                    }) &&
-                    equal(draft, original.input.request)
-                  : equal(parsed, original.input) &&
-                    originalHumanBlockers[0]?.blocker === blocker_id &&
-                    originalHumanBlockers[0]?.call.fulfilled === true);
-              if (matches) {
-                original.key = key;
-                original.blocker = blocker_id;
-              }
-            }
-            if (call.kind === "sprintReorder.reorder") {
-              matches =
-                originalSprintReorders.every(
-                  (old) =>
-                    old === original ||
-                    (typeof old.key === "string" && old.key !== key),
-                ) && equal(parsed, original.input);
-              if (matches) original.key = key;
-            }
-            if (call.kind === "milestone.update") {
-              matches =
-                originalMilestoneEdits.every(
-                  (old) =>
-                    old === original ||
-                    (typeof old.key === "string" && old.key !== key),
-                ) && equal(parsed, original.input);
-              if (matches) original.key = key;
-            } else if (call.kind === "milestone.checkOriginal") {
-              matches =
-                original.current &&
-                original.source?.call.rejected === true &&
-                original.source.call.settled === true &&
-                key === original.source.key &&
-                equal(parsed, {
-                  command: "work.milestone.update",
-                  target_id: original.source.milestone,
-                  expected_version: original.source.input.expected_version,
-                  request: original.source.input.request,
-                });
-            }
-            if (call.kind === "sprintEdit.update") {
-              matches =
-                originalSprintEdits.every(
-                  (old) =>
-                    old === original ||
-                    (typeof old.key === "string" && old.key !== key),
-                ) && equal(parsed, original.input);
-              if (matches) original.key = key;
-            } else if (call.kind === "sprintEdit.checkOriginal") {
-              matches =
-                original.current &&
-                original.source?.call.rejected === true &&
-                original.source.call.settled === true &&
-                key === original.source.key &&
-                equal(parsed, {
-                  command: "work.sprint.update",
-                  target_id: original.source.sprint,
-                  expected_version: original.source.input.expected_version,
-                  request: original.source.input.request,
-                });
-            }
-            if (call.kind === "scheduler.startUpdate") {
-              matches =
-                originalSchedulerWrites.every(
-                  (old) =>
-                    old === original ||
-                    (typeof old.key === "string" && old.key !== key),
-                ) && equal(parsed, original.input);
-              if (matches) original.key = key;
-            } else if (call.kind === "scheduler.checkOriginal") {
-              // Legacy Project Lookup binds only the key and command, not the
-              // Scheduler intent body. Never add that body to its wire request.
-              matches =
-                original.current &&
-                original.source?.call.rejected === true &&
-                original.source.call.settled === true &&
-                key === original.source.key &&
-                equal(parsed, { command: "update" });
-            }
-            if (call.kind === "knowledgeDelete.preview") {
-              matches = key === null && equal(parsed, {});
-            } else if (call.kind === "knowledgeDelete.startDelete") {
-              const preview = original.preview;
-              matches =
-                preview?.call.fulfilled === true &&
-                preview.call.settled === true &&
-                preview.call.material_matches === true &&
-                original.project === preview.project &&
-                original.root === preview.root &&
-                equal(original.nodes, preview.nodes) &&
-                equal(parsed, original.input) &&
-                equal(parsed, { confirmation_token: preview.token });
-              if (matches) original.key = key;
-            } else if (call.kind === "knowledgeDelete.checkOriginal") {
-              matches =
-                original.current &&
-                original.source?.call.rejected === true &&
-                original.source.call.settled === true &&
-                key === original.source.key &&
-                equal(parsed, {
-                  command: "delete-subtree",
-                  document_id: original.source.root,
-                  request: original.source.input,
-                });
-            }
-            if (
-              call.kind === "knowledgeDelete.startDelete" ||
-              call.kind === "knowledgeDelete.checkOriginal"
-            ) {
-              const token =
-                call.kind === "knowledgeDelete.startDelete"
-                  ? parsed.confirmation_token
-                  : parsed.request?.confirmation_token;
-              if (typeof token !== "string")
-                throw Error("KNOWLEDGE_DELETE_ORIGINAL_TOKEN_MISSING");
-              track(
-                digest(new TextEncoder().encode(token)),
-                (tokenHash) => {
-                  call.confirmation_token_sha256 =
-                    row.confirmation_token_sha256 = tokenHash;
-                },
-                () => {
-                  row.error = true;
-                },
-              );
-            }
-            if (call.kind === "knowledgeText.write") {
-              matches =
-                originalTextWrites.every(
-                  (old) =>
-                    old === original ||
-                    (typeof old.key === "string" && old.key !== key),
-                ) && equal(parsed, original.intent.request);
-              if (matches) original.key = key;
-            }
-            if (call.kind === "variable.create") {
-              const request = parsed?.request;
-              matches =
-                originalVariableWrites.length === 1 &&
-                Object.keys(parsed).join() === "request" &&
-                request !== null &&
-                typeof request === "object" &&
-                !Array.isArray(request) &&
-                /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-                  request.variable_id,
-                ) &&
-                equal(request, {
-                  ...original.fields,
-                  variable_id: request.variable_id,
-                });
-              if (matches) {
-                original.key = key;
-                original.request = request;
-              }
-            } else if (
-              call.kind === "variable.update" ||
-              call.kind === "variable.delete"
-            ) {
-              const creation = originalVariableWrites[0];
-              matches =
-                creation?.call.kind === "variable.create" &&
-                original.project === creation.project &&
-                original.variable === creation.request?.variable_id &&
-                originalVariableWrites.every(
-                  (old) =>
-                    old === original ||
-                    (typeof old.key === "string" && old.key !== key),
-                ) &&
-                equal(
-                  parsed,
-                  call.kind === "variable.delete"
-                    ? { expected_version: original.expectedVersion }
-                    : {
-                        expected_version: original.expectedVersion,
-                        request: original.fields,
-                      },
-                );
-              if (matches) original.key = key;
-            }
-            if (call.kind === "milestone.create") {
-              const request = parsed?.request;
-              matches =
-                Object.keys(parsed).join() === "request" &&
-                request !== null &&
-                typeof request === "object" &&
-                !Array.isArray(request) &&
-                /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-                  request.milestone_id,
-                ) &&
-                equal(request, {
-                  ...original.fields,
-                  milestone_id: request.milestone_id,
-                });
-              if (matches) {
-                original.key = key;
-                original.request = request;
-              }
-            }
-            if (call.kind === "sprint.create") {
-              const request = parsed?.request;
-              matches =
-                Object.keys(parsed).join() === "request" &&
-                request !== null &&
-                typeof request === "object" &&
-                !Array.isArray(request) &&
-                /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-                  request.sprint_id,
-                ) &&
-                equal(request, {
-                  ...original.fields,
-                  sprint_id: request.sprint_id,
-                });
-              if (matches) {
-                original.key = key;
-                original.request = request;
-              }
-            }
-            if (call.kind === "taskCancel.transfer") {
-              matches =
-                equal(parsed, original.input) &&
-                Object.keys(parsed).sort().join() ===
-                  "expected_version,request" &&
-                parsed.request !== null &&
-                typeof parsed.request === "object" &&
-                !Array.isArray(parsed.request) &&
-                parsed.request.target_state === "cancelled" &&
-                Object.keys(parsed.request).every(
-                  (k) => k === "target_state" || k === "comment",
-                ) &&
-                originalTaskCancellations.every(
-                  (old) => old === original || old.key !== key,
-                );
-              if (matches) original.key = key;
-            }
-            if (
-              call.kind === "sprintCompletion.complete" ||
-              call.kind === "sprintCompletion.start"
-            ) {
-              matches =
-                equal(parsed, original.input) &&
-                Object.keys(parsed).sort().join() ===
-                  "expected_version,request" &&
-                parsed.request !== null &&
-                typeof parsed.request === "object" &&
-                !Array.isArray(parsed.request) &&
-                Object.keys(parsed.request).length === 0 &&
-                originalSprintCompletions.every(
-                  (old) => old === original || old.key !== key,
-                );
-              if (matches) original.key = key;
-            } else if (call.kind === "sprintCompletion.lookup") {
-              matches =
-                original.current &&
-                original.source?.call.rejected === true &&
-                original.source.call.settled === true &&
-                key === original.source.key &&
-                equal(parsed, {
-                  command: "work.sprint.complete",
-                  target_id: original.source.sprint,
-                  expected_version: original.source.input.expected_version,
-                  request: original.source.input.request,
-                });
-            }
-            if (call.kind === "sprint.start") {
-              matches =
-                equal(parsed, original.input) &&
-                Object.keys(parsed).sort().join() ===
-                  "expected_version,request" &&
-                parsed.request !== null &&
-                typeof parsed.request === "object" &&
-                !Array.isArray(parsed.request) &&
-                Object.keys(parsed.request).length === 0;
-              if (matches) original.key = key;
-            } else if (call.kind === "sprint.checkOriginal") {
-              matches =
-                original.current &&
-                original.source?.call.rejected === true &&
-                original.source.call.settled === true &&
-                key === original.source.key &&
-                equal(parsed, {
-                  command: "work.sprint.start",
-                  target_id: original.source.sprint,
-                  expected_version: original.source.input.expected_version,
-                  request: original.source.input.request,
-                });
-            }
-            call.request_bound = row.request_bound = matches;
-            if (call.kind.startsWith("secretWrite.")) {
-              track(
-                digest(new TextEncoder().encode(key)),
-                (keyHash) => {
-                  call.idempotency_key_sha256 = row.idempotency_key_sha256 =
-                    keyHash;
-                },
-                () => {
-                  row.error = true;
-                },
-              );
-            } else
-              track(
-                Promise.all([
-                  digest(new TextEncoder().encode(raw)),
-                  key === null
-                    ? Promise.resolve(null)
-                    : digest(new TextEncoder().encode(key)),
-                ]),
-                ([bodyHash, keyHash]) => {
-                  call.request_body_sha256 = row.request_body_sha256 = bodyHash;
-                  if (keyHash !== null)
-                    call.idempotency_key_sha256 = row.idempotency_key_sha256 =
-                      keyHash;
-                },
-                () => {
-                  row.error = true;
-                },
-              );
-          } catch {
-            row.error = true;
-          }
-        }
-        const signal =
-          init?.signal ?? (input instanceof Request ? input.signal : undefined);
-        if (signal && !signals.has(signal)) signals.set(signal, ++nextSignal);
-        const signalID = signal ? signals.get(signal) : undefined;
-        record("fetch-call", {
-          fetch: id,
-          signal: signalID,
-          signal_source: init?.signal
-            ? "init"
-            : input instanceof Request
-              ? "request"
-              : "none",
-          url: safeURL(rawURL),
-          method:
-            init?.method ?? (input instanceof Request ? input.method : "GET"),
-          aborted: signal?.aborted ?? false,
-        });
-        const abort = () => {
-          row.aborted = true;
-          record("signal-abort", { fetch: id, signal: signalID });
-        };
-        signal?.addEventListener("abort", abort, { once: true });
-        if (signal)
-          restorers.push(() => signal.removeEventListener("abort", abort));
+      signal?.addEventListener("abort", abort, { once: true });
+      if (signal)
+        restorers.push(() => signal.removeEventListener("abort", abort));
+      track(
+        result,
+        (response) => {
+          row.fetch_returned = true;
+          row.status = response.status;
+          row.length = response.headers.get("content-length");
+          row.request_id = response.headers.get("x-request-id");
+          if (response.body) streams.set(response.body, id);
+          const requestID = response.headers.get("x-request-id");
+          record("fetch-resolved", {
+            fetch: id,
+            status: response.status,
+            request_id:
+              requestID && /^[0-9a-f-]{36}$/.test(requestID)
+                ? requestID
+                : undefined,
+          });
+        },
+        (error) => {
+          row.fetch_rejected = true;
+          record("fetch-rejected", { fetch: id, error_name: errorName(error) });
+        },
+      );
+      return result;
+    };
+    const originalGetReader = ReadableStream.prototype.getReader;
+    ReadableStream.prototype.getReader = function (...args) {
+      const reader = Reflect.apply(originalGetReader, this, args);
+      const id = streams.get(this);
+      if (id !== undefined) {
+        readers.set(reader, id);
+        rows.get(id).readers++;
+        record("reader-acquired", { fetch: id });
         track(
-          result,
-          (response) => {
-            row.fetch_returned = true;
-            row.status = response.status;
-            row.length = response.headers.get("content-length");
-            row.request_id = response.headers.get("x-request-id");
-            if (response.body) streams.set(response.body, id);
-            const requestID = response.headers.get("x-request-id");
-            record("fetch-resolved", {
-              fetch: id,
-              status: response.status,
-              request_id:
-                requestID && /^[0-9a-f-]{36}$/.test(requestID)
-                  ? requestID
-                  : undefined,
-            });
+          reader.closed,
+          () => {
+            rows.get(id).closed = true;
+            record("reader-closed", { fetch: id });
           },
-          (error) => {
-            row.fetch_rejected = true;
-            record("fetch-rejected", {
+          (error: unknown) => {
+            rows.get(id).error = true;
+            record("reader-closed-rejected", {
               fetch: id,
               error_name: errorName(error),
             });
           },
         );
-        return result;
-      };
-      const originalGetReader = ReadableStream.prototype.getReader;
-      ReadableStream.prototype.getReader = function (...args) {
-        const reader = Reflect.apply(originalGetReader, this, args);
-        const id = streams.get(this);
-        if (id !== undefined) {
-          readers.set(reader, id);
-          rows.get(id).readers++;
-          record("reader-acquired", { fetch: id });
-          track(
-            reader.closed,
-            () => {
-              rows.get(id).closed = true;
-              record("reader-closed", { fetch: id });
-            },
-            (error: unknown) => {
-              rows.get(id).error = true;
-              record("reader-closed-rejected", {
-                fetch: id,
-                error_name: errorName(error),
-              });
-            },
-          );
-        }
-        return reader;
-      };
-      const originalRead = ReadableStreamDefaultReader.prototype.read;
-      const chunks = new WeakMap<ReadableStreamDefaultReader, Uint8Array[]>();
-      ReadableStreamDefaultReader.prototype.read = function (...args) {
-        const result = Reflect.apply(originalRead, this, args);
-        const id = readers.get(this);
-        if (id !== undefined) {
-          const row = rows.get(id);
-          row.reads++;
-          record("reader-read", { fetch: id });
-          const reader = this;
-          track(
-            result,
-            async (part: ReadableStreamReadResult<Uint8Array>) => {
-              row.read_returns++;
-              record("reader-read-resolved", {
-                fetch: id,
-                done: part.done,
-                bytes: part.value?.byteLength ?? 0,
-              });
-              if (!part.done) {
-                row.bytes += part.value.byteLength;
-                if (row.bytes > 2 << 20) {
-                  row.error = true;
-                  return;
-                }
-                chunks.set(reader, [
-                  ...(chunks.get(reader) ?? []),
-                  part.value.slice(),
-                ]);
-                return;
-              }
-              if (row.eof) {
+      }
+      return reader;
+    };
+    const originalRead = ReadableStreamDefaultReader.prototype.read;
+    const chunks = new WeakMap<ReadableStreamDefaultReader, Uint8Array[]>();
+    ReadableStreamDefaultReader.prototype.read = function (...args) {
+      const result = Reflect.apply(originalRead, this, args);
+      const id = readers.get(this);
+      if (id !== undefined) {
+        const row = rows.get(id);
+        row.reads++;
+        record("reader-read", { fetch: id });
+        const reader = this;
+        track(
+          result,
+          async (part: ReadableStreamReadResult<Uint8Array>) => {
+            row.read_returns++;
+            record("reader-read-resolved", {
+              fetch: id,
+              done: part.done,
+              bytes: part.value?.byteLength ?? 0,
+            });
+            if (!part.done) {
+              row.bytes += part.value.byteLength;
+              if (row.bytes > 2 << 20) {
                 row.error = true;
                 return;
               }
-              row.eof = true;
-              const body = new Uint8Array(row.bytes);
-              let at = 0;
-              for (const chunk of chunks.get(reader) ?? []) {
-                body.set(chunk, at);
-                at += chunk.length;
-                chunk.fill(0);
-              }
-              chunks.delete(reader);
-              try {
-                const secretKind = calls.find(
-                  (call) => call.id === row.call_id,
-                )?.kind;
-                const sensitive =
-                  host.__secretWriteEvidenceValue &&
-                  (secretKind?.startsWith("secretWrite.") ||
-                    secretKind?.startsWith("secret."));
-                if (!sensitive) row.digest = await digest(body);
-                let parsed = JSON.parse(
-                  new TextDecoder("utf-8", { fatal: true }).decode(body),
-                );
-                if (sensitive) {
-                  parsed = host.__secretWriteEvidenceValue(
-                    parsed,
-                    secretKind === "secretWrite.delete" && row.status === 409
-                      ? "rejected"
-                      : secretKind === "secret.list"
-                        ? "list"
-                        : secretKind === "secret.get"
-                          ? "detail"
-                          : secretKind === "secretWrite.lookup"
-                            ? "lookup"
-                            : "receipt",
-                  );
-                  row.digest = await digest(body);
-                }
-                if (row.path === "/api/v1/session" && row.status === 200)
-                  parsed = { user: parsed.user, session: parsed.session };
-                // Match the production public DTO, not the richer wire shape.
-                // The untouched original bytes remain bound by row.digest.
-                const kind = calls.find(
-                  (call) => call.id === row.call_id,
-                )?.kind;
-                if (kind === "knowledgeDelete.preview") {
-                  const call = calls.find((value) => value.id === row.call_id);
-                  const safe = host.__knowledgeDeleteEvidenceValue(parsed);
-                  bindDeleteMaterial(call, parsed.confirmation_token, "wire");
-                  row.confirmation_token_sha256 = await digest(
-                    new TextEncoder().encode(parsed.confirmation_token),
-                  );
-                  parsed = safe;
-                }
-                if (kind === "knowledge.ancestors") parsed = parsed.items;
-                if (kind === "work.execution" && row.status === 200)
-                  parsed = parsed.execution;
-                if (
-                  kind === "scheduler.checkOriginal" &&
-                  parsed.state === "committed"
-                )
-                  parsed = {
-                    state: "committed",
-                    receipt: {
-                      project_id: parsed.result.project.id,
-                      version: parsed.result.project.version,
-                    },
-                  };
-                if (kind === "work.sprint") {
-                  const { started_by, completed_by, ...sprint } = parsed;
-                  parsed = sprint;
-                } else if (kind === "work.blockers") {
-                  parsed = {
-                    ...parsed,
-                    items: parsed.items.map((item: any) => {
-                      const { metadata, created_by, resolved_by, ...blocker } =
-                        item;
-                      return {
-                        ...blocker,
-                        related_task_id:
-                          item.type === "rely_on"
-                            ? metadata.related_task_id
-                            : null,
-                      };
-                    }),
-                  };
-                } else if (
-                  kind === "taskDependency.add" ||
-                  kind === "taskDependency.resolve"
-                ) {
-                  const { metadata, created_by, resolved_by, ...blocker } =
-                    parsed.blocker;
-                  parsed = {
-                    ...parsed,
-                    blocker: {
-                      ...blocker,
-                      related_task_id: metadata.related_task_id,
-                    },
-                  };
-                } else if (
-                  kind === "humanBlocker.add" ||
-                  kind === "humanBlocker.resolve"
-                ) {
-                  // The receipt uses the same formal public Blocker DTO as the
-                  // list. Keep its complete Task/event fields and all public
-                  // Blocker fields; raw actors/metadata stay bound by row.digest
-                  // and the Go receipt/persisted-facts proof.
-                  const { metadata, created_by, resolved_by, ...blocker } =
-                    parsed.blocker;
-                  parsed = {
-                    ...parsed,
-                    blocker: { ...blocker, related_task_id: null },
-                  };
-                }
-                if (kind?.startsWith("systemRunner.")) {
-                  const safe = host.__systemRunnerEvidenceValue(parsed);
-                  if (parsed.token_available === true)
-                    bindSystemRunnerMaterial(
-                      calls.find((call) => call.id === row.call_id),
-                      parsed.enrollment_token,
-                      "wire",
-                    );
-                  parsed = safe;
-                }
-                row.typed_digest = await typedDigest(parsed);
-              } catch {
-                row.error = true;
-              } finally {
-                body.fill(0);
-              }
-            },
-            (error: unknown) => {
+              chunks.set(reader, [
+                ...(chunks.get(reader) ?? []),
+                part.value.slice(),
+              ]);
+              return;
+            }
+            if (row.eof) {
               row.error = true;
-              record("reader-read-rejected", {
-                fetch: id,
-                error_name: errorName(error),
-              });
-            },
-          );
-        }
-        return result;
-      };
-      const readerCancel = ReadableStreamDefaultReader.prototype.cancel;
-      ReadableStreamDefaultReader.prototype.cancel = function (...args) {
-        const result = Reflect.apply(readerCancel, this, args);
-        const id = readers.get(this);
-        if (id !== undefined) {
-          rows.get(id).reader_cancel++;
-          record("reader-cancel", { fetch: id });
-          track(
-            result,
-            () => record("reader-cancel-resolved", { fetch: id }),
-            (error: unknown) =>
-              record("reader-cancel-rejected", {
-                fetch: id,
-                error_name: errorName(error),
-              }),
-          );
-        }
-        return result;
-      };
-      const streamCancel = ReadableStream.prototype.cancel;
-      ReadableStream.prototype.cancel = function (...args) {
-        const result = Reflect.apply(streamCancel, this, args);
-        const id = streams.get(this);
-        if (id !== undefined) {
-          rows.get(id).stream_cancel++;
-          record("stream-cancel", { fetch: id });
-          track(
-            result,
-            () => record("stream-cancel-resolved", { fetch: id }),
-            (error: unknown) =>
-              record("stream-cancel-rejected", {
-                fetch: id,
-                error_name: errorName(error),
-              }),
-          );
-        }
-        return result;
-      };
-      const originalRelease = ReadableStreamDefaultReader.prototype.releaseLock;
-      ReadableStreamDefaultReader.prototype.releaseLock = function (...args) {
-        const result = Reflect.apply(originalRelease, this, args);
-        const id = readers.get(this);
-        if (id !== undefined) rows.get(id).release++;
-        return result;
-      };
-      for (const [object, key, original] of [
-        [window, "fetch", originalFetch],
-        [ReadableStream.prototype, "getReader", originalGetReader],
-        [ReadableStreamDefaultReader.prototype, "read", originalRead],
-        [ReadableStreamDefaultReader.prototype, "cancel", readerCancel],
-        [ReadableStream.prototype, "cancel", streamCancel],
-        [ReadableStreamDefaultReader.prototype, "releaseLock", originalRelease],
-      ] as const) {
-        const installed = (object as any)[key];
-        restorers.push(() => {
-          if ((object as any)[key] !== installed) failed = true;
-          (object as any)[key] = original;
-        });
+              return;
+            }
+            row.eof = true;
+            const body = new Uint8Array(row.bytes);
+            let at = 0;
+            for (const chunk of chunks.get(reader) ?? []) {
+              body.set(chunk, at);
+              at += chunk.length;
+              chunk.fill(0);
+            }
+            chunks.delete(reader);
+            try {
+              const secretKind = calls.find(call => call.id === row.call_id)?.kind;
+              const sensitive = host.__secretWriteEvidenceValue && (secretKind?.startsWith("secretWrite.") || secretKind?.startsWith("secret."));
+              if (!sensitive) row.digest = await digest(body);
+              let parsed = JSON.parse(
+                new TextDecoder("utf-8", { fatal: true }).decode(body),
+              );
+              if (sensitive) {
+                parsed = host.__secretWriteEvidenceValue(parsed, secretKind === "secretWrite.delete" && row.status === 409 ? "rejected" : secretKind === "secret.list" ? "list" : secretKind === "secret.get" ? "detail" : secretKind === "secretWrite.lookup" ? "lookup" : "receipt");
+                row.digest = await digest(body);
+              }
+              if (row.path === "/api/v1/session" && row.status === 200)
+                parsed = { user: parsed.user, session: parsed.session };
+              // Match the production public DTO, not the richer wire shape.
+              // The untouched original bytes remain bound by row.digest.
+              const kind = calls.find((call) => call.id === row.call_id)?.kind;
+              if (kind === "knowledgeDelete.preview") {
+                const call = calls.find((value) => value.id === row.call_id);
+                const safe = host.__knowledgeDeleteEvidenceValue(parsed);
+                bindDeleteMaterial(call, parsed.confirmation_token, "wire");
+                row.confirmation_token_sha256 = await digest(new TextEncoder().encode(parsed.confirmation_token));
+                parsed = safe;
+              }
+              if (kind === "knowledge.ancestors") parsed = parsed.items;
+              if (kind === "work.execution" && row.status === 200) parsed = parsed.execution;
+              if (kind === "scheduler.checkOriginal" && parsed.state === "committed")
+                parsed = { state: "committed", receipt: { project_id: parsed.result.project.id, version: parsed.result.project.version } };
+              if (kind === "work.sprint") {
+                const { started_by, completed_by, ...sprint } = parsed;
+                parsed = sprint;
+              } else if (kind === "work.blockers") {
+                parsed = {
+                  ...parsed,
+                  items: parsed.items.map((item: any) => {
+                    const { metadata, created_by, resolved_by, ...blocker } =
+                      item;
+                    return {
+                      ...blocker,
+                      related_task_id:
+                        item.type === "rely_on"
+                          ? metadata.related_task_id
+                          : null,
+                    };
+                  }),
+                };
+              } else if (kind === "taskDependency.add" || kind === "taskDependency.resolve") {
+                const { metadata, created_by, resolved_by, ...blocker } = parsed.blocker;
+                parsed = { ...parsed, blocker: { ...blocker, related_task_id: metadata.related_task_id } };
+              } else if (kind === "humanBlocker.add" || kind === "humanBlocker.resolve") {
+                // The receipt uses the same formal public Blocker DTO as the
+                // list. Keep its complete Task/event fields and all public
+                // Blocker fields; raw actors/metadata stay bound by row.digest
+                // and the Go receipt/persisted-facts proof.
+                const { metadata, created_by, resolved_by, ...blocker } = parsed.blocker;
+                parsed = { ...parsed, blocker: { ...blocker, related_task_id: null } };
+              }
+              if (kind?.startsWith("systemRunner.")) {
+                const safe = host.__systemRunnerEvidenceValue(parsed);
+                if (parsed.token_available === true) bindSystemRunnerMaterial(calls.find(call => call.id === row.call_id), parsed.enrollment_token, "wire");
+                parsed = safe;
+              }
+              row.typed_digest = await typedDigest(parsed);
+            } catch {
+              row.error = true;
+            } finally {
+              body.fill(0);
+            }
+          },
+          (error: unknown) => {
+            row.error = true;
+            record("reader-read-rejected", {
+              fetch: id,
+              error_name: errorName(error),
+            });
+          },
+        );
       }
-      for (const kind of [
-        "pageshow",
-        "pagehide",
-        "popstate",
-        "visibilitychange",
-      ]) {
-        const listener = () => record(kind);
-        window.addEventListener(kind, listener);
-        restorers.push(() => window.removeEventListener(kind, listener));
+      return result;
+    };
+    const readerCancel = ReadableStreamDefaultReader.prototype.cancel;
+    ReadableStreamDefaultReader.prototype.cancel = function (...args) {
+      const result = Reflect.apply(readerCancel, this, args);
+      const id = readers.get(this);
+      if (id !== undefined) {
+        rows.get(id).reader_cancel++;
+        record("reader-cancel", { fetch: id });
+        track(
+          result,
+          () => record("reader-cancel-resolved", { fetch: id }),
+          (error: unknown) =>
+            record("reader-cancel-rejected", {
+              fetch: id,
+              error_name: errorName(error),
+            }),
+        );
       }
-      record("observer-installed");
-    },
-    metadataScope,
-  );
+      return result;
+    };
+    const streamCancel = ReadableStream.prototype.cancel;
+    ReadableStream.prototype.cancel = function (...args) {
+      const result = Reflect.apply(streamCancel, this, args);
+      const id = streams.get(this);
+      if (id !== undefined) {
+        rows.get(id).stream_cancel++;
+        record("stream-cancel", { fetch: id });
+        track(
+          result,
+          () => record("stream-cancel-resolved", { fetch: id }),
+          (error: unknown) =>
+            record("stream-cancel-rejected", {
+              fetch: id,
+              error_name: errorName(error),
+            }),
+        );
+      }
+      return result;
+    };
+    const originalRelease = ReadableStreamDefaultReader.prototype.releaseLock;
+    ReadableStreamDefaultReader.prototype.releaseLock = function (...args) {
+      const result = Reflect.apply(originalRelease, this, args);
+      const id = readers.get(this);
+      if (id !== undefined) rows.get(id).release++;
+      return result;
+    };
+    for (const [object, key, original] of [
+      [window, "fetch", originalFetch],
+      [ReadableStream.prototype, "getReader", originalGetReader],
+      [ReadableStreamDefaultReader.prototype, "read", originalRead],
+      [ReadableStreamDefaultReader.prototype, "cancel", readerCancel],
+      [ReadableStream.prototype, "cancel", streamCancel],
+      [ReadableStreamDefaultReader.prototype, "releaseLock", originalRelease],
+    ] as const) {
+      const installed = (object as any)[key];
+      restorers.push(() => {
+        if ((object as any)[key] !== installed) failed = true;
+        (object as any)[key] = original;
+      });
+    }
+    for (const kind of [
+      "pageshow",
+      "pagehide",
+      "popstate",
+      "visibilitychange",
+    ]) {
+      const listener = () => record(kind);
+      window.addEventListener(kind, listener);
+      restorers.push(() => window.removeEventListener(kind, listener));
+    }
+    record("observer-installed");
+  }, metadataScope);
 }
 
 // This closed endpoint set includes every real Task/Agent/list/lookup read in
@@ -3597,32 +2230,12 @@ export type TaskObservationProfile = {
   usageReads?: true;
   usageSummaryReads?: true;
   systemRunnerManagement?: true;
-  systemRunnerWireHeaders?: (expected: {
-    method: string;
-    url: string;
-    status: number;
-    requestID: string;
-  }) => Promise<UsageWireProof>;
+  systemRunnerWireHeaders?: (expected: { method: string; url: string; status: number; requestID: string }) => Promise<UsageWireProof>;
   agentSecretAllowlist?: true;
-  agentSecretWireHeaders?: (expected: {
-    method: string;
-    url: string;
-    status: number;
-    requestID: string;
-  }) => Promise<UsageWireProof>;
+  agentSecretWireHeaders?: (expected: { method: string; url: string; status: number; requestID: string }) => Promise<UsageWireProof>;
   agentRunnerMounts?: true;
-  agentRunnerWireHeaders?: (expected: {
-    method: string;
-    url: string;
-    status: number;
-    requestID: string;
-  }) => Promise<UsageWireProof>;
-  usageWireHeaders?: (expected: {
-    method: string;
-    url: string;
-    status: number;
-    requestID: string;
-  }) => Promise<UsageWireProof>;
+  agentRunnerWireHeaders?: (expected: { method: string; url: string; status: number; requestID: string }) => Promise<UsageWireProof>;
+  usageWireHeaders?: (expected: { method: string; url: string; status: number; requestID: string }) => Promise<UsageWireProof>;
   schedulerWrites?: true;
 };
 
@@ -3642,78 +2255,34 @@ export function observeReview(page: Page, data: ReviewMaterial) {
 // classifier and at most its one declared committed-response delivery fault.
 // Only explicitly opted-in Intake, Edit or Agent fixtures can additionally prove
 // their closed write sets. Other POST completion rules remain identical.
-export function requireCommittedLookup(
-  value: Record<string, unknown>,
-  structureUpdate = false,
-) {
+export function requireCommittedLookup(value: Record<string, unknown>, structureUpdate = false) {
   expect(structureUpdate ? value.state : value.status).toBe("committed");
 }
 
-export function requireUsageReadProfile(
-  profile: TaskObservationProfile,
-  data: TaskObservationMaterial,
-) {
+export function requireUsageReadProfile(profile: TaskObservationProfile, data: TaskObservationMaterial) {
   if (profile.usageSummaryReads || profile.prefix === "project-usage-summary") {
-    const allowed = [
-      "dist",
-      "evidence",
-      "inputHash",
-      "prefix",
-      "endpoint",
-      "lookupCommand",
-      "usageReads",
-      "usageSummaryReads",
-      "usageWireHeaders",
-    ];
-    if (
-      profile.usageReads !== true ||
-      profile.usageSummaryReads !== true ||
-      profile.prefix !== "project-usage-summary" ||
-      profile.lookupCommand !== null ||
-      data.mode !== "daily-server-aggregate" ||
-      typeof profile.usageWireHeaders !== "function" ||
-      Object.keys(profile).some((key) => !allowed.includes(key))
-    )
-      throw Error("PROJECT_USAGE_SUMMARY_PROFILE_MISMATCH");
+    const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand", "usageReads", "usageSummaryReads", "usageWireHeaders"];
+    if (profile.usageReads !== true || profile.usageSummaryReads !== true || profile.prefix !== "project-usage-summary" ||
+        profile.lookupCommand !== null || data.mode !== "daily-server-aggregate" || typeof profile.usageWireHeaders !== "function" ||
+        Object.keys(profile).some(key => !allowed.includes(key))) throw Error("PROJECT_USAGE_SUMMARY_PROFILE_MISMATCH");
     return;
   }
   if (!profile.usageReads && profile.prefix !== "project-usage") {
-    if (profile.usageWireHeaders !== undefined)
-      throw Error("PROJECT_USAGE_PROFILE_MISMATCH");
+    if (profile.usageWireHeaders !== undefined) throw Error("PROJECT_USAGE_PROFILE_MISMATCH");
     return;
   }
-  const allowed = [
-    "dist",
-    "evidence",
-    "inputHash",
-    "prefix",
-    "endpoint",
-    "lookupCommand",
-    "usageReads",
-    "usageWireHeaders",
-  ];
-  if (
-    profile.usageReads !== true ||
-    profile.prefix !== "project-usage" ||
-    profile.lookupCommand !== null ||
-    data.mode !== "paginated-current-read" ||
-    typeof profile.usageWireHeaders !== "function" ||
-    Object.keys(profile).some((key) => !allowed.includes(key))
-  )
+  const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand", "usageReads", "usageWireHeaders"];
+  if (profile.usageReads !== true || profile.prefix !== "project-usage" || profile.lookupCommand !== null ||
+      data.mode !== "paginated-current-read" || typeof profile.usageWireHeaders !== "function" || Object.keys(profile).some(key => !allowed.includes(key)))
     throw Error("PROJECT_USAGE_PROFILE_MISMATCH");
 }
-export function requireUsageHostEvidence(
-  record: Record<string, unknown>,
-  headers: SkillsHeaderDiagnostic | undefined,
-) {
+export function requireUsageHostEvidence(record: Record<string, unknown>, headers: SkillsHeaderDiagnostic | undefined) {
   expect(headers?.request_fulfilled && headers.response_fulfilled).toBe(true);
   expect(headers?.cookie_present).toBe(true);
   if (headers?.host_present) expect(headers.host_matches).toBe(true);
   if (headers?.authority_present) expect(headers.authority_matches).toBe(true);
   expect(headers?.usage_wire?.source).toBe("cdp_network_extra_info");
-  expect(
-    headers?.usage_wire?.host_present && headers.usage_wire.host_matches,
-  ).toBe(true);
+  expect(headers?.usage_wire?.host_present && headers.usage_wire.host_matches).toBe(true);
   expect(headers?.usage_wire?.request_id).toBe(record.request_id);
   expect(headers?.usage_wire?.method).toBe(record.method);
   expect(headers?.usage_wire?.status).toBe(record.status);
@@ -3722,431 +2291,123 @@ export function requireUsageHostEvidence(
   expect(record.handler_returned).toBe(true);
   expect(record.handler_return_source).toBe("app_http_request_log");
 }
-export function requireAgentRunnerProfile(
-  profile: TaskObservationProfile,
-  data: TaskObservationMaterial,
-) {
+export function requireAgentRunnerProfile(profile: TaskObservationProfile, data: TaskObservationMaterial) {
   if (!profile.agentRunnerMounts && profile.prefix !== "agent-runner-mounts") {
-    if (profile.agentRunnerWireHeaders !== undefined)
-      throw Error("AGENT_RUNNER_PROFILE_MISMATCH");
+    if (profile.agentRunnerWireHeaders !== undefined) throw Error("AGENT_RUNNER_PROFILE_MISMATCH");
     return;
   }
   const lost = data.mode === "runner-mounts-lost";
-  const allowed = [
-    "dist",
-    "evidence",
-    "inputHash",
-    "prefix",
-    "endpoint",
-    "lookupCommand",
-    "cut",
-    "agentRunnerMounts",
-    "agentRunnerWireHeaders",
-  ];
-  if (
-    profile.agentRunnerMounts !== true ||
-    profile.prefix !== "agent-runner-mounts" ||
-    !["runner-mounts-normal", "runner-mounts-lost"].includes(data.mode) ||
-    profile.lookupCommand !== "agent.update" ||
-    profile.cut !== (lost ? "update" : undefined) ||
-    typeof profile.agentRunnerWireHeaders !== "function" ||
-    Object.keys(profile).some((key) => !allowed.includes(key)) ||
-    (lost &&
-      !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-        data.agent_id ?? "",
-      )) ||
-    (!lost && data.agent_id !== undefined)
-  )
-    throw Error("AGENT_RUNNER_PROFILE_MISMATCH");
+  const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand", "cut", "agentRunnerMounts", "agentRunnerWireHeaders"];
+  if (profile.agentRunnerMounts !== true || profile.prefix !== "agent-runner-mounts" ||
+      !["runner-mounts-normal", "runner-mounts-lost"].includes(data.mode) ||
+      profile.lookupCommand !== "agent.update" || profile.cut !== (lost ? "update" : undefined) ||
+      typeof profile.agentRunnerWireHeaders !== "function" || Object.keys(profile).some(key => !allowed.includes(key)) ||
+      (lost && !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.agent_id ?? "")) ||
+      (!lost && data.agent_id !== undefined)) throw Error("AGENT_RUNNER_PROFILE_MISMATCH");
 }
-export function requireSystemRunnerProfile(
-  profile: TaskObservationProfile,
-  data: TaskObservationMaterial,
-) {
-  if (
-    !profile.systemRunnerManagement &&
-    profile.prefix !== "system-runner-management"
-  ) {
-    if (profile.systemRunnerWireHeaders !== undefined)
-      throw Error("SYSTEM_RUNNER_PROFILE_MISMATCH");
+export function requireSystemRunnerProfile(profile: TaskObservationProfile, data: TaskObservationMaterial) {
+  if (!profile.systemRunnerManagement && profile.prefix !== "system-runner-management") {
+    if (profile.systemRunnerWireHeaders !== undefined) throw Error("SYSTEM_RUNNER_PROFILE_MISMATCH");
     return;
   }
-  const allowed = [
-    "dist",
-    "evidence",
-    "inputHash",
-    "prefix",
-    "endpoint",
-    "lookupCommand",
-    "cut",
-    "systemRunnerManagement",
-    "systemRunnerWireHeaders",
-  ];
-  if (
-    profile.systemRunnerManagement !== true ||
-    profile.prefix !== "system-runner-management" ||
-    !["system-runner-normal", "system-runner-lost"].includes(data.mode) ||
-    profile.lookupCommand !== "runner.create" ||
-    profile.cut !==
-      (data.mode === "system-runner-lost" ? "create" : undefined) ||
-    typeof profile.systemRunnerWireHeaders !== "function" ||
-    Object.keys(profile).some((key) => !allowed.includes(key))
-  )
-    throw Error("SYSTEM_RUNNER_PROFILE_MISMATCH");
+  const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand", "cut", "systemRunnerManagement", "systemRunnerWireHeaders"];
+  if (profile.systemRunnerManagement !== true || profile.prefix !== "system-runner-management" ||
+      !["system-runner-normal", "system-runner-lost"].includes(data.mode) || profile.lookupCommand !== "runner.create" ||
+      profile.cut !== (data.mode === "system-runner-lost" ? "create" : undefined) || typeof profile.systemRunnerWireHeaders !== "function" ||
+      Object.keys(profile).some(key => !allowed.includes(key))) throw Error("SYSTEM_RUNNER_PROFILE_MISMATCH");
 }
-export function requireAgentSecretProfile(
-  profile: TaskObservationProfile,
-  data: TaskObservationMaterial,
-) {
-  if (
-    !profile.agentSecretAllowlist &&
-    profile.prefix !== "agent-secret-allowlist"
-  ) {
-    if (profile.agentSecretWireHeaders !== undefined)
-      throw Error("AGENT_SECRET_PROFILE_MISMATCH");
+export function requireAgentSecretProfile(profile: TaskObservationProfile, data: TaskObservationMaterial) {
+  if (!profile.agentSecretAllowlist && profile.prefix !== "agent-secret-allowlist") {
+    if (profile.agentSecretWireHeaders !== undefined) throw Error("AGENT_SECRET_PROFILE_MISMATCH");
     return;
   }
   const lost = data.mode === "secret-allowlist-lost";
-  const allowed = [
-    "dist",
-    "evidence",
-    "inputHash",
-    "prefix",
-    "endpoint",
-    "lookupCommand",
-    "cut",
-    "agentSecretAllowlist",
-    "agentSecretWireHeaders",
-  ];
-  if (
-    profile.agentSecretAllowlist !== true ||
-    profile.prefix !== "agent-secret-allowlist" ||
-    !["secret-allowlist-normal", "secret-allowlist-lost"].includes(data.mode) ||
-    profile.lookupCommand !== "agent.update" ||
-    profile.cut !== (lost ? "update" : undefined) ||
-    typeof profile.agentSecretWireHeaders !== "function" ||
-    Object.keys(profile).some((key) => !allowed.includes(key)) ||
-    (lost &&
-      !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-        data.agent_id ?? "",
-      )) ||
-    (!lost && data.agent_id !== undefined)
-  )
-    throw Error("AGENT_SECRET_PROFILE_MISMATCH");
+  const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand", "cut", "agentSecretAllowlist", "agentSecretWireHeaders"];
+  if (profile.agentSecretAllowlist !== true || profile.prefix !== "agent-secret-allowlist" ||
+      !["secret-allowlist-normal", "secret-allowlist-lost"].includes(data.mode) ||
+      profile.lookupCommand !== "agent.update" || profile.cut !== (lost ? "update" : undefined) ||
+      typeof profile.agentSecretWireHeaders !== "function" || Object.keys(profile).some(key => !allowed.includes(key)) ||
+      (lost && !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.agent_id ?? "")) ||
+      (!lost && data.agent_id !== undefined)) throw Error("AGENT_SECRET_PROFILE_MISMATCH");
 }
-export function requireSecretWriteProfile(
-  profile: TaskObservationProfile,
-  data: TaskObservationMaterial,
-) {
-  if (
-    profile.secretDelete !== undefined ||
-    profile.prefix === "project-secret-delete"
-  ) {
-    const allowed = [
-      "dist",
-      "evidence",
-      "inputHash",
-      "prefix",
-      "endpoint",
-      "lookupCommand",
-      "secretWrite",
-      "secretDelete",
-    ];
-    if (
-      profile.secretDelete !== true ||
-      profile.secretWrite !== true ||
-      profile.prefix !== "project-secret-delete" ||
-      data.mode !== "busy-reference-then-delete" ||
-      profile.lookupCommand !== "project.secret_variable.delete" ||
-      !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-        data.agent_id ?? "",
-      ) ||
-      Object.keys(profile).some((key) => !allowed.includes(key))
-    )
-      throw Error("SECRET_DELETE_PROFILE_MISMATCH");
+export function requireSecretWriteProfile(profile: TaskObservationProfile, data: TaskObservationMaterial) {
+  if (profile.secretDelete !== undefined || profile.prefix === "project-secret-delete") {
+    const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand", "secretWrite", "secretDelete"];
+    if (profile.secretDelete !== true || profile.secretWrite !== true || profile.prefix !== "project-secret-delete" ||
+        data.mode !== "busy-reference-then-delete" || profile.lookupCommand !== "project.secret_variable.delete" ||
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.agent_id ?? "") ||
+        Object.keys(profile).some(key => !allowed.includes(key))) throw Error("SECRET_DELETE_PROFILE_MISMATCH");
     return;
   }
-  if (
-    profile.secretWrite === undefined &&
-    profile.prefix !== "project-secret-write"
-  )
-    return;
-  const allowed = [
-    "dist",
-    "evidence",
-    "inputHash",
-    "prefix",
-    "endpoint",
-    "lookupCommand",
-    "cut",
-    "secretWrite",
-  ];
-  if (
-    profile.secretWrite !== true ||
-    profile.prefix !== "project-secret-write" ||
-    !["secret-write-normal", "secret-write-lost"].includes(data.mode) ||
-    profile.lookupCommand !== "project.secret_variable.update" ||
-    profile.cut !==
-      (data.mode === "secret-write-lost" ? "update" : undefined) ||
-    Object.keys(profile).some((key) => !allowed.includes(key))
-  )
+  if (profile.secretWrite === undefined && profile.prefix !== "project-secret-write") return;
+  const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand", "cut", "secretWrite"];
+  if (profile.secretWrite !== true || profile.prefix !== "project-secret-write" ||
+      !["secret-write-normal", "secret-write-lost"].includes(data.mode) || profile.lookupCommand !== "project.secret_variable.update" ||
+      profile.cut !== (data.mode === "secret-write-lost" ? "update" : undefined) || Object.keys(profile).some(key => !allowed.includes(key)))
     throw Error("SECRET_WRITE_PROFILE_MISMATCH");
 }
 // The same closed projection runs before response hashing in the original
 // browser reader, public consumer and Node observer. It never accepts a value.
-export function secretWriteEvidenceValue(
-  value: any,
-  shape: "detail" | "list" | "receipt" | "lookup" | "rejected",
-  deletion = false,
-): any {
-  const fail = () => {
-    throw Error("SECRET_WRITE_UNSAFE_RESPONSE");
-  };
+export function secretWriteEvidenceValue(value: any, shape: "detail" | "list" | "receipt" | "lookup" | "rejected", deletion = false): any {
+  const fail = () => { throw Error("SECRET_WRITE_UNSAFE_RESPONSE"); };
   const keys = (v: any, expected: string[]) => {
-    if (
-      !v ||
-      typeof v !== "object" ||
-      Array.isArray(v) ||
-      Object.keys(v).sort().join() !== expected.slice().sort().join()
-    )
-      fail();
+    if (!v || typeof v !== "object" || Array.isArray(v) || Object.keys(v).sort().join() !== expected.slice().sort().join()) fail();
   };
   const metadata = (v: any) => {
-    keys(v, [
-      "id",
-      "project_id",
-      "type",
-      "name",
-      "description",
-      "version",
-      "created_at",
-      "updated_at",
-    ]);
-    if (
-      v.type !== "secret" ||
-      ![
-        v.id,
-        v.project_id,
-        v.name,
-        v.description,
-        v.version,
-        v.created_at,
-        v.updated_at,
-      ].every((x) => typeof x === "string") ||
-      !/^[1-9][0-9]*$/.test(v.version)
-    )
-      fail();
-    return {
-      id: v.id,
-      project_id: v.project_id,
-      type: v.type,
-      name: v.name,
-      description: v.description,
-      version: v.version,
-      created_at: v.created_at,
-      updated_at: v.updated_at,
-    };
+    keys(v, ["id", "project_id", "type", "name", "description", "version", "created_at", "updated_at"]);
+    if (v.type !== "secret" || ![v.id, v.project_id, v.name, v.description, v.version, v.created_at, v.updated_at].every(x => typeof x === "string") || !/^[1-9][0-9]*$/.test(v.version)) fail();
+    return { id: v.id, project_id: v.project_id, type: v.type, name: v.name, description: v.description, version: v.version, created_at: v.created_at, updated_at: v.updated_at };
   };
   const receipt = (v: any) => {
     if (deletion) {
       keys(v, ["command", "changed", "deleted", "event_id", "audit_id"]);
       keys(v.deleted, ["id", "project_id", "type", "version", "deleted_at"]);
-      if (
-        v.command !== "project.secret_variable.delete" ||
-        v.changed !== true ||
-        v.deleted.type !== "secret" ||
-        ![
-          v.event_id,
-          v.audit_id,
-          v.deleted.id,
-          v.deleted.project_id,
-          v.deleted.version,
-          v.deleted.deleted_at,
-        ].every((x) => typeof x === "string")
-      )
-        fail();
-      return {
-        command: v.command,
-        changed: v.changed,
-        deleted: { ...v.deleted },
-        event_id: v.event_id,
-        audit_id: v.audit_id,
-      };
+      if (v.command !== "project.secret_variable.delete" || v.changed !== true || v.deleted.type !== "secret" ||
+          ![v.event_id, v.audit_id, v.deleted.id, v.deleted.project_id, v.deleted.version, v.deleted.deleted_at].every(x => typeof x === "string")) fail();
+      return { command: v.command, changed: v.changed, deleted: { ...v.deleted }, event_id: v.event_id, audit_id: v.audit_id };
     }
     keys(v, ["command", "changed", "variable", "event_id", "audit_id"]);
-    if (
-      ![
-        "project.secret_variable.create",
-        "project.secret_variable.update",
-      ].includes(v.command) ||
-      v.changed !== true ||
-      typeof v.event_id !== "string" ||
-      typeof v.audit_id !== "string"
-    )
-      fail();
-    return {
-      command: v.command,
-      changed: v.changed,
-      variable: metadata(v.variable),
-      event_id: v.event_id,
-      audit_id: v.audit_id,
-    };
+    if (!["project.secret_variable.create", "project.secret_variable.update"].includes(v.command) || v.changed !== true || typeof v.event_id !== "string" || typeof v.audit_id !== "string") fail();
+    return { command: v.command, changed: v.changed, variable: metadata(v.variable), event_id: v.event_id, audit_id: v.audit_id };
   };
   if (shape === "rejected" && deletion) {
-    keys(value, [
-      "type",
-      "title",
-      "status",
-      "detail",
-      "instance",
-      "code",
-      "request_id",
-      "commit_state",
-    ]);
-    if (
-      value.code !== "RESOURCE_BUSY" ||
-      value.status !== 409 ||
-      value.commit_state !== "not_committed" ||
-      value.title !== "Resource busy" ||
-      value.detail !== "The resource is currently busy." ||
-      ![value.type, value.instance, value.request_id].every(
-        (x) => typeof x === "string",
-      )
-    )
-      fail();
-    return {
-      code: value.code,
-      status: value.status,
-      commit_state: value.commit_state,
-      request_id: value.request_id,
-    };
+    keys(value, ["type", "title", "status", "detail", "instance", "code", "request_id", "commit_state"]);
+    if (value.code !== "RESOURCE_BUSY" || value.status !== 409 || value.commit_state !== "not_committed" ||
+        value.title !== "Resource busy" || value.detail !== "The resource is currently busy." ||
+        ![value.type, value.instance, value.request_id].every(x => typeof x === "string")) fail();
+    return { code: value.code, status: value.status, commit_state: value.commit_state, request_id: value.request_id };
   }
   if (shape === "detail") return metadata(value);
   if (shape === "receipt") return receipt(value);
-  if (shape === "list") {
-    keys(value, ["items"]);
-    if (!Array.isArray(value.items) || value.items.length > (deletion ? 2 : 1))
-      fail();
-    return { items: value.items.map(metadata) };
-  }
-  if (shape === "lookup") {
-    keys(value, ["status", "receipt"]);
-    if (value.status !== "committed") fail();
-    return { status: value.status, receipt: receipt(value.receipt) };
-  }
+  if (shape === "list") { keys(value, ["items"]); if (!Array.isArray(value.items) || value.items.length > (deletion ? 2 : 1)) fail(); return { items: value.items.map(metadata) }; }
+  if (shape === "lookup") { keys(value, ["status", "receipt"]); if (value.status !== "committed") fail(); return { status: value.status, receipt: receipt(value.receipt) }; }
   return fail();
 }
 export function secretWriteEvidenceProof(proof: any, deleteProfile = false) {
   const fields = {
-    go: [
-      "input_hash",
-      "request_id",
-      "method",
-      "url_sha256",
-      "status",
-      "content_length",
-      "body_sha256",
-      "original_eof",
-      "original_closed",
-      "handler_returned",
-      "request_host_matches",
-      "kind",
-      "request_bound",
-      "input_verified",
-      "committed_verified",
-      "rejected_verified",
-      "idempotency_key_sha256",
-      "receipt_cut",
-    ],
-    native: [
-      "id",
-      "call_id",
-      "method",
-      "path",
-      "request_id",
-      "status",
-      "length",
-      "bytes",
-      "digest",
-      "typed_digest",
-      "fetch_returned",
-      "fetch_rejected",
-      "readers",
-      "reads",
-      "read_returns",
-      "eof",
-      "closed",
-      "release",
-      "reader_cancel",
-      "stream_cancel",
-      "aborted",
-      "error",
-      "request_bound",
-      "idempotency_key_sha256",
-    ],
-    consumer: [
-      "id",
-      "kind",
-      "method",
-      "path",
-      "bound",
-      "fulfilled",
-      "settled",
-      "rejected",
-      "current",
-      "not_busy",
-      "typed_digest",
-      "result_current",
-      "request_bound",
-      "paste_bound",
-      "idempotency_key_sha256",
-    ],
+    go: ["input_hash", "request_id", "method", "url_sha256", "status", "content_length", "body_sha256", "original_eof", "original_closed", "handler_returned", "request_host_matches", "kind", "request_bound", "input_verified", "committed_verified", "rejected_verified", "idempotency_key_sha256", "receipt_cut"],
+    native: ["id", "call_id", "method", "path", "request_id", "status", "length", "bytes", "digest", "typed_digest", "fetch_returned", "fetch_rejected", "readers", "reads", "read_returns", "eof", "closed", "release", "reader_cancel", "stream_cancel", "aborted", "error", "request_bound", "idempotency_key_sha256"],
+    consumer: ["id", "kind", "method", "path", "bound", "fulfilled", "settled", "rejected", "current", "not_busy", "typed_digest", "result_current", "request_bound", "paste_bound", "idempotency_key_sha256"],
   };
   if (deleteProfile && proof.native?.method === "PATCH") {
-    for (const part of ["go", "native", "consumer"] as const)
-      fields[part].push("request_body_sha256");
+    for (const part of ["go", "native", "consumer"] as const) fields[part].push("request_body_sha256");
   }
   if (deleteProfile) fields.go.push("handler_return_source");
-  const result: any = {
-    seq: proof.seq,
-    request_id: proof.request_id,
-    ...(proof.declared_cut ? { declared_cut: true } : {}),
-  };
+  const result: any = { seq: proof.seq, request_id: proof.request_id, ...(proof.declared_cut ? { declared_cut: true } : {}) };
   for (const part of ["go", "native", "consumer"] as const) {
     const source = proof[part];
-    if (
-      !source ||
-      Object.keys(source).some(
-        (key) =>
-          !fields[part].includes(key) &&
-          !(
-            part === "consumer" &&
-            key === "typed" &&
-            source.typed === undefined
-          ),
-      )
-    )
-      throw Error("SECRET_WRITE_UNSAFE_PROOF");
-    result[part] = Object.fromEntries(
-      fields[part]
-        .filter((key) => Object.hasOwn(source, key))
-        .map((key) => [key, source[key]]),
-    );
+    if (!source || Object.keys(source).some(key => !fields[part].includes(key) && !(part === "consumer" && key === "typed" && source.typed === undefined))) throw Error("SECRET_WRITE_UNSAFE_PROOF");
+    result[part] = Object.fromEntries(fields[part].filter(key => Object.hasOwn(source, key)).map(key => [key, source[key]]));
   }
   return result;
 }
-export function requireAgentRunnerHostEvidence(
-  record: Record<string, unknown>,
-  headers: SkillsHeaderDiagnostic | undefined,
-) {
+export function requireAgentRunnerHostEvidence(record: Record<string, unknown>, headers: SkillsHeaderDiagnostic | undefined) {
   expect(headers?.request_fulfilled && headers.response_fulfilled).toBe(true);
   expect(headers?.cookie_present).toBe(true);
   if (headers?.host_present) expect(headers.host_matches).toBe(true);
   if (headers?.authority_present) expect(headers.authority_matches).toBe(true);
   expect(headers?.runner_wire?.source).toBe("cdp_network_extra_info");
-  expect(
-    headers?.runner_wire?.host_present && headers.runner_wire.host_matches,
-  ).toBe(true);
+  expect(headers?.runner_wire?.host_present && headers.runner_wire.host_matches).toBe(true);
   expect(headers?.runner_wire?.request_id).toBe(record.request_id);
   expect(headers?.runner_wire?.method).toBe(record.method);
   expect(headers?.runner_wire?.status).toBe(record.status);
@@ -4160,139 +2421,43 @@ export async function observeTaskRequests(
   data: TaskObservationMaterial,
   profile: TaskObservationProfile,
 ) {
-  if (
-    profile.milestoneReorderWrites ||
-    profile.prefix === "milestone-reorder"
-  ) {
-    const allowed = [
-      "dist",
-      "evidence",
-      "inputHash",
-      "prefix",
-      "endpoint",
-      "lookupCommand",
-      "milestoneReorderWrites",
-    ];
-    if (
-      profile.milestoneReorderWrites !== true ||
-      profile.prefix !== "milestone-reorder" ||
-      profile.lookupCommand !== null ||
-      !["milestone-reorder-normal", "milestone-reorder-responsive"].includes(
-        data.mode,
-      ) ||
-      !data.milestone_id ||
-      !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-        data.milestone_id,
-      ) ||
-      Object.keys(profile).some((key) => !allowed.includes(key))
-    )
-      throw Error("MILESTONE_REORDER_PROFILE_MISMATCH");
+  if (profile.milestoneReorderWrites || profile.prefix === "milestone-reorder") {
+    const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand", "milestoneReorderWrites"];
+    if (profile.milestoneReorderWrites !== true || profile.prefix !== "milestone-reorder" || profile.lookupCommand !== null ||
+        !["milestone-reorder-normal", "milestone-reorder-responsive"].includes(data.mode) || !data.milestone_id ||
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.milestone_id) ||
+        Object.keys(profile).some(key => !allowed.includes(key))) throw Error("MILESTONE_REORDER_PROFILE_MISMATCH");
   }
   if (profile.humanBlockerWrites || profile.prefix === "task-human-blocker") {
-    const allowed = [
-      "dist",
-      "evidence",
-      "inputHash",
-      "prefix",
-      "endpoint",
-      "lookupCommand",
-      "humanBlockerWrites",
-    ];
-    if (
-      profile.humanBlockerWrites !== true ||
-      profile.prefix !== "task-human-blocker" ||
-      profile.lookupCommand !== null ||
-      !["human-blocker-wide", "human-blocker-narrow"].includes(data.mode) ||
-      !data.task_id ||
-      !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-        data.task_id,
-      ) ||
-      Object.keys(profile).some((key) => !allowed.includes(key))
-    )
-      throw Error("TASK_HUMAN_BLOCKER_PROFILE_MISMATCH");
+    const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand", "humanBlockerWrites"];
+    if (profile.humanBlockerWrites !== true || profile.prefix !== "task-human-blocker" || profile.lookupCommand !== null ||
+        !["human-blocker-wide", "human-blocker-narrow"].includes(data.mode) || !data.task_id ||
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.task_id) ||
+        Object.keys(profile).some(key => !allowed.includes(key))) throw Error("TASK_HUMAN_BLOCKER_PROFILE_MISMATCH");
   }
   if (profile.sprintReorderWrites || profile.prefix === "sprint-reorder") {
-    const allowed = [
-      "dist",
-      "evidence",
-      "inputHash",
-      "prefix",
-      "endpoint",
-      "lookupCommand",
-      "sprintReorderWrites",
-    ];
-    if (
-      profile.sprintReorderWrites !== true ||
-      profile.prefix !== "sprint-reorder" ||
-      profile.lookupCommand !== null ||
-      !["sprint-reorder-planned", "sprint-reorder-current"].includes(
-        data.mode,
-      ) ||
-      !data.sprint_id ||
-      !data.milestone_id ||
-      !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-        data.sprint_id,
-      ) ||
-      !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-        data.milestone_id,
-      ) ||
-      Object.keys(profile).some((key) => !allowed.includes(key))
-    )
-      throw Error("SPRINT_REORDER_PROFILE_MISMATCH");
+    const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand", "sprintReorderWrites"];
+    if (profile.sprintReorderWrites !== true || profile.prefix !== "sprint-reorder" || profile.lookupCommand !== null ||
+        !["sprint-reorder-planned", "sprint-reorder-current"].includes(data.mode) || !data.sprint_id || !data.milestone_id ||
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.sprint_id) || !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.milestone_id) ||
+        Object.keys(profile).some(key => !allowed.includes(key))) throw Error("SPRINT_REORDER_PROFILE_MISMATCH");
   }
   if (profile.prefix === "task-assignee-filter") {
-    const allowed = [
-      "dist",
-      "evidence",
-      "inputHash",
-      "prefix",
-      "endpoint",
-      "lookupCommand",
-    ];
-    if (
-      profile.lookupCommand !== null ||
-      !["assignee-pagination", "assignee-combination-detail"].includes(
-        data.mode,
-      ) ||
-      !data.task_id ||
-      !data.sprint_id ||
-      Object.keys(profile).some((key) => !allowed.includes(key))
-    )
+    const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand"];
+    if (profile.lookupCommand !== null || !["assignee-pagination", "assignee-combination-detail"].includes(data.mode) ||
+        !data.task_id || !data.sprint_id || Object.keys(profile).some(key => !allowed.includes(key)))
       throw Error("TASK_ASSIGNEE_READ_PROFILE_MISMATCH");
   }
   if (profile.prefix === "task-search") {
-    const allowed = [
-      "dist",
-      "evidence",
-      "inputHash",
-      "prefix",
-      "endpoint",
-      "lookupCommand",
-    ];
-    if (
-      profile.lookupCommand !== null ||
-      data.mode !== "server-search-beyond-first-page" ||
-      !data.task_id ||
-      !data.sprint_id ||
-      Object.keys(profile).some((key) => !allowed.includes(key))
-    )
+    const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand"];
+    if (profile.lookupCommand !== null || data.mode !== "server-search-beyond-first-page" ||
+        !data.task_id || !data.sprint_id || Object.keys(profile).some(key => !allowed.includes(key)))
       throw Error("TASK_SEARCH_READ_PROFILE_MISMATCH");
   }
   if (profile.prefix === "project-creation") {
-    const allowed = [
-      "dist",
-      "evidence",
-      "inputHash",
-      "prefix",
-      "endpoint",
-      "lookupCommand",
-    ];
-    if (
-      profile.lookupCommand !== null ||
-      data.mode !== "create-and-enter" ||
-      data.project_id !== "" ||
-      Object.keys(profile).some((key) => !allowed.includes(key))
-    )
+    const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand"];
+    if (profile.lookupCommand !== null || data.mode !== "create-and-enter" ||
+        data.project_id !== "" || Object.keys(profile).some(key => !allowed.includes(key)))
       throw Error("PROJECT_CREATION_READ_PROFILE_MISMATCH");
   }
   requireSecretWriteProfile(profile, data);
@@ -4473,222 +2638,69 @@ export async function observeTaskRequests(
     throw Error("MILESTONE_CREATE_PROFILE_MISMATCH");
   if (
     profile.variableWrites &&
-    (profile.intakeWrites ||
-      profile.agentConfiguration ||
-      profile.editWrites ||
-      profile.timelineReads ||
-      profile.agentEditWrites ||
-      profile.agentModelPolicy ||
-      profile.sprintStartWrites ||
-      profile.sprintCreateWrites ||
-      profile.skillsReads ||
-      profile.milestoneCreateWrites ||
-      profile.prefix !== "project-variables" ||
-      profile.lookupCommand !== null ||
-      profile.cut !== undefined ||
-      !["create-update-and-clear", "create-update-clear-and-delete"].includes(
-        data.mode,
-      ))
+    (profile.intakeWrites || profile.agentConfiguration || profile.editWrites ||
+      profile.timelineReads || profile.agentEditWrites || profile.agentModelPolicy ||
+      profile.sprintStartWrites || profile.sprintCreateWrites || profile.skillsReads ||
+      profile.milestoneCreateWrites || profile.prefix !== "project-variables" ||
+      profile.lookupCommand !== null || profile.cut !== undefined ||
+      !["create-update-and-clear", "create-update-clear-and-delete"].includes(data.mode))
   )
     throw Error("PROJECT_VARIABLE_WRITE_PROFILE_MISMATCH");
-  if (
-    profile.knowledgeTextWrites &&
-    (profile.prefix !== "knowledge-text" ||
-      profile.lookupCommand !== null ||
-      profile.cut !== undefined ||
-      data.mode !== "create-and-replace" ||
-      profile.intakeWrites ||
-      profile.agentConfiguration ||
-      profile.editWrites ||
-      profile.timelineReads ||
-      profile.agentEditWrites ||
-      profile.agentModelPolicy ||
-      profile.sprintStartWrites ||
-      profile.sprintCreateWrites ||
-      profile.skillsReads ||
-      profile.milestoneCreateWrites ||
-      profile.variableWrites)
-  )
+  if (profile.knowledgeTextWrites &&
+      (profile.prefix !== "knowledge-text" || profile.lookupCommand !== null || profile.cut !== undefined ||
+       data.mode !== "create-and-replace" || profile.intakeWrites || profile.agentConfiguration || profile.editWrites ||
+       profile.timelineReads || profile.agentEditWrites || profile.agentModelPolicy || profile.sprintStartWrites ||
+       profile.sprintCreateWrites || profile.skillsReads || profile.milestoneCreateWrites || profile.variableWrites))
     throw Error("KNOWLEDGE_TEXT_PROFILE_MISMATCH");
-  if (
-    (profile.milestoneUpdateWrites || profile.prefix === "milestone-edit") &&
-    (profile.milestoneUpdateWrites !== true ||
-      profile.prefix !== "milestone-edit" ||
-      profile.lookupCommand !== "work.milestone.update" ||
-      profile.intakeWrites ||
-      profile.agentConfiguration ||
-      profile.editWrites ||
-      profile.timelineReads ||
-      profile.agentEditWrites ||
-      profile.agentModelPolicy ||
-      profile.sprintStartWrites ||
-      profile.sprintCreateWrites ||
-      profile.skillsReads ||
-      profile.milestoneCreateWrites ||
-      profile.variableWrites ||
-      profile.knowledgeTextWrites ||
-      !data.milestone_id ||
-      !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-        data.milestone_id,
-      ) ||
+  if ((profile.milestoneUpdateWrites || profile.prefix === "milestone-edit") &&
+    (profile.milestoneUpdateWrites !== true || profile.prefix !== "milestone-edit" || profile.lookupCommand !== "work.milestone.update" ||
+      profile.intakeWrites || profile.agentConfiguration || profile.editWrites || profile.timelineReads || profile.agentEditWrites || profile.agentModelPolicy || profile.sprintStartWrites || profile.sprintCreateWrites || profile.skillsReads || profile.milestoneCreateWrites || profile.variableWrites || profile.knowledgeTextWrites ||
+      !data.milestone_id || !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.milestone_id) ||
       !["milestone-edit-normal", "milestone-edit-lost"].includes(data.mode) ||
-      profile.cut !==
-        (data.mode === "milestone-edit-lost" ? "update" : undefined))
-  )
+      profile.cut !== (data.mode === "milestone-edit-lost" ? "update" : undefined)))
     throw Error("MILESTONE_UPDATE_PROFILE_MISMATCH");
-  if (
-    (profile.sprintUpdateWrites || profile.prefix === "sprint-edit") &&
-    (profile.sprintUpdateWrites !== true ||
-      profile.prefix !== "sprint-edit" ||
-      profile.lookupCommand !== "work.sprint.update" ||
-      profile.intakeWrites ||
-      profile.agentConfiguration ||
-      profile.editWrites ||
-      profile.timelineReads ||
-      profile.agentEditWrites ||
-      profile.agentModelPolicy ||
-      profile.sprintStartWrites ||
-      profile.sprintCreateWrites ||
-      profile.skillsReads ||
-      profile.milestoneCreateWrites ||
-      profile.milestoneUpdateWrites ||
-      profile.variableWrites ||
-      profile.knowledgeTextWrites ||
-      profile.schedulerWrites ||
-      !data.sprint_id ||
-      !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-        data.sprint_id,
-      ) ||
-      !data.milestone_id ||
-      !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-        data.milestone_id,
-      ) ||
+  if ((profile.sprintUpdateWrites || profile.prefix === "sprint-edit") &&
+    (profile.sprintUpdateWrites !== true || profile.prefix !== "sprint-edit" || profile.lookupCommand !== "work.sprint.update" ||
+      profile.intakeWrites || profile.agentConfiguration || profile.editWrites || profile.timelineReads || profile.agentEditWrites || profile.agentModelPolicy || profile.sprintStartWrites || profile.sprintCreateWrites || profile.skillsReads || profile.milestoneCreateWrites || profile.milestoneUpdateWrites || profile.variableWrites || profile.knowledgeTextWrites || profile.schedulerWrites ||
+      !data.sprint_id || !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.sprint_id) ||
+      !data.milestone_id || !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.milestone_id) ||
       !["sprint-edit-normal", "sprint-edit-lost"].includes(data.mode) ||
-      profile.cut !== (data.mode === "sprint-edit-lost" ? "update" : undefined))
-  )
+      profile.cut !== (data.mode === "sprint-edit-lost" ? "update" : undefined)))
     throw Error("SPRINT_UPDATE_PROFILE_MISMATCH");
-  if (
-    profile.schedulerWrites &&
-    (profile.prefix !== "project-scheduler" ||
-      profile.lookupCommand !== "update" ||
-      ![
-        "pause-limit-and-resume",
-        "lost-update-confirmation-only-lookup",
-      ].includes(data.mode) ||
-      profile.cut !==
-        (data.mode === "lost-update-confirmation-only-lookup"
-          ? "update"
-          : undefined) ||
-      profile.intakeWrites ||
-      profile.agentConfiguration ||
-      profile.editWrites ||
-      profile.timelineReads ||
-      profile.agentEditWrites ||
-      profile.agentModelPolicy ||
-      profile.sprintStartWrites ||
-      profile.sprintCreateWrites ||
-      profile.skillsReads ||
-      profile.milestoneCreateWrites ||
-      profile.variableWrites ||
-      profile.knowledgeTextWrites)
-  )
+  if (profile.schedulerWrites &&
+      (profile.prefix !== "project-scheduler" || profile.lookupCommand !== "update" ||
+       !["pause-limit-and-resume", "lost-update-confirmation-only-lookup"].includes(data.mode) ||
+       profile.cut !== (data.mode === "lost-update-confirmation-only-lookup" ? "update" : undefined) ||
+       profile.intakeWrites || profile.agentConfiguration || profile.editWrites || profile.timelineReads ||
+       profile.agentEditWrites || profile.agentModelPolicy || profile.sprintStartWrites || profile.sprintCreateWrites ||
+       profile.skillsReads || profile.milestoneCreateWrites || profile.variableWrites || profile.knowledgeTextWrites))
     throw Error("PROJECT_SCHEDULER_PROFILE_MISMATCH");
-  if (
-    (profile.knowledgeTitleReads ||
-      profile.prefix === "knowledge-title-search") &&
-    (profile.knowledgeTitleReads !== true ||
-      profile.prefix !== "knowledge-title-search" ||
-      profile.lookupCommand !== null ||
-      profile.cut !== undefined ||
-      data.mode !== "literal-title-and-current-read" ||
-      profile.intakeWrites ||
-      profile.agentConfiguration ||
-      profile.editWrites ||
-      profile.timelineReads ||
-      profile.agentEditWrites ||
-      profile.agentModelPolicy ||
-      profile.sprintStartWrites ||
-      profile.sprintCreateWrites ||
-      profile.skillsReads ||
-      profile.milestoneCreateWrites ||
-      profile.milestoneUpdateWrites ||
-      profile.sprintUpdateWrites ||
-      profile.variableWrites ||
-      profile.knowledgeTextWrites ||
-      profile.schedulerWrites)
-  )
+  if ((profile.knowledgeTitleReads || profile.prefix === "knowledge-title-search") &&
+      (profile.knowledgeTitleReads !== true || profile.prefix !== "knowledge-title-search" ||
+       profile.lookupCommand !== null || profile.cut !== undefined || data.mode !== "literal-title-and-current-read" ||
+       profile.intakeWrites || profile.agentConfiguration || profile.editWrites || profile.timelineReads ||
+       profile.agentEditWrites || profile.agentModelPolicy || profile.sprintStartWrites || profile.sprintCreateWrites ||
+       profile.skillsReads || profile.milestoneCreateWrites || profile.milestoneUpdateWrites || profile.sprintUpdateWrites ||
+       profile.variableWrites || profile.knowledgeTextWrites || profile.schedulerWrites))
     throw Error("KNOWLEDGE_TITLE_PROFILE_MISMATCH");
-  if (
-    (profile.secretReads || profile.prefix === "project-secrets") &&
-    (profile.secretReads !== true ||
-      profile.prefix !== "project-secrets" ||
-      profile.lookupCommand !== null ||
-      profile.cut !== undefined ||
-      data.mode !== "metadata-pagination-and-detail" ||
-      profile.intakeWrites ||
-      profile.agentConfiguration ||
-      profile.editWrites ||
-      profile.timelineReads ||
-      profile.agentEditWrites ||
-      profile.agentModelPolicy ||
-      profile.sprintStartWrites ||
-      profile.sprintCreateWrites ||
-      profile.skillsReads ||
-      profile.milestoneCreateWrites ||
-      profile.milestoneUpdateWrites ||
-      profile.sprintUpdateWrites ||
-      profile.variableWrites ||
-      profile.knowledgeTextWrites ||
-      profile.knowledgeTitleReads ||
-      profile.schedulerWrites)
-  )
+  if ((profile.secretReads || profile.prefix === "project-secrets") &&
+      (profile.secretReads !== true || profile.prefix !== "project-secrets" ||
+       profile.lookupCommand !== null || profile.cut !== undefined || data.mode !== "metadata-pagination-and-detail" ||
+       profile.intakeWrites || profile.agentConfiguration || profile.editWrites || profile.timelineReads ||
+       profile.agentEditWrites || profile.agentModelPolicy || profile.sprintStartWrites || profile.sprintCreateWrites ||
+       profile.skillsReads || profile.milestoneCreateWrites || profile.milestoneUpdateWrites || profile.sprintUpdateWrites ||
+       profile.variableWrites || profile.knowledgeTextWrites || profile.knowledgeTitleReads || profile.schedulerWrites))
     throw Error("PROJECT_SECRETS_PROFILE_MISMATCH");
-  if (
-    (profile.knowledgeDeleteWrites || profile.prefix === "knowledge-delete") &&
-    (profile.knowledgeDeleteWrites !== true ||
-      profile.prefix !== "knowledge-delete" ||
-      profile.lookupCommand !== "delete-subtree" ||
-      !["delete-normal", "delete-lost"].includes(data.mode) ||
-      profile.cut !== (data.mode === "delete-lost" ? "delete" : undefined) ||
-      !data.root_id ||
-      !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-        data.root_id,
-      ) ||
-      profile.intakeWrites ||
-      profile.agentConfiguration ||
-      profile.editWrites ||
-      profile.timelineReads ||
-      profile.agentEditWrites ||
-      profile.agentModelPolicy ||
-      profile.sprintStartWrites ||
-      profile.sprintCreateWrites ||
-      profile.skillsReads ||
-      profile.milestoneCreateWrites ||
-      profile.milestoneUpdateWrites ||
-      profile.sprintUpdateWrites ||
-      profile.variableWrites ||
-      profile.knowledgeTextWrites ||
-      profile.knowledgeTitleReads ||
-      profile.schedulerWrites ||
-      profile.secretReads ||
-      profile.usageReads ||
-      profile.agentRunnerMounts ||
-      profile.agentRunnerWireHeaders ||
-      profile.usageWireHeaders ||
-      Object.keys(profile).some(
-        (key) =>
-          ![
-            "dist",
-            "evidence",
-            "inputHash",
-            "prefix",
-            "endpoint",
-            "lookupCommand",
-            "cut",
-            "knowledgeDeleteWrites",
-          ].includes(key),
-      ))
-  )
+  if ((profile.knowledgeDeleteWrites || profile.prefix === "knowledge-delete") &&
+      (profile.knowledgeDeleteWrites !== true || profile.prefix !== "knowledge-delete" || profile.lookupCommand !== "delete-subtree" ||
+       !["delete-normal", "delete-lost"].includes(data.mode) || profile.cut !== (data.mode === "delete-lost" ? "delete" : undefined) ||
+       !data.root_id || !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.root_id) ||
+       profile.intakeWrites || profile.agentConfiguration || profile.editWrites || profile.timelineReads ||
+       profile.agentEditWrites || profile.agentModelPolicy || profile.sprintStartWrites || profile.sprintCreateWrites ||
+       profile.skillsReads || profile.milestoneCreateWrites || profile.milestoneUpdateWrites || profile.sprintUpdateWrites ||
+       profile.variableWrites || profile.knowledgeTextWrites || profile.knowledgeTitleReads || profile.schedulerWrites ||
+       profile.secretReads || profile.usageReads || profile.agentRunnerMounts || profile.agentRunnerWireHeaders || profile.usageWireHeaders ||
+       Object.keys(profile).some(key => !["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand", "cut", "knowledgeDeleteWrites"].includes(key))))
     throw Error("KNOWLEDGE_DELETE_PROFILE_MISMATCH");
   const entries: Entry[] = [];
   const events: Record<string, unknown>[] = [];
@@ -4717,17 +2729,7 @@ export async function observeTaskRequests(
         status: entry.status,
         request_id: entry.requestID,
         failure: entry.failure,
-        ...((profile.skillsReads ||
-          profile.schedulerWrites ||
-          profile.knowledgeTitleReads ||
-          profile.knowledgeDeleteWrites ||
-          profile.secretReads ||
-          profile.secretWrite ||
-          profile.usageReads ||
-          profile.agentRunnerMounts ||
-          profile.agentSecretAllowlist ||
-          profile.systemRunnerManagement) &&
-        entry.skillsHeaders
+        ...((profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.knowledgeDeleteWrites || profile.secretReads || profile.secretWrite || profile.usageReads || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement) && entry.skillsHeaders
           ? { skills_headers: { ...entry.skillsHeaders } }
           : {}),
       });
@@ -4774,11 +2776,8 @@ export async function observeTaskRequests(
       entries.push(entry);
       event("request", entry);
     } catch (error) {
-      observerError = profile.secretWrite
-        ? new Error("SECRET_WRITE_REQUEST_SCOPE")
-        : error instanceof Error
-          ? error
-          : new Error("API_OBSERVER_REJECTED");
+      observerError =
+        profile.secretWrite ? new Error("SECRET_WRITE_REQUEST_SCOPE") : error instanceof Error ? error : new Error("API_OBSERVER_REJECTED");
     }
   };
   const finished = (request: Request) => end(request, "finished");
@@ -4790,18 +2789,7 @@ export async function observeTaskRequests(
     if (entry.responseCount !== 1)
       observerError = new Error("DUPLICATE_ORIGINAL_RESPONSE");
     entry.status = response.status();
-    if (
-      profile.skillsReads ||
-      profile.schedulerWrites ||
-      profile.knowledgeTitleReads ||
-      profile.knowledgeDeleteWrites ||
-      profile.secretReads ||
-      profile.secretWrite ||
-      profile.usageReads ||
-      profile.agentRunnerMounts ||
-      profile.agentSecretAllowlist ||
-      profile.systemRunnerManagement
-    ) {
+    if (profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.knowledgeDeleteWrites || profile.secretReads || profile.secretWrite || profile.usageReads || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement) {
       // Observe both original header promises once; retain no credential values.
       entry.headersReady = Promise.allSettled([
         entry.request.allHeaders(),
@@ -4861,40 +2849,12 @@ export async function observeTaskRequests(
             throw Error("SKILLS_ORIGINAL_RESPONSE_ID");
           }
           if (profile.usageReads) {
-            try {
-              diagnostic.usage_wire = await profile.usageWireHeaders!({
-                method: entry.request.method(),
-                url: entry.request.url(),
-                status: entry.status!,
-                requestID: id!,
-              });
-            } catch {
-              diagnostic.usage_wire_error = "USAGE_WIRE_HEADERS_FAILED";
-              throw Error("USAGE_WIRE_HEADERS_FAILED");
-            }
+            try { diagnostic.usage_wire = await profile.usageWireHeaders!({ method: entry.request.method(), url: entry.request.url(), status: entry.status!, requestID: id! }); }
+            catch { diagnostic.usage_wire_error = "USAGE_WIRE_HEADERS_FAILED"; throw Error("USAGE_WIRE_HEADERS_FAILED"); }
           }
-          if (
-            profile.agentRunnerMounts ||
-            profile.agentSecretAllowlist ||
-            profile.systemRunnerManagement
-          ) {
-            try {
-              diagnostic.runner_wire = await (
-                profile.systemRunnerManagement
-                  ? profile.systemRunnerWireHeaders!
-                  : profile.agentSecretAllowlist
-                    ? profile.agentSecretWireHeaders!
-                    : profile.agentRunnerWireHeaders!
-              )({
-                method: entry.request.method(),
-                url: entry.request.url(),
-                status: entry.status!,
-                requestID: id!,
-              });
-            } catch {
-              diagnostic.runner_wire_error = "AGENT_RUNNER_WIRE_HEADERS_FAILED";
-              throw Error("AGENT_RUNNER_WIRE_HEADERS_FAILED");
-            }
+          if ((profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement) {
+            try { diagnostic.runner_wire = await (profile.systemRunnerManagement ? profile.systemRunnerWireHeaders! : profile.agentSecretAllowlist ? profile.agentSecretWireHeaders! : profile.agentRunnerWireHeaders!)({ method: entry.request.method(), url: entry.request.url(), status: entry.status!, requestID: id! }); }
+            catch { diagnostic.runner_wire_error = "AGENT_RUNNER_WIRE_HEADERS_FAILED"; throw Error("AGENT_RUNNER_WIRE_HEADERS_FAILED"); }
           }
           diagnostic.stage = "handler_pending";
           entry.requestID = id;
@@ -4918,18 +2878,9 @@ export async function observeTaskRequests(
   page.on("requestfailed", failed);
   page.on("response", response);
   page.on("close", closed);
-  if (profile.secretWrite)
-    await page.addInitScript({
-      content: `Object.defineProperty(window, "__secretWriteEvidenceValue", { value: (value, shape) => (${secretWriteEvidenceValue.toString()})(value, shape, ${profile.secretDelete === true}) });`,
-    });
-  if (profile.systemRunnerManagement)
-    await page.addInitScript({
-      content: `Object.defineProperty(window, "__systemRunnerEvidenceValue", { value: (${systemRunnerEvidenceValue.toString()}) });`,
-    });
-  if (profile.knowledgeDeleteWrites)
-    await page.addInitScript({
-      content: `Object.defineProperty(window, "__knowledgeDeleteEvidenceValue", { value: (${knowledgeDeleteEvidenceValue.toString()}) });`,
-    });
+  if (profile.secretWrite) await page.addInitScript({ content: `Object.defineProperty(window, "__secretWriteEvidenceValue", { value: (value, shape) => (${secretWriteEvidenceValue.toString()})(value, shape, ${profile.secretDelete === true}) });` });
+  if (profile.systemRunnerManagement) await page.addInitScript({ content: `Object.defineProperty(window, "__systemRunnerEvidenceValue", { value: (${systemRunnerEvidenceValue.toString()}) });` });
+  if (profile.knowledgeDeleteWrites) await page.addInitScript({ content: `Object.defineProperty(window, "__knowledgeDeleteEvidenceValue", { value: (${knowledgeDeleteEvidenceValue.toString()}) });` });
   await observeBrowserIO(page, (event) => {
     if (browserEvents.length < 4096) browserEvents.push(event);
     else browserEventsTruncated = true;
@@ -4991,22 +2942,22 @@ export async function observeTaskRequests(
             skillsTarget,
             milestoneCreate,
             editMilestone,
-            editSprint,
+          editSprint,
             variableWrites,
             knowledgeTextWrites,
             schedulerWrites,
-            knowledgeTitleReads,
-            secretReads,
-            usageReads,
-            runnerMounts,
-            systemRunnerManagement,
-            secretWrite,
-            knowledgeDelete,
-            usageSummaryReads,
-            secretDelete,
-            reorderMilestone,
-            reorderSprint,
-            humanBlockerTask,
+          knowledgeTitleReads,
+          secretReads,
+          usageReads,
+          runnerMounts,
+          systemRunnerManagement,
+          secretWrite,
+          knowledgeDelete,
+          usageSummaryReads,
+          secretDelete,
+          reorderMilestone,
+          reorderSprint,
+          humanBlockerTask,
           );
         },
         {
@@ -5015,13 +2966,7 @@ export async function observeTaskRequests(
           intakeWrites: profile.intakeWrites === true,
           agentConfiguration: profile.agentConfiguration === true,
           editTask: profile.editWrites ? data.task_id : undefined,
-          timelineTask:
-            profile.timelineReads ||
-            profile.humanBlockerWrites ||
-            profile.prefix === "task-search" ||
-            profile.prefix === "task-assignee-filter"
-              ? data.task_id
-              : undefined,
+          timelineTask: profile.timelineReads || profile.humanBlockerWrites || profile.prefix === "task-search" || profile.prefix === "task-assignee-filter" ? data.task_id : undefined,
           editAgent:
             profile.agentEditWrites || profile.agentModelPolicy
               ? data.agent_id
@@ -5032,9 +2977,7 @@ export async function observeTaskRequests(
             : undefined,
           skillsTarget: profile.skillsReads ? data.skill_id : undefined,
           milestoneCreate: profile.milestoneCreateWrites === true,
-          editMilestone: profile.milestoneUpdateWrites
-            ? data.milestone_id
-            : undefined,
+          editMilestone: profile.milestoneUpdateWrites ? data.milestone_id : undefined,
           editSprint: profile.sprintUpdateWrites ? data.sprint_id : undefined,
           variableWrites: profile.variableWrites === true,
           knowledgeTextWrites: profile.knowledgeTextWrites === true,
@@ -5043,31 +2986,14 @@ export async function observeTaskRequests(
           secretReads: profile.secretReads === true,
           usageReads: profile.usageReads === true,
           usageSummaryReads: profile.usageSummaryReads === true,
-          runnerMounts:
-            profile.agentRunnerMounts || profile.agentSecretAllowlist
-              ? {
-                  mode: data.mode,
-                  agent: data.agent_id,
-                  ...(profile.agentSecretAllowlist
-                    ? { secretAllowlist: true as const }
-                    : {}),
-                }
-              : undefined,
+          runnerMounts: (profile.agentRunnerMounts || profile.agentSecretAllowlist) ? { mode: data.mode, agent: data.agent_id, ...(profile.agentSecretAllowlist ? { secretAllowlist: true as const } : {}) } : undefined,
           systemRunnerManagement: profile.systemRunnerManagement === true,
           secretWrite: profile.secretWrite === true,
-          knowledgeDelete: profile.knowledgeDeleteWrites
-            ? { mode: data.mode, root: data.root_id! }
-            : undefined,
+          knowledgeDelete: profile.knowledgeDeleteWrites ? { mode: data.mode, root: data.root_id! } : undefined,
           secretDelete: profile.secretDelete ? data.agent_id : undefined,
-          reorderMilestone: profile.milestoneReorderWrites
-            ? data.milestone_id
-            : undefined,
-          reorderSprint: profile.sprintReorderWrites
-            ? data.sprint_id
-            : undefined,
-          humanBlockerTask: profile.humanBlockerWrites
-            ? data.task_id
-            : undefined,
+          reorderMilestone: profile.milestoneReorderWrites ? data.milestone_id : undefined,
+          reorderSprint: profile.sprintReorderWrites ? data.sprint_id : undefined,
+          humanBlockerTask: profile.humanBlockerWrites ? data.task_id : undefined,
         },
       );
       await route.continue();
@@ -5160,25 +3086,16 @@ export async function observeTaskRequests(
     return (
       (profile.agentConfiguration ||
         profile.agentEditWrites ||
-        profile.agentModelPolicy ||
-        profile.secretDelete) &&
+        profile.agentModelPolicy || profile.secretDelete) &&
       entry.request.method() === "GET" &&
-      [
-        "agent-directory",
-        "agent-configuration",
-        "agent-models",
-        ...(profile.secretDelete ? ["agent-runners", "agent-mounts"] : []),
-      ].includes(entry.name)
+      ["agent-directory", "agent-configuration", "agent-models", ...(profile.secretDelete ? ["agent-runners", "agent-mounts"] : [])].includes(
+        entry.name,
+      )
     );
   }
 
   function agentEditWrite(entry: Entry) {
-    if (
-      !profile.agentEditWrites &&
-      !profile.agentModelPolicy &&
-      !profile.secretDelete
-    )
-      return false;
+    if (!profile.agentEditWrites && !profile.agentModelPolicy && !profile.secretDelete) return false;
     const url = new URL(entry.request.url());
     if (url.search) return false;
     const prefix = `/api/v1/projects/${data.project_id}`;
@@ -5194,41 +3111,22 @@ export async function observeTaskRequests(
   }
 
   function projectCreationReadEntry(entry: Entry) {
-    if (
-      profile.prefix !== "project-creation" ||
-      entry.request.method() !== "GET"
-    )
-      return false;
+    if (profile.prefix !== "project-creation" || entry.request.method() !== "GET") return false;
     const path = new URL(entry.request.url()).pathname;
-    return (
-      (entry.name === "projects" && path === "/api/v1/projects") ||
+    return (entry.name === "projects" && path === "/api/v1/projects") ||
       (entry.name === "resolve" && path === "/api/v1/projects/resolve") ||
-      (entry.name === "project" &&
-        !!data.project_id &&
-        path === `/api/v1/projects/${data.project_id}`)
-    );
+      (entry.name === "project" && !!data.project_id && path === `/api/v1/projects/${data.project_id}`);
   }
   function taskSearchReadEntry(entry: Entry) {
-    if (
-      !["task-search", "task-assignee-filter"].includes(profile.prefix) ||
-      entry.request.method() !== "GET"
-    )
-      return false;
+    if (!["task-search", "task-assignee-filter"].includes(profile.prefix) || entry.request.method() !== "GET") return false;
     const path = new URL(entry.request.url()).pathname;
     const prefix = `/api/v1/projects/${data.project_id}/tasks`;
-    if (
-      profile.prefix === "task-assignee-filter" &&
-      ((entry.name === "agents" &&
-        path === `/api/v1/projects/${data.project_id}/agents`) ||
-        (entry.name === "agent" &&
-          path.startsWith(`/api/v1/projects/${data.project_id}/agents/`)))
-    )
-      return true;
-    return (
-      (entry.name === "tasks" && path === prefix) ||
+    if (profile.prefix === "task-assignee-filter" &&
+        ((entry.name === "agents" && path === `/api/v1/projects/${data.project_id}/agents`) ||
+         (entry.name === "agent" && path.startsWith(`/api/v1/projects/${data.project_id}/agents/`)))) return true;
+    return (entry.name === "tasks" && path === prefix) ||
       (entry.name === "task" && path === `${prefix}/${data.task_id}`) ||
-      (entry.name === "events" && path === `${prefix}/${data.task_id}/events`)
-    );
+      (entry.name === "events" && path === `${prefix}/${data.task_id}/events`);
   }
 
   function timelinePageRead(entry: Entry) {
@@ -5267,18 +3165,9 @@ export async function observeTaskRequests(
   function sprintPageRead(entry: Entry) {
     return (
       entry.request.method() === "GET" &&
-      (((profile.sprintUpdateWrites || profile.sprintReorderWrites) &&
-        [
-          "project",
-          "sprint",
-          "sprints",
-          "milestone",
-          "milestones",
-          "agents",
-          "tasks",
-        ].includes(entry.name)) ||
+      (((profile.sprintUpdateWrites || profile.sprintReorderWrites) && ["project", "sprint", "sprints", "milestone", "milestones", "agents", "tasks"].includes(entry.name)) ||
         (profile.sprintStartWrites &&
-          ["project", "sprint", "tasks"].includes(entry.name)) ||
+        ["project", "sprint", "tasks"].includes(entry.name)) ||
         (profile.sprintCreateWrites &&
           [
             "project",
@@ -5303,89 +3192,39 @@ export async function observeTaskRequests(
   function milestoneReorderWrite(entry: Entry) {
     if (!profile.milestoneReorderWrites) return false;
     const url = new URL(entry.request.url());
-    return (
-      entry.name === "reorder" &&
-      entry.request.method() === "POST" &&
-      !url.search &&
-      url.pathname ===
-        `/api/v1/projects/${data.project_id}/milestones/${data.milestone_id}/reorder`
-    );
+    return entry.name === "reorder" && entry.request.method() === "POST" && !url.search &&
+      url.pathname === `/api/v1/projects/${data.project_id}/milestones/${data.milestone_id}/reorder`;
   }
   function humanBlockerWrite(entry: Entry) {
-    if (!profile.humanBlockerWrites || entry.request.method() !== "POST")
-      return false;
-    const url = new URL(entry.request.url()),
-      target = `/api/v1/projects/${data.project_id}/tasks/${data.task_id}/blockers`;
-    return (
-      !url.search &&
-      ((entry.name === "add" && url.pathname === target) ||
-        (entry.name === "resolve-blocker" &&
-          url.pathname === target + "/resolve"))
-    );
+    if (!profile.humanBlockerWrites || entry.request.method() !== "POST") return false;
+    const url = new URL(entry.request.url()), target = `/api/v1/projects/${data.project_id}/tasks/${data.task_id}/blockers`;
+    return !url.search && ((entry.name === "add" && url.pathname === target) || (entry.name === "resolve-blocker" && url.pathname === target + "/resolve"));
   }
   function humanBlockerReadEntry(entry: Entry) {
-    return (
-      profile.humanBlockerWrites &&
-      entry.request.method() === "GET" &&
-      [
-        "project",
-        "milestones",
-        "milestone",
-        "sprints",
-        "sprint",
-        "agents",
-        "agent",
-        "tasks",
-        "task",
-        "blockers",
-        "events",
-      ].includes(entry.name)
-    );
+    return profile.humanBlockerWrites && entry.request.method() === "GET" &&
+      ["project", "milestones", "milestone", "sprints", "sprint", "agents", "agent", "tasks", "task", "blockers", "events"].includes(entry.name);
   }
   function sprintReorderWrite(entry: Entry) {
     if (!profile.sprintReorderWrites) return false;
     const url = new URL(entry.request.url());
-    return (
-      entry.name === "reorder" &&
-      entry.request.method() === "POST" &&
-      !url.search &&
-      url.pathname ===
-        `/api/v1/projects/${data.project_id}/sprints/${data.sprint_id}/reorder`
-    );
+    return entry.name === "reorder" && entry.request.method() === "POST" && !url.search &&
+      url.pathname === `/api/v1/projects/${data.project_id}/sprints/${data.sprint_id}/reorder`;
   }
   function milestoneUpdateWrite(entry: Entry) {
     if (!profile.milestoneUpdateWrites) return false;
-    const url = new URL(entry.request.url()),
-      prefix = `/api/v1/projects/${data.project_id}`;
-    return (
-      !url.search &&
-      ((entry.name === "update" &&
-        entry.request.method() === "PATCH" &&
-        url.pathname === `${prefix}/milestones/${data.milestone_id}`) ||
-        (entry.name === "lookup" &&
-          entry.request.method() === "POST" &&
-          url.pathname === `${prefix}/structure-commands/lookup`))
-    );
+    const url = new URL(entry.request.url()), prefix = `/api/v1/projects/${data.project_id}`;
+    return !url.search && ((entry.name === "update" && entry.request.method() === "PATCH" && url.pathname === `${prefix}/milestones/${data.milestone_id}`) ||
+      (entry.name === "lookup" && entry.request.method() === "POST" && url.pathname === `${prefix}/structure-commands/lookup`));
   }
   function sprintUpdateWrite(entry: Entry) {
     if (!profile.sprintUpdateWrites) return false;
-    const url = new URL(entry.request.url()),
-      prefix = `/api/v1/projects/${data.project_id}`;
-    return (
-      !url.search &&
-      ((entry.name === "update" &&
-        entry.request.method() === "PATCH" &&
-        url.pathname === `${prefix}/sprints/${data.sprint_id}`) ||
-        (entry.name === "lookup" &&
-          entry.request.method() === "POST" &&
-          url.pathname === `${prefix}/structure-commands/lookup`))
-    );
+    const url = new URL(entry.request.url()), prefix = `/api/v1/projects/${data.project_id}`;
+    return !url.search && ((entry.name === "update" && entry.request.method() === "PATCH" && url.pathname === `${prefix}/sprints/${data.sprint_id}`) ||
+      (entry.name === "lookup" && entry.request.method() === "POST" && url.pathname === `${prefix}/structure-commands/lookup`));
   }
   function milestonePageRead(entry: Entry) {
     return (
-      (profile.milestoneCreateWrites ||
-        profile.milestoneUpdateWrites ||
-        profile.milestoneReorderWrites) &&
+      (profile.milestoneCreateWrites || profile.milestoneUpdateWrites || profile.milestoneReorderWrites) &&
       entry.request.method() === "GET" &&
       ["project", "milestones", "milestone", "sprints", "agents"].includes(
         entry.name,
@@ -5404,237 +3243,88 @@ export async function observeTaskRequests(
     const url = new URL(entry.request.url());
     const prefix = `/api/v1/projects/${data.project_id}/variables`;
     if (url.search) return false;
-    return (
-      (entry.name === "create" &&
-        entry.request.method() === "POST" &&
-        url.pathname === prefix) ||
-      (((entry.name === "update" && entry.request.method() === "PATCH") ||
-        (entry.name === "delete" && entry.request.method() === "DELETE")) &&
+    return (entry.name === "create" && entry.request.method() === "POST" && url.pathname === prefix) ||
+      ((entry.name === "update" && entry.request.method() === "PATCH" || entry.name === "delete" && entry.request.method() === "DELETE") &&
         url.pathname.startsWith(prefix + "/") &&
-        /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-          url.pathname.slice(prefix.length + 1),
-        ))
-    );
+        /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(url.pathname.slice(prefix.length + 1)));
   }
   function variablePageRead(entry: Entry) {
-    return (
-      profile.variableWrites &&
-      entry.request.method() === "GET" &&
-      ["variables", "variable"].includes(entry.name)
-    );
+    return profile.variableWrites && entry.request.method() === "GET" &&
+      ["variables", "variable"].includes(entry.name);
   }
   function knowledgeTextWrite(entry: Entry) {
-    if (!profile.knowledgeTextWrites || entry.request.method() !== "POST")
-      return false;
-    const url = new URL(entry.request.url()),
-      prefix = `/api/v1/projects/${data.project_id}/knowledge/documents/`;
-    return (
-      !url.search &&
-      ["create", "update"].includes(entry.name) &&
-      url.pathname.startsWith(prefix) &&
-      /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\/(create-text|replace-text)$/.test(
-        url.pathname.slice(prefix.length),
-      )
-    );
+    if (!profile.knowledgeTextWrites || entry.request.method() !== "POST") return false;
+    const url = new URL(entry.request.url()), prefix = `/api/v1/projects/${data.project_id}/knowledge/documents/`;
+    return !url.search && ["create", "update"].includes(entry.name) && url.pathname.startsWith(prefix) &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\/(create-text|replace-text)$/.test(url.pathname.slice(prefix.length));
   }
   function knowledgeTextReadEntry(entry: Entry) {
-    return (
-      profile.knowledgeTextWrites &&
-      entry.request.method() === "GET" &&
-      ["documents", "document", "ancestors", "content"].includes(entry.name)
-    );
+    return profile.knowledgeTextWrites && entry.request.method() === "GET" && ["documents", "document", "ancestors", "content"].includes(entry.name);
   }
   function knowledgeTitleReadEntry(entry: Entry) {
-    return (
-      profile.knowledgeTitleReads &&
-      entry.request.method() === "GET" &&
-      [
-        "session",
-        "resolve",
-        "projects",
-        "project",
-        "documents",
-        "titles",
-        "document",
-        "ancestors",
-        "content",
-      ].includes(entry.name)
-    );
+    return profile.knowledgeTitleReads && entry.request.method() === "GET" &&
+      ["session", "resolve", "projects", "project", "documents", "titles", "document", "ancestors", "content"].includes(entry.name);
   }
   function secretReadEntry(entry: Entry) {
-    return (
-      (profile.secretReads || profile.secretWrite) &&
-      entry.request.method() === "GET" &&
-      [
-        "session",
-        "resolve",
-        "projects",
-        "project",
-        "secrets",
-        "secret",
-      ].includes(entry.name)
-    );
+    return (profile.secretReads || profile.secretWrite) && entry.request.method() === "GET" &&
+      ["session", "resolve", "projects", "project", "secrets", "secret"].includes(entry.name);
   }
   function usageReadEntry(entry: Entry) {
-    return (
-      profile.usageReads &&
-      entry.request.method() === "GET" &&
-      (["session", "resolve", "projects", "project", "usage"].includes(
-        entry.name,
-      ) ||
-        (profile.usageSummaryReads && entry.name === "summary"))
-    );
+    return profile.usageReads && entry.request.method() === "GET" &&
+      (["session", "resolve", "projects", "project", "usage"].includes(entry.name) || profile.usageSummaryReads && entry.name === "summary");
   }
   function schedulerWrite(entry: Entry) {
     if (!profile.schedulerWrites) return false;
-    const url = new URL(entry.request.url()),
-      prefix = `/api/v1/projects/${data.project_id}`;
-    return (
-      !url.search &&
-      ((entry.name === "update" &&
-        entry.request.method() === "PATCH" &&
-        url.pathname === prefix + "/scheduler") ||
-        (entry.name === "lookup" &&
-          entry.request.method() === "POST" &&
-          url.pathname === prefix + "/commands/lookup"))
-    );
+    const url = new URL(entry.request.url()), prefix = `/api/v1/projects/${data.project_id}`;
+    return !url.search && ((entry.name === "update" && entry.request.method() === "PATCH" && url.pathname === prefix + "/scheduler") ||
+      (entry.name === "lookup" && entry.request.method() === "POST" && url.pathname === prefix + "/commands/lookup"));
   }
   function schedulerReadEntry(entry: Entry) {
-    return (
-      profile.schedulerWrites &&
-      entry.request.method() === "GET" &&
-      ["session", "resolve", "projects", "project", "scheduler"].includes(
-        entry.name,
-      )
-    );
+    return profile.schedulerWrites && entry.request.method() === "GET" &&
+      ["session", "resolve", "projects", "project", "scheduler"].includes(entry.name);
   }
   function runnerWrite(entry: Entry) {
-    if (!(profile.agentRunnerMounts || profile.agentSecretAllowlist))
-      return false;
-    const url = new URL(entry.request.url()),
-      prefix = `/api/v1/projects/${data.project_id}`;
-    const target =
-      data.agent_id ??
-      entries.find((e) => e.name === "create")?.request.postDataJSON()?.request
-        ?.agent_id;
-    return (
-      !url.search &&
-      ((entry.name === "create" &&
-        entry.request.method() === "POST" &&
-        url.pathname === prefix + "/agents") ||
-        (entry.name === "update" &&
-          entry.request.method() === "PATCH" &&
-          target &&
-          url.pathname === `${prefix}/agents/${target}/configuration`) ||
-        (entry.name === "lookup" &&
-          entry.request.method() === "POST" &&
-          url.pathname === prefix + "/agent-commands/lookup"))
-    );
+    if (!(profile.agentRunnerMounts || profile.agentSecretAllowlist)) return false;
+    const url = new URL(entry.request.url()), prefix = `/api/v1/projects/${data.project_id}`;
+    const target = data.agent_id ?? entries.find(e => e.name === "create")?.request.postDataJSON()?.request?.agent_id;
+    return !url.search && ((entry.name === "create" && entry.request.method() === "POST" && url.pathname === prefix + "/agents") ||
+      (entry.name === "update" && entry.request.method() === "PATCH" && target && url.pathname === `${prefix}/agents/${target}/configuration`) ||
+      (entry.name === "lookup" && entry.request.method() === "POST" && url.pathname === prefix + "/agent-commands/lookup"));
   }
   function runnerReadEntry(entry: Entry) {
-    return (
-      (profile.agentRunnerMounts || profile.agentSecretAllowlist) &&
-      entry.request.method() === "GET" &&
-      [
-        "session",
-        "resolve",
-        "projects",
-        "project",
-        "agent-directory",
-        "agent-configuration",
-        "agent-models",
-        "agent-runners",
-        "agent-mounts",
-        ...(profile.agentSecretAllowlist ? ["agent-secrets"] : []),
-      ].includes(entry.name)
-    );
+    return (profile.agentRunnerMounts || profile.agentSecretAllowlist) && entry.request.method() === "GET" &&
+      ["session", "resolve", "projects", "project", "agent-directory", "agent-configuration", "agent-models", "agent-runners", "agent-mounts", ...(profile.agentSecretAllowlist ? ["agent-secrets"] : [])].includes(entry.name);
   }
   function secretWriteEntry(entry: Entry) {
     if (!profile.secretWrite) return false;
-    const url = new URL(entry.request.url()),
-      prefix = `/api/v1/projects/${data.project_id}/secret-variables`;
-    if (profile.secretDelete)
-      return (
-        entry.name === "delete" &&
-        entry.request.method() === "DELETE" &&
-        !url.search &&
-        url.pathname.startsWith(prefix + "/") &&
-        /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-          url.pathname.slice(prefix.length + 1),
-        )
-      );
-    return (
-      !url.search &&
-      ((entry.name === "create" &&
-        entry.request.method() === "POST" &&
-        url.pathname === prefix) ||
-        (entry.name === "lookup" &&
-          entry.request.method() === "POST" &&
-          url.pathname === prefix + "/commands/lookup") ||
-        (entry.name === "update" &&
-          entry.request.method() === "PATCH" &&
-          url.pathname.startsWith(prefix + "/") &&
-          /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
-            url.pathname.slice(prefix.length + 1),
-          )))
-    );
+    const url = new URL(entry.request.url()), prefix = `/api/v1/projects/${data.project_id}/secret-variables`;
+    if (profile.secretDelete) return entry.name === "delete" && entry.request.method() === "DELETE" && !url.search &&
+      url.pathname.startsWith(prefix + "/") && /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(url.pathname.slice(prefix.length + 1));
+    return !url.search && ((entry.name === "create" && entry.request.method() === "POST" && url.pathname === prefix) ||
+      (entry.name === "lookup" && entry.request.method() === "POST" && url.pathname === prefix + "/commands/lookup") ||
+      (entry.name === "update" && entry.request.method() === "PATCH" && url.pathname.startsWith(prefix + "/") &&
+        /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(url.pathname.slice(prefix.length + 1))));
   }
   function systemRunnerWrite(entry: Entry) {
-    return (
-      profile.systemRunnerManagement &&
-      ["create", "update", "enrollment", "revoke", "lookup"].includes(
-        entry.name,
-      ) &&
-      entry.request.method() !== "GET"
-    );
+    return profile.systemRunnerManagement && ["create", "update", "enrollment", "revoke", "lookup"].includes(entry.name) && entry.request.method() !== "GET";
   }
   function systemRunnerReadEntry(entry: Entry) {
-    return (
-      profile.systemRunnerManagement &&
-      entry.request.method() === "GET" &&
-      ["session", "projects", "runner-list", "runner-detail"].includes(
-        entry.name,
-      )
-    );
+    return profile.systemRunnerManagement && entry.request.method() === "GET" && ["session", "projects", "runner-list", "runner-detail"].includes(entry.name);
   }
   function knowledgeDeleteWrite(entry: Entry) {
-    if (!profile.knowledgeDeleteWrites || entry.request.method() !== "POST")
-      return false;
-    const url = new URL(entry.request.url()),
-      prefix = `/api/v1/projects/${data.project_id}/knowledge/documents`;
-    return (
-      !url.search &&
-      ((entry.name === "delete" &&
-        url.pathname === `${prefix}/${data.root_id}/delete-subtree`) ||
-        (entry.name === "lookup" &&
-          url.pathname === prefix + "/commands/lookup"))
-    );
+    if (!profile.knowledgeDeleteWrites || entry.request.method() !== "POST") return false;
+    const url = new URL(entry.request.url()), prefix = `/api/v1/projects/${data.project_id}/knowledge/documents`;
+    return !url.search && ((entry.name === "delete" && url.pathname === `${prefix}/${data.root_id}/delete-subtree`) ||
+      (entry.name === "lookup" && url.pathname === prefix + "/commands/lookup"));
   }
   function knowledgeDeletePreview(entry: Entry) {
-    return (
-      profile.knowledgeDeleteWrites &&
-      entry.name === "preview" &&
-      entry.request.method() === "POST" &&
-      new URL(entry.request.url()).pathname ===
-        `/api/v1/projects/${data.project_id}/knowledge/documents/${data.root_id}/delete-preview` &&
-      !new URL(entry.request.url()).search
-    );
+    return profile.knowledgeDeleteWrites && entry.name === "preview" && entry.request.method() === "POST" &&
+      new URL(entry.request.url()).pathname === `/api/v1/projects/${data.project_id}/knowledge/documents/${data.root_id}/delete-preview` &&
+      !new URL(entry.request.url()).search;
   }
   function knowledgeDeleteReadEntry(entry: Entry) {
-    return (
-      profile.knowledgeDeleteWrites &&
-      entry.request.method() === "GET" &&
-      [
-        "session",
-        "resolve",
-        "projects",
-        "project",
-        "documents",
-        "document",
-        "ancestors",
-        "content",
-      ].includes(entry.name)
-    );
+    return profile.knowledgeDeleteWrites && entry.request.method() === "GET" &&
+      ["session", "resolve", "projects", "project", "documents", "document", "ancestors", "content"].includes(entry.name);
   }
   function joint(entry: Entry, proof: any, rejectedDelete = false) {
     const edit = editWrite(entry);
@@ -5653,8 +3343,7 @@ export async function observeTaskRequests(
     const runner = runnerWrite(entry);
     const systemRunner = systemRunnerWrite(entry);
     const secret = secretWriteEntry(entry);
-    const knowledgeDelete = knowledgeDeleteWrite(entry),
-      deletePreview = knowledgeDeletePreview(entry);
+    const knowledgeDelete = knowledgeDeleteWrite(entry), deletePreview = knowledgeDeletePreview(entry);
     const write =
       intakeWrite(entry) ||
       agentWrite(entry) ||
@@ -5669,29 +3358,14 @@ export async function observeTaskRequests(
       humanBlocker ||
       sprintUpdate ||
       variable ||
-      knowledgeText ||
-      scheduler ||
-      runner ||
-      systemRunner ||
-      knowledgeDelete ||
-      secret;
+      knowledgeText || scheduler || runner || systemRunner || knowledgeDelete || secret;
     const method =
-      (variable || profile.secretDelete) && entry.name === "delete"
-        ? "DELETE"
-        : (edit ||
-              agentEdit ||
-              milestoneUpdate ||
-              sprintUpdate ||
-              variable ||
-              scheduler ||
-              runner ||
-              systemRunner ||
-              secret) &&
-            entry.name === "update"
-          ? "PATCH"
-          : write || deletePreview
-            ? "POST"
-            : "GET";
+      (variable || profile.secretDelete) && entry.name === "delete" ? "DELETE" :
+      (edit || agentEdit || milestoneUpdate || sprintUpdate || variable || scheduler || runner || systemRunner || secret) && entry.name === "update"
+        ? "PATCH"
+        : write || deletePreview
+          ? "POST"
+          : "GET";
     expect(entry.request.method()).toBe(method);
     expect(entry.status).toBe(rejectedDelete ? 409 : 200);
     expect(entry.responseCount).toBe(1);
@@ -5730,8 +3404,7 @@ export async function observeTaskRequests(
     expect(
       record.original_eof && record.original_closed && record.handler_returned,
     ).toBe(true);
-    if (profile.secretDelete)
-      expect(record.handler_return_source).toBe("owned_tls_bridge");
+    if (profile.secretDelete) expect(record.handler_return_source).toBe("owned_tls_bridge");
     expect(n.path).toBe(expectedURL.pathname);
     expect(n.method).toBe(method);
     expect(n.status).toBe(rejectedDelete ? 409 : 200);
@@ -5753,35 +3426,18 @@ export async function observeTaskRequests(
     expect(c.method).toBe(method);
     expect(c.path).toBe(n.path);
     if (rejectedDelete) {
-      expect(profile.secretDelete && secret && entry.name === "delete").toBe(
-        true,
-      );
+      expect(profile.secretDelete && secret && entry.name === "delete").toBe(true);
       expect(c.kind).toBe("secretWrite.delete");
-      expect(
-        c.rejected &&
-          c.settled &&
-          c.current &&
-          c.not_busy &&
-          !c.fulfilled &&
-          c.result_current,
-      ).toBe(true);
+      expect(c.rejected && c.settled && c.current && c.not_busy && !c.fulfilled && c.result_current).toBe(true);
       expect(c.request_bound && n.request_bound).toBe(true);
       expect(record.rejected_verified).toBe(true);
       expect(record.committed_verified).toBe(false);
-      const keyHash = createHash("sha256")
-        .update(entry.request.headers()["idempotency-key"]!)
-        .digest("hex");
+      const keyHash = createHash("sha256").update(entry.request.headers()["idempotency-key"]!).digest("hex");
       for (const source of [record, n, c]) {
         expect(source.idempotency_key_sha256).toBe(keyHash);
         expect(Object.hasOwn(source, "request_body_sha256")).toBe(false);
       }
-      proofs.push({
-        seq: entry.seq,
-        request_id: entry.requestID,
-        native: n,
-        consumer: { ...c, typed: undefined },
-        go: record,
-      });
+      proofs.push({ seq: entry.seq, request_id: entry.requestID, native: n, consumer: { ...c, typed: undefined }, go: record });
       return { code: "RESOURCE_BUSY", commit_state: "not_committed" };
     }
     expect(c.fulfilled && c.settled && c.current && c.not_busy).toBe(true);
@@ -5789,74 +3445,20 @@ export async function observeTaskRequests(
     expect(c.typed).not.toBeNull();
     expect(c.typed_digest).toMatch(/^[0-9a-f]{64}$/);
     expect(n.typed_digest).toBe(c.typed_digest);
-    if (projectCreationReadEntry(entry))
-      expect(c.kind).toBe(
-        {
-          projects: "project.list",
-          resolve: "project.resolve",
-          project: "project.get",
-        }[entry.name],
-      );
+    if (projectCreationReadEntry(entry)) expect(c.kind).toBe({ projects: "project.list", resolve: "project.resolve", project: "project.get" }[entry.name]);
     if (taskSearchReadEntry(entry)) expect(c.kind).toBe(`work.${entry.name}`);
-    if (profile.secretDelete && agentPageRead(entry))
-      expect(c.kind).toBe(
-        {
-          "agent-directory": "agent.list",
-          "agent-configuration": "agent.getConfiguration",
-          "agent-models": "agent.models",
-          "agent-runners": "agent.runners",
-          "agent-mounts": "agent.runnerMounts",
-        }[entry.name],
-      );
+    if (profile.secretDelete && agentPageRead(entry)) expect(c.kind).toBe({ "agent-directory": "agent.list", "agent-configuration": "agent.getConfiguration", "agent-models": "agent.models", "agent-runners": "agent.runners", "agent-mounts": "agent.runnerMounts" }[entry.name]);
     if (timelinePageRead(entry)) expect(c.kind).toBe("work.events");
-    if (humanBlockerReadEntry(entry))
-      expect(c.kind).toBe(
-        entry.name === "project" ? "project.get" : "work." + entry.name,
-      );
+    if (humanBlockerReadEntry(entry)) expect(c.kind).toBe(entry.name === "project" ? "project.get" : "work." + entry.name);
     if (skillsPageRead(entry))
       expect(c.kind).toBe(
         entry.name === "skills-catalog" ? "skills.list" : "skills.get",
       );
     if (variablePageRead(entry))
-      expect(c.kind).toBe(
-        entry.name === "variables" ? "variable.list" : "variable.get",
-      );
-    if (knowledgeTextReadEntry(entry))
-      expect(c.kind).toBe(
-        {
-          documents: "knowledge.children",
-          document: "knowledge.get",
-          ancestors: "knowledge.ancestors",
-          content: "knowledge.readContent",
-        }[entry.name],
-      );
-    if (knowledgeTitleReadEntry(entry))
-      expect(c.kind).toBe(
-        {
-          session: "restore",
-          resolve: "project.resolve",
-          projects: "project.list",
-          project: "project.get",
-          documents: "knowledge.children",
-          titles: "knowledge.searchTitles",
-          document: "knowledge.get",
-          ancestors: "knowledge.ancestors",
-          content: "knowledge.readContent",
-        }[entry.name],
-      );
-    if (knowledgeDeleteReadEntry(entry))
-      expect(c.kind).toBe(
-        {
-          session: "restore",
-          resolve: "project.resolve",
-          projects: "project.list",
-          project: "project.get",
-          documents: "knowledge.children",
-          document: "knowledge.get",
-          ancestors: "knowledge.ancestors",
-          content: "knowledge.readContent",
-        }[entry.name],
-      );
+      expect(c.kind).toBe(entry.name === "variables" ? "variable.list" : "variable.get");
+    if (knowledgeTextReadEntry(entry)) expect(c.kind).toBe({documents:"knowledge.children", document:"knowledge.get", ancestors:"knowledge.ancestors", content:"knowledge.readContent"}[entry.name]);
+    if (knowledgeTitleReadEntry(entry)) expect(c.kind).toBe({session:"restore", resolve:"project.resolve", projects:"project.list", project:"project.get", documents:"knowledge.children", titles:"knowledge.searchTitles", document:"knowledge.get", ancestors:"knowledge.ancestors", content:"knowledge.readContent"}[entry.name]);
+    if (knowledgeDeleteReadEntry(entry)) expect(c.kind).toBe({session:"restore", resolve:"project.resolve", projects:"project.list", project:"project.get", documents:"knowledge.children", document:"knowledge.get", ancestors:"knowledge.ancestors", content:"knowledge.readContent"}[entry.name]);
     if (deletePreview) {
       expect(c.kind).toBe("knowledgeDelete.preview");
       expect(c.material_matches).toBe(true);
@@ -5865,231 +3467,100 @@ export async function observeTaskRequests(
       expect(entry.request.headers()["idempotency-key"]).toBeUndefined();
       expect(record.idempotency_key_sha256).toBeUndefined();
       expect(record.committed_verified).toBeUndefined();
-      const bodyHash = createHash("sha256")
-        .update(entry.request.postDataBuffer()!)
-        .digest("hex");
+      const bodyHash = createHash("sha256").update(entry.request.postDataBuffer()!).digest("hex");
       for (const source of [record, n, c]) {
         expect(source.request_body_sha256).toBe(bodyHash);
         expect(source.confirmation_token_sha256).toMatch(/^[0-9a-f]{64}$/);
-        expect(source.confirmation_token_sha256).toBe(
-          record.confirmation_token_sha256,
-        );
+        expect(source.confirmation_token_sha256).toBe(record.confirmation_token_sha256);
       }
     }
-    if (secretReadEntry(entry))
-      expect(c.kind).toBe(
-        {
-          session: "restore",
-          resolve: "project.resolve",
-          projects: "project.list",
-          project: "project.get",
-          secrets: "secret.list",
-          secret: "secret.get",
-        }[entry.name],
-      );
-    if (usageReadEntry(entry))
-      expect(c.kind).toBe(
-        {
-          session: "restore",
-          resolve: "project.resolve",
-          projects: "project.list",
-          project: "project.get",
-          usage: "usage.list",
-          summary: "usage.daily",
-        }[entry.name],
-      );
-    if (runnerReadEntry(entry))
-      expect(c.kind).toBe(
-        {
-          session: "restore",
-          resolve: "project.resolve",
-          projects: "project.list",
-          project: "project.get",
-          "agent-directory": "agent.list",
-          "agent-configuration": "agent.getConfiguration",
-          "agent-models": "agent.models",
-          "agent-runners": "agent.runners",
-          "agent-mounts": "agent.runnerMounts",
-          "agent-secrets": "secret.list",
-        }[entry.name],
-      );
-    if (schedulerReadEntry(entry))
-      expect(c.kind).toBe(
-        {
-          session: "restore",
-          resolve: "project.resolve",
-          projects: "project.list",
-          project: "project.get",
-          scheduler: "scheduler.get",
-        }[entry.name],
-      );
-    if (systemRunnerReadEntry(entry))
-      expect(c.kind).toBe(
-        {
-          session: "restore",
-          projects: "project.list",
-          "runner-list": "systemRunner.list",
-          "runner-detail": "systemRunner.get",
-        }[entry.name],
-      );
+    if (secretReadEntry(entry)) expect(c.kind).toBe({session:"restore", resolve:"project.resolve", projects:"project.list", project:"project.get", secrets:"secret.list", secret:"secret.get"}[entry.name]);
+    if (usageReadEntry(entry)) expect(c.kind).toBe({session:"restore", resolve:"project.resolve", projects:"project.list", project:"project.get", usage:"usage.list", summary:"usage.daily"}[entry.name]);
+    if (runnerReadEntry(entry)) expect(c.kind).toBe({ session: "restore", resolve: "project.resolve", projects: "project.list", project: "project.get", "agent-directory": "agent.list", "agent-configuration": "agent.getConfiguration", "agent-models": "agent.models", "agent-runners": "agent.runners", "agent-mounts": "agent.runnerMounts", "agent-secrets": "secret.list" }[entry.name]);
+    if (schedulerReadEntry(entry)) expect(c.kind).toBe({ session: "restore", resolve: "project.resolve", projects: "project.list", project: "project.get", scheduler: "scheduler.get" }[entry.name]);
+    if (systemRunnerReadEntry(entry)) expect(c.kind).toBe({ session: "restore", projects: "project.list", "runner-list": "systemRunner.list", "runner-detail": "systemRunner.get" }[entry.name]);
     if (write) {
-      if (secret) {
-        expect(c.result_current).toBe(true);
-        if (!profile.secretDelete) expect(c.paste_bound).toBe(true);
-      }
-      if (systemRunner) {
-        expect(c.result_current).toBe(true);
-        if (c.typed.token_available === true)
-          expect(c.material_matches).toBe(true);
-      }
+      if (secret) { expect(c.result_current).toBe(true); if (!profile.secretDelete) expect(c.paste_bound).toBe(true); }
+      if (systemRunner) { expect(c.result_current).toBe(true); if (c.typed.token_available === true) expect(c.material_matches).toBe(true); }
       if (scheduler || knowledgeDelete) expect(c.result_current).toBe(true);
-      if (
-        sprintCreate ||
-        milestoneCreate ||
-        milestoneUpdate ||
-        milestoneReorder ||
-        sprintReorder ||
-        humanBlocker ||
-        sprintUpdate ||
-        variable ||
-        knowledgeText
-      )
-        expect(c.result_current).toBe(true);
+      if (sprintCreate || milestoneCreate || milestoneUpdate || milestoneReorder || sprintReorder || humanBlocker || sprintUpdate || variable || knowledgeText) expect(c.result_current).toBe(true);
       const kinds: Record<string, string> = secret
-        ? {
-            create: "secretWrite.create",
-            update: "secretWrite.update",
-            delete: "secretWrite.delete",
-            lookup: "secretWrite.lookup",
-          }
+        ? { create: "secretWrite.create", update: "secretWrite.update", delete: "secretWrite.delete", lookup: "secretWrite.lookup" }
         : systemRunner
-          ? {
-              create: "systemRunner.start",
-              update: "systemRunner.start",
-              enrollment: "systemRunner.start",
-              revoke: "systemRunner.start",
-              lookup: "systemRunner.checkOriginal",
-            }
-          : knowledgeDelete
-            ? {
-                delete: "knowledgeDelete.startDelete",
-                lookup: "knowledgeDelete.checkOriginal",
-              }
-            : runner
+        ? { create: "systemRunner.start", update: "systemRunner.start", enrollment: "systemRunner.start", revoke: "systemRunner.start", lookup: "systemRunner.checkOriginal" }
+        : knowledgeDelete
+        ? { delete: "knowledgeDelete.startDelete", lookup: "knowledgeDelete.checkOriginal" }
+        : runner
+        ? { create: "agent.startCreate", update: "agentEdit.startUpdate", lookup: "agentEdit.checkOriginal" }
+        : scheduler
+        ? { update: "scheduler.startUpdate", lookup: "scheduler.checkOriginal" }
+        : knowledgeText
+        ? { create: "knowledgeText.write", update: "knowledgeText.write" }
+        : variable
+        ? { create: "variable.create", update: "variable.update", delete: "variable.delete" }
+        : sprintUpdate
+        ? { update: "sprintEdit.update", lookup: "sprintEdit.checkOriginal" }
+        : humanBlocker
+        ? { add: "humanBlocker.add", "resolve-blocker": "humanBlocker.resolve" }
+        : sprintReorder
+        ? { reorder: "sprintReorder.reorder" }
+        : milestoneReorder
+        ? { reorder: "milestoneReorder.reorder" }
+        : milestoneUpdate
+        ? { update: "milestone.update", lookup: "milestone.checkOriginal" }
+        : milestoneCreate
+        ? { create: "milestone.create" }
+        : sprintCreate
+          ? { create: "sprint.create" }
+          : sprint
+            ? { start: "sprint.start", lookup: "sprint.checkOriginal" }
+            : agentEdit
               ? {
-                  create: "agent.startCreate",
                   update: "agentEdit.startUpdate",
                   lookup: "agentEdit.checkOriginal",
                 }
-              : scheduler
+              : profile.agentConfiguration
                 ? {
-                    update: "scheduler.startUpdate",
-                    lookup: "scheduler.checkOriginal",
+                    create: "agent.startCreate",
+                    lookup: "agent.checkOriginal",
                   }
-                : knowledgeText
+                : edit
                   ? {
-                      create: "knowledgeText.write",
-                      update: "knowledgeText.write",
+                      update: "edit.startEdit",
+                      ready: "edit.startReady",
+                      lookup: "edit.checkOriginal",
                     }
-                  : variable
-                    ? {
-                        create: "variable.create",
-                        update: "variable.update",
-                        delete: "variable.delete",
-                      }
-                    : sprintUpdate
-                      ? {
-                          update: "sprintEdit.update",
-                          lookup: "sprintEdit.checkOriginal",
-                        }
-                      : humanBlocker
-                        ? {
-                            add: "humanBlocker.add",
-                            "resolve-blocker": "humanBlocker.resolve",
-                          }
-                        : sprintReorder
-                          ? { reorder: "sprintReorder.reorder" }
-                          : milestoneReorder
-                            ? { reorder: "milestoneReorder.reorder" }
-                            : milestoneUpdate
-                              ? {
-                                  update: "milestone.update",
-                                  lookup: "milestone.checkOriginal",
-                                }
-                              : milestoneCreate
-                                ? { create: "milestone.create" }
-                                : sprintCreate
-                                  ? { create: "sprint.create" }
-                                  : sprint
-                                    ? {
-                                        start: "sprint.start",
-                                        lookup: "sprint.checkOriginal",
-                                      }
-                                    : agentEdit
-                                      ? {
-                                          update: "agentEdit.startUpdate",
-                                          lookup: "agentEdit.checkOriginal",
-                                        }
-                                      : profile.agentConfiguration
-                                        ? {
-                                            create: "agent.startCreate",
-                                            lookup: "agent.checkOriginal",
-                                          }
-                                        : edit
-                                          ? {
-                                              update: "edit.startEdit",
-                                              ready: "edit.startReady",
-                                              lookup: "edit.checkOriginal",
-                                            }
-                                          : {
-                                              create: "work.startCreate",
-                                              ready: "work.startReady",
-                                              lookup: "work.checkOriginal",
-                                            };
+                  : {
+                      create: "work.startCreate",
+                      ready: "work.startReady",
+                      lookup: "work.checkOriginal",
+                    };
       const raw = entry.request.postDataBuffer();
       const key = entry.request.headers()["idempotency-key"];
       expect(raw).not.toBeNull();
       expect(raw!.length).toBeLessThanOrEqual(512 << 10);
       expect(key).toMatch(/^[A-Za-z0-9._:/-]{1,128}$/);
-      const bodyHash = secret
-        ? undefined
-        : createHash("sha256").update(raw!).digest("hex");
+      const bodyHash = secret ? undefined : createHash("sha256").update(raw!).digest("hex");
       const keyHash = createHash("sha256").update(key!).digest("hex");
       expect(c.kind).toBe(kinds[entry.name]);
       expect(c.request_bound && n.request_bound).toBe(true);
       expect(record.kind).toBe(entry.name);
       expect(record.committed_verified).toBe(true);
-      if (secret)
-        expect(record.request_bound && record.input_verified).toBe(true);
+      if (secret) expect(record.request_bound && record.input_verified).toBe(true);
       for (const source of [record, n, c]) {
-        if (secret)
-          expect(!Object.hasOwn(source, "request_body_sha256")).toBe(true);
+        if (secret) expect(!Object.hasOwn(source, "request_body_sha256")).toBe(true);
         else expect(source.request_body_sha256).toBe(bodyHash);
         expect(source.idempotency_key_sha256).toBe(keyHash);
       }
       if (knowledgeDelete) {
-        const token =
-          entry.name === "delete"
-            ? entry.request.postDataJSON().confirmation_token
-            : entry.request.postDataJSON().request.confirmation_token;
+        const token = entry.name === "delete" ? entry.request.postDataJSON().confirmation_token : entry.request.postDataJSON().request.confirmation_token;
         const tokenHash = createHash("sha256").update(token).digest("hex");
-        for (const source of [record, n, c])
-          expect(source.confirmation_token_sha256).toBe(tokenHash);
+        for (const source of [record, n, c]) expect(source.confirmation_token_sha256).toBe(tokenHash);
         expect(record.cleanup_pending).toBe(true);
       }
       if (entry.name === "lookup") {
-        if (
-          profile.schedulerWrites ||
-          profile.systemRunnerManagement ||
-          profile.knowledgeDeleteWrites
-        )
-          expect(c.typed.state).toBe("committed");
-        else
-          requireCommittedLookup(
-            c.typed,
-            profile.milestoneUpdateWrites === true ||
-              profile.sprintUpdateWrites === true,
-          );
+        if (profile.schedulerWrites || profile.systemRunnerManagement || profile.knowledgeDeleteWrites) expect(c.typed.state).toBe("committed");
+        else requireCommittedLookup(c.typed, profile.milestoneUpdateWrites === true || profile.sprintUpdateWrites === true);
         originalLookup();
       }
     }
@@ -6119,53 +3590,16 @@ export async function observeTaskRequests(
       if (entry.checked) continue;
       const state = await entry.done;
       const response = await entry.request.response();
-      if (
-        (profile.schedulerWrites ||
-          profile.agentRunnerMounts ||
-          profile.agentSecretAllowlist ||
-          profile.systemRunnerManagement ||
-          profile.knowledgeDeleteWrites ||
-          profile.secretWrite) &&
-        state === "failed" &&
-        entry.name === profile.cut
-      ) {
+      if ((profile.schedulerWrites || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement || profile.knowledgeDeleteWrites || profile.secretWrite) && state === "failed" && entry.name === profile.cut) {
         // The proxy publishes this predicate only after its actual flush and
         // connection Close. Its original safe record can be mid-rewrite here.
-        await expect
-          .poll(
-            () => {
-              try {
-                return (
-                  JSON.parse(
-                    readFileSync(
-                      join(
-                        profile.evidence,
-                        `${profile.prefix}-${data.mode}-response-${entry.requestID}.json`,
-                      ),
-                      "utf8",
-                    ),
-                  ).receipt_cut === true
-                );
-              } catch {
-                return false;
-              }
-            },
-            { timeout: 5_000 },
-          )
-          .toBe(true);
+        await expect.poll(() => {
+          try {
+            return JSON.parse(readFileSync(join(profile.evidence, `${profile.prefix}-${data.mode}-response-${entry.requestID}.json`), "utf8")).receipt_cut === true;
+          } catch { return false; }
+        }, { timeout: 5_000 }).toBe(true);
       }
-      if (
-        profile.skillsReads ||
-        profile.schedulerWrites ||
-        profile.knowledgeTitleReads ||
-        profile.knowledgeDeleteWrites ||
-        profile.secretReads ||
-        profile.secretWrite ||
-        profile.usageReads ||
-        profile.agentRunnerMounts ||
-        profile.agentSecretAllowlist ||
-        profile.systemRunnerManagement
-      ) {
+      if (profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.knowledgeDeleteWrites || profile.secretReads || profile.secretWrite || profile.usageReads || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement) {
         // Include bootstrap reads as well as catalog/detail: a missing browser
         // projection is accepted only with this original request's App proof.
         const record = JSON.parse(
@@ -6186,14 +3620,8 @@ export async function observeTaskRequests(
             .update(url.pathname + url.search)
             .digest("hex"),
         );
-        if (profile.usageReads)
-          requireUsageHostEvidence(record, entry.skillsHeaders);
-        else if (
-          profile.agentRunnerMounts ||
-          profile.agentSecretAllowlist ||
-          profile.systemRunnerManagement
-        )
-          requireAgentRunnerHostEvidence(record, entry.skillsHeaders);
+        if (profile.usageReads) requireUsageHostEvidence(record, entry.skillsHeaders);
+        else if ((profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement) requireAgentRunnerHostEvidence(record, entry.skillsHeaders);
         else {
           expect(record.request_host_matches).toBe(true);
           expect(record.handler_returned).toBe(true);
@@ -6212,67 +3640,23 @@ export async function observeTaskRequests(
         // physically truncating its original Content-Length response.
         expect(response?.status()).toBe(200);
         expect(entry.request.failure()).not.toBeNull();
-        if (
-          profile.schedulerWrites ||
-          profile.agentRunnerMounts ||
-          profile.agentSecretAllowlist ||
-          profile.systemRunnerManagement ||
-          profile.knowledgeDeleteWrites ||
-          profile.secretWrite
-        ) {
-          const readRecord = () =>
-            JSON.parse(
-              readFileSync(
-                join(
-                  profile.evidence,
-                  `${profile.prefix}-${data.mode}-response-${entry.requestID}.json`,
-                ),
-                "utf8",
-              ),
-            );
+        if (profile.schedulerWrites || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement || profile.knowledgeDeleteWrites || profile.secretWrite) {
+          const readRecord = () => JSON.parse(readFileSync(join(profile.evidence, `${profile.prefix}-${data.mode}-response-${entry.requestID}.json`), "utf8"));
           const record = readRecord();
           expect(record.receipt_cut).toBe(true);
-          expect(
-            record.committed_verified &&
-              record.original_eof &&
-              record.original_closed &&
-              record.handler_returned,
-          ).toBe(true);
-          expect(record.kind).toBe(
-            profile.systemRunnerManagement
-              ? "create"
-              : profile.knowledgeDeleteWrites
-                ? "delete"
-                : "update",
-          );
-          const rows = proof.rows.filter(
-            (r: any) => r.request_id === entry.requestID,
-          );
+          expect(record.committed_verified && record.original_eof && record.original_closed && record.handler_returned).toBe(true);
+          expect(record.kind).toBe(profile.systemRunnerManagement ? "create" : profile.knowledgeDeleteWrites ? "delete" : "update");
+          const rows = proof.rows.filter((r: any) => r.request_id === entry.requestID);
           expect(rows).toHaveLength(1);
-          const n = rows[0],
-            calls = proof.calls.filter((c: any) => c.id === n.call_id);
+          const n = rows[0], calls = proof.calls.filter((c: any) => c.id === n.call_id);
           expect(calls).toHaveLength(1);
           const c = calls[0];
           expect(proof.current && proof.not_busy).toBe(true);
-          expect(c.kind).toBe(
-            profile.secretWrite
-              ? "secretWrite.update"
-              : profile.systemRunnerManagement
-                ? "systemRunner.start"
-                : profile.knowledgeDeleteWrites
-                  ? "knowledgeDelete.startDelete"
-                  : profile.agentRunnerMounts || profile.agentSecretAllowlist
-                    ? "agentEdit.startUpdate"
-                    : "scheduler.startUpdate",
-          );
+          expect(c.kind).toBe(profile.secretWrite ? "secretWrite.update" : profile.systemRunnerManagement ? "systemRunner.start" : profile.knowledgeDeleteWrites ? "knowledgeDelete.startDelete" : (profile.agentRunnerMounts || profile.agentSecretAllowlist) ? "agentEdit.startUpdate" : "scheduler.startUpdate");
           expect(c.rejected && c.settled && !c.fulfilled).toBe(true);
           expect(c.bound).toBe(1);
           expect(n.path).toBe(new URL(entry.request.url()).pathname);
-          expect(n.method).toBe(
-            profile.systemRunnerManagement || profile.knowledgeDeleteWrites
-              ? "POST"
-              : "PATCH",
-          );
+          expect(n.method).toBe((profile.systemRunnerManagement || profile.knowledgeDeleteWrites) ? "POST" : "PATCH");
           expect(n.status).toBe(200);
           expect(n.fetch_returned).toBe(true);
           expect(n.readers).toBe(1);
@@ -6281,58 +3665,30 @@ export async function observeTaskRequests(
           expect(entry.failedCount).toBe(1);
           expect(c.request_bound && n.request_bound).toBe(true);
           const secret = profile.secretWrite === true;
-          if (secret) {
-            expect(c.paste_bound).toBe(true);
-            expect(record.request_bound && record.input_verified).toBe(true);
-            expect(!n.eof && n.error && n.bytes < Number(n.length)).toBe(true);
-          }
-          const bodyHash = secret
-            ? undefined
-            : createHash("sha256")
-                .update(entry.request.postDataBuffer()!)
-                .digest("hex");
-          const keyHash = createHash("sha256")
-            .update(entry.request.headers()["idempotency-key"]!)
-            .digest("hex");
+          if (secret) { expect(c.paste_bound).toBe(true); expect(record.request_bound && record.input_verified).toBe(true); expect(!n.eof && n.error && n.bytes < Number(n.length)).toBe(true); }
+          const bodyHash = secret ? undefined : createHash("sha256").update(entry.request.postDataBuffer()!).digest("hex");
+          const keyHash = createHash("sha256").update(entry.request.headers()["idempotency-key"]!).digest("hex");
           for (const source of [record, n, c]) {
-            if (secret)
-              expect(!Object.hasOwn(source, "request_body_sha256")).toBe(true);
-            else expect(source.request_body_sha256).toBe(bodyHash);
+            if (secret) expect(!Object.hasOwn(source, "request_body_sha256")).toBe(true);
+        else expect(source.request_body_sha256).toBe(bodyHash);
             expect(source.idempotency_key_sha256).toBe(keyHash);
           }
           if (profile.knowledgeDeleteWrites) {
-            const tokenHash = createHash("sha256")
-              .update(entry.request.postDataJSON().confirmation_token)
-              .digest("hex");
-            for (const source of [record, n, c])
-              expect(source.confirmation_token_sha256).toBe(tokenHash);
+            const tokenHash = createHash("sha256").update(entry.request.postDataJSON().confirmation_token).digest("hex");
+            for (const source of [record, n, c]) expect(source.confirmation_token_sha256).toBe(tokenHash);
             expect(record.cleanup_pending).toBe(true);
             expect(n.eof).toBe(false);
             expect(n.error).toBe(true);
             expect(n.bytes).toBeLessThan(record.content_length);
           }
-          proofs.push({
-            seq: entry.seq,
-            request_id: entry.requestID,
-            declared_cut: true,
-            native: n,
-            consumer: { ...c, typed: undefined },
-            go: record,
-          });
+          proofs.push({ seq: entry.seq, request_id: entry.requestID, declared_cut: true, native: n, consumer: { ...c, typed: undefined }, go: record });
         }
         dropped++;
         entry.checked = true;
         continue;
       }
-      if (
-        profile.secretDelete &&
-        entry.name === "delete" &&
-        entry.status === 409
-      ) {
-        expect(
-          state === "finished" ||
-            (state === "failed" && entry.failure === "net::ERR_ABORTED"),
-        ).toBe(true);
+      if (profile.secretDelete && entry.name === "delete" && entry.status === 409) {
+        expect(state === "finished" || (state === "failed" && entry.failure === "net::ERR_ABORTED")).toBe(true);
         // A known domain rejection remains a rejection. Its original native
         // reader, public rejection and Go no-write proof must all agree.
         entry.body = joint(entry, proof, true);
@@ -6355,12 +3711,9 @@ export async function observeTaskRequests(
           sprintUpdateWrite(entry) ||
           variableWrite(entry) ||
           knowledgeTextWrite(entry) ||
-          knowledgeDeleteWrite(entry) ||
-          knowledgeDeletePreview(entry) ||
+          knowledgeDeleteWrite(entry) || knowledgeDeletePreview(entry) ||
           schedulerWrite(entry) ||
-          runnerWrite(entry) ||
-          systemRunnerWrite(entry) ||
-          secretWriteEntry(entry) ||
+          runnerWrite(entry) || systemRunnerWrite(entry) || secretWriteEntry(entry) ||
           agentWrite(entry)) &&
         response?.status() === 200 &&
         entry.failure === "net::ERR_ABORTED"
@@ -6408,33 +3761,12 @@ export async function observeTaskRequests(
         r.status() === 200 || revoked,
         `unexpected ${entry.name} status`,
       ).toBe(true);
-      if (
-        profile.secretWrite &&
-        ["secrets", "secret", "create", "update", "delete", "lookup"].includes(
-          entry.name,
-        ) &&
-        !(profile.secretDelete && agentEditWrite(entry))
-      ) {
-        try {
-          entry.body = secretWriteEvidenceValue(
-            JSON.parse(raw.toString("utf8")),
-            entry.name === "secrets"
-              ? "list"
-              : entry.name === "secret"
-                ? "detail"
-                : entry.name === "lookup"
-                  ? "lookup"
-                  : "receipt",
-            profile.secretDelete === true,
-          );
-        } catch {
-          throw Error("SECRET_WRITE_UNSAFE_RESPONSE");
-        }
+      if (profile.secretWrite && ["secrets", "secret", "create", "update", "delete", "lookup"].includes(entry.name) && !(profile.secretDelete && agentEditWrite(entry))) {
+        try { entry.body = secretWriteEvidenceValue(JSON.parse(raw.toString("utf8")), entry.name === "secrets" ? "list" : entry.name === "secret" ? "detail" : entry.name === "lookup" ? "lookup" : "receipt", profile.secretDelete === true); }
+        catch { throw Error("SECRET_WRITE_UNSAFE_RESPONSE"); }
       } else entry.body = JSON.parse(raw.toString("utf8"));
-      if (profile.systemRunnerManagement)
-        entry.body = systemRunnerEvidenceValue(entry.body);
-      if (knowledgeDeletePreview(entry))
-        entry.body = knowledgeDeleteEvidenceValue(entry.body);
+      if (profile.systemRunnerManagement) entry.body = systemRunnerEvidenceValue(entry.body);
+      if (knowledgeDeletePreview(entry)) entry.body = knowledgeDeleteEvidenceValue(entry.body);
       expect(typeof entry.body).toBe("object");
       expect(entry.body).not.toBeNull();
       if (
@@ -6447,27 +3779,14 @@ export async function observeTaskRequests(
         milestoneUpdateWrite(entry) ||
         milestoneReorderWrite(entry) ||
         sprintReorderWrite(entry) ||
-        humanBlockerWrite(entry) ||
-        humanBlockerReadEntry(entry) ||
-        sprintUpdateWrite(entry) ||
+        humanBlockerWrite(entry) || humanBlockerReadEntry(entry) ||
+          sprintUpdateWrite(entry) ||
         milestonePageRead(entry) ||
         variableWrite(entry) ||
         variablePageRead(entry) ||
         knowledgeTextWrite(entry) ||
-        knowledgeTextReadEntry(entry) ||
-        knowledgeTitleReadEntry(entry) ||
-        knowledgeDeleteWrite(entry) ||
-        knowledgeDeletePreview(entry) ||
-        knowledgeDeleteReadEntry(entry) ||
-        secretReadEntry(entry) ||
-        usageReadEntry(entry) ||
-        secretWriteEntry(entry) ||
-        schedulerWrite(entry) ||
-        schedulerReadEntry(entry) ||
-        runnerWrite(entry) ||
-        runnerReadEntry(entry) ||
-        systemRunnerWrite(entry) ||
-        systemRunnerReadEntry(entry) ||
+        knowledgeTextReadEntry(entry) || knowledgeTitleReadEntry(entry) || knowledgeDeleteWrite(entry) || knowledgeDeletePreview(entry) || knowledgeDeleteReadEntry(entry) || secretReadEntry(entry) || usageReadEntry(entry) ||
+        secretWriteEntry(entry) || schedulerWrite(entry) || schedulerReadEntry(entry) || runnerWrite(entry) || runnerReadEntry(entry) || systemRunnerWrite(entry) || systemRunnerReadEntry(entry) ||
         sprintPageRead(entry) ||
         agentWrite(entry) ||
         agentPageRead(entry) ||
@@ -6492,10 +3811,8 @@ export async function observeTaskRequests(
             return { ...detail, related_task_id: null };
           };
           const wire = entry.body as any;
-          if (humanBlockerWrite(entry))
-            entry.body = { ...wire, blocker: blocker(wire.blocker) };
-          else if (entry.name === "blockers")
-            entry.body = { ...wire, items: wire.items.map(blocker) };
+          if (humanBlockerWrite(entry)) entry.body = { ...wire, blocker: blocker(wire.blocker) };
+          else if (entry.name === "blockers") entry.body = { ...wire, items: wire.items.map(blocker) };
           else if (entry.name === "sprint") {
             const { started_by, completed_by, ...detail } = wire;
             entry.body = detail;
@@ -6508,37 +3825,14 @@ export async function observeTaskRequests(
           >;
           entry.body = detail;
         }
-        if (
-          (knowledgeTextReadEntry(entry) ||
-            knowledgeTitleReadEntry(entry) ||
-            knowledgeDeleteReadEntry(entry)) &&
-          entry.name === "ancestors"
-        )
-          entry.body = (entry.body as any).items;
+        if ((knowledgeTextReadEntry(entry) || knowledgeTitleReadEntry(entry) || knowledgeDeleteReadEntry(entry)) && entry.name === "ancestors") entry.body = (entry.body as any).items;
         if (profile.schedulerWrites && entry.name === "lookup") {
           const wire = entry.body as any;
           expect(wire.state).toBe("committed");
           expect(wire.result.command).toBe("update");
-          entry.body = {
-            state: "committed",
-            receipt: {
-              project_id: wire.result.project.id,
-              version: wire.result.project.version,
-            },
-          };
+          entry.body = { state: "committed", receipt: { project_id: wire.result.project.id, version: wire.result.project.version } };
         }
-        if (
-          (profile.schedulerWrites ||
-            profile.knowledgeTitleReads ||
-            profile.knowledgeDeleteWrites ||
-            profile.secretReads ||
-            profile.secretWrite ||
-            profile.usageReads ||
-            profile.agentRunnerMounts ||
-            profile.agentSecretAllowlist ||
-            profile.systemRunnerManagement) &&
-          entry.name === "session"
-        ) {
+        if ((profile.schedulerWrites || profile.knowledgeTitleReads || profile.knowledgeDeleteWrites || profile.secretReads || profile.secretWrite || profile.usageReads || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement) && entry.name === "session") {
           const wire = entry.body as any;
           entry.body = { user: wire.user, session: wire.session };
         }
@@ -6549,20 +3843,7 @@ export async function observeTaskRequests(
     }
   }
   function receipt(
-    name:
-      | "transfer"
-      | "lookup"
-      | "create"
-      | "ready"
-      | "update"
-      | "start"
-      | "preview"
-      | "delete"
-      | "enrollment"
-      | "revoke"
-      | "reorder"
-      | "add"
-      | "resolve-blocker",
+    name: "transfer" | "lookup" | "create" | "ready" | "update" | "start" | "preview" | "delete" | "enrollment" | "revoke" | "reorder" | "add" | "resolve-blocker",
     index: number,
   ): Record<string, any> {
     const values = entries.filter(
@@ -6581,44 +3862,31 @@ export async function observeTaskRequests(
       .map((entry) => entry.request);
   }
   function projectCreationRead(request: Request): Record<string, any> {
-    if (profile.prefix !== "project-creation")
-      throw Error("PROJECT_CREATION_READ_PROFILE_REQUIRED");
-    const values = entries.filter((entry) => entry.request === request);
+    if (profile.prefix !== "project-creation") throw Error("PROJECT_CREATION_READ_PROFILE_REQUIRED");
+    const values = entries.filter(entry => entry.request === request);
     expect(values).toHaveLength(1);
     const entry = values[0]!;
     expect(projectCreationReadEntry(entry) && entry.checked).toBe(true);
-    expect(entry.requestID).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
-    );
+    expect(entry.requestID).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
     expect(entry.body).toBeTruthy();
     return entry.body as Record<string, any>;
   }
   function taskSearchRead(request: Request): Record<string, any> {
-    if (!["task-search", "task-assignee-filter"].includes(profile.prefix))
-      throw Error("TASK_SEARCH_READ_PROFILE_REQUIRED");
+    if (!["task-search", "task-assignee-filter"].includes(profile.prefix)) throw Error("TASK_SEARCH_READ_PROFILE_REQUIRED");
     // Preserve the original Playwright Request identity, including repeated
     // equal-URL reads after navigation. Never issue a replacement read.
-    const values = entries.filter((entry) => entry.request === request);
+    const values = entries.filter(entry => entry.request === request);
     expect(values).toHaveLength(1);
     const entry = values[0]!;
     expect(taskSearchReadEntry(entry) && entry.checked).toBe(true);
-    expect(entry.requestID).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
-    );
+    expect(entry.requestID).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
     expect(entry.body).toBeTruthy();
     return entry.body as Record<string, any>;
   }
 
-  function secretDeleteRead(
-    name: "secrets" | "secret" | "agent-configuration" | "agent-directory",
-  ) {
+  function secretDeleteRead(name: "secrets" | "secret" | "agent-configuration" | "agent-directory") {
     if (!profile.secretDelete) throw Error("SECRET_DELETE_PROFILE_REQUIRED");
-    const values = entries.filter(
-      (entry) =>
-        entry.name === name &&
-        entry.checked &&
-        entry.request.method() === "GET",
-    );
+    const values = entries.filter(entry => entry.name === name && entry.checked && entry.request.method() === "GET");
     expect(values.length).toBeGreaterThan(0);
     return values.at(-1)!.body as Record<string, any>;
   }
@@ -6626,77 +3894,45 @@ export async function observeTaskRequests(
     if (profile.lookupCommand === null)
       throw Error("TASK_TIMELINE_HAS_NO_WRITE_LOOKUP");
     if (profile.secretWrite) {
-      const original = requests("update"),
-        lookups = requests("lookup");
-      expect(original).toHaveLength(1);
-      expect(lookups).toHaveLength(1);
+      const original = requests("update"), lookups = requests("lookup");
+      expect(original).toHaveLength(1); expect(lookups).toHaveLength(1);
       let matches = false;
       try {
-        const source = original[0]!.postDataJSON(),
-          value = lookups[0]!.postDataJSON();
-        matches =
-          Object.keys(value).sort().join() ===
-            "command,expected_version,target_id" &&
-          value.command === "project.secret_variable.update" &&
-          value.target_id ===
-            new URL(original[0]!.url()).pathname.split("/").at(-1) &&
-          value.expected_version === source.expected_version &&
-          lookups[0]!.headers()["idempotency-key"] ===
-            original[0]!.headers()["idempotency-key"];
-      } catch {
-        /* Never include a captured request or parsing error in evidence. */
-      }
-      expect(matches).toBe(true);
-      expect(dropped).toBe(1);
-      return;
+        const source = original[0]!.postDataJSON(), value = lookups[0]!.postDataJSON();
+        matches = Object.keys(value).sort().join() === "command,expected_version,target_id" &&
+          value.command === "project.secret_variable.update" && value.target_id === new URL(original[0]!.url()).pathname.split("/").at(-1) &&
+          value.expected_version === source.expected_version && lookups[0]!.headers()["idempotency-key"] === original[0]!.headers()["idempotency-key"];
+      } catch { /* Never include a captured request or parsing error in evidence. */ }
+      expect(matches).toBe(true); expect(dropped).toBe(1); return;
     }
     if (profile.systemRunnerManagement) {
-      const original = requests("create"),
-        lookups = requests("lookup");
-      expect(original).toHaveLength(1);
-      expect(lookups).toHaveLength(1);
-      expect(lookups[0]!.postDataJSON()).toEqual({
-        command: "runner.create",
-        request: original[0]!.postDataJSON(),
-      });
-      expect(lookups[0]!.headers()["idempotency-key"]).toBe(
-        original[0]!.headers()["idempotency-key"],
-      );
-      expect(dropped).toBe(1);
-      return;
+      const original = requests("create"), lookups = requests("lookup");
+      expect(original).toHaveLength(1); expect(lookups).toHaveLength(1);
+      expect(lookups[0]!.postDataJSON()).toEqual({ command: "runner.create", request: original[0]!.postDataJSON() });
+      expect(lookups[0]!.headers()["idempotency-key"]).toBe(original[0]!.headers()["idempotency-key"]);
+      expect(dropped).toBe(1); return;
     }
     if (profile.knowledgeDeleteWrites) {
-      const original = requests("delete"),
-        lookups = requests("lookup");
+      const original = requests("delete"), lookups = requests("lookup");
       expect(original).toHaveLength(1);
       expect(lookups).toHaveLength(1);
-      const body = original[0]!.postDataJSON(),
-        lookup = lookups[0]!.postDataJSON();
+      const body = original[0]!.postDataJSON(), lookup = lookups[0]!.postDataJSON();
       // Report only the equality predicate; assertion diagnostics must not
       // print either capability-bearing original request.
-      expect(
-        Object.keys(lookup).sort().join() === "command,document_id,request" &&
-          lookup.command === "delete-subtree" &&
-          lookup.document_id === data.root_id &&
-          Object.keys(lookup.request).join() === "confirmation_token" &&
-          lookup.request.confirmation_token === body.confirmation_token,
-      ).toBe(true);
-      expect(
-        lookups[0]!.headers()["idempotency-key"] ===
-          original[0]!.headers()["idempotency-key"],
-      ).toBe(true);
+      expect(Object.keys(lookup).sort().join() === "command,document_id,request" &&
+        lookup.command === "delete-subtree" && lookup.document_id === data.root_id &&
+        Object.keys(lookup.request).join() === "confirmation_token" &&
+        lookup.request.confirmation_token === body.confirmation_token).toBe(true);
+      expect(lookups[0]!.headers()["idempotency-key"] === original[0]!.headers()["idempotency-key"]).toBe(true);
       expect(dropped).toBe(1);
       return;
     }
     if (profile.schedulerWrites) {
-      const original = requests("update"),
-        lookups = requests("lookup");
+      const original = requests("update"), lookups = requests("lookup");
       expect(original).toHaveLength(1);
       expect(lookups).toHaveLength(1);
       expect(lookups[0]!.postDataJSON()).toEqual({ command: "update" });
-      expect(lookups[0]!.headers()["idempotency-key"]).toBe(
-        original[0]!.headers()["idempotency-key"],
-      );
+      expect(lookups[0]!.headers()["idempotency-key"]).toBe(original[0]!.headers()["idempotency-key"]);
       expect(dropped).toBe(1);
       return;
     }
@@ -6728,11 +3964,10 @@ export async function observeTaskRequests(
               profile.lookupCommand === "work.milestone.update"
                 ? data.milestone_id
                 : profile.lookupCommand === "agent.update"
-                  ? data.agent_id
-                  : profile.lookupCommand === "work.sprint.start" ||
-                      profile.lookupCommand === "work.sprint.update"
-                    ? data.sprint_id
-                    : data.task_id,
+                ? data.agent_id
+                : profile.lookupCommand === "work.sprint.start" || profile.lookupCommand === "work.sprint.update"
+                  ? data.sprint_id
+                  : data.task_id,
             expected_version: sent.expected_version,
             request: sent.request,
           },
@@ -6742,86 +3977,41 @@ export async function observeTaskRequests(
     );
     expect(dropped).toBe(1);
   }
-  function knowledgeTextRead(
-    name: "documents" | "document" | "ancestors" | "content",
-    target?: string,
-  ) {
+  function knowledgeTextRead(name: "documents" | "document" | "ancestors" | "content", target?: string) {
     expect(profile.knowledgeTextWrites).toBe(true);
-    const rows = entries.filter(
-      (e) =>
-        e.name === name &&
-        e.checked &&
-        e.body &&
-        (!target || new URL(e.request.url()).pathname.includes("/" + target)),
-    );
-    expect(
-      rows.length,
-      "original Knowledge read must complete",
-    ).toBeGreaterThan(0);
+    const rows = entries.filter(e => e.name === name && e.checked && e.body && (!target || new URL(e.request.url()).pathname.includes("/" + target)));
+    expect(rows.length, "original Knowledge read must complete").toBeGreaterThan(0);
     return rows.at(-1)!.body as Record<string, any>;
   }
-  function knowledgeTitleRead(
-    name: "documents" | "titles" | "document" | "ancestors" | "content",
-  ) {
+  function knowledgeTitleRead(name: "documents" | "titles" | "document" | "ancestors" | "content") {
     expect(profile.knowledgeTitleReads).toBe(true);
-    const rows = entries.filter((e) => e.name === name && e.checked && e.body);
-    expect(
-      rows.length,
-      "original title search read must complete",
-    ).toBeGreaterThan(0);
+    const rows = entries.filter(e => e.name === name && e.checked && e.body);
+    expect(rows.length, "original title search read must complete").toBeGreaterThan(0);
     return rows.at(-1)!.body as Record<string, any>;
   }
-  function knowledgeDeleteRead(
-    name: "documents" | "document" | "ancestors" | "content",
-    target?: string,
-  ) {
+  function knowledgeDeleteRead(name: "documents" | "document" | "ancestors" | "content", target?: string) {
     expect(profile.knowledgeDeleteWrites).toBe(true);
-    const rows = entries.filter(
-      (e) =>
-        e.name === name &&
-        e.checked &&
-        e.body &&
-        (!target || new URL(e.request.url()).pathname.includes("/" + target)),
-    );
-    expect(
-      rows.length,
-      "original deletion current read must complete",
-    ).toBeGreaterThan(0);
+    const rows = entries.filter(e => e.name === name && e.checked && e.body &&
+      (!target || new URL(e.request.url()).pathname.includes("/" + target)));
+    expect(rows.length, "original deletion current read must complete").toBeGreaterThan(0);
     return rows.at(-1)!.body as Record<string, any>;
   }
   function secretRead(name: "secrets" | "secret", index: number) {
     expect(profile.secretReads || profile.secretWrite).toBe(true);
-    const rows = entries.filter((e) => e.name === name && e.checked && e.body);
-    expect(
-      rows[index],
-      "original Secrets GET must complete before publication assertions",
-    ).toBeTruthy();
+    const rows = entries.filter(e => e.name === name && e.checked && e.body);
+    expect(rows[index], "original Secrets GET must complete before publication assertions").toBeTruthy();
     return rows[index]!.body as Record<string, any>;
   }
   function runnerMountRead(name: string) {
-    expect(profile.agentRunnerMounts || profile.agentSecretAllowlist).toBe(
-      true,
-    );
-    const rows = entries.filter(
-      (e) => e.name === name && e.checked && e.body && runnerReadEntry(e),
-    );
-    expect(
-      rows.length,
-      "original Agent Runner GET must complete before publication assertions",
-    ).toBeGreaterThan(0);
+    expect((profile.agentRunnerMounts || profile.agentSecretAllowlist)).toBe(true);
+    const rows = entries.filter(e => e.name === name && e.checked && e.body && runnerReadEntry(e));
+    expect(rows.length, "original Agent Runner GET must complete before publication assertions").toBeGreaterThan(0);
     return rows.at(-1)!.body as Record<string, any>;
   }
-  function systemRunnerRead(
-    name: "session" | "projects" | "runner-list" | "runner-detail",
-  ) {
+  function systemRunnerRead(name: "session" | "projects" | "runner-list" | "runner-detail") {
     expect(profile.systemRunnerManagement).toBe(true);
-    const rows = entries.filter(
-      (e) => e.name === name && e.checked && e.body && systemRunnerReadEntry(e),
-    );
-    expect(
-      rows.length,
-      "original System Runner GET must complete",
-    ).toBeGreaterThan(0);
+    const rows = entries.filter(e => e.name === name && e.checked && e.body && systemRunnerReadEntry(e));
+    expect(rows.length, "original System Runner GET must complete").toBeGreaterThan(0);
     return rows.at(-1)!.body as Record<string, any>;
   }
   function agentSecretRead(name: string) {
@@ -6830,86 +4020,44 @@ export async function observeTaskRequests(
   }
   function usageSummaryRead(request: Request) {
     expect(profile.usageSummaryReads).toBe(true);
-    const row = entries.find((e) => e.request === request);
-    expect(
-      row?.checked &&
-        row.body &&
-        usageReadEntry(row) &&
-        ["usage", "summary"].includes(row.name),
-      "original Usage summary GET must complete",
-    ).toBeTruthy();
+    const row = entries.find(e => e.request === request);
+    expect(row?.checked && row.body && usageReadEntry(row) && ["usage", "summary"].includes(row.name), "original Usage summary GET must complete").toBeTruthy();
     return row!.body as Record<string, any>;
   }
   function usageRead(index: number) {
     expect(profile.usageReads).toBe(true);
-    const rows = entries.filter(
-      (e) => e.name === "usage" && e.checked && e.body,
-    );
-    expect(
-      rows[index],
-      "original Usage GET must complete before publication assertions",
-    ).toBeTruthy();
+    const rows = entries.filter(e => e.name === "usage" && e.checked && e.body);
+    expect(rows[index], "original Usage GET must complete before publication assertions").toBeTruthy();
     return rows[index]!.body as Record<string, any>;
   }
   function schedulerRead() {
     expect(profile.schedulerWrites).toBe(true);
-    const rows = entries.filter(
-      (e) => e.name === "scheduler" && e.checked && e.body,
-    );
-    expect(
-      rows.length,
-      "original current Scheduler GET must complete",
-    ).toBeGreaterThan(0);
+    const rows = entries.filter(e => e.name === "scheduler" && e.checked && e.body);
+    expect(rows.length, "original current Scheduler GET must complete").toBeGreaterThan(0);
     return rows.at(-1)!.body as Record<string, any>;
   }
   function variableRead(name: "variables" | "variable") {
     expect(profile.variableWrites).toBe(true);
     const rows = entries.filter((e) => e.name === name && e.checked && e.body);
-    expect(
-      rows.length,
-      "original Variable public read must complete",
-    ).toBeGreaterThan(0);
+    expect(rows.length, "original Variable public read must complete").toBeGreaterThan(0);
     return rows.at(-1)!.body as Record<string, any>;
   }
   function humanBlockerRead(name: "task" | "blockers" | "events") {
     expect(profile.humanBlockerWrites).toBe(true);
-    const rows = entries.filter(
-      (e) => e.name === name && humanBlockerReadEntry(e) && e.checked && e.body,
-    );
-    expect(
-      rows.length,
-      "original blocker public read must complete",
-    ).toBeGreaterThan(0);
+    const rows = entries.filter(e => e.name === name && humanBlockerReadEntry(e) && e.checked && e.body);
+    expect(rows.length, "original blocker public read must complete").toBeGreaterThan(0);
     return rows.at(-1)!.body as Record<string, any>;
   }
-  function sprintEditRead(
-    name:
-      | "project"
-      | "sprint"
-      | "sprints"
-      | "milestone"
-      | "milestones"
-      | "agents"
-      | "tasks",
-  ) {
-    expect(profile.sprintUpdateWrites || profile.sprintReorderWrites).toBe(
-      true,
-    );
-    const rows = entries.filter((e) => e.name === name && e.checked && e.body);
-    expect(
-      rows.length,
-      "original Sprint Edit public read must complete",
-    ).toBeGreaterThan(0);
+  function sprintEditRead(name: "project" | "sprint" | "sprints" | "milestone" | "milestones" | "agents" | "tasks") {
+    expect(profile.sprintUpdateWrites || profile.sprintReorderWrites).toBe(true);
+    const rows = entries.filter(e => e.name === name && e.checked && e.body);
+    expect(rows.length, "original Sprint Edit public read must complete").toBeGreaterThan(0);
     return rows.at(-1)!.body as Record<string, any>;
   }
   function milestoneRead(
     name: "project" | "milestones" | "milestone" | "sprints" | "agents",
   ) {
-    expect(
-      profile.milestoneCreateWrites ||
-        profile.milestoneUpdateWrites ||
-        profile.milestoneReorderWrites,
-    ).toBe(true);
+    expect(profile.milestoneCreateWrites || profile.milestoneUpdateWrites || profile.milestoneReorderWrites).toBe(true);
     const rows = entries.filter((e) => e.name === name && e.checked && e.body);
     expect(
       rows.length,
@@ -7023,17 +4171,8 @@ export async function observeTaskRequests(
                 ready: entries.filter((e) => e.name === "ready").length,
               }
             : {}),
-          ...(profile.schedulerWrites
-            ? {
-                updates: entries.filter((e) => e.name === "update").length,
-                schedulerReads: entries.filter((e) => e.name === "scheduler")
-                  .length,
-              }
-            : {}),
-          ...(profile.agentEditWrites ||
-          profile.agentModelPolicy ||
-          profile.milestoneUpdateWrites ||
-          profile.sprintUpdateWrites
+          ...(profile.schedulerWrites ? { updates: entries.filter(e => e.name === "update").length, schedulerReads: entries.filter(e => e.name === "scheduler").length } : {}),
+          ...(profile.agentEditWrites || profile.agentModelPolicy || profile.milestoneUpdateWrites || profile.sprintUpdateWrites
             ? { updates: entries.filter((e) => e.name === "update").length }
             : {}),
           ...(profile.sprintCreateWrites
@@ -7047,20 +4186,11 @@ export async function observeTaskRequests(
                 creates: entries.filter((e) => e.name === "create").length,
               }
             : {}),
-          ...(profile.milestoneReorderWrites || profile.sprintReorderWrites
-            ? { reorders: entries.filter((e) => e.name === "reorder").length }
-            : {}),
+          ...(profile.milestoneReorderWrites || profile.sprintReorderWrites ? { reorders: entries.filter(e => e.name === "reorder").length } : {}),
           lookups: entries.filter((e) => e.name === "lookup").length,
           test_status: testStatus,
           route: diagnosticURL(page.url()),
-          observer_error:
-            profile.secretWrite && observerError
-              ? "SECRET_WRITE_OBSERVER_FAILED"
-              : profile.systemRunnerManagement && observerError
-                ? "SYSTEM_RUNNER_OBSERVER_FAILED"
-                : profile.knowledgeDeleteWrites && observerError
-                  ? "KNOWLEDGE_DELETE_OBSERVER_FAILED"
-                  : observerError?.message,
+          observer_error: profile.secretWrite && observerError ? "SECRET_WRITE_OBSERVER_FAILED" : profile.systemRunnerManagement && observerError ? "SYSTEM_RUNNER_OBSERVER_FAILED" : profile.knowledgeDeleteWrites && observerError ? "KNOWLEDGE_DELETE_OBSERVER_FAILED" : observerError?.message,
           requests: entries.map((entry) => ({
             seq: entry.seq,
             name: entry.name,
@@ -7070,17 +4200,7 @@ export async function observeTaskRequests(
             request_id: entry.requestID,
             terminal: entry.terminal,
             failure: entry.failure,
-            ...((profile.skillsReads ||
-              profile.schedulerWrites ||
-              profile.knowledgeTitleReads ||
-              profile.knowledgeDeleteWrites ||
-              profile.secretReads ||
-              profile.secretWrite ||
-              profile.usageReads ||
-              profile.agentRunnerMounts ||
-              profile.agentSecretAllowlist ||
-              profile.systemRunnerManagement) &&
-            entry.skillsHeaders
+            ...((profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.knowledgeDeleteWrites || profile.secretReads || profile.secretWrite || profile.usageReads || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement) && entry.skillsHeaders
               ? { skills_headers: { ...entry.skillsHeaders } }
               : {}),
             checked: entry.checked,
@@ -7090,11 +4210,7 @@ export async function observeTaskRequests(
           browser_events_truncated:
             browserEventsTruncated ||
             browserEvents.some((event) => event.seq === 2048),
-          joint_proofs: profile.secretWrite
-            ? proofs.map((proof) =>
-                secretWriteEvidenceProof(proof, profile.secretDelete === true),
-              )
-            : proofs,
+          joint_proofs: profile.secretWrite ? proofs.map(proof => secretWriteEvidenceProof(proof, profile.secretDelete === true)) : proofs,
           observer_retirements: retirements,
         },
         null,
