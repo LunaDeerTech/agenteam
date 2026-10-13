@@ -1,4 +1,10 @@
-# 当前工作：Task Blocker 管理已验收，接续 Sprint 状态筛选
+# 当前工作：所选 Sprint 状态筛选与服务端分页
+
+任务分支 `ai/task-state-filter-20261013`，工作树 `/workspace/agenteam-task-state-filter`，基线为已推送 main `21ce3268`。仅补所选 Sprint 的前端状态筛选、现有条件组合与服务端分页，不新增后端、计数或 URL 协议；正在实施，尚未验收。
+
+root 统筹，`next_frontend_delivery` 独占已分配 web 产品/单元测试，`blocker_browser` 独占原生/浏览器 fixture，`validation_runner` 负责实际检查窗口，`repo_recovery` 负责 Git 及本状态文件。复用已匹配的共享依赖，缓存/dist/临时数据在本树独立；不复制旧 Blocker 资源。下一步完成基础检查后尽早用真实默认 App 验证 50+1 分页、状态切换和详情返回，再按实际风险独审交付。
+
+## 继承主线：Task Blocker 管理与 E01 候选来源
 
 Human Owner 非终态 Task 的人工阻塞与依赖管理已通过限定独立验收，随本次变更交付 main，实际范围及失败边界见 [Task Blocker 卡](../docs/development/work-items/d11-task-blocker-service.md)。普通检查、真实 HTTP 和默认 App Web02 及四图接受；Web01 的代理 502 仍未确因，不能将后继通过表述为旧产品缺陷已修。原日志、截图、DOM 和处置记录保留在 `output/ai/task-blocker-management`，本片工作树和本地、远端工作分支随交付按规定收尾。
 
