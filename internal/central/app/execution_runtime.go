@@ -15,7 +15,6 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
 	"github.com/LunaDeerTech/agenteam/internal/central/mount"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
-	"github.com/LunaDeerTech/agenteam/internal/central/project"
 	pv "github.com/LunaDeerTech/agenteam/internal/central/projectvariable"
 	runnerservice "github.com/LunaDeerTech/agenteam/internal/central/runner/service"
 	"github.com/LunaDeerTech/agenteam/internal/central/scheduler"
@@ -66,7 +65,7 @@ func constructExecutionRuntime(b *executionRuntimeAssembly, cfg config.Config, d
 	options, enabled := cfg.ExecutionRuntime()
 	policy, bound := cfg.SchedulerLaunchRetryPolicy()
 	store, ok := db.(execution.Store)
-	if !enabled || options.Validate() != nil || !bound || !ok || runtimeInformationNil(store) || b == nil || a == nil || projects == nil || projects.reader == nil || objects == nil || objects.guard == nil || models == nil || secrets == nil || outbound == nil || journal == nil {
+	if !enabled || options.Validate() != nil || !bound || !ok || runtimeInformationNil(store) || b == nil || a == nil || projects == nil || projects.reader == nil || projects.lifecycle == nil || objects == nil || objects.guard == nil || models == nil || secrets == nil || outbound == nil || journal == nil {
 		return f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
 	providers, err := createAgentRuntimeProviders(db, projects.projects, accounts, skills, a, registries...)
@@ -139,47 +138,10 @@ func constructExecutionRuntime(b *executionRuntimeAssembly, cfg config.Config, d
 	if err != nil {
 		return err
 	}
-	launch, err := execution.New(store, execution.Dependencies{Authority: a.execution, Agents: providers.configuration, Task: launchSource})
-	if err != nil {
-		return err
-	}
-	b.add(runtimeWork(launch))
 	observations, err := execution.NewDispatchObservation(store)
 	if err != nil {
 		return err
 	}
-	handoff, err := scheduler.NewLaunchHandoffWithRetry(a.pending, scheduler.LaunchHandoffDependencies{Executions: launch, Observations: observations}, projects.projects)
-	if err != nil {
-		return err
-	}
-	b.add(runtimeWork(handoff))
-	busy, err := scheduler.NewBusyCompensator(a.pending, scheduler.BusyCompensatorDependencies{Projects: projects.projects, Work: busyWriter})
-	if err != nil {
-		return err
-	}
-	b.add(runtimeWork(busy))
-	finalizer, err := scheduler.NewLaunchFailureFinalizer(a.pending, scheduler.LaunchFailureFinalizerDependencies{Projects: projects.projects, Work: failureWriter})
-	if err != nil {
-		return err
-	}
-	b.add(runtimeWork(finalizer))
-	visitor, err := scheduler.NewPendingVisitorWithFailure(a.pending, handoff, busy, finalizer)
-	if err != nil {
-		return err
-	}
-	b.add(runtimeWork(visitor))
-	coordinator, err := scheduler.NewCoordinatorWithRetryPolicy(a.pending, scheduler.CoordinatorDependencies{
-		Projects: projects.projects, Claims: claims, Executions: observations, Capacity: observations,
-	}, policy)
-	if err != nil {
-		return err
-	}
-	b.add(runtimeWork(coordinator))
-	relaunch, err := scheduler.NewRelaunchCoordinator(coordinator, relaunchWriter, tasks, occupancy, options.ProjectRunners().RelaunchSkipCount)
-	if err != nil {
-		return err
-	}
-	b.add(runtimeWork(relaunch))
 	taskCapture, err := work.NewTaskTrigger(store, workAuthority, a.execution)
 	if err != nil {
 		return err
@@ -209,15 +171,6 @@ func constructExecutionRuntime(b *executionRuntimeAssembly, cfg config.Config, d
 		return err
 	}
 	processes := outboxProcessAuthority{process: objects.process, guard: objects.guard}
-	preparation, err := execution.NewPreparationDriver(store, a.execution, execution.PreparationDependencies{
-		Agents: providers.configuration, Projects: projects.projects, Processes: processes,
-		Task: taskCapture, Skills: providers.skills, Tools: providers.tools, Models: modelCapture,
-		Environment: environment, Mounts: mounts,
-	})
-	if err != nil {
-		return err
-	}
-	b.add(runtimeWork(preparation))
 	contextBuilder, err := execution.NewContextBuilder(work.TaskContextBuilder{})
 	if err != nil {
 		return err
@@ -242,32 +195,54 @@ func constructExecutionRuntime(b *executionRuntimeAssembly, cfg config.Config, d
 	if err != nil {
 		return err
 	}
-	direct, err := execution.NewDirectTextDriver(store, a.execution, execution.DirectTextDependencies{
-		Context: contextBuilder, Loop: loop, Processes: processes, Projects: projects.projects,
-		Agents: providers.configuration, Skills: providers.roundSkills, Events: journal, Lifecycle: events.lifecycle,
-		Models: modelRetirement, Environment: environmentRetirement, Mounts: mountUses,
-	})
+	owned, err := createOwnedExecutionRuntime(store, execution.ProjectCallDependencies{
+		Service: execution.Dependencies{Authority: a.execution, Agents: providers.configuration, Task: launchSource},
+		Preparation: execution.PreparationDependencies{
+			Agents: providers.configuration, Projects: projects.projects, Processes: processes,
+			Task: taskCapture, Skills: providers.skills, Tools: providers.tools, Models: modelCapture,
+			Environment: environment, Mounts: mounts,
+		},
+		Direct: execution.DirectTextDependencies{
+			Context: contextBuilder, Loop: loop, Processes: processes, Projects: projects.projects,
+			Agents: providers.configuration, Skills: providers.roundSkills, Events: journal, Lifecycle: events.lifecycle,
+			Models: modelRetirement, Environment: environmentRetirement, Mounts: mountUses,
+		},
+		Associated: options.AssociatedExecutor(),
+	}, projects.lifecycle, projects.variables, secrets, objects)
+	// A final retirement-binding failure may still return its original pair.
+	// Acquire that owner before handling the error, using the same root budget.
+	if owned != nil && owned.pair != nil {
+		b.add(runtimeWork(owned.pair))
+		b.executionCalls, b.executionRetirement = owned.pair, owned.retirement
+	}
 	if err != nil {
 		return err
 	}
-	b.add(runtimeWork(direct))
-	executor, err := execution.NewAssociatedExecutor(preparation, direct, options.AssociatedExecutor())
+	if owned == nil || owned.pair == nil || owned.retirement == nil {
+		return f.NewFault(f.DependencyUnbound, f.NotStarted)
+	}
+	scheduled, err := createOwnedSchedulerRuntime(store, a.pending, scheduler.ProjectCallDependencies{
+		Coordinator:   scheduler.CoordinatorDependencies{Projects: projects.projects, Claims: claims, Executions: observations, Capacity: observations},
+		Handoff:       scheduler.LaunchHandoffDependencies{Executions: owned.pair.Service(), Observations: observations},
+		Busy:          scheduler.BusyCompensatorDependencies{Projects: projects.projects, Work: busyWriter},
+		Failure:       scheduler.LaunchFailureFinalizerDependencies{Projects: projects.projects, Work: failureWriter},
+		RelaunchTasks: relaunchWriter, Tasks: tasks, Occupancy: occupancy,
+		RelaunchSkipCount: options.ProjectRunners().RelaunchSkipCount, RetryPolicy: &policy,
+	}, projects.lifecycle, projects.projects, objects, owned.pair.Associated(), options.ProjectRunners())
+	if scheduled != nil && scheduled.pair != nil {
+		b.add(runtimeWork(scheduled.pair))
+		b.schedulerCalls = scheduled.pair
+	}
+	if scheduled != nil && scheduled.manager != nil {
+		b.add(runtimeWork(scheduled.manager))
+	}
 	if err != nil {
 		return err
 	}
-	b.add(runtimeWork(executor))
-	discovery, err := project.NewSchedulerProjects(projects.projects)
-	if err != nil {
-		return err
+	if scheduled == nil || scheduled.pair == nil || scheduled.manager == nil {
+		return f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
-	manager, err := scheduler.NewProjectRunners(scheduler.ProjectRunnersDependencies{
-		Projects: discovery, Coordinator: coordinator, Visitor: visitor, Tasks: tasks, Relaunch: relaunch, Executions: executor,
-	}, options.ProjectRunners())
-	if err != nil {
-		return err
-	}
-	b.add(runtimeWork(manager))
-	b.executor, b.manager = executor, manager
+	b.executor, b.manager = owned.pair.Associated(), scheduled.manager
 	return nil
 }
 

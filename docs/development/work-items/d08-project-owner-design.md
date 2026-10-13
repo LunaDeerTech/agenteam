@@ -219,6 +219,10 @@ Usage 自有 invocation/observation/summary 虽在 Model SQL schema，仍由 Usa
 
 `74f62455` 的 App native02 三 top/六 sub 实际通过（合计 47.76s，外层 85.557s），基础 18 top/38 sub 与 App vet 通过。新默认组验证原五服务/三 Reader 同 pair、真实 HTTP 四次写入与八种非空读取、独立 closed calls 和 B 可用；原关闭事务已 Committed 但 Store 返回仍被持有时，HTTP/root 不提前返回，ProcessGuard/DB 保留，放行后原 root 实际退出。新组未覆盖 Unknown/Force，旧 Reader/Command 两组保留原 graceful/force 验证；本轮无 Runtime Invoke、Project Delete 或完整 Registry。原 Wait、六项资源、PID 与私有目录均清退，见[结果](../../../output/ai/app-work-ownership-delivery/native02/result.json)与[日志](../../../output/ai/app-work-ownership-delivery/native02/browser.log)。native01 四个启动等待 FAIL 与两个 PASS 原件保留：fixture 误以 5s 日志阶段等待覆盖完整迁移/启动，后改用既有 40s 专用启动等待并监测原 run 提前退出；仅修 fixture，原 HTTP 及 5s/1s 退出/Force 预算不变。
 
+后继默认 Runtime 装配将四个 Execution owner、六个 Scheduler owner 及 manager 接入同原 Project/Life、Store 和 ProcessGuard；组合生命周期保留实际调用尾，Force 对晚安装且未 Joined 的 Execution runtime 同样保留共享 provider，默认 Registry 仍 nil。
+
+`0dd748b8` 的 `TestExecutionSchedulerProjectCallDefaultApp` native02 一 top/两 sub 实际通过（18.82s，外层 56.378s），基础 12 top/20 sub 与 App vet 通过。真实默认图经正式 HTTP 准备、原 Coordinator/Handoff 返回 Created 并写 association，核原 closed ledger 与 84 创建来源；后续 Lookup 关闭已 Committed 但原 Store 返回被持有时，B HTTP 可用、root/ProcessGuard/DB 不提前退出，放行后原 Lookup/root 实际返回。原 Wait、六项资源、PID 与私有目录均清退，见[结果](../../../output/ai/app-execution-scheduler-ownership-delivery/native02/result.json)与[日志](../../../output/ai/app-execution-scheduler-ownership-delivery/native02/browser.log)。native01 首 sub PASS、第二 sub 的复合断言 FAIL 保留：fixture 错误要求成功 CommitResult 携带 AttemptID，仅改为校验原 hook RecoveryRunID 后完整复验两组；旧日志未记录实际 state，不倒填。directory 返回尾受控，未到 Advance/Preparation/Direct worker，无 Invoke、Unknown 或 Force 真实验收，不外推默认 Registry 或完整 Delete。
+
 接受操作时把 required manifest 与版本/digest 同 Tx 持久化，之后不缩减。部署升级恢复旧 operation 必须保留兼容 adapter；移除或缺版本使该 operation pending/failed，不当作已完成。新模块注册不得在已有 deleting/archiving 项目上建立普通数据；当前 operation 的集合同步只能在保证没有遗漏既存数据的工程升级规格下增加，不能随进程重启默默替换。
 
 ```text
