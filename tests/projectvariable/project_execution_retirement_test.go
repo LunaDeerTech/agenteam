@@ -739,7 +739,7 @@ func (v *executionRetirementPG) finishRetirement(t *testing.T) {
 		var cp struct {
 			AgentsDone bool `json:"agents_done"`
 			Skills     struct {
-				State string `json:"state"`
+				State string `json:"skills_state"`
 			} `json:"skills_progress"`
 		}
 		if schema != 4 || json.Unmarshal(raw, &cp) != nil || !cp.AgentsDone {
