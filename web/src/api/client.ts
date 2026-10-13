@@ -90,21 +90,9 @@ const endpoints = {
     '/api/v1/projects/{project_id}/skills/{target}/revisions/{revision}/package',
     200,
   ],
-  knowledgeDeletePreview: [
-    'POST',
-    '/api/v1/projects/{project_id}/knowledge/documents/{target}/delete-preview',
-    200,
-  ],
-  knowledgeDelete: [
-    'POST',
-    '/api/v1/projects/{project_id}/knowledge/documents/{target}/delete-subtree',
-    200,
-  ],
-  knowledgeDeleteLookup: [
-    'POST',
-    '/api/v1/projects/{project_id}/knowledge/documents/commands/lookup',
-    200,
-  ],
+  knowledgeDeletePreview: ['POST', '/api/v1/projects/{project_id}/knowledge/documents/{target}/delete-preview', 200],
+  knowledgeDelete: ['POST', '/api/v1/projects/{project_id}/knowledge/documents/{target}/delete-subtree', 200],
+  knowledgeDeleteLookup: ['POST', '/api/v1/projects/{project_id}/knowledge/documents/commands/lookup', 200],
   knowledgeRename: [
     'POST',
     '/api/v1/projects/{project_id}/knowledge/documents/{target}/rename',
@@ -126,11 +114,7 @@ const endpoints = {
   createProjectSecret: ['POST', '/api/v1/projects/{project_id}/secret-variables', 200],
   updateProjectSecret: ['PATCH', '/api/v1/projects/{project_id}/secret-variables/{target}', 200],
   deleteProjectSecret: ['DELETE', '/api/v1/projects/{project_id}/secret-variables/{target}', 200],
-  lookupProjectSecret: [
-    'POST',
-    '/api/v1/projects/{project_id}/secret-variables/commands/lookup',
-    200,
-  ],
+  lookupProjectSecret: ['POST', '/api/v1/projects/{project_id}/secret-variables/commands/lookup', 200],
   listProjectUsage: ['GET', '/api/v1/projects/{project_id}/model-usage', 200],
   aggregateProjectUsage: ['GET', '/api/v1/projects/{project_id}/model-usage/summary', 200],
   createProjectVariable: ['POST', '/api/v1/projects/{project_id}/variables', 200],
@@ -1109,9 +1093,7 @@ const knowledgeTextEndpoints = [
   'knowledgeTextLookup',
 ] as const
 const knowledgeCommandEndpoints = [
-  'knowledgeDeletePreview',
-  'knowledgeDelete',
-  'knowledgeDeleteLookup',
+  'knowledgeDeletePreview', 'knowledgeDelete', 'knowledgeDeleteLookup',
   'knowledgeRename',
   'knowledgeRenameLookup',
   ...knowledgeTextEndpoints,
@@ -1122,42 +1104,19 @@ type KnowledgeCommandOptions<E extends KnowledgeCommandEndpoint> = {
   projectID: string
   body: unknown
   csrf: string
-} & (E extends 'knowledgeDeletePreview' ? { key?: never } : { key: string }) &
-  (E extends
-    | 'knowledgeRename'
-    | 'knowledgeTextCreate'
-    | 'knowledgeTextReplace'
-    | 'knowledgeDeletePreview'
-    | 'knowledgeDelete'
-    ? { target: string }
-    : { target?: never })
+} & (E extends 'knowledgeDeletePreview' ? { key?: never } : { key: string }) & (E extends 'knowledgeRename' | 'knowledgeTextCreate' | 'knowledgeTextReplace' | 'knowledgeDeletePreview' | 'knowledgeDelete'
+  ? { target: string }
+  : { target?: never })
 
 const skillInstallEndpoints = ['installProjectSkill', 'lookupSkillInstallation'] as const
 type SkillInstallEndpoint = (typeof skillInstallEndpoints)[number]
-type SkillInstallOptions = {
-  signal: AbortSignal
-  projectID: string
-  body: unknown
-  csrf: string
-  key: string
-}
+type SkillInstallOptions = { signal: AbortSignal; projectID: string; body: unknown; csrf: string; key: string }
 const skillEndpoints = ['listProjectSkills', 'getProjectSkill', 'getSkillPackage'] as const
-const secretCommandEndpoints = [
-  'createProjectSecret',
-  'updateProjectSecret',
-  'deleteProjectSecret',
-  'lookupProjectSecret',
-] as const
+const secretCommandEndpoints = ['createProjectSecret', 'updateProjectSecret', 'deleteProjectSecret', 'lookupProjectSecret'] as const
 type SecretCommandEndpoint = (typeof secretCommandEndpoints)[number]
 type SecretCommandOptions<E extends SecretCommandEndpoint> = {
-  signal: AbortSignal
-  projectID: string
-  body: unknown
-  csrf: string
-  key: string
-} & (E extends 'updateProjectSecret' | 'deleteProjectSecret'
-  ? { target: string }
-  : { target?: never })
+  signal: AbortSignal; projectID: string; body: unknown; csrf: string; key: string
+} & (E extends 'updateProjectSecret' | 'deleteProjectSecret' ? { target: string } : { target?: never })
 const secretReadEndpoints = ['listProjectSecrets', 'getProjectSecret'] as const
 type SecretReadEndpoint = (typeof secretReadEndpoints)[number]
 type SecretReadQuery = Readonly<{ limit: number; cursor?: string }>
@@ -1581,33 +1540,18 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     } else if ((secretCommandEndpoints as readonly string[]).includes(endpoint)) {
       try {
         const update = endpoint === 'updateProjectSecret' || endpoint === 'deleteProjectSecret'
-        shape(options, [
-          'signal',
-          'projectID',
-          'body',
-          'csrf',
-          'key',
-          ...(update ? ['target'] : []),
-        ])
+        shape(options, ['signal', 'projectID', 'body', 'csrf', 'key', ...(update ? ['target'] : [])])
         const project = string(options.projectID, 36, 36)
-        const csrf = string(options.csrf, 43, 43),
-          key = string(options.key, 1, 128)
-        if (
-          !uuid7.test(project) ||
-          !(options.signal instanceof AbortSignal) ||
-          /[^A-Za-z0-9_-]/.test(csrf) ||
-          /[^A-Za-z0-9._:/-]/.test(key)
-        )
-          throw new Error()
+        const csrf = string(options.csrf, 43, 43), key = string(options.key, 1, 128)
+        if (!uuid7.test(project) || !(options.signal instanceof AbortSignal) ||
+            /[^A-Za-z0-9_-]/.test(csrf) || /[^A-Za-z0-9._:/-]/.test(key)) throw new Error()
         path = basePath.replace('{project_id}', project)
         if (update) {
           const target = string(options.target, 36, 36)
           if (!uuid7.test(target)) throw new Error()
           path = path.replace('{target}', target)
         }
-      } catch {
-        throw new AccountFailure('invalid-input')
-      }
+      } catch { throw new AccountFailure('invalid-input') }
     } else if ((secretReadEndpoints as readonly string[]).includes(endpoint)) {
       try {
         const list = endpoint === 'listProjectSecrets'
@@ -1616,18 +1560,15 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
         if (!uuid7.test(project) || !(options.signal instanceof AbortSignal)) throw new Error()
         path = basePath.replace('{project_id}', project)
         if (list) {
-          const query = shape(options.secretQuery, ['limit'], ['cursor']),
-            limit = query.limit
+          const query = shape(options.secretQuery, ['limit'], ['cursor']), limit = query.limit
           if (typeof limit !== 'number' || !Number.isInteger(limit) || limit < 1 || limit > 100)
             throw new Error()
           const params = new URLSearchParams({ limit: String(limit) })
           if (Object.hasOwn(query, 'cursor')) {
             const cursor = string(query.cursor, 1, 8192)
-            if (
-              new TextEncoder().encode(cursor).byteLength > 8192 ||
-              /[\u0000-\u001f\u007f-\u009f]/u.test(cursor) ||
-              /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(cursor)
-            )
+            if (new TextEncoder().encode(cursor).byteLength > 8192 ||
+                /[\u0000-\u001f\u007f-\u009f]/u.test(cursor) ||
+                /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(cursor))
               throw new Error()
             params.set('cursor', cursor)
           }
@@ -1637,26 +1578,16 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           if (!uuid7.test(target)) throw new Error()
           path = path.replace('{target}', target)
         }
-      } catch {
-        throw new AccountFailure('invalid-input')
-      }
+      } catch { throw new AccountFailure('invalid-input') }
     } else if ((skillInstallEndpoints as readonly string[]).includes(endpoint)) {
       try {
         shape(options, ['signal', 'projectID', 'body', 'csrf', 'key'])
         const project = string(options.projectID, 36, 36),
-          csrf = string(options.csrf, 43, 43),
-          key = string(options.key, 1, 128)
-        if (
-          !uuid7.test(project) ||
-          !(options.signal instanceof AbortSignal) ||
-          /[^A-Za-z0-9_-]/.test(csrf) ||
-          /[^A-Za-z0-9._:/-]/.test(key)
-        )
-          throw new Error()
+          csrf = string(options.csrf, 43, 43), key = string(options.key, 1, 128)
+        if (!uuid7.test(project) || !(options.signal instanceof AbortSignal) ||
+            /[^A-Za-z0-9_-]/.test(csrf) || /[^A-Za-z0-9._:/-]/.test(key)) throw new Error()
         path = basePath.replace('{project_id}', project)
-      } catch {
-        throw new AccountFailure('invalid-input')
-      }
+      } catch { throw new AccountFailure('invalid-input') }
     } else if ((skillEndpoints as readonly string[]).includes(endpoint)) {
       try {
         const list = endpoint === 'listProjectSkills'
@@ -1842,10 +1773,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     } else if ((knowledgeCommandEndpoints as readonly string[]).includes(endpoint)) {
       try {
         const preview = endpoint === 'knowledgeDeletePreview'
-        const rename =
-          endpoint !== 'knowledgeRenameLookup' &&
-          endpoint !== 'knowledgeTextLookup' &&
-          endpoint !== 'knowledgeDeleteLookup'
+        const rename = endpoint !== 'knowledgeRenameLookup' && endpoint !== 'knowledgeTextLookup' && endpoint !== 'knowledgeDeleteLookup'
         shape(options, [
           'signal',
           'projectID',
@@ -2235,49 +2163,42 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       headers['Content-Type'] = options.avatar.mediaType
       headers['If-Match'] = `"${options.avatar.version}"`
     } else if (method !== 'GET') {
-      const maximum =
-        endpoint === 'createOwnerProject'
-          ? 16384
-          : (secretCommandEndpoints as readonly string[]).includes(endpoint) ||
-              (skillInstallEndpoints as readonly string[]).includes(endpoint)
-            ? 1024 * 1024
-            : (runnerEndpoints as readonly string[]).includes(endpoint)
-              ? 32768
-              : endpoint === 'updateProjectScheduler'
-                ? 4096
-                : endpoint === 'lookupProjectScheduler'
-                  ? 1024
-                  : endpoint === 'knowledgeTextLookup'
-                    ? 1048660
-                    : (knowledgeTextEndpoints as readonly string[]).includes(endpoint)
-                      ? 1048576
-                      : endpoint === 'agentConfigurationCreate' ||
-                          endpoint === 'agentConfigurationUpdate' ||
-                          endpoint === 'agentConfigurationLookup'
-                        ? 512 * 1024
-                        : (workReviewEndpoints as readonly string[]).includes(endpoint)
-                          ? 1048576
-                          : (projectConfigurationWrites as readonly string[]).includes(endpoint)
-                            ? 1048576
-                            : endpoint === 'createProjectModelCredential' ||
-                                endpoint === 'updateProjectModelCredential'
-                              ? 409600
-                              : endpoint === 'deleteProjectModelCredential' ||
-                                  endpoint === 'lookupProjectModelCredential'
-                                ? 1024
-                                : endpoint === 'updateOwnerProject'
-                                  ? 64 * 1024
-                                  : endpoint === 'lookupOwnerProject'
-                                    ? 1024
-                                    : endpoint === 'updateOutboundPolicy'
-                                      ? 1024 * 1024
-                                      : endpoint === 'createModelCredential'
-                                        ? 512 * 1024
-                                        : endpoint === 'createProvider' ||
-                                            endpoint === 'updateProvider' ||
-                                            endpoint === 'updateSMTPSettings'
-                                          ? 32 * 1024
-                                          : 16 * 1024
+      const maximum = endpoint === 'createOwnerProject' ? 16384 :
+        ((secretCommandEndpoints as readonly string[]).includes(endpoint) ||
+          (skillInstallEndpoints as readonly string[]).includes(endpoint)) ? 1024 * 1024 :
+        (runnerEndpoints as readonly string[]).includes(endpoint) ? 32768 :
+        endpoint === 'updateProjectScheduler' ? 4096 : endpoint === 'lookupProjectScheduler' ? 1024 :
+        endpoint === 'knowledgeTextLookup'
+          ? 1048660
+          : (knowledgeTextEndpoints as readonly string[]).includes(endpoint)
+            ? 1048576
+            : endpoint === 'agentConfigurationCreate' ||
+                endpoint === 'agentConfigurationUpdate' ||
+                endpoint === 'agentConfigurationLookup'
+              ? 512 * 1024
+              : (workReviewEndpoints as readonly string[]).includes(endpoint)
+                ? 1048576
+                : (projectConfigurationWrites as readonly string[]).includes(endpoint)
+                  ? 1048576
+                  : endpoint === 'createProjectModelCredential' ||
+                      endpoint === 'updateProjectModelCredential'
+                    ? 409600
+                    : endpoint === 'deleteProjectModelCredential' ||
+                        endpoint === 'lookupProjectModelCredential'
+                      ? 1024
+                      : endpoint === 'updateOwnerProject'
+                        ? 64 * 1024
+                        : endpoint === 'lookupOwnerProject'
+                          ? 1024
+                          : endpoint === 'updateOutboundPolicy'
+                            ? 1024 * 1024
+                            : endpoint === 'createModelCredential'
+                              ? 512 * 1024
+                              : endpoint === 'createProvider' ||
+                                  endpoint === 'updateProvider' ||
+                                  endpoint === 'updateSMTPSettings'
+                                ? 32 * 1024
+                                : 16 * 1024
       try {
         body = JSON.stringify(options.body)
       } catch {
@@ -2350,94 +2271,80 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           response,
           options.signal,
           lifecycle,
-          (runnerEndpoints as readonly string[]).includes(endpoint) && success
-            ? endpoint === 'listSystemRunners'
-              ? 2 * 1024 * 1024
-              : 65536
-            : endpoint === 'availableAgentRunners' && success
-              ? 2 * 1024 * 1024
-              : endpoint === 'agentRunnerMounts' && success
-                ? 512 * 1024
-                : (endpoint === 'listProjectUsage' || endpoint === 'aggregateProjectUsage') &&
-                    success
-                  ? 1024 * 1024
-                  : ((secretReadEndpoints as readonly string[]).includes(endpoint) ||
-                        (secretCommandEndpoints as readonly string[]).includes(endpoint)) &&
-                      success
-                    ? endpoint === 'listProjectSecrets'
-                      ? 5 * 1024 * 1024
-                      : 1024 * 1024
-                    : endpoint === 'getProjectScheduler' || endpoint === 'updateProjectScheduler'
-                      ? 4096
-                      : (knowledgeTextEndpoints as readonly string[]).includes(endpoint) && success
-                        ? 16384
-                        : (skillInstallEndpoints as readonly string[]).includes(endpoint) && success
-                          ? 1024
-                          : (skillEndpoints as readonly string[]).includes(endpoint) && success
-                            ? endpoint === 'listProjectSkills'
-                              ? 100 * 65536 + 8192 + 1024
-                              : 65536
-                            : (workReviewEndpoints as readonly string[]).includes(endpoint) &&
-                                success
-                              ? [
-                                  'agentConfigurationCreate',
-                                  'agentConfigurationUpdate',
-                                  'agentConfigurationGet',
-                                  'agentConfigurationLookup',
-                                ].includes(endpoint)
-                                ? 512 * 1024
-                                : endpoint === 'taskTimeline'
-                                  ? 4 * 1024 * 1024
-                                  : endpoint === 'directoryAgents'
-                                    ? 13 * 1024 * 1024
-                                    : endpoint === 'directoryAgent'
-                                      ? 64 * 1024
-                                      : [
-                                            'listProjectVariables',
-                                            'reviewMilestones',
-                                            'reviewSprints',
-                                            'reviewTasks',
-                                            'reviewBlockers',
-                                          ].includes(endpoint)
-                                        ? 5 * 1024 * 1024
-                                        : 1024 * 1024
-                              : ((knowledgeEndpoints as readonly string[]).includes(endpoint) ||
-                                    (knowledgeCommandEndpoints as readonly string[]).includes(
-                                      endpoint,
-                                    )) &&
-                                  success
-                                ? // Exact complete representation limits of the two Knowledge adapters.
-                                  endpoint === 'knowledgeContent'
-                                  ? 7 * 1024 * 1024
-                                  : 5 * 1024 * 1024
-                                : (projectModelEndpoints as readonly string[]).includes(endpoint) &&
-                                    success
-                                  ? (projectModelReads as readonly string[]).includes(endpoint)
-                                    ? 8388608
-                                    : 1024
-                                  : endpoint === 'listOwnerProjects' && success
-                                    ? 5 * 1024 * 1024
-                                    : projectEndpoints.includes(endpoint as ProjectEndpoint) &&
-                                        success
-                                      ? 64 * 1024
-                                      : endpoint === 'getSystemRuntimeInformation' && success
-                                        ? 16 * 1024
-                                        : endpoint === 'listProviders' && success
-                                          ? 2 * 1024 * 1024
-                                          : (endpoint === 'listSystemAudit' ||
-                                                endpoint === 'getSystemAudit' ||
-                                                endpoint === 'listProjectAudit' ||
-                                                endpoint === 'getProjectAudit') &&
-                                              success
-                                            ? 1024 * 1024
-                                            : 600_000,
+          (runnerEndpoints as readonly string[]).includes(endpoint) && success ? (endpoint === 'listSystemRunners' ? 2 * 1024 * 1024 : 65536) :
+          endpoint === 'availableAgentRunners' && success ? 2 * 1024 * 1024 :
+          endpoint === 'agentRunnerMounts' && success ? 512 * 1024 :
+          (endpoint === 'listProjectUsage' || endpoint === 'aggregateProjectUsage') && success
+            ? 1024 * 1024
+            : ((secretReadEndpoints as readonly string[]).includes(endpoint) || (secretCommandEndpoints as readonly string[]).includes(endpoint)) && success
+              ? endpoint === 'listProjectSecrets'
+                ? 5 * 1024 * 1024
+                : 1024 * 1024
+              : endpoint === 'getProjectScheduler' || endpoint === 'updateProjectScheduler'
+                ? 4096
+                : (knowledgeTextEndpoints as readonly string[]).includes(endpoint) && success
+                  ? 16384
+                  : (skillInstallEndpoints as readonly string[]).includes(endpoint) && success
+                    ? 1024
+                    : (skillEndpoints as readonly string[]).includes(endpoint) && success
+                    ? endpoint === 'listProjectSkills'
+                      ? 100 * 65536 + 8192 + 1024
+                      : 65536
+                    : (workReviewEndpoints as readonly string[]).includes(endpoint) && success
+                      ? [
+                          'agentConfigurationCreate',
+                          'agentConfigurationUpdate',
+                          'agentConfigurationGet',
+                          'agentConfigurationLookup',
+                        ].includes(endpoint)
+                        ? 512 * 1024
+                        : endpoint === 'taskTimeline'
+                          ? 4 * 1024 * 1024
+                          : endpoint === 'directoryAgents'
+                            ? 13 * 1024 * 1024
+                            : endpoint === 'directoryAgent'
+                              ? 64 * 1024
+                              : [
+                                    'listProjectVariables',
+                                    'reviewMilestones',
+                                    'reviewSprints',
+                                    'reviewTasks',
+                                    'reviewBlockers',
+                                  ].includes(endpoint)
+                                ? 5 * 1024 * 1024
+                                : 1024 * 1024
+                      : ((knowledgeEndpoints as readonly string[]).includes(endpoint) ||
+                            (knowledgeCommandEndpoints as readonly string[]).includes(endpoint)) &&
+                          success
+                        ? // Exact complete representation limits of the two Knowledge adapters.
+                          endpoint === 'knowledgeContent'
+                          ? 7 * 1024 * 1024
+                          : 5 * 1024 * 1024
+                        : (projectModelEndpoints as readonly string[]).includes(endpoint) && success
+                          ? (projectModelReads as readonly string[]).includes(endpoint)
+                            ? 8388608
+                            : 1024
+                          : endpoint === 'listOwnerProjects' && success
+                            ? 5 * 1024 * 1024
+                            : projectEndpoints.includes(endpoint as ProjectEndpoint) && success
+                              ? 64 * 1024
+                              : endpoint === 'getSystemRuntimeInformation' && success
+                                ? 16 * 1024
+                                : endpoint === 'listProviders' && success
+                                  ? 2 * 1024 * 1024
+                                  : (endpoint === 'listSystemAudit' ||
+                                        endpoint === 'getSystemAudit' ||
+                                        endpoint === 'listProjectAudit' ||
+                                        endpoint === 'getProjectAudit') &&
+                                      success
+                                    ? 1024 * 1024
+                                    : 600_000,
           success && (projectModelReads as readonly string[]).includes(endpoint),
           ['getProjectScheduler', 'updateProjectScheduler', 'lookupProjectScheduler'].includes(
             endpoint,
           ) ||
             (runnerEndpoints as readonly string[]).includes(endpoint) ||
-            endpoint === 'listProjectUsage' ||
-            endpoint === 'aggregateProjectUsage' ||
+            endpoint === 'listProjectUsage' || endpoint === 'aggregateProjectUsage' ||
             endpoint === 'createOwnerProject' ||
             endpoint === 'getProjectCreation' ||
             (secretReadEndpoints as readonly string[]).includes(endpoint) ||
@@ -2466,8 +2373,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           if (response.status === 201 && creation.state !== 'ready') throw new Error()
           if (
             response.status === 202 &&
-            (creation.state !== 'accepted' ||
-              response.headers.get('Location') !== creation.status_url)
+            (creation.state !== 'accepted' || response.headers.get('Location') !== creation.status_url)
           )
             throw new Error()
         }

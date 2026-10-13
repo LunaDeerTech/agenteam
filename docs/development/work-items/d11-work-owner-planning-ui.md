@@ -20,14 +20,14 @@
 
 ### 2.1 恰六个共享产品文件
 
-| 文件                                       | 必要接缝                                                                                                         |
-| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
-| `web/src/api/client.ts`                    | Work 闭集端点/options/path/query 与请求、成功响应 cap；复用原 transport/EOF/cancel，不重构旧域                   |
-| `web/src/composables/useSession.ts`        | Work 专用 facade/action revision/私有 intent，接入同一 Cookie owner、CSRF、身份失效与实际 I/O 尾部               |
-| `web/src/router/auth.ts`                   | Explore 原始路径闭集、safeReturnTarget、Work 离开/导航通知；保留 Owner → Model 原顺序，在后追加 Work             |
-| `web/src/router/index.ts`                  | 四条受保护 Project 子路由与懒加载 View                                                                           |
-| `web/src/App.vue`                          | 持有/provide Work controller，初始导航、dispose、退出确认及 Work 对话框；checking 卸载 RouterView 时状态仍被持有 |
-| `web/src/components/layout/ProjectNav.vue` | 从既有 `home` prop 派生“任务规划”链接及选中态；不新增 prop，不改变设置分组选中规则                               |
+| 文件 | 必要接缝 |
+| --- | --- |
+| `web/src/api/client.ts` | Work 闭集端点/options/path/query 与请求、成功响应 cap；复用原 transport/EOF/cancel，不重构旧域 |
+| `web/src/composables/useSession.ts` | Work 专用 facade/action revision/私有 intent，接入同一 Cookie owner、CSRF、身份失效与实际 I/O 尾部 |
+| `web/src/router/auth.ts` | Explore 原始路径闭集、safeReturnTarget、Work 离开/导航通知；保留 Owner → Model 原顺序，在后追加 Work |
+| `web/src/router/index.ts` | 四条受保护 Project 子路由与懒加载 View |
+| `web/src/App.vue` | 持有/provide Work controller，初始导航、dispose、退出确认及 Work 对话框；checking 卸载 RouterView 时状态仍被持有 |
+| `web/src/components/layout/ProjectNav.vue` | 从既有 `home` prop 派生“任务规划”链接及选中态；不新增 prop，不改变设置分组选中规则 |
 
 `useProjectWorkspace.ts`、`ProjectWorkspaceView.vue`、`api/project-owner.ts` 只读复用：`currentReadContext`、`detail`、`readCurrent`、`paths.home` 与 `current_sprint_id` 已满足需要。工作区现有 RouterView 保留；同 Project 后缀切换与 canonicalize 已支持保留后缀，无需为本卡扩 Owner API。Model 专属源码、共享 Ui 组件、锁文件、schema、后端、迁移及公共监督器不在写域。
 
@@ -35,28 +35,28 @@
 
 ### 2.2 新增专属源与必要文档
 
-| 精确路径                                                                  | 职责                                                                          |
-| ------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| `web/src/api/work-planning.ts`                                            | 21 API 的 typed DTO/严格解析与输入捕获、资源 UUIDv7 生成；无页面状态/授权旁路 |
-| `web/src/composables/useProjectWorkPlanning.ts`                           | Project/route generation、分页树、选择、编辑草稿、冲突、恢复反馈、离开保护    |
-| `web/src/views/projects/ProjectWorkPlanningView.vue`                      | 页面布局、选择详情与子组件组合                                                |
-| `web/src/views/projects/ProjectWorkPlanningTree.vue`                      | 分页层级、独立展开/选择、窄屏覆盖入口                                         |
-| `web/src/views/projects/ProjectWorkStructureEditor.vue`                   | Milestone/Sprint 创建、普通字段与同组排序                                     |
-| `web/src/views/projects/ProjectWorkTaskEditor.vue`                        | Task 创建、普通字段/Plan 与同组排序                                           |
-| `web/src/views/projects/ProjectWorkBlockers.vue`                          | 两类 Blocker 表单、状态分页、解除与依赖目标选择                               |
-| `web/src/views/projects/ProjectWorkRecovery.vue`                          | 三域原意图进度、历史回执、查证/明确重放/放弃本地追踪                          |
-| `web/src/tests/work-planning-client.spec.ts`                              | schema/client、输入/投影、cap、完整 EOF/cancel                                |
-| `web/src/tests/work-planning-session.spec.ts`                             | 唯一 owner、身份、原意图与恢复                                                |
-| `web/src/tests/work-planning-state.spec.ts`                               | 树/当前值/草稿/版本/分页/迟到结果                                             |
-| `web/src/tests/work-planning.spec.ts`                                     | 正式 router/App、组件交互、导航/Logout/焦点                                   |
-| `tests/account/project_work_planning_web_fixture_test.go`                 | 复用同包已验 Owner/native root 能力的任务私有真实 fixture                     |
-| `tests/account/project_work_planning_web_test.go`                         | 作者精确真实浏览器顶层入口                                                    |
-| `tests/account-captcha-web/project-work-planning.config.js`               | 精确 owned origin/private paths/case，锁定已有 Playwright                     |
-| `tests/account-captcha-web/e2e/project-work-planning.spec.ts`             | 作者真实用户流程与同请求响应/事实断言                                         |
-| `tests/account/project_work_planning_web_independent_test.go`             | 未参与实现者本人执行的独立入口                                                |
-| `tests/account-captcha-web/e2e/project-work-planning-independent.spec.ts` | 独立恢复/身份/跨域竞争场景，独立作者持有                                      |
-| `docs/development/frontend/README.md`                                     | 验收后同步限定能力、精确命令与托管边界                                        |
-| `docs/development/work-items/d11-work-owner-planning-ui.md`               | 本规格及最小接受/未完成事实                                                   |
+| 精确路径 | 职责 |
+| --- | --- |
+| `web/src/api/work-planning.ts` | 21 API 的 typed DTO/严格解析与输入捕获、资源 UUIDv7 生成；无页面状态/授权旁路 |
+| `web/src/composables/useProjectWorkPlanning.ts` | Project/route generation、分页树、选择、编辑草稿、冲突、恢复反馈、离开保护 |
+| `web/src/views/projects/ProjectWorkPlanningView.vue` | 页面布局、选择详情与子组件组合 |
+| `web/src/views/projects/ProjectWorkPlanningTree.vue` | 分页层级、独立展开/选择、窄屏覆盖入口 |
+| `web/src/views/projects/ProjectWorkStructureEditor.vue` | Milestone/Sprint 创建、普通字段与同组排序 |
+| `web/src/views/projects/ProjectWorkTaskEditor.vue` | Task 创建、普通字段/Plan 与同组排序 |
+| `web/src/views/projects/ProjectWorkBlockers.vue` | 两类 Blocker 表单、状态分页、解除与依赖目标选择 |
+| `web/src/views/projects/ProjectWorkRecovery.vue` | 三域原意图进度、历史回执、查证/明确重放/放弃本地追踪 |
+| `web/src/tests/work-planning-client.spec.ts` | schema/client、输入/投影、cap、完整 EOF/cancel |
+| `web/src/tests/work-planning-session.spec.ts` | 唯一 owner、身份、原意图与恢复 |
+| `web/src/tests/work-planning-state.spec.ts` | 树/当前值/草稿/版本/分页/迟到结果 |
+| `web/src/tests/work-planning.spec.ts` | 正式 router/App、组件交互、导航/Logout/焦点 |
+| `tests/account/project_work_planning_web_fixture_test.go` | 复用同包已验 Owner/native root 能力的任务私有真实 fixture |
+| `tests/account/project_work_planning_web_test.go` | 作者精确真实浏览器顶层入口 |
+| `tests/account-captcha-web/project-work-planning.config.js` | 精确 owned origin/private paths/case，锁定已有 Playwright |
+| `tests/account-captcha-web/e2e/project-work-planning.spec.ts` | 作者真实用户流程与同请求响应/事实断言 |
+| `tests/account/project_work_planning_web_independent_test.go` | 未参与实现者本人执行的独立入口 |
+| `tests/account-captcha-web/e2e/project-work-planning-independent.spec.ts` | 独立恢复/身份/跨域竞争场景，独立作者持有 |
+| `docs/development/frontend/README.md` | 验收后同步限定能力、精确命令与托管边界 |
+| `docs/development/work-items/d11-work-owner-planning-ui.md` | 本规格及最小接受/未完成事实 |
 
 新增辅助文件确有必要时先向负责人交精确路径；不借此建立通用 Session/表单/监督框架。现有 `authentication.spec.ts`、`session.spec.ts`、`account-client.spec.ts`、`project-owner-client.spec.ts`、`project-workspace.spec.ts`、`project-workspace-state.spec.ts` 优先原样回归，未预先授予改期待的写权。
 
@@ -66,16 +66,16 @@
 
 `createSessionController` 追加可选 Work API 依赖，不插入既有位置参数；暴露唯一 `auth.workPlanning`。为 API/Session 与页面并行固定如下消费者接口，不新造通用框架：
 
-| 边界                                              | 固定内容                                                                                                                                                                                                                                                                                                             |
-| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `WorkPlanningCommand`                             | `domain: structure/task/blocker` 与原完整 `command` 为判别联合；共同 `projectID`，Structure/Task 非create有 `targetID`，Blocker有 `taskID`；其余恰原 mutation 的 `expected_version` presence 与 typed `request`，禁止任意字符串command或宽泛Record代替联合                                                           |
-| `captureWorkPlanningCommand(value)`               | 校验并深复制/冻结上述输入；create request自带首次生成的UUIDv7。返回值不含key/CSRF/digest，不从当前Get补字段                                                                                                                                                                                                          |
-| `WorkPlanningReceipt`                             | `domain` 判别联合，`value` 分别为正式StructureMutation/TaskMutation/TaskBlockerMutation；仅客户端内包装，wire不改                                                                                                                                                                                                    |
-| `auth.workPlanning` 七项读                        | 与WorkPlanningAPI同名的list/get方法，参数为稳定Project/对象ID和typed查询；signal由唯一owner内部提供，页面不另建fetch                                                                                                                                                                                                 |
-| `start(command)`                                  | 接受捕获后的闭合WorkPlanningCommand，首次生成并私有保存key/CSRF/原body，执行对应十一种mutation之一，返回WorkPlanningReceipt                                                                                                                                                                                          |
-| `checkOriginal()`                                 | 仅以私有原意图选三Lookup之一，返回 `domain` 加对应正式Lookup；不得由页面传入另一份原意图/key                                                                                                                                                                                                                         |
-| `retryOriginal()` / `abandonRead()` / `abandon()` | 分别明确重放私有原意图、退役本域读、清本域追踪；不释放尚未返回的实际Cookie owner，不修改其它域                                                                                                                                                                                                                       |
-| 只读 `progress`                                   | null或 `{domain,command,projectID,targetID,phase,observation,receipt,failure,contextValid,canLookup,canReplay}`；phase恰submitting/uncertain/rejected/confirmed，observation恰none/committed/in_progress/not_observed/failed；receipt为上述联合或null，failure仅安全AccountFailure或null；无原body/key/CSRF/可变引用 |
+| 边界 | 固定内容 |
+| --- | --- |
+| `WorkPlanningCommand` | `domain: structure/task/blocker` 与原完整 `command` 为判别联合；共同 `projectID`，Structure/Task 非create有 `targetID`，Blocker有 `taskID`；其余恰原 mutation 的 `expected_version` presence 与 typed `request`，禁止任意字符串command或宽泛Record代替联合 |
+| `captureWorkPlanningCommand(value)` | 校验并深复制/冻结上述输入；create request自带首次生成的UUIDv7。返回值不含key/CSRF/digest，不从当前Get补字段 |
+| `WorkPlanningReceipt` | `domain` 判别联合，`value` 分别为正式StructureMutation/TaskMutation/TaskBlockerMutation；仅客户端内包装，wire不改 |
+| `auth.workPlanning` 七项读 | 与WorkPlanningAPI同名的list/get方法，参数为稳定Project/对象ID和typed查询；signal由唯一owner内部提供，页面不另建fetch |
+| `start(command)` | 接受捕获后的闭合WorkPlanningCommand，首次生成并私有保存key/CSRF/原body，执行对应十一种mutation之一，返回WorkPlanningReceipt |
+| `checkOriginal()` | 仅以私有原意图选三Lookup之一，返回 `domain` 加对应正式Lookup；不得由页面传入另一份原意图/key |
+| `retryOriginal()` / `abandonRead()` / `abandon()` | 分别明确重放私有原意图、退役本域读、清本域追踪；不释放尚未返回的实际Cookie owner，不修改其它域 |
+| 只读 `progress` | null或 `{domain,command,projectID,targetID,phase,observation,receipt,failure,contextValid,canLookup,canReplay}`；phase恰submitting/uncertain/rejected/confirmed，observation恰none/committed/in_progress/not_observed/failed；receipt为上述联合或null，failure仅安全AccountFailure或null；无原body/key/CSRF/可变引用 |
 
 此处 `targetID` 在progress总是本命令作用的稳定对象ID（Blocker为TaskID）；所有创建资源动作（含Blocker add）在明确提交时通过 `newWorkPlanningID()` 生成新对象ID，再捕获command。`canLookup/canReplay` 为本域上下文/实际owner/原材料/冲突条件的当前投影，不能作为服务端授权；in_progress不提供自动执行，显式继续策略遵循§5。页面不得传入任意 endpoint/command namespace/摘要/key/CSRF。一次最多一个 Work 待跟踪 mutation，不为三个域另开 Cookie 队列。API/client/useSession及client/session两测试由同一实施者持有；controller/views/App/router/Nav及state/交互测试由另一实施者持有。
 
@@ -85,12 +85,12 @@
 
 以下 `B` 为合法规范 `/{username}/{project_name}`，所有对象 ID 为 canonical 小写 UUIDv7。恰注册四条路径：
 
-| 路径                                        | 选择                                       |
-| ------------------------------------------- | ------------------------------------------ |
-| `B/tasks/explore`                           | Explore 入口；按下面默认规则选中或保持待选 |
-| `B/tasks/explore/milestones/{milestone_id}` | 指定 Milestone                             |
-| `B/tasks/explore/sprints/{sprint_id}`       | 指定 Sprint，真实读取所属 Milestone        |
-| `B/tasks/explore/tasks/{task_id}`           | 指定 Task，真实读取所属 Sprint/Milestone   |
+| 路径 | 选择 |
+| --- | --- |
+| `B/tasks/explore` | Explore 入口；按下面默认规则选中或保持待选 |
+| `B/tasks/explore/milestones/{milestone_id}` | 指定 Milestone |
+| `B/tasks/explore/sprints/{sprint_id}` | 指定 Sprint，真实读取所属 Milestone |
+| `B/tasks/explore/tasks/{task_id}` | 指定 Task，真实读取所属 Sprint/Milestone |
 
 `projectRoute` 与 `safeReturnTarget` 共同扩这个闭集：沿既有合法 Owner 名称及保留根规则，拒绝编码路径、大小写后缀替代、反斜线、空/附加段、尾斜线、query/hash/裸 `?`、非 canonical ID。登录 return 只保存合法目标路径，不夹带筛选、cursor、正文或原意图。旧静态路由优先，未知 `/tasks` 仍未实现，不做静默别名。
 
@@ -108,12 +108,12 @@ Explore 基础入口沿正式布局：首次当前 Get 有 `current_sprint_id` �
 
 桌面为规划树与详情；窄屏树用覆盖侧栏，选择后收起，保留项目身份和可返回的树按钮。只展示已绑定操作，状态文案为中文，canonical enum 仅是 wire。共用 [Ui 接口](../frontend/components.md)及[主题/交互规范](../../frontend-design/styles/README.md)，不导入 Debug。
 
-| 对象      | 真实显示/操作                                                                                                                                                                   |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Milestone | title/description/id/version/时间；创建、编辑、同 Project Milestone 组内排序，按需 Sprint 列表                                                                                  |
-| Sprint    | title/description/父 Milestone/state/正式起止元信息/version；创建 planned Sprint、编辑；同 Milestone 内排序，按需 Task 列表；不提供跨 Milestone 迁移                            |
-| Task      | title/description/type/priority/state/Plan、正式 parent/version/时间；创建未指派 backlog，编辑普通字段/Plan、同 Sprint/state/priority 组排序；不提供 state/assignee/parent 修改 |
-| Blocker   | type/description/typed metadata/创建与解决事实；仅两类 add/resolve，分页 status 切换；依赖项以真实 Task 标题/ID/状态及详情跳转呈现                                              |
+| 对象 | 真实显示/操作 |
+| --- | --- |
+| Milestone | title/description/id/version/时间；创建、编辑、同 Project Milestone 组内排序，按需 Sprint 列表 |
+| Sprint | title/description/父 Milestone/state/正式起止元信息/version；创建 planned Sprint、编辑；同 Milestone 内排序，按需 Task 列表；不提供跨 Milestone 迁移 |
+| Task | title/description/type/priority/state/Plan、正式 parent/version/时间；创建未指派 backlog，编辑普通字段/Plan、同 Sprint/state/priority 组排序；不提供 state/assignee/parent 修改 |
+| Blocker | type/description/typed metadata/创建与解决事实；仅两类 add/resolve，分页 status 切换；依赖项以真实 Task 标题/ID/状态及详情跳转呈现 |
 
 规划 Task 树默认查询 `state=backlog&assignee_agent_id=null`，可明确筛选 text/type/priority，筛选改变回首页。直接链接到其它合法 Task 仍按正式详情只读显示，并说明不在本卡可写范围；不解析 Agent 名称、不造不存在的 Agent 目录或执行状态。Sprint completed 禁止新 Task 与结构编辑，非 active Project 禁止新 mutation；这些仅是 UI 可用性，服务端结果始终是最终判据。
 
@@ -131,11 +131,11 @@ Blocker add 显式选择 `rely_on` 或 `waiting_for_human`；后者 metadata 恰
 
 创建资源在首次发送前生成并冻结正确 UUIDv7（48-bit Unix 毫秒、version7/variant、加密随机尾、canonical 小写），无可用 CSPRNG 时零网络拒绝；`crypto.randomUUID()` 的 v4 仅可作满足 Foundation 规则的幂等 key，不可作 Work 资源 ID。同一意图重试不重生 ID/key。保存 typed input 的深冻结快照及精确原序列化正文、字段 presence、command、稳定 Project/target、expected_version、identity/原 CSRF；用户继续编辑不会改已派发意图，不把 key/body 放 DOM、日志、storage、URL 或 history。
 
-| 原 mutation                   | 捕获与 Lookup 正文                                                                                      |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------- |
-| Structure/Task create         | mutation `{request}`；Lookup 恰 `{command,request}`，request 自带原新 ID，无 expected_version           |
-| Structure/Task update/reorder | mutation `{expected_version,request}`；Lookup 恰 `{command,target_id,expected_version,request}`         |
-| Blocker add/resolve           | TaskID 在原 path；mutation `{expected_version,request}`；Lookup 恰 `{command,expected_version,request}` |
+| 原 mutation | 捕获与 Lookup 正文 |
+| --- | --- |
+| Structure/Task create | mutation `{request}`；Lookup 恰 `{command,request}`，request 自带原新 ID，无 expected_version |
+| Structure/Task update/reorder | mutation `{expected_version,request}`；Lookup 恰 `{command,target_id,expected_version,request}` |
+| Blocker add/resolve | TaskID 在原 path；mutation `{expected_version,request}`；Lookup 恰 `{command,expected_version,request}` |
 
 三域 Lookup 使用原 Idempotency-Key 与原 command 稳定名，当前 RequestID 只是新传输信息。客户端不计算 Go digest，不用当前 Get 的字段/version/rank 补原意图。version 始终 canonical 十进制字符串 `1..9223372036854775807`，需算术时用 BigInt，不经 Number；历史重放/no-op 不因 MaxInt64 被客户端一律拒绝。
 
@@ -183,14 +183,14 @@ Blocker status 默认为 unresolved，可选 resolved/all；顺序 `(created_at,
 
 复用 [Owner fixture](../../../tests/account/project_owner_web_fixture_test.go)、[Owner顶层](../../../tests/account/project_owner_web_test.go)的同包实际能力及 `scripts/test-objects.sh → outbound → postgres` 原链；真实默认 Central 根通过测试进程内 no-tag `app.Run(...)` 启动，结合正式 Account bootstrap/invitation/redeem/login 与实际 Session/CSRF，不手种Account/Session，不宣称本卡由独立cmd子进程托管。浏览器访问任务私有同源静态入口，反向代理正式 API；复用既有静态托管，对§3四route实际直接GET、浏览器地址导航及刷新验证，包含带点号Project名称。正例完整经过Session、Owner Resolve/Get和目标读取；非法Work后缀/ID/编码路径通过正式Vue原始路由校验拒绝，零Work读取；API与缺失asset沿原handler处理，不降为SPA。SPA内部点击不能替代直接访问与刷新检查。该历史路径托管仅属fixture，不是生产SPA发布。Work事实只能由正式HTTP/service产生；明确生命周期负向fixture输入不冒完整archive/cleanup。
 
-| 精确作者 top / case                                                  | 必须区分的结果                                                                                                                                                                                                                                    |
-| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `TestAccountProjectWorkPlanningWebReadAndNavigation` / `read`        | 实际Owner Get门槛、50/51分页、父子与typed深链/页外对象；四route（含点号Project名）实际直接GET/浏览器导航与刷新，非法Work路径由Vue拒绝且零Work读取，资产/API不降为SPA；默认Current/无Current、筛选/失效cursor、无权限/pending/deleting与原路径保留 |
-| `TestAccountProjectWorkPlanningWebStructureAndTasks` / `planning`    | 六Structure与三Task mutation、七读取的真实消费者；字段/清空/Plan/同组排序、priority组改变、错误父/版本冲突，持久对象/版本/必要历史/Outbox/Activity一致且无额外命令                                                                                |
-| `TestAccountProjectWorkPlanningWebBlockers` / `blockers`             | 两类add/resolve、真实依赖环拒绝、status分页/Taskversion使cursor失效、resolved历史、错误目标与不擅自变Task状态                                                                                                                                     |
-| `TestAccountProjectWorkPlanningWebOriginalRecovery` / `recovery`     | 三域各实际写后响应丢失，保存原意图Lookup/显式同义重放、历史receipt与新当前值、改义冲突、无第二事实；in_progress/not_observed不可假成功，归档读/历史恢复vs新写拒绝                                                                                 |
-| `TestAccountProjectWorkPlanningWebIdentityAndOwnership` / `identity` | 正式Logout/撤销/过期、其它Owner与管理员、checking/新Session、迟到尾与Cookie owner实际join、跨Project/旧名复用、Owner/Model/Work既有确认链互不清理                                                                                                 |
-| `TestAccountProjectWorkPlanningWebLayouts` / `layouts`               | 浅深两主题×四宽度8组合，键盘/焦点/窄屏树/长文/readonly/empty/error，reduced motion及生产无Debug                                                                                                                                                   |
+| 精确作者 top / case | 必须区分的结果 |
+| --- | --- |
+| `TestAccountProjectWorkPlanningWebReadAndNavigation` / `read` | 实际Owner Get门槛、50/51分页、父子与typed深链/页外对象；四route（含点号Project名）实际直接GET/浏览器导航与刷新，非法Work路径由Vue拒绝且零Work读取，资产/API不降为SPA；默认Current/无Current、筛选/失效cursor、无权限/pending/deleting与原路径保留 |
+| `TestAccountProjectWorkPlanningWebStructureAndTasks` / `planning` | 六Structure与三Task mutation、七读取的真实消费者；字段/清空/Plan/同组排序、priority组改变、错误父/版本冲突，持久对象/版本/必要历史/Outbox/Activity一致且无额外命令 |
+| `TestAccountProjectWorkPlanningWebBlockers` / `blockers` | 两类add/resolve、真实依赖环拒绝、status分页/Taskversion使cursor失效、resolved历史、错误目标与不擅自变Task状态 |
+| `TestAccountProjectWorkPlanningWebOriginalRecovery` / `recovery` | 三域各实际写后响应丢失，保存原意图Lookup/显式同义重放、历史receipt与新当前值、改义冲突、无第二事实；in_progress/not_observed不可假成功，归档读/历史恢复vs新写拒绝 |
+| `TestAccountProjectWorkPlanningWebIdentityAndOwnership` / `identity` | 正式Logout/撤销/过期、其它Owner与管理员、checking/新Session、迟到尾与Cookie owner实际join、跨Project/旧名复用、Owner/Model/Work既有确认链互不清理 |
+| `TestAccountProjectWorkPlanningWebLayouts` / `layouts` | 浅深两主题×四宽度8组合，键盘/焦点/窄屏树/长文/readonly/empty/error，reduced motion及生产无Debug |
 
 每个 Playwright case 原45s、expect5s、workers1/retries0；每Go top沿原120s含全部Cleanup/join，包6m。不通过加时/批次重试掩盖失败；若单case完整矩阵实际无法有界完成，先拆同目标的精确case与资源归属，回报负责人修规格，不延长产品期限或跳清理。
 
@@ -218,6 +218,7 @@ Blocker status 默认为 unresolved，可选 resolved/all；顺序 `(created_at,
 2. Task create 的type/priority初始为空、用户必须明确选择；避免无产品来源的 `task/medium` 默认。Plan首版纯文本阅读/textarea编辑，不新增Markdown renderer依赖。
 3. 所有页固定50、仅opaque前后页；排序以明确“某对象之前/组尾”操作实现，暂不加拖拽或跨页“上移/置顶”推测。
 4. 恢复只覆盖同完整identity的内存原意图；真正Session/CSRF改变或刷新销毁，不新增跨Session界面。归档历史恢复沿正式服务Read→receipt→新写门禁，不因Project非active隐藏历史操作。
+
 
 ## 11. 任务评审界面限定切片（2026-10-11）
 

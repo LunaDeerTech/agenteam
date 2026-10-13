@@ -1,21 +1,8 @@
+import { createSkillImportAPI, captureSkillImport, type SkillImportAPI, type SkillImportInput, type SkillImportReceipt } from '../api/skill-import'
 import {
-  createSkillImportAPI,
-  captureSkillImport,
-  type SkillImportAPI,
-  type SkillImportInput,
-  type SkillImportReceipt,
-} from '../api/skill-import'
-import {
-  createProjectSecretCommandsAPI,
-  captureProjectSecretCreate,
-  captureProjectSecretUpdate,
-  captureProjectSecretIdentity,
-  type ProjectSecretCommandsAPI,
-  type ProjectSecretIdentity,
-  type ProjectSecretCreate,
-  type ProjectSecretUpdate,
-  type ProjectSecretReceipt,
-  type ProjectSecretLookup,
+  createProjectSecretCommandsAPI, captureProjectSecretCreate, captureProjectSecretUpdate,
+  captureProjectSecretIdentity, type ProjectSecretCommandsAPI, type ProjectSecretIdentity,
+  type ProjectSecretCreate, type ProjectSecretUpdate, type ProjectSecretReceipt, type ProjectSecretLookup,
 } from '../api/project-secret-commands'
 import {
   createSystemRunnersAPI,
@@ -27,14 +14,7 @@ import {
   type RunnerMutation,
   type RunnerLookup,
 } from '../api/system-runners'
-import {
-  createKnowledgeDeleteAPI,
-  captureKnowledgeDelete,
-  type KnowledgeDeleteAPI,
-  type KnowledgeDeleteInput,
-  type KnowledgeDeleteReceipt,
-  type KnowledgeDeleteLookup,
-} from '../api/knowledge-delete'
+import { createKnowledgeDeleteAPI, captureKnowledgeDelete, type KnowledgeDeleteAPI, type KnowledgeDeleteInput, type KnowledgeDeleteReceipt, type KnowledgeDeleteLookup } from '../api/knowledge-delete'
 import { createAgentRunnerMountsAPI, type AgentRunnerMountsAPI } from '../api/agent-runner-mounts'
 import {
   createKnowledgeTitleSearchAPI,
@@ -43,13 +23,9 @@ import {
   type KnowledgeTitleQuery,
 } from '../api/knowledge-title-search'
 import {
-  createProjectSchedulerAPI,
-  captureProjectSchedulerUpdate,
-  captureProjectSchedulerID,
-  type ProjectSchedulerAPI,
-  type ProjectSchedulerUpdate,
-  type ProjectSchedulerReceipt,
-  type ProjectSchedulerLookup,
+  createProjectSchedulerAPI, captureProjectSchedulerUpdate, captureProjectSchedulerID,
+  type ProjectSchedulerAPI, type ProjectSchedulerUpdate,
+  type ProjectSchedulerReceipt, type ProjectSchedulerLookup,
 } from '../api/project-scheduler'
 import {
   createKnowledgeTextAPI,
@@ -677,13 +653,7 @@ type SkillImportOriginal = {
   body: string | null
 }
 type KnowledgeCommandAction =
-  | 'knowledge-rename'
-  | 'knowledge-lookup'
-  | 'knowledge-text-write'
-  | 'knowledge-text-lookup'
-  | 'knowledge-delete-preview'
-  | 'knowledge-delete'
-  | 'knowledge-delete-lookup'
+  'knowledge-rename' | 'knowledge-lookup' | 'knowledge-text-write' | 'knowledge-text-lookup' | 'knowledge-delete-preview' | 'knowledge-delete' | 'knowledge-delete-lookup'
 export type KnowledgeCommandProgress = Readonly<{
   projectID: string
   documentID: string
@@ -716,15 +686,8 @@ type KnowledgeTextOriginal = {
   uncertain: boolean
   keyConflict: boolean
 }
-export type KnowledgeDeleteProgress = Omit<KnowledgeCommandProgress, 'receipt'> &
-  Readonly<{ receipt: KnowledgeDeleteReceipt | null }>
-type KnowledgeDeleteOriginal = Omit<KnowledgeCommandIntent, 'payload'> & {
-  payload: {
-    input: KnowledgeDeleteInput | null
-    body: string | null
-    ids: readonly string[] | null
-  }
-}
+export type KnowledgeDeleteProgress = Omit<KnowledgeCommandProgress, 'receipt'> & Readonly<{ receipt: KnowledgeDeleteReceipt | null }>
+type KnowledgeDeleteOriginal = Omit<KnowledgeCommandIntent, 'payload'> & { payload: { input: KnowledgeDeleteInput | null; body: string | null; ids: readonly string[] | null } }
 type ProjectIntent = {
   targetID: string
   identity: PersonalIdentity
@@ -1145,8 +1108,7 @@ export function createSessionController(
   const knowledgeTextAPI = commandAPIs.knowledgeText ?? createKnowledgeTextAPI()
   const knowledgeDeleteAPI = commandAPIs.knowledgeDelete ?? createKnowledgeDeleteAPI()
   const knowledgeCommandsAPI = commandAPIs.knowledgeCommands ?? createKnowledgeCommandsAPI()
-  const knowledgeTitleSearchAPI =
-    commandAPIs.knowledgeTitleSearch ?? createKnowledgeTitleSearchAPI()
+  const knowledgeTitleSearchAPI = commandAPIs.knowledgeTitleSearch ?? createKnowledgeTitleSearchAPI()
   const state = shallowReactive<PublicState>({
     phase: 'checking',
     user: null,
@@ -1254,16 +1216,10 @@ export function createSessionController(
   }
   const isSprintLifecycleAction = (kind: Action): kind is SprintLifecycleAction =>
     Object.hasOwn(sprintLifecycleRevisions, kind)
-  const secretCommandRevisions: Record<ProjectSecretAction, number> = {
-    'secret-write': 0,
-    'secret-lookup': 0,
-  }
-  const isSecretCommand = (kind: Action): kind is ProjectSecretAction =>
-    Object.hasOwn(secretCommandRevisions, kind)
+  const secretCommandRevisions: Record<ProjectSecretAction, number> = { 'secret-write': 0, 'secret-lookup': 0 }
+  const isSecretCommand = (kind: Action): kind is ProjectSecretAction => Object.hasOwn(secretCommandRevisions, kind)
   let secretIntent: ProjectSecretIntent | null = null
-  const secretCommandState = shallowReactive<{
-    progress: Omit<ProjectSecretProgress, 'contextValid'> | null
-  }>({ progress: null })
+  const secretCommandState = shallowReactive<{ progress: Omit<ProjectSecretProgress, 'contextValid'> | null }>({ progress: null })
   const variableRevisions: Record<ProjectVariableAction, number> = {
     'variable-read': 0,
     'variable-write': 0,
@@ -1327,18 +1283,11 @@ export function createSessionController(
   const workReviewState = shallowReactive<{
     progress: Omit<WorkReviewProgress, 'contextValid'> | null
   }>({ progress: null })
-  const schedulerRevisions: Record<SchedulerAction, number> = {
-    'scheduler-read': 0,
-    'scheduler-write': 0,
-    'scheduler-lookup': 0,
-  }
-  const isSchedulerAction = (kind: Action): kind is SchedulerAction =>
-    Object.hasOwn(schedulerRevisions, kind)
+  const schedulerRevisions: Record<SchedulerAction, number> = { 'scheduler-read': 0, 'scheduler-write': 0, 'scheduler-lookup': 0 }
+  const isSchedulerAction = (kind: Action): kind is SchedulerAction => Object.hasOwn(schedulerRevisions, kind)
   let schedulerIntent: SchedulerIntent | null = null
   let schedulerProgressContext: Pick<SchedulerIntent, 'identity' | 'csrf'> | null = null
-  const schedulerState = shallowReactive<{
-    progress: Omit<ProjectSchedulerProgress, 'contextValid' | 'canRetryOriginal'> | null
-  }>({ progress: null })
+  const schedulerState = shallowReactive<{ progress: Omit<ProjectSchedulerProgress, 'contextValid' | 'canRetryOriginal'> | null }>({ progress: null })
   const projectRevisions: Record<ProjectAction, number> = {
     'project-read': 0,
     'project-update': 0,
@@ -1354,16 +1303,10 @@ export function createSessionController(
   const projectCreationState = shallowReactive<{
     progress: Omit<ProjectCreationProgress, 'contextValid' | 'canResume'> | null
   }>({ progress: null })
-  const skillImportRevisions: Record<SkillImportAction, number> = {
-    'skill-install': 0,
-    'skill-install-lookup': 0,
-  }
-  const isSkillImport = (kind: Action): kind is SkillImportAction =>
-    Object.hasOwn(skillImportRevisions, kind)
+  const skillImportRevisions: Record<SkillImportAction, number> = { 'skill-install': 0, 'skill-install-lookup': 0 }
+  const isSkillImport = (kind: Action): kind is SkillImportAction => Object.hasOwn(skillImportRevisions, kind)
   let skillImportIntent: SkillImportOriginal | null = null
-  const skillImportState = shallowReactive<{
-    progress: Omit<SkillImportProgress, 'contextValid'> | null
-  }>({ progress: null })
+  const skillImportState = shallowReactive<{ progress: Omit<SkillImportProgress, 'contextValid'> | null }>({ progress: null })
   const knowledgeCommandRevisions: Record<KnowledgeCommandAction, number> = {
     'knowledge-rename': 0,
     'knowledge-lookup': 0,
@@ -1380,9 +1323,7 @@ export function createSessionController(
     progress: Omit<KnowledgeCommandProgress, 'contextValid' | 'canRetryOriginal'> | null
   }>({ progress: null })
   let knowledgeDeleteIntent: KnowledgeDeleteOriginal | null = null
-  const knowledgeDeleteState = shallowReactive<{
-    progress: Omit<KnowledgeDeleteProgress, 'contextValid' | 'canRetryOriginal'> | null
-  }>({ progress: null })
+  const knowledgeDeleteState = shallowReactive<{ progress: Omit<KnowledgeDeleteProgress, 'contextValid' | 'canRetryOriginal'> | null }>({ progress: null })
   let knowledgeTextIntent: KnowledgeTextOriginal | null = null
   const knowledgeTextState = shallowReactive<{
     progress: Omit<KnowledgeTextProgress, 'contextValid' | 'canRetryOriginal'> | null
@@ -1677,8 +1618,7 @@ export function createSessionController(
     forgetIntent()
     expectedSession = null
     state.phase = 'authenticated'
-    if (!same || view.user.role !== 'admin' || (runnerIntent && runnerIntent.csrf !== sessionCSRF))
-      clearRunnerState()
+    if (!same || view.user.role !== 'admin' || (runnerIntent && runnerIntent.csrf !== sessionCSRF)) clearRunnerState()
     if (invitationIntent) {
       if (!same || view.user.role !== 'admin' || invitationIntent.csrf !== sessionCSRF)
         clearInvitationState()
@@ -2196,7 +2136,7 @@ export function createSessionController(
       | 'invitation-read'
       | 'invitation-write'
       | RunnerAction
-      | ProviderAction
+  | ProviderAction
       | ModelAction
       | SelectionAction
       | AccountSecurityAction
@@ -2205,15 +2145,15 @@ export function createSessionController(
       | OutboundPolicyAction
       | ProjectAction
       | ProjectCreationAction
-      | SchedulerAction
+  | SchedulerAction
       | WorkReviewAction
       | SprintLifecycleAction
       | MilestonePlanningAction
       | SprintPlanningAction
       | ProjectVariableAction
-      | ProjectSecretAction
+  | ProjectSecretAction
       | KnowledgeCommandAction
-      | SkillImportAction
+  | SkillImportAction
       | AgentConfigurationAction
       | ProjectAuditAction
       | ProjectModelAction = 'personal',
@@ -2375,8 +2315,7 @@ export function createSessionController(
                 : new AccountFailure('transport')
             : isVariableAction(kind)
               ? variableFailure(op, current, identity, error)
-              : isSecretCommand(kind) ||
-                  isSprintPlanningAction(kind) ||
+              : isSecretCommand(kind) || isSprintPlanningAction(kind) ||
                   isMilestonePlanningAction(kind) ||
                   isSprintLifecycleAction(kind) ||
                   isAgentConfigurationAction(kind) ||
@@ -4608,199 +4547,88 @@ export function createSessionController(
   }
   const secretContext = (original: ProjectSecretIntent) =>
     projectContext({ identity: original.actor, csrf: original.csrf })
-  function publishSecret(
-    original: ProjectSecretIntent,
-    phase: ProjectSecretProgress['phase'],
-    receipt: ProjectSecretReceipt | null = null,
-    observation: ProjectSecretProgress['observation'] = 'none',
-  ) {
-    secretCommandState.progress = Object.freeze({
-      identity: original.identity,
-      key: original.key,
-      phase,
-      uncertain: original.uncertain,
-      receipt,
-      observation,
-    })
+  function publishSecret(original: ProjectSecretIntent, phase: ProjectSecretProgress['phase'], receipt: ProjectSecretReceipt | null = null, observation: ProjectSecretProgress['observation'] = 'none') {
+    secretCommandState.progress = Object.freeze({ identity: original.identity, key: original.key, phase, uncertain: original.uncertain, receipt, observation })
   }
-  async function performSecret(
-    original: ProjectSecretIntent,
-    write?: (signal: AbortSignal) => Promise<ProjectSecretReceipt>,
-  ): Promise<ProjectSecretReceipt | ProjectSecretLookup> {
+  async function performSecret(original: ProjectSecretIntent, write?: (signal: AbortSignal) => Promise<ProjectSecretReceipt>): Promise<ProjectSecretReceipt | ProjectSecretLookup> {
     if (owner) throw new AccountFailure('busy')
-    const kind: ProjectSecretAction = write ? 'secret-write' : 'secret-lookup',
-      revision = secretCommandRevisions[kind]
-    const live = () =>
-      secretIntent === original &&
-      secretContext(original) &&
-      revision === secretCommandRevisions[kind]
+    const kind: ProjectSecretAction = write ? 'secret-write' : 'secret-lookup', revision = secretCommandRevisions[kind]
+    const live = () => secretIntent === original && secretContext(original) && revision === secretCommandRevisions[kind]
     if (!live()) throw new AccountFailure('invalid-input')
     const lookup = !write
     try {
       if (!lookup) publishSecret(original, 'submitting')
       // Publication can synchronously retire the current Session.
       if (!live()) throw new AccountFailure('cancelled')
-      const value = await runAuthorized<ProjectSecretReceipt | ProjectSecretLookup>(
-        original.actor,
-        async (op, current) => {
-          if (!current() || !live()) throw new AccountFailure('cancelled')
-          original.dispatched = true
-          return write
-            ? write(op.abort.signal)
-            : secretCommandsAPI.lookup(
-                original.identity,
-                original.csrf,
-                original.key,
-                op.abort.signal,
-              )
-        },
-        undefined,
-        kind,
-      )
+      const value = await runAuthorized<ProjectSecretReceipt | ProjectSecretLookup>(original.actor, async (op, current) => {
+        if (!current() || !live()) throw new AccountFailure('cancelled')
+        original.dispatched = true
+        return write ? write(op.abort.signal) : secretCommandsAPI.lookup(original.identity, original.csrf, original.key, op.abort.signal)
+      }, undefined, kind)
       if (!live()) throw new AccountFailure('cancelled')
       if ('status' in value && value.status === 'not_observed') {
         original.uncertain = true
         publishSecret(original, 'uncertain', null, 'not_observed')
       } else {
         original.uncertain = false
-        publishSecret(
-          original,
-          'confirmed',
-          'status' in value ? value.receipt : value,
-          lookup ? 'committed' : 'none',
-        )
+        publishSecret(original, 'confirmed', 'status' in value ? value.receipt : value, lookup ? 'committed' : 'none')
       }
       if (!live()) throw new AccountFailure('cancelled')
       return value
     } catch (error) {
       const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
-      if (
-        secretIntent === original &&
-        revision === secretCommandRevisions[kind] &&
-        sameIdentity(original.actor, personalContext.identity)
-      ) {
+      if (secretIntent === original && revision === secretCommandRevisions[kind] && sameIdentity(original.actor, personalContext.identity)) {
         const p = failure.problem
-        const rejected =
-          !original.dispatched ||
-          (!!p &&
-            ['not_started', 'not_committed'].includes(p.commit_state) &&
-            p.code !== 'IDEMPOTENCY_KEY_REUSED')
+        const rejected = !original.dispatched || (!!p && ['not_started', 'not_committed'].includes(p.commit_state) && p.code !== 'IDEMPOTENCY_KEY_REUSED')
         original.uncertain ||= lookup || !rejected
-        publishSecret(
-          original,
-          original.uncertain ? 'uncertain' : 'rejected',
-          null,
-          lookup ? 'failed' : 'none',
-        )
+        publishSecret(original, original.uncertain ? 'uncertain' : 'rejected', null, lookup ? 'failed' : 'none')
       }
       throw failure
     }
   }
-  function startSecret(
-    identity: ProjectSecretIdentity,
-    send: (csrf: string, key: string, signal: AbortSignal) => Promise<ProjectSecretReceipt>,
-  ): Promise<ProjectSecretReceipt | ProjectSecretLookup> {
+  function startSecret(identity: ProjectSecretIdentity, send: (csrf: string, key: string, signal: AbortSignal) => Promise<ProjectSecretReceipt>): Promise<ProjectSecretReceipt | ProjectSecretLookup> {
     const actor = personalIdentity()
     if (owner || secretIntent || personalIntent || pending) throw new AccountFailure('busy')
-    const original: ProjectSecretIntent = {
-      actor,
-      csrf: sessionCSRF,
-      key: newKey(),
-      identity: captureProjectSecretIdentity(identity),
-      uncertain: false,
-      dispatched: false,
-    }
+    const original: ProjectSecretIntent = { actor, csrf: sessionCSRF, key: newKey(), identity: captureProjectSecretIdentity(identity), uncertain: false, dispatched: false }
     secretIntent = original
-    return performSecret(original, (signal) => send(original.csrf, original.key, signal))
+    return performSecret(original, signal => send(original.csrf, original.key, signal))
   }
   const projectSecretCommands = {
     get progress(): ProjectSecretProgress | null {
       const progress = secretCommandState.progress
       if (!progress) return null
       const contextValid = !!secretIntent && secretContext(secretIntent)
-      return Object.freeze({
-        ...progress,
-        receipt: contextValid ? progress.receipt : null,
-        contextValid,
-      })
+      return Object.freeze({ ...progress, receipt: contextValid ? progress.receipt : null, contextValid })
     },
     create(projectID: string, draft: Omit<ProjectSecretCreate, 'variable_id'>) {
       try {
         if (owner || secretIntent || personalIntent || pending) throw new AccountFailure('busy')
         const value = shape(draft, ['name', 'description', 'value'])
-        const request = captureProjectSecretCreate({
-          ...value,
-          variable_id: newProjectVariableID(),
-        })
-        return startSecret(
-          { kind: 'create', projectID, targetID: request.variable_id },
-          (csrf, key, signal) => secretCommandsAPI.create(projectID, request, csrf, key, signal),
-        )
-      } catch (error) {
-        return Promise.reject(
-          error instanceof AccountFailure ? error : new AccountFailure('invalid-input'),
-        )
-      }
+        const request = captureProjectSecretCreate({ ...value, variable_id: newProjectVariableID() })
+        return startSecret({ kind: 'create', projectID, targetID: request.variable_id }, (csrf, key, signal) => secretCommandsAPI.create(projectID, request, csrf, key, signal))
+      } catch (error) { return Promise.reject(error instanceof AccountFailure ? error : new AccountFailure('invalid-input')) }
     },
-    update(
-      projectID: string,
-      targetID: string,
-      expectedVersion: string,
-      draft: ProjectSecretUpdate,
-    ) {
+    update(projectID: string, targetID: string, expectedVersion: string, draft: ProjectSecretUpdate) {
       try {
         const request = captureProjectSecretUpdate(draft)
-        return startSecret(
-          { kind: 'update', projectID, targetID, expectedVersion },
-          (csrf, key, signal) =>
-            secretCommandsAPI.update(
-              projectID,
-              targetID,
-              expectedVersion,
-              request,
-              csrf,
-              key,
-              signal,
-            ),
-        )
-      } catch (error) {
-        return Promise.reject(
-          error instanceof AccountFailure ? error : new AccountFailure('invalid-input'),
-        )
-      }
+        return startSecret({ kind: 'update', projectID, targetID, expectedVersion }, (csrf, key, signal) => secretCommandsAPI.update(projectID, targetID, expectedVersion, request, csrf, key, signal))
+      } catch (error) { return Promise.reject(error instanceof AccountFailure ? error : new AccountFailure('invalid-input')) }
     },
     delete(projectID: string, targetID: string, expectedVersion: string) {
       try {
-        return startSecret(
-          { kind: 'delete', projectID, targetID, expectedVersion },
-          (csrf, key, signal) =>
-            secretCommandsAPI.delete(projectID, targetID, expectedVersion, csrf, key, signal),
-        )
-      } catch (error) {
-        return Promise.reject(
-          error instanceof AccountFailure ? error : new AccountFailure('invalid-input'),
-        )
-      }
+        return startSecret({ kind: 'delete', projectID, targetID, expectedVersion }, (csrf, key, signal) => secretCommandsAPI.delete(projectID, targetID, expectedVersion, csrf, key, signal))
+      } catch (error) { return Promise.reject(error instanceof AccountFailure ? error : new AccountFailure('invalid-input')) }
     },
     lookup() {
-      if (!secretIntent?.uncertain || secretCommandState.progress?.phase !== 'uncertain')
-        return Promise.reject(new AccountFailure('invalid-input'))
+      if (!secretIntent?.uncertain || secretCommandState.progress?.phase !== 'uncertain') return Promise.reject(new AccountFailure('invalid-input'))
       return performSecret(secretIntent)
     },
     editRejected() {
-      if (
-        owner ||
-        !secretIntent ||
-        secretIntent.uncertain ||
-        !secretContext(secretIntent) ||
-        secretCommandState.progress?.phase !== 'rejected'
-      )
-        throw new AccountFailure('busy')
+      if (owner || !secretIntent || secretIntent.uncertain || !secretContext(secretIntent) || secretCommandState.progress?.phase !== 'rejected') throw new AccountFailure('busy')
       clearSecretCommand()
     },
     finishConfirmed() {
-      if (owner || secretCommandState.progress?.phase !== 'confirmed')
-        throw new AccountFailure('busy')
+      if (owner || secretCommandState.progress?.phase !== 'confirmed') throw new AccountFailure('busy')
       clearSecretCommand()
     },
     abandon() {
@@ -4894,14 +4722,7 @@ export function createSessionController(
         if (lookup)
           return projectVariablesAPI.lookup(c, original.csrf, original.key, op.abort.signal)
         if (c.kind === 'delete')
-          return projectVariablesAPI.delete(
-            c.projectID,
-            c.targetID,
-            c.expectedVersion,
-            original.csrf,
-            original.key,
-            op.abort.signal,
-          )
+          return projectVariablesAPI.delete(c.projectID, c.targetID, c.expectedVersion, original.csrf, original.key, op.abort.signal)
         return c.kind === 'create'
           ? projectVariablesAPI.create(
               c.projectID,
@@ -5204,10 +5025,8 @@ export function createSessionController(
       agentConfigurationRead((signal) =>
         projectModelSettingsAPI.listAvailableChatModels(p, q, signal),
       ),
-    runners: (p: string, q: PageQuery) =>
-      agentConfigurationRead((signal) => agentRunnerMountsAPI.list(p, q, signal)),
-    runnerMounts: (p: string, a: string) =>
-      agentConfigurationRead((signal) => agentRunnerMountsAPI.get(p, a, signal)),
+    runners: (p: string, q: PageQuery) => agentConfigurationRead((signal) => agentRunnerMountsAPI.list(p, q, signal)),
+    runnerMounts: (p: string, a: string) => agentConfigurationRead((signal) => agentRunnerMountsAPI.get(p, a, signal)),
     abandonRead: clearAgentConfigurationRead,
     startCreate(projectID: string, fields: Omit<AgentCreateFields, 'agent_id'>) {
       try {
@@ -6598,201 +6417,106 @@ export function createSessionController(
     if (owner?.kind === 'scheduler-read') owner.abandon?.()
   }
   function clearSchedulerPayload(original: SchedulerIntent | null) {
-    if (original) {
-      original.payload.input = null
-      original.payload.body = null
-    }
+    if (original) { original.payload.input = null; original.payload.body = null }
   }
   function clearSchedulerState(retire = true) {
-    for (const kind of Object.keys(schedulerRevisions) as SchedulerAction[])
-      ++schedulerRevisions[kind]
+    for (const kind of Object.keys(schedulerRevisions) as SchedulerAction[]) ++schedulerRevisions[kind]
     clearSchedulerPayload(schedulerIntent)
     schedulerIntent = null
     schedulerProgressContext = null
     schedulerState.progress = null
     if (retire && owner && isSchedulerAction(owner.kind)) owner.abandon?.()
   }
-  function schedulerFailure(
-    identity: PersonalIdentity,
-    op: Operation,
-    current: () => boolean,
-    error: unknown,
-  ) {
+  function schedulerFailure(identity: PersonalIdentity, op: Operation, current: () => boolean, error: unknown) {
     const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
     if (!current()) return e
     const result = projectFailure(identity, op, e)
     if ([401, 403, 404].includes(e.problem?.status ?? 0)) clearSchedulerState(false)
     return result
   }
-  function publishScheduler(
-    original: SchedulerIntent,
-    phase: ProjectSchedulerProgress['phase'],
-    receipt: ProjectSchedulerReceipt | null = null,
-    observation: ProjectSchedulerProgress['observation'] = 'none',
-  ) {
+  function publishScheduler(original: SchedulerIntent, phase: ProjectSchedulerProgress['phase'], receipt: ProjectSchedulerReceipt | null = null, observation: ProjectSchedulerProgress['observation'] = 'none') {
     schedulerProgressContext = { identity: original.identity, csrf: original.csrf }
-    schedulerState.progress = Object.freeze({
-      projectID: original.projectID,
-      phase,
-      receipt,
-      observation,
-    })
+    schedulerState.progress = Object.freeze({ projectID: original.projectID, phase, receipt, observation })
   }
-  function performScheduler(
-    original: SchedulerIntent,
-    lookup = false,
-  ): Promise<ProjectSchedulerReceipt | ProjectSchedulerLookup> {
+  function performScheduler(original: SchedulerIntent, lookup = false): Promise<ProjectSchedulerReceipt | ProjectSchedulerLookup> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     const kind: SchedulerAction = lookup ? 'scheduler-lookup' : 'scheduler-write'
     const revision = schedulerRevisions[kind]
-    const live = () =>
-      schedulerIntent === original &&
-      !!original.payload.input &&
-      projectContext(original) &&
-      revision === schedulerRevisions[kind]
+    const live = () => schedulerIntent === original && !!original.payload.input && projectContext(original) && revision === schedulerRevisions[kind]
     if (!live()) return Promise.reject(new AccountFailure('invalid-input'))
     let dispatched = false
     if (!lookup) publishScheduler(original, 'submitting')
-    return runAuthorized<ProjectSchedulerReceipt | ProjectSchedulerLookup>(
-      original.identity,
-      async (op, current) => {
-        const input = original.payload.input
-        if (!input || !current() || !live()) throw new AccountFailure('cancelled')
-        if (JSON.stringify(input) !== original.payload.body)
-          throw new AccountFailure('invalid-input')
-        dispatched = true
-        try {
-          const write = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
-          return lookup
-            ? await schedulerAPI.lookup(original.projectID, original.identity.userID, write)
-            : await schedulerAPI.update(original.projectID, input, write)
-        } finally {
-          if (schedulerIntent !== original) clearSchedulerPayload(original)
-        }
-      },
-      undefined,
-      kind,
-    ).then(
-      (value) => {
-        if (!live()) throw new AccountFailure('cancelled')
-        if ('state' in value && value.state !== 'committed') {
-          publishScheduler(original, 'uncertain', null, value.state)
-          return value
-        }
-        // Lookup confirms a historical key only; neither response publishes current configuration.
-        const receipt = 'state' in value ? value.receipt : value
-        publishScheduler(original, 'confirmed', receipt, lookup ? 'committed' : 'none')
-        clearSchedulerPayload(original)
-        schedulerIntent = null
+    return runAuthorized<ProjectSchedulerReceipt | ProjectSchedulerLookup>(original.identity, async (op, current) => {
+      const input = original.payload.input
+      if (!input || !current() || !live()) throw new AccountFailure('cancelled')
+      if (JSON.stringify(input) !== original.payload.body) throw new AccountFailure('invalid-input')
+      dispatched = true
+      try {
+        const write = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
+        return lookup
+          ? await schedulerAPI.lookup(original.projectID, original.identity.userID, write)
+          : await schedulerAPI.update(original.projectID, input, write)
+      } finally { if (schedulerIntent !== original) clearSchedulerPayload(original) }
+    }, undefined, kind).then(value => {
+      if (!live()) throw new AccountFailure('cancelled')
+      if ('state' in value && value.state !== 'committed') {
+        publishScheduler(original, 'uncertain', null, value.state)
         return value
-      },
-      (error: unknown) => {
-        const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
-        if (
-          schedulerIntent === original &&
-          revision === schedulerRevisions[kind] &&
-          sameIdentity(original.identity, personalContext.identity)
-        ) {
-          const p = e.problem
-          const known =
-            !dispatched ||
-            (!!p &&
-              ['not_started', 'not_committed'].includes(p.commit_state) &&
-              [
-                'INVALID_ARGUMENT',
-                'VERSION_CONFLICT',
-                'INVALID_STATE',
-                'PROJECT_NOT_ACTIVE',
-              ].includes(p.code))
-          original.keyConflict ||= p?.code === 'IDEMPOTENCY_KEY_REUSED'
-          original.uncertain ||= lookup || !known || original.keyConflict
-          publishScheduler(
-            original,
-            original.uncertain ? 'uncertain' : 'rejected',
-            null,
-            lookup ? 'failed' : 'none',
-          )
-        }
-        throw e
-      },
-    )
+      }
+      // Lookup confirms a historical key only; neither response publishes current configuration.
+      const receipt = 'state' in value ? value.receipt : value
+      publishScheduler(original, 'confirmed', receipt, lookup ? 'committed' : 'none')
+      clearSchedulerPayload(original)
+      schedulerIntent = null
+      return value
+    }, (error: unknown) => {
+      const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+      if (schedulerIntent === original && revision === schedulerRevisions[kind] && sameIdentity(original.identity, personalContext.identity)) {
+        const p = e.problem
+        const known = !dispatched || (!!p && ['not_started', 'not_committed'].includes(p.commit_state) && ['INVALID_ARGUMENT', 'VERSION_CONFLICT', 'INVALID_STATE', 'PROJECT_NOT_ACTIVE'].includes(p.code))
+        original.keyConflict ||= p?.code === 'IDEMPOTENCY_KEY_REUSED'
+        original.uncertain ||= lookup || !known || original.keyConflict
+        publishScheduler(original, original.uncertain ? 'uncertain' : 'rejected', null, lookup ? 'failed' : 'none')
+      }
+      throw e
+    })
   }
   const projectScheduler = {
     get progress(): ProjectSchedulerProgress | null {
       const value = schedulerState.progress
       if (!value) return null
       const contextValid = !!schedulerProgressContext && projectContext(schedulerProgressContext)
-      return Object.freeze({
-        ...value,
-        contextValid,
-        canRetryOriginal:
-          !!schedulerIntent?.payload.input &&
-          schedulerIntent.uncertain &&
-          !schedulerIntent.keyConflict &&
-          value.observation !== 'in_progress' &&
-          contextValid &&
-          !state.busy,
-      })
+      return Object.freeze({ ...value, contextValid, canRetryOriginal: !!schedulerIntent?.payload.input && schedulerIntent.uncertain && !schedulerIntent.keyConflict && value.observation !== 'in_progress' && contextValid && !state.busy })
     },
     get(project: string) {
       try {
-        const target = captureProjectSchedulerID(project),
-          identity = personalIdentity()
-        return runAuthorized(
-          identity,
-          (op) => schedulerAPI.get(target, op.abort.signal),
-          undefined,
-          'scheduler-read',
-        )
-      } catch (e) {
-        return Promise.reject(e)
-      }
+        const target = captureProjectSchedulerID(project), identity = personalIdentity()
+        return runAuthorized(identity, (op) => schedulerAPI.get(target, op.abort.signal), undefined, 'scheduler-read')
+      } catch (e) { return Promise.reject(e) }
     },
     startUpdate(project: string, value: ProjectSchedulerUpdate) {
       try {
         const identity = personalIdentity()
         if (owner || schedulerIntent || personalIntent || pending) throw new AccountFailure('busy')
-        const projectID = captureProjectSchedulerID(project),
-          input = captureProjectSchedulerUpdate(value)
-        const original: SchedulerIntent = {
-          projectID,
-          identity,
-          csrf: sessionCSRF,
-          key: newKey(),
-          payload: { input, body: JSON.stringify(input) },
-          uncertain: false,
-          keyConflict: false,
-        }
+        const projectID = captureProjectSchedulerID(project), input = captureProjectSchedulerUpdate(value)
+        const original: SchedulerIntent = { projectID, identity, csrf: sessionCSRF, key: newKey(), payload: { input, body: JSON.stringify(input) }, uncertain: false, keyConflict: false }
         schedulerIntent = original
         return performScheduler(original)
-      } catch (e) {
-        return Promise.reject(e)
-      }
+      } catch (e) { return Promise.reject(e) }
     },
     checkOriginal() {
-      if (!schedulerIntent?.uncertain || !projectContext(schedulerIntent))
-        return Promise.reject(new AccountFailure('invalid-input'))
+      if (!schedulerIntent?.uncertain || !projectContext(schedulerIntent)) return Promise.reject(new AccountFailure('invalid-input'))
       return performScheduler(schedulerIntent, true)
     },
     retryOriginal() {
-      if (!schedulerIntent || !projectScheduler.progress?.canRetryOriginal)
-        return Promise.reject(new AccountFailure('invalid-input'))
+      if (!schedulerIntent || !projectScheduler.progress?.canRetryOriginal) return Promise.reject(new AccountFailure('invalid-input'))
       return performScheduler(schedulerIntent)
     },
     editRejected() {
-      if (
-        owner ||
-        !schedulerIntent ||
-        schedulerIntent.uncertain ||
-        schedulerState.progress?.phase !== 'rejected' ||
-        !projectContext(schedulerIntent)
-      )
-        throw new AccountFailure('invalid-input')
+      if (owner || !schedulerIntent || schedulerIntent.uncertain || schedulerState.progress?.phase !== 'rejected' || !projectContext(schedulerIntent)) throw new AccountFailure('invalid-input')
       clearSchedulerState()
     },
-    finishConfirmed() {
-      if (!owner && schedulerState.progress?.phase === 'confirmed') clearSchedulerState()
-    },
+    finishConfirmed() { if (!owner && schedulerState.progress?.phase === 'confirmed') clearSchedulerState() },
     abandonRead: clearSchedulerRead,
     abandon: () => clearSchedulerState(),
   }
@@ -6901,7 +6625,8 @@ export function createSessionController(
         return result
       },
       (error: unknown) => {
-        const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        const failure =
+          error instanceof AccountFailure ? error : new AccountFailure('transport')
         if (
           projectCreationIntent === original &&
           sameIdentity(original.identity, personalContext.identity)
@@ -6989,7 +6714,8 @@ export function createSessionController(
       clearProjectCreationState()
     },
     clearReady() {
-      if (!owner && projectCreationState.progress?.phase === 'ready') clearProjectCreationState()
+      if (!owner && projectCreationState.progress?.phase === 'ready')
+        clearProjectCreationState()
     },
   }
   function clearProjectState() {
@@ -8177,14 +7903,7 @@ export function createSessionController(
     startRename(projectID: string, documentID: string, value: KnowledgeRenameInput) {
       try {
         const identity = personalIdentity()
-        if (
-          owner ||
-          knowledgeIntent ||
-          knowledgeTextIntent ||
-          knowledgeDeleteIntent ||
-          personalIntent ||
-          pending
-        )
+        if (owner || knowledgeIntent || knowledgeTextIntent || knowledgeDeleteIntent || personalIntent || pending)
           throw new AccountFailure('busy')
         const input = captureKnowledgeRename(value)
         const original: KnowledgeCommandIntent = {
@@ -8286,15 +8005,21 @@ export function createSessionController(
         try {
           const write = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
           const result = lookup
-            ? await knowledgeDeleteAPI.lookup(original.projectID, original.documentID, input, write)
-            : await knowledgeDeleteAPI.remove(original.projectID, original.documentID, input, write)
+            ? await knowledgeDeleteAPI.lookup(
+                original.projectID,
+                original.documentID,
+                input,
+                write,
+              )
+            : await knowledgeDeleteAPI.remove(
+                original.projectID,
+                original.documentID,
+                input,
+                write,
+              )
           const receipt = 'state' in result ? result.receipt : result
-          if (
-            receipt &&
-            (!original.payload.ids ||
-              receipt.deleted_ids.length !== original.payload.ids.length ||
-              receipt.deleted_ids.some((id, index) => id !== original.payload.ids![index]))
-          )
+          if (receipt && (!original.payload.ids || receipt.deleted_ids.length !== original.payload.ids.length ||
+            receipt.deleted_ids.some((id, index) => id !== original.payload.ids![index])))
             throw new AccountFailure('invalid-response')
           return result
         } finally {
@@ -8361,30 +8086,12 @@ export function createSessionController(
     preview(projectID: string, documentID: string) {
       try {
         const identity = personalIdentity()
-        const project = captureKnowledgeID(projectID),
-          target = captureKnowledgeID(documentID)
-        if (
-          owner ||
-          knowledgeDeleteIntent ||
-          knowledgeIntent ||
-          knowledgeTextIntent ||
-          personalIntent ||
-          pending
-        )
+        const project = captureKnowledgeID(projectID), target = captureKnowledgeID(documentID)
+        if (owner || knowledgeDeleteIntent || knowledgeIntent || knowledgeTextIntent || personalIntent || pending)
           throw new AccountFailure('busy')
-        return runAuthorized(
-          identity,
-          (op) =>
-            knowledgeDeleteAPI.preview(project, target, {
-              csrfToken: sessionCSRF,
-              signal: op.abort.signal,
-            }),
-          undefined,
-          'knowledge-delete-preview',
-        )
-      } catch (error) {
-        return Promise.reject(error)
-      }
+        return runAuthorized(identity, (op) => knowledgeDeleteAPI.preview(project, target,
+          { csrfToken: sessionCSRF, signal: op.abort.signal }), undefined, 'knowledge-delete-preview')
+      } catch (error) { return Promise.reject(error) }
     },
     cancelPreview: clearKnowledgeDeletePreview,
     get progress(): KnowledgeDeleteProgress | null {
@@ -8403,31 +8110,15 @@ export function createSessionController(
           !state.busy,
       })
     },
-    startDelete(
-      projectID: string,
-      documentID: string,
-      value: KnowledgeDeleteInput,
-      previewIDs: readonly string[],
-    ) {
+    startDelete(projectID: string, documentID: string, value: KnowledgeDeleteInput, previewIDs: readonly string[]) {
       try {
         const identity = personalIdentity()
-        if (
-          owner ||
-          knowledgeIntent ||
-          knowledgeTextIntent ||
-          knowledgeDeleteIntent ||
-          personalIntent ||
-          pending
-        )
+        if (owner || knowledgeIntent || knowledgeTextIntent || knowledgeDeleteIntent || personalIntent || pending)
           throw new AccountFailure('busy')
         const input = captureKnowledgeDelete(value)
-        if (!Array.isArray(previewIDs) || previewIDs.length === 0)
-          throw new AccountFailure('invalid-input')
+        if (!Array.isArray(previewIDs) || previewIDs.length === 0) throw new AccountFailure('invalid-input')
         const ids = Object.freeze(previewIDs.map(captureKnowledgeID).sort())
-        if (
-          !ids.includes(documentID) ||
-          ids.some((id, index) => index > 0 && ids[index - 1] === id)
-        )
+        if (!ids.includes(documentID) || ids.some((id, index) => index > 0 && ids[index - 1] === id))
           throw new AccountFailure('invalid-input')
         const original: KnowledgeDeleteOriginal = {
           projectID: captureKnowledgeID(projectID),
@@ -8602,14 +8293,7 @@ export function createSessionController(
     start(projectID: string, value: KnowledgeTextIntent) {
       try {
         const identity = personalIdentity()
-        if (
-          owner ||
-          knowledgeTextIntent ||
-          knowledgeIntent ||
-          knowledgeDeleteIntent ||
-          personalIntent ||
-          pending
-        )
+        if (owner || knowledgeTextIntent || knowledgeIntent || knowledgeDeleteIntent || personalIntent || pending)
           throw new AccountFailure('busy')
         const input = captureKnowledgeText(value)
         const original: KnowledgeTextOriginal = {
@@ -8710,116 +8394,68 @@ export function createSessionController(
     const retiring = owner && isSkillImport(owner.kind) ? owner : null
     ++skillImportRevisions['skill-install']
     ++skillImportRevisions['skill-install-lookup']
-    if (skillImportIntent) {
-      skillImportIntent.input = null
-      skillImportIntent.body = null
-    }
+    if (skillImportIntent) { skillImportIntent.input = null; skillImportIntent.body = null }
     skillImportIntent = null
     skillImportState.progress = null
     retiring?.abandon?.()
   }
-  function performSkillImport(
-    original: SkillImportOriginal,
-    lookup = false,
-  ): Promise<SkillImportReceipt> {
+  function performSkillImport(original: SkillImportOriginal, lookup = false): Promise<SkillImportReceipt> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     if (skillImportIntent !== original || !original.input || !projectContext(original))
       return Promise.reject(new AccountFailure('invalid-input'))
     const kind: SkillImportAction = lookup ? 'skill-install-lookup' : 'skill-install',
       revision = skillImportRevisions[kind]
-    const live = () =>
-      skillImportIntent === original &&
-      revision === skillImportRevisions[kind] &&
-      projectContext(original)
-    const publish = (
-      phase: SkillImportProgress['phase'],
-      receipt: SkillImportReceipt | null = null,
-    ) => {
-      skillImportState.progress = Object.freeze({
-        projectID: original.projectID,
-        skillID: original.skillID,
-        phase,
-        receipt,
-      })
+    const live = () => skillImportIntent === original && revision === skillImportRevisions[kind] && projectContext(original)
+    const publish = (phase: SkillImportProgress['phase'], receipt: SkillImportReceipt | null = null) => {
+      skillImportState.progress = Object.freeze({ projectID: original.projectID, skillID: original.skillID, phase, receipt })
     }
     let dispatched = false
     if (!lookup) publish('submitting')
-    return runAuthorized(
-      original.identity,
-      async (op, current) => {
-        const input = original.input
-        if (!input || !current() || !live()) throw new AccountFailure('cancelled')
-        if (JSON.stringify(input) !== original.body) throw new AccountFailure('invalid-input')
-        dispatched = true
-        const write = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
-        return lookup
-          ? skillImportAPI.lookup(original.projectID, input, write)
-          : skillImportAPI.install(original.projectID, input, write)
-      },
-      undefined,
-      kind,
-    ).then(
-      (receipt) => {
-        if (!live()) throw new AccountFailure('cancelled')
-        publish('confirmed', receipt)
-        original.input = null
-        original.body = null
-        return receipt
-      },
-      (error: unknown) => {
-        const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
-        if (live()) {
-          // Only local/pre-dispatch validation or the service's explicit initial
-          // input rejection allows editing. A Lookup fault never erases the intent:
-          // missing, reserved and failed are not permission to create another key.
-          const rejected =
-            !lookup &&
-            (!dispatched ||
-              (failure.problem?.code === 'INVALID_ARGUMENT' &&
-                failure.problem.commit_state === 'not_started'))
-          publish(rejected ? 'rejected' : 'uncertain')
-        }
-        throw failure
-      },
-    )
+    return runAuthorized(original.identity, async (op, current) => {
+      const input = original.input
+      if (!input || !current() || !live()) throw new AccountFailure('cancelled')
+      if (JSON.stringify(input) !== original.body) throw new AccountFailure('invalid-input')
+      dispatched = true
+      const write = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
+      return lookup
+        ? skillImportAPI.lookup(original.projectID, input, write)
+        : skillImportAPI.install(original.projectID, input, write)
+    }, undefined, kind).then((receipt) => {
+      if (!live()) throw new AccountFailure('cancelled')
+      publish('confirmed', receipt)
+      original.input = null
+      original.body = null
+      return receipt
+    }, (error: unknown) => {
+      const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
+      if (live()) {
+        // Only local/pre-dispatch validation or the service's explicit initial
+        // input rejection allows editing. A Lookup fault never erases the intent:
+        // missing, reserved and failed are not permission to create another key.
+        const rejected = !lookup && (!dispatched ||
+          (failure.problem?.code === 'INVALID_ARGUMENT' && failure.problem.commit_state === 'not_started'))
+        publish(rejected ? 'rejected' : 'uncertain')
+      }
+      throw failure
+    })
   }
   const skillImport = {
     get progress(): SkillImportProgress | null {
       const value = skillImportState.progress
-      return value
-        ? Object.freeze({
-            ...value,
-            contextValid: !!skillImportIntent && projectContext(skillImportIntent),
-          })
-        : null
+      return value ? Object.freeze({ ...value, contextValid: !!skillImportIntent && projectContext(skillImportIntent) }) : null
     },
     start(projectID: string, text: string) {
       try {
         const identity = personalIdentity()
-        if (owner || skillImportIntent || personalIntent || pending)
-          throw new AccountFailure('busy')
-        const skillID = newTaskID(),
-          input = captureSkillImport({
-            request: {
-              skill_id: skillID,
-              mode: 'create',
-              source: { kind: 'text_files', files: [{ path: 'SKILL.md', utf8_text: text }] },
-            },
-          })
-        const original: SkillImportOriginal = {
-          projectID: captureSkillID(projectID),
-          skillID,
-          identity,
-          csrf: sessionCSRF,
-          key: newKey(),
-          input,
-          body: JSON.stringify(input),
-        }
+        if (owner || skillImportIntent || personalIntent || pending) throw new AccountFailure('busy')
+        const skillID = newTaskID(), input = captureSkillImport({ request: {
+          skill_id: skillID, mode: 'create', source: { kind: 'text_files', files: [{ path: 'SKILL.md', utf8_text: text }] },
+        } })
+        const original: SkillImportOriginal = { projectID: captureSkillID(projectID), skillID, identity,
+          csrf: sessionCSRF, key: newKey(), input, body: JSON.stringify(input) }
         skillImportIntent = original
         return performSkillImport(original)
-      } catch (error) {
-        return Promise.reject(error)
-      }
+      } catch (error) { return Promise.reject(error) }
     },
     lookup() {
       if (skillImportState.progress?.phase !== 'uncertain' || !skillImportIntent)
@@ -8827,12 +8463,8 @@ export function createSessionController(
       return performSkillImport(skillImportIntent, true)
     },
     clearSettled() {
-      if (
-        owner ||
-        !skillImportIntent ||
-        !projectContext(skillImportIntent) ||
-        !['confirmed', 'rejected'].includes(skillImportState.progress?.phase ?? '')
-      )
+      if (owner || !skillImportIntent || !projectContext(skillImportIntent) ||
+          !['confirmed', 'rejected'].includes(skillImportState.progress?.phase ?? ''))
         throw new AccountFailure('invalid-input')
       clearSkillImport()
     },
@@ -8852,26 +8484,21 @@ export function createSessionController(
   }
   function secretRead<T>(capture: () => (signal: AbortSignal) => Promise<T>): Promise<T> {
     try {
-      const identity = personalIdentity(),
-        work = capture()
-      return runAuthorized(identity, (op) => work(op.abort.signal), undefined, 'secret-read')
-    } catch (error) {
-      return Promise.reject(error)
-    }
+      const identity = personalIdentity(), work = capture()
+      return runAuthorized(identity, op => work(op.abort.signal), undefined, 'secret-read')
+    } catch (error) { return Promise.reject(error) }
   }
   const projectSecrets = {
     list(projectID: string, query: ProjectSecretQuery = {}) {
       return secretRead(() => {
-        const project = captureProjectSecretID(projectID),
-          captured = captureProjectSecretQuery(query)
-        return (signal) => projectSecretsAPI.list(project, captured, signal)
+        const project = captureProjectSecretID(projectID), captured = captureProjectSecretQuery(query)
+        return signal => projectSecretsAPI.list(project, captured, signal)
       })
     },
     get(projectID: string, secretID: string) {
       return secretRead(() => {
-        const project = captureProjectSecretID(projectID),
-          target = captureProjectSecretID(secretID)
-        return (signal) => projectSecretsAPI.get(project, target, signal)
+        const project = captureProjectSecretID(projectID), target = captureProjectSecretID(secretID)
+        return signal => projectSecretsAPI.get(project, target, signal)
       })
     },
     abandon: clearSecretRead,
