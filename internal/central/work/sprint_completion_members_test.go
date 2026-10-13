@@ -30,7 +30,7 @@ func (r *completeMemberRows) Scan(v ...any) error {
 	if r.scanErr != nil {
 		return r.scanErr
 	}
-	id := fmt.Sprintf("00000000-0000-4000-8000-%012x", r.next)
+	id := fmt.Sprintf("01900000-0000-7000-8000-%012x", r.next)
 	state := c.TaskStateDone
 	if r.next%2 == 0 {
 		state = c.TaskStateCancelled
@@ -70,7 +70,7 @@ func TestSprintCompleteFullMembershipScan(t *testing.T) {
 			case "bad-state":
 				rows.mutate = func(_ int, _ *string, s *c.TaskState) { *s = c.TaskState("unknown") }
 			case "duplicate":
-				rows.mutate = func(_ int, id *string, _ *c.TaskState) { *id = "00000000-0000-4000-8000-000000000001" }
+				rows.mutate = func(_ int, id *string, _ *c.TaskState) { *id = "01900000-0000-7000-8000-000000000001" }
 			case "too-many":
 				rows.count = 65537
 			case "scan-failure":
@@ -86,10 +86,28 @@ func TestSprintCompleteFullMembershipScan(t *testing.T) {
 			if err == nil || ids != nil || rows.closed != 1 {
 				t.Fatal("failed full scan became an empty success", name, err)
 			}
-			if name == "unfinished-last" {
+			switch name {
+			case "unfinished-last":
 				pureCode(t, err, f.InvalidState)
 				if rows.next != 501 {
 					t.Fatal("truncated membership")
+				}
+			case "too-many":
+				pureCode(t, err, f.PayloadTooLarge)
+				if rows.next != 65537 {
+					t.Fatal("member limit was not reached")
+				}
+			case "duplicate":
+				pureCode(t, err, f.InternalError)
+				if rows.next != 2 {
+					t.Fatal("duplicate test did not reach the second valid ID")
+				}
+			case "bad-id", "bad-state":
+				pureCode(t, err, f.InternalError)
+			case "scan-failure", "tail-failure", "cancelled":
+				pureCode(t, err, f.DependencyUnavailable)
+				if name == "tail-failure" && rows.next != 501 {
+					t.Fatal("row error test did not reach the full tail")
 				}
 			}
 		})

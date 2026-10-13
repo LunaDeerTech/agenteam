@@ -55,7 +55,10 @@ func TestSprintCompleteCleanupOriginalPreimage(t *testing.T) {
 				v.store.put(stage, v.base.p, before)
 			}
 			report, err = v.cleanup(v.ctx, nil)
-			cp := requireWorkCleanup(t, v, report, err, pc.CleanupPending, stage)
+			// Read-only confirmation resets the diagnostic cursor to the first
+			// stage; only the following explicit call may inspect and delete the
+			// next actual batch (project_cleanup.go: projectCleanupPending).
+			cp := requireWorkCleanup(t, v, report, err, pc.CleanupPending, "task_events")
 			if v.store.writes() != writes {
 				t.Fatal("confirmation replayed DELETE")
 			}
