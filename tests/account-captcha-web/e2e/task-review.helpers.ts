@@ -726,6 +726,7 @@ export async function observeBrowserIO(
         reorderSprint: string | undefined = undefined,
         humanBlockerTask: string | undefined = undefined,
         executionTask: string | undefined = undefined,
+        executionOutputTask: string | undefined = undefined,
       ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
@@ -979,6 +980,14 @@ export async function observeBrowserIO(
                   !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(a[2]))
                 throw Error("TASK_EXECUTION_GET_SCOPE");
               return "/api/v1/projects/" + project + "/tasks/" + executionTask + "/executions/" + a[2];
+            });
+          }
+          if (executionOutputTask) {
+            consumer(auth.workReview, "executionOutput", "work.executionOutput", (a) => {
+              if (a.length !== 3 || a[0] !== project || a[1] !== executionOutputTask ||
+                  !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(a[2]))
+                throw Error("TASK_EXECUTION_OUTPUT_SCOPE");
+              return "/api/v1/projects/" + project + "/tasks/" + executionOutputTask + "/executions/" + a[2] + "/runtime-view";
             });
           }
           if (intakeWrites) {
