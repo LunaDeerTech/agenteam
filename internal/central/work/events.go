@@ -101,6 +101,9 @@ func (a *Authority) DiscoverAppend(ctx context.Context, actor i.Actor, summary e
 	if sprintStartEventTriple(summary) {
 		return a.discoverSprintStartAppend(ctx, actor, summary)
 	}
+	if sprintCompleteEventTriple(summary) {
+		return a.discoverSprintCompleteAppend(ctx, actor, summary)
+	}
 	if transitionEventTriple(summary) {
 		return a.discoverTransitionAppend(ctx, actor, summary)
 	}
@@ -161,6 +164,9 @@ func (a *Authority) ValidateAppendInTx(ctx context.Context, tx f.Tx, actor i.Act
 	}
 	if sprintStartEventTriple(summary) {
 		return a.validateSprintStartAppendInTx(ctx, tx, actor, summary, deps, stage)
+	}
+	if sprintCompleteEventTriple(summary) {
+		return a.validateSprintCompleteAppendInTx(ctx, tx, actor, summary, deps, stage)
 	}
 	if transitionEventTriple(summary) {
 		return a.validateTransitionAppendInTx(ctx, tx, actor, summary, deps, stage)

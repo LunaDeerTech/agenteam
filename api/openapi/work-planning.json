@@ -3522,7 +3522,7 @@
         ],
         "responses": {
           "200": {
-            "$ref": "#/components/responses/SprintStartLookup"
+            "$ref": "#/components/responses/SprintLifecycleLookup"
           },
           "400": {
             "$ref": "#/components/responses/Problem"
@@ -3606,11 +3606,139 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SprintStartLookupRequest"
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/SprintStartLookupRequest"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SprintCompleteLookupRequest"
+                  }
+                ]
               }
             }
           }
+        },
+        "summary": "Look up an original Sprint lifecycle command"
+      }
+    },
+    "/api/v1/projects/{project_id}/sprints/{sprint_id}/complete": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "sprint_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
         }
+      ],
+      "post": {
+        "operationId": "workOwnerSprintComplete",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/SprintCompleteMutation"
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "Known resource, unsupported method.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Exact length of the complete representation; HEAD has no response body."
+              },
+              "X-Request-ID": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/ID"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Current Human Owner explicitly completes an empty or entirely done/cancelled current Sprint. Full membership and active Execution/pending dispatch are checked in the original transaction. Does not rollover Tasks or start another Sprint. The request object must be empty.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CSRF"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SprintCompleteBody"
+              }
+            }
+          }
+        },
+        "summary": "Complete the current Sprint without unfinished work"
       }
     }
   },
@@ -4184,6 +4312,100 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/SprintStartLookup"
+            }
+          }
+        }
+      },
+      "SprintCompleteMutation": {
+        "description": "Original validated Sprint Start receipt.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Exact length of the complete representation; HEAD has no response body."
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/SprintCompleteMutation"
+            }
+          }
+        }
+      },
+      "SprintCompleteLookup": {
+        "description": "Original validated Sprint Start lookup projection.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Exact length of the complete representation; HEAD has no response body."
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/SprintCompleteLookup"
+            }
+          }
+        }
+      },
+      "SprintLifecycleLookup": {
+        "description": "Original validated Sprint Start lookup projection.",
+        "headers": {
+          "Cache-Control": {
+            "schema": {
+              "const": "no-store"
+            }
+          },
+          "Content-Length": {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Exact length of the complete representation; HEAD has no response body."
+          },
+          "X-Request-ID": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/SprintStartLookup"
+                },
+                {
+                  "$ref": "#/components/schemas/SprintCompleteLookup"
+                }
+              ]
             }
           }
         }
@@ -6699,6 +6921,240 @@
               },
               "receipt": {
                 "$ref": "#/components/schemas/SprintStartMutation"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "receipt"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "in_progress",
+                  "not_observed"
+                ]
+              },
+              "receipt": {
+                "type": "null"
+              }
+            }
+          }
+        ],
+        "description": "Public projection of domain State/Result; null receipt is required outside committed. Lookup is read-only and neither nonterminal state authorizes automatic resubmission."
+      },
+      "SprintCompleteBody": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "request"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "request": {
+            "type": "object",
+            "additionalProperties": false,
+            "maxProperties": 0
+          }
+        }
+      },
+      "SprintCompleteLookupRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "command",
+          "target_id",
+          "expected_version",
+          "request"
+        ],
+        "properties": {
+          "command": {
+            "type": "string",
+            "const": "work.sprint.complete"
+          },
+          "target_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "request": {
+            "type": "object",
+            "additionalProperties": false,
+            "maxProperties": 0
+          }
+        },
+        "description": "Saved original target and Sprint version; no caller digest, Actor, Project version or replacement request. Same User with a new authorized Session may look up the original key."
+      },
+      "SprintCompleteProject": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "owner_user_id",
+          "name",
+          "normalized_name",
+          "description",
+          "lifecycle",
+          "version",
+          "current_sprint_id",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "owner_user_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9._-]{1,64}(?![\\s\\S])",
+            "not": {
+              "enum": [
+                ".",
+                ".."
+              ]
+            },
+            "maxLength": 64
+          },
+          "normalized_name": {
+            "type": "string",
+            "pattern": "^[a-z0-9._-]{1,64}(?![\\s\\S])",
+            "not": {
+              "enum": [
+                ".",
+                ".."
+              ]
+            },
+            "maxLength": 64
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 8192,
+            "x-maxUTF8Bytes": 8192,
+            "not": {
+              "pattern": "[\u0000-\b\u000b-\u001f]"
+            },
+            "description": "At most 8192 UTF-8 bytes; server validates this byte bound. Tabs and newlines are allowed."
+          },
+          "lifecycle": {
+            "type": "string",
+            "const": "active"
+          },
+          "version": {
+            "allOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              {
+                "not": {
+                  "const": "1"
+                }
+              }
+            ]
+          },
+          "current_sprint_id": {
+            "type": "null"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "updated_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        },
+        "description": "Exact active ProjectRef postimage with current_sprint_id null; no other Project settings change. archived_at is omitted."
+      },
+      "SprintCompleteMutation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sprint",
+          "project",
+          "event_id"
+        ],
+        "properties": {
+          "sprint": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Sprint"
+              },
+              {
+                "properties": {
+                  "state": {
+                    "const": "completed"
+                  },
+                  "version": {
+                    "allOf": [
+                      {
+                        "$ref": "./common.json#/components/schemas/Version"
+                      },
+                      {
+                        "not": {
+                          "const": "1"
+                        }
+                      }
+                    ]
+                  },
+                  "started_at": {
+                    "$ref": "./common.json#/components/schemas/Instant"
+                  },
+                  "completed_at": {
+                    "$ref": "./common.json#/components/schemas/Instant"
+                  },
+                  "completed_by": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "kind",
+                      "user_id"
+                    ],
+                    "properties": {
+                      "kind": {
+                        "const": "human"
+                      },
+                      "user_id": {
+                        "$ref": "./common.json#/components/schemas/ID"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "project": {
+            "$ref": "#/components/schemas/SprintCompleteProject"
+          },
+          "event_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        "description": "Exact original completion postimage: Sprint expected_version+1, Project version+1, current_sprint_id null, completed_at equals both updated_at values, completed_by is the current Human Owner. Original started fields and all Task membership remain unchanged. Only empty or entirely done/cancelled Sprints can complete; unfinished Tasks, active Task Executions and pending dispatch reject."
+      },
+      "SprintCompleteLookup": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "receipt"
+            ],
+            "properties": {
+              "status": {
+                "const": "committed"
+              },
+              "receipt": {
+                "$ref": "#/components/schemas/SprintCompleteMutation"
               }
             }
           },

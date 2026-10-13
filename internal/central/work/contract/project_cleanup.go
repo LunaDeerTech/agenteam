@@ -38,7 +38,7 @@ func (p ProjectCleanupProgress) Validate() error {
 		return f.NewFault(f.InvalidArgument, f.NotCommitted)
 	}
 	switch p.Stage {
-	case "task_events", "task_blockers", "task_launch_failures", "task_busy_compensations", "task_scheduler_claims", "task_scheduler_relaunches", "task_blocker_commands", "task_transition_commands", "task_commands", "sprint_start_commands", "structure_commands", "tasks", "task_order_groups", "task_query_generations", "sprints", "sprint_order_groups", "milestones", "milestone_order_groups", "project_calls", "completed":
+	case "task_events", "task_blockers", "task_launch_failures", "task_busy_compensations", "task_scheduler_claims", "task_scheduler_relaunches", "task_blocker_commands", "task_transition_commands", "task_commands", "sprint_start_commands", "sprint_complete_commands", "structure_commands", "tasks", "task_order_groups", "task_query_generations", "sprints", "sprint_order_groups", "milestones", "milestone_order_groups", "project_calls", "completed":
 		return nil
 	}
 	return f.NewFault(f.InvalidArgument, f.NotCommitted)

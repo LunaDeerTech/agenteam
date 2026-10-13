@@ -13,6 +13,9 @@ func (h *handler) sprintLifecycleCommand(w http.ResponseWriter, r *http.Request,
 	if err != nil {
 		return nil, err
 	}
+	if in.complete {
+		return h.sprintCompletionCommand(r, actor, project, in)
+	}
 	if h.sprintLifecycle == nil {
 		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}

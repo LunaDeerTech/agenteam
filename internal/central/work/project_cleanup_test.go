@@ -45,6 +45,7 @@ var workCleanupSpecs = []workCleanupSpec{
 	{"task_transition_commands", "t.id::text", 1},
 	{"task_commands", "t.id::text", 1},
 	{"sprint_start_commands", "t.id::text", 1},
+	{"sprint_complete_commands", "t.id::text", 1},
 	{"structure_commands", "t.id::text", 1},
 	{"tasks", "t.id::text", 16},
 	{"task_order_groups", "t.sprint_id::text || ':' || t.state || ':' || t.priority", 100},
@@ -491,7 +492,7 @@ func TestWorkProjectCleanupFixedOrderAndBounds(t *testing.T) {
 		t.Fatal(err)
 	}
 	wantOrder, wantSizes := []string{}, []int{}
-	for _, spec := range workCleanupSpecs[:18] {
+	for _, spec := range workCleanupSpecs[:len(workCleanupSpecs)-1] {
 		n := 1
 		// Exercise each different cap, including a large-record table's 1+1.
 		switch spec.table {
@@ -602,12 +603,12 @@ func TestWorkProjectCleanupDeleteFailurePrefix(t *testing.T) {
 		t.Run(mode, func(t *testing.T) {
 			// Each failure point must preserve the fixed successful prefix and
 			// cannot issue another table's DELETE or publish progress.
-			for failed := range 19 {
+			for failed := range len(workCleanupSpecs) {
 				v := newWorkCleanup(t)
 				if err := v.read(context.Background(), v.base.p); err != nil {
 					t.Fatal(err)
 				}
-				for _, spec := range workCleanupSpecs[:18] {
+				for _, spec := range workCleanupSpecs[:len(workCleanupSpecs)-1] {
 					v.store.seed(t, spec.table, v.base.p, 1)
 				}
 				var cp *pc.CleanupCheckpoint

@@ -494,6 +494,12 @@ T0b补齐Transfer/Lookup与新命令摘要、Human typed history、16KiB严格�
 
 Project创建HTTP、生产Skills初始化及完整生命周期仍是独立前置；测试专用Skills receipt不证明新账号到Project创建的生产链已就绪。本范围不提供UI、Agent服务、状态转换、生产部署或整个平台ready，也不解除既有停止项。
 
+## D11 当前 Sprint 显式完成
+
+当前 Human Owner 可通过 `POST /api/v1/projects/{project_id}/sprints/{sprint_id}/complete` 完成空的或全部成员为 `done/cancelled` 的当前 Sprint；正文为 `{expected_version, request:{}}`，版本仍编码为十进制字符串，沿用 `Idempotency-Key`。响应包含完整 Sprint、Project 与 event_id：Sprint 变为 completed，Project 当前指针清空，二者版本各增一。所有 Task 留在原 Sprint。存在未完成任务或 active Task Execution/pending SchedulerDispatch 时明确拒绝，不自动 rollover、启动下一 Sprint 或改变 Scheduler 开关。后续启动使用原独立 Start 命令。
+
+Complete 复用原 Sprint owned call、Stop/Drain 和原意图 Lookup；Lookup 路径仍为 `sprint-lifecycle-commands/lookup`，command 为 `work.sprint.complete`，必须携带原 target_id、expected_version、空 request 与原 key。Unknown 只查原提交事实，不重放写入。完整成员扫描与 Execution/Pending 事实读取使用原同 Store/Tx，在 Command、User、Project、Schedule、Sprint 排它锁保护下完成；最终事务重新扫描，不能用分页结果或 `HasTasks` 代替。Project 清指针只接受 Work 原 Sprint UPDATE 返回后发出的专用同 Tx witness，与 Sprint、`work.sprint_completed`、回执及 Activity 一起提交。迁移 `00090` 保存不可变回执，并把命令行纳入原 Work 清理顺序和全部前像检查。该子场景不完成 rollover 或完整 Sprint lifecycle；动态验证结果另按实际验证记录交付。
+
 ## Knowledge Owner 文本写入
 
 [有限文本 HTTP 后继](../work-items/d12-knowledge-owner-text-http.md)将已有 canonical 创建、正文替换与原意图 Lookup 接到当前 Owner；[独立 OpenAPI](../../../api/openapi/knowledge-text-commands.json)给出三个 POST 的精确形状。仅支持原 UTF-8 plain/Markdown，完整编码写请求≤1 MiB，Lookup另保留84 B原意图包装预算；确认后沿既有 metadata/content GET 读取当前数据。真实Account/PG/MinIO与测试进程内默认App listener两条限定链已通过并完成原资源尾门；具体方法、范围与接续见正式卡。不开放生产 Project 初始化或解除 Object join 停止项。

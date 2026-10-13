@@ -95,24 +95,25 @@ func (a *workCleanupPGAssembly) startSprint(t *testing.T, w *taskTransitionFixtu
 var workCleanupTables = [...]string{
 	"task_events", "task_blockers", "task_launch_failures", "task_busy_compensations",
 	"task_scheduler_claims", "task_scheduler_relaunches", "task_blocker_commands",
-	"task_transition_commands", "task_commands", "sprint_start_commands", "structure_commands",
+	"task_transition_commands", "task_commands", "sprint_start_commands", "sprint_complete_commands", "structure_commands",
 	"tasks", "task_order_groups", "task_query_generations", "sprints", "sprint_order_groups",
 	"milestones", "milestone_order_groups", "project_calls",
 }
 
 type workCleanupPG struct {
 	*executionRetirementPG
-	workPair    *work.ProjectCallOwnership
-	participant pc.ProjectLifecycleParticipant
-	cleanup     *project.LifecycleCleanupDriver
-	workDrivers []*project.LifecycleCleanupDriver
-	other       wc.MilestoneID
-	instance    string
-	businessB   string
-	outsideB    string
-	protected   string
-	startedWork bool
-	finished    bool
+	workPair              *work.ProjectCallOwnership
+	participant           pc.ProjectLifecycleParticipant
+	cleanup               *project.LifecycleCleanupDriver
+	workDrivers           []*project.LifecycleCleanupDriver
+	other                 wc.MilestoneID
+	instance              string
+	businessB             string
+	outsideB              string
+	protected             string
+	startedWork           bool
+	finished              bool
+	completionTableAbsent bool // Only the explicitly selected pre-00090 upgrade profile.
 }
 
 func newWorkCleanupPG(t *testing.T, upgrade bool) *workCleanupPG {
@@ -127,7 +128,7 @@ func newWorkCleanupPG(t *testing.T, upgrade bool) *workCleanupPG {
 		base = newVariableHTTPFixture(t)
 	}
 	w := &workCleanupPGAssembly{}
-	v := &workCleanupPG{executionRetirementPG: &executionRetirementPG{}}
+	v := &workCleanupPG{executionRetirementPG: &executionRetirementPG{}, completionTableAbsent: upgrade}
 	option := &executionRetirementPGAssembly{base: base, fixture: v.executionRetirementPG, work: w}
 	v.executionCallPG = newExecutionCallPG(t, false, option)
 	v.workPair = w.pair
@@ -143,6 +144,10 @@ func newWorkCleanupPG(t *testing.T, upgrade bool) *workCleanupPG {
 			}
 		}
 		v.rejectWorkLedgerMutation(t)
+		// Preserve the original 00085/repeat proof before bringing the current
+		// cleanup implementation to its declared schema.
+		migrate(t, base.db)
+		v.completionTableAbsent = false
 	}
 	v.accept(t)
 	v.executionObserved(t, v.owned, false, pc.Stopped)
@@ -233,6 +238,10 @@ func (v *workCleanupPG) workRows(t *testing.T, p i.ProjectID, ledger bool) strin
 		if table == "project_calls" && !ledger {
 			continue
 		}
+		if table == "sprint_complete_commands" && v.completionTableAbsent {
+			parts = append(parts, "null::jsonb")
+			continue
+		}
 		parts = append(parts, `(SELECT jsonb_agg(to_jsonb(x) ORDER BY to_jsonb(x)::text) FROM agenteam_work.`+table+` x WHERE project_id=$1::uuid)`)
 	}
 	var raw string
@@ -240,15 +249,15 @@ func (v *workCleanupPG) workRows(t *testing.T, p i.ProjectID, ledger bool) strin
 	return raw
 }
 
-func (v *workCleanupPG) counts(t *testing.T) [19]int64 {
+func (v *workCleanupPG) counts(t *testing.T) [20]int64 {
 	t.Helper()
-	var counts [19]int64
+	var counts [20]int64
 	parts, dest := make([]string, len(counts)), make([]any, len(counts))
 	for n, table := range workCleanupTables {
 		parts[n] = `(SELECT count(*) FROM agenteam_work.` + table + ` WHERE project_id=$1::uuid)`
 		dest[n] = &counts[n]
 	}
-	schedulerOwnedRequire(t, "work-cleanup-19-counts", v.base.raw.QueryRow(ctxFor(t), "SELECT "+strings.Join(parts, ","), v.scope.ProjectID.String()).Scan(dest...))
+	schedulerOwnedRequire(t, "work-cleanup-20-counts", v.base.raw.QueryRow(ctxFor(t), "SELECT "+strings.Join(parts, ","), v.scope.ProjectID.String()).Scan(dest...))
 	return counts
 }
 
@@ -256,7 +265,7 @@ func (v *workCleanupPG) requireSeedCounts(t *testing.T) {
 	t.Helper()
 	counts := v.counts(t)
 	for n, count := range counts {
-		if n == 3 || n == 5 { // no real busy-compensation or terminal relaunch seed
+		if n == 3 || n == 5 || workCleanupTables[n] == "sprint_complete_commands" { // no real busy-compensation, terminal relaunch or completion seed
 			if count != 0 {
 				t.Fatal("unrequested Work history was created", workCleanupTables[n])
 			}
@@ -351,7 +360,7 @@ func (v *workCleanupPG) workRound(t *testing.T) {
 	schedulerOwnedRequire(t, "work-cleanup-original-round", call.err)
 }
 
-func workCleanupNext(counts [19]int64) string {
+func workCleanupNext(counts [20]int64) string {
 	for n, count := range counts {
 		if count != 0 {
 			return workCleanupTables[n]
@@ -360,7 +369,7 @@ func workCleanupNext(counts [19]int64) string {
 	return "completed"
 }
 
-func workCleanupBatchAfter(before [19]int64) [19]int64 {
+func workCleanupBatchAfter(before [20]int64) [20]int64 {
 	after := before
 	for n, count := range before {
 		if count == 0 {
@@ -374,7 +383,7 @@ func workCleanupBatchAfter(before [19]int64) [19]int64 {
 			limit = 16
 		case "milestones", "sprints":
 			limit = 32
-		case "task_launch_failures", "task_busy_compensations", "task_scheduler_claims", "task_scheduler_relaunches", "task_blocker_commands", "task_transition_commands", "task_commands", "sprint_start_commands", "structure_commands":
+		case "task_launch_failures", "task_busy_compensations", "task_scheduler_claims", "task_scheduler_relaunches", "task_blocker_commands", "task_transition_commands", "task_commands", "sprint_start_commands", "sprint_complete_commands", "structure_commands":
 			limit = 1
 		}
 		after[n] -= min(limit, count)
@@ -413,7 +422,7 @@ func (v *workCleanupPG) advanceBatch(t *testing.T) {
 		t.Fatal("original bounded Work batch changed a different stage", before, got, want)
 	}
 	state := "pending"
-	if want == [19]int64{} {
+	if want == [20]int64{} {
 		state = "completed"
 		v.finished = true // Only after this original Run actually returned.
 	}
@@ -432,7 +441,7 @@ func (v *workCleanupPG) finishWork(t *testing.T) {
 	for n := int64(0); !v.finished && n <= remaining; n++ {
 		v.advanceBatch(t)
 	}
-	if !v.finished || v.counts(t) != [19]int64{} {
+	if !v.finished || v.counts(t) != [20]int64{} {
 		t.Fatal("Work completed with retained original rows")
 	}
 	stable := v.fullSnapshot(t)
@@ -710,7 +719,7 @@ func testWorkCleanupReturn(t *testing.T) {
 	}
 	call, barrier, _ = v.holdWorkProject(t, false, false, false)
 	v.await(t, call, barrier)
-	if v.counts(t) != [19]int64{} {
+	if v.counts(t) != [20]int64{} {
 		t.Fatal("final Work checkpoint preceded complete original history deletion")
 	}
 	v.progress(t, "completed", "terminal", "completed")

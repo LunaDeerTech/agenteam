@@ -13,9 +13,10 @@ import (
 )
 
 type sprintStartIntent struct {
-	meta   f.CommandMeta
-	target c.SprintID
-	lookup bool
+	meta     f.CommandMeta
+	target   c.SprintID
+	lookup   bool
+	complete bool
 }
 
 type sprintStartLookupWire struct {
@@ -47,12 +48,14 @@ func decodeSprintStartIntent(w http.ResponseWriter, r *http.Request, route route
 		return out, err
 	}
 	out.lookup = route.kind == sprintLifecycleLookup
+	out.complete = route.kind == sprintComplete
 	target := route.target
 	if out.lookup {
 		var command string
-		if json.Unmarshal(body.Command, &command) != nil || command != c.SprintStartCommandName || json.Unmarshal(body.Target, &target) != nil {
+		if json.Unmarshal(body.Command, &command) != nil || (command != c.SprintStartCommandName && command != c.SprintCompleteCommandName) || json.Unmarshal(body.Target, &target) != nil {
 			return sprintStartIntent{}, invalidInput()
 		}
+		out.complete = command == c.SprintCompleteCommandName
 	} else if len(body.Command) != 0 || len(body.Target) != 0 {
 		return sprintStartIntent{}, invalidInput()
 	}
@@ -64,7 +67,7 @@ func decodeSprintStartIntent(w http.ResponseWriter, r *http.Request, route route
 	if json.Unmarshal(body.Expected, &expected) != nil {
 		return sprintStartIntent{}, invalidInput()
 	}
-	// Start has no business-body arguments; the shared mutation envelope still
+	// Both bounded lifecycle commands have no business-body arguments; the shared mutation envelope still
 	// requires an explicit empty object. Null, arrays and every field reject.
 	var empty map[string]json.RawMessage
 	if json.Unmarshal(body.Request, &empty) != nil || empty == nil || len(empty) != 0 {

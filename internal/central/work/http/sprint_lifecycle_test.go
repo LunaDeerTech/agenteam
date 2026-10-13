@@ -146,7 +146,7 @@ func TestWorkHTTPSprintStartStrictIntent(t *testing.T) {
 			strings.Replace(good, `"request":{}`, `"semantic_digest":"caller-digest","request":{}`, 1),
 		}
 		if lookup {
-			bad = append(bad, strings.Replace(good, "work.sprint.start", "work.sprint.complete", 1), strings.Replace(good, `"target_id"`, `"sprint_id"`, 1), strings.Replace(good, testSprint().ID.String(), "invalid", 1))
+			bad = append(bad, strings.Replace(good, "work.sprint.start", "work.sprint.unknown", 1), strings.Replace(good, `"target_id"`, `"sprint_id"`, 1), strings.Replace(good, testSprint().ID.String(), "invalid", 1))
 		} else {
 			bad = append(bad, strings.Replace(good, `"request":{}`, `"command":"work.sprint.start","request":{}`, 1))
 		}
@@ -250,7 +250,7 @@ func TestWorkHTTPSprintStartProjectionAndRoutes(t *testing.T) {
 		if !HandlesPath(r.URL.Path) || serveTest(h, r, w) || w.Code != 405 || w.Header().Get("Allow") != "POST" || old.calls+p.writes+p.lookups != 0 {
 			t.Fatal("Start route method boundary")
 		}
-		if HandlesPath(r.URL.Path+"/extra") || HandlesPath(testPath("/sprint-lifecycle-commands/delete")) || HandlesPath(testPath("/sprints/"+testSprint().ID.String()+"/complete")) {
+		if HandlesPath(r.URL.Path+"/extra") || HandlesPath(testPath("/sprint-lifecycle-commands/delete")) || HandlesPath(testPath("/sprints/"+testSprint().ID.String()+"/rollover")) {
 			t.Fatal("Start captured unrelated lifecycle routes")
 		}
 	}

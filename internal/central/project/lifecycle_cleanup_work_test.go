@@ -58,7 +58,7 @@ func TestLifecycleCleanupWorkConstruction(t *testing.T) {
 func TestLifecycleCleanupWorkCheckpoint(t *testing.T) {
 	_, _, _, r, _ := workCleanupFixture(t)
 	scope := c.ScopeRef{Kind: c.ProjectScope, ProjectID: r.claim.project}
-	for _, stage := range []string{"task_events", "task_blockers", "task_launch_failures", "task_busy_compensations", "task_scheduler_claims", "task_scheduler_relaunches", "task_blocker_commands", "task_transition_commands", "task_commands", "sprint_start_commands", "structure_commands", "tasks", "task_order_groups", "task_query_generations", "sprints", "sprint_order_groups", "milestones", "milestone_order_groups", "project_calls", "completed"} {
+	for _, stage := range []string{"task_events", "task_blockers", "task_launch_failures", "task_busy_compensations", "task_scheduler_claims", "task_scheduler_relaunches", "task_blocker_commands", "task_transition_commands", "task_commands", "sprint_start_commands", "sprint_complete_commands", "structure_commands", "tasks", "task_order_groups", "task_query_generations", "sprints", "sprint_order_groups", "milestones", "milestone_order_groups", "project_calls", "completed"} {
 		cp := workCleanupCheckpoint(t, r, stage)
 		got, err := wc.DecodeProjectCleanupCheckpoint(&cp, r.cause, scope)
 		if err != nil || got.Stage != stage {
