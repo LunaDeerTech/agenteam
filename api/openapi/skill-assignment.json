@@ -1,0 +1,1002 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Current Human Owner Agent Skill assignments",
+    "version": "1.0.0",
+    "description": "Explicit same-transaction Skill configuration commands and safe current reads over the default App graph. No model execution, skill package installation, AgentRun management tool or expanded Tool/Mount/Model/Secret selections."
+  },
+  "security": [
+    {
+      "browserSession": []
+    }
+  ],
+  "paths": {
+    "/api/v1/projects/{project_id}/agents/{agent_id}/skills": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "agent_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "skillAssignmentGet",
+        "description": "Current Human Owner and initialized active Agent. Includes disabled configuration. Each page observes Agent version and the complete validated assignment set in one committed transaction. SkillID ascending; signed cursor binds user, Project, Agent, limit and assignment sequence. Sequence drift returns CURSOR_STALE. Agent version is current per page, not a cross-page snapshot. Total 2s including actual HTTP/SQL cleanup; no body, duplicate/unknown query or bare question mark.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bounded complete JSON representation; no-store, at most 128 KiB. HEAD validates the same representation and emits no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "504": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      },
+      "head": {
+        "operationId": "skillAssignmentHead",
+        "description": "Current Human Owner and initialized active Agent. Includes disabled configuration. Each page observes Agent version and the complete validated assignment set in one committed transaction. SkillID ascending; signed cursor binds user, Project, Agent, limit and assignment sequence. Sequence drift returns CURSOR_STALE. Agent version is current per page, not a cross-page snapshot. Total 2s including actual HTTP/SQL cleanup; no body, duplicate/unknown query or bare question mark.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Same current checks and status as GET, with no response body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)$"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Same current checks and status as GET, with no response body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)$"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Same current checks and status as GET, with no response body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)$"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Same current checks and status as GET, with no response body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)$"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Same current checks and status as GET, with no response body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)$"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Same current checks and status as GET, with no response body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)$"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Same current checks and status as GET, with no response body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)$"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Same current checks and status as GET, with no response body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)$"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Same current checks and status as GET, with no response body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)$"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Same current checks and status as GET, with no response body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)$"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Same current checks and status as GET, with no response body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)$"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Same current checks and status as GET, with no response body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)$"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/agents/{agent_id}/skills/assign": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "agent_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "skillAssignmentAssignCommand",
+        "description": "Explicit enabled=true assigns or enables. enabled=false saves disabled configuration and revokes current use. Changing enabled retires the old AssignmentID and creates a new identity. Same Skill and enabled is a no-op; no installation or tool authorization. Expected version is Agent.config_version. Strict 8 KiB JSON; unknown/duplicate members and query rejected. Original Origin/CSRF boundary. Total 30s including cleanup. Unknown retains original key and complete intent for explicit lookup. A queued ingress receipt is durable pending, not evidence of RoundInput application, resumed waiting or a model call.",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/IdempotencyKey"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bounded complete JSON representation; no-store, at most 128 KiB. HEAD validates the same representation and emits no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentMutation"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "504": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/agents/{agent_id}/skills/remove": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "agent_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "skillAssignmentRemoveCommand",
+        "description": "Removes the specified AssignmentID. A retired identity cannot remove a later grant for the same Skill. Does not delete the package or stop execution. Expected version is Agent.config_version. Strict 8 KiB JSON; unknown/duplicate members and query rejected. Original Origin/CSRF boundary. Total 30s including cleanup. Unknown retains original key and complete intent for explicit lookup. A queued ingress receipt is durable pending, not evidence of RoundInput application, resumed waiting or a model call.",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/IdempotencyKey"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemoveCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bounded complete JSON representation; no-store, at most 128 KiB. HEAD validates the same representation and emits no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentMutation"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "504": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/agents/{agent_id}/skills/commands/lookup": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "agent_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "skillAssignmentLookupCommand",
+        "description": "Reads only the original complete intent and key, with current Owner/Project and initialized Agent authorization, including initialized deleting Agents. Does not compare historical expected_version with the current version. not_observed does not prove non-commit and does not authorize automatic resend. Expected version is Agent.config_version. Strict 8 KiB JSON; unknown/duplicate members and query rejected. Original Origin/CSRF boundary. Total 30s including cleanup. Unknown retains original key and complete intent for explicit lookup. A queued ingress receipt is durable pending, not evidence of RoundInput application, resumed waiting or a model call.",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/IdempotencyKey"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LookupCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bounded complete JSON representation; no-store, at most 128 KiB. HEAD validates the same representation and emits no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentLookup"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "504": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "browserSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-agenteam_session",
+        "description": "Original Account session cookie; loopback development uses its configured local cookie."
+      }
+    },
+    "responses": {
+      "Problem": {
+        "description": "Original Account HTTP Problem; current authorization applies to every read, mutation and lookup.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/Problem"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Assignment": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "agent_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "skill_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "assignment_sequence": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        },
+        "required": [
+          "id",
+          "project_id",
+          "agent_id",
+          "skill_id",
+          "enabled",
+          "assignment_sequence",
+          "created_at"
+        ]
+      },
+      "AssignmentPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "agent_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "agent_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "assignment_sequence": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "items": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "$ref": "#/components/schemas/Assignment"
+            }
+          },
+          "next_cursor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8192
+          }
+        },
+        "required": [
+          "project_id",
+          "agent_id",
+          "agent_version",
+          "assignment_sequence",
+          "items"
+        ]
+      },
+      "AssignmentIngress": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "change_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "queued": {
+            "type": "boolean"
+          },
+          "execution_id": {
+            "anyOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "change_id",
+          "queued",
+          "execution_id"
+        ],
+        "oneOf": [
+          {
+            "properties": {
+              "queued": {
+                "const": false
+              },
+              "execution_id": {
+                "type": "null"
+              }
+            }
+          },
+          {
+            "properties": {
+              "queued": {
+                "const": true
+              },
+              "execution_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            }
+          }
+        ]
+      },
+      "AssignmentMutation": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "agent_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "agent_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "assignment_sequence": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "change_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "changed": {
+            "type": "boolean"
+          },
+          "assignment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Assignment"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "runtime": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AssignmentIngress"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "project_id",
+          "agent_id",
+          "agent_version",
+          "assignment_sequence",
+          "change_id",
+          "changed",
+          "assignment",
+          "runtime"
+        ]
+      },
+      "AssignCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "request": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "skill_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "enabled": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "skill_id",
+              "enabled"
+            ]
+          }
+        },
+        "required": [
+          "expected_version",
+          "request"
+        ]
+      },
+      "RemoveCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "request": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "assignment_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": [
+              "assignment_id"
+            ]
+          }
+        },
+        "required": [
+          "expected_version",
+          "request"
+        ]
+      },
+      "LookupCommand": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "command": {
+                "const": "skill.assign"
+              },
+              "expected_version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "skill_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "enabled": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "skill_id",
+                  "enabled"
+                ]
+              }
+            },
+            "required": [
+              "command",
+              "expected_version",
+              "request"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "command": {
+                "const": "skill.remove"
+              },
+              "expected_version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "request": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "assignment_id": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  }
+                },
+                "required": [
+                  "assignment_id"
+                ]
+              }
+            },
+            "required": [
+              "command",
+              "expected_version",
+              "request"
+            ]
+          }
+        ]
+      },
+      "AssignmentLookup": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "state": {
+                "const": "not_observed"
+              },
+              "receipt": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "state",
+              "receipt"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "state": {
+                "const": "committed"
+              },
+              "receipt": {
+                "$ref": "#/components/schemas/AssignmentMutation"
+              }
+            },
+            "required": [
+              "state",
+              "receipt"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

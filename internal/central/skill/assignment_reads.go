@@ -11,8 +11,9 @@ import (
 )
 
 type AssignmentDirectory struct {
-	Sequence f.Version
-	Items    []sc.AgentSkillAssignment
+	AgentVersion f.Version
+	Sequence     f.Version
+	Items        []sc.AgentSkillAssignment
 }
 
 func (s *AssignmentCommands) ListAssignments(ctx context.Context, actor i.Actor, project i.ProjectID, agent i.AgentID) (AssignmentDirectory, error) {
@@ -51,8 +52,12 @@ func (s *AssignmentCommands) ListAssignments(ctx context.Context, actor i.Actor,
 		if !grant.Matches(actor, project) {
 			return fault(f.Forbidden)
 		}
-		if _, err = s.deps.CurrentAgents.RequireCurrentInTx(ctx, tx, actor, project, agent); err != nil {
+		ref, err := s.deps.CurrentAgents.RequireCurrentInTx(ctx, tx, actor, project, agent)
+		if err != nil {
 			return captureError(err)
+		}
+		if ref.ProjectID != project || ref.AgentID != agent || ref.ConfigVersion.Validate() != nil {
+			return unavailable(nil)
 		}
 		x, err := s.store().InTx(tx)
 		if err != nil {
@@ -62,7 +67,7 @@ func (s *AssignmentCommands) ListAssignments(ctx context.Context, actor i.Actor,
 		if err != nil {
 			return err
 		}
-		out = AssignmentDirectory{Sequence: state.Sequence, Items: slices.Clone(state.Items)}
+		out = AssignmentDirectory{AgentVersion: ref.ConfigVersion, Sequence: state.Sequence, Items: slices.Clone(state.Items)}
 		return ctx.Err()
 	})
 	if err = commitError(result); err != nil {

@@ -127,6 +127,17 @@ func (a *Authority) skillAssignmentCurrent(ctx context.Context, tx f.Tx, request
 	return x, current, nil
 }
 
+func (a *SkillAssignmentAuthority) ReadSkillAssignmentInTx(ctx context.Context, tx f.Tx, request c.SkillAssignmentRequest) (c.AgentRef, error) {
+	if a == nil || a.agents == nil || a.agents.state == nil {
+		return c.AgentRef{}, fault(f.DependencyUnbound)
+	}
+	_, current, err := a.agents.skillAssignmentCurrent(ctx, tx, request, request.RequiredLocks(), i.Read)
+	if err != nil {
+		return c.AgentRef{}, err
+	}
+	return c.AgentRef{ProjectID: request.ProjectID, AgentID: request.AgentID, ConfigVersion: current.Fields().Core.Version}, nil
+}
+
 func (a *SkillAssignmentAuthority) DiscoverSkillAssignment(ctx context.Context, request c.SkillAssignmentRequest) (c.SkillAssignmentPlan, error) {
 	if a == nil || a.agents == nil || a.agents.state == nil {
 		return nil, fault(f.DependencyUnbound)

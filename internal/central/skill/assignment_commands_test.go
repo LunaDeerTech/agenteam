@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	ag "github.com/LunaDeerTech/agenteam/internal/central/agent/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
@@ -326,16 +327,37 @@ func TestSkillAssignmentReceiptBindsOriginalRoutingAndProtection(t *testing.T) {
 	}
 }
 
+type assignmentLookupAgentControl struct {
+	err        error
+	wrongScope bool
+	calls      int
+}
+
+func (a *assignmentLookupAgentControl) ReadSkillAssignmentInTx(_ context.Context, _ f.Tx, r ag.SkillAssignmentRequest) (ag.AgentRef, error) {
+	a.calls++
+	ref := ag.AgentRef{ProjectID: r.ProjectID, AgentID: r.AgentID, ConfigVersion: 9}
+	if a.wrongScope {
+		ref.AgentID = stateID[i.Agent](989)
+	}
+	return ref, a.err
+}
+func (*assignmentLookupAgentControl) DiscoverSkillAssignment(context.Context, ag.SkillAssignmentRequest) (ag.SkillAssignmentPlan, error) {
+	panic("lookup must not discover another transaction")
+}
+func (*assignmentLookupAgentControl) WithSkillAssignmentInTx(context.Context, f.Tx, ag.SkillAssignmentRequest, ag.SkillAssignmentPlan, func(context.Context, ag.AgentRef) (bool, error), func(context.Context, ag.AgentRef) error) error {
+	panic("lookup must not enter a writer")
+}
+
 func assignmentLookupControl(t *testing.T) (*AssignmentCommands, *assignmentLookupStore, *skillReaderProjects, assignmentInput) {
 	t.Helper()
 	service, base, projects, actor, _ := readerFixture(t)
 	in, row := assignmentReceiptControl(t, actor)
 	store := &assignmentLookupStore{initializationReadStore: base, record: row}
 	service.state().authority.state().store = store
-	return &AssignmentCommands{deps: AssignmentDependencies{Service: service}}, store, projects, in
+	return &AssignmentCommands{deps: AssignmentDependencies{Service: service, Agents: &assignmentLookupAgentControl{}}}, store, projects, in
 }
 func TestSkillAssignmentLookupUsesOriginalCommitAndCurrentOwner(t *testing.T) {
-	for _, name := range []string{"committed", "not-observed", "wrong-body", "denied", "unknown-read-commit"} {
+	for _, name := range []string{"committed", "not-observed", "wrong-body", "denied", "unknown-read-commit", "uninitialized-agent", "wrong-agent-scope"} {
 		t.Run(name, func(t *testing.T) {
 			s, store, projects, in := assignmentLookupControl(t)
 			switch name {
@@ -348,6 +370,10 @@ func TestSkillAssignmentLookupUsesOriginalCommitAndCurrentOwner(t *testing.T) {
 				projects.err = fault(f.Forbidden)
 			case "unknown-read-commit":
 				store.unknown = true
+			case "uninitialized-agent":
+				s.deps.Agents.(*assignmentLookupAgentControl).err = fault(f.InvalidState)
+			case "wrong-agent-scope":
+				s.deps.Agents.(*assignmentLookupAgentControl).wrongScope = true
 			}
 			out, err := s.LookupAssignment(context.Background(), in.Actor, in.Meta, in.Request)
 			switch name {
@@ -366,6 +392,9 @@ func TestSkillAssignmentLookupUsesOriginalCommitAndCurrentOwner(t *testing.T) {
 			}
 			if name == "denied" && store.queries != 0 {
 				t.Fatal("queried original command before current Owner")
+			}
+			if (name == "uninitialized-agent" || name == "wrong-agent-scope") && store.queries != 0 {
+				t.Fatal("read receipt before current initialized Agent check")
 			}
 		})
 	}

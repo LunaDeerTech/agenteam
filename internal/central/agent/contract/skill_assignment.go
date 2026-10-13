@@ -59,6 +59,10 @@ type SkillAssignmentPlan interface {
 // in the same transaction. Any error must roll back the caller transaction.
 // No callable version writer or private write witness escapes either callback.
 type SkillAssignmentOwner interface {
+	// Read checks the current Owner and initialized Agent in the caller's held
+	// transaction. Historical lookup permits deleting Agents and stale expected
+	// versions; it neither discovers reference locks nor changes configuration.
+	ReadSkillAssignmentInTx(context.Context, f.Tx, SkillAssignmentRequest) (AgentRef, error)
 	DiscoverSkillAssignment(context.Context, SkillAssignmentRequest) (SkillAssignmentPlan, error)
 	WithSkillAssignmentInTx(context.Context, f.Tx, SkillAssignmentRequest, SkillAssignmentPlan,
 		func(context.Context, AgentRef) (bool, error), func(context.Context, AgentRef) error) error

@@ -131,7 +131,7 @@ func TestAgentSkillAssignmentContractAndRequiredOwners(t *testing.T) {
 // canonical point read. They deliberately stop at NOT_FOUND; initialized
 // receipts, actual version/ref mutations and transaction outcomes require PG.
 func TestAgentSkillAssignmentCurrentOwnerAndTransaction(t *testing.T) {
-	for _, mode := range []string{"foreign-tx", "closed-tx", "missing-lock", "owner-revoked", "read-current", "mutate-current", "cancel"} {
+	for _, mode := range []string{"foreign-tx", "closed-tx", "missing-lock", "owner-revoked", "read-current", "lookup-current", "mutate-current", "cancel"} {
 		t.Run(mode, func(t *testing.T) {
 			r, before := skillAssignmentRequestFixture(t)
 			er, _, grant := executionConfigurationFixture(t)
@@ -176,6 +176,8 @@ func TestAgentSkillAssignmentCurrentOwnerAndTransaction(t *testing.T) {
 			}
 			if mode == "mutate-current" {
 				_, _, err = a.skillAssignmentCurrent(ctx, tx, r, s.locks, i.Mutate)
+			} else if mode == "lookup-current" {
+				_, err = adapter.ReadSkillAssignmentInTx(ctx, tx, r)
 			} else {
 				err = adapter.WithSkillAssignmentInTx(ctx, tx, r, plan, func(context.Context, c.AgentRef) (bool, error) {
 					t.Fatal("invalid Agent owner reached Skill command inspection")
@@ -186,7 +188,7 @@ func TestAgentSkillAssignmentCurrentOwnerAndTransaction(t *testing.T) {
 				})
 			}
 			switch mode {
-			case "read-current", "mutate-current":
+			case "read-current", "lookup-current", "mutate-current":
 				requireCode(t, err, f.NotFound)
 				if calls != 1 || s.reads != 1 {
 					t.Fatal("current Owner did not precede the sole Agent existence read")
