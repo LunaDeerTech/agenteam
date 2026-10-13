@@ -23,6 +23,7 @@ import (
 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 	ob "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -324,6 +325,20 @@ func (s *Service) claimContentPublication(ctx context.Context, input contentInpu
 		work, err = s.claimPublicationInTx(ctx, tx, input.actor, record, origin, previous, proof)
 		return err
 	})
+	if st.ownership != nil && work.command.Validate() == nil && work.attempt.Validate() == nil {
+		sourceState := s.knowledgeSourceState()
+		saved := &knowledgePublicationClaim{work: work.clone(), result: result}
+		if previous != nil {
+			prior := previous.clone()
+			saved.before = &prior
+		}
+		sourceState.mu.Lock()
+		if sourceState.publicationClaims == nil {
+			sourceState.publicationClaims = map[f.ID[publicationAttempt]]*knowledgePublicationClaim{}
+		}
+		sourceState.publicationClaims[work.attempt] = saved
+		sourceState.mu.Unlock()
+	}
 	return work, replay, txError(result)
 }
 
@@ -554,7 +569,7 @@ func (s *Service) prepareBusinessPublication(ctx context.Context, input contentI
 	var reader *publicationReader
 	if opened != nil {
 		reader = newPublicationReader(opened, kind == kc.Text, int64(source.measurement.Length))
-		if err = retirement.own(reader.Close); err != nil {
+		if err = retirement.own(func() error { return s.closeKnowledgeSourceReader(lease, reader.Close) }); err != nil {
 			return oc.PreparedPayload{}, err
 		}
 	}
@@ -1006,20 +1021,50 @@ func requirePublicationWork(ctx context.Context, x postgres.SQLExecutor, work pu
 // lease and spool close has actually succeeded. Callers invoke join only after
 // all synchronous preparation/send/final callbacks have returned. Failure keeps
 // the call registered; the process cannot report Drain complete on cancellation.
+// This proof is captured only after the original claim Store returns. A
+// missing candidate is meaningful only against this complete pre-claim image.
+type knowledgePublicationClaim struct {
+	work                  publicationWork
+	before                *publicationWork
+	result                f.CommitResult
+	confirmed, rolledBack bool
+}
+
+func (p *knowledgePublicationClaim) matchesBefore(current *publicationWork) bool {
+	if p.before == nil {
+		return current == nil
+	}
+	return current != nil && p.before.equal(*current)
+}
+
 type publicationRetirement struct {
-	mu        sync.Mutex
-	service   *Service
-	work      publicationWork
-	resources []func(context.Context) error
-	done      func()
-	joined    bool
+	originalCall       context.Context
+	joinCheckpoint     *f.CommitResult
+	joinCheckpointDone bool
+	claimProof         *knowledgePublicationClaim
+	mu                 sync.Mutex
+	service            *Service
+	work               publicationWork
+	resources          []func(context.Context) error
+	done               func()
+	joined             bool
 }
 
 func (s *Service) publicationRetirement(work publicationWork, done func()) (*publicationRetirement, error) {
 	if s.state() == nil || work.command.Validate() != nil || work.project.Validate() != nil || work.process != s.state().deps.Processes.CurrentProcess() || work.attempt.Validate() != nil || work.fence < 1 || work.phase != "active" || done == nil {
 		return nil, internal(nil)
 	}
-	return &publicationRetirement{service: s, work: work.clone(), done: done}, nil
+	r := &publicationRetirement{service: s, work: work.clone(), done: done}
+	if source := s.knowledgeSourceState(); source != nil {
+		source.mu.Lock()
+		proof := source.publicationClaims[work.attempt]
+		if proof != nil && proof.work.equal(work) {
+			r.claimProof = proof
+			delete(source.publicationClaims, work.attempt)
+		}
+		source.mu.Unlock()
+	}
+	return r, nil
 }
 
 func (r *publicationRetirement) own(close func() error) error {
@@ -1088,6 +1133,7 @@ func (r *publicationRetirement) join(ctx context.Context) error {
 		delete(st.retiringPublications, r.work.attempt)
 	}
 	st.mu.Unlock()
+	r.service.forgetRetiredKnowledgeSources(r.work)
 	r.joined = true
 	r.resources = nil
 	r.done()
@@ -1098,6 +1144,24 @@ func (r *publicationRetirement) join(ctx context.Context) error {
 // established local join, not the source of that proof. The caller supplies its
 // own still-live budget. Failed/Unknown SQL leaves the exact local proof intact.
 func (s *Service) checkpointPublicationJoin(ctx context.Context, actor id.Actor, record *commandRecord, work publicationWork) error {
+	return s.checkpointPublicationJoinResult(ctx, actor, record, work, nil)
+}
+func (s *Service) checkpointOwnedPublicationJoin(ctx context.Context, actor id.Actor, record *commandRecord, work publicationWork, r *publicationRetirement) error {
+	if r == nil || r.service != s || s.state() == nil || s.state().ownership == nil || !r.work.equal(work) {
+		return fault(f.DependencyUnbound)
+	}
+	r.mu.Lock()
+	proof := r.claimProof
+	r.mu.Unlock()
+	if proof != nil && !proof.confirmed && proof.result.State() != f.Committed {
+		if err := txError(proof.result); err != nil {
+			return err
+		}
+		return fault(f.ResourceBusy)
+	}
+	return s.checkpointPublicationJoinResult(ctx, actor, record, work, r)
+}
+func (s *Service) checkpointPublicationJoinResult(ctx context.Context, actor id.Actor, record *commandRecord, work publicationWork, r *publicationRetirement) error {
 	st := s.state()
 	if st == nil {
 		return fault(f.DependencyUnbound)
@@ -1123,6 +1187,11 @@ func (s *Service) checkpointPublicationJoin(ctx context.Context, actor id.Actor,
 	result := st.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		if err := st.store.AcquireAll(ctx, tx, locks); err != nil {
 			return portError(err)
+		}
+		if r != nil {
+			if err := s.projectCallTx(ctx, tx, work.project); err != nil {
+				return err
+			}
 		}
 		x, err := st.store.InTx(tx)
 		if err != nil {
@@ -1162,9 +1231,216 @@ func (s *Service) checkpointPublicationJoin(ctx context.Context, actor id.Actor,
 		}
 		return nil
 	})
+	if r != nil && result.State() == f.Unknown {
+		if result.AttemptID().Validate() != nil || result.Cause().Validate() != nil {
+			return internal(nil)
+		}
+		r.mu.Lock()
+		if r.joinCheckpoint == nil {
+			raw := result
+			r.joinCheckpoint = &raw
+		}
+		first := *r.joinCheckpoint
+		r.mu.Unlock()
+		return txError(first)
+	}
 	if err := txError(result); err != nil {
 		return err
 	}
+	st.mu.Lock()
+	if current, ok := st.joinedPublications[work.attempt]; ok && current.equal(work) {
+		delete(st.joinedPublications, work.attempt)
+	}
+	st.mu.Unlock()
+	return nil
+}
+
+// Project Stop adds its current private gate to the original join projection.
+// Normal recovery can still finish that already-authorized projection through
+// the exact original call; neither route starts fresh publication work.
+func (s *Service) checkpointKnowledgeProjectPublicationJoin(ctx context.Context, actor id.Actor, cause pc.LifecycleCause, scope pc.ScopeRef, r *publicationRetirement) error {
+	return s.continuePublicationJoin(ctx, r, func(ctx context.Context, tx f.Tx) error {
+		return portError(s.state().ownership.stop.RequireProjectStopInTx(ctx, tx, actor, cause, scope))
+	})
+}
+func (s *Service) continueOwnedPublicationJoin(ctx context.Context, r *publicationRetirement) error {
+	if r == nil {
+		return fault(f.DependencyUnbound)
+	}
+	return s.continuePublicationJoin(s.originalProjectContext(ctx, r.originalCall), r, nil)
+}
+func (s *Service) continuePublicationJoin(ctx context.Context, r *publicationRetirement, gate func(context.Context, f.Tx) error) error {
+	st := s.state()
+	if st == nil || st.ownership == nil || r == nil || r.service != s || ctx == nil {
+		return fault(f.DependencyUnbound)
+	}
+	if !r.mu.TryLock() {
+		return fault(f.ResourceBusy)
+	}
+	defer r.mu.Unlock()
+	if !r.joined {
+		return fault(f.ResourceBusy)
+	}
+	if r.joinCheckpointDone {
+		return nil
+	}
+	work := r.work
+	if err := s.requireProjectCall(ctx, work.project, work.source, projectCallCommand); err != nil {
+		return err
+	}
+	witness, ok := ctx.Value(projectCallContextKey{}).(projectCallWitness)
+	if !ok || witness.state != st.ownership || witness.owner == nil {
+		return fault(f.Forbidden)
+	}
+	st.ownership.mu.Lock()
+	originalActor := witness.owner.actor
+	identityRaw := append([]byte(nil), witness.owner.record.Identity...)
+	st.ownership.mu.Unlock()
+	var identity projectCallIdentity
+	if json.Unmarshal(identityRaw, &identity) != nil || identity.Command == "" || identity.Key == "" || identity.Digest.Validate() != nil {
+		return internal(nil)
+	}
+	user, err := f.ParseID[id.User](identity.User)
+	if err != nil {
+		return internal(err)
+	}
+	document, err := f.ParseID[kc.Document](identity.Document)
+	if err != nil {
+		return internal(err)
+	}
+	record := &commandRecord{id: work.command, project: work.project, document: document, user: user, name: kc.CommandName(identity.Command), key: f.IdempotencyKey(identity.Key), digest: identity.Digest}
+	locks, err := publicationLocks(originalActor, record, work.source)
+	if err != nil {
+		return err
+	}
+	locks = append(locks, knowledgeProjectLock(work.project, f.Exclusive))
+	if work.source != nil {
+		locks = append(locks, knowledgeProjectLock(*work.source, f.Exclusive))
+	}
+	locks, err = ob.NormalizeLocks(locks)
+	if err != nil {
+		return portError(err)
+	}
+	command, err := kc.CommandIdentity(record.project, record.name, record.key)
+	if err != nil {
+		return portError(err)
+	}
+	txCause, err := f.NewCommandsCause(command)
+	if err != nil {
+		return portError(err)
+	}
+	retained := r.joinCheckpoint
+	proof := r.claimProof
+	claimPending := proof != nil && !proof.confirmed && proof.result.State() != f.Committed
+	claimRolledBack := false
+	if claimPending && proof.result.Cause().Validate() == nil {
+		txCause = proof.result.Cause()
+	}
+	if retained != nil {
+		txCause = retained.Cause()
+	}
+	valid := false
+	result := st.store.WithinTx(ctx, txCause, func(run context.Context, tx f.Tx) error {
+		if err := st.store.AcquireAll(run, tx, locks); err != nil {
+			return portError(err)
+		}
+		if err := s.projectCallTx(run, tx, work.project); err != nil {
+			return err
+		}
+		if gate != nil {
+			if err := gate(run, tx); err != nil {
+				return err
+			}
+		}
+		if err := s.requireProjectCall(run, work.project, work.source, projectCallCommand); err != nil {
+			return err
+		}
+		x, err := st.store.InTx(tx)
+		if err != nil {
+			return portError(err)
+		}
+		currentCommand, err := loadCommand(run, x, record.project, record.name, record.key)
+		if err != nil {
+			return err
+		}
+		if currentCommand == nil || currentCommand.id != record.id || currentCommand.document != record.document || currentCommand.user != record.user || currentCommand.digest != record.digest {
+			return fault(f.ResourceBusy)
+		}
+		current, err := loadPublicationWork(run, x, work.command)
+		if err != nil {
+			return err
+		}
+		if claimPending {
+			if proof.matchesBefore(current) {
+				claimRolledBack = true
+			} else {
+				if proof.result.State() != f.Unknown || current == nil {
+					return fault(f.ResourceBusy)
+				}
+				observed := *current
+				observed.phase = "active"
+				if (current.phase != "active" && current.phase != "joined") || !observed.equal(work) {
+					return fault(f.ResourceBusy)
+				}
+			}
+			valid = run.Err() == nil
+			return run.Err()
+		}
+		if proof != nil && proof.confirmed && proof.rolledBack {
+			if !proof.matchesBefore(current) {
+				return fault(f.ResourceBusy)
+			}
+			valid = run.Err() == nil
+			return run.Err()
+		}
+		if current == nil || (current.phase != "active" && current.phase != "joined") {
+			return fault(f.ResourceBusy)
+		}
+		exact := *current
+		exact.phase = "active"
+		if !exact.equal(work) {
+			return fault(f.ResourceBusy)
+		}
+		if retained == nil && current.phase == "active" {
+			tag, err := x.Exec(run, `UPDATE agenteam_knowledge.work_claims SET phase='joined' WHERE command_id=$1 AND project_id=$2 AND process_id=$3 AND attempt_id=$4 AND fence=$5 AND phase='active'`, work.command.String(), work.project.String(), work.process.String(), work.attempt.String(), work.fence)
+			if err != nil {
+				return unavailable(err)
+			}
+			if tag.RowsAffected() != 1 {
+				return fault(f.ResourceBusy)
+			}
+		}
+		valid = run.Err() == nil
+		return run.Err()
+	})
+	if claimPending {
+		if result.State() != f.Committed || !valid || ctx.Err() != nil {
+			return errors.Join(txError(proof.result), txError(result), ctx.Err())
+		}
+		proof.confirmed, proof.rolledBack = true, claimRolledBack
+		return fault(f.ResourceBusy)
+	}
+	if retained != nil {
+		if result.State() != f.Committed || !valid || ctx.Err() != nil {
+			return errors.Join(txError(*retained), txError(result), ctx.Err())
+		}
+		r.joinCheckpoint = nil
+		return fault(f.ResourceBusy)
+	}
+	if result.State() == f.Unknown {
+		if result.AttemptID().Validate() != nil || result.Cause().Validate() != nil {
+			return internal(nil)
+		}
+		r.joinCheckpoint = &result
+		return txError(result)
+	}
+	if err = txError(result); err != nil {
+		return err
+	}
+	if !valid || ctx.Err() != nil {
+		return unavailable(ctx.Err())
+	}
+	r.joinCheckpointDone = true
 	st.mu.Lock()
 	if current, ok := st.joinedPublications[work.attempt]; ok && current.equal(work) {
 		delete(st.joinedPublications, work.attempt)

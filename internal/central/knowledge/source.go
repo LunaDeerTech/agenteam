@@ -20,35 +20,44 @@ import (
 // This retires only our local call, not D05's durable lease or global runtime.
 // Cancellation alone, or a generic SourceInput.Close error, is not join.
 type trackedRead struct {
-	body *oc.ObjectReader
-	done func()
-	once sync.Once
+	body     *oc.ObjectReader
+	done     func()
+	once     sync.Once
+	finish   func(error) error
+	closeErr error
 }
 
 func (r *trackedRead) Read(p []byte) (int, error) { return r.body.Read(p) }
 func (r *trackedRead) Close() error {
 	err := r.body.Close()
-	r.once.Do(r.done)
-	return err
+	if r.finish == nil {
+		r.once.Do(r.done)
+		return err
+	}
+	r.once.Do(func() { r.closeErr = r.finish(err); r.done() })
+	return r.closeErr
 }
 
-func (s *Service) OpenCanonical(ctx context.Context, actor id.Actor, project id.ProjectID, document kc.DocumentID, byteRange *oc.ByteRange) (kc.CanonicalRead, error) {
+func (s *Service) OpenCanonical(ctx context.Context, actor id.Actor, project id.ProjectID, document kc.DocumentID, byteRange *oc.ByteRange) (out kc.CanonicalRead, resultErr error) {
 	if err := readInput(ctx, actor, project); err != nil {
 		return kc.CanonicalRead{}, err
 	}
 	if document.Validate() != nil {
 		return kc.CanonicalRead{}, fault(f.InvalidArgument)
 	}
-	ctx, done, err := s.begin(ctx)
-	if err != nil {
-		return kc.CanonicalRead{}, err
-	}
+	ctx, entry, err := s.beginProjectCall(ctx, actor, project, nil, projectCallRead)
 	owned := true
 	defer func() {
 		if owned {
-			done()
+			s.finishProjectCall(entry, &resultErr)
+			if tail := s.projectCallReturned(entry); resultErr == nil {
+				resultErr = tail
+			}
 		}
 	}()
+	if err != nil {
+		return out, err
+	}
 	head, err := s.GetDocument(ctx, actor, project, document)
 	if err != nil {
 		return kc.CanonicalRead{}, err
@@ -67,9 +76,24 @@ func (s *Service) OpenCanonical(ctx context.Context, actor id.Actor, project id.
 	// Once a typed D05 reader exists, retain the call until its synchronous
 	// Close actually returns, while preserving any original error separately.
 	owned = false
-	tracked := &trackedRead{body: reader, done: done}
-	closeFailure := func(primary error) (kc.CanonicalRead, error) {
-		return kc.CanonicalRead{}, errors.Join(primary, portError(tracked.Close()))
+	tracked := &trackedRead{body: reader, done: func() {}}
+	var primary error
+	if entry != nil {
+		tracked.finish = func(closeErr error) error {
+			original := primary
+			if original == nil {
+				original = closeErr
+			}
+			s.finishProjectCall(entry, &original)
+			if tail := s.projectCallReturned(entry); closeErr == nil {
+				closeErr = tail
+			}
+			return closeErr
+		}
+	}
+	closeFailure := func(err error) (kc.CanonicalRead, error) {
+		primary = err
+		return kc.CanonicalRead{}, errors.Join(err, portError(tracked.Close()))
 	}
 	if reader == nil {
 		return closeFailure(internal(nil))
@@ -130,12 +154,22 @@ func readText(reader io.Reader, request kc.ReadRequest) (kc.TextContent, error) 
 	return kc.TextContent{Text: string(raw[:n]), NextByteOffset: request.ByteOffset + f.Progress(n), Truncated: n < len(raw)}, nil
 }
 
-func (s *Service) ReadDocument(ctx context.Context, actor id.Actor, project id.ProjectID, document kc.DocumentID, request kc.ReadRequest) (kc.DocumentContent, error) {
+func (s *Service) ReadDocument(ctx context.Context, actor id.Actor, project id.ProjectID, document kc.DocumentID, request kc.ReadRequest) (out kc.DocumentContent, resultErr error) {
 	if err := readInput(ctx, actor, project); err != nil {
 		return kc.DocumentContent{}, err
 	}
 	if document.Validate() != nil || request.Validate() != nil {
 		return kc.DocumentContent{}, fault(f.InvalidArgument)
+	}
+	ctx, entry, err := s.beginProjectCall(ctx, actor, project, nil, projectCallRead)
+	defer func() {
+		s.finishProjectCall(entry, &resultErr)
+		if tail := s.projectCallReturned(entry); resultErr == nil {
+			resultErr = tail
+		}
+	}()
+	if err != nil {
+		return out, err
 	}
 	head, err := s.GetDocument(ctx, actor, project, document)
 	if err != nil {
@@ -176,9 +210,16 @@ var _ kc.CanonicalReads = (*Service)(nil)
 // belong to their real domain providers in the outer source router.
 type SourceResolver struct{ data func() *sourceState }
 type sourceState struct {
-	store     Store
-	authority *Authority
-	objects   oc.Objects
+	store             Store
+	authority         *Authority
+	objects           oc.Objects
+	ownership         *projectCallState
+	mu                sync.Mutex
+	sources           map[oc.LeaseID]*knowledgeProjectSource
+	cleanupCursors    map[id.ProjectID]cleanupCursor
+	cleanupScanning   map[id.ProjectID]bool
+	leafUnknown       map[id.ProjectID]*knowledgeLeafUnknown
+	publicationClaims map[f.ID[publicationAttempt]]*knowledgePublicationClaim
 }
 
 func NewSourceResolver(store Store, authority *Authority, objects oc.Objects) (*SourceResolver, error) {
@@ -267,7 +308,28 @@ func (r *SourceResolver) sourceSnapshot(ctx context.Context, actor id.Actor, ref
 	return out, nil
 }
 
-func (r *SourceResolver) Resolve(ctx context.Context, actor id.Actor, reference oc.BusinessFileRef) (oc.ResolvedSource, error) {
+func (r *SourceResolver) Resolve(ctx context.Context, actor id.Actor, reference oc.BusinessFileRef) (out oc.ResolvedSource, resultErr error) {
+	st := r.state()
+	if st == nil {
+		return out, fault(f.DependencyUnbound)
+	}
+	if _, err := sourceOwner(reference); err != nil {
+		return out, err
+	}
+	if st.ownership != nil {
+		var entry *projectCallEntry
+		var err error
+		ctx, entry, err = st.ownership.service.beginProjectCall(ctx, actor, reference.Details().ProjectID, nil, projectCallSource)
+		defer func() {
+			st.ownership.service.finishProjectCall(entry, &resultErr)
+			if tail := st.ownership.service.projectCallReturned(entry); resultErr == nil {
+				resultErr = tail
+			}
+		}()
+		if err != nil {
+			return out, err
+		}
+	}
 	doc, err := r.sourceSnapshot(ctx, actor, reference)
 	if err != nil {
 		return oc.ResolvedSource{}, err
@@ -300,6 +362,11 @@ func (r *SourceResolver) ValidateInTx(ctx context.Context, tx f.Tx, actor id.Act
 	}
 	if source.Validate() != nil {
 		return fault(f.InvalidArgument)
+	}
+	if st.ownership != nil {
+		if err := st.ownership.service.requireProjectCall(ctx, source.Details().Reference.Details().ProjectID, nil, projectCallSource); err != nil {
+			return err
+		}
 	}
 	owner, err := sourceOwner(source.Details().Reference)
 	if err != nil {
@@ -440,7 +507,7 @@ func (s *Service) acquireBusinessPublicationLease(ctx context.Context, input con
 	if err != nil {
 		return lease, nil, portError(err)
 	}
-	result := st.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+	result := s.withinKnowledgeSourceAcquisition(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		locked, err := st.deps.Objects.AcquireAccessPlansInTx(ctx, tx, []oc.AccessLockPlan{plan}, locks)
 		if err != nil {
 			return portError(err)
@@ -473,6 +540,9 @@ func (s *Service) acquireBusinessPublicationLease(ctx context.Context, input con
 		if lease.Validate() != nil {
 			return internal(nil)
 		}
+		if err = s.bindKnowledgeSource(ctx, tx, input, intent, work, source, lease); err != nil {
+			return err
+		}
 		tag, err := x.Exec(ctx, `UPDATE agenteam_knowledge.publications SET source_lease_id=$2
  WHERE command_id=$1 AND phase IN ('planned','reserved','uploaded')`, record.id.String(), lease.ID().String())
 		if err != nil {
@@ -488,7 +558,7 @@ func (s *Service) acquireBusinessPublicationLease(ctx context.Context, input con
 		// and actual originating Tx stay owned by the real SourceReads port.
 		owned := lease
 		if ownErr := retirement.ownContext(func(cleanup context.Context) error {
-			return portError(st.deps.SourceReads.CancelSourceLease(cleanup, owned))
+			return s.cancelKnowledgeSource(cleanup, owned)
 		}); ownErr != nil {
 			return lease, replay, ownErr
 		}
@@ -559,7 +629,7 @@ func (s *Service) closeBusinessPublicationLease(ctx context.Context, input conte
 		}
 		return nil
 	})
-	return replay, txError(result)
+	return replay, s.returnedKnowledgeSource(lease, result)
 }
 
 // Direct sources have no resolver gate. Business sources must carry the exact
