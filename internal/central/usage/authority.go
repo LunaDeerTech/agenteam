@@ -108,6 +108,11 @@ func (s *Service) DiscoverInvocation(ctx context.Context, r uc.InvocationRequest
 	if e := s.writerReady(ctx, r); e != nil {
 		return uc.InvocationPlan{}, e
 	}
+	ctx, done, borrowErr := s.state().ownership.borrowInvocation(ctx, r)
+	if borrowErr != nil {
+		return uc.InvocationPlan{}, borrowErr
+	}
+	defer done()
 	r = r.Clone()
 	b, _ := uc.InvocationBinding(r)
 	d, e := s.state().authority.state().auth.Invocations.Discover(ctx, r)
@@ -140,6 +145,9 @@ func (s *Service) validateInvocation(ctx context.Context, tx f.Tx, r uc.Invocati
 	}
 	if e = s.state().store.RequireHeldLocks(ctx, tx, ls); e != nil {
 		return nil, empty, portError(e)
+	}
+	if e = s.state().ownership.requireRunning(ctx, tx, r.Identity.Consumer.ProjectID, projectCallInvocation); e != nil {
+		return nil, empty, e
 	}
 	v, e := s.state().authority.state().auth.Invocations.ValidateInTx(ctx, tx, r, d.Facts)
 	if e != nil {
@@ -193,6 +201,9 @@ func (s *Service) authorizeReader(ctx context.Context, tx f.Tx, actor id.Actor, 
 	ls := unionLocks(append([]f.LockRequest{{Key: u, Mode: f.Shared}, projectLock(project)}, extra...))
 	if e = s.state().store.AcquireAll(ctx, tx, ls); e != nil {
 		return nil, portError(e)
+	}
+	if e = s.state().ownership.requireReader(ctx, tx, project); e != nil {
+		return nil, e
 	}
 	if e = s.state().authority.state().auth.Sessions.RequireCurrentSession(ctx, tx, actor); e != nil {
 		return nil, portError(e)

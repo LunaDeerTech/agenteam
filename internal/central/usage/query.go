@@ -198,7 +198,7 @@ type trailingScanner struct {
 
 func (r trailingScanner) Scan(dest ...any) error { return r.row.Scan(append(dest, r.extra...)...) }
 
-func (s *Service) List(ctx context.Context, a id.Actor, q uc.Query) (uc.Page, error) {
+func (s *Service) List(ctx context.Context, a id.Actor, q uc.Query) (page uc.Page, resultErr error) {
 	if e := contextError(ctx); e != nil {
 		return uc.Page{}, e
 	}
@@ -208,9 +208,14 @@ func (s *Service) List(ctx context.Context, a id.Actor, q uc.Query) (uc.Page, er
 	if q.Validate() != nil || a.Validate() != nil {
 		return uc.Page{}, fault(f.InvalidArgument)
 	}
-	q = q.Clone()
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
+	ctx, owner, beginErr := s.state().ownership.begin(ctx, a, q.Filter.ProjectID, projectCallList)
+	defer s.state().ownership.finish(owner, &resultErr)
+	if beginErr != nil {
+		return uc.Page{}, beginErr
+	}
+	q = q.Clone()
 	cause, e := readCause("list")
 	if e != nil {
 		return uc.Page{}, e
@@ -307,7 +312,7 @@ func groupKey(by uc.GroupBy, key *string) uc.GroupKey {
 	}
 	return v
 }
-func (s *Service) Aggregate(ctx context.Context, a id.Actor, q uc.AggregateQuery) (uc.AggregatePage, error) {
+func (s *Service) Aggregate(ctx context.Context, a id.Actor, q uc.AggregateQuery) (page uc.AggregatePage, resultErr error) {
 	if e := contextError(ctx); e != nil {
 		return uc.AggregatePage{}, e
 	}
@@ -317,9 +322,14 @@ func (s *Service) Aggregate(ctx context.Context, a id.Actor, q uc.AggregateQuery
 	if q.Validate() != nil || a.Validate() != nil {
 		return uc.AggregatePage{}, fault(f.InvalidArgument)
 	}
-	q = q.Clone()
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
+	ctx, owner, beginErr := s.state().ownership.begin(ctx, a, q.Filter.ProjectID, projectCallAggregate)
+	defer s.state().ownership.finish(owner, &resultErr)
+	if beginErr != nil {
+		return uc.AggregatePage{}, beginErr
+	}
+	q = q.Clone()
 	cause, e := readCause("aggregate")
 	if e != nil {
 		return uc.AggregatePage{}, e

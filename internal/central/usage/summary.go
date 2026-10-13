@@ -262,7 +262,7 @@ func scanAggregate(row scanner, now f.Instant, prefix ...any) (uc.Summary, error
 	}
 	return s, nil
 }
-func (s *Service) executionSummary(ctx context.Context, a id.Actor, p id.ProjectID, e id.ExecutionID, rebuild bool) (uc.ExecutionSummary, error) {
+func (s *Service) executionSummary(ctx context.Context, a id.Actor, p id.ProjectID, e id.ExecutionID, rebuild bool) (summary uc.ExecutionSummary, resultErr error) {
 	if contextError(ctx) != nil {
 		return uc.ExecutionSummary{}, contextError(ctx)
 	}
@@ -272,8 +272,17 @@ func (s *Service) executionSummary(ctx context.Context, a id.Actor, p id.Project
 	if p.Validate() != nil || e.Validate() != nil || a.Validate() != nil {
 		return uc.ExecutionSummary{}, fault(f.InvalidArgument)
 	}
+	lane := projectCallSummary
+	if rebuild {
+		lane = projectCallRebuild
+	}
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
+	ctx, owner, beginErr := s.state().ownership.begin(ctx, a, p, lane)
+	defer s.state().ownership.finish(owner, &resultErr)
+	if beginErr != nil {
+		return uc.ExecutionSummary{}, beginErr
+	}
 	cause, err := readCause("summary")
 	if err != nil {
 		return uc.ExecutionSummary{}, err
@@ -304,6 +313,9 @@ func (s *Service) executionSummary(ctx context.Context, a id.Actor, p id.Project
 			return err
 		}
 		if rebuild {
+			if err = s.state().ownership.rebuildImage(ctx, x, p, e, true); err != nil {
+				return err
+			}
 			// Validate canonical rows before trusting their statistical projection.
 			rows, err := x.Query(ctx, `SELECT `+invocationColumns+` FROM agenteam_model.invocations WHERE project_id=$1 AND execution_id=$2`, p.String(), e.String())
 			if err != nil {
@@ -347,10 +359,16 @@ func (s *Service) executionSummary(ctx context.Context, a id.Actor, p id.Project
 		if old == nil {
 			return corrupt(nil)
 		}
+		if rebuild {
+			if err = s.state().ownership.rebuildImage(ctx, x, p, e, false); err != nil {
+				return err
+			}
+		}
 		old.summary.AsOf = now
 		out = uc.ExecutionSummary{ProjectID: p, ExecutionID: e, Version: old.version, Summary: old.summary.Clone()}
 		return contextError(ctx)
 	})
+	s.state().ownership.captureResult(ctx, r)
 	if err = completedRead(ctx, r); err != nil {
 		return uc.ExecutionSummary{}, err
 	}
