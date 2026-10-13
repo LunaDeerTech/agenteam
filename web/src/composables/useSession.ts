@@ -66,7 +66,8 @@ import {
   type ProjectSecretsAPI,
   type ProjectSecretQuery,
 } from '../api/project-secrets'
-import { createProjectArtifactsAPI, captureArtifactID, captureArtifactRef, captureArtifactQuery, captureArtifactReadQuery, type ProjectArtifactsAPI, type ArtifactRef, type ArtifactQuery, type ArtifactReadQuery } from '../api/project-artifacts'
+import { createArtifactCreationAPI, captureArtifactContent, type ArtifactCreationAPI, type ArtifactContentInput, type ArtifactCreationResult, type ArtifactCreationLookup, type ArtifactCancellation } from '../api/artifact-creation'
+import { createProjectArtifactsAPI, captureArtifactID, captureArtifactRef, captureArtifactQuery, captureArtifactReadQuery, type ProjectArtifactsAPI, type ArtifactRef, type ArtifactQuery, type ArtifactReadQuery, type ArtifactMetadata } from '../api/project-artifacts'
 import {
   createProjectUsageAPI,
   captureProjectUsageID,
@@ -681,6 +682,26 @@ type SkillImportOriginal = {
   input: SkillImportInput | null
   body: string | null
 }
+type ArtifactCreationAction = 'artifact-create' | 'artifact-create-lookup' | 'artifact-create-cancel'
+export type ArtifactCreationProgress = Readonly<{
+  projectID: string
+  phase: 'submitting' | 'uncertain' | 'confirmed' | 'cancelled'
+  action: 'create' | 'lookup' | 'cancel'
+  observation: 'none' | 'not_observed' | 'pending' | 'committed' | 'cancel_requested' | 'cancelled' | 'failed'
+  artifact: ArtifactMetadata | null
+  contextValid: boolean
+  canRetryOriginal: boolean
+  canCancel: boolean
+}>
+type ArtifactCreationOriginal = {
+  projectID: string
+  identity: PersonalIdentity
+  csrf: string
+  key: string
+  input: ArtifactContentInput | null
+  body: string | null
+  keyConflict: boolean
+}
 type KnowledgeCommandAction =
   'knowledge-rename' | 'knowledge-lookup' | 'knowledge-text-write' | 'knowledge-text-lookup' | 'knowledge-delete-preview' | 'knowledge-delete' | 'knowledge-delete-lookup'
 export type KnowledgeCommandProgress = Readonly<{
@@ -949,6 +970,7 @@ type Action =
   | 'knowledge-read'
   | 'skill-read'
   | 'secret-read'
+  | ArtifactCreationAction
   | 'artifact-read'
   | 'usage-read'
   | 'runtime-information-read'
@@ -1111,6 +1133,7 @@ export function createSessionController(
     skillImport?: SkillImportAPI
     projectSecrets?: ProjectSecretsAPI
     projectSecretCommands?: ProjectSecretCommandsAPI
+    artifactCreation?: ArtifactCreationAPI
     projectArtifacts?: ProjectArtifactsAPI
     projectUsage?: ProjectUsageAPI
     scheduler?: ProjectSchedulerAPI
@@ -1130,6 +1153,7 @@ export function createSessionController(
   const skillsAPI = commandAPIs.skills ?? createSkillOwnerAPI()
   const secretCommandsAPI = commandAPIs.projectSecretCommands ?? createProjectSecretCommandsAPI()
   const projectSecretsAPI = commandAPIs.projectSecrets ?? createProjectSecretsAPI()
+  const artifactCreationAPI = commandAPIs.artifactCreation ?? createArtifactCreationAPI()
   const projectArtifactsAPI = commandAPIs.projectArtifacts ?? createProjectArtifactsAPI()
   const projectUsageAPI = commandAPIs.projectUsage ?? createProjectUsageAPI()
   const schedulerAPI = commandAPIs.scheduler ?? createProjectSchedulerAPI()
@@ -1362,6 +1386,10 @@ export function createSessionController(
   }
   const isKnowledgeCommand = (kind: Action): kind is KnowledgeCommandAction =>
     Object.hasOwn(knowledgeCommandRevisions, kind)
+  const artifactCreationRevisions: Record<ArtifactCreationAction, number> = { 'artifact-create': 0, 'artifact-create-lookup': 0, 'artifact-create-cancel': 0 }
+  const isArtifactCreation = (kind: Action): kind is ArtifactCreationAction => Object.hasOwn(artifactCreationRevisions, kind)
+  let artifactCreationIntent: ArtifactCreationOriginal | null = null
+  const artifactCreationState = shallowReactive<{ progress: Omit<ArtifactCreationProgress, 'contextValid' | 'canRetryOriginal' | 'canCancel'> | null }>({ progress: null })
   let knowledgeIntent: KnowledgeCommandIntent | null = null
   const knowledgeCommandState = shallowReactive<{
     progress: Omit<KnowledgeCommandProgress, 'contextValid' | 'canRetryOriginal'> | null
@@ -1558,6 +1586,7 @@ export function createSessionController(
       clearSprintLifecycleState()
       clearKnowledgeCommand()
       clearKnowledgeText()
+      clearArtifactCreation()
       clearSkillImport()
       clearKnowledgeDelete()
       clearWorkReviewState()
@@ -1637,6 +1666,7 @@ export function createSessionController(
       clearSprintLifecycleState()
       clearKnowledgeCommand()
       clearKnowledgeText()
+      clearArtifactCreation()
       clearSkillImport()
       clearKnowledgeDelete()
       clearWorkReviewState()
@@ -2177,6 +2207,7 @@ export function createSessionController(
       | 'knowledge-read'
       | 'skill-read'
       | 'secret-read'
+      | ArtifactCreationAction
       | 'artifact-read'
       | 'usage-read'
       | 'runtime-information-read'
@@ -2214,6 +2245,7 @@ export function createSessionController(
       if (isSkillImport(kind)) return skillImportRevisions[kind]
       if (kind === 'skill-read') return skillRevision
       if (kind === 'secret-read') return secretReadRevision
+      if (isArtifactCreation(kind)) return artifactCreationRevisions[kind]
       if (kind === 'artifact-read') return artifactReadRevision
       if (kind === 'usage-read') return usageReadRevision
       if (isKnowledgeCommand(kind)) return knowledgeCommandRevisions[kind]
@@ -2285,6 +2317,7 @@ export function createSessionController(
         kind === 'knowledge-read' ||
         kind === 'skill-read' ||
         kind === 'secret-read' ||
+        isArtifactCreation(kind) ||
         kind === 'artifact-read' ||
         kind === 'usage-read' ||
         isProjectAction(kind) ||
@@ -2356,7 +2389,7 @@ export function createSessionController(
       .catch((error: unknown) => {
         const e = isSchedulerAction(kind)
           ? schedulerFailure(identity, op, current, error)
-          : isKnowledgeCommand(kind) || isSkillImport(kind)
+          : isKnowledgeCommand(kind) || isSkillImport(kind) || isArtifactCreation(kind)
             ? current()
               ? projectFailure(identity, op, error)
               : error instanceof AccountFailure
@@ -8258,7 +8291,7 @@ export function createSessionController(
     startRename(projectID: string, documentID: string, value: KnowledgeRenameInput) {
       try {
         const identity = personalIdentity()
-        if (owner || knowledgeIntent || knowledgeTextIntent || knowledgeDeleteIntent || personalIntent || pending)
+        if (owner || artifactCreationIntent || knowledgeIntent || knowledgeTextIntent || knowledgeDeleteIntent || personalIntent || pending)
           throw new AccountFailure('busy')
         const input = captureKnowledgeRename(value)
         const original: KnowledgeCommandIntent = {
@@ -8442,7 +8475,7 @@ export function createSessionController(
       try {
         const identity = personalIdentity()
         const project = captureKnowledgeID(projectID), target = captureKnowledgeID(documentID)
-        if (owner || knowledgeDeleteIntent || knowledgeIntent || knowledgeTextIntent || personalIntent || pending)
+        if (owner || artifactCreationIntent || knowledgeDeleteIntent || knowledgeIntent || knowledgeTextIntent || personalIntent || pending)
           throw new AccountFailure('busy')
         return runAuthorized(identity, (op) => knowledgeDeleteAPI.preview(project, target,
           { csrfToken: sessionCSRF, signal: op.abort.signal }), undefined, 'knowledge-delete-preview')
@@ -8468,7 +8501,7 @@ export function createSessionController(
     startDelete(projectID: string, documentID: string, value: KnowledgeDeleteInput, previewIDs: readonly string[]) {
       try {
         const identity = personalIdentity()
-        if (owner || knowledgeIntent || knowledgeTextIntent || knowledgeDeleteIntent || personalIntent || pending)
+        if (owner || artifactCreationIntent || knowledgeIntent || knowledgeTextIntent || knowledgeDeleteIntent || personalIntent || pending)
           throw new AccountFailure('busy')
         const input = captureKnowledgeDelete(value)
         if (!Array.isArray(previewIDs) || previewIDs.length === 0) throw new AccountFailure('invalid-input')
@@ -8648,7 +8681,7 @@ export function createSessionController(
     start(projectID: string, value: KnowledgeTextIntent) {
       try {
         const identity = personalIdentity()
-        if (owner || knowledgeTextIntent || knowledgeIntent || knowledgeDeleteIntent || personalIntent || pending)
+        if (owner || artifactCreationIntent || knowledgeTextIntent || knowledgeIntent || knowledgeDeleteIntent || personalIntent || pending)
           throw new AccountFailure('busy')
         const input = captureKnowledgeText(value)
         const original: KnowledgeTextOriginal = {
@@ -8857,6 +8890,99 @@ export function createSessionController(
       })
     },
     abandon: clearSecretRead,
+  }
+  function eraseArtifactCreation(original: ArtifactCreationOriginal | null) {
+    if (original) { original.input = null; original.body = null }
+  }
+  function clearArtifactCreation() {
+    const retiring = owner && isArtifactCreation(owner.kind) ? owner : null
+    ++artifactCreationRevisions['artifact-create']
+    ++artifactCreationRevisions['artifact-create-lookup']
+    ++artifactCreationRevisions['artifact-create-cancel']
+    eraseArtifactCreation(artifactCreationIntent)
+    artifactCreationIntent = null
+    artifactCreationState.progress = null
+    retiring?.abandon?.()
+  }
+  function performArtifactCreation(original: ArtifactCreationOriginal, action: 'create' | 'lookup' | 'cancel'): Promise<ArtifactCreationResult | ArtifactCreationLookup | ArtifactCancellation> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    if (artifactCreationIntent !== original || !original.input || !projectContext(original)) return Promise.reject(new AccountFailure('invalid-input'))
+    const kind: ArtifactCreationAction = action === 'create' ? 'artifact-create' : action === 'lookup' ? 'artifact-create-lookup' : 'artifact-create-cancel'
+    const revision = artifactCreationRevisions[kind]
+    const live = () => artifactCreationIntent === original && revision === artifactCreationRevisions[kind] && projectContext(original)
+    const publish = (phase: ArtifactCreationProgress['phase'], observation: ArtifactCreationProgress['observation'], artifact: ArtifactMetadata | null = null) => {
+      artifactCreationState.progress = Object.freeze({ projectID: original.projectID, action, phase, observation, artifact })
+    }
+    publish('submitting', 'none')
+    return runAuthorized<ArtifactCreationResult | ArtifactCreationLookup | ArtifactCancellation>(original.identity, async (op, current) => {
+      const input = original.input
+      if (!input || !current() || !live()) throw new AccountFailure('cancelled')
+      if (JSON.stringify(input) !== original.body) throw new AccountFailure('invalid-input')
+      try {
+        const options = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
+        return action === 'create' ? await artifactCreationAPI.create(original.projectID, original.identity.userID, input, options)
+          : action === 'lookup' ? await artifactCreationAPI.lookup(original.projectID, original.identity.userID, input, options)
+          : await artifactCreationAPI.cancel(original.projectID, original.identity.userID, input, options)
+      } finally { if (artifactCreationIntent !== original) eraseArtifactCreation(original) }
+    }, undefined, kind).then(value => {
+      if (!live()) throw new AccountFailure('cancelled')
+      if (!('state' in value) || value.state === 'committed') {
+        publish('confirmed', 'committed', value.artifact)
+        eraseArtifactCreation(original); artifactCreationIntent = null
+      } else if (value.state === 'cancelled') {
+        publish('cancelled', 'cancelled')
+        eraseArtifactCreation(original); artifactCreationIntent = null
+      } else publish('uncertain', value.state)
+      return value
+    }, (error: unknown) => {
+      const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
+      if (artifactCreationIntent === original && revision === artifactCreationRevisions[kind] && sameIdentity(original.identity, personalContext.identity)) {
+        original.keyConflict ||= failure.problem?.code === 'IDEMPOTENCY_KEY_REUSED'
+        // Artifact creation spans transactions: even NotCommitted may follow a
+        // durable pending command. Only original-intent Lookup opens a replay.
+        publish('uncertain', 'failed')
+      }
+      throw failure
+    })
+  }
+  const artifactCreation = {
+    get progress(): ArtifactCreationProgress | null {
+      const value = artifactCreationState.progress
+      if (!value) return null
+      const contextValid = !!artifactCreationIntent && projectContext(artifactCreationIntent)
+      const available = contextValid && !state.busy && !artifactCreationIntent?.keyConflict && value.phase === 'uncertain'
+      return Object.freeze({ ...value, contextValid,
+        canRetryOriginal: available && value.observation === 'not_observed',
+        canCancel: available && (value.observation === 'pending' || value.observation === 'cancel_requested'),
+      })
+    },
+    start(projectID: string, value: ArtifactContentInput) {
+      try {
+        const identity = personalIdentity()
+        if (owner || artifactCreationIntent || knowledgeIntent || knowledgeTextIntent || knowledgeDeleteIntent || personalIntent || pending) throw new AccountFailure('busy')
+        const input = captureArtifactContent(value)
+        const original: ArtifactCreationOriginal = { projectID: captureArtifactID(projectID), identity, csrf: sessionCSRF, key: newKey(), input, body: JSON.stringify(input), keyConflict: false }
+        artifactCreationIntent = original
+        return performArtifactCreation(original, 'create')
+      } catch (error) { return Promise.reject(error) }
+    },
+    checkOriginal() {
+      if (!artifactCreationIntent || artifactCreation.progress?.phase !== 'uncertain' || !projectContext(artifactCreationIntent)) return Promise.reject(new AccountFailure('invalid-input'))
+      return performArtifactCreation(artifactCreationIntent, 'lookup')
+    },
+    retryOriginal() {
+      if (!artifactCreationIntent || !artifactCreation.progress?.canRetryOriginal) return Promise.reject(new AccountFailure('invalid-input'))
+      return performArtifactCreation(artifactCreationIntent, 'create')
+    },
+    cancelOriginal() {
+      if (!artifactCreationIntent || !artifactCreation.progress?.canCancel) return Promise.reject(new AccountFailure('invalid-input'))
+      return performArtifactCreation(artifactCreationIntent, 'cancel')
+    },
+    finish() {
+      if (owner || artifactCreationIntent || !['confirmed', 'cancelled'].includes(artifactCreationState.progress?.phase ?? '')) throw new AccountFailure('invalid-input')
+      clearArtifactCreation()
+    },
+    abandonLocal: clearArtifactCreation,
   }
   function clearArtifactRead() {
     ++artifactReadRevision
@@ -9618,6 +9744,7 @@ export function createSessionController(
     skillImport,
     projectSecrets,
     projectSecretCommands,
+    artifactCreation,
     projectArtifacts,
     projectUsage,
     knowledge,
