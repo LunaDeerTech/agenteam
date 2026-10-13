@@ -15,6 +15,7 @@ import TaskCreateForm from '../../components/work/TaskCreateForm.vue'
 import MilestoneCreateForm from '../../components/work/MilestoneCreateForm.vue'
 import MilestoneEditForm from '../../components/work/MilestoneEditForm.vue'
 import MilestoneReorderForm from '../../components/work/MilestoneReorderForm.vue'
+import SprintReorderForm from '../../components/work/SprintReorderForm.vue'
 import SprintEditForm from '../../components/work/SprintEditForm.vue'
 import SprintCreateForm from '../../components/work/SprintCreateForm.vue'
 import { useProjectTasks } from '../../composables/useProjectTasks'
@@ -65,6 +66,42 @@ const sprintHeading = ref<HTMLHeadingElement | null>(null)
 const sprintCreateButton = ref<{ $el: HTMLButtonElement } | null>(null)
 const milestoneCreateButton = ref<{ $el: HTMLButtonElement } | null>(null)
 const milestoneHeading = ref<HTMLHeadingElement | null>(null)
+const sprintReorderButton = ref<{ $el: HTMLButtonElement } | null>(null)
+async function cancelSprintReorder() {
+  const project = owner.sprintReorder.projectID,
+    target = owner.sprintReorder.sprintID
+  owner.cancelSprintReorder()
+  await nextTick()
+  if (
+    !owner.sprintReorder.open &&
+    owner.visible.value &&
+    owner.projectID.value === project &&
+    state.sprint?.id === target &&
+    !state.task
+  ) {
+    const button = sprintReorderButton.value?.$el
+    if (button && !button.disabled) button.focus()
+    else sprintHeading.value?.focus()
+  }
+}
+async function saveSprintReorder(action: 'save' | 'lookup' | 'read' = 'save') {
+  const project = owner.projectID.value,
+    target = state.sprint?.id
+  if (action === 'lookup') await owner.lookupSprintReorder()
+  else if (action === 'read') await owner.rereadSprintReorder()
+  else await owner.submitSprintReorder()
+  await nextTick()
+  if (
+    owner.visible.value &&
+    owner.projectID.value === project &&
+    state.sprint?.id === target &&
+    !state.task &&
+    !owner.sprintReorder.open &&
+    !owner.sprintReorder.needsRead &&
+    owner.sprintReorderProgress.value?.phase === 'confirmed'
+  )
+    sprintHeading.value?.focus()
+}
 const milestoneReorderButton = ref<{ $el: HTMLButtonElement } | null>(null)
 async function cancelMilestoneReorder() {
   const project = owner.milestoneReorder.projectID,
@@ -305,6 +342,65 @@ function returnToCreation() {
     </section>
     <UiState v-if="!owner.visible.value" kind="loading" title="正在确认任务访问身份" />
     <template v-else>
+      <section v-if="owner.sprintReorderProgress.value" aria-label="Sprint 排序状态">
+        <p v-if="owner.sprintReorderProgress.value.phase === 'submitting'" role="status">
+          正在排序 Sprint。
+        </p>
+        <template v-if="owner.sprintReorderProgress.value.phase === 'uncertain'">
+          <p role="status">Sprint 排序结果尚未确认。请查证原排序，勿再次提交。</p>
+          <p
+            v-if="owner.sprintReorderProgress.value.observation === 'not_observed'"
+            role="status"
+          >
+            尚未观察到原排序结果，可再次查询。
+          </p>
+          <p
+            v-if="owner.sprintReorderProgress.value.observation === 'in_progress'"
+            role="status"
+          >
+            原排序仍在处理中，可稍后再次查询。
+          </p>
+          <UiButton
+            v-if="
+              state.sprint?.id === owner.sprintReorderProgress.value.sprintID &&
+              !state.task
+            "
+            :disabled="owner.busy.value || !owner.sprintReorderProgress.value.contextValid"
+            @click="saveSprintReorder('lookup')"
+            >查询原 Sprint 排序结果</UiButton
+          >
+          <UiButton
+            v-else
+            :disabled="owner.busy.value || !owner.sprintReorderProgress.value.contextValid"
+            @click="owner.selectSprint(owner.sprintReorderProgress.value.sprintID)"
+            >返回待确认排序的 Sprint</UiButton
+          >
+        </template>
+        <template
+          v-if="
+            owner.sprintReorderProgress.value.phase === 'confirmed' &&
+            (owner.sprintReorder.needsRead ||
+              state.sprint?.id !== owner.sprintReorderProgress.value.sprintID)
+          "
+        >
+          <p role="status">原 Sprint 排序已确认，当前内容需要重新读取。</p>
+          <UiButton
+            v-if="
+              state.sprint?.id === owner.sprintReorderProgress.value.sprintID &&
+              !state.task
+            "
+            :disabled="owner.busy.value || !owner.sprintReorderProgress.value.contextValid"
+            @click="saveSprintReorder('read')"
+            >读取已确认的排序</UiButton
+          >
+          <UiButton
+            v-else
+            :disabled="owner.busy.value || !owner.sprintReorderProgress.value.contextValid"
+            @click="owner.selectSprint(owner.sprintReorderProgress.value.sprintID)"
+            >返回已确认排序的 Sprint</UiButton
+          >
+        </template>
+      </section>
       <section v-if="owner.milestoneReorderProgress.value" aria-label="Milestone 排序状态">
         <p v-if="owner.milestoneReorderProgress.value.phase === 'submitting'" role="status">
           正在排序 Milestone。
@@ -758,6 +854,13 @@ function returnToCreation() {
               <h2 ref="sprintHeading" tabindex="-1">{{ state.sprint.title }}</h2>
               <UiBadge>{{ sprintLabels[state.sprint.state] }}</UiBadge>
               <UiButton
+                v-if="!state.task && !owner.sprintReorder.open && !owner.sprintReorderPending.value"
+                ref="sprintReorderButton"
+                :disabled="owner.busy.value || !owner.canReorderSprint.value"
+                @click="owner.openSprintReorder()"
+                >调整 Sprint 顺序</UiButton
+              >
+              <UiButton
                 v-if="!state.task && !owner.sprintEdit.open && !owner.sprintEditPending.value"
                 ref="sprintEditButton"
                 :disabled="owner.busy.value || !owner.canEditSprint.value"
@@ -785,6 +888,17 @@ function returnToCreation() {
             </header>
             <p v-if="!state.task" class="sprint-description">
               {{ state.sprint.description || '暂无描述。' }}
+            </p>
+            <SprintReorderForm
+              v-if="!state.task && owner.sprintReorder.open && !owner.sprintReorderPending.value"
+              :owner="owner"
+              @cancel="cancelSprintReorder"
+              @submit="saveSprintReorder()" />
+            <p
+              v-if="!state.task && !owner.sprintReorder.open && owner.sprintReorder.message"
+              role="status"
+            >
+              {{ owner.sprintReorder.message }}
             </p>
             <SprintEditForm
               v-if="!state.task && owner.sprintEdit.open && !owner.sprintEditPending.value"

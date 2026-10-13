@@ -34,7 +34,12 @@ import {
   type MilestoneUpdateReceipt,
   type MilestoneCreateReceipt,
 } from '../api/work-milestone-planning'
-import { captureSprintUpdateInput, type SprintUpdateReceipt } from '../api/work-sprint-planning'
+import {
+  captureSprintReorderInput,
+  type SprintReorderReceipt,
+  captureSprintUpdateInput,
+  type SprintUpdateReceipt,
+} from '../api/work-sprint-planning'
 import { captureTaskCreateDraft, type TaskCreateDraft } from '../api/work-task-planning'
 import {
   compareTaskTimelineEvents,
@@ -210,6 +215,29 @@ export function createProjectTasks(
     touched: { title: false, description: false, type: false, priority: false, plan: false },
     message: '',
   })
+  const sprintReorder = reactive({
+    open: false,
+    projectID: '',
+    sprintID: '',
+    milestoneID: '',
+    version: '',
+    mode: 'before' as 'before' | 'tail',
+    beforeID: '',
+    beforeTitle: '',
+    conflict: false,
+    readVersion: '',
+    needsRead: false,
+    message: '',
+  })
+  const sprintCandidates = shallowReactive<{
+    phase: Phase | 'stale'
+    items: readonly SprintSummary[]
+    cursors: readonly (string | undefined)[]
+    page: number
+    next?: string
+    message: string
+  }>({ phase: 'idle', items: [], cursors: [undefined], page: 0, message: '' })
+  let sprintReorderIdentity = ''
   const milestoneReorder = reactive({
     open: false,
     projectID: '',
@@ -374,6 +402,68 @@ export function createProjectTasks(
         (milestoneEdit.milestoneID !== state.milestone?.id ||
           milestoneEdit.version !== state.milestone?.version)),
   )
+  const sprintReorderPending = computed(() => {
+    const p = auth.workSprintReordering?.progress
+    return p && ['submitting', 'uncertain'].includes(p.phase) ? p : null
+  })
+  const sprintReorderProgress = computed(() => {
+    const p = auth.workSprintReordering?.progress
+    return visible.value && p?.projectID === projectID.value ? p : null
+  })
+  const sprintReorderBlocked = computed(
+    () => !!sprintReorderPending.value || sprintReorder.open || sprintReorder.needsRead,
+  )
+  const sprintReorderStale = computed(
+    () =>
+      sprintReorder.conflict ||
+      (sprintReorder.open &&
+        (sprintReorder.sprintID !== state.sprint?.id ||
+          sprintReorder.version !== state.sprint?.version ||
+          sprintReorder.milestoneID !== state.sprint?.milestone_id)),
+  )
+  const sprintReorderReady = computed(
+    () =>
+      canReorderSprint.value &&
+      !sprintReorderStale.value &&
+      sprintReorder.open &&
+      (sprintReorder.mode === 'tail' ||
+        (sprintCandidates.phase === 'ready' &&
+          sprintCandidates.items.some(
+            (m) =>
+              m.id === sprintReorder.beforeID &&
+              m.id !== sprintReorder.sprintID &&
+              m.project_id === sprintReorder.projectID &&
+              m.milestone_id === sprintReorder.milestoneID,
+          ))),
+  )
+  const canReorderSprint = computed(
+    () =>
+      visible.value &&
+      state.phase === 'ready' &&
+      !!state.sprint &&
+      state.sprint.milestone_id === state.milestone?.id &&
+      ['planned', 'current'].includes(state.sprint.state) &&
+      !state.task &&
+      workspace.detail.project?.lifecycle === 'active' &&
+      !pending.value &&
+      !milestonePending.value &&
+      !milestoneCreation.open &&
+      !milestoneCreation.needsRead &&
+      !milestoneReorderBlocked.value &&
+      !milestoneEditBlocked.value &&
+      !sprintPending.value &&
+      !sprintCreatePending.value &&
+      !sprintStart.open &&
+      !sprintStart.needsRead &&
+      !sprintCreation.open &&
+      !sprintCreation.needsRead &&
+      !creation.open &&
+      !edit.open &&
+      !draft.action &&
+      !sprintEditBlocked.value &&
+      !sprintReorderPending.value &&
+      !sprintReorder.needsRead,
+  )
   const milestoneReorderPending = computed(() => {
     const p = auth.workMilestoneReordering?.progress
     return p && ['submitting', 'uncertain'].includes(p.phase) ? p : null
@@ -426,6 +516,7 @@ export function createProjectTasks(
       !creation.open &&
       !edit.open &&
       !draft.action &&
+      !sprintReorderBlocked.value &&
       !milestoneReorderPending.value &&
       !milestoneReorder.needsRead &&
       !sprintEditBlocked.value &&
@@ -452,6 +543,7 @@ export function createProjectTasks(
       !edit.open &&
       !draft.action &&
       !milestoneReorderBlocked.value &&
+      !sprintReorderBlocked.value &&
       !milestoneEditPending.value &&
       !milestoneEdit.needsRead &&
       !sprintEditBlocked.value,
@@ -491,6 +583,7 @@ export function createProjectTasks(
       !milestoneCreation.open &&
       !milestoneCreation.needsRead &&
       !milestoneReorderBlocked.value &&
+      !sprintReorderBlocked.value &&
       !milestoneEditBlocked.value &&
       !sprintPending.value &&
       !sprintCreatePending.value &&
@@ -523,6 +616,7 @@ export function createProjectTasks(
       !pending.value &&
       !milestonePending.value &&
       !milestoneReorderBlocked.value &&
+      !sprintReorderBlocked.value &&
       !milestoneEditBlocked.value &&
       !sprintEditBlocked.value &&
       !sprintPending.value &&
@@ -612,6 +706,7 @@ export function createProjectTasks(
       !sprintCreatePending.value &&
       !milestonePending.value &&
       !milestoneReorderBlocked.value &&
+      !sprintReorderBlocked.value &&
       !milestoneEditBlocked.value &&
       !sprintEditBlocked.value &&
       !milestoneCreation.open &&
@@ -660,6 +755,7 @@ export function createProjectTasks(
       !sprintCreatePending.value &&
       !milestonePending.value &&
       !milestoneReorderBlocked.value &&
+      !sprintReorderBlocked.value &&
       !milestoneEditBlocked.value &&
       !sprintEditBlocked.value &&
       !milestoneCreation.open &&
@@ -700,6 +796,7 @@ export function createProjectTasks(
       !!sprintCreatePending.value ||
       !!milestonePending.value ||
       milestoneReorderBlocked.value ||
+      sprintReorderBlocked.value ||
       milestoneEditBlocked.value ||
       sprintEditBlocked.value ||
       milestoneCreation.open ||
@@ -721,6 +818,7 @@ export function createProjectTasks(
       !sprintCreatePending.value &&
       !milestonePending.value &&
       !milestoneReorderBlocked.value &&
+      !sprintReorderBlocked.value &&
       !milestoneEditBlocked.value &&
       !sprintEditBlocked.value &&
       !milestoneCreation.open &&
@@ -744,6 +842,7 @@ export function createProjectTasks(
       !sprintCreatePending.value &&
       !milestonePending.value &&
       !milestoneReorderBlocked.value &&
+      !sprintReorderBlocked.value &&
       !milestoneEditBlocked.value &&
       !sprintEditBlocked.value &&
       !milestoneCreation.open &&
@@ -780,6 +879,7 @@ export function createProjectTasks(
       !!sprintCreatePending.value ||
       !!milestonePending.value ||
       milestoneReorderBlocked.value ||
+      sprintReorderBlocked.value ||
       milestoneEditBlocked.value ||
       sprintEditBlocked.value ||
       milestoneCreation.open ||
@@ -873,6 +973,7 @@ export function createProjectTasks(
   function forgetMilestoneAccess(project: string) {
     auth.workMilestoneReordering?.forgetUnavailable(project)
     auth.workMilestoneEditing?.forgetUnavailable(project)
+    clearSprintReorder()
     clearMilestoneReorder()
     clearMilestoneEdit()
     state.milestone = null
@@ -907,15 +1008,27 @@ export function createProjectTasks(
     sprintEditIdentity = ''
   }
   function forgetSprintAccess(project: string) {
+    auth.workSprintReordering?.forgetUnavailable(project)
+    clearSprintReorder()
     auth.workSprintEditing?.forgetUnavailable(project)
     clearSprintEdit()
     state.sprint = null
     state.sprints = []
     state.sprintNext = undefined
   }
+  function hasSprintReorderParent(project: string, parent: string) {
+    const progress = auth.workSprintReordering?.progress
+    return (
+      (sprintReorder.projectID === project && sprintReorder.milestoneID === parent) ||
+      (progress?.projectID === project && progress.milestoneID === parent)
+    )
+  }
   function hasSprintEdit(project: string, target?: string) {
     const progress = auth.workSprintEditing?.progress
     return (
+      (sprintReorder.projectID === project && (!target || sprintReorder.sprintID === target)) ||
+      (auth.workSprintReordering?.progress?.projectID === project &&
+        (!target || auth.workSprintReordering.progress.sprintID === target)) ||
       (sprintEdit.projectID === project && (!target || sprintEdit.sprintID === target)) ||
       (progress?.projectID === project && (!target || progress.sprintID === target))
     )
@@ -1002,6 +1115,7 @@ export function createProjectTasks(
     createdSprintFocus.value = null
     createdMilestoneFocus.value = null
     clearMilestoneCreation()
+    clearSprintReorder()
     clearMilestoneReorder()
     clearMilestoneEdit()
     clearSprintEdit()
@@ -1435,6 +1549,11 @@ export function createProjectTasks(
           forgetSprintAccess(refusedSprint.project)
         if (
           refusedMilestone &&
+          hasSprintReorderParent(refusedMilestone.project, refusedMilestone.target)
+        )
+          forgetSprintAccess(refusedMilestone.project)
+        if (
+          refusedMilestone &&
           hasMilestoneChange(refusedMilestone.project, refusedMilestone.target)
         )
           forgetMilestoneAccess(refusedMilestone.project)
@@ -1463,6 +1582,379 @@ export function createProjectTasks(
       if (requested || !visible.value || busy.value) return
       await loadColumn(s)
     }
+  }
+  function clearSprintCandidates() {
+    Object.assign(sprintCandidates, {
+      phase: 'idle',
+      items: [],
+      cursors: [undefined],
+      page: 0,
+      next: undefined,
+      message: '',
+    })
+  }
+  function clearSprintReorder() {
+    Object.assign(sprintReorder, {
+      open: false,
+      projectID: '',
+      sprintID: '',
+      milestoneID: '',
+      version: '',
+      mode: 'before',
+      beforeID: '',
+      beforeTitle: '',
+      conflict: false,
+      readVersion: '',
+      needsRead: false,
+      message: '',
+    })
+    sprintReorderIdentity = ''
+    clearSprintCandidates()
+  }
+  function releaseRejectedSprintReorder() {
+    const progress = auth.workSprintReordering?.progress
+    if (!auth.state.busy && progress?.phase === 'rejected' && progress.contextValid)
+      auth.workSprintReordering.editRejected()
+  }
+  function sameSprintReorder(own: number, project: string, target: string, identity: string) {
+    return (
+      live(own, project) &&
+      identityKey(project) === identity &&
+      !state.task &&
+      state.sprint?.id === target &&
+      state.sprint.milestone_id === state.milestone?.id &&
+      state.sprint.milestone_id ===
+        (sprintReorder.milestoneID || auth.workSprintReordering?.progress?.milestoneID)
+    )
+  }
+  async function openSprintReorder() {
+    const current = state.sprint
+    if (!current || busy.value || !canReorderSprint.value || sprintReorder.open) return
+    releaseRejectedSprintReorder()
+    releaseRejectedMilestoneReorder()
+    releaseRejectedMilestoneEdit()
+    releaseRejectedSprintEdit()
+    releaseRejectedMilestone()
+    if (sprintProgress.value?.phase === 'rejected' && sprintProgress.value.contextValid)
+      auth.workSprintLifecycle.editRejected()
+    if (sprintCreateProgress.value?.phase === 'rejected' && sprintCreateProgress.value.contextValid)
+      auth.workSprintLifecycle.editRejectedCreate()
+    clearSprintReorder()
+    Object.assign(sprintReorder, {
+      open: true,
+      projectID: current.project_id,
+      sprintID: current.id,
+      milestoneID: current.milestone_id,
+      version: current.version,
+    })
+    sprintReorderIdentity = identityKey(current.project_id)
+    await loadSprintCandidates(0)
+  }
+  function setSprintReorderMode(mode: string) {
+    if (
+      busy.value ||
+      !canReorderSprint.value ||
+      sprintReorderStale.value ||
+      !sprintReorder.open ||
+      (mode !== 'before' && mode !== 'tail')
+    )
+      return
+    sprintReorder.mode = mode
+  }
+  function chooseSprintBefore(target: string) {
+    if (
+      busy.value ||
+      !canReorderSprint.value ||
+      sprintReorderStale.value ||
+      sprintCandidates.phase !== 'ready'
+    )
+      return
+    const item = sprintCandidates.items.find(
+      (m) =>
+        m.id === target &&
+        m.id !== sprintReorder.sprintID &&
+        m.project_id === sprintReorder.projectID &&
+        m.milestone_id === sprintReorder.milestoneID,
+    )
+    if (!item) return
+    sprintReorder.beforeID = item.id
+    sprintReorder.beforeTitle = item.title
+  }
+  async function loadSprintCandidates(page: number, restart = false) {
+    const project = sprintReorder.projectID,
+      target = sprintReorder.sprintID,
+      identity = sprintReorderIdentity,
+      own = generation
+    if (
+      !sprintReorder.open ||
+      busy.value ||
+      sprintReorderPending.value ||
+      !sameSprintReorder(own, project, target, identity) ||
+      !Number.isInteger(page) ||
+      page < 0 ||
+      (!restart && (sprintCandidates.phase === 'stale' || page > sprintCandidates.page + 1))
+    )
+      return
+    const cursor =
+      restart || page === 0
+        ? undefined
+        : page === sprintCandidates.page + 1
+          ? sprintCandidates.next
+          : sprintCandidates.cursors[page]
+    if (page > 0 && !cursor) return
+    sprintCandidates.phase = 'loading'
+    sprintCandidates.message = ''
+    await read(
+      async (_p, step) => {
+        const page = await step(() =>
+          auth.workReview.sprints(project, sprintReorder.milestoneID, {
+            limit: 50,
+            ...(cursor ? { cursor } : {}),
+          }),
+        )
+        if (
+          page.items.some(
+            (item) => item.project_id !== project || item.milestone_id !== sprintReorder.milestoneID,
+          )
+        )
+          throw new AccountFailure('invalid-response')
+        return page
+      },
+      (result) => {
+        if (!sameSprintReorder(own, project, target, identity) || !sprintReorder.open) return
+        sprintCandidates.items = result.items.filter((m) => m.id !== target)
+        sprintCandidates.cursors = [
+          ...(restart ? [] : sprintCandidates.cursors.slice(0, page)),
+          cursor,
+        ]
+        sprintCandidates.page = page
+        sprintCandidates.next = result.next_cursor
+        sprintCandidates.phase = 'ready'
+        // A new page offers new anchors; never submit an invisible stale selection.
+        sprintReorder.beforeID = ''
+        sprintReorder.beforeTitle = ''
+      },
+      (error) => {
+        if (!sameSprintReorder(own, project, target, identity)) return
+        if (
+          error instanceof AccountFailure &&
+          [401, 403, 404].includes(error.problem?.status ?? 0)
+        ) {
+          forgetSprintAccess(project)
+          state.phase = 'error'
+          state.message = '当前 Sprint 不可用或无权访问，排序选择已清除。'
+          return
+        }
+        const stale =
+          error instanceof AccountFailure &&
+          ['CURSOR_INVALID', 'CURSOR_STALE'].includes(error.problem?.code ?? '')
+        if (stale) {
+          clearSprintCandidates()
+          sprintReorder.beforeID = ''
+          sprintReorder.beforeTitle = ''
+        }
+        sprintCandidates.phase = stale ? 'stale' : 'error'
+        sprintCandidates.message = stale
+          ? '候选顺序已发生变化，请从首页重新读取。'
+          : '未取得完整候选列表，请重新读取本页。'
+      },
+    )
+  }
+  function cancelSprintReorder() {
+    if (busy.value || sprintReorderPending.value) return
+    releaseRejectedSprintReorder()
+    clearSprintReorder()
+  }
+  async function readReorderedSprint(confirmed: boolean) {
+    const project = sprintReorder.projectID,
+      target = sprintReorder.sprintID,
+      identity = sprintReorderIdentity,
+      own = generation
+    if (
+      busy.value ||
+      sprintReorderPending.value ||
+      !sameSprintReorder(own, project, target, identity)
+    )
+      return
+    await read(
+      async (_p, step) => {
+        const current = await step(() => auth.workReview.sprint(project, target))
+        if (current.milestone_id !== sprintReorder.milestoneID)
+          throw new AccountFailure('invalid-response')
+        const page = await step(() =>
+          auth.workReview.sprints(project, sprintReorder.milestoneID, { limit: 50 }),
+        )
+        return { current, page }
+      },
+      ({ current, page }) => {
+        if (!sameSprintReorder(own, project, target, identity)) return
+        state.sprint = current
+        state.sprints = page.items
+        state.sprintNext = page.next_cursor
+        sprintReorder.readVersion = current.version
+        if (confirmed) {
+          sprintReorder.needsRead = false
+          sprintReorder.message =
+            auth.workSprintReordering.progress?.result?.changed === false
+              ? '顺序已确认，原操作无需调整；当前 Sprint 和顺序已重新读取。'
+              : '顺序已确认，当前 Sprint 和顺序已重新读取。'
+        } else
+          sprintReorder.message =
+            '已读取当前 Sprint。核对后可明确使用当前版本，重新选择排序位置。'
+      },
+      (error) => {
+        if (
+          error instanceof AccountFailure &&
+          [401, 403, 404].includes(error.problem?.status ?? 0)
+        ) {
+          forgetSprintAccess(project)
+          state.phase = 'error'
+          state.message = '当前 Sprint 不可用或无权访问，排序选择已清除。'
+        } else if (sameSprintReorder(own, project, target, identity))
+          sprintReorder.message = confirmed
+            ? '顺序已确认，当前内容读取失败。请重新读取，不要再次排序。'
+            : '当前 Sprint 读取失败，已保留原版本和排序选择。'
+      },
+    )
+  }
+  async function reloadSprintReorder() {
+    if (
+      !sprintReorder.open ||
+      !sprintReorderStale.value ||
+      busy.value ||
+      sprintReorderPending.value
+    )
+      return
+    sprintReorder.readVersion = ''
+    await readReorderedSprint(false)
+  }
+  async function adoptSprintReorderVersion() {
+    const current = state.sprint
+    if (
+      !sprintReorder.open ||
+      busy.value ||
+      !canReorderSprint.value ||
+      !sprintReorderStale.value ||
+      !current ||
+      !sprintReorder.readVersion ||
+      current.version !== sprintReorder.readVersion ||
+      current.id !== sprintReorder.sprintID
+    )
+      return
+    releaseRejectedSprintReorder()
+    sprintReorder.version = current.version
+    sprintReorder.conflict = false
+    sprintReorder.readVersion = ''
+    // Revalidate anchors against a fresh group after a conflicting mutation.
+    await loadSprintCandidates(0, true)
+    sprintReorder.message = '已使用当前版本。请核对排序位置，再明确确认。'
+  }
+  async function acceptSprintReorder(
+    receipt: SprintReorderReceipt,
+    own: number,
+    identity: string,
+  ) {
+    const current = receipt.sprint
+    if (!sameSprintReorder(own, current.project_id, current.id, identity)) return
+    clearSprintReorder()
+    Object.assign(sprintReorder, {
+      projectID: current.project_id,
+      sprintID: current.id,
+      milestoneID: current.milestone_id,
+      needsRead: true,
+      message: '顺序已确认，正在读取当前内容。',
+    })
+    sprintReorderIdentity = identity
+    state.sprintNext = undefined
+    await readReorderedSprint(true)
+  }
+  async function submitSprintReorder() {
+    const project = sprintReorder.projectID,
+      target = sprintReorder.sprintID,
+      identity = sprintReorderIdentity,
+      own = generation
+    if (
+      !sprintReorderReady.value ||
+      busy.value ||
+      !sameSprintReorder(own, project, target, identity)
+    )
+      return
+    try {
+      const input = captureSprintReorderInput(
+        {
+          expected_version: sprintReorder.version,
+          request: {
+            milestone_id: sprintReorder.milestoneID,
+            ...(sprintReorder.mode === 'tail' ? {} : { before_id: sprintReorder.beforeID }),
+          },
+        },
+        target,
+      )
+      releaseRejectedSprintReorder()
+      const value = await auth.workSprintReordering.reorder(project, target, input)
+      const receipt = 'state' in value ? value.result : value
+      if (receipt) await acceptSprintReorder(receipt, own, identity)
+    } catch (error) {
+      if (!sameSprintReorder(own, project, target, identity)) return
+      if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
+        forgetSprintAccess(project)
+        state.phase = 'error'
+        state.message = '当前 Sprint 不可用或无权访问，排序选择已清除。'
+      } else if (error instanceof AccountFailure && error.problem?.code === 'VERSION_CONFLICT') {
+        sprintReorder.conflict = true
+        sprintReorder.readVersion = ''
+        sprintReorder.message =
+          'Sprint 已发生变化，原版本和排序选择已保留。请重新读取并核对。'
+      } else if (error instanceof AccountFailure && error.problem?.code === 'INVALID_STATE') {
+        sprintReorder.conflict = true
+        sprintReorder.readVersion = ''
+        sprintReorder.message = 'Sprint 当前状态不允许排序。请重新读取并核对，原版本和选择已保留。'
+      } else sprintReorder.message = '尚未确认排序结果，请查看原操作状态。'
+    }
+  }
+  async function lookupSprintReorder() {
+    const progress = sprintReorderProgress.value,
+      own = generation
+    if (
+      busy.value ||
+      progress?.phase !== 'uncertain' ||
+      !progress.contextValid ||
+      state.sprint?.id !== progress.sprintID ||
+      state.task
+    )
+      return
+    const identity = identityKey(progress.projectID)
+    try {
+      const value = await auth.workSprintReordering.checkOriginal()
+      const receipt = 'state' in value ? value.result : value
+      if (receipt) await acceptSprintReorder(receipt, own, identity)
+    } catch (error) {
+      if (!sameSprintReorder(own, progress.projectID, progress.sprintID, identity)) return
+      if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
+        forgetSprintAccess(progress.projectID)
+        state.phase = 'error'
+        state.message = '当前 Sprint 不可用或无权访问，排序选择已清除。'
+      } else sprintReorder.message = '未取得原排序结果，可在原请求结束后再次查询。'
+    }
+  }
+  async function rereadSprintReorder() {
+    const progress = sprintReorderProgress.value
+    if (
+      busy.value ||
+      progress?.phase !== 'confirmed' ||
+      !progress.contextValid ||
+      state.sprint?.id !== progress.sprintID ||
+      state.task
+    )
+      return
+    Object.assign(sprintReorder, {
+      projectID: progress.projectID,
+      sprintID: progress.sprintID,
+      milestoneID: progress.milestoneID,
+      needsRead: true,
+    })
+    sprintReorderIdentity = identityKey(progress.projectID)
+    await readReorderedSprint(true)
   }
   function clearMilestoneCandidates() {
     Object.assign(milestoneCandidates, {
@@ -1507,6 +1999,7 @@ export function createProjectTasks(
   async function openMilestoneReorder() {
     const current = state.milestone
     if (!current || busy.value || !canReorderMilestone.value || milestoneReorder.open) return
+    releaseRejectedSprintReorder()
     releaseRejectedMilestoneReorder()
     releaseRejectedMilestoneEdit()
     releaseRejectedSprintEdit()
@@ -1515,6 +2008,7 @@ export function createProjectTasks(
       auth.workSprintLifecycle.editRejected()
     if (sprintCreateProgress.value?.phase === 'rejected' && sprintCreateProgress.value.contextValid)
       auth.workSprintLifecycle.editRejectedCreate()
+    clearSprintReorder()
     clearMilestoneReorder()
     Object.assign(milestoneReorder, {
       open: true,
@@ -1563,6 +2057,7 @@ export function createProjectTasks(
       !milestoneReorder.open ||
       busy.value ||
       milestoneReorderPending.value ||
+      sprintReorderPending.value ||
       !sameMilestoneReorder(own, project, target, identity) ||
       !Number.isInteger(page) ||
       page < 0 ||
@@ -1625,7 +2120,9 @@ export function createProjectTasks(
   }
   function cancelMilestoneReorder() {
     if (busy.value || milestoneReorderPending.value) return
+    releaseRejectedSprintReorder()
     releaseRejectedMilestoneReorder()
+    clearSprintReorder()
     clearMilestoneReorder()
   }
   async function readReorderedMilestone(confirmed: boolean) {
@@ -1636,6 +2133,7 @@ export function createProjectTasks(
     if (
       busy.value ||
       milestoneReorderPending.value ||
+      sprintReorderPending.value ||
       !sameMilestoneReorder(own, project, target, identity)
     )
       return
@@ -1700,6 +2198,7 @@ export function createProjectTasks(
       current.id !== milestoneReorder.milestoneID
     )
       return
+    releaseRejectedSprintReorder()
     releaseRejectedMilestoneReorder()
     milestoneReorder.version = current.version
     milestoneReorder.conflict = false
@@ -1715,6 +2214,7 @@ export function createProjectTasks(
   ) {
     const current = receipt.milestone
     if (!sameMilestoneReorder(own, current.project_id, current.id, identity)) return
+    clearSprintReorder()
     clearMilestoneReorder()
     Object.assign(milestoneReorder, {
       projectID: current.project_id,
@@ -1745,6 +2245,7 @@ export function createProjectTasks(
         },
         target,
       )
+      releaseRejectedSprintReorder()
       releaseRejectedMilestoneReorder()
       const value = await auth.workMilestoneReordering.reorder(project, target, input)
       const receipt = 'state' in value ? value.result : value
@@ -3021,6 +3522,7 @@ export function createProjectTasks(
       sprintCreatePending.value ||
       milestonePending.value ||
       milestoneReorderPending.value ||
+      sprintReorderPending.value ||
       milestoneEditPending.value ||
       sprintEditPending.value
         ? '操作结果尚未确认。离开不会重发，返回原 Milestone、Sprint 或任务后可继续查询原结果。'
@@ -3035,6 +3537,7 @@ export function createProjectTasks(
     const resolve = resolveLeave
     resolveLeave = null
     if (yes) {
+      releaseRejectedSprintReorder()
       releaseRejectedMilestoneReorder()
       releaseRejectedMilestoneEdit()
       releaseRejectedSprintEdit()
@@ -3044,6 +3547,7 @@ export function createProjectTasks(
       clearSprintStart()
       clearSprintCreation()
       clearMilestoneCreation()
+      clearSprintReorder()
       clearMilestoneReorder()
       clearMilestoneEdit()
       clearSprintEdit()
@@ -3052,6 +3556,7 @@ export function createProjectTasks(
   }
   function afterNavigation(to: string) {
     if (to === route.value) return
+    releaseRejectedSprintReorder()
     releaseRejectedMilestoneReorder()
     releaseRejectedMilestoneEdit()
     releaseRejectedSprintEdit()
@@ -3074,6 +3579,7 @@ export function createProjectTasks(
     clearSprintStart()
     clearSprintCreation()
     clearMilestoneCreation()
+    clearSprintReorder()
     clearMilestoneReorder()
     clearMilestoneEdit()
     clearSprintEdit()
@@ -3171,6 +3677,24 @@ export function createProjectTasks(
     edit,
     sprintStart,
     projectID,
+    sprintReorder,
+    sprintCandidates,
+    sprintReorderPending,
+    sprintReorderProgress,
+    sprintReorderBlocked,
+    sprintReorderStale,
+    sprintReorderReady,
+    canReorderSprint,
+    openSprintReorder,
+    setSprintReorderMode,
+    chooseSprintBefore,
+    loadSprintCandidates,
+    cancelSprintReorder,
+    submitSprintReorder,
+    lookupSprintReorder,
+    rereadSprintReorder,
+    reloadSprintReorder,
+    adoptSprintReorderVersion,
     milestoneReorder,
     milestoneCandidates,
     milestoneReorderPending,

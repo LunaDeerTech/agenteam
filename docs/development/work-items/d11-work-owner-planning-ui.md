@@ -331,3 +331,7 @@ cleanup有限接受1440×960浅色创建表单和390×844深色planned结果两�
 ## 21. 当前 Sprint 的 Agent 筛选限定验收（2026-10-13）
 
 [Agent 筛选切片](d11-task-assignee-filter-ui.md)已通过限定验收，沿 §18–19 的服务端查询增加全部、未指派及真实项目 Agent 选择与目录分页。草稿明确应用、原 cursor 条件和身份代际保持；43 项分段前端结果、完整类型检查与构建通过。真实 Work HTTP shell 的 native01 1 top/2 sub 验证 50+1 Agent 目录、同 Agent 任务分页、三态/组合筛选与详情往返，相关 A/B 业务事实不变，原 Wait 与六资源退出闭合；1440 浅色和 390 深色四图有限接受。原 basic01 两个旧断言失败及修正保留，不称默认 App 生命周期、完整权限或响应式矩阵通过，不改写先前切片及旧 STOP。
+
+## 22. 同 Milestone 内的 Sprint 排序（实现中，2026-10-13）
+
+[Sprint 排序切片](d11-sprint-reorder-ui.md)沿 §4 的同组排序合同，在既有任务页面提供 planned/current Sprint 的明确 before/组尾操作；原父、版本、原意图 Lookup 与独立当前读取保持，completed 不开放新排序。候选分页、冲突和导航身份隔离复用现有机制；本片待独立审查与实际运行，不把 §20 Milestone 排序的通过结果代作 Sprint 验收，不新增跨父移动、Task 或生命周期操作。

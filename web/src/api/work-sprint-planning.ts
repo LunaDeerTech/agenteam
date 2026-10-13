@@ -33,7 +33,28 @@ export type SprintUpdateReceipt = Readonly<{
 export type SprintUpdateLookup =
   | Readonly<{ state: 'committed'; result: SprintUpdateReceipt }>
   | Readonly<{ state: 'in_progress' | 'not_observed'; result: null }>
+export type SprintReorderInput = Readonly<{
+  expected_version: string
+  request: Readonly<{ milestone_id: string; before_id?: string }>
+}>
+export type SprintReorderReceipt = Omit<SprintUpdateReceipt, 'command'> &
+  Readonly<{ command: 'work.sprint.reorder' }>
+export type SprintReorderLookup =
+  | Readonly<{ state: 'committed'; result: SprintReorderReceipt }>
+  | Readonly<{ state: 'in_progress' | 'not_observed'; result: null }>
 export interface WorkSprintPlanningAPI {
+  reorder(
+    project: string,
+    target: string,
+    input: SprintReorderInput,
+    write: WriteOptions,
+  ): Promise<SprintReorderReceipt>
+  lookupReorder(
+    project: string,
+    target: string,
+    input: SprintReorderInput,
+    write: WriteOptions,
+  ): Promise<SprintReorderLookup>
   update(
     project: string,
     target: string,
@@ -197,9 +218,134 @@ function receipt(
     }),
   })
 }
+export function captureSprintReorderInput(value: unknown, target?: string): SprintReorderInput {
+  return input(() => {
+    const v = shape(value, ['expected_version', 'request'])
+    const r = shape(v.request, ['milestone_id'], ['before_id'])
+    const before = Object.hasOwn(r, 'before_id') ? workID(r.before_id) : undefined
+    requireValue(before === undefined || before !== target)
+    return Object.freeze({
+      expected_version: workVersion(v.expected_version),
+      request: Object.freeze({
+        milestone_id: workID(r.milestone_id),
+        ...(before === undefined ? {} : { before_id: before }),
+      }),
+    })
+  })
+}
+function reorderReceipt(
+  value: unknown,
+  project: string,
+  target: string,
+  original: SprintReorderInput,
+): SprintReorderReceipt {
+  const v = shape(value, ['command', 'changed', 'milestone', 'sprint', 'event_id'])
+  const s = shape(v.sprint, [
+    'id',
+    'project_id',
+    'milestone_id',
+    'title',
+    'description',
+    'manual_rank',
+    'version',
+    'created_at',
+    'updated_at',
+    'state',
+    'started_at',
+    'started_by',
+    'completed_at',
+    'completed_by',
+  ])
+  const created = parseSystemInstant(s.created_at),
+    updated = parseSystemInstant(s.updated_at)
+  const rank = string(s.manual_rank, 32, 32),
+    version = workVersion(s.version)
+  const title = workText(s.title, 1024, true),
+    description = workText(s.description, 32768)
+  requireValue(v.command === 'work.sprint.reorder' && v.milestone === null)
+  requireValue(v.changed === true || v.changed === false)
+  requireValue(workID(s.id) === target && workID(s.project_id) === project && created <= updated)
+  requireValue(/^[0-9a-f]{32}$/.test(rank) && rank !== '0'.repeat(32) && rank !== 'f'.repeat(32))
+  requireValue(BigInt(version) === BigInt(original.expected_version) + (v.changed ? 1n : 0n))
+  requireValue(workID(s.milestone_id) === original.request.milestone_id)
+  if (!v.changed) requireValue(v.event_id === null)
+  // This is the immutable result of the original reorder, not a current lifecycle read.
+  requireValue(
+    (s.state === 'planned' || s.state === 'current') &&
+      s.completed_at === null &&
+      s.completed_by === null,
+  )
+  const started_at = s.started_at === null ? null : parseSystemInstant(s.started_at)
+  const started_by = s.started_by === null ? null : historyActor(s.started_by, project)
+  requireValue(
+    s.state === 'planned'
+      ? started_at === null && started_by === null
+      : started_at !== null && started_by !== null,
+  )
+  if (started_at !== null) requireValue(created <= started_at && started_at <= updated)
+  return Object.freeze({
+    command: 'work.sprint.reorder',
+    changed: v.changed,
+    milestone: null,
+    event_id: v.changed ? workID(v.event_id) : null,
+    sprint: Object.freeze({
+      id: target,
+      project_id: project,
+      milestone_id: workID(s.milestone_id),
+      title,
+      description,
+      manual_rank: rank,
+      version,
+      created_at: created,
+      updated_at: updated,
+      state: s.state,
+      started_at,
+      started_by,
+      completed_at: null,
+      completed_by: null,
+    }),
+  })
+}
 export function createWorkSprintPlanningAPI(fetcher?: Fetch): WorkSprintPlanningAPI {
   const call = accountTransport(fetcher)
   return {
+    reorder(project, target, value, write) {
+      const original = captureSprintReorderInput(value, target)
+      const scope = input(() => ({ projectID: workID(project), target: workID(target) }))
+      return call('sprintReorder', (v) => reorderReceipt(v, project, target, original), {
+        ...scope,
+        signal: write.signal ?? new AbortController().signal,
+        csrf: write.csrfToken,
+        key: write.key,
+        body: original,
+      })
+    },
+    lookupReorder(project, target, value, write) {
+      const original = captureSprintReorderInput(value, target)
+      const scope = input(() => ({ projectID: workID(project), target: workID(target) }))
+      return call(
+        'sprintReorderLookup',
+        (value): SprintReorderLookup => {
+          const v = shape(value, ['state', 'result'])
+          if (v.state === 'committed')
+            return Object.freeze({
+              state: 'committed',
+              result: reorderReceipt(v.result, project, target, original),
+            })
+          requireValue(
+            (v.state === 'in_progress' || v.state === 'not_observed') && v.result === null,
+          )
+          return Object.freeze({ state: v.state as 'in_progress' | 'not_observed', result: null })
+        },
+        {
+          projectID: scope.projectID,
+          signal: write.signal ?? new AbortController().signal,
+          csrf: write.csrfToken,
+          key: write.key,
+          body: { command: 'work.sprint.reorder', target_id: scope.target, ...original },
+        },
+      )
+    },
     update(project, target, value, write) {
       const original = captureSprintUpdateInput(value)
       const scope = input(() => ({ projectID: workID(project), target: workID(target) }))
