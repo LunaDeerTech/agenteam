@@ -158,7 +158,8 @@ func TestUsageProjectCallAppConstruction(t *testing.T) {
 	}
 	for _, name := range []string{"nil-life", "foreign-life", "nil-guard", "already-bound"} {
 		t.Run(name, func(t *testing.T) {
-			base, objects := *v.base, *v.objects
+			base := *v.base
+			objects := objectAssembly{process: v.objects.process, guard: v.objects.guard}
 			switch name {
 			case "nil-life":
 				base.lifecycle = nil
