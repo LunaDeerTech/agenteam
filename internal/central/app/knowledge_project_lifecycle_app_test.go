@@ -599,11 +599,16 @@ func (v *knowledgeLifecycleApp) cleanupFailure(t *testing.T, round int, err erro
 		databaseCode, sqlState = string(databaseError.Code()), databaseError.SQLState()
 	}
 	var reference, object, metadata, completed int
+	var missingUpload bool
+	// This is a post-failure durable image, not proof of which SQL statement failed.
 	phaseErr := v.admin.QueryRow(v.ctx, `SELECT
  count(*) FILTER (WHERE phase='reference'), count(*) FILTER (WHERE phase='object'),
- count(*) FILTER (WHERE phase='metadata'), count(*) FILTER (WHERE phase='completed')
- FROM agenteam_knowledge.project_object_retirements WHERE project_id=$1::uuid`, v.a.String()).Scan(&reference, &object, &metadata, &completed)
-	t.Logf("KNOWLEDGE_CLEANUP_FAILURE round=%d database_code=%s sqlstate=%s canceled=%t deadline=%t no_rows=%t leaf_snapshot_ok=%t reference=%d object=%d metadata=%d completed=%d", round, databaseCode, sqlState, errors.Is(err, context.Canceled), errors.Is(err, context.DeadlineExceeded), errors.Is(err, pgx.ErrNoRows), phaseErr == nil, reference, object, metadata, completed)
+ count(*) FILTER (WHERE phase='metadata'), count(*) FILTER (WHERE phase='completed'),
+ EXISTS(SELECT 1 FROM agenteam_knowledge.project_object_retirements l
+ WHERE l.project_id=$1::uuid AND l.phase<>'completed' AND NOT EXISTS(
+ SELECT 1 FROM agenteam_object.uploads u WHERE u.id=l.upload_id AND u.object_id=l.object_id))
+ FROM agenteam_knowledge.project_object_retirements WHERE project_id=$1::uuid`, v.a.String()).Scan(&reference, &object, &metadata, &completed, &missingUpload)
+	t.Logf("KNOWLEDGE_CLEANUP_FAILURE round=%d database_code=%s sqlstate=%s canceled=%t deadline=%t no_rows=%t leaf_snapshot_ok=%t reference=%d object=%d metadata=%d completed=%d unfinished_leaf_missing_upload=%t", round, databaseCode, sqlState, errors.Is(err, context.Canceled), errors.Is(err, context.DeadlineExceeded), errors.Is(err, pgx.ErrNoRows), phaseErr == nil, reference, object, metadata, completed, missingUpload)
 }
 
 func knowledgeAppCleanup(t *testing.T) {
