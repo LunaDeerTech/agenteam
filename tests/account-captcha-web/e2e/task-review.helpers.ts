@@ -725,6 +725,7 @@ export async function observeBrowserIO(
         reorderMilestone: string | undefined = undefined,
         reorderSprint: string | undefined = undefined,
         humanBlockerTask: string | undefined = undefined,
+        executionTask: string | undefined = undefined,
       ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
@@ -965,6 +966,21 @@ export async function observeBrowserIO(
                 "/events"
               );
             });
+          if (executionTask) {
+            consumer(auth.workReview, "executions", "work.executions", (a) => {
+              if (a.length !== 3 || a[0] !== project || a[1] !== executionTask ||
+                  !a[2] || a[2].limit !== 50 || Object.keys(a[2]).some(k => !["limit", "cursor"].includes(k)) ||
+                  (Object.hasOwn(a[2], "cursor") && (typeof a[2].cursor !== "string" || !a[2].cursor)))
+                throw Error("TASK_EXECUTION_LIST_SCOPE");
+              return "/api/v1/projects/" + project + "/tasks/" + executionTask + "/executions";
+            });
+            consumer(auth.workReview, "execution", "work.execution", (a) => {
+              if (a.length !== 3 || a[0] !== project || a[1] !== executionTask ||
+                  !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(a[2]))
+                throw Error("TASK_EXECUTION_GET_SCOPE");
+              return "/api/v1/projects/" + project + "/tasks/" + executionTask + "/executions/" + a[2];
+            });
+          }
           if (intakeWrites) {
             consumer(
               auth.workReview,
@@ -1811,6 +1827,7 @@ export async function observeBrowserIO(
                 parsed = safe;
               }
               if (kind === "knowledge.ancestors") parsed = parsed.items;
+              if (kind === "work.execution" && row.status === 200) parsed = parsed.execution;
               if (kind === "scheduler.checkOriginal" && parsed.state === "committed")
                 parsed = { state: "committed", receipt: { project_id: parsed.result.project.id, version: parsed.result.project.version } };
               if (kind === "work.sprint") {
