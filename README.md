@@ -28,15 +28,16 @@ agenteam 是以项目为边界的 AI Agent 协作与执行平台，管理长期�
 cp .env.example .env
 ```
 
-`.env` 只有三项，默认无需修改：
+`.env` 的本机默认配置无需修改：
 
 ```dotenv
 COMPOSE_PROJECT_NAME=agenteam-dev
+AGENTEAM_DEV_MODE=true
 AGENTEAM_DEV_PORT=8080
 AGENTEAM_DEV_DATA_DIR=./.dev
 ```
 
-它们分别设置容器项目名、网页端口和全部开发数据的宿主目录。相对数据路径以项目根目录解析，也支持绝对路径和含空格的路径，例如 `AGENTEAM_DEV_DATA_DIR='./local data'`。镜像版本、开发账号、内部密码、运行 UID/GID 和 Central Origin 均由开发配置自动处理，不需要额外初始化命令。
+`AGENTEAM_DEV_MODE` 控制开发模式，`AGENTEAM_DEV_PORT` 设置网页端口；网页端口发布到宿主所有网卡，无需配置监听地址、public origin 或允许网段。`COMPOSE_PROJECT_NAME` 设置容器项目名，`AGENTEAM_DEV_DATA_DIR` 设置全部开发数据的宿主目录。相对数据路径以项目根目录解析，也支持绝对路径和含空格的路径，例如 `AGENTEAM_DEV_DATA_DIR='./local data'`。镜像版本、开发账号、内部密码和运行 UID/GID 均由开发配置自动处理，不需要额外初始化命令。
 
 一条命令构建并启动：
 
@@ -44,7 +45,20 @@ AGENTEAM_DEV_DATA_DIR=./.dev
 docker compose -f docker-compose.dev.yaml up -d --build --wait --wait-timeout 1200
 ```
 
-成功后访问 **http://localhost:8080**；若修改端口，使用对应的精确 `localhost` 地址。只有这个端口绑定宿主机 loopback，数据库和 MinIO 均不公开宿主端口。Compose 自动读取根 `.env`，已有 shell 环境变量优先。首次下载镜像和 Go/npm 依赖需要网络与足够磁盘空间。Docker `vfs` 驱动还会为容器文件系统占用空间：此前四服务实测额外约 3GB，不含数据目录内缓存，不是所有环境的峰值或上限。
+默认成功后，本机访问 **http://localhost:8080**，其他机器访问 **http://服务器IP:8080**；修改端口后使用对应端口即可。前端通过同源 `/api/v1` 调用后端。数据库和 MinIO 均不公开宿主端口。Compose 自动读取根 `.env`，已有 shell 环境变量优先。首次下载镜像和 Go/npm 依赖需要网络与足够磁盘空间。Docker `vfs` 驱动还会为容器文件系统占用空间：此前四服务实测额外约 3GB，不含数据目录内缓存，不是所有环境的峰值或上限。
+
+从其他机器直接通过服务器 IP 测试时，在服务器的 `.env` 中配置：
+
+```dotenv
+AGENTEAM_DEV_MODE=true
+AGENTEAM_DEV_PORT=8080
+```
+
+然后在浏览器打开 `http://服务器IP:8080`，不需要配置证书。
+
+`AGENTEAM_DEV_MODE` 通过 Compose 传给后端的 `AGENTEAM_CENTRAL_DEV_MODE`。这份开发 Compose 默认开启，允许通过任意服务器 IP 或域名访问 HTTP，跳过 Host/Origin 和 Fetch Metadata 来源匹配；登录、权限与 CSRF token 检查仍启用。设为 `false` 时恢复后端严格校验，本 Compose 的访问地址须匹配既有的 `http://localhost:<端口>`，但网页端口仍发布到宿主所有网卡。独立启动 Central 时开发模式默认关闭；正式部署保持关闭并使用 HTTPS。自动生成的邀请和找回密码链接仍采用既有的 localhost 基址。
+
+远程 HTTP 支持本开发入口和登录，但不会获得浏览器安全上下文。依赖 `crypto.subtle` 的 Artifact 创建、查询、取消摘要流程，以及 Knowledge 子树删除预览校验仍需 HTTPS；本机 `localhost`/loopback 的安全上下文访问不受此限制。
 
 只有 `database`（PostgreSQL/pgvector）、`minio`、`app`（Central）和 `web`（前端与 API 反代）四个服务。数据库使用原镜像入口初始化；基础服务的小启动脚本仅装载开发凭据，不执行改密或业务 SQL。新环境使用固定的内部开发凭据，app 将它们保存在数据目录的 `config/` 下；已有凭据文件始终优先，原随机凭据不会变成默认值。基础服务可独立用相同默认值首次启动，无初始化容器或跨服务初始化等待协议。
 
@@ -60,11 +74,11 @@ docker compose -f docker-compose.dev.yaml restart app
 
 MinIO 服务也由同一条 `up --build` 命令构建并缓存本地镜像，不再拉取 `quay.io/minio/minio` 或 `minio/minio`。构建从官方 GitHub Release 下载固定的 `RELEASE.2025-09-07T16-13-09Z` Linux 二进制，并按仓库固定的官方 SHA-256 校验；支持 amd64、arm64 和 ppc64le，其他架构直接拒绝。入口脚本和 AGPL 许可证取自对应官方源码提交 `07c3a429bfed433e49018cb0f78a52145d4bedeb`，运行载体复用 web 所需的固定官方轻量镜像，容器仅启动 MinIO。首次构建仍需访问 GitHub 和基础镜像仓库；校验或下载失败直接停止，不切换其他来源，不是离线安装或 MinIO 版本升级。后续镜像未变时复用缓存，app 重启不重建 MinIO。
 
-`.env` 改动应重新执行上面的 `up` 命令；`restart` 不重新读取容器配置。端口与 `PUBLIC_ORIGIN` 同步推导，反代保留 Host/Origin 并跟随重建后的 app。更换数据目录会选择另一套完整数据，不自动搬迁或复制旧目录；独立 Compose 项目应使用不同数据目录，不要同时启动两套容器写同一目录。
+`.env` 改动应重新执行上面的 `up` 命令，重建配置发生变化的容器；`restart` 不重新读取容器配置。反代保留 Host/Origin 并跟随重建后的 app。更换数据目录会选择另一套完整数据，不自动搬迁或复制旧目录；独立 Compose 项目应使用不同数据目录，不要同时启动两套容器写同一目录。
 
 数据库、对象存储、配置和密钥、spool/ProcessGuard、Account 恢复日志、Go/npm 缓存、前端依赖、构建页面和二进制全部位于 `AGENTEAM_DEV_DATA_DIR`（默认 `.dev/`）。默认目录已被 Git 忽略；自定义目录建议放在仓库外，在仓库内时须自行加入本地 Git 忽略规则，避免提交数据或凭据。首次管理员邮箱为 `admin@mail.com`，随机口令仅写入该目录的 `account-recovery/recovery.jsonl`，请在本机查看，不粘贴进普通日志。
 
-从前一版 Compose 升级时，保留整个原 `.dev`，将根 `.env` 简化为上述三项即可。前版已经把数据库与 MinIO 凭据写入 `config/database-password`、`minio-user`、`minio-password`；现在直接复用这些私有文件，不再从 `.env` 读取密码。旧 `central.env` 中的五组密钥会严格解析并保留，不作为 shell 执行。若原凭据文件丢失，先从原备份恢复，不能填开发默认值冒充旧数据库密码。旧 `.env` 不应在确认原凭据完整前丢弃。
+从前一版 Compose 升级时，保留整个原 `.dev`，按上述配置整理根 `.env` 即可。前版已经把数据库与 MinIO 凭据写入 `config/database-password`、`minio-user`、`minio-password`；现在直接复用这些私有文件，不再从 `.env` 读取密码。旧 `central.env` 中的五组密钥会严格解析并保留，不作为 shell 执行。若原凭据文件丢失，先从原备份恢复，不能填开发默认值冒充旧数据库密码。旧 `.env` 不应在确认原凭据完整前丢弃。
 
 ```sh
 docker compose -f docker-compose.dev.yaml ps

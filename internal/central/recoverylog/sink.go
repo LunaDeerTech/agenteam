@@ -127,6 +127,7 @@ type outcome struct {
 	err    error
 }
 type sinkState struct {
+	devMode    bool
 	mu         sync.Mutex
 	stopped    bool
 	works      map[*work]bool
@@ -140,11 +141,19 @@ type sinkState struct {
 }
 type Sink struct{ data func() *sinkState }
 
+// Options only relaxes the HTTP recovery-link restriction in development.
+// Private file permissions and typed recovery-record validation still apply.
+type Options struct{ DevMode bool }
+
 func secureInfo(info os.FileInfo, mode os.FileMode) bool {
 	st, ok := info.Sys().(*syscall.Stat_t)
 	return ok && int(st.Uid) == os.Geteuid() && info.Mode().Perm() == mode
 }
 func Open(path string) (*Sink, error) {
+	return OpenWithOptions(path, Options{})
+}
+
+func OpenWithOptions(path string, options Options) (*Sink, error) {
 	if !filepath.IsAbs(path) || filepath.Clean(path) != path {
 		return nil, bad()
 	}
@@ -188,10 +197,14 @@ func Open(path string) (*Sink, error) {
 		_ = f.Close()
 		return nil, failure(foundation.DependencyUnavailable, e)
 	}
-	return newSink(f), nil
+	return newSinkWithOptions(f, options), nil
 }
 func newSink(w fileWriter) *Sink {
-	s := &sinkState{writer: w, works: map[*work]bool{}, queue: make(chan *work, 32), workerDone: make(chan struct{}), closeStart: make(chan struct{}), closeDone: make(chan struct{})}
+	return newSinkWithOptions(w, Options{})
+}
+
+func newSinkWithOptions(w fileWriter, options Options) *Sink {
+	s := &sinkState{devMode: options.DevMode, writer: w, works: map[*work]bool{}, queue: make(chan *work, 32), workerDone: make(chan struct{}), closeStart: make(chan struct{}), closeDone: make(chan struct{})}
 	sink := &Sink{func() *sinkState { return s }}
 	go func() {
 		<-s.closeStart
@@ -260,7 +273,7 @@ func (s *sinkState) write(w *work) (result Result, err error) {
 			}
 		} else {
 			u, e := url.Parse(string(secret))
-			if e != nil || u.User != nil || u.RawQuery != "" || u.Host == "" || u.Scheme != "https" && !(u.Scheme == "http" && (u.Hostname() == "localhost" || net.ParseIP(u.Hostname()) != nil && net.ParseIP(u.Hostname()).IsLoopback())) || u.Path != "/invite" && u.Path != "/reset-password" || len(secret) > 2048 {
+			if e != nil || u.User != nil || u.RawQuery != "" || u.Host == "" || u.Scheme != "https" && !(u.Scheme == "http" && (s.devMode || u.Hostname() == "localhost" || net.ParseIP(u.Hostname()) != nil && net.ParseIP(u.Hostname()).IsLoopback())) || u.Path != "/invite" && u.Path != "/reset-password" || len(secret) > 2048 {
 				return bad()
 			}
 			if d.purpose == "invitation" && u.Path != "/invite" || d.purpose == "password_reset" && u.Path != "/reset-password" {

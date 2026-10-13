@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createSessionController } from '../composables/useSession'
-import { AccountFailure, type Problem } from '../api/client'
+import { AccountFailure, type Fetch, type Problem } from '../api/client'
 import { createAccountAPI, type AccountAPI, type SessionView } from '../api/account'
 import { createProjectModelSettingsAPI } from '../api/project-models'
 
@@ -119,8 +119,82 @@ function fixture() {
 afterEach(() => {
   vi.useRealTimers()
   vi.restoreAllMocks()
+  vi.unstubAllGlobals()
 })
 describe('Account Session ownership', () => {
+  it('logs in and out through the transport when only getRandomValues is available', async () => {
+    vi.stubGlobal('crypto', { getRandomValues: crypto.getRandomValues.bind(crypto) })
+    const json = (value: unknown, status = 200) =>
+      new Response(JSON.stringify(value), {
+        status,
+        headers: {
+          'Content-Type': status === 200 ? 'application/json' : 'application/problem+json',
+          'X-Request-ID': id,
+        },
+      })
+    let loggedIn = false
+    const fetcher = vi.fn<Fetch>(async (url) => {
+      switch (url) {
+        case '/api/v1/session':
+          return loggedIn ? json(view) : json(problem('UNAUTHENTICATED').problem, 401)
+        case '/api/v1/auth/bootstrap':
+          return json({
+            csrf_token: anonymous,
+            challenge_modes: ['rotate'],
+            delivery_channel: 'backend_log',
+          })
+        case '/api/v1/sessions/login':
+          loggedIn = true
+          return json({ user: view.user, session: view.session, next_path: '/' })
+        case '/api/v1/sessions/logout':
+          loggedIn = false
+          return new Response(null, { status: 204 })
+        default:
+          throw new Error('unexpected request')
+      }
+    })
+    const c = createSessionController(createAccountAPI(fetcher))
+    try {
+      await c.restore()
+      expect(c.state.phase).toBe('anonymous')
+      await c.login(view.user.email, password)
+      expect(c.state.phase).toBe('authenticated')
+      expect(c.state.user?.id).toBe(id)
+      await c.logout()
+      expect(c.state.phase).toBe('anonymous')
+
+      expect(fetcher.mock.calls.map(([url]) => url)).toEqual([
+        '/api/v1/session',
+        '/api/v1/auth/bootstrap',
+        '/api/v1/sessions/login',
+        '/api/v1/session',
+        '/api/v1/sessions/logout',
+      ])
+      const writes = fetcher.mock.calls.filter(([, init]) => init.method === 'POST')
+      const keys = writes.map(([, init]) => new Headers(init.headers).get('Idempotency-Key'))
+      expect(keys).toHaveLength(2)
+      for (const key of keys)
+        expect(key).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)
+      expect(keys[0]).not.toBe(keys[1])
+      expect(new Headers(writes[0]![1].headers).get('X-CSRF-Token')).toBe(anonymous)
+      expect(new Headers(writes[1]![1].headers).get('X-CSRF-Token')).toBe(sessionToken)
+    } finally {
+      c.leave()
+    }
+  })
+  it('does not send a login when secure randomness is unavailable', async () => {
+    const { api, controller: c } = fixture()
+    await c.restore()
+    vi.stubGlobal('crypto', {})
+    try {
+      await c.login(view.user.email, password)
+      expect(api.login).not.toHaveBeenCalled()
+      expect(c.state.phase).toBe('anonymous')
+      expect(c.state.notice).toBe('无法安全建立登录请求，请检查浏览器环境。')
+    } finally {
+      c.leave()
+    }
+  })
   it('returns one immutable safe restore receipt only after the original Session read settles', async () => {
     const { api, controller: c } = fixture()
     const held = deferred<SessionView>()

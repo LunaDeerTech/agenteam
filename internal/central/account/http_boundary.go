@@ -21,7 +21,7 @@ func NewHTTPBoundary(core *Service, publicOrigin string) (*HTTPBoundary, error) 
 	if err := httpValidateCore(core); err != nil {
 		return nil, err
 	}
-	b, err := csrfNewBoundary(publicOrigin)
+	b, err := csrfNewBoundaryWithDevMode(publicOrigin, core.state().deps.DevMode)
 	if err != nil {
 		return nil, err
 	}
