@@ -58,6 +58,8 @@ app 入口仅以 root 准备本地目录、五组独立随机密钥和固定机�
 docker compose -f docker-compose.dev.yaml restart app
 ```
 
+MinIO 服务也由同一条 `up --build` 命令构建并缓存本地镜像，不再拉取 `quay.io/minio/minio` 或 `minio/minio`。构建从官方 GitHub Release 下载固定的 `RELEASE.2025-09-07T16-13-09Z` Linux 二进制，并按仓库固定的官方 SHA-256 校验；支持 amd64、arm64 和 ppc64le，其他架构直接拒绝。入口脚本和 AGPL 许可证取自对应官方源码提交 `07c3a429bfed433e49018cb0f78a52145d4bedeb`，运行载体复用 web 所需的固定官方轻量镜像，容器仅启动 MinIO。首次构建仍需访问 GitHub 和基础镜像仓库；校验或下载失败直接停止，不切换其他来源，不是离线安装或 MinIO 版本升级。后续镜像未变时复用缓存，app 重启不重建 MinIO。
+
 `.env` 改动应重新执行上面的 `up` 命令；`restart` 不重新读取容器配置。端口与 `PUBLIC_ORIGIN` 同步推导，反代保留 Host/Origin 并跟随重建后的 app。更换数据目录会选择另一套完整数据，不自动搬迁或复制旧目录；独立 Compose 项目应使用不同数据目录，不要同时启动两套容器写同一目录。
 
 数据库、对象存储、配置和密钥、spool/ProcessGuard、Account 恢复日志、Go/npm 缓存、前端依赖、构建页面和二进制全部位于 `AGENTEAM_DEV_DATA_DIR`（默认 `.dev/`）。默认目录已被 Git 忽略；自定义目录建议放在仓库外，在仓库内时须自行加入本地 Git 忽略规则，避免提交数据或凭据。首次管理员邮箱为 `admin@mail.com`，随机口令仅写入该目录的 `account-recovery/recovery.jsonl`，请在本机查看，不粘贴进普通日志。
@@ -76,13 +78,14 @@ docker compose -f docker-compose.dev.yaml down
 
 ```sh
 docker build --no-cache --secret id=dev_ca,src=/path/to/trusted-ca.crt -f Dockerfile.dev -t agenteam-dev-toolchain:go1.27.1-node24.12.0 .
+docker build --secret id=dev_ca,src=/path/to/trusted-ca.crt --target minio -f Dockerfile.dev -t agenteam-dev-minio:RELEASE.2025-09-07T16-13-09Z-07c3a429bfed .
 ```
 
 使用不含私钥的 PEM 受信 CA；该步骤添加系统信任，不关闭 TLS 校验。普通环境不需要此步骤。
 
-当前云端对固定版本 MinIO 的官方 Quay 镜像及 Docker Hub manifest 均返回访问拒绝。该环境的验证使用明确标识的本地同版本源码镜像，并通过测试专用 Compose 文件覆盖 MinIO 镜像和原入口路径；这不增加 `.env` 的公开配置项，也不证明官方默认镜像及入口已在该环境拉取运行，不代表其他环境不可用。
+官方社区版现采用源码分发，但上述历史 GitHub Release 的官方二进制资产仍可获取。本环境对同版本的官方 Quay 和 Docker Hub manifest 在匿名鉴权后仍收到访问拒绝；这不证明该 release 不存在，也不能代替用户本机错误诊断。当前 MinIO 构建已在 Linux/amd64 完成官方资产完整下载、固定 SHA-256 校验及镜像构建，实际版本、源码提交、原入口、许可证和 SIGTERM 均已确认。本环境构建使用上述可选受信 CA，没有镜像或入口覆盖；新镜像的完整四服务标准启动仍在验证，不沿用旧覆盖配置的成功结论。
 
-本轮三项配置已使用含空格的数据目录通过四服务启动、真实浏览器管理员登录和 Session 校验，Central 以非 root 运行。重启 app 后 Go 与前端重新构建，原数据库、三份凭据、五组密钥及机器标识保持不变；最后 `down` 已清退本轮容器和网络并保留持久数据。
+此前三项配置验证使用测试专用的本地同版本 MinIO 镜像及入口覆盖，已在含空格的数据目录通过四服务启动、真实浏览器管理员登录和 Session 校验，Central 以非 root 运行。重启 app 后 Go 与前端重新构建，原数据库、三份凭据、五组密钥及机器标识保持不变；最后 `down` 已清退该轮容器和网络并保留持久数据。
 
 开发内网数据库与对象存储使用正式 `TLS_MODE=disable` 配置，不改变模型出站、DNS 或权限规则。此开发组合不启用 Execution Runtime，不发起模型请求，不新增 Runner 或 SMTP。nginx 开发托管不代表生产 SPA 嵌入完成；`/livez` 检查真实监听进程，当前产品的 `/readyz` 未绑定状态仍保留。
 
