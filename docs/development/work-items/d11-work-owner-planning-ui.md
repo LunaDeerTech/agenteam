@@ -363,3 +363,15 @@ cleanup有限接受1440×960浅色创建表单和390×844深色planned结果两�
 [消费证明](../../../output/ai/task-cancel-ui/web-native03/task-cancel/task-cancel-browser-proof.json)包含 107 个原请求（104 GET、2 Cancel 与 1 Complete）：全部状态 200，102 finished、5 个实际 `ERR_ABORTED` 保留 failed 并经原完整字节、公开 Promise/reader 与 Go EOF/Close/handler 返回联合核实。原 consumer/route/CDP、App/Node 全部退出，9 个进程和六个隔离资源已清退。四图经非作者实际查看：1440 浅色确认的危险操作、输入字面文本和输入焦点，以及取消后的负责人/标题焦点；390 深色的取消状态/未指派/标题焦点，以及 Sprint 完成提示/标题焦点与禁用动作均可见。历史区、Blocker 区及最终下部筛选未入相应截图，保留事实依原动态断言，不由图片名称推断可见。
 
 ordinary01 编译失败、Web01 Login INTERNAL_ERROR 与 Web02 打开第二 Task 超时保持原记录；后两者未确因。Web03 新增观测只证明本轮按键与 click 到达已启用的第二 Task、导航成功，不追认以前失败已修复。真实范围限上述两条正常取消及全 cancelled Sprint 完成；Unknown、其余源状态与 active/pending 拒绝仍按受控测试范围，不扩大为完整规划 UI、真实 Task 执行或 Model/Tools 链，既有 STOP 不变。
+
+## 27. 所选 Sprint 的状态筛选（2026-10-13）
+
+沿[任务布局 §3](../../frontend-design/layouts/tasks.md#3-kanban-栏目与字段)补齐“筛选状态”，与关键词、优先级、类型和 Agent 共同明确应用。选中状态后仅向原服务端读取该列，分页沿已应用条件；修改草稿不重绑旧 cursor，切换条件或清除筛选会清空旧页和 cursor。同 Sprint 详情往返保留筛选，换 Sprint 清空，身份变化沿原读取代际隔离迟到响应。七列保持可见，排除列显示“当前筛选未包含此状态”，没有卡片、数字或更多按钮；数量仅表示已读取任务数，不新增总量、后端协议或 URL 恢复。
+
+[检查汇总](../../../output/ai/task-state-filter/summary.json)记录 43 个不同普通前端用例通过，其中新增 5 项，完整类型检查与生产构建通过。原 ui-basic01 的 16 PASS/1 FAIL 暴露 `emptyColumn` 未清 cursor 的真实缺陷，现显式清除 `next`，回归覆盖未耗尽页切状态、切回后首读失败不沿用旧页，以及原迟到响应释放前后游标均清空。ui-basic02 的 37 PASS/2 FAIL 是旧测试缺新增字段及错误文案，窄修后 ui-basic03 原 spec 11 项通过；复用未变输入的通过结果，不累加重复用例。新浏览器 helper/spec 类型诊断为零，旧传递源 7 项诊断保留，不称整个 harness 类型检查通过。
+
+真实 [Web02](../../../output/ai/task-state-filter/web-native02/result.json) 的 `TestTaskStateFilterWeb/default-app-state-pagination` 为 Go 1 top/1 sub、一个 Node 用例，原 `99897/934392` Wait 0/64.379s。默认 App、Runtime disabled，准备阶段通过原 Owner 命令创建 51 个 backlog 和一个经 Ready 指派的 todo；浏览器只读验证 50+1 服务端分页、草稿与原 cursor 绑定、todo 组合筛选、同 Sprint 详情往返和清除全部五项，持久 Work 事实保持不变。[消费证明](../../../output/ai/task-state-filter/web-native02/task-state-filter/task-state-filter-browser-proof.json)包含 42 个原 GET，其中 Task 列表 19 次、详情一次；37 finished，5 个实际 `ERR_ABORTED` 保留 failed，经原完整字节、公开 Promise/reader 与 Go EOF/Close/handler 返回联合核实。pending 为零，原 consumer、route、CDP 与 App/Node 全退，[退出核验](../../../output/ai/task-state-filter/web-native02/post.json)确认九个进程、六项自有资源和私有目录清退；唯一测试二进制在所有原消费者退出后精确退役。
+
+四图已由非作者实际查看并有限接受：1440×960 浅色的[第一页](../../../output/ai/task-state-filter/web-native02/task-state-filter/task-state-filter-wide-light-backlog-first-page.png)与[追加页](../../../output/ai/task-state-filter/web-native02/task-state-filter/task-state-filter-wide-light-paged-applied-backlog.png)显示已读取 50/51 条及草稿与已应用状态的区别；390×844 深色的[选中详情](../../../output/ai/task-state-filter/web-native02/task-state-filter/task-state-filter-narrow-dark-selected-task-detail.png)与[返回筛选](../../../output/ai/task-state-filter/web-native02/task-state-filter/task-state-filter-narrow-dark-retained-state-focus.png)显示关闭按钮及筛选器焦点。七列全景、最终清除结果及完整无障碍矩阵不由四图外推，动态断言与截图范围分别保留。
+
+Web01 的原 `31162/872c92` Wait 1 保留：测试误要求末页 `next_cursor` 为 null，真实 optional/omitempty 合同省略该字段；只修两处断言后用同一二进制完成 Web02，没有改产品响应。换 Sprint、会话退出后的迟到响应及读取失败恢复属于普通测试范围；本片不新增写操作、自动执行或 Model/Tools 调用，不代表完整规划界面、E01 或既有 STOP 已完成。

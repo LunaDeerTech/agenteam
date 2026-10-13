@@ -1,8 +1,8 @@
-# 当前工作：所选 Sprint 状态筛选与服务端分页
+# 当前工作：所选 Sprint 状态筛选已通过限定验收
 
-任务分支 `ai/task-state-filter-20261013`，工作树 `/workspace/agenteam-task-state-filter`，基线为已推送 main `21ce3268`。仅补所选 Sprint 的前端状态筛选、现有条件组合与服务端分页，不新增后端、计数或 URL 协议；正在实施，尚未验收。
+任务分支 `ai/task-state-filter-20261013`，工作树 `/workspace/agenteam-task-state-filter`，基线为已推送 main `21ce3268`。所选 Sprint 的状态筛选、现有条件组合及服务端分页已通过限定验收，实际结果和原失败见 [Work Owner 规划卡 §27](../docs/development/work-items/d11-work-owner-planning-ui.md#27-所选-sprint-的状态筛选2026-10-13)。不新增后端、总量或 URL 协议；43 项不同普通用例、完整类型检查、生产构建及真实默认 App Web02 通过，四图获有限独审接受，未扩大到完整规划界面或模型执行。
 
-root 统筹，`next_frontend_delivery` 独占已分配 web 产品/单元测试，`blocker_browser` 独占原生/浏览器 fixture，`validation_runner` 负责实际检查窗口，`repo_recovery` 负责 Git 及本状态文件。复用已匹配的共享依赖，缓存/dist/临时数据在本树独立；不复制旧 Blocker 资源。下一步完成基础检查后尽早用真实默认 App 验证 50+1 分页、状态切换和详情返回，再按实际风险独审交付。
+产品与测试已冻结，全部原消费者及自有运行资源已退出，唯一测试二进制已精确退役，复用的共享依赖保留。`repo_recovery` 负责保存最终两行浏览器断言修正与本片结果文档、正常合入并推送 main，随后同步清理本工作树及本地、远端分支；保留用户 Compose 提交和其他任务材料。原 cursor 缺陷、兼容断言失败及 Web01 末页 optional 合同误断言均按原卡保留，不触动既有 STOP。
 
 ## 继承主线：Task Blocker 管理与 E01 候选来源
 
