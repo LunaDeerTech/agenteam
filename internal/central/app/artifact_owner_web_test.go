@@ -28,6 +28,7 @@ import (
 
 	"github.com/LunaDeerTech/agenteam/internal/central/artifact"
 	ac "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/audit"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
@@ -79,9 +80,20 @@ func artifactOwnerWeb(t *testing.T) {
 			if !ok {
 				return errors.New("original Artifact account assembly absent")
 			}
-			assembly.mu.Lock()
-			assembly.handler = observer.handler(assembly.handler)
-			assembly.mu.Unlock()
+			// Artifact routes are installed by the original Object initializer,
+			// after bindAccounts. Observe the resulting handler before App serving
+			// captures it, so the Artifact route cannot bypass this return witness.
+			originalObjects := deps.objects
+			deps.objects = func(ctx context.Context, cfg config.Config, store database, auditor *audit.Service) (objectStorage, error) {
+				objects, err := originalObjects(ctx, cfg, store, auditor)
+				if err != nil {
+					return objects, err
+				}
+				assembly.mu.Lock()
+				assembly.handler = observer.handler(assembly.handler)
+				assembly.mu.Unlock()
+				return objects, nil
+			}
 			return nil
 		}
 	})
