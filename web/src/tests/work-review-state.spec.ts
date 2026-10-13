@@ -245,6 +245,8 @@ describe('Task keyword state', () => {
       typeDraft: '',
       priority: '',
       type: '',
+      assigneeDraft: '',
+      assignee: '',
     })
   })
 

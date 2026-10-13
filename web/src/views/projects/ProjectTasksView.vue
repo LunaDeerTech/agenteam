@@ -35,6 +35,20 @@ const filterTypes = [
 ]
 const owner = useProjectTasks(),
   state = owner.state
+const agentFilterField = ref<HTMLDivElement | null>(null)
+async function loadFilterAgents(more = false) {
+  const project = owner.projectID.value,
+    sprint = state.sprint?.id,
+    trigger = document.activeElement
+  await owner.loadFilterAgents(more)
+  await nextTick()
+  if (
+    owner.visible.value && !owner.busy.value && owner.projectID.value === project &&
+    state.sprint?.id === sprint &&
+    (document.activeElement === trigger || document.activeElement === document.body)
+  )
+    agentFilterField.value?.querySelector<HTMLButtonElement>('button[aria-label="筛选 Agent"]')?.focus()
+}
 function selectFilterPriority(value: string) {
   if (filterPriorities.some((option) => option.value === value))
     owner.search.priorityDraft = value as typeof owner.search.priorityDraft
@@ -870,6 +884,26 @@ function returnToCreation() {
                     @update:model-value="selectFilterType"
                   />
                 </UiField>
+                <div ref="agentFilterField" class="task-agent-filter">
+                  <UiField v-slot="field" label="筛选 Agent" :error="state.agentMessage">
+                    <UiSelect
+                      :id="field.id"
+                      label="筛选 Agent"
+                      :model-value="owner.search.assigneeDraft"
+                      :options="owner.filterAgentOptions.value"
+                      :disabled="owner.busy.value"
+                      :invalid="field.invalid"
+                      :aria-describedby="field.describedby"
+                      @update:model-value="owner.selectAssigneeFilter"
+                    />
+                  </UiField>
+                  <div v-if="state.agentNext || state.agentMessage" class="task-agent-filter-actions">
+                    <UiButton v-if="state.agentNext" :disabled="owner.busy.value" @click="loadFilterAgents(true)"
+                      >加载更多筛选 Agent</UiButton>
+                    <UiButton v-if="state.agentMessage" :disabled="owner.busy.value" @click="loadFilterAgents()"
+                      >重新读取筛选 Agent</UiButton>
+                  </div>
+                </div>
               </div>
               <div class="task-search-actions">
                 <UiButton type="submit" :disabled="owner.busy.value">搜索</UiButton>
@@ -879,7 +913,8 @@ function returnToCreation() {
                     (!owner.filtersActive.value &&
                       !owner.search.draft &&
                       !owner.search.priorityDraft &&
-                      !owner.search.typeDraft)
+                      !owner.search.typeDraft &&
+                      !owner.search.assigneeDraft)
                   "
                   @click="owner.clearSearch()"
                   >清除筛选</UiButton
@@ -899,6 +934,7 @@ function returnToCreation() {
                   filterTypes.find((option) => option.value === owner.search.type)?.label
                 }}</span
               >
+              <span v-if="owner.search.assignee">Agent：{{ owner.filterAgentLabel.value }}</span>
             </p>
             <TaskBoard
               :columns="owner.columns"
@@ -1020,11 +1056,20 @@ function returnToCreation() {
   min-width: 0;
 }
 .task-search-properties {
-  flex: 1 1 320px;
+  flex: 1 1 480px;
   min-width: 0;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--content-gap);
+}
+.task-agent-filter {
+  min-width: 0;
+}
+.task-agent-filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--content-gap);
+  margin-top: var(--content-gap);
 }
 .task-search-actions {
   display: flex;
@@ -1052,6 +1097,12 @@ function returnToCreation() {
   display: none;
 }
 @media (max-width: 760px) {
+  .task-search-properties {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .task-agent-filter {
+    grid-column: 1 / -1;
+  }
   .tasks-layout {
     display: block;
   }
