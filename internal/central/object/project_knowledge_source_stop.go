@@ -226,7 +226,10 @@ func (s *Service) requireKnowledgeObjectCleanup(ctx context.Context, tx f.Tx, c 
 	if !active {
 		return failure(f.Forbidden, nil)
 	}
-	return portError(s.state().auth.Cleanup.CheckCleanupInTx(ctx, tx, c.cause, c.object))
+	if err := s.state().auth.Cleanup.CheckCleanupInTx(ctx, tx, c.cause, c.object); err != nil {
+		return portError(err)
+	}
+	return nil
 }
 
 // This is a leaf of the same original Knowledge graph, never a whole-Project
