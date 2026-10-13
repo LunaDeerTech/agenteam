@@ -69,6 +69,7 @@ export type TaskQuery = PageQuery &
     text?: string
     priority?: TaskSummary['priority']
     type?: TaskSummary['type']
+    assignee_agent_id?: string | null
   }>
 export type ReviewInput = Readonly<{
   expected_version: string
@@ -565,7 +566,9 @@ export function createWorkReviewAPI(fetcher?: Fetch): WorkReviewAPI {
     },
     tasks(project, q, signal) {
       const captured = input(() => {
-        const v = shape(q, ['sprint_id', 'state'], ['limit', 'cursor', 'text', 'priority', 'type'])
+        const v = shape(q, ['sprint_id', 'state'], [
+          'limit', 'cursor', 'text', 'priority', 'type', 'assignee_agent_id',
+        ])
         return {
           ...query({
             ...(v.limit === undefined ? {} : { limit: v.limit as number }),
@@ -576,6 +579,9 @@ export function createWorkReviewAPI(fetcher?: Fetch): WorkReviewAPI {
           ...(v.text === undefined ? {} : { text: workText(v.text, 1024, true) }),
           ...(v.priority === undefined ? {} : { priority: enumeration(v.priority, priorities) }),
           ...(v.type === undefined ? {} : { type: enumeration(v.type, types) }),
+          ...(v.assignee_agent_id === undefined
+            ? {}
+            : { assignee_agent_id: v.assignee_agent_id === null ? 'null' : workID(v.assignee_agent_id) }),
         }
       })
       return call(
@@ -589,6 +595,11 @@ export function createWorkReviewAPI(fetcher?: Fetch): WorkReviewAPI {
               requireValue(r.sprint_id === captured.sprint_id && r.state === captured.state)
               requireValue(captured.priority === undefined || r.priority === captured.priority)
               requireValue(captured.type === undefined || r.type === captured.type)
+              requireValue(
+                captured.assignee_agent_id === undefined ||
+                  r.assignee_agent_id ===
+                    (captured.assignee_agent_id === 'null' ? null : captured.assignee_agent_id),
+              )
               return r
             },
             (a, b) => priorities.indexOf(a.priority) - priorities.indexOf(b.priority) || rank(a, b),

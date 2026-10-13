@@ -1942,6 +1942,7 @@ export type TaskObservationProfile = {
     | "task-review"
     | "task-intake"
     | "task-search"
+    | "task-assignee-filter"
     | "project-creation"
     | "task-edit"
     | "agent-configuration"
@@ -2206,6 +2207,12 @@ export async function observeTaskRequests(
         !["milestone-reorder-normal", "milestone-reorder-responsive"].includes(data.mode) || !data.milestone_id ||
         !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.milestone_id) ||
         Object.keys(profile).some(key => !allowed.includes(key))) throw Error("MILESTONE_REORDER_PROFILE_MISMATCH");
+  }
+  if (profile.prefix === "task-assignee-filter") {
+    const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand"];
+    if (profile.lookupCommand !== null || !["assignee-pagination", "assignee-combination-detail"].includes(data.mode) ||
+        !data.task_id || !data.sprint_id || Object.keys(profile).some(key => !allowed.includes(key)))
+      throw Error("TASK_ASSIGNEE_READ_PROFILE_MISMATCH");
   }
   if (profile.prefix === "task-search") {
     const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand"];
@@ -2721,7 +2728,7 @@ export async function observeTaskRequests(
           intakeWrites: profile.intakeWrites === true,
           agentConfiguration: profile.agentConfiguration === true,
           editTask: profile.editWrites ? data.task_id : undefined,
-          timelineTask: profile.timelineReads || profile.prefix === "task-search" ? data.task_id : undefined,
+          timelineTask: profile.timelineReads || profile.prefix === "task-search" || profile.prefix === "task-assignee-filter" ? data.task_id : undefined,
           editAgent:
             profile.agentEditWrites || profile.agentModelPolicy
               ? data.agent_id
@@ -2871,9 +2878,12 @@ export async function observeTaskRequests(
       (entry.name === "project" && !!data.project_id && path === `/api/v1/projects/${data.project_id}`);
   }
   function taskSearchReadEntry(entry: Entry) {
-    if (profile.prefix !== "task-search" || entry.request.method() !== "GET") return false;
+    if (!["task-search", "task-assignee-filter"].includes(profile.prefix) || entry.request.method() !== "GET") return false;
     const path = new URL(entry.request.url()).pathname;
     const prefix = `/api/v1/projects/${data.project_id}/tasks`;
+    if (profile.prefix === "task-assignee-filter" &&
+        ((entry.name === "agents" && path === `/api/v1/projects/${data.project_id}/agents`) ||
+         (entry.name === "agent" && path.startsWith(`/api/v1/projects/${data.project_id}/agents/`)))) return true;
     return (entry.name === "tasks" && path === prefix) ||
       (entry.name === "task" && path === `${prefix}/${data.task_id}`) ||
       (entry.name === "events" && path === `${prefix}/${data.task_id}/events`);
@@ -3574,7 +3584,7 @@ export async function observeTaskRequests(
     return entry.body as Record<string, any>;
   }
   function taskSearchRead(request: Request): Record<string, any> {
-    if (profile.prefix !== "task-search") throw Error("TASK_SEARCH_READ_PROFILE_REQUIRED");
+    if (!["task-search", "task-assignee-filter"].includes(profile.prefix)) throw Error("TASK_SEARCH_READ_PROFILE_REQUIRED");
     // Preserve the original Playwright Request identity, including repeated
     // equal-URL reads after navigation. Never issue a replacement read.
     const values = entries.filter(entry => entry.request === request);

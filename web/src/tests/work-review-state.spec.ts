@@ -245,6 +245,8 @@ describe('Task keyword state', () => {
       typeDraft: '',
       priority: '',
       type: '',
+      assigneeDraft: '',
+      assignee: '',
     })
   })
 
@@ -342,7 +344,7 @@ describe('Task enum filters state', () => {
     await f.owner.applySearch()
     expect(f.api.tasks).not.toHaveBeenCalled()
     expect(f.owner.search.priority).toBe('critical')
-    expect(f.owner.search.message).toContain('有效的优先级和类型')
+    expect(f.owner.search.message).toContain('有效的优先级、类型和 Agent')
     await f.owner.clearSearch()
     expect(f.owner.filtersActive.value).toBe(false)
     expect(f.owner.searchEmpty.value).toBe(false)

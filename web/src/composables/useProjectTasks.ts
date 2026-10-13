@@ -146,6 +146,9 @@ export function createProjectTasks(
   const columns = reactive(
     Object.fromEntries(taskStates.map((s) => [s, emptyColumn()])) as Record<TaskState, TaskColumn>,
   )
+  // Keep only the two explicitly selected Agents across directory refreshes.
+  // Absence from a directory page does not prove that an Agent was deleted.
+  const selectedFilterAgents = shallowReactive(new Map<string, DirectoryAgent>())
   const search = reactive({
     draft: '',
     text: '',
@@ -154,8 +157,12 @@ export function createProjectTasks(
     typeDraft: '' as TaskSummary['type'] | '',
     priority: '' as TaskSummary['priority'] | '',
     type: '' as TaskSummary['type'] | '',
+    assigneeDraft: '',
+    assignee: '',
   })
-  const filtersActive = computed(() => !!(search.text || search.priority || search.type))
+  const filtersActive = computed(() =>
+    !!(search.text || search.priority || search.type || search.assignee),
+  )
   const searchEmpty = computed(
     () =>
       filtersActive.value &&
@@ -170,7 +177,10 @@ export function createProjectTasks(
       typeDraft: '',
       priority: '',
       type: '',
+      assigneeDraft: '',
+      assignee: '',
     })
+    selectedFilterAgents.clear()
   }
   const names = shallowReactive(new Map<string, DirectoryAgent>())
   const draft = reactive<{
@@ -784,6 +794,41 @@ export function createProjectTasks(
       label: agentLabel(a) === a.name ? a.name : `${agentLabel(a)} (${a.name})`,
     })),
   )
+  const filterAgentOptions = computed(() => {
+    const available = new Map(state.agents.map((agent) => [agent.id, agent]))
+    for (const key of [search.assigneeDraft, search.assignee]) {
+      const selected = selectedFilterAgents.get(key)
+      if (selected && !available.has(key)) available.set(key, selected)
+    }
+    return [
+      { value: '', label: '全部 Agent' },
+      { value: 'null', label: '未指派' },
+      ...[...available.values()].map((agent) => ({
+        value: agent.id,
+        label: agentLabel(agent) === agent.name
+          ? agent.name
+          : `${agentLabel(agent)} (${agent.name})`,
+      })),
+    ]
+  })
+  const filterAgentLabel = computed(() =>
+    filterAgentOptions.value.find((option) => option.value === search.assignee)?.label ??
+      'Agent 信息不可用',
+  )
+  function retainFilterAgents() {
+    for (const key of selectedFilterAgents.keys())
+      if (key !== search.assigneeDraft && key !== search.assignee) selectedFilterAgents.delete(key)
+  }
+  function selectAssigneeFilter(value: string) {
+    if (busy.value || !visible.value) return
+    if (value !== '' && value !== 'null') {
+      const agent = state.agents.find((item) => item.id === value) ?? selectedFilterAgents.get(value)
+      if (!agent) return
+      selectedFilterAgents.set(value, agent)
+    }
+    search.assigneeDraft = value
+    retainFilterAgents()
+  }
   const name = (id: string | null) =>
     id === null ? '未指派' : names.has(id) ? agentLabel(names.get(id)!) : 'Agent 信息不可用'
   const projectPath = () => workTaskRoute(route.value)?.projectPath ?? ''
@@ -1049,6 +1094,9 @@ export function createProjectTasks(
             ...(search.text ? { text: search.text } : {}),
             ...(search.priority ? { priority: search.priority } : {}),
             ...(search.type ? { type: search.type } : {}),
+            ...(search.assignee
+              ? { assignee_agent_id: search.assignee === 'null' ? null : search.assignee }
+              : {}),
             ...(cursor ? { cursor } : {}),
           }),
         )
@@ -1080,12 +1128,13 @@ export function createProjectTasks(
       text = search.draft === '' ? '' : workText(search.draft, 1024, true)
       if (
         (search.priorityDraft && !taskPriorities.includes(search.priorityDraft)) ||
-        (search.typeDraft && !taskTypes.includes(search.typeDraft))
+        (search.typeDraft && !taskTypes.includes(search.typeDraft)) ||
+        !filterAgentOptions.value.some((option) => option.value === search.assigneeDraft)
       )
         throw new AccountFailure('invalid-input')
     } catch {
       search.message =
-        '请输入最多 256 个字符的关键词，不含控制字符或纯空白，并选择有效的优先级和类型。'
+        '请输入最多 256 个字符的关键词，不含控制字符或纯空白，并选择有效的优先级、类型和 Agent。'
       return
     }
     retire()
@@ -1093,6 +1142,10 @@ export function createProjectTasks(
     search.text = text
     search.priority = search.priorityDraft
     search.type = search.typeDraft
+    search.assignee = search.assigneeDraft
+    const selected = state.agents.find((agent) => agent.id === search.assignee)
+    if (selected) selectedFilterAgents.set(selected.id, selected)
+    retainFilterAgents()
     search.message = ''
     for (const s of taskStates) Object.assign(columns[s], emptyColumn())
     for (const s of taskStates) {
@@ -1105,9 +1158,10 @@ export function createProjectTasks(
     search.draft = ''
     search.priorityDraft = ''
     search.typeDraft = ''
+    search.assigneeDraft = ''
     await applySearch()
   }
-  async function loadAgents(more = false) {
+  async function loadAgents(more = false, forFilter = false) {
     const cursor = more ? state.agentNext : undefined
     if (more && !cursor) return
     await read(
@@ -1117,6 +1171,10 @@ export function createProjectTasks(
         const previous = more ? state.agents : []
         if (page.items.some((row) => previous.some((a) => a.id === row.id))) {
           state.agentMessage = '目录已变化，请重新读取。'
+          if (forFilter) {
+            state.agents = []
+            state.agentNext = undefined
+          }
           return
         }
         state.agents = [...previous, ...page.items]
@@ -1126,9 +1184,18 @@ export function createProjectTasks(
       },
       (error) => {
         state.agentMessage = explain(error)
+        if (
+          forFilter && error instanceof AccountFailure &&
+          ['CURSOR_INVALID', 'CURSOR_STALE'].includes(error.problem?.code ?? '')
+        ) {
+          state.agents = []
+          state.agentNext = undefined
+          state.agentMessage = 'Agent 目录分页已失效，请重新读取筛选 Agent。'
+        }
       },
     )
   }
+  const loadFilterAgents = (more = false) => loadAgents(more, true)
   async function loadMilestones(more = false) {
     const cursor = more ? state.milestoneNext : undefined
     if (more && !cursor) return
@@ -1350,6 +1417,7 @@ export function createProjectTasks(
         state.sprintNext = value.sprints?.next_cursor
         state.agents = value.agents.items
         state.agentNext = value.agents.next_cursor
+        state.agentMessage = ''
         names.clear()
         for (const a of value.agents.items) names.set(a.id, a)
         state.phase = 'ready'
@@ -3039,6 +3107,10 @@ export function createProjectTasks(
           identityKey(read.projectID) === read.identity &&
           projectPath() === read.path
         ) {
+          resetSearch()
+          state.agents = []
+          state.agentNext = undefined
+          state.agentMessage = ''
           if (hasMilestoneChange(read.projectID)) forgetMilestoneAccess(read.projectID)
           if (hasSprintEdit(read.projectID)) forgetSprintAccess(read.projectID)
         }
@@ -3088,6 +3160,10 @@ export function createProjectTasks(
     search,
     searchEmpty,
     filtersActive,
+    filterAgentOptions,
+    filterAgentLabel,
+    selectAssigneeFilter,
+    loadFilterAgents,
     applySearch,
     clearSearch,
     draft,
