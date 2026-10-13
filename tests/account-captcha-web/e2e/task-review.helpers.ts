@@ -207,6 +207,7 @@ export async function observeBrowserIO(
     const originalHumanBlockers: any[] = [];
     const originalSprintEdits: any[] = [];
     let originalSprintStart: any;
+    const originalSprintCompletions: any[] = [];
     let originalSprintCreate: any;
     let originalMilestoneCreate: any;
     const originalVariableWrites: any[] = [];
@@ -532,6 +533,14 @@ export async function observeBrowserIO(
           };
           writeInputs.set(call, originalSprintCreate);
         }
+        if (kind === "sprintCompletion.complete" || kind === "sprintCompletion.start") {
+          const original = { call, project: args[0], sprint: args[1], input: JSON.parse(JSON.stringify(args[2])) };
+          originalSprintCompletions.push(original);
+          writeInputs.set(call, original);
+        } else if (kind === "sprintCompletion.lookup") {
+          const source = originalSprintCompletions.at(-1), progress = auth.workSprintLifecycle.progress;
+          writeInputs.set(call, { source, current: source?.call.kind === "sprintCompletion.complete" && progress?.phase === "uncertain" && progress.contextValid === true && progress.projectID === source.project && progress.sprintID === source.sprint && progress.operation === "complete" });
+        }
         if (kind === "sprint.start") {
           if (originalSprintStart) failed = true;
           originalSprintStart = {
@@ -690,6 +699,11 @@ export async function observeBrowserIO(
           },
           (error: any) => {
             call.rejected = call.settled = true;
+            if (kind.startsWith("sprintCompletion.")) {
+              call.current = current() && before === identity();
+              identities.set(call, identity());
+              call.not_busy = auth.state.busy === false;
+            }
             if (kind === "taskReorder.startReorder" || kind === "taskReorder.checkOriginal") {
               const original = writeInputs.get(call), source = original.source ?? original, progress = auth.workReview.progress;
               call.current = current() && before === identity(); identities.set(call, identity()); call.not_busy = auth.state.busy === false;
@@ -749,6 +763,7 @@ export async function observeBrowserIO(
         humanBlockerTask: string | undefined = undefined,
         executionTask: string | undefined = undefined,
         executionOutputTask: string | undefined = undefined,
+        sprintCompletion: { first: string; next: string } | undefined = undefined,
       ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
@@ -1209,6 +1224,17 @@ export async function observeBrowserIO(
             "POST",
           );
         }
+        if (sprintCompletion) {
+          for (const method of ["complete", "start"])
+            consumer(auth.workSprintLifecycle, method, "sprintCompletion." + method, a => {
+              if (a.length !== 3 || a[0] !== project || ![sprintCompletion.first, sprintCompletion.next].includes(a[1]) || (method === "start" && a[1] !== sprintCompletion.next)) throw Error("SPRINT_COMPLETION_SCOPE");
+              return "/api/v1/projects/" + project + "/sprints/" + a[1] + "/" + method;
+            }, "POST");
+          consumer(auth.workSprintLifecycle, "checkOriginal", "sprintCompletion.lookup", a => {
+            if (a.length !== 0) throw Error("SPRINT_COMPLETION_LOOKUP_SCOPE");
+            return "/api/v1/projects/" + project + "/sprint-lifecycle-commands/lookup";
+          }, "POST");
+        }
         if (startSprint) {
           consumer(
             auth.workSprintLifecycle,
@@ -1290,6 +1316,7 @@ export async function observeBrowserIO(
         originalHumanBlockers.length = 0;
         originalSprintEdits.length = 0;
         originalSprintStart = undefined;
+        originalSprintCompletions.length = 0;
         originalSprintCreate = undefined;
         originalMilestoneCreate = undefined;
         originalVariableWrites.length = 0;
@@ -1689,6 +1716,12 @@ export async function observeBrowserIO(
               original.key = key;
               original.request = request;
             }
+          }
+          if (call.kind === "sprintCompletion.complete" || call.kind === "sprintCompletion.start") {
+            matches = equal(parsed, original.input) && Object.keys(parsed).sort().join() === "expected_version,request" && parsed.request !== null && typeof parsed.request === "object" && !Array.isArray(parsed.request) && Object.keys(parsed.request).length === 0 && originalSprintCompletions.every(old => old === original || old.key !== key);
+            if (matches) original.key = key;
+          } else if (call.kind === "sprintCompletion.lookup") {
+            matches = original.current && original.source?.call.rejected === true && original.source.call.settled === true && key === original.source.key && equal(parsed, { command: "work.sprint.complete", target_id: original.source.sprint, expected_version: original.source.input.expected_version, request: original.source.input.request });
           }
           if (call.kind === "sprint.start") {
             matches =
