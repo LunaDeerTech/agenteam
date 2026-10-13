@@ -49,6 +49,7 @@ import {
 } from '../api/work-task-timeline'
 import { captureTaskUpdateInput } from '../api/work-task-edit'
 import { captureHumanBlockerDraft, captureHumanBlockerResolve } from '../api/work-task-blockers'
+import { captureTaskDependencyDraft, captureTaskDependencyResolve, captureTaskDependencyQuery, compareDependencyCandidates, type TaskDependencyCandidatesQuery } from '../api/work-task-dependencies'
 import { agentLabel, type DirectoryAgent } from '../api/agent-directory'
 import { workTaskRoute } from '../router/auth'
 import { type SessionController } from './useSession'
@@ -89,6 +90,7 @@ function explain(error: unknown): string {
     RESOURCE_BUSY: '任务有尚未结束的操作，请稍后重新读取。',
     DEPENDENCY_UNBOUND: '当前任务条件尚不支持此操作，请重新读取后确认。',
     INVALID_STATE: '任务当前状态不允许此操作，请重新读取。',
+    TASK_DEPENDENCY_CYCLE: '该依赖会形成循环，请选择其他关联任务。',
     TASK_BLOCKERS_UNRESOLVED: '任务仍有未解除的阻塞。',
   }
   return messages[e.problem?.code ?? ''] ?? '未取得完整结果，请在当前请求结束后重新读取。'
@@ -340,6 +342,16 @@ export function createProjectTasks(
     blockerID: '', description: '', resolutionComment: '', message: '', conflict: false,
   })
   let humanBlockerIdentity = ''
+  const dependency = reactive({
+    open: false, mode: 'add' as 'add' | 'resolve', projectID: '', taskID: '', version: '',
+    blockerID: '', relatedTaskID: '', description: '', resolutionComment: '', message: '', conflict: false,
+  })
+  const dependencyCandidates = shallowReactive({
+    text: '', appliedText: '', phase: 'idle' as Phase, items: [] as readonly TaskSummary[],
+    next: undefined as string | undefined, message: '',
+  })
+  let dependencyIdentity = '', dependencyGeneration = 0
+
   const confirmation = reactive({ open: false, message: '' })
   let resolveLeave: ((value: boolean) => void) | null = null
   const reading = ref(false)
@@ -466,6 +478,7 @@ export function createProjectTasks(
       !creation.open &&
       !edit.open &&
       !humanBlocker.open &&
+      !dependency.open &&
       !draft.action &&
       !sprintEditBlocked.value &&
       !sprintReorderPending.value &&
@@ -523,6 +536,7 @@ export function createProjectTasks(
       !creation.open &&
       !edit.open &&
       !humanBlocker.open &&
+      !dependency.open &&
       !draft.action &&
       !sprintReorderBlocked.value &&
       !milestoneReorderPending.value &&
@@ -550,6 +564,7 @@ export function createProjectTasks(
       !creation.open &&
       !edit.open &&
       !humanBlocker.open &&
+      !dependency.open &&
       !draft.action &&
       !milestoneReorderBlocked.value &&
       !sprintReorderBlocked.value &&
@@ -603,6 +618,7 @@ export function createProjectTasks(
       !creation.open &&
       !edit.open &&
       !humanBlocker.open &&
+      !dependency.open &&
       !draft.action &&
       !sprintEditPending.value &&
       !sprintEdit.needsRead,
@@ -638,6 +654,7 @@ export function createProjectTasks(
       !creation.open &&
       !edit.open &&
       !humanBlocker.open &&
+      !dependency.open &&
       !draft.action &&
       !milestoneCreation.needsRead,
   )
@@ -728,6 +745,7 @@ export function createProjectTasks(
       !creation.open &&
       !edit.open &&
       !humanBlocker.open &&
+      !dependency.open &&
       !draft.action &&
       !sprintCreation.needsRead,
   )
@@ -777,6 +795,7 @@ export function createProjectTasks(
       !creation.open &&
       !edit.open &&
       !humanBlocker.open &&
+      !dependency.open &&
       !draft.action &&
       !sprintStart.needsRead &&
       sprintProgress.value?.phase !== 'confirmed',
@@ -804,6 +823,7 @@ export function createProjectTasks(
       workspace.detail.project?.lifecycle !== 'active' ||
       state.sprint?.state !== 'current' ||
       humanBlocker.open ||
+      dependency.open ||
       !state.detailCurrent ||
       !!pending.value ||
       !!sprintPending.value ||
@@ -866,7 +886,12 @@ export function createProjectTasks(
       !sprintStart.open &&
       !sprintStart.needsRead,
   )
-  const canManageHumanBlockers = computed(() => canEdit.value && !edit.open && !draft.action && state.blockerPhase === 'ready')
+  const canManageHumanBlockers = computed(() => canEdit.value && !edit.open && !dependency.open && !draft.action && state.blockerPhase === 'ready')
+  const canManageDependencies = computed(() => canEdit.value && !edit.open && !humanBlocker.open && !draft.action && state.blockerPhase === 'ready')
+  const dependencyStale = computed(() => dependency.open && (dependency.conflict ||
+    dependency.projectID !== projectID.value || dependency.taskID !== state.task?.id ||
+    dependency.version !== state.task?.version || dependencyIdentity !== identityKey(dependency.projectID)))
+  const dependencyOptions = computed(() => dependencyCandidates.items.filter((item) => item.id !== dependency.taskID).map((item) => ({ value: item.id, label: `${item.title} · ${item.id}` })))
   const humanBlockerStale = computed(() => humanBlocker.open && (humanBlocker.conflict ||
     humanBlocker.projectID !== projectID.value || humanBlocker.taskID !== state.task?.id ||
     humanBlocker.version !== state.task?.version || humanBlockerIdentity !== identityKey(humanBlocker.projectID)))
@@ -893,6 +918,7 @@ export function createProjectTasks(
       creationDirty.value ||
       editDirty.value ||
       humanBlocker.open ||
+      dependency.open ||
       !!pending.value ||
       !!sprintPending.value ||
       !!sprintCreatePending.value ||
@@ -1113,6 +1139,12 @@ export function createProjectTasks(
     Object.assign(humanBlocker, { open: false, mode: 'add', projectID: '', taskID: '', version: '', blockerID: '', description: '', resolutionComment: '', message: '', conflict: false })
     humanBlockerIdentity = ''
   }
+  function clearDependency() {
+    ++dependencyGeneration
+    Object.assign(dependency, { open: false, mode: 'add', projectID: '', taskID: '', version: '', blockerID: '', relatedTaskID: '', description: '', resolutionComment: '', message: '', conflict: false })
+    Object.assign(dependencyCandidates, { text: '', appliedText: '', phase: 'idle', items: [], next: undefined, message: '' })
+    dependencyIdentity = ''
+  }
   function clearEdit() {
     Object.assign(edit, {
       open: false,
@@ -1167,6 +1199,7 @@ export function createProjectTasks(
     clearCreation()
     clearEdit()
     clearHumanBlocker()
+    clearDependency()
     clearSprintStart()
     clearSprintCreation()
   }
@@ -1390,9 +1423,11 @@ export function createProjectTasks(
       },
       (error) => {
         if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0) &&
-          (humanBlocker.open || auth.workTaskBlockers?.progress?.taskID === task.id)) {
+          (humanBlocker.open || dependency.open || auth.workTaskBlockers?.progress?.taskID === task.id || auth.workTaskDependencies?.progress?.taskID === task.id)) {
           auth.workTaskBlockers?.forgetUnavailable(task.project_id, task.id)
+          auth.workTaskDependencies?.forgetUnavailable(task.project_id, task.id)
           clearHumanBlocker()
+          clearDependency()
           invalidateHumanBlockerReads()
           state.task = null
         }
@@ -1590,7 +1625,9 @@ export function createProjectTasks(
           forgetMilestoneAccess(refusedMilestone.project)
         if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0) && selected.kind === 'task') {
           auth.workTaskBlockers?.forgetUnavailable(projectID.value ?? '', selected.id!)
+          auth.workTaskDependencies?.forgetUnavailable(projectID.value ?? '', selected.id!)
           clearHumanBlocker()
+          clearDependency()
           invalidateHumanBlockerReads()
         }
         state.phase = 'error'
@@ -3399,13 +3436,15 @@ export function createProjectTasks(
       own = generation
     if (busy.value || !original?.contextValid || original.phase !== 'uncertain') return
     try {
-      const isBlocker = original.kind.startsWith('blocker-')
-      const result = isBlocker ? await auth.workTaskBlockers.lookup() : await auth.workReview.checkOriginal()
+      const isDependency = original.kind.startsWith('dependency-')
+      const isBlocker = original.kind.startsWith('blocker-') || isDependency
+      const result = isDependency ? await auth.workTaskDependencies.lookup() : isBlocker ? await auth.workTaskBlockers.lookup() : await auth.workReview.checkOriginal()
       if ('status' in result && result.status !== 'committed') return
       if (!live(own, original.projectID) || state.task?.id !== original.taskID) return
       clearDraft()
       clearEdit()
       clearHumanBlocker()
+      clearDependency()
       const receipt = 'status' in result ? result.receipt : result
       state.feedback =
         original.kind === 'edit' && 'changed' in receipt && !receipt.changed
@@ -3419,8 +3458,9 @@ export function createProjectTasks(
     } catch (error) {
       if (live(own, original.projectID) && state.task?.id === original.taskID) {
         state.message = explain(error)
-        if (original.kind.startsWith('blocker-') && error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
+        if ((original.kind.startsWith('blocker-') || original.kind.startsWith('dependency-')) && error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
           clearHumanBlocker()
+          clearDependency()
           invalidateHumanBlockerReads()
           state.task = null
         }
@@ -3441,6 +3481,7 @@ export function createProjectTasks(
     const blocker = blockerID ? state.blockers.find((item) => item.id === blockerID) : null
     if (blockerID && (!blocker || blocker.type !== 'waiting_for_human' || blocker.resolved_at !== null)) return
     clearHumanBlocker()
+    clearDependency()
     Object.assign(humanBlocker, {
       open: true, mode: blocker ? 'resolve' : 'add', projectID: task.project_id,
       taskID: task.id, version: task.version, blockerID: blocker?.id ?? '',
@@ -3455,6 +3496,7 @@ export function createProjectTasks(
     if ((humanBlocker.description !== '' || humanBlocker.resolutionComment !== '') && !(await confirmLeave())) return false
     if (!live(own, project) || state.task?.id !== task || identityKey(project) !== identity) return false
     clearHumanBlocker()
+    clearDependency()
     return true
   }
   async function submitHumanBlocker() {
@@ -3472,6 +3514,7 @@ export function createProjectTasks(
         : await auth.workTaskBlockers.resolve(p, task.id, captureHumanBlockerResolve(value))
       if ('status' in result || !('blocker' in result) || !current()) return
       clearHumanBlocker()
+      clearDependency()
       invalidateHumanBlockerReads()
       state.feedback = mode === 'add' ? '人工阻塞已添加。任务状态与指派保持不变。' : '人工阻塞已解除。任务状态与指派保持不变。'
       await refresh()
@@ -3484,6 +3527,7 @@ export function createProjectTasks(
       if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
         auth.workTaskBlockers.forgetUnavailable(p, task.id)
         clearHumanBlocker()
+        clearDependency()
         invalidateHumanBlockerReads()
         state.task = null
         state.message = explain(error)
@@ -3493,9 +3537,110 @@ export function createProjectTasks(
       }
     }
   }
+  async function openDependency(blockerID?: string) {
+    const task = state.task
+    if (!task || !canManageDependencies.value || busy.value || dependency.open) return
+    const blocker = blockerID ? state.blockers.find((item) => item.id === blockerID) : null
+    if (blockerID && (!blocker || blocker.type !== 'rely_on' || !blocker.related_task_id || blocker.resolved_at !== null)) return
+    clearDependency()
+    Object.assign(dependency, { open: true, mode: blocker ? 'resolve' : 'add', projectID: task.project_id,
+      taskID: task.id, version: task.version, blockerID: blocker?.id ?? '', relatedTaskID: blocker?.related_task_id ?? '' })
+    dependencyIdentity = identityKey(task.project_id)
+    state.feedback = ''; state.message = ''
+    if (!blocker) await loadDependencyCandidates()
+  }
+  async function loadDependencyCandidates(more = false) {
+    if (busy.value || !dependency.open || dependency.mode !== 'add' || !canManageDependencies.value || dependencyStale.value) return
+    let query: TaskDependencyCandidatesQuery
+    try {
+      query = captureTaskDependencyQuery({ limit: 50,
+        ...((more ? dependencyCandidates.appliedText : dependencyCandidates.text) === '' ? {} : { text: more ? dependencyCandidates.appliedText : dependencyCandidates.text }),
+        ...(more && dependencyCandidates.next ? { cursor: dependencyCandidates.next } : {}) })
+    } catch { dependencyCandidates.message = '搜索内容须包含非空白字符，最多 256 个字符和 1024 UTF-8 字节。'; return }
+    if (more && !query.cursor) return
+    const local = dependencyGeneration, taskID = dependency.taskID
+    const before = more ? dependencyCandidates.items : []
+    if (!more) {
+      dependencyCandidates.items = []; dependencyCandidates.next = undefined
+      dependencyCandidates.appliedText = query.text ?? ''; dependency.relatedTaskID = ''
+    }
+    await read(async (p, step) => {
+      dependencyCandidates.phase = 'loading'; dependencyCandidates.message = ''
+      const page = await step(() => auth.workTaskDependencies.candidates(p, query))
+      if (local !== dependencyGeneration || taskID !== dependency.taskID) throw new AccountFailure('cancelled')
+      if (page.items.some((item) => before.some((previous) => previous.id === item.id)) ||
+        (before.length && page.items.length && compareDependencyCandidates(before[before.length - 1]!, page.items[0]!) >= 0)) throw new AccountFailure('invalid-response')
+      return page
+    }, (page) => {
+      if (local !== dependencyGeneration || taskID !== dependency.taskID) return
+      dependencyCandidates.items = [...before, ...page.items]
+      dependencyCandidates.next = page.next_cursor; dependencyCandidates.phase = 'ready'
+    }, (error) => {
+      if (local !== dependencyGeneration || taskID !== dependency.taskID) return
+      dependencyCandidates.phase = 'error'; dependencyCandidates.message = explain(error)
+      // A rejected cursor or partial page is never continued or silently adopted.
+      dependencyCandidates.items = []; dependencyCandidates.next = undefined; dependency.relatedTaskID = ''
+      if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
+        auth.workTaskDependencies.forgetUnavailable(dependency.projectID, taskID)
+        clearDependency(); invalidateHumanBlockerReads(); state.task = null; state.message = explain(error)
+      }
+    })
+  }
+  async function cancelDependency() {
+    if (busy.value || pending.value) return false
+    const own = generation, p = dependency.projectID, task = dependency.taskID, identity = dependencyIdentity
+    if ((dependency.relatedTaskID && dependency.mode === 'add' || dependency.description || dependency.resolutionComment) && !(await confirmLeave())) return false
+    if (!live(own, p) || state.task?.id !== task || identityKey(p) !== identity) return false
+    clearDependency()
+    return true
+  }
+  async function submitDependency() {
+    const task = state.task, p = projectID.value, own = generation, identity = dependencyIdentity
+    if (!task || !p || busy.value || !dependency.open || !canManageDependencies.value || dependencyStale.value) return
+    const current = () => live(own, p) && state.task?.id === task.id && identityKey(p) === identity
+    const mode = dependency.mode, related = dependency.relatedTaskID
+    if (mode === 'add' && (!related || related === task.id || !dependencyCandidates.items.some((item) => item.id === related))) return
+    try {
+      const value = mode === 'add'
+        ? captureTaskDependencyDraft({ expected_version: dependency.version, request: { type: 'rely_on', description: dependency.description, metadata: { related_task_id: related } } })
+        : captureTaskDependencyResolve({ expected_version: dependency.version, request: { blocker_id: dependency.blockerID, resolution_comment: dependency.resolutionComment === '' ? null : dependency.resolutionComment } })
+      if (auth.workReview.progress?.phase === 'rejected') auth.workReview.editRejected()
+      const result = 'description' in value.request
+        ? await auth.workTaskDependencies.add(p, task.id, captureTaskDependencyDraft(value))
+        : await auth.workTaskDependencies.resolve(p, task.id, captureTaskDependencyResolve(value), related)
+      if ('status' in result || !('blocker' in result) || !current()) return
+      clearDependency(); invalidateHumanBlockerReads()
+      state.feedback = mode === 'add' ? '任务依赖已添加。' : '任务依赖已解除。'
+      await refresh()
+      return current() && state.detailCurrent
+    } catch (error) {
+      if (!current()) return
+      dependency.message = error instanceof AccountFailure && error.kind === 'invalid-input'
+        ? '请选择关联任务；说明最多 1024 UTF-8 字节，非空解除说明须包含非空白字符。' : explain(error)
+      if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
+        auth.workTaskDependencies.forgetUnavailable(p, task.id)
+        clearDependency(); invalidateHumanBlockerReads(); state.task = null; state.message = explain(error)
+      } else if (auth.workReview.progress?.phase === 'rejected') {
+        dependency.conflict = true; state.detailCurrent = false
+      }
+    }
+  }
+  async function viewDependency(blockerID: string) {
+    const blocker = state.blockers.find((item) => item.id === blockerID), source = state.task
+    const own = generation, p = projectID.value
+    if (!source || !p || busy.value || !blocker || blocker.type !== 'rely_on' || !blocker.related_task_id) return
+    let target: Task | undefined
+    await read(async (project, step) => step(() => auth.workReview.task(project, blocker.related_task_id!)), (value) => { target = value })
+    if (!target || !live(own, p) || state.task?.id !== source.id) return
+    // Get establishes the real same-Project parent chain; the task route hydrates it.
+    if (target.project_id !== p || target.id !== blocker.related_task_id) { state.message = explain(new AccountFailure('invalid-response')); return }
+    const path = `${projectPath()}/tasks/${target.id}`
+    // The registered router guard owns the single dirty/Unknown leave confirmation.
+    await navigate(path)
+  }
   function openEdit() {
     const task = state.task
-    if (!task || !canEdit.value || busy.value || draft.action || edit.open || humanBlocker.open) return
+    if (!task || !canEdit.value || busy.value || draft.action || edit.open || humanBlocker.open || dependency.open) return
     clearEdit()
     Object.assign(edit, {
       projectID: task.project_id,
@@ -3657,6 +3802,7 @@ export function createProjectTasks(
       clearCreation()
       clearEdit()
       clearHumanBlocker()
+      clearDependency()
       clearSprintStart()
       clearSprintCreation()
       clearMilestoneCreation()
@@ -3690,6 +3836,7 @@ export function createProjectTasks(
     clearCreation()
     clearEdit()
     clearHumanBlocker()
+    clearDependency()
     clearSprintStart()
     clearSprintCreation()
     clearMilestoneCreation()
@@ -3732,7 +3879,9 @@ export function createProjectTasks(
           state.agentNext = undefined
           state.agentMessage = ''
           auth.workTaskBlockers?.forgetUnavailable(read.projectID)
+          auth.workTaskDependencies?.forgetUnavailable(read.projectID)
           clearHumanBlocker()
+          clearDependency()
           if (hasMilestoneChange(read.projectID)) forgetMilestoneAccess(read.projectID)
           if (hasSprintEdit(read.projectID)) forgetSprintAccess(read.projectID)
         }
@@ -3791,6 +3940,8 @@ export function createProjectTasks(
     draft,
     creation,
     edit,
+    dependency, dependencyCandidates, dependencyOptions, canManageDependencies, dependencyStale,
+    openDependency, loadDependencyCandidates, cancelDependency, submitDependency, viewDependency,
     humanBlocker,
     canManageHumanBlockers,
     humanBlockerStale,

@@ -131,6 +131,12 @@ import {
   type HumanBlockerResolveInput, type HumanBlockerReceipt, type HumanBlockerLookup,
 } from '../api/work-task-blockers'
 import {
+  createWorkTaskDependenciesAPI, captureTaskDependencyDraft, captureTaskDependencyAdd,
+  captureTaskDependencyResolve, captureTaskDependencyQuery,
+  type WorkTaskDependenciesAPI, type TaskDependencyDraft, type TaskDependencyAddInput,
+  type TaskDependencyResolveInput, type TaskDependencyCandidatesQuery,
+} from '../api/work-task-dependencies'
+import {
   createWorkTaskTimelineAPI,
   type WorkTaskTimelineAPI,
   type TaskTimelineQuery,
@@ -595,6 +601,8 @@ type WorkReviewIntent = {
   | { kind: 'edit'; input: TaskUpdateInput }
   | { kind: 'blocker-add'; input: HumanBlockerAddInput }
   | { kind: 'blocker-resolve'; input: HumanBlockerResolveInput }
+  | { kind: 'dependency-add'; input: TaskDependencyAddInput }
+  | { kind: 'dependency-resolve'; input: TaskDependencyResolveInput; relatedTaskID: string }
 )
 type WorkCommandReceipt = ReviewReceipt | TaskCreateReceipt | TaskUpdateReceipt | HumanBlockerReceipt
 type WorkCommandLookup = ReviewLookup | TaskCreateLookup | TaskUpdateLookup | HumanBlockerLookup
@@ -1086,6 +1094,7 @@ export function createSessionController(
   taskPlanningAPI: WorkTaskPlanningAPI = createWorkTaskPlanningAPI(),
   commandAPIs: Readonly<{
     taskBlockers?: WorkTaskBlockersAPI
+    taskDependencies?: WorkTaskDependenciesAPI
     edit?: WorkTaskEditAPI
     taskTimeline?: WorkTaskTimelineAPI
     systemRunners?: SystemRunnersAPI
@@ -1121,6 +1130,7 @@ export function createSessionController(
   const projectUsageAPI = commandAPIs.projectUsage ?? createProjectUsageAPI()
   const schedulerAPI = commandAPIs.scheduler ?? createProjectSchedulerAPI()
   const skillPackageAPI = commandAPIs.skillPackage ?? createSkillPackageAPI()
+  const taskDependenciesAPI = commandAPIs.taskDependencies ?? createWorkTaskDependenciesAPI()
   const taskBlockersAPI = commandAPIs.taskBlockers ?? createWorkTaskBlockersAPI()
   const taskEditAPI = commandAPIs.edit ?? createWorkTaskEditAPI()
   const taskTimelineAPI = commandAPIs.taskTimeline ?? createWorkTaskTimelineAPI()
@@ -6401,6 +6411,14 @@ export function createSessionController(
           throw new AccountFailure('invalid-input')
         dispatched = true
         const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
+        if (original.kind === 'dependency-add')
+          return lookup
+            ? taskDependenciesAPI.lookup(original.projectID, original.taskID, 'work.task.blocker.add', original.input, original.input.request.metadata.related_task_id, write)
+            : taskDependenciesAPI.add(original.projectID, original.taskID, original.input, write)
+        if (original.kind === 'dependency-resolve')
+          return lookup
+            ? taskDependenciesAPI.lookup(original.projectID, original.taskID, 'work.task.blocker.resolve', original.input, original.relatedTaskID, write)
+            : taskDependenciesAPI.resolve(original.projectID, original.taskID, original.input, original.relatedTaskID, write)
         if (original.kind === 'blocker-add')
           return lookup
             ? taskBlockersAPI.lookup(original.projectID, original.taskID, 'work.task.blocker.add', original.input, write)
@@ -6444,7 +6462,7 @@ export function createSessionController(
         const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
         if (live()) {
           const p = failure.problem
-          if (original.kind.startsWith('blocker-') && p && [403, 404].includes(p.status)) {
+          if ((original.kind.startsWith('blocker-') || original.kind.startsWith('dependency-')) && p && [403, 404].includes(p.status)) {
             clearWorkReviewState()
             throw failure
           }
@@ -6689,6 +6707,55 @@ export function createSessionController(
     forgetUnavailable(projectID: string, taskID?: string) {
       const value = workReviewState.progress
       if (value?.kind.startsWith('blocker-') && value.projectID === projectID && (!taskID || value.taskID === taskID)) clearWorkReviewState()
+    },
+  }
+  function startTaskDependency(projectID: string, taskID: string, value: TaskDependencyDraft | TaskDependencyResolveInput, relatedTaskID?: string) {
+    try {
+      const identity = personalIdentity()
+      if (owner || workReviewIntent || milestoneCreateIntent || milestoneReorderIntent ||
+        milestoneUpdateIntent || sprintCreateIntent || sprintStartIntent || sprintReorderIntent ||
+        sprintUpdateIntent || personalIntent || pending) throw new AccountFailure('busy')
+      if (!uuid7.test(projectID) || !uuid7.test(taskID)) throw new AccountFailure('invalid-input')
+      let command: { kind: 'dependency-add'; input: TaskDependencyAddInput } | { kind: 'dependency-resolve'; input: TaskDependencyResolveInput; relatedTaskID: string }
+      if (relatedTaskID === undefined) {
+        const draft = captureTaskDependencyDraft(value)
+        if (draft.request.metadata.related_task_id === taskID) throw new AccountFailure('invalid-input')
+        command = { kind: 'dependency-add', input: captureTaskDependencyAdd({ ...draft, request: { ...draft.request, blocker_id: newTaskID() } }) }
+      } else {
+        if (!uuid7.test(relatedTaskID) || relatedTaskID === taskID) throw new AccountFailure('invalid-input')
+        command = { kind: 'dependency-resolve', input: captureTaskDependencyResolve(value), relatedTaskID }
+      }
+      const original: WorkReviewIntent = {
+        ...command, identity, csrf: sessionCSRF, projectID, taskID, key: newKey(),
+        body: JSON.stringify(command.input), uncertain: false,
+      }
+      workReviewIntent = original
+      return performReview(original, false)
+    } catch (error) { return Promise.reject(error) }
+  }
+  const workTaskDependencies = {
+    get progress(): WorkReviewProgress | null {
+      const value = workReview.progress
+      return value?.kind.startsWith('dependency-') ? value : null
+    },
+    candidates(projectID: string, query: TaskDependencyCandidatesQuery) {
+      try {
+        if (!uuid7.test(projectID)) throw new AccountFailure('invalid-input')
+        const captured = captureTaskDependencyQuery(query)
+        return reviewRead((signal) => taskDependenciesAPI.candidates(projectID, captured, signal))
+      } catch (error) { return Promise.reject(error) }
+    },
+    add: (projectID: string, taskID: string, value: TaskDependencyDraft) =>
+      startTaskDependency(projectID, taskID, value),
+    resolve: (projectID: string, taskID: string, value: TaskDependencyResolveInput, relatedTaskID: string) =>
+      startTaskDependency(projectID, taskID, value, relatedTaskID),
+    lookup() {
+      if (!workReviewIntent?.kind.startsWith('dependency-')) return Promise.reject(new AccountFailure('invalid-input'))
+      return workReview.checkOriginal()
+    },
+    forgetUnavailable(projectID: string, taskID?: string) {
+      const value = workReviewState.progress
+      if (value?.kind.startsWith('dependency-') && value.projectID === projectID && (!taskID || value.taskID === taskID)) clearWorkReviewState()
     },
   }
   function clearSchedulerRead() {
@@ -9509,6 +9576,7 @@ export function createSessionController(
     projectScheduler,
     workReview,
     workTaskBlockers,
+    workTaskDependencies,
     workSprintLifecycle,
     workMilestonePlanning,
     workSprintReordering,

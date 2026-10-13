@@ -412,6 +412,9 @@ export function captureReadyInput(value: unknown): ReadyInput {
   })
 }
 // Reuse the same complete Task decoder for other Work receipts.
+export function decodeWorkTaskSummary(value: unknown, project: string): TaskSummary {
+  return parseTask(value, project, undefined, true) as TaskSummary
+}
 export function decodeWorkTask(value: unknown, project: string, task: string): Task {
   return parseTask(value, project, task) as Task
 }

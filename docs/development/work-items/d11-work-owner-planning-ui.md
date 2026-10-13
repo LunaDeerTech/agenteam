@@ -339,3 +339,7 @@ cleanup有限接受1440×960浅色创建表单和390×844深色planned结果两�
 ## 23. Task 人工阻塞新增与解除（2026-10-13）
 
 [人工阻塞切片](d11-task-human-blocker-ui.md)已通过限定验收，仅覆盖未指派 backlog、planned/current Sprint 的 waiting_for_human 新增与解除。8 个文件 58 项分段前端结果、完整类型检查与 84 文件构建通过；真实 Work HTTP shell 的 native02 1 top/2 sub 与两个浏览器调用通过，两组各 Add/Resolve 两写、版本加二、零 Transfer，Task 状态/指派/排序及 B 不变。Ready 只验 UI 禁用/启用，未实际提交；原 Wait、六资源和退出尾闭合，宽浅/窄深四图按实际可见范围接受，available 图不冒称确认按钮可见。原 basic01 两 fixture 失败及 native01 观测器投影失败保留；Unknown 仅受控测试，不代默认 App、完整 Blocker 两类型/筛选、D11/D27 或 Project 生命周期，旧验收与 STOP 不改写。
+
+## 24. Task 依赖操作切片（2026-10-13）
+
+[依赖建立、解除与目标查看](d11-task-dependency-ui.md)补齐同 Project `rely_on` 的正式 add/resolve/Lookup 与全 Project 候选分页，限定未指派 backlog、planned/current Sprint，不放宽七列查询或自动解除 done/cancelled 目标。产品独审、75 个不同前端用例、完整类型检查与 84 文件构建通过；首 TS2345 夹具失败和单用例复验保留。真实 default App 的 native04 业务 Go 1 top/1 sub 与一个 Node 调用通过：53 候选、跨 Sprint A→B、严格 409/not_committed 反向环拒绝及全账本不变、明确解除，三 POST 两提交、A version 1→2→3，B/Q 不变，Runtime disabled。前三轮 helper/Problem.instance 失败保留，宽浅/窄深四图仅按实际可见范围记录。原整轮 Wait 1 的 Host TCP 门仍未通过，虽 9 PID/六资源/三个私有目录已退出，不能宣称原 whole PASS；精确本片的新方法 `task-dependency-owned-v1` 与独立 scope assessment 已审查接受原 native04 的业务/自有资源/输入范围，保留全量 TCP 诊断与其他硬门，没有新运行，也不改写历史卡契约。Unknown 仍限单元，不代表自动依赖恢复、真实 Execution 或 E01 完成，既有 STOP 保持。
