@@ -13,7 +13,7 @@ import sys
 
 REPOSITORY = Path(__file__).resolve().parents[2]
 GO = Path('/workspace/toolchains/go1.27.1/bin/go')
-MINIO = Path('/workspace/agenteam-skills-milestone-resume/output/ai/deps-minio/bin/minio')
+MINIO = Path('/workspace/agenteam-shared/tools/minio/RELEASE.2025-10-15T17-29-55Z/minio')
 MINIO_SHA = 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
 # One closed same-package PG family: adding a scenario changes required
 # inputs and expected test data, never the resource/Wait/tail implementation.
