@@ -13,7 +13,8 @@ import ProjectTasksView from '../views/projects/ProjectTasksView.vue'
 export const id = (n: number) => `01990000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
 export const projectID = id(10),
   milestoneID = id(11),
-  sprintID = id(12)
+  sprintID = id(12),
+  otherSprintID = id(13)
 export const selectedAgentID = id(100),
   otherAgentID = id(150)
 export const prefix = `/api/v1/projects/${projectID}`
@@ -51,6 +52,15 @@ const sprint = {
   started_by: { kind: 'human', user_id: id(1) },
   completed_at: null,
   completed_by: null,
+}
+const otherSprint = {
+  ...sprint,
+  id: otherSprintID,
+  title: '下一迭代',
+  manual_rank: '9' + '0'.repeat(31),
+  state: 'planned',
+  started_at: null,
+  started_by: null,
 }
 const agents = Array.from({ length: 51 }, (_, n) => ({
   id: id(150 - n),
@@ -118,6 +128,8 @@ export async function assigneeFixture(withView = false) {
   let projectDenied = false
   let directoryGate: Promise<void> | undefined
   let releaseDirectory: (() => void) | undefined
+  let tasksGate: Promise<void> | undefined
+  let releaseTasks: (() => void) | undefined
   const unexpected: string[] = []
   const fetcher = vi.fn<Fetch>(async (path, init) => {
     const url = new URL(path, 'https://example.test'),
@@ -166,9 +178,16 @@ export async function assigneeFixture(withView = false) {
             milestone_id: milestoneID,
             state: 'current',
           },
+          {
+            ...base(otherSprintID, otherSprint.title),
+            manual_rank: otherSprint.manual_rank,
+            milestone_id: milestoneID,
+            state: 'planned',
+          },
         ],
       })
     if (route === `${prefix}/sprints/${sprintID}`) return json(sprint)
+    if (route === `${prefix}/sprints/${otherSprintID}`) return json(otherSprint)
     if (route === `${prefix}/agents`) {
       if (directoryGate) await directoryGate
       if (directoryFailure) {
@@ -199,9 +218,11 @@ export async function assigneeFixture(withView = false) {
       if (agent) return json(agent)
     }
     if (route === `${prefix}/tasks`) {
+      if (tasksGate) await tasksGate
       const q = url.searchParams
       const filtered = rows.filter(
         (row) =>
+          row.sprint_id === q.get('sprint_id') &&
           row.state === q.get('state') &&
           (!q.has('assignee_agent_id') ||
             row.assignee_agent_id ===
@@ -247,6 +268,7 @@ export async function assigneeFixture(withView = false) {
   }
   disposals.push(() => {
     releaseDirectory?.()
+    releaseTasks?.()
     wrapper?.unmount()
     owner.dispose()
     workspace.dispose()
@@ -280,6 +302,15 @@ export async function assigneeFixture(withView = false) {
       return () => {
         releaseDirectory?.()
         directoryGate = undefined
+      }
+    },
+    holdTasks() {
+      tasksGate = new Promise<void>((resolve) => {
+        releaseTasks = resolve
+      })
+      return () => {
+        releaseTasks?.()
+        tasksGate = undefined
       }
     },
   }

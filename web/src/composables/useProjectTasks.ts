@@ -78,7 +78,7 @@ export type TaskColumn = {
   message: string
 }
 function emptyColumn(): TaskColumn {
-  return { phase: 'idle', items: [], message: '' }
+  return { phase: 'idle', items: [], next: undefined, message: '' }
 }
 function explain(error: unknown): string {
   const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
@@ -167,6 +167,8 @@ export function createProjectTasks(
     draft: '',
     text: '',
     message: '',
+    stateDraft: '' as TaskState | '',
+    state: '' as TaskState | '',
     priorityDraft: '' as TaskSummary['priority'] | '',
     typeDraft: '' as TaskSummary['type'] | '',
     priority: '' as TaskSummary['priority'] | '',
@@ -174,19 +176,22 @@ export function createProjectTasks(
     assigneeDraft: '',
     assignee: '',
   })
+  const includedTaskStates = computed(() => (search.state ? [search.state] : taskStates))
   const filtersActive = computed(() =>
-    !!(search.text || search.priority || search.type || search.assignee),
+    !!(search.text || search.state || search.priority || search.type || search.assignee),
   )
   const searchEmpty = computed(
     () =>
       filtersActive.value &&
-      taskStates.every((s) => columns[s].phase === 'ready' && !columns[s].items.length),
+      includedTaskStates.value.every((s) => columns[s].phase === 'ready' && !columns[s].items.length),
   )
   function resetSearch() {
     Object.assign(search, {
       draft: '',
       text: '',
       message: '',
+      stateDraft: '',
+      state: '',
       priorityDraft: '',
       typeDraft: '',
       priority: '',
@@ -1319,7 +1324,7 @@ export function createProjectTasks(
   }
   async function loadColumn(s: TaskState, more = false) {
     const sprint = state.sprint
-    if (!sprint) return
+    if (!sprint || (search.state && search.state !== s)) return
     const old = columns[s],
       cursor = more ? old.next : undefined
     if (more && !cursor) return
@@ -1367,6 +1372,7 @@ export function createProjectTasks(
     try {
       text = search.draft === '' ? '' : workText(search.draft, 1024, true)
       if (
+        (search.stateDraft && !taskStates.includes(search.stateDraft)) ||
         (search.priorityDraft && !taskPriorities.includes(search.priorityDraft)) ||
         (search.typeDraft && !taskTypes.includes(search.typeDraft)) ||
         !filterAgentOptions.value.some((option) => option.value === search.assigneeDraft)
@@ -1374,12 +1380,13 @@ export function createProjectTasks(
         throw new AccountFailure('invalid-input')
     } catch {
       search.message =
-        '请输入最多 256 个字符的关键词，不含控制字符或纯空白，并选择有效的优先级、类型和 Agent。'
+        '请输入最多 256 个字符的关键词，不含控制字符或纯空白，并选择有效的状态、优先级、类型和 Agent。'
       return
     }
     retire()
     const own = generation
     search.text = text
+    search.state = search.stateDraft
     search.priority = search.priorityDraft
     search.type = search.typeDraft
     search.assignee = search.assigneeDraft
@@ -1388,7 +1395,7 @@ export function createProjectTasks(
     retainFilterAgents()
     search.message = ''
     for (const s of taskStates) Object.assign(columns[s], emptyColumn())
-    for (const s of taskStates) {
+    for (const s of includedTaskStates.value) {
       if (own !== generation || !visible.value || busy.value) return
       await loadColumn(s)
     }
@@ -1396,6 +1403,7 @@ export function createProjectTasks(
   async function clearSearch() {
     if (!state.sprint || !visible.value || busy.value) return
     search.draft = ''
+    search.stateDraft = ''
     search.priorityDraft = ''
     search.typeDraft = ''
     search.assigneeDraft = ''
@@ -1721,7 +1729,7 @@ export function createProjectTasks(
         )
       }
     }
-    for (const s of taskStates) {
+    for (const s of includedTaskStates.value) {
       if (requested || !visible.value || busy.value) return
       await loadColumn(s)
     }

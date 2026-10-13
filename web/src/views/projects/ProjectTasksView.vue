@@ -19,7 +19,12 @@ import SprintReorderForm from '../../components/work/SprintReorderForm.vue'
 import SprintEditForm from '../../components/work/SprintEditForm.vue'
 import SprintCreateForm from '../../components/work/SprintCreateForm.vue'
 import type { SprintLifecycleOperation } from '../../api/work-sprint-lifecycle'
+import { taskLabels, taskStates } from '../../api/work-review'
 import { useProjectTasks } from '../../composables/useProjectTasks'
+const filterStates = [
+  { value: '', label: '全部状态' },
+  ...taskStates.map((value) => ({ value, label: taskLabels[value] })),
+]
 const filterPriorities = [
   { value: '', label: '全部优先级' },
   { value: 'critical', label: '紧急' },
@@ -55,6 +60,10 @@ async function loadFilterAgents(more = false) {
 function selectFilterPriority(value: string) {
   if (filterPriorities.some((option) => option.value === value))
     owner.search.priorityDraft = value as typeof owner.search.priorityDraft
+}
+function selectFilterState(value: string) {
+  if (filterStates.some((option) => option.value === value))
+    owner.search.stateDraft = value as typeof owner.search.stateDraft
 }
 function selectFilterType(value: string) {
   if (filterTypes.some((option) => option.value === value))
@@ -1009,6 +1018,16 @@ function returnToCreation() {
                 />
               </UiField>
               <div class="task-search-properties">
+                <UiField v-slot="field" label="筛选状态">
+                  <UiSelect
+                    :id="field.id"
+                    label="筛选状态"
+                    :model-value="owner.search.stateDraft"
+                    :options="filterStates"
+                    :disabled="owner.busy.value"
+                    @update:model-value="selectFilterState"
+                  />
+                </UiField>
                 <UiField v-slot="field" label="筛选优先级">
                   <UiSelect
                     :id="field.id"
@@ -1057,6 +1076,7 @@ function returnToCreation() {
                     owner.busy.value ||
                     (!owner.filtersActive.value &&
                       !owner.search.draft &&
+                      !owner.search.stateDraft &&
                       !owner.search.priorityDraft &&
                       !owner.search.typeDraft &&
                       !owner.search.assigneeDraft)
@@ -1069,6 +1089,7 @@ function returnToCreation() {
             <p v-if="owner.filtersActive.value" class="task-search-status" role="status">
               {{ owner.searchEmpty.value ? '没有匹配的任务，可清除筛选。' : '筛选结果' }}
               <span v-if="owner.search.text">关键词：{{ owner.search.text }}</span>
+              <span v-if="owner.search.state">状态：{{ taskLabels[owner.search.state] }}</span>
               <span v-if="owner.search.priority"
                 >优先级：{{
                   filterPriorities.find((option) => option.value === owner.search.priority)?.label
@@ -1083,6 +1104,7 @@ function returnToCreation() {
             </p>
             <TaskBoard
               :columns="owner.columns"
+              :state-filter="owner.search.state"
               :busy="owner.busy.value"
               :name="owner.name"
               @select="owner.selectTask"
@@ -1201,10 +1223,10 @@ function returnToCreation() {
   min-width: 0;
 }
 .task-search-properties {
-  flex: 1 1 480px;
+  flex: 1 1 640px;
   min-width: 0;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--content-gap);
 }
 .task-agent-filter {
@@ -1244,9 +1266,6 @@ function returnToCreation() {
 @media (max-width: 760px) {
   .task-search-properties {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .task-agent-filter {
-    grid-column: 1 / -1;
   }
   .tasks-layout {
     display: block;
