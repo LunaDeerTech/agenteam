@@ -113,6 +113,11 @@ func TestArtifactCancelledMaintenanceCurrentGate(t *testing.T) {
 					return originalRow(query, args...)
 				case query == "SELECT clock_timestamp()":
 					return originalRow(query, args...)
+				case query == "SELECT EXISTS(SELECT 1 FROM agenteam_artifact.cleanup WHERE project_id=$1 AND state='completed')":
+					if len(args) != 1 || args[0] != v.project.String() {
+						t.Fatal("wrong completed cleanup lookup")
+					}
+					return valuesRow(false)
 				default:
 					t.Fatal("unexpected maintenance query")
 					return nil
