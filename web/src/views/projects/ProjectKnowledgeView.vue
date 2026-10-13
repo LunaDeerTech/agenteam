@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import KnowledgeMoveDialog from '../../components/knowledge/KnowledgeMoveDialog.vue'
+import { useKnowledgeMove } from '../../composables/useKnowledgeMove'
 import KnowledgeDeleteDialog from '../../components/knowledge/KnowledgeDeleteDialog.vue'
 import { useKnowledgeDelete } from '../../composables/useKnowledgeDelete'
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
 import { useKnowledgeText } from '../../composables/useKnowledgeText'
 import { useSession } from '../../composables/useSession'
@@ -29,6 +31,7 @@ const owner = useKnowledgeOwner(undefined, workspace, location),
   state = owner.state
 const rename = useKnowledgeRename(owner, workspace)
 const deletion = useKnowledgeDelete(owner, workspace)
+const move = useKnowledgeMove(owner, workspace)
 const textEditor = useKnowledgeText()
 const detachText = textEditor.attachReader(owner)
 const titleSearch = useKnowledgeTitleSearch(
@@ -36,28 +39,69 @@ const titleSearch = useKnowledgeTitleSearch(
   computed(() => (owner.visible.value ? workspace.currentReadContext.value : null)),
   owner.blocked,
 )
+watch(
+  () => move.progress.value?.phase,
+  (phase) => {
+    if (phase === 'confirmed') titleSearch.clear()
+  },
+)
 async function createText(parent: KnowledgeDocument | null = null) {
-  if ((await deletion.permitNavigation()) && (await rename.permitNavigation()))
+  if (
+    (await move.permitNavigation()) &&
+    (await deletion.permitNavigation()) &&
+    (await rename.permitNavigation())
+  )
     await textEditor.openCreate(parent)
 }
 async function editText() {
-  if (state.document && (await deletion.permitNavigation()) && (await rename.permitNavigation()))
+  if (
+    state.document &&
+    (await move.permitNavigation()) &&
+    (await deletion.permitNavigation()) &&
+    (await rename.permitNavigation())
+  )
     await textEditor.openEdit(state.document)
 }
 async function deleteTree() {
   const selected = state.selected,
     context = workspace.currentReadContext.value
-  if (!(await rename.permitNavigation()) || !(await textEditor.permitNavigation())) return
+  if (
+    !(await move.permitNavigation()) ||
+    !(await rename.permitNavigation()) ||
+    !(await textEditor.permitNavigation())
+  )
+    return
   if (state.selected !== selected || workspace.currentReadContext.value !== context) return
   titleSearch.clear()
   await deletion.open()
 }
 async function renameText() {
-  if ((await deletion.permitNavigation()) && (await textEditor.permitNavigation())) rename.open()
+  if (
+    (await move.permitNavigation()) &&
+    (await deletion.permitNavigation()) &&
+    (await textEditor.permitNavigation())
+  )
+    rename.open()
+}
+async function moveDocument() {
+  const context = workspace.currentReadContext.value,
+    document = state.document
+  if (
+    !(await move.permitNavigation()) ||
+    !(await deletion.permitNavigation()) ||
+    !(await rename.permitNavigation()) ||
+    !(await textEditor.permitNavigation())
+  )
+    return
+  if (context !== workspace.currentReadContext.value || document !== state.document) return
+  titleSearch.cancel()
+  move.open()
 }
 const stopNavigation = installKnowledgeNavigation(useRouter(), {
   confirmLeave: async () =>
-    (await deletion.permitNavigation()) && (await rename.permitNavigation()),
+    (await move.permitNavigation()) &&
+    (await deletion.permitNavigation()) &&
+    (await rename.permitNavigation()),
 })
 const drawer = ref(false),
   heading = ref<HTMLElement | null>(null),
@@ -90,7 +134,8 @@ const creator = computed(() => {
 async function select(id: string, current: () => boolean = () => true) {
   if (
     id !== state.selected &&
-    (!(await deletion.permitNavigation()) ||
+    (!(await move.permitNavigation()) ||
+      !(await deletion.permitNavigation()) ||
       !(await rename.permitNavigation()) ||
       !(await textEditor.permitNavigation()))
   )
@@ -112,6 +157,7 @@ const cancel = () => {
 }
 async function leave() {
   if (
+    !(await move.permitNavigation()) ||
     !(await deletion.permitNavigation()) ||
     !(await rename.permitNavigation()) ||
     !(await textEditor.permitNavigation())
@@ -129,6 +175,7 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   detachText()
   stopNavigation()
+  move.dispose()
   deletion.dispose()
   rename.dispose()
   titleSearch.dispose()
@@ -198,6 +245,11 @@ onBeforeUnmount(() => {
           </UiState>
           <template v-if="state.document">
             <div class="document-toolbar">
+              <UiButton
+                :disabled="!move.canOpen.value || textEditor.pending.value"
+                @click="moveDocument()"
+                >移动</UiButton
+              >
               <UiButton
                 :disabled="!deletion.canOpen.value || textEditor.pending.value"
                 @click="deleteTree()"
@@ -309,6 +361,7 @@ onBeforeUnmount(() => {
         </template>
       </div>
     </div>
+    <KnowledgeMoveDialog :editor="move" :fallback-focus="documentHeading ?? heading" />
     <KnowledgeDeleteDialog :deletion="deletion" :fallback-focus="documentHeading ?? heading" />
     <KnowledgeRenameDialog :editor="rename" :fallback-focus="documentHeading ?? heading" />
     <UiDrawer v-model:open="drawer" title="文档树">
