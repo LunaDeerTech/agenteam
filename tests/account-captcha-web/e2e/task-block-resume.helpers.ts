@@ -295,6 +295,7 @@ export async function observeBlockResume(page: Page, data: Material) {
             undefined,
             undefined,
             undefined,
+            undefined, // knowledgeMoveTarget
             task,
           );
         },

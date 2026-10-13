@@ -130,6 +130,7 @@ export function useKnowledgeOwner(
     minimum: string
     parents: Set<string | null>
     observed?: string | null
+    move?: true
   } | null = null
   let offsets: string[] = [],
     offsetIndex = 0
@@ -360,7 +361,7 @@ export function useKnowledgeOwner(
             if (BigInt(head.active.content_version) < BigInt(renameRefresh.minimum))
               throw new AccountFailure('invalid-response')
             const parent = head.active.parent_document_id
-            if (parent === null || state.levels[key(parent)]) {
+            if (renameRefresh.move || parent === null || state.levels[key(parent)]) {
               renameRefresh.observed = parent
               setLevel(emptyLevel(parent, 'waiting'))
             }
@@ -528,6 +529,18 @@ export function useKnowledgeOwner(
       for (const parent of [previousParent, receipt.parent_document_id])
         if (parent === null || state.levels[key(parent)]) parents.add(parent)
       renameRefresh = { target: receipt.id, minimum: receipt.content_version, parents }
+      for (const parent of parents) setLevel(emptyLevel(parent, 'waiting'))
+      enqueue({ kind: 'selection', target: receipt.id })
+      return true
+    },
+    refreshAfterMove(receipt: KnowledgeDocument, previousParent: string | null) {
+      if (!live() || blocked.value || receipt.project_id !== scope?.projectID) return false
+      // Retire observed branch contents before new reads. A recovered receipt
+      // may outlive the original parent observation; no cached branch is current.
+      for (const value of Object.values(state.levels)) setLevel(emptyLevel(value.parentID))
+      deleteRefresh = null
+      const parents = new Set<string | null>([null, previousParent, receipt.parent_document_id])
+      renameRefresh = { target: receipt.id, minimum: receipt.content_version, parents, move: true }
       for (const parent of parents) setLevel(emptyLevel(parent, 'waiting'))
       enqueue({ kind: 'selection', target: receipt.id })
       return true

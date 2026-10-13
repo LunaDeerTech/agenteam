@@ -15,6 +15,9 @@ import signal
 import subprocess
 import time
 
+KNOWLEDGE_MOVE_SELECTOR = '^TestKnowledgeMoveWeb$'
+KNOWLEDGE_MOVE_EXPECTED = {'TestKnowledgeMoveWeb',
+    'TestKnowledgeMoveWeb/move-normal', 'TestKnowledgeMoveWeb/move-lost'}
 TASK_BLOCK_RESUME_HTTP_SELECTOR = '^TestTaskBlockResumeHTTP$'
 TASK_BLOCK_RESUME_HTTP_EXPECTED = {'TestTaskBlockResumeHTTP',
     'TestTaskBlockResumeHTTP/assigned-todo-last-blocker-and-historical-receipts'}
@@ -301,6 +304,8 @@ def main():
     p.add_argument('--pg-current-only', action='store_true',
                    help='explicitly omit the unused PG16 negative-control fixture')
     scope = p.add_mutually_exclusive_group()
+    scope.add_argument('--knowledge-move', action='store_true',
+                       help='run only the reviewed default App Move normal and original-receipt recovery scope')
     scope.add_argument('--task-block-resume-http', action='store_true',
                        help='run the original Task block/resume HTTP and historical receipt scope')
     scope.add_argument('--task-block-resume-web', action='store_true',
@@ -412,7 +417,8 @@ def main():
     scope.add_argument('--app-artifact-owner-web', action='store_true',
                        help='run the reviewed Artifact owner browser in the same App binary')
     a = p.parse_args()
-    selector = (TASK_BLOCK_RESUME_HTTP_SELECTOR if a.task_block_resume_http else
+    selector = (KNOWLEDGE_MOVE_SELECTOR if a.knowledge_move else
+                TASK_BLOCK_RESUME_HTTP_SELECTOR if a.task_block_resume_http else
                 TASK_BLOCK_RESUME_WEB_SELECTOR if a.task_block_resume_web else
                 TASK_STATE_FILTER_SELECTOR if a.task_state_filter else
                 TASK_BLOCKER_HTTP_SELECTOR if a.task_blocker_http else
@@ -465,7 +471,8 @@ def main():
                 USAGE_SELECTOR if a.project_usage_summary else
                 SECRET_SELECTOR if a.secret_delete else
                 CREATE_SELECTOR if a.project_creation else SELECTOR)
-    expected = (TASK_BLOCK_RESUME_HTTP_EXPECTED if a.task_block_resume_http else
+    expected = (KNOWLEDGE_MOVE_EXPECTED if a.knowledge_move else
+                TASK_BLOCK_RESUME_HTTP_EXPECTED if a.task_block_resume_http else
                 TASK_BLOCK_RESUME_WEB_EXPECTED if a.task_block_resume_web else
                 TASK_STATE_FILTER_EXPECTED if a.task_state_filter else
                 TASK_BLOCKER_HTTP_EXPECTED if a.task_blocker_http else
@@ -525,6 +532,8 @@ def main():
     web_scopes = ([] if a.task_block_resume_http or a.task_blocker_http or a.sprint_complete_http or a.sprint_complete_cleanup or a.runner_command or a.runner_write_file or a.app_runtime_final_text or a.app_task_execution_read or a.app_artifact_content or a.app_artifact_owner_http or a.app_human_artifact or a.runner_managed_cleanup or a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle else
                   [('AGENTEAM_TASK_BLOCK_RESUME_WEB', 'task-block-resume')]
                   if a.task_block_resume_web else
+                  [('AGENTEAM_KNOWLEDGE_MOVE_WEB', 'knowledge-move')]
+                  if a.knowledge_move else
                   [('AGENTEAM_TASK_STATE_FILTER_WEB', 'task-state-filter')]
                   if a.task_state_filter else
                   [('AGENTEAM_TASK_BLOCKER_MANAGEMENT_WEB', 'task-blocker-management')]
@@ -568,7 +577,12 @@ def main():
     else:
         assert a.runner_binary is None
         assert a.dist is not None and a.dist.is_absolute() and (a.dist / 'index.html').is_file()
-    if a.task_block_resume_web:
+    if a.knowledge_move:
+        assert a.artifact_web_harness is None
+        harness = a.root / 'tests/account-captcha-web'
+        assert harness.is_dir() and harness.resolve() == harness
+        assert (harness / 'knowledge-move.config.js').is_file()
+    elif a.task_block_resume_web:
         assert a.artifact_web_harness is None
         harness = a.root / 'tests/account-captcha-web'
         assert harness.is_dir() and harness.resolve() == harness
@@ -623,9 +637,9 @@ def main():
         raise OSError(ctypes.get_errno(), 'subreaper unavailable')
     env = dict(os.environ, TMPDIR=str(a.runtime), AGENTEAM_AUTH_WEB_RUNTIME=str(a.runtime),
                AGENTEAM_FIXTURE_TEST_BINARY=str(a.binary),
-               AGENTEAM_FIXTURE_TEST_CWD=str(a.root / ('internal/central/app' if a.app_runtime_final_text or a.app_runtime_final_text_web or a.app_task_execution_read or a.app_task_execution_read_web or a.app_artifact_content or a.app_artifact_content_web or a.app_artifact_owner_http or a.app_artifact_owner_web or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle or a.app_human_artifact else 'tests/model' if a.project_usage_summary else 'tests/projectvariable')),
+               AGENTEAM_FIXTURE_TEST_CWD=str(a.root / ('internal/central/app' if a.knowledge_move or a.app_runtime_final_text or a.app_runtime_final_text_web or a.app_task_execution_read or a.app_task_execution_read_web or a.app_artifact_content or a.app_artifact_content_web or a.app_artifact_owner_http or a.app_artifact_owner_web or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle or a.app_human_artifact else 'tests/model' if a.project_usage_summary else 'tests/projectvariable')),
                AGENTEAM_FIXTURE_OWNED_RECORD=str(a.output / 'owned-resources.json'))
-    if a.task_block_resume_http or a.task_block_resume_web or a.task_state_filter or a.task_blocker_http or a.task_blocker_web or a.task_cancel or a.sprint_complete_http or a.sprint_complete_cleanup or a.sprint_complete_web or a.runner_command or a.runner_write_file or a.app_runtime_final_text or a.app_runtime_final_text_web or a.app_task_execution_read or a.app_task_execution_read_web or a.task_reorder or a.app_artifact_content or a.app_artifact_content_web or a.app_artifact_owner_http or a.app_artifact_owner_web or a.app_human_artifact:
+    if a.knowledge_move or a.task_block_resume_http or a.task_block_resume_web or a.task_state_filter or a.task_blocker_http or a.task_blocker_web or a.task_cancel or a.sprint_complete_http or a.sprint_complete_cleanup or a.sprint_complete_web or a.runner_command or a.runner_write_file or a.app_runtime_final_text or a.app_runtime_final_text_web or a.app_task_execution_read or a.app_task_execution_read_web or a.task_reorder or a.app_artifact_content or a.app_artifact_content_web or a.app_artifact_owner_http or a.app_artifact_owner_web or a.app_human_artifact:
         # Ordinary task-owned scope: no live-provider environment or PG16.
         a.pg_current_only = True
         for name in tuple(env):
@@ -651,6 +665,8 @@ def main():
     command = ['sh', 'scripts/test-objects.sh', '-run', selector]
     save(a.output/'invocation.json', {'command':command,'cwd':str(a.root),
          'input_hash':a.input_hash,'binary':str(a.binary),'dist':str(a.dist) if a.dist else None,
+         **({'knowledge_move':True,'acceptance_method':'knowledge-move-owned-v1'}
+            if a.knowledge_move else {}),
          **({'task_cancel':True} if a.task_cancel else {}),
          **({'sprint_complete_http':True} if a.sprint_complete_http else {}),
          **({'sprint_complete_cleanup':True} if a.sprint_complete_cleanup else {}),
@@ -776,6 +792,12 @@ def main():
     node_waits = re.findall(r'Node actual_wait pid=(\d+) success=(true|false)',raw)
     exact &= (len(go_waits)==1 and go_waits[0][1:]==('0',selector)
               and len(node_waits)==node_count and all(ok=='true' for pid,ok in node_waits))
+    if a.knowledge_move:
+        exact_move_nodes = re.findall(
+            r'^\s*knowledge_move_web_test\.go:[1-9][0-9]*: KnowledgeMove Node actual_wait pid=([1-9][0-9]*) success=(true|false)$',
+            raw, re.M)
+        exact &= (len(exact_move_nodes) == 2 and exact_move_nodes == node_waits
+                  and len({pid for pid, ok in exact_move_nodes}) == 2)
     runner_waits = re.findall(r'runner_cli_original_wait pid=(\d+) exit=(\d+)', raw)
     if a.runner_command or a.runner_write_file:
         exact &= (len(runner_waits)==3 and len({pid for pid,code in runner_waits})==3
@@ -810,6 +832,8 @@ def main():
             'runner_actual_waits':runner_waits,'adopted_actual_waits':adopted,
             'resources':resources,'private_directories_absent':directories_absent,
             'runtime_leftovers':leftovers,'remaining_children':children(),'exit_code':int(not okay)}
+    if a.knowledge_move:
+        result['acceptance_method'] = 'knowledge-move-owned-v1'
     if a.runner_command:
         result['acceptance_method'] = 'runner-command-owned-v1'
     if a.runner_write_file:
