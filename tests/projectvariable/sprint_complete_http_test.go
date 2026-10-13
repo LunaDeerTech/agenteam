@@ -19,9 +19,10 @@ import (
 )
 
 func TestSprintCompleteHTTP(t *testing.T) {
-	t.Run("empty-cancelled-members-and-original-recovery", func(t *testing.T) {
+	t.Run("empty-original-recovery-and-unfinished-refusal", func(t *testing.T) {
 		v := assembleTaskHumanHTTPFixture(t, true)
 		base, owner := v.domain.base, v.domain.base.ownerBrowser
+		tasks := sprintCompleteTaskRows(t, base)
 		original := sprintCompleteGet(t, v, v.domain.task.SprintID)
 		empty := sprintCompleteCreate(t, v, original, "empty")
 		current := sprintCompleteStart(t, v, empty, "start-empty")
@@ -53,34 +54,16 @@ func TestSprintCompleteHTTP(t *testing.T) {
 			t.Fatal("completion automatically changed another planned Sprint")
 		}
 
-		current = sprintCompleteStart(t, v, original, "start-members")
-		body, _ = sprintCompleteIntent(t, current)
+		// Recovery uses another formally created empty Sprint. Human Task
+		// cancellation is a separate writer capability, not fixture setup.
+		recovery := sprintCompleteCreate(t, v, original, "empty recovery")
+		current = sprintCompleteStart(t, v, recovery, "explicit-recovery-start")
 		path = variableHTTPPath(base.project.ID, "/sprints/"+current.ID.String()+"/complete")
-		before = sprintCompleteSnapshot(t, v)
-		rejected := v.request(t, owner, "POST", path, body, "unfinished-complete")
-		v.requireProblem(t, rejected, 409, f.InvalidState)
-		if !bytes.Contains(rejected.body, []byte("UNFINISHED_TASKS")) || sprintCompleteSnapshot(t, v) != before {
-			t.Fatal("unfinished Sprint was not refused without mutation")
-		}
-		second, err := v.domain.tasks.CreateTask(ctxFor(t), owner.actor, meta(t, "second-member", nil), base.project.ID, wc.TaskCreate{TaskID: id[wc.Task](t), SprintID: current.ID, Title: "Second original member", Type: wc.TaskTypeTask, Priority: wc.TaskPriorityMedium})
-		agentAppRequire(t, err)
-		for index, task := range []wc.Task{v.domain.task, second.Task} {
-			key := f.IdempotencyKey("cancel-first-member")
-			if index == 1 {
-				key = "cancel-second-member"
-			}
-			result, err := v.domain.transitions.TransferTask(ctxFor(t), owner.actor, meta(t, string(key), &task.Version), base.project.ID, task.ID, wc.TaskTransfer{TargetState: wc.TaskStateCancelled, AddBlockers: []wc.TaskBlockerCreate{}, ResolveBlockerIDs: []wc.TaskBlockerID{}})
-			agentAppRequire(t, err)
-			if result.Task.State != wc.TaskStateCancelled || result.Task.SprintID != current.ID {
-				t.Fatal("formal member cancellation lost original Sprint")
-			}
-		}
-		tasks := sprintCompleteTaskRows(t, base)
 		project, err = base.projects.GetSchedulerConfig(ctxFor(t), owner.actor, base.project.ID)
 		agentAppRequire(t, err)
 		body, lookup = sprintCompleteIntent(t, current)
-		masked := sprintCompleteUnknown(t, base, "complete-members")
-		unknown := v.request(t, owner, "POST", path, body, "complete-members")
+		masked := sprintCompleteUnknown(t, base, "complete-recovery")
+		unknown := v.request(t, owner, "POST", path, body, "complete-recovery")
 		masked.stop()
 		var problem struct {
 			CommitState string `json:"commit_state"`
@@ -90,7 +73,7 @@ func TestSprintCompleteHTTP(t *testing.T) {
 		}
 		// The explicit Lookup consumes the same original key, version and body;
 		// no second Complete is used to discover the original outcome.
-		found := v.request(t, owner, "POST", variableHTTPPath(base.project.ID, "/sprint-lifecycle-commands/lookup"), lookup, "complete-members")
+		found := v.request(t, owner, "POST", variableHTTPPath(base.project.ID, "/sprint-lifecycle-commands/lookup"), lookup, "complete-recovery")
 		var result struct {
 			Status  wc.LookupState             `json:"status"`
 			Receipt *wc.SprintCompleteMutation `json:"receipt"`
@@ -98,22 +81,29 @@ func TestSprintCompleteHTTP(t *testing.T) {
 		if found.status != 200 || json.Unmarshal(found.body, &result) != nil || result.Status != wc.LookupCommitted || result.Receipt == nil {
 			t.Fatal("explicit original completion Lookup was not committed")
 		}
-		sprintCompleteCheck(t, base, current, project, "complete-members", *result.Receipt)
+		sprintCompleteCheck(t, base, current, project, "complete-recovery", *result.Receipt)
 		if sprintCompleteTaskRows(t, base) != tasks {
 			t.Fatal("completion changed member bytes, versions or Sprint ownership")
 		}
 		after = sprintCompleteSnapshot(t, v)
-		sprintCompleteLookup(t, v, lookup, "complete-members", *result.Receipt)
+		sprintCompleteLookup(t, v, lookup, "complete-recovery", *result.Receipt)
 		if sprintCompleteSnapshot(t, v) != after {
 			t.Fatal("repeated original Lookup wrote business or activity facts")
 		}
-		next := sprintCompleteCreate(t, v, current, "next-explicit")
 		config, err := base.projects.GetSchedulerConfig(ctxFor(t), owner.actor, base.project.ID)
 		agentAppRequire(t, err)
-		if config.Project.CurrentSprintID != nil || next.State != wc.Planned {
+		if config.Project.CurrentSprintID != nil || !reflect.DeepEqual(sprintCompleteGet(t, v, original.ID), original) {
 			t.Fatal("completion automatically started the next Sprint")
 		}
-		_ = sprintCompleteStart(t, v, next, "explicit-next-start")
+		current = sprintCompleteStart(t, v, original, "explicit-original-start")
+		body, _ = sprintCompleteIntent(t, current)
+		path = variableHTTPPath(base.project.ID, "/sprints/"+current.ID.String()+"/complete")
+		before = sprintCompleteSnapshot(t, v)
+		rejected := v.request(t, owner, "POST", path, body, "unfinished-complete")
+		v.requireProblem(t, rejected, 409, f.InvalidState)
+		if !bytes.Contains(rejected.body, []byte("UNFINISHED_TASKS")) || sprintCompleteSnapshot(t, v) != before || sprintCompleteTaskRows(t, base) != tasks {
+			t.Fatal("unfinished Sprint was not refused without mutation")
+		}
 	})
 	t.Run("final-completion-lock-excludes-new-member", func(t *testing.T) {
 		v := assembleTaskHumanHTTPFixture(t, true)
@@ -237,7 +227,7 @@ func sprintCompleteGet(t *testing.T, v *taskHumanHTTPFixture, s wc.SprintID) wc.
 func sprintCompleteCreate(t *testing.T, v *taskHumanHTTPFixture, parent wc.Sprint, name string) wc.Sprint {
 	t.Helper()
 	id := id[pc.Sprint](t)
-	_, err := v.domain.structure.CreateSprint(ctxFor(t), v.domain.base.ownerBrowser.actor, meta(t, "create-"+name, nil), v.domain.base.project.ID, wc.CreateSprintRequest{SprintID: id, MilestoneID: parent.MilestoneID, Title: name})
+	_, err := v.domain.structure.CreateSprint(ctxFor(t), v.domain.base.ownerBrowser.actor, meta(t, "create-sprint/"+id.String(), nil), v.domain.base.project.ID, wc.CreateSprintRequest{SprintID: id, MilestoneID: parent.MilestoneID, Title: name})
 	agentAppRequire(t, err)
 	return sprintCompleteGet(t, v, id)
 }

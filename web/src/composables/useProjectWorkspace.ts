@@ -275,7 +275,13 @@ export function createProjectWorkspace(
     detail.project = value
     detail.phase = 'current'
     detail.message = ''
-    if (adopt || !editor.ready) {
+    const pristine =
+      !changed.value &&
+      !progress.value &&
+      !editor.conflict &&
+      !editor.requiresRead &&
+      !confirmation.open
+    if (adopt || !editor.ready || pristine) {
       Object.assign(draft, { name: value.name, description: value.description })
       Object.assign(baseline, draft)
       Object.assign(editor, {

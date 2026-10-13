@@ -155,3 +155,29 @@ func TestExplicitFixturePGCurrentOnlyOmitsUnsupportedEnvironmentAndResources(t *
 		t.Fatal("current-only record invented a resource or lost actual ownership")
 	}
 }
+
+func TestExplicitFixtureSubtestListsTopAndRunsOriginalSelector(t *testing.T) {
+	dir := t.TempDir()
+	binary := filepath.Join(dir, "owned.test")
+	if err := os.WriteFile(binary, []byte("not executed by this pure test"), 0500); err != nil {
+		t.Fatal(err)
+	}
+	filter := "^TestProjectWorkCleanup$/^real-relations-upgrade-and-original-return$"
+	target, err := selectedTestTarget(binary, dir, filter)
+	if err != nil {
+		t.Fatal(err)
+	}
+	listed := target.command(context.Background(), true)
+	run := target.command(context.Background(), false)
+	if !reflect.DeepEqual(listed.Args, []string{binary, "-test.list=^TestProjectWorkCleanup$"}) || run.Args[len(run.Args)-1] != "-test.run="+filter {
+		t.Fatal("listing retained subtest or execution widened to whole top")
+	}
+	if !target.matchesListing("TestProjectWorkCleanup\n") || target.matchesListing("TestProjectWorkCleanupExtra\n") || target.matchesListing("TestOther\n") {
+		t.Fatal("listing did not enforce the selected top")
+	}
+	for _, pattern := range []string{"^Test]?$", "^Test[^/]+$", "^Test[[:alpha:]/]+$", "^Test(One/Two|Exact)$", `^Test\/Exact$`} {
+		if topTestFilter(pattern+"/^child$") != pattern {
+			t.Fatal("regexp slash was mistaken for a subtest separator")
+		}
+	}
+}

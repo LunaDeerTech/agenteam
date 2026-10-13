@@ -17,7 +17,7 @@ import time
 
 SPRINT_COMPLETE_HTTP_SELECTOR = '^TestSprintCompleteHTTP$'
 SPRINT_COMPLETE_HTTP_EXPECTED = {'TestSprintCompleteHTTP',
-    'TestSprintCompleteHTTP/empty-cancelled-members-and-original-recovery',
+    'TestSprintCompleteHTTP/empty-original-recovery-and-unfinished-refusal',
     'TestSprintCompleteHTTP/final-completion-lock-excludes-new-member'}
 SPRINT_COMPLETE_CLEANUP_SELECTOR = '^TestProjectWorkCleanup$/^real-relations-upgrade-and-original-return$'
 SPRINT_COMPLETE_CLEANUP_EXPECTED = {'TestProjectWorkCleanup',
