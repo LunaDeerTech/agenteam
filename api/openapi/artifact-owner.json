@@ -1,9 +1,9 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "agenteam current Human Owner Artifact reads",
+    "title": "agenteam current Human Owner Artifact reads and inline content commands",
     "version": "1.0.0",
-    "description": "GET/HEAD only. Current browser Session and Project Owner are rechecked by the original Service. Each request has a new server-owned business attempt independent of HTTP trace. One 2s budget begins at handler entry; cancellation never replaces actual reader, Audit, Store or handler return. Successful reads perform real Read Audit and project-call technical writes. Query keys decode once; unknown, duplicate, empty, malformed and noncanonical values are rejected. Request bodies, Content-Encoding, Range and If-Range are rejected. No create, upload, Source, signed download URL or raw Object access."
+    "description": "Current browser Session and Project Owner are rechecked by the original Service. GET/HEAD retain bounded reads and actual Read Audit. Three POST routes accept the same original inline content intent and idempotency key, with original Origin/CSRF protection. Server-owned attempts are independent of HTTP trace. The 2s business budget starts at handler entry; cancellation never replaces actual reader, prepared-payload discard, Audit, Store or handler return, including the original technical settle tail. No upload, Source, Agent provenance, signed download URL or raw Object access."
   },
   "paths": {
     "/api/v1/projects/{project_id}/artifacts": {
@@ -400,6 +400,360 @@
           }
         }
       }
+    },
+    "/api/v1/projects/{project_id}/artifacts/create-content": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "artifactOwnerCreateContent",
+        "description": "Current Human Owner only; original Origin/CSRF and current Session checks apply before dispatch. No queries, Range, If-Range, Content-Encoding, unknown or duplicate decoded JSON keys, caller provenance or expected version. All three routes accept exactly the same full body, at most 7340032 encoded JSON bytes including whitespace; decoded UTF-8 content is at most 1048576 bytes. The server generates its own attempt. Preserve the original key/body after every dispatched but unconfirmed result, including a later transaction reporting not_committed: earlier intent/upload transactions may already have committed. Unknown requires explicit Lookup, never automatic reposting or polling. Successful responses are bounded by 65536 bytes. The entry 2s business context includes body I/O and original domain calls, but the original actual return/technical settle tail must still join before HTTP can return. Creates a generated Artifact from inline UTF-8 content. The full semantic digest permits original-key replay; it does not accept Source, upload or Agent provenance. Current active Project mutation authority is required.",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CSRF"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-encoded-json-bytes": 7340032,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArtifactContentIntent"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "410": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "502": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "After current browser/Human authentication, unsupported method. HEAD suppresses the Problem body.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Confirmed original result. No private input echo.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$(?![\\s\\S])"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArtifactContentCreated"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/artifacts/creation-commands/lookup": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "artifactOwnerLookupCreation",
+        "description": "Current Human Owner only; original Origin/CSRF and current Session checks apply before dispatch. No queries, Range, If-Range, Content-Encoding, unknown or duplicate decoded JSON keys, caller provenance or expected version. All three routes accept exactly the same full body, at most 7340032 encoded JSON bytes including whitespace; decoded UTF-8 content is at most 1048576 bytes. The server generates its own attempt. Preserve the original key/body after every dispatched but unconfirmed result, including a later transaction reporting not_committed: earlier intent/upload transactions may already have committed. Unknown requires explicit Lookup, never automatic reposting or polling. Successful responses are bounded by 65536 bytes. The entry 2s business context includes body I/O and original domain calls, but the original actual return/technical settle tail must still join before HTTP can return. Read-owned full-intent Lookup only: no create, cancel, upload or Object call and no business write, while original project-call technical registration/settle remain. Current Owner may recover on an archived Project. Only committed carries safe metadata. not_observed plus current active original context permits an explicit same-key same-body Create retry; pending does not.",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CSRF"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-encoded-json-bytes": 7340032,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArtifactContentIntent"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "410": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "502": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "After current browser/Human authentication, unsupported method. HEAD suppresses the Problem body.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Confirmed original result. No private input echo.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$(?![\\s\\S])"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArtifactCreationLookup"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/artifacts/creation-commands/cancel": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "artifactOwnerCancelCreation",
+        "description": "Current Human Owner only; original Origin/CSRF and current Session checks apply before dispatch. No queries, Range, If-Range, Content-Encoding, unknown or duplicate decoded JSON keys, caller provenance or expected version. All three routes accept exactly the same full body, at most 7340032 encoded JSON bytes including whitespace; decoded UTF-8 content is at most 1048576 bytes. The server generates its own attempt. Preserve the original key/body after every dispatched but unconfirmed result, including a later transaction reporting not_committed: earlier intent/upload transactions may already have committed. Unknown requires explicit Lookup, never automatic reposting or polling. Successful responses are bounded by 65536 bytes. The entry 2s business context includes body I/O and original domain calls, but the original actual return/technical settle tail must still join before HTTP can return. First runs the real same-body Lookup. A Lookup error or not_observed terminates immediately with zero Cancel calls. Only an observed full-semantic and stable-Human match in pending/cancel_requested/cancelled can enter original CancelCreation. Its original Converge authority, command/artifact locks and current state are rechecked; a concurrent published item is rejected, never deleted. cancel_requested confirms accepted cancellation, not cleanup completion. Current active/archived convergence gates remain unchanged.",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CSRF"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "x-max-encoded-json-bytes": 7340032,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArtifactContentIntent"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "410": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "502": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "After current browser/Human authentication, unsupported method. HEAD suppresses the Problem body.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Confirmed original result. No private input echo.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$(?![\\s\\S])"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArtifactCreationCancelled"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -723,6 +1077,196 @@
             }
           }
         ]
+      },
+      "ArtifactContentIntent": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "media_type",
+          "content"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "1..255 UTF-8 bytes; no slash, backslash or Unicode control characters. Preserved without trimming.",
+            "x-max-utf8-bytes": 255
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 4096,
+            "pattern": "^[^\\u0000]*$(?![\\s\\S])",
+            "description": "Optional; at most 4096 UTF-8 bytes, no NUL. Omitted and empty have the same domain semantics.",
+            "x-max-utf8-bytes": 4096
+          },
+          "media_type": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "Valid MIME normalized by the existing Object contract; input and normalized representation each at most 256 bytes. UI offers text/plain and text/markdown.",
+            "x-max-utf8-bytes": 256
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 1048576,
+            "description": "At most 1048576 decoded UTF-8 bytes, including empty content and NUL. No trimming, line-ending or Unicode normalization. Invalid UTF-8 and lone UTF-16 escapes are rejected.",
+            "x-max-utf8-bytes": 1048576
+          }
+        }
+      },
+      "ArtifactContentMetadata": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ArtifactMetadata"
+          },
+          {
+            "properties": {
+              "kind": {
+                "const": "generated"
+              },
+              "created_by_agent_id": false,
+              "source_execution_id": false,
+              "source_operation_id": false
+            },
+            "required": [
+              "created_by_user_id"
+            ]
+          }
+        ],
+        "description": "Safe original content-created Artifact metadata, fully bound to the current stable Human and original name, description, normalized MIME, content byte size and SHA256. Contains no content, command key or storage identity."
+      },
+      "ArtifactContentCreated": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "artifact"
+        ],
+        "properties": {
+          "artifact": {
+            "$ref": "#/components/schemas/ArtifactContentMetadata"
+          }
+        }
+      },
+      "ArtifactCreationLookup": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "state",
+              "artifact"
+            ],
+            "properties": {
+              "state": {
+                "enum": [
+                  "not_observed",
+                  "pending",
+                  "cancel_requested",
+                  "cancelled"
+                ]
+              },
+              "artifact": {
+                "type": "null"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "state",
+              "artifact"
+            ],
+            "properties": {
+              "state": {
+                "const": "committed"
+              },
+              "artifact": {
+                "$ref": "#/components/schemas/ArtifactContentMetadata"
+              }
+            }
+          }
+        ],
+        "description": "A current authorized observation, never a reservation of an absent key. Pending/cancellation states carry no Object read authority. Historical committed metadata does not replace current List/Read authorization."
+      },
+      "ArtifactCreationCancelled": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "state",
+              "cleanup"
+            ],
+            "properties": {
+              "state": {
+                "const": "not_observed"
+              },
+              "cleanup": {
+                "type": "null"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "state",
+              "cleanup"
+            ],
+            "properties": {
+              "state": {
+                "const": "cancel_requested"
+              },
+              "cleanup": {
+                "const": "pending"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "state",
+              "cleanup"
+            ],
+            "properties": {
+              "state": {
+                "const": "cancelled"
+              },
+              "cleanup": {
+                "const": "completed"
+              }
+            }
+          }
+        ],
+        "description": "Only a nil-error original cancellation result can confirm pending/completed cleanup. not_observed means Lookup found no original command and Cancel was not called; it does not mean cancellation or cleanup completed."
+      }
+    },
+    "parameters": {
+      "CSRF": {
+        "name": "X-CSRF-Token",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": "Original current browser Session CSRF token; original Origin checks also apply to every POST, including Lookup."
+      },
+      "IdempotencyKey": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9._:/-]+$(?![\\s\\S])"
+        },
+        "description": "Exactly one original key, bound by the domain to stable Human identity, Project and the full canonical creation semantics. Never put it or the original body in a URL or log."
       }
     }
   }

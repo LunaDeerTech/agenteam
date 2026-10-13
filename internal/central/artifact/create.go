@@ -14,14 +14,7 @@ import (
 )
 
 func (s *Service) createFromContent(ctx context.Context, v ac.Invocation, meta foundation.CommandMeta, display ac.Display, media, content string) (ac.Metadata, error) {
-	if err := ac.ValidateInline(content); err != nil {
-		return ac.Metadata{}, err
-	}
-	normalized, err := oc.NormalizeMediaType(media)
-	if err != nil {
-		return ac.Metadata{}, err
-	}
-	req, err := makeRequest(v, meta, display, "content", normalized, int64(len(content)), digestBytes([]byte(content)), oc.BusinessFileRef{}, oc.UploadReceipt{})
+	req, err := makeContentRequest(v, meta, display, media, content)
 	if err != nil {
 		return ac.Metadata{}, err
 	}
@@ -44,6 +37,19 @@ func (s *Service) createFromContent(ctx context.Context, v ac.Invocation, meta f
 	}
 	defer s.state().uploads.DiscardPrepared(p)
 	return s.publishPrepared(ctx, req, c, p)
+}
+
+// Both creation and its explicit lookup bind the same normalized media type,
+// display, byte length, content digest and original command metadata.
+func makeContentRequest(v ac.Invocation, meta foundation.CommandMeta, display ac.Display, media, content string) (createRequest, error) {
+	if err := ac.ValidateInline(content); err != nil {
+		return createRequest{}, err
+	}
+	normalized, err := oc.NormalizeMediaType(media)
+	if err != nil {
+		return createRequest{}, err
+	}
+	return makeRequest(v, meta, display, "content", normalized, int64(len(content)), digestBytes([]byte(content)), oc.BusinessFileRef{}, oc.UploadReceipt{})
 }
 func (s *Service) createFromSource(ctx context.Context, v ac.Invocation, meta foundation.CommandMeta, display ac.Display, ref oc.BusinessFileRef) (ac.Metadata, error) {
 	req, err := makeRequest(v, meta, display, "source", "", 0, "", ref, oc.UploadReceipt{})

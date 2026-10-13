@@ -247,6 +247,15 @@ export function installTaskNavigation(
     if (taskNavigation.get(router) === owner) taskNavigation.delete(router)
   }
 }
+const artifactCreationNavigation = new WeakMap<Router, {
+  confirmLeave: () => Promise<boolean>; afterNavigation: (path: string) => void
+}>()
+export function installArtifactCreationNavigation(router: Router, owner: {
+  confirmLeave: () => Promise<boolean>; afterNavigation: (path: string) => void
+}) {
+  artifactCreationNavigation.set(router, owner)
+  return () => { if (artifactCreationNavigation.get(router) === owner) artifactCreationNavigation.delete(router) }
+}
 const knowledgeTextNavigation = new WeakMap<
   Router,
   { confirmLeave: () => Promise<boolean>; afterNavigation: (path: string) => void }
@@ -302,6 +311,7 @@ export function installAuthentication(router: Router, auth: SessionController = 
     skills.attempts.set(to, ++skills.generation)
     skills.ready.value = false
     // Ask before Session revalidation can temporarily unmount the dirty page.
+    if (to.fullPath !== from.fullPath && !((await artifactCreationNavigation.get(router)?.confirmLeave()) ?? true)) return false
     if (
       to.fullPath !== from.fullPath &&
       !((await knowledgeTextNavigation.get(router)?.confirmLeave()) ?? true)
@@ -420,6 +430,7 @@ export function installAuthentication(router: Router, auth: SessionController = 
   router.afterEach((to, from, failure) => {
     try {
       if (!failure) projectNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
+      if (!failure) artifactCreationNavigation.get(router)?.afterNavigation(to.fullPath)
       if (!failure) knowledgeTextNavigation.get(router)?.afterNavigation(to.fullPath)
       if (!failure) taskNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
       if (!failure)

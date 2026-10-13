@@ -15,7 +15,7 @@ import { useProjectWorkspace, type ProjectWorkspace } from './useProjectWorkspac
 type Context = NonNullable<ProjectWorkspace['currentReadContext']['value']>
 type Phase = 'waiting' | 'loading' | 'ready' | 'error' | 'unavailable'
 type Read =
-  | { type: 'list'; query: CapturedArtifactQuery; append: boolean }
+  | { type: 'list'; query: CapturedArtifactQuery; append: boolean; created?: ArtifactMetadata }
   | { type: 'content'; ref: ArtifactRef; offset: string; index: number }
 const sameIdentity = (a: PersonalIdentity | null, b: PersonalIdentity | null) =>
   !!a && !!b && a.userID === b.userID && a.sessionID === b.sessionID && a.epoch === b.epoch
@@ -43,6 +43,7 @@ export function useProjectArtifacts(
     message: '',
     index: 0,
   })
+  const creationRead = shallowReactive<{ phase: 'idle' | 'loading' | 'ready' | 'error'; ref: ArtifactRef | null }>({ phase: 'idle', ref: null })
   const draft = shallowReactive({ name: '', kind: '' })
   const applied = shallowRef<CapturedArtifactQuery>(Object.freeze({ limit: 50 }))
   const selected = shallowRef<ArtifactMetadata | null>(null),
@@ -92,6 +93,8 @@ export function useProjectArtifacts(
     clearDetail()
   }
   function retire() {
+    creationRead.phase = 'idle'
+    creationRead.ref = null
     ++generation
     queue.pending = null
     const active = queue.active
@@ -149,6 +152,12 @@ export function useProjectArtifacts(
         page.items = Object.freeze([...prefix, ...result.items])
         page.nextCursor = result.next_cursor
         page.phase = 'ready'
+        if (task.created) {
+          // A receipt is historical metadata, never a fabricated list item. The
+          // current content is authorized separately using its complete ref.
+          selected.value = task.created
+          queue.pending = { type: 'content', ref: task.created.artifact_ref, offset: '0', index: 0 }
+        }
       } else {
         const result = await auth.projectArtifacts.read(task.ref, {
           offset: task.offset,
@@ -174,6 +183,7 @@ export function useProjectArtifacts(
         detail.content = result
         detail.index = task.index
         detail.phase = 'ready'
+        if (creationRead.ref && sameArtifactRef(creationRead.ref, task.ref)) creationRead.phase = 'ready'
         if (
           result.projection === 'text' &&
           result.truncated &&
@@ -183,6 +193,7 @@ export function useProjectArtifacts(
       }
     } catch (error) {
       if (!current()) return
+      if (creationRead.phase === 'loading') creationRead.phase = 'error'
       const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
       const status = failure.problem?.status ?? 0
       if (status === 401 || status === 403 || status === 404) {
@@ -284,6 +295,21 @@ export function useProjectArtifacts(
   }
   return {
     page: readonly(page),
+    creationRead: readonly(creationRead),
+    refreshCreated(artifact: ArtifactMetadata) {
+      if (blocked.value || artifact.artifact_ref.project_id !== scope.value?.projectID) return false
+      retire()
+      clearList()
+      draft.name = ''
+      draft.kind = ''
+      applied.value = Object.freeze({ limit: 50 })
+      page.phase = 'waiting'
+      creationRead.ref = artifact.artifact_ref
+      creationRead.phase = 'loading'
+      queue.pending = { type: 'list', query: applied.value, append: false, created: artifact }
+      pump()
+      return true
+    },
     detail: readonly(detail),
     selected: readonly(selected),
     applied: readonly(applied),

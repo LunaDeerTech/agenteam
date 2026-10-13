@@ -62,11 +62,17 @@ func TestArtifactHTTPActualOpenAPI(t *testing.T) {
 		}
 	}
 	paths := document["paths"].(map[string]any)
-	if len(paths) != 2 {
+	if len(paths) != 5 {
 		t.Fatal("unexpected public route")
 	}
 	for _, value := range paths {
 		p := value.(map[string]any)
+		if post, ok := p["post"].(map[string]any); ok {
+			if len(p) != 2 || post["requestBody"].(map[string]any)["x-max-encoded-json-bytes"] != float64(maxCommandRequestBytes) {
+				t.Fatal("command route or recovery input bound changed")
+			}
+			continue
+		}
 		if len(p) != 3 || p["get"] == nil || p["head"] == nil {
 			t.Fatal("write method exposed")
 		}
@@ -76,7 +82,7 @@ func TestArtifactHTTPActualOpenAPI(t *testing.T) {
 		}
 	}
 	compiled := map[string]*js.Schema{}
-	for _, name := range []string{"ArtifactPage", "ArtifactRead"} {
+	for _, name := range []string{"ArtifactPage", "ArtifactRead", "ArtifactContentIntent", "ArtifactContentCreated", "ArtifactCreationLookup", "ArtifactCreationCancelled"} {
 		s, err := compiler.Compile(base + "artifact-owner.json#/components/schemas/" + name)
 		if err != nil {
 			t.Fatal(err)
@@ -155,4 +161,74 @@ func TestArtifactHTTPActualOpenAPI(t *testing.T) {
 		}
 		validate("ArtifactRead", raw, true)
 	}
+	t.Run("content-command-responses", func(t *testing.T) {
+		for _, action := range []string{"create-content", "lookup", "cancel"} {
+			for _, state := range []ac.CreationState{ac.CreationNotObserved, ac.CreationPending, ac.CreationCommitted, ac.CreationCancelRequested, ac.CreationCancelled} {
+				if action == "cancel" && state == ac.CreationCommitted {
+					continue
+				}
+				h, _, p := contentHandler(t)
+				p.lookup.State = state
+				if state == ac.CreationCommitted {
+					p.lookup.Artifact = &p.create
+				}
+				if state == ac.CreationPending {
+					p.cleanup = "pending"
+				}
+				w := commandResponse(t, h, contentRequest(action, contentJSON))
+				if w.Code != 200 {
+					t.Fatal("actual command handler failed", action, state, w.Code)
+				}
+				name := map[string]string{"create-content": "ArtifactContentCreated", "lookup": "ArtifactCreationLookup", "cancel": "ArtifactCreationCancelled"}[action]
+				validate(name, w.Body.Bytes(), true)
+			}
+		}
+		for _, tc := range []struct{ schema, body string }{
+			{"ArtifactCreationLookup", `{"state":"committed","artifact":null}`},
+			{"ArtifactCreationLookup", `{"state":"unknown","artifact":null}`},
+			{"ArtifactCreationLookup", `{"state":"pending"}`},
+			{"ArtifactCreationLookup", `{"state":"cancel_requested","artifact":null,"cleanup":"completed"}`},
+			{"ArtifactCreationCancelled", `{"state":"not_observed","cleanup":"completed"}`},
+			{"ArtifactCreationCancelled", `{"state":"cancel_requested","cleanup":"completed"}`},
+			{"ArtifactCreationCancelled", `{"state":"cancelled","cleanup":"pending"}`},
+			{"ArtifactCreationCancelled", `{"state":"cancelled","cleanup":null}`},
+			{"ArtifactCreationCancelled", `{"state":"unknown","cleanup":null}`},
+		} {
+			validate(tc.schema, []byte(tc.body), false)
+		}
+		h, _, _ := contentHandler(t)
+		w := commandResponse(t, h, contentRequest("create-content", contentJSON))
+		for _, mode := range []string{"source", "storage", "kind", "creator"} {
+			var value map[string]any
+			_ = json.Unmarshal(w.Body.Bytes(), &value)
+			metadata := value["artifact"].(map[string]any)
+			switch mode {
+			case "source":
+				metadata["source_execution_id"] = metadata["created_by_user_id"]
+			case "storage":
+				metadata["object"].(map[string]any)["id"] = testMetadata().Details().Object.ID.String()
+			case "kind":
+				metadata["kind"] = "user_upload"
+			case "creator":
+				delete(metadata, "created_by_user_id")
+			}
+			raw, _ := json.Marshal(value)
+			validate("ArtifactContentCreated", raw, false)
+		}
+	})
+	t.Run("content-command-input", func(t *testing.T) {
+		validate("ArtifactContentIntent", []byte(contentJSON), true)
+		validate("ArtifactContentIntent", []byte(`{"name":"empty.txt","media_type":"text/plain","content":""}`), true)
+		validate("ArtifactContentIntent", []byte(`{"name":"nul.txt","media_type":"text/plain","content":"\u0000"}`), true)
+		for _, body := range []string{
+			`{"name":"n","media_type":"text/plain"}`,
+			`{"name":"n","media_type":"text/plain","content":null}`,
+			`{"name":"n","media_type":"text/plain","content":"x","description":null}`,
+			`{"name":"n","media_type":"text/plain","content":"x","source":"private"}`,
+			`{"name":"n","media_type":"text/plain","content":"x","kind":"generated"}`,
+			`{"name":"n","media_type":"text/plain","content":"x","description":"\u0000"}`,
+		} {
+			validate("ArtifactContentIntent", []byte(body), false)
+		}
+	})
 }

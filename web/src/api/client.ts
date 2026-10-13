@@ -115,6 +115,9 @@ const endpoints = {
   updateProjectSecret: ['PATCH', '/api/v1/projects/{project_id}/secret-variables/{target}', 200],
   deleteProjectSecret: ['DELETE', '/api/v1/projects/{project_id}/secret-variables/{target}', 200],
   lookupProjectSecret: ['POST', '/api/v1/projects/{project_id}/secret-variables/commands/lookup', 200],
+  createArtifactContent: ['POST', '/api/v1/projects/{project_id}/artifacts/create-content', 200],
+  lookupArtifactCreation: ['POST', '/api/v1/projects/{project_id}/artifacts/creation-commands/lookup', 200],
+  cancelArtifactCreation: ['POST', '/api/v1/projects/{project_id}/artifacts/creation-commands/cancel', 200],
   listProjectArtifacts: ['GET', '/api/v1/projects/{project_id}/artifacts', 200],
   readProjectArtifact: ['GET', '/api/v1/projects/{project_id}/artifacts/{artifact_id}/files/{file_id}/content', 200],
   listProjectUsage: ['GET', '/api/v1/projects/{project_id}/model-usage', 200],
@@ -155,6 +158,8 @@ const endpoints = {
   reviewLookup: ['POST', '/api/v1/projects/{project_id}/task-transition-commands/lookup', 200],
   taskCreate: ['POST', '/api/v1/projects/{project_id}/tasks', 200],
   taskCreateLookup: ['POST', '/api/v1/projects/{project_id}/task-commands/lookup', 200],
+  taskReorder: ['POST', '/api/v1/projects/{project_id}/tasks/{target}/reorder', 200],
+  taskReorderLookup: ['POST', '/api/v1/projects/{project_id}/task-commands/lookup', 200],
   taskUpdate: ['PATCH', '/api/v1/projects/{project_id}/tasks/{target}', 200],
   taskUpdateLookup: ['POST', '/api/v1/projects/{project_id}/task-commands/lookup', 200],
   directoryAgents: ['GET', '/api/v1/projects/{project_id}/agents', 200],
@@ -1131,6 +1136,9 @@ type SecretReadQuery = Readonly<{ limit: number; cursor?: string }>
 type SecretReadOptions<E extends SecretReadEndpoint> = E extends 'listProjectSecrets'
   ? { signal: AbortSignal; projectID: string; secretQuery: SecretReadQuery }
   : { signal: AbortSignal; projectID: string; target: string }
+const artifactCommandEndpoints = ['createArtifactContent', 'lookupArtifactCreation', 'cancelArtifactCreation'] as const
+type ArtifactCommandEndpoint = (typeof artifactCommandEndpoints)[number]
+type ArtifactCommandOptions = { signal: AbortSignal; projectID: string; body: unknown; csrf: string; key: string }
 type ArtifactWireQuery = Readonly<{ limit: number; execution_id?: string; kind?: 'generated' | 'user_upload'; media_type?: string; name_query?: string; cursor?: string }>
 type ArtifactWireRead = Readonly<{ offset: string; limit: number }>
 type ArtifactListOptions = { signal: AbortSignal; projectID: string; artifactQuery: ArtifactWireQuery }
@@ -1226,6 +1234,8 @@ type WorkReviewEndpoint =
   | 'reviewLookup'
   | 'taskCreate'
   | 'taskCreateLookup'
+  | 'taskReorder'
+  | 'taskReorderLookup'
   | 'taskUpdate'
   | 'taskUpdateLookup'
   | 'directoryAgents'
@@ -1273,6 +1283,8 @@ const workReviewEndpoints: readonly WorkReviewEndpoint[] = [
   'reviewLookup',
   'taskCreate',
   'taskCreateLookup',
+  'taskReorder',
+  'taskReorderLookup',
   'taskUpdate',
   'taskUpdateLookup',
   'directoryAgents',
@@ -1313,6 +1325,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
     parse: (value: unknown) => T,
     options: RunnerOptions,
   ): Promise<T>
+  function request<T>(endpoint: ArtifactCommandEndpoint, parse: (value: unknown) => T, options: ArtifactCommandOptions): Promise<T>
   function request<T>(endpoint: 'listProjectArtifacts', parse: (value: unknown) => T, options: ArtifactListOptions): Promise<T>
   function request<T>(endpoint: 'readProjectArtifact', parse: (value: unknown) => T, options: ArtifactReadOptions): Promise<T>
   function request<T>(
@@ -1446,6 +1459,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       | SkillInstallEndpoint
       | SecretReadEndpoint
       | SecretCommandEndpoint
+      | ArtifactCommandEndpoint
       | 'listProjectArtifacts'
       | 'readProjectArtifact'
       | 'listProjectUsage'
@@ -1540,6 +1554,15 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       } catch {
         throw new AccountFailure('invalid-input')
       }
+    } else if ((artifactCommandEndpoints as readonly string[]).includes(endpoint)) {
+      try {
+        shape(options, ['signal', 'projectID', 'body', 'csrf', 'key'])
+        const project = string(options.projectID, 36, 36)
+        if (!uuid7.test(project) || !(options.signal instanceof AbortSignal) ||
+          !/^[A-Za-z0-9_-]{43}$/.test(string(options.csrf, 43, 43)) ||
+          !/^[A-Za-z0-9._:/-]{1,128}$/.test(string(options.key, 1, 128))) throw new Error()
+        path = basePath.replace('{project_id}', project)
+      } catch { throw new AccountFailure('invalid-input') }
     } else if (endpoint === 'listProjectArtifacts' || endpoint === 'readProjectArtifact') {
       try {
         const list = endpoint === 'listProjectArtifacts'
@@ -2254,7 +2277,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       headers['Content-Type'] = options.avatar.mediaType
       headers['If-Match'] = `"${options.avatar.version}"`
     } else if (method !== 'GET') {
-      const maximum = endpoint === 'createOwnerProject' ? 16384 :
+      const maximum = (artifactCommandEndpoints as readonly string[]).includes(endpoint) ? 7340032 : endpoint === 'createOwnerProject' ? 16384 :
         ((secretCommandEndpoints as readonly string[]).includes(endpoint) ||
           (skillInstallEndpoints as readonly string[]).includes(endpoint)) ? 1024 * 1024 :
         (runnerEndpoints as readonly string[]).includes(endpoint) ? 32768 :
@@ -2363,6 +2386,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           options.signal,
           lifecycle,
           (runnerEndpoints as readonly string[]).includes(endpoint) && success ? (endpoint === 'listSystemRunners' ? 2 * 1024 * 1024 : 65536) :
+          (artifactCommandEndpoints as readonly string[]).includes(endpoint) && success ? 65536 :
           endpoint === 'listProjectArtifacts' && success ? 8 * 1024 * 1024 :
           endpoint === 'readProjectArtifact' && success ? 512 * 1024 :
           endpoint === 'availableAgentRunners' && success ? 2 * 1024 * 1024 :
@@ -2438,6 +2462,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
             endpoint,
           ) ||
             (runnerEndpoints as readonly string[]).includes(endpoint) ||
+            (artifactCommandEndpoints as readonly string[]).includes(endpoint) ||
             endpoint === 'listProjectArtifacts' || endpoint === 'readProjectArtifact' ||
             endpoint === 'listProjectUsage' || endpoint === 'aggregateProjectUsage' ||
             endpoint === 'createOwnerProject' ||
