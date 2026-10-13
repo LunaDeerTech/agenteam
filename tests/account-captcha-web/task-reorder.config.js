@@ -6,10 +6,7 @@ const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE;
 const executablePath = process.env.AGENTEAM_AUTH_WEB_CHROMIUM;
 const evidence = process.env.AGENTEAM_TASK_REORDER_WEB_EVIDENCE;
 const selected = process.env.AGENTEAM_TASK_REORDER_WEB_CASE;
-const cases = [
-  "task-reorder-normal",
-  "task-reorder-recovery",
-];
+const cases = ["task-reorder-normal", "task-reorder-recovery"];
 if (
   !origin ||
   !directory ||
