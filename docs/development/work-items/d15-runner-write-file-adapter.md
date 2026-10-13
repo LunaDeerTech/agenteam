@@ -6,11 +6,15 @@
 
 ## 当前CLI接线
 
-后继 CLI 接线已实现，尚未声明动态验收通过。`AGENTEAM_RUNNER_OPERATIONS=write-file` 显式启用原 `write-file@1`，也可与 `read-file`、`list-directory`、`find-files` 组合。未设置或空值仍无操作；未知、重复、空项和空白整体拒绝，未选择的能力不能执行。`--check-config` 保持离线，不打开运行 root、创建工作目录或连接设备。
+后继 CLI 接线已完成静态独审、定向普通检查和真实 CLI/PG/TLS-WSS 验证。`AGENTEAM_RUNNER_OPERATIONS=write-file` 显式启用原 `write-file@1`，也可与 `read-file`、`list-directory`、`find-files` 组合。未设置或空值仍无操作；未知、重复、空项和空白整体拒绝，未选择的能力不能执行。`--check-config` 保持离线，不打开运行 root、创建工作目录或连接设备。
 
 真实 `config.Load` → `app.Run` → `control.New` 沿原身份锁内读到的设备配置，给所有已选 Handler 只创建一个 pinned Workspace Manager。write Handler 构造成功后才公告能力，重连沿用原资源；session/worker 实际退出后，再同步 Stop/Drain Manager、释放 identity lock、结束 Client。旧 `NewWriteFile` 的外部 Manager 借用关系保持，与非空运行时 operations 不能混用。没有改变 atomic Write、512 KiB wire 上限、publication/durable/completion 结果或 Unknown 不自动重试的语义，不增加环境注入、command、Central 默认 Tool producer 或 Model 工具回路。
 
-定向单元测试覆盖配置和 App 传递、真实 Handler 写入及冲突、默认与未选能力拒绝、root/配置冲突、外部 owner 互斥及原 Manager 返回前保持身份锁。新增 `TestRunnerWriteFileApp` 复用原真实 CLI/PG/enrollment/TLS-WSS 夹具，验证完整二进制写入与独立磁盘读取、显式 no-overwrite 冲突、stored identity 重启、组合读取和未选写能力零 dispatch。它在 D15 §7 允许的 test-only Operation authority 替身内，用自有隔离库的 fixture 记录固定完整 intent/RID；只有原事务已知提交且实际返回才开放 Claim，并在当前同 Store/Tx、完整 locks 下重检精确记录与真实 Agent/Mount。该 fixture 表不是生产迁移或真实 ToolCall/Attempt producer。实际运行统一安排，原已有适配器证据与 STOP 不因源码完成而扩大。
+定向普通检查 `ordinary01` 的 race 9 top / 49 sub 全部通过，operations/config/app/control/cmd 五包 vet 通过，原进程均实际 Wait 0。覆盖配置和 App 传递、真实 Handler 写入及冲突、默认与未选能力拒绝、root/配置冲突、外部 owner 互斥及原 Manager 返回前保持身份锁。候选继承主线轻量测试载体后，`compile01` 的真实 Runner 命令、唯一 integration/race 测试 binary 编译及精确 list 均实际退出 0；没有扩大普通测试矩阵或重复旧 read/directory 全套 native。
+
+`runner-native01` 精确执行 `TestRunnerWriteFileApp` 1 top / 3 sub，整轮通过。真实系统 Runner 创建、Owner Agent 资源目录配置、stdin enrollment、认证 TLS-WSS 与实际编译 CLI 完成 64 KiB 二进制写入（4 字节重复 16,384 次）及独立磁盘完整核对；显式第二次 no-overwrite 请求返回 Conflict 且原正文不变。stored identity 重启后显式覆盖成功，同时保留 read-file；第三次只启用 read-file 时，写请求在当前能力检查处拒绝且 Attempted=false、无 terminal，磁盘正文不变。三个不同 Runner 子进程原 Wait 均为 0，测试进程、fixture 和外层监督器均实际退出 0；post 复核七个原 PID、六项自有容器/网络及私有目录均已退出或删除。
+
+真实 CLI 测试在 D15 §7 允许的严格 typed Operation authority 替身内，用自有隔离库的 fixture 记录固定完整 intent/RID；只有原事务已知提交且实际返回才开放 Claim，并在当前同 Store/Tx、完整 locks 下重检精确记录与真实 Agent/Mount。该 fixture 表不是生产迁移或真实 ToolCall/Attempt producer；本片没有验证 Model→Tool→Runner 循环，也没有新增真实断连/Unknown 故障矩阵。原已有适配器证据与 ToolsHTTP 等 STOP 保持。
 
 ## 接口与边界
 
@@ -46,4 +50,4 @@ native01 原工具 96046 亲收 actual0：supervisor 812703 实际 Wait0/3.395s�
 
 唯一 `WRITE_FILE_WSS owned_resources_joined=true` 只在实际 session/worker、wire reader/writer、peer handler/socket Close、TLS server、离线显式 client、独立Handle与Manager 全部退出后产生。监督器亲收原 Go 后，desc/private 两次空、原75s自动baseline TCP差额两次empty、1481输入不变与terminal0均闭合。没有PG/Docker，不借用七资源声明。全部原输出已从旧树 `output/ai/runner-write-file-wss/` 同文件系统无覆盖迁至 main `output/ai/retired-20261011/runner-write-file-wss/`：80文件、22,975,545B与7目录的逐路径内容和身份保持；其中 `methods01/basic01/compile01/native01` 均完整。5份 `/tmp/rwfw01` 原日志/调用/PID/TCP基线逐字副本在 `retention/tmp-rwfw01/`，原tmp保留。63个仓库内输入均逐项等main可达原`5d8cf4c4`源码，1431个外部工具链/模块输入保持原路径未搬；静态修前`61e33774`及全部开发历史均main可达，无动态FAIL。方法与精确恢复映射见[恢复与执行说明](../../../.agent-state/runner-write-file-wss/README.md)。
 
-真实链仅证明 trusted TLS/WSS peer 的 bound session，不含 Central grant/Operation/dispatcher、enrollment、完整或默认 `Client.Run`、生产接线，也不外推故障/取消真实WSS场景；后置错误/取消判据属于上述受控基础测试。已交付 local Write 的原 FAIL 与通过事实沿原卡。Object/toolsHTTP/SPA/Jina/Image 既有 STOP 与默认生产边界保持；本片测试资源与执行窗口已全部释放。
+上述旧适配器 WSS 链仅证明 trusted TLS/WSS peer 的 bound session，不含 Central grant/Operation/dispatcher、enrollment、完整或默认 `Client.Run`、生产接线；后继 CLI 的已验证范围见本页当前接线。两者均不外推故障/取消真实 WSS 场景，后置错误/取消判据属于上述受控基础测试。已交付 local Write 的原 FAIL 与通过事实沿原卡。Object/toolsHTTP/SPA/Jina/Image 既有 STOP 与默认生产边界保持；本片测试资源与执行窗口已全部释放。

@@ -2,7 +2,7 @@
 
 迁移00026对应的 Linux/amd64 Runner identity/control 空 registry 已完成限定实现与验收，详见 [D15 规格](../work-items/d15-runner-control.md#101-linuxamd64-有限-00026-验收结果)。Central 与 Runner 默认入口已接设备管理、一次性登记、Ed25519 私有身份和出站 WSS；作者业务、独立风险补集、正式 OS 三格及新 main 组合的双 cmd/CLI 结果按明确版本复用，不能称当前 HEAD 一次全量或完整 D15 通过。
 
-默认未配置操作时，hello 的 capability 列表为空。现有命令入口允许通过 `OPERATIONS` 显式选择已实现的 `read-file`、`list-directory`、`find-files`、`write-file` revision `"1"`，可以单选或组合；仅在原身份锁内成功构造可信 root 的资源后公告选中能力。目录 CLI 扩展已通过定向基础检查与真实 CLI/PG/WSS 验收，范围见 [D16 目录适配器当前接线](../work-items/d16-runner-directory-adapter.md#当前cli接线)；write-file CLI 接线已实现，动态验证待完成，范围见 [write-file 当前 CLI 接线](../work-items/d15-runner-write-file-adapter.md#当前cli接线)。设备在线与 Agent 挂载配置本身都不是执行许可；当前 Agent/Mount 核验、原 Execution/Operation 授权、D17 数据面和 D18 Tool Runtime 保持各自集成边界，不启用 run-command 或 Agent 执行循环。整体 `ready=false` / `/readyz` 503 的既有限制不变。
+默认未配置操作时，hello 的 capability 列表为空。现有命令入口允许通过 `OPERATIONS` 显式选择已实现的 `read-file`、`list-directory`、`find-files`、`write-file` revision `"1"`，可以单选或组合；仅在原身份锁内成功构造可信 root 的资源后公告选中能力。目录 CLI 扩展已通过定向基础检查与真实 CLI/PG/WSS 验收，范围见 [D16 目录适配器当前接线](../work-items/d16-runner-directory-adapter.md#当前cli接线)；write-file CLI 也已通过定向 race/vet 与真实登记、写入、重启及未选能力拒绝验证，范围见 [write-file 当前 CLI 接线](../work-items/d15-runner-write-file-adapter.md#当前cli接线)。设备在线与 Agent 挂载配置本身都不是执行许可；当前 Agent/Mount 核验、原 Execution/Operation 授权、D17 数据面和 D18 Tool Runtime 保持各自集成边界，不启用 run-command 或 Agent 执行循环。整体 `ready=false` / `/readyz` 503 的既有限制不变。
 
 ## 配置与私有身份
 
