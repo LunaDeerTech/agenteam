@@ -1,18 +1,25 @@
 package project
 
 import (
+	"bytes"
 	"context"
+	"crypto/sha256"
+	"strings"
 	"testing"
+	"time"
 
+	"github.com/LunaDeerTech/agenteam/internal/central/artifact"
 	ac "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
 	au "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 )
 
 func TestArtifactHumanCancellationCurrentGate(t *testing.T) {
-	for _, mode := range []string{"active", "archived", "deleting", "initializing", "revoked", "archived-mutation"} {
+	for _, mode := range []string{"active", "archived", "archiving", "deleting", "initializing", "revoked", "archived-mutation"} {
 		t.Run(mode, func(t *testing.T) {
 			v := newAuditGateFixture(t, nil)
 			authority, err := NewArtifactAuthority(v.a)
@@ -23,6 +30,11 @@ func TestArtifactHumanCancellationCurrentGate(t *testing.T) {
 			switch mode {
 			case "archived":
 				v.lifecycle = c.Archived
+			case "archiving":
+				v.lifecycle, want = c.Archiving, f.ProjectNotActive
+				if _, err := authority.AuthorizeInTx(context.Background(), v.store.tx, ac.AccessSubject{Actor: v.actor, ProjectID: v.project}, i.Read); err != nil {
+					t.Fatal("ordinary current-owner Read must remain available while archiving", err)
+				}
 			case "deleting":
 				v.lifecycle, want = c.Deleting, f.ProjectNotActive
 			case "initializing":
@@ -40,6 +52,84 @@ func TestArtifactHumanCancellationCurrentGate(t *testing.T) {
 			scope, _ := i.InProject(v.project)
 			if err != nil || !grant.Matches(v.actor, scope, i.Converge) || grant.Matches(v.actor, scope, i.Mutate) {
 				t.Fatal("current cancellation became a mutation grant or lost ownership", err)
+			}
+		})
+	}
+}
+
+func TestArtifactCancelledMaintenanceCurrentGate(t *testing.T) {
+	for _, state := range []c.Lifecycle{c.Active, c.Archived, c.Archiving} {
+		t.Run(string(state), func(t *testing.T) {
+			v := newAuditGateFixture(t, nil)
+			v.lifecycle = state
+			authority, err := NewArtifactAuthority(v.a)
+			if err != nil {
+				t.Fatal(err)
+			}
+			ownerID, fileID := testID[ac.ArtifactEntity](t), testID[ac.File](t)
+			objectID, uploadID := testID[oc.StoredObject](t), testID[oc.Upload](t)
+			attempt, cause := testID[oc.Attempt](t), testID[struct{}](t)
+			owner, err := oc.NewObjectOwner(oc.Artifact, ownerID.String(), v.project.String())
+			if err != nil {
+				t.Fatal(err)
+			}
+			registration, _ := i.RegisterService(i.ObjectMaintenance)
+			actor, err := registration.Actor(uploadID.String(), owner.Scope())
+			if err != nil {
+				t.Fatal(err)
+			}
+			key := f.IdempotencyKey("cancelled-maintenance-gate")
+			identity, err := f.NewCommandIdentity("artifact", []string{v.project.String()}, "create", key)
+			if err != nil {
+				t.Fatal(err)
+			}
+			commandHash := sha256.Sum256([]byte(identity.Canonical()))
+			requestDigest, contentDigest := sha256.Sum256([]byte("original-command")), sha256.Sum256([]byte("body"))
+			stableActor := "human:" + v.actor.Details().UserID
+			created := time.Now().UTC()
+			originalRow := v.store.row
+			commandReads, projectReads := 0, 0
+			// Only durable rows are controlled. The real Artifact owner issues its
+			// private proof, and the real Project adapter consumes it in this Tx.
+			v.store.row = func(query string, args ...any) postgres.Row {
+				switch {
+				case strings.HasPrefix(query, "SELECT id,project_id,creation_cause"):
+					if len(args) != 1 || args[0] != ownerID.String() {
+						t.Fatal("wrong original owner lookup")
+					}
+					return valuesRow(ownerID.String(), v.project.String(), cause.String(), stableActor, objectID.String(), uploadID.String(), string(key), "cancel_requested", "prospective", int64(1))
+				case strings.Contains(query, "FROM agenteam_artifact.commands WHERE command_hash="):
+					if len(args) != 1 {
+						t.Fatal("wrong original command lookup")
+					}
+					hash, ok := args[0].([]byte)
+					if !ok || !bytes.Equal(hash, commandHash[:]) {
+						t.Fatal("original command identity changed")
+					}
+					commandReads++
+					return valuesRow(string(key), v.project.String(), ownerID.String(), fileID.String(), stableActor, requestDigest[:], cause.String(), "content", string(ac.Generated), "cancel_requested", "Original", "", "text/plain", int64(4), contentDigest[:], []byte(nil), "", objectID.String(), uploadID.String(), attempt.String(), string(i.Human), v.actor.Details().UserID, "", "", "", "", created)
+				case strings.Contains(query, "FROM agenteam_project.projects"):
+					projectReads++
+					return originalRow(query, args...)
+				case query == "SELECT clock_timestamp()":
+					return originalRow(query, args...)
+				default:
+					t.Fatal("unexpected maintenance query")
+					return nil
+				}
+			}
+			provider, err := artifact.NewOwnerProvider(v.store, authority)
+			if err != nil {
+				t.Fatal(err)
+			}
+			grant, err := provider.AuthorizeOwnerInTx(context.Background(), v.store.tx, actor, owner, i.Converge)
+			if commandReads != 2 || projectReads != 1 {
+				t.Fatal("maintenance did not reach the current gate after exact private proof", commandReads, projectReads, err)
+			}
+			if state == c.Archiving {
+				hasCode(t, err, f.ProjectNotActive)
+			} else if err != nil || grant.Details().Intent != i.Converge || !grant.Details().Actor.Equal(actor) {
+				t.Fatal("valid original cancellation convergence rejected", err)
 			}
 		})
 	}

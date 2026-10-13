@@ -103,6 +103,9 @@ func (a *ArtifactAuthority) AuthorizeInTx(ctx context.Context, tx f.Tx, subject 
 			if err != nil {
 				return i.AccessGrant{}, err
 			}
+			if state := access.Project().Lifecycle; state != c.Active && state != c.Archived {
+				return i.AccessGrant{}, fault(f.ProjectNotActive)
+			}
 			scope, _ := i.InProject(subject.ProjectID)
 			return i.NewAccessGrant(subject.Actor, scope, i.Converge, access.CheckedAt(), access.Project().Version)
 		}
@@ -167,10 +170,13 @@ func (a *ArtifactAuthority) authorizeCancelledArtifactInTx(ctx context.Context, 
 	if p.initialized {
 		initialized = c.Initialized
 	}
-	// Ordinary convergence cannot enter deleting. That path still consumes the
-	// original lifecycle cleanup family above, with its exact current claim.
+	// Read also permits archiving, but ordinary cancellation convergence does
+	// not. Deleting still consumes the exact lifecycle cleanup family above.
 	if err = c.CheckOwnerGate(p.ref.Lifecycle, initialized, i.Read); err != nil {
 		return i.AccessGrant{}, err
+	}
+	if p.ref.Lifecycle != c.Active && p.ref.Lifecycle != c.Archived {
+		return i.AccessGrant{}, fault(f.ProjectNotActive)
 	}
 	now, err := dbNow(ctx, x)
 	if err != nil {
