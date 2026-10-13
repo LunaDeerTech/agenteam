@@ -2,6 +2,8 @@
 import { computed, onMounted, onUnmounted, provide, shallowRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { createProjectScheduler, projectSchedulerKey } from './composables/useProjectScheduler'
+import ArtifactCreationDialog from './components/artifacts/ArtifactCreationDialog.vue'
+import { createArtifactCreation, artifactCreationKey } from './composables/useArtifactCreation'
 import KnowledgeTextDialog from './components/knowledge/KnowledgeTextDialog.vue'
 import { createKnowledgeText, knowledgeTextKey } from './composables/useKnowledgeText'
 import AppShell from './components/layout/AppShell.vue'
@@ -25,6 +27,7 @@ import {
   installProjectVariablesNavigation,
   installProjectSchedulerNavigation,
   installKnowledgeTextNavigation,
+  installArtifactCreationNavigation,
   installProjectNavigation,
   installProjectModelSettingsNavigation,
 } from './router/auth'
@@ -78,6 +81,9 @@ const stopSchedulerNavigation = installProjectSchedulerNavigation(router, schedu
 const variables = createProjectVariables(auth, projects)
 provide(projectVariablesKey, variables)
 const stopVariablesNavigation = installProjectVariablesNavigation(router, variables)
+const artifactCreation = createArtifactCreation(auth, projects)
+provide(artifactCreationKey, artifactCreation)
+const stopArtifactCreationNavigation = installArtifactCreationNavigation(router, artifactCreation)
 const knowledgeText = createKnowledgeText(auth, projects)
 provide(knowledgeTextKey, knowledgeText)
 const stopKnowledgeTextNavigation = installKnowledgeTextNavigation(router, knowledgeText)
@@ -143,6 +149,7 @@ const stopOutboundNavigation = installOutboundPolicyNavigation(router, outboundP
 async function logout() {
   if (
     (await scheduler.confirmLeave()) &&
+    (await artifactCreation.confirmLeave()) &&
     (await knowledgeText.confirmLeave()) &&
     (await variables.confirmLeave()) &&
     (await agents.confirmLeave()) &&
@@ -188,6 +195,7 @@ onMounted(() => {
   projects.afterNavigation(route.fullPath, '')
   scheduler.afterNavigation(route.fullPath)
   tasks.afterNavigation(route.fullPath)
+  artifactCreation.afterNavigation(route.fullPath)
   knowledgeText.afterNavigation(route.fullPath)
   variables.afterNavigation(route.fullPath)
   agents.afterNavigation(route.fullPath)
@@ -208,6 +216,8 @@ onUnmounted(() => {
   window.removeEventListener('pageshow', refreshVisible)
   stopSchedulerNavigation()
   scheduler.dispose()
+  stopArtifactCreationNavigation()
+  artifactCreation.dispose()
   stopKnowledgeTextNavigation()
   knowledgeText.dispose()
   stopVariablesNavigation()
@@ -373,6 +383,7 @@ onUnmounted(() => {
       <UiButton @click="entry.finishConfirmation(true)">放弃并离开</UiButton>
     </template>
   </UiDialog>
+  <ArtifactCreationDialog :editor="artifactCreation" />
   <KnowledgeTextDialog :editor="knowledgeText" />
 </template>
 <style scoped>

@@ -4,6 +4,7 @@ import { UiButton, UiField, UiSelect, UiTextarea, UiState, UiBadge } from '../ui
 import { taskLabels } from '../../api/work-review'
 import type { ProjectTasks } from '../../composables/useProjectTasks'
 import TaskEditForm from './TaskEditForm.vue'
+import TaskReorderForm from './TaskReorderForm.vue'
 import TaskDependencyForm from './TaskDependencyForm.vue'
 import TaskHumanBlockerForm from './TaskHumanBlockerForm.vue'
 import TaskTimeline from './TaskTimeline.vue'
@@ -59,7 +60,9 @@ async function lookup() {
   const original = props.owner.progress.value
   if (original?.kind.startsWith('blocker-')) blockerTask = original.taskID
   if (original?.kind.startsWith('dependency-')) dependencyTask = original.taskID
+  if (original?.kind === 'reorder') reorderTask = original.taskID
   const confirmed = await props.owner.lookup()
+  if (original?.kind === 'reorder' && confirmed) await focusTaskReorder()
   if (original?.kind.startsWith('blocker-') && confirmed) await focusBlocker(true)
   if (original?.kind.startsWith('dependency-') && confirmed) await focusDependency(true)
 }
@@ -70,6 +73,25 @@ async function cancelEdit() {
   await nextTick()
   if (!props.owner.edit.open && props.owner.visible.value && task.value?.id === target)
     editButton.value?.$el.focus()
+}
+const reorderButton = ref<{ $el: HTMLButtonElement } | null>(null)
+let reorderTask = ''
+async function openTaskReorder() {
+  reorderTask = task.value?.id ?? ''
+  await props.owner.openTaskReorder()
+}
+async function focusTaskReorder() {
+  await nextTick()
+  if (!props.owner.visible.value || props.owner.busy.value || task.value?.id !== reorderTask || props.owner.pending.value) return
+  const target = reorderButton.value?.$el
+  if (target?.isConnected && !target.disabled) target.focus()
+  else detail.value?.querySelector<HTMLElement>('h2')?.focus()
+}
+async function cancelTaskReorder() {
+  if (props.owner.cancelTaskReorder()) await focusTaskReorder()
+}
+async function submitTaskReorder() {
+  if (await props.owner.submitTaskReorder()) await focusTaskReorder()
 }
 const actionLabel = computed(() =>
   props.owner.draft.action === 'in_review'
@@ -96,7 +118,7 @@ const canSubmit = computed(
 </script>
 <template>
   <div v-if="task" ref="detail" class="task-detail">
-    <h2>{{ task.title }}</h2>
+    <h2 tabindex="-1">{{ task.title }}</h2>
     <dl class="task-facts">
       <div>
         <dt>状态</dt>
@@ -225,18 +247,33 @@ const canSubmit = computed(
     <p v-if="owner.state.feedback" role="status">{{ owner.state.feedback }}</p>
     <p v-if="owner.state.message" role="alert">{{ owner.state.message }}</p>
     <UiButton ref="refreshButton" :disabled="owner.busy.value" @click="owner.refresh()">重新读取任务</UiButton>
+    <TaskReorderForm
+      v-if="owner.taskReorder.open && !owner.pending.value"
+      :owner="owner"
+      @cancel="cancelTaskReorder"
+      @submit="submitTaskReorder"
+    />
     <TaskEditForm
       v-if="owner.edit.open && !owner.pending.value"
       :owner="owner"
       @cancel="cancelEdit"
     />
-    <div v-if="!owner.pending.value && !owner.edit.open && !owner.humanBlocker.open && !owner.dependency.open" class="review-actions">
+    <div v-if="!owner.pending.value && !owner.edit.open && !owner.humanBlocker.open && !owner.dependency.open && !owner.taskReorder.open" class="review-actions">
       <UiButton
         v-if="task.state === 'backlog' && task.assignee_agent_id === null"
         ref="editButton"
         :disabled="owner.busy.value || !owner.canEdit.value || !!owner.draft.action"
         @click="owner.openEdit()"
         >编辑任务</UiButton
+      >
+      <UiButton
+        v-if="task.state === 'backlog' && task.assignee_agent_id === null"
+        ref="reorderButton"
+        :disabled="owner.busy.value || !owner.canReorderTask.value"
+        :state="owner.progress.value?.kind === 'reorder' && owner.progress.value.phase === 'confirmed' ? 'success' : 'idle'"
+        success-label="顺序已确认"
+        @click="openTaskReorder"
+        >调整任务顺序</UiButton
       >
       <UiButton
         v-if="task.state === 'backlog'"
@@ -266,7 +303,7 @@ const canSubmit = computed(
       此任务已结束，保留只读信息。
     </p>
     <form
-      v-if="owner.draft.action && !owner.pending.value && !owner.edit.open && !owner.humanBlocker.open && !owner.dependency.open"
+      v-if="owner.draft.action && !owner.pending.value && !owner.edit.open && !owner.humanBlocker.open && !owner.dependency.open && !owner.taskReorder.open"
       class="review-form"
       @submit.prevent="owner.submit()"
     >

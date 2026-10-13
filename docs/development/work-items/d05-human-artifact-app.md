@@ -1,6 +1,6 @@
 # D05 Human Artifact 默认 App 接线
 
-状态：Human Service 片实现、独立审查、必要基础检查及默认 App 的真实 PostgreSQL/MinIO 验收完成；后继当前 Owner 只读 HTTP 与浏览器调用链的实际结果见下节，视觉评审由 UI 片另行记录。这些结果不代表 D05 全部入口、创建 UI 或 E01 完成。
+状态：Human Service 片实现、独立审查、必要基础检查及默认 App 的真实 PostgreSQL/MinIO 验收完成；后继当前 Owner 只读 HTTP、文本创建/原意图恢复与浏览器调用链的实际结果见下节，视觉评审由 UI 片另行记录。这些结果不代表 D05 全部入口或 E01 完成。
 
 依据：[D05 Artifact 组合服务](d05-object-storage-design.md#7-b02artifact-组合服务)、[D08 当前授权](d08-project-owner-design.md#4-身份端口与锁纪律)及原 Artifact Project-call ownership。
 
@@ -64,8 +64,21 @@ Account Stop/Drain/Force 保留原 context，Artifact pair 实际 Joined 前，�
 
 [本轮结果](../../../output/ai/artifact-owner-http/web-native06/result.json)、[原日志](../../../output/ai/artifact-owner-http/web-native06/browser.log)和[退出复核](../../../output/ai/artifact-owner-http/web-native06/post.json)记录原 Node、App、proxy、Guard 与数据库退出；六项 owned 容器/网络资源再次确认不存在，私有目录、runtime 和原进程均已退出，受测源码及薄入口未变。原 `web-native01` 至 `web-native05` 的 FAIL 保留，不以后轮诊断倒填首轮未知原因，也不把中途 HTTP 200 当成整轮通过。四张本轮截图的视觉结论见 [Artifact Owner UI](d05-artifact-owner-ui.md)，本卡只据上述证据确认真实只读调用和返回链。
 
+## 后继：Human 文本创建 HTTP 与 UI
+
+原默认 App 的同一 Artifact Service 现提供创建、原意图 Lookup 和取消三个 POST；当前 Session/Owner 授权、CSRF、原 Idempotency-Key 与完整正文均经正式入口校验。Lookup 明确返回五态，`not_observed` 不代表原请求确定未提交；该状态的 Cancel 返回未观察到且不调用原 CancelCreation。已发请求的后段 NotCommitted 不冒充整次未发出，UI 保留原意图供显式查询，再按状态重试或取消。公开形状仍见 [Artifact Owner OpenAPI](../../../api/openapi/artifact-owner.json)，交互与视觉结果见 [文本产物创建 UI](d05-artifact-content-ui.md)。
+
+本片普通检查去重 **17 top / 136 sub race 通过、3 包 vet 通过**，UI 定向与兼容 **38 用例、类型检查及构建通过**。原普通检查两处夹具失败、UI 首轮失败及首次 App 脚本未物化的环境失败保留；只据修复后的实际结果确认通过，不倒填原轮。
+
+组合候选含原生 Object 初始化的当前 main 后，复用必要基础结果，以同一实际 App binary 完成下列两项：
+
+- `TestArtifactContentDefaultApp/create-original-lookup-retry-cancel-and-owner`：**1 top / 1 sub 全通过**，外层 Wait 0 / 56.211s。真实 Create → Lookup → 同义重放 → List/Read；已提交 ACK Unknown 与缺失命令的只读 COMMIT ACK Unknown 分别恢复为 committed/not_observed。显式原请求重试不重复创建或审计；not_observed 和异义原意图均不进入 CancelCreation；真实已上传但未发布的 pending 完成取消和 Object 清理；当前非 Owner 三 POST 均 404，另一 Project 事实不变。
+- `TestArtifactContentWeb/create-and-recover-original`：**1 top / 1 sub、1 Node 用例全通过**，外层 Wait 0 / 64.226s。浏览器实际 **9 POST / 7 GET**（5 create、3 lookup、1 cancel、4 list、3 read），16 个 handler 均实际返回。首正常创建的原 Store 返回确实跨 UI 加载检查持有；其余局部 typed ACK 与最终发布前拒绝产生真实恢复状态。最终 3 个 Artifact、1 次取消收敛、0 active lease；真实当前 Human Audit 为 create 3、list 4、read 3，无错误身份或 Execution/Operation/Tool 归属。
+
+[App 结果](../../../output/ai/task-backlog-reorder/content-app-native01/result.json)、[App 退出复核](../../../output/ai/task-backlog-reorder/content-app-native01/post.json)、[Web 结果](../../../output/ai/task-backlog-reorder/content-web-native01/result.json)和[Web 退出复核](../../../output/ai/task-backlog-reorder/content-web-native01/post.json)均记录 whole PASS；原调用、Node、root、Guard 与数据库实际退出，六项 owned 容器/网络及私有目录清退，无剩余子进程。测试以 Runtime disabled 的正式 Human/Session 创建，无 SQL 业务种子或外部网络故障注入。
+
 ## 范围限制
 
-原 Human Service 片覆盖默认已安装 Service 的 Create/List/Read/显式取消和原 owner 退出；本轮后继 HTTP 仅开放上述目录与预览。HTTP 创建、原意图 Lookup/取消及创建 UI 尚未交付，验收中的 Artifact 来自正式 Service 夹具，不是用户通过页面创建。Execution、Operation、Tool、ToolCall provenance 及未配置的 Source 通路仍未绑定；原 uploads/cleaner 库依赖保留，但不宣称上传、下载或 Source 对外入口交付。
+原 Human Service 片覆盖默认已安装 Service 的 Create/List/Read/显式取消和原 owner 退出；后继 HTTP/UI 已验证当前 Owner 浏览、文本创建与原意图 Lookup/重试/取消。早期只读片的种子来自正式 Service，后继创建片则由真实页面发起。Execution、Operation、Tool、ToolCall provenance 及未配置的 Source 通路仍未绑定；原 uploads/cleaner 库依赖保留，但不宣称文件上传、下载或 Source 对外入口交付，也不据本轮组合候选宣称 Task 或 Execution 已通过。
 
 不自动保存模型文本，不改变 D22 text-only，不启用全局 Lifecycle Registry，不新增迁移或维护 worker；不宣称完整 Project Delete、Runner→Artifact、全部重启状态或 E01。此次 Unknown 是真实提交后的本地 typed ACK 控制，不是外部网络故障。没有模型调用或 Runner Invoke，未恢复外部网络故障探针；所有既有 STOP 保持。
