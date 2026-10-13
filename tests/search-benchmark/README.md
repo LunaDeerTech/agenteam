@@ -73,12 +73,34 @@ Recall@1/5/10/20与MRR@20把grade≥2视为相关；nDCG@1/5/10/20的增益是`2
 | 候选 | 本卡真实运行 | 版本、许可和运维兼容性 |
 | --- | --- | --- |
 | native PostgreSQL FTS | 固定基线已运行，72条全部零命中 | PG17.8实测；仅对应包版权材料有限核验，完整运维/传递许可待验证 |
-| PGroonga | not_run | not_verified |
-| pg_search | not_run | not_verified |
+| PGroonga | not_run | 4.1.0/Groonga16.1.3官方来源已查；实际装配、完整许可与运维仍not_verified，见[D13 §1.2](../../docs/development/work-items/d13-lexical-benchmark.md#12-后续候选官方来源与待验证边界) |
+| pg_search | not_run | v0.26.1官方来源已查；实际装配、完整许可与运维仍not_verified，见[D13 §1.2](../../docs/development/work-items/d13-lexical-benchmark.md#12-后续候选官方来源与待验证边界) |
 
 不把PostgreSQL的ts_rank/ts_rank_cd称为BM25。原生 FTS 的小语料 GIN体积、索引耗时与暖查询延迟见下节，不能外推生产性能。扩展、分词器、字典的准确许可证/NOTICE、PostgreSQL17兼容性、重建/更新/删除/升级成本都需后续真实材料与验证。
 
 数据为内部原创测试材料，对外再分发许可未在本卡授予。没有抓取第三方文档、词典或用户数据，不猜测仓库未提供的公开许可。原评分工具没有新增正式dependency/lock/SQL；后继候选只在隔离 fixture 实际运行，不接入生产检索。最终选型仍需三候选实际比较和固定dense leg的hybrid RRF对照；本卡不完成D13或生产索引验收。
+
+## PGroonga 待冻结方案
+
+以下为**待冻结方案、未运行**，不表示已有候选adapter、可用镜像或已通过许可检查；具体版本、官方构建接口、包兼容和依赖限制统一见[D13 §1.2](../../docs/development/work-items/d13-lexical-benchmark.md#12-后续候选官方来源与待验证边界)。建议复用原64/72无标签导出，逐字保留index_text/query，不读取qrels调参，不改变原native结果或评分器。表/索引名仅为后续owned fixture中的示意资源。
+
+```sql
+CREATE INDEX candidate_lexical
+ON candidate_sections USING pgroonga (index_text)
+WITH (tokenizer='TokenBigram', normalizers='NormalizerAuto');
+
+SET enable_seqscan = off;
+
+SELECT source_id, pgroonga_score(tableoid, ctid) AS score
+FROM candidate_sections
+WHERE index_text &@~ $1
+ORDER BY score DESC, source_id COLLATE "C" ASC
+LIMIT 20;
+```
+
+[TokenBigram/NormalizerAuto](https://github.com/pgroonga/pgroonga/blob/4.1.0/src/pgrn-constant.h#L8)是官方默认；不增加词典、stemmer、查询改写或自定义scorer。[`&@~`](https://pgroonga.github.io/reference/operators/query-v2.html)使用空格AND、OR和减号排除语法；原query作为SQL参数传入。[`pgroonga_score(tableoid, ctid)`](https://pgroonga.github.io/reference/functions/pgroonga-score.html)默认TF，顺序扫描时恒为0，不称为BM25。
+
+因此planner条件与索引计划接受条件必须在首次执行前一起冻结：同一候选连接设置enable_seqscan=off，保存EXPLAIN实际使用指定PGroonga索引的证据，EXPLAIN不混入请求计时。设置本身不证明索引被使用；计划不满足时停在前置失败，不能观察qrels质量分数后改planner、tokenizer或query。准确构建/运行资源、必要LICENSE/NOTICE、装配检查及预算尚缺；配置、索引体积口径和计时协议固定后才运行、消费score，缺失测量保持null/not_measured。原PG fixture白名单和资源门槛不变。
 
 ## 首个真实候选：native-pg-fts-v1
 
