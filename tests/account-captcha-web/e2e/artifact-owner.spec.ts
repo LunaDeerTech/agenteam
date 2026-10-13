@@ -202,7 +202,8 @@ test("real Owner catalog and bounded content [catalog-and-bounded-read]", async 
   await cookie(page, data.origin, data.foreign_cookie);
   await press(page, "重新读取");
   await expect(
-    page.getByText("当前产物不存在或不可访问，请重新确认访问权限。", {
+    page.getByRole("alert").getByRole("heading", {
+      name: "当前产物不存在或不可访问，请重新确认访问权限。",
       exact: true,
     }),
   ).toBeVisible();
