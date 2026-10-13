@@ -133,6 +133,14 @@ func (t storageTransport) RoundTrip(request *http.Request) (*http.Response, erro
 		finish()
 		return nil, unavailable(nil)
 	}
+	if creation, ok := request.Context().Value(bucketCreationKey{}).(*bucketCreation); ok {
+		// The SDK has a separate region-correction retry in MakeBucket even with
+		// MaxRetries=1. This startup operation permits one fixed-region request.
+		if request.Method != http.MethodPut || request.URL.Path != "/"+d.bucket+"/" || request.URL.RawQuery != "" || !creation.sent.CompareAndSwap(false, true) {
+			finish()
+			return nil, unavailable(nil)
+		}
+	}
 	response, err := t.state.transport.RoundTrip(request)
 	if err != nil {
 		finish()
@@ -169,6 +177,11 @@ func (b *Backend) CheckBucket(ctx context.Context) error {
 	if exists, e := s.client.BucketExists(ctx, bucket); e != nil || !exists {
 		return unavailable(e)
 	}
+	return b.checkBucketConfiguration(ctx)
+}
+func (b *Backend) checkBucketConfiguration(ctx context.Context) error {
+	s := b.state()
+	bucket := s.config.data().bucket
 	version, e := s.client.GetBucketVersioning(ctx, bucket)
 	if e != nil {
 		return storageError(e)
