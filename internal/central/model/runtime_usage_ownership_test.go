@@ -71,7 +71,7 @@ func (s *usageRuntimeStore) AcquireAll(_ context.Context, tx f.Tx, _ []f.LockReq
 func (s *usageRuntimeStore) RequireHeldLocks(ctx context.Context, tx f.Tx, locks []f.LockRequest) error {
 	return s.AcquireAll(ctx, tx, locks)
 }
-func (s *usageRuntimeStore) QueryRow(_ context.Context, query string, _ ...any) pgx.Row {
+func (s *usageRuntimeStore) QueryRow(_ context.Context, query string, _ ...any) postgres.Row {
 	if !strings.Contains(query, "FROM agenteam_model.calls c JOIN agenteam_model.runtime_attempts") {
 		panic("unexpected SQL in read-only confirmation")
 	}
