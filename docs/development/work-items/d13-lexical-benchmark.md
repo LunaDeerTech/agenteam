@@ -22,6 +22,29 @@
 
 独立审查已接受原运行/评分与同一 owned 容器中 `postgresql-17` 17.8-1.pgdg12+1 的版权正文和摘要；不扩为镜像、pgvector或全部传递依赖许可。完整 [结果与来源](../../../output/ai/native-pg-fts/summary.json)含原 export、candidate、score、许可、FAIL、Wait 与两候选 ELF 的零消费者处置记录，均保全。无新依赖、生产迁移或正式索引；PGroonga、pg_search、固定 dense leg hybrid RRF、完整运维许可比较与最终 ADR 仍未完成。
 
+### 1.2 后续候选官方来源与待验证边界
+
+2026-10-13 仅只读核对官方发布、源码、文档和包元数据，未下载发行包、构建、安装或运行候选。下表是可供后续冻结的来源，不是已冻结执行配置、PG17.8 兼容验收或整包许可结论；PGroonga、pg_search 均仍为 `not_run`。本阶段不改64/72固定输入、qrels、score或§1.1的原生零结果。
+
+| 候选 | 官方版本与源码定位 | 发行及依赖事实 |
+| --- | --- | --- |
+| PGroonga | [4.1.0 release](https://github.com/pgroonga/pgroonga/releases/tag/4.1.0)，commit [47d0252f76dccbdc2ebeee9ed6cf941dd9552bcc](https://github.com/pgroonga/pgroonga/commit/47d0252f76dccbdc2ebeee9ed6cf941dd9552bcc)；配套建议 [Groonga 16.1.3](https://github.com/groonga/groonga/releases/tag/v16.1.3)，commit [9085dd417e5cd42cd8f1a367aaf24cfe45dd9f1f](https://github.com/groonga/groonga/commit/9085dd417e5cd42cd8f1a367aaf24cfe45dd9f1f) | PGroonga源码要求Groonga≥14.1.0；官方有PG17包。PGroonga/Groonga源码发行包分别483,294/110,532,722 B，未下载。 |
+| pg_search | [v0.26.1 release](https://github.com/paradedb/paradedb/releases/tag/v0.26.1)，commit [529c77e9dffe4bd86b6b7971c019bb26b8eadbfa](https://github.com/paradedb/paradedb/commit/529c77e9dffe4bd86b6b7971c019bb26b8eadbfa) | 官方bookworm/PG17/amd64包53,629,552 B；[打包依赖](https://github.com/paradedb/paradedb/blob/v0.26.1/.github/workflows/publish-pg_search-debian.yml#L321)为PG17/libopenblas0，[extension control](https://github.com/paradedb/paradedb/blob/v0.26.1/pg_search/pg_search.control)另要求vector。未在本项目PG17.8/vector0.8.1上装配验证。 |
+
+PGroonga当前[官方trixie APT元数据](https://packages.groonga.org/debian/dists/trixie/main/binary-amd64/Packages)中，PG17扩展4.1.0-1为186,700 B、Installed-Size 984 KiB，libgroonga0 16.1.3-1为4,809,788 B、32,062 KiB；两者要求libc6≥2.38，不能直接安装进现有bookworm基底。Groonga包另依赖Arrow 25等库；上述包/源码下载大小不是完整安装、构建或运行峰值预算。本次[bookworm索引](https://packages.groonga.org/debian/dists/bookworm/main/binary-amd64/Packages)未找到这两个准确版本，不据此猜测兼容包。
+
+优先准备PGroonga单配置的理由是其默认中英文分词不需要外部词典，便于先限定依赖；不是质量或最终选型结论。在既有bookworm/PG17.8上源码构建的官方接口如下，**尚未完成依赖闭包、recipe冻结或编译验证**：
+
+- Groonga [CMakeLists.txt](https://github.com/groonga/groonga/blob/v16.1.3/CMakeLists.txt)要求CMake≥3.22、C99/C++17；明确支持`GRN_WITH_NFKC=ON`、`GRN_WITH_APACHE_ARROW=OFF`、`GRN_WITH_MECAB=no`、`GRN_WITH_MRUBY=OFF`。KYTEA、LIBSTEMMER、LLAMA_CPP、FAISS、USEARCH、H3等也有明确`no`分支。不需要的`auto`依赖必须在执行前逐项处理，因为部分会触发FetchContent；只关Arrow/MeCab不能声称构建已轻量或无额外下载。
+- 同文件2387–2400行固定启用Onigmo，不能臆造`GRN_WITH_ONIGMO=OFF`。官方绑定的[Onigmo commit与COPYING](https://github.com/k-takata/Onigmo/blob/6b2f059332408c2019c9a00826f4d847ded5b304/COPYING)需随产物核对、保留。
+- PGroonga [Meson构建](https://github.com/pgroonga/pgroonga/blob/4.1.0/meson.build)使用pkg-config/Groonga与明确`pg_config`；[选项](https://github.com/pgroonga/pgroonga/blob/4.1.0/meson_options.txt)中的message_pack/xxhash是可选feature，test=false可省上游测试构建的Ruby依赖。是否关闭这些选项仍待recipe固定，不能把不构建上游测试当作候选验收。
+
+许可只接受以下已定位的源码事实：[PGroonga COPYING](https://github.com/pgroonga/pgroonga/blob/4.1.0/COPYING)为PostgreSQL许可；[Groonga与内置TokenBigram](https://github.com/groonga/groonga/blob/v16.1.3/lib/tokenizers.c#L1)为LGPL-2.1-or-later；上述Onigmo COPYING包含BSD两条款及相关版权正文。禁用MeCab可避免该配置的外部分词词典，但不免除实际链接库及发行物的许可核对。
+
+pg_search的[打包声明](https://github.com/paradedb/paradedb/blob/v0.26.1/.github/workflows/publish-pg_search-debian.yml#L339)为AGPL-3.0-or-later；[tokenizer构建](https://github.com/paradedb/paradedb/blob/v0.26.1/tokenizers/Cargo.toml#L15)启用Lindera 6.2.0的三个嵌入词典。对应官方NOTICE分别为[CC-CEDICT的CC BY-SA 4.0](https://github.com/lindera/lindera/blob/v6.2.0/lindera-cc-cedict/NOTICE.txt)、[IPADIC的NAIST/ICOT条款](https://github.com/lindera/lindera/blob/v6.2.0/lindera-ipadic/NOTICE.txt)、[ko-dic的Apache 2.0](https://github.com/lindera/lindera/blob/v6.2.0/lindera-ko-dic/NOTICE.txt)；选择另一tokenizer不能推断发行物不含这些材料。其[v0.26.1标签下Dockerfile.official-17](https://github.com/paradedb/paradedb/blob/v0.26.1/docker/Dockerfile.official-17)实际下载pg_search 0.26.0、安装vector 0.8.6，并使用未固定patch/digest的postgres:17-trixie，不能直接拿来满足拟定版本或原fixture约束。
+
+PGroonga的[待冻结SQL与planner前置](../../../tests/search-benchmark/README.md#pgroonga-待冻结方案)只作为下一阶段方案。执行前仍须固定准确构建依赖/选项、产物身份与必要LICENSE/NOTICE、峰值空间/内存预算、PG17.8/vector0.8.1装配和实际索引计划；之后才允许读取候选质量结果。独立benchmark adapter/fixture可承载候选专属装配，不放宽原PG镜像白名单、nonce/资源身份或容量门。其余兼容、更新删除/重建、备份升级、完整传递许可及真实成绩仍为`not_verified`，两候选真实运行及hybrid RRF比较仍必需。
+
 ## 2. 现状与文件归属
 
 基线为正式 main `3cea6076`，独占工作树 `/workspace/agenteam-search-benchmark`，分支 `ai/search-benchmark`。已核对本基线没有既有 corpus、query/qrels 或 lexical benchmark 实现；`go.mod` 没有上述搜索扩展依赖。已存在 Knowledge 纯契约不证明服务或检索已运行。本卡不消费其他活动分支的未验实现。
@@ -132,7 +155,7 @@ results 恰覆盖全部 72 个 query，每项含 `query_id`、`hits`。每个 hi
 
 当前只使用内部原创合成 fixture。基线根目录未见项目级 LICENSE，不能因此假定公开许可，也不擅自为仓库材料授予新许可证。数据声明明确“内部原创测试材料；对外再分发许可未在本卡授予”，不复制第三方数据或词典。此边界不妨碍本仓库内部实施与验证。
 
-原数据/评分片未核验三候选的具体版本、扩展包、中文 tokenizer/词典或许可；后继仅原生 FTS 的实际版本与 PostgreSQL 包版权正文按§1.1有限接受，其他材料仍待定。候选名称不证明可再分发或可商业使用。后续依赖研究必须核准确版本的一手许可、NOTICE、传递依赖和再分发要求，保存必要来源定位，不凭常识填写许可证结论。任何正式依赖变更仍在选型之后进行。
+原数据/评分片未核验三候选的具体版本、扩展包、中文 tokenizer/词典或许可；后继原生 FTS 的实际版本与 PostgreSQL 包版权正文按§1.1有限接受，§1.2只补官方来源事实，未接受其他候选的实际装配或整包许可。候选名称不证明可再分发或可商业使用。后续依赖研究必须核准确版本的一手许可、NOTICE、传递依赖和再分发要求，保存必要来源定位，不凭常识填写许可证结论。任何正式依赖变更仍在选型之后进行。
 
 本卡不修改 go.mod/go.sum、npm lock、正式迁移、镜像、现有共享测试工具或生产日志策略。未来数据中如需真实或第三方材料，必须另立具体来源与授权范围，不能通过扩大本卡 dataset 偷渡。
 
