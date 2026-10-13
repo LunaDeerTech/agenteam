@@ -28,6 +28,12 @@ import (
 
 func TestSprintCompleteWeb(t *testing.T) {
 	t.Run("complete-explicit-next-and-original-lookup", func(t *testing.T) {
+		entered, completed := false, false
+		t.Cleanup(func() {
+			if !entered || !completed {
+				t.Error("original Sprint completion App handoff incomplete")
+			}
+		})
 		v := assembleTaskHumanHTTPFixture(t, true)
 		a, base := v.domain.agent, v.domain.base
 		parent := sprintCompleteGet(t, v, v.domain.task.SprintID)
@@ -40,12 +46,6 @@ func TestSprintCompleteWeb(t *testing.T) {
 		agentAppRequire(t, err)
 		var username string
 		agentAppRequire(t, base.raw.QueryRow(ctxFor(t), `SELECT username FROM agenteam_account.users WHERE id=$1`, base.ownerBrowser.actor.Details().UserID).Scan(&username))
-		entered, completed := false, false
-		t.Cleanup(func() {
-			if !entered || !completed {
-				t.Error("original Sprint completion App handoff incomplete")
-			}
-		})
 		if a.p2.base.afterOwners != nil {
 			t.Fatal("original fixture handoff occupied")
 		}
