@@ -149,7 +149,7 @@ func moveMapping(facts kc.MoveFacts) (f.Digest, error) {
 	return ob.DigestBytes(raw), nil
 }
 
-func (s *Service) MoveDocument(ctx context.Context, actor id.Actor, meta f.CommandMeta, project id.ProjectID, document kc.DocumentID, request kc.MoveRequest) (kc.MoveResult, error) {
+func (s *Service) MoveDocument(ctx context.Context, actor id.Actor, meta f.CommandMeta, project id.ProjectID, document kc.DocumentID, request kc.MoveRequest) (resultValue kc.MoveResult, resultErr error) {
 	if err := readInput(ctx, actor, project); err != nil {
 		return kc.MoveResult{}, err
 	}
@@ -157,11 +157,11 @@ func (s *Service) MoveDocument(ctx context.Context, actor id.Actor, meta f.Comma
 	if err != nil {
 		return kc.MoveResult{}, err
 	}
-	ctx, done, err := s.begin(ctx)
+	ctx, entry, err := s.beginProjectCall(ctx, actor, project, nil, projectCallCommand)
+	defer s.projectCallDone(entry, &resultErr)
 	if err != nil {
 		return kc.MoveResult{}, err
 	}
-	defer done()
 	plan, err := s.discoverMove(ctx, mutation)
 	if err != nil {
 		return kc.MoveResult{}, err
@@ -291,7 +291,7 @@ func (s *Service) MoveDocumentInTx(ctx context.Context, tx f.Tx, actor id.Actor,
 	return out, nil
 }
 
-func (s *Service) DeleteSubtree(ctx context.Context, actor id.Actor, meta f.CommandMeta, project id.ProjectID, root kc.DocumentID, token kc.ConfirmationToken) (kc.DeleteResult, error) {
+func (s *Service) DeleteSubtree(ctx context.Context, actor id.Actor, meta f.CommandMeta, project id.ProjectID, root kc.DocumentID, token kc.ConfirmationToken) (resultValue kc.DeleteResult, resultErr error) {
 	if err := readInput(ctx, actor, project); err != nil {
 		return kc.DeleteResult{}, err
 	}
@@ -299,11 +299,11 @@ func (s *Service) DeleteSubtree(ctx context.Context, actor id.Actor, meta f.Comm
 	if err != nil {
 		return kc.DeleteResult{}, err
 	}
-	ctx, done, err := s.begin(ctx)
+	ctx, entry, err := s.beginProjectCall(ctx, actor, project, nil, projectCallCommand)
+	defer s.projectCallDone(entry, &resultErr)
 	if err != nil {
 		return kc.DeleteResult{}, err
 	}
-	defer done()
 	plan, err := s.DiscoverMutation(ctx, request)
 	if err != nil {
 		return kc.DeleteResult{}, err

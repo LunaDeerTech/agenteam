@@ -1328,18 +1328,18 @@ func insertCompletedCommand(ctx context.Context, x postgres.SQLExecutor, actor i
 	return portError(err)
 }
 
-func (s *Service) LookupCommand(ctx context.Context, actor id.Actor, request kc.LookupRequest) (kc.CommandLookup, error) {
+func (s *Service) LookupCommand(ctx context.Context, actor id.Actor, request kc.LookupRequest) (resultValue kc.CommandLookup, resultErr error) {
 	if err := readInput(ctx, actor, request.ProjectID); err != nil {
 		return kc.CommandLookup{}, err
 	}
 	if request.Validate() != nil {
 		return kc.CommandLookup{}, fault(f.InvalidArgument)
 	}
-	ctx, done, err := s.begin(ctx)
+	ctx, entry, err := s.beginProjectCall(withProjectCallIdentity(ctx, projectCallIdentity{Format: 1, Method: "lookup_command", User: actor.Details().UserID, Command: string(request.Command), Key: string(request.Key)}), actor, request.ProjectID, nil, projectCallRead)
+	defer s.projectCallDone(entry, &resultErr)
 	if err != nil {
 		return kc.CommandLookup{}, err
 	}
-	defer done()
 	identity, err := kc.CommandIdentity(request.ProjectID, request.Command, request.Key)
 	if err != nil {
 		return kc.CommandLookup{}, portError(err)

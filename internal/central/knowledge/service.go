@@ -39,21 +39,26 @@ type Dependencies struct {
 
 type Service struct{ data func() *serviceState }
 type serviceState struct {
-	store   Store
-	deps    Dependencies
-	issuer  kc.MutationIssuer
-	mu      sync.Mutex
-	stopped bool
-	calls   map[*call]struct{}
-	changed chan struct{}
+	ownership *projectCallState
+	store     Store
+	deps      Dependencies
+	issuer    kc.MutationIssuer
+	mu        sync.Mutex
+	stopped   bool
+	calls     map[*call]struct{}
+	changed   chan struct{}
 	// Only actual publication resource retirement installs these proofs. An
 	// empty call registry or a cancelled context is never equivalent to join.
-	joinedPublications   map[f.ID[publicationAttempt]]publicationWork
-	retiringPublications map[f.ID[publicationAttempt]]*publicationRetirement
-	cleanupCursor        cleanupCursor
-	cleanupScanning      bool
+	joinedPublications     map[f.ID[publicationAttempt]]publicationWork
+	retiringPublications   map[f.ID[publicationAttempt]]*publicationRetirement
+	projectRetirementTails map[*publicationRetirement]*projectRetirementTail
+	cleanupCursor          cleanupCursor
+	cleanupScanning        bool
 }
-type call struct{ cancel context.CancelFunc }
+type call struct {
+	cancel context.CancelFunc
+	owned  bool
+}
 
 func New(store Store, deps Dependencies) (*Service, error) {
 	ports := []any{store, deps.Projects, deps.Activity, deps.Objects, deps.Uploads,
@@ -85,7 +90,7 @@ func (s *Service) CreateDocument(ctx context.Context, actor id.Actor, meta f.Com
 	input, err := createContentInput(actor, meta, request, source)
 	if err != nil {
 		// SourceInput owns its input even when command validation rejects it.
-		_ = source.Close()
+		_ = s.closeUnadmittedSource(&source)
 		return kc.DocumentRef{}, err
 	}
 	return s.runContentCommand(ctx, input, &source)
@@ -95,7 +100,7 @@ func (s *Service) UpdateDocument(ctx context.Context, actor id.Actor, meta f.Com
 	input, err := updateContentInput(actor, meta, project, document, request, source)
 	if err != nil {
 		if source != nil {
-			_ = source.Close()
+			_ = s.closeUnadmittedSource(source)
 		}
 		return kc.DocumentRef{}, err
 	}
@@ -103,10 +108,33 @@ func (s *Service) UpdateDocument(ctx context.Context, actor id.Actor, meta f.Com
 }
 
 func (s *Service) runContentCommand(ctx context.Context, input contentInput, source *kc.SourceInput) (out kc.DocumentRef, err error) {
-	run, done, err := s.begin(ctx)
+	identity := projectCallIdentity{Format: 1, Method: string(input.name), User: input.actor.Details().UserID, Document: input.document.String(), Command: string(input.name), Key: string(input.meta.IdempotencyKey), Digest: input.digest}
+	var sourceProject *id.ProjectID
+	if input.request.Source != nil {
+		sourceProject, err = input.request.Source.sourceProject()
+		if err != nil {
+			if source != nil {
+				_ = s.closeUnadmittedSource(source)
+			}
+			return out, err
+		}
+	}
+	run, entry, err := s.beginProjectCall(withProjectCallIdentity(ctx, identity), input.actor, input.project, sourceProject, projectCallCommand)
+	done := func() { _ = s.projectCallReturned(entry) }
 	if err != nil {
+		var closeErr error
 		if source != nil {
-			_ = source.Close()
+			if entry == nil {
+				closeErr = s.closeUnadmittedSource(source)
+			} else {
+				closeErr = source.Close()
+			}
+		}
+		s.finishProjectCall(entry, &err)
+		// A rejected registration can still own a failed generic Close. Keep
+		// that exact entry; absence of its ledger row does not join the input.
+		if closeErr == nil {
+			done()
 		}
 		return out, err
 	}
@@ -121,6 +149,11 @@ func (s *Service) runContentCommand(ctx context.Context, input contentInput, sou
 			closeErr = source.Close()
 		}
 		if closeErr != nil {
+			originalErr := err
+			if originalErr == nil {
+				originalErr = contentCompletionError(out, closeErr)
+			}
+			s.finishProjectCall(entry, &originalErr)
 			// Preserve the admitted call and its exact resource handles. A later
 			// recovery/Drain caller can retry with its own existing context; the
 			// failed request never invents a fresh cleanup timeout.
@@ -138,11 +171,29 @@ func (s *Service) runContentCommand(ctx context.Context, input contentInput, sou
 		// join. If SQL is cancelled/Unknown, its local proof remains intact for
 		// exact same-process recovery; do not turn it into a false rollback.
 		if retirement != nil {
-			if checkpointErr := s.checkpointPublicationJoin(run, input.actor, intent.record, work); checkpointErr != nil && err == nil {
-				err = contentCompletionError(out, checkpointErr)
+			var checkpointErr error
+			if s.state().ownership != nil {
+				checkpointErr = s.checkpointOwnedPublicationJoin(run, input.actor, intent.record, work, retirement)
+			} else {
+				checkpointErr = s.checkpointPublicationJoin(run, input.actor, intent.record, work)
+			}
+			if checkpointErr != nil {
+				if err == nil {
+					err = contentCompletionError(out, checkpointErr)
+				}
+				if s.state().ownership != nil {
+					s.finishProjectCall(entry, &err)
+					if transferErr := s.deferPublicationRetirement(retirement, done, checkpointErr); transferErr != nil && err == nil {
+						err = transferErr
+					}
+					return
+				}
 			}
 		}
-		done()
+		s.finishProjectCall(entry, &err)
+		if tailErr := s.projectCallReturned(entry); err == nil && tailErr != nil {
+			err = tailErr
+		}
 	}()
 	intent, err = s.prepareContentIntent(run, input)
 	if err != nil {
@@ -159,6 +210,9 @@ func (s *Service) runContentCommand(ctx context.Context, input contentInput, sou
 	if work.command.Validate() == nil {
 		var retirementErr error
 		retirement, retirementErr = s.publicationRetirement(work, func() {})
+		if retirement != nil {
+			retirement.originalCall = run
+		}
 		if retirementErr != nil {
 			return out, retirementErr
 		}
@@ -238,3 +292,32 @@ func contentCompletionError(result kc.DocumentRef, cause error) error {
 }
 
 var _ kc.Documents = (*Service)(nil)
+
+// A rejected input still owns its actual Close. It starts no project SQL and
+// cannot invent a project identity; its local tail conservatively blocks any
+// project lifecycle observation until that Close really returns. Cancellation
+// and a closed business-admission gate do not erase this cleanup obligation.
+func (s *Service) closeUnadmittedSource(source *kc.SourceInput) error {
+	if source == nil {
+		return nil
+	}
+	st := s.state()
+	if st == nil || st.ownership == nil {
+		return source.Close()
+	}
+	local := &call{cancel: func() {}}
+	st.mu.Lock()
+	st.calls[local] = struct{}{}
+	close(st.changed)
+	st.changed = make(chan struct{})
+	st.mu.Unlock()
+	closeErr := source.Close()
+	if closeErr == nil {
+		st.mu.Lock()
+		delete(st.calls, local)
+		close(st.changed)
+		st.changed = make(chan struct{})
+		st.mu.Unlock()
+	}
+	return closeErr
+}
