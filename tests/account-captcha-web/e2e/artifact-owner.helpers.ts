@@ -386,6 +386,10 @@ type Entry = {
   response?: Response;
   finished: boolean;
   failed: boolean;
+  responseCount: number;
+  finishedCount: number;
+  failedCount: number;
+  failureKind: "not_observed" | "net::ERR_ABORTED" | "other" | "unavailable";
   checked: boolean;
   body?: any;
   uri: string;
@@ -430,6 +434,10 @@ export async function observeArtifacts(
           request,
           finished: false,
           failed: false,
+          responseCount: 0,
+          finishedCount: 0,
+          failedCount: 0,
+          failureKind: "not_observed",
           checked: false,
           uri: url.pathname + url.search,
         });
@@ -445,6 +453,10 @@ export async function observeArtifacts(
         request,
         finished: false,
         failed: false,
+        responseCount: 0,
+        finishedCount: 0,
+        failedCount: 0,
+        failureKind: "not_observed",
         checked: false,
         uri: url.pathname + url.search,
       });
@@ -457,20 +469,52 @@ export async function observeArtifacts(
     const row = [...entries, ...auxiliary].find(
       (row) => row.request === response.request(),
     );
-    if (row) row.response = response;
+    if (row) {
+      row.responseCount++;
+      if (row.responseCount !== 1) {
+        failure = true;
+        failureStage ||= "duplicate_response";
+      }
+      row.response = response;
+    }
   };
   const finished = (request: Request) => {
     const row = [...entries, ...auxiliary].find(
       (row) => row.request === request,
     );
-    if (row) row.finished = true;
+    if (row) {
+      row.finishedCount++;
+      if (row.finishedCount !== 1 || row.failedCount !== 0) {
+        failure = true;
+        failureStage ||= "duplicate_terminal";
+      }
+      row.finished = true;
+    }
   };
   const failed = (request: Request) => {
     if (new URL(request.url()).pathname.startsWith("/api/")) {
       const row = [...entries, ...auxiliary].find(
         (row) => row.request === request,
       );
-      if (row) row.failed = true;
+      if (row) {
+        row.failed = true;
+        row.failedCount++;
+        if (row.failedCount !== 1 || row.finishedCount !== 0)
+          failureStage ||= "duplicate_terminal";
+        // Only the actual event's exact closed enum survives. No raw browser
+        // error is saved, and no cause is inferred from a fulfilled consumer.
+        try {
+          const originalFailure = request.failure();
+          row.failureKind =
+            originalFailure?.errorText === "net::ERR_ABORTED"
+              ? "net::ERR_ABORTED"
+              : originalFailure
+                ? "other"
+                : "unavailable";
+        } catch {
+          row.failureKind = "unavailable";
+        }
+      }
       failure = true;
       failureStage ||= "request_failed";
     }
@@ -804,38 +848,34 @@ export async function observeArtifacts(
                 /^ARTIFACT_[A-Z_]+$/.test(n.failure_reason)
                   ? n.failure_reason
                   : "",
-              calls: n.calls
-                .slice(0, 64)
-                .map((c: any) => ({
-                  method:
-                    c.method === "list" || c.method === "read"
-                      ? c.method
-                      : "invalid",
-                  bound: number(c.bound),
-                  settled: c.settled === true,
-                  fulfilled: c.fulfilled === true,
-                  rejected: c.rejected === true,
-                  typed_digest_present: typeof c.typed_digest === "string",
-                })),
-              rows: n.rows
-                .slice(0, 64)
-                .map((r: any) => ({
-                  status: number(r.status),
-                  request_id_present: typeof r.rid === "string",
-                  declared_length_present: typeof r.length === "string",
-                  fetch_returned: r.fetch_returned === true,
-                  fetch_rejected: r.fetch_rejected === true,
-                  readers: number(r.readers),
-                  reads: number(r.reads),
-                  read_returns: number(r.read_returns),
-                  eof: r.eof === true,
-                  release: number(r.release),
-                  cancels: number(r.cancels),
-                  cancel_returns: number(r.cancel_returns),
-                  bytes: number(r.bytes),
-                  digest_present: typeof r.digest === "string",
-                  failed: r.failed === true,
-                })),
+              calls: n.calls.slice(0, 64).map((c: any) => ({
+                method:
+                  c.method === "list" || c.method === "read"
+                    ? c.method
+                    : "invalid",
+                bound: number(c.bound),
+                settled: c.settled === true,
+                fulfilled: c.fulfilled === true,
+                rejected: c.rejected === true,
+                typed_digest_present: typeof c.typed_digest === "string",
+              })),
+              rows: n.rows.slice(0, 64).map((r: any) => ({
+                status: number(r.status),
+                request_id_present: typeof r.rid === "string",
+                declared_length_present: typeof r.length === "string",
+                fetch_returned: r.fetch_returned === true,
+                fetch_rejected: r.fetch_rejected === true,
+                readers: number(r.readers),
+                reads: number(r.reads),
+                read_returns: number(r.read_returns),
+                eof: r.eof === true,
+                release: number(r.release),
+                cancels: number(r.cancels),
+                cancel_returns: number(r.cancel_returns),
+                bytes: number(r.bytes),
+                digest_present: typeof r.digest === "string",
+                failed: r.failed === true,
+              })),
             };
           });
         } catch {
@@ -862,11 +902,26 @@ export async function observeArtifacts(
               finished: e.finished,
               failed: e.failed,
               checked: e.checked,
+              response_count: e.responseCount,
+              finished_count: e.finishedCount,
+              failed_count: e.failedCount,
+              failure_kind: e.failureKind,
             })),
             auxiliary_events: {
               count: auxiliary.length,
               finished: auxiliary.filter((e) => e.finished).length,
               failed: auxiliary.filter((e) => e.failed).length,
+              rows: auxiliary.slice(0, 64).map((e) => ({
+                url_sha256: digest(e.uri),
+                status: e.response?.status() ?? null,
+                finished: e.finished,
+                failed: e.failed,
+                checked: e.checked,
+                response_count: e.responseCount,
+                finished_count: e.finishedCount,
+                failed_count: e.failedCount,
+                failure_kind: e.failureKind,
+              })),
             },
             error_locations: errors.map(
               (error) =>
