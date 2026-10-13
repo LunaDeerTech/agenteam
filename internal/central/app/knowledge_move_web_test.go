@@ -166,10 +166,10 @@ func knowledgeMoveWeb(t *testing.T, mode string) {
 	assembly.mu.Lock()
 	projects, projectOK := assembly.projects.(*projectCommandWork)
 	skills, skillOK := assembly.skills.(*skillWork)
-	documents, knowledgeOK := assembly.knowledge.(*knowledgeWork)
+	documents, knowledgeOK := assembly.knowledge.(*knowledgeCallAssembly)
 	assembly.mu.Unlock()
 	objects, objectOK := owned.objects().(*objectAssembly)
-	if !projectOK || !skillOK || !knowledgeOK || !objectOK {
+	if !projectOK || !skillOK || !knowledgeOK || documents == nil || documents.pair == nil || !objectOK {
 		t.Fatal("original concrete domains missing")
 	}
 	backend, err := url.Parse("http://" + address)
