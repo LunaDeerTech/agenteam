@@ -6,7 +6,8 @@ import { createProjectOwnerAPI } from '../api/project-owner'
 import { createAgentDirectoryAPI } from '../api/agent-directory'
 import {
   createWorkReviewAPI,
-  type ReviewInput,
+  type TransferInput,
+  type CancelInput,
   type ReadyInput,
   type Task,
 } from '../api/work-review'
@@ -137,6 +138,7 @@ async function page(state: Task['state'] = 'in_progress', empty = false, blocked
     assignee_agent_id: state === 'backlog' ? null : state === 'in_progress' ? workerID : reviewerID,
     version: '4',
   }
+  let transferRejected = ''
   let uncertain = false
   let hasTask = !empty
   let creationLost = false
@@ -147,13 +149,15 @@ async function page(state: Task['state'] = 'in_progress', empty = false, blocked
   let editReceipt: TaskUpdateReceipt | undefined
   let blockers: 'none' | 'unresolved' | 'unavailable' | 'resolved' = blocked ? 'unresolved' : 'none'
   let observation: 'not_observed' | 'in_progress' | 'committed' = 'not_observed'
-  let original: ReviewInput | ReadyInput | undefined
+  let original: TransferInput | ReadyInput | undefined
   const unexpected: string[] = []
-  const commit = (input: ReviewInput | ReadyInput) => {
+  const commit = (input: TransferInput | ReadyInput) => {
     current = {
       ...current,
       state: input.request.target_state,
-      assignee_agent_id: input.request.assignee_agent_id ?? current.assignee_agent_id,
+      assignee_agent_id:
+        ('assignee_agent_id' in input.request ? input.request.assignee_agent_id : undefined) ??
+        current.assignee_agent_id,
       version: String(BigInt(input.expected_version) + 1n),
     }
     return { task: current, task_event_ids: [id(40), id(41)], event_ids: [id(42)] }
@@ -302,7 +306,21 @@ async function page(state: Task['state'] = 'in_progress', empty = false, blocked
       })
     }
     if (route === `${prefix}/tasks/${current.id}/transfer`) {
-      original = JSON.parse(init.body as string) as ReviewInput | ReadyInput
+      original = JSON.parse(init.body as string) as TransferInput | ReadyInput
+      if (transferRejected)
+        return json(
+          {
+            type: 'urn:agenteam:problem:test',
+            title: 'Rejected',
+            detail: '',
+            instance: transferPath,
+            status: 409,
+            code: transferRejected,
+            request_id: id(99),
+            commit_state: 'not_committed',
+          },
+          409,
+        )
       if (uncertain)
         return json(
           {
@@ -360,6 +378,9 @@ async function page(state: Task['state'] = 'in_progress', empty = false, blocked
   expect(tasks.busy.value).toBe(false)
   return {
     fetcher,
+    rejectTransfer(code: string) {
+      transferRejected = code
+    },
     unknown() {
       uncertain = true
     },
@@ -707,13 +728,19 @@ describe('Human review page with real UI controls', () => {
     expect(detail.text()).toContain('提交结果待确认')
     expect(detail.find('form').exists()).toBe(false)
     // The existing board search is read-only; only mutation forms must disappear.
-    expect(body().findAll('form').map((form) => form.attributes('aria-label'))).toEqual([
-      'Sprint 任务搜索',
-    ])
     expect(
-      detail.findAll<HTMLButtonElement>('button').some((item) =>
-        ['编辑任务', '指派并加入待执行', '提交评审', '接受并完成', '退回修改'].includes(buttonLabel(item)),
-      ),
+      body()
+        .findAll('form')
+        .map((form) => form.attributes('aria-label')),
+    ).toEqual(['Sprint 任务搜索'])
+    expect(
+      detail
+        .findAll<HTMLButtonElement>('button')
+        .some((item) =>
+          ['编辑任务', '指派并加入待执行', '提交评审', '接受并完成', '退回修改'].includes(
+            buttonLabel(item),
+          ),
+        ),
     ).toBe(false)
     await click('查询原操作结果')
     expect(body().text()).toContain('尚未观察到原操作结果')
@@ -758,5 +785,113 @@ describe('Human review page with real UI controls', () => {
     }
     expect(body().find('[role="dialog"]').exists()).toBe(false)
     expect(f.transfers()).toHaveLength(0)
+  })
+})
+
+describe('Task Cancel controlled visible workflow', () => {
+  it('confirms cancellation explicitly, keeps assignee and Blocker facts, then rereads Task, Timeline and columns', async () => {
+    const f = await page('blocked', false, true)
+    await click('取消任务')
+    expect(document.activeElement).toBe(button('确认取消任务').element)
+    const confirmation = body().get('form[aria-label="取消任务确认"]')
+    expect(confirmation.text()).toContain('取消后不可恢复')
+    expect(confirmation.findAll('[role="combobox"]')).toHaveLength(0)
+    expect(button('确认取消任务').element.disabled).toBe(false)
+    await click('保留任务')
+    expect(document.activeElement).toBe(button('取消任务').element)
+    expect(f.transfers()).toHaveLength(0)
+    await click('取消任务')
+    await body().get('form[aria-label="取消任务确认"] textarea').setValue('  明确取消\n保留说明  ')
+    await click('确认取消任务')
+    expect(f.transfers()).toHaveLength(1)
+    expect(JSON.parse(f.transfers()[0]![1].body as string)).toEqual({
+      expected_version: '4',
+      request: { target_state: 'cancelled', comment: '  明确取消\n保留说明  ' },
+    })
+    expect(body().get('.task-detail').text()).toContain('已取消')
+    expect(body().get('.task-detail').text()).toContain('等待负责人确认')
+    expect(body().get('.task-detail').text()).toContain('未解除')
+    expect(document.activeElement).toBe(body().get('.task-detail h2').element)
+    expect(body().find('form[aria-label="取消任务确认"]').exists()).toBe(false)
+    const sent = f.fetcher.mock.calls.findIndex(
+      ([path, init]) => path === transferPath && init.method === 'POST',
+    )
+    const reads = f.fetcher.mock.calls
+      .slice(sent + 1)
+      .filter(([, init]) => init.method === 'GET')
+      .map(([path]) => new URL(path, 'https://example.test'))
+    expect(reads.some((url) => url.pathname === `${prefix}/tasks/${taskID}`)).toBe(true)
+    expect(reads.some((url) => url.pathname === `${prefix}/tasks/${taskID}/events`)).toBe(true)
+    expect(
+      reads.some(
+        (url) =>
+          url.pathname === `${prefix}/tasks` && url.searchParams.get('state') === 'cancelled',
+      ),
+    ).toBe(true)
+  })
+  it('omits an empty optional comment and needs no assignee for an unassigned backlog', async () => {
+    const f = await page('backlog')
+    await click('取消任务')
+    expect(button('确认取消任务').element.disabled).toBe(false)
+    await click('确认取消任务')
+    expect(JSON.parse(f.transfers()[0]![1].body as string)).toEqual({
+      expected_version: '4',
+      request: { target_state: 'cancelled' },
+    })
+    expect(body().get('.task-detail').text()).toContain('任务已取消。')
+  })
+  it.each(['done', 'cancelled'] as const)(
+    'does not expose cancellation for terminal %s',
+    async (state) => {
+      const f = await page(state)
+      expect(
+        body()
+          .findAll<HTMLButtonElement>('button')
+          .some((item) => buttonLabel(item) === '取消任务'),
+      ).toBe(false)
+      expect(f.transfers()).toHaveLength(0)
+    },
+  )
+  it('shows occupancy refusal without making an Execution cancellation or claiming task success', async () => {
+    const f = await page('todo')
+    f.rejectTransfer('RESOURCE_BUSY')
+    await click('取消任务')
+    await click('确认取消任务')
+    expect(body().text()).toContain('暂不能取消')
+    expect(body().text()).toContain('此操作不会取消 Execution')
+    expect(body().text()).not.toContain('任务已取消。')
+    expect(f.transfers()).toHaveLength(1)
+    expect(
+      f.fetcher.mock.calls.some(
+        ([path, init]) => path.includes('/executions/') && init.method !== 'GET',
+      ),
+    ).toBe(false)
+  })
+  it('recovers only the original unknown cancellation before showing the reread cancelled task', async () => {
+    const f = await page('in_review')
+    f.unknown()
+    await click('取消任务')
+    await click('确认取消任务')
+    expect(body().find('form[aria-label="取消任务确认"]').exists()).toBe(false)
+    expect(document.activeElement).toBe(button('查询原操作结果').element)
+    await click('查询原操作结果')
+    expect(body().text()).toContain('尚未观察到原操作结果')
+    f.observe('committed')
+    await click('查询原操作结果')
+    expect(body().get('.task-detail').text()).toContain('已取消')
+    expect(document.activeElement).toBe(body().get('.task-detail h2').element)
+    expect(f.transfers()).toHaveLength(1)
+    expect(f.lookups()).toHaveLength(2)
+    const original = f.transfers()[0]![1]
+    for (const [, init] of f.lookups()) {
+      expect(JSON.parse(init.body as string)).toEqual({
+        command: 'work.task.transfer',
+        target_id: taskID,
+        ...JSON.parse(original.body as string),
+      })
+      expect(new Headers(init.headers).get('Idempotency-Key')).toBe(
+        new Headers(original.headers).get('Idempotency-Key'),
+      )
+    }
   })
 })

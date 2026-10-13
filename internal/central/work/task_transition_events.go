@@ -58,7 +58,7 @@ func validateTransitionRecord(r *transitionRecord, actor i.Actor) error {
 	if b.Validate() != nil || p.After.Validate() != nil || b.ProjectID != in.Project || b.ID != in.Task || b.Version != in.Expected || transitionEdge(b, in.Request) != nil || len(p.Groups) != 2 || p.Placement.Milestone != b.MilestoneID || p.Placement.Sprint != b.SprintID || (p.Placement.State != c.Planned && p.Placement.State != c.Current) {
 		return internal(nil)
 	}
-	if transitionRetainsReviewer(b, in.Request) {
+	if transitionRetainsAssignee(b, in.Request) {
 		if p.Agent != nil {
 			return internal(nil)
 		}
@@ -71,8 +71,12 @@ func validateTransitionRecord(r *transitionRecord, actor i.Actor) error {
 	}
 	expected := b.Clone()
 	expected.State = in.Request.TargetState
-	agent := *transitionAgent(b, in.Request)
-	expected.AssigneeAgentID = &agent
+	agent := transitionAgent(b, in.Request)
+	expected.AssigneeAgentID = nil
+	if agent != nil {
+		value := *agent
+		expected.AssigneeAgentID = &value
+	}
 	expected.Version = f.Version(version)
 	expected.UpdatedAt = p.Header.OccurredAt
 	if expected.UpdatedAt.Time().Before(b.UpdatedAt.Time()) || expected.UpdatedAt.Time().Before(r.Created.Time()) {
@@ -150,7 +154,7 @@ func validateTransitionRecord(r *transitionRecord, actor i.Actor) error {
 	if !sameValue(h, p.Header) {
 		return internal(nil)
 	}
-	changed := b.AssigneeAgentID == nil || *b.AssigneeAgentID != agent
+	changed := !sameValue(b.AssigneeAgentID, t.AssigneeAgentID)
 	if err = validateTransitionResolutions(r); err != nil {
 		return err
 	}
@@ -178,7 +182,7 @@ func validateTransitionRecord(r *transitionRecord, actor i.Actor) error {
 				return internal(nil)
 			}
 		case changed && n == 1:
-			if h.Type != c.TaskTransitionAssigneeChanged || h.Payload.AssigneeChanged == nil || !sameValue(h.Payload.AssigneeChanged.FromAgentID, b.AssigneeAgentID) || h.Payload.AssigneeChanged.ToAgentID != agent {
+			if h.Type != c.TaskTransitionAssigneeChanged || h.Payload.AssigneeChanged == nil || !sameValue(h.Payload.AssigneeChanged.FromAgentID, b.AssigneeAgentID) || h.Payload.AssigneeChanged.ToAgentID != *agent {
 				return internal(nil)
 			}
 		case n >= resolveStart && n < resolveStart+len(p.Resolutions):
@@ -198,7 +202,7 @@ func validateTransitionRecord(r *transitionRecord, actor i.Actor) error {
 	}
 	expectedPayload := c.TaskTransitioned{CommandID: r.ID, Actor: c.TaskTransitionActor{UserID: in.User}, TaskEventIDs: slices.Clone(p.After.TaskEventIDs), MilestoneID: b.MilestoneID, SprintID: b.SprintID, FromState: b.State, ToState: t.State, SourcePosition: sp, TargetPosition: tp}
 	if changed {
-		expectedPayload.AssigneeChange = &c.TaskAssigneeChangedPayload{FromAgentID: b.AssigneeAgentID, ToAgentID: agent}
+		expectedPayload.AssigneeChange = &c.TaskAssigneeChangedPayload{FromAgentID: b.AssigneeAgentID, ToAgentID: *agent}
 	}
 	if !sameValue(payload, expectedPayload) || r.Receipt != nil && !sameValue(*r.Receipt, p.After) {
 		return internal(nil)

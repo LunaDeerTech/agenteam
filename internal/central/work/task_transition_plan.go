@@ -120,7 +120,7 @@ func (s *TaskTransitionService) evaluateTransition(ctx context.Context, tx f.Tx,
 		return zero, field(f.TaskSprintInvalid, "/sprint_id", "COMPLETED_SPRINT")
 	}
 	var agent *agentc.AgentRef
-	if !transitionRetainsReviewer(before, in.Request) {
+	if !transitionRetainsAssignee(before, in.Request) {
 		current, err := s.state().deps.Agents.RequireCurrentInTx(ctx, tx, actor, in.Project, *chosen)
 		if err != nil {
 			return zero, portError(err)
@@ -226,8 +226,11 @@ func (s *TaskTransitionService) evaluateTransition(ctx context.Context, tx f.Tx,
 	}
 	after := before.Clone()
 	after.State = in.Request.TargetState
-	newAgent := *chosen
-	after.AssigneeAgentID = &newAgent
+	after.AssigneeAgentID = nil
+	if chosen != nil {
+		newAgent := *chosen
+		after.AssigneeAgentID = &newAgent
+	}
 	after.ManualRank = ranks.Rank
 	after.Version = f.Version(version)
 	if at.Time().Before(before.UpdatedAt.Time()) {
@@ -235,7 +238,7 @@ func (s *TaskTransitionService) evaluateTransition(ctx context.Context, tx f.Tx,
 	}
 	after.UpdatedAt = at
 	count := 1 + len(resolutions)
-	changed := before.AssigneeAgentID == nil || *before.AssigneeAgentID != newAgent
+	changed := !sameValue(before.AssigneeAgentID, after.AssigneeAgentID)
 	if changed {
 		count++
 	}
@@ -251,7 +254,7 @@ func (s *TaskTransitionService) evaluateTransition(ctx context.Context, tx f.Tx,
 	}
 	add(c.TaskTransitionStateChanged, c.TaskTransitionFactPayload{StateChanged: &c.TaskStateChangedPayload{FromState: before.State, ToState: after.State}})
 	if changed {
-		add(c.TaskTransitionAssigneeChanged, c.TaskTransitionFactPayload{AssigneeChanged: &c.TaskAssigneeChangedPayload{FromAgentID: before.AssigneeAgentID, ToAgentID: newAgent}})
+		add(c.TaskTransitionAssigneeChanged, c.TaskTransitionFactPayload{AssigneeChanged: &c.TaskAssigneeChangedPayload{FromAgentID: before.AssigneeAgentID, ToAgentID: *after.AssigneeAgentID}})
 	}
 	for _, v := range resolutions {
 		add(c.TaskTransitionBlockerResolved, c.TaskTransitionFactPayload{BlockerResolved: &c.TaskBlockerResolvedPayload{BlockerID: v.Before.ID, BlockerType: v.Before.Type}})

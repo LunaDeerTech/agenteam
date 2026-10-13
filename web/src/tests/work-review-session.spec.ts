@@ -2,7 +2,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
 import { createAccountAPI, type SessionView } from '../api/account'
 import { type Fetch, type Problem } from '../api/client'
-import { createWorkReviewAPI, type ReviewInput, type ReviewReceipt } from '../api/work-review'
+import {
+  createWorkReviewAPI,
+  type TransferInput,
+  type CancelInput,
+  type ReviewReceipt,
+} from '../api/work-review'
 import { createAgentDirectoryAPI } from '../api/agent-directory'
 import {
   createWorkTaskPlanningAPI,
@@ -49,7 +54,7 @@ const reviewInput = () => ({
     assignee_agent_id: id(30),
   },
 })
-const receipt = (input: ReviewInput = reviewInput()): ReviewReceipt => ({
+const receipt = (input: TransferInput = reviewInput()): ReviewReceipt => ({
   task: {
     id: taskID,
     project_id: projectID,
@@ -61,7 +66,9 @@ const receipt = (input: ReviewInput = reviewInput()): ReviewReceipt => ({
     type: 'task',
     priority: 'medium',
     state: input.request.target_state,
-    assignee_agent_id: input.request.assignee_agent_id ?? id(30),
+    assignee_agent_id:
+      ('assignee_agent_id' in input.request ? input.request.assignee_agent_id : undefined) ??
+      id(30),
     manual_rank: '8' + '0'.repeat(31),
     version: String(BigInt(input.expected_version) + 1n),
     created_at: instant,
@@ -148,9 +155,10 @@ async function fixture() {
         challenge_modes: ['rotate'],
         delivery_channel: 'backend_log',
       })
-    if (path === transferPath) return json(receipt(JSON.parse(init.body as string) as ReviewInput))
+    if (path === transferPath)
+      return json(receipt(JSON.parse(init.body as string) as TransferInput))
     if (path === lookupPath) {
-      const input = JSON.parse(init.body as string) as ReviewInput
+      const input = JSON.parse(init.body as string) as TransferInput
       return json({ status: 'committed', receipt: receipt(input) })
     }
     throw new Error('Unexpected Session review endpoint')
@@ -604,5 +612,94 @@ describe('Work review original Session ownership', () => {
     })
     expect(f.transfers()).toHaveLength(1)
     expect(f.lookups()).toHaveLength(1)
+  })
+})
+
+describe('Task Cancel original Session intent', () => {
+  it('retains the exact cancel input/key across Unknown, same-session restore and explicit lookup observations', async () => {
+    const f = await fixture()
+    const input = {
+      expected_version: '4',
+      request: { target_state: 'cancelled' as const, comment: ' 原取消说明 ' },
+    }
+    const original = structuredClone(input)
+    let observation: 'not_observed' | 'in_progress' | 'committed' = 'not_observed'
+    f.intercept(async (path, init) => {
+      if (path === transferPath) return problem('COMMIT_UNKNOWN', 503, 'unknown')
+      if (path === lookupPath)
+        return json({
+          status: observation,
+          receipt: observation === 'committed' ? receipt(original) : null,
+        })
+      return f.normal(path, init)
+    })
+    const pending = f.auth.workReview.startTransfer(projectID, taskID, input)
+    input.request.comment = '不得替换'
+    input.expected_version = '8'
+    await expect(pending).rejects.toMatchObject({ problem: { code: 'COMMIT_UNKNOWN' } })
+    await expect(
+      f.auth.workReview.startReady(projectID, taskID, {
+        expected_version: '4',
+        request: { target_state: 'todo', assignee_agent_id: id(30) },
+      }),
+    ).rejects.toMatchObject({ kind: 'busy' })
+    await f.auth.restore()
+    const key = new Headers(f.transfers()[0]![1].headers).get('Idempotency-Key')
+    for (const status of ['not_observed', 'in_progress', 'committed'] as const) {
+      observation = status
+      expect(await f.auth.workReview.checkOriginal()).toMatchObject({ status })
+      const init = f.lookups().at(-1)![1]
+      expect(JSON.parse(init.body as string)).toEqual({
+        command: 'work.task.transfer',
+        target_id: taskID,
+        ...original,
+      })
+      expect(new Headers(init.headers).get('Idempotency-Key')).toBe(key)
+    }
+    expect(f.transfers()).toHaveLength(1)
+    expect(f.auth.workReview.progress?.receipt?.task.state).toBe('cancelled')
+  })
+  it('holds the actual timed-out cancel tail and rejects late publication after a bound access refusal', async () => {
+    const f = await fixture()
+    const input: CancelInput = { expected_version: '4', request: { target_state: 'cancelled' } }
+    vi.useFakeTimers()
+    const held = deferred(json(receipt(input)))
+    f.intercept((path, init) => (path === transferPath ? held.promise : f.normal(path, init)))
+    const pending = f.auth.workReview.startTransfer(projectID, taskID, input)
+    const rejected = expect(pending).rejects.toMatchObject({ kind: 'cancelled' })
+    await vi.advanceTimersByTimeAsync(30_000)
+    await rejected
+    expect(f.auth.state.busy).toBe(true)
+    await expect(f.auth.workReview.checkOriginal()).rejects.toMatchObject({ kind: 'busy' })
+    expect(f.auth.workReview.forgetCancelUnavailable(projectID, taskID)).toBe(true)
+    expect(f.auth.workReview.progress).toBeNull()
+    expect(f.auth.state.busy).toBe(true)
+    held.resolve(json(receipt(input)))
+    await flushPromises()
+    expect(f.auth.state.busy).toBe(false)
+    expect(f.auth.workReview.progress).toBeNull()
+    expect(f.transfers()).toHaveLength(1)
+    expect(f.lookups()).toHaveLength(0)
+  })
+  it('clears original cancellation material on a real lookup permission refusal', async () => {
+    const f = await fixture()
+    f.intercept(async (path, init) =>
+      path === transferPath
+        ? problem('COMMIT_UNKNOWN', 503, 'unknown')
+        : path === lookupPath
+          ? problem('FORBIDDEN', 403)
+          : f.normal(path, init),
+    )
+    await expect(
+      f.auth.workReview.startTransfer(projectID, taskID, {
+        expected_version: '4',
+        request: { target_state: 'cancelled' },
+      }),
+    ).rejects.toMatchObject({ kind: 'problem' })
+    await expect(f.auth.workReview.checkOriginal()).rejects.toMatchObject({
+      problem: { status: 403 },
+    })
+    expect(f.auth.workReview.progress).toBeNull()
+    await expect(f.auth.workReview.checkOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
   })
 })

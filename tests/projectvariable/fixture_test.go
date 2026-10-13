@@ -418,8 +418,45 @@ func (v *variableHTTPFixture) login(t *testing.T, email string) variableHTTPBrow
 	if err != nil {
 		t.Fatal(err)
 	}
-	response, err := v.core.Login(ctxFor(t), request)
+	loginContext := ctxFor(t)
+	response, err := v.core.Login(loginContext, request)
 	if err != nil {
+		role := "other"
+		if email == "admin@mail.com" {
+			role = "admin"
+		} else if strings.HasPrefix(email, "owner-") && strings.HasSuffix(email, "@example.test") {
+			role = "owner"
+		}
+		faultCode, commitState, databaseCode, sqlState := "none", "none", "none", "none"
+		var fault *f.Fault
+		if errors.As(err, &fault) && fault != nil {
+			faultCode, commitState = string(fault.Code.Safe()), string(fault.CommitState.Safe())
+		}
+		var databaseError *postgres.Error
+		if errors.As(err, &databaseError) && databaseError != nil {
+			databaseCode = "other"
+			switch databaseError.Code() {
+			case postgres.ConnectionFailed, postgres.AdmissionStopped, postgres.DrainTimeout,
+				postgres.InvalidTransaction, postgres.TransactionExpired, postgres.TransactionConcurrentUse,
+				postgres.TransactionRowsOpen, postgres.TransactionNested, postgres.TransactionControlForbidden,
+				postgres.SQLFailed, postgres.TransactionBeginFailed, postgres.TransactionCommitFailed,
+				postgres.LockOrderViolation, postgres.LockUpgradeForbidden, postgres.LockNotHeld, postgres.InvalidLock, postgres.LockFailed:
+				databaseCode = string(databaseError.Code())
+			}
+		}
+		var serverError *pgconn.PgError
+		if errors.As(err, &serverError) && serverError != nil && len(serverError.Code) == 5 {
+			valid := true
+			for _, c := range serverError.Code {
+				valid = valid && (c >= '0' && c <= '9' || c >= 'A' && c <= 'Z')
+			}
+			if valid {
+				sqlState = serverError.Code
+			}
+		}
+		t.Logf("formal Login diagnostic role=%s ctx_deadline=%t ctx_cancelled=%t fault=%s commit_state=%s database=%s sqlstate=%s cause_deadline=%t cause_cancelled=%t cause_eof=%t cause_timeout=%t account_joined=%t",
+			role, errors.Is(loginContext.Err(), context.DeadlineExceeded), errors.Is(loginContext.Err(), context.Canceled), faultCode, commitState, databaseCode, sqlState,
+			errors.Is(err, context.DeadlineExceeded), errors.Is(err, context.Canceled), errors.Is(err, io.EOF), pgconn.Timeout(err), v.core.Joined())
 		t.Fatal("formal Login", err)
 	}
 	closed := false
