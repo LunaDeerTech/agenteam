@@ -158,7 +158,7 @@ describe('Sprint reorder original Session ownership', () => {
     await expect(
       f.auth.workSprintLifecycle.start(p, id(8), {
         expected_version: '1',
-        request: { milestone_id: parent },
+        request: {},
       }),
     ).rejects.toMatchObject({ kind: 'busy' })
     await expect(f.auth.workSprintReordering.reorder(p, m, original)).rejects.toMatchObject({
