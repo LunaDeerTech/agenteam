@@ -7,7 +7,7 @@ export type SprintUpdateInput = Readonly<{
   expected_version: string
   request: Readonly<{ title?: string; description?: string }>
 }>
-type SprintActor =
+export type SprintActor =
   | Readonly<{ kind: 'human'; user_id: string }>
   | Readonly<{ kind: 'agent_run'; project_id: string; agent_id: string; execution_id: string }>
   | Readonly<{
@@ -92,7 +92,7 @@ export function captureSprintUpdateInput(value: unknown): SprintUpdateInput {
     })
   })
 }
-function historyActor(value: unknown, project: string): SprintActor {
+export function historyActor(value: unknown, project: string): SprintActor {
   const kind = shape(
     value,
     ['kind'],

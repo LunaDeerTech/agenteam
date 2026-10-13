@@ -103,6 +103,11 @@ func workRootBundle(t *testing.T, store workRootStores, transitions ...bool) *wo
 			t.Fatal("missing transition factory accepted")
 		}
 		missing = events
+		missing.completion = wc.SprintCompletionEvents{}
+		if got, err := createWorkPlanning(cfg, store, authority, accounts, journal, missing, projects); err == nil || got != nil {
+			t.Fatal("missing Sprint completion factory accepted")
+		}
+		missing = events
 		missing.sprints = wc.SprintLifecycleEvents{}
 		if got, err := createWorkPlanning(cfg, store, authority, accounts, journal, missing, projects); err == nil || got != nil {
 			t.Fatal("missing Sprint lifecycle factory accepted")

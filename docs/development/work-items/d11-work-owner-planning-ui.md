@@ -343,3 +343,13 @@ cleanup有限接受1440×960浅色创建表单和390×844深色planned结果两�
 ## 24. Task 依赖操作切片（2026-10-13）
 
 [依赖建立、解除与目标查看](d11-task-dependency-ui.md)补齐同 Project `rely_on` 的正式 add/resolve/Lookup 与全 Project 候选分页，限定未指派 backlog、planned/current Sprint，不放宽七列查询或自动解除 done/cancelled 目标。产品独审、75 个不同前端用例、完整类型检查与 84 文件构建通过；首 TS2345 夹具失败和单用例复验保留。真实 default App 的 native04 业务 Go 1 top/1 sub 与一个 Node 调用通过：53 候选、跨 Sprint A→B、严格 409/not_committed 反向环拒绝及全账本不变、明确解除，三 POST 两提交、A version 1→2→3，B/Q 不变，Runtime disabled。前三轮 helper/Problem.instance 失败保留，宽浅/窄深四图仅按实际可见范围记录。原整轮 Wait 1 的 Host TCP 门仍未通过，虽 9 PID/六资源/三个私有目录已退出，不能宣称原 whole PASS；精确本片的新方法 `task-dependency-owned-v1` 与独立 scope assessment 已审查接受原 native04 的业务/自有资源/输入范围，保留全量 TCP 诊断与其他硬门，没有新运行，也不改写历史卡契约。Unknown 仍限单元，不代表自动依赖恢复、真实 Execution 或 E01 完成，既有 STOP 保持。
+
+## 25. 当前 Sprint 显式完成（2026-10-13）
+
+限定验证已通过。当前 Sprint 提供“完成 Sprint”与单独确认；确认后真实重读 Project 和 Sprint，清空当前指针，保留已完成详情。另一个 planned Sprint 仍须明确选择、单独启动，不自动 rollover。结果未知时只允许“查询原完成结果”；已确认后的读取失败只恢复读取。后端完整成员/占用终判与原意图合同见 [后台说明](../backend/README.md#d11-当前-sprint-显式完成)。项目未修改的编辑草稿现在跟随真实版本更新，切换下一 Sprint 不再误弹放弃修改；真正未保存的修改仍保留冲突提醒。
+
+前端分段 46 项及 Workspace 修复相关 35 项、完整类型检查、86 文件生产构建通过，不把两个分段计数累加为去重总数。真实 [Web04](../../../output/ai/sprint-completion/web-native04/result.json) 为 `TestSprintCompleteWeb` 1 top/1 sub、一个 Node 调用，外层 61.449s whole PASS；默认 App、Runtime disabled，实际两次 Complete、一次 Start、一次原 Lookup，完整回执、当前指针和原 Task 全行不变均核实。第二次完成的原 200 已完整返回且持久回执成立，随后测试截断页面接收，使页面只查原 Lookup 后再真实读取；这是回执交付失落，不代替 HTTP 独立的 Store ACK Unknown 验证。
+
+[消费证明](../../../output/ai/sprint-completion/web-native04/sprint-complete/sprint-complete-browser-proof.json)覆盖 74 个原请求：72 finished，Start 的实际 `ERR_ABORTED` 保留 failed 并由原完整字节、公开 Promise/reader 与 Go 返回事实联证，另一 failed 是明确的回执长度截断。全部原 consumer、route、CDP 与 App/HTTP/Node 尾退出，9 个进程及六个隔离资源已清退。四图已由非作者实际查看：1440 浅色完成确认及完成详情的标题焦点，390 深色恢复提示/查询按钮及完成标题焦点可见，无所见页级横溢；恢复按钮焦点环、窄屏下部看板和独立加载态不据截图宣称已见。
+
+原 ordinary/type、HTTP01 取消准备缺能力、cleanup01 选择器及 Web01 准备 key、Web02 LIFO 交接、Web03 pristine 项目版本冲突各失败保持原记录。HTTP 必要两子场景与清理子场景按后台所述分段通过；本轮真实成功对象均为空 Sprint，全部 done/cancelled 成员及 active/pending 拒绝仅受控单元覆盖，真实终态成员由 TaskCancel 后继补齐。不扩大为完整规划 UI、自动 rollover、Task 执行或 Model/Tools 链，既有 STOP 不变。

@@ -155,6 +155,10 @@ async function fixture(existing = false) {
     start: vi.fn(async () => {
       throw new Error('Unexpected Start')
     }),
+    complete: vi.fn(async () => {
+      throw new Error('Unexpected Sprint Complete')
+    }),
+    forgetUnavailable: vi.fn(),
     checkOriginal: vi.fn(async () => {
       throw new Error('Unexpected Start Lookup')
     }),

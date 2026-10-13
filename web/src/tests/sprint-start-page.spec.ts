@@ -4,7 +4,11 @@ import { computed, nextTick, shallowReactive, shallowRef } from 'vue'
 import { AccountFailure } from '../api/client'
 import type { Project } from '../api/project-owner'
 import type { Sprint } from '../api/work-review'
-import type { SprintStartReceipt } from '../api/work-sprint-lifecycle'
+import type {
+  SprintStartReceipt,
+  SprintCompleteReceipt,
+  SprintLifecycleReceipt,
+} from '../api/work-sprint-lifecycle'
 import {
   createProjectTasks,
   projectTasksKey,
@@ -74,6 +78,17 @@ const receipt: SprintStartReceipt = {
   },
   event_id: id(20),
 }
+const current: Sprint = { ...planned, state: 'current', started_at: time }
+const completedReceipt: SprintCompleteReceipt = {
+  ...receipt,
+  sprint: {
+    ...receipt.sprint,
+    state: 'completed',
+    completed_at: time,
+    completed_by: { kind: 'human', user_id: id(8) },
+  },
+  project: { ...receipt.project, current_sprint_id: null },
+}
 type Port = SessionController['workSprintLifecycle']
 const owners: ProjectTasks[] = []
 const wrappers: VueWrapper[] = []
@@ -91,19 +106,27 @@ afterEach(async () => {
   vi.unstubAllGlobals()
   vi.restoreAllMocks()
 })
-async function page() {
+async function page(
+  operation: 'start' | 'complete' = 'start',
+  path = '/owner/demo/tasks/sprints/' + s,
+) {
+  const original =
+    operation === 'complete' ? { ...originalProject, current_sprint_id: s } : originalProject
+  const lifecycleReceipt: SprintLifecycleReceipt =
+    operation === 'complete' ? completedReceipt : receipt
   // Typed Session and current Project fixtures test real controller/View/Ui controls.
   // They do not stand in for HTTP or backend authorization acceptance.
   const identity = { userID: id(8), sessionID: id(9), epoch: 1 }
   const context = shallowRef({ identity, projectID: p, generation: 1, readGeneration: 1 })
-  const detail = shallowReactive<{ project: Project }>({ project: { ...originalProject } })
+  const detail = shallowReactive<{ project: Project }>({ project: { ...original } })
   const progress = shallowRef<Port['progress']>(null)
-  let stored: Sprint = planned
+  let stored: Sprint = operation === 'complete' ? current : planned
   const publish = (
     phase: NonNullable<Port['progress']>['phase'],
-    value: SprintStartReceipt | null = null,
+    value: SprintLifecycleReceipt | null = null,
   ) => {
     progress.value = {
+      operation,
       projectID: p,
       sprintID: s,
       phase,
@@ -114,9 +137,9 @@ async function page() {
     }
   }
   const commit = () => {
-    stored = receipt.sprint
-    publish('confirmed', receipt)
-    return receipt
+    stored = lifecycleReceipt.sprint
+    publish('confirmed', lifecycleReceipt)
+    return lifecycleReceipt
   }
   const api = {
     createProgress: null,
@@ -128,6 +151,11 @@ async function page() {
     }),
     editRejectedCreate: vi.fn(() => {
       throw new Error('Unexpected Sprint Create rejection')
+    }),
+    forgetUnavailable: vi.fn(),
+    complete: vi.fn<Port['complete']>(async () => {
+      if (operation !== 'complete') throw new Error('Unexpected Sprint Complete')
+      return commit()
     }),
     start: vi.fn<Port['start']>(async () => commit()),
     checkOriginal: vi.fn<Port['checkOriginal']>(async () => ({
@@ -169,7 +197,7 @@ async function page() {
     workSprintLifecycle: api,
   } as unknown as SessionController
   const readCurrent = vi.fn(async () => {
-    detail.project = { ...receipt.project, archived_at: null }
+    detail.project = { ...lifecycleReceipt.project, archived_at: null }
   })
   const workspace = {
     currentReadContext: context,
@@ -181,7 +209,7 @@ async function page() {
     owner.afterNavigation(path)
   })
   owners.push(owner)
-  owner.afterNavigation('/owner/demo/tasks/sprints/' + s)
+  owner.afterNavigation(path)
   const wrapper = mount(ProjectTasksView, {
     attachTo: document.body,
     global: { provide: { [projectTasksKey as symbol]: owner } },
@@ -284,5 +312,117 @@ describe('Sprint Start visible workflow', () => {
     expect(f.api.start).toHaveBeenCalledTimes(1)
     expect(f.api.checkOriginal).toHaveBeenCalledTimes(2)
     expect(f.readCurrent).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe('Sprint Complete visible workflow', () => {
+  it('requires explicit completion, restores focus, rereads the completed Sprint and leaves the next Start explicit', async () => {
+    const f = await page('complete')
+    expect(f.api.complete).not.toHaveBeenCalled()
+    await click('完成 Sprint')
+    expect(document.activeElement).toBe(button('确认完成 Sprint').element)
+    expect(body().get('form[aria-label="完成 Sprint 确认"]').text()).toContain('包括空 Sprint')
+    expect(body().text()).toContain('不会迁移任务或自动启动下一 Sprint')
+    await click('取消完成')
+    expect(document.activeElement).toBe(button('完成 Sprint').element)
+    expect(f.api.complete).not.toHaveBeenCalled()
+    await click('完成 Sprint')
+    await body().get('form[aria-label="完成 Sprint 确认"]').trigger('submit')
+    await flushPromises()
+    expect(f.api.complete).toHaveBeenCalledExactlyOnceWith(p, s, {
+      expected_version: '7',
+      request: {},
+    })
+    expect(f.readCurrent).toHaveBeenCalledTimes(1)
+    expect(f.detail.project.current_sprint_id).toBeNull()
+    expect(body().get('.sprint-heading').text()).toContain('已完成')
+    expect(document.activeElement).toBe(body().get('.sprint-heading h2').element)
+    expect(body().text()).toContain('可选择另一个待启动 Sprint，并明确启动')
+    expect(button('新建任务').element.disabled).toBe(true)
+    expect(f.api.start).not.toHaveBeenCalled()
+  })
+  it('returns focus to the root page heading after retry clears the completed current Sprint', async () => {
+    const f = await page('complete', '/owner/demo/tasks')
+    f.readCurrent.mockRejectedValueOnce(new AccountFailure('transport'))
+    await click('完成 Sprint')
+    await body().get('form[aria-label="完成 Sprint 确认"]').trigger('submit')
+    await flushPromises()
+    expect(body().text()).toContain('完成已确认，当前信息读取失败')
+    expect(f.detail.project.current_sprint_id).toBe(s)
+    const recovery = button('重新读取完成条件与当前状态')
+    recovery.element.focus()
+    await recovery.trigger('click')
+    await flushPromises()
+    expect(f.detail.project.current_sprint_id).toBeNull()
+    expect(body().find('.sprint-heading').exists()).toBe(false)
+    expect(findButton('重新读取完成条件与当前状态')).toBeUndefined()
+    expect(document.activeElement).toBe(body().get('h1').element)
+    expect(f.readCurrent).toHaveBeenCalledTimes(2)
+    expect(f.api.complete).toHaveBeenCalledTimes(1)
+    expect(f.api.start).not.toHaveBeenCalled()
+  })
+  it.each([
+    ['UNFINISHED_TASKS', 'INVALID_STATE', '仍有未完成任务'],
+    ['ACTIVE_EXECUTIONS', 'RESOURCE_BUSY', '仍有活动执行'],
+    ['PENDING_DISPATCHES', 'RESOURCE_BUSY', '仍有待派发任务'],
+  ])(
+    'shows server %s without assuming the loaded page is the full membership',
+    async (rule, code, text) => {
+      const f = await page('complete')
+      f.api.complete.mockImplementationOnce(async () => {
+        f.publish('rejected')
+        throw new AccountFailure('problem', {
+          type: 'urn:agenteam:problem:test',
+          title: 'Rejected',
+          status: 409,
+          detail: '',
+          instance: '',
+          code,
+          request_id: id(90),
+          commit_state: 'not_committed',
+          field_errors: [{ path: '/sprint_id', code: rule }],
+        })
+      })
+      await click('完成 Sprint')
+      await body().get('form[aria-label="完成 Sprint 确认"]').trigger('submit')
+      await flushPromises()
+      expect(body().text()).toContain(text)
+      expect(f.detail.project.current_sprint_id).toBe(s)
+      expect(f.owner.state.sprint?.state).toBe('current')
+      expect(f.api.complete).toHaveBeenCalledTimes(1)
+      expect(f.readCurrent).not.toHaveBeenCalled()
+      expect(button('重新读取完成条件与当前状态').exists()).toBe(true)
+    },
+  )
+  it('offers only original completion lookup and a failed current-read recovery without resubmitting', async () => {
+    const f = await page('complete')
+    f.api.complete.mockImplementationOnce(async () => {
+      f.publish('uncertain')
+      throw new AccountFailure('transport')
+    })
+    await click('完成 Sprint')
+    await body().get('form[aria-label="完成 Sprint 确认"]').trigger('submit')
+    await flushPromises()
+    expect(body().get('section[aria-label="完成结果恢复"]').text()).toContain('不要重复完成')
+    expect(findButton('完成 Sprint')).toBeUndefined()
+    f.api.checkOriginal.mockImplementationOnce(async () => {
+      f.progress.value = { ...f.progress.value!, observation: 'in_progress' }
+      return { status: 'in_progress', receipt: null }
+    })
+    await click('查询原完成结果')
+    expect(body().text()).toContain('原完成仍在处理中')
+    expect(f.detail.project.current_sprint_id).toBe(s)
+    f.api.checkOriginal.mockImplementationOnce(async () => ({
+      status: 'committed',
+      receipt: f.commit(),
+    }))
+    f.readCurrent.mockRejectedValueOnce(new AccountFailure('transport'))
+    await click('查询原完成结果')
+    expect(body().text()).toContain('完成已确认，当前信息读取失败')
+    expect(f.detail.project.current_sprint_id).toBe(s)
+    await click('重新读取完成条件与当前状态')
+    expect(f.detail.project.current_sprint_id).toBeNull()
+    expect(f.api.complete).toHaveBeenCalledTimes(1)
+    expect(f.api.start).not.toHaveBeenCalled()
   })
 })

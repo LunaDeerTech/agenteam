@@ -43,16 +43,17 @@ type accountBoundary interface {
 	WriteProblem(http.ResponseWriter, *http.Request, error)
 }
 type handler struct {
-	structure       c.Commands
-	structureReader c.Reader
-	tasks           c.TaskCommands
-	taskReader      c.TaskReader
-	timelineReader  c.TaskTimelineReader
-	blockers        c.TaskBlockerCommands
-	blockerReader   c.TaskBlockerPageReader
-	boundary        accountBoundary
-	transitions     c.TaskTransitions
-	sprintLifecycle c.SprintLifecycleCommands
+	structure        c.Commands
+	structureReader  c.Reader
+	tasks            c.TaskCommands
+	taskReader       c.TaskReader
+	timelineReader   c.TaskTimelineReader
+	blockers         c.TaskBlockerCommands
+	blockerReader    c.TaskBlockerPageReader
+	boundary         accountBoundary
+	transitions      c.TaskTransitions
+	sprintLifecycle  c.SprintLifecycleCommands
+	sprintCompletion c.SprintCompletionCommands
 }
 
 func NewHTTPHandler(b Bindings, boundary *account.HTTPBoundary) (http.Handler, error) {
@@ -67,6 +68,7 @@ func NewHTTPHandler(b Bindings, boundary *account.HTTPBoundary) (http.Handler, e
 	}
 	if b.SprintLifecycle != nil {
 		h.sprintLifecycle = b.SprintLifecycle
+		h.sprintCompletion = b.SprintLifecycle
 	}
 	return h, nil
 }
@@ -92,6 +94,7 @@ const (
 	taskTransfer
 	taskTransitionLookup
 	sprintStart
+	sprintComplete
 	sprintLifecycleLookup
 	taskEvents
 )
@@ -138,6 +141,8 @@ func parseRoute(path string) route {
 			r.kind = sprintReorder
 		case parts[3] == "start":
 			r.kind = sprintStart
+		case parts[3] == "complete":
+			r.kind = sprintComplete
 		}
 	case "tasks":
 		switch {
@@ -205,7 +210,7 @@ func (r route) allow() string {
 		return "GET, HEAD, POST"
 	case milestone, sprint, task:
 		return "GET, HEAD, PATCH"
-	case milestoneReorder, sprintReorder, taskReorder, structureLookup, taskLookup, blockerResolve, blockerLookup, taskTransfer, taskTransitionLookup, sprintStart, sprintLifecycleLookup:
+	case milestoneReorder, sprintReorder, taskReorder, structureLookup, taskLookup, blockerResolve, blockerLookup, taskTransfer, taskTransitionLookup, sprintStart, sprintComplete, sprintLifecycleLookup:
 		return "POST"
 	}
 	return ""
@@ -213,6 +218,9 @@ func (r route) allow() string {
 func (r route) pattern() string {
 	if r.kind == taskEvents {
 		return projectPrefix + "{project_id}/tasks/{task_id}/events"
+	}
+	if r.kind == sprintComplete {
+		return projectPrefix + "{project_id}/sprints/{sprint_id}/complete"
 	}
 	if r.kind == sprintStart {
 		return projectPrefix + "{project_id}/sprints/{sprint_id}/start"
@@ -320,7 +328,7 @@ func (h *handler) execute(w http.ResponseWriter, r *http.Request, route route) (
 	if route.kind == taskTransfer || route.kind == taskTransitionLookup {
 		return h.transitionCommand(w, r, a, p, route)
 	}
-	if route.kind == sprintStart || route.kind == sprintLifecycleLookup {
+	if route.kind == sprintStart || route.kind == sprintComplete || route.kind == sprintLifecycleLookup {
 		return h.sprintLifecycleCommand(w, r, a, p, route)
 	}
 	return h.command(w, r, a, p, route)

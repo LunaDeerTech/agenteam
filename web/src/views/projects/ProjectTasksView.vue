@@ -18,6 +18,7 @@ import MilestoneReorderForm from '../../components/work/MilestoneReorderForm.vue
 import SprintReorderForm from '../../components/work/SprintReorderForm.vue'
 import SprintEditForm from '../../components/work/SprintEditForm.vue'
 import SprintCreateForm from '../../components/work/SprintCreateForm.vue'
+import type { SprintLifecycleOperation } from '../../api/work-sprint-lifecycle'
 import { useProjectTasks } from '../../composables/useProjectTasks'
 const filterPriorities = [
   { value: '', label: '全部优先级' },
@@ -36,6 +37,7 @@ const filterTypes = [
 ]
 const owner = useProjectTasks(),
   state = owner.state
+const pageHeading = ref<HTMLElement | null>(null)
 const agentFilterField = ref<HTMLDivElement | null>(null)
 async function loadFilterAgents(more = false) {
   const project = owner.projectID.value,
@@ -259,8 +261,8 @@ async function submitSprintCreation(action: 'create' | 'lookup' | 'read' = 'crea
   else if (action === 'read') await owner.rereadConfirmedCreation()
   else await owner.submitSprintCreation()
 }
-async function openSprintStart() {
-  owner.openSprintStart()
+async function openSprintStart(operation: SprintLifecycleOperation = 'start') {
+  owner.openSprintStart(operation)
   await nextTick()
   if (owner.sprintStart.open && owner.visible.value) startConfirmButton.value?.$el.focus()
 }
@@ -279,19 +281,37 @@ async function submitSprintStart(lookup = false) {
   if (
     owner.visible.value &&
     state.sprint?.id === sprint &&
-    state.sprint?.state === 'current' &&
+    (state.sprint?.state === 'current' || state.sprint?.state === 'completed') &&
     !owner.sprintStart.needsRead &&
     owner.sprintProgress.value?.phase === 'confirmed'
   )
     sprintHeading.value?.focus()
+  else if (owner.visible.value && !state.sprint && !owner.sprintStart.needsRead && owner.sprintStart.confirmed)
+    pageHeading.value?.focus()
 }
 async function rereadSprintStart(confirmed = false) {
-  const sprint = state.sprint?.id
+  const sprint = state.sprint?.id,
+    project = owner.projectID.value,
+    completing = owner.sprintOperation.value === 'complete'
   if (confirmed) await owner.rereadConfirmedSprint()
   else await owner.rereadSprintStart()
   await nextTick()
   if (owner.visible.value && state.sprint?.id === sprint && !owner.sprintStart.needsRead)
     sprintHeading.value?.focus()
+  else if (
+    completing &&
+    owner.visible.value &&
+    owner.projectID.value === project &&
+    owner.sprintStart.projectID === project &&
+    owner.sprintStart.sprintID === sprint &&
+    owner.sprintStart.operation === 'complete' &&
+    owner.sprintStart.confirmed &&
+    !owner.sprintStart.needsRead &&
+    !state.sprint &&
+    !state.task
+  )
+    // This confirmation is cleared by the controller on route/identity changes.
+    pageHeading.value?.focus()
 }
 function returnToStartingSprint() {
   const p = owner.sprintPendingHere.value
@@ -323,7 +343,7 @@ function returnToCreation() {
 <template>
   <section class="tasks-page" aria-label="项目任务">
     <header class="tasks-heading">
-      <h1>任务</h1>
+      <h1 ref="pageHeading" tabindex="-1">任务</h1>
       <UiButton class="sidebar-trigger" :disabled="!owner.visible.value" @click="sidebar = true"
         >选择 Sprint</UiButton
       ><UiButton :disabled="owner.busy.value || !owner.visible.value" @click="owner.refresh()"
@@ -333,11 +353,11 @@ function returnToCreation() {
     <section
       v-if="owner.sprintReadRecovery.value"
       class="sprint-start-recovery"
-      aria-label="启动后状态读取"
+      :aria-label="`${owner.sprintActionLabel.value}后状态读取`"
     >
       <p role="status">{{ owner.sprintStart.message }}</p>
       <UiButton :disabled="owner.busy.value" @click="rereadSprintStart()"
-        >重新读取启动条件与当前状态</UiButton
+        >重新读取{{ owner.sprintActionLabel.value }}条件与当前状态</UiButton
       >
     </section>
     <UiState v-if="!owner.visible.value" kind="loading" title="正在确认任务访问身份" />
@@ -641,33 +661,33 @@ function returnToCreation() {
         >读取已创建的 Sprint</UiButton
       >
       <p v-if="owner.sprintPending.value && !owner.sprintProgress.value" role="status">
-        有一项 Sprint 启动结果待确认，请返回原 Project 和 Sprint 查询结果。
+        有一项 Sprint {{ owner.sprintPending.value?.operation === 'complete' ? '完成' : '启动' }}结果待确认，请返回原 Project 和 Sprint 查询结果。
       </p>
       <UiButton
         v-if="owner.sprintPendingHere.value && !owner.sprintProgress.value"
         :disabled="owner.busy.value"
         @click="returnToStartingSprint"
-        >返回原启动 Sprint</UiButton
+        >返回原{{ owner.sprintPendingHere.value?.operation === 'complete' ? '完成' : '启动' }} Sprint</UiButton
       >
       <p v-if="owner.sprintProgress.value?.phase === 'submitting'" role="status">
-        正在启动 Sprint，请等待原请求结束。
+        正在{{ owner.sprintActionLabel.value }} Sprint，请等待原请求结束。
       </p>
       <section
         v-if="owner.sprintProgress.value?.phase === 'uncertain'"
         class="sprint-start-recovery"
-        aria-label="启动结果恢复"
+        :aria-label="`${owner.sprintActionLabel.value}结果恢复`"
       >
-        <p role="status">启动结果待确认。请查询原启动结果，不要重复启动。</p>
+        <p role="status">{{ owner.sprintActionLabel.value }}结果待确认。请查询原{{ owner.sprintActionLabel.value }}结果，不要重复{{ owner.sprintActionLabel.value }}。</p>
         <UiButton
           :disabled="owner.busy.value || !owner.sprintProgress.value.contextValid"
           @click="submitSprintStart(true)"
-          >查询原启动结果</UiButton
+          >查询原{{ owner.sprintActionLabel.value }}结果</UiButton
         >
         <p v-if="owner.sprintProgress.value.observation === 'in_progress'" role="status">
-          原启动仍在处理中，稍后可再次查询。
+          原{{ owner.sprintActionLabel.value }}仍在处理中，稍后可再次查询。
         </p>
         <p v-if="owner.sprintProgress.value.observation === 'not_observed'" role="status">
-          尚未观察到原启动结果，可再次查询。
+          尚未观察到原{{ owner.sprintActionLabel.value }}结果，可再次查询。
         </p>
       </section>
       <p
@@ -682,7 +702,7 @@ function returnToCreation() {
         v-if="owner.sprintProgress.value?.phase === 'confirmed' && !owner.sprintStart.message"
         :disabled="owner.busy.value || !owner.sprintProgress.value.contextValid"
         @click="rereadSprintStart(true)"
-        >读取已确认启动的当前状态</UiButton
+        >读取已确认{{ owner.sprintActionLabel.value }}的当前状态</UiButton
       >
       <p
         v-if="owner.pending.value && !owner.progress.value && !owner.creationProgress.value"
@@ -875,8 +895,15 @@ function returnToCreation() {
                 "
                 ref="startButton"
                 :disabled="owner.busy.value || !owner.canStartSprint.value"
-                @click="openSprintStart"
+                @click="openSprintStart('start')"
                 >启动 Sprint</UiButton
+              >
+              <UiButton
+                v-if="!state.task && state.sprint.state === 'current' && !owner.sprintStart.open && !owner.sprintPending.value"
+                ref="startButton"
+                :disabled="owner.busy.value || !owner.canCompleteSprint.value"
+                @click="openSprintStart('complete')"
+                >完成 Sprint</UiButton
               >
               <UiButton
                 v-if="!owner.creation.open"
@@ -931,10 +958,14 @@ function returnToCreation() {
             <form
               v-if="owner.sprintStart.open && !owner.sprintPending.value"
               class="sprint-start-form"
-              aria-label="启动 Sprint 确认"
+              :aria-label="`${owner.sprintActionLabel.value} Sprint 确认`"
               @submit.prevent="submitSprintStart()"
             >
-              <p>
+              <p v-if="owner.sprintStart.operation === 'complete'">
+                确认完成“{{ state.sprint.title }}”？仅当全部任务已完成或取消（包括空 Sprint），且没有活动执行和待派发任务时才能完成。
+                完成后清空当前 Sprint，不会迁移任务或自动启动下一 Sprint。
+              </p>
+              <p v-else>
                 确认将“{{ state.sprint.title }}”设为当前 Sprint？此操作不会改变 Scheduler
                 的启用状态。
               </p>
@@ -946,11 +977,11 @@ function returnToCreation() {
                 type="submit"
                 variant="primary"
                 :disabled="
-                  owner.busy.value || !owner.canStartSprint.value || owner.sprintStartStale.value
+                  owner.busy.value || !owner.canSubmitSprintLifecycle.value || owner.sprintStartStale.value
                 "
-                >确认启动 Sprint</UiButton
+                >确认{{ owner.sprintActionLabel.value }} Sprint</UiButton
               >
-              <UiButton :disabled="owner.busy.value" @click="cancelSprintStart">取消启动</UiButton>
+              <UiButton :disabled="owner.busy.value" @click="cancelSprintStart">取消{{ owner.sprintActionLabel.value }}</UiButton>
             </form>
             <TaskCreateForm
               v-if="owner.creation.open && !owner.pending.value"

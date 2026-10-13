@@ -122,6 +122,10 @@ async function fixture() {
   }
   const api = {
     progress: null,
+    forgetUnavailable: vi.fn(),
+    complete: vi.fn<Port['complete']>(async () => {
+      throw new Error('Unexpected Sprint Complete')
+    }),
     start: vi.fn<Port['start']>(async () => {
       throw new Error('Unexpected automatic Start')
     }),

@@ -19,21 +19,31 @@ type SprintLifecycleDependencies struct {
 	Events       oc.Appender
 	SprintEvents c.SprintLifecycleEvents
 	Activity     ActivityAuthority
+	Completion   *SprintCompletionDependencies
 }
 type SprintLifecycleService struct {
-	base     *Service
-	projects pc.SprintLifecycleAuthority
-	events   c.SprintLifecycleEvents
+	base       *Service
+	projects   pc.SprintLifecycleAuthority
+	events     c.SprintLifecycleEvents
+	completion *SprintCompletionDependencies
 }
 
 func NewSprintLifecycle(store Store, deps SprintLifecycleDependencies) (*SprintLifecycleService, error) {
 	if nilPort(store) || deps.Authority.state() == nil || !sameStore(store, deps.Authority.state().store) || nilPort(deps.Projects) || nilPort(deps.Events) || nilPort(deps.Activity) || !deps.SprintEvents.Valid() {
 		return nil, fault(f.DependencyUnbound)
 	}
+	if deps.Completion != nil && !deps.Completion.valid() {
+		return nil, fault(f.DependencyUnbound)
+	}
+	var completion *SprintCompletionDependencies
+	if deps.Completion != nil {
+		value := *deps.Completion
+		completion = &value
+	}
 	// Share the existing owned-call/confirmation lifetime implementation; this
 	// independent service has its own immutable dependencies and admission set.
 	st := &serviceState{store: store, deps: Dependencies{Authority: deps.Authority, Events: deps.Events, Activity: deps.Activity}, calls: map[*call]struct{}{}, changed: make(chan struct{})}
-	return &SprintLifecycleService{base: &Service{data: func() *serviceState { return st }}, projects: deps.Projects, events: deps.SprintEvents}, nil
+	return &SprintLifecycleService{base: &Service{data: func() *serviceState { return st }}, projects: deps.Projects, events: deps.SprintEvents, completion: completion}, nil
 }
 func (s *SprintLifecycleService) bound() bool {
 	return s != nil && s.base != nil && s.base.state() != nil && !nilPort(s.projects) && s.events.Valid()

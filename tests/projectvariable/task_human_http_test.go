@@ -243,8 +243,13 @@ func assembleTaskHumanHTTPFixture(t *testing.T, withSprintLifecycle bool) *taskH
 		t.Fatal(err)
 	}
 	var sprintEvents wc.SprintLifecycleEvents
+	var completionEvents wc.SprintCompletionEvents
 	if withSprintLifecycle {
 		sprintEvents, err = wc.RegisterSprintLifecycleEvents(catalog)
+		if err != nil {
+			t.Fatal(err)
+		}
+		completionEvents, err = wc.RegisterSprintCompletionEvents(catalog)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -322,7 +327,13 @@ func assembleTaskHumanHTTPFixture(t *testing.T, withSprintLifecycle bool) *taskH
 		if err != nil {
 			t.Fatal(err)
 		}
-		lifecycle, err = work.NewSprintLifecycle(base.tracked, work.SprintLifecycleDependencies{Authority: d.authority, Projects: pointer, Events: d.box, SprintEvents: sprintEvents, Activity: base.accounts})
+		completion, err := project.NewSprintCompletion(base.projectAuthority, d.authority)
+		if err != nil {
+			t.Fatal(err)
+		}
+		lifecycle, err = work.NewSprintLifecycle(base.tracked, work.SprintLifecycleDependencies{Authority: d.authority, Projects: pointer, Events: d.box, SprintEvents: sprintEvents, Activity: base.accounts,
+			Completion: &work.SprintCompletionDependencies{Projects: completion, Occupancy: occupancy, Pending: d.pending, Events: completionEvents},
+		})
 		if err != nil {
 			t.Fatal(err)
 		}

@@ -26,6 +26,7 @@ type workPlanningEvents struct {
 	blockers    wc.TaskBlockerEvents
 	transitions wc.TaskTransitionEvents
 	sprints     wc.SprintLifecycleEvents
+	completion  wc.SprintCompletionEvents
 }
 
 func defineWorkPlanningEvents(catalog *event.Catalog) (workPlanningEvents, error) {
@@ -44,6 +45,9 @@ func defineWorkPlanningEvents(catalog *event.Catalog) (workPlanningEvents, error
 		return workPlanningEvents{}, err
 	}
 	if v.sprints, err = wc.RegisterSprintLifecycleEvents(catalog); err != nil {
+		return workPlanningEvents{}, err
+	}
+	if v.completion, err = wc.RegisterSprintCompletionEvents(catalog); err != nil {
 		return workPlanningEvents{}, err
 	}
 	return v, nil
@@ -118,7 +122,7 @@ func createWorkPlanningWithProviders(cfg config.Config, db database, authority *
 	// An omitted capability retains the old three-service assembly. An explicit
 	// capability must be exactly one original Project authority; no partial or
 	// silently ignored transition/lifecycle binding is accepted.
-	if len(transitionProjects) > 1 || len(transitionProjects) == 1 && (transitionProjects[0] == nil || !events.transitions.Valid() || !events.sprints.Valid()) {
+	if len(transitionProjects) > 1 || len(transitionProjects) == 1 && (transitionProjects[0] == nil || !events.transitions.Valid() || !events.sprints.Valid() || !events.completion.Valid()) {
 		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
 	}
 	b := &workPlanningAssembly{}
@@ -177,9 +181,14 @@ func createWorkPlanningWithProviders(cfg config.Config, db database, authority *
 		if e != nil {
 			return nil, e
 		}
+		completion, e := project.NewSprintCompletion(transitionProjects[0], authority)
+		if e != nil {
+			return nil, e
+		}
 		if b.sprints, err = work.NewSprintLifecycle(store, work.SprintLifecycleDependencies{
 			Authority: authority, Projects: pointer, Events: journal,
 			SprintEvents: events.sprints, Activity: accounts,
+			Completion: &work.SprintCompletionDependencies{Projects: completion, Occupancy: occupancy, Pending: pending, Events: events.completion},
 		}); err != nil {
 			return nil, err
 		}
@@ -205,7 +214,7 @@ func createOwnedWorkPlanningWithAgents(cfg config.Config, db database, authority
 
 func createOwnedWorkPlanningWithProviders(cfg config.Config, db database, authority *work.Authority, accounts *account.Authority, journal *outbox.Service, events workPlanningEvents, pending *scheduler.PendingAuthority, agents *agent.Authority, projects *project.Authority, lifecycle *project.LifecycleAuthority, objects *objectAssembly) (*workPlanningAssembly, error) {
 	store, ok := db.(work.Store)
-	if !ok || runtimeInformationNil(store) || authority == nil || accounts == nil || journal == nil || pending == nil || agents == nil || projects == nil || objects == nil || objects.guard == nil || objects.process.Validate() != nil || !events.structure.Valid() || !events.tasks.Valid() || !events.blockers.Valid() || !events.transitions.Valid() || !events.sprints.Valid() {
+	if !ok || runtimeInformationNil(store) || authority == nil || accounts == nil || journal == nil || pending == nil || agents == nil || projects == nil || objects == nil || objects.guard == nil || objects.process.Validate() != nil || !events.structure.Valid() || !events.tasks.Valid() || !events.blockers.Valid() || !events.transitions.Valid() || !events.sprints.Valid() || !events.completion.Valid() {
 		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
 	}
 	stop, err := project.NewWorkStopAuthority(lifecycle, store)
@@ -227,6 +236,10 @@ func createOwnedWorkPlanningWithProviders(cfg config.Config, db database, author
 	if err != nil {
 		return nil, err
 	}
+	completion, err := project.NewSprintCompletion(projects, authority)
+	if err != nil {
+		return nil, err
+	}
 	pair, err := work.NewProjectCallOwnershipWithReaders(store, work.ProjectCallDependencies{
 		Structure: work.Dependencies{Authority: authority, Events: journal, WorkEvents: events.structure, Activity: accounts},
 		Tasks:     work.TaskDependencies{Authority: authority, Structure: placement, Events: journal, TaskEvents: events.tasks, Activity: accounts, Pending: pending},
@@ -235,7 +248,7 @@ func createOwnedWorkPlanningWithProviders(cfg config.Config, db database, author
 			Authority: authority, Events: journal, TaskEvents: events.transitions, Activity: accounts,
 		},
 		Blockers: work.BlockerDependencies{Authority: authority, Structure: placement, Events: journal, BlockerEvents: events.blockers, Activity: accounts},
-		Sprints:  work.SprintLifecycleDependencies{Authority: authority, Projects: pointer, Events: journal, SprintEvents: events.sprints, Activity: accounts},
+		Sprints:  work.SprintLifecycleDependencies{Authority: authority, Projects: pointer, Events: journal, SprintEvents: events.sprints, Activity: accounts, Completion: &work.SprintCompletionDependencies{Projects: completion, Occupancy: occupancy, Pending: pending, Events: events.completion}},
 	}, cfg.CursorKeyring(), objects.guard, objects.process, stop)
 	if err != nil {
 		return nil, err

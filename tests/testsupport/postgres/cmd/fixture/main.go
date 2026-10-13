@@ -381,11 +381,47 @@ func selectedTestTarget(binary, directory, filter string) (*fixtureTestTarget, e
 	if err != nil || !cwd.IsDir() {
 		return nil, bad
 	}
-	pattern, err := regexp.Compile(filter)
+	if _, err := regexp.Compile(filter); err != nil {
+		return nil, bad
+	}
+	pattern, err := regexp.Compile(topTestFilter(filter))
 	if err != nil {
 		return nil, bad
 	}
 	return &fixtureTestTarget{binary, directory, filter, pattern}, nil
+}
+
+// Go lists only top-level tests. Split at the first subtest separator, keeping
+// slashes inside regexp groups/classes or escaped slashes in the top pattern.
+// The execution command still receives the original complete -test.run value.
+func topTestFilter(filter string) string {
+	depth := 0
+	classDepth := 0
+	for n := 0; n < len(filter); n++ {
+		switch filter[n] {
+		case '\\':
+			n++
+		case '[':
+			classDepth++
+		case ']':
+			if classDepth > 0 {
+				classDepth--
+			}
+		case '(':
+			if classDepth == 0 {
+				depth++
+			}
+		case ')':
+			if classDepth == 0 {
+				depth--
+			}
+		case '/':
+			if classDepth == 0 && depth == 0 {
+				return filter[:n]
+			}
+		}
+	}
+	return filter
 }
 
 // The smaller PG resource set is opt-in for one previously validated binary.
@@ -428,7 +464,7 @@ func (v *fixtureTestTarget) matchesListing(raw string) bool {
 func (v *fixtureTestTarget) command(ctx context.Context, list bool) *exec.Cmd {
 	args := []string{"-test.v", "-test.count=1", "-test.timeout=6m", "-test.run=" + v.filter}
 	if list {
-		args = []string{"-test.list=" + v.filter}
+		args = []string{"-test.list=" + v.pattern.String()}
 	}
 	cmd := exec.CommandContext(ctx, v.binary, args...)
 	cmd.Dir = v.directory
