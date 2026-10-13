@@ -170,6 +170,10 @@ func (w *agentConfigurationWeb) fail(err error) {
 }
 
 func (w *agentConfigurationWeb) start(t *testing.T, address string) {
+	w.startObserved(t, address, w.observe, w.response)
+}
+
+func (w *agentConfigurationWeb) startObserved(t *testing.T, address string, observe func(*http.Request) error, response func(*http.Response) error) {
 	t.Helper()
 	w.upstream = &http.Transport{Proxy: nil, DisableKeepAlives: true}
 	w.backend = httptest.NewUnstartedServer(http.HandlerFunc(func(out http.ResponseWriter, r *http.Request) { w.bridge(address, out, r) }))
@@ -184,14 +188,14 @@ func (w *agentConfigurationWeb) start(t *testing.T, address string) {
 	proxy := httputil.NewSingleHostReverseProxy(target)
 	proxy.Transport = w.transport
 	proxy.ErrorLog = log.New(io.Discard, "", 0)
-	proxy.ModifyResponse = w.response
+	proxy.ModifyResponse = response
 	proxy.ErrorHandler = w.proxyError
 	static := http.FileServer(http.Dir(w.dist))
 	w.front = &http.Server{ReadHeaderTimeout: 2 * time.Second, ErrorLog: log.New(io.Discard, "", 0), Handler: http.HandlerFunc(func(out http.ResponseWriter, r *http.Request) {
 		w.frontWG.Add(1)
 		defer w.frontWG.Done()
 		if strings.HasPrefix(r.URL.Path, "/api/") {
-			if err := w.observe(r); err != nil {
+			if err := observe(r); err != nil {
 				w.fail(err)
 				http.Error(out, "owned observation failed", 500)
 				return

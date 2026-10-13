@@ -198,6 +198,8 @@ export async function observeBrowserIO(
     let originalCreate: any;
     let originalAgentCreate: any;
     const originalEdits: any[] = [];
+    const originalTaskReorders: any[] = [];
+    let taskReorderRegistered = false;
     const originalAgentEdits: any[] = [];
     const originalMilestoneEdits: any[] = [];
     const originalMilestoneReorders: any[] = [];
@@ -437,6 +439,13 @@ export async function observeBrowserIO(
               progress.agentID === source?.agent,
           });
         }
+        if (kind === "taskReorder.startReorder") {
+          const original = { call, project: args[0], task: args[1], input: JSON.parse(JSON.stringify(args[2])) };
+          originalTaskReorders.push(original); writeInputs.set(call, original);
+        } else if (kind === "taskReorder.checkOriginal") {
+          const source = originalTaskReorders.at(-1), progress = auth.workReview.progress;
+          writeInputs.set(call, { source, current: progress?.kind === "reorder" && progress.phase === "uncertain" && progress.contextValid === true && progress.projectID === source?.project && progress.taskID === source?.task });
+        }
         if (kind === "milestoneReorder.reorder") {
           const original = { call, project: args[0], milestone: args[1], input: JSON.parse(JSON.stringify(args[2])) };
           originalMilestoneReorders.push(original);
@@ -574,6 +583,11 @@ export async function observeBrowserIO(
               const progress = auth.system.runners.progress;
               call.result_current = progress?.phase === "confirmed" && progress.receipt === value?.receipt;
             }
+            if (kind === "taskReorder.startReorder" || kind === "taskReorder.checkOriginal") {
+              const original = writeInputs.get(call), source = original.source ?? original;
+              const progress = auth.workReview.progress, result = kind === "taskReorder.startReorder" ? value : value?.receipt;
+              call.result_current = progress?.kind === "reorder" && progress.phase === "confirmed" && progress.projectID === source.project && progress.taskID === source.task && result != null && progress.receipt === result;
+            }
             if (kind === "milestoneReorder.reorder") {
               const original = writeInputs.get(call), progress = auth.workMilestoneReordering.progress;
               call.result_current = progress?.phase === "confirmed" && progress.contextValid === true && progress.projectID === original.project && progress.milestoneID === original.milestone && value != null && progress.result === value;
@@ -674,8 +688,16 @@ export async function observeBrowserIO(
             call.typed = JSON.parse(JSON.stringify(published));
             call.typed_digest = await typedDigest(published);
           },
-          () => {
+          (error: any) => {
             call.rejected = call.settled = true;
+            if (kind === "taskReorder.startReorder" || kind === "taskReorder.checkOriginal") {
+              const original = writeInputs.get(call), source = original.source ?? original, progress = auth.workReview.progress;
+              call.current = current() && before === identity(); identities.set(call, identity()); call.not_busy = auth.state.busy === false;
+              call.result_current = progress?.kind === "reorder" && ["rejected", "uncertain"].includes(progress.phase) && progress.contextValid === true && progress.projectID === source.project && progress.taskID === source.task;
+              if (error?.problem?.code === "TASK_VERSION_CONFLICT" && error.problem.commit_state === "not_committed") {
+                call.rejection_code = "TASK_VERSION_CONFLICT"; call.rejection_commit_state = "not_committed";
+              }
+            }
             if (kind === "secretWrite.delete") {
               const original = writeInputs.get(call), progress = auth.projectSecretCommands.progress;
               call.current = current() && before === identity();
@@ -1192,6 +1214,18 @@ export async function observeBrowserIO(
           );
         }
       },
+      taskReorder(project: string, task: string) {
+        if (!auth || retired || taskReorderRegistered || ![project, task].every(value => /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(value))) throw Error("TASK_REORDER_REGISTRATION");
+        taskReorderRegistered = true;
+        consumer(auth.workReview, "startReorder", "taskReorder.startReorder", args => {
+          if (args.length !== 3 || args[0] !== project || args[1] !== task) throw Error("TASK_REORDER_CONSUMER_SCOPE");
+          return "/api/v1/projects/" + project + "/tasks/" + task + "/reorder";
+        }, "POST");
+        consumer(auth.workReview, "checkOriginal", "taskReorder.checkOriginal", args => {
+          if (args.length !== 0) throw Error("TASK_REORDER_LOOKUP_SCOPE");
+          return "/api/v1/projects/" + project + "/task-commands/lookup";
+        }, "POST");
+      },
       expectSecretMaterial(value: unknown) { stageSecretMaterial(value); },
       runnerMaterialMatches(value: unknown) {
         const matched = typeof value === "string" && systemRunnerMaterial !== undefined && value === systemRunnerMaterial;
@@ -1223,6 +1257,7 @@ export async function observeBrowserIO(
         originalCreate = undefined;
         originalAgentCreate = undefined;
         originalEdits.length = 0;
+        originalTaskReorders.length = 0;
         originalAgentEdits.length = 0;
         originalMilestoneEdits.length = 0;
         originalMilestoneReorders.length = 0;
@@ -1426,6 +1461,12 @@ export async function observeBrowserIO(
                 command: "work.task.create",
                 request: original.source.request,
               });
+          } else if (call.kind === "taskReorder.startReorder") {
+            matches = originalTaskReorders.every(old => old === original || old.key !== key) && equal(parsed, original.input);
+            if (matches) original.key = key;
+          } else if (call.kind === "taskReorder.checkOriginal") {
+            matches = original.current && original.source?.call.rejected === true && original.source.call.settled === true && key === original.source.key &&
+              equal(parsed, { command: "work.task.reorder", target_id: original.source.task, ...original.source.input });
           } else if (call.kind === "edit.startEdit") {
             matches =
               originalEdits.every(
