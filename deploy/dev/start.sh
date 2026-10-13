@@ -7,7 +7,8 @@ rm -f /dev-state/frontend/.ready
 rm -f /dev-state/bin/agenteam /dev-state/bin/agenteam.next
 test "$(go env GOVERSION)" = go1.27.1
 test "$(node --version)" = v24.12.0
-. /dev-state/config/central.env
+. /dev-state/config/runtime.env
+node /workspace/deploy/dev/wait-minio.mjs
 
 # Never execute a previous build after a failed compilation.
 cd /workspace
