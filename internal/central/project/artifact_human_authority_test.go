@@ -93,7 +93,7 @@ func TestArtifactMaintenancePlansExclusiveWithoutGrant(t *testing.T) {
 	}
 	subject := ac.AccessSubject{ProjectID: v.project, Maintenance: true}
 	deps, err := authority.Discover(context.Background(), subject)
-	if err != nil || len(deps.Locks()) != 1 || deps.Locks()[0] != projectLock(v.project, f.Exclusive) {
+	if err != nil || len(deps.Locks()) != 1 || f.CompareLockKeys(deps.Locks()[0].Key, projectLock(v.project, f.Exclusive).Key) != 0 || deps.Locks()[0].Mode != f.Exclusive {
 		t.Fatal("maintenance did not plan its original Converge lock before Tx", err)
 	}
 	if _, err = authority.AuthorizeInTx(context.Background(), v.store.tx, subject, i.Converge); err == nil {
