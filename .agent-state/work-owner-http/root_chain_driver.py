@@ -514,6 +514,7 @@ METADATA_INPUTS = {
     '^TestProjectVariablesWeb$': ('tests/projectvariable/project_variables_web_test.go', 'tests/projectvariable/agent_edit_web_test.go', 'tests/projectvariable/agent_configuration_app_test.go', 'tests/projectvariable/agent_configuration_web_test.go', 'tests/projectvariable/agent_configuration_create_test.go', 'tests/projectvariable/agent_configuration_facts_test.go', 'tests/projectvariable/skill_installation_test.go', 'tests/projectvariable/fixture_test.go', 'tests/projectvariable/task_review_web_test.go', 'tests/testsupport/agentconfiguration/assembly.go', 'tests/account-captcha-web/project-variables.config.js', 'tests/account-captcha-web/e2e/project-variables.spec.ts', 'tests/account-captcha-web/e2e/project-variables.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts'),
     '^TestMilestoneCreateWeb$': ('tests/projectvariable/milestone_create_web_test.go', 'tests/projectvariable/sprint_create_web_test.go', 'tests/projectvariable/sprint_start_web_test.go', 'tests/projectvariable/agent_edit_web_test.go', 'tests/projectvariable/agent_configuration_app_test.go', 'tests/projectvariable/agent_configuration_web_test.go', 'tests/projectvariable/agent_configuration_create_test.go', 'tests/projectvariable/agent_configuration_facts_test.go', 'tests/projectvariable/skill_installation_test.go', 'tests/projectvariable/fixture_test.go', 'tests/projectvariable/task_review_web_test.go', 'tests/testsupport/agentconfiguration/assembly.go', 'tests/account-captcha-web/milestone-create.config.js', 'tests/account-captcha-web/e2e/milestone-create.spec.ts', 'tests/account-captcha-web/e2e/milestone-create.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts'),
     '^TestMilestoneEditWeb$': ('tests/projectvariable/milestone_edit_web_test.go', 'tests/projectvariable/milestone_create_web_test.go', 'tests/projectvariable/sprint_create_web_test.go', 'tests/projectvariable/sprint_start_web_test.go', 'tests/projectvariable/agent_edit_web_test.go', 'tests/projectvariable/agent_configuration_app_test.go', 'tests/projectvariable/agent_configuration_web_test.go', 'tests/projectvariable/agent_configuration_create_test.go', 'tests/projectvariable/agent_configuration_facts_test.go', 'tests/projectvariable/skill_installation_test.go', 'tests/projectvariable/fixture_test.go', 'tests/projectvariable/task_review_web_test.go', 'tests/testsupport/agentconfiguration/assembly.go', 'tests/account-captcha-web/milestone-edit.config.js', 'tests/account-captcha-web/e2e/milestone-edit.spec.ts', 'tests/account-captcha-web/e2e/milestone-edit.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts'),
+    '^TestMilestoneReorderWeb$': ('tests/projectvariable/milestone_reorder_web_test.go', 'tests/projectvariable/milestone_create_web_test.go', 'tests/projectvariable/sprint_create_web_test.go', 'tests/projectvariable/sprint_start_web_test.go', 'tests/projectvariable/agent_edit_web_test.go', 'tests/projectvariable/agent_configuration_app_test.go', 'tests/projectvariable/agent_configuration_web_test.go', 'tests/projectvariable/agent_configuration_create_test.go', 'tests/projectvariable/agent_configuration_facts_test.go', 'tests/projectvariable/skill_installation_test.go', 'tests/projectvariable/fixture_test.go', 'tests/projectvariable/task_review_web_test.go', 'tests/testsupport/agentconfiguration/assembly.go', 'tests/account-captcha-web/milestone-reorder.config.js', 'tests/account-captcha-web/e2e/milestone-reorder.spec.ts', 'tests/account-captcha-web/e2e/milestone-reorder.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts'),
     '^TestSprintEditWeb$': ('tests/projectvariable/sprint_edit_web_test.go', 'tests/projectvariable/milestone_create_web_test.go', 'tests/projectvariable/sprint_create_web_test.go', 'tests/projectvariable/sprint_start_web_test.go', 'tests/projectvariable/agent_edit_web_test.go', 'tests/projectvariable/agent_configuration_app_test.go', 'tests/projectvariable/agent_configuration_web_test.go', 'tests/projectvariable/agent_configuration_create_test.go', 'tests/projectvariable/agent_configuration_facts_test.go', 'tests/projectvariable/skill_installation_test.go', 'tests/projectvariable/fixture_test.go', 'tests/projectvariable/task_review_web_test.go', 'tests/testsupport/agentconfiguration/assembly.go', 'tests/account-captcha-web/sprint-edit.config.js', 'tests/account-captcha-web/e2e/sprint-edit.spec.ts', 'tests/account-captcha-web/e2e/sprint-edit.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts'),
     '^TestSkillOwnerReadWeb$': ('internal/central/app/skill_owner_web_test.go', 'internal/central/app/knowledge_owner_web_test.go', 'internal/central/app/knowledge_skills_process_test.go', 'internal/central/app/outbox_process_test.go', 'internal/central/app/app_test.go', 'tests/account-captcha-web/skill-owner-read.config.js', 'tests/account-captcha-web/e2e/skill-owner-read.spec.ts', 'tests/account-captcha-web/e2e/skill-owner-read.helpers.ts', 'tests/account-captcha-web/e2e/task-review.helpers.ts', 'tests/account-captcha-web/e2e/knowledge-owner-read.native.ts'),
     '^TestKnowledgeTextHTTP(Publication|CurrentAuthority)$': (
@@ -897,7 +898,7 @@ def metadata_inputs(binary, selector='^TestAgentConfigurationMetadata$'):
     # Only the explicitly retained legacy metadata profile includes its
     # historical records. New profiles contain actual compiled/runtime inputs.
     paths.update(REPOSITORY / name for name in METADATA_INPUTS[selector])
-    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_RUNNER_MOUNTS_UI, SYSTEM_RUNNER_MANAGEMENT_UI, AGENT_SECRET_ALLOWLIST_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_DELETE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_SECRET_WRITE_UI, PROJECT_USAGE_UI):
+    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_RUNNER_MOUNTS_UI, SYSTEM_RUNNER_MANAGEMENT_UI, AGENT_SECRET_ALLOWLIST_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, MILESTONE_REORDER_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_DELETE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_SECRET_WRITE_UI, PROJECT_USAGE_UI):
         paths.update(task_review_ui_inputs(selector))
     if selector == APP_RUNTIME:
         paths.update(app_runtime_inputs())
@@ -973,6 +974,7 @@ SPRINT_CREATE_UI = '^TestSprintCreateWeb$'
 PROJECT_VARIABLES_UI = '^TestProjectVariablesWeb$'
 MILESTONE_CREATE_UI = '^TestMilestoneCreateWeb$'
 MILESTONE_EDIT_UI = '^TestMilestoneEditWeb$'
+MILESTONE_REORDER_UI = '^TestMilestoneReorderWeb$'
 SPRINT_EDIT_UI = '^TestSprintEditWeb$'
 SKILL_OWNER_UI = '^TestSkillOwnerReadWeb$'
 SKILL_PACKAGE_UI = '^TestSkillPackageWeb$'
@@ -998,6 +1000,7 @@ AGENT_MODEL_POLICY_ENV = ('AGENTEAM_AGENT_MODEL_POLICY_WEB_DIST', 'AGENTEAM_AGEN
 PROJECT_VARIABLES_ENV = ('AGENTEAM_PROJECT_VARIABLES_WEB_DIST', 'AGENTEAM_PROJECT_VARIABLES_WEB_EVIDENCE')
 MILESTONE_CREATE_ENV = ('AGENTEAM_MILESTONE_CREATE_WEB_DIST', 'AGENTEAM_MILESTONE_CREATE_WEB_EVIDENCE')
 MILESTONE_EDIT_ENV = ('AGENTEAM_MILESTONE_EDIT_WEB_DIST', 'AGENTEAM_MILESTONE_EDIT_WEB_EVIDENCE')
+MILESTONE_REORDER_ENV = ('AGENTEAM_MILESTONE_REORDER_WEB_DIST', 'AGENTEAM_MILESTONE_REORDER_WEB_EVIDENCE')
 SPRINT_EDIT_ENV = ('AGENTEAM_SPRINT_EDIT_WEB_DIST', 'AGENTEAM_SPRINT_EDIT_WEB_EVIDENCE')
 SPRINT_CREATE_ENV = ('AGENTEAM_SPRINT_CREATE_WEB_DIST', 'AGENTEAM_SPRINT_CREATE_WEB_EVIDENCE')
 SKILL_OWNER_ENV = ('AGENTEAM_SKILL_OWNER_WEB_DIST', 'AGENTEAM_SKILL_OWNER_WEB_EVIDENCE')
@@ -1047,6 +1050,8 @@ def task_review_ui_profile(selector):
         return SPRINT_EDIT_ENV, 'output/ai/sprint-edit-ui', 'sprint-edit'
     if selector == MILESTONE_EDIT_UI:
         return MILESTONE_EDIT_ENV, 'output/ai/milestone-edit-ui', 'milestone-edit'
+    if selector == MILESTONE_REORDER_UI:
+        return MILESTONE_REORDER_ENV, 'output/ai/milestone-reorder-ui', 'milestone-reorder'
     if selector == MILESTONE_CREATE_UI:
         return MILESTONE_CREATE_ENV, 'output/ai/milestone-create-web', 'milestone-create'
     if selector == SPRINT_CREATE_UI:
@@ -1120,6 +1125,22 @@ def task_review_ui_inputs(selector=TASK_REVIEW_UI):
     if (modules.resolve(strict=True) != TASK_REVIEW_HARNESS_MODULES.resolve(strict=True)
             or web_modules.resolve(strict=True) != TASK_REVIEW_WEB_MODULES.resolve(strict=True)):
         raise ValueError('approved shared Task Review installations required')
+    approved_harness = TASK_REVIEW_HARNESS_MODULES.resolve(strict=True)
+    approved_web = TASK_REVIEW_WEB_MODULES.resolve(strict=True)
+    if selector == MILESTONE_REORDER_UI:
+        approved_harness = Path('/workspace/agenteam-ui-integration-20261012/tests/account-captcha-web/node_modules')
+        approved_web = Path('/workspace/agenteam-ui-integration-20261012/web/node_modules')
+        for local, approved in ((modules, approved_harness), (web_modules, approved_web)):
+            if (local.is_symlink() or local.resolve(strict=True) != local
+                    or approved.resolve(strict=True) != approved):
+                raise ValueError('exact Milestone Reorder module parents required')
+            for name in ('package.json', 'package-lock.json'):
+                current, installed = local.parent / name, approved.parent / name
+                if (current.is_symlink() or installed.is_symlink()
+                        or current.read_bytes() != installed.read_bytes()):
+                    raise ValueError('Milestone Reorder shared installation lock mismatch')
+                paths.update((current, installed))
+            paths.add(approved / '.package-lock.json')
     paths.update(harness / name for name in ('package.json', 'package-lock.json',
         stem + '.config.js', 'e2e/' + stem + '.spec.ts',
         'e2e/' + stem + ('.native.ts' if selector == KNOWLEDGE_RENAME_UI else '.helpers.ts')))
@@ -1127,13 +1148,17 @@ def task_review_ui_inputs(selector=TASK_REVIEW_UI):
         paths.add(KNOWLEDGE_PYTHON.resolve())
     for name in ('@playwright/test', 'playwright', 'playwright-core'):
         package = (modules / name).resolve(strict=True)
-        if not package.is_relative_to(TASK_REVIEW_HARNESS_MODULES.resolve(strict=True)):
+        if (not package.is_relative_to(approved_harness)
+                or (selector == MILESTONE_REORDER_UI
+                    and package != (approved_harness / name).resolve(strict=True))):
             raise ValueError('Task Review package escaped approved installation')
         if json.loads((package / 'package.json').read_text())['version'] != '1.56.1':
             raise ValueError('locked Playwright 1.56.1 required')
         paths.update(p for p in package.rglob('*') if p.is_file() or p.is_symlink())
     typescript = (web_modules / 'typescript').resolve(strict=True)
-    if not typescript.is_relative_to(TASK_REVIEW_WEB_MODULES.resolve(strict=True)):
+    if (not typescript.is_relative_to(approved_web)
+            or (selector == MILESTONE_REORDER_UI
+                and typescript != (approved_web / 'typescript').resolve(strict=True))):
         raise ValueError('Task Review compiler escaped approved installation')
     paths.update(typescript / name for name in ('package.json', 'lib/typescript.js'))
     paths.update(p for p in (REPOSITORY / 'web/src').rglob('*')
@@ -1378,7 +1403,7 @@ def configuration(binary, selector, directory):
             'test_timeout': '6m', 'resources': 7}
     if selector == '^TestRunnerReadFileApp$':
         plan['runner_read_file_app'] = runner_read_file_app_inputs(binary)[1]
-    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_RUNNER_MOUNTS_UI, SYSTEM_RUNNER_MANAGEMENT_UI, AGENT_SECRET_ALLOWLIST_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_DELETE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_SECRET_WRITE_UI, PROJECT_USAGE_UI):
+    if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_RUNNER_MOUNTS_UI, SYSTEM_RUNNER_MANAGEMENT_UI, AGENT_SECRET_ALLOWLIST_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, MILESTONE_REORDER_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_DELETE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_SECRET_WRITE_UI, PROJECT_USAGE_UI):
         plan['task_review_ui'] = task_review_ui_configuration(directory, selector)
     if selector == APP_RUNTIME:
         app_runtime_inputs()
@@ -1456,8 +1481,13 @@ def main():
         env.update({'AGENTEAM_AUTH_WEB_RUNTIME': str(runtime),
                     'AGENTEAM_KNOWLEDGE_OWNER_WEB_INPUT_HASH': knowledge_ui_input_hash(args.test_binary),
                     'PATH': str(KNOWLEDGE_NODE.parent) + os.pathsep + env.get('PATH', '')})
-    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_RUNNER_MOUNTS_UI, SYSTEM_RUNNER_MANAGEMENT_UI, AGENT_SECRET_ALLOWLIST_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_DELETE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_SECRET_WRITE_UI, PROJECT_USAGE_UI):
+    if args.run in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_RUNNER_MOUNTS_UI, SYSTEM_RUNNER_MANAGEMENT_UI, AGENT_SECRET_ALLOWLIST_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, MILESTONE_REORDER_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_DELETE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_SECRET_WRITE_UI, PROJECT_USAGE_UI):
         ui = plan['task_review_ui']
+        if args.run == MILESTONE_REORDER_UI:
+            env.update({'TMP': str(runtime), 'TEMP': str(runtime),
+                        'NODE_COMPILE_CACHE': str(runtime / 'node-cache'),
+                        'PWTEST_CACHE_DIR': str(runtime / 'playwright-cache'),
+                        'XDG_CACHE_HOME': str(runtime / 'xdg-cache')})
         names, _, _ = task_review_ui_profile(args.run)
         Path(ui[names[1]]).mkdir(mode=0o700)
         env.update(ui)
