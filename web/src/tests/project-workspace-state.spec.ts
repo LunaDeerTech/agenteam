@@ -458,6 +458,54 @@ describe('Project owner state and original requests', () => {
     expect(f.workspace.detail.project).toBeNull()
     expect(f.auth.state.busy).toBe(false)
   })
+  it('refreshes a pristine Project baseline after completion and leaves for the next Sprint without confirmation', async () => {
+    const f = await fixture()
+    f.current({ ...project(), current_sprint_id: id(20) })
+    await open(f, `/owner/demo/tasks/sprints/${id(20)}`)
+    expect(f.workspace.editor.version).toBe('1')
+    f.current({ ...project(), version: '2', current_sprint_id: null })
+    await f.workspace.readCurrent()
+    expect(f.workspace.detail.project?.current_sprint_id).toBeNull()
+    expect(f.workspace.editor.version).toBe('2')
+    expect(f.workspace.editor.conflict).toBe(false)
+    expect(f.workspace.changed.value).toBe(false)
+    expect(f.workspace.dirty.value).toBe(false)
+    expect(await f.workspace.confirmLeave(`/owner/demo/tasks/sprints/${id(21)}`)).toBe(true)
+    expect(f.workspace.confirmation.open).toBe(false)
+    expect(f.fetcher.mock.calls.some(([, init]) => init.method === 'PATCH')).toBe(false)
+  })
+  it.each(['uncertain', 'rejected'] as const)(
+    'retains the original %s command when inputs return to the baseline before a newer Project read',
+    async (phase) => {
+      const f = await fixture()
+      await open(f)
+      f.intercept(async (path, init) =>
+        init.method === 'PATCH'
+          ? phase === 'uncertain'
+            ? Promise.reject(new Error('lost'))
+            : problem('RESOURCE_BUSY', 409, 'not_committed')
+          : f.normal(path, init),
+      )
+      f.workspace.draft.description = 'pending'
+      await f.workspace.save()
+      const original = f.workspace.progress.value
+      expect(original?.phase).toBe(phase)
+      f.workspace.draft.description = 'original'
+      expect(f.workspace.changed.value).toBe(false)
+      f.current({ ...project(), version: '2' })
+      await f.workspace.readCurrent()
+      expect(f.workspace.progress.value).toEqual(original)
+      expect(f.workspace.editor.version).toBe('1')
+      expect(f.workspace.editor.conflict).toBe(true)
+      expect(f.workspace.draft.description).toBe('original')
+      expect(f.workspace.canLookup.value).toBe(phase === 'uncertain')
+      const leaving = f.workspace.confirmLeave('/projects')
+      expect(f.workspace.confirmation.open).toBe(true)
+      f.workspace.finishConfirmation(false)
+      expect(await leaving).toBe(false)
+      expect(f.fetcher.mock.calls.filter(([, init]) => init.method === 'PATCH')).toHaveLength(1)
+    },
+  )
   it('keeps read-only archived state while retaining uncertain original recovery', async () => {
     const f = await fixture()
     await open(f)
