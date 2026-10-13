@@ -2,7 +2,7 @@
 
 任务分支 `ai/task-state-filter-20261013`，工作树 `/workspace/agenteam-task-state-filter`，原受测基线为 main `21ce3268`。所选 Sprint 的状态筛选、现有条件组合及服务端分页已通过原候选限定验收，实际结果和原失败见 [Work Owner 规划卡 §27](../docs/development/work-items/d11-work-owner-planning-ui.md#27-所选-sprint-的状态筛选2026-10-13)。不新增后端、总量或 URL 协议；原输入的 43 项不同普通用例、完整类型检查、生产构建及真实默认 App Web02 通过，四图获有限独审接受，未扩大到完整规划界面或模型执行。
 
-本树正在普通合入最新 main `a8d497c7`，保留用户 `708a8f54` 的远程 HTTP/登录开发环境变更与已交付 E01 数据规则候选。该组合的四个相关 web spec、完整类型检查/构建及五个 Go 包限定 selector 增量检查尚待 `validation_runner` 完成；上述 43 项与 Web02 不冒充新组合通过。原消费者和自有运行资源已退出，唯一原测试二进制已精确退役，共享依赖保留。`repo_recovery` 负责合并保存、补验后的正常 main 交付及本地/远端分支与工作树收尾；原 cursor 缺陷、兼容断言失败及 Web01 末页 optional 合同误断言按原卡保留，既有 STOP 不变。
+本树已普通合入 main `a8d497c7`，保留用户 `708a8f54` 的远程 HTTP/登录开发环境变更与已交付 E01 数据规则候选。组合 `39d4b4ad` 的[定向补验](../output/ai/task-state-filter/main-increment01/result.json)通过：四个相关 web spec 的 35 项、完整类型检查与构建，以及五个 Go 包限定 selector 的 10 top/16 sub 与 race 检查；未重跑状态筛选浏览器，上述 43 项与 Web02 仍是 `21ce3268` 原候选证据。全部补验消费者已退，原自有运行资源与唯一测试二进制已精确退役，共享依赖保留。`repo_recovery` 负责正常 main 交付及本地/远端分支与工作树收尾；原 cursor 缺陷、兼容断言失败及 Web01 末页 optional 合同误断言按原卡保留，既有 STOP 不变。
 
 ## 继承 main：E01 固定版本数据规则增量
 
