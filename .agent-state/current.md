@@ -1,4 +1,10 @@
-# 当前工作：Knowledge 生命周期已限定验收，继续默认生命周期集成
+# 当前工作：Human Blocker 已限定验收，Runner-managed 待真实 PG 验收
+
+2026-10-13。本次本地集成基线为 main `55238e723`；Human Blocker 受测 `659bc3eb`，58 项去重前端测试、完整类型检查及 84 文件构建通过。[native02](../output/ai/task-human-blocker-ui-delivery/native02/result.json) 原 `23728/959342` Wait 0/170.475s，Go 1 top/2 sub 共 79.72s、两个原 Node 调用、14 个 native PID 与六项资源、私有目录及 TCP 全尾闭合；四图已亲视有限接受。两组各 Add/Resolve 两次写入，版本 1/2/3、零 Transfer、B 不变。范围为 Work HTTP shell 的 Ready 界面门，不代表默认 App 生命周期或 Unknown 原生验收；原 basic01 两个 fixture FAIL、native01 两组 receipt 投影 FAIL 及窄修、复验、唯一二进制处置均保留，见[汇总](../output/ai/task-human-blocker-ui-delivery/summary.json)和[本片卡](../docs/development/work-items/d11-task-human-blocker-ui.md)。
+
+Runner-managed 在独立工作树，已审候选 `7a20f7e4` 的基础 41 top/133 sub 与六次 vet 已通过，真实 PG 尚待验收，不纳入本次 Human 交付。当前 16 个工作树为 12 个带分支树与四个 protected detached 保留树，旧 STOP 和未推 refs 均保留。GitHub 认证仍未恢复，禁止网络重试；最新已 verify 的[增量 bundle05](../output/ai/pending-push-20261013-05/manifest.json)为 380,468 B/91 commits/10 refs，截止 main `55238e723`，不包含新 Human / Runner 分支的后继提交，也不代替远端备份。bundle06 等 Runner 本轮实际结果后统一生成，当前未生成。
+
+## 前次摘要：Knowledge 交付时点（下文旧计数及包状态仅属该时点）
 
 2026-10-13。本次摘要更新前本地主线为 `638be0c4`；Work history Cleanup、默认 App Work、默认 App Execution / Scheduler、Milestone 排序、Usage 生命周期、Agent 筛选及 Sprint 排序已本地交付。E/S 的 12 top/20 sub 与 App vet、native02 的 1 top/2 sub 通过；Milestone 的 75 项测试、类型检查、构建及两组 Go/Node 真实验收通过，原失败与边界见 [D08](../docs/development/work-items/d08-project-owner-design.md) 和 [Milestone 卡](../docs/development/work-items/d11-milestone-reorder-ui.md)。
 
