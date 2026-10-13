@@ -194,7 +194,10 @@ func newExecutionCallPG(t *testing.T, upgrade bool, retirement ...*executionReti
 	if len(retirement) == 1 {
 		t.Cleanup(func() { v.closeExecution(t) })
 		retirement[0].beforeLaunch(t, v, providers, variables)
-		v.seedExecution(t)
+		func() {
+			defer retirement[0].diagnoseSeed(t, v.base.tracked)()
+			v.seedExecution(t)
+		}()
 	}
 	v.stopDriver, err = project.NewLifecycleStopDriver(v.base.tracked, v.life, processes, func(ctx context.Context, actor i.Actor, cause pc.LifecycleCause, scope pc.ScopeRef) error {
 		if v.stopStep == nil || cause != v.cause || !scope.Equal(v.scope) {
@@ -217,6 +220,7 @@ func (v *executionCallPG) seedExecution(t *testing.T) {
 	rejected, err := v.pair.Handoff().LaunchOnce(ctxFor(t), p, v.dispatch.Summary().ID)
 	reason, exact := wc.MatchTaskLaunchFailure(err, rejectedRequest)
 	if !exact || reason != wc.TaskLaunchFailureUnsupportedResourceConstraints || rejected.Summary().LaunchOutcome != scheduler.KnownNotCreated {
+		agentRetirementDiagnostic(t, "execution-seed-original-rejection", err)
 		t.Fatal("formal unsupported seed rejection absent", err)
 	}
 	_, err = v.pair.Failure().FinalizeLaunchFailure(ctxFor(t), p, v.dispatch.Summary().ID)

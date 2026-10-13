@@ -59,6 +59,71 @@ type executionRetirementPGAssembly struct {
 	upgrade bool
 }
 
+// Observe only the original Store results during this opt-in seed. Opaque
+// port wrappers can hide an inner database error; this preserves its safe
+// category before those wrappers, without logging identities, SQL or values.
+func (*executionRetirementPGAssembly) diagnoseSeed(t *testing.T, store *hookStore) func() {
+	t.Helper()
+	type observation struct {
+		stage  string
+		result f.CommitResult
+	}
+	var mu sync.Mutex
+	var observed []observation
+	store.mu.Lock()
+	original := store.afterResult
+	store.afterResult = func(cause f.TransactionCause, result f.CommitResult) {
+		if original != nil {
+			original(cause, result)
+		}
+		stage := "execution-seed-other-store"
+		d := cause.Details()
+		if cause.Kind() == f.RecoveryCause {
+			switch d.Owner {
+			case "execution-call-register":
+				stage = "execution-seed-service-register"
+			case "execution-call-return":
+				stage = "execution-seed-service-return"
+			case "scheduler-call-register":
+				stage = "execution-seed-scheduler-register"
+			case "scheduler-call-return":
+				stage = "execution-seed-scheduler-return"
+			}
+		} else if cause.Kind() == f.CommandsCause {
+			switch d.Primary.Command() {
+			case "launch":
+				stage = "execution-seed-launch-store"
+			case "launch_handoff":
+				stage = "execution-seed-mark-launch"
+			case "reject_launch":
+				stage = "execution-seed-reject-launch"
+			case "associate_launch":
+				stage = "execution-seed-associate"
+			}
+		}
+		mu.Lock()
+		observed = append(observed, observation{stage, result})
+		mu.Unlock()
+	}
+	store.mu.Unlock()
+	return func() {
+		store.mu.Lock()
+		store.afterResult = original
+		store.mu.Unlock()
+		if !t.Failed() {
+			return
+		}
+		mu.Lock()
+		defer mu.Unlock()
+		for n, value := range observed {
+			t.Logf("EXECUTION_RETIREMENT_SEED_STORE index=%d stage=%s commit_state=%s", n, value.stage, value.result.State().Safe())
+			if value.result.State() != f.Committed {
+				agentRetirementDiagnostic(t, value.stage, value.result.Fault())
+			}
+		}
+	}
+}
+
 func (*executionRetirementPGAssembly) manifest(t *testing.T, original pc.RequiredManifest) pc.RequiredManifest {
 	t.Helper()
 	entries := original.Entries()
