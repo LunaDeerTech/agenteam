@@ -1,14 +1,18 @@
-# 当前工作：Usage 生命周期已限定验收，继续 Agent 筛选真实浏览器验证
+# 当前工作：Knowledge 生命周期已限定验收，继续默认生命周期集成
 
-2026-10-13。本次摘要更新前本地主线为 `2352b189`；Work history Cleanup、默认 App Work、默认 App Execution / Scheduler 及 Milestone 排序已本地交付。E/S 的 12 top/20 sub 与 App vet、native02 的 1 top/2 sub 通过；Milestone 的 75 项测试、类型检查、构建及两组 Go/Node 真实验收通过，原失败与边界见 [D08](../docs/development/work-items/d08-project-owner-design.md) 和 [Milestone 卡](../docs/development/work-items/d11-milestone-reorder-ui.md)。
+2026-10-13。本次摘要更新前本地主线为 `638be0c4`；Work history Cleanup、默认 App Work、默认 App Execution / Scheduler、Milestone 排序、Usage 生命周期、Agent 筛选及 Sprint 排序已本地交付。E/S 的 12 top/20 sub 与 App vet、native02 的 1 top/2 sub 通过；Milestone 的 75 项测试、类型检查、构建及两组 Go/Node 真实验收通过，原失败与边界见 [D08](../docs/development/work-items/d08-project-owner-design.md) 和 [Milestone 卡](../docs/development/work-items/d11-milestone-reorder-ui.md)。
 
-Usage 受测 `c91e1f6e`，48 top/102 sub、四包 vet 与 [native01](../output/ai/project-usage-lifecycle-delivery/native01/result.json) 的 1 top/3 sub 已通过，原 Wait、六资源及私有状态全退，当前交付本批文档后本地合入。真实默认 reader/Runtime policy-denied 的 Usage 事实、两个 Unknown 只读确认及三表/closed ledger 清理已验；其它 Stop/Execution Completed 为受控前序，默认 Registry 与完整 Project Delete 仍未完成。原 pure 编译、Cause/typed Unknown 断言及 copylock vet 失败保留，定向修正和复验见 [D08](../docs/development/work-items/d08-project-owner-design.md)。
+Usage 受测 `c91e1f6e`，48 top/102 sub、四包 vet 与 [native01](../output/ai/project-usage-lifecycle-delivery/native01/result.json) 的 1 top/3 sub 已通过，原 Wait、六资源及私有状态全退，已随 `5133863c` 本地交付。真实默认 reader/Runtime policy-denied 的 Usage 事实、两个 Unknown 只读确认及三表/closed ledger 清理已验；其它 Stop/Execution Completed 为受控前序，默认 Registry 与完整 Project Delete 仍未完成。原 pure 编译、Cause/typed Unknown 断言及 copylock vet 失败保留，定向修正和复验见 [D08](../docs/development/work-items/d08-project-owner-design.md)。
 
-Agent 筛选前端 `agenteam-task-assignee-filter-ui` 的 43 项测试、类型检查与构建已通过；真实浏览器验证等待普通继承 Usage 本地 main 后，再按实际 Go 依赖编译一次。尚未报告 browser 通过，不接续旧 STOP。
+Agent 筛选前端已普通继承 Usage 主线，受测 `a8635af8`；43 项分段测试、完整类型检查与构建通过，84 个 dist 文件字节未变。[native01](../output/ai/task-assignee-filter-ui-delivery/native01/result.json) 的 1 top/2 sub、两个原 Node 调用和全部资源/请求退出尾已闭合，真实 Agent 50+1 目录与 Task 分页、三态及组合筛选、详情往返和 A/B 事实不变通过；1440 浅色/390 深色四图有限接受。已随 `cc3ded01` 本地合入，原 basic01 的两个旧断言 FAIL 与窄修保留；此为 Work HTTP shell，不代表默认 App 生命周期或完整视觉矩阵，见[本片卡](../docs/development/work-items/d11-task-assignee-filter-ui.md)。默认生命周期集成与原 STOP 边界保持。
 
-GitHub 认证仍失效，不重试认证探测；未推 refs、tracking/exact fetchspec 及相应工作树保留。本地[首批档案](../output/ai/pending-push-20261013/README.md)与[增量 bundle02](../output/ai/pending-push-20261013-02/manifest.json)均保留；后者已 verify，187,580 B/46 commits/7 refs，截止 main `2352b189`、Usage `ff5c36d9`、validation `f0e6c3`，不含 Usage 后继提交、thin 或 Agent 筛选新分支/launcher。它依赖原先对象，不是完整 clone 或远端备份；下一增量档案待 Agent 筛选交付稳定后生成，当前不预称完成。
+Sprint 排序受测 `c7c1bb14` 已限定验收，并随 `638be0c4` 本地合入。10 个文件 73 项测试、修正后的完整类型检查及首次构建 84 个 dist 文件通过；原 TS2322 只修 Start 测试空 request，单项复验不增加总数。[native01](../output/ai/sprint-reorder-ui-delivery/native01/result.json) 的 1 top/2 sub 共 67.34s，原 `71094/69304f` Wait 0/157.975s、两个 Node 调用及全退出尾闭合。默认 App 正式 HTTP 的 planned/current 两组各三次排序两次 changed，Current、另一组 Task 与 B 不变；宽浅/窄深四图有限接受。Runtime disabled，Unknown/权限矩阵仍按受控单元范围，原 FAIL 与边界见[本片卡](../docs/development/work-items/d11-sprint-reorder-ui.md)。
 
-Git 负责人 fresh 核对共 12 个工作树：八个带分支的 main、E/S App、App Work、Milestone 前端、Usage、Work history、Agent 筛选前端与共享 validation；另四个 protected detached 旧保留树为 Knowledge Move、Object runtime join safe、Skill package HTTP、Skills milestone resume，独有 ignored 证据与 STOP 保留。以下历史计数不代表当前数量。
+Knowledge 受测 `4a6479d5`，基础去重 80 top/171 sub、五包 vet 与 [native04](../output/ai/project-knowledge-lifecycle-delivery/native04/result.json) 的 1 top/3 sub 全通过（33.99s，原外层 Wait 0/61.725s）。默认 App HTTP/跨 P 来源、原 Store 与 typed Close 返回、Unknown 零写确认，以及六张业务表/四个 Object 叶的真实清理已验；原调用者和六项资源全退。其它 Stop 为受控交接、无 Execution 前驱，Registry 仍 nil，不宣完整 Delete。三轮原 FAIL、两处产品修复、PG reflect 比较修正与资源处置事实保留，见 [D08](../docs/development/work-items/d08-project-owner-design.md)及[最终汇总](../output/ai/project-knowledge-lifecycle-delivery/summary.json)。171 件小证据已稳定保全；本批文档后由 Git 负责人普通合入，原受测输入不因主线无交集的前端差额重跑。
+
+GitHub 认证仍失效，不重试认证探测；未推 refs、tracking/exact fetchspec 及相应工作树保留。本地首批及旧增量档案保留；最新已 verify 的[增量 bundle04](../output/ai/pending-push-20261013-04/manifest.json)为 318,467 B/76 commits/10 refs，截止 main `638be0c4`、Knowledge `5e210f82`、validation `05c5e1b1`。Knowledge 后继 Source/Object、PG、修复及本批文档尚不在此包；它依赖原先对象，不是完整 clone 或远端备份。本次交付后的 bundle05 仅已安排，尚未生成。
+
+Git 负责人本次 fresh 核对共 14 个工作树：十个带分支的 main、E/S App、App Work、Milestone 前端、Usage、Work history、Agent 筛选前端、Sprint 排序前端、Knowledge 与共享 validation；另四个 protected detached 旧保留树为 Knowledge Move、Object runtime join safe、Skill package HTTP、Skills milestone resume，独有 ignored 证据与 STOP 保留。以下历史计数不代表当前数量。
 
 ToolsHTTP、网络截断、旧 Knowledge Move 预算、SPA concurrent-publication、官方固定来源 DNS/403 等既有 STOP 原样；下列旧流水仅供恢复历史，不构成恢复执行授权。
 
