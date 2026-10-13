@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 # Toolchains only: application code and dependencies are mounted at runtime.
 FROM golang:1.27.1-alpine AS go
-FROM node:24.12.0-alpine
+FROM node:24.12.0-alpine AS dev-toolchain
 RUN --mount=type=secret,id=dev_ca \
     set -eu; \
     if [ -f /run/secrets/dev_ca ]; then \
@@ -21,3 +21,43 @@ ENV PATH="/usr/local/go/bin:${PATH}" GOTOOLCHAIN=local
 ENV NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
 RUN test "$(go env GOVERSION)" = go1.27.1 && test "$(node --version)" = v24.12.0
 WORKDIR /workspace
+
+# MinIO community containers are no longer a dependable binary distribution.
+# Build the existing release from its official, peeled commit. This stage and
+# its Go download/build caches are reused until the Dockerfile changes.
+FROM dev-toolchain AS minio-build
+ARG TARGETOS
+ARG TARGETARCH
+WORKDIR /src/minio
+RUN git init . \
+    && git remote add origin https://github.com/minio/minio.git \
+    && git fetch --depth=1 origin 07c3a429bfed433e49018cb0f78a52145d4bedeb \
+    && git checkout --detach FETCH_HEAD \
+    && test "$(git rev-parse HEAD)" = 07c3a429bfed433e49018cb0f78a52145d4bedeb
+RUN --mount=type=cache,id=agenteam-minio-go1.27.1-mod,target=/minio-cache/mod,sharing=locked \
+    --mount=type=cache,id=agenteam-minio-go1.27.1-build,target=/minio-cache/build,sharing=locked \
+    set -eu; \
+    test "$TARGETOS" = linux; \
+    export GOMODCACHE=/minio-cache/mod GOCACHE=/minio-cache/build; \
+    minio_ldflags="$(MINIO_RELEASE=RELEASE go run buildscripts/gen-ldflags.go 2025-09-07T16:13:09Z)"; \
+    CGO_ENABLED=0 GOOS="$TARGETOS" GOARCH="$TARGETARCH" \
+        go build -p 1 -mod=readonly -tags kqueue -trimpath -ldflags "$minio_ldflags" -o /out/minio .
+
+# Reuse the small official runtime already needed by the web service. Only
+# MinIO is started; the inherited nginx entrypoint is replaced below.
+FROM nginx:1.28.0-alpine@sha256:30f1c0d78e0ad60901648be663a710bdadf19e4c10ac6782c235200619158284 AS minio
+COPY --from=minio-build /out/minio /usr/local/bin/minio
+COPY --from=minio-build /src/minio/dockerscripts/docker-entrypoint.sh /usr/bin/docker-entrypoint.sh
+COPY --from=minio-build /src/minio/LICENSE /usr/share/licenses/minio/LICENSE
+RUN chmod 0755 /usr/local/bin/minio /usr/bin/docker-entrypoint.sh && mkdir -p /data
+LABEL org.opencontainers.image.source="https://github.com/minio/minio" \
+    org.opencontainers.image.revision="07c3a429bfed433e49018cb0f78a52145d4bedeb" \
+    org.opencontainers.image.version="RELEASE.2025-09-07T16-13-09Z" \
+    org.opencontainers.image.licenses="AGPL-3.0-or-later"
+WORKDIR /data
+STOPSIGNAL SIGTERM
+ENTRYPOINT ["/usr/bin/docker-entrypoint.sh"]
+CMD ["server", "/data", "--console-address", ":9001"]
+
+# Keep an unqualified `docker build -f Dockerfile.dev` a toolchain build.
+FROM dev-toolchain AS toolchain

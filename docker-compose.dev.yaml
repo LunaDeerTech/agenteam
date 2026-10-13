@@ -27,7 +27,12 @@ services:
     stop_grace_period: 30s
 
   minio:
-    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
+    image: agenteam-dev-minio:RELEASE.2025-09-07T16-13-09Z-07c3a429bfed
+    pull_policy: never
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: minio
     entrypoint: ["/bin/sh", "/workspace/deploy/dev/service.sh", "minio", "/usr/bin/docker-entrypoint.sh", "minio"]
     command: ["server", "/data", "--console-address", ":9001", "--certs-dir", "/data/certs"]
     environment:
@@ -48,6 +53,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
+      target: toolchain
     # Root only prepares local files; bootstrap execs the original target UID.
     user: "0:0"
     init: true
