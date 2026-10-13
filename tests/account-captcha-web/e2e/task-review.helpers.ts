@@ -1831,6 +1831,13 @@ export async function observeBrowserIO(
                     };
                   }),
                 };
+              } else if (kind === "humanBlocker.add" || kind === "humanBlocker.resolve") {
+                // The receipt uses the same formal public Blocker DTO as the
+                // list. Keep its complete Task/event fields and all public
+                // Blocker fields; raw actors/metadata stay bound by row.digest
+                // and the Go receipt/persisted-facts proof.
+                const { metadata, created_by, resolved_by, ...blocker } = parsed.blocker;
+                parsed = { ...parsed, blocker: { ...blocker, related_task_id: null } };
               }
               if (kind?.startsWith("systemRunner.")) {
                 const safe = host.__systemRunnerEvidenceValue(parsed);
