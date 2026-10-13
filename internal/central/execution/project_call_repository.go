@@ -64,8 +64,12 @@ func (s *projectCallState) register(ctx context.Context, e *projectCallEntry) (f
 		if r.Lane == projectLaneService {
 			locks = scopeLocks(e.actor, r.Project, e.launchKey.AgentID, f.Shared)
 			if e.actor.Details().Kind == i.Service && e.actor.Details().ServiceName == i.Scheduler {
+				command, err := e.launchKey.Command()
+				if err != nil {
+					return err
+				}
 				key, _ := f.ProjectScheduleLock(r.Project.String())
-				locks = append(locks, f.LockRequest{Key: key, Mode: f.Exclusive})
+				locks = append(locks, f.LockRequest{Key: key, Mode: f.Exclusive}, commandLock(command))
 			}
 		}
 		locks, lockErr := normalizeProjectRegistrationLocks(locks)
