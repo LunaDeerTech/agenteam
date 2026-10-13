@@ -1400,7 +1400,7 @@ def configuration(binary, selector, directory):
     plan = {'binary': str(binary.resolve()), 'selector': selector,
             'cwd': str(REPOSITORY / TARGETS[selector]),
             'directory': str(directory), 'runtime': str(directory / 'runtime'),
-            'test_timeout': '6m', 'resources': 7}
+            'test_timeout': '6m', 'resources': 6 if selector == MILESTONE_REORDER_UI else 7}
     if selector == '^TestRunnerReadFileApp$':
         plan['runner_read_file_app'] = runner_read_file_app_inputs(binary)[1]
     if selector in (TASK_REVIEW_UI, TASK_INTAKE_UI, TASK_EDIT_UI, TASK_TIMELINE_UI, AGENT_CONFIGURATION_UI, AGENT_EDIT_UI, AGENT_RUNNER_MOUNTS_UI, SYSTEM_RUNNER_MANAGEMENT_UI, AGENT_SECRET_ALLOWLIST_UI, AGENT_MODEL_POLICY_UI, SPRINT_CREATE_UI, PROJECT_VARIABLES_UI, MILESTONE_CREATE_UI, MILESTONE_EDIT_UI, MILESTONE_REORDER_UI, SPRINT_EDIT_UI, SKILL_OWNER_UI, SKILL_PACKAGE_UI, PROJECT_SCHEDULER_UI, SPRINT_START_UI, KNOWLEDGE_TEXT_UI, KNOWLEDGE_TITLE_UI, KNOWLEDGE_DELETE_UI, KNOWLEDGE_RENAME_UI, PROJECT_SECRETS_UI, PROJECT_SECRET_WRITE_UI, PROJECT_USAGE_UI):
@@ -1463,6 +1463,9 @@ def main():
                 'AGENTEAM_FIXTURE_TEST_CWD': plan['cwd'],
                 'AGENTEAM_FIXTURE_OWNED_RECORD': str(directory / 'owned.json'),
                 'TMPDIR': str(runtime), 'GOTMPDIR': str(runtime)})
+    if args.run == MILESTONE_REORDER_UI:
+        # This exact browser profile has no PG16 consumer.
+        env['AGENTEAM_FIXTURE_PG_CURRENT_ONLY'] = '1'
     if args.run == '^TestSkillLifecycleCleanupHistoricalAttempts$':
         prepare_history_go_environment(directory, env)
     if args.run in METADATA_INPUTS:

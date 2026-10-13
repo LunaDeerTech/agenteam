@@ -1022,7 +1022,7 @@ def root_adapter(driver):
     return module
 
 
-def root_record(directory):
+def root_record(directory, selector=None):
     path = directory / 'owned.json'
     if path.is_symlink() or path.stat().st_mode & 0o777 != 0o600:
         raise ValueError('invalid owned root manifest permissions')
@@ -1030,13 +1030,16 @@ def root_record(directory):
     if len(raw) > 16384:
         raise ValueError('owned root manifest too large')
     record = json.loads(raw)
+    current_only = selector == MILESTONE_REORDER_UI
+    expected_resources = 6 if current_only else 7
     if (set(record) != {'kind', 'resources', 'directories'}
             or record['kind'] != 'work-owner-root-chain'
-            or len(record['resources']) != 7 or len(record['directories']) != 3):
-        raise ValueError('incomplete seven-resource manifest')
+            or len(record['resources']) != expected_resources or len(record['directories']) != 3):
+        raise ValueError(f'incomplete {expected_resources}-resource manifest')
     wanted = {'agenteam.d05.objectfixture': ['container', 'network'],
               'agenteam.d04.networkfixture': ['container', 'network'],
-              'agenteam.d03.fixture': ['container', 'container', 'network']}
+              'agenteam.d03.fixture': (['container', 'network'] if current_only
+                                       else ['container', 'container', 'network'])}
     seen, groups = set(), {}
     for item in record['resources']:
         if (set(item) != {'kind', 'id', 'label', 'nonce'}
@@ -1102,11 +1105,11 @@ def skill_cleanup_results(output, selector):
 def observe_root_chain(directory, log, log_path, selector):
     good = True
     try:
-        record = root_record(directory)
+        record = root_record(directory, selector)
     except (OSError, ValueError, TypeError, KeyError):
         record = None
         good = False
-        log.write('STOP missing or invalid seven-resource ownership record\n')
+        log.write('STOP missing or invalid exact owned resource record\n')
     # A failed setup never manufactures seven resource retirements. It still
     # reports the actual runtime state and retains the original failure.
     deadline = time.monotonic() + 20
