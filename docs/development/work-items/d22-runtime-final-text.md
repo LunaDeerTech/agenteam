@@ -1,6 +1,6 @@
 # Task Execution 的最终文本快照
 
-本片在已有 Task Execution 历史读取上接入真实 schema1 DirectText producer 的最终文本。它不是 token stream，不启动新的模型调用，不产生 Artifact，也不把 Execution 成功解释为 Task 完成。源码与测试编写中，尚未声明动态验收通过。
+本片在已有 Task Execution 历史读取上接入真实 schema1 DirectText producer 的最终文本。它不是 token stream，读取不启动新的模型调用、不产生 Artifact，也不把 Execution 成功解释为 Task 完成。真实默认 App、同数据库重启读取及浏览器展示验收已通过；模型响应来自任务自有的受控 HTTPS 服务。
 
 ## 正式接口
 
@@ -28,4 +28,12 @@ GET/HEAD `/api/v1/projects/{project_id}/tasks/{task_id}/executions/{execution_id
 
 ## 必要验证范围
 
-定向测试应验证完整公开 TextParts、真实空输出与缺记录区别、同原终态事务/Unknown 完整候选、当前权限/P/Task/E、原读 Store 返回尾及 exact retirement。真实默认 App 联调须经原 Coordinator/Associated/Preparation/DirectText 与正式受控 Model HTTP 返回最终文本，再由实际 Owner GET 读取并验证重启稳定；受控 transport 不等于公共模型网络可用。沿原 Task Execution 页面做显式加载/刷新及纯文本可见性，不用手工 SQL 文本或假 RuntimeFacts 代替 producer。
+定向验证已通过 11 个顶层测试、41 个子测试及 3 个包的 vet，覆盖完整公开 TextParts、空文本与缺记录区别、终态候选构造与 Unknown 完整候选确认、当前权限/P/Task/E、原读 Store 返回尾及 exact retirement。构造接线修复后增量 App vet 也已通过，未重复未变的前端或领域检查。
+
+`TestRuntimeFinalTextDefaultApp/original-producer-and-restarted-history` 在 `runtime-app-native03` 整轮通过。原默认 App 经 Coordinator/Handoff、一次 Associated.Advance、Preparation/DirectText 和真实 Model adapter，完成一次受控 HTTPS 请求与完整 JSON 响应。真实 Secret、当前出站 policy、CA 与私有地址解析参与调用；未 SQL 种植 Execution/Runtime 行。原 Execution、Round、assistant Transcript 与最终快照在同一终态事务保存，完整文本及绑定一致；Owner GET/HEAD、错 P/Task 和非 Owner 拒绝通过。原进程与 Guard 全部退出后，同数据库及密钥重启 Runtime disabled，读取的 generation/progress/正文与原响应字节保持一致。Model 调用为 1、Tool 操作为 0，Task 状态与版本保持非终态。
+
+真实 `TestRuntimeFinalTextWeb/final-text-load-refresh-and-safe-render` 在 `runtime-web-native01` 整轮通过：页面 List、独立 Execution Get 及两次最终输出 Get 共 4 个目标 GET，页面阶段零写；连同辅助读取共 22 个原响应，reader/consumer、完整字节与 handler 返回均对齐。显式加载、刷新、HTML 字面纯文本及窄屏键盘滚动通过，视觉范围见[前端结果](d22-task-execution-output-ui.md)。原生和浏览器的原 Wait、Node、CDP 及所有任务自有资源均已退出，结果留在 `output/ai/execution-runtime-view`。
+
+`runtime-app-native01`、`02` 原失败保留：首轮仅观测到完成条件超时，第二轮确认 Model 为 `network/not_sent`、受控服务零连接，原 producer 正确保存 failed 快照。夹具先前只替换普通出站 client，而 Model adapter 自行构造客户端；最窄修复将受控 resolver 接到原 Model 构造输入，并由现有配置加载 CA，默认 nil resolver 仍走系统解析。未放宽成功门、增加 Model 重试或改动宿主 DNS。
+
+以上验证受控 HTTP 协议与真实系统装配，不证明公共模型网络可用，也未调用环境中的外部模型地址、密钥或模型 ID。ToolsHTTP、活动 Runtime 流及完整 Agent/Task 工作闭环仍未验收，既有 STOP 保持。

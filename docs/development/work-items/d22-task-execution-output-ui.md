@@ -1,6 +1,6 @@
 # Task Execution 最终输出界面
 
-本片在已有 Task Execution 详情下接入 `GET /api/v1/projects/{P}/tasks/{T}/executions/{E}/runtime-view`。正式来源为同轮 `d22-runtime-final-text.md` 与 `api/openapi/execution.json` 的 `durable_final_text_v1`；当前为源码候选，尚未运行基础检查或真实浏览器验证。
+本片在已有 Task Execution 详情下接入 `GET /api/v1/projects/{P}/tasks/{T}/executions/{E}/runtime-view`。正式来源为同轮 `d22-runtime-final-text.md` 与 `api/openapi/execution.json` 的 `durable_final_text_v1`；定向用例、类型检查、构建及真实默认 App 浏览器验收已通过。
 
 ## 页面行为
 
@@ -22,6 +22,10 @@ Session 的 `workReview.executionOutput` 沿原 `work-review-read` owner，使�
 
 ## 必要验证与限制
 
-新增 API、Session 和真实 `TaskReviewDetail` 组件测试，覆盖大于旧摘要上限的完整文本、严格绑定和数据损坏、三种 availability 与真实空文本、纯文本渲染、显式恢复、实际取消尾及跨 Task/身份迟到响应。统一 runtime 尚待执行这些定向用例、相关原 Execution 用例、类型和构建；真实默认 App/浏览器仍需原 DirectText producer 联调，不以单元测试替身代替。
+API、Session 和真实 `TaskReviewDetail` 定向与兼容测试共 23 项、完整类型检查及生产构建已通过，构建共 86 个文件。覆盖大于旧摘要上限的完整文本、严格绑定和数据损坏、三种 availability 与真实空文本、纯文本渲染、显式恢复、实际取消尾及跨 Task/身份迟到响应。新 helper/spec 的目标语义检查无诊断；原传递旧源的 7 项诊断未纳本片修复，不宣称整个历史 harness 类型检查通过。锁定 Playwright 的 `--list` 已确认唯一场景可加载。
+
+`runtime-web-native01` 使用原默认 App 的真实 Coordinator/OneRound producer 和受控 Model HTTPS 响应，完成实际列表→详情→加载最终输出→显式刷新。原加载屏障期间正文隐藏、刷新禁用；读取完成后完整 Unicode、换行及 HTML 字面内容与原快照一致，没有生成 script/img/iframe/a 节点或执行脚本。390 深色窄屏的正文内部 End/Home 键盘滚动、焦点及无页面横向溢出通过。目标 4 次 GET、页面阶段零写，22 个原响应连同辅助读取均有完整消费及 handler 返回证明；其中两个辅助读取保留实际 ERR_ABORTED 标签，以原完整消费联合判据验收，未将它们改写成 finished。Node、CDP 和自有资源实际退出。
+
+三张本轮截图已独立查看，无视觉 must-fix：1440 浅色加载态无旧正文、刷新呈禁用外观；输出态可见字面 script/img/Markdown、Unicode 及刷新焦点；390 深色正文处于独立有界滚动区，焦点清楚、控件无横向溢出。正文下沿是内部滚动裁切，不据截图宣称全文、End/Home 动作时序或 16 MiB 边界已验证；完整内容与键盘动作沿本轮动态断言。业务、截图及资源结果位于 `output/ai/execution-runtime-view/runtime-web-native01`。原生两轮夹具出站装配失败及修复范围见[后端结果](d22-runtime-final-text.md)，没有以失败终态快照冒充成功输出。
 
 本片只展示 schema1 DirectText 已保存的最终结果。持久 generation 不是 WebSocket epoch，当前没有活动 Runtime 事件流、token 更新、subscribe-first 或 resync，也不代表完整 D22/D25 已完成。
