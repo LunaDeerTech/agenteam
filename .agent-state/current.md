@@ -1,4 +1,16 @@
-# 当前工作：Usage Execution 筛选已限定验收，真实模型 Live 仍待修复
+# 当前工作：D11 Task 依赖与 Human Artifact 已本地集成，Live 受外部 DNS 阻塞
+
+2026-10-13。本次摘要更新前 main 为 `36642754`，仅合入已审 D11 与 Human Artifact 内容，未合入 Live 或 validation 整支。D11 的 75 项去重单元测试、完整类型检查及 84 文件构建通过；native04 业务 Go 1 top/1 sub、原 Node 与四图有限接受，但原 `19524/d42b49` 外层 Wait 1、whole=false 和全局 TCP 尾失败完整保留，TIME_WAIT 归属未证。独审接受 `task-dependency-owned-v1` 方法及原证据的业务/owned/input 限定评估，无第五轮真实运行，不追认原 whole PASS。见[本片卡](../docs/development/work-items/d11-task-dependency-ui.md)、[稳定 v2 汇总](../output/ai/task-dependency-ui-delivery/summary-v2.json)和[集成记录](../output/ai/task-dependency-ui-delivery/local-integration.json)。
+
+Human Artifact 基础 22 top/102 sub 与三包 vet、native01 的 1 top/3 sub 通过（24.45s，原 `21684/6b8f3a` Wait 0/54.903s）。默认 App 原 human pair 的创建、重放、列表、UTF-8 读取与审计、typed Close 返回、发布 ACK Unknown 只读重放、pending creation 显式取消已验；六项资源、三个私有目录及七个编译/native PID 全退，唯一 88,075,085 B 二进制已处置。原三组 fixture FAIL 与局部 Archiving 门修复保留；不代表 Artifact HTTP、Agent 来源、Project cleanup、生产 Execution/模型调用或网络故障。最终主线按原 import/embed 遍历重建 84 包/1,387 输入，新增、删除及内容差额均为零，独审确认无需组合编译或重跑。见[本片卡](../docs/development/work-items/d05-human-artifact-app.md)、[汇总](../output/ai/human-artifact-app-delivery/summary.json)和[完整集合比较](../output/ai/human-artifact-app-delivery/final-closure-comparison.json)。
+
+Live 仍独立保留，四轮原 FAIL、四次编译/list 与四份 binary disposition 已归档。01/02 在本地准备阶段未 dispatch；03 仅证 network，发送状态未知；04 唯一诊断为 `dns_failed`、`Sent=false`，Usage 为 not_sent/failed，未证更深根因。必要 observer 基础 6 top/5 sub、两包 vet 通过不等于真实模型成功；不自动重试。见[诊断卡](/workspace/agenteam-live-chat-execution-e2e/docs/development/work-items/d22-live-chat-execution-e2e.md)所在 Live 分支和[稳定诊断汇总](../output/ai/live-chat-execution-e2e-diagnostics/summary.json)。
+
+当前实际七个 worktree 为 main、Live、共享 validation 三个带分支树及四个 protected detached STOP 树；本地仅保留对应三个分支 refs。D11 与 Artifact 两棵已交付树在 53 个独有小件 1,508,477 B 先行保全、550 项三方 SHA 核对及 bundle08 覆盖 exact tips 后，以普通 worktree remove 和已合入 branch -d 收尾。执行时文件系统可用空间净增 136,613,888 B，只是当次观测；原可见进程引用检查存在权限限制，原任务 Wait/post/children、19 个精确已知 PID 与资源尾均另外核闭。四 STOP、Live、validation 物理依赖及全部旧证据/公共 Git 对象未动。见[保全映射](../output/ai/completed-d11-artifact-retained-evidence-20261013.json)和[清理实录](../output/ai/completed-d11-artifact-removal-20261013.json)。
+
+GitHub 认证仍失效，未重试网络、未改远端 refs 或精确 fetchspec。已 verify 的[增量 bundle08](../output/ai/pending-push-20261013-08/manifest.json)为 629,763 B/148 commits/五个删除前 exact refs，截止 main `36642754`；它保留已删 D11/Artifact tips，并不包含本摘要提交。此前七包均原样保留；本摘要后的最终小包尚待实际生成，回执将单独记录，不再为包完成状态反复修改本摘要。本地增量包依赖既有前置对象，不是云备份。远端授权恢复后先正常推送最终 main 并核包含关系，再按 fresh 远端预期 tip 收尾已交付残留引用；Live 与 validation 仍需单独备份并保留。
+
+## 前次摘要：Usage Execution 筛选交付时点（下文计数与包状态仅属该时点）
 
 2026-10-13。本次本地集成基线 main `e46a4b6e`。Usage Execution 筛选受测 `3be0dcce`，八个 spec 共 38 项测试、完整类型检查及 84 文件构建通过。[native02](../output/ai/usage-execution-filter-ui-delivery/native02/result.json) 原 `6420/fb4c3a` Wait 0/147.589s，Go 1 top/1 sub 45.15s、一个原 Node 用例 14.0s；九个 native PID、六项资源、三个私有目录及请求/运行退出尾全闭。真实默认 App 只读 HTTP，10 次列表与三次 daily 汇总读取、零写入；四图有限接受。Execution ID 来自受控 Runtime Facts，不代表生产 Execution 启动或外部 LLM 调用，B 未浏览器导航；原 locator strict FAIL、单行修正及 21 个原消费者退出后的唯一二进制处分均保留，见[汇总](../output/ai/usage-execution-filter-ui-delivery/summary.json)和[本片卡](../docs/development/work-items/d09-usage-execution-filter-ui.md)。受测提交至本次组合只有已审结果文档差额，复用原通过输入，不因 Git HEAD 进位重跑。
 
