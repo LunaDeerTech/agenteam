@@ -215,6 +215,7 @@ export async function observeBrowserIO(
     const originalVariableWrites: any[] = [];
     const originalTextWrites: any[] = [];
     const originalSchedulerWrites: any[] = [];
+    const originalKnowledgeMoves: any[] = [];
     const originalSystemRunnerWrites: any[] = [];
     const originalSecretWrites: any[] = [];
     let secretWriteEnabled = false;
@@ -505,6 +506,13 @@ export async function observeBrowserIO(
           writeInputs.set(call, { source, current: progress?.phase === "uncertain" &&
             progress.contextValid === true && progress.projectID === source?.project && progress.documentID === source?.root });
         }
+        if (kind === "knowledgeMove.startMove") {
+          const original = {call, project: args[0], document: args[1], input: JSON.parse(JSON.stringify(args[2]))};
+          originalKnowledgeMoves.push(original); writeInputs.set(call, original);
+        } else if (kind === "knowledgeMove.checkOriginal") {
+          const source = originalKnowledgeMoves.at(-1), progress = auth.knowledgeMove.progress;
+          writeInputs.set(call, {source, current: progress?.phase === "uncertain" && progress.contextValid === true && progress.projectID === source?.project && progress.documentID === source?.document});
+        }
         if (kind === "knowledgeText.write") {
           const original = {call, project: args[0], intent: JSON.parse(JSON.stringify(args[1]))};
           originalTextWrites.push(original);
@@ -656,6 +664,10 @@ export async function observeBrowserIO(
                 progress.projectID === source.project && progress.documentID === source.root &&
                 progress.receipt === (kind === "knowledgeDelete.startDelete" ? value : value.receipt);
             }
+            if (kind === "knowledgeMove.startMove" || kind === "knowledgeMove.checkOriginal") {
+              const original = writeInputs.get(call), source = original.source ?? original, progress = auth.knowledgeMove.progress;
+              call.result_current = progress?.phase === "confirmed" && progress.projectID === source.project && progress.documentID === source.document && progress.receipt === (kind === "knowledgeMove.startMove" ? value.document : value.receipt.document);
+            }
             if (kind === "knowledgeText.write") {
               const original = writeInputs.get(call), progress = auth.knowledgeText.progress;
               call.result_current = progress?.phase === "confirmed" &&
@@ -781,6 +793,7 @@ export async function observeBrowserIO(
         sprintCompletion: { first: string; next: string } | undefined = undefined,
         taskCancel: readonly string[] | undefined = undefined,
         taskDependency: { task: string; related: string } | undefined = undefined,
+        knowledgeMoveTarget: string | undefined = undefined,
       ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
@@ -938,6 +951,19 @@ export async function observeBrowserIO(
                   a[0] !== project || a[1] !== knowledgeDelete.root)
                 throw Error("KNOWLEDGE_DELETE_WRITE_SCOPE");
               return prefix + (method === "checkOriginal" ? "/commands/lookup" : "/" + knowledgeDelete.root + (method === "preview" ? "/delete-preview" : "/delete-subtree"));
+            }, "POST");
+        } else if (knowledgeMoveTarget) {
+          const prefix = "/api/v1/projects/" + project + "/knowledge/documents";
+          for (const method of ["children", "get", "ancestors", "readContent"])
+            consumer(auth.knowledge, method, "knowledge." + method, (a) => {
+              if (a[0] !== project) throw Error("KNOWLEDGE_MOVE_READ_SCOPE");
+              return prefix + (method === "children" ? "/children" : "/" + a[1] + (method === "get" ? "" : method === "ancestors" ? "/ancestors" : "/content"));
+            });
+          for (const method of ["startMove", "checkOriginal"])
+            consumer(auth.knowledgeMove, method, "knowledgeMove." + method, (a) => {
+              if (method === "startMove" ? a[0] !== project || a[1] !== knowledgeMoveTarget : a.length !== 0 || auth.knowledgeMove.progress?.projectID !== project || auth.knowledgeMove.progress?.documentID !== knowledgeMoveTarget)
+                throw Error("KNOWLEDGE_MOVE_WRITE_SCOPE");
+              return prefix + (method === "startMove" ? "/" + knowledgeMoveTarget + "/move" : "/commands/lookup");
             }, "POST");
         } else if (knowledgeTitleReads) {
           const prefix = "/api/v1/projects/" + project + "/knowledge/documents";
@@ -1363,6 +1389,7 @@ export async function observeBrowserIO(
         originalVariableWrites.length = 0;
         originalTextWrites.length = 0;
         originalSchedulerWrites.length = 0;
+        originalKnowledgeMoves.length = 0;
         originalSystemRunnerWrites.length = 0;
         for (const original of originalSecretWrites) original.input = undefined;
         originalSecretWrites.length = 0;
@@ -1701,6 +1728,12 @@ export async function observeBrowserIO(
             track(digest(new TextEncoder().encode(token)), tokenHash => {
               call.confirmation_token_sha256 = row.confirmation_token_sha256 = tokenHash;
             }, () => { row.error = true; });
+          }
+          if (call.kind === "knowledgeMove.startMove") {
+            matches = originalKnowledgeMoves.every(old => old === original || (typeof old.key === "string" && old.key !== key)) && equal(parsed, original.input);
+            if (matches) original.key = key;
+          } else if (call.kind === "knowledgeMove.checkOriginal") {
+            matches = original.current && original.source?.call.rejected === true && original.source.call.settled === true && key === original.source.key && equal(parsed, {command: "move", document_id: original.source.document, request: original.source.input});
           }
           if (call.kind === "knowledgeText.write") {
             matches = originalTextWrites.every(old => old === original || (typeof old.key === "string" && old.key !== key)) && equal(parsed, original.intent.request);
@@ -2149,6 +2182,7 @@ export type TaskObservationMaterial = {
   milestone_id?: string;
   skill_id?: string;
   root_id?: string;
+  document_id?: string;
 };
 export type TaskObservationProfile = {
   dist: string;
@@ -2178,6 +2212,7 @@ export type TaskObservationProfile = {
     | "knowledge-text"
     | "knowledge-title-search"
     | "knowledge-delete"
+    | "knowledge-move"
     | "project-scheduler"
     | "project-secrets"
     | "project-secret-write"
@@ -2187,7 +2222,7 @@ export type TaskObservationProfile = {
     | "agent-secret-allowlist"
     | "system-runner-management";
   endpoint: (request: Request) => string | undefined;
-  cut?: "transfer" | "create" | "update" | "start" | "delete";
+  cut?: "transfer" | "create" | "update" | "start" | "delete" | "move";
   lookupCommand:
     | "work.task.transfer"
     | "work.task.create"
@@ -2204,6 +2239,7 @@ export type TaskObservationProfile = {
     | "project.secret_variable.update"
     | "project.secret_variable.delete"
     | "delete-subtree"
+    | "move"
     | null;
   intakeWrites?: true;
   agentConfiguration?: true;
@@ -2224,6 +2260,7 @@ export type TaskObservationProfile = {
   knowledgeTextWrites?: true;
   knowledgeTitleReads?: true;
   knowledgeDeleteWrites?: true;
+  knowledgeMoveWrites?: true;
   secretReads?: true;
   secretWrite?: true;
   secretDelete?: true;
@@ -2702,6 +2739,12 @@ export async function observeTaskRequests(
        profile.secretReads || profile.usageReads || profile.agentRunnerMounts || profile.agentRunnerWireHeaders || profile.usageWireHeaders ||
        Object.keys(profile).some(key => !["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand", "cut", "knowledgeDeleteWrites"].includes(key))))
     throw Error("KNOWLEDGE_DELETE_PROFILE_MISMATCH");
+  if ((profile.knowledgeMoveWrites || profile.prefix === "knowledge-move") &&
+      (profile.knowledgeMoveWrites !== true || profile.prefix !== "knowledge-move" || profile.lookupCommand !== "move" ||
+       !["move-normal", "move-lost"].includes(data.mode) || profile.cut !== (data.mode === "move-lost" ? "move" : undefined) ||
+       !data.document_id || !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.document_id) ||
+       Object.keys(profile).some(key => !["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand", "cut", "knowledgeMoveWrites"].includes(key))))
+    throw Error("KNOWLEDGE_MOVE_PROFILE_MISMATCH");
   const entries: Entry[] = [];
   const events: Record<string, unknown>[] = [];
   const browserEvents: BrowserDiagnostic[] = [];
@@ -2729,7 +2772,7 @@ export async function observeTaskRequests(
         status: entry.status,
         request_id: entry.requestID,
         failure: entry.failure,
-        ...((profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.knowledgeDeleteWrites || profile.secretReads || profile.secretWrite || profile.usageReads || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement) && entry.skillsHeaders
+        ...((profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.knowledgeMoveWrites || profile.knowledgeDeleteWrites || profile.secretReads || profile.secretWrite || profile.usageReads || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement) && entry.skillsHeaders
           ? { skills_headers: { ...entry.skillsHeaders } }
           : {}),
       });
@@ -2789,7 +2832,7 @@ export async function observeTaskRequests(
     if (entry.responseCount !== 1)
       observerError = new Error("DUPLICATE_ORIGINAL_RESPONSE");
     entry.status = response.status();
-    if (profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.knowledgeDeleteWrites || profile.secretReads || profile.secretWrite || profile.usageReads || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement) {
+    if (profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.knowledgeMoveWrites || profile.knowledgeDeleteWrites || profile.secretReads || profile.secretWrite || profile.usageReads || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement) {
       // Observe both original header promises once; retain no credential values.
       entry.headersReady = Promise.allSettled([
         entry.request.allHeaders(),
@@ -2910,6 +2953,7 @@ export async function observeTaskRequests(
           knowledgeTextWrites,
           schedulerWrites,
           knowledgeTitleReads,
+          knowledgeMoveTarget,
           secretReads,
           usageReads,
           runnerMounts,
@@ -2958,6 +3002,12 @@ export async function observeTaskRequests(
           reorderMilestone,
           reorderSprint,
           humanBlockerTask,
+          undefined, // executionTask
+          undefined, // executionOutputTask
+          undefined, // sprintCompletion
+          undefined, // taskCancel
+          undefined, // taskDependency
+          knowledgeMoveTarget,
           );
         },
         {
@@ -2983,6 +3033,7 @@ export async function observeTaskRequests(
           knowledgeTextWrites: profile.knowledgeTextWrites === true,
           schedulerWrites: profile.schedulerWrites === true,
           knowledgeTitleReads: profile.knowledgeTitleReads === true,
+          knowledgeMoveTarget: profile.knowledgeMoveWrites ? data.document_id : undefined,
           secretReads: profile.secretReads === true,
           usageReads: profile.usageReads === true,
           usageSummaryReads: profile.usageSummaryReads === true,
@@ -3273,6 +3324,14 @@ export async function observeTaskRequests(
     return profile.usageReads && entry.request.method() === "GET" &&
       (["session", "resolve", "projects", "project", "usage"].includes(entry.name) || profile.usageSummaryReads && entry.name === "summary");
   }
+  function knowledgeMoveWrite(entry: Entry) {
+    if (!profile.knowledgeMoveWrites || entry.request.method() !== "POST") return false;
+    const url = new URL(entry.request.url()), prefix = `/api/v1/projects/${data.project_id}/knowledge/documents`;
+    return !url.search && ((entry.name === "move" && url.pathname === prefix + "/" + data.document_id + "/move") || (entry.name === "lookup" && url.pathname === prefix + "/commands/lookup"));
+  }
+  function knowledgeMoveReadEntry(entry: Entry) {
+    return profile.knowledgeMoveWrites && entry.request.method() === "GET" && ["session", "resolve", "projects", "project", "documents", "document", "ancestors", "content"].includes(entry.name);
+  }
   function schedulerWrite(entry: Entry) {
     if (!profile.schedulerWrites) return false;
     const url = new URL(entry.request.url()), prefix = `/api/v1/projects/${data.project_id}`;
@@ -3340,6 +3399,7 @@ export async function observeTaskRequests(
     const variable = variableWrite(entry);
     const knowledgeText = knowledgeTextWrite(entry);
     const scheduler = schedulerWrite(entry);
+    const knowledgeMove = knowledgeMoveWrite(entry);
     const runner = runnerWrite(entry);
     const systemRunner = systemRunnerWrite(entry);
     const secret = secretWriteEntry(entry);
@@ -3358,7 +3418,7 @@ export async function observeTaskRequests(
       humanBlocker ||
       sprintUpdate ||
       variable ||
-      knowledgeText || scheduler || runner || systemRunner || knowledgeDelete || secret;
+      knowledgeText || scheduler || runner || systemRunner || knowledgeDelete || knowledgeMove || secret;
     const method =
       (variable || profile.secretDelete) && entry.name === "delete" ? "DELETE" :
       (edit || agentEdit || milestoneUpdate || sprintUpdate || variable || scheduler || runner || systemRunner || secret) && entry.name === "update"
@@ -3477,14 +3537,17 @@ export async function observeTaskRequests(
     if (secretReadEntry(entry)) expect(c.kind).toBe({session:"restore", resolve:"project.resolve", projects:"project.list", project:"project.get", secrets:"secret.list", secret:"secret.get"}[entry.name]);
     if (usageReadEntry(entry)) expect(c.kind).toBe({session:"restore", resolve:"project.resolve", projects:"project.list", project:"project.get", usage:"usage.list", summary:"usage.daily"}[entry.name]);
     if (runnerReadEntry(entry)) expect(c.kind).toBe({ session: "restore", resolve: "project.resolve", projects: "project.list", project: "project.get", "agent-directory": "agent.list", "agent-configuration": "agent.getConfiguration", "agent-models": "agent.models", "agent-runners": "agent.runners", "agent-mounts": "agent.runnerMounts", "agent-secrets": "secret.list" }[entry.name]);
+    if (knowledgeMoveReadEntry(entry)) expect(c.kind).toBe({session:"restore", resolve:"project.resolve", projects:"project.list", project:"project.get", documents:"knowledge.children", document:"knowledge.get", ancestors:"knowledge.ancestors", content:"knowledge.readContent"}[entry.name]);
     if (schedulerReadEntry(entry)) expect(c.kind).toBe({ session: "restore", resolve: "project.resolve", projects: "project.list", project: "project.get", scheduler: "scheduler.get" }[entry.name]);
     if (systemRunnerReadEntry(entry)) expect(c.kind).toBe({ session: "restore", projects: "project.list", "runner-list": "systemRunner.list", "runner-detail": "systemRunner.get" }[entry.name]);
     if (write) {
       if (secret) { expect(c.result_current).toBe(true); if (!profile.secretDelete) expect(c.paste_bound).toBe(true); }
       if (systemRunner) { expect(c.result_current).toBe(true); if (c.typed.token_available === true) expect(c.material_matches).toBe(true); }
-      if (scheduler || knowledgeDelete) expect(c.result_current).toBe(true);
+      if (scheduler || knowledgeDelete || knowledgeMove) expect(c.result_current).toBe(true);
       if (sprintCreate || milestoneCreate || milestoneUpdate || milestoneReorder || sprintReorder || humanBlocker || sprintUpdate || variable || knowledgeText) expect(c.result_current).toBe(true);
-      const kinds: Record<string, string> = secret
+      const kinds: Record<string, string> = knowledgeMove
+        ? { move: "knowledgeMove.startMove", lookup: "knowledgeMove.checkOriginal" }
+        : secret
         ? { create: "secretWrite.create", update: "secretWrite.update", delete: "secretWrite.delete", lookup: "secretWrite.lookup" }
         : systemRunner
         ? { create: "systemRunner.start", update: "systemRunner.start", enrollment: "systemRunner.start", revoke: "systemRunner.start", lookup: "systemRunner.checkOriginal" }
@@ -3559,7 +3622,7 @@ export async function observeTaskRequests(
         expect(record.cleanup_pending).toBe(true);
       }
       if (entry.name === "lookup") {
-        if (profile.schedulerWrites || profile.systemRunnerManagement || profile.knowledgeDeleteWrites) expect(c.typed.state).toBe("committed");
+        if (profile.schedulerWrites || profile.systemRunnerManagement || profile.knowledgeMoveWrites || profile.knowledgeDeleteWrites) expect(c.typed.state).toBe("committed");
         else requireCommittedLookup(c.typed, profile.milestoneUpdateWrites === true || profile.sprintUpdateWrites === true);
         originalLookup();
       }
@@ -3590,7 +3653,7 @@ export async function observeTaskRequests(
       if (entry.checked) continue;
       const state = await entry.done;
       const response = await entry.request.response();
-      if ((profile.schedulerWrites || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement || profile.knowledgeDeleteWrites || profile.secretWrite) && state === "failed" && entry.name === profile.cut) {
+      if ((profile.schedulerWrites || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement || profile.knowledgeMoveWrites || profile.knowledgeDeleteWrites || profile.secretWrite) && state === "failed" && entry.name === profile.cut) {
         // The proxy publishes this predicate only after its actual flush and
         // connection Close. Its original safe record can be mid-rewrite here.
         await expect.poll(() => {
@@ -3599,7 +3662,7 @@ export async function observeTaskRequests(
           } catch { return false; }
         }, { timeout: 5_000 }).toBe(true);
       }
-      if (profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.knowledgeDeleteWrites || profile.secretReads || profile.secretWrite || profile.usageReads || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement) {
+      if (profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.knowledgeMoveWrites || profile.knowledgeDeleteWrites || profile.secretReads || profile.secretWrite || profile.usageReads || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement) {
         // Include bootstrap reads as well as catalog/detail: a missing browser
         // projection is accepted only with this original request's App proof.
         const record = JSON.parse(
@@ -3640,23 +3703,23 @@ export async function observeTaskRequests(
         // physically truncating its original Content-Length response.
         expect(response?.status()).toBe(200);
         expect(entry.request.failure()).not.toBeNull();
-        if (profile.schedulerWrites || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement || profile.knowledgeDeleteWrites || profile.secretWrite) {
+        if (profile.schedulerWrites || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement || profile.knowledgeMoveWrites || profile.knowledgeDeleteWrites || profile.secretWrite) {
           const readRecord = () => JSON.parse(readFileSync(join(profile.evidence, `${profile.prefix}-${data.mode}-response-${entry.requestID}.json`), "utf8"));
           const record = readRecord();
           expect(record.receipt_cut).toBe(true);
           expect(record.committed_verified && record.original_eof && record.original_closed && record.handler_returned).toBe(true);
-          expect(record.kind).toBe(profile.systemRunnerManagement ? "create" : profile.knowledgeDeleteWrites ? "delete" : "update");
+          expect(record.kind).toBe(profile.knowledgeMoveWrites ? "move" : profile.systemRunnerManagement ? "create" : profile.knowledgeDeleteWrites ? "delete" : "update");
           const rows = proof.rows.filter((r: any) => r.request_id === entry.requestID);
           expect(rows).toHaveLength(1);
           const n = rows[0], calls = proof.calls.filter((c: any) => c.id === n.call_id);
           expect(calls).toHaveLength(1);
           const c = calls[0];
           expect(proof.current && proof.not_busy).toBe(true);
-          expect(c.kind).toBe(profile.secretWrite ? "secretWrite.update" : profile.systemRunnerManagement ? "systemRunner.start" : profile.knowledgeDeleteWrites ? "knowledgeDelete.startDelete" : (profile.agentRunnerMounts || profile.agentSecretAllowlist) ? "agentEdit.startUpdate" : "scheduler.startUpdate");
+          expect(c.kind).toBe(profile.knowledgeMoveWrites ? "knowledgeMove.startMove" : profile.secretWrite ? "secretWrite.update" : profile.systemRunnerManagement ? "systemRunner.start" : profile.knowledgeDeleteWrites ? "knowledgeDelete.startDelete" : (profile.agentRunnerMounts || profile.agentSecretAllowlist) ? "agentEdit.startUpdate" : "scheduler.startUpdate");
           expect(c.rejected && c.settled && !c.fulfilled).toBe(true);
           expect(c.bound).toBe(1);
           expect(n.path).toBe(new URL(entry.request.url()).pathname);
-          expect(n.method).toBe((profile.systemRunnerManagement || profile.knowledgeDeleteWrites) ? "POST" : "PATCH");
+          expect(n.method).toBe((profile.systemRunnerManagement || profile.knowledgeDeleteWrites || profile.knowledgeMoveWrites) ? "POST" : "PATCH");
           expect(n.status).toBe(200);
           expect(n.fetch_returned).toBe(true);
           expect(n.readers).toBe(1);
@@ -3710,6 +3773,7 @@ export async function observeTaskRequests(
           humanBlockerWrite(entry) ||
           sprintUpdateWrite(entry) ||
           variableWrite(entry) ||
+          knowledgeMoveWrite(entry) ||
           knowledgeTextWrite(entry) ||
           knowledgeDeleteWrite(entry) || knowledgeDeletePreview(entry) ||
           schedulerWrite(entry) ||
@@ -3785,6 +3849,7 @@ export async function observeTaskRequests(
         variableWrite(entry) ||
         variablePageRead(entry) ||
         knowledgeTextWrite(entry) ||
+        knowledgeMoveWrite(entry) || knowledgeMoveReadEntry(entry) ||
         knowledgeTextReadEntry(entry) || knowledgeTitleReadEntry(entry) || knowledgeDeleteWrite(entry) || knowledgeDeletePreview(entry) || knowledgeDeleteReadEntry(entry) || secretReadEntry(entry) || usageReadEntry(entry) ||
         secretWriteEntry(entry) || schedulerWrite(entry) || schedulerReadEntry(entry) || runnerWrite(entry) || runnerReadEntry(entry) || systemRunnerWrite(entry) || systemRunnerReadEntry(entry) ||
         sprintPageRead(entry) ||
@@ -3825,14 +3890,14 @@ export async function observeTaskRequests(
           >;
           entry.body = detail;
         }
-        if ((knowledgeTextReadEntry(entry) || knowledgeTitleReadEntry(entry) || knowledgeDeleteReadEntry(entry)) && entry.name === "ancestors") entry.body = (entry.body as any).items;
+        if ((knowledgeTextReadEntry(entry) || knowledgeTitleReadEntry(entry) || knowledgeDeleteReadEntry(entry) || knowledgeMoveReadEntry(entry)) && entry.name === "ancestors") entry.body = (entry.body as any).items;
         if (profile.schedulerWrites && entry.name === "lookup") {
           const wire = entry.body as any;
           expect(wire.state).toBe("committed");
           expect(wire.result.command).toBe("update");
           entry.body = { state: "committed", receipt: { project_id: wire.result.project.id, version: wire.result.project.version } };
         }
-        if ((profile.schedulerWrites || profile.knowledgeTitleReads || profile.knowledgeDeleteWrites || profile.secretReads || profile.secretWrite || profile.usageReads || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement) && entry.name === "session") {
+        if ((profile.schedulerWrites || profile.knowledgeTitleReads || profile.knowledgeMoveWrites || profile.knowledgeDeleteWrites || profile.secretReads || profile.secretWrite || profile.usageReads || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement) && entry.name === "session") {
           const wire = entry.body as any;
           entry.body = { user: wire.user, session: wire.session };
         }
@@ -3843,7 +3908,7 @@ export async function observeTaskRequests(
     }
   }
   function receipt(
-    name: "transfer" | "lookup" | "create" | "ready" | "update" | "start" | "preview" | "delete" | "enrollment" | "revoke" | "reorder" | "add" | "resolve-blocker",
+    name: "transfer" | "lookup" | "create" | "ready" | "update" | "start" | "move" | "preview" | "delete" | "enrollment" | "revoke" | "reorder" | "add" | "resolve-blocker",
     index: number,
   ): Record<string, any> {
     const values = entries.filter(
@@ -3927,6 +3992,13 @@ export async function observeTaskRequests(
       expect(dropped).toBe(1);
       return;
     }
+    if (profile.knowledgeMoveWrites) {
+      const original = requests("move"), lookups = requests("lookup");
+      expect(original).toHaveLength(1); expect(lookups).toHaveLength(1);
+      expect(lookups[0]!.postDataJSON()).toEqual({command: "move", document_id: data.document_id, request: original[0]!.postDataJSON()});
+      expect(lookups[0]!.headers()["idempotency-key"]).toBe(original[0]!.headers()["idempotency-key"]);
+      expect(dropped).toBe(1); return;
+    }
     if (profile.schedulerWrites) {
       const original = requests("update"), lookups = requests("lookup");
       expect(original).toHaveLength(1);
@@ -3981,6 +4053,12 @@ export async function observeTaskRequests(
     expect(profile.knowledgeTextWrites).toBe(true);
     const rows = entries.filter(e => e.name === name && e.checked && e.body && (!target || new URL(e.request.url()).pathname.includes("/" + target)));
     expect(rows.length, "original Knowledge read must complete").toBeGreaterThan(0);
+    return rows.at(-1)!.body as Record<string, any>;
+  }
+  function knowledgeMoveRead(name: "documents" | "document" | "ancestors" | "content", target?: string) {
+    expect(profile.knowledgeMoveWrites).toBe(true);
+    const rows = entries.filter(e => e.name === name && e.checked && e.body && (!target || new URL(e.request.url()).pathname.includes("/" + target)));
+    expect(rows.length, "original Move current read must complete").toBeGreaterThan(0);
     return rows.at(-1)!.body as Record<string, any>;
   }
   function knowledgeTitleRead(name: "documents" | "titles" | "document" | "ancestors" | "content") {
@@ -4156,7 +4234,7 @@ export async function observeTaskRequests(
           input_hash: profile.inputHash,
           original_requests: entries.length,
           finished: entries.filter((e) => e.terminal === "finished").length,
-          declared_receipt_cut: dropped,
+          declared_receipt_cut: profile.knowledgeMoveWrites ? dropped === 1 : dropped,
           all_observed: entries.every((e) => e.checked),
           transitions: entries.filter((e) => e.name === "transfer").length,
           ...(profile.prefix === "task-intake"
@@ -4171,6 +4249,7 @@ export async function observeTaskRequests(
                 ready: entries.filter((e) => e.name === "ready").length,
               }
             : {}),
+          ...(profile.knowledgeMoveWrites ? {updates: entries.filter(e => e.name === "move").length} : {}),
           ...(profile.schedulerWrites ? { updates: entries.filter(e => e.name === "update").length, schedulerReads: entries.filter(e => e.name === "scheduler").length } : {}),
           ...(profile.agentEditWrites || profile.agentModelPolicy || profile.milestoneUpdateWrites || profile.sprintUpdateWrites
             ? { updates: entries.filter((e) => e.name === "update").length }
@@ -4200,7 +4279,7 @@ export async function observeTaskRequests(
             request_id: entry.requestID,
             terminal: entry.terminal,
             failure: entry.failure,
-            ...((profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.knowledgeDeleteWrites || profile.secretReads || profile.secretWrite || profile.usageReads || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement) && entry.skillsHeaders
+            ...((profile.skillsReads || profile.schedulerWrites || profile.knowledgeTitleReads || profile.knowledgeMoveWrites || profile.knowledgeDeleteWrites || profile.secretReads || profile.secretWrite || profile.usageReads || (profile.agentRunnerMounts || profile.agentSecretAllowlist) || profile.systemRunnerManagement) && entry.skillsHeaders
               ? { skills_headers: { ...entry.skillsHeaders } }
               : {}),
             checked: entry.checked,
@@ -4272,6 +4351,7 @@ export async function observeTaskRequests(
     humanBlockerRead,
     variableRead,
     knowledgeTextRead,
+    knowledgeMoveRead,
     knowledgeTitleRead,
     knowledgeDeleteRead,
     secretRead,
