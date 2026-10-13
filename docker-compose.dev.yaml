@@ -109,7 +109,7 @@ services:
   web:
     image: nginx:1.28.0-alpine
     ports:
-      - "127.0.0.1:${AGENTEAM_DEV_PORT:-8080}:8080"
+      - "${AGENTEAM_DEV_PORT:-8080}:8080"
     volumes:
       - ./deploy/dev/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       # Mount the stable parent so restart app can replace current/ in place.

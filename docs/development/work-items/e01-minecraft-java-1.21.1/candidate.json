@@ -1,0 +1,74 @@
+{
+  "schema": "e01-reference-candidate/v1",
+  "candidate_id": "minecraft-java-1.21.1-source-catalog-r0",
+  "status": "source_catalog_only_not_frozen",
+  "formal_contract": "../platform-game-acceptance.md",
+  "game": "Minecraft",
+  "edition": "Java Edition",
+  "reference_version": "1.21.1",
+  "release_type": "release",
+  "reference_version_frozen": false,
+  "source_date": "2026-10-13",
+  "mode_applicability": "unresolved_full_vanilla_scope_no_convenient_submode_exclusion",
+  "experimental_packs": "preserved_separately_pending_applicability_review",
+  "implementation_started": false,
+  "platform_project_id": null,
+  "source_catalog": "catalog.jsonl",
+  "source_snapshots": "sources.json",
+  "source_projection_summary": "summary.json",
+  "source_projection_command": "python3 docs/development/work-items/e01-minecraft-java-1.21.1/catalog.py",
+  "source_projection_is_e01_replay_command": false,
+  "scoring": {
+    "leaf_mapping": null,
+    "weights": null,
+    "denominator": null,
+    "numerator": null,
+    "coverage": null,
+    "critical_gates": null,
+    "reason": "Source resource names are not unique observable acceptance leaves; no complete behavior baseline or independent freeze exists."
+  },
+  "gaps": [
+    {
+      "id": "behavior-source-completeness",
+      "status": "open",
+      "evidence": "Registry IDs and data file paths name resources but do not enumerate all gameplay behaviors. Wiki page revision metadata was retrieved; the subsequent revision-content request returned HTTP 403.",
+      "missing": "Version-applicable full behavior/manual source index and source-to-behavior coverage, including survival, physics, AI, redstone, progression, modes, multiplayer and save/reload."
+    },
+    {
+      "id": "registry-data-discrepancy",
+      "status": "preserved_not_independently_resolved",
+      "evidence": "summary.json lists all 54 data definitions absent from their corresponding empty registry arrays: 34 worldgen structures, 13 structure tags and 7 experimental structure tags.",
+      "missing": "Independent confirmation against the exact original version; zero-length extracted registries must not remove these content concepts."
+    },
+    {
+      "id": "scoring-grain-and-weights",
+      "status": "open",
+      "evidence": "Catalog includes resource concepts, assets, internal types, variants and metadata; raw row counts would double-count or distort gameplay contribution.",
+      "missing": "Stable acceptance leaf IDs, one behavior owner, uniform positive integer weight rationale, exact acceptance steps, system grouping and fixed full denominator."
+    },
+    {
+      "id": "mode-and-experiment-applicability",
+      "status": "open",
+      "evidence": "Both bundled optional experiment packs are retained in separate catalog categories; no full mode/feature-flag applicability audit was performed.",
+      "missing": "Documented version-applicable mode boundaries and source-backed inclusion or exclusion decisions, without reducing the game to a convenient subset."
+    },
+    {
+      "id": "critical-systems-and-play-route",
+      "status": "open",
+      "evidence": "No gameplay acceptance was run or claimed.",
+      "missing": "Complete major-system gates and a frozen new-game-to-progression-to-save-to-reload continuous route with inputs and observable failure conditions."
+    },
+    {
+      "id": "independent-completeness-review",
+      "status": "not_started",
+      "evidence": "Only the author's deterministic source projection has been checked; both mcmeta views share one upstream extraction.",
+      "missing": "Non-author source coverage, granularity, weights and critical-gate review before formal freezing."
+    },
+    {
+      "id": "platform-prerequisites-and-evidence",
+      "status": "not_ready",
+      "evidence": "D28 and preceding platform capabilities are not fully accepted; this source preparation did not execute a platform game project.",
+      "missing": "Accepted platform, locked game environment, platform Project/Task/Agent/Execution/review/Artifact links, actual implementation, evidence manifest and replay/playtest."
+    }
+  ]
+}
