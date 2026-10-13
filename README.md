@@ -80,7 +80,9 @@ docker build --no-cache --secret id=dev_ca,src=/path/to/trusted-ca.crt -f Docker
 
 使用不含私钥的 PEM 受信 CA；该步骤添加系统信任，不关闭 TLS 校验。普通环境不需要此步骤。
 
-当前云端对固定版本 MinIO 的官方 Quay 镜像及 Docker Hub manifest 均返回访问拒绝。该环境的验证使用明确标识的本地同版本源码镜像及测试专用 Compose 覆盖；这不增加 `.env` 的公开配置项，也不证明官方默认镜像在该环境可下载，不代表其他环境不可用。
+当前云端对固定版本 MinIO 的官方 Quay 镜像及 Docker Hub manifest 均返回访问拒绝。该环境的验证使用明确标识的本地同版本源码镜像，并通过测试专用 Compose 文件覆盖 MinIO 镜像和原入口路径；这不增加 `.env` 的公开配置项，也不证明官方默认镜像及入口已在该环境拉取运行，不代表其他环境不可用。
+
+本轮三项配置已使用含空格的数据目录通过四服务启动、真实浏览器管理员登录和 Session 校验，Central 以非 root 运行。重启 app 后 Go 与前端重新构建，原数据库、三份凭据、五组密钥及机器标识保持不变；最后 `down` 已清退本轮容器和网络并保留持久数据。
 
 开发内网数据库与对象存储使用正式 `TLS_MODE=disable` 配置，不改变模型出站、DNS 或权限规则。此开发组合不启用 Execution Runtime，不发起模型请求，不新增 Runner 或 SMTP。nginx 开发托管不代表生产 SPA 嵌入完成；`/livez` 检查真实监听进程，当前产品的 `/readyz` 未绑定状态仍保留。
 
