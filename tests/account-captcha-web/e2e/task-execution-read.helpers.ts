@@ -119,7 +119,7 @@ type Native = {
   calls: NativeCall[];
 };
 type NativeHost = Window & {
-  __taskReviewProof: {
+  __taskReviewProof?: {
     consumers(...args: unknown[]): void;
     snapshot(): Native;
     finish(): Native;
@@ -147,11 +147,12 @@ export async function observeExecutionReads(page: Page, data: Material) {
     task = `${base}/tasks/${data.task_id}`,
     list = `${task}/executions`,
     detail = `${list}/${data.execution.id}`;
-  const wire = await observeSystemRunnerWire(page, data.origin);
   const binding = await knowledgeSessionBinding(
     resolve(process.cwd(), "../.."),
     process.env.AGENTEAM_TASK_EXECUTION_READ_WEB_DIST!,
   );
+  const entryURL = new URL(binding.entry, data.origin).href;
+  const wire = await observeSystemRunnerWire(page, data.origin);
   let failed = false,
     retired = false,
     completed = false,
@@ -250,12 +251,6 @@ export async function observeExecutionReads(page: Page, data: Material) {
     )
       failed = true;
   };
-  page.on("request", onRequest);
-  page.on("response", onResponse);
-  page.on("requestfinished", onFinished);
-  page.on("requestfailed", onFailed);
-  await observeBrowserIO(page, () => {});
-  const entryURL = new URL(binding.entry, data.origin).href;
   const install = async (route: Route) => {
     handlers++;
     try {
@@ -267,7 +262,10 @@ export async function observeExecutionReads(page: Page, data: Material) {
             throw Error("EXECUTION_SINGLETON");
           // Optional arguments preserve all existing profiles. Only this new
           // fixture binds the two read consumers at the last argument.
-          (window as NativeHost).__taskReviewProof.consumers(
+          const proof = (window as NativeHost).__taskReviewProof;
+          if (!proof || typeof proof.consumers !== "function")
+            throw Error("EXECUTION_NATIVE_CONSUMER_MISSING");
+          proof.consumers(
             use(),
             project,
             false,
@@ -309,9 +307,37 @@ export async function observeExecutionReads(page: Page, data: Material) {
       handlers--;
     }
   };
-  await page.route(entryURL, install);
+  try {
+    page.on("request", onRequest);
+    page.on("response", onResponse);
+    page.on("requestfinished", onFinished);
+    page.on("requestfailed", onFailed);
+    await observeBrowserIO(page, () => {});
+    await page.route(entryURL, install);
+  } catch (setupError) {
+    try {
+      try {
+        await page.unroute(entryURL, install);
+      } finally {
+        page.off("request", onRequest);
+        page.off("response", onResponse);
+        page.off("requestfinished", onFinished);
+        page.off("requestfailed", onFailed);
+        await wire.close();
+      }
+    } finally {
+      // No observer was returned to afterEach. Retain the original setup
+      // failure after awaiting our own cleanup; do not claim native retirement.
+      throw setupError;
+    }
+  }
   const snapshot = () =>
-    page.evaluate(() => (window as NativeHost).__taskReviewProof.snapshot());
+    page.evaluate(() => {
+      const proof = (window as NativeHost).__taskReviewProof;
+      if (!proof || typeof proof.snapshot !== "function")
+        throw Error("EXECUTION_NATIVE_SNAPSHOT_MISSING");
+      return proof.snapshot();
+    });
   async function verify() {
     await expect
       .poll(async () => {
@@ -450,9 +476,12 @@ export async function observeExecutionReads(page: Page, data: Material) {
     retirementAttempted = true;
     let native: Native | undefined;
     try {
-      native = await page.evaluate(() =>
-        (window as NativeHost).__taskReviewProof.finish(),
-      );
+      native = await page.evaluate(() => {
+        const proof = (window as NativeHost).__taskReviewProof;
+        if (!proof || typeof proof.finish !== "function")
+          throw Error("EXECUTION_NATIVE_FINISH_MISSING");
+        return proof.finish();
+      });
       expect(native.pending).toBe(0);
       expect(native.failed).toBe(false);
       expect(native.retired).toBe(true);
