@@ -79,6 +79,11 @@ export type ReviewInput = Readonly<{
     assignee_agent_id?: string
   }>
 }>
+export type CancelInput = Readonly<{
+  expected_version: string
+  request: Readonly<{ target_state: 'cancelled'; comment?: string }>
+}>
+export type TransferInput = ReviewInput | CancelInput
 export type ReadyInput = Readonly<{
   expected_version: string
   request: Readonly<{
@@ -120,13 +125,13 @@ export interface WorkReviewAPI {
   transfer(
     project: string,
     task: string,
-    input: ReviewInput,
+    input: TransferInput,
     write: WriteOptions,
   ): Promise<ReviewReceipt>
   lookup(
     project: string,
     task: string,
-    input: ReviewInput,
+    input: TransferInput,
     write: WriteOptions,
   ): Promise<ReviewLookup>
   ready(
@@ -394,6 +399,29 @@ export function captureReviewInput(value: unknown): ReviewInput {
     })
   })
 }
+export function captureCancelInput(value: unknown): CancelInput {
+  return input(() => {
+    const v = shape(value, ['expected_version', 'request']),
+      r = shape(v.request, ['target_state'], ['comment'])
+    requireValue(r.target_state === 'cancelled')
+    return freeze({
+      expected_version: workVersion(v.expected_version),
+      request: {
+        target_state: 'cancelled' as const,
+        ...(Object.hasOwn(r, 'comment')
+          ? { comment: workText(r.comment, 32768, false, true) }
+          : {}),
+      },
+    })
+  })
+}
+export function captureTransferInput(value: unknown): TransferInput {
+  return input(() => {
+    const v = shape(value, ['expected_version', 'request'])
+    const r = shape(v.request, ['target_state'], ['comment', 'assignee_agent_id'])
+    return r.target_state === 'cancelled' ? captureCancelInput(value) : captureReviewInput(value)
+  })
+}
 export function captureReadyInput(value: unknown): ReadyInput {
   return input(() => {
     const v = shape(value, ['expected_version', 'request']),
@@ -465,14 +493,14 @@ function receipt(
   value: unknown,
   project: string,
   task: string,
-  command: ReviewInput | ReadyInput,
+  command: TransferInput | ReadyInput,
 ): ReviewReceipt {
   const v = shape(value, ['task', 'task_event_ids', 'event_ids']),
     result = parseTask(v.task, project, task) as Task
   requireValue(
     BigInt(result.version) === BigInt(command.expected_version) + 1n &&
       result.state === command.request.target_state &&
-      (command.request.assignee_agent_id === undefined ||
+      (!('assignee_agent_id' in command.request) || command.request.assignee_agent_id === undefined ||
         result.assignee_agent_id === command.request.assignee_agent_id),
   )
   requireValue(
@@ -628,7 +656,7 @@ export function createWorkReviewAPI(fetcher?: Fetch): WorkReviewAPI {
       )
     },
     transfer(project, task, value, write) {
-      const captured = captureReviewInput(value)
+      const captured = captureTransferInput(value)
       return call('reviewTransfer', (v) => receipt(v, project, task, captured), {
         ...ids(project, task),
         signal: write.signal ?? new AbortController().signal,
@@ -638,7 +666,7 @@ export function createWorkReviewAPI(fetcher?: Fetch): WorkReviewAPI {
       })
     },
     lookup(project, task, value, write) {
-      const captured = captureReviewInput(value)
+      const captured = captureTransferInput(value)
       return call(
         'reviewLookup',
         (v) => {

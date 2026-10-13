@@ -100,11 +100,11 @@ import {
 } from '../api/agent-configuration'
 import {
   createWorkReviewAPI,
-  captureReviewInput,
+  captureTransferInput,
   captureReadyInput,
   type ReadyInput,
   type WorkReviewAPI,
-  type ReviewInput,
+  type TransferInput,
   type ReviewReceipt,
   type ReviewLookup,
   type PageQuery,
@@ -603,7 +603,7 @@ type WorkReviewIntent = {
   body: string
   uncertain: boolean
 } & (
-  | { kind: 'review'; input: ReviewInput }
+  | { kind: 'review'; input: TransferInput }
   | { kind: 'ready'; input: ReadyInput }
   | { kind: 'create'; input: TaskCreateInput }
   | { kind: 'edit'; input: TaskUpdateInput }
@@ -6553,7 +6553,8 @@ export function createSessionController(
         const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
         if (live()) {
           const p = failure.problem
-          if ((original.kind.startsWith('blocker-') || original.kind.startsWith('dependency-')) && p && [403, 404].includes(p.status)) {
+          if ((original.kind.startsWith('blocker-') || original.kind.startsWith('dependency-') ||
+            (original.kind === 'review' && original.input.request.target_state === 'cancelled')) && p && [403, 404].includes(p.status)) {
             clearWorkReviewState()
             throw failure
           }
@@ -6616,7 +6617,16 @@ export function createSessionController(
       reviewRead((signal) => agentDirectoryAPI.list(p, q, signal)),
     agent: (p: string, t: string) => reviewRead((signal) => agentDirectoryAPI.get(p, t, signal)),
     abandonRead: clearWorkReviewRead,
-    startTransfer(projectID: string, taskID: string, value: ReviewInput) {
+    forgetCancelUnavailable(projectID: string, taskID?: string) {
+      const original = workReviewIntent
+      if (original?.kind === 'review' && original.input.request.target_state === 'cancelled' &&
+          original.projectID === projectID && (!taskID || original.taskID === taskID)) {
+        clearWorkReviewState()
+        return true
+      }
+      return false
+    },
+    startTransfer(projectID: string, taskID: string, value: TransferInput) {
       try {
         const identity = personalIdentity()
         if (
@@ -6631,7 +6641,9 @@ export function createSessionController(
         )
           throw new AccountFailure('busy')
         if (!uuid7.test(projectID) || !uuid7.test(taskID)) throw new AccountFailure('invalid-input')
-        const input = captureReviewInput(value)
+        const input = captureTransferInput(value)
+        if (input.request.target_state === 'cancelled' && (sprintStartIntent || sprintCreateIntent || milestoneCreateIntent))
+          throw new AccountFailure('busy')
         const original: WorkReviewIntent = {
           kind: 'review',
           identity,

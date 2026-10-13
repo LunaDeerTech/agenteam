@@ -25,6 +25,8 @@ import {
   type Blocker,
   type Page,
   type ReviewInput,
+  type TransferInput,
+  type CancelInput,
 } from '../api/work-review'
 import { captureSprintCreateDraft, type SprintCreateReceipt, type SprintLifecycleOperation } from '../api/work-sprint-lifecycle'
 import {
@@ -194,10 +196,12 @@ export function createProjectTasks(
   }
   const names = shallowReactive(new Map<string, DirectoryAgent>())
   const draft = reactive<{
-    action: ReviewInput['request']['target_state'] | ''
+    action: TransferInput['request']['target_state'] | ''
     agentID: string
     comment: string
   }>({ action: '', agentID: '', comment: '' })
+  let cancelScope: { projectID: string; taskID: string; version: string; identity: string; generation: number } | null = null
+
   const creation = reactive<{
     open: boolean
     title: string
@@ -854,11 +858,10 @@ export function createProjectTasks(
         sprintStartIdentity,
       ),
   )
-  const readOnly = computed(
+  const taskMutationLocked = computed(
     () =>
       !visible.value ||
       workspace.detail.project?.lifecycle !== 'active' ||
-      state.sprint?.state !== 'current' ||
       humanBlocker.open ||
       dependency.open ||
       taskReorder.open ||
@@ -878,6 +881,14 @@ export function createProjectTasks(
       sprintStart.open ||
       sprintStart.needsRead,
   )
+  const readOnly = computed(() => taskMutationLocked.value || state.sprint?.state !== 'current')
+  const canCancelTask = computed(() => !taskMutationLocked.value && !edit.open &&
+    !!state.sprint && ['planned', 'current'].includes(state.sprint.state) &&
+    !!state.task && ['backlog', 'todo', 'in_progress', 'in_review', 'blocked'].includes(state.task.state))
+  const cancelStale = computed(() => draft.action === 'cancelled' && (!cancelScope ||
+    cancelScope.projectID !== projectID.value || cancelScope.taskID !== state.task?.id ||
+    cancelScope.version !== state.task?.version || cancelScope.generation !== generation ||
+    cancelScope.identity !== identityKey(cancelScope.projectID)))
   const canCreate = computed(
     () =>
       visible.value &&
@@ -1173,6 +1184,7 @@ export function createProjectTasks(
     sprintStartIdentity = ''
   }
   function clearDraft() {
+    cancelScope = null
     draft.action = ''
     draft.agentID = ''
     draft.comment = ''
@@ -1678,6 +1690,7 @@ export function createProjectTasks(
         )
           forgetMilestoneAccess(refusedMilestone.project)
         if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0) && selected.kind === 'task') {
+          forgetCancelAccess(projectID.value ?? '', selected.id!)
           auth.workTaskBlockers?.forgetUnavailable(projectID.value ?? '', selected.id!)
           auth.workTaskDependencies?.forgetUnavailable(projectID.value ?? '', selected.id!)
           clearHumanBlocker()
@@ -3458,12 +3471,13 @@ export function createProjectTasks(
     if (state.sprint && !busy.value)
       await navigate(`${projectPath()}/tasks/sprints/${state.sprint.id}`)
   }
-  function chooseAction(action: ReviewInput['request']['target_state']) {
-    if (readOnly.value || busy.value || edit.open) return
+  function chooseAction(action: TransferInput['request']['target_state']) {
+    if ((action === 'cancelled' ? !canCancelTask.value : readOnly.value) || busy.value || edit.open) return
     const task = state.task
     if (
       !task ||
       !(
+        (action === 'cancelled' && ['backlog', 'todo', 'in_progress', 'in_review', 'blocked'].includes(task.state)) ||
         (task.state === 'in_progress' && action === 'in_review') ||
         (task.state === 'backlog' && action === 'todo') ||
         (task.state === 'in_review' && ['todo', 'done'].includes(action))
@@ -3472,15 +3486,39 @@ export function createProjectTasks(
       return
     clearDraft()
     draft.action = action
+    if (action === 'cancelled') cancelScope = {projectID: task.project_id, taskID: task.id,
+      version: task.version, identity: identityKey(task.project_id), generation}
     state.feedback = ''
+  }
+  function keepTask() {
+    if (busy.value || pending.value || draft.action !== 'cancelled') return
+    if (progress.value?.phase === 'rejected' && progress.value.contextValid)
+      auth.workReview.editRejected()
+    clearDraft()
+  }
+  function forgetCancelAccess(project: string, task?: string) {
+    const removed = auth.workReview.forgetCancelUnavailable?.(project, task)
+    if (removed || (cancelScope?.projectID === project && (!task || cancelScope.taskID === task))) {
+      clearDraft()
+      state.task = null
+      invalidateHumanBlockerReads()
+    }
   }
   async function submit() {
     const p = workspace.currentReadContext.value?.projectID,
       task = state.task
-    if (!p || !task || !draft.action || readOnly.value || busy.value || edit.open) return
+    const cancelling = draft.action === 'cancelled', own = generation, identity = p ? identityKey(p) : ''
+    if (!p || !task || !draft.action || (cancelling ? !canCancelTask.value || cancelStale.value : readOnly.value) || busy.value || edit.open) return
+    const current = () => live(own, p) && identityKey(p) === identity && state.task?.id === task.id
     try {
       if (auth.workReview.progress?.phase === 'rejected') auth.workReview.editRejected()
-      if (task.state === 'backlog' && draft.action === 'todo') {
+      if (draft.action === 'cancelled') {
+        const input: CancelInput = {
+          expected_version: cancelScope!.version,
+          request: {target_state: 'cancelled', ...(draft.comment === '' ? {} : {comment: draft.comment})},
+        }
+        await auth.workReview.startTransfer(p, task.id, input)
+      } else if (task.state === 'backlog' && draft.action === 'todo') {
         await auth.workReview.startReady(p, task.id, {
           expected_version: task.version,
           request: {
@@ -3500,19 +3538,22 @@ export function createProjectTasks(
         }
         await auth.workReview.startTransfer(p, task.id, input)
       }
-      if (
-        visible.value &&
-        workspace.currentReadContext.value?.projectID === p &&
-        state.task?.id === task.id
-      ) {
+      if (current()) {
         clearDraft()
-        state.feedback = '任务状态已更新。'
+        state.feedback = cancelling ? '任务已取消。' : '任务状态已更新。'
         await refresh()
+        return cancelling && current() && state.detailCurrent && state.task?.state === 'cancelled'
       }
     } catch (error) {
-      if (visible.value) {
-        state.message = explain(error)
-        if (auth.workReview.progress?.phase === 'rejected') state.detailCurrent = false
+      if (current()) {
+        state.message = cancelling && error instanceof AccountFailure && error.problem?.code === 'RESOURCE_BUSY'
+          ? '当前任务或相关任务组仍有执行、待派发任务或其他操作占用，暂不能取消。请稍后重新读取；此操作不会取消 Execution。'
+          : explain(error)
+        if (cancelling && error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
+          forgetCancelAccess(p, task.id)
+          state.task = null
+          invalidateHumanBlockerReads()
+        } else if (auth.workReview.progress?.phase === 'rejected') state.detailCurrent = false
       }
     }
   }
@@ -3540,10 +3581,16 @@ export function createProjectTasks(
       await refresh()
       if (['edit', 'reorder'].includes(original.kind) && live(own, original.projectID) && state.phase === 'error')
         state.message = `${state.feedback} ${state.message}`
-      return (isBlocker || original.kind === 'reorder') && live(own, original.projectID) && state.task?.id === original.taskID && state.detailCurrent
+      return (isBlocker || original.kind === 'reorder' || (original.kind === 'review' && receipt.task.state === 'cancelled')) && live(own, original.projectID) && state.task?.id === original.taskID && state.detailCurrent
     } catch (error) {
       if (live(own, original.projectID) && state.task?.id === original.taskID) {
         state.message = explain(error)
+        if (original.kind === 'review' && error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
+          forgetCancelAccess(original.projectID, original.taskID)
+          clearDraft()
+          state.task = null
+          invalidateHumanBlockerReads()
+        }
         if ((original.kind.startsWith('blocker-') || original.kind.startsWith('dependency-')) && error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
           clearHumanBlocker()
           clearDependency()
@@ -4094,6 +4141,7 @@ export function createProjectTasks(
           state.agents = []
           state.agentNext = undefined
           state.agentMessage = ''
+          forgetCancelAccess(read.projectID)
           auth.workTaskBlockers?.forgetUnavailable(read.projectID)
           auth.workTaskDependencies?.forgetUnavailable(read.projectID)
           clearHumanBlocker()
@@ -4156,6 +4204,9 @@ export function createProjectTasks(
     applySearch,
     clearSearch,
     draft,
+    canCancelTask,
+    cancelStale,
+    keepTask,
     creation,
     edit,
     taskReorder, taskCandidates, canReorderTask, taskReorderStale, taskReorderReady,
