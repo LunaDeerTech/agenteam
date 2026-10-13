@@ -103,7 +103,9 @@ func TestTaskHumanCancelSupportedEdgesAndIntent(t *testing.T) {
 			agent := pureID[i.Agent](t, 731)
 			for _, change := range []func(*c.TaskTransfer){
 				func(v *c.TaskTransfer) { v.AssigneeAgentID = &agent },
-				func(v *c.TaskTransfer) { v.ResolveBlockerIDs = []c.TaskBlockerID{pureID[c.TaskBlocker](t, 732)} },
+				func(v *c.TaskTransfer) {
+					v.ResolveBlockerIDs = []c.TaskBlockerID{pureID[c.TaskBlockerIdentity](t, 732)}
+				},
 				func(v *c.TaskTransfer) { v.AddBlockers = []c.TaskBlockerCreate{{}} },
 			} {
 				bad := request.Clone()
