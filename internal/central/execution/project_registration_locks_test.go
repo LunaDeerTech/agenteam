@@ -87,7 +87,8 @@ func TestExecutionOwnedSchedulerRegistrationPreholdsLaunchCommand(t *testing.T) 
 			if err != nil {
 				t.Fatal(err)
 			}
-			gate := &executionRegistrationLockGate{store: v.store, pair: v.pair, actor: actor, key: key, method: method, denied: fault(f.Forbidden)}
+			denied := errors.New("original registration permission denial")
+			gate := &executionRegistrationLockGate{store: v.store, pair: v.pair, actor: actor, key: key, method: method, denied: fault(f.Forbidden).WithCause(denied)}
 			v.launch.authority.state.services = gate
 			entered, release := make(chan struct{}), make(chan struct{})
 			done := make(chan error, 1)
@@ -142,8 +143,13 @@ func TestExecutionOwnedSchedulerRegistrationPreholdsLaunchCommand(t *testing.T) 
 			err = associatedTestReceive(t, done)
 			collected = true
 			requireCode(t, err, f.Forbidden)
-			if !errors.Is(err, gate.denied) || !v.pair.Service().Joined() {
-				t.Fatal("original permission error or Service return was lost", err)
+			// NotCommittedResult and Fault() defensively copy the typed fault.
+			// Its original cause, rather than the outer pointer, must survive.
+			if !errors.Is(err, denied) {
+				t.Fatal("original permission cause was lost", err)
+			}
+			if !v.pair.Service().Joined() {
+				t.Fatal("original Service return was lost")
 			}
 			v.store.setAfter(nil)
 			afterCalls, afterReads, afterWrites := v.store.counts()
