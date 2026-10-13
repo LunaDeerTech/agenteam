@@ -71,4 +71,3 @@ secret('central.env', () => {
   return Object.entries(values).map(([key, value]) => `export ${key}='${value}'\n`).join('')
 })
 console.log('Development directories and persistent credentials are ready.')
-

@@ -45,4 +45,3 @@ chmod 644 /dev-state/frontend/.ready
 # Central receives SIGTERM directly, runs its normal migrations/initialization,
 # and owns the unchanged Stop/Drain/Guard/database shutdown path.
 exec /dev-state/bin/agenteam
-

@@ -17,4 +17,3 @@ done
 # bucket's policy/lifecycle/versioning; the real app checks those invariants.
 mc mb --ignore-existing local/agenteam >/dev/null
 printf '%s\n' 'Development object bucket is ready.'
-
