@@ -1,14 +1,14 @@
-# 当前工作：默认 App Work 已本地交付，继续 Execution / Scheduler 原图接线
+# 当前工作：Usage 生命周期已限定验收，继续 Agent 筛选真实浏览器验证
 
-2026-10-13。本次摘要更新的本地主线基线为 `6eb9b318`；Work history Cleanup 与默认 App Work 已真实验收并合入本地 main。Work 为 35 top/145 sub、两包 vet 与 native01 三组通过，见[结果](../output/ai/project-work-history-cleanup-delivery/native01/result.json)；App 为 18 top/38 sub、App vet 与 native02 三 top/六 sub 通过，见[结果](../output/ai/app-work-ownership-delivery/native02/result.json)。实际范围、原失败和未验证边界保留在 [D08](../docs/development/work-items/d08-project-owner-design.md)，不外推完整 Project Delete、Runtime Invoke 或平台完成。
+2026-10-13。本次摘要更新前本地主线为 `2352b189`；Work history Cleanup、默认 App Work、默认 App Execution / Scheduler 及 Milestone 排序已本地交付。E/S 的 12 top/20 sub 与 App vet、native02 的 1 top/2 sub 通过；Milestone 的 75 项测试、类型检查、构建及两组 Go/Node 真实验收通过，原失败与边界见 [D08](../docs/development/work-items/d08-project-owner-design.md) 和 [Milestone 卡](../docs/development/work-items/d11-milestone-reorder-ui.md)。
 
-GitHub 认证待用户刷新，未远端保存不阻塞本地开发，也不重试认证探测。本地[待推档案](../output/ai/pending-push-20261013/README.md)仅保存截至 `6eb9b318` 的 13 个新增提交，不含本次摘要或后继开发；bundle 为 32,905 B，需要原先对象，不是完整 clone 或远端备份。main、Work、App 与共享 validation 的精确 refs、先决对象和后继正常推送/清理次序见该目录 manifest。远端 main 确认前保留 Work/App 分支与工作树。
+Usage 受测 `c91e1f6e`，48 top/102 sub、四包 vet 与 [native01](../output/ai/project-usage-lifecycle-delivery/native01/result.json) 的 1 top/3 sub 已通过，原 Wait、六资源及私有状态全退，当前交付本批文档后本地合入。真实默认 reader/Runtime policy-denied 的 Usage 事实、两个 Unknown 只读确认及三表/closed ledger 清理已验；其它 Stop/Execution Completed 为受控前序，默认 Registry 与完整 Project Delete 仍未完成。原 pure 编译、Cause/typed Unknown 断言及 copylock vet 失败保留，定向修正和复验见 [D08](../docs/development/work-items/d08-project-owner-design.md)。
 
-当前实际共九个工作树目录：五个带分支的活动/待推树为 main、`agenteam-app-work-ownership`、`agenteam-project-work-history-cleanup`、`agenteam-ui-integration-20261012`、`agenteam-app-execution-scheduler-ownership`；另四个 detached 旧保留树为 Knowledge Move、Object runtime join safe、Skill package HTTP、Skills milestone resume，其独有 ignored 证据/STOP 保留，不接续或擅删。下述前端树创建后将为六个带分支树、共十个目录；目前不计已存在。以下历史计数不代表当前数量。
+Agent 筛选前端 `agenteam-task-assignee-filter-ui` 的 43 项测试、类型检查与构建已通过；真实浏览器验证等待普通继承 Usage 本地 main 后，再按实际 Go 依赖编译一次。尚未报告 browser 通过，不接续旧 STOP。
 
-默认 App Execution 四 owner / Scheduler 七 lane 接线树已建立：`/workspace/agenteam-app-execution-scheduler-ownership`，分支 `ai/app-execution-scheduler-ownership-20261013`，基线 `6eb9b318`，A/B 分域实施。保留前置同一 Authority/Pending/Work 图，把原 `new assembly + install + construct` 整块移到 Object 初始化实际成功后、Account.Start 前；复用唯一 LifecycleAuthority、原 Store/ProcessGuard，继续等待 manager 与 worker 的实际返回。默认 Registry 仍 nil/Unbound，不扩 Tool/Runtime Invoke 或完整删除。root 统筹，执行者分域，Git 仍由指定负责人处理。
+GitHub 认证仍失效，不重试认证探测；未推 refs、tracking/exact fetchspec 及相应工作树保留。本地[首批档案](../output/ai/pending-push-20261013/README.md)与[增量 bundle02](../output/ai/pending-push-20261013-02/manifest.json)均保留；后者已 verify，187,580 B/46 commits/7 refs，截止 main `2352b189`、Usage `ff5c36d9`、validation `f0e6c3`，不含 Usage 后继提交、thin 或 Agent 筛选新分支/launcher。它依赖原先对象，不是完整 clone 或远端备份；下一增量档案待 Agent 筛选交付稳定后生成，当前不预称完成。
 
-独立前端切片为 D27 / [Work Owner 规划 UI](../docs/development/work-items/d11-work-owner-planning-ui.md) 的 Milestone 排序；`/workspace/agenteam-milestone-reorder-ui`、分支 `ai/milestone-reorder-ui-20261013` 已授权准备创建，待本摘要保存后由 Git 负责人从实际 main 建树，尚未 ready。只消费已有正式同组排序接口，不借此恢复旧 STOP。
+Git 负责人 fresh 核对共 12 个工作树：八个带分支的 main、E/S App、App Work、Milestone 前端、Usage、Work history、Agent 筛选前端与共享 validation；另四个 protected detached 旧保留树为 Knowledge Move、Object runtime join safe、Skill package HTTP、Skills milestone resume，独有 ignored 证据与 STOP 保留。以下历史计数不代表当前数量。
 
 ToolsHTTP、网络截断、旧 Knowledge Move 预算、SPA concurrent-publication、官方固定来源 DNS/403 等既有 STOP 原样；下列旧流水仅供恢复历史，不构成恢复执行授权。
 

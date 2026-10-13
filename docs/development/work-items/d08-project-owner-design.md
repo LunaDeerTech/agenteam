@@ -272,13 +272,17 @@ Work Stop 仅消费原 LifecycleStopDriver 当前 invoke 的独立私有 loan；
 
 后继显式 `NewProjectCallOwnershipWithReaders` 将三类独立 Reader 的八个完整调用纳入同一 pair 的 structure/task/blocker read 归属；构造自己的 Reader 图并供原 Task/Blocker/Transition 借用，不替换调用方旧 Reader，借入 Tx 只消费同 pair、精确 P/lane 的活私见证。`4dc202a8` 的 native01 三组实际通过（36.73s）：八个非空读取、原 Store/方法返回屏障、B 隔离；技术 Unknown 保首次返回值及 attempt/cause，经同 Tx 零写确认实际返回后继续；Archive 不取消原 read，后续八个读取仍成功且业务历史不变。基础 10 top/20 sub 与 vet 通过，原 Wait 和六项资源均清退，见[结果](../../../output/ai/project-work-reader-stop-delivery/native01/result.json)与[日志](../../../output/ai/project-work-reader-stop-delivery/native01/browser.log)。本片无新 schema，默认 App 未绑定，不外推独立调度/Execution borrower、Work Cleanup、foreign death 或完整 Delete。
 
-### Usage 原调用、Model 借用与清理（候选）
+### Usage 原调用、Model 借用与清理（限定验收）
 
 Usage 显式 pair 固定同 Store、原 ProcessGuard/process 与实例，覆盖 List、Aggregate、GetExecutionSummary、RebuildExecutionSummary 和原 Model invocation 全调用。默认 App 在首次 Usage 构造即绑定原 Life，HTTP 与 Runtime 使用同一个 Service；构造不查 Guard 的 bound 状态，首登记事务才核原 Guard。Model 通过显式 owned getter 选择原 token，legacy Service 返回 nil；token 只能包原 Store 事务与真实返回，不替代原 InvocationFacts/plan/当前权限，也不授新 Invoke。原 Runtime admission、所有 public outer borrow、wire/Secret 尾与原确认事务必须实际返回；Stop 只取消原调用，不借恢复方法重放业务。首次 Runtime 登记另消费原 Project SH 下 initialized/active 门，已登记尾不重新借此新调用门。
 
 00086 新增 `agenteam_model.usage_project_calls`，五 lane 为 list/aggregate/summary_get/summary_rebuild/invocation；完整 P/process/instance/lane/call_id 身份不可变，invocation 必须绑定原 CallID。running 单调进入 business_closed，closed 不证明原外层返回。Usage 独立 Delete Stop loan 仅持 Project EX；每个原 Tx 核同 issuer/current claim/full manifest，父 scope 等真实 loan 退出。Cleanup 固定原 pair，在原 current Delete/domains、全 stopped、Execution 及冻结依赖 completed 的独立私轮下，按 observations→invocations→summaries→closed calls 清理本域历史，保 Model snapshot/configuration。每批有界且核完整行与精确删除数；同进程未知实例不冒原返回，foreign 只消费原 ProcessGuard 的真实证明并重核。
 
-Project 登记与末 checkpoint 的 Unknown 分别保原有效 attempt/cause、完整前后像和已返回 provider report；下一显式 Run 只读确认且等待原 Store 实返，当轮不写，后次才推进。provider Unknown 同样留原轮；其确认返回后下轮仅保存 checkpoint。共享四槽阻止另 driver 越过未确认轮，B 独立。默认 Registry 仍 nil，Knowledge/Model/Runner 等未实现清理仍不可用；当前为源码候选，尚未运行 Usage 基础或真实集成验收。
+Project 登记与末 checkpoint 的 Unknown 分别保原有效 attempt/cause、完整前后像和已返回 provider report；下一显式 Run 只读确认且等待原 Store 实返，当轮不写，后次才推进。provider Unknown 同样留原轮；其确认返回后下轮仅保存 checkpoint。共享四槽阻止另 driver 越过未确认轮，B 独立。默认 Registry 仍 nil，Knowledge/Model/Runner 等未实现清理仍不可用。
+
+受测 `c91e1f6e`、启动脚本 `4bd9250a` 的 native01 已实际 wholePASS：1 top/3 sub，36.67s（14.04/11.38/11.25s），外层原 Wait 0/67.921s；基础共 48 top/102 sub 与四包 vet 通过。真实默认 reader 与 Runtime policy-denied 调用写入 invocation/observations/summary，HTTP dispatch 为 0；原 whole-call Store 返回被持有时 A 停止仍 Pending、B 可用，实际返回后才 Stopped。reader 技术关闭与 Rebuild 业务的两个 Unknown 均保原 cause/attempt，经同 Tx 零写与完整前后像核对、原确认返回后再显式推进；清理真实三张业务表及 closed ledger，原 Unknown 确认期间同 Life 的另一 driver 仍 Busy，B 与 Model/Execution 历史、Work tasks 快照保留。原进程、六项资源、三个私有目录及 runtime 全退、输入不变，见[结果](../../../output/ai/project-usage-lifecycle-delivery/native01/result.json)、[原日志](../../../output/ai/project-usage-lifecycle-delivery/native01/browser.log)与[退出核对](../../../output/ai/project-usage-lifecycle-delivery/native01/post.json)。
+
+原 Model pure 编译类型错误、Cause 比较断言，App typed Unknown 断言及 copylock vet FAIL 均保留；仅定向修正相应测试并复验，已过检查复用。真实 PG 中其它参与者停止和 Execution Completed 为受控前序；本结果不证明 Model mutation Unknown 的真实 PG 分支、网络故障、默认完整 Registry 或完整 Project Delete。
 
 ### Scheduler 显式调用归属与 Delete 停止（限定验收）
 
