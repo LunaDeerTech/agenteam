@@ -163,19 +163,16 @@ export async function observeTaskReorder(page: Page, data: ReorderMaterial) {
       !url.search
     )
       return "milestone";
-    if (
-      [
-        `${prefix}/milestones`,
-        `${prefix}/agents`,
-        `${target}/blockers`,
-      ].includes(path)
-    ) {
+    if (path === `${target}/blockers`) {
+      expect([...url.searchParams.entries()]).toEqual([
+        ["limit", "50"],
+        ["status", "all"],
+      ]);
+      return "blockers";
+    }
+    if ([`${prefix}/milestones`, `${prefix}/agents`].includes(path)) {
       expect([...url.searchParams.entries()]).toEqual([["limit", "50"]]);
-      return path === target + "/blockers"
-        ? "blockers"
-        : path.endsWith("/agents")
-          ? "agents"
-          : "milestones";
+      return path.endsWith("/agents") ? "agents" : "milestones";
     }
     if (path === `${prefix}/sprints`) {
       expect([...url.searchParams.keys()].sort()).toEqual([
