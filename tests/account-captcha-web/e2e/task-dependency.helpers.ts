@@ -172,9 +172,18 @@ function installDependencyNative(config: {
         } else {
           if (
             ![config.source, config.related].includes(args[1]) ||
-            args.length !== (kind === "dependency.add" ? 3 : 4)
+            args.length !== (kind === "dependency.add" ? 4 : 5)
           )
             throw Error("DEPENDENCY_NATIVE_WRITE_SCOPE");
+          const taskBefore = args[kind === "dependency.add" ? 3 : 4];
+          if (
+            !taskBefore ||
+            taskBefore.project_id !== config.project ||
+            taskBefore.id !== args[1] ||
+            taskBefore.version !== args[2]?.expected_version
+          )
+            throw Error("DEPENDENCY_NATIVE_ORIGINAL_TASK");
+          call.taskBefore = JSON.parse(JSON.stringify(taskBefore));
           call.original = JSON.parse(JSON.stringify(args[2]));
           call.task = args[1];
           if (kind === "dependency.resolve" && args[3] !== config.related)
@@ -215,7 +224,16 @@ function installDependencyNative(config: {
                   : "dependency-resolve") &&
               p.projectID === config.project &&
               p.taskID === call.task &&
-              p.receipt === value;
+              p.receipt === value &&
+              JSON.stringify(canonical(value.task)) ===
+                JSON.stringify(
+                  canonical({
+                    ...call.taskBefore,
+                    version: String(BigInt(call.taskBefore.version) + 1n),
+                    updated_at: value.task.updated_at,
+                    manual_rank: value.task.manual_rank,
+                  }),
+                );
           }
           call.typed = JSON.parse(JSON.stringify(value));
           call.typed_digest = await typedDigest(value);
