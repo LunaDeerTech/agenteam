@@ -1,6 +1,6 @@
 # 中英混合文档离线评测
 
-这是固定原创数据与评分工具，尚无候选后端实测。它不依赖 Knowledge 服务，不连接数据库、不建立索引、不调用 embedding 或安装依赖。正式范围见 [D13 benchmark 工作项](../../docs/development/work-items/d13-lexical-benchmark.md)。
+这是固定原创数据与评分工具；下文已记录首个原生 FTS 固定基线实测。原 Python 工具不依赖 Knowledge 服务，不连接数据库、不建立索引、不调用 embedding 或安装依赖。另有下文已完成一次纠正运行的 PostgreSQL 原生 FTS adapter；它只消费原工具的无标签导出。正式范围见 [D13 benchmark 工作项](../../docs/development/work-items/d13-lexical-benchmark.md)。
 
 数据为 `lexical-v2`：32 篇虚构文档、64 个固定 section、64 个有答案 query 和 8 个无答案 query，以及 4608 个显式相关性等级。作者依据文档语义先写判断，未运行检索器或从候选结果生成 qrels。独立首轮发现通用问题漏标和同族跨split，已按原query字面补全支持及调整family；Knowledge的全量语义审与返修复核、Model的评分实现独验均已有限接受，无剩余must-fix。校验命令自身仍只证明结构，不证明语义质量。原`lexical-v1`保留在Git历史，旧导出/评分不能冒充新修订。
 
@@ -72,10 +72,57 @@ Recall@1/5/10/20与MRR@20把grade≥2视为相关；nDCG@1/5/10/20的增益是`2
 
 | 候选 | 本卡真实运行 | 版本、许可和运维兼容性 |
 | --- | --- | --- |
-| native PostgreSQL FTS | not_run | not_verified |
+| native PostgreSQL FTS | 固定基线已运行，72条全部零命中 | PG17.8实测；仅对应包版权材料有限核验，完整运维/传递许可待验证 |
 | PGroonga | not_run | not_verified |
 | pg_search | not_run | not_verified |
 
-不把PostgreSQL的ts_rank/ts_rank_cd称为BM25。当前没有测得任何候选的索引体积、索引耗时或查询延迟。扩展、分词器、字典的准确许可证/NOTICE、PostgreSQL17兼容性、重建/更新/删除/升级成本都需后续真实材料与验证。
+不把PostgreSQL的ts_rank/ts_rank_cd称为BM25。原生 FTS 的小语料 GIN体积、索引耗时与暖查询延迟见下节，不能外推生产性能。扩展、分词器、字典的准确许可证/NOTICE、PostgreSQL17兼容性、重建/更新/删除/升级成本都需后续真实材料与验证。
 
-数据为内部原创测试材料，对外再分发许可未在本卡授予。没有抓取第三方文档、词典或用户数据，不猜测仓库未提供的公开许可。此工具没有新增正式dependency/lock/SQL，未运行任何正式backend。最终选型仍需三候选实际比较和固定dense leg的hybrid RRF对照；本卡不完成D13或生产索引验收。
+数据为内部原创测试材料，对外再分发许可未在本卡授予。没有抓取第三方文档、词典或用户数据，不猜测仓库未提供的公开许可。原评分工具没有新增正式dependency/lock/SQL；后继候选只在隔离 fixture 实际运行，不接入生产检索。最终选型仍需三候选实际比较和固定dense leg的hybrid RRF对照；本卡不完成D13或生产索引验收。
+
+## 首个真实候选：native-pg-fts-v1
+
+最终源码 `5ce2a429` 已完成真实原生 FTS 基线及原 score，独立审查接受，结果与边界见 [D13原卡§1.1](../../docs/development/work-items/d13-lexical-benchmark.md#11-首个-postgresql-原生-fts-候选)和 [实际证据汇总](../../output/ai/native-pg-fts/summary.json)。原 `1a7aadf5` 普通 race 2 top/12 sub、integration 编译/list（`54200/36f5d8` Wait0）沿原范围保留；后续只修 PG17 locale 元数据读取并重新编译/list，不改查询配置、数据、export、score、依赖或生产迁移。
+
+首真实窗 `46993/bcff1a` Wait1/21.139秒在版本/locale检查失败，原完整错误及SQLSTATE未捕获，FAIL原件保留；静态定位后改从 `pg_database` 读取locale，版本门不变。纠正窗 `64103/b578b2` Wait0/19.386秒，以原current-only 3容器/3网络链运行1 top/0 sub、Node0，全部owned资源实际退出后仅运行一次原score（`c0bae9` Wait0）。旧PG-only 5GiB门保持；实际使用的是另一个既有profile及其独立容量门，不声称旧driver已执行。
+
+72条查询全部零命中：64条有答案的各K Recall/nDCG以及MRR@20均0，8条无答案误报0；零结果全部进入评分且未据结果调参。360个warm样本p50=0.152377ms、p95=0.330477ms；索引25.837283ms、GIN90112B。它是固定小语料的原始基线，不是冷缓存/容量测量或检索质量达标；其余两候选和hybrid RRF仍待后继。
+
+| 项目 | 固定方式 |
+| --- | --- |
+| 服务端 | 原隔离 fixture 的 `pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc`；实际 server_version_num 必须170008，Debian package 必须17.8-1.pgdg12+1，UTF8 |
+| 分析器 | `pg_catalog.simple` 的内置 default parser/simple dictionary；逐字 `index_text`，无外部中文词典、词干、停用词、标题加权或补充索引文本 |
+| 查询 | 原 query 文本作为参数交 `websearch_to_tsquery('pg_catalog.simple', $1)`，以 `@@` 匹配；无 fallback 或难查询过滤 |
+| 排序 | `ts_rank_cd(search_vector, query, 0)` 降序，同分 `source_id COLLATE "C"` 升序，最多20条；不是 BM25 |
+| 索引 | 新 nonce 所属空库中的64行表、stored generated tsvector、单 GIN；不加载 vector/pgroonga/pg_search，不强制 planner 使用索引 |
+| 次序 | 导出的 ASCII ID 顺序；先完整72查询得到结果并预热，再固定5轮各72条，合计432次 candidate SQL；每轮排名及分数必须一致 |
+| 查询耗时 | 同一持久 pgx TLS loopback 连接，从 `Query` 调用到所有行 scan、实际 EOF/Close 完成；72组各5个 warm 样本。不含 Docker exec、连接创建或评分；不声称 cold cache |
+| 索引耗时/体积 | 从 Begin 前至建表、64条插入、GIN、ANALYZE、commit 返回；不含 fixture 启动、输入/许可读取或验查。体积只用实际 GIN 的 `pg_relation_size`，不是整库/heap体积 |
+
+64条小语料的 planner 可能选择顺序扫描；建立 GIN 不证明所有查询使用它。这里的客户端时延和小集合质量不代表生产容量、吞吐或真实用户分布。`run.json` 沿原闭合格式；另有 `source.json` 记录实际版本、三份导出 SHA、SQL、index catalog 与样本数，`package-copyright.json` 保存同一 owned 容器的安装包原文。不同连接独立读回64条已提交的 ID/text，与导出逐字比对。完成输出在原数据库删除及连接关闭返回之后写入新目录，`complete.json` 最后写入；它仍不能代替外围 driver 的 actual Wait 和资源退出结果。
+
+版本/许可实证：同一经nonce/ID/镜像核验的owned容器，实际读取 `dpkg-query` 的 `postgresql-17` 版本17.8-1.pgdg12+1及 `/usr/share/doc/postgresql-17/copyright`。该包原文和摘要已独立有限接受；材料见 [package-copyright.json](../../output/ai/native-pg-fts/candidate02/package-copyright.json)。不扩为整个镜像、pgvector、其他传递依赖、再分发或升级运维审查；不对仓库数据授予新许可。
+
+实际current-only执行的原参数、容量门、source/ELF映射与Wait见 [原supervisor](../../output/ai/native-pg-fts/run-native02.py)和 [实际输入记录](../../output/ai/native-pg-fts/native02-outer.json)。原/新候选二进制均在零消费者后精确处置，metadata保留。下面保留PG-only替代入口，**本次未执行该入口，其5GiB门仍适用**；不能把它冒作本次运行命令。依赖和固定镜像须已在本机，不下载或连接外部数据库；各轮使用新输出目录，共享工具/cache。
+
+```sh
+# 在仓库根；AGENTEAM_GO 指向已经核验的 Go1.27.1，GOTOOLCHAIN=local。
+# ordinary admission/publication: 2 top-level tests；不重跑原评分器控制。
+GOPROXY=off GOSUMDB=off "$AGENTEAM_GO" test ./tests/search-benchmark -run '^TestNativePGFTS(InputContract|Publication)$' -count=1
+# 在实际资源窗口之前，由统一验证者编译两个小入口并精确 list。
+GOPROXY=off GOSUMDB=off "$AGENTEAM_GO" test -tags=integration -race -c -o output/ai/search-benchmark/native-fts.test ./tests/search-benchmark
+GOPROXY=off GOSUMDB=off "$AGENTEAM_GO" build -o output/ai/search-benchmark/pg-only-driver .agent-state/task-planning-recovery/pg_only_driver.go
+output/ai/search-benchmark/native-fts.test -test.list '^TestNativePGFTSBenchmark$'
+python3 scripts/search-benchmark.py export --data tests/search-benchmark/data --output output/ai/search-benchmark/export-native-01
+AGENTEAM_NATIVE_FTS_EXPORT="$PWD/output/ai/search-benchmark/export-native-01" \
+AGENTEAM_NATIVE_FTS_OUTPUT="$PWD/output/ai/search-benchmark/native-01" \
+output/ai/search-benchmark/pg-only-driver \
+  --test-binary "$PWD/output/ai/search-benchmark/native-fts.test" \
+  --run '^TestNativePGFTSBenchmark$' \
+  --directory "$PWD/output/ai/search-benchmark/pg-owned-native-01"
+# 仅在该唯一 top PASS、实际 child Wait=0、精确容器/网络双次消失、
+# 私有凭据退场和 driver terminal exit=0/cleanup=true 后消费新输出。
+python3 scripts/search-benchmark.py score --data tests/search-benchmark/data --run output/ai/search-benchmark/native-01/run.json --output output/ai/search-benchmark/score-native-01
+```
+
+原 PG-only driver 的单轮上限包含 setup/body/cleanup 共120s（105s工作＋15s清理）；候选自身60s context，数据库退休与输出前判定不超过75s。外层调用者须保留其真实 wait 和精确 owned ID 退出记录，并设额外有界终止/回收时间，不把 Go 的 `-test.timeout=6m` 当整轮预算。首次失败保留原目录，不自动重试。本次首FAIL后只对locale读取作窄修，并在明确授权后执行一次纠正窗与一次原score；全部失败、实际Wait与资源退出证据保留，不自动重试。
