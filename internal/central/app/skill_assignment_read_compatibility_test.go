@@ -15,7 +15,8 @@ import (
 	sc "github.com/LunaDeerTech/agenteam/internal/central/skill/contract"
 )
 
-// This isolated control synthesizes only an uncommitted lifecycle selector.
+// This isolated control synthesizes an uncommitted lifecycle/version selector,
+// respecting the canonical trigger's next version and strictly later instant.
 // It proves the narrow historical-read gate, not a retirement producer, HTTP
 // deleting lookup or a valid persisted deleting state. All seed is formal;
 // the synthetic UPDATE must roll back and restore the exact canonical preimage.
@@ -50,7 +51,7 @@ func TestSkillAssignmentDeletingReadCompatibility(t *testing.T) {
 	workAppCheck(t, "compatibility-original-cause", err)
 	var before, after string
 	workAppCheck(t, "compatibility-canonical-preimage", v.admin.QueryRow(v.ctx, `SELECT to_jsonb(a)::text FROM agenteam_agent.agents a WHERE project_id::text=$1 AND id::text=$2`, v.a.String(), agent.String()).Scan(&before))
-	rollback := errors.New("synthetic-lifecycle-read-control-rollback")
+	rollback := errors.New("synthetic-lifecycle-version-read-control-rollback")
 	readAccepted := false
 	stage := "locks"
 	result := v.store.WithinTx(v.ctx, cause, func(ctx context.Context, tx f.Tx) error {
@@ -63,7 +64,7 @@ func TestSkillAssignmentDeletingReadCompatibility(t *testing.T) {
 			return err
 		}
 		stage = "synthetic-exact-row"
-		tag, err := x.Exec(ctx, `UPDATE agenteam_agent.agents SET lifecycle='deleting' WHERE project_id=$1 AND id=$2 AND lifecycle='active' AND version=2`, v.a.String(), agent.String())
+		tag, err := x.Exec(ctx, `UPDATE agenteam_agent.agents SET lifecycle='deleting', version=version+1, updated_at=GREATEST(clock_timestamp(),updated_at+interval '1 microsecond') WHERE project_id=$1 AND id=$2 AND lifecycle='active' AND version=2`, v.a.String(), agent.String())
 		if err != nil {
 			return err
 		}
@@ -75,7 +76,7 @@ func TestSkillAssignmentDeletingReadCompatibility(t *testing.T) {
 		if err != nil {
 			return err
 		}
-		readAccepted = ref.ProjectID == v.a && ref.AgentID == agent && ref.ConfigVersion == 2
+		readAccepted = ref.ProjectID == v.a && ref.AgentID == agent && ref.ConfigVersion == 3
 		if !readAccepted {
 			return errors.New("synthetic-lifecycle-read-scope-mismatch")
 		}
@@ -87,7 +88,7 @@ func TestSkillAssignmentDeletingReadCompatibility(t *testing.T) {
 	}
 	workAppCheck(t, "compatibility-rollback-postimage", v.admin.QueryRow(v.ctx, `SELECT to_jsonb(a)::text FROM agenteam_agent.agents a WHERE project_id::text=$1 AND id::text=$2`, v.a.String(), agent.String()).Scan(&after))
 	if after != before {
-		t.Fatal("synthetic lifecycle escaped rollback")
+		t.Fatal("synthetic lifecycle/version escaped rollback")
 	}
 	v.joined(t)
 	t.Log("SKILL_ASSIGNMENT_DELETING_READ isolated_synthetic_selector=true initialized_receipt_real=true historical_expected_accepted=true same_store_original_tx=true rollback_exact_preimage=true not_retirement_or_http_deleting_proof=true")
