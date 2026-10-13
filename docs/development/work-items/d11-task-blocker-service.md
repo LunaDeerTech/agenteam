@@ -10,7 +10,13 @@
 
 blocked 的独立解除先在原事务读取真实 unresolved 集合：仅余一个时返回顶层 `LAST_BLOCKER_REQUIRES_TASK_TRANSITION`（HTTP 409，无新增 field error 或自动重试提示），不写任何部分结果；正式 Outbox producer 再核 blocked postimage 仍有 unresolved 原因。其它非终态可独立解除最后一个，不自动改变 state。technical Blocker 不进入本片 standalone Human 解除，保留原 Scheduler/transition 来源及 `DEPENDENCY_UNBOUND`；不扩大其创建权限。
 
-本片不新增迁移或公共 DTO；HTTP 收据沿 `task,blocker,task_event_id,event_ids`，成功 Task version 恰加一。针对新边界的领域计划、最后原因/SQL错误、HTTP 收据/Lookup 与安全错误投影测试随实现提供；真实默认 App 浏览器闭环与独立审查尚待执行，不把下文原 backlog 验收当作新范围通过。
+本片不新增迁移或公共 DTO；HTTP 收据沿 `task,blocker,task_event_id,event_ids`，成功 Task version 恰加一。前端已开放相同非终态管理入口，提交与原 Lookup 绑定当前独立读取的 Task 前像，收据保留业务内容、状态和指派；`manual_rank` 允许合法排序重平衡在不增加 Task version 时改变，不能把旧 GET 中的 rank 当作提交版本权威。
+
+本后继已完成限定独立验收：Go race 12 top / 99 sub、4 包 vet 及所选 2 项 schema 检查通过；前端 6 个相关 spec 合计 52 个不同用例（新增 11 个）及整树类型检查、生产构建通过，未变用例复用原证据。真实 PG/原 TLS HTTP 的 1 top / 1 sub 沿正式 claim、Launch 拒绝和失败 finalizer 产生已指派 blocked Task，验证人工原因 Add/Resolve、历史 Lookup/replay、technical 独立解除拒绝与持久事实不变。该场景始终保留原 technical 原因；最后一个 Human Blocker 拒绝有领域测试覆盖，producer 防空后像经源码审查；未完成该拒绝的 PG 或浏览器场景。
+
+真实默认 App 浏览器 Web02 的 1 top / 1 sub、1 个 Playwright 用例通过：正式创建并指派为 todo 后，人工阻塞与任务依赖各 Add/Resolve 一次，4 个原 POST 均完整 200；原 Task 状态、指派、该无并发场景的 rank、版本、保留 Blocker 与 Timeline 均有真实回执/读取及同事务断言。84 个请求中 79 个 finished、5 个 `ERR_ABORTED` 保留 failed 状态，但原响应、消费者及 handler 联证闭合，不记为全部 finished。4 张宽屏浅色、窄屏深色图片经独立亲视接受，展示草稿、解除内容、依赖状态及入口焦点；Task 顶部状态/指派和窄屏底部完整 Timeline 由动态断言覆盖，不冒充已入截图。原进程 Wait、任务专属容器/网络及观察尾均已收束；未启用 Model 或 Execution runtime。
+
+失败材料保留在 `output/ai/task-blocker-management`：Web01 在首次 Add 后刷新出现代理 502 和焦点断言失败，原原因仍未确定；仅增加固定类别、阶段与时间顺序的失败诊断后，保持原产品、预算和断言的 Web02 通过，不能表述为产品焦点缺陷已修。首轮浏览器静态工具缺 Node 类型/DOM iterable 配置、首轮编译后的列表检查仍使用旧 TaskCancel 选择器，两项工具失败均已纠正并保留；原编译本身退出 0。第二编译候选与诊断字段锁修时间重叠而弃用，最终从冻结源码重新编译。新 browser helper/spec 类型诊断为 0，沿用模块的 7 项既有诊断未冒充整 harness 类型通过。本片不替代完整 D11、其它 Blocker 类型、自动恢复或长期目标验收。
 
 以下章节保留原 backlog 服务的交付基线及历史验收，受本节明确扩大之处以本节为准。
 
