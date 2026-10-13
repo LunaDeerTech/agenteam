@@ -18,7 +18,7 @@ type ownedRunnerManagedRuntime struct {
 // exists. Agent configuration keeps the same formal Runner directory and Mount
 // provider. No System Runner, credential, directory or configuration is changed.
 // A partial result transfers its control owner before the caller handles err.
-func createOwnedRunnerManagedRuntime(store mount.Store, life *project.LifecycleAuthority, agents *agent.ProjectCallOwnership, executions *execution.ProjectCallOwnership, objects *objectAssembly) (*ownedRunnerManagedRuntime, error) {
+func createOwnedRunnerManagedRuntime(store execution.Store, life *project.LifecycleAuthority, agents *agent.ProjectCallOwnership, executions *execution.ProjectCallOwnership, objects *objectAssembly) (*ownedRunnerManagedRuntime, error) {
 	if runtimeInformationNil(store) || life == nil || agents == nil || executions == nil || objects == nil || objects.guard == nil || objects.process.Validate() != nil {
 		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
