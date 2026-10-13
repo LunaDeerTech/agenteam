@@ -1,4 +1,4 @@
-import { vi } from 'vitest'
+import { expect, vi } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
 import { computed, shallowReactive, shallowRef } from 'vue'
 import { createAccountAPI, type SessionView } from '../api/account'
@@ -184,7 +184,7 @@ export async function fixture() {
         agent_version: state.config.version,
         items: [],
       })
-    if (url.pathname === `/api/v1/projects/${project}/skills`)
+    if (url.pathname === `/api/v1/projects/${project}/skills/catalog`)
       return json({ items: state.candidates })
     if (url.pathname === base && init.method === 'GET')
       return json({
@@ -262,6 +262,9 @@ export async function pageFixture() {
   owner.afterNavigation('/owner/demo/settings/agents')
   await flushPromises()
   await owner.selectAgent(agent)
+  expect(owner.state.selectedID).toBe(agent)
+  expect(owner.state.detailPhase, owner.state.detailMessage).toBe('ready')
+  expect(owner.busy.value).toBe(false)
   return {
     ...f,
     owner,

@@ -28,7 +28,12 @@ async function setup() {
   })
   mounted.push(wrapper)
   const button = (label: string) => {
-    const b = wrapper.findAll('button').find((b) => b.text() === label)
+    const b = wrapper.findAll('button').find((b) => {
+      // Shared UiButton keeps its loading/success labels in hidden spans.
+      const visible = b.element.cloneNode(true) as HTMLElement
+      visible.querySelectorAll('[aria-hidden="true"]').forEach((node) => node.remove())
+      return visible.textContent?.trim() === label
+    })
     if (!b) throw new Error(`Missing button ${label}`)
     return b
   }
