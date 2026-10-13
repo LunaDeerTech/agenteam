@@ -195,7 +195,7 @@ test("Owner filters the selected Sprint by state through original pages and deta
   const continuation = (await settled(8, 1))[0]!;
   query(continuation.query, "backlog", "null", cursor);
   expect(continuation.value.items).toHaveLength(1);
-  expect(continuation.value.next_cursor).toBeNull();
+  expect(continuation.value).not.toHaveProperty("next_cursor");
   const backlogIDs = [
     ...(backlog.value.items as { id: string }[]),
     ...(continuation.value.items as { id: string }[]),
@@ -222,7 +222,7 @@ test("Owner filters the selected Sprint by state through original pages and deta
   expect((todo.value.items as { id: string }[]).map((row) => row.id)).toEqual([
     data.task.id,
   ]);
-  expect(todo.value.next_cursor).toBeNull();
+  expect(todo.value).not.toHaveProperty("next_cursor");
   await included("todo", 1);
   await expect(status).toContainText("状态：待执行");
   await page.setViewportSize({ width: 390, height: 844 });
