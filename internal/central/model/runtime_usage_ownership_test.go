@@ -531,7 +531,7 @@ func TestRuntimeUsageOwnershipKeepsFirstUnknown(t *testing.T) {
 			}
 			err := c.confirmMutation(ctx, m)
 			var original *UnknownCommandError
-			if err != m.originalUnknown || !errors.As(err, &original) || original.AttemptID() != m.originalResult.AttemptID() || !reflect.DeepEqual(original.Cause().Details(), m.originalResult.Cause().Details()) || c.pending != m || v.writer.returns != 0 {
+			if err != m.originalUnknown || !errors.As(err, &original) || original.AttemptID() != m.originalResult.AttemptID() || !usageRuntimeSameCause(original.Cause(), m.originalResult.Cause()) || c.pending != m || v.writer.returns != 0 {
 				t.Fatal("failed confirmation replaced the original mutation or its owner", err)
 			}
 		})
@@ -545,6 +545,21 @@ func usageRuntimeJoin(t *testing.T, finished <-chan struct{}) {
 	case <-time.After(5 * time.Second):
 		t.Error("controlled original call did not return during cleanup")
 	}
+}
+
+// TransactionCause and CommandIdentity deliberately contain opaque functions.
+// Compare their complete lookup projections, not reflect.DeepEqual on funcs.
+func usageRuntimeSameCause(a, b f.TransactionCause) bool {
+	x, y := a.Details(), b.Details()
+	if x.Kind != y.Kind || x.Primary.Canonical() != y.Primary.Canonical() || len(x.Related) != len(y.Related) || x.JobType != y.JobType || x.JobID != y.JobID || x.JobAttemptID != y.JobAttemptID || x.EventID != y.EventID || x.HandlerName != y.HandlerName || x.Owner != y.Owner || x.RecoveryRunID != y.RecoveryRunID || x.CheckpointRef != y.CheckpointRef {
+		return false
+	}
+	for n := range x.Related {
+		if x.Related[n].Canonical() != y.Related[n].Canonical() {
+			return false
+		}
+	}
+	return true
 }
 
 func TestRuntimeUsageOwnershipOriginalStoreResult(t *testing.T) {
@@ -591,7 +606,7 @@ func TestRuntimeUsageOwnershipOriginalStoreResult(t *testing.T) {
 			open()
 			select {
 			case got := <-done:
-				if !reflect.DeepEqual(got, want) || v.store.calls != 1 || v.writer.returns != 0 {
+				if got.State() != want.State() || got.AttemptID() != want.AttemptID() || !usageRuntimeSameCause(got.Cause(), want.Cause()) || !reflect.DeepEqual(got.Fault(), want.Fault()) || v.store.calls != 1 || v.writer.returns != 0 {
 					t.Fatal("wrapper changed original result/cause/attempt")
 				}
 			case <-time.After(5 * time.Second):
