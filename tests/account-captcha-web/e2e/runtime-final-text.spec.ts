@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import { runtimeTextMaterial, observeRuntimeText, runtimeTextScreenshot } from "./runtime-final-text.helpers";
 
 let observed: Awaited<ReturnType<typeof observeRuntimeText>> | undefined;
-test.afterEach(async (_fixtures,info)=>{
+test.afterEach(async ({},info)=>{
   if(observed)await observed.save(info.status??"unknown",info.errors.flatMap(error=>[...(error.stack??"").matchAll(/runtime-final-text\.(?:spec|helpers)\.ts:\d+:\d+/g)].map(match=>match[0])));
   observed=undefined;
 });

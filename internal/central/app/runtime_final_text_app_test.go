@@ -182,6 +182,7 @@ func runtimeFinalTextApp(t *testing.T){
 	head:=taskExecutionGet(t,v.workAppFixture,v.client,v.cookie,"HEAD",v.path(),200)
 	if len(head.body)!=0||head.header.Get("Content-Length")!=strconv.Itoa(len(first.body)){t.Fatal("Runtime HEAD differs from complete original GET")}
 	foreign:=artifactOwnerHTTPForeignClient(t,&humanArtifactApp{workAppFixture:v.workAppFixture})
+	taskExecutionRecoverForeignInvitation(t,v.workAppFixture,"artifact-reader","artifact-reader@example.com")
 	taskExecutionGet(t,v.workAppFixture,foreign,"","GET",v.path(),404)
 	taskExecutionGet(t,v.workAppFixture,v.client,"","GET",v.path(),401)
 	taskExecutionGet(t,v.workAppFixture,v.client,v.cookie,"GET",taskExecutionReadPath(v.b,v.task.ID.String(),v.execution.ID)+"/runtime-view",404)
