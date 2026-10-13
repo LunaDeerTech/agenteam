@@ -1018,7 +1018,7 @@ export async function observeDependency(page: Page, data: DependencyMaterial) {
       }
       e.body = c.typed;
       e.checked = true;
-      const { typed, query, original, ...consumer } = c;
+      const { typed, query, original: originalInput, ...consumer } = c;
       proofs.push({
         seq: e.seq,
         request_id: e.rid,
