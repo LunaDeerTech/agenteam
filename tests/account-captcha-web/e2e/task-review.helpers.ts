@@ -201,6 +201,7 @@ export async function observeBrowserIO(
     const originalAgentEdits: any[] = [];
     const originalMilestoneEdits: any[] = [];
     const originalMilestoneReorders: any[] = [];
+    const originalSprintReorders: any[] = [];
     const originalSprintEdits: any[] = [];
     let originalSprintStart: any;
     let originalSprintCreate: any;
@@ -440,6 +441,11 @@ export async function observeBrowserIO(
           originalMilestoneReorders.push(original);
           writeInputs.set(call, original);
         }
+        if (kind === "sprintReorder.reorder") {
+          const original = { call, project: args[0], sprint: args[1], input: JSON.parse(JSON.stringify(args[2])) };
+          originalSprintReorders.push(original);
+          writeInputs.set(call, original);
+        }
         if (kind === "milestone.update") {
           const original = { call, project: args[0], milestone: args[1], input: JSON.parse(JSON.stringify(args[2])) };
           originalMilestoneEdits.push(original);
@@ -566,6 +572,10 @@ export async function observeBrowserIO(
             if (kind === "milestoneReorder.reorder") {
               const original = writeInputs.get(call), progress = auth.workMilestoneReordering.progress;
               call.result_current = progress?.phase === "confirmed" && progress.contextValid === true && progress.projectID === original.project && progress.milestoneID === original.milestone && value != null && progress.result === value;
+            }
+            if (kind === "sprintReorder.reorder") {
+              const original = writeInputs.get(call), progress = auth.workSprintReordering.progress;
+              call.result_current = progress?.phase === "confirmed" && progress.contextValid === true && progress.projectID === original.project && progress.sprintID === original.sprint && value != null && progress.result === value;
             }
             if (kind === "milestone.update" || kind === "milestone.checkOriginal") {
               const original = writeInputs.get(call), source = kind === "milestone.update" ? original : original.source;
@@ -704,6 +714,7 @@ export async function observeBrowserIO(
         usageSummaryReads = false,
         secretDelete: string | undefined = undefined,
         reorderMilestone: string | undefined = undefined,
+        reorderSprint: string | undefined = undefined,
       ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
@@ -1088,6 +1099,12 @@ export async function observeBrowserIO(
             return "/api/v1/projects/" + project + "/milestones/" + reorderMilestone + "/reorder";
           }, "POST");
         }
+        if (reorderSprint) {
+          consumer(auth.workSprintReordering, "reorder", "sprintReorder.reorder", (a) => {
+            if (a[0] !== project || a[1] !== reorderSprint) throw Error("SPRINT_REORDER_CONSUMER_SCOPE");
+            return "/api/v1/projects/" + project + "/sprints/" + reorderSprint + "/reorder";
+          }, "POST");
+        }
         if (editMilestone) {
           consumer(auth.workMilestoneEditing, "update", "milestone.update", (a) => {
             if (a[0] !== project || a[1] !== editMilestone) throw Error("MILESTONE_UPDATE_CONSUMER_SCOPE");
@@ -1192,6 +1209,7 @@ export async function observeBrowserIO(
         originalAgentEdits.length = 0;
         originalMilestoneEdits.length = 0;
         originalMilestoneReorders.length = 0;
+        originalSprintReorders.length = 0;
         originalSprintEdits.length = 0;
         originalSprintStart = undefined;
         originalSprintCreate = undefined;
@@ -1465,6 +1483,10 @@ export async function observeBrowserIO(
           }
           if (call.kind === "milestoneReorder.reorder") {
             matches = originalMilestoneReorders.every(old => old === original || (typeof old.key === "string" && old.key !== key)) && equal(parsed, original.input);
+            if (matches) original.key = key;
+          }
+          if (call.kind === "sprintReorder.reorder") {
+            matches = originalSprintReorders.every(old => old === original || (typeof old.key === "string" && old.key !== key)) && equal(parsed, original.input);
             if (matches) original.key = key;
           }
           if (call.kind === "milestone.update") {
@@ -1955,6 +1977,7 @@ export type TaskObservationProfile = {
     | "milestone-create"
     | "milestone-edit"
     | "milestone-reorder"
+    | "sprint-reorder"
     | "sprint-edit"
     | "project-variables"
     | "knowledge-text"
@@ -1999,6 +2022,7 @@ export type TaskObservationProfile = {
   milestoneCreateWrites?: true;
   milestoneUpdateWrites?: true;
   milestoneReorderWrites?: true;
+  sprintReorderWrites?: true;
   sprintUpdateWrites?: true;
   variableWrites?: true;
   knowledgeTextWrites?: true;
@@ -2207,6 +2231,13 @@ export async function observeTaskRequests(
         !["milestone-reorder-normal", "milestone-reorder-responsive"].includes(data.mode) || !data.milestone_id ||
         !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.milestone_id) ||
         Object.keys(profile).some(key => !allowed.includes(key))) throw Error("MILESTONE_REORDER_PROFILE_MISMATCH");
+  }
+  if (profile.sprintReorderWrites || profile.prefix === "sprint-reorder") {
+    const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand", "sprintReorderWrites"];
+    if (profile.sprintReorderWrites !== true || profile.prefix !== "sprint-reorder" || profile.lookupCommand !== null ||
+        !["sprint-reorder-planned", "sprint-reorder-current"].includes(data.mode) || !data.sprint_id || !data.milestone_id ||
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.sprint_id) || !/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(data.milestone_id) ||
+        Object.keys(profile).some(key => !allowed.includes(key))) throw Error("SPRINT_REORDER_PROFILE_MISMATCH");
   }
   if (profile.prefix === "task-assignee-filter") {
     const allowed = ["dist", "evidence", "inputHash", "prefix", "endpoint", "lookupCommand"];
@@ -2685,6 +2716,7 @@ export async function observeTaskRequests(
           usageSummaryReads,
           secretDelete,
           reorderMilestone,
+          reorderSprint,
         }) => {
           const module = await import(/* @vite-ignore */ binding.asset);
           const useSession = module[binding.exportName];
@@ -2720,6 +2752,7 @@ export async function observeTaskRequests(
           usageSummaryReads,
           secretDelete,
           reorderMilestone,
+          reorderSprint,
           );
         },
         {
@@ -2754,6 +2787,7 @@ export async function observeTaskRequests(
           knowledgeDelete: profile.knowledgeDeleteWrites ? { mode: data.mode, root: data.root_id! } : undefined,
           secretDelete: profile.secretDelete ? data.agent_id : undefined,
           reorderMilestone: profile.milestoneReorderWrites ? data.milestone_id : undefined,
+          reorderSprint: profile.sprintReorderWrites ? data.sprint_id : undefined,
         },
       );
       await route.continue();
@@ -2925,7 +2959,7 @@ export async function observeTaskRequests(
   function sprintPageRead(entry: Entry) {
     return (
       entry.request.method() === "GET" &&
-      ((profile.sprintUpdateWrites && ["project", "sprint", "sprints", "milestone", "milestones", "agents", "tasks"].includes(entry.name)) ||
+      (((profile.sprintUpdateWrites || profile.sprintReorderWrites) && ["project", "sprint", "sprints", "milestone", "milestones", "agents", "tasks"].includes(entry.name)) ||
         (profile.sprintStartWrites &&
         ["project", "sprint", "tasks"].includes(entry.name)) ||
         (profile.sprintCreateWrites &&
@@ -2954,6 +2988,12 @@ export async function observeTaskRequests(
     const url = new URL(entry.request.url());
     return entry.name === "reorder" && entry.request.method() === "POST" && !url.search &&
       url.pathname === `/api/v1/projects/${data.project_id}/milestones/${data.milestone_id}/reorder`;
+  }
+  function sprintReorderWrite(entry: Entry) {
+    if (!profile.sprintReorderWrites) return false;
+    const url = new URL(entry.request.url());
+    return entry.name === "reorder" && entry.request.method() === "POST" && !url.search &&
+      url.pathname === `/api/v1/projects/${data.project_id}/sprints/${data.sprint_id}/reorder`;
   }
   function milestoneUpdateWrite(entry: Entry) {
     if (!profile.milestoneUpdateWrites) return false;
@@ -3079,6 +3119,7 @@ export async function observeTaskRequests(
     const milestoneCreate = milestoneCreateWrite(entry);
     const milestoneUpdate = milestoneUpdateWrite(entry);
     const milestoneReorder = milestoneReorderWrite(entry);
+    const sprintReorder = sprintReorderWrite(entry);
     const sprintUpdate = sprintUpdateWrite(entry);
     const variable = variableWrite(entry);
     const knowledgeText = knowledgeTextWrite(entry);
@@ -3097,6 +3138,7 @@ export async function observeTaskRequests(
       milestoneCreate ||
       milestoneUpdate ||
       milestoneReorder ||
+      sprintReorder ||
       sprintUpdate ||
       variable ||
       knowledgeText || scheduler || runner || systemRunner || knowledgeDelete || secret;
@@ -3223,7 +3265,7 @@ export async function observeTaskRequests(
       if (secret) { expect(c.result_current).toBe(true); if (!profile.secretDelete) expect(c.paste_bound).toBe(true); }
       if (systemRunner) { expect(c.result_current).toBe(true); if (c.typed.token_available === true) expect(c.material_matches).toBe(true); }
       if (scheduler || knowledgeDelete) expect(c.result_current).toBe(true);
-      if (sprintCreate || milestoneCreate || milestoneUpdate || milestoneReorder || sprintUpdate || variable || knowledgeText) expect(c.result_current).toBe(true);
+      if (sprintCreate || milestoneCreate || milestoneUpdate || milestoneReorder || sprintReorder || sprintUpdate || variable || knowledgeText) expect(c.result_current).toBe(true);
       const kinds: Record<string, string> = secret
         ? { create: "secretWrite.create", update: "secretWrite.update", delete: "secretWrite.delete", lookup: "secretWrite.lookup" }
         : systemRunner
@@ -3240,6 +3282,8 @@ export async function observeTaskRequests(
         ? { create: "variable.create", update: "variable.update", delete: "variable.delete" }
         : sprintUpdate
         ? { update: "sprintEdit.update", lookup: "sprintEdit.checkOriginal" }
+        : sprintReorder
+        ? { reorder: "sprintReorder.reorder" }
         : milestoneReorder
         ? { reorder: "milestoneReorder.reorder" }
         : milestoneUpdate
@@ -3442,6 +3486,7 @@ export async function observeTaskRequests(
           milestoneCreateWrite(entry) ||
           milestoneUpdateWrite(entry) ||
           milestoneReorderWrite(entry) ||
+          sprintReorderWrite(entry) ||
           sprintUpdateWrite(entry) ||
           variableWrite(entry) ||
           knowledgeTextWrite(entry) ||
@@ -3512,6 +3557,7 @@ export async function observeTaskRequests(
         milestoneCreateWrite(entry) ||
         milestoneUpdateWrite(entry) ||
         milestoneReorderWrite(entry) ||
+        sprintReorderWrite(entry) ||
           sprintUpdateWrite(entry) ||
         milestonePageRead(entry) ||
         variableWrite(entry) ||
@@ -3755,7 +3801,7 @@ export async function observeTaskRequests(
     return rows.at(-1)!.body as Record<string, any>;
   }
   function sprintEditRead(name: "project" | "sprint" | "sprints" | "milestone" | "milestones" | "agents" | "tasks") {
-    expect(profile.sprintUpdateWrites).toBe(true);
+    expect(profile.sprintUpdateWrites || profile.sprintReorderWrites).toBe(true);
     const rows = entries.filter(e => e.name === name && e.checked && e.body);
     expect(rows.length, "original Sprint Edit public read must complete").toBeGreaterThan(0);
     return rows.at(-1)!.body as Record<string, any>;
@@ -3892,7 +3938,7 @@ export async function observeTaskRequests(
                 creates: entries.filter((e) => e.name === "create").length,
               }
             : {}),
-          ...(profile.milestoneReorderWrites ? { reorders: entries.filter(e => e.name === "reorder").length } : {}),
+          ...(profile.milestoneReorderWrites || profile.sprintReorderWrites ? { reorders: entries.filter(e => e.name === "reorder").length } : {}),
           lookups: entries.filter((e) => e.name === "lookup").length,
           test_status: testStatus,
           route: diagnosticURL(page.url()),

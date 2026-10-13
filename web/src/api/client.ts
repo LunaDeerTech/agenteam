@@ -129,6 +129,8 @@ const endpoints = {
   milestoneUpdateLookup: ['POST', '/api/v1/projects/{project_id}/structure-commands/lookup', 200],
   milestoneCreate: ['POST', '/api/v1/projects/{project_id}/milestones', 200],
   milestoneCreateLookup: ['POST', '/api/v1/projects/{project_id}/structure-commands/lookup', 200],
+  sprintReorder: ['POST', '/api/v1/projects/{project_id}/sprints/{target}/reorder', 200],
+  sprintReorderLookup: ['POST', '/api/v1/projects/{project_id}/structure-commands/lookup', 200],
   sprintUpdate: ['PATCH', '/api/v1/projects/{project_id}/sprints/{target}', 200],
   sprintUpdateLookup: ['POST', '/api/v1/projects/{project_id}/structure-commands/lookup', 200],
   sprintCreate: ['POST', '/api/v1/projects/{project_id}/sprints', 200],
@@ -1178,6 +1180,8 @@ type WorkReviewEndpoint =
   | 'milestoneUpdateLookup'
   | 'milestoneCreate'
   | 'milestoneCreateLookup'
+  | 'sprintReorder'
+  | 'sprintReorderLookup'
   | 'sprintUpdate'
   | 'sprintUpdateLookup'
   | 'sprintCreate'
@@ -1219,6 +1223,8 @@ const workReviewEndpoints: readonly WorkReviewEndpoint[] = [
   'milestoneUpdateLookup',
   'milestoneCreate',
   'milestoneCreateLookup',
+  'sprintReorder',
+  'sprintReorderLookup',
   'sprintUpdate',
   'sprintUpdateLookup',
   'sprintCreate',

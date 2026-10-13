@@ -1,14 +1,16 @@
-# 当前工作：Usage 生命周期与 Agent 筛选已限定验收，继续 Knowledge 与默认生命周期集成
+# 当前工作：Sprint 排序已限定验收，继续 Knowledge 与默认生命周期集成
 
-2026-10-13。本次摘要更新前本地主线为 `5133863c`；Work history Cleanup、默认 App Work、默认 App Execution / Scheduler、Milestone 排序及 Usage 生命周期已本地交付。E/S 的 12 top/20 sub 与 App vet、native02 的 1 top/2 sub 通过；Milestone 的 75 项测试、类型检查、构建及两组 Go/Node 真实验收通过，原失败与边界见 [D08](../docs/development/work-items/d08-project-owner-design.md) 和 [Milestone 卡](../docs/development/work-items/d11-milestone-reorder-ui.md)。
+2026-10-13。本次摘要更新前本地主线为 `cc3ded01`；Work history Cleanup、默认 App Work、默认 App Execution / Scheduler、Milestone 排序、Usage 生命周期及 Agent 筛选已本地交付。E/S 的 12 top/20 sub 与 App vet、native02 的 1 top/2 sub 通过；Milestone 的 75 项测试、类型检查、构建及两组 Go/Node 真实验收通过，原失败与边界见 [D08](../docs/development/work-items/d08-project-owner-design.md) 和 [Milestone 卡](../docs/development/work-items/d11-milestone-reorder-ui.md)。
 
 Usage 受测 `c91e1f6e`，48 top/102 sub、四包 vet 与 [native01](../output/ai/project-usage-lifecycle-delivery/native01/result.json) 的 1 top/3 sub 已通过，原 Wait、六资源及私有状态全退，已随 `5133863c` 本地交付。真实默认 reader/Runtime policy-denied 的 Usage 事实、两个 Unknown 只读确认及三表/closed ledger 清理已验；其它 Stop/Execution Completed 为受控前序，默认 Registry 与完整 Project Delete 仍未完成。原 pure 编译、Cause/typed Unknown 断言及 copylock vet 失败保留，定向修正和复验见 [D08](../docs/development/work-items/d08-project-owner-design.md)。
 
-Agent 筛选前端已普通继承 Usage 主线，受测 `a8635af8`；43 项分段测试、完整类型检查与构建通过，84 个 dist 文件字节未变。[native01](../output/ai/task-assignee-filter-ui-delivery/native01/result.json) 的 1 top/2 sub、两个原 Node 调用和全部资源/请求退出尾已闭合，真实 Agent 50+1 目录与 Task 分页、三态及组合筛选、详情往返和 A/B 事实不变通过；1440 浅色/390 深色四图有限接受。当前交付本批文档后本地合入，原 basic01 的两个旧断言 FAIL 与窄修保留；此为 Work HTTP shell，不代表默认 App 生命周期或完整视觉矩阵，见[本片卡](../docs/development/work-items/d11-task-assignee-filter-ui.md)。Knowledge 新工作树已创建，后继默认生命周期集成与原 STOP 边界保持。
+Agent 筛选前端已普通继承 Usage 主线，受测 `a8635af8`；43 项分段测试、完整类型检查与构建通过，84 个 dist 文件字节未变。[native01](../output/ai/task-assignee-filter-ui-delivery/native01/result.json) 的 1 top/2 sub、两个原 Node 调用和全部资源/请求退出尾已闭合，真实 Agent 50+1 目录与 Task 分页、三态及组合筛选、详情往返和 A/B 事实不变通过；1440 浅色/390 深色四图有限接受。已随 `cc3ded01` 本地合入，原 basic01 的两个旧断言 FAIL 与窄修保留；此为 Work HTTP shell，不代表默认 App 生命周期或完整视觉矩阵，见[本片卡](../docs/development/work-items/d11-task-assignee-filter-ui.md)。Knowledge 后继仍独立推进，默认生命周期集成与原 STOP 边界保持。
 
-GitHub 认证仍失效，不重试认证探测；未推 refs、tracking/exact fetchspec 及相应工作树保留。本地[首批档案](../output/ai/pending-push-20261013/README.md)与[增量 bundle02](../output/ai/pending-push-20261013-02/manifest.json)均保留；后者已 verify，187,580 B/46 commits/7 refs，截止 main `2352b189`、Usage `ff5c36d9`、validation `f0e6c3`，不含 Usage 后继提交、thin 或 Agent 筛选新分支/launcher。它依赖原先对象，不是完整 clone 或远端备份；下一增量档案待 Agent 筛选交付稳定后生成，当前不预称完成。
+Sprint 排序受测 `c7c1bb14` 已限定验收，当前交付本批文档后本地合入。10 个文件 73 项测试、修正后的完整类型检查及首次构建 84 个 dist 文件通过；原 TS2322 只修 Start 测试空 request，单项复验不增加总数。[native01](../output/ai/sprint-reorder-ui-delivery/native01/result.json) 的 1 top/2 sub 共 67.34s，原 `71094/69304f` Wait 0/157.975s、两个 Node 调用及全退出尾闭合。默认 App 正式 HTTP 的 planned/current 两组各三次排序两次 changed，Current、另一组 Task 与 B 不变；宽浅/窄深四图有限接受。Runtime disabled，Unknown/权限矩阵仍按受控单元范围，原 FAIL 与边界见[本片卡](../docs/development/work-items/d11-sprint-reorder-ui.md)。
 
-Git 负责人 fresh 核对共 13 个工作树：九个带分支的 main、E/S App、App Work、Milestone 前端、Usage、Work history、Agent 筛选前端、新 Knowledge 与共享 validation；另四个 protected detached 旧保留树为 Knowledge Move、Object runtime join safe、Skill package HTTP、Skills milestone resume，独有 ignored 证据与 STOP 保留。以下历史计数不代表当前数量。
+GitHub 认证仍失效，不重试认证探测；未推 refs、tracking/exact fetchspec 及相应工作树保留。本地首批及旧增量档案保留；最新已 verify 的[增量 bundle03](../output/ai/pending-push-20261013-03/manifest.json)为 245,939 B/65 commits/9 refs，截止 main `cc3ded01`、Knowledge `c2893574`、validation `518bdda4`、Agent `5165c93c`。Sprint 初始基线与 main 相同、对象已包含，但该新分支 ref 不在包头；后继 Sprint/Knowledge 提交及 validation `05c5e1b1` 不在此包。它依赖原先对象，不是完整 clone 或远端备份；本次交付后的 bundle04 仅已安排，尚未生成。
+
+Git 负责人本次 fresh 核对共 14 个工作树：十个带分支的 main、E/S App、App Work、Milestone 前端、Usage、Work history、Agent 筛选前端、Sprint 排序前端、Knowledge 与共享 validation；另四个 protected detached 旧保留树为 Knowledge Move、Object runtime join safe、Skill package HTTP、Skills milestone resume，独有 ignored 证据与 STOP 保留。以下历史计数不代表当前数量。
 
 ToolsHTTP、网络截断、旧 Knowledge Move 预算、SPA concurrent-publication、官方固定来源 DNS/403 等既有 STOP 原样；下列旧流水仅供恢复历史，不构成恢复执行授权。
 
