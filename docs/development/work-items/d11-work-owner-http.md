@@ -6,6 +6,8 @@
 
 已有有效 Project 的当前 Human Owner 可通过正式认证 HTTP 创建、修改、排序 Milestone/Sprint，创建和整理未指派 backlog Task，并记录、分页查阅、解除两类 Blocker。响应丢失后可以保存的原意图查证原命令，再显式同义重放。默认 Central 根实际构造并路由这些服务，权限、持久事实与退出链均使用真实实现。
 
+非终态 Blocker 管理后继沿同一 Add/Resolve/Lookup 路由与 DTO，详见 [Blocker 服务后继](d11-task-blocker-service.md#非终态-task-管理后继)。新范围的回执允许五种非终态及原 assignee，不能继续限定 backlog/null；不由 HTTP 重新查询当前 Task 来覆盖历史 receipt。blocked 最后一个独立解除的正式顶层错误为 `LAST_BLOCKER_REQUIRES_TASK_TRANSITION` / 409 / “Task transition required” / “Resolve the last blocker together with a task transition.”，保留服务的 commit_state，不添加自动重试。原 Task planning 写入范围不变；新范围验收状态见该后继，不外推下文旧矩阵。
+
 本卡消费 [Structure](d11-work-structure.md)、[Task Planning](d11-task-planning.md)及正式交付 `0b44e26a` 的 [B0-P](d11-task-blocker-service.md)。三张卡的业务、字段、版本、排序、历史与失败组合保持有效。本卡新增 HTTP 消费和必要的 Blocker 分页读取，不复制领域状态机，也不将既有库验收称作新 HTTP 验收。
 
 | 真实前置 | 本卡接入 | 保留边界 |

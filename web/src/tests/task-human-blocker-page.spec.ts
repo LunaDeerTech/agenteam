@@ -119,7 +119,8 @@ async function fixture(withBlocker = false) {
     }
   }
   function commit(input: HumanBlockerAddInput | HumanBlockerResolveInput) {
-    const wire = receipt(input)
+    const base = receipt(input)
+    const wire = { ...base, task: { ...current, version: base.task.version, updated_at: base.task.updated_at } }
     const result = {
       ...wire,
       task: decodeWorkTask(wire.task, p, t),
@@ -252,6 +253,45 @@ async function save(f: Awaited<ReturnType<typeof fixture>>, name: string) {
   await flushPromises()
 }
 describe('Task human blocker visible workflow', () => {
+  it('adds and resolves a todo Task blocker while preserving its Agent, state and rank', async () => {
+    const f = await fixture()
+    const before = { ...task(), state: 'todo' as const, assignee_agent_id: id(7) }
+    f.setTask(before)
+    await f.owner.refresh()
+    expect(f.owner.canEdit.value).toBe(false)
+    await click(f, '添加人工阻塞')
+    await f.wrapper.get('textarea').setValue('等待确认需求')
+    await save(f, '添加人工阻塞')
+    expect(f.commands.add.mock.calls[0]?.[3]).toEqual(before)
+    expect(f.owner.state.task).toMatchObject({ state: 'todo', assignee_agent_id: id(7), manual_rank: before.manual_rank, version: '9007199254740994' })
+    await click(f, '解除人工阻塞')
+    await f.wrapper.get('textarea').setValue('需求已确认')
+    await save(f, '解除人工阻塞')
+    expect(f.owner.state.task).toMatchObject({ state: 'todo', assignee_agent_id: id(7), manual_rank: before.manual_rank, version: '9007199254740995' })
+    expect(f.wrapper.text()).toContain('已解除')
+    expect(document.activeElement).toBe(button(f, '添加人工阻塞').element)
+    expect(f.reads.startTransfer).not.toHaveBeenCalled()
+  })
+  it('explains the last-blocker refusal without inferring completeness or changing a blocked Task', async () => {
+    const f = await fixture(true)
+    const before = { ...task(), state: 'blocked' as const, assignee_agent_id: id(7) }
+    f.setTask(before)
+    f.setBlockers([decodeWorkBlocker(receipt().blocker, p, t)], 'more-blockers')
+    await f.owner.refresh()
+    await click(f, '解除人工阻塞')
+    expect(f.wrapper.text()).toContain('最后一项阻塞需要与任务恢复一并处理')
+    f.commands.resolve.mockImplementationOnce(async () => {
+      f.publish('blocker-resolve', 'rejected')
+      throw failure('LAST_BLOCKER_REQUIRES_TASK_TRANSITION')
+    })
+    await f.wrapper.get('textarea').setValue('原解除说明')
+    await save(f, '解除人工阻塞')
+    expect(f.owner.state.task).toEqual(before)
+    expect(f.owner.humanBlocker.resolutionComment).toBe('原解除说明')
+    expect(f.wrapper.text()).toContain('这是受阻任务的最后一项未解除阻塞')
+    expect(f.commands.resolve).toHaveBeenCalledTimes(1)
+    expect(f.reads.startTransfer).not.toHaveBeenCalled()
+  })
   it('adds with original text, rereads actual current facts and blocks Ready without changing state', async () => {
     const f = await fixture()
     await click(f, '添加人工阻塞')
@@ -263,7 +303,7 @@ describe('Task human blocker visible workflow', () => {
       return result
     })
     await save(f, '添加人工阻塞')
-    expect(f.commands.add).toHaveBeenCalledWith(p, t, draft())
+    expect(f.commands.add).toHaveBeenCalledWith(p, t, draft(), task())
     expect(f.owner.state.task).toMatchObject({
       title: '较新的当前读取',
       version: '9007199254740998',
@@ -293,7 +333,7 @@ describe('Task human blocker visible workflow', () => {
     expect(f.commands.resolve).toHaveBeenCalledWith(p, t, {
       ...resolveInput(),
       expected_version: task().version,
-    })
+    }, task())
     expect(f.owner.state.task).toMatchObject({
       state: 'backlog',
       assignee_agent_id: null,
@@ -317,7 +357,7 @@ describe('Task human blocker visible workflow', () => {
     await save(f, '解除人工阻塞')
     expect(f.commands.resolve.mock.calls[0]![2].request.resolution_comment).toBe(comment)
   })
-  it('permits planned and current only, refuses assigned/non-backlog/completed/inactive Tasks', async () => {
+  it('permits nonterminal Tasks in planned/current active Projects and refuses terminal Tasks', async () => {
     const f = await fixture()
     f.setSprint('planned')
     await f.owner.refresh()
@@ -330,8 +370,13 @@ describe('Task human blocker visible workflow', () => {
     await f.owner.refresh()
     expect(button(f, '添加人工阻塞').element.disabled).toBe(true)
     f.detail.project = { ...f.detail.project!, lifecycle: 'active' }
+    for (const state of ['backlog', 'todo', 'in_progress', 'in_review', 'blocked'] as const) {
+      f.setTask({ ...task(), state, assignee_agent_id: id(7) })
+      await f.owner.refresh()
+      expect(button(f, '添加人工阻塞').element.disabled).toBe(false)
+    }
     for (const current of [
-      { ...task(), assignee_agent_id: id(7) },
+      { ...task(), state: 'cancelled' as const },
       { ...task(), state: 'done' as const },
     ]) {
       f.setTask(current)

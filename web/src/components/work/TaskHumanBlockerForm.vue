@@ -19,6 +19,7 @@ onMounted(() => form.value?.querySelector('textarea')?.focus())
   <form ref="form" class="human-blocker-form" :aria-label="label" @submit.prevent="emit('submit')">
     <h4>{{ label }}</h4>
     <p>仅更新人工阻塞记录。任务状态、指派和排序保持不变。</p>
+    <p v-if="!adding && owner.state.task?.state === 'blocked'">受阻任务的最后一项阻塞需要与任务恢复一并处理，不能在这里单独解除。</p>
     <UiField v-if="adding" label="阻塞说明" hint="最多 1024 UTF-8 字节，可以留空。" v-slot="field">
       <UiTextarea
         :id="field.id"

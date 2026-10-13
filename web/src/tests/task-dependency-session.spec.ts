@@ -18,6 +18,7 @@ import {
   resolvePath,
   session,
   t,
+  task,
 } from './task-dependency-fixture'
 const owners: SessionController[] = [],
   releases: (() => void)[] = []
@@ -81,6 +82,45 @@ async function fixture() {
   }
 }
 describe('Task dependency original Session intent', () => {
+  it('accepts a current rank rebalanced after the source read without extra reads or replay', async () => {
+    const f = await fixture()
+    const before = { ...task(resolveInput().expected_version), state: 'todo' as const, assignee_agent_id: id(7) }
+    const original = receipt(resolveInput())
+    const result = { ...original, task: { ...original.task, state: 'todo', assignee_agent_id: id(7), manual_rank: '9'.repeat(32) } }
+    f.setReply(async () => json(result))
+    await f.auth.workTaskDependencies.resolve(p, t, resolveInput(), related, before)
+    expect(f.auth.workTaskDependencies.progress).toMatchObject({ phase: 'confirmed', receipt: { task: { state: 'todo', assignee_agent_id: id(7), manual_rank: '9'.repeat(32) } } })
+    expect(f.fetcher.mock.calls.map(([url]) => url)).toEqual(['/api/v1/session', resolvePath])
+    expect(f.writes()).toHaveLength(1)
+    expect(f.lookups()).toHaveLength(0)
+  })
+  it('keeps the original assigned Task through dependency Unknown and rejects changed business fields', async () => {
+    const f = await fixture()
+    const before = { ...task(), state: 'in_review' as const, assignee_agent_id: id(7) }
+    f.setReply(async () => problem())
+    const saving = f.auth.workTaskDependencies.add(p, t, draft(), before)
+    before.title = 'changed after dispatch'
+    await expect(saving).rejects.toMatchObject({ problem: { code: 'COMMIT_UNKNOWN' } })
+    const input = JSON.parse(f.writes()[0]![1].body as string)
+    const base = receipt(input)
+    const valid = { ...base, task: { ...base.task, state: 'in_review', assignee_agent_id: id(7) } }
+    for (const change of [{ title: before.title }, { state: 'todo' }, { assignee_agent_id: id(80) }]) {
+      f.setReply(async () => json({ status: 'committed', receipt: { ...valid, task: { ...valid.task, ...change } } }))
+      await expect(f.auth.workTaskDependencies.lookup()).rejects.toMatchObject({ kind: 'invalid-response' })
+      expect(f.auth.workTaskDependencies.progress).toMatchObject({ phase: 'uncertain', receipt: null })
+    }
+    f.setReply(async () => json({ status: 'committed', receipt: valid }))
+    await f.auth.workTaskDependencies.lookup()
+    expect(f.auth.workTaskDependencies.progress).toMatchObject({ phase: 'confirmed', receipt: { task: { state: 'in_review', assignee_agent_id: id(7) } } })
+    expect(f.writes()).toHaveLength(1)
+  })
+  it('rejects stale and terminal dependency source Tasks before dispatch', async () => {
+    const f = await fixture()
+    for (const before of [{ ...task(), version: '1' }, { ...task(), state: 'cancelled' as const }])
+      await expect(f.auth.workTaskDependencies.add(p, t, draft(), before)).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(f.writes()).toHaveLength(0)
+    expect(f.auth.workTaskDependencies.progress).toBeNull()
+  })
   it('captures candidate text before dispatch and retains the single request owner through its actual tail', async () => {
     const f = await fixture()
     let release!: (value: Response) => void
@@ -99,7 +139,7 @@ describe('Task dependency original Session intent', () => {
     const call = f.fetcher.mock.calls.find(([url]) => url.includes('/tasks?'))!
     expect(new URL(call[0], 'https://local.test').searchParams.get('text')).toBe('Original')
     expect(f.auth.state.busy).toBe(true)
-    await expect(f.auth.workTaskDependencies.add(p, t, draft())).rejects.toMatchObject({
+    await expect(f.auth.workTaskDependencies.add(p, t, draft(), task())).rejects.toMatchObject({
       kind: 'busy',
     })
     f.auth.leave()
@@ -115,7 +155,7 @@ describe('Task dependency original Session intent', () => {
     const f = await fixture()
     f.setReply(async () => problem())
     const mutable = draft()
-    const saving = f.auth.workTaskDependencies.add(p, t, mutable)
+    const saving = f.auth.workTaskDependencies.add(p, t, mutable, task())
     mutable.request.description = 'edited after click'
     mutable.expected_version = '2'
     mutable.request.metadata.related_task_id = id(85)
@@ -132,7 +172,7 @@ describe('Task dependency original Session intent', () => {
       taskID: t,
       contextValid: true,
     })
-    await expect(f.auth.workTaskDependencies.add(p, t, draft())).rejects.toMatchObject({
+    await expect(f.auth.workTaskDependencies.add(p, t, draft(), task())).rejects.toMatchObject({
       kind: 'busy',
     })
     await expect(
@@ -167,7 +207,7 @@ describe('Task dependency original Session intent', () => {
   it('keeps same-identity Unknown during checking but retires it on a real Session change', async () => {
     const f = await fixture()
     f.setReply(async () => problem())
-    await expect(f.auth.workTaskDependencies.add(p, t, draft())).rejects.toBeDefined()
+    await expect(f.auth.workTaskDependencies.add(p, t, draft(), task())).rejects.toBeDefined()
     const release = f.holdRestore(),
       checking = f.auth.restore()
     await flushPromises()
@@ -199,7 +239,7 @@ describe('Task dependency original Session intent', () => {
       throw new TypeError('network')
     })
     await expect(
-      f.auth.workTaskDependencies.resolve(p, t, original, related),
+      f.auth.workTaskDependencies.resolve(p, t, original, related, task(original.expected_version)),
     ).rejects.toMatchObject({
       kind: 'transport',
     })
@@ -222,18 +262,18 @@ describe('Task dependency original Session intent', () => {
         resolution_comment: '  已核对\n原说明  ',
       },
     })
-    await f.auth.workTaskDependencies.resolve(p, t, resolveInput(), related)
+    await f.auth.workTaskDependencies.resolve(p, t, resolveInput(), related, task(resolveInput().expected_version))
     expect(JSON.parse(f.writes()[1]![1].body as string).request.resolution_comment).toBeNull()
   })
   it('requires explicit release after a definite rejection before accepting a newly confirmed version', async () => {
     const f = await fixture()
     f.setReply(async () => problem('VERSION_CONFLICT', 409, 'not_committed'))
-    await expect(f.auth.workTaskDependencies.add(p, t, draft())).rejects.toBeDefined()
+    await expect(f.auth.workTaskDependencies.add(p, t, draft(), task())).rejects.toBeDefined()
     expect(f.auth.workTaskDependencies.progress?.phase).toBe('rejected')
     await expect(f.auth.workTaskDependencies.lookup()).rejects.toMatchObject({
       kind: 'invalid-input',
     })
-    await expect(f.auth.workTaskDependencies.add(p, t, draft())).rejects.toMatchObject({
+    await expect(f.auth.workTaskDependencies.add(p, t, draft(), task())).rejects.toMatchObject({
       kind: 'busy',
     })
     f.auth.workReview.editRejected()
@@ -241,7 +281,7 @@ describe('Task dependency original Session intent', () => {
     await f.auth.workTaskDependencies.add(p, t, {
       ...draft(),
       expected_version: '9007199254740998',
-    })
+    }, task('9007199254740998'))
     expect(f.auth.workTaskDependencies.progress?.receipt?.task.version).toBe('9007199254740999')
     const [first, second] = f.writes().map(([, init]) => JSON.parse(init.body as string))
     expect(first.request.blocker_id).not.toBe(second.request.blocker_id)
@@ -250,7 +290,7 @@ describe('Task dependency original Session intent', () => {
   it('clears command material on current denial or an exact unavailable object, not a different Project', async () => {
     const f = await fixture()
     f.setReply(async () => problem())
-    await expect(f.auth.workTaskDependencies.add(p, t, draft())).rejects.toBeDefined()
+    await expect(f.auth.workTaskDependencies.add(p, t, draft(), task())).rejects.toBeDefined()
     f.auth.workTaskDependencies.forgetUnavailable(id(80), t)
     expect(f.auth.workTaskDependencies.progress?.phase).toBe('uncertain')
     f.auth.workTaskDependencies.forgetUnavailable(p, id(81))
@@ -259,7 +299,7 @@ describe('Task dependency original Session intent', () => {
     await expect(f.auth.workTaskDependencies.lookup()).rejects.toBeDefined()
     expect(f.auth.workTaskDependencies.progress).toBeNull()
     f.setReply(null)
-    await f.auth.workTaskDependencies.add(p, t, draft())
+    await f.auth.workTaskDependencies.add(p, t, draft(), task())
     f.auth.workTaskDependencies.forgetUnavailable(p, t)
     expect(f.auth.workTaskDependencies.progress).toBeNull()
   })
@@ -270,7 +310,7 @@ describe('Task dependency original Session intent', () => {
       release = resolve
     })
     f.setReply(() => held)
-    const saving = f.auth.workTaskDependencies.add(p, t, draft()).catch((error: unknown) => error)
+    const saving = f.auth.workTaskDependencies.add(p, t, draft(), task()).catch((error: unknown) => error)
     await flushPromises()
     const original = JSON.parse(f.writes()[0]![1].body as string)
     const done = () => release(json(receipt(original)))

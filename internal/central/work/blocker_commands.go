@@ -285,8 +285,8 @@ func blockerTaskGate(t c.Task, expected f.Version) error {
 	if t.State.Terminal() {
 		return fault(f.TaskTerminalImmutable)
 	}
-	if t.State != c.TaskStateBacklog || t.AssigneeAgentID != nil {
-		return fault(f.DependencyUnbound)
+	if t.State.Validate() != nil {
+		return internal(nil)
 	}
 	return nil
 }
@@ -486,6 +486,9 @@ func (s *BlockerService) evaluateBlocker(ctx context.Context, tx f.Tx, scope *bl
 		if row.Value.ResolvedAt != nil {
 			return nil, fault(f.BlockerAlreadyResolved)
 		}
+		if e = checkStandaloneBlockerResolution(ctx, scope, t, row.Value); e != nil {
+			return nil, e
+		}
 		b = row.Value.Clone()
 		before := b.Clone()
 		plan.BlockerBefore = &before
@@ -532,6 +535,42 @@ func (s *BlockerService) evaluateBlocker(ctx context.Context, tx f.Tx, scope *bl
 	}
 	return plan, nil
 }
+
+// Re-evaluation in the final transaction reads the real unresolved set while
+// holding the original Schedule EX and Task EX locks. An earlier plan or a
+// caller-supplied count cannot authorize removing a blocked Task's last cause.
+func checkStandaloneBlockerResolution(ctx context.Context, scope *blockerScope, task c.Task, blocker c.TaskBlocker) error {
+	if blocker.Type != c.TaskBlockerRelyOn && blocker.Type != c.TaskBlockerWaitingForHuman {
+		// Technical resolution retains its original Scheduler/transition owner.
+		return fault(f.DependencyUnbound)
+	}
+	if task.State != c.TaskStateBlocked {
+		return nil
+	}
+	remaining, err := unresolvedBlockerCount(ctx, scope)
+	if err != nil {
+		return err
+	}
+	if remaining == 0 {
+		return internal(nil)
+	}
+	if remaining == 1 {
+		return fault(f.LastBlockerNeedsTransfer)
+	}
+	return nil
+}
+
+func unresolvedBlockerCount(ctx context.Context, scope *blockerScope) (int64, error) {
+	var count int64
+	if err := scope.x.QueryRow(ctx, `SELECT count(*) FROM agenteam_work.task_blockers WHERE project_id=$1 AND task_id=$2 AND resolved_at IS NULL`, scope.project.String(), scope.task.String()).Scan(&count); err != nil {
+		return 0, taskSQL(err)
+	}
+	if count < 0 {
+		return 0, internal(nil)
+	}
+	return count, nil
+}
+
 func blockerHeader(id event.EventID, t c.Task, at f.Instant) (event.Header, error) {
 	h, e := taskHeader(id, t, at)
 	if e != nil {

@@ -121,8 +121,7 @@ function receipt(
   const task = decodeWorkTask(v.task, project, taskID)
   const blocker = decodeWorkBlocker(v.blocker, project, taskID)
   requireValue(
-    task.state === 'backlog' &&
-      task.assignee_agent_id === null &&
+    !['done', 'cancelled'].includes(task.state) &&
       BigInt(task.version) === BigInt(original.expected_version) + 1n,
   )
   requireValue(blocker.id === original.request.blocker_id && blocker.type === 'waiting_for_human')

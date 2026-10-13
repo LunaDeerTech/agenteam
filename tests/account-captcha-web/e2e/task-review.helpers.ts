@@ -205,6 +205,7 @@ export async function observeBrowserIO(
     const originalMilestoneReorders: any[] = [];
     const originalSprintReorders: any[] = [];
     const originalHumanBlockers: any[] = [];
+    const originalTaskDependencies: any[] = [];
     const originalSprintEdits: any[] = [];
     let originalSprintStart: any;
     const originalSprintCompletions: any[] = [];
@@ -453,8 +454,12 @@ export async function observeBrowserIO(
           originalMilestoneReorders.push(original);
           writeInputs.set(call, original);
         }
+        if (kind === "taskDependency.add" || kind === "taskDependency.resolve") {
+          const original = { call, project: args[0], task: args[1], input: JSON.parse(JSON.stringify(args[2])), related: kind === "taskDependency.resolve" ? args[3] : undefined, before: JSON.parse(JSON.stringify(args[kind === "taskDependency.add" ? 3 : 4])) };
+          originalTaskDependencies.push(original); writeInputs.set(call, original);
+        }
         if (kind === "humanBlocker.add" || kind === "humanBlocker.resolve") {
-          const original = { call, project: args[0], task: args[1], input: JSON.parse(JSON.stringify(args[2])) };
+          const original = { call, project: args[0], task: args[1], input: JSON.parse(JSON.stringify(args[2])), before: JSON.parse(JSON.stringify(args[3])) };
           originalHumanBlockers.push(original); writeInputs.set(call, original);
         }
         if (kind === "sprintReorder.reorder") {
@@ -607,9 +612,13 @@ export async function observeBrowserIO(
               const original = writeInputs.get(call), progress = auth.workMilestoneReordering.progress;
               call.result_current = progress?.phase === "confirmed" && progress.contextValid === true && progress.projectID === original.project && progress.milestoneID === original.milestone && value != null && progress.result === value;
             }
+            if (kind === "taskDependency.add" || kind === "taskDependency.resolve") {
+              const original = writeInputs.get(call), progress = auth.workTaskDependencies.progress;
+              call.result_current = progress?.phase === "confirmed" && progress.kind === (kind === "taskDependency.add" ? "dependency-add" : "dependency-resolve") && progress.projectID === original.project && progress.taskID === original.task && value != null && progress.receipt === value && value.blocker.id === original.blocker && JSON.stringify(canonical(value.task)) === JSON.stringify(canonical({ ...original.before, version: String(BigInt(original.before.version) + 1n), updated_at: value.task.updated_at, manual_rank: value.task.manual_rank }));
+            }
             if (kind === "humanBlocker.add" || kind === "humanBlocker.resolve") {
               const original = writeInputs.get(call), progress = auth.workTaskBlockers.progress;
-              call.result_current = progress?.phase === "confirmed" && progress.kind === (kind === "humanBlocker.add" ? "blocker-add" : "blocker-resolve") && progress.projectID === original.project && progress.taskID === original.task && value != null && progress.receipt === value && value.blocker.id === original.blocker;
+              call.result_current = progress?.phase === "confirmed" && progress.kind === (kind === "humanBlocker.add" ? "blocker-add" : "blocker-resolve") && progress.projectID === original.project && progress.taskID === original.task && value != null && progress.receipt === value && value.blocker.id === original.blocker && JSON.stringify(canonical(value.task)) === JSON.stringify(canonical({ ...original.before, version: String(BigInt(original.before.version) + 1n), updated_at: value.task.updated_at, manual_rank: value.task.manual_rank }));
             }
             if (kind === "sprintReorder.reorder") {
               const original = writeInputs.get(call), progress = auth.workSprintReordering.progress;
@@ -771,6 +780,7 @@ export async function observeBrowserIO(
         executionOutputTask: string | undefined = undefined,
         sprintCompletion: { first: string; next: string } | undefined = undefined,
         taskCancel: readonly string[] | undefined = undefined,
+        taskDependency: { task: string; related: string } | undefined = undefined,
       ) {
         if (auth || retired) throw Error("TASK_REVIEW_DUPLICATE_CONSUMER");
         auth = value;
@@ -1178,10 +1188,23 @@ export async function observeBrowserIO(
             return "/api/v1/projects/" + project + "/milestones/" + reorderMilestone + "/reorder";
           }, "POST");
         }
+        if (taskDependency) {
+          consumer(auth.workTaskDependencies, "candidates", "taskDependency.candidates", a => {
+            if (a.length !== 2 || a[0] !== project || a[1]?.limit !== 50 || Object.keys(a[1]).some(k => !["limit", "text", "cursor"].includes(k))) throw Error("TASK_DEPENDENCY_CANDIDATES_SCOPE");
+            return "/api/v1/projects/" + project + "/tasks";
+          });
+          for (const method of ["add", "resolve"])
+            consumer(auth.workTaskDependencies, method, "taskDependency." + method, a => {
+              if (a.length !== (method === "add" ? 4 : 5) || a[0] !== project || a[1] !== taskDependency.task || (method === "resolve" && a[3] !== taskDependency.related) || (method === "add" && a[2]?.request?.metadata?.related_task_id !== taskDependency.related)) throw Error("TASK_DEPENDENCY_CONSUMER_SCOPE");
+              const before = a[method === "add" ? 3 : 4];
+              if (!before || before.project_id !== project || before.id !== taskDependency.task || before.version !== a[2]?.expected_version) throw Error("TASK_DEPENDENCY_ORIGINAL_TASK");
+              return "/api/v1/projects/" + project + "/tasks/" + taskDependency.task + "/blockers" + (method === "resolve" ? "/resolve" : "");
+            }, "POST");
+        }
         if (humanBlockerTask) {
           for (const method of ["add", "resolve"])
             consumer(auth.workTaskBlockers, method, "humanBlocker." + method, a => {
-              if (a.length !== 3 || a[0] !== project || a[1] !== humanBlockerTask) throw Error("HUMAN_BLOCKER_CONSUMER_SCOPE");
+              if (a.length !== 4 || a[0] !== project || a[1] !== humanBlockerTask || a[3]?.project_id !== project || a[3]?.id !== humanBlockerTask || a[3]?.version !== a[2]?.expected_version) throw Error("HUMAN_BLOCKER_CONSUMER_SCOPE");
               return "/api/v1/projects/" + project + "/tasks/" + humanBlockerTask + "/blockers" + (method === "resolve" ? "/resolve" : "");
             }, "POST");
         }
@@ -1614,6 +1637,15 @@ export async function observeBrowserIO(
             matches = originalMilestoneReorders.every(old => old === original || (typeof old.key === "string" && old.key !== key)) && equal(parsed, original.input);
             if (matches) original.key = key;
           }
+          if (call.kind === "taskDependency.add" || call.kind === "taskDependency.resolve") {
+            const { blocker_id, ...draft } = parsed.request ?? {};
+            matches = typeof blocker_id === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(blocker_id) &&
+              originalTaskDependencies.every(old => old === original || (typeof old.key === "string" && old.key !== key)) &&
+              (call.kind === "taskDependency.add"
+                ? !Object.hasOwn(original.input.request, "blocker_id") && equal(parsed, { expected_version: original.input.expected_version, request: { ...original.input.request, blocker_id } }) && equal(draft, original.input.request)
+                : equal(parsed, original.input) && originalTaskDependencies[0]?.blocker === blocker_id && originalTaskDependencies[0]?.call.fulfilled === true && original.related === originalTaskDependencies[0]?.input.request.metadata.related_task_id);
+            if (matches) { original.key = key; original.blocker = blocker_id; }
+          }
           if (call.kind === "humanBlocker.add" || call.kind === "humanBlocker.resolve") {
             const { blocker_id, ...draft } = parsed.request ?? {};
             matches = typeof blocker_id === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(blocker_id) &&
@@ -1956,6 +1988,9 @@ export async function observeBrowserIO(
                     };
                   }),
                 };
+              } else if (kind === "taskDependency.add" || kind === "taskDependency.resolve") {
+                const { metadata, created_by, resolved_by, ...blocker } = parsed.blocker;
+                parsed = { ...parsed, blocker: { ...blocker, related_task_id: metadata.related_task_id } };
               } else if (kind === "humanBlocker.add" || kind === "humanBlocker.resolve") {
                 // The receipt uses the same formal public Blocker DTO as the
                 // list. Keep its complete Task/event fields and all public

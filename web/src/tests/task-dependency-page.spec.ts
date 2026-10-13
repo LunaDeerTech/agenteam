@@ -123,7 +123,8 @@ async function fixture(withBlocker = false) {
     }
   }
   function commit(input: TaskDependencyAddInput | TaskDependencyResolveInput) {
-    const wire = receipt(input)
+    const base = receipt(input)
+    const wire = { ...base, task: { ...current, version: base.task.version, updated_at: base.task.updated_at } }
     const result = {
       ...wire,
       task: decodeWorkTask(wire.task, p, t),
@@ -275,6 +276,47 @@ async function save(f: Awaited<ReturnType<typeof fixture>>, name: string) {
   await flushPromises()
 }
 describe('Task dependency visible workflow', () => {
+  it('adds and resolves a dependency for an assigned todo Task without a transition', async () => {
+    const f = await fixture()
+    const before = { ...task(), state: 'todo' as const, assignee_agent_id: id(7) }
+    f.setTask(before)
+    await f.owner.refresh()
+    await click(f, '添加任务依赖')
+    await f.wrapper.get('button[aria-haspopup="listbox"]').trigger('click')
+    const option = [...document.querySelectorAll<HTMLButtonElement>('[role="option"]')].find((node) => node.textContent?.includes('Target task B'))
+    expect(option).toBeDefined()
+    option!.click()
+    await flushPromises()
+    await f.wrapper.get('textarea').setValue('等待关联成果')
+    await save(f, '添加任务依赖')
+    expect(f.commands.add.mock.calls[0]?.[3]).toEqual(before)
+    expect(f.owner.state.task).toMatchObject({ state: 'todo', assignee_agent_id: id(7), version: '9007199254740994', manual_rank: before.manual_rank })
+    await click(f, '解除任务依赖')
+    await save(f, '解除任务依赖')
+    expect(f.owner.state.task).toMatchObject({ state: 'todo', assignee_agent_id: id(7), version: '9007199254740995', manual_rank: before.manual_rank })
+    expect(f.wrapper.text()).toContain('已解除')
+    expect(document.activeElement).toBe(button(f, '添加任务依赖').element)
+    expect(f.reads.startTransfer).not.toHaveBeenCalled()
+  })
+  it('preserves blocked dependency input and state when the backend refuses the last resolution', async () => {
+    const f = await fixture(true)
+    const before = { ...task(), state: 'blocked' as const, assignee_agent_id: id(7) }
+    f.setTask(before)
+    await f.owner.refresh()
+    await click(f, '解除任务依赖')
+    expect(f.wrapper.text()).toContain('最后一项阻塞需要与任务恢复一并处理')
+    f.commands.resolve.mockImplementationOnce(async () => {
+      f.publish('dependency-resolve', 'rejected')
+      throw failure('LAST_BLOCKER_REQUIRES_TASK_TRANSITION')
+    })
+    await f.wrapper.get('textarea').setValue('原依赖解除说明')
+    await save(f, '解除任务依赖')
+    expect(f.owner.state.task).toEqual(before)
+    expect(f.owner.dependency.resolutionComment).toBe('原依赖解除说明')
+    expect(f.wrapper.text()).toContain('这是受阻任务的最后一项未解除阻塞')
+    expect(f.commands.resolve).toHaveBeenCalledTimes(1)
+    expect(f.reads.startTransfer).not.toHaveBeenCalled()
+  })
   it('selects a real cross-Sprint candidate, commits original input, refreshes facts and restores focus', async () => {
     const f = await fixture()
     await click(f, '添加任务依赖')
@@ -289,7 +331,7 @@ describe('Task dependency visible workflow', () => {
     await flushPromises()
     await f.wrapper.get('textarea').setValue(draft().request.description)
     await save(f, '添加任务依赖')
-    expect(f.commands.add).toHaveBeenCalledExactlyOnceWith(p, t, draft())
+    expect(f.commands.add).toHaveBeenCalledExactlyOnceWith(p, t, draft(), task())
     expect(f.owner.state.task).toMatchObject({
       version: '9007199254740994',
       state: 'backlog',
@@ -348,6 +390,7 @@ describe('Task dependency visible workflow', () => {
       t,
       { ...resolveInput(), expected_version: task().version },
       related,
+      task(),
     )
     expect(f.wrapper.text()).toContain('已解除')
     expect(document.activeElement).toBe(button(f, '添加任务依赖').element)
@@ -463,7 +506,7 @@ describe('Task dependency visible workflow', () => {
     expect(f.owner.dependency.open).toBe(false)
     expect(f.commands.add).not.toHaveBeenCalled()
   })
-  it('permits only unassigned backlog in planned/current active Projects and clears on candidate denial', async () => {
+  it('permits assigned nonterminal Tasks in planned/current active Projects and clears on candidate denial', async () => {
     const f = await fixture()
     f.setSprint('planned')
     await f.owner.refresh()
@@ -476,9 +519,9 @@ describe('Task dependency visible workflow', () => {
     await f.owner.refresh()
     expect(button(f, '添加任务依赖').element.disabled).toBe(true)
     f.detail.project = { ...f.detail.project!, lifecycle: 'active' }
-    f.setTask({ ...task(), assignee_agent_id: id(7) })
+    f.setTask({ ...task(), state: 'todo', assignee_agent_id: id(7) })
     await f.owner.refresh()
-    expect(f.wrapper.findAll('button').some((node) => label(node) === '添加任务依赖')).toBe(false)
+    expect(button(f, '添加任务依赖').element.disabled).toBe(false)
     f.setTask(task())
     await f.owner.refresh()
     f.commands.candidates.mockRejectedValueOnce(failure('NOT_FOUND', 404))

@@ -1,5 +1,6 @@
 import type { HumanBlockerAddInput, HumanBlockerResolveInput } from '../api/work-task-blockers'
 import type { SessionView } from '../api/account'
+import type { Task } from '../api/work-review'
 export const id = (n: number) => `01990000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`
 export const p = id(1),
   t = id(4),
@@ -23,7 +24,7 @@ export const resolveInput = (): HumanBlockerResolveInput => ({
   expected_version: '9007199254740994',
   request: { blocker_id: id(5), resolution_comment: null },
 })
-export function task(version = draft().expected_version) {
+export function task(version = draft().expected_version): Task {
   return {
     id: t,
     project_id: p,

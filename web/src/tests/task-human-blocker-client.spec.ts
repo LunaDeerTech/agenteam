@@ -21,6 +21,19 @@ import {
 } from './task-human-blocker-fixture'
 const write = { csrfToken: 'S'.repeat(43), key: 'original-human-blocker-1' }
 describe('Human blocker closed HTTP contract', () => {
+  it('accepts every nonterminal receipt and refuses terminal or unassigned active-state receipts', async () => {
+    const original = receipt()
+    for (const state of ['backlog', 'todo', 'in_progress', 'in_review', 'blocked']) {
+      const value = { ...original, task: { ...original.task, state, assignee_agent_id: id(7) } }
+      await expect(createWorkTaskBlockersAPI(async () => json(value)).add(p, t, addInput(), write))
+        .resolves.toMatchObject({ task: { state, assignee_agent_id: id(7) } })
+    }
+    for (const state of ['done', 'cancelled', 'todo', 'in_progress', 'in_review']) {
+      const value = { ...original, task: { ...original.task, state, assignee_agent_id: null } }
+      await expect(createWorkTaskBlockersAPI(async () => json(value)).add(p, t, addInput(), write))
+        .rejects.toMatchObject({ kind: 'invalid-response' })
+    }
+  })
   it('uses exact add and resolve routes, body and complete immutable receipts', async () => {
     const fetcher = vi.fn<Fetch>(async (url, init) => {
       expect([addPath, resolvePath]).toContain(url)
@@ -128,7 +141,7 @@ describe('Human blocker closed HTTP contract', () => {
     for (const invalid of [
       { ...valid, task: { ...valid.task, version: addInput().expected_version } },
       { ...valid, task: { ...valid.task, project_id: id(60) } },
-      { ...valid, task: { ...valid.task, state: 'todo', assignee_agent_id: id(61) } },
+      { ...valid, task: { ...valid.task, state: 'done' } },
       { ...valid, blocker: { ...valid.blocker, task_id: id(60) } },
       { ...valid, blocker: { ...valid.blocker, id: id(60) } },
       { ...valid, blocker: { ...valid.blocker, description: 'different original' } },

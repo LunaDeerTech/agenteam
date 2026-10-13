@@ -111,7 +111,9 @@ func TestTaskBlockerGateOrderingAndOverflow(t *testing.T) {
 	pureCode(t, blockerTaskGate(task, task.Version+1), f.TaskVersionConflict)
 	pureCode(t, blockerTaskGate(task, task.Version), f.TaskTerminalImmutable)
 	task.State = c.TaskStateBlocked
-	pureCode(t, blockerTaskGate(task, task.Version), f.DependencyUnbound)
+	if e := blockerTaskGate(task, task.Version); e != nil {
+		t.Fatal("nonterminal blocker management rejected", e)
+	}
 	task = r.Plan.Before
 	if e := blockerTaskGate(task, task.Version); e != nil {
 		t.Fatal(e)

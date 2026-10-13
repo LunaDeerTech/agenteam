@@ -27,6 +27,7 @@ onMounted(() =>
   <form ref="form" class="dependency-form" :aria-label="label" @submit.prevent="emit('submit')">
     <h4>{{ label }}</h4>
     <p>依赖需要明确解除。关联任务已完成或已取消时，也不会自动解除新建依赖。</p>
+    <p v-if="!adding && owner.state.task?.state === 'blocked'">受阻任务的最后一项阻塞需要与任务恢复一并处理，不能在这里单独解除。</p>
     <template v-if="adding">
       <UiField
         label="查找关联任务"

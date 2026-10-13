@@ -11,8 +11,8 @@ import (
 )
 
 func TestTaskBlockerFaultCodesPreserveSafeProjectionAndCause(t *testing.T) {
-	codes := []Code{BlockerNotFound, BlockerAlreadyResolved, TaskDependencyCycle}
-	wants := []string{"BLOCKER_NOT_FOUND", "BLOCKER_ALREADY_RESOLVED", "TASK_DEPENDENCY_CYCLE"}
+	codes := []Code{BlockerNotFound, BlockerAlreadyResolved, TaskDependencyCycle, LastBlockerNeedsTransfer}
+	wants := []string{"BLOCKER_NOT_FOUND", "BLOCKER_ALREADY_RESOLVED", "TASK_DEPENDENCY_CYCLE", "LAST_BLOCKER_REQUIRES_TASK_TRANSITION"}
 	cause := errors.New("private-task-sql-credential")
 	for n, code := range codes {
 		if string(code) != wants[n] || !code.Known() || code.Safe() != code {

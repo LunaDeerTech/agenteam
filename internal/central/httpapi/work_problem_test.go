@@ -29,6 +29,7 @@ func TestWorkProblemsPreservePublicFailureFacts(t *testing.T) {
 		{foundation.BlockerNotFound, 404, "Blocker not found", "The requested blocker was not found."},
 		{foundation.BlockerAlreadyResolved, 409, "Blocker already resolved", "The blocker is already resolved."},
 		{foundation.TaskDependencyCycle, 409, "Task dependency cycle", "The task dependency would create a cycle."},
+		{foundation.LastBlockerNeedsTransfer, 409, "Task transition required", "Resolve the last blocker together with a task transition."},
 	}
 	for _, tc := range cases {
 		for _, state := range []foundation.CommitState{foundation.NotStarted, foundation.NotCommitted, foundation.Committed, foundation.Unknown} {

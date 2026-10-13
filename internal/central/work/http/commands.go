@@ -418,7 +418,7 @@ func (h *handler) blockerCommand(r *http.Request, a id.Actor, p c.ProjectID, in 
 		return nil, err
 	}
 	valid := func(v c.TaskBlockerMutation) bool {
-		return v.Validate() == nil && v.Task.ProjectID == p && v.Task.ID == target && v.Task.State == c.TaskStateBacklog && v.Task.AssigneeAgentID == nil && validVersion(v.Task.Version, in.meta.ExpectedVersion, true) && match(v.Blocker)
+		return v.Validate() == nil && v.Task.ProjectID == p && v.Task.ID == target && !v.Task.State.Terminal() && (v.Blocker.Type == c.TaskBlockerRelyOn || v.Blocker.Type == c.TaskBlockerWaitingForHuman) && validVersion(v.Task.Version, in.meta.ExpectedVersion, true) && match(v.Blocker)
 	}
 	if in.lookup {
 		v, e := h.blockers.LookupTaskBlockerCommand(ctx, a, c.TaskBlockerCommandLookupRequest{ProjectID: p, Command: name, IdempotencyKey: in.meta.IdempotencyKey, SemanticDigest: digest})

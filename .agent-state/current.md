@@ -1,10 +1,12 @@
-# 当前工作：Task Blocker 联调，E01 来源目录候选已复核
+# 当前工作：Task Blocker 管理已验收，接续 Sprint 状态筛选
 
-Human Owner 非终态 Task Blocker 管理仍在独立分支 `ai/task-blocker-management-20261013`、工作树 `/workspace/agenteam-task-blocker-management` 实施和验证，尚未交付 main；root 继续统筹该片源码、真实链路和必要独审，不因本次文档交付重复产品测试。
+Human Owner 非终态 Task 的人工阻塞与依赖管理已通过限定独立验收，随本次变更交付 main，实际范围及失败边界见 [Task Blocker 卡](../docs/development/work-items/d11-task-blocker-service.md)。普通检查、真实 HTTP 和默认 App Web02 及四图接受；Web01 的代理 502 仍未确因，不能将后继通过表述为旧产品缺陷已修。原日志、截图、DOM 和处置记录保留在 `output/ai/task-blocker-management`，本片工作树和本地、远端工作分支随交付按规定收尾。
+
+下一项为所选 Sprint 的任务状态筛选及服务端分页，沿既有后端契约补齐前端交互和真实浏览器链路；未新增后端、状态计数或 URL 协议。由 root 统筹并交执行者实施，具体恢复信息在新任务分支维护，不因主线文档或无交集配置合并重复已验检查。
 
 [E01 来源目录候选](../docs/development/work-items/e01-minecraft-java-1.21.1/README.md) 的 `53a829c2` 已通过非作者限定来源投影复核，随本片交付：20,672 个概念、27,414 条关系，保存来源的 20,613 条 registry 与 6,801 个 data 条目均可双向对应；54 项差异及 5 个元数据条目保持。来源摘要、版本和 Git 树核验、离线查询与针对性拒绝检查通过，不重新下载资源。目录检查入口仍为 `python3 docs/development/work-items/e01-minecraft-java-1.21.1/catalog.py`。
 
-本次只接受候选来源索引及其确定性投影，未完成全游戏行为来源、计分叶子/权重、关键门槛、独立全游戏完整性审查或 D28 后正式冻结；分母和覆盖率为空，没有游戏实现、平台执行或模型调用。`ai/e01-content-baseline-20261013` 在 main 推送确认后按常规清理工作树及本地、远端引用；Live、validation 和四个 STOP 树继续保留。后续复用已有来源推进具体缺口，长期目标仍未完成。
+本次只接受候选来源索引及其确定性投影，未完成全游戏行为来源、计分叶子/权重、关键门槛、独立全游戏完整性审查或 D28 后正式冻结；分母和覆盖率为空，没有游戏实现、平台执行或模型调用。E01 来源候选的工作树及本地、远端工作分支已经清理；Live、validation 和四个 STOP 树继续保留。后续复用已有来源推进具体缺口，长期目标仍未完成。
 
 ## 以下为恢复时继承的主线状态
 
