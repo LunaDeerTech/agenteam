@@ -1,6 +1,6 @@
 # D13 中英混合文档 Lexical Benchmark
 
-修订：SPEC rev1，数据lexical-v2。状态：本卡“固定语料＋可重复离线评分工具”已完成作者检查及独立语义、评分实现验收，无剩余must-fix。三真实后端、性能、许可证核验与最终选型仍未完成，不完成整个D13。下文技术边界保持已审rev1。
+修订：SPEC rev1，数据lexical-v2。状态：本卡“固定语料＋可重复离线评分工具”已完成作者检查及独立语义、评分实现验收，无剩余must-fix。后继首个原生 FTS 固定基线已完成真实运行与独立复核；其余两后端、完整许可比较与最终选型仍未完成，不完成整个D13。下文技术边界保持已审rev1。
 
 ## 1. 独立结果与正式依据
 
@@ -8,7 +8,19 @@
 
 正式依据是[开发计划 D13](../development-plan.md#d13-索引与混合检索)、[Retrieval §7、§25–29](../../architecture/knowledge-memory/retrieval-runtime.md)、[Indexing §3.6、§13、§17](../../architecture/knowledge-memory/knowledge-indexing.md)。第一阶段至少比较 `native_pg_fts`、`pgroonga`、`pg_search`。PostgreSQL FTS 的 `ts_rank` / `ts_rank_cd` 不称为 BM25；各 backend 的原始分数不直接相加或跨 backend 比大小。最终选型还需要固定 dense leg 的 hybrid RRF 对照，不能凭本卡 lexical 数据准备或单一指标完成选型。
 
-本卡不新增正式依赖、lock 文件、SQL、数据库扩展、Knowledge/Model 绑定或生产索引；不执行 embedding、reranker、模型调用、网络下载和真实数据库。后续真实候选运行需单独固定版本、许可证、执行接缝及资源授权。D13 的 parser、chunker、generation、scope 过滤、索引生命周期和全模块验收仍由后续工作承担。
+原数据/评分片不新增正式依赖、lock 文件、SQL、数据库扩展、Knowledge/Model 绑定或生产索引，不执行真实数据库。后续首个候选的有限边界见下节；不执行 embedding、reranker、模型调用或网络下载。真实候选运行需单独固定版本、许可证、执行接缝及资源授权。D13 的 parser、chunker、generation、scope 过滤、索引生命周期和全模块验收仍由后续工作承担。
+
+### 1.1 首个 PostgreSQL 原生 FTS 候选
+
+`native-pg-fts-v1` 新增三个候选 Go 文件及一个原 current-only 薄入口，复用原无标签 export、score 和隔离 PG fixture。最终源码 `5ce2a429` 的首个真实基线已获独立有限接受，随本次变更交付 main；这不完成三后端比较或生产检索选型。
+
+预评分配置保持原固定值：digest `99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc` 的 PostgreSQL17.8、`simple`、exact index_text、`websearch_to_tsquery`、`ts_rank_cd` normalization0、同分 C/ASCII source ID、top20、单 GIN。64行索引、72个 query 和5轮 warm 共432次查询均实际执行；原导出、qrels、算法及评分器未调整。计时和输出边界见 [benchmark README](../../../tests/search-benchmark/README.md#首个真实候选native-pg-fts-v1)。
+
+原 `1a7aadf5` [轻验](../../../output/ai/native-pg-fts/basic01/wait.json) `54200/36f5d8` Wait0，普通 race 2 top/12 sub、integration 编译与精确 list 通过。原 PG-only 的5GiB门未降低；后续显式授权复用既有 current-only 的3容器/3网络完整链、Node0、105秒工作/120秒全退出门。首真实窗 `46993/bcff1a` Wait1/21.139秒，停在 server version/locale 检查，原错误未捕获 SQLSTATE，不臆造原日志。静态定位 PG16起 locale 不再是 GUC 后，唯一候选修正改读 `pg_database.datcollate/datctype` 并增加闭合 SQLSTATE 诊断；版本170008门、查询与排序不变。首 FAIL 及 owned 退出原件保留。
+
+新源码重新 [编译/list](../../../output/ai/native-pg-fts/compile02/result.json) `54733/264148` Wait0。纠正窗 `64103/b578b2` 实际 Wait0/19.386秒，1 top/0 sub、Node0；[真实后验](../../../output/ai/native-pg-fts/native02/post.json)确认3容器/3网络、4个PID、私有目录/runtime及后代均退出。随后原 [score](../../../output/ai/native-pg-fts/score01-result.json) `c0bae9` Wait0：72条查询全部零命中，64条有答案的全部 Recall/nDCG/MRR 为0，8条无答案的误报为0。保留原零结果，不补词、不重分组、不调参。360个 warm 样本 p50=0.152377ms、p95=0.330477ms；索引25.837283ms、GIN90112B，只代表固定小语料的暖查询，不证明冷缓存、生产容量或RAG达标。
+
+独立审查已接受原运行/评分与同一 owned 容器中 `postgresql-17` 17.8-1.pgdg12+1 的版权正文和摘要；不扩为镜像、pgvector或全部传递依赖许可。完整 [结果与来源](../../../output/ai/native-pg-fts/summary.json)含原 export、candidate、score、许可、FAIL、Wait 与两候选 ELF 的零消费者处置记录，均保全。无新依赖、生产迁移或正式索引；PGroonga、pg_search、固定 dense leg hybrid RRF、完整运维许可比较与最终 ADR 仍未完成。
 
 ## 2. 现状与文件归属
 
@@ -120,7 +132,7 @@ results 恰覆盖全部 72 个 query，每项含 `query_id`、`hits`。每个 hi
 
 当前只使用内部原创合成 fixture。基线根目录未见项目级 LICENSE，不能因此假定公开许可，也不擅自为仓库材料授予新许可证。数据声明明确“内部原创测试材料；对外再分发许可未在本卡授予”，不复制第三方数据或词典。此边界不妨碍本仓库内部实施与验证。
 
-三候选的具体版本、扩展包、中文 tokenizer/词典、许可证及 PostgreSQL 17 安装兼容性目前没有经本任务核验的材料，全部待定；候选名称不证明已安装、可再分发或可商业使用。后续依赖研究必须核准确版本的一手许可、NOTICE、传递依赖和再分发要求，保存必要来源定位，不凭常识填写许可证结论。任何正式依赖变更仍在选型之后进行。
+原数据/评分片未核验三候选的具体版本、扩展包、中文 tokenizer/词典或许可；后继仅原生 FTS 的实际版本与 PostgreSQL 包版权正文按§1.1有限接受，其他材料仍待定。候选名称不证明可再分发或可商业使用。后续依赖研究必须核准确版本的一手许可、NOTICE、传递依赖和再分发要求，保存必要来源定位，不凭常识填写许可证结论。任何正式依赖变更仍在选型之后进行。
 
 本卡不修改 go.mod/go.sum、npm lock、正式迁移、镜像、现有共享测试工具或生产日志策略。未来数据中如需真实或第三方材料，必须另立具体来源与授权范围，不能通过扩大本卡 dataset 偷渡。
 
@@ -130,7 +142,7 @@ SPEC 窄审固定边界后才能写数据与工具。完成本卡要求：固定
 
 验证者须未参与所验实现，不用作者自己的函数重算期望值。保留真实命令、结果、失败与修复范围。独立审查通过只接受本卡的离线数据与 evaluator，不接受任一 backend 的质量、延迟、运维或许可。
 
-三候选真实运行、真实 PostgreSQL 兼容性、固定 dense leg 的 equal-weight hybrid RRF、reranker 对照、选型 ADR、正式依赖及生产索引均仍未验证。本卡不完成 D13、不解除任何既有停止项；后继必须消费同版 corpus/qrels 或明确的新修订，不用准备阶段替代真实比较。
+除§1.1的固定原生 FTS 基线外，其余两候选真实运行、完整 PostgreSQL 兼容性、固定 dense leg 的 equal-weight hybrid RRF、reranker 对照、选型 ADR、正式依赖及生产索引均仍未验证。本卡不完成 D13、不解除任何既有停止项；后继必须消费同版 corpus/qrels 或明确的新修订，不用准备阶段替代真实比较。
 
 ## 9. 当前实施证据
 
