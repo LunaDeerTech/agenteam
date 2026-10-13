@@ -25,6 +25,7 @@ var retirementUnsupportedTables = [...]string{
 // The Execution -> Snapshot edge is initially deferred. All other edges are
 // removed child first; no state or receipt is rewritten to make deletion pass.
 var retirementHistoryTables = [...]string{
+	"runtime_snapshots",
 	"transcript_entries", "rounds", "snapshots", "preparation_inputs",
 	"preparation_claims", "preparation_attempts", "skill_assignment_ingress",
 }

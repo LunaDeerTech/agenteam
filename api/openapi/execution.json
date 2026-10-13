@@ -3,7 +3,7 @@
   "info": {
     "title": "Task execution history for current Human Owners",
     "version": "1.0.0",
-    "description": "Only GET/HEAD. Same original Project/Task/Execution membership and current Session/Owner are checked on every request, including archived projects under the original Read gate. No admin bypass. Unknown/duplicate/empty/noncanonical query fields, request bodies, Range/If-Range and Content-Encoding are rejected. One 2s handler budget; cancellation waits for the actual domain/Store/HTTP tail. Read-only business access still registers and closes its technical execution-call owner. No runtime invocation, stream, resync, cancel, Task transition or payload retrieval."
+    "description": "Only GET/HEAD. Same original Project/Task/Execution membership and current Session/Owner are checked on every request, including archived projects under the original Read gate. No admin bypass. Unknown/duplicate/empty/noncanonical query fields, request bodies, Range/If-Range and Content-Encoding are rejected. One 2s handler budget; cancellation waits for the actual domain/Store/HTTP tail. Read-only business access still registers and closes its technical execution-call owner. No runtime invocation, stream, resync, cancel or Task transition. The separate runtime-view endpoint exposes only the original producer's durable final text snapshot."
   },
   "paths": {
     "/api/v1/projects/{project_id}/tasks/{task_id}/executions": {
@@ -452,6 +452,224 @@
           }
         }
       }
+    },
+    "/api/v1/projects/{project_id}/tasks/{task_id}/executions/{execution_id}/runtime-view": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "task_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "execution_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "taskExecutionRuntimeView",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current Human Owner checked in the original read transaction; HEAD computes this representation and suppresses its body. Cache-Control: no-store.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskRuntimeView"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "description": "Complete durable final text only. No query or pagination, no stream. pending is not an active Runtime View; terminal with no producer record is not_recorded. Same statement observes current canonical state and projection. Full encoded response at most 16 MiB + 64 KiB."
+      },
+      "head": {
+        "operationId": "taskExecutionRuntimeViewHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current Human Owner checked in the original read transaction; HEAD computes this representation and suppresses its body. Cache-Control: no-store.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)$"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          },
+          "401": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          },
+          "403": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          },
+          "404": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          },
+          "405": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          },
+          "409": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          },
+          "410": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          },
+          "500": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          },
+          "502": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          },
+          "503": {
+            "description": "Original safe Problem/commit_state; no partial representation on failure."
+          }
+        }
+      }
     }
   },
   "components": {
@@ -617,6 +835,230 @@
             "$ref": "#/components/schemas/TaskExecution"
           }
         }
+      },
+      "RuntimeTextItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "execution_id",
+          "seq",
+          "type",
+          "status",
+          "revision",
+          "started_at",
+          "updated_at",
+          "completed_at",
+          "source_reference",
+          "data"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "execution_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "seq": {
+            "const": "1"
+          },
+          "type": {
+            "const": "text"
+          },
+          "status": {
+            "const": "completed"
+          },
+          "revision": {
+            "const": "1"
+          },
+          "started_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "updated_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "completed_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "source_reference": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "id"
+            ],
+            "properties": {
+              "kind": {
+                "const": "execution_round"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            }
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "content"
+            ],
+            "properties": {
+              "content": {
+                "type": "string",
+                "description": "Exact concatenated successful TextParts; UTF-8 at most 16 MiB, also bounded by original complete response JSON. May be empty. Render as text, never HTML."
+              }
+            }
+          }
+        }
+      },
+      "RuntimeSnapshot": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "schema",
+          "generation",
+          "included_update_progress",
+          "execution_version",
+          "items"
+        ],
+        "properties": {
+          "schema": {
+            "const": "durable_final_text_v1"
+          },
+          "generation": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "included_update_progress": {
+            "const": "1"
+          },
+          "execution_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "items": {
+            "type": "array",
+            "maxItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/RuntimeTextItem"
+            }
+          }
+        },
+        "description": "Immutable original terminal snapshot. generation equals execution.snapshot_id; execution_version equals terminal version. Succeeded has exactly one text item, failed/cancelled none. Empty items requires an actual producer row. This generation/progress is not a WebSocket epoch or active stream watermark."
+      },
+      "TaskRuntimeView": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "execution",
+          "availability",
+          "snapshot"
+        ],
+        "properties": {
+          "execution": {
+            "$ref": "#/components/schemas/TaskExecution"
+          },
+          "availability": {
+            "enum": [
+              "pending",
+              "available",
+              "not_recorded"
+            ]
+          },
+          "snapshot": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RuntimeSnapshot"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "availability": {
+                  "const": "available"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "snapshot": {
+                  "$ref": "#/components/schemas/RuntimeSnapshot"
+                },
+                "execution": {
+                  "properties": {
+                    "status": {
+                      "enum": [
+                        "succeeded",
+                        "failed",
+                        "cancelled"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "snapshot": {
+                  "type": "null"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "availability": {
+                  "const": "pending"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "execution": {
+                  "properties": {
+                    "status": {
+                      "enum": [
+                        "created",
+                        "preparing",
+                        "running",
+                        "waiting"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "availability": {
+                  "const": "not_recorded"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "execution": {
+                  "properties": {
+                    "status": {
+                      "enum": [
+                        "succeeded",
+                        "failed",
+                        "cancelled"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
       }
     }
   }

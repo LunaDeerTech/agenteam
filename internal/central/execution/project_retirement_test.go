@@ -1198,12 +1198,12 @@ func TestExecutionRetirementUnknownDriftAndCancelledReturn(t *testing.T) {
 }
 
 func TestExecutionRetirementDeleteFailures(t *testing.T) {
-	expectedTables := []string{"transcript_entries", "rounds", "snapshots", "preparation_inputs", "preparation_claims", "preparation_attempts", "skill_assignment_ingress", "executions"}
+	expectedTables := []string{"runtime_snapshots", "transcript_entries", "rounds", "snapshots", "preparation_inputs", "preparation_claims", "preparation_attempts", "skill_assignment_ingress", "executions"}
 	for failed, table := range expectedTables {
 		t.Run(table, func(t *testing.T) {
 			v := newRetirementFixture(t)
 			b := &executionRetirementBefore{record: &executionRecord{summary: ec.Summary{ID: v.id}}, raw: bytes.Clone(v.store.full[v.id.String()])}
-			for n, name := range expectedTables[:7] {
+			for n, name := range expectedTables[:len(expectedTables)-1] {
 				raw := []byte(`[{"controlled":true}]`)
 				v.store.history[name] = raw
 				b.history[n] = bytes.Clone(raw)

@@ -21,10 +21,11 @@ import (
 // live transactions. Rows pagination and real Project/Work grants belong to PG.
 type taskReadStore struct {
 	*executionCallStore
-	row      []any
-	queryErr error
-	query    string
-	args     []any
+	row        []any
+	queryErr   error
+	query      string
+	args       []any
+	runtimeRow []any
 }
 
 func (s *taskReadStore) WithinTx(ctx context.Context, cause f.TransactionCause, fn func(context.Context, f.Tx) error) f.CommitResult {
@@ -63,6 +64,16 @@ func (s *taskReadStore) InTx(tx f.Tx) (postgres.SQLExecutor, error) {
 func (s *taskReadStore) QueryRow(ctx context.Context, q string, args ...any) postgres.Row {
 	if strings.Contains(q, "agenteam_execution.project_calls") {
 		return s.executionCallStore.QueryRow(ctx, q, args...)
+	}
+	if strings.HasPrefix(q, "SELECT current.*,v.content") {
+		s.query, s.args = q, args
+		if s.queryErr != nil {
+			return launchScan{err: s.queryErr}
+		}
+		if len(args) != 3 || args[0] != s.row[0] || args[1] != s.row[1] {
+			return launchScan{}
+		}
+		return launchScan{values: s.runtimeRow}
 	}
 	if !strings.HasPrefix(q, taskExecutionSelect) {
 		return launchScan{err: errors.New("unexpected read")}

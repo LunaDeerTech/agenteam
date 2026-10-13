@@ -321,6 +321,9 @@ func (s *directTextState) commitTerminal(ctx context.Context, run *directTextCal
 		if err = saveDirectTextTerminal(ctx, x, run); err != nil {
 			return err
 		}
+		if err = saveDirectTextRuntime(ctx, x, run); err != nil {
+			return err
+		}
 		if err = s.deps.Models.ReleaseExecutionModelInTx(ctx, tx, run.invocation.modelRetirement, run.invocation.modelPlan); err != nil {
 			return portError(err)
 		}
