@@ -165,6 +165,12 @@ APP_WORK_OWNERSHIP_EXPECTED = {'TestWorkProjectCallDefaultApp',
                                'TestWorkOwnerRootActualCommandJoin/graceful-three-calls',
                                'TestWorkOwnerRootActualCommandJoin/force-does-not-invent-join'}
 
+APP_EXECUTION_SCHEDULER_OWNERSHIP_SELECTOR = '^TestExecutionSchedulerProjectCallDefaultApp$'
+APP_EXECUTION_SCHEDULER_OWNERSHIP_EXPECTED = {
+    'TestExecutionSchedulerProjectCallDefaultApp',
+    'TestExecutionSchedulerProjectCallDefaultApp/default-owned-graph-and-original-launch',
+    'TestExecutionSchedulerProjectCallDefaultApp/committed-lookup-return-before-root-drain'}
+
 def save(path, value):
     with path.open('x') as stream:
         json.dump(value, stream, indent=2)
@@ -260,8 +266,11 @@ def main():
                        help='run the reviewed bounded Work history cleanup integration scope')
     scope.add_argument('--app-work-ownership', action='store_true',
                        help='run the reviewed default App Work ownership and original root return scope')
+    scope.add_argument('--app-execution-scheduler-ownership', action='store_true',
+                       help='run the reviewed default App Execution and Scheduler ownership scope')
     a = p.parse_args()
-    selector = (APP_WORK_OWNERSHIP_SELECTOR if a.app_work_ownership else
+    selector = (APP_EXECUTION_SCHEDULER_OWNERSHIP_SELECTOR if a.app_execution_scheduler_ownership else
+                APP_WORK_OWNERSHIP_SELECTOR if a.app_work_ownership else
                 WORK_CLEANUP_SELECTOR if a.work_cleanup else
                 EXECUTION_RETIREMENT_SEED_DIAGNOSTIC_SELECTOR if a.execution_retirement_seed_diagnostic else
                 EXECUTION_RETIREMENT_SELECTOR if a.execution_retirement else
@@ -289,7 +298,8 @@ def main():
                 USAGE_SELECTOR if a.project_usage_summary else
                 SECRET_SELECTOR if a.secret_delete else
                 CREATE_SELECTOR if a.project_creation else SELECTOR)
-    expected = (APP_WORK_OWNERSHIP_EXPECTED if a.app_work_ownership else
+    expected = (APP_EXECUTION_SCHEDULER_OWNERSHIP_EXPECTED if a.app_execution_scheduler_ownership else
+                APP_WORK_OWNERSHIP_EXPECTED if a.app_work_ownership else
                 WORK_CLEANUP_EXPECTED if a.work_cleanup else
                 EXECUTION_RETIREMENT_SEED_DIAGNOSTIC_EXPECTED if a.execution_retirement_seed_diagnostic else
                 EXECUTION_RETIREMENT_EXPECTED if a.execution_retirement else
@@ -319,9 +329,9 @@ def main():
                 USAGE_EXPECTED if a.project_usage_summary else
                 SECRET_EXPECTED if a.secret_delete else
                 CREATE_EXPECTED if a.project_creation else EXPECTED)
-    node_count = (0 if a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership else
+    node_count = (0 if a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership else
                   1 if a.project_creation or a.secret_delete or a.project_usage_summary or a.skill_package_import or a.task_search else 2)
-    web_scopes = ([] if a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership else
+    web_scopes = ([] if a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership else
                   [('AGENTEAM_TASK_SEARCH_WEB', 'task-search')]
                   if a.task_search else
                   [('AGENTEAM_SKILL_IMPORT_WEB', 'skill-import')]
@@ -342,7 +352,7 @@ def main():
         assert (a.runner_binary.is_absolute() and a.runner_binary.is_file()
                 and a.runner_binary.resolve() == a.runner_binary
                 and os.access(a.runner_binary, os.X_OK))
-    elif a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership:
+    elif a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership:
         assert a.dist is None and a.runner_binary is None
     else:
         assert a.runner_binary is None
@@ -356,7 +366,7 @@ def main():
         raise OSError(ctypes.get_errno(), 'subreaper unavailable')
     env = dict(os.environ, TMPDIR=str(a.runtime), AGENTEAM_AUTH_WEB_RUNTIME=str(a.runtime),
                AGENTEAM_FIXTURE_TEST_BINARY=str(a.binary),
-               AGENTEAM_FIXTURE_TEST_CWD=str(a.root / ('internal/central/app' if a.app_work_ownership else 'tests/model' if a.project_usage_summary else 'tests/projectvariable')),
+               AGENTEAM_FIXTURE_TEST_CWD=str(a.root / ('internal/central/app' if a.app_work_ownership or a.app_execution_scheduler_ownership else 'tests/model' if a.project_usage_summary else 'tests/projectvariable')),
                AGENTEAM_FIXTURE_OWNED_RECORD=str(a.output / 'owned-resources.json'))
     env.pop('AGENTEAM_FIXTURE_PG_CURRENT_ONLY', None)
     if a.pg_current_only:
@@ -390,6 +400,7 @@ def main():
          'execution_retirement_seed_diagnostic':a.execution_retirement_seed_diagnostic,
          'work_cleanup':a.work_cleanup,
          'app_work_ownership':a.app_work_ownership,
+         'app_execution_scheduler_ownership':a.app_execution_scheduler_ownership,
          'runner_binary':str(a.runner_binary) if a.runner_binary else None,
          'runtime':str(a.runtime),'supervisor_pid':os.getpid(),
          'pg_current_only':a.pg_current_only,'project_creation':a.project_creation,
