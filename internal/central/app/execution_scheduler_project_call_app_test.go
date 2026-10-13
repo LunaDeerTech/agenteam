@@ -545,8 +545,9 @@ func testExecutionSchedulerAppReturn(t *testing.T) {
 	case <-time.After(5 * time.Second):
 		t.Fatal("lookup return barrier not reached")
 	}
-	if held.result.State() != f.Committed || held.result.AttemptID().Validate() != nil {
-		t.Fatal("original technical return did not commit")
+	_, callIDErr := f.ParseID[struct{}](held.call)
+	if held.result.State() != f.Committed || callIDErr != nil {
+		t.Fatalf("original technical return state=%s original_call_valid=%t", held.result.State(), callIDErr == nil)
 	}
 	rows := v.calls(t, "execution")
 	if len(rows) != 2 {
