@@ -536,28 +536,77 @@ func (w *taskDependencyWeb) observe(r *http.Request) error {
 	*r = *r.WithContext(context.WithValue(r.Context(), taskDependencyIntentKey{}, in))
 	return nil
 }
-func (w *taskDependencyWeb) response(r *http.Response) error {
+func (w *taskDependencyWeb) response(r *http.Response) (resultErr error) {
+	// Failure evidence is derived only from this original response and the
+	// existing comparisons. Never persist a body, URL, identity or error text.
+	stage := "completed_response"
+	diagnostic := map[string]any{"http_status": 0}
+	if r.StatusCode >= 100 && r.StatusCode <= 599 {
+		diagnostic["http_status"] = r.StatusCode
+	}
+	defer func() {
+		if resultErr == nil {
+			return
+		}
+		diagnostic["stage"] = stage
+		raw, err := json.Marshal(diagnostic)
+		if err == nil && os.MkdirAll(w.evidence, 0700) == nil {
+			// The original failure remains the return value even if recording fails.
+			_ = os.WriteFile(filepath.Join(w.evidence, "task-dependency-"+w.mode+"-response-failure.json"), raw, 0600)
+		}
+	}()
 	raw, err := w.completedResponse(r)
 	if err != nil {
 		return err
 	}
+	diagnostic["completed_response"] = true
+	stage = "handler_return"
 	rid := r.Header.Get("X-Request-ID")
 	if err = w.returned(r.Request.Context(), rid, r.Request.Method, r.StatusCode, len(raw)); err != nil {
 		return err
 	}
+	diagnostic["handler_returned"] = true
 	in, write := r.Request.Context().Value(taskDependencyIntentKey{}).(taskDependencyIntent)
 	if write {
+		stage = "request_identity"
 		in.requestID, err = f.ParseID[f.Request](rid)
 		if err != nil {
 			return err
 		}
 		if in.kind == "cycle" {
 			var problem httpapi.Problem
+			decodeErr := json.Unmarshal(raw, &problem)
+			diagnostic["problem_decoded"] = decodeErr == nil
+			if decodeErr == nil {
+				diagnostic["code"] = "unrecognized"
+				if problem.Code.Known() {
+					diagnostic["code"] = string(problem.Code)
+				}
+				diagnostic["commit_state"] = "unrecognized"
+				switch problem.CommitState {
+				case f.NotStarted, f.NotCommitted, f.Committed, f.Unknown:
+					diagnostic["commit_state"] = string(problem.CommitState)
+				}
+				diagnostic["request_id_matches"] = problem.RequestID == in.requestID
+				diagnostic["instance_matches"] = problem.Instance == r.Request.URL.Path
+			}
+			stage = "cycle_snapshot"
 			after, e := w.mutableFacts(r.Request.Context())
 			if e != nil {
 				return e
 			}
-			if r.StatusCode != 409 || json.Unmarshal(raw, &problem) != nil || problem.Code != f.TaskDependencyCycle || problem.CommitState != f.NotCommitted || problem.RequestID != in.requestID || problem.Instance != r.Request.URL.Path || after != in.rejectedBefore {
+			diagnostic["snapshot_read"] = true
+			diagnostic["snapshot_unchanged"] = after == in.rejectedBefore
+			if after != in.rejectedBefore {
+				var beforeFields, afterFields map[string]json.RawMessage
+				if json.Unmarshal([]byte(in.rejectedBefore), &beforeFields) == nil && json.Unmarshal([]byte(after), &afterFields) == nil {
+					for _, name := range []string{"tasks", "blockers", "commands", "events", "generations", "outbox", "audit"} {
+						diagnostic[name+"_unchanged"] = bytes.Equal(beforeFields[name], afterFields[name])
+					}
+				}
+			}
+			stage = "cycle_problem"
+			if r.StatusCode != 409 || decodeErr != nil || problem.Code != f.TaskDependencyCycle || problem.CommitState != f.NotCommitted || problem.RequestID != in.requestID || problem.Instance != r.Request.URL.Path || after != in.rejectedBefore {
 				return errors.New("real cycle rejection committed facts or lost original problem")
 			}
 			w.mu.Lock()
@@ -565,6 +614,7 @@ func (w *taskDependencyWeb) response(r *http.Response) error {
 			w.rejections++
 			w.mu.Unlock()
 		} else {
+			stage = "mutation_receipt"
 			var result wc.TaskBlockerMutation
 			if r.StatusCode != 200 || json.Unmarshal(raw, &result) != nil {
 				return errors.New("dependency original receipt failed")
@@ -585,6 +635,7 @@ func (w *taskDependencyWeb) response(r *http.Response) error {
 			w.mu.Unlock()
 		}
 	} else {
+		stage = "current_read"
 		if r.StatusCode != 200 {
 			return fmt.Errorf("dependency read failed status=%d", r.StatusCode)
 		}
@@ -592,6 +643,7 @@ func (w *taskDependencyWeb) response(r *http.Response) error {
 			return err
 		}
 	}
+	stage = "response_proof"
 	proof := map[string]any{"input_hash": w.inputHash, "request_id": rid, "method": r.Request.Method, "url_sha256": fmt.Sprintf("%x", sha256.Sum256([]byte(r.Request.URL.RequestURI()))), "status": r.StatusCode, "content_length": len(raw), "body_sha256": fmt.Sprintf("%x", sha256.Sum256(raw)), "original_eof": true, "original_closed": true, "handler_returned": true, "handler_return_source": "app_http_request_log"}
 	if write {
 		proof["kind"] = in.kind
