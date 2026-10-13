@@ -31,6 +31,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo"
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
 	"github.com/LunaDeerTech/agenteam/internal/central/skill"
+	uc "github.com/LunaDeerTech/agenteam/internal/central/usage/contract"
 	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 )
 
@@ -65,6 +66,7 @@ type accountAssembly struct {
 	started         bool
 	forced          context.Context
 	executions      *executionRuntimeAssembly
+	usageCalls      *usageCallAssembly
 	planning        accountWork
 	agentDirectory  accountWork
 	agentInstall    accountWork
@@ -173,6 +175,11 @@ func (a *accountAssembly) works() []accountWork {
 	if a.executions != nil {
 		work = append(work, a.executions)
 	}
+	// Model actual return precedes Usage technical closure; Usage also owns
+	// direct HTTP reads through this same pair. Neither may release providers early.
+	if a.usageCalls != nil {
+		work = append(work, a.usageCalls)
+	}
 	// Runner owns hijacked sockets and generation/Audit transactions; HTTP
 	// shutdown alone cannot retire them. Account and DB must remain until join.
 	if a.runners != nil {
@@ -280,10 +287,11 @@ func (a *accountAssembly) Force(ctx context.Context) error {
 		projectCalls, ownsProjects := work.(*projectCommandWork)
 		planning, ownsPlanning := work.(*workPlanningAssembly)
 		executions, ownsExecutions := work.(*executionRuntimeAssembly)
+		usage, ownsUsage := work.(*usageCallAssembly)
 		// Runtime terminal/lease cleanup and Agent/Variable/Work calls use the
 		// shared providers. Expiring a force budget does not make them disposable.
 		// The root retains its separate bounded Store.ForceClose policy.
-		if ownsExecutions && !executions.Joined() || agents != nil && work == agents && !agents.Joined() || install != nil && work == install && !install.Joined() || ownsVariables && !variableCalls.Joined() || ownsProjects && !projectCalls.Joined() || ownsPlanning && planning.ownership != nil && !planning.Joined() {
+		if ownsUsage && !usage.Joined() || ownsExecutions && !executions.Joined() || agents != nil && work == agents && !agents.Joined() || install != nil && work == install && !install.Joined() || ownsVariables && !variableCalls.Joined() || ownsProjects && !projectCalls.Joined() || ownsPlanning && planning.ownership != nil && !planning.Joined() {
 			return errors.Join(result, foundation.NewFault(foundation.DependencyUnavailable, foundation.NotStarted))
 		}
 	}
@@ -346,12 +354,6 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
-	if !runtimeEnabled {
-		projectUsage, err = bindProjectUsage(cfg, db, authority, projectUsage, nil)
-		if err != nil {
-			return err
-		}
-	}
 	agentAuthority, err := createAgentConfigurationAuthority(db, projectUsage.projects)
 	if err != nil {
 		return err
@@ -397,10 +399,6 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 			return err
 		}
 		modelAuth.Resolution = &model.ResolutionAuthorizations{Consumers: executionAuthorities.execution, SecretService: executionAuthorities.secretService}
-		projectUsage, err = bindProjectUsage(cfg, db, authority, projectUsage, executionAuthorities.model)
-		if err != nil {
-			return err
-		}
 		facts, e := skill.NewInitializationAuditFacts(contentAuthorities.skills, projectUsage.objectFacts)
 		if e != nil {
 			return e
@@ -409,6 +407,20 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		if err != nil {
 			return err
 		}
+	}
+	var invocationFacts uc.InvocationFacts
+	if executionAuthorities != nil {
+		invocationFacts = executionAuthorities.model
+	}
+	boundUsage, bindErr := bindOwnedProjectUsage(cfg, db, authority, projectUsage, invocationFacts, objects)
+	if boundUsage != nil && boundUsage.usageCalls != nil {
+		projectUsage = boundUsage
+		if !accounts.install(ctx, func() { accounts.usageCalls = boundUsage.usageCalls }) {
+			return context.Canceled
+		}
+	}
+	if bindErr != nil {
+		return bindErr
 	}
 	modelAuthority, err := model.NewAuthority(modelStore, modelAuth)
 	if err != nil {

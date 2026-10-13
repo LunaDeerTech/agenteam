@@ -44,6 +44,7 @@ type agentPreparationScope struct {
 	executionStops  map[*executionStopLoan]struct{}
 	artifactSources map[*artifactSourceStopLoan]struct{}
 	workStops       map[*workStopLoan]struct{}
+	usageStops      map[*usageStopLoan]struct{}
 	changed         chan struct{}
 }
 
@@ -97,7 +98,7 @@ func (s *agentPreparationScope) borrow(ctx context.Context, tx f.Tx, request c.A
 	}
 	// A stop control is a different synchronous loan. Its saved context cannot
 	// inherit this scope to create an Agent read after that control ends.
-	if ctx.Value(schedulerStopLoanKey{}) != nil || ctx.Value(executionStopLoanKey{}) != nil || ctx.Value(artifactSourceStopLoanKey{}) != nil || ctx.Value(workStopLoanKey{}) != nil {
+	if ctx.Value(schedulerStopLoanKey{}) != nil || ctx.Value(executionStopLoanKey{}) != nil || ctx.Value(artifactSourceStopLoanKey{}) != nil || ctx.Value(workStopLoanKey{}) != nil || ctx.Value(usageStopLoanKey{}) != nil {
 		return nil, fault(f.Forbidden)
 	}
 	parent, _ := ctx.Value(agentPreparationLoanKey{}).(*agentPreparationLoan)
@@ -129,7 +130,7 @@ func (s *agentPreparationScope) close() {
 	s.cancel()
 	for {
 		s.mu.Lock()
-		if len(s.loans) == 0 && len(s.schedulerStops) == 0 && len(s.executionStops) == 0 && len(s.artifactSources) == 0 && len(s.workStops) == 0 {
+		if len(s.loans) == 0 && len(s.schedulerStops) == 0 && len(s.executionStops) == 0 && len(s.artifactSources) == 0 && len(s.workStops) == 0 && len(s.usageStops) == 0 {
 			s.mu.Unlock()
 			return
 		}
