@@ -7,6 +7,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/runner/identity"
 	"github.com/LunaDeerTech/agenteam/internal/runner/operations"
 	"github.com/LunaDeerTech/agenteam/internal/runner/readfile"
+	"github.com/LunaDeerTech/agenteam/internal/runner/runcommand"
 	"github.com/LunaDeerTech/agenteam/internal/runner/workspace"
 	"github.com/LunaDeerTech/agenteam/internal/runner/writefile"
 	p "github.com/LunaDeerTech/agenteam/internal/runnerprotocol"
@@ -65,7 +66,40 @@ func newOwnedOperations(configuration identity.Configuration, selected operation
 			return nil, manager, err
 		}
 	}
+	if selected.Contains(p.RunCommandOperation) {
+		handler, err := runcommand.New(manager)
+		if err != nil {
+			return nil, manager, err
+		}
+		return ownedCommandOperationExecutor{ownedOperationExecutor: executor, command: runCommandExecutor{handler: handler}}, manager, nil
+	}
 	return executor, manager, nil
+}
+
+// Only a successfully constructed command profile acquires its streaming and
+// cancellation policy. Filesystem-only selections retain their original gates.
+// Every handler still borrows the same Manager owned by Client.Run.
+type ownedCommandOperationExecutor struct {
+	ownedOperationExecutor
+	command runCommandExecutor
+}
+
+func (ownedCommandOperationExecutor) commandCancellationTail() {}
+func (e ownedCommandOperationExecutor) accepts(request p.Request) bool {
+	if request.OperationName == p.RunCommandOperation {
+		return e.command.accepts(request)
+	}
+	return e.ownedOperationExecutor.accepts(request)
+}
+func (e ownedCommandOperationExecutor) execute(ctx context.Context, request p.Request, sink func(string, string) error) (p.Response, error) {
+	if request.OperationName == p.RunCommandOperation {
+		return e.command.execute(ctx, request, sink)
+	}
+	return e.ownedOperationExecutor.execute(ctx, request, sink)
+}
+func (e ownedCommandOperationExecutor) maskingReady() bool { return e.command.maskingReady() }
+func (e ownedCommandOperationExecutor) mask(data string) (string, error) {
+	return e.command.mask(data)
 }
 
 type ownedOperationExecutor struct {

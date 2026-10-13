@@ -1,4 +1,4 @@
-// Package operations parses the Runner's explicit, finite filesystem capability set.
+// Package operations parses the Runner's explicit, finite capability set.
 package operations
 
 import (
@@ -14,7 +14,7 @@ var ErrInvalid = errors.New("invalid runner operations")
 type Selection struct{ bits uint8 }
 
 // Parse accepts comma-separated operation names without duplicates or whitespace.
-// An empty value preserves the default with no filesystem operations enabled.
+// An empty value preserves the default with no operations enabled.
 func Parse(value string) (Selection, error) {
 	var selected Selection
 	if value == "" {
@@ -38,7 +38,7 @@ func (s Selection) Contains(name string) bool {
 // Names returns a new slice in a fixed order, independent of configuration order.
 func (s Selection) Names() []string {
 	names := []string{}
-	for _, name := range []string{p.ReadFileOperation, p.ListDirectoryOperation, p.FindFilesOperation, p.WriteFileOperation} {
+	for _, name := range []string{p.ReadFileOperation, p.ListDirectoryOperation, p.FindFilesOperation, p.WriteFileOperation, p.RunCommandOperation} {
 		if s.Contains(name) {
 			names = append(names, name)
 		}
@@ -56,6 +56,8 @@ func operationBit(name string) uint8 {
 		return 4
 	case p.WriteFileOperation:
 		return 8
+	case p.RunCommandOperation:
+		return 16
 	default:
 		return 0
 	}

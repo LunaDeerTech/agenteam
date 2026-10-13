@@ -290,7 +290,7 @@ func TestOwnedReadFileRejectsBeforeDevice(t *testing.T) {
 			requireOwnedReadFileIdentityReleased(t, path)
 		})
 	}
-	if _, err := New(Options{IdentityFile: "/owned/identity.json", Operations: "read-file,run-command", RunnerVersion: "fixture-1"}); err == nil {
+	if _, err := New(Options{IdentityFile: "/owned/identity.json", Operations: "read-file,run-command-unknown", RunnerVersion: "fixture-1"}); err == nil {
 		t.Fatal("direct constructor bypassed the closed operation selection")
 	}
 }

@@ -22,7 +22,7 @@ agenteam 是以项目为边界的 AI Agent 协作与执行平台，管理长期�
 
 ### 本地 Docker Compose 开发环境
 
-安装 Docker Engine 与 Docker Compose v2，在完整仓库根目录准备本地配置：
+使用启用 BuildKit 的 Docker Engine 与 Docker Compose v2，在完整仓库根目录准备本地配置：
 
 ```sh
 cp .env.example .env
@@ -82,6 +82,8 @@ docker build --secret id=dev_ca,src=/path/to/trusted-ca.crt --target minio -f Do
 ```
 
 使用不含私钥的 PEM 受信 CA；该步骤添加系统信任，不关闭 TLS 校验。普通环境不需要此步骤。
+
+构建使用 BuildKit 内置 Dockerfile 前端，不再额外拉取 `docker/dockerfile:1`。需要支持 `RUN --mount=type=secret` 的前端（Dockerfile 1.2 或更新），不支持旧版 legacy builder；建议使用当前受支持的 Docker 版本。`app` 和 `minio` 的本地镜像均由 Compose 构建，不尝试从仓库拉取这些本地标签。Go、Node、nginx、PostgreSQL 基础镜像及官方 GitHub 资产仍需要网络；本修改不解决 Docker Hub 的 DNS、认证或网络连接问题。
 
 官方社区版现采用源码分发，但上述历史 GitHub Release 的官方二进制资产仍可获取。本环境对同版本的官方 Quay 和 Docker Hub manifest 在匿名鉴权后仍收到访问拒绝；这不证明该 release 不存在，也不能代替用户本机错误诊断。当前 MinIO 构建已在 Linux/amd64 完成官方资产完整下载、固定 SHA-256 校验及镜像构建，实际版本、源码提交、原入口和许可证均已确认；其他支持架构尚未实际运行。本环境构建使用上述可选受信 CA。
 

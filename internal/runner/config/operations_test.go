@@ -29,14 +29,18 @@ func TestRunnerOperationsClosedConfiguration(t *testing.T) {
 		{"write-file", "write-file", true, true},
 		{"read-and-write", "write-file,read-file", true, true},
 		{"all-filesystem", "write-file,find-files,read-file,list-directory", true, true},
+		{"run-command", "run-command", true, true},
+		{"read-and-command", "read-file,run-command", true, true},
+		{"all-operations", "run-command,write-file,find-files,read-file,list-directory", true, true},
+		{"duplicate-command", "run-command,run-command", true, false},
 		{"duplicate-write", "write-file,write-file", true, false},
 		{"empty-entry", "read-file,,find-files", true, false},
 		{"trailing-comma", "find-files,", true, false},
 		{"leading-comma", ",list-directory", true, false},
 		{"unknown", "PRIVATE_OPERATION_CANARY", true, false},
 		{"duplicate", "read-file,read-file", true, false},
-		{"other-operation", "run-command", true, false},
-		{"combination", "read-file,run-command", true, false},
+		{"other-operation", "run-command-unknown", true, false},
+		{"combination", "read-file,run-command-unknown", true, false},
 		{"whitespace", " read-file", true, false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -105,7 +109,7 @@ func TestRunnerOperationsStoredIdentityCheckStaysOffline(t *testing.T) {
 	if err = file.Close(); err != nil {
 		t.Fatal(err)
 	}
-	for _, operations := range []string{p.ReadFileOperation, p.ListDirectoryOperation, p.FindFilesOperation, p.WriteFileOperation, p.ReadFileOperation + "," + p.ListDirectoryOperation + "," + p.FindFilesOperation + "," + p.WriteFileOperation} {
+	for _, operations := range []string{p.ReadFileOperation, p.ListDirectoryOperation, p.FindFilesOperation, p.WriteFileOperation, p.RunCommandOperation, p.ReadFileOperation + "," + p.ListDirectoryOperation + "," + p.FindFilesOperation + "," + p.WriteFileOperation + "," + p.RunCommandOperation} {
 		cfg, err := loadValues(map[string]string{Prefix + "IDENTITY_FILE": path, Prefix + "OPERATIONS": operations})
 		if err != nil || cfg.OfflineCheck(false) != nil || cfg.Operations() != operations {
 			t.Fatal("stored-only identity was rejected by offline operation validation", err)

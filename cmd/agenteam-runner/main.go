@@ -45,7 +45,7 @@ func executeInput(args []string, lookup config.LookupEnv, env []string, input io
 		action = "invalid"
 	}
 	if action == "help" {
-		_, _ = fmt.Fprintln(stdout, "Usage: agenteam-runner [--help | --version | --check-config | --enroll]\nD15 Runner identity and control channel; --enroll reads one token from stdin.\nOperations are disabled by default. AGENTEAM_RUNNER_OPERATIONS accepts a comma-separated selection of read-file, list-directory, find-files and write-file (revision 1) from the locked identity's trusted root; unknown names, duplicates and empty entries are rejected.\n--check-config remains offline and does not open operation resources; connection does not enable command execution.")
+		_, _ = fmt.Fprintln(stdout, "Usage: agenteam-runner [--help | --version | --check-config | --enroll]\nD15 Runner identity and control channel; --enroll reads one token from stdin.\nOperations are disabled by default. AGENTEAM_RUNNER_OPERATIONS accepts a comma-separated selection of read-file, list-directory, find-files, write-file and run-command (revision 1) from the locked identity's trusted root; unknown names, duplicates and empty entries are rejected.\n--check-config remains offline and does not open operation resources; run-command requires explicit selection and uses direct argv on Linux without environment injection.")
 		return 0
 	}
 	if action == "version" {
