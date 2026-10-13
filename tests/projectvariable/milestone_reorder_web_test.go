@@ -166,12 +166,27 @@ func (w *milestoneReorderWeb) browser(t *testing.T, parent context.Context) {
 	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
 	for _, entry := range os.Environ() {
 		key, _, _ := strings.Cut(entry, "=")
-		if key != "TMPDIR" && key != "DEBUG" && key != "PWDEBUG" && key != "PLAYWRIGHT_NO_COPY_PROMPT" && !strings.HasPrefix(key, "AGENTEAM_") {
+		switch key {
+		case "TMPDIR", "TMP", "TEMP", "NODE_COMPILE_CACHE", "PWTEST_CACHE_DIR", "XDG_CACHE_HOME":
+			continue
+		}
+		if key != "DEBUG" && key != "PWDEBUG" && key != "PLAYWRIGHT_NO_COPY_PROMPT" && !strings.HasPrefix(key, "AGENTEAM_") {
 			cmd.Env = append(cmd.Env, entry)
 		}
 	}
+	// Keep every child temporary/cache path inside the original Dispose owner.
+	for _, variable := range []struct{ key, directory string }{
+		{"TMPDIR", "tmp"}, {"TMP", "tmp"}, {"TEMP", "tmp"},
+		{"NODE_COMPILE_CACHE", "node-compile-cache"},
+		{"PWTEST_CACHE_DIR", "playwright-cache"},
+		{"XDG_CACHE_HOME", "xdg-cache"},
+	} {
+		directory := filepath.Join(w.directory, variable.directory)
+		agentAppRequire(t, os.MkdirAll(directory, 0700))
+		cmd.Env = append(cmd.Env, variable.key+"="+directory)
+	}
 	const prefix = "AGENTEAM_MILESTONE_REORDER_WEB"
-	cmd.Env = append(cmd.Env, "TMPDIR="+w.directory, "PLAYWRIGHT_NO_COPY_PROMPT=1", "AGENTEAM_AUTH_WEB_ORIGIN="+w.origin, "AGENTEAM_AUTH_WEB_PRIVATE="+w.directory, "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium", prefix+"_DIST="+w.dist, prefix+"_CASE="+w.mode, prefix+"_EVIDENCE="+w.evidence, prefix+"_INPUT_HASH="+w.inputHash)
+	cmd.Env = append(cmd.Env, "PLAYWRIGHT_NO_COPY_PROMPT=1", "AGENTEAM_AUTH_WEB_ORIGIN="+w.origin, "AGENTEAM_AUTH_WEB_PRIVATE="+w.directory, "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium", prefix+"_DIST="+w.dist, prefix+"_CASE="+w.mode, prefix+"_EVIDENCE="+w.evidence, prefix+"_INPUT_HASH="+w.inputHash)
 	var output bytes.Buffer
 	cmd.Stdout = &output
 	cmd.Stderr = &output
