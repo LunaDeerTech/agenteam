@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/object"
@@ -66,30 +67,65 @@ type projectCallOwner struct {
 }
 
 type projectCallOwnershipState struct {
-	store       Store
-	proof       projectCallProcessProof
-	process     oc.ProcessID
-	instance    f.ID[projectCallInstance]
-	authority   c.ProjectStopAuthority
-	structure   *Service
-	tasks       *TaskService
-	transitions *TaskTransitionService
-	blockers    *BlockerService
-	sprints     *SprintLifecycleService
-	mu          sync.Mutex
-	stopped     bool
-	owners      map[f.ID[projectCallID]]*projectCallOwner
-	stops       map[i.ProjectID]*projectStopCall
-	changed     chan struct{}
+	store         Store
+	proof         projectCallProcessProof
+	process       oc.ProcessID
+	instance      f.ID[projectCallInstance]
+	authority     c.ProjectStopAuthority
+	structure     *Service
+	tasks         *TaskService
+	transitions   *TaskTransitionService
+	blockers      *BlockerService
+	sprints       *SprintLifecycleService
+	reader        *Reader
+	taskReader    *TaskReader
+	blockerReader *BlockerReader
+	mu            sync.Mutex
+	stopped       bool
+	owners        map[f.ID[projectCallID]]*projectCallOwner
+	stops         map[i.ProjectID]*projectStopCall
+	changed       chan struct{}
 }
 
-// ProjectCallOwnership opts in exactly these five command services. Independent
-// readers and scheduler-owned borrowed transactions are not stopped by this
-// object. The original ProcessGuard must outlive its actual Drain/Joined tail.
+// ProjectCallOwnership owns the five command services and, only with the
+// WithReaders constructor, its three returned readers. Other independent
+// readers and scheduler-owned borrowed transactions remain outside this graph.
+// The original ProcessGuard must outlive its actual Drain/Joined tail.
 type ProjectCallOwnership struct{ state *projectCallOwnershipState }
 
 func NewProjectCallOwnership(store Store, deps ProjectCallDependencies, guard *object.ProcessGuard, expected oc.ProcessID, authority c.ProjectStopAuthority) (*ProjectCallOwnership, error) {
 	return newProjectCallOwnership(store, deps, guard, expected, authority)
+}
+
+// NewProjectCallOwnershipWithReaders also owns the eight public HTTP reads.
+// It constructs a private reader graph; readers supplied in deps are validated
+// normally, but remain unchanged and do not acquire this bundle's lifetime.
+func NewProjectCallOwnershipWithReaders(store Store, deps ProjectCallDependencies, keys cursor.Keyring, guard *object.ProcessGuard, expected oc.ProcessID, authority c.ProjectStopAuthority) (*ProjectCallOwnership, error) {
+	return newProjectCallOwnershipWithReaders(store, deps, keys, guard, expected, authority)
+}
+
+func newProjectCallOwnershipWithReaders(store Store, deps ProjectCallDependencies, keys cursor.Keyring, proof projectCallProcessProof, expected oc.ProcessID, authority c.ProjectStopAuthority) (*ProjectCallOwnership, error) {
+	pair, err := newProjectCallOwnership(store, deps, proof, expected, authority)
+	if err != nil {
+		return nil, err
+	}
+	s := pair.state
+	if s.reader, err = NewReader(store, deps.Structure.Authority, keys); err != nil {
+		return nil, err
+	}
+	if s.taskReader, err = NewTaskReader(store, deps.Structure.Authority, s.reader, keys); err != nil {
+		return nil, err
+	}
+	if s.blockerReader, err = NewBlockerReader(store, deps.Structure.Authority, keys); err != nil {
+		return nil, err
+	}
+	s.reader.state().ownership, s.taskReader.state().ownership, s.blockerReader.state().ownership = s, s, s
+	// These original services retain their own outer call and Store return.
+	// Placement reads only borrow that private witness inside their current Tx.
+	s.tasks.state().deps.Structure = s.reader
+	s.transitions.state().deps.Structure = s.reader
+	s.blockers.state().deps.Structure = s.reader
+	return pair, nil
 }
 
 func newProjectCallOwnership(store Store, deps ProjectCallDependencies, proof projectCallProcessProof, expected oc.ProcessID, authority c.ProjectStopAuthority) (*ProjectCallOwnership, error) {
@@ -155,6 +191,56 @@ func (p *ProjectCallOwnership) SprintLifecycleService() *SprintLifecycleService 
 		return nil
 	}
 	return p.state.sprints
+}
+
+func (p *ProjectCallOwnership) Reader() *Reader {
+	if p == nil || p.state == nil {
+		return nil
+	}
+	return p.state.reader
+}
+func (p *ProjectCallOwnership) TaskReader() *TaskReader {
+	if p == nil || p.state == nil {
+		return nil
+	}
+	return p.state.taskReader
+}
+func (p *ProjectCallOwnership) BlockerReader() *BlockerReader {
+	if p == nil || p.state == nil {
+		return nil
+	}
+	return p.state.blockerReader
+}
+
+// Public readers use the matching original service call set, so Stop, Drain
+// and Joined include their complete method and technical checkpoint tails.
+func (s *projectCallOwnershipState) beginRead(ctx context.Context, actor i.Actor, project i.ProjectID, lane projectCallLane) (context.Context, func(), error) {
+	if s == nil {
+		return ctx, func() {}, nil
+	}
+	var entry *call
+	var done func()
+	var err error
+	switch lane {
+	case projectCallStructure:
+		ctx, entry, done, err = s.structure.begin(ctx)
+	case projectCallTask:
+		ctx, entry, done, err = s.tasks.begin(ctx)
+	case projectCallBlocker:
+		ctx, entry, done, err = s.blockers.begin(ctx)
+	default:
+		return nil, nil, fault(f.DependencyUnbound)
+	}
+	if err != nil {
+		return nil, nil, err
+	}
+	entry.project, entry.class = project, projectCallRead
+	ctx, err = s.admit(ctx, entry, actor, lane)
+	if err != nil {
+		done()
+		return nil, nil, err
+	}
+	return ctx, done, nil
 }
 
 func (p *ProjectCallOwnership) Stop() {

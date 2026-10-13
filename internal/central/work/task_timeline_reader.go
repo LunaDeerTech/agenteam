@@ -122,12 +122,17 @@ func (r *TaskReader) ListTaskEvents(ctx context.Context, actor i.Actor, project 
 	if err := filter.Validate(); err != nil {
 		return f.Page[c.TaskTimelineEvent]{}, err
 	}
+	ctx, done, err := r.beginRead(ctx, actor, project)
+	if err != nil {
+		return f.Page[c.TaskTimelineEvent]{}, err
+	}
+	defer done()
 	// Keep omitted types distinct for SQL: the default reader must encounter
 	// unsupported future rows instead of silently filtering them out.
 	allTypes := filter.Types == nil
 	filter = timelineFilter(filter)
 	out := f.Page[c.TaskTimelineEvent]{Items: []c.TaskTimelineEvent{}}
-	err := r.read(ctx, actor, project, []f.LockRequest{taskLock(task.String(), f.Shared)}, func(ctx context.Context, x postgres.SQLExecutor) error {
+	err = r.read(ctx, actor, project, []f.LockRequest{taskLock(task.String(), f.Shared)}, func(ctx context.Context, x postgres.SQLExecutor) error {
 		current, err := loadTask(ctx, x, project, task)
 		if err != nil {
 			return err

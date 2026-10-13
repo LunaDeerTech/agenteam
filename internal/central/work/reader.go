@@ -15,6 +15,7 @@ import (
 
 type Reader struct{ data func() *readerState }
 type readerState struct {
+	ownership *projectCallOwnershipState
 	store     Store
 	authority *Authority
 	cursors   cursor.Keyring
@@ -51,6 +52,14 @@ func readInput(ctx context.Context, actor i.Actor, project c.ProjectID) error {
 	}
 	return nil
 }
+func (r *Reader) beginRead(ctx context.Context, actor i.Actor, project c.ProjectID) (context.Context, func(), error) {
+	st := r.state()
+	if st == nil {
+		return nil, nil, fault(f.DependencyUnbound)
+	}
+	return st.ownership.beginRead(ctx, actor, project, projectCallStructure)
+}
+
 func (r *Reader) read(ctx context.Context, actor i.Actor, project c.ProjectID, extra []f.LockRequest, fn func(context.Context, postgres.SQLExecutor, pc.ProjectRef) error) error {
 	if err := readInput(ctx, actor, project); err != nil {
 		return err
@@ -75,6 +84,9 @@ func (r *Reader) read(ctx context.Context, actor i.Actor, project c.ProjectID, e
 		if err != nil {
 			return portError(err)
 		}
+		if err := st.ownership.requireRunning(ctx, tx, project, projectCallStructure); err != nil {
+			return err
+		}
 		access, err := st.authority.state().projects.RequireOwnerInTx(ctx, tx, actor, project, i.Read)
 		if err != nil {
 			return portError(err)
@@ -97,8 +109,13 @@ func (r *Reader) GetMilestone(ctx context.Context, actor i.Actor, project c.Proj
 	if id.Validate() != nil {
 		return c.Milestone{}, fault(f.InvalidArgument)
 	}
+	ctx, done, err := r.beginRead(ctx, actor, project)
+	if err != nil {
+		return c.Milestone{}, err
+	}
+	defer done()
 	var out c.Milestone
-	err := r.read(ctx, actor, project, nil, func(ctx context.Context, x postgres.SQLExecutor, _ pc.ProjectRef) error {
+	err = r.read(ctx, actor, project, nil, func(ctx context.Context, x postgres.SQLExecutor, _ pc.ProjectRef) error {
 		v, err := loadMilestone(ctx, x, project, id)
 		out = v
 		return err
@@ -115,8 +132,13 @@ func (r *Reader) GetSprint(ctx context.Context, actor i.Actor, project c.Project
 	if id.Validate() != nil {
 		return c.Sprint{}, fault(f.InvalidArgument)
 	}
+	ctx, done, err := r.beginRead(ctx, actor, project)
+	if err != nil {
+		return c.Sprint{}, err
+	}
+	defer done()
 	var out c.Sprint
-	err := r.read(ctx, actor, project, []f.LockRequest{sprintLock(id.String(), f.Shared)}, func(ctx context.Context, x postgres.SQLExecutor, ref pc.ProjectRef) error {
+	err = r.read(ctx, actor, project, []f.LockRequest{sprintLock(id.String(), f.Shared)}, func(ctx context.Context, x postgres.SQLExecutor, ref pc.ProjectRef) error {
 		v, err := loadSprint(ctx, x, project, id, ref.CurrentSprintID)
 		if err != nil {
 			return err
@@ -195,8 +217,13 @@ func (r *Reader) ListMilestones(ctx context.Context, actor i.Actor, project c.Pr
 	if page.Validate() != nil {
 		return f.Page[c.Milestone]{}, fault(f.InvalidArgument)
 	}
+	ctx, done, err := r.beginRead(ctx, actor, project)
+	if err != nil {
+		return f.Page[c.Milestone]{}, err
+	}
+	defer done()
 	out := f.Page[c.Milestone]{Items: []c.Milestone{}}
-	err := r.read(ctx, actor, project, []f.LockRequest{rankLock(project, "", f.Shared)}, func(ctx context.Context, x postgres.SQLExecutor, _ pc.ProjectRef) error {
+	err = r.read(ctx, actor, project, []f.LockRequest{rankLock(project, "", f.Shared)}, func(ctx context.Context, x postgres.SQLExecutor, _ pc.ProjectRef) error {
 		generation, err := loadGeneration(ctx, x, project, "")
 		if err != nil {
 			return err
@@ -252,8 +279,13 @@ func (r *Reader) ListSprints(ctx context.Context, actor i.Actor, project c.Proje
 	if parent.Validate() != nil || page.Validate() != nil {
 		return f.Page[c.Sprint]{}, fault(f.InvalidArgument)
 	}
+	ctx, done, err := r.beginRead(ctx, actor, project)
+	if err != nil {
+		return f.Page[c.Sprint]{}, err
+	}
+	defer done()
 	out := f.Page[c.Sprint]{Items: []c.Sprint{}}
-	err := r.read(ctx, actor, project, []f.LockRequest{rankLock(project, parent.String(), f.Shared)}, func(ctx context.Context, x postgres.SQLExecutor, ref pc.ProjectRef) error {
+	err = r.read(ctx, actor, project, []f.LockRequest{rankLock(project, parent.String(), f.Shared)}, func(ctx context.Context, x postgres.SQLExecutor, ref pc.ProjectRef) error {
 		if _, err := loadMilestone(ctx, x, project, parent); err != nil {
 			return err
 		}
@@ -324,6 +356,9 @@ func (r *Reader) ReadPlacementInTx(ctx context.Context, tx f.Tx, actor i.Actor, 
 	locks := []f.LockRequest{userLock(actor.Details().UserID, f.Shared), projectLock(project, f.Shared), {Key: schedule, Mode: f.Exclusive}, sprintLock(id.String(), f.Shared)}
 	if err = st.store.RequireHeldLocks(ctx, tx, locks); err != nil {
 		return c.Placement{}, portError(err)
+	}
+	if err = st.ownership.requirePlacementBorrow(ctx, tx, project); err != nil {
+		return c.Placement{}, err
 	}
 	access, err := st.authority.state().projects.RequireOwnerInTx(ctx, tx, actor, project, i.Read)
 	if err != nil {
