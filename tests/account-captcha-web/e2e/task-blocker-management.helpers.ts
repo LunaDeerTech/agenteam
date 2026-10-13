@@ -92,6 +92,7 @@ type Row = {
 };
 type Call = {
   id: number;
+  path: string;
   kind: string;
   bound: number;
   fulfilled: boolean;
@@ -613,11 +614,18 @@ export async function blockerManagementScreenshot(page: Page, name: string) {
 export async function blockerManagementFailure(page: Page, data?: Material) {
   const evidence = process.env.AGENTEAM_TASK_BLOCKER_MANAGEMENT_WEB_EVIDENCE!;
   mkdirSync(evidence, { recursive: true, mode: 0o700 });
+  const observedAt = Date.now();
+  // Persist the assertion-failure boundary before screenshot or retirement.
+  writeFileSync(
+    join(evidence, "task-blocker-management-failure.json"),
+    JSON.stringify({ observed_at_unix_ms: observedAt, collecting: true }),
+    { mode: 0o600 },
+  );
   let dom: unknown = null,
     screenshot = false;
   try {
     dom = await page.evaluate(
-      ({ route }) => {
+      ({ route, project, task }) => {
         const names = [
           "添加人工阻塞",
           "确认添加人工阻塞",
@@ -644,7 +652,32 @@ export async function blockerManagementFailure(page: Page, data?: Material) {
         };
         const active = document.activeElement;
         const native = (window as Host).__taskReviewProof?.snapshot();
+        const endpoint = (path: string) => {
+          const base = `/api/v1/projects/${project}`;
+          if (path === `${base}/tasks`) return "task-list";
+          if (path === `${base}/tasks/${task}`) return "task-detail";
+          if (path === `${base}/tasks/${task}/blockers`) return "task-blockers";
+          if (path === `${base}/tasks/${task}/events`) return "task-timeline";
+          return "other";
+        };
+        const kinds = [
+          "work.tasks",
+          "work.task",
+          "work.blockers",
+          "work.events",
+          "work.sprint",
+          "work.milestone",
+          "work.milestones",
+          "work.sprints",
+          "work.agents",
+          "humanBlocker.add",
+          "humanBlocker.resolve",
+          "taskDependency.add",
+          "taskDependency.resolve",
+          "taskDependency.candidates",
+        ];
         return {
+          captured_at_unix_ms: Date.now(),
           route:
             location.pathname === route
               ? "original-task"
@@ -683,9 +716,40 @@ export async function blockerManagementFailure(page: Page, data?: Material) {
           pending: native?.pending ?? null,
           not_busy: native?.not_busy ?? null,
           native_failed: native?.failed ?? null,
+          // pending counts observer tails, not HTTP requests. Preserve only
+          // fixed endpoint/kind vocabulary and lifecycle booleans.
+          last_calls:
+            native?.calls.slice(-6).map((call) => ({
+              id: call.id,
+              kind: kinds.includes(call.kind) ? call.kind : "other",
+              endpoint: endpoint(call.path),
+              bound: call.bound,
+              settled: call.settled,
+              fulfilled: call.fulfilled,
+              rejected: call.rejected,
+            })) ?? [],
+          last_rows:
+            native?.rows.slice(-6).map((row) => ({
+              id: row.id,
+              call_id: row.call_id,
+              endpoint: endpoint(row.path),
+              status: row.status,
+              fetch_returned: row.fetch_returned,
+              fetch_rejected: row.fetch_rejected,
+              eof: row.eof,
+              closed: row.closed,
+              error: row.error,
+              reads: row.reads,
+              read_returns: row.read_returns,
+              release: row.release,
+            })) ?? [],
         };
       },
-      { route: data?.route ?? "" },
+      {
+        route: data?.route ?? "",
+        project: data?.project_id ?? "",
+        task: data?.task.id ?? "",
+      },
     );
   } catch {
     /* Preserve the original failure if the page has closed. */
@@ -701,7 +765,17 @@ export async function blockerManagementFailure(page: Page, data?: Material) {
   }
   writeFileSync(
     join(evidence, "task-blocker-management-failure.json"),
-    JSON.stringify({ dom, screenshot }, null, 2),
+    JSON.stringify(
+      {
+        observed_at_unix_ms: observedAt,
+        completed_at_unix_ms: Date.now(),
+        collecting: false,
+        dom,
+        screenshot,
+      },
+      null,
+      2,
+    ),
     { mode: 0o600 },
   );
 }

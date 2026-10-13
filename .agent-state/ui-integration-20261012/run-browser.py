@@ -590,7 +590,7 @@ def main():
                AGENTEAM_FIXTURE_TEST_BINARY=str(a.binary),
                AGENTEAM_FIXTURE_TEST_CWD=str(a.root / ('internal/central/app' if a.app_runtime_final_text or a.app_runtime_final_text_web or a.app_task_execution_read or a.app_task_execution_read_web or a.app_artifact_content or a.app_artifact_content_web or a.app_artifact_owner_http or a.app_artifact_owner_web or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle or a.app_human_artifact else 'tests/model' if a.project_usage_summary else 'tests/projectvariable')),
                AGENTEAM_FIXTURE_OWNED_RECORD=str(a.output / 'owned-resources.json'))
-    if a.task_cancel or a.sprint_complete_http or a.sprint_complete_cleanup or a.sprint_complete_web or a.runner_command or a.runner_write_file or a.app_runtime_final_text or a.app_runtime_final_text_web or a.app_task_execution_read or a.app_task_execution_read_web or a.task_reorder or a.app_artifact_content or a.app_artifact_content_web or a.app_artifact_owner_http or a.app_artifact_owner_web or a.app_human_artifact:
+    if a.task_blocker_http or a.task_blocker_web or a.task_cancel or a.sprint_complete_http or a.sprint_complete_cleanup or a.sprint_complete_web or a.runner_command or a.runner_write_file or a.app_runtime_final_text or a.app_runtime_final_text_web or a.app_task_execution_read or a.app_task_execution_read_web or a.task_reorder or a.app_artifact_content or a.app_artifact_content_web or a.app_artifact_owner_http or a.app_artifact_owner_web or a.app_human_artifact:
         # Ordinary task-owned scope: no live-provider environment or PG16.
         a.pg_current_only = True
         for name in tuple(env):

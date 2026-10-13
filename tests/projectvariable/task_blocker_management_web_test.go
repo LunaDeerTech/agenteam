@@ -102,6 +102,9 @@ type taskBlockerManagementWeb struct {
 	taskReads, blockerReads, timelineReads, candidateReads int
 	baselineEvents                                         int
 	after                                                  string
+	responseFailure                                        map[string]any
+	browserStarted                                         time.Time
+	browserReturned                                        bool
 }
 
 func newTaskBlockerManagementWeb(t *testing.T, a *agentCreateFixture, base *variableHTTPFixture, task, related wc.Task, username string) *taskBlockerManagementWeb {
@@ -211,11 +214,28 @@ func (w *taskBlockerManagementWeb) observe(r *http.Request) error {
 	*r = *r.WithContext(context.WithValue(r.Context(), blockerManagementIntentKey{}, in))
 	return nil
 }
-func (w *taskBlockerManagementWeb) response(r *http.Response) error {
+func (w *taskBlockerManagementWeb) response(r *http.Response) (err error) {
+	stage := "complete-response"
+	defer func() {
+		if err == nil {
+			return
+		}
+		observed := time.Now()
+		record := map[string]any{"observed_at_unix_ms": observed.UnixMilli(), "stage": stage, "error": blockerManagementSafeFailure(err), "context": blockerManagementSafeFailure(r.Request.Context().Err()), "status": r.StatusCode, "request_kind": w.failureRequestKind(r.Request)}
+		w.mu.Lock()
+		record["elapsed_node_ms"] = observed.Sub(w.browserStarted).Milliseconds()
+		record["before_node_return"] = !w.browserReturned
+		record["original_failure_already_set"] = w.failure != nil
+		if w.responseFailure == nil {
+			w.responseFailure = record
+		}
+		w.mu.Unlock()
+	}()
 	raw, err := w.completedResponse(r)
 	if err != nil {
 		return err
 	}
+	stage = "http-status"
 	if r.StatusCode != 200 {
 		return fmt.Errorf("original Blocker HTTP returned %d", r.StatusCode)
 	}
@@ -224,6 +244,7 @@ func (w *taskBlockerManagementWeb) response(r *http.Response) error {
 	defer w.mu.Unlock()
 	record := map[string]any{"request_id": r.Header.Get("X-Request-ID"), "method": r.Request.Method, "url_sha256": fmt.Sprintf("%x", sha256.Sum256([]byte(r.Request.URL.RequestURI()))), "status": 200, "content_length": len(raw), "body_sha256": fmt.Sprintf("%x", sha256.Sum256(raw)), "original_eof": true, "original_closed": true, "handler_returned": true}
 	if write {
+		stage = "command-facts"
 		in.requestID, err = f.ParseID[f.Request](r.Header.Get("X-Request-ID"))
 		if err != nil {
 			return err
@@ -254,9 +275,13 @@ func (w *taskBlockerManagementWeb) response(r *http.Response) error {
 				return err
 			}
 		}
-	} else if err = w.read(r.Request, raw); err != nil {
-		return err
+	} else {
+		stage = "read-facts"
+		if err = w.read(r.Request, raw); err != nil {
+			return err
+		}
 	}
+	stage = "evidence-write"
 	encoded, err := json.Marshal(record)
 	if err != nil {
 		return err
@@ -528,6 +553,9 @@ func (w *taskBlockerManagementWeb) browser(t *testing.T, parent context.Context)
 	var output bytes.Buffer
 	cmd.Stdout = &output
 	cmd.Stderr = &output
+	w.mu.Lock()
+	w.browserStarted = time.Now()
+	w.mu.Unlock()
 	if err = cmd.Start(); err != nil {
 		t.Fatal("Task Blocker Management Node did not start")
 	}
@@ -544,6 +572,9 @@ func (w *taskBlockerManagementWeb) browser(t *testing.T, parent context.Context)
 	}()
 	err = <-done
 	joined = true
+	w.mu.Lock()
+	w.browserReturned = true
+	w.mu.Unlock()
 	t.Logf("Task Blocker Management Node actual_wait pid=%d success=%t", cmd.Process.Pid, err == nil)
 	safe := output.String()
 	w.mu.Lock()
@@ -557,6 +588,7 @@ func (w *taskBlockerManagementWeb) browser(t *testing.T, parent context.Context)
 	}
 	t.Log(safe)
 	if err != nil {
+		w.saveFailure(t, ctx, err)
 		t.Fatal("original Task Blocker Management browser failed")
 	}
 }
@@ -593,4 +625,117 @@ func (w *taskBlockerManagementWeb) verify(t *testing.T, ctx context.Context) {
 		t.Fatal("Blocker original browser consumers not retired")
 	}
 	t.Log("Task Blocker Management defaultApp runtime disabled; assigned Todo waiting_for_human/rely_on Add2 Resolve2; state/assignee/rank retained; exact receipts, Timeline and postimages; all original tails joined")
+}
+
+// Failure-only projection: never persist an error's arbitrary message, URL,
+// response body, SQL text or credentials. The same original error is retained.
+func blockerManagementSafeFailure(err error) string {
+	if err == nil {
+		return "none"
+	}
+	if errors.Is(err, context.Canceled) {
+		return "cancelled"
+	}
+	if errors.Is(err, context.DeadlineExceeded) {
+		return "deadline"
+	}
+	if errors.Is(err, io.ErrUnexpectedEOF) {
+		return "unexpected-eof"
+	}
+	if errors.Is(err, io.EOF) {
+		return "eof"
+	}
+	var network net.Error
+	if errors.As(err, &network) {
+		if network.Timeout() {
+			return "network-timeout"
+		}
+		return "network"
+	}
+	switch err.Error() {
+	case "original App RoundTrip failed":
+		return "app-roundtrip"
+	case "original App response EOF/Close/length incomplete":
+		return "app-response-incomplete"
+	case "original App response identity invalid":
+		return "app-response-identity"
+	case "original App request identity repeated":
+		return "app-response-duplicate"
+	case "owned TLS downstream write failed":
+		return "tls-downstream-write"
+	case "original Sprint Start TLS EOF/Close/length incomplete":
+		return "tls-response-incomplete"
+	case "original Sprint Start response identity invalid":
+		return "tls-response-identity"
+	case "original Sprint Start handler absent":
+		return "original-handler-absent"
+	case "original Sprint Start handler has not returned":
+		return "original-handler-open"
+	}
+	var sql interface{ SQLState() string }
+	if errors.As(err, &sql) {
+		code := sql.SQLState()
+		if len(code) == 5 {
+			valid := true
+			for _, ch := range code {
+				if !(ch >= '0' && ch <= '9' || ch >= 'A' && ch <= 'Z') {
+					valid = false
+				}
+			}
+			if valid {
+				return "sql-" + code
+			}
+		}
+		return "sql-other"
+	}
+	var exit *exec.ExitError
+	if errors.As(err, &exit) {
+		return "child-exit"
+	}
+	return "other"
+}
+func (w *taskBlockerManagementWeb) saveFailure(t *testing.T, ctx context.Context, nodeErr error) {
+	t.Helper()
+	w.mu.Lock()
+	returned, open := 0, 0
+	for _, tail := range w.tails {
+		if tail.returned {
+			returned++
+		} else {
+			open++
+		}
+	}
+	record := map[string]any{"observed_at_unix_ms": time.Now().UnixMilli(), "node_started_at_unix_ms": w.browserStarted.UnixMilli(), "node_returned": w.browserReturned, "node_error": blockerManagementSafeFailure(nodeErr), "browser_context": blockerManagementSafeFailure(ctx.Err()), "original_failure": blockerManagementSafeFailure(w.failure), "response_failure": w.responseFailure, "handler_returned": returned, "handler_open": open, "writes": len(w.intents), "receipts": len(w.receipts), "task_reads": w.taskReads, "blocker_reads": w.blockerReads, "timeline_reads": w.timelineReads, "candidate_reads": w.candidateReads}
+	w.mu.Unlock()
+	raw, err := json.MarshalIndent(record, "", "  ")
+	if err == nil {
+		err = os.MkdirAll(w.evidence, 0700)
+	}
+	if err == nil {
+		err = os.WriteFile(filepath.Join(w.evidence, "task-blocker-management-go-failure.json"), raw, 0600)
+	}
+	if err != nil {
+		t.Error("Blocker safe failure evidence could not be preserved")
+	}
+	t.Logf("Task Blocker Management safe failure: %s", raw)
+}
+
+func (w *taskBlockerManagementWeb) failureRequestKind(r *http.Request) string {
+	if r.URL.Path == variableHTTPPath(w.initial.ProjectID, "/tasks") {
+		switch r.URL.Query().Get("state") {
+		case "backlog", "todo", "in_progress", "in_review", "blocked", "done", "cancelled":
+			return "task-list-" + r.URL.Query().Get("state")
+		}
+		return "task-list-other"
+	}
+	if r.URL.Path == w.path() {
+		return "task-detail"
+	}
+	if r.URL.Path == w.path()+"/blockers" {
+		return "task-blockers"
+	}
+	if r.URL.Path == w.path()+"/events" {
+		return "task-timeline"
+	}
+	return "other"
 }
