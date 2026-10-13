@@ -251,7 +251,8 @@
               "BLOCKER_NOT_FOUND",
               "BLOCKER_ALREADY_RESOLVED",
               "TASK_DEPENDENCY_CYCLE",
-              "LAST_BLOCKER_REQUIRES_TASK_TRANSITION"
+              "LAST_BLOCKER_REQUIRES_TASK_TRANSITION",
+              "TASK_BLOCKED_WITHOUT_BLOCKER"
             ]
           },
           "request_id": {

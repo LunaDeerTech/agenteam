@@ -27,6 +27,7 @@ import {
   type ReviewInput,
   type TransferInput,
   type CancelInput,
+  type TaskBlockResumeInput,
 } from '../api/work-review'
 import { captureSprintCreateDraft, type SprintCreateReceipt, type SprintLifecycleOperation } from '../api/work-sprint-lifecycle'
 import {
@@ -92,6 +93,7 @@ function explain(error: unknown): string {
     COMMENT_REQUIRED: '请填写评审说明。',
     TASK_ASSIGNEE_REQUIRED: '请选择接收此任务的 Agent。',
     RESOURCE_BUSY: '任务有尚未结束的操作，请稍后重新读取。',
+    TASK_BLOCKED_WITHOUT_BLOCKER: '当前任务没有未解决的阻塞，不能标记受阻。请重新读取。',
     DEPENDENCY_UNBOUND: '当前任务条件尚不支持此操作，请重新读取后确认。',
     INVALID_STATE: '任务当前状态不允许此操作，请重新读取。',
     TASK_DEPENDENCY_CYCLE: '该依赖会形成循环，请选择其他关联任务。',
@@ -206,8 +208,11 @@ export function createProjectTasks(
     action: TransferInput['request']['target_state'] | ''
     agentID: string
     comment: string
-  }>({ action: '', agentID: '', comment: '' })
+    resolveBlockerIDs: string[]
+  }>({ action: '', agentID: '', comment: '', resolveBlockerIDs: [] })
   let cancelScope: { projectID: string; taskID: string; version: string; identity: string; generation: number } | null = null
+
+  let blockScope: { projectID: string; taskID: string; version: string; identity: string; generation: number; source: 'todo' | 'blocked' } | null = null
 
   const creation = reactive<{
     open: boolean
@@ -896,6 +901,27 @@ export function createProjectTasks(
     cancelScope.projectID !== projectID.value || cancelScope.taskID !== state.task?.id ||
     cancelScope.version !== state.task?.version || cancelScope.generation !== generation ||
     cancelScope.identity !== identityKey(cancelScope.projectID)))
+  const canManageTaskBlocking = computed(() => !taskMutationLocked.value && !edit.open &&
+    !!state.sprint && ['planned', 'current'].includes(state.sprint.state) &&
+    !!state.task && ['todo', 'blocked'].includes(state.task.state))
+  const isBlockTransition = computed(() => draft.action === 'blocked' || (draft.action === 'todo' && !!blockScope))
+  const blockingStale = computed(() => isBlockTransition.value && (!blockScope ||
+    blockScope.projectID !== projectID.value || blockScope.taskID !== state.task?.id ||
+    blockScope.version !== state.task?.version || blockScope.source !== state.task?.state ||
+    blockScope.generation !== generation || blockScope.identity !== identityKey(blockScope.projectID)))
+  const unresolvedBlockers = computed(() => state.blockers.filter((item) => item.resolved_at === null))
+  const canSubmitTaskBlocking = computed(() => isBlockTransition.value && canManageTaskBlocking.value &&
+    !blockingStale.value && !busy.value && state.blockerPhase === 'ready' &&
+    (draft.comment === '' || !!draft.comment.trim()) && unresolvedBlockers.value.length > 0 &&
+    (draft.action === 'blocked' || (!state.blockerNext && unresolvedBlockers.value.length <= 16 &&
+      !!(draft.agentID || state.task?.assignee_agent_id) &&
+      draft.resolveBlockerIDs.length === unresolvedBlockers.value.length &&
+      unresolvedBlockers.value.every((item) => draft.resolveBlockerIDs.includes(item.id)))))
+  function selectBlockerResolution(id: string, checked: boolean) {
+    if (!isBlockTransition.value || draft.action !== 'todo' || busy.value || blockingStale.value ||
+        !unresolvedBlockers.value.some((item) => item.id === id)) return
+    draft.resolveBlockerIDs = checked ? [...new Set([...draft.resolveBlockerIDs, id])] : draft.resolveBlockerIDs.filter((item) => item !== id)
+  }
   const canCreate = computed(
     () =>
       visible.value &&
@@ -980,6 +1006,7 @@ export function createProjectTasks(
   const dirty = computed(
     () =>
       !!draft.comment ||
+      !!draft.resolveBlockerIDs.length ||
       !!draft.agentID ||
       creationDirty.value ||
       editDirty.value ||
@@ -1193,6 +1220,8 @@ export function createProjectTasks(
   }
   function clearDraft() {
     cancelScope = null
+    blockScope = null
+    draft.resolveBlockerIDs = []
     draft.action = ''
     draft.agentID = ''
     draft.comment = ''
@@ -1500,7 +1529,8 @@ export function createProjectTasks(
       },
       (error) => {
         if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0) &&
-          (humanBlocker.open || dependency.open || auth.workTaskBlockers?.progress?.taskID === task.id || auth.workTaskDependencies?.progress?.taskID === task.id)) {
+          (humanBlocker.open || dependency.open || isBlockTransition.value || auth.workTaskBlockers?.progress?.taskID === task.id || auth.workTaskDependencies?.progress?.taskID === task.id)) {
+          if (isBlockTransition.value) forgetCancelAccess(task.project_id, task.id)
           auth.workTaskBlockers?.forgetUnavailable(task.project_id, task.id)
           auth.workTaskDependencies?.forgetUnavailable(task.project_id, task.id)
           clearHumanBlocker()
@@ -3483,12 +3513,15 @@ export function createProjectTasks(
       await navigate(`${projectPath()}/tasks/sprints/${state.sprint.id}`)
   }
   function chooseAction(action: TransferInput['request']['target_state']) {
-    if ((action === 'cancelled' ? !canCancelTask.value : readOnly.value) || busy.value || edit.open) return
+    const blocking = action === 'blocked' || (action === 'todo' && state.task?.state === 'blocked')
+    if ((blocking ? !canManageTaskBlocking.value : action === 'cancelled' ? !canCancelTask.value : readOnly.value) || busy.value || edit.open || (!!draft.action && (blocking || isBlockTransition.value))) return
     const task = state.task
     if (
       !task ||
       !(
         (action === 'cancelled' && ['backlog', 'todo', 'in_progress', 'in_review', 'blocked'].includes(task.state)) ||
+        (task.state === 'todo' && action === 'blocked') ||
+        (task.state === 'blocked' && action === 'todo') ||
         (task.state === 'in_progress' && action === 'in_review') ||
         (task.state === 'backlog' && action === 'todo') ||
         (task.state === 'in_review' && ['todo', 'done'].includes(action))
@@ -3499,17 +3532,20 @@ export function createProjectTasks(
     draft.action = action
     if (action === 'cancelled') cancelScope = {projectID: task.project_id, taskID: task.id,
       version: task.version, identity: identityKey(task.project_id), generation}
+    if (blocking) blockScope = {projectID: task.project_id, taskID: task.id, version: task.version,
+      identity: identityKey(task.project_id), generation, source: task.state as 'todo' | 'blocked'}
     state.feedback = ''
   }
   function keepTask() {
-    if (busy.value || pending.value || draft.action !== 'cancelled') return
+    if (busy.value || pending.value || (draft.action !== 'cancelled' && !isBlockTransition.value)) return
     if (progress.value?.phase === 'rejected' && progress.value.contextValid)
       auth.workReview.editRejected()
     clearDraft()
   }
   function forgetCancelAccess(project: string, task?: string) {
     const removed = auth.workReview.forgetCancelUnavailable?.(project, task)
-    if (removed || (cancelScope?.projectID === project && (!task || cancelScope.taskID === task))) {
+    if (removed || (cancelScope?.projectID === project && (!task || cancelScope.taskID === task)) ||
+        (blockScope?.projectID === project && (!task || blockScope.taskID === task))) {
       clearDraft()
       state.task = null
       invalidateHumanBlockerReads()
@@ -3518,12 +3554,22 @@ export function createProjectTasks(
   async function submit() {
     const p = workspace.currentReadContext.value?.projectID,
       task = state.task
-    const cancelling = draft.action === 'cancelled', own = generation, identity = p ? identityKey(p) : ''
-    if (!p || !task || !draft.action || (cancelling ? !canCancelTask.value || cancelStale.value : readOnly.value) || busy.value || edit.open) return
+    const cancelling = draft.action === 'cancelled', blocking = isBlockTransition.value, target = draft.action, own = generation, identity = p ? identityKey(p) : ''
+    if (!p || !task || !draft.action || (blocking ? !canSubmitTaskBlocking.value : cancelling ? !canCancelTask.value || cancelStale.value : readOnly.value) || busy.value || edit.open) return
     const current = () => live(own, p) && identityKey(p) === identity && state.task?.id === task.id
     try {
       if (auth.workReview.progress?.phase === 'rejected') auth.workReview.editRejected()
-      if (draft.action === 'cancelled') {
+      if (blocking) {
+        const comment = draft.comment === '' ? {} : { comment: draft.comment }
+        const input: TaskBlockResumeInput = {
+          expected_version: blockScope!.version,
+          request: draft.action === 'blocked' ? { target_state: 'blocked', ...comment } : {
+            target_state: 'todo', resolve_blocker_ids: [...draft.resolveBlockerIDs],
+            ...(draft.agentID ? { assignee_agent_id: draft.agentID } : {}), ...comment,
+          },
+        }
+        await auth.workReview.startTransfer(p, task.id, input, task)
+      } else if (draft.action === 'cancelled') {
         const input: CancelInput = {
           expected_version: cancelScope!.version,
           request: {target_state: 'cancelled', ...(draft.comment === '' ? {} : {comment: draft.comment})},
@@ -3542,7 +3588,7 @@ export function createProjectTasks(
         const input: ReviewInput = {
           expected_version: task.version,
           request: {
-            target_state: draft.action,
+            target_state: draft.action as ReviewInput['request']['target_state'],
             comment: draft.comment,
             ...(draft.action === 'done' ? {} : { assignee_agent_id: draft.agentID }),
           },
@@ -3551,16 +3597,17 @@ export function createProjectTasks(
       }
       if (current()) {
         clearDraft()
-        state.feedback = cancelling ? '任务已取消。' : '任务状态已更新。'
+        state.feedback = cancelling ? '任务已取消。' : blocking ? (target === 'blocked' ? '任务已标记受阻。' : '所选阻塞已解除，任务已恢复待执行。') : '任务状态已更新。'
+        if (blocking) invalidateHumanBlockerReads()
         await refresh()
-        return cancelling && current() && state.detailCurrent && state.task?.state === 'cancelled'
+        return (cancelling || blocking) && current() && state.detailCurrent && state.task?.state === target
       }
     } catch (error) {
       if (current()) {
         state.message = cancelling && error instanceof AccountFailure && error.problem?.code === 'RESOURCE_BUSY'
           ? '当前任务或相关任务组仍有执行、待派发任务或其他操作占用，暂不能取消。请稍后重新读取；此操作不会取消 Execution。'
           : explain(error)
-        if (cancelling && error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
+        if ((cancelling || blocking) && error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
           forgetCancelAccess(p, task.id)
           state.task = null
           invalidateHumanBlockerReads()
@@ -3588,11 +3635,11 @@ export function createProjectTasks(
         original.kind === 'reorder' ? ('changed' in receipt && !receipt.changed ? '已确认原排序结果，任务顺序没有变化。' : '已确认原排序结果。') : original.kind === 'edit' && 'changed' in receipt && !receipt.changed
           ? '已确认原保存结果，任务内容没有变化。'
           : '已确认原操作结果。'
-      if (isBlocker) invalidateHumanBlockerReads()
+      if (isBlocker || original.kind === 'review') invalidateHumanBlockerReads()
       await refresh()
       if (['edit', 'reorder'].includes(original.kind) && live(own, original.projectID) && state.phase === 'error')
         state.message = `${state.feedback} ${state.message}`
-      return (isBlocker || original.kind === 'reorder' || (original.kind === 'review' && receipt.task.state === 'cancelled')) && live(own, original.projectID) && state.task?.id === original.taskID && state.detailCurrent
+      return (isBlocker || original.kind === 'reorder' || (original.kind === 'review' && ['cancelled', 'blocked', 'todo'].includes(receipt.task.state))) && live(own, original.projectID) && state.task?.id === original.taskID && state.detailCurrent
     } catch (error) {
       if (live(own, original.projectID) && state.task?.id === original.taskID) {
         state.message = explain(error)
@@ -4216,6 +4263,7 @@ export function createProjectTasks(
     clearSearch,
     draft,
     canCancelTask,
+    canManageTaskBlocking, isBlockTransition, blockingStale, unresolvedBlockers, canSubmitTaskBlocking, selectBlockerResolution,
     cancelStale,
     keepTask,
     creation,

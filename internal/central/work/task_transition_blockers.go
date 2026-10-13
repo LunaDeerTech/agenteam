@@ -58,7 +58,7 @@ func transitionEdge(before c.Task, request c.TaskTransfer) error {
 		return fault(f.DependencyUnbound)
 	}
 	switch {
-	case transitionCancelEdge(before, request):
+	case transitionCancelEdge(before, request), transitionBlockEdge(before, request):
 		// This capability changes state only. Retain the historical assignee
 		// (including nil) and every Blocker; no new assignment or resolution.
 		if request.AssigneeAgentID != nil || len(request.ResolveBlockerIDs) != 0 {
@@ -96,10 +96,14 @@ func transitionCancelEdge(before c.Task, request c.TaskTransfer) bool {
 	return request.TargetState == c.TaskStateCancelled && before.State.Validate() == nil && !before.State.Terminal()
 }
 
-// Cancelling does not select an Agent for new work. Retaining an old assignment
-// therefore requires no current-Agent fact, just like an omitted done reviewer.
+func transitionBlockEdge(before c.Task, request c.TaskTransfer) bool {
+	return before.State == c.TaskStateTodo && request.TargetState == c.TaskStateBlocked
+}
+
+// Cancelling or blocking does not select an Agent for new work. Retaining an
+// old assignment requires no current-Agent fact, like an omitted done reviewer.
 func transitionRetainsAssignee(before c.Task, request c.TaskTransfer) bool {
-	return transitionRetainsReviewer(before, request) || transitionCancelEdge(before, request) && request.AssigneeAgentID == nil
+	return transitionRetainsReviewer(before, request) || (transitionCancelEdge(before, request) || transitionBlockEdge(before, request)) && request.AssigneeAgentID == nil
 }
 
 func transitionReviewEdge(before c.Task, request c.TaskTransfer) bool {
@@ -157,6 +161,9 @@ func prepareTransitionResolutions(ctx context.Context, x postgres.SQLExecutor, i
 	}
 	if in.Request.TargetState == c.TaskStateTodo && remaining != int64(len(out)) {
 		return nil, at, field(f.InvalidState, "/task_id", "UNRESOLVED_BLOCKERS")
+	}
+	if in.Request.TargetState == c.TaskStateBlocked && remaining == int64(len(out)) {
+		return nil, at, fault(f.TaskBlockedWithoutBlocker)
 	}
 	for n := range out {
 		b := out[n].Before.Clone()
@@ -225,14 +232,14 @@ func verifyTransitionResolutions(ctx context.Context, x postgres.SQLExecutor, r 
 			return fault(f.Forbidden)
 		}
 	}
-	if len(r.Plan.Resolutions) == 0 {
+	if len(r.Plan.Resolutions) == 0 && r.Input.Request.TargetState != c.TaskStateBlocked {
 		return nil
 	}
 	var linked, unresolved int64
 	if err := x.QueryRow(ctx, `SELECT count(*) FILTER(WHERE resolved_transition_operation_id=$3),count(*) FILTER(WHERE resolved_at IS NULL) FROM agenteam_work.task_blockers WHERE project_id=$1 AND task_id=$2`, r.Input.Project.String(), r.Input.Task.String(), r.ID.String()).Scan(&linked, &unresolved); err != nil {
 		return taskSQL(err)
 	}
-	if linked != int64(len(r.Plan.Resolutions)) || unresolved < 0 || r.Input.Request.TargetState == c.TaskStateTodo && unresolved != 0 {
+	if linked != int64(len(r.Plan.Resolutions)) || unresolved < 0 || r.Input.Request.TargetState == c.TaskStateTodo && unresolved != 0 || r.Input.Request.TargetState == c.TaskStateBlocked && unresolved == 0 {
 		return fault(f.Forbidden)
 	}
 	return nil

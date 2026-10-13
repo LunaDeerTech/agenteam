@@ -105,6 +105,8 @@ const endpoints = {
     '/api/v1/projects/{project_id}/knowledge/documents/commands/lookup',
     200,
   ],
+  knowledgeMove: ['POST', '/api/v1/projects/{project_id}/knowledge/documents/{target}/move', 200],
+  knowledgeMoveLookup: ['POST', '/api/v1/projects/{project_id}/knowledge/documents/commands/lookup', 200],
   knowledgeRename: [
     'POST',
     '/api/v1/projects/{project_id}/knowledge/documents/{target}/rename',
@@ -1154,6 +1156,8 @@ const knowledgeTextEndpoints = [
   'knowledgeTextLookup',
 ] as const
 const knowledgeCommandEndpoints = [
+  'knowledgeMove',
+  'knowledgeMoveLookup',
   'knowledgeDeletePreview',
   'knowledgeDelete',
   'knowledgeDeleteLookup',
@@ -1169,6 +1173,7 @@ type KnowledgeCommandOptions<E extends KnowledgeCommandEndpoint> = {
   csrf: string
 } & (E extends 'knowledgeDeletePreview' ? { key?: never } : { key: string }) &
   (E extends
+    | 'knowledgeMove'
     | 'knowledgeRename'
     | 'knowledgeTextCreate'
     | 'knowledgeTextReplace'
@@ -2080,7 +2085,8 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
         const rename =
           endpoint !== 'knowledgeRenameLookup' &&
           endpoint !== 'knowledgeTextLookup' &&
-          endpoint !== 'knowledgeDeleteLookup'
+          endpoint !== 'knowledgeDeleteLookup' &&
+          endpoint !== 'knowledgeMoveLookup'
         shape(options, [
           'signal',
           'projectID',
