@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	"github.com/LunaDeerTech/agenteam/internal/central/audit"
 	auditc "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
@@ -201,6 +202,51 @@ func taskExecutionFacts(t *testing.T, v *workAppFixture) string {
 	return string(raw)
 }
 
+// Finish the formal foreign-account seed before measuring read-only behavior.
+// Redeem removes the invitation reference and queues its credential deletion;
+// otherwise the next default App's Account.Start legitimately recovers it.
+func taskExecutionRecoverForeignInvitation(t *testing.T, v *workAppFixture) {
+	t.Helper()
+	var cleanup, owner, credential, digest string
+	var count int
+	workAppCheck(t, "execution-foreign-invitation-cleanup-source", v.admin.QueryRow(v.ctx, `SELECT c.id::text,c.owner_id::text,c.credential_id::text,c.secret_command_digest,count(*) OVER()
+ FROM agenteam_account.material_cleanup c
+ JOIN agenteam_account.commands created ON created.resource_id=c.owner_id AND created.command_name='invite-create'
+ JOIN agenteam_account.commands redeemed ON redeemed.resource_id=c.owner_id AND redeemed.command_name='invite-redeem'
+ JOIN agenteam_account.users u ON u.id=redeemed.user_id
+ WHERE c.owner_kind='invitation' AND c.purpose='system' AND c.version=1 AND c.phase IN ('delete','completed')
+ AND created.phase='committed' AND created.actor_kind='human' AND created.user_id=$1::uuid AND created.session_id=$2::uuid
+ AND redeemed.phase='committed' AND redeemed.result_code='COMPLETED' AND redeemed.actor_kind='browser'
+ AND u.username='artifact-reader' AND u.email='artifact-reader@example.com'`, v.actor.Details().UserID, v.actor.Details().SessionID).Scan(&cleanup, &owner, &credential, &digest, &count))
+	if count != 1 {
+		t.Fatal("foreign invitation cleanup is not uniquely bound to its formal commands")
+	}
+	key, err := f.NewCommandIdentity("secret.account", []string{owner}, "delete", f.IdempotencyKey(cleanup))
+	workAppCheck(t, "execution-invitation-cleanup-identity", err)
+	appendKey, err := audit.CommandAppendKey(auditc.SecretProducer, key, 0)
+	workAppCheck(t, "execution-invitation-cleanup-audit-key", err)
+	if appendKey.Details().CauseRef != digest {
+		t.Fatal("foreign invitation cleanup lost its original command identity")
+	}
+	_, err = v.root.core.Recover(v.ctx)
+	workAppCheck(t, "execution-foreign-invitation-original-recovery-return", err)
+	var completed bool
+	workAppCheck(t, "execution-foreign-invitation-original-deletion", v.admin.QueryRow(v.ctx, `SELECT EXISTS(
+ SELECT 1 FROM agenteam_account.material_cleanup c
+ JOIN agenteam_secret.secret_command_receipts r ON r.command_digest=c.secret_command_digest AND r.credential_id=c.credential_id
+ JOIN agenteam_audit.audit_records a ON a.service_cause=c.id::text AND a.cause_ref=c.secret_command_digest AND a.resource_id=c.credential_id
+ WHERE c.id=$1::uuid AND c.owner_id=$2::uuid AND c.credential_id=$3::uuid AND c.secret_command_digest=$4
+ AND c.owner_kind='invitation' AND c.purpose='system' AND c.version=1 AND c.phase='completed' AND c.completed_at IS NOT NULL
+ AND r.scope='system' AND r.project_id IS NULL AND r.mutation_kind='delete' AND r.purpose='system' AND r.result_version=2 AND r.deleted
+ AND a.scope='system' AND a.project_id IS NULL AND a.actor_kind='service' AND a.service_name=$5
+ AND a.producer='secret' AND a.action='secret.delete' AND a.outcome='success' AND a.resource_kind='secret' AND a.ordinal=0
+ AND a.metadata='{"version":"2"}'::jsonb AND a.xmin=r.xmin
+ AND NOT EXISTS(SELECT 1 FROM agenteam_secret.secrets s WHERE s.id=c.credential_id))`, cleanup, owner, credential, digest, string(id.AccountMaintenance)).Scan(&completed))
+	if !completed {
+		t.Fatal("foreign invitation cleanup lacks its exact original deletion and audit transaction")
+	}
+}
+
 // Diagnose only the already-captured snapshots. Keep the original full
 // equality assertion and never emit records, identifiers, bodies or secrets.
 func taskExecutionFactDifferences(t *testing.T, before, after string) {
@@ -372,6 +418,7 @@ func taskExecutionReadApp(t *testing.T) {
 		t.Fatal("formal second Task receipt differs")
 	}
 	foreign := artifactOwnerHTTPForeignClient(t, &humanArtifactApp{workAppFixture: v.workAppFixture})
+	taskExecutionRecoverForeignInvitation(t, v.workAppFixture)
 	before := taskExecutionFacts(t, v.workAppFixture)
 	page := taskExecutionGet(t, v.workAppFixture, v.client, v.cookie, "GET", list+"?limit=1", 200)
 	taskExecutionPage(t, page.body, []ec.TaskExecution{expected})
