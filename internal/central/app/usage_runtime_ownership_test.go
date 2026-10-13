@@ -14,6 +14,7 @@ import (
 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/usage"
 	uc "github.com/LunaDeerTech/agenteam/internal/central/usage/contract"
 )
 
@@ -236,8 +237,12 @@ func TestUsageProjectCallAppUnknownAndLateInstall(t *testing.T) {
 	s := &usageOwnedAppStore{unknown: true, attempt: updateRootID[f.TransactionAttempt]()}
 	v := newUsageOwnedAppFixture(t, s)
 	call := usageOwnedAppEntries(v.owned, variableAppActor(t), updateRootID[i.Project]())[0]
-	original := variableAppFault(t, call(), f.CommitUnknown)
-	if original.CauseID != s.attempt.String() || original.CommitState != f.Unknown {
+	originalErr := call()
+	original := variableAppFault(t, originalErr, f.CommitUnknown)
+	var unknown *usage.UnknownError
+	registered, _ := s.snapshot()
+	if !errors.As(originalErr, &unknown) || unknown.AttemptID() != s.attempt || original.CommitState != f.Unknown ||
+		len(registered) != 1 || unknown.Cause().Kind() != f.RecoveryCause || !reflect.DeepEqual(unknown.Cause().Details(), registered[0].Details()) {
 		t.Fatal("raw registration identity lost")
 	}
 	root := &accountAssembly{constructing: true}
