@@ -51,8 +51,13 @@ const fault = (code: string, status = 401) =>
     commit_state: code === 'COMMIT_UNKNOWN' ? 'unknown' : 'not_started',
   })
 let wrapper: VueWrapper | undefined
-async function page(path = '/login', unavailable = false) {
+async function page(
+  path = '/login',
+  unavailable = false,
+  initialSession?: () => Promise<SessionView>,
+) {
   let signedIn = false
+  let currentView = view
   const api = {
     getProfile: vi.fn<AccountAPI['getProfile']>(async () => {
       throw new Error('unexpected personal request')
@@ -101,7 +106,7 @@ async function page(path = '/login', unavailable = false) {
     getSession: vi.fn<AccountAPI['getSession']>(async () => {
       if (unavailable) throw fault('DEPENDENCY_UNAVAILABLE', 503)
       if (!signedIn) throw fault('UNAUTHENTICATED')
-      return view
+      return currentView
     }),
     login: vi.fn<AccountAPI['login']>(async () => {
       signedIn = true
@@ -121,6 +126,12 @@ async function page(path = '/login', unavailable = false) {
       pass: id + '.' + 'P'.repeat(43),
     })),
   }
+  if (initialSession)
+    api.getSession.mockImplementationOnce(async () => {
+      currentView = await initialSession()
+      signedIn = true
+      return currentView
+    })
   selected.auth = createSessionController(api)
   const router = createRouter({
     history: createMemoryHistory(),
@@ -132,6 +143,11 @@ async function page(path = '/login', unavailable = false) {
         meta: { authentication: true, protected: true },
       },
       { path: '/login', name: 'login', component: LoginView, meta: { authentication: true } },
+      {
+        path: '/settings/password',
+        component: { template: '<h1>密码设置</h1>' },
+        meta: { authentication: true, protected: true },
+      },
       { path: '/debug', component: { template: '<p>Development</p>' } },
       { path: '/:pathMatch(.*)*', component: NotFoundView },
     ],
@@ -139,9 +155,10 @@ async function page(path = '/login', unavailable = false) {
   installAuthentication(router, selected.auth)
   await router.push(path)
   await router.isReady()
+  const phaseAtMount = selected.auth.state.phase
   wrapper = mount(App, { attachTo: document.body, global: { plugins: [router] } })
   await flushPromises()
-  return { api, router, auth: selected.auth, wrapper }
+  return { api, router, auth: selected.auth, wrapper, phaseAtMount }
 }
 afterEach(() => {
   wrapper?.unmount()
@@ -151,6 +168,40 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 describe('formal authentication pages', () => {
+  it.each([
+    ['/settings/password', '/settings/password'],
+    ['https://other.example/settings/password', '/'],
+  ])('redirects an already confirmed session on mount with return %s', async (target, expected) => {
+    const admin = { ...view, user: { ...view.user, role: 'admin' as const } }
+    const p = await page('/login?return=' + encodeURIComponent(target), false, async () => admin)
+    expect(p.phaseAtMount).toBe('authenticated')
+    expect(p.router.currentRoute.value.path).toBe(expected)
+    expect(p.wrapper.find('#login-email').exists()).toBe(false)
+    expect(p.api.login).not.toHaveBeenCalled()
+    expect(p.api.bootstrap).not.toHaveBeenCalled()
+    if (expected === '/') {
+      expect(p.wrapper.get('h1').text()).toBe('首页')
+      expect(p.wrapper.text()).toContain('你正在使用初始密码')
+      expect(p.wrapper.get('.home-view a[href="/settings/password"]').text()).toBe('修改密码')
+    } else expect(p.wrapper.get('h1').text()).toBe('密码设置')
+  })
+  it('redirects when the background session completes after the login form mounts', async () => {
+    let resolve!: (value: SessionView) => void
+    const initial = new Promise<SessionView>((done) => {
+      resolve = done
+    })
+    const p = await page('/login?return=%2Fsettings%2Fpassword', false, () => initial)
+    expect(p.phaseAtMount).toBe('checking')
+    expect(p.router.currentRoute.value.path).toBe('/login')
+    expect(p.wrapper.find('#login-email').exists()).toBe(true)
+    expect(p.wrapper.find('[role="alert"]').exists()).toBe(false)
+    resolve(view)
+    await flushPromises()
+    expect(p.router.currentRoute.value.path).toBe('/settings/password')
+    expect(p.wrapper.get('h1').text()).toBe('密码设置')
+    expect(p.api.login).not.toHaveBeenCalled()
+    expect(p.api.bootstrap).not.toHaveBeenCalled()
+  })
   it('has a real labelled form and protected home, preserves password bytes, confirms and logs out', async () => {
     const p = await page()
     expect(p.wrapper.find('.system-nav').exists()).toBe(false)
@@ -173,27 +224,64 @@ describe('formal authentication pages', () => {
     expect(p.wrapper.find('a[href="/settings/profile"]').exists()).toBe(true)
     expect(p.wrapper.find('a[href="/settings/password"]').exists()).toBe(true)
     expect(p.wrapper.find('a[href*="project"]').exists()).toBe(false)
-    // Initial restore, login confirmation, and the single protected navigation.
-    expect(p.api.getSession).toHaveBeenCalledTimes(3)
+    // Silent entry, submit preparation, login confirmation and protected navigation.
+    expect(p.api.getSession).toHaveBeenCalledTimes(4)
     await p.wrapper.get('.account-actions button').trigger('click')
     await flushPromises()
     expect(p.router.currentRoute.value.path).toBe('/login')
     expect(p.auth.state.phase).toBe('anonymous')
     expect(p.api.logout).toHaveBeenCalledTimes(1)
-    expect(p.api.getSession).toHaveBeenCalledTimes(4)
-    // The logout Cookie owner must release before the new anonymous bootstrap.
-    expect(p.api.bootstrap.mock.calls.length).toBeGreaterThan(1)
+    expect(p.api.getSession).toHaveBeenCalledTimes(5)
+    // Anonymous preparation belongs to an explicit login, not the returned login screen.
+    expect(p.api.bootstrap).toHaveBeenCalledTimes(1)
     expect(p.wrapper.get('#login-password').element).toHaveProperty('value', '')
   })
-  it('hides protected contents when authority is unavailable and provides explicit recovery', async () => {
+  it('keeps unavailable entry silent until submitting and preserves the form after failure', async () => {
     const p = await page('/', true)
     expect(p.router.currentRoute.value.path).toBe('/login')
     expect(p.wrapper.find('[aria-label="Dashboard"]').exists()).toBe(false)
-    expect(p.wrapper.find('#login-password').exists()).toBe(false)
-    expect(p.wrapper.text()).toContain('检查当前会话')
+    expect(p.wrapper.find('#login-password').exists()).toBe(true)
+    expect(p.wrapper.find('[role="alert"]').exists()).toBe(false)
+    expect(p.wrapper.find('[role="dialog"]').exists()).toBe(false)
+    expect(p.wrapper.get('button[type="submit"]').attributes('disabled')).toBeUndefined()
+    expect(p.wrapper.text()).not.toMatch(/检查当前会话|放弃原请求|重新检查/)
     expect(p.api.bootstrap).not.toHaveBeenCalled()
+    const password = '  Preserved 密码 12345  '
+    await p.wrapper.get('#login-email').setValue(view.user.email)
+    await p.wrapper.get('#login-password').setValue(password)
+    await p.wrapper.get('form').trigger('submit')
+    await flushPromises()
+    const feedback = p.wrapper.get('form [role="alert"]')
+    expect(feedback.text()).toBe('暂时无法连接登录服务，请重试。')
+    expect(feedback.element.nextElementSibling).toBe(p.wrapper.get('button[type="submit"]').element)
+    expect(p.wrapper.get('#login-email').element).toHaveProperty('value', view.user.email)
+    expect(p.wrapper.get('#login-password').element).toHaveProperty('value', password)
+    expect(p.api.login).not.toHaveBeenCalled()
+    expect(p.wrapper.get('button[type="submit"]').attributes('disabled')).toBeUndefined()
   })
-  it('keeps Unknown inputs locked and offers an explicit original-request retry without optimistic success', async () => {
+  it('shows an editable form during the initial check and lets one submit await that check', async () => {
+    let reject!: (error: unknown) => void
+    const initial = new Promise<SessionView>((_, fail) => {
+      reject = fail
+    })
+    const p = await page('/login', false, () => initial)
+    expect(p.wrapper.find('[role="alert"]').exists()).toBe(false)
+    expect(p.wrapper.get('#login-password').attributes('readonly')).toBeUndefined()
+    expect(p.wrapper.get('button[type="submit"]').attributes('disabled')).toBeUndefined()
+    await p.wrapper.get('#login-email').setValue(view.user.email)
+    await p.wrapper.get('#login-password').setValue('OriginalPassword123')
+    await p.wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(p.wrapper.get('button[type="submit"]').attributes('aria-busy')).toBe('true')
+    expect(p.wrapper.get('button[type="submit"]').attributes('aria-label')).toBe('登录中')
+    expect(p.api.login).not.toHaveBeenCalled()
+    await p.wrapper.get('form').trigger('submit')
+    reject(fault('UNAUTHENTICATED'))
+    await flushPromises()
+    expect(p.api.login).toHaveBeenCalledTimes(1)
+    expect(p.router.currentRoute.value.path).toBe('/')
+  })
+  it('keeps Unknown inputs locked and retries through the login button without optimistic success', async () => {
     const p = await page()
     p.api.login.mockRejectedValue(fault('COMMIT_UNKNOWN', 503))
     const local = vi.spyOn(Storage.prototype, 'setItem')
@@ -204,10 +292,10 @@ describe('formal authentication pages', () => {
     expect(p.auth.state.phase).toBe('uncertain')
     expect(p.wrapper.get('#login-password').attributes()).toHaveProperty('readonly')
     expect(p.wrapper.find('[aria-label="Dashboard"]').exists()).toBe(false)
-    const retry = p.wrapper
-      .findAll('button')
-      .find((button) => button.text().includes('重试原请求'))!
-    await retry.trigger('click')
+    expect(p.wrapper.get('form [role="alert"]').text()).toContain('暂时无法确认登录结果')
+    expect(p.wrapper.text()).not.toMatch(/检查当前会话|重试原请求|放弃原请求/)
+    expect(p.wrapper.get('button[type="submit"]').attributes('disabled')).toBeUndefined()
+    await p.wrapper.get('form').trigger('submit')
     await flushPromises()
     expect(p.api.login).toHaveBeenCalledTimes(2)
     expect(
@@ -228,44 +316,32 @@ describe('formal authentication pages', () => {
     expect(safeReturnTarget('/projects/123')).toBe('/projects/123')
     expect(safeReturnTarget('/')).toBe('/')
   })
-  for (const reason of ['abandon', 'csrf'])
-    it(`clears unnecessary form material after ${reason} while preserving ordinary credential failures`, async () => {
-      const p = await page()
-      p.api.login.mockRejectedValueOnce(
-        fault(
-          reason === 'abandon' ? 'COMMIT_UNKNOWN' : 'CSRF_FAILED',
-          reason === 'abandon' ? 503 : 403,
-        ),
-      )
-      await p.wrapper.get('#login-email').setValue(view.user.email)
-      await p.wrapper.get('#login-password').setValue('Old-Original-Password-83!')
-      await p.wrapper.get('form').trigger('submit')
-      await flushPromises()
-      const action = reason === 'abandon' ? '放弃原请求' : '检查当前会话'
-      await p.wrapper
-        .findAll('button')
-        .find((button) => button.text().includes(action))!
-        .trigger('click')
-      await flushPromises()
-      expect(p.auth.state.phase).toBe('anonymous')
-      expect(p.wrapper.get('#login-email').element).toHaveProperty('value', '')
-      expect(p.wrapper.get('#login-password').element).toHaveProperty('value', '')
-      expect(p.auth.state.canRetryOriginal).toBe(false)
-      await p.auth.retryOriginal()
-      expect(p.api.login).toHaveBeenCalledTimes(1)
-      p.api.login.mockRejectedValueOnce(fault('UNAUTHENTICATED'))
-      const replacement = 'New-Explicit-Password-92!'
-      await p.wrapper.get('#login-email').setValue('new@example.com')
-      await p.wrapper.get('#login-password').setValue(replacement)
-      await p.wrapper.get('form').trigger('submit')
-      await flushPromises()
-      expect(p.api.login).toHaveBeenCalledTimes(2)
-      expect(p.api.login.mock.calls[1][0].password === replacement).toBe(true)
-      expect(p.api.login.mock.calls[1][2] !== p.api.login.mock.calls[0][2]).toBe(true)
-      expect(
-        (p.wrapper.get('#login-password').element as HTMLInputElement).value === replacement,
-      ).toBe(true)
-    })
+  it('prepares an expired login again from the same button while retaining the entered credentials', async () => {
+    const p = await page()
+    p.api.login.mockRejectedValueOnce(fault('CSRF_FAILED', 403))
+    await p.wrapper.get('#login-email').setValue(view.user.email)
+    await p.wrapper.get('#login-password').setValue('Old-Original-Password-83!')
+    await p.wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(p.wrapper.get('#login-email').element).toHaveProperty('value', view.user.email)
+    expect(p.wrapper.get('#login-password').element).toHaveProperty(
+      'value',
+      'Old-Original-Password-83!',
+    )
+    expect(p.api.login).toHaveBeenCalledTimes(1)
+    p.api.login.mockRejectedValueOnce(fault('UNAUTHENTICATED'))
+    const replacement = 'New-Explicit-Password-92!'
+    await p.wrapper.get('#login-email').setValue('new@example.com')
+    await p.wrapper.get('#login-password').setValue(replacement)
+    await p.wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(p.api.login).toHaveBeenCalledTimes(2)
+    expect(p.api.login.mock.calls[1][0].password === replacement).toBe(true)
+    expect(p.api.login.mock.calls[1][2] !== p.api.login.mock.calls[0][2]).toBe(true)
+    expect(
+      (p.wrapper.get('#login-password').element as HTMLInputElement).value === replacement,
+    ).toBe(true)
+  })
   for (const cause of ['rejected', 'timeout'])
     it(`restores the challenge action focus after ${cause} without claiming verification`, async () => {
       const p = await page()
@@ -303,7 +379,7 @@ describe('formal authentication pages', () => {
       await flushPromises()
       expect(p.auth.state.passReady).toBe(false)
     })
-  it('offers one explicit Session recovery after an old login tail settles on a returned auth route', async () => {
+  it('uses the login button to recover after an old login tail settles on a returned auth route', async () => {
     const p = await page()
     let release!: (value: {
       user: typeof view.user
@@ -321,25 +397,26 @@ describe('formal authentication pages', () => {
     await p.wrapper.get('form').trigger('submit')
     await flushPromises()
     expect(p.api.login).toHaveBeenCalledTimes(1)
+    const previousChecks = p.api.getSession.mock.calls.length
     await p.router.push('/no-such-page')
     await p.router.push('/login')
     await flushPromises()
     expect(p.auth.state.busy).toBe(true)
-    expect(p.api.getSession).toHaveBeenCalledTimes(1)
+    expect(p.api.getSession).toHaveBeenCalledTimes(previousChecks)
     release({ user: view.user, session: view.session, next_path: '/' })
     await flushPromises()
     expect(p.auth.state.busy).toBe(false)
     expect(p.auth.state.user).toBe(null)
     expect(p.wrapper.find('[aria-label="Dashboard"]').exists()).toBe(false)
-    const recovery = p.wrapper
-      .findAll('button')
-      .find((button) => button.text().includes('检查当前会话'))
-    expect(recovery !== undefined).toBe(true)
+    expect(p.wrapper.find('[role="alert"]').exists()).toBe(false)
+    expect(p.wrapper.text()).not.toContain('检查当前会话')
     p.api.getSession.mockResolvedValue(view)
-    await recovery!.trigger('click')
+    await p.wrapper.get('#login-email').setValue(view.user.email)
+    await p.wrapper.get('#login-password').setValue('Original-Password-92!')
+    await p.wrapper.get('form').trigger('submit')
     await flushPromises()
     expect(p.router.currentRoute.value.path).toBe('/')
-    expect(p.api.getSession).toHaveBeenCalledTimes(3)
+    expect(p.api.getSession).toHaveBeenCalledTimes(previousChecks + 2)
     expect(p.api.login).toHaveBeenCalledTimes(1)
   })
   it('focuses an enabled new challenge, returns successful verification to login, and never steals edited-input focus', async () => {

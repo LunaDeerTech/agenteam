@@ -1780,12 +1780,14 @@ export function createSessionController(
       clearIdentity(false)
       state.phase = pending ? 'uncertain' : 'unavailable'
       state.notice = op.confirmed
-        ? '登录响应已接收，但当前会话尚未确认。请检查当前会话。'
+        ? '暂时无法确认登录结果，请重试。'
         : '暂时无法确认当前会话，请重试检查。'
     } else if (isUnknown(e)) {
       pending = true
       state.phase = 'uncertain'
-      state.notice = '请求结果尚未确认。可以检查当前会话，或在原上下文中重试原请求。'
+      state.notice = op.kind === 'login'
+        ? '暂时无法确认登录结果，请重试。'
+        : '请求结果尚未确认。可以检查当前会话，或在原上下文中重试原请求。'
     } else if (pending) {
       // A later rejected replay is not a negative observation of the earlier write.
       if (e.problem?.code === 'CSRF_FAILED') {
@@ -1795,7 +1797,9 @@ export function createSessionController(
       if (op.kind === 'logout' && unavailableSession(e)) clearIdentity()
       state.phase = 'uncertain'
       state.notice =
-        '原请求结果仍未确认，当前上下文无法继续该次操作。可以检查当前会话或明确重新建立登录上下文。'
+        op.kind === 'login'
+          ? '暂时无法确认登录结果，请重试。'
+          : '原请求结果仍未确认，当前上下文无法继续该次操作。可以检查当前会话或明确重新建立登录上下文。'
     } else if (
       ['CHALLENGE_REQUIRED', 'CHALLENGE_INVALID'].includes(e.problem?.code ?? '') &&
       op.kind === 'login'
@@ -1809,7 +1813,9 @@ export function createSessionController(
       clearIdentity()
       forgetIntent()
       state.phase = 'unavailable'
-      state.notice = '认证上下文已失效，请重新建立登录上下文。'
+      state.notice = op.kind === 'login'
+        ? '登录验证已失效，请重试。'
+        : '认证上下文已失效，请重新建立登录上下文。'
     } else if (e.problem?.code === 'IDEMPOTENCY_KEY_REUSED') {
       state.phase = 'unavailable'
       state.notice = '原请求标识与输入不一致。请检查后明确重新建立登录上下文。'
@@ -1830,7 +1836,9 @@ export function createSessionController(
         ? '邮箱或密码不正确。'
         : e.kind === 'invalid-input'
           ? '请检查邮箱和密码格式。密码须保留原输入。'
-          : e.problem?.detail || '登录未完成，请重试。'
+          : e.problem?.status === 429
+            ? '登录尝试过于频繁，请稍后重试。'
+            : '暂时无法连接登录服务，请重试。'
     }
     state.canRetryOriginal = canRetry()
   }
@@ -1883,7 +1891,7 @@ export function createSessionController(
     deliveryChannel = result.delivery_channel
     state.phase = 'anonymous'
   }
-  function restore(): Promise<SessionRestoreResult | null> {
+  function restore(prepareAnonymous = true): Promise<SessionRestoreResult | null> {
     if (owner?.kind === 'restore' && restoration) return restoration
     let accepted: {
       op: Operation
@@ -1943,7 +1951,8 @@ export function createSessionController(
           return
         }
         forgetIntent()
-        await bootstrap(op)
+        if (prepareAnonymous) await bootstrap(op)
+        else state.phase = 'anonymous'
       }
     })
     const restored: Promise<SessionRestoreResult | null> = original
@@ -2005,7 +2014,7 @@ export function createSessionController(
       publish(view)
     })
   }
-  function login(email: string, password: string) {
+  function beginLogin(email: string, password: string) {
     if (owner || entryIntent || state.challengeBusy || pending) return Promise.resolve()
     if (!anonymousCSRF) {
       state.notice = '请先确认当前登录上下文。'
@@ -2028,6 +2037,53 @@ export function createSessionController(
       state.notice = '无法安全建立登录请求，请检查浏览器环境。'
       return Promise.resolve()
     }
+  }
+  function login(email: string, password: string): Promise<void> {
+    if (entryIntent || state.challengeBusy) return Promise.resolve()
+    if (owner) {
+      if (owner.kind !== 'restore') return Promise.resolve()
+      const preparation = owner
+      // A click during the initial check joins its actual Cookie lane. The
+      // captured input must not outlive navigation or a different auth intent.
+      return preparation.visible.then(() => {
+        if (preparation.generation !== generation) return
+        if (preparation.expired) {
+          state.notice = '暂时无法连接登录服务，请重试。'
+          return
+        }
+        return submitPreparedLogin(email, password)
+      })
+    }
+    if (intent?.kind === 'login' && state.phase === 'unavailable' && !pending && !expectedSession) {
+      state.notice = '本次登录无法继续，请修改输入后重试。'
+      return Promise.resolve()
+    }
+    if (pending || expectedSession) {
+      if (intent?.kind === 'login' && canRetry()) return performLogin(intent)
+      // A lost response, invalidated original authority or acknowledged login
+      // never permits another command key. Only observe the current Session.
+      const check = restore(), captured = generation
+      return check.then(() => {
+        if (captured === generation && state.phase !== 'authenticated')
+          state.notice = '暂时无法确认登录结果，请重试。'
+      })
+    }
+    if (state.phase === 'authenticated') return Promise.resolve()
+    if (state.phase === 'anonymous' && anonymousCSRF) return beginLogin(email, password)
+    const check = restore(), captured = generation
+    return check.then(() => {
+      if (captured !== generation) return
+      return submitPreparedLogin(email, password)
+    })
+  }
+  function submitPreparedLogin(email: string, password: string): Promise<void> {
+    if (state.phase === 'authenticated') return Promise.resolve()
+    if (!owner && state.phase === 'anonymous' && !anonymousCSRF) return login(email, password)
+    if (owner || state.phase !== 'anonymous' || !anonymousCSRF) {
+      state.notice = '暂时无法连接登录服务，请重试。'
+      return Promise.resolve()
+    }
+    return beginLogin(email, password)
   }
   function performLogout(original: LogoutIntent) {
     return run('logout', async (op) => {
