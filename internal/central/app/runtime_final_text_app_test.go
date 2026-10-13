@@ -127,7 +127,7 @@ func (v *runtimeFinalTextFixture) path() string {
 func (v *runtimeFinalTextFixture) advance(t *testing.T) {
 	t.Helper()
 	d := ec.AssociatedDispatch{ExecutionID: v.execution.ID, AgentID: v.agent, Key: v.launchRequest.Meta.IdempotencyKey, Digest: v.digest, DispatchID: v.dispatch.Summary().ID.String()}
-	_, err := v.runtime.executor.Advance(v.ctx, v.a, d)
+	accepted, err := v.runtime.executor.Advance(v.ctx, v.a, d)
 	workAppCheck(t, "runtime-text-original-associated-advance", err)
 	// Observe durable completion without calling Advance a second time. A
 	// terminal record is not treated as the worker's outer return; the original
@@ -137,17 +137,65 @@ func (v *runtimeFinalTextFixture) advance(t *testing.T) {
 	tick := time.NewTicker(10 * time.Millisecond)
 	defer tick.Stop()
 	for {
-		var ready bool
+		var snapshotReady, modelReady, associatedReady bool
+		var progress []byte
 		err = v.admin.QueryRow(v.ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_execution.runtime_snapshots WHERE execution_id=$1)
- AND (SELECT count(*)=1 AND bool_and(retired AND phase='succeeded') FROM agenteam_model.calls WHERE project_id=$2::uuid)
- AND (SELECT count(*)=1 AND bool_and(phase='business_closed') FROM agenteam_execution.project_calls WHERE project_id=$2::uuid AND lane='associated')`, v.execution.ID.String(), v.a.String()).Scan(&ready)
+ ,(SELECT count(*)=1 AND bool_and(retired AND phase='succeeded') FROM agenteam_model.calls WHERE project_id=$2::uuid)
+ ,(SELECT count(*)=1 AND bool_and(phase='business_closed') FROM agenteam_execution.project_calls WHERE project_id=$2::uuid AND lane='associated')
+ ,jsonb_build_object(
+ 'execution',(SELECT jsonb_build_object('status',CASE WHEN status IN ('created','preparing','running','waiting','succeeded','failed','cancelled') THEN status ELSE 'invalid' END,'version',version) FROM agenteam_execution.executions WHERE id=$1),
+ 'snapshots',(SELECT count(*) FROM agenteam_execution.runtime_snapshots WHERE execution_id=$1),
+ 'preparation',(SELECT jsonb_build_object('count',count(*),'running',count(*) FILTER(WHERE phase='running'),'terminal',count(*) FILTER(WHERE phase='terminal')) FROM agenteam_execution.preparation_attempts WHERE execution_id=$1),
+ 'rounds',(SELECT jsonb_build_object('count',count(*),'active',count(*) FILTER(WHERE terminal_status IS NULL),'succeeded',count(*) FILTER(WHERE terminal_status='succeeded'),'failed',count(*) FILTER(WHERE terminal_status='failed'),'cancelled',count(*) FILTER(WHERE terminal_status='cancelled'),
+   'reasons',COALESCE(jsonb_agg(CASE WHEN terminal_reason IN ('completed','model_failed','incomplete_response','runtime_failed','cancelled') THEN terminal_reason WHEN terminal_reason IS NULL THEN 'none' ELSE 'invalid' END),'[]'::jsonb)) FROM agenteam_execution.rounds WHERE execution_id=$1),
+ 'model_calls',(SELECT jsonb_build_object('count',count(*),'retired',count(*) FILTER(WHERE retired),'accepted',count(*) FILTER(WHERE phase='accepted'),'running',count(*) FILTER(WHERE phase='running'),'retry_wait',count(*) FILTER(WHERE phase='retry_wait'),'succeeded',count(*) FILTER(WHERE phase='succeeded'),'failed',count(*) FILTER(WHERE phase='failed'),'cancelled',count(*) FILTER(WHERE phase='cancelled'),'unknown',count(*) FILTER(WHERE phase='unknown')) FROM agenteam_model.calls WHERE project_id=$2::uuid),
+ 'associated',(SELECT jsonb_build_object('count',count(*),'running',count(*) FILTER(WHERE phase='running'),'closed',count(*) FILTER(WHERE phase='business_closed')) FROM agenteam_execution.project_calls WHERE project_id=$2::uuid AND lane='associated'),
+ 'model_attempts',(SELECT count(*) FROM agenteam_model.invocations WHERE project_id=$2::uuid AND execution_id=$1::uuid),
+ 'model_attempt_states',COALESCE((SELECT jsonb_agg(jsonb_build_object(
+   'dispatch',CASE WHEN dispatch IN ('reserved','authorized','sent','not_sent','unknown') THEN dispatch ELSE 'invalid' END,
+   'final_status',CASE WHEN final_status IN ('succeeded','failed','cancelled','unknown') THEN final_status WHEN final_status IS NULL THEN 'none' ELSE 'invalid' END,
+   'category',CASE WHEN error_data IS NULL THEN 'none' WHEN error_data->>'category' IN ('invalid_request','authentication','permission','model_not_found','rate_limited','context_too_large','provider_unavailable','timeout','network','cancelled','content_filter','unsupported_feature','provider_error','unknown') THEN error_data->>'category' ELSE 'invalid' END))
+   FROM (SELECT dispatch,final_status,error_data FROM agenteam_model.invocations WHERE project_id=$2::uuid AND execution_id=$1::uuid ORDER BY attempt_index LIMIT 8) attempts),'[]'::jsonb))`, v.execution.ID.String(), v.a.String()).Scan(&snapshotReady, &modelReady, &associatedReady, &progress)
 		workAppCheck(t, "runtime-text-persisted-completion", err)
-		if ready {
+		if snapshotReady && modelReady && associatedReady {
 			break
 		}
 		select {
 		case <-tick.C:
 		case <-deadline.C:
+			phase := "invalid"
+			switch accepted.Phase {
+			case ec.ExecutionAccepted, ec.ExecutionPreparing, ec.ExecutionStarting, ec.ExecutionRetained, ec.ExecutionDeferred, ec.ExecutionTerminal:
+				phase = string(accepted.Phase)
+			}
+			status := "none"
+			if accepted.Status != "" {
+				status = "invalid"
+				if accepted.Status.Valid() {
+					status = string(accepted.Status)
+				}
+			}
+			t.Logf("RUNTIME_TEXT_ADVANCE phase=%s status=%s active=%t retained=%t joined=%t", phase, status, accepted.Active, accepted.Retained, accepted.Joined)
+			t.Logf("RUNTIME_TEXT_COMPLETION snapshot=%t model=%t associated=%t", snapshotReady, modelReady, associatedReady)
+			// This projection contains only fixed SQL keys, counts and closed
+			// enums. Never emit the original rows, IDs, error codes or bodies.
+			if len(progress) <= 8192 && json.Valid(progress) {
+				t.Logf("RUNTIME_TEXT_PROGRESS %s", progress)
+			} else {
+				t.Log("RUNTIME_TEXT_PROGRESS invalid_projection=true")
+			}
+			peer, peerErr := v.network.State(v.ctx, v.scenario)
+			if peerErr != nil {
+				t.Log("RUNTIME_TEXT_PEER available=false")
+			} else {
+				closed := 0
+				for _, returned := range peer.Closed {
+					if returned {
+						closed++
+					}
+				}
+				t.Logf("RUNTIME_TEXT_PEER available=true requests=%d active_handlers=%d completed_handlers=%d connections=%d closed_connections=%d", len(peer.Requests), peer.ActiveHandlers, peer.CompletedHandlers, len(peer.Connections), closed)
+			}
 			t.Fatal("original Runtime final text did not complete")
 		}
 	}
