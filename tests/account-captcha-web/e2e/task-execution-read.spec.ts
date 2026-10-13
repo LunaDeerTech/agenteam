@@ -1,58 +1,178 @@
 import { test, expect } from "@playwright/test";
-import { executionMaterial, observeExecutionReads, executionScreenshot } from "./task-execution-read.helpers";
-let observed:Awaited<ReturnType<typeof observeExecutionReads>>|undefined;
-test.afterEach(async (_fixtures,info)=>{if(observed)await observed.save(info.status??"unknown",info.errors.flatMap(error=>[...(error.stack??"").matchAll(/task-execution-read\.(?:spec|helpers)\.ts:\d+:\d+/g)].map(match=>match[0])));observed=undefined;});
-test("history-detail-refresh-and-owner",async({page,context})=>{
-  const data=executionMaterial();
-  await context.addCookies([{name:"agenteam_local_session",value:data.cookie,url:data.origin,httpOnly:true,sameSite:"Strict",secure:false}]);
-  await page.emulateMedia({colorScheme:"light",reducedMotion:"reduce"});await page.setViewportSize({width:1440,height:1000});
-  observed=await observeExecutionReads(page,data);
+import {
+  executionMaterial,
+  observeExecutionReads,
+  executionScreenshot,
+} from "./task-execution-read.helpers";
+let observed: Awaited<ReturnType<typeof observeExecutionReads>> | undefined;
+test.afterEach(async (_fixtures, info) => {
+  if (observed)
+    await observed.save(
+      info.status ?? "unknown",
+      info.errors.flatMap((error) =>
+        [
+          ...(error.stack ?? "").matchAll(
+            /task-execution-read\.(?:spec|helpers)\.ts:\d+:\d+/g,
+          ),
+        ].map((match) => match[0]),
+      ),
+    );
+  observed = undefined;
+});
+test("history-detail-refresh-and-owner", async ({ page, context }) => {
+  const data = executionMaterial();
+  await context.addCookies([
+    {
+      name: "agenteam_local_session",
+      value: data.cookie,
+      url: data.origin,
+      httpOnly: true,
+      sameSite: "Strict",
+      secure: false,
+    },
+  ]);
+  await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  observed = await observeExecutionReads(page, data);
   await page.goto(data.route);
-  await expect(page.locator("html")).toHaveAttribute("data-theme","light");
-  await expect(page.getByRole("heading",{name:data.title,exact:true})).toBeVisible();
-  const section=page.getByRole("region",{name:"执行记录",exact:true});
-  const open=section.getByRole("button",{name:"查看执行记录",exact:true});
-  await expect(open).toBeEnabled();await observed.verify();
-  await open.focus();await page.keyboard.press("Enter");
-  const row=section.getByRole("button",{name:`任务执行 · ${data.execution.id}`,exact:true});
-  await expect(row).toBeVisible();await observed.verify();
-  await expect(section.getByText("已创建",{exact:true})).toBeVisible();
-  await expect(section.getByRole("button",{name:"加载较早执行",exact:true})).toHaveCount(0);
-  await executionScreenshot(page,"wide-light-list");
-  observed.stage("detail-loading");await row.focus();await page.keyboard.press("Enter");await observed.held();
-  const heading=section.getByRole("heading",{name:"执行详情",exact:true});
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await expect(
+    page.getByRole("heading", { name: data.title, exact: true }),
+  ).toBeVisible();
+  const section = page.getByRole("region", { name: "执行记录", exact: true });
+  const open = section.getByRole("button", {
+    name: "查看执行记录",
+    exact: true,
+  });
+  await expect(open).toBeEnabled();
+  await observed.verify();
+  await open.focus();
+  await page.keyboard.press("Enter");
+  const row = section.getByRole("button", {
+    name: `任务执行 · ${data.execution.id}`,
+    exact: true,
+  });
+  await expect(row).toBeVisible();
+  await observed.verify();
+  await expect(section.getByText("已创建", { exact: true })).toBeVisible();
+  await expect(
+    section.getByRole("button", { name: "加载较早执行", exact: true }),
+  ).toHaveCount(0);
+  await executionScreenshot(page, "wide-light-list");
+  observed.stage("detail-loading");
+  await row.focus();
+  await page.keyboard.press("Enter");
+  await observed.held();
+  const heading = section.getByRole("heading", {
+    name: "执行详情",
+    exact: true,
+  });
   await expect(heading).toBeFocused();
-  await expect(section.getByRole("heading",{name:"正在读取执行详情",exact:true})).toBeVisible();
+  await expect(
+    section.getByRole("heading", { name: "正在读取执行详情", exact: true }),
+  ).toBeVisible();
   await expect(section.locator(".execution-facts")).toHaveCount(0);
-  await expect(section.getByRole("button",{name:"刷新执行详情",exact:true})).toBeDisabled();
+  await expect(
+    section.getByRole("button", { name: "刷新执行详情", exact: true }),
+  ).toBeDisabled();
   observed.release();
-  const facts=section.locator(".execution-facts");
-  await expect(facts).toBeVisible();await observed.verify();
-  for(const value of [data.execution.id,data.task_id,data.project_id,data.agent_id,data.execution.created_at])await expect(facts.getByText(value,{exact:true})).toBeVisible();
-  await expect(facts.getByText("未提供",{exact:true})).toBeVisible();await expect(facts.getByText("未生成",{exact:true})).toBeVisible();
-  await expect(facts.getByText("无取消请求",{exact:true})).toBeVisible();await expect(facts.getByText("尚未结束",{exact:true})).toBeVisible();
-  await executionScreenshot(page,"wide-light-detail");
-  observed.stage("explicit-refresh");await section.getByRole("button",{name:"刷新执行详情",exact:true}).click();await expect(facts).toBeVisible();await observed.verify();
-  await section.getByRole("button",{name:"返回执行列表",exact:true}).click();await expect(row).toBeFocused();
-  await section.getByRole("button",{name:"刷新执行列表",exact:true}).click();await expect(row).toBeVisible();await observed.verify();
-  await page.emulateMedia({colorScheme:"dark",reducedMotion:"reduce"});await page.setViewportSize({width:390,height:844});
-  await expect(page.locator("html")).toHaveAttribute("data-theme","dark");
-  await row.focus();await page.keyboard.press("Enter");await expect(facts).toBeVisible();await observed.verify();
-  await executionScreenshot(page,"narrow-dark-detail");
+  const facts = section.locator(".execution-facts");
+  await expect(facts).toBeVisible();
+  await observed.verify();
+  for (const value of [
+    data.execution.id,
+    data.task_id,
+    data.project_id,
+    data.agent_id,
+    data.execution.created_at,
+  ])
+    await expect(facts.getByText(value, { exact: true })).toBeVisible();
+  await expect(facts.getByText("未提供", { exact: true })).toBeVisible();
+  await expect(facts.getByText("未生成", { exact: true })).toBeVisible();
+  await expect(facts.getByText("无取消请求", { exact: true })).toBeVisible();
+  await expect(facts.getByText("尚未结束", { exact: true })).toBeVisible();
+  await executionScreenshot(page, "wide-light-detail");
+  observed.stage("explicit-refresh");
+  await section
+    .getByRole("button", { name: "刷新执行详情", exact: true })
+    .click();
+  await expect(facts).toBeVisible();
+  await observed.verify();
+  await section
+    .getByRole("button", { name: "返回执行列表", exact: true })
+    .click();
+  await expect(row).toBeFocused();
+  await section
+    .getByRole("button", { name: "刷新执行列表", exact: true })
+    .click();
+  await expect(row).toBeVisible();
+  await observed.verify();
+  await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await row.focus();
+  await page.keyboard.press("Enter");
+  await expect(facts).toBeVisible();
+  await observed.verify();
+  await executionScreenshot(page, "narrow-dark-detail");
   observed.stage("nonowner-refusal");
-  await context.addCookies([{name:"agenteam_local_session",value:data.foreign_cookie,url:data.origin,httpOnly:true,sameSite:"Strict",secure:false}]);
-  await section.getByRole("button",{name:"刷新执行详情",exact:true}).click();
-  await expect(section.getByRole("heading",{name:"未能读取执行记录",exact:true})).toBeVisible();
-  await expect(section.getByText("执行记录不可用或无权访问，请重新读取。",{exact:true})).toBeVisible();
-  await expect(facts).toHaveCount(0);await expect(row).toHaveCount(0);await expect(heading).toHaveCount(0);await observed.verify();
-  await executionScreenshot(page,"narrow-dark-error");
+  await context.addCookies([
+    {
+      name: "agenteam_local_session",
+      value: data.foreign_cookie,
+      url: data.origin,
+      httpOnly: true,
+      sameSite: "Strict",
+      secure: false,
+    },
+  ]);
+  await section
+    .getByRole("button", { name: "刷新执行详情", exact: true })
+    .click();
+  await expect(
+    section.getByRole("heading", { name: "未能读取执行记录", exact: true }),
+  ).toBeVisible();
+  await expect(
+    section.getByText("执行记录不可用或无权访问，请重新读取。", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(facts).toHaveCount(0);
+  await expect(row).toHaveCount(0);
+  await expect(heading).toHaveCount(0);
+  await observed.verify();
+  await executionScreenshot(page, "narrow-dark-error");
   observed.stage("owner-restored");
-  await context.addCookies([{name:"agenteam_local_session",value:data.cookie,url:data.origin,httpOnly:true,sameSite:"Strict",secure:false}]);
-  await section.getByRole("button",{name:"重试执行列表",exact:true}).click();await expect(row).toBeVisible();await observed.verify();
-  await row.click();await expect(facts).toBeVisible();await observed.verify();
-  await section.getByRole("button",{name:"返回执行列表",exact:true}).click();await expect(row).toBeFocused();
-  await section.getByRole("button",{name:"收起执行记录",exact:true}).click();await expect(open).toBeFocused();
-  await expect(facts).toHaveCount(0);await expect(row).toHaveCount(0);
-  await expect(page.getByRole("heading",{name:data.title,exact:true})).toBeVisible();
+  await context.addCookies([
+    {
+      name: "agenteam_local_session",
+      value: data.cookie,
+      url: data.origin,
+      httpOnly: true,
+      sameSite: "Strict",
+      secure: false,
+    },
+  ]);
+  await section
+    .getByRole("button", { name: "重试执行列表", exact: true })
+    .click();
+  await expect(row).toBeVisible();
+  await observed.verify();
+  await row.click();
+  await expect(facts).toBeVisible();
+  await observed.verify();
+  await section
+    .getByRole("button", { name: "返回执行列表", exact: true })
+    .click();
+  await expect(row).toBeFocused();
+  await section
+    .getByRole("button", { name: "收起执行记录", exact: true })
+    .click();
+  await expect(open).toBeFocused();
+  await expect(facts).toHaveCount(0);
+  await expect(row).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: data.title, exact: true }),
+  ).toBeVisible();
   await observed.finish();
 });

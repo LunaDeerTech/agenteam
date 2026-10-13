@@ -165,6 +165,11 @@ APP_WORK_OWNERSHIP_EXPECTED = {'TestWorkProjectCallDefaultApp',
                                'TestWorkOwnerRootActualCommandJoin/graceful-three-calls',
                                'TestWorkOwnerRootActualCommandJoin/force-does-not-invent-join'}
 
+TASK_EXECUTION_READ_SELECTOR = '^TestTaskExecutionReadDefaultApp$'
+TASK_EXECUTION_READ_EXPECTED = {'TestTaskExecutionReadDefaultApp', 'TestTaskExecutionReadDefaultApp/enabled-owner-and-disabled-history'}
+TASK_EXECUTION_READ_WEB_SELECTOR = '^TestTaskExecutionReadWeb$'
+TASK_EXECUTION_READ_WEB_EXPECTED = {'TestTaskExecutionReadWeb', 'TestTaskExecutionReadWeb/history-detail-refresh-and-owner'}
+
 TASK_REORDER_SELECTOR = '^TestTaskReorderWeb$'
 TASK_REORDER_EXPECTED = {'TestTaskReorderWeb', 'TestTaskReorderWeb/task-reorder-normal',
                          'TestTaskReorderWeb/task-reorder-recovery'}
@@ -324,6 +329,10 @@ def main():
                        help='run only the reviewed default App Human Artifact ownership scope')
     scope.add_argument('--runner-managed-cleanup', action='store_true',
                        help='run only the reviewed Runner managed logical configuration cleanup scope')
+    scope.add_argument('--app-task-execution-read', action='store_true',
+                       help='run the reviewed default App Task Execution read scope')
+    scope.add_argument('--app-task-execution-read-web', action='store_true',
+                       help='run the reviewed Task Execution read browser in the same App binary')
     scope.add_argument('--task-reorder', action='store_true',
                        help='run only the reviewed Task reorder normal and recovery browser scope')
     scope.add_argument('--app-artifact-content', action='store_true',
@@ -335,7 +344,9 @@ def main():
     scope.add_argument('--app-artifact-owner-web', action='store_true',
                        help='run the reviewed Artifact owner browser in the same App binary')
     a = p.parse_args()
-    selector = (TASK_REORDER_SELECTOR if a.task_reorder else
+    selector = (TASK_EXECUTION_READ_SELECTOR if a.app_task_execution_read else
+                TASK_EXECUTION_READ_WEB_SELECTOR if a.app_task_execution_read_web else
+                TASK_REORDER_SELECTOR if a.task_reorder else
                 APP_ARTIFACT_CONTENT_SELECTOR if a.app_artifact_content else
                 APP_ARTIFACT_CONTENT_WEB_SELECTOR if a.app_artifact_content_web else
                 APP_ARTIFACT_OWNER_HTTP_SELECTOR if a.app_artifact_owner_http else
@@ -373,7 +384,9 @@ def main():
                 USAGE_SELECTOR if a.project_usage_summary else
                 SECRET_SELECTOR if a.secret_delete else
                 CREATE_SELECTOR if a.project_creation else SELECTOR)
-    expected = (TASK_REORDER_EXPECTED if a.task_reorder else
+    expected = (TASK_EXECUTION_READ_EXPECTED if a.app_task_execution_read else
+                TASK_EXECUTION_READ_WEB_EXPECTED if a.app_task_execution_read_web else
+                TASK_REORDER_EXPECTED if a.task_reorder else
                 APP_ARTIFACT_CONTENT_EXPECTED if a.app_artifact_content else
                 APP_ARTIFACT_CONTENT_WEB_EXPECTED if a.app_artifact_content_web else
                 APP_ARTIFACT_OWNER_HTTP_EXPECTED if a.app_artifact_owner_http else
@@ -413,9 +426,11 @@ def main():
                 USAGE_EXPECTED if a.project_usage_summary else
                 SECRET_EXPECTED if a.secret_delete else
                 CREATE_EXPECTED if a.project_creation else EXPECTED)
-    node_count = (0 if a.app_artifact_content or a.app_artifact_owner_http or a.app_human_artifact or a.runner_managed_cleanup or a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle else
-                  1 if a.app_artifact_content_web or a.app_artifact_owner_web or a.project_creation or a.secret_delete or a.project_usage_summary or a.skill_package_import or a.task_search else 2)
-    web_scopes = ([] if a.app_artifact_content or a.app_artifact_owner_http or a.app_human_artifact or a.runner_managed_cleanup or a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle else
+    node_count = (0 if a.app_task_execution_read or a.app_artifact_content or a.app_artifact_owner_http or a.app_human_artifact or a.runner_managed_cleanup or a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle else
+                  1 if a.app_task_execution_read_web or a.app_artifact_content_web or a.app_artifact_owner_web or a.project_creation or a.secret_delete or a.project_usage_summary or a.skill_package_import or a.task_search else 2)
+    web_scopes = ([] if a.app_task_execution_read or a.app_artifact_content or a.app_artifact_owner_http or a.app_human_artifact or a.runner_managed_cleanup or a.runner_directory or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle else
+                  [('AGENTEAM_TASK_EXECUTION_READ_WEB', 'task-execution-read')]
+                  if a.app_task_execution_read_web else
                   [('AGENTEAM_TASK_REORDER_WEB', 'task-reorder')]
                   if a.task_reorder else
                   [('AGENTEAM_ARTIFACT_CONTENT_WEB', 'artifact-content')]
@@ -442,12 +457,16 @@ def main():
         assert (a.runner_binary.is_absolute() and a.runner_binary.is_file()
                 and a.runner_binary.resolve() == a.runner_binary
                 and os.access(a.runner_binary, os.X_OK))
-    elif a.app_artifact_content or a.app_artifact_owner_http or a.app_human_artifact or a.runner_managed_cleanup or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle:
+    elif a.app_task_execution_read or a.app_artifact_content or a.app_artifact_owner_http or a.app_human_artifact or a.runner_managed_cleanup or a.execution_project_stop or a.outbox_cleanup or a.audit_cleanup or a.skills_cleanup or a.agent_retirement or a.agent_initial_grant or a.agent_assignment_history or a.variables_cleanup or a.agent_variables_finalization or a.secret_cleanup or a.artifact_object_cleanup or a.artifact_stop or a.artifact_source_stop or a.artifact_source_cleanup or a.project_finalize or a.work_stop or a.scheduler_stop or a.scheduler_cleanup or a.execution_call_stop or a.work_reader_stop or a.execution_retirement or a.execution_retirement_seed_diagnostic or a.work_cleanup or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle:
         assert a.dist is None and a.runner_binary is None
     else:
         assert a.runner_binary is None
         assert a.dist is not None and a.dist.is_absolute() and (a.dist / 'index.html').is_file()
-    if a.app_artifact_content_web:
+    if a.app_task_execution_read_web:
+        assert a.artifact_web_harness == a.root / 'tests/account-captcha-web'
+        assert a.artifact_web_harness.is_dir() and a.artifact_web_harness.resolve() == a.artifact_web_harness
+        assert (a.artifact_web_harness / 'task-execution-read.config.js').is_file()
+    elif a.app_artifact_content_web:
         expected_harness = (a.root / 'tests/account-captcha-web'
                             if a.root == Path('/workspace/agenteam-task-backlog-reorder')
                             else Path('/workspace/agenteam-artifact-content-ui/tests/account-captcha-web'))
@@ -469,9 +488,9 @@ def main():
         raise OSError(ctypes.get_errno(), 'subreaper unavailable')
     env = dict(os.environ, TMPDIR=str(a.runtime), AGENTEAM_AUTH_WEB_RUNTIME=str(a.runtime),
                AGENTEAM_FIXTURE_TEST_BINARY=str(a.binary),
-               AGENTEAM_FIXTURE_TEST_CWD=str(a.root / ('internal/central/app' if a.app_artifact_content or a.app_artifact_content_web or a.app_artifact_owner_http or a.app_artifact_owner_web or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle or a.app_human_artifact else 'tests/model' if a.project_usage_summary else 'tests/projectvariable')),
+               AGENTEAM_FIXTURE_TEST_CWD=str(a.root / ('internal/central/app' if a.app_task_execution_read or a.app_task_execution_read_web or a.app_artifact_content or a.app_artifact_content_web or a.app_artifact_owner_http or a.app_artifact_owner_web or a.app_work_ownership or a.app_execution_scheduler_ownership or a.app_usage_lifecycle or a.app_knowledge_lifecycle or a.app_human_artifact else 'tests/model' if a.project_usage_summary else 'tests/projectvariable')),
                AGENTEAM_FIXTURE_OWNED_RECORD=str(a.output / 'owned-resources.json'))
-    if a.task_reorder or a.app_artifact_content or a.app_artifact_content_web or a.app_artifact_owner_http or a.app_artifact_owner_web or a.app_human_artifact:
+    if a.app_task_execution_read or a.app_task_execution_read_web or a.task_reorder or a.app_artifact_content or a.app_artifact_content_web or a.app_artifact_owner_http or a.app_artifact_owner_web or a.app_human_artifact:
         # Ordinary task-owned scope: no live-provider environment or PG16.
         a.pg_current_only = True
         for name in tuple(env):
@@ -485,6 +504,8 @@ def main():
     for prefix, name in web_scopes:
         env.update({prefix+'_DIST': str(a.dist), prefix+'_EVIDENCE': str(a.output/name),
                     prefix+'_INPUT_HASH': a.input_hash})
+    if a.app_task_execution_read_web:
+        env['AGENTEAM_TASK_EXECUTION_READ_WEB_HARNESS'] = str(a.artifact_web_harness)
     if a.app_artifact_content_web:
         env['AGENTEAM_ARTIFACT_CONTENT_WEB_HARNESS'] = str(a.artifact_web_harness)
     if a.app_artifact_owner_web:
@@ -517,6 +538,10 @@ def main():
          'app_usage_lifecycle':a.app_usage_lifecycle,
          'app_knowledge_lifecycle':a.app_knowledge_lifecycle,
          'runner_managed_cleanup':a.runner_managed_cleanup,
+         **({'app_task_execution_read':a.app_task_execution_read,
+             'app_task_execution_read_web':a.app_task_execution_read_web,
+             'acceptance_method':'task-execution-read-owned-v1'}
+            if a.app_task_execution_read or a.app_task_execution_read_web else {}),
          **({'task_reorder':True, 'acceptance_method':'task-reorder-owned-v1'}
             if a.task_reorder else {}),
          **({'app_human_artifact':True, 'acceptance_method':'human-artifact-owned-v1'}
@@ -642,6 +667,8 @@ def main():
         result['acceptance_method'] = 'artifact-content-owned-v1'
     if a.task_reorder:
         result['acceptance_method'] = 'task-reorder-owned-v1'
+    if a.app_task_execution_read or a.app_task_execution_read_web:
+        result['acceptance_method'] = 'task-execution-read-owned-v1'
     save(a.output/'result.json',result)
     print(json.dumps(result),flush=True)
     return int(not okay)

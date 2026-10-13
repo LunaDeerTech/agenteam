@@ -1,6 +1,11 @@
 import { computed, shallowReactive, watch, type Ref } from 'vue'
 import { AccountFailure } from '../api/client'
-import { compareTaskExecutions, type TaskExecution, type TaskExecutionPage, type TaskExecutionQuery } from '../api/task-executions'
+import {
+  compareTaskExecutions,
+  type TaskExecution,
+  type TaskExecutionPage,
+  type TaskExecutionQuery,
+} from '../api/task-executions'
 
 export type TaskExecutionScope = Readonly<{ projectID: string; taskID: string; key: string }>
 type Phase = 'idle' | 'loading' | 'ready' | 'error'
@@ -11,7 +16,8 @@ type Reads = {
 function explanation(error: unknown) {
   const problem = error instanceof AccountFailure ? error.problem : undefined
   if (problem?.status === 401) return '当前会话已失效，请重新登录。'
-  if (problem && [403, 404, 410].includes(problem.status)) return '执行记录不可用或无权访问，请重新读取。'
+  if (problem && [403, 404, 410].includes(problem.status))
+    return '执行记录不可用或无权访问，请重新读取。'
   if (problem?.code === 'CURSOR_INVALID') return '执行记录分页已失效，请从头重新读取。'
   return '未取得完整执行记录，请在当前请求结束后重试。'
 }
@@ -36,14 +42,24 @@ export function createTaskExecutions(
     detailMessage: '',
     active: 0,
   })
-  let generation = 0, disposed = false
+  let generation = 0,
+    disposed = false
   const visible = computed(() => !disposed && scope.value !== null)
   const blocked = computed(() => !visible.value || busy.value || state.active !== 0)
   function reset() {
     ++generation
     Object.assign(state, {
-      open: false, phase: 'idle', items: Object.freeze([]), next: null, message: '',
-      retryMore: false, selectedID: '', detail: null, detailPhase: 'idle', detailMessage: '', active: 0,
+      open: false,
+      phase: 'idle',
+      items: Object.freeze([]),
+      next: null,
+      message: '',
+      retryMore: false,
+      selectedID: '',
+      detail: null,
+      detailPhase: 'idle',
+      detailMessage: '',
+      active: 0,
     })
   }
   const stop = watch(() => scope.value?.key ?? '', reset, { flush: 'sync' })
@@ -51,7 +67,9 @@ export function createTaskExecutions(
     return !disposed && serial === generation && captured.key === scope.value?.key
   }
   function inaccessible(error: unknown) {
-    return error instanceof AccountFailure && [401, 403, 404, 410].includes(error.problem?.status ?? 0)
+    return (
+      error instanceof AccountFailure && [401, 403, 404, 410].includes(error.problem?.status ?? 0)
+    )
   }
   function clearReads() {
     state.items = Object.freeze([])
@@ -64,7 +82,8 @@ export function createTaskExecutions(
   async function load(more = false) {
     const captured = scope.value
     if (!captured || blocked.value || (more && !state.next)) return false
-    const cursor = more ? state.next : null, old = more ? state.items : Object.freeze([])
+    const cursor = more ? state.next : null,
+      old = more ? state.items : Object.freeze([])
     const serial = ++generation
     state.active = serial
     state.open = true
@@ -75,14 +94,30 @@ export function createTaskExecutions(
     state.detail = null
     state.detailPhase = 'idle'
     state.detailMessage = ''
-    if (!more) { state.items = Object.freeze([]); state.next = null }
+    if (!more) {
+      state.items = Object.freeze([])
+      state.next = null
+    }
     try {
-      const result = await reads.list(captured.projectID, captured.taskID, { limit: 50, ...(cursor ? { cursor } : {}) })
+      const result = await reads.list(captured.projectID, captured.taskID, {
+        limit: 50,
+        ...(cursor ? { cursor } : {}),
+      })
       if (!current(captured, serial)) return false
       const previous = old.at(-1)
-      if (result.items.some(item => item.project_id !== captured.projectID || item.task_id !== captured.taskID || old.some(row => row.id === item.id)) ||
-        (previous && result.items.length && compareTaskExecutions(previous, result.items[0]!) >= 0) ||
-        (result.next_cursor !== null && result.next_cursor === cursor)) throw new AccountFailure('invalid-response')
+      if (
+        result.items.some(
+          (item) =>
+            item.project_id !== captured.projectID ||
+            item.task_id !== captured.taskID ||
+            old.some((row) => row.id === item.id),
+        ) ||
+        (previous &&
+          result.items.length &&
+          compareTaskExecutions(previous, result.items[0]!) >= 0) ||
+        (result.next_cursor !== null && result.next_cursor === cursor)
+      )
+        throw new AccountFailure('invalid-response')
       state.items = Object.freeze([...old, ...result.items])
       state.next = result.next_cursor
       state.phase = 'ready'
@@ -90,7 +125,10 @@ export function createTaskExecutions(
       return true
     } catch (error) {
       if (!current(captured, serial)) return false
-      if (inaccessible(error)) { clearReads(); state.retryMore = false }
+      if (inaccessible(error)) {
+        clearReads()
+        state.retryMore = false
+      }
       if (error instanceof AccountFailure && error.problem?.code === 'CURSOR_INVALID') {
         state.next = null
         state.retryMore = false
@@ -104,7 +142,7 @@ export function createTaskExecutions(
   }
   async function select(id: string) {
     const captured = scope.value
-    if (!captured || blocked.value || !state.items.some(item => item.id === id)) return false
+    if (!captured || blocked.value || !state.items.some((item) => item.id === id)) return false
     const serial = ++generation
     state.active = serial
     state.selectedID = id
@@ -114,7 +152,11 @@ export function createTaskExecutions(
     try {
       const detail = await reads.get(captured.projectID, captured.taskID, id)
       if (!current(captured, serial)) return false
-      if (detail.project_id !== captured.projectID || detail.task_id !== captured.taskID || detail.id !== id)
+      if (
+        detail.project_id !== captured.projectID ||
+        detail.task_id !== captured.taskID ||
+        detail.id !== id
+      )
         throw new AccountFailure('invalid-response')
       state.detail = detail
       state.detailPhase = 'ready'
@@ -148,7 +190,11 @@ export function createTaskExecutions(
     reset()
     return true
   }
-  function dispose() { disposed = true; stop(); reset() }
+  function dispose() {
+    disposed = true
+    stop()
+    reset()
+  }
   return { state, visible, blocked, load, select, back, close, dispose }
 }
 export type TaskExecutions = ReturnType<typeof createTaskExecutions>
