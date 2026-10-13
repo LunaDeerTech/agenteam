@@ -23,6 +23,7 @@ import (
 	"time"
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 )
@@ -96,6 +97,75 @@ type taskReorderIntent struct {
 	bodyDigest, keyDigest [sha256.Size]byte
 }
 type taskReorderIntentKey struct{}
+
+// ListTasks deliberately omits description and plan; GetTask returns wc.Task.
+// Keep the wire summary separate so final order checks compare only fields the
+// real list endpoint supplies. Full content is checked by Get and fixedFacts.
+type taskReorderSummary struct {
+	ID              wc.TaskID       `json:"id"`
+	ProjectID       wc.ProjectID    `json:"project_id"`
+	MilestoneID     wc.MilestoneID  `json:"milestone_id"`
+	SprintID        wc.SprintID     `json:"sprint_id"`
+	Title           string          `json:"title"`
+	Type            wc.TaskType     `json:"type"`
+	Priority        wc.TaskPriority `json:"priority"`
+	State           wc.TaskState    `json:"state"`
+	AssigneeAgentID *i.AgentID      `json:"assignee_agent_id"`
+	ManualRank      string          `json:"manual_rank"`
+	Version         f.Version       `json:"version"`
+	CreatedAt       f.Instant       `json:"created_at"`
+	UpdatedAt       f.Instant       `json:"updated_at"`
+}
+
+func summarizeReorderTask(v wc.Task) taskReorderSummary {
+	return taskReorderSummary{v.ID, v.ProjectID, v.MilestoneID, v.SprintID, v.Title, v.Type, v.Priority, v.State, v.AssigneeAgentID, v.ManualRank, v.Version, v.CreatedAt, v.UpdatedAt}
+}
+
+func (v *taskReorderSummary) UnmarshalJSON(raw []byte) error {
+	d := json.NewDecoder(bytes.NewReader(raw))
+	if token, err := d.Token(); err != nil || token != json.Delim('{') {
+		return errors.New("Task summary is not an object")
+	}
+	fields := map[string]json.RawMessage{}
+	for d.More() {
+		token, err := d.Token()
+		if err != nil {
+			return err
+		}
+		key, ok := token.(string)
+		if !ok || fields[key] != nil {
+			return errors.New("Task summary repeats a field")
+		}
+		var value json.RawMessage
+		if err := d.Decode(&value); err != nil {
+			return err
+		}
+		fields[key] = value
+	}
+	keys := []string{"id", "project_id", "milestone_id", "sprint_id", "title", "type", "priority", "state", "assignee_agent_id", "manual_rank", "version", "created_at", "updated_at"}
+	if len(fields) != len(keys) {
+		return errors.New("Task summary has a different field set")
+	}
+	for _, key := range keys {
+		value, ok := fields[key]
+		if !ok || key != "assignee_agent_id" && bytes.Equal(bytes.TrimSpace(value), []byte("null")) {
+			return errors.New("Task summary omits a required value")
+		}
+	}
+	type wire taskReorderSummary
+	var decoded wire
+	if err := agentWebDecode(raw, &decoded); err != nil {
+		return err
+	}
+	next := taskReorderSummary(decoded)
+	validation := wc.Task{ID: next.ID, ProjectID: next.ProjectID, MilestoneID: next.MilestoneID, SprintID: next.SprintID, Title: next.Title, Type: next.Type, Priority: next.Priority, State: next.State, AssigneeAgentID: next.AssigneeAgentID, ManualRank: next.ManualRank, Version: next.Version, CreatedAt: next.CreatedAt, UpdatedAt: next.UpdatedAt}
+	if err := validation.Validate(); err != nil {
+		return err
+	}
+	*v = next
+	return nil
+}
+
 type taskReorderWeb struct {
 	*milestoneCreateWeb
 	sprint                        wc.Sprint
@@ -493,12 +563,12 @@ func (w *taskReorderWeb) read(r *http.Request, raw []byte) error {
 		if q.Get("sprint_id") != w.sprint.ID.String() || q.Get("state") != "backlog" || q.Get("limit") != "50" || q.Has("text") || q.Has("type") || q.Has("assignee_agent_id") {
 			return errors.New("candidate query inherited unrelated board filters")
 		}
-		var page f.Page[wc.Task]
-		if json.Unmarshal(raw, &page) != nil || page.Items == nil || len(page.Items) > 50 {
+		var page f.Page[taskReorderSummary]
+		if agentWebDecode(raw, &page) != nil || page.Items == nil || len(page.Items) > 50 {
 			return errors.New("candidate page was not a real bounded Task page")
 		}
 		for _, task := range page.Items {
-			if task.Validate() != nil || task.ProjectID != w.project.Project.ID || task.SprintID != w.sprint.ID || task.State != wc.TaskStateBacklog || task.Priority != wc.TaskPriorityMedium || task.AssigneeAgentID != nil {
+			if task.ProjectID != w.project.Project.ID || task.SprintID != w.sprint.ID || task.State != wc.TaskStateBacklog || task.Priority != wc.TaskPriorityMedium || task.AssigneeAgentID != nil {
 				return errors.New("candidate crossed the original Task group")
 			}
 		}
@@ -606,7 +676,7 @@ func (w *taskReorderWeb) verify(t *testing.T, ctx context.Context) {
 	if reply.status != 200 || json.Unmarshal(reply.body, &task) != nil || !reflect.DeepEqual(task, current) {
 		t.Fatal("final actual HTTP Get differs from the original receipt")
 	}
-	var got []wc.Task
+	var got []taskReorderSummary
 	cursor := ""
 	for round := 0; round < 2; round++ {
 		q := url.Values{"sprint_id": {w.sprint.ID.String()}, "state": {"backlog"}, "priority": {"medium"}, "limit": {"50"}}
@@ -614,13 +684,17 @@ func (w *taskReorderWeb) verify(t *testing.T, ctx context.Context) {
 			q.Set("cursor", cursor)
 		}
 		reply = w.request(t, http.MethodGet, variableHTTPPath(w.project.Project.ID, "/tasks")+"?"+q.Encode(), nil, "")
-		var page f.Page[wc.Task]
-		if reply.status != 200 || json.Unmarshal(reply.body, &page) != nil || page.Items == nil || (page.NextCursor != "") != (round == 0) {
+		var page f.Page[taskReorderSummary]
+		if reply.status != 200 || agentWebDecode(reply.body, &page) != nil || page.Items == nil || (page.NextCursor != "") != (round == 0) {
 			t.Fatal("final actual HTTP Task page incomplete")
 		}
 		got, cursor = append(got, page.Items...), page.NextCursor
 	}
-	if !reflect.DeepEqual(got, rows) {
+	want := make([]taskReorderSummary, 0, len(rows))
+	for _, row := range rows {
+		want = append(want, summarizeReorderTask(row))
+	}
+	if !reflect.DeepEqual(got, want) {
 		t.Fatal("final real Task order differs from the intended before/tail sequence")
 	}
 	t.Logf("Task reorder original default App: mode=%s browser_writes=%d committed=%d conflict=%d explicit_lookup=%d changed=2 B_unchanged=true", w.mode, writes, wantResults, conflicts, lookups)
