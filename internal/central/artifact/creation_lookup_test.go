@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -387,7 +388,21 @@ func TestArtifactLookupCreationUnknown(t *testing.T) {
 		return result
 	}
 	out, err := v.lookup(context.Background())
-	requireCleanupOwnerUnknown(t, oc.ProjectCleanupResult{}, err, original)
+	var fault *f.Fault
+	var retained *projectCleanupCommitFailure
+	if !errors.As(err, &fault) || fault.Code != f.CommitUnknown || fault.CommitState != f.Unknown || fault.CauseID != original.AttemptID().String() || !errors.As(err, &retained) || retained.result.State() != f.Unknown || retained.result.AttemptID() != original.AttemptID() {
+		t.Fatal("lookup lost its original Unknown result", err)
+	}
+	actual, expected := retained.result.Cause().Details(), original.Cause().Details()
+	// CommandIdentity contains a function; DeepEqual cannot compare it even
+	// with itself. Compare its full semantic projection before the scalar tail.
+	if actual.Kind != f.CommandsCause || actual.Primary.Validate() != nil || actual.Primary.Canonical() != expected.Primary.Canonical() || len(actual.Related) != 0 || len(expected.Related) != 0 {
+		t.Fatal("lookup changed its original command cause")
+	}
+	actual.Primary, expected.Primary = f.CommandIdentity{}, f.CommandIdentity{}
+	if !reflect.DeepEqual(actual, expected) {
+		t.Fatal("lookup changed its original cause fields")
+	}
 	if out != (ac.CreationLookupResult{}) {
 		t.Fatal("unknown observation exposed a state")
 	}

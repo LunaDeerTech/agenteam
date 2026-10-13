@@ -8,6 +8,7 @@ import (
 
 	ac "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
 )
 
 func TestArtifactHTTPContentIngress(t *testing.T) {
@@ -116,7 +117,6 @@ func TestArtifactHTTPContentInputBounds(t *testing.T) {
 		{"paired-surrogate", `{"name":"n","media_type":"text/plain","content":"\ud83d\ude00"}`, true, 200},
 		{"escaped-backslash", `{"name":"n","media_type":"text/plain","content":"\\ud800"}`, true, 200},
 		{"nul-content", encode("\x00", "n", ""), true, 200},
-		{"maximum-decoded-escaped", encode(strings.Repeat("\x00", ac.MaxInlineBytes), strings.Repeat("a", 255), strings.Repeat("\x01", 4096)), true, 200},
 		{"oversize-decoded", encode(strings.Repeat("a", ac.MaxInlineBytes+1), "n", ""), false, 413},
 		{"oversize-filename-bytes", encode("", strings.Repeat("界", 86), ""), false, 400},
 		{"oversize-description-bytes", encode("", "n", strings.Repeat("界", 1366)), false, 400},
@@ -143,6 +143,34 @@ func TestArtifactHTTPContentInputBounds(t *testing.T) {
 			}
 		})
 	}
+	t.Run("maximum-decoded-escaped", func(t *testing.T) {
+		content, name, description := strings.Repeat("\x00", ac.MaxInlineBytes), strings.Repeat("a", 255), strings.Repeat("\x01", 4096)
+		body := encode(content, name, description)
+		if int64(len(body)) > maxCommandRequestBytes {
+			t.Fatal("maximum escaped intent does not fit the encoded limit")
+		}
+		// Check the actual shared decoder's size and semantic contract. A fully
+		// escaped 1MiB body under race instrumentation is not a promise to finish
+		// an HTTP request within its independent, unchanged two-second budget.
+		for _, action := range []string{"create-content", "lookup", "cancel"} {
+			decoded := false
+			decoder := httpapi.WithRequestID(nil, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				intent, err := decodeContentIntent(w, r)
+				closeErr := r.Body.Close()
+				if err != nil || closeErr != nil {
+					t.Fatal("maximum original intent rejected", action, err, closeErr)
+				}
+				if intent.content != content || intent.display != (ac.Display{Name: name, Description: description}) || intent.media != "text/plain; charset=UTF-8" || intent.meta.IdempotencyKey != contentKey || intent.meta.RequestID.Validate() != nil {
+					t.Fatal("maximum original intent was changed", action)
+				}
+				decoded = true
+			}))
+			decoder.ServeHTTP(newTestWriter(), contentRequest(action, body))
+			if !decoded {
+				t.Fatal("maximum original intent did not reach its decoder", action)
+			}
+		}
+	})
 	for _, extra := range []int{0, 1} {
 		t.Run(map[int]string{0: "exact-encoded-limit", 1: "over-encoded-limit"}[extra], func(t *testing.T) {
 			raw := contentJSON + strings.Repeat(" ", int(maxCommandRequestBytes)-len(contentJSON)+extra)
