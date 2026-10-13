@@ -1,4 +1,12 @@
-# 当前工作：Sprint 完成与 Task 取消已交付，继续推进平台目标
+# 当前工作：Task Blocker 联调，E01 来源目录候选已复核
+
+Human Owner 非终态 Task Blocker 管理仍在独立分支 `ai/task-blocker-management-20261013`、工作树 `/workspace/agenteam-task-blocker-management` 实施和验证，尚未交付 main；root 继续统筹该片源码、真实链路和必要独审，不因本次文档交付重复产品测试。
+
+[E01 来源目录候选](../docs/development/work-items/e01-minecraft-java-1.21.1/README.md) 的 `53a829c2` 已通过非作者限定来源投影复核，随本片交付：20,672 个概念、27,414 条关系，保存来源的 20,613 条 registry 与 6,801 个 data 条目均可双向对应；54 项差异及 5 个元数据条目保持。来源摘要、版本和 Git 树核验、离线查询与针对性拒绝检查通过，不重新下载资源。目录检查入口仍为 `python3 docs/development/work-items/e01-minecraft-java-1.21.1/catalog.py`。
+
+本次只接受候选来源索引及其确定性投影，未完成全游戏行为来源、计分叶子/权重、关键门槛、独立全游戏完整性审查或 D28 后正式冻结；分母和覆盖率为空，没有游戏实现、平台执行或模型调用。`ai/e01-content-baseline-20261013` 在 main 推送确认后按常规清理工作树及本地、远端引用；Live、validation 和四个 STOP 树继续保留。后续复用已有来源推进具体缺口，长期目标仍未完成。
+
+## 以下为恢复时继承的主线状态
 
 2026-10-13 恢复核对时，主线为 `c4839c3333332afe39a8042e62a2e4fe57d75bf1`，工作区无未提交改动，`origin/main` 与成功的实时远端查询均为同一提交。当前不存在本地主线待推送差额；下方历史摘要中的 GitHub 认证失败、旧 main、分支数量和待推送包状态只描述原时点，不作为当前恢复指令。
 
