@@ -83,9 +83,9 @@ docker build --secret id=dev_ca,src=/path/to/trusted-ca.crt --target minio -f Do
 
 使用不含私钥的 PEM 受信 CA；该步骤添加系统信任，不关闭 TLS 校验。普通环境不需要此步骤。
 
-官方社区版现采用源码分发，但上述历史 GitHub Release 的官方二进制资产仍可获取。本环境对同版本的官方 Quay 和 Docker Hub manifest 在匿名鉴权后仍收到访问拒绝；这不证明该 release 不存在，也不能代替用户本机错误诊断。当前 MinIO 构建已在 Linux/amd64 完成官方资产完整下载、固定 SHA-256 校验及镜像构建，实际版本、源码提交、原入口、许可证和 SIGTERM 均已确认。本环境构建使用上述可选受信 CA，没有镜像或入口覆盖；新镜像的完整四服务标准启动仍在验证，不沿用旧覆盖配置的成功结论。
+官方社区版现采用源码分发，但上述历史 GitHub Release 的官方二进制资产仍可获取。本环境对同版本的官方 Quay 和 Docker Hub manifest 在匿名鉴权后仍收到访问拒绝；这不证明该 release 不存在，也不能代替用户本机错误诊断。当前 MinIO 构建已在 Linux/amd64 完成官方资产完整下载、固定 SHA-256 校验及镜像构建，实际版本、源码提交、原入口和许可证均已确认；其他支持架构尚未实际运行。本环境构建使用上述可选受信 CA。
 
-此前三项配置验证使用测试专用的本地同版本 MinIO 镜像及入口覆盖，已在含空格的数据目录通过四服务启动、真实浏览器管理员登录和 Session 校验，Central 以非 root 运行。重启 app 后 Go 与前端重新构建，原数据库、三份凭据、五组密钥及机器标识保持不变；最后 `down` 已清退该轮容器和网络并保留持久数据。
+本轮使用新构建的 MinIO 镜像和标准 `up -d --build --wait --wait-timeout 1200` 命令，复用原有数据及构建缓存，通过四服务启动、真实浏览器管理员登录、Session 与 CSRF 校验，Central 以非 root 运行，没有镜像或入口覆盖。重启 app 后 Go 与前端重新构建，原数据库、三份凭据、五组密钥及机器标识保持不变；最后正常停止并 `down`，MinIO 收到 SIGTERM 后以状态 0 退出，容器和网络均已清退，原数据保留。此前源构建和首次启动曾因本环境磁盘空间保护主动取消，不计为通过。
 
 开发内网数据库与对象存储使用正式 `TLS_MODE=disable` 配置，不改变模型出站、DNS 或权限规则。此开发组合不启用 Execution Runtime，不发起模型请求，不新增 Runner 或 SMTP。nginx 开发托管不代表生产 SPA 嵌入完成；`/livez` 检查真实监听进程，当前产品的 `/readyz` 未绑定状态仍保留。
 
