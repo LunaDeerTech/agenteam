@@ -12,6 +12,7 @@ import (
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+	ob "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 )
@@ -481,7 +482,7 @@ func TestLifecycleCleanupWorkOriginalImages(t *testing.T) {
 			case "attempt":
 				claim.attempt = testID[struct{}](t).String()
 			case "process":
-				claim.process = testID[oc.Process](t)
+				claim.process = testID[ob.Process](t)
 			case "operation-row":
 				actual.rows = bytes.Replace(actual.rows, []byte(`"version":4`), []byte(`"version":5`), 1)
 			case "checkpoint":
