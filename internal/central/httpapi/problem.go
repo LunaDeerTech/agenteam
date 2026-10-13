@@ -74,6 +74,8 @@ var problemKinds = map[foundation.Code]problemKind{
 	foundation.BlockerNotFound:         {404, "Blocker not found", "The requested blocker was not found."},
 	foundation.BlockerAlreadyResolved:  {409, "Blocker already resolved", "The blocker is already resolved."},
 	foundation.TaskDependencyCycle:     {409, "Task dependency cycle", "The task dependency would create a cycle."},
+
+	foundation.LastBlockerNeedsTransfer: {409, "Task transition required", "Resolve the last blocker together with a task transition."},
 }
 
 // WriteProblem projects a domain fault to a safe RFC 9457 response. It never uses

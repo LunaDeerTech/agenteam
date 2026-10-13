@@ -250,7 +250,8 @@
               "TASK_TERMINAL_IMMUTABLE",
               "BLOCKER_NOT_FOUND",
               "BLOCKER_ALREADY_RESOLVED",
-              "TASK_DEPENDENCY_CYCLE"
+              "TASK_DEPENDENCY_CYCLE",
+              "LAST_BLOCKER_REQUIRES_TASK_TRANSITION"
             ]
           },
           "request_id": {

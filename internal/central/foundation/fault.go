@@ -55,6 +55,8 @@ const (
 	BlockerNotFound         Code = "BLOCKER_NOT_FOUND"
 	BlockerAlreadyResolved  Code = "BLOCKER_ALREADY_RESOLVED"
 	TaskDependencyCycle     Code = "TASK_DEPENDENCY_CYCLE"
+
+	LastBlockerNeedsTransfer Code = "LAST_BLOCKER_REQUIRES_TASK_TRANSITION"
 )
 
 func (c Code) Known() bool {
@@ -65,7 +67,7 @@ func (c Code) Known() bool {
 		ProjectNotActive, ConfirmationStale, SchemaUnsupported, CapabilityUnsupported,
 		RateLimited, DependencyUnbound, DependencyUnavailable, CommitUnknown, InternalError,
 		PayloadTooLarge, UnsupportedMediaType, ShuttingDown, ObjectPayloadMissing,
-		ObjectIntegrityMismatch, RangeNotSatisfiable, TaskNotFound, TaskVersionConflict, TaskStateInvalid, TaskAssigneeRequired, CommentRequired, TaskSprintInvalid, TaskTerminalImmutable, BlockerNotFound, BlockerAlreadyResolved, TaskDependencyCycle:
+		ObjectIntegrityMismatch, RangeNotSatisfiable, TaskNotFound, TaskVersionConflict, TaskStateInvalid, TaskAssigneeRequired, CommentRequired, TaskSprintInvalid, TaskTerminalImmutable, BlockerNotFound, BlockerAlreadyResolved, TaskDependencyCycle, LastBlockerNeedsTransfer:
 		return true
 	}
 	return false

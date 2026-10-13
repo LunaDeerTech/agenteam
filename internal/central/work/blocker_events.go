@@ -69,7 +69,7 @@ func validateBlockerRecord(r *blockerRecord, a i.Actor) error {
 	in := r.Input
 	out := p.After
 	before := p.Before
-	if out.Validate() != nil || before.Validate() != nil || before.ID != in.Target || before.ProjectID != in.Project || before.Version != in.Expected || before.State != c.TaskStateBacklog || before.AssigneeAgentID != nil || out.TaskEventID != r.TaskEventID || out.EventIDs[0] != r.EventID || p.Placement.Milestone != before.MilestoneID || p.Placement.Sprint != before.SprintID || (p.Placement.State != c.Planned && p.Placement.State != c.Current) || p.QueryGeneration < 1 {
+	if out.Validate() != nil || before.Validate() != nil || before.ID != in.Target || before.ProjectID != in.Project || before.Version != in.Expected || before.State.Terminal() || out.TaskEventID != r.TaskEventID || out.EventIDs[0] != r.EventID || p.Placement.Milestone != before.MilestoneID || p.Placement.Sprint != before.SprintID || (p.Placement.State != c.Planned && p.Placement.State != c.Current) || p.QueryGeneration < 1 {
 		return internal(nil)
 	}
 	if _, e = taskCounter(p.QueryGeneration); e != nil {
@@ -106,7 +106,7 @@ func validateBlockerRecord(r *blockerRecord, a i.Actor) error {
 		history.Payload.Added = &c.TaskBlockerAddedPayload{BlockerID: b.ID, BlockerType: b.Type}
 	} else {
 		v := p.BlockerBefore
-		if v == nil || v.Validate() != nil || v.ID != in.Resolve.BlockerID || v.ProjectID != r.Project || v.TaskID != in.Target || v.ResolvedAt != nil || at.Time().Before(v.CreatedAt.Time()) {
+		if v == nil || v.Validate() != nil || (v.Type != c.TaskBlockerRelyOn && v.Type != c.TaskBlockerWaitingForHuman) || v.ID != in.Resolve.BlockerID || v.ProjectID != r.Project || v.TaskID != in.Target || v.ResolvedAt != nil || at.Time().Before(v.CreatedAt.Time()) {
 			return internal(nil)
 		}
 		b = v.Clone()
@@ -332,6 +332,15 @@ func verifyBlockerPostimage(ctx context.Context, s *blockerScope, r *blockerReco
 	}
 	if !sameValue(current, p.After.Task) {
 		return fault(f.Forbidden)
+	}
+	if current.State == c.TaskStateBlocked {
+		remaining, err := unresolvedBlockerCount(ctx, s)
+		if err != nil {
+			return err
+		}
+		if remaining == 0 {
+			return fault(f.Forbidden)
+		}
 	}
 	row, e := loadBlocker(ctx, s, p.After.Blocker.ID)
 	if e != nil {

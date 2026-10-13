@@ -1,6 +1,18 @@
 # D11 B0-P：Human backlog Blocker 持久服务
 
-状态：本卡限定的 Human 未指派 backlog Blocker 持久服务已实现并经独立验收接受。本卡是 [B0-C](d11-task-blocker-contracts.md) 两类契约的真实服务消费者，不表示完整跨状态 B0-P、Task transition、完整 D11 或生产 root 已完成。迁移 `00023_task_blockers.sql` 随服务交付。
+状态：原 Human 未指派 backlog Blocker 持久服务已实现并经独立验收接受。非终态 Task 管理的后继实现与验证范围见下节；本卡是 [B0-C](d11-task-blocker-contracts.md) 两类契约的真实服务消费者，不表示完整 B0-P、Task transition 或完整 D11。迁移 `00023_task_blockers.sql` 随原服务交付。
+
+## 非终态 Task 管理后继
+
+当前后继沿原 `AddTaskBlocker` / `ResolveTaskBlocker`、原 HTTP 与默认 App 服务，开放 Human Owner 对 planned/current Sprint 内五种非终态 Task 的 `rely_on`、无引用 `waiting_for_human` 管理。允许保留已有 assignee，包括 backlog/blocked 的空值；命令不选择新 Agent，不改变 state、assignee、manual_rank，不停止或启动 Execution。原 Task Ready 仍要求无 unresolved Blocker，未开放新的状态边或 `TransferTask.AddBlockers`。
+
+新增与解除仍由原 Store、当前 Session/Owner、expected version 和 Schedule EX / Task EX 锁保护。计划在最终事务重新评估，Task version/query generation、Blocker、TaskEvent、Outbox、Activity 和原回执同事务提交；原命令历史 replay、Lookup、Unknown 和调用退出归属不变。历史回执验证保留原 Task 状态/分配，不读取当前 Task 替代历史。终态拒绝 `TASK_TERMINAL_IMMUTABLE`，已完成 Sprint 拒绝原 `TASK_SPRINT_INVALID`。
+
+blocked 的独立解除先在原事务读取真实 unresolved 集合：仅余一个时返回顶层 `LAST_BLOCKER_REQUIRES_TASK_TRANSITION`（HTTP 409，无新增 field error 或自动重试提示），不写任何部分结果；正式 Outbox producer 再核 blocked postimage 仍有 unresolved 原因。其它非终态可独立解除最后一个，不自动改变 state。technical Blocker 不进入本片 standalone Human 解除，保留原 Scheduler/transition 来源及 `DEPENDENCY_UNBOUND`；不扩大其创建权限。
+
+本片不新增迁移或公共 DTO；HTTP 收据沿 `task,blocker,task_event_id,event_ids`，成功 Task version 恰加一。针对新边界的领域计划、最后原因/SQL错误、HTTP 收据/Lookup 与安全错误投影测试随实现提供；真实默认 App 浏览器闭环与独立审查尚待执行，不把下文原 backlog 验收当作新范围通过。
+
+以下章节保留原 backlog 服务的交付基线及历史验收，受本节明确扩大之处以本节为准。
 
 ## 1. 完整结果与真实依赖
 
