@@ -18,9 +18,10 @@ type egress interface {
 	Status() outbound.PolicyStatus
 }
 type outboundRuntime struct {
-	policy  *outbound.PolicyService
-	client  *outbound.Client
-	stopped atomic.Bool
+	policy   *outbound.PolicyService
+	client   *outbound.Client
+	resolver outbound.Resolver // nil retains the default system resolver.
+	stopped  atomic.Bool
 }
 
 func (o *outboundRuntime) StopAdmission()                  { o.stopped.Store(true); o.client.StopAdmission() }

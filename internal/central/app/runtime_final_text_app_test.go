@@ -48,24 +48,18 @@ func newRuntimeFinalTextFixture(t *testing.T, origin string, configure func(*dep
 	t.Helper()
 	network, err := netfixture.Load()
 	workAppCheck(t, "runtime-text-owned-network", err)
-	trust, err := outbound.LoadTrustStore(network.CAFile)
-	workAppCheck(t, "runtime-text-owned-ca", err)
 	address, err := netip.ParseAddr(network.PrivateIP)
 	workAppCheck(t, "runtime-text-owned-address", err)
 	var env []string
 	var transport *outboundRuntime
 	v := newExecutionSchedulerAppWith(t, func(d *dependencies, v *executionSchedulerApp) {
-		env = append(guardEnvironment(t, v.root.db), "AGENTEAM_CENTRAL_PUBLIC_ORIGIN="+origin, "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=5s")
+		env = append(guardEnvironment(t, v.root.db), "AGENTEAM_CENTRAL_PUBLIC_ORIGIN="+origin, "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=5s", "AGENTEAM_CENTRAL_OUTBOUND_CA_FILE="+network.CAFile)
 		v.root.cfg = guardConfiguration(t, append(append([]string(nil), env...), "AGENTEAM_CENTRAL_EXECUTION_RUNTIME="+executionSchedulerAppConfig,
 			"AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_ATTEMPTS=2", "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_INITIAL_BACKOFF=100ms", "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_BACKOFF=1s"))
-		d.outboundConstruct = func(ctx context.Context, _ config.Config, created *outboundRuntime) error {
-			if err := created.client.ForceClose(ctx); err != nil {
-				return err
-			}
-			var err error
-			created.client, err = outbound.NewClient(created.policy, trust, appFixtureResolver{address})
+		d.outboundConstruct = func(_ context.Context, _ config.Config, created *outboundRuntime) error {
+			created.resolver = appFixtureResolver{address}
 			transport = created
-			return err
+			return nil
 		}
 		if configure != nil {
 			configure(d, v)
