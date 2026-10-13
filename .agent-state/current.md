@@ -1,10 +1,16 @@
-# 当前工作：E01 固定版本数据规则增量
+# 当前工作：所选 Sprint 状态筛选已通过原候选限定验收
 
-本分支 `ai/e01-behavior-catalog-20261013` 基于 `main@21ce3268`。复用已有来源目录，仅新增同一固定 Minecraft Java 1.21.1 提交的 recipe/advancement/enchantment 三份轻文本正文，形成 2,731 条部分数据规则及 11,276 条明确字段引用；172 条 tag 引用未展开。恢复入口为 `python3 docs/development/work-items/e01-minecraft-java-1.21.1/behaviors.py`。未重采旧目录，不需重跑旧投影或产品测试。
+任务分支 `ai/task-state-filter-20261013`，工作树 `/workspace/agenteam-task-state-filter`，原受测基线为 main `21ce3268`。所选 Sprint 的状态筛选、现有条件组合及服务端分页已通过原候选限定验收，实际结果和原失败见 [Work Owner 规划卡 §27](../docs/development/work-items/d11-work-owner-planning-ui.md#27-所选-sprint-的状态筛选2026-10-13)。不新增后端、总量或 URL 协议；原输入的 43 项不同普通用例、完整类型检查、生产构建及真实默认 App Web02 通过，四图获有限独审接受，未扩大到完整规划界面或模型执行。
 
-原候选目录中的 README、candidate、行为数据/脚本及 E01 原卡小入口为本次写域；作者检查及非作者增量审查通过，限定接受部分数据规则来源及字段投影。独审核对全部规则、字段定位与明确类型引用，并完成定向拒绝检查；不接受全游戏完整性、内容冻结或计分。配方解锁进度与配方会重叠、缺字段不表示无机制、原附魔 weight 不是计分权重。权重/W/coverage 为空，系统目录不完整；D28 前置、全部真实行为/平台/试玩验收未完成。未开始重制实现。
+本树已普通合入 main `a8d497c7`，保留用户 `708a8f54` 的远程 HTTP/登录开发环境变更与已交付 E01 数据规则候选。组合 `39d4b4ad` 的[定向补验](../output/ai/task-state-filter/main-increment01/result.json)通过：四个相关 web spec 的 35 项、完整类型检查与构建，以及五个 Go 包限定 selector 的 10 top/16 sub 与 race 检查；未重跑状态筛选浏览器，上述 43 项与 Web02 仍是 `21ce3268` 原候选证据。全部补验消费者已退，原自有运行资源与唯一测试二进制已精确退役，共享依赖保留。`repo_recovery` 负责正常 main 交付及本地/远端分支与工作树收尾；原 cursor 缺陷、兼容断言失败及 Web01 末页 optional 合同误断言按原卡保留，既有 STOP 不变。
 
-## 以下为恢复时继承的主线状态
+## 继承 main：E01 固定版本数据规则增量
+
+E01 增量已交付到上述 main：复用原来源目录，仅新增同一固定 Minecraft Java 1.21.1 提交的 recipe/advancement/enchantment 三份轻文本正文，形成 2,731 条部分数据规则及 11,276 条明确字段引用；172 条 tag 引用未展开。恢复入口为 `python3 docs/development/work-items/e01-minecraft-java-1.21.1/behaviors.py`，实际范围见 [E01 候选说明](../docs/development/work-items/e01-minecraft-java-1.21.1/README.md)。没有重采旧目录，不因本次组合重复旧投影或产品验证。
+
+作者检查及非作者增量审查已限定接受部分数据规则来源与字段投影；独审核对全部规则、字段定位与明确类型引用，并完成定向拒绝检查。不接受全游戏完整性、内容冻结或计分：配方解锁进度与配方会重叠、缺字段不表示无机制、原附魔 weight 不是计分权重。权重/W/coverage 为空，系统目录不完整；D28 前置、全部真实行为/平台/试玩验收未完成，未开始重制实现。
+
+## 继承主线：Task Blocker 管理与 E01 候选来源
 
 Human Owner 非终态 Task 的人工阻塞与依赖管理已通过限定独立验收，随本次变更交付 main，实际范围及失败边界见 [Task Blocker 卡](../docs/development/work-items/d11-task-blocker-service.md)。普通检查、真实 HTTP 和默认 App Web02 及四图接受；Web01 的代理 502 仍未确因，不能将后继通过表述为旧产品缺陷已修。原日志、截图、DOM 和处置记录保留在 `output/ai/task-blocker-management`，本片工作树和本地、远端工作分支随交付按规定收尾。
 
