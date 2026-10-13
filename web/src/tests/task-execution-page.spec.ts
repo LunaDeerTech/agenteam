@@ -20,6 +20,11 @@ afterEach(async () => {
   document.body.innerHTML = ''
   vi.restoreAllMocks()
 })
+function visibleLabel(element: Element) {
+  const copy = element.cloneNode(true) as Element
+  copy.querySelectorAll('[aria-hidden="true"]').forEach((child) => child.remove())
+  return copy.getAttribute('aria-label') ?? copy.textContent?.trim() ?? ''
+}
 async function fixture() {
   const identity = { userID: id(8), sessionID: id(9), epoch: 1 }
   const context = shallowRef<ProjectWorkspace['currentReadContext']['value']>({
@@ -102,7 +107,7 @@ async function fixture() {
   wrappers.push(wrapper)
   await flushPromises()
   const button = (text: string) => {
-    const match = wrapper.findAll('button').find((button) => button.text() === text)
+    const match = wrapper.findAll('button').find((button) => visibleLabel(button.element) === text)
     if (!match) throw new Error('Missing button: ' + text)
     return match
   }
@@ -235,6 +240,8 @@ describe('Task detail Execution section', () => {
     expect(f.wrapper.get('.execution-facts').text()).toContain('未提供')
     expect(f.wrapper.get('.execution-facts').text()).toContain('尚未结束')
     expect(f.fetch).toHaveBeenCalledTimes(2)
-    expect(f.wrapper.findAll('button').some((button) => button.text() === '取消执行')).toBe(false)
+    expect(
+      f.wrapper.findAll('button').some((button) => visibleLabel(button.element) === '取消执行'),
+    ).toBe(false)
   })
 })

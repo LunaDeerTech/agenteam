@@ -9,7 +9,7 @@ import (
 )
 
 func TestExecutionTaskReaderOriginalBinding(t *testing.T) {
-	pair, store := newEntryOwnership(t)
+	pair, store := newReaderEntryPair(t)
 	reader := pair.TaskReader()
 	port, err := NewExecutionTaskReader(reader)
 	if err != nil {
