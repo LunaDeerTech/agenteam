@@ -332,6 +332,6 @@ cleanup有限接受1440×960浅色创建表单和390×844深色planned结果两�
 
 [Agent 筛选切片](d11-task-assignee-filter-ui.md)已通过限定验收，沿 §18–19 的服务端查询增加全部、未指派及真实项目 Agent 选择与目录分页。草稿明确应用、原 cursor 条件和身份代际保持；43 项分段前端结果、完整类型检查与构建通过。真实 Work HTTP shell 的 native01 1 top/2 sub 验证 50+1 Agent 目录、同 Agent 任务分页、三态/组合筛选与详情往返，相关 A/B 业务事实不变，原 Wait 与六资源退出闭合；1440 浅色和 390 深色四图有限接受。原 basic01 两个旧断言失败及修正保留，不称默认 App 生命周期、完整权限或响应式矩阵通过，不改写先前切片及旧 STOP。
 
-## 22. 同 Milestone 内的 Sprint 排序（实现中，2026-10-13）
+## 22. 同 Milestone 内的 Sprint 排序限定验收（2026-10-13）
 
-[Sprint 排序切片](d11-sprint-reorder-ui.md)沿 §4 的同组排序合同，在既有任务页面提供 planned/current Sprint 的明确 before/组尾操作；原父、版本、原意图 Lookup 与独立当前读取保持，completed 不开放新排序。候选分页、冲突和导航身份隔离复用现有机制；本片待独立审查与实际运行，不把 §20 Milestone 排序的通过结果代作 Sprint 验收，不新增跨父移动、Task 或生命周期操作。
+[Sprint 排序切片](d11-sprint-reorder-ui.md)已通过限定验收，在既有任务页面提供 planned/current Sprint 的同父 before/组尾操作，保留原版本、原意图 Lookup、候选分页及独立当前回读。10 个文件 73 项测试通过；首次 TS2322 仅修测试 Start request，完整类型检查和唯一用例复验、首次构建通过，原 FAIL 保留。默认 App 正式 HTTP 的 native01 1 top/2 sub 实际通过：两组各 53 个候选、第二页锚点、组尾/no-op、三次写入两次 changed，Current/Task/其它组及 B 不变，原调用、handler 和六资源退出闭合；宽屏浅色 planned、窄屏深色 current 四图有限接受。Runtime disabled，Unknown 与 completed/权限拒绝仍按受控单元范围，不新增跨父移动、Task 或生命周期操作，不改写 §20 或旧 STOP。
