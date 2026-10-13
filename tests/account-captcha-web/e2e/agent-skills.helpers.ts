@@ -124,6 +124,10 @@ export async function observeAgentSkills(
     };
     if (globals[p]) return globals[p];
     if (p === prefix) return "project";
+    if (p === base + "/runner-mounts") {
+      expect(u.search).toBe("");
+      return "mounts";
+    }
     if (p === base + "/configuration") {
       expect(u.search).toBe("");
       return "configuration";
@@ -282,6 +286,7 @@ export async function observeAgentSkills(
           wrap(auth.agentSkills, "catalog", "catalog");
           wrap(auth.agentConfiguration, "list", "directory");
           wrap(auth.agentConfiguration, "getConfiguration", "configuration");
+          wrap(auth.agentConfiguration, "runnerMounts", "mounts");
           (window as any).__agentSkillsOriginal = {
             snapshot: () => ({ rows, pending, failed, retired }),
             finish() {
@@ -391,6 +396,7 @@ export async function observeAgentSkills(
           "remove",
           "assignments",
           "configuration",
+          "mounts",
           "directory",
           "catalog",
         ].includes(e.kind)
@@ -447,6 +453,13 @@ export async function observeAgentSkills(
             });
             expect(value.assignment.id).toMatch(uuid);
           }
+        } else if (e.kind === "mounts") {
+          expect(value).toEqual({
+            project_id: data.project_id,
+            agent_id: data.agent_id,
+            agent_version: String(index + 1),
+            items: [],
+          });
         } else if (e.kind === "assignments") {
           expect(Object.keys(value).sort()).toEqual([
             "agent_id",
@@ -537,7 +550,12 @@ export async function observeAgentSkills(
       expect(retired).toBe(true);
       expect(failure).toBe("");
       expect(entries.every((e) => e.checked)).toBe(true);
-      for (const kind of ["assignments", "configuration", "directory"])
+      for (const kind of [
+        "assignments",
+        "configuration",
+        "directory",
+        "mounts",
+      ])
         expect(requests(kind)).toHaveLength(5);
       expect(requests("catalog")).toHaveLength(1);
       expect(requests("assign")).toHaveLength(3);

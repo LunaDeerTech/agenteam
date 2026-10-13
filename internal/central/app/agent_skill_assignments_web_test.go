@@ -319,7 +319,7 @@ func (o *agentSkillsWebObserver) capture(response *http.Response) error {
 	agentBase := strings.TrimSuffix(o.path, "/skills")
 	projectBase := strings.Split(agentBase, "/agents/")[0]
 	path := response.Request.URL.Path
-	if strings.HasPrefix(path, o.path) || path == agentBase+"/configuration" || path == projectBase+"/agents" || path == projectBase+"/skills/catalog" {
+	if strings.HasPrefix(path, o.path) || path == agentBase+"/configuration" || path == agentBase+"/runner-mounts" || path == projectBase+"/agents" || path == projectBase+"/skills/catalog" {
 		record["value"] = json.RawMessage(raw)
 	}
 	encoded, err := json.Marshal(record)
