@@ -3,6 +3,7 @@ import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { createMemoryHistory, createRouter, RouterView } from 'vue-router'
 import * as sessionModule from '../composables/useSession'
 import { createProjectWorkspace, projectWorkspaceKey } from '../composables/useProjectWorkspace'
+import { createArtifactCreation, artifactCreationKey } from '../composables/useArtifactCreation'
 import ProjectArtifactsView from '../views/projects/ProjectArtifactsView.vue'
 import ProjectNav from '../components/layout/ProjectNav.vue'
 import { projectRoute, safeReturnTarget } from '../router/auth'
@@ -53,12 +54,15 @@ async function setup() {
     ],
   })
   await router.push(artifactPath)
+  const creation = createArtifactCreation(f.auth, workspace)
+  creation.afterNavigation(artifactPath)
   const wrapper = mount(RouterView, {
     attachTo: document.body,
-    global: { plugins: [router], provide: { [projectWorkspaceKey as symbol]: workspace } },
+    global: { plugins: [router], provide: { [projectWorkspaceKey as symbol]: workspace, [artifactCreationKey as symbol]: creation } },
   })
   cleanups.push(() => {
     wrapper.unmount()
+    creation.dispose()
     workspace.dispose()
     f.auth.leave()
   })
@@ -66,7 +70,7 @@ async function setup() {
   return { ...f, workspace, router, wrapper }
 }
 describe('Artifact real controls and safe presentation', () => {
-  it('renders text literally, focuses the selected heading and restores the original button, without exposing a write or download action', async () => {
+  it('renders text literally, focuses the selected heading and restores the original button, without sending a write or exposing a download action', async () => {
     const f = await setup(),
       open = f.wrapper.get<HTMLButtonElement>('[aria-label="查看产物 report-100.txt"]')
     await open.trigger('click')

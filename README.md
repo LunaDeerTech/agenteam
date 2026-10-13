@@ -28,39 +28,41 @@ agenteam 是以项目为边界的 AI Agent 协作与执行平台，管理长期�
 cp .env.example .env
 ```
 
-按需修改 `.env` 中的开发凭据、端口和首次运行的 UID/GID，然后一条命令构建并启动完整开发环境：
+`.env` 只有三项，默认无需修改：
+
+```dotenv
+COMPOSE_PROJECT_NAME=agenteam-dev
+AGENTEAM_DEV_PORT=8080
+AGENTEAM_DEV_DATA_DIR=./.dev
+```
+
+它们分别设置容器项目名、网页端口和全部开发数据的宿主目录。相对数据路径以项目根目录解析，也支持绝对路径和含空格的路径，例如 `AGENTEAM_DEV_DATA_DIR='./local data'`。镜像版本、开发账号、内部密码、运行 UID/GID 和 Central Origin 均由开发配置自动处理，不需要额外初始化命令。
+
+一条命令构建并启动：
 
 ```sh
 docker compose -f docker-compose.dev.yaml up -d --build --wait --wait-timeout 1200
 ```
 
-Compose 自动读取根 `.env`，可调项及默认值见 [.env.example](.env.example)；已有 shell 环境变量优先。首次下载镜像和 Go/npm 依赖需要网络与足够磁盘空间。命令会等待数据库、对象存储初始化和真实 Central 监听；成功后访问 **http://localhost:8080**（若修改 `AGENTEAM_DEV_PORT`，使用对应端口）。只有这个网页端口绑定宿主机 loopback，数据库和 MinIO 均不公开宿主端口。
+成功后访问 **http://localhost:8080**；若修改端口，使用对应的精确 `localhost` 地址。只有这个端口绑定宿主机 loopback，数据库和 MinIO 均不公开宿主端口。Compose 自动读取根 `.env`，已有 shell 环境变量优先。首次下载镜像和 Go/npm 依赖需要网络与足够磁盘空间。Docker `vfs` 驱动还会为容器文件系统占用空间：此前四服务实测额外约 3GB，不含数据目录内缓存，不是所有环境的峰值或上限。
 
-使用 Docker `vfs` 存储驱动时，应另留容器文件系统的空间：本次四服务配置（MinIO 使用本地同版本镜像覆盖）的实际运行容器额外占用约 3GB，此外还有 `.dev` 中的编译和依赖缓存；这不是所有环境的峰值或空间上限。
+只有 `database`（PostgreSQL/pgvector）、`minio`、`app`（Central）和 `web`（前端与 API 反代）四个服务。数据库使用原镜像入口初始化；基础服务的小启动脚本仅装载开发凭据，不执行改密或业务 SQL。新环境使用固定的内部开发凭据，app 将它们保存在数据目录的 `config/` 下；已有凭据文件始终优先，原随机凭据不会变成默认值。基础服务可独立用相同默认值首次启动，无初始化容器或跨服务初始化等待协议。
 
-只有四个服务：`database`（PostgreSQL/pgvector）、`minio`（对象存储）、`app`（Central）和 `web`（前端与 API 反代）。数据库由原镜像自动初始化；app 启动时准备本地目录、固定机器标识及五组独立随机密钥，随后降为配置的 UID/GID 编译并运行 Central。**bucket 是 MinIO 中存放对象的容器，不是另一个服务。** Central 仅在新数据库的存储身份仍为 `reserved` 时创建缺失的配置 bucket；已确认身份的旧数据库缺桶会拒绝启动，防止掩盖数据丢失。已有 bucket 仍须通过完整安全检查，不改策略、版本管理或生命周期规则。没有独立初始化容器或 mc 依赖。
+app 入口仅以 root 准备本地目录、五组独立随机密钥和固定机器标识，然后立即降为非 root 用户。已有私有密钥或 spool 的文件所有者优先；新目录采用源码目录的非 root 所有者，源码由 root 持有时使用 UID/GID 1000。不会递归修改数据库或 MinIO 数据的所有者。密钥和机器标识只创建一次，损坏、不一致或已有数据缺少原凭据时会明确失败，不自动重生或轮换。
 
-工具链镜像包含 Go 1.27.1 / Node 24.12.0，不打包项目源码。`up --build` 会复用未变的构建缓存；应用每次启动都从只读挂载的当前源码编译 Central、安装或复用锁定的前端依赖并构建页面，再运行真实入口。编译失败会停止应用，页面返回 503，不运行旧二进制。工具链未变时，日常修改源码只需：
+**bucket 是 MinIO 内存放对象的容器，不是额外服务。** Central 仅在新数据库的存储身份仍为 `reserved` 时创建缺失的配置 bucket；已确认身份的旧数据库缺桶会拒绝启动。已有 bucket 仍须通过完整安全检查，不改策略、版本管理或生命周期规则，也不依赖 mc。
+
+工具链镜像包含 Go 1.27.1 / Node 24.12.0，不打包项目源码；未变的镜像构建会复用缓存。app 每次启动均从只读挂载的当前源码编译 Central，安装或复用锁定的唯一前端依赖目录并构建页面，再运行真实入口。编译失败停止应用，页面返回 503，不运行旧二进制。工具链未变时，修改源码只需：
 
 ```sh
 docker compose -f docker-compose.dev.yaml restart app
 ```
 
-这会重新构建当前 Go 和前端源码；等应用重新监听后刷新页面。修改 `.env` 属于**容器配置变更**，`restart` 不会重新读取它，应再次执行上面的 `up -d --build --wait --wait-timeout 1200`，让 Compose 更新相应容器。网页监听端口和 Central 的 `PUBLIC_ORIGIN` 使用同一个变量，不会写死在首次生成的凭据里；反代保留原 Host/Origin，并跟随重建后的 app 地址。须使用显示的精确 `localhost` 地址，HTTP 安全边界不变。开发用 nginx 不代表生产 SPA 嵌入已完成；`/livez` 用于已监听进程检查，当前产品的 `/readyz` 仍返回 503。
+`.env` 改动应重新执行上面的 `up` 命令；`restart` 不重新读取容器配置。端口与 `PUBLIC_ORIGIN` 同步推导，反代保留 Host/Origin 并跟随重建后的 app。更换数据目录会选择另一套完整数据，不自动搬迁或复制旧目录；独立 Compose 项目应使用不同数据目录，不要同时启动两套容器写同一目录。
 
-若开发网络需要额外受信 CA，先执行以下可选构建，再使用上述启动命令。普通环境无需这一步：
+数据库、对象存储、配置和密钥、spool/ProcessGuard、Account 恢复日志、Go/npm 缓存、前端依赖、构建页面和二进制全部位于 `AGENTEAM_DEV_DATA_DIR`（默认 `.dev/`）。默认目录已被 Git 忽略；自定义目录建议放在仓库外，在仓库内时须自行加入本地 Git 忽略规则，避免提交数据或凭据。首次管理员邮箱为 `admin@mail.com`，随机口令仅写入该目录的 `account-recovery/recovery.jsonl`，请在本机查看，不粘贴进普通日志。
 
-```sh
-docker build --no-cache --secret id=dev_ca,src=/path/to/trusted-ca.crt -f Dockerfile.dev -t agenteam-dev-toolchain:go1.27.1-node24.12.0 .
-```
-
-输入应为不含私钥的 PEM 受信 CA；它加入开发镜像的系统信任库，供包管理器、Go 和 Node/npm 正常校验证书。`--no-cache` 确保证书变更实际应用，不关闭 TLS 校验。
-
-所有持久数据与开发产物都在已忽略的根 `.dev/`：数据库、对象存储、五组独立随机密钥、固定机器标识、Object spool/ProcessGuard、Account 恢复日志、依赖缓存、唯一前端依赖目录、页面和二进制。原 Central 自行执行内嵌迁移与安全初始化，不另跑 SQL 种子。开发内网的数据库和对象存储显式使用各自正式 `TLS_MODE=disable` 配置，不改变模型出站、DNS 或应用权限规则，不启用 Execution Runtime 或发起模型请求。
-
-容器入口仅以 root 准备本地文件；编译和 Central 默认使用 UID/GID 1000；Linux 用户可在首次启动前按 `id -u` / `id -g` 修改 `.env`，之后复用这份 `.dev` 时保持一致。首次管理员邮箱为 `admin@mail.com`，随机口令仅记录在 `.dev/account-recovery/recovery.jsonl`。在本机查看后通过网页登录，并妥善保护该文件，不要粘贴进普通日志或提交仓库。`.env` 中的数据库、MinIO 开发凭据和 `.dev/config/keyrings.json` 中的密钥必须与数据配套保留；改端口不会重置密钥。
-
-从旧版 Compose 的 `.dev` 升级时，先把 `.dev/config/database-password`、`minio-user`、`minio-password` 的原值填入本机 `.env` 对应项，再启动。启动器会严格读取并保留旧 `central.env` 中的五组密钥和原机器标识，不执行该旧文件；损坏或不一致会明确失败，不重生密钥。PostgreSQL 的 `POSTGRES_PASSWORD` 仅初始化空数据目录，不能靠修改 `.env` 给已有角色改密；已有数据请保留原凭据，实际轮换需同步数据库账户与配置。
+从前一版 Compose 升级时，保留整个原 `.dev`，将根 `.env` 简化为上述三项即可。前版已经把数据库与 MinIO 凭据写入 `config/database-password`、`minio-user`、`minio-password`；现在直接复用这些私有文件，不再从 `.env` 读取密码。旧 `central.env` 中的五组密钥会严格解析并保留，不作为 shell 执行。若原凭据文件丢失，先从原备份恢复，不能填开发默认值冒充旧数据库密码。旧 `.env` 不应在确认原凭据完整前丢弃。
 
 ```sh
 docker compose -f docker-compose.dev.yaml ps
@@ -68,11 +70,21 @@ docker compose -f docker-compose.dev.yaml logs -f app
 docker compose -f docker-compose.dev.yaml down
 ```
 
-普通 `down` 只移除本组容器与网络，保留 `.dev`；下次 `up` 可继续使用。只有明确要丢弃全部本地数据时，才在 `down` 后整体删除 `.dev` 并重新初始化，不能只删除密钥或单侧存储。不要把 `.dev` 复制到其他工作树，也不要让两个 Compose project 共用它；`COMPOSE_PROJECT_NAME` 只隔离容器与网络名称，独立环境应使用各自的仓库目录。此配置不新增 Runner、SMTP 或模型调用能力，功能范围仍以任务台账为准。
+普通 `down` 保留数据目录，下一次 `up` 继续使用。只有明确丢弃全部本地数据时，才在停止容器后整体删除对应目录；不要单独删除密钥或某一侧存储，也不要把整份数据复制到开发 worktree。
 
-本轮已实际验证四服务启动、迁移与私有 bucket 初始化、浏览器管理员登录，以及 `restart app` 重新编译 Go/前端；五组密钥、机器标识、凭据和已有数据保持不变。普通 `down` 保留 `.dev` 后，上述原样 `up --build --wait` 命令也已通过。
+若网络需要额外受信 CA，可先构建同一工具链镜像，再执行正常启动命令：
 
-本环境访问 MinIO 官方 Quay 镜像及同版本 Docker Hub manifest 均被拒，因此验证时在本机 `.env` 中将 `AGENTEAM_DEV_MINIO_IMAGE` 指向已有的同版本源码构建镜像；未证明默认官方镜像在本环境可拉取，也不代表其他环境不可用。正常环境可保留示例中的官方镜像；开发环境可启动不等于全部产品能力已就绪，`/readyz` 的未绑定状态仍保留。
+```sh
+docker build --no-cache --secret id=dev_ca,src=/path/to/trusted-ca.crt -f Dockerfile.dev -t agenteam-dev-toolchain:go1.27.1-node24.12.0 .
+```
+
+使用不含私钥的 PEM 受信 CA；该步骤添加系统信任，不关闭 TLS 校验。普通环境不需要此步骤。
+
+当前云端对固定版本 MinIO 的官方 Quay 镜像及 Docker Hub manifest 均返回访问拒绝。该环境的验证使用明确标识的本地同版本源码镜像，并通过测试专用 Compose 文件覆盖 MinIO 镜像和原入口路径；这不增加 `.env` 的公开配置项，也不证明官方默认镜像及入口已在该环境拉取运行，不代表其他环境不可用。
+
+本轮三项配置已使用含空格的数据目录通过四服务启动、真实浏览器管理员登录和 Session 校验，Central 以非 root 运行。重启 app 后 Go 与前端重新构建，原数据库、三份凭据、五组密钥及机器标识保持不变；最后 `down` 已清退本轮容器和网络并保留持久数据。
+
+开发内网数据库与对象存储使用正式 `TLS_MODE=disable` 配置，不改变模型出站、DNS 或权限规则。此开发组合不启用 Execution Runtime，不发起模型请求，不新增 Runner 或 SMTP。nginx 开发托管不代表生产 SPA 嵌入完成；`/livez` 检查真实监听进程，当前产品的 `/readyz` 未绑定状态仍保留。
 
 使用 Go 1.27.1；脚本核对精确版本并禁止自动切换工具链。
 

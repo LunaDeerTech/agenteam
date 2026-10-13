@@ -52,7 +52,7 @@ export const artifactContent = (
   next_offset: String(BigInt(offset) + BigInt(new TextEncoder().encode(value).byteLength)),
   truncated,
 })
-export function artifactSessionFixture() {
+export function artifactSessionFixture(commands?: (fetch: Fetch) => NonNullable<Parameters<typeof createSessionController>[19]>) {
   let session: SessionView = {
     user: {
       id: usageID(2),
@@ -112,7 +112,7 @@ export function artifactSessionFixture() {
   )
   const args: Parameters<typeof createSessionController> = [createAccountAPI(fetch)]
   args[12] = createProjectOwnerAPI(fetch)
-  args[19] = { projectArtifacts: createProjectArtifactsAPI(fetch) }
+  args[19] = { projectArtifacts: createProjectArtifactsAPI(fetch), ...commands?.(fetch) }
   return {
     auth: createSessionController(...args),
     fetch,

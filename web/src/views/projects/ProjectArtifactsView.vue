@@ -2,6 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, ref } from 'vue'
 import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
 import { UiButton, UiCard, UiField, UiInput, UiSelect, UiState } from '../../components/ui'
+import { useArtifactCreation } from '../../composables/useArtifactCreation'
 import { useProjectArtifacts } from '../../composables/useProjectArtifacts'
 import { useProjectWorkspace } from '../../composables/useProjectWorkspace'
 import { skillsNavigationReadReady } from '../../router/auth'
@@ -10,11 +11,13 @@ const route = useRoute(),
   navigationReady = skillsNavigationReadReady(useRouter())
 const location = computed(() => (navigationReady.value ? route.fullPath : ''))
 const owner = useProjectArtifacts(undefined, useProjectWorkspace(), location)
+const creation = useArtifactCreation()
 const page = owner.page,
   detail = owner.detail,
   selected = owner.selected
 const heading = ref<HTMLElement | null>(null),
   detailHeading = ref<HTMLElement | null>(null)
+const detachReader = creation.attachReader(owner, () => heading.value)
 const kinds = [
   { value: '', label: '全部' },
   { value: 'generated', label: '生成产物' },
@@ -52,6 +55,7 @@ onBeforeRouteLeave(cancel)
 onBeforeRouteUpdate(cancel)
 onBeforeUnmount(() => {
   trigger = null
+  detachReader()
   owner.dispose()
 })
 </script>
@@ -63,8 +67,12 @@ onBeforeUnmount(() => {
         <h1 ref="heading" tabindex="-1">产物</h1>
         <p class="meta">浏览当前项目的产物与内容。</p>
       </div>
-      <UiButton :disabled="owner.blocked.value" @click="owner.refresh()">刷新产物</UiButton>
+      <div class="artifact-actions">
+        <UiButton variant="primary" :disabled="!creation.canOpen.value || owner.blocked.value" @click="creation.openCreate()">新建文本产物</UiButton>
+        <UiButton :disabled="owner.blocked.value" @click="owner.refresh()">刷新产物</UiButton>
+      </div>
     </header>
+    <p v-if="creation.state.denied" role="alert">{{ creation.state.message }}</p>
     <template v-if="owner.visible.value">
       <UiCard>
         <form class="artifact-filters" aria-label="筛选产物" @submit.prevent="apply()">
