@@ -158,6 +158,8 @@ const endpoints = {
   reviewLookup: ['POST', '/api/v1/projects/{project_id}/task-transition-commands/lookup', 200],
   taskCreate: ['POST', '/api/v1/projects/{project_id}/tasks', 200],
   taskCreateLookup: ['POST', '/api/v1/projects/{project_id}/task-commands/lookup', 200],
+  taskReorder: ['POST', '/api/v1/projects/{project_id}/tasks/{target}/reorder', 200],
+  taskReorderLookup: ['POST', '/api/v1/projects/{project_id}/task-commands/lookup', 200],
   taskUpdate: ['PATCH', '/api/v1/projects/{project_id}/tasks/{target}', 200],
   taskUpdateLookup: ['POST', '/api/v1/projects/{project_id}/task-commands/lookup', 200],
   directoryAgents: ['GET', '/api/v1/projects/{project_id}/agents', 200],
@@ -1232,6 +1234,8 @@ type WorkReviewEndpoint =
   | 'reviewLookup'
   | 'taskCreate'
   | 'taskCreateLookup'
+  | 'taskReorder'
+  | 'taskReorderLookup'
   | 'taskUpdate'
   | 'taskUpdateLookup'
   | 'directoryAgents'
@@ -1279,6 +1283,8 @@ const workReviewEndpoints: readonly WorkReviewEndpoint[] = [
   'reviewLookup',
   'taskCreate',
   'taskCreateLookup',
+  'taskReorder',
+  'taskReorderLookup',
   'taskUpdate',
   'taskUpdateLookup',
   'directoryAgents',

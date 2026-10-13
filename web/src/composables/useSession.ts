@@ -127,6 +127,7 @@ import {
   type TaskUpdateReceipt,
   type TaskUpdateLookup,
 } from '../api/work-task-edit'
+import { createWorkTaskReorderAPI, captureTaskReorderInput, type WorkTaskReorderAPI, type TaskReorderInput } from '../api/work-task-reorder'
 import {
   createWorkTaskBlockersAPI, captureHumanBlockerDraft, captureHumanBlockerAdd, captureHumanBlockerResolve,
   type WorkTaskBlockersAPI, type HumanBlockerDraft, type HumanBlockerAddInput,
@@ -601,6 +602,7 @@ type WorkReviewIntent = {
   | { kind: 'ready'; input: ReadyInput }
   | { kind: 'create'; input: TaskCreateInput }
   | { kind: 'edit'; input: TaskUpdateInput }
+  | { kind: 'reorder'; input: TaskReorderInput }
   | { kind: 'blocker-add'; input: HumanBlockerAddInput }
   | { kind: 'blocker-resolve'; input: HumanBlockerResolveInput }
   | { kind: 'dependency-add'; input: TaskDependencyAddInput }
@@ -1119,6 +1121,7 @@ export function createSessionController(
   commandAPIs: Readonly<{
     taskBlockers?: WorkTaskBlockersAPI
     taskDependencies?: WorkTaskDependenciesAPI
+    taskReorder?: WorkTaskReorderAPI
     edit?: WorkTaskEditAPI
     taskTimeline?: WorkTaskTimelineAPI
     systemRunners?: SystemRunnersAPI
@@ -1160,6 +1163,7 @@ export function createSessionController(
   const skillPackageAPI = commandAPIs.skillPackage ?? createSkillPackageAPI()
   const taskDependenciesAPI = commandAPIs.taskDependencies ?? createWorkTaskDependenciesAPI()
   const taskBlockersAPI = commandAPIs.taskBlockers ?? createWorkTaskBlockersAPI()
+  const taskReorderAPI = commandAPIs.taskReorder ?? createWorkTaskReorderAPI()
   const taskEditAPI = commandAPIs.edit ?? createWorkTaskEditAPI()
   const taskTimelineAPI = commandAPIs.taskTimeline ?? createWorkTaskTimelineAPI()
   const agentRunnerMountsAPI = commandAPIs.agentRunnerMounts ?? createAgentRunnerMountsAPI()
@@ -6469,6 +6473,10 @@ export function createSessionController(
           return lookup
             ? taskBlockersAPI.lookup(original.projectID, original.taskID, 'work.task.blocker.resolve', original.input, write)
             : taskBlockersAPI.resolve(original.projectID, original.taskID, original.input, write)
+        if (original.kind === 'reorder')
+          return lookup
+            ? taskReorderAPI.lookup(original.projectID, original.taskID, original.input, write)
+            : taskReorderAPI.reorder(original.projectID, original.taskID, original.input, write)
         if (original.kind === 'edit')
           return lookup
             ? taskEditAPI.lookup(original.projectID, original.taskID, original.input, write)
@@ -6680,6 +6688,39 @@ export function createSessionController(
         const input = captureTaskUpdateInput(value)
         const original: WorkReviewIntent = {
           kind: 'edit',
+          identity,
+          csrf: sessionCSRF,
+          projectID,
+          taskID,
+          key: newKey(),
+          input,
+          body: JSON.stringify(input),
+          uncertain: false,
+        }
+        workReviewIntent = original
+        return performReview(original, false)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    startReorder(projectID: string, taskID: string, value: TaskReorderInput) {
+      try {
+        const identity = personalIdentity()
+        if (
+          owner ||
+          workReviewIntent ||
+          milestoneReorderIntent ||
+          sprintReorderIntent ||
+          milestoneUpdateIntent ||
+          sprintUpdateIntent ||
+          personalIntent ||
+          pending
+        )
+          throw new AccountFailure('busy')
+        if (!uuid7.test(projectID) || !uuid7.test(taskID)) throw new AccountFailure('invalid-input')
+        const input = captureTaskReorderInput(value, taskID)
+        const original: WorkReviewIntent = {
+          kind: 'reorder',
           identity,
           csrf: sessionCSRF,
           projectID,

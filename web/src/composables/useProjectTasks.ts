@@ -48,6 +48,7 @@ import {
   type TaskTimelineType,
 } from '../api/work-task-timeline'
 import { captureTaskUpdateInput } from '../api/work-task-edit'
+import { captureTaskReorderInput } from '../api/work-task-reorder'
 import { captureHumanBlockerDraft, captureHumanBlockerResolve } from '../api/work-task-blockers'
 import { captureTaskDependencyDraft, captureTaskDependencyResolve, captureTaskDependencyQuery, compareDependencyCandidates, type TaskDependencyCandidatesQuery } from '../api/work-task-dependencies'
 import { agentLabel, type DirectoryAgent } from '../api/agent-directory'
@@ -218,6 +219,17 @@ export function createProjectTasks(
     touched: { title: false, description: false, type: false, priority: false, plan: false },
     message: '',
   })
+  const taskReorder = reactive({
+    open: false, projectID: '', taskID: '', sprintID: '', version: '',
+    priority: '' as Task['priority'] | '', mode: 'before' as 'before' | 'tail',
+    beforeID: '', beforeTitle: '', conflict: false, readVersion: '', message: '',
+  })
+  const taskCandidates = shallowReactive<{
+    phase: Phase | 'stale'; items: readonly TaskSummary[]; next?: string;
+    page: number; cursors: (string | undefined)[]; message: string;
+  }>({ phase: 'idle', items: [], page: 0, cursors: [undefined], message: '' })
+  let taskReorderGeneration = 0
+  let taskReorderIdentity = ''
   const sprintReorder = reactive({
     open: false,
     projectID: '',
@@ -824,6 +836,7 @@ export function createProjectTasks(
       state.sprint?.state !== 'current' ||
       humanBlocker.open ||
       dependency.open ||
+      taskReorder.open ||
       !state.detailCurrent ||
       !!pending.value ||
       !!sprintPending.value ||
@@ -886,8 +899,17 @@ export function createProjectTasks(
       !sprintStart.open &&
       !sprintStart.needsRead,
   )
-  const canManageHumanBlockers = computed(() => canEdit.value && !edit.open && !dependency.open && !draft.action && state.blockerPhase === 'ready')
-  const canManageDependencies = computed(() => canEdit.value && !edit.open && !humanBlocker.open && !draft.action && state.blockerPhase === 'ready')
+  const canManageHumanBlockers = computed(() => canEdit.value && !taskReorder.open && !edit.open && !dependency.open && !draft.action && state.blockerPhase === 'ready')
+  const canManageDependencies = computed(() => canEdit.value && !taskReorder.open && !edit.open && !humanBlocker.open && !draft.action && state.blockerPhase === 'ready')
+  const canReorderTask = computed(() => canEdit.value && !edit.open && !humanBlocker.open && !dependency.open && !draft.action)
+  const taskReorderStale = computed(() => taskReorder.open && (
+    taskReorder.conflict || taskReorder.projectID !== projectID.value ||
+    taskReorder.taskID !== state.task?.id || taskReorder.version !== state.task?.version ||
+    taskReorder.sprintID !== state.task?.sprint_id || taskReorder.priority !== state.task?.priority ||
+    taskReorderIdentity !== identityKey(taskReorder.projectID)))
+  const taskReorderReady = computed(() => canReorderTask.value && taskReorder.open &&
+    !taskReorderStale.value && (taskReorder.mode === 'tail' ||
+    taskCandidates.phase === 'ready' && taskCandidates.items.some((item) => item.id === taskReorder.beforeID)))
   const dependencyStale = computed(() => dependency.open && (dependency.conflict ||
     dependency.projectID !== projectID.value || dependency.taskID !== state.task?.id ||
     dependency.version !== state.task?.version || dependencyIdentity !== identityKey(dependency.projectID)))
@@ -919,6 +941,7 @@ export function createProjectTasks(
       editDirty.value ||
       humanBlocker.open ||
       dependency.open ||
+      taskReorder.open ||
       !!pending.value ||
       !!sprintPending.value ||
       !!sprintCreatePending.value ||
@@ -1198,6 +1221,7 @@ export function createProjectTasks(
     clearDraft()
     clearCreation()
     clearEdit()
+    clearTaskReorder()
     clearHumanBlocker()
     clearDependency()
     clearSprintStart()
@@ -3443,18 +3467,19 @@ export function createProjectTasks(
       if (!live(own, original.projectID) || state.task?.id !== original.taskID) return
       clearDraft()
       clearEdit()
+    clearTaskReorder()
       clearHumanBlocker()
       clearDependency()
       const receipt = 'status' in result ? result.receipt : result
       state.feedback =
-        original.kind === 'edit' && 'changed' in receipt && !receipt.changed
+        original.kind === 'reorder' ? ('changed' in receipt && !receipt.changed ? '已确认原排序结果，任务顺序没有变化。' : '已确认原排序结果。') : original.kind === 'edit' && 'changed' in receipt && !receipt.changed
           ? '已确认原保存结果，任务内容没有变化。'
           : '已确认原操作结果。'
       if (isBlocker) invalidateHumanBlockerReads()
       await refresh()
-      if (original.kind === 'edit' && live(own, original.projectID) && state.phase === 'error')
+      if (['edit', 'reorder'].includes(original.kind) && live(own, original.projectID) && state.phase === 'error')
         state.message = `${state.feedback} ${state.message}`
-      return isBlocker && live(own, original.projectID) && state.task?.id === original.taskID && state.detailCurrent
+      return (isBlocker || original.kind === 'reorder') && live(own, original.projectID) && state.task?.id === original.taskID && state.detailCurrent
     } catch (error) {
       if (live(own, original.projectID) && state.task?.id === original.taskID) {
         state.message = explain(error)
@@ -3638,10 +3663,136 @@ export function createProjectTasks(
     // The registered router guard owns the single dirty/Unknown leave confirmation.
     await navigate(path)
   }
+  function clearTaskReorder() {
+    ++taskReorderGeneration
+    Object.assign(taskReorder, { open: false, projectID: '', taskID: '', sprintID: '', version: '',
+      priority: '', mode: 'before', beforeID: '', beforeTitle: '', conflict: false, readVersion: '', message: '' })
+    Object.assign(taskCandidates, { phase: 'idle', items: [], next: undefined, page: 0, cursors: [undefined], message: '' })
+    taskReorderIdentity = ''
+  }
+  function taskReorderCurrent(local: number, own: number, project: string, target: string, identity: string) {
+    return local === taskReorderGeneration && live(own, project) && taskReorder.open &&
+      state.task?.id === target && identityKey(project) === identity
+  }
+  async function openTaskReorder() {
+    const task = state.task
+    if (!task || busy.value || !canReorderTask.value || taskReorder.open) return
+    if (auth.workReview.progress?.phase === 'rejected') auth.workReview.editRejected()
+    clearTaskReorder()
+    Object.assign(taskReorder, { open: true, projectID: task.project_id, taskID: task.id,
+      sprintID: task.sprint_id, priority: task.priority, version: task.version })
+    taskReorderIdentity = identityKey(task.project_id)
+    state.feedback = ''
+    await loadTaskCandidates(0)
+  }
+  function setTaskReorderMode(mode: string) {
+    if (!busy.value && canReorderTask.value && taskReorder.open && !taskReorderStale.value &&
+      (mode === 'before' || mode === 'tail')) taskReorder.mode = mode
+  }
+  function chooseTaskBefore(id: string) {
+    if (busy.value || !canReorderTask.value || taskReorderStale.value || taskCandidates.phase !== 'ready') return
+    const item = taskCandidates.items.find((item) => item.id === id && item.id !== taskReorder.taskID)
+    if (!item) return
+    taskReorder.beforeID = item.id; taskReorder.beforeTitle = item.title
+  }
+  async function loadTaskCandidates(page: number, restart = false) {
+    const local = taskReorderGeneration, own = generation, project = taskReorder.projectID,
+      target = taskReorder.taskID, identity = taskReorderIdentity
+    if (!taskReorderCurrent(local, own, project, target, identity) || busy.value || pending.value ||
+      !canReorderTask.value || taskReorderStale.value || !Number.isInteger(page) || page < 0 ||
+      (!restart && (taskCandidates.phase === 'stale' || page > taskCandidates.page + 1))) return
+    const cursor = restart || page === 0 ? undefined : page === taskCandidates.page + 1
+      ? taskCandidates.next : taskCandidates.cursors[page]
+    if (page > 0 && !cursor) return
+    taskCandidates.phase = 'loading'; taskCandidates.message = ''
+    await read(async (_p, step) => {
+      const result = await step(() => auth.workReview.tasks(project, {
+        sprint_id: taskReorder.sprintID, state: 'backlog', priority: taskReorder.priority as Task['priority'],
+        limit: 50, ...(cursor ? { cursor } : {}),
+      }))
+      if (result.items.some((item) => item.project_id !== project || item.sprint_id !== taskReorder.sprintID ||
+        item.state !== 'backlog' || item.priority !== taskReorder.priority)) throw new AccountFailure('invalid-response')
+      return result
+    }, (result) => {
+      if (!taskReorderCurrent(local, own, project, target, identity)) return
+      taskCandidates.items = result.items.filter((item) => item.id !== target)
+      taskCandidates.cursors = [...(restart ? [] : taskCandidates.cursors.slice(0, page)), cursor]
+      taskCandidates.page = page; taskCandidates.next = result.next_cursor; taskCandidates.phase = 'ready'
+      taskReorder.beforeID = ''; taskReorder.beforeTitle = ''
+    }, (error) => {
+      if (!taskReorderCurrent(local, own, project, target, identity)) return
+      taskReorder.beforeID = ''; taskReorder.beforeTitle = ''
+      taskCandidates.items = []; taskCandidates.next = undefined
+      if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
+        clearTaskReorder(); state.task = null; state.detailCurrent = false; state.message = explain(error)
+        return
+      }
+      const stale = error instanceof AccountFailure && ['CURSOR_INVALID', 'CURSOR_STALE'].includes(error.problem?.code ?? '')
+      taskCandidates.phase = stale ? 'stale' : 'error'
+      taskCandidates.message = stale ? '候选顺序已变化，请从首页重新读取。' : '未取得完整候选列表，请重新读取。'
+    })
+  }
+  function cancelTaskReorder() {
+    if (busy.value || pending.value) return false
+    if (auth.workReview.progress?.phase === 'rejected') auth.workReview.editRejected()
+    clearTaskReorder()
+    return true
+  }
+  async function reloadTaskReorder() {
+    if (busy.value || pending.value || !taskReorder.open) return
+    const local = taskReorderGeneration, own = generation, project = taskReorder.projectID,
+      target = taskReorder.taskID, identity = taskReorderIdentity
+    taskReorder.readVersion = ''
+    await refresh()
+    if (!taskReorderCurrent(local, own, project, target, identity)) return
+    if (state.detailCurrent && state.task && state.phase === 'ready') {
+      taskReorder.readVersion = state.task.version
+      taskReorder.message = '当前任务信息已读取。请核对所属 Sprint、优先级和版本，再明确采用当前版本。'
+    }
+  }
+  async function adoptTaskReorderVersion() {
+    const task = state.task
+    if (!task || busy.value || pending.value || !taskReorder.open || !canReorderTask.value ||
+      !taskReorderStale.value || !taskReorder.readVersion || task.version !== taskReorder.readVersion) return
+    if (auth.workReview.progress?.phase === 'rejected') auth.workReview.editRejected()
+    Object.assign(taskReorder, { version: task.version, sprintID: task.sprint_id, priority: task.priority,
+      conflict: false, readVersion: '', beforeID: '', beforeTitle: '',
+      message: '已采用当前版本。请重新选择排序位置，再明确确认。' })
+    await loadTaskCandidates(0, true)
+  }
+  async function submitTaskReorder() {
+    const local = taskReorderGeneration, own = generation, project = taskReorder.projectID,
+      target = taskReorder.taskID, identity = taskReorderIdentity
+    if (busy.value || !taskReorderReady.value || !taskReorderCurrent(local, own, project, target, identity)) return false
+    try {
+      const input = captureTaskReorderInput({ expected_version: taskReorder.version,
+        request: taskReorder.mode === 'tail' ? {} : { before_id: taskReorder.beforeID } }, target)
+      if (auth.workReview.progress?.phase === 'rejected') auth.workReview.editRejected()
+      const result = await auth.workReview.startReorder(project, target, input)
+      if ('status' in result || !('changed' in result) || !taskReorderCurrent(local, own, project, target, identity)) return false
+      clearTaskReorder()
+      const message = result.changed ? '任务顺序已更新。' : '已确认排序，任务顺序没有变化。'
+      state.feedback = message
+      // Only a fresh real Get/List updates the detail and board; never locally swap cards.
+      await refresh()
+      if (live(own, project) && state.phase === 'error') state.message = `${message} ${state.message}`
+      return live(own, project) && state.task?.id === target && state.detailCurrent
+    } catch (error) {
+      if (!taskReorderCurrent(local, own, project, target, identity)) return false
+      taskReorder.message = explain(error)
+      if (error instanceof AccountFailure && [401, 403, 404].includes(error.problem?.status ?? 0)) {
+        clearTaskReorder(); state.task = null; state.detailCurrent = false; state.message = explain(error)
+      } else if (auth.workReview.progress?.phase === 'rejected') {
+        taskReorder.conflict = true; taskReorder.readVersion = ''; state.detailCurrent = false
+      }
+      return false
+    }
+  }
   function openEdit() {
     const task = state.task
-    if (!task || !canEdit.value || busy.value || draft.action || edit.open || humanBlocker.open || dependency.open) return
+    if (!task || !canEdit.value || busy.value || draft.action || edit.open || humanBlocker.open || dependency.open || taskReorder.open) return
     clearEdit()
+    clearTaskReorder()
     Object.assign(edit, {
       projectID: task.project_id,
       taskID: task.id,
@@ -3670,6 +3821,7 @@ export function createProjectTasks(
     if (busy.value || pending.value) return
     if (editDirty.value && !(await confirmLeave())) return
     clearEdit()
+    clearTaskReorder()
   }
   async function submitEdit() {
     const p = workspace.currentReadContext.value?.projectID,
@@ -3702,6 +3854,7 @@ export function createProjectTasks(
       )
         return
       clearEdit()
+    clearTaskReorder()
       const message = result.changed ? '任务已保存。' : '已确认保存，任务内容没有变化。'
       state.feedback = message
       await refresh()
@@ -3801,6 +3954,7 @@ export function createProjectTasks(
       clearDraft()
       clearCreation()
       clearEdit()
+    clearTaskReorder()
       clearHumanBlocker()
       clearDependency()
       clearSprintStart()
@@ -3835,6 +3989,7 @@ export function createProjectTasks(
     clearDraft()
     clearCreation()
     clearEdit()
+    clearTaskReorder()
     clearHumanBlocker()
     clearDependency()
     clearSprintStart()
@@ -3940,6 +4095,9 @@ export function createProjectTasks(
     draft,
     creation,
     edit,
+    taskReorder, taskCandidates, canReorderTask, taskReorderStale, taskReorderReady,
+    openTaskReorder, setTaskReorderMode, chooseTaskBefore, loadTaskCandidates,
+    cancelTaskReorder, reloadTaskReorder, adoptTaskReorderVersion, submitTaskReorder,
     dependency, dependencyCandidates, dependencyOptions, canManageDependencies, dependencyStale,
     openDependency, loadDependencyCandidates, cancelDependency, submitDependency, viewDependency,
     humanBlocker,
