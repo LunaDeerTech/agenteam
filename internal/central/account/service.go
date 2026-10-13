@@ -19,6 +19,9 @@ import (
 )
 
 type Dependencies struct {
+	// DevMode allows HTTP from any browser origin and uses non-Secure cookies.
+	// CSRF tokens, authentication and authorization remain required.
+	DevMode           bool
 	Authority         *Authority
 	Audit             ac.Appender
 	Secrets           *secret.Service

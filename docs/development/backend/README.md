@@ -110,7 +110,8 @@ AGENTEAM_MINIO_BINARY=/task-owned/cache/minio GOFLAGS=-p=1 sh scripts/test-accou
 | `AGENTEAM_CENTRAL_KNOWLEDGE_CONFIRMATION_KEYRING` | 无，必填 | format=1、current_kid 与 1–32 把独立随机 32-byte key；严格带 padding base64，JSON ≤16 KiB。每把当前/保留旧 key 均不得与 cursor、Secret、download、Account 的任何当前/历史材料相同；kid 不同不构成独立材料。轮换时保留仍需验证的旧确认 key，无随机默认或借用其他用途 key |
 | `AGENTEAM_CENTRAL_ACCOUNT_RECOVERY_LOG` | 无，必填 | 规范绝对文件路径；配置阶段只验证路径，启动核服务 UID、0700 父目录、0600 常规文件及无符号链接，不自动创建父目录 |
 | `AGENTEAM_CENTRAL_OUTBOUND_CA_FILE` | 无，可选 | 追加到系统 trust roots 的部署 PEM CA，纯配置验证即读取，最多 1 MiB；与数据库 CA 独立，见[出站说明](outbound.md) |
-| `AGENTEAM_CENTRAL_PUBLIC_ORIGIN` | `http://localhost:8080` | 正式部署 HTTPS，仅字面 localhost/loopback 允许本地 HTTP；无 userinfo/query/fragment，路径仅空或 `/`；规范化主机、IP、默认端口和尾 `/`，代理须保留 canonical Host |
+| `AGENTEAM_CENTRAL_PUBLIC_ORIGIN` | `http://localhost:8080` | 浏览器边界与邮件/恢复链接基址。默认仅字面 localhost/loopback 允许 HTTP，其他地址须 HTTPS；无 userinfo/query/fragment，路径仅空或 `/`；规范化主机、IP、默认端口和尾 `/`，非 Dev 模式的代理须保留 canonical Host |
+| `AGENTEAM_CENTRAL_DEV_MODE` | `false` | 仅接受 `true` / `false`。开发测试设 `true` 后允许远程 HTTP，浏览器请求不校验 Host、Origin、Sec-Fetch-Site 或来源网段，统一使用非 Secure 普通 Cookie；仍校验 CSRF token、Session、业务权限及 URL 格式。邮件/恢复链接仍仅使用配置的 `PUBLIC_ORIGIN`，不读取请求 Host；生产保持关闭 |
 | `AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_ATTEMPTS` | 无，三项可同时缺省 | 规范十进制正 int64，至少 1，包含首次 Launch |
 | `AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_INITIAL_BACKOFF` | 无，三项可同时缺省 | Go duration，严格大于 0 |
 | `AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_BACKOFF` | 无，三项可同时缺省 | Go duration，不小于 initial backoff |

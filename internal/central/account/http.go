@@ -54,7 +54,7 @@ func NewHTTPHandler(core *Service, profiles c.ProfilePort, options HTTPOptions) 
 	if nilPort(profiles) || options.System == nil || options.System.core != core || options.System.pagination.Validate() != nil {
 		return nil, fault(foundation.DependencyUnbound, nil)
 	}
-	b, e := csrfNewBoundary(options.PublicOrigin)
+	b, e := csrfNewBoundaryWithDevMode(options.PublicOrigin, core.state().deps.DevMode)
 	if e != nil {
 		return nil, e
 	}

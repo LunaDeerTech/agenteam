@@ -487,7 +487,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if !owned.addOutbound(ctx, transport) {
 		return context.Canceled
 	}
-	sink, err := recoverylog.Open(cfg.AccountRecoveryLog())
+	sink, err := openAccountRecoveryLog(cfg)
 	if err != nil {
 		return err
 	}
@@ -576,7 +576,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
-	core, err := account.New(account.Dependencies{Authority: authority, Audit: auditor, Secrets: secrets, Events: journal, SessionsRevoked: revoked, DeliveryRequested: delivery, Processes: processes, RecoveryLog: sink, Challenges: challenges})
+	core, err := createAccountService(cfg, account.Dependencies{Authority: authority, Audit: auditor, Secrets: secrets, Events: journal, SessionsRevoked: revoked, DeliveryRequested: delivery, Processes: processes, RecoveryLog: sink, Challenges: challenges})
 	if err != nil {
 		return err
 	}
@@ -672,7 +672,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
-	worker, err := accountmail.New(accountmail.Dependencies{Port: port, Registry: registry, Outbound: transport.client, Trust: cfg.OutboundTrust(), RecoveryLog: sink, PublicOrigin: cfg.PublicOrigin()})
+	worker, err := createAccountMailWorker(cfg, accountmail.Dependencies{Port: port, Registry: registry, Outbound: transport.client, Trust: cfg.OutboundTrust(), RecoveryLog: sink})
 	if err != nil {
 		return err
 	}

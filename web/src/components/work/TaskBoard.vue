@@ -4,6 +4,7 @@ import { taskStates, taskLabels, type TaskState } from '../../api/work-review'
 import type { TaskColumn } from '../../composables/useProjectTasks'
 defineProps<{
   columns: Record<TaskState, TaskColumn>
+  stateFilter: TaskState | ''
   busy: boolean
   name: (id: string | null) => string
 }>()
@@ -20,42 +21,47 @@ const priorities = { critical: '紧急', high: '高', medium: '中', low: '低' 
     >
       <header>
         <h3>{{ taskLabels[status] }}</h3>
-        <span aria-label="已读取任务数">{{ columns[status].items.length }}</span>
+        <span v-if="!stateFilter || stateFilter === status" aria-label="已读取任务数">{{
+          columns[status].items.length
+        }}</span>
       </header>
-      <UiState v-if="columns[status].phase === 'loading'" kind="loading" title="正在读取任务" />
-      <UiState
-        v-else-if="columns[status].phase === 'error'"
-        kind="error"
-        title="任务读取失败"
-        :description="columns[status].message"
-        ><UiButton :disabled="busy" @click="$emit('reload', status)">重读此列</UiButton></UiState
-      >
-      <p
-        v-else-if="columns[status].phase === 'ready' && !columns[status].items.length"
-        class="empty-column"
-      >
-        暂无任务
-      </p>
-      <button
-        v-for="task in columns[status].items"
-        :key="task.id"
-        type="button"
-        class="task-card"
-        :aria-label="task.title"
-        :disabled="busy"
-        @click="$emit('select', task.id)"
-      >
-        <strong>{{ task.title }}</strong>
-        <span class="card-meta"
-          ><UiBadge>{{ task.type }}</UiBadge
-          ><span>{{ priorities[task.priority] }}优先级</span></span
+      <p v-if="stateFilter && stateFilter !== status" class="empty-column">当前筛选未包含此状态</p>
+      <template v-else>
+        <UiState v-if="columns[status].phase === 'loading'" kind="loading" title="正在读取任务" />
+        <UiState
+          v-else-if="columns[status].phase === 'error'"
+          kind="error"
+          title="任务读取失败"
+          :description="columns[status].message"
+          ><UiButton :disabled="busy" @click="$emit('reload', status)">重读此列</UiButton></UiState
         >
-        <span>{{ name(task.assignee_agent_id) }}</span>
-        <span v-if="task.state === 'blocked'">任务受阻，请打开详情查看阻塞</span>
-      </button>
-      <UiButton v-if="columns[status].next" :disabled="busy" @click="$emit('more', status)"
-        >更多{{ taskLabels[status] }}任务</UiButton
-      >
+        <p
+          v-else-if="columns[status].phase === 'ready' && !columns[status].items.length"
+          class="empty-column"
+        >
+          暂无任务
+        </p>
+        <button
+          v-for="task in columns[status].items"
+          :key="task.id"
+          type="button"
+          class="task-card"
+          :aria-label="task.title"
+          :disabled="busy"
+          @click="$emit('select', task.id)"
+        >
+          <strong>{{ task.title }}</strong>
+          <span class="card-meta"
+            ><UiBadge>{{ task.type }}</UiBadge
+            ><span>{{ priorities[task.priority] }}优先级</span></span
+          >
+          <span>{{ name(task.assignee_agent_id) }}</span>
+          <span v-if="task.state === 'blocked'">任务受阻，请打开详情查看阻塞</span>
+        </button>
+        <UiButton v-if="columns[status].next" :disabled="busy" @click="$emit('more', status)"
+          >更多{{ taskLabels[status] }}任务</UiButton
+        >
+      </template>
     </section>
   </div>
 </template>
