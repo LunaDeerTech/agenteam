@@ -99,7 +99,7 @@ test("filters one Execution across pages, full daily summary, refresh and clear 
   async function scope(active: boolean) {
     if (active) {
       await expect(filter).toBeVisible();
-      await expect(filter.locator("span")).toHaveText(data.execution_id);
+      await expect(filter.locator(":scope > p > span")).toHaveText(data.execution_id);
       await expect(button("清除执行筛选")).toBeEnabled();
     } else await expect(filter).toHaveCount(0);
   }
