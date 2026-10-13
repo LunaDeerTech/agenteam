@@ -1,6 +1,6 @@
 # D05 Human 文本产物创建 UI
 
-状态：实现候选，待定向工程检查、独立审查及真实 App 浏览器联调。只读浏览沿 [Artifact Owner UI](d05-artifact-owner-ui.md)，Human 业务边界沿 [Artifact App 接线](d05-human-artifact-app.md)。本卡不表示完整 D05 或 E01 已完成。
+状态：当前 Owner 文本创建、原意图恢复与真实列表/内容回看已通过定向检查、独立审查和默认 App 浏览器验收。只读浏览沿 [Artifact Owner UI](d05-artifact-owner-ui.md)，Human 业务边界沿 [Artifact App 接线](d05-human-artifact-app.md)。本卡不表示完整 D05 或 E01 已完成。
 
 ## 可见流程
 
@@ -12,6 +12,10 @@
 
 ## 验证与边界
 
-新增定向测试覆盖三 POST 严格输入/回执、UTF-8 边界、原意图恢复和实际请求尾、Knowledge 互斥、确认后的 GET 失败恢复，以及真实 App 表单、离页确认和取消反馈。目前尚未运行；实际结果由统一 runtime 返回后更新。
+定向与兼容检查去重 **38 个用例通过**，覆盖三 POST 严格输入/回执、UTF-8 边界、原意图恢复和实际请求尾、Knowledge 互斥、确认后的 GET 失败恢复，以及真实 App 表单、离页确认和取消反馈。类型检查及构建通过；组合验收复用已通过的基础检查和当前 86 文件构建。原 `basic01` 表单用例及类型失败保留，必要窄修后通过，不改写首轮结果。
 
-浏览器将接真实默认 App、PG 和 MinIO 的正常创建、真实已提交丢回执 Lookup、未观察到的原请求重试、pending 取消与只读回看。未验证实现不能替代该链路。文件上传、下载、来源引用、Agent provenance、自动保存模型输出和既有 STOP 不在本片。
+组合候选的 `TestArtifactContentWeb/create-and-recover-original` 已在真实默认 App、PG 和 MinIO 上 **1 Go top / 1 sub、1 Node 用例全通过**，外层 Wait 0 / 64.226s。实际 9 POST、7 GET 完成正常创建、已提交但本地 typed ACK Unknown 后显式 Lookup、`not_observed` 后同 key/完整正文重试、真实 pending 取消和列表/内容回看；`not_observed` UI 没有发出 Cancel。首创建在原 Store 确实被持有时检查加载状态，释放后才确认提交。16 个原响应、浏览器消费和 handler 返回均闭合，退出后无 owned 资源或子进程残留。
+
+[结果](../../../output/ai/task-backlog-reorder/content-web-native01/result.json)与[退出复核](../../../output/ai/task-backlog-reorder/content-web-native01/post.json)记录本次实际通过；同目录 `artifact-content/TestArtifactContentWeb/create-and-recover-original/` 保存原浏览器证明和四张截图。作者与独立审查者实际查看：宽浅色草稿和已创建详情可用，脚本文字保持纯文本；390px 深色的未观察到结果及取消完成提示清楚，原请求重试与关闭可操作，未见页面横溢。窄图为弹窗内部滚动位置，不表示全部字段同时可见。
+
+本轮 Runtime disabled，无模型调用；Unknown 来自局部原 Store typed ACK 控制，不是外部网络故障。文件上传、下载、来源引用、Agent provenance、自动保存模型输出和既有 STOP 不在本片，也不据组合候选宣称 Task 或 Execution 验收完成。
