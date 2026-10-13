@@ -31,7 +31,30 @@ export type MilestoneUpdateReceipt = Readonly<{
 export type MilestoneUpdateLookup =
   | Readonly<{ state: 'committed'; result: MilestoneUpdateReceipt }>
   | Readonly<{ state: 'in_progress' | 'not_observed'; result: null }>
+export type MilestoneReorderInput = Readonly<{
+  expected_version: string
+  request: Readonly<{ before_id?: string }>
+}>
+export type MilestoneReorderReceipt = Omit<MilestoneUpdateReceipt, 'command'> &
+  Readonly<{
+    command: 'work.milestone.reorder'
+  }>
+export type MilestoneReorderLookup =
+  | Readonly<{ state: 'committed'; result: MilestoneReorderReceipt }>
+  | Readonly<{ state: 'in_progress' | 'not_observed'; result: null }>
 export interface WorkMilestonePlanningAPI {
+  reorder(
+    project: string,
+    target: string,
+    input: MilestoneReorderInput,
+    write: WriteOptions,
+  ): Promise<MilestoneReorderReceipt>
+  lookupReorder(
+    project: string,
+    target: string,
+    input: MilestoneReorderInput,
+    write: WriteOptions,
+  ): Promise<MilestoneReorderLookup>
   update(
     project: string,
     target: string,
@@ -196,9 +219,107 @@ function updateReceipt(
     }),
   })
 }
+export function captureMilestoneReorderInput(
+  value: unknown,
+  target?: string,
+): MilestoneReorderInput {
+  return input(() => {
+    const v = shape(value, ['expected_version', 'request'])
+    const r = shape(v.request, [], ['before_id'])
+    const before = Object.hasOwn(r, 'before_id') ? workID(r.before_id) : undefined
+    requireValue(before === undefined || before !== target)
+    return Object.freeze({
+      expected_version: workVersion(v.expected_version),
+      request: Object.freeze(before === undefined ? {} : { before_id: before }),
+    })
+  })
+}
+function reorderReceipt(
+  value: unknown,
+  project: string,
+  target: string,
+  original: MilestoneReorderInput,
+): MilestoneReorderReceipt {
+  const v = shape(value, ['command', 'changed', 'milestone', 'sprint', 'event_id'])
+  const m = shape(v.milestone, [
+    'id',
+    'project_id',
+    'title',
+    'description',
+    'manual_rank',
+    'version',
+    'created_at',
+    'updated_at',
+  ])
+  const created = parseSystemInstant(m.created_at),
+    updated = parseSystemInstant(m.updated_at)
+  const rank = string(m.manual_rank, 32, 32),
+    version = workVersion(m.version)
+  const title = workText(m.title, 1024, true),
+    description = workText(m.description, 32768)
+  requireValue(v.command === 'work.milestone.reorder' && v.sprint === null)
+  requireValue(v.changed === true || v.changed === false)
+  requireValue(workID(m.id) === target && workID(m.project_id) === project && created <= updated)
+  requireValue(/^[0-9a-f]{32}$/.test(rank) && rank !== '0'.repeat(32) && rank !== 'f'.repeat(32))
+  requireValue(BigInt(version) === BigInt(original.expected_version) + (v.changed ? 1n : 0n))
+  if (!v.changed) requireValue(v.event_id === null)
+  return Object.freeze({
+    command: 'work.milestone.reorder',
+    changed: v.changed,
+    sprint: null,
+    event_id: v.changed ? workID(v.event_id) : null,
+    milestone: Object.freeze({
+      id: target,
+      project_id: project,
+      title,
+      description,
+      manual_rank: rank,
+      version,
+      created_at: created,
+      updated_at: updated,
+    }),
+  })
+}
 export function createWorkMilestonePlanningAPI(fetcher?: Fetch): WorkMilestonePlanningAPI {
   const call = accountTransport(fetcher)
   return {
+    reorder(project, target, value, write) {
+      const original = captureMilestoneReorderInput(value, target)
+      const scope = input(() => ({ projectID: workID(project), target: workID(target) }))
+      return call('milestoneReorder', (v) => reorderReceipt(v, project, target, original), {
+        ...scope,
+        signal: write.signal ?? new AbortController().signal,
+        csrf: write.csrfToken,
+        key: write.key,
+        body: original,
+      })
+    },
+    lookupReorder(project, target, value, write) {
+      const original = captureMilestoneReorderInput(value, target)
+      const scope = input(() => ({ projectID: workID(project), target: workID(target) }))
+      return call(
+        'milestoneReorderLookup',
+        (value): MilestoneReorderLookup => {
+          const v = shape(value, ['state', 'result'])
+          if (v.state === 'committed')
+            return Object.freeze({
+              state: 'committed',
+              result: reorderReceipt(v.result, project, target, original),
+            })
+          requireValue(
+            (v.state === 'in_progress' || v.state === 'not_observed') && v.result === null,
+          )
+          return Object.freeze({ state: v.state as 'in_progress' | 'not_observed', result: null })
+        },
+        {
+          projectID: scope.projectID,
+          signal: write.signal ?? new AbortController().signal,
+          csrf: write.csrfToken,
+          key: write.key,
+          body: { command: 'work.milestone.reorder', target_id: scope.target, ...original },
+        },
+      )
+    },
     update(project, target, value, write) {
       const original = captureMilestoneUpdateInput(value)
       const scope = input(() => ({ projectID: workID(project), target: workID(target) }))

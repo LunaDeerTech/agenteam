@@ -14,6 +14,7 @@ import TaskReviewDetail from '../../components/work/TaskReviewDetail.vue'
 import TaskCreateForm from '../../components/work/TaskCreateForm.vue'
 import MilestoneCreateForm from '../../components/work/MilestoneCreateForm.vue'
 import MilestoneEditForm from '../../components/work/MilestoneEditForm.vue'
+import MilestoneReorderForm from '../../components/work/MilestoneReorderForm.vue'
 import SprintEditForm from '../../components/work/SprintEditForm.vue'
 import SprintCreateForm from '../../components/work/SprintCreateForm.vue'
 import { useProjectTasks } from '../../composables/useProjectTasks'
@@ -50,6 +51,39 @@ const sprintHeading = ref<HTMLHeadingElement | null>(null)
 const sprintCreateButton = ref<{ $el: HTMLButtonElement } | null>(null)
 const milestoneCreateButton = ref<{ $el: HTMLButtonElement } | null>(null)
 const milestoneHeading = ref<HTMLHeadingElement | null>(null)
+const milestoneReorderButton = ref<{ $el: HTMLButtonElement } | null>(null)
+async function cancelMilestoneReorder() {
+  const project = owner.milestoneReorder.projectID,
+    target = owner.milestoneReorder.milestoneID
+  owner.cancelMilestoneReorder()
+  await nextTick()
+  if (
+    !owner.milestoneReorder.open &&
+    owner.visible.value &&
+    owner.projectID.value === project &&
+    state.milestone?.id === target &&
+    !state.task
+  )
+    milestoneReorderButton.value?.$el.focus()
+}
+async function saveMilestoneReorder(action: 'save' | 'lookup' | 'read' = 'save') {
+  const project = owner.projectID.value,
+    target = state.milestone?.id
+  if (action === 'lookup') await owner.lookupMilestoneReorder()
+  else if (action === 'read') await owner.rereadMilestoneReorder()
+  else await owner.submitMilestoneReorder()
+  await nextTick()
+  if (
+    owner.visible.value &&
+    owner.projectID.value === project &&
+    state.milestone?.id === target &&
+    !state.task &&
+    !owner.milestoneReorder.open &&
+    !owner.milestoneReorder.needsRead &&
+    owner.milestoneReorderProgress.value?.phase === 'confirmed'
+  )
+    milestoneHeading.value?.focus()
+}
 const milestoneEditButton = ref<{ $el: HTMLButtonElement } | null>(null)
 async function cancelMilestoneEdit() {
   const project = owner.milestoneEdit.projectID,
@@ -257,6 +291,65 @@ function returnToCreation() {
     </section>
     <UiState v-if="!owner.visible.value" kind="loading" title="正在确认任务访问身份" />
     <template v-else>
+      <section v-if="owner.milestoneReorderProgress.value" aria-label="Milestone 排序状态">
+        <p v-if="owner.milestoneReorderProgress.value.phase === 'submitting'" role="status">
+          正在排序 Milestone。
+        </p>
+        <template v-if="owner.milestoneReorderProgress.value.phase === 'uncertain'">
+          <p role="status">Milestone 排序结果尚未确认。请查证原排序，勿再次提交。</p>
+          <p
+            v-if="owner.milestoneReorderProgress.value.observation === 'not_observed'"
+            role="status"
+          >
+            尚未观察到原排序结果，可再次查询。
+          </p>
+          <p
+            v-if="owner.milestoneReorderProgress.value.observation === 'in_progress'"
+            role="status"
+          >
+            原排序仍在处理中，可稍后再次查询。
+          </p>
+          <UiButton
+            v-if="
+              state.milestone?.id === owner.milestoneReorderProgress.value.milestoneID &&
+              !state.task
+            "
+            :disabled="owner.busy.value || !owner.milestoneReorderProgress.value.contextValid"
+            @click="saveMilestoneReorder('lookup')"
+            >查询原 Milestone 排序结果</UiButton
+          >
+          <UiButton
+            v-else
+            :disabled="owner.busy.value || !owner.milestoneReorderProgress.value.contextValid"
+            @click="owner.selectMilestone(owner.milestoneReorderProgress.value.milestoneID)"
+            >返回待确认排序的 Milestone</UiButton
+          >
+        </template>
+        <template
+          v-if="
+            owner.milestoneReorderProgress.value.phase === 'confirmed' &&
+            (owner.milestoneReorder.needsRead ||
+              state.milestone?.id !== owner.milestoneReorderProgress.value.milestoneID)
+          "
+        >
+          <p role="status">原 Milestone 排序已确认，当前内容需要重新读取。</p>
+          <UiButton
+            v-if="
+              state.milestone?.id === owner.milestoneReorderProgress.value.milestoneID &&
+              !state.task
+            "
+            :disabled="owner.busy.value || !owner.milestoneReorderProgress.value.contextValid"
+            @click="saveMilestoneReorder('read')"
+            >读取已确认的排序</UiButton
+          >
+          <UiButton
+            v-else
+            :disabled="owner.busy.value || !owner.milestoneReorderProgress.value.contextValid"
+            @click="owner.selectMilestone(owner.milestoneReorderProgress.value.milestoneID)"
+            >返回已确认排序的 Milestone</UiButton
+          >
+        </template>
+      </section>
       <section v-if="owner.milestoneEditProgress.value" aria-label="Milestone 保存状态">
         <p v-if="owner.milestoneEditProgress.value.phase === 'submitting'" role="status">
           正在保存 Milestone。
@@ -589,6 +682,30 @@ function returnToCreation() {
           >
             <h2 ref="milestoneHeading" tabindex="-1">{{ state.milestone.title }}</h2>
             <p class="milestone-description">{{ state.milestone.description || '暂无描述。' }}</p>
+            <UiButton
+              v-if="!owner.milestoneReorder.open && !owner.milestoneReorderPending.value"
+              ref="milestoneReorderButton"
+              :disabled="owner.busy.value || !owner.canReorderMilestone.value"
+              :state="
+                owner.milestoneReorder.message &&
+                owner.milestoneReorderProgress.value?.phase === 'confirmed' &&
+                !owner.milestoneReorder.needsRead
+                  ? 'success'
+                  : 'idle'
+              "
+              success-label="顺序已确认"
+              @click="owner.openMilestoneReorder()"
+              >调整 Milestone 顺序</UiButton
+            >
+            <MilestoneReorderForm
+              v-if="owner.milestoneReorder.open && !owner.milestoneReorderPending.value"
+              :owner="owner"
+              @cancel="cancelMilestoneReorder"
+              @submit="saveMilestoneReorder()"
+            />
+            <p v-if="!owner.milestoneReorder.open && owner.milestoneReorder.message" role="status">
+              {{ owner.milestoneReorder.message }}
+            </p>
             <UiButton
               v-if="!owner.milestoneEdit.open && !owner.milestoneEditPending.value"
               ref="milestoneEditButton"
