@@ -83,7 +83,11 @@ Vue 测试任务补充 [vue-testing-best-practices](../../../.agents/skills/vue-
 
 ## Worktree 与测试资源复用
 
-Git worktree 共用对象库，但完整 checkout 会为每树另写一份被跟踪的大文件。新树默认使用 [ai-worktree.py](../../../scripts/ai-worktree.py)：先 `--no-checkout`，设置非 cone sparse，再初始化工作区，排除 `docs/development/agent-team/*verification-evidence*/objects/` 及其修订子目录中的 `objects/`；规则、合同、索引、源码和实际 testdata 不排除。原对象仍在 Git/main，需要某份历史材料时按已知修订和路径读取或单独恢复，不能因 sparse 缺文件宣称历史证据不存在，也不先完整 checkout 再删除副本。已有树只在 writer/命令停写后由 Git 负责人调整，不能收起活跃 WIP。
+Git worktree 共用对象库，但完整 checkout 会为每树另写一份被跟踪的大文件。新树默认使用 [ai-worktree.py](../../../scripts/ai-worktree.py)：先 `--no-checkout`，设置非 cone sparse，再初始化工作区，排除 `docs/development/agent-team/*verification-evidence*/objects/` 及其修订子目录中的 `objects/`；本任务所需规则、合同、索引、源码和实际 testdata 不排除。原对象仍在 Git/main，需要某份历史材料时按已知修订和路径读取或单独恢复，不能因 sparse 缺文件宣称历史证据不存在，也不先完整 checkout 再删除副本。已有树只在 writer/命令停写后由 Git 负责人调整，不能收起活跃 WIP。
+
+helper 的 `objects/` 排除只是起点；受 Git 跟踪的旧截图、日志、JSON 来源目录和其它历史证据仍可能被完整检出，多棵 worktree 会重复占用磁盘。新任务先核所需路径、直接引用与实际 allocated，占用较大的无关档案与源码目录经 owner 确认后采用该工作树专属的精确 sparse 集合，并在首次 checkout 前设置。保留任务所需技能、合同、当前卡、直接引用证据、测试输入及隐藏目录中的真实 import；不能仅凭目录名排除依赖，也不要直接沿用另一任务的排除范围。原文件继续由 main/Git 保留，后续缺项按精确路径恢复。
+
+容量不足时先减少无关重复检出、避免复制资源，再考虑授权范围内的精确可再生缓存回收，不用清共享缓存抵消可避免的副本。已有树须等全部 writer 与消费者实际退出后再调整本树 sparse；保全 WIP 与 ignored 的证据、二进制和私有状态，核对源码差额及受保护文件未变，报告实际 allocated 与可用空间后再启动测试。不改 common/global Git 设置，不将未检出的历史材料记作已删除。
 
 2026-10-12 的四个完整任务树各约 `544,5xx KiB`，其中团队文档 19,242 文件占用 491,995,136 B；重复的是工作区物化，不是四份 Git 对象库。实际排除每树 38 个旧 objects 目录、9,435 文件，单树 allocated 为 354,291,712 B，四树合计 1,417,166,848 B；文件系统 available 快照从 2,643,869,696 B 增至 4,065,546,240 B，源码与当时 Create 26 项 WIP 保持。allocated 合计与可用空间快照口径不同，不能把快照全部增量归成文件正文。此为该轮实测，后续收益取实际环境，不重复扫描全部历史证据。
 
