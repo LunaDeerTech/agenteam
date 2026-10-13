@@ -87,6 +87,10 @@ func (s *Service) ReleaseForCleanupInTx(ctx context.Context, tx foundation.Tx, c
 			// Older abandoned candidates keep their original causes. Only the
 			// retained published attempt anchors this Project's canonical gate.
 			err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_object.cleanup_operations c JOIN agenteam_object.upload_attempts a ON a.id=c.attempt_id WHERE c.object_id=$1 AND a.object_id=$1 AND a.upload_id=$4 AND a.id=$5 AND c.operation_id=$2 AND c.reason=$3 AND a.cleanup_gate)`, id.String(), cause.Details().OperationID.String(), string(cause.Details().Reason), u.id.String(), u.attempt.String()).Scan(&exact)
+		} else if knowledgeProjectCleanup(cause) {
+			// The current private Knowledge leaf authorizes retirement. Earlier
+			// replacement/cancellation attempts retain their original identity.
+			err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_object.cleanup_operations c JOIN agenteam_object.upload_attempts a ON a.id=c.attempt_id WHERE c.object_id=$1 AND a.object_id=$1 AND a.upload_id=$2 AND a.id=$3 AND a.cleanup_gate AND c.reason IN ('project_deleted','replaced_object','cancelled_upload','owner_deleted'))`, id.String(), u.id.String(), u.attempt.String()).Scan(&exact)
 		} else {
 			err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_object.cleanup_operations WHERE object_id=$1 AND operation_id=$2 AND reason=$3) AND NOT EXISTS(SELECT 1 FROM agenteam_object.cleanup_operations WHERE object_id=$1 AND (operation_id<>$2 OR reason<>$3))`, id.String(), cause.Details().OperationID.String(), string(cause.Details().Reason)).Scan(&exact)
 		}

@@ -13,12 +13,14 @@ import (
 )
 
 type sourceReadsState struct {
-	service   *Service
-	resolver  oc.SourceResolver
-	issuer    oc.SourceIssuer
-	authority oc.ProjectSourceStopAuthority
-	mu        sync.Mutex
-	leases    map[oc.LeaseID]*sourceLeaseState
+	service            *Service
+	resolver           oc.SourceResolver
+	issuer             oc.SourceIssuer
+	authority          oc.ProjectSourceStopAuthority
+	knowledgeAuthority oc.KnowledgeProjectSourceStopAuthority
+	mu                 sync.Mutex
+	leases             map[oc.LeaseID]*sourceLeaseState
+	knowledgeCleanups  map[oc.CleanupID]*knowledgeObjectCleanupCall
 }
 type sourceLeaseState struct {
 	id                         oc.LeaseID
@@ -106,7 +108,7 @@ func (r *SourceReads) AcquireSourceInTx(ctx context.Context, tx foundation.Tx, a
 		h.work = s.projectWorkHandle(context.Background(), projectWork{id: raw, project: project, process: s.state().process, kind: "source", resource: raw, object: source.Details().Meta.ID})
 		handle, _ := oc.NewSourceLease(state.issuer, id)
 		h.work.stop = func(ctx context.Context) error { return r.CancelSourceLease(ctx, handle) }
-		if !nilPort(state.authority) {
+		if state.projectOwned() {
 			h.work.source = h
 		}
 		if err = s.registerProjectWork(ctx, tx, h.work, locked.Locks()); err != nil {
@@ -159,7 +161,7 @@ func (r *SourceReads) OpenLeasedSource(ctx context.Context, actor identity.Actor
 	if _, err = s.state().store.InTx(h.origin); err == nil {
 		return nil, failure(foundation.ResourceBusy, nil)
 	}
-	if !nilPort(state.authority) {
+	if state.projectOwned() {
 		h.mu.Lock()
 		returned, retained, original := h.acquireReturned, h.retained, h.originalError
 		h.mu.Unlock()
@@ -239,7 +241,7 @@ func (r *SourceReads) OpenLeasedSource(ctx context.Context, actor identity.Actor
 	// From this point the handle can never issue another GET, including after a
 	// transport failure. A new attempt requires a newly authorized lease.
 	release := func() error {
-		if nilPort(state.authority) {
+		if !state.projectOwned() {
 			cleanup, cleanupDone := s.cleanupContext()
 			defer cleanupDone()
 			err := s.releaseInternalContext(cleanup, h.id, h.source.Details().Meta.ID)
@@ -301,7 +303,7 @@ func (r *SourceReads) OpenLeasedSource(ctx context.Context, actor identity.Actor
 }
 
 func (r *SourceReads) CancelSourceLease(ctx context.Context, lease oc.SourceLease) error {
-	if r != nil && r.data != nil && nilPort(r.data().authority) {
+	if r != nil && r.data != nil && !r.data().projectOwned() {
 		return r.cancelLegacySourceLease(ctx, lease)
 	}
 	h, err := r.registered(lease)
@@ -352,7 +354,7 @@ func (r *SourceReads) CancelSourceLease(ctx context.Context, lease oc.SourceLeas
 	}
 	if h.released {
 		h.mu.Unlock()
-		if nilPort(r.data().authority) {
+		if !r.data().projectOwned() {
 			r.forget(h)
 		}
 		return nil
@@ -390,7 +392,7 @@ func (r *SourceReads) CancelSourceLease(ctx context.Context, lease oc.SourceLeas
 		h.mu.Lock()
 		err = h.result
 		h.mu.Unlock()
-		if err == nil && nilPort(r.data().authority) {
+		if err == nil && !r.data().projectOwned() {
 			r.forget(h)
 		}
 		return err

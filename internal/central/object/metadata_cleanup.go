@@ -35,6 +35,14 @@ func skillProjectCleanup(cause oc.ObjectCleanupCause) bool {
 	return d.Owner.Details().Kind == oc.SkillRevision && d.Reason == oc.ProjectDeleted
 }
 
+func knowledgeProjectCleanup(cause oc.ObjectCleanupCause) bool {
+	if cause.Validate() != nil {
+		return false
+	}
+	d := cause.Details()
+	return d.Owner.Details().Kind == oc.Knowledge && d.Reason == oc.ProjectDeleted
+}
+
 // consumeMetadataTransaction is deliberately not reset after an error or a
 // Pending response. The caller must end this transaction before another batch.
 func (s *Service) consumeMetadataTransaction(tx foundation.Tx) error {
@@ -162,14 +170,14 @@ func metadataIDs(ctx context.Context, e postgres.SQLExecutor, query string, args
 
 func (s *Service) discoverMetadataBatch(ctx context.Context, e postgres.SQLExecutor, cause oc.ObjectCleanupCause, id oc.ObjectID) (metadataBatch, error) {
 	var batch metadataBatch
-	if !skillProjectCleanup(cause) || id.Validate() != nil {
+	if (!skillProjectCleanup(cause) && !knowledgeProjectCleanup(cause)) || id.Validate() != nil {
 		return batch, invalid()
 	}
 	u, found, err := scanUpload(e.QueryRow(ctx, `SELECT `+uploadColumns+` FROM agenteam_object.uploads WHERE object_id=$1`, id.String()))
 	if err != nil {
 		return batch, err
 	}
-	if !found || !u.owner.Equal(cause.Details().Owner) || u.disposition != "revoked" || u.state != "committed" || u.attempt.Validate() != nil {
+	if !found || !u.owner.Equal(cause.Details().Owner) || u.disposition != "revoked" || (!knowledgeProjectCleanup(cause) && u.state != "committed") || u.attempt.Validate() != nil {
 		return batch, failure(foundation.Forbidden, nil)
 	}
 	obj, found, err := loadObject(ctx, e, id)
@@ -180,7 +188,14 @@ func (s *Service) discoverMetadataBatch(ctx context.Context, e postgres.SQLExecu
 		return batch, failure(foundation.ResourceBusy, nil)
 	}
 	var cleanup string
-	err = e.QueryRow(ctx, `SELECT c.id::text FROM agenteam_object.cleanup_operations c JOIN agenteam_object.upload_attempts a ON a.id=c.attempt_id WHERE c.object_id=$1 AND a.object_id=$1 AND a.upload_id=$2 AND c.attempt_id=$3 AND c.operation_id=$4 AND c.reason='project_deleted' AND c.phase='completed' AND a.phase='cleaned' AND a.kind='private_candidate' AND a.io_closed AND a.cleanup_gate`, id.String(), u.id.String(), u.attempt.String(), cause.Details().OperationID.String()).Scan(&cleanup)
+	if knowledgeProjectCleanup(cause) {
+		// Knowledge retains its exact private leaf until this final Object
+		// deletion. Historical replacement/cancellation keeps its original
+		// physical cause; the new Project leaf never rewrites that identity.
+		err = e.QueryRow(ctx, `SELECT c.id::text FROM agenteam_object.cleanup_operations c JOIN agenteam_object.upload_attempts a ON a.id=c.attempt_id WHERE c.object_id=$1 AND a.object_id=$1 AND a.upload_id=$2 AND c.attempt_id=$3 AND c.reason IN ('project_deleted','replaced_object','cancelled_upload','owner_deleted') AND c.phase='completed' AND a.phase='cleaned' AND a.kind='private_candidate' AND a.io_closed AND a.cleanup_gate`, id.String(), u.id.String(), u.attempt.String()).Scan(&cleanup)
+	} else {
+		err = e.QueryRow(ctx, `SELECT c.id::text FROM agenteam_object.cleanup_operations c JOIN agenteam_object.upload_attempts a ON a.id=c.attempt_id WHERE c.object_id=$1 AND a.object_id=$1 AND a.upload_id=$2 AND c.attempt_id=$3 AND c.operation_id=$4 AND c.reason='project_deleted' AND c.phase='completed' AND a.phase='cleaned' AND a.kind='private_candidate' AND a.io_closed AND a.cleanup_gate`, id.String(), u.id.String(), u.attempt.String(), cause.Details().OperationID.String()).Scan(&cleanup)
+	}
 	if err != nil {
 		return batch, unavailable(err)
 	}
