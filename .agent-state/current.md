@@ -4,6 +4,8 @@ Task `todo→blocked` 与“解决阻塞并恢复待执行”界面已通过有�
 
 原普通检查为 Go 三包 13 top/71 sub race、三包 vet、两个 schema 分段通过，以及前端六 spec/84 项、类型/构建；认证增量后的 WorkReview Session 14 项单独保留。HTTP 原 `36127/67f7be` Wait 0/44.816 秒，Web02 原 `96657/ce9876` Wait 0/58.518 秒，各 1 top/1 sub；后者三个实际 POST 完成 Add→受阻→恢复，四图获有限独审接受，66 请求中五个 ERR_ABORTED 保留原终态。
 
+最终与 Knowledge Move 组合 `94c2e46c` 的[最小补验](../output/ai/task-block-resume/final-combination.json)已通过：两个 Session spec 共 22 项、类型/构建，目标 helper/spec 诊断与参数映射、三模式 list、thin AST；旧共享七项诊断和列表工具 JSON 序列化失败均保留。没有重跑 Go 或真实浏览器，动态证据仍使用上述原输入。
+
 原 schema 工具配置失败、未创建业务资源的容量预检失败及 Web01 observer 误断言 FAIL 均保留，后继通过不改写原结果。自有运行资源与全部候选消费者已退；唯一 ELF 已由 runner 精确处置，metadata、日志、FAIL、proof 与图片保存在 `output/ai/task-block-resume/`。Git 交付后按流程同步清理本片工作树及本地、远端备份分支。本片沿原测试 seed 初始化前置 Skills，不证明 Agent Skills 生产装配或模型执行。
 
 Knowledge Move 已交付 main `5ab1af18`，恢复工作树及本地/远端分支已清理；[Move 卡](../docs/development/work-items/d12-knowledge-move-ui.md)记录实际 normal/lost 两场景与三图。原保护树 `0646b6bf` 及其 01–05 FAIL 保留，旧全宿主 TCP 差额尾不追认为通过。

@@ -53,6 +53,8 @@
 
 四张实际截图经非作者亲看：宽浅人工原因草稿与原待执行 v2、文本焦点；宽浅受阻 v4、原负责人/未解除原因与标题焦点；窄暗显式勾选最后原因且保原负责人；窄暗恢复待执行 v5、原负责人与标题焦点。末图下方已解除行和操作按钮不在可见范围，相关结果只由实际 DOM 与 SQL 断言证明。
 
+与已交付 Knowledge Move 的最终组合 `94c2e46c` 完成[定向补验](../../../output/ai/task-block-resume/final-combination.json)：Move Session 与 WorkReview Session 两个 spec 共 22 项、完整类型/构建通过；四个新 helper/spec 的目标语义诊断为零，旧共享七项诊断保留。原 observer 前 33 参及 Move 第 34 参保持，Task 第 35 参和调用映射实核通过；Move 两模式与 Task 一模式分别 list 一个用例，thin AST/原 selector 集合检查通过。列表工具曾因自身 JSON set 序列化失败、尚未启动 Node，修正工具后完成待查列表，原失败保留。全部消费者实际退出；没有重跑 Go 或真实浏览器，原 HTTP/Web 动态结果继续绑定 `66e71377` / `54c50de4`，不冒称最终组合已有新的真实整轮。
+
 [容量预检失败](../../../output/ai/task-block-resume/capacity-preflight01.json)发生在业务 fixture/资源创建之前；[Web01](../../../output/ai/task-block-resume/web-native01/post.json)原 `76236/4b1ce7` Wait 1/63.050 秒也保留。Web01 的测试 observer 误要求 confirmed 返回后 `contextValid=true`，而原 WorkReview 已退休成功意图；仅修正新分支为 false 并说明含义，未改产品、Go、预算或重试策略，之后用同一二进制完成 Web02。新增状态边和上述有限接受不代表完整状态矩阵、执行中的阻塞组合、AgentRun、Agent Skills、D11/D27 或 E01 已完成，既有 STOP 不变。
 
 ## 2. 完整边表、Actor 与提交不变量
