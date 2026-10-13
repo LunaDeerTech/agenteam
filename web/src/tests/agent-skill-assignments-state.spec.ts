@@ -56,6 +56,7 @@ describe('Agent Skills coherent directory and command selection', () => {
     const f = await setup()
     f.setIntercept((path) => {
       if (path === base + '/assign') throw new TypeError('lost response')
+      return undefined
     })
     await f.owner.skills.open()
     f.owner.skills.draft.selected = skill

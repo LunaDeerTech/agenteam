@@ -91,6 +91,7 @@ describe('Agent Skills settings user flow', () => {
     const f = await setup()
     f.setIntercept((path) => {
       if (path === base + '/assign') throw new TypeError('lost response')
+      return undefined
     })
     await f.wrapper.get('button[aria-label="选择项目技能"]').trigger('click')
     await flushPromises()

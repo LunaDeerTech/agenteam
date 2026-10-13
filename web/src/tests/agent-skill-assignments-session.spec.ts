@@ -29,6 +29,7 @@ describe('Agent Skills original Session intent', () => {
       if (publication === 'not_observed') {
         f.setIntercept((path) => {
           if (path === base + '/assign') throw new TypeError('lost response')
+          return undefined
         })
         await expect(
           f.auth.agentSkills.start(project, agent, command(), '1'),
@@ -61,6 +62,7 @@ describe('Agent Skills original Session intent', () => {
       c = command()
     f.setIntercept((path) => {
       if (path === base + '/assign') throw new TypeError('lost response')
+      return undefined
     })
     await expect(f.auth.agentSkills.start(project, agent, c, '1')).rejects.toMatchObject({
       kind: 'transport',
