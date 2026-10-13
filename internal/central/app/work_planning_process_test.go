@@ -4,6 +4,7 @@ package app
 
 import (
 	"context"
+	"errors"
 	"io"
 	"log/slog"
 	"net/http"
@@ -28,6 +29,36 @@ type workRootHeldCall struct {
 	pid       int32
 	cancelled <-chan struct{}
 	returned  <-chan struct{}
+}
+
+// Full real migration and security initialization have their own startup
+// budgets. Use the existing real-App fixture's 40s startup ceiling, not the
+// generic 5s event assertion, while failing immediately on the original run's
+// actual return. This does not change any HTTP, Drain or Force deadline.
+func workRootStartupAddress(t *testing.T, logs *eventLog, done <-chan struct{}, result func() error) string {
+	t.Helper()
+	startup, cancel := context.WithTimeout(context.Background(), 40*time.Second)
+	defer cancel()
+	for {
+		select {
+		case event := <-logs.events:
+			if event["event"] == "listening" {
+				address, ok := event["listen_address"].(string)
+				if !ok || address == "" {
+					t.Fatal("original Work root listening event omitted its address")
+				}
+				return "http://" + address
+			}
+		case <-done:
+			var fault *foundation.Fault
+			if errors.As(result(), &fault) {
+				t.Fatalf("original Work startup returned before listening: %s/%s", fault.Code.Safe(), fault.CommitState.Safe())
+			}
+			t.Fatalf("original Work root returned before listening: %s", logs.String())
+		case <-startup.Done():
+			t.Fatalf("original Work root startup did not reach listening: %s", logs.String())
+		}
+	}
 }
 
 // This port holds only explicitly selected calls after a real BEGIN and a real
@@ -122,7 +153,7 @@ func TestWorkOwnerRootActualReaderJoin(t *testing.T) {
 			})
 			// This cleanup runs before the reused root fixture's actual run join.
 			t.Cleanup(held.unhold)
-			address := root.address(t)
+			address := workRootStartupAddress(t, root.logs, root.done, func() error { return root.err })
 			login, err := fixtureAccountLoginResponse(databaseTestContext(t), root.cfg, root.core)
 			if err != nil {
 				t.Fatal(err)
@@ -345,7 +376,7 @@ func TestWorkOwnerRootActualCommandJoin(t *testing.T) {
 					t.Error("actual root failed to join on cleanup")
 				}
 			})
-			output.wait(t, func(e map[string]any) bool { return e["event"] == "listening" })
+			_ = workRootStartupAddress(t, output, done, func() error { return runErr })
 			actor, err := fixtureAccountActor(databaseTestContext(t), cfg, core)
 			if err != nil {
 				t.Fatal(err)

@@ -169,7 +169,7 @@ func newWorkAppFixture(t *testing.T) *workAppFixture {
 			_ = v.claim.Close()
 		}
 	})
-	v.address = v.root.address(t)
+	v.address = workRootStartupAddress(t, v.root.logs, v.root.done, func() error { return v.root.err })
 	v.admin = v.root.db.Connect(t)
 	if _, enabled := v.root.cfg.ExecutionRuntime(); enabled {
 		t.Fatal("Work App fixture enabled Execution Runtime")
