@@ -38,6 +38,7 @@ type runtimeState struct {
 	process                      oc.ProcessID
 	calls                        map[mc.CallID]*runtimeCall
 	admissions                   map[*runtimeAdmission]struct{}
+	usageCalls                   map[*runtimeUsageCall]struct{}
 }
 
 type runtimeAdmission struct {
@@ -198,8 +199,12 @@ func (r *Runtime) Drain(ctx context.Context) error {
 		for admission := range s.admissions {
 			admissions = append(admissions, admission)
 		}
+		usageCalls := make([]*runtimeUsageCall, 0, len(s.usageCalls))
+		for call := range s.usageCalls {
+			usageCalls = append(usageCalls, call)
+		}
 		s.mu.Unlock()
-		if len(calls) == 0 && len(admissions) == 0 {
+		if len(calls) == 0 && len(admissions) == 0 && len(usageCalls) == 0 {
 			return nil
 		}
 		for _, admission := range admissions {
@@ -212,6 +217,11 @@ func (r *Runtime) Drain(ctx context.Context) error {
 		}
 		for _, call := range calls {
 			if err := call.close(ctx); err != nil {
+				return err
+			}
+		}
+		for _, call := range usageCalls {
+			if err := call.drain(ctx); err != nil {
 				return err
 			}
 		}
@@ -230,7 +240,7 @@ func (r *Runtime) Joined() bool {
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	return s.stopped && !s.initializing && len(s.calls) == 0 && len(s.admissions) == 0
+	return s.stopped && !s.initializing && len(s.calls) == 0 && len(s.admissions) == 0 && len(s.usageCalls) == 0
 }
 
 func (*Runtime) Format(w fmt.State, _ rune)   { _, _ = io.WriteString(w, "model_runtime") }

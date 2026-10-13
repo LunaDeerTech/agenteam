@@ -52,22 +52,23 @@ type database interface {
 // Only package-local tests can replace assembly. Production always uses Open,
 // the embedded migration source and the fixed health sampling intervals.
 type dependencies struct {
-	listen             func(context.Context, string, string) (net.Listener, error)
-	handler            http.Handler
-	open               func(context.Context, postgres.Config) (database, error)
-	migrate            func(context.Context, postgres.Config) postgres.MigrationState
-	health             healthTiming
-	security           func(context.Context, config.Config, database) (*audit.Service, error)
-	secret             func(context.Context, config.Config, database, *audit.Service) (maintenance, error)
-	outbound           func(context.Context, config.Config, database, *audit.Service) (egress, error)
-	objects            func(context.Context, config.Config, database, *audit.Service) (objectStorage, error)
-	outbox             func(config.Config, database, *audit.Service, objectStorage) (outboxStorage, error)
-	bind               func(context.Context, config.Config, database, *resources, *dependencies) error
-	secretInitialize   func(context.Context, *secret.Service) error
-	outboundConstruct  func(context.Context, config.Config, *outboundRuntime) error
-	outboundInitialize func(context.Context, *outboundRuntime) (egress, error)
-	observeAccount     func(*account.Service)
-	runtimeInformation runtimeInformationFactory
+	listen              func(context.Context, string, string) (net.Listener, error)
+	handler             http.Handler
+	open                func(context.Context, postgres.Config) (database, error)
+	migrate             func(context.Context, postgres.Config) postgres.MigrationState
+	health              healthTiming
+	security            func(context.Context, config.Config, database) (*audit.Service, error)
+	secret              func(context.Context, config.Config, database, *audit.Service) (maintenance, error)
+	outbound            func(context.Context, config.Config, database, *audit.Service) (egress, error)
+	objects             func(context.Context, config.Config, database, *audit.Service) (objectStorage, error)
+	outbox              func(config.Config, database, *audit.Service, objectStorage) (outboxStorage, error)
+	bind                func(context.Context, config.Config, database, *resources, *dependencies) error
+	secretInitialize    func(context.Context, *secret.Service) error
+	outboundConstruct   func(context.Context, config.Config, *outboundRuntime) error
+	outboundInitialize  func(context.Context, *outboundRuntime) (egress, error)
+	observeAccount      func(*account.Service)
+	observeProjectUsage func(*projectUsageAssembly)
+	runtimeInformation  runtimeInformationFactory
 }
 
 type startupResult struct {
