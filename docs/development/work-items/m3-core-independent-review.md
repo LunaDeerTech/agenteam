@@ -143,3 +143,33 @@ MCP 已直接核 `/workspace/agenteam-m3-mcp/output/ai/mcp/owner-credentials-6e5
 复用作者 47330、89302、17258 的纯检查报告并读对应测试源码：规范化、known Final、裸 proof/当前 process 拒绝、完整 rowset/mapping 及私有 startup 要求有覆盖；本轮未亲核这些原日志，纯检查不证明真实 stopped flock、SQL/事务或 COMMIT Unknown。已向 Model/integration 交付最小后继门：真实旧进程退出后精确原 attempt/known Final 与 lease/borrower 退休、Execution 整 lease 不动；rollback 与物理 Unknown 两分支的确认零写/零 dispatch；tail 验证无 admission/已退休两种窗口。`47472d54` 新 App harness 尚未编译运行，不计作恢复行为证据。无需重放已过 MCP 或旧 Memory 矩阵，Memory 原日志缺失限制保持。
 
 本轮未启动 Go、PG/native、浏览器或 API；只写本报告，无 Git 写操作和后台资源。固定缺陷及未验证范围交原 owner 继续，报告停写后由 root 保存。
+
+## Model 停止恢复、Scheduler 返回尾巴与 Agent Skill assignment 增量审查
+
+2026-10-14；仅审固定 Model `3a063e44`（产品修订至 `63a6710a` / `e847e7eb`）、absence 两源 `b1ea8be4`，复用前节 Usage `5da01c71` / `0a92da04` 与共同输入 `c117b512`；Scheduler `9c51fd82` 三源及共同输入 `25df1419`；Skills `41a0e3c3`、`00128` 的 `9d27f00d` 和 Project Event 窄路由 `75357539`。源码使用限定 `git show`，未采用活跃工作区后继改动。**本次固定增量有界无新的已证 must-fix；以下实际证据只接受注明的子门，不是整组恢复、Agent assignment 或 M3 验收通过。**
+
+Model 复核了原停止证明、完整锁及 Usage rowset 的既有结论。`runtime_stopped_owner.go` 的 `63a6710a` 在确认事务未成功或 ctx 已取消时返回原 Unknown，保留原私有 owner/plan；只读确认不 close、不 dispatch、不换原目标。`b1ea8be4` 将无 Model admission 的 before mapping 编码为 `Present=false`、Version/Digest 均 nil；存在记录仍编码实际非零值，不借“缺席”放宽存在记录校验。其测试区分稳定 absence、present 及非法零 version；复用作者 65439 race 通过报告，未亲核该原日志。完整锁下仍重读原 call 是否缺席或精确 retired，并核原 Usage owner rowset、当前 process 和 Tx 外 stopped 证明；新修订没有释放整 Execution lease 或覆盖 known Final。
+
+已直接核 Model 树 `output/m3-model-cold/app02/native.log`、`app03/native.log`、`app04/native.log`，并对照 `3a063e44:internal/central/app/model_cold_m3_integration_test.go` 的真实 App/PG harness。wrapper 只在原正式事务物理返回后设屏障，非伪造业务行；恢复前后原 tuple、账本、lease 和请求数的断言按场景不同，不混用：
+
+| 原轮次 / 日志 | 亲核实际结果 | 接受范围及限制 |
+| --- | --- | --- |
+| 61912 / app02 | authorized 子门 PASS 18.52 秒；sent 子门失败，整 top FAIL、actual_wait=1 | 原 child SIGKILL/Wait9、新 child 正常 Wait0；authorized 的原 Call/Attempt/Input/Snapshot/Execution lease 不改绑，final unknown、Usage/borrower 退休，模型零发送。不能称 61912 整轮通过 |
+| 34445 / app03 | sent 定向门 PASS 15.53 秒、actual_wait=0 | 原发送恰一次，停止后保留 sent、同原 attempt 记 unknown；恢复不重发，整 Execution lease 原文不变，原 App/owners 正常退出 |
+| 70086 / app04 | retired-before-returned 子门 PASS 16.66 秒，Memory ModelCallOwner 子门 PASS 18.45 秒；borrowed 子门失败，整轮 actual_wait=1 | retired 子门仅闭合原 Usage borrower，Model/Attempt/Usage observations/Secret leases 原文保持，并正常 Join。Memory 子门通过真实 retain 的 extraction ModelCallOwner 精确 release，原 Agent 请求 1、Memory/embedding 请求 0；新 child 在 Model Initialize 屏障仍以 SIGKILL/Wait9 结束，不能据此接受 Memory 业务恢复或完整 App graceful Join |
+
+上述日志均记录三类 fixture exact cleanup。borrowed 原失败是新 child Initialize 的 absence Version/Digest 编码失败；`b1ea8be4` 源码已修，但本节没有后继真实 borrowed PASS。reserved 崩溃点、物理 COMMIT 未转发/ACK 丢失两支及真实 LookupStoppedCall 消费链未由这三份日志覆盖；沿前节的原目标零重发/只读观察门继续，勿重跑已过且未变的正常子门。`66a36728` codec 及后继 harness/WIP 不在本次审查。
+
+Scheduler `launch.go` / `launch_association.go` 仅在同步 Launch 原返回已证明 NotCommitted 后，为原 rejection checkpoint 使用最长 3 秒的 `WithoutCancel` context。原 typed outcome 在错误包装之前分类；原或嵌套 Unknown/Committed 不会被转成 known-not-created。checkpoint 前及同事务内要求原私有 call 指针、登记 owner、running、send 已退休和原 record；同 Store/Tx 下持有 command/dispatch/Project/Schedule 与原 intent 完整锁，校验原 ProjectCall 的 running tuple/current process，再对原 attempt/version 的 Pending/Unknown 作 CAS。checkpoint 自己 Unknown 或失败仍保留原 cause 与 owner，观察不重 Launch。`launch_rejection_tail_test.go` 的受控返回屏障能区分 callback 已返与事务实际尚未返，并覆盖取消、停止、嵌套 Unknown 和错 owner/tuple；这些是纯测试，不伪称物理 PG Unknown。
+
+Scheduler 27546 race、31818 `TestKnowledgeM3OwnerFiles` PASS 35.30 秒 / Wait0、原 App/producers/21 owners Joined 及三 fixture 清理，**仅复用作者原会话回执**。作者确认没有另存原 native logfile；本审未将会话报告改称亲核日志。其固定 binary 为 `/tmp/agenteam-knowledge-files-9c51fd82.test`，diagnostic harness 仍为 `6476adbc`，事实记录于 `01891f03`。修前 28417 的 App shutdown failure / Wait255 保留。未发现需要重放该未变完整链的源码问题。
+
+Skills 静态检查限定新 AgentRun 管理入口：
+
+- `tool/runtime/skill_assignment.go` 与 `skill/runtime_assignment.go` 的公开 Run DTO 不授予写权。私有 active witness/issuer/原 operation、attempt、request、ToolCall、spec 和完整原始参数摘要均需匹配；Execute 经原 Execution current 检查，Ordinary `assign-skill` 必须仍在当前允许列表且不被原 policy 拒绝。Lookup 只贷原 committed input，不能取得 Mutate 权限或重发。目标可以是同 Project 的另一 Agent；目标 ID、动作与 expected version 必须来自该次原输入，不能从私有 context 换目标。
+- `agent/skill_assignment.go` 在同完整锁下再次核当前 Run/Project/Agent 与 canonical preimage，才 CAS 推进目标 Agent 和四类 reference version。过渡中的同 Tx 私有 witness 仅供这四个原 reference owner 读取精确 postimage，回调结束即失效，未贷给 Skill finalize。canonical assignment、runtime ingress、Audit、Outbox 和 completed receipt 仍在原事务提交；同 key 的 input/run/candidate 不可替换。它只授予分配管理，未因此授予调用者读取目标 Skill 正文。
+- `75357539` 的 Project Event AgentRun 分支限定 Skill assignment producer/闭合 header/同 Project/原 target，要求当前 Project gate、同 Store/Tx、完整锁与原 RuntimeAssignment 私有 source；NewFact 还需原 Applied witness，不能仅凭合法 summary、当前 AgentRun 或另一次相同 Agent/Execution 的调用发事件。Audit 同样绑定原 canonical command 和 caller/target 各自身份。`00128` 扩展 actor/run 形状并保持原 Human 无 run 的输入表示；原 command/run/input/candidate 仍不可变，裸 Agent actor 或 JSON 不能绕过应用私有 authority。
+
+复用作者 18030 权限负例 race 报告并读相应测试源码；本轮未亲核其原输出、未启动 PG。Agent self-assignment 真实 successor/消费链尚待正在进行的固定联调，不由旧 Owner assignment 首链替代；跨目标实际 PG、带既有 Human 行的 128 升级和 assignment 的物理 Unknown 未在本节接受。没有要求重复无变化的旧 Owner、MCP、Memory 或 ProcessGuard 矩阵，旧 Memory raw log 缺失限制保持。
+
+本次仅追加本文，未修改产品、测试或其他文档，未执行 Git 写操作。无 Go/native/API/fixture 或后台命令；格式检查后停写交 root 保存。本节不覆盖后继 codec、OAuth、MCP 媒体、Meeting 或 Runner。
