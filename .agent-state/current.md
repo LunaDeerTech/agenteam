@@ -1,6 +1,6 @@
 # 当前工作：M2 技术验收通过，等待正式 Git 交付
 
-2026-10-14 用户已明确恢复并要求完成第二里程碑。`/workspace/agenteam-m2-review` / `ai/m2-review-20261014` 已合入正式 M1 main `20aded69`；M2 约定业务、控制与恢复门已取得实际通过。最终源为 `e110faeca0ef96d89d0f30c154c19ed582d89a46`，App 编译原 session87516 Wait0。最终独立审查已正式接受 M2 约定范围、无 must-fix；root 负责全部 Git、本地主树集成与远端交付。
+2026-10-14 用户已明确恢复并要求完成第二里程碑。`/workspace/agenteam-m2-review` / `ai/m2-review-20261014` 已合入正式 M1 main `20aded69`；M2 约定业务、控制与恢复门已取得实际通过。最终源为 `e110faeca0ef96d89d0f30c154c19ed582d89a46`，App 编译原 session87516 Wait0。最终独立审查已正式接受 M2 约定范围、无 must-fix；root 已在本地主树整合产品与正式文档，全部 Git 与远端交付仍由 root 负责。
 
 **尚未声称 main 已推送或工作树已清理。** root 确认 e110 已本地保存，但 push 因远端认证失败（GH_TOKEN invalid）未成功；之前 ac52 已远端保存。执行者不读取、传递或修补 token。当前唯一外部交付阻碍是远端认证，完成本地文档与证据保全不受影响。
 
@@ -46,6 +46,6 @@ M2不外推自主reviewer决定、所有权限负例、跨进程owner竞争、No
 
 所有Go源码冻结；无活动Go/native/Runner/browser，两个Go槽及唯一native窗口均已释放。固定Go `/workspace/toolchains/go1.27.1/bin/go`，`GOMAXPROCS=2 -p=2`；共享缓存、源码构建MinIO与锁定Node依赖均在worktree外，清理分支时不要删除。临时review modules链接已清退。
 
-最终脱敏证据已精确复制到 `/workspace/agenteam/output/ai/m2-delivery-evidence`：17轮、186个原证据文件，共921,476 bytes，另附manifest。原来源→review staging→main目标逐文件SHA256/大小和精确路径集合全部一致，无额外文件或符号链接；独立审查已亲核全部原件与主树副本、最终二进制来源和真实退场。只保原native日志、owned资源/清理、来源hash、完整proof引用的公开业务响应/观察与必要race日志；排除KEY、private Session/enrollment/material、raw provider正文、二进制、cache。manifest最终状态更新为技术与独立验收通过，Git交付归root；准确内容与文件hash以manifest为准。编译产物与dist可按锁定源码重建，不是不可再生证据。
+最终脱敏证据已精确保全到 `/workspace/agenteam/output/ai/m2-delivery-evidence`，包含必要的最早失败、后继验证和最终成功原件；现行文件集合、统计与来源以 [manifest](../output/ai/m2-delivery-evidence/manifest.json) 为准。原来源→review staging→main目标逐文件SHA256/大小和精确路径集合全部一致，无额外文件或符号链接；独立审查已亲核全部原件与主树副本、最终二进制来源和真实退场。只保原native日志、owned资源/清理、来源hash、完整proof引用的公开业务响应/观察与必要race日志；排除KEY、private Session/enrollment/material、raw provider正文、二进制、cache。manifest最终状态更新为技术与独立验收通过，Git交付归root；准确内容与文件hash以manifest为准。编译产物与dist可按锁定源码重建，不是不可再生证据。
 
-下一步仅协调四文归位、root本地main集成、认证恢复后的正式push确认；远端成功前不清理M2分支/worktree或fetchspec。执行者不执行Git写操作。
+本地产品与正式文档已集成；下一步仅最终状态/证据索引收尾、认证恢复后的正式push确认；远端成功前不清理M2分支/worktree或fetchspec。执行者不执行Git写操作。

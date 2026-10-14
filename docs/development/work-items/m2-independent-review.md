@@ -188,4 +188,4 @@ waiting-cancel 新刺激通过同一真实 App 已装配 executor 的第二次 `
 Git认证当前失败属于交付阻碍：e110及后续报告本地可保存，不能声明远端push或main发布成功。此限制不改变上述实际测试和独立接受事实；后续Git操作由root负责。
 
 
-证据保全已独立核对主树 `output/ai/m2-delivery-evidence/manifest.json`：186个白名单文件共921476字节，源文件与主树副本逐个字节数/SHA256一致，最终live映射为e110/3646/Wait0并包含原native、browser完整证明、owned/cleanup与binary provenance；不复制binary、凭据或活动配置。manifest中元数据来源哈希仅表示读取时刻，不冒称之后的工作流文档未变。
+证据保全以主树 `output/ai/m2-delivery-evidence/manifest.json` 为现行清单。此前独核186个白名单文件（921476字节），本次仅追加两轮最早失败 `79719/run.vYLNvO` 与 `91225/run.oDBoMy` 的6份原件（13571字节）；现有192个原件共935047字节，含manifest共193文件。已独立逐项核对全部原件的源文件、staging与主树副本字节数/SHA256及完整文件集合，新增历史来源引用也与Git记录/工作卡原文哈希一致。首轮未补造缺失的精确cleanup文件，第二轮保留Wait2超时与未证明正常App Join的限制；两轮均仍为FAIL，不改变本轮接受结论。最终live仍映射为e110/3646/Wait0，并包含原native、browser完整证明、owned/cleanup与binary provenance；不复制binary、凭据或活动配置。manifest中元数据来源哈希仅表示读取时刻，不冒称之后的工作流文档未变。
