@@ -18,12 +18,13 @@ import (
 
 const executionRuntimeSetting = "EXECUTION_RUNTIME"
 const directTextRuntimeProfile = "direct-text-v1"
+const toolLoopRuntimeProfile = "tool-loop-v1"
 const maxExecutionRuntimeBytes = 64 * 1024
 
 // ExecutionRuntimeOptions contains explicit deployment inputs, not domain
 // authority. Loading it does not start workers, initialize Projects, register
-// tools or alter any Agent capability. This profile supports the existing
-// direct-text path; the actual captured facts still determine eligibility.
+// tools or alter any Agent capability. The selected execution profile still
+// requires its real providers and the original captured authorization facts.
 type ExecutionRuntimeOptions struct{ data func() executionRuntimeData }
 type executionRuntimeData struct {
 	profile  string
@@ -64,10 +65,16 @@ func (v ExecutionRuntimeOptions) AgentRetryTiming() mc.AgentRetryTiming {
 	return v.state().retry.Clone()
 }
 
+// ToolLoop selects the explicitly configured multi-round execution graph.
+// It does not select a Provider protocol or grant access to any tool.
+func (v ExecutionRuntimeOptions) ToolLoop() bool {
+	return v.state().profile == toolLoopRuntimeProfile
+}
+
 func (v ExecutionRuntimeOptions) Validate() error {
 	d := v.state()
 	p, e := d.projects, d.executor
-	if d.profile != directTextRuntimeProfile || p.MaxProjects < 1 || p.ProjectPageSize < 1 || p.ProjectPageSize > pc.MaxSchedulerProjectPageSize || p.ExecutionPageSize < 1 || p.ExecutionPageSize > scheduler.MaxExecutionHandoffPage || p.DiscoveryInterval <= 0 || p.TickInterval <= 0 || p.RelaunchSkipCount < 0 || p.LaunchPolicy.Validate() != nil || len(p.LaunchPolicy.AllowedResourceConstraints) != 0 || e.MaxOwned < 1 || e.RecoveryInterval <= 0 || d.retry.Validate() != nil || d.retry.Fields().MaxRequestTimeout > 120*time.Second {
+	if (d.profile != directTextRuntimeProfile && d.profile != toolLoopRuntimeProfile) || p.MaxProjects < 1 || p.ProjectPageSize < 1 || p.ProjectPageSize > pc.MaxSchedulerProjectPageSize || p.ExecutionPageSize < 1 || p.ExecutionPageSize > scheduler.MaxExecutionHandoffPage || p.DiscoveryInterval <= 0 || p.TickInterval <= 0 || p.RelaunchSkipCount < 0 || p.LaunchPolicy.Validate() != nil || len(p.LaunchPolicy.AllowedResourceConstraints) != 0 || e.MaxOwned < 1 || e.RecoveryInterval <= 0 || d.retry.Validate() != nil || d.retry.Fields().MaxRequestTimeout > 120*time.Second {
 		return invalid(executionRuntimeSetting)
 	}
 	return nil

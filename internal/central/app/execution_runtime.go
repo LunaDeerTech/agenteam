@@ -68,6 +68,11 @@ func constructExecutionRuntime(b *executionRuntimeAssembly, cfg config.Config, d
 	if !enabled || options.Validate() != nil || !bound || !ok || runtimeInformationNil(store) || b == nil || a == nil || projects == nil || projects.reader == nil || projects.lifecycle == nil || objects == nil || objects.guard == nil || models == nil || secrets == nil || outbound == nil || journal == nil {
 		return f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
+	// The new profile must not silently fall back to the one-round text graph.
+	// Its real multi-round and Runner providers are installed by M1 integration.
+	if options.ToolLoop() {
+		return f.NewFault(f.DependencyUnbound, f.NotStarted)
+	}
 	providers, err := createAgentRuntimeProviders(db, projects.projects, accounts, skills, a, registries...)
 	if err != nil {
 		return err
