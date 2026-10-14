@@ -201,18 +201,16 @@ test("real multi-round Task output and explicit Owner review survive refresh [re
   });
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
-  await page
-    .context()
-    .addCookies([
-      {
-        name: "agenteam_local_session",
-        value: data.cookie,
-        url: data.origin,
-        httpOnly: true,
-        sameSite: "Strict",
-        secure: false,
-      },
-    ]);
+  await page.context().addCookies([
+    {
+      name: "agenteam_local_session",
+      value: data.cookie,
+      url: data.origin,
+      httpOnly: true,
+      sameSite: "Strict",
+      secure: false,
+    },
+  ]);
 
   const initialTask = responseFor(page, data, taskPath);
   const agentsResponse = responseFor(
@@ -261,9 +259,9 @@ test("real multi-round Task output and explicit Owner review survive refresh [re
       .getByRole("region", { name: "执行记录", exact: true })
       .locator(`button[data-execution-id="${data.execution_id}"]`)
       .click();
-    expect(await completeJSON<TaskExecution>(await detailResponse)).toEqual(
-      execution,
-    );
+    expect(
+      await completeJSON<{ execution: TaskExecution }>(await detailResponse),
+    ).toEqual({ execution });
     await expect(
       page.getByRole("heading", { name: "执行详情", exact: true }),
     ).toBeFocused();

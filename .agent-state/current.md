@@ -30,3 +30,5 @@
 - 外部 Provider 只读无凭据预检由 model_runtime 完成：本环境 DNS 的 A 成功/AAAA NXDOMAIN 被原 D04 合同拒绝，公共递归无法连通，因此只能证明本环境阻断，不能断言服务权威 DNS 错误。无 API_KEY 读取、无 Model HTTP、无策略/解析器修改；真实模型工作流仍未验。
 
 - 第四轮 `9a31dd1e` / `run.droHjN` 通过新增原 Store 安全诊断，在 5.75 秒定位 `execution-direct-text-start` 事务 `DATABASE_SQL_FAILED` / SQLSTATE `42P08`（参数类型推断歧义）。`preparation_inputs=1`、Model resolution committed/plan 1、Model snapshot 1，证明捕获已完成；Execution 首 snapshot/round 尚未提交，Provider 0 请求。已交 Execution owner 修首 Start 的 SQL 同占位类型推断。outer Wait 1、Runner Wait、三层精确清理全部完成；诊断不再将此断点误归为 Preparation capture 失败。
+
+- 第五轮 `197f92bc` / `run.Ioa2YF` 在实际 PG 上越过 `42P08`，同一 Execution 的 5 轮 Model HTTP、4 次 read/write/run/read、真实 stats.py/result.json 内容、command 完整 stdout/exit 0、v2 最终快照同事务检查均已通过后进入浏览器。整体仍 FAIL：新消费者把正式 detail `{execution: ...}` 误当平铺对象，Node 原 Wait 非 0；只到 initial-task-in-progress，0 output reads/0 writes。product_recent 已按正式封套修独占 spec，未改产品返回。outer Wait 1、Runner cleanup Wait 和三层精确清理完成。

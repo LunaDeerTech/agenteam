@@ -51,3 +51,5 @@ root 授权在本树三文件并行：runner_tools 写 Runner TLS/原进程 Wait
 terminal preparation 可表示合法捕获，因此根因暂只定位到准备至首轮启动之间。下一诊断增加 preparation_inputs、Model resolution/snapshot 数量，以及测试自有原 Store 返回处的限量 SQLSTATE/约束名观察，不记录 SQL、参数、错误 Detail 或 payload。下一候选同时纳入 Tool `8d09a1ea` / Execution `baf64e2a`（均已冻结），integration 编译退出 0，原生链尚未通过。
 
 第四轮 `9a31dd1e` / `run.droHjN` 用上述元数据在 5.75 秒定位明确错误：`execution-direct-text-start` 原事务报 `DATABASE_SQL_FAILED`，SQLSTATE `42P08`。真实 preparation_inputs、Model resolution committed 和 Model snapshot 均已存在，故捕获成功，失败点在首轮启动 SQL 参数类型推断；由 Execution owner 修复。Provider 请求仍为 0。原 Wait 1 和三层精确资源清理完成，失败证据保留。
+
+第五轮 `197f92bc` / `run.Ioa2YF` 实际验证 SQL cast 修复并完成首条后端工具链：5 次 Model HTTP 与 4 次工具调用、真实程序/结果文件、完整 stdout/exit 0、最终 v2 投影同事务事实均越过断言。浏览器首次调用在 detail HTTP 封套断言处失败（正式 `{execution: ...}` 被新测试误当平铺）；尚无最终输出读取或评审写入，整个 M1 验收仍未通过。product_recent 针对测试解析修正，产品 API 不变。所有原进程与自有资源清理已完成。
