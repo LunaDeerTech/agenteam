@@ -173,3 +173,17 @@ Skills 静态检查限定新 AgentRun 管理入口：
 复用作者 18030 权限负例 race 报告并读相应测试源码；本轮未亲核其原输出、未启动 PG。Agent self-assignment 真实 successor/消费链尚待正在进行的固定联调，不由旧 Owner assignment 首链替代；跨目标实际 PG、带既有 Human 行的 128 升级和 assignment 的物理 Unknown 未在本节接受。没有要求重复无变化的旧 Owner、MCP、Memory 或 ProcessGuard 矩阵，旧 Memory raw log 缺失限制保持。
 
 本次仅追加本文，未修改产品、测试或其他文档，未执行 Git 写操作。无 Go/native/API/fixture 或后台命令；格式检查后停写交 root 保存。本节不覆盖后继 codec、OAuth、MCP 媒体、Meeting 或 Runner。
+
+## StoppedResolution 首次独立 PG 门：前置 fixture 失败
+
+2026-10-14；本轮复用 Model 固定 `13c92736`（`0249a738` 仅交接文档）的 integration/race binary `/tmp/agenteam-m3-model-stopped-resolution01.test`，直接核 SHA256 为 `823cbc7a8f9738689ba251f4b4fc6cc2f449282f3bd65a72e1f60bb4287c1f4f`，未重编该 binary。integration 授唯一 native 窗口；起前 overlay 可用约 2.6 GiB、tmp 约 4.3 GiB，无活动 Go/native，显式 current-only，未访问现有 dev PG/MinIO。只运行 `^TestModelM3StoppedResolution$`，未重复原 81711/96718、迁移或其他通过矩阵。
+
+命令在 `/workspace/agenteam-m3-model` 执行 `/tmp/m3web.ZVAtEu/object-fixture -run '^TestModelM3StoppedResolution$'`，保默认代理/TLS；环境为 `AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go`、`GOTOOLCHAIN=local`、`GOMAXPROCS=2`、`GOFLAGS=-p=1`、原共享 GOCACHE/GOMODCACHE、原 source-built MinIO；`AGENTEAM_FIXTURE_TEST_BINARY` 为上述 binary，`AGENTEAM_FIXTURE_TEST_CWD=/workspace/agenteam-m3-model/tests/model`、`AGENTEAM_FIXTURE_PG_CURRENT_ONLY=1`，owned record 指下述本轮独占目录。helper 原有小型 Go 构建保留。
+
+**独立 session 91350 实际 FAIL 5.68 秒 / Wait1，尚未进入 StoppedResolution 行为断言，不能接受此门。**原日志位于 `/workspace/agenteam-m3-integration/output/ai/m3-core-review/stopped-resolution01/native.log`，同目录保留 `owned.json`、`exit-status` 和 `wrapper-pid`。测试 PID 1336775 原 `actual_wait code=1`，wrapper PID 1335699 原 Wait1；错误定位显示 `stopped_resolution_test.go:223` 的 `RESOURCE_BUSY`。D03/D04/D05 原日志分别记录 exact cleanup；结束后按 owned record 的六个精确 container/network ID 复查均不存在，三个目录与上述两个 PID 亦均不存在。native 窗口已归还。
+
+**已证 harness 必修，非已证产品缺陷：** `13c92736:tests/model/runtime_native_test.go:137` 用 `objectfixture.Environment(db.Name)` 获得固定路径，`:153` 的第一个 `OpenSpool` 持锁至 fixture 收尾；`tests/model/stopped_resolution_test.go:134` 再次用同一 `db.Name`，`:147` 再开同一 spool。`tests/testsupport/objectstore/environment.go:37` 按 identity 固定 suffix，`internal/central/object/spool.go:102` 对原 `.object.lock` 使用 `LOCK_EX|LOCK_NB`，第二次打开必然返回 ResourceBusy。helper 标有 `t.Helper`，故原输出归到调用行 223；此处尚未创建第二个 ProcessGuard、调用其 Runtime.Initialize、seed 三种原 resolution 或执行 LookupStoppedResolution。已将决定性位置交 root 安排 Model 作者修 fixture；本审查未改产品或测试，不放宽生产 flock，不对相同输入盲重试。
+
+本轮已读 `9868ee1c` contract、`9bcfe7ae` provider 的固定代码及实际 harness：观察保持完整原 ResolveRequest（包括 nil Selection.Version）、私有域 plan、原 call/input/prepared process；在两次完整锁读取之间调用真实 ConfirmStopped，不准备解析、不 acquire/release lease、不 dispatch；CallFound 仍需另走 StoppedCall 观察，返回原 Model 仍需正式 retirement。此有限源码阅读未另发现已证产品问题，但实际前置失败使旧 guard 拒绝、停止后三状态、原 lease 退休及零 dispatch 均仍未验证。计划中的同 OS 双 guard 也不能称新增 OS kill 门。
+
+133 及完整 1–133 的作者已过结果本轮未重跑或独立静态复核；Memory 132/后继恢复、MCP 131/startup/Object cleanup、Skills InstallUnknown/finalRaw 与 App router 后继完整审查均留待续派，不以读取 commit 摘要或旧报告代替已审。按 root 指示在已确定前置失败处收敛，让原作者返修；仅本报告新增正文，全部命令已退出，无在用资源或 Git 写操作。
