@@ -346,9 +346,9 @@ func (c *runtimeCall) finish(ctx context.Context, result *wire.Result, original 
 	var response *mc.ModelResponse
 	if original == nil && result != nil {
 		r := mc.ModelResponse{CallID: current.value.CallID, InvocationID: current.value.ID,
-			Message:      mc.Message{Role: "assistant", Parts: []mc.MessagePart{{Text: &mc.TextPart{Text: result.Text}}}},
+			Message:      runtimeResponseMessage(*result),
 			FinishReason: result.End.FinishReason, Usage: current.value.Usage.Clone(), ProviderRequestID: current.value.ProviderRequestID}
-		if current.value.Dispatch != uc.Sent || r.Validate() != nil || r.FinishReason != "stop" && r.FinishReason != "length" {
+		if current.value.Dispatch != uc.Sent || r.Validate() != nil || r.FinishReason != "stop" && r.FinishReason != "length" && !(c.request.Model.Snapshot.Identity.AdapterRevision == wire.OpenAIChatToolsRevision && r.FinishReason == "tool_calls" && len(result.ToolCalls) == 1) {
 			original = fault(f.InvalidState)
 		} else {
 			response = &r

@@ -75,7 +75,7 @@ func NewSuccessorSemantic(ctx context.Context, parts SuccessorSemanticParts) (Su
 		return zero, err
 	}
 	c := parts.Model.Consumer
-	if parts.Actor.Validate() != nil || parts.Model.Validate() != nil || parts.Actor.Details().Kind != i.AgentRun || c.Kind != AgentConsumer || c.Purpose != AgentGeneration || !actorMatches(parts.Actor, c) || parts.Model.LeaseOwner.Details().Kind != sc.ExecutionOwner || !ownerMatches(parts.Model.LeaseOwner, c, nil) || len(parts.Tools) != 1 || len(parts.Messages) < 5 || len(parts.Messages) > 6 || parts.ToolChoice != (ToolChoice{Kind: "auto"}) || parts.ResponseFormat.Validate() != nil || parts.ResponseFormat.Kind != "text" || parts.RetryClass != AgentRetry {
+	if parts.Actor.Validate() != nil || parts.Model.Validate() != nil || parts.Actor.Details().Kind != i.AgentRun || c.Kind != AgentConsumer || c.Purpose != AgentGeneration || !actorMatches(parts.Actor, c) || parts.Model.LeaseOwner.Details().Kind != sc.ExecutionOwner || !ownerMatches(parts.Model.LeaseOwner, c, nil) || len(parts.Tools) == 0 || len(parts.Tools) > 128 || len(parts.Messages) < 2 || len(parts.Messages) > 256 || parts.ToolChoice != (ToolChoice{Kind: "auto"}) || parts.ResponseFormat.Validate() != nil || parts.ResponseFormat.Kind != "text" || parts.RetryClass != AgentRetry {
 		return zero, bad()
 	}
 	count := 0
@@ -88,7 +88,14 @@ func NewSuccessorSemantic(ctx context.Context, parts SuccessorSemanticParts) (Su
 			return zero, bad()
 		}
 	}
-	if parts.Tools[0].Validate() != nil {
+	names := make(map[string]bool, len(parts.Tools))
+	for _, tool := range parts.Tools {
+		if tool.Validate() != nil || names[tool.Name] {
+			return zero, bad()
+		}
+		names[tool.Name] = true
+	}
+	if ValidateToolHistory(parts.Messages) != nil {
 		return zero, bad()
 	}
 	wire := successorSemanticWire{SuccessorInputSchemaVersion, successorActorWire{i.AgentRun, c.ProjectID, *c.AgentID, *c.ExecutionID}, successorModelWire(parts.Model), parts.Messages, parts.Tools, parts.ToolChoice, parts.ResponseFormat, parts.RetryClass}

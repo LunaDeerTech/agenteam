@@ -71,7 +71,7 @@ func (r *runnerControlAssembly) Joined() bool {
 	return r.stopped && r.joined
 }
 
-func runnerControlHandlers(r *runnerControlAssembly, accounts *account.Service, origin string) (http.Handler, http.Handler, error) {
+func runnerControlHandlers(r *runnerControlAssembly, accounts *account.Service, origin string) (http.Handler, *runnerhttp.DeviceHandler, error) {
 	if r == nil || r.service == nil {
 		return nil, nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}

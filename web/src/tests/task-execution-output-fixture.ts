@@ -41,3 +41,24 @@ export function output(content = '完整文本', row = finalExecution()): TaskEx
     },
   }
 }
+
+export function multiRoundOutput(
+  content = '读取输入、写入结果并完成检查。',
+  patch: Partial<TaskExecution> = {},
+): TaskExecutionOutput {
+  const row = finalExecution({ completed_at: '2026-10-13T10:00:00.000005Z', ...patch })
+  const original = output(content, row)
+  return {
+    ...original,
+    snapshot: {
+      ...original.snapshot!,
+      schema: 'durable_final_text_v2',
+      items: original.snapshot!.items.map((item) => ({
+        ...item,
+        id: id(301),
+        started_at: '2026-10-13T10:00:00.000003Z',
+        source_reference: { kind: 'execution_round', id: id(301) },
+      })),
+    },
+  }
+}

@@ -18,7 +18,7 @@
 | product_recent | 既有执行 list/detail/runtime-view 与 Human 评审入口；可见最终结果，不从 Execution 终态推导 Task done。 |
 | delivery_path | App/config/必要 cmd 接线与新 M1 harness、测试依赖和资源协调；不替领域服务实现业务状态机。 |
 
-执行配置新增显式 `tool-loop-v1`；旧 `direct-text-v1` 保留原语义。profile 与 Provider adapter revision 分开；配置不自动删 Core、补 deny IDs 或制造权限。当前首片只有配置及明确 DependencyUnbound 门，多轮真实依赖未绑定前不回退成单轮文本成功。
+执行配置新增显式 `tool-loop-v1`；旧 `direct-text-v1` 保留原语义。profile 与 Provider adapter revision 分开；配置不自动删 Core、补 deny IDs 或制造权限。当前已绑定新 Capture/多轮选配及同原路由 DeviceHandler 的三 Runner factory，旧配置保持原组图。构造缺依赖仍明确拒绝。
 
 共享同 Store/Authority/Registry，创建 owner 立即登记；停止时先禁新调度，再等待原 Scheduler/Execution/Loop/Tool/Model 返回，随后释放共享 Secret/Usage/Outbox/ProcessGuard。具体工具构造参数由领域 owner 的实际接口固定，尚未实现不声明可调用。
 
@@ -30,4 +30,10 @@
 
 ## 当前进展
 
-显式 profile 与 getter 已实现，App 暂明确 Unbound；未跑产品测试。固定 MinIO 已恢复且 SHA 匹配，固定 PG17/nginx 镜像已取得，Playwright 锁安装已完成，web 锁安装进行中。没有业务测试资源或外部模型调用。本片为可恢复 WIP，后续结果在本节更新。
+显式 profile 与 getter 已实现，配置定向测试实际退出 0。App 三 Runner metadata 来源、Registry 同事务初始化、新 Model Capture、MultiRound 选配、真实 private authority factory 已落；每个 Tool authority 构造即注册原关闭组，复用路由持有的 DeviceHandler。整体尚待 W2 可编译源码，不声明构造通过。
+
+实际导入 Model `7cac84aa`、Tool `0c523752`、Task/UI 与浏览器 `9a206769`；其原证据范围保持，不等于组合通过。主 `TestM1AppToolWorkflow` 使用正式 Project/Runner/Provider/Agent/Task 操作并释放原 Scheduler 首空目录，计划五轮真实 HTTP read/write/run/read/final；正常 fixture WireSequence 由固定两条扩到有界 2..16，原最后一条重复及同路径校验保留。
+
+root 授权在本树三文件并行：runner_tools 写 Runner TLS/原进程 Wait，model_runtime 写持久终态/文件/stdout/exit/peer 断言，product_recent 写 browser invoke 与 Owner 回验。主 harness 由 delivery_path 单写。第二片保存时三辅助尚在写，root 排除这三文件并另片保存；无整体编译与 native PASS。
+
+固定 MinIO SHA、PG17/nginx 镜像和两个 Node 锁安装均完成，外置共享依赖可复用。没有业务测试资源或外部模型调用。两路 Go / 一路 native 预算不变；后续将先同栈验 00091 全新迁移与真实 App 首链。

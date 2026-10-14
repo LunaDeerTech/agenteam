@@ -100,7 +100,7 @@ func (r *ReadFileResultReader) DiscoverReadFileResult(ctx context.Context, execu
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
 	d := r.data()
-	call, err := d.executions.DiscoverReadFileCall(ctx, execution)
+	call, err := discoverSelectedReadFileCall(ctx, d.executions, execution)
 	if err != nil {
 		return nil, schemaReadError(err)
 	}

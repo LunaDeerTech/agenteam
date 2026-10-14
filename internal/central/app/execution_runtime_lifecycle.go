@@ -10,6 +10,7 @@ import (
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/mount"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+	runnerhttp "github.com/LunaDeerTech/agenteam/internal/central/runner/http"
 	"github.com/LunaDeerTech/agenteam/internal/central/scheduler"
 )
 
@@ -44,6 +45,7 @@ type executionRuntimeAssembly struct {
 	agentCalls                     *agent.ProjectCallOwnership
 	runnerManagedCalls             *mount.ProjectLifecycleOwnership
 	runnerManagedCleanup           pc.ProjectLifecycleParticipant
+	runnerDevice                   *runnerhttp.DeviceHandler
 }
 
 func (b *executionRuntimeAssembly) add(owner executionRuntimeWork) {

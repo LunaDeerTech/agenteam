@@ -1,4 +1,7 @@
 import { createWorkTaskTimelineAPI } from '../api/work-task-timeline'
+import { createTaskExecutionsAPI } from '../api/task-executions'
+import { createTaskExecutionOutputAPI } from '../api/task-execution-output'
+import { multiRoundOutput } from './task-execution-output-fixture'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DOMWrapper, flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { createAccountAPI, type SessionView } from '../api/account'
@@ -155,6 +158,11 @@ async function page(
   let blockers: 'none' | 'unresolved' | 'unavailable' | 'resolved' = blocked ? 'unresolved' : 'none'
   let observation: 'not_observed' | 'in_progress' | 'committed' = 'not_observed'
   let original: TransferInput | ReadyInput | undefined
+  const executionResult = multiRoundOutput('已完成读取、写入与检查。\n结果：report.txt', {
+    project_id: projectID,
+    task_id: taskID,
+    agent_id: workerID,
+  })
   const unexpected: string[] = []
   const commit = (input: TransferInput | ReadyInput) => {
     if (
@@ -209,6 +217,13 @@ async function page(
     if (route === `${prefix}/agents`) return json({ items: agents })
     if (route === `${prefix}/agents/${workerID}`) return json(agents[1])
     if (route === `${prefix}/agents/${reviewerID}`) return json(agents[0])
+    const executionPath = `${prefix}/tasks/${current.id}/executions`
+    if (route === executionPath)
+      return json({ items: [executionResult.execution], next_cursor: null })
+    if (route === `${executionPath}/${executionResult.execution.id}`)
+      return json({ execution: executionResult.execution })
+    if (route === `${executionPath}/${executionResult.execution.id}/runtime-view`)
+      return json(executionResult)
     if (route === `${prefix}/tasks/${current.id}` && init.method === 'PATCH') {
       const input = JSON.parse(init.body as string) as TaskUpdateInput
       const fields = Object.keys(input.request) as (keyof typeof input.request)[]
@@ -372,6 +387,8 @@ async function page(
   args[19] = {
     edit: createWorkTaskEditAPI(fetcher),
     taskTimeline: createWorkTaskTimelineAPI(fetcher),
+    taskExecutions: createTaskExecutionsAPI(fetcher),
+    taskExecutionOutput: createTaskExecutionOutputAPI(fetcher),
   }
   const auth = createSessionController(...args)
   await auth.restore()
@@ -476,6 +493,47 @@ async function selectAgent(label: string, option: string) {
 }
 
 describe('Human review page with real UI controls', () => {
+  it('shows a multi-round result without advancing the Task and submits only the explicitly confirmed Owner review', async () => {
+    const f = await page('in_progress')
+    await click('查看执行记录')
+    await body()
+      .get(`[data-execution-id="${id(100)}"]`)
+      .trigger('click')
+    await flushPromises()
+    await click('加载最终输出')
+    expect(body().get('[aria-label="最终输出正文"]').element.textContent).toBe(
+      '已完成读取、写入与检查。\n结果：report.txt',
+    )
+    expect(body().get('.execution-facts').text()).toContain('执行成功')
+    expect(f.transfers()).toHaveLength(0)
+    expect(f.fetcher.mock.calls.every(([, request]) => request.method === 'GET')).toBe(true)
+    expect(button('提交评审').exists()).toBe(true)
+    expect(
+      body()
+        .findAll('button')
+        .some((item) => item.text() === '接受并完成'),
+    ).toBe(false)
+
+    await click('提交评审')
+    expect(button('确认提交评审').element.disabled).toBe(true)
+    await selectAgent('评审 Agent', '评审员 (review-agent)')
+    expect(button('确认提交评审').element.disabled).toBe(true)
+    await body().get('textarea').setValue('已核对执行结果，请审核 report.txt。')
+    expect(f.transfers()).toHaveLength(0)
+    await click('确认提交评审')
+    expect(f.transfers()).toHaveLength(1)
+    expect(JSON.parse(f.transfers()[0]![1].body as string)).toEqual({
+      expected_version: '4',
+      request: {
+        target_state: 'in_review',
+        assignee_agent_id: reviewerID,
+        comment: '已核对执行结果，请审核 report.txt。',
+      },
+    })
+    expect(body().get('[role="dialog"]').text()).toContain('评审中')
+    expect(button('接受并完成').exists()).toBe(true)
+    expect(f.lookups()).toHaveLength(0)
+  })
   it('opens Sprint selection in a modal, restores its trigger and closes after a selection', async () => {
     const f = await page('todo', true)
     const trigger = button('选择 Sprint')

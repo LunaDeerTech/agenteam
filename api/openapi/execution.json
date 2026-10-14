@@ -838,6 +838,7 @@
       },
       "RuntimeTextItem": {
         "type": "object",
+        "description": "The immutable final text item. id and source_reference.id identify the actual response-producing Round, not necessarily the first Round. seq and revision describe this limited final snapshot, not the number of transcript entries or model/tool rounds. For durable_final_text_v1, started_at equals execution.started_at. For durable_final_text_v2, started_at is the final Round created_at and must be within the inclusive execution.started_at to execution.completed_at interval. Both schemas require updated_at and completed_at to equal execution.completed_at.",
         "additionalProperties": false,
         "required": [
           "id",
@@ -923,7 +924,10 @@
         ],
         "properties": {
           "schema": {
-            "const": "durable_final_text_v1"
+            "enum": [
+              "durable_final_text_v1",
+              "durable_final_text_v2"
+            ]
           },
           "generation": {
             "$ref": "./common.json#/components/schemas/ID"
@@ -942,7 +946,7 @@
             }
           }
         },
-        "description": "Immutable original terminal snapshot. generation equals execution.snapshot_id; execution_version equals terminal version. Succeeded has exactly one text item, failed/cancelled none. Empty items requires an actual producer row. This generation/progress is not a WebSocket epoch or active stream watermark."
+        "description": "Immutable original terminal snapshot. generation equals execution.snapshot_id; execution_version equals terminal version. Succeeded has exactly one text item from the actual final response Round, failed/cancelled none. Empty items requires an actual producer row. v1 retains its original exact start-time binding; v2 permits a final Round that starts after Execution start. included_update_progress=1 and item seq/revision=1 belong only to this complete final snapshot, not to the full Transcript or active stream. This generation/progress is not a WebSocket epoch or active stream watermark."
       },
       "TaskRuntimeView": {
         "type": "object",

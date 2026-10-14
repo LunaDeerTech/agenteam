@@ -340,7 +340,7 @@ func (s *serverState) serve(w http.ResponseWriter, r *http.Request) {
 
 func validWire(cfg *config, id string) bool {
 	if len(cfg.WireSequence) != 0 {
-		if cfg.Mode != "openai_chat_wire" || cfg.Wire != nil || len(cfg.WireSequence) != 2 || cfg.Redirect != "" || cfg.Body != "" || cfg.Size != 0 || cfg.HeaderBytes != 0 {
+		if cfg.Mode != "openai_chat_wire" || cfg.Wire != nil || len(cfg.WireSequence) < 2 || len(cfg.WireSequence) > 16 || cfg.Redirect != "" || cfg.Body != "" || cfg.Size != 0 || cfg.HeaderBytes != 0 {
 			return false
 		}
 		for n := range cfg.WireSequence {

@@ -374,7 +374,7 @@ func (c *runtimeCall) startRecord(consumer mc.ConsumerRequest, plan mc.ConsumerD
 	if c.agentRetry() {
 		c.attemptCtx, c.attemptCancel = context.WithTimeout(c.ctx, c.requestTimeout)
 	}
-	x, err := c.runtime.deps.Adapter.Start(context.WithValue(c.wireContext(), runtimeHandoffKey{}, c), wire.Request{Snapshot: c.request.Model.Snapshot, Messages: c.request.Messages, ToolChoice: c.request.ToolChoice, ResponseFormat: c.request.ResponseFormat, Mode: c.mode}, c.callOptions(callContext, material))
+	x, err := c.runtime.deps.Adapter.Start(context.WithValue(c.wireContext(), runtimeHandoffKey{}, c), wire.Request{Snapshot: c.request.Model.Snapshot, Messages: c.request.Messages, Tools: c.request.Tools, ToolChoice: c.request.ToolChoice, ResponseFormat: c.request.ResponseFormat, Mode: c.mode}, c.callOptions(callContext, material))
 	c.mu.Lock()
 	c.startReturned, c.exchange = true, x
 	c.mu.Unlock()
@@ -401,6 +401,7 @@ func (c *runtimeCall) releaseLocal() {
 	c.mu.Lock()
 	c.joined = true
 	c.request.Messages = nil
+	c.request.Tools = nil
 	clear(c.text)
 	c.text = nil
 	c.mu.Unlock()

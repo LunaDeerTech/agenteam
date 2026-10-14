@@ -19,6 +19,7 @@ import (
 	runnerservice "github.com/LunaDeerTech/agenteam/internal/central/runner/service"
 	"github.com/LunaDeerTech/agenteam/internal/central/skill"
 	"github.com/LunaDeerTech/agenteam/internal/central/tool/builtin"
+	tc "github.com/LunaDeerTech/agenteam/internal/central/tool/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/tool/registry"
 	toolruntime "github.com/LunaDeerTech/agenteam/internal/central/tool/runtime"
 )
@@ -56,14 +57,15 @@ func (w *agentInstallWork) Force(ctx context.Context) error { return w.Drain(ctx
 func (w *agentInstallWork) Joined() bool                    { return w.authority.Joined() }
 
 type agentConfigurationAssembly struct {
-	store     agent.Store
-	service   *agent.Service
-	ownership *agent.ProjectCallOwnership
-	registry  *registry.Registry
-	mu        sync.Mutex
-	stopped   bool
-	initDone  chan struct{}
-	initStop  context.CancelFunc
+	store       agent.Store
+	service     *agent.Service
+	ownership   *agent.ProjectCallOwnership
+	registry    *registry.Registry
+	runnerTools bool
+	mu          sync.Mutex
+	stopped     bool
+	initDone    chan struct{}
+	initStop    context.CancelFunc
 }
 
 // Keep the existing configuration-only constructor independent of call
@@ -89,11 +91,12 @@ func createAgentConfiguration(db database, projects *project.Authority, accounts
 func createOwnedAgentConfiguration(db database, projects *project.Authority, accounts *account.Authority,
 	agents *agent.Authority, agentEvents *agent.EventAuthority, models *model.Authority,
 	skills *skill.Service, skillAuthority *skill.Authority, installer *agentInstallWork,
-	auditor *audit.Service, journal *outbox.Service, objects *objectAssembly, keys cursor.Keyring) (*agentConfigurationAssembly, error) {
-	if objects == nil || objects.guard == nil || objects.process.Validate() != nil {
+	auditor *audit.Service, journal *outbox.Service, objects *objectAssembly, keys cursor.Keyring, runnerTools ...bool) (*agentConfigurationAssembly, error) {
+	if objects == nil || objects.guard == nil || objects.process.Validate() != nil || len(runnerTools) > 1 {
 		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
-	providers, err := createAgentConfigurationProviders(db, projects, accounts, agents, agentEvents, models, skills, skillAuthority, installer, auditor, journal, keys)
+	includeRunners := len(runnerTools) == 1 && runnerTools[0]
+	providers, err := createAgentConfigurationProvidersWithRunners(db, projects, accounts, agents, agentEvents, models, skills, skillAuthority, installer, auditor, journal, includeRunners, keys)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +104,7 @@ func createOwnedAgentConfiguration(db database, projects *project.Authority, acc
 	if err != nil {
 		return nil, err
 	}
-	return &agentConfigurationAssembly{store: providers.store, service: ownership.Service(), ownership: ownership, registry: providers.registry}, nil
+	return &agentConfigurationAssembly{store: providers.store, service: ownership.Service(), ownership: ownership, registry: providers.registry, runnerTools: includeRunners}, nil
 }
 
 type agentConfigurationProviders struct {
@@ -116,6 +119,13 @@ func createAgentConfigurationProviders(db database, projects *project.Authority,
 	agents *agent.Authority, agentEvents *agent.EventAuthority, models *model.Authority,
 	skills *skill.Service, skillAuthority *skill.Authority, installer *agentInstallWork,
 	auditor *audit.Service, journal *outbox.Service, cursorKeys ...cursor.Keyring) (*agentConfigurationProviders, error) {
+	return createAgentConfigurationProvidersWithRunners(db, projects, accounts, agents, agentEvents, models, skills, skillAuthority, installer, auditor, journal, false, cursorKeys...)
+}
+
+func createAgentConfigurationProvidersWithRunners(db database, projects *project.Authority, accounts *account.Authority,
+	agents *agent.Authority, agentEvents *agent.EventAuthority, models *model.Authority,
+	skills *skill.Service, skillAuthority *skill.Authority, installer *agentInstallWork,
+	auditor *audit.Service, journal *outbox.Service, includeRunners bool, cursorKeys ...cursor.Keyring) (*agentConfigurationProviders, error) {
 	store, ok := db.(agent.Store)
 	if !ok || runtimeInformationNil(store) || projects == nil || accounts == nil || agents == nil || agentEvents == nil || models == nil || skills == nil || skillAuthority == nil || installer == nil || installer.authority == nil || auditor == nil || journal == nil {
 		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
@@ -124,8 +134,16 @@ func createAgentConfigurationProviders(db database, projects *project.Authority,
 	if err != nil {
 		return nil, err
 	}
+	var runnerSources map[string]registry.RunnerSource
+	if includeRunners {
+		runnerSources, err = createRunnerToolSources(store)
+		if err != nil {
+			return nil, err
+		}
+	}
 	registered, err := registry.New(store, registry.Options{
 		Sources:        map[string]registry.BuiltinSource{builtin.SkillInstallStableKey: source},
+		RunnerSources:  runnerSources,
 		Authorizations: registry.Authorizations{Sessions: accounts, Projects: projects},
 	})
 	if err != nil {
@@ -217,8 +235,17 @@ func (a *agentConfigurationAssembly) Initialize(ctx context.Context) error {
 		if err := a.store.AcquireAll(ctx, tx, []f.LockRequest{registry.RegistryLock(f.Exclusive)}); err != nil {
 			return err
 		}
-		_, err := a.registry.ReconcileBuiltinInTx(ctx, tx, builtin.SkillInstallStableKey)
-		return err
+		if _, err := a.registry.ReconcileBuiltinInTx(ctx, tx, builtin.SkillInstallStableKey); err != nil {
+			return err
+		}
+		if a.runnerTools {
+			for _, key := range []string{tc.RunnerReadFileKey, tc.RunnerWriteFileKey, tc.RunnerRunCommandKey} {
+				if _, err := a.registry.ReconcileRunnerInTx(ctx, tx, key); err != nil {
+					return err
+				}
+			}
+		}
+		return nil
 	})
 	switch result.State() {
 	case f.Committed:

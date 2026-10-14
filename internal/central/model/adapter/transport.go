@@ -34,6 +34,7 @@ type Exchange struct {
 	result                                     Result
 	err                                        error
 	schema                                     *structuredSchema
+	tools                                      *toolPolicy
 }
 
 func newExchange(ctx context.Context, mode ResponseMode, overall time.Duration, budget *Budget) *Exchange {
@@ -106,7 +107,10 @@ func (x *Exchange) perform(t Transport, req *http.Request, profile outbound.Prof
 	if len(raw) > maxTextBytes {
 		return Result{}, limitFailure()
 	}
-	value, err := decodeNative(raw, false)
+	value, err := decodeNativeProfile(raw, false, x.tools)
+	if x.tools != nil && value.usageValid {
+		x.observeUsage(value.usage)
+	}
 	if err != nil {
 		return Result{}, err
 	}
@@ -119,7 +123,7 @@ func (x *Exchange) perform(t Transport, req *http.Request, profile outbound.Prof
 			return Result{}, err
 		}
 	}
-	return Result{Text: value.text, End: End{FinishReason: value.finish, Usage: value.usage.Clone(), ProviderRequestID: x.requestID}}, nil
+	return Result{Text: value.text, ToolCalls: cloneToolCalls(value.tools), End: End{FinishReason: value.finish, Usage: value.usage.Clone(), ProviderRequestID: x.requestID}}, nil
 }
 func (x *Exchange) observeNetworkError(err error) {
 	var n *outbound.NetworkError
@@ -297,6 +301,7 @@ func (x *Exchange) Result(ctx context.Context) (Result, error) {
 		return Result{}, x.readError(err)
 	}
 	result.End.Usage = result.End.Usage.Clone()
+	result.ToolCalls = cloneToolCalls(result.ToolCalls)
 	return result, nil
 }
 

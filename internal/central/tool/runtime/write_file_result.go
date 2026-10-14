@@ -103,7 +103,7 @@ func (r *WriteFileResultReader) DiscoverWriteFileResult(ctx context.Context, exe
 		return nil, fail(f.InvalidArgument)
 	}
 	d := r.data()
-	call, err := d.executions.DiscoverCommittedWriteFileCall(ctx, execution)
+	call, err := discoverSelectedCommittedWriteFileCall(ctx, d.executions, execution)
 	if err != nil {
 		return nil, schemaReadError(err)
 	}

@@ -68,11 +68,6 @@ func constructExecutionRuntime(b *executionRuntimeAssembly, cfg config.Config, d
 	if !enabled || options.Validate() != nil || !bound || !ok || runtimeInformationNil(store) || b == nil || a == nil || projects == nil || projects.reader == nil || projects.lifecycle == nil || objects == nil || objects.guard == nil || models == nil || secrets == nil || outbound == nil || journal == nil {
 		return f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
-	// The new profile must not silently fall back to the one-round text graph.
-	// Its real multi-round and Runner providers are installed by M1 integration.
-	if options.ToolLoop() {
-		return f.NewFault(f.DependencyUnbound, f.NotStarted)
-	}
 	providers, err := createAgentRuntimeProviders(db, projects.projects, accounts, skills, a, registries...)
 	if err != nil {
 		return err
@@ -151,7 +146,11 @@ func constructExecutionRuntime(b *executionRuntimeAssembly, cfg config.Config, d
 	if err != nil {
 		return err
 	}
-	modelCapture, err := model.NewExecutionCapture(models, a.execution)
+	capture := model.NewExecutionCapture
+	if options.ToolLoop() {
+		capture = model.NewToolCallingExecutionCapture
+	}
+	modelCapture, err := capture(models, a.execution)
 	if err != nil {
 		return err
 	}
@@ -200,7 +199,7 @@ func constructExecutionRuntime(b *executionRuntimeAssembly, cfg config.Config, d
 	if err != nil {
 		return err
 	}
-	owned, err := createOwnedExecutionRuntime(store, execution.ProjectCallDependencies{
+	callDependencies := execution.ProjectCallDependencies{
 		Read:    b.taskReadDependencies,
 		Service: execution.Dependencies{Authority: a.execution, Agents: providers.configuration, Task: launchSource},
 		Preparation: execution.PreparationDependencies{
@@ -214,7 +213,22 @@ func constructExecutionRuntime(b *executionRuntimeAssembly, cfg config.Config, d
 			Models: modelRetirement, Environment: environmentRetirement, Mounts: mountUses,
 		},
 		Associated: options.AssociatedExecutor(),
-	}, projects.lifecycle, projects.variables, secrets, objects)
+	}
+	if options.ToolLoop() {
+		if len(registries) != 1 || registries[0] == nil || b.runnerDevice == nil {
+			return f.NewFault(f.DependencyUnbound, f.NotStarted)
+		}
+		currentEnvironment, err := pv.NewCurrentProcessEnvironment(store, a.execution)
+		if err != nil {
+			return err
+		}
+		callDependencies.MultiRound = &execution.MultiRoundDependencies{
+			Models: runtime, Tools: registries[0], Guard: objects.guard,
+			CurrentEnvironment: currentEnvironment,
+			BindTools:          b.runnerToolFactory(store, objects, providers.configuration, registries[0]),
+		}
+	}
+	owned, err := createOwnedExecutionRuntime(store, callDependencies, projects.lifecycle, projects.variables, secrets, objects)
 	// A final retirement-binding failure may still return its original pair.
 	// Acquire that owner before handling the error, using the same root budget.
 	if owned != nil && owned.pair != nil {

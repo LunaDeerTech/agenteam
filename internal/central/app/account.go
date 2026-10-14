@@ -358,7 +358,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
-	_, runtimeEnabled := cfg.ExecutionRuntime()
+	runtimeOptions, runtimeEnabled := cfg.ExecutionRuntime()
 	lifecycle, err := createProjectLifecycleAuthority(db)
 	if err != nil {
 		return err
@@ -652,7 +652,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	}
 	// Skills uses the original Agent authority, not the Agent service. All
 	// providers are now fixed, so publish both Agent lanes as one lifecycle owner.
-	agentConfiguration, err := createOwnedAgentConfiguration(db, projectUsage.projects, authority, agentAuthority, agentProducer, modelAuthority, skills, contentAuthorities.skills, install, auditor, journal, objects, cfg.CursorKeyring())
+	agentConfiguration, err := createOwnedAgentConfiguration(db, projectUsage.projects, authority, agentAuthority, agentProducer, modelAuthority, skills, contentAuthorities.skills, install, auditor, journal, objects, cfg.CursorKeyring(), runtimeEnabled && runtimeOptions.ToolLoop())
 	if err != nil {
 		return err
 	}
@@ -858,7 +858,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 			// The four-owner constructor requires this guard's actual binding.
 			// Earlier startup failures never install an empty constructing owner.
 			// No Run or Launch is reachable until Account.Start below this phase.
-			executions := &executionRuntimeAssembly{constructing: true, agentCalls: agentConfiguration.ownership, taskReadDependencies: &readDeps}
+			executions := &executionRuntimeAssembly{constructing: true, agentCalls: agentConfiguration.ownership, taskReadDependencies: &readDeps, runnerDevice: runnerDevice}
 			if !accounts.install(ctx, func() { accounts.executions = executions }) {
 				executions.constructionDone()
 				return objects, context.Canceled
