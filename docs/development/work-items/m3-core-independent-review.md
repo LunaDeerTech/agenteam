@@ -76,3 +76,70 @@ Unknown 两分支均在原外层事务的 Secret/receipt/领域 postimage 已写
 `model/runtime_tools.go:25` 对文本 tool profile 的 File/Image result 返回 CapabilityUnsupported；`runtime_attempt.go:131` 的调用顺序在 consumer discovery、Usage 获取与 wire 准备之前，原 canonical parts/business refs 不被改写。`runtime_tools_test.go:159` 覆盖 File/Image 的 BeginChat nil handle、零 consumer/IO、引用保留和 Drain/Joined；复用 10458 原 race Wait0 及旧 tools/auto 结果，不重跑。这里不提供媒体投影、对象读取或多模态模型消费能力。
 
 本次仅追加本文，未执行 Git、Go、PG/native 或外部 API，未改实现、测试或其他文档。检查报告链接、空白和末尾换行后冻结；所有只读命令已退出，无后台资源，交 root 保存。
+
+## Skills routing、MCP audit 与 Owner credential 追加审查
+
+2026-10-14；只读 `git show` / 限定 diff 审查 `0992936b`、`d3216b59`、`a89f4a4c`、`82d30a98`、`f6dfb2e6`；上述目标路径在组合 `c7951f6b` 相同。未读取活跃 App/Object WIP 作为固定验证输入。**五组源码有界无已证 must-fix；新 MCP credential HTTP 的完整行为与 Skills 全链仍未接受。**
+
+- `00123` 的 successor guard 与 `00121` 原函数逐字比较，函数体仅将两处 JSONB disposition 集合别名改为 `dispositions_row.value`；原 cutoff、ingress、binding、control transcript 校验未改变。原 `TestSkillRoundSQLPair` 实际取迁移后的生产函数，只将 schema 指向临时账本，覆盖 unchanged/applied/skipped 与缺 disposition、外来 binding、错 control 三个反例。这证明函数分支，不能替代生产 FK、deferred trigger 和完整 App 事务链。
+- `00125` 相比 `00105` 原 operation_name 集合恰增 `skill.install/list/read/assign/prepare`，无删除。Execution 的 candidate、load、storage 与 acceptsToolBinding 共用原捕获 binding 的闭集判断，拒绝混合 MCP/Builtin/Runner 及未知 revision；install 仍走其独立账本，不进入 DomainBuiltinBinding。SQL probe 复用真实迁移后的 CHECK，实际有 5 个 Skill 和 6 个既有名称合法、4 个未知名称拒绝；不是 5 个完整 Skill 操作已测。`d3216b59` 同带的 Knowledge EmbeddingProfiles 注入不计作本次 Skills 行为接受。
+- `a89f4a4c` 只允许同 Project 的 AgentRun SecretResolve/MCP 元数据及完整 execution/operation/tool/request association 进入原 Secret provider；当前 Project 共享锁、initialized/active 门和私有同 Store/Tx resolution/Usage/lease/AEAD 事实仍必须通过，公开 tuple 不授读取权。纯测试保留裸 tuple、闭 Project、缺锁及错 consumer/缺 association 的拒绝。`82d30a98` 按真实 backend registration 的 Ordinary/Core 类别选择既有 Registry 当前门；Ordinary 仍核 canonical definition、当前 Source 与绑定，Core 仍核原 class，之后仍走 schema 与原 Execution 权限，不形成通用 bypass。
+- `f6dfb2e6` 仅将 Human passive lookup 扩至 ProjectScope/PurposeMCP，仍按原 command/user/project 锁重验当前 Session 与 Project Read，查询历史安全 receipt 列，并检查 kind/ref/purpose/版本；无 Secret 材料准备或新写入。HTTP 固定 Project、Human、MCP 与严格有界 DTO；update/delete 的 metadata/late-receipt 检查不能代替最终 ExecuteWrite 的同事务 Mutate、CAS 和完整材料重放比较。原 Unknown 不由 handler 自动重发，返回投影检查固定用途和版本，输入材料在原调用退出时销毁。
+
+已直接核原日志：`/tmp/agenteam-m3-integration-sql-check/native.log` 的 7340，MCP envelope top 5.08 秒、Skill pair top 4.86 秒，actual_wait=0；`/tmp/agenteam-m3-skill-routing.4ajqY5/native.log` / `exit-status` 的 77655，routing top 4.31 秒、actual_wait=0。两轮均三 fixture exact cleanup，复用通过输入而未重跑。79131 仅复用作者的定向 race 结论；已读新增测试，其 HTTP 部分调用内部 execute，未覆盖 ServeHTTP 或真实 PG。
+
+另核 `/workspace/agenteam-m3-mcp/output/ai/mcp/agent-audit-062500fc.log` 与其固定 harness：24826 整 top **FAIL、actual_wait=1**，停在 `mcp-successor-canonical-resource`。此前已断言实际 SDK echo 恰 1 次、Model 请求 4 次且 handler/socket 退出、原 Runtime/App owners Joined，以及后继输入保留 echo/catalog 原字节；仅将这些前置事实用于 audit 窄路由证据，不把 Resource 正文、后续持久退休断言或整链改写成 PASS。三类 fixture 已清理。
+
+适用后继门已交 MCP/integration，待 root 冻结实际 App 装配后安排资源：复用已有 harness 完成真实 HTTP/Account/Project/Secret/Audit/PG 的 create→GET/HEAD→update→delete 与原 passive lookup；定向核 wrong-purpose、撤权后 mutation/lookup 拒绝、原 Unknown 的只读确认且无再写；用既有 Model wire harness 补新 ServeHTTP 的取消/deadline/body close/flush 与实际退出。现 inner/pure 证据不能替代这些门；不扩 OAuth、冷恢复、Runner 或重跑已过 SQL 矩阵。Skills 剩余正式链沿原 owner 计划验证。
+
+本轮结束前追加固定 Object `84627e76` 四源及 Knowledge `44089ad7` 两源的最窄静态审查，亦无已证 must-fix。Object contract 仅增加 KnowledgeRuntime、ExistingOwner/Knowledge、Read、精确 ReadObjectID、无 CreationCause/ProtectedLease 的授权形状；原 ProjectInitialization 条件保持。`object/read.go` 在 canonical reference 捷径之前匹配指定 ObjectID，不能借同文档另一个 canonical ref 放大授权。Knowledge 两个授权入口先走原 ownerScope 的同 Store/Tx、完整锁、当前 Process/Project 和持久 job/profile/document 资格，再由私有 live admission 精确核 document/version/object；公开 Service actor 及已退出 admission 均不足。新增测试能区分错 target、错 project/document/version 和返回后 witness；Object exact target 仍过当前 gate。复用作者 19636/89573 纯检查结果而未重跑，首次 helper 错误仍保留；未将其外推真实 PG 对象读取或自动索引首链，后者交 Knowledge 下一轮固定验证。另读 Registry `cf800224` 定向测试，确认其覆盖 Ordinary skill.list/read 的实际 Source 检查、Core 门拒绝及 class 漂移拒绝；不把该测试源当作 Skills 全链证据。
+
+本次只读 Git，无 Git 写操作；未启动 Go、PG/native、API 或后台资源，只追加本文。原实现与测试均未修改，原失败保留；报告完成格式和链接检查后停写交 root 保存。
+
+## Builtin cold、Memory 用户边界与维护授权追加审查
+
+2026-10-14；固定 Memory `/workspace/agenteam-m3-memory` 的 `ef17def7`（工作卡事实保存于 `bceddd4b`），只审新增 Builtin cold 六源、Memory `8f9680a6` 恢复接线及对应实际 App harness，并补查下述 Memory 用户边界。另只读 Skills `ae4778ab` 两源、MCP `c6d9c0e1` content 三源与 integration `3420b341` App 两源；`b595d6bf` 仅复核 content fixture 的 Row 类型纠正。**上述固定源码有界无已证 must-fix；本轮未新增 Go/PG/native 实测，不把作者报告写成亲核原日志，也不接受未 retired Model、MCP/Install 冷恢复或整个 M3。**前文的 Model/Secret 受控审查不能代替真实 Memory 权限；本节补充这一范围。
+
+- `tool/runtime/builtin_cold.go:53` 仅接受 `memory.retain` revision 1 的原 Lookup；私有 proof 绑定所属 executor、当前登记 lookup、原 call/binding/record 和旧 process，拒绝本地仍存活调用、当前 process、其他 backend 或已停止 executor。第一次同完整锁事务读取原 committed input 和 attempt；Tx 外调用原 `ConfirmStopped`，随后同锁重核完整 binding、输入原字节、digest/fingerprint、attempt ordinal/fence/request/process。活进程拒绝依赖原已接受 ProcessGuard 的真实 flock 机制，没有替换该机制。后端只调用 Lookup，私有 Memory witness 仅允许 `lookup-retain`；没有 Execute 或新模型调用入口。终态发布保留原 operation/attempt/request，`builtin_repository.go:132` 不改 attempt 的 process 归属。结果提交 Unknown 后，下一次仍观察原持久 record；未提交时也只重新读取原 receipt，不重发 retain。
+- `memory/generation_recovery.go:24` / `:79` 只选择同 Project/Agent、旧 process、源 Model call 已 retired、非 serving、building/version 1/retained 的 generation。Tx 外确认旧进程停止后，在包含 namespace 与原 retention plan 的完整锁内再次核当前 Process/Tool 权限、旧停止事实和持久 tuple，才同事务退到 retired/version 2/released 并释放原 snapshot reference；不接管旧 Model call，不发布旧 vectors。`runtime.go:370` 在空 namespace 返回前也清理上述旧 build。release Unknown 保留原私有 generation/plan；cleanup 先用 Applied 只读观察，false 时才重试原目标 release，true 时只完成 owner 退场；不能把此流程描述为所有恢复事务均只读。
+- Memory 用户路径仍通过原 private Tool 与当前 Project/Agent 授权；Owner list/history/delete/lookup 每次在同事务验证当前 Owner 和 Agent。查询、dense/lexical 候选与最终 canonical 回投都绑定 Project/Agent、当前 revision/status 和 serving tuple；跨 Agent 或已删除正文不能因旧索引命中返回。Reflect 在模型等待后再验引用 current/revision，只返回回答；其 readonly 指 canonical Memory，不是没有 Model/Usage 或索引维护。Delete 将版本检查、软删除、namespace version、Audit 和 receipt 同事务提交，LookupDelete 按原 user/input/key 只读原 receipt；LookupRetain 亦核原 operation/input/Execution，未调用 ensureIndex 或 Model。
+- schema 2 profile 包含 selector version、Model/Provider/adapter，校验保存摘要，并与配置维数一同比较；新 profile 先完整构建，再原子切换 serving 与原 reference 释放。实际 harness 只覆盖同维数 `[1,0]` → `[0,1]` 的 selector/model 替换，不能外推维数变化、带存量迁移或超首批上限。旧 reference、query snapshot、canonical 不变的断言与该有限结论相符。
+
+证据分层：已读保存的工作卡/current、恢复与 runtime/web harness、相应私有 proof/拒绝测试源码；未取得 10221、85537、7713、38189 的完整原 native 输出，也未独立重跑。以下仅复用作者已报告的实际结果：
+
+| 作者轮次 | 固定 harness 能支持的范围 | 本轮限制 |
+| --- | --- | --- |
+| 10221；race 95190 / Config 85489 | reported PASS 48.84 秒、Wait0。原 child 在 canonical retain 已提交、源 Model 已 retired、building retained 且 publish 事务尚未开始时 SIGKILL/Wait9；新 child 恢复同原 E 的 receipt，第二 Task 退旧 build/ref v2、建新 ready/pin；5 次 Model 已发送/成功/退休、1 retain receipt/Audit、正常 Join 与三 fixture 清理均有实际 harness 断言 | 这是精确 kill 点的作者实际证据，不是任意崩溃点；30073 原失败保留。原输出/资源消失仅为作者报告，本轮没有冒称亲核 |
+| 85537 / 7713 | reported PASS 52.46 / 60.46 秒、Wait0。跨 E retain→recall/reflect、Agent B 空结果、Owner 删除后空结果；7713 另验证 schema 2 profile 切换及旧引用释放 | 读到真实 App、Tool response、持久事实、peer/Join 断言；不外推外部模型或完整 D14 |
+| 38189 | reported PASS 27.80 秒、Wait0。实际 Owner 页面 list/history、取消/确认删除、已提交响应丢失后只 lookup；harness 要求 delete 1 / lookup 1 / Audit 1、原 App/peer Join | 是 HTTP 响应投递丢失，不是数据库物理 COMMIT Unknown；不声称全键盘可用性 |
+
+未覆盖的 cold 行为门保持明确：物理 COMMIT 未转发 / 已提交 ACK 丢失的两分支、另一个真实活进程持锁时经新 cold 入口拒绝、取消/撤权竞争及未 retired Model 启动恢复。本次没有发现需要重放已过正常链或整个 ProcessGuard 矩阵的具体缺陷；上述分支若要纳入接受范围，应只补原目标账本/引用零重复、零业务 redispatch、原 owner Join 的定向门。现有旧 Model 未 retired 时 fail closed 的缺口仍在，不用本次成功掩盖。
+
+维护授权的窄结论：`skill/object_authority.go` 仅让 MaintenanceAccess 跳过 ambient runtime-read context 分支，后续原 mapping、current gate、同 Store/Tx 与锁要求保留；active/expired runtime context 均不应截获原 reader Close，新 read 仍走原 runtime 权限。复用作者 7545 pure/race 通过报告。MCP `content_maintenance.go` 只接受原私有 active contentUse 的 FinishWriter/ReleaseReader，重核完整 materialization/project/E/operation/attempt/request/connection/runtime 事实；reader 还核 object membership。App resolver 仅从同 Store、原 Tx 映射 Object upload owner，不自行授权；原 Object 私有维护证明和完整锁仍必需。reader Close 在 contentUse 失活前完成；新读和 publish 仍执行当前 invocation 权限，cleanup 不获得新业务权。
+
+本轮结束前取得并直接核对 Skills `ae4778ab` / App06 的原 `/workspace/agenteam-m3-skills/output/ai/m3-dynamic-skills/first07/native.log`：77051 的 `TestSkillsM3AppDynamicInstallRead` PASS 39.04 秒、actual_wait=0，PG/peer/Object 三项 exact cleanup。原 log 与 `/tmp/agenteam-m3-skills-app06.test` 的 SHA256 均与作者固定 manifest 一致。对照固定 `skills_m3_integration_test.go`：真实 install 得随机 Skill ID，显式 Owner HTTP assign 在已捕获 round 后发生，旧 list 为空、后继 list 含新 Skill，实际 Object 正文进入第 5 次 Model 请求；4 个 immutable successor inputs、1 个 skills_added control、所有 reader leases released、Skill work joined、原 App/Runtime/producers/ProcessGuard 退出均有断言。本次接受该正常首链及维护 read/Close 的原证据，不重跑；仍不外推 Agent assign、Runner prepare、Install Unknown 或撤权竞争。
+
+MCP 原 4233 content test 因 fixture 返回 `pgx.Row` 而接口要求 `postgres.Row` 编译失败，`b595d6bf` 已仅纠正该类型；作者后报 66834 定向 race PASS 1.031 秒 / Wait0，本轮未亲核其日志。4233 HTTP 子包 race PASS 1.423 秒不算 content 或实际 Resource 通过。结束前又直接核原 `/workspace/agenteam-m3-mcp/output/ai/mcp/agent-maintenance-b595d6bf.log`：79351 的 `TestMCPM3AgentToolsAndResources` PASS 25.44 秒、actual_wait=0，三 fixture exact cleanup。作者标明使用 16340 编译的 `/tmp/agenteam-m3-mcp-maintenance.uDo43Q/app.test`；`b595d6bf` 中 App 两路径与 `3420b341`、content 产品路径与 `c6d9c0e1` 精确无差异。固定 harness 验证真实 Put/Consume/Read/Close、canonical 正文/ref/hash 进入后继第 4 个 Model 请求、SDK echo 1 次、3 个 operation 成功、runtime/Secret lease 退休和原 App/Runtime owners Joined；本次接受该正常 Resource 维护链的原证据。没有将此轮描述为实际取消 tail 注入或逐条 Object lease 查询已测。已交 MCP/integration 的后继门仍限撤权/取消只能完成原 cleanup、新 read/publish 必须拒绝；OAuth WIP、媒体和冷恢复均不外推。
+
+本轮仅追加本文；未改源码、测试、其他文档或执行 Git 写操作。所有只读命令已退出，无 Go/native/fixture/API 或后台资源；完成格式检查后冻结本文，交 root 保存。
+
+## MCP Owner 凭据与 Model stopped 恢复短轮审查
+
+2026-10-14；固定 MCP `6e59c76f`、Model `bd9f076f`、Usage 主体 `5da01c71` / 尾巴 `0a92da04`、合同 `dfe979f4` 和 `00127` 组 `b9816154`，只读限定提交，不采用后继工作区漂移；结束前另核修复 `e847e7eb` 的三个固定文件。**MCP Owner HTTP 有界无 must-fix；Model `bd9f076f` 的已确认 Drain 回退在 `e847e7eb` 源码中已修。本次后继固定源码无剩余已证 must-fix，但尚未完成真实 PG 恢复验收。**
+
+MCP 已直接核 `/workspace/agenteam-m3-mcp/output/ai/mcp/owner-credentials-6e59c76f.log`：76616 的 `TestMCPM3OwnerCredentials` PASS 7.37 秒、actual_wait=0、PG/peer/Object 三 fixture exact cleanup。对照固定 harness 与既有 HTTP/Secret 窄口：真实 App/Account 下 create→GET/HEAD→update→delete，原值重放成功、同 key 改材料及 stale CAS 冲突，原三个 receipt/Audit 和历史 lookup 版本固定；metadata 不含材料、HEAD 无正文。wrong-purpose 实际负例为 Model credential 的 GET 返回 404；logout 后实际验证原 create replay 与 lookup 均 401、原目标 receipt/Audit 计数不变，不能扩称每个 verb 或 Project 降权竞争已测。原响应丢失 fixture 在真实成功 HTTP body 读尽关闭后返回错误，随后原 key 只 lookup，未注入数据库 COMMIT Unknown。原 App/Runtime/producers Joined 断言成立。`60234` OwnerWeb 失败仍按作者报告保留；`d91b1879` / `fedde51f` mode 控制面仅构造检查、无 PG，不在此正常 HTTP 接受范围。
+
+**原 `bd9f076f` 的 must-fix：** `runtime_stopped_lookup.go:108` 调用 `prepareStoppedCall` 后，活跃 Lookup 的私有 witness 登记在 `s.recoveries`，但 `w.original` 为 nil。`runtime.go:194` 的 Drain 先调用 `confirmStoppedRecoveries`，后者 `runtime_stopped.go:371` 因该 nil 直接返回 ResourceBusy，尚未进入原 admission.cancel / done 等待。最小交错：ready Runtime 的合法 Lookup 已登记 witness，第二只读事务阻塞；StopAdmission→Drain 提前失败，而原查询尚未退出。这是固定源码的明确路径，发现后 Model owner 独立确认并返修；本审查未改实现，原缺陷与下述后继修复分开记录。
+
+**后继修复复核：** `e847e7eb` 的 Drain 先取消并等待已登记 admission.done，再确认 retained Unknown；Lookup 原 defer 顺序为先释放 witness、后关闭 admission.done。因此上述活观察不会再进入 Unknown 扫描。新 barrier 测试登记 original=nil 的原 witness，以第二次 cancel 明确观察 Drain 已进入 admission 路径，原 callback release/done 后检查成功及 Joined；旧实现会在进入该路径前返回，能被测试拒绝。复用作者 81756 五门 race PASS 1.032 秒 / Wait0 报告，本轮未亲核原日志或重跑。该提交同时补 Model owner-tail 消费：私有 startup 仅 initializing、未 ready、未 stopped 且当前 guard 有效；原 call 锁核无 admission 或精确 retired record，Model 与 Usage 各自在 Tx 外确认旧 process 停止，活 owner 注册与完整 before/rowset/锁在写入时再验；Unknown 仅拿原 plan 观察，不从 confirm 调用 close 重放。新增三源静态无另一已证缺陷，实际两种 tail 窗口与物理 Unknown 仍待真实 PG。
+
+其余静态核对结果：
+
+- Model 在 ready 前读取原 Call/Attempt；原 ProcessGuard 的 ConfirmStopped 位于 SQL 外，private runtime proof 登记后，同完整 call/invocation/resolution/snapshot/Usage/Secret 锁重验当前 guard 和原 before/after record。binding 摘要、call/attempt/process/fence/sequence/version、Input/Snapshot 均不改绑；known Final 与已有 Usage 原文保持。无 Final 时仅把 reserved→not_sent/cancelled、authorized→dispatch_unknown/unknown，已 sent 保持 sent 并记 unknown；没有重发或伪造 Provider 输出。
+- Secret 仅对 ModelCallOwner 的原 committed preparation/snapshot/ref/lease 发精确 Release；写 grant 还要求同 Tx 的 staged 与 validated 私有标记。ExecutionOwner 不走该释放分支，不能借单个 Agent call 退休释放整 Execution lease。Usage 复用原持久 header/Initiator，plan 绑定私有 issuer、完整 request、原 invocation-lane borrower rowset 的 ID/project/process/instance/call/registered_at；闭合只允许 phase 单调变化，新增/移除/替换原行使原 plan 失效。最多 64 个 owner 的有界限制保持，summary lane 不进入此闭合。
+- Usage Applied、OwnerClosed 与 Model confirm/Lookup 本体只读原目标；confirm 不调用 Apply/dispatch，已证未提交后只退出本次 mutation，后续显式 Initialize 才能发起新清理。Lookup 先后重验领域独立 StoppedCallAuthority 和完整输入，只在原进程 stopped、Model retired、Usage closed、适用 Secret lease released 后返回原 attempt/status；Found=false 仅表示原锁下没有 Call，不是消费者或 pre-admission borrower 已停止。`0a92da04` 的 owner-tail 端口还要求 Model 私有 startup/原 owner facts；`bd9f076f` 明确尚无该完整接线，不把接口存在当作 pre-admission/已退休尾巴已恢复。
+- `00127` 仅把原 retention consumer 闭集加入无 Agent 的 Meeting，旧 Knowledge/Memory 形状、版本、credential 和 snapshot FK 保留；serving source purpose 限两个 embedding 与 Meeting summary initial/update，Summary 要求 chat adapter 和原 SelectionVersion。领域 generation 私有权限仍必需；未因此接受 Meeting 实际 snapshot 重试或带存量升级。
+
+复用作者 47330、89302、17258 的纯检查报告并读对应测试源码：规范化、known Final、裸 proof/当前 process 拒绝、完整 rowset/mapping 及私有 startup 要求有覆盖；本轮未亲核这些原日志，纯检查不证明真实 stopped flock、SQL/事务或 COMMIT Unknown。已向 Model/integration 交付最小后继门：真实旧进程退出后精确原 attempt/known Final 与 lease/borrower 退休、Execution 整 lease 不动；rollback 与物理 Unknown 两分支的确认零写/零 dispatch；tail 验证无 admission/已退休两种窗口。`47472d54` 新 App harness 尚未编译运行，不计作恢复行为证据。无需重放已过 MCP 或旧 Memory 矩阵，Memory 原日志缺失限制保持。
+
+本轮未启动 Go、PG/native、浏览器或 API；只写本报告，无 Git 写操作和后台资源。固定缺陷及未验证范围交原 owner 继续，报告停写后由 root 保存。
