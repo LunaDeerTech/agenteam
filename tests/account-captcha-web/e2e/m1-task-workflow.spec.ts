@@ -126,29 +126,43 @@ const fact = (page: Page, label: string) =>
     .locator("dd");
 
 async function completeJSON<T>(response: Response): Promise<T> {
-  expect(await response.finished()).toBeNull();
   const status = response.status();
+  let body: Buffer;
+  try {
+    // Playwright 1.56.1 leaves finished() pending after requestfailed. body()
+    // waits for the actual browser body and rejects incomplete responses.
+    body = await response.body();
+  } catch {
+    const failure = response.request().failure()?.errorText;
+    const code =
+      failure && /^net::ERR_[A-Z0-9_]{1,96}$/.test(failure)
+        ? failure
+        : "NETWORK_ERROR_UNAVAILABLE";
+    throw Error(`M1_HTTP_BODY_INCOMPLETE status=${status} code=${code}`);
+  }
+  let value: unknown;
+  try {
+    value = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(body));
+  } catch {
+    // Neither response bodies nor parser errors are safe diagnostics.
+    throw Error(`M1_HTTP_INVALID_JSON status=${status}`);
+  }
   if (status !== 200) {
     let code = "PROBLEM_CODE_UNAVAILABLE";
-    try {
-      const problem: unknown = await response.json();
-      if (
-        problem !== null &&
-        typeof problem === "object" &&
-        "status" in problem &&
-        problem.status === status &&
-        "code" in problem &&
-        typeof problem.code === "string" &&
-        /^[A-Z][A-Z0-9_]{0,127}$/.test(problem.code)
-      )
-        code = problem.code;
-    } catch {
-      // Neither response bodies nor parser errors are safe diagnostics.
-    }
+    if (
+      value !== null &&
+      typeof value === "object" &&
+      "status" in value &&
+      value.status === status &&
+      "code" in value &&
+      typeof value.code === "string" &&
+      /^[A-Z][A-Z0-9_]{0,127}$/.test(value.code)
+    )
+      code = value.code;
     throw Error(`M1_HTTP_UNEXPECTED status=${status} code=${code}`);
   }
   expect(status).toBe(200);
-  return (await response.json()) as T;
+  return value as T;
 }
 
 function responseFor(page: Page, data: Material, path: string, method = "GET") {
