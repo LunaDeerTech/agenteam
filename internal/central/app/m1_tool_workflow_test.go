@@ -88,6 +88,7 @@ func TestM1AppToolWorkflow(t *testing.T) {
 }
 
 type m1Workflow struct {
+	runners                                    *runnerControlAssembly
 	app                                        *executionSchedulerApp
 	network                                    *netfixture.Descriptor
 	origin, private, scenario, root, workspace string
@@ -135,7 +136,12 @@ func (w *m1Workflow) seed(t *testing.T) {
 	workAppCheck(t, "m1-owned-runner-root", os.Mkdir(w.root, 0700))
 	create, err := rc.NewCreate(rc.CreateRequest{RunnerID: guardID[rc.Runner](t), Name: "M1 owned Runner", Description: "Temporary statistics workspace", Tags: []string{}, RootPath: w.root})
 	workAppCheck(t, "m1-runner-intent", err)
-	result, err := v.assembly.runners.service.Execute(v.ctx, v.actor, f.IdempotencyKey(guardID[struct{}](t).String()), create)
+	runners, ok := v.assembly.runners.(*runnerControlAssembly)
+	if !ok || runners == nil {
+		t.Fatal("M1 original Runner service absent")
+	}
+	w.runners = runners
+	result, err := runners.service.Execute(v.ctx, v.actor, f.IdempotencyKey(guardID[struct{}](t).String()), create)
 	workAppCheck(t, "m1-formal-runner-create", err)
 	if result.Material == nil {
 		t.Fatal("M1 Runner enrollment material absent")
@@ -176,7 +182,7 @@ func (w *m1Workflow) createModelAndTask(t *testing.T, endpoint string) {
 	disabled := false
 	for n := 0; n < 2; n++ {
 		target := guardID[id.Agent](t)
-		fields := ac.AgentCreateFields{AgentID: target, Name: "M1 reviewer", Description: "Statistics task review", Instructions: "Review the submitted program and statistics.", ModelRef: modelID, ApprovalPolicy: ac.ApprovalAllow, AllowedToolIDs: []id.ToolID{}, AllowedMountIDs: []id.MountID{}, AllowedSecretVariableIDs: []id.ProjectVariableID{}, AddSkillsEnabled: &disabled, InstallSkillEnabled: &disabled, InjectAgentsMD: &disabled}
+		fields := ac.AgentCreateFields{AgentID: target, Name: "M1 reviewer", Description: "Statistics task review", Instructions: "Review the submitted program and statistics.", ModelRef: modelID, ApprovalPolicy: ac.ApprovalAllow, AllowedToolIDs: []id.ToolID{}, AllowedMountIDs: []id.MountID{}, AllowedSecretVariableIDs: []id.ProjectVariableID{}, AddSkillsEnabled: &disabled, InstallSkillEnabled: &disabled, InjectAgentsMD: disabled}
 		if n == 0 {
 			v.agent = target
 			fields.Name = "M1 statistics worker"

@@ -40,6 +40,8 @@ type directTextCall struct {
 	invocation                              *directTextInvocation
 	terminal                                *directTextTerminal
 	toolPending                             bool
+	toolDispatched                          bool
+	next                                    *loopSuccessor
 	toolFacts                               *toolCallCandidate
 }
 
@@ -51,6 +53,7 @@ type directTextState struct {
 	process      oc.ProcessID
 	deps         DirectTextDependencies
 	tools        *toolCallDependencies
+	multi        *multiRoundState
 	mu           sync.Mutex
 	stopped      bool
 	calls        map[i.ExecutionID]*directTextCall

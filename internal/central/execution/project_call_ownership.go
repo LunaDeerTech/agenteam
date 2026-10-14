@@ -42,6 +42,7 @@ type ProjectCallDependencies struct {
 	Direct      DirectTextDependencies
 	Associated  AssociatedExecutorOptions
 	Read        *TaskReadDependencies
+	MultiRound  *MultiRoundDependencies
 }
 type projectCallRecord struct {
 	ID       f.ID[projectCallID]       `json:"id"`
@@ -136,9 +137,18 @@ func newProjectCallOwnership(store Store, deps ProjectCallDependencies, proof pr
 	if err != nil {
 		return nil, err
 	}
-	direct, err := NewDirectTextDriver(store, deps.Service.Authority, deps.Direct)
-	if err != nil {
-		return nil, err
+	var direct *DirectTextDriver
+	if deps.MultiRound != nil {
+		multi, constructErr := NewMultiRoundDriver(store, deps.Service.Authority, deps.Direct, *deps.MultiRound)
+		if constructErr != nil {
+			return nil, constructErr
+		}
+		direct = multi.driver
+	} else {
+		direct, err = NewDirectTextDriver(store, deps.Service.Authority, deps.Direct)
+		if err != nil {
+			return nil, err
+		}
 	}
 	associated, err := NewAssociatedExecutor(preparation, direct, deps.Associated)
 	if err != nil {

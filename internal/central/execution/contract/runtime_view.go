@@ -8,6 +8,7 @@ import (
 )
 
 const DurableFinalTextV1 = "durable_final_text_v1"
+const DurableFinalTextV2 = "durable_final_text_v2"
 const MaxRuntimeTextBytes = 16 << 20
 const MaxRuntimeViewBytes = MaxRuntimeTextBytes + (64 << 10)
 
@@ -71,7 +72,7 @@ func (v TaskRuntimeView) ValidateProjection() error {
 		return nil
 	}
 	s := v.Snapshot
-	if v.Availability != RuntimeAvailable || !e.Status.Terminal() || s == nil || e.SnapshotID == nil || e.StartedAt == nil || e.CompletedAt == nil || e.Reason == nil || s.Schema != DurableFinalTextV1 || s.Generation.Validate() != nil || s.Generation != *e.SnapshotID || s.ExecutionVersion != e.Version || s.IncludedUpdateProgress != 1 || s.Items == nil {
+	if v.Availability != RuntimeAvailable || !e.Status.Terminal() || s == nil || e.SnapshotID == nil || e.StartedAt == nil || e.CompletedAt == nil || e.Reason == nil || (s.Schema != DurableFinalTextV1 && s.Schema != DurableFinalTextV2) || s.Generation.Validate() != nil || s.Generation != *e.SnapshotID || s.ExecutionVersion != e.Version || s.IncludedUpdateProgress != 1 || s.Items == nil {
 		return f.NewFault(f.DependencyUnavailable, f.NotStarted)
 	}
 	if e.Status != Succeeded {
@@ -84,7 +85,7 @@ func (v TaskRuntimeView) ValidateProjection() error {
 		return f.NewFault(f.DependencyUnavailable, f.NotStarted)
 	}
 	t := s.Items[0]
-	if t.ID.Validate() != nil || t.ExecutionID != e.ID || t.Seq != 1 || t.Type != "text" || t.Status != "completed" || t.Revision != 1 || t.StartedAt.Validate() != nil || t.StartedAt != *e.StartedAt || t.UpdatedAt != *e.CompletedAt || t.CompletedAt != *e.CompletedAt || t.CompletedAt.Time().Before(t.StartedAt.Time()) || t.SourceReference.Kind != "execution_round" || t.SourceReference.ID != t.ID || len(t.Data.Content) > MaxRuntimeTextBytes || !utf8.ValidString(t.Data.Content) {
+	if t.ID.Validate() != nil || t.ExecutionID != e.ID || t.Seq != 1 || t.Type != "text" || t.Status != "completed" || t.Revision != 1 || t.StartedAt.Validate() != nil || t.StartedAt.Time().Before(e.StartedAt.Time()) || (s.Schema == DurableFinalTextV1 && t.StartedAt != *e.StartedAt) || t.UpdatedAt != *e.CompletedAt || t.CompletedAt != *e.CompletedAt || t.CompletedAt.Time().Before(t.StartedAt.Time()) || t.SourceReference.Kind != "execution_round" || t.SourceReference.ID != t.ID || len(t.Data.Content) > MaxRuntimeTextBytes || !utf8.ValidString(t.Data.Content) {
 		return f.NewFault(f.DependencyUnavailable, f.NotStarted)
 	}
 	return nil

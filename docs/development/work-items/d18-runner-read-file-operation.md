@@ -56,3 +56,14 @@ Model JSON 为唯一明确端口替身，Execution/Tool authority、CurrentMount
 - Go731861与driver730084实际Wait0，七个原资源各两次absence、private/runtime/descendants双尾、75s原automatic HOST_TCP baseline差额两次空、metadata exact与inputs_unchanged齐。全部原预算及门不变；窗口已释放，没有native05。
 
 原件在 `output/ai/runner-read-file-operation/native04/` 的invocation、input-hashes、process、outer与terminal；原监督日志 `/tmp/rfo04/pg-05e7687f0dfc4714bd201ba67768c6ed.log` 保留。该通过不覆盖前三轮FAIL、不解释native01 TIME_WAIT归属、不补造native02未记录Status；也不外推Transcript结果消费、下一次Model调用、生产默认绑定或完整D18/D22/原STOP。
+
+## M1 统一 Runner 调度（已可联调）
+
+统一入口 `runtime.RunnerExecutor.Execute/Lookup(ctx, ToolCallBinding)` 仅以原冻结 binding 选择现有 read-file/write-file/run-command executor。新增 `ToolCallIdentity{ExecutionID, RoundID, CallID}` 和 exact discovery 扩展；未实现该扩展明确返回 DependencyUnbound，不回退到第一条历史调用。原单次 API 保持兼容，原 With 回调继续在 same Store/Tx 下核当前授权与全部输入字段。
+
+`runtime.RunnerResultReader` 组合原独立 reader，通过 `RunnerResultAuthority` 在同一事务内借出完整 canonical ToolResultPart；结果沿原 Operation/Attempt/Call 验证，command 的错误分类沿原持久 Outcome。它不持有 executor，不创建或派发 Runner 请求。旧 Unknown 保留与实际退出语义不变。本次不修改 Runner 协议或 Tool SQL；Execution 多轮迁移与 producer 由 W2 实现，App sources/装配由 W5 负责。基础包测试（contract/runtime）已在 Go1.27.1 与共享锁定 cache 下实际 exit0；新增 exact round/call/execution/snapshot、缺扩展拒绝及统一结果同 Tx/撤权/损坏/foreign plan/consumer 失败检查通过。首次正式测试中新增断言误要求敏感错误保留原 cause 而 FAIL，按既有安全错误合同修正后通过，未修改产品边界。真实联调与独立验收仍未执行，不能据接口存在宣称 M1 完成。
+
+
+统一 `RunnerDispatcher.Stop/Drain/Joined` 委托原三个 Authority 的同一状态，只用于全局退出，zero-value 不得声称 joined。可选 `RunnerCallLifecycle.CancelCall/JoinCall` 供 Loop 取消单个 Execution 的原 call：完整 binding 必须与最初调度上下文精确匹配；只发出取消信号，并等待原 handoff 的 done 与持久退休。后续另一个 call 不被取消，Unknown owner 保留，不创建新请求或重发；没有本地 owner 不构成数据库已提交的证明。正常 Execute 仍同步等实际 Runner Dispatch 与最终事务返回。
+
+作者适用检查已通过：两个包完整 `go test -race`；新增统一结果检查保留 write 的已知提交与 durable=false/late-error，run 的成功、非零退出、取消及完整 stdout/stderr；全局 stop 不早于原 lookup 返回，逐 call 取消覆盖三种 Runner 且不影响另一个 Execution，Unknown 两次观察仍保留。per-call 增量后定向 `TestRunner* -race` 和两包 vet 实际 exit0。vet 首次报告跨包别名 literal 未写字段名，改为具名字段后通过，未改变行为。这些仍是作者包级测试，真实 PG/WSS/模型组合由 W2/W5 执行；未宣称独立验收或完整 M1 通过。

@@ -14,7 +14,7 @@ import (
 
 // One statement observes the canonical row and terminal projection together.
 // No snapshot, round input, transcript, response or private fault is loaded.
-const taskExecutionSelect = `SELECT e.id::text,e.project_id::text,e.agent_id::text,e.status,e.version,e.cancel_requested_at,e.snapshot_id::text,e.created_at,e.started_at,e.completed_at,e.launch_request,e.idempotency_key,e.request_id::text,e.request_digest,r.terminal_reason,r.terminal_status,r.terminal_version,r.finished_at FROM agenteam_execution.executions e LEFT JOIN agenteam_execution.rounds r ON r.execution_id=e.id`
+const taskExecutionSelect = `SELECT e.id::text,e.project_id::text,e.agent_id::text,e.status,e.version,e.cancel_requested_at,e.snapshot_id::text,e.created_at,e.started_at,e.completed_at,e.launch_request,e.idempotency_key,e.request_id::text,e.request_digest,r.terminal_reason,r.terminal_status,r.terminal_version,r.finished_at FROM agenteam_execution.executions e LEFT JOIN LATERAL (SELECT terminal_reason,terminal_status,terminal_version,finished_at FROM agenteam_execution.rounds WHERE execution_id=e.id ORDER BY round_ordinal DESC LIMIT 1) r ON true`
 
 type taskExecutionPosition struct {
 	at f.Instant

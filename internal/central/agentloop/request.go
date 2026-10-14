@@ -26,6 +26,7 @@ import (
 // references; only its Messages are model-visible input.
 type DirectTextRequest struct {
 	data          func() (f.Digest, mc.ModelRequest)
+	loop          bool
 	toolCall      bool
 	runnerBinding tc.RunnerBinding
 }

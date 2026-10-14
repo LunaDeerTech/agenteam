@@ -38,22 +38,38 @@ func (p *runCommandCallPlan) Binding() tc.ToolCallBinding {
 	return p.call.binding
 }
 func (d *ToolCallDriver) DiscoverRunCommandCall(ctx context.Context, e i.ExecutionID) (tc.RunCommandCallPlan, error) {
+	return d.discoverRunCommandCall(ctx, e, nil)
+}
+func (d *ToolCallDriver) DiscoverRunCommandCallFor(ctx context.Context, id tc.ToolCallIdentity) (tc.RunCommandCallPlan, error) {
+	if id.Validate() != nil {
+		return nil, invalid()
+	}
+	return d.discoverRunCommandCall(ctx, id.ExecutionID, &id)
+}
+func (d *ToolCallDriver) discoverRunCommandCall(ctx context.Context, e i.ExecutionID, id *tc.ToolCallIdentity) (tc.RunCommandCallPlan, error) {
 	if d == nil || d.driver == nil || ctx == nil || e.Validate() != nil {
 		return nil, invalid()
 	}
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	if d.driver.state.tools.profile() != tc.RunCommandRegistration().Binding {
+	if !d.driver.state.acceptsRunnerBinding(tc.RunCommandRegistration().Binding) {
 		return nil, fault(f.Forbidden)
 	}
-	stored, err := loadDirectText(ctx, d.driver.state.store, e)
+	round := ""
+	if id != nil {
+		round = id.RoundID
+	}
+	stored, err := loadDirectTextRound(ctx, d.driver.state.store, e, round)
 	if err != nil {
 		return nil, err
 	}
 	binding, err := toolBinding(stored)
 	if err != nil {
 		return nil, err
+	}
+	if id != nil && !id.Matches(binding) {
+		return nil, fault(f.Forbidden)
 	}
 	if binding.RunnerBinding != tc.RunCommandRegistration().Binding {
 		return nil, fault(f.Forbidden)
@@ -160,7 +176,7 @@ func (a *Authority) commandWitness(ctx context.Context, tx f.Tx) (*commandCurren
 		return nil, fault(f.Forbidden)
 	}
 	s := w.driver.driver.state
-	if a == nil || a.state == nil || s.authority.state != a.state || s.store != a.state.store || s.tools.profile() != tc.RunCommandRegistration().Binding {
+	if a == nil || a.state == nil || s.authority.state != a.state || s.store != a.state.store || !s.acceptsRunnerBinding(tc.RunCommandRegistration().Binding) {
 		return nil, fault(f.Forbidden)
 	}
 	request, err := commandEnvironmentRequest(w.binding)

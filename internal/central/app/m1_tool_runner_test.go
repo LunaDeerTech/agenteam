@@ -274,7 +274,7 @@ func (w *m1Workflow) startRunner(t *testing.T) {
 		default:
 		}
 		if v.stderr.event("runner_connection", "state", "connected") {
-			snapshot, err := w.app.assembly.runners.service.Get(ctx, w.app.actor, w.runnerID)
+			snapshot, err := w.runners.service.Get(ctx, w.app.actor, w.runnerID)
 			workAppCheck(t, "m1-runner-real-online", err)
 			if snapshot.Status == rc.Online && snapshot.LastHello != nil {
 				if !slices.Equal(snapshot.LastHello.Capabilities, []string{p.ReadFileOperation, p.WriteFileOperation, p.RunCommandOperation}) || len(snapshot.LastHello.FeatureFlags) != 0 || snapshot.CredentialGeneration != 1 || snapshot.PublicKeyFingerprint == nil {
@@ -335,7 +335,7 @@ func (w *m1Workflow) stopRunner(t *testing.T) {
 	tick := time.NewTicker(10 * time.Millisecond)
 	defer tick.Stop()
 	for {
-		snapshot, err := w.app.assembly.runners.service.Get(ctx, w.app.actor, w.runnerID)
+		snapshot, err := w.runners.service.Get(ctx, w.app.actor, w.runnerID)
 		workAppCheck(t, "m1-runner-real-offline", err)
 		if snapshot.Status == rc.Offline && v.proxy.active.Load() == 0 {
 			break

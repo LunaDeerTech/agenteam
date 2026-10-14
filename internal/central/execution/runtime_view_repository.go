@@ -16,10 +16,14 @@ import (
 
 func finalRuntimeSnapshot(round executionRound, terminal *directTextTerminal) (*ec.RuntimeSnapshot, error) {
 	r := round.Fields()
-	if terminal == nil || r.Input.SchemaVersion != 1 || !terminal.status.Terminal() || terminal.at.Time().Before(r.CreatedAt.Time()) {
+	if terminal == nil || (r.Input.SchemaVersion != 1 && !isLoopRound(round)) || !terminal.status.Terminal() || terminal.at.Time().Before(r.CreatedAt.Time()) {
 		return nil, invalid()
 	}
-	s := &ec.RuntimeSnapshot{Schema: ec.DurableFinalTextV1, Generation: r.SnapshotID, IncludedUpdateProgress: 1, ExecutionVersion: terminal.version, Items: []ec.RuntimeTextItem{}}
+	schema := ec.DurableFinalTextV1
+	if isLoopRound(round) {
+		schema = ec.DurableFinalTextV2
+	}
+	s := &ec.RuntimeSnapshot{Schema: schema, Generation: r.SnapshotID, IncludedUpdateProgress: 1, ExecutionVersion: terminal.version, Items: []ec.RuntimeTextItem{}}
 	if terminal.status != ec.Succeeded {
 		if terminal.response != nil || len(terminal.responseBytes) != 0 {
 			return nil, invalid()
@@ -59,7 +63,7 @@ func saveDirectTextRuntime(ctx context.Context, x postgres.SQLExecutor, run *dir
 	if run == nil || run.owner == nil {
 		return invalid()
 	}
-	if run.owner.tools != nil {
+	if run.owner.tools != nil && run.owner.multi == nil {
 		return nil
 	}
 	s, err := finalRuntimeSnapshot(run.round, run.terminal)
@@ -87,7 +91,7 @@ func confirmDirectTextRuntime(ctx context.Context, x postgres.SQLExecutor, run *
 	if run == nil || run.owner == nil {
 		return invalid()
 	}
-	if run.owner.tools != nil {
+	if run.owner.tools != nil && run.owner.multi == nil {
 		return nil
 	}
 	s, err := finalRuntimeSnapshot(run.round, run.terminal)

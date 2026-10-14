@@ -140,6 +140,33 @@ func (s *directTextState) requireCurrentToolFacts(ctx context.Context, tx f.Tx, 
 	if _, err = s.deps.Projects.RequirePreparingProjectInTx(ctx, tx, run.request.Launch.ProjectID); err != nil {
 		return portError(err)
 	}
+	if s.multi != nil {
+		if err = s.multi.guard.RequireCurrentProcessInTx(ctx, tx, s.multiProcess()); err != nil {
+			return portError(err)
+		}
+		fields := run.input.input.Fields()
+		expected, ok := run.round.(loopExecutionRound)
+		if !ok {
+			return fault(f.Forbidden)
+		}
+		tools := expected.LoopRound.Fields().Tools
+		if len(tools) != len(fields.Tools) {
+			return fault(f.Forbidden)
+		}
+		for idx, t := range fields.Tools {
+			if !slices.Contains(agent.Fields().AllowedToolIDs, t.ToolID) || slices.Contains(fields.Request.Launch.Policy.DeniedToolIDs, t.ToolID) {
+				return fault(f.Forbidden)
+			}
+			def, err := s.tools.metadata.ReadDefinitionInTx(ctx, tx, tc.SpecRef{ToolID: t.ToolID, SpecRevision: t.SpecRevision})
+			if err != nil {
+				return portError(err)
+			}
+			if !reflect.DeepEqual(tools[idx], mc.Tool{Name: t.ModelVisibleName, Description: def.Description, InputSchema: def.InputSchema, OutputSchema: def.OutputSchema}) {
+				return fault(f.ConfirmationStale)
+			}
+		}
+		return portError(s.tools.metadata.RequireExecutionToolFactsInTx(ctx, tx, toolFactsRequest(run.input.input, agent)))
+	}
 	if run.toolFacts != nil {
 		fields := run.input.input.Fields()
 		if len(fields.Tools) != 1 || fields.Tools[0].BindingSnapshot.RunnerBinding != s.tools.profile() {

@@ -31,19 +31,35 @@ func (p *readFileCallPlan) Binding() tc.ToolCallBinding {
 // DiscoverReadFileCall derives the call from Execution's committed facts. It
 // does not read caller-supplied arguments or authorize an Operation/dispatch.
 func (d *ToolCallDriver) DiscoverReadFileCall(ctx context.Context, e i.ExecutionID) (tc.ReadFileCallPlan, error) {
+	return d.discoverReadFileCall(ctx, e, nil)
+}
+func (d *ToolCallDriver) DiscoverReadFileCallFor(ctx context.Context, id tc.ToolCallIdentity) (tc.ReadFileCallPlan, error) {
+	if id.Validate() != nil {
+		return nil, invalid()
+	}
+	return d.discoverReadFileCall(ctx, id.ExecutionID, &id)
+}
+func (d *ToolCallDriver) discoverReadFileCall(ctx context.Context, e i.ExecutionID, id *tc.ToolCallIdentity) (tc.ReadFileCallPlan, error) {
 	if d == nil || d.driver == nil || ctx == nil || e.Validate() != nil {
 		return nil, invalid()
 	}
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	stored, err := loadDirectText(ctx, d.driver.state.store, e)
+	round := ""
+	if id != nil {
+		round = id.RoundID
+	}
+	stored, err := loadDirectTextRound(ctx, d.driver.state.store, e, round)
 	if err != nil {
 		return nil, err
 	}
 	binding, err := toolBinding(stored)
 	if err != nil {
 		return nil, err
+	}
+	if id != nil && !id.Matches(binding) {
+		return nil, fault(f.Forbidden)
 	}
 	if binding.RunnerBinding != tc.ReadFileRegistration().Binding {
 		return nil, fault(f.Forbidden)
