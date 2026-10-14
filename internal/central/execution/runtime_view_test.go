@@ -163,7 +163,7 @@ func runtimeReadCandidate(t *testing.T, v *taskReadFixture, mode string) {
 			projection = []any{raw, &digest, &p, &snapText, &roundText, &state, &ver, &done}
 		}
 	}
-	v.store.runtimeRow = append(append(base, reason, status, version, finished), projection...)
+	v.store.runtimeRow = append(append(base, reason, status, version, finished, (*string)(nil), (*string)(nil), (*time.Time)(nil)), projection...)
 }
 func TestRuntimeFinalTextReadAvailability(t *testing.T) {
 	for _, mode := range []string{"pending", "not_recorded", "available"} {

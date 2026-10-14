@@ -29,7 +29,8 @@ func m1CommitObserver(t *testing.T) func(f.TransactionCause, f.CommitResult) {
 	return func(cause f.TransactionCause, result f.CommitResult) {
 		details := cause.Details()
 		transfer := details.Kind == f.CommandsCause && details.Primary.Command() == "work.task.transfer"
-		if result.State() != f.NotCommitted || !strings.HasPrefix(details.Owner, "execution") && !strings.HasPrefix(details.JobType, "execution") && !transfer || count.Add(1) > 32 {
+		toolOperation := details.Kind == f.CommandsCause && details.Primary.Namespace() == "tool.operation"
+		if result.State() != f.NotCommitted || !strings.HasPrefix(details.Owner, "execution") && !strings.HasPrefix(details.JobType, "execution") && !transfer && !toolOperation || count.Add(1) > 32 {
 			return
 		}
 		fault := result.Fault()

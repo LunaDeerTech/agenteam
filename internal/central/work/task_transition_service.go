@@ -17,14 +17,18 @@ type TaskTransitionPending interface {
 }
 
 type TaskTransitionDependencies struct {
-	Agents     agentc.WorkReferences
-	Occupancy  ec.WorkOccupancyReader
-	Pending    TaskTransitionPending
-	Structure  *Reader
-	TaskEvents c.TaskTransitionEvents
-	Authority  *Authority
-	Events     oc.Appender
-	Activity   ActivityAuthority
+	AgentTools          c.AgentTaskAuthority
+	AgentRunAgents      agentc.TaskTransitionReferences
+	Cancellation        ec.CancellationInTx
+	PendingCancellation c.TaskPendingCanceller
+	Agents              agentc.WorkReferences
+	Occupancy           ec.WorkOccupancyReader
+	Pending             TaskTransitionPending
+	Structure           *Reader
+	TaskEvents          c.TaskTransitionEvents
+	Authority           *Authority
+	Events              oc.Appender
+	Activity            ActivityAuthority
 }
 type TaskTransitionService struct {
 	data func() *taskTransitionServiceState
@@ -44,6 +48,7 @@ func NewTaskTransition(store Store, deps TaskTransitionDependencies) (*TaskTrans
 		return nil, fault(f.DependencyUnbound)
 	}
 	st := &taskTransitionServiceState{store: store, deps: deps, calls: map[*call]struct{}{}, changed: make(chan struct{})}
+	deps.Authority.state().transitions = st
 	return &TaskTransitionService{data: func() *taskTransitionServiceState { return st }}, nil
 }
 func (s *TaskTransitionService) state() *taskTransitionServiceState {

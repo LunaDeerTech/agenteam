@@ -16,7 +16,8 @@ import (
 
 const dispatchColumns = `id::text,project_id::text,sprint_id::text,task_id::text,agent_id::text,
  launch_request,launch_digest,idempotency_key,request_id::text,status,launch_outcome,version,
- claim_guard,claim_source_sprint_id::text,claim_source_state,claim_source_priority,execution_id::text,attempt_count,next_retry_at,created_at,updated_at,busy_attempt,skip_reason,skipped_at,final_attempt,failure_reason,failure_code,failure_occurred_at,failed_at,retry_policy,retry_policy_digest,temporary_attempt,temporary_reason,temporary_code,temporary_occurred_at,relaunch_source`
+ claim_guard,claim_source_sprint_id::text,claim_source_state,claim_source_priority,execution_id::text,attempt_count,next_retry_at,created_at,updated_at,busy_attempt,skip_reason,skipped_at,final_attempt,failure_reason,failure_code,failure_occurred_at,failed_at,retry_policy,retry_policy_digest,temporary_attempt,temporary_reason,temporary_code,temporary_occurred_at,relaunch_source,
+ EXISTS(SELECT 1 FROM agenteam_scheduler.task_cancellation_requests tc WHERE tc.project_id=dispatches.project_id AND tc.dispatch_id=dispatches.id AND tc.task_id=dispatches.task_id)`
 
 func scanDispatch(row postgres.Row) (*dispatchRecord, error) {
 	var id, p, s, t, a, key, requestID, status, outcome, digest string
@@ -37,13 +38,23 @@ func scanDispatch(row postgres.Row) (*dispatchRecord, error) {
 	var temporaryAttempt *int64
 	var temporaryReason, temporaryCode *string
 	var temporaryOccurred *time.Time
-	if err := row.Scan(&id, &p, &s, &t, &a, &launchRaw, &digest, &key, &requestID, &status, &outcome, &version, &guardRaw, &sourceSprint, &sourceState, &sourcePriority, &execution, &attempts, &retry, &created, &updated, &busy, &reason, &skipped, &finalAttempt, &failureReason, &failureCode, &occurred, &failed, &policyRaw, &policyDigest, &temporaryAttempt, &temporaryReason, &temporaryCode, &temporaryOccurred, &relaunchRaw); err != nil {
+	var cancelRequested bool
+	if err := row.Scan(&id, &p, &s, &t, &a, &launchRaw, &digest, &key, &requestID, &status, &outcome, &version, &guardRaw, &sourceSprint, &sourceState, &sourcePriority, &execution, &attempts, &retry, &created, &updated, &busy, &reason, &skipped, &finalAttempt, &failureReason, &failureCode, &occurred, &failed, &policyRaw, &policyDigest, &temporaryAttempt, &temporaryReason, &temporaryCode, &temporaryOccurred, &relaunchRaw, &cancelRequested); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
 		}
 		return nil, portError(err)
 	}
-	r := &dispatchRecord{sprint: s, task: t, status: Status(status), outcome: LaunchOutcome(outcome), version: f.Version(version), digest: f.Digest(digest), attempts: attempts}
+	r := &dispatchRecord{sprint: s, task: t, status: Status(status), outcome: LaunchOutcome(outcome), version: f.Version(version), digest: f.Digest(digest), attempts: attempts, cancelRequested: cancelRequested}
+	// A cancelled Dispatch preserves every diagnostic from its proven pending
+	// predecessor. Validate that same shape; its status alone disables retry.
+	cancelled := r.status == Cancelled
+	if cancelled {
+		if !r.cancelRequested || r.outcome != NotSent && r.outcome != KnownNotCreated {
+			return nil, unavailable(nil)
+		}
+		r.status = Pending
+	}
 	var err error
 	if r.retryPolicy, err = decodeRetryPolicy(policyRaw, policyDigest); err != nil {
 		return nil, err
@@ -113,7 +124,7 @@ func scanDispatch(row postgres.Row) (*dispatchRecord, error) {
 	}
 	if retry != nil {
 		v, err := f.NewInstant(*retry)
-		if err != nil || retry.Before(updated) || retry.Nanosecond()%1000 != 0 {
+		if err != nil || !cancelled && retry.Before(updated) || retry.Nanosecond()%1000 != 0 {
 			return nil, unavailable(nil)
 		}
 		r.nextRetry = &v
@@ -191,6 +202,9 @@ func scanDispatch(row postgres.Row) (*dispatchRecord, error) {
 	}
 	if err := validateRetryRecord(r); err != nil {
 		return nil, err
+	}
+	if cancelled {
+		r.status = Cancelled
 	}
 	return r, nil
 }

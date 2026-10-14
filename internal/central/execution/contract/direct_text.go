@@ -267,6 +267,12 @@ type DirectTextLifecycle struct {
 }
 
 func (v DirectTextLifecycle) Validate() error {
+	if v.Status == Cancelled && v.Reason == "cancelled_before_start" {
+		if v.ExecutionID.Validate() != nil || v.AgentID.Validate() != nil || v.StartID != (DirectTextStartID{}) || v.SnapshotID != (SnapshotID{}) || v.RoundID != (RoundID{}) || v.CallID != (mc.CallID{}) || v.TranscriptThrough != 0 {
+			return invalid()
+		}
+		return nil
+	}
 	if v.ExecutionID.Validate() != nil || v.AgentID.Validate() != nil || v.StartID.Validate() != nil || v.SnapshotID.Validate() != nil || v.RoundID.Validate() != nil || v.CallID.Validate() != nil || v.TranscriptThrough.Validate() != nil {
 		return invalid()
 	}

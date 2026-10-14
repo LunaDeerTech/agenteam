@@ -14,6 +14,12 @@ func validateCreationLookupInvocation(v ac.Invocation) error {
 		return invalid()
 	}
 	d := v.Details()
+	if d.Actor.Details().Kind == i.AgentRun {
+		if d.ExecutionID == "" || d.OperationID == "" || d.ToolID == "" || d.ToolCallID == "" {
+			return invalid()
+		}
+		return nil
+	}
 	if d.Actor.Details().Kind != i.Human || d.ExecutionID != "" || d.OperationID != "" || d.ToolID != "" || d.ToolCallID != "" {
 		return failure(f.DependencyUnbound, nil)
 	}

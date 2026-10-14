@@ -204,6 +204,19 @@ const endpoints = {
     '/api/v1/projects/{project_id}/tasks/{target}/executions/{execution_id}/runtime-view',
     200,
   ],
+  cancelTaskExecution: [
+    'POST',
+    '/api/v1/projects/{project_id}/tasks/{target}/executions/{execution_id}/cancel',
+    200,
+  ],
+  lookupTaskExecutionCancel: [
+    'POST',
+    '/api/v1/projects/{project_id}/tasks/{target}/executions/{execution_id}/cancel/lookup',
+    200,
+  ],
+  getExecutionApproval: ['GET', '/api/v1/projects/{project_id}/approvals/{target}', 200],
+  decideExecutionApproval: ['POST', '/api/v1/projects/{project_id}/approvals/{target}/decision', 200],
+  lookupExecutionApprovalDecision: ['POST', '/api/v1/projects/{project_id}/approvals/{target}/decision/lookup', 200],
   reviewTransfer: ['POST', '/api/v1/projects/{project_id}/tasks/{target}/transfer', 200],
   reviewLookup: ['POST', '/api/v1/projects/{project_id}/task-transition-commands/lookup', 200],
   taskCreate: ['POST', '/api/v1/projects/{project_id}/tasks', 200],
@@ -1343,6 +1356,11 @@ type WorkReviewEndpoint =
   | 'listTaskExecutions'
   | 'getTaskExecution'
   | 'getTaskExecutionOutput'
+  | 'cancelTaskExecution'
+  | 'lookupTaskExecutionCancel'
+  | 'getExecutionApproval'
+  | 'decideExecutionApproval'
+  | 'lookupExecutionApprovalDecision'
   | 'reviewTransfer'
   | 'reviewLookup'
   | 'taskCreate'
@@ -1400,6 +1418,11 @@ const workReviewEndpoints: readonly WorkReviewEndpoint[] = [
   'listTaskExecutions',
   'getTaskExecution',
   'getTaskExecutionOutput',
+  'cancelTaskExecution',
+  'lookupTaskExecutionCancel',
+  'getExecutionApproval',
+  'decideExecutionApproval',
+  'lookupExecutionApprovalDecision',
   'reviewTransfer',
   'reviewLookup',
   'taskCreate',
@@ -1965,9 +1988,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           'signal',
           'projectID',
           ...(target ? ['target'] : []),
-          ...(['getTaskExecution', 'getTaskExecutionOutput'].includes(endpoint)
-            ? ['executionID']
-            : []),
+          ...(basePath.includes('{execution_id}') ? ['executionID'] : []),
           ...(list ? ['workQuery'] : []),
           ...(method === 'GET' ? [] : ['body', 'csrf', 'key']),
         ])
@@ -1979,7 +2000,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
           if (!uuid7.test(id)) throw new Error()
           path = path.replace('{target}', id)
         }
-        if (['getTaskExecution', 'getTaskExecutionOutput'].includes(endpoint)) {
+        if (basePath.includes('{execution_id}')) {
           const execution = string(options.executionID, 36, 36)
           if (!uuid7.test(execution)) throw new Error()
           path = path.replace('{execution_id}', execution)

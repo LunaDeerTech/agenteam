@@ -51,14 +51,16 @@ func (v *TaskBlockerStatus) UnmarshalJSON(raw []byte) error {
 }
 
 type TaskBlocker struct {
-	ID          TaskBlockerID       `json:"id"`
-	ProjectID   ProjectID           `json:"project_id"`
-	TaskID      TaskID              `json:"task_id"`
-	Type        TaskBlockerType     `json:"type"`
-	Description string              `json:"description"`
-	Metadata    TaskBlockerMetadata `json:"-"`
-	CreatedAt   f.Instant           `json:"created_at"`
-	CreatedBy   TaskEventActor      `json:"created_by"`
+	ExecutionCancellation *TaskBlockerExecutionCancellationMetadata `json:"-"`
+	TransitionResolvedBy  *TaskTransitionActor                      `json:"-"`
+	ID                    TaskBlockerID                             `json:"id"`
+	ProjectID             ProjectID                                 `json:"project_id"`
+	TaskID                TaskID                                    `json:"task_id"`
+	Type                  TaskBlockerType                           `json:"type"`
+	Description           string                                    `json:"description"`
+	Metadata              TaskBlockerMetadata                       `json:"-"`
+	CreatedAt             f.Instant                                 `json:"created_at"`
+	CreatedBy             TaskEventActor                            `json:"created_by"`
 	// SchedulerCreatedBy and Technical are the read-only technical arm. They
 	// never enter TaskBlockerCreate or the Human actor codec.
 	SchedulerCreatedBy *SchedulerTaskActor           `json:"-"`
@@ -69,6 +71,12 @@ type TaskBlocker struct {
 }
 
 func (v TaskBlocker) Validate() error {
+	if v.Type == TaskBlockerUserCancelledExecution {
+		return v.validateExecutionCancellation()
+	}
+	if v.ExecutionCancellation != nil {
+		return invalid("", "INVALID_BLOCKER")
+	}
 	if v.Type == TaskBlockerTechnical {
 		return v.validateTechnicalRecord()
 	}
@@ -81,22 +89,15 @@ func (v TaskBlocker) Validate() error {
 	if v.ProjectID.Validate() != nil || v.TaskID.Validate() != nil || v.CreatedAt.Validate() != nil || v.CreatedBy.Validate() != nil {
 		return invalid("", "INVALID_BLOCKER")
 	}
-	if (v.ResolvedAt == nil) != (v.ResolvedBy == nil) {
-		return invalid("", "INVALID_BLOCKER_RESOLUTION")
-	}
-	if v.ResolvedAt == nil {
-		if v.ResolutionComment != nil {
-			return invalid("/resolution_comment", "INVALID_BLOCKER_RESOLUTION")
-		}
-		return nil
-	}
-	if v.ResolvedAt.Validate() != nil || v.ResolvedBy.Validate() != nil || v.ResolvedAt.Time().Before(v.CreatedAt.Time()) {
-		return invalid("", "INVALID_BLOCKER_RESOLUTION")
-	}
-	return (TaskBlockerResolve{BlockerID: v.ID, ResolutionComment: v.ResolutionComment}).Validate()
+	return v.validateResolution()
 }
 func (v TaskBlocker) Clone() TaskBlocker {
 	v.Metadata = v.Metadata.Clone()
+	v.TransitionResolvedBy = taskClonePtr(v.TransitionResolvedBy)
+	if v.ExecutionCancellation != nil {
+		next := v.ExecutionCancellation.Clone()
+		v.ExecutionCancellation = &next
+	}
 	v.Technical = taskClonePtr(v.Technical)
 	v.SchedulerCreatedBy = taskClonePtr(v.SchedulerCreatedBy)
 	v.ResolvedAt = taskClonePtr(v.ResolvedAt)
@@ -109,21 +110,28 @@ func (v TaskBlocker) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	var metadata any = v.Metadata.WaitingForHuman
+	var creator any = v.CreatedBy
+	var resolver any = v.ResolvedBy
 	if v.Type == TaskBlockerRelyOn {
 		metadata = v.Metadata.RelyOn
 	}
-	type wire TaskBlocker
 	if v.Type == TaskBlockerTechnical {
-		return checkedLimit(struct {
-			wire
-			Metadata  TaskBlockerTechnicalMetadata `json:"metadata"`
-			CreatedBy SchedulerTaskActor           `json:"created_by"`
-		}{wire(v), *v.Technical, *v.SchedulerCreatedBy}, nil, MaxTaskBlockerRecordBytes)
+		metadata = v.Technical
+		creator = v.SchedulerCreatedBy
 	}
+	if v.Type == TaskBlockerUserCancelledExecution {
+		metadata = v.ExecutionCancellation
+	}
+	if v.TransitionResolvedBy != nil {
+		resolver = v.TransitionResolvedBy
+	}
+	type wire TaskBlocker
 	return checkedLimit(struct {
 		wire
-		Metadata any `json:"metadata"`
-	}{wire(v), metadata}, nil, MaxTaskBlockerRecordBytes)
+		Metadata   any `json:"metadata"`
+		CreatedBy  any `json:"created_by"`
+		ResolvedBy any `json:"resolved_by"`
+	}{wire(v), metadata, creator, resolver}, nil, MaxTaskBlockerRecordBytes)
 }
 func (v *TaskBlocker) UnmarshalJSON(raw []byte) error {
 	if v == nil {
@@ -152,20 +160,39 @@ func (v *TaskBlocker) UnmarshalJSON(raw []byte) error {
 		return err
 	}
 	if !blockerNull(fields["resolved_by"]) {
-		next.ResolvedBy = new(TaskEventActor)
-		if err = next.ResolvedBy.UnmarshalJSON(fields["resolved_by"]); err != nil {
+		var shape struct {
+			Type string `json:"type"`
+		}
+		if json.Unmarshal(fields["resolved_by"], &shape) != nil {
+			return invalid("", "INVALID_ENCODING")
+		}
+		if shape.Type == "agent_run" {
+			next.TransitionResolvedBy = new(TaskTransitionActor)
+			err = next.TransitionResolvedBy.UnmarshalJSON(fields["resolved_by"])
+		} else {
+			next.ResolvedBy = new(TaskEventActor)
+			err = next.ResolvedBy.UnmarshalJSON(fields["resolved_by"])
+		}
+		if err != nil {
 			return err
 		}
 	}
-	if err = taskBlockerObject(fields["metadata"], MaxTaskBlockerMetadataBytes); err != nil {
+	metadataCap := MaxTaskBlockerMetadataBytes
+	if next.Type == TaskBlockerUserCancelledExecution {
+		metadataCap = MaxTaskExecutionCancellationMetadataBytes
+	}
+	if err = taskBlockerObject(fields["metadata"], metadataCap); err != nil {
 		return err
 	}
-	if next.Type != TaskBlockerTechnical {
+	if next.Type != TaskBlockerTechnical && next.Type != TaskBlockerUserCancelledExecution {
 		if err = taskBlockerSupported(next.Type); err != nil {
 			return err
 		}
 	}
-	if next.Type == TaskBlockerTechnical {
+	if next.Type == TaskBlockerUserCancelledExecution {
+		next.ExecutionCancellation = new(TaskBlockerExecutionCancellationMetadata)
+		err = next.ExecutionCancellation.UnmarshalJSON(fields["metadata"])
+	} else if next.Type == TaskBlockerTechnical {
 		next.Technical = new(TaskBlockerTechnicalMetadata)
 		err = next.Technical.UnmarshalJSON(fields["metadata"])
 	} else if next.Type == TaskBlockerRelyOn {

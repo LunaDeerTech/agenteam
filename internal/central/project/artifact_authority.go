@@ -14,17 +14,29 @@ import (
 
 // ArtifactAuthority binds current Human ownership and the private cleanup
 // family. Ordinary maintenance consumes Artifact's exact, live cancellation
-// witness. Agent/Execution provenance and a bare Service label grant nothing.
-type ArtifactAuthority struct{ projects Authority }
+// witness. AgentRun requires an explicitly bound current Runtime authority;
+// public provenance and a bare Service label grant nothing.
+type ArtifactAuthority struct {
+	projects Authority
+	runs     ac.AgentRunAuthority
+}
 
-func NewArtifactAuthority(projects *Authority) (*ArtifactAuthority, error) {
-	if projects.state() == nil {
+func NewArtifactAuthority(projects *Authority, runs ...ac.AgentRunAuthority) (*ArtifactAuthority, error) {
+	if projects.state() == nil || len(runs) > 1 || len(runs) == 1 && nilPort(runs[0]) {
 		return nil, fault(f.DependencyUnbound)
 	}
-	return &ArtifactAuthority{projects: *projects}, nil
+	a := &ArtifactAuthority{projects: *projects}
+	if len(runs) == 1 {
+		a.runs = runs[0]
+	}
+	return a, nil
 }
 
 func (a *ArtifactAuthority) Discover(ctx context.Context, subject ac.AccessSubject) (oc.AccessDependencies, error) {
+	return a.discoverArtifact(ctx, f.Tx{}, subject)
+}
+
+func (a *ArtifactAuthority) discoverArtifact(ctx context.Context, tx f.Tx, subject ac.AccessSubject) (oc.AccessDependencies, error) {
 	if a == nil || a.projects.state() == nil {
 		return oc.AccessDependencies{}, fault(f.DependencyUnbound)
 	}
@@ -33,6 +45,9 @@ func (a *ArtifactAuthority) Discover(ctx context.Context, subject ac.AccessSubje
 	}
 	if err := ctx.Err(); err != nil {
 		return oc.AccessDependencies{}, portError(err)
+	}
+	if subject.Actor.Details().Kind == i.AgentRun {
+		return a.discoverArtifactRun(ctx, tx, subject)
 	}
 	if subject.ExecutionID != "" || subject.OperationID != "" || subject.ToolID != "" || subject.ToolCallID != "" {
 		return oc.AccessDependencies{}, fault(f.DependencyUnbound)
@@ -66,7 +81,7 @@ func (a *ArtifactAuthority) Discover(ctx context.Context, subject ac.AccessSubje
 }
 
 func (a *ArtifactAuthority) DiscoverInTx(ctx context.Context, tx f.Tx, subject ac.AccessSubject) (oc.AccessDependencies, error) {
-	deps, err := a.Discover(ctx, subject)
+	deps, err := a.discoverArtifact(ctx, tx, subject)
 	if err != nil {
 		return oc.AccessDependencies{}, err
 	}
@@ -90,6 +105,9 @@ func (a *ArtifactAuthority) AuthorizeInTx(ctx context.Context, tx f.Tx, subject 
 	}
 	if subject.Maintenance {
 		return i.AccessGrant{}, invalid()
+	}
+	if subject.Actor.Details().Kind == i.AgentRun {
+		return a.authorizeArtifactRunInTx(ctx, tx, subject, intent)
 	}
 	if subject.Actor.Details().Kind == i.Human {
 		if intent != i.Read && intent != i.Mutate && intent != i.Converge {

@@ -15,14 +15,23 @@ import (
 // The persisted preimage retains the independent creation source. Resolution
 // belongs to the original Human transition, never to the Scheduler failure.
 type transitionBlockerResolution struct {
-	Before           c.TaskBlocker           `json:"before"`
-	After            c.TaskBlocker           `json:"after"`
-	CreatedOperation *c.TaskBlockerCommandID `json:"created_operation_id"`
-	FailureOperation *c.SchedulerClaimID     `json:"failure_operation_id"`
+	Before            c.TaskBlocker              `json:"before"`
+	After             c.TaskBlocker              `json:"after"`
+	CreatedOperation  *c.TaskBlockerCommandID    `json:"created_operation_id"`
+	CreatedTransition *c.TaskTransitionCommandID `json:"created_transition_operation_id,omitempty"`
+	FailureOperation  *c.SchedulerClaimID        `json:"failure_operation_id"`
 }
 
 func (v *transitionBlockerResolution) UnmarshalJSON(raw []byte) error {
-	if _, err := taskPrivateObject(raw, 2*c.MaxTaskBlockerRecordBytes+1024, []string{"before", "after", "created_operation_id", "failure_operation_id"}, []string{"created_operation_id", "failure_operation_id"}); err != nil {
+	var shape map[string]json.RawMessage
+	if json.Unmarshal(raw, &shape) != nil {
+		return internal(nil)
+	}
+	fields := []string{"before", "after", "created_operation_id", "failure_operation_id"}
+	if _, ok := shape["created_transition_operation_id"]; ok {
+		fields = append(fields, "created_transition_operation_id")
+	}
+	if _, err := taskPrivateObject(raw, 2*c.MaxTaskBlockerRecordBytes+1024, fields, []string{"created_operation_id", "failure_operation_id"}); err != nil {
 		return err
 	}
 	type wire transitionBlockerResolution
@@ -38,6 +47,15 @@ func (v *transitionBlockerResolution) UnmarshalJSON(raw []byte) error {
 	return nil
 }
 func (v transitionBlockerResolution) validateOrigin() error {
+	if v.Before.Type == c.TaskBlockerUserCancelledExecution {
+		if v.CreatedTransition == nil || v.CreatedTransition.Validate() != nil || v.CreatedOperation != nil || v.FailureOperation != nil {
+			return internal(nil)
+		}
+		return nil
+	}
+	if v.CreatedTransition != nil {
+		return internal(nil)
+	}
 	if v.Before.Type == c.TaskBlockerTechnical {
 		if v.CreatedOperation != nil || v.FailureOperation == nil || v.FailureOperation.Validate() != nil || v.Before.Technical == nil || v.Before.Technical.ReferenceID != v.FailureOperation.String() {
 			return internal(nil)
@@ -59,6 +77,9 @@ func transitionEdge(before c.Task, request c.TaskTransfer) error {
 	}
 	switch {
 	case transitionCancelEdge(before, request), transitionBlockEdge(before, request):
+		if before.State == c.TaskStateInReview && request.TargetState == c.TaskStateBlocked && request.Comment == nil {
+			return field(f.CommentRequired, "/comment", "COMMENT_REQUIRED")
+		}
 		// This capability changes state only. Retain the historical assignee
 		// (including nil) and every Blocker; no new assignment or resolution.
 		if request.AssigneeAgentID != nil || len(request.ResolveBlockerIDs) != 0 {
@@ -97,7 +118,7 @@ func transitionCancelEdge(before c.Task, request c.TaskTransfer) bool {
 }
 
 func transitionBlockEdge(before c.Task, request c.TaskTransfer) bool {
-	return before.State == c.TaskStateTodo && request.TargetState == c.TaskStateBlocked
+	return (before.State == c.TaskStateTodo || before.State == c.TaskStateInProgress || before.State == c.TaskStateInReview) && request.TargetState == c.TaskStateBlocked
 }
 
 // Cancelling or blocking does not select an Agent for new work. Retaining an
@@ -139,8 +160,8 @@ func prepareTransitionResolutions(ctx context.Context, x postgres.SQLExecutor, i
 		if b.ResolvedAt != nil {
 			return nil, at, fault(f.BlockerAlreadyResolved)
 		}
-		v := transitionBlockerResolution{Before: b.Clone(), FailureOperation: row.FailureOperation}
-		if row.FailureOperation == nil {
+		v := transitionBlockerResolution{Before: b.Clone(), FailureOperation: row.FailureOperation, CreatedTransition: row.CreatedTransition}
+		if row.FailureOperation == nil && row.CreatedTransition == nil {
 			id := row.CreatedOperation
 			v.CreatedOperation = &id
 		}
@@ -162,14 +183,20 @@ func prepareTransitionResolutions(ctx context.Context, x postgres.SQLExecutor, i
 	if in.Request.TargetState == c.TaskStateTodo && remaining != int64(len(out)) {
 		return nil, at, field(f.InvalidState, "/task_id", "UNRESOLVED_BLOCKERS")
 	}
-	if in.Request.TargetState == c.TaskStateBlocked && remaining == int64(len(out)) {
+	if in.Request.TargetState == c.TaskStateBlocked && in.Cancellation == nil && remaining == int64(len(out)) {
 		return nil, at, fault(f.TaskBlockedWithoutBlocker)
 	}
 	for n := range out {
 		b := out[n].Before.Clone()
 		when := at
 		who := c.TaskEventActor{Type: i.Human, UserID: in.User, Source: "task_domain"}
-		b.ResolvedAt, b.ResolvedBy, b.ResolutionComment = &when, &who, nil
+		b.ResolvedAt, b.ResolutionComment = &when, nil
+		if in.Agent.Validate() == nil {
+			a := in.historyActor()
+			b.TransitionResolvedBy = &a
+		} else {
+			b.ResolvedBy = &who
+		}
 		if b.Validate() != nil {
 			return nil, at, internal(nil)
 		}
@@ -193,7 +220,13 @@ func validateTransitionResolutions(r *transitionRecord) error {
 		expected := b.Clone()
 		at := r.Plan.After.Task.UpdatedAt
 		by := c.TaskEventActor{Type: i.Human, UserID: r.Input.User, Source: "task_domain"}
-		expected.ResolvedAt, expected.ResolvedBy = &at, &by
+		expected.ResolvedAt = &at
+		if r.Input.Agent.Validate() == nil {
+			a := r.Input.historyActor()
+			expected.TransitionResolvedBy = &a
+		} else {
+			expected.ResolvedBy = &by
+		}
 		if expected.Validate() != nil || !sameValue(expected, v.After) {
 			return internal(nil)
 		}
@@ -202,18 +235,25 @@ func validateTransitionResolutions(r *transitionRecord) error {
 }
 func applyTransitionResolutions(ctx context.Context, x postgres.SQLExecutor, r *transitionRecord) error {
 	for _, v := range r.Plan.Resolutions {
-		by, err := json.Marshal(v.After.ResolvedBy)
+		var resolver any = v.After.ResolvedBy
+		if v.After.TransitionResolvedBy != nil {
+			resolver = v.After.TransitionResolvedBy
+		}
+		by, err := json.Marshal(resolver)
 		if err != nil {
 			return internal(err)
 		}
-		var created, failure any
+		var created, failure, transition any
+		if v.CreatedTransition != nil {
+			transition = v.CreatedTransition.String()
+		}
 		if v.CreatedOperation != nil {
 			created = v.CreatedOperation.String()
 		}
 		if v.FailureOperation != nil {
 			failure = v.FailureOperation.String()
 		}
-		if err = taskAffected(x.Exec(ctx, `UPDATE agenteam_work.task_blockers SET resolved_at=$4,resolved_by=$5,resolution_comment=NULL,resolved_transition_operation_id=$6 WHERE project_id=$1 AND task_id=$2 AND id=$3 AND resolved_at IS NULL AND resolved_operation_id IS NULL AND resolved_transition_operation_id IS NULL AND created_operation_id IS NOT DISTINCT FROM $7::agenteam_work.safe_id AND failure_operation_id IS NOT DISTINCT FROM $8::agenteam_work.safe_id`, r.Input.Project.String(), r.Input.Task.String(), v.Before.ID.String(), v.After.ResolvedAt.Time(), by, r.ID.String(), created, failure)); err != nil {
+		if err = taskAffected(x.Exec(ctx, `UPDATE agenteam_work.task_blockers SET resolved_at=$4,resolved_by=$5,resolution_comment=NULL,resolved_transition_operation_id=$6 WHERE project_id=$1 AND task_id=$2 AND id=$3 AND resolved_at IS NULL AND resolved_operation_id IS NULL AND resolved_transition_operation_id IS NULL AND created_operation_id IS NOT DISTINCT FROM $7::agenteam_work.safe_id AND failure_operation_id IS NOT DISTINCT FROM $8::agenteam_work.safe_id AND created_transition_operation_id IS NOT DISTINCT FROM $9::agenteam_work.safe_id`, r.Input.Project.String(), r.Input.Task.String(), v.Before.ID.String(), v.After.ResolvedAt.Time(), by, r.ID.String(), created, failure, transition)); err != nil {
 			return err
 		}
 	}
@@ -225,7 +265,7 @@ func verifyTransitionResolutions(ctx context.Context, x postgres.SQLExecutor, r 
 		if err != nil {
 			return err
 		}
-		if row == nil || !sameValue(row.Value, v.After) || row.ResolvedOperation != nil || row.ResolvedTransition == nil || *row.ResolvedTransition != r.ID || !sameValue(row.FailureOperation, v.FailureOperation) {
+		if row == nil || !sameValue(row.Value, v.After) || row.ResolvedOperation != nil || row.ResolvedTransition == nil || *row.ResolvedTransition != r.ID || !sameValue(row.FailureOperation, v.FailureOperation) || !sameValue(row.CreatedTransition, v.CreatedTransition) {
 			return fault(f.Forbidden)
 		}
 		if v.CreatedOperation != nil && row.CreatedOperation != *v.CreatedOperation {

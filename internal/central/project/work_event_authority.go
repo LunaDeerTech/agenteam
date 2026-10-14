@@ -50,6 +50,12 @@ func schedulerWorkEventBinding(request oc.ProjectRequest) (foundation.Digest, []
 
 // This proves only the Project gate. The Work producer independently proves
 // its prepared command and canonical facts in the same physical transaction.
+func agentTaskTransitionEvent(request oc.ProjectRequest) bool {
+	d := request.Details()
+	h := d.Event.Header
+	return d.Actor.Details().Kind == identity.AgentRun && d.Event.Producer == "work" && h.EventType == "work.task_transitioned" && h.AggregateType == "work.task" && h.SchemaVersion == 1
+}
+
 func workEventBinding(request oc.ProjectRequest) (foundation.Digest, []foundation.LockRequest, error) {
 	if schedulerWorkEvent(request) {
 		return schedulerWorkEventBinding(request)
@@ -62,7 +68,7 @@ func workEventBinding(request oc.ProjectRequest) (foundation.Digest, []foundatio
 	if d.Kind != oc.AppendProject || d.Event.Producer != "work" || h.SchemaVersion != 1 || !(h.EventType == "work.milestone_changed" && h.AggregateType == "work.milestone" || h.EventType == "work.sprint_changed" && h.AggregateType == "work.sprint" || (h.EventType == "work.sprint_started" || h.EventType == "work.sprint_completed") && h.AggregateType == "work.sprint" || h.EventType == "work.task_changed" && h.AggregateType == "work.task" || h.EventType == "work.task_blockers_changed" && h.AggregateType == "work.task" || h.EventType == "work.task_transitioned" && h.AggregateType == "work.task") {
 		return "", nil, fault(foundation.DependencyUnbound)
 	}
-	if d.Actor.Details().Kind != identity.Human || h.AggregateVersion == nil || h.AggregateVersion.Validate() != nil || h.AggregateSequence != nil || h.Scope.Kind != event.ProjectScope || h.Scope.ProjectID.String() != d.ProjectID.String() {
+	if (d.Actor.Details().Kind != identity.Human && !agentTaskTransitionEvent(request)) || agentTaskTransitionEvent(request) && d.Actor.Details().ProjectID != d.ProjectID.String() || h.AggregateVersion == nil || h.AggregateVersion.Validate() != nil || h.AggregateSequence != nil || h.Scope.Kind != event.ProjectScope || h.Scope.ProjectID.String() != d.ProjectID.String() {
 		return "", nil, fault(foundation.Forbidden)
 	}
 	// The same dependencies must authorize both Outbox stages. Binding only
@@ -77,7 +83,10 @@ func workEventBinding(request oc.ProjectRequest) (foundation.Digest, []foundatio
 	if err != nil {
 		return "", nil, invalid()
 	}
-	locks := []foundation.LockRequest{userLock(d.Actor.Details().UserID, foundation.Shared), projectLock(d.ProjectID, foundation.Shared)}
+	locks := []foundation.LockRequest{projectLock(d.ProjectID, foundation.Shared)}
+	if d.Actor.Details().Kind == identity.Human {
+		locks = append([]foundation.LockRequest{userLock(d.Actor.Details().UserID, foundation.Shared)}, locks...)
+	}
 	return digest(raw), locks, nil
 }
 func (a *Authority) discoverWorkEvent(request oc.ProjectRequest) (oc.Dependencies, error) {
@@ -119,6 +128,12 @@ func (a *Authority) validateWorkEventInTx(ctx context.Context, tx foundation.Tx,
 			return fault(foundation.InvalidState)
 		}
 		return nil
+	}
+	if agentTaskTransitionEvent(request) {
+		// Work producer separately requires its exact original Tool operation and
+		// persisted command/postimage under this same physical transaction.
+		_, err = a.RequirePreparingProjectInTx(ctx, tx, d.ProjectID)
+		return err
 	}
 	intent := identity.Read
 	if d.Stage == oc.NewFact {

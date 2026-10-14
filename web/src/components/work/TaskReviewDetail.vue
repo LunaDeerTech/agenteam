@@ -368,7 +368,7 @@ const canSubmit = computed(
       >
         <h3>{{ actionLabel }}</h3>
         <p v-if="owner.draft.action === 'cancelled'">
-          确认取消此任务？取消后不可恢复，将保留当前负责人和阻塞记录。此操作不会取消 Execution。
+          确认取消此任务？取消后不可恢复，将保留当前负责人和阻塞记录。取消任务会请求停止关联 Execution；停止可能需要一些时间。
         </p>
         <p v-if="owner.cancelStale.value" role="alert">
           任务已变化，请选择“保留任务”，重新读取并核对后再明确取消。
@@ -480,10 +480,14 @@ const canSubmit = computed(
         <li v-for="b in owner.state.blockers" :key="b.id">
           <UiBadge>{{ b.resolved_at ? '已解除' : '未解除' }}</UiBadge>
           {{
-            b.type === 'technical' ? '调度技术阻塞' : b.type === 'rely_on' ? '任务依赖' : '等待人工'
+            b.type === 'technical' ? '调度技术阻塞' : b.type === 'rely_on' ? '任务依赖' : b.type === 'user_cancelled_execution' ? '执行被取消' : '等待人工'
           }}
           <p>{{ b.description }}</p>
           <p v-if="b.related_task_id">关联任务：{{ b.related_task_id }}</p>
+          <template v-if="b.cancellation">
+            <p>关联执行：{{ b.cancellation.execution_id }}</p>
+            <p v-if="b.cancellation.reason">取消说明：{{ b.cancellation.reason }}</p>
+          </template>
           <UiButton
             v-if="b.type === 'rely_on' && b.related_task_id"
             :disabled="owner.busy.value"
@@ -557,7 +561,7 @@ const canSubmit = computed(
         </div>
       </dl>
     </details>
-    <TaskExecutions :owner="owner.executions" :agent-name="owner.name" />
+    <TaskExecutions :owner="owner.executions" :agent-name="owner.name" :cancellation="owner.executionCancellation" :approval="owner.executionApproval" />
     <TaskTimeline
       :state="owner.timeline"
       :busy="owner.busy.value"

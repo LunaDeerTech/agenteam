@@ -64,10 +64,23 @@ func TestTaskHumanBlockRetainsAssignmentAndHistory(t *testing.T) {
 		change(&bad)
 		pureCode(t, transitionEdge(r.Plan.Before, bad), f.DependencyUnbound)
 	}
-	for _, state := range []c.TaskState{c.TaskStateBacklog, c.TaskStateInProgress, c.TaskStateInReview, c.TaskStateBlocked, c.TaskStateDone, c.TaskStateCancelled} {
+	for _, state := range []c.TaskState{c.TaskStateBacklog, c.TaskStateBlocked, c.TaskStateDone, c.TaskStateCancelled} {
 		before := r.Plan.Before.Clone()
 		before.State = state
 		pureCode(t, transitionEdge(before, r.Input.Request), f.DependencyUnbound)
+	}
+	for _, state := range []c.TaskState{c.TaskStateInProgress, c.TaskStateInReview} {
+		before := r.Plan.Before.Clone()
+		before.State = state
+		request := r.Input.Request.Clone()
+		if state == c.TaskStateInReview {
+			pureCode(t, transitionEdge(before, request), f.CommentRequired)
+			comment := "Review requires another result"
+			request.Comment = &comment
+		}
+		if err := transitionEdge(before, request); err != nil || !transitionRetainsAssignee(before, request) {
+			t.Fatal("supported block edge lost original assignee", state, err)
+		}
 	}
 	raw, err := json.Marshal(r.Plan)
 	if err != nil {

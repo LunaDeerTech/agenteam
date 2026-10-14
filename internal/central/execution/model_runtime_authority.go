@@ -76,6 +76,12 @@ func runtimeModelMapping(facts directTextModelFacts) (f.Digest, error) {
 }
 
 func (a *Authority) discoverRuntimeModel(ctx context.Context, request mc.ConsumerRequest) (mc.ConsumerDependencies, error) {
+	if ctx != nil && ctx.Value(executionRecoveryContextKey{}) != nil {
+		if request.Action != mc.RetireConsumer {
+			return mc.ConsumerDependencies{}, fault(f.Forbidden)
+		}
+		return a.discoverPreparationRetirement(ctx, request)
+	}
 	if ctx.Value(directTextContextKey{}) == nil {
 		// The old preparation-only consumer remains explicitly unbound for
 		// runtime actions until an actual startup owner supplies this context.
@@ -107,6 +113,12 @@ func (a *Authority) discoverRuntimeModel(ctx context.Context, request mc.Consume
 }
 
 func (a *Authority) validateRuntimeModelInTx(ctx context.Context, tx f.Tx, request mc.ConsumerRequest, plan mc.ConsumerDependencies) error {
+	if ctx != nil && ctx.Value(executionRecoveryContextKey{}) != nil {
+		if request.Action != mc.RetireConsumer {
+			return fault(f.Forbidden)
+		}
+		return a.validatePreparationRetirementInTx(ctx, tx, request, plan)
+	}
 	if request.Validate() != nil || plan.Validate() != nil {
 		return invalid()
 	}

@@ -57,7 +57,15 @@ func (s *projectCallOwnershipState) register(ctx context.Context, actor i.Actor,
 	cause, _ := f.NewRecoveryCause("work-call-register", r.ID.String(), r.Project.String())
 	validated := false
 	result := s.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
-		if err := s.store.AcquireAll(ctx, tx, []f.LockRequest{userLock(actor.Details().UserID, f.Shared), projectLock(r.Project, f.Shared)}); err != nil {
+		locks := []f.LockRequest{userLock(actor.Details().UserID, f.Shared), projectLock(r.Project, f.Shared)}
+		if actor.Details().Kind == i.AgentRun && r.Lane == projectCallTransition {
+			var e error
+			locks, e = s.transitions.state().deps.Authority.transitionAccessLocks(ctx, actor, r.Project)
+			if e != nil {
+				return e
+			}
+		}
+		if err := s.store.AcquireAll(ctx, tx, locks); err != nil {
 			return portError(err)
 		}
 		if err := s.proof.RequireCurrentProcessInTx(ctx, tx, s.process); err != nil {
@@ -67,14 +75,22 @@ func (s *projectCallOwnershipState) register(ctx context.Context, actor i.Actor,
 		// registration. Under this same P SH, Archive makes a mutation entry
 		// a read-only replay attempt; its original business gate still rejects
 		// planned completion and every new write.
-		access, err := s.structure.state().deps.Authority.state().projects.RequireOwnerInTx(ctx, tx, actor, r.Project, i.Read)
+		var ref pc.ProjectRef
+		var err error
+		if actor.Details().Kind == i.AgentRun && r.Lane == projectCallTransition {
+			ref, err = s.transitions.state().deps.Authority.requireTransitionAccess(ctx, tx, actor, r.Project, i.Read)
+		} else {
+			var access pc.ProjectAccess
+			access, err = s.structure.state().deps.Authority.state().projects.RequireOwnerInTx(ctx, tx, actor, r.Project, i.Read)
+			ref = access.Project()
+		}
 		if err != nil {
 			return portError(err)
 		}
-		if access.Project().ID != r.Project {
+		if ref.ID != r.Project {
 			return fault(f.Forbidden)
 		}
-		switch access.Project().Lifecycle {
+		switch ref.Lifecycle {
 		case pc.Active:
 		case pc.Archiving, pc.Archived:
 			r.Class = projectCallRead

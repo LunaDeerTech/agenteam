@@ -40,7 +40,9 @@ func (d *DirectTextDriver) resolveUnknown(ctx context.Context, execution i.Execu
 	wait, done := directTextRecoveryContext(run.ctx, ctx)
 	defer done()
 	switch stage {
-	case "loop-dispatch", "loop-result":
+	case "cold-checkpoint":
+		return s.recoverLoopCheckpoint(wait, run)
+	case "loop-dispatch", "loop-result", "approval-wait":
 		return s.advanceLoop(wait, run)
 	case "loop-successor", "loop-accept":
 		return s.observeLoopSuccessor(wait, run)
@@ -179,7 +181,7 @@ func (s *directTextState) observeStart(ctx context.Context, run *directTextCall)
 }
 
 func (s *directTextState) observeTerminal(ctx context.Context, run *directTextCall) (bool, error) {
-	if run.terminal == nil || !run.allJoined || !run.invocation.session.Joined() {
+	if run.terminal == nil || !run.allJoined || !joinedLoopCheckpoint(run) {
 		return false, fault(f.InvalidState)
 	}
 	cause, _ := f.NewRecoveryCause("execution.direct-text.terminal", run.request.ExecutionID.String(), run.snapshot.Fields().StartID.String())

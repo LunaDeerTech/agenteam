@@ -212,7 +212,7 @@ func createOwnedWorkPlanningWithAgents(cfg config.Config, db database, authority
 	return createOwnedWorkPlanningWithProviders(cfg, db, authority, accounts, journal, events, pending, agents, projects, lifecycle, objects)
 }
 
-func createOwnedWorkPlanningWithProviders(cfg config.Config, db database, authority *work.Authority, accounts *account.Authority, journal *outbox.Service, events workPlanningEvents, pending *scheduler.PendingAuthority, agents *agent.Authority, projects *project.Authority, lifecycle *project.LifecycleAuthority, objects *objectAssembly) (*workPlanningAssembly, error) {
+func createOwnedWorkPlanningWithProviders(cfg config.Config, db database, authority *work.Authority, accounts *account.Authority, journal *outbox.Service, events workPlanningEvents, pending *scheduler.PendingAuthority, agents *agent.Authority, projects *project.Authority, lifecycle *project.LifecycleAuthority, objects *objectAssembly, toolAuthorities ...wc.AgentTaskAuthority) (*workPlanningAssembly, error) {
 	store, ok := db.(work.Store)
 	if !ok || runtimeInformationNil(store) || authority == nil || accounts == nil || journal == nil || pending == nil || agents == nil || projects == nil || objects == nil || objects.guard == nil || objects.process.Validate() != nil || !events.structure.Valid() || !events.tasks.Valid() || !events.blockers.Valid() || !events.transitions.Valid() || !events.sprints.Valid() || !events.completion.Valid() {
 		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
@@ -240,17 +240,37 @@ func createOwnedWorkPlanningWithProviders(cfg config.Config, db database, author
 	if err != nil {
 		return nil, err
 	}
+	transitionDependencies := work.TaskTransitionDependencies{
+		Agents: agents, Occupancy: occupancy, Pending: pending, Structure: placement,
+		Authority: authority, Events: journal, TaskEvents: events.transitions, Activity: accounts,
+	}
+	if len(toolAuthorities) > 1 || len(toolAuthorities) == 1 && runtimeInformationNil(toolAuthorities[0]) {
+		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+	}
+	if len(toolAuthorities) == 1 {
+		transitionDependencies.AgentTools = toolAuthorities[0]
+		transitionDependencies.AgentRunAgents, err = agent.NewTaskTransitionCurrent(agents, toolAuthorities[0])
+		if err != nil {
+			return nil, err
+		}
+	}
 	pair, err := work.NewProjectCallOwnershipWithReaders(store, work.ProjectCallDependencies{
-		Structure: work.Dependencies{Authority: authority, Events: journal, WorkEvents: events.structure, Activity: accounts},
-		Tasks:     work.TaskDependencies{Authority: authority, Structure: placement, Events: journal, TaskEvents: events.tasks, Activity: accounts, Pending: pending},
-		Transitions: work.TaskTransitionDependencies{
-			Agents: agents, Occupancy: occupancy, Pending: pending, Structure: placement,
-			Authority: authority, Events: journal, TaskEvents: events.transitions, Activity: accounts,
-		},
-		Blockers: work.BlockerDependencies{Authority: authority, Structure: placement, Events: journal, BlockerEvents: events.blockers, Activity: accounts},
-		Sprints:  work.SprintLifecycleDependencies{Authority: authority, Projects: pointer, Events: journal, SprintEvents: events.sprints, Activity: accounts, Completion: &work.SprintCompletionDependencies{Projects: completion, Occupancy: occupancy, Pending: pending, Events: events.completion}},
+		Structure:   work.Dependencies{Authority: authority, Events: journal, WorkEvents: events.structure, Activity: accounts},
+		Tasks:       work.TaskDependencies{Authority: authority, Structure: placement, Events: journal, TaskEvents: events.tasks, Activity: accounts, Pending: pending},
+		Transitions: transitionDependencies,
+		Blockers:    work.BlockerDependencies{Authority: authority, Structure: placement, Events: journal, BlockerEvents: events.blockers, Activity: accounts},
+		Sprints:     work.SprintLifecycleDependencies{Authority: authority, Projects: pointer, Events: journal, SprintEvents: events.sprints, Activity: accounts, Completion: &work.SprintCompletionDependencies{Projects: completion, Occupancy: occupancy, Pending: pending, Events: events.completion}},
 	}, cfg.CursorKeyring(), objects.guard, objects.process, stop)
 	if err != nil {
+		return nil, err
+	}
+	// This provider borrows the original Work transition's same-Tx postimage;
+	// it owns no scheduler worker or independent cancellation loop.
+	pendingCancellation, err := scheduler.NewTaskCancellation(pending, pair.TaskTransitionService())
+	if err != nil {
+		return nil, err
+	}
+	if err = pair.TaskTransitionService().BindPendingCancellation(pendingCancellation); err != nil {
 		return nil, err
 	}
 	return &workPlanningAssembly{

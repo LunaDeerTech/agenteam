@@ -80,7 +80,7 @@ func (s *directTextState) verifyDirectTextMountUse(ctx context.Context, tx f.Tx,
 			return fault(f.InvalidState)
 		}
 		retired = directTextMountRetirement(stored.terminal)
-	} else if row.summary.Status != c.Running || stored.terminal != nil {
+	} else if (row.summary.Status != c.Running && row.summary.Status != c.Waiting) || stored.terminal != nil {
 		return fault(f.InvalidState)
 	}
 	use := directTextMountUse(stored.snapshot)

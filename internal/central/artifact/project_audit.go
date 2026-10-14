@@ -37,15 +37,16 @@ type projectAuditCommand struct {
 	sourceLease oc.LeaseID
 }
 type projectAuditWitness struct {
-	active   atomic.Bool
-	store    Store
-	tx       f.Tx
-	entry    au.Entry
-	key      au.AppendKey
-	meta     ac.Metadata
-	command  *projectAuditCommand
-	download *projectAuditDownload
-	list     *projectAuditList
+	active    atomic.Bool
+	store     Store
+	tx        f.Tx
+	entry     au.Entry
+	key       au.AppendKey
+	meta      ac.Metadata
+	command   *projectAuditCommand
+	download  *projectAuditDownload
+	list      *projectAuditList
+	authority ac.Authority
 }
 type projectAuditDownload struct {
 	target oc.DownloadTarget
@@ -82,6 +83,9 @@ func (s *Sources) appendDownloadIssuedAudit(ctx context.Context, tx f.Tx, entry 
 // It carries safe metadata, never the source, payload or read text.
 func (s *Service) appendProjectAudit(ctx context.Context, tx f.Tx, entry au.Entry, key au.AppendKey, meta ac.Metadata, command *projectAuditCommand) error {
 	w := &projectAuditWitness{store: s.state().store, tx: tx, entry: entry, key: key, meta: meta, command: command}
+	if s.state().owners != nil {
+		w.authority = s.state().owners.state().authority
+	}
 	w.active.Store(true)
 	defer w.active.Store(false)
 	_, err := s.state().audit.AppendInTx(context.WithValue(ctx, projectAuditWitnessKey{}, w), tx, entry, key)
@@ -113,9 +117,9 @@ func (a *ProjectAuditAuthority) CheckProjectAuditInTx(ctx context.Context, tx f.
 		return portError(err)
 	}
 	e, k := entry.Fields(), key.Details()
-	if e.Actor.Details().Kind != identity.Human || e.Scope.Details().Kind != identity.ProjectScope ||
+	if !artifactAuditActor(e) || e.Scope.Details().Kind != identity.ProjectScope ||
 		e.Outcome != au.Success ||
-		e.Associations != (au.Associations{}) || k.Producer != au.ArtifactProducer || k.Ordinal != 0 ||
+		k.Producer != au.ArtifactProducer || k.Ordinal != 0 ||
 		(e.Action != au.ArtifactCreate && e.Action != au.ArtifactRead && e.Action != au.ArtifactDownload && e.Action != au.ArtifactList) {
 		return failure(f.Forbidden, nil)
 	}
@@ -166,10 +170,17 @@ func (a *ProjectAuditAuthority) CheckProjectAuditInTx(ctx context.Context, tx f.
 		if err != nil {
 			return err
 		}
+		creator := e.Actor.Details().UserID
+		metadataCreator := m.CreatedByUserID
+		if e.Actor.Details().Kind == identity.AgentRun {
+			creator = e.Actor.Details().AgentID
+			metadataCreator = m.CreatedByAgentID
+		}
 		if !exists || current.state != "pending" || current.ref != m.Reference || current.object != m.Object.ID ||
-			current.originalActor != stableActor(e.Actor) || current.creatorKind != identity.Human || current.creator != e.Actor.Details().UserID ||
+			current.originalActor != stableActor(e.Actor) || current.creatorKind != e.Actor.Details().Kind || current.creator != creator ||
 			current.digest != command.digest || current.path != command.path || current.cause != command.cause || row.cause != command.cause ||
-			current.execution != "" || current.operation != "" || current.tool != "" || current.toolCall != "" {
+			current.execution != e.Associations.ExecutionID || current.operation != e.Associations.OperationID || current.tool != e.Associations.ToolID || current.toolCall != e.Associations.ToolCallID ||
+			m.ExecutionID != current.execution || m.OperationID != current.operation || metadataCreator != creator || row.tool != current.tool || row.toolCall != current.toolCall {
 			return failure(f.Forbidden, nil)
 		}
 		if command.path == "source" {

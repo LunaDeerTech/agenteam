@@ -96,8 +96,16 @@ func newM1WorkflowWithOptions(t *testing.T, observer func(f.TransactionCause, f.
 	return newM1WorkflowConfigured(t, observer, ownerReview, nil)
 }
 
-func newM1WorkflowConfigured(t *testing.T, observer func(f.TransactionCause, f.CommitResult), ownerReview bool, live *m1LiveConfiguration) (*m1Workflow, net.Listener) {
+func newM1WorkflowConfigured(t *testing.T, observer func(f.TransactionCause, f.CommitResult), ownerReview bool, live *m1LiveConfiguration, hooks ...func(*m1Workflow, *dependencies)) (*m1Workflow, net.Listener) {
 	t.Helper()
+	return newM1WorkflowWithReviewWindow(t, observer, ownerReview, live, 240, hooks...)
+}
+
+func newM1WorkflowWithReviewWindow(t *testing.T, observer func(f.TransactionCause, f.CommitResult), ownerReview bool, live *m1LiveConfiguration, reviewSkipCount int64, hooks ...func(*m1Workflow, *dependencies)) (*m1Workflow, net.Listener) {
+	t.Helper()
+	if reviewSkipCount < 1 {
+		t.Fatal("workflow review window requires positive skipped visits")
+	}
 	listener, err := net.Listen("tcp", "127.0.0.1:0")
 	workAppCheck(t, "m1-listener", err)
 	t.Cleanup(func() { _ = listener.Close() })
@@ -122,10 +130,10 @@ func newM1WorkflowConfigured(t *testing.T, observer func(f.TransactionCause, f.C
 		}
 		runtimeConfig := strings.Replace(executionSchedulerAppConfig, "direct-text-v1", "tool-loop-v1", 1)
 		if ownerReview {
-			// An explicit test deployment choice: 240 skipped visits at the
-			// existing 250ms tick gives a bounded Owner viewing window. This
-			// is neither a production default nor a Scheduler pause.
-			runtimeConfig = strings.Replace(runtimeConfig, `"relaunch_skip_count":0`, `"relaunch_skip_count":240`, 1)
+			// This formal deployment setting counts eligible Task visits, not
+			// wall time: each historical Execution also consumes a tick. The
+			// original M1 entry retains 240; M2 supplies its own review window.
+			runtimeConfig = strings.Replace(runtimeConfig, `"relaunch_skip_count":0`, fmt.Sprintf(`"relaunch_skip_count":%d`, reviewSkipCount), 1)
 		}
 		if live != nil {
 			runtimeConfig = strings.Replace(runtimeConfig, `"max_request_timeout":"120s"`, `"max_request_timeout":"60s"`, 1)
@@ -151,6 +159,7 @@ func newM1WorkflowConfigured(t *testing.T, observer func(f.TransactionCause, f.C
 				env = append(env, "AGENTEAM_CENTRAL_OUTBOUND_CA_FILE="+caFile)
 			}
 		}
+		fixture.environment = slices.Clone(env)
 		v.root.cfg = guardConfiguration(t, env)
 		d.outboundConstruct = func(_ context.Context, _ config.Config, actual *outboundRuntime) error {
 			if live == nil {
@@ -173,6 +182,12 @@ func newM1WorkflowConfigured(t *testing.T, observer func(f.TransactionCause, f.C
 		if ownerReview {
 			fixture.bindBrowserObservation(d)
 		}
+		for _, hook := range hooks {
+			if hook == nil {
+				t.Fatal("workflow configuration hook absent")
+			}
+			hook(fixture, d)
+		}
 	})
 	if transport == nil || v.root.owned.outbound() != transport {
 		t.Fatal("M1 original outbound owner absent")
@@ -184,7 +199,16 @@ func newM1WorkflowConfigured(t *testing.T, observer func(f.TransactionCause, f.C
 	return fixture, listener
 }
 
+// Optional task inputs preserve the original M1 fixture defaults.
+type m1WorkflowTaskSetup struct {
+	Title, Plan, WorkerInstructions, ReviewerInstructions string
+	WorkerToolKeys                                        []string
+	Input                                                 []byte
+}
+
 type m1Workflow struct {
+	environment                                []string
+	workerApprovalPolicy                       ac.ApprovalPolicy
 	runners                                    *runnerControlAssembly
 	app                                        *executionSchedulerApp
 	network                                    *netfixture.Descriptor
@@ -205,6 +229,8 @@ type m1Workflow struct {
 	reviewModel                                mc.ModelID
 	browserObservation                         *m1BrowserObservation
 	live                                       *m1LiveConfiguration
+	taskSetup                                  *m1WorkflowTaskSetup
+	m2Live                                     *m2LiveTask
 }
 
 func m1AllowOwnedPeer(t *testing.T, v *executionSchedulerApp, transport *outboundRuntime, network *netfixture.Descriptor) {
@@ -310,6 +336,9 @@ func (w *m1Workflow) createModelAndTask(t *testing.T, endpoint string) {
 		fields := ac.AgentCreateFields{AgentID: target, Name: "m1-reviewer", Description: "Statistics task review", Instructions: "Review the submitted program and statistics.", ModelRef: modelID, ApprovalPolicy: ac.ApprovalAllow, AllowedToolIDs: []id.ToolID{}, AllowedMountIDs: []id.MountID{}, AllowedSecretVariableIDs: []id.ProjectVariableID{}, AddSkillsEnabled: &disabled, InstallSkillEnabled: &disabled, InjectAgentsMD: disabled}
 		if n == 0 {
 			v.agent = target
+			if w.workerApprovalPolicy != "" {
+				fields.ApprovalPolicy = w.workerApprovalPolicy
+			}
 			fields.Name = "m1-statistics-worker"
 			fields.Instructions = "Read input.json; write stats.py; run /usr/bin/python3 stats.py; verify result.json and report the files and exit status."
 			if w.live != nil {
@@ -330,6 +359,23 @@ func (w *m1Workflow) createModelAndTask(t *testing.T, endpoint string) {
 				fields.RunnerMounts, fields.AllowedMountIDs = &declarations, nil
 			}
 		}
+		if setup := w.taskSetup; setup != nil {
+			if n == 0 {
+				fields.Instructions = setup.WorkerInstructions
+				fields.AllowedToolIDs = make([]id.ToolID, 0, len(setup.WorkerToolKeys))
+				for _, key := range setup.WorkerToolKeys {
+					tool, found := w.tools[key]
+					if !found {
+						t.Fatal("workflow task tool is not registered")
+					}
+					fields.AllowedToolIDs = append(fields.AllowedToolIDs, tool)
+				}
+				slices.SortFunc(fields.AllowedToolIDs, func(a, b id.ToolID) int { return strings.Compare(a.String(), b.String()) })
+			} else {
+				fields.Instructions = setup.ReviewerInstructions
+				fields.AllowedToolIDs = []id.ToolID{}
+			}
+		}
 		request, err := ac.NewAgentCreate(fields)
 		workAppCheck(t, "m1-agent-intent", err)
 		mutation, err := v.assembly.agents.service.CreateAgent(v.ctx, v.actor, executionSchedulerAppMeta(t, nil), v.a, request)
@@ -342,7 +388,11 @@ func (w *m1Workflow) createModelAndTask(t *testing.T, endpoint string) {
 			w.mount = (*mounts)[0].MountID
 			w.workspace = filepath.Join(w.root, v.a.String(), v.agent.String(), (*mounts)[0].Workspace)
 			workAppCheck(t, "m1-workspace", os.MkdirAll(w.workspace, 0700))
-			workAppCheck(t, "m1-input", os.WriteFile(filepath.Join(w.workspace, "input.json"), []byte("{\"values\":[2,4,6,8]}\n"), 0600))
+			input := []byte("{\"values\":[2,4,6,8]}\n")
+			if w.taskSetup != nil {
+				input = w.taskSetup.Input
+			}
+			workAppCheck(t, "m1-input", os.WriteFile(filepath.Join(w.workspace, "input.json"), input, 0600))
 		} else if w.reviewEnabled {
 			mounts := mutation.Fields().RunnerMounts
 			if mounts == nil || len(*mounts) != 1 {
@@ -394,6 +444,9 @@ func (w *m1Workflow) createModelAndTask(t *testing.T, endpoint string) {
 	request := wc.TaskCreate{TaskID: guardID[wc.Task](t), SprintID: sprint.ID, Title: "读取输入并提交统计程序和结果", Type: wc.TaskTypeTask, Priority: wc.TaskPriorityMedium, Plan: "Read input.json, generate stats.py, execute it, inspect result.json, and report count/sum/mean with program exit status."}
 	if w.live != nil {
 		request.Plan = m1LiveTaskPlan
+	}
+	if w.taskSetup != nil {
+		request.Title, request.Plan = w.taskSetup.Title, w.taskSetup.Plan
 	}
 	v.httpSeed(t, "/tasks", map[string]any{"request": request}, &mutation)
 	before, err := v.projects.service.GetSchedulerConfig(v.ctx, v.actor, v.a)

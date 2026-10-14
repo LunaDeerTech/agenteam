@@ -8,10 +8,14 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/agent"
 	"github.com/LunaDeerTech/agenteam/internal/central/execution"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/governance/approval"
+	gc "github.com/LunaDeerTech/agenteam/internal/central/governance/approval/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/mount"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	runnerhttp "github.com/LunaDeerTech/agenteam/internal/central/runner/http"
 	"github.com/LunaDeerTech/agenteam/internal/central/scheduler"
+	tc "github.com/LunaDeerTech/agenteam/internal/central/tool/contract"
 )
 
 type executionRuntimeWork struct {
@@ -46,6 +50,13 @@ type executionRuntimeAssembly struct {
 	runnerManagedCalls             *mount.ProjectLifecycleOwnership
 	runnerManagedCleanup           pc.ProjectLifecycleParticipant
 	runnerDevice                   *runnerhttp.DeviceHandler
+	builtins                       *executionBuiltinAssembly
+	approvalAuthority              *approval.Authority
+	approvalEvents                 gc.Events
+	approvalOperations             tc.ApprovalOperations
+	approvalJournal                *outbox.Service
+	approval                       *approval.Service
+	cancellation                   *execution.CancellationService
 }
 
 func (b *executionRuntimeAssembly) add(owner executionRuntimeWork) {

@@ -80,6 +80,7 @@ func (b *executionRuntimeAssembly) runnerToolFactory(store execution.Store, obje
 		if err != nil {
 			return nil, nil, err
 		}
+		b.approvalOperations = dispatch
 		readResult, err := toolruntime.NewReadFileResultReader(store, owner)
 		if err != nil {
 			return nil, nil, err
@@ -95,6 +96,18 @@ func (b *executionRuntimeAssembly) runnerToolFactory(store execution.Store, obje
 		results, err := toolruntime.NewRunnerResultReader(readResult, writeResult, commandResult)
 		if err != nil {
 			return nil, nil, err
+		}
+		if b.builtins != nil {
+			builtins, err := toolruntime.NewBuiltinExecutor(b.builtins.authority, owner, registered, b.builtins.backends...)
+			if err != nil {
+				return nil, nil, err
+			}
+			b.add(runtimeWork(builtins))
+			combined, err := toolruntime.NewCompositeExecutor(dispatch, results, builtins)
+			if err != nil {
+				return nil, nil, err
+			}
+			return combined, combined, nil
 		}
 		return dispatch, results, nil
 	}

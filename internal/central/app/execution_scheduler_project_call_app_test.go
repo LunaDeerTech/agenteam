@@ -320,6 +320,29 @@ func (v *executionSchedulerApp) seed(t *testing.T) {
 }
 
 func (v *executionSchedulerApp) seedWithProvider(t *testing.T, endpoint string, credential *sc.CredentialID) {
+	v.seedPendingWithProvider(t, endpoint, credential)
+	var err error
+	v.dispatch, err = v.runtime.schedulerCalls.Handoff().LaunchOnce(v.ctx, v.a, v.dispatch.Summary().ID)
+	workAppCheck(t, "runtime-original-handoff-created", err)
+	if v.dispatch.Summary().ExecutionID == nil || v.dispatch.Summary().Status != scheduler.Launched {
+		t.Fatal("original Handoff did not return its Created association")
+	}
+	var createdAt time.Time
+	var eid, state string
+	var version int64
+	var pristine bool
+	workAppCheck(t, "runtime-original-execution-row", v.admin.QueryRow(v.ctx, `SELECT id,status,version,created_at,(cancel_requested_at IS NULL AND snapshot_id IS NULL AND started_at IS NULL AND completed_at IS NULL AND request_digest=$4) FROM agenteam_execution.executions WHERE project_id=$1::text AND agent_id=$2::text AND idempotency_key=$3`, v.a.String(), v.agent.String(), v.launchRequest.Meta.IdempotencyKey.String(), v.digest.String()).Scan(&eid, &state, &version, &createdAt, &pristine))
+	instant, err := f.NewInstant(createdAt)
+	workAppCheck(t, "runtime-created-instant", err)
+	if eid != v.dispatch.Summary().ExecutionID.String() || state != string(ec.Created) || version != 1 || !pristine {
+		t.Fatal("Created row differs from original Handoff")
+	}
+	v.execution = ec.Summary{ID: *v.dispatch.Summary().ExecutionID, ProjectID: v.a, AgentID: v.agent, Trigger: v.launchRequest.Trigger, Purpose: v.launchRequest.Purpose, Status: ec.Created, Version: 1, CreatedAt: instant}
+}
+
+// This is the same formal setup through the original committed Task claim.
+// Tests of an uncertain Launch own that later call and its original result.
+func (v *executionSchedulerApp) seedPendingWithProvider(t *testing.T, endpoint string, credential *sc.CredentialID) {
 	t.Helper()
 	var receipt mc.CommandReceipt
 	v.httpSeed(t, "/model-providers", map[string]any{"input": map[string]any{"name": "runtime-app-provider", "protocol": mc.OpenAIChat, "base_url": endpoint, "enabled": true, "credential_ref": credential, "options": map[string]any{}}}, &receipt)
@@ -372,22 +395,6 @@ func (v *executionSchedulerApp) seedWithProvider(t *testing.T, endpoint string, 
 	workAppCheck(t, "runtime-original-launch-request", err)
 	v.digest, err = v.launchRequest.Digest()
 	workAppCheck(t, "runtime-launch-digest", err)
-	v.dispatch, err = v.runtime.schedulerCalls.Handoff().LaunchOnce(v.ctx, v.a, v.dispatch.Summary().ID)
-	workAppCheck(t, "runtime-original-handoff-created", err)
-	if v.dispatch.Summary().ExecutionID == nil || v.dispatch.Summary().Status != scheduler.Launched {
-		t.Fatal("original Handoff did not return its Created association")
-	}
-	var createdAt time.Time
-	var eid, state string
-	var version int64
-	var pristine bool
-	workAppCheck(t, "runtime-original-execution-row", v.admin.QueryRow(v.ctx, `SELECT id,status,version,created_at,(cancel_requested_at IS NULL AND snapshot_id IS NULL AND started_at IS NULL AND completed_at IS NULL AND request_digest=$4) FROM agenteam_execution.executions WHERE project_id=$1::text AND agent_id=$2::text AND idempotency_key=$3`, v.a.String(), v.agent.String(), v.launchRequest.Meta.IdempotencyKey.String(), v.digest.String()).Scan(&eid, &state, &version, &createdAt, &pristine))
-	instant, err := f.NewInstant(createdAt)
-	workAppCheck(t, "runtime-created-instant", err)
-	if eid != v.dispatch.Summary().ExecutionID.String() || state != string(ec.Created) || version != 1 || !pristine {
-		t.Fatal("Created row differs from original Handoff")
-	}
-	v.execution = ec.Summary{ID: *v.dispatch.Summary().ExecutionID, ProjectID: v.a, AgentID: v.agent, Trigger: v.launchRequest.Trigger, Purpose: v.launchRequest.Purpose, Status: ec.Created, Version: 1, CreatedAt: instant}
 }
 
 type executionSchedulerAppCall struct {

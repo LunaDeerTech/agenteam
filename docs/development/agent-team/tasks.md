@@ -2,21 +2,23 @@
 
 ## 当前目标与工作包状态
 
-2026-10-14 用户已确认以“指派任务 → Agent 连续工具执行 → 可见成果 → 审核通过/退回”为当前主目标，并要求先补完此前阻塞的 M1。里程碑、依赖与完整工作包定义只维护在[开发计划](../development-plan.md#当前开发目标与里程碑)。`tool-loop-v1` 受控实现及显式 live 准备入口已交付 main；本次真实模型的工具工作、可见成果与 Owner 送审已获独立接受，M1 已达到定义的阶段出口。M2 已另树保存推送并继续暂停。恢复入口见 [current](../../../.agent-state/current.md)。
+2026-10-14 M2 约定能力已完成并获独立接受：真实 Task/Scheduler、worker Artifact、reviewer 原成果读取与 Human 退回修订后再读接受已贯通，持久取消、审批与必要恢复按限定范围通过。M1 已正式交付 main，见 [M1 集成卡](../work-items/m1-app-integration.md#当前真实模型验收)。M2 的 main 远端交付仍待 GitHub 认证恢复，由 root 负责集成和推送；目标与边界见[开发计划](../development-plan.md#当前开发目标与里程碑)、[M2 工作卡](../work-items/m2-task-collaboration.md)及[当前恢复索引](../../../.agent-state/current.md)。
 
-真实外部模型按 Task 目标在同一工作 Execution 连续读取输入、写入程序、运行并读取结果，实际文件、stdout/exit、持久调用/结果及最终 v2 已闭合。浏览器完整消费、唯一 Owner 送审至持久 `in_review` 与刷新一致、原 Runtime/Runner/App Join 及资源清理均已独立接受；受控失败/取消及旧 direct-text 兼容有效复用。默认代理、NO_PROXY、CA/TLS 保留，正式出站使用显式精确 Origin 可信代理，历史本地目标 DNS 失败不代表服务不可达。范围见 [M1 集成卡](../work-items/m1-app-integration.md#当前真实模型验收)。
+M2 已限定独立接受真实 approve/reject、Execution/Task 持久取消及 waiting 取消后重启不复活、必要冷恢复、pending Unknown Found 原查证不重发、最小跨项目来源拒绝，以及受控 worker Artifact → Human HTTP/浏览器读取后接受或退回修订再接受。受控成果场景在审核阶段暂停 Scheduler，不能代真实外部模型或完整恢复；固定输入、原 Join/资源与限制沿 [M2 工作卡](../work-items/m2-task-collaboration.md)及[独立审查](../work-items/m2-independent-review.md)。
 
-| 工作包 | 当前状态与优先级 | 下一步 |
+最终真实 live 的两次 reviewer 均读取对应原成果，Human 退回同 Task 新 E 修订后再读接受，原投影/历史、全部 Join及退休/资源退出已独立接受。旧 review failed、浏览器详情502、review cooldown超期与退休辅助断言四轮 FAIL 均保留，未明原因不倒填；实际配置及浏览器联合证明的范围沿正式工作卡和独验。
+
+| 工作包 | 当前状态与负责人 | 本轮下一步 |
 | --- | --- | --- |
-| W1 模型工具调用 | 真实 JSON tools 多轮请求、配对历史与 Runtime 已通过 M1；精确 Origin 代理、可选 `reasoning_content` 兼容与响应头预算窄修获限定独验；原 tools 独验 STOP 保留 | 复用已验真实链；无工具 Agent 兼容及其余协议范围按后继任务推进，不扩大本次接受范围。 |
-| W2 多轮执行与 Task 交接 | M1 同一 Execution 的真实工具循环、Runner 副作用、v2/UI、Owner `in_review` 与刷新/正常收尾已通过 | 下一产品优先级为 M2 成果传递及审核通过/退回；本轮继续暂停，不由 Execution 成功自动完成 Task。 |
-| W3 审批、取消与执行详情 | read missing 失败及原 Runtime Stop/Drain 取消已限定独立接受；详情支持 v1/v2 | Human 持久取消、完整审批恢复、运行中重启接管仍待后继，不由 Runtime 取消样本代证。 |
-| W4 检索与记忆基础 | 本轮尚未派发，原工作包保留 | 按资源与主链进展安排，复用既有范围证据。 |
-| W5 集成与有界阻塞 | M1 真实完整链与资源退出已独立接受；预算 observer、真实 SQL 计数及 App 停止/Join 补验按限定范围接受 | 按冻结组合收敛本次 M1 交付；保留 300 秒总预算/12 sent 软阈值，M2 继续暂停。 |
+| W1 模型工具调用 | 真实 JSON tools 多轮请求、配对历史与 Runtime 已通过 M1；精确 Origin 代理、reasoning_content 兼容与响应头预算窄修获限定独验；原 tools STOP 保留 | 复用已验真实链，既有默认代理与 TLS 保持；不把历史本地 DNS 失败写成当前服务不可达。 |
+| W2 多轮执行与 Task 交接 | m2_delivery 的 M2 真实模型成果链、reviewer 原成果读取、Human 退回修订后再读接受与完整退出已独立接受 | 保留 Human 唯一决定及固定场景边界，完成正式交付。 |
+| W3 审批、取消与执行详情 | 同 E/Operation approve/reject、E/Task 持久取消、waiting 取消/冷恢复、原结果查证及 pending Unknown Found 已按限定范围独立接受 | 复用已接受的未变输入，保留完整恢复、NotFound/cold Unknown 与未覆盖授权组合的边界。 |
+| W4 检索与记忆基础 | 本轮未派发，原工作包保留 | M3/M4 不启动，等待后续目标派发。 |
+| W5 集成与有界阻塞 | M2 约定能力已获独立接受；main 远端交付受 GitHub 认证阻塞，root 执行全部 Git | 完成本地集成与认证后的推送确认；六个 M2 工作树/分支保留至 main 推送成功，再按流程清理。 |
 
-显式 live 继续使用双 opt-in、正式 Secret、正常目标 TLS 与动态成果断言；可信代理负责已授权 Origin 的目标解析，直连仍保原 DNS/地址门。本次成功、前三轮原 FAIL 及预算补验分别见 [live 验收卡](../work-items/m1-live-acceptance.md)与[独立复核](../work-items/m1-live-proxy-review.md)；预算补验中的合成记账行不计作真实模型调用，不回填旧失败，也不外推 embedding 产品全链或完整 D09/D22。
+迁移00092/00096/00098归controls，00093/00097归Work，00094/00099归approval，00095归W2；Artifact无新增迁移。Work共享review树，review/current归集成owner；协调4文与macro报告分文件单写。实际容量7席、两路Go，native由W2协调，checkpoint不等于验收。
 
-`tool-loop-v1` 是显式执行配置，原 `direct-text-v1` 保留且无新增 UI 配置。正常验收 tick 250ms / skip 240 只是 Owner 窗口参数；本次真实 review 在收尾取消，仅证明送审接续，不证明自主审核决策或 M2 完成。统一界面布局已在 `6d16bdae` 交付，其既有31项 unit/17文件格式限制与恢复材料见 [current](../../../.agent-state/current.md#已完成交接统一页面布局)。旧 STOP、历史 FAIL 与未验证范围继续保留；下文旧子项按发生时输入解读，不覆盖本节较新事实。
+M1 显式 live 的双 opt-in、正式 Secret、正常目标 TLS 与动态成果断言继续有效；可信代理负责已授权 Origin 的目标解析，直连仍保原 DNS/地址门。成功、前三轮原 FAIL 及预算补验见 [live 验收卡](../work-items/m1-live-acceptance.md)与[独立复核](../work-items/m1-live-proxy-review.md)，不回填失败或外推 embedding 产品全链。review 收尾取消不证明自主审核决策，Runtime 取消不代持久 Human 取消；旧 direct-text/Snapshot 与既有31项unit/17文件格式限制见 [current](../../../.agent-state/current.md#已完成交接统一页面布局)。旧 STOP、历史 FAIL 与模块未完成范围继续有效，下文历史不覆盖当前事实。
 
 ## 当前验收与推进边界
 

@@ -84,6 +84,9 @@ func (s *Service) appendProjectListAudit(ctx context.Context, tx f.Tx, list proj
 		list.afterTime = &at
 	}
 	w := &projectAuditWitness{store: s.state().store, tx: tx, entry: entry, key: key, list: &list}
+	if s.state().owners != nil {
+		w.authority = s.state().owners.state().authority
+	}
 	w.active.Store(true)
 	defer w.active.Store(false)
 	_, err = s.state().audit.AppendInTx(context.WithValue(ctx, projectAuditWitnessKey{}, w), tx, entry, key)
@@ -97,7 +100,7 @@ func (a *ProjectAuditAuthority) checkListInTx(ctx context.Context, tx f.Tx, w *p
 	}
 	d, e := list.invocation.Details(), w.entry.Fields()
 	if !d.Actor.Equal(e.Actor) || d.ProjectID.String() != e.Scope.Details().ProjectID || d.ProjectID.String() != e.Resource.Details().ID ||
-		d.ExecutionID != "" || d.OperationID != "" || d.ToolID != "" || d.ToolCallID != "" || len(list.rows) > list.page.Limit+1 {
+		d.ExecutionID != e.Associations.ExecutionID || d.OperationID != e.Associations.OperationID || d.ToolID != e.Associations.ToolID || d.ToolCallID != e.Associations.ToolCallID || len(list.rows) > list.page.Limit+1 {
 		return failure(f.Forbidden, nil)
 	}
 	query, err := artifactListQuery(d.ProjectID, list.filter)

@@ -33,6 +33,7 @@ type accountBoundary interface {
 type handler struct {
 	reader   executionReader
 	boundary accountBoundary
+	controls ec.TaskExecutionCancellation
 }
 
 // NewHTTPHandler retains the original caller-owned service and boundary. It
@@ -41,13 +42,21 @@ func NewHTTPHandler(service *execution.TaskExecutionReader, boundary *account.HT
 	if service == nil || boundary == nil {
 		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
-	return &handler{service, boundary}, nil
+	return &handler{reader: service, boundary: boundary}, nil
+}
+
+func NewHTTPHandlerWithControls(service *execution.TaskExecutionReader, controls ec.TaskExecutionCancellation, boundary *account.HTTPBoundary) (http.Handler, error) {
+	if service == nil || controls == nil || boundary == nil {
+		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
+	}
+	return &handler{reader: service, boundary: boundary, controls: controls}, nil
 }
 
 type route struct {
 	project, task, execution string
 	valid, read              bool
 	runtime                  bool
+	cancel, lookup           bool
 }
 
 func executionRoute(path string) route {
@@ -55,7 +64,7 @@ func executionRoute(path string) route {
 		return route{}
 	}
 	p := strings.Split(strings.TrimPrefix(path, projectPrefix), "/")
-	if (len(p) != 4 && len(p) != 5 && len(p) != 6) || p[0] == "" || p[1] != "tasks" || p[2] == "" || p[3] != "executions" {
+	if (len(p) < 4 || len(p) > 7) || p[0] == "" || p[1] != "tasks" || p[2] == "" || p[3] != "executions" {
 		return route{}
 	}
 	v := route{project: p[0], task: p[2], valid: true}
@@ -66,11 +75,18 @@ func executionRoute(path string) route {
 		v.execution = p[4]
 		v.read = true
 	}
-	if len(p) == 6 {
-		if p[5] != "runtime-view" {
+	if len(p) >= 6 {
+		if p[5] != "runtime-view" && p[5] != "cancel" {
 			return route{}
 		}
-		v.runtime = true
+		v.runtime = p[5] == "runtime-view"
+		v.cancel = p[5] == "cancel"
+	}
+	if len(p) == 7 {
+		if !v.cancel || p[6] != "lookup" {
+			return route{}
+		}
+		v.lookup = true
 	}
 	return v
 }
@@ -94,6 +110,12 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, request *http.Request) {
 		}
 		if route.runtime {
 			request.Pattern += "/runtime-view"
+		}
+		if route.cancel {
+			request.Pattern += "/cancel"
+			if route.lookup {
+				request.Pattern += "/lookup"
+			}
 		}
 	}
 	r := request.WithContext(ctx)
@@ -156,6 +178,9 @@ func (h *handler) execute(w http.ResponseWriter, r *http.Request, route route) (
 	}
 	if !route.valid {
 		return nil, f.NewFault(f.NotFound, f.NotStarted)
+	}
+	if route.cancel {
+		return h.cancelCommand(w, r, actor, route)
 	}
 	if r.Method != http.MethodGet && r.Method != http.MethodHead {
 		w.Header().Set("Allow", "GET, HEAD")

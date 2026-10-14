@@ -102,14 +102,18 @@ func (s *TaskTransitionService) evaluateTransition(ctx context.Context, tx f.Tx,
 	if before.State.Terminal() {
 		return zero, fault(f.TaskTerminalImmutable)
 	}
-	if err = c.CheckTaskTransitionRule(c.TaskTransitionRuleInput{FromState: before.State, ToState: in.Request.TargetState, Role: c.TaskTransitionHumanOwner, CurrentAssigneeAgentID: before.AssigneeAgentID}); err != nil {
+	role := c.TaskTransitionHumanOwner
+	if actor.Details().Kind == i.AgentRun {
+		role = c.TaskTransitionAgentRun
+	}
+	if err = c.CheckTaskTransitionRule(c.TaskTransitionRuleInput{FromState: before.State, ToState: in.Request.TargetState, Role: role, ActorAgentID: in.Agent, CurrentAssigneeAgentID: before.AssigneeAgentID}); err != nil {
 		return zero, err
 	}
-	if err = transitionEdge(before, in.Request); err != nil {
+	if err = in.edge(before); err != nil {
 		return zero, err
 	}
 	chosen := transitionAgent(before, in.Request)
-	placement, err := s.state().deps.Structure.ReadPlacementInTx(ctx, tx, actor, in.Project, before.SprintID)
+	placement, err := s.transitionPlacement(ctx, tx, actor, in.Project, before.SprintID)
 	if err != nil {
 		return zero, err
 	}
@@ -121,7 +125,16 @@ func (s *TaskTransitionService) evaluateTransition(ctx context.Context, tx f.Tx,
 	}
 	var agent *agentc.AgentRef
 	if !transitionRetainsAssignee(before, in.Request) {
-		current, err := s.state().deps.Agents.RequireCurrentInTx(ctx, tx, actor, in.Project, *chosen)
+		var current agentc.AgentRef
+		var err error
+		if actor.Details().Kind == i.AgentRun {
+			if nilPort(s.state().deps.AgentRunAgents) {
+				return zero, fault(f.DependencyUnbound)
+			}
+			current, err = s.state().deps.AgentRunAgents.RequireTaskTransitionCurrentInTx(ctx, tx, actor, in.Project, in.Task.String(), *chosen)
+		} else {
+			current, err = s.state().deps.Agents.RequireCurrentInTx(ctx, tx, actor, in.Project, *chosen)
+		}
 		if err != nil {
 			return zero, portError(err)
 		}
@@ -134,7 +147,17 @@ func (s *TaskTransitionService) evaluateTransition(ctx context.Context, tx f.Tx,
 	if err != nil {
 		return zero, portError(err)
 	}
-	if err = checkTransitionOccupancy(before, in.Request, occupancy); err != nil {
+	if in.Cancellation != nil {
+		matched := false
+		for _, active := range occupancy.Active {
+			if active.ExecutionID == in.Cancellation.Scope.ExecutionID && active.AgentID == in.Cancellation.Scope.AgentID {
+				matched = true
+			}
+		}
+		if !matched {
+			return zero, fault(f.InvalidState)
+		}
+	} else if err = s.checkTransitionOccupancy(ctx, actor, before, in.Request, occupancy); err != nil {
 		return zero, err
 	}
 	pending, err := s.state().deps.Pending.ReadInTx(ctx, tx, in.Project, []string{in.Task.String()})
@@ -144,7 +167,8 @@ func (s *TaskTransitionService) evaluateTransition(ctx context.Context, tx f.Tx,
 	if pending.Pending == nil || pending.HistoryTaskIDs == nil {
 		return zero, internal(nil)
 	}
-	if len(pending.Pending) != 0 {
+	cancelPending := len(pending.Pending) != 0 && transitionCancelEdge(before, in.Request) && !nilPort(s.state().deps.PendingCancellation)
+	if len(pending.Pending) != 0 && !cancelPending {
 		return zero, fault(f.ResourceBusy)
 	}
 	if at.Time().Before(before.UpdatedAt.Time()) {
@@ -157,7 +181,12 @@ func (s *TaskTransitionService) evaluateTransition(ctx context.Context, tx f.Tx,
 	source := groupForTask(before)
 	target := source
 	target.State = in.Request.TargetState
-	if err = s.state().deps.Pending.RequireNoPendingGroupsInTx(ctx, tx, in.Project, pendingGroups(source, target)); err != nil {
+	if cancelPending {
+		err = s.state().deps.PendingCancellation.RequireNoOtherPendingGroupsInTx(ctx, tx, in.Project, in.Task.String(), pendingGroups(source, target))
+	} else {
+		err = s.state().deps.Pending.RequireNoPendingGroupsInTx(ctx, tx, in.Project, pendingGroups(source, target))
+	}
+	if err != nil {
 		return zero, portError(err)
 	}
 	oldRows, oldGen, err := loadTaskRanks(ctx, x, in.Project, source)
@@ -237,7 +266,14 @@ func (s *TaskTransitionService) evaluateTransition(ctx context.Context, tx f.Tx,
 		at = before.UpdatedAt
 	}
 	after.UpdatedAt = at
+	blocker, err := s.cancellationBlocker(ctx, x, in, at)
+	if err != nil {
+		return zero, err
+	}
 	count := 1 + len(resolutions)
+	if blocker != nil {
+		count++
+	}
 	changed := !sameValue(before.AssigneeAgentID, after.AssigneeAgentID)
 	if changed {
 		count++
@@ -250,7 +286,7 @@ func (s *TaskTransitionService) evaluateTransition(ctx context.Context, tx f.Tx,
 	}
 	history := make([]c.TaskTransitionEvent, 0, count)
 	add := func(kind c.TaskTransitionEventType, payload c.TaskTransitionFactPayload) {
-		history = append(history, c.TaskTransitionEvent{ID: ids[len(history)], ProjectID: in.Project, TaskID: in.Task, TaskVersion: after.Version, Type: kind, Actor: c.TaskTransitionActor{UserID: in.User}, OperationID: r.ID, CorrelationID: r.ID, Payload: payload, CreatedAt: at})
+		history = append(history, c.TaskTransitionEvent{ID: ids[len(history)], ProjectID: in.Project, TaskID: in.Task, TaskVersion: after.Version, Type: kind, Actor: in.historyActor(), OperationID: r.ID, CorrelationID: r.ID, Payload: payload, CreatedAt: at})
 	}
 	add(c.TaskTransitionStateChanged, c.TaskTransitionFactPayload{StateChanged: &c.TaskStateChangedPayload{FromState: before.State, ToState: after.State}})
 	if changed {
@@ -258,6 +294,9 @@ func (s *TaskTransitionService) evaluateTransition(ctx context.Context, tx f.Tx,
 	}
 	for _, v := range resolutions {
 		add(c.TaskTransitionBlockerResolved, c.TaskTransitionFactPayload{BlockerResolved: &c.TaskBlockerResolvedPayload{BlockerID: v.Before.ID, BlockerType: v.Before.Type}})
+	}
+	if blocker != nil {
+		add(c.TaskTransitionBlockerAdded, c.TaskTransitionFactPayload{BlockerAdded: &c.TaskBlockerAddedPayload{BlockerID: blocker.ID, BlockerType: blocker.Type}})
 	}
 	if in.Request.Comment != nil {
 		add(c.TaskTransitionComment, c.TaskTransitionFactPayload{Comment: &c.TaskCommentPayload{Body: *in.Request.Comment}})
@@ -268,12 +307,23 @@ func (s *TaskTransitionService) evaluateTransition(ctx context.Context, tx f.Tx,
 	}
 	header.EventType = c.TaskTransitionedName
 	header.SchemaVersion = c.TaskTransitionSchemaVersion
-	out, ev, err := s.state().deps.TaskEvents.NewTaskTransitionData(header, before, after, in.Request, history, sp, tp)
+	out, ev, err := transitionMutation(s.state().deps.TaskEvents, header, before, after, in, history, sp, tp)
 	if err != nil {
 		return zero, internal(err)
 	}
 	if err = ctx.Err(); err != nil {
 		return zero, canceled(err)
 	}
-	return transitionPlan{Before: before, After: out, Placement: taskPlacement{placement.Milestone.ID, placement.Sprint.ID, placement.Sprint.State}, Agent: agent, Groups: []taskGroupPlan{{source, oldRows, sourceAfter, oldGen}, {target, rows, ranks.Items, gen}}, QueryGeneration: query, History: history, Source: sp, Target: tp, Header: ev.Header(), Payload: ev.PayloadBytes(), Resolutions: resolutions}, nil
+	var cancellations []ec.CancellationScope
+	var dispatches []string
+	if transitionCancelEdge(before, in.Request) {
+		for _, active := range occupancy.Active {
+			cancellations = append(cancellations, ec.CancellationScope{ProjectID: in.Project, TaskID: in.Task.String(), ExecutionID: active.ExecutionID, AgentID: active.AgentID})
+		}
+		for _, pending := range pending.Pending {
+			dispatches = append(dispatches, pending.DispatchID)
+		}
+		slices.Sort(dispatches)
+	}
+	return transitionPlan{CancellationBlocker: blocker, CancelExecutions: cancellations, CancelDispatches: dispatches, Before: before, After: out, Placement: taskPlacement{placement.Milestone.ID, placement.Sprint.ID, placement.Sprint.State}, Agent: agent, Groups: []taskGroupPlan{{source, oldRows, sourceAfter, oldGen}, {target, rows, ranks.Items, gen}}, QueryGeneration: query, History: history, Source: sp, Target: tp, Header: ev.Header(), Payload: ev.PayloadBytes(), Resolutions: resolutions}, nil
 }

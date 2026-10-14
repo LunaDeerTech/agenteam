@@ -14,7 +14,7 @@ import (
 
 // One statement observes the canonical row and terminal projection together.
 // No snapshot, round input, transcript, response or private fault is loaded.
-const taskExecutionSelect = `SELECT e.id::text,e.project_id::text,e.agent_id::text,e.status,e.version,e.cancel_requested_at,e.snapshot_id::text,e.created_at,e.started_at,e.completed_at,e.launch_request,e.idempotency_key,e.request_id::text,e.request_digest,r.terminal_reason,r.terminal_status,r.terminal_version,r.finished_at FROM agenteam_execution.executions e LEFT JOIN LATERAL (SELECT terminal_reason,terminal_status,terminal_version,finished_at FROM agenteam_execution.rounds WHERE execution_id=e.id ORDER BY round_ordinal DESC LIMIT 1) r ON true`
+const taskExecutionSelect = `SELECT e.id::text,e.project_id::text,e.agent_id::text,e.status,e.version,e.cancel_requested_at,e.snapshot_id::text,e.created_at,e.started_at,e.completed_at,e.launch_request,e.idempotency_key,e.request_id::text,e.request_digest,r.terminal_reason,r.terminal_status,r.terminal_version,r.finished_at,e.waiting_reason,e.waiting_reference::text,e.waiting_at FROM agenteam_execution.executions e LEFT JOIN LATERAL (SELECT terminal_reason,terminal_status,terminal_version,finished_at FROM agenteam_execution.rounds WHERE execution_id=e.id ORDER BY round_ordinal DESC LIMIT 1) r ON true`
 
 type taskExecutionPosition struct {
 	at f.Instant
@@ -59,9 +59,11 @@ func (r *TaskExecutionReader) taskPosition(binding cursor.Binding, token string)
 }
 
 type terminalProjection struct {
-	reason, status *string
-	version        *int64
-	at             *time.Time
+	reason, status                  *string
+	version                         *int64
+	at                              *time.Time
+	waitingReason, waitingReference *string
+	waitingAt                       *time.Time
 }
 type taskExecutionRow struct {
 	row      postgres.Row
@@ -70,7 +72,7 @@ type taskExecutionRow struct {
 
 func (r taskExecutionRow) Scan(dest ...any) error {
 	t := r.terminal
-	return r.row.Scan(append(dest, &t.reason, &t.status, &t.version, &t.at)...)
+	return r.row.Scan(append(dest, &t.reason, &t.status, &t.version, &t.at, &t.waitingReason, &t.waitingReference, &t.waitingAt)...)
 }
 func scanTaskExecution(row postgres.Row, project i.ProjectID, task string) (*ec.TaskExecution, error) {
 	terminal := terminalProjection{}
@@ -98,7 +100,11 @@ func scanTaskExecution(row postgres.Row, project i.ProjectID, task string) (*ec.
 			return nil, unavailable(nil)
 		}
 	}
-	return &ec.TaskExecution{ID: s.ID, ProjectID: s.ProjectID, TaskID: task, AgentID: s.AgentID, Purpose: s.Purpose, Status: s.Status, Version: s.Version, CreatedAt: s.CreatedAt, StartedAt: s.StartedAt, CompletedAt: s.CompletedAt, CancelRequestedAt: s.CancelRequestedAt, SnapshotID: s.SnapshotID, Reason: terminal.reason}, nil
+	out := &ec.TaskExecution{ID: s.ID, ProjectID: s.ProjectID, TaskID: task, AgentID: s.AgentID, Purpose: s.Purpose, Status: s.Status, Version: s.Version, CreatedAt: s.CreatedAt, StartedAt: s.StartedAt, CompletedAt: s.CompletedAt, CancelRequestedAt: s.CancelRequestedAt, SnapshotID: s.SnapshotID, Reason: terminal.reason}
+	if err = projectTaskWaiting(out, terminal.waitingReason, terminal.waitingReference, terminal.waitingAt); err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 func listTaskExecutions(ctx context.Context, x postgres.SQLExecutor, project i.ProjectID, task string, limit int, position *taskExecutionPosition) ([]ec.TaskExecution, error) {
 	query := taskExecutionSelect + ` WHERE e.project_id=$1 AND e.launch_request->'trigger'->>'kind'='task' AND e.launch_request->'trigger'->>'task_id'=$2`

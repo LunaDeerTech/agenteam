@@ -258,7 +258,7 @@ func TestTaskTransitionHistoryTypedFacts(t *testing.T) {
 			}
 		}
 		for _, kind := range []TaskTransitionEventType{TaskTransitionBlockerAdded, TaskTransitionBlockerResolved} {
-			for _, blockerKind := range []TaskBlockerType{TaskBlockerRelyOn, TaskBlockerWaitingForHuman} {
+			for _, blockerKind := range []TaskBlockerType{TaskBlockerRelyOn, TaskBlockerWaitingForHuman, TaskBlockerUserCancelledExecution} {
 				v := transitionHistoryFixture(t, kind)
 				if kind == TaskTransitionBlockerAdded {
 					v.Payload.BlockerAdded.BlockerType = blockerKind
@@ -270,7 +270,7 @@ func TestTaskTransitionHistoryTypedFacts(t *testing.T) {
 				if err != nil || !reflect.DeepEqual(got, v) {
 					t.Fatal("supported blocker history rejected", err)
 				}
-				unboundKinds := []TaskBlockerType{TaskBlockerWaitingForMeetingApproval, TaskBlockerUserCancelledExecution}
+				unboundKinds := []TaskBlockerType{TaskBlockerWaitingForMeetingApproval}
 				if kind == TaskTransitionBlockerAdded {
 					unboundKinds = append(unboundKinds, TaskBlockerTechnical)
 				}

@@ -282,6 +282,9 @@ func (v TaskBlockerAddedPayload) Validate() error {
 	if err := taskBlockerPayloadCommon(v.BlockerID, v.BlockerType); err != nil {
 		return err
 	}
+	if v.BlockerType == TaskBlockerUserCancelledExecution {
+		return nil
+	}
 	return taskBlockerSupported(v.BlockerType)
 }
 func (v TaskBlockerAddedPayload) Clone() TaskBlockerAddedPayload { return v }
@@ -323,6 +326,9 @@ func (v TaskBlockerResolvedPayload) Validate() error {
 		return invalid("/resolution_comment", "INVALID_RESOLUTION_COMMENT")
 	}
 	if v.BlockerType == TaskBlockerTechnical {
+		return nil
+	}
+	if v.BlockerType == TaskBlockerUserCancelledExecution {
 		return nil
 	}
 	return taskBlockerSupported(v.BlockerType)

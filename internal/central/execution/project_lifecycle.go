@@ -106,7 +106,7 @@ func (s *projectCallState) cancelProjectCalls(project i.ProjectID) {
 	var cancels []context.CancelFunc
 	for _, e := range s.owners {
 		if e.record.Project == project {
-			cancels = append(cancels, e.cancel)
+			cancels = append(cancels, e.cancel, e.retainedCancel)
 		}
 	}
 	s.mu.Unlock()
@@ -123,7 +123,9 @@ func (s *projectCallState) cancelProjectCalls(project i.ProjectID) {
 		a.mu.Unlock()
 	}
 	for _, cancel := range cancels {
-		cancel()
+		if cancel != nil {
+			cancel()
+		}
 	}
 }
 func (s *projectCallState) projectCallsPending(project i.ProjectID) (bool, *projectCallEntry) {

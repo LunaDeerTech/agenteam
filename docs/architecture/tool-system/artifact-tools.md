@@ -11,6 +11,16 @@
 
 本文定义 Agent 面向文件和持久化结果使用的 Artifact Builtin Tools。
 
+## 当前 M2 实现接缝
+
+`internal/central/tool/builtin.ArtifactAdapter` 适配现有 Artifact Service 的 `list-artifacts`、`create-artifact(content)` 和 `read-artifact`。当前 Agent 工具不暴露 `source_ref` 创建；下文来源复制仍是完整设计，既有领域 `CreateFromSource` 不因此自动成为已接通的工具能力。App/Registry/Runtime 的实际接线由执行组合负责。
+
+工具参数不能携带 Actor、Task、Execution、Operation 或 ToolCall 来源。Runtime 从原持久调用构造完整 `artifact.Invocation`，其中 `tool_call_id` 使用原 protected argument payload UUID，模型原字符串 call ID 仍由 Runtime 保存。创建固定使用 `tool.artifact.create:<operation_id>` 幂等键，Artifact 持久化 source Execution/Operation，Task 由该 Execution 的正式任务引用关联。审核者用列表的 `execution_id` 过滤取得业务引用，再调用 `read-artifact` 读取真实 StoredObject 正文；共享 worker 目录和复制历史 transcript 均不承担成果交接。
+
+当前 AgentRun 权限通过 `artifact/contract.AgentRunAuthority` 发现完整锁，并在同一事务内重新核对 Runtime 私有调用现场、原 Execution/Operation/ToolCall、当前 Agent/ToolSet/Policy。Project 仍独立要求 active 且 initialized；公开 Actor/Invocation 构造不授予读取或发布权限。Object 内部仅有 Actor/Execution 的请求继续消费同一 Runtime 私有现场，不能自行推测 Operation。发布、列表和正文读取的 Audit 使用原 Artifact 私有现场、同 Store/Tx 和当前授权复验；Human 权限保持原 Session/Owner 路径。
+
+`LookupCreate` 只调用目标命令查询：完成返回原 Artifact；未观察到返回 absent；pending/unknown 必须由原拥有者收敛，不能视作再次上传的许可。适配器同步等待原领域调用返回，取消不提前脱离原 I/O，也不自动重发。Registry 暴露前验证真实 Service、同 Store、已绑定 AgentRun authority 和原进程所有权。上述库实现和包测试不代替真实 App/PG/MinIO 组合验收。
+
 ## 1. 定位
 
 ObjectStorageService 是平台基础设施，不直接暴露为 Agent Tool。

@@ -4,7 +4,12 @@ import { UiBadge, UiButton, UiState } from '../ui'
 import type { TaskExecution } from '../../api/task-executions'
 import type { TaskExecutions } from '../../composables/useTaskExecutions'
 import TaskExecutionOutput from './TaskExecutionOutput.vue'
-const props = defineProps<{ owner: TaskExecutions; agentName: (id: string | null) => string }>()
+import TaskExecutionArtifacts from './TaskExecutionArtifacts.vue'
+import TaskExecutionCancellation from './TaskExecutionCancellation.vue'
+import type { TaskExecutionCancellation as CancellationOwner } from '../../composables/useTaskExecutionCancellation'
+import TaskExecutionApproval from './TaskExecutionApproval.vue'
+import type { TaskExecutionApproval as ApprovalOwner } from '../../composables/useTaskExecutionApproval'
+const props = defineProps<{ owner: TaskExecutions; agentName: (id: string | null) => string; cancellation?: CancellationOwner; approval?: ApprovalOwner }>()
 const section = ref<HTMLElement | null>(null)
 const heading = ref<HTMLElement | null>(null)
 const detailHeading = ref<HTMLElement | null>(null)
@@ -213,6 +218,7 @@ async function close() {
           :owner="owner"
           @load="loadOutput"
         />
+        <TaskExecutionArtifacts :owner="owner.artifacts" />
         <details
           v-if="owner.state.detail && owner.state.detailPhase === 'ready'"
           class="execution-metadata"
@@ -294,6 +300,8 @@ async function close() {
         >
       </template>
     </template>
+    <TaskExecutionApproval v-if="approval" :owner="approval" />
+    <TaskExecutionCancellation v-if="cancellation" :owner="cancellation" />
   </section>
 </template>
 <style scoped>

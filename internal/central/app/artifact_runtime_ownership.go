@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/artifact"
+	ac "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -12,12 +13,12 @@ import (
 
 // The owner is fixed before the original Object service is constructed. The
 // same provider is later given to the Artifact pair; there is no late setter.
-func createArtifactOwners(db database, projects *projectUsageAssembly) (*artifact.OwnerProvider, error) {
+func createArtifactOwners(db database, projects *projectUsageAssembly, runs ...ac.AgentRunAuthority) (*artifact.OwnerProvider, error) {
 	store, ok := db.(artifact.Store)
 	if !ok || runtimeInformationNil(store) || projects == nil || projects.projects == nil {
 		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
-	authority, err := project.NewArtifactAuthority(projects.projects)
+	authority, err := project.NewArtifactAuthority(projects.projects, runs...)
 	if err != nil {
 		return nil, err
 	}
@@ -28,9 +29,10 @@ type artifactCallAssembly struct {
 	pair *artifact.ProjectCallOwnership
 }
 
-// Account constructs this once after original Object.Initialize, before any
-// service can be admitted. Sources and browser transfers remain unbound; the
-// pair retains the original Object uploads/cleaner required by inline creation.
+// Account constructs this once after the original Object service exists,
+// before any service can be admitted. The constructor checks the fixed graph;
+// each call still requires the ProcessGuard bound by Object.Initialize.
+// Sources and browser transfers remain unbound.
 func createOwnedArtifacts(cfg config.Config, db database, owners *artifact.OwnerProvider, projects *projectUsageAssembly, objects *objectAssembly, auditor *audit.Service) (*artifactCallAssembly, error) {
 	store, ok := db.(project.Store)
 	if !ok || runtimeInformationNil(store) || owners == nil || projects == nil || projects.projects == nil || projects.lifecycle == nil || objects == nil || objects.service == nil || objects.guard == nil || objects.process.Validate() != nil {

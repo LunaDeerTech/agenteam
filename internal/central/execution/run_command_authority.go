@@ -109,10 +109,14 @@ func (d *ToolCallDriver) RequireRunCommandAdmissionInTx(ctx context.Context, tx 
 	if w.driver != d || w.plan != p.call || !sameToolCallBinding(w.binding, p.call.binding) {
 		return fault(f.Forbidden)
 	}
-	// There is no real approval owner for Default/Auto in this explicit profile.
-	// They remain unsupported, never silently approved or sent to the Runner.
 	if w.approval != ac.ApprovalAllow {
-		return fault(f.CapabilityUnsupported)
+		s := d.driver.state
+		if s.multi == nil || nilPort(s.multi.approvals) {
+			return fault(f.CapabilityUnsupported)
+		}
+		if err = s.multi.approvals.RequireApprovedInTx(ctx, tx, w.binding); err != nil {
+			return portError(err)
+		}
 	}
 	provider := d.driver.state.tools.currentEnvironment
 	if nilPort(provider) {

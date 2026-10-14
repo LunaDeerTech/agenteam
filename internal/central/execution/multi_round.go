@@ -6,6 +6,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/agentloop"
 	c "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	gc "github.com/LunaDeerTech/agenteam/internal/central/governance/approval/contract"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/object"
@@ -22,12 +23,15 @@ type MultiRoundDependencies struct {
 	Guard              *object.ProcessGuard
 	CurrentEnvironment pvc.CurrentProcessEnvironment
 	BindTools          func(*ToolCallDriver) (tc.RunnerDispatcher, tc.RunnerResultAuthority, error)
+	BindApproval       func(*ToolCallDriver) (gc.Gate, error)
 }
 type multiRoundState struct {
 	authority *ToolCallDriver
 	dispatch  tc.RunnerDispatcher
 	results   tc.RunnerResultAuthority
 	guard     *object.ProcessGuard
+	approvals gc.Gate
+	rejected  gc.RejectedResults
 }
 type MultiRoundDriver struct{ driver *DirectTextDriver }
 
@@ -53,6 +57,17 @@ func NewMultiRoundDriver(store Store, authority *Authority, base DirectTextDepen
 		return nil, fault(f.DependencyUnbound)
 	}
 	d.state.multi.dispatch, d.state.multi.results = dispatch, results
+	if deps.BindApproval != nil {
+		gate, err := deps.BindApproval(toolAuthority)
+		if err != nil {
+			return nil, portError(err)
+		}
+		rejected, ok := gate.(gc.RejectedResults)
+		if nilPort(gate) || !ok || nilPort(rejected) {
+			return nil, fault(f.DependencyUnbound)
+		}
+		d.state.multi.approvals, d.state.multi.rejected = gate, rejected
+	}
 	return &MultiRoundDriver{d}, nil
 }
 func (d *MultiRoundDriver) Start(ctx context.Context, e i.ExecutionID) (c.DirectTextReceipt, error) {

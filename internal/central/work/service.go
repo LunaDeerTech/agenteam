@@ -22,9 +22,10 @@ type Dependencies struct {
 }
 type Authority struct{ data func() *authorityState }
 type authorityState struct {
-	store    Store
-	projects pc.ProjectAuthority
-	issuer   oc.PlanIssuer
+	transitions *taskTransitionServiceState
+	store       Store
+	projects    pc.ProjectAuthority
+	issuer      oc.PlanIssuer
 }
 
 func NewAuthority(store Store, projects pc.ProjectAuthority) (*Authority, error) {

@@ -44,7 +44,7 @@ func transitionEventProject(s event.Summary) (c.ProjectID, error) {
 // Re-derive the complete persisted mutation from the original intent and the
 // preimage. Historical replay does not consult a newer mutable Task.
 func validateTransitionRecord(r *transitionRecord, actor i.Actor) error {
-	if r == nil || c.ValidateActor(actor) != nil || r.Input.User.String() != actor.Details().UserID {
+	if r == nil || transitionReadInput(context.Background(), actor, r.Input.Project) != nil || !r.Input.matches(actor) {
 		return internal(nil)
 	}
 	semantic, err := r.Input.semantic(actor, r.Key)
@@ -55,7 +55,7 @@ func validateTransitionRecord(r *transitionRecord, actor i.Actor) error {
 	in := r.Input
 	b := p.Before
 	t := p.After.Task
-	if b.Validate() != nil || p.After.Validate() != nil || b.ProjectID != in.Project || b.ID != in.Task || b.Version != in.Expected || transitionEdge(b, in.Request) != nil || len(p.Groups) != 2 || p.Placement.Milestone != b.MilestoneID || p.Placement.Sprint != b.SprintID || (p.Placement.State != c.Planned && p.Placement.State != c.Current) {
+	if b.Validate() != nil || p.After.Validate() != nil || b.ProjectID != in.Project || b.ID != in.Task || b.Version != in.Expected || in.edge(b) != nil || len(p.Groups) != 2 || p.Placement.Milestone != b.MilestoneID || p.Placement.Sprint != b.SprintID || (p.Placement.State != c.Planned && p.Placement.State != c.Current) {
 		return internal(nil)
 	}
 	if transitionRetainsAssignee(b, in.Request) {
@@ -158,7 +158,13 @@ func validateTransitionRecord(r *transitionRecord, actor i.Actor) error {
 	if err = validateTransitionResolutions(r); err != nil {
 		return err
 	}
+	if err = validateCancellationRecord(r); err != nil {
+		return err
+	}
 	count := 1 + len(p.Resolutions)
+	if p.CancellationBlocker != nil {
+		count++
+	}
 	if changed {
 		count++
 	}
@@ -173,7 +179,7 @@ func validateTransitionRecord(r *transitionRecord, actor i.Actor) error {
 		resolveStart++
 	}
 	for n, h := range p.History {
-		if h.Validate() != nil || h.ID != p.After.TaskEventIDs[n] || h.ProjectID != in.Project || h.TaskID != in.Task || h.TaskVersion != t.Version || h.Actor.UserID != in.User || h.OperationID != r.ID || h.CorrelationID != r.ID || !h.CreatedAt.Time().Equal(t.UpdatedAt.Time()) {
+		if h.Validate() != nil || h.ID != p.After.TaskEventIDs[n] || h.ProjectID != in.Project || h.TaskID != in.Task || h.TaskVersion != t.Version || h.Actor != in.historyActor() || h.OperationID != r.ID || h.CorrelationID != r.ID || !h.CreatedAt.Time().Equal(t.UpdatedAt.Time()) {
 			return internal(nil)
 		}
 		switch {
@@ -190,6 +196,10 @@ func validateTransitionRecord(r *transitionRecord, actor i.Actor) error {
 			if h.Type != c.TaskTransitionBlockerResolved || h.Payload.BlockerResolved == nil || h.Payload.BlockerResolved.BlockerID != v.Before.ID || h.Payload.BlockerResolved.BlockerType != v.Before.Type || h.Payload.BlockerResolved.ResolutionComment != nil {
 				return internal(nil)
 			}
+		case p.CancellationBlocker != nil && n == resolveStart+len(p.Resolutions):
+			if h.Type != c.TaskTransitionBlockerAdded || h.Payload.BlockerAdded == nil || h.Payload.BlockerAdded.BlockerID != p.CancellationBlocker.ID || h.Payload.BlockerAdded.BlockerType != c.TaskBlockerUserCancelledExecution {
+				return internal(nil)
+			}
 		default:
 			if in.Request.Comment == nil || h.Type != c.TaskTransitionComment || h.Payload.Comment == nil || h.Payload.Comment.Body != *in.Request.Comment {
 				return internal(nil)
@@ -200,7 +210,7 @@ func validateTransitionRecord(r *transitionRecord, actor i.Actor) error {
 	if err != nil {
 		return internal(err)
 	}
-	expectedPayload := c.TaskTransitioned{CommandID: r.ID, Actor: c.TaskTransitionActor{UserID: in.User}, TaskEventIDs: slices.Clone(p.After.TaskEventIDs), MilestoneID: b.MilestoneID, SprintID: b.SprintID, FromState: b.State, ToState: t.State, SourcePosition: sp, TargetPosition: tp}
+	expectedPayload := c.TaskTransitioned{CommandID: r.ID, Actor: in.historyActor(), TaskEventIDs: slices.Clone(p.After.TaskEventIDs), MilestoneID: b.MilestoneID, SprintID: b.SprintID, FromState: b.State, ToState: t.State, SourcePosition: sp, TargetPosition: tp}
 	if changed {
 		expectedPayload.AssigneeChange = &c.TaskAssigneeChangedPayload{FromAgentID: b.AssigneeAgentID, ToAgentID: *agent}
 	}
@@ -271,7 +281,7 @@ func (a *Authority) discoverTransitionAppend(ctx context.Context, actor i.Actor,
 	if err != nil {
 		return oc.Dependencies{}, err
 	}
-	if err = readInput(ctx, actor, project); err != nil {
+	if err = transitionReadInput(ctx, actor, project); err != nil {
 		return oc.Dependencies{}, err
 	}
 	cause, err := readCause("task-transition-append")
@@ -280,7 +290,7 @@ func (a *Authority) discoverTransitionAppend(ctx context.Context, actor i.Actor,
 	}
 	var out oc.Dependencies
 	result := st.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
-		locks, e := taskNormalize([]f.LockRequest{userLock(actor.Details().UserID, f.Shared), projectLock(project, f.Shared)})
+		locks, e := a.transitionAccessLocks(ctx, actor, project)
 		if e != nil {
 			return e
 		}
@@ -291,16 +301,19 @@ func (a *Authority) discoverTransitionAppend(ctx context.Context, actor i.Actor,
 		if e != nil {
 			return portError(e)
 		}
-		grant, e := st.projects.RequireOwnerInTx(ctx, tx, actor, project, i.Read)
+		_, e = a.requireTransitionAccess(ctx, tx, actor, project, i.Read)
 		if e != nil {
 			return portError(e)
-		}
-		if !grant.Matches(actor, project) {
-			return fault(f.Forbidden)
 		}
 		r, e := loadTransitionEvent(ctx, x, summary.Header.EventID)
 		if e != nil {
 			return e
+		}
+		if actor.Details().Kind == i.AgentRun {
+			w, e := a.transitionAccess(ctx, actor, project)
+			if e != nil || r == nil || w.task != r.Input.Task {
+				return fault(f.Forbidden)
+			}
 		}
 		binding, locks, opaque, e := transitionEventBinding(r, actor, summary)
 		if e != nil {
@@ -319,7 +332,7 @@ func (a *Authority) validateTransitionAppendInTx(ctx context.Context, tx f.Tx, a
 	if st == nil {
 		return fault(f.DependencyUnbound)
 	}
-	if !stage.Valid() || c.ValidateActor(actor) != nil || deps.Validate() != nil || !deps.Matches(st.issuer, deps.Binding()) {
+	if !stage.Valid() || actor.Validate() != nil || deps.Validate() != nil || !deps.Matches(st.issuer, deps.Binding()) {
 		return fault(f.Forbidden)
 	}
 	x, err := st.store.InTx(tx)
@@ -333,19 +346,22 @@ func (a *Authority) validateTransitionAppendInTx(ctx context.Context, tx f.Tx, a
 	if err = st.store.RequireHeldLocks(ctx, tx, deps.Locks()); err != nil {
 		return portError(err)
 	}
-	if err = st.store.RequireHeldLocks(ctx, tx, []f.LockRequest{userLock(actor.Details().UserID, f.Shared), projectLock(project, f.Shared), taskScheduleLock(project, f.Exclusive), taskLock(summary.Header.AggregateID.String(), f.Exclusive)}); err != nil {
+	if err = st.store.RequireHeldLocks(ctx, tx, []f.LockRequest{projectLock(project, f.Shared), taskScheduleLock(project, f.Exclusive), taskLock(summary.Header.AggregateID.String(), f.Exclusive)}); err != nil {
 		return portError(err)
 	}
-	grant, err := st.projects.RequireOwnerInTx(ctx, tx, actor, project, i.Read)
+	_, err = a.requireTransitionAccess(ctx, tx, actor, project, i.Read)
 	if err != nil {
 		return portError(err)
-	}
-	if !grant.Matches(actor, project) {
-		return fault(f.Forbidden)
 	}
 	r, err := loadTransitionEvent(ctx, x, summary.Header.EventID)
 	if err != nil {
 		return err
+	}
+	if actor.Details().Kind == i.AgentRun {
+		w, e := a.transitionAccess(ctx, actor, project)
+		if e != nil || r == nil || w.task != r.Input.Task {
+			return fault(f.Forbidden)
+		}
 	}
 	binding, locks, opaque, err := transitionEventBinding(r, actor, summary)
 	if err != nil {
@@ -363,17 +379,14 @@ func (a *Authority) validateTransitionAppendInTx(ctx context.Context, tx f.Tx, a
 	if r.State != "planned" {
 		return fault(f.Forbidden)
 	}
-	grant, err = st.projects.RequireOwnerInTx(ctx, tx, actor, project, i.Mutate)
+	ref, err := a.requireTransitionAccess(ctx, tx, actor, project, i.Mutate)
 	if err != nil {
 		return portError(err)
 	}
-	if !grant.Matches(actor, project) {
-		return fault(f.Forbidden)
-	}
-	if err = checkPointer(ctx, x, grant.Project()); err != nil {
+	if err = checkPointer(ctx, x, ref); err != nil {
 		return err
 	}
-	sprint, err := loadSprint(ctx, x, project, r.Plan.Placement.Sprint, grant.Project().CurrentSprintID)
+	sprint, err := loadSprint(ctx, x, project, r.Plan.Placement.Sprint, ref.CurrentSprintID)
 	if err != nil {
 		return err
 	}
@@ -386,6 +399,9 @@ func (a *Authority) validateTransitionAppendInTx(ctx context.Context, tx f.Tx, a
 	return verifyTransitionPostimage(ctx, x, r)
 }
 func verifyTransitionPostimage(ctx context.Context, x postgres.SQLExecutor, r *transitionRecord) error {
+	if err := verifyCancellationBlocker(ctx, x, r); err != nil {
+		return err
+	}
 	if err := verifyTransitionResolutions(ctx, x, r); err != nil {
 		return err
 	}

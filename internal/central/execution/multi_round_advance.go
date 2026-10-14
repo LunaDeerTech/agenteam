@@ -17,11 +17,12 @@ import (
 // A successor is reserved durably before accepting its Model session. Unknown
 // keeps these exact bytes and IDs; observation never creates a second request.
 type loopSuccessor struct {
-	round   loopExecutionRound
-	request agentloop.DirectTextRequest
-	version f.Version
-	message mc.Message
-	binding tc.RunnerResultBinding
+	round      loopExecutionRound
+	request    agentloop.DirectTextRequest
+	version    f.Version
+	message    mc.Message
+	binding    tc.RunnerResultBinding
+	approvalID string
 }
 
 func (s *directTextState) loopFailure(run *directTextCall, stage string, err error) (c.DirectTextReceipt, error) {
@@ -42,6 +43,11 @@ func (s *directTextState) advanceLoop(ctx context.Context, run *directTextCall) 
 	binding, err := toolBinding(stored)
 	if err != nil {
 		return s.loopFailure(run, "loop-result", err)
+	}
+	if !run.toolDispatched && binding.RunnerBinding == tc.RunCommandRegistration().Binding {
+		if receipt, handled, err := s.beforeApprovalDispatch(ctx, run, binding); handled {
+			return receipt, err
+		}
 	}
 	var observed tc.RunnerOutcome
 	if !run.toolDispatched {
@@ -276,7 +282,9 @@ func (s *directTextState) acceptLoopSuccessor(ctx context.Context, run *directTe
 	s.mu.Lock()
 	run.round = n.round
 	run.summary.Version = n.version
+	run.summary.Status = c.Running
 	run.invocation = &directTextInvocation{session: session, request: n.request}
+	run.cold = nil
 	run.toolPending = false
 	run.toolFacts = nil
 	run.toolDispatched = false

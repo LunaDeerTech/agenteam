@@ -215,3 +215,75 @@ func TestRegistryCurrentBuiltinRejectsCodeAndDefinitionDrift(t *testing.T) {
 		}
 	}
 }
+
+func workArtifactCurrentFixture(t *testing.T, handler string) (*Registry, *currentBuiltinStore, *currentBuiltinSource) {
+	t.Helper()
+	r, s, p := currentBuiltinFixture(t)
+	p.registration.Class = tc.CoreTool
+	p.registration.Binding.HandlerID = handler
+	row := s.row.(currentBuiltinRow)
+	row.registration = p.registration
+	s.row = row
+	return r, s, p
+}
+
+func TestRegistryCurrentWorkArtifactCoreRetainsOrdinaryGate(t *testing.T) {
+	for _, handler := range []string{"task.read", "task.transfer", "artifact.list", "artifact.create", "artifact.read"} {
+		t.Run(handler, func(t *testing.T) {
+			r, s, p := workArtifactCurrentFixture(t, handler)
+			v := p.registration
+			if err := requireCurrentBuiltin(r, s, p); err == nil {
+				t.Fatal("Core registration entered the Ordinary configuration gate")
+			}
+			if err := r.RequireCurrentWorkArtifactBuiltinInTx(s.ctx, s.tx, s.spec, v.Binding, v.ScopeResolverID, v.RiskClassifierID); err != nil {
+				t.Fatal("registered Core backend could not enter its own exact binding gate", err)
+			}
+			if p.described != 2 || p.checked != 2 || len(s.writes) != 0 {
+				t.Fatal("binding checks skipped the actual Source or wrote metadata")
+			}
+		})
+	}
+}
+
+func TestRegistryCurrentWorkArtifactRejectsForeignOrStaleBinding(t *testing.T) {
+	for _, change := range []string{"ordinary", "class-drift", "inactive", "definition", "revision", "handler", "scope", "risk", "unknown-handler", "missing-source", "missing-row", "foreign-tx", "missing-lock"} {
+		t.Run(change, func(t *testing.T) {
+			r, s, p := workArtifactCurrentFixture(t, "artifact.create")
+			v, spec, tx := p.registration, s.spec, s.tx
+			switch change {
+			case "ordinary", "class-drift":
+				p.registration.Class = tc.OrdinaryTool
+				if change == "ordinary" {
+					row := s.row.(currentBuiltinRow)
+					row.registration.Class = tc.OrdinaryTool
+					s.row = row
+				}
+			case "inactive":
+				p.registration.Active = false
+			case "definition":
+				p.registration.Definition.Description = "changed code definition"
+			case "revision":
+				spec.SpecRevision++
+			case "handler":
+				v.Binding.HandlerID = "task.read"
+			case "scope":
+				v.ScopeResolverID = "foreign.scope"
+			case "risk":
+				v.RiskClassifierID = "foreign.risk"
+			case "unknown-handler":
+				v.Binding.HandlerID = "foreign.handler"
+			case "missing-source":
+				r, _ = New(s, Options{})
+			case "missing-row":
+				s.row = metadataRow{err: pgx.ErrNoRows}
+			case "foreign-tx":
+				tx = f.NewTx()
+			case "missing-lock":
+				s.held = s.held[:1]
+			}
+			if err := r.RequireCurrentWorkArtifactBuiltinInTx(s.ctx, tx, spec, v.Binding, v.ScopeResolverID, v.RiskClassifierID); err == nil || len(s.writes) != 0 {
+				t.Fatal("foreign or stale Core binding accepted", change)
+			}
+		})
+	}
+}

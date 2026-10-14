@@ -10,41 +10,84 @@ import (
 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 )
 
-// TaskTransitionActor is the Human history projection, not an authenticated
-// Actor or a grant. Agent/System history needs its own authority contract.
+// TaskTransitionActor is an immutable history projection, never authority.
+// The Human wire remains exact; AgentRun records the original execution.
 type TaskTransitionActor struct {
-	UserID identity.UserID `json:"user_id"`
+	UserID      identity.UserID      `json:"-"`
+	AgentID     identity.AgentID     `json:"-"`
+	ExecutionID identity.ExecutionID `json:"-"`
 }
 
 func (v TaskTransitionActor) Validate() error {
-	if v.UserID.Validate() != nil {
-		return invalid("/actor", "INVALID_TASK_TRANSITION_ACTOR")
+	if v.UserID.Validate() == nil && v.AgentID == (identity.AgentID{}) && v.ExecutionID == (identity.ExecutionID{}) {
+		return nil
 	}
-	return nil
+	if v.UserID == (identity.UserID{}) && v.AgentID.Validate() == nil && v.ExecutionID.Validate() == nil {
+		return nil
+	}
+	return invalid("/actor", "INVALID_TASK_TRANSITION_ACTOR")
 }
 func (v TaskTransitionActor) Clone() TaskTransitionActor { return v }
 func (v TaskTransitionActor) MarshalJSON() ([]byte, error) {
+	if err := v.Validate(); err != nil {
+		return nil, err
+	}
+	if v.UserID.Validate() == nil {
+		return checkedLimit(struct {
+			Type   string          `json:"type"`
+			UserID identity.UserID `json:"user_id"`
+			Source string          `json:"source"`
+		}{"human", v.UserID, "task_domain"}, nil, MaxTaskTransitionActorBytes)
+	}
 	return checkedLimit(struct {
-		Type   string          `json:"type"`
-		UserID identity.UserID `json:"user_id"`
-		Source string          `json:"source"`
-	}{"human", v.UserID, "task_domain"}, v.Validate(), MaxTaskTransitionActorBytes)
+		Type        string               `json:"type"`
+		AgentID     identity.AgentID     `json:"agent_id"`
+		ExecutionID identity.ExecutionID `json:"execution_id"`
+		Source      string               `json:"source"`
+	}{"agent_run", v.AgentID, v.ExecutionID, "task_domain"}, nil, MaxTaskTransitionActorBytes)
 }
 func (v *TaskTransitionActor) UnmarshalJSON(raw []byte) error {
 	if v == nil {
 		return invalid("/actor", "INVALID_TASK_TRANSITION_ACTOR")
 	}
-	type wire struct {
-		Type   string          `json:"type"`
-		UserID identity.UserID `json:"user_id"`
-		Source string          `json:"source"`
+	var shape struct {
+		Type string `json:"type"`
 	}
-	w, err := decodeFieldsLimit[wire](raw, []string{"type", "user_id", "source"}, nil, nil, MaxTaskTransitionActorBytes)
-	if err != nil {
-		return err
+	if strictRawLimit(raw, MaxTaskTransitionActorBytes) != nil || json.Unmarshal(raw, &shape) != nil {
+		return invalid("/actor", "INVALID_TASK_TRANSITION_ACTOR")
 	}
-	next := TaskTransitionActor{UserID: w.UserID}
-	if w.Type != "human" || w.Source != "task_domain" {
+	var next TaskTransitionActor
+	if shape.Type == "human" {
+		type wire struct {
+			Type   string          `json:"type"`
+			UserID identity.UserID `json:"user_id"`
+			Source string          `json:"source"`
+		}
+		w, err := decodeFieldsLimit[wire](raw, []string{"type", "user_id", "source"}, nil, nil, MaxTaskTransitionActorBytes)
+		if err != nil {
+			return err
+		}
+		if w.Source != "task_domain" {
+			return invalid("/actor", "INVALID_TASK_TRANSITION_ACTOR")
+		}
+		next.UserID = w.UserID
+	} else if shape.Type == "agent_run" {
+		type wire struct {
+			Type        string               `json:"type"`
+			AgentID     identity.AgentID     `json:"agent_id"`
+			ExecutionID identity.ExecutionID `json:"execution_id"`
+			Source      string               `json:"source"`
+		}
+		w, err := decodeFieldsLimit[wire](raw, []string{"type", "agent_id", "execution_id", "source"}, nil, nil, MaxTaskTransitionActorBytes)
+		if err != nil {
+			return err
+		}
+		if w.Source != "task_domain" {
+			return invalid("/actor", "INVALID_TASK_TRANSITION_ACTOR")
+		}
+		next.AgentID = w.AgentID
+		next.ExecutionID = w.ExecutionID
+	} else {
 		return invalid("/actor", "INVALID_TASK_TRANSITION_ACTOR")
 	}
 	if err := next.Validate(); err != nil {

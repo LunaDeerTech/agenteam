@@ -106,7 +106,7 @@ func runHTTP(h http.Handler, r *http.Request, w http.ResponseWriter) (aborted bo
 func testHandler() (*handler, *testReader, *testBoundary) {
 	p := &testReader{get: testExecution(), list: ec.TaskExecutionPage{Items: []ec.TaskExecution{testExecution()}}}
 	b := &testBoundary{}
-	return &handler{p, b}, p, b
+	return &handler{reader: p, boundary: b}, p, b
 }
 func TestTaskExecutionHTTPListAndGet(t *testing.T) {
 	for _, detail := range []bool{false, true} {

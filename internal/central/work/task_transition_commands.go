@@ -44,7 +44,7 @@ func (*preparedTransition) MarshalJSON() ([]byte, error) {
 func transitionRequest(ctx context.Context, actor i.Actor, meta f.CommandMeta, project c.ProjectID, task c.TaskID, request c.TaskTransfer) (transitionInput, c.TaskTransitionLookupRequest, error) {
 	var in transitionInput
 	var q c.TaskTransitionLookupRequest
-	if err := readInput(ctx, actor, project); err != nil {
+	if err := transitionReadInput(ctx, actor, project); err != nil {
 		return in, q, err
 	}
 	if meta.Validate() != nil || meta.ExpectedVersion == nil || task.Validate() != nil {
@@ -58,11 +58,18 @@ func transitionRequest(ctx context.Context, actor i.Actor, meta f.CommandMeta, p
 	if err != nil {
 		return in, q, err
 	}
-	user, err := f.ParseID[i.User](actor.Details().UserID)
+	in = transitionInput{Project: project, Task: task, Expected: *meta.ExpectedVersion, Request: request.Clone()}
+	if actor.Details().Kind == i.Human {
+		in.User, err = f.ParseID[i.User](actor.Details().UserID)
+	} else {
+		in.Agent, err = f.ParseID[i.Agent](actor.Details().AgentID)
+		if err == nil {
+			in.Execution, err = f.ParseID[i.Execution](actor.Details().ExecutionID)
+		}
+	}
 	if err != nil {
 		return in, q, fault(f.Unauthenticated)
 	}
-	in = transitionInput{Project: project, Task: task, User: user, Expected: *meta.ExpectedVersion, Request: request.Clone()}
 	semantic, err := in.semantic(actor, meta.IdempotencyKey)
 	if err != nil {
 		return transitionInput{}, q, err
@@ -71,21 +78,16 @@ func transitionRequest(ctx context.Context, actor i.Actor, meta f.CommandMeta, p
 	return in, q, nil
 }
 func (s *TaskTransitionService) transitionCurrent(ctx context.Context, tx f.Tx, actor i.Actor, q c.TaskTransitionLookupRequest) (postgres.SQLExecutor, *transitionRecord, *c.TaskTransitionMutation, error) {
-	if owned := s.state().ownership; owned != nil {
-		if err := owned.requireRunning(ctx, tx, q.ProjectID, projectCallTransition); err != nil {
-			return nil, nil, nil, err
-		}
+	if err := s.requireTransitionLifetime(ctx, tx, actor, q.ProjectID); err != nil {
+		return nil, nil, nil, err
 	}
 	x, err := s.state().store.InTx(tx)
 	if err != nil {
 		return nil, nil, nil, portError(err)
 	}
-	grant, err := s.state().deps.Authority.state().projects.RequireOwnerInTx(ctx, tx, actor, q.ProjectID, i.Read)
+	_, err = s.state().deps.Authority.requireTransitionAccess(ctx, tx, actor, q.ProjectID, i.Read)
 	if err != nil {
 		return nil, nil, nil, portError(err)
-	}
-	if !grant.Matches(actor, q.ProjectID) {
-		return nil, nil, nil, fault(f.Forbidden)
 	}
 	id, err := c.TaskTransitionIdentity(q.ProjectID, q.IdempotencyKey)
 	if err != nil {
@@ -98,7 +100,13 @@ func (s *TaskTransitionService) transitionCurrent(ctx context.Context, tx f.Tx, 
 	if r == nil {
 		return x, nil, nil, nil
 	}
-	if r.Input.User.String() != actor.Details().UserID {
+	if actor.Details().Kind == i.AgentRun {
+		w, e := s.state().deps.Authority.transitionAccess(ctx, actor, q.ProjectID)
+		if e != nil || w.task != r.Input.Task {
+			return nil, nil, nil, fault(f.NotFound)
+		}
+	}
+	if !r.Input.matches(actor) {
 		return nil, nil, nil, fault(f.NotFound)
 	}
 	if r.Semantic != q.SemanticDigest {
@@ -114,14 +122,8 @@ func (s *TaskTransitionService) transitionCurrent(ctx context.Context, tx f.Tx, 
 	return x, r, nil, nil
 }
 func (s *TaskTransitionService) transitionMutate(ctx context.Context, tx f.Tx, actor i.Actor, project c.ProjectID) error {
-	grant, err := s.state().deps.Authority.state().projects.RequireOwnerInTx(ctx, tx, actor, project, i.Mutate)
-	if err != nil {
-		return portError(err)
-	}
-	if !grant.Matches(actor, project) {
-		return fault(f.Forbidden)
-	}
-	return nil
+	_, err := s.state().deps.Authority.requireTransitionAccess(ctx, tx, actor, project, i.Mutate)
+	return err
 }
 
 func (s *TaskTransitionService) prepareTransition(ctx context.Context, actor i.Actor, in transitionInput, q c.TaskTransitionLookupRequest) (c.TaskTransitionPreparation, *f.CommitResult, error) {
@@ -129,7 +131,7 @@ func (s *TaskTransitionService) prepareTransition(ctx context.Context, actor i.A
 	if err != nil {
 		return c.TaskTransitionPreparation{}, nil, err
 	}
-	discovery, err := taskNormalize([]f.LockRequest{commandLock(id), userLock(in.User.String(), f.Shared), projectLock(in.Project, f.Shared), taskScheduleLock(in.Project, f.Exclusive), taskLock(in.Task.String(), f.Shared)})
+	discovery, err := s.transitionLocks(ctx, actor, in.Project, []f.LockRequest{commandLock(id), projectLock(in.Project, f.Shared), taskScheduleLock(in.Project, f.Exclusive), taskLock(in.Task.String(), f.Shared)})
 	if err != nil {
 		return c.TaskTransitionPreparation{}, nil, err
 	}
@@ -169,6 +171,9 @@ func (s *TaskTransitionService) prepareTransition(ctx context.Context, actor i.A
 		return out, nil, nil
 	}
 	base, err := in.locks(q.IdempotencyKey, before)
+	if err == nil {
+		base, err = s.transitionLocks(ctx, actor, in.Project, base)
+	}
 	if err != nil {
 		return c.TaskTransitionPreparation{}, nil, err
 	}
@@ -207,6 +212,9 @@ func (s *TaskTransitionService) prepareTransition(ctx context.Context, actor i.A
 			r.Revision = f.Version(n)
 		}
 		count := 1 + len(in.Request.ResolveBlockerIDs)
+		if in.Cancellation != nil {
+			count++
+		}
 		if !sameValue(before.AssigneeAgentID, transitionAgent(before, in.Request)) {
 			count++
 		}
@@ -263,7 +271,7 @@ func (s *TaskTransitionService) prepareTransition(ctx context.Context, actor i.A
 	if err != nil {
 		return c.TaskTransitionPreparation{}, nil, portError(err)
 	}
-	locks, err := taskNormalize(append(slices.Clone(base), appendPlan.Locks()...))
+	locks, err := s.completeTransitionLocks(actor, prepared, append(slices.Clone(base), appendPlan.Locks()...))
 	if err != nil {
 		return c.TaskTransitionPreparation{}, nil, err
 	}
@@ -281,6 +289,10 @@ func (s *TaskTransitionService) PrepareTaskTransition(ctx context.Context, actor
 	}
 	defer done()
 	in, q, err := transitionRequest(ctx, actor, meta, p, task, request)
+	if err != nil {
+		return c.TaskTransitionPreparation{}, err
+	}
+	ctx, err = s.bindTransitionAccess(ctx, actor, p, task, c.TaskToolTransfer)
 	if err != nil {
 		return c.TaskTransitionPreparation{}, err
 	}
@@ -313,7 +325,7 @@ func (s *TaskTransitionService) transferTransitionInTx(ctx context.Context, tx f
 	if !ok || p == nil || p.owner != s.state() || !sameValue(p.actor, actor.Details()) {
 		return c.TaskTransitionMutation{}, fault(f.Forbidden)
 	}
-	if err := readInput(ctx, actor, p.record.Input.Project); err != nil {
+	if err := transitionReadInput(ctx, actor, p.record.Input.Project); err != nil {
 		return c.TaskTransitionMutation{}, err
 	}
 	if _, err := s.state().store.InTx(tx); err != nil {
@@ -356,8 +368,16 @@ func (s *TaskTransitionService) transferTransitionInTx(ctx context.Context, tx f
 	if err = completeTransition(ctx, x, r); err != nil {
 		return c.TaskTransitionMutation{}, err
 	}
-	if err = s.state().deps.Activity.TouchActivityInTx(ctx, tx, actor); err != nil {
-		return c.TaskTransitionMutation{}, portError(err)
+	if actor.Details().Kind == i.Human {
+		if err = s.state().deps.Activity.TouchActivityInTx(ctx, tx, actor); err != nil {
+			return c.TaskTransitionMutation{}, portError(err)
+		}
+	}
+	if err = s.cancelPendingInTx(ctx, tx, actor, r); err != nil {
+		return c.TaskTransitionMutation{}, err
+	}
+	if err = s.cancelExecutionsInTx(ctx, tx, actor, r); err != nil {
+		return c.TaskTransitionMutation{}, err
 	}
 	if err = ctx.Err(); err != nil {
 		return c.TaskTransitionMutation{}, canceled(err)
@@ -389,6 +409,10 @@ func (s *TaskTransitionService) TransferTask(ctx context.Context, actor i.Actor,
 	}
 	defer done()
 	in, q, err := transitionRequest(ctx, actor, meta, p, task, request)
+	if err != nil {
+		return c.TaskTransitionMutation{}, err
+	}
+	ctx, err = s.bindTransitionAccess(ctx, actor, p, task, c.TaskToolTransfer)
 	if err != nil {
 		return c.TaskTransitionMutation{}, err
 	}
@@ -437,6 +461,7 @@ func (s *TaskTransitionService) TransferTask(ctx context.Context, actor i.Actor,
 		if out.Validate() != nil {
 			return c.TaskTransitionMutation{}, internal(nil)
 		}
+		s.notifyTransitionCancellation(ctx, prepared.Prepared)
 		return out.Clone(), nil
 	}
 	return c.TaskTransitionMutation{}, fault(f.ResourceBusy)
@@ -447,7 +472,7 @@ func (s *TaskTransitionService) LookupTaskTransition(ctx context.Context, actor 
 		return c.TaskTransitionLookup{}, err
 	}
 	defer done()
-	if err = readInput(ctx, actor, q.ProjectID); err != nil {
+	if err = transitionReadInput(ctx, actor, q.ProjectID); err != nil {
 		return c.TaskTransitionLookup{}, err
 	}
 	if err = q.Validate(); err != nil {
@@ -467,7 +492,7 @@ func (s *TaskTransitionService) lookupTransition(ctx context.Context, actor i.Ac
 	if err != nil {
 		return c.TaskTransitionLookup{}, err
 	}
-	locks, err := taskNormalize([]f.LockRequest{commandLock(id), userLock(actor.Details().UserID, f.Shared), projectLock(q.ProjectID, f.Shared)})
+	locks, err := s.transitionLocks(ctx, actor, q.ProjectID, []f.LockRequest{commandLock(id), projectLock(q.ProjectID, f.Shared)})
 	if err != nil {
 		return c.TaskTransitionLookup{}, err
 	}

@@ -60,9 +60,11 @@ type projectCallEntry struct {
 	activeMethod                                     string
 	ctx                                              context.Context
 	cancel                                           context.CancelFunc
+	retainedCancel                                   context.CancelFunc
 	serviceDone                                      func()
 	actor                                            i.Actor
 	read                                             *taskExecutionRead
+	cancellation                                     *ec.CancelRequest
 	launchKey                                        ec.LaunchLookupKey
 	launchDigest                                     f.Digest
 	execution                                        i.ExecutionID
@@ -526,6 +528,14 @@ func (s *projectCallState) returned(e *projectCallEntry) {
 	}
 	s.mu.Lock()
 	cancel := e.cancel
+	// The business driver may retain its original run after its callback has
+	// returned. Its context is still owned by this entry, including an
+	// Associated parent whose original child is retained. Keep one original
+	// cancellation handle; subsequent recovery calls have temporary contexts.
+	if s.owners[e.record.ID] == e && !e.closed && !e.absent && e.registration.State() != f.NotCommitted && e.retainedCancel == nil && e.outcomeErr != nil && e.outcome != nil && (e.outcome.direct != nil || e.outcome.preparation != nil || e.outcome.parentOnly) {
+		e.retainedCancel = cancel
+		cancel = nil
+	}
 	done := e.serviceDone
 	e.serviceDone = nil
 	s.mu.Unlock()
@@ -585,9 +595,12 @@ func (s *projectCallState) retireProjectEntry(e *projectCallEntry) {
 		}
 		a.mu.Unlock()
 	}
+	var retainedCancel context.CancelFunc
 	s.mu.Lock()
 	if s.owners[e.record.ID] == e && e.returned && e.settling {
 		delete(s.owners, e.record.ID)
+		retainedCancel = e.retainedCancel
+		e.retainedCancel = nil
 		if !e.hadUnknown && e.parent != nil {
 			for n, c := range e.parent.children {
 				if c == e {
@@ -599,6 +612,9 @@ func (s *projectCallState) retireProjectEntry(e *projectCallEntry) {
 		s.signalLocked()
 	}
 	s.mu.Unlock()
+	if retainedCancel != nil {
+		retainedCancel()
+	}
 }
 
 func (s *projectCallState) borrowProjectCallLocked(ctx context.Context, e *projectCallEntry, method string) {
@@ -710,12 +726,14 @@ func (p *ProjectCallOwnership) Stop() {
 	s.stopped = true
 	var cancels []context.CancelFunc
 	for _, e := range s.owners {
-		cancels = append(cancels, e.cancel)
+		cancels = append(cancels, e.cancel, e.retainedCancel)
 	}
 	s.signalLocked()
 	s.mu.Unlock()
 	for _, c := range cancels {
-		c()
+		if c != nil {
+			c()
+		}
 	}
 	if s.reader != nil {
 		s.reader.calls.stop()
@@ -808,7 +826,7 @@ func (s *projectCallState) stopLane(lane projectCallLane) {
 	var cancels []context.CancelFunc
 	for _, e := range s.owners {
 		if e.record.Lane == lane {
-			cancels = append(cancels, e.cancel)
+			cancels = append(cancels, e.cancel, e.retainedCancel)
 		}
 	}
 	s.signalLocked()

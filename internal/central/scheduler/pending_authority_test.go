@@ -140,7 +140,7 @@ func recordValues(t *testing.T, r *dispatchRecord) []any {
 		v := r.temporaryOccurredAt.Time()
 		temporaryOccurred = &v
 	}
-	return []any{r.id.String(), r.project.String(), r.sprint, r.task, r.agent.String(), raw, string(r.digest), string(r.launch.Meta.IdempotencyKey), r.launch.Meta.RequestID.String(), string(r.status), string(r.outcome), int64(r.version), guard, gs, gst, gp, execution, r.attempts, retry, r.createdAt.Time(), r.updatedAt.Time(), busy, reason, skipped, finalAttempt, failureReason, failureCode, occurred, failed, policyRaw, policyDigest, temporaryAttempt, temporaryReason, temporaryCode, temporaryOccurred, relaunch}
+	return []any{r.id.String(), r.project.String(), r.sprint, r.task, r.agent.String(), raw, string(r.digest), string(r.launch.Meta.IdempotencyKey), r.launch.Meta.RequestID.String(), string(r.status), string(r.outcome), int64(r.version), guard, gs, gst, gp, execution, r.attempts, retry, r.createdAt.Time(), r.updatedAt.Time(), busy, reason, skipped, finalAttempt, failureReason, failureCode, occurred, failed, policyRaw, policyDigest, temporaryAttempt, temporaryReason, temporaryCode, temporaryOccurred, relaunch, r.cancelRequested}
 }
 
 type dispatchTestRow struct {

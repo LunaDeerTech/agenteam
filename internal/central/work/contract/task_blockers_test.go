@@ -140,8 +140,10 @@ func TestTaskBlockerIdentityAndType(t *testing.T) {
 	for _, kind := range blockerUnboundTypes() {
 		v := blockerFixture(t, kind)
 		transitionRequireFault(t, v.Validate(), f.DependencyUnbound)
-		transitionRequireFault(t, (TaskBlockerAddedPayload{BlockerID: id, BlockerType: kind}).Validate(), f.DependencyUnbound)
-		if kind != TaskBlockerTechnical {
+		if kind != TaskBlockerUserCancelledExecution {
+			transitionRequireFault(t, (TaskBlockerAddedPayload{BlockerID: id, BlockerType: kind}).Validate(), f.DependencyUnbound)
+		}
+		if kind != TaskBlockerTechnical && kind != TaskBlockerUserCancelledExecution {
 			transitionRequireFault(t, (TaskBlockerResolvedPayload{BlockerID: id, BlockerType: kind}).Validate(), f.DependencyUnbound)
 		} else if (TaskBlockerResolvedPayload{BlockerID: id, BlockerType: kind}).Validate() != nil {
 			t.Fatal("technical transition resolution shape")
@@ -358,8 +360,13 @@ func TestTaskBlockerHistoryPayloads(t *testing.T) {
 			blockerRejectResolved(t, taskJSONChange(t, rraw, "resolution_comment", json.RawMessage(value)), f.InvalidArgument)
 		}
 		for _, unsupported := range blockerUnboundTypes() {
+			if unsupported == TaskBlockerUserCancelledExecution {
+				continue
+			}
 			blockerRejectAdded(t, taskJSONChange(t, araw, "blocker_type", taskRaw(t, string(unsupported))), f.DependencyUnbound)
-			blockerRejectResolved(t, taskJSONChange(t, rraw, "blocker_type", taskRaw(t, string(unsupported))), f.DependencyUnbound)
+			if unsupported != TaskBlockerTechnical {
+				blockerRejectResolved(t, taskJSONChange(t, rraw, "blocker_type", taskRaw(t, string(unsupported))), f.DependencyUnbound)
+			}
 		}
 		for _, bad := range []string{"", "RELY_ON", "unknown"} {
 			added.BlockerType, resolved.BlockerType = TaskBlockerType(bad), TaskBlockerType(bad)
@@ -530,8 +537,11 @@ func TestTaskBlockerRawCapsAndAtomicDecode(t *testing.T) {
 		blockerField(t, v.Validate(), "/blocker_id", "INVALID_BLOCKER_ID")
 		ap := TaskBlockerAddedPayload{BlockerID: base.BlockerID, BlockerType: unsupported}
 		rp := TaskBlockerResolvedPayload{BlockerID: base.BlockerID, BlockerType: unsupported}
-		marshals := []func() ([]byte, error){ap.MarshalJSON, blockerFixture(t, unsupported).MarshalJSON}
-		if unsupported != TaskBlockerTechnical {
+		marshals := []func() ([]byte, error){blockerFixture(t, unsupported).MarshalJSON}
+		if unsupported != TaskBlockerUserCancelledExecution {
+			marshals = append(marshals, ap.MarshalJSON)
+		}
+		if unsupported != TaskBlockerTechnical && unsupported != TaskBlockerUserCancelledExecution {
 			marshals = append(marshals, rp.MarshalJSON)
 		}
 		for _, marshal := range marshals {

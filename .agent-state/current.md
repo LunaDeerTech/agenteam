@@ -1,23 +1,51 @@
-# 当前状态：M1 验收完成，M2 暂停
+# 当前工作：M2 技术验收通过，等待正式 Git 交付
 
-M1“单个Agent真正完成工作”的真实外部模型场景已通过。验证源码输入`2d76554dab983a7c9b91f3e367d6fea5a6fb5c94`；`run.OtpjqE`原41322 Wait0，66.76秒。模型自主完成同一work Execution的5轮Model、4次真实read/write/run/read，文件内容、stdout/exit、原Round/Call/Operation/Usage、最终v2同事务均验证；Owner在真实UI三次读取原成果、唯一送审并刷新为in_review。原Runner/Node/App/所有owner Join及精确资源退场完成；macro最终独核已接受，包含11条同请求联合消费证明。评审另有1个sent调用随原Runtime停止而取消，不代表自主评审决策；work成功、total sent6、retry0、failed0。
+2026-10-14 用户已明确恢复并要求完成第二里程碑。`/workspace/agenteam-m2-review` / `ai/m2-review-20261014` 已合入正式 M1 main `20aded69`；M2 约定业务、控制与恢复门已取得实际通过。最终源为 `e110faeca0ef96d89d0f30c154c19ed582d89a46`，App 编译原 session87516 Wait0。最终独立审查已正式接受 M2 约定范围、无 must-fix；root 负责全部 Git、本地主树集成与远端交付。
 
-本轮接通了正式精确Origin可信环境代理（HTTP(S)_PROXY/NO_PROXY/TLS/CA保持），JSON tools仅接受并丢弃已知可选reasoning_content；JSON工具模型的响应头等待对齐原attempt剩余时间且最多60秒，代理CONNECT和其他默认仍15秒。live仍必须显式双opt-in，真实KEY仅经正式Secret且不进入日志/子进程。总300秒、单attempt≤60秒、MaxOutput4096、work/review/retry合计sent12软停止条件不变。此前本地DNS失败是历史直连观察，不能再写成当前代理场景的阻断。
+**尚未声称 main 已推送或工作树已清理。** root 确认 e110 已本地保存，但 push 因远端认证失败（GH_TOKEN invalid）未成功；之前 ac52 已远端保存。执行者不读取、传递或修补 token。当前唯一外部交付阻碍是远端认证，完成本地文档与证据保全不受影响。
 
-预算动态门也已通过：纯observer五子例及race、合成work/review/retry SQL计数，以及真实controlled App在deadline触发后原Stop/Drain/根返回、Runner/命令子进程Join和无后继dispatch。合成计数不冒充真实调用；第三次真实live曾触发sent12并cancelled/incomplete，该FAIL与前两次协议FAIL均保留在[live卡](../docs/development/work-items/m1-live-acceptance.md)。代理、TLS/取消、parser/config及响应头窗口已完成作者和独立限定检查；旧受控/失败取消/direct-text兼容按各自固定输入证据复用，不称当前HEAD全仓测试。
+## 最终真实链与退出
 
-恢复优先读[live卡](../docs/development/work-items/m1-live-acceptance.md)、[集成卡](../docs/development/work-items/m1-app-integration.md)、[运行说明](../tests/m1-app-workflow/README.md#显式真实模型入口)及[任务台账](../docs/development/agent-team/tasks.md#当前目标与工作包状态)。必要新证据保全在主树`output/ai/m1-delivery-evidence/proxy-live/`，逐文件bytes/SHA256已核，排除KEY、Session/Enrollment私有材料、原Provider响应、binary和cache；此前受控与准备证据保留在相邻app-integration/live-preparation目录。所有本轮原进程、精确容器/网络/临时目录与借用modules链接已退出；源码交由root最终保存和正式合入，不恢复已清理的旧M1分支。
+固定 e110 的 `live-final.FZ9v5n` 原 session3646 **Wait0，143.46秒**，保默认 proxy、NO_PROXY、CA/TLS；实际 route 为 trusted_proxy=true、tls_verification=true。正常 Scheduler 始终 enabled，M2 专属正式 `relaunch_skip_count=40` 为 eligible visit 次数，旧 M1 入口仍240；不承诺固定秒数。总300秒、单attempt60秒、MaxOutput4096、项目全部work/review/retry sent阈值12不扩大。
 
-## M2 暂停与接续
+- 同一 Task 两个真实 work Execution，各3个 Model sent、零retry，实际 Runner 读取输入并分别发布新的 Artifact；第二次遵循 Human 退回意见保留统计字段并增加 verified=true。
+- 两个真实 reviewer Execution 各2个 Model sent、零retry，各自只用原 read-artifact 读取精确 worker Ref/完整正文，原 Operation、retired Attempt、Tool result、来源与后继消费逐一配对。reviewer 只确认内容，Human 唯一决定状态；不称自主审核决定。
+- 真实浏览器完成6阶段、2次Human写入、3次Artifact读取：读首成果→退回todo→同Task新E修订→读新成果→接受done→刷新仍可读。18条同请求联合完整响应证明闭合，其中17 requestfinished、1 ERR_ABORTED仍同时满足原生EOF/零cancel、公有consumer fulfilled、Go完整字节/Close/handler返回；不把该终态改写为requestfinished。首/次E完整projection保真、历史和旧成果保持均通过。
+- 原 Runtime Drain、Model/Tool/Execution/Scheduler/planning/assembly/producers全部Join，原App/root实际返回且err=nil。Node659356原Wait成功，Runner658917原Wait0，test658791原Wait0；原Guard真实Flock取释后，原ProcessClaim stopped=true、同ownedDB app连接0，首次观察即满足（1次、8ms）。两秒只读尾观察不写数据或终止连接，旧M1 helper不变。
+- 最终精确6个Docker资源、3个nonce目录、3个已记录PID、2个modules链接全部absent；`cleanup-verification.json`、`binary-provenance.json`已写。App SHA256 `63be49fa544a529fd8cec67b3068927a31880a6c255675c4822cb061fe20c67a`；Runner复用30844编译原件，其相关源码至e110未变。
 
-用户要求先补齐M1；M2目前仍暂停，本轮没有修改或运行M2。其已保存恢复入口：协调分支`ai/m2-coordination-20261014`（`c1473516`）、组合分支`ai/m2-review-20261014`（`70f02ad4`）。后续按用户目标另行恢复，不因M1通过便宣M2完成或自动继续其原native。review receipt不等于审核者消费worker成果并自主通过/退回；原审批、持久取消和cold恢复仍按M2卡的真实未完状态处理。
+## 已通过的其他门及复用范围
 
-原direct-text-v1与旧Snapshot保持语义，没有新增产品UI profile开关；生产仍需显式配置Execution Runtime，验收使用tick250ms/skip240的Owner窗口不代表生产默认。无工具Agent、完整Project生命周期、平台ready以及原Object/Tools/SPA等停止项不由本轮结果扩大宣称。
+| 范围 | 原证据与边界 |
+| --- | --- |
+| 迁移与组合 | 原61435完整迁移source解析含00099及App编译Wait0；后继组合App编译均按相应输入记录，最新87516 Wait0。00094不回写，00099仅六处UUID/text配对修正。 |
+| Approval | `approval.CgLQmg` /90958 Wait0：同E/Operation/fingerprint批准一次Attempt/report/副作用，拒绝零Attempt/report/副作用且00098合法后继，同事务receipt/Outbox及重放/lookup通过。 |
+| 持久取消与非法配对 | `cancellation.KID4fc` /22112 Wait0：Execution取消保护Task blocked/blocker，与整Task cancelled分开验证；实际运行child/group退出、同Tx receipt、重放/lookup。非法approval result配对被真实PG拒绝并回滚，合法拒绝后继通过。 |
+| waiting取消与重启 | `pending-waiting.iaPxiA` /91741整轮FAIL中的waiting-cancel PASS：同进程真实owner复用、原Guard、零Attempt，旧SIGKILL/Wait→新Process不复活、晚approve拒绝。不能称跨进程竞争；该轮另两失败保留。 |
+| waiting冷恢复 | `remaining.B8leZr` /93835 Wait0：原SIGKILL/Wait后新断连、新Process/newGuard与严格新增authenticated Runner连接，才批准原E/Operation；一次副作用及原Join。 |
+| 已完成/无结果冷恢复 | `recovery.yqtgeM` /54107整轮FAIL中两子例PASS：完成Tool真实持久结果后旧kill/Wait、新Process只Lookup同op/原字节/一次副作用；无结果路径四次原读取、不重发，未解owner最后kill/Wait，不冒充已完成恢复。 |
+| pending Unknown取消 | 93835 Wait0：真实COMMIT响应丢失→Store Unknown→原COMMIT独立读Created；原Owner取消同Tx，原Visitor LookupFound不重发，1Launch/1E/1attempt。精确原technical custody在全部owner Join后关闭、live0。仅Found，不扩NotFound/cold矩阵。 |
+| Artifact来源拒绝 | 93835 Wait0：真实A AgentRun携B完整Ref沿原Core/Adapter Project gate返回FORBIDDEN；不给B正文/地址，Artifact/Object业务与读取审计快照不变，原owners Join。正常失败Operation/Attempt允许；不称当前撤权或全部领域授权矩阵。 |
+| Core与生命周期风险 | 严格closed-five实际Core Registry路径保Ordinary/current/source/tuple/锁门；原4470定向通过，独立4061 Registry/Runtime race28结果通过。retained/waiting独立90524 race通过，修退休20列及旧fixture后Execution全包28089通过。 |
+| Human HTTP/browser | `task-human.tEUTa0` /75611 Wait0；browser accept为68867混合FAIL中的PASS，return深拷贝修后81046 Wait0。这些受控链在审核阶段暂停Scheduler，范围单列；正常Scheduler/外部模型由最终3646证明。 |
 
-## 已完成交接：统一页面布局
+独立审查、阶段范围与正式合同沿 [M2卡](../docs/development/work-items/m2-task-collaboration.md)、[M2独立报告](../docs/development/work-items/m2-independent-review.md)、[Approval卡](../docs/development/work-items/m2-tool-approval.md)。backend/artifact.md、backend/README.md与审批卡已按实际绑定/取消语义窄更新；OpenAPI形状和默认Runtime disabled边界保持。
 
-`6d16bdae` 已交付统一前端布局，正式恢复材料为 `web/src/`、[界面规范](../docs/frontend-design/interface-design.md)和 [interface-layout.config.js](../tests/account-captcha-web/interface-layout.config.js) 同前缀 browser 源码/锁文件。本轮主任务已转 M1，不继续旧 project-list 候选。
+## 历史失败与未覆盖边界
 
-原 Chromium 55 项按整轮 54 项与修正测试定位后 1 项独立复验组合接受；类型、构建、project-audit 49/49 与限定变更文件格式通过。使用合成 HTTP fixture，只证明前端行为；旧整轮 FAIL 不回填。原31项请求生命周期 unit 失败与17个基线文件格式问题保留，不宣称全局 npm check 全绿。完整历史范围从该提交的 current 与原日志查询，不新增归档。
+早期 Start Core门、00094配对回滚、retained/waiting生命周期、Core Builtin Ordinary误拒、browser浅拷贝投影等失败均保留原证据；相应修复与后继通过不回填原轮。完整归档沿 [证据manifest](../output/ai/m2-delivery-evidence/manifest.json)。
 
-锁定 Node 24.19.0 / Playwright 1.56.1 / Chromium 151 的原复现入口为 `node tests/account-captcha-web/node_modules/@playwright/test/cli.js test --config=tests/account-captcha-web/interface-layout.config.js`；其余命令与恢复边界见 Git 文件历史。原主树 `output/ai/interface-layout/` 保留简短日志与六张 preview；全部原验证进程已退出，可再生输出不纳入 Git。
+- `live.YFB7ig` /29440 Wait1：work/Human链到达但review failed；旧closed code不足，后继只修已证实的required tools与禁tools提示矛盾，不猜原精确原因。
+- `live.Y0PFsa` /8836 Wait1：首work/review实际通过，浏览器首work详情502；后继未复现，原具体transport/observer原因仍未知。
+- `live-diagnostic.o3gaO6` /63389 Wait1/300.06秒：两work/首review8Model成功，M1的240 eligible visits使第二review未及预算派发。已保存原PG一次remaining48/version204只读事实；92仅现场聊天，不补造已保存序列。
+- `live-review40.eDsq8e` /11992 Wait1：完整业务与前置Join通过，最后ProcessClaim stopped/PG连接gone合并二布尔之一false，原日志未区分。最终3646首次即两者true，不能倒推11992哪个false或宣称已证明其具体原因。
+
+M2不外推自主reviewer决定、所有权限负例、跨进程owner竞争、NotFound/cold Unknown全矩阵、默认Runtime已开启、通用signed download/Runner transfer来源绑定、M3/M4或其他旧STOP解除。
+
+## 交付与资源
+
+所有Go源码冻结；无活动Go/native/Runner/browser，两个Go槽及唯一native窗口均已释放。固定Go `/workspace/toolchains/go1.27.1/bin/go`，`GOMAXPROCS=2 -p=2`；共享缓存、源码构建MinIO与锁定Node依赖均在worktree外，清理分支时不要删除。临时review modules链接已清退。
+
+最终脱敏证据已精确复制到 `/workspace/agenteam/output/ai/m2-delivery-evidence`：17轮、186个原证据文件，共921,476 bytes，另附manifest。原来源→review staging→main目标逐文件SHA256/大小和精确路径集合全部一致，无额外文件或符号链接；独立审查已亲核全部原件与主树副本、最终二进制来源和真实退场。只保原native日志、owned资源/清理、来源hash、完整proof引用的公开业务响应/观察与必要race日志；排除KEY、private Session/enrollment/material、raw provider正文、二进制、cache。manifest最终状态更新为技术与独立验收通过，Git交付归root；准确内容与文件hash以manifest为准。编译产物与dist可按锁定源码重建，不是不可再生证据。
+
+下一步仅协调四文归位、root本地main集成、认证恢复后的正式push确认；远端成功前不清理M2分支/worktree或fetchspec。执行者不执行Git写操作。

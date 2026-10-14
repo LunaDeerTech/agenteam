@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/LunaDeerTech/agenteam/internal/central/artifact"
 	au "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
@@ -11,9 +12,9 @@ import (
 
 func (a *Authority) checkArtifactAuditInTx(ctx context.Context, tx f.Tx, entry au.Entry, key au.AppendKey) error {
 	e, k := entry.Fields(), key.Details()
-	if e.Scope.Details().Kind != identity.ProjectScope || e.Actor.Details().Kind != identity.Human ||
+	if e.Scope.Details().Kind != identity.ProjectScope || (e.Actor.Details().Kind != identity.Human && e.Actor.Details().Kind != identity.AgentRun) ||
 		e.Outcome != au.Success ||
-		e.Associations != (au.Associations{}) || k.Producer != au.ArtifactProducer || k.Ordinal != 0 {
+		(e.Actor.Details().Kind == identity.Human && e.Associations != (au.Associations{})) || k.Producer != au.ArtifactProducer || k.Ordinal != 0 {
 		return fault(f.Forbidden)
 	}
 	intent := identity.Read
@@ -45,8 +46,14 @@ func (a *Authority) checkArtifactAuditInTx(ctx context.Context, tx f.Tx, entry a
 	if err != nil {
 		return err
 	}
-	if _, err = a.RequireOwnerInTx(ctx, tx, e.Actor, project, intent); err != nil {
-		return err
+	if e.Actor.Details().Kind == identity.AgentRun {
+		if err = artifact.CheckAgentAuditAuthorizationInTx(ctx, tx, a.state().store, entry, key); err != nil {
+			return portError(err)
+		}
+	} else {
+		if _, err = a.RequireOwnerInTx(ctx, tx, e.Actor, project, intent); err != nil {
+			return err
+		}
 	}
 	provider := a.state().auditFacts[au.ArtifactProducer]
 	if nilPort(provider) {

@@ -11,6 +11,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/execution"
 	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	gc "github.com/LunaDeerTech/agenteam/internal/central/governance/approval/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/model"
 	"github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
 	"github.com/LunaDeerTech/agenteam/internal/central/mount"
@@ -226,6 +227,9 @@ func constructExecutionRuntime(b *executionRuntimeAssembly, cfg config.Config, d
 			Models: runtime, Tools: registries[0], Guard: objects.guard,
 			CurrentEnvironment: currentEnvironment,
 			BindTools:          b.runnerToolFactory(store, objects, providers.configuration, registries[0]),
+		}
+		if b.approvalAuthority != nil {
+			callDependencies.MultiRound.BindApproval = func(owner *execution.ToolCallDriver) (gc.Gate, error) { return b.bindApproval(store, owner) }
 		}
 	}
 	owned, err := createOwnedExecutionRuntime(store, callDependencies, projects.lifecycle, projects.variables, secrets, objects)

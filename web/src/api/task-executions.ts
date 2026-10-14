@@ -32,6 +32,9 @@ export type TaskExecution = Readonly<{
   cancel_requested_at: string | null
   snapshot_id: string | null
   reason: (typeof executionReasons)[number] | null
+  waiting_reason?: 'approval' | null
+  waiting_reference?: string | null
+  waiting_at?: string | null
 }>
 export type TaskExecutionQuery = Readonly<{ limit?: number; cursor?: string }>
 export type TaskExecutionPage = Readonly<{
@@ -102,6 +105,7 @@ export function parseTaskExecution(
   task: string,
   execution?: string,
 ): TaskExecution {
+  const waitingFields = ['waiting_reason', 'waiting_reference', 'waiting_at'] as const
   const v = shape(value, [
     'id',
     'project_id',
@@ -116,7 +120,9 @@ export function parseTaskExecution(
     'cancel_requested_at',
     'snapshot_id',
     'reason',
-  ])
+  ], [...waitingFields])
+  const hasWaiting = waitingFields.some(field => Object.hasOwn(v, field))
+  requireValue(!hasWaiting || waitingFields.every(field => Object.hasOwn(v, field)))
   const nullableTime = (value: unknown) => (value === null ? null : parseSystemInstant(value))
   const result: TaskExecution = {
     id: workID(v.id),
@@ -132,7 +138,15 @@ export function parseTaskExecution(
     cancel_requested_at: nullableTime(v.cancel_requested_at),
     snapshot_id: v.snapshot_id === null ? null : workID(v.snapshot_id),
     reason: v.reason === null ? null : choice(v.reason, executionReasons),
+    ...(hasWaiting ? {
+      waiting_reason: v.waiting_reason === null ? null : choice(v.waiting_reason, ['approval'] as const),
+      waiting_reference: v.waiting_reference === null ? null : workID(v.waiting_reference),
+      waiting_at: nullableTime(v.waiting_at),
+    } : {}),
   }
+  if (hasWaiting) requireValue(result.status === 'waiting'
+    ? result.waiting_reason === 'approval' && result.waiting_reference !== null && result.waiting_at !== null && result.started_at !== null && result.waiting_at! >= result.started_at
+    : result.waiting_reason === null && result.waiting_reference === null && result.waiting_at === null)
   const terminal = ['succeeded', 'failed', 'cancelled'].includes(result.status)
   requireValue(
     result.project_id === project &&

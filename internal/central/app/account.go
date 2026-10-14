@@ -11,6 +11,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/accountmail"
 	"github.com/LunaDeerTech/agenteam/internal/central/agent"
 	agentc "github.com/LunaDeerTech/agenteam/internal/central/agent/contract"
+	artifactc "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
 	audithttp "github.com/LunaDeerTech/agenteam/internal/central/audit/http"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
@@ -18,6 +19,8 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/execution"
 	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/governance/approval"
+	gc "github.com/LunaDeerTech/agenteam/internal/central/governance/approval/contract"
 	kc "github.com/LunaDeerTech/agenteam/internal/central/knowledge/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/model"
 	"github.com/LunaDeerTech/agenteam/internal/central/object"
@@ -33,6 +36,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
 	"github.com/LunaDeerTech/agenteam/internal/central/skill"
 	skillc "github.com/LunaDeerTech/agenteam/internal/central/skill/contract"
+	toolruntime "github.com/LunaDeerTech/agenteam/internal/central/tool/runtime"
 	uc "github.com/LunaDeerTech/agenteam/internal/central/usage/contract"
 	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 )
@@ -393,6 +397,21 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
+	var builtinAuthority *toolruntime.BuiltinAuthority
+	var taskToolAuthorities []wc.AgentTaskAuthority
+	var artifactRunAuthorities []artifactc.AgentRunAuthority
+	if runtimeEnabled && runtimeOptions.ToolLoop() {
+		toolStore, ok := db.(toolruntime.Store)
+		if !ok {
+			return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+		}
+		builtinAuthority, err = toolruntime.NewBuiltinAuthority(toolStore, objects.guard, objects.process)
+		if err != nil {
+			return err
+		}
+		taskToolAuthorities = append(taskToolAuthorities, builtinAuthority)
+		artifactRunAuthorities = append(artifactRunAuthorities, builtinAuthority)
+	}
 	install, err := createAgentInstall(db, objects)
 	if err != nil {
 		return err
@@ -550,12 +569,29 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	}
 	producers := map[event.StableName]oc.ProducerAuthority{agentc.AgentProducer: agentProducer, c.AccountProducer: authority, model.ModelProducer: modelAuthority, pc.ProjectProducer: projectUsage.projects, wc.WorkProducer: workAuthority, vc.VariableProducer: projectUsage.variables, kc.KnowledgeProducer: contentAuthorities.knowledge, skillc.AssignmentProducer: skillAssignmentFacts}
 	var executionEvents executionRuntimeEventSet
+	var approvalAuthority *approval.Authority
+	var approvalEvents gc.Events
 	if runtimeEnabled {
 		executionEvents, err = defineExecutionRuntimeEvents(catalog)
 		if err != nil {
 			return err
 		}
 		producers[ec.ExecutionProducer] = executionAuthorities.events
+		if runtimeOptions.ToolLoop() {
+			approvalStore, ok := db.(approval.Store)
+			if !ok {
+				return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+			}
+			approvalAuthority, err = approval.NewAuthority(approvalStore, projectUsage.projects)
+			if err != nil {
+				return err
+			}
+			approvalEvents, err = gc.RegisterEvents(catalog)
+			if err != nil {
+				return err
+			}
+			producers[gc.Producer] = approvalAuthority
+		}
 	}
 	journal, err := outbox.New(journalStore, catalog, outbox.Authorizations{
 		Producers: producers,
@@ -567,7 +603,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	}
 	var planning *workPlanningAssembly
 	if runtimeEnabled {
-		planning, err = createOwnedWorkPlanningWithProviders(cfg, db, workAuthority, authority, journal, workEvents, executionAuthorities.pending, agentAuthority, projectUsage.projects, projectUsage.lifecycle, objects)
+		planning, err = createOwnedWorkPlanningWithProviders(cfg, db, workAuthority, authority, journal, workEvents, executionAuthorities.pending, agentAuthority, projectUsage.projects, projectUsage.lifecycle, objects, taskToolAuthorities...)
 	} else {
 		planning, err = createOwnedWorkPlanningWithAgents(cfg, db, workAuthority, authority, journal, workEvents, agentAuthority, projectUsage.projects, projectUsage.lifecycle, objects)
 	}
@@ -620,7 +656,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if !ok {
 		return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
 	}
-	artifactOwners, err := createArtifactOwners(db, projectUsage)
+	artifactOwners, err := createArtifactOwners(db, projectUsage, artifactRunAuthorities...)
 	if err != nil {
 		return err
 	}
@@ -630,6 +666,21 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	}
 	if err = objects.construct(cfg, db, auditor, objectAuthorities); err != nil {
 		return err
+	}
+	var artifacts *artifactCallAssembly
+	var executionBuiltins *executionBuiltinAssembly
+	if builtinAuthority != nil {
+		artifacts, err = createOwnedArtifacts(cfg, db, artifactOwners, projectUsage, objects, auditor)
+		if artifacts != nil && !accounts.install(ctx, func() { accounts.artifacts = artifacts }) {
+			return context.Canceled
+		}
+		if err != nil {
+			return err
+		}
+		executionBuiltins, err = createExecutionBuiltins(builtinAuthority, planning, artifacts)
+		if err != nil {
+			return err
+		}
 	}
 	knowledgeCalls, bindKnowledgeErr := createOwnedKnowledge(cfg, db, contentAuthorities.knowledge, projectUsage, authority, objects, auditor, journal, knowledgeEvents)
 	if knowledgeCalls != nil && !accounts.install(ctx, func() { accounts.knowledge = knowledgeCalls }) {
@@ -652,7 +703,12 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	}
 	// Skills uses the original Agent authority, not the Agent service. All
 	// providers are now fixed, so publish both Agent lanes as one lifecycle owner.
-	agentConfiguration, err := createOwnedAgentConfiguration(db, projectUsage.projects, authority, agentAuthority, agentProducer, modelAuthority, skills, contentAuthorities.skills, install, auditor, journal, objects, cfg.CursorKeyring(), runtimeEnabled && runtimeOptions.ToolLoop())
+	var agentConfiguration *agentConfigurationAssembly
+	if executionBuiltins != nil {
+		agentConfiguration, err = createOwnedAgentConfigurationWithBuiltins(db, projectUsage.projects, authority, agentAuthority, agentProducer, modelAuthority, skills, contentAuthorities.skills, install, auditor, journal, objects, cfg.CursorKeyring(), true, executionBuiltins.sources)
+	} else {
+		agentConfiguration, err = createOwnedAgentConfiguration(db, projectUsage.projects, authority, agentAuthority, agentProducer, modelAuthority, skills, contentAuthorities.skills, install, auditor, journal, objects, cfg.CursorKeyring(), runtimeEnabled && runtimeOptions.ToolLoop())
+	}
 	if err != nil {
 		return err
 	}
@@ -835,12 +891,15 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		if err := ctx.Err(); err != nil {
 			return objects, err
 		}
-		artifacts, bindArtifactErr := createOwnedArtifacts(cfg, db, artifactOwners, projectUsage, objects, auditor)
-		if artifacts != nil && !accounts.install(ctx, func() { accounts.artifacts = artifacts }) {
-			return objects, context.Canceled
-		}
-		if bindArtifactErr != nil {
-			return objects, bindArtifactErr
+		if artifacts == nil {
+			var bindArtifactErr error
+			artifacts, bindArtifactErr = createOwnedArtifacts(cfg, db, artifactOwners, projectUsage, objects, auditor)
+			if artifacts != nil && !accounts.install(ctx, func() { accounts.artifacts = artifacts }) {
+				return objects, context.Canceled
+			}
+			if bindArtifactErr != nil {
+				return objects, bindArtifactErr
+			}
 		}
 		artifactReads, err := artifactReadHandler(artifacts, core, cfg.PublicOrigin())
 		if err != nil {
@@ -858,12 +917,19 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 			// The four-owner constructor requires this guard's actual binding.
 			// Earlier startup failures never install an empty constructing owner.
 			// No Run or Launch is reachable until Account.Start below this phase.
-			executions := &executionRuntimeAssembly{constructing: true, agentCalls: agentConfiguration.ownership, taskReadDependencies: &readDeps, runnerDevice: runnerDevice}
+			executions := &executionRuntimeAssembly{constructing: true, agentCalls: agentConfiguration.ownership, taskReadDependencies: &readDeps, runnerDevice: runnerDevice, builtins: executionBuiltins, approvalAuthority: approvalAuthority, approvalEvents: approvalEvents, approvalJournal: journal}
 			if !accounts.install(ctx, func() { accounts.executions = executions }) {
 				executions.constructionDone()
 				return objects, context.Canceled
 			}
 			if err := constructExecutionRuntime(executions, cfg, db, authority, projectUsage, contentAuthorities.skills, workAuthority, executionAuthorities, objects, models, secrets, transport, journal, executionEvents, agentConfiguration.registry); err != nil {
+				return objects, err
+			}
+			executions.cancellation, err = execution.NewCancellationService(executions.executionCalls, planning.transitions)
+			if err != nil {
+				return objects, err
+			}
+			if err = planning.transitions.BindCancellation(executions.cancellation); err != nil {
 				return objects, err
 			}
 			taskReads = executions.executionCalls.TaskReader()
@@ -877,12 +943,26 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 			}
 			taskReads = reads.pair.TaskReader()
 		}
-		executionHTTP, err := executionReadHandler(taskReads, core, cfg.PublicOrigin())
+		var executionHTTP http.Handler
+		if runtimeEnabled {
+			executionHTTP, err = executionControlHandler(taskReads, accounts.executions.cancellation, core, cfg.PublicOrigin())
+		} else {
+			executionHTTP, err = executionReadHandler(taskReads, core, cfg.PublicOrigin())
+		}
 		if err != nil {
 			return objects, err
 		}
 		if !accounts.install(ctx, func() { accounts.handler = executionReadRoutes(accounts.handler, executionHTTP) }) {
 			return objects, context.Canceled
+		}
+		if runtimeEnabled && accounts.executions.approval != nil {
+			handler, err := approvalHandler(accounts.executions.approval, core, cfg.PublicOrigin())
+			if err != nil {
+				return objects, err
+			}
+			if !accounts.install(ctx, func() { accounts.handler = approvalRoutes(accounts.handler, handler) }) {
+				return objects, context.Canceled
+			}
 		}
 		return objects, ctx.Err()
 	}

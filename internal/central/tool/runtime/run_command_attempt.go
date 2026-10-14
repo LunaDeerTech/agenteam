@@ -261,6 +261,13 @@ func loadRunCommandTerminal(ctx context.Context, x postgres.SQLExecutor, r runCo
 	if r.validate() != nil {
 		return out, fail(f.InvalidState)
 	}
+	if r.Phase == "failed" && r.Version == 2 && r.Attempt == (tc.AttemptID{}) {
+		if err := requireRunCommandDenial(ctx, x, r, ""); err != nil {
+			return out, err
+		}
+		out.terminal = &runCommandTerminal{Format: 1, Operation: r.ID, Outcome: "failure", Code: "approval_rejected"}
+		return out, nil
+	}
 	if r.Phase == "created" || r.Phase == "running" {
 		return out, nil
 	}

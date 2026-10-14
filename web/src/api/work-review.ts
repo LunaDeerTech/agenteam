@@ -53,9 +53,10 @@ export type Blocker = Readonly<{
   id: string
   project_id: string
   task_id: string
-  type: 'rely_on' | 'waiting_for_human' | 'technical'
+  type: 'rely_on' | 'waiting_for_human' | 'technical' | 'user_cancelled_execution'
   description: string
   related_task_id: string | null
+  cancellation?: Readonly<{ execution_id: string; cancelled_by: string; reason: string | null }>
   created_at: string
   resolved_at: string | null
   resolution_comment: string | null
@@ -270,6 +271,14 @@ function human(value: unknown) {
   requireValue(v.type === 'human' && v.source === 'task_domain')
   workID(v.user_id)
 }
+function blockerResolver(value: unknown) {
+  const actor = shape(value, ['type', 'source'], ['user_id', 'agent_id', 'execution_id'])
+  if (actor.type === 'human') return human(value)
+  const v = shape(value, ['type', 'source', 'agent_id', 'execution_id'])
+  requireValue(v.type === 'agent_run' && v.source === 'task_domain')
+  workID(v.agent_id)
+  workID(v.execution_id)
+}
 function historyActor(value: unknown, project: string) {
   const kind = shape(
     value,
@@ -353,7 +362,7 @@ function parseBlocker(value: unknown, project: string, task: string): Blocker {
     'resolved_by',
     'resolution_comment',
   ])
-  const type = enumeration(v.type, ['rely_on', 'waiting_for_human', 'technical']),
+  const type = enumeration(v.type, ['rely_on', 'waiting_for_human', 'technical', 'user_cancelled_execution']),
     created = parseSystemInstant(v.created_at),
     resolved = v.resolved_at === null ? null : parseSystemInstant(v.resolved_at)
   requireValue(
@@ -363,6 +372,7 @@ function parseBlocker(value: unknown, project: string, task: string): Blocker {
       (resolved === null ? v.resolution_comment === null : created <= resolved),
   )
   let related: string | null = null
+  let cancellation: Blocker['cancellation']
   if (type === 'technical') {
     const m = shape(v.metadata, ['code', 'source', 'reference_id']),
       a = shape(v.created_by, ['type', 'service_name', 'source', 'cause_id'])
@@ -374,6 +384,15 @@ function parseBlocker(value: unknown, project: string, task: string): Blocker {
         a.service_name === 'scheduler' &&
         a.source === 'scheduler',
     )
+  } else if (type === 'user_cancelled_execution') {
+    const m = shape(v.metadata, ['execution_id', 'cancelled_by', 'reason'])
+    human(v.created_by)
+    const actor = shape(v.created_by, ['type', 'user_id', 'source'])
+    const execution_id = workID(m.execution_id), cancelled_by = workID(m.cancelled_by)
+    requireValue(cancelled_by === actor.user_id && v.description === 'Execution cancelled by user')
+    const reason = m.reason === null ? null : string(m.reason, 1, 1024)
+    if (reason !== null) requireValue(!reason.includes('\0') && !/^\p{White_Space}*$/u.test(reason) && new TextEncoder().encode(reason).length <= 1024 && !/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(reason))
+    cancellation = { execution_id, cancelled_by, reason }
   } else {
     const m = shape(v.metadata, type === 'rely_on' ? ['related_task_id'] : [])
     if (type === 'rely_on') {
@@ -382,7 +401,7 @@ function parseBlocker(value: unknown, project: string, task: string): Blocker {
     }
     human(v.created_by)
   }
-  if (resolved !== null) human(v.resolved_by)
+  if (resolved !== null) blockerResolver(v.resolved_by)
   return freeze({
     id: workID(v.id),
     project_id: project,
@@ -390,6 +409,7 @@ function parseBlocker(value: unknown, project: string, task: string): Blocker {
     type,
     description: workText(v.description, 1024),
     related_task_id: related,
+    ...(cancellation ? { cancellation } : {}),
     created_at: created,
     resolved_at: resolved,
     resolution_comment:

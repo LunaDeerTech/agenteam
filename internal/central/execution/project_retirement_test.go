@@ -504,7 +504,7 @@ func newRetirementFixtureWithLegacy(t *testing.T, legacy bool) *retirementFixtur
 	}
 	v.id = result.Execution.ID
 	row := b.launch.store.rows[v.id.String()]
-	raw, err := json.Marshal(map[string]any{"id": row[0], "project_id": row[1], "agent_id": row[2], "status": row[3], "version": row[4], "cancel_requested_at": row[5], "snapshot_id": row[6], "created_at": row[7], "updated_at": row[7], "started_at": row[8], "completed_at": row[9], "launch_request": json.RawMessage(row[10].([]byte)), "idempotency_key": row[11], "request_id": row[12], "request_digest": row[13], "trigger_reference_digest": row[13], "initiator": b.launch.actor.Details()})
+	raw, err := json.Marshal(map[string]any{"id": row[0], "project_id": row[1], "agent_id": row[2], "status": row[3], "version": row[4], "cancel_requested_at": row[5], "snapshot_id": row[6], "created_at": row[7], "updated_at": row[7], "started_at": row[8], "completed_at": row[9], "launch_request": json.RawMessage(row[10].([]byte)), "idempotency_key": row[11], "request_id": row[12], "request_digest": row[13], "trigger_reference_digest": row[13], "initiator": b.launch.actor.Details(), "waiting_reason": nil, "waiting_reference": nil, "waiting_at": nil})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -655,7 +655,7 @@ func TestExecutionRetirementOriginalCreationNotReplay(t *testing.T) {
 }
 
 func TestExecutionRetirementCanonicalAndClosedOwners(t *testing.T) {
-	for _, field := range []string{"id", "project_id", "agent_id", "status", "version", "idempotency_key", "request_id", "request_digest", "trigger_reference_digest", "launch_request", "initiator", "cancel_requested_at", "snapshot_id", "created_at", "updated_at", "started_at", "completed_at"} {
+	for _, field := range []string{"id", "project_id", "agent_id", "status", "version", "idempotency_key", "request_id", "request_digest", "trigger_reference_digest", "launch_request", "initiator", "cancel_requested_at", "snapshot_id", "created_at", "updated_at", "started_at", "completed_at", "waiting_reason", "waiting_reference", "waiting_at"} {
 		t.Run(field, func(t *testing.T) {
 			v := newRetirementFixture(t)
 			_, err := v.with(context.Background(), func(ctx context.Context, _ bool) (f.CommitResult, error) {
@@ -684,7 +684,7 @@ func TestExecutionRetirementCanonicalAndClosedOwners(t *testing.T) {
 			}
 		})
 	}
-	for _, which := range []string{"original-launch-identity", "same-process-other-instance", "running-call", "extra-canonical-field", "nil-reference-plan"} {
+	for _, which := range []string{"original-launch-identity", "same-process-other-instance", "running-call", "extra-canonical-field", "stale-waiting-fact", "nil-reference-plan"} {
 		t.Run(which, func(t *testing.T) {
 			v := newRetirementFixture(t)
 			switch which {
@@ -710,12 +710,16 @@ func TestExecutionRetirementCanonicalAndClosedOwners(t *testing.T) {
 					v.base.store.rows[id] = row
 				}
 				v.base.store.mu.Unlock()
-			case "extra-canonical-field":
+			case "extra-canonical-field", "stale-waiting-fact":
 				var raw map[string]json.RawMessage
 				if err := json.Unmarshal(v.store.full[v.id.String()], &raw); err != nil {
 					t.Fatal(err)
 				}
-				raw["future_owner"] = json.RawMessage(`true`)
+				if which == "extra-canonical-field" {
+					raw["future_owner"] = json.RawMessage(`true`)
+				} else {
+					raw["waiting_reason"] = json.RawMessage(`"approval"`)
+				}
 				changed, err := json.Marshal(raw)
 				if err != nil {
 					t.Fatal(err)
@@ -1198,7 +1202,7 @@ func TestExecutionRetirementUnknownDriftAndCancelledReturn(t *testing.T) {
 }
 
 func TestExecutionRetirementDeleteFailures(t *testing.T) {
-	expectedTables := []string{"runtime_snapshots", "transcript_entries", "rounds", "snapshots", "preparation_inputs", "preparation_claims", "preparation_attempts", "skill_assignment_ingress", "executions"}
+	expectedTables := []string{"cancel_commands", "loop_approval_results", "runtime_snapshots", "transcript_entries", "rounds", "snapshots", "preparation_inputs", "preparation_claims", "preparation_attempts", "skill_assignment_ingress", "executions"}
 	for failed, table := range expectedTables {
 		t.Run(table, func(t *testing.T) {
 			v := newRetirementFixture(t)

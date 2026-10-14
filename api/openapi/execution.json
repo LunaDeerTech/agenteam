@@ -1,9 +1,9 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Task execution history for current Human Owners",
+    "title": "Task execution history and cancellation for current Human Owners",
     "version": "1.0.0",
-    "description": "Only GET/HEAD. Same original Project/Task/Execution membership and current Session/Owner are checked on every request, including archived projects under the original Read gate. No admin bypass. Unknown/duplicate/empty/noncanonical query fields, request bodies, Range/If-Range and Content-Encoding are rejected. One 2s handler budget; cancellation waits for the actual domain/Store/HTTP tail. Read-only business access still registers and closes its technical execution-call owner. No runtime invocation, stream, resync, cancel or Task transition. The separate runtime-view endpoint exposes only the original producer's durable final text snapshot."
+    "description": "Current Session and Project Owner are checked on every request. Execution history and runtime-view remain explicit reads. Cancellation atomically protects the Task with blocked/user_cancelled_execution and records cancel_requested_at, then signals the original execution. Its immutable receipt is acceptance, never proof of stopped work; read current Execution and Task separately. Unknown cancellation uses the same original key/body through lookup. No admin bypass or replacement execution."
   },
   "paths": {
     "/api/v1/projects/{project_id}/tasks/{task_id}/executions": {
@@ -670,6 +670,182 @@
           }
         }
       }
+    },
+    "/api/v1/projects/{project_id}/tasks/{task_id}/executions/{execution_id}/cancel": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "task_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "execution_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9._:/-]+$"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "taskExecutionCancel",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "description": "Use the original request body and Idempotency-Key for lookup/replay. Idempotency is checked before current versions. New cancellation of an already requested or terminal execution returns INVALID_STATE. This does not cancel the Task itself. Mutations use current Owner authorization and CSRF checks.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExecutionCancelRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Accepted immutable receipt, or lookup result; Cache-Control: no-store.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutionCancelResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body, identity, key, query or unsupported reason."
+          },
+          "401": {
+            "description": "Missing or expired current session."
+          },
+          "403": {
+            "description": "Current session/CSRF authorization denied."
+          },
+          "404": {
+            "description": "Project, Task or Execution is unavailable to current Owner."
+          },
+          "409": {
+            "description": "VERSION_CONFLICT, TASK_VERSION_CONFLICT, INVALID_STATE, IDEMPOTENCY_KEY_REUSED, RESOURCE_BUSY or domain Task protection conflict."
+          },
+          "503": {
+            "description": "Dependency or commit outcome unavailable; COMMIT_UNKNOWN requires original-intent lookup."
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/tasks/{task_id}/executions/{execution_id}/cancel/lookup": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "task_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "execution_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9._:/-]+$"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "taskExecutionCancelLookup",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "description": "Use the original request body and Idempotency-Key for lookup/replay. Idempotency is checked before current versions. New cancellation of an already requested or terminal execution returns INVALID_STATE. This does not cancel the Task itself. Mutations use current Owner authorization and CSRF checks.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExecutionCancelRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Accepted immutable receipt, or lookup result; Cache-Control: no-store.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutionCancelLookup"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body, identity, key, query or unsupported reason."
+          },
+          "401": {
+            "description": "Missing or expired current session."
+          },
+          "403": {
+            "description": "Current session/CSRF authorization denied."
+          },
+          "404": {
+            "description": "Project, Task or Execution is unavailable to current Owner."
+          },
+          "409": {
+            "description": "VERSION_CONFLICT, TASK_VERSION_CONFLICT, INVALID_STATE, IDEMPOTENCY_KEY_REUSED, RESOURCE_BUSY or domain Task protection conflict."
+          },
+          "503": {
+            "description": "Dependency or commit outcome unavailable; COMMIT_UNKNOWN requires original-intent lookup."
+          }
+        }
+      }
     }
   },
   "components": {
@@ -698,7 +874,10 @@
           "completed_at",
           "cancel_requested_at",
           "snapshot_id",
-          "reason"
+          "reason",
+          "waiting_reason",
+          "waiting_reference",
+          "waiting_at"
         ],
         "properties": {
           "id": {
@@ -791,9 +970,39 @@
                 "type": "null"
               }
             ]
+          },
+          "waiting_reason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "approval",
+              null
+            ]
+          },
+          "waiting_reference": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "waiting_at": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Instant"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
-        "description": "Canonical Execution belonging to this Project and Task trigger. Reason is null when no canonical terminal reason exists. Nonterminal cancel_requested_at means cancellation requested, not terminal completion. No transcript, prompt, runtime content, lease or private error is exposed."
+        "description": "Canonical Execution belonging to this Project and Task trigger. Reason is null when no canonical terminal reason exists. Nonterminal cancel_requested_at means cancellation requested, not terminal completion. No transcript, prompt, runtime content, lease or private error is exposed. Waiting fields are all null unless status is waiting; waiting uses reason approval, the original Approval UUIDv7 reference, and waiting_at >= started_at. Resume/terminal clears all three."
       },
       "TaskExecutionPage": {
         "type": "object",
@@ -1063,6 +1272,109 @@
             }
           }
         ]
+      },
+      "ExecutionCancelRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "expected_task_version"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "expected_task_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024,
+            "description": "Optional, nonblank, no NUL, at most 1024 UTF-8 bytes; original bytes retained. Null is rejected."
+          }
+        }
+      },
+      "TaskCancellationProtection": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "version",
+          "state",
+          "blocker_id"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "state": {
+            "const": "blocked"
+          },
+          "blocker_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      },
+      "ExecutionCancelReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "execution",
+          "task"
+        ],
+        "properties": {
+          "execution": {
+            "$ref": "#/components/schemas/TaskExecution"
+          },
+          "task": {
+            "$ref": "#/components/schemas/TaskCancellationProtection"
+          }
+        },
+        "description": "Immutable accepted postimage: execution and task versions are each original expected version + 1. Execution remains nonterminal with cancel_requested_at present. The Task is blocked with the original user_cancelled_execution blocker. A later current GET may have a newer version/state."
+      },
+      "ExecutionCancelResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "receipt",
+          "replayed"
+        ],
+        "properties": {
+          "receipt": {
+            "$ref": "#/components/schemas/ExecutionCancelReceipt"
+          },
+          "replayed": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ExecutionCancelLookup": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "found",
+          "receipt"
+        ],
+        "properties": {
+          "found": {
+            "type": "boolean"
+          },
+          "receipt": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExecutionCancelReceipt"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "description": "found=false requires receipt=null. A found receipt confirms the original command only; lookup never repeats the mutation."
       }
     }
   }

@@ -1,0 +1,448 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Unified one-operation Human approval",
+    "version": "1.0.0",
+    "description": "Current Human Owner only. POST preserves CommandMeta Idempotency-Key and expected_version. Same key and semantic intent returns original receipt after current read authorization; changed intent is IDEMPOTENCY_KEY_REUSED. Different key against a resolved/version-changed request is VERSION_CONFLICT even when its desired decision matches. Lookup consumes the original key/body and only reads the canonical command: committed has the original receipt, not_observed has null receipt and does not prove termination of older work. GET is current state, never command confirmation. No automatic approval expiry. Cancellation/terminal Execution blocks new decisions. One-time approvals bind the original operation/fingerprint. No reusable scope, history list, raw arguments, outputs or secrets. The 2s HTTP budget never limits persistent human waiting. POST success means decision accepted; current execution progress is separately refreshed."
+  },
+  "paths": {
+    "/api/v1/projects/{project_id}/approvals/{approval_id}": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "approval_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "approvalGet",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current Owner authorized; Cache-Control: no-store.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "approval"
+                  ],
+                  "properties": {
+                    "approval": {
+                      "$ref": "#/components/schemas/ApprovalRequest"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid canonical JSON, missing/duplicate key, invalid version, query or body."
+          },
+          "401": {
+            "description": "Current Session invalid."
+          },
+          "403": {
+            "description": "Current Human Owner required."
+          },
+          "404": {
+            "description": "Approval absent or wrong Project."
+          },
+          "409": {
+            "description": "VERSION_CONFLICT, IDEMPOTENCY_KEY_REUSED or CONFIRMATION_STALE; no decision applied."
+          },
+          "503": {
+            "description": "Dependency unavailable or COMMIT_UNKNOWN. Preserve original Idempotency-Key/body; use decision/lookup."
+          }
+        }
+      },
+      "head": {
+        "operationId": "approvalHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current Owner authorized; Cache-Control: no-store.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "approval"
+                  ],
+                  "properties": {
+                    "approval": {
+                      "$ref": "#/components/schemas/ApprovalRequest"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid canonical JSON, missing/duplicate key, invalid version, query or body."
+          },
+          "401": {
+            "description": "Current Session invalid."
+          },
+          "403": {
+            "description": "Current Human Owner required."
+          },
+          "404": {
+            "description": "Approval absent or wrong Project."
+          },
+          "409": {
+            "description": "VERSION_CONFLICT, IDEMPOTENCY_KEY_REUSED or CONFIRMATION_STALE; no decision applied."
+          },
+          "503": {
+            "description": "Dependency unavailable or COMMIT_UNKNOWN. Preserve original Idempotency-Key/body; use decision/lookup."
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/approvals/{approval_id}/decision": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "approval_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9._:/-]{1,128}$"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "approvalDecide",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current Owner authorized; Cache-Control: no-store.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "receipt"
+                  ],
+                  "properties": {
+                    "receipt": {
+                      "$ref": "#/components/schemas/Receipt"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid canonical JSON, missing/duplicate key, invalid version, query or body."
+          },
+          "401": {
+            "description": "Current Session invalid."
+          },
+          "403": {
+            "description": "Current Human Owner required."
+          },
+          "404": {
+            "description": "Approval absent or wrong Project."
+          },
+          "409": {
+            "description": "VERSION_CONFLICT, IDEMPOTENCY_KEY_REUSED or CONFIRMATION_STALE; no decision applied."
+          },
+          "503": {
+            "description": "Dependency unavailable or COMMIT_UNKNOWN. Preserve original Idempotency-Key/body; use decision/lookup."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Decision"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/approvals/{approval_id}/decision/lookup": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "approval_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9._:/-]{1,128}$"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "approvalDecisionLookup",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current Owner authorized; Cache-Control: no-store.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "status",
+                    "receipt"
+                  ],
+                  "properties": {
+                    "status": {
+                      "enum": [
+                        "committed",
+                        "not_observed"
+                      ]
+                    },
+                    "receipt": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/components/schemas/Receipt"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid canonical JSON, missing/duplicate key, invalid version, query or body."
+          },
+          "401": {
+            "description": "Current Session invalid."
+          },
+          "403": {
+            "description": "Current Human Owner required."
+          },
+          "404": {
+            "description": "Approval absent or wrong Project."
+          },
+          "409": {
+            "description": "VERSION_CONFLICT, IDEMPOTENCY_KEY_REUSED or CONFIRMATION_STALE; no decision applied."
+          },
+          "503": {
+            "description": "Dependency unavailable or COMMIT_UNKNOWN. Preserve original Idempotency-Key/body; use decision/lookup."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Decision"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "browserSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "agenteam_session"
+      }
+    },
+    "schemas": {
+      "ApprovalRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "project_id",
+          "agent_id",
+          "execution_id",
+          "tool_id",
+          "operation_id",
+          "tool_call_id",
+          "operation_fingerprint",
+          "status",
+          "version",
+          "created_at",
+          "resolved_at",
+          "resolved_by",
+          "tool_name"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "agent_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "execution_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "tool_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "operation_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "tool_call_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "operation_fingerprint": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "status": {
+            "enum": [
+              "pending",
+              "approved",
+              "rejected"
+            ]
+          },
+          "version": {
+            "type": "string",
+            "enum": [
+              "1",
+              "2"
+            ]
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "resolved_at": {
+            "anyOf": [
+              {
+                "$ref": "./common.json#/components/schemas/Instant"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "resolved_by": {
+            "anyOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tool_name": {
+            "type": "string",
+            "const": "run-command",
+            "description": "Immutable registered operation name, projected by the server from the original binding; never inferred from UUID by the client."
+          }
+        }
+      },
+      "Receipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "command_id",
+          "approval"
+        ],
+        "properties": {
+          "command_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "approval": {
+            "$ref": "#/components/schemas/ApprovalRequest"
+          }
+        }
+      },
+      "Decision": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "decision",
+          "expected_version"
+        ],
+        "properties": {
+          "decision": {
+            "enum": [
+              "approve",
+              "reject"
+            ]
+          },
+          "expected_version": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]*$"
+          }
+        }
+      }
+    }
+  }
+}

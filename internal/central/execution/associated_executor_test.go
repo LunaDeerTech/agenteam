@@ -166,6 +166,12 @@ func TestAssociatedExecutorAdmissionOwnsExactTupleAndCapacity(t *testing.T) {
 func TestAssociatedExecutorRunLifetimeStopsOnlyOwnedCalls(t *testing.T) {
 	type contextMarker struct{}
 	project, dispatch := associatedTestIdentity(t)
+	preparation := newPreparationControl(t)
+	project, dispatch.ExecutionID, dispatch.AgentID = preparation.launch.request.ProjectID, preparation.execution, preparation.launch.request.AgentID
+	// Cancellation recovery observes the canonical row before the controlled
+	// Start seam. Supply its real read fixture instead of a nil Store.
+	preparation.store.rows[dispatch.ExecutionID.String()][3] = "preparing"
+	preparation.store.rows[dispatch.ExecutionID.String()][4] = int64(2)
 	entered, cancelled := make(chan context.Context, 1), make(chan struct{}, 1)
 	release := make(chan struct{})
 	var once sync.Once
@@ -189,6 +195,7 @@ func TestAssociatedExecutorRunLifetimeStopsOnlyOwnedCalls(t *testing.T) {
 	defer foreignCancel()
 	foreignID := newTestID[i.Execution](t)
 	e.state.preparation = &PreparationDriver{state: &preparationState{
+		store: preparation.store,
 		calls: map[i.ExecutionID]*preparationCall{foreignID: {cancel: foreignCancel}}, changed: make(chan struct{}),
 	}}
 	e.state.direct = &DirectTextDriver{state: &directTextState{

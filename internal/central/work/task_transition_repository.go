@@ -12,6 +12,7 @@ import (
 
 	agentc "github.com/LunaDeerTech/agenteam/internal/central/agent/contract"
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
+	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
@@ -20,22 +21,21 @@ import (
 )
 
 type transitionInput struct {
-	Project  c.ProjectID    `json:"project_id"`
-	Task     c.TaskID       `json:"task_id"`
-	User     i.UserID       `json:"actor_user_id"`
-	Expected f.Version      `json:"expected_version"`
-	Request  c.TaskTransfer `json:"request"`
+	Cancellation *transitionCancellation `json:"execution_cancellation,omitempty"`
+	Project      c.ProjectID             `json:"project_id"`
+	Task         c.TaskID                `json:"task_id"`
+	User         i.UserID                `json:"actor_user_id,omitempty"`
+	Agent        i.AgentID               `json:"actor_agent_id,omitempty"`
+	Execution    i.ExecutionID           `json:"actor_execution_id,omitempty"`
+	Expected     f.Version               `json:"expected_version"`
+	Request      c.TaskTransfer          `json:"request"`
 }
 
 func (in transitionInput) semantic(actor i.Actor, key f.IdempotencyKey) (f.Digest, error) {
-	if actor.Details().Kind != i.Human || actor.Details().UserID != in.User.String() {
+	if !in.matches(actor) {
 		return "", fault(f.Forbidden)
 	}
-	rid, err := f.ParseID[f.Request](in.Task.String())
-	if err != nil {
-		return "", fault(f.InvalidArgument)
-	}
-	return c.TaskTransferDigest(actor, f.CommandMeta{RequestID: rid, IdempotencyKey: key, ExpectedVersion: &in.Expected}, in.Project, in.Task, in.Request)
+	return in.transitionSemantic(actor, key)
 }
 func (in transitionInput) locks(key f.IdempotencyKey, before c.Task) ([]f.LockRequest, error) {
 	id, err := c.TaskTransitionIdentity(in.Project, key)
@@ -45,7 +45,14 @@ func (in transitionInput) locks(key f.IdempotencyKey, before c.Task) ([]f.LockRe
 	source := groupForTask(before)
 	target := source
 	target.State = in.Request.TargetState
-	locks := []f.LockRequest{commandLock(id), userLock(in.User.String(), f.Exclusive), projectLock(in.Project, f.Shared), taskScheduleLock(in.Project, f.Exclusive), taskRankLock(in.Project, source), taskRankLock(in.Project, target), sprintLock(before.SprintID.String(), f.Shared), taskLock(in.Task.String(), f.Exclusive)}
+	locks := []f.LockRequest{commandLock(id), projectLock(in.Project, f.Shared), taskScheduleLock(in.Project, f.Exclusive), taskRankLock(in.Project, source), taskRankLock(in.Project, target), sprintLock(before.SprintID.String(), f.Shared), taskLock(in.Task.String(), f.Exclusive)}
+	if in.User.Validate() == nil {
+		locks = append(locks, userLock(in.User.String(), f.Exclusive))
+	} else {
+		a, _ := f.AgentLock(in.Agent.String())
+		e, _ := f.AggregateLock(f.ExecutionAggregate, in.Execution.String())
+		locks = append(locks, f.LockRequest{Key: a, Mode: f.Shared}, f.LockRequest{Key: e, Mode: f.Shared})
+	}
 	for _, id := range []*i.AgentID{before.AssigneeAgentID, in.Request.AssigneeAgentID} {
 		if id != nil {
 			key, err := f.AgentLock(id.String())
@@ -59,18 +66,21 @@ func (in transitionInput) locks(key f.IdempotencyKey, before c.Task) ([]f.LockRe
 }
 
 type transitionPlan struct {
-	Resolutions     []transitionBlockerResolution `json:"blocker_resolutions,omitempty"`
-	Before          c.Task                        `json:"before"`
-	After           c.TaskTransitionMutation      `json:"after"`
-	Placement       taskPlacement                 `json:"placement"`
-	Agent           *agentc.AgentRef              `json:"agent"`
-	Groups          []taskGroupPlan               `json:"groups"`
-	QueryGeneration int64                         `json:"query_generation"`
-	History         []c.TaskTransitionEvent       `json:"history"`
-	Source          c.TaskTransitionPosition      `json:"source"`
-	Target          c.TaskTransitionPosition      `json:"target"`
-	Header          event.Header                  `json:"header"`
-	Payload         json.RawMessage               `json:"payload"`
+	CancellationBlocker *c.TaskBlocker                `json:"cancellation_blocker,omitempty"`
+	CancelExecutions    []ec.CancellationScope        `json:"cancel_executions,omitempty"`
+	CancelDispatches    []string                      `json:"cancel_dispatches,omitempty"`
+	Resolutions         []transitionBlockerResolution `json:"blocker_resolutions,omitempty"`
+	Before              c.Task                        `json:"before"`
+	After               c.TaskTransitionMutation      `json:"after"`
+	Placement           taskPlacement                 `json:"placement"`
+	Agent               *agentc.AgentRef              `json:"agent"`
+	Groups              []taskGroupPlan               `json:"groups"`
+	QueryGeneration     int64                         `json:"query_generation"`
+	History             []c.TaskTransitionEvent       `json:"history"`
+	Source              c.TaskTransitionPosition      `json:"source"`
+	Target              c.TaskTransitionPosition      `json:"target"`
+	Header              event.Header                  `json:"header"`
+	Payload             json.RawMessage               `json:"payload"`
 }
 type transitionRecord struct {
 	ID        c.TaskTransitionCommandID
@@ -93,7 +103,17 @@ func (transitionRecord) Format(w fmt.State, _ rune) { _, _ = io.WriteString(w, "
 func (transitionRecord) LogValue() slog.Value       { return slog.StringValue("work_task_transition") }
 
 func (v *transitionInput) UnmarshalJSON(raw []byte) error {
-	if _, err := taskPrivateObject(raw, taskRequestCap, []string{"project_id", "task_id", "actor_user_id", "expected_version", "request"}, nil); err != nil {
+	var shape map[string]json.RawMessage
+	if json.Unmarshal(raw, &shape) != nil {
+		return internal(nil)
+	}
+	fields := []string{"project_id", "task_id", "expected_version", "request"}
+	for _, key := range []string{"actor_user_id", "actor_agent_id", "actor_execution_id", "execution_cancellation"} {
+		if _, ok := shape[key]; ok {
+			fields = append(fields, key)
+		}
+	}
+	if _, err := taskPrivateObject(raw, taskRequestCap, fields, nil); err != nil {
 		return err
 	}
 	type wire transitionInput
@@ -101,7 +121,10 @@ func (v *transitionInput) UnmarshalJSON(raw []byte) error {
 	if err := json.Unmarshal(raw, &next); err != nil {
 		return internal(err)
 	}
-	if next.Project.Validate() != nil || next.Task.Validate() != nil || next.User.Validate() != nil || next.Expected.Validate() != nil || next.Request.Validate() != nil {
+	if next.Project.Validate() != nil || next.Task.Validate() != nil || transitionInput(next).historyActor().Validate() != nil || next.Expected.Validate() != nil || next.Request.Validate() != nil {
+		return internal(nil)
+	}
+	if next.Cancellation != nil && next.Cancellation.validate(transitionInput(next)) != nil {
 		return internal(nil)
 	}
 	*v = transitionInput(next)
@@ -113,6 +136,11 @@ func (v *transitionPlan) UnmarshalJSON(raw []byte) error {
 		return internal(nil)
 	}
 	fields := []string{"before", "after", "placement", "agent", "groups", "query_generation", "history", "source", "target", "header", "payload"}
+	for _, key := range []string{"cancellation_blocker", "cancel_executions", "cancel_dispatches"} {
+		if _, ok := shape[key]; ok {
+			fields = append(fields, key)
+		}
+	}
 	if _, ok := shape["blocker_resolutions"]; ok {
 		fields = append(fields, "blocker_resolutions")
 	}
@@ -144,16 +172,16 @@ func (v *transitionPlan) UnmarshalJSON(raw []byte) error {
 	return nil
 }
 
-const transitionColumns = `id::text,project_id::text,actor_user_id::text,task_id::text,idempotency_key,semantic_digest,expected_version,request,plan_revision,state,plan,task_event_ids,event_id::text,receipt,created_at,committed_at`
+const transitionColumns = `id::text,project_id::text,COALESCE(actor_user_id::text,'00000000-0000-0000-0000-000000000000'),COALESCE(actor_agent_id::text,'00000000-0000-0000-0000-000000000000'),COALESCE(actor_execution_id::text,'00000000-0000-0000-0000-000000000000'),task_id::text,idempotency_key,semantic_digest,expected_version,request,plan_revision,state,plan,task_event_ids,event_id::text,receipt,created_at,committed_at`
 
 func scanTransition(row interface{ Scan(...any) error }) (*transitionRecord, error) {
 	var r transitionRecord
-	var id, p, u, t, ev string
+	var id, p, u, a, ex, t, ev string
 	var expected f.Version
 	var request, plan, ids, receipt []byte
 	var created time.Time
 	var committed *time.Time
-	if err := row.Scan(&id, &p, &u, &t, &r.Key, &r.Semantic, &expected, &request, &r.Revision, &r.State, &plan, &ids, &ev, &receipt, &created, &committed); err != nil {
+	if err := row.Scan(&id, &p, &u, &a, &ex, &t, &r.Key, &r.Semantic, &expected, &request, &r.Revision, &r.State, &plan, &ids, &ev, &receipt, &created, &committed); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
 		}
@@ -187,7 +215,7 @@ func scanTransition(row interface{ Scan(...any) error }) (*transitionRecord, err
 		}
 		r.Receipt = &v
 	}
-	if r.Input.Project.String() != p || r.Input.User.String() != u || r.Input.Task.String() != t || r.Input.Expected != expected || r.Key.Validate() != nil || r.Semantic.Validate() != nil || r.Revision.Validate() != nil {
+	if r.Input.Project.String() != p || r.Input.User.String() != u || r.Input.Agent.String() != a || r.Input.Execution.String() != ex || r.Input.Task.String() != t || r.Input.Expected != expected || r.Key.Validate() != nil || r.Semantic.Validate() != nil || r.Revision.Validate() != nil {
 		return nil, internal(nil)
 	}
 	if r.State == "planned" {
@@ -219,7 +247,7 @@ func storeTransitionPlan(ctx context.Context, x postgres.SQLExecutor, r *transit
 		return internal(err)
 	}
 	if insert {
-		return taskAffected(x.Exec(ctx, `INSERT INTO agenteam_work.task_transition_commands(id,project_id,actor_user_id,task_id,command_name,idempotency_key,semantic_digest,expected_version,request,plan_revision,state,plan,task_event_ids,event_id,created_at) VALUES($1,$2,$3,$4,'work.task.transfer',$5,$6,$7,$8,$9,'planned',$10,$11,$12,$13)`, r.ID.String(), r.Input.Project.String(), r.Input.User.String(), r.Input.Task.String(), string(r.Key), string(r.Semantic), int64(r.Input.Expected), request, int64(r.Revision), plan, ids, r.Plan.Header.EventID.String(), r.Created.Time()))
+		return taskAffected(x.Exec(ctx, `INSERT INTO agenteam_work.task_transition_commands(id,project_id,actor_user_id,actor_agent_id,actor_execution_id,task_id,command_name,idempotency_key,semantic_digest,expected_version,request,plan_revision,state,plan,task_event_ids,event_id,created_at) VALUES($1,$2,$3,$14,$15,$4,'work.task.transfer',$5,$6,$7,$8,$9,'planned',$10,$11,$12,$13)`, r.ID.String(), r.Input.Project.String(), transitionNullableID(r.Input.User.String()), r.Input.Task.String(), string(r.Key), string(r.Semantic), int64(r.Input.Expected), request, int64(r.Revision), plan, ids, r.Plan.Header.EventID.String(), r.Created.Time(), transitionNullableID(r.Input.Agent.String()), transitionNullableID(r.Input.Execution.String())))
 	}
 	return taskAffected(x.Exec(ctx, `UPDATE agenteam_work.task_transition_commands SET plan_revision=$2,plan=$3,task_event_ids=$4,event_id=$5 WHERE id=$1 AND state='planned' AND plan_revision=$6`, r.ID.String(), int64(r.Revision), plan, ids, r.Plan.Header.EventID.String(), int64(r.Revision-1)))
 }
@@ -232,6 +260,9 @@ func completeTransition(ctx context.Context, x postgres.SQLExecutor, r *transiti
 }
 
 func applyTransition(ctx context.Context, x postgres.SQLExecutor, r *transitionRecord) error {
+	if err := applyCancellationBlocker(ctx, x, r); err != nil {
+		return err
+	}
 	if err := applyTransitionResolutions(ctx, x, r); err != nil {
 		return err
 	}

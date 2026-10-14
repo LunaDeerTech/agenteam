@@ -144,28 +144,7 @@ func (s *directTextState) requireCurrentToolFacts(ctx context.Context, tx f.Tx, 
 		if err = s.multi.guard.RequireCurrentProcessInTx(ctx, tx, s.multiProcess()); err != nil {
 			return portError(err)
 		}
-		fields := run.input.input.Fields()
-		expected, ok := run.round.(loopExecutionRound)
-		if !ok {
-			return fault(f.Forbidden)
-		}
-		tools := expected.LoopRound.Fields().Tools
-		if len(tools) != len(fields.Tools) {
-			return fault(f.Forbidden)
-		}
-		for idx, t := range fields.Tools {
-			if !slices.Contains(agent.Fields().AllowedToolIDs, t.ToolID) || slices.Contains(fields.Request.Launch.Policy.DeniedToolIDs, t.ToolID) {
-				return fault(f.Forbidden)
-			}
-			def, err := s.tools.metadata.ReadDefinitionInTx(ctx, tx, tc.SpecRef{ToolID: t.ToolID, SpecRevision: t.SpecRevision})
-			if err != nil {
-				return portError(err)
-			}
-			if !reflect.DeepEqual(tools[idx], mc.Tool{Name: t.ModelVisibleName, Description: def.Description, InputSchema: def.InputSchema, OutputSchema: def.OutputSchema}) {
-				return fault(f.ConfirmationStale)
-			}
-		}
-		return portError(s.tools.metadata.RequireExecutionToolFactsInTx(ctx, tx, toolFactsRequest(run.input.input, agent)))
+		return s.requireCurrentLoopToolFacts(ctx, tx, run, agent)
 	}
 	if run.toolFacts != nil {
 		fields := run.input.input.Fields()
@@ -202,4 +181,39 @@ func (s *directTextState) requireCurrentToolFacts(ctx context.Context, tx f.Tx, 
 		return fault(f.ConfirmationStale)
 	}
 	return ctx.Err()
+}
+
+func (s *directTextState) requireCurrentLoopToolFacts(ctx context.Context, tx f.Tx, run *directTextCall, agent ac.AgentConfig) error {
+	fields := run.input.input.Fields()
+	expected, ok := run.round.(loopExecutionRound)
+	if !ok {
+		return fault(f.Forbidden)
+	}
+	tools := expected.LoopRound.Fields().Tools
+	if len(tools) != len(fields.Tools) {
+		return fault(f.Forbidden)
+	}
+	for idx, t := range fields.Tools {
+		// Core tools are captured independently of the Agent's ordinary allow
+		// list. The Registry below proves the captured class and current binding;
+		// explicit policy denial applies to both classes.
+		if err := requireCurrentCapturedTool(agent, fields.Request.Launch.Policy, t); err != nil {
+			return err
+		}
+		def, err := s.tools.metadata.ReadDefinitionInTx(ctx, tx, tc.SpecRef{ToolID: t.ToolID, SpecRevision: t.SpecRevision})
+		if err != nil {
+			return portError(err)
+		}
+		if !reflect.DeepEqual(tools[idx], mc.Tool{Name: t.ModelVisibleName, Description: def.Description, InputSchema: def.InputSchema, OutputSchema: def.OutputSchema}) {
+			return fault(f.ConfirmationStale)
+		}
+	}
+	return portError(s.tools.metadata.RequireExecutionToolFactsInTx(ctx, tx, toolFactsRequest(run.input.input, agent)))
+}
+
+func requireCurrentCapturedTool(agent ac.AgentConfig, policy c.Policy, tool tc.ExecutionTool) error {
+	if (tool.BindingSnapshot.Class != tc.CoreTool && !slices.Contains(agent.Fields().AllowedToolIDs, tool.ToolID)) || slices.Contains(policy.DeniedToolIDs, tool.ToolID) {
+		return fault(f.Forbidden)
+	}
+	return nil
 }

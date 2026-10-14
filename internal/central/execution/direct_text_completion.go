@@ -203,7 +203,7 @@ func (s *directTextState) prepareTerminal(ctx context.Context, run *directTextCa
 		if err != nil {
 			return err
 		}
-		if row == nil || row.summary.Status != c.Running || !sameDirectText(stored, run.snapshot, run.round) || stored.terminal != nil || row.summary.Version == f.Version(math.MaxInt64) {
+		if row == nil || (row.summary.Status != c.Running && row.summary.Status != c.Waiting) || !sameDirectText(stored, run.snapshot, run.round) || stored.terminal != nil || row.summary.Version == f.Version(math.MaxInt64) {
 			return fault(f.ConfirmationStale)
 		}
 		at, err := captureTime(ctx, x)
@@ -306,7 +306,7 @@ func (s *directTextState) commitTerminal(ctx context.Context, run *directTextCal
 		if err != nil {
 			return portError(err)
 		}
-		if s.processes.CurrentProcess() != s.process || !run.allJoined || !run.invocation.session.Joined() {
+		if s.processes.CurrentProcess() != s.process || !run.allJoined || !joinedLoopCheckpoint(run) {
 			return fault(f.Forbidden)
 		}
 		row, err := loadExecution(ctx, x, run.request.ExecutionID)
@@ -317,7 +317,7 @@ func (s *directTextState) commitTerminal(ctx context.Context, run *directTextCal
 		if err != nil {
 			return err
 		}
-		if row == nil || row.summary.Status != c.Running || row.summary.Version != run.terminal.before || !sameDirectText(stored, run.snapshot, run.round) || stored.terminal != nil {
+		if row == nil || (row.summary.Status != c.Running && row.summary.Status != c.Waiting) || row.summary.Version != run.terminal.before || !sameDirectText(stored, run.snapshot, run.round) || stored.terminal != nil {
 			return fault(f.ConfirmationStale)
 		}
 		if run.terminal.status == c.Succeeded && (run.ctx.Err() != nil || row.summary.CancelRequestedAt != nil) {
@@ -374,6 +374,9 @@ func (s *directTextState) commitTerminal(ctx context.Context, run *directTextCal
 }
 
 func (a *Authority) CheckEnvironmentRetirementPlan(ctx context.Context, capture pvc.EnvironmentCapture) error {
+	if ctx != nil && ctx.Value(executionRecoveryContextKey{}) != nil {
+		return a.checkPreparationEnvironmentRetirementPlan(ctx, capture)
+	}
 	if _, err := a.directTextModelPlanningScope(ctx, true); err != nil {
 		return err
 	}
@@ -384,6 +387,9 @@ func (a *Authority) CheckEnvironmentRetirementPlan(ctx context.Context, capture 
 	return directTextEnvironmentMatches(run, capture)
 }
 func (a *Authority) CheckEnvironmentRetirementInTx(ctx context.Context, tx f.Tx, capture pvc.EnvironmentCapture) error {
+	if ctx != nil && ctx.Value(executionRecoveryContextKey{}) != nil {
+		return a.checkPreparationEnvironmentRetirementInTx(ctx, tx, capture)
+	}
 	if _, err := a.directTextRetirementScope(ctx, tx); err != nil {
 		return err
 	}

@@ -70,6 +70,7 @@ type associatedOwners struct {
 }
 type associatedContextKey struct{}
 type associatedCall struct {
+	recovery       *executionRecoveryCall
 	projectCall    *projectCallEntry
 	project        i.ProjectID
 	dispatch       c.AssociatedDispatch
@@ -79,6 +80,8 @@ type associatedCall struct {
 	status         c.Status
 	active         bool
 	retained       bool
+	cancelPending  bool
+	cancelOnly     bool
 	projectStopped bool
 	owners         associatedOwners
 	err            error
@@ -171,6 +174,17 @@ func (e *AssociatedExecutor) Ready() <-chan struct{} {
 	return e.state.ready
 }
 
+// The cancellation owner calls this only after observing its durable request.
+// This hint grants no work: an idle known-failed job may only re-read that
+// canonical cancellation and retire pre-start resources through their owners.
+func (s *associatedExecutorState) notifyCancellation(execution i.ExecutionID) {
+	s.mu.Lock()
+	if job := s.jobs[execution]; job != nil {
+		job.cancelPending = true
+	}
+	s.mu.Unlock()
+}
+
 func (e *AssociatedExecutor) Advance(ctx context.Context, project i.ProjectID, dispatch c.AssociatedDispatch) (c.ExecutionAdvance, error) {
 	if ctx == nil || validateAssociated(project, dispatch) != nil {
 		return c.ExecutionAdvance{}, invalid()
@@ -193,13 +207,17 @@ func (e *AssociatedExecutor) Advance(ctx context.Context, project i.ProjectID, d
 		}
 		// Stop forbids further asynchronous work. Explicit Drain owns any
 		// remaining convergence; it cannot dispatch a first Model call.
-		if job.retained && !job.active && !job.projectStopped && !s.stopped && !time.Now().Before(job.next) {
+		if (job.retained || job.cancelPending) && !job.active && !job.projectStopped && !s.stopped && !time.Now().Before(job.next) {
 			if s.projectCalls != nil {
 				entry, err := s.projectCalls.reserveAssociated(job.ctx, job)
 				if err != nil {
 					return s.observationLocked(job), preserveAssociatedError(job.err, err)
 				}
 				job.projectCall = entry
+			}
+			job.cancelOnly = job.cancelPending && !job.retained
+			if job.cancelOnly {
+				job.cancelPending = false
 			}
 			job.active = true
 			job.next = time.Now().Add(s.options.RecoveryInterval)
@@ -418,7 +436,7 @@ func (s *associatedExecutorState) execute(job *associatedCall, recoverOriginal b
 		owners := s.ops.owners(job)
 		s.mu.Lock()
 		job.owners = owners
-		job.retained = owners.preparation || owners.direct
+		job.retained = owners.preparation || owners.direct || job.recovery != nil && job.recovery.unknown != nil
 		job.phase, job.status, job.err = outcome.phase, outcome.status, outcome.err
 		if job.retained {
 			job.phase = c.ExecutionRetained
@@ -489,12 +507,35 @@ func (s *associatedExecutorState) advanceOwned(ctx context.Context, job *associa
 		out.err = err
 		return out
 	}
+	s.mu.Lock()
+	cancelOnly := job.cancelOnly
+	job.cancelOnly = false
+	s.mu.Unlock()
+	if cancelOnly {
+		summary, handled, err := s.recoverCancelledPreparation(ctx, job)
+		out.status, out.err = summary.Status, err
+		if err == nil && summary.Status.Terminal() {
+			out.phase, out.forget = c.ExecutionTerminal, true
+		}
+		if handled && err != nil {
+			s.mu.Lock()
+			job.cancelPending = true
+			s.mu.Unlock()
+		}
+		return out
+	}
 	if recoverOriginal {
 		s.mu.Lock()
 		prior := job.err
+		recovery := job.recovery
 		s.mu.Unlock()
 		owners := s.ops.owners(job)
 		switch {
+		case recovery != nil && recovery.unknown != nil:
+			_, _, out.err = s.recoverCancelledPreparation(ctx, job)
+			if out.err != nil {
+				return out
+			}
 		case owners.preparation:
 			out.err = s.ops.recoverPreparation(ctx, job.dispatch.ExecutionID)
 		case owners.direct:
@@ -529,6 +570,13 @@ func (s *associatedExecutorState) advanceOwned(ctx context.Context, job *associa
 		return out
 	}
 	if out.err != nil {
+		return out
+	}
+	if summary, handled, err := s.recoverCancelledPreparation(ctx, job); handled {
+		out.status, out.err = summary.Status, err
+		if err == nil && summary.Status.Terminal() {
+			out.phase, out.forget = c.ExecutionTerminal, true
+		}
 		return out
 	}
 	if recoveredDirect {
@@ -584,9 +632,10 @@ func (s *associatedExecutorState) advanceOwned(ctx context.Context, job *associa
 
 func (s *associatedExecutorState) startPrepared(ctx context.Context, job *associatedCall, facts associatedFacts) associatedOutcome {
 	out := associatedOutcome{phase: c.ExecutionDeferred, status: facts.status}
-	if facts.status != c.Preparing || !facts.inputReady {
-		// Existing empty preparation, running/waiting without our original
-		// owner, and a recovered claim without input never create new work.
+	cold := (facts.status == c.Running || facts.status == c.Waiting) && s.direct != nil && s.direct.state != nil && s.direct.state.multi != nil
+	if !cold && (facts.status != c.Preparing || !facts.inputReady) {
+		// A missing preparation input or a driver without the original loop
+		// recovery path cannot start work from these persistent states.
 		out.forget = facts.status != c.Created
 		return out
 	}
@@ -607,6 +656,10 @@ func (s *associatedExecutorState) startPrepared(ctx context.Context, job *associ
 	// original call returned and no retained owner remains.
 	if receipt.ExecutionID == job.dispatch.ExecutionID && receipt.Status.Terminal() && receipt.Version.Validate() == nil {
 		out.status, out.phase, out.forget = receipt.Status, c.ExecutionTerminal, true
+	} else if cold {
+		// No checkpoint/owner was adopted. A later traversal may observe the
+		// same persistent execution again, but this return grants no replay.
+		out.forget = true
 	}
 	return out
 }

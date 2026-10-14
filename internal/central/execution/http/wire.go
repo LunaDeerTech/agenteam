@@ -23,6 +23,16 @@ func validExecution(v ec.TaskExecution, project i.ProjectID, task string) error 
 	if v.SnapshotID != nil && v.SnapshotID.Validate() != nil {
 		return unavailableOutput()
 	}
+	if v.Status == ec.Waiting {
+		if v.WaitingReason == nil || *v.WaitingReason != "approval" || v.WaitingReference == nil || v.WaitingAt == nil || v.WaitingAt.Validate() != nil || v.StartedAt == nil || v.WaitingAt.Time().Before(v.StartedAt.Time()) {
+			return unavailableOutput()
+		}
+		if _, err := f.ParseID[struct{}](*v.WaitingReference); err != nil {
+			return unavailableOutput()
+		}
+	} else if v.WaitingReason != nil || v.WaitingReference != nil || v.WaitingAt != nil {
+		return unavailableOutput()
+	}
 	if v.Status.Terminal() != (v.CompletedAt != nil) || (v.Status == ec.Running || v.Status == ec.Waiting || v.Status == ec.Succeeded) && (v.SnapshotID == nil || v.StartedAt == nil) || (v.Status == ec.Created || v.Status == ec.Preparing) && (v.SnapshotID != nil || v.StartedAt != nil) {
 		return unavailableOutput()
 	}

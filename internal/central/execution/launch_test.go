@@ -385,7 +385,9 @@ func TestExecutionLaunchWitnessCannotBeConstructedOrReused(t *testing.T) {
 		r.Actor, _ = i.NewAgentRun(r.ProjectID, r.AgentID, r.ExecutionID)
 		x.store.locks = r.RequiredLocks()
 		err = x.authority.RequireExecutionConfigurationInTx(context.Background(), x.store.tx, r)
-		requireCode(t, err, f.DependencyUnbound)
+		// Both stages have real writers now. A valid Actor and held locks
+		// still cannot replace their private, live same-transaction witness.
+		requireCode(t, err, f.Forbidden)
 	}
 	x.store.live = false
 }

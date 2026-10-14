@@ -51,6 +51,9 @@ func (a *DirectTextEventAuthority) eventOwner(ctx context.Context, actor i.Actor
 	return run, expected, nil
 }
 func (a *DirectTextEventAuthority) DiscoverAppend(ctx context.Context, actor i.Actor, summary event.Summary) (oc.Dependencies, error) {
+	if ctx != nil && ctx.Value(executionRecoveryContextKey{}) != nil {
+		return a.discoverRecoveryAppend(ctx, actor, summary)
+	}
 	run, _, err := a.eventOwner(ctx, actor, summary)
 	if err != nil {
 		return oc.Dependencies{}, err
@@ -58,6 +61,9 @@ func (a *DirectTextEventAuthority) DiscoverAppend(ctx context.Context, actor i.A
 	return oc.NewDependencies(a.issuer, directTextEventBinding(actor, summary), run.runtimeLocks, []byte("execution.direct-text.event.v1"))
 }
 func (a *DirectTextEventAuthority) ValidateAppendInTx(ctx context.Context, tx f.Tx, actor i.Actor, summary event.Summary, deps oc.Dependencies, stage oc.Stage) error {
+	if ctx != nil && ctx.Value(executionRecoveryContextKey{}) != nil {
+		return a.validateRecoveryAppendInTx(ctx, tx, actor, summary, deps, stage)
+	}
 	run, expected, err := a.eventOwner(ctx, actor, summary)
 	if err != nil {
 		return err

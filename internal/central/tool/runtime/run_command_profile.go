@@ -178,6 +178,9 @@ func (r runCommandOperationRecord) validate() error {
 			return fail(f.InvalidState)
 		}
 	case "succeeded", "failed", "cancelled":
+		if r.Phase == "failed" && r.Version == 2 && r.Attempt == (tc.AttemptID{}) {
+			return nil
+		}
 		if r.Version != 3 || r.Attempt.Validate() != nil {
 			return fail(f.InvalidState)
 		}

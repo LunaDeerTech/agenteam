@@ -12,6 +12,7 @@ import (
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	tc "github.com/LunaDeerTech/agenteam/internal/central/tool/contract"
 )
 
@@ -74,19 +75,27 @@ func (d *ToolCallDriver) ReadToolCall(ctx context.Context, e i.ExecutionID) (tc.
 // private plan can only be consumed by this driver in the same Store, after
 // the complete union is held. Actual Operation creation remains unbound here.
 func (d *ToolCallDriver) DiscoverToolCall(ctx context.Context, b tc.ToolCallBinding) (tc.ToolCallPlan, error) {
+	if d == nil || d.driver == nil {
+		return nil, fault(f.DependencyUnbound)
+	}
+	return d.discoverToolCall(ctx, d.driver.state.store, b)
+}
+
+func (d *ToolCallDriver) discoverToolCall(ctx context.Context, x postgres.SQLExecutor, b tc.ToolCallBinding) (tc.ToolCallPlan, error) {
 	if d == nil || d.driver == nil || ctx == nil {
 		return nil, fault(f.DependencyUnbound)
 	}
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	if b.Validate() != nil || !d.driver.state.acceptsRunnerBinding(b.RunnerBinding) {
+	if b.Validate() != nil || !d.driver.state.acceptsToolBinding(b) {
 		return nil, invalid()
 	}
-	stored, err := loadDirectTextRound(ctx, d.driver.state.store, b.ExecutionID, b.RoundID)
+	stored, err := loadDirectTextRound(ctx, x, b.ExecutionID, b.RoundID)
 	if err != nil {
 		return nil, err
 	}
+
 	expected, err := toolBinding(stored)
 	if err != nil {
 		return nil, err
@@ -116,7 +125,11 @@ func (d *ToolCallDriver) RequireToolCallInTx(ctx context.Context, tx f.Tx, b tc.
 // The callback remains inside the original current-Agent witness lifetime.
 // Returning from Require and then lending its context would expire that proof.
 func (d *ToolCallDriver) withToolCallInTx(ctx context.Context, tx f.Tx, b tc.ToolCallBinding, plan tc.ToolCallPlan, consume func(context.Context, tc.ToolCallBinding, []byte) error) error {
-	if d == nil || d.driver == nil || ctx == nil || b.Validate() != nil || !d.driver.state.acceptsRunnerBinding(b.RunnerBinding) {
+	return d.withToolCallStateInTx(ctx, tx, b, plan, "", consume)
+}
+
+func (d *ToolCallDriver) withToolCallStateInTx(ctx context.Context, tx f.Tx, b tc.ToolCallBinding, plan tc.ToolCallPlan, waiting string, consume func(context.Context, tc.ToolCallBinding, []byte) error) error {
+	if d == nil || d.driver == nil || ctx == nil || b.Validate() != nil || !d.driver.state.acceptsToolBinding(b) {
 		return invalid()
 	}
 	p, ok := plan.(*toolCallPlan)
@@ -139,8 +152,17 @@ func (d *ToolCallDriver) withToolCallInTx(ctx context.Context, tx f.Tx, b tc.Too
 	if err != nil {
 		return err
 	}
-	if row == nil || stored == nil || stored.toolPending == nil || row.summary.Status != c.Running || row.summary.CancelRequestedAt != nil || row.summary.SnapshotID == nil || *row.summary.SnapshotID != stored.snapshot.Fields().ID || row.summary.Version < stored.toolPending.version || stored.snapshot.Digest() != p.snapshot || stored.round.Digest() != p.round {
+	if row == nil || stored == nil || stored.toolPending == nil || (row.summary.Status != c.Running && !(waiting != "" && row.summary.Status == c.Waiting)) || row.summary.CancelRequestedAt != nil || row.summary.SnapshotID == nil || *row.summary.SnapshotID != stored.snapshot.Fields().ID || row.summary.Version < stored.toolPending.version || stored.snapshot.Digest() != p.snapshot || stored.round.Digest() != p.round {
 		return fault(f.ConfirmationStale)
+	}
+	if waiting != "" {
+		ref, err := loadWaitingReference(ctx, x, b.ExecutionID)
+		if err != nil {
+			return err
+		}
+		if row.summary.Status != c.Waiting || ref == nil || *ref != waiting {
+			return fault(f.ConfirmationStale)
+		}
 	}
 	expected, err := toolBinding(stored)
 	if err != nil || !sameToolCallBinding(expected, b) {
@@ -177,28 +199,38 @@ func (d *ToolCallDriver) withToolCallInTx(ctx context.Context, tx f.Tx, b tc.Too
 	if err != nil {
 		return portError(err)
 	}
-	if s.multi != nil && b.RunnerBinding == tc.WriteFileRegistration().Binding && agent.Fields().Core.ApprovalPolicy != ac.ApprovalAllow {
-		return fault(f.CapabilityUnsupported)
-	}
 	fields := input.input.Fields()
-	if !slices.Contains(agent.Fields().AllowedToolIDs, b.Spec.ToolID) || slices.Contains(fields.Request.Launch.Policy.DeniedToolIDs, b.Spec.ToolID) || len(fields.Request.Launch.Policy.AllowedResourceConstraints) != 0 {
-		return fault(f.Forbidden)
-	}
-	mountID, err := toolCallMountID(ctx, b.RunnerBinding, stored.toolPending.original)
-	if err != nil {
-		return err
-	}
-	if !slices.Contains(agent.Fields().AllowedMountIDs, mountID) {
-		return fault(f.Forbidden)
-	}
-	found := false
-	for _, m := range fields.Mounts.Mounts {
-		if m.ID == mountID {
-			found = true
+	var selected *tc.ExecutionTool
+	for idx := range fields.Tools {
+		t := &fields.Tools[idx]
+		if t.ToolID == b.Spec.ToolID && t.SpecRevision == b.Spec.SpecRevision && t.ModelVisibleName == b.ModelVisibleName && t.BindingSnapshot.Binding == b.Binding && t.BindingSnapshot.RunnerBinding == b.RunnerBinding {
+			selected = t
+			break
 		}
 	}
-	if !found {
+	if selected == nil || len(fields.Request.Launch.Policy.AllowedResourceConstraints) != 0 {
 		return fault(f.Forbidden)
+	}
+	if err = requireCurrentCapturedTool(agent, fields.Request.Launch.Policy, *selected); err != nil {
+		return err
+	}
+	if b.RunnerBinding != (tc.RunnerBinding{}) {
+		mountID, err := toolCallMountID(ctx, b.RunnerBinding, stored.toolPending.original)
+		if err != nil {
+			return err
+		}
+		if !slices.Contains(agent.Fields().AllowedMountIDs, mountID) {
+			return fault(f.Forbidden)
+		}
+		found := false
+		for _, m := range fields.Mounts.Mounts {
+			if m.ID == mountID {
+				found = true
+			}
+		}
+		if !found {
+			return fault(f.Forbidden)
+		}
 	}
 	if err = s.tools.metadata.RequireExecutionToolFactsInTx(ctx, tx, toolFactsRequest(input.input, agent)); err != nil {
 		return portError(err)
@@ -249,6 +281,15 @@ func (a *Authority) requireToolCurrentConfiguration(ctx context.Context, tx f.Tx
 }
 
 var _ tc.OperationExecutionAuthority = (*ToolCallDriver)(nil)
+
+func (d *ToolCallDriver) WithBuiltinToolCallInTx(ctx context.Context, tx f.Tx, b tc.ToolCallBinding, plan tc.ToolCallPlan, consume func(context.Context, tc.ToolCallBinding, []byte) error) error {
+	if consume == nil || b.RunnerBinding != (tc.RunnerBinding{}) || !tc.WorkArtifactBuiltinBinding(b.Binding) {
+		return invalid()
+	}
+	return d.withToolCallInTx(ctx, tx, b, plan, consume)
+}
+
+var _ tc.BuiltinInputAuthority = (*ToolCallDriver)(nil)
 
 func sameToolCallBinding(a, b tc.ToolCallBinding) bool {
 	if !a.Actor.Equal(b.Actor) {

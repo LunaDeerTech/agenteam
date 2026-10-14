@@ -288,7 +288,7 @@ func saveDirectTextTerminal(ctx context.Context, x postgres.SQLExecutor, run *di
 			return err
 		}
 	}
-	tag, err = x.Exec(ctx, `UPDATE agenteam_execution.executions SET status=$3,version=version+1,completed_at=$4,updated_at=GREATEST($4,updated_at+interval '1 microsecond') WHERE id=$1 AND version=$2 AND status='running' AND snapshot_id=$5 AND ($3<>'succeeded' OR cancel_requested_at IS NULL)`, r.ExecutionID.String(), int64(t.before), string(t.status), t.at.Time(), r.SnapshotID.String())
+	tag, err = x.Exec(ctx, `UPDATE agenteam_execution.executions SET status=$3,waiting_reason=NULL,waiting_reference=NULL,waiting_at=NULL,version=version+1,completed_at=$4,updated_at=GREATEST($4,updated_at+interval '1 microsecond') WHERE id=$1 AND version=$2 AND status IN ('running','waiting') AND snapshot_id=$5 AND ($3<>'succeeded' OR cancel_requested_at IS NULL)`, r.ExecutionID.String(), int64(t.before), string(t.status), t.at.Time(), r.SnapshotID.String())
 	if err != nil {
 		return unavailable(err)
 	}

@@ -29,7 +29,12 @@ func (s *projectCallState) captureProjectOutcome(e *projectCallEntry, original e
 	v := &projectCallOutcome{}
 	switch e.record.Lane {
 	case projectLaneService:
-		v.readOnly = e.read != nil || e.identity.Command() == "lookup_launch"
+		v.readOnly = e.read != nil || e.identity.Command() == "lookup_launch" || e.identity.Command() == "lookup_cancel"
+		if e.cancellation != nil {
+			if originalResult, ok := UnknownAttempt(original); ok && originalResult.Cause().Details().Owner == "execution.cancel.lookup" {
+				v.readOnly = true
+			}
+		}
 	case projectLanePreparation:
 		p := s.preparation.state
 		p.mu.Lock()
@@ -168,6 +173,12 @@ func (s *projectCallState) confirmBusinessOutcome(ctx context.Context, e *projec
 	}
 	var extra []f.LockRequest
 	switch {
+	case e.cancellation != nil:
+		command, err := e.cancellation.Identity()
+		if err != nil {
+			return original
+		}
+		extra = append(scopeLocks(e.actor, e.record.Project, e.launchKey.AgentID, f.Shared), commandLock(command), executionLock(e.execution))
 	case e.read != nil:
 		// The original business transaction was read-only. Its uncertain ACK
 		// cannot have changed Execution or Work; only this exact technical
@@ -208,6 +219,12 @@ func (s *projectCallState) confirmBusinessOutcome(ctx context.Context, e *projec
 			return fault(f.ConfirmationStale)
 		}
 		switch {
+		case e.cancellation != nil:
+			receipt, readErr := loadCancellation(ctx, x, *e.cancellation, e.actor.Details().UserID, e.launchDigest)
+			if readErr != nil {
+				return readErr
+			}
+			found = receipt != nil || v.readOnly
 		case e.read != nil:
 			found = v.readOnly && s.reader != nil
 		case e.record.Lane == projectLaneService:
@@ -292,7 +309,7 @@ func (s *projectCallState) confirmPreparationInTx(ctx context.Context, tx f.Tx, 
 // resources' read-only retirement ports. It never calls Result, Start, Advance
 // or a normal Resolve that could write a new terminal transition.
 func (s *projectCallState) confirmDirectInTx(ctx context.Context, tx f.Tx, x postgres.SQLExecutor, run *directTextCall) (bool, error) {
-	if run.uncertainty != "terminal" || run.terminal == nil || run.invocation == nil || run.invocation.session == nil || !run.allJoined || !run.invocation.session.Joined() || run.input == nil {
+	if run.uncertainty != "terminal" || run.terminal == nil || !run.allJoined || !joinedLoopCheckpoint(run) || run.input == nil {
 		return false, nil
 	}
 	row, err := loadExecution(ctx, x, run.request.ExecutionID)
@@ -408,7 +425,7 @@ func (s *projectCallState) recoveredProjectCall(e *projectCallEntry, prior error
 		if prior == nil || !sameProjectOutcomeError(prior, e.outcomeErr) {
 			return
 		}
-	case "lookup_launch", "resolve_preparation", "resolve_direct":
+	case "lookup_launch", "lookup_cancel", "resolve_preparation", "resolve_direct":
 		if prior != nil {
 			return
 		}

@@ -30,6 +30,9 @@ type TaskExecution struct {
 	CancelRequestedAt *f.Instant    `json:"cancel_requested_at"`
 	SnapshotID        *SnapshotID   `json:"snapshot_id"`
 	Reason            *string       `json:"reason"`
+	WaitingReason     *string       `json:"waiting_reason"`
+	WaitingReference  *string       `json:"waiting_reference"`
+	WaitingAt         *f.Instant    `json:"waiting_at"`
 }
 
 type TaskExecutionPage struct {

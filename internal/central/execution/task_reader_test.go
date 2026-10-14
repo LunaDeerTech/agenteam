@@ -86,7 +86,7 @@ func (s *taskReadStore) QueryRow(ctx context.Context, q string, args ...any) pos
 	if len(args) != 3 || args[0] != s.row[0] || args[1] != s.row[1] {
 		return launchScan{}
 	}
-	return launchScan{values: append(append([]any{}, s.row...), (*string)(nil), (*string)(nil), (*int64)(nil), (*time.Time)(nil))}
+	return launchScan{values: append(append([]any{}, s.row...), (*string)(nil), (*string)(nil), (*int64)(nil), (*time.Time)(nil), (*string)(nil), (*string)(nil), (*time.Time)(nil))}
 }
 func (s *taskReadStore) Query(_ context.Context, q string, args ...any) (*postgres.Rows, error) {
 	s.query = q

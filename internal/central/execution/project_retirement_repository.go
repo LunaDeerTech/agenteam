@@ -25,6 +25,7 @@ var retirementUnsupportedTables = [...]string{
 // The Execution -> Snapshot edge is initially deferred. All other edges are
 // removed child first; no state or receipt is rewritten to make deletion pass.
 var retirementHistoryTables = [...]string{
+	"cancel_commands", "loop_approval_results",
 	"runtime_snapshots",
 	"transcript_entries", "rounds", "snapshots", "preparation_inputs",
 	"preparation_claims", "preparation_attempts", "skill_assignment_ingress",
@@ -65,10 +66,10 @@ func readRetirementBefore(ctx context.Context, x postgres.SQLExecutor, id i.Exec
 	// loadExecution validates the business shape, but its historical projection
 	// omits these immutable/current fields. Freeze the complete row, not Summary.
 	var full map[string]json.RawMessage
-	if json.Unmarshal(b.raw, &full) != nil || len(full) != 17 {
+	if json.Unmarshal(b.raw, &full) != nil || len(full) != 20 {
 		return nil, unavailable(nil)
 	}
-	for _, key := range []string{"id", "project_id", "agent_id", "status", "version", "idempotency_key", "request_id", "request_digest", "trigger_reference_digest", "launch_request", "initiator", "cancel_requested_at", "snapshot_id", "created_at", "updated_at", "started_at", "completed_at"} {
+	for _, key := range []string{"id", "project_id", "agent_id", "status", "version", "idempotency_key", "request_id", "request_digest", "trigger_reference_digest", "launch_request", "initiator", "cancel_requested_at", "snapshot_id", "created_at", "updated_at", "started_at", "completed_at", "waiting_reason", "waiting_reference", "waiting_at"} {
 		if _, ok := full[key]; !ok {
 			return nil, unavailable(nil)
 		}
@@ -77,6 +78,12 @@ func readRetirementBefore(ctx context.Context, x postgres.SQLExecutor, id i.Exec
 	var updated time.Time
 	var origin i.ActorDetails
 	if json.Unmarshal(full["trigger_reference_digest"], &trigger) != nil || trigger.Validate() != nil || json.Unmarshal(full["updated_at"], &updated) != nil || updated.Before(r.summary.CreatedAt.Time()) || json.Unmarshal(full["initiator"], &origin) != nil || origin.Kind != i.Human && origin.Kind != i.Service {
+		return nil, unavailable(nil)
+	}
+	var reason, reference *string
+	var waitingAt *time.Time
+	projection := ec.TaskExecution{Status: r.summary.Status, StartedAt: r.summary.StartedAt}
+	if json.Unmarshal(full["waiting_reason"], &reason) != nil || json.Unmarshal(full["waiting_reference"], &reference) != nil || json.Unmarshal(full["waiting_at"], &waitingAt) != nil || projectTaskWaiting(&projection, reason, reference, waitingAt) != nil {
 		return nil, unavailable(nil)
 	}
 	if err = requireNoUnsupportedRetirementHistory(ctx, x, id); err != nil {

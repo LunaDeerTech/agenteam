@@ -11,7 +11,9 @@ import {
 import { captureKnowledgeMove, createKnowledgeMoveAPI, type KnowledgeMoveAPI, type KnowledgeMoveInput, type KnowledgeMoveResult, type KnowledgeMoveLookup } from '../api/knowledge-move'
 import { randomUUID } from '../utils/random-uuid'
 import { createTaskExecutionOutputAPI, type TaskExecutionOutputAPI } from '../api/task-execution-output'
-import { createTaskExecutionsAPI, type TaskExecutionsAPI, type TaskExecutionQuery } from '../api/task-executions'
+import { createTaskExecutionsAPI, parseTaskExecution, type TaskExecution, type TaskExecutionsAPI, type TaskExecutionQuery } from '../api/task-executions'
+import { createTaskExecutionCancelAPI, captureTaskExecutionCancelInput, type TaskExecutionCancelAPI, type TaskExecutionCancelInput, type TaskExecutionCancelReceipt, type TaskExecutionCancelResult, type TaskExecutionCancelLookup } from '../api/task-execution-cancel'
+import { createExecutionApprovalAPI, capturePendingExecutionApproval, captureExecutionApprovalDecision, type ExecutionApprovalAPI, type ExecutionApproval, type ExecutionApprovalScope, type ExecutionApprovalDecision, type ExecutionApprovalReceipt, type ExecutionApprovalLookup } from '../api/execution-approval'
 import { createSkillImportAPI, captureSkillImport, type SkillImportAPI, type SkillImportInput, type SkillImportReceipt } from '../api/skill-import'
 import {
   createProjectSecretCommandsAPI, captureProjectSecretCreate, captureProjectSecretUpdate,
@@ -652,6 +654,37 @@ type WorkReviewIntent = {
   | { kind: 'dependency-resolve'; input: TaskDependencyResolveInput; relatedTaskID: string; taskBefore: Task }
 )
 type WorkCommandReceipt = ReviewReceipt | TaskCreateReceipt | TaskUpdateReceipt | HumanBlockerReceipt
+type ExecutionCancelIntent = {
+  kind: 'execution-cancel'
+  identity: PersonalIdentity
+  csrf: string
+  projectID: string
+  taskID: string
+  executionID: string
+  key: string
+  body: string
+  input: TaskExecutionCancelInput
+  uncertain: boolean
+}
+export type ExecutionCancelProgress = Readonly<{
+  projectID: string
+  taskID: string
+  executionID: string
+  phase: 'submitting' | 'uncertain' | 'confirmed' | 'rejected'
+  receipt: TaskExecutionCancelReceipt | null
+  observation: 'none' | 'committed' | 'not_observed' | 'failed'
+  contextValid: boolean
+}>
+type ApprovalDecisionIntent = Omit<ExecutionCancelIntent, 'kind' | 'input'> & {
+  kind: 'approval-decision'
+  approval: ExecutionApproval
+  input: ExecutionApprovalDecision
+}
+export type ExecutionApprovalProgress = Omit<ExecutionCancelProgress, 'receipt'> & Readonly<{
+  approvalID: string
+  decision: 'approve' | 'reject'
+  receipt: ExecutionApprovalReceipt | null
+}>
 type WorkCommandLookup = ReviewLookup | TaskCreateLookup | TaskUpdateLookup | HumanBlockerLookup
 export type WorkReviewProgress = Readonly<{
   kind: WorkReviewIntent['kind']
@@ -1169,6 +1202,8 @@ export function createSessionController(
     taskReorder?: WorkTaskReorderAPI
     edit?: WorkTaskEditAPI
     taskExecutions?: TaskExecutionsAPI
+    taskExecutionCancel?: TaskExecutionCancelAPI
+    executionApproval?: ExecutionApprovalAPI
     taskExecutionOutput?: TaskExecutionOutputAPI
     taskTimeline?: WorkTaskTimelineAPI
     systemRunners?: SystemRunnersAPI
@@ -1215,6 +1250,8 @@ export function createSessionController(
   const taskReorderAPI = commandAPIs.taskReorder ?? createWorkTaskReorderAPI()
   const taskEditAPI = commandAPIs.edit ?? createWorkTaskEditAPI()
   const taskExecutionsAPI = commandAPIs.taskExecutions ?? createTaskExecutionsAPI()
+  const taskExecutionCancelAPI = commandAPIs.taskExecutionCancel ?? createTaskExecutionCancelAPI()
+  const executionApprovalAPI = commandAPIs.executionApproval ?? createExecutionApprovalAPI()
   const taskExecutionOutputAPI = commandAPIs.taskExecutionOutput ?? createTaskExecutionOutputAPI()
   const taskTimelineAPI = commandAPIs.taskTimeline ?? createWorkTaskTimelineAPI()
   const agentRunnerMountsAPI = commandAPIs.agentRunnerMounts ?? createAgentRunnerMountsAPI()
@@ -1411,7 +1448,13 @@ export function createSessionController(
   }>({ progress: null })
   const isWorkReviewAction = (kind: Action): kind is WorkReviewAction =>
     Object.hasOwn(workReviewRevisions, kind)
-  let workReviewIntent: WorkReviewIntent | null = null
+  let workReviewIntent: WorkReviewIntent | ExecutionCancelIntent | ApprovalDecisionIntent | null = null
+  const executionCancelState = shallowReactive<{
+    progress: Omit<ExecutionCancelProgress, 'contextValid'> | null
+  }>({ progress: null })
+  const executionApprovalState = shallowReactive<{
+    progress: Omit<ExecutionApprovalProgress, 'contextValid'> | null
+  }>({ progress: null })
   const workReviewState = shallowReactive<{
     progress: Omit<WorkReviewProgress, 'contextValid'> | null
   }>({ progress: null })
@@ -6770,9 +6813,11 @@ export function createSessionController(
       ++workReviewRevisions[kind]
     workReviewIntent = null
     workReviewState.progress = null
+    executionCancelState.progress = null
+    executionApprovalState.progress = null
     if (owner && isWorkReviewAction(owner.kind)) owner.abandon?.()
   }
-  function reviewCurrent(original: WorkReviewIntent) {
+  function reviewCurrent(original: WorkReviewIntent | ExecutionCancelIntent | ApprovalDecisionIntent) {
     return workReviewIntent === original && projectContext(original)
   }
   function publishReview(
@@ -6917,6 +6962,170 @@ export function createSessionController(
       return Promise.reject(error)
     }
   }
+  function publishExecutionCancel(
+    original: ExecutionCancelIntent,
+    phase: ExecutionCancelProgress['phase'],
+    receipt: TaskExecutionCancelReceipt | null = null,
+    observation: ExecutionCancelProgress['observation'] = 'none',
+  ) {
+    executionCancelState.progress = Object.freeze({
+      projectID: original.projectID, taskID: original.taskID, executionID: original.executionID,
+      phase, receipt, observation,
+    })
+  }
+  function performExecutionCancel(original: ExecutionCancelIntent, lookup: boolean): Promise<TaskExecutionCancelResult | TaskExecutionCancelLookup> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    if (!reviewCurrent(original)) return Promise.reject(new AccountFailure('invalid-input'))
+    const kind: WorkReviewAction = lookup ? 'work-review-lookup' : 'work-review-transfer',
+      revision = workReviewRevisions[kind]
+    const live = () => reviewCurrent(original) && revision === workReviewRevisions[kind]
+    let dispatched = false
+    if (!lookup) publishExecutionCancel(original, 'submitting')
+    return runAuthorized<TaskExecutionCancelResult | TaskExecutionCancelLookup>(original.identity, async (op, current) => {
+      if (!current() || !live()) throw new AccountFailure('cancelled')
+      if (JSON.stringify(original.input) !== original.body) throw new AccountFailure('invalid-input')
+      dispatched = true
+      const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
+      return lookup
+        ? taskExecutionCancelAPI.lookup(original.projectID, original.taskID, original.executionID, original.input, write)
+        : taskExecutionCancelAPI.cancel(original.projectID, original.taskID, original.executionID, original.input, write)
+    }, undefined, kind).then(value => {
+      if (!live()) throw new AccountFailure('cancelled')
+      if ('found' in value && !value.found) {
+        original.uncertain = true
+        publishExecutionCancel(original, 'uncertain', null, 'not_observed')
+      } else {
+        publishExecutionCancel(original, 'confirmed', value.receipt, lookup ? 'committed' : 'none')
+        workReviewIntent = null
+      }
+      return value
+    }, error => {
+      const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
+      if (live()) {
+        const problem = failure.problem
+        if (problem && [403, 404].includes(problem.status)) {
+          clearWorkReviewState()
+          throw failure
+        }
+        const rejected = !dispatched || (!!problem && ['not_started', 'not_committed'].includes(problem.commit_state) && problem.code !== 'IDEMPOTENCY_KEY_REUSED')
+        original.uncertain ||= lookup || !rejected
+        publishExecutionCancel(original, original.uncertain ? 'uncertain' : 'rejected', null, lookup ? 'failed' : 'none')
+      }
+      throw failure
+    })
+  }
+  // Execution cancellation shares the Task command slot: an Unknown result
+  // cannot admit another Task mutation, new key, or opposite control intent.
+  const executionCancel = {
+    get progress(): ExecutionCancelProgress | null {
+      const value = executionCancelState.progress
+      return value ? Object.freeze({ ...value, contextValid: workReviewIntent?.kind === 'execution-cancel' && reviewCurrent(workReviewIntent) }) : null
+    },
+    start(projectID: string, taskID: string, executionID: string, value: TaskExecutionCancelInput) {
+      try {
+        const identity = personalIdentity()
+        if (owner || workReviewIntent || milestoneReorderIntent || sprintReorderIntent || milestoneUpdateIntent || sprintUpdateIntent || personalIntent || pending || sprintStartIntent || sprintCreateIntent || milestoneCreateIntent)
+          throw new AccountFailure('busy')
+        if (![projectID, taskID, executionID].every(id => uuid7.test(id))) throw new AccountFailure('invalid-input')
+        const input = captureTaskExecutionCancelInput(value)
+        const original: ExecutionCancelIntent = { kind: 'execution-cancel', identity, csrf: sessionCSRF, projectID, taskID, executionID, input, key: newKey(), body: JSON.stringify(input), uncertain: false }
+        workReviewState.progress = null
+        workReviewIntent = original
+        return performExecutionCancel(original, false)
+      } catch (error) { return Promise.reject(error) }
+    },
+    checkOriginal() {
+      if (workReviewIntent?.kind !== 'execution-cancel' || !workReviewIntent.uncertain)
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performExecutionCancel(workReviewIntent, true)
+    },
+    editRejected() {
+      if (owner || workReviewIntent?.kind !== 'execution-cancel' || !reviewCurrent(workReviewIntent) || workReviewIntent.uncertain || executionCancelState.progress?.phase !== 'rejected')
+        throw new AccountFailure('busy')
+      workReviewIntent = null
+      executionCancelState.progress = null
+    },
+    forgetUnavailable(projectID: string, taskID: string, executionID?: string) {
+      if (workReviewIntent?.kind === 'execution-cancel' && workReviewIntent.projectID === projectID && workReviewIntent.taskID === taskID && (!executionID || workReviewIntent.executionID === executionID))
+        clearWorkReviewState()
+    },
+  }
+  function publishApprovalDecision(original: ApprovalDecisionIntent, phase: ExecutionApprovalProgress['phase'], receipt: ExecutionApprovalReceipt | null = null, observation: ExecutionApprovalProgress['observation'] = 'none') {
+    executionApprovalState.progress = Object.freeze({ projectID: original.projectID, taskID: original.taskID, executionID: original.executionID, approvalID: original.approval.id, decision: original.input.decision, phase, receipt, observation })
+  }
+  function performApprovalDecision(original: ApprovalDecisionIntent, lookup: boolean): Promise<ExecutionApprovalReceipt | ExecutionApprovalLookup> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    if (!reviewCurrent(original)) return Promise.reject(new AccountFailure('invalid-input'))
+    const kind: WorkReviewAction = lookup ? 'work-review-lookup' : 'work-review-transfer', revision = workReviewRevisions[kind]
+    const live = () => reviewCurrent(original) && revision === workReviewRevisions[kind]
+    let dispatched = false
+    if (!lookup) publishApprovalDecision(original, 'submitting')
+    return runAuthorized<ExecutionApprovalReceipt | ExecutionApprovalLookup>(original.identity, async (op, current) => {
+      if (!current() || !live()) throw new AccountFailure('cancelled')
+      if (JSON.stringify(original.input) !== original.body) throw new AccountFailure('invalid-input')
+      dispatched = true
+      const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
+      return lookup
+        ? executionApprovalAPI.lookup(original.approval, original.input, original.identity.userID, write)
+        : executionApprovalAPI.decide(original.approval, original.input, original.identity.userID, write)
+    }, undefined, kind).then(value => {
+      if (!live()) throw new AccountFailure('cancelled')
+      if ('status' in value && value.status !== 'committed') {
+        original.uncertain = true
+        publishApprovalDecision(original, 'uncertain', null, 'not_observed')
+      } else {
+        publishApprovalDecision(original, 'confirmed', 'status' in value ? value.receipt : value, lookup ? 'committed' : 'none')
+        workReviewIntent = null
+      }
+      return value
+    }, error => {
+      const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
+      if (live()) {
+        const problem = failure.problem
+        if (problem && [403, 404].includes(problem.status)) { clearWorkReviewState(); throw failure }
+        const rejected = !dispatched || (!!problem && ['not_started', 'not_committed'].includes(problem.commit_state) && problem.code !== 'IDEMPOTENCY_KEY_REUSED')
+        original.uncertain ||= lookup || !rejected
+        publishApprovalDecision(original, original.uncertain ? 'uncertain' : 'rejected', null, lookup ? 'failed' : 'none')
+      }
+      throw failure
+    })
+  }
+  const executionApproval = {
+    get progress(): ExecutionApprovalProgress | null {
+      const value = executionApprovalState.progress
+      return value ? Object.freeze({ ...value, contextValid: workReviewIntent?.kind === 'approval-decision' && reviewCurrent(workReviewIntent) }) : null
+    },
+    get: (scope: ExecutionApprovalScope) => reviewRead(signal => executionApprovalAPI.get(scope, signal)),
+    start(projectID: string, taskID: string, value: TaskExecution, pendingApproval: ExecutionApproval, decision: 'approve' | 'reject') {
+      try {
+        const identity = personalIdentity()
+        if (owner || workReviewIntent || milestoneReorderIntent || sprintReorderIntent || milestoneUpdateIntent || sprintUpdateIntent || personalIntent || pending || sprintStartIntent || sprintCreateIntent || milestoneCreateIntent)
+          throw new AccountFailure('busy')
+        if (![projectID, taskID].every(id => uuid7.test(id))) throw new AccountFailure('invalid-input')
+        let execution: TaskExecution
+        try { execution = parseTaskExecution(value, projectID, taskID, value.id) } catch { throw new AccountFailure('invalid-input') }
+        const approval = capturePendingExecutionApproval(pendingApproval)
+        if (execution.status !== 'waiting' || execution.cancel_requested_at !== null || execution.waiting_reason !== 'approval' || execution.waiting_reference !== approval.id || approval.project_id !== projectID || approval.execution_id !== execution.id || approval.agent_id !== execution.agent_id)
+          throw new AccountFailure('invalid-input')
+        const input = captureExecutionApprovalDecision({ decision, expected_version: approval.version })
+        const original: ApprovalDecisionIntent = { kind: 'approval-decision', identity, csrf: sessionCSRF, projectID, taskID, executionID: execution.id, approval, input, key: newKey(), body: JSON.stringify(input), uncertain: false }
+        workReviewState.progress = null
+        workReviewIntent = original
+        return performApprovalDecision(original, false)
+      } catch (error) { return Promise.reject(error) }
+    },
+    checkOriginal() {
+      if (workReviewIntent?.kind !== 'approval-decision' || !workReviewIntent.uncertain) return Promise.reject(new AccountFailure('invalid-input'))
+      return performApprovalDecision(workReviewIntent, true)
+    },
+    editRejected() {
+      if (owner || workReviewIntent?.kind !== 'approval-decision' || !reviewCurrent(workReviewIntent) || workReviewIntent.uncertain || executionApprovalState.progress?.phase !== 'rejected') throw new AccountFailure('busy')
+      workReviewIntent = null; executionApprovalState.progress = null
+    },
+    forgetUnavailable(projectID: string, taskID: string) {
+      if (workReviewIntent?.kind === 'approval-decision' && workReviewIntent.projectID === projectID && workReviewIntent.taskID === taskID) clearWorkReviewState()
+    },
+  }
   // The Session owns keys/payloads and the actual request tail. Views receive only safe progress.
   const workReview = {
     get progress(): WorkReviewProgress | null {
@@ -6943,6 +7152,10 @@ export function createSessionController(
       reviewRead((signal) => taskExecutionsAPI.get(p, t, e, signal)),
     executionOutput: (p: string, t: string, e: string) =>
       reviewRead((signal) => taskExecutionOutputAPI.get(p, t, e, signal)),
+    executionArtifacts: (p: string, q: ArtifactQuery) =>
+      reviewRead((signal) => projectArtifactsAPI.list(p, q, signal)),
+    executionArtifactContent: (ref: ArtifactRef, q: ArtifactReadQuery) =>
+      reviewRead((signal) => projectArtifactsAPI.read(ref, q, signal)),
     events: (p: string, t: string, q: TaskTimelineQuery) =>
       reviewRead((signal) => taskTimelineAPI.list(p, t, q, signal)),
     blockers: (p: string, t: string, q: PageQuery) =>
@@ -7135,7 +7348,7 @@ export function createSessionController(
       }
     },
     checkOriginal() {
-      if (!workReviewIntent?.uncertain) return Promise.reject(new AccountFailure('invalid-input'))
+      if (!workReviewIntent?.uncertain || workReviewIntent.kind === 'execution-cancel' || workReviewIntent.kind === 'approval-decision') return Promise.reject(new AccountFailure('invalid-input'))
       return performReview(workReviewIntent, true)
     },
     editRejected() {
@@ -10367,6 +10580,8 @@ export function createSessionController(
     projectCreation,
     projectScheduler,
     workReview,
+    executionCancel,
+    executionApproval,
     workTaskBlockers,
     workTaskDependencies,
     workSprintLifecycle,

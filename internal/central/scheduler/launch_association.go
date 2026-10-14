@@ -81,6 +81,10 @@ func (s *LaunchHandoff) markAttempt(ctx context.Context, call *launchCall, retry
 		if r.status != Pending {
 			return ctx.Err()
 		}
+		if r.cancelRequested {
+			out, err = settleTaskCancellation(ctx, x, r)
+			return err
+		}
 		if retry {
 			if !retryableTemporary(r) || r.nextRetry.Time().After(time.Now().UTC()) {
 				return ctx.Err()

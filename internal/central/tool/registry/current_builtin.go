@@ -37,3 +37,31 @@ func (r *Registry) RequireCurrentBuiltinInTx(ctx context.Context, tx f.Tx, spec 
 	}
 	return portError(ctx.Err())
 }
+
+// RequireCurrentWorkArtifactBuiltinInTx checks the closed Task/Artifact Core
+// set without routing it through the Ordinary Agent configuration gate.
+// Current capture still proves the immutable definition and actual Source;
+// this metadata check grants no Execution or domain mutation authority.
+func (r *Registry) RequireCurrentWorkArtifactBuiltinInTx(ctx context.Context, tx f.Tx, spec tc.SpecRef, binding tc.BuiltinBinding, scope tc.ScopeResolverID, risk tc.RiskClassifierID) error {
+	if r.data() == nil {
+		return fail(f.DependencyUnbound)
+	}
+	if ctx == nil || spec.Validate() != nil || !tc.WorkArtifactBuiltinBinding(binding) || scope == "" || risk == "" {
+		return fail(f.InvalidArgument)
+	}
+	x, err := r.executor(ctx, tx, []f.LockRequest{RegistryLock(f.Shared), toolLock(spec.ToolID, f.Shared)})
+	if err != nil {
+		return err
+	}
+	current, found, err := r.currentCaptureTool(ctx, tx, x, spec.ToolID)
+	if err != nil {
+		return err
+	}
+	if !found {
+		return fail(f.NotFound)
+	}
+	if current.Class != tc.CoreTool || current.Ref != spec || current.Binding != binding || current.Scope != scope || current.Risk != risk {
+		return fail(f.InvalidState)
+	}
+	return portError(ctx.Err())
+}

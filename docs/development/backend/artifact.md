@@ -1,6 +1,8 @@
 # Artifact 与浏览器业务下载
 
-D05 B02 提供 `internal/central/artifact` 与 `object.Downloads` 库，行为契约以[对象实施规格](../work-items/d05-object-storage-design.md)为准。它们消费已实现的 Object、SourceReads、Audit、cursor 和事务端口。Central 已装配 D05 Object Runtime 及 D07 真实 Session、本人头像对象授权与账户 HTTP；Artifact 和通用下载 HTTP 本身仍未安装，Project、Agent、Execution、Operation 和 Tool 的相应生产授权仍待绑定，缺失依赖明确拒绝。头像读取不是 Artifact 下载适配，Runner transfer 授权仍未绑定。
+D05 B02 提供 `internal/central/artifact` 与 `object.Downloads` 库，行为契约以[对象实施规格](../work-items/d05-object-storage-design.md)为准。它们消费已实现的 Object、SourceReads、Audit、cursor 和事务端口。Central 已装配 Object Runtime、真实 Session 与 Artifact Owner HTTP，提供当前 Owner 的列表、内容读取及 inline content 创建/原命令查证/取消，正式字段见 [Artifact Owner OpenAPI](../../../api/openapi/artifact-owner.json)。Human POST 不接受调用方指定 Agent/Execution/Operation 来源；读取可返回原 Agent 成果的实际来源。
+
+显式 `tool-loop-v1` 已绑定 AgentRun 的 Core Artifact 创建与读取，按原 Execution/Operation/ToolCall 私有绑定、当前权限和完整 ArtifactRef 核验。Execution Runtime 仍[默认关闭](README.md#配置与命令)。当前 App 的 Source 复制、通用签名下载 HTTP 与 Runner transfer 授权仍未绑定；下文库接口不表示这些入口均已接入，缺失依赖明确拒绝。
 
 ## 创建、恢复与清理
 
@@ -32,7 +34,7 @@ Artifact 行、canonical reference、成功 Create Audit 与完成命令同 Tx �
 
 `OpenDownload` 每次验证签名、期限、原 User、当前 Session/Owner、provider 映射及 grant，再确认 started Audit，取得真实 reader lease 后才 GET。支持单一 `bytes` range、前缀和后缀；不支持多区间。416 的总长度只通过已经授权的专用错误投影返回，不能从无效 token 探测对象大小。Range 不声称重算全文 SHA；完整响应沿 Object 的 64 KiB 尾部保留机制，实际 EOF/长度/SHA 通过才交付最后一段。
 
-生产 HTTP adapter 必须由真实 Session 解析当前 Human，取得 `DownloadStream`，调用一次 `StreamHTTP` 并始终 Close。writer 必须支持 `http.ResponseController.SetWriteDeadline`；已写 headers 后发生错误应使用 `http.ErrAbortHandler` 中断，不能追加 Problem JSON、改写状态或重发。未来 adapter 还须避免访问日志、referer、错误或 trace 记录原 bearer path。当前真实 HTTP 测试 adapter 仅存在于 `tests/objects`。
+通用签名下载的生产 HTTP adapter 必须由真实 Session 解析当前 Human，取得 `DownloadStream`，调用一次 `StreamHTTP` 并始终 Close。writer 必须支持 `http.ResponseController.SetWriteDeadline`；已写 headers 后发生错误应使用 `http.ErrAbortHandler` 中断，不能追加 Problem JSON、改写状态或重发。未来 adapter 还须避免访问日志、referer、错误或 trace 记录原 bearer path。当前真实 HTTP 测试 adapter 仅存在于 `tests/objects`。
 
 响应包含 `nosniff`、`private, no-store`、`no-referrer`、sandbox CSP 和 RFC 5987 文件名；HTML/SVG/XML/PDF、二进制及 MIME 伪装强制 attachment。仅受限的实际图片与有效文本候选允许预览，文本按安全 plain text 输出。强制关闭通过原 operation context 的 socket deadline 中断实际 Write，reader 与 HTTP I/O join 及后置处理都算在 Object Drain/Force 内；首停后的已准入流继续使用原预算。
 
@@ -45,4 +47,4 @@ AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go sh scripts/check-go.sh
 AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go sh scripts/test-objects.sh -run '^(TestArtifact|TestDownload|TestSource)'
 ```
 
-真实测试使用固定 PG 与 SHA 核验的源码构建 MinIO、临时凭据、内部网络和精确 nonce 清理；不连接现有部署。协议与构建来源见[固定研究报告](../work-items/d05-object-storage-research.md)，库/fixture配置见[后端说明](README.md)。阶段的实际通过、失败修复及未验证范围由[D05 主卡](../work-items/d05-object-storage-artifact.md)记录；当前 D07 Session/头像与 MinIO 的生产组合另见[D07 主卡](../work-items/d07-account-session-smtp.md)，不把这些结果当作 Artifact/下载 HTTP 或 Runner 集成已完成。
+真实测试使用固定 PG 与 SHA 核验的源码构建 MinIO、临时凭据、内部网络和精确 nonce 清理；不连接现有部署。协议与构建来源见[固定研究报告](../work-items/d05-object-storage-research.md)，库/fixture配置见[后端说明](README.md)。D05 库阶段的通过、失败与未验证范围见[D05 主卡](../work-items/d05-object-storage-artifact.md)，D07 Session/头像与 MinIO 的组合见[D07 主卡](../work-items/d07-account-session-smtp.md)。后续 Runner 工具链见已接受的 [M1 集成卡](../work-items/m1-app-integration.md)；AgentRun 发布真实 Artifact、Human HTTP/浏览器读取并接受或退回修订，以及跨项目来源拒绝的限定接受见 [M2 独立审查](../work-items/m2-independent-review.md)。这些结果不代替通用签名下载/transfer、完整生命周期或 M2 最终真实链验收。

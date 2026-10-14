@@ -219,8 +219,10 @@ func TestSchedulerRetryDueRequiresCurrentEligibilityAndCommit(t *testing.T) {
 			}
 			out, err := h.RetryDue(context.Background(), store.row.project, store.row.id)
 			if mode == "due" {
-				if err != nil || out.Summary().Status != Launched || out.Summary().AttemptCount != 2 || execution.launches != 1 || execution.lookups != 0 || project.reads == 0 || store.writes != 2 || !reflect.DeepEqual(execution.lastRequest, original) {
-					t.Fatal("eligible committed retry did not perform one original-key handoff and association", err)
+				// The two Dispatch writes also create the original Task runtime
+				// association. Count all three persisted effects, with one RPC.
+				if err != nil || out.Summary().Status != Launched || out.Summary().AttemptCount != 2 || execution.launches != 1 || execution.lookups != 0 || project.reads == 0 || store.writes != 3 || store.associationRuntime == nil || !reflect.DeepEqual(execution.lastRequest, original) {
+					t.Fatalf("eligible committed retry: status=%s attempts=%d launches=%d lookups=%d project_reads=%d writes=%d same_request=%t err=%v", out.Summary().Status, out.Summary().AttemptCount, execution.launches, execution.lookups, project.reads, store.writes, reflect.DeepEqual(execution.lastRequest, original), err)
 				}
 				if _, err = h.RetryDue(context.Background(), store.row.project, store.row.id); execution.launches != 1 || store.row.attempts != 2 {
 					t.Fatal("completed retry was sent a second time", err)

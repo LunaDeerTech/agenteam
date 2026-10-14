@@ -44,6 +44,7 @@ type directTextCall struct {
 	toolFailed                              bool
 	next                                    *loopSuccessor
 	toolFacts                               *toolCallCandidate
+	cold                                    *executionColdCheckpoint
 }
 
 type directTextState struct {
@@ -159,7 +160,7 @@ func (a *Authority) directTextModelScope(ctx context.Context, tx f.Tx, allowClos
 	if err != nil {
 		return zero, err
 	}
-	if row == nil || stored == nil || !((c.PreparationRequest{ExecutionID: row.summary.ID, Launch: row.launch}).Equal(run.request)) || row.summary.Status != c.Running || row.summary.SnapshotID == nil || *row.summary.SnapshotID != snapshot.Fields().ID || !sameDirectText(stored, snapshot, round) {
+	if row == nil || stored == nil || !((c.PreparationRequest{ExecutionID: row.summary.ID, Launch: row.launch}).Equal(run.request)) || (row.summary.Status != c.Running && !(allowClosing && row.summary.Status == c.Waiting)) || row.summary.SnapshotID == nil || *row.summary.SnapshotID != snapshot.Fields().ID || !sameDirectText(stored, snapshot, round) {
 		return zero, fault(f.ConfirmationStale)
 	}
 	if !allowClosing && row.summary.CancelRequestedAt != nil {

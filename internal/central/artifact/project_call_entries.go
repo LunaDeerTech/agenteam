@@ -22,7 +22,7 @@ func (s *Service) CreateFromContent(ctx context.Context, v ac.Invocation, meta f
 	return out, s.projectCallError(ctx, err)
 }
 
-// LookupCreation observes an inline Human command through a fresh owned read.
+// LookupCreation observes an inline Human or bound AgentRun command through a fresh owned read.
 // It never resumes creation or cancellation, and never opens Object payloads.
 func (s *Service) LookupCreation(ctx context.Context, v ac.Invocation, meta f.CommandMeta, display ac.Display, media, content string) (ac.CreationLookupResult, error) {
 	if err := validateCreationLookupInvocation(v); err != nil {

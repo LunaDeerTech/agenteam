@@ -4,6 +4,12 @@ import { computed, shallowReactive, shallowRef } from 'vue'
 import type { Fetch } from '../api/client'
 import { createTaskExecutionsAPI } from '../api/task-executions'
 import {
+  createProjectArtifactsAPI,
+  type ArtifactQuery,
+  type ArtifactReadQuery,
+  type ArtifactRef,
+} from '../api/project-artifacts'
+import {
   createTaskExecutionOutputAPI,
   type TaskExecutionOutput,
 } from '../api/task-execution-output'
@@ -14,6 +20,7 @@ import type { ProjectWorkspace } from '../composables/useProjectWorkspace'
 import TaskReviewDetail from '../components/work/TaskReviewDetail.vue'
 import { at, execution, id, json, p, path, problem, t, task } from './task-execution-fixture'
 import { finalExecution, output, outputPath } from './task-execution-output-fixture'
+import { artifactRecord, artifactContent, artifactText } from './project-artifacts.fixture'
 const owners: ProjectTasks[] = [],
   wrappers: VueWrapper[] = [],
   releases: (() => void)[] = []
@@ -50,6 +57,7 @@ async function fixture() {
   )
   const api = createTaskExecutionsAPI(fetch),
     outputAPI = createTaskExecutionOutputAPI(fetch),
+    artifactsAPI = createProjectArtifactsAPI(fetch),
     signal = new AbortController().signal
   const sprint = {
     ...task(),
@@ -82,6 +90,12 @@ async function fixture() {
     ),
     executionOutput: vi.fn((project: string, target: string, e: string) =>
       outputAPI.get(project, target, e, signal),
+    ),
+    executionArtifacts: vi.fn((project: string, query: ArtifactQuery) =>
+      artifactsAPI.list(project, query, signal),
+    ),
+    executionArtifactContent: vi.fn((ref: ArtifactRef, query: ArtifactReadQuery) =>
+      artifactsAPI.read(ref, query, signal),
     ),
   }
   const auth = {
@@ -139,6 +153,28 @@ async function fixture() {
   }
 }
 describe('Task detail final output', () => {
+  it('reads the selected execution Artifact through the real Task detail binding and retires it on Task navigation', async () => {
+    const f = await fixture()
+    await f.open()
+    const item = { ...artifactRecord(), source_execution_id: f.row.id }
+    item.artifact_ref = { ...item.artifact_ref, project_id: p }
+    f.intercept(async (url) =>
+      url.includes('/content?') ? json(artifactContent(item)) : json({ items: [item] }),
+    )
+    await f.click('查看执行成果')
+    await f.click(item.name)
+    expect(f.wrapper.get('[aria-label="成果内容"] pre').text()).toBe(artifactText.trim())
+    expect(f.reads.executionArtifacts).toHaveBeenCalledWith(p, {
+      execution_id: f.row.id,
+      limit: 50,
+    })
+    expect(f.owner.state.task?.state).toBe('backlog')
+    expect(f.fetch.mock.calls.every(([, init]) => init.method === 'GET')).toBe(true)
+    f.owner.afterNavigation(`/owner/demo/tasks/${id(88)}`)
+    await flushPromises()
+    expect(f.wrapper.find('[aria-label="成果内容"]').exists()).toBe(false)
+    expect(f.wrapper.text()).not.toContain(item.name)
+  })
   it('loads only explicitly, refreshes pending to complete literal text, and adopts its summary without changing the Task', async () => {
     const f = await fixture()
     await f.open()

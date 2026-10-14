@@ -98,6 +98,9 @@ type RunnerCallLifecycle interface {
 type RunnerResultBinding ReadFileResultBinding
 
 func (v RunnerResultBinding) Validate() error {
+	if WorkArtifactBuiltinBinding(v.Call.Binding) {
+		return validateBuiltinResult(v)
+	}
 	switch v.Call.RunnerBinding.OperationName {
 	case "read-file":
 		return ReadFileResultBinding(v).Validate()

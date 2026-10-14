@@ -967,7 +967,7 @@ describe('Task Cancel controlled visible workflow', () => {
     await click('取消任务')
     await click('确认取消任务')
     expect(body().text()).toContain('暂不能取消')
-    expect(body().text()).toContain('此操作不会取消 Execution')
+    expect(body().text()).toContain('取消任务会请求停止关联 Execution；停止可能需要一些时间。')
     expect(body().text()).not.toContain('任务已取消。')
     expect(f.transfers()).toHaveLength(1)
     expect(

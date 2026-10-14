@@ -55,18 +55,22 @@ func newToolCallCandidate(run *directTextCall, response mc.ModelResponse) (*tool
 	if err != nil {
 		return nil, err
 	}
-	mountID, err := toolCallMountID(run.ctx, selected.BindingSnapshot.RunnerBinding, part.Arguments)
-	if err != nil {
-		return nil, portError(err)
-	}
-	found := false
-	for _, mount := range fields.Mounts.Mounts {
-		if mount.ID == mountID {
-			found = true
+	if selected.BindingSnapshot.RunnerBinding != (tc.RunnerBinding{}) {
+		mountID, err := toolCallMountID(run.ctx, selected.BindingSnapshot.RunnerBinding, part.Arguments)
+		if err != nil {
+			return nil, portError(err)
 		}
-	}
-	if !found || !slices.Contains(fields.Agent.Fields().AllowedMountIDs, mountID) {
-		return nil, fault(f.Forbidden)
+		found := false
+		for _, mount := range fields.Mounts.Mounts {
+			if mount.ID == mountID {
+				found = true
+			}
+		}
+		if !found || !slices.Contains(fields.Agent.Fields().AllowedMountIDs, mountID) {
+			return nil, fault(f.Forbidden)
+		}
+	} else if run.owner.multi == nil || !tc.WorkArtifactBuiltinBinding(selected.BindingSnapshot.Binding) {
+		return nil, fault(f.CapabilityUnsupported)
 	}
 	canonical, err := cursor.CanonicalJSON(part.Arguments)
 	if err != nil {
@@ -176,7 +180,7 @@ func insertToolCallFacts(ctx context.Context, x postgres.SQLExecutor, run *direc
 	if err != nil {
 		return err
 	}
-	binding := t.BindingSnapshot.RunnerBinding
+	binding := toolCallStorageBinding(t)
 	response, err := directTextJSON(v.response)
 	if err != nil {
 		return err
@@ -243,7 +247,7 @@ func loadToolCallFacts(ctx context.Context, x postgres.SQLExecutor, stored *dire
 	if err != nil {
 		return nil, err
 	}
-	rb := expected.BindingSnapshot.RunnerBinding
+	rb := toolCallStorageBinding(expected)
 	if round != r.ID.String() || binding != r.InputBindingID.String() || logical != r.CallID.String() || snapshot != r.SnapshotID.String() || project != input.Request.Launch.ProjectID.String() || agent != input.Request.Launch.AgentID.String() || tool != expected.ToolID.String() || spec != int64(expected.SpecRevision) || name != expected.ModelVisibleName || operation != rb.OperationName || revision != rb.OperationRevision || major != int64(rb.ProtocolMajor) || invocation != v.response.InvocationID.String() || call != v.call.ID || name != v.call.Name || version <= int64(stored.startedVersion) || !at.Equal(v.at.Time()) || f.Digest(od) != c.TriggerInputDigest(original) || f.Digest(cd) != c.TriggerInputDigest(canonical) {
 		return nil, unavailable(nil)
 	}
@@ -255,7 +259,11 @@ func loadToolCallFacts(ctx context.Context, x postgres.SQLExecutor, stored *dire
 	if err != nil || !bytes.Equal(responseArgs, canonical) {
 		return nil, unavailable(nil)
 	}
-	if _, err = toolCallMountID(ctx, rb, original); err != nil {
+	if expected.BindingSnapshot.RunnerBinding != (tc.RunnerBinding{}) {
+		if _, err = toolCallMountID(ctx, rb, original); err != nil {
+			return nil, unavailable(nil)
+		}
+	} else if !tc.WorkArtifactBuiltinBinding(expected.BindingSnapshot.Binding) {
 		return nil, unavailable(nil)
 	}
 	v.payload = id
@@ -330,8 +338,18 @@ func toolBinding(stored *directTextRecord) (tc.ToolCallBinding, error) {
 	if err != nil {
 		return tc.ToolCallBinding{}, err
 	}
-	b := tc.ToolCallBinding{Actor: actor, ProjectID: input.Request.Launch.ProjectID, AgentID: input.Request.Launch.AgentID, ExecutionID: r.ExecutionID, RoundID: r.ID.String(), SnapshotID: r.SnapshotID.String(), InputBindingID: r.InputBindingID.String(), LogicalCallID: r.CallID, InvocationID: v.response.InvocationID, CallID: v.call.ID, ModelVisibleName: t.ModelVisibleName, Spec: tc.SpecRef{ToolID: t.ToolID, SpecRevision: t.SpecRevision}, RunnerBinding: t.BindingSnapshot.RunnerBinding, Input: tc.ToolInputReference{PayloadID: v.payload.String(), SHA256: c.TriggerInputDigest(v.original), Bytes: f.Progress(len(v.original))}, CanonicalArguments: c.TriggerInputDigest(v.canonical)}
+	b := tc.ToolCallBinding{Actor: actor, ProjectID: input.Request.Launch.ProjectID, AgentID: input.Request.Launch.AgentID, ExecutionID: r.ExecutionID, RoundID: r.ID.String(), SnapshotID: r.SnapshotID.String(), InputBindingID: r.InputBindingID.String(), LogicalCallID: r.CallID, InvocationID: v.response.InvocationID, CallID: v.call.ID, ModelVisibleName: t.ModelVisibleName, Spec: tc.SpecRef{ToolID: t.ToolID, SpecRevision: t.SpecRevision}, Binding: t.BindingSnapshot.Binding, RunnerBinding: t.BindingSnapshot.RunnerBinding, Input: tc.ToolInputReference{PayloadID: v.payload.String(), SHA256: c.TriggerInputDigest(v.original), Bytes: f.Progress(len(v.original))}, CanonicalArguments: c.TriggerInputDigest(v.canonical)}
 	return b, b.Validate()
+}
+
+// The historical routing columns are also used for the closed Builtin set.
+// The actual backend kind remains the captured BindingSnapshot and the public
+// ToolCallBinding never presents a Builtin call as a Runner operation.
+func toolCallStorageBinding(t tc.ExecutionTool) tc.RunnerBinding {
+	if tc.WorkArtifactBuiltinBinding(t.BindingSnapshot.Binding) {
+		return tc.RunnerBinding{OperationName: t.BindingSnapshot.Binding.HandlerID, OperationRevision: "1", ProtocolMajor: 1}
+	}
+	return t.BindingSnapshot.RunnerBinding
 }
 
 // Observation binds all original success bytes, not only the protected input.

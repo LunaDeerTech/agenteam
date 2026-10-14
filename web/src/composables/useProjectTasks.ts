@@ -1,4 +1,6 @@
 import { createTaskExecutions, type TaskExecutionScope } from './useTaskExecutions'
+import { createTaskExecutionCancellation } from './useTaskExecutionCancellation'
+import { createTaskExecutionApproval } from './useTaskExecutionApproval'
 import {
   computed,
   inject,
@@ -403,6 +405,14 @@ export function createProjectTasks(
   const pending = computed(() => {
     const p = auth.workReview.progress
     return p && ['submitting', 'uncertain'].includes(p.phase) ? p : null
+  })
+  const executionCancelPending = computed(() => {
+    const value = auth.executionCancel?.progress
+    return value && value.phase !== 'confirmed' ? value : null
+  })
+  const executionApprovalPending = computed(() => {
+    const value = auth.executionApproval?.progress
+    return value && value.phase !== 'confirmed' ? value : null
   })
   const progress = computed(() => {
     const p = auth.workReview.progress
@@ -815,6 +825,9 @@ export function createProjectTasks(
     list: (p, t, q) => auth.workReview.executions(p, t, q),
     get: (p, t, e) => auth.workReview.execution(p, t, e),
     output: (p, t, e) => auth.workReview.executionOutput(p, t, e),
+  }, {
+    list: (p, q) => auth.workReview.executionArtifacts(p, q),
+    read: (ref, q) => auth.workReview.executionArtifactContent(ref, q),
   })
   const canChangeSprint = computed(
     () =>
@@ -879,6 +892,8 @@ export function createProjectTasks(
       taskReorder.open ||
       !state.detailCurrent ||
       !!pending.value ||
+      !!executionCancelPending.value ||
+      !!executionApprovalPending.value ||
       !!sprintPending.value ||
       !!sprintCreatePending.value ||
       !!milestonePending.value ||
@@ -897,6 +912,21 @@ export function createProjectTasks(
   const canCancelTask = computed(() => !taskMutationLocked.value && !edit.open &&
     !!state.sprint && ['planned', 'current'].includes(state.sprint.state) &&
     !!state.task && ['backlog', 'todo', 'in_progress', 'in_review', 'blocked'].includes(state.task.state))
+  const executionControlScope = computed(() => {
+    const captured = executionScope.value, task = state.task
+    if (!captured || !task) return null
+    const execution = executions.state.detailPhase === 'ready' ? executions.state.detail : null
+    return { projectID: captured.projectID, taskID: captured.taskID, taskVersion: task.version,
+      execution, key: `${captured.key}/${execution?.id ?? ''}`,
+      mutable: !taskMutationLocked.value && !edit.open && !draft.action && !['done', 'cancelled'].includes(task.state) }
+  })
+  const executionControlBusy = computed(() => busy.value || executions.blocked.value)
+  const executionCancellation = createTaskExecutionCancellation(executionControlScope, executionControlBusy, auth.executionCancel, refreshExecutionControl)
+  const executionApproval = createTaskExecutionApproval(executionControlScope, executionControlBusy, auth.executionApproval, async (project, task, execution, accepted) => {
+    if (accepted && state.task?.project_id === project && state.task.id === task)
+      state.feedback = '审批决定已接受，正在读取同一执行的当前状态。'
+    await refreshExecutionControl(project, task, execution, false)
+  })
   const cancelStale = computed(() => draft.action === 'cancelled' && (!cancelScope ||
     cancelScope.projectID !== projectID.value || cancelScope.taskID !== state.task?.id ||
     cancelScope.version !== state.task?.version || cancelScope.generation !== generation ||
@@ -1628,6 +1658,17 @@ export function createProjectTasks(
   async function refresh() {
     requested = true
     await pump()
+  }
+  async function refreshExecutionControl(project: string, task: string, execution: string, accepted: boolean) {
+    const own = generation, identity = identityKey(project)
+    const current = () => live(own, project) && identityKey(project) === identity && state.task?.id === task
+    if (!current()) return
+    if (accepted) state.feedback = '执行取消请求已接受，正在读取任务、阻塞与执行的当前状态。'
+    invalidateHumanBlockerReads()
+    await refresh()
+    if (!current() || !state.detailCurrent) return
+    await executions.load()
+    if (current() && executions.state.items.some(item => item.id === execution)) await executions.select(execution)
   }
   async function pump() {
     if (!requested || disposed || busy.value || !visible.value) return
@@ -4239,6 +4280,8 @@ export function createProjectTasks(
     { flush: 'post', immediate: true },
   )
   function dispose() {
+    executionApproval.dispose()
+    executionCancellation.dispose()
     executions.dispose()
     disposed = true
     retire()
@@ -4250,6 +4293,8 @@ export function createProjectTasks(
   return {
     state,
     executions,
+    executionCancellation,
+    executionApproval,
     timeline,
     columns,
     search,

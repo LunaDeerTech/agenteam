@@ -97,6 +97,9 @@ func (d *DirectTextDriver) start(ctx context.Context, execution i.ExecutionID) (
 		return receipt, err
 	}
 	if stored != nil {
+		if s.multi != nil && stored.toolPending != nil && (row.summary.Status == c.Running || row.summary.Status == c.Waiting) {
+			return s.restoreLoopCheckpoint(run.ctx, run, row, stored)
+		}
 		if s.tools != nil && stored.toolPending != nil && row.summary.Status == c.Running {
 			return directTextReceipt(row, stored), nil
 		}

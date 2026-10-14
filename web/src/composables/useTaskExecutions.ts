@@ -1,5 +1,6 @@
 import { computed, shallowReactive, watch, type Ref } from 'vue'
 import { AccountFailure } from '../api/client'
+import { createTaskExecutionArtifacts, type TaskExecutionArtifactReads } from './useTaskExecutionArtifacts'
 import type { TaskExecutionOutput } from '../api/task-execution-output'
 import {
   compareTaskExecutions,
@@ -30,6 +31,7 @@ export function createTaskExecutions(
   scope: Readonly<Ref<TaskExecutionScope | null>>,
   busy: Readonly<Ref<boolean>>,
   reads: Reads,
+  artifactReads?: TaskExecutionArtifactReads,
 ) {
   const state = shallowReactive({
     open: false,
@@ -50,7 +52,14 @@ export function createTaskExecutions(
   let generation = 0,
     disposed = false
   const visible = computed(() => !disposed && scope.value !== null)
-  const blocked = computed(() => !visible.value || busy.value || state.active !== 0)
+  const reading = computed(() => !visible.value || busy.value || state.active !== 0)
+  const artifactScope = computed(() => {
+    const captured = scope.value, detail = state.detail
+    return captured && state.detailPhase === 'ready' && detail && state.selectedID === detail.id
+      ? { ...captured, executionID: detail.id, key: `${captured.key}/${detail.id}` } : null
+  })
+  const artifacts = createTaskExecutionArtifacts(artifactScope, reading, artifactReads)
+  const blocked = computed(() => reading.value || artifacts.state.active !== 0)
   function reset() {
     ++generation
     Object.assign(state, {
@@ -245,8 +254,9 @@ export function createTaskExecutions(
   function dispose() {
     disposed = true
     stop()
+    artifacts.dispose()
     reset()
   }
-  return { state, visible, blocked, load, select, loadOutput, back, close, dispose }
+  return { state, visible, blocked, artifacts, load, select, loadOutput, back, close, dispose }
 }
 export type TaskExecutions = ReturnType<typeof createTaskExecutions>

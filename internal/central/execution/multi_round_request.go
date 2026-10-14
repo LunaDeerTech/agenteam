@@ -69,3 +69,10 @@ func (s *directTextState) acceptsRunnerBinding(b tc.RunnerBinding) bool {
 	}
 	return s.tools != nil && s.tools.profile() == b
 }
+
+func (s *directTextState) acceptsToolBinding(b tc.ToolCallBinding) bool {
+	if b.RunnerBinding == (tc.RunnerBinding{}) {
+		return s.multi != nil && tc.WorkArtifactBuiltinBinding(b.Binding)
+	}
+	return b.Binding == (tc.BuiltinBinding{}) && s.acceptsRunnerBinding(b.RunnerBinding)
+}

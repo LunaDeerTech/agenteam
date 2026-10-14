@@ -19,13 +19,16 @@ type DispatchID = f.ID[DispatchIdentity]
 type Status string
 
 const (
-	Pending  Status = "pending"
-	Launched Status = "launched"
-	Failed   Status = "failed"
-	Skipped  Status = "skipped"
+	Pending   Status = "pending"
+	Launched  Status = "launched"
+	Failed    Status = "failed"
+	Skipped   Status = "skipped"
+	Cancelled Status = "cancelled"
 )
 
-func (s Status) Valid() bool { return s == Pending || s == Launched || s == Failed || s == Skipped }
+func (s Status) Valid() bool {
+	return s == Pending || s == Launched || s == Failed || s == Skipped || s == Cancelled
+}
 
 type LaunchOutcome string
 
@@ -152,6 +155,7 @@ func (Dispatch) LogValue() slog.Value         { return slog.StringValue("schedul
 func (Dispatch) MarshalJSON() ([]byte, error) { return []byte(`"scheduler_dispatch"`), nil }
 
 type dispatchRecord struct {
+	cancelRequested      bool
 	id                   DispatchID
 	project              i.ProjectID
 	sprint, task         string

@@ -176,6 +176,9 @@ func compareGroup(a, b ec.PendingClaimGroup) int {
 	return strings.Compare(a.Priority, b.Priority)
 }
 func (a *PendingAuthority) RequireNoPendingGroupsInTx(ctx context.Context, tx f.Tx, p i.ProjectID, groups []ec.PendingClaimGroup) error {
+	return a.requireNoPendingGroupsExceptTaskInTx(ctx, tx, p, groups, "")
+}
+func (a *PendingAuthority) requireNoPendingGroupsExceptTaskInTx(ctx context.Context, tx f.Tx, p i.ProjectID, groups []ec.PendingClaimGroup, exempt string) error {
 	if ctx == nil || groups == nil {
 		return invalid()
 	}
@@ -200,7 +203,7 @@ func (a *PendingAuthority) RequireNoPendingGroupsInTx(ctx context.Context, tx f.
 	for _, g := range values {
 		var exists bool
 		err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_scheduler.dispatches
- WHERE project_id=$1 AND status='pending' AND claim_guard IS NOT NULL AND claim_source_sprint_id=$2 AND claim_source_state=$3 AND claim_source_priority=$4)`, p.String(), g.SprintID, g.State, g.Priority).Scan(&exists)
+ WHERE project_id=$1 AND status='pending' AND claim_guard IS NOT NULL AND claim_source_sprint_id=$2 AND claim_source_state=$3 AND claim_source_priority=$4 AND ($5='' OR task_id<>$5))`, p.String(), g.SprintID, g.State, g.Priority, exempt).Scan(&exists)
 		if err != nil {
 			return portError(err)
 		}

@@ -19,6 +19,7 @@ const (
 	PendingVisitBusy     PendingVisitAction = "busy_compensation"
 	PendingVisitFailure  PendingVisitAction = "final_failure"
 	PendingVisitRetry    PendingVisitAction = "retry"
+	PendingVisitCancel   PendingVisitAction = "task_cancellation"
 )
 
 // Action records the attempted path, not successful mutation. On a downstream
@@ -214,6 +215,18 @@ func (s *PendingVisitor) visit(ctx context.Context, call *pendingVisitCall, r *d
 	// is not a permit that survives a concurrent pause.
 	if !project.Config.Enabled {
 		return out, nil
+	}
+	if r.cancelRequested {
+		current, _, err := s.settleCancellation(ctx, r)
+		if err != nil {
+			return out, err
+		}
+		out.Action, out.Dispatch = PendingVisitCancel, snapshot(current)
+		if current.status == Pending && current.outcome == Unknown {
+			out.Action = PendingVisitLookup
+			out.Dispatch, err = s.handoff.Lookup(ctx, p, id)
+		}
+		return out, err
 	}
 	switch {
 	case r.outcome == Unknown:

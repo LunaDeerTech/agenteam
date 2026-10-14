@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"net/http"
+	"slices"
 	"sync"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/account"
@@ -62,6 +63,7 @@ type agentConfigurationAssembly struct {
 	ownership   *agent.ProjectCallOwnership
 	registry    *registry.Registry
 	runnerTools bool
+	builtinKeys []string
 	mu          sync.Mutex
 	stopped     bool
 	initDone    chan struct{}
@@ -96,7 +98,17 @@ func createOwnedAgentConfiguration(db database, projects *project.Authority, acc
 		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
 	includeRunners := len(runnerTools) == 1 && runnerTools[0]
-	providers, err := createAgentConfigurationProvidersWithRunners(db, projects, accounts, agents, agentEvents, models, skills, skillAuthority, installer, auditor, journal, includeRunners, keys)
+	return createOwnedAgentConfigurationWithBuiltins(db, projects, accounts, agents, agentEvents, models, skills, skillAuthority, installer, auditor, journal, objects, keys, includeRunners, nil)
+}
+
+func createOwnedAgentConfigurationWithBuiltins(db database, projects *project.Authority, accounts *account.Authority,
+	agents *agent.Authority, agentEvents *agent.EventAuthority, models *model.Authority,
+	skills *skill.Service, skillAuthority *skill.Authority, installer *agentInstallWork,
+	auditor *audit.Service, journal *outbox.Service, objects *objectAssembly, keys cursor.Keyring, includeRunners bool, sources map[string]registry.BuiltinSource) (*agentConfigurationAssembly, error) {
+	if objects == nil || objects.guard == nil || objects.process.Validate() != nil {
+		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
+	}
+	providers, err := createAgentConfigurationProvidersWithSources(db, projects, accounts, agents, agentEvents, models, skills, skillAuthority, installer, auditor, journal, includeRunners, sources, keys)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +116,12 @@ func createOwnedAgentConfiguration(db database, projects *project.Authority, acc
 	if err != nil {
 		return nil, err
 	}
-	return &agentConfigurationAssembly{store: providers.store, service: ownership.Service(), ownership: ownership, registry: providers.registry, runnerTools: includeRunners}, nil
+	var builtinKeys []string
+	for key := range sources {
+		builtinKeys = append(builtinKeys, key)
+	}
+	slices.Sort(builtinKeys)
+	return &agentConfigurationAssembly{store: providers.store, service: ownership.Service(), ownership: ownership, registry: providers.registry, runnerTools: includeRunners, builtinKeys: builtinKeys}, nil
 }
 
 type agentConfigurationProviders struct {
@@ -126,6 +143,13 @@ func createAgentConfigurationProvidersWithRunners(db database, projects *project
 	agents *agent.Authority, agentEvents *agent.EventAuthority, models *model.Authority,
 	skills *skill.Service, skillAuthority *skill.Authority, installer *agentInstallWork,
 	auditor *audit.Service, journal *outbox.Service, includeRunners bool, cursorKeys ...cursor.Keyring) (*agentConfigurationProviders, error) {
+	return createAgentConfigurationProvidersWithSources(db, projects, accounts, agents, agentEvents, models, skills, skillAuthority, installer, auditor, journal, includeRunners, nil, cursorKeys...)
+}
+
+func createAgentConfigurationProvidersWithSources(db database, projects *project.Authority, accounts *account.Authority,
+	agents *agent.Authority, agentEvents *agent.EventAuthority, models *model.Authority,
+	skills *skill.Service, skillAuthority *skill.Authority, installer *agentInstallWork,
+	auditor *audit.Service, journal *outbox.Service, includeRunners bool, extraSources map[string]registry.BuiltinSource, cursorKeys ...cursor.Keyring) (*agentConfigurationProviders, error) {
 	store, ok := db.(agent.Store)
 	if !ok || runtimeInformationNil(store) || projects == nil || accounts == nil || agents == nil || agentEvents == nil || models == nil || skills == nil || skillAuthority == nil || installer == nil || installer.authority == nil || auditor == nil || journal == nil {
 		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
@@ -141,8 +165,15 @@ func createAgentConfigurationProvidersWithRunners(db database, projects *project
 			return nil, err
 		}
 	}
+	sources := map[string]registry.BuiltinSource{builtin.SkillInstallStableKey: source}
+	for key, extra := range extraSources {
+		if key == builtin.SkillInstallStableKey || runtimeInformationNil(extra) {
+			return nil, f.NewFault(f.InvalidArgument, f.NotStarted)
+		}
+		sources[key] = extra
+	}
 	registered, err := registry.New(store, registry.Options{
-		Sources:        map[string]registry.BuiltinSource{builtin.SkillInstallStableKey: source},
+		Sources:        sources,
 		RunnerSources:  runnerSources,
 		Authorizations: registry.Authorizations{Sessions: accounts, Projects: projects},
 	})
@@ -237,6 +268,11 @@ func (a *agentConfigurationAssembly) Initialize(ctx context.Context) error {
 		}
 		if _, err := a.registry.ReconcileBuiltinInTx(ctx, tx, builtin.SkillInstallStableKey); err != nil {
 			return err
+		}
+		for _, key := range a.builtinKeys {
+			if _, err := a.registry.ReconcileBuiltinInTx(ctx, tx, key); err != nil {
+				return err
+			}
 		}
 		if a.runnerTools {
 			for _, key := range []string{tc.RunnerReadFileKey, tc.RunnerWriteFileKey, tc.RunnerRunCommandKey} {

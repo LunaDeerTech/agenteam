@@ -73,7 +73,11 @@ func (s *projectAuditStore) QueryRow(ctx context.Context, query string, args ...
 			if kind == "source" {
 				m = v.storedSource.Details()
 			}
-			return (cleanupOwnerRow{values: []any{m.Reference.ArtifactID.String(), m.Reference.FileID.String(), m.Reference.ProjectID.String(), m.Object.ID.String(), string(m.Kind), m.Name, m.Description, m.Object.MediaType, int64(m.Object.ByteSize), digestRaw(m.Object.SHA256), int64(m.Object.Version), m.Object.CreatedAt.Time(), int64(m.Version), string(i.Human), m.CreatedByUserID, v.rowCause, m.ExecutionID, m.OperationID, "", "", m.CreatedAt.Time()}}).Scan(out...)
+			creatorKind, creator := i.Human, m.CreatedByUserID
+			if m.CreatedByAgentID != "" {
+				creatorKind, creator = i.AgentRun, m.CreatedByAgentID
+			}
+			return (cleanupOwnerRow{values: []any{m.Reference.ArtifactID.String(), m.Reference.FileID.String(), m.Reference.ProjectID.String(), m.Object.ID.String(), string(m.Kind), m.Name, m.Description, m.Object.MediaType, int64(m.Object.ByteSize), digestRaw(m.Object.SHA256), int64(m.Object.Version), m.Object.CreatedAt.Time(), int64(m.Version), string(creatorKind), creator, v.rowCause, m.ExecutionID, m.OperationID, v.storedCommand.tool, v.storedCommand.toolCall, m.CreatedAt.Time()}}).Scan(out...)
 		}
 		hash, ok := args[0].([]byte)
 		if !ok || !bytes.Equal(hash, digestRaw(digestBytes([]byte(v.command.identity.Canonical())))) {
