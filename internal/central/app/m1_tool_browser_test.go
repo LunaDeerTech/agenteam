@@ -133,6 +133,13 @@ func (w *m1Workflow) browser(t *testing.T, listener net.Listener) {
 	workAppCheck(t, "m1-browser-material-write", os.WriteFile(filepath.Join(private, "m1-task-workflow-material.json"), raw, 0600))
 	clear(raw)
 	delete(payload, "cookie")
+	t.Cleanup(func() {
+		if t.Failed() {
+			// Registered after the proxy cleanup, so the original App, Runner and
+			// owned peer are still alive when durable failure facts are read.
+			w.diagnoseResult(t, 1, w.execution.String(), string(w.view.Execution.Status))
+		}
+	})
 	w.runBrowser(t, private, harness, dist, evidence)
 
 	after, err := v.planning.taskReader.GetTask(v.ctx, v.actor, v.a, before.ID)

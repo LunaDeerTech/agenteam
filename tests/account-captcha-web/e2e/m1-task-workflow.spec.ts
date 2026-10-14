@@ -126,8 +126,28 @@ const fact = (page: Page, label: string) =>
     .locator("dd");
 
 async function completeJSON<T>(response: Response): Promise<T> {
-  expect(response.status()).toBe(200);
   expect(await response.finished()).toBeNull();
+  const status = response.status();
+  if (status !== 200) {
+    let code = "PROBLEM_CODE_UNAVAILABLE";
+    try {
+      const problem: unknown = await response.json();
+      if (
+        problem !== null &&
+        typeof problem === "object" &&
+        "status" in problem &&
+        problem.status === status &&
+        "code" in problem &&
+        typeof problem.code === "string" &&
+        /^[A-Z][A-Z0-9_]{0,127}$/.test(problem.code)
+      )
+        code = problem.code;
+    } catch {
+      // Neither response bodies nor parser errors are safe diagnostics.
+    }
+    throw Error(`M1_HTTP_UNEXPECTED status=${status} code=${code}`);
+  }
+  expect(status).toBe(200);
   return (await response.json()) as T;
 }
 
