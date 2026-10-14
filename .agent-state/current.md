@@ -20,3 +20,11 @@
 - 首官方 owned native 栈 `run.hCX8bF` 实际 outer Wait exit 1：新库迁移（含 00091）、App 启动、实际 Runner enroll/连接已到达；在正式 Agent request 本地校验 `m1-agent-intent INVALID_ARGUMENT` 停止，未发 Model 请求、未启动浏览器。
 - 原因是测试 seed 的 Name 空格及 RunnerMounts 同时附非 nil AllowedMountIDs；已改合法名称、原二选一字段，并对 ToolIDs 排序，产品合同不改。
 - `output/ai/m1-app-integration/run.hCX8bF/native.log` 与 `owned-resources.json` 保存本轮证据；原 Runner cleanup Wait、PG/outbound/MinIO 精确 nonce 资源清理全部完成。未重跑旧 STOP 驱动。下一轮使用新隔离 DB，不复用失败轮资源。
+
+## 后续原生断点与下一候选
+
+- 第二轮 `run.ydJ1Du`（`9dc2517d`）越过合法 seed，在 40 秒观测截止时失败；原日志缺进度信息，已保留，outer Wait 1 和三层精确清理均完成。
+- 第三轮 `run.Gu1glT`（`03dc864e`）安全诊断确认：Task in_progress/version 3、dispatch launched/created/attempt 1；Execution preparing/version 2，Preparation fence 1 terminal；Execution snapshot/round/model invocation/tool/result 均 0，owned Provider 请求 0。目标 ProjectRunner 已退出，Fault 为 INTERNAL_ERROR/not_committed。原 Wait 1、Runner Wait 与所有自有资源清理完成。
+- 该状态定位到准备至首轮启动之间；terminal preparation 本身也可为合法 capture，尚不能断言具体失败事务。增加 preparation_inputs、Model resolution/snapshot 区分，以及只观测原 NotCommitted 的 SQLSTATE/constraint 技术标识，不改变 SQL、返回、超时或权限。
+- 下一候选已采纳 root 冻结的 Tool `8d09a1ea` ResultAvailable 与 Execution `baf64e2a` 取消/结果收口及更新 00091；完整 integration 编译实际 exit 0。它们仍未得到本树原生运行通过，下一轮必须新库。
+- 外部 Provider 只读无凭据预检由 model_runtime 完成：本环境 DNS 的 A 成功/AAAA NXDOMAIN 被原 D04 合同拒绝，公共递归无法连通，因此只能证明本环境阻断，不能断言服务权威 DNS 错误。无 API_KEY 读取、无 Model HTTP、无策略/解析器修改；真实模型工作流仍未验。

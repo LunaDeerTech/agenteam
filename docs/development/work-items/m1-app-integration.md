@@ -43,3 +43,9 @@ root 授权在本树三文件并行：runner_tools 写 Runner TLS/原进程 Wait
 组合 `d239836e` / 收尾修正 `b04b8ac1` 已实际通过 App 和完整 integration 编译。首 `TestM1AppToolWorkflow` 在自有固定 PG17/MinIO/outbound 栈运行（`run.hCX8bF`），全新迁移含 00091、App 启动和原 Runner 进程已到达，随后 seed 的 Agent request 校验拒绝：名称含空格且 RunnerMounts 同时传非 nil AllowedMountIDs。已按既有合同修正测试输入，不改产品校验。
 
 本轮 outer Wait exit 1；尚无 Model 调用/工具轮次/浏览器通过。原 Runner Wait、PG/outbound/Object 精确 nonce 清理均完成。下一轮使用新库验证修正后的真实链，旧记录保留。
+
+### 受控链进展与诊断边界
+
+第二轮 `9dc2517d` / `run.ydJ1Du` 越过种子，40 秒后未完成；第三轮 `03dc864e` / `run.Gu1glT` 取得具体安全状态：原 Scheduler 已领取并 Launch，Task 为 in_progress/version 3，Execution 停在 preparing/version 2，Preparation fence 1 terminal，尚无 Execution snapshot/round/Model invocation/Tool operation，Provider 收到 0 请求。目标 ProjectRunner 已退出，原错误为 INTERNAL_ERROR/not_committed。每轮 outer Wait 1 和固定资源精确清理均完成。
+
+terminal preparation 可表示合法捕获，因此根因暂只定位到准备至首轮启动之间。下一诊断增加 preparation_inputs、Model resolution/snapshot 数量，以及测试自有原 Store 返回处的限量 SQLSTATE/约束名观察，不记录 SQL、参数、错误 Detail 或 payload。下一候选同时纳入 Tool `8d09a1ea` / Execution `baf64e2a`（均已冻结），integration 编译退出 0，原生链尚未通过。
