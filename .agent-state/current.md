@@ -14,7 +14,7 @@ M3 已按共同基线 `d9356e09` 建立六个功能工作树，后续另建检�
 | `ai/m3-model` | `/workspace/agenteam-m3-model` | `m3_model`：Model Embeddings、structured Runtime 与 serving snapshot |
 | `ai/m3-retrieval-selection` | `/workspace/agenteam-m3-retrieval-selection` | `m3_retrieval_selection`：D13 词法候选实际比较；基线 `a1ce6f1b` |
 
-当前为实现与最小契约同步阶段，整链和 M3 未验收。Meeting 在 `da5c774a` 保存首批 schema/服务片段后停写，暂让执行席给检索选型；Provider/Runtime 等未完成，公共接口就绪后由 root 复派。其余五条实现线继续。MCP SDK v1.8.0 已锁定并同步各树；Knowledge 调用与 retrieval 最小契约已同步。公共依赖锁文件现由 integration 唯一持有，其他树只读。迁移按 root 分配的全局序号实施，schema 冻结后先组合候选树验证，main 不接收尚未验收产品 WIP。每树 `.agent-state/current.md` 保存本树的可恢复片段与实际检查；本主索引不复制执行流水。
+当前为实现、公共接线与限定真实验证阶段，整链和 M3 未验收。检索选型已完成两候选的固定版本真实评测并阶段停写，Meeting 已续派推进 Provider、顺序 Runtime 与 AgentLoop 投影。其余五条实现线继续；Model 正验证真实配额下的 Embedding/structured Runtime，MCP 正跑真实 TLS 协议 fixture，单项结果不替代生产 App 组合验收。共享调用契约、三域服务身份、原 Associated driver 的 Meeting 入口、Secret/Usage 与 typed Audit 已有可编译片段；迁移按 root 全局编号冻结并先组合候选树，main 不接收尚未验收产品 WIP。MCP SDK v1.8.0 已锁定；公共依赖锁文件由 integration 唯一持有，其他树只读。每树 `.agent-state/current.md` 保存可恢复片段与实际检查，本索引不复制执行流水。
 
 实际资源可复用 Go1.27.1、MinIO 固定 SHA、Go/Node 锁定依赖；当前锁定 Playwright 的 Chromium 可执行文件缺失，真实浏览器轮前恢复。重型构建或独立 PG fixture 最多同时两组，由 integration 协调；现有 dev PG/MinIO 不作为任务测试库。默认代理和 TLS 校验保持。M1/M2 原接受与 STOP 按原风险范围保留；下方上一任务记录解释历史，不继承旧分支或资源授权。
 

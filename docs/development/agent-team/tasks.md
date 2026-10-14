@@ -18,11 +18,13 @@ M1 与 M2 仍按原范围正式接受并已交付 main。M2 正常 Scheduler 下
 | D13 检索选型 | `m3_retrieval_selection` / `ai/m3-retrieval-selection`，基线 `a1ce6f1b`，实际比较进行中 | 有界验证 PGroonga/pg_search 固定来源、兼容性、词法与 dense/RRF 指标，再形成选择。 |
 | 已知后续完善事项 | 未排期；原 R1–R5/M4 不再作为当前派工路线 | M3 完成后重新评估全面旧页体验、完整 Lifecycle/架构覆盖及生产发布运行等缺口。 |
 
-六个独立 worktree 位于 `/workspace/agenteam-m3-{knowledge,memory,mcp,meeting,integration,model}`，共同开工基线 `d9356e09`；另有 `/workspace/agenteam-m3-retrieval-selection` 承担选型比较，基线 `a1ce6f1b`。Meeting 暂停释放执行席给选型，待公共接口就绪复派。本轮内容均为进行中，SDK 锁定及最小契约同步不构成整链或 M3 通过；正式组合和验证由集成负责人组织，全部 Git 由 root 操作。
+六个独立 worktree 位于 `/workspace/agenteam-m3-{knowledge,memory,mcp,meeting,integration,model}`，共同开工基线 `d9356e09`；另有 `/workspace/agenteam-m3-retrieval-selection` 承担选型比较，基线 `a1ce6f1b`。Meeting 已续派释放执行席给选型，待公共接口就绪复派。本轮内容均为进行中，SDK 锁定及最小契约同步不构成整链或 M3 通过；正式组合和验证由集成负责人组织，全部 Git 由 root 操作。
 
 已完成的完整性复核、设计技能准备与 M1/M2 工作不重新开工；来源见[复核卡](../work-items/product-readiness-review.md)和[技能来源](skill-sources.md#前端设计与-ux-审查技能)。历史 W1–W5/R1–R5 沿原卡及 Git 历史查询，不作为当前活动派工。默认 Execution Runtime 仍需显式配置开启；Object/tools/SPA/Jina/Image 原 STOP 保留其适用范围，不因 M3 授权自动解除，不以里程碑数量推算平台百分比。
 
 当前源码与较新正式结果已覆盖部分旧表中的 unbound：Project 创建已接真实 Skills/Object 初始化，Agent 配置/Task 指派与真实 Model/ToolLoop/Scheduler 已形成 M1/M2 组合，变量/Secret、Mount 与初始 Skills 已被执行装配消费。D13 native PostgreSQL FTS 候选已有真实测量，剩余候选、固定 dense leg/RRF 与最终选型仍未完成，见[当前检索卡](../work-items/d13-lexical-benchmark.md)。下方历史行保持原输入的事实，不能据其旧描述重建已存在功能，也不能据新链扩大完整模块接受。
+
+当前检索选型已阶段停写并释放资源，Meeting 已续派；Model 与 MCP 分别进行限定真实 Runtime/协议验证，Memory、Knowledge 与共享 App/Tool 接线继续。领域单项通过不等于 M3 组合验收；main 仅更新协调摘要，产品候选继续留在各功能分支。
 
 ## 当前验收与推进边界
 
