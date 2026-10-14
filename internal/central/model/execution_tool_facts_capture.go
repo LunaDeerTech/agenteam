@@ -5,6 +5,7 @@ import (
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
 )
 
@@ -17,6 +18,7 @@ type resolutionCaptureProfile uint8
 const (
 	defaultResolutionCapture resolutionCaptureProfile = iota
 	toolFactsResolutionCapture
+	toolCallingResolutionCapture
 )
 
 // NewToolCallFactsCapture is an explicit construction seam for the bounded
@@ -36,7 +38,7 @@ func (p resolutionCaptureProfile) requireRequest(r mc.ResolveRequest) error {
 	switch p {
 	case defaultResolutionCapture:
 		return nil
-	case toolFactsResolutionCapture:
+	case toolFactsResolutionCapture, toolCallingResolutionCapture:
 		if r.Actor.Details().Kind != id.AgentRun || r.Consumer.Kind != mc.AgentConsumer || r.Purpose != mc.AgentGeneration || r.Consumer.ExecutionID == nil || r.Consumer.OperationID != "" || r.Source != mc.CurrentSelectionSource || r.Selection == nil || r.Selection.Kind != "direct" || r.ReasoningEffort != "" {
 			return fault(f.CapabilityUnsupported)
 		}
@@ -47,12 +49,19 @@ func (p resolutionCaptureProfile) requireRequest(r mc.ResolveRequest) error {
 }
 
 func toolFactsResolutionProfile(p *providerRecord, m *modelRecord, selection mc.SelectionRef) (string, error) {
+	return toolResolutionProfile(p, m, selection, false)
+}
+
+func toolResolutionProfile(p *providerRecord, m *modelRecord, selection mc.SelectionRef, executable bool) (string, error) {
 	if !p.Input.Enabled || !m.Input.Enabled {
 		return "", fault(f.InvalidState)
 	}
 	c := m.Input.Capabilities
-	if selection.Kind != "direct" || p.Input.Protocol != mc.OpenAIChat || m.Input.Type != mc.ChatModel || !emptyObject(p.Input.Options) || !emptyObject(m.Input.Parameters) || !emptyObject(m.Input.RequestOverwrite) || len(m.Input.HeaderOverwrite) != 0 || !c.ToolCalls || c.ParallelToolCalls || c.Streaming || c.Reasoning || len(c.ReasoningEfforts) != 0 || !slices.Equal(c.InputModalities, []string{"text"}) || !slices.Equal(c.OutputModalities, []string{"text"}) || len(c.StructuredOutputModes) != 0 && !slices.Equal(c.StructuredOutputModes, []string{"text"}) {
+	if selection.Kind != "direct" || p.Input.Protocol != mc.OpenAIChat || m.Input.Type != mc.ChatModel || !emptyObject(p.Input.Options) || !emptyObject(m.Input.Parameters) || !emptyObject(m.Input.RequestOverwrite) || len(m.Input.HeaderOverwrite) != 0 || !c.ToolCalls || c.ParallelToolCalls || !executable && c.Streaming || c.Reasoning || len(c.ReasoningEfforts) != 0 || !slices.Equal(c.InputModalities, []string{"text"}) || !slices.Equal(c.OutputModalities, []string{"text"}) || len(c.StructuredOutputModes) != 0 && !slices.Equal(c.StructuredOutputModes, []string{"text"}) {
 		return "", fault(f.CapabilityUnsupported)
+	}
+	if executable {
+		return wire.OpenAIChatToolsRevision, nil
 	}
 	return toolFactsCaptureRevision, nil
 }
@@ -66,16 +75,31 @@ func (p resolutionCaptureProfile) requireDraft(r mc.ResolveRequest, d resolution
 	}
 	s := d.Snapshot
 	if p == defaultResolutionCapture {
-		if s.Identity.AdapterRevision == toolFactsCaptureRevision || s.Capabilities.ToolCalls || s.Capabilities.ParallelToolCalls {
+		if s.Identity.AdapterRevision == toolFactsCaptureRevision || s.Identity.AdapterRevision == wire.OpenAIChatToolsRevision || s.Capabilities.ToolCalls || s.Capabilities.ParallelToolCalls {
 			return fault(f.CapabilityUnsupported)
 		}
 		return nil
 	}
-	if s.Identity.AdapterRevision != toolFactsCaptureRevision {
+	expected := toolFactsCaptureRevision
+	if p == toolCallingResolutionCapture {
+		expected = wire.OpenAIChatToolsRevision
+	}
+	if s.Identity.AdapterRevision != expected {
 		return fault(f.CapabilityUnsupported)
 	}
 	provider := providerRecord{Input: providerInput{Enabled: true, Protocol: s.Identity.Protocol, Options: []byte(`{}`)}}
 	model := modelRecord{Input: mc.ModelInput{Enabled: true, Type: s.Identity.ModelType, Parameters: s.Parameters, RequestOverwrite: s.RequestOverwrite, HeaderOverwrite: s.HeaderOverwrite, Capabilities: s.Capabilities}}
-	_, err := toolFactsResolutionProfile(&provider, &model, *r.Selection)
+	_, err := toolResolutionProfile(&provider, &model, *r.Selection, p == toolCallingResolutionCapture)
 	return err
+}
+
+// NewToolCallingExecutionCapture freezes a runnable tools revision only for a
+// newly resolved Execution. Existing facts-only snapshots cannot be upgraded.
+func NewToolCallingExecutionCapture(models *Service, owner mc.ExecutionModelCaptureAuthority) (*ExecutionCapture, error) {
+	p, err := NewExecutionCapture(models, owner)
+	if err != nil {
+		return nil, err
+	}
+	p.profile = toolCallingResolutionCapture
+	return p, nil
 }

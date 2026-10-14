@@ -137,8 +137,8 @@ func currentResolutionDraftForProfile(ctx context.Context, x postgres.SQLExecuto
 	if e = profile.requireRequest(r); e != nil {
 		return d, e
 	}
-	if profile == toolFactsResolutionCapture {
-		revision, e = toolFactsResolutionProfile(p, m, *r.Selection)
+	if profile == toolFactsResolutionCapture || profile == toolCallingResolutionCapture {
+		revision, e = toolResolutionProfile(p, m, *r.Selection, profile == toolCallingResolutionCapture)
 	} else {
 		revision, e = resolutionProfile(p, m, *r.Selection)
 	}

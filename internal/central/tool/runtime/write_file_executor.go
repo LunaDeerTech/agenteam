@@ -185,7 +185,7 @@ func writeFileTransaction(ctx context.Context, d *writeFileAuthorityState, h *wr
 }
 
 func discoverWriteFile(ctx context.Context, d *writeFileExecutorData, execution i.ExecutionID) (*writeFileHandoff, error) {
-	plan, err := d.authority.executions.DiscoverWriteFileCall(ctx, execution)
+	plan, err := discoverSelectedWriteFileCall(ctx, d.authority.executions, execution)
 	if err != nil {
 		return nil, schemaReadError(err)
 	}

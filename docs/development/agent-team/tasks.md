@@ -2,19 +2,19 @@
 
 ## 当前目标与工作包状态
 
-2026-10-14 用户已确认以“指派任务 → Agent 连续工具执行 → 可见成果 → 审核通过/退回”为当前主目标。里程碑、依赖与完整工作包定义只维护在[开发计划](../development-plan.md#当前开发目标与里程碑)。本次完成规划/工作流归位，以下产品包均待派发；尚未因规划更新产生新的产品 PASS。
+2026-10-14 用户已确认以“指派任务 → Agent 连续工具执行 → 可见成果 → 审核通过/退回”为当前主目标。里程碑、依赖与完整工作包定义只维护在[开发计划](../development-plan.md#当前开发目标与里程碑)。本次 `tool-loop-v1` 受控实现增量已完成验收，由 root 执行 main 推送与临时分支清理；外部模型仍待验，M1 整阶段未完成。恢复入口见 [current](../../../.agent-state/current.md)。
 
-当前可复用 Agent 创建/配置、Skills、Task 指派/评审、历史输出、DirectText App/Scheduler、Runner read/write/run 和 Object safe 修复等已存在能力，接手按对应卡核限定证据。**首个待闭合断点是正式 App 的真实 Model 工具调用与 ToolResult 后下一轮 Model 请求的连续组合**；已有 read-file 结果消费或 Round 输入能力不等于该链已贯通。统一界面布局已在 `6d16bdae` 完成前端范围交付，恢复材料与既有31项 unit/17文件格式限制见 [current](../../../.agent-state/current.md#已完成交接统一页面布局)，不再沿旧 project-list 候选继续主任务。
+正常第十轮完整通过：同一工作 Execution 五次 Model / 四次 Runner read/write/run/read、真实文件/stdout/exit、最终 v2、三次原成果消费、唯一 Owner 送审至持久 `in_review` 及 reload 一致；正常 Drain/Runner Wait/App Joined、精确 work/review peer 和资源清理均到达。失败/原 Runtime 取消两子例及旧 direct-text 兼容已独立接受并有效复用；外部 DEV_CHAT 因既有 D04 DNS gate 受环境阻断，尚无外部 Model HTTP，详见 [M1 集成卡](../work-items/m1-app-integration.md)。
 
 | 工作包 | 当前状态与优先级 | 下一步 |
 | --- | --- | --- |
-| W1 模型工具调用 | 待派发；首条主链，tools 原独验 STOP 保留 | 指定 owner，先核原停止原因/恢复条件及独验范围，再完成真实消费接线。 |
-| W2 多轮执行与 Task 交接 | 待派发；与 W1 联合推进 | 复用已持久调用/结果及 Round 输入，明确下一 Model 与评审交接的真实接缝。 |
-| W3 审批、取消与执行详情 | 待派发；随主链并行 | 固定等待/恢复/取消与详情的真实调用责任，风险暴露前完成必要门。 |
-| W4 检索与记忆基础 | 待派发；独立并行 | 复用既有 benchmark/native PG，冻结剩余候选单配置并完成有界比较。 |
-| W5 集成与有界阻塞 | 待派发；组织主链组合 | 指定集成 owner、候选基线及共享入口唯一写者；安排独立验证。 |
+| W1 模型工具调用 | JSON 原生工具请求、配对历史和真实 Runtime 已完成受控 App 链；原 tools 独验 STOP 保留 | 在原权限/出站条件满足后验证外部模型实际推理。 |
+| W2 多轮执行与 Task 交接 | 本次同 E 工具循环、Runner 副作用、v2/UI、Owner `in_review` 与刷新/正常收尾已通过 | 按 M2 继续成果传递及真实审核通过/退回；不由 Execution 成功自动完成 Task。 |
+| W3 审批、取消与执行详情 | read missing 失败及原 Runtime Stop/Drain 取消已限定独立接受；详情支持 v1/v2 | Human 持久取消、完整审批恢复、运行中重启接管仍待后继，不由 Runtime 取消样本代证。 |
+| W4 检索与记忆基础 | 本轮尚未派发，原工作包保留 | 按资源与主链进展安排，复用既有范围证据。 |
+| W5 集成与有界阻塞 | 本次 tool-loop-v1 默认 App 显式接线及自有 PG/Runner/Provider/browser 正常验收完成 | root 完成受限增量 Git 交付与清理；后继补外部模型实证。 |
 
-当前不继承历史 agent 名称、资源窗口或写入权；实际派发后才改为进行中。原失败、固定输入及未验证范围继续保留，下文旧子项记录按其发生时范围解读，不能覆盖本节较新的实际状态。
+`tool-loop-v1` 是显式执行配置，原 `direct-text-v1` 保留且无新增 UI 配置。正常验收 tick 250ms / skip 240 只是 Owner 窗口参数；Reviewer 读取自有说明不证明 worker 产物评审或 M2 完成。统一界面布局已在 `6d16bdae` 交付，其既有31项 unit/17文件格式限制与恢复材料见 [current](../../../.agent-state/current.md#已完成交接统一页面布局)。旧 STOP、历史 FAIL 与未验证范围继续保留；下文旧子项按发生时输入解读，不覆盖本节较新事实。
 
 ## 当前验收与推进边界
 

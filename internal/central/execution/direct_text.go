@@ -163,7 +163,8 @@ func (s *directTextState) readInitial(ctx context.Context, run *directTextCall) 
 			return e
 		}
 		if stored != nil {
-			if (s.tools != nil) != (stored.round.Fields().Input.SchemaVersion == c.ToolCallRoundSchemaVersion) {
+			_, isLoop := stored.round.(loopExecutionRound)
+			if (s.multi != nil) != isLoop || s.multi == nil && (s.tools != nil) != (stored.round.Fields().Input.SchemaVersion == c.ToolCallRoundSchemaVersion) {
 				return fault(f.CapabilityUnsupported)
 			}
 			if len(stored.snapshot.Fields().Context.Input().Fields().Mounts.Mounts) != 0 {
@@ -241,7 +242,9 @@ func (s *directTextState) prepare(ctx context.Context, run *directTextCall) erro
 		return err
 	}
 	var request agentloop.DirectTextRequest
-	if s.tools == nil {
+	if s.multi != nil {
+		request, err = s.buildLoopRequest(ctx, run, built, actor, round, call)
+	} else if s.tools == nil {
 		request, err = agentloop.BuildDirectTextRequest(ctx, built, actor, round.String(), call)
 	} else {
 		request, err = s.buildToolCallRequest(ctx, run, built, actor, round, call)
@@ -255,7 +258,11 @@ func (s *directTextState) prepare(ctx context.Context, run *directTextCall) erro
 	}
 	mr := request.Request()
 	roundFields := c.DirectTextRoundFields{ID: round, InputBindingID: binding, ExecutionID: run.request.ExecutionID, SnapshotID: snapshot, StartID: start, CallID: call, ContextDigest: built.Digest(), Input: mr.Input, Messages: mr.Messages, CreatedAt: at}
-	if s.tools == nil {
+	if s.multi != nil {
+		var candidate c.LoopRound
+		candidate, err = c.NewLoopRound(c.LoopRoundFields{Round: roundFields, Tools: mr.Tools, Choice: mr.ToolChoice, Ordinal: 1, TranscriptStart: 1})
+		run.round = loopExecutionRound{candidate}
+	} else if s.tools == nil {
 		run.round, err = c.NewDirectTextRound(roundFields)
 	} else {
 		var candidate c.ToolCallRound
@@ -304,7 +311,7 @@ func (s *directTextState) prepare(ctx context.Context, run *directTextCall) erro
 	if err != nil {
 		return err
 	}
-	if s.tools == nil {
+	if s.tools == nil || s.multi != nil {
 		run.invocation.session, err = s.deps.Loop.Accept(request)
 	} else {
 		run.invocation.session, err = s.tools.loop.Accept(request)
@@ -424,9 +431,9 @@ func (s *directTextState) receipt(run *directTextCall) c.DirectTextReceipt {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	sf, rf := run.snapshot.Fields(), run.round.Fields()
-	through := f.Sequence(1)
+	through := roundInputThrough(run.round)
 	if run.toolPending {
-		through = 2
+		through = roundAssistantSequence(run.round)
 	}
 	if run.terminal != nil && run.summary.Status.Terminal() {
 		through = run.terminal.through

@@ -2,8 +2,62 @@ import { describe, expect, it, vi } from 'vitest'
 import type { Fetch } from '../api/client'
 import { createTaskExecutionOutputAPI } from '../api/task-execution-output'
 import { execution, id, json, p, problem, t } from './task-execution-fixture'
-import { finalExecution, output, outputPath } from './task-execution-output-fixture'
+import {
+  finalExecution,
+  multiRoundOutput,
+  output,
+  outputPath,
+} from './task-execution-output-fixture'
 describe('Task Execution final output wire', () => {
+  it('reads a v2 final round within the execution lifetime without reinterpreting v1 history', async () => {
+    const value = multiRoundOutput('最终回合保留的结果\n<script>原样文本</script>')
+    const api = createTaskExecutionOutputAPI(async () => json(value))
+    expect(await api.get(p, t, id(100), new AbortController().signal)).toEqual(value)
+    expect(value.snapshot!.items[0]!.started_at > value.execution.started_at!).toBe(true)
+    for (const status of ['failed', 'cancelled'] as const) {
+      const empty = multiRoundOutput('', {
+        status,
+        reason: status === 'failed' ? 'runtime_failed' : 'cancelled',
+      })
+      expect(
+        await createTaskExecutionOutputAPI(async () => json(empty)).get(
+          p,
+          t,
+          id(100),
+          new AbortController().signal,
+        ),
+      ).toEqual(empty)
+    }
+  })
+  it('rejects v2 final rounds outside the execution lifetime and does not relax the v1 timestamp contract', async () => {
+    const value = multiRoundOutput(),
+      snapshot = value.snapshot!,
+      item = snapshot.items[0]!
+    const invalid = [
+      { ...value, snapshot: { ...snapshot, schema: 'durable_final_text_v1' } },
+      { ...value, snapshot: { ...snapshot, schema: 'durable_final_text_v3' } },
+      ...[
+        { started_at: '2026-10-13T10:00:00.000000Z' },
+        { started_at: '2026-10-13T10:00:00.000006Z' },
+        { source_reference: { kind: 'execution_round', id: id(300) } },
+        { seq: '3' },
+        { data: { content: '结果', reasoning: 'private' } },
+      ].map((patch) => ({
+        ...value,
+        snapshot: { ...snapshot, items: [{ ...item, ...patch }] },
+      })),
+    ]
+    for (const candidate of invalid) {
+      await expect(
+        createTaskExecutionOutputAPI(async () => json(candidate)).get(
+          p,
+          t,
+          id(100),
+          new AbortController().signal,
+        ),
+      ).rejects.toMatchObject({ kind: 'invalid-response' })
+    }
+  })
   it('reads the exact no-query GET and preserves full text above the small summary limit', async () => {
     const content = '中🙂 <script>literal</script>\n' + 'a'.repeat(1024 * 1024)
     const value = output(content),

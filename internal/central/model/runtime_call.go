@@ -104,6 +104,9 @@ func runtimeTextShape(ctx context.Context, messages []mc.Message) error {
 }
 
 func prepareRuntimeInput(ctx context.Context, request mc.ModelRequest, mode wire.ResponseMode) (mc.ModelRequest, error) {
+	if request.Model.Snapshot.Identity.AdapterRevision == wire.OpenAIChatToolsRevision {
+		return prepareRuntimeToolInput(ctx, request, mode)
+	}
 	if err := runtimeTextShape(ctx, request.Messages); err != nil {
 		return mc.ModelRequest{}, err
 	}

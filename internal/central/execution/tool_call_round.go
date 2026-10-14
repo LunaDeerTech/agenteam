@@ -20,6 +20,9 @@ type executionRound interface {
 	LogValue() slog.Value
 }
 type toolExecutionRound struct{ c.ToolCallRound }
+type loopExecutionRound struct{ c.LoopRound }
+
+func (v loopExecutionRound) Fields() c.DirectTextRoundFields { return v.LoopRound.Fields().Round }
 
 func (v toolExecutionRound) Fields() c.DirectTextRoundFields { return v.ToolCallRound.Fields().Round }
 func (v toolExecutionRound) tool() mc.Tool                   { return v.ToolCallRound.Fields().Tool }
@@ -39,11 +42,20 @@ func decodeExecutionRound(raw []byte) (executionRound, error) {
 			return nil, err
 		}
 		return toolExecutionRound{v}, nil
+	case c.LoopRoundSchemaVersion:
+		v, err := c.DecodeLoopRound(raw)
+		if err != nil {
+			return nil, err
+		}
+		return loopExecutionRound{v}, nil
 	default:
 		return nil, invalid()
 	}
 }
 func executionRoundDigest(round executionRound) (f.Digest, error) {
+	if loop, ok := round.(loopExecutionRound); ok {
+		return loop.Fields().Input.Digest, nil // Full request is checked against its captured Model below.
+	}
 	if tool, ok := round.(toolExecutionRound); ok {
 		return c.ToolCallInputDigest(context.Background(), tool.Fields().Messages, tool.tool())
 	}

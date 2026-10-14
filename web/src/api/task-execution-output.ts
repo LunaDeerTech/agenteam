@@ -20,7 +20,7 @@ export type TaskExecutionOutput = Readonly<{
   execution: TaskExecution
   availability: 'pending' | 'available' | 'not_recorded'
   snapshot: Readonly<{
-    schema: 'durable_final_text_v1'
+    schema: 'durable_final_text_v1' | 'durable_final_text_v2'
     generation: string
     included_update_progress: '1'
     execution_version: string
@@ -68,6 +68,7 @@ export function parseTaskExecutionOutput(
       execution.started_at !== null &&
       execution.reason !== null,
   )
+  const executionStarted = execution.started_at
   const snapshot = shape(v.snapshot, [
     'schema',
     'generation',
@@ -75,8 +76,9 @@ export function parseTaskExecutionOutput(
     'execution_version',
     'items',
   ])
+  const schema = snapshot.schema
   requireValue(
-    snapshot.schema === 'durable_final_text_v1' &&
+    (schema === 'durable_final_text_v1' || schema === 'durable_final_text_v2') &&
       snapshot.generation === execution.snapshot_id &&
       snapshot.included_update_progress === '1' &&
       snapshot.execution_version === execution.version &&
@@ -114,7 +116,9 @@ export function parseTaskExecutionOutput(
         item.revision === '1' &&
         reference.kind === 'execution_round' &&
         reference.id === round &&
-        started === execution.started_at &&
+        (schema === 'durable_final_text_v1'
+          ? started === executionStarted
+          : started >= executionStarted) &&
         started <= completed &&
         updated === execution.completed_at &&
         completed === execution.completed_at &&
@@ -140,7 +144,7 @@ export function parseTaskExecutionOutput(
     execution,
     availability,
     snapshot: Object.freeze({
-      schema: 'durable_final_text_v1',
+      schema,
       generation: execution.snapshot_id,
       included_update_progress: '1',
       execution_version: execution.version,

@@ -80,10 +80,10 @@ func (d *ToolCallDriver) DiscoverToolCall(ctx context.Context, b tc.ToolCallBind
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	if b.Validate() != nil || b.RunnerBinding != d.driver.state.tools.profile() {
+	if b.Validate() != nil || !d.driver.state.acceptsRunnerBinding(b.RunnerBinding) {
 		return nil, invalid()
 	}
-	stored, err := loadDirectText(ctx, d.driver.state.store, b.ExecutionID)
+	stored, err := loadDirectTextRound(ctx, d.driver.state.store, b.ExecutionID, b.RoundID)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +116,7 @@ func (d *ToolCallDriver) RequireToolCallInTx(ctx context.Context, tx f.Tx, b tc.
 // The callback remains inside the original current-Agent witness lifetime.
 // Returning from Require and then lending its context would expire that proof.
 func (d *ToolCallDriver) withToolCallInTx(ctx context.Context, tx f.Tx, b tc.ToolCallBinding, plan tc.ToolCallPlan, consume func(context.Context, tc.ToolCallBinding, []byte) error) error {
-	if d == nil || d.driver == nil || ctx == nil || b.Validate() != nil || b.RunnerBinding != d.driver.state.tools.profile() {
+	if d == nil || d.driver == nil || ctx == nil || b.Validate() != nil || !d.driver.state.acceptsRunnerBinding(b.RunnerBinding) {
 		return invalid()
 	}
 	p, ok := plan.(*toolCallPlan)
@@ -135,7 +135,7 @@ func (d *ToolCallDriver) withToolCallInTx(ctx context.Context, tx f.Tx, b tc.Too
 	if err != nil {
 		return err
 	}
-	stored, err := loadDirectText(ctx, x, b.ExecutionID)
+	stored, err := loadDirectTextRound(ctx, x, b.ExecutionID, b.RoundID)
 	if err != nil {
 		return err
 	}
@@ -145,6 +145,18 @@ func (d *ToolCallDriver) withToolCallInTx(ctx context.Context, tx f.Tx, b tc.Too
 	expected, err := toolBinding(stored)
 	if err != nil || !sameToolCallBinding(expected, b) {
 		return fault(f.Forbidden)
+	}
+	if s.multi != nil {
+		latest, err := loadDirectText(ctx, x, b.ExecutionID)
+		if err != nil {
+			return err
+		}
+		if latest == nil || latest.round.Fields().ID.String() != b.RoundID {
+			return fault(f.ConfirmationStale)
+		}
+		if err = s.multi.guard.RequireCurrentProcessInTx(ctx, tx, s.multiProcess()); err != nil {
+			return portError(err)
+		}
 	}
 	input, err := loadPreparationInput(ctx, x, b.ExecutionID)
 	if err != nil {
@@ -164,6 +176,9 @@ func (d *ToolCallDriver) withToolCallInTx(ctx context.Context, tx f.Tx, b tc.Too
 	agent, err := s.deps.Agents.ReadExecutionConfigurationInTx(authorized, tx, request)
 	if err != nil {
 		return portError(err)
+	}
+	if s.multi != nil && b.RunnerBinding == tc.WriteFileRegistration().Binding && agent.Fields().Core.ApprovalPolicy != ac.ApprovalAllow {
+		return fault(f.CapabilityUnsupported)
 	}
 	fields := input.input.Fields()
 	if !slices.Contains(agent.Fields().AllowedToolIDs, b.Spec.ToolID) || slices.Contains(fields.Request.Launch.Policy.DeniedToolIDs, b.Spec.ToolID) || len(fields.Request.Launch.Policy.AllowedResourceConstraints) != 0 {

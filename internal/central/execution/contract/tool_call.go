@@ -48,42 +48,7 @@ func (v ToolCallRoundFields) Validate() error {
 // ToolCallInputDigest binds the complete first-round input, including the
 // exact schema and required choice. It is not Model's format-1 text digest.
 func ToolCallInputDigest(ctx context.Context, messages []mc.Message, tool mc.Tool) (f.Digest, error) {
-	if ctx == nil {
-		return "", invalid()
-	}
-	if err := ctx.Err(); err != nil {
-		return "", err
-	}
-	if tool.Validate() != nil || len(messages) != 2 {
-		return "", invalid()
-	}
-	for n, message := range messages {
-		role := "system"
-		if n == 1 {
-			role = "user"
-		}
-		if message.Validate() != nil || message.Role != role || len(message.Parts) != 1 || message.Parts[0].Text == nil {
-			return "", invalid()
-		}
-	}
-	raw, err := json.Marshal(struct {
-		Schema         f.Version         `json:"schema_version"`
-		Messages       []mc.Message      `json:"messages"`
-		Tools          []mc.Tool         `json:"tools"`
-		ToolChoice     mc.ToolChoice     `json:"tool_choice"`
-		ResponseFormat mc.ResponseFormat `json:"response_format"`
-	}{ToolCallRoundSchemaVersion, messages, []mc.Tool{tool}, mc.ToolChoice{Kind: "required"}, mc.ResponseFormat{Kind: "text"}})
-	if err != nil || len(raw) > MaxDirectTextRoundBytes {
-		return "", invalid()
-	}
-	raw, err = cursor.CanonicalJSON(raw)
-	if err != nil || len(raw) > MaxDirectTextRoundBytes {
-		return "", invalid()
-	}
-	if err := ctx.Err(); err != nil {
-		return "", err
-	}
-	return TriggerInputDigest(raw), nil
+	return mc.ToolCallInputDigest(ctx, messages, tool)
 }
 
 type ToolCallRound struct {

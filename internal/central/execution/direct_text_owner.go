@@ -40,6 +40,9 @@ type directTextCall struct {
 	invocation                              *directTextInvocation
 	terminal                                *directTextTerminal
 	toolPending                             bool
+	toolDispatched                          bool
+	toolFailed                              bool
+	next                                    *loopSuccessor
 	toolFacts                               *toolCallCandidate
 }
 
@@ -51,6 +54,7 @@ type directTextState struct {
 	process      oc.ProcessID
 	deps         DirectTextDependencies
 	tools        *toolCallDependencies
+	multi        *multiRoundState
 	mu           sync.Mutex
 	stopped      bool
 	calls        map[i.ExecutionID]*directTextCall
@@ -141,6 +145,11 @@ func (a *Authority) directTextModelScope(ctx context.Context, tx f.Tx, allowClos
 	}
 	if err = s.store.RequireHeldLocks(ctx, tx, locks); err != nil {
 		return zero, portError(err)
+	}
+	if s.multi != nil {
+		if err = s.multi.guard.RequireCurrentProcessInTx(ctx, tx, s.multiProcess()); err != nil {
+			return zero, portError(err)
+		}
 	}
 	row, err := loadExecution(ctx, x, run.request.ExecutionID)
 	if err != nil {

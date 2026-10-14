@@ -33,7 +33,7 @@ func newToolCallCandidate(run *directTextCall, response mc.ModelResponse) (*tool
 		return nil, fault(f.InvalidState)
 	}
 	fields := run.snapshot.Fields().Context.Input().Fields()
-	if len(fields.Tools) != 1 {
+	if len(fields.Tools) == 0 || run.owner.multi == nil && len(fields.Tools) != 1 {
 		return nil, fault(f.CapabilityUnsupported)
 	}
 	var part *mc.ToolCallPart
@@ -48,10 +48,14 @@ func newToolCallCandidate(run *directTextCall, response mc.ModelResponse) (*tool
 			return nil, fault(f.CapabilityUnsupported)
 		}
 	}
-	if part == nil || part.Name != fields.Tools[0].ModelVisibleName {
+	if part == nil {
 		return nil, fault(f.InvalidState)
 	}
-	mountID, err := toolCallMountID(run.ctx, fields.Tools[0].BindingSnapshot.RunnerBinding, part.Arguments)
+	selected, err := capturedToolByName(run.input.input, part.Name)
+	if err != nil {
+		return nil, err
+	}
+	mountID, err := toolCallMountID(run.ctx, selected.BindingSnapshot.RunnerBinding, part.Arguments)
 	if err != nil {
 		return nil, portError(err)
 	}
@@ -168,7 +172,10 @@ func insertToolCallFacts(ctx context.Context, x postgres.SQLExecutor, run *direc
 	v := run.toolFacts
 	r := run.round.Fields()
 	q := run.request
-	t := run.input.input.Fields().Tools[0]
+	t, err := capturedToolByName(run.input.input, v.call.Name)
+	if err != nil {
+		return err
+	}
 	binding := t.BindingSnapshot.RunnerBinding
 	response, err := directTextJSON(v.response)
 	if err != nil {
@@ -188,10 +195,10 @@ func insertToolCallFacts(ctx context.Context, x postgres.SQLExecutor, run *direc
 	if tag.RowsAffected() != 1 {
 		return unavailable(nil)
 	}
-	if err = insertDirectTextEntry(ctx, x, q.ExecutionID, r.ID, 2, "assistant", v.response.Message, v.at); err != nil {
+	if err = insertDirectTextEntry(ctx, x, q.ExecutionID, r.ID, int64(roundAssistantSequence(run.round)), "assistant", v.response.Message, v.at); err != nil {
 		return err
 	}
-	tag, err = x.Exec(ctx, `UPDATE agenteam_execution.rounds SET tool_pending=true,checkpoint_at=$3,transcript_through=2,response=$4,response_digest=$5 WHERE execution_id=$1 AND id=$2 AND schema_version=2 AND terminal_status IS NULL AND NOT tool_pending`, q.ExecutionID.String(), r.ID.String(), v.at.Time(), response, string(c.TriggerInputDigest(response)))
+	tag, err = x.Exec(ctx, `UPDATE agenteam_execution.rounds SET tool_pending=true,checkpoint_at=$3,transcript_through=$6,response=$4,response_digest=$5 WHERE execution_id=$1 AND id=$2 AND schema_version IN (2,4) AND terminal_status IS NULL AND NOT tool_pending`, q.ExecutionID.String(), r.ID.String(), v.at.Time(), response, string(c.TriggerInputDigest(response)), int64(roundAssistantSequence(run.round)))
 	if err != nil {
 		return unavailable(err)
 	}
@@ -217,14 +224,14 @@ func loadToolCallFacts(ctx context.Context, x postgres.SQLExecutor, stored *dire
 	var spec, major, version int64
 	var at time.Time
 	var original, canonical []byte
-	err := x.QueryRow(ctx, `SELECT a.id::text,t.invocation_id::text,t.call_id,t.model_visible_name,t.tool_id::text,t.spec_revision,t.operation_name,t.operation_revision,t.protocol_major,t.checkpoint_version,t.created_at,a.round_id::text,a.input_binding_id::text,a.logical_call_id::text,a.snapshot_id::text,a.project_id::text,a.agent_id::text,a.original,a.original_digest,a.canonical,a.canonical_digest FROM agenteam_execution.tool_calls t JOIN agenteam_execution.tool_call_arguments a ON(a.execution_id,a.round_id,a.id)=(t.execution_id,t.round_id,t.payload_id) WHERE t.execution_id=$1`, r.ExecutionID.String()).Scan(&payload, &invocation, &call, &name, &tool, &spec, &operation, &revision, &major, &version, &at, &round, &binding, &logical, &snapshot, &project, &agent, &original, &od, &canonical, &cd)
+	err := x.QueryRow(ctx, `SELECT a.id::text,t.invocation_id::text,t.call_id,t.model_visible_name,t.tool_id::text,t.spec_revision,t.operation_name,t.operation_revision,t.protocol_major,t.checkpoint_version,t.created_at,a.round_id::text,a.input_binding_id::text,a.logical_call_id::text,a.snapshot_id::text,a.project_id::text,a.agent_id::text,a.original,a.original_digest,a.canonical,a.canonical_digest FROM agenteam_execution.tool_calls t JOIN agenteam_execution.tool_call_arguments a ON(a.execution_id,a.round_id,a.id)=(t.execution_id,t.round_id,t.payload_id) WHERE t.execution_id=$1 AND t.round_id=$2`, r.ExecutionID.String(), r.ID.String()).Scan(&payload, &invocation, &call, &name, &tool, &spec, &operation, &revision, &major, &version, &at, &round, &binding, &logical, &snapshot, &project, &agent, &original, &od, &canonical, &cd)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, unavailable(nil)
 	}
 	if err != nil {
 		return nil, unavailable(err)
 	}
-	if stored.toolPending == nil || len(input.Tools) != 1 {
+	if stored.toolPending == nil || len(input.Tools) == 0 {
 		return nil, unavailable(nil)
 	}
 	v := stored.toolPending
@@ -232,7 +239,10 @@ func loadToolCallFacts(ctx context.Context, x postgres.SQLExecutor, stored *dire
 	if err != nil {
 		return nil, unavailable(nil)
 	}
-	expected := input.Tools[0]
+	expected, err := capturedToolByName(stored.snapshot.Fields().Context.Input(), v.call.Name)
+	if err != nil {
+		return nil, err
+	}
 	rb := expected.BindingSnapshot.RunnerBinding
 	if round != r.ID.String() || binding != r.InputBindingID.String() || logical != r.CallID.String() || snapshot != r.SnapshotID.String() || project != input.Request.Launch.ProjectID.String() || agent != input.Request.Launch.AgentID.String() || tool != expected.ToolID.String() || spec != int64(expected.SpecRevision) || name != expected.ModelVisibleName || operation != rb.OperationName || revision != rb.OperationRevision || major != int64(rb.ProtocolMajor) || invocation != v.response.InvocationID.String() || call != v.call.ID || name != v.call.Name || version <= int64(stored.startedVersion) || !at.Equal(v.at.Time()) || f.Digest(od) != c.TriggerInputDigest(original) || f.Digest(cd) != c.TriggerInputDigest(canonical) {
 		return nil, unavailable(nil)
@@ -312,7 +322,10 @@ func toolBinding(stored *directTextRecord) (tc.ToolCallBinding, error) {
 	r := stored.round.Fields()
 	v := stored.toolPending
 	input := stored.snapshot.Fields().Context.Input().Fields()
-	t := input.Tools[0]
+	t, err := capturedToolByName(stored.snapshot.Fields().Context.Input(), v.call.Name)
+	if err != nil {
+		return tc.ToolCallBinding{}, err
+	}
 	actor, err := i.NewAgentRun(input.Request.Launch.ProjectID, input.Request.Launch.AgentID, input.Request.ExecutionID)
 	if err != nil {
 		return tc.ToolCallBinding{}, err

@@ -102,7 +102,7 @@ func (r *RunCommandResultReader) DiscoverRunCommandResult(ctx context.Context, e
 		return nil, fail(f.InvalidArgument)
 	}
 	d := r.data()
-	call, err := d.executions.DiscoverCommittedRunCommandCall(ctx, execution)
+	call, err := discoverSelectedCommittedRunCommandCall(ctx, d.executions, execution)
 	if err != nil {
 		return nil, schemaReadError(err)
 	}

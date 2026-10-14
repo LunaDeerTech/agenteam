@@ -125,6 +125,9 @@ func buildToolCallRequest(ctx context.Context, captured ec.ExecutionContext, act
 }
 
 func validateSessionResponse(request DirectTextRequest, response mc.ModelResponse) error {
+	if request.loop {
+		return validateLoopResponse(context.Background(), request.Request(), response)
+	}
 	if !request.toolCall {
 		return validateTextResponse(request.Request().CallID, response)
 	}

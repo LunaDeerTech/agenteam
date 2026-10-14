@@ -60,7 +60,7 @@ func runtimeStableActor(actor id.Actor) id.ActorDetails {
 }
 
 func (b runtimeBinding) validate() error {
-	if b.CallID.Validate() != nil || b.Consumer.Validate() != nil || b.Input.ValidateFor(b.Consumer) != nil || b.Input.SchemaVersion != 1 || b.SnapshotID.Validate() != nil || b.SnapshotDigest.Validate() != nil || b.LeaseID.Validate() != nil || b.Policy.ValidateFor(b.Consumer) != nil || b.Mode != wire.JSONResponse && b.Mode != wire.SSEResponse {
+	if b.CallID.Validate() != nil || b.Consumer.Validate() != nil || b.Input.ValidateFor(b.Consumer) != nil || !runtimeInputSchemaSupported(b) || b.SnapshotID.Validate() != nil || b.SnapshotDigest.Validate() != nil || b.LeaseID.Validate() != nil || b.Policy.ValidateFor(b.Consumer) != nil || b.Mode != wire.JSONResponse && b.Mode != wire.SSEResponse {
 		return unavailable(nil)
 	}
 	if b.Format == 1 {
@@ -277,4 +277,11 @@ func updateRuntimeRecord(ctx context.Context, x postgres.SQLExecutor, r *runtime
 		return fault(f.ResourceBusy)
 	}
 	return nil
+}
+
+func runtimeInputSchemaSupported(b runtimeBinding) bool {
+	if b.Input.SchemaVersion == 1 {
+		return true
+	}
+	return b.Format == 2 && b.Mode == wire.JSONResponse && (b.Input.SchemaVersion == mc.ToolCallInputSchemaVersion || b.Input.SchemaVersion == mc.SuccessorInputSchemaVersion || b.Input.SchemaVersion == mc.ToolInputSchemaVersion)
 }

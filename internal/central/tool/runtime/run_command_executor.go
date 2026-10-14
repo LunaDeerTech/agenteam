@@ -197,7 +197,7 @@ func runCommandTransaction(ctx context.Context, d *runCommandAuthorityState, h *
 }
 
 func discoverRunCommand(ctx context.Context, d *runCommandExecutorData, execution i.ExecutionID) (*runCommandHandoff, error) {
-	plan, err := d.authority.executions.DiscoverRunCommandCall(ctx, execution)
+	plan, err := discoverSelectedRunCommandCall(ctx, d.authority.executions, execution)
 	if err != nil {
 		return nil, schemaReadError(err)
 	}

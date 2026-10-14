@@ -58,22 +58,38 @@ func (p *writeFileCallPlan) Binding() tc.ToolCallBinding {
 }
 
 func (d *ToolCallDriver) DiscoverWriteFileCall(ctx context.Context, e i.ExecutionID) (tc.WriteFileCallPlan, error) {
+	return d.discoverWriteFileCall(ctx, e, nil)
+}
+func (d *ToolCallDriver) DiscoverWriteFileCallFor(ctx context.Context, id tc.ToolCallIdentity) (tc.WriteFileCallPlan, error) {
+	if id.Validate() != nil {
+		return nil, invalid()
+	}
+	return d.discoverWriteFileCall(ctx, id.ExecutionID, &id)
+}
+func (d *ToolCallDriver) discoverWriteFileCall(ctx context.Context, e i.ExecutionID, id *tc.ToolCallIdentity) (tc.WriteFileCallPlan, error) {
 	if d == nil || d.driver == nil || ctx == nil || e.Validate() != nil {
 		return nil, invalid()
 	}
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	if d.driver.state.tools.profile() != tc.WriteFileRegistration().Binding {
+	if !d.driver.state.acceptsRunnerBinding(tc.WriteFileRegistration().Binding) {
 		return nil, fault(f.Forbidden)
 	}
-	stored, err := loadDirectText(ctx, d.driver.state.store, e)
+	round := ""
+	if id != nil {
+		round = id.RoundID
+	}
+	stored, err := loadDirectTextRound(ctx, d.driver.state.store, e, round)
 	if err != nil {
 		return nil, err
 	}
 	binding, err := toolBinding(stored)
 	if err != nil {
 		return nil, err
+	}
+	if id != nil && !id.Matches(binding) {
+		return nil, fault(f.Forbidden)
 	}
 	if binding.RunnerBinding != tc.WriteFileRegistration().Binding {
 		return nil, fault(f.Forbidden)

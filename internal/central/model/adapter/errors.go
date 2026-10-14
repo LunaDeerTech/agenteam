@@ -294,9 +294,15 @@ type decoded struct {
 	finish                          mc.FinishReason
 	usage                           mc.Usage
 	hasUsage, emptyChoices, refusal bool
+	usageValid                      bool
+	tools                           []mc.ToolCallPart
 }
 
 func decodeNative(raw []byte, streaming bool) (decoded, error) {
+	return decodeNativeProfile(raw, streaming, nil)
+}
+
+func decodeNativeProfile(raw []byte, streaming bool, policy *toolPolicy) (decoded, error) {
 	v := decoded{usage: mc.Usage{Source: mc.UnknownUsage}}
 	keys := "id object created model choices usage system_fingerprint service_tier"
 	if streaming {
@@ -388,7 +394,12 @@ func decodeNative(raw []byte, streaming bool) (decoded, error) {
 		}
 	case "stop", "length", "content_filter":
 		v.finish = mc.FinishReason(finish)
-	case "tool_calls", "function_call":
+	case "tool_calls":
+		if policy == nil || streaming {
+			return v, unsupported()
+		}
+		v.finish = mc.FinishReason(finish)
+	case "function_call":
 		return v, unsupported()
 	default:
 		return v, protocolFailure()
@@ -416,6 +427,9 @@ func decodeNative(raw []byte, streaming bool) (decoded, error) {
 		}
 	}
 	for _, key := range []string{"tool_calls", "annotations"} {
+		if key == "tool_calls" && policy != nil {
+			continue
+		}
 		if null(m[key]) {
 			continue
 		}
@@ -427,6 +441,19 @@ func decodeNative(raw []byte, streaming bool) (decoded, error) {
 			return v, unsupported()
 		}
 	}
-	v.text, err = nativeString(m["content"], maxTextBytes, !streaming && !v.refusal)
+	v.text, err = nativeString(m["content"], maxTextBytes, !streaming && !v.refusal && (policy == nil || null(m["tool_calls"])))
+	if err != nil {
+		return v, err
+	}
+	if policy != nil {
+		v.usageValid = true
+		if v.refusal {
+			return v, nil
+		}
+		v.tools, err = policy.decode(m["tool_calls"], v.finish)
+		if err == nil && len(v.tools) == 0 && null(m["content"]) {
+			return v, protocolFailure()
+		}
+	}
 	return v, err
 }

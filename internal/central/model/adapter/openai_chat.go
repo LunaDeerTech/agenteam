@@ -24,6 +24,7 @@ import (
 
 const OpenAIChatTextRevision = "openai-chat-text-v1"
 const OpenAIChatStructuredRevision = "openai-chat-structured-v1"
+const OpenAIChatToolsRevision = "openai-chat-tools-v1"
 
 type ResponseMode string
 
@@ -58,8 +59,9 @@ type End struct {
 	ProviderRequestID string
 }
 type Result struct {
-	Text string
-	End  End
+	Text      string
+	End       End
+	ToolCalls []mc.ToolCallPart
 }
 type EventKind string
 
@@ -122,6 +124,9 @@ func (a *OpenAIChat) Start(ctx context.Context, r Request, o CallOptions) (*Exch
 		return nil, err
 	}
 	x.schema = schema
+	if r.Snapshot.Identity.AdapterRevision == OpenAIChatToolsRevision {
+		x.tools = newToolPolicy(r)
+	}
 	go x.run(a.transport, req, profile)
 	return x, nil
 }
@@ -149,6 +154,14 @@ func prepareWithSchema(ctx context.Context, r Request, o CallOptions) (*http.Req
 		}
 	}
 	s, c := r.Snapshot.Identity, r.Snapshot.Capabilities
+	if s.AdapterRevision == OpenAIChatToolsRevision {
+		raw, err := prepareToolsBody(ctx, r)
+		if err != nil {
+			return fail(err)
+		}
+		req, profile, err := prepareNativeRequest(r, o, raw, false)
+		return req, profile, nil, err
+	}
 	if s.Profile != mc.OpenAIChatV1 || s.Protocol != mc.OpenAIChat || s.ModelType != mc.ChatModel || !emptyObject(r.Snapshot.Parameters) || !emptyObject(r.Snapshot.RequestOverwrite) || len(r.Snapshot.HeaderOverwrite) != 0 || c.ToolCalls || c.ParallelToolCalls || c.Reasoning || len(c.ReasoningEfforts) != 0 || !onlyText(c.InputModalities) || !onlyText(c.OutputModalities) || r.Mode == SSEResponse && !c.Streaming || len(r.Tools) != 0 || r.ToolChoice.Kind != "none" {
 		return fail(unsupported())
 	}
@@ -217,6 +230,12 @@ func prepareWithSchema(ctx context.Context, r Request, o CallOptions) (*http.Req
 	if err != nil || len(raw) > maxTextBytes {
 		return fail(limitFailure())
 	}
+	req, profile, err := prepareNativeRequest(r, o, raw, body.Stream)
+	return req, profile, schema, err
+}
+
+func prepareNativeRequest(r Request, o CallOptions, raw []byte, stream bool) (*http.Request, outbound.Profile, error) {
+	fail := func(err error) (*http.Request, outbound.Profile, error) { return nil, outbound.Profile{}, err }
 	u, err := url.Parse(r.Snapshot.Endpoint)
 	if err != nil || u.User != nil || u.RawQuery != "" || u.ForceQuery || u.Fragment != "" {
 		return fail(invalid())
@@ -252,7 +271,7 @@ func prepareWithSchema(ctx context.Context, r Request, o CallOptions) (*http.Req
 	if err != nil {
 		return fail(invalid())
 	}
-	profile, err := outbound.NewProfile(outbound.ProfileOptions{Consumer: ac.Model, AllowHTTP: o.AllowHTTP, Streaming: body.Stream, Limits: o.Limits, Context: o.Context, Credentials: binding})
+	profile, err := outbound.NewProfile(outbound.ProfileOptions{Consumer: ac.Model, AllowHTTP: o.AllowHTTP, Streaming: stream, Limits: o.Limits, Context: o.Context, Credentials: binding})
 	if err != nil {
 		return fail(invalid())
 	}
@@ -262,11 +281,11 @@ func prepareWithSchema(ctx context.Context, r Request, o CallOptions) (*http.Req
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
-	if body.Stream {
+	if stream {
 		req.Header.Set("Accept", "text/event-stream")
 	}
 	req.Close = true
-	return req, profile, schema, nil
+	return req, profile, nil
 }
 
 func onlyText(v []string) bool { return len(v) == 1 && v[0] == "text" }

@@ -83,7 +83,16 @@ func (s *directTextState) callAndFinish(ctx context.Context, run *directTextCall
 	run.uncertainty = ""
 	callErr = run.invocation.callError
 	s.mu.Unlock()
-	if callErr == nil && s.tools != nil {
+	if callErr == nil && s.multi != nil && response.FinishReason == "tool_calls" {
+		if _, err := s.saveToolCallFacts(ctx, run, response); err != nil {
+			return s.receipt(run), err
+		}
+		if run.toolPending {
+			return s.advanceLoop(ctx, run)
+		}
+		return s.receipt(run), run.invocation.callError
+	}
+	if callErr == nil && s.tools != nil && s.multi == nil {
 		return s.saveToolCallFacts(ctx, run, response)
 	}
 	if callErr == nil && !stableDirectTextResponse(response, run.round.Fields().CallID) {
@@ -201,12 +210,21 @@ func (s *directTextState) prepareTerminal(ctx context.Context, run *directTextCa
 		if err != nil {
 			return err
 		}
-		status, reason, through := c.Succeeded, "completed", f.Sequence(2)
+		status, reason, through := c.Succeeded, "completed", roundAssistantSequence(run.round)
 		response := run.invocation.response
 		if row.summary.CancelRequestedAt != nil || run.ctx.Err() != nil || errors.Is(run.invocation.callError, context.Canceled) || errors.Is(run.invocation.callError, context.DeadlineExceeded) {
-			status, reason, through, response = c.Cancelled, "cancelled", 1, nil
+			status, reason, through, response = c.Cancelled, "cancelled", roundInputThrough(run.round), nil
 		} else if run.invocation.callError != nil || response == nil {
-			status, reason, through, response = c.Failed, "model_failed", 1, nil
+			status, reason, through, response = c.Failed, "model_failed", roundInputThrough(run.round), nil
+			if run.toolFailed {
+				reason = "runtime_failed"
+			}
+		}
+		if s.multi != nil && stored.toolPending != nil {
+			if status == c.Succeeded {
+				return fault(f.InvalidState)
+			}
+			through = roundAssistantSequence(run.round)
 		}
 		t := &directTextTerminal{status: status, reason: reason, before: row.summary.Version, version: row.summary.Version + 1, through: through, at: at}
 		if response != nil {

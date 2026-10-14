@@ -177,7 +177,7 @@ func readFileTransaction(ctx context.Context, d *readFileAuthorityState, h *read
 }
 
 func discoverReadFile(ctx context.Context, d *readFileExecutorData, execution i.ExecutionID) (*readFileHandoff, error) {
-	plan, err := d.authority.executions.DiscoverReadFileCall(ctx, execution)
+	plan, err := discoverSelectedReadFileCall(ctx, d.authority.executions, execution)
 	if err != nil {
 		return nil, schemaReadError(err)
 	}

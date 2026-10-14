@@ -29,16 +29,29 @@ func (p *committedRunCommandCallPlan) Binding() tc.ToolCallBinding {
 }
 
 func (d *ToolCallDriver) DiscoverCommittedRunCommandCall(ctx context.Context, e i.ExecutionID) (tc.CommittedRunCommandCallPlan, error) {
+	return d.discoverCommittedRunCommandCall(ctx, e, nil)
+}
+func (d *ToolCallDriver) DiscoverCommittedRunCommandCallFor(ctx context.Context, id tc.ToolCallIdentity) (tc.CommittedRunCommandCallPlan, error) {
+	if id.Validate() != nil {
+		return nil, invalid()
+	}
+	return d.discoverCommittedRunCommandCall(ctx, id.ExecutionID, &id)
+}
+func (d *ToolCallDriver) discoverCommittedRunCommandCall(ctx context.Context, e i.ExecutionID, id *tc.ToolCallIdentity) (tc.CommittedRunCommandCallPlan, error) {
 	if d == nil || d.driver == nil || d.driver.state == nil || ctx == nil || e.Validate() != nil {
 		return nil, invalid()
 	}
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	if d.driver.state.tools.profile() != tc.RunCommandRegistration().Binding {
+	if !d.driver.state.acceptsRunnerBinding(tc.RunCommandRegistration().Binding) {
 		return nil, fault(f.Forbidden)
 	}
-	stored, err := loadDirectText(ctx, d.driver.state.store, e)
+	round := ""
+	if id != nil {
+		round = id.RoundID
+	}
+	stored, err := loadDirectTextRound(ctx, d.driver.state.store, e, round)
 	if err != nil {
 		return nil, err
 	}
@@ -49,6 +62,9 @@ func (d *ToolCallDriver) DiscoverCommittedRunCommandCall(ctx context.Context, e 
 	binding, err := toolBinding(stored)
 	if err != nil {
 		return nil, err
+	}
+	if id != nil && !id.Matches(binding) {
+		return nil, fault(f.Forbidden)
 	}
 	if binding.RunnerBinding != tc.RunCommandRegistration().Binding {
 		return nil, fault(f.Forbidden)
@@ -73,7 +89,7 @@ func (d *ToolCallDriver) WithCommittedRunCommandCallInTx(ctx context.Context, tx
 		return err
 	}
 	p, ok := plan.(*committedRunCommandCallPlan)
-	if !ok || p == nil || p.call == nil || p.call.owner != d || p.call.binding.RunnerBinding != tc.RunCommandRegistration().Binding || d.driver.state.tools.profile() != tc.RunCommandRegistration().Binding {
+	if !ok || p == nil || p.call == nil || p.call.owner != d || p.call.binding.RunnerBinding != tc.RunCommandRegistration().Binding || !d.driver.state.acceptsRunnerBinding(tc.RunCommandRegistration().Binding) {
 		return fault(f.Forbidden)
 	}
 	s, b := d.driver.state, p.call.binding
@@ -88,7 +104,7 @@ func (d *ToolCallDriver) WithCommittedRunCommandCallInTx(ctx context.Context, tx
 	if err != nil {
 		return err
 	}
-	stored, err := loadDirectText(ctx, x, b.ExecutionID)
+	stored, err := loadDirectTextRound(ctx, x, b.ExecutionID, b.RoundID)
 	if err != nil {
 		return err
 	}

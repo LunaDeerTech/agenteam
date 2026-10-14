@@ -62,6 +62,7 @@ type executionSchedulerAppReturn struct {
 
 type executionSchedulerAppStore struct {
 	*postgres.Store
+	observeCommit                            func(f.TransactionCause, f.CommitResult)
 	mu                                       sync.Mutex
 	directorySelected                        bool
 	lookupProject                            string
@@ -107,6 +108,9 @@ func (s *executionSchedulerAppStore) WithinTx(ctx context.Context, cause f.Trans
 		}
 		return nil
 	})
+	if s.observeCommit != nil {
+		s.observeCommit(cause, result)
+	}
 	if directory || lookup {
 		returned := make(chan struct{})
 		defer close(returned)
