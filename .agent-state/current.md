@@ -19,13 +19,13 @@ M3 按共同基线 `d9356e09` 建立六个功能工作树，后续另建选型�
 
 当前为实现、公共接线与限定真实验证阶段，M3 未完成。Knowledge 的真实外部模型链已通过：canonical Object→4096 维 serving generation→正常 Scheduler→query-doc→精确版本 read-doc→原 ToolResult 被后继 sent/succeeded 模型消费并输出来源引用。Memory 的受控模型完整首链已通过：4 个 Scheduler Execution、5 个 Tool、6 个 Memory Model，覆盖 retain、跨 Execution recall、只读 reflect、跨 Agent 隔离和 Owner 删除后的排除。Meeting 的受控模型首链已通过 Owner Start→两 Agent 顺序贡献→普通文本 Summary，B 的实际输入含 A 发言；另有 Agent busy 范围的真实 Owner 浏览器链。三条链均取得原进程 Wait0、App/Guard/owner 退出及独立 fixture 精确清理。
 
-Knowledge 后继真实 App serving retention 已通过：换凭据后旧 generation 保留原引用，第二次 Rebuild 原子切换并释放旧引用，原 Model/Index/App/Guard 完整退出；worker 源码已组合，App 尚未启动，自动索引与有界 parser 继续。Memory 继续模型 profile 切换与恢复；Meeting 继续完整控制、Decision 与 UI。MCP 真实 Owner Connection、SDK 发现、Registry 目录、启停/lookup/跨 Project 拒绝已通过；Agent 首轮发现公共 typed result SQL 的 JSONB 解析缺陷，尚未实际远端 Tool 调用。OAuth 交换刷新和媒体完整链仍未通过。
+Knowledge 后继真实 App serving retention 已通过：换凭据后旧 generation 保留原引用，第二次 Rebuild 原子切换并释放旧引用，原 Model/Index/App/Guard 完整退出。同一 IndexService.Run 已接 App 生命周期，自动初始化/profile 变更依赖正在共同候选编译，自动索引真实链仍待。Memory 模型 profile 切换已通过：4 个 Execution、5 个 Tool、7 个 Memory Model，旧 generation 退休并释放引用，新 profile/vector/query snapshot 与原 App/Guard 退出均验证；继续恢复与浏览器。Meeting Decision answer、skip、cancel 已分轮通过原 Execution 等待/继续或取消、结果消费和退出，继续控制与 UI。MCP Owner Connection 控制面已过；公共结果 SQL 已修复并通过实际 PG，Agent 后继定位到 Secret 审计缺少 AgentRun 原证明路由，窄修复后待真实 Tool/Resource 复验。OAuth 交换刷新和媒体完整链仍未通过。
 
 Model 同一 v2 snapshot 的真实 64/64/8 共 136 个 Embedding、4096 维及原 Usage/Secret/Join 收尾已过；长期 serving retention 的受控调用、两个 generation 独立引用、填充数据升级和两个真实 CommitUnknown 分支均有限通过，Memory 首链与 Knowledge 后继 pin 链均已实际消费。OAuth Secret 的 create/update/delete、CAS、回滚与两个真实 CommitUnknown 分支已通过。retention 及后继 Secret/Audit 有界独审已完成，无该审查范围的 must-fix；[独立报告](../docs/development/work-items/m3-core-independent-review.md)不接受 MCP OAuth 交换、刷新或冷恢复，也不把显式媒体拒绝记成媒体消费。
 
 D13 固定词法与融合比较及先前离线独审已保存。用户关于默认 dense 或继续原 hybrid 范围的决定尚未到达，架构和默认选择保持原合同；显式 `native_pg_fts` 仅用于限定首链。动态 Skills 的 list/read/install 和原账本 App 接线已实现，首实际安装、Owner 分配与下一轮正文消费待验证；PDF 有界解析及本阶段相关 Runner 接口仍是 M3 待完成包，不将全 D22 欠账无界并入。
 
-候选迁移已连续至00122；00123仍为未应用的前向修正，消除MCP typedref表达式及00121 Skills后继轮校验变量歧义。Memory profile首验已完成原retain，后继轮卡在同一00121校验，提前终止后实际Wait/精确清理已收，不记正常Join或profile通过。原Model未退休call的冷恢复与Meeting Summary固定snapshot需求继续保留，Skills首链后接续共同提供方。
+共同候选已包含实际 PG 验证的00123前向修正；00124是Knowledge自动profile持久事实，00125补Skills原ToolCall检查点路由闭集。后两者与消费者共同编译，真实调用仍待。Skills首次安装在创建Operation前被原检查点拒绝，已确定遗漏的Go闭集/路由与SQL名称约束，当前补齐，保持安装独立账本；不以包测代首链。原Model未退休call的冷恢复与Meeting Summary固定snapshot需求继续保留，Skills首链后接续共同提供方。
 
 公共依赖锁文件由 integration 唯一持有，其他树只读。迁移按 root 编号在候选树连续组合；main 不接收未验收产品 WIP。每树 `.agent-state/current.md` 保存可恢复片段，本索引不复制执行流水。最多两组重构建/独立 PG fixture，由 integration 调度；固定 Go1.27.1、MinIO 和共享锁定依赖复用，浏览器已恢复锁定 Playwright 1.56.1/Chromium1194，入口 owner 按限定候选继续真实组合验证。现有 dev PG/MinIO 不作任务测试库，默认代理与 TLS 校验保持。旧 STOP 只按原风险范围保留。
 
