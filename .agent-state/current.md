@@ -7,20 +7,22 @@ M3 按共同基线 `d9356e09` 建立六个功能工作树，后续另建选型�
 | 分支 | 工作树 | owner / 范围 |
 | --- | --- | --- |
 | `ai/m3-knowledge` | `/workspace/agenteam-m3-knowledge` | `m3_knowledge`：Knowledge 索引检索、共享 retrieval 与引用 |
-| `ai/m3-memory` | `/workspace/agenteam-m3-memory` | `m3_memory_tools`：Memory 与领域 adapters，当前阶段保存，后继小修按明确路径回到本树 |
-| `ai/m3-mcp` | `/workspace/agenteam-m3-mcp` | `m3_mcp`：MCP Connection、发现、Tool/Resource |
+| `ai/m3-memory` | `/workspace/agenteam-m3-memory` | `m3_memory_tools`：Memory generation、长期 snapshot 保留与真实统一 Tool 链，已回本树继续 |
+| `ai/m3-mcp` | `/workspace/agenteam-m3-mcp` | `m3_mcp`：MCP Connection、发现、Tool/Resource；当前已保存暂停，待短审释放席位后恢复 |
 | `ai/m3-meeting` | `/workspace/agenteam-m3-meeting` | `m3_meeting`：Session/Turn/Contribution、provider、Runtime 与执行控制 |
 | `ai/m3-integration` | `/workspace/agenteam-m3-integration` | `m3_integration`：App/Tool/Executor/身份共享契约、组合 harness |
-| `ai/m3-model` | `/workspace/agenteam-m3-model` | `m3_model`：Model Embeddings、structured Runtime 与 serving snapshot；已续派长期 serving credential retention |
+| `ai/m3-model` | `/workspace/agenteam-m3-model` | `m3_model`：Model Embeddings、structured Runtime 与 serving retention；限定真实退休门已过，现接 MCP OAuth Secret 窄写口 |
 | `ai/m3-retrieval-selection` | `/workspace/agenteam-m3-retrieval-selection` | `m3_retrieval_selection`：D13 固定词法/dense/RRF 比较已保存并停写；基线 `a1ce6f1b` |
 | `ai/m3-knowledge-validation` | `/workspace/agenteam-m3-knowledge-validation` | `m3_knowledge`：固定 App 首链验证，运行期间源码不漂移 |
-| `ai/m3-meeting-ui` | `/workspace/agenteam-m3-meeting-ui` | `m3_memory_tools`：Meeting HTTP/UI；Memory UI 已保存待真实浏览器 |
+| `ai/m3-meeting-ui` | `/workspace/agenteam-m3-meeting-ui` | `m3_memory_tools`：Meeting HTTP/UI 已阶段保存；实际 Owner 浏览器链已过，Agent busy 范围单列 |
 
-当前为实现、公共接线与限定真实验证阶段，整链和 M3 未验收。Knowledge 固定候选 App 已越过配置与 SQL 建档，首 Model 技术退场身份被领域拒绝，原失败进程退出及 fixture 清理后正修复；该轮不构成 Join 成功。Memory 的真实 PG current revision/shared RRF/跨 Execution 命名空间过滤已过，工具和模型组合待验证。MCP 官方 SDK 的真实 TLS 协议四子项已过，当前继续统一审批执行、资源内容与租约退休；Meeting 的领域 SQL 和受控顺并行链已过，App 实际两 Agent、控制/恢复与 Summary 继续。Model 同一 v2 snapshot 的真实 64/64/8 共 136 个 Embedding、4096 维及原 Usage/Secret/Join 收尾已过，不能外推全部 Model 生命周期。
+当前为实现、公共接线与限定真实验证阶段，整链和 M3 未验收。Knowledge 的实际 canonical Object→两次真实 Embedding→4096 维 serving generation 与原 App/Guard 退出已通过，Scheduler→query-doc/read-doc→后继引用正在固定候选验证。Memory 的真实 PG current revision/shared RRF/跨 Execution 命名空间过滤已过，generation 与长期 snapshot 保留现接 App，真实工具和模型组合待验证。MCP 官方 SDK 的真实 TLS 协议四子项已过，App 已接统一审批执行、Resource capture、Secret lease 退休与 HTTP；实际 Agent 首链、文本 Resource canonical 读取投影及 OAuth 仍未完成。Meeting 实际 Owner 浏览器完成列表/新建/详情/发送/原 lookup/刷新，限定于 Agent busy；两 Agent 首 App 目前在第一位 Agent 的实际 Model 失败处诊断，资源已正常退出，尚无后继发言或 Summary。
 
-D13 固定词法与融合比较已保存；`m3_core_review` 已完成离线数值和 Model 新权限、lease 与 v2 兼容的有界独立复核并停写，报告见 [独立报告](../docs/development/work-items/m3-core-independent-review.md)；长期 serving retention 与原 owner 恢复行为仍按报告边界待验。用户关于默认 dense 或继续原 hybrid 范围的决定尚未到达，架构和默认选择保持原合同；显式 `native_pg_fts` 仅用于限定首链。动态 Skills 的 list/read/install 实际路由、PDF 有界解析及本阶段相关 Runner 接口仍是 M3 待完成包，不将全 D22 欠账无界并入。
+Model 同一 v2 snapshot 的真实 64/64/8 共 136 个 Embedding、4096 维及原 Usage/Secret/Join 收尾已过；长期 serving retention 的真实受控调用、两个 generation 独立引用、填充数据升级和两个真实 CommitUnknown 分支均有限通过，仍须 Knowledge/Memory 实际业务接入。`m3_core_review` 正对已保存 retention 组做短程独立复核，只写[独立报告](../docs/development/work-items/m3-core-independent-review.md)。
 
-公共依赖锁文件由 integration 唯一持有，其他树只读。迁移按 root 编号在候选树连续组合；main 不接收未验收产品 WIP。每树 `.agent-state/current.md` 保存可恢复片段，本索引不复制执行流水。最多两组重构建/独立 PG fixture，由 integration 调度；固定 Go1.27.1、MinIO 和共享锁定依赖复用，浏览器已恢复锁定 Playwright 1.56.1/Chromium1194，入口 owner 正执行真实 App/browser 验证。现有 dev PG/MinIO 不作任务测试库，默认代理与 TLS 校验保持。旧 STOP 只按原风险范围保留。
+D13 固定词法与融合比较及先前离线独审已保存。用户关于默认 dense 或继续原 hybrid 范围的决定尚未到达，架构和默认选择保持原合同；显式 `native_pg_fts` 仅用于限定首链。动态 Skills 的 list/read/install 实际路由、PDF 有界解析及本阶段相关 Runner 接口仍是 M3 待完成包，不将全 D22 欠账无界并入。
+
+公共依赖锁文件由 integration 唯一持有，其他树只读。迁移按 root 编号在候选树连续组合；main 不接收未验收产品 WIP。每树 `.agent-state/current.md` 保存可恢复片段，本索引不复制执行流水。最多两组重构建/独立 PG fixture，由 integration 调度；固定 Go1.27.1、MinIO 和共享锁定依赖复用，浏览器已恢复锁定 Playwright 1.56.1/Chromium1194，入口 owner 按限定候选继续真实组合验证。现有 dev PG/MinIO 不作任务测试库，默认代理与 TLS 校验保持。旧 STOP 只按原风险范围保留。
 
 ## 上一任务：M2 已正式交付，任务收尾完成
 

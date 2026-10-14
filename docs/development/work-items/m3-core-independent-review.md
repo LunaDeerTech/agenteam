@@ -43,3 +43,20 @@ Knowledge `5d65c0a3` 的 `index_resolution_lookup.go`、`index_model.go`、`inde
 下一项有界检查应只覆盖：原 Resolve commit Unknown 后取消/撤权或 serving 变化，原 owner 通过 Lookup 确认原 snapshot/lease 并退休；prepared/不存在分支不新增 lease；wrong operation/project/process/terminal 不获恢复权；观察无新 preparation/acquire/provider dispatch。未完成前，阻塞相应 Unknown 清理行为的正式接受，不扩大为所有 M3 工作停项。
 
 本轮未启动 Go、PG/native 或模型请求，未使用 dev 数据库，未修改实现/作者测试/current，未执行 Git 写操作。唯一仓库写入为本文；离线命令均已退出，无后台资源。报告冻结后由 root 保存。
+
+## Serving credential retention 追加静态审查
+
+2026-10-14；固定 Model `0156924c`，仅审实现组 `b27b1961`、Observation 修正 `65c13796` 及对应 contract、Secret observer、`00115` 和三份 `tests/model/serving_retention*_test.go`。**本次有界无 must-fix。前文截至 `784c6468` 的存续缺口在 Model/Secret 受控层已有实现与适用证据；这不完成 Knowledge/Memory 实际 App generation 发布/退休链的接受，也不改变原 Lookup 未验结论。**
+
+核对结果：
+
+- 私有 `servingRetentionPlan` 以所属 service 实例和完整 request binding 拒绝替换；consumer 原 issuer/mapping 由真实 authority 再验，Secret provider plan 绑定 Model 私有 issuer、request/mapping。每次 Apply/Applied 都先验证本 Store 的事务、完整 consumer/project/generation/snapshot/credential/reference 锁并调用领域当前授权，公开 owner DTO 或 snapshot FK 不产生权限。Secret witness 限原 plan、精确 Usage binding、活跃 callback 和同一 Tx。
+- Model 行固定 project/kind/generation、agent、snapshot 摘要和 credential tuple；retain 必须等于初始 owner_version，release 不得早于初始版本，已 released 只接受相同 released_version，不能重新 retain 或改绑。Secret 长期 reference 使用独立 owner UUID，与 Provider reference、每 call lease 独立；Model 状态和 Secret 引用在同一外层事务更新。释放后保留的 Model 行可在凭据删除后继续作精确只读观察。
+- `serving_retention.go:249` 分开 Observation 和 Apply 的 consumer 方法，Applied 的私有 witness 只交给只读 Secret observer；Apply 始终走目标状态的写授权。原计划能够观察尚 active 的 release 返回 false，并不因此得到释放 active generation 的权限。Model/Secret observer 本体无写入、lease acquisition 或 provider 调用；领域 Observation callback 也必须保持只读。
+- `00115` 只新建账本和索引，无存量 generation 自动授权回填；复合 snapshot/project FK、owner 形状、credential scope、retained/released 版本与时间约束符合当前契约。既有服务仍须在首 call lease 存活期间完成 retain，并在真实 generation 状态转移的同一事务发布或释放；核心接口不会替领域保证调用时点。
+
+复用并直接核对原 `output/m3-model-checks/retention-native-01.log` 与 `retention-unknown-native-01.log` 的 PASS、actual_wait=0 和三类 exact cleanup：75483 的 retention top 10.79 秒，91453 的 upgrade top 8.37 秒、release Unknown top 12.07 秒。已对照 harness：A→B、删除 live Model/Provider 后原 snapshot 三次 Runtime、两个 generation reference 最后释放才允许删 A；裸 DTO/错误 tuple/缺锁 poison/外层 rollback/logout 拒绝。Unknown 在最终 COMMIT 才启用原代理，分别不转发 COMMIT 或丢弃已确认 COMMIT+idle ACK，并经独立连接取得原锁确认 writer 已退出；同一原计划观察 false/true，Model/generation xmin、reference count、解析/call/lease 数和 dispatch 不变。先观察 false 再 Apply active generation 仍拒绝，直接覆盖此次权限分离。
+
+证据限制：上述 generation authority 是受控 fixture；未接受真实 Knowledge/Memory 当前权限、ProcessGuard 停止竞争或 App 装配，也未把 release 的物理 CommitUnknown 扩称 retain 的物理 CommitUnknown 已测。升级测试六个 SQL 负例实际通过，但 `released missing version` 同时缺 `released_at`，不能单独归因到版本约束；生产 SQL 明确要求非空 released_version，属非阻断的测试归因限制，已通知作者。本次没有发现需要扩大全 Model、全 M3 或 GC 的理由。
+
+本次只追加本文，未运行 Go、PG/native、模型 API 或修改作者文件；检查了报告链接目标、末尾换行及空白。所有只读命令已退出，无后台资源，停止写入交 root 保存。
