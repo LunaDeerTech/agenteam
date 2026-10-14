@@ -2,23 +2,23 @@
 
 ## 当前目标与工作包状态
 
-2026-10-14 M2 约定能力已完成并获独立接受：真实 Task/Scheduler、worker Artifact、reviewer 原成果读取与 Human 退回修订后再读接受已贯通，持久取消、审批与必要恢复按限定范围通过。M1 已正式交付 main，见 [M1 集成卡](../work-items/m1-app-integration.md#当前真实模型验收)。M2 产品与正式文档也已由 root 整合并推送 main；目标与边界见[开发计划](../development-plan.md#当前开发目标与里程碑)、[M2 工作卡](../work-items/m2-task-collaboration.md)，实际任务收尾见[当前恢复索引](../../../.agent-state/current.md)。
+2026-10-14 本轮完成产品完整性梳理与路线修订，依据 `d3e723d4` 的正式文档、当前装配及限定界面观察，见[产品完整性复核](../work-items/product-readiness-review.md)。当前重点是核心用户旅程、架构真实绑定与完整交付出口；信息层级和反馈恢复随功能共同验收。目标、依赖及 R1–R5 出口只在[开发计划](../development-plan.md#当前五个工作包)维护，本轮没有实施这些新工作包。
 
-M2 已限定独立接受真实 approve/reject、Execution/Task 持久取消及 waiting 取消后重启不复活、必要冷恢复、pending Unknown Found 原查证不重发、最小跨项目来源拒绝，以及受控 worker Artifact → Human HTTP/浏览器读取后接受或退回修订再接受。受控成果场景在审核阶段暂停 Scheduler，不能代真实外部模型或完整恢复；固定输入、原 Join/资源与限制沿 [M2 工作卡](../work-items/m2-task-collaboration.md)及[独立审查](../work-items/m2-independent-review.md)。
+M1 与 M2 仍按原范围正式接受并已交付 main。M2 正常 Scheduler 下 worker 发布 Artifact、reviewer 读取原成果、Human 退回同 Task 新 E 修订后再读接受，以及限定审批、持久取消、必要恢复、原投影/历史与退出门均保持；不外推自主审核决定、完整恢复或全系统 ready。实际合同与证据见 [M1 集成卡](../work-items/m1-app-integration.md#当前真实模型验收)、[M2 工作卡](../work-items/m2-task-collaboration.md)及[独立审查](../work-items/m2-independent-review.md)。M2 六个工作树、分支及本机跟踪引用已收尾；原证据和资源信息继续见[当前恢复索引中的 M2 记录](../../../.agent-state/current.md#上一任务m2-已正式交付任务收尾完成)。
 
-最终真实 live 的两次 reviewer 均读取对应原成果，Human 退回同 Task 新 E 修订后再读接受，原投影/历史、全部 Join及退休/资源退出已独立接受。旧 review failed、浏览器详情502、review cooldown超期与退休辅助断言四轮 FAIL 均保留，未明原因不倒填；实际配置及浏览器联合证明的范围沿正式工作卡和独验。
-
-| 工作包 | 当前状态与负责人 | 本轮下一步 |
+| 工作包 | 当前状态与负责人 | 下一就绪结果 |
 | --- | --- | --- |
-| W1 模型工具调用 | 真实 JSON tools 多轮请求、配对历史与 Runtime 已通过 M1；精确 Origin 代理、reasoning_content 兼容与响应头预算窄修获限定独验；原 tools STOP 保留 | 复用已验真实链，既有默认代理与 TLS 保持；不把历史本地 DNS 失败写成当前服务不可达。 |
-| W2 多轮执行与 Task 交接 | m2_delivery 交付的 M2 真实模型成果链、reviewer 原成果读取、Human 退回修订后再读接受与完整退出已独立接受并正式交付 main | 本轮已完成，保留 Human 唯一决定及固定场景边界。 |
-| W3 审批、取消与执行详情 | 同 E/Operation approve/reject、E/Task 持久取消、waiting 取消/冷恢复、原结果查证及 pending Unknown Found 已按限定范围独立接受 | 复用已接受的未变输入，保留完整恢复、NotFound/cold Unknown 与未覆盖授权组合的边界。 |
-| W4 检索与记忆基础 | 本轮未派发，原工作包保留 | M3/M4 不启动，等待后续目标派发。 |
-| W5 集成与有界阻塞 | M2 约定范围已正式交付 main；root 已完成六个 M2 工作树、分支及跟踪引用清理，无 M2 专用 fetchspec | 本轮无活动 M2 任务或待清理对象；M3/M4 未启动，后续按用户目标派发。 |
+| 产品完整性复核 | **已完成梳理与路线修订**；三路审计，readiness_plan_writer 唯一文档写者，root 负责 Git 交付 | 按本表派发后续实现；本轮静态/界面观察不新增产品功能 PASS。 |
+| 前端设计技能准备 | 已安装两项项目适配技能，来源和静态检查见[技能来源](skill-sources.md#前端设计与-ux-审查技能)；UX 已实际应用复核原观察 | 后续 R1 按任务引用；不宣称 CLI 自动加载或产品体验已通过。 |
+| R1 核心旅程与界面落实 | 待开始；实现 owner 尚未派发 | 先完成 Task→Execution→Artifact→审核/退回的层级与状态设计，连同配置可理解性组合真实旅程。 |
+| R2 知识、检索与记忆 | 待开始；沿原 D13 工作项接续，owner 尚未派发 | 复用 native PG 候选与固定语料，完成剩余有界比较、索引及引用第一条链。 |
+| R3 执行与协作能力补齐 | 待开始；按领域独立派发 owner | 先明确工具覆盖与 App consumer，再按就绪契约分派 Skills 下一轮生效、领域工具、Meeting/MCP/Realtime 等子链。 |
+| R4 完整生命周期与架构覆盖 | 待开始；participant 与集成 owner 尚未派发 | 核对已有实现，给各域 stop/cleanup/引用退休与真实 Registry 的组合规格。 |
+| R5 系统发布与运行交付 | 待开始；发布/运行 owner 尚未派发 | 核实生产装配与 SPA 停项恢复条件，明确发布、升级、观测与数据恢复方案的分片出口。 |
 
-本轮已交付迁移的原实现归属：00092/00096/00098为controls，00093/00097为Work，00094/00099为approval，00095为W2；Artifact无新增迁移。M2各写域和原Go/native窗口均已结束，无活动M2分支或writer。
+历史 W1–W5 交付与限制沿原卡及 Git 历史查询，不与 R1–R5 混作活动派工。M3/M4 新实现未启动，默认 Execution Runtime 仍需显式配置开启；Object/tools/SPA/Jina/Image 原 STOP 的适用范围继续保留。本轮不自动恢复停止项，不以 M1/M2 或未来 M3 的阶段完成推算平台百分比。
 
-M1 显式 live 的双 opt-in、正式 Secret、正常目标 TLS 与动态成果断言继续有效；可信代理负责已授权 Origin 的目标解析，直连仍保原 DNS/地址门。成功、前三轮原 FAIL 及预算补验见 [live 验收卡](../work-items/m1-live-acceptance.md)与[独立复核](../work-items/m1-live-proxy-review.md)，不回填失败或外推 embedding 产品全链。review 收尾取消不证明自主审核决策，Runtime 取消不代持久 Human 取消；旧 direct-text/Snapshot 与既有31项unit/17文件格式限制见 [M1 交付时的恢复记录](https://github.com/LunaDeerTech/agenteam/blob/20aded69/.agent-state/current.md#已完成交接统一页面布局)。旧 STOP、历史 FAIL 与模块未完成范围继续有效，下文历史不覆盖当前事实。
+当前源码与较新正式结果已覆盖部分旧表中的 unbound：Project 创建已接真实 Skills/Object 初始化，Agent 配置/Task 指派与真实 Model/ToolLoop/Scheduler 已形成 M1/M2 组合，变量/Secret、Mount 与初始 Skills 已被执行装配消费。D13 native PostgreSQL FTS 候选已有真实测量，剩余候选、固定 dense leg/RRF 与最终选型仍未完成，见[当前检索卡](../work-items/d13-lexical-benchmark.md)。下方历史行保持原输入的事实，不能据其旧描述重建已存在功能，也不能据新链扩大完整模块接受。
 
 ## 当前验收与推进边界
 
@@ -33,7 +33,7 @@ M1 显式 live 的双 opt-in、正式 Secret、正常目标 TLS 与动态成果�
 - [Agent metadata 前置](../work-items/d10-agent-configuration.md#23-已接受的-metadata-前置)本次有限交付：Model Selection 与 Secret Directory 的作者 race/vet、非作者源码审及真实联合 PG metadata04 的 1 top/3 sub wholePASS，全部原 Wait、七资源及输入/退出尾齐。只接受当前 Owner 的配置 metadata、同 caller Tx 重验、失权/陈旧映射及回滚链；原失败保留，Agent/References、默认初始化和完整 F1 未由此闭合。
 - Skills03 原 wholeFAIL 且完整尾已释放：四个预期请求已出现，但 Playwright 首次 detail 请求 failed，不能升级为读取链通过。Rename原current-read失败与旧DIST03未复验保留；当前已有文档标题改名正常链native04为13.34s wholePASS，基础控、业务/资源及两图有限独审均接受，随本次提交交付main。原本轮01/03 FAIL、02独立业务PASS与过渡截图保持，不外推真实Unknown矩阵、完整Knowledge编辑或生产initializer；该历史失败不回填；后继 Skills 目录/详情 UI 已由本次恢复正常链、独立业务/资源及新浅深两图有限接受，详见下方目标行。
 - Work 作者 Recovery R13 仅该门 wholePASS。Planning06 原 wholeFAIL/完整尾已释放：Doc1 第二次 Milestone GET 的原 finished 等至45秒，首 list 安装门仅有限通过；Planning04/05及独立 Recovery03/04、Authority01 原失败保持。九类规划写、read/identity、blockers/layouts 和独立整体门未闭。
-- 平台整体约 30%（25%–35%）是按设计能力与端到端门作的粗估，不是逐卡等权审计。Agent 执行器、完整调度/团队协作及 E01 未完成；E01 尚未开始，其至少50%游戏内容目标另行冻结与验收。
+- 历史平台比例粗估不作为当前进度结论；使用本轮能力矩阵、真实用户旅程与原完成门槛判断剩余工作。完整执行、调度/团队协作和 E01 仍有未完成范围；E01 尚未开始，其至少50%游戏内容目标另行冻结与验收。
 
 原普通包、两 vet/全 race/两命令构建及 Audit、默认根整改后的定向复验按相应输入组合接受，不称当前 HEAD 一次完整脚本全绿。原 check01/02、Audit deadline、wrapper 元数据失败、Knowledge read01/read02 和各领域历史 FAIL 均保留；后验清理不补写原终态。部署独立必填 `AGENTEAM_CENTRAL_KNOWLEDGE_CONFIRMATION_KEYRING` 继续有效，见[后端说明](../backend/README.md)。
 

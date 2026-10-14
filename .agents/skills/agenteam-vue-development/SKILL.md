@@ -16,6 +16,7 @@ description: 在 agenteam 接到前端实现任务卡时使用，按既定接口
 - 读 [前端开发基础](../../../docs/development/frontend/README.md) 与 [公共组件接口](../../../docs/development/frontend/components.md) 的相关章节。
 - 从 [前端设计入口](../../../docs/frontend-design/README.md) 选择任务对应的 `layouts/` 文档。
 - 从 [样式规范](../../../docs/frontend-design/styles/README.md) 选择任务对应的主题、密度和交互规范。
+- 视觉层级、界面文案及组件品质使用 [frontend-design](../frontend-design/SKILL.md)，UI / UX / 无障碍审查使用 [web-design-guidelines](../web-design-guidelines/SKILL.md)；两者均为固定外部参考的项目适配入口，用户指定的 Linear 风格、现有规范与 tokens 优先。
 - 写 Vue 测试时读取相邻 [Vue 测试最佳实践](../vue-testing-best-practices/SKILL.md)，仅加载当前测试需要的参考。
 - 浏览器任务使用仓库内[测试工程技能](../agenteam-test-engineering/SKILL.md)及锁定 Playwright harness；机器已有的外部 `playwright` 技能可按需辅助，其缺失不构成硬前提。
 
