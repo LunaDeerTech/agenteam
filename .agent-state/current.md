@@ -2,21 +2,25 @@
 
 2026-10-14 用户明确调整优先级：继续原定 M3 的知识检索与引用、Memory、领域工具、MCP、Meeting 和相关 Runner 扩展；**M4 暂时废弃为当前里程碑，M3 完成后重新评估剩余缺口并继续完善，不自动进入交付阶段。** 本次文档调整基于 main `56d0d0b0`，当前目标和依赖见[开发计划](../docs/development/development-plan.md#当前开发目标与里程碑)，派工与实际分支见[任务台账](../docs/development/agent-team/tasks.md#当前目标与工作包状态)。
 
-M3 已按共同基线 `d9356e09` 建立六个功能工作树，后续另建检索选型工作树并正式实施，下面每行均只有一个内容 writer；root 负责全部 Git、契约同步与最终集成。
+M3 按共同基线 `d9356e09` 建立六个功能工作树，后续另建选型、固定验证与 Meeting UI 工作树，共九个工作树。每个路径均只有一个内容 writer；root 负责全部 Git、契约同步与最终集成。
 
 | 分支 | 工作树 | owner / 范围 |
 | --- | --- | --- |
 | `ai/m3-knowledge` | `/workspace/agenteam-m3-knowledge` | `m3_knowledge`：Knowledge 索引检索、共享 retrieval 与引用 |
-| `ai/m3-memory` | `/workspace/agenteam-m3-memory` | `m3_memory_tools`：Memory 与领域 adapters |
+| `ai/m3-memory` | `/workspace/agenteam-m3-memory` | `m3_memory_tools`：Memory 与领域 adapters，当前阶段保存，后继小修按明确路径回到本树 |
 | `ai/m3-mcp` | `/workspace/agenteam-m3-mcp` | `m3_mcp`：MCP Connection、发现、Tool/Resource |
-| `ai/m3-meeting` | `/workspace/agenteam-m3-meeting` | `m3_meeting`：Session/Turn/Contribution、provider 与 UI |
+| `ai/m3-meeting` | `/workspace/agenteam-m3-meeting` | `m3_meeting`：Session/Turn/Contribution、provider、Runtime 与执行控制 |
 | `ai/m3-integration` | `/workspace/agenteam-m3-integration` | `m3_integration`：App/Tool/Executor/身份共享契约、组合 harness |
-| `ai/m3-model` | `/workspace/agenteam-m3-model` | `m3_model`：Model Embeddings、structured Runtime 与 serving snapshot |
-| `ai/m3-retrieval-selection` | `/workspace/agenteam-m3-retrieval-selection` | `m3_retrieval_selection`：D13 词法候选实际比较；基线 `a1ce6f1b` |
+| `ai/m3-model` | `/workspace/agenteam-m3-model` | `m3_model`：Model Embeddings、structured Runtime 与 serving snapshot；限定真实验证后暂停 |
+| `ai/m3-retrieval-selection` | `/workspace/agenteam-m3-retrieval-selection` | `m3_retrieval_selection`：D13 固定词法/dense/RRF 比较已保存并停写；基线 `a1ce6f1b` |
+| `ai/m3-knowledge-validation` | `/workspace/agenteam-m3-knowledge-validation` | `m3_knowledge`：固定 App 首链验证，运行期间源码不漂移 |
+| `ai/m3-meeting-ui` | `/workspace/agenteam-m3-meeting-ui` | `m3_memory_tools`：Meeting HTTP/UI；Memory UI 已保存待真实浏览器 |
 
-当前为实现、公共接线与限定真实验证阶段，整链和 M3 未验收。检索选型已完成两候选的固定版本真实评测并阶段停写，Meeting 已续派推进 Provider、顺序 Runtime 与 AgentLoop 投影。其余五条实现线继续；Model 正验证真实配额下的 Embedding/structured Runtime，MCP 正跑真实 TLS 协议 fixture，单项结果不替代生产 App 组合验收。共享调用契约、三域服务身份、原 Associated driver 的 Meeting 入口、Secret/Usage 与 typed Audit 已有可编译片段；迁移按 root 全局编号冻结并先组合候选树，main 不接收尚未验收产品 WIP。MCP SDK v1.8.0 已锁定；公共依赖锁文件由 integration 唯一持有，其他树只读。每树 `.agent-state/current.md` 保存可恢复片段与实际检查，本索引不复制执行流水。
+当前为实现、公共接线与限定真实验证阶段，整链和 M3 未验收。Knowledge 已进入固定候选 App 验证；Memory 的真实 PG current revision/shared RRF/跨 Execution 命名空间过滤已过，工具和模型组合待验证。MCP 官方 SDK 的真实 TLS 协议四子项已过，当前继续统一审批执行、资源内容与租约退休；Meeting 的领域 SQL 和受控顺并行链已过，App 实际两 Agent、控制/恢复与 Summary 继续。Model 同一 v2 snapshot 的真实 64/64/8 共 136 个 Embedding、4096 维及原 Usage/Secret/Join 收尾已过，不能外推全部 Model 生命周期。
 
-实际资源可复用 Go1.27.1、MinIO 固定 SHA、Go/Node 锁定依赖；当前锁定 Playwright 的 Chromium 可执行文件缺失，真实浏览器轮前恢复。重型构建或独立 PG fixture 最多同时两组，由 integration 协调；现有 dev PG/MinIO 不作为任务测试库。默认代理和 TLS 校验保持。M1/M2 原接受与 STOP 按原风险范围保留；下方上一任务记录解释历史，不继承旧分支或资源授权。
+D13 固定词法与融合比较已保存；dense 和 hybrid 的差异正由 `m3_core_review` 独立复核，继而有界审查 Model 新权限、lease 与 v2 兼容；该 reviewer 仅写独立报告，不改生产。用户关于默认 dense 或继续原 hybrid 范围的决定尚未到达，架构和默认选择保持原合同；显式 `native_pg_fts` 仅用于限定首链。动态 Skills 与本阶段相关 Runner 接口仍是 M3 待完成包，不将全 D22 欠账无界并入。
+
+公共依赖锁文件由 integration 唯一持有，其他树只读。迁移按 root 编号在候选树连续组合；main 不接收未验收产品 WIP。每树 `.agent-state/current.md` 保存可恢复片段，本索引不复制执行流水。最多两组重构建/独立 PG fixture，由 integration 调度；固定 Go1.27.1、MinIO 和共享锁定依赖复用，浏览器由入口 owner 按已锁版本恢复和验证。现有 dev PG/MinIO 不作任务测试库，默认代理与 TLS 校验保持。旧 STOP 只按原风险范围保留。
 
 ## 上一任务：M2 已正式交付，任务收尾完成
 
