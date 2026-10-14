@@ -7,17 +7,21 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"reflect"
 	"testing"
 	"time"
 
+	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
 	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
 	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 	rp "github.com/LunaDeerTech/agenteam/internal/runnerprotocol"
+	netfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/outbound"
 )
 
 // Observe the original Scheduler/Execution owners; the test never advances a
@@ -193,49 +197,279 @@ func (w *m1Workflow) checkArtifacts(t *testing.T) {
 	}
 }
 
+// Work and review are separate, formally selected Provider scenarios. Their
+// response IDs join the actual Usage ledger to the original durable Round;
+// local CallIDs are not invented as outbound HTTP headers.
 func (w *m1Workflow) checkPeer(t *testing.T) {
 	t.Helper()
+	v := w.app
+	rows, err := v.admin.Query(v.ctx, `SELECT id,agent_id,launch_request->>'purpose',status FROM agenteam_execution.executions WHERE project_id=$1 AND launch_request->'trigger'->>'task_id'=$2 ORDER BY created_at,id`, v.a.String(), w.task.ID.String())
+	workAppCheck(t, "m1-task-execution-scope", err)
+	var review, reviewStatus string
+	workCount, reviewCount := 0, 0
+	for rows.Next() {
+		var execution, agent, purpose, status string
+		workAppCheck(t, "m1-task-execution-row", rows.Scan(&execution, &agent, &purpose, &status))
+		switch purpose {
+		case "task/work":
+			workCount++
+			if execution != w.execution.String() || agent != v.agent.String() || status != string(ec.Succeeded) {
+				t.Fatal("M1 Owner window acquired a second or mismatched work Execution")
+			}
+		case "task/review":
+			reviewCount++
+			if agent != w.reviewer.String() || !ec.Status(status).Valid() || status == string(ec.Failed) {
+				t.Fatal("M1 review Execution lost its original Task/reviewer or failed")
+			}
+			review, reviewStatus = execution, status
+		default:
+			t.Fatal("M1 Task acquired an unrelated Execution purpose")
+		}
+	}
+	workAppCheck(t, "m1-task-execution-rows", rows.Err())
+	rows.Close()
+	if workCount != 1 || reviewCount > 1 {
+		t.Fatalf("M1 bounded Owner window work_executions=%d review_executions=%d", workCount, reviewCount)
+	}
+	workPeer := w.joinedPeer(t, w.scenario, 5, 5)
+	workCalls := w.peerCalls(t, w.execution.String(), w.scenario, "m1-statistics", "")
+	if len(workCalls) != 5 {
+		t.Fatalf("M1 original work invocation count=%d", len(workCalls))
+	}
+	for n, request := range workPeer.Requests {
+		call := workCalls[n]
+		if call.status != "succeeded" || call.dispatch != "sent" || call.providerID != fmt.Sprintf("m1-work-round-%d", n+1) {
+			t.Fatalf("M1 work Provider response lost original invocation identity at round=%d", n+1)
+		}
+		checkM1PeerRequest(t, request, call.round, "m1-statistics", w.scenario)
+	}
+	// Recheck terminal work facts after the entire Owner window, including all
+	// actual file effects, four Tools and five Model invocations on that same E.
+	w.checkArtifacts(t)
+	reviewPeer := w.joinedPeer(t, w.reviewScenario, 0, 2)
+	if review == "" {
+		if len(reviewPeer.Requests) != 0 {
+			t.Fatal("M1 review Provider received a request without a legitimate review Execution")
+		}
+		return
+	}
+	reviewCalls := w.peerCalls(t, review, w.reviewScenario, "m1-review", w.reviewModel.String())
+	if len(reviewCalls) > 2 || len(reviewPeer.Requests) > len(reviewCalls) {
+		t.Fatalf("M1 bounded review invocations=%d requests=%d", len(reviewCalls), len(reviewPeer.Requests))
+	}
+	for n, call := range reviewCalls {
+		if call.status != "succeeded" && call.status != "cancelled" {
+			t.Fatalf("M1 review has an unexpected original Model outcome at round=%d status=%s", n+1, call.status)
+		}
+		if n >= len(reviewPeer.Requests) {
+			if call.status != "cancelled" || n != len(reviewCalls)-1 {
+				t.Fatal("M1 unobserved review request lacks the original final cancellation")
+			}
+			continue
+		}
+		if call.dispatch != "sent" || call.providerID != fmt.Sprintf("m1-review-round-%d", n+1) && !(call.status == "cancelled" && call.providerID == "") {
+			t.Fatalf("M1 review Provider response lost original invocation identity at round=%d", n+1)
+		}
+		checkM1PeerRequest(t, reviewPeer.Requests[n], call.round, "m1-review", w.reviewScenario)
+	}
+	var tools, results int
+	var toolsOK bool
+	workAppCheck(t, "m1-review-bounded-tool-facts", v.admin.QueryRow(v.ctx, `SELECT count(*),COALESCE(bool_and((phase='succeeded' AND outcome='success') IS TRUE),false),(SELECT count(*) FROM agenteam_execution.loop_tool_results WHERE execution_id=$1) FROM agenteam_tool.operations WHERE execution_id=$1`, review).Scan(&tools, &toolsOK, &results))
+	if tools > 1 || results > 1 {
+		t.Fatalf("M1 review exceeded its read-only receipt scope tools=%d results=%d", tools, results)
+	}
+	if reviewStatus == string(ec.Succeeded) {
+		if len(reviewCalls) != 2 || len(reviewPeer.Requests) != 2 || reviewCalls[0].status != "succeeded" || reviewCalls[1].status != "succeeded" || tools != 1 || !toolsOK || results != 1 {
+			t.Fatal("M1 successful review receipt lacks its original two rounds and one read result")
+		}
+		var projection []byte
+		workAppCheck(t, "m1-review-receipt-projection", v.admin.QueryRow(v.ctx, `SELECT content FROM agenteam_execution.runtime_snapshots WHERE execution_id=$1 AND terminal_status='succeeded'`, review).Scan(&projection))
+		var snapshot ec.RuntimeSnapshot
+		workAppCheck(t, "m1-review-receipt-decode", json.Unmarshal(projection, &snapshot))
+		if snapshot.Schema != ec.DurableFinalTextV2 || len(snapshot.Items) != 1 || snapshot.Items[0].Data.Content != "评审任务已收到，等待 Owner 后续处理。" {
+			t.Fatal("M1 review receipt projection differs; no review decision is implied")
+		}
+	}
+	t.Logf("M1_PEER_ATTRIBUTION work_executions=1 work_requests=5 review_executions=%d review_requests=%d review_status=%s review_decision=false all_connections_joined=true", reviewCount, len(reviewPeer.Requests), reviewStatus)
+}
+
+func (w *m1Workflow) joinedPeer(t *testing.T, scenario string, minimum, maximum int) netfixture.State {
+	t.Helper()
+	if scenario == "" {
+		t.Fatal("M1 independent Provider scenario absent")
+	}
 	ctx, cancel := context.WithTimeout(w.app.ctx, 5*time.Second)
 	defer cancel()
 	tick := time.NewTicker(20 * time.Millisecond)
 	defer tick.Stop()
 	for {
-		state, err := w.network.State(ctx, w.scenario)
+		state, err := w.network.State(ctx, scenario)
 		workAppCheck(t, "m1-owned-peer-state", err)
-		closed := state.ActiveHandlers == 0 && state.CompletedHandlers == 5
+		if len(state.Requests) > maximum {
+			t.Fatalf("M1 Provider exceeded explicit request bound actual=%d maximum=%d", len(state.Requests), maximum)
+		}
+		closed := state.ActiveHandlers == 0 && state.CompletedHandlers == len(state.Requests)
 		for _, request := range state.Requests {
 			closed = closed && state.Closed[request.Connection]
 		}
+		for connection := range state.Connections {
+			closed = closed && state.Closed[connection]
+		}
 		if closed {
-			if len(state.Requests) != 5 {
-				t.Fatalf("M1 Provider request count=%d", len(state.Requests))
+			if len(state.Requests) < minimum {
+				t.Fatalf("M1 Provider request count=%d minimum=%d", len(state.Requests), minimum)
 			}
-			var first []json.RawMessage
-			for n, request := range state.Requests {
-				var body struct {
-					Model    string            `json:"model"`
-					Stream   bool              `json:"stream"`
-					Parallel *bool             `json:"parallel_tool_calls"`
-					Choice   string            `json:"tool_choice"`
-					Tools    []json.RawMessage `json:"tools"`
-					Messages []json.RawMessage `json:"messages"`
-				}
-				workAppCheck(t, "m1-owned-peer-request", json.Unmarshal([]byte(request.Body), &body))
-				choice := "auto"
-				if n == 0 {
-					choice = "required"
-					first = body.Tools
-				}
-				if request.Method != "POST" || body.Model != "m1-statistics" || body.Stream || body.Parallel == nil || *body.Parallel || body.Choice != choice || len(body.Tools) < 3 || !reflect.DeepEqual(body.Tools, first) || len(body.Messages) != 2+2*n {
-					t.Fatalf("M1 Provider request shape or frozen tools/history differs at round=%d", n+1)
-				}
-			}
-			return
+			return state
 		}
 		select {
 		case <-ctx.Done():
 			t.Fatalf("M1 Provider transport did not join: requests=%d active=%d completed=%d", len(state.Requests), state.ActiveHandlers, state.CompletedHandlers)
 		case <-tick.C:
+		}
+	}
+}
+
+type m1PeerCall struct {
+	status, dispatch, providerID string
+	round                        ec.LoopRoundFields
+}
+
+func (w *m1Workflow) peerCalls(t *testing.T, execution, scenario, providerModel, model string) []m1PeerCall {
+	t.Helper()
+	v := w.app
+	var count int
+	workAppCheck(t, "m1-provider-invocation-count", v.admin.QueryRow(v.ctx, `SELECT count(*) FROM agenteam_model.invocations WHERE execution_id::text=$1`, execution).Scan(&count))
+	rows, err := v.admin.Query(v.ctx, `SELECT i.call_id::text,i.attempt_index,i.dispatch,COALESCE(i.final_status,''),i.provider_request_id,i.historical_model_id::text,
+ i.identity_data#>>'{value,provider_model_id}',s.snapshot_data->>'Endpoint',r.content
+ FROM agenteam_model.invocations i JOIN agenteam_execution.rounds r ON r.execution_id=i.execution_id::text AND r.call_id=i.call_id::text AND r.id=i.input_data#>>'{value,round_id}'
+ JOIN agenteam_model.snapshots s ON s.id=i.snapshot_id
+ WHERE i.execution_id::text=$1 AND i.project_id::text=$2 ORDER BY r.round_ordinal,i.attempt_index`, execution, v.a.String())
+	workAppCheck(t, "m1-provider-original-rounds", err)
+	defer rows.Close()
+	var calls []m1PeerCall
+	for rows.Next() {
+		var call m1PeerCall
+		var callID, modelID, upstreamModel, endpoint string
+		var attempt int
+		var content []byte
+		workAppCheck(t, "m1-provider-original-round-row", rows.Scan(&callID, &attempt, &call.dispatch, &call.status, &call.providerID, &modelID, &upstreamModel, &endpoint, &content))
+		round, err := ec.DecodeLoopRound(content)
+		workAppCheck(t, "m1-provider-original-round-decode", err)
+		call.round = round.Fields()
+		if attempt != 1 || call.round.Round.ExecutionID.String() != execution || call.round.Round.CallID.String() != callID || int(call.round.Ordinal) != len(calls)+1 || upstreamModel != providerModel || endpoint != "https://fixture.test:8443/case/"+scenario || model != "" && modelID != model {
+			t.Fatal("M1 Provider request no longer belongs to its exact original Execution/round/Model")
+		}
+		if len(calls) > 0 && !reflect.DeepEqual(calls[0].round.Tools, call.round.Tools) {
+			t.Fatal("M1 durable successor changed the frozen complete tool set")
+		}
+		calls = append(calls, call)
+	}
+	workAppCheck(t, "m1-provider-original-round-rows", rows.Err())
+	rows.Close()
+	if len(calls) != count {
+		t.Fatal("M1 invocation lacks an exact original round and snapshot binding")
+	}
+	if len(calls) > 0 {
+		var names []string
+		workAppCheck(t, "m1-provider-frozen-tools", v.admin.QueryRow(v.ctx, `SELECT array_agg(model_visible_name ORDER BY model_visible_name) FROM agenteam_tool.execution_references WHERE execution_id=$1`, execution).Scan(&names))
+		seen := make(map[string]bool, len(names))
+		for _, name := range names {
+			seen[name] = true
+		}
+		if len(names) != len(calls[0].round.Tools) {
+			t.Fatal("M1 Provider dropped a captured Core/ordinary tool")
+		}
+		for _, tool := range calls[0].round.Tools {
+			if !seen[tool.Name] {
+				t.Fatal("M1 Provider introduced an uncaptured tool")
+			}
+		}
+	}
+	return calls
+}
+
+func checkM1PeerRequest(t *testing.T, request netfixture.Request, round ec.LoopRoundFields, model, scenario string) {
+	t.Helper()
+	var body struct {
+		Model    string `json:"model"`
+		Stream   bool   `json:"stream"`
+		Parallel *bool  `json:"parallel_tool_calls"`
+		Choice   string `json:"tool_choice"`
+		Tools    []struct {
+			Type     string `json:"type"`
+			Function struct {
+				Name, Description string
+				Parameters        json.RawMessage
+				Strict            *bool
+			} `json:"function"`
+		} `json:"tools"`
+		Messages []struct {
+			Role       string          `json:"role"`
+			Content    json.RawMessage `json:"content"`
+			ToolCallID string          `json:"tool_call_id"`
+			ToolCalls  []struct {
+				ID, Type string
+				Function struct{ Name, Arguments string }
+			} `json:"tool_calls"`
+		} `json:"messages"`
+	}
+	workAppCheck(t, "m1-owned-peer-request", json.Unmarshal([]byte(request.Body), &body))
+	if request.Method != "POST" || request.Path != "/case/"+scenario+"/chat/completions" || body.Model != model || body.Stream || body.Parallel == nil || *body.Parallel || body.Choice != round.Choice.Kind || len(body.Tools) != len(round.Tools) || len(body.Messages) != len(round.Round.Messages) {
+		t.Fatal("M1 Provider request differs from its exact frozen round")
+	}
+	jsonEqual := func(a, b []byte) bool {
+		x, xe := cursor.CanonicalJSON(a)
+		y, ye := cursor.CanonicalJSON(b)
+		return xe == nil && ye == nil && bytes.Equal(x, y)
+	}
+	for n, tool := range round.Tools {
+		got := body.Tools[n]
+		if got.Type != "function" || got.Function.Name != tool.Name || got.Function.Description != tool.Description || got.Function.Strict == nil || *got.Function.Strict || !jsonEqual(got.Function.Parameters, tool.InputSchema) {
+			t.Fatal("M1 Provider function definition differs from the complete frozen tool set")
+		}
+	}
+	for n, message := range round.Round.Messages {
+		got := body.Messages[n]
+		if got.Role != message.Role {
+			t.Fatal("M1 Provider history role differs from its original round")
+		}
+		var texts []string
+		var calls []mc.ToolCallPart
+		var result *mc.ToolResultPart
+		for _, part := range message.Parts {
+			if part.Text != nil {
+				texts = append(texts, part.Text.Text)
+			} else if part.ToolCall != nil {
+				calls = append(calls, *part.ToolCall)
+			} else if part.ToolResult != nil && result == nil {
+				result = part.ToolResult
+			} else {
+				t.Fatal("M1 original round contains an unexpected history part")
+			}
+		}
+		if result != nil {
+			var parts []struct{ Type, Text string }
+			workAppCheck(t, "m1-provider-tool-result", json.Unmarshal(got.Content, &parts))
+			if got.ToolCallID != result.CallID || len(got.ToolCalls) != 0 || len(parts) != len(result.Parts) {
+				t.Fatal("M1 Provider lost the exact predecessor ToolResult pairing")
+			}
+			for p, part := range result.Parts {
+				if part.Text == nil || parts[p].Type != "text" || parts[p].Text != part.Text.Text {
+					t.Fatal("M1 Provider tool result differs from the durable original result")
+				}
+			}
+			continue
+		}
+		var content *string
+		workAppCheck(t, "m1-provider-message-content", json.Unmarshal(got.Content, &content))
+		if len(texts) > 1 || len(texts) == 0 && content != nil || len(texts) == 1 && (content == nil || *content != texts[0]) || got.ToolCallID != "" || len(got.ToolCalls) != len(calls) {
+			t.Fatal("M1 Provider history text or assistant ToolCall count differs")
+		}
+		for p, call := range calls {
+			actual := got.ToolCalls[p]
+			if actual.ID != call.ID || actual.Type != "function" || actual.Function.Name != call.Name || !jsonEqual([]byte(actual.Function.Arguments), call.Arguments) {
+				t.Fatal("M1 Provider assistant ToolCall differs from the durable predecessor")
+			}
 		}
 	}
 }
