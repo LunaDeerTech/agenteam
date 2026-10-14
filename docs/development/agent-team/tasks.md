@@ -2,17 +2,17 @@
 
 ## 当前目标与工作包状态
 
-2026-10-14 用户已确认以“指派任务 → Agent 连续工具执行 → 可见成果 → 审核通过/退回”为当前主目标。里程碑、依赖与完整工作包定义只维护在[开发计划](../development-plan.md#当前开发目标与里程碑)。M1 已进入真实 App 集成；当前没有 M1 完成或 main 交付结论，具体分支/工作树见 [current](../../../.agent-state/current.md)。
+2026-10-14 用户已确认以“指派任务 → Agent 连续工具执行 → 可见成果 → 审核通过/退回”为当前主目标。里程碑、依赖与完整工作包定义只维护在[开发计划](../development-plan.md#当前开发目标与里程碑)。本次 `tool-loop-v1` 受控实现增量已完成验收，由 root 执行 main 推送与临时分支清理；外部模型仍待验，M1 整阶段未完成。恢复入口见 [current](../../../.agent-state/current.md)。
 
-受控 Provider 已通过真实 HTTP 驱动同一工作 Execution 的五次 Model / 四次 Runner read/write/run/read，真实文件、stdout/exit、持久结果与最终 v2 已到达。第九轮 Owner 送审成功并持久 `in_review`，独立 review 执行已到；**当前断点是刷新后的输出正文读取中止，正常收尾及 peer 断言尚未到达**。失败/原 Runtime 取消两子例已独立接受；外部 DEV_CHAT 在既有 D04 DNS gate 前受环境阻断，尚无外部 Model HTTP，详见 [M1 集成卡](../work-items/m1-app-integration.md)。
+正常第十轮完整通过：同一工作 Execution 五次 Model / 四次 Runner read/write/run/read、真实文件/stdout/exit、最终 v2、三次原成果消费、唯一 Owner 送审至持久 `in_review` 及 reload 一致；正常 Drain/Runner Wait/App Joined、精确 work/review peer 和资源清理均到达。失败/原 Runtime 取消两子例及旧 direct-text 兼容已独立接受并有效复用；外部 DEV_CHAT 因既有 D04 DNS gate 受环境阻断，尚无外部 Model HTTP，详见 [M1 集成卡](../work-items/m1-app-integration.md)。
 
 | 工作包 | 当前状态与优先级 | 下一步 |
 | --- | --- | --- |
-| W1 模型工具调用 | JSON 原生工具请求、ToolCall/ToolResult 历史和真实 Runtime 已接入受控 App 链；原 tools 独验 STOP 保留 | 在原权限/出站条件满足后验证外部模型实际推理，保留受控 Provider 的证据边界。 |
-| W2 多轮执行与 Task 交接 | 同 E 工具循环、Runner 副作用、v2/UI 和 Owner `in_review` 已到达 | 完成正常浏览器刷新读取、完整收尾与独立验证；不以 Execution 成功自动完成 Task。 |
+| W1 模型工具调用 | JSON 原生工具请求、配对历史和真实 Runtime 已完成受控 App 链；原 tools 独验 STOP 保留 | 在原权限/出站条件满足后验证外部模型实际推理。 |
+| W2 多轮执行与 Task 交接 | 本次同 E 工具循环、Runner 副作用、v2/UI、Owner `in_review` 与刷新/正常收尾已通过 | 按 M2 继续成果传递及真实审核通过/退回；不由 Execution 成功自动完成 Task。 |
 | W3 审批、取消与执行详情 | read missing 失败及原 Runtime Stop/Drain 取消已限定独立接受；详情支持 v1/v2 | Human 持久取消、完整审批恢复、运行中重启接管仍待后继，不由 Runtime 取消样本代证。 |
-| W4 检索与记忆基础 | 本轮尚未派发，原工作包保留 | 按资源与 M1 进展安排，复用既有范围证据。 |
-| W5 集成与有界阻塞 | tool-loop-v1 默认 App 显式接线及自有 PG/Runner/Provider/browser harness 已形成，正常整轮仍 FAIL | delivery_path 协调定向修复；macro_milestones 独立核适用完成门槛。 |
+| W4 检索与记忆基础 | 本轮尚未派发，原工作包保留 | 按资源与主链进展安排，复用既有范围证据。 |
+| W5 集成与有界阻塞 | 本次 tool-loop-v1 默认 App 显式接线及自有 PG/Runner/Provider/browser 正常验收完成 | root 完成受限增量 Git 交付与清理；后继补外部模型实证。 |
 
 `tool-loop-v1` 是显式执行配置，原 `direct-text-v1` 保留且无新增 UI 配置。正常验收 tick 250ms / skip 240 只是 Owner 窗口参数；Reviewer 读取自有说明不证明 worker 产物评审或 M2 完成。统一界面布局已在 `6d16bdae` 交付，其既有31项 unit/17文件格式限制与恢复材料见 [current](../../../.agent-state/current.md#已完成交接统一页面布局)。旧 STOP、历史 FAIL 与未验证范围继续保留；下文旧子项按发生时输入解读，不覆盖本节较新事实。
 

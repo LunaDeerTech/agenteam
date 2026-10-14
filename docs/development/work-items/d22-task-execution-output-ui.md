@@ -2,15 +2,15 @@
 
 本片在已有 Task Execution 详情下接入 `GET /api/v1/projects/{P}/tasks/{T}/executions/{E}/runtime-view`。正式来源为同轮 `d22-runtime-final-text.md` 与 `api/openapi/execution.json` 的 `durable_final_text_v1`；定向用例、类型检查、构建及真实默认 App 浏览器验收已通过。
 
-## M1 多轮最终输出消费者（基础检查通过，待真实组合）
+## M1 多轮最终输出消费者（受控组合已有限独立接受）
 
 后继消费者新增 `durable_final_text_v2`，复用原 GET、完整响应校验、Session 读取 owner 和 Task 执行详情。v2 的唯一成功 text Item 引用真正产生最终响应的 Round，`started_at` 是该 Round 的创建时间，须在 Execution 开始与结束时间之间；Item 的完成/更新时间仍严格等于 Execution 完成时间。v1 保持原精确开始时间相等规则，不按 v2 放宽已有历史。
 
 两种 schema 的 `seq`、`revision` 和 `included_update_progress` 仍为字符串 `1`，只描述这份不可变最终快照，不表示整个 Transcript 只有一项或只调用过一次模型。失败和取消仍须真实空 Item 快照；私有 reasoning、Prompt 和凭据不进入 DTO。Go 生产者、持久约束及真实多轮调用由 M1 执行器工作包完成，本前端消费者不根据 Task 状态合成最终结果。
 
-M1 沿已有 Human Owner 操作提交评审：加载最终输出不会修改 Task；Owner 显式选择真实 reviewer、填写说明并确认，原 `POST /tasks/{task_id}/transfer` 才请求 `in_progress→in_review`。后端重验版本、当前权限和真实 Execution/pending 占用；Execution succeeded 不自动进入 `done`，本片不新增 AgentRun 权限或取消 Execution 入口。候选验证和未完成接缝见[本分支状态](../../../.agent-state/current.md)；下文原 v1 验收只证明其原限定输入。
+M1 沿已有 Human Owner 操作提交评审：加载最终输出不会修改 Task；Owner 显式选择真实 reviewer、填写说明并确认，原 `POST /tasks/{task_id}/transfer` 才请求 `in_progress→in_review`。后端重验版本、当前权限和真实 Execution/pending 占用；Execution succeeded 不自动进入 `done`，本片不新增 AgentRun 权限或取消 Execution 入口。当前验证和未完成接缝见 [M1 集成结果](m1-app-integration.md#当前成果与验收边界)；下文原 v1 验收只证明其原限定输入。
 
-本次四个定向 spec 共36项通过，覆盖 v2 最终 Round 时间范围/身份、v1 不放宽、失败/取消快照、权限/部分响应及原 Session/组件的成果读取后零写、Owner 明确确认才提交评审。完整 `vue-tsc`、Vite 生产构建、四个变更 TS 文件的 Prettier、OpenAPI JSON/65条本地引用与差异空白检查通过。首次类型检查因闭包内 nullable 属性收窄报 TS18047，改为捕获已校验的开始时间后复验通过；原失败不改记成功。组件使用受控 HTTP，不证明真实 Model、Runner、领域事务或浏览器组合；相关验证由 M1 真实链补齐。
+本次四个定向 spec 共36项通过，覆盖 v2 最终 Round 时间范围/身份、v1 不放宽、失败/取消快照、权限/部分响应及原 Session/组件的成果读取后零写、Owner 明确确认才提交评审。完整 `vue-tsc`、Vite 生产构建、四个变更 TS 文件的 Prettier、OpenAPI JSON/65条本地引用与差异空白检查通过。首次类型检查因闭包内 nullable 属性收窄报 TS18047，改为捕获已校验的开始时间后复验通过；原失败不改记成功。上述组件测试使用受控 HTTP，不单独证明真实组合。后继 `4ca30370` 正常 App 链已有限独立接受三次原 work 成果消费、Owner 唯一送审至持久 `in_review`、reload 后 v2 不变及原完整退出；11条请求全部 finished 并有原服务端完整响应联合证明。外部模型、产物自主评审及完整 M1/M2 未由该结果完成，第九轮 Playwright 观测 FAIL 保留。
 
 ## 页面行为
 

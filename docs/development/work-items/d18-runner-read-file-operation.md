@@ -57,11 +57,13 @@ Model JSON 为唯一明确端口替身，Execution/Tool authority、CurrentMount
 
 原件在 `output/ai/runner-read-file-operation/native04/` 的invocation、input-hashes、process、outer与terminal；原监督日志 `/tmp/rfo04/pg-05e7687f0dfc4714bd201ba67768c6ed.log` 保留。该通过不覆盖前三轮FAIL、不解释native01 TIME_WAIT归属、不补造native02未记录Status；也不外推Transcript结果消费、下一次Model调用、生产默认绑定或完整D18/D22/原STOP。
 
-## M1 统一 Runner 调度（已可联调）
+## M1 统一 Runner 调度（受控组合已有限独立接受）
+
+本次统一 read/write/run 已被显式 `tool-loop-v1` 默认 App 消费，`4ca30370` 正常链的四次真实工具副作用、同事务结果与原退出全部通过；`33009a96` 的无载荷失败和实际命令取消两例、旧 profile 兼容按固定输入复用，详见 [M1 集成结果](m1-app-integration.md#当前成果与验收边界)。此处更新仅限 M1 增量，前文单次 read-file 的历史装配与失败事实保留；外部模型、完整 D18/D22 与原 STOP 不由本次放行。
 
 统一入口 `runtime.RunnerExecutor.Execute/Lookup(ctx, ToolCallBinding)` 仅以原冻结 binding 选择现有 read-file/write-file/run-command executor。新增 `ToolCallIdentity{ExecutionID, RoundID, CallID}` 和 exact discovery 扩展；未实现该扩展明确返回 DependencyUnbound，不回退到第一条历史调用。原单次 API 保持兼容，原 With 回调继续在 same Store/Tx 下核当前授权与全部输入字段。
 
-`runtime.RunnerResultReader` 组合原独立 reader，通过 `RunnerResultAuthority` 在同一事务内借出完整 canonical ToolResultPart；结果沿原 Operation/Attempt/Call 验证，command 的错误分类沿原持久 Outcome。它不持有 executor，不创建或派发 Runner 请求。旧 Unknown 保留与实际退出语义不变。本次不修改 Runner 协议或 Tool SQL；Execution 多轮迁移与 producer 由 W2 实现，App sources/装配由 W5 负责。基础包测试（contract/runtime）已在 Go1.27.1 与共享锁定 cache 下实际 exit0；新增 exact round/call/execution/snapshot、缺扩展拒绝及统一结果同 Tx/撤权/损坏/foreign plan/consumer 失败检查通过。首次正式测试中新增断言误要求敏感错误保留原 cause 而 FAIL，按既有安全错误合同修正后通过，未修改产品边界。真实联调与独立验收仍未执行，不能据接口存在宣称 M1 完成。
+`runtime.RunnerResultReader` 组合原独立 reader，通过 `RunnerResultAuthority` 在同一事务内借出完整 canonical ToolResultPart；结果沿原 Operation/Attempt/Call 验证，command 的错误分类沿原持久 Outcome。它不持有 executor，不创建或派发 Runner 请求。旧 Unknown 保留与实际退出语义不变。本次不修改 Runner 协议或 Tool SQL；Execution 多轮迁移与 producer 由 W2 实现，App sources/装配由 W5 负责。基础包测试（contract/runtime）已在 Go1.27.1 与共享锁定 cache 下实际 exit0；新增 exact round/call/execution/snapshot、缺扩展拒绝及统一结果同 Tx/撤权/损坏/foreign plan/consumer 失败检查通过。首次正式测试中新增断言误要求敏感错误保留原 cause 而 FAIL，按既有安全错误合同修正后通过，未修改产品边界。这些基础检查本身不证明真实组合；后继有限联调结论见本节开头，仍不声明 M1 完成。
 
 
 统一 `RunnerDispatcher.Stop/Drain/Joined` 委托原三个 Authority 的同一状态，只用于全局退出，zero-value 不得声称 joined。可选 `RunnerCallLifecycle.CancelCall/JoinCall` 供 Loop 取消单个 Execution 的原 call：完整 binding 必须与最初调度上下文精确匹配；只发出取消信号，并等待原 handoff 的 done 与持久退休。后续另一个 call 不被取消，Unknown owner 保留，不创建新请求或重发；没有本地 owner 不构成数据库已提交的证明。正常 Execute 仍同步等实际 Runner Dispatch 与最终事务返回。
@@ -70,4 +72,4 @@ Model JSON 为唯一明确端口替身，Execution/Tool authority、CurrentMount
 
 该增量的两个分类测试定向 race 实际 exit0：read/write 有载荷、write 已知发布的 late completion、command 成功/非零/取消完整 report，以及三工具 failure/cancelled/unknown 无载荷与空 observation；两包 vet 与 diff-check 通过。未重复既有完整矩阵，实际 Loop 的 terminal/join 门由 W2 独占实现。
 
-作者适用检查已通过：两个包完整 `go test -race`；新增统一结果检查保留 write 的已知提交与 durable=false/late-error，run 的成功、非零退出、取消及完整 stdout/stderr；全局 stop 不早于原 lookup 返回，逐 call 取消覆盖三种 Runner 且不影响另一个 Execution，Unknown 两次观察仍保留。per-call 增量后定向 `TestRunner* -race` 和两包 vet 实际 exit0。vet 首次报告跨包别名 literal 未写字段名，改为具名字段后通过，未改变行为。这些仍是作者包级测试，真实 PG/WSS/模型组合由 W2/W5 执行；未宣称独立验收或完整 M1 通过。
+作者适用检查已通过：两个包完整 `go test -race`；新增统一结果检查保留 write 的已知提交与 durable=false/late-error，run 的成功、非零退出、取消及完整 stdout/stderr；全局 stop 不早于原 lookup 返回，逐 call 取消覆盖三种 Runner 且不影响另一个 Execution，Unknown 两次观察仍保留。per-call 增量后定向 `TestRunner* -race` 和两包 vet 实际 exit0。vet 首次报告跨包别名 literal 未写字段名，改为具名字段后通过，未改变行为。这些是作者包级测试；后继真实 PG/WSS/受控模型组合与独立验收范围见本节开头，不声明完整 M1 通过。

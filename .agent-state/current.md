@@ -1,20 +1,18 @@
-# 当前工作：M1 App 工具链集成
+# 当前工作：工具执行增量交付与外部模型待验
 
-- 分支 `ai/m1-app-integration-20261014`，工作树 `/workspace/agenteam-m1-app-integration`；起始基线 `c75e1bb8`，最近正常验收输入 `fee69b0d`。root 负责全部 Git；delivery_path 负责 App/harness，documentation_worker 当前只写移交文档。恢复先核 Git 差异、活动 owner 与命令，不继承旧会话写权。
-- 目标、当前实际结果与限制见 [M1 集成卡](../docs/development/work-items/m1-app-integration.md)；完整里程碑见[开发计划](../docs/development/development-plan.md#当前开发目标与里程碑)。当前没有 M1 完成或 main 交付结论。
-- 已实现显式 `tool-loop-v1`、Model JSON 工具调用、原 Ownership 内多轮循环、真实 Runner read/write/run、最终 v2 与 UI 解码。旧 `direct-text-v1`/Snapshot 保留，无新增 UI 配置；App 复用原 Store、Authority、Registry、DeviceHandler 和停止生命周期。
-- 自有受控链已完成同一 work Execution 的 5 Model / 4 Tool、真实文件/stdout/exit 和 v2 持久事实。第九轮 `run.KkNSps` 已到 Owner transfer 200、持久 `in_review` / version 4 和独立 review 两 Model / 一 read；reload 第三次输出 `ERR_ABORTED` / 200 正文不完整，原 outer Wait 1。三层 cleanup 完成，正常末尾 App Join/peer 未到；整轮仍 FAIL，浏览器 owner 正修断点。
-- `33009a96` / `run.Wxxzus` 的 read missing 与原 Runtime Stop/Drain 取消两个子例已 PASS 并独立接受；原 pending bytes、同事务终态、精确调用、Runner Wait 0 / App Joined 与资源清理已核。相关输入未变时复用，不重跑旧矩阵。
-- 正常场景 tick 250ms / skip 240 是显式约60秒 Owner 窗口，不是生产默认；review 只读自有说明，不代表 worker 产物评审或 M2 完成。无工具 Agent、运行中重启接管、Human 持久取消及完整审批恢复仍待后继。
-- 外部 DEV_CHAT 因本环境 A 成功 / AAAA NXDOMAIN 被原 D04 拒绝，未发送外部 Model HTTP；不改 DNS/权限策略。旧 live-chat FAIL 与 Object/tools/SPA 等 STOP 均保留。
+本次 `tool-loop-v1` 受控实现验收完成，由 root 执行 main 推送与临时分支/worktree 清理；此记录不提前宣称推送成功。正式保留工作区为 `/workspace/agenteam`，恢复先核实际 Git 状态及活动会话，再读 [M1 集成卡](../docs/development/work-items/m1-app-integration.md)、[任务台账](../docs/development/agent-team/tasks.md#当前目标与工作包状态)与[开发计划](../docs/development/development-plan.md#当前开发目标与里程碑)，不依赖已结束执行者或旧临时树。
+
+- 本次验收范围：显式 `tool-loop-v1`、Model JSON 工具调用、同 Execution 多轮、真实 Runner read/write/run、最终 v2 及 UI 解码，复用原 Store/Authority/Registry/DeviceHandler 和停止生命周期。原 `direct-text-v1`、旧 Snapshot 保留，无新增 UI 配置。
+- 正常实证 `4ca30370` / `run.EW1axd`：同 work E 五次 Model / 四次 Tool、真实文件/stdout/exit、三次原成果消费、Owner 唯一 transfer 200 → `in_review` / version 4、reload 一致，正常 Runtime Drain → Runner Wait 0 → App/连接 Joined 全部通过并获独立接受，outer Wait 0。独立 review E 两次 Model / 一次 read 成功不代表产物评审决策。
+- 已独立接受并有效复用：`33009a96` / `run.Wxxzus` 的 read missing 失败与原 Runtime Stop/Drain 取消；`fee69b0d` / `direct-text.2tWIPp` 的旧 profile 真实单轮及同 DB 关闭 runtime 后重启历史读取。正常、失败/取消和旧兼容各自按固定输入记录，不称当前 HEAD 单次全套运行。
+- 外部 DEV_CHAT 因本环境 A 成功 / AAAA NXDOMAIN 被既有 D04 拒绝，未发送外部 Model HTTP，**M1 整里程碑仍待外部模型实证**。不改 DNS、出站或授权策略；无工具 Agent、运行中重启接管、Human 持久取消、完整审批恢复及 M2 仍未完成。
+- 正常 harness 的 tick 250ms / skip 240 只是显式约60秒 Owner 窗口，不是生产默认。旧 live-chat FAIL、完整 D09 tools wire/SSE 与 Object/tools/SPA 等 STOP 保留；第九轮 Playwright 正文观测失败不回填 PASS，也不推断 native 正文不完整。
 
 ## 恢复与下一步
 
-运行入口和固定 case 见 [M1 harness](../tests/m1-app-workflow/README.md)。Go 为 `/workspace/toolchains/go1.27.1/bin/go`；共享模块 `/workspace/go/pkg/mod`、构建缓存 `/workspace/.cache/go-build`。固定 MinIO 位于 `/workspace/shared/agenteam-m1-tools/minio/minio`，SHA `dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8`；锁定 browser/web 依赖位于该工具目录 `node-browser` / `node-web`。迁移包含 00091，每轮新 nonce/new DB；不连接 onboarding 环境。当前预算为两路 Go `-p=2`、一个 native 栈，由 delivery_path 协调。
+运行入口、配置与固定 case 见 [M1 harness](../tests/m1-app-workflow/README.md)和[后端说明](../docs/development/backend/README.md#配置与命令)。跟踪源码、锁文件、迁移 00091 与这些命令是跨设备恢复来源。Go 为 `/workspace/toolchains/go1.27.1/bin/go`，工具缓存及固定 MinIO、锁定 browser/web 依赖在 `/workspace/shared/agenteam-m1-tools` 等外置目录复用；依赖位置不等于业务资源可复用，每轮仍创建新 nonce/new DB，不连接 onboarding 环境。
 
-原始证据位于 `output/ai/m1-app-integration/run.*`；前八轮失败及修复事实在集成卡与 Git 历史保留。本轮下一步是修正刷新输出读取并完成正常收尾和独立验证，再在原策略条件满足后验证真实外部模型。checkpoint 是可恢复实现，不表示产品 PASS；提交/推送状态由 root 实际报告。
-
-旧 direct-text 兼容已在 `fee69b0d` / `direct-text.2tWIPp` 实际回归：1 top / 1 sub、Model HTTP 1 / Tool 0、v1 及同 DB 关闭 runtime 后重启历史读取、原完整 Join 均到达，outer Wait 0 / cleanup 完成，已获限定独立接受。正常全部门和旧兼容、失败/取消限定证据齐全后，才判断工具实现增量的受限 main 交付；M1 整里程碑仍须外部模型实证。
+必要 native 日志、资源身份和浏览器消费证明/截图保全到主树 `output/ai/m1-delivery-evidence/app-integration/`，保留原轮次目录，排除二进制、缓存与私有材料；delivery_path 已完成逐文件 bytes/SHA 核对，原失败轮一并保留。下一步恢复外部模型在原 DNS/策略条件下的可调用环境并做有限实证，再按既定工作包推进审批/恢复/协作；W4 本轮未实施。旧失败细节只维护于集成卡及 Git 文件历史。
 
 ## 已完成交接：统一页面布局
 

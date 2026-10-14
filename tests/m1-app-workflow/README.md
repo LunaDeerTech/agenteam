@@ -10,7 +10,7 @@
 
 ## 运行
 
-准备 Go 1.27.1、项目锁定版本的 MinIO 与 Docker 镜像、锁安装的 browser node_modules，以及当前 Web production dist。依赖安装和缓存可在树外共享；本入口不安装依赖、不读取真实 Provider 凭据、不接外部数据库。
+准备 Go 1.27.1、项目锁定版本的 MinIO 与 Docker 镜像、锁安装的 browser node_modules、正常 workflow 所需的 web node_modules，以及当前 Web production dist。依赖安装和缓存可在树外共享；本入口不安装依赖、不读取真实 Provider 凭据、不接外部数据库。
 
 ```sh
 AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go \
@@ -19,11 +19,12 @@ GOCACHE=/workspace/.cache/go-build \
 GOPROXY=off GOSUMDB=off \
 AGENTEAM_MINIO_BINARY=/workspace/shared/agenteam-m1-tools/minio/minio \
 AGENTEAM_M1_BROWSER_MODULES=/workspace/shared/agenteam-m1-tools/node-browser/node_modules \
+AGENTEAM_M1_WEB_MODULES=/workspace/shared/agenteam-m1-tools/node-web/node_modules \
 AGENTEAM_M1_WEB_DIST=/absolute/path/to/web/dist \
 sh tests/m1-app-workflow/run.sh
 ```
 
-入口构建原 Runner 和 `internal/central/app` integration 测试二进制，然后调用既有 objects → outbound → PostgreSQL fixture。每次使用新 nonce 资源、隔离 DB 和临时工作目录；结束等待原 fixture 清理。临时 browser dependency symlink 只在入口创建时由入口删除，不改共享安装。
+入口构建原 Runner 和 `internal/central/app` integration 测试二进制，然后调用既有 objects → outbound → PostgreSQL fixture。每次使用新 nonce 资源、隔离 DB 和临时工作目录；结束等待原 fixture 清理。入口按需创建 browser dependency symlink；仅正常 workflow 还要求 `AGENTEAM_M1_WEB_MODULES` 并按需创建 `web/node_modules` symlink，供浏览器 harness 读取正式前端依赖。原 fixture Wait 后，入口只清理本轮自行创建的链接，不改共享安装或接管已有安装；无需重新安装依赖。失败/取消场景不要求新增变量，也不创建 web 链接。
 
 默认 `AGENTEAM_M1_CASE=workflow` 仅运行上述成功/评审场景。设置 `AGENTEAM_M1_CASE=failure-and-cancellation` 仅运行两个独立新库场景：真实 read missing 无结果载荷失败，以及实际命令启动后原 Runtime Stop/Drain 的取消与进程 Join。两个场景共用原 App/Runner/Provider 组图，不启动浏览器，不模拟 Human cancel 入口。入口只接受这两个固定 case；各自需记录实际结果，未运行不计通过。
 
@@ -31,8 +32,8 @@ sh tests/m1-app-workflow/run.sh
 
 ## 证据
 
-当前实际通过、失败与下一步见 [M1 集成卡](../../docs/development/work-items/m1-app-integration.md#当前成果与验收边界)。正常链的第九轮虽到 Owner 送审及持久 `in_review`，刷新后的第三次输出读取正文不完整，仍未通过正常完整收尾；已独立接受的失败/取消 case 不代替该门。
+当前实际通过、失败与下一步见 [M1 集成卡](../../docs/development/work-items/m1-app-integration.md#当前成果与验收边界)。正常第十轮已完整通过三次原成果消费、唯一 Owner 送审、刷新一致及正常收尾；失败/取消与旧 direct-text 按各自固定输入接受并复用，不表示外部模型或 M1 整阶段完成。第九轮只记录 Playwright `ERR_ABORTED`、完整消费未在该轮证明的 FAIL，不推断 native 正文不完整。
 
-每轮输出在 `output/ai/m1-app-integration/run.*`。`native.log` 保存实际测试及 fixture Wait；`owned-resources.json` 仅保存资源身份；`browser/TestM1AppToolWorkflow` 保存浏览器阶段、脱敏控制台及截图。Session/Runner enrollment 材料放私有目录并清理，不写证据。
+每轮输出在 `output/ai/m1-app-integration/run.*`。`native.log` 保存实际测试及 fixture Wait；`owned-resources.json` 仅保存资源身份；`browser/TestM1AppToolWorkflow` 保存浏览器阶段、脱敏控制台及截图。Session/Runner enrollment 材料放私有目录并清理，不写证据。本次交付的必要日志、资源身份、browser 消费证明/阶段与截图保全到主工作区 `/workspace/agenteam/output/ai/m1-delivery-evidence/app-integration/` 的原轮次目录，精确复制经 bytes/SHA 核对；不带二进制、依赖缓存或私有材料。
 
 通过必须同时包含同一 Task/Execution 的实际多轮工具结果、文件内容与 command stdout/exit、v2 最终输出、唯一 Owner 评审转移、刷新一致，以及 App/Runner/浏览器原进程返回。编译、环境准备或受控 Provider 通过均不标外部模型推理通过。旧 STOP 驱动不由本入口运行。

@@ -2,6 +2,10 @@
 
 本片实现 M1 新 Execution 的同步工具调用接缝，消费现有 Model Runtime、Secret、Usage 和 Execution consumer authority。原 tools wire 独立动态 STOP 保留；本片的编码、静审和纯单元检查不构成其解除，也不宣称完整 D09 或 live provider 已通过。
 
+## 当前受限交付
+
+本次 JSON tools 实现已由 `4ca30370` 的正常 App 组合完成真实受控 Provider → Runner → ToolResult → 后继 Model 五轮链，并获限定独立接受；失败/取消与旧 direct-text 兼容按固定输入有效复用，详见 [M1 集成结果](m1-app-integration.md#当前成果与验收边界)。外部模型仍因环境 DNS gate 未发送 HTTP，原 tools 动态 STOP、完整 wire/SSE 与 D09/M1 完成门槛保持。下文实现阶段记录保留当时结果，不作为当前组合状态。
+
 ## 契约与组合
 
 - 入口保持 `mc.JSONCaller.BeginChat(ctx, mc.ModelRequest)`，结果为原 `mc.JSONCall.Result/Close/Joined`；不另建 HTTP、事件、数据库表或迁移。
@@ -17,7 +21,7 @@ W1/model_runtime 唯一写 Model 域；W2/core_readiness 连接首轮与后继�
 
 基础纯单元检查覆盖请求/历史编码、工具响应及可靠 usage、参数/选择/历史配对拒绝、原修订兼容、schema 2/3 摘要、深复制与早取消。沿 Go 1.27.1 使用现有缓存，无外部凭据、网络 fixture 或旧动态 driver。后续真实 Model→Runner→结果→Model 组合及独立验证由集成/验证 owner 明确范围；纯单元通过不代替该链路。
 
-当前状态：首个实现片段与基础纯单元已完成。Go 1.27.1 的 adapter/contract/model 限定选择器已通过，覆盖原 text/structured/wire、Runtime、新 JSON tools 和 successor；随后完整128工具/256历史、旧schema2固定hash、1MiB参数/+1边界定向通过。首轮曾发现 C0 解码会替换孤立 UTF-16 surrogate，adapter 已增加严格 JSON Unicode 门并复验通过；保留原失败事实。尚未跑新真实 provider/Runner 联调或独立动态检查，不宣称完整 tools wire/SSE 通过。
+实现阶段记录：首个实现片段与基础纯单元已完成。Go 1.27.1 的 adapter/contract/model 限定选择器已通过，覆盖原 text/structured/wire、Runtime、新 JSON tools 和 successor；随后完整128工具/256历史、旧schema2固定hash、1MiB参数/+1边界定向通过。首轮曾发现 C0 解码会替换孤立 UTF-16 surrogate，adapter 已增加严格 JSON Unicode 门并复验通过；保留原失败事实。该阶段尚未跑新真实 provider/Runner 联调或独立动态检查，不宣称完整 tools wire/SSE 通过。
 
 
 独立macro已对f47d3eb0完成限定静审及7顶层/20子项纯race（actual exit0），三包作者vet实际exit0。其窄隔离建议已补：默认Capture直接拒tools revision，不能靠剥离ToolCalls能力bit跨profile；作者新增单项通过，等待该差量独立复验。以上都不代替Model/Secret/Usage真实持久组合、Runner端到端或原独立动态STOP的解除。
