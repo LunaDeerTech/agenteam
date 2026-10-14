@@ -1,3 +1,17 @@
+# 当前工作：M1 真实外部模型验收入口准备
+
+基线为正式 main `3a00e5a6`；当前隔离树 `/workspace/agenteam-m1-live-acceptance`、分支 `ai/m1-live-acceptance-20261014`，root 负责全部 Git。旧分支/工作树已清理，不恢复。当前仅准备源码，**未执行外部 Model HTTP，未读取真实 KEY**。
+
+- delivery_path 唯一写 live 入口、公共 factory 必要参数化、run.sh/README 与本卡；live_facts 唯一写新动态事实文件；product_recent 唯一写原 browser helper/spec；macro 保持独立。
+- 受控 workflow 与 failure-and-cancellation 的既有通过证据保留。新 live 显式双 opt-in，真实 SystemResolver/CA/D04/正式 Secret 路径；不使用 ownedIP 映射、预设响应或 synthetic credential。
+- 本轮预算目标：总300秒、单attempt最多60秒、MaxOutput4096、work/review/retry 合计 sent 观察阈值12（含在途的软停止条件，不是硬计费上限）；超限停止原Runtime并收集原Join。
+- 首轮真实上下文已源码确认：agentloop/projection.go 将完整捕获 Task.Data()（含Plan）投影至 user Message，Agent instructions/mount IDs 保留。新目标只提供任务/输入说明，不提供程序/答案。
+- Product两文件完成模式参数化并冻结；主入口/factory WIP，动态facts编写中，尚未整体编译。当前DNS仍是本环境A成功/AAAA NXDOMAIN导致原D04阻断；只阻碍外部实跑，不阻碍本地准备。
+
+下一步：完成离线假值拒绝/编译检查并独立复核，合格preflight及明确选定实跑后方可读取KEY并做外部实证。详见 [live准备卡](../docs/development/work-items/m1-live-acceptance.md)。
+
+---
+
 # 当前工作：工具执行增量交付与外部模型待验
 
 本次 `tool-loop-v1` 受控实现验收完成，由 root 执行 main 推送与临时分支/worktree 清理；此记录不提前宣称推送成功。正式保留工作区为 `/workspace/agenteam`，恢复先核实际 Git 状态及活动会话，再读 [M1 集成卡](../docs/development/work-items/m1-app-integration.md)、[任务台账](../docs/development/agent-team/tasks.md#当前目标与工作包状态)与[开发计划](../docs/development/development-plan.md#当前开发目标与里程碑)，不依赖已结束执行者或旧临时树。

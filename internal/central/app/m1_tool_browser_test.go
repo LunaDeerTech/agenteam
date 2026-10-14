@@ -39,6 +39,14 @@ import (
 // alternate API or direct Task mutation. Observation retains original bytes.
 func (w *m1Workflow) browser(t *testing.T, listener net.Listener) {
 	t.Helper()
+	w.browserWithExpectation(t, listener, "controlled")
+}
+
+func (w *m1Workflow) browserWithExpectation(t *testing.T, listener net.Listener, expectationMode string) {
+	t.Helper()
+	if expectationMode != "controlled" && expectationMode != "live" {
+		t.Fatal("M1 browser expectation must be explicit controlled or live")
+	}
 	v := w.app
 	dist, harness, evidenceRoot := os.Getenv("AGENTEAM_M1_WEB_DIST"), os.Getenv("AGENTEAM_M1_WEB_HARNESS"), os.Getenv("AGENTEAM_M1_WEB_EVIDENCE")
 	if !filepath.IsAbs(dist) || !filepath.IsAbs(harness) || !filepath.IsAbs(evidenceRoot) {
@@ -133,17 +141,26 @@ func (w *m1Workflow) browser(t *testing.T, listener net.Listener) {
 		t.Fatal("M1 actual final-round projection missing")
 	}
 	item := view.Snapshot.Items[0]
-	if item.Data.Content != m1FinalOutput || item.SourceReference.ID != item.ID {
+	if item.SourceReference.ID != item.ID ||
+		(expectationMode == "controlled" && item.Data.Content != m1FinalOutput) ||
+		(expectationMode == "live" && strings.TrimSpace(item.Data.Content) == "") {
 		t.Fatal("M1 actual final-round content or identity differs")
 	}
+	// Live artifacts and result semantics are checked independently by the Go
+	// facts owner. Browser expectations come only from this original persisted
+	// execution, without prescribing the model's program or final wording.
+	artifacts := []map[string]string{{"path": "stats.py"}, {"path": "result.json"}}
+	if expectationMode == "controlled" {
+		artifacts[1]["expected_content"] = m1Result
+	}
 	payload := map[string]any{
-		"mode": "read-write-run-review", "origin": w.origin, "cookie": v.cookie,
+		"mode": "read-write-run-review", "expectation_mode": expectationMode, "origin": w.origin, "cookie": v.cookie,
 		"project_id": v.a.String(), "task_id": before.ID.String(), "agent_id": v.agent.String(), "reviewer_id": w.reviewer.String(),
 		"execution_id": w.execution.String(), "final_round_id": item.ID.String(),
 		"execution_started_at": view.Execution.StartedAt, "final_round_started_at": item.StartedAt, "execution_completed_at": view.Execution.CompletedAt,
 		"route": "/" + identity.User.Username + "/runtime-app-a/tasks/" + before.ID.String(), "title": before.Title, "task_version": before.Version,
 		"expected_output": item.Data.Content,
-		"artifact_checks": []map[string]string{{"path": "stats.py"}, {"path": "result.json", "expected_content": m1Result}},
+		"artifact_checks": artifacts,
 	}
 	raw, err := json.Marshal(payload)
 	workAppCheck(t, "m1-browser-material", err)
@@ -157,7 +174,7 @@ func (w *m1Workflow) browser(t *testing.T, listener net.Listener) {
 			w.diagnoseResult(t, 1, w.execution.String(), string(w.view.Execution.Status))
 		}
 	})
-	w.runBrowser(t, private, harness, dist, evidence)
+	w.runBrowser(t, private, harness, dist, evidence, expectationMode)
 	o.mu.Lock()
 	observed := !o.failed && o.accepted >= 11
 	for _, tail := range o.tails {
@@ -183,7 +200,7 @@ func (w *m1Workflow) browser(t *testing.T, listener net.Listener) {
 		t.Fatal("M1 review changed the completed Execution projection")
 	}
 	stop()
-	t.Log("M1_BROWSER_WORKFLOW real_http=true output_reads=3 owner_transfer=1 persisted_state=in_review final_projection_unchanged=true proxy_serve_joined=true")
+	t.Logf("M1_BROWSER_WORKFLOW expectation_mode=%s real_http=true output_reads=3 owner_transfer=1 persisted_state=in_review final_projection_unchanged=true proxy_serve_joined=true", expectationMode)
 }
 
 // This is the same bounded original-body/handler-return proof used by D22.
@@ -312,7 +329,7 @@ func (o *m1BrowserObservation) capture(response *http.Response) error {
 	return nil
 }
 
-func (w *m1Workflow) runBrowser(t *testing.T, private, harness, dist, evidence string) {
+func (w *m1Workflow) runBrowser(t *testing.T, private, harness, dist, evidence, expectationMode string) {
 	t.Helper()
 	ctx, cancel := context.WithTimeout(w.app.ctx, 60*time.Second)
 	defer cancel()
@@ -367,16 +384,21 @@ func (w *m1Workflow) runBrowser(t *testing.T, private, harness, dist, evidence s
 		t.Fatal("M1 real browser did not pass its unique case; see private evidence console")
 	}
 	var result struct {
-		Schema      string   `json:"schema"`
-		Status      string   `json:"status"`
-		Stages      []string `json:"stages"`
-		APIWrites   int      `json:"api_writes"`
-		OutputReads int      `json:"output_reads"`
+		Schema          string   `json:"schema"`
+		Status          string   `json:"status"`
+		ExpectationMode string   `json:"expectation_mode"`
+		Stages          []string `json:"stages"`
+		APIWrites       int      `json:"api_writes"`
+		OutputReads     int      `json:"output_reads"`
+	}
+	outputStage := "v2-output-and-file-names-readable-without-task-transition"
+	if expectationMode == "live" {
+		outputStage = "v2-output-readable-without-task-transition"
 	}
 	raw, err := os.ReadFile(filepath.Join(evidence, "m1-task-workflow-observation.json"))
 	workAppCheck(t, "m1-browser-observation", err)
-	if len(raw) > 16<<10 || json.Unmarshal(raw, &result) != nil || result.Schema != "m1_browser_workflow_v1" || result.Status != "passed" || result.APIWrites != 1 || result.OutputReads != 3 || !slices.Equal(result.Stages, []string{
-		"initial-task-in-progress", "v2-output-and-file-names-readable-without-task-transition", "explicit-owner-transfer-confirmed-in-review", "reload-preserves-in-review-and-identical-final-output",
+	if len(raw) > 16<<10 || json.Unmarshal(raw, &result) != nil || result.Schema != "m1_browser_workflow_v1" || result.Status != "passed" || result.ExpectationMode != expectationMode || result.APIWrites != 1 || result.OutputReads != 3 || !slices.Equal(result.Stages, []string{
+		"initial-task-in-progress", outputStage, "explicit-owner-transfer-confirmed-in-review", "reload-preserves-in-review-and-identical-final-output",
 	}) {
 		t.Fatal("M1 browser completed-body and explicit-review evidence incomplete")
 	}

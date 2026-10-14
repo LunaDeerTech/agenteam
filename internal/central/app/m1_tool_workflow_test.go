@@ -93,15 +93,24 @@ func newM1WorkflowWithObserver(t *testing.T, observer func(f.TransactionCause, f
 
 func newM1WorkflowWithOptions(t *testing.T, observer func(f.TransactionCause, f.CommitResult), ownerReview bool) (*m1Workflow, net.Listener) {
 	t.Helper()
+	return newM1WorkflowConfigured(t, observer, ownerReview, nil)
+}
+
+func newM1WorkflowConfigured(t *testing.T, observer func(f.TransactionCause, f.CommitResult), ownerReview bool, live *m1LiveConfiguration) (*m1Workflow, net.Listener) {
+	t.Helper()
 	listener, err := net.Listen("tcp", "127.0.0.1:0")
 	workAppCheck(t, "m1-listener", err)
 	t.Cleanup(func() { _ = listener.Close() })
 	origin := "http://" + listener.Addr().String()
-	network, err := netfixture.Load()
-	workAppCheck(t, "m1-owned-network", err)
-	address, err := netip.ParseAddr(network.PrivateIP)
-	workAppCheck(t, "m1-owned-address", err)
-	fixture := &m1Workflow{network: network, origin: origin, private: t.TempDir(), reviewEnabled: ownerReview}
+	var network *netfixture.Descriptor
+	var address netip.Addr
+	if live == nil {
+		network, err = netfixture.Load()
+		workAppCheck(t, "m1-owned-network", err)
+		address, err = netip.ParseAddr(network.PrivateIP)
+		workAppCheck(t, "m1-owned-address", err)
+	}
+	fixture := &m1Workflow{network: network, origin: origin, private: t.TempDir(), reviewEnabled: ownerReview, live: live}
 	var transport *outboundRuntime
 	v := newExecutionSchedulerAppWith(t, func(d *dependencies, v *executionSchedulerApp) {
 		diagnose := m1CommitObserver(t)
@@ -118,13 +127,28 @@ func newM1WorkflowWithOptions(t *testing.T, observer func(f.TransactionCause, f.
 			// is neither a production default nor a Scheduler pause.
 			runtimeConfig = strings.Replace(runtimeConfig, `"relaunch_skip_count":0`, `"relaunch_skip_count":240`, 1)
 		}
+		if live != nil {
+			runtimeConfig = strings.Replace(runtimeConfig, `"max_request_timeout":"120s"`, `"max_request_timeout":"60s"`, 1)
+			// The observation lifetime is separate from the original App run.
+			// The live budget owner below stops that original run explicitly.
+			var cancel context.CancelFunc
+			v.ctx, cancel = context.WithTimeout(context.Background(), m1LiveTotalBudget+m1LiveJoinBudget)
+			t.Cleanup(cancel)
+		}
 		env := append(guardEnvironment(t, v.root.db), "AGENTEAM_CENTRAL_PUBLIC_ORIGIN="+origin,
-			"AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=5s", "AGENTEAM_CENTRAL_OUTBOUND_CA_FILE="+network.CAFile,
+			"AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=5s",
 			"AGENTEAM_CENTRAL_EXECUTION_RUNTIME="+runtimeConfig,
 			"AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_ATTEMPTS=2", "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_INITIAL_BACKOFF=100ms", "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_BACKOFF=1s")
+		if live == nil {
+			env = append(env, "AGENTEAM_CENTRAL_OUTBOUND_CA_FILE="+network.CAFile)
+		}
 		v.root.cfg = guardConfiguration(t, env)
 		d.outboundConstruct = func(_ context.Context, _ config.Config, actual *outboundRuntime) error {
-			actual.resolver = appFixtureResolver{address}
+			if live == nil {
+				actual.resolver = appFixtureResolver{address}
+			} else if actual.resolver != nil {
+				return fmt.Errorf("live outbound resolver must remain the original system resolver")
+			}
 			transport = actual
 			return nil
 		}
@@ -135,7 +159,9 @@ func newM1WorkflowWithOptions(t *testing.T, observer func(f.TransactionCause, f.
 	if transport == nil || v.root.owned.outbound() != transport {
 		t.Fatal("M1 original outbound owner absent")
 	}
-	m1AllowOwnedPeer(t, v, transport, network)
+	if live == nil {
+		m1AllowOwnedPeer(t, v, transport, network)
+	}
 	fixture.app = v
 	return fixture, listener
 }
@@ -160,6 +186,7 @@ type m1Workflow struct {
 	reviewMount                                id.MountID
 	reviewModel                                mc.ModelID
 	browserObservation                         *m1BrowserObservation
+	live                                       *m1LiveConfiguration
 }
 
 func m1AllowOwnedPeer(t *testing.T, v *executionSchedulerApp, transport *outboundRuntime, network *netfixture.Descriptor) {
@@ -218,7 +245,12 @@ func (w *m1Workflow) createModelAndTask(t *testing.T, endpoint string) {
 	workAppCheck(t, "m1-secret-scope", err)
 	identity, err := f.NewCommandIdentity("secret", []string{v.a.String(), v.actor.Details().UserID}, "create", f.IdempotencyKey(guardID[struct{}](t).String()))
 	workAppCheck(t, "m1-secret-command", err)
-	material, err := sc.NewSecretMaterial([]byte("owned-m1-provider-credential"))
+	secretBytes := []byte("owned-m1-provider-credential")
+	if w.live != nil {
+		secretBytes = w.live.credential(t)
+	}
+	material, err := sc.NewSecretMaterial(secretBytes)
+	clear(secretBytes)
 	workAppCheck(t, "m1-secret-material", err)
 	defer material.Destroy()
 	service, ok := v.root.owned.secret().(*secret.Service)
@@ -228,12 +260,17 @@ func (w *m1Workflow) createModelAndTask(t *testing.T, endpoint string) {
 	written, err := service.ExecuteWrite(v.ctx, sc.WriteRequest{Actor: v.actor, Scope: scope, Identity: identity, Kind: sc.Create, Purpose: sc.Model, Value: material})
 	workAppCheck(t, "m1-secret-write", err)
 	credential := written.Metadata.CredentialRef.Details().ID
+	modelName, reviewName := "m1-statistics", "m1-review"
+	var maxOutput any
+	if w.live != nil {
+		modelName, reviewName, maxOutput = w.live.Model, w.live.Model, m1LiveMaxOutput
+	}
 	var receipt mc.CommandReceipt
 	v.httpSeed(t, "/model-providers", map[string]any{"input": map[string]any{"name": "M1 owned Provider", "protocol": mc.OpenAIChat, "base_url": endpoint, "enabled": true, "credential_ref": credential, "options": map[string]any{}}}, &receipt)
 	provider, err := f.ParseID[mc.Provider](receipt.ResourceID)
 	workAppCheck(t, "m1-provider", err)
 	providerVersion := receipt.Version
-	v.httpSeed(t, "/models", map[string]any{"provider_id": provider, "input": map[string]any{"name": "M1 model", "provider_model_id": "m1-statistics", "type": mc.ChatModel, "enabled": true, "parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{}, "capabilities": map[string]any{"tool_calls": true, "parallel_tool_calls": false, "streaming": true, "reasoning": false, "input_modalities": []string{"text"}, "output_modalities": []string{"text"}, "reasoning_efforts": []string{}, "structured_output_modes": []string{}, "context_length": nil, "max_output": nil}}}, &receipt)
+	v.httpSeed(t, "/models", map[string]any{"provider_id": provider, "input": map[string]any{"name": "M1 model", "provider_model_id": modelName, "type": mc.ChatModel, "enabled": true, "parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{}, "capabilities": map[string]any{"tool_calls": true, "parallel_tool_calls": false, "streaming": true, "reasoning": false, "input_modalities": []string{"text"}, "output_modalities": []string{"text"}, "reasoning_efforts": []string{}, "structured_output_modes": []string{}, "context_length": nil, "max_output": maxOutput}}}, &receipt)
 	modelID, err := f.ParseID[mc.Model](receipt.ResourceID)
 	workAppCheck(t, "m1-model", err)
 	var reviewProvider mc.ProviderID
@@ -243,7 +280,7 @@ func (w *m1Workflow) createModelAndTask(t *testing.T, endpoint string) {
 		reviewProvider, err = f.ParseID[mc.Provider](receipt.ResourceID)
 		workAppCheck(t, "m1-review-provider", err)
 		reviewVersion = receipt.Version
-		v.httpSeed(t, "/models", map[string]any{"provider_id": reviewProvider, "input": map[string]any{"name": "M1 review model", "provider_model_id": "m1-review", "type": mc.ChatModel, "enabled": true, "parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{}, "capabilities": map[string]any{"tool_calls": true, "parallel_tool_calls": false, "streaming": true, "reasoning": false, "input_modalities": []string{"text"}, "output_modalities": []string{"text"}, "reasoning_efforts": []string{}, "structured_output_modes": []string{}, "context_length": nil, "max_output": nil}}}, &receipt)
+		v.httpSeed(t, "/models", map[string]any{"provider_id": reviewProvider, "input": map[string]any{"name": "M1 review model", "provider_model_id": reviewName, "type": mc.ChatModel, "enabled": true, "parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{}, "capabilities": map[string]any{"tool_calls": true, "parallel_tool_calls": false, "streaming": true, "reasoning": false, "input_modalities": []string{"text"}, "output_modalities": []string{"text"}, "reasoning_efforts": []string{}, "structured_output_modes": []string{}, "context_length": nil, "max_output": maxOutput}}}, &receipt)
 		w.reviewModel, err = f.ParseID[mc.Model](receipt.ResourceID)
 		workAppCheck(t, "m1-review-model", err)
 	}
@@ -257,6 +294,9 @@ func (w *m1Workflow) createModelAndTask(t *testing.T, endpoint string) {
 			v.agent = target
 			fields.Name = "m1-statistics-worker"
 			fields.Instructions = "Read input.json; write stats.py; run /usr/bin/python3 stats.py; verify result.json and report the files and exit status."
+			if w.live != nil {
+				fields.Instructions = m1LiveTaskPlan
+			}
 			fields.AllowedToolIDs = []id.ToolID{w.tools[tc.RunnerReadFileKey], w.tools[tc.RunnerWriteFileKey], w.tools[tc.RunnerRunCommandKey]}
 			declarations := []ac.RunnerMountDeclaration{{RunnerID: w.runnerID, Workspace: "source"}}
 			fields.RunnerMounts = &declarations
@@ -300,29 +340,31 @@ func (w *m1Workflow) createModelAndTask(t *testing.T, endpoint string) {
 	}
 	// Freeze the actual mount identity into the owned peer only after Agent
 	// creation. Formally update the not-yet-used Provider before Task scheduling.
-	responses := w.responses
-	if w.responseSequence != nil {
-		responses = w.responseSequence
-	}
-	w.scenario, err = w.network.Create(v.ctx, netfixture.ScenarioConfig{Mode: "openai_chat_wire", WireSequence: responses(t)})
-	workAppCheck(t, "m1-owned-model-sequence", err)
-	providerInput := map[string]any{"name": "M1 owned Provider", "protocol": mc.OpenAIChat, "base_url": "https://fixture.test:8443/case/" + w.scenario, "enabled": true, "credential_ref": credential, "options": map[string]any{}}
-	response, err := v.request(v.ctx, "PUT", "/api/v1/projects/"+v.a.String()+"/model-providers/"+provider.String(), workAppJSON(t, map[string]any{"expected_version": providerVersion, "input": providerInput}), guardID[struct{}](t).String())
-	workAppCheck(t, "m1-formal-provider-endpoint", err)
-	if response.status != 200 {
-		t.Fatalf("M1 Provider update status=%d", response.status)
-	}
-	workAppCheck(t, "m1-provider-updated-receipt", json.Unmarshal(response.body, &receipt))
-	if w.reviewEnabled {
-		w.reviewScenario, err = w.network.Create(v.ctx, netfixture.ScenarioConfig{Mode: "openai_chat_wire", WireSequence: w.reviewResponses(t)})
-		workAppCheck(t, "m1-owned-review-sequence", err)
-		reviewInput := map[string]any{"name": "M1 review Provider", "protocol": mc.OpenAIChat, "base_url": "https://fixture.test:8443/case/" + w.reviewScenario, "enabled": true, "credential_ref": credential, "options": map[string]any{}}
-		response, err := v.request(v.ctx, "PUT", "/api/v1/projects/"+v.a.String()+"/model-providers/"+reviewProvider.String(), workAppJSON(t, map[string]any{"expected_version": reviewVersion, "input": reviewInput}), guardID[struct{}](t).String())
-		workAppCheck(t, "m1-formal-review-endpoint", err)
-		if response.status != 200 {
-			t.Fatalf("M1 review Provider update status=%d", response.status)
+	if w.live == nil {
+		responses := w.responses
+		if w.responseSequence != nil {
+			responses = w.responseSequence
 		}
-		workAppCheck(t, "m1-review-updated-receipt", json.Unmarshal(response.body, &receipt))
+		w.scenario, err = w.network.Create(v.ctx, netfixture.ScenarioConfig{Mode: "openai_chat_wire", WireSequence: responses(t)})
+		workAppCheck(t, "m1-owned-model-sequence", err)
+		providerInput := map[string]any{"name": "M1 owned Provider", "protocol": mc.OpenAIChat, "base_url": "https://fixture.test:8443/case/" + w.scenario, "enabled": true, "credential_ref": credential, "options": map[string]any{}}
+		response, err := v.request(v.ctx, "PUT", "/api/v1/projects/"+v.a.String()+"/model-providers/"+provider.String(), workAppJSON(t, map[string]any{"expected_version": providerVersion, "input": providerInput}), guardID[struct{}](t).String())
+		workAppCheck(t, "m1-formal-provider-endpoint", err)
+		if response.status != 200 {
+			t.Fatalf("M1 Provider update status=%d", response.status)
+		}
+		workAppCheck(t, "m1-provider-updated-receipt", json.Unmarshal(response.body, &receipt))
+		if w.reviewEnabled {
+			w.reviewScenario, err = w.network.Create(v.ctx, netfixture.ScenarioConfig{Mode: "openai_chat_wire", WireSequence: w.reviewResponses(t)})
+			workAppCheck(t, "m1-owned-review-sequence", err)
+			reviewInput := map[string]any{"name": "M1 review Provider", "protocol": mc.OpenAIChat, "base_url": "https://fixture.test:8443/case/" + w.reviewScenario, "enabled": true, "credential_ref": credential, "options": map[string]any{}}
+			response, err := v.request(v.ctx, "PUT", "/api/v1/projects/"+v.a.String()+"/model-providers/"+reviewProvider.String(), workAppJSON(t, map[string]any{"expected_version": reviewVersion, "input": reviewInput}), guardID[struct{}](t).String())
+			workAppCheck(t, "m1-formal-review-endpoint", err)
+			if response.status != 200 {
+				t.Fatalf("M1 review Provider update status=%d", response.status)
+			}
+			workAppCheck(t, "m1-review-updated-receipt", json.Unmarshal(response.body, &receipt))
+		}
 	}
 	var structure wc.StructureMutation
 	milestone := wc.CreateMilestoneRequest{MilestoneID: guardID[wc.Milestone](t), Title: "M1 statistics"}
@@ -332,6 +374,9 @@ func (w *m1Workflow) createModelAndTask(t *testing.T, endpoint string) {
 	sprint := *structure.Sprint
 	var mutation wc.TaskMutation
 	request := wc.TaskCreate{TaskID: guardID[wc.Task](t), SprintID: sprint.ID, Title: "读取输入并提交统计程序和结果", Type: wc.TaskTypeTask, Priority: wc.TaskPriorityMedium, Plan: "Read input.json, generate stats.py, execute it, inspect result.json, and report count/sum/mean with program exit status."}
+	if w.live != nil {
+		request.Plan = m1LiveTaskPlan
+	}
 	v.httpSeed(t, "/tasks", map[string]any{"request": request}, &mutation)
 	before, err := v.projects.service.GetSchedulerConfig(v.ctx, v.actor, v.a)
 	workAppCheck(t, "m1-scheduler-config", err)
