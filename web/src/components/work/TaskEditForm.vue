@@ -40,26 +40,28 @@ onMounted(() => form.value?.querySelector('input')?.focus())
         @update:model-value="owner.touchEdit('title', $event)"
       />
     </UiField>
-    <UiField label="任务类型" required v-slot="field">
-      <UiSelect
-        :id="field.id"
-        :model-value="owner.edit.type"
-        label="任务类型"
-        :options="types"
-        :disabled="disabled"
-        @update:model-value="owner.touchEdit('type', $event)"
-      />
-    </UiField>
-    <UiField label="优先级" required v-slot="field">
-      <UiSelect
-        :id="field.id"
-        :model-value="owner.edit.priority"
-        label="优先级"
-        :options="priorities"
-        :disabled="disabled"
-        @update:model-value="owner.touchEdit('priority', $event)"
-      />
-    </UiField>
+    <div class="task-edit-properties">
+      <UiField label="任务类型" required v-slot="field">
+        <UiSelect
+          :id="field.id"
+          :model-value="owner.edit.type"
+          label="任务类型"
+          :options="types"
+          :disabled="disabled"
+          @update:model-value="owner.touchEdit('type', $event)"
+        />
+      </UiField>
+      <UiField label="优先级" required v-slot="field">
+        <UiSelect
+          :id="field.id"
+          :model-value="owner.edit.priority"
+          label="优先级"
+          :options="priorities"
+          :disabled="disabled"
+          @update:model-value="owner.touchEdit('priority', $event)"
+        />
+      </UiField>
+    </div>
     <UiField label="任务描述" v-slot="field">
       <UiTextarea
         :id="field.id"
@@ -85,6 +87,7 @@ onMounted(() => form.value?.querySelector('input')?.focus())
     <div class="task-edit-actions">
       <UiButton
         type="submit"
+        variant="primary"
         :disabled="disabled || !owner.editDirty.value || !owner.edit.title.trim()"
         >保存任务</UiButton
       >
@@ -98,6 +101,23 @@ onMounted(() => form.value?.querySelector('input')?.focus())
   </form>
 </template>
 <style scoped>
+.task-edit-properties {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--content-gap);
+}
+@media (max-width: 480px) {
+  .task-edit-properties {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+form > .ui-button {
+  align-self: flex-start;
+}
+form > div:last-child {
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
 .task-edit-form {
   display: flex;
   flex-direction: column;

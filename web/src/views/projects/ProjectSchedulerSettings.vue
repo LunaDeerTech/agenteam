@@ -7,7 +7,10 @@ const { state, current, draft, visible, progress, busy, readOnly, pending, canAd
 </script>
 <template>
   <section class="scheduler-settings" aria-labelledby="scheduler-heading">
-    <h2 id="scheduler-heading">调度配置</h2>
+    <header class="page-heading">
+      <h1 id="scheduler-heading">调度配置</h1>
+      <p class="meta">管理自动调度与同时运行的数量。</p>
+    </header>
     <template v-if="visible">
       <UiState v-if="state.phase === 'loading'" kind="loading" title="正在读取调度配置" />
       <dl v-if="current" class="scheduler-facts">
@@ -65,12 +68,19 @@ const { state, current, draft, visible, progress, busy, readOnly, pending, canAd
   </section>
 </template>
 <style scoped>
+.meta {
+  color: var(--muted);
+}
+.scheduler-facts {
+  padding: 16px 0;
+  border-block: 1px solid var(--border);
+}
 .scheduler-settings {
   display: grid;
-  gap: var(--content-gap);
+  gap: var(--section-gap);
   min-width: 0;
 }
-.scheduler-settings h2,
+.scheduler-settings h1,
 .scheduler-settings h3,
 .scheduler-settings p {
   margin: 0;

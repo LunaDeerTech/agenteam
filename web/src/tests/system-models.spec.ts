@@ -438,7 +438,7 @@ function confirmationRestored() {
 }
 
 describe('Model actual App/router/form composition', () => {
-  it('keeps the users default and five leaves with the exact Model safe return', async () => {
+  it('keeps the users default and current system menu with the exact Model safe return', async () => {
     const f = await page({ path: '/system' })
     expect(f.router.currentRoute.value.path).toBe('/system/users')
     expect(
@@ -447,6 +447,7 @@ describe('Model actual App/router/form composition', () => {
         .findAll('a')
         .map((a) => a.text()),
     ).toEqual([
+      '设备列表',
       '用户',
       '待注册邀请',
       'Providers',
@@ -458,7 +459,7 @@ describe('Model actual App/router/form composition', () => {
       '出站规则',
       '运行信息',
     ])
-    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(4)
+    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(5)
     await f.wrapper.get('a[href="/system/models"]').trigger('click')
     await flushPromises()
     expect(f.wrapper.get('h1').text()).toBe('Models')

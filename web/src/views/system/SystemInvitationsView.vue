@@ -119,26 +119,24 @@ onUnmounted(invitations.detach)
 </script>
 <template>
   <div class="system-invitations">
-    <h1 ref="heading" tabindex="-1">待注册邀请</h1>
-    <p class="meta">仅列出仍有效的待注册邀请。时间使用 UTC；投递完成不保证已进入收件箱。</p>
-    <div ref="actions" class="invitation-actions" aria-label="邀请操作与分页">
-      <UiButton
-        :disabled="locked"
-        :state="feedback.kind === 'create' ? feedback.state : 'idle'"
-        success-label="邀请请求已接受"
-        @click="invitations.openCreate"
-        >邀请用户</UiButton
-      >
-      <UiButton :disabled="blocked" @click="perform(invitations.refresh, $event)">刷新</UiButton>
-      <UiButton
-        :disabled="blocked || !state.hasPrevious"
-        @click="perform(invitations.previous, $event)"
-        >上一页</UiButton
-      >
-      <UiButton :disabled="blocked || !state.hasNext" @click="perform(invitations.next, $event)"
-        >下一页</UiButton
-      >
-    </div>
+    <header class="page-header">
+      <div class="page-heading">
+        <h1 ref="heading" tabindex="-1">待注册邀请</h1>
+        <p class="meta">仅列出仍有效的待注册邀请。时间使用 UTC；投递完成不保证已进入收件箱。</p>
+      </div>
+      <div ref="actions" class="invitation-actions page-actions" aria-label="邀请操作">
+        <UiButton
+          variant="primary"
+          :disabled="locked"
+          :state="feedback.kind === 'create' ? feedback.state : 'idle'"
+          success-label="邀请请求已接受"
+          @click="invitations.openCreate"
+          >邀请用户</UiButton
+        >
+        <UiButton :disabled="blocked" @click="perform(invitations.refresh, $event)">刷新</UiButton>
+      </div>
+    </header>
+
     <p v-if="invitations.auth.state.busy" class="meta" role="status">正在等待当前请求结束。</p>
     <p v-if="state.writeMessage" class="write-message" role="status">{{ state.writeMessage }}</p>
     <UiState
@@ -301,9 +299,20 @@ onUnmounted(invitations.detach)
         </tbody>
       </table>
     </div>
-    <p v-if="state.phase === 'ready' || state.phase === 'empty'" class="meta" role="status">
-      本页 {{ state.rows.length }} 项邀请
-    </p>
+    <footer class="page-footer" aria-label="目录分页">
+      <p v-if="state.phase === 'ready' || state.phase === 'empty'" class="meta" role="status">
+        本页 {{ state.rows.length }} 项邀请
+      </p>
+      <div class="page-actions">
+        <UiButton
+          :disabled="blocked || !state.hasPrevious"
+          @click="perform(invitations.previous, $event)"
+          >上一页</UiButton
+        ><UiButton :disabled="blocked || !state.hasNext" @click="perform(invitations.next, $event)"
+          >下一页</UiButton
+        >
+      </div>
+    </footer>
     <UiDialog :open="dialogs.create" title="邀请用户" @update:open="!$event && close()">
       <form
         id="system-invitation-create"
@@ -318,6 +327,7 @@ onUnmounted(invitations.detach)
           v-slot="field"
         >
           <UiInput
+            data-autofocus
             v-model="draft.email"
             :id="field.id"
             :invalid="field.invalid"
@@ -349,6 +359,7 @@ onUnmounted(invitations.detach)
         ><UiButton variant="ghost" @click="close">取消</UiButton
         ><UiButton
           type="submit"
+          variant="primary"
           form="system-invitation-create"
           :disabled="locked"
           :state="feedback.kind === 'create' && feedback.state === 'loading' ? 'loading' : 'idle'"
@@ -423,6 +434,12 @@ onUnmounted(invitations.detach)
   </div>
 </template>
 <style scoped>
+.page-header {
+  margin-bottom: 4px;
+}
+.page-footer {
+  padding-top: 0;
+}
 .system-invitations {
   display: grid;
   gap: 20px;

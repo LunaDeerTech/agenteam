@@ -39,12 +39,12 @@ npm run preview --prefix web
 | `web/src/components/layout/` | AppShell、SystemNav、ProjectNav 与 SettingsShell；系统和项目导航、路由内容区和设置侧栏 |
 | `web/src/api/` | 六项认证、八项个人设置、五项公开入口 Account 调用、System 用户目录 GET、邀请管理、十个固定 Provider/Credential 管理端点、九项受限 Model API、七项受限平台用途 API 及会议 Summary GET/PUT、账号安全 GET/PUT、SMTP 配置三项 API、测试/投递任务四项 API、出站规则 GET/PUT、系统审计两个 GET、运行信息 GET、Owner Project 五个端点及 Project Audit 两个 GET；运行时 DTO、头像字节与安全 Problem 解析 |
 | `web/src/composables/` | 同一 Cookie 请求协调者、公开入口 owner、页面期用户目录/系统审计/项目审计/运行信息状态与 App 生命周期内的本人设置/邀请/Provider/Model/平台用途及会议 Summary/账号安全/SMTP 配置与投递/出站规则/Owner 工作区草稿及原命令恢复，以及主题、按钮反馈、浮层与键盘工具 |
-| `web/src/styles/` | 唯一共享 token、基础规则与公共组件样式 |
+| `web/src/styles/` | 唯一共享 token、基础规则、页面组合（`page-layouts.css`）与公共组件样式 |
 | `web/src/router/` | 路由和导航元数据 |
 | `web/src/views/auth/` 与 `HomeView.vue` | 正式登录/挑战、邀请/找回/重置页面与受保护空首页 |
 | `web/src/views/settings/` | 本人资料与头像、外观、修改密码三个真实设置页面 |
-| `web/src/views/system/` | 管理员系统设置壳、用户、待注册邀请、Providers、Models、平台模型用途、系统审计、账号安全、SMTP、出站规则与运行信息十个叶子，含非管理员及权限拒绝状态 |
-| `web/src/views/projects/` | Owner 列表、项目工作区、概要、基本信息设置与只读项目审计 |
+| `web/src/views/system/` | 管理员系统设置壳、Runner 设备、用户、待注册邀请、Providers、Models、平台模型用途、系统审计、账号安全、SMTP、出站规则与运行信息十一个叶子，含非管理员及权限拒绝状态 |
+| `web/src/views/projects/` | Owner 列表与创建、项目工作区和概要、项目设置、任务 Kanban、知识与产物工作台及其业务面板 |
 | `web/src/views/debug/` | 开发环境组件展示、演示数据与展示布局 |
 | `web/src/tests/` | Vitest + Vue Test Utils 交互与基线检查 |
 | `tests/account/` 与 `tests/account-captcha-web/` | 正式构建、完整真实后端与浏览器的认证、个人设置、公开入口、系统用户目录、邀请、Provider/Model 管理、平台用途、账号安全、SMTP 配置/投递、出站规则、系统审计、运行信息、Owner 工作区与项目审计组合验收 |
@@ -53,11 +53,13 @@ npm run preview --prefix web
 
 ## 骨架与新页面
 
-页面改造先读[界面设计逻辑](../../frontend-design/interface-design.md)，在对应工作项说明页面类型、内容宽度/滚动、主动作载体与状态恢复，再复用正式布局和共享组件。按其短清单查看代表截图和关键交互；新规范不是现有页面已合规的证明，不为此另加审批层或重复设计档案。
+页面改造先读[界面设计逻辑](../../frontend-design/interface-design.md)，在对应工作项说明页面类型、内容宽度/滚动、主动作载体与状态恢复，再复用正式布局和共享组件。按其短清单查看代表截图和关键交互；新规范不是现有页面已合规的证明，不为此另加审批层或重复设计档案。共享 `page-*` 类、设置嵌套与项目工作区的空间/滚动契约见[页面组合与滚动](components.md#页面组合与滚动)，不要在每页复制一套同义布局。
 
-`/login` 使用独立认证布局。根路径 `/` 和受保护路由先检查真实 Session；未登录或无法确认时进入正常登录表单，不显示旧的受保护内容，内部仍区分匿名与查询失败。直接打开普通 `/login` 时，有效 Session 进入首页或合法返回目标；首屏查询失败静默，不显示技术检查或放弃按钮。登录提交时确保完成必要的 Session/匿名 CSRF 准备，业务 POST 前验证；主按钮显示加载，失败在附近给一条简短错误并保留输入，字段错误就近显示。确认身份后显示 AppShell、当前身份、退出操作、“首页”标题和空 Dashboard 容器。右上本人名称直达资料页，首页初始密码建议直达修改密码页，可继续使用系统。AppShell 内容区独立滚动，认证顶部区域在窄宽度或放大时可换行，保留品牌及退出操作。系统“项目”入口指向 `/projects`；ProjectNav 位于已授权的项目工作区内部，与系统导航并存。当前没有 Inbox、全局搜索或其它尚未实现的入口。
+当前正式路由覆盖账号入口、保留空 Dashboard 的首页、项目列表与工作区、个人 3 类设置、系统 11 个设置叶、项目 10 个设置叶、任务 Kanban/Sprint/Task 详情入口、知识文档和产物工作台。任务三个入口共用现有看板页；会议工作台、Inbox、全局搜索及 Task Explore 尚无正式路由，不以设计模板补造功能。具体业务能力与实际验证范围以对应工作项、交付记录为准，页面存在和布局改造不代表完整模块或真实后端验收通过。
 
-在 `router/index.ts` 的 `routes` 注册正式页面，使用懒加载 `component`，为需要导航的路由声明 `meta.navigation: { label, order }`。SystemNav 从路由元数据读取入口，不需要复制导航数组或改写骨架。认证路由通过 `router/auth.ts` 及单一 `useSession` 协调，登录返回目标保留原十四个精确静态路径：`/`、`/settings/profile`、`/settings/appearance`、`/settings/password`、`/system/users`、`/system/invitations`、`/system/providers`、`/system/models`、`/system/model-selection`、`/system/account-security`、`/system/smtp`、`/system/outbound-policy`、`/system/audit`、`/system/runtime-information`，并增加 `/projects` 及下节严格 Project 路径。`/settings`、`/system`、query/hash、数组、外部 URL、其余动态后缀与未知系统叶子均不是返回目标；未知路径显示未找到提示。系统导航只向当前已确认且未被系统权限拒绝的 admin 展示“系统设置”。
+`/login` 使用独立认证布局。根路径 `/` 和受保护路由先检查真实 Session；未登录或无法确认时进入正常登录表单，不显示旧的受保护内容，内部仍区分匿名与查询失败。直接打开普通 `/login` 时，有效 Session 进入首页或合法返回目标；首屏查询失败静默，不显示技术检查或放弃按钮。登录提交时确保完成必要的 Session/匿名 CSRF 准备，业务 POST 前验证；主按钮显示加载，失败在附近给一条简短错误并保留输入，字段错误就近显示。确认身份后显示 AppShell、当前身份、退出操作、“首页”标题和空 Dashboard 容器。右上本人名称直达资料页，首页初始密码建议直达修改密码页，可继续使用系统。AppShell 与项目工作区按上述契约分配内容滚动，认证顶部区域在窄宽度或放大时可换行，保留品牌及退出操作。系统“项目”入口指向 `/projects`；ProjectNav 位于已授权的项目工作区内部，与系统导航并存。当前没有 Inbox、全局搜索或其它尚未实现的入口。
+
+在 `router/index.ts` 的 `routes` 注册正式页面，使用懒加载 `component`，为需要导航的路由声明 `meta.navigation: { label, order }`。SystemNav 从路由元数据读取入口，不需要复制导航数组或改写骨架。认证路由通过 `router/auth.ts` 及单一 `useSession` 协调，登录返回目标包含以下十五个账号/System 精确静态路径：`/`、`/settings/profile`、`/settings/appearance`、`/settings/password`、`/system/runners`、`/system/users`、`/system/invitations`、`/system/providers`、`/system/models`、`/system/model-selection`、`/system/account-security`、`/system/smtp`、`/system/outbound-policy`、`/system/audit`、`/system/runtime-information`，并增加 `/projects` 及下节严格 Project 路径。`/settings`、`/system`、query/hash、数组、外部 URL、其余动态后缀与未知系统叶子均不是返回目标；未知路径显示未找到提示。系统导航只向当前已确认且未被系统权限拒绝的 admin 展示“系统设置”。
 
 客户端使用固定同源相对 Account/System/Project 路径，写操作分别传递匿名或 Session CSRF，不持久化密码、challenge pass 或 token。登录成功后还需 GET Session 确认身份及 Session CSRF；注销确认后才退出。认证、本人设置、公开入口、系统目录、邀请、Provider/Model、平台用途、账号安全、SMTP 配置/投递、出站规则、系统审计、运行信息、Owner 工作区与项目审计操作复用同一个请求协调者，逻辑超时不会提前释放尚未结束的实际请求。具体状态、取消和迟到结果规则见[D26 认证工作项](../work-items/d26-account-authentication.md)、[个人设置工作项](../work-items/d26-personal-settings.md)及[正式 Account API](../../../api/openapi/account.json)。
 
@@ -172,7 +174,7 @@ npm run preview --prefix web
 
 Project 与既有账号/System 操作共用唯一 Cookie 请求 owner；可见超时、取消和离页不提前释放真实 fetch/body/cancel 尾部。同 Session checking 隐藏内容并保留草稿，真正 Session/身份或 CSRF 变化清理旧材料。项目切换、系统导航、history 返回和退出接入原聚合确认，取消保留草稿与焦点；Project 本地确认不擅自清理 System 四用途/会议 Summary 的独立草稿，各域仍由原聚合流程处理。私有请求材料不写入 URL、history、storage 或普通日志。
 
-当前不提供创建、归档、恢复、删除、Owner 转移、会议/任务、Project Model 配置等页面或假统计；项目设置的基本信息与只读审计范围分别见本节和下节。系统管理员统一会议 Summary initial/update（含首轮标题），没有 Project override 或复制默认值。
+该 Owner 工作区卡的初始验收不包括创建、归档、恢复、删除、Owner 转移、会议/任务与 Project Model 配置；后续能力按对应工作项交付，当前页面覆盖见[骨架与新页面](#骨架与新页面)。系统管理员统一会议 Summary initial/update（含首轮标题），没有 Project override 或复制默认值。
 
 独立前端启动沿本页“启动与检查”的 `npm run dev --prefix web` 与可选 `AGENTEAM_DEV_API_TARGET` 同源代理；登录后可访问 `/projects`。没有后端连接时不提供假登录或假项目。受影响纯检查及任务自有静态构建入口如下，构建目录由调用方先设置为独占绝对路径：
 

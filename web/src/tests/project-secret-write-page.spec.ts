@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
+import { DOMWrapper, flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { createMemoryHistory, createRouter, RouterView } from 'vue-router'
 import * as sessionModule from '../composables/useSession'
 import { createProjectWorkspace, projectWorkspaceKey } from '../composables/useProjectWorkspace'
@@ -19,17 +19,23 @@ afterEach(async () => {
   vi.restoreAllMocks()
   vi.unstubAllGlobals()
 })
+const body = () => new DOMWrapper(document.body)
+const activeDialog = () =>
+  new DOMWrapper(document.querySelector<HTMLElement>('[role="dialog"]') ?? document.body)
 function button(w: Pick<VueWrapper, 'findAll'>, label: string) {
-  const value = w
-    .findAll<HTMLButtonElement>('button')
-    .find((item) => item.find('.button-label[aria-hidden="false"]').text() === label)
+  const candidates = activeDialog().findAll<HTMLButtonElement>('button')
+  const value = candidates.find(
+    (item) => item.find('.button-label[aria-hidden="false"]').text() === label,
+  )
   expect(value, `button ${label}`).toBeDefined()
   return value!
 }
 function field(w: VueWrapper, label: string) {
-  const value = w.findAll('label').find((item) => item.text().replace(/\s*\*$/, '') === label)
+  const value = activeDialog()
+    .findAll('label')
+    .find((item) => item.text().replace(/\s*\*$/, '') === label)
   expect(value, `field ${label}`).toBeDefined()
-  return w.get<HTMLInputElement | HTMLTextAreaElement>('#' + value!.attributes('for'))
+  return activeDialog().get<HTMLInputElement | HTMLTextAreaElement>('#' + value!.attributes('for'))
 }
 async function paste(w: VueWrapper, value: string) {
   const target = field(w, 'Secret 值'),
@@ -109,7 +115,7 @@ describe('Secret creation and explicit replacement through the real page and Ses
       expect(control.labels?.[0]?.querySelector('[aria-hidden="true"]')?.textContent?.trim()).toBe(
         '*',
       )
-      const form = f.wrapper.get('form')
+      const form = body().get('form')
       expect(form.attributes('aria-label')).toBe(
         mode === 'create' ? '创建 Secret' : '替换 Secret 值',
       )
@@ -121,17 +127,17 @@ describe('Secret creation and explicit replacement through the real page and Ses
         await form.trigger('submit')
         await flushPromises()
         expect(first.value).toBe('')
-        expect(f.wrapper.find('form').exists()).toBe(false)
+        expect(body().find('form').exists()).toBe(false)
         expect(f.wrapper.get('.secret-detail h2').text()).toBe('BROWSER_SECRET')
         expect(f.wrapper.get('.secret-detail dd').text()).toBe('1')
         await button(f.wrapper, '编辑名称与描述').trigger('click')
         await flushPromises()
-        expect(f.wrapper.get('form').attributes('aria-label')).toBe('编辑名称与描述')
-        expect(f.wrapper.find('textarea.secret-material').exists()).toBe(false)
+        expect(body().get('form').attributes('aria-label')).toBe('编辑名称与描述')
+        expect(body().find('textarea.secret-material').exists()).toBe(false)
         await field(f.wrapper, 'Secret 名称').setValue('RENAMED_BROWSER_SECRET')
         await field(f.wrapper, '描述').setValue('更新后的安全说明')
-        expect(button(f.wrapper.get('form'), '保存修改').attributes('disabled')).toBeUndefined()
-        await f.wrapper.get('form').trigger('submit')
+        expect(button(body().get('form'), '保存修改').attributes('disabled')).toBeUndefined()
+        await body().get('form').trigger('submit')
         await flushPromises()
         expect(f.wrapper.get('.secret-detail h2').text()).toBe('RENAMED_BROWSER_SECRET')
         expect(f.wrapper.get('.secret-detail dd').text()).toBe('2')
@@ -141,17 +147,17 @@ describe('Secret creation and explicit replacement through the real page and Ses
       }
       const replacement = await paste(f.wrapper, 'synthetic-replacement\r\n\tsecond')
       if (mode === 'replace') f.cutNext()
-      expect(button(f.wrapper.get('form'), '确认替换').attributes('disabled')).toBeUndefined()
-      await f.wrapper.get('form').trigger('submit')
+      expect(button(body().get('form'), '确认替换').attributes('disabled')).toBeUndefined()
+      await body().get('form').trigger('submit')
       await flushPromises()
       expect(replacement.value).toBe('')
       if (mode === 'replace') {
-        expect(button(f.wrapper.get('form'), '确认替换').attributes('disabled')).toBeDefined()
+        expect(button(body().get('form'), '确认替换').attributes('disabled')).toBeDefined()
         expect(button(f.wrapper, '检查原请求').attributes('disabled')).toBeUndefined()
         await button(f.wrapper, '检查原请求').trigger('click')
         await flushPromises()
       }
-      expect(f.wrapper.find('form').exists()).toBe(false)
+      expect(body().find('form').exists()).toBe(false)
       expect(f.wrapper.get('.secret-detail h2').text()).toBe(
         mode === 'create' ? 'RENAMED_BROWSER_SECRET' : f.current.name,
       )
@@ -177,7 +183,7 @@ describe('Secret creation and explicit replacement through the real page and Ses
       target.dispatchEvent(
         new InputEvent('input', { bubbles: true, inputType: 'deleteContentBackward' }),
       )
-      await f.wrapper.get('form').trigger('submit')
+      await body().get('form').trigger('submit')
       await flushPromises()
       expect(f.writes).toHaveLength(1)
       expect(f.writes[0]!.body.request.value === (index === 0 ? '\n' : '\r\n')).toBe(true)
@@ -194,15 +200,15 @@ describe('Secret creation and explicit replacement through the real page and Ses
         ? Promise.resolve(secretProblem(409, 'RESOURCE_BUSY'))
         : f.normal(path, init),
     )
-    await f.wrapper.get('form').trigger('submit')
+    await body().get('form').trigger('submit')
     await flushPromises()
     expect(old.value).toBe('')
     expect(field(f.wrapper, 'Secret 名称').element.value).toBe('COLLISION')
     await field(f.wrapper, 'Secret 名称').setValue('AVAILABLE')
     await paste(f.wrapper, 'synthetic-reentered')
-    expect(button(f.wrapper.get('form'), '创建 Secret').attributes('disabled')).toBeUndefined()
+    expect(button(body().get('form'), '创建 Secret').attributes('disabled')).toBeUndefined()
     f.intercept()
-    await f.wrapper.get('form').trigger('submit')
+    await body().get('form').trigger('submit')
     await flushPromises()
     expect(f.writes).toHaveLength(1)
     expect(f.wrapper.get('.secret-detail h2').text()).toBe('AVAILABLE')
@@ -219,7 +225,7 @@ describe('Secret creation and explicit replacement through the real page and Ses
       original = await paste(f.wrapper, raw)
     original.value += 'tail'
     original.dispatchEvent(new Event('input', { bubbles: true }))
-    await f.wrapper.get('form[aria-label="创建 Secret"]').trigger('submit')
+    await body().get('form[aria-label="创建 Secret"]').trigger('submit')
     expect(original.value).toBe('')
     await flushPromises()
     expect(f.writes).toHaveLength(1)
@@ -230,7 +236,7 @@ describe('Secret creation and explicit replacement through the real page and Ses
       .map(([path]) => path)
     expect(reads).toContain(secretBase + '/' + f.writes[0]!.body.request.variable_id)
     expect(reads.filter((path) => path.startsWith(secretBase + '?'))).toHaveLength(2)
-    expect(f.wrapper.find('form').exists()).toBe(false)
+    expect(body().find('form').exists()).toBe(false)
     expect(f.wrapper.get('.secret-detail h2').text()).toBe('CREATED_SECRET')
   })
   it('omits material for metadata editing, then explicitly replaces it with an independent versioned command', async () => {
@@ -238,15 +244,15 @@ describe('Secret creation and explicit replacement through the real page and Ses
     await select(f)
     await button(f.wrapper, '编辑名称与描述').trigger('click')
     await flushPromises()
-    expect(f.wrapper.find('textarea.secret-material').exists()).toBe(false)
+    expect(body().find('textarea.secret-material').exists()).toBe(false)
     await field(f.wrapper, '描述').setValue('')
-    await f.wrapper.get('form').trigger('submit')
+    await body().get('form').trigger('submit')
     await flushPromises()
     expect(f.writes[0]!.body).toEqual({ expected_version: '1', request: { description: '' } })
     await button(f.wrapper, '替换 Secret 值').trigger('click')
     await flushPromises()
     const old = await paste(f.wrapper, '\t\r\n ')
-    await f.wrapper.get('form').trigger('submit')
+    await body().get('form').trigger('submit')
     await flushPromises()
     expect(old.value).toBe('')
     expect(f.writes[1]!.body.expected_version).toBe('2')
@@ -261,7 +267,7 @@ describe('Secret creation and explicit replacement through the real page and Ses
     await flushPromises()
     const old = await paste(f.wrapper, 'synthetic-unknown')
     f.cutNext()
-    await f.wrapper.get('form').trigger('submit')
+    await body().get('form').trigger('submit')
     await flushPromises()
     expect(old.value).toBe('')
     expect(button(f.wrapper, '确认替换').attributes('disabled')).toBeDefined()
@@ -287,13 +293,13 @@ describe('Secret creation and explicit replacement through the real page and Ses
     await flushPromises()
     await field(f.wrapper, '描述').setValue('我的草稿')
     f.setCurrent({ ...f.current, version: '2', description: '另一作者' })
-    await f.wrapper.get('form').trigger('submit')
+    await body().get('form').trigger('submit')
     await flushPromises()
     expect(button(f.wrapper, '保存修改').attributes('disabled')).toBeDefined()
     await button(f.wrapper, '重新读取当前版本').trigger('click')
     await flushPromises()
     expect(field(f.wrapper, '描述').element.value).toBe('我的草稿')
-    await f.wrapper.get('form').trigger('submit')
+    await body().get('form').trigger('submit')
     await flushPromises()
     expect(f.writes[1]!.body).toEqual({
       expected_version: '2',
@@ -311,7 +317,7 @@ describe('Secret creation and explicit replacement through the real page and Ses
     const checking = f.auth.restore()
     await flushPromises()
     expect(old.value).toBe('')
-    expect(f.wrapper.find('form').exists()).toBe(false)
+    expect(body().find('form').exists()).toBe(false)
     check.resolve(secretJSON(f.session))
     await checking
     await flushPromises()
@@ -336,7 +342,7 @@ describe('Secret creation and explicit replacement through the real page and Ses
     await flushPromises()
     const old = await paste(f.wrapper, 'synthetic-denied')
     f.cutNext()
-    await f.wrapper.get('form').trigger('submit')
+    await body().get('form').trigger('submit')
     await flushPromises()
     const key = f.auth.projectSecretCommands.progress!.key
     f.intercept((path, init) =>
@@ -347,7 +353,7 @@ describe('Secret creation and explicit replacement through the real page and Ses
     await button(f.wrapper, '检查原请求').trigger('click')
     await flushPromises()
     expect(old.value).toBe('')
-    expect(f.wrapper.find('form').exists()).toBe(false)
+    expect(body().find('form').exists()).toBe(false)
     expect(f.wrapper.find('.secret-detail').exists()).toBe(false)
     expect(f.auth.projectSecretCommands.progress).toMatchObject({ key, phase: 'uncertain' })
     f.intercept()

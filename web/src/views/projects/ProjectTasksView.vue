@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 import {
   UiButton,
   UiDrawer,
@@ -10,6 +10,7 @@ import {
   UiInput,
 } from '../../components/ui'
 import TaskBoard from '../../components/work/TaskBoard.vue'
+import TaskScopeNavigation from '../../components/work/TaskScopeNavigation.vue'
 import TaskReviewDetail from '../../components/work/TaskReviewDetail.vue'
 import TaskCreateForm from '../../components/work/TaskCreateForm.vue'
 import MilestoneCreateForm from '../../components/work/MilestoneCreateForm.vue'
@@ -51,11 +52,15 @@ async function loadFilterAgents(more = false) {
   await owner.loadFilterAgents(more)
   await nextTick()
   if (
-    owner.visible.value && !owner.busy.value && owner.projectID.value === project &&
+    owner.visible.value &&
+    !owner.busy.value &&
+    owner.projectID.value === project &&
     state.sprint?.id === sprint &&
     (document.activeElement === trigger || document.activeElement === document.body)
   )
-    agentFilterField.value?.querySelector<HTMLButtonElement>('button[aria-label="筛选 Agent"]')?.focus()
+    agentFilterField.value
+      ?.querySelector<HTMLButtonElement>('button[aria-label="筛选 Agent"]')
+      ?.focus()
 }
 function selectFilterPriority(value: string) {
   if (filterPriorities.some((option) => option.value === value))
@@ -295,7 +300,12 @@ async function submitSprintStart(lookup = false) {
     owner.sprintProgress.value?.phase === 'confirmed'
   )
     sprintHeading.value?.focus()
-  else if (owner.visible.value && !state.sprint && !owner.sprintStart.needsRead && owner.sprintStart.confirmed)
+  else if (
+    owner.visible.value &&
+    !state.sprint &&
+    !owner.sprintStart.needsRead &&
+    owner.sprintStart.confirmed
+  )
     pageHeading.value?.focus()
 }
 async function rereadSprintStart(confirmed = false) {
@@ -333,12 +343,6 @@ async function cancelCreation() {
   if (!owner.creation.open && owner.visible.value && !state.task && state.sprint?.id === sprintID)
     createButton.value?.$el.focus()
 }
-const milestoneOptions = computed(() => {
-  const rows = [...state.milestones]
-  if (state.milestone && !rows.some((x) => x.id === state.milestone!.id))
-    rows.unshift(state.milestone)
-  return rows.map((m) => ({ value: m.id, label: m.title }))
-})
 const sprintLabels = { planned: '未启动', current: '当前', completed: '已完成' }
 function selectSprint(id: string) {
   owner.selectSprint(id)
@@ -350,12 +354,15 @@ function returnToCreation() {
 }
 </script>
 <template>
-  <section class="tasks-page" aria-label="项目任务">
+  <section class="tasks-page page-workspace" aria-label="项目任务">
     <header class="tasks-heading">
       <h1 ref="pageHeading" tabindex="-1">任务</h1>
       <UiButton class="sidebar-trigger" :disabled="!owner.visible.value" @click="sidebar = true"
         >选择 Sprint</UiButton
-      ><UiButton :disabled="owner.busy.value || !owner.visible.value" @click="owner.refresh()"
+      ><UiButton
+        variant="ghost"
+        :disabled="owner.busy.value || !owner.visible.value"
+        @click="owner.refresh()"
         >刷新任务看板</UiButton
       >
     </header>
@@ -371,386 +378,399 @@ function returnToCreation() {
     </section>
     <UiState v-if="!owner.visible.value" kind="loading" title="正在确认任务访问身份" />
     <template v-else>
-      <section v-if="owner.sprintReorderProgress.value" aria-label="Sprint 排序状态">
-        <p v-if="owner.sprintReorderProgress.value.phase === 'submitting'" role="status">
-          正在排序 Sprint。
+      <div class="task-notices" aria-label="任务操作状态">
+        <section v-if="owner.sprintReorderProgress.value" aria-label="Sprint 排序状态">
+          <p v-if="owner.sprintReorderProgress.value.phase === 'submitting'" role="status">
+            正在排序 Sprint。
+          </p>
+          <template v-if="owner.sprintReorderProgress.value.phase === 'uncertain'">
+            <p role="status">Sprint 排序结果尚未确认。请查证原排序，勿再次提交。</p>
+            <p
+              v-if="owner.sprintReorderProgress.value.observation === 'not_observed'"
+              role="status"
+            >
+              尚未观察到原排序结果，可再次查询。
+            </p>
+            <p v-if="owner.sprintReorderProgress.value.observation === 'in_progress'" role="status">
+              原排序仍在处理中，可稍后再次查询。
+            </p>
+            <UiButton
+              v-if="state.sprint?.id === owner.sprintReorderProgress.value.sprintID && !state.task"
+              :disabled="owner.busy.value || !owner.sprintReorderProgress.value.contextValid"
+              @click="saveSprintReorder('lookup')"
+              >查询原 Sprint 排序结果</UiButton
+            >
+            <UiButton
+              v-else
+              :disabled="owner.busy.value || !owner.sprintReorderProgress.value.contextValid"
+              @click="owner.selectSprint(owner.sprintReorderProgress.value.sprintID)"
+              >返回待确认排序的 Sprint</UiButton
+            >
+          </template>
+          <template
+            v-if="
+              owner.sprintReorderProgress.value.phase === 'confirmed' &&
+              (owner.sprintReorder.needsRead ||
+                state.sprint?.id !== owner.sprintReorderProgress.value.sprintID)
+            "
+          >
+            <p role="status">原 Sprint 排序已确认，当前内容需要重新读取。</p>
+            <UiButton
+              v-if="state.sprint?.id === owner.sprintReorderProgress.value.sprintID && !state.task"
+              :disabled="owner.busy.value || !owner.sprintReorderProgress.value.contextValid"
+              @click="saveSprintReorder('read')"
+              >读取已确认的排序</UiButton
+            >
+            <UiButton
+              v-else
+              :disabled="owner.busy.value || !owner.sprintReorderProgress.value.contextValid"
+              @click="owner.selectSprint(owner.sprintReorderProgress.value.sprintID)"
+              >返回已确认排序的 Sprint</UiButton
+            >
+          </template>
+        </section>
+        <section v-if="owner.milestoneReorderProgress.value" aria-label="Milestone 排序状态">
+          <p v-if="owner.milestoneReorderProgress.value.phase === 'submitting'" role="status">
+            正在排序 Milestone。
+          </p>
+          <template v-if="owner.milestoneReorderProgress.value.phase === 'uncertain'">
+            <p role="status">Milestone 排序结果尚未确认。请查证原排序，勿再次提交。</p>
+            <p
+              v-if="owner.milestoneReorderProgress.value.observation === 'not_observed'"
+              role="status"
+            >
+              尚未观察到原排序结果，可再次查询。
+            </p>
+            <p
+              v-if="owner.milestoneReorderProgress.value.observation === 'in_progress'"
+              role="status"
+            >
+              原排序仍在处理中，可稍后再次查询。
+            </p>
+            <UiButton
+              v-if="
+                state.milestone?.id === owner.milestoneReorderProgress.value.milestoneID &&
+                !state.task
+              "
+              :disabled="owner.busy.value || !owner.milestoneReorderProgress.value.contextValid"
+              @click="saveMilestoneReorder('lookup')"
+              >查询原 Milestone 排序结果</UiButton
+            >
+            <UiButton
+              v-else
+              :disabled="owner.busy.value || !owner.milestoneReorderProgress.value.contextValid"
+              @click="owner.selectMilestone(owner.milestoneReorderProgress.value.milestoneID)"
+              >返回待确认排序的 Milestone</UiButton
+            >
+          </template>
+          <template
+            v-if="
+              owner.milestoneReorderProgress.value.phase === 'confirmed' &&
+              (owner.milestoneReorder.needsRead ||
+                state.milestone?.id !== owner.milestoneReorderProgress.value.milestoneID)
+            "
+          >
+            <p role="status">原 Milestone 排序已确认，当前内容需要重新读取。</p>
+            <UiButton
+              v-if="
+                state.milestone?.id === owner.milestoneReorderProgress.value.milestoneID &&
+                !state.task
+              "
+              :disabled="owner.busy.value || !owner.milestoneReorderProgress.value.contextValid"
+              @click="saveMilestoneReorder('read')"
+              >读取已确认的排序</UiButton
+            >
+            <UiButton
+              v-else
+              :disabled="owner.busy.value || !owner.milestoneReorderProgress.value.contextValid"
+              @click="owner.selectMilestone(owner.milestoneReorderProgress.value.milestoneID)"
+              >返回已确认排序的 Milestone</UiButton
+            >
+          </template>
+        </section>
+        <section v-if="owner.milestoneEditProgress.value" aria-label="Milestone 保存状态">
+          <p v-if="owner.milestoneEditProgress.value.phase === 'submitting'" role="status">
+            正在保存 Milestone。
+          </p>
+          <template v-if="owner.milestoneEditProgress.value.phase === 'uncertain'">
+            <p role="status">Milestone 保存结果尚未确认。请查证原保存，勿再次提交。</p>
+            <p
+              v-if="owner.milestoneEditProgress.value.observation === 'not_observed'"
+              role="status"
+            >
+              尚未观察到原保存结果，可再次查询。
+            </p>
+            <p v-if="owner.milestoneEditProgress.value.observation === 'in_progress'" role="status">
+              原保存仍在处理中，可稍后再次查询。
+            </p>
+            <UiButton
+              v-if="
+                state.milestone?.id === owner.milestoneEditProgress.value.milestoneID && !state.task
+              "
+              :disabled="owner.busy.value || !owner.milestoneEditProgress.value.contextValid"
+              @click="saveMilestoneEdit('lookup')"
+              >查询原 Milestone 保存结果</UiButton
+            >
+            <UiButton
+              v-else
+              :disabled="owner.busy.value || !owner.milestoneEditProgress.value.contextValid"
+              @click="owner.selectMilestone(owner.milestoneEditProgress.value.milestoneID)"
+              >返回待确认 Milestone</UiButton
+            >
+          </template>
+          <template
+            v-if="
+              owner.milestoneEditProgress.value.phase === 'confirmed' &&
+              (owner.milestoneEdit.needsRead ||
+                state.milestone?.id !== owner.milestoneEditProgress.value.milestoneID)
+            "
+          >
+            <p role="status">原 Milestone 保存已确认，当前内容需要重新读取。</p>
+            <UiButton
+              v-if="
+                state.milestone?.id === owner.milestoneEditProgress.value.milestoneID && !state.task
+              "
+              :disabled="owner.busy.value || !owner.milestoneEditProgress.value.contextValid"
+              @click="saveMilestoneEdit('read')"
+              >读取已确认的 Milestone</UiButton
+            >
+            <UiButton
+              v-else
+              :disabled="owner.busy.value || !owner.milestoneEditProgress.value.contextValid"
+              @click="owner.selectMilestone(owner.milestoneEditProgress.value.milestoneID)"
+              >返回已确认 Milestone</UiButton
+            >
+          </template>
+        </section>
+        <section v-if="owner.sprintEditProgress.value" aria-label="Sprint 保存状态">
+          <p v-if="owner.sprintEditProgress.value.phase === 'submitting'" role="status">
+            正在保存 Sprint。
+          </p>
+          <template v-if="owner.sprintEditProgress.value.phase === 'uncertain'">
+            <p role="status">Sprint 保存结果尚未确认。请查证原保存，勿再次提交。</p>
+            <p v-if="owner.sprintEditProgress.value.observation === 'not_observed'" role="status">
+              尚未观察到原保存结果，可再次查询。
+            </p>
+            <p v-if="owner.sprintEditProgress.value.observation === 'in_progress'" role="status">
+              原保存仍在处理中，可稍后再次查询。
+            </p>
+            <UiButton
+              v-if="state.sprint?.id === owner.sprintEditProgress.value.sprintID && !state.task"
+              :disabled="owner.busy.value || !owner.sprintEditProgress.value.contextValid"
+              @click="saveSprintEdit('lookup')"
+              >查询原 Sprint 保存结果</UiButton
+            >
+            <UiButton
+              v-else
+              :disabled="owner.busy.value || !owner.sprintEditProgress.value.contextValid"
+              @click="owner.selectSprint(owner.sprintEditProgress.value.sprintID)"
+              >返回待确认 Sprint</UiButton
+            >
+          </template>
+          <template
+            v-if="
+              owner.sprintEditProgress.value.phase === 'confirmed' &&
+              (owner.sprintEdit.needsRead ||
+                state.sprint?.id !== owner.sprintEditProgress.value.sprintID)
+            "
+          >
+            <p role="status">原 Sprint 保存已确认，当前内容需要重新读取。</p>
+            <UiButton
+              v-if="state.sprint?.id === owner.sprintEditProgress.value.sprintID && !state.task"
+              :disabled="owner.busy.value || !owner.sprintEditProgress.value.contextValid"
+              @click="saveSprintEdit('read')"
+              >读取已确认的 Sprint</UiButton
+            >
+            <UiButton
+              v-else
+              :disabled="owner.busy.value || !owner.sprintEditProgress.value.contextValid"
+              @click="owner.selectSprint(owner.sprintEditProgress.value.sprintID)"
+              >返回已确认 Sprint</UiButton
+            >
+          </template>
+        </section>
+        <p v-if="owner.sprintEditPending.value && !owner.sprintEditProgress.value" role="status">
+          有一项 Sprint 保存结果待确认，请返回原 Project 查询结果。
         </p>
-        <template v-if="owner.sprintReorderProgress.value.phase === 'uncertain'">
-          <p role="status">Sprint 排序结果尚未确认。请查证原排序，勿再次提交。</p>
-          <p
-            v-if="owner.sprintReorderProgress.value.observation === 'not_observed'"
-            role="status"
-          >
-            尚未观察到原排序结果，可再次查询。
-          </p>
-          <p
-            v-if="owner.sprintReorderProgress.value.observation === 'in_progress'"
-            role="status"
-          >
-            原排序仍在处理中，可稍后再次查询。
-          </p>
-          <UiButton
-            v-if="
-              state.sprint?.id === owner.sprintReorderProgress.value.sprintID &&
-              !state.task
-            "
-            :disabled="owner.busy.value || !owner.sprintReorderProgress.value.contextValid"
-            @click="saveSprintReorder('lookup')"
-            >查询原 Sprint 排序结果</UiButton
-          >
-          <UiButton
-            v-else
-            :disabled="owner.busy.value || !owner.sprintReorderProgress.value.contextValid"
-            @click="owner.selectSprint(owner.sprintReorderProgress.value.sprintID)"
-            >返回待确认排序的 Sprint</UiButton
-          >
-        </template>
-        <template
-          v-if="
-            owner.sprintReorderProgress.value.phase === 'confirmed' &&
-            (owner.sprintReorder.needsRead ||
-              state.sprint?.id !== owner.sprintReorderProgress.value.sprintID)
-          "
-        >
-          <p role="status">原 Sprint 排序已确认，当前内容需要重新读取。</p>
-          <UiButton
-            v-if="
-              state.sprint?.id === owner.sprintReorderProgress.value.sprintID &&
-              !state.task
-            "
-            :disabled="owner.busy.value || !owner.sprintReorderProgress.value.contextValid"
-            @click="saveSprintReorder('read')"
-            >读取已确认的排序</UiButton
-          >
-          <UiButton
-            v-else
-            :disabled="owner.busy.value || !owner.sprintReorderProgress.value.contextValid"
-            @click="owner.selectSprint(owner.sprintReorderProgress.value.sprintID)"
-            >返回已确认排序的 Sprint</UiButton
-          >
-        </template>
-      </section>
-      <section v-if="owner.milestoneReorderProgress.value" aria-label="Milestone 排序状态">
-        <p v-if="owner.milestoneReorderProgress.value.phase === 'submitting'" role="status">
-          正在排序 Milestone。
+        <p v-if="owner.milestonePending.value && !owner.milestoneProgress.value" role="status">
+          有一项 Milestone 创建结果待确认，请返回原 Project 查询结果。
         </p>
-        <template v-if="owner.milestoneReorderProgress.value.phase === 'uncertain'">
-          <p role="status">Milestone 排序结果尚未确认。请查证原排序，勿再次提交。</p>
-          <p
-            v-if="owner.milestoneReorderProgress.value.observation === 'not_observed'"
-            role="status"
-          >
-            尚未观察到原排序结果，可再次查询。
-          </p>
-          <p
-            v-if="owner.milestoneReorderProgress.value.observation === 'in_progress'"
-            role="status"
-          >
-            原排序仍在处理中，可稍后再次查询。
-          </p>
-          <UiButton
-            v-if="
-              state.milestone?.id === owner.milestoneReorderProgress.value.milestoneID &&
-              !state.task
-            "
-            :disabled="owner.busy.value || !owner.milestoneReorderProgress.value.contextValid"
-            @click="saveMilestoneReorder('lookup')"
-            >查询原 Milestone 排序结果</UiButton
-          >
-          <UiButton
-            v-else
-            :disabled="owner.busy.value || !owner.milestoneReorderProgress.value.contextValid"
-            @click="owner.selectMilestone(owner.milestoneReorderProgress.value.milestoneID)"
-            >返回待确认排序的 Milestone</UiButton
-          >
-        </template>
-        <template
-          v-if="
-            owner.milestoneReorderProgress.value.phase === 'confirmed' &&
-            (owner.milestoneReorder.needsRead ||
-              state.milestone?.id !== owner.milestoneReorderProgress.value.milestoneID)
-          "
+        <section
+          v-if="owner.milestoneProgress.value?.phase === 'uncertain'"
+          aria-label="Milestone 创建结果恢复"
         >
-          <p role="status">原 Milestone 排序已确认，当前内容需要重新读取。</p>
+          <p role="status">Milestone 创建结果待确认。请查询原创建结果，不要重复创建。</p>
           <UiButton
-            v-if="
-              state.milestone?.id === owner.milestoneReorderProgress.value.milestoneID &&
-              !state.task
+            :disabled="
+              owner.busy.value || !owner.milestoneProgress.value.contextValid || !!state.task
             "
-            :disabled="owner.busy.value || !owner.milestoneReorderProgress.value.contextValid"
-            @click="saveMilestoneReorder('read')"
-            >读取已确认的排序</UiButton
+            @click="owner.lookupMilestoneCreation()"
+            >查询原 Milestone 创建结果</UiButton
           >
-          <UiButton
-            v-else
-            :disabled="owner.busy.value || !owner.milestoneReorderProgress.value.contextValid"
-            @click="owner.selectMilestone(owner.milestoneReorderProgress.value.milestoneID)"
-            >返回已确认排序的 Milestone</UiButton
-          >
-        </template>
-      </section>
-      <section v-if="owner.milestoneEditProgress.value" aria-label="Milestone 保存状态">
-        <p v-if="owner.milestoneEditProgress.value.phase === 'submitting'" role="status">
-          正在保存 Milestone。
+          <p v-if="owner.milestoneProgress.value.observation === 'not_observed'" role="status">
+            尚未观察到原创建结果，可再次查询。
+          </p>
+          <p v-if="owner.milestoneProgress.value.observation === 'in_progress'" role="status">
+            原创建仍在处理中，稍后可再次查询。
+          </p>
+        </section>
+        <p v-if="owner.milestoneProgress.value?.phase === 'submitting'" role="status">
+          正在创建 Milestone，请等待原请求结束。
         </p>
-        <template v-if="owner.milestoneEditProgress.value.phase === 'uncertain'">
-          <p role="status">Milestone 保存结果尚未确认。请查证原保存，勿再次提交。</p>
-          <p v-if="owner.milestoneEditProgress.value.observation === 'not_observed'" role="status">
-            尚未观察到原保存结果，可再次查询。
-          </p>
-          <p v-if="owner.milestoneEditProgress.value.observation === 'in_progress'" role="status">
-            原保存仍在处理中，可稍后再次查询。
-          </p>
-          <UiButton
-            v-if="
-              state.milestone?.id === owner.milestoneEditProgress.value.milestoneID && !state.task
-            "
-            :disabled="owner.busy.value || !owner.milestoneEditProgress.value.contextValid"
-            @click="saveMilestoneEdit('lookup')"
-            >查询原 Milestone 保存结果</UiButton
-          >
-          <UiButton
-            v-else
-            :disabled="owner.busy.value || !owner.milestoneEditProgress.value.contextValid"
-            @click="owner.selectMilestone(owner.milestoneEditProgress.value.milestoneID)"
-            >返回待确认 Milestone</UiButton
-          >
-        </template>
-        <template
-          v-if="
-            owner.milestoneEditProgress.value.phase === 'confirmed' &&
-            (owner.milestoneEdit.needsRead ||
-              state.milestone?.id !== owner.milestoneEditProgress.value.milestoneID)
-          "
-        >
-          <p role="status">原 Milestone 保存已确认，当前内容需要重新读取。</p>
-          <UiButton
-            v-if="
-              state.milestone?.id === owner.milestoneEditProgress.value.milestoneID && !state.task
-            "
-            :disabled="owner.busy.value || !owner.milestoneEditProgress.value.contextValid"
-            @click="saveMilestoneEdit('read')"
-            >读取已确认的 Milestone</UiButton
-          >
-          <UiButton
-            v-else
-            :disabled="owner.busy.value || !owner.milestoneEditProgress.value.contextValid"
-            @click="owner.selectMilestone(owner.milestoneEditProgress.value.milestoneID)"
-            >返回已确认 Milestone</UiButton
-          >
-        </template>
-      </section>
-      <section v-if="owner.sprintEditProgress.value" aria-label="Sprint 保存状态">
-        <p v-if="owner.sprintEditProgress.value.phase === 'submitting'" role="status">
-          正在保存 Sprint。
+        <p v-if="owner.milestoneCreation.message && !owner.milestoneCreation.open" role="status">
+          {{ owner.milestoneCreation.message }}
         </p>
-        <template v-if="owner.sprintEditProgress.value.phase === 'uncertain'">
-          <p role="status">Sprint 保存结果尚未确认。请查证原保存，勿再次提交。</p>
-          <p v-if="owner.sprintEditProgress.value.observation === 'not_observed'" role="status">
-            尚未观察到原保存结果，可再次查询。
-          </p>
-          <p v-if="owner.sprintEditProgress.value.observation === 'in_progress'" role="status">
-            原保存仍在处理中，可稍后再次查询。
-          </p>
-          <UiButton
-            v-if="state.sprint?.id === owner.sprintEditProgress.value.sprintID && !state.task"
-            :disabled="owner.busy.value || !owner.sprintEditProgress.value.contextValid"
-            @click="saveSprintEdit('lookup')"
-            >查询原 Sprint 保存结果</UiButton
-          >
-          <UiButton
-            v-else
-            :disabled="owner.busy.value || !owner.sprintEditProgress.value.contextValid"
-            @click="owner.selectSprint(owner.sprintEditProgress.value.sprintID)"
-            >返回待确认 Sprint</UiButton
-          >
-        </template>
-        <template
-          v-if="
-            owner.sprintEditProgress.value.phase === 'confirmed' &&
-            (owner.sprintEdit.needsRead ||
-              state.sprint?.id !== owner.sprintEditProgress.value.sprintID)
-          "
-        >
-          <p role="status">原 Sprint 保存已确认，当前内容需要重新读取。</p>
-          <UiButton
-            v-if="state.sprint?.id === owner.sprintEditProgress.value.sprintID && !state.task"
-            :disabled="owner.busy.value || !owner.sprintEditProgress.value.contextValid"
-            @click="saveSprintEdit('read')"
-            >读取已确认的 Sprint</UiButton
-          >
-          <UiButton
-            v-else
-            :disabled="owner.busy.value || !owner.sprintEditProgress.value.contextValid"
-            @click="owner.selectSprint(owner.sprintEditProgress.value.sprintID)"
-            >返回已确认 Sprint</UiButton
-          >
-        </template>
-      </section>
-      <p v-if="owner.sprintEditPending.value && !owner.sprintEditProgress.value" role="status">
-        有一项 Sprint 保存结果待确认，请返回原 Project 查询结果。
-      </p>
-      <p v-if="owner.milestonePending.value && !owner.milestoneProgress.value" role="status">
-        有一项 Milestone 创建结果待确认，请返回原 Project 查询结果。
-      </p>
-      <section
-        v-if="owner.milestoneProgress.value?.phase === 'uncertain'"
-        aria-label="Milestone 创建结果恢复"
-      >
-        <p role="status">Milestone 创建结果待确认。请查询原创建结果，不要重复创建。</p>
         <UiButton
+          v-if="
+            owner.milestoneProgress.value?.phase === 'confirmed' &&
+            (owner.milestoneCreation.needsRead ||
+              state.milestone?.id !== owner.milestoneProgress.value.milestoneID)
+          "
           :disabled="
             owner.busy.value || !owner.milestoneProgress.value.contextValid || !!state.task
           "
-          @click="owner.lookupMilestoneCreation()"
-          >查询原 Milestone 创建结果</UiButton
+          @click="owner.rereadConfirmedMilestone()"
+          >读取已创建的 Milestone</UiButton
         >
-        <p v-if="owner.milestoneProgress.value.observation === 'not_observed'" role="status">
-          尚未观察到原创建结果，可再次查询。
+        <p
+          v-if="owner.sprintCreatePending.value && !owner.sprintCreateProgress.value"
+          role="status"
+        >
+          有一项 Sprint 创建结果待确认，请返回原 Project 查询结果。
         </p>
-        <p v-if="owner.milestoneProgress.value.observation === 'in_progress'" role="status">
-          原创建仍在处理中，稍后可再次查询。
+        <section
+          v-if="owner.sprintCreateProgress.value?.phase === 'uncertain'"
+          class="sprint-create-recovery"
+          aria-label="Sprint 创建结果恢复"
+        >
+          <p role="status">Sprint 创建结果待确认。请查询原创建结果，不要重复创建。</p>
+          <UiButton
+            :disabled="
+              owner.busy.value || !owner.sprintCreateProgress.value.contextValid || !!state.task
+            "
+            @click="submitSprintCreation('lookup')"
+            >查询原 Sprint 创建结果</UiButton
+          >
+          <p v-if="owner.sprintCreateProgress.value.observation === 'not_observed'" role="status">
+            尚未观察到原创建结果，可再次查询。
+          </p>
+          <p v-if="owner.sprintCreateProgress.value.observation === 'in_progress'" role="status">
+            原创建仍在处理中，稍后可再次查询。
+          </p>
+        </section>
+        <p v-if="owner.sprintCreateProgress.value?.phase === 'submitting'" role="status">
+          正在创建 Sprint，请等待原请求结束。
         </p>
-      </section>
-      <p v-if="owner.milestoneProgress.value?.phase === 'submitting'" role="status">
-        正在创建 Milestone，请等待原请求结束。
-      </p>
-      <p v-if="owner.milestoneCreation.message && !owner.milestoneCreation.open" role="status">
-        {{ owner.milestoneCreation.message }}
-      </p>
-      <UiButton
-        v-if="
-          owner.milestoneProgress.value?.phase === 'confirmed' &&
-          (owner.milestoneCreation.needsRead ||
-            state.milestone?.id !== owner.milestoneProgress.value.milestoneID)
-        "
-        :disabled="owner.busy.value || !owner.milestoneProgress.value.contextValid || !!state.task"
-        @click="owner.rereadConfirmedMilestone()"
-        >读取已创建的 Milestone</UiButton
-      >
-      <p v-if="owner.sprintCreatePending.value && !owner.sprintCreateProgress.value" role="status">
-        有一项 Sprint 创建结果待确认，请返回原 Project 查询结果。
-      </p>
-      <section
-        v-if="owner.sprintCreateProgress.value?.phase === 'uncertain'"
-        class="sprint-create-recovery"
-        aria-label="Sprint 创建结果恢复"
-      >
-        <p role="status">Sprint 创建结果待确认。请查询原创建结果，不要重复创建。</p>
+        <p v-if="owner.sprintCreation.message && !owner.sprintCreation.open" role="status">
+          {{ owner.sprintCreation.message }}
+        </p>
         <UiButton
+          v-if="
+            owner.sprintCreateProgress.value?.phase === 'confirmed' &&
+            (owner.sprintCreation.needsRead ||
+              state.sprint?.id !== owner.sprintCreateProgress.value.sprintID)
+          "
           :disabled="
             owner.busy.value || !owner.sprintCreateProgress.value.contextValid || !!state.task
           "
-          @click="submitSprintCreation('lookup')"
-          >查询原 Sprint 创建结果</UiButton
+          @click="submitSprintCreation('read')"
+          >读取已创建的 Sprint</UiButton
         >
-        <p v-if="owner.sprintCreateProgress.value.observation === 'not_observed'" role="status">
-          尚未观察到原创建结果，可再次查询。
+        <p v-if="owner.sprintPending.value && !owner.sprintProgress.value" role="status">
+          有一项 Sprint
+          {{
+            owner.sprintPending.value?.operation === 'complete' ? '完成' : '启动'
+          }}结果待确认，请返回原 Project 和 Sprint 查询结果。
         </p>
-        <p v-if="owner.sprintCreateProgress.value.observation === 'in_progress'" role="status">
-          原创建仍在处理中，稍后可再次查询。
-        </p>
-      </section>
-      <p v-if="owner.sprintCreateProgress.value?.phase === 'submitting'" role="status">
-        正在创建 Sprint，请等待原请求结束。
-      </p>
-      <p v-if="owner.sprintCreation.message && !owner.sprintCreation.open" role="status">
-        {{ owner.sprintCreation.message }}
-      </p>
-      <UiButton
-        v-if="
-          owner.sprintCreateProgress.value?.phase === 'confirmed' &&
-          (owner.sprintCreation.needsRead ||
-            state.sprint?.id !== owner.sprintCreateProgress.value.sprintID)
-        "
-        :disabled="
-          owner.busy.value || !owner.sprintCreateProgress.value.contextValid || !!state.task
-        "
-        @click="submitSprintCreation('read')"
-        >读取已创建的 Sprint</UiButton
-      >
-      <p v-if="owner.sprintPending.value && !owner.sprintProgress.value" role="status">
-        有一项 Sprint {{ owner.sprintPending.value?.operation === 'complete' ? '完成' : '启动' }}结果待确认，请返回原 Project 和 Sprint 查询结果。
-      </p>
-      <UiButton
-        v-if="owner.sprintPendingHere.value && !owner.sprintProgress.value"
-        :disabled="owner.busy.value"
-        @click="returnToStartingSprint"
-        >返回原{{ owner.sprintPendingHere.value?.operation === 'complete' ? '完成' : '启动' }} Sprint</UiButton
-      >
-      <p v-if="owner.sprintProgress.value?.phase === 'submitting'" role="status">
-        正在{{ owner.sprintActionLabel.value }} Sprint，请等待原请求结束。
-      </p>
-      <section
-        v-if="owner.sprintProgress.value?.phase === 'uncertain'"
-        class="sprint-start-recovery"
-        :aria-label="`${owner.sprintActionLabel.value}结果恢复`"
-      >
-        <p role="status">{{ owner.sprintActionLabel.value }}结果待确认。请查询原{{ owner.sprintActionLabel.value }}结果，不要重复{{ owner.sprintActionLabel.value }}。</p>
         <UiButton
+          v-if="owner.sprintPendingHere.value && !owner.sprintProgress.value"
+          :disabled="owner.busy.value"
+          @click="returnToStartingSprint"
+          >返回原{{
+            owner.sprintPendingHere.value?.operation === 'complete' ? '完成' : '启动'
+          }}
+          Sprint</UiButton
+        >
+        <p v-if="owner.sprintProgress.value?.phase === 'submitting'" role="status">
+          正在{{ owner.sprintActionLabel.value }} Sprint，请等待原请求结束。
+        </p>
+        <section
+          v-if="owner.sprintProgress.value?.phase === 'uncertain'"
+          class="sprint-start-recovery"
+          :aria-label="`${owner.sprintActionLabel.value}结果恢复`"
+        >
+          <p role="status">
+            {{ owner.sprintActionLabel.value }}结果待确认。请查询原{{
+              owner.sprintActionLabel.value
+            }}结果，不要重复{{ owner.sprintActionLabel.value }}。
+          </p>
+          <UiButton
+            :disabled="owner.busy.value || !owner.sprintProgress.value.contextValid"
+            @click="submitSprintStart(true)"
+            >查询原{{ owner.sprintActionLabel.value }}结果</UiButton
+          >
+          <p v-if="owner.sprintProgress.value.observation === 'in_progress'" role="status">
+            原{{ owner.sprintActionLabel.value }}仍在处理中，稍后可再次查询。
+          </p>
+          <p v-if="owner.sprintProgress.value.observation === 'not_observed'" role="status">
+            尚未观察到原{{ owner.sprintActionLabel.value }}结果，可再次查询。
+          </p>
+        </section>
+        <p
+          v-if="
+            owner.sprintStart.message &&
+            !owner.sprintReadRecovery.value &&
+            !owner.sprintPending.value
+          "
+          role="status"
+        >
+          {{ owner.sprintStart.message }}
+        </p>
+        <UiButton
+          v-if="owner.sprintProgress.value?.phase === 'confirmed' && !owner.sprintStart.message"
           :disabled="owner.busy.value || !owner.sprintProgress.value.contextValid"
-          @click="submitSprintStart(true)"
-          >查询原{{ owner.sprintActionLabel.value }}结果</UiButton
+          @click="rereadSprintStart(true)"
+          >读取已确认{{ owner.sprintActionLabel.value }}的当前状态</UiButton
         >
-        <p v-if="owner.sprintProgress.value.observation === 'in_progress'" role="status">
-          原{{ owner.sprintActionLabel.value }}仍在处理中，稍后可再次查询。
+        <p
+          v-if="owner.pending.value && !owner.progress.value && !owner.creationProgress.value"
+          role="status"
+        >
+          有一项任务操作结果待确认，请返回原 Sprint 或任务查询结果。
         </p>
-        <p v-if="owner.sprintProgress.value.observation === 'not_observed'" role="status">
-          尚未观察到原{{ owner.sprintActionLabel.value }}结果，可再次查询。
-        </p>
-      </section>
-      <p
-        v-if="
-          owner.sprintStart.message && !owner.sprintReadRecovery.value && !owner.sprintPending.value
-        "
-        role="status"
-      >
-        {{ owner.sprintStart.message }}
-      </p>
-      <UiButton
-        v-if="owner.sprintProgress.value?.phase === 'confirmed' && !owner.sprintStart.message"
-        :disabled="owner.busy.value || !owner.sprintProgress.value.contextValid"
-        @click="rereadSprintStart(true)"
-        >读取已确认{{ owner.sprintActionLabel.value }}的当前状态</UiButton
-      >
-      <p
-        v-if="owner.pending.value && !owner.progress.value && !owner.creationProgress.value"
-        role="status"
-      >
-        有一项任务操作结果待确认，请返回原 Sprint 或任务查询结果。
-      </p>
-      <UiButton
-        v-if="
-          owner.creationPending.value &&
-          !owner.creationProgress.value &&
-          owner.creationPending.value.sprintID
-        "
-        :disabled="owner.busy.value"
-        @click="returnToCreation"
-        >返回原创建 Sprint</UiButton
-      >
-      <p v-if="owner.creationProgress.value?.phase === 'submitting'" role="status">
-        正在创建任务，请等待原请求结束。
-      </p>
-      <section
-        v-if="owner.creationProgress.value?.phase === 'uncertain'"
-        class="create-recovery"
-        aria-label="创建结果恢复"
-      >
-        <p role="status">创建结果待确认。请查询原创建结果，不要重复创建。</p>
         <UiButton
-          :disabled="owner.busy.value || !owner.creationProgress.value.contextValid"
-          @click="owner.lookupCreation()"
-          >查询原创建结果</UiButton
+          v-if="
+            owner.creationPending.value &&
+            !owner.creationProgress.value &&
+            owner.creationPending.value.sprintID
+          "
+          :disabled="owner.busy.value"
+          @click="returnToCreation"
+          >返回原创建 Sprint</UiButton
         >
-        <p v-if="owner.creationProgress.value.observation === 'in_progress'" role="status">
-          原创建仍在处理中，稍后可再次查询。
+        <p v-if="owner.creationProgress.value?.phase === 'submitting'" role="status">
+          正在创建任务，请等待原请求结束。
         </p>
-        <p v-if="owner.creationProgress.value.observation === 'not_observed'" role="status">
-          尚未观察到原创建结果，可再次查询。
-        </p>
-        <p v-if="owner.creation.message" role="alert">{{ owner.creation.message }}</p>
-      </section>
+        <section
+          v-if="owner.creationProgress.value?.phase === 'uncertain'"
+          class="create-recovery"
+          aria-label="创建结果恢复"
+        >
+          <p role="status">创建结果待确认。请查询原创建结果，不要重复创建。</p>
+          <UiButton
+            :disabled="owner.busy.value || !owner.creationProgress.value.contextValid"
+            @click="owner.lookupCreation()"
+            >查询原创建结果</UiButton
+          >
+          <p v-if="owner.creationProgress.value.observation === 'in_progress'" role="status">
+            原创建仍在处理中，稍后可再次查询。
+          </p>
+          <p v-if="owner.creationProgress.value.observation === 'not_observed'" role="status">
+            尚未观察到原创建结果，可再次查询。
+          </p>
+          <p v-if="owner.creation.message" role="alert">{{ owner.creation.message }}</p>
+        </section>
+      </div>
       <UiState v-if="state.phase === 'loading'" kind="loading" title="正在读取任务工作区" />
       <UiState
         v-else-if="state.phase === 'error'"
@@ -762,122 +782,104 @@ function returnToCreation() {
         ></UiState
       >
       <div v-else class="tasks-layout">
-        <aside class="tasks-sidebar" :class="{ expanded: sidebar }" aria-label="Sprint 选择">
-          <UiButton class="sidebar-close" @click="sidebar = false">关闭选择</UiButton>
-          <UiField label="Milestone" v-slot="field"
-            ><UiSelect
-              :id="field.id"
-              :model-value="state.milestone?.id ?? ''"
-              label="Milestone"
-              :options="milestoneOptions"
-              :disabled="owner.busy.value"
-              @update:model-value="owner.selectMilestone($event)"
-          /></UiField>
-          <UiButton
-            v-if="state.milestoneNext"
-            :disabled="owner.busy.value"
-            @click="owner.loadMilestones(true)"
-            >更多 Milestone</UiButton
-          >
-          <p v-if="!state.milestones.length">暂无 Milestone。</p>
-          <nav aria-label="Sprint 列表">
-            <button
-              v-for="sprint in state.sprints"
-              :key="sprint.id"
-              type="button"
-              :aria-current="state.sprint?.id === sprint.id ? 'page' : undefined"
-              :disabled="owner.busy.value"
-              @click="selectSprint(sprint.id)"
-            >
-              <span>{{ sprint.title }}</span
-              ><UiBadge>{{ sprintLabels[sprint.state] }}</UiBadge>
-            </button>
-          </nav>
-          <UiButton
-            v-if="state.sprintNext"
-            :disabled="owner.busy.value"
-            @click="owner.loadSprints(true)"
-            >更多 Sprint</UiButton
-          >
+        <aside class="tasks-sidebar" aria-label="Sprint 选择">
+          <TaskScopeNavigation :owner="owner" @select="selectSprint" />
         </aside>
+        <UiDrawer v-model:open="sidebar" title="选择 Sprint">
+          <TaskScopeNavigation :owner="owner" @select="selectSprint" />
+        </UiDrawer>
         <main class="tasks-content">
-          <UiButton
-            v-if="!state.task && !owner.milestoneCreation.open && !owner.milestonePending.value"
-            ref="milestoneCreateButton"
-            :disabled="owner.busy.value || !owner.canCreateMilestone.value"
-            @click="owner.openMilestoneCreation()"
-            >新建 Milestone</UiButton
-          >
-          <MilestoneCreateForm
-            v-if="owner.milestoneCreation.open && !owner.milestonePending.value"
-            :owner="owner"
-            @cancel="cancelMilestoneCreation"
-            @submit="owner.submitMilestoneCreation()"
-          />
-          <section
-            v-if="state.milestone && !state.task"
-            class="selected-milestone"
-            aria-label="所选 Milestone"
-          >
-            <h2 ref="milestoneHeading" tabindex="-1">{{ state.milestone.title }}</h2>
-            <p class="milestone-description">{{ state.milestone.description || '暂无描述。' }}</p>
-            <UiButton
-              v-if="!owner.milestoneReorder.open && !owner.milestoneReorderPending.value"
-              ref="milestoneReorderButton"
-              :disabled="owner.busy.value || !owner.canReorderMilestone.value"
-              :state="
-                owner.milestoneReorder.message &&
-                owner.milestoneReorderProgress.value?.phase === 'confirmed' &&
-                !owner.milestoneReorder.needsRead
-                  ? 'success'
-                  : 'idle'
-              "
-              success-label="顺序已确认"
-              @click="owner.openMilestoneReorder()"
-              >调整 Milestone 顺序</UiButton
-            >
-            <MilestoneReorderForm
-              v-if="owner.milestoneReorder.open && !owner.milestoneReorderPending.value"
-              :owner="owner"
-              @cancel="cancelMilestoneReorder"
-              @submit="saveMilestoneReorder()"
-            />
-            <p v-if="!owner.milestoneReorder.open && owner.milestoneReorder.message" role="status">
-              {{ owner.milestoneReorder.message }}
-            </p>
-            <UiButton
-              v-if="!owner.milestoneEdit.open && !owner.milestoneEditPending.value"
-              ref="milestoneEditButton"
-              :disabled="owner.busy.value || !owner.canEditMilestone.value"
-              @click="owner.openMilestoneEdit()"
-              >编辑 Milestone</UiButton
-            >
-            <MilestoneEditForm
-              v-if="owner.milestoneEdit.open && !owner.milestoneEditPending.value"
-              :owner="owner"
-              @cancel="cancelMilestoneEdit"
-              @submit="saveMilestoneEdit()"
-            />
-            <p v-if="!owner.milestoneEdit.open && owner.milestoneEdit.message" role="status">
-              {{ owner.milestoneEdit.message }}
-            </p>
-          </section>
-          <UiButton
-            v-if="!state.task && !owner.sprintCreation.open && !owner.sprintCreatePending.value"
-            ref="sprintCreateButton"
-            :disabled="owner.busy.value || !owner.canCreateSprint.value"
-            @click="owner.openSprintCreation()"
-            >新建 Sprint</UiButton
-          >
-          <p v-if="!state.task && !state.milestones.length">
-            暂无 Milestone，暂时无法创建 Sprint。
-          </p>
-          <SprintCreateForm
-            v-if="owner.sprintCreation.open && !owner.sprintCreatePending.value"
-            :owner="owner"
-            @cancel="cancelSprintCreation"
-            @submit="submitSprintCreation()"
-          />
+          <details class="planning-controls" :open="!state.sprint">
+            <summary>
+              Milestone 与 Sprint 规划<span v-if="state.milestone">{{
+                state.milestone.title
+              }}</span>
+            </summary>
+            <div class="planning-body">
+              <UiButton
+                v-if="!state.task && !owner.milestoneCreation.open && !owner.milestonePending.value"
+                ref="milestoneCreateButton"
+                :disabled="owner.busy.value || !owner.canCreateMilestone.value"
+                @click="owner.openMilestoneCreation()"
+                >新建 Milestone</UiButton
+              >
+              <MilestoneCreateForm
+                :fallback-focus="pageHeading"
+                :owner="owner"
+                @cancel="cancelMilestoneCreation"
+                @submit="owner.submitMilestoneCreation()"
+              />
+              <section
+                v-if="state.milestone && !state.task"
+                class="selected-milestone"
+                aria-label="所选 Milestone"
+              >
+                <h2 ref="milestoneHeading" tabindex="-1">{{ state.milestone.title }}</h2>
+                <p v-if="state.milestone.description" class="milestone-description">
+                  {{ state.milestone.description }}
+                </p>
+                <UiButton
+                  v-if="!owner.milestoneReorder.open && !owner.milestoneReorderPending.value"
+                  ref="milestoneReorderButton"
+                  :disabled="owner.busy.value || !owner.canReorderMilestone.value"
+                  :state="
+                    owner.milestoneReorder.message &&
+                    owner.milestoneReorderProgress.value?.phase === 'confirmed' &&
+                    !owner.milestoneReorder.needsRead
+                      ? 'success'
+                      : 'idle'
+                  "
+                  success-label="顺序已确认"
+                  @click="owner.openMilestoneReorder()"
+                  >调整 Milestone 顺序</UiButton
+                >
+                <MilestoneReorderForm
+                  v-if="owner.milestoneReorder.open && !owner.milestoneReorderPending.value"
+                  :owner="owner"
+                  @cancel="cancelMilestoneReorder"
+                  @submit="saveMilestoneReorder()"
+                />
+                <p
+                  v-if="!owner.milestoneReorder.open && owner.milestoneReorder.message"
+                  role="status"
+                >
+                  {{ owner.milestoneReorder.message }}
+                </p>
+                <UiButton
+                  v-if="!owner.milestoneEdit.open && !owner.milestoneEditPending.value"
+                  ref="milestoneEditButton"
+                  :disabled="owner.busy.value || !owner.canEditMilestone.value"
+                  @click="owner.openMilestoneEdit()"
+                  >编辑 Milestone</UiButton
+                >
+                <MilestoneEditForm
+                  v-if="owner.milestoneEdit.open && !owner.milestoneEditPending.value"
+                  :owner="owner"
+                  @cancel="cancelMilestoneEdit"
+                  @submit="saveMilestoneEdit()"
+                />
+                <p v-if="!owner.milestoneEdit.open && owner.milestoneEdit.message" role="status">
+                  {{ owner.milestoneEdit.message }}
+                </p>
+              </section>
+              <UiButton
+                v-if="!state.task && !owner.sprintCreation.open && !owner.sprintCreatePending.value"
+                ref="sprintCreateButton"
+                :disabled="owner.busy.value || !owner.canCreateSprint.value"
+                @click="owner.openSprintCreation()"
+                >新建 Sprint</UiButton
+              >
+              <p v-if="!state.task && !state.milestones.length">
+                暂无 Milestone，暂时无法创建 Sprint。
+              </p>
+              <SprintCreateForm
+                :fallback-focus="pageHeading"
+                :owner="owner"
+                @cancel="cancelSprintCreation"
+                @submit="submitSprintCreation()"
+              />
+            </div>
+          </details>
           <template v-if="state.sprint"
             ><header class="sprint-heading">
               <h2 ref="sprintHeading" tabindex="-1">{{ state.sprint.title }}</h2>
@@ -908,7 +910,12 @@ function returnToCreation() {
                 >启动 Sprint</UiButton
               >
               <UiButton
-                v-if="!state.task && state.sprint.state === 'current' && !owner.sprintStart.open && !owner.sprintPending.value"
+                v-if="
+                  !state.task &&
+                  state.sprint.state === 'current' &&
+                  !owner.sprintStart.open &&
+                  !owner.sprintPending.value
+                "
                 ref="startButton"
                 :disabled="owner.busy.value || !owner.canCompleteSprint.value"
                 @click="openSprintStart('complete')"
@@ -917,13 +924,14 @@ function returnToCreation() {
               <UiButton
                 v-if="!owner.creation.open"
                 ref="createButton"
+                variant="primary"
                 :disabled="owner.busy.value || !owner.canCreate.value"
                 @click="owner.openCreation()"
                 >新建任务</UiButton
               >
             </header>
-            <p v-if="!state.task" class="sprint-description">
-              {{ state.sprint.description || '暂无描述。' }}
+            <p v-if="!state.task && state.sprint.description" class="sprint-description">
+              {{ state.sprint.description }}
             </p>
             <SprintReorderForm
               v-if="!state.task && owner.sprintReorder.open && !owner.sprintReorderPending.value"
@@ -961,7 +969,7 @@ function returnToCreation() {
             >
               启动需要当前 Project 尚无正在进行的 Sprint，并完成当前操作。
             </p>
-            <p class="scheduler-note">
+            <p v-if="owner.sprintStart.open" class="scheduler-note">
               启动 Sprint 不会改变 Scheduler 的启用状态；已暂停的调度保持暂停。
             </p>
             <form
@@ -971,8 +979,9 @@ function returnToCreation() {
               @submit.prevent="submitSprintStart()"
             >
               <p v-if="owner.sprintStart.operation === 'complete'">
-                确认完成“{{ state.sprint.title }}”？仅当全部任务已完成或取消（包括空 Sprint），且没有活动执行和待派发任务时才能完成。
-                完成后清空当前 Sprint，不会迁移任务或自动启动下一 Sprint。
+                确认完成“{{ state.sprint.title }}”？仅当全部任务已完成或取消（包括空
+                Sprint），且没有活动执行和待派发任务时才能完成。 完成后清空当前
+                Sprint，不会迁移任务或自动启动下一 Sprint。
               </p>
               <p v-else>
                 确认将“{{ state.sprint.title }}”设为当前 Sprint？此操作不会改变 Scheduler
@@ -986,16 +995,17 @@ function returnToCreation() {
                 type="submit"
                 variant="primary"
                 :disabled="
-                  owner.busy.value || !owner.canSubmitSprintLifecycle.value || owner.sprintStartStale.value
+                  owner.busy.value ||
+                  !owner.canSubmitSprintLifecycle.value ||
+                  owner.sprintStartStale.value
                 "
                 >确认{{ owner.sprintActionLabel.value }} Sprint</UiButton
               >
-              <UiButton :disabled="owner.busy.value" @click="cancelSprintStart">取消{{ owner.sprintActionLabel.value }}</UiButton>
+              <UiButton :disabled="owner.busy.value" @click="cancelSprintStart"
+                >取消{{ owner.sprintActionLabel.value }}</UiButton
+              >
             </form>
-            <TaskCreateForm
-              v-if="owner.creation.open && !owner.pending.value"
-              :owner="owner"
-              @cancel="cancelCreation" />
+            <TaskCreateForm :fallback-focus="pageHeading" :owner="owner" @cancel="cancelCreation" />
             <form
               class="task-search"
               role="search"
@@ -1017,58 +1027,72 @@ function returnToCreation() {
                   :readonly="owner.busy.value"
                 />
               </UiField>
-              <div class="task-search-properties">
-                <UiField v-slot="field" label="筛选状态">
-                  <UiSelect
-                    :id="field.id"
-                    label="筛选状态"
-                    :model-value="owner.search.stateDraft"
-                    :options="filterStates"
-                    :disabled="owner.busy.value"
-                    @update:model-value="selectFilterState"
-                  />
-                </UiField>
-                <UiField v-slot="field" label="筛选优先级">
-                  <UiSelect
-                    :id="field.id"
-                    label="筛选优先级"
-                    :model-value="owner.search.priorityDraft"
-                    :options="filterPriorities"
-                    :disabled="owner.busy.value"
-                    @update:model-value="selectFilterPriority"
-                  />
-                </UiField>
-                <UiField v-slot="field" label="筛选类型">
-                  <UiSelect
-                    :id="field.id"
-                    label="筛选类型"
-                    :model-value="owner.search.typeDraft"
-                    :options="filterTypes"
-                    :disabled="owner.busy.value"
-                    @update:model-value="selectFilterType"
-                  />
-                </UiField>
-                <div ref="agentFilterField" class="task-agent-filter">
-                  <UiField v-slot="field" label="筛选 Agent" :error="state.agentMessage">
+              <details class="task-filter-options">
+                <summary>筛选条件<span v-if="owner.filtersActive.value"> · 已应用</span></summary>
+                <div class="task-search-properties">
+                  <UiField v-slot="field" label="筛选状态">
                     <UiSelect
                       :id="field.id"
-                      label="筛选 Agent"
-                      :model-value="owner.search.assigneeDraft"
-                      :options="owner.filterAgentOptions.value"
+                      label="筛选状态"
+                      :model-value="owner.search.stateDraft"
+                      :options="filterStates"
                       :disabled="owner.busy.value"
-                      :invalid="field.invalid"
-                      :aria-describedby="field.describedby"
-                      @update:model-value="owner.selectAssigneeFilter"
+                      @update:model-value="selectFilterState"
                     />
                   </UiField>
-                  <div v-if="state.agentNext || state.agentMessage" class="task-agent-filter-actions">
-                    <UiButton v-if="state.agentNext" :disabled="owner.busy.value" @click="loadFilterAgents(true)"
-                      >加载更多筛选 Agent</UiButton>
-                    <UiButton v-if="state.agentMessage" :disabled="owner.busy.value" @click="loadFilterAgents()"
-                      >重新读取筛选 Agent</UiButton>
+                  <UiField v-slot="field" label="筛选优先级">
+                    <UiSelect
+                      :id="field.id"
+                      label="筛选优先级"
+                      :model-value="owner.search.priorityDraft"
+                      :options="filterPriorities"
+                      :disabled="owner.busy.value"
+                      @update:model-value="selectFilterPriority"
+                    />
+                  </UiField>
+                  <UiField v-slot="field" label="筛选类型">
+                    <UiSelect
+                      :id="field.id"
+                      label="筛选类型"
+                      :model-value="owner.search.typeDraft"
+                      :options="filterTypes"
+                      :disabled="owner.busy.value"
+                      @update:model-value="selectFilterType"
+                    />
+                  </UiField>
+                  <div ref="agentFilterField" class="task-agent-filter">
+                    <UiField v-slot="field" label="筛选 Agent" :error="state.agentMessage">
+                      <UiSelect
+                        :id="field.id"
+                        label="筛选 Agent"
+                        :model-value="owner.search.assigneeDraft"
+                        :options="owner.filterAgentOptions.value"
+                        :disabled="owner.busy.value"
+                        :invalid="field.invalid"
+                        :aria-describedby="field.describedby"
+                        @update:model-value="owner.selectAssigneeFilter"
+                      />
+                    </UiField>
+                    <div
+                      v-if="state.agentNext || state.agentMessage"
+                      class="task-agent-filter-actions"
+                    >
+                      <UiButton
+                        v-if="state.agentNext"
+                        :disabled="owner.busy.value"
+                        @click="loadFilterAgents(true)"
+                        >加载更多筛选 Agent</UiButton
+                      >
+                      <UiButton
+                        v-if="state.agentMessage"
+                        :disabled="owner.busy.value"
+                        @click="loadFilterAgents()"
+                        >重新读取筛选 Agent</UiButton
+                      >
+                    </div>
                   </div>
                 </div>
-              </div>
+              </details>
               <div class="task-search-actions">
                 <UiButton type="submit" :disabled="owner.busy.value">搜索</UiButton>
                 <UiButton
@@ -1135,17 +1159,23 @@ function returnToCreation() {
   </section>
 </template>
 <style scoped>
-.milestone-description,
-.sprint-description {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
 .tasks-page {
   display: flex;
+  flex: 1;
   flex-direction: column;
-  gap: var(--space);
-  padding: var(--space);
+  gap: 24px;
   min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  padding: 24px;
+}
+.task-notices {
+  flex: 0 1 auto;
+  max-height: 240px;
+  overflow: auto;
+}
+.task-notices:not(:has(p, button)) {
+  display: none;
 }
 .tasks-heading,
 .sprint-heading {
@@ -1154,13 +1184,112 @@ function returnToCreation() {
   gap: var(--content-gap);
   flex-wrap: wrap;
 }
+.tasks-heading {
+  flex: none;
+}
 .tasks-heading h1 {
   margin: 0;
   flex: 1;
 }
+.tasks-layout {
+  display: grid;
+  flex: 1;
+  grid-template-columns: 248px minmax(0, 1fr);
+  gap: 24px;
+  min-width: 0;
+  min-height: 0;
+}
+.tasks-sidebar {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: 0 16px 12px 0;
+  border-right: 1px solid var(--border);
+}
+.tasks-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+}
+.tasks-content > :not(.task-board) {
+  flex: none;
+}
+.tasks-content > .task-board {
+  flex: 1 0 300px;
+}
+.tasks-content > .ui-button {
+  align-self: flex-start;
+}
+.planning-controls {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+}
+.planning-controls > summary,
+.task-filter-options > summary {
+  width: fit-content;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+.planning-controls > summary span {
+  margin-left: 12px;
+  color: var(--text);
+}
+summary:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+.planning-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 12px;
+  padding-top: 16px;
+}
+.selected-milestone {
+  order: -1;
+  flex-basis: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.selected-milestone h2 {
+  flex: 1 1 100%;
+}
+.selected-milestone > form,
+.planning-body > form {
+  flex-basis: 100%;
+}
+.milestone-description,
+.sprint-description {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--muted);
+}
+.milestone-description {
+  flex-basis: 100%;
+}
+.selected-milestone h2,
+.sprint-heading h2 {
+  margin: 0;
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+.sprint-heading h2 {
+  flex: 1 1 160px;
+}
+.sprint-heading {
+  padding-top: 4px;
+}
 .sprint-start-form,
 .sprint-start-recovery {
-  padding: var(--space);
+  padding: 16px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
@@ -1170,123 +1299,94 @@ function returnToCreation() {
   margin-left: var(--content-gap);
 }
 .scheduler-note {
+  margin: 0;
   color: var(--muted);
 }
-.tasks-layout {
-  display: grid;
-  grid-template-columns: 220px minmax(0, 1fr);
-  gap: var(--space);
-  min-width: 0;
-}
-.tasks-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: var(--content-gap);
-}
-.tasks-sidebar nav {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.tasks-sidebar nav button {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 12px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
-  color: var(--text);
-  font: inherit;
-  text-align: left;
-  overflow-wrap: anywhere;
-}
-.tasks-sidebar nav button[aria-current='page'] {
-  background: var(--nav-selected);
-}
-.tasks-sidebar nav button span {
-  min-width: 0;
-}
-.tasks-content {
-  min-width: 0;
-}
 .task-search {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: var(--content-gap);
-  margin-bottom: var(--space);
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) auto;
+  align-items: start;
+  gap: 12px;
 }
 .task-search > .ui-field {
-  flex: 1 1 260px;
+  min-width: 0;
+}
+.task-filter-options {
+  grid-row: 2;
+  grid-column: 1 / -1;
   min-width: 0;
 }
 .task-search-properties {
-  flex: 1 1 640px;
-  min-width: 0;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--content-gap);
+  padding-top: 12px;
 }
 .task-agent-filter {
   min-width: 0;
 }
-.task-agent-filter-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--content-gap);
-  margin-top: var(--content-gap);
-}
-.task-search-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--content-gap);
-  padding-top: 26px;
-}
+.task-agent-filter-actions,
+.task-search-actions,
 .task-search-status {
   display: flex;
   flex-wrap: wrap;
   gap: var(--content-gap);
-  overflow-wrap: anywhere;
 }
-.sprint-heading {
-  margin-bottom: var(--space);
+.task-agent-filter-actions {
+  margin-top: var(--content-gap);
 }
-.selected-milestone h2,
-.sprint-heading h2 {
+.task-search-actions {
+  grid-row: 1;
+  grid-column: 2;
+  padding-top: 26px;
+}
+.task-search-status {
   margin: 0;
-  font-size: 1.25rem;
+  color: var(--muted);
+  font-size: 0.875rem;
   overflow-wrap: anywhere;
 }
-.sidebar-trigger,
-.sidebar-close {
+.sidebar-trigger {
   display: none;
 }
-@media (max-width: 760px) {
+@media (max-width: 1100px) {
   .task-search-properties {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+@media (max-width: 900px) {
+  .tasks-page {
+    padding: 16px;
+    gap: 16px;
+  }
   .tasks-layout {
-    display: block;
+    grid-template-columns: minmax(0, 1fr);
   }
   .tasks-sidebar {
     display: none;
   }
-  .tasks-sidebar.expanded {
-    display: flex;
-    position: fixed;
-    inset: var(--nav-height) 16px 16px;
-    z-index: 40;
-    padding: var(--space);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow);
-    overflow: auto;
-  }
-  .sidebar-trigger,
-  .sidebar-close {
+  .sidebar-trigger {
     display: inline-flex;
+  }
+}
+@media (max-width: 560px) {
+  .task-search {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .task-search-actions {
+    grid-row: 2;
+    grid-column: 1;
+    padding-top: 0;
+  }
+  .task-filter-options {
+    grid-row: 3;
+  }
+  .sprint-heading h2 {
+    flex-basis: calc(100% - 80px);
+  }
+  .planning-controls > summary span {
+    display: block;
+    margin: 8px 0 0;
   }
 }
 </style>

@@ -43,7 +43,11 @@ async function logout() {
 <template>
   <SettingsShell @logout="logout">
     <div class="settings-page">
-      <h1 ref="heading" tabindex="-1">{{ title }}</h1>
+      <header class="page-header">
+        <div class="page-heading">
+          <h1 ref="heading" tabindex="-1">{{ title }}</h1>
+        </div>
+      </header>
       <div v-if="settings.requiresReload.value" role="status">
         <p>已放弃本次页面操作。此前提交仍可能生效，请重新加载当前资料后再编辑。</p>
         <UiButton :disabled="settings.auth.state.busy" @click="settings.load(section)"
@@ -55,6 +59,9 @@ async function logout() {
   </SettingsShell>
 </template>
 <style scoped>
+.page-header {
+  margin-bottom: 4px;
+}
 .settings-page {
   display: grid;
   gap: 20px;

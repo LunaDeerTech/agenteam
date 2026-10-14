@@ -362,7 +362,7 @@ async function providerDraft() {
 
 describe('Project model production routes and visible authority', () => {
   it.each([providerPath, availablePath])(
-    'renders ordinary Owner %s within dual navigation and the exact two-leaf group',
+    'renders ordinary Owner %s within dual navigation and the implemented settings groups',
     async (target) => {
       const f = await app(target)
       expect(f.wrapper.find('nav[aria-label="系统导航"]').text()).toBe('项目')
@@ -374,9 +374,15 @@ describe('Project model production routes and visible authority', () => {
       ).toBe('/owner/demo/settings/general')
       expect(f.wrapper.findAll('nav[aria-label="项目设置"] a').map((x) => x.text())).toEqual([
         '基本信息',
+        '目录与配置',
+        '变量目录',
+        '安全目录',
+        '项目技能库',
+        '调度配置',
         '项目审计',
         'Providers',
         '可用模型',
+        '调用记录',
       ])
       expect(f.reads()).toHaveLength(1)
       expect(f.fetch.mock.calls.some(([path]) => path.startsWith('/api/v1/system/'))).toBe(false)

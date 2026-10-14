@@ -135,18 +135,26 @@ const media = (id: string) => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  margin-inline-start: auto;
+  grid-column: 3;
+  flex-wrap: wrap;
 }
 .media {
   color: var(--muted);
   font-size: 12px;
 }
 .branch-actions {
+  grid-column: 3;
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 4px;
 }
 .knowledge-tree :deep(.tree-row) {
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 24px 16px minmax(0, 1fr);
+  gap: 4px 7px;
+}
+.knowledge-tree :deep(.tree-row > .truncate) {
+  grid-column: 3;
 }
 </style>

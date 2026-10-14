@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
-import { UiButton, UiCard, UiField, UiInput, UiTextarea } from '../ui'
+import { UiButton, UiDialog, UiField, UiInput, UiTextarea } from '../ui'
 import { captureProjectSecretValue } from '../../api/project-secret-commands'
 import type { ProjectSecretEditor } from '../../composables/useProjectSecretEditor'
-const props = defineProps<{ owner: ProjectSecretEditor }>()
+const props = defineProps<{ owner: ProjectSecretEditor; fallbackFocus?: HTMLElement | null }>()
 const emit = defineEmits<{ close: [] }>()
 const form = ref<HTMLFormElement | null>(null),
   materialInput = ref<HTMLTextAreaElement | null>(null)
@@ -152,9 +152,20 @@ onBeforeUnmount(clearMaterial)
 </script>
 
 <template>
-  <UiCard v-if="owner.visible.value && owner.state.open">
-    <form ref="form" :aria-label="title" class="secret-editor" @submit.prevent="submit">
-      <h2>{{ title }}</h2>
+  <UiDialog
+    :open="owner.visible.value && owner.state.open"
+    :title="title"
+    :fallback-focus="fallbackFocus"
+    :close-on-outside="false"
+    @update:open="!$event && close()"
+  >
+    <form
+      id="project-secret-form"
+      ref="form"
+      :aria-label="title"
+      class="secret-editor"
+      @submit.prevent="submit"
+    >
       <template v-if="owner.state.mode !== 'replace'">
         <UiField
           label="Secret 名称"
@@ -163,6 +174,7 @@ onBeforeUnmount(clearMaterial)
           v-slot="field"
         >
           <UiInput
+            data-autofocus
             :id="field.id"
             v-model="owner.state.name"
             :disabled="disabled"
@@ -194,6 +206,7 @@ onBeforeUnmount(clearMaterial)
       >
         <textarea
           ref="materialInput"
+          data-autofocus
           :id="field.id"
           class="ui-input secret-material"
           :disabled="disabled"
@@ -211,21 +224,36 @@ onBeforeUnmount(clearMaterial)
       <p v-if="owner.state.mode === 'metadata'">此操作不会提交或修改 Secret 值。</p>
       <p v-if="owner.state.mode !== 'create'">当前编辑版本：{{ owner.state.version }}</p>
       <p v-if="owner.state.conflict" role="alert">请先重新读取当前版本，材料不会恢复。</p>
-      <div class="secret-editor-actions">
-        <UiButton type="submit" :disabled="disabled || !owner.canSave.value">{{
-          submitLabel
-        }}</UiButton>
-        <UiButton
-          v-if="owner.state.conflict"
-          type="button"
-          :disabled="disabled"
-          @click="owner.readCurrent()"
-          >重新读取当前版本</UiButton
-        >
-        <UiButton type="button" variant="ghost" @click="close">关闭编辑</UiButton>
-      </div>
     </form>
-  </UiCard>
+    <p v-if="owner.state.message" role="status">{{ owner.state.message }}</p>
+    <div v-if="owner.progress.value?.phase === 'uncertain'" class="secret-editor-recovery">
+      <p>原请求尚未确认。材料已清除；检查原请求不会再次提交材料。</p>
+      <UiButton :disabled="!owner.canLookup.value" @click="owner.lookup()">检查原请求</UiButton>
+    </div>
+    <div v-if="owner.progress.value?.phase === 'confirmed'" class="secret-editor-recovery">
+      <p>原请求已确认。请独立读取当前记录。</p>
+      <UiButton :disabled="owner.blocked.value" @click="owner.readConfirmed()"
+        >读取已确认的记录</UiButton
+      >
+    </div>
+    <template #footer>
+      <UiButton
+        v-if="owner.state.conflict"
+        type="button"
+        :disabled="disabled"
+        @click="owner.readCurrent()"
+        >重新读取当前版本</UiButton
+      >
+      <UiButton type="button" variant="ghost" @click="close">关闭编辑</UiButton>
+      <UiButton
+        type="submit"
+        form="project-secret-form"
+        variant="primary"
+        :disabled="disabled || !owner.canSave.value"
+        >{{ submitLabel }}</UiButton
+      >
+    </template>
+  </UiDialog>
 </template>
 <style scoped>
 .secret-editor {

@@ -11,7 +11,7 @@ const page = useSystemRunners(),
     :close-on-outside="false"
     @update:open="!$event && page.closeEditor()"
   >
-    <form class="runner-form" @submit.prevent="page.save">
+    <form id="system-runner-editor" class="runner-form page-form" @submit.prevent="page.save">
       <UiField v-slot="field" label="Runner 名称" required hint="1–128 UTF-8 字节。">
         <UiInput
           data-autofocus
@@ -69,17 +69,20 @@ const page = useSystemRunners(),
       <UiButton v-if="editor.conflict" :disabled="locked" variant="ghost" @click="page.rebase"
         >读取并采用当前版本，保留草稿</UiButton
       >
-      <div class="runner-actions">
-        <UiButton variant="ghost" :disabled="page.blocked.value" @click="page.closeEditor"
-          >取消</UiButton
-        ><UiButton type="submit" :disabled="!canSave">{{
-          editor.mode === 'create' ? '创建 Runner' : '保存修改'
-        }}</UiButton>
-      </div>
     </form>
+    <template #footer>
+      <UiButton variant="ghost" :disabled="page.blocked.value" @click="page.closeEditor"
+        >取消</UiButton
+      ><UiButton type="submit" variant="primary" form="system-runner-editor" :disabled="!canSave">{{
+        editor.mode === 'create' ? '创建 Runner' : '保存修改'
+      }}</UiButton>
+    </template>
   </UiDialog>
 </template>
 <style scoped>
+form > :deep(button) {
+  justify-self: start;
+}
 .runner-form {
   display: grid;
   gap: 16px;

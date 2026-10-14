@@ -151,15 +151,11 @@ function references(item: TaskTimelineEvent): ReadonlyArray<readonly [string, st
     <p v-if="state.phase === 'ready' && !state.items.length">
       {{ state.type === 'all' ? '暂无任务历史。' : '没有此类型的任务历史。' }}
     </p>
-    <UiButton v-if="state.next" :disabled="busy" @click="request(true, $event)">{{
-      state.order === 'desc' ? '加载较早历史' : '加载较新历史'
-    }}</UiButton>
     <ol v-if="state.items.length" class="timeline-events">
       <li v-for="item in state.items" :key="item.id" class="timeline-event">
         <div class="event-heading">
           <h4>{{ titles[item.type] }}</h4>
           <span>{{ item.actor.type === 'human' ? '用户' : '系统调度' }}</span>
-          <span>任务版本 {{ item.task_version }}</span>
         </div>
         <time :datetime="item.created_at">{{ item.created_at }}</time>
         <p v-if="item.type === 'comment'" class="event-text">{{ item.payload.body }}</p>
@@ -203,6 +199,10 @@ function references(item: TaskTimelineEvent): ReadonlyArray<readonly [string, st
         <details>
           <summary>事件身份信息</summary>
           <dl>
+            <div>
+              <dt>任务版本</dt>
+              <dd>{{ item.task_version }}</dd>
+            </div>
             <div v-for="[label, value] in references(item)" :key="label">
               <dt>{{ label }}</dt>
               <dd>{{ value }}</dd>
@@ -211,6 +211,9 @@ function references(item: TaskTimelineEvent): ReadonlyArray<readonly [string, st
         </details>
       </li>
     </ol>
+    <UiButton v-if="state.next" :disabled="busy" @click="request(true, $event)">{{
+      state.order === 'desc' ? '加载较早历史' : '加载较新历史'
+    }}</UiButton>
   </section>
 </template>
 <style scoped>
@@ -219,6 +222,9 @@ function references(item: TaskTimelineEvent): ReadonlyArray<readonly [string, st
   flex-direction: column;
   gap: var(--space);
   min-width: 0;
+}
+.task-timeline > .ui-button {
+  align-self: flex-start;
 }
 .timeline-heading,
 .event-heading {
@@ -273,9 +279,9 @@ time {
   flex-direction: column;
   gap: calc(var(--space) / 2);
   min-width: 0;
-  padding: var(--space);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  padding: 0 0 20px 16px;
+  border-left: 2px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 .event-text {
   white-space: pre-wrap;

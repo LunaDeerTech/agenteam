@@ -41,6 +41,27 @@
 
 Tree 使用可见节点的方向键、Home / End、Enter / Space；右键展开或进入子节点，左键折叠或回到父节点。标签页需要传入有效初始 value，列表和树节点 ID 必须唯一且稳定。
 
+## 页面组合与滚动
+
+页面类型与信息取舍遵循[界面设计逻辑](../../frontend-design/interface-design.md)；可直接复用的组合类定义在 [page-layouts.css](../../../web/src/styles/page-layouts.css)，由 `base.css` 统一导入。它们只组织空间，不新增 Vue 组件、控件主题或业务状态。
+
+| 类名 | 实际职责 |
+| --- | --- |
+| `page-layout` | 普通页面宽度 100%、内边距 24px、`flex: none`；650px 及以下内边距为上下 20px、左右 16px |
+| `page-layout--collection` / `page-layout--reading` | 与 `page-layout` 组合，分别居中限宽 1120px / 800px；宽度包含内边距 |
+| `page-header` / `page-heading` | 页头两端排列并可换行，间距 16px、下间距 24px；标题组内部间距 8px，直属说明文字使用弱化色 |
+| `page-actions` / `page-toolbar` | 动作按内容占宽并换行，间距 8px；工具栏两端排列、间距 12px、下间距 12px |
+| `page-surface` | 共享背景、细边框和 `radius-lg`，不提供内边距、行结构或滚动 |
+| `page-section` / `page-form` | 分区 / 表单纵向间距 16px / 20px；直属按钮不随 grid 拉满 |
+| `page-footer` | 底部信息与操作两端排列并换行，间距 12px、上内边距 16px；连续分页按钮放同一个 `page-actions` 内 |
+| `page-workspace` | 多区工作台使用剩余空间：纵向 flex、`flex: 1`、`min-width/min-height: 0`、外层 `overflow: hidden`；不提供内边距或内部滚动区 |
+
+普通集合/阅读页使用 `page-layout` 及对应限宽修饰类；设置叶页复用 SettingsShell 的菜单、800px 内容宽度和外边距，不重复套 `page-layout`。页面已有 grid 间距时统筹页头下间距，避免重复叠加。工作台各区宽度、断点和滚动由所属页面明确实现，不能只加 `page-workspace` 后把内容裁掉。
+
+[AppShell](../../../web/src/components/layout/AppShell.vue) 在 100dvh 内保留系统导航，`.app-content` 是可收缩的纵向 flex 主区并为普通页面提供滚动。[ProjectWorkspaceView](../../../web/src/views/projects/ProjectWorkspaceView.vue) 在该空间中保留项目导航与状态条，将剩余空间交给 `.project-content`（`flex: 1`、`min-height: 0`、`overflow: auto`）；普通项目内容在此滚动。任务、知识、产物等多区叶页继续使用 `page-workspace`，在目录、看板或阅读区显式分配局部滚动，项目导航不进入这些滚动区。
+
+沿外壳到工作区保持 `min-width/min-height: 0` 的可收缩链；工作台需要常驻的页头、导航和状态条保留自身高度，集合内容按自然高度展开。不要在叶页重新铺一层 100dvh、将列表限宽施加到整个 `.app-content`，或让外层和正文同时滚动同一段内容。组合后需实际检查长列表、窄屏和焦点可见性，类名本身不证明布局已通过验收。
+
 ## 浮层
 
 UiDialog / UiDrawer 使用 `v-model:open`、title、closeOnOutside、closeOnEscape。两种关闭策略默认 true；危险或未保存表单由业务调用方明确设置，不以原型默认值推导产品规则。`close(reason)` 区分 escape / outside / action；footer 插槽提供 close 函数。

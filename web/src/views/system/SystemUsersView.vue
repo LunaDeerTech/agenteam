@@ -37,23 +37,18 @@ const visibleTime = (value: string) => value.slice(0, 10) + ' ' + value.slice(11
 </script>
 <template>
   <div class="system-users">
-    <h1 ref="heading" tabindex="-1">用户</h1>
-    <p class="meta">系统账号目录。注册时间使用 UTC。</p>
-    <div ref="actions" class="directory-actions" aria-label="用户目录分页">
-      <UiButton :disabled="directory.blocked.value" @click="perform(directory.refresh, $event)"
-        >刷新</UiButton
-      >
-      <UiButton
-        :disabled="directory.blocked.value || !state.hasPrevious"
-        @click="perform(directory.previous, $event)"
-        >上一页</UiButton
-      >
-      <UiButton
-        :disabled="directory.blocked.value || !state.hasNext"
-        @click="perform(directory.next, $event)"
-        >下一页</UiButton
-      >
-    </div>
+    <header class="page-header">
+      <div class="page-heading">
+        <h1 ref="heading" tabindex="-1">用户</h1>
+        <p class="meta">系统账号目录。注册时间使用 UTC。</p>
+      </div>
+      <div ref="actions" class="directory-actions page-actions" aria-label="用户目录操作">
+        <UiButton :disabled="directory.blocked.value" @click="perform(directory.refresh, $event)"
+          >刷新</UiButton
+        >
+      </div>
+    </header>
+
     <UiState
       v-if="state.phase === 'waiting' || state.phase === 'loading'"
       kind="loading"
@@ -78,7 +73,7 @@ const visibleTime = (value: string) => value.slice(0, 10) + ' ' + value.slice(11
     <UiState v-else-if="state.phase === 'empty'" kind="empty" title="暂无用户" />
     <div
       v-else-if="state.phase === 'ready'"
-      class="directory-scroll"
+      class="directory-scroll page-surface"
       role="region"
       aria-label="用户列表"
       tabindex="0"
@@ -114,12 +109,31 @@ const visibleTime = (value: string) => value.slice(0, 10) + ' ' + value.slice(11
         </tbody>
       </table>
     </div>
-    <p v-if="state.phase === 'ready' || state.phase === 'empty'" class="meta" role="status">
-      本页 {{ state.rows.length }} 位用户
-    </p>
+    <footer class="page-footer" aria-label="目录分页">
+      <p v-if="state.phase === 'ready' || state.phase === 'empty'" class="meta" role="status">
+        本页 {{ state.rows.length }} 位用户
+      </p>
+      <div class="page-actions">
+        <UiButton
+          :disabled="directory.blocked.value || !state.hasPrevious"
+          @click="perform(directory.previous, $event)"
+          >上一页</UiButton
+        ><UiButton
+          :disabled="directory.blocked.value || !state.hasNext"
+          @click="perform(directory.next, $event)"
+          >下一页</UiButton
+        >
+      </div>
+    </footer>
   </div>
 </template>
 <style scoped>
+.page-header {
+  margin-bottom: 4px;
+}
+.page-footer {
+  padding-top: 0;
+}
 .system-users {
   display: grid;
   gap: 20px;

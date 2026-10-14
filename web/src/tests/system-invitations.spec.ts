@@ -268,7 +268,7 @@ function pendingConfirmation() {
 }
 
 describe('real App, router and invitations controller composition', () => {
-  it('keeps the original /system destination and opens the second exact menu leaf', async () => {
+  it('keeps the original /system destination and opens the invitation menu leaf', async () => {
     const f = await page('/system')
     expect(f.router.currentRoute.value.path).toBe('/system/users')
     await f.wrapper.get('nav[aria-label="系统设置"] a[href="/system/invitations"]').trigger('click')
@@ -277,13 +277,14 @@ describe('real App, router and invitations controller composition', () => {
     expect(f.wrapper.get('nav[aria-label="系统设置"] [aria-current="page"]').text()).toBe(
       '待注册邀请',
     )
-    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(4)
+    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(5)
     expect(
       f.wrapper
         .get('nav[aria-label="系统设置"]')
         .findAll('a')
         .map((a) => a.text()),
     ).toEqual([
+      '设备列表',
       '用户',
       '待注册邀请',
       'Providers',

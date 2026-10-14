@@ -92,6 +92,8 @@ defineExpose({
       '[aria-invalid="true"]',
     )
     if (!input?.isConnected || input.disabled) return false
+    const group = input.closest('details')
+    if (group) group.open = true
     input.focus()
     return input.ownerDocument.activeElement === input
   },
@@ -100,88 +102,105 @@ defineExpose({
 <template>
   <form
     ref="form"
-    class="audit-filters"
+    class="audit-filters page-form"
     aria-label="系统审计筛选"
     novalidate
     @submit.prevent="emit('apply', $event as SubmitEvent)"
   >
-    <fieldset v-for="group in groups" :key="group.label" :disabled="blocked">
-      <legend>{{ group.label }}</legend>
-      <div class="filter-grid">
-        <UiField
-          v-for="field in group.fields"
-          :key="field.key"
-          :id="'audit-filter-' + field.key"
-          :label="field.label"
-          :hint="
-            'hint' in field
-              ? field.hint
-              : field.key.endsWith('_id')
-                ? '可空的小写 UUIDv7。'
-                : undefined
-          "
-          :error="errors[field.key]"
-          v-slot="slot"
-        >
-          <select
-            v-if="field.key === 'action'"
-            :id="slot.id"
-            class="ui-input"
-            :value="draft.action"
-            :aria-invalid="slot.invalid || undefined"
-            :aria-describedby="slot.describedby"
-            @change="update('action', $event)"
-          >
-            <option value="">全部</option>
-            <optgroup v-for="group in actionGroups" :key="group.label" :label="group.label">
-              <option v-for="action in group.values" :key="action" :value="action">
-                {{ action }}
-              </option>
-            </optgroup>
-          </select>
-          <select
-            v-else-if="
-              field.key === 'actor_kind' || field.key === 'outcome' || field.key === 'resource_kind'
+    <details
+      v-for="(group, index) in groups"
+      :key="group.label"
+      :open="index === 0"
+      class="filter-group"
+    >
+      <summary>
+        {{ group.label
+        }}<span v-if="group.fields.some((field) => draft[field.key])" class="meta">已填写</span>
+      </summary>
+      <fieldset :disabled="blocked">
+        <legend>{{ group.label }}</legend>
+        <div class="filter-grid">
+          <UiField
+            v-for="field in group.fields"
+            :key="field.key"
+            :id="'audit-filter-' + field.key"
+            :label="field.label"
+            :hint="
+              'hint' in field
+                ? field.hint
+                : field.key.endsWith('_id')
+                  ? '可空的小写 UUIDv7。'
+                  : undefined
             "
-            :id="slot.id"
-            class="ui-input"
-            :value="draft[field.key]"
-            :aria-invalid="slot.invalid || undefined"
-            :aria-describedby="slot.describedby"
-            @change="update(field.key, $event)"
+            :error="errors[field.key]"
+            v-slot="slot"
           >
-            <option value="">全部</option>
-            <template v-if="field.key === 'actor_kind'"
-              ><option v-for="kind in ['human', 'agent_run', 'service']" :key="kind" :value="kind">
-                {{ kind }}
-              </option></template
+            <select
+              v-if="field.key === 'action'"
+              :id="slot.id"
+              class="ui-input"
+              :value="draft.action"
+              :aria-invalid="slot.invalid || undefined"
+              :aria-describedby="slot.describedby"
+              @change="update('action', $event)"
             >
-            <template v-else-if="field.key === 'outcome'"
-              ><option v-for="outcome in outcomes" :key="outcome.value" :value="outcome.value">
-                {{ outcome.label }}
-              </option></template
+              <option value="">全部</option>
+              <optgroup v-for="group in actionGroups" :key="group.label" :label="group.label">
+                <option v-for="action in group.values" :key="action" :value="action">
+                  {{ action }}
+                </option>
+              </optgroup>
+            </select>
+            <select
+              v-else-if="
+                field.key === 'actor_kind' ||
+                field.key === 'outcome' ||
+                field.key === 'resource_kind'
+              "
+              :id="slot.id"
+              class="ui-input"
+              :value="draft[field.key]"
+              :aria-invalid="slot.invalid || undefined"
+              :aria-describedby="slot.describedby"
+              @change="update(field.key, $event)"
             >
-            <template v-else
-              ><option v-for="kind in auditFilterResourceKinds" :key="kind" :value="kind">
-                {{ kind }}
-              </option></template
-            >
-          </select>
-          <input
-            v-else
-            :id="slot.id"
-            class="ui-input"
-            type="text"
-            :value="draft[field.key]"
-            :aria-invalid="slot.invalid || undefined"
-            :aria-describedby="slot.describedby"
-            autocomplete="off"
-            spellcheck="false"
-            @input="update(field.key, $event)"
-          />
-        </UiField>
-      </div>
-    </fieldset>
+              <option value="">全部</option>
+              <template v-if="field.key === 'actor_kind'"
+                ><option
+                  v-for="kind in ['human', 'agent_run', 'service']"
+                  :key="kind"
+                  :value="kind"
+                >
+                  {{ kind }}
+                </option></template
+              >
+              <template v-else-if="field.key === 'outcome'"
+                ><option v-for="outcome in outcomes" :key="outcome.value" :value="outcome.value">
+                  {{ outcome.label }}
+                </option></template
+              >
+              <template v-else
+                ><option v-for="kind in auditFilterResourceKinds" :key="kind" :value="kind">
+                  {{ kind }}
+                </option></template
+              >
+            </select>
+            <input
+              v-else
+              :id="slot.id"
+              class="ui-input"
+              type="text"
+              :value="draft[field.key]"
+              :aria-invalid="slot.invalid || undefined"
+              :aria-describedby="slot.describedby"
+              autocomplete="off"
+              spellcheck="false"
+              @input="update(field.key, $event)"
+            />
+          </UiField>
+        </div>
+      </fieldset>
+    </details>
     <UiField
       id="audit-filter-limit"
       label="每页数量"
@@ -206,9 +225,11 @@ defineExpose({
       筛选已修改，尚未应用。当前结果仍来自上次已应用的条件。
     </p>
     <p v-if="message" class="error-text" role="alert">{{ message }}</p>
-    <div class="filter-actions">
+    <div class="filter-actions page-actions">
       <UiButton type="submit" variant="primary" :disabled="blocked">应用筛选</UiButton>
-      <UiButton :disabled="blocked" @click="emit('reset', $event)">重置筛选</UiButton>
+      <UiButton variant="ghost" :disabled="blocked" @click="emit('reset', $event)"
+        >重置筛选</UiButton
+      >
     </div>
   </form>
 </template>
@@ -221,13 +242,30 @@ defineExpose({
 fieldset {
   min-width: 0;
   margin: 0;
-  padding: 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  padding: 16px 0 0;
+  border: 0;
+}
+.filter-group {
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  min-width: 0;
+}
+.filter-group summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.filter-group summary span {
+  margin-left: 12px;
+  font-weight: 400;
 }
 legend {
-  padding: 0 6px;
-  font-weight: 600;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 .filter-grid {
   display: grid;

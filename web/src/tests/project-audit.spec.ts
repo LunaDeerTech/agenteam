@@ -311,13 +311,13 @@ async function change(name: string, value: string) {
 }
 const detailButton = (number = 100) => '查看详情 ' + id(number)
 
-describe('actual ProjectNav exact raw settings current state', () => {
+describe('actual ProjectNav validated settings current state', () => {
   it.each([
     ['/owner/demo/settings/general', true],
     ['/owner/demo/settings/audit', true],
     ['/OWNER/DEMO/settings/audit', true],
     ['/owner/demo', false],
-    ['/owner/demo/settings', false],
+    ['/owner/demo/settings', true],
     ['/another/demo/settings/audit', false],
     ['/owner/other/settings/audit', false],
     ['/owner/demo/settings/audit/extra', false],
@@ -341,7 +341,7 @@ describe('actual ProjectNav exact raw settings current state', () => {
     expect(link.attributes('aria-current')).toBe(expected ? 'page' : undefined)
     expect(link.text()).toBe('项目设置')
   })
-  it('also rejects a malformed or non-General settings target', async () => {
+  it('also rejects a malformed or non-Project home when marking settings current', async () => {
     const router = createRouter({
       history: createMemoryHistory(),
       routes: [{ path: '/:pathMatch(.*)*', component: { template: '<div />' } }],
@@ -349,12 +349,13 @@ describe('actual ProjectNav exact raw settings current state', () => {
     routers.push(router)
     await router.push('/owner/demo/settings/audit')
     wrapper = mount(ProjectNav, {
-      props: { name: 'Demo', home: '/owner/demo', settings: '/owner/demo/settings/audit' },
+      props: { name: 'Demo', home: '/projects', settings: '/owner/demo/settings/general' },
       global: { plugins: [router] },
     })
-    expect(wrapper.findAll('a')[1]!.attributes('aria-current')).toBeUndefined()
-    await wrapper.setProps({ settings: '/owner/demo/settings/general?unsafe=true' })
-    expect(wrapper.findAll('a')[1]!.attributes('aria-current')).toBeUndefined()
+    const settings = wrapper.get('a[href="/owner/demo/settings/general"]')
+    expect(settings.attributes('aria-current')).toBeUndefined()
+    await wrapper.setProps({ home: '/owner/demo?unsafe=true' })
+    expect(settings.attributes('aria-current')).toBeUndefined()
   })
 })
 
@@ -372,6 +373,11 @@ describe('production App/Owner/Audit route composition', () => {
       const menu = f.wrapper.get('nav[aria-label="项目设置"]')
       expect(menu.findAll('.settings-group-toggle').map((entry) => entry.text())).toEqual([
         '项目资料',
+        'Agent',
+        '普通变量',
+        'Secrets',
+        'Skills',
+        'Scheduler',
         '安全记录',
         '模型与 Provider',
       ])

@@ -10,6 +10,8 @@ import TaskDependencyForm from './TaskDependencyForm.vue'
 import TaskHumanBlockerForm from './TaskHumanBlockerForm.vue'
 import TaskTimeline from './TaskTimeline.vue'
 import TaskExecutions from './TaskExecutions.vue'
+const types = { feature: '功能', bug: '缺陷', task: '任务', spike: '调研', chore: '维护' }
+const priorities = { critical: '紧急', high: '高', medium: '中', low: '低' }
 const props = defineProps<{ owner: ProjectTasks }>()
 const detail = ref<HTMLElement | null>(null)
 const task = computed(() => props.owner.state.task)
@@ -23,7 +25,8 @@ function openBlocker(event: MouseEvent, id?: string) {
 }
 async function focusBlocker(saved = false) {
   await nextTick()
-  if (!props.owner.visible.value || task.value?.id !== blockerTask || props.owner.pending.value) return
+  if (!props.owner.visible.value || task.value?.id !== blockerTask || props.owner.pending.value)
+    return
   const target = saved ? addBlockerButton.value?.$el : blockerTrigger
   if (target?.isConnected && !target.disabled) target.focus()
 }
@@ -40,7 +43,11 @@ async function openTaskCancel() {
   const target = task.value?.id
   props.owner.chooseAction('cancelled')
   await nextTick()
-  if (props.owner.visible.value && task.value?.id === target && props.owner.draft.action === 'cancelled')
+  if (
+    props.owner.visible.value &&
+    task.value?.id === target &&
+    props.owner.draft.action === 'cancelled'
+  )
     cancelConfirmButton.value?.$el.focus()
 }
 async function keepTask() {
@@ -57,21 +64,37 @@ async function openTaskBlocking(event: MouseEvent) {
   props.owner.chooseAction(task.value?.state === 'todo' ? 'blocked' : 'todo')
   await nextTick()
   if (props.owner.visible.value && task.value?.id === target && props.owner.isBlockTransition.value)
-    detail.value?.querySelector<HTMLElement>('.block-resume-form input, .block-resume-form textarea')?.focus()
+    detail.value
+      ?.querySelector<HTMLElement>('.block-resume-form input, .block-resume-form textarea')
+      ?.focus()
 }
 async function keepTaskBlocking() {
   const target = task.value?.id
   props.owner.keepTask()
   await nextTick()
-  if (props.owner.visible.value && task.value?.id === target && !props.owner.draft.action && blockTrigger?.isConnected && !blockTrigger.disabled)
+  if (
+    props.owner.visible.value &&
+    task.value?.id === target &&
+    !props.owner.draft.action &&
+    blockTrigger?.isConnected &&
+    !blockTrigger.disabled
+  )
     blockTrigger.focus()
 }
 async function submitReview() {
-  const cancelling = props.owner.draft.action === 'cancelled' || props.owner.isBlockTransition.value,
-    target = task.value?.id, project = props.owner.projectID.value
+  const cancelling =
+      props.owner.draft.action === 'cancelled' || props.owner.isBlockTransition.value,
+    target = task.value?.id,
+    project = props.owner.projectID.value
   const saved = await props.owner.submit()
   await nextTick()
-  if (!cancelling || !props.owner.visible.value || props.owner.projectID.value !== project || task.value?.id !== target) return
+  if (
+    !cancelling ||
+    !props.owner.visible.value ||
+    props.owner.projectID.value !== project ||
+    task.value?.id !== target
+  )
+    return
   if (saved) detail.value?.querySelector<HTMLElement>('h2')?.focus()
   else if (props.owner.progress.value?.phase === 'uncertain' && !props.owner.busy.value)
     lookupButton.value?.$el.focus()
@@ -86,11 +109,16 @@ async function openDependency(event: MouseEvent, id?: string) {
   await props.owner.openDependency(id)
   await nextTick()
   if (props.owner.dependency.open && !props.owner.busy.value && task.value?.id === dependencyTask)
-    detail.value?.querySelector<HTMLElement>('form[aria-label="添加任务依赖"] input, form[aria-label="解除任务依赖"] textarea')?.focus()
+    detail.value
+      ?.querySelector<HTMLElement>(
+        'form[aria-label="添加任务依赖"] input, form[aria-label="解除任务依赖"] textarea',
+      )
+      ?.focus()
 }
 async function focusDependency(saved = false) {
   await nextTick()
-  if (!props.owner.visible.value || task.value?.id !== dependencyTask || props.owner.pending.value) return
+  if (!props.owner.visible.value || task.value?.id !== dependencyTask || props.owner.pending.value)
+    return
   const target = saved ? addDependencyButton.value?.$el : dependencyTrigger
   if (target?.isConnected && !target.disabled) target.focus()
   else if (!props.owner.busy.value) refreshButton.value?.$el.focus()
@@ -112,7 +140,11 @@ async function lookup() {
   if (original?.kind.startsWith('dependency-') && confirmed) await focusDependency(true)
   if (original?.kind === 'review' && confirmed) {
     await nextTick()
-    if (props.owner.visible.value && props.owner.projectID.value === original.projectID && task.value?.id === original.taskID)
+    if (
+      props.owner.visible.value &&
+      props.owner.projectID.value === original.projectID &&
+      task.value?.id === original.taskID
+    )
       detail.value?.querySelector<HTMLElement>('h2')?.focus()
   }
 }
@@ -132,7 +164,13 @@ async function openTaskReorder() {
 }
 async function focusTaskReorder() {
   await nextTick()
-  if (!props.owner.visible.value || props.owner.busy.value || task.value?.id !== reorderTask || props.owner.pending.value) return
+  if (
+    !props.owner.visible.value ||
+    props.owner.busy.value ||
+    task.value?.id !== reorderTask ||
+    props.owner.pending.value
+  )
+    return
   const target = reorderButton.value?.$el
   if (target?.isConnected && !target.disabled) target.focus()
   else detail.value?.querySelector<HTMLElement>('h2')?.focus()
@@ -147,18 +185,20 @@ const actionLabel = computed(() =>
   props.owner.draft.action === 'cancelled'
     ? '取消任务'
     : props.owner.draft.action === 'in_review'
-    ? '提交评审'
-    : props.owner.draft.action === 'todo'
-      ? task.value?.state === 'backlog'
-        ? '指派'
-        : '退回修改'
-      : '接受并完成',
+      ? '提交评审'
+      : props.owner.draft.action === 'todo'
+        ? task.value?.state === 'backlog'
+          ? '指派'
+          : '退回修改'
+        : '接受并完成',
 )
 const unresolved = computed(() => props.owner.state.blockers.filter((b) => b.resolved_at === null))
 const canSubmit = computed(
   () =>
     !props.owner.busy.value &&
-    (props.owner.draft.action === 'cancelled' ? props.owner.canCancelTask.value && !props.owner.cancelStale.value : !props.owner.readOnly.value) &&
+    (props.owner.draft.action === 'cancelled'
+      ? props.owner.canCancelTask.value && !props.owner.cancelStale.value
+      : !props.owner.readOnly.value) &&
     !!props.owner.draft.action &&
     (props.owner.draft.action === 'cancelled'
       ? props.owner.draft.comment === '' || !!props.owner.draft.comment.trim()
@@ -178,21 +218,18 @@ const canSubmit = computed(
         <dt>状态</dt>
         <dd>{{ taskLabels[task.state] }}</dd>
       </div>
-      <div>
-        <dt>版本</dt>
-        <dd>{{ task.version }}</dd>
-      </div>
+
       <div>
         <dt>负责人</dt>
         <dd>{{ owner.name(task.assignee_agent_id) }}</dd>
       </div>
       <div>
         <dt>类型</dt>
-        <dd>{{ task.type }}</dd>
+        <dd>{{ types[task.type] }}</dd>
       </div>
       <div>
         <dt>优先级</dt>
-        <dd>{{ task.priority }}</dd>
+        <dd>{{ priorities[task.priority] }}</dd>
       </div>
       <div>
         <dt>Milestone</dt>
@@ -202,17 +239,209 @@ const canSubmit = computed(
         <dt>Sprint</dt>
         <dd>{{ owner.state.sprint?.title }}</dd>
       </div>
-      <div>
-        <dt>任务 ID</dt>
-        <dd>{{ task.id }}</dd>
-      </div>
-      <div>
-        <dt>更新时间</dt>
-        <dd>
-          <time :datetime="task.updated_at">{{ task.updated_at }}</time>
-        </dd>
-      </div>
     </dl>
+    <section class="task-controls" aria-label="任务操作">
+      <p v-if="owner.progress.value?.phase === 'uncertain'" role="status">
+        提交结果待确认。请查询原操作结果，不要重复提交。
+      </p>
+      <UiButton
+        v-if="owner.progress.value?.phase === 'uncertain'"
+        ref="lookupButton"
+        :disabled="owner.busy.value || !owner.progress.value.contextValid"
+        @click="lookup"
+        >查询原操作结果</UiButton
+      >
+      <p v-if="owner.progress.value?.observation === 'in_progress'" role="status">
+        原操作仍在处理中，稍后可再次查询。
+      </p>
+      <p v-if="owner.progress.value?.observation === 'not_observed'" role="status">
+        尚未观察到原操作结果，可再次查询。
+      </p>
+      <p v-if="owner.state.feedback" role="status">{{ owner.state.feedback }}</p>
+      <p v-if="owner.state.message" role="alert">{{ owner.state.message }}</p>
+      <UiButton ref="refreshButton" :disabled="owner.busy.value" @click="owner.refresh()"
+        >重新读取任务</UiButton
+      >
+      <TaskReorderForm
+        v-if="owner.taskReorder.open && !owner.pending.value"
+        :owner="owner"
+        @cancel="cancelTaskReorder"
+        @submit="submitTaskReorder"
+      />
+      <TaskEditForm
+        v-if="owner.edit.open && !owner.pending.value"
+        :owner="owner"
+        @cancel="cancelEdit"
+      />
+      <div
+        v-if="
+          !owner.pending.value &&
+          !owner.edit.open &&
+          !owner.humanBlocker.open &&
+          !owner.dependency.open &&
+          !owner.taskReorder.open
+        "
+        class="review-actions"
+      >
+        <UiButton
+          v-if="task.state === 'backlog' && task.assignee_agent_id === null"
+          ref="editButton"
+          :disabled="owner.busy.value || !owner.canEdit.value || !!owner.draft.action"
+          @click="owner.openEdit()"
+          >编辑任务</UiButton
+        >
+        <UiButton
+          v-if="task.state === 'backlog' && task.assignee_agent_id === null"
+          ref="reorderButton"
+          :disabled="owner.busy.value || !owner.canReorderTask.value"
+          :state="
+            owner.progress.value?.kind === 'reorder' && owner.progress.value.phase === 'confirmed'
+              ? 'success'
+              : 'idle'
+          "
+          success-label="顺序已确认"
+          @click="openTaskReorder"
+          >调整任务顺序</UiButton
+        >
+        <UiButton
+          v-if="!['done', 'cancelled'].includes(task.state) && owner.draft.action !== 'cancelled'"
+          ref="cancelTaskButton"
+          variant="danger"
+          :disabled="
+            owner.busy.value || !owner.canCancelTask.value || owner.isBlockTransition.value
+          "
+          @click="openTaskCancel"
+          >取消任务</UiButton
+        >
+        <UiButton
+          v-if="task.state === 'backlog'"
+          :disabled="owner.busy.value || owner.readOnly.value"
+          @click="owner.chooseAction('todo')"
+          >指派并加入待执行</UiButton
+        >
+        <UiButton
+          v-if="['todo', 'blocked'].includes(task.state)"
+          :disabled="owner.busy.value || !owner.canManageTaskBlocking.value || !!owner.draft.action"
+          @click="openTaskBlocking"
+          >{{ task.state === 'todo' ? '标记受阻' : '解决阻塞并恢复待执行' }}</UiButton
+        >
+        <UiButton
+          v-if="task.state === 'in_progress'"
+          :disabled="owner.busy.value || owner.readOnly.value"
+          @click="owner.chooseAction('in_review')"
+          >提交评审</UiButton
+        >
+        <template v-if="task.state === 'in_review'"
+          ><UiButton
+            :disabled="owner.busy.value || owner.readOnly.value"
+            @click="owner.chooseAction('done')"
+            >接受并完成</UiButton
+          ><UiButton
+            :disabled="owner.busy.value || owner.readOnly.value"
+            @click="owner.chooseAction('todo')"
+            >退回修改</UiButton
+          ></template
+        >
+      </div>
+      <p v-if="['done', 'cancelled'].includes(task.state)" role="status">
+        此任务已结束，保留只读信息。
+      </p>
+      <TaskBlockResumeForm
+        v-if="owner.isBlockTransition.value && !owner.pending.value"
+        :owner="owner"
+        @submit="submitReview"
+        @cancel="keepTaskBlocking"
+      />
+      <form
+        v-if="
+          owner.draft.action &&
+          !owner.isBlockTransition.value &&
+          !owner.pending.value &&
+          !owner.edit.open &&
+          !owner.humanBlocker.open &&
+          !owner.dependency.open &&
+          !owner.taskReorder.open
+        "
+        class="review-form"
+        :aria-label="owner.draft.action === 'cancelled' ? '取消任务确认' : actionLabel"
+        @submit.prevent="submitReview"
+      >
+        <h3>{{ actionLabel }}</h3>
+        <p v-if="owner.draft.action === 'cancelled'">
+          确认取消此任务？取消后不可恢复，将保留当前负责人和阻塞记录。此操作不会取消 Execution。
+        </p>
+        <p v-if="owner.cancelStale.value" role="alert">
+          任务已变化，请选择“保留任务”，重新读取并核对后再明确取消。
+        </p>
+        <UiField
+          v-if="!['done', 'cancelled'].includes(owner.draft.action)"
+          :label="owner.draft.action === 'in_review' ? '评审 Agent' : '执行 Agent'"
+          required
+          v-slot="field"
+          ><UiSelect
+            :id="field.id"
+            v-model="owner.draft.agentID"
+            :label="owner.draft.action === 'in_review' ? '评审 Agent' : '执行 Agent'"
+            :options="owner.agentOptions.value"
+            :disabled="owner.busy.value || owner.readOnly.value"
+        /></UiField>
+        <template v-if="!['done', 'cancelled'].includes(owner.draft.action)"
+          ><p v-if="owner.state.agentMessage" role="alert">{{ owner.state.agentMessage }}</p>
+          <UiButton
+            v-if="owner.state.agentNext"
+            type="button"
+            :disabled="owner.busy.value"
+            @click="owner.loadAgents(true)"
+            >更多 Agent</UiButton
+          ><UiButton
+            v-if="owner.state.agentMessage"
+            type="button"
+            :disabled="owner.busy.value"
+            @click="owner.loadAgents()"
+            >重新读取 Agent 目录</UiButton
+          ></template
+        >
+        <UiField
+          :label="
+            owner.draft.action === 'cancelled'
+              ? '取消说明'
+              : task.state === 'backlog'
+                ? '指派说明'
+                : '评审说明'
+          "
+          :required="owner.draft.action !== 'cancelled' && task.state !== 'backlog'"
+          hint="填写的说明将作为任务历史保留。"
+          v-slot="field"
+          ><UiTextarea
+            :id="field.id"
+            v-model="owner.draft.comment"
+            :aria-describedby="field.describedby"
+            :disabled="
+              owner.busy.value ||
+              (owner.draft.action === 'cancelled'
+                ? !owner.canCancelTask.value
+                : owner.readOnly.value)
+            "
+            rows="5"
+        /></UiField>
+        <p v-if="owner.draft.action === 'todo' && (unresolved.length || owner.state.blockerNext)">
+          提交前需要读取并确认全部阻塞已解除。
+        </p>
+        <UiButton
+          ref="cancelConfirmButton"
+          type="submit"
+          :variant="owner.draft.action === 'cancelled' ? 'danger' : 'default'"
+          :disabled="!canSubmit"
+          >确认{{ actionLabel }}</UiButton
+        >
+        <UiButton
+          v-if="owner.draft.action === 'cancelled'"
+          :disabled="owner.busy.value || !!owner.pending.value"
+          @click="keepTask"
+          >保留任务</UiButton
+        >
+      </form>
+    </section>
     <section>
       <h3>任务描述</h3>
       <p class="task-copy">{{ task.description || '暂无描述' }}</p>
@@ -226,7 +455,9 @@ const canSubmit = computed(
       <UiButton
         v-if="!['done', 'cancelled'].includes(task.state) && !owner.pending.value"
         ref="addBlockerButton"
-        :disabled="owner.busy.value || !owner.canManageHumanBlockers.value || owner.humanBlocker.open"
+        :disabled="
+          owner.busy.value || !owner.canManageHumanBlockers.value || owner.humanBlocker.open
+        "
         @click="openBlocker($event)"
         >添加人工阻塞</UiButton
       >
@@ -253,17 +484,36 @@ const canSubmit = computed(
           }}
           <p>{{ b.description }}</p>
           <p v-if="b.related_task_id">关联任务：{{ b.related_task_id }}</p>
-          <UiButton v-if="b.type === 'rely_on' && b.related_task_id" :disabled="owner.busy.value" @click="owner.viewDependency(b.id)">查看关联任务</UiButton>
           <UiButton
-            v-if="b.type === 'rely_on' && b.resolved_at === null && !['done', 'cancelled'].includes(task.state) && !owner.pending.value"
-            :disabled="owner.busy.value || !owner.canManageDependencies.value || owner.dependency.open"
+            v-if="b.type === 'rely_on' && b.related_task_id"
+            :disabled="owner.busy.value"
+            @click="owner.viewDependency(b.id)"
+            >查看关联任务</UiButton
+          >
+          <UiButton
+            v-if="
+              b.type === 'rely_on' &&
+              b.resolved_at === null &&
+              !['done', 'cancelled'].includes(task.state) &&
+              !owner.pending.value
+            "
+            :disabled="
+              owner.busy.value || !owner.canManageDependencies.value || owner.dependency.open
+            "
             @click="openDependency($event, b.id)"
             >解除任务依赖</UiButton
           >
           <p v-if="b.resolution_comment">{{ b.resolution_comment }}</p>
           <UiButton
-            v-if="b.type === 'waiting_for_human' && b.resolved_at === null && !['done', 'cancelled'].includes(task.state) && !owner.pending.value"
-            :disabled="owner.busy.value || !owner.canManageHumanBlockers.value || owner.humanBlocker.open"
+            v-if="
+              b.type === 'waiting_for_human' &&
+              b.resolved_at === null &&
+              !['done', 'cancelled'].includes(task.state) &&
+              !owner.pending.value
+            "
+            :disabled="
+              owner.busy.value || !owner.canManageHumanBlockers.value || owner.humanBlocker.open
+            "
             @click="openBlocker($event, b.id)"
             >解除人工阻塞</UiButton
           >
@@ -275,7 +525,12 @@ const canSubmit = computed(
         @click="owner.loadBlockers(true)"
         >更多阻塞记录</UiButton
       >
-      <TaskDependencyForm v-if="owner.dependency.open && !owner.pending.value" :owner="owner" @cancel="cancelDependency" @submit="submitDependency" />
+      <TaskDependencyForm
+        v-if="owner.dependency.open && !owner.pending.value"
+        :owner="owner"
+        @cancel="cancelDependency"
+        @submit="submitDependency"
+      />
       <TaskHumanBlockerForm
         v-if="owner.humanBlocker.open && !owner.pending.value"
         :owner="owner"
@@ -283,156 +538,25 @@ const canSubmit = computed(
         @submit="submitBlocker"
       />
     </section>
-    <p v-if="owner.progress.value?.phase === 'uncertain'" role="status">
-      提交结果待确认。请查询原操作结果，不要重复提交。
-    </p>
-    <UiButton
-      v-if="owner.progress.value?.phase === 'uncertain'"
-      ref="lookupButton"
-      :disabled="owner.busy.value || !owner.progress.value.contextValid"
-      @click="lookup"
-      >查询原操作结果</UiButton
-    >
-    <p v-if="owner.progress.value?.observation === 'in_progress'" role="status">
-      原操作仍在处理中，稍后可再次查询。
-    </p>
-    <p v-if="owner.progress.value?.observation === 'not_observed'" role="status">
-      尚未观察到原操作结果，可再次查询。
-    </p>
-    <p v-if="owner.state.feedback" role="status">{{ owner.state.feedback }}</p>
-    <p v-if="owner.state.message" role="alert">{{ owner.state.message }}</p>
-    <UiButton ref="refreshButton" :disabled="owner.busy.value" @click="owner.refresh()">重新读取任务</UiButton>
-    <TaskReorderForm
-      v-if="owner.taskReorder.open && !owner.pending.value"
-      :owner="owner"
-      @cancel="cancelTaskReorder"
-      @submit="submitTaskReorder"
-    />
-    <TaskEditForm
-      v-if="owner.edit.open && !owner.pending.value"
-      :owner="owner"
-      @cancel="cancelEdit"
-    />
-    <div v-if="!owner.pending.value && !owner.edit.open && !owner.humanBlocker.open && !owner.dependency.open && !owner.taskReorder.open" class="review-actions">
-      <UiButton
-        v-if="task.state === 'backlog' && task.assignee_agent_id === null"
-        ref="editButton"
-        :disabled="owner.busy.value || !owner.canEdit.value || !!owner.draft.action"
-        @click="owner.openEdit()"
-        >编辑任务</UiButton
-      >
-      <UiButton
-        v-if="task.state === 'backlog' && task.assignee_agent_id === null"
-        ref="reorderButton"
-        :disabled="owner.busy.value || !owner.canReorderTask.value"
-        :state="owner.progress.value?.kind === 'reorder' && owner.progress.value.phase === 'confirmed' ? 'success' : 'idle'"
-        success-label="顺序已确认"
-        @click="openTaskReorder"
-        >调整任务顺序</UiButton
-      >
-      <UiButton
-        v-if="!['done', 'cancelled'].includes(task.state) && owner.draft.action !== 'cancelled'"
-        ref="cancelTaskButton"
-        variant="danger"
-        :disabled="owner.busy.value || !owner.canCancelTask.value || owner.isBlockTransition.value"
-        @click="openTaskCancel"
-        >取消任务</UiButton
-      >
-      <UiButton
-        v-if="task.state === 'backlog'"
-        :disabled="owner.busy.value || owner.readOnly.value"
-        @click="owner.chooseAction('todo')"
-        >指派并加入待执行</UiButton
-      >
-      <UiButton
-        v-if="['todo', 'blocked'].includes(task.state)"
-        :disabled="owner.busy.value || !owner.canManageTaskBlocking.value || !!owner.draft.action"
-        @click="openTaskBlocking"
-      >{{ task.state === 'todo' ? '标记受阻' : '解决阻塞并恢复待执行' }}</UiButton>
-      <UiButton
-        v-if="task.state === 'in_progress'"
-        :disabled="owner.busy.value || owner.readOnly.value"
-        @click="owner.chooseAction('in_review')"
-        >提交评审</UiButton
-      >
-      <template v-if="task.state === 'in_review'"
-        ><UiButton
-          :disabled="owner.busy.value || owner.readOnly.value"
-          @click="owner.chooseAction('done')"
-          >接受并完成</UiButton
-        ><UiButton
-          :disabled="owner.busy.value || owner.readOnly.value"
-          @click="owner.chooseAction('todo')"
-          >退回修改</UiButton
-        ></template
-      >
-    </div>
-    <p v-if="['done', 'cancelled'].includes(task.state)" role="status">
-      此任务已结束，保留只读信息。
-    </p>
-    <TaskBlockResumeForm
-      v-if="owner.isBlockTransition.value && !owner.pending.value"
-      :owner="owner"
-      @submit="submitReview"
-      @cancel="keepTaskBlocking"
-    />
-    <form
-      v-if="owner.draft.action && !owner.isBlockTransition.value && !owner.pending.value && !owner.edit.open && !owner.humanBlocker.open && !owner.dependency.open && !owner.taskReorder.open"
-      class="review-form"
-      :aria-label="owner.draft.action === 'cancelled' ? '取消任务确认' : actionLabel"
-      @submit.prevent="submitReview"
-    >
-      <h3>{{ actionLabel }}</h3>
-      <p v-if="owner.draft.action === 'cancelled'">
-        确认取消此任务？取消后不可恢复，将保留当前负责人和阻塞记录。此操作不会取消 Execution。
-      </p>
-      <p v-if="owner.cancelStale.value" role="alert">任务已变化，请选择“保留任务”，重新读取并核对后再明确取消。</p>
-      <UiField
-        v-if="!['done', 'cancelled'].includes(owner.draft.action)"
-        :label="owner.draft.action === 'in_review' ? '评审 Agent' : '执行 Agent'"
-        required
-        v-slot="field"
-        ><UiSelect
-          :id="field.id"
-          v-model="owner.draft.agentID"
-          :label="owner.draft.action === 'in_review' ? '评审 Agent' : '执行 Agent'"
-          :options="owner.agentOptions.value"
-          :disabled="owner.busy.value || owner.readOnly.value"
-      /></UiField>
-      <template v-if="!['done', 'cancelled'].includes(owner.draft.action)"
-        ><p v-if="owner.state.agentMessage" role="alert">{{ owner.state.agentMessage }}</p>
-        <UiButton
-          v-if="owner.state.agentNext"
-          type="button"
-          :disabled="owner.busy.value"
-          @click="owner.loadAgents(true)"
-          >更多 Agent</UiButton
-        ><UiButton
-          v-if="owner.state.agentMessage"
-          type="button"
-          :disabled="owner.busy.value"
-          @click="owner.loadAgents()"
-          >重新读取 Agent 目录</UiButton
-        ></template
-      >
-      <UiField
-        :label="owner.draft.action === 'cancelled' ? '取消说明' : task.state === 'backlog' ? '指派说明' : '评审说明'"
-        :required="owner.draft.action !== 'cancelled' && task.state !== 'backlog'"
-        hint="填写的说明将作为任务历史保留。"
-        v-slot="field"
-        ><UiTextarea
-          :id="field.id"
-          v-model="owner.draft.comment"
-          :aria-describedby="field.describedby"
-          :disabled="owner.busy.value || (owner.draft.action === 'cancelled' ? !owner.canCancelTask.value : owner.readOnly.value)"
-          rows="5"
-      /></UiField>
-      <p v-if="owner.draft.action === 'todo' && (unresolved.length || owner.state.blockerNext)">
-        提交前需要读取并确认全部阻塞已解除。
-      </p>
-      <UiButton ref="cancelConfirmButton" type="submit" :variant="owner.draft.action === 'cancelled' ? 'danger' : 'default'" :disabled="!canSubmit">确认{{ actionLabel }}</UiButton>
-      <UiButton v-if="owner.draft.action === 'cancelled'" :disabled="owner.busy.value || !!owner.pending.value" @click="keepTask">保留任务</UiButton>
-    </form>
+    <details class="task-metadata">
+      <summary>任务元信息</summary>
+      <dl class="task-facts">
+        <div>
+          <dt>版本</dt>
+          <dd>{{ task.version }}</dd>
+        </div>
+        <div>
+          <dt>任务 ID</dt>
+          <dd>{{ task.id }}</dd>
+        </div>
+        <div>
+          <dt>更新时间</dt>
+          <dd>
+            <time :datetime="task.updated_at">{{ task.updated_at }}</time>
+          </dd>
+        </div>
+      </dl>
+    </details>
     <TaskExecutions :owner="owner.executions" :agent-name="owner.name" />
     <TaskTimeline
       :state="owner.timeline"
@@ -447,8 +571,38 @@ const canSubmit = computed(
 .task-detail {
   display: flex;
   flex-direction: column;
-  gap: var(--space);
+  gap: 24px;
   min-width: 0;
+}
+.task-detail > section,
+.task-metadata {
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+}
+.task-detail > .task-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.task-controls > .ui-button,
+.review-form > .ui-button {
+  align-self: flex-start;
+}
+.task-controls p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.task-metadata summary {
+  width: fit-content;
+  color: var(--muted);
+  cursor: pointer;
+}
+.task-metadata summary:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+.task-metadata .task-facts {
+  margin-top: 16px;
 }
 .task-detail h2,
 .task-detail h3 {
@@ -473,8 +627,10 @@ const canSubmit = computed(
   overflow-wrap: anywhere;
 }
 .task-copy {
+  margin: 12px 0 0;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+  line-height: 1.7;
 }
 .review-actions {
   display: flex;
@@ -496,6 +652,8 @@ const canSubmit = computed(
   gap: 12px;
 }
 .blockers li {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
   overflow-wrap: anywhere;
 }
 .blockers p {

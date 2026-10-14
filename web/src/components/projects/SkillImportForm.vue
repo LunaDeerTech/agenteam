@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { UiButton, UiField } from '../ui'
 import type { SkillImportController } from '../../composables/useSkillImport'
-defineProps<{ owner: SkillImportController }>()
+defineProps<{ owner: SkillImportController; embedded?: boolean }>()
 const emit = defineEmits<{ close: [] }>()
 function files(event: Event) {
   return (event.target as HTMLInputElement).files ?? []
 }
 </script>
 <template>
-  <section class="skill-import" aria-labelledby="skill-import-heading">
-    <h2 id="skill-import-heading" tabindex="-1">导入技能包</h2>
+  <section class="skill-import" :class="{ embedded }" aria-label="导入技能包">
+    <h2 v-if="!embedded" id="skill-import-heading" tabindex="-1">导入技能包</h2>
     <p>
       选择磁盘上已有的单文件 SKILL.md 标准包。仅接受 UTF-8、LF 换行和不超过 256 KiB 的文件；不接受
       BOM、CR 或 NUL。名称和描述由服务端校验，文件内容不会被修改。
@@ -17,12 +17,13 @@ function files(event: Event) {
     <p v-if="owner.otherPending.value" role="status">
       另一个项目有尚未清理的导入状态，请返回原项目查看。
     </p>
-    <form v-else-if="owner.editable.value" @submit.prevent="owner.act()">
+    <form id="skill-import-form" v-else-if="owner.editable.value" @submit.prevent="owner.act()">
       <UiField v-slot="field" label="SKILL.md 文件" required>
         <input
           :key="owner.fileRevision.value"
           :id="field.id"
           type="file"
+          data-autofocus
           accept=".md"
           :disabled="owner.blocked.value || !owner.canWrite.value"
           @change="owner.select(files($event))"
@@ -33,7 +34,7 @@ function files(event: Event) {
         {{ owner.selected.value.name }} · {{ owner.selected.value.size }} 字节
       </p>
       <p v-if="!owner.canWrite.value" role="status">当前项目只读，不能导入技能包。</p>
-      <UiButton type="submit" variant="primary" :disabled="!owner.canSubmit.value"
+      <UiButton v-if="!embedded" type="submit" variant="primary" :disabled="!owner.canSubmit.value"
         >确认导入</UiButton
       >
     </form>
@@ -58,7 +59,9 @@ function files(event: Event) {
       </template>
     </template>
     <p v-if="owner.message.value" role="alert">{{ owner.message.value }}</p>
-    <UiButton :disabled="owner.blocked.value" @click="emit('close')">取消</UiButton>
+    <UiButton v-if="!embedded" :disabled="owner.blocked.value" @click="emit('close')"
+      >取消</UiButton
+    >
   </section>
 </template>
 <style scoped>
@@ -73,6 +76,15 @@ form {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   background: var(--surface);
+}
+.skill-import.embedded {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.skill-import > :deep(.ui-button),
+form > :deep(.ui-button) {
+  justify-self: start;
 }
 .skill-import h2 {
   margin: 0;

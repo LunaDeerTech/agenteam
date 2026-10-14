@@ -19,7 +19,7 @@ test("creates and replaces plain root and Markdown child text [create-and-replac
   await press(page,"保存文本");await expect(create.getByText("保存已确认；已读取当前文档、正文与目录。",{exact:true})).toBeVisible();
   seen.stage(index===0?"plain-create-proof":"markdown-create-proof");await seen.verify();seen.current(index,1);
   await press(page,"关闭编辑器");await expect(create).toHaveCount(0);await expect(page.locator(".ui-overlay")).toHaveCount(0);
-  await expect(page.locator(".knowledge-document > h2")).toHaveText(index===0?"纯文本笔记":"Markdown 子文档");
+  await expect(page.locator(".knowledge-document h2[tabindex='-1']")).toHaveText(index===0?"纯文本笔记":"Markdown 子文档");
   await expect.poll(()=>page.locator("pre.canonical-text").textContent()).toBe(index===0?data.plain:data.markdown);
   seen.stage(index===0?"plain-edit-open":"markdown-edit-open");await press(page,"编辑正文");const edit=page.getByRole("dialog",{name:"编辑正文",exact:true});await expect(edit).toBeVisible();
   const body=edit.getByRole("textbox",{name:"正文",exact:true});await expect(body).toHaveValue(index===0?data.plain:data.markdown);await body.fill(index===0?data.plain_updated:data.markdown_updated);

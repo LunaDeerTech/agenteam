@@ -52,24 +52,30 @@ function setLimit(value: string) {
     <ul v-if="models.state.items.length" class="records" aria-label="项目 Models 列表">
       <li v-for="item in models.state.items" :key="item.id" :data-model-id="item.id">
         <h3>{{ item.input.name }}</h3>
-        <dl>
-          <dt>Model ID</dt>
-          <dd class="identifier">{{ item.id }}</dd>
-          <dt>Provider ID</dt>
-          <dd class="identifier">{{ item.provider_id }}</dd>
-          <template v-if="providerName(item.provider_id)"
-            ><dt>已读 Provider 名称</dt>
-            <dd>{{ providerName(item.provider_id) }}</dd></template
-          >
-          <dt>原生型号</dt>
-          <dd>{{ item.input.provider_model_id }}</dd>
-          <dt>类型</dt>
-          <dd>{{ item.input.type }}</dd>
-          <dt>状态</dt>
-          <dd>{{ item.input.enabled ? '启用' : '禁用' }}</dd>
-          <dt>版本</dt>
-          <dd>{{ item.version }}</dd>
-        </dl>
+        <p class="meta">
+          {{ item.input.provider_model_id }} · {{ item.input.enabled ? '启用' : '禁用' }}
+        </p>
+        <details class="record-details">
+          <summary>配置标识</summary>
+          <dl>
+            <dt>Model ID</dt>
+            <dd class="identifier">{{ item.id }}</dd>
+            <dt>Provider ID</dt>
+            <dd class="identifier">{{ item.provider_id }}</dd>
+            <template v-if="providerName(item.provider_id)"
+              ><dt>已读 Provider 名称</dt>
+              <dd>{{ providerName(item.provider_id) }}</dd></template
+            >
+            <dt>原生型号</dt>
+            <dd>{{ item.input.provider_model_id }}</dd>
+            <dt>类型</dt>
+            <dd>{{ item.input.type }}</dd>
+            <dt>状态</dt>
+            <dd>{{ item.input.enabled ? '启用' : '禁用' }}</dd>
+            <dt>版本</dt>
+            <dd>{{ item.version }}</dd>
+          </dl>
+        </details>
         <UiButton
           :aria-label="`读取 Model ${item.id}`"
           :disabled="blocked || pending"
@@ -99,6 +105,22 @@ function setLimit(value: string) {
   </section>
 </template>
 <style scoped>
+.record-details {
+  width: 100%;
+  min-width: 0;
+}
+.record-details summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 12px;
+}
+.record-details[open] summary {
+  margin-bottom: 12px;
+}
+.records li:last-child {
+  border-bottom: 0;
+}
+
 .models-panel {
   min-width: 0;
   border-top: 1px solid var(--border);
@@ -135,9 +157,9 @@ p {
   list-style: none;
   padding: 0;
   display: grid;
-  gap: 12px;
+  gap: 0;
+  border-block: 1px solid var(--border);
 }
-.records li,
 .notice {
   min-width: 0;
   padding: 16px;
@@ -145,6 +167,9 @@ p {
   border-radius: var(--radius);
 }
 .records li {
+  padding: 12px 0;
+  min-width: 0;
+  border-bottom: 1px solid var(--border);
   display: grid;
   gap: 12px;
   justify-items: start;

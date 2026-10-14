@@ -54,47 +54,11 @@ async function perform(work: () => unknown | Promise<unknown>, event: Event) {
 
 <template>
   <section v-if="visible" class="project-general" aria-labelledby="project-general-heading">
-    <h2 id="project-general-heading" ref="heading" tabindex="-1">基本信息</h2>
+    <header class="page-heading">
+      <h1 id="project-general-heading" ref="heading" tabindex="-1">基本信息</h1>
+      <p class="meta">管理项目名称与描述。</p>
+    </header>
     <template v-if="detail.project">
-      <p class="meta">查看项目身份、名称和描述。</p>
-      <dl class="project-facts">
-        <div>
-          <dt>Project ID</dt>
-          <dd>
-            <code>{{ detail.project.id }}</code>
-          </dd>
-        </div>
-        <div>
-          <dt>Owner</dt>
-          <dd>
-            {{ ownerName }} <code>{{ detail.project.owner_user_id }}</code>
-          </dd>
-        </div>
-        <div>
-          <dt>当前版本</dt>
-          <dd>
-            <code>{{ detail.project.version }}</code>
-          </dd>
-        </div>
-        <div>
-          <dt>创建时间</dt>
-          <dd>
-            <time :datetime="detail.project.created_at">{{ detail.project.created_at }}</time>
-          </dd>
-        </div>
-        <div>
-          <dt>更新时间</dt>
-          <dd>
-            <time :datetime="detail.project.updated_at">{{ detail.project.updated_at }}</time>
-          </dd>
-        </div>
-        <div v-if="detail.project.archived_at">
-          <dt>归档时间</dt>
-          <dd>
-            <time :datetime="detail.project.archived_at">{{ detail.project.archived_at }}</time>
-          </dd>
-        </div>
-      </dl>
       <form
         v-if="editor.ready"
         class="project-form"
@@ -173,6 +137,47 @@ async function perform(work: () => unknown | Promise<unknown>, event: Event) {
           >重新读取当前值</UiButton
         >
       </div>
+      <details class="project-records">
+        <summary>项目标识与记录</summary>
+        <dl class="project-facts">
+          <div>
+            <dt>Project ID</dt>
+            <dd>
+              <code>{{ detail.project.id }}</code>
+            </dd>
+          </div>
+          <div>
+            <dt>Owner</dt>
+            <dd>
+              {{ ownerName }} <code>{{ detail.project.owner_user_id }}</code>
+            </dd>
+          </div>
+          <div>
+            <dt>当前版本</dt>
+            <dd>
+              <code>{{ detail.project.version }}</code>
+            </dd>
+          </div>
+          <div>
+            <dt>创建时间</dt>
+            <dd>
+              <time :datetime="detail.project.created_at">{{ detail.project.created_at }}</time>
+            </dd>
+          </div>
+          <div>
+            <dt>更新时间</dt>
+            <dd>
+              <time :datetime="detail.project.updated_at">{{ detail.project.updated_at }}</time>
+            </dd>
+          </div>
+          <div v-if="detail.project.archived_at">
+            <dt>归档时间</dt>
+            <dd>
+              <time :datetime="detail.project.archived_at">{{ detail.project.archived_at }}</time>
+            </dd>
+          </div>
+        </dl>
+      </details>
       <section
         v-if="editor.conflict"
         class="project-review"
@@ -252,8 +257,25 @@ async function perform(work: () => unknown | Promise<unknown>, event: Event) {
 </template>
 
 <style scoped>
-.project-general,
-.project-form,
+.project-general {
+  display: grid;
+  min-width: 0;
+  gap: var(--section-gap);
+}
+.project-form {
+  display: grid;
+  min-width: 0;
+  gap: 20px;
+}
+.project-records {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+.project-records summary {
+  cursor: pointer;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
 .project-review,
 .project-recovery {
   display: grid;

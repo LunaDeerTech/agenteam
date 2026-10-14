@@ -94,7 +94,9 @@ describe('Knowledge subtree deletion installed in App', () => {
     button('关闭', dialog.querySelector('.dialog-footer') ?? dialog).click()
     await flushPromises()
     expect(document.querySelector('[role="dialog"]')).toBeNull()
-    expect(document.activeElement).toBe(document.querySelector('.knowledge-document > h2'))
+    expect(document.activeElement).toBe(
+      document.querySelector('.knowledge-document h2[tabindex="-1"]'),
+    )
     const heading = document.querySelector('.knowledge-document h3')!
     expect(heading.textContent?.trim()).toBe('!文档已删除')
     const accessibleHeading = heading.cloneNode(true) as HTMLElement
@@ -125,7 +127,9 @@ describe('Knowledge subtree deletion installed in App', () => {
     sibling.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
     await flushPromises()
     expect(document.querySelector('[role="dialog"]')).toBeNull()
-    expect(document.querySelector('.knowledge-document > h2')?.textContent).toBe('保留旁支')
+    expect(document.querySelector('.knowledge-document h2[tabindex="-1"]')?.textContent).toBe(
+      '保留旁支',
+    )
     expect(document.querySelector('pre.canonical-text')?.textContent).toBe('正文')
     expect(f.fetch.mock.calls.filter(([path]) => path.endsWith('/delete-subtree'))).toHaveLength(1)
   })

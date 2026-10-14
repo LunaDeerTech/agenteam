@@ -81,10 +81,16 @@ async function refresh(event: MouseEvent) {
   else heading.value?.focus()
 }
 async function loadOutput(event: MouseEvent) {
-  const trigger = event.currentTarget as HTMLButtonElement, focused = document.activeElement === trigger
+  const trigger = event.currentTarget as HTMLButtonElement,
+    focused = document.activeElement === trigger
   await props.owner.loadOutput()
   await nextTick()
-  if (!focused || !props.owner.visible.value || (document.activeElement !== document.body && document.activeElement !== trigger)) return
+  if (
+    !focused ||
+    !props.owner.visible.value ||
+    (document.activeElement !== document.body && document.activeElement !== trigger)
+  )
+    return
   if (trigger.isConnected && !trigger.disabled) trigger.focus()
   else if (props.owner.state.selectedID) detailHeading.value?.focus()
   else heading.value?.focus()
@@ -158,26 +164,7 @@ async function close() {
             <dt>执行 Agent</dt>
             <dd>{{ agentName(owner.state.detail.agent_id) }}</dd>
           </div>
-          <div>
-            <dt>Agent ID</dt>
-            <dd>{{ owner.state.detail.agent_id }}</dd>
-          </div>
-          <div>
-            <dt>执行 ID</dt>
-            <dd>{{ owner.state.detail.id }}</dd>
-          </div>
-          <div>
-            <dt>执行版本</dt>
-            <dd>{{ owner.state.detail.version }}</dd>
-          </div>
-          <div>
-            <dt>任务 ID</dt>
-            <dd>{{ owner.state.detail.task_id }}</dd>
-          </div>
-          <div>
-            <dt>项目 ID</dt>
-            <dd>{{ owner.state.detail.project_id }}</dd>
-          </div>
+
           <div>
             <dt>创建时间</dt>
             <dd>
@@ -220,12 +207,44 @@ async function close() {
             <dt>结束原因</dt>
             <dd>{{ owner.state.detail.reason ? reasons[owner.state.detail.reason] : '未提供' }}</dd>
           </div>
-          <div>
-            <dt>执行快照 ID</dt>
-            <dd>{{ owner.state.detail.snapshot_id ?? '未生成' }}</dd>
-          </div>
         </dl>
-        <TaskExecutionOutput v-if="owner.state.detail && owner.state.detailPhase === 'ready'" :owner="owner" @load="loadOutput" />
+        <TaskExecutionOutput
+          v-if="owner.state.detail && owner.state.detailPhase === 'ready'"
+          :owner="owner"
+          @load="loadOutput"
+        />
+        <details
+          v-if="owner.state.detail && owner.state.detailPhase === 'ready'"
+          class="execution-metadata"
+        >
+          <summary>执行身份与版本</summary>
+          <dl class="execution-facts">
+            <div>
+              <dt>Agent ID</dt>
+              <dd>{{ owner.state.detail.agent_id }}</dd>
+            </div>
+            <div>
+              <dt>执行 ID</dt>
+              <dd>{{ owner.state.detail.id }}</dd>
+            </div>
+            <div>
+              <dt>执行版本</dt>
+              <dd>{{ owner.state.detail.version }}</dd>
+            </div>
+            <div>
+              <dt>任务 ID</dt>
+              <dd>{{ owner.state.detail.task_id }}</dd>
+            </div>
+            <div>
+              <dt>项目 ID</dt>
+              <dd>{{ owner.state.detail.project_id }}</dd>
+            </div>
+            <div>
+              <dt>执行快照 ID</dt>
+              <dd>{{ owner.state.detail.snapshot_id ?? '未生成' }}</dd>
+            </div>
+          </dl>
+        </details>
       </div>
       <template v-else>
         <UiButton :disabled="owner.blocked.value" @click="load(false, $event)"
@@ -253,10 +272,11 @@ async function close() {
             <div class="execution-heading">
               <UiButton
                 :data-execution-id="item.id"
+                variant="ghost"
+                :aria-label="`${item.purpose === 'task/work' ? '任务执行' : '任务评审'} · ${agentName(item.agent_id)} · ${item.created_at}`"
                 :disabled="owner.blocked.value"
                 @click="select(item.id)"
-                >{{ item.purpose === 'task/work' ? '任务执行' : '任务评审' }} ·
-                {{ item.id }}</UiButton
+                >{{ item.purpose === 'task/work' ? '任务执行' : '任务评审' }}</UiButton
               >
               <UiBadge :tone="tone(item)">{{ status(item) }}</UiBadge>
             </div>
@@ -288,6 +308,25 @@ async function close() {
   border-top: 1px solid var(--border);
   padding-top: var(--space);
 }
+.task-executions > .ui-button {
+  align-self: flex-start;
+}
+.execution-metadata {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+.execution-metadata summary {
+  width: fit-content;
+  color: var(--muted);
+  cursor: pointer;
+}
+.execution-metadata summary:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+.execution-metadata .execution-facts {
+  margin-top: 16px;
+}
 .execution-heading,
 .execution-actions {
   display: flex;
@@ -310,7 +349,7 @@ async function close() {
 .execution-list {
   display: flex;
   flex-direction: column;
-  gap: var(--content-gap);
+  gap: 0;
   list-style: none;
   padding: 0;
   margin: 0;
@@ -318,7 +357,7 @@ async function close() {
 }
 .execution-list li {
   border-bottom: 1px solid var(--border);
-  padding-bottom: var(--content-gap);
+  padding: 12px 0;
   min-width: 0;
 }
 .execution-list .ui-button {

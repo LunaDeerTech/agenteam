@@ -40,7 +40,7 @@ async function remove() {
     <UiButton :disabled="s.auth.state.busy" @click="s.load('profile')">重新加载资料</UiButton>
   </UiState>
   <template v-else>
-    <form ref="form" class="ui-stack" @submit.prevent="save">
+    <form ref="form" class="page-form" @submit.prevent="save">
       <UiField v-slot="field" label="邮箱" id="profile-email" hint="邮箱不能修改。"
         ><UiInput
           :id="field.id"
@@ -92,9 +92,10 @@ async function remove() {
       >
         {{ s.sections.profile.message }}
       </p>
-      <div class="ui-row">
+      <div class="page-actions">
         <UiButton
           type="submit"
+          variant="primary"
           :disabled="s.locked.value || !s.profileDirty.value"
           :state="s.mutation.value === 'profile' ? 'loading' : 'idle'"
           >保存资料</UiButton
@@ -147,7 +148,7 @@ async function remove() {
       />
       <p v-if="s.avatarState.error" role="alert">{{ s.avatarState.error }}</p>
       <p v-if="s.avatarState.message" role="status">{{ s.avatarState.message }}</p>
-      <div class="ui-row">
+      <div class="page-actions">
         <UiButton :disabled="s.locked.value" @click="fileInput?.click()">选择图片</UiButton>
         <UiButton :disabled="s.locked.value || !s.candidate.value" @click="s.uploadAvatar"
           >上传 / 替换头像</UiButton
@@ -169,7 +170,7 @@ async function remove() {
   </template>
   <div v-if="s.unresolved.value === 'profile'" class="ui-stack">
     <p role="status">原提交仍未确认，当前资料不是原命令回执。</p>
-    <div class="ui-row">
+    <div class="page-actions">
       <UiButton :disabled="s.auth.state.busy" @click="s.checkCurrent('profile')"
         >检查当前资料</UiButton
       ><UiButton :disabled="s.auth.state.busy" @click="s.retryOriginal">重试原请求</UiButton

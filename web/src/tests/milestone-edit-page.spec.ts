@@ -289,7 +289,7 @@ describe('Milestone editing visible behavior', () => {
       expected_version: milestone.version,
       request: { description: '' },
     })
-    expect(body().get('.milestone-description').text()).toBe('暂无描述。')
+    expect(body().find('.milestone-description').exists()).toBe(false)
     await click('编辑 Milestone')
     await field('Milestone 标题').setValue('Temporary')
     await field('Milestone 标题').setValue(milestone.title)

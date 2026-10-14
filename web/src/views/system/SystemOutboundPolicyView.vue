@@ -97,19 +97,25 @@ onUnmounted(page.detach)
 </script>
 <template>
   <div class="system-outbound-policy">
-    <h1 ref="heading" tabindex="-1">出站规则</h1>
-    <p class="meta">
-      管理 RFC1918 IPv4 与 ULA IPv6 私有网段的出站规则。规则按 CIDR、端口及是否允许 HTTP 共同匹配。
-    </p>
+    <header class="page-header">
+      <div class="page-heading">
+        <h1 ref="heading" tabindex="-1">出站规则</h1>
+        <p class="meta">
+          管理 RFC1918 IPv4 与 ULA IPv6 私有网段的出站规则。规则按 CIDR、端口及是否允许 HTTP
+          共同匹配。
+        </p>
+      </div>
+      <div ref="actions" class="policy-actions page-actions" aria-label="出站规则页面操作">
+        <UiButton :disabled="blocked" @click="page.refresh">读取当前规则</UiButton>
+        <UiButton v-if="observation.phase === 'loading'" variant="ghost" @click="page.cancelRead"
+          >取消读取</UiButton
+        >
+      </div>
+    </header>
     <p class="notice">
       允许 HTTP 不代表放开其他安全检查。此页只保存规则，不测试目标地址、DNS 或运行时连接。
     </p>
-    <div ref="actions" class="policy-actions" aria-label="出站规则页面操作">
-      <UiButton :disabled="blocked" @click="page.refresh">读取当前规则</UiButton>
-      <UiButton v-if="observation.phase === 'loading'" variant="ghost" @click="page.cancelRead"
-        >取消读取</UiButton
-      >
-    </div>
+
     <p v-if="page.auth.state.busy" class="meta" role="status">正在等待当前请求实际结束。</p>
     <p v-if="state.writeMessage" class="notice" role="status">{{ state.writeMessage }}</p>
     <p v-if="state.confirmed" class="meta" aria-label="本次保存的历史确认">
@@ -123,7 +129,7 @@ onUnmounted(page.detach)
       title="请求结果未确认"
       description="当前读取不是原请求回执。请检查会话后显式重试原请求，或明确放弃本地追踪；不会自动更换请求标识。"
     >
-      <div class="policy-actions">
+      <div class="policy-actions page-actions">
         <UiButton :disabled="blocked" @click="page.checkOriginal">检查当前会话与规则</UiButton>
         <UiButton
           :disabled="blocked || !progress.canRetryOriginal"
@@ -149,7 +155,7 @@ onUnmounted(page.detach)
         }}
       </p>
       <p v-if="!observation.value.rules.length">当前读取的规则为空；这不会创建任何私有网段例外。</p>
-      <div v-else class="policy-table-wrap">
+      <div v-else class="policy-table-wrap page-surface">
         <table class="policy-table">
           <caption class="sr-only">
             最近完整读取的 CIDR、端口与 HTTP 许可
@@ -179,6 +185,7 @@ onUnmounted(page.detach)
       新的编辑基线必须来自成功的当前读取。请在当前请求结束后明确读取规则。
     </p>
     <form
+      class="page-form"
       v-if="editor.ready"
       ref="form"
       aria-label="编辑出站规则"
@@ -197,7 +204,7 @@ onUnmounted(page.detach)
         title="需要核对最新规则"
         description="读取不会改写原草稿或原编辑版本。请核对后明确采用最新值，再重新编辑。"
       >
-        <div class="policy-actions">
+        <div class="policy-actions page-actions">
           <UiButton :disabled="blocked" @click="page.readLatest">读取最新规则</UiButton>
           <UiButton :disabled="blocked || observation.phase !== 'ready'" @click="page.adoptLatest"
             >采用最新值重新编辑</UiButton
@@ -265,7 +272,7 @@ onUnmounted(page.detach)
             />
           </UiField>
         </div>
-        <div class="policy-actions">
+        <div class="policy-actions page-actions">
           <UiCheckbox
             :model-value="row.allow_http"
             :disabled="blocked || locked || maximumVersion"
@@ -280,7 +287,7 @@ onUnmounted(page.detach)
           >
         </div>
       </fieldset>
-      <div class="policy-actions">
+      <div class="policy-actions page-actions">
         <UiButton
           data-add-rule
           :disabled="blocked || locked || maximumVersion || draft.length >= 256"
@@ -313,6 +320,12 @@ onUnmounted(page.detach)
   </div>
 </template>
 <style scoped>
+.page-header {
+  margin-bottom: 4px;
+}
+.page-footer {
+  padding-top: 0;
+}
 .system-outbound-policy,
 form,
 section,
@@ -322,7 +335,7 @@ section,
   min-width: 0;
 }
 h2 {
-  font-size: 1.1rem;
+  font-size: 15px;
 }
 .meta {
   color: var(--muted);

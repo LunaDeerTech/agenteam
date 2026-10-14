@@ -1,13 +1,15 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
-import { computed, shallowReactive } from 'vue'
+import { computed, ref, shallowReactive } from 'vue'
 import { createMemoryHistory, createRouter, RouterView, type Router } from 'vue-router'
 import type { SkillOwnerController } from '../composables/useSkillOwner'
 import type { ProjectWorkspace } from '../composables/useProjectWorkspace'
 const supplied = vi.hoisted(() => ({
   page: null as SkillOwnerController | null,
   workspace: null as ProjectWorkspace | null,
+  importer: null as unknown,
 }))
+vi.mock('../composables/useSkillImport', () => ({ useSkillImport: () => supplied.importer }))
 vi.mock('../composables/useSkillOwner', () => ({ useSkillOwner: () => supplied.page! }))
 vi.mock('../composables/useProjectWorkspace', () => ({
   useProjectWorkspace: () => supplied.workspace!,
@@ -65,6 +67,16 @@ async function fixture() {
     cancel,
     dispose: vi.fn(),
   } as unknown as SkillOwnerController
+  supplied.importer = {
+    open: ref(false),
+    blocked: computed(() => active.blocked),
+    editable: ref(true),
+    otherPending: ref(false),
+    canSubmit: ref(false),
+    show: vi.fn(),
+    close: vi.fn(),
+    dispose: vi.fn(),
+  }
   supplied.workspace = {
     paths: computed(() => ({ home: '/owner/demo', settings: '/owner/demo/settings/general' })),
   } as unknown as ProjectWorkspace

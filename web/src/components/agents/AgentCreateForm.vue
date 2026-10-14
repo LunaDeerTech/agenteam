@@ -4,7 +4,7 @@ import AgentRunnerMountFields from './AgentRunnerMountFields.vue'
 import { computed, onMounted, ref, watch } from 'vue'
 import { UiButton, UiCheckbox, UiField, UiInput, UiSelect, UiTextarea } from '../ui'
 import type { ProjectAgents } from '../../composables/useProjectAgents'
-const props = defineProps<{ owner: ProjectAgents }>()
+const props = defineProps<{ owner: ProjectAgents; embedded?: boolean }>()
 const emit = defineEmits<{ cancel: [] }>()
 const form = ref<HTMLFormElement | null>(null)
 const disabled = computed(
@@ -40,12 +40,13 @@ watch(disabled, focusName, { flush: 'post' })
 </script>
 <template>
   <form
+    id="agent-create-form"
     ref="form"
     class="agent-create"
     aria-label="创建 Agent"
     @submit.prevent="owner.submitCreation()"
   >
-    <h2>创建空白 Agent</h2>
+    <h2 v-if="!embedded">创建空白 Agent</h2>
     <p>
       填写配置后明确创建。可选择 Runner、资源目录与 Secret Variable 白名单；Tool
       不在此额外授权；内置初始化选项由服务实际执行。
@@ -62,6 +63,7 @@ watch(disabled, focusName, { flush: 'post' })
         :disabled="disabled"
         :aria-describedby="field.describedby"
         autocomplete="off"
+        data-autofocus
       />
     </UiField>
     <div class="agent-create-pair">
@@ -156,8 +158,10 @@ watch(disabled, focusName, { flush: 'post' })
       >
     </fieldset>
     <p v-if="owner.draft.message" role="alert">{{ owner.draft.message }}</p>
-    <div class="agent-create-actions">
-      <UiButton type="submit" :disabled="!owner.canSubmit.value">确认创建 Agent</UiButton>
+    <div v-if="!embedded" class="agent-create-actions">
+      <UiButton type="submit" variant="primary" :disabled="!owner.canSubmit.value"
+        >确认创建 Agent</UiButton
+      >
       <UiButton type="button" :disabled="disabled" @click="emit('cancel')">取消创建</UiButton>
     </div>
   </form>

@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { UiButton, UiField, UiInput, UiSelect, UiTextarea } from '../ui'
+import { computed, useId } from 'vue'
+import { UiButton, UiDialog, UiField, UiInput, UiSelect, UiTextarea } from '../ui'
 import type { ProjectTasks } from '../../composables/useProjectTasks'
-const props = defineProps<{ owner: ProjectTasks }>()
+const props = defineProps<{ owner: ProjectTasks; fallbackFocus?: HTMLElement | null }>()
 const emit = defineEmits<{ cancel: [] }>()
-const form = ref<HTMLFormElement | null>(null)
+const formID = useId()
 const types = [
   { value: 'feature', label: '功能' },
   { value: 'bug', label: '缺陷' },
@@ -34,56 +34,66 @@ function selectPriority(value: string) {
   if (priorities.some((item) => item.value === value))
     props.owner.creation.priority = value as typeof props.owner.creation.priority
 }
-onMounted(() => form.value?.querySelector('input')?.focus())
 </script>
 <template>
-  <form
-    ref="form"
-    class="task-create-form"
-    aria-label="新建任务"
-    @submit.prevent="owner.submitCreation()"
+  <UiDialog
+    :open="owner.creation.open && !owner.pending.value"
+    title="新建任务"
+    :close-on-outside="false"
+    :close-on-escape="!owner.busy.value"
+    :fallback-focus="fallbackFocus"
+    @update:open="!$event && emit('cancel')"
   >
-    <h3>新建任务</h3>
-    <p>任务将创建到当前 Sprint 的待规划列。创建确认后，再选择 Agent 加入待执行。</p>
-    <UiField label="任务标题" required v-slot="field"
-      ><UiInput :id="field.id" v-model="owner.creation.title" :disabled="disabled"
-    /></UiField>
-    <div class="task-create-properties">
-      <UiField label="任务类型" required v-slot="field"
-        ><UiSelect
-          :id="field.id"
-          :model-value="owner.creation.type"
-          label="任务类型"
-          :options="types"
-          :disabled="disabled"
-          @update:model-value="selectType"
+    <form
+      :id="formID"
+      class="task-create-form"
+      aria-label="新建任务"
+      @submit.prevent="owner.submitCreation()"
+    >
+      <p>任务将创建到当前 Sprint 的待规划列。创建确认后，再选择 Agent 加入待执行。</p>
+      <UiField label="任务标题" required v-slot="field"
+        ><UiInput data-autofocus :id="field.id" v-model="owner.creation.title" :disabled="disabled"
       /></UiField>
-      <UiField label="优先级" required v-slot="field"
-        ><UiSelect
+      <div class="task-create-properties">
+        <UiField label="任务类型" required v-slot="field"
+          ><UiSelect
+            :id="field.id"
+            :model-value="owner.creation.type"
+            label="任务类型"
+            :options="types"
+            :disabled="disabled"
+            @update:model-value="selectType"
+        /></UiField>
+        <UiField label="优先级" required v-slot="field"
+          ><UiSelect
+            :id="field.id"
+            :model-value="owner.creation.priority"
+            label="优先级"
+            :options="priorities"
+            :disabled="disabled"
+            @update:model-value="selectPriority"
+        /></UiField>
+      </div>
+      <UiField label="任务描述" v-slot="field"
+        ><UiTextarea
           :id="field.id"
-          :model-value="owner.creation.priority"
-          label="优先级"
-          :options="priorities"
+          v-model="owner.creation.description"
           :disabled="disabled"
-          @update:model-value="selectPriority"
+          rows="4"
       /></UiField>
-    </div>
-    <UiField label="任务描述" v-slot="field"
-      ><UiTextarea
-        :id="field.id"
-        v-model="owner.creation.description"
-        :disabled="disabled"
-        rows="4"
-    /></UiField>
-    <UiField label="执行计划" v-slot="field"
-      ><UiTextarea :id="field.id" v-model="owner.creation.plan" :disabled="disabled" rows="4"
-    /></UiField>
-    <p v-if="owner.creation.message" role="alert">{{ owner.creation.message }}</p>
-    <div class="task-create-actions">
-      <UiButton type="submit" :disabled="!canSubmit">确认创建任务</UiButton
-      ><UiButton type="button" :disabled="disabled" @click="emit('cancel')">取消创建</UiButton>
-    </div>
-  </form>
+      <UiField label="执行计划" v-slot="field"
+        ><UiTextarea :id="field.id" v-model="owner.creation.plan" :disabled="disabled" rows="4"
+      /></UiField>
+      <p v-if="owner.creation.message" role="alert">{{ owner.creation.message }}</p>
+    </form>
+    <template #footer>
+      <div class="task-create-actions">
+        <UiButton type="submit" :form="formID" variant="primary" :disabled="!canSubmit"
+          >确认创建任务</UiButton
+        ><UiButton type="button" :disabled="disabled" @click="emit('cancel')">取消创建</UiButton>
+      </div>
+    </template>
+  </UiDialog>
 </template>
 <style scoped>
 .task-create-form {
@@ -91,10 +101,6 @@ onMounted(() => form.value?.querySelector('input')?.focus())
   flex-direction: column;
   gap: var(--space);
   min-width: 0;
-  padding: var(--space);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
 }
 .task-create-form h3,
 .task-create-form p {

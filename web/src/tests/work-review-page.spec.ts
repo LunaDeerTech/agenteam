@@ -476,6 +476,27 @@ async function selectAgent(label: string, option: string) {
 }
 
 describe('Human review page with real UI controls', () => {
+  it('opens Sprint selection in a modal, restores its trigger and closes after a selection', async () => {
+    const f = await page('todo', true)
+    const trigger = button('选择 Sprint')
+    trigger.element.focus()
+    await trigger.trigger('click')
+    await flushPromises()
+    expect(body().get('[role="dialog"]').attributes('aria-modal')).toBe('true')
+    expect(body().get('[role="dialog"]').text()).toContain('当前迭代')
+    await body().get('[role="dialog"] button[aria-label="关闭"]').trigger('click')
+    await flushPromises()
+    expect(body().find('[role="dialog"]').exists()).toBe(false)
+    expect(document.activeElement).toBe(trigger.element)
+    await trigger.trigger('click')
+    await flushPromises()
+    await body().get('[role="dialog"] nav[aria-label="Sprint 列表"] button').trigger('click')
+    await flushPromises()
+    expect(body().find('[role="dialog"]').exists()).toBe(false)
+    expect(f.tasks.state.sprint?.id).toBe(sprintID)
+    expect(f.fetcher.mock.calls.filter(([, init]) => init.method === 'POST')).toHaveLength(0)
+  })
+
   it('edits an unassigned backlog with explicit field presence and confirms same-value No-op separately', async () => {
     const f = await page('backlog')
     await click('编辑任务')
@@ -516,9 +537,10 @@ describe('Human review page with real UI controls', () => {
       request: { title: '完整保存的规划任务' },
     })
     expect(body().get('[role="dialog"]').text()).toContain('任务内容没有变化')
+    await body().get('.task-metadata summary').trigger('click')
     expect(
       body()
-        .get('.task-facts')
+        .get('.task-metadata .task-facts')
         .findAll('div')
         .find((row) => row.get('dt').text() === '版本')
         ?.get('dd')
@@ -572,7 +594,14 @@ describe('Human review page with real UI controls', () => {
     await click('新建任务')
     const form = body().get('form[aria-label="新建任务"]')
     expect(document.activeElement).toBe(form.get('input').element)
-    await click('取消创建')
+    expect(body().get('[role="dialog"]').attributes('aria-modal')).toBe('true')
+    expect(body().get('.dialog-footer button[type="submit"]').attributes('form')).toBe(
+      form.attributes('id'),
+    )
+    await body().get('.ui-overlay').trigger('pointerdown')
+    expect(body().find('form[aria-label="新建任务"]').exists()).toBe(true)
+    await body().get('[role="dialog"] button[aria-label="关闭"]').trigger('click')
+    await flushPromises()
     expect(document.activeElement).toBe(button('新建任务').element)
     await click('新建任务')
     expect(button('确认创建任务').element.disabled).toBe(true)

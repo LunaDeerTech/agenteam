@@ -189,8 +189,10 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="project-audit">
-    <h1 ref="heading" tabindex="-1">项目审计</h1>
-    <p class="meta">只观察当前项目的安全记录。时间显示为 UTC；分页结果仅表示本次已读取的记录。</p>
+    <header class="page-heading">
+      <h1 ref="heading" tabindex="-1">项目审计</h1>
+      <p class="meta">只观察当前项目的安全记录。时间显示为 UTC；分页结果仅表示本次已读取的记录。</p>
+    </header>
     <template v-if="state.mode === 'list'">
       <form
         ref="filterForm"
@@ -199,57 +201,67 @@ onBeforeUnmount(() => {
         novalidate
         @submit.prevent="perform(audit.apply, $event)"
       >
-        <fieldset v-for="group in groups" :key="group.label" :disabled="audit.blocked.value">
-          <legend>{{ group.label }}</legend>
-          <div class="filter-grid">
-            <UiField
-              v-for="field in group.fields"
-              :id="'project-audit-filter-' + field.key"
-              :key="field.key"
-              :label="field.label"
-              :hint="
-                'hint' in field
-                  ? field.hint
-                  : field.key.endsWith('_id')
-                    ? '可空的小写 UUIDv7。'
-                    : undefined
-              "
-              :error="state.fieldErrors[field.key]"
-              v-slot="slot"
-            >
-              <select
-                v-if="choices[field.key]"
-                :id="slot.id"
-                class="ui-input"
-                :value="audit.draft[field.key]"
-                :aria-invalid="slot.invalid || undefined"
-                :aria-describedby="slot.describedby"
-                @change="update(field.key, $event)"
+        <details
+          v-for="group in groups"
+          :key="group.label"
+          class="filter-group"
+          :open="
+            group.label === '时间与事件' ||
+            group.fields.some((field) => !!state.fieldErrors[field.key])
+          "
+        >
+          <summary>{{ group.label }}</summary>
+          <fieldset :disabled="audit.blocked.value" :aria-label="group.label">
+            <div class="filter-grid">
+              <UiField
+                v-for="field in group.fields"
+                :id="'project-audit-filter-' + field.key"
+                :key="field.key"
+                :label="field.label"
+                :hint="
+                  'hint' in field
+                    ? field.hint
+                    : field.key.endsWith('_id')
+                      ? '可空的小写 UUIDv7。'
+                      : undefined
+                "
+                :error="state.fieldErrors[field.key]"
+                v-slot="slot"
               >
-                <option value="">全部</option>
-                <option
-                  v-for="choice in choices[field.key]"
-                  :key="choice.value"
-                  :value="choice.value"
+                <select
+                  v-if="choices[field.key]"
+                  :id="slot.id"
+                  class="ui-input"
+                  :value="audit.draft[field.key]"
+                  :aria-invalid="slot.invalid || undefined"
+                  :aria-describedby="slot.describedby"
+                  @change="update(field.key, $event)"
                 >
-                  {{ choice.label }}
-                </option>
-              </select>
-              <input
-                v-else
-                :id="slot.id"
-                class="ui-input"
-                type="text"
-                :value="audit.draft[field.key]"
-                :aria-invalid="slot.invalid || undefined"
-                :aria-describedby="slot.describedby"
-                autocomplete="off"
-                spellcheck="false"
-                @input="update(field.key, $event)"
-              />
-            </UiField>
-          </div>
-        </fieldset>
+                  <option value="">全部</option>
+                  <option
+                    v-for="choice in choices[field.key]"
+                    :key="choice.value"
+                    :value="choice.value"
+                  >
+                    {{ choice.label }}
+                  </option>
+                </select>
+                <input
+                  v-else
+                  :id="slot.id"
+                  class="ui-input"
+                  type="text"
+                  :value="audit.draft[field.key]"
+                  :aria-invalid="slot.invalid || undefined"
+                  :aria-describedby="slot.describedby"
+                  autocomplete="off"
+                  spellcheck="false"
+                  @input="update(field.key, $event)"
+                />
+              </UiField>
+            </div>
+          </fieldset>
+        </details>
         <UiField
           id="project-audit-filter-limit"
           label="每页数量"
@@ -285,19 +297,9 @@ onBeforeUnmount(() => {
       </form>
       <section class="audit-observation" aria-labelledby="project-audit-list-heading">
         <h2 id="project-audit-list-heading" ref="listHeading" tabindex="-1">审计记录</h2>
-        <div class="audit-actions" aria-label="项目审计分页">
+        <div class="audit-actions" aria-label="审计读取操作">
           <UiButton :disabled="audit.blocked.value" @click="perform(audit.refresh, $event)"
             >重新读取</UiButton
-          >
-          <UiButton
-            :disabled="audit.blocked.value || !state.list.hasPrevious"
-            @click="perform(audit.previous, $event)"
-            >上一页</UiButton
-          >
-          <UiButton
-            :disabled="audit.blocked.value || !state.list.hasNext"
-            @click="perform(audit.next, $event)"
-            >下一页</UiButton
           >
           <UiButton v-if="audit.reading.value" @click="cancel">取消读取</UiButton>
         </div>
@@ -409,6 +411,18 @@ onBeforeUnmount(() => {
         >
           第 {{ state.list.page }} 页 · 本页 {{ state.list.items.length }} 条 · 仅显示已读取的结果
         </p>
+        <nav class="audit-actions page-footer" aria-label="项目审计分页">
+          <UiButton
+            :disabled="audit.blocked.value || !state.list.hasPrevious"
+            @click="perform(audit.previous, $event)"
+            >上一页</UiButton
+          >
+          <UiButton
+            :disabled="audit.blocked.value || !state.list.hasNext"
+            @click="perform(audit.next, $event)"
+            >下一页</UiButton
+          >
+        </nav>
       </section>
     </template>
     <section v-else class="audit-observation" aria-labelledby="project-audit-detail-heading">
@@ -489,6 +503,21 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+.filter-group {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+}
+.filter-group summary {
+  cursor: pointer;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+.filter-group fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
 .project-audit,
 .audit-filters,
 .audit-observation {

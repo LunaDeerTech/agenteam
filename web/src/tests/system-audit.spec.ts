@@ -339,15 +339,16 @@ async function apply() {
 const detailButton = (n = 100) => '查看详情 ' + id(n)
 
 describe('Audit page uses the production App, route records, authentication guard and factory', () => {
-  it('has one protected Audit leaf, ten leaves/four groups and fourteen exact return targets', async () => {
+  it('has one protected Audit leaf, the current system menu and exact system return targets', async () => {
     const f = await app()
     expect(f.router.resolve('/system/audit').matched.at(-1)?.path).toBe('/system/audit')
     expect(f.router.currentRoute.value.meta.systemAdmin).toBe(true)
     const toggles = f.wrapper.findAll('.settings-menu .settings-group-toggle')
-    expect(toggles).toHaveLength(4)
+    expect(toggles).toHaveLength(5)
     for (const toggle of toggles)
       if (toggle.attributes('aria-expanded') === 'false') await toggle.trigger('click')
     expect(f.wrapper.findAll('.settings-menu a').map((node) => node.attributes('href'))).toEqual([
+      '/system/runners',
       '/system/users',
       '/system/invitations',
       '/system/providers',
@@ -364,6 +365,7 @@ describe('Audit page uses the production App, route records, authentication guar
       '/settings/profile',
       '/settings/appearance',
       '/settings/password',
+      '/system/runners',
       '/system/users',
       '/system/invitations',
       '/system/providers',
@@ -770,7 +772,7 @@ describe('Audit visible filters, complete inline observations and local focus', 
     expect(f.writes()).toHaveLength(0)
   })
 
-  it('provides all fourteen visible controls and all 53/25 legal options, applies only explicit input and keeps invalid drafts', async () => {
+  it('provides all filters and legal options, applies explicit input and reveals invalid grouped drafts', async () => {
     const f = await app()
     const labels = [
       '起始时间（含）',
@@ -788,12 +790,43 @@ describe('Audit visible filters, complete inline observations and local focus', 
       'Runner ID',
       'Agent ID',
     ]
+    const groups = [...document.querySelectorAll<HTMLDetailsElement>('.filter-group')]
+    expect(groups.map((group) => group.open)).toEqual([true, false, false])
+    for (const group of groups) group.open = true
     for (const label of labels) expect(field(label).isConnected).toBe(true)
-    expect(
-      [...(field('动作') as HTMLSelectElement).options]
-        .map((option) => option.value)
-        .filter(Boolean),
-    ).toEqual([...auditFilterActions])
+    // Presentation groups keep domain order; the source enum may append a domain's new actions.
+    const actionDomains = [
+      'secret',
+      'outbound',
+      'object',
+      'artifact',
+      'outbox',
+      'account',
+      'smtp',
+      'project',
+      'provider',
+      'model',
+      'knowledge',
+    ]
+    const actionControl = field('动作') as HTMLSelectElement
+    expect([...actionControl.querySelectorAll('optgroup')].map((group) => group.label)).toEqual([
+      'Secret',
+      '出站规则',
+      'Object',
+      'Artifact',
+      'Outbox',
+      '账号',
+      'SMTP',
+      '项目',
+      'Provider',
+      '模型',
+      '知识',
+    ])
+    expect([...actionControl.options].map((option) => option.value).filter(Boolean)).toEqual(
+      actionDomains.flatMap((domain) =>
+        auditFilterActions.filter((action) => action.startsWith(domain + '.')),
+      ),
+    )
     expect(
       [...(field('资源类型') as HTMLSelectElement).options]
         .map((option) => option.value)
@@ -843,9 +876,11 @@ describe('Audit visible filters, complete inline observations and local focus', 
     expect(query.get('action')).toBe('artifact.read')
     expect(f.wrapper.text()).toContain('没有匹配的审计记录')
     await change('操作者类型', 'service')
+    groups[1]!.open = false
     await apply()
     expect(f.reads()).toHaveLength(before + 1)
     const input = field('操作者类型')
+    expect(groups[1]!.open).toBe(true)
     expect(input.getAttribute('aria-invalid')).toBe('true')
     expect(input.getAttribute('aria-describedby')).toBeTruthy()
     expect(document.activeElement).toBe(input)

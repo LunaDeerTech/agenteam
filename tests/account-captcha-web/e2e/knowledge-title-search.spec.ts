@@ -36,7 +36,7 @@ test("finds an unloaded descendant by literal title and opens its current text [
   await seen.verify(); seen.hit();
   seen.stage("select-current");
   await press(page, results.getByRole("button", { name: data.title, exact: true }));
-  await expect(page.locator(".knowledge-document > h2")).toHaveText(data.title);
+  await expect(page.locator(".knowledge-document h2[tabindex='-1']")).toHaveText(data.title);
   await expect.poll(() => page.locator("pre.canonical-text").textContent()).toBe(data.text);
   await seen.verify(); seen.current();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");

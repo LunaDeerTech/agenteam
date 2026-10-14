@@ -276,13 +276,14 @@ const pageHeading = () => document.querySelector<HTMLElement>('.runtime-informat
 const hasPage = () => wrapper!.findComponent(SystemRuntimeInformationView).exists()
 
 describe('Runtime page uses the real App, route records and twelve API factories', () => {
-  it('exposes one protected leaf with ten exact menu targets, four groups and fourteen safe returns', async () => {
+  it('exposes one protected leaf with the current system menu and exact system returns', async () => {
     const f = await app(view(), '/system')
     expect(f.router.currentRoute.value.path).toBe('/system/users')
     for (const toggle of f.wrapper.findAll('.settings-menu .settings-group-toggle'))
       if (toggle.attributes('aria-expanded') === 'false') await toggle.trigger('click')
-    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(4)
+    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(5)
     expect(f.wrapper.findAll('.settings-menu a').map((node) => node.attributes('href'))).toEqual([
+      '/system/runners',
       '/system/users',
       '/system/invitations',
       '/system/providers',
@@ -299,6 +300,7 @@ describe('Runtime page uses the real App, route records and twelve API factories
       '/settings/profile',
       '/settings/appearance',
       '/settings/password',
+      '/system/runners',
       '/system/users',
       '/system/invitations',
       '/system/providers',
@@ -310,7 +312,7 @@ describe('Runtime page uses the real App, route records and twelve API factories
       '/system/audit',
       routePath,
     ]
-    expect(targets).toHaveLength(14)
+    expect(targets).toHaveLength(15)
     for (const target of targets) expect(safeReturnTarget(target)).toBe(target)
     for (const value of [
       routePath + '?x=1',

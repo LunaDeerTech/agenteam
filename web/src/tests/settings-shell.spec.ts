@@ -172,6 +172,23 @@ describe('SettingsShell compatible one-group multiple leaves', () => {
     expect(wrapper.findAll('a').map((a) => a.text())).toEqual(['New'])
     expect(wrapper.findAll('button')[0]!.attributes('aria-controls')).toBe(control)
   })
+  it('keeps the Skills menu selected on a valid detail and opens its collapsed ancestor', async () => {
+    const r = await router()
+    wrapper = mount(SettingsShell, {
+      props: {
+        groups: [{ label: 'Skills', path: '/owner/demo/settings/skills', leaf: '项目技能库' }],
+        showLogout: false,
+      },
+      global: { plugins: [r] },
+    })
+    await wrapper.get('.settings-group-toggle').trigger('click')
+    await r.push('/owner/demo/settings/skills/01970000-0000-7000-8000-000000000020')
+    await flushPromises()
+    expect(wrapper.get('[aria-current="page"]').text()).toBe('项目技能库')
+    await r.push('/owner/another/settings/skills/01970000-0000-7000-8000-000000000020')
+    await flushPromises()
+    expect(wrapper.find('[aria-current="page"]').exists()).toBe(false)
+  })
   it('keeps both narrow Drawer links and closes it on leaf selection or Escape', async () => {
     narrow = true
     const r = await router()

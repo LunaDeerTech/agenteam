@@ -57,26 +57,30 @@ onUnmounted(page.detach)
 </script>
 <template>
   <div class="system-providers">
-    <h1 ref="heading" tabindex="-1">Providers</h1>
-    <p class="meta">管理系统 Provider 配置与凭据引用。Model 列表仅供查看；保存不代表已验证连接。</p>
-    <div ref="actions" class="provider-actions" aria-label="Provider操作与分页">
-      <UiButton
-        :disabled="locked"
-        :state="
-          feedback === 'success' && state.confirmed?.kind === 'provider.create' ? 'success' : 'idle'
-        "
-        success-label="操作已确认"
-        @click="page.openCreate"
-        >创建 Provider</UiButton
-      >
-      <UiButton :disabled="blocked" @click="perform(page.refresh, $event)">刷新</UiButton>
-      <UiButton :disabled="blocked || !list.hasPrevious" @click="perform(page.previous, $event)"
-        >上一页</UiButton
-      >
-      <UiButton :disabled="blocked || !list.hasNext" @click="perform(page.next, $event)"
-        >下一页</UiButton
-      >
-    </div>
+    <header class="page-header">
+      <div class="page-heading">
+        <h1 ref="heading" tabindex="-1">Providers</h1>
+        <p class="meta">
+          管理系统 Provider 配置与凭据引用。Model 列表仅供查看；保存不代表已验证连接。
+        </p>
+      </div>
+      <div ref="actions" class="provider-actions page-actions" aria-label="Provider操作">
+        <UiButton
+          variant="primary"
+          :disabled="locked"
+          :state="
+            feedback === 'success' && state.confirmed?.kind === 'provider.create'
+              ? 'success'
+              : 'idle'
+          "
+          success-label="操作已确认"
+          @click="page.openCreate"
+          >创建 Provider</UiButton
+        >
+        <UiButton :disabled="blocked" @click="perform(page.refresh, $event)">刷新</UiButton>
+      </div>
+    </header>
+
     <p v-if="state.writeMessage && !businessOpen()" role="status">{{ state.writeMessage }}</p>
     <p v-if="page.auth.state.busy" class="meta" role="status">正在等待当前请求结束。</p>
     <UiState
@@ -99,7 +103,7 @@ onUnmounted(page.detach)
     <UiState v-else-if="list.phase === 'empty'" kind="empty" title="暂无 Provider" />
     <div
       v-else-if="list.phase === 'ready'"
-      class="provider-table"
+      class="provider-table page-surface"
       role="region"
       aria-label="Providers列表"
       tabindex="0"
@@ -136,6 +140,15 @@ onUnmounted(page.detach)
         </tbody>
       </table>
     </div>
+    <footer class="page-footer" aria-label="目录分页">
+      <div class="page-actions">
+        <UiButton :disabled="blocked || !list.hasPrevious" @click="perform(page.previous, $event)"
+          >上一页</UiButton
+        ><UiButton :disabled="blocked || !list.hasNext" @click="perform(page.next, $event)"
+          >下一页</UiButton
+        >
+      </div>
+    </footer>
     <section v-if="detail.phase !== 'inactive'" class="provider-detail" aria-label="Provider详情">
       <div class="provider-actions">
         <h2>Provider 详情</h2>
@@ -206,17 +219,7 @@ onUnmounted(page.detach)
         <section aria-label="只读 Models">
           <h3>Models</h3>
           <p class="meta">仅供查看。需先删除或替换所有 Models，才能删除 Provider。</p>
-          <div class="provider-actions">
-            <UiButton
-              :disabled="blocked || !models.hasPrevious"
-              @click="perform(page.previousModels, $event)"
-              >Models上一页</UiButton
-            ><UiButton
-              :disabled="blocked || !models.hasNext"
-              @click="perform(page.nextModels, $event)"
-              >Models下一页</UiButton
-            >
-          </div>
+
           <UiState v-if="models.phase === 'loading'" kind="loading" title="正在读取 Models" />
           <UiState
             v-else-if="models.phase === 'error'"
@@ -234,7 +237,7 @@ onUnmounted(page.detach)
                 : '当前页没有 Models，不代表 Provider 为空。'
             }}
           </p>
-          <div v-else-if="models.phase === 'ready'" class="provider-table">
+          <div v-else-if="models.phase === 'ready'" class="provider-table page-surface">
             <table>
               <caption class="sr-only">
                 当前Provider的Models
@@ -256,6 +259,17 @@ onUnmounted(page.detach)
                 </tr>
               </tbody>
             </table>
+          </div>
+          <div class="provider-actions page-actions page-footer">
+            <UiButton
+              :disabled="blocked || !models.hasPrevious"
+              @click="perform(page.previousModels, $event)"
+              >Models上一页</UiButton
+            ><UiButton
+              :disabled="blocked || !models.hasNext"
+              @click="perform(page.nextModels, $event)"
+              >Models下一页</UiButton
+            >
           </div>
         </section>
       </template>
@@ -302,6 +316,15 @@ onUnmounted(page.detach)
   </div>
 </template>
 <style scoped>
+.page-header {
+  margin-bottom: 4px;
+}
+.page-footer {
+  padding-top: 0;
+}
+.provider-actions.page-footer {
+  justify-content: flex-end;
+}
 .system-providers {
   display: grid;
   gap: 20px;

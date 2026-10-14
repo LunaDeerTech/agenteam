@@ -118,8 +118,12 @@ onBeforeUnmount(() => {
 </script>
 <template>
   <div class="system-audit">
-    <h1 ref="heading" tabindex="-1">系统审计</h1>
-    <p class="meta">只观察 System 安全事件。时间统一显示为 UTC；分页结果不代表全域完整快照。</p>
+    <header class="page-header">
+      <div class="page-heading">
+        <h1 ref="heading" tabindex="-1">系统审计</h1>
+        <p class="meta">只观察 System 安全事件。时间统一显示为 UTC；分页结果不代表全域完整快照。</p>
+      </div>
+    </header>
     <template v-if="state.mode === 'list'">
       <SystemAuditFilters
         ref="filters"
@@ -134,20 +138,11 @@ onBeforeUnmount(() => {
       />
       <section aria-labelledby="audit-list-heading" class="audit-observation">
         <h2 id="audit-list-heading" ref="listHeading" tabindex="-1">审计记录</h2>
-        <div class="audit-actions" aria-label="系统审计分页">
+        <div class="audit-actions page-actions" aria-label="系统审计操作">
           <UiButton :disabled="audit.blocked.value" @click="perform(audit.refresh, $event)"
             >刷新第一页</UiButton
           >
-          <UiButton
-            :disabled="audit.blocked.value || !state.list.hasPrevious"
-            @click="perform(audit.previous, $event)"
-            >上一页</UiButton
-          >
-          <UiButton
-            :disabled="audit.blocked.value || !state.list.hasNext"
-            @click="perform(audit.next, $event)"
-            >下一页</UiButton
-          >
+
           <UiButton v-if="audit.reading.value" @click="cancel">取消读取</UiButton>
         </div>
         <UiState
@@ -179,7 +174,7 @@ onBeforeUnmount(() => {
         />
         <div
           v-else-if="state.list.phase === 'ready'"
-          class="audit-table"
+          class="audit-table page-surface"
           role="region"
           aria-label="系统审计列表"
           tabindex="0"
@@ -243,6 +238,19 @@ onBeforeUnmount(() => {
             </tbody>
           </table>
         </div>
+        <footer class="page-footer" aria-label="系统审计分页">
+          <div class="page-actions">
+            <UiButton
+              :disabled="audit.blocked.value || !state.list.hasPrevious"
+              @click="perform(audit.previous, $event)"
+              >上一页</UiButton
+            ><UiButton
+              :disabled="audit.blocked.value || !state.list.hasNext"
+              @click="perform(audit.next, $event)"
+              >下一页</UiButton
+            >
+          </div>
+        </footer>
         <p
           v-if="state.list.phase === 'ready' || state.list.phase === 'empty'"
           class="meta"
@@ -254,7 +262,7 @@ onBeforeUnmount(() => {
     </template>
     <section v-else class="audit-observation" aria-labelledby="audit-detail-heading">
       <h2 id="audit-detail-heading" ref="detailHeading" tabindex="-1">审计详情</h2>
-      <div class="audit-actions">
+      <div class="audit-actions page-actions">
         <UiButton @click="back">返回列表</UiButton>
         <UiButton :disabled="audit.blocked.value" @click="retryDetail">重新读取详情</UiButton>
         <UiButton v-if="audit.reading.value" @click="cancel">取消读取</UiButton>
@@ -331,6 +339,12 @@ onBeforeUnmount(() => {
   </div>
 </template>
 <style scoped>
+.page-header {
+  margin-bottom: 4px;
+}
+.page-footer {
+  padding-top: 0;
+}
 .system-audit,
 .audit-observation {
   display: grid;

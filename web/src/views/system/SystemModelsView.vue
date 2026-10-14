@@ -72,23 +72,32 @@ onUnmounted(page.detach)
 </script>
 <template>
   <div class="system-models">
-    <h1 ref="heading" tabindex="-1">Models</h1>
-    <p class="meta">
-      先选择 Provider，再管理其 System Models。保存只确认配置，不会调用或验证外部模型服务。
-    </p>
-    <div ref="actions" class="model-actions" aria-label="Model 页面操作">
-      <UiButton
-        v-if="provider.phase !== 'inactive'"
-        variant="ghost"
-        :disabled="blocked"
-        @click="perform(page.back, $event)"
-        >返回 Providers</UiButton
-      >
-      <UiButton :disabled="blocked" @click="perform(page.refresh, $event)">刷新列表</UiButton>
-      <UiButton v-if="provider.value" :disabled="locked" @click="page.openCreate"
-        >创建 Model</UiButton
-      >
-    </div>
+    <header class="page-header">
+      <div class="page-heading">
+        <h1 ref="heading" tabindex="-1">Models</h1>
+        <p class="meta">
+          先选择 Provider，再管理其 System Models。保存只确认配置，不会调用或验证外部模型服务。
+        </p>
+      </div>
+      <div ref="actions" class="model-actions page-actions" aria-label="Model 页面操作">
+        <UiButton
+          v-if="provider.phase !== 'inactive'"
+          variant="ghost"
+          :disabled="blocked"
+          @click="perform(page.back, $event)"
+          >返回 Providers</UiButton
+        >
+        <UiButton :disabled="blocked" @click="perform(page.refresh, $event)">刷新列表</UiButton>
+        <UiButton
+          variant="primary"
+          v-if="provider.value"
+          :disabled="locked"
+          @click="page.openCreate"
+          >创建 Model</UiButton
+        >
+      </div>
+    </header>
+
     <p v-if="page.auth.state.busy" class="meta" role="status">正在等待当前请求结束。</p>
     <UiState
       v-if="state.requiresReload"
@@ -105,18 +114,7 @@ onUnmounted(page.detach)
     <p v-else-if="state.writeMessage && !businessOpen" role="status">{{ state.writeMessage }}</p>
     <template v-if="provider.phase === 'inactive'">
       <h2>选择 Provider</h2>
-      <div class="model-actions" aria-label="主 Provider 分页">
-        <UiButton
-          :disabled="blocked || !pages.providers.hasPrevious"
-          @click="perform(() => page.pageAction('providers', 'previous'), $event)"
-          >上一页</UiButton
-        >
-        <UiButton
-          :disabled="blocked || !pages.providers.hasNext"
-          @click="perform(() => page.pageAction('providers', 'next'), $event)"
-          >下一页</UiButton
-        >
-      </div>
+
       <UiState
         v-if="pages.providers.phase === 'loading'"
         kind="loading"
@@ -144,7 +142,7 @@ onUnmounted(page.detach)
       </UiState>
       <div
         v-else-if="pages.providers.phase === 'ready'"
-        class="model-table"
+        class="model-table page-surface"
         role="region"
         aria-label="选择 Provider 列表"
         tabindex="0"
@@ -178,6 +176,18 @@ onUnmounted(page.detach)
           </tbody>
         </table>
       </div>
+      <footer class="model-actions page-actions page-footer" aria-label="主 Provider 分页">
+        <UiButton
+          :disabled="blocked || !pages.providers.hasPrevious"
+          @click="perform(() => page.pageAction('providers', 'previous'), $event)"
+          >上一页</UiButton
+        >
+        <UiButton
+          :disabled="blocked || !pages.providers.hasNext"
+          @click="perform(() => page.pageAction('providers', 'next'), $event)"
+          >下一页</UiButton
+        >
+      </footer>
     </template>
     <UiState
       v-else-if="provider.phase === 'loading'"
@@ -200,18 +210,7 @@ onUnmounted(page.detach)
         协议：{{ provider.value.input.protocol }}；Provider
         {{ provider.value.input.enabled ? '启用' : '禁用' }}。禁用 Provider 的配置仍可管理。
       </p>
-      <div class="model-actions" aria-label="主 Model 分页">
-        <UiButton
-          :disabled="blocked || !pages.models.hasPrevious"
-          @click="perform(() => page.pageAction('models', 'previous'), $event)"
-          >上一页</UiButton
-        >
-        <UiButton
-          :disabled="blocked || !pages.models.hasNext"
-          @click="perform(() => page.pageAction('models', 'next'), $event)"
-          >下一页</UiButton
-        >
-      </div>
+
       <UiState v-if="pages.models.phase === 'loading'" kind="loading" title="正在读取 Models" />
       <UiState
         v-else-if="pages.models.phase === 'error'"
@@ -235,7 +234,7 @@ onUnmounted(page.detach)
       </UiState>
       <div
         v-else-if="pages.models.phase === 'ready'"
-        class="model-table"
+        class="model-table page-surface"
         role="region"
         aria-label="Model 配置列表"
         tabindex="0"
@@ -273,6 +272,18 @@ onUnmounted(page.detach)
           </tbody>
         </table>
       </div>
+      <footer class="model-actions page-actions page-footer" aria-label="主 Model 分页">
+        <UiButton
+          :disabled="blocked || !pages.models.hasPrevious"
+          @click="perform(() => page.pageAction('models', 'previous'), $event)"
+          >上一页</UiButton
+        >
+        <UiButton
+          :disabled="blocked || !pages.models.hasNext"
+          @click="perform(() => page.pageAction('models', 'next'), $event)"
+          >下一页</UiButton
+        >
+      </footer>
       <UiState v-if="detail.phase === 'loading'" kind="loading" title="正在读取 Model 详情" />
       <UiState
         v-else-if="detail.phase === 'error'"
@@ -301,7 +312,7 @@ onUnmounted(page.detach)
           <dt>更新时间（UTC）</dt>
           <dd>{{ detail.value.updated_at }}</dd>
         </dl>
-        <div class="model-actions">
+        <div class="model-actions page-actions">
           <UiButton :disabled="locked" @click="page.openEdit">编辑 Model</UiButton>
           <UiButton variant="danger" :disabled="locked" @click="page.openDelete"
             >删除 Model</UiButton
@@ -328,6 +339,15 @@ onUnmounted(page.detach)
   </div>
 </template>
 <style scoped>
+.page-header {
+  margin-bottom: 4px;
+}
+.page-footer {
+  padding-top: 0;
+}
+.model-actions.page-footer {
+  justify-content: flex-end;
+}
 .system-models {
   display: grid;
   gap: 20px;

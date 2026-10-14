@@ -56,14 +56,19 @@ onBeforeUnmount(() => {
 </script>
 <template>
   <div class="runtime-information">
-    <h1 ref="heading" tabindex="-1">运行信息</h1>
-    <p class="meta">
-      读取服务端已记录的缓存快照。重新读取不会触发健康检查或修复，页面不会自动刷新。
-    </p>
-    <div class="runtime-actions">
-      <UiButton :disabled="runtime.blocked.value" @click="refresh">重新读取运行信息</UiButton>
-      <UiButton v-if="runtime.reading.value" variant="ghost" @click="cancel">取消读取</UiButton>
-    </div>
+    <header class="page-header">
+      <div class="page-heading">
+        <h1 ref="heading" tabindex="-1">运行信息</h1>
+        <p class="meta">
+          读取服务端已记录的缓存快照。重新读取不会触发健康检查或修复，页面不会自动刷新。
+        </p>
+      </div>
+      <div class="runtime-actions page-actions">
+        <UiButton :disabled="runtime.blocked.value" @click="refresh">重新读取运行信息</UiButton>
+        <UiButton v-if="runtime.reading.value" variant="ghost" @click="cancel">取消读取</UiButton>
+      </div>
+    </header>
+
     <UiState
       v-if="state.phase === 'waiting'"
       kind="loading"
@@ -155,6 +160,12 @@ onBeforeUnmount(() => {
   </div>
 </template>
 <style scoped>
+.page-header {
+  margin-bottom: 4px;
+}
+.page-footer {
+  padding-top: 0;
+}
 .runtime-information {
   display: grid;
   gap: 20px;

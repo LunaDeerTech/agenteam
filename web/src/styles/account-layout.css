@@ -1,0 +1,117 @@
+.account-entry {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 40px 24px;
+}
+.account-panel {
+  display: grid;
+  gap: 24px;
+  width: min(100%, 440px);
+  min-width: 0;
+  padding: 32px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--panel-shadow);
+  overflow-wrap: anywhere;
+}
+.account-panel > .brand {
+  justify-self: start;
+}
+.account-heading {
+  display: grid;
+  gap: 8px;
+}
+.account-heading > p,
+.account-panel .description,
+.account-panel .login-description {
+  color: var(--muted);
+}
+.account-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+.account-form > button,
+.account-panel > button {
+  align-self: start;
+  justify-self: start;
+}
+.account-form > button[type='submit'] {
+  margin-top: 4px;
+}
+.account-context {
+  display: grid;
+  gap: 8px;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--canvas);
+}
+.account-context .description {
+  font-size: 12px;
+}
+.account-feedback {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--canvas);
+  overflow-wrap: anywhere;
+}
+.account-feedback.is-error {
+  color: var(--danger);
+  border-color: var(--danger);
+  background: var(--danger-bg);
+}
+.account-panel .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.account-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+}
+.account-diagnostics {
+  min-width: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.account-diagnostics summary {
+  cursor: pointer;
+}
+.account-diagnostics p {
+  margin-top: 8px;
+}
+@media (max-width: 650px) {
+  .account-entry {
+    padding: 24px 16px;
+  }
+  .account-panel {
+    padding: 24px;
+  }
+  .account-form > button[type='submit'] {
+    align-self: stretch;
+  }
+  .account-navigation a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+}
+@media (max-width: 320px) {
+  .account-entry {
+    padding-inline: 8px;
+  }
+  .account-panel {
+    padding: 16px;
+  }
+}

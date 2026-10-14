@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
-import { UiBadge, UiButton, UiCard, UiState } from '../../components/ui'
+import { UiBadge, UiButton, UiCard, UiDialog, UiState } from '../../components/ui'
 import { useProjectWorkspace } from '../../composables/useProjectWorkspace'
 import SkillImportForm from '../../components/projects/SkillImportForm.vue'
 import { useSkillImport } from '../../composables/useSkillImport'
@@ -68,13 +68,14 @@ onBeforeUnmount(() => {
 
 <template>
   <section class="skills-page" aria-label="项目技能库">
-    <header class="skills-header">
+    <header class="skills-header page-header">
       <h1 ref="heading" tabindex="-1">{{ location.skillID ? '技能详情' : '项目技能库' }}</h1>
       <div class="skills-actions">
         <RouterLink v-if="location.skillID" :to="directoryPath">返回技能库</RouterLink>
         <UiButton
           v-if="!location.skillID"
           ref="importButton"
+          variant="primary"
           :disabled="owner.blocked.value"
           @click="showImport"
           >导入技能包</UiButton
@@ -85,9 +86,31 @@ onBeforeUnmount(() => {
         >
       </div>
     </header>
-    <div v-if="!location.skillID && owner.visible.value && importer.open.value" ref="importPanel">
-      <SkillImportForm :owner="importer" @close="closeImport" />
-    </div>
+    <UiDialog
+      :open="!location.skillID && owner.visible.value && importer.open.value"
+      title="导入技能包"
+      :close-on-outside="false"
+      :close-on-escape="!importer.blocked.value"
+      :fallback-focus="heading"
+      @update:open="!$event && closeImport()"
+    >
+      <div ref="importPanel">
+        <SkillImportForm :owner="importer" embedded @close="closeImport" />
+      </div>
+      <template #footer>
+        <UiButton variant="ghost" :disabled="importer.blocked.value" @click="closeImport"
+          >取消</UiButton
+        >
+        <UiButton
+          v-if="importer.editable.value && !importer.otherPending.value"
+          type="submit"
+          form="skill-import-form"
+          variant="primary"
+          :disabled="!importer.canSubmit.value"
+          >确认导入</UiButton
+        >
+      </template>
+    </UiDialog>
     <UiState v-if="!owner.visible.value" kind="loading" title="正在确认技能库访问身份" />
     <UiState
       v-else-if="state.phase === 'waiting' || state.phase === 'loading'"
@@ -104,7 +127,7 @@ onBeforeUnmount(() => {
       <p v-if="state.items.length === 0">项目技能目录暂无条目。</p>
       <ul class="skills-list" aria-label="技能目录" :aria-busy="state.loadingMore">
         <li v-for="skill in state.items" :key="skill.id">
-          <UiCard>
+          <div class="skill-row">
             <div class="skill-title">
               <h2>
                 <RouterLink :to="`${directoryPath}/${skill.id}`">{{ skill.name }}</RouterLink>
@@ -112,8 +135,7 @@ onBeforeUnmount(() => {
               <UiBadge v-if="skill.protected">受保护</UiBadge>
             </div>
             <p class="skill-description">{{ skill.description }}</p>
-            <p class="skill-revision">当前修订 {{ skill.current_revision }}</p>
-          </UiCard>
+          </div>
         </li>
       </ul>
       <UiButton
@@ -190,10 +212,21 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+.page-header {
+  margin-bottom: 0;
+  align-items: flex-start;
+}
+.page-header h1 {
+  margin: 0;
+}
+.page-header p {
+  margin: 8px 0 0;
+}
+
 .skills-page {
   min-width: 0;
   display: grid;
-  gap: var(--content-gap);
+  gap: var(--section-gap);
 }
 .skills-header,
 .skills-actions,
@@ -208,12 +241,28 @@ onBeforeUnmount(() => {
 }
 .skills-list {
   display: grid;
-  gap: var(--content-gap);
+  gap: 0;
   padding: 0;
   margin: 0;
   list-style: none;
+  border-block: 1px solid var(--border);
+}
+.skill-row {
+  min-height: 64px;
+  padding: 12px 0;
+}
+.skills-list li + li {
+  border-top: 1px solid var(--border);
+}
+.skill-row .skill-description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin-bottom: 0;
 }
 .skill-title h2 {
+  font-size: 14px;
   min-width: 0;
   overflow-wrap: anywhere;
 }

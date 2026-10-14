@@ -27,7 +27,9 @@ onMounted(() =>
   <form ref="form" class="dependency-form" :aria-label="label" @submit.prevent="emit('submit')">
     <h4>{{ label }}</h4>
     <p>依赖需要明确解除。关联任务已完成或已取消时，也不会自动解除新建依赖。</p>
-    <p v-if="!adding && owner.state.task?.state === 'blocked'">受阻任务的最后一项阻塞需要与任务恢复一并处理，不能在这里单独解除。</p>
+    <p v-if="!adding && owner.state.task?.state === 'blocked'">
+      受阻任务的最后一项阻塞需要与任务恢复一并处理，不能在这里单独解除。
+    </p>
     <template v-if="adding">
       <UiField
         label="查找关联任务"
@@ -101,9 +103,12 @@ onMounted(() =>
     </p>
     <p v-if="owner.dependency.message" role="alert">{{ owner.dependency.message }}</p>
     <div class="dependency-actions">
-      <UiButton type="submit" :disabled="disabled || (adding && !owner.dependency.relatedTaskID)">{{
-        adding ? '添加依赖' : '解除依赖'
-      }}</UiButton>
+      <UiButton
+        type="submit"
+        variant="primary"
+        :disabled="disabled || (adding && !owner.dependency.relatedTaskID)"
+        >{{ adding ? '添加依赖' : '解除依赖' }}</UiButton
+      >
       <UiButton
         type="button"
         :disabled="owner.busy.value || !!owner.pending.value"
@@ -114,6 +119,13 @@ onMounted(() =>
   </form>
 </template>
 <style scoped>
+form > .ui-button {
+  align-self: flex-start;
+}
+form > div:last-child {
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
 .dependency-form {
   display: flex;
   flex-direction: column;

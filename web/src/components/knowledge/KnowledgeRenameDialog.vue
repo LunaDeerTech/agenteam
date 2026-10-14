@@ -91,7 +91,7 @@ const confirmation = computed({
 .rename-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
-  margin-top: var(--space-3);
+  gap: 8px;
+  margin-top: var(--content-gap);
 }
 </style>

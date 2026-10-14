@@ -154,7 +154,8 @@ describe('Task detail final output', () => {
     expect(f.wrapper.find('.execution-output script').exists()).toBe(false)
     expect(f.wrapper.find('.execution-output img').exists()).toBe(false)
     expect(f.wrapper.get('.execution-facts').text()).toContain('执行成功')
-    expect(f.wrapper.get('.execution-facts').text()).toContain('9007199254740994')
+    await f.wrapper.get('.execution-metadata summary').trigger('click')
+    expect(f.wrapper.get('.execution-metadata').text()).toContain('9007199254740994')
     expect(f.owner.state.task?.state).toBe('backlog')
     expect(f.fetch.mock.calls.map((call) => call[0])).toEqual([
       path + '?limit=50',
@@ -277,7 +278,8 @@ describe('Task detail final output', () => {
     await f.click('加载最终输出')
     expect(f.wrapper.text()).toContain('未能读取最终输出')
     expect(f.wrapper.find('[aria-label="最终输出正文"]').exists()).toBe(false)
-    expect(f.wrapper.get('.execution-facts').text()).toContain(f.row.version)
+    await f.wrapper.get('.execution-metadata summary').trigger('click')
+    expect(f.wrapper.get('.execution-metadata').text()).toContain(f.row.version)
     expect(f.fetch).toHaveBeenCalledTimes(3)
   })
 })

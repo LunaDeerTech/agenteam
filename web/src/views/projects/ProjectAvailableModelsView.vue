@@ -13,7 +13,7 @@ function setLimit(value: string) {
 </script>
 <template>
   <section class="available-models" aria-labelledby="available-models-title">
-    <header>
+    <header class="page-heading">
       <h1 id="available-models-title">可用模型</h1>
       <p class="meta">
         只读查看当前项目可见的 System 与 Project chat
@@ -54,38 +54,45 @@ function setLimit(value: string) {
         <ul v-if="available.state.items.length" class="records" aria-label="可用模型目录">
           <li v-for="item in available.state.items" :key="item.id" :data-model-id="item.id">
             <h2>{{ item.name }}</h2>
-            <dl>
-              <dt>来源</dt>
-              <dd>{{ item.scope.kind === 'system' ? 'System（只读）' : 'Project（本项目）' }}</dd>
-              <dt>Model ID</dt>
-              <dd class="identifier">{{ item.id }}</dd>
-              <dt>Provider</dt>
-              <dd>{{ item.provider_name }}</dd>
-              <dt>Provider ID</dt>
-              <dd class="identifier">{{ item.provider_id }}</dd>
-              <dt>版本</dt>
-              <dd>{{ item.version }}</dd>
-              <dt>工具调用</dt>
-              <dd>{{ item.capabilities.tool_calls ? '支持声明' : '未声明' }}</dd>
-              <dt>并行工具</dt>
-              <dd>{{ item.capabilities.parallel_tool_calls ? '支持声明' : '未声明' }}</dd>
-              <dt>流式</dt>
-              <dd>{{ item.capabilities.streaming ? '支持声明' : '未声明' }}</dd>
-              <dt>推理</dt>
-              <dd>{{ item.capabilities.reasoning ? '支持声明' : '未声明' }}</dd>
-              <dt>输入形式</dt>
-              <dd>{{ item.capabilities.input_modalities.join('、') || '无' }}</dd>
-              <dt>输出形式</dt>
-              <dd>{{ item.capabilities.output_modalities.join('、') || '无' }}</dd>
-              <dt>结构化输出</dt>
-              <dd>{{ item.capabilities.structured_output_modes.join('、') || '无' }}</dd>
-              <dt>推理等级</dt>
-              <dd>{{ item.capabilities.reasoning_efforts.join('、') || '无' }}</dd>
-              <dt>上下文长度</dt>
-              <dd>{{ item.capabilities.context_length ?? '未设置' }}</dd>
-              <dt>最大输出</dt>
-              <dd>{{ item.capabilities.max_output ?? '未设置' }}</dd>
-            </dl>
+            <p class="meta">
+              {{ item.provider_name }} ·
+              {{ item.scope.kind === 'system' ? 'System（只读）' : 'Project（本项目）' }}
+            </p>
+            <details class="record-details">
+              <summary>能力与标识</summary>
+              <dl>
+                <dt>来源</dt>
+                <dd>{{ item.scope.kind === 'system' ? 'System（只读）' : 'Project（本项目）' }}</dd>
+                <dt>Model ID</dt>
+                <dd class="identifier">{{ item.id }}</dd>
+                <dt>Provider</dt>
+                <dd>{{ item.provider_name }}</dd>
+                <dt>Provider ID</dt>
+                <dd class="identifier">{{ item.provider_id }}</dd>
+                <dt>版本</dt>
+                <dd>{{ item.version }}</dd>
+                <dt>工具调用</dt>
+                <dd>{{ item.capabilities.tool_calls ? '支持声明' : '未声明' }}</dd>
+                <dt>并行工具</dt>
+                <dd>{{ item.capabilities.parallel_tool_calls ? '支持声明' : '未声明' }}</dd>
+                <dt>流式</dt>
+                <dd>{{ item.capabilities.streaming ? '支持声明' : '未声明' }}</dd>
+                <dt>推理</dt>
+                <dd>{{ item.capabilities.reasoning ? '支持声明' : '未声明' }}</dd>
+                <dt>输入形式</dt>
+                <dd>{{ item.capabilities.input_modalities.join('、') || '无' }}</dd>
+                <dt>输出形式</dt>
+                <dd>{{ item.capabilities.output_modalities.join('、') || '无' }}</dd>
+                <dt>结构化输出</dt>
+                <dd>{{ item.capabilities.structured_output_modes.join('、') || '无' }}</dd>
+                <dt>推理等级</dt>
+                <dd>{{ item.capabilities.reasoning_efforts.join('、') || '无' }}</dd>
+                <dt>上下文长度</dt>
+                <dd>{{ item.capabilities.context_length ?? '未设置' }}</dd>
+                <dt>最大输出</dt>
+                <dd>{{ item.capabilities.max_output ?? '未设置' }}</dd>
+              </dl>
+            </details>
           </li>
         </ul>
       </div>
@@ -109,6 +116,22 @@ function setLimit(value: string) {
   </section>
 </template>
 <style scoped>
+.records li {
+  padding: 12px 0;
+  min-width: 0;
+}
+.records li + li {
+  border-top: 1px solid var(--border);
+}
+.record-details summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 12px;
+}
+.record-details[open] summary {
+  margin-bottom: 12px;
+}
+
 .available-models {
   min-width: 0;
   display: grid;
@@ -120,8 +143,8 @@ h1 {
   line-height: 1.35;
 }
 h2 {
-  margin: 0 0 12px;
-  font-size: 15px;
+  margin: 0 0 8px;
+  font-size: 14px;
   overflow-wrap: anywhere;
 }
 p {
@@ -140,12 +163,12 @@ dt {
 }
 .records {
   display: grid;
-  gap: 12px;
+  gap: 0;
+  border-block: 1px solid var(--border);
   list-style: none;
   padding: 0;
   margin: 0;
 }
-.records li,
 .notice {
   padding: 16px;
   border: 1px solid var(--border);

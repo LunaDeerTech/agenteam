@@ -87,7 +87,7 @@ onBeforeUnmount(() => {
     <p class="meta">
       测试使用服务端已保存配置；请求接受、任务当前状态和实际尝试结果分别记录。已报告接受不保证收件箱送达。
     </p>
-    <form class="test-form" @submit.prevent="perform(page.requestTest, $event)">
+    <form class="test-form page-form" @submit.prevent="perform(page.requestTest, $event)">
       <h2>请求一次测试</h2>
       <UiField
         v-slot="control"
@@ -107,7 +107,7 @@ onBeforeUnmount(() => {
           @update:model-value="page.updateRecipient($event)"
         />
       </UiField>
-      <div class="actions">
+      <div class="actions page-actions">
         <UiButton
           type="submit"
           variant="primary"
@@ -122,7 +122,7 @@ onBeforeUnmount(() => {
       <p v-else-if="!available.configured" class="notice">
         当前观察为 SMTP 未配置，不能开始新的测试请求。
       </p>
-      <div v-if="!available.ready || !available.configured" class="actions">
+      <div v-if="!available.ready || !available.configured" class="actions page-actions">
         <UiButton variant="ghost" @click="sections.switchTo('configuration')">返回配置区</UiButton>
       </div>
     </form>
@@ -140,7 +140,7 @@ onBeforeUnmount(() => {
         本次申请的源 JobID：<code>{{ state.confirmed.sourceID }}</code
         >。只表示本次操作的关联，不是完整投递历史。
       </p>
-      <div class="actions">
+      <div class="actions page-actions">
         <UiButton
           :disabled="blocked"
           @click="perform(() => page.openDetail(state.confirmed!.jobID), $event)"
@@ -154,7 +154,7 @@ onBeforeUnmount(() => {
       title="请求结果未确认"
       description="没有匹配的完整接受确认。任务列表、详情和会话都不能证明原请求是否接受；明确放弃只停止客户端追踪。"
     >
-      <div class="actions">
+      <div class="actions page-actions">
         <UiButton :disabled="blocked" @click="perform(page.checkOriginal, $event)"
           >检查当前状态</UiButton
         >
@@ -167,7 +167,7 @@ onBeforeUnmount(() => {
       </div>
     </UiState>
     <p v-if="state.requiresRead" class="notice">请先明确重新读取并核对任务，再开始新操作。</p>
-    <div ref="actions" class="actions" aria-label="投递任务读取操作">
+    <div ref="actions" class="actions page-actions" aria-label="投递任务读取操作">
       <template v-if="mode === 'list'">
         <UiButton :disabled="blocked" @click="perform(page.refresh, $event)">刷新任务列表</UiButton>
         <UiButton v-if="list.phase === 'loading'" variant="ghost" @click="page.cancelList"
@@ -195,7 +195,7 @@ onBeforeUnmount(() => {
         :description="list.message"
       />
       <UiState v-else-if="list.phase === 'empty'" kind="empty" title="当前页没有投递任务" />
-      <div v-else-if="list.phase === 'ready'" class="table-container">
+      <div v-else-if="list.phase === 'ready'" class="table-container page-surface">
         <table>
           <caption class="sr-only">
             当前页投递任务的完整安全观察
@@ -243,7 +243,7 @@ onBeforeUnmount(() => {
           </tbody>
         </table>
       </div>
-      <div class="actions" aria-label="任务分页">
+      <div class="actions page-actions" aria-label="任务分页">
         <UiButton
           :disabled="blocked || !list.hasPrevious"
           @click="perform(page.previousPage, $event)"
@@ -334,7 +334,7 @@ onBeforeUnmount(() => {
           接受或后台日志持久写入，不保证收件箱送达。本页没有历史收件人、恢复链接或完整尝试记录。
         </p>
         <p v-if="retryReason" class="notice">{{ retryReason }}</p>
-        <div class="actions">
+        <div class="actions page-actions">
           <UiButton :disabled="!retryReady" @click="page.requestRetry">申请新重试周期</UiButton>
         </div>
       </template>
@@ -350,7 +350,7 @@ form {
   min-width: 0;
 }
 h2 {
-  font-size: 1.1rem;
+  font-size: 15px;
 }
 .meta,
 dt {
@@ -426,7 +426,7 @@ dd {
     display: none;
   }
   tr {
-    padding-block: 12px;
+    padding: 12px 16px;
     border-bottom: 1px solid var(--border);
   }
   td {

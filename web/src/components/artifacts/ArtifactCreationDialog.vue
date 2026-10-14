@@ -149,6 +149,6 @@ const bytes = computed(() => new TextEncoder().encode(props.editor.state.content
 .artifact-creation-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  gap: 8px;
 }
 </style>

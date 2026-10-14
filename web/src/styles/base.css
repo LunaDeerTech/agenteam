@@ -1,3 +1,6 @@
+@import './page-layouts.css';
+@import './account-layout.css';
+
 * {
   box-sizing: border-box;
 }
@@ -98,6 +101,8 @@ fieldset {
 }
 .app-shell {
   height: 100dvh;
+  min-width: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
@@ -106,8 +111,9 @@ fieldset {
   min-height: var(--nav-height);
   display: flex;
   align-items: center;
-  gap: 28px;
-  padding: 0 20px;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  padding: 8px 24px;
   border-bottom: 1px solid var(--border);
   background: var(--bg);
 }
@@ -128,11 +134,14 @@ fieldset {
   display: flex;
   min-width: 0;
   overflow-x: auto;
-  padding: 5px 3px;
+  gap: 4px;
+  padding: 4px;
 }
 .system-nav nav a {
-  padding: 3px 12px;
-  border-radius: 6px;
+  flex: none;
+  padding: 5px 12px;
+  border-radius: var(--radius);
+  white-space: nowrap;
   font-size: 13px;
   color: var(--muted);
   transition:
@@ -143,12 +152,15 @@ fieldset {
   background: color-mix(in srgb, var(--nav-selected) 85%, var(--text));
   color: var(--text);
 }
-.system-nav nav .router-link-active {
+.system-nav nav a[aria-current='page'] {
   background: var(--nav-selected);
   color: var(--text);
 }
 .app-content {
+  display: flex;
+  flex-direction: column;
   flex: 1;
+  min-width: 0;
   min-height: 0;
   overflow: auto;
   outline: none;
@@ -165,18 +177,18 @@ fieldset {
 .skip-link:focus {
   transform: none;
 }
-.not-found {
-  padding: var(--space);
-  display: grid;
-  gap: 12px;
-}
 @media (max-width: 650px) {
   h1 {
     font-size: 23px;
   }
   .system-nav {
-    padding: 0 12px;
-    gap: 16px;
+    padding: 8px 12px;
+    gap: 8px 12px;
+  }
+  .system-nav nav a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
   }
 }
 @media (prefers-reduced-motion: reduce) {

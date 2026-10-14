@@ -1,0 +1,90 @@
+/* Page composition only: controls, colors and state behavior remain owned by Ui components. */
+.page-layout {
+  width: 100%;
+  min-width: 0;
+  padding: 24px;
+  flex: none;
+}
+.page-layout--collection {
+  max-width: 1120px;
+  margin-inline: auto;
+}
+.page-layout--reading {
+  max-width: 800px;
+  margin-inline: auto;
+}
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+  min-width: 0;
+}
+.page-heading {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.page-heading > p {
+  color: var(--muted);
+}
+.page-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+.page-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  min-width: 0;
+  margin-bottom: 12px;
+}
+.page-surface {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.page-section {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.page-form {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+.page-form > button,
+.page-section > button {
+  justify-self: start;
+}
+.page-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 16px;
+  min-width: 0;
+}
+.page-workspace {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+@media (max-width: 650px) {
+  .page-layout {
+    padding: 20px 16px;
+  }
+}

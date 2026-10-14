@@ -68,7 +68,7 @@ watch(
       为所有项目的会议摘要初始、更新及首轮标题选择 System chat Model。独立保存，不要求
       json_schema；配置保存不表示生成或外部调用已可用。
     </p>
-    <div ref="actions" class="actions" aria-label="会议 Summary 操作">
+    <div ref="actions" class="actions page-actions" aria-label="会议 Summary 操作">
       <UiButton :disabled="blocked" @click="perform(page.refresh, $event)"
         >重读会议 Summary 配置</UiButton
       >
@@ -152,7 +152,7 @@ watch(
     </template>
     <form
       v-if="editor.open"
-      class="summary-editor"
+      class="summary-editor page-form"
       aria-label="会议 Summary 编辑"
       @submit.prevent="page.save"
     >
@@ -165,22 +165,11 @@ watch(
         草稿 Model：{{ draftDetails.summary?.model.input.name || draft.summary }}
       </p>
       <p v-else class="meta">尚未选择 Model。</p>
-      <div class="actions">
-        <UiButton :disabled="blocked || locked" @click="page.choosePurpose('summary')"
-          >选择会议 Summary Model</UiButton
-        >
-        <UiButton
-          type="submit"
-          :disabled="!canSave"
-          :state="feedback === 'loading' ? 'loading' : 'idle'"
-          >保存会议 Summary</UiButton
-        >
-        <UiButton variant="ghost" @click="perform(page.closeEditor, $event)"
-          >取消会议 Summary 编辑</UiButton
-        >
-      </div>
+      <UiButton :disabled="blocked || locked" @click="page.choosePurpose('summary')"
+        >选择会议 Summary Model</UiButton
+      >
       <div v-if="activePurpose === 'summary'" class="summary-picker" aria-label="会议 Summary 候选">
-        <div class="actions">
+        <div class="actions page-actions">
           <UiButton
             v-if="choice.mode === 'models'"
             :disabled="blocked || locked"
@@ -208,7 +197,7 @@ watch(
             title="当前 Provider 页为空"
             description="这里只表示当前页没有结果；可翻页或前往管理页配置 Provider。"
           />
-          <ul class="choices">
+          <ul class="choices page-surface">
             <li v-for="provider in choice.providers.rows" :key="provider.id">
               <strong>{{ provider.input.name }}</strong
               ><span
@@ -220,7 +209,7 @@ watch(
               >
             </li>
           </ul>
-          <div class="actions" aria-label="会议 Summary Provider 分页">
+          <div class="actions page-actions" aria-label="会议 Summary Provider 分页">
             <UiButton
               :disabled="blocked || locked || !choice.providers.hasPrevious"
               @click="page.pageAction('providers', 'previous')"
@@ -279,7 +268,7 @@ watch(
             title="当前 Model 页为空"
             description="可翻页或前往管理页配置 Model，当前页不代表全域。"
           />
-          <ul class="choices">
+          <ul class="choices page-surface">
             <li v-for="model in choice.models.rows" :key="model.id">
               <strong>{{ model.input.name }}</strong
               ><span>{{ model.input.provider_model_id }} · {{ model.input.type }}</span>
@@ -293,7 +282,7 @@ watch(
               >
             </li>
           </ul>
-          <div class="actions" aria-label="会议 Summary Model 分页">
+          <div class="actions page-actions" aria-label="会议 Summary Model 分页">
             <UiButton
               :disabled="blocked || locked || !choice.models.hasPrevious"
               @click="page.pageAction('models', 'previous')"
@@ -331,7 +320,7 @@ watch(
                 : '历史读取失败'
           }}
         </p>
-        <div class="actions">
+        <div class="actions page-actions">
           <UiButton :disabled="blocked" @click="perform(page.checkOriginal, $event)"
             >检查会议 Summary 原请求</UiButton
           >
@@ -351,6 +340,17 @@ watch(
         @click="perform(page.review, $event)"
         >读取最新会议 Summary 并核对</UiButton
       >
+      <div class="actions page-actions">
+        <UiButton
+          type="submit"
+          variant="primary"
+          :disabled="!canSave"
+          :state="feedback === 'loading' ? 'loading' : 'idle'"
+          >保存会议 Summary</UiButton
+        ><UiButton variant="ghost" @click="perform(page.closeEditor, $event)"
+          >取消会议 Summary 编辑</UiButton
+        >
+      </div>
     </form>
   </section>
 </template>
@@ -382,7 +382,7 @@ watch(
 }
 .choices {
   display: grid;
-  gap: 16px;
+  gap: 0;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -391,8 +391,14 @@ watch(
   display: grid;
   gap: 8px;
   min-width: 0;
-  border-top: 1px solid var(--border);
-  padding-block: 12px;
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
+}
+.choices li:last-child {
+  border-bottom: 0;
+}
+.choices li > button {
+  justify-self: start;
 }
 dl {
   display: grid;

@@ -174,16 +174,20 @@ onUnmounted(() => {
 
 <template>
   <main id="main-content" class="account-entry">
-    <section class="login-panel" aria-labelledby="login-title">
+    <section class="login-panel account-panel" aria-labelledby="login-title">
       <RouterLink class="brand login-brand" to="/" aria-label="agenteam 入口">
         <AppBrand />
       </RouterLink>
-      <h1 id="login-title" ref="heading" tabindex="-1">登录</h1>
-      <p class="login-description">使用邮箱和密码继续。</p>
+      <header class="account-heading">
+        <h1 id="login-title" ref="heading" tabindex="-1">登录</h1>
+        <p class="login-description">使用邮箱和密码继续。</p>
+      </header>
       <div v-if="choosingAccount" class="ui-stack">
         <p class="account-notice">当前账号：{{ state.user?.display_name || state.user?.email }}</p>
         <RouterLink :to="safeReturnTarget(route.query.return)">返回当前账号</RouterLink>
-        <p v-if="notice" role="alert" class="account-notice">{{ notice }}</p>
+        <p v-if="notice" role="alert" class="account-notice account-feedback is-error">
+          {{ notice }}
+        </p>
         <UiButton
           :disabled="state.busy"
           :state="state.busy ? 'loading' : 'idle'"
@@ -193,7 +197,7 @@ onUnmounted(() => {
         >
         <p class="login-description">切换账号后，请重新打开原邀请或重置链接。</p>
       </div>
-      <form v-if="!choosingAccount" ref="form" class="ui-stack" @submit.prevent="login">
+      <form v-if="!choosingAccount" ref="form" class="account-form" @submit.prevent="login">
         <UiField
           v-slot="field"
           label="邮箱"
@@ -248,7 +252,14 @@ onUnmounted(() => {
           @click="refreshChallenge"
           >开始旋转验证</UiButton
         >
-        <p v-if="notice" id="login-feedback" role="alert" class="account-notice">{{ notice }}</p>
+        <p
+          v-if="notice"
+          id="login-feedback"
+          role="alert"
+          class="account-notice account-feedback is-error"
+        >
+          {{ notice }}
+        </p>
         <UiButton
           variant="primary"
           type="submit"
@@ -271,48 +282,3 @@ onUnmounted(() => {
     </section>
   </main>
 </template>
-
-<style scoped>
-.account-entry {
-  min-height: 100dvh;
-  padding: 32px 16px;
-  display: grid;
-  place-items: center;
-}
-.login-panel {
-  width: min(100%, 400px);
-  min-width: 0;
-  padding: 28px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  background: var(--surface);
-  box-shadow: var(--panel-shadow);
-  display: grid;
-  gap: 20px;
-}
-.login-brand {
-  justify-self: start;
-}
-.login-description {
-  color: var(--muted);
-}
-.account-notice {
-  overflow-wrap: anywhere;
-}
-.account-navigation {
-  text-align: center;
-}
-@media (max-width: 450px) {
-  .login-panel {
-    padding: 20px;
-  }
-}
-@media (max-width: 280px) {
-  .account-entry {
-    padding-inline: 8px;
-  }
-  .login-panel {
-    padding: 12px;
-  }
-}
-</style>

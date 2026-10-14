@@ -255,7 +255,7 @@ function confirmation() {
 }
 
 describe('Account security inline form in the actual App and router', () => {
-  it('keeps users as default, renders ten leaves in four groups and preserves the tenth exact return', async () => {
+  it('keeps users as default, renders the current system menu and preserves the account security return', async () => {
     const f = await page({ path: '/system' })
     expect(f.router.currentRoute.value.path).toBe('/system/users')
     expect(
@@ -264,6 +264,7 @@ describe('Account security inline form in the actual App and router', () => {
         .findAll('a')
         .map((a) => a.text()),
     ).toEqual([
+      '设备列表',
       '用户',
       '待注册邀请',
       'Providers',
@@ -276,6 +277,7 @@ describe('Account security inline form in the actual App and router', () => {
       '运行信息',
     ])
     expect(f.wrapper.findAll('.settings-group-toggle').map((group) => group.text())).toEqual([
+      'Runner',
       '用户与邀请',
       '模型与提供商',
       '审计',

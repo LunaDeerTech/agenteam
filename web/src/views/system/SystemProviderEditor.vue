@@ -53,10 +53,21 @@ async function perform(work: () => Promise<void>, event: Event) {
     :title="editor.mode === 'create' ? '创建 Provider' : '编辑 Provider'"
     @update:open="!$event && page.closeEditor()"
   >
-    <form ref="form" class="provider-editor" @submit.prevent="perform(page.save, $event)">
+    <form
+      id="system-provider-editor"
+      ref="form"
+      class="provider-editor page-form"
+      @submit.prevent="perform(page.save, $event)"
+    >
       <p class="meta">仅管理配置，不测试连接或调用外部服务。</p>
       <UiField v-slot="field" label="名称" required>
-        <UiInput :id="field.id" v-model="draft.name" :disabled="locked" autocomplete="off" />
+        <UiInput
+          data-autofocus
+          :id="field.id"
+          v-model="draft.name"
+          :disabled="locked"
+          autocomplete="off"
+        />
       </UiField>
       <UiField v-slot="field" label="协议" required hint="创建后协议不可修改。">
         <UiInput
@@ -161,23 +172,28 @@ async function perform(work: () => Promise<void>, event: Event) {
         >
         <UiButton variant="ghost" @click="page.abandonOperation">放弃本次操作</UiButton>
       </div>
-      <div class="provider-actions">
-        <UiButton
-          type="submit"
-          :disabled="locked || (!page.changed.value && !material.present && !editor.reviewed)"
-          :state="feedback"
-          success-label="配置已保存"
-          >保存配置</UiButton
-        >
-        <UiButton variant="ghost" @click="page.closeEditor">取消</UiButton>
-      </div>
     </form>
+    <template #footer>
+      <UiButton variant="ghost" @click="page.closeEditor">取消</UiButton>
+      <UiButton
+        type="submit"
+        variant="primary"
+        form="system-provider-editor"
+        :disabled="locked || (!page.changed.value && !material.present && !editor.reviewed)"
+        :state="feedback"
+        success-label="配置已保存"
+        >保存配置</UiButton
+      >
+    </template>
   </UiDialog>
 </template>
 <style scoped>
+form > :deep(button) {
+  justify-self: start;
+}
 .provider-editor {
   display: grid;
-  gap: 18px;
+  gap: 20px;
   min-width: 0;
 }
 .provider-editor p {

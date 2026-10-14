@@ -15,6 +15,7 @@ const owner = useProjectSecrets(undefined, useProjectWorkspace(), location)
 const editor = useProjectSecretEditor(owner)
 const page = owner.page,
   detail = owner.detail
+const heading = ref<HTMLElement | null>(null)
 const detailHeading = ref<HTMLElement | null>(null)
 const deleteButton = ref<{ $el: HTMLButtonElement } | null>(null)
 const createButton = ref<{ $el: HTMLButtonElement } | null>(null)
@@ -109,14 +110,15 @@ onBeforeUnmount(() => {
 
 <template>
   <section class="secrets-page" aria-label="项目 Secrets">
-    <header class="secrets-header">
+    <header class="secrets-header page-header">
       <div>
-        <h1>Secrets</h1>
+        <h1 ref="heading" tabindex="-1">Secrets</h1>
         <p>管理名称、描述与 Secret 材料。已有值不会返回；输入的材料仅用于本次提交。</p>
       </div>
       <div class="secrets-actions">
         <UiButton
           ref="createButton"
+          variant="primary"
           :disabled="!editor.canOpen.value"
           @click="openEditor('create', $event)"
           >创建 Secret</UiButton
@@ -138,12 +140,14 @@ onBeforeUnmount(() => {
         <UiButton variant="danger" @click="confirmDelete">确认删除</UiButton>
       </template>
     </UiDialog>
-    <ProjectSecretEditor :owner="editor" @close="closeEditor" />
-    <p v-if="editor.visible.value && editor.state.message" role="status">
+    <ProjectSecretEditor :owner="editor" :fallback-focus="heading" @close="closeEditor" />
+    <p v-if="editor.visible.value && !editor.state.open && editor.state.message" role="status">
       {{ editor.state.message }}
     </p>
     <div
-      v-if="editor.visible.value && editor.progress.value?.phase === 'uncertain'"
+      v-if="
+        editor.visible.value && !editor.state.open && editor.progress.value?.phase === 'uncertain'
+      "
       class="secrets-recovery"
     >
       <p v-if="editor.progress.value?.identity.kind === 'delete'">
@@ -152,7 +156,11 @@ onBeforeUnmount(() => {
       <p v-else>原请求尚未确认。材料已清除；检查原请求不会再次提交材料。</p>
       <UiButton :disabled="!editor.canLookup.value" @click="editor.lookup()">检查原请求</UiButton>
     </div>
-    <div v-if="editor.visible.value && editor.progress.value?.phase === 'confirmed'">
+    <div
+      v-if="
+        editor.visible.value && !editor.state.open && editor.progress.value?.phase === 'confirmed'
+      "
+    >
       <p>
         {{
           editor.progress.value?.identity.kind === 'delete'
@@ -180,7 +188,7 @@ onBeforeUnmount(() => {
     />
     <template v-else>
       <p v-if="page.items.length === 0">项目 Secrets 目录暂无条目。</p>
-      <div class="secrets-content">
+      <div class="secrets-content" :class="{ 'has-detail': owner.selected.value }">
         <div>
           <ul class="secrets-list" aria-label="Secrets 目录" :aria-busy="page.loadingMore">
             <li v-for="secret in page.items" :key="secret.id">
@@ -191,7 +199,7 @@ onBeforeUnmount(() => {
                 @click="select(secret.id, $event)"
                 >{{ secret.name }}</UiButton
               >
-              <p class="secret-description">{{ secret.description || '暂无描述' }}</p>
+              <p v-if="secret.description" class="secret-description">{{ secret.description }}</p>
             </li>
           </ul>
           <p v-if="page.message" role="alert">{{ page.message }}</p>
@@ -270,10 +278,25 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+.secrets-header > div:first-child {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+.page-header {
+  margin-bottom: 0;
+  align-items: flex-start;
+}
+.page-header h1 {
+  margin: 0;
+}
+.page-header p {
+  margin: 8px 0 0;
+}
+
 .secrets-page {
   min-width: 0;
   display: grid;
-  gap: var(--content-gap);
+  gap: var(--section-gap);
 }
 .secrets-header,
 .secrets-actions {
@@ -291,8 +314,11 @@ dt {
 }
 .secrets-content {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--content-gap);
+}
+.secrets-content.has-detail {
+  grid-template-columns: 248px minmax(0, 1fr);
 }
 .secrets-content > *,
 .secret-detail {
@@ -303,10 +329,22 @@ dt {
   padding: 0;
   margin: 0;
   display: grid;
-  gap: var(--content-gap);
+  gap: 0;
+  border-block: 1px solid var(--border);
 }
 .secrets-list li {
   min-width: 0;
+  min-height: 64px;
+  padding: 12px 0;
+}
+.secrets-list li + li {
+  border-top: 1px solid var(--border);
+}
+.secrets-list .secret-description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 .secret-select {
   max-width: 100%;
@@ -333,8 +371,8 @@ dt {
 .secret-detail h2 {
   overflow-wrap: anywhere;
 }
-@media (max-width: 834px) {
-  .secrets-content {
+@media (max-width: 1024px) {
+  .secrets-content.has-detail {
     grid-template-columns: minmax(0, 1fr);
   }
 }

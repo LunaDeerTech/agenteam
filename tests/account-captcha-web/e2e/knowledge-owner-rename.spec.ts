@@ -162,7 +162,7 @@ test("[rename] Knowledge Owner existing-document rename", async ({ page }) => {
     // The current-document refresh retires the original trigger. The view
     // deliberately gives UiDialog this current heading as its fallback.
     currentReadGate = "document-heading-focus";
-    await expect(area.locator(".knowledge-document > h2")).toBeFocused();
+    await expect(area.locator(".knowledge-document h2[tabindex='-1']")).toBeFocused();
     currentReadGate = "current-content";
     await expect(area.locator("h2")).toHaveText(data.title);
     await expect(document).toContainText(data.title);
@@ -362,7 +362,7 @@ test("[rename] Knowledge Owner existing-document rename", async ({ page }) => {
     if (stage === "current-read") {
       try {
         const visual = await page.evaluate(() => {
-          const heading = document.querySelector(".knowledge-document > h2");
+          const heading = document.querySelector(".knowledge-document h2[tabindex='-1']");
           const trigger = document.querySelector(".document-toolbar > button");
           return {
             overlay_present: document.querySelector(".ui-overlay") !== null,

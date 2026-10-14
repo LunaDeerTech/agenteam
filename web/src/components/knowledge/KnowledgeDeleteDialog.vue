@@ -93,12 +93,12 @@ const confirmation = computed({
   max-height: 16rem;
   overflow: auto;
   overflow-wrap: anywhere;
-  padding-inline-start: var(--space-5);
+  padding-inline-start: 20px;
 }
 .delete-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
-  margin-top: var(--space-3);
+  gap: 8px;
+  margin-top: var(--content-gap);
 }
 </style>

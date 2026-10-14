@@ -337,7 +337,7 @@ describe('Sprint editing visible behavior', () => {
       expected_version: sprint.version,
       request: { description: '' },
     })
-    expect(body().get('.sprint-description').text()).toBe('暂无描述。')
+    expect(body().find('.sprint-description').exists()).toBe(false)
     await click('编辑 Sprint')
     await field('Sprint 标题').setValue('Temporary')
     await field('Sprint 标题').setValue(sprint.title)

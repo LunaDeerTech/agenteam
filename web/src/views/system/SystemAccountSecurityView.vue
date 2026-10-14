@@ -77,16 +77,23 @@ onUnmounted(page.detach)
 </script>
 <template>
   <div class="system-account-security">
-    <h1 ref="heading" tabindex="-1">账号安全</h1>
-    <p class="meta">配置新签发 Session 和密码重置 token 的默认期限，以及触发登录挑战的失败次数。</p>
+    <header class="page-header">
+      <div class="page-heading">
+        <h1 ref="heading" tabindex="-1">账号安全</h1>
+        <p class="meta">
+          配置新签发 Session 和密码重置 token 的默认期限，以及触发登录挑战的失败次数。
+        </p>
+      </div>
+      <div ref="actions" class="security-actions page-actions" aria-label="账号安全页面操作">
+        <UiButton :disabled="blocked" @click="page.refresh">读取当前配置</UiButton>
+      </div>
+    </header>
     <p class="notice">
       期限修改只影响随后签发的
       Session/token，已签发对象保留原期限；挑战阈值在下一次尝试生效。邀请有效期固定为 24
       小时。保存不会撤销已有登录。
     </p>
-    <div ref="actions" class="security-actions" aria-label="账号安全页面操作">
-      <UiButton :disabled="blocked" @click="page.refresh">读取当前配置</UiButton>
-    </div>
+
     <p v-if="page.auth.state.busy" class="meta" role="status">正在等待当前请求结束。</p>
     <p v-if="state.writeMessage" class="notice" role="status">{{ state.writeMessage }}</p>
     <p v-if="state.confirmed" class="meta" aria-label="本次保存的历史确认">
@@ -99,7 +106,7 @@ onUnmounted(page.detach)
       title="请求结果未确认"
       description="当前配置读取不能证明原请求是否已接受。请检查会话后显式重试原请求，或明确放弃本地追踪。"
     >
-      <div class="security-actions">
+      <div class="security-actions page-actions">
         <UiButton :disabled="blocked" @click="page.checkOriginal">检查当前会话与配置</UiButton>
         <UiButton
           :disabled="blocked || !progress.canRetryOriginal"
@@ -132,6 +139,7 @@ onUnmounted(page.detach)
       请在当前请求结束后明确读取配置。新的编辑基线必须来自成功的当前读取。
     </p>
     <form
+      class="page-form"
       v-if="editor.ready"
       aria-label="修改账号安全配置"
       novalidate
@@ -148,7 +156,7 @@ onUnmounted(page.detach)
         title="需要核对最新配置"
         description="读取最新值不会改写四项草稿或原编辑版本。核对后，明确采用最新值再重新编辑。"
       >
-        <div class="security-actions">
+        <div class="security-actions page-actions">
           <UiButton :disabled="blocked" @click="page.readLatest">读取最新配置</UiButton>
           <UiButton :disabled="blocked || observation.phase !== 'ready'" @click="page.adoptLatest"
             >采用最新值重新编辑</UiButton
@@ -178,7 +186,7 @@ onUnmounted(page.detach)
           />
         </UiField>
       </div>
-      <div class="security-actions">
+      <div class="security-actions page-actions">
         <UiButton
           type="submit"
           variant="primary"
@@ -205,6 +213,12 @@ onUnmounted(page.detach)
   </div>
 </template>
 <style scoped>
+.page-header {
+  margin-bottom: 4px;
+}
+.page-footer {
+  padding-top: 0;
+}
 .system-account-security,
 form,
 section {
@@ -213,7 +227,7 @@ section {
   min-width: 0;
 }
 h2 {
-  font-size: 1.1rem;
+  font-size: 15px;
 }
 .meta {
   color: var(--muted);

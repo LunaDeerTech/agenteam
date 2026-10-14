@@ -83,7 +83,7 @@ function submit() {
 <style scoped>
 .scheduler-form {
   display: grid;
-  gap: var(--content-gap);
+  gap: 20px;
   min-width: 0;
 }
 .scheduler-hint {

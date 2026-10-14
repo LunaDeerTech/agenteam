@@ -5,48 +5,17 @@ import { projectRoute } from '../../router/auth'
 
 const props = defineProps<{ name: string; home: string; settings: string }>()
 const route = useRoute()
-const tasksCurrent = computed(() => {
-  const current = projectRoute(route.fullPath),
-    target = projectRoute(props.home)
+const current = computed(() => projectRoute(route.fullPath))
+const target = computed(() => projectRoute(props.home))
+function sectionCurrent(suffix: string) {
   return (
-    !!current &&
-    !!target &&
-    current.username === target.username &&
-    current.project_name === target.project_name &&
-    (current.suffix === '/tasks' || current.suffix.startsWith('/tasks/'))
+    !!current.value &&
+    !!target.value &&
+    current.value.username === target.value.username &&
+    current.value.project_name === target.value.project_name &&
+    (current.value.suffix === suffix || current.value.suffix.startsWith(suffix + '/'))
   )
-})
-const knowledgeCurrent = computed(() => {
-  const current = projectRoute(route.fullPath),
-    target = projectRoute(props.home)
-  return (
-    !!current &&
-    !!target &&
-    current.username === target.username &&
-    current.project_name === target.project_name &&
-    (current.suffix === '/knowledge' || current.suffix.startsWith('/knowledge/'))
-  )
-})
-const artifactsCurrent = computed(() => {
-  const current = projectRoute(route.fullPath), target = projectRoute(props.home)
-  return !!current && !!target && current.username === target.username && current.project_name === target.project_name && current.suffix === '/artifacts'
-})
-const settingsCurrent = computed(() => {
-  const current = projectRoute(route.fullPath),
-    target = projectRoute(props.settings)
-  return (
-    !!current &&
-    !!target &&
-    target.suffix === '/settings/general' &&
-    current.username === target.username &&
-    current.project_name === target.project_name &&
-    (current.suffix === '/settings/general' ||
-      current.suffix === '/settings/audit' ||
-      current.suffix === '/settings/model-providers' ||
-      current.suffix === '/settings/available-models' ||
-      current.suffix === '/settings/model-usage')
-  )
-})
+}
 </script>
 
 <template>
@@ -58,16 +27,20 @@ const settingsCurrent = computed(() => {
       :aria-current="route.path === home ? 'page' : undefined"
       >{{ name }}</RouterLink
     >
-    <RouterLink :to="home + '/tasks'" :aria-current="tasksCurrent ? 'page' : undefined"
+    <RouterLink :to="home + '/tasks'" :aria-current="sectionCurrent('/tasks') ? 'page' : undefined"
       >任务</RouterLink
     >
-    <RouterLink :to="home + '/knowledge'" :aria-current="knowledgeCurrent ? 'page' : undefined"
+    <RouterLink
+      :to="home + '/knowledge'"
+      :aria-current="sectionCurrent('/knowledge') ? 'page' : undefined"
       >知识库</RouterLink
     >
-    <RouterLink :to="home + '/artifacts'" :aria-current="artifactsCurrent ? 'page' : undefined"
+    <RouterLink
+      :to="home + '/artifacts'"
+      :aria-current="sectionCurrent('/artifacts') ? 'page' : undefined"
       >产物</RouterLink
     >
-    <RouterLink :to="settings" :aria-current="settingsCurrent ? 'page' : undefined"
+    <RouterLink :to="settings" :aria-current="sectionCurrent('/settings') ? 'page' : undefined"
       >项目设置</RouterLink
     >
   </nav>
@@ -76,6 +49,7 @@ const settingsCurrent = computed(() => {
 <style scoped>
 .project-nav {
   display: flex;
+  flex: none;
   align-items: center;
   gap: 8px;
   min-width: 0;
@@ -83,7 +57,7 @@ const settingsCurrent = computed(() => {
   padding: 8px var(--space);
   overflow-x: auto;
   border-bottom: 1px solid var(--border);
-  background: var(--surface);
+  background: var(--canvas);
 }
 .project-nav a {
   flex: 0 0 auto;
@@ -109,6 +83,17 @@ const settingsCurrent = computed(() => {
   max-width: min(52vw, 360px);
   overflow: hidden;
   text-overflow: ellipsis;
+}
+@media (max-width: 650px) {
+  .project-nav {
+    padding: 4px 12px;
+    gap: 4px;
+  }
+  .project-nav a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .project-nav a {

@@ -87,7 +87,7 @@ const agentOptions = computed(() => [
       />
     </UiField>
     <div class="actions">
-      <UiButton type="submit" :disabled="!owner.canSubmitTaskBlocking.value"
+      <UiButton type="submit" variant="primary" :disabled="!owner.canSubmitTaskBlocking.value"
         >确认{{ label }}</UiButton
       >
       <UiButton :disabled="owner.busy.value || !!owner.pending.value" @click="$emit('cancel')"
@@ -97,6 +97,13 @@ const agentOptions = computed(() => [
   </form>
 </template>
 <style scoped>
+form > .ui-button {
+  align-self: flex-start;
+}
+form > div:last-child {
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
 .block-resume-form,
 fieldset {
   display: flex;

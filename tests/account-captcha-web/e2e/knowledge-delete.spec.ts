@@ -23,7 +23,7 @@ for (const mode of ["delete-normal", "delete-lost"] as const) {
     observations.set(page, seen);
     await page.goto(data.route);
     await expect(page.getByRole("region", { name: "项目知识库", exact: true })).toBeVisible();
-    await expect(page.locator(".knowledge-document > h2")).toHaveText(data.root.title);
+    await expect(page.locator(".knowledge-document h2[tabindex='-1']")).toHaveText(data.root.title);
     await expect.poll(() => page.locator("pre.canonical-text").textContent()).toBe(data.root_text);
     await seen.verify(); seen.initial();
     seen.stage("preview");
@@ -72,7 +72,7 @@ for (const mode of ["delete-normal", "delete-lost"] as const) {
     await expect(close).toHaveCount(1);
     await press(page, close);
     await expect(dialog).toHaveCount(0);
-    await expect(page.locator(".knowledge-document > h2")).toBeFocused();
+    await expect(page.locator(".knowledge-document h2[tabindex='-1']")).toBeFocused();
     await expect(page.locator(".knowledge-document").getByRole("heading", { name: "文档已删除", exact: true })).toBeVisible();
     await expect(page.locator("pre.canonical-text")).toHaveCount(0);
     await page.setViewportSize({ width: 390, height: 844 });
@@ -95,7 +95,7 @@ for (const mode of ["delete-normal", "delete-lost"] as const) {
     await press(page, trigger);
     await press(page, sibling);
     await expect(drawer).toHaveCount(0);
-    await expect(page.locator(".knowledge-document > h2")).toHaveText(data.sibling.title);
+    await expect(page.locator(".knowledge-document h2[tabindex='-1']")).toHaveText(data.sibling.title);
     await expect.poll(() => page.locator("pre.canonical-text").textContent()).toBe(data.sibling_text);
     await deleteScreenshot(page, data, "390-dark-sibling-text");
     seen.stage("complete");

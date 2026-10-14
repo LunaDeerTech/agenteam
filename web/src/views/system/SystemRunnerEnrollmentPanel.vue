@@ -47,7 +47,7 @@ async function copy() {
         spellcheck="false"
         aria-label="登记 token"
     /></label>
-    <div class="runner-actions">
+    <div class="runner-actions page-actions">
       <UiButton @click="copy">复制登记材料</UiButton
       ><UiButton variant="ghost" @click="page.clearMaterial">关闭登记材料</UiButton>
     </div>

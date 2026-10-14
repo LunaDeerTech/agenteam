@@ -38,9 +38,18 @@ function setLimit(value: string) {
 
 <template>
   <section class="project-providers" aria-label="项目模型设置">
-    <header class="page-heading">
-      <h1 id="project-providers-title" ref="heading" tabindex="-1">Providers</h1>
-      <p>管理本项目的 chat Provider 与 Model 配置。保存配置不代表已连接或调用外部服务。</p>
+    <header class="provider-page-header page-header">
+      <div class="page-heading">
+        <h1 id="project-providers-title" ref="heading" tabindex="-1">Providers</h1>
+        <p>管理本项目的 chat Provider 与 Model 配置。保存配置不代表已连接或调用外部服务。</p>
+      </div>
+      <UiButton
+        v-if="visible"
+        variant="primary"
+        :disabled="blocked || pending || !canMutate"
+        @click="page.newProvider()"
+        >创建 Provider</UiButton
+      >
     </header>
     <div v-if="!visible" class="notice" role="status">
       <p>当前项目身份或读取状态尚未确认，配置内容已隐藏。</p>
@@ -53,12 +62,6 @@ function setLimit(value: string) {
         }}）。可以读取信息；原请求恢复遵循其各自的当前条件。
       </p>
       <div class="actions" aria-label="项目模型操作">
-        <UiButton
-          variant="primary"
-          :disabled="blocked || pending || !canMutate"
-          @click="page.newProvider()"
-          >创建 Provider</UiButton
-        >
         <UiButton
           :disabled="blocked || pending || !canMutate"
           @click="page.openCredential('create')"
@@ -174,14 +177,20 @@ function setLimit(value: string) {
         <ul v-if="providers.state.items.length" class="records" aria-label="Providers 列表">
           <li v-for="item in providers.state.items" :key="item.id" :data-provider-id="item.id">
             <h3>{{ item.input.name }}</h3>
-            <dl>
-              <dt>协议</dt>
-              <dd>{{ item.input.protocol }}</dd>
-              <dt>状态</dt>
-              <dd>{{ item.input.enabled ? '启用' : '禁用' }}</dd>
-              <dt>Provider ID</dt>
-              <dd class="identifier">{{ item.id }}</dd>
-            </dl>
+            <p class="meta">
+              {{ item.input.protocol }} · {{ item.input.enabled ? '启用' : '禁用' }}
+            </p>
+            <details class="record-details">
+              <summary>配置标识</summary>
+              <dl>
+                <dt>协议</dt>
+                <dd>{{ item.input.protocol }}</dd>
+                <dt>状态</dt>
+                <dd>{{ item.input.enabled ? '启用' : '禁用' }}</dd>
+                <dt>Provider ID</dt>
+                <dd class="identifier">{{ item.id }}</dd>
+              </dl>
+            </details>
             <div class="actions">
               <UiButton
                 :aria-label="`读取 Provider ${item.id}`"
@@ -229,6 +238,30 @@ function setLimit(value: string) {
 </template>
 
 <style scoped>
+.provider-page-header {
+  margin-bottom: 0;
+  align-items: flex-start;
+}
+.provider-page-header > .page-heading {
+  flex: 1 1 320px;
+}
+
+.record-details {
+  width: 100%;
+  min-width: 0;
+}
+.record-details summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 12px;
+}
+.record-details[open] summary {
+  margin-bottom: 12px;
+}
+.records li:last-child {
+  border-bottom: 0;
+}
+
 .project-providers {
   display: grid;
   gap: var(--section-gap);
@@ -278,7 +311,8 @@ p {
 }
 .records {
   display: grid;
-  gap: 12px;
+  gap: 0;
+  border-block: 1px solid var(--border);
   margin: 12px 0;
   padding: 0;
   list-style: none;
@@ -286,10 +320,9 @@ p {
 .records li {
   display: grid;
   gap: 12px;
-  padding: 16px;
+  padding: 12px 0;
   min-width: 0;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-bottom: 1px solid var(--border);
 }
 dl {
   display: grid;

@@ -50,6 +50,7 @@ function select(id: string) {
       <ul aria-label="标题查找结果">
         <li v-for="hit in search.state.items" :key="hit.document.id">
           <UiButton
+            variant="ghost"
             :disabled="search.disabled.value"
             :aria-current="selected === hit.document.id ? 'true' : undefined"
             @click="select(hit.document.id)"
@@ -78,30 +79,36 @@ function select(id: string) {
 <style scoped>
 .title-search {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--content-gap);
   min-width: 0;
 }
 .search-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
-  margin-top: var(--space-2);
+  gap: 8px;
+  margin-top: 8px;
 }
 ul {
   display: grid;
-  gap: var(--space-3);
+  gap: 0;
   list-style: none;
   margin: 0;
   padding: 0;
 }
 li {
   min-width: 0;
+  padding-block: var(--content-gap);
+  border-bottom: 1px solid var(--border);
 }
 li :deep(button) {
   max-width: 100%;
   text-align: start;
   white-space: normal;
   overflow-wrap: anywhere;
+}
+li :deep(button[aria-current='true']) {
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 .search-path,
 .search-summary {
@@ -110,6 +117,6 @@ li :deep(button) {
   overflow-wrap: anywhere;
 }
 .search-path {
-  margin: var(--space-1) 0 0;
+  margin: 4px 0 0;
 }
 </style>

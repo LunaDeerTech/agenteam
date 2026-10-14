@@ -136,7 +136,7 @@ const confirmation = computed({
 <style scoped>
 .move-form {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--content-gap);
   min-width: 0;
 }
 .move-form p {
@@ -145,11 +145,11 @@ const confirmation = computed({
 .move-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  gap: 8px;
 }
 .parent-options {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--content-gap);
   list-style: none;
   padding: 0;
   max-height: 35vh;
@@ -157,8 +157,8 @@ const confirmation = computed({
 }
 .parent-options li {
   display: grid;
-  gap: var(--space-2);
-  padding: var(--space-2);
+  gap: 8px;
+  padding: 8px;
   border-bottom: 1px solid var(--border);
   overflow-wrap: anywhere;
 }

@@ -316,7 +316,7 @@ async function openDirty() {
 }
 
 describe('Provider actual App/router/controller composition', () => {
-  it('keeps users as default, has exactly ten leaves in four groups and preserves Provider return validation', async () => {
+  it('keeps users as default, has the current system menu and preserves Provider return validation', async () => {
     const f = await page('/system')
     expect(f.router.currentRoute.value.path).toBe('/system/users')
     expect(
@@ -325,6 +325,7 @@ describe('Provider actual App/router/controller composition', () => {
         .findAll('a')
         .map((a) => a.text()),
     ).toEqual([
+      '设备列表',
       '用户',
       '待注册邀请',
       'Providers',
@@ -336,7 +337,7 @@ describe('Provider actual App/router/controller composition', () => {
       '出站规则',
       '运行信息',
     ])
-    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(4)
+    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(5)
     await f.wrapper.get('a[href="/system/providers"]').trigger('click')
     await flushPromises()
     expect(f.wrapper.get('h1').text()).toBe('Providers')

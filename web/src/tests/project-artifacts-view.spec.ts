@@ -58,7 +58,13 @@ async function setup() {
   creation.afterNavigation(artifactPath)
   const wrapper = mount(RouterView, {
     attachTo: document.body,
-    global: { plugins: [router], provide: { [projectWorkspaceKey as symbol]: workspace, [artifactCreationKey as symbol]: creation } },
+    global: {
+      plugins: [router],
+      provide: {
+        [projectWorkspaceKey as symbol]: workspace,
+        [artifactCreationKey as symbol]: creation,
+      },
+    },
   })
   cleanups.push(() => {
     wrapper.unmount()
@@ -77,6 +83,11 @@ describe('Artifact real controls and safe presentation', () => {
     await flushPromises()
     expect(document.activeElement).toBe(f.wrapper.get('#artifact-detail-heading').element)
     expect(f.wrapper.get('pre').text()).toBe(artifactText.trim())
+    expect(open.attributes('aria-current')).toBe('true')
+    const information = f.wrapper.get('details')
+    expect(information.get('summary').text()).toBe('文件信息与校验')
+    expect(information.attributes('open')).toBeUndefined()
+    expect(information.text()).toContain(artifactRecord().object.sha256)
     expect(f.wrapper.find('pre script').exists()).toBe(false)
     expect(f.wrapper.find('a[download], img, iframe').exists()).toBe(false)
     expect(button(f.wrapper, '下一段').element.disabled).toBe(true)

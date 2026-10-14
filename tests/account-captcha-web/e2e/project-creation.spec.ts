@@ -153,15 +153,15 @@ test("creates and enters a project through the default App [create-and-enter]", 
     ).toBeVisible();
 
     await press("新建项目");
-    const form = page.getByRole("region", { name: "新建项目", exact: true });
+    const form = page.getByRole("dialog", { name: "新建项目", exact: true });
     await expect(form).toBeVisible();
     await expect(
-      form.getByRole("heading", { name: "新建项目", exact: true }),
+      form.getByRole("textbox", { name: "项目名称", exact: true }),
     ).toBeFocused();
     await form
       .getByRole("textbox", { name: "项目名称", exact: true })
       .fill(data.draft.name);
-    await press("关闭创建面板");
+    await press("取消");
     await expect(form).toHaveCount(0);
     await expect(
       page.getByRole("button", { name: "新建项目", exact: true }),

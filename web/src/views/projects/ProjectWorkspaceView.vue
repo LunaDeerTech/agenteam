@@ -60,7 +60,7 @@ const { visible, detail, paths, blocked, progress } = s
       >
         项目已归档，当前内容只读。
       </p>
-      <RouterView v-if="detail.project || progress" />
+      <div v-if="detail.project || progress" class="project-content"><RouterView /></div>
     </template>
   </div>
 </template>
@@ -70,15 +70,29 @@ const { visible, detail, paths, blocked, progress } = s
   display: flex;
   flex-direction: column;
   min-width: 0;
-  min-height: 100%;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.project-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
 }
 .project-nav-loading {
+  flex: none;
   width: min(100%, 360px);
   min-height: var(--nav-height);
   padding: 12px var(--space);
 }
 .workspace-state {
-  margin: var(--space);
+  flex: none;
+  width: calc(100% - 48px);
+  max-width: 1072px;
+  margin: 24px auto;
 }
 .workspace-actions {
   display: flex;
@@ -87,7 +101,20 @@ const { visible, detail, paths, blocked, progress } = s
   gap: var(--content-gap);
 }
 .workspace-notice {
-  padding: var(--content-gap) var(--space) 0;
+  flex: none;
+  padding: 8px var(--space);
+  border-bottom: 1px solid var(--border);
+  background: var(--warning-bg);
+  color: var(--warning);
   overflow-wrap: anywhere;
+}
+@media (max-width: 650px) {
+  .workspace-state {
+    width: calc(100% - 32px);
+    margin-block: 20px;
+  }
+  .workspace-notice {
+    padding-inline: 16px;
+  }
 }
 </style>

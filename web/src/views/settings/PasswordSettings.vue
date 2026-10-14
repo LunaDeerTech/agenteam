@@ -27,7 +27,7 @@ async function save() {
       >重新加载资料</UiButton
     ></UiState
   >
-  <form v-else ref="form" class="ui-stack" @submit.prevent="save">
+  <form v-else ref="form" class="page-form" @submit.prevent="save">
     <p class="meta">
       新密码为 15–128 个字符，最多 512 字节。保留空格与中文，不会自动修剪；请避免弱密码。
     </p>
@@ -57,9 +57,10 @@ async function save() {
     >
       {{ s.sections.password.message }}
     </p>
-    <div class="ui-row">
+    <div class="page-actions">
       <UiButton
         type="submit"
+        variant="primary"
         :disabled="s.locked.value || !s.passwordDirty.value"
         :state="
           s.sections.password.status === 'confirming-session' || s.mutation.value === 'password'
@@ -75,7 +76,7 @@ async function save() {
       <p role="status">
         尚未取得改密确认。当前会话可用不代表原改密命令完成；换发或失效后不能跨会话重试。
       </p>
-      <div class="ui-row">
+      <div class="page-actions">
         <UiButton :disabled="s.auth.state.busy" @click="s.checkCurrent('password')"
           >检查当前会话</UiButton
         ><UiButton :disabled="s.auth.state.busy" @click="s.retryOriginal">重试原请求</UiButton

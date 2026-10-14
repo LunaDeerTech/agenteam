@@ -44,11 +44,14 @@ onBeforeUnmount(page.dispose)
 </script>
 <template>
   <section class="system-runners" aria-label="Runner 设备管理">
-    <header>
-      <h1 ref="heading" tabindex="-1">Runner 设备</h1>
-      <p>管理系统设备与登记身份；设备在线不代表可以执行命令。</p>
-      <div class="runner-actions">
-        <UiButton :disabled="locked" @click="page.openCreate">创建 Runner</UiButton
+    <header class="page-header">
+      <div class="page-heading">
+        <h1 ref="heading" tabindex="-1">Runner 设备</h1>
+        <p>管理系统设备与登记身份；设备在线不代表可以执行命令。</p>
+      </div>
+      <div class="runner-actions page-actions">
+        <UiButton variant="primary" :disabled="locked" @click="page.openCreate"
+          >创建 Runner</UiButton
         ><UiButton :disabled="blocked || !visible" variant="ghost" @click="page.readList()"
           >重新读取目录</UiButton
         ><UiButton v-if="blocked" variant="ghost" @click="page.cancel">停止当前请求</UiButton>
@@ -80,16 +83,20 @@ onBeforeUnmount(page.dispose)
       >
       <template v-else-if="state.phase === 'ready'">
         <p v-if="!state.rows.length">当前没有 Runner 设备。</p>
-        <ul v-else class="runner-list" aria-label="Runner 目录">
+        <ul v-else class="runner-list page-surface" aria-label="Runner 目录">
           <li v-for="row in state.rows" :key="row.id">
-            <UiButton
-              variant="ghost"
-              :disabled="locked"
-              :aria-pressed="state.selected === row.id"
-              @click="select(row.id, $event)"
-              >{{ row.name }}</UiButton
-            ><span>{{ status[row.status] }}</span>
-            <p>{{ row.description || '暂无描述' }}</p>
+            <div class="runner-row-heading">
+              <UiButton
+                variant="ghost"
+                :disabled="locked"
+                :aria-pressed="state.selected === row.id"
+                @click="select(row.id, $event)"
+                >{{ row.name }}</UiButton
+              ><span>{{ status[row.status] }}</span>
+            </div>
+            <p class="runner-description" :title="row.description">
+              {{ row.description || '暂无描述' }}
+            </p>
             <p v-if="row.last_hello">
               {{ row.last_hello.os }} / {{ row.last_hello.arch }} ·
               {{ row.last_hello.runner_version }}
@@ -99,13 +106,13 @@ onBeforeUnmount(page.dispose)
           </li>
         </ul>
         <p v-if="state.message" role="alert">{{ state.message }}</p>
-        <UiButton v-if="state.next" :disabled="blocked" @click="page.readList(true)"
-          >加载更多 Runner</UiButton
-        >
+        <footer v-if="state.next" class="page-footer">
+          <UiButton :disabled="blocked" @click="page.readList(true)">加载更多 Runner</UiButton>
+        </footer>
       </template>
       <UiCard v-if="state.selected" class="runner-detail" aria-label="Runner 详情">
         <h2 ref="detailHeading" tabindex="-1">{{ state.detail?.name ?? 'Runner 详情' }}</h2>
-        <div class="runner-actions">
+        <div class="runner-actions page-actions">
           <UiButton variant="ghost" :disabled="locked" @click="back">返回目录</UiButton
           ><UiButton :disabled="locked" @click="page.refreshDetail">重新读取详情</UiButton>
         </div>
@@ -167,7 +174,7 @@ onBeforeUnmount(page.dispose)
               </dd></template
             >
           </dl>
-          <div class="runner-actions">
+          <div class="runner-actions page-actions">
             <UiButton :disabled="locked" @click="page.openEdit">编辑 Runner</UiButton
             ><UiButton :disabled="locked" @click="page.openBusiness('enrollment')"
               >重新签发登记材料</UiButton
@@ -218,6 +225,9 @@ onBeforeUnmount(page.dispose)
   </section>
 </template>
 <style scoped>
+.page-header {
+  margin-bottom: 4px;
+}
 .system-runners,
 .runner-detail {
   display: grid;
@@ -243,15 +253,43 @@ onBeforeUnmount(page.dispose)
   margin: 0;
   list-style: none;
   display: grid;
-  gap: 12px;
+  gap: 0;
 }
 .runner-list li {
   border-bottom: 1px solid var(--border);
-  padding: 12px 0;
+  padding: 12px 16px;
 }
 .runner-list span {
-  margin-inline-start: 12px;
   color: var(--muted);
+}
+.runner-list li:last-child {
+  border-bottom: 0;
+}
+.runner-row-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.runner-row-heading :deep(button) {
+  padding-inline: 0;
+  min-width: 0;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.runner-row-heading span {
+  flex-shrink: 0;
+  font-size: 12px;
+}
+.runner-list li > p {
+  color: var(--muted);
+  font-size: 12px;
+}
+.runner-description {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .runner-facts {
   display: grid;

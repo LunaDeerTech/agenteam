@@ -144,10 +144,10 @@ onMounted(() => heading.value?.focus())
   flex-direction: column;
   gap: var(--space);
   min-width: 0;
-  padding: var(--space);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
+  width: 100%;
+  max-width: 800px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
 }
 .task-reorder-form h3,
 .task-reorder-form p {

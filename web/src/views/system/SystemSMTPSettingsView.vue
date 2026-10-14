@@ -157,8 +157,10 @@ onUnmounted(sections.detach)
 </script>
 <template>
   <div class="system-smtp-settings">
-    <h1 ref="heading" tabindex="-1">SMTP</h1>
-    <div class="smtp-actions" role="group" aria-label="SMTP 区块">
+    <header class="page-header">
+      <div class="page-heading"><h1 ref="heading" tabindex="-1">SMTP</h1></div>
+    </header>
+    <div class="smtp-actions page-actions" role="group" aria-label="SMTP 区块">
       <UiButton
         :aria-pressed="active === 'configuration'"
         @click="sections.switchTo('configuration')"
@@ -172,7 +174,7 @@ onUnmounted(sections.detach)
       <p class="meta">
         配置邮件传输与重试策略。保存只确认配置持久化，不证明连接、认证、发送或收件成功。
       </p>
-      <div ref="actions" class="smtp-actions" aria-label="SMTP 页面操作">
+      <div ref="actions" class="smtp-actions page-actions" aria-label="SMTP 页面操作">
         <UiButton :disabled="blocked" @click="page.refresh">读取当前配置</UiButton>
         <UiButton v-if="observation.phase === 'loading'" variant="ghost" @click="page.cancelRead"
           >取消读取</UiButton
@@ -196,7 +198,7 @@ onUnmounted(sections.detach)
         title="请求结果未确认"
         description="当前配置不能证明原请求是否接受。检查会话后显式重试原请求将使用原密码和完整原输入；明确放弃只停止客户端追踪。"
       >
-        <div class="smtp-actions">
+        <div class="smtp-actions page-actions">
           <UiButton :disabled="blocked" @click="page.checkOriginal">检查当前会话与配置</UiButton>
           <UiButton
             :disabled="blocked || !progress.canRetryOriginal"
@@ -245,6 +247,7 @@ onUnmounted(sections.detach)
         请在当前请求结束后明确读取配置；新的编辑基线必须来自成功的当前读取。
       </p>
       <form
+        class="page-form"
         v-if="editor.ready"
         aria-label="修改 SMTP 配置"
         novalidate
@@ -261,7 +264,7 @@ onUnmounted(sections.detach)
           title="需要核对最新配置"
           description="当前读取不会改写原草稿、新密码或编辑版本。核对后明确采用最新值，再重新编辑。"
         >
-          <div class="smtp-actions">
+          <div class="smtp-actions page-actions">
             <UiButton :disabled="blocked" @click="page.readLatest">读取最新配置</UiButton
             ><UiButton
               :disabled="blocked || observation.phase !== 'ready'"
@@ -382,7 +385,7 @@ onUnmounted(sections.detach)
             />
           </UiField>
         </div>
-        <div class="smtp-actions">
+        <div class="smtp-actions page-actions">
           <UiButton
             type="submit"
             variant="primary"
@@ -454,6 +457,9 @@ onUnmounted(sections.detach)
   </div>
 </template>
 <style scoped>
+.page-header {
+  margin-bottom: 4px;
+}
 .system-smtp-settings,
 .smtp-section,
 form,

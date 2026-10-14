@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { nextTick, ref } from 'vue'
-import { UiButton, UiState } from '../../components/ui'
+import { UiButton, UiDialog, UiState } from '../../components/ui'
 import AgentCreateForm from '../../components/agents/AgentCreateForm.vue'
 import AgentEditForm from '../../components/agents/AgentEditForm.vue'
 import AgentSkillsPanel from '../../components/agents/AgentSkillsPanel.vue'
 import { useProjectAgents } from '../../composables/useProjectAgents'
 const owner = useProjectAgents(),
   state = owner.state
+const heading = ref<HTMLElement | null>(null)
 const editButton = ref<{ $el: HTMLButtonElement } | null>(null)
 const skillsButton = ref<{ $el: HTMLButtonElement } | null>(null)
 const skillsPanel = ref<{ focus: () => void } | null>(null)
@@ -45,15 +46,22 @@ const approval = { default: '默认审批', auto: '模型自动审批', allow: '
 </script>
 <template>
   <section class="project-agents" aria-label="项目 Agent 设置">
-    <header class="agents-heading">
+    <header class="agents-heading page-header">
       <div>
-        <h1>Agent</h1>
+        <h1 ref="heading" tabindex="-1">Agent</h1>
         <p>当前项目的 Agent 目录与配置。</p>
       </div>
       <UiButton
         ref="createButton"
         v-if="!owner.draft.open && !owner.edit.open && !owner.pending.value"
-        :disabled="!owner.canCreate.value || owner.busy.value"
+        variant="primary"
+        :disabled="
+          !owner.canCreate.value ||
+          owner.busy.value ||
+          owner.draft.open ||
+          owner.edit.open ||
+          !!owner.pending.value
+        "
         @click="owner.openCreation()"
         >创建 Agent</UiButton
       >
@@ -105,6 +113,28 @@ const approval = { default: '默认审批', auto: '模型自动审批', allow: '
         >
       </section>
       <p v-if="state.feedback" role="status">{{ state.feedback }}</p>
+      <UiDialog
+        :open="owner.draft.open && !owner.pending.value"
+        title="创建空白 Agent"
+        :fallback-focus="heading"
+        :close-on-outside="false"
+        :close-on-escape="!owner.busy.value"
+        @update:open="!$event && cancelCreation()"
+      >
+        <AgentCreateForm :owner="owner" embedded @cancel="cancelCreation" />
+        <template #footer>
+          <UiButton variant="ghost" :disabled="owner.busy.value" @click="cancelCreation"
+            >取消创建</UiButton
+          >
+          <UiButton
+            type="submit"
+            form="agent-create-form"
+            variant="primary"
+            :disabled="!owner.canSubmit.value"
+            >确认创建 Agent</UiButton
+          >
+        </template>
+      </UiDialog>
       <div class="agents-layout">
         <section class="agent-directory" aria-label="Agent 目录">
           <UiState v-if="state.phase === 'loading'" kind="loading" title="正在读取 Agent 目录" />
@@ -121,7 +151,7 @@ const approval = { default: '默认审批', auto: '模型自动审批', allow: '
               >
                 <strong>{{ owner.agentLabel(agent) }}</strong
                 ><span v-if="agent.display_name">{{ agent.name }}</span
-                ><span>{{ agent.description || '暂无描述' }}</span>
+                ><span v-if="agent.description" class="agent-summary">{{ agent.description }}</span>
               </button>
             </li>
           </ul>
@@ -141,13 +171,8 @@ const approval = { default: '默认审批', auto: '模型自动审批', allow: '
             @close="closeSkills"
             @original="owner.showSkillOriginal()"
           />
-          <AgentCreateForm
-            v-if="owner.draft.open && !owner.pending.value"
-            :owner="owner"
-            @cancel="cancelCreation"
-          />
           <AgentEditForm
-            v-else-if="owner.edit.open && !owner.pending.value"
+            v-if="owner.edit.open && !owner.pending.value"
             :owner="owner"
             @cancel="cancelEdit"
           />
@@ -260,6 +285,17 @@ const approval = { default: '默认审批', auto: '模型自动审批', allow: '
   </section>
 </template>
 <style scoped>
+.page-header {
+  margin-bottom: 0;
+  align-items: flex-start;
+}
+.page-header h1 {
+  margin: 0;
+}
+.page-header p {
+  margin: 8px 0 0;
+}
+
 .project-agents {
   display: flex;
   flex-direction: column;
@@ -287,7 +323,7 @@ const approval = { default: '默认审批', auto: '模型自动审批', allow: '
 }
 .agents-layout {
   display: grid;
-  grid-template-columns: minmax(12rem, 1fr) minmax(0, 2fr);
+  grid-template-columns: 216px minmax(0, 1fr);
   gap: var(--space);
   min-width: 0;
 }
@@ -296,13 +332,13 @@ const approval = { default: '默认审批', auto: '模型自动审批', allow: '
   min-width: 0;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: var(--space);
+  padding: 16px;
   background: var(--surface);
 }
 .agent-directory ul {
   display: flex;
   flex-direction: column;
-  gap: var(--content-gap);
+  gap: 0;
   padding: 0;
   margin: 0 0 var(--space);
   list-style: none;
@@ -316,10 +352,25 @@ const approval = { default: '默认审批', auto: '模型自动审批', allow: '
   padding: var(--content-gap);
   color: var(--text);
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
   cursor: pointer;
   overflow-wrap: anywhere;
+}
+.agent-summary {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.agent-directory {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.agent-content > :deep(.ui-button) {
+  margin: 0 8px 12px 0;
 }
 .agent-entry[aria-pressed='true'] {
   border-color: var(--accent);
@@ -354,7 +405,7 @@ const approval = { default: '默认审批', auto: '模型自动审批', allow: '
   overflow-wrap: anywhere;
   white-space: pre-wrap;
 }
-@media (max-width: 760px) {
+@media (max-width: 1024px) {
   .agents-layout {
     grid-template-columns: 1fr;
   }

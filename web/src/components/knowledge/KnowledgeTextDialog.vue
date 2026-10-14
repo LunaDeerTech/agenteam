@@ -150,7 +150,7 @@ const media = [
 .text-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  gap: 8px;
 }
 .current-comparison {
   min-width: 0;

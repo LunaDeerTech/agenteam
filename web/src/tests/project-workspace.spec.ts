@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest'
-import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
+import { DOMWrapper, flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { createMemoryHistory, createRouter, type Router } from 'vue-router'
 import type { SessionController } from '../composables/useSession'
 const selected = vi.hoisted(() => ({ auth: null as SessionController | null }))
@@ -10,6 +10,7 @@ vi.mock('../composables/useSession', async (original) => ({
 import { createSessionController } from '../composables/useSession'
 import { createAccountAPI, type SessionView } from '../api/account'
 import { createProjectOwnerAPI, type Project } from '../api/project-owner'
+import { createProjectCreationAPI } from '../api/project-creation'
 import { type Fetch } from '../api/client'
 import { installAuthentication } from '../router/auth'
 import App from '../App.vue'
@@ -53,6 +54,10 @@ const json = (body: unknown, status = 200) =>
   })
 let wrapper: VueWrapper | undefined, activeRouter: Router | undefined
 beforeEach(() => {
+  // Geometry supports focus behavior here; real layout is verified in the browser.
+  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(
+    () => [{ width: 10, height: 10 }] as unknown as DOMRectList,
+  )
   vi.stubGlobal(
     'matchMedia',
     vi.fn((media: string) => ({
@@ -166,21 +171,10 @@ async function page(
   const fetcher = vi.fn<Fetch>((url, init) =>
     intercept ? intercept(url, init) : normal(url, init),
   )
-  selected.auth = createSessionController(
-    createAccountAPI(fetcher),
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    createProjectOwnerAPI(fetcher),
-  )
+  const args: Parameters<typeof createSessionController> = [createAccountAPI(fetcher)]
+  args[12] = createProjectOwnerAPI(fetcher)
+  args[19] = { projectCreation: createProjectCreationAPI(fetcher) }
+  selected.auth = createSessionController(...args)
   const { router: source } = await import('../router')
   source.options.history.destroy()
   const router = createRouter({ history: createMemoryHistory(), routes: source.options.routes })
@@ -352,5 +346,179 @@ describe('Project production routes and public interactions', () => {
     await flushPromises()
     expect(f.router.currentRoute.value.path).toBe('/owner/demo/settings/general')
     expect(f.wrapper.find('textarea').exists()).toBe(true)
+  })
+})
+
+function creationDialog() {
+  const dialog = document.querySelector<HTMLElement>('[role="dialog"]')
+  if (!dialog) throw new Error('Missing creation dialog')
+  return dialog
+}
+async function fillCreation(name = 'New.Project', description = '保留原描述  ') {
+  button('新建项目').focus()
+  button('新建项目').click()
+  await flushPromises()
+  await new DOMWrapper(creationDialog().querySelector('input')!).setValue(name)
+  await new DOMWrapper(creationDialog().querySelector('textarea')!).setValue(description)
+}
+async function submitCreation() {
+  await new DOMWrapper(creationDialog().querySelector('form')!).trigger('submit')
+  await flushPromises()
+}
+function created(body: string) {
+  const input = JSON.parse(body)
+  return new Response(
+    JSON.stringify({
+      state: 'ready',
+      project: {
+        ...value(),
+        id: input.project_id,
+        name: input.name,
+        normalized_name: input.name.toLowerCase(),
+        description: input.description,
+      },
+    }),
+    { status: 201, headers: { 'Content-Type': 'application/json' } },
+  )
+}
+
+describe('Project list creation dialog with the real Session owner', () => {
+  it('opens a separate modal, focuses the name, keeps backdrop clicks inside and restores focus on Escape', async () => {
+    const f = await page()
+    const trigger = button('新建项目')
+    trigger.focus()
+    trigger.click()
+    await flushPromises()
+    expect(f.wrapper.find('[role="dialog"]').exists()).toBe(false)
+    expect(document.activeElement).toBe(creationDialog().querySelector('input'))
+    await new DOMWrapper(document.querySelector('.ui-overlay')!).trigger('pointerdown')
+    expect(creationDialog()).toBeTruthy()
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await flushPromises()
+    expect(document.querySelector('[role="dialog"]')).toBeNull()
+    expect(document.activeElement).toBe(trigger)
+    expect(f.fetcher.mock.calls.filter(([, init]) => init.method === 'POST')).toHaveLength(0)
+  })
+  it('preserves invalid input and description so the user can correct it before the first request', async () => {
+    const f = await page()
+    await fillCreation('invalid name', '描述与空格  ')
+    await submitCreation()
+    expect(creationDialog().querySelector('[role="alert"]')?.textContent).toContain('名称需为')
+    expect(creationDialog().querySelector('input')?.value).toBe('invalid name')
+    expect(creationDialog().querySelector('textarea')?.value).toBe('描述与空格  ')
+    expect(f.fetcher.mock.calls.filter(([, init]) => init.method === 'POST')).toHaveLength(0)
+    f.intercept(async (path, init) =>
+      path === '/api/v1/projects' && init.method === 'POST'
+        ? created(init.body as string)
+        : f.normal(path, init),
+    )
+    await new DOMWrapper(creationDialog().querySelector('input')!).setValue('corrected')
+    await submitCreation()
+    expect(creationDialog().textContent).toContain('项目已完成初始化')
+    expect(creationDialog().querySelector('a')?.getAttribute('href')).toBe('/owner/corrected')
+    expect(f.fetcher.mock.calls.filter(([, init]) => init.method === 'POST')).toHaveLength(1)
+  })
+  it('keeps the modal open while submitting, prevents duplicate creation and exposes the confirmed project', async () => {
+    const f = await page()
+    let release!: () => void
+    const hold = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    onTestFinished(() => release())
+    f.intercept(async (path, init) => {
+      if (path === '/api/v1/projects' && init.method === 'POST') {
+        await hold
+        return created(init.body as string)
+      }
+      return f.normal(path, init)
+    })
+    await fillCreation()
+    await submitCreation()
+    expect(creationDialog().textContent).toContain('正在创建项目')
+    expect(button('返回项目列表').disabled).toBe(true)
+    button('关闭').click()
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await flushPromises()
+    expect(creationDialog()).toBeTruthy()
+    expect(f.fetcher.mock.calls.filter(([, init]) => init.method === 'POST')).toHaveLength(1)
+    release()
+    await vi.waitFor(() => expect(creationDialog().textContent).toContain('项目已完成初始化'))
+    expect(creationDialog().querySelector('a')?.getAttribute('href')).toBe('/owner/new.project')
+    button('返回项目列表').click()
+    await flushPromises()
+    expect(document.querySelector('[role="dialog"]')).toBeNull()
+    expect(document.activeElement).toBe(button('新建项目'))
+  })
+  it('preserves a rejected name and description until the user edits and resubmits', async () => {
+    const f = await page()
+    f.intercept(async (path, init) =>
+      path === '/api/v1/projects' && init.method === 'POST'
+        ? json(
+            {
+              type: 'urn:agenteam:problem:test',
+              title: 'Conflict',
+              status: 409,
+              detail: '',
+              instance: path,
+              code: 'RESOURCE_BUSY',
+              request_id: id(99),
+              commit_state: 'not_started',
+              field_errors: [{ path: '/name', code: 'NAME_TAKEN' }],
+            },
+            409,
+          )
+        : f.normal(path, init),
+    )
+    await fillCreation('taken', '不能丢失的描述')
+    await submitCreation()
+    expect(creationDialog().querySelector('[role="alert"]')?.textContent).toContain(
+      '项目名称已被使用',
+    )
+    expect(creationDialog().querySelector('input')?.value).toBe('taken')
+    expect(creationDialog().querySelector('textarea')?.value).toBe('不能丢失的描述')
+    f.intercept(async (path, init) =>
+      path === '/api/v1/projects' && init.method === 'POST'
+        ? created(init.body as string)
+        : f.normal(path, init),
+    )
+    await new DOMWrapper(creationDialog().querySelector('input')!).setValue('available')
+    await submitCreation()
+    expect(creationDialog().textContent).toContain('项目已完成初始化')
+    const posts = f.fetcher.mock.calls.filter(([, init]) => init.method === 'POST')
+    expect(posts).toHaveLength(2)
+    expect(JSON.parse(posts[1]![1].body as string)).toMatchObject({
+      name: 'available',
+      description: '不能丢失的描述',
+    })
+  })
+  it('reopens an unknown result and resumes only the original request', async () => {
+    const f = await page()
+    f.intercept(async (path, init) => {
+      if (path === '/api/v1/projects' && init.method === 'POST') throw new Error('lost response')
+      return f.normal(path, init)
+    })
+    await fillCreation('original', '完整原始内容  ')
+    await submitCreation()
+    expect(creationDialog().textContent).toContain('创建结果尚未确认')
+    button('返回项目列表').click()
+    await flushPromises()
+    expect(document.activeElement).toBe(button('查看创建状态'))
+    button('查看创建状态').click()
+    await flushPromises()
+    expect(creationDialog().querySelector('input')).toBeNull()
+    expect(creationDialog().textContent).toContain('original')
+    f.intercept(async (path, init) =>
+      path === '/api/v1/projects' && init.method === 'POST'
+        ? created(init.body as string)
+        : f.normal(path, init),
+    )
+    button('继续原创建').click()
+    await vi.waitFor(() => expect(creationDialog().textContent).toContain('项目已完成初始化'))
+    const posts = f.fetcher.mock.calls.filter(([, init]) => init.method === 'POST')
+    expect(posts).toHaveLength(2)
+    expect(posts[1]![1].body).toBe(posts[0]![1].body)
+    expect(new Headers(posts[1]![1].headers).get('Idempotency-Key')).toBe(
+      new Headers(posts[0]![1].headers).get('Idempotency-Key'),
+    )
   })
 })

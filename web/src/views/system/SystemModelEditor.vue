@@ -67,7 +67,12 @@ async function perform(work: () => Promise<void>, event: Event) {
     :title="editor.mode === 'create' ? '创建 Model' : '编辑 Model'"
     @update:open="!$event && page.closeEditor()"
   >
-    <form ref="form" class="model-editor" @submit.prevent="perform(page.save, $event)">
+    <form
+      id="system-model-editor"
+      ref="form"
+      class="model-editor page-form"
+      @submit.prevent="perform(page.save, $event)"
+    >
       <p class="meta">保存配置不会调用 Provider，也不表示已经验证运行或连接。</p>
       <UiField v-slot="field" label="Provider" hint="创建后不可迁移归属。">
         <UiInput
@@ -91,6 +96,7 @@ async function perform(work: () => Promise<void>, event: Event) {
       </p>
       <UiField v-slot="field" label="名称" required hint="1–128 个 Unicode 字符，不自动修整。">
         <UiInput
+          data-autofocus
           :id="field.id"
           v-model="draft.name"
           :disabled="locked"
@@ -219,22 +225,27 @@ async function perform(work: () => Promise<void>, event: Event) {
         @click="perform(page.reviewEditor, $event)"
         >{{ editor.mode === 'create' ? '重新编辑并核对' : '读取当前版本并核对' }}</UiButton
       >
-      <div class="model-actions">
-        <UiButton
-          type="submit"
-          :disabled="locked || (!page.changed.value && !editor.reviewed)"
-          :state="feedback === 'loading' ? 'loading' : 'idle'"
-          >保存 Model 配置</UiButton
-        >
-        <UiButton variant="ghost" @click="page.closeEditor">取消</UiButton>
-      </div>
     </form>
+    <template #footer>
+      <UiButton variant="ghost" @click="page.closeEditor">取消</UiButton>
+      <UiButton
+        type="submit"
+        variant="primary"
+        form="system-model-editor"
+        :disabled="locked || (!page.changed.value && !editor.reviewed)"
+        :state="feedback === 'loading' ? 'loading' : 'idle'"
+        >保存 Model 配置</UiButton
+      >
+    </template>
   </UiDialog>
 </template>
 <style scoped>
+form > :deep(button) {
+  justify-self: start;
+}
 .model-editor {
   display: grid;
-  gap: 18px;
+  gap: 20px;
   min-width: 0;
 }
 .model-editor p {

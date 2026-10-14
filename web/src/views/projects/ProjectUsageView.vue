@@ -108,7 +108,7 @@ onBeforeUnmount(() => owner.dispose())
 
 <template>
   <section class="usage-page" aria-label="项目模型调用记录">
-    <header class="usage-header">
+    <header class="usage-header page-header">
       <div>
         <h1>调用记录</h1>
         <p>查看近 30 天的模型调用。名称按调用时记录显示，未知用量不会记为零。</p>
@@ -249,7 +249,7 @@ onBeforeUnmount(() => owner.dispose())
     </section>
     <template v-else>
       <p v-if="page.items.length === 0" role="status">本次时间范围内没有调用记录。</p>
-      <div class="usage-content">
+      <div class="usage-content" :class="{ 'has-detail': detail }">
         <div>
           <ul class="usage-list" aria-label="调用记录列表">
             <li v-for="item in page.items" :key="item.id">
@@ -421,10 +421,25 @@ onBeforeUnmount(() => owner.dispose())
 </template>
 
 <style scoped>
+.usage-header > div:first-child {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+.page-header {
+  margin-bottom: 0;
+  align-items: flex-start;
+}
+.page-header h1 {
+  margin: 0;
+}
+.page-header p {
+  margin: 8px 0 0;
+}
+
 .usage-page {
   min-width: 0;
   display: grid;
-  gap: var(--content-gap);
+  gap: var(--section-gap);
 }
 .usage-header,
 .usage-actions {
@@ -448,8 +463,11 @@ dt {
 }
 .usage-content {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--content-gap);
+}
+.usage-content.has-detail {
+  grid-template-columns: minmax(248px, 1fr) minmax(0, 1fr);
 }
 .usage-content > *,
 .usage-detail {
@@ -545,8 +563,8 @@ dt {
 .usage-pagination {
   margin-top: var(--content-gap);
 }
-@media (max-width: 834px) {
-  .usage-content {
+@media (max-width: 1024px) {
+  .usage-content.has-detail {
     grid-template-columns: minmax(0, 1fr);
   }
 }

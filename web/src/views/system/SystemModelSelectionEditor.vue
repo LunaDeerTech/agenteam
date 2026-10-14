@@ -58,7 +58,12 @@ async function perform(work: () => unknown | Promise<unknown>, event: Event) {
     title="配置平台模型用途"
     @update:open="!$event && page.closeEditor()"
   >
-    <form ref="form" class="selection-editor" @submit.prevent="perform(page.save, $event)">
+    <form
+      id="system-selection-editor"
+      ref="form"
+      class="selection-editor page-form"
+      @submit.prevent="perform(page.save, $event)"
+    >
       <p class="meta">
         核对版本：<code>{{ editor.version }}</code
         >。四项用途一起保存，只保存 Model 引用，不调用外部服务。
@@ -279,22 +284,26 @@ async function perform(work: () => unknown | Promise<unknown>, event: Event) {
         @click="perform(page.review, $event)"
         >读取最新配置并核对</UiButton
       >
-      <div class="form-actions">
-        <UiButton variant="ghost" @click="perform(page.closeEditor, $event)">取消</UiButton>
-        <UiButton
-          type="submit"
-          variant="primary"
-          :disabled="!canSave"
-          :state="feedback"
-          loading-label="正在保存"
-          success-label="配置已保存"
-          >保存用途配置</UiButton
-        >
-      </div>
     </form>
+    <template #footer>
+      <UiButton variant="ghost" @click="perform(page.closeEditor, $event)">取消</UiButton>
+      <UiButton
+        type="submit"
+        form="system-selection-editor"
+        variant="primary"
+        :disabled="!canSave"
+        :state="feedback"
+        loading-label="正在保存"
+        success-label="配置已保存"
+        >保存用途配置</UiButton
+      >
+    </template>
   </UiDialog>
 </template>
 <style scoped>
+form > :deep(button) {
+  justify-self: start;
+}
 .selection-editor {
   display: grid;
   gap: 20px;
@@ -323,7 +332,7 @@ async function perform(work: () => unknown | Promise<unknown>, event: Event) {
   font-size: 1rem;
 }
 .draft-purposes h3 span {
-  font-size: var(--text-sm);
+  font-size: 12px;
   font-weight: normal;
 }
 .choice-actions,

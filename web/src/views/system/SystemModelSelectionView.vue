@@ -62,23 +62,29 @@ onUnmounted(page.detach)
 </script>
 <template>
   <div class="system-model-selection">
-    <h1 ref="heading" tabindex="-1">平台模型用途</h1>
-    <p class="meta">
-      为四项平台用途和独立的会议 Summary 选择已有的 System
-      Model。各区独立保存；保存仅确认配置，不表示外部服务可调用、索引已重建或检索已切换。
-    </p>
-    <div ref="actions" class="selection-actions" aria-label="用途配置页面操作">
-      <UiButton :disabled="blocked" @click="perform(page.refresh, $event)">刷新配置</UiButton>
-      <UiButton
-        :disabled="blocked || selection.phase !== 'ready' || state.requiresReload"
-        :state="feedback === 'success' ? 'success' : 'idle'"
-        success-label="配置已保存"
-        @click="page.openEditor"
-        >{{ selection.value?.configured ? '编辑用途' : '配置用途' }}</UiButton
-      >
-      <RouterLink to="/system/models">管理 Models</RouterLink>
-      <RouterLink to="/system/providers">管理 Providers</RouterLink>
-    </div>
+    <header class="page-header">
+      <div class="page-heading">
+        <h1 ref="heading" tabindex="-1">平台模型用途</h1>
+        <p class="meta">
+          为四项平台用途和独立的会议 Summary 选择已有的 System
+          Model。各区独立保存；保存仅确认配置，不表示外部服务可调用、索引已重建或检索已切换。
+        </p>
+      </div>
+      <div ref="actions" class="selection-actions page-actions" aria-label="用途配置页面操作">
+        <UiButton :disabled="blocked" @click="perform(page.refresh, $event)">刷新配置</UiButton>
+        <UiButton
+          variant="primary"
+          :disabled="blocked || selection.phase !== 'ready' || state.requiresReload"
+          :state="feedback === 'success' ? 'success' : 'idle'"
+          success-label="配置已保存"
+          @click="page.openEditor"
+          >{{ selection.value?.configured ? '编辑用途' : '配置用途' }}</UiButton
+        >
+        <RouterLink to="/system/models">管理 Models</RouterLink>
+        <RouterLink to="/system/providers">管理 Providers</RouterLink>
+      </div>
+    </header>
+
     <p v-if="page.auth.state.busy" class="meta" role="status">正在等待当前请求结束。</p>
     <p v-if="state.writeMessage" class="notice" role="status">{{ state.writeMessage }}</p>
     <p v-if="state.requiresReload" class="notice">
@@ -181,6 +187,12 @@ onUnmounted(page.detach)
   </div>
 </template>
 <style scoped>
+.page-header {
+  margin-bottom: 4px;
+}
+.page-footer {
+  padding-top: 0;
+}
 .system-model-selection {
   display: grid;
   gap: 20px;
@@ -212,7 +224,7 @@ onUnmounted(page.detach)
   border-top: 1px solid var(--border);
 }
 .current-references h2 {
-  font-size: 1.1rem;
+  font-size: 15px;
 }
 dl {
   display: grid;

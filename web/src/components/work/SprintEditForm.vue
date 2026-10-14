@@ -63,7 +63,10 @@ onMounted(() => form.value?.querySelector<HTMLInputElement>('input')?.focus())
       >
     </div>
     <div class="sprint-edit-actions">
-      <UiButton type="submit" :disabled="disabled || !owner.sprintEditDirty.value || blankTitle"
+      <UiButton
+        type="submit"
+        variant="primary"
+        :disabled="disabled || !owner.sprintEditDirty.value || blankTitle"
         >保存 Sprint</UiButton
       >
       <UiButton
@@ -81,10 +84,10 @@ onMounted(() => form.value?.querySelector<HTMLInputElement>('input')?.focus())
   flex-direction: column;
   gap: var(--space);
   min-width: 0;
-  padding: var(--space);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
+  width: 100%;
+  max-width: 800px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
 }
 .sprint-edit-form h3,
 .sprint-edit-form p {

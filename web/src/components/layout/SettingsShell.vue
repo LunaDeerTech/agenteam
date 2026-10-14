@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, reactive, ref, useId, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { projectRoute } from '../../router/auth'
 import UiButton from '../ui/UiButton.vue'
 import UiDrawer from '../ui/UiDrawer.vue'
 const emit = defineEmits<{ logout: [] }>()
@@ -58,6 +59,26 @@ watch(
   },
   { immediate: true, flush: 'sync' },
 )
+function selected(path: string) {
+  if (route.path === path) return true
+  const current = projectRoute(route.fullPath),
+    target = projectRoute(path)
+  return (
+    !!current &&
+    !!target &&
+    target.suffix === '/settings/skills' &&
+    current.username === target.username &&
+    current.project_name === target.project_name &&
+    current.suffix.startsWith('/settings/skills/')
+  )
+}
+watch(
+  () => route.fullPath,
+  () => {
+    for (const group of groups.value)
+      if (group.children.some((leaf) => selected(leaf.path))) expanded.add(group.key)
+  },
+)
 const narrow = ref(false),
   open = ref(false)
 let media: MediaQueryList | undefined
@@ -93,7 +114,7 @@ onUnmounted(() => media?.removeEventListener('change', resize))
           v-for="group in groups"
           :key="group.key"
           class="settings-group"
-          :class="{ selected: group.children.some((leaf) => route.path === leaf.path) }"
+          :class="{ selected: group.children.some((leaf) => selected(leaf.path)) }"
         >
           <button
             type="button"
@@ -108,7 +129,7 @@ onUnmounted(() => media?.removeEventListener('change', resize))
             <li v-for="leaf in group.children" :key="leaf.path">
               <RouterLink
                 :to="leaf.path"
-                :aria-current="route.path === leaf.path ? 'page' : undefined"
+                :aria-current="selected(leaf.path) ? 'page' : undefined"
                 @click="open = false"
                 >{{ leaf.label }}</RouterLink
               >
@@ -129,24 +150,28 @@ onUnmounted(() => media?.removeEventListener('change', resize))
   padding: var(--space);
   min-width: 0;
   align-items: start;
+  width: min(100%, 1200px);
+  margin-inline: auto;
 }
 .settings-sidebar {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 14px;
+  border-radius: var(--radius);
+  padding: 12px;
   position: sticky;
-  top: 0;
-  max-height: calc(100dvh - 96px);
+  top: 24px;
+  max-height: calc(100dvh - 152px);
   overflow-y: auto;
   min-width: 0;
 }
 .settings-menu {
   display: grid;
-  gap: 12px;
+  gap: 8px;
 }
 .settings-menu h2 {
   font-size: 15px;
+  padding: 4px 8px 12px;
+  margin: 0;
 }
 .settings-group-toggle {
   width: 100%;
@@ -163,12 +188,13 @@ onUnmounted(() => media?.removeEventListener('change', resize))
 }
 .settings-group ul {
   margin: 0;
-  padding: 4px 0 4px 16px;
+  padding: 0 0 4px 12px;
   list-style: none;
 }
 .settings-group a {
   display: block;
-  padding: 8px;
+  padding: 6px 8px;
+  min-height: var(--row-height);
   border-radius: var(--radius);
 }
 .settings-group a[aria-current='page'] {
@@ -185,6 +211,11 @@ onUnmounted(() => media?.removeEventListener('change', resize))
   .settings-shell {
     grid-template-columns: minmax(0, 1fr);
     gap: 16px;
+    padding-inline: 16px;
+  }
+  .settings-group-toggle,
+  .settings-group a {
+    min-height: 44px;
   }
   .settings-menu-button {
     justify-self: start;

@@ -24,7 +24,7 @@ const selected = computed({
       >重新加载偏好</UiButton
     ></UiState
   >
-  <form v-else class="ui-stack" @submit.prevent="s.saveTheme">
+  <form v-else class="page-form" @submit.prevent="s.saveTheme">
     <UiRadioGroup
       v-model="selected"
       :options="options"
@@ -44,8 +44,11 @@ const selected = computed({
     >
       {{ s.sections.appearance.message }}
     </p>
-    <div class="ui-row">
-      <UiButton type="submit" :disabled="s.locked.value || !s.appearanceDirty.value"
+    <div class="page-actions">
+      <UiButton
+        type="submit"
+        variant="primary"
+        :disabled="s.locked.value || !s.appearanceDirty.value"
         >保存主题</UiButton
       ><UiButton variant="ghost" :disabled="s.locked.value" @click="s.resetAppearance"
         >取消预览</UiButton
@@ -53,7 +56,7 @@ const selected = computed({
         >重新加载最新偏好</UiButton
       >
     </div>
-    <div v-if="s.unresolved.value === 'appearance'" class="ui-row">
+    <div v-if="s.unresolved.value === 'appearance'" class="page-actions">
       <UiButton :disabled="s.auth.state.busy" @click="s.checkCurrent('appearance')"
         >检查当前资料</UiButton
       ><UiButton :disabled="s.auth.state.busy" @click="s.retryOriginal">重试原请求</UiButton

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { nextTick, ref, watch } from 'vue'
-import { UiButton, UiState } from '../../components/ui'
+import { UiButton, UiDialog, UiState } from '../../components/ui'
 import ProjectVariableEditor from './ProjectVariableEditor.vue'
 import { useProjectVariables } from '../../composables/useProjectVariables'
 const owner = useProjectVariables(),
+  heading = ref<HTMLElement | null>(null),
   detailHeading = ref<HTMLElement | null>(null),
   createButton = ref<{ $el: HTMLButtonElement } | null>(null),
   editButton = ref<{ $el: HTMLButtonElement } | null>(null),
@@ -52,8 +53,8 @@ watch(
 </script>
 <template>
   <section class="variables-page" aria-label="项目普通变量">
-    <header class="variables-header">
-      <h1>普通变量</h1>
+    <header class="variables-header page-header">
+      <h1 ref="heading" tabindex="-1">普通变量</h1>
       <div class="variable-actions">
         <UiButton
           :disabled="!owner.visible.value || owner.busy.value || owner.pending.value"
@@ -61,6 +62,7 @@ watch(
           >重新读取</UiButton
         ><UiButton
           ref="createButton"
+          variant="primary"
           :disabled="
             !owner.canMutate.value ||
             owner.busy.value ||
@@ -94,12 +96,31 @@ watch(
         @click="owner.rereadCommitted()"
         >重新读取已确认结果</UiButton
       >
-      <ProjectVariableEditor
-        v-if="owner.editor.open && !owner.pending.value"
-        :owner="owner"
-        @cancel="cancel"
-        @submit="owner.submit()"
-      />
+      <UiDialog
+        :open="owner.editor.open && !owner.pending.value"
+        :title="owner.editor.mode === 'create' ? '新建普通变量' : '编辑普通变量'"
+        :close-on-outside="false"
+        :fallback-focus="heading"
+        :close-on-escape="!owner.busy.value"
+        @update:open="!$event && cancel()"
+      >
+        <ProjectVariableEditor :owner="owner" embedded @cancel="cancel" @submit="owner.submit()" />
+        <template #footer>
+          <UiButton
+            variant="ghost"
+            :disabled="owner.busy.value || owner.pending.value"
+            @click="cancel"
+            >取消编辑</UiButton
+          >
+          <UiButton
+            type="submit"
+            form="project-variable-form"
+            variant="primary"
+            :disabled="!owner.canSave.value"
+            >{{ owner.editor.mode === 'create' ? '创建变量' : '保存变量' }}</UiButton
+          >
+        </template>
+      </UiDialog>
       <section aria-label="变量目录" :aria-busy="owner.page.phase === 'loading'">
         <h2>变量目录</h2>
         <UiState v-if="owner.page.phase === 'loading'" kind="loading" title="正在读取目录" />
@@ -119,8 +140,7 @@ watch(
                 @click="owner.select(item.id)"
                 >{{ item.name }}</UiButton
               >
-              <p>{{ item.description || '无描述' }}</p>
-              <span>版本 {{ item.version }}</span>
+              <p v-if="item.description" class="variable-summary">{{ item.description }}</p>
             </li>
           </ul>
           <UiButton
@@ -192,6 +212,17 @@ watch(
   </section>
 </template>
 <style scoped>
+.page-header {
+  margin-bottom: 0;
+  align-items: flex-start;
+}
+.page-header h1 {
+  margin: 0;
+}
+.page-header p {
+  margin: 8px 0 0;
+}
+
 .variables-page {
   display: flex;
   flex-direction: column;
@@ -222,16 +253,29 @@ watch(
 .variable-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space);
+  gap: 0;
   list-style: none;
-  margin: var(--space) 0;
+  margin: 12px 0;
+  border-block: 1px solid var(--border);
   padding: 0;
 }
 .variable-list li {
   min-width: 0;
-  padding: var(--space);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  padding: 12px 0;
+  min-height: 64px;
+}
+.variable-list li + li {
+  border-top: 1px solid var(--border);
+}
+.variable-summary {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.variable-detail {
+  border-top: 1px solid var(--border);
+  padding-top: 24px;
 }
 .variable-list span,
 dt {

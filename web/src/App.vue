@@ -293,11 +293,17 @@ onUnmounted(() => {
     </div>
   </AppShell>
   <RouterView v-else />
-  <UiDialog :open="scheduler.confirmation.open" :title="scheduler.confirmation.title" @update:open="(open) => !open && scheduler.finishConfirmation(false)">
+  <UiDialog
+    :open="scheduler.confirmation.open"
+    :title="scheduler.confirmation.title"
+    @update:open="(open) => !open && scheduler.finishConfirmation(false)"
+  >
     <p>{{ scheduler.confirmation.message }}</p>
     <template #footer>
       <UiButton @click="scheduler.finishConfirmation(false)">留在页面</UiButton>
-      <UiButton variant="primary" @click="scheduler.finishConfirmation(true)">{{ scheduler.confirmation.label }}</UiButton>
+      <UiButton variant="primary" @click="scheduler.finishConfirmation(true)">{{
+        scheduler.confirmation.label
+      }}</UiButton>
     </template>
   </UiDialog>
   <UiDialog
@@ -387,20 +393,17 @@ onUnmounted(() => {
   <KnowledgeTextDialog :editor="knowledgeText" />
 </template>
 <style scoped>
-.authentication-shell :deep(.system-nav) {
-  flex-wrap: wrap;
-  row-gap: 6px;
-  padding-block: 6px;
-}
 .account-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   margin-inline-start: auto;
   min-width: 0;
   max-width: 100%;
 }
 .account-name {
+  color: var(--text);
+  font-size: 13px;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -408,10 +411,18 @@ onUnmounted(() => {
   max-width: 32ch;
 }
 .session-check {
+  width: 100%;
+  max-width: 1120px;
+  margin-inline: auto;
   padding: var(--space);
 }
 @media (max-width: 450px) {
+  .account-actions {
+    gap: 8px;
+  }
   .account-name {
+    display: block;
+    line-height: 44px;
     max-width: 12ch;
   }
 }

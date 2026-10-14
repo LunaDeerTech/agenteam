@@ -13,15 +13,17 @@ const { heading, form, submit } = useAccountEntryForm(entry)
 
 <template>
   <main id="main-content" class="account-entry">
-    <section class="entry-panel" aria-labelledby="reset-password-title">
+    <section class="entry-panel account-panel" aria-labelledby="reset-password-title">
       <RouterLink class="brand" to="/" aria-label="agenteam 入口"><AppBrand /></RouterLink>
-      <h1 id="reset-password-title" ref="heading" tabindex="-1">重置密码</h1>
-      <p class="description">设置新密码后，请重新登录。</p>
+      <header class="account-heading">
+        <h1 id="reset-password-title" ref="heading" tabindex="-1">重置密码</h1>
+        <p class="description">设置新密码后，请重新登录。</p>
+      </header>
       <UiState v-if="state.phase === 'preparing'" kind="loading" title="正在校验重置链接" />
       <form
         v-if="state.expiresAt && ['ready', 'submitting', 'uncertain'].includes(state.phase)"
         ref="form"
-        class="ui-stack"
+        class="account-form"
         novalidate
         @submit.prevent="submit"
       >
@@ -73,8 +75,19 @@ const { heading, form, submit } = useAccountEntryForm(entry)
           >重置密码</UiButton
         >
       </form>
-      <p v-if="state.notice" role="alert" tabindex="-1">{{ state.notice }}</p>
-      <p v-if="state.requestID" class="description">请求编号：{{ state.requestID }}</p>
+      <p
+        v-if="state.notice"
+        role="alert"
+        tabindex="-1"
+        class="account-feedback"
+        :class="{ 'is-error': state.phase !== 'success' }"
+      >
+        {{ state.notice }}
+      </p>
+      <details v-if="state.requestID" class="account-diagnostics">
+        <summary>请求详情</summary>
+        <p>请求编号：{{ state.requestID }}</p>
+      </details>
       <div v-if="state.phase === 'uncertain'" class="actions">
         <UiButton :disabled="!entry.canRetryOriginal" @click="entry.retryOriginal"
           >重试原请求</UiButton
@@ -92,55 +105,12 @@ const { heading, form, submit } = useAccountEntryForm(entry)
         @click="entry.prepare"
         >重新检查</UiButton
       >
-      <RouterLink v-if="['invalid', 'missing'].includes(state.phase)" to="/forgot-password"
-        >重新申请找回密码</RouterLink
-      >
-      <RouterLink :to="entry.loginTarget.value">返回登录</RouterLink>
+      <div class="account-navigation">
+        <RouterLink v-if="['invalid', 'missing'].includes(state.phase)" to="/forgot-password"
+          >重新申请找回密码</RouterLink
+        >
+        <RouterLink :to="entry.loginTarget.value">返回登录</RouterLink>
+      </div>
     </section>
   </main>
 </template>
-
-<style scoped>
-.account-entry {
-  min-height: 100dvh;
-  padding: 32px 16px;
-  display: grid;
-  place-items: center;
-}
-.entry-panel {
-  width: min(100%, 440px);
-  min-width: 0;
-  padding: 28px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  background: var(--surface);
-  box-shadow: var(--panel-shadow);
-  display: grid;
-  gap: 20px;
-  overflow-wrap: anywhere;
-}
-.brand {
-  justify-self: start;
-}
-.description {
-  color: var(--muted);
-}
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-@media (max-width: 450px) {
-  .entry-panel {
-    padding: 20px;
-  }
-}
-@media (max-width: 280px) {
-  .account-entry {
-    padding-inline: 8px;
-  }
-  .entry-panel {
-    padding: 12px;
-  }
-}
-</style>

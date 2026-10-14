@@ -69,6 +69,7 @@ onMounted(() => form.value?.querySelector<HTMLInputElement>('input')?.focus())
     <div class="milestone-edit-actions">
       <UiButton
         type="submit"
+        variant="primary"
         :disabled="disabled || !owner.milestoneEditDirty.value || !owner.milestoneEdit.title.trim()"
         >保存 Milestone</UiButton
       >
@@ -87,10 +88,10 @@ onMounted(() => form.value?.querySelector<HTMLInputElement>('input')?.focus())
   flex-direction: column;
   gap: var(--space);
   min-width: 0;
-  padding: var(--space);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
+  width: 100%;
+  max-width: 800px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
 }
 .milestone-edit-form h3,
 .milestone-edit-form p {
