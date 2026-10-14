@@ -8,13 +8,17 @@ M1 与 M2 仍按原范围正式接受并已交付 main。M2 正常 Scheduler 下
 
 | 工作包 | 当前状态与负责人 | 下一就绪结果 |
 | --- | --- | --- |
-| M3 集成与整体契约 | 用户已授权继续，准备派工；实际集成 owner/分支由 root 登记 | 明确五条功能线的共同接缝、组合基线、首条真实链与必要验证，后续维护 M3 整体契约卡。 |
-| M3 知识检索与引用 | 沿 D12/D13 接续；本轮尚无新增完成结论 | 复用 native PG 候选及固定语料，完成剩余有界比较并推进索引/查询/引用链。 |
-| M3 Memory | 按 D14 准备与检索共用端口；实际 owner/分支待登记 | Agent 显式 retain、跨 Execution recall 与只读 reflect，保留权限和来源。 |
-| M3 领域工具与相关 Runner 扩展 | 沿现有真实执行基座拆分；实际 owner/分支待登记 | 核当前闭集与 M3 必需能力，补正式 backend、动态 Skills 及实际结果消费。 |
-| M3 MCP | 按 D20 接续；实际 owner/分支待登记 | 固定协议/SDK与真实 Connection/discovery/Tool/Resource 接缝。 |
-| M3 Meeting | 按 D24 接续；实际 owner/分支待登记 | Session/Turn/Contribution 与 Executor 编排、summary 和必要用户投影。 |
+| M3 集成与整体契约 | `m3_integration` / `ai/m3-integration`，公共契约与实际装配进行中 | 统一 Tool/Executor/领域授权、候选组合及真实链 harness；整体未验收。 |
+| M3 知识检索与引用 | `m3_knowledge` / `ai/m3-knowledge`，共享检索与调用契约已落，索引链进行中 | D12→索引→query-doc/read-doc→后继模型消费引用。 |
+| M3 Memory | `m3_memory_tools` / `ai/m3-memory`，领域实现进行中 | 显式 retain、跨 Execution recall 与只读 reflect，复用共享检索。 |
+| M3 领域工具与相关 Runner 扩展 | `m3_memory_tools` 负责领域 adapters，`m3_integration` 负责公共 Runtime/授权装配 | 扩展本阶段需要的真实闭集与后继结果消费；动态 Skills/Runner 按真实缺口继续。 |
+| M3 MCP | `m3_mcp` / `ai/m3-mcp`，官方 SDK v1.8.0 已锁定，领域连接实现进行中 | Project Connection→完整 discovery→统一授权 Tool/Resource 调用。 |
+| M3 Meeting | `m3_meeting` / `ai/m3-meeting`，首批 schema/服务已保存 `da5c774a` 后停写待复派，Provider/Runtime 未完成 | 顺序首链接 Executor，再补并行、等待/取消/retry、summary 与投影。 |
+| M3 Model 公共依赖 | `m3_model` / `ai/m3-model`，真实 Embeddings 与 structured Runtime 实现进行中 | 同一 Secret/Usage/ProcessGuard 链消费三领域 consumer，复用 serving snapshot。 |
+| D13 检索选型 | `m3_retrieval_selection` / `ai/m3-retrieval-selection`，基线 `a1ce6f1b`，实际比较进行中 | 有界验证 PGroonga/pg_search 固定来源、兼容性、词法与 dense/RRF 指标，再形成选择。 |
 | 已知后续完善事项 | 未排期；原 R1–R5/M4 不再作为当前派工路线 | M3 完成后重新评估全面旧页体验、完整 Lifecycle/架构覆盖及生产发布运行等缺口。 |
+
+六个独立 worktree 位于 `/workspace/agenteam-m3-{knowledge,memory,mcp,meeting,integration,model}`，共同开工基线 `d9356e09`；另有 `/workspace/agenteam-m3-retrieval-selection` 承担选型比较，基线 `a1ce6f1b`。Meeting 暂停释放执行席给选型，待公共接口就绪复派。本轮内容均为进行中，SDK 锁定及最小契约同步不构成整链或 M3 通过；正式组合和验证由集成负责人组织，全部 Git 由 root 操作。
 
 已完成的完整性复核、设计技能准备与 M1/M2 工作不重新开工；来源见[复核卡](../work-items/product-readiness-review.md)和[技能来源](skill-sources.md#前端设计与-ux-审查技能)。历史 W1–W5/R1–R5 沿原卡及 Git 历史查询，不作为当前活动派工。默认 Execution Runtime 仍需显式配置开启；Object/tools/SPA/Jina/Image 原 STOP 保留其适用范围，不因 M3 授权自动解除，不以里程碑数量推算平台百分比。
 

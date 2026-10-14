@@ -2,15 +2,27 @@
 
 2026-10-14 用户明确调整优先级：继续原定 M3 的知识检索与引用、Memory、领域工具、MCP、Meeting 和相关 Runner 扩展；**M4 暂时废弃为当前里程碑，M3 完成后重新评估剩余缺口并继续完善，不自动进入交付阶段。** 本次文档调整基于 main `56d0d0b0`，当前目标和依赖见[开发计划](../docs/development/development-plan.md#当前开发目标与里程碑)，派工与实际分支见[任务台账](../docs/development/agent-team/tasks.md#当前目标与工作包状态)。
 
-root 正在组织 M3 派工；本索引尚未登记本轮执行分支，待实际提供后补入，不能把计划当实现或通过。M3 整体契约卡由集成负责人后续维护。已安装的[设计/UX 技能](../docs/development/agent-team/skill-sources.md#前端设计与-ux-审查技能)与信息层级、反馈恢复要求随新增/改动功能共同适用；全面既有页面重设计及发布运行等缺口留待 M3 后评估。此前[完整性复核](../docs/development/work-items/product-readiness-review.md)及其证据保持，旧 R1 先行和 M4 出口安排不再驱动当前工作。
+M3 已按共同基线 `d9356e09` 建立六个功能工作树，后续另建检索选型工作树并正式实施，下面每行均只有一个内容 writer；root 负责全部 Git、契约同步与最终集成。
 
-M1/M2 正式接受与原 STOP 保持；本次只改目标、状态与历史路线说明，没有新增产品验证。下方完整保留上一任务 M2 的验收、历史失败、未覆盖边界及本机证据位置，旧分支/资源分配不继承为活动授权。所有 Git 由 root 负责，本次保存状态以交付报告和文件历史为准。
+| 分支 | 工作树 | owner / 范围 |
+| --- | --- | --- |
+| `ai/m3-knowledge` | `/workspace/agenteam-m3-knowledge` | `m3_knowledge`：Knowledge 索引检索、共享 retrieval 与引用 |
+| `ai/m3-memory` | `/workspace/agenteam-m3-memory` | `m3_memory_tools`：Memory 与领域 adapters |
+| `ai/m3-mcp` | `/workspace/agenteam-m3-mcp` | `m3_mcp`：MCP Connection、发现、Tool/Resource |
+| `ai/m3-meeting` | `/workspace/agenteam-m3-meeting` | `m3_meeting`：Session/Turn/Contribution、provider 与 UI |
+| `ai/m3-integration` | `/workspace/agenteam-m3-integration` | `m3_integration`：App/Tool/Executor/身份共享契约、组合 harness |
+| `ai/m3-model` | `/workspace/agenteam-m3-model` | `m3_model`：Model Embeddings、structured Runtime 与 serving snapshot |
+| `ai/m3-retrieval-selection` | `/workspace/agenteam-m3-retrieval-selection` | `m3_retrieval_selection`：D13 词法候选实际比较；基线 `a1ce6f1b` |
+
+当前为实现与最小契约同步阶段，整链和 M3 未验收。Meeting 在 `da5c774a` 保存首批 schema/服务片段后停写，暂让执行席给检索选型；Provider/Runtime 等未完成，公共接口就绪后由 root 复派。其余五条实现线继续。MCP SDK v1.8.0 已锁定并同步各树；Knowledge 调用与 retrieval 最小契约已同步。公共依赖锁文件现由 integration 唯一持有，其他树只读。迁移按 root 分配的全局序号实施，schema 冻结后先组合候选树验证，main 不接收尚未验收产品 WIP。每树 `.agent-state/current.md` 保存本树的可恢复片段与实际检查；本主索引不复制执行流水。
+
+实际资源可复用 Go1.27.1、MinIO 固定 SHA、Go/Node 锁定依赖；当前锁定 Playwright 的 Chromium 可执行文件缺失，真实浏览器轮前恢复。重型构建或独立 PG fixture 最多同时两组，由 integration 协调；现有 dev PG/MinIO 不作为任务测试库。默认代理和 TLS 校验保持。M1/M2 原接受与 STOP 按原风险范围保留；下方上一任务记录解释历史，不继承旧分支或资源授权。
 
 ## 上一任务：M2 已正式交付，任务收尾完成
 
 2026-10-14 用户已明确恢复并要求完成第二里程碑。M2 约定业务、控制与恢复门已取得实际通过。最终验证源为 `e110faeca0ef96d89d0f30c154c19ed582d89a46`，App 编译原 session87516 Wait0。最终独立审查已正式接受 M2 约定范围、无 must-fix；root 已将产品与正式文档整合并推送到 main。
 
-**main 推送与本机 M2 Git 收尾均已完成。** 原远端认证阻碍已解除，root 确认原 push session36678 Wait0，并经远端查询确认。六个 M2 工作树、本地分支、远端分支及本机跟踪引用均已清理；本机只保留 `/workspace/agenteam` 主工作树。fetch 配置仅有 main 精确条目，本轮不存在 M2 专用 fetchspec。当前无活动 M2 任务或待清理对象，M3/M4 未启动。
+**main 推送与本机 M2 Git 收尾均已完成。** 原远端认证阻碍已解除，root 确认原 push session36678 Wait0，并经远端查询确认。六个 M2 工作树、本地分支、远端分支及本机跟踪引用均已清理；本机只保留 `/workspace/agenteam` 主工作树。fetch 配置仅有 main 精确条目，本轮不存在 M2 专用 fetchspec。当前无活动 M2 任务或待清理对象；M3 活动分支见本页当前摘要。
 
 ## 最终真实链与退出
 
