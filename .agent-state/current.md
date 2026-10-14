@@ -2,11 +2,11 @@
 
 - 基线 `c75e1bb8`；分支 `ai/m1-app-integration-20261014`；工作树 `/workspace/agenteam-m1-app-integration`；owner `delivery_path`，root 负责全部 Git。
 - 唯一写域：`internal/central/app/**`、必要 `internal/central/config/**` 与 `cmd/agenteam` 接线、M1 新 harness、[本卡](../docs/development/work-items/m1-app-integration.md)。不得修改其他领域或全局迁移；00091 归 core_readiness。
-- 已实现显式执行 profile `tool-loop-v1` / `ExecutionRuntimeOptions.ToolLoop()`，保留 `direct-text-v1`。App 已增加新 Capture、MultiRound 选配、真实三 Runner Tool 来源/factory 与同路由 DeviceHandler 接线；等待 W2 可编译片及三个辅助文件完成后首编译，尚无 M1 PASS。
+- 已实现显式执行 profile `tool-loop-v1` / `ExecutionRuntimeOptions.ToolLoop()`，保留 `direct-text-v1`。App 已增加新 Capture、MultiRound 选配、真实三 Runner Tool 来源/factory 与同路由 DeviceHandler 接线；完整 integration 编译及受控五轮后端链已通过，浏览器 Owner 评审仍有断点，尚无 M1 PASS。
 - 候选接缝：W1 原 JSONCaller/Runtime 与新 ToolCallingExecutionCapture；W2 ProjectCallDependencies.MultiRound 选配由原 Ownership 构造；W3 RunnerExecutor/RunnerResultAuthority。App 保持同 Store、Authority、Registry 与原 ProcessGuard，不复制状态机。
 - 场景：自有目录读取 input.json，生成统计程序/结果文件并运行真实校验；同 Task/Execution 至少两轮工具交互，内容/stdout/exit 可核，Owner 沿已有入口进入 in_review。先自有确定性 Provider 真实 HTTP，再单独核外部 Provider 可用条件。
 - 环境：Go `/workspace/toolchains/go1.27.1/bin/go`；共享 `/workspace/go/pkg/mod` 和 `/workspace/.cache/go-build`。固定 MinIO 已按原步骤构建于 `/workspace/shared/agenteam-m1-tools/minio/minio`，release 与 SHA `dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8` 匹配。PG17 `99a149…` 与 nginx `30f1c0…` 镜像已拉取。Playwright 1.56.1 安装完成于 `/workspace/shared/agenteam-m1-tools/node-browser/node_modules`；web 同锁安装位于 `node-web`，原 npm ci 已退出 0。
-- 全树初期最多两路 Go 构建/测试，每路 `GOMAXPROCS=2` / `-p=2`；一个 native 栈由 W5 协调。未创建业务测试容器，未接已有 onboarding 数据库，未读取/输出真实 Provider 凭据或发送外部模型请求。
+- 全树初期最多两路 Go 构建/测试，每路 `GOMAXPROCS=2` / `-p=2`；一个 native 栈由 W5 协调。各轮新 nonce 测试栈按原 fixture 精确清理，未接已有 onboarding 数据库，未读取/输出真实 Provider 凭据或发送外部模型请求。
 - 原 live-chat 分支 `e50e913a` 只读核查：保存单轮显式 live harness，四轮失败，最后 DNS 阶段未发送 HTTP；当前会话 owner 未能从陈旧 current 确定，不改原分支或恢复旧驱动。原 STOP/FAIL 保留。
 - 上游实际采纳：Model `7cac84aa`（前片 `f47d3eb0`）、Tool `0c523752`（前片 `0bcfa47a`）、Task/UI/浏览器 `9a206769`（产品片 `e76873de`）；本树待 root 保存。Execution 尚待其完成快照/Loop 小修后采纳，不宣称此时可编译。
 - 已有验证：本树 config `^TestExecutionRuntime` 实际 exit 0（首轮仅缺缓存的 setup FAIL 另保留）；上游 Model 7 个顶层/20 子测试独立 race 0，最终 Capture 隔离负例独验 0；UI 4 场景限定独验 0。不代替本组合验收。
@@ -32,3 +32,6 @@
 - 第四轮 `9a31dd1e` / `run.droHjN` 通过新增原 Store 安全诊断，在 5.75 秒定位 `execution-direct-text-start` 事务 `DATABASE_SQL_FAILED` / SQLSTATE `42P08`（参数类型推断歧义）。`preparation_inputs=1`、Model resolution committed/plan 1、Model snapshot 1，证明捕获已完成；Execution 首 snapshot/round 尚未提交，Provider 0 请求。已交 Execution owner 修首 Start 的 SQL 同占位类型推断。outer Wait 1、Runner Wait、三层精确清理全部完成；诊断不再将此断点误归为 Preparation capture 失败。
 
 - 第五轮 `197f92bc` / `run.Ioa2YF` 在实际 PG 上越过 `42P08`，同一 Execution 的 5 轮 Model HTTP、4 次 read/write/run/read、真实 stats.py/result.json 内容、command 完整 stdout/exit 0、v2 最终快照同事务检查均已通过后进入浏览器。整体仍 FAIL：新消费者把正式 detail `{execution: ...}` 误当平铺对象，Node 原 Wait 非 0；只到 initial-task-in-progress，0 output reads/0 writes。product_recent 已按正式封套修独占 spec，未改产品返回。outer Wait 1、Runner cleanup Wait 和三层精确清理完成。
+
+- 第六轮 `90f1bda7` / `run.SoW9B4` 后端链再次通过，真实浏览器 detail、两次 v2 输出读取、成果文件名及首截图通过；唯一 Owner transfer 返回 HTTP 503，尚无安全错误码，不能归因为 relaunch。outer Wait 1、Runner cleanup Wait 与三层资源清理完成。浏览器之后的正常 App/Runner Join 和完整 peer 断言未到达，不计 PASS。
+- 下一候选增加严格受限 HTTP code、浏览器失败前真实 Task/E/peer 诊断，以及原 Store 对 `work.task.transfer` NotCommitted 的安全 SQLSTATE/constraint 元数据；不改变 200、唯一写入、in_review 或调度条件。主初始化提取为 `newM1WorkflowWithObserver`，保持原成功路径步骤；W2 新 `m1_tool_failure_test.go` 复用同图验证 read missing 与真实运行命令取消，独占新文件。新 case 尚未运行，等待冻结后单一栈按固定 selector 验证。

@@ -53,3 +53,7 @@ terminal preparation 可表示合法捕获，因此根因暂只定位到准备�
 第四轮 `9a31dd1e` / `run.droHjN` 用上述元数据在 5.75 秒定位明确错误：`execution-direct-text-start` 原事务报 `DATABASE_SQL_FAILED`，SQLSTATE `42P08`。真实 preparation_inputs、Model resolution committed 和 Model snapshot 均已存在，故捕获成功，失败点在首轮启动 SQL 参数类型推断；由 Execution owner 修复。Provider 请求仍为 0。原 Wait 1 和三层精确资源清理完成，失败证据保留。
 
 第五轮 `197f92bc` / `run.Ioa2YF` 实际验证 SQL cast 修复并完成首条后端工具链：5 次 Model HTTP 与 4 次工具调用、真实程序/结果文件、完整 stdout/exit 0、最终 v2 投影同事务事实均越过断言。浏览器首次调用在 detail HTTP 封套断言处失败（正式 `{execution: ...}` 被新测试误当平铺）；尚无最终输出读取或评审写入，整个 M1 验收仍未通过。product_recent 针对测试解析修正，产品 API 不变。所有原进程与自有资源清理已完成。
+
+第六轮 `90f1bda7` / `run.SoW9B4` 再次完成后端五轮；浏览器越过正式 detail、两次 v2 输出与成果文件名断言并保存首截图。唯一 Owner 提交评审接口返回 HTTP 503，当前无安全错误码，原因待定，不将 relaunch 猜测当结论。outer Wait 1、Runner cleanup Wait 和固定三层精确资源清理完成；正常 App/Runner Join、peer 完整断言位于浏览器之后，尚未执行。
+
+下一候选只补安全诊断，不修改评审成功条件：HTTP status/code、失败清理前持久 Task/E/peer 状态、原 transfer 事务 NotCommitted 的 SQLSTATE/constraint。初始化提取供 W2 的两个独立 native 场景复用：read missing 无载荷失败、实际命令启动后的原 Runtime Stop/Drain 取消与 Join。`run.sh` 使用固定 workflow 或 failure-and-cancellation case，每轮仍新 nonce/新库；新增失败/取消 case 未运行，不计验收通过。

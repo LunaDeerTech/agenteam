@@ -21,6 +21,8 @@ sh tests/m1-app-workflow/run.sh
 
 入口构建原 Runner 和 `internal/central/app` integration 测试二进制，然后调用既有 objects → outbound → PostgreSQL fixture。每次使用新 nonce 资源、隔离 DB 和临时工作目录；结束等待原 fixture 清理。临时 browser dependency symlink 只在入口创建时由入口删除，不改共享安装。
 
+默认 `AGENTEAM_M1_CASE=workflow` 仅运行上述成功/评审场景。设置 `AGENTEAM_M1_CASE=failure-and-cancellation` 仅运行两个独立新库场景：真实 read missing 无结果载荷失败，以及实际命令启动后原 Runtime Stop/Drain 的取消与进程 Join。两个场景共用原 App/Runner/Provider 组图，不启动浏览器，不模拟 Human cancel 入口。入口只接受这两个固定 case；各自需记录实际结果，未运行不计通过。
+
 ## 证据
 
 每轮输出在 `output/ai/m1-app-integration/run.*`。`native.log` 保存实际测试及 fixture Wait；`owned-resources.json` 仅保存资源身份；`browser/TestM1AppToolWorkflow` 保存浏览器阶段、脱敏控制台及截图。Session/Runner enrollment 材料放私有目录并清理，不写证据。

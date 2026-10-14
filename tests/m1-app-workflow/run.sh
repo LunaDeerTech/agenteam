@@ -7,6 +7,11 @@ umask 077
 : "${AGENTEAM_MINIO_BINARY:?verified MinIO binary required}"
 : "${AGENTEAM_M1_BROWSER_MODULES:?external locked browser node_modules required}"
 : "${AGENTEAM_M1_WEB_DIST:?production web dist required}"
+case "${AGENTEAM_M1_CASE:-workflow}" in
+  workflow) agenteam_m1_selector='^TestM1AppToolWorkflow$' ;;
+  failure-and-cancellation) agenteam_m1_selector='^TestM1AppToolFailureAndCancellation$' ;;
+  *) printf '%s\n' 'M1 case must be workflow or failure-and-cancellation' >&2; exit 1 ;;
+esac
 if [ "$("$AGENTEAM_GO" env GOVERSION)" != go1.27.1 ]; then
   printf '%s\n' 'Go 1.27.1 required' >&2
   exit 1
@@ -45,7 +50,7 @@ export AGENTEAM_M1_WEB_EVIDENCE="$agenteam_m1_run/browser"
 # This selector uses only its synthetic credential and owned Provider peer.
 unset DEV_CHAT_BASE_URL DEV_CHAT_API_KEY DEV_CHAT_MODEL
 printf 'M1 evidence directory: %s\n' "$agenteam_m1_run"
-sh scripts/test-objects.sh -run '^TestM1AppToolWorkflow$' >"$agenteam_m1_run/native.log" 2>&1 &
+sh scripts/test-objects.sh -run "$agenteam_m1_selector" >"$agenteam_m1_run/native.log" 2>&1 &
 agenteam_m1_pid=$!
 trap 'kill -TERM "$agenteam_m1_pid" 2>/dev/null || :' INT TERM
 set +e
