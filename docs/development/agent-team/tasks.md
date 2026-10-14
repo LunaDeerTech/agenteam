@@ -1,6 +1,24 @@
 # 团队任务台账
 
+## 当前目标与工作包状态
+
+2026-10-14 用户已确认以“指派任务 → Agent 连续工具执行 → 可见成果 → 审核通过/退回”为当前主目标。里程碑、依赖与完整工作包定义只维护在[开发计划](../development-plan.md#当前开发目标与里程碑)。本次完成规划/工作流归位，以下产品包均待派发；尚未因规划更新产生新的产品 PASS。
+
+当前可复用 Agent 创建/配置、Skills、Task 指派/评审、历史输出、DirectText App/Scheduler、Runner read/write/run 和 Object safe 修复等已存在能力，接手按对应卡核限定证据。**首个待闭合断点是正式 App 的真实 Model 工具调用与 ToolResult 后下一轮 Model 请求的连续组合**；已有 read-file 结果消费或 Round 输入能力不等于该链已贯通。统一界面布局已在 `6d16bdae` 完成前端范围交付，恢复材料与既有31项 unit/17文件格式限制见 [current](../../../.agent-state/current.md#已完成交接统一页面布局)，不再沿旧 project-list 候选继续主任务。
+
+| 工作包 | 当前状态与优先级 | 下一步 |
+| --- | --- | --- |
+| W1 模型工具调用 | 待派发；首条主链，tools 原独验 STOP 保留 | 指定 owner，先核原停止原因/恢复条件及独验范围，再完成真实消费接线。 |
+| W2 多轮执行与 Task 交接 | 待派发；与 W1 联合推进 | 复用已持久调用/结果及 Round 输入，明确下一 Model 与评审交接的真实接缝。 |
+| W3 审批、取消与执行详情 | 待派发；随主链并行 | 固定等待/恢复/取消与详情的真实调用责任，风险暴露前完成必要门。 |
+| W4 检索与记忆基础 | 待派发；独立并行 | 复用既有 benchmark/native PG，冻结剩余候选单配置并完成有界比较。 |
+| W5 集成与有界阻塞 | 待派发；组织主链组合 | 指定集成 owner、候选基线及共享入口唯一写者；安排独立验证。 |
+
+当前不继承历史 agent 名称、资源窗口或写入权；实际派发后才改为进行中。原失败、固定输入及未验证范围继续保留，下文旧子项记录按其发生时范围解读，不能覆盖本节较新的实际状态。
+
 ## 当前验收与推进边界
+
+本节及下方各子项保留各自历史输入的接受/失败边界，不构成当前 HEAD 的完整快照；其中旧 unbound/未实现描述须结合较新的工作卡和[当前摘要](#当前目标与工作包状态)判断，不据旧描述重建已存在功能，也不扩大旧 PASS。
 
 - 正式 main 已按各自固定输入接受以下子能力：后端有限组合及连续 00028→00031、Secret Owner HTTP/既有 Project 默认根接入、Knowledge 有限只读 UI、D16 本地读取库、D18 名称投影库、D13 有界纯文本 Parser、Variables 本实例停止提供方、单轮 Stop phase 引擎、有界恢复 Batch/真实 ProcessGuard 链及有限文本 Model Runtime/必要恢复入口已交付。阶段成果不代表整个 D04/D05/D08/D09/D10/D12/D16/D18 完成。
 - [默认 App 项目创建与原意图恢复](../work-items/d08-project-creation-app-ui.md)已交付 main：项目列表可真实创建、完成 Skills/Object 初始化并进入项目。创建与 Archive/Delete 分能力开放；后两者仍须完整 LifecycleRegistry、停止及清理闭环。旧根执行 PASS、规范撤回和 test-only 结果各保留原边界，不据新建成功宣称完整 participant、foreign join 或全平台 ready。
@@ -17,9 +35,9 @@
 
 [Agent 显示设置](../work-items/d10-agent-display-settings-ui.md)的名称/颜色编辑、显式清空、真实正常链及原旧字段丢回执链已有限独立接受，随本次变更交付。[Task 历史筛选与顺序切换](../work-items/d11-task-history-filters-ui.md)的限定只读链也已独立接受，随本次变更交付。[Skill 固定修订包下载](../work-items/d10-skill-package-ui.md)的当前 Owner HTTP 与详情下载正常链已有限独立接受，随本次变更交付。[Milestone 标题/描述编辑](../work-items/d11-milestone-edit-ui.md)的正常保存、no-op、清空与原命令丢回执恢复也已有限独立接受；所有既有 STOP 与生产未绑定范围保持。
 
-## 当前并行所有权
+## 历史并行所有权
 
-六个子代理席位动态复用，全部 Git 和实际资源窗口由 root 调度；当前具体进程/分支恢复读 [current](../../../.agent-state/current.md)，旧实例和窗口授权不继承。
+以下是旧 metadata/前置组合的所有权记录，仅用于解释历史结果与失败，不是当前派工或活跃会话。现工作包见[当前状态](#当前目标与工作包状态)，具体进程/分支恢复读 [current](../../../.agent-state/current.md)，旧实例和窗口授权不继承。
 
 - **secret：Agent Secret 前置。** Secret Directory 与联合 metadata 链已按上述有限范围接受；References 后继实施仍须连接真实 Agent canonical authority。材料不进入目录，缺 owner 明确拒绝，不新增生产 consumer。
 - **content：Agent canonical 核心。** 在独立树推进唯一配置 writer、同 Tx 私有 create/pre/post witness 与跨域回调；这些后继源码和迁移不纳入本次 metadata 交付。Rename 原 UI FAIL 保留。

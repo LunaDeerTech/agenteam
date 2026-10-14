@@ -1,16 +1,54 @@
 # agenteam 开发计划
 
-本计划保存长期模块依赖、实现范围与完成门槛，全局产品状态见[任务台账](agent-team/tasks.md)，当前任务分支接续见[恢复状态](../../.agent-state/current.md)。恢复时只读目标模块和必要依赖，不把checkpoint保存或历史阶段 PASS 当作完整模块完成。
+本计划是当前开发目标、里程碑、依赖顺序和工作包的唯一正式来源，并保存长期模块范围与完成门槛。真实产品状态见[任务台账](agent-team/tasks.md)，当前任务分支接续见[恢复状态](../../.agent-state/current.md)。恢复时只读目标模块和必要依赖，不把 checkpoint 或历史阶段 PASS 当作完整模块完成。
 
 依据：[当前架构](../architecture/README.md)、[前端设计](../frontend-design/README.md)和[仓库结构](repository-structure.md)。具体业务规则归架构，工程接口归工作项；本计划不复制另一套规则，`docs/draft.md` 只作历史参考。
 
 ## 当前基线与计划范围
 
-2026-10-09 接续整理基于 `e55ad7d1`：已包含 Work Structure 实现 `a64fb5e7`、Task planning 规格 `97439ffd` 与新协作流程。本次仅整理文档，不新增产品通过结论。D00–D07 的既有接受范围与后发现的 Object 缺陷分开记录；D08–D28 仍有未完成范围，E01 尚未开始。
+2026-10-14 用户确认以核心执行闭环优先推进全部既定目标。本次规划基于 `6d16bdae` 已交付的实现与统一页面布局，规划归位不新增产品通过结论。D00–D07 的既有接受范围与后发现的 Object 缺陷分开记录；D08–D28 仍有未完成范围，E01 尚未开始。
 
 AT-0005 已确认的产品决定不重新列为待选，正式来源见[决定归位](work-items/d00-decision-sync.md)及[审计处置映射](work-items/d00-baseline-audit-report.md#7-at-0005-决策处置映射)。D01–D28/E01 是长期开发目标；用户已持续授权后续开发的checkpoint与常规源码commit/push，保存不等待验收或逐次提醒。该授权不包含部署、force push或覆盖他人工作，也不解除既有产品停止项。
 
 原计划中的逐轮进度可用 `git show e55ad7d1:docs/development/development-plan.md` 查询；已有验收报告与原失败保留在原处，不新增归档副本。环境缺失输入和恢复命令见[接续说明](agent-team/recovery-2026-10-08-environment.md)。
+
+## 当前开发目标与里程碑
+
+当前主目标：**用户指派任务 → Agent 连续调用工具完成工作 → 成果可见且可追溯 → 审核通过或退回继续执行**。优先补齐该流程的真实断点，再扩展知识、协作与系统交付；D01–D28/E01 的完整目标和原完成门槛均保留。Execution 成功不等于 Task 完成，Task 必须经过 `in_review`；Task 取消与 Execution 取消分别按各自正式合同处理。
+
+优先复用已经存在的 Agent 创建/配置、Skills、Task 指派/评审、执行历史与输出、DirectText App/Scheduler 接线、Runner read/write/run 及 Object safe 修复。先核当前调用点与相应限定证据，补缺失的组合，不重建这些能力。统一界面布局已完成前端范围交付，后续功能继续遵守[界面规范](../frontend-design/interface-design.md)；未来纯视觉优化排在核心行为之后。
+
+以下里程碑是可验收的交付出口，**不是串行开发队列**。依稳定契约并行开发、基础自测后尽早隔离联调；权限、幂等、取消、Secret 和数据完整性检查须在相应真实风险暴露前落实，不能因列入后续里程碑而延期。
+
+| 里程碑 | 用户可见结果与阶段出口 | 主要依赖与并行边界 |
+| --- | --- | --- |
+| M1 单 Agent 真实工作 | 先打通真实 Model → `read_file` → 持久 ToolResult → 下一次 Model → 最终输出，再接写文件/命令。首批完整结果至少经过两轮工具交互，产物可见、执行记录可追溯，并进入已有评审入口。 | D09 工具协议与真实消费、D18/D19 工具调用边界、D22 多轮推进及现有 Runner 能力；首条读链不冒充整个 M1，写/命令先过相应授权和副作用门。 |
+| M2 Task 与执行者/审核者协作 | 真实 Task/Scheduler 驱动执行者产出，审核者或 Human 通过/退回；审批等待后恢复同一执行，取消与恢复结果可见且不重复副作用。 | 在 M1 实际链上补 D11/D19/D22/D23/D25 的真实组合；审批、取消与执行详情从现在并行准备，首任务协作不依赖 Meeting 完成。 |
+| M3 知识、记忆与扩展协作 | Knowledge 检索与引用、Memory、领域工具、MCP、Meeting 及相关 Runner 扩展通过真实 Agent 调用贡献结果。 | 检索比较、索引基础、领域/Meeting/MCP 契约立即并行；真实调用接共同执行/授权入口。Memory 复用 D13；Meeting 编排接 Executor，不另建执行引擎。 |
+| M4 完整系统交付 | 完整 Lifecycle、生产发布、升级与故障恢复、系统端到端验收闭合，满足 D28；之后进入 E01 平台实战。 | 各模块完整范围与真实绑定齐全；生命周期和部署准备可并行，生产门未通过不宣称 ready。E01 仍须冻结游戏/版本/完整分母并达到既定覆盖及试玩门槛。 |
+
+### 当前五个工作包
+
+工作包按完整用户行为派发，负责人组织自己的跨模块实现、基础自测和首次真实联调；具体接口只引用正式卡，不复制另一套定义。每包的实时状态与 owner 只在[任务台账](agent-team/tasks.md#当前目标与工作包状态)及对应恢复记录维护。
+
+| 工作包 | 职责与首条真实链 | 依赖与验收结果 |
+| --- | --- | --- |
+| W1 模型工具调用 | 复核 tools 独验原停止原因，落实可恢复条件与独立验证，再把固定 Tool Set、原生 ToolCall/ToolResult 和真实 Model consumer 接通。首链为真实模型请求返回 `read_file` 调用，并能接受原结果。 | 复用 D09 Runtime/Usage/Secret；见 [tools wire 卡](work-items/recovery-d09-openai-chat-tools-wire.md)、[文本 Runtime](work-items/d09-text-chat-runtime.md)。原 STOP 不因本计划解除；真实协议、拒绝/取消、调用配对及用量证据按适用范围通过。 |
+| W2 多轮执行与 Task 交接 | 连接已有 ToolCall、结果消费和下一 Round 输入，驱动后续 Model 请求与终态输出，再与现有 Task 指派/评审交接；复用 Runner read/write/run。 | 消费 W1、现有领域与 Runner 实现；见 [结果消费](work-items/d22-execution-tool-result-consumption.md)、[下一轮输入](work-items/d22-execution-round-input.md)。M1 首批结果至少两轮工具交互，原调用/结果不丢失、不重复副作用，产物进入评审；继续补 Scheduler/退回链。 |
+| W3 审批、取消与执行详情 | 共用权威 Approval 与原 Execution 的等待/恢复/取消事实，把工具调用、结果、失败和等待状态展示在执行详情；分别处理 Task 取消和 Execution 取消。 | 依 [治理](../architecture/security-governance/README.md)、[Executor](../architecture/agent-executor/README.md)及[执行详情卡](work-items/d22-task-execution-ui.md)。与 W1/W2 同步约定接缝；拒绝不执行、批准继续同一操作、取消不复活，真实 UI 可查看成果及断点。 |
+| W4 检索与记忆基础 | 复用文档/Parser、固定语料/评分器和已运行 native PG 基线；完成剩余候选及固定 dense leg 的等权 RRF 对照，并行完成索引生命周期/来源定位，随后接 Memory 和领域工具。 | 依 D09/D10/D12/D13 真实提供方，见 [检索卡](work-items/d13-lexical-benchmark.md)。沿既定三候选有界结束比较，固定版本/配置、必要许可与兼容后定案；文档→索引→查询→引用可追溯，scope/旧版本失效正确；Memory 不复制检索引擎。 |
+| W5 集成与有界阻塞 | 集成负责人维护候选组合，接通 App/真实依赖并复现当前第一个断点；把阻塞分配到确切 owner/范围，协调共享入口、迁移与资源，推动首条端到端结果。 | 消费 W1–W4 的稳定接缝，基础自测后即联调；报告已打通流程、当前断点和下一可见结果。独立验证由未参与实现者执行，只复验变更/失败影响范围；全产品交付继续按 D28。 |
+
+### 优先顺序与阻塞边界
+
+当前首先闭合 W1/W2 的真实 Model 工具调用与下一轮请求；W3 随真实风险进入前置检查，W4 并行推进，W5 组织组合。M3 的 Meeting/MCP 与 Runner 扩展逐步接入已可调用的执行/授权入口，不抢占首条文本工具链的集成责任。已存在的功能按正式卡限定范围复用，阶段完成不外推整模块通过。
+
+- **Tools 独立验收：** 先处理原停止原因，核对恢复条件、实际输入和独立验证责任；作者自测、编译或计划获确认均不解除原 STOP。
+- **Object：** 已接受的 safe 修复可供真实链复用；旧 probe/异常 backend 的 STOP 继续约束对应范围，不把它扩大为全部工具链不可联调，也不把局部通过写成完整 Lifecycle/ready。
+- **SPA、Jina、Image：** 生产 SPA 门保留到实际生产交付，Jina/Image 来源缺口保持并后移；它们不全局阻塞文本工具链。可选 reranker/image 未可用时遵守原能力暴露规则。
+- **后续范围：** 完整 Knowledge 格式/Memory、Meeting、MCP、Runner 扩展与所有系统门槛仍需完成。E01 在 D28 后启动；已有来源候选可复用，游戏选择、完整内容分母与权重不能由当前规划冒充已冻结。
+
+按实际结果更新阶段判断，不承诺固定工期，不把历史粗估比例作为派工或验收依据。规划完成只说明开发方向已持久化，产品 PASS 仍须真实实现及适用证据。
 
 ## 推进规则
 
@@ -446,7 +484,7 @@ E01 完成还要求平台任务、Agent 协作、Execution、审核、代码与�
 
 ## 当前启动点
 
-全局待办见[台账当前恢复点](agent-team/tasks.md#当前恢复点与并行所有权)，正在进行的任务先接续远端工作分支及其 `.agent-state/current.md`。Task planning 与 Model Settings UI 的既有缺失源码仍须重建，本次自动保存规则不能复原未曾保存的字节。D08/D10/D12 及生产绑定仍有待完范围，Object/tools/SPA/Jina/Image 的既有停止不因环境恢复或文档更新解除。
+从[当前开发目标与里程碑](#当前开发目标与里程碑)选择完整结果，核[工作包状态](agent-team/tasks.md#当前目标与工作包状态)与目标分支 `.agent-state/current.md` 后派工。先复用当前已存在的实现并确认首个真实断点，不按旧卡的未实现描述重建已交付功能。Object/tools/SPA/Jina/Image 的既有停止按上述范围处理，不因环境恢复或文档更新解除。
 
 后续明确恢复开发时可使用：
 

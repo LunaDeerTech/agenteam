@@ -4,7 +4,7 @@
 
 ## 当前工作与按需读取
 
-- 当前工作、阻塞和下一步见[任务台账](docs/development/agent-team/tasks.md)，模块依赖与完成门槛见[开发计划](docs/development/development-plan.md)。先读取当前摘要和目标工作项；使用标题或路径定位相关段落，不默认加载全部历史。
+- 当前工作、阻塞和下一步见[任务台账](docs/development/agent-team/tasks.md)，当前目标、里程碑、工作包及模块依赖与完成门槛见[开发计划](docs/development/development-plan.md#当前开发目标与里程碑)。先读取当前摘要和目标工作项；使用标题或路径定位相关段落，不默认加载全部历史。
 - 各工作项的阶段成果不等于整卡或生产接入完成；恢复时核对实际代码、Git 差异及相应任务记录，不按旧聊天或旧进度段落执行。
 - Object runtime join、OpenAI tools 独立验收、Central SPA concurrent-publication 及 Jina/Image 来源获取的既有阻塞在任务记录中保留；工作流调整不自动恢复这些任务，也不改变生产未绑定和未验证范围。
 - 原入口中的历史推进记录可通过 Git 文件历史和任务台账查询，不另复制成归档文件。只更新发生变化的正式来源，不在 AGENTS、计划和台账重复抄写同一进度。
