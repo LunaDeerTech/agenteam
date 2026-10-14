@@ -15,6 +15,7 @@ import { observeM1Bodies } from "./m1-task-workflow.helpers";
 
 type Material = {
   mode: "read-write-run-review";
+  expectation_mode: "controlled" | "live";
   origin: string;
   cookie: string;
   project_id: string;
@@ -57,6 +58,7 @@ function material(): Material {
   ];
   if (
     value.mode !== "read-write-run-review" ||
+    !["controlled", "live"].includes(value.expectation_mode) ||
     value.origin !== process.env.AGENTEAM_AUTH_WEB_ORIGIN ||
     typeof value.cookie !== "string" ||
     !value.cookie ||
@@ -94,6 +96,7 @@ function material(): Material {
 }
 
 type Observation = {
+  expectation_mode: Material["expectation_mode"];
   stages: string[];
   api_writes: number;
   output_reads: number;
@@ -239,7 +242,12 @@ test("real multi-round Task output and explicit Owner review survive refresh [re
   const taskPath = `/api/v1/projects/${data.project_id}/tasks/${data.task_id}`;
   const executionPath = `${taskPath}/executions/${data.execution_id}`;
   const transferPath = `${taskPath}/transfer`;
-  const seen: Observation = { stages: [], api_writes: 0, output_reads: 0 };
+  const seen: Observation = {
+    expectation_mode: data.expectation_mode,
+    stages: [],
+    api_writes: 0,
+    output_reads: 0,
+  };
   observations.set(page, seen);
   bodyObservers.set(page, await observeM1Bodies(page, data));
   const writes: Request[] = [];
@@ -373,10 +381,11 @@ test("real multi-round Task output and explicit Owner review survive refresh [re
     await text.scrollIntoViewIfNeeded();
     expect(await text.textContent()).toBe(data.expected_output);
     await expect(text.locator("script, img, iframe, a")).toHaveCount(0);
-    for (const artifact of data.artifact_checks)
-      expect(await text.textContent()).toContain(basename(artifact.path));
-    // The Go fixture independently checks actual file bytes and command exit.
-    // This UI exposes the final result and file names, not workspace downloads.
+    if (data.expectation_mode === "controlled")
+      for (const artifact of data.artifact_checks)
+        expect(await text.textContent()).toContain(basename(artifact.path));
+    // Go independently checks actual artifacts and command results. Live text
+    // must equal the original durable output; its wording need not name files.
     seen.output_reads++;
     return value;
   }
@@ -386,7 +395,11 @@ test("real multi-round Task output and explicit Owner review survive refresh [re
   expect(await output("刷新最终输出")).toEqual(first);
   await expect(fact(page, "状态")).toHaveText("进行中");
   expect(writes.length).toBe(0);
-  seen.stages.push("v2-output-and-file-names-readable-without-task-transition");
+  seen.stages.push(
+    data.expectation_mode === "controlled"
+      ? "v2-output-and-file-names-readable-without-task-transition"
+      : "v2-output-readable-without-task-transition",
+  );
   await screenshot(page, "m1-final-output-desktop");
 
   await button(page, "提交评审").click();

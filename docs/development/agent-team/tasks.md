@@ -2,19 +2,19 @@
 
 ## 当前目标与工作包状态
 
-2026-10-14 用户已确认以“指派任务 → Agent 连续工具执行 → 可见成果 → 审核通过/退回”为当前主目标。里程碑、依赖与完整工作包定义只维护在[开发计划](../development-plan.md#当前开发目标与里程碑)。`tool-loop-v1` 受控实现增量已随 `3a00e5a6` 推送 main，上一轮六个临时分支与五个工作树已清理，证据已保全；当前继续准备真实多轮 live 验收入口，外部模型仍待验，M1 整阶段未完成。恢复入口见 [current](../../../.agent-state/current.md)。
+2026-10-14 用户已确认以“指派任务 → Agent 连续工具执行 → 可见成果 → 审核通过/退回”为当前主目标。里程碑、依赖与完整工作包定义只维护在[开发计划](../development-plan.md#当前开发目标与里程碑)。`tool-loop-v1` 受控实现增量已随 `3a00e5a6` 推送 main，上一轮六个临时分支与五个工作树已清理，证据已保全；本次交付包含已通过限定独立准备验收的显式真实多轮 live 入口；实际外部模型仍待条件恢复，M1 整阶段未完成。恢复入口见 [current](../../../.agent-state/current.md)。
 
 正常第十轮完整通过：同一工作 Execution 五次 Model / 四次 Runner read/write/run/read、真实文件/stdout/exit、最终 v2、三次原成果消费、唯一 Owner 送审至持久 `in_review` 及 reload 一致；正常 Drain/Runner Wait/App Joined、精确 work/review peer 和资源清理均到达。失败/原 Runtime 取消两子例及旧 direct-text 兼容已独立接受并有效复用；外部 DEV_CHAT 因既有 D04 DNS gate 受环境阻断，尚无外部 Model HTTP，详见 [M1 集成卡](../work-items/m1-app-integration.md)。
 
 | 工作包 | 当前状态与优先级 | 下一步 |
 | --- | --- | --- |
-| W1 模型工具调用 | JSON 原生工具请求、配对历史和真实 Runtime 已完成受控 App 链；原 tools 独验 STOP 保留 | 先补真实多轮 live 入口及动态事实核验，再在原权限/出站条件满足后验证外部模型实际推理。 |
+| W1 模型工具调用 | JSON 原生工具请求、配对历史和真实 Runtime 已完成受控 App 链；显式 live 入口准备门通过，原 tools 独验 STOP 保留 | 在原 DNS/权限/出站条件满足后验证外部模型实际推理；动态 live facts 和新预算触发尚未实跑。 |
 | W2 多轮执行与 Task 交接 | 本次同 E 工具循环、Runner 副作用、v2/UI、Owner `in_review` 与刷新/正常收尾已通过 | 按 M2 继续成果传递及真实审核通过/退回；不由 Execution 成功自动完成 Task。 |
 | W3 审批、取消与执行详情 | read missing 失败及原 Runtime Stop/Drain 取消已限定独立接受；详情支持 v1/v2 | Human 持久取消、完整审批恢复、运行中重启接管仍待后继，不由 Runtime 取消样本代证。 |
 | W4 检索与记忆基础 | 本轮尚未派发，原工作包保留 | 按资源与主链进展安排，复用既有范围证据。 |
-| W5 集成与有界阻塞 | 受控实现已交付；delivery_path / product_recent 正在新 live 验收树准备显式 opt-in 入口与动态事实，当前 WIP | 完成本地入口及必要检查，条件满足后再做外部模型实证；不把 DNS 阻断扩大为本地准备停项。 |
+| W5 集成与有界阻塞 | 受控主功能已交付；显式 live 准备静审、13项 fake 检查、SKIP/编译及受控正常回归已独立接受 | 原 DNS/权限/出站条件满足后执行真实模型验收，准备通过不记 live PASS。 |
 
-新活动分支 `ai/m1-live-acceptance-20261014`、工作树 `/workspace/agenteam-m1-live-acceptance` 基于 `3a00e5a6`，由 W5 维护新卡与新树 current。现有固定 Provider 的两 case 及旧单轮 no-tools 入口均不能证明真实模型多轮行为，本地准备尚未完成；当前不读取真实 key、不发外部 HTTP、不改 DNS 策略。
+本次 `93306a74` 准备增量新增双 opt-in 的 live case，使用原 SystemResolver/CA/D04/正式 Secret，动态核真实工具及成果；受控 `run.OyaNNV` 正常回归和精确退场已通过。动态 live facts 与新预算触发仅静审，未对真实 Provider 执行；当前未读取真实 KEY、未发送外部 Model HTTP，DNS 阻断只影响实际调用，不改变本地准备通过结论。准备与实际运行边界见 [live 准备卡](../work-items/m1-live-acceptance.md)，证据已保全主树。
 
 `tool-loop-v1` 是显式执行配置，原 `direct-text-v1` 保留且无新增 UI 配置。正常验收 tick 250ms / skip 240 只是 Owner 窗口参数；Reviewer 读取自有说明不证明 worker 产物评审或 M2 完成。统一界面布局已在 `6d16bdae` 交付，其既有31项 unit/17文件格式限制与恢复材料见 [current](../../../.agent-state/current.md#已完成交接统一页面布局)。旧 STOP、历史 FAIL 与未验证范围继续保留；下文旧子项按发生时输入解读，不覆盖本节较新事实。
 
