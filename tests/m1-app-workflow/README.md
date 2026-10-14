@@ -30,7 +30,7 @@ sh tests/m1-app-workflow/run.sh
 
 失败/取消场景继续使用原零冷却配置、单 Provider 和原提交后 observer；正常场景的 Owner 窗口与评审 Provider 选配不会进入这两个场景。
 
-## 显式真实模型入口（准备中，未实跑）
+## 显式真实模型入口（准备门通过，真实调用未实跑）
 
 `AGENTEAM_M1_CASE=live` 选择 `^TestM1AppLiveWorkflow$`，同时必须设置 `AGENTEAM_M1_LIVE_OPT_IN=external-model-read-write-run-review`。两层选择缺任一即拒绝；普通两个 case 会继续剔除所有 `DEV_CHAT_*` 与 live opt-in。实际运行沿上方同一命令/依赖，只增加这两个选择值，并使用会话已配置的 `DEV_CHAT_BASE_URL`、`DEV_CHAT_MODEL`、`DEV_CHAT_API_KEY`。不要把 KEY 写进命令文本、README、日志或证据。
 
