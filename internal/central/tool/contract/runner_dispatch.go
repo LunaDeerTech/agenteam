@@ -69,6 +69,9 @@ type RunnerOutcome struct {
 	Phase       string
 	Outcome     string
 	Attempted   bool
+	// ResultAvailable reports the original persisted payload/report reference.
+	// It does not prove success, authorize reading, or prove local owner join.
+	ResultAvailable bool
 }
 
 type RunnerDispatcher interface {

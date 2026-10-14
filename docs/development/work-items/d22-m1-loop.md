@@ -29,3 +29,8 @@
 `bef5ba7f` 首编译 exit0，随后小片修复复用 App 已注册 Loop、v2旧跳过门和含Actor函数字段的结果比较。限定 ordinary 请求/多轮历史/输出/旧行为测试 exit0；新增四次工具交互语义测试保留完整3工具、全部历史和原credential lease，单独验证最后一轮来源。尚未宣称真实数据库、App、Model/Runner组合或M1通过。
 
 当前联调前边界：动态Skill ingress已有queued变更时明确返回CapabilityUnsupported，不静默丢弃；未完成其后继cutoff/control投影。运行中进程重启不自动接管；Tool未知与取消的精确原owner join端口由Runner已提供，Execution消费仍待补齐。恢复及故障最终事实继续保持原授权和Unknown，不能以未绑定端口代替验收。
+
+
+取消增量：复用原run context/Project/App Stop，经精确RunnerCallLifecycle.CancelCall/JoinCall观察原Tool owner；信号不等于退出，Unknown继续保留Execution/Tool owner。schema4终态允许在确认原Tool已返回后保留原pending ToolCall及assistant bytes，失败/取消最终快照为空，共享lease仍经原终态事务释放。普通限定测试与连续两次Unknown不退休回归已通过；真实App取消/数据库约束待W5组合。未新增Human持久RequestCancel、取消HTTP或按钮，正式用户取消入口属于M2未交付范围。
+
+known Tool receipt还须通过精确JoinCall才能借结果/构造后继；新增回归证明数据库succeeded元数据不能越过原Unknown owner。无载荷失败/取消由Tool `8d09a1ea` 的ResultAvailable权威投影判断，有完整报告的command非零/取消仍作为真实ToolResult进入后继；无报告终态正确失败/取消，不以InvalidState永久卡住。相应分类回归和限定旧行为ordinary exit0；等待W5冻结下一次原生组合。

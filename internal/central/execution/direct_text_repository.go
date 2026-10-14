@@ -83,9 +83,9 @@ func loadDirectTextRound(ctx context.Context, x postgres.SQLExecutor, execution 
 		}
 	}
 	inputThrough, assistantSequence := roundInputThrough(r.round), roundAssistantSequence(r.round)
-	if status == nil {
+	if status == nil || pending {
 		if pending {
-			if rv.Input.SchemaVersion != c.ToolCallRoundSchemaVersion && !isLoopRound(r.round) || terminalVersion != nil || reason != nil || terminalEvent != nil || finished != nil || checkpoint == nil || through != int64(assistantSequence) || responseDigest == nil || c.TriggerInputDigest(responseRaw) != f.Digest(*responseDigest) {
+			if rv.Input.SchemaVersion != c.ToolCallRoundSchemaVersion && !isLoopRound(r.round) || status == nil && (terminalVersion != nil || reason != nil || terminalEvent != nil || finished != nil) || checkpoint == nil || through != int64(assistantSequence) || responseDigest == nil || c.TriggerInputDigest(responseRaw) != f.Digest(*responseDigest) {
 				return nil, unavailable(nil)
 			}
 			var response mc.ModelResponse
@@ -122,8 +122,9 @@ func loadDirectTextRound(ctx context.Context, x postgres.SQLExecutor, execution 
 		} else if terminalVersion != nil || reason != nil || terminalEvent != nil || responseRaw != nil || responseDigest != nil || finished != nil || checkpoint != nil || through != int64(inputThrough) {
 			return nil, unavailable(nil)
 		}
-	} else {
-		if pending || checkpoint != nil {
+	}
+	if status != nil {
+		if (pending || checkpoint != nil) && !(isLoopRound(r.round) && pending && checkpoint != nil && *status != string(c.Succeeded)) {
 			return nil, unavailable(nil)
 		}
 		if terminalVersion == nil || reason == nil || terminalEvent == nil || finished == nil || *terminalVersion <= startedVersion {
@@ -146,7 +147,7 @@ func loadDirectTextRound(ctx context.Context, x postgres.SQLExecutor, execution 
 			}
 			t.response = &response
 			t.responseBytes = bytes.Clone(responseRaw)
-		} else if responseRaw != nil || responseDigest != nil || through != int64(inputThrough) || !(t.status == c.Cancelled && t.reason == "cancelled" || t.status == c.Failed && (t.reason == "model_failed" || t.reason == "incomplete_response" || t.reason == "runtime_failed")) {
+		} else if (!pending && (responseRaw != nil || responseDigest != nil || through != int64(inputThrough)) || pending && through != int64(assistantSequence)) || !(t.status == c.Cancelled && t.reason == "cancelled" || t.status == c.Failed && (t.reason == "model_failed" || t.reason == "incomplete_response" || t.reason == "runtime_failed")) {
 			return nil, unavailable(nil)
 		}
 		r.terminal = t
@@ -272,7 +273,7 @@ func saveDirectTextTerminal(ctx context.Context, x postgres.SQLExecutor, run *di
 		response = t.responseBytes
 		digest = string(c.TriggerInputDigest(t.responseBytes))
 	}
-	tag, err := x.Exec(ctx, `UPDATE agenteam_execution.rounds SET terminal_status=$3,terminal_version=$4,terminal_reason=$5,terminal_event_id=$6,response=$7,response_digest=$8,finished_at=$9,transcript_through=$10 WHERE id=$1 AND execution_id=$2 AND terminal_status IS NULL`, r.ID.String(), r.ExecutionID.String(), string(t.status), int64(t.version), t.reason, t.eventID.String(), response, digest, t.at.Time(), int64(t.through))
+	tag, err := x.Exec(ctx, `UPDATE agenteam_execution.rounds SET terminal_status=$3,terminal_version=$4,terminal_reason=$5,terminal_event_id=$6,response=CASE WHEN tool_pending THEN response ELSE $7 END,response_digest=CASE WHEN tool_pending THEN response_digest ELSE $8 END,finished_at=$9,transcript_through=$10 WHERE id=$1 AND execution_id=$2 AND terminal_status IS NULL`, r.ID.String(), r.ExecutionID.String(), string(t.status), int64(t.version), t.reason, t.eventID.String(), response, digest, t.at.Time(), int64(t.through))
 	if err != nil {
 		return unavailable(err)
 	}

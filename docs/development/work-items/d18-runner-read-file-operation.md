@@ -66,4 +66,8 @@ Model JSON 为唯一明确端口替身，Execution/Tool authority、CurrentMount
 
 统一 `RunnerDispatcher.Stop/Drain/Joined` 委托原三个 Authority 的同一状态，只用于全局退出，zero-value 不得声称 joined。可选 `RunnerCallLifecycle.CancelCall/JoinCall` 供 Loop 取消单个 Execution 的原 call：完整 binding 必须与最初调度上下文精确匹配；只发出取消信号，并等待原 handoff 的 done 与持久退休。后续另一个 call 不被取消，Unknown owner 保留，不创建新请求或重发；没有本地 owner 不构成数据库已提交的证明。正常 Execute 仍同步等实际 Runner Dispatch 与最终事务返回。
 
+真实消费者接缝补充 `RunnerOutcome.ResultAvailable`：仅投影原已验证 terminal 的持久 payload 引用，command 还须有原 ReportAvailable。命令非零退出或取消但完整 report 存在时仍为 true；已知失败、取消且无载荷或 Unknown 时为 false。该字段不代替读取授权、结果同 Tx 验证或原调用实际 join。Loop 可据此区分无载荷终态与可借出的真实 ToolResult，不构造假结果。
+
+该增量的两个分类测试定向 race 实际 exit0：read/write 有载荷、write 已知发布的 late completion、command 成功/非零/取消完整 report，以及三工具 failure/cancelled/unknown 无载荷与空 observation；两包 vet 与 diff-check 通过。未重复既有完整矩阵，实际 Loop 的 terminal/join 门由 W2 独占实现。
+
 作者适用检查已通过：两个包完整 `go test -race`；新增统一结果检查保留 write 的已知提交与 durable=false/late-error，run 的成功、非零退出、取消及完整 stdout/stderr；全局 stop 不早于原 lookup 返回，逐 call 取消覆盖三种 Runner 且不影响另一个 Execution，Unknown 两次观察仍保留。per-call 增量后定向 `TestRunner* -race` 和两包 vet 实际 exit0。vet 首次报告跨包别名 literal 未写字段名，改为具名字段后通过，未改变行为。这些仍是作者包级测试，真实 PG/WSS/模型组合由 W2/W5 执行；未宣称独立验收或完整 M1 通过。

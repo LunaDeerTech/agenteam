@@ -216,6 +216,15 @@ func (s *directTextState) prepareTerminal(ctx context.Context, run *directTextCa
 			status, reason, through, response = c.Cancelled, "cancelled", roundInputThrough(run.round), nil
 		} else if run.invocation.callError != nil || response == nil {
 			status, reason, through, response = c.Failed, "model_failed", roundInputThrough(run.round), nil
+			if run.toolFailed {
+				reason = "runtime_failed"
+			}
+		}
+		if s.multi != nil && stored.toolPending != nil {
+			if status == c.Succeeded {
+				return fault(f.InvalidState)
+			}
+			through = roundAssistantSequence(run.round)
 		}
 		t := &directTextTerminal{status: status, reason: reason, before: row.summary.Version, version: row.summary.Version + 1, through: through, at: at}
 		if response != nil {

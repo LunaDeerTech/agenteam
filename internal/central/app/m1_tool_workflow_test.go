@@ -57,6 +57,7 @@ func TestM1AppToolWorkflow(t *testing.T) {
 	workAppCheck(t, "m1-owned-address", err)
 	var transport *outboundRuntime
 	v := newExecutionSchedulerAppWith(t, func(d *dependencies, v *executionSchedulerApp) {
+		v.store.observeCommit = m1CommitObserver(t)
 		env := append(guardEnvironment(t, v.root.db), "AGENTEAM_CENTRAL_PUBLIC_ORIGIN="+origin,
 			"AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=5s", "AGENTEAM_CENTRAL_OUTBOUND_CA_FILE="+network.CAFile,
 			"AGENTEAM_CENTRAL_EXECUTION_RUNTIME="+strings.Replace(executionSchedulerAppConfig, "direct-text-v1", "tool-loop-v1", 1),

@@ -25,7 +25,9 @@ ALTER TABLE agenteam_execution.rounds ADD CONSTRAINT execution_round_phase CHECK
    ((schema_version IN(1,4) AND terminal_status='succeeded' AND terminal_reason='completed' AND transcript_through=CASE WHEN round_ordinal=1 THEN 2 ELSE transcript_start END AND response IS NOT NULL AND response_digest='sha256:'||encode(sha256(response),'hex'))
     OR (terminal_status IN('failed','cancelled') AND transcript_through=CASE WHEN round_ordinal=1 THEN 1 ELSE transcript_start-1 END AND response IS NULL AND response_digest IS NULL AND
      ((terminal_status='failed' AND terminal_reason IN('model_failed','incomplete_response','runtime_failed')) OR (terminal_status='cancelled' AND terminal_reason='cancelled')))))
- )) OR (schema_version IN(2,4) AND tool_pending AND checkpoint_at>=created_at AND transcript_through=CASE WHEN round_ordinal=1 THEN 2 ELSE transcript_start END AND terminal_status IS NULL AND terminal_version IS NULL AND terminal_reason IS NULL AND terminal_event_id IS NULL AND finished_at IS NULL AND response IS NOT NULL AND response_digest='sha256:'||encode(sha256(response),'hex'))
+ )) OR (schema_version IN(2,4) AND tool_pending AND checkpoint_at>=created_at AND transcript_through=CASE WHEN round_ordinal=1 THEN 2 ELSE transcript_start END AND response IS NOT NULL AND response_digest='sha256:'||encode(sha256(response),'hex') AND (
+  (terminal_status IS NULL AND terminal_version IS NULL AND terminal_reason IS NULL AND terminal_event_id IS NULL AND finished_at IS NULL)
+  OR (schema_version=4 AND terminal_version IS NOT NULL AND terminal_event_id IS NOT NULL AND finished_at>=checkpoint_at AND ((terminal_status='cancelled' AND terminal_reason='cancelled') OR (terminal_status='failed' AND terminal_reason IN('model_failed','runtime_failed','incomplete_response'))))))
 ) IS TRUE);
 
 -- +goose StatementBegin
@@ -35,10 +37,10 @@ BEGIN
   IF agenteam_execution.project_retirement_allowed(OLD.execution_id::text) THEN RETURN OLD; END IF;
   RAISE EXCEPTION USING ERRCODE='23514', MESSAGE='immutable execution round';
  END IF;
- IF OLD.terminal_status IS NOT NULL OR OLD.tool_pending OR
+ IF OLD.terminal_status IS NOT NULL OR (OLD.tool_pending AND NOT (OLD.schema_version=4 AND NEW.tool_pending AND NEW.terminal_status IN('failed','cancelled') AND ROW(NEW.response,NEW.response_digest,NEW.checkpoint_at,NEW.transcript_through) IS NOT DISTINCT FROM ROW(OLD.response,OLD.response_digest,OLD.checkpoint_at,OLD.transcript_through))) OR
  ROW(NEW.id,NEW.execution_id,NEW.snapshot_id,NEW.start_id,NEW.input_binding_id,NEW.call_id,NEW.input_digest,NEW.context_digest,NEW.schema_version,NEW.content,NEW.digest,NEW.created_at,NEW.round_ordinal,NEW.predecessor_round_id,NEW.transcript_start)
  IS DISTINCT FROM ROW(OLD.id,OLD.execution_id,OLD.snapshot_id,OLD.start_id,OLD.input_binding_id,OLD.call_id,OLD.input_digest,OLD.context_digest,OLD.schema_version,OLD.content,OLD.digest,OLD.created_at,OLD.round_ordinal,OLD.predecessor_round_id,OLD.transcript_start)
- OR NOT ((NEW.terminal_status IS NOT NULL AND NOT NEW.tool_pending) OR (OLD.schema_version IN(2,4) AND NEW.tool_pending AND NEW.terminal_status IS NULL)) THEN
+ OR NOT ((NEW.terminal_status IS NOT NULL AND NOT NEW.tool_pending) OR (OLD.schema_version IN(2,4) AND NOT OLD.tool_pending AND NEW.tool_pending AND NEW.terminal_status IS NULL) OR (OLD.schema_version=4 AND OLD.tool_pending AND NEW.tool_pending AND NEW.terminal_status IN('failed','cancelled'))) THEN
   RAISE EXCEPTION USING ERRCODE='23514', MESSAGE='immutable execution round';
  END IF;
  RETURN NEW;
@@ -155,7 +157,7 @@ BEGIN
  AND e.status=NEW.terminal_status AND r.terminal_status=e.status
  AND e.version=NEW.terminal_version AND r.terminal_version=e.version
  AND e.completed_at=NEW.completed_at AND r.finished_at=e.completed_at
- AND ((r.schema_version=1 AND e.started_at=r.created_at) OR (r.schema_version=4 AND e.started_at<=r.created_at)) AND NOT r.tool_pending
+ AND ((r.schema_version=1 AND e.started_at=r.created_at) OR (r.schema_version=4 AND e.started_at<=r.created_at)) AND (NOT r.tool_pending OR (r.schema_version=4 AND e.status IN('failed','cancelled')))
  AND e.xmin::text::numeric=pg_current_xact_id()::text::numeric % 4294967296
  AND r.xmin::text::numeric=pg_current_xact_id()::text::numeric % 4294967296;
  IF NOT FOUND THEN

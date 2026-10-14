@@ -51,7 +51,28 @@ type runnerObservation interface {
 
 func runnerOutcome(v runnerObservation) RunnerOutcome {
 	phase, outcome, attempted := v.Status()
-	return RunnerOutcome{OperationID: v.OperationID(), AttemptID: v.AttemptID(), Phase: phase, Outcome: outcome, Attempted: attempted}
+	available := false
+	// The original executors/readers validated these immutable references.
+	// Do not infer a payload from a terminal phase: a nonzero command can have
+	// a complete report, while a known failed invocation can have no payload.
+	switch original := v.(type) {
+	case ReadFileOutcome:
+		if original.data != nil {
+			terminal := original.data().terminal
+			available = terminal != nil && terminal.Result != nil
+		}
+	case WriteFileOutcome:
+		if original.data != nil {
+			terminal := original.data().terminal
+			available = terminal != nil && terminal.Result != nil
+		}
+	case RunCommandOutcome:
+		if original.data != nil {
+			terminal := original.data().terminal
+			available = terminal != nil && terminal.ReportAvailable && terminal.Result != nil
+		}
+	}
+	return RunnerOutcome{OperationID: v.OperationID(), AttemptID: v.AttemptID(), Phase: phase, Outcome: outcome, Attempted: attempted, ResultAvailable: available}
 }
 
 func exactRunnerBinding(ctx context.Context, binding tc.ToolCallBinding) (context.Context, error) {

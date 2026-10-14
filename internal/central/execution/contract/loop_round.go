@@ -132,3 +132,5 @@ func DecodeLoopRound(raw []byte) (LoopRound, error) {
 func (LoopRound) Format(w fmt.State, _ rune)   { _, _ = io.WriteString(w, "execution_loop_round") }
 func (LoopRound) LogValue() slog.Value         { return slog.StringValue("execution_loop_round") }
 func (LoopRound) MarshalJSON() ([]byte, error) { return []byte(`"execution_loop_round"`), nil }
+
+func (*LoopRound) UnmarshalJSON([]byte) error { return invalid() }

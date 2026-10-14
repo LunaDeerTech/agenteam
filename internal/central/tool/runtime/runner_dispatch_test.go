@@ -184,8 +184,23 @@ func (a *exactCommandResultExecution) DiscoverCommittedRunCommandCallFor(_ conte
 }
 
 func TestRunnerResultPreservesWriteReceiptAndCommandClassification(t *testing.T) {
+	t.Run("read-payload", func(t *testing.T) {
+		_, store, _, original := resultReaderFixture(t)
+		out := runnerOutcome(ReadFileOutcome{data: func() readFileObservation {
+			return readFileObservation{record: store.record, terminal: &store.terminal, result: original}
+		}})
+		if !out.ResultAvailable || out.Outcome != "success" {
+			t.Fatal("persisted read payload not available")
+		}
+	})
 	t.Run("write-known-publication", func(t *testing.T) {
 		_, store, authority, original := writeResultFixture(t, false, writeFileTestCode(p.InternalError))
+		out := runnerOutcome(WriteFileOutcome{data: func() writeFileObservation {
+			return writeFileObservation{record: store.record, terminal: &store.terminal, result: original}
+		}})
+		if !out.ResultAvailable || out.Outcome != "success" {
+			t.Fatal("known write receipt became absent due to late completion code")
+		}
 		write, err := NewWriteFileResultReader(store, &exactWriteResultExecution{authority})
 		if err != nil {
 			t.Fatal(err)
@@ -223,6 +238,12 @@ func TestRunnerResultPreservesWriteReceiptAndCommandClassification(t *testing.T)
 	for _, outcome := range []string{"success", "failure", "cancelled"} {
 		t.Run("command-"+outcome, func(t *testing.T) {
 			_, store, authority, original := commandResultFixture(t, outcome)
+			out := runnerOutcome(RunCommandOutcome{data: func() runCommandObservation {
+				return runCommandObservation{record: store.record, terminal: &store.terminal, result: original, stdout: store.stdout, stderr: store.stderr}
+			}})
+			if !out.ResultAvailable || out.Outcome != outcome {
+				t.Fatal("complete report availability was inferred from command success")
+			}
 			command, err := NewRunCommandResultReader(store, &exactCommandResultExecution{authority})
 			if err != nil {
 				t.Fatal(err)
@@ -255,6 +276,51 @@ func TestRunnerResultPreservesWriteReceiptAndCommandClassification(t *testing.T)
 			})
 			if result.State() != f.Committed || calls != 1 {
 				t.Fatal("command result did not commit")
+			}
+		})
+	}
+}
+
+func TestRunnerOutcomeWithoutPayloadNeverInventsResult(t *testing.T) {
+	for _, v := range []runnerObservation{ReadFileOutcome{}, WriteFileOutcome{}, RunCommandOutcome{}} {
+		if runnerOutcome(v).ResultAvailable {
+			t.Fatal("empty observation invented a result")
+		}
+	}
+	for _, outcome := range []string{"failure", "cancelled", "unknown"} {
+		t.Run(outcome, func(t *testing.T) {
+			code := string(p.InternalError)
+			if outcome == "cancelled" {
+				code = string(p.CancelledCode)
+			} else if outcome == "unknown" {
+				code = ""
+			}
+			_, read, _, _ := resultReaderFixture(t)
+			read.terminal.Outcome, read.terminal.Code, read.terminal.Result = outcome, code, nil
+			read.record.Phase, _, _ = read.terminal.phases()
+			_, write, _, _ := writeResultFixture(t, true, nil)
+			write.terminal.Outcome, write.terminal.Code, write.terminal.Result = outcome, code, nil
+			write.record.Phase, _, _ = write.terminal.phases()
+			_, command, _, _ := commandResultFixture(t, "success")
+			command.terminal.Outcome, command.terminal.Code, command.terminal.Result, command.terminal.ReportAvailable = outcome, code, nil, false
+			command.record.Phase, _, _ = command.terminal.phases()
+			if read.terminal.validate(read.record) != nil || write.terminal.validate(write.record) != nil || command.terminal.validate(command.record) != nil {
+				t.Fatal("invalid no-payload terminal fixture")
+			}
+			observed := []runnerObservation{
+				ReadFileOutcome{data: func() readFileObservation { return readFileObservation{record: read.record, terminal: &read.terminal} }},
+				WriteFileOutcome{data: func() writeFileObservation {
+					return writeFileObservation{record: write.record, terminal: &write.terminal}
+				}},
+				RunCommandOutcome{data: func() runCommandObservation {
+					return runCommandObservation{record: command.record, terminal: &command.terminal}
+				}},
+			}
+			for _, v := range observed {
+				got := runnerOutcome(v)
+				if got.ResultAvailable || got.Outcome != outcome || got.OperationID != v.OperationID() || got.AttemptID != v.AttemptID() {
+					t.Fatal("no-payload terminal changed identity, classification, or availability")
+				}
 			}
 		})
 	}

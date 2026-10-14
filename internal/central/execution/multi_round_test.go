@@ -2,6 +2,7 @@ package execution
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"reflect"
 	"testing"
@@ -10,6 +11,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/agentloop"
 	c "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
 	tc "github.com/LunaDeerTech/agenteam/internal/central/tool/contract"
 )
@@ -115,4 +117,91 @@ func TestMultiRoundResultIdentityUsesActorSemantics(t *testing.T) {
 	if sameLoopResultBinding(a, b) {
 		t.Fatal("changed Attempt admitted")
 	}
+}
+
+type loopJoinControl struct {
+	cancelled, joined int
+	joinErr           error
+}
+
+func (*loopJoinControl) Execute(context.Context, tc.ToolCallBinding) (tc.RunnerOutcome, error) {
+	panic("must not redispatch")
+}
+func (*loopJoinControl) Lookup(context.Context, tc.ToolCallBinding) (tc.RunnerOutcome, bool, error) {
+	panic("join cannot invent durable result")
+}
+func (*loopJoinControl) Stop()                       { panic("must not stop another Execution") }
+func (*loopJoinControl) Drain(context.Context) error { panic("must not drain another Execution") }
+func (*loopJoinControl) Joined() bool                { panic("global Joined is not a call proof") }
+func (v *loopJoinControl) CancelCall(ctx context.Context, _ tc.ToolCallBinding) error {
+	v.cancelled++
+	return ctx.Err()
+}
+func (v *loopJoinControl) JoinCall(ctx context.Context, _ tc.ToolCallBinding) error {
+	v.joined++
+	if ctx.Err() != nil {
+		return ctx.Err()
+	}
+	return v.joinErr
+}
+
+func TestMultiRoundCancelRetainsExactUnknownJoin(t *testing.T) {
+	run := runtimeCandidate(t, "unused")
+	run.terminal = nil
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	run.ctx = ctx
+	original := f.NewFault(f.CommitUnknown, f.Unknown)
+	runner := &loopJoinControl{joinErr: original}
+	state := &directTextState{multi: &multiRoundState{dispatch: runner}, calls: map[i.ExecutionID]*directTextCall{run.request.ExecutionID: run}}
+	run.owner = state
+	_, err := state.finishLoopDispatch(run, tc.ToolCallBinding{}, context.Canceled)
+	if !directTextUnknown(err) || runner.cancelled != 1 || runner.joined != 1 || run.unresolved == nil || run.uncertainty != "loop-dispatch" || run.terminal != nil || state.calls[run.request.ExecutionID] != run {
+		t.Fatal("cancel signal retired an unresolved Tool owner")
+	}
+	_, err = state.finishLoopDispatch(run, tc.ToolCallBinding{}, context.Canceled)
+	if !directTextUnknown(err) || runner.cancelled != 2 || runner.joined != 2 || run.terminal != nil {
+		t.Fatal("repeated observation converted Unknown to retirement")
+	}
+}
+
+func TestMultiRoundKnownReceiptCannotBypassOriginalJoin(t *testing.T) {
+	run := runtimeCandidate(t, "unused")
+	run.terminal = nil
+	run.ctx = context.Background()
+	runner := &loopJoinControl{joinErr: f.NewFault(f.CommitUnknown, f.Unknown)}
+	state := &directTextState{multi: &multiRoundState{dispatch: runner}, calls: map[i.ExecutionID]*directTextCall{run.request.ExecutionID: run}}
+	run.owner = state
+	// No ResultAuthority/Store is bound: reaching either would panic or prove
+	// that a durable receipt was mistaken for actual owner retirement.
+	_, err := state.continueLoopTool(context.Background(), run, tc.ToolCallBinding{}, tc.RunnerOutcome{Phase: "succeeded", Outcome: "success"})
+	if !directTextUnknown(err) || runner.joined != 1 || runner.cancelled != 0 || run.unresolved == nil || run.next != nil || run.terminal != nil {
+		t.Fatal("known receipt bypassed original retained owner")
+	}
+}
+
+func TestMultiRoundClassifiesOnlyActualPayloadAvailability(t *testing.T) {
+	for _, tc := range []struct {
+		name, phase, outcome                            string
+		available, wantPayload, wantCancel, wantUnknown bool
+	}{
+		{"success payload", "succeeded", "success", true, true, false, false},
+		{"command nonzero with report", "failed", "failure", true, true, false, false},
+		{"command cancelled with report", "cancelled", "cancelled", true, true, false, false},
+		{"read failure without payload", "failed", "failure", false, false, false, false},
+		{"write failure without payload", "failed", "failure", false, false, false, false},
+		{"command no report", "failed", "failure", false, false, false, false},
+		{"cancel no report", "cancelled", "cancelled", false, false, true, false},
+		{"unknown result never retires", "failed", "unknown", false, false, false, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			err := loopPayloadGate(toolOutcome(tc.phase, tc.outcome, tc.available))
+			if (err == nil) != tc.wantPayload || errors.Is(err, context.Canceled) != tc.wantCancel || directTextUnknown(err) != tc.wantUnknown {
+				t.Fatal("terminal classification lost actual payload/cancel/Unknown facts")
+			}
+		})
+	}
+}
+func toolOutcome(phase, outcome string, available bool) tc.RunnerOutcome {
+	return tc.RunnerOutcome{Phase: phase, Outcome: outcome, ResultAvailable: available}
 }
