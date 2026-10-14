@@ -49,3 +49,5 @@ root 授权在本树三文件并行：runner_tools 写 Runner TLS/原进程 Wait
 第二轮 `9dc2517d` / `run.ydJ1Du` 越过种子，40 秒后未完成；第三轮 `03dc864e` / `run.Gu1glT` 取得具体安全状态：原 Scheduler 已领取并 Launch，Task 为 in_progress/version 3，Execution 停在 preparing/version 2，Preparation fence 1 terminal，尚无 Execution snapshot/round/Model invocation/Tool operation，Provider 收到 0 请求。目标 ProjectRunner 已退出，原错误为 INTERNAL_ERROR/not_committed。每轮 outer Wait 1 和固定资源精确清理均完成。
 
 terminal preparation 可表示合法捕获，因此根因暂只定位到准备至首轮启动之间。下一诊断增加 preparation_inputs、Model resolution/snapshot 数量，以及测试自有原 Store 返回处的限量 SQLSTATE/约束名观察，不记录 SQL、参数、错误 Detail 或 payload。下一候选同时纳入 Tool `8d09a1ea` / Execution `baf64e2a`（均已冻结），integration 编译退出 0，原生链尚未通过。
+
+第四轮 `9a31dd1e` / `run.droHjN` 用上述元数据在 5.75 秒定位明确错误：`execution-direct-text-start` 原事务报 `DATABASE_SQL_FAILED`，SQLSTATE `42P08`。真实 preparation_inputs、Model resolution committed 和 Model snapshot 均已存在，故捕获成功，失败点在首轮启动 SQL 参数类型推断；由 Execution owner 修复。Provider 请求仍为 0。原 Wait 1 和三层精确资源清理完成，失败证据保留。

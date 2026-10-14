@@ -218,7 +218,10 @@ func insertDirectTextEntry(ctx context.Context, x postgres.SQLExecutor, e i.Exec
 	if err != nil {
 		return err
 	}
-	tag, err := x.Exec(ctx, `INSERT INTO agenteam_execution.transcript_entries(execution_id,sequence,round_id,kind,message,digest,created_at,loop_entry) VALUES($1,$2,$3,$4,$5,$6,$7,(SELECT schema_version=4 FROM agenteam_execution.rounds WHERE execution_id=$1 AND id=$3))`, e.String(), sequence, round.String(), kind, raw, string(c.TriggerInputDigest(raw)), at.Time())
+	// Bind the reused identifiers as text explicitly: PostgreSQL otherwise
+	// infers the assignment's safe_id domain and the predicate's base type
+	// differently for the same parameter (42P08).
+	tag, err := x.Exec(ctx, `INSERT INTO agenteam_execution.transcript_entries(execution_id,sequence,round_id,kind,message,digest,created_at,loop_entry) VALUES($1::text,$2,$3::text,$4,$5,$6,$7,(SELECT schema_version=4 FROM agenteam_execution.rounds WHERE execution_id=$1::text AND id=$3::text))`, e.String(), sequence, round.String(), kind, raw, string(c.TriggerInputDigest(raw)), at.Time())
 	if err != nil {
 		return unavailable(err)
 	}

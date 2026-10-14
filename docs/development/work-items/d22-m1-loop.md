@@ -34,3 +34,5 @@
 取消增量：复用原run context/Project/App Stop，经精确RunnerCallLifecycle.CancelCall/JoinCall观察原Tool owner；信号不等于退出，Unknown继续保留Execution/Tool owner。schema4终态允许在确认原Tool已返回后保留原pending ToolCall及assistant bytes，失败/取消最终快照为空，共享lease仍经原终态事务释放。普通限定测试与连续两次Unknown不退休回归已通过；真实App取消/数据库约束待W5组合。未新增Human持久RequestCancel、取消HTTP或按钮，正式用户取消入口属于M2未交付范围。
 
 known Tool receipt还须通过精确JoinCall才能借结果/构造后继；新增回归证明数据库succeeded元数据不能越过原Unknown owner。无载荷失败/取消由Tool `8d09a1ea` 的ResultAvailable权威投影判断，有完整报告的command非零/取消仍作为真实ToolResult进入后继；无报告终态正确失败/取消，不以InvalidState永久卡住。相应分类回归和限定旧行为ordinary exit0；等待W5冻结下一次原生组合。
+
+首次真实 App 组合已通过迁移、Scheduler Launch、Preparation 和 Model snapshot；首 Start 在 Transcript INSERT 报 SQLSTATE `42P08`，没有实际发出 Model 请求。新 loop_entry 子查询重复使用赋给 safe_id 域的参数，产品 SQL 现显式统一为 text，保留目标域检查及原 Transcript bytes；真实 PG 修复结论待下一组合。取消/结果冻结片 `baf64e2a` 已独立限定 race 6 top /16 sub exit0、无 must-fix，不代替真实取消联调。
