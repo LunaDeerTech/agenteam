@@ -60,3 +60,19 @@ Knowledge `5d65c0a3` 的 `index_resolution_lookup.go`、`index_model.go`、`inde
 证据限制：上述 generation authority 是受控 fixture；未接受真实 Knowledge/Memory 当前权限、ProcessGuard 停止竞争或 App 装配，也未把 release 的物理 CommitUnknown 扩称 retain 的物理 CommitUnknown 已测。升级测试六个 SQL 负例实际通过，但 `released missing version` 同时缺 `released_at`，不能单独归因到版本约束；生产 SQL 明确要求非空 released_version，属非阻断的测试归因限制，已通知作者。本次没有发现需要扩大全 Model、全 M3 或 GC 的理由。
 
 本次只追加本文，未运行 Go、PG/native、模型 API 或修改作者文件；检查了报告链接目标、末尾换行及空白。所有只读命令已退出，无后台资源，停止写入交 root 保存。
+
+## MCP OAuth Secret 与 media 追加静态审查
+
+2026-10-14；固定输入 `/workspace/agenteam-m3-model` 的 `359c4ff6`，仅审 OAuth Secret 组 `ee649cc1`、`41221049`、`468b0e69`，Project `7b34f95a` / Model `3ffa`，Audit `529f9c13` / Model `9b7f9648`，以及 media `66640c00`。**本次有界无 must-fix；结论只覆盖 Secret 技术写口、Project/Audit 窄路由和文本 tool profile 的媒体前置拒绝，不接受实际 MCP OAuth 交换、刷新或整个 M3。**
+
+- `secret/contract/mcp_oauth_write.go:47` 将 SecretService、Project、connection/config revision、flow/token owner、command、CAS 与材料摘要绑定；Account owner 闭集未扩大。`secret/mcp_oauth_write.go:123` 拒绝外来或另一 writer 的 sealed handle，Prepare 后只保留封存值和无材料 request。Apply 在同 Store 事务中先核完整 Secret command/control/Project/credential 锁及领域依赖锁，再调用领域写授权，之后才读 receipt 或更新值；更新/删除仍检查 MCP purpose、精确版本，删除仍检查引用与活跃 lease。公开 DTO 和 Service actor 本身不授写权。
+- `audit/service.go:243` 仅把项目内 SecretService 的 create/update/delete 委托给必需的 Project checker，generic `serviceOwns` 保持原义。`project/audit_facts.go` 仍核 actor/project、原 Project 共享锁和当前 initialized/active 状态，原 context/Tx/Entry/Key 透传到 Secret。`secret/project_audit.go:74` 与 `mcp_oauth_write.go:197` 再核同 Store/Tx 的私有写证明、command/receipt/版本与 canonical postimage，错误 MCP marker 不回退到 Human 路径。对应纯测试覆盖裸技术 actor、错 Tx/store/receipt/command、缺锁以及 archiving/archived/deleting/uninitialized Project 的拒绝。
+- `secret/mcp_oauth_write.go:148` 的 Observe 只接受原 sealed handle，先核完整锁，再调用独立 Observation authority，并解封比对原 receipt；没有 Prepare、Apply、ledger mutation 或 HTTP 路径。取消后只读原结果不等于写授权；真实领域仍必须实现私有原 owner 与 before/after 持久事实核验，不能只返回成功。
+
+直接核对 `.agent-state/m3-model-runtime/oauth-secret/result.txt`、原 `output/m3-model-checks/oauth-native-02.log` 与 `tests/model/mcp_oauth_write_test.go`：56569 原 actual_wait=0，SealedWrite 5.47 秒、RealCommitUnknown 10.01 秒，D03/D04/D05 三项 exact cleanup。前者真实调用 Account 当前 session、Project owner gate、Secret/Audit，覆盖 create/update/delete 的 3 receipt / 3 Audit / 0 Model call，以及裸 DTO、缺锁 poison、外层 rollback、stale CAS、取消后 Observe 与 Apply 拒绝。领域私有意图、process/config revision/owner 映射来自受控 fixture，未冒领真实 MCP authority。
+
+Unknown 两分支均在原外层事务的 Secret/receipt/领域 postimage 已写入后才 arm：一支不转发最终 COMMIT，另一支只丢弃已收到的 COMMIT+idle ACK；独立连接取得原完整锁确认 writer 已退出，再用同一 handle 观察 false/true。前后检查的是领域行 xmin/state/credential/version、Secret/receipt 数量和 Model call 数，不是全部账本逐行摘要。核心 Observe 的只读实现与这些检查共同支持本端口无再写/再 dispatch；物理 Unknown 仅覆盖 create，未扩称 update/delete、实际 token HTTP 计数或冷启动恢复已测。36560 的原 `oauth-native-01.log` 明确 Wait1，create 审计失败且两子例未到 arm，未算入成功证据。
+
+`model/runtime_tools.go:25` 对文本 tool profile 的 File/Image result 返回 CapabilityUnsupported；`runtime_attempt.go:131` 的调用顺序在 consumer discovery、Usage 获取与 wire 准备之前，原 canonical parts/business refs 不被改写。`runtime_tools_test.go:159` 覆盖 File/Image 的 BeginChat nil handle、零 consumer/IO、引用保留和 Drain/Joined；复用 10458 原 race Wait0 及旧 tools/auto 结果，不重跑。这里不提供媒体投影、对象读取或多模态模型消费能力。
+
+本次仅追加本文，未执行 Git、Go、PG/native 或外部 API，未改实现、测试或其他文档。检查报告链接、空白和末尾换行后冻结；所有只读命令已退出，无后台资源，交 root 保存。

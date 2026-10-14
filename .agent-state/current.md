@@ -11,15 +11,17 @@ M3 按共同基线 `d9356e09` 建立六个功能工作树，后续另建选型�
 | `ai/m3-mcp` | `/workspace/agenteam-m3-mcp` | `m3_mcp`：MCP Connection、发现、Tool/Resource；已恢复实现，准备 Owner Connection 与 Agent/Resource 真实 App 链 |
 | `ai/m3-meeting` | `/workspace/agenteam-m3-meeting` | `m3_meeting`：Session/Turn/Contribution、provider、Runtime 与执行控制 |
 | `ai/m3-integration` | `/workspace/agenteam-m3-integration` | `m3_integration`：App/Tool/Executor/身份共享契约、组合 harness |
-| `ai/m3-model` | `/workspace/agenteam-m3-model` | `m3_model`：Model Embeddings、structured Runtime 与 serving retention；限定真实退休及 OAuth Secret 写入/Unknown 门已过，完成媒体小组后转 Skills |
+| `ai/m3-model` | `/workspace/agenteam-m3-model` | `m3_model`：Model Embeddings、structured Runtime、serving retention 与 OAuth Secret 限定门已过，检查点停写；现已转 Skills |
 | `ai/m3-retrieval-selection` | `/workspace/agenteam-m3-retrieval-selection` | `m3_retrieval_selection`：D13 固定词法/dense/RRF 比较已保存并停写；基线 `a1ce6f1b` |
 | `ai/m3-knowledge-validation` | `/workspace/agenteam-m3-knowledge-validation` | `m3_knowledge`：固定 App 首链验证，运行期间源码不漂移 |
-| `ai/m3-meeting-ui` | `/workspace/agenteam-m3-meeting-ui` | `m3_memory_tools`：Meeting HTTP/UI 已阶段保存；实际 Owner 浏览器链已过，Agent busy 范围单列 |
-| `ai/m3-skills` | `/workspace/agenteam-m3-skills` | 后继 `m3_model`：准备中，尚未写入；动态 Skills 原工具入口与相关 Runner 接缝 |
+| `ai/m3-meeting-ui` | `/workspace/agenteam-m3-meeting-ui` | `m3_meeting`：已从 Memory owner 正式接手；实际 Owner 浏览器链已过，继续 Meeting 控制与 Decision UI |
+| `ai/m3-skills` | `/workspace/agenteam-m3-skills` | `m3_model`：已开始实现动态 Skills 原工具入口、分配与下一轮输入及相关 Runner 接缝 |
 
-当前为实现、公共接线与限定真实验证阶段，整链和 M3 未验收。Knowledge 的实际 canonical Object→两次真实 Embedding→4096 维 serving generation 与原 App/Guard 退出已通过，Scheduler→query-doc/read-doc→后继引用正在固定候选验证。Memory 的真实 PG current revision/shared RRF/跨 Execution 命名空间过滤已过，generation 与长期 snapshot 保留现接 App，真实工具和模型组合待验证。MCP 官方 SDK 的真实 TLS 协议四子项已过，App 已接统一审批执行、Resource capture、Secret lease 退休与 HTTP；文本 Resource canonical 读取投影已作纯测待真实 Object 验证；实际 Agent、OAuth 连接协议及媒体完整链仍未完成。Meeting 实际 Owner 浏览器完成列表/新建/详情/发送/原 lookup/刷新，限定于 Agent busy；原首轮工具选择已按 captured Meeting 改为 auto（Task 仍 required），两 Agent 与普通文本 Summary 的首真实 App 链已通过；恰好 3 次受控模型 HTTP、3 个 Model/Secret 原 owner 退休及原 App 退出，完整控制/Decision 仍待。
+当前为实现、公共接线与限定真实验证阶段，M3 未完成。Knowledge 的真实外部模型链已通过：canonical Object→4096 维 serving generation→正常 Scheduler→query-doc→精确版本 read-doc→原 ToolResult 被后继 sent/succeeded 模型消费并输出来源引用。Memory 的受控模型完整首链已通过：4 个 Scheduler Execution、5 个 Tool、6 个 Memory Model，覆盖 retain、跨 Execution recall、只读 reflect、跨 Agent 隔离和 Owner 删除后的排除。Meeting 的受控模型首链已通过 Owner Start→两 Agent 顺序贡献→普通文本 Summary，B 的实际输入含 A 发言；另有 Agent busy 范围的真实 Owner 浏览器链。三条链均取得原进程 Wait0、App/Guard/owner 退出及独立 fixture 精确清理。
 
-Model 同一 v2 snapshot 的真实 64/64/8 共 136 个 Embedding、4096 维及原 Usage/Secret/Join 收尾已过；长期 serving retention 的真实受控调用、两个 generation 独立引用、填充数据升级和两个真实 CommitUnknown 分支均有限通过，仍须 Knowledge/Memory 实际业务接入。OAuth Secret 的 create/update/delete、CAS、回滚与两个真实 CommitUnknown 分支已在独立受控 fixture 通过，未外推 MCP OAuth 协议。retention 独审已保存；后继 Secret/Audit 窄审由 `m3_core_review` 维护[独立报告](../docs/development/work-items/m3-core-independent-review.md)。
+Knowledge 继续长期 serving retention、worker/恢复与有界 parser；Memory 继续模型 profile 切换与恢复；Meeting 继续完整控制、Decision 与 UI。MCP 官方 SDK 的真实 TLS 协议已过，真实 Owner Connection 首测发现可选 lease 编码缺陷，作者按原场景返修；App 已接统一审批执行、Resource capture、Secret lease 退休与 HTTP，但 Agent Tool/Resource、OAuth 交换刷新和媒体完整链仍未通过。首链结果不替代这些剩余接受出口。
+
+Model 同一 v2 snapshot 的真实 64/64/8 共 136 个 Embedding、4096 维及原 Usage/Secret/Join 收尾已过；长期 serving retention 的受控调用、两个 generation 独立引用、填充数据升级和两个真实 CommitUnknown 分支均有限通过，Memory 首链已实际消费，Knowledge 接入仍在进行。OAuth Secret 的 create/update/delete、CAS、回滚与两个真实 CommitUnknown 分支已通过。retention 及后继 Secret/Audit 有界独审已完成，无该审查范围的 must-fix；[独立报告](../docs/development/work-items/m3-core-independent-review.md)不接受 MCP OAuth 交换、刷新或冷恢复，也不把显式媒体拒绝记成媒体消费。
 
 D13 固定词法与融合比较及先前离线独审已保存。用户关于默认 dense 或继续原 hybrid 范围的决定尚未到达，架构和默认选择保持原合同；显式 `native_pg_fts` 仅用于限定首链。动态 Skills 的 list/read/install 已安排后继 writer，PDF 有界解析及本阶段相关 Runner 接口仍是 M3 待完成包，不将全 D22 欠账无界并入。
 
