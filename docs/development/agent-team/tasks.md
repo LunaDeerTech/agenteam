@@ -10,11 +10,11 @@ M1 与 M2 仍按原范围正式接受并已交付 main。M2 正常 Scheduler 下
 | --- | --- | --- |
 | M3 集成与整体契约 | `m3_integration` / `ai/m3-integration`，生产 App/统一 Tool/Executor 接线进行中 | 审批和原资源 Join、连续迁移及真实组合；整体未验收。 |
 | M3 知识检索与引用 | `m3_knowledge`，真实外部模型索引与 Scheduler→query-doc→versioned read-doc→后继引用首链已过 | App serving retention 已过；继续 worker 自动索引、恢复、PDF 与完整 parser/UI 接受出口。 |
-| M3 Memory | `m3_memory_tools` / `ai/m3-memory`，受控首链及后继 profile 切换已过；原 generation 引用、跨 Agent 隔离与 Owner 删除保持 | 受限恢复、未退休 Model call 的共同恢复口与必要浏览器验证。 |
+| M3 Memory | `m3_memory_tools` / `ai/m3-memory`，受控首链、profile 切换及 Owner 浏览器列表/历史/删除/原 lookup/刷新已过 | 已提交 retain 的原 Builtin running 冷观察及未退休 Model call 的共同恢复口。 |
 | M3 领域工具与相关 Runner 扩展 | 各领域 owner 负责 adapters，integration 负责原 Runtime/授权装配；`m3_model` 已在 `ai/m3-skills` 开始动态 Skills | 原安装账本、list/read/assign/prepare、下一轮输入及必要 Runner 支持；不并入全部 D22 欠账。 |
-| M3 MCP | `m3_mcp` / `ai/m3-mcp`，SDK v1.8.0 真实 TLS 与 Owner Connection/Registry 控制面已过；公共结果 SQL 已过，Agent Secret 审计路由窄修待复验 | App 统一调用的真实 Agent；canonical 文本 Resource 投影、OAuth 与媒体消费仍未完。 |
+| M3 MCP | `m3_mcp` / `ai/m3-mcp`，SDK v1.8.0 真实 TLS 与 Owner Connection/Registry 控制面已过；公共结果 SQL 与 Agent Secret 审计窄修后远端 Tool 实际调用已过 | Resource pending 后 Object 保存断点、canonical 正文链、OAuth 与媒体消费仍未完。 |
 | M3 Meeting | `m3_meeting` / `ai/m3-meeting`，真实 App 两 Agent→Summary及Decision answer/skip/cancel分轮通过，原资源退出齐 | 继续完整 controls、Approval、retry/regenerate、Summary固定snapshot与恢复；首链不代完整接受。 |
-| M3 Meeting HTTP/UI | `m3_meeting` / `ai/m3-meeting-ui`，已正式接手 Memory owner 的已保存入口与真实 Owner 浏览器结果 | 已过列表/详情/新建/发送/原 lookup/刷新，限定 Agent busy；继续控制与 Decision UI。 |
+| M3 Meeting HTTP/UI | `m3_meeting` / `ai/m3-meeting-ui`，已正式接手 Memory owner 的已保存入口与真实 Owner 浏览器结果 | 真实三 turn Decision answer/原 lookup、skip、cancel、archive/restore及同 E 结果/Summary已过；继续完整控制与来源入口。 |
 | M3 Model 公共依赖 | `m3_model` / `ai/m3-model` 检查点停写；真实 136 个 Embedding、serving retention/Unknown/填充数据升级及 OAuth Secret 限定门已过 | Memory 首链及 Knowledge generation pin 链已消费；原 owner 已转 Skills，不外推完整 MCP OAuth/media。 |
 | D13 检索选型 | `m3_retrieval_selection` 已完成固定词法/dense/RRF 比较并停写 | `m3_core_review` 离线独审已完成并保存；用户默认检索范围决定尚待，不擅改原 hybrid 合同。 |
 | 已知后续完善事项 | 未排期；原 R1–R5/M4 不作为当前派工路线 | M3 完成后重评旧页体验、完整 Lifecycle/架构覆盖及生产运行缺口。 |
@@ -25,7 +25,7 @@ M1 与 M2 仍按原范围正式接受并已交付 main。M2 正常 Scheduler 下
 
 当前源码与较新正式结果已覆盖部分旧表中的 unbound：Project 创建已接真实 Skills/Object 初始化，Agent 配置/Task 指派与真实 Model/ToolLoop/Scheduler 已形成 M1/M2 组合，变量/Secret、Mount 与初始 Skills 已被执行装配消费。D13 候选词法与固定 dense leg/RRF 比较已完成，生产默认范围与最终选型仍待决定，见[当前检索卡](../work-items/d13-lexical-benchmark.md)。下方历史行保持原输入的事实，不能据其旧描述重建已存在功能，也不能据新链扩大完整模块接受。
 
-当前三条首链及 Knowledge App retention、Memory profile 切换、Meeting Decision 三分支均按各自固定输入通过，原 App/Guard/资源退出完整；旧失败不回写。Knowledge 同一 worker 已接 App 生命周期，自动初始化/更新真实链与 parser 继续。00123公共 SQL 修正已真实 PG 通过，00124 Knowledge profile 与00125 Skills ToolCall闭集正在共同候选验证；Skills首安装此前被检查点拒绝，原安装账本及下一轮消费仍待首链。MCP Owner Connection 控制面已通过，Agent Secret审计路由窄修后继续真实 Tool/Resource，OAuth/media 未完成。Model原未退休call共同恢复与Meeting Summary固定snapshot仍未完；Secret/Audit窄审不代OAuth协议。main仅更新协调摘要，产品候选继续留在各功能分支，不将这些流程扩大为完整M3接受。
+当前三条首链、Knowledge App retention、Memory profile切换和Owner浏览器、Meeting Decision三分支及三turn浏览器均按固定输入通过，原App/Guard/资源退出完整；旧失败不回写。Knowledge自动worker与reader已接，实际Resolve/pin通过后首job在KnowledgeRuntime Object读取形状被拒，正在补精确对象授权。00123/125实际PG合法与拒绝门已过；Skills安装与Owner分配成功，后继list/read的Ordinary注册被误送Core门，定向修复后继续正文消费。MCP远端Tool已实际调用，Resource停在pending后的Object保存，OAuth/media未完成。已提交retain的Builtin冷观察和未退休Model call共同恢复仍待正式停止证明，不能用领域重建代替。
 
 ## 当前验收与推进边界
 
