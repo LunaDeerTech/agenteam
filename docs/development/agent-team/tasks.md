@@ -2,21 +2,21 @@
 
 ## 当前目标与工作包状态
 
-2026-10-14 本轮完成产品完整性梳理与路线修订，依据 `d3e723d4` 的正式文档、当前装配及限定界面观察，见[产品完整性复核](../work-items/product-readiness-review.md)。当前重点是核心用户旅程、架构真实绑定与完整交付出口；信息层级和反馈恢复随功能共同验收。目标、依赖及 R1–R5 出口只在[开发计划](../development-plan.md#当前五个工作包)维护，本轮没有实施这些新工作包。
+2026-10-14 用户最新决定：**先继续原定 M3；M4 暂时废弃为当前里程碑，M3 完成后重新评估缺口并继续完善，不自动进入交付阶段。** 当前五条功能线与依赖只在[开发计划](../development-plan.md#当前五个工作包)维护。全面既有页面改造不再优先于 M3；已安装设计技能、信息层级和反馈要求随本次新增/改动功能适用。此前[完整性复核](../work-items/product-readiness-review.md)的缺口与证据保留，本次路线调整不新增产品通过结论。
 
 M1 与 M2 仍按原范围正式接受并已交付 main。M2 正常 Scheduler 下 worker 发布 Artifact、reviewer 读取原成果、Human 退回同 Task 新 E 修订后再读接受，以及限定审批、持久取消、必要恢复、原投影/历史与退出门均保持；不外推自主审核决定、完整恢复或全系统 ready。实际合同与证据见 [M1 集成卡](../work-items/m1-app-integration.md#当前真实模型验收)、[M2 工作卡](../work-items/m2-task-collaboration.md)及[独立审查](../work-items/m2-independent-review.md)。M2 六个工作树、分支及本机跟踪引用已收尾；原证据和资源信息继续见[当前恢复索引中的 M2 记录](../../../.agent-state/current.md#上一任务m2-已正式交付任务收尾完成)。
 
 | 工作包 | 当前状态与负责人 | 下一就绪结果 |
 | --- | --- | --- |
-| 产品完整性复核 | **已完成梳理与路线修订**；三路审计，readiness_plan_writer 唯一文档写者，root 负责 Git 交付 | 按本表派发后续实现；本轮静态/界面观察不新增产品功能 PASS。 |
-| 前端设计技能准备 | 已安装两项项目适配技能，来源和静态检查见[技能来源](skill-sources.md#前端设计与-ux-审查技能)；UX 已实际应用复核原观察 | 后续 R1 按任务引用；不宣称 CLI 自动加载或产品体验已通过。 |
-| R1 核心旅程与界面落实 | 待开始；实现 owner 尚未派发 | 先完成 Task→Execution→Artifact→审核/退回的层级与状态设计，连同配置可理解性组合真实旅程。 |
-| R2 知识、检索与记忆 | 待开始；沿原 D13 工作项接续，owner 尚未派发 | 复用 native PG 候选与固定语料，完成剩余有界比较、索引及引用第一条链。 |
-| R3 执行与协作能力补齐 | 待开始；按领域独立派发 owner | 先明确工具覆盖与 App consumer，再按就绪契约分派 Skills 下一轮生效、领域工具、Meeting/MCP/Realtime 等子链。 |
-| R4 完整生命周期与架构覆盖 | 待开始；participant 与集成 owner 尚未派发 | 核对已有实现，给各域 stop/cleanup/引用退休与真实 Registry 的组合规格。 |
-| R5 系统发布与运行交付 | 待开始；发布/运行 owner 尚未派发 | 核实生产装配与 SPA 停项恢复条件，明确发布、升级、观测与数据恢复方案的分片出口。 |
+| M3 集成与整体契约 | 用户已授权继续，准备派工；实际集成 owner/分支由 root 登记 | 明确五条功能线的共同接缝、组合基线、首条真实链与必要验证，后续维护 M3 整体契约卡。 |
+| M3 知识检索与引用 | 沿 D12/D13 接续；本轮尚无新增完成结论 | 复用 native PG 候选及固定语料，完成剩余有界比较并推进索引/查询/引用链。 |
+| M3 Memory | 按 D14 准备与检索共用端口；实际 owner/分支待登记 | Agent 显式 retain、跨 Execution recall 与只读 reflect，保留权限和来源。 |
+| M3 领域工具与相关 Runner 扩展 | 沿现有真实执行基座拆分；实际 owner/分支待登记 | 核当前闭集与 M3 必需能力，补正式 backend、动态 Skills 及实际结果消费。 |
+| M3 MCP | 按 D20 接续；实际 owner/分支待登记 | 固定协议/SDK与真实 Connection/discovery/Tool/Resource 接缝。 |
+| M3 Meeting | 按 D24 接续；实际 owner/分支待登记 | Session/Turn/Contribution 与 Executor 编排、summary 和必要用户投影。 |
+| 已知后续完善事项 | 未排期；原 R1–R5/M4 不再作为当前派工路线 | M3 完成后重新评估全面旧页体验、完整 Lifecycle/架构覆盖及生产发布运行等缺口。 |
 
-历史 W1–W5 交付与限制沿原卡及 Git 历史查询，不与 R1–R5 混作活动派工。M3/M4 新实现未启动，默认 Execution Runtime 仍需显式配置开启；Object/tools/SPA/Jina/Image 原 STOP 的适用范围继续保留。本轮不自动恢复停止项，不以 M1/M2 或未来 M3 的阶段完成推算平台百分比。
+已完成的完整性复核、设计技能准备与 M1/M2 工作不重新开工；来源见[复核卡](../work-items/product-readiness-review.md)和[技能来源](skill-sources.md#前端设计与-ux-审查技能)。历史 W1–W5/R1–R5 沿原卡及 Git 历史查询，不作为当前活动派工。默认 Execution Runtime 仍需显式配置开启；Object/tools/SPA/Jina/Image 原 STOP 保留其适用范围，不因 M3 授权自动解除，不以里程碑数量推算平台百分比。
 
 当前源码与较新正式结果已覆盖部分旧表中的 unbound：Project 创建已接真实 Skills/Object 初始化，Agent 配置/Task 指派与真实 Model/ToolLoop/Scheduler 已形成 M1/M2 组合，变量/Secret、Mount 与初始 Skills 已被执行装配消费。D13 native PostgreSQL FTS 候选已有真实测量，剩余候选、固定 dense leg/RRF 与最终选型仍未完成，见[当前检索卡](../work-items/d13-lexical-benchmark.md)。下方历史行保持原输入的事实，不能据其旧描述重建已存在功能，也不能据新链扩大完整模块接受。
 
