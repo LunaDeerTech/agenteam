@@ -11,6 +11,14 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 )
 
+// NetworkPhase is a closed safe diagnostic projection. The empty value means
+// no specific phase was recorded, not that a request failed before sending.
+type NetworkPhase string
+
+// PhaseResponseHeaders is recorded only when the origin response-header read
+// itself fails. Proxy CONNECT, TLS and body errors never acquire this label.
+const PhaseResponseHeaders NetworkPhase = "response_headers"
+
 type Decision struct {
 	Reason        ac.Reason           `json:"reason,omitempty"`
 	Consumer      ac.Consumer         `json:"consumer"`
@@ -20,6 +28,7 @@ type Decision struct {
 	RedirectCount int                 `json:"redirect_count"`
 	Sent          bool                `json:"sent"`
 	HTTPTraceID   string              `json:"http_trace_id,omitempty"`
+	Phase         NetworkPhase        `json:"phase,omitempty"`
 }
 type networkFailure struct {
 	decision Decision
@@ -32,6 +41,9 @@ func networkError(d Decision, reason ac.Reason, cause error) *NetworkError {
 		reason = ac.InternalError
 	}
 	d.Reason = reason
+	if d.Phase != PhaseResponseHeaders {
+		d.Phase = ""
+	}
 	if d.PolicyVersion != nil {
 		v := *d.PolicyVersion
 		d.PolicyVersion = &v
@@ -67,6 +79,9 @@ func (e NetworkError) MarshalJSON() ([]byte, error) { return json.Marshal(e.Deci
 func (e NetworkError) LogValue() slog.Value {
 	d := e.Decision()
 	fields := []slog.Attr{slog.String("reason", string(d.Reason)), slog.String("consumer", string(d.Consumer)), slog.String("origin", d.Origin), slog.String("address_class", string(d.AddressClass)), slog.Int("redirect_count", d.RedirectCount), slog.Bool("sent", d.Sent), slog.String("http_trace_id", d.HTTPTraceID)}
+	if d.Phase != "" {
+		fields = append(fields, slog.String("phase", string(d.Phase)))
+	}
 	if d.PolicyVersion != nil {
 		fields = append(fields, slog.String("policy_version", d.PolicyVersion.String()))
 	}

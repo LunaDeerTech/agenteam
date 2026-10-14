@@ -77,8 +77,8 @@ if [ "$AGENTEAM_M1_CASE" != live ]; then
   # The unchanged controlled selectors cannot inherit a live credential.
   unset DEV_CHAT_BASE_URL DEV_CHAT_API_KEY DEV_CHAT_MODEL AGENTEAM_M1_LIVE_OPT_IN
 fi
-# Live reads the key only inside the selected test after metadata and original
-# system DNS preflight. Runner/browser child environments exclude DEV_CHAT.
+# Live reads the key only inside the selected test after metadata and formal
+# route qualification. Runner/browser child environments exclude DEV_CHAT.
 printf 'M1 evidence directory: %s\n' "$agenteam_m1_run"
 sh scripts/test-objects.sh -run "$agenteam_m1_selector" >"$agenteam_m1_run/native.log" 2>&1 &
 agenteam_m1_pid=$!

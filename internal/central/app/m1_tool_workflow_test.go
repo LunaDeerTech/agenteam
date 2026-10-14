@@ -141,6 +141,15 @@ func newM1WorkflowConfigured(t *testing.T, observer func(f.TransactionCause, f.C
 			"AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_ATTEMPTS=2", "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_INITIAL_BACKOFF=100ms", "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_BACKOFF=1s")
 		if live == nil {
 			env = append(env, "AGENTEAM_CENTRAL_OUTBOUND_CA_FILE="+network.CAFile)
+		} else {
+			target, err := outbound.ParseTarget(live.BaseURL)
+			workAppCheck(t, "m1-live-configured-origin", err)
+			origins, err := json.Marshal([]string{target.Origin().String()})
+			workAppCheck(t, "m1-live-origin-configuration", err)
+			env = append(env, "AGENTEAM_CENTRAL_OUTBOUND_PROXY_ORIGINS="+string(origins))
+			if caFile, present := os.LookupEnv("AGENTEAM_CENTRAL_OUTBOUND_CA_FILE"); present {
+				env = append(env, "AGENTEAM_CENTRAL_OUTBOUND_CA_FILE="+caFile)
+			}
 		}
 		v.root.cfg = guardConfiguration(t, env)
 		d.outboundConstruct = func(_ context.Context, _ config.Config, actual *outboundRuntime) error {
@@ -148,6 +157,15 @@ func newM1WorkflowConfigured(t *testing.T, observer func(f.TransactionCause, f.C
 				actual.resolver = appFixtureResolver{address}
 			} else if actual.resolver != nil {
 				return fmt.Errorf("live outbound resolver must remain the original system resolver")
+			} else {
+				target, err := outbound.ParseTarget(live.BaseURL)
+				if err != nil {
+					return fmt.Errorf("live outbound target metadata invalid")
+				}
+				proxy, err := actual.routes.UsesProxy(target.Origin())
+				if err != nil || proxy != live.proxyRoute {
+					return fmt.Errorf("live outbound route changed after qualification")
+				}
 			}
 			transport = actual
 			return nil

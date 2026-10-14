@@ -412,7 +412,7 @@ func (a *attempt) roundTrip(req *http.Request) (*exchangeResponse, error) {
 			return nil, err
 		}
 		pc := a.client.takeIdle(a.target.Origin())
-		if pc != nil && !containsAddress(a.addresses, pc.peer) {
+		if pc != nil && !a.matchesConnection(pc) {
 			pc.close()
 			pc = nil
 		}
@@ -530,7 +530,9 @@ func (a *attempt) exchange(req *http.Request, pc *pooledConn) (*exchangeResponse
 			if errors.Is(err, errHeaderLimit) {
 				reason = ac.ResponseLimit
 			}
-			return nil, a.fail(reason, err)
+			decision := a.safeDecision()
+			decision.Phase = PhaseResponseHeaders
+			return nil, networkError(decision, reason, err)
 		}
 		remaining -= len(header)
 		// Preserve prefetched body bytes without layering old readers forever.

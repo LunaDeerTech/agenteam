@@ -1,20 +1,18 @@
-# 当前工作：M1 live 入口准备通过，实际模型验收待条件恢复
+# 当前状态：M1 验收完成，M2 暂停
 
-`tool-loop-v1` 受控主功能已随 `3a00e5a6` 推送 main，上一轮六个临时分支、五个工作树及跟踪引用已清理。本次交付包含已通过独立准备门的显式 live 验收入口；实际外部模型尚未调用，**M1 整目标未完成**。正式保留工作区为 `/workspace/agenteam`，恢复先核实际 Git 状态和活动会话，再读 [live 准备卡](../docs/development/work-items/m1-live-acceptance.md)、[M1 集成卡](../docs/development/work-items/m1-app-integration.md)和[任务台账](../docs/development/agent-team/tasks.md#当前目标与工作包状态)，不依赖已结束执行者或旧临时树。
+M1“单个Agent真正完成工作”的真实外部模型场景已通过。验证源码输入`2d76554dab983a7c9b91f3e367d6fea5a6fb5c94`；`run.OtpjqE`原41322 Wait0，66.76秒。模型自主完成同一work Execution的5轮Model、4次真实read/write/run/read，文件内容、stdout/exit、原Round/Call/Operation/Usage、最终v2同事务均验证；Owner在真实UI三次读取原成果、唯一送审并刷新为in_review。原Runner/Node/App/所有owner Join及精确资源退场完成；macro最终独核已接受，包含11条同请求联合消费证明。评审另有1个sent调用随原Runtime停止而取消，不代表自主评审决策；work成功、total sent6、retry0、failed0。
 
-## 已通过范围与限制
+本轮接通了正式精确Origin可信环境代理（HTTP(S)_PROXY/NO_PROXY/TLS/CA保持），JSON tools仅接受并丢弃已知可选reasoning_content；JSON工具模型的响应头等待对齐原attempt剩余时间且最多60秒，代理CONNECT和其他默认仍15秒。live仍必须显式双opt-in，真实KEY仅经正式Secret且不进入日志/子进程。总300秒、单attempt≤60秒、MaxOutput4096、work/review/retry合计sent12软停止条件不变。此前本地DNS失败是历史直连观察，不能再写成当前代理场景的阻断。
 
-- 受控主功能：显式 `tool-loop-v1`、Model JSON 工具调用、同 Execution 多轮、真实 Runner read/write/run、v2 最终输出及 UI、Owner 唯一送审与刷新、原完整 Join 已限定接受。原 `direct-text-v1`/旧 Snapshot 保留，无新增 UI 配置；Execution 成功不自动完成 Task，review receipt 不代表自主评审。
-- live 准备：`93306a74` 的显式双 opt-in 入口、动态事实和浏览器接缝已通过静审、13 项 fake 准备检查、未启用 live 的明确 SKIP 与编译；受控回归 `run.OyaNNV` 原 Wait 0 / 15.32 秒、三次成果消费/唯一送审/刷新、work5/review2 归属和全部原 Join、资源及链接清理获独立接受。SKIP、fake 检查和受控回归均不计 live PASS。
-- 既有 `run.EW1axd` 正常链、`33009a96` 的失败/原 Runtime 取消与 `fee69b0d` 的旧 direct-text 兼容按固定输入有效复用，不称当前 HEAD 单次全套运行。第九轮 Playwright 观测 FAIL 保留，不推断 native 正文不完整。
-- 准备已完成，但动态 live facts 尚未消费真实 Provider，新预算 observer 的300秒/合计 sent12触发只经静审，未动态验证。sent12包含在途观察，是软停止条件，不是硬调用/计费上限；配置与实际运行门见 [harness](../tests/m1-app-workflow/README.md#显式真实模型入口准备门通过真实调用未实跑)。
-- 2026-10-14 05:50:30 UTC 最近一次资格复核：DEV_CHAT 非秘密 BASE/MODEL 合法，本环境 `/etc/resolv.conf` 原唯一 resolver 对 A、AAAA 均返回 RCODE 3 / NXDOMAIN / answer 0，原 D04 资格仍 blocked。KEY 已从复核命令环境剔除，未读取其值、未发 Model HTTP、未启栈，未改 DNS/Policy 或配置文件。结论仅限本环境 resolver，不判断服务权威端点故障；DNS 阻断只影响实际调用，已完成的本地入口准备不再记为 WIP。
+预算动态门也已通过：纯observer五子例及race、合成work/review/retry SQL计数，以及真实controlled App在deadline触发后原Stop/Drain/根返回、Runner/命令子进程Join和无后继dispatch。合成计数不冒充真实调用；第三次真实live曾触发sent12并cancelled/incomplete，该FAIL与前两次协议FAIL均保留在[live卡](../docs/development/work-items/m1-live-acceptance.md)。代理、TLS/取消、parser/config及响应头窗口已完成作者和独立限定检查；旧受控/失败取消/direct-text兼容按各自固定输入证据复用，不称当前HEAD全仓测试。
 
-## 恢复与下一步
+恢复优先读[live卡](../docs/development/work-items/m1-live-acceptance.md)、[集成卡](../docs/development/work-items/m1-app-integration.md)、[运行说明](../tests/m1-app-workflow/README.md#显式真实模型入口)及[任务台账](../docs/development/agent-team/tasks.md#当前目标与工作包状态)。必要新证据保全在主树`output/ai/m1-delivery-evidence/proxy-live/`，逐文件bytes/SHA256已核，排除KEY、Session/Enrollment私有材料、原Provider响应、binary和cache；此前受控与准备证据保留在相邻app-integration/live-preparation目录。所有本轮原进程、精确容器/网络/临时目录与借用modules链接已退出；源码交由root最终保存和正式合入，不恢复已清理的旧M1分支。
 
-在原 DNS/策略条件满足、明确选择 live 双 opt-in 并通过非秘密预检后，沿正式 Secret 路径执行有限真实模型验收；核自主选工具、真实文件/命令结果、持久 Round/Call/Usage/v2、Owner 送审及完整退出。既定 M1 目标与门槛不变，详见[开发计划](../docs/development/development-plan.md#当前开发目标与里程碑)。无工具 Agent、运行中重启接管、Human 持久取消、完整审批恢复、M2 及 W4 仍按原工作包推进；旧 live-chat FAIL、完整 D09 wire/SSE 与 Object/tools/SPA 等 STOP 保留。
+## M2 暂停与接续
 
-跟踪源码、锁文件、[harness 命令](../tests/m1-app-workflow/README.md)和[后端配置](../docs/development/backend/README.md#配置与命令)是跨设备恢复来源。固定 Go、MinIO 与锁定 browser/web 依赖可从外置工具缓存恢复；每次业务运行仍用新 nonce/new DB，不连接 onboarding。必要日志、资源身份、浏览器消费证明和截图已分别保全在主树 `output/ai/m1-delivery-evidence/app-integration/` 与 `live-preparation/`，逐文件 bytes/SHA 已核，排除二进制、缓存与私有材料；原失败记录保留。
+用户要求先补齐M1；M2目前仍暂停，本轮没有修改或运行M2。其已保存恢复入口：协调分支`ai/m2-coordination-20261014`（`c1473516`）、组合分支`ai/m2-review-20261014`（`70f02ad4`）。后续按用户目标另行恢复，不因M1通过便宣M2完成或自动继续其原native。review receipt不等于审核者消费worker成果并自主通过/退回；原审批、持久取消和cold恢复仍按M2卡的真实未完状态处理。
+
+原direct-text-v1与旧Snapshot保持语义，没有新增产品UI profile开关；生产仍需显式配置Execution Runtime，验收使用tick250ms/skip240的Owner窗口不代表生产默认。无工具Agent、完整Project生命周期、平台ready以及原Object/Tools/SPA等停止项不由本轮结果扩大宣称。
 
 ## 已完成交接：统一页面布局
 

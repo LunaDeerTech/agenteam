@@ -60,7 +60,7 @@ func NewOpenAIEmbeddings(t Transport, b *Budget) (*OpenAIEmbeddings, error) {
 		}
 	}
 	// This formal dependency check creates no I/O or work goroutine.
-	probe, err := outbound.NewClient(t.Policy, t.Trust, t.Resolver)
+	probe, err := t.newClient()
 	if err != nil {
 		return nil, invalid()
 	}
@@ -70,7 +70,7 @@ func NewOpenAIEmbeddings(t Transport, b *Budget) (*OpenAIEmbeddings, error) {
 
 func (a *OpenAIEmbeddings) Start(ctx context.Context, r EmbeddingRequest, o CallOptions) (*EmbeddingExchange, error) {
 	return a.start(ctx, r, o, func() (embeddingClient, error) {
-		client, err := outbound.NewClient(a.transport.Policy, a.transport.Trust, a.transport.Resolver)
+		client, err := a.transport.newClient()
 		if err != nil {
 			return nil, err
 		}

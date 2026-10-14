@@ -302,8 +302,15 @@ func decodeNative(raw []byte, streaming bool) (decoded, error) {
 	return decodeNativeProfile(raw, streaming, nil)
 }
 
-func decodeNativeProfile(raw []byte, streaming bool, policy *toolPolicy) (decoded, error) {
-	v := decoded{usage: mc.Usage{Source: mc.UnknownUsage}}
+func decodeNativeProfile(raw []byte, streaming bool, policy *toolPolicy) (v decoded, err error) {
+	v = decoded{usage: mc.Usage{Source: mc.UnknownUsage}}
+	stage := "envelope"
+	diagnosticRaw := json.RawMessage(raw)
+	defer func() {
+		if policy != nil && !streaming {
+			err = toolsProtocolDiagnostic(err, stage, diagnosticRaw)
+		}
+	}()
 	keys := "id object created model choices usage system_fingerprint service_tier"
 	if streaming {
 		keys += " obfuscation"
@@ -312,6 +319,7 @@ func decodeNativeProfile(raw []byte, streaming bool, policy *toolPolicy) (decode
 	if err != nil {
 		return v, err
 	}
+	stage = "identity"
 	for _, name := range []string{"id", "model"} {
 		s, e := nativeString(o[name], 256, true)
 		if e != nil {
@@ -348,11 +356,14 @@ func decodeNativeProfile(raw []byte, streaming bool, policy *toolPolicy) (decode
 			return v, err
 		}
 	}
+	stage = "usage"
+	diagnosticRaw = o["usage"]
 	v.usage, err = parseUsage(o["usage"])
 	if err != nil {
 		return v, err
 	}
 	v.hasUsage = !null(o["usage"])
+	stage = "choices"
 	d := json.NewDecoder(bytes.NewReader(o["choices"]))
 	if token, err := d.Token(); err != nil || token != json.Delim('[') {
 		return v, protocolFailure()
@@ -372,6 +383,8 @@ func decodeNativeProfile(raw []byte, streaming bool, policy *toolPolicy) (decode
 	if streaming {
 		choiceKeys = "index finish_reason logprobs delta"
 	}
+	stage = "choice"
+	diagnosticRaw = choiceRaw
 	c, err := object(choiceRaw, choiceKeys)
 	if err != nil {
 		return v, err
@@ -383,6 +396,7 @@ func decodeNativeProfile(raw []byte, streaming bool, policy *toolPolicy) (decode
 	if !null(c["logprobs"]) {
 		return v, unsupported()
 	}
+	stage = "finish"
 	finish, err := nativeString(c["finish_reason"], 32, !streaming)
 	if err != nil {
 		return v, err
@@ -407,15 +421,30 @@ func decodeNativeProfile(raw []byte, streaming bool, policy *toolPolicy) (decode
 	name, messageKeys := "message", "role content refusal tool_calls function_call annotations audio"
 	if streaming {
 		name, messageKeys = "delta", "role content refusal tool_calls function_call"
+	} else if policy != nil {
+		messageKeys += " reasoning_content"
 	}
+	stage = "message"
+	diagnosticRaw = c[name]
 	m, err := object(c[name], messageKeys)
 	if err != nil {
 		return v, err
 	}
+	if policy != nil && !streaming {
+		// Some compatible JSON tool providers return this auxiliary field even
+		// without a requested reasoning mode. Validate its bounded text shape,
+		// then discard it: it is neither visible output nor a tool instruction.
+		stage = "reasoning"
+		if _, err = nativeString(m["reasoning_content"], maxTextBytes, false); err != nil {
+			return v, err
+		}
+	}
+	stage = "role"
 	role, err := nativeString(m["role"], 32, !streaming)
 	if err != nil || !null(m["role"]) && role != "assistant" || !streaming && role != "assistant" {
 		return v, protocolFailure()
 	}
+	stage = "refusal"
 	refusal, err := nativeString(m["refusal"], maxTextBytes, false)
 	if err != nil {
 		return v, err
@@ -426,6 +455,7 @@ func decodeNativeProfile(raw []byte, streaming bool, policy *toolPolicy) (decode
 			return v, unsupported()
 		}
 	}
+	stage = "annotations"
 	for _, key := range []string{"tool_calls", "annotations"} {
 		if key == "tool_calls" && policy != nil {
 			continue
@@ -441,6 +471,7 @@ func decodeNativeProfile(raw []byte, streaming bool, policy *toolPolicy) (decode
 			return v, unsupported()
 		}
 	}
+	stage = "content"
 	v.text, err = nativeString(m["content"], maxTextBytes, !streaming && !v.refusal && (policy == nil || null(m["tool_calls"])))
 	if err != nil {
 		return v, err
@@ -450,10 +481,57 @@ func decodeNativeProfile(raw []byte, streaming bool, policy *toolPolicy) (decode
 		if v.refusal {
 			return v, nil
 		}
+		stage = "calls"
 		v.tools, err = policy.decode(m["tool_calls"], v.finish)
 		if err == nil && len(v.tools) == 0 && null(m["content"]) {
 			return v, protocolFailure()
 		}
 	}
 	return v, err
+}
+
+// Diagnostics remain closed local codes. They do not accept any previously
+// rejected response, expose a provider field/value, or alter retry/dispatch.
+func toolsProtocolDiagnostic(err error, stage string, raw json.RawMessage) error {
+	var model *mc.ModelError
+	if !errors.As(err, &model) || model.Code != "wire_protocol_invalid" {
+		return err
+	}
+	switch stage {
+	case "envelope", "identity", "usage", "choices", "choice", "finish", "message", "reasoning", "role", "refusal", "annotations", "content", "calls":
+	default:
+		return err
+	}
+	keys := ""
+	switch stage {
+	case "envelope":
+		keys = "id object created model choices usage system_fingerprint service_tier"
+	case "usage":
+		keys = "prompt_tokens completion_tokens total_tokens prompt_tokens_details completion_tokens_details"
+	case "choice":
+		keys = "index finish_reason logprobs message"
+	case "message":
+		keys = "role content refusal tool_calls function_call annotations audio reasoning_content"
+	}
+	if keys != "" {
+		var fields map[string]json.RawMessage
+		if jsonShape(raw) != nil {
+			stage += "_json"
+		} else if json.Unmarshal(raw, &fields) != nil || fields == nil {
+			stage += "_shape"
+		} else {
+			unknown := 0
+			for field := range fields {
+				if !strings.Contains(" "+keys+" ", " "+field+" ") {
+					unknown++
+				}
+			}
+			if unknown > 0 {
+				stage += "_members"
+			}
+		}
+	}
+	copy := *model
+	copy.Code = "wire_tools_" + stage + "_invalid"
+	return &copy
 }

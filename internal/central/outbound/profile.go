@@ -76,8 +76,17 @@ type Limits struct {
 	Redirects                                             int
 }
 
+const (
+	defaultResponseHeadersTimeout = 15 * time.Second
+	modelResponseHeadersTimeout   = 60 * time.Second
+)
+
 func normalizeLimits(l Limits, stream bool) (Limits, error) {
-	max := Limits{DNS: 5 * time.Second, Connect: 5 * time.Second, TLS: 10 * time.Second, ResponseHeaders: 15 * time.Second, Overall: 120 * time.Second, ReadIdle: 120 * time.Second, RequestHeaderBytes: 64 << 10, ResponseHeaderBytes: 64 << 10, RequestBodyBytes: 16 << 20, ResponseBodyBytes: 16 << 20, Redirects: 5}
+	return normalizeLimitsWithResponseHeaders(l, stream, defaultResponseHeadersTimeout)
+}
+
+func normalizeLimitsWithResponseHeaders(l Limits, stream bool, headerLimit time.Duration) (Limits, error) {
+	max := Limits{DNS: 5 * time.Second, Connect: 5 * time.Second, TLS: 10 * time.Second, ResponseHeaders: headerLimit, Overall: 120 * time.Second, ReadIdle: 120 * time.Second, RequestHeaderBytes: 64 << 10, ResponseHeaderBytes: 64 << 10, RequestBodyBytes: 16 << 20, ResponseBodyBytes: 16 << 20, Redirects: 5}
 	if stream {
 		max.Overall = 30 * time.Minute
 		max.ReadIdle = 60 * time.Second
@@ -218,7 +227,17 @@ func NewProfile(options ProfileOptions) (Profile, error) {
 	if !options.Consumer.Valid() || options.Consumer == ac.SMTP || options.Context.data == nil {
 		return Profile{}, invalid()
 	}
-	l, err := normalizeLimits(options.Limits, options.Streaming)
+	headerLimit := defaultResponseHeadersTimeout
+	if options.Consumer == ac.Model && !options.Streaming && options.Limits.ResponseHeaders > defaultResponseHeadersTimeout {
+		// Non-streaming Model generation can precede its first response byte.
+		// Only an explicit adapter budget can extend that wait: never beyond
+		// the original attempt or sixty seconds, and never by changing defaults.
+		if options.Limits.Overall <= 0 || options.Limits.ResponseHeaders > options.Limits.Overall || options.Limits.ResponseHeaders > modelResponseHeadersTimeout {
+			return Profile{}, invalid()
+		}
+		headerLimit = min(options.Limits.Overall, modelResponseHeadersTimeout)
+	}
+	l, err := normalizeLimitsWithResponseHeaders(options.Limits, options.Streaming, headerLimit)
 	if err != nil {
 		return Profile{}, err
 	}

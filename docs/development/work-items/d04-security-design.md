@@ -126,13 +126,19 @@ Project 归档保留 Secret 与 Audit；重保护只变加密封装，是受限�
 
 SMTP 的受控 Conn 可兼容 `net.Conn`，供可信 D07 adapter 执行初始 TLS/SMTP 协商；初始握手不计作邮件业务已发出。adapter 在每次 AUTH 凭据发送及每封邮件发送前调用 `BeginSend(ctx)`，建立新的 attempt、重新获取完整 DNS 并核验固定 peer，随后底层实际首 Write 按 §8 的当前策略/2s 门禁准入并记录 sent。上次发送须完成后才开始下一次，adapter 串行使用；并发 BeginSend/Write 须有明确拒绝或串行语义。BeginSend 失败不得继续沿用旧 attempt 写业务数据。TLS 包装之下的实际 socket Write 仍由受控 Conn 计数，D07 不得省略 BeginSend 或将凭据放入初始协商阶段。D04 只验收端口、限制和取消，D07 负责真实 AUTH/邮件/TLS 组合验收，不宣称当前已实现 SMTP。
 
-URL 只允许 http/https 与有效 ASCII hostname/IP、显式合法有效端口；拒绝 userinfo、fragment、zone ID、opaque URL、非网络 scheme、非规范 IPv4 数字缩写、空 hostname/port。DNS 名小写并规范尾点；首期非 ASCII 域名要求上层明确提供合法 ASCII A-label，不能用解析器差异猜地址。Host/SNI 固定来自规范 origin，拒绝 caller 另写 Host/连接控制 header；代理环境变量不生效。
+URL 只允许 http/https 与有效 ASCII hostname/IP、显式合法有效端口；拒绝 userinfo、fragment、zone ID、opaque URL、非网络 scheme、非规范 IPv4 数字缩写、空 hostname/port。DNS 名小写并规范尾点；首期非 ASCII 域名要求上层明确提供合法 ASCII A-label，不能用解析器差异猜地址。Host/SNI 固定来自规范 origin，拒绝 caller 另写 Host/连接控制 header。默认 `NewClient` 不消费代理环境；显式部署代理仅按下述独立信任边界接入。
 
-每次请求/重试/redirect 获取全部 A/AAAA，去重，最多 **64** 个，超限/部分 family 查询错误不能视为成功的子集。规范 IPv4-mapped IPv6 后分类；RFC1918/ULA 仅按规则允许。固定拒绝 loopback、link-local、metadata、unspecified、multicast 与特殊保留段，不能只用 `IsGlobalUnicast`。混合结果只要一个地址不允许就拒绝全部，绝不从中挑一个 public 掩盖 forbidden。
+直连的每次请求/重试/redirect 获取全部 A/AAAA，去重，最多 **64** 个，超限/部分 family 查询错误不能视为成功的子集。规范 IPv4-mapped IPv6 后分类；RFC1918/ULA 仅按规则允许。固定拒绝 loopback、link-local、metadata、unspecified、multicast 与特殊保留段，不能只用 `IsGlobalUnicast`。混合结果只要一个地址不允许就拒绝全部，绝不从中挑一个 public 掩盖 forbidden。
 
 分类表在源码固定并逐段测试：IPv4 除 RFC1918 外至少拒绝 `0/8,100.64/10,127/8,169.254/16,192.0.0/24,192.0.2/24,192.88.99/24,198.18/15,198.51.100/24,203.0.113/24,224/4,240/4`；IPv6 仅把 `2000::/3` 中排除特殊用途后的地址视为 public，另允许按规则放行 `fc00::/7`，拒绝 `::/96,64:ff9b::/96,64:ff9b:1::/48,100::/64,2001::/23,2001:db8::/32,2002::/16,3fff::/20,fe80::/10,ff00::/8` 等。保守排除注册表中特殊用途例外，不把 NAT64/6to4 当 public 绕过。metadata 固定匹配如 `169.254.169.254`、`169.254.170.2`、`100.100.100.200`、`168.63.129.16`、`fd00:ec2::254` 及规范 `metadata.google.internal`/`metadata.goog` 名称；最终清单引用 IANA/cloud 文档并作为实现常量接受独立审查。
 
-DNS 审批得到不可伪造的完整地址集合；实际只 dial 集合中的**数值 IP**，TLS ServerName/HTTP Host 保持原域名；dialer 不第二次按 hostname 解析。新请求即使复用 idle socket 也重新解析/分类，其实际 peer IP 必须在新批准集合且满足当前规则，否则关闭/弃用该连接重新选择；不要信旧连接建立时的允许结论。DNS 结果不得经日志泄漏 query/凭据。
+直连 DNS 审批得到不可伪造的完整地址集合；实际只 dial 集合中的**数值 IP**，TLS ServerName/HTTP Host 保持原域名；dialer 不第二次按 hostname 解析。新请求即使复用 idle socket 也重新解析/分类，其实际 peer IP 必须在新批准集合且满足当前规则，否则关闭/弃用该连接重新选择；不要信旧连接建立时的允许结论。DNS 结果不得经日志泄漏 query/凭据。
+
+显式受信部署代理扩展：组合根按 `AGENTEAM_CENTRAL_OUTBOUND_PROXY_ORIGINS` 的 1–32 个精确 HTTPS DNS origin 构造不可变 `ProxyRoutes`，捕获原 HTTP_PROXY/HTTPS_PROXY/NO_PROXY 及小写对应项，并将同一值传给正式 client 与 Model adapter 的每次 client。名单拒绝数字 IP、localhost、metadata、重复及通配符，不继承子域；请求调用者不能改名单、代理或 TLS。选路采用锁定 `httpproxy` 标准语义；NO_PROXY 或缺少相应代理走原直连规则，已选代理但 origin 不在名单时拒绝，代理失败不能偷偷直连。
+
+该代理为可信基础设施，承担目标 DNS/实际远端 peer 与网关侧访问控制。客户端只验证精确授权 origin、原身份/凭据绑定和目标 hostname/CA TLS，不声称仍能对代理背后的地址执行直连 CIDR 门；`Decision.address_class=trusted_proxy` 明示该边界，严禁把网关 IP/虚构 public IP 冒充 origin DNS。原 CIDR 规则仅控制直连地址；名单为部署配置，修改需重建组合，不由普通策略 CIDR 保存动态撤销。
+
+网关仅支持无认证 HTTP/HTTPS URL，拒绝 userinfo、query、fragment、非根 path 与其他协议；不输出代理值。网关自身经部署默认 resolver 获取至多 64 个地址（允许 hosts），仅允许 public/private/loopback 基础设施地址，并拒绝 metadata/link-local/multicast/reserved 等。拨号只用本次解析所得数值 IP，实际 RemoteAddr 必须匹配；loopback 网关许可不修改业务目标分类器。HTTP CONNECT 只含规范目标 host:port，无业务凭据/请求正文；HTTPS 网关先验证网关 TLS，成功隧道再验证原目标 TLS。完整接口及取消、限额、资格语义见[出站说明](../backend/outbound.md#显式可信部署代理)。
 
 ## 8. B03：实际发出与策略提交的线性化
 
@@ -146,7 +152,7 @@ HTTP 每个实际业务 attempt 拥有一个贯穿整个受控 RoundTrip 的发�
 
 首写结束释放门禁，原连接上同一次发送的后续 body/响应流可继续，策略变化不强制召回；每次 redirect/new request 创建新 attempt，重新完整验证。Go1.27.1 Transport 对 reused connection 上的 GET/带 Idempotency-Key 请求可能在已写后读响应失败时自行 retry，不能依赖其默认幂等判断：一旦 sent，必须拒绝该 attempt 后续内部 retry 的 dial/borrow/重新开始 write，跨连接也不能形成第二次发送；异常只上报 sent/unknown，由业务 retry owner 决定下一 attempt。仅全部 write 均为零字节时允许最多一次内部 retry，仍使用原未发状态并重新完整 DNS/当前策略准入；内部 retry 计数不能因换连接而清零。
 
-首版固定 **HTTP/1.1**，禁用自动 HTTP/2、代理、连接 coalescing、cookie jar；保持 HTTP/1.1 keep-alive 与逐请求门禁。可使用标准 Transport 的受控 Dial/DialTLS、httptrace 借连接通知及包内 conn wrapper，但必须证明真正每次初写都受保护，不能把 `WroteHeaders` 事后回调当准入。内部实现由 B03 决定；SDK 不得替换受控 Transport。以后若启用 multiplexing，须先补逐 stream 同等线性化证据。
+固定 **HTTP/1.1**，禁用自动 HTTP/2、连接 coalescing、cookie jar；保持 HTTP/1.1 keep-alive 与逐请求门禁。显式受信代理路径在网关数值 IP 拨号、CONNECT 写入及 origin 业务首写前均持当前策略可用性门；仅 origin 请求实际首写 `n>0` 标记业务 sent，CONNECT/TLS 不计 Model sent 或 Usage。origin 名单及真实 gateway peer 分别重验，重用/redirect 不省略；取消及 Drain 要实际覆盖建立中的隧道、TLS、writer 和原 socket。可使用标准 Transport 的受控 Dial/DialTLS、httptrace 借连接通知及包内 conn wrapper，但必须证明真正每次初写都受保护，不能把 `WroteHeaders` 事后回调当准入。内部实现由 B03 决定；SDK 不得替换受控 Transport。以后若启用 multiplexing，须先补逐 stream 同等线性化证据。
 
 ## 9. B03：TLS、凭据、redirect 与限额
 
@@ -154,13 +160,13 @@ TLS 最低 1.2，使用系统/部署 CA 验证 chain、有效期与原 hostname�
 
 凭据仅由 trusted adapter 通过 typed `CredentialBinding{origin,header/query bindings}` 注入临时内存，完整 origin 比较 scheme+规范 host+有效 port，不按子域继承。普通 request 和响应 URL/headers/body 不可直接日志化。自动 redirect 只处理无 body 的 GET/HEAD，最多 **5** 跳；其他方法返回 `redirect_denied` 留 consumer 明确建立新请求。每跳重验 URL/DNS/策略，拒绝 HTTPS 降级；跨 origin 构造无原 binding 的请求、清除全部 caller headers、不合并原 query/body，不能保留 Cookie/API key/自定义认证。Location 若仍携原绑定材料跨 origin 则拒绝；外部响应不是认证授权。
 
-平台上限固定：DNS **5s**、每次 connect **5s**、TLS handshake **10s**、response headers **15s / 64 KiB**、普通请求 overall **120s / 16 MiB 响应**、stream overall **30min / 256 MiB**、stream read idle **60s**、redirect **5**、request headers **64 KiB**、普通 request body **16 MiB**。Profile 只能收紧；stream 按块消费和计数，不整块 buffering，取消立即关闭/取消对应 request。平台总上限不是 Execution/Tool/Approval 期限；D09 可在此范围选择逐 attempt 渐进 timeout。
+平台上限固定：DNS **5s**、每次 connect **5s**、TLS handshake **10s**、默认 response headers **15s / 64 KiB**、普通请求 overall **120s / 16 MiB 响应**、stream overall **30min / 256 MiB**、stream read idle **60s**、redirect **5**、request headers **64 KiB**、普通 request body **16 MiB**。仅非流式 `Consumer=Model` 可由可信 adapter 显式选择大于15s的响应头等待，且不超过显式原 Overall 与60s；零值及其他consumer/SSE/SMTP保留15s，代理CONNECT也最多15s。当前仅JSON tools adapter在未显式指定时选择 `min(原 attempt 剩余预算,60s)`，更短显式值不覆盖；实际响应头deadline继续取原context较早期限，不扩大attempt/retry或M1总预算。其他限额只能收紧；stream 按块消费和计数，不整块 buffering，取消立即关闭/取消对应 request。平台总上限不是 Execution/Tool/Approval 期限；D09 可在此范围选择逐 attempt 渐进 timeout。
 
-关闭 Transport 自动解压，默认 `Accept-Encoding: identity`，首版拒绝非 identity Content-Encoding，不能让压缩炸弹逃过 decoded 限额；后续消费者确需压缩时在受控层补双重计数。body 超限/空闲超时/总期限都关闭响应和不可复用连接，不只对 Content-Length 检查；正常 EOF 后才允许复用。处置 101/CONNECT 为不支持，WebSocket/隧道协议留正式模块扩展。
+关闭 Transport 自动解压，默认 `Accept-Encoding: identity`，首版拒绝非 identity Content-Encoding，不能让压缩炸弹逃过 decoded 限额；后续消费者确需压缩时在受控层补双重计数。body 超限/空闲超时/总期限都关闭响应和不可复用连接，不只对 Content-Length 检查；正常 EOF 后才允许复用。业务请求的 101/CONNECT 仍不支持，仅受信部署代理内部可执行有界 CONNECT；不向 caller 暴露任意隧道。
 
 主 `Client.Do` 返回安全 `NetworkError/Response`。需要原生 `*http.Client` 的 SDK 仅由可信 adapter/组合根取得固定受控私有 RoundTripper、拒绝标准库 Client 层另行自动 redirect 且无 CookieJar 的实例；不提供业务可配置 dial/proxy/TLS/Transport 开关。RoundTripper 内部复用统一受控 Client.Do 时仍沿本节无 body GET/HEAD、最多 5 跳、每跳完整验证与跨 origin 清凭据的规则；禁止的是标准库在受控层返回后再自行跟随，不要求 SDK 对所有合法受控跳转返回原 3xx。Go 原生 Client 的导出字段本身可改，禁止替换属于受审查的 adapter 契约，不能声称类型强制不可变。标准库 `Client.Do` 会将 RoundTripper 错误包装为携原 URL 的 `*url.Error`，所以原生 SDK error/response 不属于安全投影；必须经显式 `SafeNetworkError` 提取或固定兜底映射后才能跨业务/日志边界。D09/D20 等实际 SDK adapter 绑定时验证这条路径；当前只验收工厂/受控 Transport/安全映射，不宣称 SDK 已集成，不通过篡改请求 URL 隐藏标准库行为。
 
-返回安全 `Decision/NetworkError`：reason、consumer、规范 origin（无 path/query/userinfo）、policy_version、地址分类、redirect_count、是否已发出及 trace ID；完整 IP 集合只作为包内审批事实，普通日志不写任意字段/原始 net/url/TLS 错误。沿正式 deny reason，补 `response_limit/timeout/cancelled/policy_unavailable`。安全拒绝按调用点写最小 Audit；普通网络错误不全量复制 Audit。Project Audit 不能写时保持原拒绝，不能改 scope 写项目正文到 System，也不能为补日志重新发请求。
+返回安全 `Decision/NetworkError`：reason、consumer、规范 origin（无 path/query/userinfo）、policy_version、地址分类、redirect_count、是否已发出及 trace ID，可选 phase 仅允许实际 origin 响应头读取失败时的 `response_headers`。phase 零值向后兼容并表示未记录，不猜测DNS/TLS/发送状态；代理CONNECT及响应body失败不使用该标记。Model JSON tools 可按timeout+此phase输出专用安全码，sent/retry不变，不新增持久schema。完整 IP 集合只作为包内审批事实，普通日志不写任意字段/原始 net/url/TLS 错误。沿正式 deny reason，补 `response_limit/timeout/cancelled/policy_unavailable`。安全拒绝按调用点写最小 Audit；普通网络错误不全量复制 Audit。Project Audit 不能写时保持原拒绝，不能改 scope 写项目正文到 System，也不能为补日志重新发请求。
 
 ## 10. 实施验收与交接
 

@@ -74,7 +74,7 @@ func constructExecutionRuntime(b *executionRuntimeAssembly, cfg config.Config, d
 	}
 	budget := adapter.NewBudget()
 	b.add(executionRuntimeWork{stop: budget.StopAdmission, drain: budget.Drain, joined: budget.Joined})
-	wire, err := adapter.NewOpenAIChat(adapter.Transport{Policy: outbound.policy, Trust: cfg.OutboundTrust(), Resolver: outbound.resolver}, budget)
+	wire, err := adapter.NewOpenAIChat(adapter.Transport{Policy: outbound.policy, Trust: cfg.OutboundTrust(), Resolver: outbound.resolver, ProxyRoutes: outbound.routes}, budget)
 	if err != nil {
 		return err
 	}

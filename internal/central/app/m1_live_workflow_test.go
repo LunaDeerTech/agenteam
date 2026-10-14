@@ -26,6 +26,7 @@ const (
 	m1LiveMaxOutput     = 4096
 	m1LiveSentThreshold = 12
 	m1LiveOptIn         = "external-model-read-write-run-review"
+	m1LiveSentQuery     = `SELECT count(*) FROM agenteam_model.invocations WHERE project_id=$1::uuid AND dispatch='sent'`
 	m1LiveTaskPlan      = "Use only the supplied Runner mount and Python standard library; do not access the network or paths outside that mount. Read input.json, which contains a values array. Create stats.py that reads that array and calculates its count, sum and arithmetic mean. The program must write those three numeric fields as a JSON object to result.json and print the same JSON object to stdout. Use the run command tool in argv mode with program /usr/bin/python3, args [stats.py], and cwd . in the supplied workspace, inspect the real result.json and command exit status, and report the actual outcome. Use relative file paths and the captured mount identity. Generate the program yourself; do not replace tool execution with a proposed answer."
 )
 
@@ -33,6 +34,7 @@ const (
 type m1LiveConfiguration struct {
 	BaseURL, Model string
 	qualified      bool
+	proxyRoute     bool
 	deadline       time.Time
 }
 
@@ -57,14 +59,26 @@ func m1LiveMetadata(selection, optIn, base, model string) (*m1LiveConfiguration,
 	return &m1LiveConfiguration{BaseURL: base, Model: model}, nil
 }
 
-func (c *m1LiveConfiguration) preflight(ctx context.Context, resolver outbound.Resolver) error {
+func (c *m1LiveConfiguration) preflight(ctx context.Context, resolver outbound.Resolver, routes outbound.ProxyRoutes) error {
 	if c == nil || resolver == nil {
 		return errors.New("M1 live preflight dependency missing")
 	}
 	c.qualified = false
+	c.proxyRoute = false
 	target, err := outbound.ParseTarget(c.BaseURL)
 	if err != nil {
 		return errors.New("M1 live target rejected")
+	}
+	proxy, err := routes.UsesProxy(target.Origin())
+	if err != nil {
+		return errors.New("M1 live configured proxy route rejected")
+	}
+	if proxy {
+		// The exact configured origin delegates destination resolution to a
+		// trusted gateway. Origin DNS and a gateway's peer address are not
+		// interchangeable. The real client still checks route, peer and TLS.
+		c.proxyRoute, c.qualified = true, true
+		return nil
 	}
 	addresses, err := resolver.Lookup(ctx, target.Origin().Host())
 	if err != nil || len(addresses) == 0 {
@@ -80,7 +94,7 @@ func (c *m1LiveConfiguration) preflight(ctx context.Context, resolver outbound.R
 }
 
 // Only the explicitly selected live test reaches this function, after the
-// original system resolver preflight. Runner/browser children never inherit it.
+// configured route preflight. Runner/browser children never inherit it.
 func (c *m1LiveConfiguration) credential(t *testing.T) []byte {
 	t.Helper()
 	if c == nil || !c.qualified || c.deadline.IsZero() || !time.Now().Before(c.deadline) || os.Getenv("AGENTEAM_M1_CASE") != "live" || os.Getenv("AGENTEAM_M1_LIVE_OPT_IN") != m1LiveOptIn {
@@ -101,12 +115,17 @@ func TestM1AppLiveWorkflow(t *testing.T) {
 	configuration, err := m1LiveMetadata(os.Getenv("AGENTEAM_M1_CASE"), os.Getenv("AGENTEAM_M1_LIVE_OPT_IN"), os.Getenv("DEV_CHAT_BASE_URL"), os.Getenv("DEV_CHAT_MODEL"))
 	workAppCheck(t, "m1-live-metadata", err)
 	configuration.deadline = started.Add(m1LiveTotalBudget)
+	target, err := outbound.ParseTarget(configuration.BaseURL)
+	workAppCheck(t, "m1-live-route-target", err)
+	routes, err := outbound.NewEnvironmentProxyRoutes([]outbound.Origin{target.Origin()})
+	workAppCheck(t, "m1-live-configured-routes", err)
 	resolver, err := outbound.SystemResolver()
 	workAppCheck(t, "m1-live-system-resolver", err)
 	preflight, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	err = configuration.preflight(preflight, resolver)
+	err = configuration.preflight(preflight, resolver, routes)
 	cancel()
-	workAppCheck(t, "m1-live-dns-preflight", err)
+	workAppCheck(t, "m1-live-route-preflight", err)
+	t.Logf("M1_LIVE_ROUTE explicit_origin=true trusted_proxy=%t tls_verification=true", configuration.proxyRoute)
 	w, listener := newM1WorkflowConfigured(t, nil, true, configuration)
 	w.seed(t)
 	w.startRunner(t)
@@ -149,38 +168,15 @@ func (w *m1Workflow) startLiveBudget(t *testing.T, deadline time.Time) *m1LiveBu
 	connection := w.app.root.db.Connect(t) // separate pgx connection; never share admin concurrently
 	budget := &m1LiveBudget{stop: make(chan struct{}), done: make(chan struct{})}
 	go func() {
-		defer close(budget.done)
 		timer := time.NewTimer(time.Until(deadline))
 		defer timer.Stop()
 		tick := time.NewTicker(100 * time.Millisecond)
 		defer tick.Stop()
-		for {
-			select {
-			case <-budget.stop:
-				return
-			case <-timer.C:
-				budget.reason = "total_deadline"
-			case <-tick.C:
-				ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-				var sent int
-				err := connection.QueryRow(ctx, `SELECT count(*) FROM agenteam_model.invocations WHERE project_id=$1::uuid AND dispatch='sent'`, w.app.a.String()).Scan(&sent)
-				cancel()
-				if err != nil {
-					budget.reason = "budget_observation_failed"
-				} else if sent >= m1LiveSentThreshold {
-					budget.reason = "sent_stop_threshold"
-				} else {
-					continue
-				}
-			}
-			w.app.runtime.StopAdmission()
-			drain, cancel := context.WithTimeout(context.Background(), m1LiveJoinBudget)
-			_ = w.app.runtime.Drain(drain)
-			cancel()
-			w.app.requestStop()
-			w.app.root.cancel()
-			return
-		}
+		w.runLiveBudget(budget, timer.C, tick.C, func(ctx context.Context) (int, error) {
+			var sent int
+			err := connection.QueryRow(ctx, m1LiveSentQuery, w.app.a.String()).Scan(&sent)
+			return sent, err
+		})
 	}()
 	// Runs before the earlier Runner and App cleanup registrations. Even an
 	// assertion failure first stops the original Runtime, while its ports live.
@@ -202,6 +198,41 @@ func (w *m1Workflow) startLiveBudget(t *testing.T, deadline time.Time) *m1LiveBu
 		}
 	})
 	return budget
+}
+
+func m1ObserveLiveBudget(stop <-chan struct{}, deadline, tick <-chan time.Time, count func(context.Context) (int, error)) string {
+	for {
+		select {
+		case <-stop:
+			return ""
+		case <-deadline:
+			return "total_deadline"
+		case <-tick:
+			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+			sent, err := count(ctx)
+			cancel()
+			if err != nil {
+				return "budget_observation_failed"
+			}
+			if sent >= m1LiveSentThreshold {
+				return "sent_stop_threshold"
+			}
+		}
+	}
+}
+
+func (w *m1Workflow) runLiveBudget(budget *m1LiveBudget, deadline, tick <-chan time.Time, count func(context.Context) (int, error)) {
+	defer close(budget.done)
+	budget.reason = m1ObserveLiveBudget(budget.stop, deadline, tick, count)
+	if budget.reason == "" {
+		return
+	}
+	w.app.runtime.StopAdmission()
+	drain, cancel := context.WithTimeout(context.Background(), m1LiveJoinBudget)
+	_ = w.app.runtime.Drain(drain)
+	cancel()
+	w.app.requestStop()
+	w.app.root.cancel()
 }
 func (b *m1LiveBudget) finish(t *testing.T) {
 	t.Helper()
@@ -267,7 +298,7 @@ func TestM1LivePreparation(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			err = c.preflight(context.Background(), m1LiveResolverFunc(func(context.Context, string) ([]netip.Addr, error) { return v.addresses, v.err }))
+			err = c.preflight(context.Background(), m1LiveResolverFunc(func(context.Context, string) ([]netip.Addr, error) { return v.addresses, v.err }), outbound.ProxyRoutes{})
 			if (err == nil) != v.want || c.qualified != v.want {
 				t.Fatal("preflight qualification differs")
 			}

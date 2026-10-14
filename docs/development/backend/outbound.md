@@ -6,7 +6,7 @@
 
 ## 配置、状态与停止
 
-`AGENTEAM_CENTRAL_OUTBOUND_CA_FILE` 可选，省略时使用系统 trust roots；设置后追加文件内 PEM CA，显式空值视为配置错误。文件必须可读、仅包含有效 CA certificate PEM，最多 1 MiB；不接受私钥、非 CA 证书、无 CA 或额外正文。它与数据库 CA 独立，无 skip-verify、业务自带 CA 或代理开关。配置加载后保留不可变 trust store，不保存文件路径。`--check-config` 读取并验证 CA，不连接网络或宣称 DB policy/canary 已初始化。
+`AGENTEAM_CENTRAL_OUTBOUND_CA_FILE` 可选，省略时使用系统 trust roots；设置后追加文件内 PEM CA，显式空值视为配置错误。文件必须可读、仅包含有效 CA certificate PEM，最多 1 MiB；不接受私钥、非 CA 证书、无 CA 或额外正文。它与数据库 CA 独立，无 skip-verify 或业务自带 CA。配置加载后保留不可变 trust store，不保存文件路径。`--check-config` 读取并验证 CA，不连接网络或宣称 DB policy/canary 已初始化。
 
 数据库启动阶段后，cursor/Audit、Secret 初始验证、维护 worker 启动与策略载入和后续 Object/Outbox/Account/Mail 初始化共用 30s 安全阶段。策略载入失败不得监听。`/diagnostics` 的 `outbound` 只包含 available 与 policy version，不含规则/IP 清单；DB 健康不可用时组件诊断也不再声称可用。Account/DB 健康时 `outbound_authorization=system_bound`，Project 仍未绑定，整体 ready=false。
 
@@ -45,13 +45,25 @@ COMMIT_UNKNOWN保留原unknown分类和公共 `retry_hint=lookup` 兼容投影�
 
 ## DNS、地址与 TLS
 
-每次 attempt/retry/redirect 获取完整 A/AAAA，去重后最多 64 个。任一家族错误、无效报文或任一地址不允许，全部拒绝；合法 NOERROR/NODATA 可以和另一家族的有效答案组合。仅拨号审批集合内的数值 IP，核验实际 RemoteAddr，Host/SNI 使用原规范 origin。复用连接也重新解析并检查实际 peer。
+直连路径每次 attempt/retry/redirect 获取完整 A/AAAA，去重后最多 64 个。任一家族错误、无效报文或任一地址不允许，全部拒绝；合法 NOERROR/NODATA 可以和另一家族的有效答案组合。仅拨号审批集合内的数值 IP，核验实际 RemoteAddr，Host/SNI 使用原规范 origin。复用连接也重新解析并检查实际 peer。
 
-Go Resolver 的 StrictErrors 只对 temporary family error 放弃子集，因此本包提供有界 DNS wire resolver。生产只读取 `/etc/resolv.conf` 的 nameserver 作为受信 DNS 通道；不使用搜索后缀、NSS、hosts、mDNS 或环境代理回退。部署须提供能解析所需绝对 ASCII 域名的递归 nameserver。UDP 截断转 TCP，两个家族及 fallback 共用 5s；校验 ID/question/type/class/rcode、逐 label 边界、压缩指针、记录数量、CNAME 完整链与终局 owner。NS/SOA RDATA、长度和终局 CNAME 所属 authority zone 均校验；显式 referral 不当成 NODATA，合法 SOA mailbox 名称允许 DNS mailbox 语义。
+Go Resolver 的 StrictErrors 只对 temporary family error 放弃子集，因此本包提供有界 DNS wire resolver。直连目标只读取 `/etc/resolv.conf` 的 nameserver 作为受信 DNS 通道；不使用搜索后缀、NSS、hosts、mDNS 或失败后的代理回退。直连部署须提供能解析所需绝对 ASCII 域名的递归 nameserver。UDP 截断转 TCP，两个家族及 fallback 共用 5s；校验 ID/question/type/class/rcode、逐 label 边界、压缩指针、记录数量、CNAME 完整链与终局 owner。NS/SOA RDATA、长度和终局 CNAME 所属 authority zone 均校验；显式 referral 不当成 NODATA，合法 SOA mailbox 名称允许 DNS mailbox 语义。
 
 分类常量引用 [IANA IPv4 special registry](https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml)、[IPv6 special registry](https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml) 及源码内 cloud metadata 资料。清单保守拒绝特殊用途段，不宣称实时跟踪在线注册表。metadata 优先于 private allow；IPv4-mapped IPv6 在分类/peer 时 Unmap，但保留完整 IPv6 origin 身份，不能与 IPv4 origin 合并凭据。
 
-HTTP 固定 H1、无代理、无 HTTP/2/coalescing/cookie jar，TLS 至少 1.2，验证系统/部署 CA、有效期及原 hostname，不降级绕过错误。private HTTP 同时要求 Profile.AllowHTTP 与同一命中规则 allow_http；public HTTP 也要求 Profile.AllowHTTP。SMTP 的显式 none 与此开关无关。
+HTTP 固定 H1、无 HTTP/2/coalescing/cookie jar，TLS 至少 1.2，验证系统/部署 CA、有效期及原 hostname，不降级绕过错误。private HTTP 同时要求 Profile.AllowHTTP 与同一命中规则 allow_http；public HTTP 也要求 Profile.AllowHTTP。SMTP 的显式 none 与此开关无关。
+
+### 显式可信部署代理
+
+`NewClient` 及零值 `ProxyRoutes` 保持直连。组合根可用 `NewEnvironmentProxyRoutes` 捕获部署 `HTTP_PROXY`、`HTTPS_PROXY`、`NO_PROXY` 及小写对应项，再通过 `NewClientWithProxy` 传递同一个不可变路由。正式配置 `AGENTEAM_CENTRAL_OUTBOUND_PROXY_ORIGINS` 明确列出 1–32 个精确 HTTPS origin；不接受数字 IP、localhost、metadata、通配符或子域继承。默认未配置不读取代理路由；客户端业务请求不能选择代理或扩大该名单。
+
+选路复用锁定的 `httpproxy` 标准环境语义，包括当前版本的小写优先、域名/端口/CIDR/`*` NO_PROXY。NO_PROXY 命中或没有对应代理时执行原直连 DNS/IP 门；已选代理但目标不在精确名单时拒绝。代理连接、CONNECT 或 TLS 失败不转为直连。代理环境在组合根构造时捕获，之后修改进程环境不能更换既有路由。
+
+代理是显式受信部署基础设施，负责 origin DNS 及其远端连接。客户端无法观察代理背后的完整 A/AAAA、实际 origin peer 或逐 IP 私网规则，因此该路径不宣称具有直连的目标 CIDR 审批保证。目标授权由部署的精确 origin 名单、原请求权限及凭据 origin 绑定共同限定；部署网关承担远端访问控制。`Decision.address_class=trusted_proxy` 表示这条信任边界，不将代理 IP 或虚构 public IP 填入目标 DNS 集合。原私网 CIDR 规则仍作用于直连路径；修改 CIDR 规则不撤销代理名单，名单变更需要重建部署组合。
+
+仅支持无认证的 HTTP/HTTPS 网关；URL userinfo、query、fragment、非根 path 及其他协议均拒绝，代理值不进入日志。网关自身使用部署默认 resolver（可含 hosts）获得地址，最多 64 个；其 public/private/loopback 地址仅作为基础设施准入，metadata/link-local/multicast/reserved 等仍拒绝。实际只拨号本次网关解析所得数值 IP，并核对 socket RemoteAddr。此规则不改变业务目标分类器或放开直连 loopback。
+
+隧道只发送 `CONNECT <规范目标host:port>`，不带业务 header、query、body 或 Secret；成功后仍以原目标 hostname、系统/部署 CA、TLS ≥1.2 进行握手。HTTPS 网关另验证网关自身 hostname/CA。CONNECT 的响应头受原限额约束，失败关闭原 socket；普通 caller 仍不能请求 CONNECT。网关拨号、CONNECT 和业务首写都经过当前策略可用性门，只有目标 HTTP 请求实际首写 `n>0` 才标记 sent；CONNECT/TLS 不计 Model sent/Usage。复用连接重新解析网关并核身份，每次 origin/redirect 重新检查精确名单；已发送不内部重试。取消、超时、StopAdmission/ForceClose 与 Drain 覆盖建立中的隧道、TLS、业务 writer 和原 socket。
 
 ## 调用、凭据和安全投影
 
@@ -61,9 +73,11 @@ HTTP 固定 H1、无代理、无 HTTP/2/coalescing/cookie jar，TLS 至少 1.2�
 
 请求头在 `Request.Write` 的实际序列化路径中有界缓冲到 CRLFCRLF，包含自动生成的 Content-Length/Connection 等字段；超过上限时底层零字节写入，不为计数提前读取 body 或调用 GetBody。
 
-平台上限：DNS/connect 5s、TLS 10s、响应头 15s/64 KiB、普通 overall 120s/响应 16 MiB、stream overall 30min/响应 256 MiB/read idle 60s、请求头 64 KiB/body 16 MiB。Profile 只能收紧。响应按实际字节计数，1xx 累计头与 trailer 计入限制；无自动解压，发送 Accept-Encoding: identity 并拒绝非 identity Content-Encoding。CONNECT/101 不支持。拒绝/超限先关闭不可复用 socket；最小 Audit 使用原 scope/cause、受原操作及最多 1s 预算约束，失败保留原拒绝，不重发网络请求。
+平台上限：DNS/connect 5s、TLS 10s、默认响应头 15s/64 KiB、普通 overall 120s/响应 16 MiB、stream overall 30min/响应 256 MiB/read idle 60s、请求头 64 KiB/body 16 MiB。除下述 Model 生成等待资格外，Profile 只能收紧。响应按实际字节计数，1xx 累计头与 trailer 计入限制；无自动解压，发送 Accept-Encoding: identity 并拒绝非 identity Content-Encoding。业务 CONNECT/101 不支持；受信代理内部 CONNECT 受上节约束。拒绝/超限先关闭不可复用 socket；最小 Audit 使用原 scope/cause、受原操作及最多 1s 预算约束，失败保留原拒绝，不重发网络请求。
 
-`Response`、Profile、binding 与原始 cause 通过私有闭包保存；普通 fmt/JSON/slog 不含 URL path/query、header/body、凭据、全部 IP 或原 net/TLS 错误。显式 Body/Headers/Trailers 是可信 adapter 的读取端口。`NetworkError.Decision()` 仅投影 reason、consumer、规范 origin、policy_version、地址分类、redirect_count、sent、trace ID。
+非流式 Model 可能先生成完整 JSON 再发送响应头。`NewProfile` 仅对 `Consumer=Model && Streaming=false` 接受显式大于 15s 的 `Limits.ResponseHeaders`，且必须不超过显式原 `Overall` 与 60s。零值仍为 15s，其他 consumer、SSE 及 SMTP 保持原 15s 上限；受信代理 CONNECT 等待也最多 15s，不随模型生成时间延长。当前 Model adapter 仅 JSON tools 请求在未显式指定时提供 `min(原 attempt 剩余预算,60s)`，保留显式更短值。真正读取响应头的 deadline 始终再取原 request context 的更早期限；该资格不新建 attempt、改变 retry 或延长 M1 的 300s/12-sent 观察条件。
+
+`Response`、Profile、binding 与原始 cause 通过私有闭包保存；普通 fmt/JSON/slog 不含 URL path/query、header/body、凭据、全部 IP 或原 net/TLS 错误。显式 Body/Headers/Trailers 是可信 adapter 的读取端口。`NetworkError.Decision()` 仅投影 reason、consumer、规范 origin、policy_version、地址分类、redirect_count、sent、trace ID 与可选闭集 phase。只有 origin 的实际响应头读取失败会标记 `response_headers`；空值表示未记录具体阶段，不能推断未发送。CONNECT、TLS、请求写入及响应 body 错误不借用此标记。Model JSON tools 可将 `timeout + response_headers` 映射为安全专用码，保留原 sent/retry 含义；不输出原始响应或底层错误来诊断时间。
 
 需要原生 `*http.Client` 的 SDK 使用 `SDKClient(profile)`，受控私有 Transport、拒绝标准库层另行 redirect、Jar=nil；Transport 内仍由 Client.Do 统一处理符合上述限制的合法 redirect。Go 的导出字段技术上可改；禁止替换属于可信 adapter 契约，不是类型强制。标准库会用包含原 URL 的 `*url.Error` 包装失败，SDK 的原 error/response 不能进入通用日志或业务 DTO；先用 `SafeNetworkError` 映射，并显式转换 response。当前没有 Provider/MCP SDK 集成完成声明，D09/D20 绑定时验证各 adapter。
 

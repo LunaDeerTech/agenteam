@@ -21,6 +21,7 @@ type outboundRuntime struct {
 	policy   *outbound.PolicyService
 	client   *outbound.Client
 	resolver outbound.Resolver // nil retains the default system resolver.
+	routes   outbound.ProxyRoutes
 	stopped  atomic.Bool
 }
 
@@ -45,9 +46,16 @@ func createOutbound(cfg config.Config, db database, auditing *audit.Service, aut
 	if err != nil {
 		return nil, err
 	}
-	client, err := outbound.NewClient(policy, cfg.OutboundTrust(), nil)
+	var routes outbound.ProxyRoutes
+	if origins := cfg.OutboundProxyOrigins(); len(origins) != 0 {
+		routes, err = outbound.NewEnvironmentProxyRoutes(origins)
+		if err != nil {
+			return nil, err
+		}
+	}
+	client, err := outbound.NewClientWithProxy(policy, cfg.OutboundTrust(), nil, routes)
 	if err != nil {
 		return nil, err
 	}
-	return &outboundRuntime{policy: policy, client: client}, nil
+	return &outboundRuntime{policy: policy, client: client, routes: routes}, nil
 }

@@ -2,21 +2,21 @@
 
 ## 当前目标与工作包状态
 
-2026-10-14 用户已确认以“指派任务 → Agent 连续工具执行 → 可见成果 → 审核通过/退回”为当前主目标。里程碑、依赖与完整工作包定义只维护在[开发计划](../development-plan.md#当前开发目标与里程碑)。`tool-loop-v1` 受控实现增量已随 `3a00e5a6` 推送 main，上一轮六个临时分支与五个工作树已清理，证据已保全；本次交付包含已通过限定独立准备验收的显式真实多轮 live 入口；实际外部模型仍待条件恢复，M1 整阶段未完成。恢复入口见 [current](../../../.agent-state/current.md)。
+2026-10-14 用户已确认以“指派任务 → Agent 连续工具执行 → 可见成果 → 审核通过/退回”为当前主目标，并要求先补完此前阻塞的 M1。里程碑、依赖与完整工作包定义只维护在[开发计划](../development-plan.md#当前开发目标与里程碑)。`tool-loop-v1` 受控实现及显式 live 准备入口已交付 main；本次真实模型的工具工作、可见成果与 Owner 送审已获独立接受，M1 已达到定义的阶段出口。M2 已另树保存推送并继续暂停。恢复入口见 [current](../../../.agent-state/current.md)。
 
-正常第十轮完整通过：同一工作 Execution 五次 Model / 四次 Runner read/write/run/read、真实文件/stdout/exit、最终 v2、三次原成果消费、唯一 Owner 送审至持久 `in_review` 及 reload 一致；正常 Drain/Runner Wait/App Joined、精确 work/review peer 和资源清理均到达。失败/原 Runtime 取消两子例及旧 direct-text 兼容已独立接受并有效复用；外部 DEV_CHAT 因既有 D04 DNS gate 受环境阻断，尚无外部 Model HTTP，详见 [M1 集成卡](../work-items/m1-app-integration.md)。
+真实外部模型按 Task 目标在同一工作 Execution 连续读取输入、写入程序、运行并读取结果，实际文件、stdout/exit、持久调用/结果及最终 v2 已闭合。浏览器完整消费、唯一 Owner 送审至持久 `in_review` 与刷新一致、原 Runtime/Runner/App Join 及资源清理均已独立接受；受控失败/取消及旧 direct-text 兼容有效复用。默认代理、NO_PROXY、CA/TLS 保留，正式出站使用显式精确 Origin 可信代理，历史本地目标 DNS 失败不代表服务不可达。范围见 [M1 集成卡](../work-items/m1-app-integration.md#当前真实模型验收)。
 
 | 工作包 | 当前状态与优先级 | 下一步 |
 | --- | --- | --- |
-| W1 模型工具调用 | JSON 原生工具请求、配对历史和真实 Runtime 已完成受控 App 链；显式 live 入口准备门通过，原 tools 独验 STOP 保留 | 在原 DNS/权限/出站条件满足后验证外部模型实际推理；动态 live facts 和新预算触发尚未实跑。 |
-| W2 多轮执行与 Task 交接 | 本次同 E 工具循环、Runner 副作用、v2/UI、Owner `in_review` 与刷新/正常收尾已通过 | 按 M2 继续成果传递及真实审核通过/退回；不由 Execution 成功自动完成 Task。 |
+| W1 模型工具调用 | 真实 JSON tools 多轮请求、配对历史与 Runtime 已通过 M1；精确 Origin 代理、可选 `reasoning_content` 兼容与响应头预算窄修获限定独验；原 tools 独验 STOP 保留 | 复用已验真实链；无工具 Agent 兼容及其余协议范围按后继任务推进，不扩大本次接受范围。 |
+| W2 多轮执行与 Task 交接 | M1 同一 Execution 的真实工具循环、Runner 副作用、v2/UI、Owner `in_review` 与刷新/正常收尾已通过 | 下一产品优先级为 M2 成果传递及审核通过/退回；本轮继续暂停，不由 Execution 成功自动完成 Task。 |
 | W3 审批、取消与执行详情 | read missing 失败及原 Runtime Stop/Drain 取消已限定独立接受；详情支持 v1/v2 | Human 持久取消、完整审批恢复、运行中重启接管仍待后继，不由 Runtime 取消样本代证。 |
 | W4 检索与记忆基础 | 本轮尚未派发，原工作包保留 | 按资源与主链进展安排，复用既有范围证据。 |
-| W5 集成与有界阻塞 | 受控主功能已交付；显式 live 准备静审、13项 fake 检查、SKIP/编译及受控正常回归已独立接受 | 原 DNS/权限/出站条件满足后执行真实模型验收，准备通过不记 live PASS。 |
+| W5 集成与有界阻塞 | M1 真实完整链与资源退出已独立接受；预算 observer、真实 SQL 计数及 App 停止/Join 补验按限定范围接受 | 按冻结组合收敛本次 M1 交付；保留 300 秒总预算/12 sent 软阈值，M2 继续暂停。 |
 
-本次 `93306a74` 准备增量新增双 opt-in 的 live case，使用原 SystemResolver/CA/D04/正式 Secret，动态核真实工具及成果；受控 `run.OyaNNV` 正常回归和精确退场已通过。动态 live facts 与新预算触发仅静审，未对真实 Provider 执行；当前未读取真实 KEY、未发送外部 Model HTTP，DNS 阻断只影响实际调用，不改变本地准备通过结论。准备与实际运行边界见 [live 准备卡](../work-items/m1-live-acceptance.md)，证据已保全主树。
+显式 live 继续使用双 opt-in、正式 Secret、正常目标 TLS 与动态成果断言；可信代理负责已授权 Origin 的目标解析，直连仍保原 DNS/地址门。本次成功、前三轮原 FAIL 及预算补验分别见 [live 验收卡](../work-items/m1-live-acceptance.md)与[独立复核](../work-items/m1-live-proxy-review.md)；预算补验中的合成记账行不计作真实模型调用，不回填旧失败，也不外推 embedding 产品全链或完整 D09/D22。
 
-`tool-loop-v1` 是显式执行配置，原 `direct-text-v1` 保留且无新增 UI 配置。正常验收 tick 250ms / skip 240 只是 Owner 窗口参数；Reviewer 读取自有说明不证明 worker 产物评审或 M2 完成。统一界面布局已在 `6d16bdae` 交付，其既有31项 unit/17文件格式限制与恢复材料见 [current](../../../.agent-state/current.md#已完成交接统一页面布局)。旧 STOP、历史 FAIL 与未验证范围继续保留；下文旧子项按发生时输入解读，不覆盖本节较新事实。
+`tool-loop-v1` 是显式执行配置，原 `direct-text-v1` 保留且无新增 UI 配置。正常验收 tick 250ms / skip 240 只是 Owner 窗口参数；本次真实 review 在收尾取消，仅证明送审接续，不证明自主审核决策或 M2 完成。统一界面布局已在 `6d16bdae` 交付，其既有31项 unit/17文件格式限制与恢复材料见 [current](../../../.agent-state/current.md#已完成交接统一页面布局)。旧 STOP、历史 FAIL 与未验证范围继续保留；下文旧子项按发生时输入解读，不覆盖本节较新事实。
 
 ## 当前验收与推进边界
 

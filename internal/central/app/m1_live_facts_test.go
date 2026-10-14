@@ -38,12 +38,16 @@ func (w *m1Workflow) awaitLiveResult(t *testing.T) {
 		var count int
 		var raw, status string
 		err := v.admin.QueryRow(v.ctx, `SELECT count(*),COALESCE(min(id),''),COALESCE(min(status),'') FROM agenteam_execution.executions WHERE project_id=$1 AND launch_request->'trigger'->>'task_id'=$2`, v.a.String(), w.task.ID.String()).Scan(&count, &raw, &status)
+		if err != nil {
+			w.diagnoseLiveResult(t)
+		}
 		workAppCheck(t, "m1-live-observe-execution", err)
 		if count > 1 {
 			t.Fatal("M1 live Task acquired multiple Executions before the Owner action")
 		}
 		if count == 1 && ec.Status(status).Terminal() {
 			if status != string(ec.Succeeded) {
+				w.diagnoseLiveResult(t)
 				t.Fatalf("M1 live original work Execution terminal status=%s", status)
 			}
 			w.execution, err = f.ParseID[id.Execution](raw)
@@ -52,11 +56,13 @@ func (w *m1Workflow) awaitLiveResult(t *testing.T) {
 		}
 		for _, project := range v.runtime.manager.Observation().Projects {
 			if project.ProjectID == v.a && !project.Running && !project.Retained && !project.Stopping && project.Err != nil {
+				w.diagnoseLiveResult(t)
 				t.Fatal("M1 live original project runner returned an error before completion")
 			}
 		}
 		select {
 		case <-v.ctx.Done():
+			w.diagnoseLiveResult(t)
 			t.Fatalf("M1 live work did not finish within its original total budget; status=%s", status)
 		case <-tick.C:
 		}
@@ -106,7 +112,7 @@ func (w *m1Workflow) diagnoseLiveResult(t *testing.T) {
 	err := w.app.admin.QueryRow(ctx, `WITH selected AS (SELECT id,status,launch_request->>'purpose' AS purpose FROM agenteam_execution.executions WHERE project_id=$1 AND launch_request->'trigger'->>'task_id'=$2)
  SELECT jsonb_build_object(
  'executions',(SELECT COALESCE(jsonb_agg(jsonb_build_object('status',status,'purpose',purpose)),'[]'::jsonb) FROM selected),
- 'model',(SELECT COALESCE(jsonb_agg(jsonb_build_object('dispatch',dispatch,'status',final_status,'category',error_data->>'category','code',error_data->>'code','usage_source',usage_source)),'[]'::jsonb) FROM agenteam_model.invocations WHERE execution_id::text IN(SELECT id FROM selected)),
+ 'model',(SELECT COALESCE(jsonb_agg(jsonb_build_object('dispatch',dispatch,'status',final_status,'category',error_data->>'category','code',error_data->>'code','usage_source',usage_source,'attempt',attempt_index,'elapsed_ms',round(extract(epoch FROM (finished_at-started_at))*1000),'sent_elapsed_ms',round(extract(epoch FROM (finished_at-dispatched_at))*1000)) ORDER BY started_at),'[]'::jsonb) FROM agenteam_model.invocations WHERE execution_id::text IN(SELECT id FROM selected)),
  'tools',(SELECT COALESCE(jsonb_agg(jsonb_build_object('phase',phase,'outcome',outcome)),'[]'::jsonb) FROM agenteam_tool.operations WHERE execution_id IN(SELECT id FROM selected)),
  'rounds',(SELECT count(*) FROM agenteam_execution.rounds WHERE execution_id IN(SELECT id FROM selected)),
  'results',(SELECT count(*) FROM agenteam_execution.loop_tool_results WHERE execution_id IN(SELECT id FROM selected)))`, w.app.a.String(), w.task.ID.String()).Scan(&facts)

@@ -63,7 +63,7 @@ func (x *Exchange) run(t Transport, req *http.Request, profile outbound.Profile)
 }
 func (x *Exchange) perform(t Transport, req *http.Request, profile outbound.Profile) (Result, error) {
 	defer req.Body.Close()
-	client, err := outbound.NewClient(t.Policy, t.Trust, t.Resolver)
+	client, err := t.newClient()
 	if err != nil {
 		return Result{}, failure("unknown", "wire_transport_error")
 	}
@@ -74,7 +74,15 @@ func (x *Exchange) perform(t Transport, req *http.Request, profile outbound.Prof
 	response, err := client.Do(x.ctx, req, profile)
 	if err != nil {
 		x.observeNetworkError(err)
-		return Result{}, transportFailure(err)
+		mapped := transportFailure(err)
+		var network *outbound.NetworkError
+		var model *mc.ModelError
+		if x.tools != nil && errors.As(err, &network) && network.Decision().Phase == outbound.PhaseResponseHeaders && errors.As(mapped, &model) && model.Category == "timeout" {
+			// A closed phase from the actual origin header read, never a
+			// guess based on duration or a projection of the raw network cause.
+			model.Code = "wire_response_headers_timeout"
+		}
+		return Result{}, mapped
 	}
 	defer response.Close()
 	d := response.Decision()
@@ -93,6 +101,9 @@ func (x *Exchange) perform(t Transport, req *http.Request, profile outbound.Prof
 		want = "text/event-stream"
 	}
 	if err != nil || contentType != want {
+		if x.tools != nil && x.mode == JSONResponse {
+			return Result{}, failure("provider_error", "wire_tools_content_type_invalid")
+		}
 		return Result{}, protocolFailure()
 	}
 	if x.mode == SSEResponse {

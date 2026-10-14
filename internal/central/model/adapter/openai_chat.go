@@ -34,10 +34,16 @@ const (
 )
 
 type Transport struct {
-	Policy   *outbound.PolicyService
-	Trust    outbound.TrustStore
-	Resolver outbound.Resolver
+	Policy      *outbound.PolicyService
+	Trust       outbound.TrustStore
+	Resolver    outbound.Resolver
+	ProxyRoutes outbound.ProxyRoutes
 }
+
+func (t Transport) newClient() (*outbound.Client, error) {
+	return outbound.NewClientWithProxy(t.Policy, t.Trust, t.Resolver, t.ProxyRoutes)
+}
+
 type Request struct {
 	Snapshot       mc.ConfigSnapshot
 	Messages       []mc.Message
@@ -100,7 +106,7 @@ func NewOpenAIChat(t Transport, b *Budget) (*OpenAIChat, error) {
 		}
 	}
 	// Use the formal constructor, without inspecting private dependency state.
-	probe, err := outbound.NewClient(t.Policy, t.Trust, t.Resolver)
+	probe, err := t.newClient()
 	if err != nil {
 		return nil, invalid()
 	}
@@ -258,6 +264,11 @@ func prepareNativeRequest(r Request, o CallOptions, raw []byte, stream bool) (*h
 		o.Limits.ReadIdle = idle
 	} else if o.Limits.ReadIdle < 0 || o.Limits.ReadIdle > idle {
 		return fail(invalid())
+	}
+	// Nonstream tool calls may spend the original attempt budget reasoning
+	// before returning response headers. Preserve any caller's shorter limit.
+	if !stream && r.Mode == JSONResponse && r.Snapshot.Identity.AdapterRevision == OpenAIChatToolsRevision && o.Limits.ResponseHeaders == 0 {
+		o.Limits.ResponseHeaders = min(o.Limits.Overall, 60*time.Second)
 	}
 	// Validate availability without retaining or converting borrowed plaintext.
 	if o.Credential.Use(func([]byte) error { return nil }) != nil {

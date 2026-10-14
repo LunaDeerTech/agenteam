@@ -24,6 +24,7 @@ type pooledConn struct {
 	reader                      *bufio.Reader
 	origin                      Origin
 	peer                        netip.Addr
+	proxyKey                    string // gateway identity; peer is not an origin IP.
 	idleAt                      time.Time
 	once                        sync.Once
 	owner                       *clientState
@@ -79,6 +80,7 @@ type clientState struct {
 	policy          *PolicyService
 	trust           TrustStore
 	resolver        Resolver
+	routes          ProxyRoutes
 	mu              sync.Mutex
 	stopped, forced bool
 	idle            map[string][]*pooledConn
@@ -93,6 +95,12 @@ func (s *clientState) notify() { close(s.changed); s.changed = make(chan struct{
 type Client struct{ data func() *clientState }
 
 func NewClient(policy *PolicyService, trust TrustStore, resolver Resolver) (*Client, error) {
+	return NewClientWithProxy(policy, trust, resolver, ProxyRoutes{})
+}
+
+// NewClientWithProxy accepts only composition-root proxy grants. The original
+// constructor remains direct-only, independent of the process environment.
+func NewClientWithProxy(policy *PolicyService, trust TrustStore, resolver Resolver, routes ProxyRoutes) (*Client, error) {
 	if policy == nil || policy.data == nil || trust.Validate() != nil {
 		return nil, invalid()
 	}
@@ -103,7 +111,7 @@ func NewClient(policy *PolicyService, trust TrustStore, resolver Resolver) (*Cli
 			return nil, err
 		}
 	}
-	s := &clientState{policy: policy, trust: trust, resolver: resolver, idle: map[string][]*pooledConn{}, connections: map[*pooledConn]bool{}, active: map[*operation]bool{}, changed: make(chan struct{})}
+	s := &clientState{policy: policy, trust: trust, resolver: resolver, routes: routes, idle: map[string][]*pooledConn{}, connections: map[*pooledConn]bool{}, active: map[*operation]bool{}, changed: make(chan struct{})}
 	return &Client{data: func() *clientState { return s }}, nil
 }
 func (c *Client) state() *clientState { return c.data() }
@@ -227,14 +235,16 @@ func (c *Client) putIdle(pc *pooledConn) {
 }
 
 type attempt struct {
-	ctx        context.Context
-	client     *Client
-	profile    ProfileOptions
-	target     Target
-	addresses  []netip.Addr
-	sent       atomic.Bool
-	decisionMu sync.Mutex
-	decision   Decision
+	ctx            context.Context
+	client         *Client
+	profile        ProfileOptions
+	target         Target
+	addresses      []netip.Addr
+	proxy          *proxyRoute
+	proxyAddresses []netip.Addr
+	sent           atomic.Bool
+	decisionMu     sync.Mutex
+	decision       Decision
 }
 
 func newAttempt(op *operation, c *Client, p ProfileOptions, target Target, redirect int) *attempt {
@@ -273,6 +283,15 @@ func (a *attempt) resolve() error {
 	if metadataHost(origin.Host()) {
 		return a.fail(ac.AddressForbidden, nil)
 	}
+	proxy, err := a.client.state().routes.route(origin)
+	if err != nil {
+		return a.fail(ac.OriginDenied, nil)
+	}
+	a.proxy = proxy
+	if proxy != nil {
+		a.addresses = nil // Never substitute the gateway for the origin's IPs.
+		return a.resolveProxy()
+	}
 	if ip, err := netip.ParseAddr(origin.Host()); err == nil {
 		a.addresses = []netip.Addr{ip.Unmap()}
 	} else {
@@ -309,6 +328,12 @@ func (a *attempt) admit(peer netip.Addr) error {
 	a.decision.PolicyVersion = &v
 	a.decision.AddressClass = Public
 	a.decisionMu.Unlock()
+	if a.proxy != nil {
+		a.decisionMu.Lock()
+		a.decision.AddressClass = TrustedProxy
+		a.decisionMu.Unlock()
+		return a.admitProxy(peer)
+	}
 	for _, ip := range a.addresses {
 		class := Classify(ip)
 		if class != Public {
@@ -326,6 +351,9 @@ func (a *attempt) admit(peer netip.Addr) error {
 	return nil
 }
 func (a *attempt) connect() (*pooledConn, error) {
+	if a.proxy != nil {
+		return a.connectProxy()
+	}
 	ctx, cancel := context.WithTimeout(a.ctx, a.profile.Limits.Connect)
 	defer cancel()
 	release, err := a.client.state().policy.state().gate.acquire(ctx, false)
@@ -416,6 +444,9 @@ func (w *firstWriter) Write(b []byte) (int, error) {
 	defer release()
 	if !w.pc.origin.Equal(w.a.target.Origin()) {
 		return 0, w.a.fail(ac.OriginDenied, nil)
+	}
+	if !w.a.matchesConnection(w.pc) {
+		return 0, w.a.fail(ac.AddressForbidden, nil)
 	}
 	if err = w.a.admit(w.pc.peer); err != nil {
 		return 0, err

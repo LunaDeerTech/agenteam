@@ -31,21 +31,22 @@ type LookupEnv func(string) (string, bool)
 
 // Config is immutable after loading. Its zero value is invalid.
 type Config struct {
-	logLevel         slog.Level
-	shutdownTimeout  time.Duration
-	httpAddr         string
-	publicOrigin     string
-	devMode          bool
-	database         postgres.Config
-	cursorKeys       cursor.Keyring
-	secretKeys       secret.Keyring
-	outboundTrust    outbound.TrustStore
-	objectRuntime    object.RuntimeConfig
-	accountKeys      account.Keyring
-	knowledgeKeys    kc.ConfirmationKeys
-	accountLog       func() string
-	launchRetry      *scheduler.LaunchRetryPolicy
-	executionRuntime *ExecutionRuntimeOptions
+	logLevel             slog.Level
+	shutdownTimeout      time.Duration
+	httpAddr             string
+	publicOrigin         string
+	devMode              bool
+	database             postgres.Config
+	cursorKeys           cursor.Keyring
+	secretKeys           secret.Keyring
+	outboundTrust        outbound.TrustStore
+	outboundProxyOrigins []outbound.Origin
+	objectRuntime        object.RuntimeConfig
+	accountKeys          account.Keyring
+	knowledgeKeys        kc.ConfirmationKeys
+	accountLog           func() string
+	launchRetry          *scheduler.LaunchRetryPolicy
+	executionRuntime     *ExecutionRuntimeOptions
 }
 
 func (c Config) LogLevel() slog.Level                           { return c.logLevel }
@@ -98,7 +99,7 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 			continue
 		}
 		switch strings.TrimPrefix(key, Prefix) {
-		case "LOG_LEVEL", "SHUTDOWN_TIMEOUT", "HTTP_ADDR", "PUBLIC_ORIGIN", "DEV_MODE", "CURSOR_KEYRING", "SECRET_KEYRING", "OUTBOUND_CA_FILE":
+		case "LOG_LEVEL", "SHUTDOWN_TIMEOUT", "HTTP_ADDR", "PUBLIC_ORIGIN", "DEV_MODE", "CURSOR_KEYRING", "SECRET_KEYRING", "OUTBOUND_CA_FILE", outboundProxyOriginsSetting:
 		case "ACCOUNT_KEYRING", "ACCOUNT_RECOVERY_LOG":
 		case "KNOWLEDGE_CONFIRMATION_KEYRING":
 		case schedulerRetryMaxAttempts, schedulerRetryInitialBackoff, schedulerRetryMaxBackoff:
@@ -178,6 +179,10 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 	if err != nil {
 		return Config{}, invalid("OUTBOUND_CA_FILE")
 	}
+	c.outboundProxyOrigins, err = loadOutboundProxyOrigins(lookup)
+	if err != nil {
+		return Config{}, err
+	}
 	if _, err = object.LoadDownloadKeyring(value("OBJECT_DOWNLOAD_KEYRING", ""), c.cursorKeys, c.secretKeys); err != nil {
 		return Config{}, invalid("OBJECT_DOWNLOAD_KEYRING")
 	}
@@ -241,6 +246,9 @@ func (c Config) Validate() error {
 	}
 	if c.outboundTrust.Validate() != nil {
 		return invalid("OUTBOUND_CA_FILE")
+	}
+	if err := validateOutboundProxyOrigins(c.outboundProxyOrigins); err != nil {
+		return err
 	}
 	if c.objectRuntime.Validate() != nil {
 		return invalid("OBJECT_*")

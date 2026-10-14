@@ -30,15 +30,27 @@ sh tests/m1-app-workflow/run.sh
 
 失败/取消场景继续使用原零冷却配置、单 Provider 和原提交后 observer；正常场景的 Owner 窗口与评审 Provider 选配不会进入这两个场景。
 
-## 显式真实模型入口（准备门通过，真实调用未实跑）
+## 显式真实模型入口
+
+正式代理与JSON工具协议已通过真实模型完整场景：冻结2d76554d的run.OtpjqE原Wait0，模型自主5轮Model/4次真实Tool、成果内容/stdout/exit/最终v2、Owner唯一送审和刷新、原完整Join均通过。review另1次调用随原Stop取消，不是自主评审决策。每轮证据及前三次FAIL见[live卡](../../docs/development/work-items/m1-live-acceptance.md)，失败不回填。
 
 `AGENTEAM_M1_CASE=live` 选择 `^TestM1AppLiveWorkflow$`，同时必须设置 `AGENTEAM_M1_LIVE_OPT_IN=external-model-read-write-run-review`。两层选择缺任一即拒绝；普通两个 case 会继续剔除所有 `DEV_CHAT_*` 与 live opt-in。实际运行沿上方同一命令/依赖，只增加这两个选择值，并使用会话已配置的 `DEV_CHAT_BASE_URL`、`DEV_CHAT_MODEL`、`DEV_CHAT_API_KEY`。不要把 KEY 写进命令文本、README、日志或证据。
 
-测试先核非秘密 URL/Model 元数据，再调用正式 `outbound.SystemResolver()` 对真实 hostname 完成原 A/AAAA 门；不发探针 HTTP。只有显式 live 且预检合格后，才读取配置 KEY 并写入本轮新数据库的正式 Secret。App 保留原 system resolver、系统 CA 与出站 policy；不注入 ownedIP、fixture CA、私网 allowrule、预设模型响应或合成凭据。Runner 使用原环境白名单，浏览器子进程继续剔除 `DEV_CHAT_*`。独立 owned outbound fixture 可能由官方测试栈一并创建，但 live Model 不消费它。
+测试先核非秘密 URL/Model 元数据，并将该 URL 的唯一 HTTPS Origin 交给正式 `AGENTEAM_CENTRAL_OUTBOUND_PROXY_ORIGINS` 配置。App 与 Model adapter 复用同一不可变代理路由。环境原 HTTP(S)_PROXY/NO_PROXY 与 CA 值保持；精确允许的 Origin 若命中代理，由可信网关解析目标，不能再用本地目标 DNS NXDOMAIN 先行否定。NO_PROXY 或无代理命中仍沿原 SystemResolver A/AAAA、地址分类与策略门。没有代理故障后直连降级，也不把网关 IP 当成目标 IP 或声称它证明目标地址为 public。
+
+只有显式 live 且所选正式路由预检合格后，才读取配置 KEY 并写入本轮新数据库的正式 Secret；实际网关连接、原目标 TLS/SNI、系统与配置 CA、凭据来源和 Close/Join 仍由正式 outbound 执行。保留出站 policy，不注入 ownedIP、fixture CA、私网 allowrule、预设模型响应或合成凭据。Runner 使用原环境白名单，浏览器子进程继续剔除 `DEV_CHAT_*`。独立 owned outbound fixture 可能由官方测试栈一并创建，但 live Model 不消费它。
+
+代理路由接线后，运行示例为上方同一工具/依赖环境加以下选择，不在命令参数中放 KEY：
+
+```sh
+AGENTEAM_M1_CASE=live \
+AGENTEAM_M1_LIVE_OPT_IN=external-model-read-write-run-review \
+sh tests/m1-app-workflow/run.sh
+```
 
 live Task 仅提供输入数据、目标和文件说明，真实模型自行生成程序、选择 read/write/run 及后继轮次。核验不锁固定程序、正文、轮数或 token 数；必须有至少两次工具交互并实际读取输入、写程序、运行和读取结果，文件 JSON 与真实 command stdout/exit 相互印证，原持久 Round/Call/Operation/Usage/最终 v2 可追溯。浏览器预期来自独立核验后的原持久工作 E，而非预设答案。评审仍只是 Owner 送审及可能出现的 receipt，不代表自主评审决策。
 
-本轮部署总期限300秒，单 Model attempt 最多60秒，输出上限4096。work、review 与所有 retry 合计 `sent` 观察阈值12是含在途量的软停止条件，不能作为硬请求/计费上限。截止、阈值或预算观测失败会停止原 Runtime、以独立30秒期限 Drain 并取消原 App 根；原 Runner/App/连接实际 Join 仍是成功门，超限不得报完成。
+本轮部署总期限300秒，单 Model attempt 最多60秒，输出上限4096。JSON tools在未显式指定更短响应头限制时，将目标响应头等待对齐原attempt剩余时间且最多60秒；原总期限不会延长。普通outbound默认和代理CONNECT仍为15秒，旧text/SSE入口默认不变。work、review 与所有 retry 合计 `sent` 观察阈值12是含在途量的软停止条件，不能作为硬请求/计费上限。截止、阈值或预算观测失败会停止原 Runtime、以独立30秒期限 Drain 并取消原 App 根；原 Runner/App/连接实际 Join 仍是成功门，超限不得报完成。
 
 准备检查不接真实配置，也不启 native 栈：
 
@@ -50,12 +62,12 @@ GOPROXY=off GOSUMDB=off /workspace/toolchains/go1.27.1/bin/go test \
 -run '^TestM1LivePreparation$' -count=1
 ```
 
-该选择器只用 fake metadata/resolver 测拒绝与资格边界，不读取进程中真实 KEY/DEV_CHAT 值，不发 DNS/HTTP。准备门、真实运行门分别记录于 [live卡](../../docs/development/work-items/m1-live-acceptance.md)。当前外部 DNS 尚不合格，不能将编译/准备通过记为 live PASS。
+该选择器只用 fake metadata/resolver 测拒绝与直连资格边界，不读取进程中真实 KEY/DEV_CHAT 值，不发 DNS/HTTP。正式代理的路由、TLS、拒绝与生命周期边界由 outbound 相关检查覆盖。准备门、真实运行门分别记录于 [live卡](../../docs/development/work-items/m1-live-acceptance.md)；编译、准备或单次直接模型 POST 通过均不记为完整 live PASS。
 
 ## 证据
 
-当前实际通过、失败与下一步见 [M1 集成卡](../../docs/development/work-items/m1-app-integration.md#当前成果与验收边界)。正常第十轮已完整通过三次原成果消费、唯一 Owner 送审、刷新一致及正常收尾；失败/取消与旧 direct-text 按各自固定输入接受并复用，不表示外部模型或 M1 整阶段完成。第九轮只记录 Playwright `ERR_ABORTED`、完整消费未在该轮证明的 FAIL，不推断 native 正文不完整。
+当前实际通过、失败与下一步见 [M1 集成卡](../../docs/development/work-items/m1-app-integration.md#当前成果与验收边界)。正常第十轮已完整通过三次原成果消费、唯一 Owner 送审、刷新一致及正常收尾；失败/取消与旧direct-text按各自固定输入接受并复用。本轮另有上述真实外部模型通过证据，M1出口已到达，不扩大为M2或其他停止项完成。第九轮只记录 Playwright `ERR_ABORTED`、完整消费未在该轮证明的 FAIL，不推断 native 正文不完整。
 
-每轮输出在 `output/ai/m1-app-integration/run.*`。`native.log` 保存实际测试及 fixture Wait；`owned-resources.json` 仅保存资源身份；`browser/TestM1AppToolWorkflow`（live为 `browser/TestM1AppLiveWorkflow`）保存浏览器阶段、脱敏控制台及截图。Session/Runner enrollment 材料放私有目录并清理，不写证据。本次交付的必要日志、资源身份、browser 消费证明/阶段与截图保全到主工作区 `/workspace/agenteam/output/ai/m1-delivery-evidence/app-integration/` 的原轮次目录，精确复制经 bytes/SHA 核对；不带二进制、依赖缓存或私有材料。
+每轮输出在 `output/ai/m1-app-integration/run.*`。本轮真实代理live、必要旧FAIL、预算与独验原材料已另保全到主树`output/ai/m1-delivery-evidence/proxy-live/`，清单核对bytes/SHA256；再生binary/dist/cache不归档。`native.log` 保存实际测试及 fixture Wait；`owned-resources.json` 仅保存资源身份；`browser/TestM1AppToolWorkflow`（live为 `browser/TestM1AppLiveWorkflow`）保存浏览器阶段、脱敏控制台及截图。Session/Runner enrollment 材料放私有目录并清理，不写证据。本次交付的必要日志、资源身份、browser 消费证明/阶段与截图保全到主工作区 `/workspace/agenteam/output/ai/m1-delivery-evidence/app-integration/` 的原轮次目录，精确复制经 bytes/SHA 核对；不带二进制、依赖缓存或私有材料。
 
 通过必须同时包含同一 Task/Execution 的实际多轮工具结果、文件内容与 command stdout/exit、v2 最终输出、唯一 Owner 评审转移、刷新一致，以及 App/Runner/浏览器原进程返回。编译、环境准备或受控 Provider 通过均不标外部模型推理通过。旧 STOP 驱动不由本入口运行。
