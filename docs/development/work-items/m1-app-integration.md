@@ -57,3 +57,9 @@ terminal preparation 可表示合法捕获，因此根因暂只定位到准备�
 第六轮 `90f1bda7` / `run.SoW9B4` 再次完成后端五轮；浏览器越过正式 detail、两次 v2 输出与成果文件名断言并保存首截图。唯一 Owner 提交评审接口返回 HTTP 503，当前无安全错误码，原因待定，不将 relaunch 猜测当结论。outer Wait 1、Runner cleanup Wait 和固定三层精确资源清理完成；正常 App/Runner Join、peer 完整断言位于浏览器之后，尚未执行。
 
 下一候选只补安全诊断，不修改评审成功条件：HTTP status/code、失败清理前持久 Task/E/peer 状态、原 transfer 事务 NotCommitted 的 SQLSTATE/constraint。初始化提取供 W2 的两个独立 native 场景复用：read missing 无载荷失败、实际命令启动后的原 Runtime Stop/Drain 取消与 Join。`run.sh` 使用固定 workflow 或 failure-and-cancellation case，每轮仍新 nonce/新库；新增失败/取消 case 未运行，不计验收通过。
+
+### `33009a96` 正常诊断与失败/取消验收
+
+第七轮正常 case `run.ELNqqc` outer Wait 1：首工作 Execution 五轮后端成功，浏览器在详情 `response.finished()` 等待 45 秒超时，未到 Owner transfer，因此没有新增 503 错误码结论。安全持久状态确认 Task 仍 in_progress/version 3，已有 18 个 Execution（首 succeeded、其后 17 failed/model_failed），peer 22 请求。继承旧 fixture 的 250ms tick/skip 0 会按原合同反复 relaunch；此动态事实需要与 Owner 评审窗口和合法 reviewer 调度一起对齐，不能把停 manager 或未记录的冷却当通过依据。
+
+同一冻结输入的新 `failure-and-cancellation` case `run.Wxxzus` outer Wait 0，两个子例 11.21 秒实际通过。真实不存在文件使 Execution failed/runtime_failed；真实运行命令 marker 后调用原 Runtime StopAdmission/Drain，使 Execution cancelled 并确认 pinned pidfd 就绪、原子进程和进程组消失。两者的原 pending bytes、同事务终态、精确 1 Model/1 Tool、原 Runner Wait 0 与 App 全 owner Joined 均通过。两轮均完成固定三层资源精确清理，等待独立证据检查；该限定通过不代表正常评审或外部模型已经验收。

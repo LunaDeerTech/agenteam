@@ -35,3 +35,9 @@
 
 - 第六轮 `90f1bda7` / `run.SoW9B4` 后端链再次通过，真实浏览器 detail、两次 v2 输出读取、成果文件名及首截图通过；唯一 Owner transfer 返回 HTTP 503，尚无安全错误码，不能归因为 relaunch。outer Wait 1、Runner cleanup Wait 与三层资源清理完成。浏览器之后的正常 App/Runner Join 和完整 peer 断言未到达，不计 PASS。
 - 下一候选增加严格受限 HTTP code、浏览器失败前真实 Task/E/peer 诊断，以及原 Store 对 `work.task.transfer` NotCommitted 的安全 SQLSTATE/constraint 元数据；不改变 200、唯一写入、in_review 或调度条件。主初始化提取为 `newM1WorkflowWithObserver`，保持原成功路径步骤；W2 新 `m1_tool_failure_test.go` 复用同图验证 read missing 与真实运行命令取消，独占新文件。新 case 尚未运行，等待冻结后单一栈按固定 selector 验证。
+
+## 当前最新原生结论（冻结输入 `33009a96`）
+
+- 正常 case 第七轮 `run.ELNqqc` / original outer Wait 1：首工作 Execution 后端五轮成功，但浏览器在详情响应的 `response.finished()` 等待 45 秒超时，未到 transfer，不能将本次误报为 503。安全持久诊断真实显示同一 Task 已有 18 个 Execution（1 succeeded、17 failed/model_failed），Provider 共 22 请求；Task 仍 in_progress/version 3。当前继承旧 fixture 的 tick 250ms、relaunch_skip_count 0 是显式零冷却，原 Scheduler 持续重启事实已确认。后续按正式调度/评审语义对齐 fixture，尚无成功评审闭环。
+- 新 `failure-and-cancellation` case `run.Wxxzus` / original outer Wait 0：两个子例实际 PASS（11.21 秒）。真实 read missing 无结果载荷→failed/runtime_failed；真实 Python 命令 marker 后执行原 Runtime StopAdmission/Drain→cancelled，并核 pidfd ready/child 与进程组不存在。两者均保持原 pending response/call/assistant bytes、同事务终态、1 Model 请求/1 Tool operation、正常 Runner original Wait 0 与原 App 全 owner Joined。
+- 两轮全部 PG/outbound/MinIO 精确 nonce 清理完成，native/Go 槽空闲。以上失败/取消通过不代替正常浏览器评审、外部模型推理或旧 STOP；等待 macro_milestones 独立消费实际证据。
