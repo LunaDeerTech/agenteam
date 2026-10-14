@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"net"
 	"net/netip"
 	"os"
@@ -13,6 +14,7 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"time"
 
 	ac "github.com/LunaDeerTech/agenteam/internal/central/agent/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
@@ -58,6 +60,14 @@ func TestM1AppToolWorkflow(t *testing.T) {
 	fixture.awaitResult(t)
 	fixture.checkArtifacts(t)
 	fixture.browser(t, listener)
+	// Owner review may legitimately have started a new task/review Execution.
+	// Stop and join the original Runtime while its Runner/Store remain alive;
+	// only then stop the Runner and the rest of the App.
+	v.runtime.StopAdmission()
+	drainContext, cancelDrain := context.WithTimeout(context.Background(), 5*time.Second)
+	drainErr := v.runtime.Drain(drainContext)
+	cancelDrain()
+	workAppCheck(t, "m1-original-runtime-drain", drainErr)
 	fixture.stopRunner(t)
 	v.requestStop()
 	usageAppWait(t, v.directory.returned, "m1-manager-original-return")
@@ -73,10 +83,15 @@ func TestM1AppToolWorkflow(t *testing.T) {
 
 func newM1Workflow(t *testing.T) (*m1Workflow, net.Listener) {
 	t.Helper()
-	return newM1WorkflowWithObserver(t, nil)
+	return newM1WorkflowWithOptions(t, nil, true)
 }
 
 func newM1WorkflowWithObserver(t *testing.T, observer func(f.TransactionCause, f.CommitResult)) (*m1Workflow, net.Listener) {
+	t.Helper()
+	return newM1WorkflowWithOptions(t, observer, false)
+}
+
+func newM1WorkflowWithOptions(t *testing.T, observer func(f.TransactionCause, f.CommitResult), ownerReview bool) (*m1Workflow, net.Listener) {
 	t.Helper()
 	listener, err := net.Listen("tcp", "127.0.0.1:0")
 	workAppCheck(t, "m1-listener", err)
@@ -95,9 +110,16 @@ func newM1WorkflowWithObserver(t *testing.T, observer func(f.TransactionCause, f
 				observer(cause, result)
 			}
 		}
+		runtimeConfig := strings.Replace(executionSchedulerAppConfig, "direct-text-v1", "tool-loop-v1", 1)
+		if ownerReview {
+			// An explicit test deployment choice: 240 skipped visits at the
+			// existing 250ms tick gives a bounded Owner viewing window. This
+			// is neither a production default nor a Scheduler pause.
+			runtimeConfig = strings.Replace(runtimeConfig, `"relaunch_skip_count":0`, `"relaunch_skip_count":240`, 1)
+		}
 		env := append(guardEnvironment(t, v.root.db), "AGENTEAM_CENTRAL_PUBLIC_ORIGIN="+origin,
 			"AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=5s", "AGENTEAM_CENTRAL_OUTBOUND_CA_FILE="+network.CAFile,
-			"AGENTEAM_CENTRAL_EXECUTION_RUNTIME="+strings.Replace(executionSchedulerAppConfig, "direct-text-v1", "tool-loop-v1", 1),
+			"AGENTEAM_CENTRAL_EXECUTION_RUNTIME="+runtimeConfig,
 			"AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_ATTEMPTS=2", "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_INITIAL_BACKOFF=100ms", "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_BACKOFF=1s")
 		v.root.cfg = guardConfiguration(t, env)
 		d.outboundConstruct = func(_ context.Context, _ config.Config, actual *outboundRuntime) error {
@@ -110,7 +132,7 @@ func newM1WorkflowWithObserver(t *testing.T, observer func(f.TransactionCause, f
 		t.Fatal("M1 original outbound owner absent")
 	}
 	m1AllowOwnedPeer(t, v, transport, network)
-	return &m1Workflow{app: v, network: network, origin: origin, private: t.TempDir()}, listener
+	return &m1Workflow{app: v, network: network, origin: origin, private: t.TempDir(), reviewEnabled: ownerReview}, listener
 }
 
 type m1Workflow struct {
@@ -128,6 +150,10 @@ type m1Workflow struct {
 	execution                                  id.ExecutionID
 	view                                       ec.TaskRuntimeView
 	responseSequence                           func(*testing.T) []netfixture.WireScenario
+	reviewEnabled                              bool
+	reviewScenario, reviewWorkspace            string
+	reviewMount                                id.MountID
+	reviewModel                                mc.ModelID
 }
 
 func m1AllowOwnedPeer(t *testing.T, v *executionSchedulerApp, transport *outboundRuntime, network *netfixture.Descriptor) {
@@ -204,6 +230,17 @@ func (w *m1Workflow) createModelAndTask(t *testing.T, endpoint string) {
 	v.httpSeed(t, "/models", map[string]any{"provider_id": provider, "input": map[string]any{"name": "M1 model", "provider_model_id": "m1-statistics", "type": mc.ChatModel, "enabled": true, "parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{}, "capabilities": map[string]any{"tool_calls": true, "parallel_tool_calls": false, "streaming": true, "reasoning": false, "input_modalities": []string{"text"}, "output_modalities": []string{"text"}, "reasoning_efforts": []string{}, "structured_output_modes": []string{}, "context_length": nil, "max_output": nil}}}, &receipt)
 	modelID, err := f.ParseID[mc.Model](receipt.ResourceID)
 	workAppCheck(t, "m1-model", err)
+	var reviewProvider mc.ProviderID
+	reviewVersion := providerVersion
+	if w.reviewEnabled {
+		v.httpSeed(t, "/model-providers", map[string]any{"input": map[string]any{"name": "M1 review Provider", "protocol": mc.OpenAIChat, "base_url": endpoint, "enabled": true, "credential_ref": credential, "options": map[string]any{}}}, &receipt)
+		reviewProvider, err = f.ParseID[mc.Provider](receipt.ResourceID)
+		workAppCheck(t, "m1-review-provider", err)
+		reviewVersion = receipt.Version
+		v.httpSeed(t, "/models", map[string]any{"provider_id": reviewProvider, "input": map[string]any{"name": "M1 review model", "provider_model_id": "m1-review", "type": mc.ChatModel, "enabled": true, "parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{}, "capabilities": map[string]any{"tool_calls": true, "parallel_tool_calls": false, "streaming": true, "reasoning": false, "input_modalities": []string{"text"}, "output_modalities": []string{"text"}, "reasoning_efforts": []string{}, "structured_output_modes": []string{}, "context_length": nil, "max_output": nil}}}, &receipt)
+		w.reviewModel, err = f.ParseID[mc.Model](receipt.ResourceID)
+		workAppCheck(t, "m1-review-model", err)
+	}
 	// Both agents are real directory members. Only the worker is assigned; the
 	// reviewer receives the Task later through the Owner's explicit UI action.
 	disabled := false
@@ -221,6 +258,13 @@ func (w *m1Workflow) createModelAndTask(t *testing.T, endpoint string) {
 			slices.SortFunc(fields.AllowedToolIDs, func(a, b id.ToolID) int { return strings.Compare(a.String(), b.String()) })
 		} else {
 			w.reviewer = target
+			if w.reviewEnabled {
+				fields.ModelRef = w.reviewModel
+				fields.Instructions = "Read review-instructions.txt and acknowledge the review task. Do not decide approval or change the Task state."
+				fields.AllowedToolIDs = []id.ToolID{w.tools[tc.RunnerReadFileKey]}
+				declarations := []ac.RunnerMountDeclaration{{RunnerID: w.runnerID, Workspace: "review"}}
+				fields.RunnerMounts, fields.AllowedMountIDs = &declarations, nil
+			}
 		}
 		request, err := ac.NewAgentCreate(fields)
 		workAppCheck(t, "m1-agent-intent", err)
@@ -235,6 +279,17 @@ func (w *m1Workflow) createModelAndTask(t *testing.T, endpoint string) {
 			w.workspace = filepath.Join(w.root, v.a.String(), v.agent.String(), (*mounts)[0].Workspace)
 			workAppCheck(t, "m1-workspace", os.MkdirAll(w.workspace, 0700))
 			workAppCheck(t, "m1-input", os.WriteFile(filepath.Join(w.workspace, "input.json"), []byte("{\"values\":[2,4,6,8]}\n"), 0600))
+		} else if w.reviewEnabled {
+			mounts := mutation.Fields().RunnerMounts
+			if mounts == nil || len(*mounts) != 1 {
+				t.Fatal("M1 original review mount absent")
+			}
+			w.reviewMount = (*mounts)[0].MountID
+			w.reviewWorkspace = filepath.Join(w.root, v.a.String(), w.reviewer.String(), (*mounts)[0].Workspace)
+			workAppCheck(t, "m1-review-workspace", os.MkdirAll(w.reviewWorkspace, 0700))
+			// This is fixture-owned review guidance, not a transfer of worker
+			// artifacts and not evidence of an autonomous review decision.
+			workAppCheck(t, "m1-review-instructions", os.WriteFile(filepath.Join(w.reviewWorkspace, "review-instructions.txt"), []byte("Acknowledge receipt of this review task. The Owner will decide subsequent review actions.\n"), 0600))
 		}
 	}
 	// Freeze the actual mount identity into the owned peer only after Agent
@@ -252,6 +307,17 @@ func (w *m1Workflow) createModelAndTask(t *testing.T, endpoint string) {
 		t.Fatalf("M1 Provider update status=%d", response.status)
 	}
 	workAppCheck(t, "m1-provider-updated-receipt", json.Unmarshal(response.body, &receipt))
+	if w.reviewEnabled {
+		w.reviewScenario, err = w.network.Create(v.ctx, netfixture.ScenarioConfig{Mode: "openai_chat_wire", WireSequence: w.reviewResponses(t)})
+		workAppCheck(t, "m1-owned-review-sequence", err)
+		reviewInput := map[string]any{"name": "M1 review Provider", "protocol": mc.OpenAIChat, "base_url": "https://fixture.test:8443/case/" + w.reviewScenario, "enabled": true, "credential_ref": credential, "options": map[string]any{}}
+		response, err := v.request(v.ctx, "PUT", "/api/v1/projects/"+v.a.String()+"/model-providers/"+reviewProvider.String(), workAppJSON(t, map[string]any{"expected_version": reviewVersion, "input": reviewInput}), guardID[struct{}](t).String())
+		workAppCheck(t, "m1-formal-review-endpoint", err)
+		if response.status != 200 {
+			t.Fatalf("M1 review Provider update status=%d", response.status)
+		}
+		workAppCheck(t, "m1-review-updated-receipt", json.Unmarshal(response.body, &receipt))
+	}
 	var structure wc.StructureMutation
 	milestone := wc.CreateMilestoneRequest{MilestoneID: guardID[wc.Milestone](t), Title: "M1 statistics"}
 	v.httpSeed(t, "/milestones", map[string]any{"request": milestone}, &structure)
@@ -295,7 +361,27 @@ func (w *m1Workflow) responses(t *testing.T) []netfixture.WireScenario {
 		}
 		raw, err := json.Marshal(map[string]any{"id": "owned-m1-response", "object": "chat.completion", "created": 1, "model": "m1-statistics", "choices": []any{map[string]any{"index": 0, "message": message, "finish_reason": finish}}, "usage": map[string]any{"prompt_tokens": 10, "completion_tokens": 10, "total_tokens": 20}})
 		workAppCheck(t, "m1-model-response", err)
-		out = append(out, netfixture.WireScenario{Status: 200, Headers: map[string]string{"Content-Type": "application/json"}, Chunks: [][]byte{raw}})
+		out = append(out, netfixture.WireScenario{Status: 200, Headers: map[string]string{"Content-Type": "application/json", "X-Request-Id": fmt.Sprintf("m1-work-round-%d", n+1)}, Chunks: [][]byte{raw}})
 	}
 	return out
+}
+
+func (w *m1Workflow) reviewResponses(t *testing.T) []netfixture.WireScenario {
+	t.Helper()
+	args, err := json.Marshal(map[string]any{"mount_id": w.reviewMount.String(), "path": "review-instructions.txt", "offset": "0", "length": 4096, "encoding": "utf8"})
+	workAppCheck(t, "m1-review-tool-args", err)
+	var sequence []netfixture.WireScenario
+	for n := 0; n < 2; n++ {
+		message := map[string]any{"role": "assistant", "content": "评审任务已收到，等待 Owner 后续处理。"}
+		finish := "stop"
+		if n == 0 {
+			message["content"] = nil
+			message["tool_calls"] = []any{map[string]any{"id": "m1_review_read_instructions", "type": "function", "function": map[string]any{"name": "tool_" + strings.ReplaceAll(w.tools[tc.RunnerReadFileKey].String(), "-", ""), "arguments": string(args)}}}
+			finish = "tool_calls"
+		}
+		raw, err := json.Marshal(map[string]any{"id": "owned-m1-review-response", "object": "chat.completion", "created": 1, "model": "m1-review", "choices": []any{map[string]any{"index": 0, "message": message, "finish_reason": finish}}, "usage": map[string]any{"prompt_tokens": 10, "completion_tokens": 10, "total_tokens": 20}})
+		workAppCheck(t, "m1-review-response", err)
+		sequence = append(sequence, netfixture.WireScenario{Status: 200, Headers: map[string]string{"Content-Type": "application/json", "X-Request-Id": fmt.Sprintf("m1-review-round-%d", n+1)}, Chunks: [][]byte{raw}})
+	}
+	return sequence
 }

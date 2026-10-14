@@ -63,3 +63,11 @@ terminal preparation 可表示合法捕获，因此根因暂只定位到准备�
 第七轮正常 case `run.ELNqqc` outer Wait 1：首工作 Execution 五轮后端成功，浏览器在详情 `response.finished()` 等待 45 秒超时，未到 Owner transfer，因此没有新增 503 错误码结论。安全持久状态确认 Task 仍 in_progress/version 3，已有 18 个 Execution（首 succeeded、其后 17 failed/model_failed），peer 22 请求。继承旧 fixture 的 250ms tick/skip 0 会按原合同反复 relaunch；此动态事实需要与 Owner 评审窗口和合法 reviewer 调度一起对齐，不能把停 manager 或未记录的冷却当通过依据。
 
 同一冻结输入的新 `failure-and-cancellation` case `run.Wxxzus` outer Wait 0，两个子例 11.21 秒实际通过。真实不存在文件使 Execution failed/runtime_failed；真实运行命令 marker 后调用原 Runtime StopAdmission/Drain，使 Execution cancelled 并确认 pinned pidfd 就绪、原子进程和进程组消失。两者的原 pending bytes、同事务终态、精确 1 Model/1 Tool、原 Runner Wait 0 与 App 全 owner Joined 均通过。两轮均完成固定三层资源精确清理，等待独立证据检查；该限定通过不代表正常评审或外部模型已经验收。
+
+macro_milestones 随后只读接受上述限定失败/取消两门，实际日志/源码断言及所有记录资源/PID 消失一致；正常第七轮退场也已独核，没有重跑。
+
+### 后续正常工作流的显式部署参数
+
+不修改 Scheduler/Work 正式产品语义。仅正常 `newM1Workflow` 显式选择 tick 250ms / relaunch_skip_count 240，提供约 60 秒 Owner 查看窗口；不是生产默认，也不暂停 manager。窗口内原 work E 必须仍是唯一 work，精确五次 Model/四次 Tool 不放宽。送审后允许真实 task/review E，由独立 Model/Provider 的最多两条正常响应读取 reviewer 自有说明文件并确认收到任务；不会把说明文件当 worker 成果传递，也不宣称评审决策闭环。
+
+现 tool-loop-v1 首轮要求非空 Tools 与 required，因此 reviewer 也正式授权 readFile 与独立 mount；无工具 Agent 尚不在兼容声明内。响应 X-Request-Id 经已有 Usage 持久映射核工作/评审归属，无测试生产请求 header。浏览器回验后先原 Runtime Stop/Drain，再 Runner/App Join，允许活 review 正常取消。failure/cancel 的原 factory、配置、响应和提交后 observer 不启用这一选配，已接受证据继续复用；新正常组合尚待编译与 native 实证。

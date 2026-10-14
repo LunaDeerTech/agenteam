@@ -41,3 +41,7 @@
 - 正常 case 第七轮 `run.ELNqqc` / original outer Wait 1：首工作 Execution 后端五轮成功，但浏览器在详情响应的 `response.finished()` 等待 45 秒超时，未到 transfer，不能将本次误报为 503。安全持久诊断真实显示同一 Task 已有 18 个 Execution（1 succeeded、17 failed/model_failed），Provider 共 22 请求；Task 仍 in_progress/version 3。当前继承旧 fixture 的 tick 250ms、relaunch_skip_count 0 是显式零冷却，原 Scheduler 持续重启事实已确认。后续按正式调度/评审语义对齐 fixture，尚无成功评审闭环。
 - 新 `failure-and-cancellation` case `run.Wxxzus` / original outer Wait 0：两个子例实际 PASS（11.21 秒）。真实 read missing 无结果载荷→failed/runtime_failed；真实 Python 命令 marker 后执行原 Runtime StopAdmission/Drain→cancelled，并核 pidfd ready/child 与进程组不存在。两者均保持原 pending response/call/assistant bytes、同事务终态、1 Model 请求/1 Tool operation、正常 Runner original Wait 0 与原 App 全 owner Joined。
 - 两轮全部 PG/outbound/MinIO 精确 nonce 清理完成，native/Go 槽空闲。以上失败/取消通过不代替正常浏览器评审、外部模型推理或旧 STOP；等待 macro_milestones 独立消费实际证据。
+
+- macro_milestones 已只读独立接受 `run.Wxxzus` 的限定两门 PASS：日志与源码事实均到达，精确 3 容器/3 网络/3 目录和原测试/Runner PID 全消失；`run.ELNqqc` 退场同样独核完成，不重跑旧矩阵。
+- 后续正常 workflow 部署明确采用 tick 250ms / skip 240 约 60 秒 Owner 窗口，保留原 Scheduler/Work 合同。主工作 E 保持精确 5 Model/4 Tool；送审后可有最多一个独立 task/review E，用另一 Model/Provider 两正常响应 read 自有评审说明→text，不代表 worker 产物传递或评审决策闭环。现首轮工具集非空/required 限制明确保留；不宣传无工具 Agent 兼容。
+- 仅 `newM1Workflow` 启用该选配；failure/cancel 的 `newM1WorkflowWithObserver` 保持原配置/响应/observer，复用已接受证据。正常浏览器完成后先原 Runtime Stop/Drain，再 Runner/App Join，避免先停 Runner 干扰合法活 review。W1 facts 正补分场景/原 Usage request ID 归属；下一组合尚未编译或运行。
