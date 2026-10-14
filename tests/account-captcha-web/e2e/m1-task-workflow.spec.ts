@@ -11,6 +11,7 @@ import type { DirectoryAgent } from "../../../web/src/api/agent-directory";
 import type { TaskExecution } from "../../../web/src/api/task-executions";
 import type { TaskExecutionOutput } from "../../../web/src/api/task-execution-output";
 import type { Task } from "../../../web/src/api/work-review";
+import { observeM1Bodies } from "./m1-task-workflow.helpers";
 
 type Material = {
   mode: "read-write-run-review";
@@ -98,7 +99,19 @@ type Observation = {
   output_reads: number;
 };
 const observations = new WeakMap<Page, Observation>();
+const bodyObservers = new WeakMap<
+  Page,
+  Awaited<ReturnType<typeof observeM1Bodies>>
+>();
 test.afterEach(async ({ page }, info) => {
+  const bodies = bodyObservers.get(page);
+  if (bodies) {
+    try {
+      await bodies.close();
+    } finally {
+      bodies.save();
+    }
+  }
   const observation = observations.get(page);
   if (!observation) return;
   const directory = process.env.AGENTEAM_M1_WEB_EVIDENCE!;
@@ -134,6 +147,11 @@ async function completeJSON<T>(response: Response): Promise<T> {
     body = await response.body();
   } catch {
     const failure = response.request().failure()?.errorText;
+    const bodies = bodyObservers.get(response.request().frame().page());
+    // Keep the failed browser terminal. Only the same request's independent
+    // original-reader/public-consumer/Go-byte proof can establish consumption.
+    if (failure === "net::ERR_ABORTED" && bodies)
+      return (await bodies.complete(response)) as T;
     const code =
       failure && /^net::ERR_[A-Z0-9_]{1,96}$/.test(failure)
         ? failure
@@ -162,6 +180,8 @@ async function completeJSON<T>(response: Response): Promise<T> {
     throw Error(`M1_HTTP_UNEXPECTED status=${status} code=${code}`);
   }
   expect(status).toBe(200);
+  const bodies = bodyObservers.get(response.request().frame().page());
+  if (bodies) expect(await bodies.complete(response)).toEqual(value);
   return value as T;
 }
 
@@ -221,6 +241,7 @@ test("real multi-round Task output and explicit Owner review survive refresh [re
   const transferPath = `${taskPath}/transfer`;
   const seen: Observation = { stages: [], api_writes: 0, output_reads: 0 };
   observations.set(page, seen);
+  bodyObservers.set(page, await observeM1Bodies(page, data));
   const writes: Request[] = [];
   page.on("request", (request) => {
     const url = new URL(request.url());
@@ -399,6 +420,7 @@ test("real multi-round Task output and explicit Owner review survive refresh [re
   });
   seen.stages.push("explicit-owner-transfer-confirmed-in-review");
 
+  await bodyObservers.get(page)!.endDocument();
   const reloadedTask = responseFor(page, data, taskPath);
   await page.reload();
   assertTask(await completeJSON<Task>(await reloadedTask), data, "in_review");
@@ -413,4 +435,5 @@ test("real multi-round Task output and explicit Owner review survive refresh [re
   await expect(page.getByLabel("最终输出正文", { exact: true })).toBeFocused();
   await screenshot(page, "m1-reviewed-output-narrow");
   seen.stages.push("reload-preserves-in-review-and-identical-final-output");
+  await bodyObservers.get(page)!.endDocument();
 });

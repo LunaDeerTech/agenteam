@@ -101,6 +101,7 @@ func newM1WorkflowWithOptions(t *testing.T, observer func(f.TransactionCause, f.
 	workAppCheck(t, "m1-owned-network", err)
 	address, err := netip.ParseAddr(network.PrivateIP)
 	workAppCheck(t, "m1-owned-address", err)
+	fixture := &m1Workflow{network: network, origin: origin, private: t.TempDir(), reviewEnabled: ownerReview}
 	var transport *outboundRuntime
 	v := newExecutionSchedulerAppWith(t, func(d *dependencies, v *executionSchedulerApp) {
 		diagnose := m1CommitObserver(t)
@@ -127,12 +128,16 @@ func newM1WorkflowWithOptions(t *testing.T, observer func(f.TransactionCause, f.
 			transport = actual
 			return nil
 		}
+		if ownerReview {
+			fixture.bindBrowserObservation(d)
+		}
 	})
 	if transport == nil || v.root.owned.outbound() != transport {
 		t.Fatal("M1 original outbound owner absent")
 	}
 	m1AllowOwnedPeer(t, v, transport, network)
-	return &m1Workflow{app: v, network: network, origin: origin, private: t.TempDir(), reviewEnabled: ownerReview}, listener
+	fixture.app = v
+	return fixture, listener
 }
 
 type m1Workflow struct {
@@ -154,6 +159,7 @@ type m1Workflow struct {
 	reviewScenario, reviewWorkspace            string
 	reviewMount                                id.MountID
 	reviewModel                                mc.ModelID
+	browserObservation                         *m1BrowserObservation
 }
 
 func m1AllowOwnedPeer(t *testing.T, v *executionSchedulerApp, transport *outboundRuntime, network *netfixture.Descriptor) {

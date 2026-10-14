@@ -8,7 +8,10 @@ umask 077
 : "${AGENTEAM_M1_BROWSER_MODULES:?external locked browser node_modules required}"
 : "${AGENTEAM_M1_WEB_DIST:?production web dist required}"
 case "${AGENTEAM_M1_CASE:-workflow}" in
-  workflow) agenteam_m1_selector='^TestM1AppToolWorkflow$' ;;
+  workflow)
+    : "${AGENTEAM_M1_WEB_MODULES:?external locked web node_modules required}"
+    agenteam_m1_selector='^TestM1AppToolWorkflow$'
+    ;;
   failure-and-cancellation) agenteam_m1_selector='^TestM1AppToolFailureAndCancellation$' ;;
   *) printf '%s\n' 'M1 case must be workflow or failure-and-cancellation' >&2; exit 1 ;;
 esac
@@ -22,7 +25,12 @@ mkdir -p "$agenteam_m1_parent"
 agenteam_m1_run=$(mktemp -d "$agenteam_m1_parent/run.XXXXXX")
 agenteam_m1_link="$agenteam_m1_root/tests/account-captcha-web/node_modules"
 agenteam_m1_created_link=0
+agenteam_m1_web_link="$agenteam_m1_root/web/node_modules"
+agenteam_m1_created_web_link=0
 agenteam_m1_cleanup() {
+  if [ "$agenteam_m1_created_web_link" = 1 ]; then
+    rm "$agenteam_m1_web_link"
+  fi
   if [ "$agenteam_m1_created_link" = 1 ]; then
     rm "$agenteam_m1_link"
   fi
@@ -34,6 +42,15 @@ if [ ! -e "$agenteam_m1_link" ] && [ ! -L "$agenteam_m1_link" ]; then
 elif [ "$(readlink "$agenteam_m1_link")" != "$AGENTEAM_M1_BROWSER_MODULES" ]; then
   printf '%s\n' 'M1 harness dependency location already owned by another install' >&2
   exit 1
+fi
+if [ "${AGENTEAM_M1_CASE:-workflow}" = workflow ]; then
+  if [ ! -e "$agenteam_m1_web_link" ] && [ ! -L "$agenteam_m1_web_link" ]; then
+    ln -s "$AGENTEAM_M1_WEB_MODULES" "$agenteam_m1_web_link"
+    agenteam_m1_created_web_link=1
+  elif [ "$(readlink "$agenteam_m1_web_link")" != "$AGENTEAM_M1_WEB_MODULES" ]; then
+    printf '%s\n' 'M1 web dependency location already owned by another install' >&2
+    exit 1
+  fi
 fi
 export GOTOOLCHAIN=local GOENV=off GOWORK=off
 export GOMAXPROCS=2

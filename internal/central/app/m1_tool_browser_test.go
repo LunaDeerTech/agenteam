@@ -5,8 +5,10 @@ package app
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net"
@@ -25,12 +27,16 @@ import (
 	"testing"
 	"time"
 
+	"github.com/LunaDeerTech/agenteam/internal/central/audit"
+	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
 	wc "github.com/LunaDeerTech/agenteam/internal/central/work/contract"
 )
 
 // browser consumes the same completed App/Runner Task. It introduces no seed,
-// alternate API, browser route interception or direct Task mutation.
+// alternate API or direct Task mutation. Observation retains original bytes.
 func (w *m1Workflow) browser(t *testing.T, listener net.Listener) {
 	t.Helper()
 	v := w.app
@@ -46,6 +52,16 @@ func (w *m1Workflow) browser(t *testing.T, listener net.Listener) {
 	evidence := filepath.Join(evidenceRoot, t.Name())
 	workAppCheck(t, "m1-browser-evidence-parent", os.MkdirAll(filepath.Dir(evidence), 0700))
 	workAppCheck(t, "m1-browser-fresh-evidence", os.Mkdir(evidence, 0700))
+	o := w.browserObservation
+	if o == nil {
+		t.Fatal("M1 original browser handler observation missing")
+	}
+	o.mu.Lock()
+	o.evidence = evidence
+	o.task = "/api/v1/projects/" + v.a.String() + "/tasks/" + w.task.ID.String()
+	o.agents = "/api/v1/projects/" + v.a.String() + "/agents"
+	o.execution = o.task + "/executions/" + w.execution.String()
+	o.mu.Unlock()
 	// Chromium's Unix sockets need a short private path, independent of the Go
 	// test's potentially long TempDir. This directory is owned by this child only.
 	private, err := os.MkdirTemp("/tmp", "agenteam-m1-web-")
@@ -57,6 +73,7 @@ func (w *m1Workflow) browser(t *testing.T, listener net.Listener) {
 	transport := &http.Transport{Proxy: nil, DisableKeepAlives: true}
 	proxy := httputil.NewSingleHostReverseProxy(backend)
 	proxy.Transport = transport
+	proxy.ModifyResponse = o.capture
 	proxy.ErrorLog = log.New(io.Discard, "", 0)
 	proxy.ErrorHandler = func(out http.ResponseWriter, _ *http.Request, _ error) {
 		http.Error(out, "M1 original App unavailable", http.StatusBadGateway)
@@ -141,6 +158,16 @@ func (w *m1Workflow) browser(t *testing.T, listener net.Listener) {
 		}
 	})
 	w.runBrowser(t, private, harness, dist, evidence)
+	o.mu.Lock()
+	observed := !o.failed && o.accepted >= 11
+	for _, tail := range o.tails {
+		observed = observed && tail.returned
+	}
+	o.evidence = ""
+	o.mu.Unlock()
+	if !observed {
+		t.Fatal("M1 original response bytes or handler return not joined")
+	}
 
 	after, err := v.planning.taskReader.GetTask(v.ctx, v.actor, v.a, before.ID)
 	workAppCheck(t, "m1-browser-persisted-review", err)
@@ -157,6 +184,132 @@ func (w *m1Workflow) browser(t *testing.T, listener net.Listener) {
 	}
 	stop()
 	t.Log("M1_BROWSER_WORKFLOW real_http=true output_reads=3 owner_transfer=1 persisted_state=in_review final_projection_unchanged=true proxy_serve_joined=true")
+}
+
+// This is the same bounded original-body/handler-return proof used by D22.
+// Selection starts only for browser-owned public Task reads and one transfer;
+// Session credentials and Runner websocket traffic never enter its records.
+type m1BrowserObservation struct {
+	mu                                      sync.Mutex
+	host, evidence, task, agents, execution string
+	tails                                   map[string]*artifactWebTail
+	failed                                  bool
+	accepted                                int
+}
+
+func (w *m1Workflow) bindBrowserObservation(d *dependencies) {
+	u, _ := url.Parse(w.origin)
+	o := &m1BrowserObservation{host: u.Host, tails: map[string]*artifactWebTail{}}
+	w.browserObservation = o
+	original := d.bind
+	d.bind = func(ctx context.Context, cfg config.Config, store database, owned *resources, deps *dependencies) error {
+		if err := original(ctx, cfg, store, owned, deps); err != nil {
+			return err
+		}
+		assembly, ok := owned.accounts().(*accountAssembly)
+		if !ok {
+			return errors.New("M1 original account assembly absent")
+		}
+		objects := deps.objects
+		deps.objects = func(ctx context.Context, cfg config.Config, store database, auditor *audit.Service) (objectStorage, error) {
+			actual, err := objects(ctx, cfg, store, auditor)
+			if err != nil {
+				return actual, err
+			}
+			assembly.mu.Lock()
+			assembly.handler = o.handler(assembly.handler)
+			assembly.mu.Unlock()
+			return actual, nil
+		}
+		return nil
+	}
+}
+
+func (o *m1BrowserObservation) selected(method, path string) bool {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+	if o.evidence == "" {
+		return false
+	}
+	return (method == http.MethodPost && path == o.task+"/transfer") ||
+		(method == http.MethodGet && (path == o.task || path == o.agents || path == o.task+"/executions" || path == o.execution || path == o.execution+"/runtime-view"))
+}
+
+func (o *m1BrowserObservation) fail() error {
+	o.mu.Lock()
+	o.failed = true
+	o.mu.Unlock()
+	return errors.New("M1 original response observation failed")
+}
+
+func (o *m1BrowserObservation) handler(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(out http.ResponseWriter, request *http.Request) {
+		if !o.selected(request.Method, request.URL.Path) {
+			next.ServeHTTP(out, request)
+			return
+		}
+		rid := httpapi.RequestID(request.Context())
+		if request.Host != o.host || rid.Validate() != nil {
+			_ = o.fail()
+			http.Error(out, "M1 request identity unavailable", 502)
+			return
+		}
+		tail := &artifactWebTail{done: make(chan struct{}), method: request.Method, uri: request.URL.RequestURI()}
+		o.mu.Lock()
+		if o.tails[rid.String()] != nil || len(o.tails) >= 64 {
+			o.mu.Unlock()
+			_ = o.fail()
+			http.Error(out, "M1 observation bound", 502)
+			return
+		}
+		o.tails[rid.String()] = tail
+		o.mu.Unlock()
+		defer close(tail.done)
+		next.ServeHTTP(out, request)
+		o.mu.Lock()
+		tail.returned = true
+		o.mu.Unlock()
+	})
+}
+
+func (o *m1BrowserObservation) capture(response *http.Response) error {
+	if !o.selected(response.Request.Method, response.Request.URL.Path) {
+		return nil
+	}
+	raw, readErr := io.ReadAll(io.LimitReader(response.Body, (2<<20)+1))
+	closeErr := response.Body.Close()
+	if readErr != nil || closeErr != nil || len(raw) > 2<<20 || response.ContentLength != int64(len(raw)) || !json.Valid(raw) || response.Header.Get("Cache-Control") != "no-store" || len(response.Header.Values("X-Request-ID")) != 1 {
+		return o.fail()
+	}
+	rid, err := f.ParseID[f.Request](response.Header.Get("X-Request-ID"))
+	if err != nil {
+		return o.fail()
+	}
+	o.mu.Lock()
+	tail := o.tails[rid.String()]
+	evidence := o.evidence
+	o.mu.Unlock()
+	if tail == nil || tail.method != response.Request.Method || tail.uri != response.Request.URL.RequestURI() {
+		return o.fail()
+	}
+	select {
+	case <-tail.done:
+	case <-response.Request.Context().Done():
+		return o.fail()
+	}
+	if !tail.returned {
+		return o.fail()
+	}
+	record := map[string]any{"request_id": rid.String(), "method": tail.method, "url_sha256": fmt.Sprintf("%x", sha256.Sum256([]byte(tail.uri))), "status": response.StatusCode, "content_length": len(raw), "body_sha256": fmt.Sprintf("%x", sha256.Sum256(raw)), "original_eof": true, "original_closed": true, "handler_returned": true, "request_host_matches": true, "value": json.RawMessage(raw)}
+	encoded, err := json.Marshal(record)
+	if err != nil || os.WriteFile(filepath.Join(evidence, "m1-response-"+rid.String()+".json"), encoded, 0600) != nil {
+		return o.fail()
+	}
+	o.mu.Lock()
+	o.accepted++
+	o.mu.Unlock()
+	response.Body = io.NopCloser(bytes.NewReader(raw))
+	return nil
 }
 
 func (w *m1Workflow) runBrowser(t *testing.T, private, harness, dist, evidence string) {
