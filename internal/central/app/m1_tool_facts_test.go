@@ -56,6 +56,12 @@ func (w *m1Workflow) awaitResult(t *testing.T) {
 			workAppCheck(t, "m1-observed-execution-id", err)
 			break
 		}
+		for _, project := range v.runtime.manager.Observation().Projects {
+			if project.ProjectID == v.a && !project.Running && !project.Retained && !project.Stopping && project.Err != nil {
+				w.diagnoseResult(t, count, raw, status)
+				t.Fatal("M1 original project runner returned with an error before Execution completion")
+			}
+		}
 		select {
 		case <-ctx.Done():
 			w.diagnoseResult(t, count, raw, status)
