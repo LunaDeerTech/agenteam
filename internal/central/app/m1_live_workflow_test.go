@@ -4,6 +4,7 @@ package app
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"net/netip"
 	"net/url"
@@ -15,6 +16,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
 )
 
@@ -24,13 +26,14 @@ const (
 	m1LiveMaxOutput     = 4096
 	m1LiveSentThreshold = 12
 	m1LiveOptIn         = "external-model-read-write-run-review"
-	m1LiveTaskPlan      = "Use only the supplied Runner mount and Python standard library; do not access the network or paths outside that mount. Read input.json, which contains a values array. Create stats.py that reads that array and calculates its count, sum and arithmetic mean. The program must write those three numeric fields as a JSON object to result.json and print the same JSON object to stdout. Run /usr/bin/python3 stats.py in the supplied workspace, inspect the real result.json and command exit status, and report the actual outcome. Use relative file paths and the captured mount identity. Generate the program yourself; do not replace tool execution with a proposed answer."
+	m1LiveTaskPlan      = "Use only the supplied Runner mount and Python standard library; do not access the network or paths outside that mount. Read input.json, which contains a values array. Create stats.py that reads that array and calculates its count, sum and arithmetic mean. The program must write those three numeric fields as a JSON object to result.json and print the same JSON object to stdout. Use the run command tool in argv mode with program /usr/bin/python3, args [stats.py], and cwd . in the supplied workspace, inspect the real result.json and command exit status, and report the actual outcome. Use relative file paths and the captured mount identity. Generate the program yourself; do not replace tool execution with a proposed answer."
 )
 
 // This configuration contains metadata only. No credential is retained in it.
 type m1LiveConfiguration struct {
 	BaseURL, Model string
 	qualified      bool
+	deadline       time.Time
 }
 
 func m1LiveMetadata(selection, optIn, base, model string) (*m1LiveConfiguration, error) {
@@ -58,6 +61,7 @@ func (c *m1LiveConfiguration) preflight(ctx context.Context, resolver outbound.R
 	if c == nil || resolver == nil {
 		return errors.New("M1 live preflight dependency missing")
 	}
+	c.qualified = false
 	target, err := outbound.ParseTarget(c.BaseURL)
 	if err != nil {
 		return errors.New("M1 live target rejected")
@@ -79,7 +83,7 @@ func (c *m1LiveConfiguration) preflight(ctx context.Context, resolver outbound.R
 // original system resolver preflight. Runner/browser children never inherit it.
 func (c *m1LiveConfiguration) credential(t *testing.T) []byte {
 	t.Helper()
-	if c == nil || !c.qualified || os.Getenv("AGENTEAM_M1_CASE") != "live" || os.Getenv("AGENTEAM_M1_LIVE_OPT_IN") != m1LiveOptIn {
+	if c == nil || !c.qualified || c.deadline.IsZero() || !time.Now().Before(c.deadline) || os.Getenv("AGENTEAM_M1_CASE") != "live" || os.Getenv("AGENTEAM_M1_LIVE_OPT_IN") != m1LiveOptIn {
 		t.Fatal("M1 live credential access before explicit qualified run")
 	}
 	raw := []byte(os.Getenv("DEV_CHAT_API_KEY"))
@@ -90,9 +94,13 @@ func (c *m1LiveConfiguration) credential(t *testing.T) []byte {
 }
 
 func TestM1AppLiveWorkflow(t *testing.T) {
+	if os.Getenv("AGENTEAM_M1_CASE") != "live" && os.Getenv("AGENTEAM_M1_LIVE_OPT_IN") == "" {
+		t.Skip("explicit M1 live case and opt-in required; no external configuration inspected")
+	}
 	started := time.Now()
 	configuration, err := m1LiveMetadata(os.Getenv("AGENTEAM_M1_CASE"), os.Getenv("AGENTEAM_M1_LIVE_OPT_IN"), os.Getenv("DEV_CHAT_BASE_URL"), os.Getenv("DEV_CHAT_MODEL"))
 	workAppCheck(t, "m1-live-metadata", err)
+	configuration.deadline = started.Add(m1LiveTotalBudget)
 	resolver, err := outbound.SystemResolver()
 	workAppCheck(t, "m1-live-system-resolver", err)
 	preflight, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -102,7 +110,7 @@ func TestM1AppLiveWorkflow(t *testing.T) {
 	w, listener := newM1WorkflowConfigured(t, nil, true, configuration)
 	w.seed(t)
 	w.startRunner(t)
-	budget := w.startLiveBudget(t, started.Add(m1LiveTotalBudget))
+	budget := w.startLiveBudget(t, configuration.deadline)
 	w.createModelAndTask(t, configuration.BaseURL)
 	w.app.store.releaseDirectory()
 	w.awaitLiveResult(t)
@@ -179,6 +187,10 @@ func (w *m1Workflow) startLiveBudget(t *testing.T, deadline time.Time) *m1LiveBu
 	t.Cleanup(func() {
 		budget.once.Do(func() { close(budget.stop) })
 		<-budget.done
+		if budget.reason != "" {
+			t.Errorf("M1 live incomplete: %s", budget.reason)
+			return // original watchdog already drained/cancelled the root
+		}
 		w.app.runtime.StopAdmission()
 		ctx, cancel := context.WithTimeout(context.Background(), m1LiveJoinBudget)
 		err := w.app.runtime.Drain(ctx)
@@ -187,9 +199,6 @@ func (w *m1Workflow) startLiveBudget(t *testing.T, deadline time.Time) *m1LiveBu
 			w.app.requestStop()
 			w.app.root.cancel()
 			t.Error("M1 live original Runtime drain incomplete")
-		}
-		if budget.reason != "" {
-			t.Errorf("M1 live incomplete: %s", budget.reason)
 		}
 	})
 	return budget
@@ -227,6 +236,21 @@ func TestM1LivePreparation(t *testing.T) {
 			}
 		})
 	}
+	t.Run("formal_max_output", func(t *testing.T) {
+		raw, err := json.Marshal(struct {
+			MaxOutput mc.TokenCount `json:"max_output"`
+		}{mc.TokenCount(m1LiveMaxOutput)})
+		if err != nil {
+			t.Fatal("max output fixture encoding failed")
+		}
+		var decoded struct {
+			MaxOutput *mc.TokenCount `json:"max_output"`
+		}
+		if json.Unmarshal(raw, &decoded) != nil || decoded.MaxOutput == nil || *decoded.MaxOutput != mc.TokenCount(4096) || json.Unmarshal([]byte(`{"max_output":4096}`), &decoded) == nil {
+			t.Fatal("live max output must use the formal decimal-string DTO")
+		}
+	})
+
 	for _, v := range []struct {
 		name      string
 		addresses []netip.Addr

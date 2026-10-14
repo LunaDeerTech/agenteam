@@ -6,9 +6,9 @@
 - 受控 workflow 与 failure-and-cancellation 的既有通过证据保留。新 live 显式双 opt-in，真实 SystemResolver/CA/D04/正式 Secret 路径；不使用 ownedIP 映射、预设响应或 synthetic credential。
 - 本轮预算目标：总300秒、单attempt最多60秒、MaxOutput4096、work/review/retry 合计 sent 观察阈值12（含在途的软停止条件，不是硬计费上限）；超限停止原Runtime并收集原Join。
 - 首轮真实上下文已源码确认：agentloop/projection.go 将完整捕获 Task.Data()（含Plan）投影至 user Message，Agent instructions/mount IDs 保留。新目标只提供任务/输入说明，不提供程序/答案。
-- Product两文件完成模式参数化并冻结；主入口/factory WIP，动态facts编写中，尚未整体编译。当前DNS仍是本环境A成功/AAAA NXDOMAIN导致原D04阻断；只阻碍外部实跑，不阻碍本地准备。
+- Product模式及安全诊断冻结；live入口/factory/script和动态facts已落，App integration编译+fake配置13例 Wait0，缺opt-in脚本拒绝exit1；新预算仅静审，真实外部未跑。最后attempt绑定增量随受控normal再编译；当前准备片待最终保存和独验，受控回归未跑。当前DNS仍是本环境A成功/AAAA NXDOMAIN导致原D04阻断；只阻碍外部实跑，不阻碍本地准备。
 
-下一步：完成离线假值拒绝/编译检查并独立复核，合格preflight及明确选定实跑后方可读取KEY并做外部实证。详见 [live准备卡](../docs/development/work-items/m1-live-acceptance.md)。
+下一步：冻结准备片，独立复核并跑共享factory/browser的单次controlled正常回归；合格preflight及明确选定实跑后方可读取KEY并做外部实证。详见 [live准备卡](../docs/development/work-items/m1-live-acceptance.md)。
 
 ---
 

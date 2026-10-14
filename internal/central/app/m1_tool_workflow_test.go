@@ -132,7 +132,7 @@ func newM1WorkflowConfigured(t *testing.T, observer func(f.TransactionCause, f.C
 			// The observation lifetime is separate from the original App run.
 			// The live budget owner below stops that original run explicitly.
 			var cancel context.CancelFunc
-			v.ctx, cancel = context.WithTimeout(context.Background(), m1LiveTotalBudget+m1LiveJoinBudget)
+			v.ctx, cancel = context.WithDeadline(context.Background(), live.deadline.Add(m1LiveJoinBudget))
 			t.Cleanup(cancel)
 		}
 		env := append(guardEnvironment(t, v.root.db), "AGENTEAM_CENTRAL_PUBLIC_ORIGIN="+origin,
@@ -263,7 +263,7 @@ func (w *m1Workflow) createModelAndTask(t *testing.T, endpoint string) {
 	modelName, reviewName := "m1-statistics", "m1-review"
 	var maxOutput any
 	if w.live != nil {
-		modelName, reviewName, maxOutput = w.live.Model, w.live.Model, m1LiveMaxOutput
+		modelName, reviewName, maxOutput = w.live.Model, w.live.Model, mc.TokenCount(m1LiveMaxOutput)
 	}
 	var receipt mc.CommandReceipt
 	v.httpSeed(t, "/model-providers", map[string]any{"input": map[string]any{"name": "M1 owned Provider", "protocol": mc.OpenAIChat, "base_url": endpoint, "enabled": true, "credential_ref": credential, "options": map[string]any{}}}, &receipt)

@@ -171,7 +171,11 @@ func (w *m1Workflow) browserWithExpectation(t *testing.T, listener net.Listener,
 		if t.Failed() {
 			// Registered after the proxy cleanup, so the original App, Runner and
 			// owned peer are still alive when durable failure facts are read.
-			w.diagnoseResult(t, 1, w.execution.String(), string(w.view.Execution.Status))
+			if expectationMode == "controlled" {
+				w.diagnoseResult(t, 1, w.execution.String(), string(w.view.Execution.Status))
+			} else {
+				w.diagnoseLiveResult(t)
+			}
 		}
 	})
 	w.runBrowser(t, private, harness, dist, evidence, expectationMode)

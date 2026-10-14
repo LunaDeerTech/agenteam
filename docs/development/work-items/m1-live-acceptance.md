@@ -16,4 +16,8 @@ live 必须显式选择 case 和测试 opt-in；先核非秘密 metadata 与原 
 
 ## 当前证据
 
-浏览器受控/live模式片已静检并冻结。主入口/factory 与动态facts 尚在实现，未整体编译、未live实跑。原受控/失败取消/旧directText的已接受证据见 [M1集成卡](m1-app-integration.md)，不重复运行无关矩阵。外部DNS仍待正常条件恢复，不改解析器/协议/策略绕过。
+源码准备已落：显式live入口、保留受控factory、独立动态facts、浏览器controlled/live预期、脚本双门。原 SystemResolver、CA、policy 不变；真实KEY读取仅存在于明确live且预检合格后的正式Secret种子。
+
+作者检查：App integration整体编译及 `^TestM1LivePreparation$` 假值13子例实际 Wait0（0.010s），日志 `output/ai/m1-live-acceptance/preparation.log`；包括缺opt-in/不合格URL/model、DNS两族失败/混私网/空结果拒绝及MaxOutput正式TokenCount十进制字符串DTO。脚本缺opt-in以全部fake路径提前exit1，未启动构建/栈，日志 `script-opt-in-rejection.log`。精确Vite dist重建Wait0（1.22s），未重复前端矩阵，临时modules链接已清理。
+
+新预算observer当前仅静态核计数/触发/Stop/Drain/根cancel顺序，未动态等到300秒或sent12触发；原Stop/Drain能力可引用既有33009证据，但二者不合称新observer动态PASS。动态facts尚未对真实Provider执行；准备通过不代表live通过。最后精确attempt绑定增量将随受控normal脚本再编译，受控回归尚待新冻结运行。原受控/失败取消/旧directText的已接受证据见 [M1集成卡](m1-app-integration.md)，不重复运行无关矩阵。外部DNS仍待正常条件恢复，不改解析器/协议/策略绕过。
