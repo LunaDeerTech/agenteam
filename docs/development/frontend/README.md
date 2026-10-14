@@ -53,6 +53,8 @@ npm run preview --prefix web
 
 ## 骨架与新页面
 
+页面改造先读[界面设计逻辑](../../frontend-design/interface-design.md)，在对应工作项说明页面类型、内容宽度/滚动、主动作载体与状态恢复，再复用正式布局和共享组件。按其短清单查看代表截图和关键交互；新规范不是现有页面已合规的证明，不为此另加审批层或重复设计档案。
+
 `/login` 使用独立认证布局。根路径 `/` 和受保护路由先检查真实 Session；未登录或无法确认时进入正常登录表单，不显示旧的受保护内容，内部仍区分匿名与查询失败。直接打开普通 `/login` 时，有效 Session 进入首页或合法返回目标；首屏查询失败静默，不显示技术检查或放弃按钮。登录提交时确保完成必要的 Session/匿名 CSRF 准备，业务 POST 前验证；主按钮显示加载，失败在附近给一条简短错误并保留输入，字段错误就近显示。确认身份后显示 AppShell、当前身份、退出操作、“首页”标题和空 Dashboard 容器。右上本人名称直达资料页，首页初始密码建议直达修改密码页，可继续使用系统。AppShell 内容区独立滚动，认证顶部区域在窄宽度或放大时可换行，保留品牌及退出操作。系统“项目”入口指向 `/projects`；ProjectNav 位于已授权的项目工作区内部，与系统导航并存。当前没有 Inbox、全局搜索或其它尚未实现的入口。
 
 在 `router/index.ts` 的 `routes` 注册正式页面，使用懒加载 `component`，为需要导航的路由声明 `meta.navigation: { label, order }`。SystemNav 从路由元数据读取入口，不需要复制导航数组或改写骨架。认证路由通过 `router/auth.ts` 及单一 `useSession` 协调，登录返回目标保留原十四个精确静态路径：`/`、`/settings/profile`、`/settings/appearance`、`/settings/password`、`/system/users`、`/system/invitations`、`/system/providers`、`/system/models`、`/system/model-selection`、`/system/account-security`、`/system/smtp`、`/system/outbound-policy`、`/system/audit`、`/system/runtime-information`，并增加 `/projects` 及下节严格 Project 路径。`/settings`、`/system`、query/hash、数组、外部 URL、其余动态后缀与未知系统叶子均不是返回目标；未知路径显示未找到提示。系统导航只向当前已确认且未被系统权限拒绝的 admin 展示“系统设置”。

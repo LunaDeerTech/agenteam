@@ -45,6 +45,8 @@ Tree 使用可见节点的方向键、Home / End、Enter / Space；右键展开�
 
 UiDialog / UiDrawer 使用 `v-model:open`、title、closeOnOutside、closeOnEscape。两种关闭策略默认 true；危险或未保存表单由业务调用方明确设置，不以原型默认值推导产品规则。`close(reason)` 区分 escape / outside / action；footer 插槽提供 close 函数。
 
+页面按[操作载体与关闭规则](../../frontend-design/interface-design.md#5-操作载体与关闭规则)选择 Dialog/Drawer。当前面板默认最大 560px，无通用 `size` 或 `beforeClose` prop；关闭按钮也会请求更新 `open`。有未保存/提交门禁时须由受控 setter 将关闭意图交给业务 owner，不能只关闭 Escape/遮罩而让关闭按钮绕过保护。正文与操作区使用已有插槽，不嵌套重复标题卡片。
+
 UiDialog 另支持可选 `fallbackFocus: HTMLElement | null`，由调用方提供当前本地 DOM 引用，例如已有 `tabindex="-1"` 的页面标题。正常 `open` 从 true 变 false 且没有剩余模态时，先恢复合法且实际可聚焦的原触发位置；失败后才尝试关闭时读取的最新后备目标。目标须属于同一 document、仍连接且可见可聚焦，不得为 BODY/HTML、禁用或隐藏/inert 范围内节点；组件不补 tabindex、不搜索其它页面目标或延迟抢焦点。直接卸载组件不尝试该后备，原触发位置恢复规则保持；仍有模态时完全沿其合法范围恢复，不使用页面后备。未传或当前 null/undefined 时保留原行为。调用方正常关闭须保留 Dialog 实例并设置 open=false；checking、离页或身份失效导致的整体卸载不触发此能力。UiDrawer、UiPopover 等封装器未新增此 typed API。
 
 UiPopover 提供锚定说明容器，使用 `v-model:open`、label、disabled，trigger / 默认插槽；默认插槽提供 close 函数。UiMenu 和 UiSelect 在同一定位基础上保留独立动作和选择语义，不使用搜索对话框替代。
