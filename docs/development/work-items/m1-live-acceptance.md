@@ -25,3 +25,5 @@ live 必须显式选择 case 和测试 opt-in；先核非秘密 metadata 与原 
 按本轮owned-resources精确核三容器/三网络均absent，三临时目录、原测试/Runner/Node PID及本轮两个node_modules链接均已消失。旧negative/directText输入保持原分支，不重跑已接受范围。独立准备检查也已实际Wait0：13fake子例通过，未启用live分支实际SKIP（明确不计live通过）；日志 `output/ai/m1-independent-preparation/preparation.log`。macro 已限定接受冻结 `93306a74` 准备门：新源码静审无剩余must-fix，13fake子例及未启live实际SKIP/compile0，受控 `run.OyaNNV` 源码/日志/同请求消费证明/精确资源退场独核通过。动态live facts与新预算触发仍只静审，未跑；不得写live或M1整阶段通过。
 
 本轮必要25文件/266709bytes已按白名单保全到主树 `output/ai/m1-delivery-evidence/live-preparation/`，清单 `manifest.json` 保存来源及逐文件SHA256/bytes且复制后全匹配。排除binary/dist/cache和私有Session/凭据；当前无活动命令或业务资源。原受控/失败取消/旧directText的已接受证据见 [M1集成卡](m1-app-integration.md)，不重复运行无关矩阵。外部DNS仍待正常条件恢复，不改解析器/协议/策略绕过。
+
+2026-10-14 05:50:30 UTC 仅复核连接资格：非秘密 BASE/MODEL 合法，本环境 `/etc/resolv.conf` 原唯一 resolver 的 A、AAAA 均为 RCODE 3 / NXDOMAIN / answer 0；此前 A 成功 / AAAA NXDOMAIN 是 05:14 的旧观察。原 D04 仍 blocked；KEY 从命令环境剔除且未读取值，未发 Model HTTP、未启栈、未改 DNS/Policy/配置文件，仅记录本环境 resolver 事实，不推断服务权威端点故障。

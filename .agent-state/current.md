@@ -8,7 +8,7 @@
 - live 准备：`93306a74` 的显式双 opt-in 入口、动态事实和浏览器接缝已通过静审、13 项 fake 准备检查、未启用 live 的明确 SKIP 与编译；受控回归 `run.OyaNNV` 原 Wait 0 / 15.32 秒、三次成果消费/唯一送审/刷新、work5/review2 归属和全部原 Join、资源及链接清理获独立接受。SKIP、fake 检查和受控回归均不计 live PASS。
 - 既有 `run.EW1axd` 正常链、`33009a96` 的失败/原 Runtime 取消与 `fee69b0d` 的旧 direct-text 兼容按固定输入有效复用，不称当前 HEAD 单次全套运行。第九轮 Playwright 观测 FAIL 保留，不推断 native 正文不完整。
 - 准备已完成，但动态 live facts 尚未消费真实 Provider，新预算 observer 的300秒/合计 sent12触发只经静审，未动态验证。sent12包含在途观察，是软停止条件，不是硬调用/计费上限；配置与实际运行门见 [harness](../tests/m1-app-workflow/README.md#显式真实模型入口准备门通过真实调用未实跑)。
-- 当前本环境 A 成功 / AAAA NXDOMAIN 被原 D04 拒绝；没有读取真实 KEY 或发送外部 Model HTTP。DNS 阻断只影响实际调用，已完成的本地入口准备不再记为 WIP。原 resolver、系统 CA、DNS/出站授权策略不改，无 ownedIP 或预设模型响应替代。
+- 2026-10-14 05:50:30 UTC 最近一次资格复核：DEV_CHAT 非秘密 BASE/MODEL 合法，本环境 `/etc/resolv.conf` 原唯一 resolver 对 A、AAAA 均返回 RCODE 3 / NXDOMAIN / answer 0，原 D04 资格仍 blocked。KEY 已从复核命令环境剔除，未读取其值、未发 Model HTTP、未启栈，未改 DNS/Policy 或配置文件。结论仅限本环境 resolver，不判断服务权威端点故障；DNS 阻断只影响实际调用，已完成的本地入口准备不再记为 WIP。
 
 ## 恢复与下一步
 
