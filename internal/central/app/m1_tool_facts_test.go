@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -28,17 +29,27 @@ func (w *m1Workflow) awaitResult(t *testing.T) {
 	defer cancel()
 	tick := time.NewTicker(25 * time.Millisecond)
 	defer tick.Stop()
-	var status string
+	var status, raw string
+	var count int
 	for {
-		var count int
-		var raw string
-		err := v.admin.QueryRow(ctx, `SELECT count(*),COALESCE(min(id),''),COALESCE(min(status),'') FROM agenteam_execution.executions WHERE project_id=$1 AND launch_request->'trigger'->>'task_id'=$2`, v.a.String(), w.task.ID.String()).Scan(&count, &raw, &status)
+		var observedCount int
+		var observedID, observedStatus string
+		err := v.admin.QueryRow(ctx, `SELECT count(*),COALESCE(min(id),''),COALESCE(min(status),'') FROM agenteam_execution.executions WHERE project_id=$1 AND launch_request->'trigger'->>'task_id'=$2`, v.a.String(), w.task.ID.String()).Scan(&observedCount, &observedID, &observedStatus)
+		if err != nil {
+			w.diagnoseResult(t, count, raw, status)
+			if ctx.Err() != nil {
+				t.Fatal("M1 original Execution did not finish within the unchanged 40s budget")
+			}
+		}
 		workAppCheck(t, "m1-observe-execution", err)
+		count, raw, status = observedCount, observedID, observedStatus
 		if count > 1 {
+			w.diagnoseResult(t, count, raw, status)
 			t.Fatal("M1 Task acquired multiple Executions")
 		}
 		if count == 1 && ec.Status(status).Terminal() {
 			if status != string(ec.Succeeded) {
+				w.diagnoseResult(t, count, raw, status)
 				t.Fatalf("M1 original Execution terminal status=%s", status)
 			}
 			w.execution, err = f.ParseID[id.Execution](raw)
@@ -47,6 +58,7 @@ func (w *m1Workflow) awaitResult(t *testing.T) {
 		}
 		select {
 		case <-ctx.Done():
+			w.diagnoseResult(t, count, raw, status)
 			t.Fatalf("M1 original Execution did not finish within budget; status=%s", status)
 		case <-tick.C:
 		}
@@ -73,6 +85,59 @@ func (w *m1Workflow) awaitResult(t *testing.T) {
 	if pending != 0 || active != 0 || launched != 1 {
 		t.Fatalf("M1 original scheduling facts pending=%d active=%d launched=%d", pending, active, launched)
 	}
+}
+
+// The observation context may already have expired. This separate bounded
+// read exposes only durable counters, enum states and safe identities, never
+// prompts, arguments, request headers, credential material or provider bodies.
+func (w *m1Workflow) diagnoseResult(t *testing.T, count int, execution, status string) {
+	t.Helper()
+	t.Logf("M1 last observation execution_count=%d execution_id=%s status=%s", count, execution, status)
+	manager := w.app.runtime.manager.Observation()
+	t.Logf("M1 manager observation started=%t stopped=%t projects=%d", manager.Started, manager.Stopped, len(manager.Projects))
+	logFault := func(stage string, err error) {
+		var fault *f.Fault
+		if errors.As(err, &fault) {
+			t.Logf("M1 manager %s fault_code=%s outcome=%s", stage, fault.Code.Safe(), fault.CommitState.Safe())
+		} else if err != nil {
+			t.Logf("M1 manager %s error_type=%T", stage, err)
+		}
+	}
+	logFault("discovery", manager.DiscoveryError)
+	for _, project := range manager.Projects {
+		if project.ProjectID == w.app.a {
+			t.Logf("M1 target project running=%t retained=%t stopping=%t", project.Running, project.Retained, project.Stopping)
+			logFault("target-project", project.Err)
+		}
+	}
+	ctx, cancel := context.WithTimeout(w.app.ctx, 2*time.Second)
+	defer cancel()
+	var facts []byte
+	err := w.app.admin.QueryRow(ctx, `WITH selected AS (
+ SELECT id,status,version,cancel_requested_at FROM agenteam_execution.executions
+ WHERE project_id=$1 AND launch_request->'trigger'->>'task_id'=$2
+ ) SELECT jsonb_build_object(
+ 'task',(SELECT jsonb_build_object('state',state,'version',version) FROM agenteam_work.tasks WHERE project_id::text=$1 AND id::text=$2),
+ 'dispatch',(SELECT COALESCE(jsonb_agg(jsonb_build_object('status',status,'outcome',launch_outcome,'attempts',attempt_count,'reason',failure_reason)),'[]'::jsonb) FROM agenteam_scheduler.dispatches WHERE project_id=$1 AND task_id=$2),
+ 'execution',(SELECT COALESCE(jsonb_agg(jsonb_build_object('status',status,'version',version,'cancel_requested',cancel_requested_at IS NOT NULL)),'[]'::jsonb) FROM selected),
+ 'preparation',(SELECT COALESCE(jsonb_agg(jsonb_build_object('phase',phase,'fence',fence)),'[]'::jsonb) FROM agenteam_execution.preparation_attempts WHERE execution_id IN(SELECT id FROM selected)),
+ 'snapshots',(SELECT count(*) FROM agenteam_execution.snapshots WHERE execution_id IN(SELECT id FROM selected)),
+ 'rounds',(SELECT COALESCE(jsonb_agg(jsonb_build_object('ordinal',round_ordinal,'schema',schema_version,'tool_pending',tool_pending,'status',terminal_status,'reason',terminal_reason) ORDER BY round_ordinal),'[]'::jsonb) FROM agenteam_execution.rounds WHERE execution_id IN(SELECT id FROM selected)),
+ 'model',(SELECT COALESCE(jsonb_agg(jsonb_build_object('dispatch',dispatch,'status',final_status,'category',error_data->>'category','code',error_data->>'code','usage_source',usage_source)),'[]'::jsonb) FROM agenteam_model.invocations WHERE execution_id::text IN(SELECT id FROM selected)),
+ 'tool',(SELECT COALESCE(jsonb_agg(jsonb_build_object('phase',phase,'outcome',outcome)),'[]'::jsonb) FROM agenteam_tool.operations WHERE execution_id IN(SELECT id FROM selected)),
+ 'attempts',(SELECT COALESCE(jsonb_agg(jsonb_build_object('phase',phase,'retired',retired)),'[]'::jsonb) FROM agenteam_tool.attempts WHERE execution_id IN(SELECT id FROM selected)),
+ 'results',(SELECT count(*) FROM agenteam_execution.loop_tool_results WHERE execution_id IN(SELECT id FROM selected)))`, w.app.a.String(), w.task.ID.String()).Scan(&facts)
+	if err != nil {
+		t.Logf("M1 safe durable diagnostic unavailable error_type=%T budget_done=%t", err, ctx.Err() != nil)
+	} else {
+		t.Logf("M1 safe durable diagnostic=%s", facts)
+	}
+	state, err := w.network.State(ctx, w.scenario)
+	if err != nil {
+		t.Logf("M1 safe peer diagnostic unavailable error_type=%T budget_done=%t", err, ctx.Err() != nil)
+		return
+	}
+	t.Logf("M1 safe peer diagnostic requests=%d active_handlers=%d completed_handlers=%d", len(state.Requests), state.ActiveHandlers, state.CompletedHandlers)
 }
 
 func (w *m1Workflow) checkArtifacts(t *testing.T) {
