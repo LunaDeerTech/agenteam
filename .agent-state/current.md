@@ -7,7 +7,7 @@ M3 按共同基线 `d9356e09` 建立六个功能工作树，后续另建选型�
 | 分支 | 工作树 | owner / 范围 |
 | --- | --- | --- |
 | `ai/m3-knowledge` | `/workspace/agenteam-m3-knowledge` | `m3_knowledge`：Knowledge 索引检索、共享 retrieval 与引用 |
-| `ai/m3-memory` | `/workspace/agenteam-m3-memory` | `m3_memory_tools`：Memory generation、长期 snapshot 保留与真实统一 Tool 链，已回本树继续 |
+| `ai/m3-memory` | `/workspace/agenteam-m3-memory` | Memory 已过正常链与限定冷恢复，当前停写；`m3_memory_tools` 已转 Skills Agent assignment |
 | `ai/m3-mcp` | `/workspace/agenteam-m3-mcp` | `m3_mcp`：MCP Connection、Tool/Resource 首链已过；继续凭据 HTTP/UI 与媒体；OAuth 核心交 integration |
 | `ai/m3-meeting` | `/workspace/agenteam-m3-meeting` | `m3_meeting`：Session/Turn/Contribution、provider、Runtime 与执行控制 |
 | `ai/m3-integration` | `/workspace/agenteam-m3-integration` | `m3_integration`：App/Tool/Executor/身份共享契约、组合 harness |
@@ -15,17 +15,17 @@ M3 按共同基线 `d9356e09` 建立六个功能工作树，后续另建选型�
 | `ai/m3-retrieval-selection` | `/workspace/agenteam-m3-retrieval-selection` | `m3_retrieval_selection`：D13 固定词法/dense/RRF 比较已保存并停写；基线 `a1ce6f1b` |
 | `ai/m3-knowledge-validation` | `/workspace/agenteam-m3-knowledge-validation` | `m3_knowledge`：固定 App 首链验证，运行期间源码不漂移 |
 | `ai/m3-meeting-ui` | `/workspace/agenteam-m3-meeting-ui` | `m3_meeting`：已从 Memory owner 正式接手；实际 Owner 浏览器链已过，继续 Meeting 控制与 Decision UI |
-| `ai/m3-skills` | `/workspace/agenteam-m3-skills` | `m3_model`：安装、Owner 分配与下一轮正文读取首链已过；Agent 分配和 prepare/Runner 后继实施 |
+| `ai/m3-skills` | `/workspace/agenteam-m3-skills` | `m3_memory_tools`：接续已过安装/Owner 分配/list/read，实施 Agent assignment；Model owner 已回共同冷恢复 |
 
 当前为实现、公共接线与限定真实验证阶段，M3 未完成。Knowledge 的真实外部模型链已通过：canonical Object→4096 维 serving generation→正常 Scheduler→query-doc→精确版本 read-doc→原 ToolResult 被后继 sent/succeeded 模型消费并输出来源引用。Memory 的受控模型完整首链已通过：4 个 Scheduler Execution、5 个 Tool、6 个 Memory Model，覆盖 retain、跨 Execution recall、只读 reflect、跨 Agent 隔离和 Owner 删除后的排除。Meeting 的受控模型首链已通过 Owner Start→两 Agent 顺序贡献→普通文本 Summary，B 的实际输入含 A 发言；另有 Agent busy 范围的真实 Owner 浏览器链。三条链均取得原进程 Wait0、App/Guard/owner 退出及独立 fixture 精确清理。
 
-Knowledge 正常自动链已通过：首文档自动建立 profile/索引、canonical 更新、selector 变更后新代发布与旧 pin 释放，再由真实 Scheduler query→版本 read→后继模型消费并输出引用；同一 IndexService.Run 与 App 完整退出。Memory profile 切换、Owner 浏览器列表/历史/删除/原 lookup 已通过；已提交 retain 的有界冷恢复也通过真实旧进程 SIGKILL/Wait、新进程只 Lookup 原 operation、下一 Task 重建旧 building 并释放旧引用，未重发原模型。Meeting Decision 三 turn 浏览器已通过 answer/原 lookup、skip、cancel 与 archive/restore；单 Contribution 取消和 targeted read 已有真实 PG 领域门。实际 Runner 审批新链停在准备完成时缺少 ProjectSchedule 锁，正在修原公共锁预算。MCP Agent Tool/Resource 全链现已通过实际 SDK echo、canonical Object Put/Read/Close、后继正文消费、Secret/runtime 租约退休与完整退出；Owner 凭据真实 HTTP 联调随后进行，OAuth 交换刷新和媒体仍未通过。
+Knowledge 正常自动链已通过：首文档自动建立 profile/索引、canonical 更新、selector 变更后新代发布与旧 pin 释放，再由真实 Scheduler query→版本 read→后继模型消费并输出引用；同一 IndexService.Run 与 App 完整退出。Memory profile 切换、Owner 浏览器列表/历史/删除/原 lookup 已通过；已提交 retain 的有界冷恢复也通过真实旧进程 SIGKILL/Wait、新进程只 Lookup 原 operation、下一 Task 重建旧 building 并释放旧引用，未重发原模型。Meeting Decision 三 turn 浏览器已通过 answer/原 lookup、skip、cancel 与 archive/restore；单 Contribution 取消和 targeted read 已有真实 PG 领域门。实际 Runner 准备锁预算已修；审批浏览器链正在修正测试脚本的响应读取方式后复验，完整审批/拒绝/单 Agent 取消尚未通过。MCP Agent Tool/Resource 全链现已通过实际 SDK echo、canonical Object Put/Read/Close、后继正文消费、Secret/runtime 租约退休与完整退出；Owner 凭据真实 HTTP CRUD、CAS、撤权与丢失响应只读 lookup 已通过并接受限定独审；控制面已从 runtime 模式解耦，off/direct-text 实际验证仍待。Owner 浏览器、OAuth 交换刷新和媒体尚未通过。
 
 Model 同一 v2 snapshot 的真实 64/64/8 共 136 个 Embedding、4096 维及原 Usage/Secret/Join 收尾已过；长期 serving retention 的受控调用、两个 generation 独立引用、填充数据升级和两个真实 CommitUnknown 分支均有限通过，Memory 首链与 Knowledge 后继 pin 链均已实际消费。OAuth Secret 的 create/update/delete、CAS、回滚与两个真实 CommitUnknown 分支已通过。retention 及后继 Secret/Audit 有界独审已完成，无该审查范围的 must-fix；[独立报告](../docs/development/work-items/m3-core-independent-review.md)不接受 MCP OAuth 交换、刷新或冷恢复，也不把显式媒体拒绝记成媒体消费。
 
-D13 固定词法与融合比较及先前离线独审已保存。用户关于默认 dense 或继续原 hybrid 范围的决定尚未到达，架构和默认选择保持原合同；显式 native_pg_fts 仅用于限定首链。动态 Skills 首 App 链已通过真实安装→Owner 显式分配→旧轮不变/下一轮 list 生效→Object 正文 Read/Close→模型实际消费；原 immutable round input、控制消息和租约/owner 退出均闭合。Agent assignment、prepare/Runner 与 Install Unknown 仍待，PDF 组件已有限通过但四格式用户上传/预览与 App 配置仍在接入。
+D13 固定词法与融合比较及先前离线独审已保存。用户关于默认 dense 或继续原 hybrid 范围的决定尚未到达，架构和默认选择保持原合同；显式 native_pg_fts 仅用于限定首链。动态 Skills 首 App 链已通过真实安装→Owner 显式分配→旧轮不变/下一轮 list 生效→Object 正文 Read/Close→模型实际消费；原 immutable round input、控制消息和租约/owner 退出均闭合。Agent assignment、prepare/Runner 与 Install Unknown 仍待，四格式上传与当前版本读取、DOCX/PDF Parser 和 App 显式配置已实现；真实 HTTP 链前三格式通过，PDF job 已完成但样本字体编码使预期文本不符，作者修正样本后复验。四格式 UI 已实现，浏览器验证未过。
 
-共同候选的00123公共校验修复、00124自动索引profile、00125动态Skills ToolCall闭集均已被实际链消费；00126单Contribution取消已通过领域PG门。旧失败不回写。原 Model 未退休 call 的冷恢复及 Meeting Summary 固定 snapshot 需求仍未完成；Model owner 在 Skills 首链后转回共同提供方，Usage 需按原 invocation 身份与真实旧进程死亡证明退休，不能把已退休 Memory 窗口外推为该门通过。
+共同候选的00123公共校验修复、00124自动索引profile、00125动态Skills ToolCall闭集均已被实际链消费；00126单Contribution取消已通过领域PG门，00127 Summary用途迁移已真实应用。旧失败不回写。原 Model 未退休 call 的冷恢复及 Meeting Summary 固定 snapshot 需求仍未完成；Model owner 在 Skills 首链后转回共同提供方，Model/Usage 的原 invocation 与真实停止证明、未退休 call 及 borrower 尾巴已实现；authorized 分支真实 kill/restart 已通过，sent 分支测试持有点需修正后单独复验；不能把已退休 Memory 窗口外推为该门通过。
 
 公共依赖锁文件由 integration 唯一持有，其他树只读。迁移按 root 编号在候选树连续组合；main 不接收未验收产品 WIP。每树 `.agent-state/current.md` 保存可恢复片段，本索引不复制执行流水。最多两组重构建/独立 PG fixture，由 integration 调度；固定 Go1.27.1、MinIO 和共享锁定依赖复用，浏览器已恢复锁定 Playwright 1.56.1/Chromium1194，入口 owner 按限定候选继续真实组合验证。现有 dev PG/MinIO 不作任务测试库，默认代理与 TLS 校验保持。旧 STOP 只按原风险范围保留。
 
