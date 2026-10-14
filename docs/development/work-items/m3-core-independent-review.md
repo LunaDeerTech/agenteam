@@ -187,3 +187,36 @@ Skills 静态检查限定新 AgentRun 管理入口：
 本轮已读 `9868ee1c` contract、`9bcfe7ae` provider 的固定代码及实际 harness：观察保持完整原 ResolveRequest（包括 nil Selection.Version）、私有域 plan、原 call/input/prepared process；在两次完整锁读取之间调用真实 ConfirmStopped，不准备解析、不 acquire/release lease、不 dispatch；CallFound 仍需另走 StoppedCall 观察，返回原 Model 仍需正式 retirement。此有限源码阅读未另发现已证产品问题，但实际前置失败使旧 guard 拒绝、停止后三状态、原 lease 退休及零 dispatch 均仍未验证。计划中的同 OS 双 guard 也不能称新增 OS kill 门。
 
 133 及完整 1–133 的作者已过结果本轮未重跑或独立静态复核；Memory 132/后继恢复、MCP 131/startup/Object cleanup、Skills InstallUnknown/finalRaw 与 App router 后继完整审查均留待续派，不以读取 commit 摘要或旧报告代替已审。按 root 指示在已确定前置失败处收敛，让原作者返修；仅本报告新增正文，全部命令已退出，无在用资源或 Git 写操作。
+
+## StoppedResolution 复验、132/133 与 Unknown 身份修复
+
+2026-10-14；本次独立实测固定 Model `7188f34d`（`f321c822` 修复顺序 guard fixture，后者修正 opaque identity 比较；产品 provider `9bcfe7ae` 未改），静态复核 Memory 组合 `7786610b` / App `985e0198`、132 原迁移与来源，以及 133 `4993b368`。发现的 Memory 三处 Unknown 身份丢失已由原作者在 `93b1c534` 修复并经下述限定复核关闭。**本节已审范围无剩余已证 must-fix；真实通过仅覆盖注明的门，不接受整个 M3 或未运行的后继链。**
+
+**Model 独立 session 96148：PASS 6.55 秒、原 Wait0。**复用 `/tmp/agenteam-m3-model-stopped-resolution03.test`，亲核 SHA256 `19d205ad7e2a1a2fc4f93128d6b0fb808fe29755eac6aa452805cbc5be855460`；未重编 binary。沿前节 cwd/helper/精确 selector/Go1.27.1/默认代理 TLS，`GOFLAGS='-mod=readonly -p=1'`，显式 `AGENTEAM_FIXTURE_PG_CURRENT_ONLY=1`，独占 native 窗口起前 overlay/tmp 均约 4.0 GiB、无活动 Go/native。原输出和 `owned.json` 在 `/workspace/agenteam-m3-integration/output/ai/m3-core-review/stopped-resolution03/`；test PID 1366371 `actual_wait code=0`、wrapper PID 1365191 Wait0。原 D03/D04/D05 exact cleanup 后按六个精确资源 ID、三个目录和两个 PID 复查，全部无残留，窗口已归还。
+
+固定 harness 现在先完整 Join 原 Model/Usage/Object owners 并关闭 spool，才在同数据库/同 spool 启动新 ProcessGuard。三个原请求分别未准备、仅 prepared、已 committed resolution：新 observer 的 Settled/Model/CallFound 形状正确，返回 Model 的 Consumer/LeaseOwner/CredentialRef/LeaseID 使用正式 Equal，其余完整 snapshot 严格比较；原 preparation/call/invocation/Secret lease 的行与 xmin 不变，受控模型请求为零，随后正式 retirement 释放并确认原 lease。裸 DTO 和把原 nil Selection.Version 改成具体版本被拒绝。live 拒绝使用的是当时当前 guard 的 ProcessID，命中 `ConfirmStopped` 的 current-process 拒绝；新 guard 再真实检查旧 claim/flock。**不把此门外推另一个活跃 OS 进程争锁、新 OS kill、CallFound=true 分支或真实 Memory/Meeting 域权限**；域权属仍为严格私有 fixture。原 91350 失败与作者报告的 42231 opaque DeepEqual 失败保留，不回填为通过。
+
+**133 有界复核通过。**对照原 115/127、实际 CHECK catalog 和 `4993b368`：127 曾误删 `released_version>=owner_version` 的自动命名约束，并留下旧 Knowledge/Memory owner CHECK；133 单个 ALTER 删除旧 `check1`，恢复显式命名 version floor，127 的扩展 owner/kind、原 credential/state CHECK 与 FK 保留，不改写存量行。亲核 Model `output/m3-model-cold/retention-catalog02/native.log`：99703 `TestServingRetentionForwardRepair` PASS 0.11 秒及 10 子例、test PID 1312803 Wait0、D03 cleanup。对照 harness，非法存量释放版本使 ALTER 原子失败且行/xmin/旧约束保持，合法 Knowledge/Memory 存量不变，Meeting 合法形状接受，错误 agent/kind/version/time 拒绝。此门使用最小前置表；完整 1–133 的 62067 fresh/repeat/upgrade/health PASS 仅复用共同作者报告，本轮未亲核其原日志或重跑。已应用的 115/127/131–133 均未改写。
+
+Memory 132 与恢复静态核对：新 operation 保存原 prepared process；model_calls 在原 admission 事务保存完整 selectable source 与 ResolveBinding，包括原 nil/具体 Selection.Version 或原 serving snapshot/generation。immutable trigger 保护原 Project/Agent/Execution/operation/input/process/source；legacy NULL 不猜测回填，缺证据保持未决。启动按 Model→Memory 顺序，先确认旧 process 停止，私有 active witness/issuer 绑定原 row mapping；同 Store/Tx、完整 namespace/command/Project 锁与当前 guard 下再次核原 tuple。无 snapshot 或 StoppedCall 未找到时，走正式 StoppedResolution；已解析 lease 使用原 ModelCallRetirement，CallFound=true 仍须另验 StoppedCall，未把 row 缺席当作 lease 已空或允许重发。
+
+原 canonical retain failure 仅由原 cold `memory.retain` Lookup 的私有 proof 触发，检查原 operation/input/Execution/prepared process、所有相关 Model owner 均 retired 且归属一致，才在同事务将 prepared 改为持久 `DEPENDENCY_UNAVAILABLE`；已 committed receipt 不覆盖。公开 DTO、任意错误、缺行或只读观察 false 均不能制造失败。Builtin typed outcome 闭集只接受该代码，保留原 operation/attempt/request/process/ordinal/fence，把持久失败作为同一 Execution 的后继 Tool response，不重 Execute/Model，也不写 canonical Memory。
+
+已亲核 Memory 原两份日志并对照 `memory_m3_stopped_integration_test.go` 与实际子进程 harness，复用固定 `66603dc3` / 普通 App02 的结果，不重跑：
+
+| 原轮次 / Model 窗口 | 亲核结果与范围 |
+| --- | --- |
+| 93314 / 已 authorized、未发送 | `output/ai/m3-agent-memory/stopped-authorized-first02/native.log`：PASS 7.21 秒 / Wait0；原 child 1339350 SIGKILL/Wait9、新 child 1339415 正常 Wait0。原 Model/Usage/Secret 与本域 call 退休，原 retain 持久失败，同原 Execution 消费失败 |
+| 58830 / Resolve committed、尚未 admit | `output/ai/m3-agent-memory/stopped-resolved-first01/native.log`：PASS 7.29 秒 / Wait0；原 child 1359326 SIGKILL/Wait9、新 child 1359390 正常 Wait0。正式 StoppedResolution 与原 lease retirement 后完成相同失败语义 |
+
+两门均断言完整 source/input/process/Tool tuple 保持，受控 peer Agent 2 次、Memory/embedding 0 次且 Joined，无新 Memory/retain Audit，原 Secret lease released，App/owners/ProcessGuard 正常 Join；日志均有三 fixture exact cleanup。普通 binary 结果不称 race；这些正常窗口不证明 Memory 新增写事务的物理 COMMIT Unknown，旧 Memory 10221 等 raw log 缺失限制不被覆盖。
+
+**本轮原 must-fix 与修复：** `7786610b` 的 `memory/model_stopped_recovery.go:214`、`model_stopped_resolution_recovery.go:192`、`stopped_operation.go:78` 在原 mutation 已 Unknown 后，只读确认若取消、读取失败或自身另一个 Unknown，直接返回 observation error，丢失原 mutation 的 Attempt/Cause。最小交错为原 UPDATE 的 COMMIT 响应丢失，随后观察失败；新已知失败不能证明原写未提交。发现后作者逐处确认；本审未据此宣称已存在权限绕过、模型重发或错误 canonical 终态。
+
+`93b1c534` 只将三处失败返回改为原 mutation error，SQL/权限/dispatch 不变。已读三处固定 diff 和 `stopped_unknown_test.go`：三个真实方法入口各覆盖 read-failed、实际 ctx cancelled、observer-unknown，核原 Attempt、完整 RecoveryCause owner/run/checkpoint、lookup 提示、仅两次事务尝试以及内存 owner/receipt 不推进；原实现会失败。已核 `/tmp/m3-memory-stopped-unknown.log` 的 ordinary 单包 `ok` / 0.010 秒输出；84156 原 Wait0 和精确 selector 复用作者回执，该非 verbose 日志不逐列子例。测试控制 Store 返回边界，不执行 SQL/guard 回调，不冒物理 Unknown。该明确缺陷在固定修订中关闭，不重复两条未变正常 PG 链。
+
+顺带完成的额外**窄源码阅读**：MCP `20ae6fe0` 的 Execution content Source、MCP source 与 Project runtime route，及 `5ccf0c15` 的 content recovery authority/driver、Object upload resolver/join。新 detached read 要求原 running Model input 中的 canonical Tool File/Image、原 transcript/result/digest/round/operation/attempt/request 与当前 Agent；字符串提及或裸 reference 不授予读权。ReleaseReader tail 只贷原 closing owner 与精确 lease，不授予新 read。Project 技术 route 仍需当前 lifecycle/初始化、原 private startup call 和完整 tuple。cleanup 要求旧原 process（及旧 recovery owner）真实 stopped，原私有 active owner、pending materialization、原 claim/upload/object/attempt/current process 与完整锁重验，只能撤销原 reference、join 原 writer 和清理无引用对象；resolver 仅给元数据，不自行授予 cleanup。已读这些路径暂未另证 must-fix，**未完成 131 全 startup/Secret/OAuth 状态机审查，也未接受该新 Object/媒体 actual 链**；原文本 Resource 正常通过不替代它们。
+
+Skills `791c3d70` + `7769fec8` + `653adcc5` 仅复核 install finalization 核心：原 handoff 必须仍由同 dispatcher/issuer 保留、原同步 executor 已实际返回且 backend 结果已知；同完整锁下，只接受精确 v2 running tuple 或一致 v3 终态。已提交只观察，证实原 finalization 回滚才重写原已验证 finalRaw；不重 backend、不重新解释 schema。缺失/不一致 finalRaw 被拒且 retained owner 不清除。此为有限静态结论，76944 ordinary 仅作者报告，4206 actual harness 未由本轮执行；不接受 Install Unknown 真实链或冷恢复。
+
+本次仅运行上述一个独立 native 门并追加本文，其他通过结果复用；未改产品、测试、共享 current 或执行 Git 写操作。全部命令已退出，窗口和资源已释放；完成格式检查后冻结报告，交 root 保存并释放席位。
