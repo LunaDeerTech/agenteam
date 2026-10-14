@@ -47,33 +47,8 @@ print(text, end="")
 // round. Only the model peer is deterministic. Runner and filesystem effects,
 // Model HTTP, durable results, final projection and Owner review are real.
 func TestM1AppToolWorkflow(t *testing.T) {
-	listener, err := net.Listen("tcp", "127.0.0.1:0")
-	workAppCheck(t, "m1-listener", err)
-	t.Cleanup(func() { _ = listener.Close() })
-	origin := "http://" + listener.Addr().String()
-	network, err := netfixture.Load()
-	workAppCheck(t, "m1-owned-network", err)
-	address, err := netip.ParseAddr(network.PrivateIP)
-	workAppCheck(t, "m1-owned-address", err)
-	var transport *outboundRuntime
-	v := newExecutionSchedulerAppWith(t, func(d *dependencies, v *executionSchedulerApp) {
-		v.store.observeCommit = m1CommitObserver(t)
-		env := append(guardEnvironment(t, v.root.db), "AGENTEAM_CENTRAL_PUBLIC_ORIGIN="+origin,
-			"AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=5s", "AGENTEAM_CENTRAL_OUTBOUND_CA_FILE="+network.CAFile,
-			"AGENTEAM_CENTRAL_EXECUTION_RUNTIME="+strings.Replace(executionSchedulerAppConfig, "direct-text-v1", "tool-loop-v1", 1),
-			"AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_ATTEMPTS=2", "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_INITIAL_BACKOFF=100ms", "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_BACKOFF=1s")
-		v.root.cfg = guardConfiguration(t, env)
-		d.outboundConstruct = func(_ context.Context, _ config.Config, actual *outboundRuntime) error {
-			actual.resolver = appFixtureResolver{address}
-			transport = actual
-			return nil
-		}
-	})
-	if transport == nil || v.root.owned.outbound() != transport {
-		t.Fatal("M1 original outbound owner absent")
-	}
-	m1AllowOwnedPeer(t, v, transport, network)
-	fixture := &m1Workflow{app: v, network: network, origin: origin, private: t.TempDir()}
+	fixture, listener := newM1Workflow(t)
+	v := fixture.app
 	fixture.seed(t)
 	fixture.startRunner(t)
 	fixture.createModelAndTask(t, "https://fixture.test:8443/m1-not-yet-scheduled")
@@ -96,6 +71,48 @@ func TestM1AppToolWorkflow(t *testing.T) {
 	t.Log("M1_APP_TOOL_WORKFLOW deployment_profile=tool-loop-v1 scheduler_claim=true model_http_rounds=5 runner_read_write_run=true actual_file_stdout_exit=true final_output_v2=true owner_review=true original_app_runner_wait=true external_model=false")
 }
 
+func newM1Workflow(t *testing.T) (*m1Workflow, net.Listener) {
+	t.Helper()
+	return newM1WorkflowWithObserver(t, nil)
+}
+
+func newM1WorkflowWithObserver(t *testing.T, observer func(f.TransactionCause, f.CommitResult)) (*m1Workflow, net.Listener) {
+	t.Helper()
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	workAppCheck(t, "m1-listener", err)
+	t.Cleanup(func() { _ = listener.Close() })
+	origin := "http://" + listener.Addr().String()
+	network, err := netfixture.Load()
+	workAppCheck(t, "m1-owned-network", err)
+	address, err := netip.ParseAddr(network.PrivateIP)
+	workAppCheck(t, "m1-owned-address", err)
+	var transport *outboundRuntime
+	v := newExecutionSchedulerAppWith(t, func(d *dependencies, v *executionSchedulerApp) {
+		diagnose := m1CommitObserver(t)
+		v.store.observeCommit = func(cause f.TransactionCause, result f.CommitResult) {
+			diagnose(cause, result)
+			if observer != nil {
+				observer(cause, result)
+			}
+		}
+		env := append(guardEnvironment(t, v.root.db), "AGENTEAM_CENTRAL_PUBLIC_ORIGIN="+origin,
+			"AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=5s", "AGENTEAM_CENTRAL_OUTBOUND_CA_FILE="+network.CAFile,
+			"AGENTEAM_CENTRAL_EXECUTION_RUNTIME="+strings.Replace(executionSchedulerAppConfig, "direct-text-v1", "tool-loop-v1", 1),
+			"AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_ATTEMPTS=2", "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_INITIAL_BACKOFF=100ms", "AGENTEAM_CENTRAL_SCHEDULER_LAUNCH_RETRY_MAX_BACKOFF=1s")
+		v.root.cfg = guardConfiguration(t, env)
+		d.outboundConstruct = func(_ context.Context, _ config.Config, actual *outboundRuntime) error {
+			actual.resolver = appFixtureResolver{address}
+			transport = actual
+			return nil
+		}
+	})
+	if transport == nil || v.root.owned.outbound() != transport {
+		t.Fatal("M1 original outbound owner absent")
+	}
+	m1AllowOwnedPeer(t, v, transport, network)
+	return &m1Workflow{app: v, network: network, origin: origin, private: t.TempDir()}, listener
+}
+
 type m1Workflow struct {
 	runners                                    *runnerControlAssembly
 	app                                        *executionSchedulerApp
@@ -110,6 +127,7 @@ type m1Workflow struct {
 	reviewer                                   id.AgentID
 	execution                                  id.ExecutionID
 	view                                       ec.TaskRuntimeView
+	responseSequence                           func(*testing.T) []netfixture.WireScenario
 }
 
 func m1AllowOwnedPeer(t *testing.T, v *executionSchedulerApp, transport *outboundRuntime, network *netfixture.Descriptor) {
@@ -221,7 +239,11 @@ func (w *m1Workflow) createModelAndTask(t *testing.T, endpoint string) {
 	}
 	// Freeze the actual mount identity into the owned peer only after Agent
 	// creation. Formally update the not-yet-used Provider before Task scheduling.
-	w.scenario, err = w.network.Create(v.ctx, netfixture.ScenarioConfig{Mode: "openai_chat_wire", WireSequence: w.responses(t)})
+	responses := w.responses
+	if w.responseSequence != nil {
+		responses = w.responseSequence
+	}
+	w.scenario, err = w.network.Create(v.ctx, netfixture.ScenarioConfig{Mode: "openai_chat_wire", WireSequence: responses(t)})
 	workAppCheck(t, "m1-owned-model-sequence", err)
 	providerInput := map[string]any{"name": "M1 owned Provider", "protocol": mc.OpenAIChat, "base_url": "https://fixture.test:8443/case/" + w.scenario, "enabled": true, "credential_ref": credential, "options": map[string]any{}}
 	response, err := v.request(v.ctx, "PUT", "/api/v1/projects/"+v.a.String()+"/model-providers/"+provider.String(), workAppJSON(t, map[string]any{"expected_version": providerVersion, "input": providerInput}), guardID[struct{}](t).String())

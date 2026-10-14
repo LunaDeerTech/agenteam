@@ -28,14 +28,15 @@ func m1CommitObserver(t *testing.T) func(f.TransactionCause, f.CommitResult) {
 	}
 	return func(cause f.TransactionCause, result f.CommitResult) {
 		details := cause.Details()
-		if result.State() != f.NotCommitted || !strings.HasPrefix(details.Owner, "execution") && !strings.HasPrefix(details.JobType, "execution") || count.Add(1) > 32 {
+		transfer := details.Kind == f.CommandsCause && details.Primary.Command() == "work.task.transfer"
+		if result.State() != f.NotCommitted || !strings.HasPrefix(details.Owner, "execution") && !strings.HasPrefix(details.JobType, "execution") && !transfer || count.Add(1) > 32 {
 			return
 		}
 		fault := result.Fault()
 		if fault == nil {
 			return
 		}
-		t.Logf("M1 original transaction rejected owner=%s job=%s code=%s outcome=%s", safe(details.Owner), safe(details.JobType), fault.Code.Safe(), fault.CommitState.Safe())
+		t.Logf("M1 original transaction rejected owner=%s job=%s command=%s code=%s outcome=%s", safe(details.Owner), safe(details.JobType), safe(details.Primary.Command()), fault.Code.Safe(), fault.CommitState.Safe())
 		var db *postgres.Error
 		if errors.As(fault, &db) {
 			t.Logf("M1 database error code=%s sqlstate=%s", db.Code(), safe(db.SQLState()))
