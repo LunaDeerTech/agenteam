@@ -41,7 +41,7 @@ AT-0005 已确认的产品决定不重新列为待选，正式来源见[决定�
 
 ### 优先顺序与阻塞边界
 
-M1 已完成并正式交付，范围见 [M1 集成卡](work-items/m1-app-integration.md#当前真实模型验收)。M2 约定能力也已独立接受：正常 Scheduler 下 worker 发布 Artifact，reviewer 实际读取原成果，Human 退回同 Task 新 E 修订后再读接受为 `done`，原投影/历史与全部 Join 闭合；审批、持久取消、必要冷恢复、pending Unknown Found 及最小来源拒绝按限定范围复用，见 [M2 工作卡](work-items/m2-task-collaboration.md)。下一步先完成 M2 的本地 main 集成、认证恢复后的远端交付及分支收尾，具体状态见 [current](../../.agent-state/current.md)。本轮不启动 M3/M4；默认 Runtime 仍关闭，阶段完成不外推完整恢复、自主审核决策或全产品 ready。
+M1 已完成并正式交付，范围见 [M1 集成卡](work-items/m1-app-integration.md#当前真实模型验收)。M2 约定能力也已独立接受：正常 Scheduler 下 worker 发布 Artifact，reviewer 实际读取原成果，Human 退回同 Task 新 E 修订后再读接受为 `done`，原投影/历史与全部 Join 闭合；审批、持久取消、必要冷恢复、pending Unknown Found 及最小来源拒绝按限定范围复用，见 [M2 工作卡](work-items/m2-task-collaboration.md)。M2 产品与正式文档已交付并推送 main，任务分支与本机工作树已按流程收尾，具体状态及证据保存见 [current](../../.agent-state/current.md)。本轮不启动 M3/M4；默认 Runtime 仍关闭，阶段完成不外推完整恢复、自主审核决策或全产品 ready。
 
 - **Tools 独立验收：** 先处理原停止原因，核对恢复条件、实际输入和独立验证责任；作者自测、编译或计划获确认均不解除原 STOP。
 - **Object：** 已接受的 safe 修复可供真实链复用；旧 probe/异常 backend 的 STOP 继续约束对应范围，不把它扩大为全部工具链不可联调，也不把局部通过写成完整 Lifecycle/ready。

@@ -1,6 +1,6 @@
 # M2：Task 执行者与审核者协作
 
-2026-10-14 M2 约定能力已完成真实链与适用独立验收。m2_delivery 负责实现集成，root 负责全部 Git；main 远端交付仍因 GitHub 认证失败待完成，能力验收不等于已远端交付。完整目标与门槛沿[开发计划](../development-plan.md#当前开发目标与里程碑)，本卡保存真实接缝、接受范围及后续边界。
+2026-10-14 M2 约定能力已完成真实链与适用独立验收。m2_delivery 已完成实现集成，root 已将产品与正式文档整合并推送 main，任务 Git 收尾已完成。完整目标与门槛沿[开发计划](../development-plan.md#当前开发目标与里程碑)，本卡保存真实接缝、接受范围及后续边界。
 
 ## 目标与现有复用
 
@@ -12,7 +12,7 @@
 
 ## 当前组合与验证状态
 
-当前 review 组合已接入 M1 main。最终真实 live 完成两 work、两 reviewer 精确原成果读取、Human 退回同 Task 新 E 修订后再读接受为 done、原新 E 完整投影及历史保持；原 App/owner/root、Node/Runner、guard及退休检查均通过并获独立接受。各域分支与待认证交付状态见 [current](../../../.agent-state/current.md)，不同输入证据按独验明确组合，不称全仓一次全绿。
+最终 review 组合已正式交付 main。最终真实 live 完成两 work、两 reviewer 精确原成果读取、Human 退回同 Task 新 E 修订后再读接受为 done、原新 E 完整投影及历史保持；原 App/owner/root、Node/Runner、guard及退休检查均通过并获独立接受。实际推送及任务收尾状态见 [current](../../../.agent-state/current.md)，不同输入证据按独验明确组合，不称全仓一次全绿。
 
 旧审批 Start、Ensure 类型配对回滚与 retained 超时、Artifact 首链、浏览器 return旧投影比较等失败保持原结论。真实 live 的 review failed/model_failed、浏览器 Execution 详情502、review cooldown超期及退休辅助断言四轮均仍 FAIL；502原因和旧退休断言的具体false项未确定，最终通过不倒填。cooldown按合格Task visit计数；实际M2 live的正式review skip为40次，M1仍240，默认Runtime仍关闭，正常Scheduler、300秒总预算/单attempt60秒/MaxOutput4096/sent12软预算与代理/NO_PROXY/CA/TLS均保持。
 
@@ -31,6 +31,8 @@
 独立范围、P1/P2处置、最终真实链接受及旧失败由 [M2 独立审查](m2-independent-review.md#最终-m2-约定范围接受)唯一维护；本卡不将 M2 接受外推为完整 D19/D22、全部恢复或全产品 ready。
 
 ## 接口责任与唯一写域
+
+以下保存本轮实现期间的责任划分；交付后已无活动 M2 写域。
 
 | 负责人 | 提供方与消费责任 | 写域/迁移 |
 | --- | --- | --- |
@@ -52,10 +54,10 @@
 4. 真实受治理调用进入 Approval 等待，批准后继续同 E/Operation，拒绝不执行副作用；等待中取消、必要重启与重复提交沿原身份查证，核不重复实际副作用。
 5. 使用真实提供方、隔离数据库/Runner/浏览器与原退出证据完成适用独立验证。先做必要正常/拒绝基础检查再联调，固定输入未变的证据复用；不能以编译、接口声明或受控 Provider 通过代替真实外部模型实证。
 
-本卡约定验收已完成；下一步仅完成本地 main 集成与远端交付。reviewer 读取后确认不冒充自主审核决定，Human 仍唯一决定；NotFound/cold Unknown、完整审批恢复及未覆盖授权组合保持原边界，不启动 M3/M4。
+本卡约定验收与 main 远端交付已完成。reviewer 读取后确认不冒充自主审核决定，Human 仍唯一决定；NotFound/cold Unknown、完整审批恢复及未覆盖授权组合保持原边界，不启动 M3/M4。
 
 ## 恢复与接续
 
-最新验收候选已本地保存，GitHub 认证失败使远端推送尚未成功；root 继续本地 main 集成，待认证恢复后完成推送确认。六个 M2 工作树/分支全部保留至 main 推送成功，再按正式流程收尾；Git 分支清理尚未执行。Work共享review树、独立审查共享协调树，准确路径及交付状态见 [current](../../../.agent-state/current.md)。恢复先核实际组合、差异与唯一写者，00092至00099迁移及共享Execution写域不得未经协调重叠。
+原 GitHub 认证阻碍已解除，root 已确认 main 推送成功并完成六个 M2 工作树、本地/远端分支和跟踪引用清理；无 M2 专用 fetchspec，main 配置保留。必要原始证据已保全在主树，外置共享依赖保持；实际收尾及证据保存见 [current](../../../.agent-state/current.md)。本轮无活动 M2 写域，后续按用户目标从已确认 main 建立新任务分支，不恢复已清理的旧任务。
 
 M1 已在保留默认代理、NO_PROXY、CA/TLS 的条件下取得真实链成功并正式交付；历史本地 DNS 失败仅解释当时直连输入，不构成本轮代理场景不可达结论。复用真实证据按相同输入与影响范围判断，M1 review 接续不代表 M2 成果审核完成，其他旧 STOP 不因本轮恢复而重开。
