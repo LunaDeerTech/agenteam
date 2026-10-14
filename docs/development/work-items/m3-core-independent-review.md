@@ -1,0 +1,45 @@
+# M3 Core 独立局部审查
+
+2026-10-14；审查者未参与所验实现。D13 输入冻结为 selection `e1964240`，Model 输入冻结为 `784c6468`，Model 差异基线 `d9356e09`。仅补读 Knowledge `5d65c0a3` 的三个 Lookup bridge 文件；当前开发树中这三个文件相对此修订无差异。本文接受固定比较证据，不代表整个 Model、产品领域权限或 M3 接受。M4 不在本次范围。
+
+**结论：D13 数值与范围判断无 must-fix；Model 本次所读新增 Runtime、v2 adapter、共享 Secret/Usage 和 pre-admission retirement 未发现新增已证缺陷。活跃 serving generation 的长期凭据 retention 仍是相应持续服务行为的 must-fix；取消后的 Unknown 恢复尚未完成独立行为验证。**
+
+## 固定 D13 复核
+
+独立脚本未导入作者的 cosine/RRF 实现，使用原始向量的 `dot(q,d)/(norm(q)*norm(d))`，分别生成 top20；RRF 对两路 rank 按精确分数 `1/(60+rank)` 等权求和，缺失路为零，按 ASCII source ID 打平。288 份 query 排名、5,760 个 hits 全部匹配归档，最大 score 绝对误差 `1.1102230246251565e-16`。四次原 `scripts/search-benchmark.py score` 均退出 0，全部 groups 和 no_answer 与归档逐项相等。
+
+| 路径 | nDCG@10 | Recall@20 | MRR@20 | 无答案有返回 |
+| --- | --- | --- | --- | --- |
+| Dense | 0.9868422792946057 | 1 | 1 | 8/8，各 20 |
+| Native FTS + dense RRF | 0.9868422792946057 | 1 | 1 | 8/8，各 20 |
+| PGroonga + dense RRF | 0.9868422792946057 | 1 | 1 | 8/8，各 20 |
+| pg_search + dense RRF | 0.8936382638653616 | 1 | 0.9583333333333334 | 8/8，各 20 |
+
+pg_search 融合相对 dense 的 64 道有答案题为 34 退步、2 提升、28 相同；另外两个空 lexical leg 的全部 72 条排名与 dense 一致。总体指标的分母是 64，无答案 8 条独立统计。
+
+已核同一 snapshot `01a13b76-ce43-7dcc-890e-af5f5129f0e0`、64/72 唯一且顺序一致的 ID、4096 维有限非零向量、gzip/解压正文/原 result 与两份 export 哈希、两份 lexical run 哈希及其 export 来源。三批 64/64/8 的 Runtime input digest 亦独立按 Go JSON 字节协议重算，绑定原文本顺序和维数。源 manifest 与 selection 副本一致。原 native run 缺失，空结果仍仅复用 D13 §1.1 已接受历史事实；没有把派生输出写成找回的原件。
+
+执行：`python3 /workspace/m3-core-independent-review/check_fusion.py`，成功输出在 `/workspace/m3-core-independent-review/fusion-result03.txt`；脚本通过原 CLI 导出固定数据、读取冻结向量和 lexical 排名，并对归档解压运行文件调用原 scorer。前两次独立 harness 序列化被原 scorer 的文本 framing/行长约束拒绝，纠正为有结尾换行的缩进 JSON 后完成，无产品或作者产物修改。另一次短 Python 检查完成三批 input digest 对照。临时脚本/输出可由上述冻结输入再生，不作为新的长期证据包。
+
+selection 冻结修订中的 `docs/development/work-items/d13-lexical-benchmark.md` §1.4 对实验限制及范围的判断成立：当前结果不证明拒答、引用正确性、生产 scope/current/serving 过滤、延迟、容量或 ANN。4096 维 exact cosine 结果不能当作已验证 pgvector ANN。原架构 [§3、§22、§28](../../architecture/knowledge-memory/retrieval-runtime.md)仍约束首期 hybrid、真正 lexical unavailable 时的降级和等权参数；dense 优势不自动授权改首期范围。用户选择未到，本审查不替用户决定，也不在已见 test 上调参。
+
+## Model 边界与门禁
+
+| 检查范围 | 所读实现与可复用证据 | 本次判断 |
+| --- | --- | --- |
+| Nonchat、结构化输入、Runtime 生命周期 | `consumer_input.go`、`runtime_embedding*.go`、`runtime_attempt.go`、`runtime_stream.go`；正文顺序/维数和 schema 内容纳入 digest，text 摘要保持原投影；BeginEmbed 保留原 admitted handle，结果在 Finalize/retirement 确认后发布，Close/Joined 沿原 owner | 未发现新的授权绕过或兼容回退；未以受控 consumer 代替领域权限验证 |
+| Serving snapshot 与迁移 | `resolution_serving.go` 按 project/snapshot 取不可变事实并验摘要；consumer 在锁内提供 generation 权限；`00106` 仅取消 snapshot 单列唯一限制，保留每 call preparation/lease | selector drift 后复用 snapshot、新建每 call lease 的既有受控证据可复用；不证明长期 retention |
+| Pre-admission retirement | `call_retirement.go` 绑定 actor/model/终态版本和私有 plan；核 consumer、锁、当地 live call、未 retired 持久 call 与精确 preparation/snapshot/lease；Secret 观察仍先走相同授权 | 现有无 admission 清理正常链可复用；公共 DTO/旧 plan 不自行产生终态权限 |
+| v2 embeddings 与 Usage | `embedding_json.go`、`embedding_transport.go`、`openai_embeddings.go`；只有 v2 接受额外 `completion_tokens` literal `0`，v1 仍严格拒绝；非零/null/负数/小数/指数/重复/其他未知字段的作者反控可复用。`ValidateInvocation` 仅放行严格 embedding 关联投影，真实输入仍在 Runtime 单独校验 | 未发现 v1 放宽或伪造缺失 usage 为 0；共享 ProjectInvocation owner 和 Secret witness 未被旁路 |
+
+复用 Model 冻结修订中 `docs/development/work-items/m3-model-runtime.md` 的分轮事实：39743 包级通过；10276 前两个 top 通过但整轮第三个失败；80228 pre-admission top 单独通过；67632 定向纯检查、31270 v2 受控 top 通过；2079 原 Wait0、43.24 秒、三批 HTTP200/4096、原 Usage/Secret/Close/Joined/Drain 与 D03/D04/D05 清理。已直接核对保存的 `result.txt` 和 manifest，并对照真实 harness 的终态断言。未重放任何外部付费请求，也未将旧失败改成通过。
+
+**必须补齐的已知存续缺口。** `internal/central/model/secret_authority.go:11` 的 reference 随 Provider 配置持有和替换；`resolution_serving.go:17` 只读取 snapshot，每次解析只取得 call lease。`internal/central/secret/write.go:319` 的删除门只看 live references 和未 released leases。最小场景：generation G 正在 serving → 所有当前 call 已结束、lease 已释放 → Provider 从凭据 A 换为 B（或删 Provider）→ A 无其他引用时被合法删除 → G 下一次仍按 snapshot A 解析，无法再取得原凭据。snapshot FK 不能阻止这一情况。此为代码路径确认，未在本轮新启动 PG 复现；它阻止 M3 声称支持该配置变更后的连续 serving，不阻止无配置删除风险的隔离首链。相同 CredentialRef 仅更新 value 属于原轮换机制，不应与替换 ref 混淆。修复范围应限于 generation-to-snapshot retention/retirement 和同事务领域证明，无需扩大全产品 GC。
+
+**Lookup 的结论与下一门禁。** `resolution_lookup.go:39` 仍用 `resolutionConsumerRequest`，后者在 `resolution_plan.go:240` 固定 `ResolveConsumer`。Model 自身在原 command 锁下只读确认 committed 解析，不 prepare、acquire 或 dispatch；但 consumer callback 的权限及副作用必须单独核验。当前 benchmark 仅证明活跃原解析的正常 Lookup，不证明取消后的恢复。
+
+Knowledge `5d65c0a3` 的 `index_resolution_lookup.go`、`index_model.go`、`index_model_authority.go` 私有 bridge 静态边界合理：只在原 `op.mu` 下，将 same-op、resolveUnknown、terminal=failed 的私有 context 交给 Lookup；原 actor/call/digest/process/持久 operation/snapshot 仍核验，该 context 未传给 ResolveModel/Embed。共享 action 本身不是已证越权，独立 Lookup action 可使契约更明确；尚不能把私有 bridge 写成已完成行为接受。Memory 私有恢复和 Meeting 恢复本轮亦不形成产品接受结论。
+
+下一项有界检查应只覆盖：原 Resolve commit Unknown 后取消/撤权或 serving 变化，原 owner 通过 Lookup 确认原 snapshot/lease 并退休；prepared/不存在分支不新增 lease；wrong operation/project/process/terminal 不获恢复权；观察无新 preparation/acquire/provider dispatch。未完成前，阻塞相应 Unknown 清理行为的正式接受，不扩大为所有 M3 工作停项。
+
+本轮未启动 Go、PG/native 或模型请求，未使用 dev 数据库，未修改实现/作者测试/current，未执行 Git 写操作。唯一仓库写入为本文；离线命令均已退出，无后台资源。报告冻结后由 root 保存。

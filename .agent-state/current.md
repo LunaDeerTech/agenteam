@@ -11,16 +11,16 @@ M3 按共同基线 `d9356e09` 建立六个功能工作树，后续另建选型�
 | `ai/m3-mcp` | `/workspace/agenteam-m3-mcp` | `m3_mcp`：MCP Connection、发现、Tool/Resource |
 | `ai/m3-meeting` | `/workspace/agenteam-m3-meeting` | `m3_meeting`：Session/Turn/Contribution、provider、Runtime 与执行控制 |
 | `ai/m3-integration` | `/workspace/agenteam-m3-integration` | `m3_integration`：App/Tool/Executor/身份共享契约、组合 harness |
-| `ai/m3-model` | `/workspace/agenteam-m3-model` | `m3_model`：Model Embeddings、structured Runtime 与 serving snapshot；限定真实验证后暂停 |
+| `ai/m3-model` | `/workspace/agenteam-m3-model` | `m3_model`：Model Embeddings、structured Runtime 与 serving snapshot；已续派长期 serving credential retention |
 | `ai/m3-retrieval-selection` | `/workspace/agenteam-m3-retrieval-selection` | `m3_retrieval_selection`：D13 固定词法/dense/RRF 比较已保存并停写；基线 `a1ce6f1b` |
 | `ai/m3-knowledge-validation` | `/workspace/agenteam-m3-knowledge-validation` | `m3_knowledge`：固定 App 首链验证，运行期间源码不漂移 |
 | `ai/m3-meeting-ui` | `/workspace/agenteam-m3-meeting-ui` | `m3_memory_tools`：Meeting HTTP/UI；Memory UI 已保存待真实浏览器 |
 
-当前为实现、公共接线与限定真实验证阶段，整链和 M3 未验收。Knowledge 已进入固定候选 App 验证；Memory 的真实 PG current revision/shared RRF/跨 Execution 命名空间过滤已过，工具和模型组合待验证。MCP 官方 SDK 的真实 TLS 协议四子项已过，当前继续统一审批执行、资源内容与租约退休；Meeting 的领域 SQL 和受控顺并行链已过，App 实际两 Agent、控制/恢复与 Summary 继续。Model 同一 v2 snapshot 的真实 64/64/8 共 136 个 Embedding、4096 维及原 Usage/Secret/Join 收尾已过，不能外推全部 Model 生命周期。
+当前为实现、公共接线与限定真实验证阶段，整链和 M3 未验收。Knowledge 固定候选 App 已越过配置与 SQL 建档，首 Model 技术退场身份被领域拒绝，原失败进程退出及 fixture 清理后正修复；该轮不构成 Join 成功。Memory 的真实 PG current revision/shared RRF/跨 Execution 命名空间过滤已过，工具和模型组合待验证。MCP 官方 SDK 的真实 TLS 协议四子项已过，当前继续统一审批执行、资源内容与租约退休；Meeting 的领域 SQL 和受控顺并行链已过，App 实际两 Agent、控制/恢复与 Summary 继续。Model 同一 v2 snapshot 的真实 64/64/8 共 136 个 Embedding、4096 维及原 Usage/Secret/Join 收尾已过，不能外推全部 Model 生命周期。
 
-D13 固定词法与融合比较已保存；dense 和 hybrid 的差异正由 `m3_core_review` 独立复核，继而有界审查 Model 新权限、lease 与 v2 兼容；该 reviewer 仅写独立报告，不改生产。用户关于默认 dense 或继续原 hybrid 范围的决定尚未到达，架构和默认选择保持原合同；显式 `native_pg_fts` 仅用于限定首链。动态 Skills 与本阶段相关 Runner 接口仍是 M3 待完成包，不将全 D22 欠账无界并入。
+D13 固定词法与融合比较已保存；`m3_core_review` 已完成离线数值和 Model 新权限、lease 与 v2 兼容的有界独立复核并停写，报告见 [独立报告](../docs/development/work-items/m3-core-independent-review.md)；长期 serving retention 与原 owner 恢复行为仍按报告边界待验。用户关于默认 dense 或继续原 hybrid 范围的决定尚未到达，架构和默认选择保持原合同；显式 `native_pg_fts` 仅用于限定首链。动态 Skills 的 list/read/install 实际路由、PDF 有界解析及本阶段相关 Runner 接口仍是 M3 待完成包，不将全 D22 欠账无界并入。
 
-公共依赖锁文件由 integration 唯一持有，其他树只读。迁移按 root 编号在候选树连续组合；main 不接收未验收产品 WIP。每树 `.agent-state/current.md` 保存可恢复片段，本索引不复制执行流水。最多两组重构建/独立 PG fixture，由 integration 调度；固定 Go1.27.1、MinIO 和共享锁定依赖复用，浏览器由入口 owner 按已锁版本恢复和验证。现有 dev PG/MinIO 不作任务测试库，默认代理与 TLS 校验保持。旧 STOP 只按原风险范围保留。
+公共依赖锁文件由 integration 唯一持有，其他树只读。迁移按 root 编号在候选树连续组合；main 不接收未验收产品 WIP。每树 `.agent-state/current.md` 保存可恢复片段，本索引不复制执行流水。最多两组重构建/独立 PG fixture，由 integration 调度；固定 Go1.27.1、MinIO 和共享锁定依赖复用，浏览器已恢复锁定 Playwright 1.56.1/Chromium1194，入口 owner 正执行真实 App/browser 验证。现有 dev PG/MinIO 不作任务测试库，默认代理与 TLS 校验保持。旧 STOP 只按原风险范围保留。
 
 ## 上一任务：M2 已正式交付，任务收尾完成
 
