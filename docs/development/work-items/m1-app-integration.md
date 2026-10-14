@@ -37,3 +37,9 @@
 root 授权在本树三文件并行：runner_tools 写 Runner TLS/原进程 Wait，model_runtime 写持久终态/文件/stdout/exit/peer 断言，product_recent 写 browser invoke 与 Owner 回验。主 harness 由 delivery_path 单写。第二片保存时三辅助尚在写，root 排除这三文件并另片保存；无整体编译与 native PASS。
 
 固定 MinIO SHA、PG17/nginx 镜像和两个 Node 锁安装均完成，外置共享依赖可复用。没有业务测试资源或外部模型调用。两路 Go / 一路 native 预算不变；后续将先同栈验 00091 全新迁移与真实 App 首链。
+
+### 首次 native 断点
+
+组合 `d239836e` / 收尾修正 `b04b8ac1` 已实际通过 App 和完整 integration 编译。首 `TestM1AppToolWorkflow` 在自有固定 PG17/MinIO/outbound 栈运行（`run.hCX8bF`），全新迁移含 00091、App 启动和原 Runner 进程已到达，随后 seed 的 Agent request 校验拒绝：名称含空格且 RunnerMounts 同时传非 nil AllowedMountIDs。已按既有合同修正测试输入，不改产品校验。
+
+本轮 outer Wait exit 1；尚无 Model 调用/工具轮次/浏览器通过。原 Runner Wait、PG/outbound/Object 精确 nonce 清理均完成。下一轮使用新库验证修正后的真实链，旧记录保留。

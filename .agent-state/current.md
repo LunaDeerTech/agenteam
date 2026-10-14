@@ -13,3 +13,10 @@
 - 新 `TestM1AppToolWorkflow` 主文件已落：真实默认 App 启动、正式 Registry/Runner/Provider/Agent/Task 种子；真实 mount 取得后才生成五响应并正式 PUT Provider，最后释放原空目录返回让 Scheduler 自行启动，无手调 Claim/Advance。正常 outbound WireSequence 扩展 2..16，保留原两响应规则；不接旧故障驱动。
 - root 授权三辅助唯一写者：runner_tools 写本树 `m1_tool_runner_test.go`；model_runtime 写 `m1_tool_facts_test.go`；product_recent 写 `m1_tool_browser_test.go`。主 harness/App 接线仍 delivery_path 单写。三文件活动期由 root checkpoint 排除，后续各自冻结保存。
 - 第二 checkpoint 为 WIP：本 owner 的 App、主 harness、fixture、card/current 已停写交 root；未整体编译/未起 native 栈。独立验证由 macro_milestones 负责，旧 STOP/FAIL 不回填。
+
+## 首次完整组合运行（2026-10-14）
+
+- 可恢复组合 `d239836e`；收尾原 App Join 修正 `b04b8ac1`。无标签 App 编译和完整 integration test binary 编译实际 exit 0。
+- 首官方 owned native 栈 `run.hCX8bF` 实际 outer Wait exit 1：新库迁移（含 00091）、App 启动、实际 Runner enroll/连接已到达；在正式 Agent request 本地校验 `m1-agent-intent INVALID_ARGUMENT` 停止，未发 Model 请求、未启动浏览器。
+- 原因是测试 seed 的 Name 空格及 RunnerMounts 同时附非 nil AllowedMountIDs；已改合法名称、原二选一字段，并对 ToolIDs 排序，产品合同不改。
+- `output/ai/m1-app-integration/run.hCX8bF/native.log` 与 `owned-resources.json` 保存本轮证据；原 Runner cleanup Wait、PG/outbound/MinIO 精确 nonce 资源清理全部完成。未重跑旧 STOP 驱动。下一轮使用新隔离 DB，不复用失败轮资源。

@@ -10,6 +10,7 @@ import (
 	"net/netip"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 
@@ -189,14 +190,16 @@ func (w *m1Workflow) createModelAndTask(t *testing.T, endpoint string) {
 	disabled := false
 	for n := 0; n < 2; n++ {
 		target := guardID[id.Agent](t)
-		fields := ac.AgentCreateFields{AgentID: target, Name: "M1 reviewer", Description: "Statistics task review", Instructions: "Review the submitted program and statistics.", ModelRef: modelID, ApprovalPolicy: ac.ApprovalAllow, AllowedToolIDs: []id.ToolID{}, AllowedMountIDs: []id.MountID{}, AllowedSecretVariableIDs: []id.ProjectVariableID{}, AddSkillsEnabled: &disabled, InstallSkillEnabled: &disabled, InjectAgentsMD: disabled}
+		fields := ac.AgentCreateFields{AgentID: target, Name: "m1-reviewer", Description: "Statistics task review", Instructions: "Review the submitted program and statistics.", ModelRef: modelID, ApprovalPolicy: ac.ApprovalAllow, AllowedToolIDs: []id.ToolID{}, AllowedMountIDs: []id.MountID{}, AllowedSecretVariableIDs: []id.ProjectVariableID{}, AddSkillsEnabled: &disabled, InstallSkillEnabled: &disabled, InjectAgentsMD: disabled}
 		if n == 0 {
 			v.agent = target
-			fields.Name = "M1 statistics worker"
+			fields.Name = "m1-statistics-worker"
 			fields.Instructions = "Read input.json; write stats.py; run /usr/bin/python3 stats.py; verify result.json and report the files and exit status."
 			fields.AllowedToolIDs = []id.ToolID{w.tools[tc.RunnerReadFileKey], w.tools[tc.RunnerWriteFileKey], w.tools[tc.RunnerRunCommandKey]}
 			declarations := []ac.RunnerMountDeclaration{{RunnerID: w.runnerID, Workspace: "source"}}
 			fields.RunnerMounts = &declarations
+			fields.AllowedMountIDs = nil
+			slices.SortFunc(fields.AllowedToolIDs, func(a, b id.ToolID) int { return strings.Compare(a.String(), b.String()) })
 		} else {
 			w.reviewer = target
 		}
