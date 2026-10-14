@@ -82,7 +82,14 @@ func TestM1AppToolWorkflow(t *testing.T) {
 	fixture.checkArtifacts(t)
 	fixture.browser(t, listener)
 	fixture.stopRunner(t)
-	taskExecutionJoinEnabled(t, v)
+	v.requestStop()
+	usageAppWait(t, v.directory.returned, "m1-manager-original-return")
+	usageAppWait(t, v.root.done, "m1-original-app-return")
+	workAppCheck(t, "m1-original-app-exit", v.root.err)
+	if !v.runtime.Joined() || !v.runtime.executionCalls.Joined() || !v.runtime.schedulerCalls.Joined() || !v.planning.Joined() || !v.assembly.Joined() || !v.root.owned.producersJoined() {
+		t.Fatal("M1 App returned before its original owners joined")
+	}
+	taskExecutionGuardReleased(t, v.workAppFixture)
 	fixture.checkPeer(t)
 	t.Log("M1_APP_TOOL_WORKFLOW deployment_profile=tool-loop-v1 scheduler_claim=true model_http_rounds=5 runner_read_write_run=true actual_file_stdout_exit=true final_output_v2=true owner_review=true original_app_runner_wait=true external_model=false")
 }
