@@ -1,47 +1,25 @@
-# M1 App 集成与自有环境
+# 当前工作：M1 App 工具链集成
 
-- 基线 `c75e1bb8`；分支 `ai/m1-app-integration-20261014`；工作树 `/workspace/agenteam-m1-app-integration`；owner `delivery_path`，root 负责全部 Git。
-- 唯一写域：`internal/central/app/**`、必要 `internal/central/config/**` 与 `cmd/agenteam` 接线、M1 新 harness、[本卡](../docs/development/work-items/m1-app-integration.md)。不得修改其他领域或全局迁移；00091 归 core_readiness。
-- 已实现显式执行 profile `tool-loop-v1` / `ExecutionRuntimeOptions.ToolLoop()`，保留 `direct-text-v1`。App 已增加新 Capture、MultiRound 选配、真实三 Runner Tool 来源/factory 与同路由 DeviceHandler 接线；完整 integration 编译及受控五轮后端链已通过，浏览器 Owner 评审仍有断点，尚无 M1 PASS。
-- 候选接缝：W1 原 JSONCaller/Runtime 与新 ToolCallingExecutionCapture；W2 ProjectCallDependencies.MultiRound 选配由原 Ownership 构造；W3 RunnerExecutor/RunnerResultAuthority。App 保持同 Store、Authority、Registry 与原 ProcessGuard，不复制状态机。
-- 场景：自有目录读取 input.json，生成统计程序/结果文件并运行真实校验；同 Task/Execution 至少两轮工具交互，内容/stdout/exit 可核，Owner 沿已有入口进入 in_review。先自有确定性 Provider 真实 HTTP，再单独核外部 Provider 可用条件。
-- 环境：Go `/workspace/toolchains/go1.27.1/bin/go`；共享 `/workspace/go/pkg/mod` 和 `/workspace/.cache/go-build`。固定 MinIO 已按原步骤构建于 `/workspace/shared/agenteam-m1-tools/minio/minio`，release 与 SHA `dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8` 匹配。PG17 `99a149…` 与 nginx `30f1c0…` 镜像已拉取。Playwright 1.56.1 安装完成于 `/workspace/shared/agenteam-m1-tools/node-browser/node_modules`；web 同锁安装位于 `node-web`，原 npm ci 已退出 0。
-- 全树初期最多两路 Go 构建/测试，每路 `GOMAXPROCS=2` / `-p=2`；一个 native 栈由 W5 协调。各轮新 nonce 测试栈按原 fixture 精确清理，未接已有 onboarding 数据库，未读取/输出真实 Provider 凭据或发送外部模型请求。
-- 原 live-chat 分支 `e50e913a` 只读核查：保存单轮显式 live harness，四轮失败，最后 DNS 阶段未发送 HTTP；当前会话 owner 未能从陈旧 current 确定，不改原分支或恢复旧驱动。原 STOP/FAIL 保留。
-- 上游实际采纳：Model `7cac84aa`（前片 `f47d3eb0`）、Tool `0c523752`（前片 `0bcfa47a`）、Task/UI/浏览器 `9a206769`（产品片 `e76873de`）；本树待 root 保存。Execution 尚待其完成快照/Loop 小修后采纳，不宣称此时可编译。
-- 已有验证：本树 config `^TestExecutionRuntime` 实际 exit 0（首轮仅缺缓存的 setup FAIL 另保留）；上游 Model 7 个顶层/20 子测试独立 race 0，最终 Capture 隔离负例独验 0；UI 4 场景限定独验 0。不代替本组合验收。
-- 新 `TestM1AppToolWorkflow` 主文件已落：真实默认 App 启动、正式 Registry/Runner/Provider/Agent/Task 种子；真实 mount 取得后才生成五响应并正式 PUT Provider，最后释放原空目录返回让 Scheduler 自行启动，无手调 Claim/Advance。正常 outbound WireSequence 扩展 2..16，保留原两响应规则；不接旧故障驱动。
-- root 授权三辅助唯一写者：runner_tools 写本树 `m1_tool_runner_test.go`；model_runtime 写 `m1_tool_facts_test.go`；product_recent 写 `m1_tool_browser_test.go`。主 harness/App 接线仍 delivery_path 单写。三文件活动期由 root checkpoint 排除，后续各自冻结保存。
-- 第二 checkpoint 为 WIP：本 owner 的 App、主 harness、fixture、card/current 已停写交 root；未整体编译/未起 native 栈。独立验证由 macro_milestones 负责，旧 STOP/FAIL 不回填。
+- 分支 `ai/m1-app-integration-20261014`，工作树 `/workspace/agenteam-m1-app-integration`；起始基线 `c75e1bb8`，最近正常验收输入 `fee69b0d`。root 负责全部 Git；delivery_path 负责 App/harness，documentation_worker 当前只写移交文档。恢复先核 Git 差异、活动 owner 与命令，不继承旧会话写权。
+- 目标、当前实际结果与限制见 [M1 集成卡](../docs/development/work-items/m1-app-integration.md)；完整里程碑见[开发计划](../docs/development/development-plan.md#当前开发目标与里程碑)。当前没有 M1 完成或 main 交付结论。
+- 已实现显式 `tool-loop-v1`、Model JSON 工具调用、原 Ownership 内多轮循环、真实 Runner read/write/run、最终 v2 与 UI 解码。旧 `direct-text-v1`/Snapshot 保留，无新增 UI 配置；App 复用原 Store、Authority、Registry、DeviceHandler 和停止生命周期。
+- 自有受控链已完成同一 work Execution 的 5 Model / 4 Tool、真实文件/stdout/exit 和 v2 持久事实。第九轮 `run.KkNSps` 已到 Owner transfer 200、持久 `in_review` / version 4 和独立 review 两 Model / 一 read；reload 第三次输出 `ERR_ABORTED` / 200 正文不完整，原 outer Wait 1。三层 cleanup 完成，正常末尾 App Join/peer 未到；整轮仍 FAIL，浏览器 owner 正修断点。
+- `33009a96` / `run.Wxxzus` 的 read missing 与原 Runtime Stop/Drain 取消两个子例已 PASS 并独立接受；原 pending bytes、同事务终态、精确调用、Runner Wait 0 / App Joined 与资源清理已核。相关输入未变时复用，不重跑旧矩阵。
+- 正常场景 tick 250ms / skip 240 是显式约60秒 Owner 窗口，不是生产默认；review 只读自有说明，不代表 worker 产物评审或 M2 完成。无工具 Agent、运行中重启接管、Human 持久取消及完整审批恢复仍待后继。
+- 外部 DEV_CHAT 因本环境 A 成功 / AAAA NXDOMAIN 被原 D04 拒绝，未发送外部 Model HTTP；不改 DNS/权限策略。旧 live-chat FAIL 与 Object/tools/SPA 等 STOP 均保留。
 
-## 首次完整组合运行（2026-10-14）
+## 恢复与下一步
 
-- 可恢复组合 `d239836e`；收尾原 App Join 修正 `b04b8ac1`。无标签 App 编译和完整 integration test binary 编译实际 exit 0。
-- 首官方 owned native 栈 `run.hCX8bF` 实际 outer Wait exit 1：新库迁移（含 00091）、App 启动、实际 Runner enroll/连接已到达；在正式 Agent request 本地校验 `m1-agent-intent INVALID_ARGUMENT` 停止，未发 Model 请求、未启动浏览器。
-- 原因是测试 seed 的 Name 空格及 RunnerMounts 同时附非 nil AllowedMountIDs；已改合法名称、原二选一字段，并对 ToolIDs 排序，产品合同不改。
-- `output/ai/m1-app-integration/run.hCX8bF/native.log` 与 `owned-resources.json` 保存本轮证据；原 Runner cleanup Wait、PG/outbound/MinIO 精确 nonce 资源清理全部完成。未重跑旧 STOP 驱动。下一轮使用新隔离 DB，不复用失败轮资源。
+运行入口和固定 case 见 [M1 harness](../tests/m1-app-workflow/README.md)。Go 为 `/workspace/toolchains/go1.27.1/bin/go`；共享模块 `/workspace/go/pkg/mod`、构建缓存 `/workspace/.cache/go-build`。固定 MinIO 位于 `/workspace/shared/agenteam-m1-tools/minio/minio`，SHA `dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8`；锁定 browser/web 依赖位于该工具目录 `node-browser` / `node-web`。迁移包含 00091，每轮新 nonce/new DB；不连接 onboarding 环境。当前预算为两路 Go `-p=2`、一个 native 栈，由 delivery_path 协调。
 
-## 后续原生断点与下一候选
+原始证据位于 `output/ai/m1-app-integration/run.*`；前八轮失败及修复事实在集成卡与 Git 历史保留。本轮下一步是修正刷新输出读取并完成正常收尾和独立验证，再在原策略条件满足后验证真实外部模型。checkpoint 是可恢复实现，不表示产品 PASS；提交/推送状态由 root 实际报告。
 
-- 第二轮 `run.ydJ1Du`（`9dc2517d`）越过合法 seed，在 40 秒观测截止时失败；原日志缺进度信息，已保留，outer Wait 1 和三层精确清理均完成。
-- 第三轮 `run.Gu1glT`（`03dc864e`）安全诊断确认：Task in_progress/version 3、dispatch launched/created/attempt 1；Execution preparing/version 2，Preparation fence 1 terminal；Execution snapshot/round/model invocation/tool/result 均 0，owned Provider 请求 0。目标 ProjectRunner 已退出，Fault 为 INTERNAL_ERROR/not_committed。原 Wait 1、Runner Wait 与所有自有资源清理完成。
-- 该状态定位到准备至首轮启动之间；terminal preparation 本身也可为合法 capture，尚不能断言具体失败事务。增加 preparation_inputs、Model resolution/snapshot 区分，以及只观测原 NotCommitted 的 SQLSTATE/constraint 技术标识，不改变 SQL、返回、超时或权限。
-- 下一候选已采纳 root 冻结的 Tool `8d09a1ea` ResultAvailable 与 Execution `baf64e2a` 取消/结果收口及更新 00091；完整 integration 编译实际 exit 0。它们仍未得到本树原生运行通过，下一轮必须新库。
-- 外部 Provider 只读无凭据预检由 model_runtime 完成：本环境 DNS 的 A 成功/AAAA NXDOMAIN 被原 D04 合同拒绝，公共递归无法连通，因此只能证明本环境阻断，不能断言服务权威 DNS 错误。无 API_KEY 读取、无 Model HTTP、无策略/解析器修改；真实模型工作流仍未验。
+旧 direct-text 兼容已在 `fee69b0d` / `direct-text.2tWIPp` 实际回归：1 top / 1 sub、Model HTTP 1 / Tool 0、v1 及同 DB 关闭 runtime 后重启历史读取、原完整 Join 均到达，outer Wait 0 / cleanup 完成，已获限定独立接受。正常全部门和旧兼容、失败/取消限定证据齐全后，才判断工具实现增量的受限 main 交付；M1 整里程碑仍须外部模型实证。
 
-- 第四轮 `9a31dd1e` / `run.droHjN` 通过新增原 Store 安全诊断，在 5.75 秒定位 `execution-direct-text-start` 事务 `DATABASE_SQL_FAILED` / SQLSTATE `42P08`（参数类型推断歧义）。`preparation_inputs=1`、Model resolution committed/plan 1、Model snapshot 1，证明捕获已完成；Execution 首 snapshot/round 尚未提交，Provider 0 请求。已交 Execution owner 修首 Start 的 SQL 同占位类型推断。outer Wait 1、Runner Wait、三层精确清理全部完成；诊断不再将此断点误归为 Preparation capture 失败。
+## 已完成交接：统一页面布局
 
-- 第五轮 `197f92bc` / `run.Ioa2YF` 在实际 PG 上越过 `42P08`，同一 Execution 的 5 轮 Model HTTP、4 次 read/write/run/read、真实 stats.py/result.json 内容、command 完整 stdout/exit 0、v2 最终快照同事务检查均已通过后进入浏览器。整体仍 FAIL：新消费者把正式 detail `{execution: ...}` 误当平铺对象，Node 原 Wait 非 0；只到 initial-task-in-progress，0 output reads/0 writes。product_recent 已按正式封套修独占 spec，未改产品返回。outer Wait 1、Runner cleanup Wait 和三层精确清理完成。
+`6d16bdae` 已交付统一前端布局，正式恢复材料为 `web/src/`、[界面规范](../docs/frontend-design/interface-design.md)和 [interface-layout.config.js](../tests/account-captcha-web/interface-layout.config.js) 同前缀 browser 源码/锁文件。本轮主任务已转 M1，不继续旧 project-list 候选。
 
-- 第六轮 `90f1bda7` / `run.SoW9B4` 后端链再次通过，真实浏览器 detail、两次 v2 输出读取、成果文件名及首截图通过；唯一 Owner transfer 返回 HTTP 503，尚无安全错误码，不能归因为 relaunch。outer Wait 1、Runner cleanup Wait 与三层资源清理完成。浏览器之后的正常 App/Runner Join 和完整 peer 断言未到达，不计 PASS。
-- 下一候选增加严格受限 HTTP code、浏览器失败前真实 Task/E/peer 诊断，以及原 Store 对 `work.task.transfer` NotCommitted 的安全 SQLSTATE/constraint 元数据；不改变 200、唯一写入、in_review 或调度条件。主初始化提取为 `newM1WorkflowWithObserver`，保持原成功路径步骤；W2 新 `m1_tool_failure_test.go` 复用同图验证 read missing 与真实运行命令取消，独占新文件。新 case 尚未运行，等待冻结后单一栈按固定 selector 验证。
+原 Chromium 55 项按整轮 54 项与修正测试定位后 1 项独立复验组合接受；类型、构建、project-audit 49/49 与限定变更文件格式通过。使用合成 HTTP fixture，只证明前端行为；旧整轮 FAIL 不回填。原31项请求生命周期 unit 失败与17个基线文件格式问题保留，不宣称全局 npm check 全绿。完整历史范围从该提交的 current 与原日志查询，不新增归档。
 
-## 当前最新原生结论（冻结输入 `33009a96`）
-
-- 正常 case 第七轮 `run.ELNqqc` / original outer Wait 1：首工作 Execution 后端五轮成功，但浏览器在详情响应的 `response.finished()` 等待 45 秒超时，未到 transfer，不能将本次误报为 503。安全持久诊断真实显示同一 Task 已有 18 个 Execution（1 succeeded、17 failed/model_failed），Provider 共 22 请求；Task 仍 in_progress/version 3。当前继承旧 fixture 的 tick 250ms、relaunch_skip_count 0 是显式零冷却，原 Scheduler 持续重启事实已确认。后续按正式调度/评审语义对齐 fixture，尚无成功评审闭环。
-- 新 `failure-and-cancellation` case `run.Wxxzus` / original outer Wait 0：两个子例实际 PASS（11.21 秒）。真实 read missing 无结果载荷→failed/runtime_failed；真实 Python 命令 marker 后执行原 Runtime StopAdmission/Drain→cancelled，并核 pidfd ready/child 与进程组不存在。两者均保持原 pending response/call/assistant bytes、同事务终态、1 Model 请求/1 Tool operation、正常 Runner original Wait 0 与原 App 全 owner Joined。
-- 两轮全部 PG/outbound/MinIO 精确 nonce 清理完成，native/Go 槽空闲。以上失败/取消通过不代替正常浏览器评审、外部模型推理或旧 STOP；等待 macro_milestones 独立消费实际证据。
-
-- macro_milestones 已只读独立接受 `run.Wxxzus` 的限定两门 PASS：日志与源码事实均到达，精确 3 容器/3 网络/3 目录和原测试/Runner PID 全消失；`run.ELNqqc` 退场同样独核完成，不重跑旧矩阵。
-- 后续正常 workflow 部署明确采用 tick 250ms / skip 240 约 60 秒 Owner 窗口，保留原 Scheduler/Work 合同。主工作 E 保持精确 5 Model/4 Tool；送审后可有最多一个独立 task/review E，用另一 Model/Provider 两正常响应 read 自有评审说明→text，不代表 worker 产物传递或评审决策闭环。现首轮工具集非空/required 限制明确保留；不宣传无工具 Agent 兼容。
-- 仅 `newM1Workflow` 启用该选配；failure/cancel 的 `newM1WorkflowWithObserver` 保持原配置/响应/observer，复用已接受证据。正常浏览器完成后先原 Runtime Stop/Drain，再 Runner/App Join，避免先停 Runner 干扰合法活 review。W1 facts 正补分场景/原 Usage request ID 归属；下一组合尚未编译或运行。
+锁定 Node 24.19.0 / Playwright 1.56.1 / Chromium 151 的原复现入口为 `node tests/account-captcha-web/node_modules/@playwright/test/cli.js test --config=tests/account-captcha-web/interface-layout.config.js`；其余命令与恢复边界见 Git 文件历史。原主树 `output/ai/interface-layout/` 保留简短日志与六张 preview；全部原验证进程已退出，可再生输出不纳入 Git。

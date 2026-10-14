@@ -2,19 +2,19 @@
 
 ## 当前目标与工作包状态
 
-2026-10-14 用户已确认以“指派任务 → Agent 连续工具执行 → 可见成果 → 审核通过/退回”为当前主目标。里程碑、依赖与完整工作包定义只维护在[开发计划](../development-plan.md#当前开发目标与里程碑)。本次完成规划/工作流归位，以下产品包均待派发；尚未因规划更新产生新的产品 PASS。
+2026-10-14 用户已确认以“指派任务 → Agent 连续工具执行 → 可见成果 → 审核通过/退回”为当前主目标。里程碑、依赖与完整工作包定义只维护在[开发计划](../development-plan.md#当前开发目标与里程碑)。M1 已进入真实 App 集成；当前没有 M1 完成或 main 交付结论，具体分支/工作树见 [current](../../../.agent-state/current.md)。
 
-当前可复用 Agent 创建/配置、Skills、Task 指派/评审、历史输出、DirectText App/Scheduler、Runner read/write/run 和 Object safe 修复等已存在能力，接手按对应卡核限定证据。**首个待闭合断点是正式 App 的真实 Model 工具调用与 ToolResult 后下一轮 Model 请求的连续组合**；已有 read-file 结果消费或 Round 输入能力不等于该链已贯通。统一界面布局已在 `6d16bdae` 完成前端范围交付，恢复材料与既有31项 unit/17文件格式限制见 [current](../../../.agent-state/current.md#已完成交接统一页面布局)，不再沿旧 project-list 候选继续主任务。
+受控 Provider 已通过真实 HTTP 驱动同一工作 Execution 的五次 Model / 四次 Runner read/write/run/read，真实文件、stdout/exit、持久结果与最终 v2 已到达。第九轮 Owner 送审成功并持久 `in_review`，独立 review 执行已到；**当前断点是刷新后的输出正文读取中止，正常收尾及 peer 断言尚未到达**。失败/原 Runtime 取消两子例已独立接受；外部 DEV_CHAT 在既有 D04 DNS gate 前受环境阻断，尚无外部 Model HTTP，详见 [M1 集成卡](../work-items/m1-app-integration.md)。
 
 | 工作包 | 当前状态与优先级 | 下一步 |
 | --- | --- | --- |
-| W1 模型工具调用 | 待派发；首条主链，tools 原独验 STOP 保留 | 指定 owner，先核原停止原因/恢复条件及独验范围，再完成真实消费接线。 |
-| W2 多轮执行与 Task 交接 | 待派发；与 W1 联合推进 | 复用已持久调用/结果及 Round 输入，明确下一 Model 与评审交接的真实接缝。 |
-| W3 审批、取消与执行详情 | 待派发；随主链并行 | 固定等待/恢复/取消与详情的真实调用责任，风险暴露前完成必要门。 |
-| W4 检索与记忆基础 | 待派发；独立并行 | 复用既有 benchmark/native PG，冻结剩余候选单配置并完成有界比较。 |
-| W5 集成与有界阻塞 | 待派发；组织主链组合 | 指定集成 owner、候选基线及共享入口唯一写者；安排独立验证。 |
+| W1 模型工具调用 | JSON 原生工具请求、ToolCall/ToolResult 历史和真实 Runtime 已接入受控 App 链；原 tools 独验 STOP 保留 | 在原权限/出站条件满足后验证外部模型实际推理，保留受控 Provider 的证据边界。 |
+| W2 多轮执行与 Task 交接 | 同 E 工具循环、Runner 副作用、v2/UI 和 Owner `in_review` 已到达 | 完成正常浏览器刷新读取、完整收尾与独立验证；不以 Execution 成功自动完成 Task。 |
+| W3 审批、取消与执行详情 | read missing 失败及原 Runtime Stop/Drain 取消已限定独立接受；详情支持 v1/v2 | Human 持久取消、完整审批恢复、运行中重启接管仍待后继，不由 Runtime 取消样本代证。 |
+| W4 检索与记忆基础 | 本轮尚未派发，原工作包保留 | 按资源与 M1 进展安排，复用既有范围证据。 |
+| W5 集成与有界阻塞 | tool-loop-v1 默认 App 显式接线及自有 PG/Runner/Provider/browser harness 已形成，正常整轮仍 FAIL | delivery_path 协调定向修复；macro_milestones 独立核适用完成门槛。 |
 
-当前不继承历史 agent 名称、资源窗口或写入权；实际派发后才改为进行中。原失败、固定输入及未验证范围继续保留，下文旧子项记录按其发生时范围解读，不能覆盖本节较新的实际状态。
+`tool-loop-v1` 是显式执行配置，原 `direct-text-v1` 保留且无新增 UI 配置。正常验收 tick 250ms / skip 240 只是 Owner 窗口参数；Reviewer 读取自有说明不证明 worker 产物评审或 M2 完成。统一界面布局已在 `6d16bdae` 交付，其既有31项 unit/17文件格式限制与恢复材料见 [current](../../../.agent-state/current.md#已完成交接统一页面布局)。旧 STOP、历史 FAIL 与未验证范围继续保留；下文旧子项按发生时输入解读，不覆盖本节较新事实。
 
 ## 当前验收与推进边界
 

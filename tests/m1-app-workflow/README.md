@@ -31,6 +31,8 @@ sh tests/m1-app-workflow/run.sh
 
 ## 证据
 
+当前实际通过、失败与下一步见 [M1 集成卡](../../docs/development/work-items/m1-app-integration.md#当前成果与验收边界)。正常链的第九轮虽到 Owner 送审及持久 `in_review`，刷新后的第三次输出读取正文不完整，仍未通过正常完整收尾；已独立接受的失败/取消 case 不代替该门。
+
 每轮输出在 `output/ai/m1-app-integration/run.*`。`native.log` 保存实际测试及 fixture Wait；`owned-resources.json` 仅保存资源身份；`browser/TestM1AppToolWorkflow` 保存浏览器阶段、脱敏控制台及截图。Session/Runner enrollment 材料放私有目录并清理，不写证据。
 
 通过必须同时包含同一 Task/Execution 的实际多轮工具结果、文件内容与 command stdout/exit、v2 最终输出、唯一 Owner 评审转移、刷新一致，以及 App/Runner/浏览器原进程返回。编译、环境准备或受控 Provider 通过均不标外部模型推理通过。旧 STOP 驱动不由本入口运行。

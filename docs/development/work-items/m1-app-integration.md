@@ -1,73 +1,46 @@
 # M1：默认 App 的单 Agent 工具工作闭环
 
-2026-10-14 开始实施，基线 `c75e1bb8`，负责人 delivery_path。目标沿[开发计划](../development-plan.md#当前开发目标与里程碑)；本卡记录 W5 接缝与真实组合，不代表 M1 通过。
+2026-10-14 开始实施，起始基线 `c75e1bb8`，集成负责人 delivery_path。目标与正式门槛沿[开发计划](../development-plan.md#当前开发目标与里程碑)。当前已实现受控 Provider 的真实工具链；正常浏览器验收仍有断点，外部模型尚未验证，不声明 M1 完成或已交付 main。
 
-## 可见结果与验收边界
+## 当前成果与验收边界
 
-默认 App 以正式 Project/Agent/Task 配置，由原 Scheduler 自动启动同一 Execution。Agent 读取自有目录的 input.json/任务说明，生成统计程序及结果文件，运行真实校验命令，并提交可见成果。至少两轮实际工具交互；核对文件内容、stdout 和 exit，以及持久 Model/ToolCall/ToolResult 配对。Execution 成功后 Task 不自动 done，Owner 沿已有 Transfer 入口明确进入 in_review。
+默认 App 使用正式 Project/Agent/Task 配置，由原 Scheduler 自动启动同一 Execution。自有确定性 Provider 经真实 TLS HTTP 依次请求读取 `input.json`、写入 `stats.py`、运行真实 Python、读取 `result.json`，最后给出文本：同一工作 Execution 精确五次 Model / 四次 Tool，真实文件、stdout/exit 0、持久调用/结果配对及最终 `durable_final_text_v2` 快照均已到达。既有详情 UI 支持旧 v1 和新 v2，Execution 成功不自动使 Task done。
 
-先使用任务所有确定性 Provider 的真实 HTTP，验证正式协议/领域调用/Runner 文件与进程副作用；它不证明外部模型实际推理。后续外部 Provider 在原配置/权限/出站 gate 下有限调用，不输出凭据、不改变 DNS 合同或重跑旧 STOP 驱动。
+`fee69b0d` 的第九轮已到达 Owner 唯一送审 HTTP 200，Task 持久化为 `in_review` / version 4；独立 `task/review` Execution 完成两次 Model / 一次 read。刷新后的第三次输出读取实际 `ERR_ABORTED`，HTTP 200 正文不完整，正常 App Join 和最终 peer 断言未到达，整轮仍 FAIL。该 Reviewer 只读自己的说明文件并确认收到任务，不证明 worker 成果传递、自主评审决策或 M2 完成。
 
-## 组合接缝和唯一写者
+失败/取消的独立两个子例已通过并获限定独立接受：真实 read missing 无载荷使 Execution `failed/runtime_failed`；真实命令 marker 后调用原 Runtime StopAdmission/Drain，使 Execution `cancelled`，并确认原子进程、进程组退出。两者保留原 pending bytes，完成同事务终态、精确 1 Model / 1 Tool、Runner 原 Wait 0 与 App 全 owner Joined。
+
+这些结果证明自有受控 Provider 的协议、领域调用和 Runner 副作用，不证明外部模型自行规划。外部 `DEV_CHAT` 预检因本环境 A 成功 / AAAA NXDOMAIN 被既有 D04 合同拒绝，尚未发送外部 Model HTTP；不据此判断服务权威 DNS 错误，不改解析器、DNS 或出站策略。原 OpenAI tools 独验、Object runtime join、SPA concurrent-publication、Jina/Image 来源等既有 STOP 与未完成范围保留。
+
+## 配置与组合接缝
+
+通过已有 `AGENTEAM_CENTRAL_EXECUTION_RUNTIME` 的完整 JSON 显式选择 `profile: "tool-loop-v1"`；原 `direct-text-v1` 与旧 Snapshot 保留。profile 与 Provider adapter revision 分开，无新增 UI 配置；所需字段、三项 Scheduler Launch retry 和授权前提见[后端配置说明](../backend/README.md#配置与命令)。配置不自动删 Core Tools、补 deny IDs 或授予权限。
 
 | 提供方 | App 消费的约定 |
 | --- | --- |
-| model_runtime | 原 mc.JSONCaller、model.NewRuntimeWithAgentRetry 和单一 adapter 生命周期；新 model.NewToolCallingExecutionCapture 选择 tools revision，旧快照不改写。 |
-| core_readiness | ProjectCallDependencies.MultiRound 选配；原 ProjectCallOwnership 内构造多轮 driver 并接原 Associated/Stop/Drain/Joined；负责持久多轮及全局迁移 00091。 |
-| runner_tools | 同 Execution 私有 authority 的 RunnerExecutor/RunnerResultAuthority；真实 Mount resolver、Runner dispatcher、schema validator 与精确 E/Round/Call。 |
-| product_recent | 既有执行 list/detail/runtime-view 与 Human 评审入口；可见最终结果，不从 Execution 终态推导 Task done。 |
-| delivery_path | App/config/必要 cmd 接线与新 M1 harness、测试依赖和资源协调；不替领域服务实现业务状态机。 |
+| Model | 原 `mc.JSONCaller`、`model.NewRuntimeWithAgentRetry` 与单一 adapter 生命周期；新 `NewToolCallingExecutionCapture` 为新执行选择 tools revision。 |
+| Execution | `ProjectCallDependencies.MultiRound` 由原 Ownership 构造多轮 driver，沿原 Associated/Stop/Drain/Joined；迁移 00091 解除原单轮约束。 |
+| Runner / Tool | 私有 `RunnerExecutor` / `RunnerResultAuthority`、真实 Mount resolver、原 DeviceHandler 与 dispatcher，精确配对 Execution/Round/Call。 |
+| Task / UI | 既有 list/detail/runtime-view 读取最终结果；Owner 沿 Transfer 送审，不由 Execution 终态推导 Task done。 |
+| App | 同 Store/Authority/Registry 装配真实提供方；构造 owner 即登记，禁新调度后等待原工作返回，再释放共享资源。 |
 
-执行配置新增显式 `tool-loop-v1`；旧 `direct-text-v1` 保留原语义。profile 与 Provider adapter revision 分开；配置不自动删 Core、补 deny IDs 或制造权限。当前已绑定新 Capture/多轮选配及同原路由 DeviceHandler 的三 Runner factory，旧配置保持原组图。构造缺依赖仍明确拒绝。
+正常 harness 显式设置 tick 250ms / `relaunch_skip_count: 240`，提供约 60 秒 Owner 查看窗口；原 Scheduler 持续运行，产品默认及 Work 语义未改。窗口内必须只有原 work Execution；送审后允许一个独立 review Execution。现首轮要求非空工具集/required，因此 reviewer 也授权真实 readFile 和独立 Mount，无工具 Agent 尚不在兼容声明内。正常回验后按原 Runtime Stop/Drain → Runner Wait → App Join 收尾；失败/取消场景保留原配置和 observer，复用未变输入证据。
 
-共享同 Store/Authority/Registry，创建 owner 立即登记；停止时先禁新调度，再等待原 Scheduler/Execution/Loop/Tool/Model 返回，随后释放共享 Secret/Usage/Outbox/ProcessGuard。具体工具构造参数由领域 owner 的实际接口固定，尚未实现不声明可调用。
+## 验证与可恢复入口
 
-## 验证与资源
+运行命令、固定 case 和资源前提只维护在 [M1 harness 说明](../../../tests/m1-app-workflow/README.md)。使用 Go 1.27.1、固定 PG17/MinIO/nginx 和锁定 Playwright 1.56.1；工具与缓存可外置共享，每轮数据库、Object、spool、工作目录和输出均独立，不连接 onboarding 现有环境。当前预算为两路 `-p=2` Go 命令、一个 native 栈。
 
-固定 Go 1.27.1、PG17 镜像及 MinIO release/SHA，复用 tests/testsupport 自有 fixture。工具与原生缓存外置共享，数据库/Object/spool/临时文件/输出按轮隔离，不接 onboarding 容器。初期两个 Go 命令、每个 -p=2；native 同时一个栈，按实际资源再调整。
+| 固定输入与实际运行 | 结果与保留边界 |
+| --- | --- |
+| `fee69b0d` / `direct-text.2tWIPp`，旧 profile 兼容 | 原 outer Wait 0，1 top / 1 sub 5.38 秒 PASS；真实 Model HTTP 1 / Tool 0、v1 输出、同 DB 关闭 runtime 后重启读取、Owner 权限及原 roots/Guard/Store/peer Join 到达，三层 cleanup 完成，已获限定独立接受。 |
+| `33009a96` / `run.Wxxzus`，failure-and-cancellation | 原 outer Wait 0，两个子例 11.21 秒 PASS；macro_milestones 已独立接受限定失败/取消及精确资源/PID 退场。 |
+| `59dba7eb` / `run.C9sKHQ`，第八轮正常 | 原 test Wait 1；唯一 work 的 5 Model / 4 Tool 到达，浏览器正文等待 45 秒超时，未到 Owner；三层 cleanup 日志与进程消失已核。 |
+| `fee69b0d` / `run.KkNSps`，第九轮正常 | 原 outer Wait 1；Owner 送审与 review 已到，刷新第三次 output 正文中止；三层 cleanup 已完成，正常末尾 Join/peer 尚未到达。 |
 
-每个稳定候选先必要正常/拒绝/取消基础检查，尽早真实首链；工具副作用验证实际内容及准确身份，恢复不能重发已完成副作用。复用未变输入证据，失败按原因定向修复。macro_milestones 为未参与实现者的独立验证负责人。环境准备通过、编译或旧单域能力均不替代端到端接受；所有旧 STOP/FAIL 保留。
+证据位于各轮 `output/ai/m1-app-integration/run.*`，包含 native.log、owned-resources.json 与 browser 阶段/截图；可再生输出不新增归档。独立验证负责人为未参与实现的 macro_milestones；后验资源消失不补写未执行的正常收尾断言。
 
-## 当前进展
+前七轮 FAIL 保留于 Git 文件历史及原输出：首轮 seed 输入不合法，第二至四轮准备/首 Start 断点最终定位 SQLSTATE `42P08` 并修复；第五轮浏览器误读 detail 封套，第六轮 Owner 503，第七轮正文等待超时且零冷却导致反复 relaunch。后继修复不把这些旧轮回填为 PASS。
 
-显式 profile 与 getter 已实现，配置定向测试实际退出 0。App 三 Runner metadata 来源、Registry 同事务初始化、新 Model Capture、MultiRound 选配、真实 private authority factory 已落；每个 Tool authority 构造即注册原关闭组，复用路由持有的 DeviceHandler。整体尚待 W2 可编译源码，不声明构造通过。
+## 下一步
 
-实际导入 Model `7cac84aa`、Tool `0c523752`、Task/UI 与浏览器 `9a206769`；其原证据范围保持，不等于组合通过。主 `TestM1AppToolWorkflow` 使用正式 Project/Runner/Provider/Agent/Task 操作并释放原 Scheduler 首空目录，计划五轮真实 HTTP read/write/run/read/final；正常 fixture WireSequence 由固定两条扩到有界 2..16，原最后一条重复及同路径校验保留。
-
-root 授权在本树三文件并行：runner_tools 写 Runner TLS/原进程 Wait，model_runtime 写持久终态/文件/stdout/exit/peer 断言，product_recent 写 browser invoke 与 Owner 回验。主 harness 由 delivery_path 单写。第二片保存时三辅助尚在写，root 排除这三文件并另片保存；无整体编译与 native PASS。
-
-固定 MinIO SHA、PG17/nginx 镜像和两个 Node 锁安装均完成，外置共享依赖可复用。没有业务测试资源或外部模型调用。两路 Go / 一路 native 预算不变；后续将先同栈验 00091 全新迁移与真实 App 首链。
-
-### 首次 native 断点
-
-组合 `d239836e` / 收尾修正 `b04b8ac1` 已实际通过 App 和完整 integration 编译。首 `TestM1AppToolWorkflow` 在自有固定 PG17/MinIO/outbound 栈运行（`run.hCX8bF`），全新迁移含 00091、App 启动和原 Runner 进程已到达，随后 seed 的 Agent request 校验拒绝：名称含空格且 RunnerMounts 同时传非 nil AllowedMountIDs。已按既有合同修正测试输入，不改产品校验。
-
-本轮 outer Wait exit 1；尚无 Model 调用/工具轮次/浏览器通过。原 Runner Wait、PG/outbound/Object 精确 nonce 清理均完成。下一轮使用新库验证修正后的真实链，旧记录保留。
-
-### 受控链进展与诊断边界
-
-第二轮 `9dc2517d` / `run.ydJ1Du` 越过种子，40 秒后未完成；第三轮 `03dc864e` / `run.Gu1glT` 取得具体安全状态：原 Scheduler 已领取并 Launch，Task 为 in_progress/version 3，Execution 停在 preparing/version 2，Preparation fence 1 terminal，尚无 Execution snapshot/round/Model invocation/Tool operation，Provider 收到 0 请求。目标 ProjectRunner 已退出，原错误为 INTERNAL_ERROR/not_committed。每轮 outer Wait 1 和固定资源精确清理均完成。
-
-terminal preparation 可表示合法捕获，因此根因暂只定位到准备至首轮启动之间。下一诊断增加 preparation_inputs、Model resolution/snapshot 数量，以及测试自有原 Store 返回处的限量 SQLSTATE/约束名观察，不记录 SQL、参数、错误 Detail 或 payload。下一候选同时纳入 Tool `8d09a1ea` / Execution `baf64e2a`（均已冻结），integration 编译退出 0，原生链尚未通过。
-
-第四轮 `9a31dd1e` / `run.droHjN` 用上述元数据在 5.75 秒定位明确错误：`execution-direct-text-start` 原事务报 `DATABASE_SQL_FAILED`，SQLSTATE `42P08`。真实 preparation_inputs、Model resolution committed 和 Model snapshot 均已存在，故捕获成功，失败点在首轮启动 SQL 参数类型推断；由 Execution owner 修复。Provider 请求仍为 0。原 Wait 1 和三层精确资源清理完成，失败证据保留。
-
-第五轮 `197f92bc` / `run.Ioa2YF` 实际验证 SQL cast 修复并完成首条后端工具链：5 次 Model HTTP 与 4 次工具调用、真实程序/结果文件、完整 stdout/exit 0、最终 v2 投影同事务事实均越过断言。浏览器首次调用在 detail HTTP 封套断言处失败（正式 `{execution: ...}` 被新测试误当平铺）；尚无最终输出读取或评审写入，整个 M1 验收仍未通过。product_recent 针对测试解析修正，产品 API 不变。所有原进程与自有资源清理已完成。
-
-第六轮 `90f1bda7` / `run.SoW9B4` 再次完成后端五轮；浏览器越过正式 detail、两次 v2 输出与成果文件名断言并保存首截图。唯一 Owner 提交评审接口返回 HTTP 503，当前无安全错误码，原因待定，不将 relaunch 猜测当结论。outer Wait 1、Runner cleanup Wait 和固定三层精确资源清理完成；正常 App/Runner Join、peer 完整断言位于浏览器之后，尚未执行。
-
-下一候选只补安全诊断，不修改评审成功条件：HTTP status/code、失败清理前持久 Task/E/peer 状态、原 transfer 事务 NotCommitted 的 SQLSTATE/constraint。初始化提取供 W2 的两个独立 native 场景复用：read missing 无载荷失败、实际命令启动后的原 Runtime Stop/Drain 取消与 Join。`run.sh` 使用固定 workflow 或 failure-and-cancellation case，每轮仍新 nonce/新库；新增失败/取消 case 未运行，不计验收通过。
-
-### `33009a96` 正常诊断与失败/取消验收
-
-第七轮正常 case `run.ELNqqc` outer Wait 1：首工作 Execution 五轮后端成功，浏览器在详情 `response.finished()` 等待 45 秒超时，未到 Owner transfer，因此没有新增 503 错误码结论。安全持久状态确认 Task 仍 in_progress/version 3，已有 18 个 Execution（首 succeeded、其后 17 failed/model_failed），peer 22 请求。继承旧 fixture 的 250ms tick/skip 0 会按原合同反复 relaunch；此动态事实需要与 Owner 评审窗口和合法 reviewer 调度一起对齐，不能把停 manager 或未记录的冷却当通过依据。
-
-同一冻结输入的新 `failure-and-cancellation` case `run.Wxxzus` outer Wait 0，两个子例 11.21 秒实际通过。真实不存在文件使 Execution failed/runtime_failed；真实运行命令 marker 后调用原 Runtime StopAdmission/Drain，使 Execution cancelled 并确认 pinned pidfd 就绪、原子进程和进程组消失。两者的原 pending bytes、同事务终态、精确 1 Model/1 Tool、原 Runner Wait 0 与 App 全 owner Joined 均通过。两轮均完成固定三层资源精确清理，等待独立证据检查；该限定通过不代表正常评审或外部模型已经验收。
-
-macro_milestones 随后只读接受上述限定失败/取消两门，实际日志/源码断言及所有记录资源/PID 消失一致；正常第七轮退场也已独核，没有重跑。
-
-### 后续正常工作流的显式部署参数
-
-不修改 Scheduler/Work 正式产品语义。仅正常 `newM1Workflow` 显式选择 tick 250ms / relaunch_skip_count 240，提供约 60 秒 Owner 查看窗口；不是生产默认，也不暂停 manager。窗口内原 work E 必须仍是唯一 work，精确五次 Model/四次 Tool 不放宽。送审后允许真实 task/review E，由独立 Model/Provider 的最多两条正常响应读取 reviewer 自有说明文件并确认收到任务；不会把说明文件当 worker 成果传递，也不宣称评审决策闭环。
-
-现 tool-loop-v1 首轮要求非空 Tools 与 required，因此 reviewer 也正式授权 readFile 与独立 mount；无工具 Agent 尚不在兼容声明内。响应 X-Request-Id 经已有 Usage 持久映射核工作/评审归属，无测试生产请求 header。浏览器回验后先原 Runtime Stop/Drain，再 Runner/App Join，允许活 review 正常取消。failure/cancel 的原 factory、配置、响应和提交后 observer 不启用这一选配，已接受证据继续复用；新正常组合尚待编译与 native 实证。
+实现增量的受限 main 交付须同时满足正常链全部门、有效复用的失败/取消两门及旧 direct-text 实际回归，并由独立验证者确认；该出口仍不代表 M1 整里程碑或外部模型完成。先完成真实浏览器刷新输出的完整读取与正常收尾、peer 归属独立验收；对变更影响范围复验，已接受的失败/取消输入不变时复用。随后在原配置、权限及出站条件满足时验证外部模型实际推理。运行中重启接管、Human 持久取消、完整审批恢复与自主评审闭环继续按既定工作包推进；当前受控链进展不代替这些完成门槛。
