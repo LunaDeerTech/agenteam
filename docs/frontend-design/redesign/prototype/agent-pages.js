@@ -385,7 +385,7 @@ function configuration(ctx, state, current) {
     },
   )}</div><div id="agent-approval-model" ${value.approvalPolicy !== "auto" ? "hidden" : ""}>${inputField("approvalModelID", "审批模型", value.approvalModelID, { ...opt, choices: modelOpts })}</div>${!creating ? `<div class="agent-readonly-property"><span>推理强度</span><span>${esc(value.reasoningEffort || "使用模型默认值")}</span></div>` : ""}${value.reasoningEffort !== null ? '<p class="agent-section-note">当前配置的推理强度不支持在此编辑，主模型与审批配置保持原值。</p>' : ""}</section>`;
   const resourceFields = `<section class="agent-form-section agent-resource-groups">${disclosure("runners", "Runner 与资源目录", resourceValue.runnerMounts.length ? `${resourceValue.runnerMounts.length} 项资源目录` : "未配置", runnerContent, edit)}${disclosure("secrets", "Secret Variable 白名单", resourceValue.secretIDs.length ? `${resourceValue.secretIDs.length} 项已选择` : "未选择", secrets, edit)}${!creating ? disclosure("tools", "Tool 引用", resourceValue.allowedToolIDs.length ? `${resourceValue.allowedToolIDs.length} 项引用` : "无额外工具引用", `<p class="agent-section-note">${resourceValue.allowedToolIDs.length ? resourceValue.allowedToolIDs.map(esc).join(" · ") : "当前配置没有额外 Tool 引用。"}</p>`, edit) : ""}${!creating ? disclosure("skills", "项目技能", "管理此 Agent 的技能分配", skills, edit) : `<div class="agent-initialization"><h3>内置初始化</h3><label class="agent-check-row"><input type="checkbox" data-agent-init="addSkills" ${value.addSkills ? "checked" : ""} ${locked ? "disabled" : ""}>添加默认 Skills</label><label class="agent-check-row"><input type="checkbox" data-agent-init="installSkill" ${value.installSkill ? "checked" : ""} ${locked ? "disabled" : ""}>启用 Install Skill 工具</label></div>`}</section>`;
-  return `<div class="agent-detail-content" id="agent-tab-panel" role="tabpanel" aria-labelledby="agent-tab-${tabFor(ctx)}">${readOnly(ctx) ? notice("当前项目为只读", "配置可以阅读，修改暂不可用。") : ""}${pendingNotice}${edit.conflict ? notice("配置已有新版本", "原草稿与编辑版本已保留。取消编辑并重新读取后再保存。", button("取消编辑并重读", "conflict-read")) : ""}${gate(ctx, "Agent 配置") || `<form id="agent-configuration-form" novalidate aria-label="${creating ? "创建 Agent" : "编辑 Agent 配置"}">${tabFor(ctx) === "resources" ? resourceFields : basicFields}<div class="agent-savebar"><span id="agent-dirty-state">${edit.touched.size ? "有未保存的修改" : ""}</span><div>${button(creating ? "取消创建" : "取消修改", "cancel", "quiet", pending)}<button type="submit" class="button primary" id="agent-save" ${locked || !edit.touched.size ? "disabled" : ""}>${creating ? "创建 Agent" : "保存配置"}</button></div></div><p class="agent-feedback" id="agent-form-feedback" role="status">${esc(edit.message)}</p></form>${!creating ? `<details class="agent-records"><summary>Agent 标识与记录</summary><dl><dt>Agent ID</dt><dd>${esc(current.id)}</dd><dt>配置版本</dt><dd>${esc(current.version)}</dd><dt>创建时间</dt><dd>2026 年 10 月 12 日</dd></dl></details>` : ""}`}</div>`;
+  return `<div class="agent-detail-content" id="agent-tab-panel" role="tabpanel" aria-labelledby="agent-tab-${tabFor(ctx)}">${readOnly(ctx) ? notice("当前项目为只读", "配置可以阅读，修改暂不可用。") : ""}${pendingNotice}${edit.conflict ? notice("配置已有新版本", "原草稿与编辑版本已保留。取消编辑并重新读取后再保存。", button("取消编辑并重读", "conflict-read", "", !!state.busy || !!state.pending)) : ""}${gate(ctx, "Agent 配置") || `<form id="agent-configuration-form" novalidate aria-label="${creating ? "创建 Agent" : "编辑 Agent 配置"}">${tabFor(ctx) === "resources" ? resourceFields : basicFields}<div class="agent-savebar"><span id="agent-dirty-state">${edit.touched.size ? "有未保存的修改" : ""}</span><div>${button(creating ? "取消创建" : "取消修改", "cancel", "quiet", pending || !!state.busy)}<button type="submit" class="button primary" id="agent-save" ${locked || !edit.touched.size ? "disabled" : ""}>${creating ? "创建 Agent" : "保存配置"}</button></div></div><p class="agent-feedback" id="agent-form-feedback" role="status">${esc(edit.message)}</p></form>${!creating ? `<details class="agent-records"><summary>Agent 标识与记录</summary><dl><dt>Agent ID</dt><dd>${esc(current.id)}</dd><dt>配置版本</dt><dd>${esc(current.version)}</dd><dt>创建时间</dt><dd>2026 年 10 月 12 日</dd></dl></details>` : ""}`}</div>`;
 }
 function resourceState(state, id) {
   return (state.resources[id] ||= {
@@ -448,7 +448,7 @@ function resources(ctx, state, current) {
       : resource.failed && !edit.conflict
         ? button("重试此操作", "resource-retry", "", locked)
         : "";
-  return `<div class="agent-detail-content" id="agent-tab-panel" role="tabpanel" aria-labelledby="agent-tab-resources">${readOnly(ctx) ? notice("当前项目为只读", "资源可以阅读，修改暂不可用。") : ""}${edit.conflict ? notice("配置已有新版本", "基本配置草稿已保留。请取消编辑并重新读取后再修改。", button("取消编辑并重读", "conflict-read")) : ""}<div id="agent-resource-feedback" class="agent-resource-feedback" role="status" ${resource.message ? "" : "hidden"} data-status="${resource.status}"><span>${esc(resource.message)}</span>${feedbackActions}</div>${gate(ctx, "Agent 资源") || `<section class="agent-resource-groups">${disclosure("runners", "Runner 与资源目录", current.runnerMounts.length ? `${current.runnerMounts.length} 项资源目录` : "未配置", `<p class="agent-section-note">每项资源目录确认后保存。移除配置不会删除目录。</p>${mountRows}${mountEditor}`, edit)}${disclosure("secrets", "Secret Variable 白名单", current.secretIDs.length ? `${current.secretIDs.length} 项已选择` : "未选择", `<p class="agent-section-note">选择后保存，仅授权此 Agent 使用，不显示凭据内容。</p>${allSecrets.map((secret) => `<label class="agent-check-row"><input type="checkbox" data-secret="${secret.id}" ${current.secretIDs.includes(secret.id) ? "checked" : ""} ${locked ? "disabled" : ""}><span>${esc(secret.label)}</span></label>`).join("")}`, edit)}${disclosure("tools", "Tool 引用", "只读配置引用", `<p class="agent-section-note">${current.allowedToolIDs.length ? current.allowedToolIDs.map(esc).join(" · ") : "当前配置没有额外 Tool 引用。"}</p>`, edit)}${disclosure("skills", "项目技能", "独立管理技能分配", skills, edit)}</section>${records(current)}`}</div>`;
+  return `<div class="agent-detail-content" id="agent-tab-panel" role="tabpanel" aria-labelledby="agent-tab-resources">${readOnly(ctx) ? notice("当前项目为只读", "资源可以阅读，修改暂不可用。") : ""}${edit.conflict ? notice("配置已有新版本", "基本配置草稿已保留。请取消编辑并重新读取后再修改。", button("取消编辑并重读", "conflict-read", "", !!state.busy || !!state.pending)) : ""}<div id="agent-resource-feedback" class="agent-resource-feedback" role="status" ${resource.message ? "" : "hidden"} data-status="${resource.status}"><span>${esc(resource.message)}</span>${feedbackActions}</div>${gate(ctx, "Agent 资源") || `<section class="agent-resource-groups">${disclosure("runners", "Runner 与资源目录", current.runnerMounts.length ? `${current.runnerMounts.length} 项资源目录` : "未配置", `<p class="agent-section-note">每项资源目录确认后保存。移除配置不会删除目录。</p>${mountRows}${mountEditor}`, edit)}${disclosure("secrets", "Secret Variable 白名单", current.secretIDs.length ? `${current.secretIDs.length} 项已选择` : "未选择", `<p class="agent-section-note">选择后保存，仅授权此 Agent 使用，不显示凭据内容。</p>${allSecrets.map((secret) => `<label class="agent-check-row"><input type="checkbox" data-secret="${secret.id}" ${current.secretIDs.includes(secret.id) ? "checked" : ""} ${locked ? "disabled" : ""}><span>${esc(secret.label)}</span></label>`).join("")}`, edit)}${disclosure("tools", "Tool 引用", "只读配置引用", `<p class="agent-section-note">${current.allowedToolIDs.length ? current.allowedToolIDs.map(esc).join(" · ") : "当前配置没有额外 Tool 引用。"}</p>`, edit)}${disclosure("skills", "项目技能", "独立管理技能分配", skills, edit)}</section>${records(current)}`}</div>`;
 }
 function resourceAction(ctx, action) {
   const state = local(ctx),
@@ -557,27 +557,46 @@ function submitResource(ctx, field, payload, labelText) {
           (changed ? 1 : 0) +
           (outcome === "version_jump" ? 1 : 0),
       );
-      // A Skills receipt carries only a version; the local configuration reread below supplies the baseline check.
+      // Validate the receipt before publishing any canonical value. Skills then uses the configuration reread to verify the basic baseline.
       const receiptVersion = next.version;
-      Object.assign(current, next);
-      const verified =
-        edit.baseVersion === command.expectedVersion &&
-        same(edit.baseSnapshot, basicSnapshot(current)) &&
-        receiptVersion ===
-          String(Number(command.expectedVersion) + (changed ? 1 : 0));
-      if (verified) {
-        edit.baseVersion = receiptVersion;
-        edit.baseSnapshot = copy(basicSnapshot(current));
-      } else edit.conflict = true;
-      resource.status = verified ? "success" : "error";
-      resource.message = verified
-        ? changed
-          ? `${labelText}已保存。`
-          : `${labelText}未改变。`
-        : "资源结果已返回，但配置版本需要核对。基本配置草稿已保留。";
-      if (field === "runnerMounts") resource.mount = null;
+      const expectedReceiptVersion = String(
+        Number(command.expectedVersion) + (changed ? 1 : 0),
+      );
+      if (receiptVersion !== expectedReceiptVersion) {
+        state.pending = {
+          kind: "resource",
+          agent: current.id,
+          original: command,
+          observation: "invalid_receipt",
+        };
+        resource.status = "unknown";
+        resource.message =
+          "资源操作返回的版本需要核对。已保存配置和基本配置草稿均已保留，请查询原操作。";
+      } else {
+        const verified =
+          edit.baseVersion === command.expectedVersion &&
+          same(edit.baseSnapshot, basicSnapshot(next));
+        Object.assign(current, next);
+        if (verified) {
+          edit.baseVersion = receiptVersion;
+          edit.baseSnapshot = copy(basicSnapshot(current));
+        } else edit.conflict = true;
+        resource.status = verified ? "success" : "error";
+        resource.message = verified
+          ? changed
+            ? `${labelText}已保存。`
+            : `${labelText}未改变。`
+          : "资源配置已更新，但基本配置已有其他变化。草稿已保留，请核对后再保存。";
+        if (field === "runnerMounts") resource.mount = null;
+      }
     }
     const here = new URLSearchParams(location.search);
+    if (
+      scopeFor({ params: here }) !== command.project ||
+      (here.get("fixture") || "design") !== ctx.fixture ||
+      (here.get("scenario") || "normal") !== ctx.scenario
+    )
+      return;
     if (
       here.get("page") === "agents" &&
       here.get("agent") === current.id &&
@@ -592,7 +611,11 @@ function submitResource(ctx, field, payload, labelText) {
             ? '[data-agent-action="skill-assign"]'
             : `[data-secret="${command.payload.find((id) => !secretChoices.some((choice) => choice.id === id)) || secretChoices[0].id}"]`;
       refresh(ctx, focus);
-    } else ctx.render();
+    } else if (
+      here.get("page") === "agents" &&
+      (!here.get("agent") || here.get("agent") === current.id)
+    )
+      ctx.render();
   }, 400);
 }
 function memory(ctx, state, current) {
@@ -1046,7 +1069,9 @@ function handleAction(ctx, action, trigger) {
     return;
   }
   if (action === "cancel" || action === "conflict-read") {
+    if (state.busy || state.pending) return;
     const reset = () => {
+      if (state.busy || state.pending) return;
       delete state.edits[id];
       if (action === "conflict-read") {
         const next = draftFor(ctx, state);
