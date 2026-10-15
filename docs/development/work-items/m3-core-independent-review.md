@@ -258,3 +258,11 @@ publication Lookup 是独立私有 Read witness：原同进程 owner、原 comma
 78960 原 ordinary 日志明确三个 top、十个子例全部 PASS、包耗时 0.020 秒；原 Wait0 复用作者回执。新两个子例用 controlled post-write 私有状态分别模拟 publication→first final U2、final rollback→refinal U2，经生产交接方法检查返回 error 与保存 `call.err` 的 Fault CauseID/CommitFailure/installUnknown、旧 U1 不残留、原 owner 保留；缺 final bytes 不提升错误。另八个子例从原两个恢复入口实际执行只读失败/取消/只读 Unknown/已取消分支，再经 dispatcher 交接，仍保 U1。新 publication 子例使用合成错误状态，未调用真实 Skill writer；两新子例均不执行恢复写 callback、SQL/guard 或物理 COMMIT，不称新的复合 U2 PG 注入。
 
 此次变更只影响错误选择/保存，未变的恢复写入、原 bytes、权限和生命周期路径已按固定源码复核；结合上述针对原缺陷的回归，足以关闭此错误交接问题，不要求重复 67124/64265 正常 native 门。此前亲核的同进程 FinalTx/publication 限定行为继续有效；publication rollback 仍为 Unknown/Joined=false 后精确进程退出，Skill Install cold 和复合 U2 的物理注入仍未验，不外推整个 Skills/M3。仅追加本报告，未启动 Go/native、改产品/测试/current 或执行 Git 写操作；格式检查后停写，无活动命令和资源。
+
+## Object Transfer Project Audit 分派窄复核
+
+2026-10-15；由未参与该分支实现或决策的 MCP owner 独立只读复核 `992dfa5f` 相对 `cf28c32d` 的 `project/object_audit_facts.go` 和对应测试，并追读原 Object 私有证明调用。**此两文件改动接受，无已证 must-fix；仅为授权分派源码结论，不接受 Runner 实际链。**
+
+新增动作限定 TransferIssue/Complete/Revoke、ObjectTransferResource、Success 与 ordinal 0/1/2。当前同 Store/Tx、Project SH、存在且 initialized 仍必验；Issue 再过 Active/Mutate，Complete/Revoke 仅允许向原 Object checker 证明历史收尾，不授新 I/O。已追 `TransferService.within` 的实际 authorization/完整 locked issuer、私有 stage/witness 构造及 `checkProjectTransferAudit`：原 Store/Tx/entry/key、持久 transfer/owner Project、operation/runner/execution/lease 与 postimage 均匹配。公开 metadata 或注册 ObjectService 不能生成私有 witness，替换 Project/entry 被拒，其他动作没有旁路。原 `portError` 未改，正式 Fault 的同指针、Cause 与 Unknown 保持；新增测试覆盖原错误、阶段 ordinal 和真实 checker 拒绝裸 DTO。
+
+本次没有运行 Go/native，未重跑作者已过的 74441，也未亲核其原日志；没有要求增加无变化矩阵。未修改产品、测试或其他报告，只追加本节并检查格式，全部 Git 由 root 完成。MCP 本域仍等待 P-256 fixture 增编与独立信任门，与本结论无关。
