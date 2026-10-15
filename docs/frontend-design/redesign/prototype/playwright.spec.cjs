@@ -37,6 +37,7 @@ const states = [
   "unknown",
 ];
 const titles = {
+  settings: "基本信息",
   dashboard: "首页",
   projects: "项目",
   project: "项目概览",
@@ -690,6 +691,326 @@ for (const layout of layouts) {
     expect(fixture.unexpected).toEqual([]);
     expect(fixture.errors).toEqual([]);
     expect(fixture.consoleErrors).toEqual([]);
+    expect(faults.errors).toEqual([]);
+    expect(faults.outbound).toEqual([]);
+  });
+}
+
+async function openGeneral(page, layout, scenario = "normal") {
+  await open(page, "settings", layout, scenario, {
+    fixture: "baseline",
+    accent: "neutral",
+  });
+}
+
+for (const layout of layouts) {
+  test(`[general] baseline edit cancel save rename ${layout.width} ${layout.theme}`, async ({
+    page,
+  }, info) => {
+    const faults = await setup(page, layout);
+    await openGeneral(page, layout);
+    const name = page.getByRole("textbox", { name: "项目名称", exact: true });
+    const description = page.getByRole("textbox", {
+      name: "项目描述",
+      exact: true,
+    });
+    const save = page.getByRole("button", { name: "保存修改", exact: true });
+    await expect(name).toHaveValue(baselineProject.name);
+    await expect(description).toHaveValue(baselineProject.description);
+    await expect(save).toBeDisabled();
+    await expect(page.locator(".general-records")).not.toHaveAttribute(
+      "open",
+      "",
+    );
+    await expect(page.locator("html")).toHaveAttribute(
+      "data-theme",
+      layout.theme,
+    );
+    await noOverflow(page, "new general initial");
+    await capture(page, info, `after-general-${layout.width}-${layout.theme}`);
+    await description.fill("临时草稿，不应保留。");
+    await expect(save).toBeEnabled();
+    await page.getByRole("button", { name: "取消修改", exact: true }).click();
+    await expect(description).toHaveValue(baselineProject.description);
+    await expect(name).toBeFocused();
+    const savedDescription =
+      baselineProject.description + "\n确认本页演示保存。";
+    await description.fill(savedDescription);
+    await save.click();
+    await expect(page.locator(".general-feedback")).toContainText(
+      "已保存到当前样板，未调用服务端。",
+    );
+    await expect(description).toHaveValue(savedDescription);
+    await expect(page.locator(".general-edit-version")).toHaveText(
+      "编辑版本 2",
+    );
+    await expect(save).toBeDisabled();
+    await name.fill("Atlas.Refined");
+    await save.click();
+    const dialog = page.getByRole("dialog", { name: "确认更改项目名称？" });
+    await expect(dialog).toBeVisible();
+    await expect(dialog).toContainText("旧名称链接将失效");
+    await page.keyboard.press("Escape");
+    await expect(dialog).not.toBeVisible();
+    await expect(save).toBeFocused();
+    await expect(name).toHaveValue("Atlas.Refined");
+    await expect(page.locator(".general-edit-version")).toHaveText(
+      "编辑版本 2",
+    );
+    await save.press("Enter");
+    await dialog.getByRole("button", { name: "确认保存", exact: true }).click();
+    await expect(page.locator(".general-edit-version")).toHaveText(
+      "编辑版本 3",
+    );
+    await expect(page.locator(".project-identity")).toContainText(
+      "Atlas.Refined",
+    );
+    await expect(save).toBeDisabled();
+    if (layout.width === 390) {
+      await page.locator(".general-records summary").scrollIntoViewIfNeeded();
+      await expect(page.locator(".general-records summary")).toBeInViewport();
+    }
+    await noOverflow(page, "new general after editing");
+    expect(faults.errors).toEqual([]);
+    expect(faults.outbound).toEqual([]);
+  });
+}
+
+test("[general] readonly read failure conflict and unknown recovery", async ({
+  page,
+}) => {
+  const layout = layouts[3];
+  const faults = await setup(page, layout);
+  await openGeneral(page, layout, "readonly");
+  await expect(
+    page.getByRole("textbox", { name: "项目名称", exact: true }),
+  ).toHaveAttribute("readonly", "");
+  await expect(
+    page.getByRole("textbox", { name: "项目描述", exact: true }),
+  ).toHaveAttribute("readonly", "");
+  await expect(
+    page.getByRole("button", { name: "保存修改", exact: true }),
+  ).toBeDisabled();
+  await expect(
+    page.getByRole("button", { name: "取消修改", exact: true }),
+  ).toBeDisabled();
+  await openGeneral(page, layout, "error");
+  await expect(
+    page.getByRole("heading", { name: "暂时无法读取项目信息" }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "重新读取当前值", exact: true })
+    .click();
+  await expect(
+    page.getByRole("textbox", { name: "项目名称", exact: true }),
+  ).toHaveValue("Atlas");
+  await openGeneral(page, layout, "conflict");
+  const description = page.getByRole("textbox", {
+    name: "项目描述",
+    exact: true,
+  });
+  const oldDraft = await description.inputValue();
+  await expect(
+    page.getByRole("button", { name: "保存修改", exact: true }),
+  ).toBeDisabled();
+  await page
+    .getByRole("button", { name: "重新读取当前值", exact: true })
+    .click();
+  await expect(description).toHaveValue(oldDraft);
+  await expect(page.locator(".general-comparison")).toContainText(
+    "当前已保存的信息包含最新协作范围。",
+  );
+  await page
+    .getByRole("button", { name: "使用当前值重新编辑", exact: true })
+    .click();
+  await page.keyboard.press("Escape");
+  await expect(description).toHaveValue(oldDraft);
+  await page
+    .getByRole("button", { name: "使用当前值重新编辑", exact: true })
+    .click();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "采用当前值", exact: true })
+    .click();
+  await expect(description).toHaveValue(
+    baselineProject.description + "\n当前已保存的信息包含最新协作范围。",
+  );
+  await expect(page.locator(".general-edit-version")).toHaveText("编辑版本 2");
+  await openGeneral(page, layout, "unknown");
+  const unknownDraft = await description.inputValue();
+  await expect(
+    page.getByRole("button", { name: "保存修改", exact: true }),
+  ).toBeDisabled();
+  const replay = page.getByRole("button", {
+    name: "按原请求重放",
+    exact: true,
+  });
+  await expect(replay).toBeDisabled();
+  await page.getByRole("button", { name: "查证原命令", exact: true }).click();
+  await expect(page.locator(".general-recovery-result")).toContainText(
+    "原命令仍在处理中",
+  );
+  await page.getByRole("button", { name: "查证原命令", exact: true }).click();
+  await expect(page.locator(".general-recovery-result")).toContainText(
+    "不能据此判断它未提交或已回滚",
+  );
+  await replay.click();
+  await expect(replay).toBeDisabled();
+  await expect(description).toHaveValue(unknownDraft);
+  await page.getByRole("button", { name: "放弃本地追踪", exact: true }).click();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "放弃本地追踪", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "需要重新读取当前项目" }),
+  ).toBeVisible();
+  await expect(page.locator("#general-form")).toHaveCount(0);
+  await page
+    .getByRole("button", { name: "重新读取当前值", exact: true })
+    .click();
+  await expect(description).toHaveValue(baselineProject.description);
+  await noOverflow(page, "general recovery narrow");
+  expect(faults.errors).toEqual([]);
+  expect(faults.outbound).toEqual([]);
+});
+
+async function startMotionObservation(page, selector) {
+  await page.evaluate((selector) => {
+    window.__generalMotion = new Promise((resolve) => {
+      const observer = new MutationObserver(() => {
+        const target = document.querySelector(selector);
+        if (!target) return;
+        observer.disconnect();
+        const samples = [];
+        function frame() {
+          const style = getComputedStyle(target);
+          samples.push({
+            opacity: style.opacity,
+            transform: style.transform,
+            animations: target.getAnimations().length,
+          });
+          if (samples.length < 18) requestAnimationFrame(frame);
+          else resolve(samples);
+        }
+        requestAnimationFrame(frame);
+      });
+      observer.observe(document.body, {
+        childList: true,
+        attributes: true,
+        subtree: true,
+      });
+    });
+  }, selector);
+}
+for (const layout of [layouts[0], layouts[3]]) {
+  test(`[general] menus keyboard motion and settings routes ${layout.width}`, async ({
+    page,
+  }, info) => {
+    const faults = await setup(page, layout);
+    await openGeneral(page, layout);
+    for (const motion of ["no-preference", "reduce"]) {
+      await page.emulateMedia({ reducedMotion: motion });
+      const more = page.getByRole("button", {
+        name: "更多项目信息操作",
+        exact: true,
+      });
+      await more.focus();
+      await startMotionObservation(page, ".floating-menu");
+      await page.keyboard.press("Enter");
+      const samples = await page.evaluate(() => window.__generalMotion);
+      await info.attach(`menu-${motion}-frames`, {
+        body: JSON.stringify(samples),
+        contentType: "application/json",
+      });
+      if (motion === "no-preference")
+        expect(
+          new Set(samples.map((sample) => sample.opacity)).size,
+        ).toBeGreaterThan(1);
+      else
+        expect(
+          samples.every(
+            (sample) => sample.opacity === "1" && sample.animations === 0,
+          ),
+        ).toBe(true);
+      await expect(
+        page.getByRole("menuitem", { name: "重新读取当前值", exact: true }),
+      ).toBeFocused();
+      await page.keyboard.press("End");
+      await expect(
+        page.getByRole("menuitem", { name: "查看项目信息与标识", exact: true }),
+      ).toBeFocused();
+      await page.keyboard.press("Escape");
+      await expect(page.getByRole("menu")).toHaveCount(0);
+      await expect(more).toBeFocused();
+      await page
+        .getByRole("textbox", { name: "项目名称", exact: true })
+        .fill("Atlas.Keyboard");
+      const save = page.getByRole("button", { name: "保存修改", exact: true });
+      await save.focus();
+      await startMotionObservation(page, "#dialog[open]");
+      await page.keyboard.press("Enter");
+      const dialogSamples = await page.evaluate(() => window.__generalMotion);
+      await info.attach(`dialog-${motion}-frames`, {
+        body: JSON.stringify(dialogSamples),
+        contentType: "application/json",
+      });
+      if (motion === "no-preference")
+        expect(
+          new Set(dialogSamples.map((sample) => sample.opacity)).size,
+        ).toBeGreaterThan(1);
+      else
+        expect(
+          dialogSamples.every(
+            (sample) => sample.opacity === "1" && sample.animations === 0,
+          ),
+        ).toBe(true);
+      for (let count = 0; count < 4; count++) {
+        await page.keyboard.press("Tab");
+        expect(
+          await page
+            .locator("#dialog")
+            .evaluate((dialog) => dialog.contains(document.activeElement)),
+        ).toBe(true);
+      }
+      await page.keyboard.press("Escape");
+      await expect(save).toBeFocused();
+      await page.getByRole("button", { name: "取消修改", exact: true }).click();
+    }
+    if (layout.width === 390) {
+      const trigger = page.locator("#settings-section-menu");
+      await trigger.focus();
+      await page.keyboard.press("Enter");
+      await expect(
+        page.getByRole("menuitem", { name: "基本信息", exact: true }),
+      ).toBeFocused();
+      await page.keyboard.press("Escape");
+      await expect(trigger).toBeFocused();
+      await trigger.click();
+      await page.getByRole("menuitem", { name: "MCP", exact: true }).click();
+    } else
+      await page
+        .getByRole("navigation", { name: "设置栏目", exact: true })
+        .getByRole("link", { name: "MCP", exact: true })
+        .click();
+    await expect(page).toHaveURL(/page=mcp/);
+    await page
+      .getByRole("navigation", { name: "项目菜单", exact: true })
+      .getByRole("link", { name: "项目设置", exact: true })
+      .click();
+    await expect(page).toHaveURL(/page=settings/);
+    await expect(
+      page.getByRole("heading", { name: "基本信息", exact: true, level: 1 }),
+    ).toBeVisible();
+    await page.locator('.project-identity [data-page="project"]').click();
+    await page
+      .getByRole("button", { name: "查看基本信息", exact: true })
+      .click();
+    await expect(page).toHaveURL(/page=settings/);
+    await expect(
+      page.getByRole("textbox", { name: "项目名称", exact: true }),
+    ).toHaveValue("Atlas");
+    await noOverflow(page, "general routes");
     expect(faults.errors).toEqual([]);
     expect(faults.outbound).toEqual([]);
   });

@@ -21,7 +21,23 @@ node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/red
 
 390 深色的真实滚动补图单项 **1/1 通过（8.5s）**，原命令 exit 0，截图为 `output/ai/frontend-f0-refinement-test/baseline-bottom/screenshots/before-general-390-dark-bottom.png`。两轮 server PID 232329 / 233526 均记录 `closed: true` 且已回收；设计者确认未消费正式 Vue 依赖链接后，已移除本任务 `web/node_modules`，仓外安装保留。作者与设计者均已亲看 1440 浅色、390 深色基线；这仍是基线确认，不是独立设计接受。
 
-新页计划用 `?page=settings&section=general&fixture=baseline` 与上述同字段、同记录折叠状态进行对照。此节目前只记录旧正式页面基线；未据此声称新页或正常动效通过。
+新页使用 `?page=settings&fixture=baseline&scenario=normal`，与正式基线保持相同名称、描述和记录折叠状态；四张初始图为 `output/ai/frontend-f0-refinement-test/general-first/screenshots/after-general-{1440,390}-{light,dark}.png`。
+
+首稿 `8eaaa0d3` 候选停止写入窗口内，`[general]` **7/7 通过（31.7s）**，无重试或跳过，原命令 exit 0：
+
+- 四尺寸/主题：核对基线，描述编辑 → 取消并回焦、演示保存并递增版本、改名确认 Escape 取消与再次明确确认，核对名称和版本。
+- 390 深色：只读不允许修改；读取失败 → 重读；版本冲突保留草稿 → 重读 → 取消/明确采用当前值；Unknown 阻止新保存，查证/原请求重放保留草稿，明确放弃追踪后必须重读才恢复编辑。
+- 1440 浅色与 390 深色：更多菜单键盘打开、End、Escape 回到触发器；改名对话框 Tab 约束和 Escape 回焦；窄屏栏目菜单选择 MCP 后经项目导航回基本信息；项目概览“查看基本信息”也到基本信息页。
+- 正常与减少动效各实际观测菜单及改名对话框连续 18 个动画帧。正常菜单记录 8 / 9 种 opacity，对话框各 12 种；减少动效 opacity 恒为 1、活动动画为 0。这证明实际有变化或已减少，不证明动效质感或视觉接受。
+
+```sh
+export F0_LEGACY=0
+export F0_OUTPUT="$PWD/output/ai/frontend-f0-refinement-test/general-first"
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[general\]' --list
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[general\]'
+```
+
+这组仅使用自有静态端口 5218，不消费设计者的 5207 服务或 `web/node_modules`。server PID 240228 的关闭记录为 `closed: true`，原命令退出后 PID 已不存在；浏览器由原 Playwright 命令关闭。初稿检查后设计者针对独审视觉反馈重开样式与菜单，因此上述结果按输入/影响复用，不能写成返修后的完整结论。全部保存和恢复都是本地演示，没有真实后端与业务写入。本 harness 作者不独立验收自己编写的测试，也不据这些行为通过宣称用户接受。
 
 ## 锁定依赖与启动
 
