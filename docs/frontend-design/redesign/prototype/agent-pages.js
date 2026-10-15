@@ -1079,11 +1079,19 @@ function handleAction(ctx, action, trigger) {
         next.message = "已重新读取当前配置。";
       }
       if (id === "new") ctx.navigate("agents", {});
-      else
+      else {
         refresh(
           ctx,
           tabFor(ctx) === "resources" ? "#agent-tab-resources" : "#agent-name",
         );
+        if (tabFor(ctx) === "basic")
+          requestAnimationFrame(() => {
+            const field = document.getElementById("agent-name");
+            const bounds = field?.getBoundingClientRect();
+            if (bounds && (bounds.top < 8 || bounds.bottom > innerHeight - 8))
+              field.scrollIntoView({ block: "center", behavior: "instant" });
+          });
+      }
     };
     if (edit.touched.size || edit.conflict)
       confirm(
