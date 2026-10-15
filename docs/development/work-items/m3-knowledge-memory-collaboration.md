@@ -18,6 +18,12 @@
 
 Runner 扩展以这些真实流程实际依赖为界：复用已经接受的身份、控制通道、mount、read-file/write-file/run-command、审批与结果持久链；缺少能力时沿正式领域与 Runner 契约补齐并验证其实际平台支持。不能只把接口标成支持，也不把完整 Desktop/Tunnel、全平台平台债务或所有 D22 缺口无界并入本轮。任何本轮触及的权限、Secret、数据完整性、资源退出或恢复风险仍须在接受前通过。
 
+## 本 M3 的 Realtime 接受范围
+
+本阶段补 Meeting Timeline 与展开 Execution 所必需的统一 WebSocket 订阅：当前 Web Session、同源与当前 Project/Meeting/Contribution/Execution 授权；订阅 acknowledgement 后读取权威 snapshot，缓冲通知并按实际 epoch/progress 对齐，断线、慢消费者、权限丢失和对象删除沿 resync/关闭恢复。RuntimeItems 只来自已提交的真实状态、waiting、Tool 摘要/结果及公开文本，不产生 token 增量或私有 reasoning。原 Model JSONCaller、执行/重试/取消所有权保持；已有 canonical 事实作为重建来源，不为此新建逐增量账本或 snapshot flush 引擎。旧 final-text-only 投影不能冒完整 Tool 历史。
+
+本阶段不宣完整 D24/D25 流式能力已齐：逐 token 展示、活动内容的批量持久化及其未 flush 衔接仍为后续评估项。当前订阅、真实内容、权限与退出必须实际验证，轮询或单独终态 HTTP 读取不能替代上述有限 Realtime 接受。
+
 ## 共同调用契约与所有权
 
 - Knowledge 独占 `retrieval/contract` 与检索实现；Memory 复用同一检索端口及 scope 前置过滤，不复制检索引擎。ServingIdentity 固定 generation、snapshot 和维度，domain 在调用前后检查当前可服务 generation。
@@ -64,7 +70,7 @@ Summary snapshot 原七回复整链现已通过：第一 generation 的格式失
 
 Meeting 原并行/队列/插话整链已完整通过：双并发共享原输入、旧 queued 零启动、取消原两 E、插话优先、旧 FIFO 完成与两次 Summary，八次模型调用及全部 lease/App/Guard 退出。接受范围是固定 1–133 候选，不代共同新源或134 cold。OAuth 域已整体移交 MCP owner；新 HTTPS fixture 的私有信任隔离正反门已真实通过，不代 OAuth 浏览器旅程。
 
-Skills 安装 published 窗口 cold 已通过真实旧进程 SIGKILL/Wait、新 guard、同 E/Attempt/原进程绑定、原 canonical row/xmin保持、一次安装上传与零自动分配、后继模型消费和 newApp 正常退出；该固定候选使用 Object guard 初始化后的同实例有限 Recover。reserved 窗口未覆盖，Pending 保持原事实。独审另发现 Stop 与只读 cold lookup 完成交错可能使 Drain 错报失败，作者正修定向并发门，原 published 链结果不外推该边界。Knowledge 新139清理的旧源健康检查失败后已修独立升级 fixture，固定候选暂让席给 Skills cold，未宣清理通过。
+Skills 安装 published 窗口 cold 已通过真实旧进程 SIGKILL/Wait、新 guard、同 E/Attempt/原进程绑定、原 canonical row/xmin保持、一次安装上传与零自动分配、后继模型消费和 newApp 正常退出；该固定候选使用 Object guard 初始化后的同实例有限 Recover。reserved 窗口未覆盖，Pending 保持原事实。独审发现的 Stop/只读 lookup 交错导致 Drain 错报已窄修，并通过确定 barrier 回归与独立复核。Knowledge 新139清理的旧源健康检查失败后已修独立升级 fixture，固定候选暂让席给 Skills cold，未宣清理通过。
 
 长期 Skill 规范明确显式更新与旧 revision 保留，但当前 M3 不另建多版本发布系统；该能力保留为未实现架构缺口。现有验证只覆盖合法 revision 的不可变绑定、分配与来源，不宣跨发布旧版本已验。
 

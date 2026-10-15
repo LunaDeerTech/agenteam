@@ -266,3 +266,11 @@ publication Lookup 是独立私有 Read witness：原同进程 owner、原 comma
 新增动作限定 TransferIssue/Complete/Revoke、ObjectTransferResource、Success 与 ordinal 0/1/2。当前同 Store/Tx、Project SH、存在且 initialized 仍必验；Issue 再过 Active/Mutate，Complete/Revoke 仅允许向原 Object checker 证明历史收尾，不授新 I/O。已追 `TransferService.within` 的实际 authorization/完整 locked issuer、私有 stage/witness 构造及 `checkProjectTransferAudit`：原 Store/Tx/entry/key、持久 transfer/owner Project、operation/runner/execution/lease 与 postimage 均匹配。公开 metadata 或注册 ObjectService 不能生成私有 witness，替换 Project/entry 被拒，其他动作没有旁路。原 `portError` 未改，正式 Fault 的同指针、Cause 与 Unknown 保持；新增测试覆盖原错误、阶段 ordinal 和真实 checker 拒绝裸 DTO。
 
 本次没有运行 Go/native，未重跑作者已过的 74441，也未亲核其原日志；没有要求增加无变化矩阵。未修改产品、测试或其他报告，只追加本节并检查格式，全部 Git 由 root 完成。MCP 本域仍等待 P-256 fixture 增编与独立信任门，与本结论无关。
+
+## Skills published 安装冷恢复与 Drain 交错复核
+
+2026-10-15；由未参与该实现的 Model owner 独立只读审查，integration 按 root 接受的结论归档。固定闭包为 runtime `2435a097`、同实例启动 Recover `59b2cad9`、真实冷恢复 sole `01726b2b` 及返修 `8902`。已亲核实际实现 diff 与作者定向日志；此 published/running 窗口无剩余已证 must-fix。
+
+独审先发现 Stop 与原只读 lookup 返回交错时，join 等待旧 done 后无条件重进 recovery 会在已移除原 owner 的情况下返回 ShuttingDown，使 Drain 错报失败。R1 重新观察原 retained owner 和实际返回状态；无 retained write 时正常退出，原未决写 Unknown 继续保留。14081 普通回归通过 join-call、Drain 和 retained-write-unknown 三个确定 barrier 交错，并保留原 owner 实际等待、只读失败 Unknown 与 U1→U2 接缝反控。该窄退出修复不要求重复不变的正常 PG 链。
+
+结合 64479 实际 published cold 整 top PASS10.25s：原 child 真实 SIGKILL/Wait，新进程 guard 下恢复同 E/Attempt/原进程绑定，canonical row/xmin 保持、一次安装与上传、零自动分配、后继模型消费及 newApp 正常 Join；原父/子 Wait、六资源 ID、三目录和三 PID 全清退。接受范围不含 reserved/missing cold、cold 新 U2 的物理注入、外部第三方安装或整个 Skills/M3。原失败和先前 must-fix 记录保留。
