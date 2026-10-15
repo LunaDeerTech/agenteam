@@ -2,7 +2,9 @@
 
 ## 本轮前端设计 v2 与重构规划
 
-2026-10-15 用户要求全面对照 Linear 重新建立前端设计规范，并引入设计、开发、验收技能；固定信息层级为系统 Dashboard → 项目列表 → 项目空间 → 项目 header menu。本轮交付[设计 v2 入口](../../frontend-design/redesign/README.md)、旧规范/页面审计、官方参考、完整页面蓝图与分阶段计划，以及重设计技能编排；**F0—F8 全部未开始，未修改产品代码**。本地快照 `work@ce2f8467` 与下方 M3 功能分支历史接受范围分开，待集成模块按 F7 适配，不据旧恢复记录声称当前路由可用。下文原 M3 任务与失败/STOP 继续保持原含义，本次规划不新增其产品通过结论。
+2026-10-15 用户要求对照 Linear 重建设计规范，并执行 **F0 完整页面样板与视觉系统定稿**。本轮11个必需页面、Knowledge 四格式/PDF与可实施视觉值已获独立接受，已知审查阻塞经返修复验关闭；信息层级保持系统 Dashboard → 项目列表 → 项目空间 → 项目 header menu。**F0 样板已完成，F1—F8 正式产品迁移未开始**；本轮未修改产品 `web/src/` 或后端。正式来源见[设计 v2 入口](../../frontend-design/redesign/README.md)、[样板及复现](../../frontend-design/redesign/prototype/README.md)与[阶段计划](../../frontend-design/redesign/implementation-plan.md)。
+
+本轮基于已包含 M3 的 `d55bf044`；旧 `ce2f8467` 审计与本轮实际样板检查保持各自输入范围。[作者检查](../../frontend-design/redesign/prototype/test-README.md)和[独立审查](../../frontend-design/redesign/prototype/review/README.md)保存结果、原失败及限制；合成 fixture 与当前 Vue 页的对照不代真实业务验收，本轮未跑真实产品测试。Git 交付与接续见[当前恢复状态](../../../.agent-state/current.md)。下方 M3、旧失败及 STOP 保留各自原输入含义；未完成的 `ai/task-comments-20261013` 继续保留。
 
 ## 当前目标与工作包状态
 

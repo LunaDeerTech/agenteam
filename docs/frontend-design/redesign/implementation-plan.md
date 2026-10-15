@@ -1,22 +1,22 @@
 # 前端设计 v2：分阶段执行计划
 
-> 本轮交付为规范、审计、参考和蓝图，**F0—F8 全部未开始**。以后用户可直接指定某阶段；阶段开始只核对相关当前代码、业务契约和已接受样板，不重新全量调研。
+> 已按 `d55bf044` 基线完成 **F0 整页样板、视觉系统定稿与独立验收**；**F1—F8 未开始**。阶段开始只核对相关当前代码、业务契约和已接受样板，不重新全量调研。
 
-基线衔接：原路由/fixture 审计固定于 `ce2f8467`；`origin/main@3fc44101` 已正式包含 M3。当前40个正式叶子（原36+4）与Agent Memory内嵌面板纳入整份计划；F1—F6保留M3对现有能力的增量，F7负责现有协作与连接页面，F8验收全部当前目标。本次只更新计划，不开始产品实施或扩大原审计证据，详见[现行基线](README.md#实现快照与后续集成)。
+基线衔接：原路由/fixture 审计固定于 `ce2f8467`；`origin/main@3fc44101` 已正式包含 M3。当前40个正式叶子（原36+4）与Agent Memory内嵌面板纳入整份计划；F1—F6保留M3对现有能力的增量，F7负责现有协作与连接页面，F8验收全部当前目标。当前 F0 隔离样板与原审计证据分别记录，不开始产品实施，详见[现行基线](README.md#实现快照与后续集成)。
 
 ## 1. 阶段总览
 
-| 阶段 | 可直接下达的指令 | 依赖 | 状态 |
-| --- | --- | --- | --- |
-| F0 | 按 v2 完成完整页面样板与视觉系统定稿 | 本轮新规范和官方参考 | 未开始 |
-| F1 | 按样板重构共享基础、应用框架及项目列表样板 | F0 | 未开始 |
-| F2 | 完成 Dashboard、项目概览与账号入口重设计 | F1 | 未开始 |
-| F3 | 完成个人与系统设置重设计 | F1；相关真实接口已在当前版本 | 未开始 |
-| F4 | 完成项目设置重设计 | F1；各模块已有实现 | 未开始 |
-| F5 | 完成任务工作台与任务详情重设计 | F1；F0 的任务样板 | 未开始 |
-| F6 | 完成知识库与产物工作台重设计 | F1；内容安全/读取契约 | 未开始 |
-| F7 | 完成现有 Meeting、项目 Inbox、MCP/OAuth 与 Agent Memory 重设计 | F1；主线 M3 及相关领域契约 | 未开始 |
-| F8 | 完成40个正式叶子及内嵌面板的全站一致性与连续旅程验收 | F2—F7全部当前目标完成 | 未开始 |
+| 阶段 | 可直接下达的指令                                               | 依赖                         | 状态                     |
+| ---- | -------------------------------------------------------------- | ---------------------------- | ------------------------ |
+| F0   | 按 v2 完成完整页面样板与视觉系统定稿                           | 本轮新规范和官方参考         | 已完成：独立样板验收通过 |
+| F1   | 按样板重构共享基础、应用框架及项目列表样板                     | F0                           | 未开始                   |
+| F2   | 完成 Dashboard、项目概览与账号入口重设计                       | F1                           | 未开始                   |
+| F3   | 完成个人与系统设置重设计                                       | F1；相关真实接口已在当前版本 | 未开始                   |
+| F4   | 完成项目设置重设计                                             | F1；各模块已有实现           | 未开始                   |
+| F5   | 完成任务工作台与任务详情重设计                                 | F1；F0 的任务样板            | 未开始                   |
+| F6   | 完成知识库与产物工作台重设计                                   | F1；内容安全/读取契约        | 未开始                   |
+| F7   | 完成现有 Meeting、项目 Inbox、MCP/OAuth 与 Agent Memory 重设计 | F1；主线 M3 及相关领域契约   | 未开始                   |
+| F8   | 完成40个正式叶子及内嵌面板的全站一致性与连续旅程验收           | F2—F7全部当前目标完成        | 未开始                   |
 
 四组指令固定为 **F0 → F1 → F2—F7 → F8**。第三组的F2—F7可在共享框架稳定、文件owner明确后并行；F7是当前页面重设计必需阶段，不再是未来能力的条件接入通道。全局搜索、Task Explore和其他尚未实现的设想能力不属于这次40叶迁移，也不是F8的前置。每阶段可按下述批次分别发指令，批次通过即保留，不等待全站一起重写。
 
@@ -24,13 +24,13 @@
 
 后续任务首先使用 [agenteam-frontend-redesign](../../../.agents/skills/agenteam-frontend-redesign/SKILL.md) 编排技能：只读 v2 目标规范、当前页面蓝图与当前阶段，再按任务选专业技能。它不复制 token，也不把“调用了技能”当作质量通过。
 
-| 工作 | 角色 | 技能绑定 | 具体产物 |
-| --- | --- | --- | --- |
-| F0 设计、各阶段设计偏差处理 | [frontend_designer](../../../.codex/agents/frontend-designer.toml) | [frontend-design](../../../.agents/skills/frontend-design/SKILL.md) + [web-design-guidelines](../../../.agents/skills/web-design-guidelines/SKILL.md) | 完整页面信息层级、布局/状态、视觉样板和组件使用规范；只写授权设计/原型文件 |
-| F1—F7 Vue 实现 | [frontend_worker](../../../.codex/agents/frontend-worker.toml) | [agenteam-vue-development](../../../.agents/skills/agenteam-vue-development/SKILL.md)；写 Vue 测试时加 [vue-testing-best-practices](../../../.agents/skills/vue-testing-best-practices/SKILL.md) | 真实 Vue 组件/页面、保留业务状态的视图重构、必要自测 |
-| 样板/页面浏览器 harness、交互与真实链路检查 | [test_worker](../../../.codex/agents/test-worker.toml)，作者按需复用技能 | [agenteam-test-engineering](../../../.agents/skills/agenteam-test-engineering/SKILL.md) | 明确 fixture/真实服务边界的可复用输入、截图、键盘/焦点/请求观察与资源退出 |
-| F0 独立样板校验、F1—F7 按影响视觉独审、F8 整合视觉/交互验收 | [frontend_visual_reviewer](../../../.codex/agents/frontend-visual-reviewer.toml) | [agenteam-verification](../../../.agents/skills/agenteam-verification/SKILL.md) + UX/测试工程技能 | 未参与被审设计或实现的浏览器结论；同条件截图、问题定位、返修与受影响复验 |
-| 各阶段按风险功能审查、F8 连续旅程与业务不变量验收 | [verification_worker](../../../.codex/agents/verification-worker.toml) | agenteam-verification + 按需专业技能 | 真实功能/风险检查与未验证范围；与视觉结论一同构成阶段接受依据 |
+| 工作                                                        | 角色                                                                             | 技能绑定                                                                                                                                                                                         | 具体产物                                                                   |
+| ----------------------------------------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------- |
+| F0 设计、各阶段设计偏差处理                                 | [frontend_designer](../../../.codex/agents/frontend-designer.toml)               | [frontend-design](../../../.agents/skills/frontend-design/SKILL.md) + [web-design-guidelines](../../../.agents/skills/web-design-guidelines/SKILL.md)                                            | 完整页面信息层级、布局/状态、视觉样板和组件使用规范；只写授权设计/原型文件 |
+| F1—F7 Vue 实现                                              | [frontend_worker](../../../.codex/agents/frontend-worker.toml)                   | [agenteam-vue-development](../../../.agents/skills/agenteam-vue-development/SKILL.md)；写 Vue 测试时加 [vue-testing-best-practices](../../../.agents/skills/vue-testing-best-practices/SKILL.md) | 真实 Vue 组件/页面、保留业务状态的视图重构、必要自测                       |
+| 样板/页面浏览器 harness、交互与真实链路检查                 | [test_worker](../../../.codex/agents/test-worker.toml)，作者按需复用技能         | [agenteam-test-engineering](../../../.agents/skills/agenteam-test-engineering/SKILL.md)                                                                                                          | 明确 fixture/真实服务边界的可复用输入、截图、键盘/焦点/请求观察与资源退出  |
+| F0 独立样板校验、F1—F7 按影响视觉独审、F8 整合视觉/交互验收 | [frontend_visual_reviewer](../../../.codex/agents/frontend-visual-reviewer.toml) | [agenteam-verification](../../../.agents/skills/agenteam-verification/SKILL.md) + UX/测试工程技能                                                                                                | 未参与被审设计或实现的浏览器结论；同条件截图、问题定位、返修与受影响复验   |
+| 各阶段按风险功能审查、F8 连续旅程与业务不变量验收           | [verification_worker](../../../.codex/agents/verification-worker.toml)           | agenteam-verification + 按需专业技能                                                                                                                                                             | 真实功能/风险检查与未验证范围；与视觉结论一同构成阶段接受依据              |
 
 F0 由设计者完成样板、独立视觉审查者检查样板；F1—F7 按实际变化选择设计、开发、测试与独审能力；F8 汇合视觉、交互和功能结论。设计者与实现者不能独立验收自己参与的内容，视觉审查者默认只读，缺陷交原 owner 修复；不为每阶段固定人数或要求所有角色同时到场，也不新增逐层审批。新增角色配置不代表任何实施阶段已开始。
 
@@ -46,7 +46,7 @@ F0 由设计者完成样板、独立视觉审查者检查样板；F1—F7 按实
 - **退出明确。** 作者自查及适用独立审查结论齐，达到阶段视觉与功能条目，失败/未验证范围被列明，相关规范与当前状态一致。视觉失败必须返修，不能以类型检查通过代替。无需在每个子步骤请求用户重复确认。
 - **回退有边界。** 各阶段以可独立回退的展示层变更交付；回退时恢复本阶段页面/组件并保留已经产生的服务端事实，不做数据回滚。共享基础与页面迁移保持兼容直到消费者切换完成；不要长期留两套全局 token 或双路由产品。
 
-本轮只建立计划及文档检查，没有运行产品测试、改变业务契约或认定任何阶段通过。
+规划基线只建立计划与文档检查。当前 F0 已进入隔离浏览器样板验证；具体输入、结果和限制见[样板说明](prototype/README.md)，不改变业务契约或认定 F1—F8 通过。
 
 ## 4. F0：完整页面样板与视觉系统定稿
 
@@ -59,6 +59,8 @@ F0 由设计者完成样板、独立视觉审查者检查样板；F1—F7 按实
 **功能验收/退出：** 每个动作标注已有命令或依赖，布局承载加载/失败/只读/Unknown，关闭/键盘设计可实现。样板与 token 决定明确记录，后续可以直接实施；未实现原型不宣真实功能通过。无需把每个视觉细节变为单独用户审批。
 
 **非目标/回退：** 不做全站产品迁移、不增加业务能力、不冻结未经完整页面验证的色值。候选不合格时在样板范围调整，不影响现有产品。
+
+**本次执行结果（F0 已接受）：** [隔离样板](prototype/README.md)已提供三类基础与两类 Dashboard、Knowledge 四格式、Meeting、项目 Inbox、MCP/OAuth 和内嵌 Memory 的可操作页面；额外产物页只保持已有导航完整。共享视觉值在[目标设计系统](target-design.md#8-f0-可实现视觉值与组件使用决定)定稿，所有读写反馈均标注样板边界。作者自查、[浏览器 harness](prototype/test-README.md)与[独立视觉审查](prototype/review/README.md)分别记录。最终定向组已通过基础 21/21、PDF/四格式/最终 token 4/4、MCP/OAuth 恢复 2/2；原矩阵中会议窄屏和 Knowledge 正文位置失败已按同输入返修复验。独立审查已通过全部 11 类必需样板及关键旅程，包含最后发现并修复的 Knowledge 原生 200% 长名称低高度阅读问题；原输入连续滚动、继续读取与 390/1440 回归均独立复验通过。原始失败、返修与证据边界保留在上述检查入口。样板通过不代表真实业务接入。
 
 ## 5. F1：共享基础、应用框架及项目列表样板
 
