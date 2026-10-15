@@ -220,3 +220,41 @@ Memory 132 与恢复静态核对：新 operation 保存原 prepared process；mo
 Skills `791c3d70` + `7769fec8` + `653adcc5` 仅复核 install finalization 核心：原 handoff 必须仍由同 dispatcher/issuer 保留、原同步 executor 已实际返回且 backend 结果已知；同完整锁下，只接受精确 v2 running tuple 或一致 v3 终态。已提交只观察，证实原 finalization 回滚才重写原已验证 finalRaw；不重 backend、不重新解释 schema。缺失/不一致 finalRaw 被拒且 retained owner 不清除。此为有限静态结论，76944 ordinary 仅作者报告，4206 actual harness 未由本轮执行；不接受 Install Unknown 真实链或冷恢复。
 
 本次仅运行上述一个独立 native 门并追加本文，其他通过结果复用；未改产品、测试、共享 current 或执行 Git 写操作。全部命令已退出，窗口和资源已释放；完成格式检查后冻结报告，交 root 保存并释放席位。
+
+## Execution 当前 policy 收尾与同进程 Install Unknown
+
+2026-10-15；只读固定 common `c4ef74cb` 的 Execution 三文件（产品改动 `eb151bce`），以及 Skills `41c074a3` 的 Install FinalTx / publication 恢复（`791c3d70`、`7769fec8`、`effd58d9`、`76018ac8`、`1a83cf8e`、`4b8f2e59`）。Skills 固定树中的 Execution 三文件与 `c4ef74cb` 一致。本轮未运行 Go/native，按实际源码和原日志复用未变通过门。**Execution 此窄组无新已证 must-fix；Install 发现一处新的 Unknown 身份交接 must-fix，以下注明，尚未关闭。**既有 Memory/Model/133 结论不重开，不扩 MCP135/Runner Observer。
+
+Execution 的私有 `capturedToolPolicyRejection` 只由本地 captured-tool policy 检查产生。原 Model session Joined、完整锁、current process、原 running Execution/round/snapshot 且无 pending checkpoint 后，current Agent/Project 检查先行；该 marker 在 `insertToolCallFacts` 前返回，且只有 `NotCommitted` 才交回原 `finish` terminal owner。没有调用 Tool、创建 Tool operation 或放宽当前权限；`Unknown`、外域 Forbidden、DB 故障仍保留原 checkpoint 观察。原 terminal 事务若失败仍留在 closing/terminal 恢复路径，不伪造 durable completion。已读四模式 controlled 测试，终态 Store 故意拒绝写以证明只交接原 owner；68687 ordinary 通过复用作者回执，未亲核其原输出或另跑。
+
+亲核 Skills `output/ai/m3-dynamic-skills/catalog-revoked-first02/native.log`：76050 PASS 5.96 秒、test PID1448985 actual Wait0，只有一次原 checkpoint `FORBIDDEN/not_committed`。对照固定 harness，原模型确已捕获工具，Owner 正式撤销 allowlist 后原 Execution 到达终态，零成功 catalog operation、零 AgentRun assignment command，原 App/peer/guard 退场。该实际 SQL 并非全部 Tool 表零行计数；“checkpoint 前零 Tool 写/调用”另由本次源码顺序与 controlled 门支持。旧 11828 重试至超时仍保留。
+
+Install 的两条恢复路径已分别核对。原 dispatcher/issuer 的 active handoff、同 binding/operation/attempt/request、原 backend `h.done` 实际关闭及 `live=false` 才可恢复；`recoveryMu` 串行同一 owner。FinalTx 观察在同 Store/Tx、完整原锁和当前 ProcessGuard 下，仅精确 v2 running tuple 可证明原最终写已回滚；一致 v3 只读。复写只用原 callback 已校验的 `finalRaw`，不再解释 schema，不重 Install/Upload。观察前置失败、取消、只读 COMMIT Unknown 保留原写错误；新实际 final 写 Unknown 在内部改存自身 Attempt/Cause。
+
+publication Lookup 是独立私有 Read witness：原同进程 owner、原 command 和 Unknown 身份、已返回 backend、完整调用参数及原 physical request 均绑定；无 active handoff、裸 DTO、旧 cancelled dispatch context 或 expired witness 不能授予新权。发现计划与同事务 Require 都核 issuer/原 witness/tuple，检查完整锁、当前 guard、原 Execution/Registry permission 与原 running Tool；Skill 层仅绑定 read plan，Mutation 拒绝。canonical lookup 核原 actor/semantic/key 和 installed receipt，不执行 Object I/O 或安装写。只有 exact published receipt 才首次写 Tool final；missing/reserved/读取失败均保原 publication Unknown，不能把缺席当回滚或制造完成。
+
+已亲核以下原日志，并对照固定 App harness 的 complete-frame proxy、原 writer settle、严格 tuple/row/xmin、同 E 消费及 Join 断言；均为复用作者执行结果，非本轮独立重新运行。路径均相对 `/workspace/agenteam-m3-skills/output/ai/m3-dynamic-skills/`：
+
+| 原门 / 输入 | 亲核结果与准确边界 |
+| --- | --- |
+| 67124 / `1a83cf8e` App02；`install-final-unknown-first01/native.log` | 整 top PASS 17.16 秒、PID1426381 Wait0；Tool FinalTx commit 8.75 秒 / rollback 8.42 秒。原完整 COMMIT frame 响应断开；commit 原帧提交后终态行/xmin 不再改，rollback 确切终止原 writer 后复写原 final bytes。同 Attempt、一次安装/上传、零自动分配、同 E 后继模型消费、正常 App Join |
+| 94608 / App03；`install-publication-unknown-first01/native.log` | **整 top FAIL 17.58 秒、PID1450999 Wait1**；commit 在旧业务到达 barrier 前失败，没有故障注入结果。rollback 子例 PASS 8.80 秒：发布事务实际回滚后 reserved 行/xmin 与 Tool running tuple 不变、无重发；Drain 仍原 Unknown/CauseID、Joined=false。父进程精确 SIGKILL/实际 Wait，检查持久 pending 与零连接后清理自有 DB；**非正常 Join、非 cold** |
+| 64265 / `41c074a3` App04；`install-publication-unknown-commit02/native.log` | 仅 commit 子例 PASS 8.68 秒、PID1465370 Wait0；4556 ms 到原发布 COMMIT frame。真实 Unknown 后只读原 published receipt，publication 行/xmin 不变；首次 Tool final、同 Attempt/E、一次安装/上传、零自动分配及后继模型消费、正常 App Join。App04 只将业务 barrier 绑定原 90 秒总预算，产品与独立 COMMIT/Join 门不变 |
+
+以上四份日志（含 76050）均显示 D03/D04/D05 原 exact cleanup；六资源/目录/PID 无残留复用作者原检查，本轮未再次 inspect。普通 App 结果不称 race；新的复合 Unknown 交错未由这些门注入。
+
+**未关闭 must-fix：** `41c074a3:internal/central/tool/runtime/skill_install_dispatch.go:180` 无条件 `errors.Join(err, observedErr)`。最小可达交错是 Skill 发布 U1 Unknown → 同次 `Lookup` 已只读确认 published → 首次 Tool final 写产生新 U2 Unknown。`install_publish_recovery.go:227–241` 正确将 U2 存入 `h.retirement` 并返回，但外层 `Execute` 又把已解决的 U1 放在 error tree 首位并存为 `call.err`：标准 `errors.As(*foundation.Fault)` 仍首先得到 U1 CauseID，`skill.UnknownAttempt` / `installUnknown` 也能优先找回旧 Skill U1。原 Tool FinalTx U1 确定回滚 → 复写 final U2 Unknown 同样受到该交接影响。
+
+该缺陷限于对外/dispatch-call 错误的当前物理 Attempt/Cause 被旧身份遮蔽；内部 handoff 已保 U2，**未据此证明重发、权限绕过或错误 canonical 终态**。原作者须窄修 dispatcher 对新 final 写 Unknown 的交接；单纯只读失败/取消/只读 Unknown 仍须保 U1，不能一律改返 observer error。需要针对这两种 U1→U2 的实际交接方法做 controlled 回归，核正式 Fault/Attempt/Cause、保留 owner 和无 backend 重发；未变的正常 PG 门无需重复。本审已将精确位置与交错发 root、原 owner 和 integration，未改产品或测试。
+
+本节尚不接受整个 Install Unknown 闭包；Skill Install cold、进程重启恢复、新写再次 Unknown 的物理 PG 注入均未验证。完成唯一报告格式检查后停写交 root 保存；无自有活动命令或 fixture。
+
+## Install U1/U2 错误交接返修复核
+
+2026-10-15；独立只读复核 Skills `d6459fae` 的五个 runtime 源码/测试文件，并亲核 `output/ai/m3-dynamic-skills/install-unknown-handoff/ordinary.log`。**前节 `41c074a3` 的 U1 遮蔽 U2 must-fix 在此固定修订关闭；本次窄改无剩余已证 must-fix。**原缺陷记录与既有失败不删改。
+
+`skill_install_dispatch.go` 不再拼接原错误与 observer error；`recordInstallRecoveryError` 从私有原 owner 选取当前写错误并保存为 `call.err`。选择过程核原 dispatcher 中同一 call、active handoff 的 operation、同 executor/issuer/完整 binding；持 `recoveryMu` 后要求原 `done` 已关闭、`live=false`、known terminal 有效且编码与原 `finalRaw` 精确相同。只有 handoff 中正式 Tool `CommitFailure` 的有效 Unknown Attempt、与原 `inputCause` 相同的 command 且无 Related，才返回其 `retirement`；否则仍返回原 U1。该方法不接收 `observedErr`，不调用 Store、adapter 或新增写权限。已复核相关 retirement 写点：只读失败、取消和只读 COMMIT Unknown 不改私有写结果；真正的新 final 写 Unknown 才替换它。原 U1 不再保留于 U2 的错误树，标准 Fault/CommitFailure/installUnknown 提取与内部 owner 一致。
+
+78960 原 ordinary 日志明确三个 top、十个子例全部 PASS、包耗时 0.020 秒；原 Wait0 复用作者回执。新两个子例用 controlled post-write 私有状态分别模拟 publication→first final U2、final rollback→refinal U2，经生产交接方法检查返回 error 与保存 `call.err` 的 Fault CauseID/CommitFailure/installUnknown、旧 U1 不残留、原 owner 保留；缺 final bytes 不提升错误。另八个子例从原两个恢复入口实际执行只读失败/取消/只读 Unknown/已取消分支，再经 dispatcher 交接，仍保 U1。新 publication 子例使用合成错误状态，未调用真实 Skill writer；两新子例均不执行恢复写 callback、SQL/guard 或物理 COMMIT，不称新的复合 U2 PG 注入。
+
+此次变更只影响错误选择/保存，未变的恢复写入、原 bytes、权限和生命周期路径已按固定源码复核；结合上述针对原缺陷的回归，足以关闭此错误交接问题，不要求重复 67124/64265 正常 native 门。此前亲核的同进程 FinalTx/publication 限定行为继续有效；publication rollback 仍为 Unknown/Joined=false 后精确进程退出，Skill Install cold 和复合 U2 的物理注入仍未验，不外推整个 Skills/M3。仅追加本报告，未启动 Go/native、改产品/测试/current 或执行 Git 写操作；格式检查后停写，无活动命令和资源。
