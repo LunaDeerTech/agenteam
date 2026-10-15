@@ -2,6 +2,8 @@
 
 2026-10-15 收口：本报告各节记录其固定输入和审查时点，早期must-fix及待验结论按后续对应修复/实际核证闭合，旧失败不回填。当前本轮明确定义M3接受出口和必要共同接线已全部完成独立核验，无该范围剩余已证must-fix；不把它扩成完整工具目录、所有恢复窗口或全产品ready。最终范围见[M3卡](m3-knowledge-memory-collaboration.md)，M4仍不在本轮。
 
+2026-10-15 工作树收尾：原 integration 树的 `output/ai/m3-artifact-user-upload/` 四轮及 `output/ai/m3-core-review/stopped-resolution{01,03}/` 共30份原件、21,179B，现存于 `/workspace/agenteam/output/` 下相同相对路径，逐文件内容与 mtime 保持。这是本机忽略证据的读取位置迁移，未纳入 Git；下文对应 `output/` 路径从 main 工作树读取，原固定输入、原来源和各轮结果不变。
+
 ## 最初固定输入的审查记录
 
 2026-10-14；审查者未参与所验实现。D13 输入冻结为 selection `e1964240`，Model 输入冻结为 `784c6468`，Model 差异基线 `d9356e09`。仅补读 Knowledge `5d65c0a3` 的三个 Lookup bridge 文件；当前开发树中这三个文件相对此修订无差异。本文接受固定比较证据，不代表整个 Model、产品领域权限或 M3 接受。M4 不在本次范围。
@@ -184,7 +186,7 @@ Skills 静态检查限定新 AgentRun 管理入口：
 
 命令在 `/workspace/agenteam-m3-model` 执行 `/tmp/m3web.ZVAtEu/object-fixture -run '^TestModelM3StoppedResolution$'`，保默认代理/TLS；环境为 `AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go`、`GOTOOLCHAIN=local`、`GOMAXPROCS=2`、`GOFLAGS=-p=1`、原共享 GOCACHE/GOMODCACHE、原 source-built MinIO；`AGENTEAM_FIXTURE_TEST_BINARY` 为上述 binary，`AGENTEAM_FIXTURE_TEST_CWD=/workspace/agenteam-m3-model/tests/model`、`AGENTEAM_FIXTURE_PG_CURRENT_ONLY=1`，owned record 指下述本轮独占目录。helper 原有小型 Go 构建保留。
 
-**独立 session 91350 实际 FAIL 5.68 秒 / Wait1，尚未进入 StoppedResolution 行为断言，不能接受此门。**原日志位于 `/workspace/agenteam-m3-integration/output/ai/m3-core-review/stopped-resolution01/native.log`，同目录保留 `owned.json`、`exit-status` 和 `wrapper-pid`。测试 PID 1336775 原 `actual_wait code=1`，wrapper PID 1335699 原 Wait1；错误定位显示 `stopped_resolution_test.go:223` 的 `RESOURCE_BUSY`。D03/D04/D05 原日志分别记录 exact cleanup；结束后按 owned record 的六个精确 container/network ID 复查均不存在，三个目录与上述两个 PID 亦均不存在。native 窗口已归还。
+**独立 session 91350 实际 FAIL 5.68 秒 / Wait1，尚未进入 StoppedResolution 行为断言，不能接受此门。**原日志现位于 `/workspace/agenteam/output/ai/m3-core-review/stopped-resolution01/native.log`，同目录保留 `owned.json`、`exit-status` 和 `wrapper-pid`。测试 PID 1336775 原 `actual_wait code=1`，wrapper PID 1335699 原 Wait1；错误定位显示 `stopped_resolution_test.go:223` 的 `RESOURCE_BUSY`。D03/D04/D05 原日志分别记录 exact cleanup；结束后按 owned record 的六个精确 container/network ID 复查均不存在，三个目录与上述两个 PID 亦均不存在。native 窗口已归还。
 
 **已证 harness 必修，非已证产品缺陷：** `13c92736:tests/model/runtime_native_test.go:137` 用 `objectfixture.Environment(db.Name)` 获得固定路径，`:153` 的第一个 `OpenSpool` 持锁至 fixture 收尾；`tests/model/stopped_resolution_test.go:134` 再次用同一 `db.Name`，`:147` 再开同一 spool。`tests/testsupport/objectstore/environment.go:37` 按 identity 固定 suffix，`internal/central/object/spool.go:102` 对原 `.object.lock` 使用 `LOCK_EX|LOCK_NB`，第二次打开必然返回 ResourceBusy。helper 标有 `t.Helper`，故原输出归到调用行 223；此处尚未创建第二个 ProcessGuard、调用其 Runtime.Initialize、seed 三种原 resolution 或执行 LookupStoppedResolution。已将决定性位置交 root 安排 Model 作者修 fixture；本审查未改产品或测试，不放宽生产 flock，不对相同输入盲重试。
 
@@ -196,7 +198,7 @@ Skills 静态检查限定新 AgentRun 管理入口：
 
 2026-10-14；本次独立实测固定 Model `7188f34d`（`f321c822` 修复顺序 guard fixture，后者修正 opaque identity 比较；产品 provider `9bcfe7ae` 未改），静态复核 Memory 组合 `7786610b` / App `985e0198`、132 原迁移与来源，以及 133 `4993b368`。发现的 Memory 三处 Unknown 身份丢失已由原作者在 `93b1c534` 修复并经下述限定复核关闭。**本节已审范围无剩余已证 must-fix；真实通过仅覆盖注明的门，不接受整个 M3 或未运行的后继链。**
 
-**Model 独立 session 96148：PASS 6.55 秒、原 Wait0。**复用 `/tmp/agenteam-m3-model-stopped-resolution03.test`，亲核 SHA256 `19d205ad7e2a1a2fc4f93128d6b0fb808fe29755eac6aa452805cbc5be855460`；未重编 binary。沿前节 cwd/helper/精确 selector/Go1.27.1/默认代理 TLS，`GOFLAGS='-mod=readonly -p=1'`，显式 `AGENTEAM_FIXTURE_PG_CURRENT_ONLY=1`，独占 native 窗口起前 overlay/tmp 均约 4.0 GiB、无活动 Go/native。原输出和 `owned.json` 在 `/workspace/agenteam-m3-integration/output/ai/m3-core-review/stopped-resolution03/`；test PID 1366371 `actual_wait code=0`、wrapper PID 1365191 Wait0。原 D03/D04/D05 exact cleanup 后按六个精确资源 ID、三个目录和两个 PID 复查，全部无残留，窗口已归还。
+**Model 独立 session 96148：PASS 6.55 秒、原 Wait0。**复用 `/tmp/agenteam-m3-model-stopped-resolution03.test`，亲核 SHA256 `19d205ad7e2a1a2fc4f93128d6b0fb808fe29755eac6aa452805cbc5be855460`；未重编 binary。沿前节 cwd/helper/精确 selector/Go1.27.1/默认代理 TLS，`GOFLAGS='-mod=readonly -p=1'`，显式 `AGENTEAM_FIXTURE_PG_CURRENT_ONLY=1`，独占 native 窗口起前 overlay/tmp 均约 4.0 GiB、无活动 Go/native。原输出和 `owned.json` 现保存在 `/workspace/agenteam/output/ai/m3-core-review/stopped-resolution03/`；test PID 1366371 `actual_wait code=0`、wrapper PID 1365191 Wait0。原 D03/D04/D05 exact cleanup 后按六个精确资源 ID、三个目录和两个 PID 复查，全部无残留，窗口已归还。
 
 固定 harness 现在先完整 Join 原 Model/Usage/Object owners 并关闭 spool，才在同数据库/同 spool 启动新 ProcessGuard。三个原请求分别未准备、仅 prepared、已 committed resolution：新 observer 的 Settled/Model/CallFound 形状正确，返回 Model 的 Consumer/LeaseOwner/CredentialRef/LeaseID 使用正式 Equal，其余完整 snapshot 严格比较；原 preparation/call/invocation/Secret lease 的行与 xmin 不变，受控模型请求为零，随后正式 retirement 释放并确认原 lease。裸 DTO 和把原 nil Selection.Version 改成具体版本被拒绝。live 拒绝使用的是当时当前 guard 的 ProcessID，命中 `ConfirmStopped` 的 current-process 拒绝；新 guard 再真实检查旧 claim/flock。**不把此门外推另一个活跃 OS 进程争锁、新 OS kill、CallFound=true 分支或真实 Memory/Meeting 域权限**；域权属仍为严格私有 fixture。原 91350 失败与作者报告的 42231 opaque DeepEqual 失败保留，不回填为通过。
 
