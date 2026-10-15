@@ -9,11 +9,11 @@ M1 与 M2 仍按原范围正式接受并已交付 main。M2 正常 Scheduler 下
 | 工作包 | 当前状态与负责人 | 下一就绪结果 |
 | --- | --- | --- |
 | M3 集成与整体契约 | `m3_integration` 负责共同接缝与唯一资源调度；root 负责 Git；1–133 正式迁移与 Model 独立停止解析门已过 | 继续 134/135 完整 caller 组合、真实用户链与有限独审；当前仍为完整原 M3。 |
-| M3 知识检索与引用 | `m3_knowledge`：自动索引、四格式 HTTP/PDFv2/Agent 引用及退出已过；浏览器后继 harness 修复待整链 | 完成四格式浏览器；用固定 pg_search 镜像、真实同库 bootstrap/readiness 验证原 hybrid，复用已过 SQL 组件证据。 |
+| M3 知识检索与引用 | `m3_knowledge`：自动索引、四格式 HTTP 与浏览器、PDFv2/Agent 引用及退出已过 | 用固定 pg_search 镜像、真实同库 bootstrap/readiness 验证原 hybrid，复用已过 SQL 组件证据。 |
 | M3 Memory | `m3_memory_tools`：跨 E 工具、Owner 浏览器与两个未退休/未 Begin 的真实停止恢复窗口通过 | 保原 Unknown 的窄修复已独审；继续剩余原业务恢复与同库 hybrid，不重跑正常窗口。 |
-| M3 领域工具与相关 Runner 扩展 | `m3_memory_tools`：self-assignment 整链过，catalog 首链末 harness SQL 失败；`m3_model` 在独立 Runner 树实施 prepare | 复验 catalog/目标权限、原 Install Unknown；Runner 本地安全下载/发布/脚本已过，正式 Transfer/session/mount/App 待接。 |
-| M3 MCP | `m3_mcp`：控制面/正文 Tool/Resource/Owner Web 已过；OAuth 核心由 integration 负责 | OAuth HTTP 正常链已过；继续媒体/source、OAuth 浏览器/刷新、startup/stranded 恢复与受影响 modes 门。 |
-| M3 Meeting | `m3_meeting`：Decision/Approval/单贡献取消真实链已过；Summary pin 第一 generation 过、整 top 待 fixture 修后复验 | 接 typed refs/参与者、retry/regenerate/queue/parallel/finalize 与领域 Tool/proposal/真实 Inbox 必要入口。 |
+| M3 领域工具与相关 Runner 扩展 | `m3_memory_tools`：self-assignment、catalog/另一目标与 Tool FinalTx 物理 Unknown 整链过；`m3_model` 在独立 Runner 树实施 prepare | 修复并复验撤权后 checkpoint 终态；Skill 发布 Unknown 待验。Runner 本地安全下载/发布/脚本与 Central 类型闭包已过，正式 Transfer/session/mount/App 待接。 |
+| M3 MCP | `m3_mcp`：控制面/正文 Tool/Resource/Owner Web 已过；OAuth 核心由 integration 负责 | 媒体 canonical/诚实 Unsupported、原 privatectx source Read/Close 及新 modes 回归已过；继续 OAuth 浏览器/135 刷新与 cold、startup/stranded 恢复。 |
+| M3 Meeting | `m3_meeting`：Decision/Approval/单贡献取消真实链已过；Summary 固定 snapshot/retry、新 generation 换模型及 sent 取消完整链已过 | 接 typed refs/参与者、retry/regenerate/queue/parallel/finalize；新 m3_meeting_tools owner 实施领域 Tool/proposal/真实 Inbox，update/comment 定义待异步回复。 |
 | 已知后续完善事项 | 未排期；原 R1–R5/M4 不再作为当前派工路线 | M3 完成后重新评估全面旧页体验、完整 Lifecycle/架构覆盖及生产发布运行等缺口。 |
 
 已完成的完整性复核、设计技能准备与 M1/M2 工作不重新开工；来源见[复核卡](../work-items/product-readiness-review.md)和[技能来源](skill-sources.md#前端设计与-ux-审查技能)。历史 W1–W5/R1–R5 沿原卡及 Git 历史查询，不作为当前活动派工。默认 Execution Runtime 仍需显式配置开启；Object/tools/SPA/Jina/Image 原 STOP 保留其适用范围，不因 M3 授权自动解除，不以里程碑数量推算平台百分比。
