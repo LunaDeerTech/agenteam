@@ -10,18 +10,18 @@
 | 参与者与引用 | 会中roster/typed references原事务、HTTP/UI与资源选择器已落；原普通门及前端定向检查通过 | 新PG/三Turn浏览器与真实跨域composite；File按D24纠正为稳定ArtifactID，内部FileID只属正文链，新形状待窄测/实际门 |
 | 编排 | sequential 首真实 App；7298 新parallel/queue/interrupt真实App通过共同input、原取消屏障后插话优先、旧FIFO继续和完整退出；busy/skip已有领域受控验证 | busy/skip受影响的用户可见组合；不重跑不变通过门 |
 | Decision / Approval | Decision与Approval原真实App/浏览器已过；58814另验证Decision四类事件/Inbox、answer/skip/cancel与原退出完整链；Approval含批准/原lookup、拒绝零派发、单A取消后B继续及晚批准拒绝 | 保持原权限/来源边界；22854另通过真实Realtime等待/回答同E链 |
-| Contribution cancel / retry / regenerate | 单C取消真实Runner/浏览器已过；Retry/Regenerate原lineage/历史真实PG通过（Executor/Summary替身）；History DTO/控件源码与27个前端定向tests通过 | 新后端/前端组合、实际App新尝试与历史版本浏览器 |
+| Contribution cancel / retry / regenerate | 单C取消真实Runner/浏览器已过；原lineage领域PG通过；90473真实Retry响应丢失查询、运行中反馈、成功后Regenerate、历史回复与下一Turn更新Summary完整浏览器通过 | 保留本次input_id/lineage判据边界，不外推逐字重比全部context或Regenerate Unknown |
 | Summary / finalize | 首次标题+四字段与滚动摘要；82796固定snapshot/retry/取消退休；2805 prepared-beforeResolve实际崩溃后保原source、不重发、诚实失败并由Owner取消原Turn | 本冷门不覆盖已Resolve/dispatch窗口；受控Provider通过不代外部模型服务 |
-| Timeline / 领域工具 | 稳定贡献项与当前来源；request-decision已验；四常规工具47694通过；58034真实同Meeting E的retain/recall/reflect、公开回复与Summary完整通过 | 历史generation网页；update/comment语义待用户；22854已通过有限Realtime展开执行与已提交文本 |
+| Timeline / 领域工具 | 稳定贡献项与当前来源；request-decision已验；四常规工具47694通过；58034真实同Meeting E的retain/recall/reflect、公开回复与Summary完整通过；90473已验历史generation网页 | update/comment语义待用户；22854已通过有限Realtime展开执行与已提交文本 |
 | 生命周期与通知 | 原owners与队列重建；50965真实Owner删除、原调用退休、同Tx审计/Deleted、外域历史保留及迟到命令拒绝通过 | 删除浏览器；其它Unknown/冷恢复窗口不由当前链外推 |
 
-以上属于原 M3 完整交付差额，不另缩减为普通文本 Summary 或单个正常链。Approval、固定 Summary snapshot/取消与134 prepared冷窗口实际链已闭合；Decision141四类事件/Inbox完整七回复也已通过；Realtime首真实双topic22854也已完成原持久事实与退出门；下一 Retry UI、参与者/引用及其它完整差额。
+以上属于原 M3 完整交付差额，不另缩减为普通文本 Summary 或单个正常链。Approval、固定 Summary snapshot/取消与134 prepared冷窗口实际链已闭合；Decision141四类事件/Inbox完整七回复、Realtime双topic22854及Replacement90473均完成各自持久事实与退出门；下一参与者/引用、Reply原PG判据及其它完整差额。
 
 ## 本轮剩余出口（有限清单）
 
 以下按 D24 正式第一阶段边界一次列清，后继只关闭这些缺口，不扩展完整 D25 或另造执行、审批、文件与通知平台。
 
-1. **已有用户链的实际验收**：Retry/Regenerate新Execution与历史版本、会中成员及Task/Knowledge/ArtifactID/Link引用两个已固定网页旅程仍未接受。复用现App/资产与原预算，metadata先取明确时间线证据，不把轮询或末deadline后completed当通过。
+1. **已有用户链的实际验收**：90473固定App96226/dist15624/f3 CJS原Wait0/PASS35.77秒，已完成Retry响应丢失后的查询、可见运行状态、新attempt/Execution、成功后Regenerate新generation/input_id/lineage、历史回复与延迟到下一普通Turn更新Summary，八次Model及lease退休、App Joined和三fixture清理通过。四截图已view并经独立复核；本top核controls=2/lookups=1，不逐字比较Retry/Lookup key/body，也不重比完整context字节，原client/domain证据单独复用。40066/64308失败保留，Chrome子PID未逐捕。会中成员及Task/Knowledge/ArtifactID/Link引用原metadata旅程仍待；复用固定候选，不把deadline后completed当通过。
 2. **原调用冷恢复**：2805固定61828已原Wait0/PASS9.76秒，prepared-beforeResolve真实SIGKILL/Wait→新Guard按原source/binding/process及正式absence观察收尾，selector Version=nil保持，零新Resolve/Model/lease或Summary输出，原generation诚实failed后Owner HTTP取消原Turn，新App正常Joined。6资源/3目录/父子3PID全部不存在。原8438观察SQL失败保留；本门不覆盖已Resolve/dispatch等其它窗口。缺历史source仍Unknown，不按当前selector补历史或自动重发。
 3. **删除用户闭环**：50965固定61828的原四回复真实App门已Wait0/PASS7.81秒：Owner HTTP原命令/lookup、held A取消与未发B零派发、全部原调用与lease退休后本域purge、completed Audit/Deleted/receipt同Tx，保留三条外域Execution历史，迟到Send拒绝、原receipt replay与App/guard退出通过。原23514取消flag与LOCK_NOT_HELD锁预算失败保留，窄修已实际覆盖；不改已应用DDL。Owner确认/清理中及删除完成的浏览器仍待，不扩大Project全生命周期或外推旧Process恢复。
 4. **正式工具与提议**：四常规工具/Proposal/Inbox原HTTP九回复链47694已完整通过，原App/peer/guard和夹具实际退出；同一Inbox→Proposal→处理→返回浏览器按原owner另记。update/comment两项只有用户尚未答复的产品语义缺口，不自行定义。58034已验证原Memory retain/recall/reflect在同Meeting Trigger/E下的完整调用、原provenance、Summary及退出，不新增三种Memory提议工具。

@@ -429,3 +429,31 @@ Model owner 接受上述同 E、Inbox 与原退出的有限闭包，未见剩余
 前两轮关闭事件观察和默认 mode 与原 intent 不符的失败保留。修后显式选择原 sequential，业务结束时复制完整帧窗口，随后实际导航离开 Meeting 并观察 socket close；没有按类型筛掉业务失败帧。45是包含 teardown 的总观察帧数，Go 严格核验导航前完整业务窗口，退出尾保留独立诊断。reviewer 亲看两张截图，又独立 inspect 6个精确 Docker ID、3个目录以及 App/list-Node/PW-Node 3个已记录 PID 全部 absent；没有逐个捕获 Chromium 子 PID，不扩大为每个浏览器后代的独立退出证明。原私有 result JSON 已由 Go 读取后删除，reviewer 未声称亲读该已删除文件。
 
 **接受这一有限双 topic 正常用户链与原退出闭包，未见范围内剩余已证 must-fix。**不外推 token 增量、新的 resync/撤权异常旅程、窄屏或完整 D24/D25；Gateway 旧普通/race和异常边界证据按原范围复用。Composer 的后段失败独立保留。integration 仅按实际 reviewer 回执整理本节，未冒充独立执行或重跑 fixture。
+
+## Meeting Retry/Regenerate/history 浏览器实际核证
+
+2026-10-15；由未参与所验实现的 `m3_core_review` 独立核作者 `90473` 原实际与固定断言。输入为旧共同 UI App `96226`、前端 `15624` 和 `f3a4b222` CJS；原日志 `/tmp/m3-replacement-final.rcRPDIh6/native.log` 显示 Wait0/PASS35.77s。真实 Retry、原 lookup 与输入 lineage、新 attempt、Regenerate 新 generation、history/deferred Summary、后续正常 Turn、八次 Model/lease 退休及原 App/Guard/数据库退出均到达。原6个资源 ID、3个目录及记录的 App/Node PID 已清退，Chromium 后代未逐个捕获的限制保留。
+
+**接受上述限定用户链，未见范围内剩余已证 must-fix。**本 top 未新增 Retry/Lookup key/body 或完整 context bytes 的逐字比较，原客户端与领域合同证据按原范围复用；不因此扩大到 RegenerateUnknown 或额外矩阵。Metadata 与 Composer 的失败和后继验证独立保留。integration 按实际 reviewer 回执整理，未冒充独立执行。
+
+## Runner prepare immutable input 私有借阅有限核证
+
+2026-10-15；由未参与实现的 `m3_core_review` 独立只读核 Runner `8c0d40a6` 的四个 Execution 叶及 `d7a1f29d` 测试修正，并亲核作者 `3752` 原 `ordinary-fixed.log`。原完整 current/guard/锁检查先于借阅创建；借阅绑定同 driver、Store、Tx、原 plan/binding 与活期，只返回原已验证 immutable bindings 的副本，单次消费，callback 返回/error/panic 后清空。错配、过期或已取消的借阅不退回另一条授权路径；无借阅调用仍走旧完整 SQL 校验。
+
+三个顶层测试、14个子例及 fallback 检查实际通过。前轮测试构造缺少必填 Description 的失败保留，未被当作生产失败。**接受此四叶的有限安全闭包，未见新 must-fix；不证明原15秒 reader 屏障、性能改善或真实冷恢复已经通过。**原正常链复用，后继仍须由原 cold actual 回答；integration 参与接缝约束，只整理独立 reviewer 结论。
+
+## Composer 来源、附件与删除完整浏览器核证
+
+2026-10-15；由未参与所验实现的 `m3_core_review` 独立核作者 `17997` 原日志、固定 Go/Playwright 断言及三张截图。输入为共同 `40974` App、`73szlbsa` 固定前端和 `7753966d` Playwright 叶；原 Go Wait0/PASS19.56s、Playwright PASS13.5s。原选择范围与 Request 终止观察的两轮失败保留，修后没有扩大原预算。
+
+正式来源选择、历史 Reply、上传/正式 Artifact、独立 Pin、原发送与 lookup、Delete 持久事务和后像全部执行；原 Go 精确核对 key/body、单次命令及各持久事实，五个 Model/lease 退休与 App/owners/Guard/数据库连接归零通过。13条响应中11个200均实际 finished；仅原计划丢失 complete/turns 两个 POST 的502允许 failed，其他成功请求没有放宽。三张截图包括390宽深色下读取原文本，未把该单图扩大为全站窄屏验收。
+
+reviewer 独立重核6个精确资源 ID与3个目录均 absent；捕获36个 PID 中34个 absent，两个 Chromium 后代保持原 start_ticks 且为 PPID1/Z，不宣全部 PID 不存在。**接受上述完整用户旅程与原退出闭包，未见范围内剩余已证 must-fix。**不外推数据库物理 CommitUnknown 或全 scope 竞争；旧 `44126`/`53366` 失败不回填。integration 只归位实际 reviewer 结论，未冒充独立执行。
+
+## Meeting Reply 与 Inbox 定向 PostgreSQL 核证
+
+2026-10-15；`m3_core_review` 复用已完成的有限源码审查，独立核固定 `6c1f674a` 的 `message_reply_test.go`、`20641` binary及作者 `53653` 原日志。精确 top PASS2.14s/Wait0；原 Send/replay/Lookup、同 key 更换 ReplyTo 拒绝、跨 Meeting 新目标拒绝且 Turn/version 不变、历史 MessageID 保持和 reply_to_id 精确两条无 replay 重复均通过。独立核6个资源 ID、3个目录及 test PID1868688均不存在。该门明确使用 Project/Agent doubles，不外推 Executor/Model、Session或默认 App 的权限链。
+
+同一 reviewer 随后独立核 `cf7d3bf7` 的 Inbox SQL 叶与作者 `53397` 原实际日志：精确 top PASS2.50s/Wait0。四条 Proposal/Decision 投影逐条 Limit1 分页无漏重序，partial-provider 重建不误关其他来源，完整重建保 canonical Version2，迟到旧 requested 不重开。独立核6个资源 ID、3个目录及25个捕获 PID 全部 absent；此门限定真实 PostgreSQL 与 Project/Source doubles，不扩大为 Meeting producer/App。
+
+**分别接受上述两个原定向 SQL 补集，未见范围内剩余已证 must-fix。**没有增加或重跑已接受的 producer 与浏览器矩阵。integration 仅归位 reviewer 结论，未另跑该门。
