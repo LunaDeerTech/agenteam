@@ -39,6 +39,23 @@ node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/red
 
 这组仅使用自有静态端口 5218，不消费设计者的 5207 服务或 `web/node_modules`。server PID 240228 的关闭记录为 `closed: true`，原命令退出后 PID 已不存在；浏览器由原 Playwright 命令关闭。初稿检查后设计者针对独审视觉反馈重开样式与菜单，因此上述结果按输入/影响复用，不能写成返修后的完整结论。全部保存和恢复都是本地演示，没有真实后端与业务写入。本 harness 作者不独立验收自己编写的测试，也不据这些行为通过宣称用户接受。
 
+第二稿 `f0138630` 冻结后，只复验变动的菜单与布局：两尺寸的上述菜单/对话框正常及减少动效、Tab 与 Escape、设置入口；四种尺寸/主题真实滚轮到展开记录最后一项，验证该项仍在视口内且未被遮挡；共享 Projects 筛选器的 Tab / Escape 与页面滚动关闭。更多菜单 Tab 现在关闭后原生前进到项目名称；窄屏栏目菜单内部真实滚动仍保持展开。关闭菜单后 `aria-controls` 被清除。
+
+`general-second` 首次为 **3 项通过、1 项失败（19.3s，exit 1）**。失败是 harness 输入前提错误：390×844 下六行项目恰好全部容纳，鼠标滚轮没有产生页面滚动，不能证明滚动关闭行为。该原始报告、截图和 trace 保留；未当作产品缺陷，也未放宽关闭断言。将该单例设为 390×600 并先断言存在可滚动内容后，`general-second-scroll` **1/1 通过（4.7s，exit 0）**：实际 `scrollY` 增加后，菜单关闭、展开标志为 false、控制关联移除。菜单截图使用当前视口；`fullPage` 的临时视口尺寸变化可能按设计关闭菜单，不能用它观察展开态。
+
+```sh
+export F0_LEGACY=0 F0_PORT=5218
+export F0_OUTPUT="$PWD/output/ai/frontend-f0-refinement-test/general-second"
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '(\[general\] menus|\[general-refinement\])' --list
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '(\[general\] menus|\[general-refinement\])'
+# 实际失败修正后只复验此项，未覆盖首轮输出。
+export F0_OUTPUT="$PWD/output/ai/frontend-f0-refinement-test/general-second-scroll"
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[general-refinement\] shared projects' --list
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[general-refinement\] shared projects'
+```
+
+第二稿两轮自有 server PID 247456 / 248370 均 `closed: true` 且已回收，浏览器随原命令退出；没有重建 `web/node_modules`，没有关闭设计者 5207 服务。最终行为范围由首稿 7 项中未变的业务旅程和第二稿 3 + 1 项定向结果组成；未运行旧 62 项完整矩阵、产品工程全量或真实后端。视觉结论与用户接受继续由各自负责人另行形成。
+
 ## 锁定依赖与启动
 
 使用 `tests/account-captcha-web/package.json` 和完整锁文件的 `@playwright/test` **1.56.1**。正式页面对照额外使用 `web/package.json` 和完整锁文件；不能用 `npx` 隐式下载新版。两份安装在工作树外复用，安装目录按 package+lock、Node 与平台区分；`web/node_modules` 可临时链接到匹配安装，测试结束且无消费者后移除该链接，不能提交。

@@ -943,6 +943,13 @@ for (const layout of [layouts[0], layouts[3]]) {
       await page.keyboard.press("Escape");
       await expect(page.getByRole("menu")).toHaveCount(0);
       await expect(more).toBeFocused();
+      await expect(more).not.toHaveAttribute("aria-controls", /.+/);
+      await more.press("Enter");
+      await page.keyboard.press("Tab");
+      await expect(page.getByRole("menu")).toHaveCount(0);
+      await expect(
+        page.getByRole("textbox", { name: "项目名称", exact: true }),
+      ).toBeFocused();
       await page
         .getByRole("textbox", { name: "项目名称", exact: true })
         .fill("Atlas.Keyboard");
@@ -987,6 +994,13 @@ for (const layout of [layouts[0], layouts[3]]) {
       await page.keyboard.press("Escape");
       await expect(trigger).toBeFocused();
       await trigger.click();
+      const menu = page.getByRole("menu", { name: "项目设置", exact: true });
+      await menu.hover();
+      await page.mouse.wheel(0, 180);
+      await expect
+        .poll(() => menu.evaluate((node) => node.scrollTop))
+        .toBeGreaterThan(0);
+      await expect(menu).toBeVisible();
       await page.getByRole("menuitem", { name: "MCP", exact: true }).click();
     } else
       await page
@@ -1000,7 +1014,7 @@ for (const layout of [layouts[0], layouts[3]]) {
       .click();
     await expect(page).toHaveURL(/page=settings/);
     await expect(
-      page.getByRole("heading", { name: "基本信息", exact: true, level: 1 }),
+      page.getByRole("heading", { name: /^基本信息/, level: 1 }),
     ).toBeVisible();
     await page.locator('.project-identity [data-page="project"]').click();
     await page
@@ -1015,6 +1029,106 @@ for (const layout of [layouts[0], layouts[3]]) {
     expect(faults.outbound).toEqual([]);
   });
 }
+
+test("[general-refinement] four layouts and real scroll to bottom", async ({
+  page,
+}, info) => {
+  const faults = await setup(page, layouts[0]);
+  for (const layout of layouts) {
+    await page.setViewportSize({ width: layout.width, height: layout.height });
+    await openGeneral(page, layout);
+    await noOverflow(page, `general second ${layout.width}/${layout.theme}`);
+    await capture(
+      page,
+      info,
+      `after-general-second-${layout.width}-${layout.theme}`,
+    );
+    await page.locator(".general-records summary").click();
+    await page.mouse.move(layout.width / 2, layout.height - 100);
+    await page.mouse.wheel(0, 1400);
+    const lastRecord = page.locator(".general-records time").last();
+    await expect(lastRecord).toBeInViewport();
+    expect(
+      await lastRecord.evaluate((node) => {
+        const rect = node.getBoundingClientRect();
+        return node.contains(
+          document.elementFromPoint(
+            rect.x + rect.width / 2,
+            rect.y + rect.height / 2,
+          ),
+        );
+      }),
+    ).toBe(true);
+    await noOverflow(
+      page,
+      `general second expanded ${layout.width}/${layout.theme}`,
+    );
+  }
+  expect(faults.errors).toEqual([]);
+  expect(faults.outbound).toEqual([]);
+});
+
+test("[general-refinement] shared projects filter Tab Escape and page scroll", async ({
+  page,
+}, info) => {
+  // Six rows fit at 390x844. This short window creates actual page scrolling.
+  const layout = { ...layouts[3], height: 600 };
+  const faults = await setup(page, layout);
+  await open(page, "projects", layout, "long", { accent: "neutral" });
+  expect(
+    await page.evaluate(() => document.documentElement.scrollHeight),
+  ).toBeGreaterThan(layout.height);
+  const trigger = page.getByRole("button", { name: "状态", exact: true });
+  const menu = page.getByRole("listbox", { name: "状态", exact: true });
+  await trigger.focus();
+  await page.keyboard.press("ArrowDown");
+  await expect(menu).toBeVisible();
+  await expect(
+    page.getByRole("option", { name: "全部状态", exact: true }),
+  ).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(menu).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "刷新", exact: true }),
+  ).toBeFocused();
+  await expect(trigger).not.toHaveAttribute("aria-controls", /.+/);
+  await trigger.click();
+  await page.keyboard.press("End");
+  await expect(
+    page.getByRole("option", { name: "删除中", exact: true }),
+  ).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(trigger).toBeFocused();
+  await expect(trigger).toHaveAttribute("aria-expanded", "false");
+  await trigger.click();
+  mkdirSync(screens, { recursive: true });
+  const screenshot = path.join(
+    screens,
+    "projects-filter-second-390x600-dark.png",
+  );
+  // A fullPage screenshot may resize the browser and correctly dismiss this menu.
+  await page.screenshot({
+    path: screenshot,
+    fullPage: false,
+    animations: "disabled",
+  });
+  await info.attach("projects-filter-second-390-dark", {
+    path: screenshot,
+    contentType: "image/png",
+  });
+  await expect(menu).toBeVisible();
+  const initialScroll = await page.evaluate(() => scrollY);
+  await page.mouse.move(layout.width - 15, layout.height - 100);
+  await page.mouse.wheel(0, 600);
+  await expect
+    .poll(() => page.evaluate(() => scrollY))
+    .toBeGreaterThan(initialScroll);
+  await expect(menu).toHaveCount(0);
+  await expect(trigger).toHaveAttribute("aria-expanded", "false");
+  await expect(trigger).not.toHaveAttribute("aria-controls", /.+/);
+  expect(faults.errors).toEqual([]);
+  expect(faults.outbound).toEqual([]);
+});
 
 const comparison = [
   {
