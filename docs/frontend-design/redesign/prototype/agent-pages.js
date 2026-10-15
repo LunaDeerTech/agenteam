@@ -37,6 +37,21 @@ const skillChoices = [
     description: "组织项目文档与交付说明。",
   },
 ];
+const basicFields = [
+  "name",
+  "displayName",
+  "description",
+  "tagColor",
+  "instructions",
+  "modelID",
+  "reasoningEffort",
+  "approvalPolicy",
+  "approvalModelID",
+  "injectAgentsMD",
+];
+const basicSnapshot = (agent) =>
+  Object.fromEntries(basicFields.map((key) => [key, agent[key]]));
+const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const seeds = [
   [
     "architecture",
@@ -157,6 +172,8 @@ function local(ctx) {
             : [],
       }),
     );
+    if (ctx.params.get("resource_extra_secret") === "1")
+      agents[2].secretIDs.push("secret-outside-directory");
     if (ctx.long) {
       agents[0].displayName =
         "Architecture · 跨区域协作与系统架构设计负责人 / Distributed Systems Architecture";
@@ -167,6 +184,8 @@ function local(ctx) {
       agents,
       edits: {},
       deletedMemories: {},
+      resources: {},
+      busy: null,
       notice: "",
       listView: null,
       detailViews: {},
@@ -178,9 +197,11 @@ function local(ctx) {
           ? {
               kind: isMemory(ctx)
                 ? "memory"
-                : agentID(ctx) === "new"
-                  ? "creation"
-                  : "configuration",
+                : tabFor(ctx) === "resources" && agentID(ctx) !== "new"
+                  ? "resource"
+                  : agentID(ctx) === "new"
+                    ? "creation"
+                    : "configuration",
               agent: agentID(ctx) || "agent-architecture",
               original: null,
               observation: "",
@@ -198,7 +219,7 @@ function draftFor(ctx, state) {
     if (id !== "new" && !current) return null;
     state.edits[id] = {
       value: current
-        ? copy(current)
+        ? copy(basicSnapshot(current))
         : {
             id: "new",
             name: "",
@@ -219,6 +240,8 @@ function draftFor(ctx, state) {
             installSkill: true,
             version: "1",
           },
+      baseVersion: current?.version || "1",
+      baseSnapshot: current ? copy(basicSnapshot(current)) : null,
       touched: new Set(),
       message: "",
       conflict: ctx.scenario === "conflict",
@@ -230,7 +253,7 @@ function draftFor(ctx, state) {
   if (
     state.pending?.agent === id &&
     !state.pending.original &&
-    state.pending.kind !== "memory"
+    ["configuration", "creation"].includes(state.pending.kind)
   ) {
     if (id === "new")
       Object.assign(edit.value, {
@@ -242,7 +265,7 @@ function draftFor(ctx, state) {
     edit.touched.add("description");
     state.pending.original = {
       agentID: id,
-      version: edit.value.version,
+      version: edit.baseVersion,
       input: copy(edit.value),
     };
   }
@@ -303,43 +326,50 @@ function configuration(ctx, state, current) {
     value = edit.value,
     creating = agentID(ctx) === "new";
   const pending = state.pending?.agent === agentID(ctx),
-    locked = readOnly(ctx) || pending || edit.conflict;
+    locked = readOnly(ctx) || !!state.pending || !!state.busy || edit.conflict;
   const opt = { disabled: locked };
   const pendingNotice = !pending
     ? ""
-    : state.pending.kind === "memory"
+    : state.pending.kind === "resource"
       ? notice(
-          "删除结果待确认",
-          "原记忆记录与修订仍保留，请回到原删除操作查询结果。",
-          button("查看原删除操作", "original"),
+          "资源操作结果待确认",
+          "请回到原资源操作查询结果，确认前不能继续修改配置。",
+          button("查看原资源操作", "original"),
         )
-      : notice(
-          state.pending.kind === "creation"
-            ? "创建结果待确认"
-            : "保存结果待确认",
-          "原配置与请求已保留。确认前请勿重复提交。",
-          button(
+      : state.pending.kind === "memory"
+        ? notice(
+            "删除结果待确认",
+            "原记忆记录与修订仍保留，请回到原删除操作查询结果。",
+            button("查看原删除操作", "original"),
+          )
+        : notice(
             state.pending.kind === "creation"
-              ? "查询原创建结果"
-              : "查询原保存结果",
-            "lookup",
-          ),
-        );
+              ? "创建结果待确认"
+              : "保存结果待确认",
+            "原配置与请求已保留。确认前请勿重复提交。",
+            button(
+              state.pending.kind === "creation"
+                ? "查询原创建结果"
+                : "查询原保存结果",
+              "lookup",
+            ),
+          );
+  const resourceValue = creating ? value : current;
   const modelOpts = [{ id: "", label: "选择聊天模型" }, ...models];
-  const mounts = value.runnerMounts
+  const mounts = resourceValue.runnerMounts
     .map(
       (mount, index) =>
         `<div class="agent-mount-row"><div class="agent-field"><label for="agent-runner-${index}">Runner</label><select id="agent-runner-${index}" data-mount-index="${index}" data-mount-key="runner_id" ${locked ? "disabled" : ""}><option value="">选择 Runner</option>${runnerChoices.map((choice) => `<option value="${choice.id}" ${choice.id === mount.runner_id ? "selected" : ""}>${choice.label}</option>`).join("")}</select></div><div class="agent-field"><label for="agent-workspace-${index}">资源目录名</label><input id="agent-workspace-${index}" data-mount-index="${index}" data-mount-key="workspace" value="${esc(mount.workspace)}" placeholder="例如 workspace-1" ${locked ? "disabled" : ""}></div>${button("移除", `remove-mount:${index}`, "quiet", locked)}</div>`,
     )
     .join("");
-  const runnerContent = `<p class="agent-section-note">选择 Runner 与单段资源目录名。移除配置不会删除目录。</p>${mounts || '<p class="agent-muted-line">未配置 Runner。</p>'}${button("添加资源目录", "add-mount", "", locked || value.runnerMounts.length >= 128)}`;
+  const runnerContent = `<p class="agent-section-note">选择 Runner 与单段资源目录名。移除配置不会删除目录。</p>${mounts || '<p class="agent-muted-line">未配置 Runner。</p>'}${button("添加资源目录", "add-mount", "", locked || resourceValue.runnerMounts.length >= 128)}`;
   const allSecretChoices = [
     ...secretChoices,
-    ...value.secretIDs
+    ...resourceValue.secretIDs
       .filter((id) => !secretChoices.some((choice) => choice.id === id))
       .map((id) => ({ id, label: `已配置 Secret Variable · ${id}` })),
   ];
-  const secrets = `<p class="agent-section-note">仅选择此 Agent 可使用的 Secret Variable，不显示凭据内容。</p>${allSecretChoices.map((secret) => `<label class="agent-check-row"><input type="checkbox" data-secret="${secret.id}" ${value.secretIDs.includes(secret.id) ? "checked" : ""} ${locked ? "disabled" : ""}><span>${secret.label}</span></label>`).join("")}`;
+  const secrets = `<p class="agent-section-note">仅选择此 Agent 可使用的 Secret Variable，不显示凭据内容。</p>${allSecretChoices.map((secret) => `<label class="agent-check-row"><input type="checkbox" data-secret="${secret.id}" ${resourceValue.secretIDs.includes(secret.id) ? "checked" : ""} ${locked ? "disabled" : ""}><span>${secret.label}</span></label>`).join("")}`;
   const skills = `<p class="agent-section-note">分配项目技能；禁用保留分配记录，撤销不会删除技能包。</p>${current?.skills.length ? current.skills.map((skill) => `<div class="agent-skill-row"><div><strong>${esc(skillChoices.find((choice) => choice.id === skill.skillID)?.name || skill.skillID)}</strong><span>${skill.enabled ? "已启用" : "已禁用"}</span></div>${button(skill.enabled ? "禁用" : "启用", `skill-${skill.enabled ? "disable" : "enable"}:${skill.id}`, "quiet", locked || edit.touched.size > 0)}${button("撤销分配", `skill-remove:${skill.id}`, "quiet", locked || edit.touched.size > 0)}</div>`).join("") : '<p class="agent-muted-line">尚未分配项目技能。</p>'}<div class="agent-capability-actions">${button("分配项目技能", "skill-assign", "", locked || edit.touched.size > 0)}${edit.touched.size ? "<span>保存或取消配置修改后管理技能。</span>" : ""}</div>`;
   const basicFields = `<section class="agent-form-section"><header><h2>基本信息</h2></header><div class="agent-field-pair">${inputField("name", "Agent 名称", value.name, { ...opt, required: true, max: 32, hint: "3–32 位字母、数字或连字符。" })}${inputField("displayName", "显示名称", value.displayName, { ...opt, max: 256, hint: "可选，未填写时使用 Agent 名称。" })}</div>${inputField("description", "描述", value.description, { ...opt, rows: 2 })}<details class="agent-appearance" data-agent-section="appearance" ${edit.sections.has("appearance") ? "open" : ""}><summary>标签颜色</summary>${inputField("tagColor", "标签颜色", value.tagColor, { ...opt, hint: "可选，使用小写 #rrggbb。清空后恢复默认。" })}</details></section><section class="agent-form-section"><header><h2>指令</h2><p>定义这个 Agent 处理任务时遵循的方式。</p></header>${inputField("instructions", "Agent 指令", value.instructions, { ...opt, rows: 5 })}<label class="agent-check-row"><input type="checkbox" data-agent-inject ${value.injectAgentsMD === "yes" ? "checked" : ""} ${locked ? "disabled" : ""}><span>注入项目 AGENTS.md</span></label></section><section class="agent-form-section"><header><h2>模型与审批</h2><p>保存后的配置用于后续执行。</p></header><div class="agent-field-pair">${inputField("modelID", "主模型", value.modelID, { disabled: locked || value.reasoningEffort !== null, required: true, choices: modelOpts })}${inputField(
     "approvalPolicy",
@@ -354,8 +384,216 @@ function configuration(ctx, state, current) {
       ],
     },
   )}</div><div id="agent-approval-model" ${value.approvalPolicy !== "auto" ? "hidden" : ""}>${inputField("approvalModelID", "审批模型", value.approvalModelID, { ...opt, choices: modelOpts })}</div>${!creating ? `<div class="agent-readonly-property"><span>推理强度</span><span>${esc(value.reasoningEffort || "使用模型默认值")}</span></div>` : ""}${value.reasoningEffort !== null ? '<p class="agent-section-note">当前配置的推理强度不支持在此编辑，主模型与审批配置保持原值。</p>' : ""}</section>`;
-  const resourceFields = `<section class="agent-form-section agent-resource-groups">${disclosure("runners", "Runner 与资源目录", value.runnerMounts.length ? `${value.runnerMounts.length} 项资源目录` : "未配置", runnerContent, edit)}${disclosure("secrets", "Secret Variable 白名单", value.secretIDs.length ? `${value.secretIDs.length} 项已选择` : "未选择", secrets, edit)}${!creating ? disclosure("tools", "Tool 引用", value.allowedToolIDs.length ? `${value.allowedToolIDs.length} 项引用` : "无额外工具引用", `<p class="agent-section-note">${value.allowedToolIDs.length ? value.allowedToolIDs.map(esc).join(" · ") : "当前配置没有额外 Tool 引用。"}</p>`, edit) : ""}${!creating ? disclosure("skills", "项目技能", "管理此 Agent 的技能分配", skills, edit) : `<div class="agent-initialization"><h3>内置初始化</h3><label class="agent-check-row"><input type="checkbox" data-agent-init="addSkills" ${value.addSkills ? "checked" : ""} ${locked ? "disabled" : ""}>添加默认 Skills</label><label class="agent-check-row"><input type="checkbox" data-agent-init="installSkill" ${value.installSkill ? "checked" : ""} ${locked ? "disabled" : ""}>启用 Install Skill 工具</label></div>`}</section>`;
+  const resourceFields = `<section class="agent-form-section agent-resource-groups">${disclosure("runners", "Runner 与资源目录", resourceValue.runnerMounts.length ? `${resourceValue.runnerMounts.length} 项资源目录` : "未配置", runnerContent, edit)}${disclosure("secrets", "Secret Variable 白名单", resourceValue.secretIDs.length ? `${resourceValue.secretIDs.length} 项已选择` : "未选择", secrets, edit)}${!creating ? disclosure("tools", "Tool 引用", resourceValue.allowedToolIDs.length ? `${resourceValue.allowedToolIDs.length} 项引用` : "无额外工具引用", `<p class="agent-section-note">${resourceValue.allowedToolIDs.length ? resourceValue.allowedToolIDs.map(esc).join(" · ") : "当前配置没有额外 Tool 引用。"}</p>`, edit) : ""}${!creating ? disclosure("skills", "项目技能", "管理此 Agent 的技能分配", skills, edit) : `<div class="agent-initialization"><h3>内置初始化</h3><label class="agent-check-row"><input type="checkbox" data-agent-init="addSkills" ${value.addSkills ? "checked" : ""} ${locked ? "disabled" : ""}>添加默认 Skills</label><label class="agent-check-row"><input type="checkbox" data-agent-init="installSkill" ${value.installSkill ? "checked" : ""} ${locked ? "disabled" : ""}>启用 Install Skill 工具</label></div>`}</section>`;
   return `<div class="agent-detail-content" id="agent-tab-panel" role="tabpanel" aria-labelledby="agent-tab-${tabFor(ctx)}">${readOnly(ctx) ? notice("当前项目为只读", "配置可以阅读，修改暂不可用。") : ""}${pendingNotice}${edit.conflict ? notice("配置已有新版本", "原草稿与编辑版本已保留。取消编辑并重新读取后再保存。", button("取消编辑并重读", "conflict-read")) : ""}${gate(ctx, "Agent 配置") || `<form id="agent-configuration-form" novalidate aria-label="${creating ? "创建 Agent" : "编辑 Agent 配置"}">${tabFor(ctx) === "resources" ? resourceFields : basicFields}<div class="agent-savebar"><span id="agent-dirty-state">${edit.touched.size ? "有未保存的修改" : ""}</span><div>${button(creating ? "取消创建" : "取消修改", "cancel", "quiet", pending)}<button type="submit" class="button primary" id="agent-save" ${locked || !edit.touched.size ? "disabled" : ""}>${creating ? "创建 Agent" : "保存配置"}</button></div></div><p class="agent-feedback" id="agent-form-feedback" role="status">${esc(edit.message)}</p></form>${!creating ? `<details class="agent-records"><summary>Agent 标识与记录</summary><dl><dt>Agent ID</dt><dd>${esc(current.id)}</dd><dt>配置版本</dt><dd>${esc(current.version)}</dd><dt>创建时间</dt><dd>2026 年 10 月 12 日</dd></dl></details>` : ""}`}</div>`;
+}
+function resourceState(state, id) {
+  return (state.resources[id] ||= {
+    mount: null,
+    index: -1,
+    status: "",
+    message: "",
+    failed: null,
+  });
+}
+function records(current) {
+  return `<details class="agent-records"><summary>Agent 标识与记录</summary><dl><dt>Agent ID</dt><dd>${esc(current.id)}</dd><dt>配置版本</dt><dd>${esc(current.version)}</dd><dt>创建时间</dt><dd>2026 年 10 月 12 日</dd></dl></details>`;
+}
+function resources(ctx, state, current) {
+  const edit = draftFor(ctx, state),
+    resource = resourceState(state, current.id);
+  const locked =
+    readOnly(ctx) || !!state.pending || !!state.busy || edit.conflict;
+  if (
+    state.pending?.kind === "resource" &&
+    state.pending.agent === current.id &&
+    !state.pending.original
+  ) {
+    state.pending.original = {
+      project: scopeFor(ctx),
+      agent: current.id,
+      field: "secretIDs",
+      payload: [...new Set([...current.secretIDs, secretChoices[0].id])],
+      expectedVersion: current.version,
+      key: crypto.randomUUID(),
+      label: "Secret 白名单",
+    };
+    resource.status = "unknown";
+    resource.message = "Secret 白名单的保存结果待确认，原操作已保留。";
+  }
+  const mountRows = current.runnerMounts
+    .map(
+      (mount, index) =>
+        `<div class="agent-saved-mount"><div><strong>${esc(runnerChoices.find((runner) => runner.id === mount.runner_id)?.label || mount.runner_id)}</strong><span>${esc(mount.workspace)}</span></div><div>${button("编辑", `edit-mount:${index}`, "quiet", locked)}${button("移除", `remove-mount:${index}`, "quiet", locked)}</div></div>`,
+    )
+    .join("");
+  const mountEditor = resource.mount
+    ? `<form id="agent-resource-editor" novalidate class="agent-resource-editor"><h3>${resource.index < 0 ? "添加资源目录" : "编辑资源目录"}</h3><div class="agent-field-pair"><div class="agent-field"><label for="agent-action-runner">Runner</label><select id="agent-action-runner" data-resource-field="runner_id" ${locked ? "disabled" : ""}><option value="">选择 Runner</option>${runnerChoices.map((runner) => `<option value="${runner.id}" ${runner.id === resource.mount.runner_id ? "selected" : ""}>${runner.label}</option>`).join("")}</select></div><div class="agent-field"><label for="agent-action-workspace">资源目录名</label><input id="agent-action-workspace" data-resource-field="workspace" value="${esc(resource.mount.workspace)}" ${locked ? "disabled" : ""} placeholder="例如 workspace-1"></div></div><div class="agent-resource-editor-actions">${button("取消", "cancel-mount", "quiet", !!state.busy || !!state.pending)}<button type="submit" class="button primary" data-agent-action="confirm-mount" ${locked ? "disabled" : ""}>确认保存</button></div></form>`
+    : button(
+        "添加资源目录",
+        "add-mount",
+        "",
+        locked || current.runnerMounts.length >= 128,
+      );
+  const allSecrets = [
+    ...secretChoices,
+    ...current.secretIDs
+      .filter((id) => !secretChoices.some((choice) => choice.id === id))
+      .map((id) => ({ id, label: `已配置 Secret Variable · ${id}` })),
+  ];
+  const skills = `<p class="agent-section-note">分配项目技能；禁用保留分配记录，撤销不会删除技能包。</p>${current.skills.length ? current.skills.map((skill) => `<div class="agent-skill-row"><div><strong>${esc(skillChoices.find((choice) => choice.id === skill.skillID)?.name || skill.skillID)}</strong><span>${skill.enabled ? "已启用" : "已禁用"}</span></div>${button(skill.enabled ? "禁用" : "启用", `skill-${skill.enabled ? "disable" : "enable"}:${skill.id}`, "quiet", locked)}${button("撤销分配", `skill-remove:${skill.id}`, "quiet", locked)}</div>`).join("") : '<p class="agent-muted-line">尚未分配项目技能。</p>'}${button("分配项目技能", "skill-assign", "", locked)}`;
+  const feedbackActions =
+    resource.status === "unknown"
+      ? button("查询原资源操作", "lookup")
+      : resource.failed && !edit.conflict
+        ? button("重试此操作", "resource-retry", "", locked)
+        : "";
+  return `<div class="agent-detail-content" id="agent-tab-panel" role="tabpanel" aria-labelledby="agent-tab-resources">${readOnly(ctx) ? notice("当前项目为只读", "资源可以阅读，修改暂不可用。") : ""}${edit.conflict ? notice("配置已有新版本", "基本配置草稿已保留。请取消编辑并重新读取后再修改。", button("取消编辑并重读", "conflict-read")) : ""}<div id="agent-resource-feedback" class="agent-resource-feedback" role="status" ${resource.message ? "" : "hidden"} data-status="${resource.status}"><span>${esc(resource.message)}</span>${feedbackActions}</div>${gate(ctx, "Agent 资源") || `<section class="agent-resource-groups">${disclosure("runners", "Runner 与资源目录", current.runnerMounts.length ? `${current.runnerMounts.length} 项资源目录` : "未配置", `<p class="agent-section-note">每项资源目录确认后保存。移除配置不会删除目录。</p>${mountRows}${mountEditor}`, edit)}${disclosure("secrets", "Secret Variable 白名单", current.secretIDs.length ? `${current.secretIDs.length} 项已选择` : "未选择", `<p class="agent-section-note">选择后保存，仅授权此 Agent 使用，不显示凭据内容。</p>${allSecrets.map((secret) => `<label class="agent-check-row"><input type="checkbox" data-secret="${secret.id}" ${current.secretIDs.includes(secret.id) ? "checked" : ""} ${locked ? "disabled" : ""}><span>${esc(secret.label)}</span></label>`).join("")}`, edit)}${disclosure("tools", "Tool 引用", "只读配置引用", `<p class="agent-section-note">${current.allowedToolIDs.length ? current.allowedToolIDs.map(esc).join(" · ") : "当前配置没有额外 Tool 引用。"}</p>`, edit)}${disclosure("skills", "项目技能", "独立管理技能分配", skills, edit)}</section>${records(current)}`}</div>`;
+}
+function resourceAction(ctx, action) {
+  const state = local(ctx),
+    current = state.agents.find((agent) => agent.id === agentID(ctx));
+  const resource = resourceState(state, current.id),
+    edit = draftFor(ctx, state);
+  if (readOnly(ctx) || state.pending || state.busy || edit.conflict) return;
+  if (action === "resource-retry" && resource.failed) {
+    const failed = resource.failed;
+    return submitResource(ctx, failed.field, failed.payload, failed.label);
+  }
+  if (action === "cancel-mount") {
+    resource.mount = null;
+    return refresh(ctx, '[data-agent-action="add-mount"]');
+  }
+  if (action === "add-mount" || action.startsWith("edit-mount:")) {
+    resource.index = action === "add-mount" ? -1 : Number(action.split(":")[1]);
+    resource.mount =
+      resource.index < 0
+        ? { runner_id: "", workspace: "" }
+        : copy(current.runnerMounts[resource.index]);
+    return refresh(ctx, '[data-select-for="agent-action-runner"]');
+  }
+  if (action.startsWith("remove-mount:")) {
+    const mounts = copy(current.runnerMounts);
+    mounts.splice(Number(action.split(":")[1]), 1);
+    return submitResource(ctx, "runnerMounts", mounts, "资源目录");
+  }
+  if (action === "confirm-mount" && resource.mount) {
+    const mounts = copy(current.runnerMounts);
+    if (resource.index < 0) mounts.push(copy(resource.mount));
+    else mounts[resource.index] = copy(resource.mount);
+    const error = validation({
+      ...basicSnapshot(current),
+      runnerMounts: mounts,
+    });
+    if (error) {
+      resource.status = "error";
+      resource.message = error[1];
+      return refresh(
+        ctx,
+        resource.mount.runner_id
+          ? "#agent-action-workspace"
+          : '[data-select-for="agent-action-runner"]',
+      );
+    }
+    return submitResource(ctx, "runnerMounts", mounts, "资源目录");
+  }
+}
+function submitResource(ctx, field, payload, labelText) {
+  const state = local(ctx),
+    current = state.agents.find((agent) => agent.id === agentID(ctx));
+  const edit = draftFor(ctx, state),
+    resource = resourceState(state, current.id);
+  if (readOnly(ctx) || state.pending || state.busy || edit.conflict) return;
+  const command = {
+    project: scopeFor(ctx),
+    agent: current.id,
+    field,
+    payload: copy(payload),
+    expectedVersion: current.version,
+    key: crypto.randomUUID(),
+    label: labelText,
+  };
+  state.busy = command;
+  resource.failed = null;
+  resource.status = "pending";
+  resource.message = `正在保存${labelText}…`;
+  refresh(ctx);
+  setTimeout(() => {
+    if (state.busy !== command) return;
+    state.busy = null;
+    const outcome = ctx.params.get("resource_result") || "success";
+    if (outcome === "unknown") {
+      state.pending = {
+        kind: "resource",
+        agent: current.id,
+        original: command,
+        observation: "",
+      };
+      resource.status = "unknown";
+      resource.message = `${labelText}的保存结果待确认，原操作已保留。`;
+    } else if (outcome === "error") {
+      resource.status = "error";
+      resource.message = `${labelText}未保存，请重试此操作。`;
+      resource.failed = command;
+    } else if (
+      outcome === "conflict" ||
+      current.version !== command.expectedVersion
+    ) {
+      if (outcome === "conflict") {
+        current.description += "（已更新协作范围）";
+        current.version = String(Number(current.version) + 1);
+      }
+      edit.conflict = true;
+      resource.status = "error";
+      resource.message =
+        "配置已有新版本，此次资源操作未保存。基本配置草稿已保留。";
+      resource.failed = command;
+    } else {
+      const changed = !same(current[field], command.payload);
+      const next = copy(current);
+      next[field] = copy(command.payload);
+      next.version = String(
+        Number(current.version) +
+          (changed ? 1 : 0) +
+          (outcome === "version_jump" ? 1 : 0),
+      );
+      // A Skills receipt carries only a version; the local configuration reread below supplies the baseline check.
+      const receiptVersion = next.version;
+      Object.assign(current, next);
+      const verified =
+        edit.baseVersion === command.expectedVersion &&
+        same(edit.baseSnapshot, basicSnapshot(current)) &&
+        receiptVersion ===
+          String(Number(command.expectedVersion) + (changed ? 1 : 0));
+      if (verified) {
+        edit.baseVersion = receiptVersion;
+        edit.baseSnapshot = copy(basicSnapshot(current));
+      } else edit.conflict = true;
+      resource.status = verified ? "success" : "error";
+      resource.message = verified
+        ? changed
+          ? `${labelText}已保存。`
+          : `${labelText}未改变。`
+        : "资源结果已返回，但配置版本需要核对。基本配置草稿已保留。";
+      if (field === "runnerMounts") resource.mount = null;
+    }
+    const here = new URLSearchParams(location.search);
+    if (
+      here.get("page") === "agents" &&
+      here.get("agent") === current.id &&
+      here.get("view") === "resources"
+    ) {
+      const focus =
+        field === "runnerMounts"
+          ? resource.mount
+            ? "#agent-action-workspace"
+            : '[data-agent-action="add-mount"]'
+          : field === "skills"
+            ? '[data-agent-action="skill-assign"]'
+            : `[data-secret="${command.payload.find((id) => !secretChoices.some((choice) => choice.id === id)) || secretChoices[0].id}"]`;
+      refresh(ctx, focus);
+    } else ctx.render();
+  }, 400);
 }
 function memory(ctx, state, current) {
   const records = ctx.scenario === "empty" ? [] : current.memories;
@@ -377,7 +615,7 @@ function render(ctx) {
   if ((id !== "new" && !current) || ctx.scenario === "missing")
     return `<section class="agent-page">${heading("Agent 不可用", "此 Agent 不存在，或当前身份无法访问。", "", backLink(ctx, "Agent"))}<section class="agent-state">${button("返回 Agent 列表", "list")}</section></section>`;
   const creating = id === "new";
-  return `<section class="agent-page agent-object-page">${heading(creating ? "创建 Agent" : label(current), creating ? "设置这个 Agent 的身份、指令与执行配置。" : current.description, "", backLink(ctx, "Agent"))}${tabs(ctx)}${isMemory(ctx) && current ? memory(ctx, state, current) : configuration(ctx, state, current)}</section>`;
+  return `<section class="agent-page agent-object-page">${heading(creating ? "创建 Agent" : label(current), creating ? "设置这个 Agent 的身份、指令与执行配置。" : current.description, "", backLink(ctx, "Agent"))}${tabs(ctx)}${isMemory(ctx) && current ? memory(ctx, state, current) : tabFor(ctx) === "resources" && current ? resources(ctx, state, current) : configuration(ctx, state, current)}</section>`;
 }
 function confirm(title, description, accepted, action = "放弃修改") {
   showDialog(
@@ -406,7 +644,9 @@ function markDirty(ctx, key) {
   edit.error = null;
   clearFieldErrors();
   const save = document.getElementById("agent-save");
-  if (save) save.disabled = readOnly(ctx) || !!state.pending || edit.conflict;
+  if (save)
+    save.disabled =
+      readOnly(ctx) || !!state.pending || !!state.busy || edit.conflict;
   const note = document.getElementById("agent-dirty-state");
   if (note) note.textContent = "有未保存的修改";
   const feedback = document.getElementById("agent-form-feedback");
@@ -510,21 +750,22 @@ function validation(value) {
   )
     return ["approvalModelID", "模型自动审批需要选择审批模型。"];
   if (
-    value.runnerMounts.length > 128 ||
-    new Set(
-      value.runnerMounts.map(
-        (mount) => `${mount.runner_id}/${mount.workspace}`,
-      ),
-    ).size !== value.runnerMounts.length ||
-    value.runnerMounts.some(
-      (mount) =>
-        !mount.runner_id ||
-        !/^[A-Za-z0-9_-][A-Za-z0-9_.-]{0,254}$/.test(mount.workspace) ||
-        mount.workspace.endsWith(".") ||
-        /^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$/i.test(
-          mount.workspace.split(".")[0],
+    value.runnerMounts &&
+    (value.runnerMounts.length > 128 ||
+      new Set(
+        value.runnerMounts.map(
+          (mount) => `${mount.runner_id}/${mount.workspace}`,
         ),
-    )
+      ).size !== value.runnerMounts.length ||
+      value.runnerMounts.some(
+        (mount) =>
+          !mount.runner_id ||
+          !/^[A-Za-z0-9_-][A-Za-z0-9_.-]{0,254}$/.test(mount.workspace) ||
+          mount.workspace.endsWith(".") ||
+          /^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$/i.test(
+            mount.workspace.split(".")[0],
+          ),
+      ))
   )
     return [
       "runnerMounts",
@@ -646,6 +887,17 @@ function bind(ctx) {
   root.querySelectorAll("[data-secret]").forEach(
     (field) =>
       (field.onchange = () => {
+        if (id !== "new") {
+          const selected = new Set(current.secretIDs);
+          if (field.checked) selected.add(field.dataset.secret);
+          else selected.delete(field.dataset.secret);
+          return submitResource(
+            ctx,
+            "secretIDs",
+            [...selected],
+            "Secret 白名单",
+          );
+        }
         const edit = draftFor(ctx, state);
         edit.value.secretIDs = [
           ...root.querySelectorAll("[data-secret]:checked"),
@@ -653,13 +905,42 @@ function bind(ctx) {
         markDirty(ctx, "secretIDs");
       }),
   );
+  root.querySelectorAll("[data-resource-field]").forEach((field) => {
+    field.addEventListener(
+      field.tagName === "SELECT" ? "change" : "input",
+      () => {
+        resourceState(state, id).mount[field.dataset.resourceField] =
+          field.value;
+      },
+    );
+  });
+  root
+    .querySelector("#agent-resource-editor")
+    ?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      handleAction(ctx, "confirm-mount", event.submitter);
+    });
   root
     .querySelector("#agent-configuration-form")
     ?.addEventListener("submit", (event) => {
       event.preventDefault();
       const edit = draftFor(ctx, state);
-      if (readOnly(ctx) || state.pending || edit.conflict || !edit.touched.size)
+      if (
+        readOnly(ctx) ||
+        state.pending ||
+        state.busy ||
+        edit.conflict ||
+        !edit.touched.size
+      )
         return;
+      if (
+        id !== "new" &&
+        (current.version !== edit.baseVersion ||
+          !same(basicSnapshot(current), edit.baseSnapshot))
+      ) {
+        edit.conflict = true;
+        return refresh(ctx, "#agent-page-title");
+      }
       clearFieldErrors();
       const error = validation(edit.value);
       if (error) {
@@ -675,7 +956,7 @@ function bind(ctx) {
         return;
       }
       const value = copy(edit.value);
-      value.version = String(Number(value.version) + 1);
+      value.version = String(Number(edit.baseVersion) + 1);
       value.updatedAt = new Date().toISOString();
       if (id === "new") {
         value.id = `agent-${crypto.randomUUID()}`;
@@ -709,19 +990,22 @@ function bind(ctx) {
         for (const field of edit.touched) current[field] = copy(value[field]);
         current.version = value.version;
         current.updatedAt = value.updatedAt;
-        edit.value = copy(current);
+        edit.value = copy(basicSnapshot(current));
+        edit.baseSnapshot = copy(basicSnapshot(current));
+        edit.baseVersion = current.version;
         edit.touched.clear();
         edit.message = "配置已保存。";
         refresh(ctx, "#agent-save");
       }
     });
-  root
-    .querySelectorAll("[data-agent-action]")
-    .forEach(
-      (control) =>
-        (control.onclick = () =>
-          handleAction(ctx, control.dataset.agentAction, control)),
-    );
+  root.querySelectorAll("[data-agent-action]").forEach(
+    (control) =>
+      (control.onclick = (event) => {
+        if (control.dataset.agentAction === "confirm-mount")
+          event.preventDefault();
+        handleAction(ctx, control.dataset.agentAction, control);
+      }),
+  );
 }
 function handleAction(ctx, action, trigger) {
   const state = local(ctx),
@@ -733,7 +1017,11 @@ function handleAction(ctx, action, trigger) {
   if (action === "original")
     return ctx.navigate("agents", {
       agent: state.pending.agent,
-      ...(state.pending.kind === "memory" ? { view: "memory" } : {}),
+      ...(state.pending.kind === "memory"
+        ? { view: "memory" }
+        : state.pending.kind === "resource"
+          ? { view: "resources" }
+          : {}),
     });
   if (action === "retry") return ctx.setScenario("normal");
   if (action === "refresh") {
@@ -748,6 +1036,11 @@ function handleAction(ctx, action, trigger) {
   }
   if (action === "lookup") {
     if (state.pending) state.pending.observation = "not_observed";
+    const resource = state.resources[state.pending?.agent];
+    if (state.pending?.kind === "resource" && resource) {
+      resource.message = "尚未观察到可确认结果，原资源操作继续保留。";
+      return refresh(ctx, '[data-agent-action="lookup"]');
+    }
     const node = document.querySelector(".agent-notice p");
     if (node) node.textContent = "尚未观察到可确认结果，原请求继续保留。";
     return;
@@ -775,6 +1068,17 @@ function handleAction(ctx, action, trigger) {
       );
     else reset();
     return;
+  }
+  if (
+    id !== "new" &&
+    (action === "add-mount" ||
+      action === "cancel-mount" ||
+      action === "confirm-mount" ||
+      action === "resource-retry" ||
+      action.startsWith("edit-mount:") ||
+      action.startsWith("remove-mount:"))
+  ) {
+    return resourceAction(ctx, action);
   }
   if (action === "add-mount") {
     edit.value.runnerMounts.push({ runner_id: "", workspace: "" });
@@ -819,7 +1123,7 @@ function skillAction(ctx, action, trigger) {
   const state = local(ctx),
     current = state.agents.find((agent) => agent.id === agentID(ctx)),
     edit = draftFor(ctx, state);
-  if (readOnly(ctx) || state.pending || edit.touched.size) return;
+  if (readOnly(ctx) || state.pending || state.busy || edit.conflict) return;
   if (action === "skill-assign")
     return showMenu(
       trigger,
@@ -849,19 +1153,21 @@ function skillAction(ctx, action, trigger) {
         ? "仅撤销此 Agent 的分配，项目技能包仍保留。"
         : "此操作修改当前 Agent 的技能分配，不会启动执行。",
       () => {
+        const skills = copy(current.skills);
         if (kind === "assign")
-          current.skills.push({
+          skills.push({
             id: `assignment-${item}`,
             skillID: item,
             enabled: true,
           });
         else if (kind === "remove")
-          current.skills = current.skills.filter((skill) => skill.id !== item);
-        else assignment.enabled = kind === "enable";
-        current.version = String(Number(current.version) + 1);
-        edit.value = copy(current);
-        edit.message = "技能分配已更新。";
-        refresh(ctx, '[data-agent-action="skill-assign"]');
+          skills.splice(
+            skills.findIndex((skill) => skill.id === item),
+            1,
+          );
+        else
+          skills.find((skill) => skill.id === item).enabled = kind === "enable";
+        submitResource(ctx, "skills", skills, "项目技能");
       },
       "确认",
     );
@@ -940,7 +1246,7 @@ function beforeLeave(ctx, proceed, target) {
     id
   )
     return false;
-  const pending = state.pending?.agent === id;
+  const pending = state.pending?.agent === id || state.busy?.agent === id;
   if (!edit?.touched.size && !edit?.conflict && !pending) return false;
   if (state.leaving) return true;
   state.leaving = true;
@@ -969,7 +1275,8 @@ function beforeUnload(ctx) {
   return (
     !!state.edits[agentID(ctx)]?.touched.size ||
     !!state.edits[agentID(ctx)]?.conflict ||
-    !!state.pending
+    !!state.pending ||
+    !!state.busy
   );
 }
 export const agentPages = {
