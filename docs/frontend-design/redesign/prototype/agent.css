@@ -20,18 +20,18 @@
   gap: 8px;
   flex: none;
 }
-.agent-heading p {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 8px 13px;
+.agent-back-navigation {
+  margin-bottom: 14px;
 }
 .agent-back {
   display: inline-flex;
-  gap: 4px;
+  gap: 5px;
   align-items: center;
+  min-height: 28px;
+  border-radius: 3px;
   color: var(--muted);
-  font-size: inherit;
+  font-size: 12px;
+  line-height: 20px;
   text-decoration: none;
 }
 .agent-back:hover {
@@ -537,6 +537,9 @@
   cursor: pointer;
 }
 @media (max-width: 760px) {
+  .agent-back {
+    min-height: 32px;
+  }
   .agent-heading {
     gap: 12px;
   }
