@@ -301,6 +301,8 @@ meeting:{meeting_id}:contribution:{contribution_id}:generation:{g}:attempt:{a}
 
 前提是同键同语义输入；不同语义由 Executor 拒绝，一致重放不重新竞争 slot。键格式只是概念示例，精确作用域/比较由 D01/D22/D24 固定。
 
+正式边界的 attempt 使用正整数，概念 `attempt_index` 与持久化/HTTP/Lineage 的映射统一见 [Contribution Execution 关联](./meeting-domain-model.md#10-agent-execution-references)。首发及新 generation 从 `attempt=1` 开始；不能以概念的 `0` 替换已持久化的 Launch identity。
+
 如果前一次尝试只得到 `AgentBusy`，该 idempotency key 尚未对应任何新 Execution；后续等待结束后的 Launch retry 继续复用同一个 key。第一次成功创建后，再次重放才返回该稳定 Execution。
 
 ### 8.2 Agent Busy / waiting_for_agent

@@ -70,7 +70,7 @@ func (s *Service) ownerReadTx(ctx context.Context, actor id.Actor, project id.Pr
 		return invalid()
 	}
 	if actor.Details().Kind == id.AgentRun {
-		return fault(f.DependencyUnbound)
+		return s.runtimePackageReadTx(ctx, actor, project, work, targets)
 	}
 	if actor.Details().Kind != id.Human {
 		return fault(f.Forbidden)

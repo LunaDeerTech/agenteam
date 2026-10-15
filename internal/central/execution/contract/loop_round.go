@@ -44,7 +44,11 @@ func (v LoopRoundFields) Validate() error {
 		return invalid()
 	}
 	if v.Ordinal == 1 {
-		if v.Predecessor != nil || v.TranscriptStart != 1 || r.Input.SchemaVersion != 4 || v.Choice != (mc.ToolChoice{Kind: "required"}) {
+		// This value has no source authority. Execution validates an initial
+		// auto choice against the original captured Meeting, and the database
+		// independently checks its immutable launch source. Existing required
+		// rounds retain the same canonical bytes.
+		if v.Predecessor != nil || v.TranscriptStart != 1 || r.Input.SchemaVersion != mc.ToolInputSchemaVersion || (v.Choice != (mc.ToolChoice{Kind: "required"}) && v.Choice != (mc.ToolChoice{Kind: "auto"})) {
 			return invalid()
 		}
 	} else if v.Predecessor == nil || v.Predecessor.Validate() != nil || *v.Predecessor == r.ID || r.Input.SchemaVersion != mc.SuccessorInputSchemaVersion || v.Choice != (mc.ToolChoice{Kind: "auto"}) {
@@ -69,15 +73,33 @@ type LoopRound struct {
 	data func() (LoopRoundFields, []byte, f.Digest)
 }
 
+// Message persistence must preserve the formal MCPFile identity. This explicit
+// wire projection leaves public BusinessFileRef JSON redacted and changes no
+// source authority or round budget. The outer canonical encoding is unchanged.
+type loopRoundFieldsAlias LoopRoundFields
+type loopDirectRoundAlias DirectTextRoundFields
+type loopDirectRoundWire struct {
+	loopDirectRoundAlias
+	Messages json.RawMessage `json:"messages"`
+}
+type loopRoundFieldsWire struct {
+	loopRoundFieldsAlias
+	Round loopDirectRoundWire `json:"round"`
+}
+
 func NewLoopRound(v LoopRoundFields) (LoopRound, error) {
 	if v.Validate() != nil {
 		return LoopRound{}, invalid()
 	}
 	v = v.Clone()
+	messages, err := mc.EncodeCanonicalMessages(v.Round.Messages)
+	if err != nil {
+		return LoopRound{}, invalid()
+	}
 	raw, err := json.Marshal(struct {
-		Schema f.Version       `json:"schema_version"`
-		Fields LoopRoundFields `json:"fields"`
-	}{LoopRoundSchemaVersion, v})
+		Schema f.Version           `json:"schema_version"`
+		Fields loopRoundFieldsWire `json:"fields"`
+	}{LoopRoundSchemaVersion, loopRoundFieldsWire{loopRoundFieldsAlias(v), loopDirectRoundWire{loopDirectRoundAlias(v.Round), messages}}})
 	if err != nil || len(raw) > MaxDirectTextRoundBytes {
 		return LoopRound{}, invalid()
 	}
@@ -117,13 +139,20 @@ func (v LoopRound) Digest() f.Digest {
 }
 func DecodeLoopRound(raw []byte) (LoopRound, error) {
 	var wire struct {
-		Schema f.Version       `json:"schema_version"`
-		Fields LoopRoundFields `json:"fields"`
+		Schema f.Version           `json:"schema_version"`
+		Fields loopRoundFieldsWire `json:"fields"`
 	}
 	if len(raw) > MaxDirectTextRoundBytes || directTextDecode(raw, &wire) != nil || wire.Schema != LoopRoundSchemaVersion {
 		return LoopRound{}, invalid()
 	}
-	v, err := NewLoopRound(wire.Fields)
+	fields := LoopRoundFields(wire.Fields.loopRoundFieldsAlias)
+	fields.Round = DirectTextRoundFields(wire.Fields.Round.loopDirectRoundAlias)
+	messages, err := mc.DecodeCanonicalMessages(wire.Fields.Round.Messages)
+	if err != nil {
+		return LoopRound{}, invalid()
+	}
+	fields.Round.Messages = messages
+	v, err := NewLoopRound(fields)
 	if err != nil || !bytes.Equal(v.CanonicalBytes(), raw) {
 		return LoopRound{}, invalid()
 	}

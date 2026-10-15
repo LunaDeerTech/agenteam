@@ -16,14 +16,19 @@ import (
 func (a *Authority) checkObjectAuditInTx(ctx context.Context, tx foundation.Tx, entry audit.Entry, key audit.AppendKey) error {
 	f, k := entry.Fields(), key.Details()
 	actor := f.Actor.Details()
-	if f.Action != audit.ObjectUploadComplete && f.Action != audit.ObjectUploadFailed && f.Action != audit.ObjectDelete {
+	transfer := f.Action == audit.ObjectTransferIssue || f.Action == audit.ObjectTransferComplete || f.Action == audit.ObjectTransferRevoke
+	if !transfer && f.Action != audit.ObjectUploadComplete && f.Action != audit.ObjectUploadFailed && f.Action != audit.ObjectDelete {
 		return fault(foundation.DependencyUnbound)
 	}
-	if actor.Kind != identity.Service || actor.ServiceName != identity.ObjectService || actor.ProjectID != f.Scope.Details().ProjectID || actor.CauseRef != k.CauseRef || f.Resource.Details().Kind != audit.ObjectResource || f.Associations != (audit.Associations{}) {
+	resourceKind := audit.ObjectResource
+	if transfer {
+		resourceKind = audit.ObjectTransferResource
+	}
+	if actor.Kind != identity.Service || actor.ServiceName != identity.ObjectService || actor.ProjectID != f.Scope.Details().ProjectID || actor.CauseRef != k.CauseRef || f.Resource.Details().Kind != resourceKind || f.Associations != (audit.Associations{}) {
 		return fault(foundation.Forbidden)
 	}
 	switch f.Action {
-	case audit.ObjectUploadComplete:
+	case audit.ObjectUploadComplete, audit.ObjectTransferIssue:
 		if f.Outcome != audit.Success || k.Ordinal != 0 {
 			return fault(foundation.Forbidden)
 		}
@@ -31,8 +36,12 @@ func (a *Authority) checkObjectAuditInTx(ctx context.Context, tx foundation.Tx, 
 		if f.Outcome != audit.Unknown || k.Ordinal > 1 {
 			return fault(foundation.Forbidden)
 		}
-	case audit.ObjectDelete:
+	case audit.ObjectDelete, audit.ObjectTransferComplete:
 		if f.Outcome != audit.Success || k.Ordinal != 1 {
+			return fault(foundation.Forbidden)
+		}
+	case audit.ObjectTransferRevoke:
+		if f.Outcome != audit.Success || k.Ordinal != 2 {
 			return fault(foundation.Forbidden)
 		}
 	default:
@@ -61,7 +70,7 @@ func (a *Authority) checkObjectAuditInTx(ctx context.Context, tx foundation.Tx, 
 		// its objects just because the actor is registered as ObjectService.
 		return fault(foundation.ProjectNotActive)
 	}
-	if f.Action == audit.ObjectUploadComplete {
+	if f.Action == audit.ObjectUploadComplete || f.Action == audit.ObjectTransferIssue {
 		if err = c.CheckOwnerGate(p.ref.Lifecycle, c.Initialized, identity.Mutate); err != nil {
 			return err
 		}
@@ -70,8 +79,9 @@ func (a *Authority) checkObjectAuditInTx(ctx context.Context, tx foundation.Tx, 
 	if nilPort(provider) {
 		return fault(foundation.DependencyUnbound)
 	}
-	// Failure/deletion may converge existing facts after archive/delete begins.
-	// Only the real Object checker can prove those facts; this is not a grant
-	// of ordinary Owner Converge, a transfer route, or a lifecycle participant.
+	// Failure/deletion and completed/revoked transfers may converge existing
+	// facts after archive/delete begins. The original Object checker must prove
+	// its live Tx, exact original transfer and durable postimage; these fields
+	// alone never grant new I/O or general-purpose Owner convergence.
 	return portError(provider.CheckProjectAuditInTx(ctx, tx, entry, key))
 }

@@ -60,7 +60,7 @@ func (r *Runtime) usageOuter(ctx context.Context) (context.Context, *runtimeUsag
 }
 
 func runtimeUsageRequestBinding(request mc.ModelRequest) (f.Digest, error) {
-	if request.Validate() != nil {
+	if request.ValidateInvocation() != nil {
 		return "", fault(f.InvalidArgument)
 	}
 	raw, err := encoded(struct {

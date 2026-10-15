@@ -14,7 +14,7 @@ func (e *BuiltinExecutor) beginLookup(ctx context.Context, b tc.ToolCallBinding)
 	if err := contextError(ctx); err != nil {
 		return nil, nil, err
 	}
-	if e == nil || b.Validate() != nil || !tc.WorkArtifactBuiltinBinding(b.Binding) {
+	if e == nil || b.Validate() != nil || !directToolBinding(b) {
 		return nil, nil, fail(f.InvalidArgument)
 	}
 	e.mu.Lock()
@@ -103,7 +103,7 @@ func (e *BuiltinExecutor) retireObserved(observed *builtinCall) {
 	}
 	// observe() validated the exact immutable terminal. A retained start
 	// without an actual domain return cannot be discharged by another actor.
-	if old.terminal == nil || observed.terminal == nil || *old.terminal != *observed.terminal {
+	if old.backendPending || old.terminal == nil || observed.terminal == nil || *old.terminal != *observed.terminal {
 		return
 	}
 	clear(old.arguments)
@@ -229,7 +229,10 @@ func (e *BuiltinExecutor) WithRunnerResultInTx(ctx context.Context, tx f.Tx, pla
 		if !sameRunnerResultBinding(binding, p.result) {
 			return fail(f.ConfirmationStale)
 		}
-		part := mc.ToolResultPart{CallID: p.call.CallID, IsError: terminal.Outcome != "success", Parts: []mc.ResultPart{{Text: &mc.TextPart{Text: string(body)}}}}
+		part, err := e.resultPart(p.call, terminal, body)
+		if err != nil {
+			return err
+		}
 		return consume(current, binding, part)
 	})
 }

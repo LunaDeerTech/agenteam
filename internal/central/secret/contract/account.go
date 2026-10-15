@@ -250,7 +250,7 @@ type UsageRequest struct {
 	LeaseID        LeaseID
 	Action         UsageAction
 	Retain         bool
-	RequestID      string // Exact Model Invocation UUID; not a transport trace or lease owner.
+	RequestID      string // Exact Model Invocation or MCP attempt UUID; never a transport trace.
 }
 
 func (r UsageRequest) Validate() error {
@@ -271,7 +271,9 @@ func (r UsageRequest) Validate() error {
 	}
 	modelRead := r.Action == ReadLeaseUsage && r.Purpose == Model &&
 		(r.LeaseOwner.Details().Kind == ExecutionOwner || r.LeaseOwner.Details().Kind == ModelCallOwner)
-	if modelRead && !validID(r.RequestID) || !modelRead && r.RequestID != "" {
+	mcpRead := r.Action == ReadLeaseUsage && r.Purpose == MCP &&
+		(r.LeaseOwner.Details().Kind == ExecutionOwner || r.LeaseOwner.Details().Kind == MCPConnectionRequestOwner)
+	if modelRead && !validID(r.RequestID) || mcpRead && r.RequestID != "" && !validID(r.RequestID) || !modelRead && !mcpRead && r.RequestID != "" {
 		return bad()
 	}
 	return nil

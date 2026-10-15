@@ -18,6 +18,10 @@ import (
 
 const OpenAIEmbeddingsFloatRevision = "openai-embeddings-float-v1"
 
+// V2 preserves the v1 wire profile and additionally accepts a provider-supplied
+// literal integer completion_tokens=0. V1 snapshots retain their strict parser.
+const OpenAIEmbeddingsFloatUsageRevision = "openai-embeddings-float-v2"
+
 const (
 	embeddingMaxItems       = 128
 	embeddingMaxDimensions  = 4096
@@ -110,11 +114,12 @@ func (*OpenAIEmbeddings) LogValue() slog.Value { return slog.StringValue("model_
 // embeddingPrepared owns an encoded request, not a dispatched exchange.
 // Construction, admission and transport are separate from this pure boundary.
 type embeddingPrepared struct {
-	request       *http.Request
-	profile       outbound.Profile
-	count         int
-	dimensions    int
-	responseBytes int64
+	request             *http.Request
+	profile             outbound.Profile
+	count               int
+	dimensions          int
+	responseBytes       int64
+	zeroCompletionUsage bool
 }
 
 func embeddingShape(n, dimensions int) bool {
@@ -137,7 +142,7 @@ func prepareEmbeddings(ctx context.Context, r EmbeddingRequest, o CallOptions) (
 	}
 	s, c := r.Snapshot.Identity, r.Snapshot.Capabilities
 	if s.Protocol != mc.OpenAIEmbeddings || s.Profile != mc.OpenAIEmbeddingsV1 ||
-		s.ModelType != mc.EmbeddingModel || s.AdapterRevision != OpenAIEmbeddingsFloatRevision ||
+		s.ModelType != mc.EmbeddingModel || s.AdapterRevision != OpenAIEmbeddingsFloatRevision && s.AdapterRevision != OpenAIEmbeddingsFloatUsageRevision ||
 		!onlyText(c.InputModalities) || len(c.OutputModalities) != 1 || c.OutputModalities[0] != "vector" ||
 		c.Streaming || c.ToolCalls || c.ParallelToolCalls || c.Reasoning || len(c.ReasoningEfforts) != 0 ||
 		len(c.StructuredOutputModes) != 0 || c.MaxOutput != nil ||
@@ -269,7 +274,7 @@ func prepareEmbeddings(ctx context.Context, r EmbeddingRequest, o CallOptions) (
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
 	req.Close = true
-	return embeddingPrepared{req, profile, len(r.Texts), r.ExpectedDimensions, responseCap}, nil
+	return embeddingPrepared{req, profile, len(r.Texts), r.ExpectedDimensions, responseCap, s.AdapterRevision == OpenAIEmbeddingsFloatUsageRevision}, nil
 }
 
 func embeddingQuotedSize(ctx context.Context, s string) (int, error) {

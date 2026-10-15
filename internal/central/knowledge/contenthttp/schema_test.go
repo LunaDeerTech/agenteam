@@ -65,6 +65,31 @@ func TestContentHTTPActualSchema(t *testing.T) {
 		}
 		cases = append(cases, vector{string(code), "common.json", "Problem", value, true})
 	}
+	for _, status := range []kc.ReadableUnavailable{kc.ReadableProcessing, kc.ReadableFailed} {
+		h, _, p := testHandler()
+		p.content.Document.SourceKind, p.content.Document.MediaType = kc.File, kc.PDF
+		p.content.Text, p.content.Unavailable = nil, &status
+		w := newTestWriter()
+		if serveTest(h, httptest.NewRequest("GET", testPath(), nil), w) || w.Code != 200 {
+			t.Fatal("current parser state did not encode")
+		}
+		var value any
+		if json.Unmarshal(w.Body.Bytes(), &value) != nil {
+			t.Fatal("bad parser state JSON")
+		}
+		cases = append(cases, vector{string(status), "", "Content", value, true})
+	}
+	h, _, p := testHandler()
+	h.reader = &sourcePort{testPorts: p, body: &sourceBody{Reader: bytes.NewReader([]byte{0, 255, 13, 10})}}
+	w := newTestWriter()
+	if serveTest(h, httptest.NewRequest("GET", sourcePath("2"), nil), w) || w.Code != 200 {
+		t.Fatal("source did not encode")
+	}
+	var source any
+	if json.Unmarshal(w.Body.Bytes(), &source) != nil {
+		t.Fatal("bad source JSON")
+	}
+	cases = append(cases, vector{"canonical-source", "", "Source", source, true})
 	for _, kind := range []string{"object", "extra", "missing", "numeric-offset", "negative-offset", "leading-zero", "newline-offset", "union", "file-text", "unknown-unavailable"} {
 		raw, _ := json.Marshal(original)
 		var value map[string]any
@@ -93,11 +118,11 @@ func TestContentHTTPActualSchema(t *testing.T) {
 			doc["media_type"] = kc.PDF
 		case "unknown-unavailable":
 			delete(value, "text")
-			value["unavailable"] = "processing"
+			value["unavailable"] = "future"
 			doc["source_kind"] = "file"
 			doc["media_type"] = kc.PDF
 		}
-		cases = append(cases, vector{kind, "", "Content", value, false})
+		cases = append(cases, vector{kind, "", "Content", value, kind == "file-text"})
 	}
 	input, err := json.Marshal(map[string]any{"cases": cases})
 	if err != nil {

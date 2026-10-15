@@ -29,6 +29,16 @@ func objectAuditEntry(t *testing.T, x *auditGateFixture, action audit.Action, or
 	} else if action == audit.ObjectDelete {
 		fields.Phase = audit.DeletedPhase
 	}
+	if action == audit.ObjectTransferIssue || action == audit.ObjectTransferComplete || action == audit.ObjectTransferRevoke {
+		resource, _ = audit.NewResource(audit.ObjectTransferResource, cause)
+		fields.TransferID = cause
+		fields.Phase = audit.IssuedPhase
+		if action == audit.ObjectTransferComplete {
+			fields.Phase, fields.SentBytes = audit.SentPhase, fields.ByteSize
+		} else if action == audit.ObjectTransferRevoke {
+			fields.Phase = audit.RevokedPhase
+		}
+	}
 	metadata, err := audit.ObjectMetadata(action, fields)
 	if err != nil {
 		t.Fatal(err)
@@ -83,17 +93,19 @@ func TestObjectAuditGateDistinguishesNewFactFromExactConvergence(t *testing.T) {
 	x := newAuditGateFixture(t, nil)
 	calls := 0
 	a := withObjectFacts(t, x, auditFactFunc(func(context.Context, f.Tx, audit.Entry, audit.AppendKey) error { calls++; return nil }))
-	for _, action := range []audit.Action{audit.ObjectUploadComplete, audit.ObjectUploadFailed, audit.ObjectDelete} {
+	for _, action := range []audit.Action{audit.ObjectUploadComplete, audit.ObjectUploadFailed, audit.ObjectDelete, audit.ObjectTransferIssue, audit.ObjectTransferComplete, audit.ObjectTransferRevoke} {
 		ordinal := int64(0)
-		if action == audit.ObjectDelete {
+		if action == audit.ObjectDelete || action == audit.ObjectTransferComplete {
 			ordinal = 1
+		} else if action == audit.ObjectTransferRevoke {
+			ordinal = 2
 		}
 		entry, key := objectAuditEntry(t, x, action, ordinal)
 		for _, state := range []c.Lifecycle{c.Active, c.Archiving, c.Archived, c.Deleting} {
 			x.lifecycle, x.initialized = state, true
 			before := calls
 			err := a.CheckAppendInTx(context.Background(), x.store.tx, entry, key)
-			if action == audit.ObjectUploadComplete && state != c.Active {
+			if (action == audit.ObjectUploadComplete || action == audit.ObjectTransferIssue) && state != c.Active {
 				hasCode(t, err, f.ProjectNotActive)
 				if calls != before {
 					t.Fatal("new fact reached checker after gate denial")
@@ -169,17 +181,19 @@ func TestObjectAuditRealCheckerCannotBeReplacedByPublicMetadata(t *testing.T) {
 		t.Fatal(err)
 	}
 	a := withObjectFacts(t, x, checker)
-	for _, action := range []audit.Action{audit.ObjectUploadComplete, audit.ObjectUploadFailed, audit.ObjectDelete} {
+	for _, action := range []audit.Action{audit.ObjectUploadComplete, audit.ObjectUploadFailed, audit.ObjectDelete, audit.ObjectTransferIssue, audit.ObjectTransferComplete, audit.ObjectTransferRevoke} {
 		ordinal := int64(0)
-		if action == audit.ObjectDelete {
+		if action == audit.ObjectDelete || action == audit.ObjectTransferComplete {
 			ordinal = 1
+		} else if action == audit.ObjectTransferRevoke {
+			ordinal = 2
 		}
 		entry, key := objectAuditEntry(t, x, action, ordinal)
 		for _, state := range []c.Lifecycle{c.Active, c.Archived, c.Deleting} {
 			x.lifecycle = state
 			got := a.CheckAppendInTx(context.Background(), x.store.tx, entry, key)
 			code := f.Forbidden
-			if action == audit.ObjectUploadComplete && state != c.Active {
+			if (action == audit.ObjectUploadComplete || action == audit.ObjectTransferIssue) && state != c.Active {
 				code = f.ProjectNotActive
 			}
 			hasCode(t, got, code)
@@ -187,31 +201,53 @@ func TestObjectAuditRealCheckerCannotBeReplacedByPublicMetadata(t *testing.T) {
 	}
 }
 
-func TestObjectAuditDoesNotAdmitTransferAndUsesRecoveryOrdinal(t *testing.T) {
+func TestObjectAuditTransferDispatchRequiresExactStageAndPrivateProof(t *testing.T) {
 	x := newAuditGateFixture(t, nil)
+	cause := errors.New("original transfer checker")
+	unknown := f.NewFault(f.CommitUnknown, f.Unknown).WithCause(cause)
+	type marker struct{}
+	ctx := context.WithValue(context.Background(), marker{}, new(int))
+	for _, stage := range []struct {
+		action  audit.Action
+		ordinal int64
+	}{
+		{audit.ObjectTransferIssue, 0}, {audit.ObjectTransferComplete, 1}, {audit.ObjectTransferRevoke, 2},
+	} {
+		entry, key := objectAuditEntry(t, x, stage.action, stage.ordinal)
+		calls := 0
+		a := withObjectFacts(t, x, auditFactFunc(func(got context.Context, tx f.Tx, e audit.Entry, k audit.AppendKey) error {
+			calls++
+			if got != ctx || tx != x.store.tx || k.Details() != key.Details() || !e.Fields().Actor.Equal(entry.Fields().Actor) || !sameMetadata(e.Fields().Metadata, entry.Fields().Metadata) {
+				t.Fatal("original private transfer proof changed")
+			}
+			return unknown
+		}))
+		if got := a.CheckAppendInTx(ctx, x.store.tx, entry, key); got != unknown || !errors.Is(got, cause) || calls != 1 {
+			t.Fatal("transfer checker error lost", got, calls)
+		}
+		for ordinal := int64(0); ordinal < 3; ordinal++ {
+			if ordinal == stage.ordinal {
+				continue
+			}
+			wrong, _ := audit.NewAppendKey(audit.ObjectProducer, key.Details().CauseRef, ordinal)
+			hasCode(t, a.CheckAppendInTx(ctx, x.store.tx, entry, wrong), f.Forbidden)
+		}
+		fields := entry.Fields()
+		fields.Resource, _ = audit.NewResource(audit.ObjectResource, fields.Resource.Details().ID)
+		if _, err := audit.NewEntry(fields); err == nil {
+			t.Fatal("transfer entry accepted the object resource kind")
+		}
+		if calls != 1 {
+			t.Fatal("invalid transfer metadata reached checker")
+		}
+	}
+	// Recovery publication failures retain their existing separate ordinal.
+	x.lifecycle = c.Deleting
+	entry, key := objectAuditEntry(t, x, audit.ObjectUploadFailed, 1)
 	calls := 0
 	a := withObjectFacts(t, x, auditFactFunc(func(context.Context, f.Tx, audit.Entry, audit.AppendKey) error { calls++; return nil }))
-	entry, key := objectAuditEntry(t, x, audit.ObjectUploadFailed, 1)
-	x.lifecycle = c.Deleting
-	if err := a.CheckAppendInTx(context.Background(), x.store.tx, entry, key); err != nil || calls != 1 {
-		t.Fatal("exact recovery failure not dispatched", err)
-	}
-	fields := entry.Fields()
-	transfer := testID[struct{}](t).String()
-	fields.Action, fields.Outcome = audit.ObjectTransferIssue, audit.Success
-	fields.Resource, _ = audit.NewResource(audit.ObjectTransferResource, transfer)
-	var err error
-	fields.Metadata, err = audit.ObjectMetadata(fields.Action, audit.ObjectMetadataFields{ObjectID: entry.Fields().Resource.Details().ID, TransferID: transfer, InitiatorKind: identity.Human, InitiatorID: x.actor.Details().UserID, MediaType: "text/plain", ByteSize: 3, Phase: audit.IssuedPhase})
-	if err != nil {
-		t.Fatal(err)
-	}
-	entry, err = audit.NewEntry(fields)
-	if err != nil {
-		t.Fatal(err)
-	}
-	hasCode(t, a.CheckAppendInTx(context.Background(), x.store.tx, entry, key), f.DependencyUnbound)
-	if calls != 1 {
-		t.Fatal("transfer reached Object provider")
+	if err := a.CheckAppendInTx(ctx, x.store.tx, entry, key); err != nil || calls != 1 {
+		t.Fatal("recovery ordinal changed", err)
 	}
 }
 

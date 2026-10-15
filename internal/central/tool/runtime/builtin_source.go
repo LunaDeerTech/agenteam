@@ -19,7 +19,7 @@ func NewBuiltinSource(authority *BuiltinAuthority, backend BuiltinBackend) (*Bui
 		return nil, fail(f.DependencyUnbound)
 	}
 	reg := backend.Registration()
-	if !tc.WorkArtifactBuiltinBinding(reg.Binding) || reg.Validate(context.Background()) != nil || !reg.Active {
+	if !tc.DomainBuiltinBinding(reg.Binding) || reg.Validate(context.Background()) != nil || !reg.Active {
 		return nil, fail(f.InvalidArgument)
 	}
 	return &BuiltinSource{authority, backend}, nil

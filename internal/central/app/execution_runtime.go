@@ -12,8 +12,10 @@ import (
 	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	gc "github.com/LunaDeerTech/agenteam/internal/central/governance/approval/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/meeting"
 	"github.com/LunaDeerTech/agenteam/internal/central/model"
-	"github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+
 	"github.com/LunaDeerTech/agenteam/internal/central/mount"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
 	pv "github.com/LunaDeerTech/agenteam/internal/central/projectvariable"
@@ -73,21 +75,20 @@ func constructExecutionRuntime(b *executionRuntimeAssembly, cfg config.Config, d
 	if err != nil {
 		return err
 	}
-	budget := adapter.NewBudget()
-	b.add(executionRuntimeWork{stop: budget.StopAdmission, drain: budget.Drain, joined: budget.Joined})
-	wire, err := adapter.NewOpenAIChat(adapter.Transport{Policy: outbound.policy, Trust: cfg.OutboundTrust(), Resolver: outbound.resolver, ProxyRoutes: outbound.routes}, budget)
-	if err != nil {
-		return err
+	if b.mcpCapture != nil {
+		providers.tools = b.mcpCapture
 	}
-	runtime, err := model.NewRuntimeWithAgentRetry(store, a.model, model.RuntimeDependencies{
-		Usage: projects.reader, SecretReader: secrets, SecretUsage: secrets, Adapter: wire,
-	}, options.AgentRetryTiming())
-	if err != nil {
-		return err
+	if b.modelRuntime == nil {
+		if err = constructExecutionModels(b, cfg, store, a, projects, secrets, outbound); err != nil {
+			return err
+		}
 	}
-	b.add(executionRuntimeWork{stop: runtime.StopAdmission, drain: runtime.Drain, joined: runtime.Joined})
-	b.initialize = runtime.Initialize
-	loop, err := agentloop.NewDirectTextController(runtime)
+	runtime := b.modelRuntime
+	var caller mc.JSONCaller = runtime
+	if b.loopModel != nil {
+		caller = b.loopModel
+	}
+	loop, err := agentloop.NewDirectTextController(caller)
 	if err != nil {
 		return err
 	}
@@ -147,6 +148,13 @@ func constructExecutionRuntime(b *executionRuntimeAssembly, cfg config.Config, d
 	if err != nil {
 		return err
 	}
+	var meetingTrigger *meeting.Trigger
+	if a.m3 != nil {
+		meetingTrigger, err = meeting.NewTrigger(a.m3.meeting, a.execution)
+		if err != nil {
+			return err
+		}
+	}
 	capture := model.NewExecutionCapture
 	if options.ToolLoop() {
 		capture = model.NewToolCallingExecutionCapture
@@ -176,7 +184,7 @@ func constructExecutionRuntime(b *executionRuntimeAssembly, cfg config.Config, d
 		return err
 	}
 	processes := outboxProcessAuthority{process: objects.process, guard: objects.guard}
-	contextBuilder, err := execution.NewContextBuilder(work.TaskContextBuilder{})
+	contextBuilder, err := execution.NewContextBuilder(executionTriggerContexts{})
 	if err != nil {
 		return err
 	}
@@ -202,16 +210,17 @@ func constructExecutionRuntime(b *executionRuntimeAssembly, cfg config.Config, d
 	}
 	callDependencies := execution.ProjectCallDependencies{
 		Read:    b.taskReadDependencies,
-		Service: execution.Dependencies{Authority: a.execution, Agents: providers.configuration, Task: launchSource},
+		Service: execution.Dependencies{Authority: a.execution, Agents: providers.configuration, Task: launchSource, Meeting: meetingTrigger},
 		Preparation: execution.PreparationDependencies{
 			Agents: providers.configuration, Projects: projects.projects, Processes: processes,
-			Task: taskCapture, Skills: providers.skills, Tools: providers.tools, Models: modelCapture,
+			Task: taskCapture, Meeting: meetingTrigger, Skills: providers.skills, Tools: providers.tools, Models: modelCapture,
 			Environment: environment, Mounts: mounts,
 		},
 		Direct: execution.DirectTextDependencies{
 			Context: contextBuilder, Loop: loop, Processes: processes, Projects: projects.projects,
 			Agents: providers.configuration, Skills: providers.roundSkills, Events: journal, Lifecycle: events.lifecycle,
-			Models: modelRetirement, Environment: environmentRetirement, Mounts: mountUses,
+			Models: modelRetirement, Environment: environmentRetirement, Mounts: mountUses, MCP: b.mcpRetirement,
+			Realtime: b.realtime,
 		},
 		Associated: options.AssociatedExecutor(),
 	}
@@ -225,6 +234,8 @@ func constructExecutionRuntime(b *executionRuntimeAssembly, cfg config.Config, d
 		}
 		callDependencies.MultiRound = &execution.MultiRoundDependencies{
 			Models: runtime, Tools: registries[0], Guard: objects.guard,
+			MeetingDecisions:   a.m3.meeting,
+			SkillAssignments:   providers.assignments,
 			CurrentEnvironment: currentEnvironment,
 			BindTools:          b.runnerToolFactory(store, objects, providers.configuration, registries[0]),
 		}

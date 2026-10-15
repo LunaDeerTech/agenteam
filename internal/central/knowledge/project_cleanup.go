@@ -26,21 +26,22 @@ type projectCleanupParticipant struct {
 // constructs another adapter. Neither a checkpoint nor a closed SQL row can
 // replace that pair's actual returned calls.
 type ownedProjectCleanup struct {
-	refs        int
-	leafPending bool
-	locks       []f.LockRequest
-	id          f.ID[projectCleanupID]
-	actor       i.Actor
-	cause       pc.LifecycleCause
-	scope       pc.ScopeRef
-	authority   wc.ProjectCleanupAuthority
-	checkpoint  []byte
-	active      bool
-	unknown     *f.CommitResult
-	firstError  error
-	before      []projectCallRecord
-	observed    bool
-	batch       *projectCleanupBatch
+	refs         int
+	leafPending  bool
+	locks        []f.LockRequest
+	id           f.ID[projectCleanupID]
+	actor        i.Actor
+	cause        pc.LifecycleCause
+	scope        pc.ScopeRef
+	authority    wc.ProjectCleanupAuthority
+	checkpoint   []byte
+	active       bool
+	unknown      *f.CommitResult
+	firstError   error
+	before       []projectCallRecord
+	observed     bool
+	batch        *projectCleanupBatch
+	indexRelease *indexProjectRelease
 }
 
 // NewProjectCleanupParticipant binds the original Knowledge and Source graph. Every
@@ -100,6 +101,13 @@ func (p *projectCleanupParticipant) Cleanup(ctx context.Context, actor i.Actor, 
 		return s.projectCleanupPending(call, progress)
 	}
 	ctx = context.WithValue(ctx, projectCleanupContextKey{}, projectCleanupWitness{s, call})
+	indexReady, err := s.prepareIndexProjectCleanup(ctx, call)
+	if err != nil {
+		return pc.CleanupReport{}, err
+	}
+	if !indexReady {
+		return s.projectCleanupReport(call, "index_profiles")
+	}
 	objectsReady, leafErr := s.service.prepareKnowledgeProjectObjects(ctx, actor, cause, scope)
 	s.mu.Lock()
 	call.leafPending = !objectsReady || leafErr != nil
@@ -366,6 +374,15 @@ func (s *projectCallState) confirmProjectCleanup(ctx context.Context, call *owne
 			if call.observed && !equalProjectCalls(current, call.before) {
 				return fault(f.ConfirmationStale)
 			}
+			if call.indexRelease != nil {
+				tx, ok := run.Value(projectCleanupTxKey{}).(f.Tx)
+				if !ok {
+					return fault(f.DependencyUnbound)
+				}
+				if err = call.indexRelease.observe(run, tx, x); err != nil {
+					return err
+				}
+			}
 		} else {
 			applied, err := confirmProjectCleanupBatch(run, x, call.scope.ProjectID, call.batch)
 			if err != nil {
@@ -392,6 +409,7 @@ func (s *projectCallState) confirmProjectCleanup(ctx context.Context, call *owne
 	}
 	s.mu.Lock()
 	call.unknown = nil
+	call.indexRelease = nil
 	s.signalLocked()
 	s.mu.Unlock()
 	return nil

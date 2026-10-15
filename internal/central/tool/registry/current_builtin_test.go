@@ -245,6 +245,37 @@ func TestRegistryCurrentWorkArtifactCoreRetainsOrdinaryGate(t *testing.T) {
 	}
 }
 
+func TestRegistryCurrentSkillReadsRetainOrdinaryGate(t *testing.T) {
+	for _, handler := range []string{"skill.list", "skill.read"} {
+		t.Run(handler, func(t *testing.T) {
+			r, s, p := currentBuiltinFixture(t)
+			p.registration.Binding = tc.BuiltinBinding{HandlerID: handler, ContractRevision: 1}
+			p.registration.ScopeResolverID = "skill.project.v1"
+			p.registration.RiskClassifierID = "skill.read.v1"
+			p.registration.Class = tc.OrdinaryTool
+			row := s.row.(currentBuiltinRow)
+			row.registration = p.registration
+			s.row = row
+			v := p.registration
+			if err := r.RequireCurrentBuiltinInTx(s.ctx, s.tx, s.spec, v.Binding, v.ScopeResolverID, v.RiskClassifierID); err != nil {
+				t.Fatal("registered Skill read failed its exact Ordinary binding gate", err)
+			}
+			if err := r.RequireCurrentWorkArtifactBuiltinInTx(s.ctx, s.tx, s.spec, v.Binding, v.ScopeResolverID, v.RiskClassifierID); err == nil {
+				t.Fatal("Ordinary Skill read entered the Core gate")
+			}
+			if p.described != 2 || p.checked != 2 || len(s.writes) != 0 {
+				t.Fatal("Skill binding did not check its actual Source or wrote metadata")
+			}
+			p.registration.Class = tc.CoreTool
+			row.registration = p.registration
+			s.row = row
+			if err := r.RequireCurrentBuiltinInTx(s.ctx, s.tx, s.spec, v.Binding, v.ScopeResolverID, v.RiskClassifierID); err == nil {
+				t.Fatal("a changed Core classification remained callable as Ordinary")
+			}
+		})
+	}
+}
+
 func TestRegistryCurrentWorkArtifactRejectsForeignOrStaleBinding(t *testing.T) {
 	for _, change := range []string{"ordinary", "class-drift", "inactive", "definition", "revision", "handler", "scope", "risk", "unknown-handler", "missing-source", "missing-row", "foreign-tx", "missing-lock"} {
 		t.Run(change, func(t *testing.T) {

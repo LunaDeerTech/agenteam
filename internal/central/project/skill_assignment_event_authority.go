@@ -5,10 +5,13 @@ import (
 	"encoding/json"
 	"slices"
 
+	audit "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/skill/contract"
 )
 
 const skillAssignmentEventPurpose = "project.skill-assignment.append-v1"
@@ -54,6 +57,13 @@ func (a *Authority) discoverSkillAssignmentEvent(ctx context.Context, request oc
 	if request.Details().Stage != oc.CurrentAccess {
 		return oc.Dependencies{}, fault(f.Forbidden)
 	}
+	if request.Details().Actor.Details().Kind == id.AgentRun {
+		facts, err := a.agentSkillAssignmentEventFacts(request)
+		if err != nil {
+			return oc.Dependencies{}, err
+		}
+		return facts.DiscoverAssignmentProjectEvent(ctx, request.Details().Actor, request.Details().Event)
+	}
 	binding, locks, err := skillAssignmentEventBinding(request)
 	if err != nil {
 		return oc.Dependencies{}, err
@@ -67,6 +77,9 @@ func (a *Authority) validateSkillAssignmentEventInTx(ctx context.Context, tx f.T
 	}
 	if err := ctx.Err(); err != nil {
 		return portError(err)
+	}
+	if request.Details().Actor.Details().Kind == id.AgentRun {
+		return a.validateAgentSkillAssignmentEventInTx(ctx, tx, request, deps)
 	}
 	binding, locks, err := skillAssignmentEventBinding(request)
 	if err != nil {
@@ -90,4 +103,54 @@ func (a *Authority) validateSkillAssignmentEventInTx(ctx context.Context, tx f.T
 	}
 	_, err = a.RequireOwnerInTx(ctx, tx, d.Actor, d.ProjectID, intent)
 	return err
+}
+
+func (a *Authority) agentSkillAssignmentEventFacts(request oc.ProjectRequest) (sc.AssignmentProjectEventAuthority, error) {
+	if request.Validate() != nil {
+		return nil, invalid()
+	}
+	d := request.Details()
+	h := d.Event.Header
+	if d.Kind != oc.AppendProject || d.Actor.Details().Kind != id.AgentRun || d.Actor.Details().ProjectID != d.ProjectID.String() || d.Event.Producer != "skill" || sc.ValidateAssignmentEventHeader(h) != nil || h.Scope.ProjectID.String() != d.ProjectID.String() {
+		return nil, fault(f.Forbidden)
+	}
+	facts, ok := a.state().auditFacts[audit.SkillProducer].(sc.AssignmentProjectEventAuthority)
+	if !ok || nilPort(facts) {
+		return nil, fault(f.DependencyUnbound)
+	}
+	return facts, nil
+}
+
+func (a *Authority) validateAgentSkillAssignmentEventInTx(ctx context.Context, tx f.Tx, request oc.ProjectRequest, deps oc.Dependencies) error {
+	facts, err := a.agentSkillAssignmentEventFacts(request)
+	if err != nil {
+		return err
+	}
+	d := request.Details()
+	if deps.Validate() != nil {
+		return fault(f.Forbidden)
+	}
+	locks := append(deps.Locks(), projectLock(d.ProjectID, f.Shared))
+	if err = a.state().store.RequireHeldLocks(ctx, tx, locks); err != nil {
+		return unavailable(err)
+	}
+	x, err := a.state().store.InTx(tx)
+	if err != nil {
+		return unavailable(err)
+	}
+	p, err := loadProject(ctx, x, d.ProjectID)
+	if err != nil {
+		return err
+	}
+	if p == nil {
+		return fault(f.NotFound)
+	}
+	initialized := c.InitializationPending
+	if p.initialized {
+		initialized = c.Initialized
+	}
+	if err = c.CheckOwnerGate(p.ref.Lifecycle, initialized, id.Mutate); err != nil {
+		return err
+	}
+	return portError(facts.ValidateAssignmentProjectEventInTx(ctx, tx, d.Actor, d.Event, deps, d.Stage))
 }

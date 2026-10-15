@@ -61,7 +61,7 @@ func (v Request) Waiting() Waiting {
 	return Waiting{v.ID.String(), v.Status, v.OperationID, v.Fingerprint}
 }
 func (v Request) Validate() error {
-	if v.ToolName != "run-command" || v.Version < 1 || v.Version > 2 || v.ID.Validate() != nil || v.ProjectID.Validate() != nil || v.AgentID.Validate() != nil || v.ExecutionID.Validate() != nil || v.ToolID.Validate() != nil || v.OperationID.Validate() != nil || v.Fingerprint.Validate() != nil || v.CreatedAt.Validate() != nil || v.ToolCallID == "" {
+	if (v.ToolName != "run-command" && !tc.ValidMCPKey(v.ToolName)) || v.Version < 1 || v.Version > 2 || v.ID.Validate() != nil || v.ProjectID.Validate() != nil || v.AgentID.Validate() != nil || v.ExecutionID.Validate() != nil || v.ToolID.Validate() != nil || v.OperationID.Validate() != nil || v.Fingerprint.Validate() != nil || v.CreatedAt.Validate() != nil || v.ToolCallID == "" {
 		return f.NewFault(f.InvalidArgument, f.NotStarted)
 	}
 	if v.Status == Pending && v.Version == 1 && v.ResolvedAt == nil && v.ResolvedBy == nil {

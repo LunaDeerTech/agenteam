@@ -12,6 +12,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/projectvariable"
 	runners "github.com/LunaDeerTech/agenteam/internal/central/runner/service"
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
 	"time"
 )
 
@@ -21,7 +22,7 @@ func createSecurity(cfg config.Config, db database, authority *account.Authority
 	return createSecurityWithRunners(cfg, db, authority, models, projects, nil)
 }
 
-func createSecurityWithRunners(cfg config.Config, db database, authority *account.Authority, models *model.Authority, projects ac.ProjectAuthority, runnerAuthority *runners.Authority) (*audit.Service, error) {
+func createSecurityWithRunners(cfg config.Config, db database, authority *account.Authority, models *model.Authority, projects ac.ProjectAuthority, runnerAuthority *runners.Authority, mcpAuthority ...ac.MCPAuthority) (*audit.Service, error) {
 	store, ok := db.(audit.Store)
 	if !ok || authority == nil {
 		return nil, errors.New("AUDIT_STORE_UNAVAILABLE")
@@ -32,7 +33,14 @@ func createSecurityWithRunners(cfg config.Config, db database, authority *accoun
 	if runtimeInformationNil(projects) {
 		return nil, errors.New("PROJECT_AUTHORITY_UNAVAILABLE")
 	}
-	return audit.New(store, cfg.CursorKeyring(), audit.Authorizations{Accounts: authority, Sessions: authority, System: authority, Models: models, Projects: projects, Runners: runnerAuthority})
+	var mcp ac.MCPAuthority
+	if len(mcpAuthority) > 1 {
+		return nil, errors.New("MCP_AUDIT_UNAVAILABLE")
+	}
+	if len(mcpAuthority) == 1 {
+		mcp = mcpAuthority[0]
+	}
+	return audit.New(store, cfg.CursorKeyring(), audit.Authorizations{MCP: mcp, Accounts: authority, Sessions: authority, System: authority, Models: models, Projects: projects, Runners: runnerAuthority})
 }
 
 type maintenance interface {
@@ -41,12 +49,12 @@ type maintenance interface {
 	Status() secret.Status
 }
 
-func createSecret(cfg config.Config, db database, auditing *audit.Service, authority *account.Authority, usage *model.SecretUsageRouter, projects *project.Authority, writes *projectvariable.SecretWriteAuthority) (*secret.Service, error) {
+func createSecret(cfg config.Config, db database, auditing *audit.Service, authority *account.Authority, usage sc.UsageAuthority, projects *project.Authority, writes *projectvariable.SecretWriteAuthority) (*secret.Service, error) {
 	store, ok := db.(secret.Store)
 	if !ok || authority == nil {
 		return nil, errors.New("SECRET_STORE_UNAVAILABLE")
 	}
-	if usage == nil {
+	if runtimeInformationNil(usage) {
 		return nil, errors.New("MODEL_USAGE_UNAVAILABLE")
 	}
 	if writes == nil {

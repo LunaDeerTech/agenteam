@@ -1,5 +1,9 @@
 # M3 Core 独立局部审查
 
+2026-10-15 收口：本报告各节记录其固定输入和审查时点，早期must-fix及待验结论按后续对应修复/实际核证闭合，旧失败不回填。当前本轮明确定义M3接受出口和必要共同接线已全部完成独立核验，无该范围剩余已证must-fix；不把它扩成完整工具目录、所有恢复窗口或全产品ready。最终范围见[M3卡](m3-knowledge-memory-collaboration.md)，M4仍不在本轮。
+
+## 最初固定输入的审查记录
+
 2026-10-14；审查者未参与所验实现。D13 输入冻结为 selection `e1964240`，Model 输入冻结为 `784c6468`，Model 差异基线 `d9356e09`。仅补读 Knowledge `5d65c0a3` 的三个 Lookup bridge 文件；当前开发树中这三个文件相对此修订无差异。本文接受固定比较证据，不代表整个 Model、产品领域权限或 M3 接受。M4 不在本次范围。
 
 **结论：D13 数值与范围判断无 must-fix；Model 本次所读新增 Runtime、v2 adapter、共享 Secret/Usage 和 pre-admission retirement 未发现新增已证缺陷。活跃 serving generation 的长期凭据 retention 仍是相应持续服务行为的 must-fix；取消后的 Unknown 恢复尚未完成独立行为验证。**
@@ -477,3 +481,31 @@ reviewer 独立重核6个精确资源 ID与3个目录均 absent；捕获36个 PI
 2026-10-15；`m3_core_review` 独立亲核最终 `c02e672b` sole、作者 `70701` 原日志 MCP `output/ai/mcp/oauth-cold-published-c02e672b.log` 与对应 owned record。原 top FULLPASS6.47s、parent实际Wait0：token publication COMMIT后的精确屏障成立，旧child SIGKILL/Wait9、新guard与新child graceful Wait0，原 claim 收敛、尚未Acquire的原Secret lease经正式absence观察退休，原busy指针CAS、同Session lookup stopped且canonical command仍pending、已发布凭据和版本保留、issuer/SDK计数不增及原App Joined/Guard释放全部到达。
 
 reviewer独立inspect原6个fixture资源加2个provider资源、3个目录、3个PID均absent。**接受这个原token publication后/SDK前的冷恢复与完整Join窗口，无剩余已证must-fix。**旧95433/68335失败保留，不把本窗口外推Startup或Human Refresh；实际日志和原owned材料已足够，没有另建归档。
+
+## MCP Startup 与 Human Refresh 最后两窗口实际核证
+
+2026-10-15；`m3_core_review` 独立核最终 `c02e672b` / `98513` 的原sole、日志与资源记录。`53497` Startup原top PASS6.46s，父1921368与child1921618实际Wait0；两原连接的startup请求fulltuple、Secret lease退休均到，成功侧revision推进，拒绝侧完整旧catalog/Registry及immutable定义JSON保持，App Joined/Guard释放。原8个资源ID、3个目录、2个PID由reviewer独立inspect均absent。此处不把闭集拒绝类型进一步宣为特定401，也未新增逐Audit行专项；它实际消费了143/grant修复，旧5311失败保持。
+
+同reviewer随后独立核 `63771` Human原窗口，PASS52.25s：真实expiry、issuer刷新一次、binding COMMIT后且Prepare前旧child1924379 SIGKILL/Wait9，新guard1925058沿原完整tuple退休同一lease并CAS原pointer。原command仍pending、sameSession lookup stopped且无result，原Audit resolve计数、Secret版本与无update receipt、issuer/SDK不增均通过；父1924129与新child实际Wait0，accounts/MCP/producers Joined与Guard释放齐。原8个资源ID、3个目录、3个PID独立inspect均absent，日志为MCP `output/ai/mcp/human-refresh-cold-c02e672b.log` 与原owned记录。
+
+**分别接受上述两个原窗口与完整退出，未见范围内剩余已证must-fix。**Human限定原disabled配置隔离startup的窗口，不外推enabled竞争、任意Secret写Unknown或新共同组合；65995整FAIL保留。当前明确MCP单树必达窗口已闭，integration只整理实际独审结论，不冒充独立运行。
+
+## 共同 Runner/MCP 四个接线 hunk 的有限核证
+
+2026-10-15；`m3_core_review` 独立核共同 `b1eb9f5c` 的三处接线与 `0cae1af7` 的Project Audit窄增量。Skill transfer router沿同一Object Store、同一preparation authority创建并传给两处构造，原MCP cleanup分发保留；Builtin cold仅扩exact prepare/rev1，复用完整原proof并保共同canonical Memory Failure路径；Audit仅原initialized Project下的SecretDelete service分支进入private MCP cleanup证明，当前Project检查、Unknown传播及Meeting两处原分支保持，没有扩大其他写入。
+
+reviewer亲核作者 `61445` 原日志 `/tmp/m3-common-final-verify.apexvluc/go.log` 与actual_wait0：Runtime5项、Project3项定向普通均PASS（0.020s/0.007s）。**这四个共同hunk无新增must-fix，可进入共同race App及原Runner cold完整Join验证；普通结果不代该实际。**域20/53专属叶与既有单树实际按原证据复用，未重建历史矩阵。integration是本轮共享hunk作者，仅归位core的独立结论。
+
+## 共同 App 的 Runner prepare 冷恢复完整出口核证
+
+2026-10-15；`m3_core_review` 独立亲核共同 `9e826682` 的原sole/Join helper、`4d53084c…1630b` race App及作者 `18568` 原日志与Wait，证据位于Runner `output/ai/m3-runner-skills/cold08-common/`。原top PASS35.47s、official wrapper实际Wait0：同object/process真实活reader与terminal GET目标屏障成立，旧child真实SIGKILL/Wait9、新Guard沿原完整tuple退休，readerWorks归零，strictUnknown原canonical结果由第二个Model消费、同一Execution succeeded，原新App与Runner的正常Join、锁释放和实际Wait全部到达。
+
+reviewer又独立inspect原6个资源ID、3个目录及5个PID均absent。成熟skills.Recover五行接线、共同四个hunk与Execution窄消费入口的既有独审按原范围复用；本轮不是用普通或配置结果代替实际。**接受这一原cold完整出口与共同App消费，未见范围内剩余已证must-fix。**79860及更早失败保留，不外推未单独实证的warm Issue物理组合、全部Runner平台或此前间歇会话断开原因。integration仅归位实际reviewer结论。
+
+## Metadata 完整旅程与最终共同 Web 核证
+
+2026-10-15；独立 `ui_review` 核局部焦点返修的16组件用例、正确完整类型检查和真实Metadata组件三序GREEN，以及作者75744两次固定产物构建。b00ftc9d沿旧UI基线仅替换最终Metadata组件，7jvu8q9_才是a20580ae共同Web完整Vite；二者manifest与原Wait0各自成立，不混成同一浏览器输入。
+
+同reviewer接受作者15342的完整前端旅程，`m3_core_review`另独立核原Go/App尾：原96226 App、256e CJS、新b00ftc9d产物，原top FULLPASS34.94s/Wait0。5个Execution成功、3Turn/Summary与冻结历史引用、8Model/lease退休、原lookup/零正文读取、App所有者Join/Guard/stopped及App数据库连接首样归零全部通过；原焦点断言与预算未删除或扩大。日志database_gone是App连接归零的布尔，不是数据库被删除的证明。
+
+原6个精确资源ID/3目录由reviewer独立inspect均absent，34个捕获PID中32absent，两个同start_ticks的Chrome为PPID1/Z且无live。**接受原Metadata完整旅程、Go/App退出及最终共同Web构建的各自范围，无剩余已证must-fix。**43275、48293及更早失败保留；本轮明确定义M3最后两个门已闭，不扩大到全站浏览器矩阵或完整产品交付。integration只归位两位实际reviewer结论。

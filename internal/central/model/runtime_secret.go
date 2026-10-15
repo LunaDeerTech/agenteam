@@ -108,6 +108,12 @@ func (a *RuntimeAuthority) secretWitness(ctx context.Context, request sc.UsageRe
 }
 
 func (a *RuntimeAuthority) DiscoverUsage(ctx context.Context, request sc.UsageRequest) (sc.UsageDependencies, error) {
+	if ctx != nil && ctx.Value(stoppedRuntimeKey{}) != nil {
+		return a.discoverStoppedSecret(ctx, request)
+	}
+	if ctx != nil && ctx.Value(modelCallRetirementKey{}) != nil {
+		return a.discoverModelCallRetirement(ctx, request)
+	}
 	if ctx != nil && ctx.Value(executionRetirementKey{}) != nil {
 		return a.discoverExecutionRetirement(ctx, request)
 	}
@@ -123,6 +129,12 @@ func (a *RuntimeAuthority) DiscoverUsage(ctx context.Context, request sc.UsageRe
 }
 
 func (a *RuntimeAuthority) ValidateUsageInTx(ctx context.Context, tx f.Tx, request sc.UsageRequest, plan sc.UsageDependencies) error {
+	if ctx != nil && ctx.Value(stoppedRuntimeKey{}) != nil {
+		return a.validateStoppedSecret(ctx, tx, request, plan)
+	}
+	if ctx != nil && ctx.Value(modelCallRetirementKey{}) != nil {
+		return a.validateModelCallRetirement(ctx, tx, request, plan)
+	}
 	if ctx != nil && ctx.Value(executionRetirementKey{}) != nil {
 		return a.validateExecutionRetirement(ctx, tx, request, plan)
 	}

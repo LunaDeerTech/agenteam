@@ -233,7 +233,26 @@ func (s *LaunchHandoff) associate(ctx context.Context, call *launchCall, expecte
 	return out, nil
 }
 
+// This checkpoint belongs only to the exact original synchronous Launch after
+// its send permission has retired. The same call remains running until this Tx
+// actually returns; a detached context must not substitute another owner.
+func (s *LaunchHandoff) requireReturnedLaunchCall(ctx context.Context, call *launchCall, expected *dispatchRecord) error {
+	if s == nil || ctx == nil || call == nil || expected == nil || ctx.Value(launchContextKey{}) != call {
+		return fault(f.Forbidden)
+	}
+	s.mu.Lock()
+	valid := call.owner == s && s.calls[call.id] == call && call.running && !call.live && !call.send && call.record == expected && call.project == expected.project && call.id == expected.id
+	s.mu.Unlock()
+	if !valid {
+		return fault(f.Forbidden)
+	}
+	return ctx.Err()
+}
+
 func (s *LaunchHandoff) recordRejected(ctx context.Context, call *launchCall, expected *dispatchRecord, busy bool, finalReason wc.TaskLaunchFailureReason, temporary bool) (*dispatchRecord, error) {
+	if err := s.requireReturnedLaunchCall(ctx, call, expected); err != nil {
+		return nil, err
+	}
 	if finalReason != "" && (busy || finalReason.Validate() != nil) {
 		return nil, invalid()
 	}
@@ -250,6 +269,9 @@ func (s *LaunchHandoff) recordRejected(ctx context.Context, call *launchCall, ex
 	result := s.authority.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		if err := s.authority.store.AcquireAll(ctx, tx, locks); err != nil {
 			return portError(err)
+		}
+		if err := s.requireReturnedLaunchCall(ctx, call, expected); err != nil {
+			return err
 		}
 		x, err := s.authority.inTx(ctx, tx, call.project)
 		if err != nil {

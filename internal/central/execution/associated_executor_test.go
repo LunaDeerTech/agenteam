@@ -97,7 +97,7 @@ func TestAssociatedExecutorAdmissionOwnsExactTupleAndCapacity(t *testing.T) {
 	var reads, prepares atomic.Int32
 	rejected := fault(f.DependencyUnavailable)
 	e := associatedTestExecutor(associatedExecutorOps{
-		inspect: func(context.Context, i.ProjectID, c.AssociatedDispatch) (associatedFacts, error) {
+		inspect: func(context.Context, i.ProjectID, associatedIdentity) (associatedFacts, error) {
 			if reads.Add(1) == 1 {
 				entered <- struct{}{}
 				<-release
@@ -177,7 +177,7 @@ func TestAssociatedExecutorRunLifetimeStopsOnlyOwnedCalls(t *testing.T) {
 	var once sync.Once
 	defer once.Do(func() { close(release) })
 	e := associatedTestExecutor(associatedExecutorOps{
-		inspect: func(context.Context, i.ProjectID, c.AssociatedDispatch) (associatedFacts, error) {
+		inspect: func(context.Context, i.ProjectID, associatedIdentity) (associatedFacts, error) {
 			return associatedFacts{status: c.Preparing, inputReady: true}, nil
 		},
 		start: func(ctx context.Context, _ i.ExecutionID) (c.DirectTextReceipt, error) {
@@ -245,7 +245,7 @@ func TestAssociatedExecutorRunLifetimeStopsOnlyOwnedCalls(t *testing.T) {
 	defer releaseRead.Do(func() { close(allowRead) })
 	var lateStarts atomic.Int32
 	beforeStart := associatedTestExecutor(associatedExecutorOps{
-		inspect: func(context.Context, i.ProjectID, c.AssociatedDispatch) (associatedFacts, error) {
+		inspect: func(context.Context, i.ProjectID, associatedIdentity) (associatedFacts, error) {
 			reading <- struct{}{}
 			<-allowRead
 			return associatedFacts{status: c.Preparing, inputReady: true}, nil
@@ -283,7 +283,7 @@ func TestAssociatedExecutorUnknownRecoveryIsPacedAndUsesOriginalOwner(t *testing
 	var once sync.Once
 	defer once.Do(func() { close(release) })
 	e := associatedTestExecutor(associatedExecutorOps{
-		inspect: func(context.Context, i.ProjectID, c.AssociatedDispatch) (associatedFacts, error) {
+		inspect: func(context.Context, i.ProjectID, associatedIdentity) (associatedFacts, error) {
 			mu.Lock()
 			defer mu.Unlock()
 			if resolved {
@@ -385,7 +385,7 @@ func TestAssociatedExecutorCurrentFactsDeferUnsafeTakeover(t *testing.T) {
 		project, dispatch := associatedTestIdentity(t)
 		var reads, effects atomic.Int32
 		e := associatedTestExecutor(associatedExecutorOps{
-			inspect: func(context.Context, i.ProjectID, c.AssociatedDispatch) (associatedFacts, error) {
+			inspect: func(context.Context, i.ProjectID, associatedIdentity) (associatedFacts, error) {
 				reads.Add(1)
 				return facts, nil
 			},

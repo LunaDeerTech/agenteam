@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "agenteam current Human Owner Knowledge content",
-    "version": "1.0.0",
-    "description": "Independent GET/HEAD only. One original 2s budget includes actual ReadDocument, canonical reader Close and transport completion. No download, raw stream, parser or root binding."
+    "version": "1.1.0",
+    "description": "Current Human Owner reads. One original 2s budget includes actual authorization, canonical reader Close and transport completion. File text is a complete generation projection of this current version; processing or failed never falls back to older text. Canonical source read is a separate bounded download, independent of parser readiness."
   },
   "paths": {
     "/api/v1/projects/{project_id}/knowledge/documents/{document_id}/content": {
@@ -160,6 +160,156 @@
             "$ref": "#/components/responses/HeadProblem"
           }
         }
+      }
+    },
+    "/api/v1/projects/{project_id}/knowledge/documents/{document_id}/revisions/{document_version}/source": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "document_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "document_version",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "description": "Exact current version. Stale versions return 409; no historical object access."
+        }
+      ],
+      "get": {
+        "operationId": "knowledgeOwnerSourceGet",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Complete exact-version original source. HEAD reads and closes the same source but sends no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)(?![\\s\\S])"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Source"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "410": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          }
+        },
+        "description": "Authenticated same-session Owner read with current Project/Document checks and synchronous original Object Close. No query, Range, request body or Content-Encoding. The exact requested version must still be current. JSON representation <= 2097152 bytes; original source <= 1048576 bytes. Does not mint a signed URL or expose an Object identifier."
+      },
+      "head": {
+        "operationId": "knowledgeOwnerSourceHead",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Complete exact-version original source. HEAD reads and closes the same source but sends no body.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9][0-9]*)(?![\\s\\S])"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "401": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "403": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "404": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "405": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "409": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "410": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "500": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "503": {
+            "$ref": "#/components/responses/HeadProblem"
+          },
+          "413": {
+            "$ref": "#/components/responses/HeadProblem"
+          }
+        },
+        "description": "Authenticated same-session Owner read with current Project/Document checks and synchronous original Object Close. No query, Range, request body or Content-Encoding. The exact requested version must still be current. JSON representation <= 2097152 bytes; original source <= 1048576 bytes. Does not mint a signed URL or expose an Object identifier."
       }
     }
   },
@@ -398,18 +548,7 @@
             ],
             "properties": {
               "document": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/Document"
-                  },
-                  {
-                    "properties": {
-                      "source_kind": {
-                        "const": "text"
-                      }
-                    }
-                  }
-                ]
+                "$ref": "#/components/schemas/Document"
               },
               "text": {
                 "$ref": "#/components/schemas/Text"
@@ -439,11 +578,35 @@
                 ]
               },
               "unavailable": {
-                "const": "dependency_unbound"
+                "enum": [
+                  "dependency_unbound",
+                  "processing",
+                  "failed"
+                ]
               }
             }
           }
         ]
+      },
+      "Source": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "document",
+          "bytes_base64"
+        ],
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/Document"
+          },
+          "bytes_base64": {
+            "type": "string",
+            "maxLength": 1398104,
+            "contentEncoding": "base64",
+            "description": "Complete original canonical bytes, at most 1048576 decoded bytes. Strict canonical standard base64. Larger canonical files return 413 without truncation; this HTTP limit is narrower than the 1 GiB domain storage limit.",
+            "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/][AQgw]==|[A-Za-z0-9+/]{2}[AEIMQUYcgkosw048]=)?(?![\\s\\S])"
+          }
+        }
       }
     }
   }

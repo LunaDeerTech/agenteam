@@ -27,6 +27,7 @@ type Store interface {
 type AccountAuthority = contract.AccountAuthority
 
 type Authorizations struct {
+	MCP      contract.MCPAuthority
 	Runners  contract.RunnerAuthority
 	Models   contract.ModelAuthority
 	Accounts contract.AccountAuthority
@@ -184,6 +185,8 @@ func serviceOwns(actor identity.Actor, scope identity.Scope, key contract.Append
 		return false
 	}
 	switch a.ServiceName {
+	case identity.MCPRuntime:
+		return scope.Details().Kind == identity.ProjectScope && k.Producer == contract.MCPProducer
 	case identity.SecretService:
 		return k.Producer == contract.SecretProducer
 	case identity.SecretMaintenance:
@@ -207,7 +210,7 @@ func (s *Service) authorizeAppend(ctx context.Context, tx foundation.Tx, entry c
 		}
 		return portError(s.auth.Accounts.CheckAppendInTx(ctx, tx, entry, key))
 	}
-	if contract.ProjectAction(f.Action) {
+	if contract.ProjectAction(f.Action) || contract.MeetingAction(f.Action) {
 		if nilPort(s.auth.Projects) {
 			return failure(foundation.DependencyUnbound, "project_gate_unbound", nil)
 		}
@@ -235,15 +238,28 @@ func (s *Service) authorizeAppend(ctx context.Context, tx foundation.Tx, entry c
 			return err
 		}
 	case identity.AgentRun:
-		if f.Action != contract.SecretResolve && f.Action != contract.AccessDeny && f.Action != contract.ArtifactCreate && f.Action != contract.ArtifactList && f.Action != contract.ArtifactRead && f.Action != contract.ArtifactDownload {
+		if !(key.Details().Producer == contract.SkillProducer && contract.SkillAssignmentAction(f.Action)) && f.Action != contract.MemoryRetain && f.Action != contract.SecretResolve && f.Action != contract.AccessDeny && f.Action != contract.ArtifactCreate && f.Action != contract.ArtifactList && f.Action != contract.ArtifactRead && f.Action != contract.ArtifactDownload {
 			return failure(foundation.Forbidden, "agent_action_rejected", nil)
 		}
 	case identity.Service:
-		if !serviceOwns(f.Actor, f.Scope, key) {
+		technicalSecretMutation := a.ServiceName == identity.SecretService && f.Scope.Details().Kind == identity.ProjectScope && (f.Action == contract.SecretCreate || f.Action == contract.SecretUpdate || f.Action == contract.SecretDelete)
+		// OAuth's original request cause differs from its sealed command key.
+		// This branch only selects the mandatory Project fact checker below:
+		// it must validate the current Project and Secret's live write proof.
+		// The generic service cause rule remains unchanged for all other work.
+		if !technicalSecretMutation && !serviceOwns(f.Actor, f.Scope, key) {
 			return failure(foundation.Forbidden, "service_cause_rejected", nil)
 		}
 	default:
 		return failure(foundation.Forbidden, "actor_rejected", nil)
+	}
+	if contract.MCPAction(f.Action) && f.Scope.Details().Kind == identity.System {
+		if nilPort(s.auth.MCP) {
+			return failure(foundation.DependencyUnbound, "mcp_authority_unbound", nil)
+		}
+		if err := s.auth.MCP.RequireMCPAuditInTx(ctx, tx, entry, key); err != nil {
+			return portError(err)
+		}
 	}
 	if f.Scope.Details().Kind == identity.ProjectScope {
 		if nilPort(s.auth.Projects) {

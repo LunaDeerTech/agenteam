@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { nextTick, ref } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 import { UiButton, UiDialog, UiState } from '../../components/ui'
 import AgentCreateForm from '../../components/agents/AgentCreateForm.vue'
 import AgentEditForm from '../../components/agents/AgentEditForm.vue'
 import AgentSkillsPanel from '../../components/agents/AgentSkillsPanel.vue'
+import AgentMemoryPanel from '../../components/agents/AgentMemoryPanel.vue'
 import { useProjectAgents } from '../../composables/useProjectAgents'
 const owner = useProjectAgents(),
   state = owner.state
@@ -11,6 +12,25 @@ const heading = ref<HTMLElement | null>(null)
 const editButton = ref<{ $el: HTMLButtonElement } | null>(null)
 const skillsButton = ref<{ $el: HTMLButtonElement } | null>(null)
 const skillsPanel = ref<{ focus: () => void } | null>(null)
+const memoryOpen = ref(false)
+const memoryButton = ref<{ $el: HTMLButtonElement } | null>(null)
+const memoryPanel = ref<{ focus: () => void } | null>(null)
+watch(
+  () => [owner.projectID.value, state.selectedID, owner.visible.value],
+  () => {
+    memoryOpen.value = false
+  },
+)
+async function openMemory() {
+  memoryOpen.value = true
+  await nextTick()
+  memoryPanel.value?.focus()
+}
+async function closeMemory() {
+  memoryOpen.value = false
+  await nextTick()
+  memoryButton.value?.$el.focus()
+}
 async function openSkills() {
   await owner.skills.open()
   await nextTick()
@@ -163,6 +183,12 @@ const approval = { default: '默认审批', auto: '模型自动审批', allow: '
           >
         </section>
         <section class="agent-content" aria-label="Agent 配置">
+          <AgentMemoryPanel
+            v-if="memoryOpen"
+            ref="memoryPanel"
+            :agent-id="state.selectedID"
+            @close="closeMemory"
+          />
           <AgentSkillsPanel
             v-if="owner.skills.state.open || owner.skills.progress.value?.phase === 'uncertain'"
             ref="skillsPanel"
@@ -192,6 +218,13 @@ const approval = { default: '默认审批', auto: '模型自动审批', allow: '
             <template v-if="state.configuration && state.detailPhase === 'ready'">
               <h2>{{ state.configuration.display_name ?? state.configuration.name }}</h2>
               <p>目录和配置本身不授予执行权限。</p>
+              <UiButton
+                v-if="!memoryOpen"
+                ref="memoryButton"
+                :disabled="owner.busy.value"
+                @click="openMemory"
+                >查看记忆</UiButton
+              >
               <UiButton
                 v-if="!owner.skills.state.open"
                 ref="skillsButton"

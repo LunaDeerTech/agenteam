@@ -40,7 +40,8 @@ func ToolCallInputDigest(ctx context.Context, messages []Message, tool Tool) (f.
 }
 
 // ToolInputDigest binds every first-round tool without cropping the configured
-// set. Schema 2 keeps its historical single-tool bytes; new callers use 4.
+// set and its required/auto choice. The owning Execution validates that choice
+// against the captured source. Schema 2 retains its required single-tool bytes.
 func ToolInputDigest(ctx context.Context, messages []Message, tools []Tool, choice ToolChoice) (f.Digest, error) {
 	if ctx == nil {
 		return "", bad()
@@ -48,7 +49,7 @@ func ToolInputDigest(ctx context.Context, messages []Message, tools []Tool, choi
 	if err := ctx.Err(); err != nil {
 		return "", err
 	}
-	if len(messages) != 2 || len(tools) == 0 || len(tools) > 128 || choice != (ToolChoice{Kind: "required"}) {
+	if len(messages) != 2 || len(tools) == 0 || len(tools) > 128 || choice != (ToolChoice{Kind: "required"}) && choice != (ToolChoice{Kind: "auto"}) {
 		return "", bad()
 	}
 	for n, message := range messages {

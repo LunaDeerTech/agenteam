@@ -84,7 +84,7 @@ func scanRecord(row pgx.Row) (*record, error) {
 		return nil, err
 	}
 	b := r.operation.Binding
-	r.value.ToolName = b.RunnerBinding.OperationName
+	r.value.ToolName = tc.ApprovalToolName(b)
 	r.value.ID, err = f.ParseID[c.RequestIdentity](id)
 	if err != nil {
 		return nil, fault(f.InvalidState)
@@ -132,7 +132,7 @@ func insertRecord(ctx context.Context, x postgres.SQLExecutor, r *record) error 
 	}
 	v := r.value
 	b := r.operation.Binding
-	r.value.ToolName = b.RunnerBinding.OperationName
+	r.value.ToolName = tc.ApprovalToolName(b)
 	tag, err := x.Exec(ctx, `INSERT INTO agenteam_governance.approval_requests(id,project_id,agent_id,execution_id,round_id,tool_id,tool_call_id,operation_id,fingerprint,status,version,created_at,binding_data,binding_digest,requested_event_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,'pending',1,$10,$11,$12,$13)`, v.ID.String(), v.ProjectID.String(), v.AgentID.String(), v.ExecutionID.String(), b.RoundID, v.ToolID.String(), v.ToolCallID, v.OperationID.String(), string(v.Fingerprint), v.CreatedAt.Time(), raw, string(oc.DigestBytes(raw)), r.requestedEvent)
 	if err != nil {
 		return portError(err)

@@ -122,6 +122,25 @@ func (d *ToolCallDriver) RequireToolCallInTx(ctx context.Context, tx f.Tx, b tc.
 	return d.withToolCallInTx(ctx, tx, b, plan, nil)
 }
 
+// Install's fixed authorization service reads current policy through the same
+// live Execution/Agent loan. Captured policy and a bare binding grant nothing.
+func (d *ToolCallDriver) ToolApprovalPolicyInTx(ctx context.Context, tx f.Tx, b tc.ToolCallBinding, plan tc.ToolCallPlan) (ac.ApprovalPolicy, error) {
+	var policy ac.ApprovalPolicy
+	if b.Binding != (tc.BuiltinBinding{HandlerID: "skill.install", ContractRevision: 1}) {
+		return policy, fault(f.Forbidden)
+	}
+	err := d.withToolCallInTx(ctx, tx, b, plan, func(current context.Context, actual tc.ToolCallBinding, _ []byte) error {
+		request := ac.ExecutionConfigurationRequest{Actor: actual.Actor, ProjectID: actual.ProjectID, AgentID: actual.AgentID, ExecutionID: actual.ExecutionID, Stage: ac.ExecutionConfigurationCurrent}
+		agent, err := d.driver.state.deps.Agents.ReadExecutionConfigurationInTx(current, tx, request)
+		if err != nil {
+			return portError(err)
+		}
+		policy = agent.Fields().Core.ApprovalPolicy
+		return policy.Validate()
+	})
+	return policy, err
+}
+
 // The callback remains inside the original current-Agent witness lifetime.
 // Returning from Require and then lending its context would expire that proof.
 func (d *ToolCallDriver) withToolCallInTx(ctx context.Context, tx f.Tx, b tc.ToolCallBinding, plan tc.ToolCallPlan, consume func(context.Context, tc.ToolCallBinding, []byte) error) error {
@@ -203,7 +222,7 @@ func (d *ToolCallDriver) withToolCallStateInTx(ctx context.Context, tx f.Tx, b t
 	var selected *tc.ExecutionTool
 	for idx := range fields.Tools {
 		t := &fields.Tools[idx]
-		if t.ToolID == b.Spec.ToolID && t.SpecRevision == b.Spec.SpecRevision && t.ModelVisibleName == b.ModelVisibleName && t.BindingSnapshot.Binding == b.Binding && t.BindingSnapshot.RunnerBinding == b.RunnerBinding {
+		if t.ToolID == b.Spec.ToolID && t.SpecRevision == b.Spec.SpecRevision && t.ModelVisibleName == b.ModelVisibleName && t.BindingSnapshot.Binding == b.Binding && t.BindingSnapshot.RunnerBinding == b.RunnerBinding && t.BindingSnapshot.MCPBinding == b.MCPBinding {
 			selected = t
 			break
 		}
@@ -239,6 +258,12 @@ func (d *ToolCallDriver) withToolCallStateInTx(ctx context.Context, tx f.Tx, b t
 		return err
 	}
 	if consume != nil {
+		if b.MCPBinding.Validate() == nil {
+			witness := &mcpCurrentWitness{driver: d, plan: p, tx: tx, approval: agent.Fields().Core.ApprovalPolicy}
+			witness.active.Store(true)
+			defer witness.active.Store(false)
+			authorized = context.WithValue(authorized, mcpCurrentKey{}, witness)
+		}
 		if b.RunnerBinding == tc.RunCommandRegistration().Binding {
 			witness, err := newCommandCurrentWitness(d, tx, p, agent)
 			if err != nil {
@@ -283,8 +308,11 @@ func (a *Authority) requireToolCurrentConfiguration(ctx context.Context, tx f.Tx
 var _ tc.OperationExecutionAuthority = (*ToolCallDriver)(nil)
 
 func (d *ToolCallDriver) WithBuiltinToolCallInTx(ctx context.Context, tx f.Tx, b tc.ToolCallBinding, plan tc.ToolCallPlan, consume func(context.Context, tc.ToolCallBinding, []byte) error) error {
-	if consume == nil || b.RunnerBinding != (tc.RunnerBinding{}) || !tc.WorkArtifactBuiltinBinding(b.Binding) {
+	if consume == nil || b.RunnerBinding != (tc.RunnerBinding{}) || (!tc.DomainBuiltinBinding(b.Binding) && b.MCPBinding.Validate() != nil) {
 		return invalid()
+	}
+	if b.Binding == (tc.BuiltinBinding{HandlerID: "skill.prepare", ContractRevision: 1}) {
+		return d.withSkillToolInputInTx(ctx, tx, b, plan, consume)
 	}
 	return d.withToolCallInTx(ctx, tx, b, plan, consume)
 }

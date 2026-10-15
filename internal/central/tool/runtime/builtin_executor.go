@@ -17,6 +17,7 @@ import (
 
 type BuiltinExecutor struct {
 	authority  *BuiltinAuthority
+	mcp        *MCPExecutor
 	executions tc.BuiltinInputAuthority
 	registry   *registry.Registry
 	schemas    *RegistrySchemaValidator
@@ -39,13 +40,16 @@ type builtinCall struct {
 	cancel         context.CancelFunc
 	done           chan struct{}
 	lookup         bool
+	cold           *builtinColdProof
 	domainReturned bool
 	resolving      bool // guarded by the executor mutex after done closes
 	// These fields are published before done closes. Retained calls remain in
 	// the owner map until canonical lookup confirms their exact terminal.
-	terminal   *builtinTerminal
-	body       []byte
-	retirement error
+	terminal       *builtinTerminal
+	body           []byte
+	retirement     error
+	backendPending bool
+	backendJoinErr error
 }
 
 func NewBuiltinExecutor(authority *BuiltinAuthority, executions tc.BuiltinInputAuthority, reg *registry.Registry, backends ...BuiltinBackend) (*BuiltinExecutor, error) {
@@ -65,7 +69,7 @@ func NewBuiltinExecutor(authority *BuiltinAuthority, executions tc.BuiltinInputA
 			return nil, fail(f.DependencyUnbound)
 		}
 		registration := backend.Registration()
-		if registration.Validate(context.Background()) != nil || !tc.WorkArtifactBuiltinBinding(registration.Binding) || !registration.Active || ports[registration.Binding] != nil {
+		if registration.Validate(context.Background()) != nil || !tc.DomainBuiltinBinding(registration.Binding) || !registration.Active || ports[registration.Binding] != nil {
 			return nil, fail(f.InvalidArgument)
 		}
 		ports[registration.Binding] = backend
@@ -77,10 +81,10 @@ func (e *BuiltinExecutor) begin(ctx context.Context, b tc.ToolCallBinding) (*bui
 	if err := contextError(ctx); err != nil {
 		return nil, err
 	}
-	if e == nil || b.Validate() != nil || !tc.WorkArtifactBuiltinBinding(b.Binding) {
+	if e == nil || b.Validate() != nil || !directToolBinding(b) {
 		return nil, fail(f.InvalidArgument)
 	}
-	if nilPort(e.backends[b.Binding]) {
+	if nilPort(e.backendFor(&builtinCall{binding: b})) {
 		return nil, fail(f.DependencyUnbound)
 	}
 	e.mu.Lock()
@@ -200,13 +204,16 @@ func (e *BuiltinExecutor) Execute(ctx context.Context, b tc.ToolCallBinding) (tc
 	if err != nil {
 		return tc.RunnerOutcome{}, err
 	}
-	if existing != nil {
+	if existing != nil && !(b.MCPBinding.Validate() == nil && existing.Phase == "created" && existing.Version == 1) {
 		call.record = *existing
 		return e.observe(ctx, call)
 	}
 	operation, err := f.NewID[tc.Operation]()
 	if err != nil {
 		return tc.RunnerOutcome{}, portError(err)
+	}
+	if existing != nil {
+		operation = existing.ID
 	}
 	attempt, err := f.NewID[tc.Attempt]()
 	if err != nil {
@@ -224,21 +231,17 @@ func (e *BuiltinExecutor) Execute(ctx context.Context, b tc.ToolCallBinding) (tc
 	if err != nil {
 		return tc.RunnerOutcome{}, err
 	}
-	backend := e.backends[b.Binding]
+	backend := e.backendFor(call)
 	err = e.transaction(ctx, call, func(ctx context.Context, tx f.Tx, x postgres.SQLExecutor) error {
 		return e.input(ctx, tx, call, func(current context.Context, raw []byte) error {
 			old, err := loadBuiltinRecord(current, x, b)
 			if err != nil {
 				return err
 			}
-			if old != nil {
+			if old != nil && !(b.MCPBinding.Validate() == nil && old.Phase == "created" && old.ID == operation && old.Version == 1) {
 				return fail(f.ResourceBusy)
 			}
-			reg := backend.Registration()
-			if err = e.registry.RequireCurrentWorkArtifactBuiltinInTx(current, tx, b.Spec, b.Binding, reg.ScopeResolverID, reg.RiskClassifierID); err != nil {
-				return err
-			}
-			if err = e.schemas.validate(current, tx, b.Spec, raw, false); err != nil {
+			if err = e.validateBackendInTx(current, tx, call, raw); err != nil {
 				return err
 			}
 			in, encoded, err := builtinInput(current, b, raw)
@@ -247,6 +250,9 @@ func (e *BuiltinExecutor) Execute(ctx context.Context, b tc.ToolCallBinding) (tc
 			}
 			call.record = builtinRecord{ID: operation, Input: in, InputDigest: digest(encoded), Fingerprint: digest(encoded), Phase: "created", Version: 1, Attempt: attempt, Request: p.ID(request.String())}
 			call.arguments = bytes.Clone(raw)
+			if b.MCPBinding.Validate() == nil {
+				return e.startMCPAttempt(current, tx, x, call, old)
+			}
 			return startBuiltinRecord(current, x, call.record, e.authority.process)
 		})
 	})
@@ -272,13 +278,18 @@ func (e *BuiltinExecutor) Execute(ctx context.Context, b tc.ToolCallBinding) (tc
 			return tc.RunnerOutcome{OperationID: operation, AttemptID: attempt, Phase: "running", Outcome: "unknown", Attempted: true}, call.retirement
 		}
 		terminal.Outcome, terminal.Code = "failure", string(fault.Code.Safe())
-		body, _ = json.Marshal(struct {
-			Error struct {
-				Code string `json:"code"`
-			} `json:"error"`
-		}{Error: struct {
-			Code string `json:"code"`
-		}{terminal.Code}})
+		body, err = e.backendFailure(call, terminal.Code)
+		if err != nil {
+			call.retirement = err
+			return tc.RunnerOutcome{}, err
+		}
+	}
+	if domainErr == nil {
+		terminal.Outcome, terminal.Code, err = e.backendTerminal(call, body)
+		if err != nil {
+			call.retirement = err
+			return tc.RunnerOutcome{}, err
+		}
 	}
 	if len(body) < 2 || len(body) > 1<<20 || !json.Valid(body) {
 		call.retirement = fail(f.DependencyUnavailable)
@@ -288,6 +299,10 @@ func (e *BuiltinExecutor) Execute(ctx context.Context, b tc.ToolCallBinding) (tc
 	call.terminal = &terminal
 	call.body = bytes.Clone(body)
 	clear(body)
+	if call.backendPending {
+		call.retirement = call.backendJoinErr
+		return tc.RunnerOutcome{OperationID: operation, AttemptID: attempt, Phase: "running", Attempted: true}, call.retirement
+	}
 	finishCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
 	defer cancel()
 	err = e.publish(finishCtx, call)
@@ -339,12 +354,17 @@ func (e *BuiltinExecutor) publish(ctx context.Context, call *builtinCall) error 
 			}
 			return nil
 		}
-		if call.terminal.Outcome == "success" {
+		if call.terminal.Outcome == "success" && !typedMCPResultBinding(call.binding) {
 			if err = e.schemas.validate(ctx, tx, call.binding.Spec, call.body, true); err != nil {
 				return err
 			}
 		}
-		return finishBuiltinRecord(ctx, x, e.authority.process, call.record, *call.terminal, call.body)
+		if call.cold != nil {
+			if err := e.input(ctx, tx, call, func(context.Context, []byte) error { return nil }); err != nil {
+				return err
+			}
+		}
+		return finishBuiltinRecord(ctx, x, e.authority.process, call.record, *call.terminal, call.body, call.cold)
 	})
 }
 

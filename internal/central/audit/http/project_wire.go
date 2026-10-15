@@ -43,6 +43,9 @@ type projectAuditPageDTO struct {
 }
 
 func projectAuditSummary(action c.Action) (string, bool) {
+	if c.MeetingAction(action) {
+		return "Audit event", true
+	}
 	switch action {
 	case c.SecretCreate:
 		return "Secret created", true
@@ -125,6 +128,16 @@ func projectAuditProjection(project identity.ProjectID, record c.SafeRecord) (pr
 // HTTP rechecks the clipped safe projection without fabricating a Session ID.
 func projectAuditRelations(record c.SafeRecord, metadata c.Metadata, project identity.ProjectID) bool {
 	r, a, links := record.Resource.Details(), record.Actor, record.Associations
+	if c.MeetingAction(record.Action) {
+		m, err := metadata.MeetingDeletionFields()
+		if err != nil || record.Outcome != c.Success || r.Kind != c.MeetingResource || r.ID != m.MeetingID || links != (c.Associations{OperationID: m.DeletionID}) {
+			return false
+		}
+		if record.Action == c.MeetingDeleteAccepted {
+			return a.Kind == identity.Human && a.ID == m.InitiatorID
+		}
+		return a.Kind == identity.Service && a.Service == identity.MeetingRuntime && a.CauseRef == m.DeletionID && a.ProjectID == project.String()
+	}
 	if c.ProjectSecretVariableAction(record.Action) {
 		m, err := metadata.ProjectSecretVariableFields()
 		return err == nil && a.Kind == identity.Human && record.Outcome == c.Success && r.Kind == c.ProjectVariableResource && r.ID == m.VariableID && links == (c.Associations{})

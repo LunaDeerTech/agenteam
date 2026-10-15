@@ -108,7 +108,7 @@ func (s *ProjectStopper) control(ctx context.Context, actor i.Actor, cause pc.Li
 type projectStopControl struct{ cancel context.CancelFunc }
 type associatedAdmission struct {
 	project  i.ProjectID
-	dispatch c.AssociatedDispatch
+	dispatch associatedIdentity
 	cancel   context.CancelFunc
 	stopped  bool
 }
@@ -152,7 +152,7 @@ func (s *associatedExecutorState) beginProjectStop(ctx context.Context) (context
 // A constant flag enables this gate after the first confirmed Project stop;
 // no unbounded permanent Project tombstone map is needed. Canonical deleting
 // (or absent) Projects reject subsequent admissions, while active B can enter.
-func (s *associatedExecutorState) admitAssociatedLocked(ctx context.Context, project i.ProjectID, dispatch c.AssociatedDispatch) (c.ExecutionAdvance, error) {
+func (s *associatedExecutorState) admitAssociatedLocked(ctx context.Context, project i.ProjectID, dispatch associatedIdentity) (c.ExecutionAdvance, error) {
 	if s.ops.admit == nil {
 		return c.ExecutionAdvance{}, fault(f.DependencyUnbound)
 	}

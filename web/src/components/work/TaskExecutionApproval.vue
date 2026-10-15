@@ -50,7 +50,7 @@ async function choose(decision: 'approve' | 'reject') {
         :description="owner.state.message"
       />
       <template v-else-if="owner.state.approval">
-        <p>运行命令（{{ owner.state.approval.tool_name }}）</p>
+        <p>工具操作（{{ owner.state.approval.tool_name }}）</p>
         <p>本次决定仅适用于当前执行的这一次操作。</p>
         <p v-if="owner.state.approval.status !== 'pending'">
           审批已{{
@@ -62,7 +62,7 @@ async function choose(decision: 'approve' | 'reject') {
           aria-label="确认审批决定"
           @submit.prevent="owner.submit()"
         >
-          <p>确认{{ owner.state.decision === 'approve' ? '批准' : '拒绝' }}此次运行命令操作？</p>
+          <p>确认{{ owner.state.decision === 'approve' ? '批准' : '拒绝' }}此次工具操作？</p>
           <div class="approval-actions">
             <UiButton
               ref="confirm"

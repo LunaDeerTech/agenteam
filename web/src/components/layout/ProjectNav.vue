@@ -31,6 +31,11 @@ function sectionCurrent(suffix: string) {
       >任务</RouterLink
     >
     <RouterLink
+      :to="home + '/meetings'"
+      :aria-current="sectionCurrent('/meetings') ? 'page' : undefined"
+      >会议</RouterLink
+    >
+    <RouterLink
       :to="home + '/knowledge'"
       :aria-current="sectionCurrent('/knowledge') ? 'page' : undefined"
       >知识库</RouterLink
@@ -39,6 +44,9 @@ function sectionCurrent(suffix: string) {
       :to="home + '/artifacts'"
       :aria-current="sectionCurrent('/artifacts') ? 'page' : undefined"
       >产物</RouterLink
+    >
+    <RouterLink :to="home + '/inbox'" :aria-current="sectionCurrent('/inbox') ? 'page' : undefined"
+      >收件箱</RouterLink
     >
     <RouterLink :to="settings" :aria-current="sectionCurrent('/settings') ? 'page' : undefined"
       >项目设置</RouterLink

@@ -24,15 +24,16 @@ type objectStorage interface {
 // Initialize. Only the root's joint producer check may call Force or Drain;
 // forceTransports deliberately keeps ProcessGuard held.
 type objectAssembly struct {
-	mu      sync.Mutex
-	process oc.ProcessID
-	backend *object.Backend
-	spool   *object.Spool
-	service *object.Service
-	guard   *object.ProcessGuard
-	runtime *object.Runtime
-	stopped bool
-	closed  bool
+	mu        sync.Mutex
+	process   oc.ProcessID
+	backend   *object.Backend
+	spool     *object.Spool
+	service   *object.Service
+	guard     *object.ProcessGuard
+	runtime   *object.Runtime
+	transfers *object.TransferService
+	stopped   bool
+	closed    bool
 }
 
 func (a *objectAssembly) StartMaintenance(ctx context.Context) error {
@@ -180,9 +181,9 @@ func openObjectAssembly(ctx context.Context, cfg config.Config, owned *resources
 	}
 	return a, nil
 }
-func (a *objectAssembly) construct(cfg config.Config, db database, auditing *audit.Service, authorities *objectAuthorities) error {
+func (a *objectAssembly) construct(cfg config.Config, db database, auditing *audit.Service, authorities *objectAuthorities, transferAuthorities ...oc.RunnerTransferAuthority) error {
 	store, ok := db.(object.Store)
-	if !ok || authorities == nil {
+	if !ok || authorities == nil || len(transferAuthorities) > 1 || len(transferAuthorities) == 1 && runtimeInformationNil(transferAuthorities[0]) {
 		return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
 	}
 	a.mu.Lock()
@@ -190,15 +191,22 @@ func (a *objectAssembly) construct(cfg config.Config, db database, auditing *aud
 	if a.stopped || a.closed {
 		return context.Canceled
 	}
-	service, err := object.New(store, a.backend, a.spool, auditing, object.Authorizations{Planner: authorities, Resources: authorities, Read: authorities, Gate: authorities, Cleanup: authorities, Leases: authorities, Processes: a.guard})
+	var transferAuthority oc.RunnerTransferAuthority
+	var planner oc.AccessPlanner = authorities
+	if len(transferAuthorities) == 1 {
+		transferAuthority = transferAuthorities[0]
+		planner = object.NewTransferAccessPlanner(authorities, transferAuthority)
+	}
+	service, err := object.New(store, a.backend, a.spool, auditing, object.Authorizations{Planner: planner, Resources: authorities, Read: authorities, Gate: authorities, Cleanup: authorities, Leases: authorities, Processes: a.guard})
 	if err != nil {
 		return err
 	}
 	a.service = service
-	transfers, err := object.NewTransferService(service, nil, cfg.Objects().TransferEndpoint())
+	transfers, err := object.NewTransferService(service, transferAuthority, cfg.Objects().TransferEndpoint())
 	if err != nil {
 		return err
 	}
+	a.transfers = transfers
 	a.runtime, err = object.NewRuntime(service, a.guard, transfers)
 	return err
 }

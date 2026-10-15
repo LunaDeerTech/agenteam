@@ -8,6 +8,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/runner/operations"
 	"github.com/LunaDeerTech/agenteam/internal/runner/readfile"
 	"github.com/LunaDeerTech/agenteam/internal/runner/runcommand"
+	"github.com/LunaDeerTech/agenteam/internal/runner/skillprepare"
 	"github.com/LunaDeerTech/agenteam/internal/runner/workspace"
 	"github.com/LunaDeerTech/agenteam/internal/runner/writefile"
 	p "github.com/LunaDeerTech/agenteam/internal/runnerprotocol"
@@ -66,6 +67,12 @@ func newOwnedOperations(configuration identity.Configuration, selected operation
 			return nil, manager, err
 		}
 	}
+	if selected.Contains(p.SkillPrepareOperation) {
+		executor.skill, err = skillprepare.New(manager)
+		if err != nil {
+			return nil, manager, err
+		}
+	}
 	if selected.Contains(p.RunCommandOperation) {
 		handler, err := runcommand.New(manager)
 		if err != nil {
@@ -107,6 +114,7 @@ type ownedOperationExecutor struct {
 	read      *readfile.Handler
 	directory *directory.Handler
 	write     *writefile.Handler
+	skill     *skillprepare.Handler
 }
 
 func (e ownedOperationExecutor) accepts(request p.Request) bool {
@@ -120,6 +128,8 @@ func (e ownedOperationExecutor) accepts(request p.Request) bool {
 		return e.directory.Accepts(request)
 	case p.WriteFileOperation:
 		return e.write.Accepts(request)
+	case p.SkillPrepareOperation:
+		return e.skill.Accepts(request)
 	default:
 		return false
 	}
@@ -135,6 +145,8 @@ func (e ownedOperationExecutor) execute(ctx context.Context, request p.Request, 
 		return e.directory.Execute(ctx, request)
 	case p.WriteFileOperation:
 		return e.write.Execute(ctx, request)
+	case p.SkillPrepareOperation:
+		return e.skill.Execute(ctx, request)
 	default:
 		return p.Response{}, ErrProtocol
 	}

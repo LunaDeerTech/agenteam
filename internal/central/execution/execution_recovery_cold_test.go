@@ -122,7 +122,7 @@ func TestExecutionRecoveryAssociatedColdStartUsesOriginalDriver(t *testing.T) {
 				owners: func(*associatedCall) associatedOwners { return associatedOwners{} },
 			}, 1, 0).state
 			s.direct = &DirectTextDriver{state: &directTextState{multi: &multiRoundState{}}}
-			job := &associatedCall{project: project, dispatch: dispatch}
+			job := &associatedCall{project: project, dispatch: associatedIdentity{AssociatedDispatch: dispatch}}
 			out := s.startPrepared(context.Background(), job, associatedFacts{status: status})
 			if starts != 1 || !out.forget || out.err == nil || out.status != status {
 				t.Fatal("persistent checkpoint did not reach original Start or lost retry boundary")

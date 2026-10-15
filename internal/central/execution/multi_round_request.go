@@ -45,12 +45,15 @@ func capturedToolByName(input c.PreparationInput, name string) (tc.ExecutionTool
 
 func loopModelRequest(ctx context.Context, snapshot c.DirectTextSnapshot, r executionRound) (mc.ModelRequest, error) {
 	v, ok := r.(loopExecutionRound)
-	if !ok {
+	if !ok || snapshot.Validate() != nil || v.Validate() != nil {
 		return mc.ModelRequest{}, invalid()
 	}
 	fields := v.LoopRound.Fields()
 	base := fields.Round
 	p := snapshot.Fields().Context.Input().Fields()
+	if fields.Ordinal == 1 && fields.Choice == (mc.ToolChoice{Kind: "auto"}) && p.Request.Launch.Trigger.Kind != "meeting" {
+		return mc.ModelRequest{}, fault(f.Forbidden)
+	}
 	actor, err := i.NewAgentRun(p.Request.Launch.ProjectID, p.Request.Launch.AgentID, p.Request.ExecutionID)
 	if err != nil {
 		return mc.ModelRequest{}, err
@@ -72,7 +75,7 @@ func (s *directTextState) acceptsRunnerBinding(b tc.RunnerBinding) bool {
 
 func (s *directTextState) acceptsToolBinding(b tc.ToolCallBinding) bool {
 	if b.RunnerBinding == (tc.RunnerBinding{}) {
-		return s.multi != nil && tc.WorkArtifactBuiltinBinding(b.Binding)
+		return s.multi != nil && directToolCallBinding(tc.BuiltinExecutionBinding{Binding: b.Binding, RunnerBinding: b.RunnerBinding, MCPBinding: b.MCPBinding})
 	}
 	return b.Binding == (tc.BuiltinBinding{}) && s.acceptsRunnerBinding(b.RunnerBinding)
 }

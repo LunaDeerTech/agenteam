@@ -47,7 +47,7 @@ func (a *Authority) checkCleanup(ctx context.Context, tx f.Tx, cause oc.ObjectCl
 	if err != nil {
 		return portError(err)
 	}
-	locks, err := authorityLocks(id.Actor{}, p, id.Converge)
+	locks, err := authorityLocks(ctx, id.Actor{}, p, id.Converge)
 	if err != nil {
 		return err
 	}
@@ -158,7 +158,7 @@ func (a *Authority) checkProjectObjectRetirement(ctx context.Context, tx f.Tx, c
 	if l.Operation != w.call.cause.OperationID || l.ProjectVersion != w.call.cause.ProjectVersion {
 		return fault(f.Forbidden)
 	}
-	locks, err := authorityLocks(id.Actor{}, p, id.Converge)
+	locks, err := authorityLocks(ctx, id.Actor{}, p, id.Converge)
 	if err != nil {
 		return err
 	}
@@ -700,7 +700,7 @@ func (s *Service) recoverCleanup(ctx context.Context, key oc.CleanupID) error {
 	if len(result.Remaining.References) != 0 || len(result.Remaining.ActiveLeases) != 0 {
 		return internal(nil)
 	}
-	locks, err := authorityLocks(id.Actor{}, row.project, id.Converge)
+	locks, err := authorityLocks(ctx, id.Actor{}, row.project, id.Converge)
 	if err != nil {
 		return err
 	}

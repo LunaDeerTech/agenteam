@@ -40,6 +40,8 @@ func (c *ExecutionCapture) state() *executionCaptureState {
 }
 
 type executionToolPlanData struct {
+	retention     tc.MCPRetentionPlan
+	resources     tc.MCPResourceCapturePlan
 	issuer        *executionCaptureState
 	request       tc.ExecutionToolCaptureRequest
 	facts         tc.ExecutionToolDiscoveryFacts
@@ -120,7 +122,7 @@ func (c *ExecutionCapture) DiscoverExecutionTools(ctx context.Context, request t
 		if err != nil {
 			return err
 		}
-		d.entries, err = s.registry.captureEntries(ctx, tx, x, d.allowed, d.core, d.facts.DeniedToolIDs)
+		d.entries, err = s.registry.captureEntries(ctx, tx, x, request.ProjectID, d.allowed, d.core, d.facts.DeniedToolIDs)
 		if err != nil {
 			return err
 		}
@@ -142,6 +144,33 @@ func (c *ExecutionCapture) DiscoverExecutionTools(ctx context.Context, request t
 	for _, entry := range d.entries {
 		locks = append(locks, toolLock(entry.Ref.ToolID, f.Shared))
 	}
+	var bindings []tc.MCPBinding
+	for _, entry := range d.entries {
+		if entry.MCPBinding != (tc.MCPBinding{}) {
+			bindings = append(bindings, entry.MCPBinding)
+		}
+	}
+	if len(bindings) > 0 {
+		witness := &mcpDiscoveryWitness{capture: s, request: request, bindings: slices.Clone(bindings)}
+		witness.live.Store(true)
+		d.retention, err = s.registry.data().mcp.DiscoverMCPRetention(context.WithValue(ctx, mcpDiscoveryKey{}, witness), request, slices.Clone(bindings))
+		witness.live.Store(false)
+		if err != nil {
+			return nil, captureError(err)
+		}
+		if nilPort(d.retention) {
+			return nil, fail(f.DependencyUnbound)
+		}
+		locks = append(locks, d.retention.RequiredLocks()...)
+	}
+
+	d.resources, err = c.discoverMCPResources(ctx, request, d.entries, d.retention)
+	if err != nil {
+		return nil, err
+	}
+	if !nilPort(d.resources) {
+		locks = append(locks, d.resources.RequiredLocks()...)
+	}
 	d.locks, err = normalizedLocks(locks)
 	if err != nil {
 		return nil, err
@@ -149,7 +178,7 @@ func (c *ExecutionCapture) DiscoverExecutionTools(ctx context.Context, request t
 	return executionToolPlan{data: func() executionToolPlanData { return d }}, nil
 }
 
-func (r *Registry) captureEntries(ctx context.Context, tx f.Tx, x postgres.SQLExecutor, allowed, core, denied []id.ToolID) ([]currentTool, error) {
+func (r *Registry) captureEntries(ctx context.Context, tx f.Tx, x postgres.SQLExecutor, project id.ProjectID, allowed, core, denied []id.ToolID) ([]currentTool, error) {
 	ids := sortedTools(append(slices.Clone(allowed), core...))
 	ids = slices.Compact(ids)
 	entries := make([]currentTool, 0, len(ids))
@@ -157,7 +186,7 @@ func (r *Registry) captureEntries(ctx context.Context, tx f.Tx, x postgres.SQLEx
 		if slices.Contains(denied, tool) {
 			continue
 		}
-		entry, exists, err := r.currentCaptureTool(ctx, tx, x, tool)
+		entry, exists, err := r.currentCaptureTool(ctx, tx, x, project, tool)
 		if err != nil {
 			return nil, err
 		}
@@ -221,7 +250,7 @@ func (c *ExecutionCapture) ResolveExecutionToolsInTx(ctx context.Context, tx f.T
 	if version != d.version || !slices.Equal(allowed, d.allowed) || !slices.Equal(core, d.core) {
 		return nil, fail(f.VersionConflict)
 	}
-	entries, err := s.registry.captureEntries(ctx, tx, x, allowed, core, d.facts.DeniedToolIDs)
+	entries, err := s.registry.captureEntries(ctx, tx, x, request.ProjectID, allowed, core, d.facts.DeniedToolIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -248,7 +277,7 @@ func (c *ExecutionCapture) ResolveExecutionToolsInTx(ctx context.Context, tx f.T
 	tools := make([]tc.ExecutionTool, 0, len(mappings))
 	for _, mapping := range mappings {
 		entry := byID[mapping.Reference.ToolID]
-		v := tc.ExecutionTool{ToolID: entry.Ref.ToolID, SpecRevision: entry.Ref.SpecRevision, ModelVisibleName: mapping.ModelVisibleName, BindingSnapshot: tc.BuiltinExecutionBinding{Binding: entry.Binding, RunnerBinding: entry.RunnerBinding, ScopeResolverID: entry.Scope, RiskClassifierID: entry.Risk, Class: entry.Class}}
+		v := tc.ExecutionTool{ToolID: entry.Ref.ToolID, SpecRevision: entry.Ref.SpecRevision, ModelVisibleName: mapping.ModelVisibleName, BindingSnapshot: tc.BuiltinExecutionBinding{Binding: entry.Binding, RunnerBinding: entry.RunnerBinding, MCPBinding: entry.MCPBinding, ScopeResolverID: entry.Scope, RiskClassifierID: entry.Risk, Class: entry.Class}}
 		if err = v.Validate(); err != nil {
 			return nil, fail(f.InvalidState)
 		}
@@ -257,7 +286,17 @@ func (c *ExecutionCapture) ResolveExecutionToolsInTx(ctx context.Context, tx f.T
 	if err = captureContext(ctx); err != nil {
 		return nil, err
 	}
+	for _, tool := range tools {
+		if tool.BindingSnapshot.MCPBinding != (tc.MCPBinding{}) {
+			if err = c.retainMCP(ctx, tx, request, tool.BindingSnapshot.MCPBinding, d.retention); err != nil {
+				return nil, err
+			}
+		}
+	}
 	if err = writeExecutionToolReferences(ctx, x, request, facts, tools); err != nil {
+		return nil, err
+	}
+	if err = c.retainMCPResourcesInTx(ctx, tx, request, d.resources); err != nil {
 		return nil, err
 	}
 	if err = captureContext(ctx); err != nil {

@@ -58,9 +58,9 @@ func knowledgeOwner(owner oc.ObjectOwner) (id.ProjectID, kc.DocumentID, error) {
 	return p, k, nil
 }
 
-func authorityLocks(actor id.Actor, project id.ProjectID, intent id.AccessIntent) ([]f.LockRequest, error) {
-	if actor.Validate() == nil && actor.Details().Kind == id.Human {
-		return scopeLocks(actor, project, intent != id.Read)
+func authorityLocks(ctx context.Context, actor id.Actor, project id.ProjectID, intent id.AccessIntent) ([]f.LockRequest, error) {
+	if actor.Validate() == nil && (actor.Details().Kind == id.Human || actor.Details().Kind == id.AgentRun) {
+		return accessLocks(ctx, actor, project, intent != id.Read)
 	}
 	p, err := f.ProjectLock(project.String())
 	if err != nil {
@@ -92,7 +92,7 @@ func (a *Authority) ownerScope(ctx context.Context, tx f.Tx, actor id.Actor, own
 	if err != nil {
 		return nil, p, k, portError(err)
 	}
-	locks, err := authorityLocks(actor, p, intent)
+	locks, err := authorityLocks(ctx, actor, p, intent)
 	if err != nil {
 		return nil, p, k, err
 	}
@@ -104,12 +104,37 @@ func (a *Authority) ownerScope(ctx context.Context, tx f.Tx, actor id.Actor, own
 			return nil, p, k, err
 		}
 	}
-	grant, err := st.projects.RequireOwnerInTx(ctx, tx, actor, p, intent)
-	if err != nil {
-		return nil, p, k, portError(err)
-	}
-	if !grant.Matches(actor, p) {
-		return nil, p, k, internal(nil)
+	if actor.Details().Kind == id.Service {
+		w, err := currentIndexWork(ctx, actor, p)
+		if err != nil || intent != id.Read || w.job.document != k {
+			return nil, p, k, fault(f.Forbidden)
+		}
+		if err = w.authorizeInTx(ctx, tx, st.store); err != nil {
+			return nil, p, k, err
+		}
+	} else if actor.Details().Kind == id.AgentRun {
+		if err = authorizeInvocationInTx(ctx, tx, st.store, actor, p, intent); err != nil {
+			return nil, p, k, err
+		}
+		invocation, _ := currentInvocation(ctx, actor, p)
+		if invocation.query != nil || invocation.document != k {
+			return nil, p, k, fault(f.Forbidden)
+		}
+		row, err := loadDocument(ctx, x, p, k)
+		if err != nil {
+			return nil, p, k, err
+		}
+		if row.head.Active == nil || row.head.Active.ContentVersion != invocation.version {
+			return nil, p, k, fault(f.VersionConflict)
+		}
+	} else {
+		grant, err := st.projects.RequireOwnerInTx(ctx, tx, actor, p, intent)
+		if err != nil {
+			return nil, p, k, portError(err)
+		}
+		if !grant.Matches(actor, p) {
+			return nil, p, k, internal(nil)
+		}
 	}
 	return x, p, k, nil
 }
@@ -134,7 +159,7 @@ func (a *Authority) AuthorizeOwner(ctx context.Context, actor id.Actor, owner oc
 			return oc.OwnerAuthorization{}, err
 		}
 	}
-	locks, err := authorityLocks(actor, p, intent)
+	locks, err := authorityLocks(ctx, actor, p, intent)
 	if err != nil {
 		return oc.OwnerAuthorization{}, err
 	}
@@ -166,6 +191,13 @@ func (a *Authority) AuthorizeOwnerInTx(ctx context.Context, tx f.Tx, actor id.Ac
 	if err == nil {
 		if row.head.Active == nil {
 			return oc.OwnerAuthorization{}, fault(f.NotFound)
+		}
+		if actor.Details().Kind == id.Service {
+			object, err := indexObjectReadTarget(ctx, actor, *row.head.Active)
+			if err != nil {
+				return oc.OwnerAuthorization{}, err
+			}
+			return oc.NewOwnerAuthorization(oc.OwnerAuthorizationDetails{Actor: actor, Owner: owner, Intent: id.Read, Existence: oc.ExistingOwner, Version: row.head.Active.ContentVersion, ReadObjectID: object})
 		}
 		// A Create's final transaction inserts the current document before D05
 		// publishes its reserved prospective upload. Preserve the exact original
@@ -226,7 +258,26 @@ func (a *Authority) AuthorizeObjectReadInTx(ctx context.Context, tx f.Tx, actor 
 	if row.head.Active == nil || row.head.Active.ObjectID != object {
 		return oc.OwnerAuthorization{}, fault(f.NotFound)
 	}
+	if actor.Details().Kind == id.Service {
+		if _, err := indexObjectReadTarget(ctx, actor, *row.head.Active); err != nil {
+			return oc.OwnerAuthorization{}, err
+		}
+	}
 	return oc.NewOwnerAuthorization(oc.OwnerAuthorizationDetails{Actor: actor, Owner: owner, Intent: id.Read, Existence: oc.ExistingOwner, Version: row.head.Active.ContentVersion, ReadObjectID: object})
+}
+
+// Called only after ownerScope's current transactional authorization. The
+// returned Object grant additionally binds the original job's exact body;
+// another canonical reference for this document cannot replace that target.
+func indexObjectReadTarget(ctx context.Context, actor id.Actor, document kc.DocumentRef) (oc.ObjectID, error) {
+	w, err := currentIndexWork(ctx, actor, document.ProjectID)
+	if err != nil {
+		return oc.ObjectID{}, err
+	}
+	if document.ID != w.job.document || document.ContentVersion != w.job.version || document.ObjectID.Validate() != nil || document.ObjectID.String() != w.job.object {
+		return oc.ObjectID{}, fault(f.VersionConflict)
+	}
+	return document.ObjectID, nil
 }
 
 func (a *Authority) CheckInTx(ctx context.Context, tx f.Tx, actor id.Actor, owner oc.ObjectOwner, intent id.AccessIntent) error {
@@ -257,7 +308,7 @@ func (a *Authority) CheckInTx(ctx context.Context, tx f.Tx, actor id.Actor, owne
 	if err != nil {
 		return portError(err)
 	}
-	locks, err := authorityLocks(actor, p, id.Converge)
+	locks, err := authorityLocks(ctx, actor, p, id.Converge)
 	if err != nil {
 		return err
 	}
@@ -366,7 +417,7 @@ func objectDependencies(ctx context.Context, x postgres.SQLExecutor, request oc.
 	if err != nil {
 		return oc.AccessDependencies{}, err
 	}
-	locks, err := authorityLocks(d.Actor, p, intent)
+	locks, err := authorityLocks(ctx, d.Actor, p, intent)
 	if err != nil {
 		return oc.AccessDependencies{}, err
 	}

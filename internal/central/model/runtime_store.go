@@ -96,7 +96,7 @@ func (b runtimeBinding) validate() error {
 			return unavailable(nil)
 		}
 		switch a.ServiceName {
-		case id.SecretService, id.SecretMaintenance, id.OutboundService, id.ObjectService, id.ObjectMaintenance, id.ProjectLifecycle, id.ProjectInitialization, id.OutboxDelivery, id.AccountBootstrap, id.AccountAuth, id.AccountMaintenance, id.AccountMail, id.ModelRuntime:
+		case id.SecretService, id.SecretMaintenance, id.OutboundService, id.ObjectService, id.ObjectMaintenance, id.ProjectLifecycle, id.ProjectInitialization, id.OutboxDelivery, id.AccountBootstrap, id.AccountAuth, id.AccountMaintenance, id.AccountMail, id.ModelRuntime, "knowledge-runtime", "memory-runtime", "meeting-runtime":
 		default:
 			return unavailable(nil)
 		}

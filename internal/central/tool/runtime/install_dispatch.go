@@ -218,6 +218,15 @@ func (e *InstallExecutor) ExecuteInstall(ctx context.Context, prepared PreparedO
 	h.mu.Lock()
 	h.terminal = &terminal
 	h.mu.Unlock()
+	if !terminal.Known && terminal.Unknown != nil {
+		// Publication may already have committed. Keep the actual returned
+		// owner and original transaction identity for its scoped read; neither
+		// a failed Tool terminal nor a new installation can resolve this write.
+		h.mu.Lock()
+		h.retirement = backendErr
+		h.mu.Unlock()
+		return InstallOutcome{}, backendErr
+	}
 	// Durable accounting must preserve a known receipt after late cancellation.
 	// This one bounded final Tx is joined synchronously; no retry or background
 	// recovery is started when the commit result is unknown.

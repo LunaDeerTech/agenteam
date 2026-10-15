@@ -57,7 +57,7 @@ type successorSemanticWire struct {
 	SchemaVersion  f.Version                  `json:"schema_version"`
 	Actor          successorActorWire         `json:"actor"`
 	Model          successorResolvedModelWire `json:"model"`
-	Messages       []Message                  `json:"messages"`
+	Messages       json.RawMessage            `json:"messages"`
 	Tools          []Tool                     `json:"tools"`
 	ToolChoice     ToolChoice                 `json:"tool_choice"`
 	ResponseFormat ResponseFormat             `json:"response_format"`
@@ -98,7 +98,11 @@ func NewSuccessorSemantic(ctx context.Context, parts SuccessorSemanticParts) (Su
 	if ValidateToolHistory(parts.Messages) != nil {
 		return zero, bad()
 	}
-	wire := successorSemanticWire{SuccessorInputSchemaVersion, successorActorWire{i.AgentRun, c.ProjectID, *c.AgentID, *c.ExecutionID}, successorModelWire(parts.Model), parts.Messages, parts.Tools, parts.ToolChoice, parts.ResponseFormat, parts.RetryClass}
+	messages, err := EncodeCanonicalMessages(parts.Messages)
+	if err != nil {
+		return zero, err
+	}
+	wire := successorSemanticWire{SuccessorInputSchemaVersion, successorActorWire{i.AgentRun, c.ProjectID, *c.AgentID, *c.ExecutionID}, successorModelWire(parts.Model), messages, parts.Tools, parts.ToolChoice, parts.ResponseFormat, parts.RetryClass}
 	raw, err := successorSemanticJSON(ctx, wire)
 	if err != nil {
 		return zero, err
@@ -148,7 +152,11 @@ func DecodeSuccessorSemantic(ctx context.Context, raw []byte) (SuccessorSemantic
 	if err != nil {
 		return zero, bad()
 	}
-	got, err := NewSuccessorSemantic(ctx, SuccessorSemanticParts{actor, model, wire.Messages, wire.Tools, wire.ToolChoice, wire.ResponseFormat, wire.RetryClass})
+	messages, err := DecodeCanonicalMessages(wire.Messages)
+	if err != nil {
+		return zero, err
+	}
+	got, err := NewSuccessorSemantic(ctx, SuccessorSemanticParts{actor, model, messages, wire.Tools, wire.ToolChoice, wire.ResponseFormat, wire.RetryClass})
 	if err != nil {
 		return zero, err
 	}

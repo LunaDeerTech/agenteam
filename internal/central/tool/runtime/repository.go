@@ -14,6 +14,21 @@ import (
 )
 
 func loadOperation(ctx context.Context, x postgres.SQLExecutor, b tc.ToolCallBinding) (*operationRecord, error) {
+	r, err := loadInstallImmutableRecord(ctx, x, b)
+	if err != nil || r == nil {
+		return r, err
+	}
+	// Preparation and its legacy lookup remain created/v1-only. Reading an
+	// immutable identity is not permission to dispatch a running/terminal call.
+	if err = r.validate(); err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+// The dispatcher separately checks the exact phase/version and original
+// retired Attempt. This helper certifies only unchanged install metadata.
+func loadInstallImmutableRecord(ctx context.Context, x postgres.SQLExecutor, b tc.ToolCallBinding) (*operationRecord, error) {
 	var r operationRecord
 	var operation, skill, project, agent, execution, logical, invocation, call, tool string
 	var revision int64
@@ -47,7 +62,7 @@ func loadOperation(ctx context.Context, x postgres.SQLExecutor, b tc.ToolCallBin
 	if v.Project.String() != project || v.Agent.String() != agent || v.Execution.String() != execution || v.LogicalCall.String() != logical || v.Invocation.String() != invocation || v.Call != call || v.Spec.ToolID.String() != tool || int64(v.Spec.SpecRevision) != revision {
 		return nil, fail(f.InvalidState)
 	}
-	if err = r.validate(); err != nil {
+	if err = r.validateImmutable(); err != nil {
 		return nil, err
 	}
 	return &r, nil

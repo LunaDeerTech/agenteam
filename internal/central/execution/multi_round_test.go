@@ -181,6 +181,7 @@ func TestMultiRoundKnownReceiptCannotBypassOriginalJoin(t *testing.T) {
 }
 
 func TestMultiRoundClassifiesOnlyActualPayloadAvailability(t *testing.T) {
+	var binding tc.ToolCallBinding
 	for _, tc := range []struct {
 		name, phase, outcome                            string
 		available, wantPayload, wantCancel, wantUnknown bool
@@ -195,7 +196,7 @@ func TestMultiRoundClassifiesOnlyActualPayloadAvailability(t *testing.T) {
 		{"unknown result never retires", "failed", "unknown", false, false, false, true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			err := loopPayloadGate(toolOutcome(tc.phase, tc.outcome, tc.available))
+			err := loopPayloadGate(binding, toolOutcome(tc.phase, tc.outcome, tc.available))
 			if (err == nil) != tc.wantPayload || errors.Is(err, context.Canceled) != tc.wantCancel || directTextUnknown(err) != tc.wantUnknown {
 				t.Fatal("terminal classification lost actual payload/cancel/Unknown facts")
 			}

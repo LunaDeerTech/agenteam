@@ -50,13 +50,24 @@ func NewOwnerAuthorization(d OwnerAuthorizationDetails) (OwnerAuthorization, err
 		return OwnerAuthorization{}, bad()
 	}
 	if a.Kind == identity.Service && d.Intent != identity.Converge && d.Intent != identity.Lifecycle {
-		// Only the original initialization may prepare/publish or look up its
-		// Skill revision. The domain planner still authorizes each operation;
-		// this shape cannot grant object-body reads or protected leases.
-		_, creationErr := foundation.ParseID[struct{}](d.CreationCause)
-		if a.ServiceName != identity.ProjectInitialization || d.Owner.Details().Kind != SkillRevision ||
-			(d.Intent != identity.Read && d.Intent != identity.Mutate) || creationErr != nil ||
-			a.CauseRef != d.CreationCause || d.ReadObjectID != (ObjectID{}) || d.ProtectedLease != nil {
+		switch a.ServiceName {
+		case identity.ProjectInitialization:
+			// Only the original initialization may prepare/publish or look up
+			// its Skill revision; this shape grants no body read or lease.
+			_, creationErr := foundation.ParseID[struct{}](d.CreationCause)
+			if d.Owner.Details().Kind != SkillRevision || (d.Intent != identity.Read && d.Intent != identity.Mutate) || creationErr != nil ||
+				a.CauseRef != d.CreationCause || d.ReadObjectID != (ObjectID{}) || d.ProtectedLease != nil {
+				return OwnerAuthorization{}, bad()
+			}
+		case identity.KnowledgeRuntime:
+			// The Knowledge planner proves the original live indexing job.
+			// Its grant can read only that job's exact existing canonical object.
+			_, jobErr := foundation.ParseID[struct{}](a.CauseRef)
+			if jobErr != nil || d.Owner.Details().Kind != Knowledge || d.Intent != identity.Read || d.Existence != ExistingOwner ||
+				d.ReadObjectID.Validate() != nil || d.CreationCause != "" || d.ProtectedLease != nil {
+				return OwnerAuthorization{}, bad()
+			}
+		default:
 			return OwnerAuthorization{}, bad()
 		}
 	}

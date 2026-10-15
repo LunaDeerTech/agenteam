@@ -17,3 +17,16 @@ func TestWorkArtifactBuiltinBindingClosedSet(t *testing.T) {
 		}
 	}
 }
+
+func TestSkillDomainBindingsKeepInstallOnOriginalLedger(t *testing.T) {
+	for _, name := range []string{"skill.list", "skill.read", "skill.assign", "skill.prepare"} {
+		if !DomainBuiltinBinding(BuiltinBinding{HandlerID: name, ContractRevision: 1}) || DomainBuiltinBinding(BuiltinBinding{HandlerID: name, ContractRevision: 2}) {
+			t.Fatalf("invalid Skill domain binding revision: %s", name)
+		}
+	}
+	for _, name := range []string{"skill.install", "skill.delete", "skill.list-all"} {
+		if DomainBuiltinBinding(BuiltinBinding{HandlerID: name, ContractRevision: 1}) {
+			t.Fatalf("unimplemented or original-ledger binding admitted: %s", name)
+		}
+	}
+}

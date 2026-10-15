@@ -53,6 +53,29 @@ const creation = { ...projectBase, project_version: '1', creation_id: id(9), cre
 // projectAuditOptionalCases; contract/{metadata,project,model,knowledge}.go.
 // They are controlled frontend vectors, not a newly executed Go oracle.
 const vectors: Record<string, Vector> = {
+  'meeting.delete.accepted': {
+    metadata: {
+      meeting_id: id(6),
+      deletion_id: id(8),
+      initiator_id: id(2),
+      version: max,
+      deleted_rows: '0',
+    },
+    resource: resource('meeting'),
+    associations: { operation_id: id(8) },
+  },
+  'meeting.delete.completed': {
+    metadata: {
+      meeting_id: id(6),
+      deletion_id: id(8),
+      initiator_id: id(2),
+      version: max,
+      deleted_rows: '9007199254740993',
+    },
+    resource: resource('meeting'),
+    actor: service('meeting-runtime', id(8)),
+    associations: { operation_id: id(8) },
+  },
   'secret.create': {
     metadata: { version: '9007199254740993', changed_fields: ['purpose', 'value'] },
     resource: resource('secret'),
@@ -269,9 +292,9 @@ const accept = (value: unknown) => parseProjectAuditRecord(value, project)
 const reject = (value: unknown) => expect(() => accept(value)).toThrow('invalid-response')
 
 describe('Project Audit independent closed projection', () => {
-  it('covers all 37 formal actions and exactly fifteen resources', () => {
+  it('covers all 39 formal actions and exactly sixteen resources', () => {
     expect(projectAuditActions.slice().sort()).toEqual(Object.keys(vectors).sort())
-    expect(Object.keys(vectors)).toHaveLength(37)
+    expect(Object.keys(vectors)).toHaveLength(39)
     const schema: {
       components: { schemas: Record<string, { properties?: { action?: { const?: string } } }> }
     } = JSON.parse(
@@ -367,6 +390,29 @@ describe('Project Audit independent closed projection', () => {
       reject({ ...base, actor })
     reject({ ...base, actor: agent, associations: {} })
     reject({ ...base, actor: agent, associations: { execution_id: id(99) } })
+  })
+  it('requires the original Meeting deletion identity and keeps runtime actors Project-only', () => {
+    for (const action of ['meeting.delete.accepted', 'meeting.delete.completed']) {
+      const base = row(action)
+      reject({ ...base, outcome: 'failed' })
+      reject({ ...base, resource: resource('meeting', 99) })
+      reject({ ...base, associations: {} })
+      reject({ ...base, associations: { operation_id: id(99) } })
+      reject({ ...base, associations: { operation_id: id(8), request_id: id(9) } })
+      for (const deleted_rows of ['-1', '01', '9223372036854775808', 1, null])
+        reject({ ...base, metadata: { ...base.metadata, deleted_rows } })
+    }
+    const accepted = row('meeting.delete.accepted'),
+      completed = row('meeting.delete.completed')
+    reject({ ...accepted, actor: service('meeting-runtime', id(8)) })
+    reject({ ...accepted, actor: { kind: 'human', id: id(99) } })
+    reject({ ...accepted, metadata: { ...accepted.metadata, deleted_rows: '1' } })
+    reject({ ...completed, actor: human })
+    reject({ ...completed, actor: service('meeting-runtime', id(99)) })
+    reject({ ...completed, actor: service('project-lifecycle', id(8)) })
+    reject({ ...completed, metadata: { ...completed.metadata, deleted_rows: '0' } })
+    reject({ ...row('secret.resolve'), actor: service('meeting-runtime', id(8)) })
+    expect(auditServices).not.toContain('meeting-runtime')
   })
   it('retains all nine safe associations in a fixed order and rejects null/unknown links', () => {
     const keys = [

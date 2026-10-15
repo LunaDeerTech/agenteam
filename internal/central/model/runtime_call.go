@@ -21,28 +21,7 @@ func TextInputDigest(messages []mc.Message) (f.Digest, error) {
 }
 
 func runtimeInputDigest(ctx context.Context, messages []mc.Message) (f.Digest, error) {
-	if err := runtimeTextShape(ctx, messages); err != nil {
-		return "", err
-	}
-	// Use an explicit durable projection rather than any request log encoding.
-	input := struct {
-		Format         int               `json:"format"`
-		Messages       []mc.Message      `json:"messages"`
-		ToolChoice     mc.ToolChoice     `json:"tool_choice"`
-		ResponseFormat mc.ResponseFormat `json:"response_format"`
-	}{1, messages, mc.ToolChoice{Kind: "none"}, mc.ResponseFormat{Kind: "text"}}
-	raw, err := json.Marshal(input)
-	if err != nil {
-		return "", unavailable(err)
-	}
-	defer clear(raw)
-	if len(raw) > runtimeTextLimit {
-		return "", fault(f.PayloadTooLarge)
-	}
-	if err := runtimeContextError(ctx); err != nil {
-		return "", err
-	}
-	return hash(raw), nil
+	return runtimeStructuredInputDigest(ctx, messages, mc.ResponseFormat{Kind: "text"})
 }
 
 // Check allocation bounds before Validate/Clone/Marshal. The accepted wire
@@ -114,13 +93,26 @@ func prepareRuntimeInput(ctx context.Context, request mc.ModelRequest, mode wire
 		return mc.ModelRequest{}, fault(f.InvalidArgument)
 	}
 	s, c := request.Model.Snapshot, request.Model.Snapshot.Capabilities
-	if !runtimeSupportedOwner(request) || len(request.Tools) != 0 || request.ToolChoice.Kind != "none" || request.ResponseFormat.Kind != "text" || s.Identity.Profile != mc.OpenAIChatV1 || s.Identity.Protocol != mc.OpenAIChat || s.Identity.ModelType != mc.ChatModel || s.Identity.AdapterRevision != wire.OpenAIChatTextRevision || !runtimeEmptyObject(s.Parameters) || !runtimeEmptyObject(s.RequestOverwrite) || len(s.HeaderOverwrite) != 0 || c.ToolCalls || c.ParallelToolCalls || c.Reasoning || len(c.ReasoningEfforts) != 0 || !runtimeOnlyText(c.InputModalities) || !runtimeOnlyText(c.OutputModalities) || len(c.StructuredOutputModes) > 0 && !runtimeOnlyText(c.StructuredOutputModes) || mode == wire.SSEResponse && !c.Streaming || s.CredentialRef == nil || request.Model.CredentialLease == nil {
+	structured := s.Identity.AdapterRevision == wire.OpenAIChatStructuredRevision
+	formatSupported := request.ResponseFormat.Kind == "text" || structured && request.ResponseFormat.Kind == "json_schema"
+	modesSupported := len(c.StructuredOutputModes) == 0 || runtimeOnlyText(c.StructuredOutputModes)
+	if structured {
+		modesSupported = false
+		for _, mode := range c.StructuredOutputModes {
+			if mode == "json_schema" {
+				modesSupported = true
+			} else if mode != "text" {
+				return mc.ModelRequest{}, fault(f.CapabilityUnsupported)
+			}
+		}
+	}
+	if !runtimeSupportedOwner(request) || len(request.Tools) != 0 || request.ToolChoice.Kind != "none" || !formatSupported || s.Identity.Profile != mc.OpenAIChatV1 || s.Identity.Protocol != mc.OpenAIChat || s.Identity.ModelType != mc.ChatModel || s.Identity.AdapterRevision != wire.OpenAIChatTextRevision && !structured || !runtimeEmptyObject(s.Parameters) || !runtimeEmptyObject(s.RequestOverwrite) || len(s.HeaderOverwrite) != 0 || c.ToolCalls || c.ParallelToolCalls || c.Reasoning || len(c.ReasoningEfforts) != 0 || !runtimeOnlyText(c.InputModalities) || !runtimeOnlyText(c.OutputModalities) || !modesSupported || mode == wire.SSEResponse && !c.Streaming || s.CredentialRef == nil || request.Model.CredentialLease == nil {
 		return mc.ModelRequest{}, fault(f.CapabilityUnsupported)
 	}
 	if request.Input.SchemaVersion != 1 {
 		return mc.ModelRequest{}, fault(f.SchemaUnsupported)
 	}
-	digest, err := runtimeInputDigest(ctx, request.Messages)
+	digest, err := runtimeStructuredInputDigest(ctx, request.Messages, request.ResponseFormat)
 	if err != nil {
 		return mc.ModelRequest{}, err
 	}

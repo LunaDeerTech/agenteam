@@ -14,6 +14,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	pv "github.com/LunaDeerTech/agenteam/internal/central/projectvariable"
+	"github.com/LunaDeerTech/agenteam/internal/central/secret"
 )
 
 type auditFactFunc func(context.Context, foundation.Tx, ac.Entry, ac.AppendKey) error
@@ -136,6 +137,9 @@ func auditGateEntry(t *testing.T, f *auditGateFixture, actor identity.Actor, act
 	scope, _ := identity.InProject(f.project)
 	resource, _ := ac.NewResource(ac.SecretResource, testID[struct{}](t).String())
 	metadata, _ := ac.SecretMutationMetadata(action, 1, []ac.ChangedField{ac.ValueChanged})
+	if action == ac.SecretDelete {
+		metadata, _ = ac.SecretMutationMetadata(action, 1, nil)
+	}
 	cause := testID[struct{}](t).String()
 	if action == ac.SecretResolve {
 		metadata, _ = ac.SecretResolveMetadata(testID[struct{}](t).String(), ac.Model, "")
@@ -225,6 +229,130 @@ func TestAuditFactsServiceResolveAndMissingProvider(t *testing.T) {
 	hasCode(t, f.a.CheckAppendInTx(context.Background(), f.store.tx, entry, key), foundation.DependencyUnbound)
 	var zero *Authority
 	hasCode(t, zero.CheckAppendInTx(context.Background(), f.store.tx, entry, key), foundation.DependencyUnbound)
+}
+
+type secretAuditGateStore struct{ *authorityStore }
+
+func (*secretAuditGateStore) Acquire(context.Context, foundation.Tx, foundation.LockKey, foundation.LockMode) error {
+	return errors.New("audit observation must not acquire locks")
+}
+
+func TestSecretTechnicalMutationRequiresOriginalSecretProof(t *testing.T) {
+	for _, action := range []ac.Action{ac.SecretCreate, ac.SecretUpdate, ac.SecretDelete} {
+		t.Run(string(action), func(t *testing.T) {
+			f := newAuditGateFixture(t, nil)
+			scope, _ := identity.InProject(f.project)
+			registration, _ := identity.RegisterService(identity.SecretService)
+			actor, _ := registration.Actor(testID[struct{}](t).String(), scope)
+			entry, _ := auditGateEntry(t, f, actor, action)
+			key, err := ac.NewAppendKey(ac.SecretProducer, string(digest([]byte("original sealed OAuth command"))), 0)
+			if err != nil {
+				t.Fatal(err)
+			}
+			checker, err := secret.NewProjectAuditAuthority(&secretAuditGateStore{f.store})
+			if err != nil {
+				t.Fatal(err)
+			}
+			f.a.state().auditFacts[ac.SecretProducer] = checker
+			// The real Secret checker must reject a valid technical actor and
+			// public audit tuple without the original private write proof.
+			hasCode(t, f.a.CheckAppendInTx(context.Background(), f.store.tx, entry, key), foundation.Forbidden)
+			type marker struct{}
+			ctx := context.WithValue(context.Background(), marker{}, "original write context")
+			calls := 0
+			refusal := fault(foundation.Forbidden)
+			f.a.state().auditFacts[ac.SecretProducer] = auditFactFunc(func(got context.Context, tx foundation.Tx, gotEntry ac.Entry, gotKey ac.AppendKey) error {
+				calls++
+				if got != ctx || tx != f.store.tx || !gotEntry.Fields().Actor.Equal(entry.Fields().Actor) || !reflect.DeepEqual(gotEntry.Fields().Metadata.JSON(), entry.Fields().Metadata.JSON()) || gotEntry.Fields().Resource.Details() != entry.Fields().Resource.Details() || gotEntry.Fields().Action != action || gotKey.Details() != key.Details() {
+					t.Fatal("technical write proof changed at Project boundary")
+				}
+				return refusal
+			})
+			hasCode(t, f.a.CheckAppendInTx(ctx, f.store.tx, entry, key), foundation.Forbidden)
+			if calls != 1 || len(f.store.locks) != 1 || f.store.locks[0].Mode != foundation.Shared {
+				t.Fatal("missing current Project gate or exact fact dispatch")
+			}
+			for _, phase := range []c.Lifecycle{c.Archiving, c.Archived, c.Deleting} {
+				f.lifecycle = phase
+				hasCode(t, f.a.CheckAppendInTx(ctx, f.store.tx, entry, key), foundation.ProjectNotActive)
+			}
+			f.lifecycle, f.initialized = c.Active, false
+			hasCode(t, f.a.CheckAppendInTx(ctx, f.store.tx, entry, key), foundation.ProjectNotActive)
+			f.initialized = true
+			f.store.lockErr = errors.New("missing project lock")
+			hasCode(t, f.a.CheckAppendInTx(ctx, f.store.tx, entry, key), foundation.DependencyUnavailable)
+			if calls != 1 {
+				t.Fatal("closed Project or missing lock reached Secret facts")
+			}
+		})
+	}
+}
+
+func TestMCPAgentSecretResolveRequiresCurrentProjectAndOriginalProof(t *testing.T) {
+	f := newAuditGateFixture(t, nil)
+	actor, _ := identity.NewAgentRun(f.project, testID[identity.Agent](t), testID[identity.Execution](t))
+	entry, key := auditGateEntry(t, f, actor, ac.SecretResolve)
+	fields := entry.Fields()
+	fields.Metadata, _ = ac.SecretResolveMetadata(testID[struct{}](t).String(), ac.MCP, "")
+	fields.Associations.OperationID = testID[struct{}](t).String()
+	fields.Associations.ToolID = testID[identity.Tool](t).String()
+	fields.Associations.RequestID = testID[struct{}](t).String()
+	var err error
+	entry, err = ac.NewEntry(fields)
+	if err != nil {
+		t.Fatal(err)
+	}
+	checker, err := secret.NewProjectAuditAuthority(&secretAuditGateStore{f.store})
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.a.state().auditFacts[ac.SecretProducer] = checker
+	// Actual Secret authority rejects public Actor/Operation/Tool tuples in
+	// the absence of its same-transaction resolution and Usage witness.
+	hasCode(t, f.a.CheckAppendInTx(context.Background(), f.store.tx, entry, key), foundation.Forbidden)
+	type marker struct{}
+	ctx := context.WithValue(context.Background(), marker{}, "original MCP resolution")
+	calls := 0
+	f.a.state().auditFacts[ac.SecretProducer] = auditFactFunc(func(got context.Context, tx foundation.Tx, e ac.Entry, k ac.AppendKey) error {
+		calls++
+		if got != ctx || tx != f.store.tx || !e.Fields().Actor.Equal(actor) || e.Fields().Associations != entry.Fields().Associations || k.Details() != key.Details() {
+			t.Fatal("lost exact original MCP resolution")
+		}
+		return fault(foundation.Forbidden)
+	})
+	hasCode(t, f.a.CheckAppendInTx(ctx, f.store.tx, entry, key), foundation.Forbidden)
+	if calls != 1 || len(f.store.locks) != 1 || f.store.locks[0].Mode != foundation.Shared {
+		t.Fatal("missing Project gate or original proof dispatch")
+	}
+	for _, phase := range []c.Lifecycle{c.Archiving, c.Archived, c.Deleting} {
+		f.lifecycle = phase
+		hasCode(t, f.a.CheckAppendInTx(ctx, f.store.tx, entry, key), foundation.ProjectNotActive)
+	}
+	f.lifecycle, f.initialized = c.Active, false
+	hasCode(t, f.a.CheckAppendInTx(ctx, f.store.tx, entry, key), foundation.ProjectNotActive)
+	f.initialized = true
+	f.store.lockErr = errors.New("missing Project lock")
+	hasCode(t, f.a.CheckAppendInTx(ctx, f.store.tx, entry, key), foundation.DependencyUnavailable)
+	f.store.lockErr = nil
+	for _, mutate := range []func(*ac.EntryFields){
+		func(v *ac.EntryFields) {
+			v.Metadata, _ = ac.SecretResolveMetadata(testID[struct{}](t).String(), ac.Model, "")
+		},
+		func(v *ac.EntryFields) { v.Associations.OperationID = "" },
+		func(v *ac.EntryFields) { v.Associations.ToolID = "" },
+		func(v *ac.EntryFields) { v.Associations.RequestID = "" },
+	} {
+		v := entry.Fields()
+		mutate(&v)
+		bad, err := ac.NewEntry(v)
+		if err != nil {
+			t.Fatal(err)
+		}
+		hasCode(t, f.a.CheckAppendInTx(ctx, f.store.tx, bad, key), foundation.Forbidden)
+	}
+	if calls != 1 {
+		t.Fatal("closed Project or foreign invocation shape reached Secret provider")
+	}
 }
 
 func TestProjectVariableAuditFactsCurrentGateAndExactDispatch(t *testing.T) {

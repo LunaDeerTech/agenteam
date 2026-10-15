@@ -116,7 +116,7 @@ func executionRecoveryForPreparation(t *testing.T, p *preparationControl) (*asso
 	if err != nil {
 		t.Fatal(err)
 	}
-	job := &associatedCall{project: row.summary.ProjectID, dispatch: c.AssociatedDispatch{ExecutionID: row.summary.ID, AgentID: row.summary.AgentID, DispatchID: row.launch.Lineage.DispatchID, Key: row.launch.Meta.IdempotencyKey, Digest: row.digest}, active: true}
+	job := &associatedCall{project: row.summary.ProjectID, dispatch: associatedIdentity{AssociatedDispatch: c.AssociatedDispatch{ExecutionID: row.summary.ID, AgentID: row.summary.AgentID, DispatchID: row.launch.Lineage.DispatchID, Key: row.launch.Meta.IdempotencyKey, Digest: row.digest}}, active: true}
 	ctx := context.WithValue(context.Background(), associatedContextKey{}, job)
 	job.ctx = ctx
 	s.jobs[row.summary.ID] = job

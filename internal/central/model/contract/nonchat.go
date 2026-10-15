@@ -36,11 +36,12 @@ func (c NonchatCall) Clone() NonchatCall {
 
 type EmbeddingRequest struct {
 	NonchatCall
-	Texts []string `json:"texts"`
+	Texts              []string `json:"texts"`
+	ExpectedDimensions int      `json:"expected_dimensions"`
 }
 
 func (r EmbeddingRequest) Validate() error {
-	if r.NonchatCall.Validate() != nil || r.Consumer.Purpose.ModelType() != EmbeddingModel || len(r.Texts) == 0 {
+	if r.NonchatCall.Validate() != nil || r.Consumer.Purpose.ModelType() != EmbeddingModel || len(r.Texts) == 0 || r.ExpectedDimensions < 1 || r.ExpectedDimensions > 4096 {
 		return bad()
 	}
 	for _, s := range r.Texts {
@@ -260,3 +261,18 @@ func (GeneratedFile) LogValue() slog.Value       { return slog.StringValue("mode
 
 func (GeneratedFiles) Format(w fmt.State, _ rune) { _, _ = w.Write([]byte("model_generated_files")) }
 func (GeneratedFiles) LogValue() slog.Value       { return slog.StringValue("model_generated_files") }
+
+// ValidateInvocation validates the common admission projection supplied only
+// by the original Model Runtime to Usage's project-call ownership boundary.
+// It does not validate embedding texts or grant a provider handoff. A nonchat
+// projection carries no chat payload; its Input digest binds the separately
+// prepared nonchat request before the Runtime creates this association.
+func (r ModelRequest) ValidateInvocation() error {
+	if r.Consumer.Purpose.ModelType() == ChatModel {
+		return r.Validate()
+	}
+	if r.Consumer.Purpose.ModelType() != EmbeddingModel || r.RetryClass != BoundedRetry || len(r.Messages) != 0 || len(r.Tools) != 0 || r.ToolChoice.Kind != "" || r.ToolChoice.Name != "" || r.ResponseFormat.Kind != "" || r.ResponseFormat.Name != "" || len(r.ResponseFormat.Schema) != 0 {
+		return bad()
+	}
+	return (NonchatCall{Actor: r.Actor, CallID: r.CallID, Consumer: r.Consumer, Model: r.Model, Input: r.Input}).Validate()
+}

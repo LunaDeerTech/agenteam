@@ -41,11 +41,13 @@ type Authorizations struct {
 	Projects ProjectAuthority
 }
 type Options struct {
+	MCP            tc.MCPRegistryAuthority
 	Sources        map[string]BuiltinSource
 	RunnerSources  map[string]RunnerSource
 	Authorizations Authorizations
 }
 type state struct {
+	mcp     tc.MCPRegistryAuthority
 	store   Store
 	sources map[string]BuiltinSource
 	runners map[string]RunnerSource
@@ -79,7 +81,7 @@ func New(store Store, options Options) (*Registry, error) {
 		}
 		runners[key] = source
 	}
-	s := &state{store: store, sources: sources, runners: runners, auth: options.Authorizations}
+	s := &state{store: store, mcp: options.MCP, sources: sources, runners: runners, auth: options.Authorizations}
 	return &Registry{state: func() *state { return s }}, nil
 }
 func (r *Registry) data() *state {

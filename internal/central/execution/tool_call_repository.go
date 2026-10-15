@@ -69,7 +69,7 @@ func newToolCallCandidate(run *directTextCall, response mc.ModelResponse) (*tool
 		if !found || !slices.Contains(fields.Agent.Fields().AllowedMountIDs, mountID) {
 			return nil, fault(f.Forbidden)
 		}
-	} else if run.owner.multi == nil || !tc.WorkArtifactBuiltinBinding(selected.BindingSnapshot.Binding) {
+	} else if run.owner.multi == nil || !directToolCallBinding(selected.BindingSnapshot) {
 		return nil, fault(f.CapabilityUnsupported)
 	}
 	canonical, err := cursor.CanonicalJSON(part.Arguments)
@@ -104,6 +104,7 @@ func (s *directTextState) saveToolCallFacts(ctx context.Context, run *directText
 	s.mu.Unlock()
 	cause, _ := f.NewJobCause("execution-tool-call-checkpoint", run.request.ExecutionID.String(), run.toolFacts.payload.String())
 	canonicalCancelled := false
+	var policyRejection *capturedToolPolicyRejection
 	result := s.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		if err := s.store.AcquireAll(ctx, tx, run.locks); err != nil {
 			return portError(err)
@@ -134,6 +135,9 @@ func (s *directTextState) saveToolCallFacts(ctx context.Context, run *directText
 			return context.Canceled
 		}
 		if err = s.requireCurrentToolFacts(ctx, tx, run); err != nil {
+			// The local rejection precedes all checkpoint writes. Other
+			// authorities' errors remain on the original observation path.
+			errors.As(err, &policyRejection)
 			return err
 		}
 		if err = s.verifyDirectTextMountUse(ctx, tx, run, row, stored, run.input); err != nil {
@@ -142,6 +146,10 @@ func (s *directTextState) saveToolCallFacts(ctx context.Context, run *directText
 		run.toolFacts.version = row.summary.Version + 1
 		return insertToolCallFacts(ctx, x, run, row.summary.Version)
 	})
+	return s.completeToolCallCheckpoint(run, result, canonicalCancelled, policyRejection)
+}
+
+func (s *directTextState) completeToolCallCheckpoint(run *directTextCall, result f.CommitResult, canonicalCancelled bool, policyRejection *capturedToolPolicyRejection) (c.DirectTextReceipt, error) {
 	if err := commitError(result); err != nil {
 		// A canonical cancel is distinct from an uncertain checkpoint. Only a
 		// known rollback with no candidate writes may enter the old terminal
@@ -150,6 +158,14 @@ func (s *directTextState) saveToolCallFacts(ctx context.Context, run *directText
 			s.mu.Lock()
 			run.phase = "closing"
 			run.invocation.callError = context.Canceled
+			s.mu.Unlock()
+			return s.finish(run)
+		}
+		if policyRejection != nil && result.State() == f.NotCommitted {
+			s.mu.Lock()
+			run.phase = "closing"
+			run.invocation.callError = policyRejection
+			run.toolFailed = true
 			s.mu.Unlock()
 			return s.finish(run)
 		}
@@ -169,6 +185,7 @@ func (s *directTextState) saveToolCallFacts(ctx context.Context, run *directText
 	run.unresolved = nil
 	run.uncertainty = ""
 	s.mu.Unlock()
+	s.publishRuntime(run)
 	return s.receipt(run), nil
 }
 
@@ -263,7 +280,7 @@ func loadToolCallFacts(ctx context.Context, x postgres.SQLExecutor, stored *dire
 		if _, err = toolCallMountID(ctx, rb, original); err != nil {
 			return nil, unavailable(nil)
 		}
-	} else if !tc.WorkArtifactBuiltinBinding(expected.BindingSnapshot.Binding) {
+	} else if !directToolCallBinding(expected.BindingSnapshot) {
 		return nil, unavailable(nil)
 	}
 	v.payload = id
@@ -319,6 +336,7 @@ func (s *directTextState) observeToolCallCheckpoint(ctx context.Context, run *di
 		run.unresolved = nil
 		run.uncertainty = ""
 		s.mu.Unlock()
+		s.publishRuntime(run)
 	}
 	return found, nil
 }
@@ -338,7 +356,7 @@ func toolBinding(stored *directTextRecord) (tc.ToolCallBinding, error) {
 	if err != nil {
 		return tc.ToolCallBinding{}, err
 	}
-	b := tc.ToolCallBinding{Actor: actor, ProjectID: input.Request.Launch.ProjectID, AgentID: input.Request.Launch.AgentID, ExecutionID: r.ExecutionID, RoundID: r.ID.String(), SnapshotID: r.SnapshotID.String(), InputBindingID: r.InputBindingID.String(), LogicalCallID: r.CallID, InvocationID: v.response.InvocationID, CallID: v.call.ID, ModelVisibleName: t.ModelVisibleName, Spec: tc.SpecRef{ToolID: t.ToolID, SpecRevision: t.SpecRevision}, Binding: t.BindingSnapshot.Binding, RunnerBinding: t.BindingSnapshot.RunnerBinding, Input: tc.ToolInputReference{PayloadID: v.payload.String(), SHA256: c.TriggerInputDigest(v.original), Bytes: f.Progress(len(v.original))}, CanonicalArguments: c.TriggerInputDigest(v.canonical)}
+	b := tc.ToolCallBinding{Actor: actor, ProjectID: input.Request.Launch.ProjectID, AgentID: input.Request.Launch.AgentID, ExecutionID: r.ExecutionID, RoundID: r.ID.String(), SnapshotID: r.SnapshotID.String(), InputBindingID: r.InputBindingID.String(), LogicalCallID: r.CallID, InvocationID: v.response.InvocationID, CallID: v.call.ID, ModelVisibleName: t.ModelVisibleName, Spec: tc.SpecRef{ToolID: t.ToolID, SpecRevision: t.SpecRevision}, Binding: t.BindingSnapshot.Binding, RunnerBinding: t.BindingSnapshot.RunnerBinding, MCPBinding: t.BindingSnapshot.MCPBinding, Input: tc.ToolInputReference{PayloadID: v.payload.String(), SHA256: c.TriggerInputDigest(v.original), Bytes: f.Progress(len(v.original))}, CanonicalArguments: c.TriggerInputDigest(v.canonical)}
 	return b, b.Validate()
 }
 
@@ -346,10 +364,26 @@ func toolBinding(stored *directTextRecord) (tc.ToolCallBinding, error) {
 // The actual backend kind remains the captured BindingSnapshot and the public
 // ToolCallBinding never presents a Builtin call as a Runner operation.
 func toolCallStorageBinding(t tc.ExecutionTool) tc.RunnerBinding {
-	if tc.WorkArtifactBuiltinBinding(t.BindingSnapshot.Binding) {
-		return tc.RunnerBinding{OperationName: t.BindingSnapshot.Binding.HandlerID, OperationRevision: "1", ProtocolMajor: 1}
+	if directToolCallBinding(t.BindingSnapshot) {
+		name := t.BindingSnapshot.Binding.HandlerID
+		if t.BindingSnapshot.MCPBinding.Validate() == nil {
+			name = "mcp.call"
+		}
+		return tc.RunnerBinding{OperationName: name, OperationRevision: "1", ProtocolMajor: 1}
 	}
 	return t.BindingSnapshot.RunnerBinding
+}
+
+// Install shares the original Execution checkpoint and result provenance, but
+// retains its own ledger/executor. It never enters DomainBuiltinBinding.
+func directToolCallBinding(b tc.BuiltinExecutionBinding) bool {
+	if b.RunnerBinding != (tc.RunnerBinding{}) {
+		return false
+	}
+	if b.MCPBinding != (tc.MCPBinding{}) {
+		return b.Binding == (tc.BuiltinBinding{}) && b.MCPBinding.Validate() == nil
+	}
+	return tc.DomainBuiltinBinding(b.Binding) || b.Binding == (tc.BuiltinBinding{HandlerID: "skill.install", ContractRevision: 1})
 }
 
 // Observation binds all original success bytes, not only the protected input.

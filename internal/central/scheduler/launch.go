@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"sync"
+	"time"
 
 	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -212,14 +213,27 @@ func (s *LaunchHandoff) launch(ctx context.Context, p i.ProjectID, id DispatchID
 		temporaryReason, temporary := ec.MatchLaunchTemporaryRejection(launchErr, r.launch.Clone())
 		temporary = rejected && temporary && temporaryReason == ec.LaunchTemporaryLockTimeout && finalReason == "" &&
 			errors.As(launchErr, &originalFault) && originalFault.Code == f.InternalError && originalFault.CommitState == f.NotCommitted
-		launchErr = portError(launchErr)
+		// Only a typed, physically returned NotCommitted result authorizes
+		// an independent technical checkpoint. Cancellation alone does not.
+		checkpointTail := rejected && errors.As(launchErr, &originalFault) && originalFault.CommitState == f.NotCommitted
 		if !rejected {
 			retain = true
 			return Dispatch{}, uncertainLaunch(launchErr)
 		}
+		launchErr = portError(launchErr)
 		var rejection *f.Fault
 		busy := errors.As(launchErr, &rejection) && rejection.Code == f.AgentBusy
-		observed, checkpointErr := s.recordRejected(ctx, call, r, busy, finalReason, temporary)
+		checkpoint := ctx
+		if checkpointTail {
+			// Retain the original private call witnesses and hold both owners
+			// through the actual Store return, including after global Stop.
+			// This matches the bounded ProjectCall technical-return budget;
+			// it does not extend the App shutdown deadline.
+			var cancel context.CancelFunc
+			checkpoint, cancel = context.WithTimeout(context.WithoutCancel(ctx), 3*time.Second)
+			defer cancel()
+		}
+		observed, checkpointErr := s.recordRejected(checkpoint, call, r, busy, finalReason, temporary)
 		if checkpointErr != nil {
 			retain = true
 			return Dispatch{}, uncertainLaunch(errors.Join(launchErr, checkpointErr))
@@ -310,11 +324,43 @@ func pendingUnknown() error {
 func uncertainLaunch(cause error) error {
 	err := f.NewFault(f.CommitUnknown, f.Unknown)
 	err.RetryHint = "lookup"
-	return err.WithCause(portError(cause))
+	// Keep the original uncertain transaction/attempt even when cancellation
+	// is another cause. Fault formatting already hides the diagnostic chain.
+	return err.WithCause(cause)
 }
 func knownNotCreated(err error) bool {
 	var v *f.Fault
-	return errors.As(err, &v) && v.Code != f.CommitUnknown && (v.CommitState == f.NotStarted || v.CommitState == f.NotCommitted)
+	if !errors.As(err, &v) || v.Code == f.CommitUnknown || v.CommitState != f.NotStarted && v.CommitState != f.NotCommitted {
+		return false
+	}
+	// A wrapper or joined sibling cannot hide an original uncertain outcome.
+	// Bound traversal so malformed dependency error chains fail closed.
+	pending := []error{err}
+	for visited := 0; len(pending) != 0; visited++ {
+		if visited == 64 {
+			return false
+		}
+		last := len(pending) - 1
+		current := pending[last]
+		pending = pending[:last]
+		if current == nil {
+			continue
+		}
+		if known, ok := current.(*f.Fault); ok && (known == nil || known.Code == f.CommitUnknown || known.CommitState != f.NotStarted && known.CommitState != f.NotCommitted) {
+			return false
+		}
+		switch nested := current.(type) {
+		case interface{ Unwrap() []error }:
+			children := nested.Unwrap()
+			if len(pending)+len(children) > 64 {
+				return false
+			}
+			pending = append(pending, children...)
+		case interface{ Unwrap() error }:
+			pending = append(pending, nested.Unwrap())
+		}
+	}
+	return true
 }
 func matchesExecution(r *dispatchRecord, e ec.Summary) bool {
 	return e.ID.Validate() == nil && e.ProjectID == r.project && e.AgentID == r.agent && e.Trigger == r.launch.Trigger && e.Purpose == r.launch.Purpose && e.Status.Valid() && e.Version.Validate() == nil

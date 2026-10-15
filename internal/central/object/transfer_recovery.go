@@ -337,41 +337,46 @@ func (t *TransferService) recoverProgress(ctx context.Context, failures *recover
 		if !ok {
 			continue
 		}
-		registration, _ := identity.RegisterService(identity.ObjectMaintenance)
-		actor, _ := registration.Actor(id.String(), r.spec.Details().Owner.Scope())
-		request, err := r.request(actor, oc.TransferCleanup, nil, nil, oc.PreparedPayload{})
-		if err != nil {
-			failures.remember(err)
-			continue
-		}
-		result := t.within(ctx, request, nil, func(ctx context.Context, tx foundation.Tx, _ []oc.AccessLockPlan, _ oc.LockedAccess, _ oc.TransferAuthorization) error {
-			e, err := executor(s, tx)
-			if err != nil {
-				return err
-			}
-			_, err = e.Exec(ctx, `UPDATE agenteam_object.object_transfers SET recovery_pass=recovery_pass+1 WHERE id=$1`, id.String())
-			return unavailableIf(err)
-		})
-		if err = commitError(result); err != nil {
-			failures.remember(err)
-			continue
-		}
-		if r.cleanup && r.spec.Details().Direction == oc.TransferPUT {
-			child, done, childErr := s.childOperation(ctx)
-			if childErr != nil {
-				failures.remember(childErr)
-				continue
-			}
-			_, err = s.cleanObject(child.ctx, r.object)
-			done()
-			failures.remember(err)
-		}
-		if ctx.Err() != nil {
-			return failures.remember(unavailable(ctx.Err()))
-		}
-		failures.remember(t.recoverRetirement(ctx, actor, r.id))
+		failures.remember(t.recoverTransferRow(ctx, r, failures))
 	}
 	return failures.first
+}
+
+func (t *TransferService) recoverTransferRow(ctx context.Context, r transferRow, failures *recoveryFailures) error {
+	s := t.state().objects
+	id := r.id
+	registration, _ := identity.RegisterService(identity.ObjectMaintenance)
+	actor, _ := registration.Actor(id.String(), r.spec.Details().Owner.Scope())
+	ctx, finish := t.transferMaintenanceContext(ctx, actor, r)
+	defer finish()
+	request, err := r.request(actor, oc.TransferCleanup, nil, nil, oc.PreparedPayload{})
+	if err != nil {
+		return err
+	}
+	result := t.within(ctx, request, nil, func(ctx context.Context, tx foundation.Tx, _ []oc.AccessLockPlan, _ oc.LockedAccess, _ oc.TransferAuthorization) error {
+		e, err := executor(s, tx)
+		if err != nil {
+			return err
+		}
+		_, err = e.Exec(ctx, `UPDATE agenteam_object.object_transfers SET recovery_pass=recovery_pass+1 WHERE id=$1`, id.String())
+		return unavailableIf(err)
+	})
+	if err = commitError(result); err != nil {
+		return err
+	}
+	if r.cleanup && r.spec.Details().Direction == oc.TransferPUT {
+		child, done, childErr := s.childOperation(ctx)
+		if childErr != nil {
+			return childErr
+		}
+		_, err = s.cleanObject(child.ctx, r.object)
+		done()
+		failures.remember(err)
+	}
+	if ctx.Err() != nil {
+		return unavailable(ctx.Err())
+	}
+	return t.recoverRetirement(ctx, actor, r.id)
 }
 
 func (t *TransferService) recoverRetirement(ctx context.Context, actor identity.Actor, id oc.TransferID) error {

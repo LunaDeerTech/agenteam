@@ -98,7 +98,10 @@ type RunnerCallLifecycle interface {
 type RunnerResultBinding ReadFileResultBinding
 
 func (v RunnerResultBinding) Validate() error {
-	if WorkArtifactBuiltinBinding(v.Call.Binding) {
+	if v.Call.Binding == (BuiltinBinding{HandlerID: "skill.install", ContractRevision: 1}) {
+		return validateInstallResult(v)
+	}
+	if DomainBuiltinBinding(v.Call.Binding) || v.Call.MCPBinding.Validate() == nil {
 		return validateBuiltinResult(v)
 	}
 	switch v.Call.RunnerBinding.OperationName {

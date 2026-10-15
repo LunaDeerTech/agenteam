@@ -1,11 +1,14 @@
 package project
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"testing"
 	"time"
 
+	audit "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
@@ -190,4 +193,96 @@ func TestSkillAssignmentProjectPlanBindsEntireRequestAndClosedTypes(t *testing.T
 		}
 		hasCode(t, x.a.ValidateInTx(context.Background(), x.store.tx, request, bad), f.Forbidden)
 	}
+}
+
+type assignmentProjectFactKey struct{}
+type assignmentProjectFacts struct {
+	issuer  oc.PlanIssuer
+	actor   identity.Actor
+	summary event.Summary
+	deps    oc.Dependencies
+	applied bool
+	calls   int
+}
+
+func (p *assignmentProjectFacts) CheckProjectAuditInTx(context.Context, f.Tx, audit.Entry, audit.AppendKey) error {
+	return fault(f.Forbidden)
+}
+func (p *assignmentProjectFacts) matches(ctx context.Context, actor identity.Actor, summary event.Summary) bool {
+	actual, _ := json.Marshal(summary)
+	expected, _ := json.Marshal(p.summary)
+	return ctx.Value(assignmentProjectFactKey{}) == p && actor.Equal(p.actor) && bytes.Equal(actual, expected)
+}
+func (p *assignmentProjectFacts) DiscoverAssignmentProjectEvent(ctx context.Context, actor identity.Actor, summary event.Summary) (oc.Dependencies, error) {
+	if !p.matches(ctx, actor, summary) {
+		return oc.Dependencies{}, fault(f.Forbidden)
+	}
+	return p.deps, nil
+}
+func (p *assignmentProjectFacts) ValidateAssignmentProjectEventInTx(ctx context.Context, _ f.Tx, actor identity.Actor, summary event.Summary, deps oc.Dependencies, stage oc.Stage) error {
+	if !p.matches(ctx, actor, summary) || !deps.Matches(p.issuer, p.deps.Binding()) || stage == oc.NewFact && !p.applied {
+		return fault(f.Forbidden)
+	}
+	p.calls++
+	return nil
+}
+func TestAgentSkillAssignmentProjectEventUsesPrivateFactsAndCurrentProject(t *testing.T) {
+	x := newAuditGateFixture(t, nil)
+	d := skillAssignmentProjectRequest(t, x, "skill.assignment_added").Details()
+	d.Actor, _ = identity.NewAgentRun(x.project, testID[identity.Agent](t), testID[identity.Execution](t))
+	r, err := oc.NewProjectRequest(d)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if d.Actor.Details().AgentID == d.Event.Header.AggregateID.String() {
+		t.Fatal("control must use another target")
+	}
+	_, err = x.a.Discover(context.Background(), r)
+	hasCode(t, err, f.DependencyUnbound)
+	facts := &assignmentProjectFacts{issuer: oc.NewPlanIssuer(), actor: d.Actor, summary: d.Event, applied: true}
+	facts.deps, err = oc.NewDependencies(facts.issuer, digest([]byte("original private assignment event")), []f.LockRequest{projectLock(x.project, f.Shared)}, []byte("exact original command"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	x.a.state().auditFacts[audit.SkillProducer] = facts
+	_, err = x.a.Discover(context.Background(), r)
+	hasCode(t, err, f.Forbidden)
+	ctx := context.WithValue(context.Background(), assignmentProjectFactKey{}, facts)
+	deps, err := x.a.Discover(ctx, r)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, stage := range []oc.Stage{oc.CurrentAccess, oc.NewFact} {
+		next := d
+		next.Stage = stage
+		req, _ := oc.NewProjectRequest(next)
+		if err = x.a.ValidateInTx(ctx, x.store.tx, req, deps); err != nil {
+			t.Fatal(stage, err)
+		}
+	}
+	if facts.calls != 2 {
+		t.Fatal("private stage checker not invoked")
+	}
+	facts.applied = false
+	next := d
+	next.Stage = oc.NewFact
+	req, _ := oc.NewProjectRequest(next)
+	hasCode(t, x.a.ValidateInTx(ctx, x.store.tx, req, deps), f.Forbidden)
+	facts.applied = true
+	for _, state := range []c.Lifecycle{c.Archiving, c.Archived, c.Deleting} {
+		x.lifecycle = state
+		hasCode(t, x.a.ValidateInTx(ctx, x.store.tx, r, deps), f.ProjectNotActive)
+	}
+	x.lifecycle = c.Active
+	x.initialized = false
+	hasCode(t, x.a.ValidateInTx(ctx, x.store.tx, r, deps), f.ProjectNotActive)
+	x.initialized = true
+	changed := d
+	changed.Event.PayloadDigest = digest([]byte("other event"))
+	req, _ = oc.NewProjectRequest(changed)
+	hasCode(t, x.a.ValidateInTx(ctx, x.store.tx, req, deps), f.Forbidden)
+	hasCode(t, x.a.ValidateInTx(context.Background(), x.store.tx, r, deps), f.Forbidden)
+	hasCode(t, x.a.ValidateInTx(ctx, f.NewTx(), r, deps), f.DependencyUnavailable)
+	x.store.lockErr = errors.New("missing original lock")
+	hasCode(t, x.a.ValidateInTx(ctx, x.store.tx, r, deps), f.DependencyUnavailable)
 }

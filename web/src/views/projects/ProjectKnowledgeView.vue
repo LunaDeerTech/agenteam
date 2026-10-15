@@ -7,6 +7,8 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
 import { useKnowledgeText } from '../../composables/useKnowledgeText'
 import { useSession } from '../../composables/useSession'
+import { useKnowledgeFile } from '../../composables/useKnowledgeFile'
+import KnowledgeFileDialog from '../../components/knowledge/KnowledgeFileDialog.vue'
 import { useKnowledgeTitleSearch } from '../../composables/useKnowledgeTitleSearch'
 import KnowledgeTitleSearch from '../../components/knowledge/KnowledgeTitleSearch.vue'
 import type { KnowledgeDocument } from '../../api/knowledge-owner'
@@ -29,6 +31,8 @@ const location = computed(() => {
 })
 const owner = useKnowledgeOwner(undefined, workspace, location),
   state = owner.state
+const auth = useSession()
+const fileEditor = useKnowledgeFile(owner, workspace, auth, auth.knowledgeFiles)
 const rename = useKnowledgeRename(owner, workspace)
 const deletion = useKnowledgeDelete(owner, workspace)
 const move = useKnowledgeMove(owner, workspace)
@@ -49,7 +53,8 @@ async function createText(parent: KnowledgeDocument | null = null) {
   if (
     (await move.permitNavigation()) &&
     (await deletion.permitNavigation()) &&
-    (await rename.permitNavigation())
+    (await rename.permitNavigation()) &&
+    (await fileEditor.permitNavigation())
   )
     await textEditor.openCreate(parent)
 }
@@ -58,9 +63,19 @@ async function editText() {
     state.document &&
     (await move.permitNavigation()) &&
     (await deletion.permitNavigation()) &&
-    (await rename.permitNavigation())
+    (await rename.permitNavigation()) &&
+    (await fileEditor.permitNavigation())
   )
     await textEditor.openEdit(state.document)
+}
+async function uploadFile(parent: KnowledgeDocument | null = null, replace = false) {
+  if (
+    (await move.permitNavigation()) &&
+    (await deletion.permitNavigation()) &&
+    (await rename.permitNavigation()) &&
+    (await textEditor.permitNavigation())
+  )
+    await fileEditor.open(parent, replace)
 }
 async function deleteTree() {
   const selected = state.selected,
@@ -68,7 +83,8 @@ async function deleteTree() {
   if (
     !(await move.permitNavigation()) ||
     !(await rename.permitNavigation()) ||
-    !(await textEditor.permitNavigation())
+    !(await textEditor.permitNavigation()) ||
+    !(await fileEditor.permitNavigation())
   )
     return
   if (state.selected !== selected || workspace.currentReadContext.value !== context) return
@@ -79,7 +95,8 @@ async function renameText() {
   if (
     (await move.permitNavigation()) &&
     (await deletion.permitNavigation()) &&
-    (await textEditor.permitNavigation())
+    (await textEditor.permitNavigation()) &&
+    (await fileEditor.permitNavigation())
   )
     rename.open()
 }
@@ -90,7 +107,8 @@ async function moveDocument() {
     !(await move.permitNavigation()) ||
     !(await deletion.permitNavigation()) ||
     !(await rename.permitNavigation()) ||
-    !(await textEditor.permitNavigation())
+    !(await textEditor.permitNavigation()) ||
+    !(await fileEditor.permitNavigation())
   )
     return
   if (context !== workspace.currentReadContext.value || document !== state.document) return
@@ -101,7 +119,8 @@ const stopNavigation = installKnowledgeNavigation(useRouter(), {
   confirmLeave: async () =>
     (await move.permitNavigation()) &&
     (await deletion.permitNavigation()) &&
-    (await rename.permitNavigation()),
+    (await rename.permitNavigation()) &&
+    (await fileEditor.permitNavigation()),
 })
 const drawer = ref(false),
   heading = ref<HTMLElement | null>(null),
@@ -137,7 +156,8 @@ async function select(id: string, current: () => boolean = () => true) {
     (!(await move.permitNavigation()) ||
       !(await deletion.permitNavigation()) ||
       !(await rename.permitNavigation()) ||
-      !(await textEditor.permitNavigation()))
+      !(await textEditor.permitNavigation()) ||
+      !(await fileEditor.permitNavigation()))
   )
     return
   if (!current()) return
@@ -160,7 +180,8 @@ async function leave() {
     !(await move.permitNavigation()) ||
     !(await deletion.permitNavigation()) ||
     !(await rename.permitNavigation()) ||
-    !(await textEditor.permitNavigation())
+    !(await textEditor.permitNavigation()) ||
+    !(await fileEditor.permitNavigation())
   )
     return false
   cancel()
@@ -179,6 +200,7 @@ onBeforeUnmount(() => {
   deletion.dispose()
   rename.dispose()
   titleSearch.dispose()
+  fileEditor.dispose()
   owner.dispose()
 })
 </script>
@@ -203,6 +225,7 @@ onBeforeUnmount(() => {
         <UiButton variant="primary" :disabled="!textEditor.canOpen.value" @click="createText()"
           >新建文本</UiButton
         >
+        <UiButton :disabled="!fileEditor.canOpen.value" @click="uploadFile()">上传文档</UiButton>
       </div>
     </header>
     <p
@@ -212,6 +235,28 @@ onBeforeUnmount(() => {
     >
       {{ textEditor.state.message }}
     </p>
+    <div
+      v-if="!fileEditor.state.open && fileEditor.state.message"
+      class="knowledge-notice"
+      role="status"
+    >
+      {{ fileEditor.state.message }}
+    </div>
+    <div
+      v-if="!fileEditor.state.open && fileEditor.progress.value?.phase === 'uncertain'"
+      class="knowledge-notice"
+    >
+      <p>有一次上传结果尚未确认。</p>
+      <UiButton :disabled="!fileEditor.canLookup.value" @click="fileEditor.recover()"
+        >查询原上传结果</UiButton
+      >
+      <UiButton
+        v-if="fileEditor.progress.value.canRetryOriginal"
+        :disabled="!fileEditor.canReplay.value"
+        @click="fileEditor.recover(true)"
+        >按原请求重放</UiButton
+      >
+    </div>
     <UiState v-if="!owner.visible.value" kind="loading" title="正在确认知识库访问身份" />
     <div v-else class="knowledge-layout">
       <aside class="desktop-tree" aria-label="文档目录">
@@ -286,6 +331,26 @@ onBeforeUnmount(() => {
                     >新建子文档</UiButton
                   >
                   <UiButton
+                    :disabled="!fileEditor.canOpen.value"
+                    @click="uploadFile(state.document)"
+                    >上传子文档</UiButton
+                  >
+                  <UiButton
+                    v-if="state.document.source_kind === 'file'"
+                    :disabled="!fileEditor.canOpen.value"
+                    @click="uploadFile(state.document, true)"
+                    >替换原文件</UiButton
+                  >
+                  <UiButton :disabled="fileEditor.busy.value" @click="fileEditor.source()"
+                    >下载原文档</UiButton
+                  >
+                  <UiButton
+                    v-if="state.document.media_type === 'application/pdf'"
+                    :disabled="fileEditor.busy.value"
+                    @click="fileEditor.source(true)"
+                    >预览 PDF</UiButton
+                  >
+                  <UiButton
                     :disabled="!rename.canOpen.value || textEditor.pending.value"
                     @click="renameText()"
                     >改名</UiButton
@@ -343,6 +408,15 @@ onBeforeUnmount(() => {
                   >文档链接</RouterLink
                 >
               </details>
+              <object
+                v-if="fileEditor.preview.value"
+                class="file-preview"
+                :data="fileEditor.preview.value"
+                type="application/pdf"
+                title="当前 PDF 文档预览"
+              >
+                当前浏览器无法显示 PDF 预览，请使用“下载原文档”查看。
+              </object>
               <div class="document-content">
                 <UiState
                   v-if="state.content.phase === 'loading'"
@@ -361,7 +435,14 @@ onBeforeUnmount(() => {
                   <UiState
                     v-if="state.content.value && 'unavailable' in state.content.value"
                     kind="empty"
-                    title="此文档暂不支持正文读取"
+                    :title="
+                      state.content.value.unavailable === 'processing'
+                        ? '正在准备当前版本的文本预览'
+                        : state.content.value.unavailable === 'failed'
+                          ? '当前版本文本解析失败'
+                          : '文本预览暂不可用'
+                    "
+                    description="仍可下载原文档；PDF 可打开文件预览。"
                   />
                   <template v-else-if="body">
                     <pre
@@ -398,6 +479,7 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </div>
+    <KnowledgeFileDialog :editor="fileEditor" :fallback-focus="documentHeading ?? heading" />
     <KnowledgeMoveDialog :editor="move" :fallback-focus="documentHeading ?? heading" />
     <KnowledgeDeleteDialog :deletion="deletion" :fallback-focus="documentHeading ?? heading" />
     <KnowledgeRenameDialog :editor="rename" :fallback-focus="documentHeading ?? heading" />
@@ -535,6 +617,14 @@ onBeforeUnmount(() => {
 .document-facts dd {
   margin: 4px 0 0;
   color: var(--text);
+}
+.file-preview {
+  width: 100%;
+  height: min(70vh, 800px);
+  min-height: 320px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
 }
 .document-content {
   min-width: 0;

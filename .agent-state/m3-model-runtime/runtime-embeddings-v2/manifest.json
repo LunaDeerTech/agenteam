@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "controlled benchmark consumer using actual Model Runtime; not product Knowledge/Memory acceptance",
+  "test": "TestModelM3AuthorizedRuntimeEmbeddings",
+  "original_session": 2079,
+  "actual_wait": 0,
+  "test_seconds": 43.24,
+  "postgres_version": 170008,
+  "snapshot": {
+    "adapter_revision": "openai-embeddings-float-v2",
+    "dimensions": 4096,
+    "id": "01a13b76-ce43-7dcc-890e-af5f5129f0e0",
+    "model": "deerling-embedding",
+    "provider": "01a13b76-cd6e-7f95-9a72-58e495021a13"
+  },
+  "corpus_count": 64,
+  "query_count": 72,
+  "batches": [
+    64,
+    64,
+    8
+  ],
+  "http_statuses": [
+    200,
+    200,
+    200
+  ],
+  "dimensions": 4096,
+  "inputs_sha256": {
+    "corpus.jsonl": "be260511440b98080113bc99df7c4feea2935a74535dfff0f802f217bcc648c8",
+    "queries.jsonl": "b8836dd4ff3f81934d5e697f109353bbdf0caf17e9f726193be108a0c7ede76f"
+  },
+  "calls": [
+    {
+      "call_id": "01a13b76-ce3a-7956-84a0-da7ce1e4e93b",
+      "invocation_id": "01a13b76-ce8f-7cf1-a27c-4e85bc271769",
+      "input_digest": "sha256:1b460350422f1a1d640d74fb6c7df4400b8b274d58c2ee4b97f2e3ea195ac278",
+      "items": 64
+    },
+    {
+      "call_id": "01a13b77-0e79-7f01-b450-f536b7cf69ab",
+      "invocation_id": "01a13b77-0f46-79da-85b7-42b475404b1d",
+      "input_digest": "sha256:46feef73e20401258a49a57711e08805679885b3f3822ed742247780d54c8a8a",
+      "items": 64
+    },
+    {
+      "call_id": "01a13b77-436f-7b49-86ab-521cf6af5954",
+      "invocation_id": "01a13b77-43ad-704a-82cb-1c6d95d0020c",
+      "input_digest": "sha256:13d551dfce8828484db9ddc0176e209fbe0bed595c4c2f70e4ded1b16df9ab1b",
+      "items": 8
+    }
+  ],
+  "tls_verified": true,
+  "environment_proxy_used": true,
+  "default_proxy_environment_preserved": true,
+  "provider_response_model_observed": false,
+  "terminal_checks": [
+    "Runtime succeeded and retired",
+    "Secret original leases released",
+    "Usage original invocation succeeded and dispatch sent",
+    "Exactly one attempt per call",
+    "No unclosed Usage project call",
+    "Credential material destroyed",
+    "Original handles Close succeeded and Joined true",
+    "Runtime StopAdmission/Drain/Joined succeeded",
+    "Owned PG/outbound/MinIO resources cleanup confirmed"
+  ],
+  "files": {
+    "vectors.json.gz": {
+      "sha256": "948074800e4cc25bff2e88305f5edd70ea82f2c677565821e0d96f1a4953276d",
+      "bytes": 2506521,
+      "uncompressed_sha256": "f3c58564fa815f8afd6854cfea0598a9d8cdca23939c2a03149b2a4612362c0a",
+      "uncompressed_bytes": 11969371
+    },
+    "result.txt": {
+      "sha256": "c232670404fded47a89c795cf4a0c626a1c1cd24bf2b9ba7576501f22e89cf3e"
+    }
+  },
+  "limits": [
+    "Consumers are strict test-owned benchmark facts; actual domain authorities need separate integration validation.",
+    "Snapshot credential retention across provider replacement/deletion is not established.",
+    "Configured model identity is retained; provider response model alias is not retained.",
+    "Prior failed runs remain failed: 20812 duplicate origin setup; 19323 v1 ModelError with original Close/Joined."
+  ]
+}

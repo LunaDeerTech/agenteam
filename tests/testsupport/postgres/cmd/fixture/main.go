@@ -45,6 +45,10 @@ func run() (code int) {
 	if err != nil {
 		return fail("invalid current-only PG mode: expected empty, or 1 with an explicit test binary")
 	}
+	image, retrieval, err := selectedPGSearchImage(os.Getenv(pgfixture.PGSearchImageEnv), currentOnly, target)
+	if err != nil {
+		return fail("invalid pg_search fixture image: exact local sha256, current-only and explicit test binary required")
+	}
 	if target != nil {
 		// Listing executes no selected test and precedes PG resource creation. A
 		// package TestMain may still build its actual application binaries.
@@ -57,6 +61,12 @@ func run() (code int) {
 		raw, err := list.Output()
 		if err != nil || !target.matchesListing(string(raw)) {
 			return fail("explicit fixture selector has no actual test top")
+		}
+	}
+	if retrieval == pgfixture.PGSearchProfile {
+		output, err := pgfixture.Docker(ctx, "image", "inspect", "--format", "{{.Id}}", image)
+		if err != nil || strings.TrimSpace(string(output)) != image {
+			return fail("explicit pg_search image is not the pinned local build")
 		}
 	}
 	nonce, err := pgfixture.RandomHex(16)
@@ -147,7 +157,13 @@ func run() (code int) {
 	}
 	networkID = strings.TrimSpace(string(output))
 	command := "cp /fixture/server.key /tmp/agenteam-server.key && cp /fixture/server.crt /tmp/agenteam-server.crt && chown postgres:postgres /tmp/agenteam-server.key /tmp/agenteam-server.crt && chmod 600 /tmp/agenteam-server.key /tmp/agenteam-server.crt && exec docker-entrypoint.sh postgres -c ssl=on -c ssl_cert_file=/tmp/agenteam-server.crt -c ssl_key_file=/tmp/agenteam-server.key"
-	output, err = pgfixture.Docker(ctx, "run", "--detach", "--name", name, "--label", pgfixture.Label+"="+nonce, "--network", name, "--publish", "127.0.0.1::5432", "--tmpfs", "/var/lib/postgresql/data:rw,nosuid,size=512m", "--mount", "type=bind,src="+directory+",dst=/fixture,readonly", "--env-file", envFile, pgfixture.Image, "bash", "-c", command)
+	arguments := []string{"run", "--detach", "--name", name, "--label", pgfixture.Label + "=" + nonce, "--network", name, "--publish", "127.0.0.1::5432", "--tmpfs", "/var/lib/postgresql/data:rw,nosuid,size=512m", "--mount", "type=bind,src=" + directory + ",dst=/fixture,readonly", "--env-file", envFile}
+	if retrieval == pgfixture.PGSearchProfile {
+		command += " -c shared_preload_libraries=pg_search"
+		arguments = append(arguments, "--pull=never")
+	}
+	arguments = append(arguments, image, "bash", "-c", command)
+	output, err = pgfixture.Docker(ctx, arguments...)
 	if err != nil {
 		return fail("fixture container creation failed")
 	}
@@ -184,7 +200,7 @@ func run() (code int) {
 	if len(ports) != 1 {
 		return fail("fixture port missing")
 	}
-	fixture := pgfixture.Descriptor{ContainerID: containerID, NetworkID: networkID, Nonce: nonce, Port: ports[0].HostPort, Image: pgfixture.Image, User: "fixture_owner", Password: password, CAFile: filepath.Join(directory, "ca.crt"), WrongCAFile: filepath.Join(directory, "wrong-ca.crt")}
+	fixture := pgfixture.Descriptor{ContainerID: containerID, NetworkID: networkID, Nonce: nonce, Port: ports[0].HostPort, Image: image, Retrieval: retrieval, User: "fixture_owner", Password: password, CAFile: filepath.Join(directory, "ca.crt"), WrongCAFile: filepath.Join(directory, "wrong-ca.crt")}
 	if err := fixture.Verify(); err != nil {
 		return fail("fixture verification failed")
 	}
@@ -248,11 +264,19 @@ func run() (code int) {
 		var version int
 		var extension string
 		err = conn.QueryRow(ready, "SELECT current_setting('server_version_num')::int,default_version FROM pg_available_extensions WHERE name='vector'").Scan(&version, &extension)
+		var pgSearchVersion string
+		var preloaded bool
+		if err == nil && fixture.Retrieval == pgfixture.PGSearchProfile {
+			err = conn.QueryRow(ready, `SELECT COALESCE((SELECT default_version FROM pg_available_extensions WHERE name='pg_search'),''), 'pg_search'=ANY(regexp_split_to_array(current_setting('shared_preload_libraries'),'\s*,\s*'))`).Scan(&pgSearchVersion, &preloaded)
+		}
 		_ = conn.Close(ready)
-		if err != nil || extension != "0.8.1" {
+		if err != nil || extension != "0.8.1" || fixture.Retrieval == pgfixture.PGSearchProfile && (version != 170008 || pgSearchVersion != "0.26.1" || !preloaded) {
 			return fail("fixture version query failed")
 		}
 		fmt.Printf("D03 fixture actual PostgreSQL=%d available_vector=%s image=%s\n", version, extension, fixture.Image)
+		if fixture.Retrieval == pgfixture.PGSearchProfile {
+			fmt.Printf("D03 fixture actual available_pg_search=%s preloaded=%t\n", pgSearchVersion, preloaded)
+		}
 	}
 	if record := os.Getenv("AGENTEAM_FIXTURE_OWNED_RECORD"); record != "" {
 		if target == nil || !*objects || writeOwnedChainRecord(record, directory, fixture, unsupported) != nil {
@@ -263,7 +287,7 @@ func run() (code int) {
 	if goBinary == "" {
 		return fail("exact Go binary required")
 	}
-	arguments := []string{"test", "-tags=integration", "-race", "-count=1", "-timeout=6m", "-run=" + *filter, "./internal/central/postgres/...", "./tests/database/...", "./internal/central/app/...", "./tests/process/...", "./tests/security/...", "./tests/outbox/...", "./internal/central/outbox/...", "./tests/account/...", "./tests/accountmail/...", "./internal/central/accountmail/...", "./internal/central/recoverylog/...", "./tests/project/...", "./internal/central/model/...", "./tests/model/..."}
+	arguments = []string{"test", "-tags=integration", "-race", "-count=1", "-timeout=6m", "-run=" + *filter, "./internal/central/postgres/...", "./tests/database/...", "./internal/central/app/...", "./tests/process/...", "./tests/security/...", "./tests/outbox/...", "./internal/central/outbox/...", "./tests/account/...", "./tests/accountmail/...", "./internal/central/accountmail/...", "./internal/central/recoverylog/...", "./tests/project/...", "./internal/central/model/...", "./tests/model/..."}
 	if *objects {
 		arguments = append(arguments, "./tests/objects/...", "./internal/central/object/...")
 	}
@@ -426,6 +450,16 @@ func topTestFilter(filter string) string {
 
 // The smaller PG resource set is opt-in for one previously validated binary.
 // A selector alone cannot weaken the default multi-package fixture coverage.
+func selectedPGSearchImage(value string, currentOnly bool, target *fixtureTestTarget) (string, string, error) {
+	if value == "" {
+		return pgfixture.Image, "", nil
+	}
+	if !currentOnly || target == nil || !pgfixture.ValidPGSearchImageID(value) {
+		return "", "", errors.New("invalid explicit pg_search fixture")
+	}
+	return value, pgfixture.PGSearchProfile, nil
+}
+
 func selectedPGCurrentOnly(value string, target *fixtureTestTarget) (bool, error) {
 	if value == "" {
 		return false, nil

@@ -33,12 +33,19 @@ func BuildLoopRequest(ctx context.Context, captured ec.ExecutionContext, actor i
 	if err != nil {
 		return DirectTextRequest{}, err
 	}
-	digest, err := mc.ToolInputDigest(ctx, messages, tools, mc.ToolChoice{Kind: "required"})
+	choice := mc.ToolChoice{Kind: "required"}
+	if v.Request.Launch.Trigger.Kind == "meeting" {
+		// A contribution may directly answer the frozen conversation. Its
+		// available tools remain exactly the captured set; only the initial
+		// choice differs from Task's existing required-tool policy.
+		choice.Kind = "auto"
+	}
+	digest, err := mc.ToolInputDigest(ctx, messages, tools, choice)
 	if err != nil {
 		return DirectTextRequest{}, err
 	}
 	e := v.Request.ExecutionID
-	request := mc.ModelRequest{Actor: actor, CallID: call, Consumer: v.Model.Consumer.Clone(), Model: v.Model.Clone(), Input: mc.InputIdentity{ExecutionID: &e, RoundID: round, Digest: digest, SchemaVersion: 4}, Messages: messages, Tools: tools, ToolChoice: mc.ToolChoice{Kind: "required"}, ResponseFormat: mc.ResponseFormat{Kind: "text"}, RetryClass: mc.AgentRetry}
+	request := mc.ModelRequest{Actor: actor, CallID: call, Consumer: v.Model.Consumer.Clone(), Model: v.Model.Clone(), Input: mc.InputIdentity{ExecutionID: &e, RoundID: round, Digest: digest, SchemaVersion: mc.ToolInputSchemaVersion}, Messages: messages, Tools: tools, ToolChoice: choice, ResponseFormat: mc.ResponseFormat{Kind: "text"}, RetryClass: mc.AgentRetry}
 	return NewLoopRequest(ctx, captured.Digest(), request)
 }
 

@@ -11,6 +11,7 @@ import { createSessionController } from '../composables/useSession'
 import { createAccountAPI, type SessionView } from '../api/account'
 import { createProjectOwnerAPI, type Project } from '../api/project-owner'
 import { createKnowledgeOwnerAPI } from '../api/knowledge-owner'
+import { createKnowledgeFileAPI } from '../api/knowledge-file'
 import type { Fetch } from '../api/client'
 import { installAuthentication, projectRoute, safeReturnTarget } from '../router/auth'
 import App from '../App.vue'
@@ -152,6 +153,7 @@ async function page(path = '/owner/demo/knowledge', response?: (url: URL) => Res
   const args: Parameters<typeof createSessionController> = [createAccountAPI(fetch)]
   args[12] = createProjectOwnerAPI(fetch)
   args[15] = createKnowledgeOwnerAPI(fetch)
+  args[19] = { knowledgeFile: createKnowledgeFileAPI(fetch) }
   const auth = (selected.auth = createSessionController(...args))
   const { router: source } = await import('../router')
   source.options.history.destroy()
@@ -192,6 +194,32 @@ async function clickParent() {
 }
 
 describe('Knowledge production page with the original Session and Project workspace', () => {
+  it('previews only a typed PDF Blob using the native viewer with a download fallback', async () => {
+    const create = vi.fn((_value: Blob) => 'blob:current-owned-pdf')
+    vi.stubGlobal(
+      'URL',
+      Object.assign(class extends URL {}, {
+        createObjectURL: create,
+        revokeObjectURL: vi.fn(),
+      }),
+    )
+    const file = { ...row(), source_kind: 'file', media_type: 'application/pdf' }
+    const f = await page(`/owner/demo/knowledge/${id(20)}`, (url) => {
+      if (url.pathname === `${base}/${id(20)}`) return json({ active: file })
+      if (url.pathname.endsWith('/source'))
+        return json({ document: file, bytes_base64: 'JVBERg==' })
+      if (url.pathname.endsWith('/content'))
+        return json({ document: file, unavailable: 'dependency_unbound' })
+    })
+    button('预览 PDF').click()
+    await flushPromises()
+    const preview = f.wrapper.get('object[title="当前 PDF 文档预览"]')
+    expect(preview.attributes('type')).toBe('application/pdf')
+    expect(preview.attributes('data')).toBe('blob:current-owned-pdf')
+    expect(preview.text()).toContain('下载原文档')
+    expect(create.mock.calls[0]?.[0].type).toBe('application/pdf')
+    expect(f.wrapper.find('iframe').exists()).toBe(false)
+  })
   it('starts unselected, expands without selecting, and reads a selectable parent as safe text', async () => {
     const f = await page()
     expect(f.auth.state.user?.role).toBe('user')
@@ -252,11 +280,7 @@ describe('Knowledge production page with the original Session and Project worksp
           )
       })
       expect(f.wrapper.text()).toContain(
-        kind === 'deleted'
-          ? '文档已删除'
-          : kind === 'empty'
-            ? '正文为空'
-            : '此文档暂不支持正文读取',
+        kind === 'deleted' ? '文档已删除' : kind === 'empty' ? '正文为空' : '文本预览暂不可用',
       )
       expect(f.wrapper.find('pre').exists()).toBe(false)
       expect(f.fetch.mock.calls.every(([, init]) => init.method === 'GET')).toBe(true)

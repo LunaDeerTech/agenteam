@@ -33,15 +33,21 @@ type bindingData struct {
 	Invocation                    mc.InvocationID
 	Call, ModelName               string
 	Spec                          tc.SpecRef
-	Binding                       tc.BuiltinBinding
+	Binding                       tc.BuiltinBinding `json:"Binding,omitzero"`
 	Payload                       string
 	PayloadDigest                 f.Digest
 	PayloadBytes                  f.Progress
 	ArgumentsDigest               f.Digest
+	MCPBinding                    *tc.MCPBinding `json:"mcp_binding,omitempty"`
 }
 
 func bindingProjection(v tc.ToolCallBinding) bindingData {
-	return bindingData{1, v.ProjectID, v.AgentID, v.ExecutionID, v.RoundID, v.SnapshotID, v.InputBindingID, v.LogicalCallID, v.InvocationID, v.CallID, v.ModelVisibleName, v.Spec, v.Binding, v.Input.PayloadID, v.Input.SHA256, v.Input.Bytes, v.CanonicalArguments}
+	out := bindingData{1, v.ProjectID, v.AgentID, v.ExecutionID, v.RoundID, v.SnapshotID, v.InputBindingID, v.LogicalCallID, v.InvocationID, v.CallID, v.ModelVisibleName, v.Spec, v.Binding, v.Input.PayloadID, v.Input.SHA256, v.Input.Bytes, v.CanonicalArguments, nil}
+	if v.MCPBinding != (tc.MCPBinding{}) {
+		b := v.MCPBinding
+		out.MCPBinding = &b
+	}
+	return out
 }
 
 func (v bindingData) request() (tc.ToolCallBinding, error) {
@@ -50,6 +56,9 @@ func (v bindingData) request() (tc.ToolCallBinding, error) {
 		return tc.ToolCallBinding{}, fail(f.InvalidState)
 	}
 	r := tc.ToolCallBinding{Actor: actor, ProjectID: v.Project, AgentID: v.Agent, ExecutionID: v.Execution, RoundID: v.Round, SnapshotID: v.Snapshot, InputBindingID: v.InputBinding, LogicalCallID: v.LogicalCall, InvocationID: v.Invocation, CallID: v.Call, ModelVisibleName: v.ModelName, Spec: v.Spec, Binding: v.Binding, Input: tc.ToolInputReference{PayloadID: v.Payload, SHA256: v.PayloadDigest, Bytes: v.PayloadBytes}, CanonicalArguments: v.ArgumentsDigest}
+	if v.MCPBinding != nil {
+		r.MCPBinding = *v.MCPBinding
+	}
 	if r.Validate() != nil {
 		return tc.ToolCallBinding{}, fail(f.InvalidState)
 	}
@@ -183,7 +192,7 @@ func fingerprint(input installData, skill sc.SkillID) (f.Digest, error) {
 	return digest(canonical), nil
 }
 
-func (r operationRecord) validate() error {
+func (r operationRecord) validateImmutable() error {
 	if r.ID.Validate() != nil || r.SkillID.Validate() != nil || r.Version.Validate() != nil || r.Input.PackageDigest.Validate() != nil || r.Input.ManifestDigest.Validate() != nil || r.Input.PackageBytes < 1 || r.Input.PackageBytes > sc.MaxArchiveBytes {
 		return fail(f.InvalidState)
 	}
@@ -205,6 +214,13 @@ func (r operationRecord) validate() error {
 	fp, err := fingerprint(r.Input, r.SkillID)
 	if err != nil || fp != r.Fingerprint {
 		return fail(f.InvalidState)
+	}
+	return nil
+}
+
+func (r operationRecord) validate() error {
+	if err := r.validateImmutable(); err != nil {
+		return err
 	}
 	// This first reader must refuse states whose result/recovery contract has
 	// not yet been implemented, rather than inventing a terminal replay.

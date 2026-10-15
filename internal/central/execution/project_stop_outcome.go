@@ -339,7 +339,11 @@ func (s *projectCallState) confirmDirectInTx(ctx context.Context, tx f.Tx, x pos
 	if err != nil {
 		return false, portError(err)
 	}
-	if !model || !environment {
+	mcp, err := observeMCPRetirement(ctx, tx, d.deps.MCP, run.invocation.mcpRetirement, run.invocation.mcpPlan)
+	if err != nil {
+		return false, err
+	}
+	if !model || !environment || !mcp {
 		return false, nil
 	}
 	if err = d.verifyDirectTextMountUse(ctx, tx, run, row, stored, run.input); err != nil {

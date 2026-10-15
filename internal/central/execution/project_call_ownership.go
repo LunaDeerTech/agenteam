@@ -297,7 +297,7 @@ func (s *projectCallState) admitDriver(ctx context.Context, execution i.Executio
 		return ctx, nil, fault(f.DependencyUnbound)
 	}
 	d := job.dispatch
-	identity, err := f.NewCommandIdentity("execution", []string{job.project.String(), execution.String(), d.AgentID.String(), d.DispatchID}, method, f.IdempotencyKey(execution.String()))
+	identity, err := f.NewCommandIdentity("execution", []string{job.project.String(), execution.String(), d.AgentID.String(), d.sourceID()}, method, f.IdempotencyKey(execution.String()))
 	if err != nil {
 		return ctx, nil, err
 	}
@@ -409,7 +409,7 @@ func (s *projectCallState) reserveAssociated(ctx context.Context, job *associate
 		return nil, err
 	}
 	d := job.dispatch
-	identity, err := f.NewCommandIdentity("execution", []string{job.project.String(), d.ExecutionID.String(), d.AgentID.String(), d.DispatchID}, "advance", d.Key)
+	identity, err := f.NewCommandIdentity("execution", []string{job.project.String(), d.ExecutionID.String(), d.AgentID.String(), d.sourceID()}, "advance", d.Key)
 	if err != nil {
 		return nil, err
 	}

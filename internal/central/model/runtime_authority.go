@@ -22,6 +22,7 @@ import (
 
 type RuntimeAuthorizations struct {
 	Consumers                                    mc.ConsumerAuthority
+	StoppedConsumers                             mc.StoppedCallAuthority
 	Process                                      *object.ProcessGuard
 	ModelRuntime, SecretService, OutboundService id.ServiceRegistration
 }

@@ -31,6 +31,8 @@ type executionRecoveryCall struct {
 	model           mc.ExecutionModelRetirementRequest
 	modelPlan       mc.ExecutionModelRetirementPlan
 	environmentPlan pvc.EnvironmentRetirementPlan
+	mcp             tc.MCPExecutionRetirementRequest
+	mcpPlan         tc.MCPExecutionRetirementPlan
 	locks           []f.LockRequest
 	event           event.Event
 	plan            oc.AppendPlan
@@ -132,7 +134,7 @@ func (s *associatedExecutorState) recoverCancelledPreparation(ctx context.Contex
 // has returned or ProcessGuard proved its process dead, and the following
 // transaction has acquired the capture's complete Execution lock barrier.
 func (s *associatedExecutorState) confirmPreparationReturned(ctx context.Context, row *executionRecord, claim *preparationClaim) error {
-	if owners := s.ownedCalls(&associatedCall{dispatch: c.AssociatedDispatch{ExecutionID: row.summary.ID}}); owners.preparation || owners.direct || owners.foreign {
+	if owners := s.ownedCalls(&associatedCall{dispatch: associatedIdentity{AssociatedDispatch: c.AssociatedDispatch{ExecutionID: row.summary.ID}}}); owners.preparation || owners.direct || owners.foreign {
 		return fault(f.ResourceBusy)
 	}
 	if row.summary.Status == c.Created {
@@ -254,6 +256,14 @@ func (s *associatedExecutorState) planPreparationRetirement(ctx context.Context,
 	}
 	if nilPort(w.modelPlan) || nilPort(w.environmentPlan) {
 		return fault(f.DependencyUnbound)
+	}
+	w.mcp = mcpRetirementRequest(w.request, w.before.Version+1)
+	w.mcpPlan, err = discoverMCPRetirement(ctx, deps.MCP, w.mcp, w.input.input)
+	if err != nil {
+		return err
+	}
+	if !nilPort(w.mcpPlan) {
+		w.locks = append(w.locks, w.mcpPlan.RequiredLocks()...)
 	}
 	w.locks, err = oc.NormalizeLocks(append(append(w.locks, w.modelPlan.RequiredLocks()...), w.environmentPlan.RequiredLocks()...))
 	return portError(err)

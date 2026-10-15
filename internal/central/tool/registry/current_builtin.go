@@ -4,6 +4,7 @@ import (
 	"context"
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	tc "github.com/LunaDeerTech/agenteam/internal/central/tool/contract"
 )
 
@@ -46,14 +47,14 @@ func (r *Registry) RequireCurrentWorkArtifactBuiltinInTx(ctx context.Context, tx
 	if r.data() == nil {
 		return fail(f.DependencyUnbound)
 	}
-	if ctx == nil || spec.Validate() != nil || !tc.WorkArtifactBuiltinBinding(binding) || scope == "" || risk == "" {
+	if ctx == nil || spec.Validate() != nil || !tc.DomainBuiltinBinding(binding) || scope == "" || risk == "" {
 		return fail(f.InvalidArgument)
 	}
 	x, err := r.executor(ctx, tx, []f.LockRequest{RegistryLock(f.Shared), toolLock(spec.ToolID, f.Shared)})
 	if err != nil {
 		return err
 	}
-	current, found, err := r.currentCaptureTool(ctx, tx, x, spec.ToolID)
+	current, found, err := r.currentCaptureTool(ctx, tx, x, id.ProjectID{}, spec.ToolID)
 	if err != nil {
 		return err
 	}

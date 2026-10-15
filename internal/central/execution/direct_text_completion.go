@@ -276,6 +276,13 @@ func (s *directTextState) planRetirement(ctx context.Context, run *directTextCal
 	if nilPort(run.invocation.modelPlan) || nilPort(run.invocation.environmentPlan) {
 		return fault(f.DependencyUnavailable)
 	}
+	run.invocation.mcpRetirement = mcpRetirementRequest(run.request, run.terminal.version)
+	if nilPort(run.invocation.mcpPlan) {
+		run.invocation.mcpPlan, err = discoverMCPRetirement(ctx, s.deps.MCP, run.invocation.mcpRetirement, run.input.input)
+		if err != nil {
+			return err
+		}
+	}
 	if run.terminal.plan.Details().Event.Validate() != nil {
 		run.terminal.plan, err = s.deps.Events.PrepareAppend(ctx, actor, run.terminal.event)
 		if err != nil {
@@ -288,6 +295,9 @@ func (s *directTextState) planRetirement(ctx context.Context, run *directTextCal
 	}
 	locks = append(locks, run.invocation.modelPlan.RequiredLocks()...)
 	locks = append(locks, run.invocation.environmentPlan.RequiredLocks()...)
+	if !nilPort(run.invocation.mcpPlan) {
+		locks = append(locks, run.invocation.mcpPlan.RequiredLocks()...)
+	}
 	locks = append(locks, run.terminal.plan.Locks()...)
 	run.locks, err = oc.NormalizeLocks(locks)
 	return err
@@ -348,6 +358,9 @@ func (s *directTextState) commitTerminal(ctx context.Context, run *directTextCal
 		if err = s.deps.Environment.RetireEnvironmentInTx(ctx, tx, run.input.input.Fields().Environment, run.invocation.environmentPlan); err != nil {
 			return portError(err)
 		}
+		if err = releaseMCPRetirement(ctx, tx, s.deps.MCP, run.invocation.mcpRetirement, run.invocation.mcpPlan); err != nil {
+			return err
+		}
 		if err = s.retireDirectTextMountUse(ctx, tx, run); err != nil {
 			return err
 		}
@@ -370,6 +383,7 @@ func (s *directTextState) commitTerminal(ctx context.Context, run *directTextCal
 	run.summary.CompletedAt = &at
 	run.phase = "finished"
 	s.mu.Unlock()
+	s.publishRuntime(run)
 	return nil
 }
 

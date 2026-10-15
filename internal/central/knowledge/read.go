@@ -23,7 +23,7 @@ func (s *Service) read(ctx context.Context, actor id.Actor, project id.ProjectID
 	if err != nil {
 		return err
 	}
-	locks, err := scopeLocks(actor, project, false)
+	locks, err := accessLocks(ctx, actor, project, false)
 	if err != nil {
 		return err
 	}
@@ -54,7 +54,7 @@ func (s *Service) readScope(ctx context.Context, tx f.Tx, actor id.Actor, projec
 	if err != nil {
 		return nil, portError(err)
 	}
-	locks, err := scopeLocks(actor, project, false)
+	locks, err := accessLocks(ctx, actor, project, false)
 	if err != nil {
 		return nil, err
 	}
@@ -64,12 +64,8 @@ func (s *Service) readScope(ctx context.Context, tx f.Tx, actor id.Actor, projec
 	if err = s.projectCallTx(ctx, tx, project); err != nil {
 		return nil, err
 	}
-	access, err := st.deps.Projects.RequireOwnerInTx(ctx, tx, actor, project, id.Read)
-	if err != nil {
-		return nil, portError(err)
-	}
-	if !access.Matches(actor, project) {
-		return nil, internal(nil)
+	if err := s.authorizeReadInTx(ctx, tx, actor, project); err != nil {
+		return nil, err
 	}
 	return x, nil
 }

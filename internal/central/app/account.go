@@ -13,6 +13,7 @@ import (
 	agentc "github.com/LunaDeerTech/agenteam/internal/central/agent/contract"
 	artifactc "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
+	auditc "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	audithttp "github.com/LunaDeerTech/agenteam/internal/central/audit/http"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
@@ -22,6 +23,8 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/governance/approval"
 	gc "github.com/LunaDeerTech/agenteam/internal/central/governance/approval/contract"
 	kc "github.com/LunaDeerTech/agenteam/internal/central/knowledge/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/mcp"
+	meetingc "github.com/LunaDeerTech/agenteam/internal/central/meeting/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/model"
 	"github.com/LunaDeerTech/agenteam/internal/central/object"
 	objectcontract "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
@@ -31,9 +34,11 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/project"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
 	vc "github.com/LunaDeerTech/agenteam/internal/central/projectvariable/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/realtime"
 	"github.com/LunaDeerTech/agenteam/internal/central/recoverylog"
 	"github.com/LunaDeerTech/agenteam/internal/central/runtimeinfo"
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/skill"
 	skillc "github.com/LunaDeerTech/agenteam/internal/central/skill/contract"
 	toolruntime "github.com/LunaDeerTech/agenteam/internal/central/tool/runtime"
@@ -85,6 +90,7 @@ type accountAssembly struct {
 	skills          accountWork
 	knowledge       accountWork
 	artifacts       *artifactCallAssembly
+	mcp             *mcp.Service
 	runners         accountWork
 	sink            accountWork
 	core            accountWork
@@ -115,7 +121,7 @@ func (a *accountAssembly) constructionDone() {
 
 func (a *accountAssembly) Start(ctx context.Context) error {
 	a.mu.Lock()
-	runtime, mail, executions, agents, stopped := a.runtime, a.mail, a.executions, a.agents, a.stopped
+	runtime, mail, executions, agents, remote, stopped := a.runtime, a.mail, a.executions, a.agents, a.mcp, a.stopped
 	a.mu.Unlock()
 	if runtime == nil || mail == nil || stopped {
 		return foundation.NewFault(foundation.DependencyUnavailable, foundation.NotStarted)
@@ -130,6 +136,15 @@ func (a *accountAssembly) Start(ctx context.Context) error {
 	}
 	if err := mail.Start(ctx); err != nil {
 		return err
+	}
+	if remote != nil {
+		var recoverContent func(context.Context) error
+		if executions != nil && executions.mcpTools != nil {
+			recoverContent = executions.mcpTools.content.StartRecovery
+		}
+		if err := startMCPRecovery(ctx, recoverContent, remote.StartReconciliation); err != nil {
+			return err
+		}
 	}
 	if executions != nil {
 		if err := executions.Start(ctx); err != nil {
@@ -182,6 +197,9 @@ func (a *accountAssembly) works() []accountWork {
 	// shared Work/Skill/Account provider or the root ProcessGuard may retire.
 	if a.executions != nil {
 		work = append(work, a.executions)
+	}
+	if a.mcp != nil {
+		work = append(work, a.mcp)
 	}
 	if a.executionReads != nil {
 		work = append(work, a.executionReads)
@@ -305,10 +323,11 @@ func (a *accountAssembly) Force(ctx context.Context) error {
 		knowledge, ownsKnowledge := work.(*knowledgeCallAssembly)
 		artifacts, ownsArtifacts := work.(*artifactCallAssembly)
 		executionReads, ownsExecutionReads := work.(*executionReadAssembly)
+		mcpCalls, ownsMCP := work.(*mcp.Service)
 		// Runtime terminal/lease cleanup and Agent/Variable/Work calls use the
 		// shared providers. Expiring a force budget does not make them disposable.
 		// The root retains its separate bounded Store.ForceClose policy.
-		if ownsExecutionReads && !executionReads.Joined() || ownsArtifacts && !artifacts.Joined() || ownsKnowledge && !knowledge.Joined() || ownsUsage && !usage.Joined() || ownsExecutions && !executions.Joined() || agents != nil && work == agents && !agents.Joined() || install != nil && work == install && !install.Joined() || ownsVariables && !variableCalls.Joined() || ownsProjects && !projectCalls.Joined() || ownsPlanning && planning.ownership != nil && !planning.Joined() {
+		if ownsMCP && !mcpCalls.Joined() || ownsExecutionReads && !executionReads.Joined() || ownsArtifacts && !artifacts.Joined() || ownsKnowledge && !knowledge.Joined() || ownsUsage && !usage.Joined() || ownsExecutions && !executions.Joined() || agents != nil && work == agents && !agents.Joined() || install != nil && work == install && !install.Joined() || ownsVariables && !variableCalls.Joined() || ownsProjects && !projectCalls.Joined() || ownsPlanning && planning.ownership != nil && !planning.Joined() {
 			return errors.Join(result, foundation.NewFault(foundation.DependencyUnavailable, foundation.NotStarted))
 		}
 	}
@@ -350,6 +369,9 @@ func (a accountProcessAuthority) ConfirmStopped(ctx context.Context, id c.Proces
 // Execution's owned graph is constructed once after the original Object guard
 // has bound. Its callback captures these same providers, never a later locator.
 func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *resources, deps *dependencies) error {
+	if err := requireRetrievalProvider(ctx, cfg, db); err != nil {
+		return err
+	}
 	store, ok := db.(account.Store)
 	if !ok {
 		return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
@@ -367,7 +389,18 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
-	projectUsage, err := createProjectUsageAuthorityWithLifecycle(db, authority, lifecycle)
+	// Owner configuration, credentials and SDK discovery are independent of
+	// Execution's selected driver. Tool capture still binds only below.
+	mcpStore, ok := db.(mcp.Store)
+	if !ok {
+		return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+	}
+	mcpAuthority, err := mcp.NewAuthority(mcpStore)
+	if err != nil {
+		return err
+	}
+	mcpFacts := []auditc.ProjectFactAuthority{mcpAuthority}
+	projectUsage, err := createProjectUsageAuthorityWithLifecycle(db, authority, lifecycle, mcpFacts...)
 	if err != nil {
 		return err
 	}
@@ -412,6 +445,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		taskToolAuthorities = append(taskToolAuthorities, builtinAuthority)
 		artifactRunAuthorities = append(artifactRunAuthorities, builtinAuthority)
 	}
+	var remote *mcpAssembly
 	install, err := createAgentInstall(db, objects)
 	if err != nil {
 		return err
@@ -419,18 +453,44 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if !accounts.install(ctx, func() { accounts.agentInstall = install }) {
 		return context.Canceled
 	}
-	contentAuthorities, err := createKnowledgeSkillAuthoritiesWithInstall(db, projectUsage, install.authority)
+	var skillRuntimeAuthorities []skillc.InvocationAuthority
+	if builtinAuthority != nil {
+		skillRuntimeAuthorities = append(skillRuntimeAuthorities, builtinAuthority)
+	}
+	contentAuthorities, err := createKnowledgeSkillAuthoritiesWithInstall(db, projectUsage, install.authority, skillRuntimeAuthorities...)
 	if err != nil {
 		return err
+	}
+	var skillPreparation *skill.PreparationAuthority
+	var skillTransfers *skillPrepareTransferAuthority
+	var preparationTransfers []objectcontract.RunnerTransferAuthority
+	if builtinAuthority != nil {
+		skillPreparation, err = skill.NewPreparationAuthority(contentAuthorities.skills)
+		if err != nil {
+			return err
+		}
+		preparationStore, ok := db.(object.Store)
+		if !ok {
+			return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+		}
+		skillTransfers, err = newSkillPrepareTransferAuthority(preparationStore, skillPreparation)
+		if err != nil {
+			return err
+		}
+		preparationTransfers = append(preparationTransfers, skillTransfers)
 	}
 	var executionAuthorities *executionRuntimeAuthorities
 	modelAuth := model.Authorizations{Sessions: authority, System: authority, Projects: projectUsage.projects}
 	if runtimeEnabled {
-		executionAuthorities, err = createExecutionRuntimeAuthorities(db, projectUsage.projects, objects.guard, agentAuthority)
+		m3, e := createM3Authorities(db, projectUsage.projects, objects)
+		if e != nil {
+			return e
+		}
+		executionAuthorities, err = createExecutionRuntimeAuthoritiesWithM3(db, projectUsage.projects, objects.guard, m3, agentAuthority)
 		if err != nil {
 			return err
 		}
-		modelAuth.Resolution = &model.ResolutionAuthorizations{Consumers: executionAuthorities.execution, SecretService: executionAuthorities.secretService}
+		modelAuth.Resolution = &model.ResolutionAuthorizations{Consumers: executionAuthorities.consumers, SecretService: executionAuthorities.secretService}
 		facts, e := skill.NewInitializationAuditFacts(contentAuthorities.skills, projectUsage.objectFacts)
 		if e != nil {
 			return e
@@ -441,6 +501,12 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		}
 	}
 	var invocationFacts uc.InvocationFacts
+	if builtinAuthority != nil {
+		remote, err = constructMCPContent(db, mcpAuthority, builtinAuthority, executionAuthorities.execution)
+		if err != nil {
+			return err
+		}
+	}
 	if executionAuthorities != nil {
 		invocationFacts = executionAuthorities.model
 	}
@@ -475,7 +541,7 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		return err
 	}
 	processes := accountProcessAuthority{process: process, guard: objects.guard}
-	auditor, err := createSecurityWithRunners(cfg, db, authority, modelAuthority, contentAuthorities.audit, runnerAuthority)
+	auditor, err := createSecurityWithRunners(cfg, db, authority, modelAuthority, contentAuthorities.audit, runnerAuthority, mcpAuthority)
 	if err != nil {
 		return err
 	}
@@ -490,7 +556,11 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
-	secrets, err := createSecret(cfg, db, auditor, authority, usage, projectUsage.projects, secretWrites)
+	var secretUsage sc.UsageAuthority = usage
+	if mcpAuthority != nil {
+		secretUsage = m3SecretUsage{model: usage, mcp: mcpAuthority}
+	}
+	secrets, err := createSecret(cfg, db, auditor, authority, secretUsage, projectUsage.projects, secretWrites)
 	if err != nil {
 		return err
 	}
@@ -569,9 +639,15 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	}
 	producers := map[event.StableName]oc.ProducerAuthority{agentc.AgentProducer: agentProducer, c.AccountProducer: authority, model.ModelProducer: modelAuthority, pc.ProjectProducer: projectUsage.projects, wc.WorkProducer: workAuthority, vc.VariableProducer: projectUsage.variables, kc.KnowledgeProducer: contentAuthorities.knowledge, skillc.AssignmentProducer: skillAssignmentFacts}
 	var executionEvents executionRuntimeEventSet
+	var meetingProposalAuthorities meetingProposalEventAuthorities
 	var approvalAuthority *approval.Authority
 	var approvalEvents gc.Events
 	if runtimeEnabled {
+		meetingProposalAuthorities, err = prepareMeetingProposalEvents(db, projectUsage.projects, catalog)
+		if err != nil {
+			return err
+		}
+		producers[meetingc.MeetingProducer] = meetingProposalAuthorities.producer
 		executionEvents, err = defineExecutionRuntimeEvents(catalog)
 		if err != nil {
 			return err
@@ -601,6 +677,13 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
+	var meetingProposals *meetingProposalAssembly
+	if runtimeEnabled {
+		meetingProposals, err = constructMeetingProposalProjection(db, projectUsage.projects, meetingProposalAuthorities, journal)
+		if err != nil {
+			return err
+		}
+	}
 	var planning *workPlanningAssembly
 	if runtimeEnabled {
 		planning, err = createOwnedWorkPlanningWithProviders(cfg, db, workAuthority, authority, journal, workEvents, executionAuthorities.pending, agentAuthority, projectUsage.projects, projectUsage.lifecycle, objects, taskToolAuthorities...)
@@ -616,6 +699,30 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	models, err := model.New(modelStore, modelAuthority, model.Dependencies{Secret: secrets, Audit: auditor, Events: journal, ConfigurationEvents: modelEvents, Cursors: cfg.CursorKeyring()})
 	if err != nil {
 		return err
+	}
+	var executions *executionRuntimeAssembly
+	if runtimeEnabled {
+		executions = &executionRuntimeAssembly{constructing: true}
+		defer executions.constructionDone()
+		if !accounts.install(ctx, func() { accounts.executions = executions }) {
+			return context.Canceled
+		}
+		executions.realtime, err = realtime.NewHub(realtime.HubOptions{})
+		if err != nil {
+			return err
+		}
+		executions.add(executionRuntimeWork{stop: executions.realtime.StopAdmission, drain: executions.realtime.Stop, joined: executions.realtime.Joined})
+		if err = constructExecutionModels(executions, cfg, modelStore, executionAuthorities, projectUsage, secrets, transport); err != nil {
+			return err
+		}
+		executions.servingRetention, err = model.NewServingSnapshotRetention(modelAuthority, executionAuthorities.consumers, secrets)
+		if err != nil {
+			return err
+		}
+		executions.embeddingProfiles, err = model.NewEmbeddingProfileReader(modelAuthority, executionAuthorities.consumers)
+		if err != nil {
+			return err
+		}
 	}
 	challenges, err := account.NewChallenges(authority, process)
 	if err != nil {
@@ -648,6 +755,12 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if deps.observeAccount != nil {
 		deps.observeAccount(core)
 	}
+	// Registry captures this original DeviceHandler; HTTP admission still waits
+	// for the complete App graph and its original process guard.
+	runnerAdmin, runnerDevice, err := runnerControlHandlers(runners, core, cfg.PublicOrigin())
+	if err != nil {
+		return err
+	}
 	avatar, err := account.NewAvatarAuthority(core)
 	if err != nil {
 		return err
@@ -660,11 +773,15 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
-	objectAuthorities, err := newObjectAuthoritiesWithArtifacts(objectStore, avatar, contentAuthorities.knowledge, contentAuthorities.skills, artifactOwners)
+	var mcpOwners []objectOwnerAuthority
+	if remote != nil {
+		mcpOwners = append(mcpOwners, remote.contentAuthority)
+	}
+	objectAuthorities, err := newObjectAuthoritiesWithPreparation(objectStore, avatar, contentAuthorities.knowledge, contentAuthorities.skills, artifactOwners, skillTransfers, mcpOwners...)
 	if err != nil {
 		return err
 	}
-	if err = objects.construct(cfg, db, auditor, objectAuthorities); err != nil {
+	if err = objects.construct(cfg, db, auditor, objectAuthorities, preparationTransfers...); err != nil {
 		return err
 	}
 	var artifacts *artifactCallAssembly
@@ -677,12 +794,8 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		if err != nil {
 			return err
 		}
-		executionBuiltins, err = createExecutionBuiltins(builtinAuthority, planning, artifacts)
-		if err != nil {
-			return err
-		}
 	}
-	knowledgeCalls, bindKnowledgeErr := createOwnedKnowledge(cfg, db, contentAuthorities.knowledge, projectUsage, authority, objects, auditor, journal, knowledgeEvents)
+	knowledgeCalls, bindKnowledgeErr := createOwnedKnowledge(cfg, db, contentAuthorities.knowledge, projectUsage, authority, objects, auditor, journal, knowledgeEvents, builtinAuthority)
 	if knowledgeCalls != nil && !accounts.install(ctx, func() { accounts.knowledge = knowledgeCalls }) {
 		return context.Canceled
 	}
@@ -690,6 +803,74 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		return bindKnowledgeErr
 	}
 	documents := knowledgeCalls.pair.Service()
+	if executions != nil {
+		if err = constructKnowledgeIndex(ctx, cfg, db, knowledgeCalls, executionAuthorities.m3, executions, models, deps.retrievalObserver); err != nil {
+			return err
+		}
+	}
+	if builtinAuthority != nil {
+		executionBuiltins, err = createExecutionBuiltins(builtinAuthority, planning, artifacts)
+		if err != nil {
+			return err
+		}
+		decision, err := constructMeetingDecisionBackend(db, executions, executionAuthorities.m3, builtinAuthority, meetingProposals.decisionEvents)
+		if err != nil {
+			return err
+		}
+		if err = executionBuiltins.addBackends(decision); err != nil {
+			return err
+		}
+		proposalBackends, e := meetingProposals.agentBackends(db, agentAuthority, builtinAuthority, executions.realtime)
+		if e != nil {
+			return e
+		}
+		if e = executionBuiltins.addBackends(proposalBackends...); e != nil {
+			return e
+		}
+		if err = constructMemory(cfg, db, executions, executionAuthorities, projectUsage, agentAuthority, builtinAuthority, auditor, models, deps.retrievalObserver); err != nil {
+			return err
+		}
+		if executions.memory != nil {
+			backends, e := memoryToolBackends(executions.memory)
+			if e != nil {
+				return e
+			}
+			if e = executionBuiltins.addBackends(backends...); e != nil {
+				return e
+			}
+		}
+		if knowledgeCalls.index != nil {
+			backends, e := knowledgeToolBackends(knowledgeCalls.index)
+			if e != nil {
+				return e
+			}
+			if e = executionBuiltins.addBackends(backends...); e != nil {
+				return e
+			}
+		}
+	}
+
+	if remote != nil {
+		var contentObjects objectcontract.Objects = objects.service
+		if deps.mcpObjects != nil {
+			contentObjects = deps.mcpObjects(contentObjects)
+		}
+		backends, e := remote.resourceBackends(contentObjects, objects.service, builtinAuthority)
+		if e != nil {
+			return e
+		}
+		if e = executionBuiltins.addBackends(backends...); e != nil {
+			return e
+		}
+		if deps.mcpModel != nil {
+			// The wrapper receives the actual bound source and Objects, and
+			// forwards the original Model context without creating authority.
+			executions.loopModel = deps.mcpModel(executions.modelRuntime, remote.content, objects.service)
+			if runtimeInformationNil(executions.loopModel) {
+				return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+			}
+		}
+	}
 	skills, err := createSkills(ctx, contentAuthorities.skills, objects)
 	if err != nil {
 		return err
@@ -697,22 +878,69 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if !accounts.install(ctx, func() { accounts.skills = &skillWork{service: skills} }) {
 		return context.Canceled
 	}
-	skillAssignments, err := createSkillAssignments(db, skills, agentAuthority, skillAssignmentFacts, skillAssignmentEvents, auditor, journal)
+	if executionBuiltins != nil {
+		backends, e := toolruntime.NewSkillReadBackends(skills)
+		if e != nil {
+			return e
+		}
+		prepare, e := createSkillPreparationBackend(db, skills, skillPreparation, objects.transfers, agentAuthority, executionAuthorities.execution, runnerDevice)
+		if e != nil {
+			return e
+		}
+		backends = append(backends, prepare)
+		if e = executionBuiltins.addBackends(backends...); e != nil {
+			return e
+		}
+	}
+	var skillAssignmentRuntime agentc.SkillAssignmentRunAuthority
+	if builtinAuthority != nil {
+		skillAssignmentRuntime = builtinAuthority
+	}
+	skillAssignments, err := createSkillAssignments(db, skills, agentAuthority, skillAssignmentFacts, skillAssignmentEvents, auditor, journal, skillAssignmentRuntime)
 	if err != nil {
 		return err
+	}
+	if executionBuiltins != nil {
+		commands, e := skill.NewRuntimeAssignmentCommands(skillAssignments, builtinAuthority)
+		if e != nil {
+			return e
+		}
+		backend, e := toolruntime.NewSkillAssignmentBackend(commands)
+		if e != nil {
+			return e
+		}
+		if e = executionBuiltins.addBackends(backend); e != nil {
+			return e
+		}
 	}
 	// Skills uses the original Agent authority, not the Agent service. All
 	// providers are now fixed, so publish both Agent lanes as one lifecycle owner.
 	var agentConfiguration *agentConfigurationAssembly
 	if executionBuiltins != nil {
-		agentConfiguration, err = createOwnedAgentConfigurationWithBuiltins(db, projectUsage.projects, authority, agentAuthority, agentProducer, modelAuthority, skills, contentAuthorities.skills, install, auditor, journal, objects, cfg.CursorKeyring(), true, executionBuiltins.sources)
+		agentConfiguration, err = createOwnedAgentConfigurationWithBuiltins(db, projectUsage.projects, authority, agentAuthority, agentProducer, modelAuthority, skills, contentAuthorities.skills, install, auditor, journal, objects, cfg.CursorKeyring(), true, executionBuiltins.sources, mcpAuthority)
 	} else {
-		agentConfiguration, err = createOwnedAgentConfiguration(db, projectUsage.projects, authority, agentAuthority, agentProducer, modelAuthority, skills, contentAuthorities.skills, install, auditor, journal, objects, cfg.CursorKeyring(), runtimeEnabled && runtimeOptions.ToolLoop())
+		agentConfiguration, err = createOwnedAgentConfigurationWithBuiltins(db, projectUsage.projects, authority, agentAuthority, agentProducer, modelAuthority, skills, contentAuthorities.skills, install, auditor, journal, objects, cfg.CursorKeyring(), false, nil, mcpAuthority)
 	}
 	if err != nil {
 		return err
 	}
 	if !accounts.install(ctx, func() { accounts.agents = agentConfiguration }) {
+		return context.Canceled
+	}
+	var mcpControl *mcp.Service
+	mcpProcess := &mcp.ProcessOptions{Guard: objects.guard, ID: objects.process}
+	if remote != nil {
+		if err = constructMCP(db, executions, remote, authority, projectUsage.projects, executionAuthorities, agentConfiguration.registry, secrets, auditor, transport, cfg.PublicOrigin(), mcpProcess); err != nil {
+			return err
+		}
+		mcpControl = executions.mcp
+	} else {
+		mcpControl, err = constructMCPControl(db, mcpAuthority, authority, projectUsage.projects, agentConfiguration.registry, nil, secrets, auditor, transport, cfg.PublicOrigin(), mcpProcess)
+		if err != nil {
+			return err
+		}
+	}
+	if !accounts.install(ctx, func() { accounts.mcp = mcpControl }) {
 		return context.Canceled
 	}
 	projectCommands, err := createProjectCommands(cfg, db, projectUsage.projects, authority, auditor, journal, projectEvents, processes, skills)
@@ -756,7 +984,11 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
-	deliveries, err := outbox.NewRuntime(journal, []oc.HandlerDefinition{handler}, outbox.Options{})
+	handlers := []oc.HandlerDefinition{handler}
+	if meetingProposals != nil {
+		handlers = append(handlers, meetingProposals.handler, meetingProposals.decisionHandler)
+	}
+	deliveries, err := outbox.NewRuntime(journal, handlers, outbox.Options{})
 	if err != nil {
 		return err
 	}
@@ -771,7 +1003,18 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
+	var memoryHandler http.Handler
+	if executions != nil && executions.memories != nil {
+		memoryHandler, err = createMemoryHTTP(executions.memories, core, cfg.PublicOrigin())
+		if err != nil {
+			return err
+		}
+	}
 	modelHandler, err := model.NewSystemHTTPHandler(models, core, secrets, model.SystemHTTPOptions{PublicOrigin: cfg.PublicOrigin()})
+	if err != nil {
+		return err
+	}
+	mcpHandler, err := createMCPHTTP(mcpControl, secrets, core, cfg.PublicOrigin())
 	if err != nil {
 		return err
 	}
@@ -827,10 +1070,6 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
-	runnerAdmin, runnerDevice, err := runnerControlHandlers(runners, core, cfg.PublicOrigin())
-	if err != nil {
-		return err
-	}
 	knowledgeReads, knowledgeCommands, knowledgeContent, skillReads, err := knowledgeSkillHandlers(documents, skills, core, cfg.PublicOrigin())
 	if err != nil {
 		return err
@@ -854,6 +1093,10 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		accounts.handler = knowledgeSkillRoutes(accounts.handler, knowledgeReads, knowledgeCommands, knowledgeContent, skillReads)
 		accounts.handler = skillManagementRoutes(accounts.handler, skillManagement)
 		accounts.handler = skillAssignmentRoutes(accounts.handler, skillAssignmentHTTP)
+		accounts.handler = mcpRoutes(accounts.handler, mcpHandler)
+		if memoryHandler != nil {
+			accounts.handler = memoryRoutes(accounts.handler, memoryHandler)
+		}
 	}) {
 		return context.Canceled
 	}
@@ -891,6 +1134,11 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		if err := ctx.Err(); err != nil {
 			return objects, err
 		}
+		// Retire only the original Skill work after this process guard is live.
+		// Pending rows remain pending; recovery never publishes or uploads.
+		if _, err := skills.Recover(ctx); err != nil {
+			return objects, err
+		}
 		if artifacts == nil {
 			var bindArtifactErr error
 			artifacts, bindArtifactErr = createOwnedArtifacts(cfg, db, artifactOwners, projectUsage, objects, auditor)
@@ -917,7 +1165,14 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 			// The four-owner constructor requires this guard's actual binding.
 			// Earlier startup failures never install an empty constructing owner.
 			// No Run or Launch is reachable until Account.Start below this phase.
-			executions := &executionRuntimeAssembly{constructing: true, agentCalls: agentConfiguration.ownership, taskReadDependencies: &readDeps, runnerDevice: runnerDevice, builtins: executionBuiltins, approvalAuthority: approvalAuthority, approvalEvents: approvalEvents, approvalJournal: journal}
+			executions.agentCalls = agentConfiguration.ownership
+			executions.taskReadDependencies = &readDeps
+			executions.runnerDevice = runnerDevice
+			executions.builtins = executionBuiltins
+			executions.installSource = agentConfiguration.installSource
+			executions.approvalAuthority = approvalAuthority
+			executions.approvalEvents = approvalEvents
+			executions.approvalJournal = journal
 			if !accounts.install(ctx, func() { accounts.executions = executions }) {
 				executions.constructionDone()
 				return objects, context.Canceled
@@ -931,6 +1186,43 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 			}
 			if err = planning.transitions.BindCancellation(executions.cancellation); err != nil {
 				return objects, err
+			}
+			meetingReferences, err := newMeetingReferences(db, planning.taskReader, documents, artifacts.pair.Service())
+			if err != nil {
+				return objects, err
+			}
+			if err = constructMeeting(db, executions, executionAuthorities, projectUsage, models, meetingReferences, objects, auditor, meetingProposals.events, meetingProposals.decisionEvents); err != nil {
+				return objects, err
+			}
+			executions.meetingProposals, err = meetingProposals.owner(db, executions.meetings)
+			if err != nil {
+				return objects, err
+			}
+			executions.meetingInbox = meetingProposals.inbox
+			meetingHandler, e := createMeetingHTTP(executions.meetings, core, cfg.PublicOrigin())
+			if e != nil {
+				return objects, e
+			}
+			runtimeHandler, e := createMeetingRuntimeHTTP(executions.meetings, core, cfg.PublicOrigin())
+			if e != nil {
+				return objects, e
+			}
+			proposalHandler, e := createMeetingProposalHTTP(executions.meetingProposals, core, cfg.PublicOrigin())
+			if e != nil {
+				return objects, e
+			}
+			inboxHandler, e := createMeetingInboxHTTP(executions.meetingInbox, core, cfg.PublicOrigin())
+			if e != nil {
+				return objects, e
+			}
+			realtimeHandler, e := createMeetingRealtimeHTTP(executions.meetings, executions.realtime, core, cfg.PublicOrigin())
+			if e != nil {
+				return objects, e
+			}
+			if !accounts.install(ctx, func() {
+				accounts.handler = meetingRealtimeRoutes(meetingInboxRoutes(meetingProposalRoutes(meetingRuntimeRoutes(meetingRoutes(accounts.handler, meetingHandler), runtimeHandler), proposalHandler), inboxHandler), realtimeHandler)
+			}) {
+				return objects, context.Canceled
 			}
 			taskReads = executions.executionCalls.TaskReader()
 		} else {

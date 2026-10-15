@@ -18,6 +18,10 @@ func modelLeaseUsage(purpose sc.Purpose, owner sc.CredentialLeaseOwner) bool {
 	return purpose == sc.Model && (owner.Details().Kind == sc.ExecutionOwner || owner.Details().Kind == sc.ModelCallOwner)
 }
 
+func mcpLeaseUsage(purpose sc.Purpose, owner sc.CredentialLeaseOwner) bool {
+	return purpose == sc.MCP && (owner.Details().Kind == sc.ExecutionOwner || owner.Details().Kind == sc.MCPConnectionRequestOwner)
+}
+
 // Only the new entry point uses this stricter dependency check. In particular,
 // a named nil channel may implement a port; calling it is not initialization.
 func modelUsageNilPort(v any) bool {
@@ -48,6 +52,17 @@ func (s *Service) ReadCredentialForUsage(ctx context.Context, request sc.UsageRe
 	if request.Validate() != nil || request.Action != sc.ReadLeaseUsage || !modelLeaseUsage(request.Purpose, request.LeaseOwner) {
 		return sc.SecretMaterial{}, invalid()
 	}
+	return s.readCredentialForUsage(ctx, request)
+}
+
+func (s *Service) ReadMCPCredentialForUsage(ctx context.Context, request sc.UsageRequest) (sc.SecretMaterial, error) {
+	if request.Validate() != nil || request.Action != sc.ReadLeaseUsage || !mcpLeaseUsage(request.Purpose, request.LeaseOwner) || request.RequestID == "" {
+		return sc.SecretMaterial{}, invalid()
+	}
+	return s.readCredentialForUsage(ctx, request)
+}
+
+func (s *Service) readCredentialForUsage(ctx context.Context, request sc.UsageRequest) (sc.SecretMaterial, error) {
 	if s == nil || s.data == nil {
 		return sc.SecretMaterial{}, failure(AuthorizationUnbound, foundation.DependencyUnbound, nil)
 	}
@@ -220,3 +235,4 @@ func (modelUsageUnknown) MarshalJSON() ([]byte, error) {
 func (modelUsageUnknown) LogValue() slog.Value { return slog.StringValue(string(CommitUnknown)) }
 
 var _ sc.CredentialUsageReader = (*Service)(nil)
+var _ sc.MCPCredentialUsageReader = (*Service)(nil)

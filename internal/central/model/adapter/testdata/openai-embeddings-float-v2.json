@@ -1,0 +1,30 @@
+{
+  "revision": "openai-embeddings-float-v2",
+  "protocol": "openai-embeddings",
+  "profile": "openai-embeddings-v1",
+  "inherits": "openai-embeddings-float-v1.json",
+  "conformance": false,
+  "compatibility": {
+    "usage.completion_tokens": "Optional literal integer zero only; projected as provider-supplied output_tokens=0. Missing remains unknown; null, nonzero, negative, fractional, exponent, duplicate and unknown fields are rejected.",
+    "old_snapshot_behavior": "openai-embeddings-float-v1 retains its original parser and rejects completion_tokens.",
+    "unchanged": "All request, vector, count, dimension, finite-number, body, auxiliary-memory and transport bounds remain v1."
+  },
+  "source_observation": {
+    "kind": "authorized DEV endpoint bounded public-text protocol observation",
+    "probe": "tests/model/probe_embedding_dimension.py",
+    "original_session": 24073,
+    "actual_wait": 0,
+    "http_status": 200,
+    "items": 1,
+    "dimensions": 4096,
+    "extra_usage_fields": 1,
+    "completion_tokens_is_integer_zero": true,
+    "tls_verified": true,
+    "default_proxy_environment_preserved": true
+  },
+  "evidence_limits": [
+    "This provider compatibility observation is not official SDK typing or broad OpenAI conformance.",
+    "The original Runtime attempt 19323 failed under v1 and joined; it is not retroactively marked successful.",
+    "The bounded protocol probe does not establish Model Runtime or Knowledge/Memory product acceptance."
+  ]
+}

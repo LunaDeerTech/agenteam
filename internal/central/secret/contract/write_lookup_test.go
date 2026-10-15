@@ -128,7 +128,7 @@ func TestProjectWriteCommandLookupIdentityScopeAndBounds(t *testing.T) {
 			changes := map[string]func(*WriteCommandLookupRequest){
 				"scope":   func(v *WriteCommandLookupRequest) { v.Scope, _ = id.InProject(contractID[id.Project](t)) },
 				"system":  func(v *WriteCommandLookupRequest) { v.Scope = id.SystemScope() },
-				"purpose": func(v *WriteCommandLookupRequest) { v.Purpose = MCP },
+				"purpose": func(v *WriteCommandLookupRequest) { v.Purpose = SMTP },
 				"command": func(v *WriteCommandLookupRequest) {
 					v.Identity, _ = f.NewCommandIdentity("secret", []string{project.String(), v.Actor.Details().UserID}, "unknown", "original-key")
 				},
@@ -151,5 +151,42 @@ func TestProjectWriteCommandLookupIdentityScopeAndBounds(t *testing.T) {
 				})
 			}
 		})
+	}
+}
+
+func TestMCPWriteLookupOnlyOriginalHumanProject(t *testing.T) {
+	for _, kind := range []MutationKind{Create, Update, Delete} {
+		r := lookupRequest(t, kind)
+		project := contractID[id.Project](t)
+		r.Scope, _ = id.InProject(project)
+		r.Purpose = MCP
+		r.Identity, _ = f.NewCommandIdentity("secret", []string{project.String(), r.Actor.Details().UserID}, string(kind), "original-mcp")
+		if kind != Create {
+			r.Ref, _ = NewCredentialRef(contractID[Credential](t), r.Scope)
+		}
+		if r.Validate() != nil {
+			t.Fatal("Human Project MCP lookup rejected")
+		}
+		system := lookupRequest(t, kind)
+		system.Purpose = MCP
+		if system.Validate() == nil {
+			t.Fatal("System MCP lookup accepted")
+		}
+		foreign := r
+		foreign.Identity, _ = f.NewCommandIdentity("secret", []string{contractID[id.Project](t).String(), r.Actor.Details().UserID}, string(kind), "original-mcp")
+		if foreign.Validate() == nil {
+			t.Fatal("foreign Project owner accepted")
+		}
+		agent := r
+		agent.Actor, _ = id.NewAgentRun(project, contractID[id.Agent](t), contractID[id.Execution](t))
+		if agent.Validate() == nil {
+			t.Fatal("Agent entered Human credential lookup")
+		}
+		service := r
+		registered, _ := id.RegisterService(id.SecretService)
+		service.Actor, _ = registered.Actor(contractID[struct{}](t).String(), r.Scope)
+		if service.Validate() == nil {
+			t.Fatal("OAuth service entered Human lookup")
+		}
 	}
 }

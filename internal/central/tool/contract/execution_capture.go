@@ -149,6 +149,7 @@ type ExecutionTools interface {
 type BuiltinExecutionBinding struct {
 	Binding          BuiltinBinding `json:",omitzero"`
 	RunnerBinding    RunnerBinding  `json:",omitzero"`
+	MCPBinding       MCPBinding     `json:",omitzero"`
 	ScopeResolverID  ScopeResolverID
 	RiskClassifierID RiskClassifierID
 	Class            ToolClass
@@ -162,10 +163,13 @@ type ExecutionTool struct {
 
 func (v ExecutionTool) Validate() error {
 	b := v.BindingSnapshot
-	if (SpecRef{ToolID: v.ToolID, SpecRevision: v.SpecRevision}).Validate() != nil || v.ModelVisibleName != "tool_"+strings.ReplaceAll(v.ToolID.String(), "-", "") || !validBindingChoice(b.Binding, b.RunnerBinding) || !stablePart(string(b.ScopeResolverID)) || !stablePart(string(b.RiskClassifierID)) || (b.Class != OrdinaryTool && b.Class != CoreTool) {
+	if (SpecRef{ToolID: v.ToolID, SpecRevision: v.SpecRevision}).Validate() != nil || v.ModelVisibleName != "tool_"+strings.ReplaceAll(v.ToolID.String(), "-", "") || !validBindingChoice(b.Binding, b.RunnerBinding, b.MCPBinding) || !stablePart(string(b.ScopeResolverID)) || !stablePart(string(b.RiskClassifierID)) || (b.Class != OrdinaryTool && b.Class != CoreTool) {
 		return operationInvalid()
 	}
 	if b.RunnerBinding != (RunnerBinding{}) && (b.ScopeResolverID != ScopeResolverID("runner."+b.RunnerBinding.OperationName) || b.RiskClassifierID != RiskClassifierID("runner."+b.RunnerBinding.OperationName) || b.Class != OrdinaryTool) {
+		return operationInvalid()
+	}
+	if b.MCPBinding != (MCPBinding{}) && (b.ScopeResolverID != "mcp.project" || b.RiskClassifierID != "mcp.external" || b.Class != OrdinaryTool) {
 		return operationInvalid()
 	}
 	return nil

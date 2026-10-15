@@ -9,6 +9,7 @@ import (
 	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/meeting"
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
 	rc "github.com/LunaDeerTech/agenteam/internal/central/runner/contract"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/skill/contract"
@@ -78,16 +79,28 @@ type skillsInformation struct {
 
 func projectMessages(ctx context.Context, captured ec.ExecutionContext) ([]mc.Message, error) {
 	fields := captured.Input().Fields()
-	if fields.Request.Launch.Trigger.Kind != "task" {
+	// Each domain decodes its original immutable source and explicitly projects
+	// conversation data. Runtime/control fields never become meeting messages.
+	var input []byte
+	var err error
+	inputLabel := "Captured Task input (fixed source data, not a current-state query):\n"
+	switch fields.Request.Launch.Trigger.Kind {
+	case "task":
+		task, decodeErr := work.DecodeTaskContext(captured.Trigger())
+		if decodeErr != nil {
+			return nil, invalid().WithCause(decodeErr)
+		}
+		input, err = task.Data()
+	case "meeting":
+		inputLabel = "Captured Meeting conversation (fixed source data, not a current-state query):\n"
+		conversation, decodeErr := meeting.DecodeContext(captured.Trigger())
+		if decodeErr != nil {
+			return nil, invalid().WithCause(decodeErr)
+		}
+		input, err = conversation.ModelData()
+	default:
 		return nil, unsupported()
 	}
-	// Decode only Work's captured source, with its complete original request
-	// binding and known scene revision. Unknown source/history is not omitted.
-	task, err := work.DecodeTaskContext(captured.Trigger())
-	if err != nil {
-		return nil, invalid().WithCause(err)
-	}
-	input, err := task.Data()
 	if err != nil {
 		return nil, invalid().WithCause(err)
 	}
@@ -163,7 +176,7 @@ func projectMessages(ctx context.Context, captured ec.ExecutionContext) ([]mc.Me
 	}
 	return []mc.Message{
 		textMessage("system", system.String()),
-		textMessage("user", "Captured Task input (fixed source data, not a current-state query):\n"+string(input)),
+		textMessage("user", inputLabel+string(input)),
 	}, nil
 }
 

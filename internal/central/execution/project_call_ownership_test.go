@@ -584,7 +584,7 @@ func TestExecutionProjectCallAssociatedOriginalWorkerBody(t *testing.T) {
 	defer once.Do(func() { close(release) })
 	// This is the original private physical-call seam. Terminal observations
 	// are controlled here; no real association or Model completion is claimed.
-	v.pair.Associated().state.ops.inspect = func(_ context.Context, p i.ProjectID, _ ec.AssociatedDispatch) (associatedFacts, error) {
+	v.pair.Associated().state.ops.inspect = func(_ context.Context, p i.ProjectID, _ associatedIdentity) (associatedFacts, error) {
 		if p == v.p {
 			close(entered)
 			<-release
@@ -650,7 +650,7 @@ func TestExecutionProjectCallAssociatedTechnicalRecoveryDoesNotRunBody(t *testin
 	})
 	var bodyMu sync.Mutex
 	inspects := 0
-	v.pair.Associated().state.ops.inspect = func(context.Context, i.ProjectID, ec.AssociatedDispatch) (associatedFacts, error) {
+	v.pair.Associated().state.ops.inspect = func(context.Context, i.ProjectID, associatedIdentity) (associatedFacts, error) {
 		bodyMu.Lock()
 		inspects++
 		bodyMu.Unlock()
@@ -873,7 +873,7 @@ func TestExecutionProjectCallDriverScopeAndLaneStop(t *testing.T) {
 			// The association facts are the existing controlled physical seam.
 			// The actual public worker still mints the parent; these child calls
 			// reject before their business callback and never reach a Model.
-			v.pair.Associated().state.ops.inspect = func(ctx context.Context, _ i.ProjectID, _ ec.AssociatedDispatch) (associatedFacts, error) {
+			v.pair.Associated().state.ops.inspect = func(ctx context.Context, _ i.ProjectID, _ associatedIdentity) (associatedFacts, error) {
 				before, _, _ := v.store.counts()
 				requireCode(t, invoke(ctx, dispatch.ExecutionID), f.DependencyUnbound)
 				if after, _, _ := v.store.counts(); after != before {
@@ -965,7 +965,7 @@ func TestExecutionProjectCallOriginalChildRecoveryRetiresParent(t *testing.T) {
 	// actual existing driver code over its explicit SQL fixture. This is not
 	// a known-NotCommitted retention test or a real Scheduler association.
 	inspects := 0
-	pair.Associated().state.ops.inspect = func(ctx context.Context, _ i.ProjectID, _ ec.AssociatedDispatch) (associatedFacts, error) {
+	pair.Associated().state.ops.inspect = func(ctx context.Context, _ i.ProjectID, _ associatedIdentity) (associatedFacts, error) {
 		job, _ := ctx.Value(associatedContextKey{}).(*associatedCall)
 		if err := markAssociatedInspected(ctx, job); err != nil {
 			return associatedFacts{}, err

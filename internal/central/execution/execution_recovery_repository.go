@@ -148,6 +148,9 @@ func (s *associatedExecutorState) commitPreparationCancellation(ctx context.Cont
 			if err = s.direct.state.deps.Environment.RetireEnvironmentInTx(ctx, tx, w.input.input.Fields().Environment, w.environmentPlan); err != nil {
 				return portError(err)
 			}
+			if err = releaseMCPRetirement(ctx, tx, s.direct.state.deps.MCP, w.mcp, w.mcpPlan); err != nil {
+				return err
+			}
 		}
 		w.retired = true
 		_, err = s.direct.state.deps.Events.AppendEventInTx(ctx, tx, actor, w.event, w.plan)
@@ -193,7 +196,11 @@ func (s *associatedExecutorState) readPreparationCancellation(ctx context.Contex
 			if err != nil {
 				return portError(err)
 			}
-			found = model && environment
+			mcp, err := observeMCPRetirement(ctx, tx, s.direct.state.deps.MCP, w.mcp, w.mcpPlan)
+			if err != nil {
+				return err
+			}
+			found = model && environment && mcp
 		}
 		return ctx.Err()
 	})

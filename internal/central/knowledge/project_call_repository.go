@@ -26,12 +26,21 @@ func canonicalProjectIdentity(raw []byte) ([]byte, error) {
 	if decoder.Decode(&v) != nil || decoder.Decode(new(any)) != io.EOF || v.Format != 1 || v.Method == "" || len(v.Method) > 64 {
 		return nil, unavailable(nil)
 	}
-	for _, value := range []string{v.User, v.Document} {
+	for _, value := range []string{v.User, v.Document, v.Agent, v.Execution, v.Operation, v.Tool, v.ToolCall, v.Attempt, v.IndexJob, v.IndexBuild} {
 		if value != "" {
 			if _, err := f.ParseID[struct{}](value); err != nil {
 				return nil, unavailable(err)
 			}
 		}
+	}
+	if (v.IndexBuild != "") != (v.Method == "index-build") || v.IndexBuild != "" && (v.User != "" || v.Agent != "" || v.Document != "" || v.Command != "" || v.Key != "" || v.Digest != "" || v.IndexJob != "") {
+		return nil, unavailable(nil)
+	}
+	if (v.IndexJob != "") != (v.Method == "index-job") || v.IndexJob != "" && (v.User != "" || v.Agent != "" || v.Document == "" || v.Command != "") {
+		return nil, unavailable(nil)
+	}
+	if v.Agent != "" && (v.User != "" || v.Execution == "" || v.Operation == "" || v.Tool == "" || v.ToolCall == "" || v.Attempt == "") || v.Agent == "" && (v.Execution != "" || v.Operation != "" || v.Tool != "" || v.ToolCall != "" || v.Attempt != "") {
+		return nil, unavailable(nil)
 	}
 	if v.Command != "" && kc.CommandName(v.Command).Validate() != nil {
 		return nil, unavailable(nil)
@@ -170,7 +179,7 @@ func (s *projectCallState) register(ctx context.Context, o *projectCallOwner) (f
 		locks := projectCallLocks(r, f.Shared)
 		if o.actor.Validate() == nil {
 			for _, p := range r.projects() {
-				more, err := scopeLocks(o.actor, p, false)
+				more, err := accessLocks(ctx, o.actor, p, false)
 				if err != nil {
 					return err
 				}
@@ -196,12 +205,8 @@ func (s *projectCallState) register(ctx context.Context, o *projectCallOwner) (f
 				return portError(err)
 			}
 			if o.actor.Validate() == nil {
-				grant, err := s.service.state().deps.Projects.RequireOwnerInTx(ctx, tx, o.actor, p, id.Read)
-				if err != nil {
-					return portError(err)
-				}
-				if !grant.Matches(o.actor, p) {
-					return fault(f.Forbidden)
+				if err := s.service.authorizeReadInTx(ctx, tx, o.actor, p); err != nil {
+					return err
 				}
 			}
 		}

@@ -1,4 +1,4 @@
-// Package texthttp exposes bounded Human Owner canonical text commands.
+// Package texthttp exposes bounded Human Owner canonical source commands.
 // It consumes the existing Service and owns neither its lifetime nor its facts.
 package texthttp
 
@@ -42,7 +42,10 @@ func NewHTTPHandler(service *knowledge.Service, boundary *account.HTTPBoundary) 
 	return &handler{service, boundary}, nil
 }
 
-type route struct{ project, target, action string }
+type route struct {
+	project, target, action string
+	file                    bool
+}
 
 func routeFor(path string) route {
 	if !strings.HasPrefix(path, projectPrefix) {
@@ -57,12 +60,14 @@ func routeFor(path string) route {
 			return route{}
 		}
 	}
-	if p[3] == "text-commands" && p[4] == "lookup" {
-		return route{project: p[0], action: "lookup"}
+	if (p[3] == "text-commands" || p[3] == "file-commands") && p[4] == "lookup" {
+		return route{project: p[0], action: "lookup", file: p[3] == "file-commands"}
 	}
 	switch p[4] {
 	case "create-text", "replace-text":
-		return route{p[0], p[3], p[4]}
+		return route{project: p[0], target: p[3], action: p[4]}
+	case "create-file", "replace-file":
+		return route{project: p[0], target: p[3], action: p[4], file: true}
 	}
 	return route{}
 }
@@ -74,6 +79,9 @@ func (r route) pattern() string {
 	suffix := "{document_id}/" + r.action
 	if r.action == "lookup" {
 		suffix = "text-commands/lookup"
+		if r.file {
+			suffix = "file-commands/lookup"
+		}
 	}
 	return projectPrefix + "{project_id}/knowledge/documents/" + suffix
 }
@@ -155,7 +163,8 @@ func (h *handler) execute(w http.ResponseWriter, r *http.Request, route route) (
 	if err != nil {
 		return nil, err
 	}
-	// This handler accepts only in-memory text; closing has no external I/O.
+	// Decoding owns only bounded memory. Object consumes the original source;
+	// closing this input never substitutes for the Object owner's actual join.
 	defer in.source.Close()
 	if expired(r.Context()) {
 		panic(http.ErrAbortHandler)

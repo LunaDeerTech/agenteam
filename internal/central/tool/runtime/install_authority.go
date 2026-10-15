@@ -33,6 +33,7 @@ type installAuthorityState struct {
 
 type installHandoff struct {
 	mu         sync.Mutex
+	recoveryMu sync.Mutex
 	issuer     *installAuthorityState
 	executor   *installExecutorData
 	record     operationRecord
@@ -52,6 +53,7 @@ type installHandoff struct {
 	// backend call alone cannot make Drain/Joined claim all ownership retired.
 	retirement error
 	terminal   *installTerminal
+	finalRaw   []byte // Set only by the original validated final-write callback.
 }
 
 type installHandoffKey struct{}
@@ -271,6 +273,9 @@ func (a *InstallAuthority) Drain(ctx context.Context) error {
 		case <-h.done:
 		case <-ctx.Done():
 			return ctx.Err()
+		}
+		if err := recoverInstallFinalization(ctx, d, h); err != nil {
+			return err
 		}
 		h.mu.Lock()
 		err := h.retirement

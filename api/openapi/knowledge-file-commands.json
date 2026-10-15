@@ -1,0 +1,675 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "agenteam Human Owner Knowledge file commands",
+    "version": "1.0.0",
+    "description": "Bounded four-format canonical upload. Source bytes <=1 MiB; larger files return 413 without truncation. Domain Object storage permits up to 1 GiB, while this HTTP indexing entry explicitly follows the current 1 MiB parser limit."
+  },
+  "paths": {
+    "/api/v1/projects/{project_id}/knowledge/documents/{document_id}/create-file": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "document_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "knowledgeFileCreate",
+        "description": "Current Human Owner; original Account Origin/CSRF/Session and stable Idempotency-Key required. One original 2s budget includes complete body Close, domain publication, original Object lifecycle and response completion. Canonical four-format source <=1048576 bytes; complete encoded write <=1414488 bytes; original Lookup envelope <=1414572 bytes, nested original request <=1414488 bytes. Reject unsupported media, duplicate keys, noncanonical base64 and overflow without truncation. Unknown retains original target/key/payload: explicit lookup only, no automatic retry.",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CSRF"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFileRequest"
+              }
+            }
+          },
+          "x-max-encoded-json-bytes": 1414488
+        },
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "After browser/current Human authentication, unsupported method.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Complete safe metadata, at most 16 KiB. Historical receipts are not current-body grants. After a confirmed write, read current metadata and body with the existing authorized GET routes.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/knowledge/documents/{document_id}/replace-file": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        },
+        {
+          "name": "document_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "knowledgeFileReplace",
+        "description": "Current Human Owner; original Account Origin/CSRF/Session and stable Idempotency-Key required. One original 2s budget includes complete body Close, domain publication, original Object lifecycle and response completion. Canonical four-format source <=1048576 bytes; complete encoded write <=1414488 bytes; original Lookup envelope <=1414572 bytes, nested original request <=1414488 bytes. Reject unsupported media, duplicate keys, noncanonical base64 and overflow without truncation. Unknown retains original target/key/payload: explicit lookup only, no automatic retry.",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CSRF"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplaceFileRequest"
+              }
+            }
+          },
+          "x-max-encoded-json-bytes": 1414488
+        },
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "After browser/current Human authentication, unsupported method.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Complete safe metadata, at most 16 KiB. Historical receipts are not current-body grants. After a confirmed write, read current metadata and body with the existing authorized GET routes.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/knowledge/documents/file-commands/lookup": {
+      "parameters": [
+        {
+          "name": "project_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "$ref": "./common.json#/components/schemas/ID"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "knowledgeFileLookup",
+        "description": "Current Human Owner; original Account Origin/CSRF/Session and stable Idempotency-Key required. One original 2s budget includes complete body Close, domain publication, original Object lifecycle and response completion. Canonical four-format source <=1048576 bytes; complete encoded write <=1414488 bytes; original Lookup envelope <=1414572 bytes, nested original request <=1414488 bytes. Reject unsupported media, duplicate keys, noncanonical base64 and overflow without truncation. Unknown retains original target/key/payload: explicit lookup only, no automatic retry.",
+        "security": [
+          {
+            "browserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CSRF"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LookupRequest"
+              }
+            }
+          },
+          "x-max-encoded-json-bytes": 1414572
+        },
+        "responses": {
+          "400": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "500": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "405": {
+            "description": "After browser/current Human authentication, unsupported method.",
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "const": "POST"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Complete safe metadata, at most 16 KiB. Historical receipts are not current-body grants. After a confirmed write, read current metadata and body with the existing authorized GET routes.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "string",
+                  "pattern": "^[0-9]+$"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LookupResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Title": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512,
+        "not": {
+          "pattern": "[\\u0000-\\u001f\\u007f-\\u009f\\ud800-\\udfff]"
+        }
+      },
+      "Creator": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "user_id"
+            ],
+            "properties": {
+              "kind": {
+                "const": "human"
+              },
+              "user_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "project_id",
+              "agent_id",
+              "execution_id"
+            ],
+            "properties": {
+              "kind": {
+                "const": "agent_run"
+              },
+              "project_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "agent_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "execution_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            }
+          }
+        ]
+      },
+      "Document": {
+        "$ref": "./knowledge-content.json#/components/schemas/Document"
+      },
+      "CreateFileRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "parent_document_id",
+          "title",
+          "media_type",
+          "bytes_base64"
+        ],
+        "properties": {
+          "parent_document_id": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": {
+            "$ref": "#/components/schemas/Title"
+          },
+          "media_type": {
+            "enum": [
+              "text/plain",
+              "text/markdown",
+              "application/pdf",
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            ]
+          },
+          "bytes_base64": {
+            "type": "string",
+            "maxLength": 1398104,
+            "contentEncoding": "base64",
+            "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/][AQgw]==|[A-Za-z0-9+/]{2}[AEIMQUYcgkosw048]=)?(?![\\s\\S])",
+            "description": "Original bytes, strict canonical standard base64. Decoded size <=1048576 bytes, including exact boundary. The server measures SHA256 for the original UploadSource; no client-provided Object identity or digest is trusted."
+          }
+        },
+        "description": "The caller chooses a stable canonical UUIDv7 document_id in the path. Explicit null is root; otherwise the current active parent must belong to this same Project and differ from the target. All checks and publication remain in the Knowledge service."
+      },
+      "ReplaceFileRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "media_type",
+          "bytes_base64"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "media_type": {
+            "enum": [
+              "text/plain",
+              "text/markdown",
+              "application/pdf",
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            ]
+          },
+          "bytes_base64": {
+            "type": "string",
+            "maxLength": 1398104,
+            "contentEncoding": "base64",
+            "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/][AQgw]==|[A-Za-z0-9+/]{2}[AEIMQUYcgkosw048]=)?(?![\\s\\S])",
+            "description": "Original bytes, strict canonical standard base64. Decoded size <=1048576 bytes, including exact boundary. The server measures SHA256 for the original UploadSource; no client-provided Object identity or digest is trusted."
+          }
+        },
+        "description": "Replace only the canonical source. Title and parent are untouched. No-op remains the original version; a changed source advances by one. Current service validation remains authoritative."
+      },
+      "LookupRequest": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "command",
+              "document_id",
+              "request"
+            ],
+            "properties": {
+              "command": {
+                "const": "create"
+              },
+              "document_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "request": {
+                "$ref": "#/components/schemas/CreateFileRequest"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "command",
+              "document_id",
+              "request"
+            ],
+            "properties": {
+              "command": {
+                "const": "update"
+              },
+              "document_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "request": {
+                "$ref": "#/components/schemas/ReplaceFileRequest"
+              }
+            }
+          }
+        ],
+        "description": "Wrap the complete original create/replace request and original target/key. Encoded outer limit 1414572 bytes; nested original request limit 1414488 bytes. The minimal canonical envelope adds exactly 84 bytes."
+      },
+      "DocumentResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "document"
+        ],
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/Document"
+          }
+        }
+      },
+      "DocumentReceipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "command",
+          "document",
+          "changed"
+        ],
+        "properties": {
+          "command": {
+            "enum": [
+              "create",
+              "update"
+            ]
+          },
+          "document": {
+            "$ref": "#/components/schemas/Document"
+          },
+          "changed": {
+            "type": "boolean"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "command": {
+                  "const": "create"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "changed": {
+                  "const": true
+                },
+                "document": {
+                  "properties": {
+                    "content_version": {
+                      "const": "1"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "LookupResult": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "state",
+              "receipt"
+            ],
+            "properties": {
+              "state": {
+                "enum": [
+                  "in_progress",
+                  "not_observed"
+                ]
+              },
+              "receipt": {
+                "type": "null"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "state",
+              "receipt"
+            ],
+            "properties": {
+              "state": {
+                "const": "committed"
+              },
+              "receipt": {
+                "$ref": "#/components/schemas/DocumentReceipt"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "parameters": {
+      "IdempotencyKey": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "$ref": "./common.json#/components/schemas/IdempotencyKey"
+        },
+        "description": "Exactly one original business key; no trimming, automatic generation or replay."
+      },
+      "CSRF": {
+        "name": "X-CSRF-Token",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "responses": {
+      "Problem": {
+        "description": "Original safe Account Problem and CommitState; no internal material. Expired or failed native I/O aborts the connection.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "./common.json#/components/schemas/Problem"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "browserSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-agenteam_session",
+        "description": "Original Account Session; configured loopback HTTP uses agenteam_local_session. No caller Actor or bearer bypass."
+      }
+    }
+  }
+}

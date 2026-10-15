@@ -34,7 +34,10 @@ func createKnowledgeSkillAuthorities(db database, projects *projectUsageAssembly
 	return createKnowledgeSkillAuthoritiesWithInstall(db, projects, nil)
 }
 
-func createKnowledgeSkillAuthoritiesWithInstall(db database, projects *projectUsageAssembly, install sc.InstallExecutionAuthority) (*knowledgeSkillAuthorities, error) {
+func createKnowledgeSkillAuthoritiesWithInstall(db database, projects *projectUsageAssembly, install sc.InstallExecutionAuthority, runtimes ...sc.InvocationAuthority) (*knowledgeSkillAuthorities, error) {
+	if len(runtimes) > 1 || len(runtimes) == 1 && runtimeInformationNil(runtimes[0]) {
+		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
+	}
 	knowledgeStore, ok := db.(knowledge.Store)
 	if !ok || runtimeInformationNil(knowledgeStore) || projects == nil {
 		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
@@ -48,7 +51,9 @@ func createKnowledgeSkillAuthoritiesWithInstall(db database, projects *projectUs
 		return nil, err
 	}
 	var skills *skill.Authority
-	if install == nil {
+	if len(runtimes) == 1 {
+		skills, err = skill.NewAuthorityWithRuntime(skillStore, projects.projects, install, runtimes[0])
+	} else if install == nil {
 		skills, err = skill.NewAuthority(skillStore, projects.projects)
 	} else {
 		skills, err = skill.NewAuthorityWithInstallExecution(skillStore, projects.projects, install)

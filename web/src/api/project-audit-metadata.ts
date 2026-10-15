@@ -219,9 +219,16 @@ function modelDelete(value: unknown) {
   return parsed
 }
 
-// These are the Project HTTP projection's 31 actions, independent of the
-// System projection. Filter choices intentionally remain the wider 53 values.
+// Project HTTP actions are independent of the System projection.
+const meetingDeletion = {
+  meeting_id: auditID,
+  deletion_id: auditID,
+  initiator_id: auditID,
+  version,
+}
 const parsers = {
+  'meeting.delete.accepted': record({ ...meetingDeletion, deleted_rows: literal('0') }),
+  'meeting.delete.completed': record({ ...meetingDeletion, deleted_rows: version }),
   'secret.create': record({ version, changed_fields: fields(['purpose', 'value'] as const) }),
   'secret.update': record({ version, changed_fields: fields(['purpose', 'value'] as const) }),
   'secret.delete': record({ version }),
@@ -387,12 +394,13 @@ export function parseProjectAuditMetadata(
   }) as TypedProjectAuditMetadata
 }
 
+const projectAuditServices = [...auditServices, 'meeting-runtime'] as const
 export type ProjectAuditActor =
   | Readonly<{ kind: 'human'; id: string }>
   | Readonly<{ kind: 'agent_run'; id: string; project_id: string; execution_id: string }>
   | Readonly<{
       kind: 'service'
-      service: (typeof auditServices)[number]
+      service: (typeof projectAuditServices)[number]
       cause_ref: string
       project_id: string
     }>
@@ -412,6 +420,7 @@ export const projectAuditResourceKinds = [
   'model_config',
   'knowledge_document',
   'project_variable',
+  'meeting',
 ] as const
 export type ProjectAuditResource =
   | Readonly<{ kind: 'outbound_policy' }>
@@ -445,7 +454,7 @@ export function parseProjectAuditActor(value: unknown, projectID: string): Proje
     })(value)
   return record({
     kind: literal('service'),
-    service: oneOf(auditServices),
+    service: oneOf(projectAuditServices),
     project_id: literal(projectID),
     cause_ref: (value: unknown) => {
       requireAudit(
@@ -501,6 +510,27 @@ export function validateProjectAuditRelations(
   const same = (kind: string, id?: string) =>
     resource.kind === kind && ('id' in resource ? resource.id : undefined) === id
   const { action, metadata } = entry
+  if (actor.kind === 'service' && actor.service === 'meeting-runtime')
+    requireAudit(action === 'meeting.delete.completed')
+  if (entry.action === 'meeting.delete.accepted' || entry.action === 'meeting.delete.completed') {
+    const m = entry.metadata
+    requireAudit(
+      outcome === 'success' &&
+        same('meeting', m.meeting_id) &&
+        Object.keys(links).length === 1 &&
+        links.operation_id === m.deletion_id,
+    )
+    if (entry.action === 'meeting.delete.accepted')
+      requireAudit(actor.kind === 'human' && actor.id === m.initiator_id)
+    else
+      requireAudit(
+        actor.kind === 'service' &&
+          actor.service === 'meeting-runtime' &&
+          actor.project_id === projectID &&
+          actor.cause_ref === m.deletion_id,
+      )
+    return
+  }
   if (
     entry.action === 'project.variable.create' ||
     entry.action === 'project.variable.update' ||
@@ -649,6 +679,9 @@ export function validateProjectAuditRelations(
 }
 
 const metadataLabels = {
+  meeting_id: '会议 ID',
+  deletion_id: '删除操作 ID',
+  deleted_rows: '已删除记录数',
   variable_id: '变量 ID',
   project_id: '项目 ID',
   creation_id: '创建 ID',

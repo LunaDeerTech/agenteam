@@ -66,9 +66,10 @@ func (r AssignmentRequest) name() string {
 }
 
 type assignmentIntent struct {
-	User     string            `json:"actor_user_id"`
-	Expected f.Version         `json:"expected_version"`
-	Request  AssignmentRequest `json:"request"`
+	User     string                 `json:"actor_user_id"`
+	Expected f.Version              `json:"expected_version"`
+	Request  AssignmentRequest      `json:"request"`
+	Run      *ag.SkillAssignmentRun `json:"run,omitempty"`
 }
 type assignmentInput struct {
 	Actor    i.Actor
@@ -77,6 +78,7 @@ type assignmentInput struct {
 	Identity f.CommandIdentity
 	Raw      []byte
 	Digest   f.Digest
+	Run      *ag.SkillAssignmentRun
 }
 
 func newAssignmentInput(actor i.Actor, meta f.CommandMeta, r AssignmentRequest) (assignmentInput, error) {
@@ -88,16 +90,43 @@ func newAssignmentInput(actor i.Actor, meta f.CommandMeta, r AssignmentRequest) 
 	if err != nil {
 		return zero, err
 	}
-	d, raw, err := captureDigest(assignmentIntent{actor.Details().UserID, *meta.ExpectedVersion, r})
+	d, raw, err := captureDigest(assignmentIntent{User: actor.Details().UserID, Expected: *meta.ExpectedVersion, Request: r})
 	if err != nil {
 		return zero, err
 	}
 	expected := *meta.ExpectedVersion
 	meta.ExpectedVersion = &expected
-	return assignmentInput{actor, meta, r.clone(), identity, raw, d}, nil
+	return assignmentInput{Actor: actor, Meta: meta, Request: r.clone(), Identity: identity, Raw: raw, Digest: d}, nil
 }
-func (in assignmentInput) agentRequest() ag.SkillAssignmentRequest {
-	return ag.SkillAssignmentRequest{Actor: in.Actor, ProjectID: in.Request.ProjectID, AgentID: in.Request.AgentID, Command: in.Identity, ExpectedVersion: *in.Meta.ExpectedVersion}
+func newAssignmentRunInput(actor i.Actor, meta f.CommandMeta, r AssignmentRequest, run *ag.SkillAssignmentRun) (assignmentInput, error) {
+	if run == nil || run.Validate(actor, r.ProjectID) != nil || meta.Validate() != nil || meta.ExpectedVersion == nil || r.validate() != nil || string(meta.IdempotencyKey) != run.OperationID || meta.RequestID.String() != run.RequestID {
+		return assignmentInput{}, invalid()
+	}
+	identity, err := f.NewCommandIdentity("project", []string{r.ProjectID.String(), r.AgentID.String()}, r.name(), meta.IdempotencyKey)
+	if err != nil {
+		return assignmentInput{}, err
+	}
+	copy := *run
+	expected := *meta.ExpectedVersion
+	meta.ExpectedVersion = &expected
+	d, raw, err := captureDigest(assignmentIntent{Expected: expected, Request: r, Run: &copy})
+	if err != nil {
+		return assignmentInput{}, err
+	}
+	return assignmentInput{Actor: actor, Meta: meta, Request: r.clone(), Identity: identity, Raw: raw, Digest: d, Run: &copy}, nil
+}
+func (in assignmentInput) agentRequest(contexts ...context.Context) ag.SkillAssignmentRequest {
+	r := ag.SkillAssignmentRequest{Actor: in.Actor, ProjectID: in.Request.ProjectID, AgentID: in.Request.AgentID, Command: in.Identity, ExpectedVersion: *in.Meta.ExpectedVersion}
+	if in.Run != nil {
+		copy := *in.Run
+		r.Run = &copy
+		if len(contexts) == 1 {
+			if w, err := assignmentRun(contexts[0], in); err == nil {
+				r.RunPlan = w.plan
+			}
+		}
+	}
+	return r
 }
 
 // Construction is explicit. No default registry, runtime ingress or audit
@@ -124,6 +153,9 @@ func NewAssignmentCommands(d AssignmentDependencies, facts *AssignmentAuthority)
 }
 func (s *AssignmentCommands) store() Store { return s.deps.Service.state().authority.state().store }
 func (s *AssignmentCommands) owner(ctx context.Context, tx f.Tx, in assignmentInput, intent i.AccessIntent) error {
+	if in.Run != nil {
+		return requireAssignmentRun(ctx, tx, in, intent)
+	}
 	grant, err := s.deps.Service.state().authority.state().projects.RequireOwnerInTx(ctx, tx, in.Actor, in.Request.ProjectID, intent)
 	if err != nil {
 		return captureError(err)
@@ -167,11 +199,11 @@ func (s *AssignmentCommands) DiscoverAssignment(ctx context.Context, actor i.Act
 	return s.discover(call.ctx, actor, meta, request)
 }
 func (s *AssignmentCommands) discover(ctx context.Context, actor i.Actor, meta f.CommandMeta, request AssignmentRequest) (AssignmentPlan, error) {
-	in, err := newAssignmentInput(actor, meta, request)
+	in, err := s.input(ctx, actor, meta, request)
 	if err != nil {
 		return nil, err
 	}
-	agentPlan, err := s.deps.Agents.DiscoverSkillAssignment(ctx, in.agentRequest())
+	agentPlan, err := s.deps.Agents.DiscoverSkillAssignment(ctx, in.agentRequest(ctx))
 	if err != nil {
 		return nil, captureError(err)
 	}
@@ -228,7 +260,7 @@ func (s *AssignmentCommands) discover(ctx context.Context, actor i.Actor, meta f
 		if err := s.store().AcquireAll(ctx, tx, locks); err != nil {
 			return captureError(err)
 		}
-		return s.deps.Agents.WithSkillAssignmentInTx(ctx, tx, in.agentRequest(), agentPlan, func(ctx context.Context, current ag.AgentRef) (bool, error) {
+		return s.deps.Agents.WithSkillAssignmentInTx(ctx, tx, in.agentRequest(ctx), agentPlan, func(ctx context.Context, current ag.AgentRef) (bool, error) {
 			x, err := s.store().InTx(tx)
 			if err != nil {
 				return false, captureError(err)
@@ -284,6 +316,20 @@ func (s *AssignmentCommands) newAccess(ctx context.Context, tx f.Tx, in assignme
 	if current.ConfigVersion != *in.Meta.ExpectedVersion {
 		return fault(f.VersionConflict)
 	}
+	if in.Run != nil {
+		active, ok := s.deps.Agents.(ag.SkillAssignmentActiveOwner)
+		if !ok {
+			return fault(f.DependencyUnbound)
+		}
+		ref, err := active.RequireActiveSkillAssignmentInTx(ctx, tx, in.agentRequest(ctx))
+		if err != nil {
+			return captureError(err)
+		}
+		if ref != current {
+			return fault(f.VersionConflict)
+		}
+		return nil
+	}
 	_, err := s.deps.CurrentAgents.RequireCurrentInTx(ctx, tx, in.Actor, in.Request.ProjectID, in.Request.AgentID)
 	return captureError(err)
 }
@@ -311,7 +357,7 @@ func (s *AssignmentCommands) applyAssignmentInTx(ctx context.Context, tx f.Tx, p
 		return out, captureError(err)
 	}
 	var selected *assignmentCommand
-	err := s.deps.Agents.WithSkillAssignmentInTx(ctx, tx, p.input.agentRequest(), p.agent, func(ctx context.Context, ref ag.AgentRef) (bool, error) {
+	err := s.deps.Agents.WithSkillAssignmentInTx(ctx, tx, p.input.agentRequest(ctx), p.agent, func(ctx context.Context, ref ag.AgentRef) (bool, error) {
 		x, err := s.store().InTx(tx)
 		if err != nil {
 			return false, captureError(err)
@@ -463,11 +509,11 @@ func (s *AssignmentCommands) LookupAssignment(ctx context.Context, actor i.Actor
 		return zero, err
 	}
 	defer s.deps.Service.end(call)
-	in, err := newAssignmentInput(actor, meta, request)
+	in, err := s.input(ctx, actor, meta, request)
 	if err != nil {
 		return zero, err
 	}
-	locks, err := ob.NormalizeLocks(in.agentRequest().RequiredLocks())
+	locks, err := ob.NormalizeLocks(in.agentRequest(ctx).RequiredLocks())
 	if err != nil {
 		return zero, err
 	}
@@ -480,7 +526,7 @@ func (s *AssignmentCommands) LookupAssignment(ctx context.Context, actor i.Actor
 		if err := s.owner(ctx, tx, in, i.Read); err != nil {
 			return err
 		}
-		ref, err := s.deps.Agents.ReadSkillAssignmentInTx(ctx, tx, in.agentRequest())
+		ref, err := s.deps.Agents.ReadSkillAssignmentInTx(ctx, tx, in.agentRequest(ctx))
 		if err != nil {
 			return captureError(err)
 		}

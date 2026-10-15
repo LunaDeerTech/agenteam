@@ -15,10 +15,27 @@ type CompositeExecutor struct {
 	runners  *RunnerExecutor
 	results  *RunnerResultReader
 	builtins *BuiltinExecutor
+	mcp      *MCPExecutor
+	install  *InstallDispatcher
 }
 
-func NewCompositeExecutor(runners *RunnerExecutor, results *RunnerResultReader, builtins *BuiltinExecutor) (*CompositeExecutor, error) {
-	if runners == nil || results == nil || builtins == nil || builtins.authority == nil {
+func NewCompositeExecutorWithInstall(runners *RunnerExecutor, results *RunnerResultReader, builtins *BuiltinExecutor, install *InstallDispatcher, mcps ...*MCPExecutor) (*CompositeExecutor, error) {
+	if install == nil || install.executor == nil || install.executor.data == nil || builtins == nil || builtins.authority == nil {
+		return nil, fail(f.DependencyUnbound)
+	}
+	if !sameInstallInstance(install.executor.data().core.data().store, builtins.authority.store) {
+		return nil, fail(f.InvalidArgument)
+	}
+	out, err := NewCompositeExecutor(runners, results, builtins, mcps...)
+	if err != nil {
+		return nil, err
+	}
+	out.install = install
+	return out, nil
+}
+
+func NewCompositeExecutor(runners *RunnerExecutor, results *RunnerResultReader, builtins *BuiltinExecutor, mcps ...*MCPExecutor) (*CompositeExecutor, error) {
+	if runners == nil || results == nil || builtins == nil || builtins.authority == nil || len(mcps) > 1 || len(mcps) == 1 && (mcps[0] == nil || mcps[0].core == nil || mcps[0].core.authority != builtins.authority) {
 		return nil, fail(f.DependencyUnbound)
 	}
 	for _, candidate := range []Store{runnerExecutorStore(runners), runnerResultStore(results)} {
@@ -26,7 +43,11 @@ func NewCompositeExecutor(runners *RunnerExecutor, results *RunnerResultReader, 
 			return nil, fail(f.InvalidArgument)
 		}
 	}
-	return &CompositeExecutor{runners, results, builtins}, nil
+	out := &CompositeExecutor{runners: runners, results: results, builtins: builtins}
+	if len(mcps) == 1 {
+		out.mcp = mcps[0]
+	}
+	return out, nil
 }
 
 func runnerExecutorStore(e *RunnerExecutor) Store {
@@ -58,8 +79,20 @@ func (e *CompositeExecutor) selectCall(b tc.ToolCallBinding) (tc.RunnerDispatche
 	if e == nil || b.Validate() != nil {
 		return nil, fail(f.InvalidArgument)
 	}
-	if tc.WorkArtifactBuiltinBinding(b.Binding) {
+	if b.MCPBinding.Validate() == nil {
+		if e.mcp == nil {
+			return nil, fail(f.DependencyUnbound)
+		}
+		return e.mcp, nil
+	}
+	if tc.DomainBuiltinBinding(b.Binding) {
 		return e.builtins, nil
+	}
+	if b.Binding == (tc.BuiltinBinding{HandlerID: "skill.install", ContractRevision: 1}) {
+		if e.install == nil {
+			return nil, fail(f.DependencyUnbound)
+		}
+		return e.install, nil
 	}
 	if b.Binding == (tc.BuiltinBinding{}) && b.RunnerBinding.Validate() == nil {
 		return e.runners, nil
@@ -100,6 +133,12 @@ func (e *CompositeExecutor) Stop() {
 	}
 	e.runners.Stop()
 	e.builtins.Stop()
+	if e.mcp != nil {
+		e.mcp.Stop()
+	}
+	if e.install != nil {
+		e.install.Stop()
+	}
 }
 func (e *CompositeExecutor) Drain(ctx context.Context) error {
 	if e == nil {
@@ -110,10 +149,20 @@ func (e *CompositeExecutor) Drain(ctx context.Context) error {
 	if err := e.builtins.Drain(ctx); first == nil {
 		first = err
 	}
+	if e.mcp != nil {
+		if err := e.mcp.Drain(ctx); first == nil {
+			first = err
+		}
+	}
+	if e.install != nil {
+		if err := e.install.Drain(ctx); first == nil {
+			first = err
+		}
+	}
 	return first
 }
 func (e *CompositeExecutor) Joined() bool {
-	return e != nil && e.runners.Joined() && e.builtins.Joined()
+	return e != nil && e.runners.Joined() && e.builtins.Joined() && (e.mcp == nil || e.mcp.Joined()) && (e.install == nil || e.install.Joined())
 }
 
 type compositeResultPlan struct {
@@ -139,8 +188,12 @@ func (e *CompositeExecutor) DiscoverRunnerResult(ctx context.Context, b tc.ToolC
 		return nil, err
 	}
 	var reader tc.RunnerResultAuthority = e.results
-	if tc.WorkArtifactBuiltinBinding(b.Binding) {
+	if tc.DomainBuiltinBinding(b.Binding) {
 		reader = e.builtins
+	} else if b.MCPBinding.Validate() == nil {
+		reader = e.mcp
+	} else if b.Binding == (tc.BuiltinBinding{HandlerID: "skill.install", ContractRevision: 1}) {
+		reader = e.install
 	}
 	p, err := reader.DiscoverRunnerResult(ctx, b)
 	if err != nil {

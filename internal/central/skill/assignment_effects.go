@@ -49,7 +49,7 @@ func assignmentEvent(events sc.AssignmentEvents, r *assignmentCommand) (ec.Event
 func assignmentAudit(r *assignmentCommand, actor i.Actor) (au.Entry, au.AppendKey, error) {
 	var zero au.Entry
 	var key au.AppendKey
-	if r.validate() != nil || !r.Candidate.Changed || actor.Details().UserID != r.Input.Actor.Details().UserID {
+	if r.validate() != nil || !r.Candidate.Changed || !assignmentActorMatches(actor, r.Input.Actor) {
 		return zero, key, fault(f.Forbidden)
 	}
 	c := r.Candidate
@@ -76,7 +76,12 @@ func assignmentAudit(r *assignmentCommand, actor i.Actor) (au.Entry, au.AppendKe
 	if err != nil {
 		return zero, key, err
 	}
-	entry, err := au.NewEntry(au.EntryFields{Scope: scope, Actor: actor, Action: action, Outcome: au.Success, Resource: resource, Metadata: meta})
+	associations := au.Associations{}
+	if r.Input.Run != nil {
+		run := r.Input.Run
+		associations = au.Associations{ExecutionID: run.ExecutionID.String(), ToolID: run.ToolID.String(), ToolCallID: run.ToolCallID, OperationID: run.OperationID}
+	}
+	entry, err := au.NewEntry(au.EntryFields{Scope: scope, Actor: actor, Action: action, Outcome: au.Success, Resource: resource, Metadata: meta, Associations: associations})
 	if err != nil {
 		return zero, key, err
 	}
@@ -99,7 +104,7 @@ func (a *AssignmentAuthority) CheckProjectAuditInTx(ctx context.Context, tx f.Tx
 		return fault(f.Forbidden)
 	}
 	d := entry.Fields()
-	if d.Scope.Details().Kind != i.ProjectScope || d.Actor.Details().Kind != i.Human {
+	if d.Scope.Details().Kind != i.ProjectScope || (d.Actor.Details().Kind != i.Human && d.Actor.Details().Kind != i.AgentRun) {
 		return fault(f.Forbidden)
 	}
 	project, e := f.ParseID[i.Project](d.Scope.Details().ProjectID)
@@ -159,7 +164,7 @@ func (a *AssignmentAuditFacts) CheckProjectAuditInTx(ctx context.Context, tx f.T
 	return w.owner.CheckProjectAuditInTx(ctx, tx, e, k)
 }
 func assignmentEventCoordinates(actor i.Actor, summary ec.Summary) (i.ProjectID, i.AgentID, sc.AssignmentChangeID, error) {
-	if actor.Validate() != nil || actor.Details().Kind != i.Human || summary.Producer != sc.AssignmentProducer || sc.ValidateAssignmentEventHeader(summary.Header) != nil {
+	if actor.Validate() != nil || (actor.Details().Kind != i.Human && actor.Details().Kind != i.AgentRun) || summary.Producer != sc.AssignmentProducer || sc.ValidateAssignmentEventHeader(summary.Header) != nil {
 		return i.ProjectID{}, i.AgentID{}, sc.AssignmentChangeID{}, fault(f.Forbidden)
 	}
 	p, e := f.ParseID[i.Project](summary.Header.Scope.ProjectID.String())
@@ -170,9 +175,14 @@ func assignmentEventCoordinates(actor i.Actor, summary ec.Summary) (i.ProjectID,
 	}
 	return p, agent, id, nil
 }
-func (a *AssignmentAuthority) eventBinding(actor i.Actor, summary ec.Summary, r *assignmentCommand) (f.Digest, []f.LockRequest, error) {
-	if r == nil || r.Input.Actor.Details().UserID != actor.Details().UserID {
+func (a *AssignmentAuthority) eventBinding(ctx context.Context, actor i.Actor, summary ec.Summary, r *assignmentCommand) (f.Digest, []f.LockRequest, error) {
+	if r == nil || !assignmentActorMatches(actor, r.Input.Actor) {
 		return "", nil, fault(f.Forbidden)
+	}
+	if r.Input.Run != nil {
+		if _, err := assignmentRun(ctx, r.Input); err != nil {
+			return "", nil, err
+		}
 	}
 	expected, err := assignmentEvent(a.events, r)
 	if err != nil {
@@ -187,15 +197,25 @@ func (a *AssignmentAuthority) eventBinding(actor i.Actor, summary ec.Summary, r 
 	if err != nil {
 		return "", nil, err
 	}
+	// Preserve the released Human binding bytes. Agent bindings additionally
+	// bind the immutable private-call provenance through the command digest.
 	binding, _, err := captureDigest(struct {
 		User      string
 		Event     f.Digest
 		Candidate f.Digest
 	}{actor.Details().UserID, one, candidate})
+	if r.Input.Run != nil {
+		binding, _, err = captureDigest(struct {
+			Actor     i.ActorDetails
+			Event     f.Digest
+			Candidate f.Digest
+			Input     f.Digest
+		}{actor.Details(), one, candidate, r.Input.Digest})
+	}
 	if err != nil {
 		return "", nil, err
 	}
-	locks, err := ob.NormalizeLocks(append(r.Input.agentRequest().RequiredLocks(), skillLock(r.Candidate.Skill, f.Shared)))
+	locks, err := ob.NormalizeLocks(append(r.Input.agentRequest(ctx).RequiredLocks(), skillLock(r.Candidate.Skill, f.Shared)))
 	return binding, locks, err
 }
 func (a *AssignmentAuthority) DiscoverAppend(ctx context.Context, actor i.Actor, summary ec.Summary) (ob.Dependencies, error) {
@@ -217,17 +237,24 @@ func (a *AssignmentAuthority) DiscoverAppend(ctx context.Context, actor i.Actor,
 	cause, _ := f.NewJobCause("skill-assignment-event", id.String(), key.String())
 	agentKey, _ := f.AgentLock(agent.String())
 	base := []f.LockRequest{userLock(actor.Details().UserID, f.Shared), projectLock(project, f.Shared), {Key: agentKey, Mode: f.Shared}}
+	if actor.Details().Kind == i.AgentRun {
+		w, _ := ctx.Value(assignmentRunKey{}).(*assignmentRunWitness)
+		if w == nil || w.owner == nil || w.owner.commands.facts != a || !w.active.Load() || !w.actor.Equal(actor) || w.project != project || w.input.Request.AgentID != agent {
+			return out, fault(f.Forbidden)
+		}
+		base = w.input.agentRequest(ctx).RequiredLocks()
+	}
+	base, err = ob.NormalizeLocks(base)
+	if err != nil {
+		return out, err
+	}
 	result := a.owner.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		st := a.owner.state()
 		if err := st.store.AcquireAll(ctx, tx, base); err != nil {
 			return captureError(err)
 		}
-		grant, err := st.projects.RequireOwnerInTx(ctx, tx, actor, project, i.Read)
-		if err != nil {
-			return captureError(err)
-		}
-		if !grant.Matches(actor, project) {
-			return fault(f.Forbidden)
+		if err := a.assignmentEventCurrent(ctx, tx, actor, project, agent); err != nil {
+			return err
 		}
 		x, err := st.store.InTx(tx)
 		if err != nil {
@@ -237,7 +264,7 @@ func (a *AssignmentAuthority) DiscoverAppend(ctx context.Context, actor i.Actor,
 		if err != nil {
 			return err
 		}
-		binding, locks, err := a.eventBinding(actor, summary, r)
+		binding, locks, err := a.eventBinding(ctx, actor, summary, r)
 		if err != nil {
 			return err
 		}
@@ -268,18 +295,14 @@ func (a *AssignmentAuthority) ValidateAppendInTx(ctx context.Context, tx f.Tx, a
 	if err != nil {
 		return captureError(err)
 	}
-	grant, err := st.projects.RequireOwnerInTx(ctx, tx, actor, project, i.Read)
-	if err != nil {
-		return captureError(err)
-	}
-	if !grant.Matches(actor, project) {
-		return fault(f.Forbidden)
+	if err = a.assignmentEventCurrent(ctx, tx, actor, project, agent); err != nil {
+		return err
 	}
 	r, err := loadAssignmentByID(ctx, x, project, agent, id)
 	if err != nil {
 		return err
 	}
-	binding, locks, err := a.eventBinding(actor, summary, r)
+	binding, locks, err := a.eventBinding(ctx, actor, summary, r)
 	if err != nil {
 		return err
 	}
@@ -298,3 +321,30 @@ func (a *AssignmentAuthority) ValidateAppendInTx(ctx context.Context, tx f.Tx, a
 
 var _ ob.ProducerAuthority = (*AssignmentAuthority)(nil)
 var _ au.ProjectFactAuthority = (*AssignmentAuditFacts)(nil)
+
+func assignmentActorMatches(a, b i.Actor) bool {
+	if a.Validate() != nil || b.Validate() != nil || a.Details().Kind != b.Details().Kind {
+		return false
+	}
+	if a.Details().Kind == i.Human {
+		return a.Details().UserID == b.Details().UserID
+	}
+	return a.Details().Kind == i.AgentRun && a.Equal(b)
+}
+func (a *AssignmentAuthority) assignmentEventCurrent(ctx context.Context, tx f.Tx, actor i.Actor, project i.ProjectID, target i.AgentID) error {
+	if actor.Details().Kind == i.AgentRun {
+		w, _ := ctx.Value(assignmentRunKey{}).(*assignmentRunWitness)
+		if w == nil || w.owner == nil || w.owner.commands.facts != a || !w.actor.Equal(actor) || w.project != project || w.input.Request.AgentID != target {
+			return fault(f.Forbidden)
+		}
+		return requireAssignmentRun(ctx, tx, w.input, i.Read)
+	}
+	grant, err := a.owner.state().projects.RequireOwnerInTx(ctx, tx, actor, project, i.Read)
+	if err != nil {
+		return captureError(err)
+	}
+	if !grant.Matches(actor, project) {
+		return fault(f.Forbidden)
+	}
+	return nil
+}

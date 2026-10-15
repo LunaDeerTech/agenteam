@@ -47,6 +47,7 @@ type scenario struct {
 	Requests                          []request
 	Released                          bool
 	ActiveHandlers, CompletedHandlers int
+	WireCaptured                      int
 	release                           chan struct{}
 }
 type serverState struct {
@@ -173,6 +174,43 @@ func (s *serverState) control(w http.ResponseWriter, r *http.Request) {
 		}
 		s.cases[id] = &scenario{Config: cfg, release: make(chan struct{})}
 		w.WriteHeader(201)
+	case "update-future-wire":
+		v := s.cases[id]
+		if v == nil {
+			w.WriteHeader(404)
+			return
+		}
+		var update struct {
+			Ordinal int
+			Wire    wireScenario
+		}
+		decoder := json.NewDecoder(io.LimitReader(r.Body, 1<<20))
+		decoder.DisallowUnknownFields()
+		if r.Method != "POST" || decoder.Decode(&update) != nil {
+			w.WriteHeader(400)
+			return
+		}
+		var trailing any
+		if decoder.Decode(&trailing) != io.EOF || v.Config.Mode != "openai_chat_wire" || len(v.Config.WireSequence) < 2 || update.Ordinal < 1 || update.Ordinal > len(v.Config.WireSequence) {
+			w.WriteHeader(400)
+			return
+		}
+		if update.Ordinal <= v.WireCaptured {
+			w.WriteHeader(409)
+			return
+		}
+		// Copy the complete sequence before replacement. In-flight handlers retain
+		// their original immutable slice, including while their body is arriving.
+		cfg := v.Config
+		cfg.Wire = nil
+		cfg.WireSequence = append([]wireScenario(nil), v.Config.WireSequence...)
+		cfg.WireSequence[update.Ordinal-1] = update.Wire
+		if !validWire(&cfg, id) {
+			w.WriteHeader(400)
+			return
+		}
+		v.Config = cfg
+		w.WriteHeader(204)
 	case "release":
 		v := s.cases[id]
 		if v == nil {
@@ -231,6 +269,14 @@ func (s *serverState) serve(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(404)
 		return
 	}
+	if len(cfg.WireSequence) != 0 {
+		index := v.WireCaptured
+		v.WireCaptured++
+		if index >= len(cfg.WireSequence) {
+			index = len(cfg.WireSequence) - 1
+		}
+		cfg.Wire = &cfg.WireSequence[index]
+	}
 	release := v.release
 	v.ActiveHandlers++
 	s.mu.Unlock()
@@ -248,13 +294,6 @@ func (s *serverState) serve(w http.ResponseWriter, r *http.Request) {
 	record := request{Connection: r.Context().Value(connectionKey{}).(int64), Method: r.Method, Host: r.Host, Path: r.URL.Path, Query: r.URL.RawQuery, Body: string(body), Headers: r.Header.Clone(), RequestURI: r.RequestURI}
 	s.mu.Lock()
 	v.Requests = append(v.Requests, record)
-	if len(cfg.WireSequence) != 0 {
-		index := len(v.Requests) - 1
-		if index >= len(cfg.WireSequence) {
-			index = len(cfg.WireSequence) - 1
-		}
-		cfg.Wire = &cfg.WireSequence[index]
-	}
 	s.mu.Unlock()
 	if cfg.Mode == "openai_chat_wire" || cfg.Mode == "openai_embeddings_wire" {
 		serveWire(w, r, cfg.Wire, release)

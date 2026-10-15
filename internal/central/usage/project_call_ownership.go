@@ -318,7 +318,7 @@ func (svc *Service) AcquireProjectInvocation(ctx context.Context, callerStore an
 	if err := contextError(ctx); err != nil {
 		return nil, err
 	}
-	if request.Validate() != nil {
+	if request.ValidateInvocation() != nil {
 		return nil, fault(f.InvalidArgument)
 	}
 	request = request.Clone()

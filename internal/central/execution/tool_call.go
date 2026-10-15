@@ -213,7 +213,14 @@ func (s *directTextState) requireCurrentLoopToolFacts(ctx context.Context, tx f.
 
 func requireCurrentCapturedTool(agent ac.AgentConfig, policy c.Policy, tool tc.ExecutionTool) error {
 	if (tool.BindingSnapshot.Class != tc.CoreTool && !slices.Contains(agent.Fields().AllowedToolIDs, tool.ToolID)) || slices.Contains(policy.DeniedToolIDs, tool.ToolID) {
-		return fault(f.Forbidden)
+		return &capturedToolPolicyRejection{fault(f.Forbidden)}
 	}
 	return nil
 }
+
+// This private marker is issued only by the local captured-Tool policy check.
+// An arbitrary Forbidden from another authority cannot close a checkpoint.
+type capturedToolPolicyRejection struct{ cause error }
+
+func (e *capturedToolPolicyRejection) Error() string { return e.cause.Error() }
+func (e *capturedToolPolicyRejection) Unwrap() error { return e.cause }

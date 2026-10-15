@@ -17,6 +17,7 @@ type authorityState struct {
 	store            Store
 	projects         ProjectPorts
 	installExecution sc.InstallExecutionAuthority
+	runtime          sc.InvocationAuthority
 }
 
 // Authority is constructed before Object/Audit services and owns no physical
@@ -42,6 +43,20 @@ func NewAuthorityWithInstallExecution(store Store, projects ProjectPorts, execut
 		return nil, err
 	}
 	a.state().installExecution = execution
+	return a, nil
+}
+
+// NewAuthorityWithRuntime fixes the original Tool consumer at composition.
+// It neither accepts a caller-supplied witness nor grants Agent catalog access.
+func NewAuthorityWithRuntime(store Store, projects ProjectPorts, install sc.InstallExecutionAuthority, runtime sc.InvocationAuthority) (*Authority, error) {
+	if nilPort(runtime) {
+		return nil, fault(f.DependencyUnbound)
+	}
+	a, err := NewAuthorityWithInstallExecution(store, projects, install)
+	if err != nil {
+		return nil, err
+	}
+	a.state().runtime = runtime
 	return a, nil
 }
 func (a *Authority) state() *authorityState {

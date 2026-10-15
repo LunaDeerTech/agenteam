@@ -180,6 +180,8 @@ func validInitiator(a id.ActorDetails) bool {
 			return false
 		}
 		switch a.ServiceName {
+		case id.KnowledgeRuntime, id.MemoryRuntime, id.MeetingRuntime:
+			return scalarID(a.ProjectID) && scalarID(a.CauseRef)
 		case id.SecretService, id.SecretMaintenance, id.OutboundService, id.ObjectService, id.ObjectMaintenance, id.ProjectLifecycle, id.ProjectInitialization, id.OutboxDelivery, id.AccountBootstrap, id.AccountAuth, id.AccountMaintenance, id.AccountMail, id.ModelRuntime:
 			return true
 		}

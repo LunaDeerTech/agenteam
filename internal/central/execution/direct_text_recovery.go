@@ -111,6 +111,7 @@ func (d *DirectTextDriver) resolveUnknown(ctx context.Context, execution i.Execu
 		run.terminal = nil
 		run.invocation.modelPlan = nil
 		run.invocation.environmentPlan = nil
+		run.invocation.mcpPlan = nil
 		s.mu.Unlock()
 		return s.finish(run)
 	default:
@@ -176,6 +177,7 @@ func (s *directTextState) observeStart(ctx context.Context, run *directTextCall)
 		run.phase = "calling"
 		run.summary = observed
 		s.mu.Unlock()
+		s.publishRuntime(run)
 	}
 	return found, nil
 }
@@ -225,7 +227,11 @@ func (s *directTextState) observeTerminal(ctx context.Context, run *directTextCa
 		if err != nil {
 			return portError(err)
 		}
-		if !modelRetired || !environmentRetired {
+		mcpRetired, err := observeMCPRetirement(ctx, tx, s.deps.MCP, run.invocation.mcpRetirement, run.invocation.mcpPlan)
+		if err != nil {
+			return err
+		}
+		if !modelRetired || !environmentRetired || !mcpRetired {
 			return nil
 		}
 		if err = confirmDirectTextRuntime(ctx, x, run); err != nil {
@@ -246,6 +252,7 @@ func (s *directTextState) observeTerminal(ctx context.Context, run *directTextCa
 		run.summary = observed
 		run.phase = "finished"
 		s.mu.Unlock()
+		s.publishRuntime(run)
 	}
 	return found, nil
 }

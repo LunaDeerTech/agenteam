@@ -76,10 +76,11 @@ func preparationLocks(request c.PreparationRequest) ([]f.LockRequest, error) {
 		return nil, err
 	}
 	locks := []f.LockRequest{commandLock(command), projectLock(request.Launch.ProjectID), agentLock(request.Launch.AgentID, f.Exclusive), executionLock(request.ExecutionID)}
-	if request.Launch.Trigger.Kind == "task" {
-		key, _ := f.ProjectScheduleLock(request.Launch.ProjectID.String())
-		locks = append(locks, f.LockRequest{Key: key, Mode: f.Exclusive})
-	}
+	// Captured Mount material is verified again during finish, replay and
+	// Execution use, including Meeting sources. These paths do not rediscover
+	// a Mount plan, so the common budget must already hold its schedule gate.
+	key, _ := f.ProjectScheduleLock(request.Launch.ProjectID.String())
+	locks = append(locks, f.LockRequest{Key: key, Mode: f.Exclusive})
 	return oc.NormalizeLocks(locks)
 }
 

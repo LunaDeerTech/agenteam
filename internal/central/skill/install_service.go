@@ -225,7 +225,7 @@ func (s *Service) lookupInstallation(ctx context.Context, actor id.Actor, projec
 	ctx = call.ctx
 	state := s.state()
 	if meta != nil {
-		ctx, err = state.authority.bindInstallExecution(ctx, actor, *meta, project, request, false)
+		ctx, err = state.authority.bindInstallLookup(ctx, actor, *meta, project, request)
 		if err != nil {
 			return InstallReceipt{}, err
 		}

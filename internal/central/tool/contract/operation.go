@@ -47,6 +47,7 @@ type ToolCallBinding struct {
 	Spec               SpecRef
 	Binding            BuiltinBinding `json:",omitzero"`
 	RunnerBinding      RunnerBinding  `json:",omitzero"`
+	MCPBinding         MCPBinding     `json:",omitzero"`
 	Input              ToolInputReference
 	CanonicalArguments f.Digest
 }
@@ -76,7 +77,7 @@ func (v ToolCallBinding) Validate() error {
 	if len(v.CallID) == 0 || len(v.CallID) > 256 || !utf8.ValidString(v.CallID) || strings.ContainsRune(v.CallID, 0) || v.ModelVisibleName != "tool_"+strings.ReplaceAll(v.Spec.ToolID.String(), "-", "") {
 		return operationInvalid()
 	}
-	if !validBindingChoice(v.Binding, v.RunnerBinding) || v.RunnerBinding == (RunnerBinding{}) && !WorkArtifactBuiltinBinding(v.Binding) && (v.Binding.HandlerID != "skill.install" || v.Binding.ContractRevision != 1) {
+	if !validBindingChoice(v.Binding, v.RunnerBinding, v.MCPBinding) || v.MCPBinding != (MCPBinding{}) && v.MCPBinding.ProjectID != v.ProjectID || v.MCPBinding == (MCPBinding{}) && v.RunnerBinding == (RunnerBinding{}) && !DomainBuiltinBinding(v.Binding) && (v.Binding.HandlerID != "skill.install" || v.Binding.ContractRevision != 1) {
 		return f.NewFault(f.CapabilityUnsupported, f.NotStarted)
 	}
 	return nil

@@ -17,6 +17,7 @@ const (
 	ArtifactFile   SourceKind = "artifact_file"
 	KnowledgeFile  SourceKind = "knowledge_file"
 	ExecutionFile  SourceKind = "execution_file"
+	MCPFile        SourceKind = "mcp_file"
 )
 
 type BusinessFileRef struct{ data func() BusinessFileDetails }
@@ -44,6 +45,10 @@ func NewBusinessFileRef(d BusinessFileDetails) (BusinessFileRef, error) {
 			}
 		case KnowledgeFile:
 			if !validID(d.DocumentID) || d.Revision.Validate() != nil || d.ArtifactID != "" || d.FileID != "" || d.ExecutionID != "" || d.PayloadID != "" {
+				return BusinessFileRef{}, bad()
+			}
+		case MCPFile:
+			if !validID(d.FileID) || d.ArtifactID != "" || d.DocumentID != "" || d.ExecutionID != "" || d.PayloadID != "" || d.Revision != 0 {
 				return BusinessFileRef{}, bad()
 			}
 		case ExecutionFile:
@@ -95,7 +100,7 @@ func NewResolvedSource(d ResolvedSourceDetails) (ResolvedSource, error) {
 		return ResolvedSource{}, bad()
 	}
 	o := d.Owner.Details()
-	if r.Kind == ArtifactFile && (o.Kind != Artifact || o.ID != r.ArtifactID) || r.Kind == KnowledgeFile && (o.Kind != Knowledge || o.ID != r.DocumentID) || r.Kind == ExecutionFile && (o.Kind != ExecutionPayload || o.ID != r.PayloadID) {
+	if r.Kind == MCPFile && (o.Kind != MCPContent || d.Revision != 1) || r.Kind == ArtifactFile && (o.Kind != Artifact || o.ID != r.ArtifactID) || r.Kind == KnowledgeFile && (o.Kind != Knowledge || o.ID != r.DocumentID) || r.Kind == ExecutionFile && (o.Kind != ExecutionPayload || o.ID != r.PayloadID) {
 		return ResolvedSource{}, bad()
 	}
 	return ResolvedSource{func() ResolvedSourceDetails { return d }}, nil

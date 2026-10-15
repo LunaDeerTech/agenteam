@@ -28,6 +28,7 @@ type preparedWrite struct {
 	issuer         *serviceState
 	serviceRequest sc.ServiceWriteRequest
 	dependencies   sc.WriteDependencies
+	mcpOAuth       *mcpOAuthWriteAuthorization
 	actor          identity.Actor
 	scope          identity.Scope
 	command        foundation.CommandIdentity
@@ -107,6 +108,10 @@ func (s *Service) PrepareWrite(ctx context.Context, r sc.WriteRequest) (Prepared
 	return s.prepareWrite(ctx, r, sc.ServiceWriteRequest{}, sc.WriteDependencies{})
 }
 func (s *Service) prepareWrite(ctx context.Context, r sc.WriteRequest, serviceRequest sc.ServiceWriteRequest, deps sc.WriteDependencies) (PreparedWrite, error) {
+	return s.prepareWriteBound(ctx, r, serviceRequest, deps, "")
+}
+
+func (s *Service) prepareWriteBound(ctx context.Context, r sc.WriteRequest, serviceRequest sc.ServiceWriteRequest, deps sc.WriteDependencies, binding foundation.Digest) (PreparedWrite, error) {
 	if err := s.writable(); err != nil {
 		return PreparedWrite{}, err
 	}
@@ -185,6 +190,14 @@ func (s *Service) prepareWrite(ctx context.Context, r sc.WriteRequest, serviceRe
 				digest = append([]byte(nil), h[:]...)
 			}
 		}
+		if binding != "" {
+			if binding.Validate() != nil {
+				return invalid()
+			}
+			h := sha256.Sum256([]byte(binding))
+			clear(digest)
+			digest = append([]byte(nil), h[:]...)
+		}
 		if err != nil {
 			return err
 		}
@@ -244,7 +257,7 @@ func (s *Service) ExecuteWrite(ctx context.Context, r sc.WriteRequest) (sc.Mutat
 }
 func (s *Service) ApplyPreparedWriteInTx(ctx context.Context, tx foundation.Tx, prepared PreparedWrite) (sc.MutationResult, error) {
 	empty := sc.MutationResult{}
-	if prepared.data == nil || prepared.data().issuer != s.state() || prepared.data().serviceRequest.Validate() == nil {
+	if prepared.data == nil || prepared.data().issuer != s.state() || prepared.data().serviceRequest.Validate() == nil || prepared.data().mcpOAuth != nil {
 		return empty, failure(PreparationRequired, foundation.ResourceBusy, nil)
 	}
 	return s.applyWriteInTx(ctx, tx, prepared.data())
@@ -263,7 +276,11 @@ func (s *Service) applyWriteInTx(ctx context.Context, tx foundation.Tx, p prepar
 	if err = state.store.RequireHeldLocks(ctx, tx, locks); err != nil {
 		return empty, unavailable(err)
 	}
-	if p.serviceRequest.Validate() == nil {
+	if p.mcpOAuth != nil {
+		if err = p.mcpOAuth.validate(ctx, tx); err != nil {
+			return empty, err
+		}
+	} else if p.serviceRequest.Validate() == nil {
 		if nilPort(state.auth.AccountWrites) {
 			return empty, failure(AuthorizationUnbound, foundation.DependencyUnbound, nil)
 		}
@@ -286,7 +303,7 @@ func (s *Service) applyWriteInTx(ctx context.Context, tx foundation.Tx, p prepar
 	if err = s.writable(); err != nil {
 		return empty, err
 	}
-	if p.serviceRequest.Validate() != nil {
+	if p.serviceRequest.Validate() != nil && p.mcpOAuth == nil {
 		if err = s.mutationGate(ctx, tx, p.actor, p.ref); err != nil {
 			return empty, err
 		}
@@ -305,6 +322,9 @@ func (s *Service) applyWriteInTx(ctx context.Context, tx foundation.Tx, p prepar
 		old, oldPayload, err = loadMetadata(ctx, e, p.ref)
 		if err != nil {
 			return empty, err
+		}
+		if p.mcpOAuth != nil && old.Purpose != sc.MCP {
+			return empty, failure(AuthorizationRejected, foundation.Forbidden, nil)
 		}
 		if old.Version != p.expected {
 			return empty, failure(Conflict, foundation.VersionConflict, nil)
@@ -381,7 +401,8 @@ func (s *Service) applyWriteInTx(ctx context.Context, tx foundation.Tx, p prepar
 	if err != nil {
 		return empty, unavailable(err)
 	}
-	auditCtx := mutationAuditContext(ctx, state.store, tx, p, old, result, entry, key)
+	auditCtx := mcpOAuthMutationAuditContext(ctx, state.store, tx, p)
+	auditCtx = mutationAuditContext(auditCtx, state.store, tx, p, old, result, entry, key)
 	if _, err = state.audit.AppendInTx(auditCtx, tx, entry, key); err != nil {
 		return empty, unavailable(err)
 	}
@@ -440,7 +461,7 @@ type MutationLookup struct {
 }
 
 func (s *Service) LookupWrite(ctx context.Context, prepared PreparedWrite) (MutationLookup, error) {
-	if prepared.data == nil || prepared.data().issuer != s.state() || prepared.data().serviceRequest.Validate() == nil {
+	if prepared.data == nil || prepared.data().issuer != s.state() || prepared.data().serviceRequest.Validate() == nil || prepared.data().mcpOAuth != nil {
 		return MutationLookup{}, invalid()
 	}
 	p := prepared.data()

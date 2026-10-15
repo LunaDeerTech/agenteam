@@ -63,6 +63,14 @@ func (s *directTextState) beforeApprovalDispatch(ctx context.Context, run *direc
 			return s.multi.authority.withToolCallStateInTx(ctx, tx, b, plan, reference, nil)
 		}
 		return s.multi.authority.withToolCallInTx(ctx, tx, b, plan, func(ctx context.Context, _ tc.ToolCallBinding, _ []byte) error {
+			if b.MCPBinding.Validate() == nil {
+				w, e := s.multi.authority.mcpWitness(ctx, tx, b, plan.(*toolCallPlan))
+				if e != nil {
+					return e
+				}
+				allow = w.approval == ac.ApprovalAllow
+				return nil
+			}
 			w, err := s.authority.commandWitness(ctx, tx)
 			if err != nil {
 				return err
@@ -225,6 +233,7 @@ func (s *directTextState) changeApprovalWaiting(ctx context.Context, run *direct
 	s.mu.Lock()
 	run.summary = summary
 	s.mu.Unlock()
+	s.publishRuntime(run)
 	return nil
 }
 

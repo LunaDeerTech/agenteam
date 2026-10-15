@@ -37,6 +37,10 @@ func (s *Service) DiscoverUsage(ctx context.Context, r sc.UsageRequest) (sc.Usag
 	if e != nil {
 		return sc.UsageDependencies{}, plannedAuthorization(e)
 	}
+	return s.wrapUsagePlan(r, plan)
+}
+
+func (s *Service) wrapUsagePlan(r sc.UsageRequest, plan sc.UsageDependencies) (sc.UsageDependencies, error) {
 	binding, e := sc.UsageBinding(r)
 	if e != nil || plan.Validate() != nil || plan.Binding() != binding {
 		return sc.UsageDependencies{}, invalid()

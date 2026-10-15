@@ -21,20 +21,21 @@ type ActivityAuthority interface {
 }
 
 type Dependencies struct {
-	Projects         pc.ProjectAuthority
-	Activity         ActivityAuthority
-	Objects          oc.Objects
-	Uploads          oc.Uploads
-	Sources          oc.SourceResolver
-	SourceReads      oc.SourceReads
-	ReferenceCleanup oc.ReferenceCleanup
-	ObjectCleanup    oc.Cleaner
-	Audit            audit.Appender
-	Outbox           ob.Appender
-	Events           kc.KnowledgeEvents
-	Processes        ob.ProcessAuthority
-	Cursors          cursor.Keyring
-	Confirmations    kc.ConfirmationKeys
+	Projects            pc.ProjectAuthority
+	Activity            ActivityAuthority
+	Objects             oc.Objects
+	Uploads             oc.Uploads
+	Sources             oc.SourceResolver
+	SourceReads         oc.SourceReads
+	ReferenceCleanup    oc.ReferenceCleanup
+	ObjectCleanup       oc.Cleaner
+	Audit               audit.Appender
+	Outbox              ob.Appender
+	Events              kc.KnowledgeEvents
+	Processes           ob.ProcessAuthority
+	Cursors             cursor.Keyring
+	Confirmations       kc.ConfirmationKeys
+	InvocationAuthority kc.KnowledgeInvocationAuthority
 }
 
 type Service struct{ data func() *serviceState }

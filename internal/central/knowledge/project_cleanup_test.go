@@ -26,7 +26,7 @@ type knowledgeCleanupPureSQL struct {
 	readOverride    []byte
 }
 
-var knowledgeCleanupPureTables = []string{"documents", "command_events", "object_cleanup", "publications", "work_claims", "commands", "project_object_retirements", "project_calls"}
+var knowledgeCleanupPureTables = []string{"index_chunks", "index_generations", "model_operations", "index_jobs", "index_state", "index_profiles", "documents", "command_events", "object_cleanup", "publications", "work_claims", "commands", "project_object_retirements", "project_calls"}
 
 func knowledgeCleanupPureTable(sql string) string {
 	for _, table := range knowledgeCleanupPureTables {
@@ -62,12 +62,21 @@ func knowledgeCleanupPureRow(t *testing.T, project id.ProjectID, table string, e
 	if table == "publications" || table == "work_claims" {
 		keyField = "command_id"
 	}
+	if table == "index_state" {
+		keyField, key = "project_id", project.String()
+	}
 	value := map[string]any{keyField: key, "project_id": project.String(), "untouched_payload": map[string]any{"revision": "17", "text": "<>& original"}}
 	if table == "project_calls" {
 		value["phase"] = "business_closed"
 	}
 	if table == "project_object_retirements" {
 		value["phase"] = "completed"
+	}
+	if table == "model_operations" {
+		value["state"], value["version"] = "retired", 3
+	}
+	if table == "index_profiles" {
+		value["retention_state"] = "unretained"
 	}
 	for name, v := range extra {
 		value[name] = v
@@ -86,7 +95,10 @@ func (x *knowledgeCleanupPureSQL) QueryRow(_ context.Context, sql string, args .
 			return errors.New("unbounded or unscoped cleanup read")
 		}
 		limit := 100
-		if table == "commands" {
+		if table == "commands" || table == "index_state" {
+			limit = 1
+		}
+		if table == "index_chunks" || table == "index_generations" {
 			limit = 1
 		}
 		if !strings.Contains(sql, fmt.Sprintf(" LIMIT %d) selected", limit)) {
@@ -116,6 +128,18 @@ func (x *knowledgeCleanupPureSQL) QueryRow(_ context.Context, sql string, args .
 			}
 			if keys != nil && !keys[key] {
 				continue
+			}
+			if table == "model_operations" && keys == nil && strings.Contains(sql, indexCleanupNonSourcePredicate) {
+				referenced := false
+				for _, profile := range x.rows["index_profiles"] {
+					fields, _ := knowledgeCleanupPureFields(profile)
+					if knowledgeCleanupPureString(fields, "source_operation_id") == key {
+						referenced = true
+					}
+				}
+				if referenced {
+					continue
+				}
 			}
 			if table == "documents" && keys == nil {
 				if !strings.Contains(sql, "child.project_id=t.project_id AND child.parent_document_id=t.id") {
@@ -198,7 +222,7 @@ func TestKnowledgeProjectCleanupBoundedFullRowsKeepOtherProject(t *testing.T) {
 	dual := knowledgeCleanupPureRow(t, b, "project_calls", map[string]any{"source_project_id": a.String()})
 	x.rows["project_calls"][dual.Key] = dual.Record
 	var stages []string
-	for range 12 {
+	for range 24 {
 		batch, err := readProjectCleanupBatch(context.Background(), x, a)
 		if err != nil {
 			t.Fatal(err)
@@ -206,7 +230,7 @@ func TestKnowledgeProjectCleanupBoundedFullRowsKeepOtherProject(t *testing.T) {
 		if batch == nil {
 			break
 		}
-		if len(stages) == 0 && (batch.stage != "documents" || len(batch.rows) != 1 || batch.rows[0].Key != child.Key) {
+		if batch.stage == "documents" && len(x.rows["documents"]) == 3 && (len(batch.rows) != 1 || batch.rows[0].Key != child.Key) {
 			t.Fatal("first cleanup did not select only the document leaf")
 		}
 		stages = append(stages, batch.stage)
@@ -214,7 +238,7 @@ func TestKnowledgeProjectCleanupBoundedFullRowsKeepOtherProject(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	if strings.Join(stages, ",") != "documents,documents,command_events,object_cleanup,publications,work_claims,commands,commands,objects,calls" {
+	if strings.Join(stages, ",") != "index_chunks,index_generations,model_operations,index_jobs,index_state,index_profiles,documents,documents,command_events,object_cleanup,publications,work_claims,commands,commands,objects,calls" {
 		t.Fatalf("wrong bounded FK cleanup order: %v", stages)
 	}
 	for _, table := range knowledgeCleanupPureTables {

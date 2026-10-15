@@ -4,6 +4,7 @@ import {
   captureArtifactQuery,
   captureArtifactReadQuery,
   createProjectArtifactsAPI,
+  createProjectArtifactMetadataAPI,
   decodeArtifactContent,
   decodeArtifactMetadata,
   decodeArtifactPage,
@@ -20,6 +21,50 @@ import {
 } from './project-artifacts.fixture'
 
 describe('Artifact Owner closed HTTP reads', () => {
+  it('resolves a stable Artifact identity through its exact authorized metadata route before reading bytes', async () => {
+    const row = artifactRecord(),
+      signal = new AbortController().signal
+    const fetch = vi.fn<Fetch>(async () => artifactJSON({ artifact: row }))
+    const value = await createProjectArtifactMetadataAPI(fetch).metadata(
+      artifactProject,
+      row.artifact_ref.artifact_id,
+      signal,
+    )
+    expect(value.artifact_ref).toEqual(row.artifact_ref)
+    expect(fetch).toHaveBeenCalledExactlyOnceWith(
+      `${artifactBase}/${row.artifact_ref.artifact_id}`,
+      expect.objectContaining({
+        method: 'GET',
+        credentials: 'same-origin',
+        cache: 'no-store',
+        redirect: 'error',
+        signal,
+      }),
+    )
+    expect(fetch.mock.calls[0]![1].body).toBeUndefined()
+    for (const artifact of [
+      { ...row, artifact_ref: { ...row.artifact_ref, project_id: artifactID(9) } },
+      { ...row, artifact_ref: { ...row.artifact_ref, artifact_id: artifactID(9) } },
+      { ...row, signed_url: 'https://unowned.invalid/file' },
+    ])
+      await expect(
+        createProjectArtifactMetadataAPI(async () => artifactJSON({ artifact })).metadata(
+          artifactProject,
+          row.artifact_ref.artifact_id,
+          signal,
+        ),
+      ).rejects.toMatchObject({ kind: 'invalid-response' })
+    const transport = accountTransport(fetch)
+    await expect(
+      transport('getProjectArtifactMetadata', (value) => value, {
+        projectID: artifactProject,
+        artifactID: row.artifact_ref.artifact_id,
+        signal,
+        fileID: row.artifact_ref.file_id,
+      } as never),
+    ).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(fetch).toHaveBeenCalledTimes(1)
+  })
   it('captures literal filters and the complete P/A/F reference into credentialed bounded GETs', async () => {
     const row = { ...artifactRecord(), source_execution_id: artifactID(50), name: 'A%_ 中文.txt' }
     const fetch = vi.fn<Fetch>(async (path) =>

@@ -15,6 +15,9 @@ import (
 // D04 already owns Project SH in its original Audit transaction. In particular,
 // no call/consumer locks or a second transaction may be added by this callback.
 func (a *Authority) checkModelAccessAuditInTx(ctx context.Context, tx f.Tx, entry ac.Entry, key ac.AppendKey) error {
+	if mcpAccessDenial(entry) && !nilPort(a.state().auditFacts[ac.MCPProducer]) {
+		return a.checkMCPAccessAuditInTx(ctx, tx, entry, key)
+	}
 	return a.checkModelAccessAuditFactsInTx(ctx, tx, entry, key, a.state().auditFacts[ac.AccessProducer])
 }
 

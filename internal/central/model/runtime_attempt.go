@@ -34,6 +34,10 @@ type runtimeCall struct {
 	pending                                  *runtimeMutation
 	retirement                               *runtimeRetirement
 	exchange                                 *wire.Exchange
+	embeddingExchange                        *wire.EmbeddingExchange
+	embeddingRequest                         *mc.EmbeddingRequest
+	completedEmbedding                       *wire.EmbeddingResult
+	embeddingResult                          *mc.Embeddings
 	material                                 sc.SecretMaterial
 	materialOwned                            bool
 	ioRetired                                bool
@@ -89,6 +93,10 @@ func (c *runtimeCall) enter(ctx context.Context, wait bool) error {
 func (c *runtimeCall) leave() { c.gate <- struct{}{} }
 
 func (r *Runtime) begin(ctx context.Context, request mc.ModelRequest, mode wire.ResponseMode) (*runtimeCall, error) {
+	return r.beginCall(ctx, request, mode, nil)
+}
+
+func (r *Runtime) beginCall(ctx context.Context, request mc.ModelRequest, mode wire.ResponseMode, embedding *mc.EmbeddingRequest) (*runtimeCall, error) {
 	if err := runtimeContextError(ctx); err != nil {
 		return nil, err
 	}
@@ -118,7 +126,18 @@ func (r *Runtime) begin(ctx context.Context, request mc.ModelRequest, mode wire.
 		s.mu.Unlock()
 		usage.admissionDone()
 	}()
-	request, err := prepareRuntimeInput(ctx, request, mode)
+	var err error
+	if embedding == nil {
+		request, err = prepareRuntimeInput(ctx, request, mode)
+	} else {
+		if s.deps.Embeddings == nil {
+			return nil, fault(f.DependencyUnbound)
+		}
+		embedding, err = prepareRuntimeEmbedding(ctx, *embedding)
+		if err == nil {
+			request = runtimeEmbeddingCall(*embedding)
+		}
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -185,7 +204,7 @@ func (r *Runtime) begin(ctx context.Context, request mc.ModelRequest, mode wire.
 	}
 	value := uc.Invocation{ID: invocation, CallID: request.CallID, AttemptIndex: 1, Consumer: request.Consumer.Clone(), SnapshotID: request.Model.Snapshot.ID, Identity: request.Model.Snapshot.Identity, ProcessID: process, Fence: 1, Dispatch: uc.Reserved, StartedAt: at, Usage: mc.Usage{Source: mc.UnknownUsage}}
 	cancel := func() { cancelDeadline(); stop() }
-	c := &runtimeCall{runtime: s, request: request, mode: mode, ctx: ctx, cancel: cancel, gate: make(chan struct{}, 1), record: &runtimeRecord{binding: binding, digest: hash(raw), value: value, sequence: 1, phase: "accepted", version: 1}, usage: usage}
+	c := &runtimeCall{runtime: s, request: request, embeddingRequest: embedding, mode: mode, ctx: ctx, cancel: cancel, gate: make(chan struct{}, 1), record: &runtimeRecord{binding: binding, digest: hash(raw), value: value, sequence: 1, phase: "accepted", version: 1}, usage: usage}
 	if binding.AgentTiming != nil {
 		c.requestTimeout, c.retryBackoff = binding.AgentTiming.InitialRequestTimeout, binding.AgentTiming.InitialBackoff
 	}
@@ -374,6 +393,18 @@ func (c *runtimeCall) startRecord(consumer mc.ConsumerRequest, plan mc.ConsumerD
 	if c.agentRetry() {
 		c.attemptCtx, c.attemptCancel = context.WithTimeout(c.ctx, c.requestTimeout)
 	}
+	if c.embeddingRequest != nil {
+		r := c.embeddingRequest
+		x, err := c.runtime.deps.Embeddings.Start(context.WithValue(c.wireContext(), runtimeHandoffKey{}, c), wire.EmbeddingRequest{Snapshot: r.Model.Snapshot, Texts: r.Texts, ExpectedDimensions: r.ExpectedDimensions}, c.callOptions(callContext, material))
+		c.mu.Lock()
+		c.startReturned, c.embeddingExchange = true, x
+		c.mu.Unlock()
+		if err != nil {
+			c.wireFailure = true
+			return c.failStart(c.ctx, err)
+		}
+		return nil
+	}
 	x, err := c.runtime.deps.Adapter.Start(context.WithValue(c.wireContext(), runtimeHandoffKey{}, c), wire.Request{Snapshot: c.request.Model.Snapshot, Messages: c.request.Messages, Tools: c.request.Tools, ToolChoice: c.request.ToolChoice, ResponseFormat: c.request.ResponseFormat, Mode: c.mode}, c.callOptions(callContext, material))
 	c.mu.Lock()
 	c.startReturned, c.exchange = true, x
@@ -402,6 +433,9 @@ func (c *runtimeCall) releaseLocal() {
 	c.joined = true
 	c.request.Messages = nil
 	c.request.Tools = nil
+	if c.embeddingRequest != nil {
+		c.embeddingRequest.Texts = nil
+	}
 	clear(c.text)
 	c.text = nil
 	c.mu.Unlock()
@@ -430,6 +464,9 @@ func (c *runtimeCall) close(ctx context.Context) (err error) {
 	c.mu.Unlock()
 	if joined {
 		return nil
+	}
+	if c.completedEmbedding != nil {
+		return c.finish(ctx, nil, c.completedJSONError)
 	}
 	if c.completedJSON != nil {
 		return c.finish(ctx, c.completedJSON, c.completedJSONError)

@@ -76,7 +76,14 @@ func checkMutationAudit(ctx context.Context, store Store, tx foundation.Tx, x po
 	if w.kind == sc.Create {
 		request.Ref = sc.CredentialRef{}
 	}
-	if validateWrite(request) != nil || w.ref.Validate() != nil || w.receiptID.Validate() != nil || w.receiptPayload.Validate() != nil || !w.result.Metadata.CredentialRef.Equal(w.ref) || w.result.Metadata.Purpose != w.purpose || w.result.Metadata.Version.Validate() != nil || w.result.Deleted != (w.kind == sc.Delete) {
+	if ctx.Value(mcpOAuthAuditWitnessKey{}) != nil {
+		if err := checkMCPOAuthMutationWitness(ctx, store, tx, w); err != nil {
+			return err
+		}
+	} else if validateWrite(request) != nil {
+		return projectAuditDenied()
+	}
+	if w.ref.Validate() != nil || w.receiptID.Validate() != nil || w.receiptPayload.Validate() != nil || !w.result.Metadata.CredentialRef.Equal(w.ref) || w.result.Metadata.Purpose != w.purpose || w.result.Metadata.Version.Validate() != nil || w.result.Deleted != (w.kind == sc.Delete) {
 		return projectAuditDenied()
 	}
 	expectedKey, err := audit.CommandAppendKey(ac.SecretProducer, w.command, 0)
@@ -170,14 +177,14 @@ func checkResolutionAudit(ctx context.Context, store Store, tx foundation.Tx, x 
 		return unavailable(err)
 	}
 	requestID := w.grant.RequestID
-	if modelLeaseUsage(w.lease.consumer, owner) {
+	if modelLeaseUsage(w.lease.consumer, owner) || mcpLeaseUsage(w.lease.consumer, owner) && w.modelRead != nil {
 		proof := w.modelRead
 		if proof == nil || w.grant.RequestID != "" {
 			return projectAuditDenied()
 		}
 		r := proof.request
 		binding, bindErr := sc.UsageBinding(r)
-		if bindErr != nil || r.Action != sc.ReadLeaseUsage || r.Purpose != sc.Model ||
+		if bindErr != nil || r.Action != sc.ReadLeaseUsage || r.Purpose != w.lease.consumer ||
 			!r.Actor.Equal(w.caller) || !r.Ref.Equal(ref) || !r.LeaseOwner.Equal(owner) || r.LeaseID != w.leaseID ||
 			binding != proof.binding || proof.mapping.Validate() != nil || len(proof.locks) == 0 {
 			return projectAuditDenied()

@@ -98,7 +98,7 @@ func (s *Service) Ensure(ctx context.Context, b tc.ToolCallBinding) (c.Waiting, 
 		return c.Waiting{}, portError(err)
 	}
 	at, _ := f.NewInstant(time.Now())
-	r := &record{value: c.Request{ToolName: b.RunnerBinding.OperationName, ID: id, ProjectID: b.ProjectID, AgentID: b.AgentID, ExecutionID: b.ExecutionID, ToolID: b.Spec.ToolID, ToolCallID: b.CallID, OperationID: op.OperationID, Fingerprint: op.Fingerprint, Status: c.Pending, Version: 1, CreatedAt: at}, operation: op}
+	r := &record{value: c.Request{ToolName: tc.ApprovalToolName(b), ID: id, ProjectID: b.ProjectID, AgentID: b.AgentID, ExecutionID: b.ExecutionID, ToolID: b.Spec.ToolID, ToolCallID: b.CallID, OperationID: op.OperationID, Fingerprint: op.Fingerprint, Status: c.Pending, Version: 1, CreatedAt: at}, operation: op}
 	plan, err := s.prepareEvent(ctx, b.Actor, r, locks)
 	if err != nil {
 		return c.Waiting{}, err

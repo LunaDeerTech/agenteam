@@ -94,7 +94,13 @@ func readInput(ctx context.Context, actor id.Actor, project id.ProjectID) error 
 	switch actor.Details().Kind {
 	case id.Human:
 	case id.AgentRun:
-		return fault(f.DependencyUnbound)
+		if _, err := currentInvocation(ctx, actor, project); err != nil {
+			return err
+		}
+	case id.Service:
+		if _, err := currentIndexWork(ctx, actor, project); err != nil {
+			return err
+		}
 	default:
 		return fault(f.Forbidden)
 	}

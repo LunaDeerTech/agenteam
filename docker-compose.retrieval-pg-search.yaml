@@ -1,0 +1,14 @@
+# Opt-in overlay. It builds a database image without changing a running instance.
+# Combine with docker-compose.dev.yaml; bootstrap the existing application
+# database explicitly before selecting the pg_search application profile.
+services:
+  database:
+    image: agenteam-pg-search:0.26.1-pg17.8-vector0.8.1
+    platform: linux/amd64
+    pull_policy: never
+    build:
+      context: ./deploy/retrieval
+      dockerfile: Dockerfile
+      additional_contexts:
+        pg_search_package: "${AGENTEAM_PG_SEARCH_PACKAGE_DIR:?directory containing the exact pg_search 0.26.1 Debian package}"
+    command: ["postgres", "-c", "shared_preload_libraries=pg_search"]
