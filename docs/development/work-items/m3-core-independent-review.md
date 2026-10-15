@@ -286,6 +286,14 @@ publication Lookup 是独立私有 Read witness：原同进程 owner、原 comma
 
 复用作者 31343（Secret/contract/Project）及 28690（MCP）普通通过回执，并读对应测试；本次未亲核原日志、未运行 Go/PG、未改产品或测试。142 Source/真实迁移、Secret continuation、归档 Project cleanup 与完整冷恢复 App 均未实际验收，不由上述源码结论替代。两处缺口已交 MCP 原作者；只待其固定返修复核这两个出口，不增加无关矩阵。
 
+### 固定返修复核
+
+继续只读核 `d2a60361` 及 `e371ad67` 的两个原出口。外层 connection 收尾现在在原 Guard/claim/完整锁与正式 lease 退休后，仅 CAS 仍匹配原 P/config/revision/connection/version/credential/request 的投影；已 released 分支同样处理，并在 claim 完成前验证原 busy 指针已经脱离。较新 Owner 发布不被覆写，原 SDK/远端结果不被改判。
+
+原 Session lookup 新增无 result 的 `stopped` 观察，要求同原 user/P/session/command/request/process、完整 recovery claim 与 I/O/lease 退休事实；原 command receipt 不改。该观察同时覆盖 pending complete，以及成功 begin 的旧 URL 已不可用且冷清理已完成的分支；合法 ready URL 仍按原成功回执返回，没有完整清理事实时仍保留 ConfirmationStale。后者是同一恢复出口的遗漏：只修 pending 会让原 begin intent 在页面继续禁用新授权，不能仅凭过期时间清本地状态。
+
+前端严格解码 `stopped` 且拒绝携带 result，核当前身份后清原 intent，明确显示远端结果无法确认；不重新兑换授权码或自动导航。Project 页重新读取当前连接后，用户才可显式发起新 key 的授权。源码与新增窄测试覆盖了这两个原 must-fix 的修复形状，**静态复核与受控测试未见剩余同范围 must-fix；冷恢复实际验收尚未关闭**。复用作者 41747 原 Wait0：`TestOAuthRecovery|TestMCPOAuthLookup` 普通通过 0.011秒。亲核 `output/ai/mcp/oauth-stopped-e371-node.log`：79885 的三个 spec、21 tests 通过，包含实际 Session/router/account transport 原 key lookup、清原 intent、零自动 Complete、显式新 key begin，以及 strict stopped 与回调文案；两叶格式化差异已读，仅换行。另亲核 `output/ai/mcp/database-142-5199-actual.log`：71002 的 `TestEmptyRepeatUpgradeAndHealth` PASS5.65秒、PG17 actual_wait=0 与三组官方清理可见；作者另报六资源 ID、三目录与 PID absent，142 已实际应用、不可回写。该迁移门不验证恢复业务；原 exchange Unknown 的 cold 首链及 token 已发布、SDK 未完成的外层 lease/pointer 分支仍未实际验收，受控 helper 的次序断言不替代 SQL CAS 或真实冷恢复证据。
+
 ## Knowledge 139 引用释放与成对清理独审
 
 2026-10-15；由未参与该清理实现的 Model owner 独立只读核 Knowledge `97dd9db2` 的 cleanup 十一个领域文件、139、sole App 清理 harness 及原生命周期 helper 的可选配置/写计数增量。此前仅解释过既有 Model retention 合同，未参与该清理或迁移实现。**本限定闭包接受，无新增已证 must-fix。**
@@ -295,3 +303,55 @@ publication Lookup 是独立私有 Read witness：原同进程 owner、原 comma
 亲核 `/tmp/agenteam-k-cleanup-5afd3dee/cleanup-native.log`：99337 的 populated-schema-upgrade 子例 PASS7.84s，合法 138 存量经正式 139 后原循环 pair/其他约束不变；其整个 top 后续失败，仍保留 FAIL。另亲核 `/tmp/agenteam-k-cleanup-97dd9db2/native.log` 与 `cleanup-check.json`：50168 fresh139 父选择器 PASS13.58s/原 Wait0，真实两 Project、两 embedding、零 Chat；原 release 与 pair 删除各一次 Unknown 确认的四 schema 写差值均为零，Knowledge 清完、Model/另一 Project 保留、App 正常 Join，六资源 ID、三目录与 test PID 全 absent。该轮未重跑 upgrade，末日志的组合摘要不作为本轮升级证据。
 
 上述 Unknown 是实际 PG COMMIT 成功后在 Store 返回边界掩蔽为 Unknown，随后经原正式只读确认；不是网络 COMMIT 丢包或 rollback 双态注入。接受范围不含旧 version2/未退休 operation 的冷收敛、整个 Project 删除及其他参与者。此次未运行 Go/native、未改产品或测试，只追加本节；输入未变的作者实际证据按上述范围复用。
+
+## Meeting 137 删除与原 owner 退休有限独审
+
+2026-10-15；由未参与删除实现的 Realtime/Artifact owner 独立只读核固定 `ea13e1c8`。范围限定 Meeting deletion contract、接受/查询/cleanup/purge/authority/audit/HTTP、137，相关 Runtime/control/Summary 收尾接点，以及 Project 私有删除 cleanup gate、Execution Meeting retirement 与对应控制门测试。此前 Realtime 跨接口阅读不涉及删除实现；本轮不扩全 Meeting、D25 或 Project 删除。**此限定源码闭包未见剩余已证 must-fix；真实 App purge 尚待实际验证。**`ea13e1c8` 修正原 App Delete 路由登记，前轮 HTTP 404 不能据此推断领域删除失败。
+
+接受入口使用原 Account Human 与当前 Owner；完整 User/Project/Meeting/command 和 Decision 锁下重读版本、原 command 和 deleting gate，首次接受与取消标记、删除 receipt、Audit 同事务提交。同 key 的查询与重放仍需当前 Owner 和原语义摘要；保留 receipt 不等于裸 ID 可授权。后台 cleanup 使用同实例原删除意图的私有 active witness，绑定 Store/Tx、完整 P/M/command、原 initiator、当前 ProcessGuard 与 Project EX。已接受的清理可在归档后收敛，但不能借此新发 Execution，也不越过 Project 最终 Audit 阶段屏障。
+
+原 launch Unknown 只观察原 key/tuple；缺 Execution 指针或空本地 map 不构成已退休。曾核查的旧 generation/attempt 漏清疑点由正式 restart 路径排除：同 Meeting EX、原完整 association 和同 Tx ResultReader 下，retry 只接受原 Failed，regenerate 只接受原 Succeeded，才 CAS 当前 generation/attempt。已完成 Turn 中的当前 replacement 仍由删除 cleanup 扫描；purge 另读取全部 immutable launch intents，不用当前 Contribution 指针替代历史范围。
+
+最终 purge 在完整历史 Execution/command 锁集合下再次核原 deleting version、原意图全集和 settled 条件，再借同 Tx 私有 witness 调原 Execution 四 owner 的退休证明。终态必须与原 capture/direct terminal 事实一致；当前 process 的本地登记、实际返回尾和持久 owner 均须收敛，旧 process 需正式 ConfirmStopped。Summary 的 returned/retired、原 retention release 及终态版本也必须成立；已有 Unknown terminal transition 先观察原请求，不能改目标重发 Model。固定 purge 语句只删 Meeting 自有记录，保留独立 Artifact/Object、Execution/Tool/Approval 等资源及原删除 command/receipt；删除完成、精确 Audit postimage 与 lifecycle event 同事务，Unknown 不报告已删除。
+
+本轮只读固定源码和控制门测试，未执行 Go/PG/native，未亲核作者普通门原日志；作者既有普通通过仅作为交接事实，不冒独立运行。尚未取得真实默认 App 删除到 purge、冷旧 process 证明或物理 COMMIT Unknown 的新结果；控制测试不替代这些行为证据。仅追加本节，产品与测试未改，全部 Git 由 root 保存；Artifact 上传的并行作者验证不计入本删除独审结论。
+
+## Meeting Realtime Web 有限独审
+
+2026-10-15；由未参与该状态机或 codec 实现的 MCP owner 独立只读核 `f6dc8f00` 的八个 Web 状态机/消费/测试叶，以及 `1034feb7` 的 Realtime 与 Runtime codec 四叶，并追读既有 Session 身份、重复 JSON 成员检查和 Go canonical-v1 合同。此前仅参与无关 MCP/Meeting transport 端点闭集；本轮不重审 Model owner 已核的 Gateway，也不扩 token stream。**该限定源码闭包接受，未见已证 must-fix；尚不代表实际 WebSocket 浏览器验收。**
+
+一个 socket 归原 Session 身份及 epoch；登出/身份替换会清除订阅与内容，异步 digest 解码完成后再次核当前 connection/identity。Topic 精确匹配 Project、Meeting，以及 Execution 订阅的 Contribution/generation/attempt/Execution 全 tuple；页面上下文或当前执行变化会同步 dispose 原订阅，旧 socket 回调、退订中的 queued frame 不能写新页。公开投影仅触发原授权 HTTP 的审批事实重读，没有从实时 DTO 取得命令或审批权限。
+
+只有 subscribe ack 后才能请求 snapshot；原 watermark 与 durable version 分开处理，读取期间更晚的 invalidation 会触发补读。补读连续八次、十六订阅、六十四 queued frame 及字节总量均有界；超限、epoch 变化、错误帧和断线转显式 stale/关闭，由用户重新连接并取得新 subscription ID 和授权 snapshot，不静默丢弃更新或无限重试。暂时不可用保留最近确认内容并显示暂停状态，身份失效则擦除内容。
+
+Codec 复用 decoded-key 重复成员拒绝，逐层检查固定 shape、UUIDv7、十进制 64 位进度、原 scope、UTF-8 与有界文本/条目。Snapshot 对实际 content 重算 SHA-256；固定 typed object 的键为 ASCII，数值字段为安全整数或十进制字符串，排序、数组顺序、Go HTML 与 U+2028/U+2029 转义和 canonical-v1 一致。没有把 transport sequence 当 Execution 版本，或将任意 JSON/外来 tuple 当正式投影。
+
+本轮未启动 Go、Node、browser 或 fixture，未修改产品/测试。作者既有状态机 23 tests、codec 23 tests 与 full vue-tsc 通过只作为已报告证据复用，本轮未亲核其原日志；实际 WS 握手、服务端身份撤销推送、浏览器刷新/断线及视觉表现仍由对应正式组合门验证。只追加本节，其他 MCP、Knowledge、137 及历史结论保持原样，全部 Git 由 root 保存。
+
+## Runner skill.prepare maintenance / cold 有限独审
+
+2026-10-15；本 reviewer 未参与所验实现。只读 `/workspace/agenteam-m3-runner-skills` 固定 `214fcbbf`：`426c0821` Object maintenance 与 Recover 私有入口、`8ff441f3` 合同、`63a4c923` Object/Skill/Runtime cold 叶、`151b7b71` Builtin cold 分派、`bb6339e9` App 固定路由及对应测试；`4e4fd504`/`b1d0f50f` 是 fixture 修正，`fbb40f5b`/`214fcbbf` 是 sole harness。**该限定源码闭包未发现新的已证 must-fix，但 cold 实际门仍失败且尚未到目标窗口，不能接受其运行闭包或整个 Runner/Skills。**未扩 Skill Publisher、全 Object 或其他迁移域。
+
+maintenance 仅由真实 `recoverProgress` 枚举的原 row 发出有界私有 witness，结束即失效；ObjectMaintenance actor 必须指向原 transfer/project，且同一个实际 Object Store。只准 GET / SkillRevision 的 Cleanup、ConfirmTerminal 和原 TransferOwner Release；裸技术 DTO、Issue/Materialize/Capture/Inspect、新 Acquire 均无权。已有持久 validated retirement evidence、kind、32-byte digest 才进入；pending reference 或旧进程死亡不能替代它。同 Tx 重核当前 guard、完整依赖锁、原 transfer request fingerprint、initiator/command/manifest/version/retirement 状态及精确 lease tuple。原 `retireInTx` 仍在真实 source/reader/writer lease 存活时保持 transfer lease；maintenance 不制造已 Join，也不赋予正文读取、签名或执行权限。
+
+cold 沿原 Builtin registered Lookup：限定 `skill.prepare` rev1，排除本地 Execute owner；事务外对原 Attempt.process 调用 `ConfirmStopped`，随后同完整锁重核原 operation/attempt/request/ordinal/fence/input/fingerprint 和当前 guard，原 process 不重写。同进程和活 claim 仍拒绝；新 Skill 叶只能借此原私有 proof 和 committed arguments/captured binding，重新核 immutable metadata。Object observer 在同 Store/Tx 与完整锁内重新确认原 Issue actor/key/request/version/Operation/Owner/Object/manifest/semantic，必须原 durable retirement 加精确 released lease；缺行、pending-only、active lease、错误 evidence/tuple 均不构成成功或无效应证明。
+
+只有上述观察完成，Skill 才编码闭集 `PrepareUnknownResult`（原 Skill/revision/mount、`may_have_prepared=true`、`DEPENDENCY_UNAVAILABLE`，无 path）；Builtin 复用严格 classifier 将原 Attempt 记为 unknown，既不重发 Prepare/Issue/Sign，也不建新 Attempt 或声称 package 成功。App 构造时固定 preparation/maintenance 两提供方，技术分支只选上述 Cleanup/Confirm/Release；原 context/Tx 直传，拒绝不 fallback，readonly retirement/command observation 仍走 preparation 私有证明。138 仅作为该 typed terminal 的共同前置阅读，本轮未独立验证其 SQL 行为；134–137 不在审查范围。
+
+12175 Object maintenance ordinary、55474 Object/contract/Skill/Runtime cold 拒绝门及既有 Builtin cold 回归、80962 App router ordinary 的 Wait0 复用作者原回执；本轮已读对应测试，但无原普通日志可亲核，未重跑。这些测试分别为 controlled SQL/私有 witness/路由验证，不代替真实 PG、reader 或 OS 停止证明。
+
+已亲核 `output/ai/m3-runner-skills/app07/native.log` 并对照 `c8a1a649` 正常 harness：59470 PASS 38.52 秒，test PID1648229 actual Wait0。正式 Owner install/assignment、真实 GET/Runner 只读包、显式 run-command Exit0/完整输出与进程组终结、三轮受控模型消费及原 App/Runner Join 均有断言；原 transfer lease released。该输入早于新增 maintenance/cold，正常通过不外推后者。日志有三 fixture exact cleanup；`app07/cleanup.json` 记录六资源 inspect 退出1、三目录与两个 PID 不存在，本轮未重新 inspect。原 63865、93239/21628 失败及间歇关闭原因未定的限制继续保留。
+
+已亲核 `output/ai/m3-runner-skills/cold01/{native.log,wait.json,cleanup.json}`：2236 固定 `b1d0f50f`（sole `fbb40f5b`、连续1–138）**FAIL 27.20 秒 / Wait1**，wrapper 总40.869秒。真实 provision Join、first child 原 Reader 和 Runner generation2 重新认证已到，但原15秒未到 `m3_prepare_terminal_reader_held`；末原 Tool running、GET1/complete0/retired0/activelease1/revoked0。因此目标 SIGKILL、第二 child/new guard、maintenance retirement、strict Unknown 消费及恢复后 Join 都未执行。PID1722660 Wait9 是失败 cleanup，不是通过目标屏障后的故障注入；日志另有原 Runner cleanup Wait 和三 fixture cleanup，保存的检查记录为六资源/三目录/四 PID absent。父 provision trace 不能代表 first child 内部 Skill/Object 行为，不能据此认定 maintenance provider 已失败。
+
+`214fcbbf` 仅追加 child 最多64条闭集事务诊断与脚本存在/只读模式布尔，未改原预算或产品，尚未编译/实际。下一必要门仍由作者沿原 `cold-terminal-reader` 定位首断点、修正后复验；不得以 normal/ordinary 关闭 cold，也无需重复未变正常链。IssueUnknown 物理分支和其他未完成窗口保留待验。本轮只追加本节，无 Go/native/fixture、生产或测试修改、Git 写；格式检查后停写交 root 保存并释放席位。
+
+## Meeting Reply 与历史消息引用有限独审
+
+2026-10-15；由未参与该 Reply 实现的 MCP owner 独立只读核 `0b6a3a02`、`fb340c46` 与 `85096c55` 的八个受影响 Web 叶：client/Meetings API、ProjectMeetings controller/View、历史版本组件及三份相关测试。此前仅参与无关 Meeting transport 端点闭集；本轮不重审 Realtime、不扩 Meeting 执行或审批。**此增量源码范围接受，未见已证 must-fix；真实 Reply 用户旅程仍待对应浏览器门。**
+
+`reply_to_message_id` 只允许出现在 Send 和其原 lookup；必须是 canonical UUIDv7，Start、显式 null/空值/非法 ID 均拒绝。capture 复制并冻结原 Reply ID 与正文，Session 保存原 body/key，Unknown 后的 lookup 不从可编辑草稿重建意图。未决状态禁止新发、切换或取消 Reply；not_found 保留原草稿，只有确认已提交才清除正文与 Reply，版本冲突也不丢草稿。身份/页面上下文变化沿原 owner 退休路径清除，未把本地 Message ID 当服务端授权。
+
+消息替换后，引用仍以历史不可变 Message ID 为准；预览从当前已授权 detail 的当前/历史消息集合读取。历史组件只展示原消息，不编辑或重写历史；Reply 事件同时要求 canReply 和精确历史成员，disabled 状态也在 handler 拒绝。发送权限、原预期版本和原命令入口保持不变，历史回复按钮不复用重新生成/重试 Execution 的权限。
+
+已只读核 actual API→transport 对同 Reply body/key 的 Send/lookup 断言，以及 Session capture、Unknown、显式确认、版本冲突与历史禁用测试。作者组合 42 tests 与 full vue-tsc 通过按回执复用，本轮未亲核原日志、未启动 Node/Go/browser、未改产品或测试；不将这些控制门当真实 HTTP/浏览器发送通过。仅追加本节，既有 Runner、Realtime、MCP 等结论保持原样，Git 由 root 保存。

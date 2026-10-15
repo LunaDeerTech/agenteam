@@ -8,13 +8,13 @@ M1 与 M2 仍按原范围正式接受并已交付 main。M2 正常 Scheduler 下
 
 | 工作包 | 当前状态与负责人 | 下一就绪结果 |
 | --- | --- | --- |
-| M3 集成与整体契约 | `m3_integration` 负责共同接缝与唯一资源调度；root 负责 Git；1–140 正式迁移、141独立升级/严格约束与 Model 独立停止解析门已过 | 连续 1–140 真实迁移与140旧行/正负约束已过；136/137/140 App普通门已组合，共同首App编译与配置已过，删除实际仍待；继续用户链与有限独审，当前仍为完整原 M3。 |
+| M3 集成与整体契约 | `m3_integration` 负责共同接缝与唯一资源调度；root 负责 Git；1–142 正式迁移、141独立升级/严格约束与 Model 独立停止解析门已过 | 连续 1–140 真实迁移与140旧行/正负约束已过；136/137/140 App普通门已组合，新共同App已编译/配置通过；删除漏路由与取消标志约束已修待实际复验，Decision后继终态超时只补诊断，Memory非法Agent名已修；继续用户链与有限独审，当前仍为完整原 M3。 |
 | M3 知识检索与引用 | `m3_knowledge`：自动索引、四格式 HTTP 与浏览器、PDFv2/Agent 引用及退出已过 | 固定 pg_search 镜像与同 App/同库双域 hybrid 整链已过；populated138→139 升级分支已过；fresh139 清理已通过 pin/source pair 退休、两次原 Unknown 只读确认、四域写入差值零、保其他项目及完整退出；只修 harness 事务统计绝对值误判，不重跑已过检索链。 |
 | M3 Memory | `m3_memory_tools`：跨 E 工具、Owner 浏览器与两个未退休/未 Begin 的真实停止恢复窗口通过 | 保原 Unknown 的窄修复已独审；同库 hybrid 已过，继续剩余原业务恢复，不重跑正常窗口。 |
 | M3 领域工具与相关 Runner 扩展 | `m3_memory_tools`：self-assignment、catalog/另一目标与 Tool FinalTx 物理 Unknown 整链过；`m3_model` 在独立 Runner 树实施 prepare | 撤权失败终态已实际通过；发布 Unknown 两物理分支分别验证，U1/U2 交接窄修已独审。Runner 审计闭集缺口已修，完整 prepare/命令/后继模型消费/持久事实与正常 Join 首链现已通过；旧会话间歇断开原因未定；安装 published 窗口真实 cold/同 E 结果消费与退出已过；独审 Stop/lookup 交错的 Drain 错报已窄修并经定向回归复核关闭。 |
-| M3 MCP | `m3_mcp`：控制面/正文 Tool/Resource/Owner Web 已过；OAuth 全域已由 integration 移交该 owner | 媒体 canonical/诚实 Unsupported、原 privatectx source Read/Close 及新 modes 回归已过；真实到期刷新/Secret CAS/原请求退休也已通过；OAuth 浏览器完整链已过；stranded 已到真实旧进程停止/新 guard，但结果观察失败，冷恢复独审两处必修已固定、受影响门待；继续原清理收尾。 |
-| M3 Meeting | `m3_meeting`：Decision/Approval/单贡献取消真实链已过；Summary 固定 snapshot/retry、新 generation 换模型及 sent 取消完整链已过 | 并行/队列/插话整链已过；typed refs/替换 UI 与134 cold待。提案 HTTP 整链含 Inbox/审阅/恢复/模型消费和退出已通过，浏览器后继整轮亦通过两提案审阅/九回复/App Join/guard与数据库首样退出，保旧失败及Chromium子PID未逐个捕获限制；删除/Audit 已组合过普通门，真实删除待，update/comment 定义待异步回复。 |
-| M3 有限 Realtime | `m3_realtime` 负责统一 Gateway/有界订阅与退出；integration 接 Execution/App，Meeting 授权与提交通知，Tools 消费 | typed contract/Gateway 普通、race与有限独审、Execution投影及原领域权限/提交通知已过；同Hub共同App首编译与受影响前端类型门已过，状态/waiting/Tool摘要/已提交公开文本和 ack/snapshot/resync 待组合实际。不含 token 增量或完整 D24/D25。 |
+| M3 MCP | `m3_mcp`：控制面/正文 Tool/Resource/Owner Web 已过；OAuth 全域已由 integration 移交该 owner | 媒体 canonical/诚实 Unsupported、原 privatectx source Read/Close 及新 modes 回归已过；真实到期刷新/Secret CAS/原请求退休也已通过；OAuth 浏览器完整链已过；stranded 已到真实旧进程停止/新 guard，但结果观察失败，冷恢复独审两处必修已固定，受影响MCP普通门及私有前端21例已过，142正式数据库通过，新cold App已就绪但尚未实际；继续原清理收尾。 |
+| M3 Meeting | `m3_meeting`：Decision/Approval/单贡献取消真实链已过；Summary 固定 snapshot/retry、新 generation 换模型及 sent 取消完整链已过 | 并行/队列/插话整链已过；typed refs/替换 UI 与134 cold待。提案 HTTP 整链含 Inbox/审阅/恢复/模型消费和退出已通过，浏览器后继整轮亦通过两提案审阅/九回复/App Join/guard与数据库首样退出，保旧失败及Chromium子PID未逐个捕获限制；删除/Audit 已组合，真实删除约束失败已窄修待复验；Decision Inbox 后继超时及 Meeting Memory fixture修复待实际，update/comment 定义待异步回复。 |
+| M3 有限 Realtime | `m3_realtime` 负责统一 Gateway/有界订阅与退出；integration 接 Execution/App，Meeting 授权与提交通知，Tools 消费 | typed contract/Gateway 普通、race与有限独审、Execution投影及原领域权限/提交通知已过；同Hub共同App编译、Realtime状态23例和完整类型门已过；Reply42例及类型门另过，状态/waiting/Tool摘要/已提交公开文本和 ack/snapshot/resync 待组合实际。不含 token 增量或完整 D24/D25。 |
 | 已知后续完善事项 | 未排期；原 R1–R5/M4 不再作为当前派工路线 | M3 完成后重新评估全面旧页体验、完整 Lifecycle/架构覆盖及生产发布运行等缺口。 |
 
 已完成的完整性复核、设计技能准备与 M1/M2 工作不重新开工；来源见[复核卡](../work-items/product-readiness-review.md)和[技能来源](skill-sources.md#前端设计与-ux-审查技能)。历史 W1–W5/R1–R5 沿原卡及 Git 历史查询，不作为当前活动派工。默认 Execution Runtime 仍需显式配置开启；Object/tools/SPA/Jina/Image 原 STOP 保留其适用范围，不因 M3 授权自动解除，不以里程碑数量推算平台百分比。

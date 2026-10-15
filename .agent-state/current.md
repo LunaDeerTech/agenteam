@@ -32,17 +32,17 @@ root 负责全部 Git；integration 负责共享 App/Execution 接线、共同�
 - Knowledge 的自动索引、四格式 HTTP/浏览器、PDF 与 Agent 引用及退出已过；固定 schema125 的 Knowledge/Memory 同 App、同库 hybrid 整链已过。139 populated 升级与 fresh139 清理现分别通过：正式 pin 释放、source pair 原子删除、两次成功 COMMIT 后由 Store 边界返回 Unknown 的原只读确认、四域写入差值为零、Model/其他项目保持及 App Join。旧失败已确定为 harness 把事务统计绝对值当本次写入；只修同事务差值观察，产品与预算未变。
 - Memory 的跨 Execution 工具、隔离/删除/profile 与 Owner Web、限定真实停止恢复已过；Model 三态停止解析与相应 Unknown 保真修复已独审。剩余物理故障补集不由这些正常门代证。
 - Skills 安装、Owner/Agent 分配与后继读取、catalog、两类实际 Unknown 已按各自输入接受。published/running 窗口 cold 已过真实 SIGKILL/Wait→新 guard/同 E/Attempt→原 canonical 保持、一次安装上传、后继模型消费与正常 Join；Stop/lookup 交错的 R1 已定向回归及独审关闭。不含 reserved/missing cold、物理新 U2 或外部安装。
-- Runner prepare 正常整链已过真实 Object GET/Runner 包、原 run-command Exit0、三轮模型消费、持久 Transfer/lease 退休及 App/Runner 正常 Join。旧轮业务会话间歇断开仍未定因；维护与 cold 新提供方继续验证，不复跑未变正常链。当前 M3 不新建 Skill 多版本发布系统，也不宣跨更新旧 revision 已验。
-- MCP 的控制面、凭据、Tool/Resource/ResourceLink、媒体来源、modes、刷新及 OAuth Owner 浏览器完整链已过。OAuth issuer 使用 Node TLS relay，未宣 Chromium 直接访问 issuer CA。stranded 已到真实旧进程停止和新 guard，但新进程结果观察失败；142冷恢复尚未实际。新 Secret/Project/MCP 私有恢复门的普通通过不代数据库和 cold；独审两处必修已固定，受影响验证尚待。
-- Meeting 的两 Agent/Summary、固定 snapshot/retry、并行/队列/插话及原审批/Decision浏览器已过。四工具五调用→canonical Inbox→Owner审阅/lookup/rebuild/恢复→后继模型消费与退出的提案 HTTP 整链已过。提案 Web 整链也已通过 Owner 两次审核、后继九回复、App Join 与首样 guard/数据库退出；捕获的 App/PW 进程与资源清退，未捕获 Chromium 各子 PID 的限制保留。137删除、141Decision Inbox、Meeting上Memory与Summary cold实际仍待。未定义的 update/comment 不猜实现。
+- Runner prepare 正常整链已过真实 Object GET/Runner 包、原 run-command Exit0、三轮模型消费、持久 Transfer/lease 退休及 App/Runner 正常 Join。旧轮业务会话间歇断开仍未定因；维护与 cold 新提供方的普通门已过；首 cold 实际未到目标 terminal-reader 屏障，未执行目标停止/重启，新 child 闭集诊断待编译，不复跑未变正常链。当前 M3 不新建 Skill 多版本发布系统，也不宣跨更新旧 revision 已验。
+- MCP 的控制面、凭据、Tool/Resource/ResourceLink、媒体来源、modes、刷新及 OAuth Owner 浏览器完整链已过。OAuth issuer 使用 Node TLS relay，未宣 Chromium 直接访问 issuer CA。stranded 已到真实旧进程停止和新 guard，但新进程结果观察失败；1–142 正式数据库空库/重复/升级/健康门已过，142不可回写；OAuth cold 尚未实际。独审两处必修已固定，受影响 MCP 普通门及私有前端21例已过，新 App 配置与三个 cold 入口就绪，不代真实停止恢复。
+- Meeting 的两 Agent/Summary、固定 snapshot/retry、并行/队列/插话及原审批/Decision浏览器已过。四工具五调用→canonical Inbox→Owner审阅/lookup/rebuild/恢复→后继模型消费与退出的提案 HTTP 整链已过。提案 Web 整链也已通过 Owner 两次审核、后继九回复、App Join 与首样 guard/数据库退出；捕获的 App/PW 进程与资源清退，未捕获 Chromium 各子 PID 的限制保留。137删除实际先遇遗漏路由、再遇取消标志约束，两个首因已修，新候选待复验；141Decision Inbox 已到 Owner 原动作及 lookup，后继终态超时仍待原预算内闭集诊断。Meeting上Memory首轮仅遇非法 Agent 名称，harness 已修；这两项与 Summary cold 均未接受。未定义的 update/comment 不猜实现。
 
 ## 共同组合与下一门
 
-common 已按各 owner 完整 manifest 组合成熟 Skills/Runner、MCP、Knowledge、Memory、Meeting/Inbox 与前端。Shared App 已接原 prepare authority/dispatcher、同一 Realtime Hub、Meeting/Decision/Agent 提交通知及实际 HTTP Gateway；首共同 App 编译、Meeting/Meeting-Memory/prepare 配置与四个精确入口检查已过；受影响前端五业务 spec 共43例、两 codec spec 共23例及完整类型检查已过，未扩称全部前端测试或共同实际通过。单树旧门不外推本次共同组合，未来 Artifact 上传与142恢复未作为已完成输入混入。
+common 已按各 owner 完整 manifest 组合成熟 Skills/Runner、MCP、Knowledge、Memory、Meeting/Inbox 与前端。Shared App 已接原 prepare authority/dispatcher、同一 Realtime Hub、Meeting/Decision/Agent 提交通知及实际 HTTP Gateway；新共同 App 已包含删除修复、合法 Memory builder 与 Decision 诊断，编译、Meeting/Meeting-Memory 配置及六个精确入口检查已过；受影响前端五业务 spec 共43例、两 codec spec 共23例及完整类型检查已过，未扩称全部前端测试或共同实际通过。单树旧门不外推本次共同组合，Artifact 上传与142恢复未作为已完成输入混入。
 
-正式 PostgreSQL 连续1–140的空库/升级/重复/健康及140真实约束门已过。141 Decision 的独立空库、真实140存量升级/重复、旧提案字段与xmin保持、严格source/context/事件约束现已通过；1–141均已应用，不可回写。142分配给MCP冷恢复，source与数据库测试binary已准备，实际尚待；143未分配。先用固定新 App 做原137删除，再按迁移前置推进Decision/Memory等门；失败只修实际首断点。
+正式 PostgreSQL 连续1–140的空库/升级/重复/健康及140真实约束门已过。141 Decision 的独立空库、真实140存量升级/重复、旧提案字段与xmin保持、严格source/context/事件约束现已通过；1–141均已应用，不可回写。142的正式数据库门随后通过，全1–142已实际应用不可回写；143未分配。固定新 App 继续原137删除修复、Decision诊断和Memory首链，并轮转已就绪的MCP/Artifact独立实际门；失败只修实际首断点。
 
-有限 Realtime 的 typed contract、真实受控 WebSocket Gateway 普通/race及有限独审、Execution 公开投影及 Meeting 私有授权/known-commit通知定向门已过，App与前端已进入组合。其范围仅真实状态/waiting/Tool摘要/已提交公开文本、ack/snapshot/resync；不含 token 增量、私有 reasoning 或完整 D24/D25 流式验收。User upload 的正式 Artifact 路径尚在实施，不能用既有 Artifact 引用读取冒充上传已接。
+有限 Realtime 的 typed contract、真实受控 WebSocket Gateway 普通/race及有限独审、Execution 公开投影及 Meeting 私有授权/known-commit通知定向门已过，App与前端已进入组合。其范围仅真实状态/waiting/Tool摘要/已提交公开文本、ack/snapshot/resync；不含 token 增量、私有 reasoning 或完整 D24/D25 流式验收。User upload 已沿正式 Artifact 路径实现并通过普通边界门；独审所见并发 first-attempt 缺口已在原 reserve 锁内窄修，真实 Objects 交错与默认 App 上传仍待。点查 metadata 已实现并通过限定普通门，新 App top 尚未实际。共同 Reply 受影响三 spec 42例、Realtime 状态三 spec 23例与各自完整类型门已通过；真实双 topic 浏览器仍待。
 
 ## 资源与恢复
 
