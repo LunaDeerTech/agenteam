@@ -39,7 +39,7 @@
 
 ## 技能与后续启动方式
 
-后续从 [agenteam-frontend-redesign](../../../.agents/skills/agenteam-frontend-redesign/SKILL.md) 开始，按任务复用设计、Vue 开发、测试工程与独立验收技能；具体阶段绑定见[执行计划](implementation-plan.md#2-技能与职责入口)。技能负责避免遗漏和偏离，页面效果与真实行为仍需实际验证。
+后续从 [agenteam-frontend-redesign](../../../.agents/skills/agenteam-frontend-redesign/SKILL.md) 开始，由 [frontend_designer](../../../.codex/agents/frontend-designer.toml) 负责完整页面设计和样板、[frontend_visual_reviewer](../../../.codex/agents/frontend-visual-reviewer.toml) 独立检查浏览器视觉与交互，按任务复用现有 Vue 开发、测试工程与功能验证角色；具体阶段绑定见[执行计划](implementation-plan.md#2-技能与职责入口)。技能负责避免遗漏和偏离，页面效果与真实行为仍需实际验证。
 
 推荐下一次指令：**“按前端重设计规划执行 F0，先完成完整页面样板定稿。”** 后续可直接指定 F1—F8。阶段编号、状态与完成标准只在[执行计划](implementation-plan.md)维护，不要求每个子步骤反复审批，也不自动开始尚未请求的实施阶段。
 

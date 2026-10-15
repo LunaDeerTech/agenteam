@@ -38,7 +38,7 @@
 
 ## 角色与技能
 
-十一种角色按任务需要选用；同一角色可承担一级负责人或下级执行者，也可同时创建多个实例。每个实例使用不同的 `task_name`，明确各自目标、文件和资源范围，不设置角色单例或每负责人固定配额。角色定义职责，技能提供专业方法，任务卡决定本次写入权、资源需求和验收范围。
+十三种角色按任务需要选用；同一角色可承担一级负责人或下级执行者，也可同时创建多个实例。每个实例使用不同的 `task_name`，明确各自目标、文件和资源范围，不设置角色单例或每负责人固定配额。角色定义职责，技能提供专业方法，任务卡决定本次写入权、资源需求和验收范围。
 
 | 角色 | 适用职责 | 项目技能 |
 | --- | --- | --- |
@@ -46,7 +46,9 @@
 | [architecture_worker](../../../.codex/agents/architecture-worker.toml) | 影响分析、工程规格与契约、验收方案；不补造产品规则 | [agenteam-design](../../../.agents/skills/agenteam-design/SKILL.md) |
 | [research_worker](../../../.codex/agents/research-worker.toml) | 默认只读，围绕明确技术未知项有界查证，给出证据、限制与建议 | [agenteam-design](../../../.agents/skills/agenteam-design/SKILL.md) |
 | [backend_worker](../../../.codex/agents/backend-worker.toml) | Go、Central、Runner 与共享协议的完整结果实现、自测与必要文档 | [agenteam-go-development](../../../.agents/skills/agenteam-go-development/SKILL.md) |
+| [frontend_designer](../../../.codex/agents/frontend-designer.toml) | 完整页面信息层级、布局、状态、样板与组件使用规范；只写授权设计/原型范围 | [agenteam-frontend-redesign](../../../.agents/skills/agenteam-frontend-redesign/SKILL.md) + frontend-design / web-design-guidelines |
 | [frontend_worker](../../../.codex/agents/frontend-worker.toml) | Vue 页面、组件与样式的完整结果实现、自测与必要文档 | [agenteam-vue-development](../../../.agents/skills/agenteam-vue-development/SKILL.md) |
+| [frontend_visual_reviewer](../../../.codex/agents/frontend-visual-reviewer.toml) | 未参与被审设计或实现的独立浏览器视觉与交互审查；同条件截图、问题定位与返修复验，默认只读 | [agenteam-frontend-redesign](../../../.agents/skills/agenteam-frontend-redesign/SKILL.md) + verification / web-design-guidelines / test-engineering |
 | [data_worker](../../../.codex/agents/data-worker.toml) | 明确范围的 PostgreSQL 迁移、SQL adapter、事务、锁、幂等与数据恢复 | [agenteam-database](../../../.agents/skills/agenteam-database/SKILL.md)，按需 Go |
 | [security_reviewer](../../../.codex/agents/security-reviewer.toml) | 默认只读，评审权限与当前授权、跨 scope、Secret、出站边界及负例证据 | [agenteam-security](../../../.agents/skills/agenteam-security/SKILL.md) + verification |
 | [test_worker](../../../.codex/agents/test-worker.toml) | 构建或重建可恢复的 harness、fixture、确定性并发测试和真实浏览器测试 | [agenteam-test-engineering](../../../.agents/skills/agenteam-test-engineering/SKILL.md)，按需 Go / Vue |
@@ -58,6 +60,8 @@
 
 数据库、安全、测试和排障技能可由实现者或验证者按需组合，不必再创建对应专家。独立性取决于实际参与：编写 harness 的 `test_worker` 不能独立验收自己的 harness；参与实现决策的负责人不能形成该实现的独立验收结论。`security_reviewer` 默认只读，修复须另行明确文件所有权；`platform_worker` 的身份不授予部署权限。调研结论经负责人采纳进入正式契约，跨子目标契约由主线程协调，文档角色按成组归位的收益使用。
 
+前端重设计按[阶段计划](../../frontend-design/redesign/implementation-plan.md#2-技能与职责入口)分工：`frontend_designer` 负责完整样板与设计约束，`frontend_worker` 负责产品实现，`frontend_visual_reviewer` 独立检查页面视觉与交互；`test_worker` 和 `verification_worker` 继续承担按需测试与功能/风险验证。角色是可选能力，不新增审批层或每阶段固定人数；设计者不能独立验收自己的样板。
+
 ### 按任务选择最小团队
 
 下表给出每项结果所需的起始能力，同类就绪结果可由该角色的多个实例并行完成；“独立验证”可由具备相应技能且未参与实现的实例承担，不要求依次经过所有专家。
@@ -67,6 +71,7 @@
 | 低影响文档、局部配置 | 一个执行者 + 直接负责人审查 | 成组跨文档归位用 documentation；有实际运行时未知项才调研或排障 |
 | Go / Central / Runner 业务变更 | backend + 独立验证 | 先解决协议契约未知项；有可独占迁移或 SQL 子目标时加 data，跨专业集成复杂时用 delivery |
 | 事务、迁移、锁与 Unknown 恢复 | backend 或 data + 具备 database 技能的独立验证者 | 真实 PG、独立连接或确定性故障注入需要新增 harness 时加 test；迁移编号仍只有一个所有者 |
+| 前端完整页面设计 / 重设计样板 | frontend_designer + 未参与设计的 frontend_visual_reviewer | F0 样板与设计约束；正式 Vue 实现复用 frontend，缺浏览器 harness 时加 test，不代替功能/风险验证 |
 | Vue 页面与缺失浏览器 harness | frontend + test；按风险安排独立验证 | 后端契约/fixture 源码需修改时加 backend；确有工具链或隔离环境阻塞时用 platform |
 | 权限、凭据、跨 scope 或出站规则 | 对应实现者 + 未参与实现的 security reviewer | 验证者组合 security 和 verification 技能覆盖关键负例；需要新测试基础设施才另配 test |
 | 构建、依赖恢复、卡死或性能问题 | 对应所有者组合 runtime-debugging；环境子目标交 platform | 先形成复现与观测事实；SQL 瓶颈按需组合 database，性能结论须有同场景实测对比 |
@@ -137,7 +142,7 @@ helper 的 `objects/` 排除只是起点；受 Git 跟踪的旧截图、日志�
 
 ## 运行时配置与实例
 
-[项目配置](../../../.codex/config.toml)与[十一个角色文件](../../../.codex/agents/)统一要求各层实例使用 `gpt-6-astra`、`model_reasoning_effort = "ultra"`，Fast Mode 对应 `service_tier = "priority"`。角色身份按 TOML 的 `name` 字段识别，检查时枚举实际文件。所有层级继承权限和 sandbox，均可在授权范围内按需要继续委派，不自动换模型，不修改全局 trust。
+[项目配置](../../../.codex/config.toml)与[十三个角色文件](../../../.codex/agents/)统一要求各层实例使用 `gpt-6-astra`、`model_reasoning_effort = "ultra"`，Fast Mode 对应 `service_tier = "priority"`。角色身份按 TOML 的 `name` 字段识别，检查时枚举实际文件。所有层级继承权限和 sandbox，均可在授权范围内按需要继续委派，不自动换模型，不修改全局 trust。
 
 项目按用户要求将 `agents.max_concurrent_threads_per_session` 从 20 提高到 100，表示全树子线程并发配置值，不含主线程。新 CLI 加载项目配置时请求该值，实际可用名额仍受运行时、服务和机器承载限制。`agents.max_depth = 6` 是可调整的递归深度上限，不要求任务拆满六层；该字段只对当前 V1 多代理运行时有效，V2 会忽略它，切换运行时须重新核实支持情况。
 

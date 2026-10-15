@@ -7,7 +7,7 @@ description: 在 agenteam 需要独立审查、测试或配置文档验证时使
 
 ## 适用任务
 
-用于 `verification_worker` 按风险执行独立审查或验证；作者可复用适用检查，但不得把自查声明为独立验收。
+用于 `verification_worker` 按风险执行独立审查或验证，也供 `frontend_visual_reviewer` 执行独立视觉/交互检查；作者可复用适用检查，但不得把自查声明为独立验收。
 任务拆分、逐级汇报、独立性与风险分级、所有权、证据留存和交付规则见 [团队流程](../../../docs/development/agent-team/README.md)。先确认卡片为只读审查，还是允许写入指定测试或验证记录；成组文档归位使用 [文档技能](../agenteam-documentation/SKILL.md)。
 
 ## 按需读取来源

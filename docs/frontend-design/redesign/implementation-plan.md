@@ -22,12 +22,15 @@ F2—F6 可以在共享框架稳定、文件 owner 明确后并行；不以阶�
 
 后续任务首先使用 [agenteam-frontend-redesign](../../../.agents/skills/agenteam-frontend-redesign/SKILL.md) 编排技能：只读 v2 目标规范、当前页面蓝图与当前阶段，再按任务选专业技能。它不复制 token，也不把“调用了技能”当作质量通过。
 
-| 工作 | 技能绑定 | 具体产物 |
-| --- | --- | --- |
-| F0 设计、各阶段设计偏差处理 | [frontend-design](../../../.agents/skills/frontend-design/SKILL.md) + [web-design-guidelines](../../../.agents/skills/web-design-guidelines/SKILL.md) | 完整页面信息层级、视觉候选和可检查的 UX 决定 |
-| F1—F7 Vue 实现 | [agenteam-vue-development](../../../.agents/skills/agenteam-vue-development/SKILL.md)；编写/修改 Vue 测试时加 [vue-testing-best-practices](../../../.agents/skills/vue-testing-best-practices/SKILL.md) | 真实 Vue 组件/页面、保留业务状态的视图重构、必要回归 |
-| 样板浏览器自查、交互与真实链路检查 | [agenteam-test-engineering](../../../.agents/skills/agenteam-test-engineering/SKILL.md) | 明确 fixture/真实服务边界的截图、键盘/焦点/请求观察与资源退出 |
-| 独立审查与 F8 | [agenteam-verification](../../../.agents/skills/agenteam-verification/SKILL.md) + UX/测试工程技能 | 非作者对视觉、行为和业务不变量的限定结论；失败定向返修 |
+| 工作 | 角色 | 技能绑定 | 具体产物 |
+| --- | --- | --- | --- |
+| F0 设计、各阶段设计偏差处理 | [frontend_designer](../../../.codex/agents/frontend-designer.toml) | [frontend-design](../../../.agents/skills/frontend-design/SKILL.md) + [web-design-guidelines](../../../.agents/skills/web-design-guidelines/SKILL.md) | 完整页面信息层级、布局/状态、视觉样板和组件使用规范；只写授权设计/原型文件 |
+| F1—F7 Vue 实现 | [frontend_worker](../../../.codex/agents/frontend-worker.toml) | [agenteam-vue-development](../../../.agents/skills/agenteam-vue-development/SKILL.md)；写 Vue 测试时加 [vue-testing-best-practices](../../../.agents/skills/vue-testing-best-practices/SKILL.md) | 真实 Vue 组件/页面、保留业务状态的视图重构、必要自测 |
+| 样板/页面浏览器 harness、交互与真实链路检查 | [test_worker](../../../.codex/agents/test-worker.toml)，作者按需复用技能 | [agenteam-test-engineering](../../../.agents/skills/agenteam-test-engineering/SKILL.md) | 明确 fixture/真实服务边界的可复用输入、截图、键盘/焦点/请求观察与资源退出 |
+| F0 独立样板校验、F1—F7 按影响视觉独审、F8 整合视觉/交互验收 | [frontend_visual_reviewer](../../../.codex/agents/frontend-visual-reviewer.toml) | [agenteam-verification](../../../.agents/skills/agenteam-verification/SKILL.md) + UX/测试工程技能 | 未参与被审设计或实现的浏览器结论；同条件截图、问题定位、返修与受影响复验 |
+| 各阶段按风险功能审查、F8 连续旅程与业务不变量验收 | [verification_worker](../../../.codex/agents/verification-worker.toml) | agenteam-verification + 按需专业技能 | 真实功能/风险检查与未验证范围；与视觉结论一同构成阶段接受依据 |
+
+F0 由设计者完成样板、独立视觉审查者检查样板；F1—F7 按实际变化选择设计、开发、测试与独审能力；F8 汇合视觉、交互和功能结论。设计者与实现者不能独立验收自己参与的内容，视觉审查者默认只读，缺陷交原 owner 修复；不为每阶段固定人数或要求所有角色同时到场，也不新增逐层审批。新增角色配置不代表任何实施阶段已开始。
 
 新引入的是编排技能，其余为仓库已有能力，避免重复安装和维护。`vue-best-practices` 本轮未在仓库/已检查环境中找到，不写成已安装或强制前置。实际来源与适配说明见[技能来源](../../development/agent-team/skill-sources.md)。
 

@@ -18,6 +18,8 @@ description: 在 agenteam 按 Linear 全面重设计前端、编写设计规范 
 
 ## 阶段与技能组合
 
+[frontend_designer](../../../.codex/agents/frontend-designer.toml) 负责完整页面设计、状态与授权样板，`frontend_worker` 承接正式 Vue 实现；[frontend_visual_reviewer](../../../.codex/agents/frontend-visual-reviewer.toml) 须未参与被审设计或实现，独立检查真实浏览器视觉与交互。`test_worker` 按需提供 harness，`verification_worker` 承担功能与风险验证；职责可按任务组合，不增加审批层或每阶段固定开齐角色。F0 进行设计和独立样板校验，F1—F7 按需开发/测试/独审，F8 汇合视觉、交互与功能结论，具体范围以阶段计划为准。
+
 | 当前阶段 | 使用技能 | 可审查产物 |
 | --- | --- | --- |
 | 新规范与完整页面样板 | [frontend-design](../frontend-design/SKILL.md) + [web-design-guidelines](../web-design-guidelines/SKILL.md) | 当前页信息层级、完整布局、状态方案及与 Linear 产品参考的对应关系 |
@@ -32,7 +34,7 @@ description: 在 agenteam 按 Linear 全面重设计前端、编写设计规范 
 1. 写清当前用户任务、主要对象、唯一优先动作、辅助信息、返回路径与滚动归属。先选择页面模板，再安排控件；对正式蓝图中的缺口给出可检查方案，范围内设计细节由负责人处理。
 2. 先做项目列表、任务工作台、复杂设置页的完整样板，放入真实结构的中英文、长名称和足量内容，并检查正常、空、加载及失败状态。完整效果成立后才提炼共享框架、token 与组件；不能用孤立按钮、Debug 拼贴或 token 表作为全站迁移依据。
 3. 依当前阶段迁移共享层和完整业务页面。复用可用的状态逻辑、接口与测试；新增布局先在完整任务中验证，避免给所有页面套同一种居中表单或卡片。发现共用接口冲突交唯一 owner 协调，未受影响工作继续。
-4. 作者完成必要工程检查和浏览器自查后，交未参与该实现及实现决策的验证者检查真实页面。`npm run check`、DOM 断言和 Debug 展示分别证明其范围，不能替代完整页面视觉、键盘与连续操作验收。
+4. 作者完成必要工程检查和浏览器自查后，交未参与被审设计、实现及其决策的验证者检查真实页面。`npm run check`、DOM 断言和 Debug 展示分别证明其范围，不能替代完整页面视觉、键盘与连续操作验收。
 
 ## 按模板检查完整页面
 
