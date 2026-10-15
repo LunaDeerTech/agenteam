@@ -42,7 +42,7 @@ F0 已按当前 API 与页面核对新增页面/面板，并制作独立样板�
 
 后续从 [agenteam-frontend-redesign](../../../.agents/skills/agenteam-frontend-redesign/SKILL.md) 开始，由 [frontend_designer](../../../.codex/agents/frontend-designer.toml) 负责完整页面设计和样板、[frontend_visual_reviewer](../../../.codex/agents/frontend-visual-reviewer.toml) 独立检查浏览器视觉与交互，按任务复用现有 Vue 开发、测试工程与功能验证角色；具体阶段绑定见[执行计划](implementation-plan.md#2-技能与职责入口)。技能负责避免遗漏和偏离，页面效果与真实行为仍需实际验证。
 
-当前继续执行 **F0 返修**：统一已实现项目设置页的宽页头与正文左起点，Agent 试点“列表 → 独立详情 → 返回”；首条运行链已可浏览，正在测试与独审。MCP 本轮仅调整页头，其他对象结构待 Agent 用户反馈后再决定；运行入口与合成数据边界见[样板说明](prototype/README.md)。当前没有本轮最终通过或用户整体认可结论。F1—F8 未开始，后续仍按用户指定阶段推进。阶段编号、状态与完成标准只在[执行计划](implementation-plan.md)维护，不要求每个子步骤反复审批，也不自动开始尚未请求的实施阶段。
+当前继续执行 **F0 返修**：已统一 General、Agent、MCP 的宽页头与正文左起点，Agent 试点“列表 → 独立详情 → 同对象 Memory / 返回”及完整创建。正常整页和关键旅程已获限定内部独审通过，有限状态与原生200%由测试另验；当前候选待用户实看，F0 全局未完成，设计值未冻结。MCP 本轮仅调整页头，其他对象结构待 Agent 用户反馈后再决定；运行入口与合成数据边界见[样板说明](prototype/README.md)。F1—F8 未开始，后续仍按用户指定阶段推进。阶段编号、状态与完成标准只在[执行计划](implementation-plan.md)维护，不要求每个子步骤反复审批，也不自动开始尚未请求的实施阶段。
 
 四组 prompt 的现行顺序为 **第一组 F0 → 第二组 F1 → 第三组 F2—F7 → 第四组 F8**。第三组可在共享框架与文件所有权明确后并行，必须包含现有Meeting、项目Inbox、MCP/OAuth及Agent Memory；第四组验收这些模块在内的完整迁移范围。
 

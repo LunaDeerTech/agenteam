@@ -4,7 +4,7 @@
 
 2026-10-15 用户实看后未接受现有样板的信息结构与视觉品质，指出项目菜单多出项、项目设置结构与下拉样式错误、层次不清、与 Linear 差距明显以及动效质感不足。**F0 已重开返修，视觉系统数值待重新校准；F1—F8 正式产品迁移未开始。** 本轮从 `b6db5297` 接续，仍限隔离样板、设计文档与必要 harness，不修改产品 `web/src/` 或后端。正式来源见[设计 v2 入口](../../frontend-design/redesign/README.md)、[样板及复现](../../frontend-design/redesign/prototype/README.md)与[阶段计划](../../frontend-design/redesign/implementation-plan.md)。
 
-本轮限定产出为研究方法落实与 general 单页示范，方法见[本地重设计技能](../../../.agents/skills/agenteam-frontend-redesign/SKILL.md#从一个完整页面建立方法)。general 第二稿使用正式 Vue 同一 Atlas fixture，已通过限定内部视觉与交互检查，原生200%发现的菜单滚动竞态已修复并定向复验，待用户实看反馈；完整 F0 未重新验收，设计值未冻结。11个真实设置栏目仅 general 本轮深入实现，Agent 基础配置/Memory 与 MCP 沿既有样板可达，其余8项为静态栏目文字；未接入的 Task 两文件继续保留 WIP。新示范在 `ai/frontend-f0-refinement-20261015` 分支，本轮暂不合并 main。
+本轮已落实[重设计方法](../../../.agents/skills/agenteam-frontend-redesign/SKILL.md#从一个完整页面建立方法)，并在 general 返修后形成 Agent 列表 → 独立详情 → 同对象 Memory 与完整创建候选，General、Agent、MCP 的页头和正文起点已统一。正常整页与关键旅程通过限定独审；有限状态/恢复、普通与减少动效、键盘及原生200%由测试另验通过，Memory Unknown 的真实失败已修复复验。当前候选待用户实看，不代表完整 F0 重新验收或设计值冻结。11个真实设置栏目其余8项仍为静态文字，MCP 本轮只改页头；未接入的 Task 两文件继续保留 WIP。样板在 `ai/frontend-f0-refinement-20261015` 分支，本轮暂不合并 main。
 
 [作者检查](../../frontend-design/redesign/prototype/test-README.md)和[独立审查](../../frontend-design/redesign/prototype/review/README.md)分别记录本轮限定结果，并保留原输入的技术与交互通过、失败和复验事实；这些内部结论不代表用户已认可设计，也不能替代新样板的受影响复验或真实业务验收。返修后如尚无新的用户认可，报告“已修订/内部审查结果，待用户实看反馈”。分支与职责见[当前恢复状态](../../../.agent-state/current.md)。下方 M3、旧失败及 STOP 保留各自原输入含义；未完成的 `ai/task-comments-20261013` 继续保留。
 

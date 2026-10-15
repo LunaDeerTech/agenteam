@@ -21,7 +21,31 @@ node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/red
 node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[agents-first\]'
 ```
 
-该轮仅正常链与既有 General 回归；Unknown、项目 scope、只读细节当时仍在作者修正队列，未记为通过。normal / reduced motion 与原生 200% 尚待最终候选定向补查，不复用旧页缩放结论。原输出在 `output/ai/frontend-f0-refinement-test/agent-first/`；自有 5218 server PID 332756 已关闭并回收，浏览器随原命令退出，没有创建 `web/node_modules` 或关闭作者 5209 服务。harness 自查不替代独立视觉接受。
+该轮仅正常链与既有 General 回归；Unknown、项目 scope、只读细节当时仍在作者修正队列，未记为通过。normal / reduced motion 与原生 200% 在下述最终候选另行补查，没有复用旧页缩放结论。原输出在 `output/ai/frontend-f0-refinement-test/agent-first/`；自有 5218 server PID 332756 已关闭并回收，浏览器随原命令退出，没有创建 `web/node_modules` 或关闭作者 5209 服务。harness 自查不替代独立视觉接受。
+
+最终候选 `cec9c249` 首批为 **1 通过 / 1 失败（14.3s，exit 1）**。共同 header 的横向与纵向几何通过：同一视口下比较 General、Agent 列表/详情/记忆、MCP 的 header / h1 / 说明位置，不固定镜像实现像素。真实失败为 Reviewer Memory Unknown 查询后返回配置，原删除误显示为“保存结果待确认 / 查询原保存结果”。原图、trace 与结果保留在 `agent-final-first/`，没有覆盖或合并成全绿。作者只修 Memory 命令提示和原操作恢复路由，冻结为 `78b18481`。
+
+`78b18481` 上 `[agents-final]` **7/7 通过（19.7s，exit 0；无跳过、重试）**：
+
+- 原 Memory Unknown 链按原断言复验：查询仍未观察到结果、删除禁用；回配置不再误称保存；确认离开后从列表恢复到同一 Reviewer 的 `view=memory` 和原记录。
+- Reviewer dirty 遇浏览器 Back 取消后保留；同对象 Memory 删除一条，再回配置保存，删除记录不会复活；明确放弃下一草稿后保留上次保存值，Researcher 的描述和两条记忆未受影响。
+- 创建缺名称、缺主模型均阻止，错误可见且聚焦真实可操作控件。原 Architecture 改名 `architecture-old` 后创建 `architecture`，新 ID 实测为独立 UUID，列表共四对象；新对象记忆为空，旧 ID 仍指向改名对象及原两条记忆。
+- `archiving` / `archived` / `deleting` 及 `readonly` 均禁创建、配置保存、Skills 操作和 Memory 删除；保留读取。empty 不选首项、error 重读恢复、conflict 取消重读前保留草稿并禁保存，配置与创建 Unknown 离开/恢复仍是原 Agent / 原草稿，查询不假成功。
+- 1440 浅色 / 390 深色分别实际观察模型菜单、dirty 对话框的正常及减少动效各 18 帧。正常 opacity 有变化，减少动效 opacity 恒为 1 且活动动画为 0；Escape 回触发器、对话框 Tab 留在内部、草稿保留，无页面错误、越界请求或横溢。
+
+```sh
+export F0_LEGACY=0 F0_PORT=5218
+export F0_OUTPUT="$PWD/output/ai/frontend-f0-refinement-test/agent-final"
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[agents-final\]' --list
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[agents-final\]'
+export F0_OUTPUT="$PWD/output/ai/frontend-f0-refinement-test/agent-native-corrected"
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[agents-native-zoom\]' --list
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[agents-native-zoom\]'
+```
+
+Agent 原生 200% 补查 **1/1 通过（4.6s，exit 0）**。深色、外窗 1440×960、真实 CSS 内窗 720×408 / visualViewport 720×408.5、DPR 2、visualViewport scale 1、根 CSS zoom 1；没有以 CSS 放大或设备模拟替代原生缩放。走 Reviewer 列表 → 编辑并保存 → 模型菜单 / Escape → 展开记录并真实滚轮到底 → Memory 历史与来源 → 回配置焦点 → 回列表原行和位置。菜单位于视口内，记录最后一项无覆盖，页面无横溢。三个 CDP 原生视口截图 `agent-native-corrected/screenshots/agent-native-200pct-{model-menu,records,memory}.png` 已亲看。初次 `agent-native/` 失败是 harness 的 exact 可访问名漏掉必填 `*`；trace 显示菜单实际打开、名称为“主模型 *”。修正选择器后只复验这一项，原失败仍保留，未改产品或放宽可达断言。
+
+以上输出均相对 `output/ai/frontend-f0-refinement-test/`。四轮自有 server PID 339257 / 341685 / 342860 / 343622 的生命周期均 `closed: true`，原命令已实际退出并核对 PID 不存在；原生 browser context 已关闭、临时 profile 已删除，自有 5218 无运行命令，没有重建 `web/node_modules`。本次只复用未受影响的首轮正常链与 General 回归，补 header 纵向和上述有限检查；不声称全站、真实服务端、跨项目持久化、正式 Vue 三对象同输入对照、独立视觉验收或用户接受。
 
 ## 用户反馈后的基本信息页基线
 
