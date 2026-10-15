@@ -15,7 +15,7 @@
 | Timeline / 领域工具 | 稳定贡献项与当前来源；request-decision已验；四常规工具47694通过；58034真实同Meeting E的retain/recall/reflect、公开回复与Summary完整通过；90473已验历史generation网页 | update/comment语义待用户；22854已通过有限Realtime展开执行与已提交文本 |
 | 生命周期与通知 | 原owners与队列重建；50965真实Owner删除、原调用退休、同Tx审计/Deleted、外域历史保留及迟到命令拒绝通过 | 删除浏览器；其它Unknown/冷恢复窗口不由当前链外推 |
 
-以上属于原 M3 完整交付差额，不另缩减为普通文本 Summary 或单个正常链。Approval、固定 Summary snapshot/取消与134 prepared冷窗口实际链已闭合；Decision141四类事件/Inbox完整七回复、Realtime双topic22854及Replacement90473均完成各自持久事实与退出门；下一参与者/引用、Reply原PG判据及其它完整差额。
+以上属于原 M3 完整交付差额，不另缩减为普通文本 Summary 或单个正常链。Approval、固定 Summary snapshot/取消与134 prepared冷窗口实际链已闭合；Decision141四类事件/Inbox完整七回复、Realtime双topic22854及Replacement90473均完成各自持久事实与退出门；Reply53653原限定PG判据也已通过。下一参与者/引用及其它完整差额。
 
 ## 本轮剩余出口（有限清单）
 
@@ -26,7 +26,7 @@
 3. **删除用户闭环**：50965固定61828的原四回复真实App门已Wait0/PASS7.81秒：Owner HTTP原命令/lookup、held A取消与未发B零派发、全部原调用与lease退休后本域purge、completed Audit/Deleted/receipt同Tx，保留三条外域Execution历史，迟到Send拒绝、原receipt replay与App/guard退出通过。原23514取消flag与LOCK_NOT_HELD锁预算失败保留，窄修已实际覆盖；不改已应用DDL。Owner确认/清理中及删除完成的浏览器仍待，不扩大Project全生命周期或外推旧Process恢复。
 4. **正式工具与提议**：四常规工具/Proposal/Inbox原HTTP九回复链47694已完整通过，原App/peer/guard和夹具实际退出；同一Inbox→Proposal→处理→返回浏览器按原owner另记。update/comment两项只有用户尚未答复的产品语义缺口，不自行定义。58034已验证原Memory retain/recall/reflect在同Meeting Trigger/E下的完整调用、原provenance、Summary及退出，不新增三种Memory提议工具。
 5. **本Meeting的canonical事件与人工待办**：Proposal与Deleted已有真实源；普通archive/unarchive同Tx Archived/Restored受控普通已过，实际组合另验。141 Decision四类事件/私有source/Inbox已组合，独立SQL10976通过。50907原失败定位第三cancel的optional typed零ID编码漏选Decision；最小修保显式scope和全部权限门，9414六scope/原live transition普通通过。修后58814固定40974原七回复90秒门Wait0/PASS13.38秒：answer/skip各原E与Turn完成，cancel原D/E/Turn取消且Inbox resolved；四类事件共6条（3requested+3closed），6条各与Outbox同xmin、3条终态各与原Decision同xmin，strict source_context、重建不重开与原App Joined通过，6IDs/3dirs/PID完整清退。原50907及22091失败保留，不把successor日志单独当根因，也不外推Realtime浏览器。本项只处理Meeting Decision，不复制Governance或聚合其它新业务域。
-6. **内联内容第一阶段入口**：领域已保存并序列化text/mention/reference节点，但现composer只发送text。仍需@参与者、#现有Task/Knowledge/Artifact资源、URL与回复关系的最小节点编辑/渲染、原Artifact上传后插入及pin；资源不可用显示沿正式资源权限查询。现Meeting Info picker不能冒充消息内联入口。不做完整富文本、自动读取引用正文、自动抓链接或独立文件存储。
+6. **内联内容第一阶段入口**：领域已保存并序列化text/mention/reference节点；新composer旅程由Tools作者另记实际范围，不能用Meeting Info picker替代。Reply53653原Wait0/PASS2.14秒已验证同key变更目标拒绝、跨Meeting目标零副写、历史immutable目标与重放保持；真实PG+显式Project/Agent doubles，不外推App权限。原6IDs/3dirs/PID清理并经独立复核。@参与者、#现有Task/Knowledge/Artifact资源、URL、上传插入及pin的网页证据按其原旅程记录；资源不可用仍沿正式资源权限查询。不做完整富文本、自动读取引用正文、自动抓链接或独立文件存储。
 7. **实时与展开Execution视图**：22854固定40974 App、f6dc原dist和ba2 PW的三回复真实链已Wait0/PASS9.43秒：原Cookie/Origin、两topic ack/snapshot、同E Decision waiting→HTTP answer、已提交Tool/公开text及Timeline Summary1、原receipt/current tuple/3Model与lease退休、真实socket关闭和App Joined全部通过，6IDs/3dirs/进程完整清退；两桌面截图已view。5649关闭后观察与77567未选串行的harness失败保留；修正没有放宽Go或预算。仅正常连接的canonical状态与已提交内容，不含token增量，不外推实际断连/resync或完整D25流式能力。
 
 ## 已实现与接缝

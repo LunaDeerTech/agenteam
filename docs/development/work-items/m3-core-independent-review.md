@@ -457,3 +457,23 @@ reviewer 独立重核6个精确资源 ID与3个目录均 absent；捕获36个 PI
 同一 reviewer 随后独立核 `cf7d3bf7` 的 Inbox SQL 叶与作者 `53397` 原实际日志：精确 top PASS2.50s/Wait0。四条 Proposal/Decision 投影逐条 Limit1 分页无漏重序，partial-provider 重建不误关其他来源，完整重建保 canonical Version2，迟到旧 requested 不重开。独立核6个资源 ID、3个目录及25个捕获 PID 全部 absent；此门限定真实 PostgreSQL 与 Project/Source doubles，不扩大为 Meeting producer/App。
 
 **分别接受上述两个原定向 SQL 补集，未见范围内剩余已证 must-fix。**没有增加或重跑已接受的 producer 与浏览器矩阵。integration 仅归位 reviewer 结论，未另跑该门。
+
+## MCP 143 Audit 迁移与恢复接缝有限核证
+
+2026-10-15；`m3_core_review` 独立核143返修 `8a33a060`、固定数据库候选 `55583` 与作者 `70368` 原证据。新技术 Actor 的 version 上界 finding 在首次 apply 前收紧到 MaxInt64；实际142→143专项 PASS4.46s，保留旧 Human 行、重复/health及技术字段正反约束，MaxInt64允许而+1拒绝均命中；fresh143原空库/重复/升级/健康 top PASS5.26s、原 Wait0。原日志为 MCP `output/ai/mcp/database-143-8a33-actual.log`，6个资源 ID、3个目录与 test PID1883363由 reviewer 独立重核 absent。相关 grant 普通亦已核。**接受上述迁移与闭集约束范围，143已应用不可回写；不替代 Startup/Human 的完整用户链。**
+
+同 reviewer 独立核 `82164f37` 的 canonical lease retirement 修复与 `78112` 原三个普通 top PASS0.010s：只有原 private owner、完整 tuple、锁内单行事实且事务 Committed，才跳过已标记 released 的原 lease 重复释放；Unknown 保原身份，未释放仍调用实际 provider。此为源码/普通范围，旧 `65995` 末 graceful child Wait1 保持整链失败，不宣 App Join。
+
+同 reviewer 随后核 `c02e672b` 新 Secret observation planner 及 `19117` 原 exact6 list/普通（Secret3 PASS0.005s、MCP3 PASS0.010s）。planner 只构造受限原请求计划，不授予 absence 结论；正式 Observe 仍要求 private stopped/claim/Guard、完整 tuple/锁与精确 lease，旧 DiscoverUsage/loadLease 拒绝不变。**该新接缝无剩余已证 must-fix，可进既定实际窗口；本静态与普通结论不冒真实恢复和 Join。**
+
+## Execution 消费 prepare canonical Unknown 的有限核证
+
+2026-10-15；`m3_core_review` 独立核共同 `98b9f8dd` 三叶、原 Runtime result provider，以及作者 `89373` 原日志 `/tmp/m3-execution-unknown-ordinary.teflm45z/ordinary.log`：六个 top PASS0.052s、原 Wait0。exact `skill.prepare/rev1` 的 failed/unknown、已尝试且有原结果引用，只能成为原 Join/Discover 的候选；正式 plan 必须 Validate，并与原 call/Operation/Attempt/outcome/code 一致。真正读取与后继消费继续经 opaque WithResult 同 Tx 的 Guard、完整锁和 retired canonical 校验。
+
+真实 dispatch CommitUnknown、Lookup error、running/no-result 或其它 handler 不会因裸 ResultAvailable 放行。原 owner 未 Join、Discovery Unknown、缺失/非法/不匹配 plan 均仍拒绝。**该限定源码与普通范围无新增 must-fix，可进入原 Runner cold 的后继 Model 消费与 Join 实际；72601 尚未完成这两个出口，不能由本普通结果补写为通过。**integration 仅归位实际 reviewer 结论，未冒充独立验证。
+
+## MCP PublishedConnection 冷窗口实际核证
+
+2026-10-15；`m3_core_review` 独立亲核最终 `c02e672b` sole、作者 `70701` 原日志 MCP `output/ai/mcp/oauth-cold-published-c02e672b.log` 与对应 owned record。原 top FULLPASS6.47s、parent实际Wait0：token publication COMMIT后的精确屏障成立，旧child SIGKILL/Wait9、新guard与新child graceful Wait0，原 claim 收敛、尚未Acquire的原Secret lease经正式absence观察退休，原busy指针CAS、同Session lookup stopped且canonical command仍pending、已发布凭据和版本保留、issuer/SDK计数不增及原App Joined/Guard释放全部到达。
+
+reviewer独立inspect原6个fixture资源加2个provider资源、3个目录、3个PID均absent。**接受这个原token publication后/SDK前的冷恢复与完整Join窗口，无剩余已证must-fix。**旧95433/68335失败保留，不把本窗口外推Startup或Human Refresh；实际日志和原owned材料已足够，没有另建归档。
