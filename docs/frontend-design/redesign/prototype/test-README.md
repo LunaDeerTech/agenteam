@@ -56,6 +56,24 @@ node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/red
 
 第二稿两轮自有 server PID 247456 / 248370 均 `closed: true` 且已回收，浏览器随原命令退出；没有重建 `web/node_modules`，没有关闭设计者 5207 服务。最终行为范围由首稿 7 项中未变的业务旅程和第二稿 3 + 1 项定向结果组成；未运行旧 62 项完整矩阵、产品工程全量或真实后端。视觉结论与用户接受继续由各自负责人另行形成。
 
+补充的 `[general-native-zoom]` 复用独审 `review/interact.mjs` 的 Chromium 原生 profile 缩放方式，在浅色基本信息页执行编辑、演示保存、更多菜单及记录底部旅程。它没有使用 CSS zoom 或 Playwright 的 viewport / DPR 模拟：实测外窗 1440×960、CSS 内窗 720×408、`visualViewport` 720×408.5、DPR 2、根 CSS zoom 1。视觉视口保留小数而 `innerHeight` 为整数；首次错误要求两者严格相等的 harness 失败保留在 `general-native-zoom`，修正为核对向下取整后的高度。
+
+原生检查随后发现真实菜单竞争：保存后点击屏外“更多”，浏览器已将触发器滚入视图，旧 scroll 通知却在菜单打开后才交付，原 core 监听将新菜单关闭。原失败位于 `general-native-zoom-final`；提前安装事件观测后，`general-native-zoom-timing` 的 3 次有界复现为 2 通过 / 1 失败，记录了 anchor 几何不变时 `menu-added → menu-removed → scroll` 的顺序。一次增加诊断调用后的通过没有被当作修复。设计者随后仅修 core：外部 scroll 只有在触发器坐标相对打开时真实改变才关闭菜单。
+
+在作者冻结的纯格式化结果与该最小 core 修复上，`general-native-zoom-repaired` **3/3 通过（16.4s，exit 0）**。三次均实际收到菜单打开后迟到的旧 scroll，位置不变时菜单持续可用；编辑、保存、Escape 回焦、展开记录、真实滚轮到最后时间记录且无覆盖、页面无横溢均通过。`general-scroll-repaired` 的共享项目菜单 **1/1 通过（4.0s，exit 0）**，确认 Tab / Escape 和真实页面滚动关闭仍有效。CDP 原生视口截图 `general-native-200pct-menu.png` / `general-native-200pct-records.png` 已查看；没有用普通 fullPage 的缩放裁剪差异替代真实截图。
+
+```sh
+export F0_LEGACY=0 F0_PORT=5218
+export F0_OUTPUT="$PWD/output/ai/frontend-f0-refinement-test/general-native-zoom-repaired"
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[general-native-zoom\]' --repeat-each=3 --list
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[general-native-zoom\]' --repeat-each=3
+export F0_OUTPUT="$PWD/output/ai/frontend-f0-refinement-test/general-scroll-repaired"
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[general-refinement\] shared projects' --list
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[general-refinement\] shared projects'
+```
+
+所有原生诊断与修复轮次的浏览器 context 已实际 close，临时原生 profile 已删除；server PID 254627、255273、256375、257343、258840、259575 均记录关闭并已回收。以上仅补当前基本信息页一个主题及共享菜单受影响行为，原通过边界和失败记录继续保留。
+
 ## 锁定依赖与启动
 
 使用 `tests/account-captcha-web/package.json` 和完整锁文件的 `@playwright/test` **1.56.1**。正式页面对照额外使用 `web/package.json` 和完整锁文件；不能用 `npx` 隐式下载新版。两份安装在工作树外复用，安装目录按 package+lock、Node 与平台区分；`web/node_modules` 可临时链接到匹配安装，测试结束且无消费者后移除该链接，不能提交。

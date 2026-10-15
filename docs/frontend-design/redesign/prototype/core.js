@@ -8,7 +8,8 @@ export const esc = (value) =>
   );
 const paths = {
   plus: "M12 5v14M5 12h14",
-  agents: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M16 3a4 4 0 0 1 0 8M22 21v-2a4 4 0 0 0-3-3.87M13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0",
+  agents:
+    "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M16 3a4 4 0 0 1 0 8M22 21v-2a4 4 0 0 0-3-3.87M13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0",
   person: "M20 21v-2a7 7 0 0 0-14 0v2M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0",
   variable: "M8 4H6v16h2M16 4h2v16h-2M10 9l4 6M14 9l-4 6",
   lock: "M5 10h14v11H5zM8 10V6a4 4 0 0 1 8 0v4M12 14v3",
@@ -155,8 +156,12 @@ export function showMenu(trigger, items, choose, options = {}) {
   panel.className = "floating-menu";
   panel.id = `menu-${Math.random().toString(36).slice(2)}`;
   panel.setAttribute("role", options.role || "listbox");
-  panel.setAttribute("aria-label", options.label || trigger.getAttribute("aria-label") || "选项");
-  if (options.label) panel.innerHTML = `<div class="menu-label">${esc(options.label)}</div>`;
+  panel.setAttribute(
+    "aria-label",
+    options.label || trigger.getAttribute("aria-label") || "选项",
+  );
+  if (options.label)
+    panel.innerHTML = `<div class="menu-label">${esc(options.label)}</div>`;
   items.forEach((item, index) => {
     if (item.group) {
       const group = document.createElement("div");
@@ -168,69 +173,150 @@ export function showMenu(trigger, items, choose, options = {}) {
     button.type = "button";
     button.className = "menu-option";
     button.tabIndex = -1;
-    button.setAttribute("role", options.role === "menu" ? "menuitem" : "option");
-    if (options.role !== "menu") button.setAttribute("aria-selected", String(!!item.selected));
+    button.setAttribute(
+      "role",
+      options.role === "menu" ? "menuitem" : "option",
+    );
+    if (options.role !== "menu")
+      button.setAttribute("aria-selected", String(!!item.selected));
     if (item.selected) button.dataset.selected = "true";
     button.disabled = !!item.disabled;
-    button.innerHTML = `${item.icon ? icon(item.icon,14) : ""}<span>${esc(item.label)}</span><span class="menu-check">${item.selected ? icon("check",14) : ""}</span>`;
-    button.onclick = () => { closeMenu(); choose(item.value, index); };
+    button.innerHTML = `${item.icon ? icon(item.icon, 14) : ""}<span>${esc(item.label)}</span><span class="menu-check">${item.selected ? icon("check", 14) : ""}</span>`;
+    button.onclick = () => {
+      closeMenu();
+      choose(item.value, index);
+    };
     panel.append(button);
   });
   (trigger.closest("dialog[open]") || document.body).append(panel);
   const rect = trigger.getBoundingClientRect();
-  const width = Math.min(Math.max(rect.width, options.width || 196), innerWidth - 24);
+  const width = Math.min(
+    Math.max(rect.width, options.width || 196),
+    innerWidth - 24,
+  );
   panel.style.width = `${width}px`;
-  panel.style.left = `${Math.min(Math.max(12,options.align === "end" ? rect.right-width : rect.left),innerWidth-width-12)}px`;
-  panel.style.top = `${Math.min(rect.bottom+6,innerHeight-panel.offsetHeight-12)}px`;
+  panel.style.left = `${Math.min(Math.max(12, options.align === "end" ? rect.right - width : rect.left), innerWidth - width - 12)}px`;
+  panel.style.top = `${Math.min(rect.bottom + 6, innerHeight - panel.offsetHeight - 12)}px`;
   trigger.setAttribute("aria-expanded", "true");
   trigger.setAttribute("aria-controls", panel.id);
   const buttons = [...panel.querySelectorAll("button:not(:disabled)")];
-  const current = buttons.find(b => b.dataset.selected === "true") || buttons[0];
+  const current =
+    buttons.find((b) => b.dataset.selected === "true") || buttons[0];
   current?.focus();
-  let letters = "", letterTimer;
-  const keydown = e => {
+  let letters = "",
+    letterTimer;
+  const keydown = (e) => {
     const index = buttons.indexOf(document.activeElement);
-    if (["ArrowDown","ArrowUp","Home","End"].includes(e.key)) {
+    if (["ArrowDown", "ArrowUp", "Home", "End"].includes(e.key)) {
       e.preventDefault();
-      buttons[e.key === "Home" ? 0 : e.key === "End" ? buttons.length-1 : (index + (e.key === "ArrowDown" ? 1 : -1)+buttons.length)%buttons.length]?.focus();
-    } else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); closeMenu(); }
-    else if (e.key === "Tab") { closeMenu(); }
-    else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+      buttons[
+        e.key === "Home"
+          ? 0
+          : e.key === "End"
+            ? buttons.length - 1
+            : (index + (e.key === "ArrowDown" ? 1 : -1) + buttons.length) %
+              buttons.length
+      ]?.focus();
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      e.stopPropagation();
+      closeMenu();
+    } else if (e.key === "Tab") {
+      closeMenu();
+    } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
       letters += e.key.toLocaleLowerCase();
       clearTimeout(letterTimer);
-      letterTimer = setTimeout(() => { letters = ""; }, 500);
-      buttons.find(b=>b.textContent.trim().toLocaleLowerCase().startsWith(letters))?.focus();
+      letterTimer = setTimeout(() => {
+        letters = "";
+      }, 500);
+      buttons
+        .find((b) =>
+          b.textContent.trim().toLocaleLowerCase().startsWith(letters),
+        )
+        ?.focus();
     }
   };
-  const pointer = e => { if (!panel.contains(e.target) && !trigger.contains(e.target)) closeMenu(false); };
+  const pointer = (e) => {
+    if (!panel.contains(e.target) && !trigger.contains(e.target))
+      closeMenu(false);
+  };
   const reposition = () => closeMenu(false);
-  const scrolled = e => { if (!panel.contains(e.target)) closeMenu(false); };
-  document.addEventListener("keydown",keydown,true);
-  document.addEventListener("pointerdown",pointer);
-  window.addEventListener("resize",reposition);
-  window.addEventListener("scroll",scrolled,true);
-  activeMenu = { panel, trigger, cleanup() { clearTimeout(letterTimer);document.removeEventListener("keydown",keydown,true);document.removeEventListener("pointerdown",pointer);window.removeEventListener("resize",reposition);window.removeEventListener("scroll",scrolled,true); } };
+  const scrolled = (e) => {
+    if (panel.contains(e.target)) return;
+    // Bringing the trigger into view may queue a scroll event before opening.
+    // Close only when the anchor has moved since this menu was positioned.
+    const currentRect = trigger.getBoundingClientRect();
+    if (currentRect.top !== rect.top || currentRect.left !== rect.left)
+      closeMenu(false);
+  };
+  document.addEventListener("keydown", keydown, true);
+  document.addEventListener("pointerdown", pointer);
+  window.addEventListener("resize", reposition);
+  window.addEventListener("scroll", scrolled, true);
+  activeMenu = {
+    panel,
+    trigger,
+    cleanup() {
+      clearTimeout(letterTimer);
+      document.removeEventListener("keydown", keydown, true);
+      document.removeEventListener("pointerdown", pointer);
+      window.removeEventListener("resize", reposition);
+      window.removeEventListener("scroll", scrolled, true);
+    },
+  };
 }
 export function enhanceSelects(root = document) {
-  root.querySelectorAll("select:not([data-enhanced])").forEach(select => {
+  root.querySelectorAll("select:not([data-enhanced])").forEach((select) => {
     select.dataset.enhanced = "true";
     select.classList.add("native-value-owner");
     select.tabIndex = -1;
-    select.setAttribute("aria-hidden","true");
+    select.setAttribute("aria-hidden", "true");
     const trigger = document.createElement("button");
     trigger.type = "button";
     trigger.className = "select-trigger";
     trigger.dataset.selectFor = select.id;
-    const label = document.querySelector(`label[for="${select.id}"]`)?.textContent.trim() || select.getAttribute("aria-label") || "选择选项";
-    trigger.setAttribute("aria-label",label);
-    trigger.setAttribute("aria-haspopup","listbox");
-    trigger.setAttribute("aria-expanded","false");
-    function sync() { trigger.innerHTML = `<span>${esc(select.selectedOptions[0]?.textContent || "请选择")}</span>${icon("chevron",12)}`;trigger.disabled = select.disabled; }
+    const label =
+      document.querySelector(`label[for="${select.id}"]`)?.textContent.trim() ||
+      select.getAttribute("aria-label") ||
+      "选择选项";
+    trigger.setAttribute("aria-label", label);
+    trigger.setAttribute("aria-haspopup", "listbox");
+    trigger.setAttribute("aria-expanded", "false");
+    function sync() {
+      trigger.innerHTML = `<span>${esc(select.selectedOptions[0]?.textContent || "请选择")}</span>${icon("chevron", 12)}`;
+      trigger.disabled = select.disabled;
+    }
     sync();
     select.after(trigger);
-    select.addEventListener("change",sync);
-    trigger.onclick = () => showMenu(trigger,[...select.options].map(o=>({label:o.textContent,value:o.value,selected:o.selected,disabled:o.disabled})),value=>{select.value=value;select.dispatchEvent(new Event("change",{bubbles:true}));sync();},{label});
-    trigger.onkeydown = e => { if (["ArrowDown","ArrowUp"].includes(e.key)) { e.preventDefault();trigger.click(); } };
-    select.labels && [...select.labels].forEach(label=>label.addEventListener("click",e=>{e.preventDefault();trigger.focus();}));
+    select.addEventListener("change", sync);
+    trigger.onclick = () =>
+      showMenu(
+        trigger,
+        [...select.options].map((o) => ({
+          label: o.textContent,
+          value: o.value,
+          selected: o.selected,
+          disabled: o.disabled,
+        })),
+        (value) => {
+          select.value = value;
+          select.dispatchEvent(new Event("change", { bubbles: true }));
+          sync();
+        },
+        { label },
+      );
+    trigger.onkeydown = (e) => {
+      if (["ArrowDown", "ArrowUp"].includes(e.key)) {
+        e.preventDefault();
+        trigger.click();
+      }
+    };
+    select.labels &&
+      [...select.labels].forEach((label) =>
+        label.addEventListener("click", (e) => {
+          e.preventDefault();
+          trigger.focus();
+        }),
+      );
   });
 }

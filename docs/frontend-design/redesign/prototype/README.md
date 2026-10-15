@@ -2,7 +2,7 @@
 
 F0 已因用户实看反馈重开返修。用户未接受现有项目菜单、项目设置结构、下拉样式、页面层次及整体视觉品质，与 Linear 的差距和动效质感仍需改进；视觉系统数值待重新校准，F1—F8 正式产品迁移未开始。此前内部技术与交互检查的通过事实仍按当时输入保留，不代表用户已接受设计，也不能覆盖本轮修改后的新输入。
 
-**当前候选：项目设置 → 基本信息已可浏览，正在内部独审与定向检查，尚无新页通过结论。** 方法与来源已归入[本地重设计技能](../../../../.agents/skills/agenteam-frontend-redesign/SKILL.md#从一个完整页面建立方法)及[来源说明](../../../development/agent-team/skill-sources.md#前端重设计方法的本地适配)。设置目录按11个真实栏目组织，本轮只深入 general；MCP 与 Agent Memory 沿原样板可达，其余栏目不具备本轮业务样板，不代表全设置覆盖。
+**本轮限定产出：研究方法已落实，项目设置 → 基本信息第二稿已通过限定内部视觉与交互检查，待用户实看反馈。** 方法与来源已归入[本地重设计技能](../../../../.agents/skills/agenteam-frontend-redesign/SKILL.md#从一个完整页面建立方法)及[来源说明](../../../development/agent-team/skill-sources.md#前端重设计方法的本地适配)。设置目录按源码顺序保留11个真实栏目，本轮只深入 general；Agent 基础配置/Memory 与 MCP 沿既有样板可达，其余8项为静态栏目文字，无伪造链接。其他模板仍待质量返修，完整原型未获本轮重新验收；F0 未定稿。
 
 本样板使用依据当前字段构造的合成数据，业务动作只改变当前浏览器中的演示状态或显示演示反馈，不调用真实 API、不写入业务事实。PDF/文件下载使用本地生成内容，不能代证真实上传、解析、权限、恢复或生产接入。视觉候选与修订规则见[目标设计 §8](../target-design.md#8-f0-可实现视觉值与组件使用决定)；现有数值和下方页面结构均为本轮待核对、待重校的输入。
 
@@ -10,7 +10,7 @@ F0 已因用户实看反馈重开返修。用户未接受现有项目菜单、�
 
 ## 启动与参数
 
-只浏览样板需要 Python 3，不需要产品依赖。以下命令从仓库根目录执行，使用一个空闲的本机端口：
+先获取并切换到 `ai/frontend-f0-refinement-20261015` 分支的最新提交；本轮暂不合并 main，仅更新 main 无法取得此示范。只浏览样板需要 Python 3，不需要产品依赖。以下命令从该分支的仓库根目录执行，使用一个空闲的本机端口：
 
 ```sh
 python3 -m http.server 5188 --bind 127.0.0.1 --directory docs/frontend-design/redesign/prototype
@@ -18,14 +18,14 @@ python3 -m http.server 5188 --bind 127.0.0.1 --directory docs/frontend-design/re
 
 当前 general 候选打开 `http://127.0.0.1:5188/index.html?page=settings&fixture=baseline&scenario=normal&theme=light`；深色改为 `theme=dark`。端口 5188 仅为示例，可换任一空闲本机端口。旧项目列表仍可用 `?page=projects&theme=light&scenario=normal`。停止时在该终端按 Ctrl+C。ES modules 需要 HTTP 服务，直接打开本地 HTML 文件不能代替此入口。自动检查使用自己的服务与端口，完整命令、锁定依赖及退出记录见[测试说明](test-README.md)。
 
-| 参数       | 可用值与用途                                                                                                                                                        |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `page`     | 原11类模板与本轮 `settings`（general）候选，见下表；默认 `projects`。                                                                                               |
-| `theme`    | `light` / `dark`；默认浅色。                                                                                                                                        |
-| `scenario` | `normal` / `long` / `empty` / `loading` / `error` / `readonly` / `unknown`；默认正常。`long` 保留正常任务并增加长名称、长正文。                                     |
-| `accent`   | `neutral` / `indigo` / `teal`；当前默认 `indigo`；三种均为待重新校准的视觉候选，不作为已接受定稿。                                                                  |
-| `fixture`  | 默认 `design`；`baseline` 用于项目、任务、Provider 及 general 与当前正式 Vue 页的同输入对照。                                                                       |
-| 页面选择   | `page=tasks&detail=AT-142` 打开任务详情；`page=knowledge&doc=pdf`（另可选 `md / txt / docx`） 选择四格式示例；项目入口可携带 `project_name` / `project_lifecycle`。 |
+| 参数       | 可用值与用途                                                                                                                                                             |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `page`     | 原11类模板与本轮 `settings`（general）候选，见下表；默认 `projects`。                                                                                                    |
+| `theme`    | `light` / `dark`；默认浅色。                                                                                                                                             |
+| `scenario` | `normal` / `long` / `empty` / `loading` / `error` / `readonly` / `unknown`；默认正常；`long` 用于支持它的模板长内容演示。general 另支持 `conflict`（版本冲突）本地场景。 |
+| `accent`   | `neutral` / `indigo` / `teal`；当前默认 `indigo`；三种均为待重新校准的视觉候选，不作为已接受定稿。                                                                       |
+| `fixture`  | 默认 `design`；`baseline` 用于项目、任务、Provider 及 general 与当前正式 Vue 页的同输入对照。                                                                            |
+| 页面选择   | `page=tasks&detail=AT-142` 打开任务详情；`page=knowledge&doc=pdf`（另可选 `md / txt / docx`） 选择四格式示例；项目入口可携带 `project_name` / `project_lifecycle`。      |
 
 页面底部“样板设置”可切换页面、主题、强调色和状态。URL 只承载非敏感展示选择；草稿、凭据和 OAuth 材料不进入 URL。刷新会重建内存数据，不作为持久化或跨 Session 恢复。
 
@@ -43,7 +43,7 @@ L1—L8 的定义和实际观察限制见 [Linear 官方参考](../linear-refere
 | `projects`  | 连续项目目录、状态筛选、创建输入、受理后查询与进入条件。                    | L1 框架分层、L4 名称主导的连续行；保留 Owner 与项目生命周期。                         |
 | `project`   | 项目概览；资料、状态与任务、会议、待办、知识、产物入口。                    | L1 分层、L3 概览；归档/归档中明确只读。                                               |
 | `tasks`     | 七状态看板、当前 Sprint 规划、任务创建、详情正文/属性、草稿与返回。         | L2 工作台、L5 局部横滚看板、L6 属性、L7 创建/草稿关闭；不增加拖拽或 Explore。         |
-| `settings`  | 项目设置基本信息候选：名称/描述编辑、记录、菜单、保存反馈及恢复。           | L1 框架层级、L8 成组设置；无归档/恢复/删除项目操作，正在内部审查。                    |
+| `settings`  | 项目设置基本信息候选：名称/描述编辑、记录、菜单、保存反馈及恢复。           | L1 框架层级、L8 成组设置；无归档/恢复/删除项目操作，仅本页已获限定内部检查通过。      |
 | `providers` | Provider 目录→配置/模型；创建、就近保存、凭据输入、模型编辑和删除引用门禁。 | L1 信息层级、L6 对象属性、L8 成组设置；Provider、Model、Credential 各有独立命令语义。 |
 | `knowledge` | 目录→阅读/原文编辑、四格式原文件、PDF、元信息、上传/替换/下载与恢复。       | L2 阅读主区、L3 资源、L6 元信息、L7 草稿关闭；窄屏默认正文、单层目录。                |
 | `meetings`  | 消息与回复、引用/附件输入、Summary、Decision/Approval 与结果恢复。          | L2 内容工作台、L6 上下文、L7 输入与草稿；会议、附件及有限 Realtime 采用本项目语义。   |
@@ -83,6 +83,8 @@ Knowledge 可用 `doc=md / txt / pdf / docx` 查看格式边界：TXT、Markdown
 公共模态由原生 `dialog`、Tab/Shift+Tab 循环、Escape/关闭按钮及回焦组成。任务与知识草稿在离开前提示保留，Provider Tab 需要方向键与正确焦点，窄屏目录和详情需要明确返回路径；底部样板栏不得遮挡操作。这些要求曾按上一轮输入完成浏览器检查和适用独立复验，原失败及修复依据继续保留；本轮修改后须补受影响检查。Knowledge 在原生 200% 的低高度视口下允许正文随页面滚动，真实滚轮可到达长文后部；不以等效 viewport 检查替代该次原生缩放证据。
 
 ## 复现、截图与 F1 接续
+
+当前接续候选是任务分支最新 general：以 `f0138630` 第二稿布局为基础，包含后继纯格式整理与共享 `core.js` 菜单滚动竞态修复；最终源码并非只有格式变化。独审已关闭首稿3项视觉缺陷，并实际检查整页/菜单、描述保存与取消、改名确认、草稿离开、键盘回焦、窄屏可达，以及普通动效与 reduced motion；原生200%补查发现迟到滚动通知误关菜单，修复后原链连续3次覆盖并通过；编辑保存、更多菜单回焦、真实滚轮到末尾记录及无横溢/遮挡均已检查，共享菜单正常滚动关闭和键盘行为也已定向复验。作者检查保留原测试前提失败、真实菜单失败及修后复验事实。完整结果与最小截图分别见下述测试/独审入口，不将其扩写为其余设置栏目、旧11类模板或用户审美接受。
 
 作者复现与同输入前后对照见[测试说明](test-README.md)，独立截图、交互复现和最小保留图见[独审入口](review/README.md)。本轮先查看 general 的正式基线与候选整页，以及菜单打开、焦点与保存反馈；同内容对照使用1440×960/390×844与相同主题、折叠状态。原项目、任务、Provider 及其余模板的历史图仍按原输入解释；详情、Unknown、长内容和窄屏文件阅读需使用对应状态。本轮原始截图及 trace 留在忽略的 `output/ai/frontend-f0-refinement-test/` 和 `output/ai/frontend-f0-refinement-review/`；旧材料仍在原 `output/ai/frontend-f0/` 和 `output/ai/frontend-f0-review/`，不把可再生输出另建永久报告。
 

@@ -1,7 +1,11 @@
 import { basePages } from "./base-pages.js";
 import { contentPages } from "./content-pages.js";
 import { collaborationPages } from "./collaboration-pages.js";
-import { settingsPages, settingsShell, bindSettingsShell } from "./settings-pages.js";
+import {
+  settingsPages,
+  settingsShell,
+  bindSettingsShell,
+} from "./settings-pages.js";
 import {
   esc,
   icon,
@@ -12,7 +16,12 @@ import {
   enhanceSelects,
   closeMenu,
 } from "./core.js";
-const pages = { ...basePages, ...contentPages, ...collaborationPages, ...settingsPages };
+const pages = {
+  ...basePages,
+  ...contentPages,
+  ...collaborationPages,
+  ...settingsPages,
+};
 const labels = {
   dashboard: "系统首页",
   projects: "项目列表",
@@ -59,7 +68,13 @@ function getContext() {
 }
 function navigate(page, extra = {}, skipGuard = false) {
   const current = getContext();
-  if (!skipGuard && pages[current.page]?.beforeLeave?.(current, () => navigate(page, extra, true))) return;
+  if (
+    !skipGuard &&
+    pages[current.page]?.beforeLeave?.(current, () =>
+      navigate(page, extra, true),
+    )
+  )
+    return;
   history.pushState({}, "", locationFor(page, extra));
   render();
   document.getElementById("main").focus({ preventScroll: true });

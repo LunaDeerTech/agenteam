@@ -1,6 +1,12 @@
 // All business facts below are synthetic. These checks do not prove backend behavior.
-const { test, expect } = require("@playwright/test");
-const { mkdirSync, readFileSync } = require("node:fs");
+const { test, expect, chromium } = require("@playwright/test");
+const {
+  mkdirSync,
+  readFileSync,
+  writeFileSync,
+  mkdtempSync,
+  rmSync,
+} = require("node:fs");
 const path = require("node:path");
 const {
   installFixture,
@@ -1128,6 +1134,209 @@ test("[general-refinement] shared projects filter Tab Escape and page scroll", a
   await expect(trigger).not.toHaveAttribute("aria-controls", /.+/);
   expect(faults.errors).toEqual([]);
   expect(faults.outbound).toEqual([]);
+});
+
+test("[general-native-zoom] real Chromium 200% edit save menu and records", async ({}, info) => {
+  mkdirSync(output, { recursive: true });
+  const profile = mkdtempSync(path.join(output, "native-zoom-profile-"));
+  mkdirSync(path.join(profile, "Default"));
+  // Reuse review/interact.mjs's native Chromium partition zoom, not CSS zoom or
+  // device emulation. The assertions below verify the actual browser result.
+  writeFileSync(
+    path.join(profile, "Default/Preferences"),
+    JSON.stringify({
+      partition: { default_zoom_level: { x: Math.log(2) / Math.log(1.2) } },
+    }),
+  );
+  const origin = `http://127.0.0.1:${process.env.F0_PORT || 5188}`;
+  const faults = { errors: [], outbound: [] };
+  let context;
+  try {
+    context = await chromium.launchPersistentContext(profile, {
+      executablePath: process.env.F0_CHROMIUM || "/usr/bin/chromium",
+      headless: true,
+      args: ["--no-sandbox", "--window-size=1440,960"],
+      viewport: null,
+      baseURL: origin,
+      reducedMotion: "reduce",
+    });
+    await context.route("**/*", (route) => {
+      const request = route.request();
+      if (
+        new URL(request.url()).origin === origin &&
+        ["GET", "HEAD"].includes(request.method())
+      )
+        return route.continue();
+      faults.outbound.push(`${request.method()} ${request.url()}`);
+      return route.abort("blockedbyclient");
+    });
+    const page = context.pages()[0] || (await context.newPage());
+    page.on("pageerror", (error) => faults.errors.push(error.message));
+    await openGeneral(page, { theme: "light" });
+    await page.evaluate(() => {
+      window.__generalZoomEvents = [];
+      const record = (kind, target) =>
+        window.__generalZoomEvents.push({
+          kind,
+          target,
+          time: performance.now(),
+          scrollY,
+          more: document
+            .querySelector("#general-more")
+            ?.getBoundingClientRect()
+            .toJSON(),
+          menu: !!document.querySelector(".floating-menu"),
+        });
+      record("initial", "");
+      for (const name of ["scroll", "pointerdown", "click"])
+        document.addEventListener(
+          name,
+          (event) =>
+            record(name, event.target.id || event.target.tagName || "document"),
+          true,
+        );
+      new MutationObserver((records) => {
+        for (const mutation of records) {
+          for (const node of mutation.addedNodes)
+            if (node.matches?.(".floating-menu")) record("menu-added", node.id);
+          for (const node of mutation.removedNodes)
+            if (node.matches?.(".floating-menu"))
+              record("menu-removed", node.id);
+        }
+      }).observe(document.body, { childList: true });
+    });
+    const actual = await page.evaluate(() => ({
+      innerWidth,
+      innerHeight,
+      outerWidth,
+      outerHeight,
+      dpr: devicePixelRatio,
+      visualViewport: {
+        width: visualViewport.width,
+        height: visualViewport.height,
+        scale: visualViewport.scale,
+      },
+      rootZoom: getComputedStyle(document.documentElement).zoom,
+    }));
+    await info.attach("native-200pct-actual-viewport", {
+      body: JSON.stringify(actual, null, 2),
+      contentType: "application/json",
+    });
+    expect(actual.outerWidth).toBe(1440);
+    expect(actual.innerWidth).toBe(720);
+    expect(actual.dpr).toBe(2);
+    expect(actual.visualViewport.width).toBe(720);
+    // visualViewport preserves fractional CSS pixels; innerHeight is integral.
+    expect(Math.floor(actual.visualViewport.height)).toBe(actual.innerHeight);
+    expect(actual.rootZoom).toBe("1");
+    await noOverflow(page, "general native 200% initial");
+    const description = page.getByRole("textbox", {
+      name: "项目描述",
+      exact: true,
+    });
+    await description.fill(
+      baselineProject.description + "\n200% 缩放编辑检查。",
+    );
+    await page.getByRole("button", { name: "保存修改", exact: true }).click();
+    await expect(page.locator(".general-feedback")).toContainText(
+      "已保存到当前样板，未调用服务端。",
+    );
+    await expect(page.locator(".general-edit-version")).toHaveText(
+      "编辑版本 2",
+    );
+    await expect(description).toHaveValue(
+      baselineProject.description + "\n200% 缩放编辑检查。",
+    );
+    const more = page.getByRole("button", {
+      name: "更多项目信息操作",
+      exact: true,
+    });
+    await more.click();
+    const menu = page.getByRole("menu", { name: "项目信息", exact: true });
+    try {
+      await expect(menu).toBeVisible();
+    } catch (error) {
+      const probe = await context.newCDPSession(page);
+      const capture = await probe.send("Page.captureScreenshot", {
+        format: "png",
+        fromSurface: true,
+        captureBeyondViewport: false,
+      });
+      mkdirSync(screens, { recursive: true });
+      const file = path.join(screens, "general-native-200pct-menu-failure.png");
+      writeFileSync(file, Buffer.from(capture.data, "base64"));
+      await info.attach("native-menu-failure", {
+        path: file,
+        contentType: "image/png",
+      });
+      await probe.detach();
+      throw error;
+    } finally {
+      await info.attach("native-menu-event-sequence", {
+        body: JSON.stringify(
+          await page.evaluate(() => window.__generalZoomEvents),
+          null,
+          2,
+        ),
+        contentType: "application/json",
+      });
+    }
+    expect(
+      await menu.evaluate((node) => {
+        const r = node.getBoundingClientRect();
+        return (
+          r.left >= 0 &&
+          r.top >= 0 &&
+          r.right <= innerWidth &&
+          r.bottom <= innerHeight
+        );
+      }),
+    ).toBe(true);
+    const cdp = await context.newCDPSession(page);
+    async function captureNative(name) {
+      const data = await cdp.send("Page.captureScreenshot", {
+        format: "png",
+        fromSurface: true,
+        captureBeyondViewport: false,
+      });
+      mkdirSync(screens, { recursive: true });
+      const file = path.join(screens, name + ".png");
+      writeFileSync(file, Buffer.from(data.data, "base64"));
+      await info.attach(name, { path: file, contentType: "image/png" });
+    }
+    await captureNative("general-native-200pct-menu");
+    await page.keyboard.press("Escape");
+    await expect(more).toBeFocused();
+    await more.press("Enter");
+    await page
+      .getByRole("menuitem", { name: "查看项目信息与标识", exact: true })
+      .click();
+    await expect(page.locator(".general-records")).toHaveAttribute("open", "");
+    await page.mouse.move(650, actual.innerHeight - 60);
+    await page.mouse.wheel(0, 1200);
+    const last = page.locator(".general-records time").last();
+    await expect(last).toBeInViewport();
+    expect(
+      await last.evaluate((node) => {
+        const r = node.getBoundingClientRect();
+        return node.contains(
+          document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2),
+        );
+      }),
+    ).toBe(true);
+    await noOverflow(page, "general native 200% expanded records");
+    await captureNative("general-native-200pct-records");
+    await cdp.detach();
+    expect(faults.errors).toEqual([]);
+    expect(faults.outbound).toEqual([]);
+  } finally {
+    await context?.close();
+    rmSync(profile, { recursive: true, force: true });
+    writeFileSync(
+      path.join(output, "native-zoom-lifecycle.json"),
+      JSON.stringify({ contextClosed: true, profileRemoved: true }, null, 2),
+    );
+  }
 });
 
 const comparison = [
