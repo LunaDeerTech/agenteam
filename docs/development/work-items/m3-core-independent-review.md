@@ -395,3 +395,29 @@ cold 沿原 Builtin registered Lookup：限定 `skill.prepare` rev1，排除本�
 亲核 `output/ai/m3-artifact-user-upload/app-second02/{native.log,exit-status,owned.json,cleanup-check.json}`：作者 `37618` 中 `TestArtifactUserUploadHTTPDefaultApp` PASS3.97s、`TestArtifactMetadataHTTPDefaultApp` PASS4.07s，原测试 PID1767609 actual_wait code0，wrapper exit0；binary SHA256 `f38b932587c05525d3da0ca984d0eb883f825fa85927ec5b75267b33d896005e`。上传经默认 App、真实 Human Session/CSRF/current Owner 和 Object 存储，验证二进制精确读取、complete 前无公开 Artifact、原发布 COMMIT 后 typed ACK Unknown→原 Lookup、单次 Artifact/Audit/attempt、两种取消以及越权拒绝。点查以稳定 ArtifactID 取得原完整 ArtifactRef，GET/HEAD 不改变 Object/lease 事实且 read audit 为零正文 bytes，随后仅用返回的正式 FileID 读取原正文；跨项目、非 Owner、缺失 ID 和额外 query 均被拒绝。两个 top 均走到原 owner/App/guard/DB Joined。
 
 官方三 fixture cleanup 与保存的精确检查相符：6个资源 ID、3个目录及 wrapper/helper/test 3个 PID 全部 absent。本轮只读源、原日志与清理记录，未重跑测试；**默认 App 上传与点查的上述限定闭包接受，未见剩余已证 must-fix。**发布 Unknown 是原真实 COMMIT 后的受控返回 mask，不是网络故障或 rollback；8222 的并发门独立复用，浏览器上传/打开及其他生命周期仍不在本次实际结论内。
+
+## Meeting prepared Summary 冷窗口的有限核证
+
+2026-10-15；由未参与该实现的 `m3_core_review` 独立只读核共同候选的 Summary cold sole、原 child/helper 与作者 `2805` 原日志 `/tmp/m3-meeting-summary-cold-native.0ubWfzyF/native.log`。原 prepared source 已提交、selection.version 仍为空且旧 process 绑定存在；旧 child 实际 SIGKILL/Wait9 后，新 guard 沿原 source 的 absence 事实收敛为诚实失败，没有重新 Resolve、派发 Model、新 lease 或 Summary 输出。随后 Owner 以正式原 Turn 取消入口结束，replacement App 实际 Wait0/Joined。
+
+原 top PASS9.76s，parent 与双 child 的实际退出有原日志；reviewer 又独立核原 owned record 的6个精确资源 ID、3个目录与3个 PID 全部不存在。**接受 prepared 已提交、Resolve 前这个唯一窗口，未见该范围剩余已证 must-fix。**不外推已 Resolve、模型 I/O 中断或全部 Summary cold。原观察 SQL 类型错误失败保留；本轮复用作者运行并核证，没有新测试或产品修改。
+
+## MCP 原 Delete 冷恢复实际的有限核证
+
+2026-10-15；由未参与 MCP 实现的 Meeting owner 独立只读核 `70900` 原日志、对应冻结 sole 与原 lookup 出口。该轮使用已修复长期 worker 启动上下文的候选：原 exchange 只发生一次，retire claimed 真实提交而 Delete 尚未 prepare；旧 child 实际 SIGKILL/Wait9 后，新 guard 沿原 request/flow/credential tuple 完成同一个 Delete 的 canonical 观察和收敛，未换 key 或重新 exchange。原 command 仍 pending，原 sameSession lookup 明确返回 stopped 且无成功结果；新 App 实际 Joined。
+
+原 top PASS6.81s、parent Wait0；作者保存的8个精确 Docker ID、3个目录及 parent/双 child 清理记录均为 absent，reviewer 亲核原日志与固定断言，未另起 fixture。**OriginalDelete 的上述限定恢复范围接受，未见剩余已证 must-fix。**此前 `82282` 超时不回填；本结论不代 PublishedConnection 的外层 lease/pointer、stranded 的整 App graceful Join、startup 隔离或 Human Refresh 外层冷收尾。本节按实际 reviewer 结论归位，integration 仅整理记录，未冒充独立执行。
+
+## MCP stranded materialization 冷清理的有限核证
+
+2026-10-15；由未参与该实现的 `m3_core_review` 独立只读核固定 `4b95` sole/child 与作者 `90562` 原日志 `output/ai/mcp/stranded-cold-4b95.log`。原 Put 已返回并由旧 child 持有屏障，真实 SIGKILL/Wait 后的新 guard 对精确 materialization 完成清理，原 MCP owner Drain/Joined；原 Tool 保持1个 attempt、0个 result，SDK与Model各1次，无重派发。原 top PASS8.44s、parent Wait0，reviewer 又独立 inspect 原8个精确 Docker ID、3个目录及3个 PID 均不存在。
+
+**接受这一 MCP materialization 冷收尾范围，未见剩余已证 must-fix。**新 child 最后仍由 SIGKILL/Wait9 退出，原记录明确不声称整 App graceful Join；Unknown Execution 未假造终态。本结论不代 PublishedConnection、startup 隔离或 Human Refresh 外层 lease/pointer 冷收尾，旧结果观察失败保留。integration 按实际 reviewer 结论归位，未另跑 fixture。
+
+## Meeting Decision Inbox 取消返修与默认 App 实际核证
+
+2026-10-15；由未参与本次取消修复的 Model/Runner owner 独立核作者 `58814` 原实际、固定 sole 与退出记录。此前 `50907` 中 answer/skip 已完成，cancel 的 Execution/Turn 已取消但 Decision 仍 pending；可选 typed 零 ID 被 `.String()` 编码为全零 UUID，而原 SQL 用空串表示省略，导致原发现及同事务重读漏掉目标。修复只规范未指定的可选参数，必需 Project/Meeting 与已指定的 T/C/E/D 保持原值，原权限、锁、Execution 与迁移不变。
+
+原七回复 top 在共同 `40974` 候选中 PASS13.38s、原 Wait0。answer/skip 沿原同一 Execution 继续并完成 Turn，cancel 使原 Decision cancelled/version2、Execution/Turn cancelled、Inbox resolved；重建不重开。实际 sole 计数为6条 canonical 事件（3 requested、3 closed），6条 Outbox 与对应事件同 xmin，3条 terminal 事件与对应 Decision 同 xmin；不是四条事件，四指 requested/answered/skipped/cancelled 四类。7个 Model calls 与 Secret leases 全退休，原 App/Guard/数据库退出及官方 fixture 清退齐。
+
+Model owner 接受上述同 E、Inbox 与原退出的有限闭包，未见剩余已证 must-fix；integration 已核 sole 的6/6/3计数后整理本节。原 successor stale 观察未被当作根因或要求修改 Execution，旧超时不回填。本轮未重跑，真实浏览器、其它控制及完整 Meeting 仍按各自出口验证。
