@@ -7,6 +7,7 @@ const {
   projectPath,
   sprintID,
   provider,
+  project: baselineProject,
 } = require("../../../../tests/account-captcha-web/interface-layout.fixtures.ts");
 const output = path.resolve(
   process.env.F0_OUTPUT ||
@@ -616,6 +617,83 @@ for (const name of pages)
       expect(faults.outbound).toEqual([]);
     });
   }
+
+// The earlier F0 prototype has no general-settings page. This baseline is the
+// current production Vue route, rendered with the existing synthetic HTTP fixture.
+for (const layout of layouts) {
+  test(`[general-baseline] formal Vue ${layout.width} ${layout.theme}`, async ({
+    page,
+  }, info) => {
+    if (process.env.F0_LEGACY !== "1")
+      throw new Error(
+        "General baseline requires F0_LEGACY=1 and external web dependencies",
+      );
+    const faults = await setup(page, layout);
+    const fixture = await installFixture(page);
+    await page.goto(
+      `http://127.0.0.1:${process.env.F0_LEGACY_PORT || 5189}${projectPath}/settings/general`,
+    );
+    await expect(
+      page.getByRole("heading", { name: "基本信息", exact: true, level: 1 }),
+    ).toBeVisible();
+    await expect(page.locator("html")).toHaveAttribute(
+      "data-theme",
+      layout.theme,
+    );
+    await expect(
+      page.getByRole("textbox", { name: "项目名称", exact: true }),
+    ).toHaveValue(baselineProject.name);
+    await expect(
+      page.getByRole("textbox", { name: "项目描述", exact: true }),
+    ).toHaveValue(baselineProject.description);
+    await expect(
+      page.getByRole("button", { name: "保存修改", exact: true }),
+    ).toBeDisabled();
+    await expect(page.locator(".project-records")).not.toHaveAttribute(
+      "open",
+      "",
+    );
+    await expect(page.locator('.ui-state[aria-busy="true"]')).toHaveCount(0);
+    await page.evaluate(() => document.fonts.ready);
+    await noOverflow(page, `formal-general/${layout.width}/${layout.theme}`);
+    await capture(page, info, `before-general-${layout.width}-${layout.theme}`);
+    if (layout.width === 390) {
+      // The formal app scrolls inside main. Keep the actual shell unchanged and
+      // supplement the initial viewport with a real wheel journey to its end.
+      await page.locator("main").hover();
+      await page.mouse.wheel(0, 1200);
+      await expect(page.locator(".project-records summary")).toBeInViewport();
+      await capture(
+        page,
+        info,
+        `before-general-${layout.width}-${layout.theme}-bottom`,
+      );
+    }
+    await info.attach("formal-general-fixture", {
+      body: JSON.stringify(
+        {
+          implementation: "web/src/views/projects/ProjectGeneralSettings.vue",
+          route: `${projectPath}/settings/general`,
+          viewport: layout,
+          project: baselineProject,
+          projectRecordsExpanded: false,
+          requests: fixture.requests,
+        },
+        null,
+        2,
+      ),
+      contentType: "application/json",
+    });
+    expect(fixture.requests.every((request) => request.method === "GET")).toBe(
+      true,
+    );
+    expect(fixture.unexpected).toEqual([]);
+    expect(fixture.errors).toEqual([]);
+    expect(fixture.consoleErrors).toEqual([]);
+    expect(faults.errors).toEqual([]);
+    expect(faults.outbound).toEqual([]);
+  });
+}
 
 const comparison = [
   {

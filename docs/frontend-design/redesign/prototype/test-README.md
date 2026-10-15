@@ -2,6 +2,27 @@
 
 本目录的 Playwright harness 只验证隔离样板与当前正式 Vue 页面在合成 HTTP fixture 下的表现。所有业务动作都是演示；没有真实后端、凭据、业务写入或生产验收。作者检查与独立视觉审查分别形成结论。
 
+## 用户反馈后的基本信息页基线
+
+用户未接受旧 F0 的视觉结果。下文旧轮次的技术通过事实不代表用户接受，也不代替本轮单页设计与独立审查。本轮只为“项目设置 → 基本信息”准备当前正式 Vue 基线：真实路由 `/owner/atlas/settings/general` 加载 `web/src/views/projects/ProjectGeneralSettings.vue`，HTTP 数据直接复用 `tests/account-captcha-web/interface-layout.fixtures.ts`。没有改产品源码或增加 mock 接口；旧 F0 的设置页是 MCP，不能作为基本信息的同页前图。
+
+`[general-baseline]` 在 1440×960 / 390×844、浅深主题下核对 Atlas 名称、原描述、保存按钮未启用、项目记录折叠、主题、运行时错误和横向溢出；所有请求均为 GET。初次实际运行 **4/4 通过（15.1s）**，四图位于 `output/ai/frontend-f0-refinement-test/baseline/screenshots/before-general-{1440,390}-{light,dark}.png`。正式页面内部 `main` 独立滚动，`fullPage` 图只包含其可见区域；另用真实鼠标滚轮补充 390 深色下端截图，不拉伸或重写正式 CSS。
+
+从当前工作树根目录执行，匹配的 `web/node_modules` 临时链接仅在正式 Vue 服务有消费者时存在：
+
+```sh
+export NODE_PATH=/workspace/shared/node/account-captcha-ac60fa262f0c44ae-node24.19.0-linux-x64/node_modules
+export F0_WEB_NODE_MODULES=/workspace/shared/node/web-314c5c1d204fb359-node24.19.0-linux-x64/node_modules
+export F0_LEGACY=1 F0_PORT=5218 F0_LEGACY_PORT=5219
+export F0_OUTPUT="$PWD/output/ai/frontend-f0-refinement-test/baseline"
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[general-baseline\]' --list
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[general-baseline\]'
+```
+
+390 深色的真实滚动补图单项 **1/1 通过（8.5s）**，原命令 exit 0，截图为 `output/ai/frontend-f0-refinement-test/baseline-bottom/screenshots/before-general-390-dark-bottom.png`。两轮 server PID 232329 / 233526 均记录 `closed: true` 且已回收；设计者确认未消费正式 Vue 依赖链接后，已移除本任务 `web/node_modules`，仓外安装保留。作者与设计者均已亲看 1440 浅色、390 深色基线；这仍是基线确认，不是独立设计接受。
+
+新页计划用 `?page=settings&section=general&fixture=baseline` 与上述同字段、同记录折叠状态进行对照。此节目前只记录旧正式页面基线；未据此声称新页或正常动效通过。
+
 ## 锁定依赖与启动
 
 使用 `tests/account-captcha-web/package.json` 和完整锁文件的 `@playwright/test` **1.56.1**。正式页面对照额外使用 `web/package.json` 和完整锁文件；不能用 `npx` 隐式下载新版。两份安装在工作树外复用，安装目录按 package+lock、Node 与平台区分；`web/node_modules` 可临时链接到匹配安装，测试结束且无消费者后移除该链接，不能提交。
@@ -23,7 +44,7 @@ node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/red
 node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[(keyboard|touch|accessibility)\]'
 ```
 
-`F0_PORT` / `F0_LEGACY_PORT` 默认分别为 5188 / 5189，均仅监听 `127.0.0.1`。Playwright 拒绝复用现存服务。独立审查可另用 5198 / 5199，或单独运行 `node docs/frontend-design/redesign/prototype/test-server.mjs`；原型 URL 为 `http://127.0.0.1:5188/index.html?page=projects&theme=light&scenario=normal`。仅检查新原型时不设置 `F0_LEGACY`，并以 `--grep-invert '\[comparison\]'` 排除明确需要正式页面的组；选择对照组却缺少依赖时直接失败。
+`F0_PORT` / `F0_LEGACY_PORT` 默认分别为 5188 / 5189，均仅监听 `127.0.0.1`。Playwright 拒绝复用现存服务。独立审查可另用 5198 / 5199，或单独运行 `node docs/frontend-design/redesign/prototype/test-server.mjs`；原型 URL 为 `http://127.0.0.1:5188/index.html?page=projects&theme=light&scenario=normal`。仅检查新原型时不设置 `F0_LEGACY`，并以 `--grep-invert '\[(comparison|general-baseline)\]'` 排除明确需要正式页面的组；选择对照组却缺少依赖时直接失败。
 
 ## 场景与证据边界
 
