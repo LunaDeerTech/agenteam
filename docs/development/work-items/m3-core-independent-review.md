@@ -274,3 +274,24 @@ publication Lookup 是独立私有 Read witness：原同进程 owner、原 comma
 独审先发现 Stop 与原只读 lookup 返回交错时，join 等待旧 done 后无条件重进 recovery 会在已移除原 owner 的情况下返回 ShuttingDown，使 Drain 错报失败。R1 重新观察原 retained owner 和实际返回状态；无 retained write 时正常退出，原未决写 Unknown 继续保留。14081 普通回归通过 join-call、Drain 和 retained-write-unknown 三个确定 barrier 交错，并保留原 owner 实际等待、只读失败 Unknown 与 U1→U2 接缝反控。该窄退出修复不要求重复不变的正常 PG 链。
 
 结合 64479 实际 published cold 整 top PASS10.25s：原 child 真实 SIGKILL/Wait，新进程 guard 下恢复同 E/Attempt/原进程绑定，canonical row/xmin 保持、一次安装与上传、零自动分配、后继模型消费及 newApp 正常 Join；原父/子 Wait、六资源 ID、三目录和三 PID 全清退。接受范围不含 reserved/missing cold、cold 新 U2 的物理注入、外部第三方安装或整个 Skills/M3。原失败和先前 must-fix 记录保留。
+
+## MCP 142 与 Secret 原 Delete 恢复独审
+
+2026-10-15；由未参与实现的 Meeting owner 独立只读核固定 MCP `614eddd1`：`ba1d1a7e` 的 Secret 恢复四源、Project SecretDelete 分派三源与 142，`e9d30b0f` 的原 claim/cleanup consumer，以及 `614eddd1` 的外层 connection lease 收尾。沿原 OAuth publication、Secret mutation/lease、ProcessGuard 与 Project Audit 最终 gate 核对调用关系；不覆盖新 sole App 草稿、全 MCP 或其他 OAuth 模式。**发现两处关联的恢复可用性 must-fix，尚未关闭；未发现本次已读 Secret 权限链的额外 must-fix。**
+
+1. `oauth_recovery_connection.go:193–199/250–259` 只将原 connection request 退休并释放 lease，没有收敛当前连接的原 `refresh_id` 与 `connecting` 投影。最小交错为 `publishOAuthToken` 已提交 token/connection request，但原 SDK `finishConnection` 尚未提交时进程停止；新 claim 可 complete，连接仍显示正在发现。`startup.go:124` 拒绝非空 refresh_id；现 Owner 页只对 unconnected/auth_required/error/needs_reconnect 显示连接按钮，connecting 没有该入口。正式 Connection 状态规范将 connecting 表达为进行中、error 允许 retry。修复应在真实旧进程停止、原 claim/full tuple/锁和正式原 lease 收尾后，CAS 收敛仍指向该请求的当前投影；已 released 分支也须处理，较新版本或请求不可覆盖。不得因此重发 OAuth/SDK 请求或假定原远端失败。
+2. 仅修当前连接投影仍不足以恢复原浏览器。`oauth_lookup.go:43` 只观察原 commands.pending；`mcp-oauth-session.ts:190/252` 保留原 oauth.complete 的 uncertain intent，`ProjectMCPView.vue:66–84` 因而禁用后续写操作，包括断开与重新授权。后台新的 oauth.begin 确能以当前版本覆写连接（`oauth_flow.go:161–175`），故不能声称全部 Owner API 被锁死；缺的是同原 Session/key 经正式 lookup 观察安全收尾、解除原 intent、再由用户显式发起新操作的可见出口。须使用已证停止/退休事实保留远端 outcome unknown，不能把旧请求改成虚构成功或失败，也不能用清本地状态或自动重发代替恢复协议。
+
+其他已读边界保持：真实 Guard 确认旧 writer 与前驱 claimant 停止；新私有 active owner、same Store/Tx、完整锁重读原 tuple；142 的不可变前驱和单 flow Delete 身份；原 Delete 的 key/binding/version/process 不因 Unknown 替换；Secret opaque 同实例计划仅观察原 receipt/binding 与 metadata，未打开凭据材料，正式未提交观察才给单用 continuation；外层 lease 只授原 Release，不能读或 Acquire。Project 的私有 cleanup 分派后仍经过 `CheckAppendInTx` 的最终 Audit lifecycle fence，未旁路其删除阶段屏障。
+
+复用作者 31343（Secret/contract/Project）及 28690（MCP）普通通过回执，并读对应测试；本次未亲核原日志、未运行 Go/PG、未改产品或测试。142 Source/真实迁移、Secret continuation、归档 Project cleanup 与完整冷恢复 App 均未实际验收，不由上述源码结论替代。两处缺口已交 MCP 原作者；只待其固定返修复核这两个出口，不增加无关矩阵。
+
+## Knowledge 139 引用释放与成对清理独审
+
+2026-10-15；由未参与该清理实现的 Model owner 独立只读核 Knowledge `97dd9db2` 的 cleanup 十一个领域文件、139、sole App 清理 harness 及原生命周期 helper 的可选配置/写计数增量。此前仅解释过既有 Model retention 合同，未参与该清理或迁移实现。**本限定闭包接受，无新增已证 must-fix。**
+
+私有 cleanup 控制绑定原 Delete、Project、profile/version/snapshot、source operation/原 process，同 Store、当前 guard、Project EX 与完整 Model plan 锁均重验。只有本域 Model operation 已 retired/version3 才继续；没有从本地 owner 缺席推断租约消失。原 profile 状态更新与正式 Model reference release/Applied 同事务，Unknown 保留原 request/plan/cause；后续确认只观察原 before/after，失败仍保原 Unknown，不顺带清理下一批。物理删除按 FK 顺序、有界且比较完整 preimage；source operation 与 profile 成对删除，只临时延迟 139 指定的那一条 FK，随后恢复 IMMEDIATE。确认要求原两集合全在或全无，partial/drift 拒绝；Project 过滤、原 Model 行及其他 Project 保留。139 改为 NO ACTION、DEFERRABLE INITIALLY IMMEDIATE，未取消最终引用完整性或其他约束。
+
+亲核 `/tmp/agenteam-k-cleanup-5afd3dee/cleanup-native.log`：99337 的 populated-schema-upgrade 子例 PASS7.84s，合法 138 存量经正式 139 后原循环 pair/其他约束不变；其整个 top 后续失败，仍保留 FAIL。另亲核 `/tmp/agenteam-k-cleanup-97dd9db2/native.log` 与 `cleanup-check.json`：50168 fresh139 父选择器 PASS13.58s/原 Wait0，真实两 Project、两 embedding、零 Chat；原 release 与 pair 删除各一次 Unknown 确认的四 schema 写差值均为零，Knowledge 清完、Model/另一 Project 保留、App 正常 Join，六资源 ID、三目录与 test PID 全 absent。该轮未重跑 upgrade，末日志的组合摘要不作为本轮升级证据。
+
+上述 Unknown 是实际 PG COMMIT 成功后在 Store 返回边界掩蔽为 Unknown，随后经原正式只读确认；不是网络 COMMIT 丢包或 rollback 双态注入。接受范围不含旧 version2/未退休 operation 的冷收敛、整个 Project 删除及其他参与者。此次未运行 Go/native、未改产品或测试，只追加本节；输入未变的作者实际证据按上述范围复用。
