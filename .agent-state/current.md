@@ -1,37 +1,40 @@
 # 当前状态：继续原定 M3
 
-2026-10-14 用户明确调整优先级：继续原定 M3 的知识检索与引用、Memory、领域工具、MCP、Meeting 和相关 Runner 扩展；**M4 暂时废弃为当前里程碑，M3 完成后重新评估剩余缺口并继续完善，不自动进入交付阶段。** 本次文档调整基于 main `56d0d0b0`，当前目标和依赖见[开发计划](../docs/development/development-plan.md#当前开发目标与里程碑)，派工与实际分支见[任务台账](../docs/development/agent-team/tasks.md#当前目标与工作包状态)。
+2026-10-14 用户决定继续完整原 M3：Knowledge 检索与引用、Memory、领域工具、MCP、Meeting 及所需 Runner 扩展。**M4 撤出当前里程碑；M3 完成后重新评估剩余缺口，不自动进入交付阶段。** 目标见[开发计划](../docs/development/development-plan.md#当前开发目标与里程碑)，实际出口见[M3 卡](../docs/development/work-items/m3-knowledge-memory-collaboration.md)。M3 尚未完成，main 不接收未验收产品 WIP。
 
-M3 按共同基线 `d9356e09` 建立六个功能工作树，后续另建选型、固定验证、Meeting UI 与 Skills 准备工作树，共十四个M3工作树。每个路径均只有一个内容 writer；root 负责全部 Git、契约同步与最终集成。
+当前有 15 个 M3 工作树及 main，共 16 树。每个内容路径只有一个 writer；root 负责所有 Git，integration 负责共享 App/Execution 接线及唯一资源调度。固定验证树和暂停 owner 的源码保留，不把建树或编译计为功能通过。
 
-| 分支 | 工作树 | owner / 范围 |
+| 分支 | 工作树 | owner / 当前范围 |
 | --- | --- | --- |
-| `ai/m3-knowledge` | `/workspace/agenteam-m3-knowledge` | `m3_knowledge`：Knowledge 索引检索、共享 retrieval 与引用 |
-| `ai/m3-memory` | `/workspace/agenteam-m3-memory` | `m3_memory_tools`：已过正常链与限定冷恢复，继续132未退休模型/原canonical失败恢复；独立Skills候选另树固定 |
-| `ai/m3-mcp` | `/workspace/agenteam-m3-mcp` | `m3_mcp`：MCP Connection、Tool/Resource 首链已过；继续凭据 HTTP/UI 与媒体；OAuth 核心交 integration |
-| `ai/m3-meeting` | `/workspace/agenteam-m3-meeting` | `m3_meeting`：Session/Turn/Contribution、provider、Runtime 与执行控制 |
-| `ai/m3-integration` | `/workspace/agenteam-m3-integration` | `m3_integration`：App/Tool/Executor/身份共享契约、组合 harness |
-| `ai/m3-model` | `/workspace/agenteam-m3-model` | `m3_model`：Model/Secret 前置已过，动态 Skills 首链已过；接续 Model 冷恢复与 Summary snapshot |
-| `ai/m3-retrieval-selection` | `/workspace/agenteam-m3-retrieval-selection` | `m3_retrieval_selection`：D13 固定词法/dense/RRF 比较已保存；生产接线转独立retrieval-runtime树 |
-| `ai/m3-knowledge-validation` | `/workspace/agenteam-m3-knowledge-validation` | `m3_knowledge`：固定 App 首链验证，运行期间源码不漂移 |
-| `ai/m3-meeting-ui` | `/workspace/agenteam-m3-meeting-ui` | `m3_meeting`：已从 Memory owner 正式接手；实际 Owner 浏览器链已过，继续 Meeting 控制与 Decision UI |
-| `ai/m3-skills` | `/workspace/agenteam-m3-skills` | `m3_memory_tools`：接续已过安装/Owner 分配/list/read，实施 Agent assignment；Model owner 已回共同冷恢复 |
-| `ai/m3-meeting-participants` | `/workspace/agenteam-m3-meeting-participants` | `m3_meeting`：会中参与者及真实引用入口，独立冻结输入 |
-| `ai/m3-retrieval-runtime` | `/workspace/agenteam-m3-retrieval-runtime` | `m3_retrieval_selection`：沿原hybrid接pg_search词法实现与显式部署bootstrap；App/config由integration接入 |
-| `ai/m3-runner-skills` | `/workspace/agenteam-m3-runner-skills` | `m3_model`：原 prepare 相关 Runner/Skill 扩展；本地安全发布与脚本门已过，正式 Transfer/session/mount/App 待组合 |
-| `ai/m3-meeting-tools` | `/workspace/agenteam-m3-meeting-tools` | 待启动 writer：Meeting 领域 Tool/proposal 与最小真实 Human Inbox；仅建隔离树，136 预留未落 DDL，无实现/验证声明 |
+| `ai/m3-knowledge` | `/workspace/agenteam-m3-knowledge` | `m3_knowledge`：Knowledge、共享 retrieval/diagnostics、同库 hybrid 与固定镜像 fixture |
+| `ai/m3-memory` | `/workspace/agenteam-m3-memory` | `m3_memory_tools`：Memory 正常链与限定冷恢复已过；共享消费者由原 owner 提供 |
+| `ai/m3-mcp` | `/workspace/agenteam-m3-mcp` | `m3_mcp` 暂停：媒体/source/modes 已过；OAuth 浏览器与 stranded 实际门待续派，OAuth 核心由 integration 继续 |
+| `ai/m3-meeting` | `/workspace/agenteam-m3-meeting` | `m3_meeting`：Summary 固定 snapshot/retry 整链已过，继续队列/并行/finalize 等控制 |
+| `ai/m3-integration` | `/workspace/agenteam-m3-integration` | `m3_integration`：共享契约、App/Execution/OAuth、迁移组合与资源调度；独审由 core_review 独立执行 |
+| `ai/m3-model` | `/workspace/agenteam-m3-model` | `m3_model`：固定 Model/Secret/StoppedResolution 证据保存；新实现转 Runner 树 |
+| `ai/m3-retrieval-selection` | `/workspace/agenteam-m3-retrieval-selection` | 原选型 owner 已收束：固定 D13 词法/dense/RRF 比较证据 |
+| `ai/m3-knowledge-validation` | `/workspace/agenteam-m3-knowledge-validation` | `m3_knowledge`：已冻结 App 首链验证输入 |
+| `ai/m3-meeting-ui` | `/workspace/agenteam-m3-meeting-ui` | `m3_meeting`：已过 Decision/Approval；Retry/Regenerate 与 typed refs 两新旅程待实际验证 |
+| `ai/m3-skills` | `/workspace/agenteam-m3-skills` | `m3_memory_tools`：目录/分配/撤权失败出口及两类 Unknown 实际恢复；独审新 U1/U2 交接窄修 |
+| `ai/m3-meeting-participants` | `/workspace/agenteam-m3-meeting-participants` | `m3_meeting`：参与者/真实引用与 137 删除意图；purge 尚未完成 |
+| `ai/m3-retrieval-runtime` | `/workspace/agenteam-m3-retrieval-runtime` | 原选型 owner 已收束：固定 pg_search SQL/过滤/readiness 组件证据，组合转 Knowledge |
+| `ai/m3-runner-skills` | `/workspace/agenteam-m3-runner-skills` | `m3_model`：prepare 本地与 Central 定向门已过，原 Transfer/mount/session/App 已静态接齐；正常首链待验 |
+| `ai/m3-meeting-tools` | `/workspace/agenteam-m3-meeting-tools` | `m3_meeting_tools`：四个已定义工具、Proposal/Inbox/Owner HTTP 与 App 已静态接齐；首真实链待验；update/comment 定义待用户异步回复 |
+| `ai/m3-meeting-cold` | `/workspace/agenteam-m3-meeting-cold` | `m3_meeting`：固定完整 1–134 与准备锁修复，供 Summary source 冷恢复；不混孤立 137 |
 
-当前为实现、公共接线与限定真实验证阶段，M3 未完成。Knowledge 的真实外部模型链已通过：canonical Object→4096 维 serving generation→正常 Scheduler→query-doc→精确版本 read-doc→原 ToolResult 被后继 sent/succeeded 模型消费并输出来源引用。Memory 的受控模型完整首链已通过：4 个 Scheduler Execution、5 个 Tool、6 个 Memory Model，覆盖 retain、跨 Execution recall、只读 reflect、跨 Agent 隔离和 Owner 删除后的排除。Meeting 的受控模型首链已通过 Owner Start→两 Agent 顺序贡献→普通文本 Summary，B 的实际输入含 A 发言；另有 Agent busy 范围的真实 Owner 浏览器链。三条链均取得原进程 Wait0、App/Guard/owner 退出及独立 fixture 精确清理。
+Knowledge 的真实外部模型引用、自动索引更新/profile 切换、四格式 HTTP 与完整浏览器上传/逐字下载/PDF 替换/键盘链及后继 Agent 页码引用已通过，全部 App/Guard/fixture 退出。PDF 查看器 ready 早于首绘制的边界另由无 PG 组件截图验证可见正文。固定 pg_search 正式镜像已实际构建并核包/hash/许可、HTTPS/CA 与 immutable ID；SQL/两域过滤/bootstrap/readiness 组件已过，真实 Knowledge/Memory 同库 App hybrid 尚待。
 
-Knowledge 正常自动链已通过：首文档自动建立 profile/索引、canonical 更新、selector 变更后新代发布与旧 pin 释放，再由真实 Scheduler query→版本 read→后继模型消费并输出引用；同一 IndexService.Run 与 App 完整退出。Memory profile 切换、Owner 浏览器列表/历史/删除/原 lookup 已通过；已提交 retain 的有界冷恢复也通过真实旧进程 SIGKILL/Wait、新进程只 Lookup 原 operation、下一 Task 重建旧 building 并释放旧引用，未重发原模型。Meeting Decision 三 turn 浏览器已通过 answer/原 lookup、skip、cancel 与 archive/restore；单 Contribution 取消和 targeted read 已有真实 PG 领域门。实际 Runner 准备锁预算已修；审批浏览器整top已通过真实Runner批准及丢响应原lookup、拒绝零Attempt、单Agent取消后另一Agent继续和Summaryv3；晚批准拒绝、原lease/effect与App/Guard完整退出。未派发Operation保持原M2 created/v1/零Attempt，旧失败保留。MCP Agent Tool/Resource 全链现已通过实际 SDK echo、canonical Object Put/Read/Close、后继正文消费、Secret/runtime 租约退休与完整退出；Owner 凭据真实 HTTP CRUD、CAS、撤权与丢失响应只读 lookup 已通过并接受限定独审；off/direct-text 控制面、Owner 浏览器及 ResourceLink 的实际 Object 读取和后继消费也已通过。OAuth 正常 domain 授权交换首链已通过真实 DCR/S256、授权码一次交换、原命令回查、Secret flow 退场、官方 SDK 发现及 App Join。后继真实Owner HTTP授权交换、原Session/CSRF与请求回查也已通过；OAuth UI 的真实 Session/router/transport 组合 98 项和类型检查已过，浏览器、令牌刷新、启动恢复和媒体仍未完成。
+Memory retain/跨 E recall/只读 reflect、隔离/删除、profile 切换与 Owner 浏览器已通过。原已退休窗口、authorized 及 Resolve 已提交但 Begin 未入场窗口已真实 kill/restart 后保原调用/租约身份、零重发、canonical 失败被原 Agent 消费并完整退出。Model StoppedResolution 三态已独立实际通过；Memory 三处原写 Unknown 被观察错误覆盖的窄修已复核关闭，物理 Unknown 未覆盖范围不外推。
 
-Model 同一 v2 snapshot 的真实 64/64/8 共 136 个 Embedding、4096 维及原 Usage/Secret/Join 收尾已过；长期 serving retention 的受控调用、两个 generation 独立引用、填充数据升级和两个真实 CommitUnknown 分支均有限通过，Memory 首链与 Knowledge 后继 pin 链均已实际消费。OAuth Secret 的 create/update/delete、CAS、回滚与两个真实 CommitUnknown 分支已通过。retention 及后继 Secret/Audit 有界独审已完成，无该审查范围的 must-fix；[独立报告](../docs/development/work-items/m3-core-independent-review.md)不接受 MCP OAuth 交换、刷新或冷恢复，也不把显式媒体拒绝记成媒体消费。
+Skills 安装/Owner 分配/下一轮正文、Agent self-assignment、同项目目录与另一目标分配、跨项目及 caller 正文拒绝已通过。Owner 撤 allowlist 后原 checkpoint 已能以确定拒绝结束原 E，零目录成功/分配并完整退出。最终 Tool 事务两物理 Unknown 分支已过；Skill 发布提交分支只读确认后首次完成原 Tool 结果，回滚分支保 Unknown/未 Joined 后真实停止，两轮分别接受，旧整 top 失败不回填。独审新 U1→U2 写错误身份交接缺陷已有窄修/普通门，仍由独审确认，不扩大原正常链接受。
 
-D13 固定词法与融合比较及先前离线独审已保存。保持原hybrid范围，固定 pg_search 0.26.1 的安装/bootstrap、两域原 SQL 与过滤、执行计划及就绪拒绝/恢复已通过隔离 PG；App 同库 readiness 普通门和显式部署配置解析通过，正式镜像与 App hybrid 链仍待；不宣称固定评测结果优于dense，也不以扩展未装冒hybrid ready。显式native_pg_fts仅用于既有受限首链。动态 Skills 首 App 链已通过真实安装→Owner 显式分配→旧轮不变/下一轮 list 生效→Object 正文 Read/Close→模型实际消费；原 immutable round input、控制消息和租约/owner 退出均闭合。Agent self-assignment 整 top 已通过原 source/Audit、四引用全 v2、旧 captured 保持、下一轮 list/正文消费及原 App/Guard 退出；catalog/其他目标、prepare/Runner 与 Install Unknown 仍待。四格式上传与当前版本读取、DOCX/PDF Parser 和 App 显式配置已实现；四格式上传、源读取、PDF 替换和 Agent 页码引用已实际通过；Scheduler 取消后的原 owner 收尾修复已由同一正式 App 验证，全部运行 owner、App/Guard 和 fixture 完整退出。四格式 UI 已实际通过上传与逐字下载；PDF sandbox 原阻断已有真实组件定位与 typed PDF 修复。后继浏览器停在 CDP POST-body/closed-details 的 harness 观察，真实 DOM/同 context GET 小门已通过，整浏览器链仍待。
+MCP 控制面、凭据 HTTP/浏览器、Agent Tool/Resource/ResourceLink 已通过。四媒体 canonical Object/字节/MIME 与后继轮持久、text Model 诚实 Unsupported、租约和 owner 退出已过；测试 consumer 在原 Model 私有上下文使用正式 SourceResolver/Object Read/Close 与四类拒绝已过，不表示生产媒体 profile 支持。OAuth 正常 domain/Owner HTTP/S256/原 lookup 已过；新增真实到期刷新只发一次、Secret CAS、原 startup caller 与外层请求退休、重查零刷新及完整 App/资源退出也通过。OAuth 浏览器、flow/exchange/refresh 冷恢复与 stranded 实际门仍待。
 
-共同候选的00123公共校验修复、00124自动索引profile、00125动态Skills ToolCall闭集均已被实际链消费；00126单Contribution取消已通过领域PG门，00127–00133 已实际应用且不可回写，共同正式 1–133 空库、重复、升级与健康门通过；127 的实际 CHECK 缺陷已由 133 前向修复并通过坏存量原子拒绝门；迁移应用不代表各自业务出口已通过。旧失败不回写。StoppedResolution 三态已由独立执行者实际通过，Memory authorized 与 Resolve 已提交但 Begin 未入场两个真实停止窗口也通过：原 canonical 失败沿 Tool 被 Agent 消费、零重发与完整 App/Guard 退出。独审发现的三个后续观察覆盖原写 Unknown 返回点已窄修，九个回归及源码复核通过；不冒物理 Unknown 补集。Meeting Summary 固定 snapshot 第一 generation 的 retry/pin 已实际通过，第二 generation 因 fixture profile 选择错误在发送前失败，后继 text-only fixture 在模型创建 HTTP400 前置失败、尚未进入 Summary，整 top 待修。Model owner 在 Skills 首链后转回共同提供方，Model/Usage 的原 invocation 与真实停止证明、未退休 call 及 borrower 尾巴已实现；authorized 与 sent 分支均已实际 kill/restart 通过；已终态 call 的 borrower 尾巴和 Memory ModelCallOwner 精确 lease 门也分别通过，无Model call的pre-admission borrower已真实恢复并完整退出，物理提交/回滚Unknown两门也已通过原只读确认或保留Unknown、零重发；领域其它未定 Resolve/缺 snapshot 恢复仍按各自窗口验证，不据有限通过宣布完整跨域恢复。
+Meeting 已过两 Agent/Summary、Decision/Approval/单贡献取消浏览器及 Summary 七回复固定 snapshot/retry、新 generation 换合法模型、sent 取消和完整退出。新的 Retry/Regenerate 与 typed refs App/dist 已就绪，首次浏览器停在测试脚本 expect 导入，修复仅脚本、不冒产品通过。四领域工具/Proposal/真实 Inbox 及 App 装配已保存，首九回复真实链尚待；删除仍须原执行 owner/lease 的正式退休观察与本域 purge。
 
-公共依赖锁文件由 integration 唯一持有，其他树只读。迁移按 root 编号在候选树连续组合；main 不接收未验收产品 WIP。每树 `.agent-state/current.md` 保存可恢复片段，本索引不复制执行流水。最多两组重构建，当前真实PG/App fixture单组且不与重编译竞争，由integration调度；固定 Go1.27.1、MinIO 和共享锁定依赖复用，浏览器已恢复锁定 Playwright 1.56.1/Chromium1194，入口 owner 按限定候选继续真实组合验证。现有 dev PG/MinIO 不作任务测试库，默认代理与 TLS 校验保持。旧 STOP 只按原风险范围保留。
+正式 PostgreSQL 17.8 连续 1–135 空库/重复/升级/健康已过，已应用迁移不可回写。133 已前向修复原 127 CHECK 缺陷并实际验证坏存量原子拒绝。136 工具/Inbox、137 删除意图、138 exact prepare Unknown 仍须各自完整调用方与连续 Source 门；迁移通过不冒业务出口。独立审查范围见[报告](../docs/development/work-items/m3-core-independent-review.md)，新增高风险权限/恢复组合仍要独验。
+
+最多两组主构建；唯一 native fixture 不与 Go/Node/image 构建并起，原 Wait 和 exact cleanup 后才归还。固定 Go1.27.1、MinIO、锁定 Playwright/Chromium 与已过产物复用。只用任务独立 nonce/DB/目录，不连接 dev PG/MinIO；默认 proxy/TLS 保持。源码仅在目标 owner 实际 idle 后同步，旧失败不回填，资源清理不计产品进度。
 
 ## 上一任务：M2 已正式交付，任务收尾完成
 
