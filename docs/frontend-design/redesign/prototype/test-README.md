@@ -47,6 +47,40 @@ Agent 原生 200% 补查 **1/1 通过（4.6s，exit 0）**。深色、外窗 144
 
 以上输出均相对 `output/ai/frontend-f0-refinement-test/`。四轮自有 server PID 339257 / 341685 / 342860 / 343622 的生命周期均 `closed: true`，原命令已实际退出并核对 PID 不存在；原生 browser context 已关闭、临时 profile 已删除，自有 5218 无运行命令，没有重建 `web/node_modules`。本次只复用未受影响的首轮正常链与 General 回归，补 header 纵向和上述有限检查；不声称全站、真实服务端、跨项目持久化、正式 Vue 三对象同输入对照、独立视觉验收或用户接受。
 
+用户随后明确要求把返回操作移到页头上方的独立导航，并让 Agent 详情说明显示当前对象的 `description`，无描述则不显示说明行。原 header 用例把所有页面的 h1 / 说明 y 强制相等，超出了“横向宽度与左起点统一”的要求；该测试规格已纠正，之前的几何通过只保留为历史事实。现在保留跨页横向对齐、共享宽度与表单限宽，允许独立导航和可选说明占用自然高度；同一既有用例核对返回链接在标题之前且不嵌入说明、详情说明属于当前 Agent。不为测试补空说明或调整产品布局，也没有扩展新的状态矩阵。
+
+`3f6585ec` 后作者冻结的独立导航修订上，仅运行既有 header 用例与 390 返回链，结果 **1 通过 / 1 失败（13.7s，exit 1）**，输出 `agent-navigation/`。header 在 1440 浅色 / 390 深色通过横向几何、返回导航层级及 Reviewer 描述归属检查；返回链因旧 harness 定位 `p > span`、新说明已改为直接 `p` 而失败，属于测试结构假设失效，原证据保留。尚未修选择器复跑时，用户提出新的详情三 Tab 结构，按负责人要求暂停旧链复验，不能将它记为当前通过。自有 server PID 350730 已关闭并回收，原命令已退出，浏览器随命令关闭。后续 Tab 契约确认前，此处仍是上述输入窗口的有限结果。
+
+## 三 Tab 与独立保存的最终定向检查
+
+最新结构为同一 Agent 的基本配置、能力与资源、记忆三个 Tab，标题及真实描述保持对象归属，独立返回列表。基本配置独立保存/取消；已有 Agent 的资源按完整动作即时保存，没有整页保存；记忆逐条操作。创建尚无对象，仍在前两个 Tab 汇集输入后执行一次创建，没有伪记忆 Tab。此前统一草稿的三 Tab 草案只执行过 `--list`，没有运行浏览器或形成通过结论。
+
+冻结候选 `3658426c` 的有限 8 项实际运行记录为 **8/8（36.8s，exit 0）**，但随后审查指出其中 `version_jump` 预期有误：测试按作者旧接口允许先发布异常回执到 canonical，再标记基本草稿冲突。这个预期已撤回，原运行记录 `agent-tabs-independent/` 保留，**不能据其宣称异常版本边界通过**。作者在 `73f14182` 改为先核验回执，失配不发布资源集合与版本，保留原命令待核；同时补 busy 期间基本配置取消门禁和异 scope 异步回调过滤。
+
+最终证据由前一候选未受该修复影响的 **7 项**与 `73f14182` 上仅重跑的资源代表用例 **1/1（9.9s，exit 0）**组成，无跳过或重试：
+
+- 390 深色选择 Reviewer / Researcher，三 Tab 固定正确标题和描述；记忆历史属于当前对象，回列表恢复原行/滚动。资源和记忆的直接地址刷新保持对象及选中 Tab；未知 ID 不退回首项。旧 `p > span` 结构假设已改为真实说明 `p`，原失败未删除。
+- 1440 浅色 / 390 深色比较 General、Agent 列表及三个 Tab、MCP 的横向起点和共享宽度，验证返回导航在标题上方且与说明分离。不再要求页面间 h1 的 y 相同。
+- 基本配置先产生脏草稿，再提交完整 Runner、Secret 和 Skills。Runner 不完整不提交、原值确认 no-op 不增版本；Secret 全集合保留 `resource_extra_secret=1` 的缺页引用。基本取消后资源仍在；再次先产生基本草稿，再改变资源并删除记忆，旧草稿保存不会恢复旧资源或删除记录。验证资源/Skills 更新推进 Agent 版本、Memory 删除不推进该版本，另一个 Agent 不受影响。
+- 创建仅两 Tab；从资源 Tab 保存时，隐藏的缺名称/缺模型错误切回基本配置并聚焦可操作字段。有效创建后 ID 独立，改名后的旧对象和新对象记忆不串。
+- 两尺寸验证 Tab 手动激活：方向键/Home/End 只移焦，Enter/Space 激活并关联正确 tabpanel；正常/减少动效、模型菜单 Escape、dirty 对话框 Tab/Escape 和草稿保留通过。
+- 本轮新布局执行原生 200%：外窗 1440×960、CSS 内窗 720×408、visualViewport 720×408.5、DPR 2、根 CSS zoom 1。编辑保存、模型菜单、基本配置底部记录、资源末端操作、记忆历史及返回焦点/列表位置可达，无横溢。`agent-tabs-independent/screenshots/agent-native-200pct-{model-menu,records,memory}.png` 三张 CDP 图已亲看。
+- 修后资源代表链使用 Playwright clock 暂停**合成的 400ms 资源定时器**，确定性验证 busy 时切回基本配置不能取消或保存；恢复时钟后原草稿可保存、资源保留。error 重试仍不假成功；Unknown 与异常版本均保留原勾选、版本、缺页引用和基本草稿，禁止新写/取消，查询仍待核，离开后原操作恢复到同一 Reviewer 的资源 Tab。异常版本不再以“取消并重读”接受未核实回执。
+
+```sh
+export NODE_PATH=/workspace/shared/node/account-captcha-ac60fa262f0c44ae-node24.19.0-linux-x64/node_modules
+export F0_LEGACY=0 F0_PORT=5218
+export F0_OUTPUT="$PWD/output/ai/frontend-f0-refinement-test/agent-tabs-independent"
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[agents-first\].*(header geometry|explicit identity.*390)|\[agents-final\].*(dirty history|create validates|motion keyboard)|\[agents-native-zoom\]|\[agents-resource-recovery\]' --list
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[agents-first\].*(header geometry|explicit identity.*390)|\[agents-final\].*(dirty history|create validates|motion keyboard)|\[agents-native-zoom\]|\[agents-resource-recovery\]'
+# 73f14182 精准修后只复验这一项，不重复另七项。
+export F0_OUTPUT="$PWD/output/ai/frontend-f0-refinement-test/agent-resource-repaired"
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[agents-resource-recovery\]' --list
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[agents-resource-recovery\]'
+```
+
+两轮自有 5218 server PID 364506 / 366916 均 `closed: true`，原命令实际退出且 PID 不存在；浏览器/context 已关闭，原生临时 profile 已删除，没有 `web/node_modules` 或自有遗留运行命令。其他旧只读/Unknown 业务证据只按未变语义复用；异 scope 回调过滤由结构审查另行静态核对，本 harness 未新增跨项目浏览器旅程。未覆盖所有 API 组合、全部状态或真实服务端，不将这些合成前端结果称为后端版本协议验收、独立视觉接受或用户接受。
+
 ## 用户反馈后的基本信息页基线
 
 用户未接受旧 F0 的视觉结果。下文旧轮次的技术通过事实不代表用户接受，也不代替本轮单页设计与独立审查。本轮只为“项目设置 → 基本信息”准备当前正式 Vue 基线：真实路由 `/owner/atlas/settings/general` 加载 `web/src/views/projects/ProjectGeneralSettings.vue`，HTTP 数据直接复用 `tests/account-captcha-web/interface-layout.fixtures.ts`。没有改产品源码或增加 mock 接口；旧 F0 的设置页是 MCP，不能作为基本信息的同页前图。

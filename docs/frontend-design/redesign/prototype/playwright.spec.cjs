@@ -1394,12 +1394,12 @@ for (const layout of [layouts[0], { ...layouts[3], height: 480 }]) {
       await expect(
         page.getByRole("textbox", { name: "描述", exact: true }),
       ).toHaveValue(expected.description);
-      const memory = page.locator('[data-agent-action="memory"]');
+      const memory = page.locator('[data-agent-tab="memory"]');
       await memory.click();
       await expect(page).toHaveURL(/view=memory/);
-      await expect(
-        page.locator(".settings-page-heading > div > p > span"),
-      ).toHaveText(expected.title);
+      await expect(page.locator(".settings-page-heading > div > p")).toHaveText(
+        expected.description,
+      );
       await page
         .locator(`[data-agent-action="memory-history:memory-${id}-1"]`)
         .click();
@@ -1410,8 +1410,8 @@ for (const layout of [layouts[0], { ...layouts[3], height: 480 }]) {
       await expect(page.locator(".agent-memory-history")).not.toContainText(
         "execution-architecture-1",
       );
-      await page.locator(`[data-agent-back="agent-${id}"]`).click();
-      await expect(memory).toBeFocused();
+      await page.locator('[data-agent-tab="basic"]').click();
+      await expect(page.locator('[data-agent-tab="basic"]')).toBeFocused();
       await expect(
         page.getByRole("textbox", { name: "Agent 名称", exact: true }),
       ).toHaveValue(id);
@@ -1429,17 +1429,28 @@ for (const layout of [layouts[0], { ...layouts[3], height: 480 }]) {
     await expect(
       page.locator('.agent-directory-link[data-agent-open="agent-reviewer"]'),
     ).toBeFocused();
-    await openAgents(page, layout, {
-      agent: "agent-researcher",
-      view: "memory",
-    });
-    await page.reload();
-    await expect(
-      page.locator(".settings-page-heading > div > p > span"),
-    ).toHaveText("Researcher");
-    await expect(
-      page.locator('[data-agent-action="memory-history:memory-researcher-1"]'),
-    ).toBeVisible();
+    for (const view of ["resources", "memory"]) {
+      await openAgents(page, layout, { agent: "agent-researcher", view });
+      await page.reload();
+      await expect(page.locator("#agent-page-title")).toHaveText("Researcher");
+      await expect(page.locator(".settings-page-heading > div > p")).toHaveText(
+        agentExamples.researcher.description,
+      );
+      await expect(page.locator(`[data-agent-tab="${view}"]`)).toHaveAttribute(
+        "aria-selected",
+        "true",
+      );
+      if (view === "memory")
+        await expect(
+          page.locator(
+            '[data-agent-action="memory-history:memory-researcher-1"]',
+          ),
+        ).toBeVisible();
+      else
+        await expect(
+          page.locator('[data-agent-section="runners"]'),
+        ).toBeVisible();
+    }
     await openAgents(page, layout, { agent: "agent-missing" });
     await expect(
       page.getByRole("heading", { name: "Agent 不可用", exact: true }),
@@ -1474,6 +1485,12 @@ test("[agents-first] settings header geometry and left aligned forms", async ({
     {
       page: "agents",
       agent: "agent-reviewer",
+      view: "resources",
+      body: ".agent-detail-content",
+    },
+    {
+      page: "agents",
+      agent: "agent-reviewer",
       view: "memory",
       body: ".agent-detail-content",
     },
@@ -1492,8 +1509,16 @@ test("[agents-first] settings header geometry and left aligned forms", async ({
       await expect(page.locator(".settings-page-heading")).toHaveCount(1);
       const boxes = await page.evaluate((body) => {
         const box = (selector) => {
-          const r = document.querySelector(selector).getBoundingClientRect();
-          return { x: r.x, y: r.y, width: r.width, right: r.right };
+          const node = document.querySelector(selector);
+          if (!node) return null;
+          const r = node.getBoundingClientRect();
+          return {
+            x: r.x,
+            y: r.y,
+            bottom: r.bottom,
+            width: r.width,
+            right: r.right,
+          };
         };
         return {
           header: box(".settings-page-heading"),
@@ -1503,6 +1528,9 @@ test("[agents-first] settings header geometry and left aligned forms", async ({
         };
       }, body);
       baseline ||= boxes;
+      // The user requires shared horizontal alignment, not equal heading y.
+      // Parent navigation and an optional object description occupy natural
+      // vertical space; absence of description must not require a blank row.
       expect(Math.abs(boxes.header.x - baseline.header.x)).toBeLessThanOrEqual(
         1,
       );
@@ -1510,16 +1538,42 @@ test("[agents-first] settings header geometry and left aligned forms", async ({
         Math.abs(boxes.header.width - baseline.header.width),
       ).toBeLessThanOrEqual(1);
       expect(Math.abs(boxes.title.x - baseline.title.x)).toBeLessThanOrEqual(1);
-      expect(Math.abs(boxes.header.y - baseline.header.y)).toBeLessThanOrEqual(
-        1,
-      );
-      expect(Math.abs(boxes.title.y - baseline.title.y)).toBeLessThanOrEqual(1);
-      expect(
-        Math.abs(boxes.description.y - baseline.description.y),
-      ).toBeLessThanOrEqual(1);
-      expect(
-        Math.abs(boxes.description.x - baseline.description.x),
-      ).toBeLessThanOrEqual(1);
+      if (boxes.description)
+        expect(
+          Math.abs(boxes.description.x - boxes.title.x),
+        ).toBeLessThanOrEqual(1);
+      if (route.agent) {
+        const description = page.locator(".settings-page-heading > div > p");
+        await expect(description).toHaveText(
+          agentExamples.reviewer.description,
+        );
+        await expect(description).not.toHaveText("Reviewer");
+        await expect(page.locator("#agent-page-title")).toHaveText("Reviewer");
+      }
+      if (route.agent) {
+        const back = page.locator("[data-agent-back]");
+        await expect(back).toHaveAccessibleName("Agent");
+        const navigation = await back.evaluate((node) => {
+          const title = document.querySelector(".settings-page-heading h1");
+          const r = node.getBoundingClientRect();
+          return {
+            x: r.x,
+            bottom: r.bottom,
+            independentNavigation: !!node.closest('nav, [role="navigation"]'),
+            outsideDescription: !node.closest("p"),
+            beforeTitle: !!(
+              node.compareDocumentPosition(title) &
+              Node.DOCUMENT_POSITION_FOLLOWING
+            ),
+          };
+        });
+        expect(navigation.independentNavigation).toBe(true);
+        expect(navigation.outsideDescription).toBe(true);
+        expect(navigation.beforeTitle).toBe(true);
+        expect(navigation.bottom).toBeLessThanOrEqual(boxes.title.y);
+        expect(Math.abs(navigation.x - boxes.title.x)).toBeLessThanOrEqual(1);
+        boxes.navigation = navigation;
+      }
       expect(Math.abs(boxes.body.x - boxes.header.x)).toBeLessThanOrEqual(1);
       if (body === "#general-form" || body === ".agent-detail-content")
         expect(boxes.body.width).toBeLessThanOrEqual(760);
@@ -1590,7 +1644,7 @@ test("[agents-final] unknown Memory keeps its original command across return", a
   await expect(
     page.locator('[data-agent-action^="memory-delete:"]').first(),
   ).toBeDisabled();
-  await page.locator('[data-agent-back="agent-reviewer"]').click();
+  await page.locator('[data-agent-tab="basic"]').click();
   await expect(page.locator("#agent-save")).toBeDisabled();
   await expect(page.locator(".agent-notice")).not.toContainText(
     "保存结果待确认",
@@ -1609,11 +1663,11 @@ test("[agents-final] unknown Memory keeps its original command across return", a
   expect(faults.outbound).toEqual([]);
 });
 
-test("[agents-final] dirty history and Memory deletion survive configuration save", async ({
+test("[agents-final] dirty history and independent resources survive basic cancel and save", async ({
   page,
 }) => {
   const faults = await setup(page, layouts[3]);
-  await openAgents(page, layouts[3]);
+  await openAgents(page, layouts[3], { resource_extra_secret: "1" });
   await page
     .locator('.agent-directory-link[data-agent-open="agent-reviewer"]')
     .click();
@@ -1625,7 +1679,46 @@ test("[agents-final] dirty history and Memory deletion survive configuration sav
   await page.keyboard.press("Escape");
   await expect(description).toHaveValue(draft);
   await expect(page).toHaveURL(/agent=agent-reviewer/);
-  await page.locator('[data-agent-action="memory"]').click();
+  await page.locator('[data-agent-tab="resources"]').click();
+  await expect(page.getByRole("dialog")).not.toBeVisible();
+  await expect(
+    page.locator("#agent-save, #agent-configuration-form"),
+  ).toHaveCount(0);
+  const version = page.locator(".agent-records dd").nth(1);
+  const feedback = page.locator("#agent-resource-feedback");
+  const outsideSecret = page.locator(
+    '[data-secret="secret-outside-directory"]',
+  );
+  await expect(outsideSecret).toBeChecked();
+  await page.locator('[data-agent-action="add-mount"]').click();
+  await page.locator("#agent-action-workspace").fill("review-work");
+  await page.locator('[data-agent-action="confirm-mount"]').click();
+  await expect(page.locator("#agent-resource-editor")).toBeVisible();
+  await expect(version).toHaveText("1");
+  await page.locator('[data-select-for="agent-action-runner"]').click();
+  await page.getByRole("option", { name: "Atlas Runner", exact: true }).click();
+  await page.locator('[data-agent-action="confirm-mount"]').click();
+  await expect(feedback).toHaveAttribute("data-status", "success");
+  await expect(version).toHaveText("2");
+  await expect(page.locator('[data-agent-section="runners"]')).toContainText(
+    "review-work",
+  );
+  await page.locator('[data-agent-action="edit-mount:0"]').click();
+  await page.locator('[data-agent-action="confirm-mount"]').click();
+  await expect(feedback).toHaveText("资源目录未改变。");
+  await expect(version).toHaveText("2");
+  await page.locator('[data-secret="secret-research"]').click();
+  await expect(feedback).toHaveAttribute("data-status", "success");
+  await expect(version).toHaveText("3");
+  await expect(outsideSecret).toBeChecked();
+  await page.locator('[data-agent-action="skill-assign"]').click();
+  await page.getByRole("option", { name: "Research", exact: true }).click();
+  await page.locator("[data-agent-confirm]").click();
+  await expect(feedback).toHaveAttribute("data-status", "success");
+  await expect(version).toHaveText("4");
+  await page.locator('[data-agent-tab="memory"]').click();
+  await expect(page.getByRole("dialog")).not.toBeVisible();
+  await expect(page.locator("#agent-page-title")).toHaveText("Reviewer");
   await page
     .locator('[data-agent-action="memory-delete:memory-reviewer-1"]')
     .click();
@@ -1634,17 +1727,55 @@ test("[agents-final] dirty history and Memory deletion survive configuration sav
   );
   await page.locator("[data-memory-confirm]").click();
   await expect(page.locator(".agent-memory-record")).toHaveCount(1);
-  await page.locator('[data-agent-back="agent-reviewer"]').click();
-  await expect(page.locator('[data-agent-action="memory"]')).toBeFocused();
+  await page.locator('[data-agent-tab="basic"]').click();
+  await expect(page.locator('[data-agent-tab="basic"]')).toBeFocused();
   await expect(description).toHaveValue(draft);
+  // Memory uses its own revision; successful deletion does not bump Agent version.
+  await expect(version).toHaveText("4");
+  await page.locator('[data-agent-action="cancel"]').click();
+  await page.locator("[data-agent-confirm]").click();
+  await expect(description).toHaveValue(agentExamples.reviewer.description);
+  await page.locator('[data-agent-tab="resources"]').click();
+  await expect(page.locator('[data-secret="secret-research"]')).toBeChecked();
+  await expect(outsideSecret).toBeChecked();
+  await expect(page.locator('[data-agent-section="runners"]')).toContainText(
+    "review-work",
+  );
+  await expect(page.locator(".agent-skill-row")).toContainText("Research");
+  await page.locator('[data-agent-tab="basic"]').click();
+  await description.fill(draft);
+  // Create the basic draft before another successful resource/Memory change.
+  // Saving this older snapshot must retain those later independent results.
+  await page.locator('[data-agent-tab="resources"]').click();
+  await page.locator('[data-secret="secret-repository"]').click();
+  await expect(feedback).toHaveAttribute("data-status", "success");
+  await expect(version).toHaveText("5");
+  await page.locator('[data-agent-tab="memory"]').click();
+  await page
+    .locator('[data-agent-action="memory-delete:memory-reviewer-2"]')
+    .click();
+  await page.locator("[data-memory-confirm]").click();
+  await expect(page.locator(".agent-memory-record")).toHaveCount(0);
+  await page.locator('[data-agent-tab="basic"]').click();
+  await expect(description).toHaveValue(draft);
+  await expect(version).toHaveText("5");
   await page.locator("#agent-save").click();
   await expect(page.locator("#agent-form-feedback")).toHaveText("配置已保存。");
-  await page.locator('[data-agent-action="memory"]').click();
-  await expect(page.locator(".agent-memory-record")).toHaveCount(1);
+  await expect(version).toHaveText("6");
+  await page.locator('[data-agent-tab="resources"]').click();
+  await expect(page.locator('[data-secret="secret-research"]')).toBeChecked();
+  await expect(page.locator('[data-secret="secret-repository"]')).toBeChecked();
+  await expect(outsideSecret).toBeChecked();
+  await expect(page.locator('[data-agent-section="runners"]')).toContainText(
+    "review-work",
+  );
+  await expect(page.locator(".agent-skill-row")).toContainText("Research");
+  await page.locator('[data-agent-tab="memory"]').click();
+  await expect(page.locator(".agent-memory-record")).toHaveCount(0);
   await expect(
     page.locator('[data-agent-action="memory-history:memory-reviewer-1"]'),
   ).toHaveCount(0);
-  await page.locator('[data-agent-back="agent-reviewer"]').click();
+  await page.locator('[data-agent-tab="basic"]').click();
   await description.fill("明确放弃的第二份草稿。");
   await page.locator('[data-agent-back=""]').click();
   await page.locator("[data-agent-leave]").click();
@@ -1657,11 +1788,113 @@ test("[agents-final] dirty history and Memory deletion survive configuration sav
     .locator('.agent-directory-link[data-agent-open="agent-researcher"]')
     .click();
   await expect(description).toHaveValue(agentExamples.researcher.description);
-  await page.locator('[data-agent-action="memory"]').click();
+  await page.locator('[data-agent-tab="memory"]').click();
   await expect(page.locator(".agent-memory-record")).toHaveCount(2);
   await expect(page.locator(".agent-memory-list")).toContainText(
     "研究资料保留原始来源",
   );
+  expect(faults).toEqual({ errors: [], outbound: [] });
+});
+
+test("[agents-resource-recovery] errors Unknown and unverified versions preserve basic drafts", async ({
+  page,
+}) => {
+  const faults = await setup(page, layouts[3]);
+  await openAgents(page, layouts[3], { agent: "agent-reviewer" });
+  await page
+    .locator("#agent-description")
+    .fill("资源处理中仍保留的基本配置草稿。");
+  await page.locator('[data-agent-tab="resources"]').click();
+  // Hold only the synthetic resource timer. This makes the in-flight state
+  // deterministic; it does not simulate or claim any real server behavior.
+  await page.clock.install();
+  await page.clock.pauseAt(new Date(Date.now() + 1000));
+  await page.locator('[data-secret="secret-research"]').click();
+  await expect(page.locator("#agent-resource-feedback")).toHaveAttribute(
+    "data-status",
+    "pending",
+  );
+  await page.locator('[data-agent-tab="basic"]').click();
+  await expect(page.locator('[data-agent-action="cancel"]')).toBeDisabled();
+  await expect(page.locator("#agent-save")).toBeDisabled();
+  await expect(page.locator("#agent-description")).toHaveValue(
+    "资源处理中仍保留的基本配置草稿。",
+  );
+  await page.clock.runFor(450);
+  await page.clock.resume();
+  await expect(page.locator('[data-agent-action="cancel"]')).toBeEnabled();
+  await expect(page.locator("#agent-save")).toBeEnabled();
+  await page.locator("#agent-save").click();
+  await expect(page.locator("#agent-form-feedback")).toHaveText("配置已保存。");
+  await page.locator('[data-agent-tab="resources"]').click();
+  await expect(page.locator('[data-secret="secret-research"]')).toBeChecked();
+  await expect(page.locator(".agent-records dd").nth(1)).toHaveText("3");
+  for (const result of ["error", "unknown", "version_jump"]) {
+    await openAgents(page, layouts[3], {
+      agent: "agent-reviewer",
+      resource_result: result,
+      resource_extra_secret: "1",
+    });
+    const draft = `等待资源 ${result} 的基本配置草稿。`;
+    await page.locator("#agent-description").fill(draft);
+    await page.locator('[data-agent-tab="resources"]').click();
+    const secret = page.locator('[data-secret="secret-research"]');
+    const outsideSecret = page.locator(
+      '[data-secret="secret-outside-directory"]',
+    );
+    const feedback = page.locator("#agent-resource-feedback");
+    const version = page.locator(".agent-records dd").nth(1);
+    await secret.click();
+    await expect(feedback).toHaveAttribute(
+      "data-status",
+      result === "error" ? "error" : "unknown",
+    );
+    await expect(outsideSecret).toBeChecked();
+    await expect(secret).not.toBeChecked();
+    await expect(version).toHaveText("1");
+    if (result === "version_jump") {
+      // Validate the receipt before publishing its postimage. Neither canonical
+      // resource values nor the basic baseline may accept an unverified version.
+      await expect(feedback).toContainText("版本");
+      await expect(
+        page.locator('[data-agent-action="add-mount"]'),
+      ).toBeDisabled();
+    }
+    if (result === "error") {
+      await expect(feedback).toContainText("未保存");
+      await page.locator('[data-agent-action="resource-retry"]').click();
+      await expect(feedback).toHaveAttribute("data-status", "error");
+      await expect(secret).not.toBeChecked();
+      await expect(version).toHaveText("1");
+    }
+    if (result !== "error") {
+      await expect(secret).toBeDisabled();
+      await expect(
+        page.locator('[data-agent-action="resource-retry"]'),
+      ).toHaveCount(0);
+      await page.locator('[data-agent-action="lookup"]').click();
+      await expect(feedback).toContainText("尚未观察到");
+      await expect(feedback).toHaveAttribute("data-status", "unknown");
+      await expect(secret).toBeDisabled();
+    }
+    await page.locator('[data-agent-tab="basic"]').click();
+    await expect(page.locator("#agent-description")).toHaveValue(draft);
+    if (result !== "error")
+      await expect(page.locator("#agent-save")).toBeDisabled();
+    if (result !== "error") {
+      await expect(page.locator('[data-agent-action="cancel"]')).toBeDisabled();
+      await page.locator('[data-agent-back=""]').click();
+      await page.locator("[data-agent-leave]").click();
+      await page.locator('[data-agent-action="original"]').click();
+      await expect(page).toHaveURL(/agent=agent-reviewer/);
+      await expect(page).toHaveURL(/view=resources/);
+      await expect(secret).not.toBeChecked();
+      await expect(outsideSecret).toBeChecked();
+      await page.locator('[data-agent-action="lookup"]').click();
+      await expect(feedback).toHaveAttribute("data-status", "unknown");
+      await expect(version).toHaveText("1");
+    }
+  }
   expect(faults).toEqual({ errors: [], outbound: [] });
 });
 
@@ -1675,17 +1908,29 @@ test("[agents-final] create validates required fields and never reuses renamed i
   await expect(page.locator("#agent-form-feedback")).toHaveText("配置已保存。");
   await page.locator('[data-agent-back=""]').click();
   await page.locator('[data-agent-action="create"]').click();
+  await expect(page.getByRole("tab")).toHaveCount(2);
+  await expect(page.locator('[data-agent-tab="memory"]')).toHaveCount(0);
   await page
     .locator("#agent-description")
     .fill("新对象，不继承原 Architecture 记忆。");
+  await page.locator('[data-agent-tab="resources"]').click();
   await page.locator("#agent-save").click();
+  await expect(page.locator('[data-agent-tab="basic"]')).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
   await expect(page.locator("#agent-name")).toBeFocused();
   await expect(page.locator("#agent-name")).toHaveAttribute(
     "aria-invalid",
     "true",
   );
   await page.locator("#agent-name").fill("architecture");
+  await page.locator('[data-agent-tab="resources"]').click();
   await page.locator("#agent-save").click();
+  await expect(page.locator('[data-agent-tab="basic"]')).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
   await expect(page.locator("#agent-modelID-error")).toHaveText(
     "请选择主模型。",
   );
@@ -1700,18 +1945,18 @@ test("[agents-final] create validates required fields and never reuses renamed i
   expect(newID).not.toBe("agent-architecture");
   expect(newID).toMatch(/^agent-.+/);
   await expect(page.locator("#agent-name")).toHaveValue("architecture");
-  await page.locator('[data-agent-action="memory"]').click();
+  await page.locator('[data-agent-tab="memory"]').click();
   await expect(
     page.getByRole("heading", { name: "此 Agent 暂无当前记忆", exact: true }),
   ).toBeVisible();
-  await page.locator(`[data-agent-back="${newID}"]`).click();
+  await page.locator('[data-agent-tab="basic"]').click();
   await page.locator('[data-agent-back=""]').click();
   await expect(page.locator(".agent-directory-row")).toHaveCount(4);
   await page
     .locator('.agent-directory-link[data-agent-open="agent-architecture"]')
     .click();
   await expect(page.locator("#agent-name")).toHaveValue("architecture-old");
-  await page.locator('[data-agent-action="memory"]').click();
+  await page.locator('[data-agent-tab="memory"]').click();
   await expect(page.locator(".agent-memory-record")).toHaveCount(2);
   await expect(page.locator(".agent-memory-list")).toContainText(
     "项目的接口变更先核对调用方与提供方",
@@ -1737,12 +1982,12 @@ test("[agents-final] non-active projects and readonly prevent all exposed writes
       .click();
     await expect(page.locator("#agent-name")).toBeDisabled();
     await expect(page.locator("#agent-save")).toBeDisabled();
-    await page.locator('[data-agent-section="skills"] summary').click();
+    await page.locator('[data-agent-tab="resources"]').click();
     const actions = page.locator('[data-agent-section="skills"] button');
     expect(await actions.count()).toBeGreaterThan(0);
     for (const action of await actions.all())
       await expect(action).toBeDisabled();
-    await page.locator('[data-agent-action="memory"]').click();
+    await page.locator('[data-agent-tab="memory"]').click();
     for (const action of await page
       .locator('[data-agent-action^="memory-delete:"]')
       .all())
@@ -1808,6 +2053,48 @@ for (const layout of [layouts[0], layouts[3]]) {
   }, info) => {
     const faults = await setup(page, layout);
     await openAgents(page, layout, { agent: "agent-reviewer" });
+    const basic = page.locator('[data-agent-tab="basic"]');
+    const resources = page.locator('[data-agent-tab="resources"]');
+    const memory = page.locator('[data-agent-tab="memory"]');
+    const panel = page.getByRole("tabpanel");
+    await expect(page.getByRole("tab")).toHaveCount(3);
+    await expect(basic).toHaveAttribute("aria-selected", "true");
+    await expect(basic).toHaveAttribute("tabindex", "0");
+    await expect(resources).toHaveAttribute("tabindex", "-1");
+    await basic.focus();
+    await page.keyboard.press("ArrowRight");
+    await expect(resources).toBeFocused();
+    await expect(basic).toHaveAttribute("aria-selected", "true");
+    await page.keyboard.press("Enter");
+    await expect(resources).toBeFocused();
+    await expect(resources).toHaveAttribute("aria-selected", "true");
+    await expect(panel).toHaveAttribute(
+      "aria-labelledby",
+      await resources.getAttribute("id"),
+    );
+    await page.keyboard.press("End");
+    await expect(memory).toBeFocused();
+    await expect(resources).toHaveAttribute("aria-selected", "true");
+    await page.keyboard.press("Space");
+    await expect(memory).toBeFocused();
+    await expect(memory).toHaveAttribute("aria-selected", "true");
+    await expect(panel).toHaveAttribute(
+      "aria-labelledby",
+      await memory.getAttribute("id"),
+    );
+    await page.keyboard.press("Home");
+    await expect(basic).toBeFocused();
+    await expect(memory).toHaveAttribute("aria-selected", "true");
+    await page.keyboard.press("Enter");
+    await expect(basic).toHaveAttribute("aria-selected", "true");
+    await expect(panel).toHaveAttribute(
+      "aria-labelledby",
+      await basic.getAttribute("id"),
+    );
+    await page.keyboard.press("ArrowLeft");
+    await expect(memory).toBeFocused();
+    await expect(basic).toHaveAttribute("aria-selected", "true");
+    await page.keyboard.press("Home");
     for (const motion of ["no-preference", "reduce"]) {
       await page.emulateMedia({ reducedMotion: motion });
       const model = page.locator('[data-select-for="agent-modelID"]');
@@ -1976,7 +2263,19 @@ test("[agents-native-zoom] real 200% configuration menu records and Memory retur
     ).toBe(true);
     await noOverflow(page, "Agent native 200% configuration records");
     await nativeCapture("agent-native-200pct-records");
-    await page.locator('[data-agent-action="memory"]').click();
+    await page.locator('[data-agent-tab="resources"]').click();
+    await expect(page.locator('[data-agent-tab="resources"]')).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    await page
+      .locator('[data-agent-action="skill-assign"]')
+      .scrollIntoViewIfNeeded();
+    await expect(
+      page.locator('[data-agent-action="skill-assign"]'),
+    ).toBeInViewport();
+    await noOverflow(page, "Agent native 200% resources");
+    await page.locator('[data-agent-tab="memory"]').click();
     await expect(page.locator(".agent-memory-list")).toContainText(
       "评审结论区分已验证问题",
     );
@@ -1993,8 +2292,8 @@ test("[agents-native-zoom] real 200% configuration menu records and Memory retur
     ).toBeInViewport();
     await noOverflow(page, "Agent native 200% Memory");
     await nativeCapture("agent-native-200pct-memory");
-    await page.locator('[data-agent-back="agent-reviewer"]').click();
-    await expect(page.locator('[data-agent-action="memory"]')).toBeFocused();
+    await page.locator('[data-agent-tab="basic"]').click();
+    await expect(page.locator('[data-agent-tab="basic"]')).toBeFocused();
     await expect(page.locator("#agent-description")).toHaveValue(
       "原生 200% 下编辑的 Reviewer 配置。",
     );

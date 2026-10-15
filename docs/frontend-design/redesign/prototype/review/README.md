@@ -1,6 +1,18 @@
 # F0 独立视觉与交互审查
 
-## Agent 列表、独立详情与共享页头：限定内部通过
+## Agent 三 Tab 与独立保存职责：限定内部通过
+
+**本轮结构、正常整页视觉与实际关键旅程内部通过，待用户实看；不代表全 F0、完整可访问性或正式产品迁移通过。** 独立浏览器整页输入为 `3658426c`：基本配置、能力与资源、记忆在 1440×960 浅色及 390×844 深色共六张完整页面均已亲看。顶部返回列表独立于名称和真实描述，三个 Tab 的对象标题稳定，当前 Tab、正文分组和就近动作可辨；保持开放布局，输入边界与窄屏操作可见，无横溢。参考仍为下述已亲看的官方工作界面，判断信息关系与完成度，不据测试分数宣称视觉达标，也不要求有上级导航的详情标题与栏目首页绝对纵坐标相等。
+
+`73f14182` 上实际完成一条 390 深色、普通动效旅程：Reviewer 基本描述产生草稿 → 方向键移动 Tab 焦点、Enter 激活资源 → 空 Runner 条目显示校验错误 → Runner 与目录完整确认，显示等待及已保存条目 → Memory 确认删除一条 → 返回基本配置仍有草稿 → 取消基本草稿后，已保存资源和已删除记忆均未回滚 → 再次编辑并验证离开提示的继续/放弃及原列表对象回焦。资源页没有整页保存，基本草稿没有混入资源提交。错误、等待、成功、Tab 键盘焦点和返回状态图已亲看；无 pageerror。该链只覆盖一个完整资源动作，Secret、Skills、创建前两 Tab、其他对象/状态、减少动效及原生 200% 见[测试说明](../test-README.md#三-tab-与独立保存的最终定向检查)，不计为本独审亲测。
+
+旅程另发现并定位页底取消后的焦点不可见：390×844 下名称字段获得焦点，但 top=-338.97、scrollY=781。作者仅修取消后的越界焦点滚动；在最终 `aaecb715` 按原现场用 Enter 确认后，名称 top=402.03、bottom=442.03、scrollY=40，2px 焦点环可见，已亲看修后图并关闭此项。`73f14182` 相对整页输入仅修异常回执、busy 取消门禁与异 scope 回焦；`aaecb715` 再仅修上述取消焦点，正常布局未变，未重复全部截图或主链。
+
+当前四张代表图为[1440 浅色基本配置](screenshots/agents-detail-1440-light.png)、[390 深色基本配置](screenshots/agents-detail-390-dark.png)、[1440 浅色能力与资源](screenshots/agents-resources-1440-light.png)、[390 深色记忆](screenshots/agents-memory-390-dark.png)；前两张替换旧详情图，列表图未改。复现从 `?page=agents&fixture=baseline&scenario=normal&theme=dark` 进入 Reviewer，直接地址以 `agent=agent-reviewer` 配合省略 view、`view=resources`、`view=memory` 区分三个 Tab。原始整页、状态图、旅程与修前后焦点记录留在 `output/ai/frontend-f0-refinement-review/agent-tabs/`；初次 harness 的重名入口及 option 角色选择器错误记录保留，修正后主链 exit 0。所有独审 browser/context 与自有 5227 服务均已关闭并 join，服务 exit 0。未改实现、未写 Git；三对象仍为合成 fixture，未验证真实后端或持久化。
+
+## 此前 Agent 列表、独立详情与共享页头的限定记录
+
+**后继用户反馈纠正：** 用户否定返回入口混在说明行，并要求顶部独立返回、标题显示Agent名称、说明使用真实description及三个Tab。此前审查将“页头横向宽度与左起点统一”过度收紧为“详情h1绝对y与栏目首页相等”，该约束撤回。下述结论只保留其原输入事实，不覆盖后继三Tab及各自保存职责。
 
 **本轮结构、正常整页视觉及下述关键旅程内部通过，待用户实看；不代表全F0通过或正式产品迁移。** 整页截图输入为`cec9c249`；关键旅程输入为`78b18481`，后者仅修正Memory Unknown的命令文案和返回路由，不改变正常态布局。审查者未参与设计或实现，先实际浏览并亲看整页，再检查交互与测试证据。
 
@@ -9,12 +21,12 @@
 | 首稿视觉FAIL项                   | 冻结第二稿的实际结果                                                               |
 | -------------------------------- | ---------------------------------------------------------------------------------- |
 | 列表重复表头与过松行距使留白主导 | 表头合并，名称与说明连续扫读；数量明确为“已加载3个Agent”，不是后端总数；resolved。 |
-| 详情额外返回行推移共同标题起点   | 返回并入说明行，详情与general/列表/MCP保持共同页头起点；resolved。                 |
+| 当时将详情标题绝对y变化列为失败  | 该判断已撤回；返回并入说明行的处理随后被用户否定，不能继续作为当前接受依据。       |
 | 深色详情输入边界弱于general      | 输入/选择控件的文字与边界层级统一，浅深主题均能辨认编辑区域；resolved。            |
 
 独立实际旅程使用390深色、普通动效：从列表点击Reviewer→其独立详情→Reviewer专属记忆→返回同详情并回焦“查看记忆”；栏目菜单Escape回原触发按钮。描述有草稿时返回列表，“继续编辑”保留草稿与回焦，“放弃并离开”回原Reviewer入口和原scrollY=17；Enter再次打开后没有被放弃的草稿。已亲看hover、菜单、记忆、离开确认的早期/稳定态及返回页面，无pageerror。此为合成样板旅程，未验证真实写入、权限或持久化；其他对象/历史、空/只读/Unknown、减少动效与原生200%按[测试说明](../test-README.md)另报，不计为本独审亲测或以技术分数替代视觉判断。
 
-本轮仅新增四张代表整页：[1440浅色列表](screenshots/agents-list-1440-light.png)、[1440浅色详情](screenshots/agents-detail-1440-light.png)、[390深色列表](screenshots/agents-list-390-dark.png)、[390深色详情](screenshots/agents-detail-390-dark.png)。首稿失败图留在`output/ai/frontend-f0-refinement-review/agent-first/`，第二稿其余图、逐步结果与浏览器入口留在`agent-final/`。复现入口为`?page=agents&fixture=baseline&scenario=normal&theme=dark`，按上述Reviewer旅程操作；可恢复的fixture/harness沿用测试入口，不新增一套矩阵。浏览器/context均已关闭，作者拥有的5209服务已交回作者清理；无Git写入。其余8个设置栏目仍未实现，本轮没有扩展MCP列表或全站验收。
+当时保留的[1440浅色列表](screenshots/agents-list-1440-light.png)、[390深色列表](screenshots/agents-list-390-dark.png)仍对应该轮输入；两张详情代表图已在后续三 Tab 轮次替换，当前图以本文顶部范围为准，历史详情原图留在下述忽略输出。首稿失败图留在`output/ai/frontend-f0-refinement-review/agent-first/`，第二稿其余图、逐步结果与浏览器入口留在`agent-final/`。复现入口为`?page=agents&fixture=baseline&scenario=normal&theme=dark`，按上述Reviewer旅程操作；可恢复的fixture/harness沿用测试入口，不新增一套矩阵。浏览器/context均已关闭，作者拥有的5209服务已交回作者清理；无Git写入。其余8个设置栏目仍未实现，本轮没有扩展MCP列表或全站验收。
 
 ## general 单页第二稿：内部审查通过，待用户实看反馈
 
