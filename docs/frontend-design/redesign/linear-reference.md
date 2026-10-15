@@ -1,0 +1,42 @@
+# Linear 官方参考研究
+
+> 访问日期：2026-10-15。研究者实际读取下列官方页面 HTML（均 HTTP 200），下载并查看相关官方产品配图；没有登录 Linear、读取产品私有 CSS 或测量真实交互。本页是参考研究，不是 Linear 产品 token 的反向工程。
+
+## 1. 一手来源与可观察内容
+
+| 编号 / 官方来源 | 发布与实际观察 | 对本项目的用途与限制 |
+| --- | --- | --- |
+| L1：[A calmer interface for a product in motion](https://linear.app/now/behind-the-latest-design-refresh) | 发布 2026-03-12。正文说明导航降权、减少/缩小非必要图标、减少并软化分隔、统一 header 操作位置，默认主题从冷蓝向更暖的低饱和灰调整。已查看 APP / LOCATION BAR / VIEW BAR / CONTENT 示意及新版对照图 | 本轮最优先视觉依据：主内容更突出，边界更少、更柔和。分层图是说明蓝图，不能量取实际导航高度；对照图左侧为新版 |
+| L2：[How we redesigned the Linear UI (part Ⅱ)](https://linear.app/now/how-we-redesigned-the-linear-ui) | 发布 2024-03-28。说明 chrome 与 views 的区别，并以 list/board/split/fullscreen 压力测试；Inter Display/Inter 及 LCH 主题生成。已查看 After 产品图，包含列表、正文与属性栏 | 借鉴整体布局检验方式和内容层次。2024 字体/主题策略是历史证据；视觉冲突时以 L1 为先，不据此新增远程字体 |
+| L3：[Projects](https://linear.app/docs/projects) | 集合支持 list/board/timeline；项目 overview 包含 summary、properties、resources、description、milestones；项目名称附近有 Overview/Issues tabs 与操作。已查看“Project overview in Linear”截图 | 项目上下文、相邻菜单、成组属性和资源的参考。没有取得可保证为 2026 当前版的完整项目集合截图，不声称项目列表已被 1:1 测量；本项目不照搬未有的负责人/计划日期 |
+| L4：[Select issues](https://linear.app/docs/select-issues) | 已查看“Linear app showing multiple issues selected”：紧凑连续行、名称为主、ID/状态/优先级为辅，分组和选中使用整行底色 | 项目/对象列表的扫描与选中参考。配图含旧导航和彩色团队背景，不覆盖 L1；本项目没有批量命令就不增加假多选操作 |
+| L5：[Board layout](https://linear.app/docs/board-layout) | 正文说明 list/board、按状态分组、列头创建/菜单和横向滚动。已查看浅深项目看板截图，卡片密度一致，标题与辅助属性分层，列底色柔和 | 任务工作台及局部横滚参考。hero 为抽象线框，泳道部分含 2023/2024 样本，不是当前像素依据；七状态保持本项目定义 |
+| L6：[Issue properties](https://linear.app/docs/issue-property) | 已查看 priority menu（图标/标签/快捷键、选中背景）与 issue 详情（正文主区+右属性栏） | 属性就地编辑与详情布局参考。SLA 截图有强调遮罩，不能从压暗区域取色；本项目审批/Unknown 不能简化成普通属性切换 |
+| L7：[Issues / Creating issues](https://linear.app/docs/creating-issues) | 官方说明创建模态、标题/正文编辑和草稿离开恢复 | 短创建与长编辑载体的参考。没有实测快捷键或草稿持久化；本项目仍按自己的请求意图、权限与关闭门禁执行 |
+| L8：[Preferences](https://linear.app/docs/account-preferences) | 已查看“Screenshot of settings and preferences in Linear”：分区标题、共享圆角表面内的设置行、左侧标签/说明与右侧控件 | 个人和平台设置的分组参考；证明 Linear 并非禁止卡片和边界。本项目不新增语言、通知或字体大小等无契约偏好 |
+| L9：[Search](https://linear.app/docs/search) | 文字区分 workspace search、当前视图 filter 与 quick search；已查看顶部输入和连续结果截图，含范围、结果与筛选 | 搜索范围表达、键盘结果与返回的未来参考。本地无跨项目搜索 API，不承诺完整搜索、最近记录或全局快捷键已存在 |
+| L10：[Peek preview](https://linear.app/docs/peek) | 文字说明 Space 预览、上下相邻项和 Esc 关闭；已查看保持列表上下文的详情浮层 | 保留来源、轻查看与焦点恢复。Peek 快捷键属于可选增强，不列为重设计完成的必需新功能 |
+
+页面标题及图片 alt 是后续重新定位素材的线索。上述官方 Docs 图片可能经过裁切、缩放、渐变或局部高亮，也未必随 2026 更新同步；研究不会把营销窗口按钮、装饰背景或裁切边缘复制进产品。
+
+## 2. 如何落实到完整页面
+
+| 本项目模板 | 主要参考 | 迁移的结构与视觉 | 必须适配的本项目差异 |
+| --- | --- | --- | --- |
+| 系统 Dashboard / 项目概览 | L1 分层 + L3 Project overview | 少量清楚区块，当前上下文、资源入口和实际状态相邻 | 保留两个 Dashboard 层级；只消费已有真实数据，不移植虚假进度/成员/统计 |
+| 项目及各对象集合 | L1 + L4 连续行 | 弱化导航，名称列居主，状态辅助，统一选中底色与行操作 | 保留分页/筛选契约，项目就绪条件和 Owner 权限不变 |
+| Task 看板 / 详情 | L2 多视图 + L5 看板 + L6 属性 | 紧凑视图栏、连续看板、正文与属性分区、动作就地 | 七状态、Sprint、指派/评审/Blocker/执行与 Unknown 都不能被 Linear issue 模型替代 |
+| Knowledge / Artifact | L2 After 的阅读主区 + L3 资源 + L10 上下文预览 | 文档标题与正文优先，目录稳定，辅助信息按需展开 | 保留正文读取格式、分段加载、草稿和删除恢复；没有的格式预览不伪造 |
+| 设置栏目 | L8 分区设置行 + L6 属性编辑 | 菜单稳定、字段按目的分组、读与编辑明确、危险动作隔离 | Provider/Model/Credential 多实体与安全材料需专门流程，不能全改自动保存 |
+| 账号入口 | L1 排版和降噪原则 | 单一任务、清楚标签、稳定错误与等待、恰当行宽 | 本轮没有官方认证页实看证据；旋转挑战、邀请和密码恢复由自身业务决定 |
+| Meeting / Inbox / Search | L2 工作区 + L9 搜索 + L10 预览 | 内容中心、局部辅助区、范围明确、保留上下文 | 须取得实际集成代码；Meeting 是本项目独有复杂任务，没有“Linear 聊天页”作为已验证模板 |
+
+目标是完整页面接近参考的秩序、密度和操作完成度；每类页面的具体线框见[页面蓝图](page-blueprints.md)。不把“用了细线、中性色和小字号”当作完成对标。
+
+## 3. 可直接采用与待样板验证
+
+可采用的方向：减少无功能分隔和重复图标；区分系统、项目、视图和内容；连续行优先用于比较；读/写/危险动作分层；大内容获得主要空间；统一菜单/选择/详情的行为；通过完整 list/board/split/settings 页面检验系统。
+
+仍由本项目 F0 确定：强调色、精确字体尺度、导航高度、行高、圆角、阴影、断点、动效时长和正文宽度。研究没有取得 Linear 精确 token、动画曲线、组件 API、实际响应式行为或交互时延。候选数值只见[目标设计系统](target-design.md)，不得在实现说明中改称“Linear 官方值”。
+
+旧规范把冷青蓝、几何秩序或固定尺寸当成已定视觉基线，这些选择需要重新检验。研究也不支持“Linear 完全没有卡片、阴影或边框”；正确取舍是让它们表达真实分组和层级。

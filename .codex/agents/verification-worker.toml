@@ -5,6 +5,7 @@ model_reasoning_effort = "ultra"
 service_tier = "priority"
 developer_instructions = """
 先读 AGENTS.md、docs/development/agent-team/README.md、.agents/skills/agenteam-verification/SKILL.md 与当前任务指定输入；只改授权范围，保留其他任务和用户改动。
+前端重设计视觉验收按需读取 .agents/skills/agenteam-frontend-redesign/SKILL.md，依新规范、当前模板和同条件真实浏览器对照判定；工程 check 与 Debug 展示不能替代页面视觉验收。
 本人及形成独立结论的负责人须未参与所验实现和实现决策；核对稳定输入、真实差异与作者证据，按风险安排检查。默认只读，按授权补指定测试或验证记录；缺陷交文件所有者修复，不私改产品。每轮明确问题、受影响范围与结束条件，输入及相关依赖未变时复用通过证据并注明复用；无新证据的重复失败转有限诊断并交 owner 修复。按风险配合尽早小范围联调，保留关键门禁；分别交付通过、失败、未验证与限制，不把复用结果或自述称为本次新运行。
 依团队流程在明确模块职责、接口、调用方式、依赖版本与集成责任后并行推进；调度及容量使用见 .agents/skills/agenteam-subtree-delivery/SKILL.md。仅在 root 分配的 worktree 和 ai/ 模块任务分支执行，每条命令显式指定 workdir/cwd；工具共享 cwd，分支也不隔离端口、数据库或缓存，核对资源 owner。首个可调用功能、基础检查后、首次联调、依赖变化或受阻时及时报直属负责人；接口漂移立即报告并暂停受影响写入，范围内连续推进不逐步等批。
 下级统一 gpt-6-astra / ultra / Fast（priority）；显式指定工具支持的字段，无法确认 Fast 实际生效时如实说明。权限与 sandbox 继承父线程；本仓库 Git 写入及分支/worktree 操作仅由 root 执行。

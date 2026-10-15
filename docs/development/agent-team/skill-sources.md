@@ -8,6 +8,7 @@
 | [agenteam-design](../../../.agents/skills/agenteam-design/SKILL.md) | `architecture_worker`、`research_worker` | 本项目编写；共享设计与调研入口，引用已确认规则、开发计划和实际工程证据 |
 | [agenteam-go-development](../../../.agents/skills/agenteam-go-development/SKILL.md) | `backend_worker`；data / test / platform 按需使用 | 本项目编写；引用仓库结构及对应架构文档，运行前核对实际工程 |
 | [agenteam-vue-development](../../../.agents/skills/agenteam-vue-development/SKILL.md) | `frontend_worker` | 本项目编写；引用现有前端开发、组件与设计文档 |
+| [agenteam-frontend-redesign](../../../.agents/skills/agenteam-frontend-redesign/SKILL.md) | `frontend_worker`、`verification_worker`；设计 / test 按阶段使用 | 本项目编写；以 Linear 官方产品参考及设计规范 v2 串联完整页面样板、Vue 迁移与独立浏览器视觉验收，不复制设计参数 |
 | [agenteam-database](../../../.agents/skills/agenteam-database/SKILL.md) | `data_worker`；backend / verification 按需使用 | 本项目编写；前向迁移、同事务、完整锁集合、Unknown 确认与真实 PostgreSQL 验证 |
 | [agenteam-security](../../../.agents/skills/agenteam-security/SKILL.md) | `security_reviewer`；实现者 / verification 按需使用 | 本项目编写；当前授权与跨 scope 负例、秘密输出、出站和审计边界 |
 | [agenteam-test-engineering](../../../.agents/skills/agenteam-test-engineering/SKILL.md) | `test_worker`；frontend / backend / verification 按需使用 | 本项目编写；可恢复 harness、确定性故障与并发、真实浏览器及最终事实判定 |
@@ -15,7 +16,7 @@
 | [agenteam-documentation](../../../.agents/skills/agenteam-documentation/SKILL.md) | `documentation_worker`，实现者按需使用 | 本项目编写；将已确认决定归位，维护正式来源、引用和历史事实 |
 | [agenteam-verification](../../../.agents/skills/agenteam-verification/SKILL.md) | `verification_worker`，作者自查按需使用 | 本项目编写；引用实际差异及验证规范，自查不冒充独立验收 |
 
-十个原有工程技能服务十一种按需角色；技能按当前问题组合，不要求全量读取，也不授予额外写入权或独立验收身份。公共调度、所有权和风险验收集中在[团队流程](README.md)，技能保留触发条件、专业方法、交付结果和失败边界。业务规则与样式参数仍在正式文档维护，不复制成另一份规则。外部实践的采用与取舍见[团队设计依据](team-design.md)。
+十个原有工程技能与新增的前端重设计编排服务十一种按需角色；技能按当前问题组合，不要求全量读取，也不授予额外写入权或独立验收身份。公共调度、所有权和风险验收集中在[团队流程](README.md)，技能保留触发条件、专业方法、交付结果和失败边界。业务规则与样式参数仍在正式文档维护，不复制成另一份规则。外部实践的采用与取舍见[团队设计依据](team-design.md)。
 
 检查项目技能时核对 frontmatter 的 `name`、`description`、目录对应关系及引用，记录实际使用的校验方法、稳定输入和结果；当前环境支持时再核对运行时发现。静态格式通过、技能可发现、显式实例运行与 CLI 自动加载分别说明，不能互相代替。
 
@@ -48,11 +49,25 @@ AT-0001 通过 `skill-installer/scripts/install-skill-from-github.py` 使用 `--
 
 候选 [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) 的 `skills/web-design-guidelines/SKILL.md` 在提交 `063bee94c3f4df8453406c830b0a7df0f2860278` 要求每次获取远端 `main/command.md`，且该提交文件树未发现许可文件。未复制此 wrapper；采用其指向的、有明确 MIT 许可的规则来源并编写本地适配入口。该候选核查时未归档或禁用，仓库最近推送为 2026-08-28。
 
-用户选择的 Linear 官方产品参考、[界面设计逻辑](../../frontend-design/interface-design.md)、[样式规范](../../frontend-design/styles/README.md)与现有 token / Ui 组件优先。公开 Linear 页面是产品设计参考，不是本项目获得了一套完整官方设计系统或官方 token。Anthropic 的品牌探索、字体/调色板重选及 hero 建议不覆盖已确认风格；Vercel 的 React/Tailwind 示例、英文大小写、统一关闭自动填充、全量 URL 同步和固定虚拟化阈值按 Vue 与业务契约解释。两个入口明确技术信息渐进展开、状态反馈和真实证据边界。
+用户选择的 Linear 官方产品参考和[设计规范 v2](../../frontend-design/redesign/target-design.md)是重设计依据；旧布局、样式、token / Ui 组件用于迁移核对，不锁定新设计。公开 Linear 页面是产品设计参考，不是本项目获得了一套完整官方设计系统或官方 token。Anthropic 的品牌探索、字体/调色板重选及 hero 建议不覆盖已确认风格；Vercel 的 React/Tailwind 示例、英文大小写、统一关闭自动填充、全量 URL 同步和固定虚拟化阈值按 Vue 与业务契约解释。两个入口明确技术信息渐进展开、状态反馈和真实证据边界。
 
-本次只安装上述六个技能文本/许可文件；逐文审读未发现收集数据、上传源码或 Secret、更改全局权限、运行远端脚本的要求。没有执行 `npx`、远端安装器、依赖升级或全局配置修改。原文中的产品/库示例不授权安装依赖，参考更新须作为单独工作项固定新提交、重读内容与许可后再替换，不在日常审查中动态拉取规则。
+2026-10-14 的安装仅包含上述六个技能文本/许可文件；逐文审读未发现收集数据、上传源码或 Secret、更改全局权限、运行远端脚本的要求。没有执行 `npx`、远端安装器、依赖升级或全局配置修改。原文中的产品/库示例不授权安装依赖，参考更新须作为单独工作项固定新提交、重读内容与许可后再替换，不在日常审查中动态拉取规则。
 
 入口位于 `.agents/skills/<name>/SKILL.md`，并由 [Vue 开发技能](../../../.agents/skills/agenteam-vue-development/SKILL.md)按任务引用。静态检查使用 PyYAML 解析两项入口的 frontmatter，核对名称与目录、必要字段、UTF-8/LF、相对链接与固定参考字节校验值；目录扫描能列出两项技能。该检查证明仓库入口和引用存在，不证明当前会话或 CLI 自动加载，也不代表产品 UI 已验收。实际使用按具体任务记录。
+
+## 前端重设计编排
+
+2026-10-15 根据用户“对照 Linear 重新制定设计规范”的要求，新增本项目编写的 [agenteam-frontend-redesign](../../../.agents/skills/agenteam-frontend-redesign/SKILL.md)。它将[设计规范 v2](../../frontend-design/redesign/target-design.md)、当前[页面蓝图](../../frontend-design/redesign/page-blueprints.md)和[执行阶段](../../frontend-design/redesign/implementation-plan.md)连接到已有技能；不引入外部脚本、依赖或新的设计参数副本。
+
+| 阶段 | 已有能力与本次补齐 |
+| --- | --- |
+| 规范 / 完整页面样板 | 复用 `frontend-design`、`web-design-guidelines`；新编排要求先验证项目列表、任务工作台、复杂设置三种完整页面，再提炼共享层 |
+| Vue / 组件 / 页面迁移 | 复用 `agenteam-vue-development`；写测试时复用 `vue-testing-best-practices`；现有业务状态与接口继续按正式契约执行 |
+| 浏览器与独立验收 | 复用 `agenteam-test-engineering`、`agenteam-verification`、`web-design-guidelines`；新编排补充按模板的版式门槛、同数据/状态/viewport/theme 对照和失败返修 |
+
+上述六项已有技能本次没有重装，上游固定参考与许可保持原样；仅最小调整四个项目入口及前端/验证角色的按需引用，让旧视觉规则退为迁移输入。`vue-best-practices` 和 `skill-creator` 未在本轮检查的仓库及本机技能目录中找到，没有将其写为已安装能力，也不将其作为阶段前置条件；本轮使用已有文档技能核对来源、frontmatter、链接与配置。
+
+新技能位于仓库标准发现目录 `.agents/skills/`。目录存在、静态解析、运行时发现及实例实际调用分别举证；这些事实都不能保证视觉品质，真实页面效果与交互仍须按任务独立验收。
 
 ## Playwright
 

@@ -1,5 +1,7 @@
 # 任务页面布局
 
+> **v1 历史布局/业务参考。** 新页面设计以 [v2 页面蓝图](../redesign/page-blueprints.md)与[目标设计系统](../redesign/target-design.md)为准；下文旧视觉、宽度和占位要求不再作为重设计约束。业务字段和流程需核对当前架构、工作项及源码，不能仅凭本历史文档判定已实现。
+
 > 上层：[项目工作台](project-workspace.md)。Kanban 与 Explore 共用 Work Management 数据和操作规则。
 
 ## 1. 页面职责与示意

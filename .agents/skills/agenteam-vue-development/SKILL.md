@@ -14,9 +14,9 @@ description: 在 agenteam 接到前端实现任务卡时使用，按既定接口
 
 - 开始前读 [仓库规范](../../../AGENTS.md)、任务卡和指定共享规格，后续仅补读变化及相关输入。
 - 读 [前端开发基础](../../../docs/development/frontend/README.md) 与 [公共组件接口](../../../docs/development/frontend/components.md) 的相关章节。
-- 从 [前端设计入口](../../../docs/frontend-design/README.md) 选择任务对应的 `layouts/` 文档。
-- 从 [样式规范](../../../docs/frontend-design/styles/README.md) 选择任务对应的主题、密度和交互规范。
-- 视觉层级、界面文案及组件品质使用 [frontend-design](../frontend-design/SKILL.md)，UI / UX / 无障碍审查使用 [web-design-guidelines](../web-design-guidelines/SKILL.md)；两者均为固定外部参考的项目适配入口，用户指定的 Linear 风格、现有规范与 tokens 优先。
+- 重设计、完整页面样板或页面迁移先读 [agenteam-frontend-redesign](../agenteam-frontend-redesign/SKILL.md)，按当前阶段读取[设计规范 v2](../../../docs/frontend-design/redesign/target-design.md)与对应页面蓝图。
+- [前端设计入口](../../../docs/frontend-design/README.md)中的旧布局、[样式规范](../../../docs/frontend-design/styles/README.md)和现有 token 用于核对迁移现状及业务能力；重设计的布局、主题、密度和交互以 v2 为准。
+- 视觉层级、界面文案及组件品质使用 [frontend-design](../frontend-design/SKILL.md)，UI / UX / 无障碍审查使用 [web-design-guidelines](../web-design-guidelines/SKILL.md)；两者均为固定外部参考的项目适配入口，不以旧样式限制新规范。
 - 写 Vue 测试时读取相邻 [Vue 测试最佳实践](../vue-testing-best-practices/SKILL.md)，仅加载当前测试需要的参考。
 - 浏览器任务使用仓库内[测试工程技能](../agenteam-test-engineering/SKILL.md)及锁定 Playwright harness；机器已有的外部 `playwright` 技能可按需辅助，其缺失不构成硬前提。
 
@@ -38,7 +38,7 @@ description: 在 agenteam 接到前端实现任务卡时使用，按既定接口
 
 1. 核对 root 分配的 worktree/cwd 与 `ai/` 模块任务分支，每条命令显式指定 `workdir`/cwd；再核对卡片修订、Git 基线、实际源码、依赖版本与文件/资源所有权，保留已登记的其他任务及用户改动。
 2. 按既定 props/emits 完成正常与异常交互，核对源码类型与组件文档，在正式验收的同一原子变更中同步代码、测试与必要局部文档；公共接口冲突时只暂停受影响部分并报告直接负责人。
-3. 遵循已确认的布局、主题、密度和交互规范，优先复用现有 Ui 控件、composables 与共享 tokens。
+3. 遵循本阶段的新布局、主题、密度和交互规范；先完整页面样板再迁移共享层。复用现有业务 composables 与适用 Ui 控件，按唯一 owner 协调新 token/组件，不让旧组件外观限制页面目标。
 4. 共享组件不得引入 Debug 演示代码、数据或业务 API。
 5. Debug 仅供开发，确保生产路由和构建继续排除其展示代码。
 6. Vue 3 使用周边一致的 `<script setup lang="ts">`、模板及样式写法。

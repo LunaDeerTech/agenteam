@@ -15,6 +15,7 @@ description: 在 agenteam 需要独立审查、测试或配置文档验证时使
 - 读 [仓库规范](../../../AGENTS.md)、任务卡、共享规格和实际 diff；同一任务后续只补读变化及相关输入。
 - 前端影响读 [前端开发基础](../../../docs/development/frontend/README.md) 与 [验证记录](../../../docs/development/frontend/verification.md)。
 - 组件验证读 [公共组件接口](../../../docs/development/frontend/components.md) 及任务对应设计文档。
+- 前端重设计、样板或页面迁移的视觉验收读取 [agenteam-frontend-redesign](../agenteam-frontend-redesign/SKILL.md)，以[设计规范 v2](../../../docs/frontend-design/redesign/target-design.md)及当前页面蓝图检查完整页面；旧 token/Debug 合规、工程 check 或作者截图不能单独构成视觉通过。
 - 写 Vue 测试时读取 [Vue 测试最佳实践](../vue-testing-best-practices/SKILL.md) 的对应参考。
 - 后端验证从 [仓库结构](../../../docs/development/repository-structure.md) 和 [系统架构](../../../docs/architecture/README.md) 选择相关来源。
 - 浏览器任务使用本仓库[测试工程技能](../agenteam-test-engineering/SKILL.md)与锁定 harness；外部 `playwright` 技能可按需辅助，缺少它不阻止使用仓库已安装 CLI。
