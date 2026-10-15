@@ -421,3 +421,11 @@ cold 沿原 Builtin registered Lookup：限定 `skill.prepare` rev1，排除本�
 原七回复 top 在共同 `40974` 候选中 PASS13.38s、原 Wait0。answer/skip 沿原同一 Execution 继续并完成 Turn，cancel 使原 Decision cancelled/version2、Execution/Turn cancelled、Inbox resolved；重建不重开。实际 sole 计数为6条 canonical 事件（3 requested、3 closed），6条 Outbox 与对应事件同 xmin，3条 terminal 事件与对应 Decision 同 xmin；不是四条事件，四指 requested/answered/skipped/cancelled 四类。7个 Model calls 与 Secret leases 全退休，原 App/Guard/数据库退出及官方 fixture 清退齐。
 
 Model owner 接受上述同 E、Inbox 与原退出的有限闭包，未见剩余已证 must-fix；integration 已核 sole 的6/6/3计数后整理本节。原 successor stale 观察未被当作根因或要求修改 Execution，旧超时不回填。本轮未重跑，真实浏览器、其它控制及完整 Meeting 仍按各自出口验证。
+
+## Meeting 双 topic Realtime 默认 App 实际核证
+
+2026-10-15；由未参与所验实现的 `m3_core_review` 独立只读核共同 App `6ae58476`、最终 Playwright `ba2efba5`、作者 `22854` 原日志 `/tmp/m3-meeting-realtime-mode-native.KnmbkTx2/native.log` 及对应冻结断言。原 Go Wait0/PASS9.43s、Playwright 单例 PASS4.8s；两 topic 的精确 acknowledgement/snapshot/invalidation、原 Decision 同一 Execution 继续、已提交 Tool 结果/公开文本与 Timeline Summary、Start/Answer 原 lookup 均实际到达。原3个 Model calls、3个 lease、1个 Decision result 及 App/runtime/owners/Guard/数据库连接归零断言通过。
+
+前两轮关闭事件观察和默认 mode 与原 intent 不符的失败保留。修后显式选择原 sequential，业务结束时复制完整帧窗口，随后实际导航离开 Meeting 并观察 socket close；没有按类型筛掉业务失败帧。45是包含 teardown 的总观察帧数，Go 严格核验导航前完整业务窗口，退出尾保留独立诊断。reviewer 亲看两张截图，又独立 inspect 6个精确 Docker ID、3个目录以及 App/list-Node/PW-Node 3个已记录 PID 全部 absent；没有逐个捕获 Chromium 子 PID，不扩大为每个浏览器后代的独立退出证明。原私有 result JSON 已由 Go 读取后删除，reviewer 未声称亲读该已删除文件。
+
+**接受这一有限双 topic 正常用户链与原退出闭包，未见范围内剩余已证 must-fix。**不外推 token 增量、新的 resync/撤权异常旅程、窄屏或完整 D24/D25；Gateway 旧普通/race和异常边界证据按原范围复用。Composer 的后段失败独立保留。integration 仅按实际 reviewer 回执整理本节，未冒充独立执行或重跑 fixture。

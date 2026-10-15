@@ -9,13 +9,13 @@
 | proposed / active / archive | Owner Start/归档恢复已验；47694真实Agent提议→Inbox→Owner HTTP接受/拒绝与原lookup、重建及恢复后发言完整通过 | 同一Inbox→Proposal→处理→返回浏览器；后继普通archive/restore canonical事件组合 |
 | 参与者与引用 | 会中roster/typed references原事务、HTTP/UI与资源选择器已落；原普通门及前端定向检查通过 | 新PG/三Turn浏览器与真实跨域composite；File按D24纠正为稳定ArtifactID，内部FileID只属正文链，新形状待窄测/实际门 |
 | 编排 | sequential 首真实 App；7298 新parallel/queue/interrupt真实App通过共同input、原取消屏障后插话优先、旧FIFO继续和完整退出；busy/skip已有领域受控验证 | busy/skip受影响的用户可见组合；不重跑不变通过门 |
-| Decision / Approval | Decision与Approval原真实App/浏览器已过；58814另验证Decision四类事件/Inbox、answer/skip/cancel与原退出完整链；Approval含批准/原lookup、拒绝零派发、单A取消后B继续及晚批准拒绝 | 保持原权限/来源边界；新Realtime等待态浏览器仍待实际 |
+| Decision / Approval | Decision与Approval原真实App/浏览器已过；58814另验证Decision四类事件/Inbox、answer/skip/cancel与原退出完整链；Approval含批准/原lookup、拒绝零派发、单A取消后B继续及晚批准拒绝 | 保持原权限/来源边界；22854另通过真实Realtime等待/回答同E链 |
 | Contribution cancel / retry / regenerate | 单C取消真实Runner/浏览器已过；Retry/Regenerate原lineage/历史真实PG通过（Executor/Summary替身）；History DTO/控件源码与27个前端定向tests通过 | 新后端/前端组合、实际App新尝试与历史版本浏览器 |
 | Summary / finalize | 首次标题+四字段与滚动摘要；82796固定snapshot/retry/取消退休；2805 prepared-beforeResolve实际崩溃后保原source、不重发、诚实失败并由Owner取消原Turn | 本冷门不覆盖已Resolve/dispatch窗口；受控Provider通过不代外部模型服务 |
-| Timeline / 领域工具 | 稳定贡献项与当前来源；request-decision已验；四常规工具47694通过；58034真实同Meeting E的retain/recall/reflect、公开回复与Summary完整通过 | 历史generation网页；update/comment语义待用户；严格RuntimeView与Realtime首实际组合 |
-| 生命周期与通知 | 原owners与队列重建；50965真实Owner删除、原调用退休、同Tx审计/Deleted、外域历史保留及迟到命令拒绝通过 | 删除浏览器；Unknown/冷恢复与Realtime后继实际组合 |
+| Timeline / 领域工具 | 稳定贡献项与当前来源；request-decision已验；四常规工具47694通过；58034真实同Meeting E的retain/recall/reflect、公开回复与Summary完整通过 | 历史generation网页；update/comment语义待用户；22854已通过有限Realtime展开执行与已提交文本 |
+| 生命周期与通知 | 原owners与队列重建；50965真实Owner删除、原调用退休、同Tx审计/Deleted、外域历史保留及迟到命令拒绝通过 | 删除浏览器；其它Unknown/冷恢复窗口不由当前链外推 |
 
-以上属于原 M3 完整交付差额，不另缩减为普通文本 Summary 或单个正常链。Approval、固定 Summary snapshot/取消与134 prepared冷窗口实际链已闭合；Decision141四类事件/Inbox完整七回复也已通过；下一 Retry UI、参与者/引用及Realtime首真实组合，保留其它完整差额。
+以上属于原 M3 完整交付差额，不另缩减为普通文本 Summary 或单个正常链。Approval、固定 Summary snapshot/取消与134 prepared冷窗口实际链已闭合；Decision141四类事件/Inbox完整七回复也已通过；Realtime首真实双topic22854也已完成原持久事实与退出门；下一 Retry UI、参与者/引用及其它完整差额。
 
 ## 本轮剩余出口（有限清单）
 
@@ -27,7 +27,7 @@
 4. **正式工具与提议**：四常规工具/Proposal/Inbox原HTTP九回复链47694已完整通过，原App/peer/guard和夹具实际退出；同一Inbox→Proposal→处理→返回浏览器按原owner另记。update/comment两项只有用户尚未答复的产品语义缺口，不自行定义。58034已验证原Memory retain/recall/reflect在同Meeting Trigger/E下的完整调用、原provenance、Summary及退出，不新增三种Memory提议工具。
 5. **本Meeting的canonical事件与人工待办**：Proposal与Deleted已有真实源；普通archive/unarchive同Tx Archived/Restored受控普通已过，实际组合另验。141 Decision四类事件/私有source/Inbox已组合，独立SQL10976通过。50907原失败定位第三cancel的optional typed零ID编码漏选Decision；最小修保显式scope和全部权限门，9414六scope/原live transition普通通过。修后58814固定40974原七回复90秒门Wait0/PASS13.38秒：answer/skip各原E与Turn完成，cancel原D/E/Turn取消且Inbox resolved；四类事件共6条（3requested+3closed），6条各与Outbox同xmin、3条终态各与原Decision同xmin，strict source_context、重建不重开与原App Joined通过，6IDs/3dirs/PID完整清退。原50907及22091失败保留，不把successor日志单独当根因，也不外推Realtime浏览器。本项只处理Meeting Decision，不复制Governance或聚合其它新业务域。
 6. **内联内容第一阶段入口**：领域已保存并序列化text/mention/reference节点，但现composer只发送text。仍需@参与者、#现有Task/Knowledge/Artifact资源、URL与回复关系的最小节点编辑/渲染、原Artifact上传后插入及pin；资源不可用显示沿正式资源权限查询。现Meeting Info picker不能冒充消息内联入口。不做完整富文本、自动读取引用正文、自动抓链接或独立文件存储。
-7. **实时与展开Execution视图**：统一Gateway、Meeting两topic的current完整tuple授权与已提交runtime投影、前端ack/snapshot/update/resync链已组合并有受控普通测试；固定40974 App与f6dc私有dist/harness就绪，三回复真实双topic浏览器尚未运行。仅真实状态/waiting/Tool结果/已提交公开文本，本M3不含token增量，不将轮询或终态Snapshot称完整D25流式能力。
+7. **实时与展开Execution视图**：22854固定40974 App、f6dc原dist和ba2 PW的三回复真实链已Wait0/PASS9.43秒：原Cookie/Origin、两topic ack/snapshot、同E Decision waiting→HTTP answer、已提交Tool/公开text及Timeline Summary1、原receipt/current tuple/3Model与lease退休、真实socket关闭和App Joined全部通过，6IDs/3dirs/进程完整清退；两桌面截图已view。5649关闭后观察与77567未选串行的harness失败保留；修正没有放宽Go或预算。仅正常连接的canonical状态与已提交内容，不含token增量，不外推实际断连/resync或完整D25流式能力。
 
 ## 已实现与接缝
 
