@@ -5,23 +5,23 @@
 ## 本轮分支与职责
 
 - 本轮调整基线：`c4c4c9d7`；任务分支：`ai/frontend-f0-refinement-20261015`；当前工作树：`/workspace/agenteam-f0-refinement`。原 F0 工作树已移除，不能沿旧目录恢复。
-- 唯一活动写会话为 `/root`，root 负责全部 Git 与集成。当前样板候选 `78b18481` 已远端保存，包含 Agent 与共同页头及 Memory Unknown 定向修复；本轮继续使用此任务分支，暂不合并 main，main 仍为 `b6db5297`。最终检查说明由 root 一并保存，恢复按[状态说明](README.md)核对分支最新提交与本地差异。
+- 唯一活动写会话为 `/root`，root 负责全部 Git 与集成。Agent 返回导航独立上置、详情说明使用当前描述的小修已保存至 `80c1fd71`；当前转入三 Tab 调整，尚无新检查结论。本轮继续使用任务分支，暂不合并 main，main 仍为 `b6db5297`；恢复按[状态说明](README.md)核对分支最新提交与本地差异。
 - `/root/f0_refinement_designer` 负责设计与样板实现，本轮不写正式设计正文；`/root/f0_structure_audit` 只读核对结构；`/root/f0_refinement_review` 负责独立审查；`/root/f0_test` 更新作者侧 harness；`/root/f0_docs` 独写本文件、任务台账顶部、`prototype/README.md`，以及 `page-blueprints.md`、`target-design.md`、`implementation-plan.md` 本轮对应规则。
 
 ## 当前断点与下一步
 
 技能与公开实践已归入[前端重设计技能](../.agents/skills/agenteam-frontend-redesign/SKILL.md#从一个完整页面建立方法)与[来源说明](../docs/development/agent-team/skill-sources.md#前端重设计方法的本地适配)。用户已实看 general 并要求去除名称/描述外层框，限定开放布局修正已完成；这不代表用户已认可整个示范。[目标设计 §8](../docs/frontend-design/redesign/target-design.md#8-f0-可实现视觉值与组件使用决定)仍保留待重校的原样板数值。
 
-**当前候选已完成限定内部检查：General、Agent 与 MCP 共用页头，Agent 为列表 → 独立详情 → 同对象 Memory，并提供完整创建表单。** 页头使用宽区域，标题、说明与正文起点统一，较窄表单靠左且无外围框。Agent 初始不选中对象、不与详情并排；返回保留列表位置与焦点，未保存修改有离页保护。正常整页及独立关键旅程内部通过，有限状态/恢复、键盘、普通与减少动效及原生200%由测试分别验证；Memory Unknown 误称保存并丢失恢复视图的真实问题已修复复验。MCP 仅改页头，列表结构待 Agent 用户反馈后再决定；这些结果不代表用户已认可当前候选。
+**当前正在按用户新要求将 Agent 详情改为三个 Tab：基本配置、能力与资源、记忆。** 基本配置承载身份、描述、指令、模型与审批；取消独立“查看记忆”按钮，同一 Agent 切换 Tab 保留草稿。详情标题、当前描述与上方独立“← Agent”返回列表入口保持稳定；没有描述时不显示说明行，技术名留在基本信息。页头宽度与标题/正文横向起点仍一致，不要求不同层级标题纵向齐平。实际路由与返回契约待实现者交付，本轮尚未完成内部检查或取得用户认可；MCP 仅保留已做的页头调整，不扩对象结构。
 
 此前 general 的正常/减少动效、窄屏、菜单与原生200%竞态修复等限定证据见[测试说明](../docs/frontend-design/redesign/prototype/test-README.md)与[独审入口](../docs/frontend-design/redesign/prototype/review/README.md)，只按未受影响的原输入复用。旧11类模板没有本轮整体验收；11个设置栏目中其余8叶仍无本轮业务样板，`task-pages.js` / `task.css` 仍未接入并保留 WIP。
 
-下一步从此任务分支的已修复候选继续，供用户实看 Agent 列表/详情与共同页头，再按反馈推进 F0 返修；入口与创建、Memory 参数见[样板说明](../docs/frontend-design/redesign/prototype/README.md#启动与参数)。3个 Agent 是按真实字段构造的合成对象，不能与旧正式 Vue 的单 reviewer 声称同输入对照。实现仍限隔离样板及必要文档/harness，未修改产品 `web/src/`、后端或业务契约；F0 全局未定稿，设计值未冻结，F1—F8 未开始。
+下一步完成三 Tab 及同对象草稿/返回行为，冻结后按影响检查，再同步[样板说明](../docs/frontend-design/redesign/prototype/README.md#启动与参数)中的实际入口；现有说明与检查不得代证新 Tab 已完成。3个 Agent 是按真实字段构造的合成对象，不能与旧正式 Vue 的单 reviewer 声称同输入对照。实现仍限隔离样板及必要文档/harness，未修改产品 `web/src/`、后端或业务契约；F0 全局未定稿，设计值未冻结，F1—F8 未开始。
 
 ## 材料与检查边界
 
 - [样板说明](../docs/frontend-design/redesign/prototype/README.md)保存仓库内启动入口、参数、现有 API 映射与合成边界；需取得本任务分支，单独更新 main 没有本轮候选。
-- [作者检查](../docs/frontend-design/redesign/prototype/test-README.md)与[独立审查](../docs/frontend-design/redesign/prototype/review/README.md)分别保存本轮有限测试、正常整页与实际旅程的输入和结论，保留原 Memory Unknown 失败及原生缩放测试定位修正的记录；没有重跑全站矩阵或产品业务测试。作者预览服务与测试自有服务均已退出并回收，浏览器/context 已关闭、临时 profile 已删除，没有遗留本轮测试软链。
+- [作者检查](../docs/frontend-design/redesign/prototype/test-README.md)与[独立审查](../docs/frontend-design/redesign/prototype/review/README.md)分别保留此前 Agent 候选的限定通过、真实失败与复验记录，以及返回导航小修在用户转向后的实际停止边界；这些不代表新三 Tab 通过。没有重跑全站矩阵或产品业务测试。原 Agent 候选检查的自有资源已清理；本轮资源退出须由对应 owner 实际确认。
 - Git 保存已有样板、harness、必要说明和最小审查图；原始截图、trace与日志在忽略的 `output/ai/` 下，不通过 Git 跨设备恢复。旧机器输出和绝对路径不作为当前可用资源证明，复现与资源退出以对应 owner 的实际记录为准。
 
 ## 保留的既有恢复入口
