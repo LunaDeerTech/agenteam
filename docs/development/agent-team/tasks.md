@@ -2,9 +2,9 @@
 
 ## 本轮前端设计 v2 与重构规划
 
-2026-10-15 用户要求对照 Linear 重建设计规范，并执行 **F0 完整页面样板与视觉系统定稿**。本轮11个必需页面、Knowledge 四格式/PDF与可实施视觉值已获独立接受，已知审查阻塞经返修复验关闭；信息层级保持系统 Dashboard → 项目列表 → 项目空间 → 项目 header menu。**F0 样板已完成，F1—F8 正式产品迁移未开始**；本轮未修改产品 `web/src/` 或后端。正式来源见[设计 v2 入口](../../frontend-design/redesign/README.md)、[样板及复现](../../frontend-design/redesign/prototype/README.md)与[阶段计划](../../frontend-design/redesign/implementation-plan.md)。
+2026-10-15 用户实看后未接受现有样板的信息结构与视觉品质，指出项目菜单多出项、项目设置结构与下拉样式错误、层次不清、与 Linear 差距明显以及动效质感不足。**F0 已重开返修，视觉系统数值待重新校准；F1—F8 正式产品迁移未开始。** 本轮从 `b6db5297` 接续，仍限隔离样板、设计文档与必要 harness，不修改产品 `web/src/` 或后端。正式来源见[设计 v2 入口](../../frontend-design/redesign/README.md)、[样板及复现](../../frontend-design/redesign/prototype/README.md)与[阶段计划](../../frontend-design/redesign/implementation-plan.md)。
 
-本轮基于已包含 M3 的 `d55bf044`；旧 `ce2f8467` 审计与本轮实际样板检查保持各自输入范围。[作者检查](../../frontend-design/redesign/prototype/test-README.md)和[独立审查](../../frontend-design/redesign/prototype/review/README.md)保存结果、原失败及限制；合成 fixture 与当前 Vue 页的对照不代真实业务验收，本轮未跑真实产品测试。Git 交付与接续见[当前恢复状态](../../../.agent-state/current.md)。下方 M3、旧失败及 STOP 保留各自原输入含义；未完成的 `ai/task-comments-20261013` 继续保留。
+原[作者检查](../../frontend-design/redesign/prototype/test-README.md)和[独立审查](../../frontend-design/redesign/prototype/review/README.md)按当时输入保留技术与交互通过、失败和复验事实；这些内部结论不代表用户已认可设计，也不能替代新样板的受影响复验或真实业务验收。返修后如尚无新的用户认可，报告“已修订/内部审查结果，待用户实看反馈”。分支与职责见[当前恢复状态](../../../.agent-state/current.md)。下方 M3、旧失败及 STOP 保留各自原输入含义；未完成的 `ai/task-comments-20261013` 继续保留。
 
 ## 当前目标与工作包状态
 
