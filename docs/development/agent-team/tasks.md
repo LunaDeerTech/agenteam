@@ -4,7 +4,7 @@
 
 2026-10-15 用户实看后未接受现有样板的信息结构与视觉品质，指出项目菜单多出项、项目设置结构与下拉样式错误、层次不清、与 Linear 差距明显以及动效质感不足。**F0 已重开返修，视觉系统数值待重新校准；F1—F8 正式产品迁移未开始。** 本轮从 `b6db5297` 接续，仍限隔离样板、设计文档与必要 harness，不修改产品 `web/src/` 或后端。正式来源见[设计 v2 入口](../../frontend-design/redesign/README.md)、[样板及复现](../../frontend-design/redesign/prototype/README.md)与[阶段计划](../../frontend-design/redesign/implementation-plan.md)。
 
-本轮沿[重设计方法](../../../.agents/skills/agenteam-frontend-redesign/SKILL.md#从一个完整页面建立方法)继续返修。用户要求 Agent 返回导航独立置于页头上方、说明使用当前描述；这两项小修已保存。当前进一步改为“基本配置 / 能力与资源 / 记忆”三个 Tab，保留固定对象标题/描述与返回列表入口，同对象切换保留草稿，取消“查看记忆”按钮；正在实施，尚无新 Tab 通过结论。此前候选的限定内部结果按原输入保留，不代表用户接受或 F0 完成，设计值未冻结。其余8个设置栏目仍为静态文字，MCP 仅改页头；Task 两文件仍未接入。工作仍在 `ai/frontend-f0-refinement-20261015` 分支，本轮暂不合并 main。
+本轮沿[重设计方法](../../../.agents/skills/agenteam-frontend-redesign/SKILL.md#从一个完整页面建立方法)继续返修。用户要求 Agent 返回导航独立置于页头上方、说明使用当前描述；这两项小修已保存。当前三 Tab 结构已保存，正在按新要求拆分保存边界：基本配置独立手动保存/取消，切 Tab 可保留其草稿；已有 Agent 的能力与资源按完整操作即时保存、无整页保存，记忆沿现能力逐条操作、不造手动新增 API。资源/Memory 成功不因基本配置取消而撤销；固定对象页头与独立返回列表保留，尚无新行为通过结论。此前候选的限定内部结果按原输入保留，不代表用户接受或 F0 完成，设计值未冻结。其余8个设置栏目仍为静态文字，MCP 仅改页头；Task 两文件仍未接入。工作仍在 `ai/frontend-f0-refinement-20261015` 分支，本轮暂不合并 main。
 
 [作者检查](../../frontend-design/redesign/prototype/test-README.md)和[独立审查](../../frontend-design/redesign/prototype/review/README.md)分别记录本轮限定结果，并保留原输入的技术与交互通过、失败和复验事实；这些内部结论不代表用户已认可设计，也不能替代新样板的受影响复验或真实业务验收。返修后如尚无新的用户认可，报告“已修订/内部审查结果，待用户实看反馈”。分支与职责见[当前恢复状态](../../../.agent-state/current.md)。下方 M3、旧失败及 STOP 保留各自原输入含义；未完成的 `ai/task-comments-20261013` 继续保留。
 
