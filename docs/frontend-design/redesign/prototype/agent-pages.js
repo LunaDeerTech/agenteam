@@ -66,7 +66,13 @@ const scopeFor = (ctx) =>
   `${ctx.params.get("owner") || "owner"}:${ctx.params.get("project") || ctx.params.get("project_id") || ctx.params.get("project_name") || "Atlas"}`;
 const keyFor = (ctx) => `${scopeFor(ctx)}:${ctx.fixture}:${ctx.scenario}`;
 const agentID = (ctx) => ctx.params.get("agent") || "";
-const isMemory = (ctx) => ctx.params.get("view") === "memory";
+const tabFor = (ctx) => {
+  const view = ctx.params.get("view");
+  if (view === "resources") return "resources";
+  if (view === "memory" && agentID(ctx) !== "new") return "memory";
+  return "basic";
+};
+const isMemory = (ctx) => tabFor(ctx) === "memory";
 const readOnly = (ctx) =>
   ctx.scenario === "readonly" ||
   (ctx.params.get("project_lifecycle") || "active") !== "active";
@@ -216,7 +222,8 @@ function draftFor(ctx, state) {
       touched: new Set(),
       message: "",
       conflict: ctx.scenario === "conflict",
-      sections: new Set(),
+      sections: new Set(["runners", "secrets", "tools", "skills"]),
+      error: null,
     };
   }
   const edit = state.edits[id];
@@ -255,6 +262,14 @@ function heading(title, description, actions = "", back = "") {
 }
 function backLink(ctx, text, extra = {}) {
   return `<a href="${esc(href(ctx, extra))}" class="agent-back" data-agent-back="${extra.agent || ""}">${icon("back", 13)}${esc(text)}</a>`;
+}
+function tabs(ctx) {
+  const items = [
+    ["basic", "基本配置"],
+    ["resources", "能力与资源"],
+  ];
+  if (agentID(ctx) !== "new") items.push(["memory", "记忆"]);
+  return `<div class="agent-tabs" role="tablist" aria-label="Agent 配置">${items.map(([key, title]) => `<a id="agent-tab-${key}" role="tab" class="agent-tab" data-agent-tab="${key}" href="${esc(href(ctx, { agent: agentID(ctx), ...(key === "basic" ? {} : { view: key }) }))}" aria-controls="agent-tab-panel" aria-selected="${tabFor(ctx) === key}" tabindex="${tabFor(ctx) === key ? "0" : "-1"}">${title}</a>`).join("")}</div>`;
 }
 function gate(ctx, noun) {
   if (ctx.scenario === "loading")
@@ -326,22 +341,21 @@ function configuration(ctx, state, current) {
   ];
   const secrets = `<p class="agent-section-note">仅选择此 Agent 可使用的 Secret Variable，不显示凭据内容。</p>${allSecretChoices.map((secret) => `<label class="agent-check-row"><input type="checkbox" data-secret="${secret.id}" ${value.secretIDs.includes(secret.id) ? "checked" : ""} ${locked ? "disabled" : ""}><span>${secret.label}</span></label>`).join("")}`;
   const skills = `<p class="agent-section-note">分配项目技能；禁用保留分配记录，撤销不会删除技能包。</p>${current?.skills.length ? current.skills.map((skill) => `<div class="agent-skill-row"><div><strong>${esc(skillChoices.find((choice) => choice.id === skill.skillID)?.name || skill.skillID)}</strong><span>${skill.enabled ? "已启用" : "已禁用"}</span></div>${button(skill.enabled ? "禁用" : "启用", `skill-${skill.enabled ? "disable" : "enable"}:${skill.id}`, "quiet", locked || edit.touched.size > 0)}${button("撤销分配", `skill-remove:${skill.id}`, "quiet", locked || edit.touched.size > 0)}</div>`).join("") : '<p class="agent-muted-line">尚未分配项目技能。</p>'}<div class="agent-capability-actions">${button("分配项目技能", "skill-assign", "", locked || edit.touched.size > 0)}${edit.touched.size ? "<span>保存或取消配置修改后管理技能。</span>" : ""}</div>`;
-  return `<section class="agent-page">${heading(creating ? "创建 Agent" : label(current), creating ? "设置这个 Agent 的身份、指令与执行配置。" : current.description, creating ? "" : button("查看记忆", "memory"), backLink(ctx, "Agent"))}<div class="agent-detail-content">${readOnly(ctx) ? notice("当前项目为只读", "配置可以阅读，修改暂不可用。") : ""}${pendingNotice}${edit.conflict ? notice("配置已有新版本", "原草稿与编辑版本已保留。取消编辑并重新读取后再保存。", button("取消编辑并重读", "conflict-read")) : ""}${
-    gate(ctx, "Agent 配置") ||
-    `<form id="agent-configuration-form" novalidate aria-label="${creating ? "创建 Agent" : "编辑 Agent 配置"}"><section class="agent-form-section"><header><h2>基本信息</h2></header><div class="agent-field-pair">${inputField("name", "Agent 名称", value.name, { ...opt, required: true, max: 32, hint: "3–32 位字母、数字或连字符。" })}${inputField("displayName", "显示名称", value.displayName, { ...opt, max: 256, hint: "可选，未填写时使用 Agent 名称。" })}</div>${inputField("description", "描述", value.description, { ...opt, rows: 2 })}<details class="agent-appearance" data-agent-section="appearance" ${edit.sections.has("appearance") ? "open" : ""}><summary>标签颜色</summary>${inputField("tagColor", "标签颜色", value.tagColor, { ...opt, hint: "可选，使用小写 #rrggbb。清空后恢复默认。" })}</details></section><section class="agent-form-section"><header><h2>指令</h2><p>定义这个 Agent 处理任务时遵循的方式。</p></header>${inputField("instructions", "Agent 指令", value.instructions, { ...opt, rows: 5 })}<label class="agent-check-row"><input type="checkbox" data-agent-inject ${value.injectAgentsMD === "yes" ? "checked" : ""} ${locked ? "disabled" : ""}><span>注入项目 AGENTS.md</span></label></section><section class="agent-form-section"><header><h2>模型与审批</h2><p>保存后的配置用于后续执行。</p></header><div class="agent-field-pair">${inputField("modelID", "主模型", value.modelID, { disabled: locked || value.reasoningEffort !== null, required: true, choices: modelOpts })}${inputField(
-      "approvalPolicy",
-      "审批策略",
-      value.approvalPolicy,
-      {
-        disabled: locked || value.reasoningEffort !== null,
-        choices: [
-          { id: "default", label: "默认审批" },
-          { id: "auto", label: "模型自动审批" },
-          { id: "allow", label: "允许工具调用" },
-        ],
-      },
-    )}</div><div id="agent-approval-model" ${value.approvalPolicy !== "auto" ? "hidden" : ""}>${inputField("approvalModelID", "审批模型", value.approvalModelID, { ...opt, choices: modelOpts })}</div>${!creating ? `<div class="agent-readonly-property"><span>推理强度</span><span>${esc(value.reasoningEffort || "使用模型默认值")}</span></div>` : ""}${value.reasoningEffort !== null ? '<p class="agent-section-note">当前配置的推理强度不支持在此编辑，主模型与审批配置保持原值。</p>' : ""}</section><section class="agent-form-section"><header><h2>能力与资源</h2></header>${disclosure("runners", "Runner 与资源目录", value.runnerMounts.length ? `${value.runnerMounts.length} 项资源目录` : "未配置", runnerContent, edit)}${disclosure("secrets", "Secret Variable 白名单", value.secretIDs.length ? `${value.secretIDs.length} 项已选择` : "未选择", secrets, edit)}${!creating ? disclosure("tools", "Tool 引用", value.allowedToolIDs.length ? `${value.allowedToolIDs.length} 项引用` : "无额外工具引用", `<p class="agent-section-note">${value.allowedToolIDs.length ? value.allowedToolIDs.map(esc).join(" · ") : "当前配置没有额外 Tool 引用。"}</p>`, edit) : ""}${!creating ? disclosure("skills", "项目技能", "管理此 Agent 的技能分配", skills, edit) : `<div class="agent-initialization"><h3>内置初始化</h3><label class="agent-check-row"><input type="checkbox" data-agent-init="addSkills" ${value.addSkills ? "checked" : ""} ${locked ? "disabled" : ""}>添加默认 Skills</label><label class="agent-check-row"><input type="checkbox" data-agent-init="installSkill" ${value.installSkill ? "checked" : ""} ${locked ? "disabled" : ""}>启用 Install Skill 工具</label></div>`}</section><div class="agent-savebar"><span id="agent-dirty-state">${edit.touched.size ? "有未保存的修改" : ""}</span><div>${button(creating ? "取消创建" : "取消修改", "cancel", "quiet", pending)}<button type="submit" class="button primary" id="agent-save" ${locked || !edit.touched.size ? "disabled" : ""}>${creating ? "创建 Agent" : "保存配置"}</button></div></div><p class="agent-feedback" id="agent-form-feedback" role="status">${esc(edit.message)}</p></form>${!creating ? `<details class="agent-records"><summary>Agent 标识与记录</summary><dl><dt>Agent ID</dt><dd>${esc(current.id)}</dd><dt>配置版本</dt><dd>${esc(current.version)}</dd><dt>创建时间</dt><dd>2026 年 10 月 12 日</dd></dl></details>` : ""}`
-  }</div></section>`;
+  const basicFields = `<section class="agent-form-section"><header><h2>基本信息</h2></header><div class="agent-field-pair">${inputField("name", "Agent 名称", value.name, { ...opt, required: true, max: 32, hint: "3–32 位字母、数字或连字符。" })}${inputField("displayName", "显示名称", value.displayName, { ...opt, max: 256, hint: "可选，未填写时使用 Agent 名称。" })}</div>${inputField("description", "描述", value.description, { ...opt, rows: 2 })}<details class="agent-appearance" data-agent-section="appearance" ${edit.sections.has("appearance") ? "open" : ""}><summary>标签颜色</summary>${inputField("tagColor", "标签颜色", value.tagColor, { ...opt, hint: "可选，使用小写 #rrggbb。清空后恢复默认。" })}</details></section><section class="agent-form-section"><header><h2>指令</h2><p>定义这个 Agent 处理任务时遵循的方式。</p></header>${inputField("instructions", "Agent 指令", value.instructions, { ...opt, rows: 5 })}<label class="agent-check-row"><input type="checkbox" data-agent-inject ${value.injectAgentsMD === "yes" ? "checked" : ""} ${locked ? "disabled" : ""}><span>注入项目 AGENTS.md</span></label></section><section class="agent-form-section"><header><h2>模型与审批</h2><p>保存后的配置用于后续执行。</p></header><div class="agent-field-pair">${inputField("modelID", "主模型", value.modelID, { disabled: locked || value.reasoningEffort !== null, required: true, choices: modelOpts })}${inputField(
+    "approvalPolicy",
+    "审批策略",
+    value.approvalPolicy,
+    {
+      disabled: locked || value.reasoningEffort !== null,
+      choices: [
+        { id: "default", label: "默认审批" },
+        { id: "auto", label: "模型自动审批" },
+        { id: "allow", label: "允许工具调用" },
+      ],
+    },
+  )}</div><div id="agent-approval-model" ${value.approvalPolicy !== "auto" ? "hidden" : ""}>${inputField("approvalModelID", "审批模型", value.approvalModelID, { ...opt, choices: modelOpts })}</div>${!creating ? `<div class="agent-readonly-property"><span>推理强度</span><span>${esc(value.reasoningEffort || "使用模型默认值")}</span></div>` : ""}${value.reasoningEffort !== null ? '<p class="agent-section-note">当前配置的推理强度不支持在此编辑，主模型与审批配置保持原值。</p>' : ""}</section>`;
+  const resourceFields = `<section class="agent-form-section agent-resource-groups">${disclosure("runners", "Runner 与资源目录", value.runnerMounts.length ? `${value.runnerMounts.length} 项资源目录` : "未配置", runnerContent, edit)}${disclosure("secrets", "Secret Variable 白名单", value.secretIDs.length ? `${value.secretIDs.length} 项已选择` : "未选择", secrets, edit)}${!creating ? disclosure("tools", "Tool 引用", value.allowedToolIDs.length ? `${value.allowedToolIDs.length} 项引用` : "无额外工具引用", `<p class="agent-section-note">${value.allowedToolIDs.length ? value.allowedToolIDs.map(esc).join(" · ") : "当前配置没有额外 Tool 引用。"}</p>`, edit) : ""}${!creating ? disclosure("skills", "项目技能", "管理此 Agent 的技能分配", skills, edit) : `<div class="agent-initialization"><h3>内置初始化</h3><label class="agent-check-row"><input type="checkbox" data-agent-init="addSkills" ${value.addSkills ? "checked" : ""} ${locked ? "disabled" : ""}>添加默认 Skills</label><label class="agent-check-row"><input type="checkbox" data-agent-init="installSkill" ${value.installSkill ? "checked" : ""} ${locked ? "disabled" : ""}>启用 Install Skill 工具</label></div>`}</section>`;
+  return `<div class="agent-detail-content" id="agent-tab-panel" role="tabpanel" aria-labelledby="agent-tab-${tabFor(ctx)}">${readOnly(ctx) ? notice("当前项目为只读", "配置可以阅读，修改暂不可用。") : ""}${pendingNotice}${edit.conflict ? notice("配置已有新版本", "原草稿与编辑版本已保留。取消编辑并重新读取后再保存。", button("取消编辑并重读", "conflict-read")) : ""}${gate(ctx, "Agent 配置") || `<form id="agent-configuration-form" novalidate aria-label="${creating ? "创建 Agent" : "编辑 Agent 配置"}">${tabFor(ctx) === "resources" ? resourceFields : basicFields}<div class="agent-savebar"><span id="agent-dirty-state">${edit.touched.size ? "有未保存的修改" : ""}</span><div>${button(creating ? "取消创建" : "取消修改", "cancel", "quiet", pending)}<button type="submit" class="button primary" id="agent-save" ${locked || !edit.touched.size ? "disabled" : ""}>${creating ? "创建 Agent" : "保存配置"}</button></div></div><p class="agent-feedback" id="agent-form-feedback" role="status">${esc(edit.message)}</p></form>${!creating ? `<details class="agent-records"><summary>Agent 标识与记录</summary><dl><dt>Agent ID</dt><dd>${esc(current.id)}</dd><dt>配置版本</dt><dd>${esc(current.version)}</dd><dt>创建时间</dt><dd>2026 年 10 月 12 日</dd></dl></details>` : ""}`}</div>`;
 }
 function memory(ctx, state, current) {
   const records = ctx.scenario === "empty" ? [] : current.memories;
@@ -353,7 +367,7 @@ function memory(ctx, state, current) {
       recordID: current.memories[0].id,
       revision: current.memories[0].revision,
     };
-  return `<section class="agent-page">${heading("记忆", label(current), button("刷新记忆", "memory-refresh"), backLink(ctx, "返回配置", { agent: current.id }))}<div class="agent-detail-content"><p class="agent-memory-intro">此 Agent 保留的事实、经验与流程。</p>${pending ? notice("删除结果待确认", "原记录与修订仍保留，确认前不能再次删除。", button("查询原删除结果", "lookup")) : ""}${gate(ctx, "Agent 记忆") || (records.length ? `<div class="agent-memory-list">${records.map((record) => `<article class="agent-memory-record"><header><strong>${record.type}</strong><span>修订 ${record.revision}</span><time datetime="${record.date}">10 月 15 日</time></header><p>${esc(record.text)}</p><div class="agent-memory-tags">${esc(record.tags.join(" · "))}</div><div class="agent-memory-actions">${button(state.expandedHistory === record.id ? "收起历史" : "查看历史", `memory-history:${record.id}`, "quiet")}${button("删除记忆", `memory-delete:${record.id}`, "quiet", readOnly(ctx) || !!state.pending)}</div>${state.expandedHistory === record.id ? `<section class="agent-memory-history"><h2>修订历史</h2><strong>修订 ${record.revision} · 当前</strong><p>${esc(record.text)}</p>${record.old ? `<strong>修订 1 · 已替代</strong><p>${esc(record.old)}</p>` : ""}<details><summary>来源与时间</summary><dl><dt>来源执行</dt><dd>${esc(record.source)}</dd><dt>保留时间</dt><dd>${record.date}</dd></dl></details></section>` : ""}</article>`).join("")}</div>` : `<section class="agent-state">${icon("file", 24)}<h2>此 Agent 暂无当前记忆</h2><p>执行中明确保留的内容会出现在这里。</p></section>`)}<p class="agent-feedback" id="agent-memory-feedback" role="status">${esc(state.notice)}</p></div></section>`;
+  return `<div class="agent-detail-content" id="agent-tab-panel" role="tabpanel" aria-labelledby="agent-tab-memory"><div class="agent-memory-toolbar"><p class="agent-memory-intro">此 Agent 保留的事实、经验与流程。</p>${button("刷新记忆", "memory-refresh")}</div>${pending ? notice("删除结果待确认", "原记录与修订仍保留，确认前不能再次删除。", button("查询原删除结果", "lookup")) : ""}${gate(ctx, "Agent 记忆") || (records.length ? `<div class="agent-memory-list">${records.map((record) => `<article class="agent-memory-record"><header><strong>${record.type}</strong><span>修订 ${record.revision}</span><time datetime="${record.date}">10 月 15 日</time></header><p>${esc(record.text)}</p><div class="agent-memory-tags">${esc(record.tags.join(" · "))}</div><div class="agent-memory-actions">${button(state.expandedHistory === record.id ? "收起历史" : "查看历史", `memory-history:${record.id}`, "quiet")}${button("删除记忆", `memory-delete:${record.id}`, "quiet", readOnly(ctx) || !!state.pending)}</div>${state.expandedHistory === record.id ? `<section class="agent-memory-history"><h2>修订历史</h2><strong>修订 ${record.revision} · 当前</strong><p>${esc(record.text)}</p>${record.old ? `<strong>修订 1 · 已替代</strong><p>${esc(record.old)}</p>` : ""}<details><summary>来源与时间</summary><dl><dt>来源执行</dt><dd>${esc(record.source)}</dd><dt>保留时间</dt><dd>${record.date}</dd></dl></details></section>` : ""}</article>`).join("")}</div>` : `<section class="agent-state">${icon("file", 24)}<h2>此 Agent 暂无当前记忆</h2><p>执行中明确保留的内容会出现在这里。</p></section>`)}<p class="agent-feedback" id="agent-memory-feedback" role="status">${esc(state.notice)}</p></div>`;
 }
 function render(ctx) {
   const state = local(ctx),
@@ -362,8 +376,8 @@ function render(ctx) {
   const current = state.agents.find((agent) => agent.id === id);
   if ((id !== "new" && !current) || ctx.scenario === "missing")
     return `<section class="agent-page">${heading("Agent 不可用", "此 Agent 不存在，或当前身份无法访问。", "", backLink(ctx, "Agent"))}<section class="agent-state">${button("返回 Agent 列表", "list")}</section></section>`;
-  if (isMemory(ctx) && current) return memory(ctx, state, current);
-  return configuration(ctx, state, current);
+  const creating = id === "new";
+  return `<section class="agent-page agent-object-page">${heading(creating ? "创建 Agent" : label(current), creating ? "设置这个 Agent 的身份、指令与执行配置。" : current.description, "", backLink(ctx, "Agent"))}${tabs(ctx)}${isMemory(ctx) && current ? memory(ctx, state, current) : configuration(ctx, state, current)}</section>`;
 }
 function confirm(title, description, accepted, action = "放弃修改") {
   showDialog(
@@ -389,6 +403,7 @@ function markDirty(ctx, key) {
     edit = draftFor(ctx, state);
   edit.touched.add(key);
   edit.message = "";
+  edit.error = null;
   clearFieldErrors();
   const save = document.getElementById("agent-save");
   if (save) save.disabled = readOnly(ctx) || !!state.pending || edit.conflict;
@@ -411,6 +426,47 @@ function clearFieldErrors() {
     message.textContent = "";
     message.hidden = true;
   });
+}
+function showFieldError(ctx, error) {
+  const root = document.getElementById("main");
+  const edit = draftFor(ctx, local(ctx));
+  let fieldID = `agent-${error[0]}`;
+  if (error[0] === "runnerMounts") {
+    const index = Math.max(
+      0,
+      edit.value.runnerMounts.findIndex(
+        (mount) =>
+          !mount.runner_id ||
+          !/^[A-Za-z0-9_-][A-Za-z0-9_.-]{0,254}$/.test(mount.workspace),
+      ),
+    );
+    fieldID = `agent-${edit.value.runnerMounts[index]?.runner_id ? "workspace" : "runner"}-${index}`;
+  }
+  const field = root.querySelector(`#${fieldID}`);
+  if (!field) return;
+  field.closest("details")?.setAttribute("open", "");
+  const feedback = root.querySelector("#agent-form-feedback");
+  if (feedback) feedback.textContent = error[1];
+  const target =
+    field.tagName === "SELECT"
+      ? root.querySelector(`[data-select-for="${field.id}"]`) || field
+      : field;
+  const message = root.querySelector(`#agent-${error[0]}-error`);
+  if (message) {
+    message.textContent = error[1];
+    message.hidden = false;
+  }
+  for (const control of new Set([field, target])) {
+    control.setAttribute("aria-invalid", "true");
+    if (message)
+      control.setAttribute(
+        "aria-describedby",
+        [control.getAttribute("aria-describedby"), message.id]
+          .filter(Boolean)
+          .join(" "),
+      );
+  }
+  target.focus();
 }
 function validation(value) {
   if (
@@ -470,7 +526,10 @@ function validation(value) {
         ),
     )
   )
-    return ["name", "请为每项资源配置选择 Runner，并填写单段英文目录名。"];
+    return [
+      "runnerMounts",
+      "请为每项资源配置选择 Runner，并填写单段英文目录名。",
+    ];
   if (new TextEncoder().encode(value.description).byteLength > 8192)
     return ["description", "描述最多 8192 UTF-8 字节。"];
   if (new TextEncoder().encode(value.instructions).byteLength > 32768)
@@ -496,13 +555,43 @@ function bind(ctx) {
       (link.onclick = (event) => {
         if (event.metaKey || event.ctrlKey || event.shiftKey) return;
         event.preventDefault();
-        if (isMemory(ctx)) state.returnFocus = "memory";
         ctx.navigate(
           "agents",
           link.dataset.agentBack ? { agent: link.dataset.agentBack } : {},
         );
       }),
   );
+  const tabLinks = [...root.querySelectorAll("[data-agent-tab]")];
+  const activateTab = (link) => {
+    const tab = link.dataset.agentTab;
+    if (tab === tabFor(ctx)) return;
+    ctx.navigate("agents", {
+      agent: id,
+      ...(tab === "basic" ? {} : { view: tab }),
+    });
+  };
+  tabLinks.forEach((link, index) => {
+    link.onclick = (event) => {
+      if (event.metaKey || event.ctrlKey || event.shiftKey) return;
+      event.preventDefault();
+      activateTab(link);
+    };
+    link.onkeydown = (event) => {
+      let target;
+      if (event.key === "ArrowRight") target = (index + 1) % tabLinks.length;
+      if (event.key === "ArrowLeft")
+        target = (index - 1 + tabLinks.length) % tabLinks.length;
+      if (event.key === "Home") target = 0;
+      if (event.key === "End") target = tabLinks.length - 1;
+      if (target !== undefined) {
+        event.preventDefault();
+        tabLinks[target].focus();
+      } else if (event.key === " ") {
+        event.preventDefault();
+        activateTab(link);
+      }
+    };
+  });
   root.querySelectorAll("[data-agent-section]").forEach((section) =>
     section.addEventListener("toggle", () => {
       const edit = draftFor(ctx, state);
@@ -575,29 +664,14 @@ function bind(ctx) {
       const error = validation(edit.value);
       if (error) {
         edit.message = error[1];
-        const field = root.querySelector(`#agent-${error[0]}`);
-        field?.closest("details")?.setAttribute("open", "");
-        root.querySelector("#agent-form-feedback").textContent = error[1];
-        const target =
-          field?.tagName === "SELECT"
-            ? root.querySelector(`[data-select-for="${field.id}"]`) || field
-            : field;
-        const message = root.querySelector(`#agent-${error[0]}-error`);
-        if (message) {
-          message.textContent = error[1];
-          message.hidden = false;
-        }
-        for (const control of new Set([field, target])) {
-          control?.setAttribute("aria-invalid", "true");
-          if (message)
-            control?.setAttribute(
-              "aria-describedby",
-              [control.getAttribute("aria-describedby"), message.id]
-                .filter(Boolean)
-                .join(" "),
-            );
-        }
-        target?.focus();
+        edit.error = error;
+        const targetTab = error[0] === "runnerMounts" ? "resources" : "basic";
+        if (targetTab !== tabFor(ctx)) {
+          ctx.navigate("agents", {
+            agent: id,
+            ...(targetTab === "basic" ? {} : { view: targetTab }),
+          });
+        } else showFieldError(ctx, error);
         return;
       }
       const value = copy(edit.value);
@@ -687,7 +761,11 @@ function handleAction(ctx, action, trigger) {
         next.message = "已重新读取当前配置。";
       }
       if (id === "new") ctx.navigate("agents", {});
-      else refresh(ctx, "#agent-name");
+      else
+        refresh(
+          ctx,
+          tabFor(ctx) === "resources" ? "#agent-tab-resources" : "#agent-name",
+        );
     };
     if (edit.touched.size || edit.conflict)
       confirm(
@@ -807,7 +885,7 @@ function captureView(ctx) {
       state.returnFocus,
   };
   if (!agentID(ctx)) state.listView = position;
-  else if (!isMemory(ctx)) state.detailViews[agentID(ctx)] = position;
+  else state.detailViews[`${agentID(ctx)}:${tabFor(ctx)}`] = position;
 }
 function restoreView(ctx, info = {}) {
   const state = local(ctx),
@@ -829,15 +907,15 @@ function restoreView(ctx, info = {}) {
       state.returnFocus = "";
     } else if (
       id &&
-      !isMemory(ctx) &&
-      (state.returnFocus === "memory" ||
-        previous?.params?.get("view") === "memory")
+      previous?.page === "agents" &&
+      agentID(previous) === id &&
+      scopeFor(previous) === scopeFor(ctx)
     ) {
-      const saved = state.detailViews[id];
+      const saved = state.detailViews[`${id}:${tabFor(previous)}`];
       if (owner && saved) owner.scrollTop = saved.top;
       if (saved) window.scrollTo(0, saved.windowTop);
       document
-        .querySelector('[data-agent-action="memory"]')
+        .querySelector(`[data-agent-tab="${tabFor(ctx)}"]`)
         ?.focus({ preventScroll: true });
       state.returnFocus = "";
     } else if (info.reason === "navigate" || info.reason === "popstate") {
@@ -847,6 +925,8 @@ function restoreView(ctx, info = {}) {
         .getElementById("agent-page-title")
         ?.focus({ preventScroll: true });
     }
+    const error = state.edits[id]?.error;
+    if (error && !isMemory(ctx)) showFieldError(ctx, error);
   });
 }
 function beforeLeave(ctx, proceed, target) {
