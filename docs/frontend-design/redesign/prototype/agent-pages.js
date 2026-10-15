@@ -290,6 +290,26 @@ function configuration(ctx, state, current) {
   const pending = state.pending?.agent === agentID(ctx),
     locked = readOnly(ctx) || pending || edit.conflict;
   const opt = { disabled: locked };
+  const pendingNotice = !pending
+    ? ""
+    : state.pending.kind === "memory"
+      ? notice(
+          "删除结果待确认",
+          "原记忆记录与修订仍保留，请回到原删除操作查询结果。",
+          button("查看原删除操作", "original"),
+        )
+      : notice(
+          state.pending.kind === "creation"
+            ? "创建结果待确认"
+            : "保存结果待确认",
+          "原配置与请求已保留。确认前请勿重复提交。",
+          button(
+            state.pending.kind === "creation"
+              ? "查询原创建结果"
+              : "查询原保存结果",
+            "lookup",
+          ),
+        );
   const modelOpts = [{ id: "", label: "选择聊天模型" }, ...models];
   const mounts = value.runnerMounts
     .map(
@@ -306,7 +326,7 @@ function configuration(ctx, state, current) {
   ];
   const secrets = `<p class="agent-section-note">仅选择此 Agent 可使用的 Secret Variable，不显示凭据内容。</p>${allSecretChoices.map((secret) => `<label class="agent-check-row"><input type="checkbox" data-secret="${secret.id}" ${value.secretIDs.includes(secret.id) ? "checked" : ""} ${locked ? "disabled" : ""}><span>${secret.label}</span></label>`).join("")}`;
   const skills = `<p class="agent-section-note">分配项目技能；禁用保留分配记录，撤销不会删除技能包。</p>${current?.skills.length ? current.skills.map((skill) => `<div class="agent-skill-row"><div><strong>${esc(skillChoices.find((choice) => choice.id === skill.skillID)?.name || skill.skillID)}</strong><span>${skill.enabled ? "已启用" : "已禁用"}</span></div>${button(skill.enabled ? "禁用" : "启用", `skill-${skill.enabled ? "disable" : "enable"}:${skill.id}`, "quiet", locked || edit.touched.size > 0)}${button("撤销分配", `skill-remove:${skill.id}`, "quiet", locked || edit.touched.size > 0)}</div>`).join("") : '<p class="agent-muted-line">尚未分配项目技能。</p>'}<div class="agent-capability-actions">${button("分配项目技能", "skill-assign", "", locked || edit.touched.size > 0)}${edit.touched.size ? "<span>保存或取消配置修改后管理技能。</span>" : ""}</div>`;
-  return `<section class="agent-page">${heading(creating ? "创建 Agent" : label(current), creating ? "设置这个 Agent 的身份、指令与执行配置。" : current.name, creating ? "" : button("查看记忆", "memory"), backLink(ctx, "返回 Agent 列表"))}<div class="agent-detail-content">${readOnly(ctx) ? notice("当前项目为只读", "配置可以阅读，修改暂不可用。") : ""}${pending ? notice(creating ? "创建结果待确认" : "保存结果待确认", "原配置与请求已保留。确认前请勿重复提交。", button(creating ? "查询原创建结果" : "查询原保存结果", "lookup")) : ""}${edit.conflict ? notice("配置已有新版本", "原草稿与编辑版本已保留。取消编辑并重新读取后再保存。", button("取消编辑并重读", "conflict-read")) : ""}${
+  return `<section class="agent-page">${heading(creating ? "创建 Agent" : label(current), creating ? "设置这个 Agent 的身份、指令与执行配置。" : current.name, creating ? "" : button("查看记忆", "memory"), backLink(ctx, "返回 Agent 列表"))}<div class="agent-detail-content">${readOnly(ctx) ? notice("当前项目为只读", "配置可以阅读，修改暂不可用。") : ""}${pendingNotice}${edit.conflict ? notice("配置已有新版本", "原草稿与编辑版本已保留。取消编辑并重新读取后再保存。", button("取消编辑并重读", "conflict-read")) : ""}${
     gate(ctx, "Agent 配置") ||
     `<form id="agent-configuration-form" novalidate aria-label="${creating ? "创建 Agent" : "编辑 Agent 配置"}"><section class="agent-form-section"><header><h2>基本信息</h2></header><div class="agent-field-pair">${inputField("name", "Agent 名称", value.name, { ...opt, required: true, max: 32, hint: "3–32 位字母、数字或连字符。" })}${inputField("displayName", "显示名称", value.displayName, { ...opt, max: 256, hint: "可选，未填写时使用 Agent 名称。" })}</div>${inputField("description", "描述", value.description, { ...opt, rows: 2 })}<details class="agent-appearance" data-agent-section="appearance" ${edit.sections.has("appearance") ? "open" : ""}><summary>标签颜色</summary>${inputField("tagColor", "标签颜色", value.tagColor, { ...opt, hint: "可选，使用小写 #rrggbb。清空后恢复默认。" })}</details></section><section class="agent-form-section"><header><h2>指令</h2><p>定义这个 Agent 处理任务时遵循的方式。</p></header>${inputField("instructions", "Agent 指令", value.instructions, { ...opt, rows: 5 })}<label class="agent-check-row"><input type="checkbox" data-agent-inject ${value.injectAgentsMD === "yes" ? "checked" : ""} ${locked ? "disabled" : ""}><span>注入项目 AGENTS.md</span></label></section><section class="agent-form-section"><header><h2>模型与审批</h2><p>保存后的配置用于后续执行。</p></header><div class="agent-field-pair">${inputField("modelID", "主模型", value.modelID, { disabled: locked || value.reasoningEffort !== null, required: true, choices: modelOpts })}${inputField(
       "approvalPolicy",
@@ -637,7 +657,10 @@ function handleAction(ctx, action, trigger) {
   if (action === "create") return ctx.navigate("agents", { agent: "new" });
   if (action === "list") return ctx.navigate("agents", {});
   if (action === "original")
-    return ctx.navigate("agents", { agent: state.pending.agent });
+    return ctx.navigate("agents", {
+      agent: state.pending.agent,
+      ...(state.pending.kind === "memory" ? { view: "memory" } : {}),
+    });
   if (action === "retry") return ctx.setScenario("normal");
   if (action === "refresh") {
     state.notice = "Agent 目录已更新。";
