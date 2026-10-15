@@ -8,6 +8,8 @@ import {
   dialogHeader,
   dialogFooter,
   closeDialog,
+  enhanceSelects,
+  closeMenu,
 } from "./core.js";
 const pages = { ...basePages, ...contentPages, ...collaborationPages };
 const labels = {
@@ -15,7 +17,8 @@ const labels = {
   projects: "项目列表",
   project: "项目概览",
   tasks: "任务工作台",
-  providers: "Provider / Model",
+  providers: "系统 Provider",
+  settings: "项目设置",
   knowledge: "知识库",
   artifacts: "产物",
   meetings: "会议",
@@ -40,7 +43,7 @@ function getContext() {
     theme: p.get("theme") || "light",
     scenario: p.get("scenario") || "normal",
     long: p.get("scenario") === "long" || p.get("long") === "1",
-    accent: p.get("accent") || "indigo",
+    accent: p.get("accent") || "neutral",
     fixture: p.get("fixture") || "design",
     params: p,
     navigate,
@@ -59,6 +62,7 @@ function navigate(page, extra = {}) {
   document.getElementById("main").focus({ preventScroll: true });
 }
 function render() {
+  closeMenu(false);
   const ctx = getContext(),
     page = pages[ctx.page] || pages.projects;
   document.documentElement.dataset.theme = ctx.theme;
@@ -70,20 +74,19 @@ function render() {
     `<header class="system-header"><a class="brand" data-page="dashboard" href="${locationFor("dashboard")}"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>agenteam</a><nav class="system-nav" aria-label="系统导航">${link("dashboard", "首页", ctx.page === "dashboard")}${link("projects", "项目", ctx.page === "projects" || page.project)}</nav><div class="system-end">${link("providers", "系统设置", ctx.page === "providers")}<button class="icon-button mobile-only" id="system-menu" aria-label="打开系统菜单">${icon("menu")}</button><span class="avatar" aria-label="当前账号 林 / Workspace">林</span></div></header>${
       page.project
         ? `<header class="project-header"><div class="project-identity"><a href="${locationFor("projects")}" data-page="projects" aria-label="返回项目列表">${icon("back")}</a><span class="muted">owner</span><span class="muted">/</span><a href="${locationFor("project")}" data-page="project">${esc(ctx.params.get("project_name") || "Atlas")}</a></div><nav class="project-tabs" aria-label="项目菜单">${[
-            ["project", "概览"],
-            ["meetings", "会议"],
-            ["inbox", "待办"],
             ["tasks", "任务"],
+            ["meetings", "会议"],
             ["knowledge", "知识库"],
             ["artifacts", "产物"],
-            ["mcp", "设置"],
+            ["inbox", "待办"],
+            ["settings", "项目设置"],
           ]
             .map(([id, label]) =>
               link(
                 id,
                 label,
-                id === "mcp"
-                  ? ["mcp", "memory"].includes(ctx.page)
+                id === "settings"
+                  ? ["settings", "mcp", "memory"].includes(ctx.page)
                   : ctx.page === id,
               ),
             )
@@ -91,6 +94,7 @@ function render() {
         : ""
     }<main id="main" tabindex="-1">${page.render(ctx)}</main><aside class="lab-bar" aria-label="设计样板控制"><span class="lab-note"><span class="lab-dot"></span>F0 交互样板 · 全部为合成数据</span><button type="button" id="lab-open">${icon("settings", 13)} 样板设置</button></aside>`;
   page.bind?.(ctx);
+  enhanceSelects();
   document.getElementById("system-menu")?.addEventListener("click", () =>
     showDialog(
       `${dialogHeader("系统菜单")}<nav class="dialog-body lab-pages" aria-label="窄屏系统入口">${Object.entries(
@@ -139,7 +143,7 @@ function openLab(ctx) {
         "",
       )}</select></div><div class="field"><label for="lab-accent">强调色比较</label><select id="lab-accent" name="accent">${[
       ["neutral", "中性色基线"],
-      ["indigo", "鸢尾蓝 · 定稿"],
+      ["indigo", "鸢尾蓝 · 比较"],
       ["teal", "低饱和青蓝"],
     ]
       .map(

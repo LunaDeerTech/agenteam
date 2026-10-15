@@ -104,6 +104,7 @@ export function showDialog(markup, onOpen, options = {}) {
     }
   };
   onOpen?.(d);
+  enhanceSelects(d);
   return d;
 }
 export function closeDialog() {
@@ -124,4 +125,100 @@ export function inlineResult(el, text) {
     el.parentElement.append(n);
   }
   n.textContent = text;
+}
+
+// The native select remains the form's value owner; the visible control has one
+// shared listbox implementation in both pages and modal dialogs.
+let activeMenu = null;
+export function closeMenu(restore = true) {
+  if (!activeMenu) return;
+  const { panel, trigger, cleanup } = activeMenu;
+  cleanup();
+  panel.remove();
+  trigger.setAttribute("aria-expanded", "false");
+  activeMenu = null;
+  if (restore && trigger.isConnected) trigger.focus({ preventScroll: true });
+}
+export function showMenu(trigger, items, choose, options = {}) {
+  if (activeMenu?.trigger === trigger) return closeMenu();
+  closeMenu(false);
+  const panel = document.createElement("div");
+  panel.className = "floating-menu";
+  panel.id = `menu-${Math.random().toString(36).slice(2)}`;
+  panel.setAttribute("role", options.role || "listbox");
+  panel.setAttribute("aria-label", options.label || trigger.getAttribute("aria-label") || "选项");
+  if (options.label) panel.innerHTML = `<div class="menu-label">${esc(options.label)}</div>`;
+  items.forEach((item, index) => {
+    if (item.group) {
+      const group = document.createElement("div");
+      group.className = "menu-label menu-group";
+      group.textContent = item.group;
+      panel.append(group);
+    }
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "menu-option";
+    button.tabIndex = -1;
+    button.setAttribute("role", options.role === "menu" ? "menuitem" : "option");
+    button.setAttribute("aria-selected", String(!!item.selected));
+    button.disabled = !!item.disabled;
+    button.innerHTML = `${item.icon ? icon(item.icon,14) : ""}<span>${esc(item.label)}</span><span class="menu-check">${item.selected ? icon("check",14) : ""}</span>`;
+    button.onclick = () => { closeMenu(); choose(item.value, index); };
+    panel.append(button);
+  });
+  (trigger.closest("dialog[open]") || document.body).append(panel);
+  const rect = trigger.getBoundingClientRect();
+  const width = Math.min(Math.max(rect.width, options.width || 196), innerWidth - 24);
+  panel.style.width = `${width}px`;
+  panel.style.left = `${Math.min(Math.max(12,rect.left),innerWidth-width-12)}px`;
+  panel.style.top = `${Math.min(rect.bottom+6,innerHeight-panel.offsetHeight-12)}px`;
+  trigger.setAttribute("aria-expanded", "true");
+  trigger.setAttribute("aria-controls", panel.id);
+  const buttons = [...panel.querySelectorAll("button:not(:disabled)")];
+  const current = buttons.find(b => b.getAttribute("aria-selected") === "true") || buttons[0];
+  current?.focus();
+  let letters = "", letterTimer;
+  const keydown = e => {
+    const index = buttons.indexOf(document.activeElement);
+    if (["ArrowDown","ArrowUp","Home","End"].includes(e.key)) {
+      e.preventDefault();
+      buttons[e.key === "Home" ? 0 : e.key === "End" ? buttons.length-1 : (index + (e.key === "ArrowDown" ? 1 : -1)+buttons.length)%buttons.length]?.focus();
+    } else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); closeMenu(); }
+    else if (e.key === "Tab") { closeMenu(false); }
+    else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+      letters += e.key.toLocaleLowerCase();
+      clearTimeout(letterTimer);
+      letterTimer = setTimeout(() => { letters = ""; }, 500);
+      buttons.find(b=>b.textContent.trim().toLocaleLowerCase().startsWith(letters))?.focus();
+    }
+  };
+  const pointer = e => { if (!panel.contains(e.target) && !trigger.contains(e.target)) closeMenu(false); };
+  const reposition = () => closeMenu(false);
+  document.addEventListener("keydown",keydown,true);
+  document.addEventListener("pointerdown",pointer);
+  window.addEventListener("resize",reposition);
+  activeMenu = { panel, trigger, cleanup() { clearTimeout(letterTimer);document.removeEventListener("keydown",keydown,true);document.removeEventListener("pointerdown",pointer);window.removeEventListener("resize",reposition); } };
+}
+export function enhanceSelects(root = document) {
+  root.querySelectorAll("select:not([data-enhanced])").forEach(select => {
+    select.dataset.enhanced = "true";
+    select.classList.add("native-value-owner");
+    select.tabIndex = -1;
+    select.setAttribute("aria-hidden","true");
+    const trigger = document.createElement("button");
+    trigger.type = "button";
+    trigger.className = "select-trigger";
+    trigger.dataset.selectFor = select.id;
+    const label = document.querySelector(`label[for="${select.id}"]`)?.textContent.trim() || select.getAttribute("aria-label") || "选择选项";
+    trigger.setAttribute("aria-label",label);
+    trigger.setAttribute("aria-haspopup","listbox");
+    trigger.setAttribute("aria-expanded","false");
+    function sync() { trigger.innerHTML = `<span>${esc(select.selectedOptions[0]?.textContent || "请选择")}</span>${icon("chevron",12)}`;trigger.disabled = select.disabled; }
+    sync();
+    select.after(trigger);
+    select.addEventListener("change",sync);
+    trigger.onclick = () => showMenu(trigger,[...select.options].map(o=>({label:o.textContent,value:o.value,selected:o.selected,disabled:o.disabled})),value=>{select.value=value;select.dispatchEvent(new Event("change",{bubbles:true}));sync();},{label});
+    trigger.onkeydown = e => { if (["ArrowDown","ArrowUp"].includes(e.key)) { e.preventDefault();trigger.click(); } };
+    select.labels && [...select.labels].forEach(label=>label.addEventListener("click",e=>{e.preventDefault();trigger.focus();}));
+  });
 }
