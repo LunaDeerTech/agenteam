@@ -1,0 +1,63 @@
+{
+  "lindera-cc-cedict-notice.txt": {
+    "url": "https://raw.githubusercontent.com/lindera/lindera/v6.2.0/lindera-cc-cedict/NOTICE.txt",
+    "status": 200,
+    "bytes": 1083,
+    "sha256": "fd9e861ae7025866b6abc08af807e7617b509570f817bccf70a52c6fb7a8de1b",
+    "path": "deploy/retrieval/licenses/lindera-cc-cedict-notice.txt",
+    "tls_verified": true,
+    "default_proxy_preserved": true
+  },
+  "lindera-ipadic-notice.txt": {
+    "url": "https://raw.githubusercontent.com/lindera/lindera/v6.2.0/lindera-ipadic/NOTICE.txt",
+    "status": 200,
+    "bytes": 4092,
+    "sha256": "2cf235bf0842d6d61eb0244fb22e645a321b12408a3cf75feb3a53577d885bde",
+    "path": "deploy/retrieval/licenses/lindera-ipadic-notice.txt",
+    "tls_verified": true,
+    "default_proxy_preserved": true
+  },
+  "lindera-ko-dic-notice.txt": {
+    "url": "https://raw.githubusercontent.com/lindera/lindera/v6.2.0/lindera-ko-dic/NOTICE.txt",
+    "status": 200,
+    "bytes": 11956,
+    "sha256": "56b37f2a5680b77ce2ebaec68a7931652d20e69b4b2cfabc74dc06bfdc6a927a",
+    "path": "deploy/retrieval/licenses/lindera-ko-dic-notice.txt",
+    "tls_verified": true,
+    "default_proxy_preserved": true
+  },
+  "pg-search-score.rs": {
+    "url": "https://raw.githubusercontent.com/paradedb/paradedb/529c77e9dffe4bd86b6b7971c019bb26b8eadbfa/pg_search/src/postgres/customscan/basescan/projections/score.rs",
+    "status": 200,
+    "bytes": 2731,
+    "sha256": "e40f1494f6915b79a633af44503cb71bbbc362cafa958a8183b39a2304e5c64c",
+    "path": "output/ai/m3-retrieval-selection/closure01/pg-search-score.rs",
+    "tls_verified": true,
+    "default_proxy_preserved": true
+  },
+  "pg-search-tokenizers.toml": {
+    "url": "https://raw.githubusercontent.com/paradedb/paradedb/529c77e9dffe4bd86b6b7971c019bb26b8eadbfa/tokenizers/Cargo.toml",
+    "status": 200,
+    "bytes": 1321,
+    "sha256": "480e5c7e691d6e424ef7fb67b3426f8c71f5b697ec46ea0b8369b9f2b9328c24",
+    "path": "output/ai/m3-retrieval-selection/closure01/pg-search-tokenizers.toml",
+    "tls_verified": true,
+    "default_proxy_preserved": true
+  },
+  "pg-search-options.rs": {
+    "url": "https://raw.githubusercontent.com/paradedb/paradedb/529c77e9dffe4bd86b6b7971c019bb26b8eadbfa/pg_search/src/postgres/options.rs",
+    "status": 200,
+    "bytes": 53476,
+    "sha256": "2b181d517defe15d8843f2317ff0e58dbe04e45476cf4b325ae53777d74c5cbf",
+    "path": "output/ai/m3-retrieval-selection/closure01/pg-search-options.rs",
+    "tls_verified": true,
+    "default_proxy_preserved": true
+  },
+  "openblas.txt": {
+    "source": "original owned PG17.8 fixture /usr/share/doc/libopenblas0-pthread/copyright",
+    "package": "libopenblas0-pthread 0.3.21+ds-4",
+    "sha256": "3a668a70e1d025a79e455e5b9a2268d5d262b108dff14ec70c77f19f929bc9b2",
+    "path": "deploy/retrieval/licenses/openblas.txt",
+    "reused_from": "ai/m3-retrieval-selection frozen license evidence; no new download"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "cargo-lock": {
+    "url": "https://raw.githubusercontent.com/paradedb/paradedb/v0.26.1/Cargo.lock",
+    "tls_verified": true,
+    "default_proxy_preserved": true,
+    "status": 200,
+    "bytes": 208166,
+    "sha256": "f288169943d7c7eee593f4718379e849e3b62ebb6187216f170c8f82d0e17e8a"
+  },
+  "pgsearch-cargo": {
+    "url": "https://raw.githubusercontent.com/paradedb/paradedb/v0.26.1/pg_search/Cargo.toml",
+    "tls_verified": true,
+    "default_proxy_preserved": true,
+    "status": 200,
+    "bytes": 4153,
+    "sha256": "cdb26ef3ac3163a6087363f41c79c0c6f24da2c43d81c525f91c1d2921f25b3e"
+  },
+  "root-cargo": {
+    "url": "https://raw.githubusercontent.com/paradedb/paradedb/v0.26.1/Cargo.toml",
+    "tls_verified": true,
+    "default_proxy_preserved": true,
+    "status": 200,
+    "bytes": 3073,
+    "sha256": "37c043341689a7c27c89f21e5313826178dc604a53c9cb75f0c811433ea8f056"
+  },
+  "notice": {
+    "url": "https://raw.githubusercontent.com/paradedb/paradedb/v0.26.1/NOTICE",
+    "tls_verified": true,
+    "default_proxy_preserved": true,
+    "error": "HTTP Error 404: Not Found"
+  },
+  "package-workflow": {
+    "url": "https://raw.githubusercontent.com/paradedb/paradedb/v0.26.1/.github/workflows/publish-pg_search-debian.yml",
+    "tls_verified": true,
+    "default_proxy_preserved": true,
+    "status": 200,
+    "sha256": "9802a3658e9ea98efece2c7510c973c81975743bf6c01dd8cdd4c8287222e64a",
+    "bytes": 18730
+  },
+  "pgvector-readme": {
+    "url": "https://raw.githubusercontent.com/pgvector/pgvector/v0.8.1/README.md",
+    "tls_verified": true,
+    "default_proxy_preserved": true,
+    "status": 200,
+    "sha256": "961ff3f27c7eed2360a75c1c544758f8c2576d46f3fbd0e501cfc503e7be5b1a",
+    "bytes": 40773
+  },
+  "workspace_packages": 791,
+  "registry_packages": 732,
+  "git_packages": 52,
+  "local_packages": 7,
+  "git_sources": [
+    "git+https://github.com/antithesishq/proptest?rev=6061eb48d67ff76f882e709677308816d5791ce7#6061eb48d67ff76f882e709677308816d5791ce7",
+    "git+https://github.com/paradedb/datafusion-distributed.git?tag=snapshot-main-2026-10-06-224907#2b82e8d2af32a6b15fb301be858ef47d7b629a3c",
+    "git+https://github.com/paradedb/datafusion.git?branch=paradedb.branch-55#41b058cc278eb497a2ffc6b41a323f056d3ef568",
+    "git+https://github.com/paradedb/fst.git?rev=1d2e473c6de63d17749030eb8538ba4d647f3430#1d2e473c6de63d17749030eb8538ba4d647f3430",
+    "git+https://github.com/paradedb/opencc-jieba-rs?branch=main#1bee2628bcae67a955caa5e91b740d170f5615d0",
+    "git+https://github.com/paradedb/superkmeans-rs?rev=c06dc2b6e9bd15fb5c4a0627178bebbe1fb37a64#c06dc2b6e9bd15fb5c4a0627178bebbe1fb37a64",
+    "git+https://github.com/paradedb/tantivy.git?rev=63e0c241cfd330381aebd5893f188fa858acbf45#63e0c241cfd330381aebd5893f188fa858acbf45"
+  ],
+  "scope": "workspace lock is not the resolved Linux PG17 production dependency closure; dev/benchmark dependencies included",
+  "release_sbom_or_license_assets": [],
+  "license_metadata_difference": {
+    "debian_package": "AGPL-3.0-or-later",
+    "workspace_cargo": "AGPL-3.0",
+    "decision": "Apply AGPL v3 obligations; no assumption of an additional later-version grant or a permissive alternative."
+  }
+}

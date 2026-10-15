@@ -1,0 +1,38 @@
+{
+  "pg-search.txt": {
+    "source": "exact installed .deb archive member /usr/share/doc/postgresql-17-pg-search/LICENSE (image dpkg excludes installed LICENSE)",
+    "sha256": "8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef"
+  },
+  "pg-search-copyright.txt": {
+    "source": "owned container /usr/share/doc/postgresql-17-pg-search/copyright",
+    "sha256": "8881ae0cb4286ee40902b4ae8bccbe308e51d1c1e65d98887f662961ef49486b"
+  },
+  "msgpack.txt": {
+    "source": "owned container /usr/share/doc/libmsgpackc2/copyright",
+    "sha256": "1fdb0674b3aef5e2752e911a6ced37c13c10180f1070f2f4014d0d38fef6d282"
+  },
+  "xxhash.txt": {
+    "source": "owned container /usr/share/doc/libxxhash0/copyright",
+    "sha256": "a123c93b07e781919ae996276ac02bb1c8b19dfde88176cd1240ab277c14a4ce"
+  },
+  "openblas.txt": {
+    "source": "owned container /usr/share/doc/libopenblas0-pthread/copyright",
+    "sha256": "3a668a70e1d025a79e455e5b9a2268d5d262b108dff14ec70c77f19f929bc9b2"
+  },
+  "postgresql.txt": {
+    "source": "owned container /usr/share/doc/postgresql-17/copyright",
+    "sha256": "afcc052a946b4117667527211b4ca303f07044f5585222f4c8f577e0764b2123"
+  },
+  "pgroonga.txt": {
+    "source": "owned container /usr/share/postgresql/17/pgroonga/COPYING",
+    "sha256": "62f6ecfbc5d357a5cff58940d3929b45f92c99737a1036fcf110346757feb231"
+  },
+  "groonga.txt": {
+    "source": "owned container /usr/local/share/groonga/COPYING",
+    "sha256": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551"
+  },
+  "onigmo.txt": {
+    "source": "owned container /tmp/retrieval-build/groonga-16.1.3/vendor/onigmo-source/COPYING",
+    "sha256": "7065e779ff1e4974d3f2f849dd8e2c718cf6443a25adab36be3cdcfcc50f1f8f"
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "source_commit": "0f288f14",
+  "product_source_commit": "b24ba485",
+  "date": "2026-10-14",
+  "scope": "Owned minimal UUID-domain tables, exact existing production join predicates, same-source readiness; not complete global migrations, domain authority, ValidateServing or App/Tool lifecycle.",
+  "runs": [
+    {
+      "directory": "output/ai/m3-retrieval-runtime/bootstrap01",
+      "original_session": 51248,
+      "actual_wait_exit": 1,
+      "cause": "harness merged stderr planner warning into result rows; correct four Knowledge UUIDs were present",
+      "owned": {
+        "nonce": "0ef5b2b3251e4ba28bdcaf9d0c09974b",
+        "container_id": "0eeea3effaa50c0a11b37398696e337c60b9c2a256101272a5457a7fb57d018c",
+        "network_id": "4a74495b4dad043dee22202f67b024b3d7164e80e058922c0a47220636f6d92c"
+      },
+      "result_sha256": "b67232e50fe0f4d960d3daa45fdf1913ce9582f0544164c0b3ef48459fd2304a"
+    },
+    {
+      "directory": "output/ai/m3-retrieval-runtime/bootstrap02",
+      "original_session": 67620,
+      "actual_wait_exit": 0,
+      "change": "stdout/stderr separated; same product SQL, fixture and budgets",
+      "owned": {
+        "nonce": "1584c96ab33645e191f50f1ccf8dca2e",
+        "container_id": "71455410fb11306ac8842109adee839ac8658b964065e3114a35e45a27a3439a",
+        "network_id": "54c05ccbb0c4c091326157444382f254d87ef858e36a0474c3fb8b679a4560f7"
+      },
+      "result_sha256": "aecaeb74310bbec28cb7e0bc3270b289f5a2f6a0ea05e40e22278c7edc29f6a0"
+    }
+  ],
+  "observed_versions": {
+    "postgresql_server_version_num": 170008,
+    "vector": "0.8.1",
+    "pg_search": "0.26.1",
+    "shared_preload_libraries": "pg_search",
+    "basis": "bootstrap checks and production PGSearchReadinessSQL returned true; exact installer checks passed"
+  },
+  "inputs": {
+    "internal/central/retrieval/lexical/sql.go": {
+      "sha256": "15ecbdb80ef5c129b980e3db3ed1ac0d6a9731aed5cd2ce781993b9e640a9d9c",
+      "bytes": 4189
+    },
+    "internal/central/knowledge/index_query.go": {
+      "sha256": "29aff65fea93e7823c8866adc2dc20b9639ed2788b2a20c59ea3eabe2b832668",
+      "bytes": 11627
+    },
+    "internal/central/memory/retrieval.go": {
+      "sha256": "0a73345e751e33c1ced631b31315901c73aaaae3451e7b5ff88e1d9ea8bbdf63",
+      "bytes": 10938
+    },
+    ".agent-state/m3-retrieval-selection/install-pg-search.sh": {
+      "sha256": "71c3756521cfe1dfcd42d9af36b4ca107a5a6b4b8d55b619278f22f8df48b9d6",
+      "bytes": 2633
+    },
+    ".agent-state/m3-retrieval-selection/bootstrap-pg-search.sql": {
+      "sha256": "084c6490e9d1c719e8c609b04c1c2e0612225f1d6aa6b2e074d4a12ef60d004c",
+      "bytes": 1467
+    },
+    ".agent-state/m3-retrieval-selection/check-bootstrap.py": {
+      "sha256": "f1c31f5fff3e39033b134a68aef4b7688b10d090f65106dc84b666b406c5ed22",
+      "bytes": 17224
+    }
+  },
+  "schema_sql_sha256": "42734889d01516034ee874322f4487d38b21a461dbd3906b1968d262afaf507f",
+  "retained_artifacts": {
+    "result.json": "aecaeb74310bbec28cb7e0bc3270b289f5a2f6a0ea05e40e22278c7edc29f6a0",
+    "index-definitions.txt": "574eebfac30dc99f6b6378011e0374e73b02d4ea3ae1fb57c6de8901985e9bf9",
+    "first-failure.json": "b67232e50fe0f4d960d3daa45fdf1913ce9582f0544164c0b3ef48459fd2304a",
+    "memory-query.sql": "b337b63c2d812124ef06ae98f4442ed3c4403382eb327062375917a7b1f52555",
+    "knowledge-plan.json": "230ad227a397c14e3c6dd59e5160e35734482070aec3ee3695b076844973f0f7",
+    "knowledge-query.sql": "2359ff1d622943b363c1b4a08d773a23a5155f8001acde63ec92ffa4f5a7f0f2",
+    "memory-plan.json": "f024a73f11c189496fe3ee8240ced7be8f982e6d1fe60fb8a9d3b727b293ddcc",
+    "first-failure-query.txt": "5591dc1c137b87c461683705e50b2327c54b71f10b1fec642142691d1bf2d9e2",
+    "go-validation.json": "d11a6a00ab7fa38d1cc8d9f26ea9ba0c2660f772c72750109475757565ed2116"
+  },
+  "plan_summary": "Both plans: final Limit -> Sort -> normal canonical joins -> ParadeDB Base Scan. Knowledge project and Memory project/agent/generation filters appear in the custom scan heap_filter. JoinScan is not used; no claim of all joins/TopK pushed into the search engine or capacity acceptance.",
+  "readiness_cases": [
+    "missing extension/index false",
+    "accurate bootstrap true",
+    "missing Memory index false",
+    "wrong tokenizer BM25 index false",
+    "exact index restored true"
+  ],
+  "cleanup": "Both runs PG graceful stop exit0, container sleep PID1 stop exit137, exact owned container/network removed and subsequent inspect confirms absence."
+}

@@ -1,0 +1,8 @@
+    runtime_m3_live_test.go:215: authorized Runtime embedding batch=1 items=64 dimensions=4096 http_status=200 joined=true
+    runtime_m3_live_test.go:215: authorized Runtime embedding batch=2 items=64 dimensions=4096 http_status=200 joined=true
+    runtime_m3_live_test.go:215: authorized Runtime embedding batch=3 items=8 dimensions=4096 http_status=200 joined=true
+--- PASS: TestModelM3AuthorizedRuntimeEmbeddings (43.24s)
+D03 explicit test actual_wait pid=785082 code=0 selector=^TestModelM3AuthorizedRuntimeEmbeddings$
+D03 fixture cleanup checked for nonce a7fe6af3d3361cfeb448c4b47e610117
+D04 outbound fixture cleanup checked for nonce 873772f9fbc767108fb6c13f0cfa9985
+D05 object fixture exact resource cleanup checked nonce=be26f4c861670460f288fb5ed5e99785

@@ -1,0 +1,34 @@
+{
+  "dataset_revision": "lexical-v2",
+  "frozen_before_test_queries": true,
+  "candidate_k": 20,
+  "tie_break": "source_id_ascii",
+  "postgresql": "17.8-1.pgdg12+1",
+  "vector": "0.8.1",
+  "pgroonga": {
+    "version": "4.1.0 / Groonga 16.1.3",
+    "analyzer": "TokenBigram; NormalizerAuto; no external dictionary",
+    "index": "CREATE INDEX candidate_lexical ON candidate_sections USING pgroonga (index_text) WITH (tokenizer='TokenBigram', normalizers='NormalizerAuto')",
+    "session": "SET enable_seqscan=off",
+    "query": "SELECT source_id, pgroonga_score(tableoid,ctid)::double precision AS score FROM candidate_sections WHERE index_text &@~ $1 ORDER BY score DESC, source_id COLLATE \"C\" ASC LIMIT 20",
+    "ranking": "PGroonga default term frequency, not BM25"
+  },
+  "pg_search": {
+    "version": "0.26.1",
+    "analyzer": "pdb.chinese_compatible with default filters; no external dictionary",
+    "index": "CREATE INDEX candidate_lexical ON candidate_sections USING bm25 (source_id, (index_text::pdb.chinese_compatible)) WITH (key_field='source_id')",
+    "session": "SET enable_seqscan=off",
+    "query": "SELECT source_id, paradedb.score(source_id)::double precision AS score FROM candidate_sections WHERE source_id @@@ paradedb.match('index_text', $1, conjunction_mode=>false) ORDER BY score DESC, source_id COLLATE \"C\" ASC LIMIT 20",
+    "ranking": "pg_search BM25; match tokenizer uses index configuration, disjunction mode, no fuzzy/prefix"
+  },
+  "measurements": "Index relation bytes only; no latency or indexing time comparison because these runners use container-owned unix sockets through psql, unlike historical TLS/pgx client timing.",
+  "dense": {
+    "status": "awaiting_real_model_snapshot_and_vectors",
+    "similarity": "cosine descending; source_id ASCII tie",
+    "candidate_k": 20,
+    "rrf_k": 60,
+    "weights": [1, 1],
+    "output_k": 20,
+    "formula": "sum(1/(60+rank)); absent leg contributes 0; source_id ASCII tie"
+  }
+}
