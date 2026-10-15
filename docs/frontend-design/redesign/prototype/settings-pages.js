@@ -52,7 +52,7 @@ function settingLink(ctx, item, selected) {
 export function settingsShell(ctx, content) {
   const selected = ctx.page === "mcp" ? "mcp" : ctx.page === "memory" ? "agents" : "general";
   const label = entries.find(e => e.id === selected).label;
-  return `<div class="project-settings-shell"><aside class="project-settings-sidebar" aria-label="项目设置栏目"><h2>项目设置</h2><nav aria-label="设置栏目">${entries.map(item => `${item.group ? `<div class="project-settings-group">${esc(item.group)}</div>` : ""}${settingLink(ctx, item, selected === item.id)}`).join("")}</nav></aside><div class="project-settings-content"><div class="project-settings-mobilebar"><button type="button" id="settings-section-menu" class="settings-section-trigger" aria-haspopup="menu" aria-expanded="false">${icon("settings",14)}<span>项目设置</span><span class="mobile-section-divider">/</span><strong>${esc(label)}</strong>${icon("chevron",12)}</button></div>${content}</div></div>`;
+  return `<div class="project-settings-shell"><aside class="project-settings-sidebar" aria-label="项目设置栏目"><h2>项目设置</h2><nav aria-label="设置栏目">${entries.map(item => `${item.group ? `<div class="project-settings-group">${esc(item.group)}</div>` : ""}${settingLink(ctx, item, selected === item.id)}`).join("")}</nav></aside><div class="project-settings-content ${ctx.page === "settings" ? "project-settings-general" : ""}"><div class="project-settings-mobilebar"><button type="button" id="${ctx.page === "settings" ? "settings-section-secondary" : "settings-section-menu"}" class="settings-section-trigger" aria-haspopup="menu" aria-expanded="false">${icon("settings",14)}<span>项目设置</span><span class="mobile-section-divider">/</span><strong>${esc(label)}</strong>${icon("chevron",12)}</button></div>${content}</div></div>`;
 }
 export function bindSettingsShell(ctx) {
   document.querySelectorAll("[data-setting-page]").forEach(link => {
@@ -75,7 +75,7 @@ function records(ctx, s) {
 }
 function renderGeneral(ctx) {
   const s = local(ctx), readonly = locked(ctx, s);
-  const header = `<header class="general-heading"><div><h1 id="general-title" tabindex="-1">基本信息</h1><p>管理项目名称与描述。</p></div><button class="icon-button general-more" id="general-more" aria-label="更多项目信息操作" aria-haspopup="menu" aria-expanded="false">${icon("more",18)}</button></header>`;
+  const header = `<header class="general-heading"><div><h1 id="general-title" tabindex="-1"><span class="general-desktop-title">基本信息</span><button type="button" id="settings-section-menu" class="general-title-menu" aria-label="基本信息，切换项目设置栏目" aria-haspopup="menu" aria-expanded="false">基本信息${icon("chevron",15)}</button></h1><p>管理项目名称与描述。</p></div><button class="button quiet general-more" id="general-more" aria-label="更多项目信息操作" aria-haspopup="menu" aria-expanded="false">${icon("more",16)}<span>更多</span></button></header>`;
   if (ctx.scenario === "loading") return `<section class="general-page">${header}<div class="general-loading" aria-busy="true" aria-label="正在读取项目信息"><div></div><div></div><div></div><p>正在读取项目信息…</p></div></section>`;
   if (ctx.scenario === "error") return `<section class="general-page">${header}<section class="general-read-error"><span>${icon("refresh",24)}</span><h2>暂时无法读取项目信息</h2><p>连接中断。重新读取后继续，尚未发起修改。</p><button class="button" data-general="retry">重新读取当前值</button></section></section>`;
   const nameHint = "1–64 位英文字母、数字、点、下划线或连字符；不能为 . 或 ..，名称不区分大小写。";

@@ -124,3 +124,68 @@ body:has(.project-settings-shell) .project-identity>.muted {font-size:11px;}
   .general-recovery-actions .button {padding:5px 9px;min-height:34px;}
   .general-loading div,.general-loading p {margin-left:0;}
 }
+
+/* Second composition: the fields and their save action are one editing group. */
+.general-page {max-width:760px;}
+.project-settings-content {padding-top:43px;}
+.general-heading {margin-bottom:28px;}
+.general-heading h1 {font-size:24px;letter-spacing:-.6px;}
+.general-heading p {font-size:13px;margin-top:8px;}
+.general-more {width:auto;min-height:29px;height:auto;margin-top:2px;gap:5px;color:var(--muted);font-size:12px;}
+.general-more>svg {stroke-width:2.4;}
+.general-title-menu {display:none;}
+#general-form {padding:25px 26px 12px;background:var(--subtle);border:1px solid var(--border);border-radius:8px;}
+.general-fields {border:0;}
+.general-field-row {grid-template-columns:120px minmax(0,1fr);gap:22px;padding:0 0 27px;border:0;}
+.general-description-row {padding-bottom:0;}
+.general-field-label {padding-top:8px;}
+.general-field-label label {font-size:13px;font-weight:550;}
+.general-field-label>span {font-size:11px;}
+.general-field-control input,.general-field-control textarea {font-size:14px;padding:8px 11px;line-height:1.65;background:var(--content);}
+.general-field-control input {height:38px;max-width:400px;}
+.general-field-control textarea {min-height:122px;}
+.general-hint {font-size:12px;line-height:1.65;margin-top:9px;}
+.general-name-warning {font-size:12px;line-height:1.65;margin-top:5px;}
+.general-form-footer {margin:23px 0 0 142px;}
+.general-form-footer .button {font-size:12px;min-height:31px;}
+.general-edit-version {font-size:11px;}
+.general-feedback {margin-left:142px;min-height:23px;height:auto;font-size:11px;margin-top:7px;}
+.general-records {margin-top:23px;padding-top:0;border-top:0;}
+.general-records summary {padding:13px 1px;font-size:13px;}
+.general-records-summary {font-size:11px;}
+.general-records dl {padding:10px 0 14px 21px;}
+.general-records dt,.general-records dd {font-size:12px;}
+.general-records dl>div {grid-template-columns:147px minmax(0,1fr);}
+:root[data-theme="dark"] .floating-menu {background:#2a2c27;border-color:#484c43;box-shadow:0 18px 44px #0008,0 3px 10px #0005;}
+:root[data-theme="dark"] .menu-option:hover,:root[data-theme="dark"] .menu-option:focus {background:#3a3e34;}
+:root[data-theme="dark"] .menu-label {color:#b5baad;}
+@media(max-width:1050px) {
+  #general-form {padding:22px 21px 12px;}
+  .general-field-row {grid-template-columns:1fr;gap:11px;}
+  .general-field-label {padding-top:0;}
+  .general-form-footer,.general-feedback {margin-left:0;}
+}
+@media(max-width:760px) {
+  .project-settings-content.project-settings-general {padding-top:27px;}
+  .project-settings-general .project-settings-mobilebar {display:none;}
+  .general-desktop-title {display:none;}
+  .general-title-menu {display:flex;align-items:center;gap:9px;padding:0;text-align:left;line-height:1.35;font-size:23px;font-weight:610;letter-spacing:-.5px;}
+  .general-title-menu svg {color:var(--muted);}
+  .general-heading {margin-bottom:25px;}
+  .general-heading p {font-size:12px;margin-top:6px;}
+  .general-more {font-size:11px;}
+  #general-form {padding:0;border:0;border-radius:0;background:transparent;}
+  .general-field-row {padding-bottom:25px;gap:10px;}
+  .general-description-row {padding-bottom:0;}
+  .general-field-label label {font-size:13px;}
+  .general-field-control input {height:40px;}
+  .general-field-control textarea {min-height:116px;}
+  .general-hint,.general-name-warning {font-size:12px;line-height:1.65;}
+  .general-form-footer {margin-top:19px;}
+  .general-form-footer .button {min-height:36px;}
+  .general-edit-version {font-size:10px;}
+  .general-feedback {margin-left:0;}
+  .general-records {border-top:1px solid var(--border);margin-top:25px;padding-top:8px;}
+  .general-records summary {font-size:12px;}
+  .general-records dl>div {grid-template-columns:85px minmax(0,1fr);}
+}

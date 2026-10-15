@@ -144,6 +144,7 @@ export function closeMenu(restore = true) {
   cleanup();
   panel.remove();
   trigger.setAttribute("aria-expanded", "false");
+  trigger.removeAttribute("aria-controls");
   activeMenu = null;
   if (restore && trigger.isConnected) trigger.focus({ preventScroll: true });
 }
@@ -193,7 +194,7 @@ export function showMenu(trigger, items, choose, options = {}) {
       e.preventDefault();
       buttons[e.key === "Home" ? 0 : e.key === "End" ? buttons.length-1 : (index + (e.key === "ArrowDown" ? 1 : -1)+buttons.length)%buttons.length]?.focus();
     } else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); closeMenu(); }
-    else if (e.key === "Tab") { closeMenu(false); }
+    else if (e.key === "Tab") { closeMenu(); }
     else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
       letters += e.key.toLocaleLowerCase();
       clearTimeout(letterTimer);
@@ -203,10 +204,12 @@ export function showMenu(trigger, items, choose, options = {}) {
   };
   const pointer = e => { if (!panel.contains(e.target) && !trigger.contains(e.target)) closeMenu(false); };
   const reposition = () => closeMenu(false);
+  const scrolled = e => { if (!panel.contains(e.target)) closeMenu(false); };
   document.addEventListener("keydown",keydown,true);
   document.addEventListener("pointerdown",pointer);
   window.addEventListener("resize",reposition);
-  activeMenu = { panel, trigger, cleanup() { clearTimeout(letterTimer);document.removeEventListener("keydown",keydown,true);document.removeEventListener("pointerdown",pointer);window.removeEventListener("resize",reposition); } };
+  window.addEventListener("scroll",scrolled,true);
+  activeMenu = { panel, trigger, cleanup() { clearTimeout(letterTimer);document.removeEventListener("keydown",keydown,true);document.removeEventListener("pointerdown",pointer);window.removeEventListener("resize",reposition);window.removeEventListener("scroll",scrolled,true); } };
 }
 export function enhanceSelects(root = document) {
   root.querySelectorAll("select:not([data-enhanced])").forEach(select => {
