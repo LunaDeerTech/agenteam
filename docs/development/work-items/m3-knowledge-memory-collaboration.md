@@ -26,9 +26,15 @@ Runner 扩展以这些真实流程实际依赖为界：复用已经接受的身�
 
 共同成熟后端与私有前端现已按完整 manifest 汇入，包括 Skills 安装恢复/catalog、MCP、Knowledge 文件/hybrid、Memory 和 Meeting/Inbox；共享 App/Web 逐 hunk 融合。141 Decision、RuntimeView 与有限 Realtime 的同 Hub 领域通知、原授权及 Gateway 已接共同 App；首组合编译、必要配置与精确入口检查已过。Gateway 普通/race及有限独审、Execution 公开投影和领域 known-commit 门已过；共同前端受影响五业务 spec 43例、两 codec spec 23例及完整类型检查也已过。尚未以该组合完成真实业务与 Realtime 接受，不能用 isolated 旧门外推。 共同 Reply 受影响三 spec 42例、Realtime 状态三 spec 23例及各自完整类型检查已通过；已准备固定私有 dist/harness，双 topic 真实浏览器仍待。
 
-共同后续实际已暴露三处独立首断点：删除先缺独立 HTTP 路由，接线修后又触发未派发贡献的取消标志约束，两处均已窄修；Decision Inbox 已到 Owner 原动作及 lookup，后继 turn 未终态，现只补原预算内闭集诊断，不据单条 ConfirmationStale 猜根因；Meeting 上 Memory 在创建 Agent 的非法名称处停止，harness 合法 builder 已修且配置门通过。新共同 App 已编译并包含这三组，业务复验尚待。Runner 首 cold 尚未到目标 reader 屏障，未执行目标停止/重启，新的 child 事务诊断等待编译；原正常整链通过保持。
+共同后续删除实际依次暴露独立 HTTP 路由遗漏、未派发贡献的取消标志约束及 Project Audit 要求 EX 而主删除仅持 SH 的首因；均已窄修，修后真实删除完整通过原动作/lookup、held contribution 取消与未派发贡献零启动、四次模型/lease 退休、同事务 completed Audit/Deleted/receipt、外域三 E 保持、迟到 Send 拒绝及 App/Guard/数据库退出。Decision Inbox 新实际确认 answer/skip 的 E/Turn/Inbox 均完成，cancel 的 E/Turn 已取消但 Decision 仍 pending；原因是可选 typed 零 ID 的全零 UUID 编码与 SQL 空串省略条件不符，原域参数编码已窄修，待普通与真实复验，不改 Execution 或迁移。Meeting 上 Memory 的非法 Agent 名称修正后，已完整通过同 E retain/recall/reflect、后继公开回复与 Summary、11次模型退休、canonical provenance、零 lease 及 App/Guard/数据库退出。Runner 首 cold 尚未到目标 reader 屏障，未执行目标停止/重启，新的 child 事务诊断实际仅见七个原 Skill/Mount/Object 事务提交、Transfer 仍 issued/活 lease、脚本尚未出现，未到目标 reader 屏障；继续按该事实定位，原正常整链通过保持。
 
-Artifact 的正式五阶段 user upload 已实现，普通边界门通过；独审发现的并发 body/first-attempt 竞态已将拒绝条件带入原 reserve 锁内。真实 Objects 交错和默认 App 上传尚未通过，不能仅由普通门关闭并发风险；原 metadata point-read 的限定普通门通过，不扩称上传或浏览器接受。
+Artifact 的正式五阶段 user upload 已实现；独审发现的 body/first-attempt 竞态已把拒绝条件带入原 reserve 锁内，真实 Objects 晚到 body/已有 live attempt 两门与独审现已关闭该并发 finding。默认 App 上传原先在 sole 错误要求未使用的第二项目账本时失败；测试按实际 A 账本/B 零 work 窄修后，上传与 metadata point-read 两个真实 App top 现已完整通过。正式五阶段、原 Unknown 确认、权限边界、元数据读取及 App/Artifact Join、零活跃 lease 和全部 fixture 资源退出闭合；不扩称附件浏览器接受。
+
+MCP 原 Delete cold 旧轮未收敛后，发现共享 App 将初始化 budget 上下文传给 Content recovery 与 reconciliation 长期 worker，Ready 时会取消它们。两处调用现解除启动 budget、保留原 owner 的取消与实际 Join；定向生命周期门及独审通过后，新 OriginalDelete 实际已验证原 exchange/claimed 提交、真实 SIGKILL/Wait、新 guard、同原 Delete 收敛及 App Join，有限独审接受。stranded 随后通过真实停止、新 guard、exact materialization 清理及 MCP owner Join、Unknown Tool 零重派发，但新子进程末尾仍强制退出，不宣整 App graceful Join。Published 实际止于 seed App 合并 guard/数据库退出观察，尚未进入目标窗口，sole 已补有界事实观察。startup 隔离与已知 Human Refresh 外层 lease/pointer 冷收尾仍必须分别闭合，不能移作泛生命周期后续。
+
+Summary 的 prepared 已提交、Resolve 前冷窗口已由原 child SIGKILL/Wait、新 guard/原 source absence 收敛、诚实失败、零新 Resolve/Model/lease/Summary、Owner 原取消及新 App Join 实际通过，有限独审接受该窗口；不外推其它 Summary 停止位置。Inline Composer 的32例与完整类型检查、有限独审已过；真实浏览器默认 Enter、跨 scope 和附件仍待。
+
+剩余必达出口按原卡分组推进：Meeting 剩余控制、Decision 取消、有限 Realtime 和 Composer 来源/附件；MCP published connection 窗口、原 startup 隔离及 Human Refresh 外层 lease/pointer 冷收尾；Runner 必要冷退休；Artifact 附件浏览器与独审收口；最后核共同装配受影响组合。复用已接受旧链，真实失败保存后只改首因或补有区分力的诊断，不以增加等待或重复全矩阵代替定位。Agent update/comment 保持未注册，等待规则回复及 root 对完整原 M3 出口的裁定。
 
 ## 共同调用契约与所有权
 

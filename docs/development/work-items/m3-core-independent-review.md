@@ -355,3 +355,43 @@ cold 沿原 Builtin registered Lookup：限定 `skill.prepare` rev1，排除本�
 消息替换后，引用仍以历史不可变 Message ID 为准；预览从当前已授权 detail 的当前/历史消息集合读取。历史组件只展示原消息，不编辑或重写历史；Reply 事件同时要求 canReply 和精确历史成员，disabled 状态也在 handler 拒绝。发送权限、原预期版本和原命令入口保持不变，历史回复按钮不复用重新生成/重试 Execution 的权限。
 
 已只读核 actual API→transport 对同 Reply body/key 的 Send/lookup 断言，以及 Session capture、Unknown、显式确认、版本冲突与历史禁用测试。作者组合 42 tests 与 full vue-tsc 通过按回执复用，本轮未亲核原日志、未启动 Node/Go/browser、未改产品或测试；不将这些控制门当真实 HTTP/浏览器发送通过。仅追加本节，既有 Runner、Realtime、MCP 等结论保持原样，Git 由 root 保存。
+
+
+## Artifact Human 上传的首次写入并发独审
+
+2026-10-15；由未参与该上传实现的 Model/Runner owner 独立只读核合同 `ebf8ea21`、实现 `1e324969`、真实测试 `d4378e2e` 及修复 `4df0794d`。范围是原 Human Session/Project Owner、完整 upload intent 与原两命令锁、payload 预留、数据库 receipt 完成发布、Unknown 查询及真实 body Close/owner 退出；不扩全 Object 或 Artifact 生命周期。入口沿原 Account HTTPBoundary，完整 intent 和当前权限在原事务锁内重核；Lookup 不做 Object I/O，complete 从原持久 receipt 发布，未知结果不投影成功或公开未完成 Artifact。
+
+发现并已关闭一个首次写入的 TOCTOU must-fix：A/B 都在较早查询中见 pending 且无 attempt，A 随后阻塞于原 spool，B 的实际 PUT/验证失败并关闭 attempt 后，旧实现允许 A 借原 Object 内部恢复语义再预留一次。`4df0794d` 将 Human 首次写入限定带入原 reserve 事务，在完整锁内、调用 ReserveUploadInTx 之前重核 pending 且 object/upload/attempt 均空；旧内部 UploadPayload 的恢复语义和 uploaded 的只读验证保持。该修复不是仅增加较早预检。
+
+亲核作者 `8222` 原日志 `output/ai/m3-artifact-user-upload/objects-first02/native.log` 及同目录 `cleanup-check.json`：真实 late-body 门 PASS2.66s、live-attempt 门 PASS2.27s，原测试 PID1744185 actual_wait code0。late-body 用真实 spool barrier 和失败 PUT 后的 durable closed attempt 区分竞争时点，随后 A 被原事务拒绝，保持一次 PUT、一个 attempt；live 门拒绝仍活跃写入的第二次发送。6 个资源 ID、3 个目录及 wrapper/helper/test 3 个 PID 全部 absent。结合固定源码修复，首次写入并发 finding 已关闭，限定闭包未见剩余已证 must-fix。此轮复用作者实际运行并独立核证，未重跑测试；fixture 使用原受控领域 Authority，不能据此宣称真实默认 App/Account Session 上传、网络 COMMIT Unknown 或 rollback 分支通过，这些范围仍由后继实际门分别证明。
+
+
+## Meeting 同一 Execution 的 Memory 工具实际链有限核证
+
+2026-10-15；Model/Runner owner 独立只读核共同候选 `4ecdb` 的 `internal/central/app/meeting_m3_memory_integration_test.go` 与原 `58034` 日志 `/tmp/m3-meeting-memory-native.dp6uryot/native.log`。本轮只核该 App 编排、原输入消费与退出，不重审已有 Memory 核心。Owner HTTP 创建 Meeting 后，原 Meeting 来源的同一个 Execution 依次 retain、recall、reflect、final，再发布 Summary；后续三个 Agent 请求逐一检查原 Tool 结果。持久断言为1个 Execution、0个 Task、3个 Tool 结果、1个已提交 Memory operation、6个 Memory model calls，全部11个 Model calls 已退休且原 Secret leases released。没有另造 Task、Tool witness 或 Memory mutation 路径。
+
+原日志 PASS10.90s，测试 PID1750063 actual_wait code0；原 Drain、App Wait0、各 owner Joined、全部受控 peer handler/连接关闭、ProcessGuard stopped 与数据库连接归零均有断言。对原 `owned.json` 的6个精确资源 ID 再次只读 inspect 均退出1，3个目录及原测试 PID 均不存在。该正常同 Execution 组合的有限核证接受，未见已证缺陷；使用受控 Model peers，不能外推外部 Provider、cold、Unknown 或完整 Memory 生命周期。本轮未新增测试或修改产品。
+
+## Meeting 137 删除返修与默认 App 实际闭合
+
+2026-10-15；原 Realtime/Artifact reviewer 继续独立核对前述 137 限定范围。初次静态结论后，实际 `23253` 的领域事务报 SQLSTATE `23514`，暴露无 Execution 的 Contribution 被写入不合法取消标记；`61897` 又暴露接受删除时原 Project Audit 所需 EX 锁未持有。这两次失败和此前 HTTP 404 均保留，不由普通门或旧静态结论覆盖。已逐一核固定 `87dcc98f` 和 `d0f95aee`：接受 UPDATE 只对有当前 Execution 的项置取消请求；确定未尝试且没有 Execution 的 cleanup 分支写 cancelled 并清除取消请求，Unknown 分支仍仅观察。接受命令在完整初始锁集合中取得 Project EX，原 Lookup SH 与 purge EX 不变，没有事务中升级锁、DDL 或绕过原 Audit authority。
+
+亲核作者 `50965` 原日志 `/tmp/m3-meeting-delete-lock-native.POySrSeU/native.log`，并对照 `internal/central/app/meeting_m3_deletion_integration_test.go` 的实际断言。共同候选 `61828`（App binary SHA256 `f38b932587c05525d3da0ca984d0eb883f825fa85927ec5b75267b33d896005e`）中 `TestMeetingM3AppDeletionRetiresOriginalOwners` **PASS7.81s，原测试 PID1765402 actual_wait code0**。Owner HTTP 接受原删除意图后只用原 key 查询完成；当前 A 的原 Execution 被取消、尚无 Execution 的 B 未派发，4 个原 Model calls 均退休且 lease released。随后 Meeting 自有记录清除，3 个外域 Execution 保留；completed receipt、精确 service/initiator Audit、lifecycle event 与 Outbox 由实际 xmin 断言同事务，晚到 Send 为404、原 receipt 可重放。
+
+该测试最后核原 runtime、Meeting runtime、account assembly 与 producers Joined，受控 peer 的4次调用全部退出，原 ProcessGuard stopped、数据库退出及连接归零。日志显示三组官方 cleanup；本 reviewer 又按原 `owned.json` 只读 inspect 6 个精确资源 ID，复核3个目录及测试 PID 均不存在。**137 当前默认 App 删除到 purge 的限定闭包接受，未见剩余已证 must-fix。**本轮复用作者实际结果，未另跑删除门；不外推旧 process 冷恢复、物理 COMMIT Unknown、浏览器、整个 Project 删除或 D25。Artifact 作者测试不计作本删除独立执行。
+
+## MCP 启动恢复上下文的有限独审
+
+2026-10-15；由未参与修复的 Realtime/Artifact owner 独立只读核 `df505512` 的 `app/account.go`、`app/m3_mcp.go`、`app/m3_mcp_lifecycle_test.go`，并追读原 `initialize/run`、MCP `processOwner`、Content recovery、reconciliation 及 Account/resources 退出链。原缺陷由源码确认：两 worker 使用短期 security/startup ctx，`initialize` 返回及 `run` 收到启动结果即取消该 ctx。旧 MCP `82282` 的恢复未完成日志不能独立证明具体在哪个取消阶段停止，仍保留原失败。
+
+固定修复只在私有启动 helper 去除该 ctx 的取消与 deadline，保留 context values；调用前、两个入口之间及返回前仍核原启动取消，实际入口错误原样传播。两个真实 worker 仍经同一 Service 的 `processOwner.begin` 登记原 call，StopAdmission 逐个取消，Drain 等原 goroutine returned 并处理保留的 Unknown observer，Joined 不以 cancel 代替返回。原 Account Stop/Drain/Force、未 Joined 时的 provider 保留及部分启动失败清退路径未改。
+
+已亲核 `/tmp/m3-mcp-startup-lifecycle-m6sp_3b1/ordinary.log`：作者 `83438` 原 Wait0，精确 `^TestMCPRecovery(Survives|Partial|Rejects)` 命中3个顶层测试和 partial 的2个子例，全部 PASS，App 包0.011s。测试以受控 owner 验启动取消后两个原 call 仍活、原 Account assembly Drain 等待真正 return barrier、部分启动失败仍由原 owner 退出、已取消启动不再 admission。**此启动上下文修复的有限范围接受，未见剩余已证 must-fix。**本 reviewer 未重跑；受控 owner 不代替真实 PostgreSQL、ProcessGuard 或新 MCP cold 恢复实际链，后者仍由对应原测试验证。本轮只追加这两节，产品及测试未改，全部 Git 由 root 保存。
+
+## Artifact 默认 App 上传与稳定引用点查实际核证
+
+2026-10-15；原 Model/Runner reviewer 在前述上传与首次写入并发独审基础上，独立核共同 `61828` 的原实际日志及 `f3907708` / `ed149247` sole 增量。`f3907708` 只修测试作用域：上传只在 Project A 调用 Artifact，故保留 A 的原 ledger 全退休检查、要求 B 总调用数为零，再执行原 App/ArtifactPair/ProcessGuard/数据库退出及零 active Object lease；没有删除退出门或为 B 伪造调用。旧 `62261` 末尾 helper 失败保持，不回填为通过。
+
+亲核 `output/ai/m3-artifact-user-upload/app-second02/{native.log,exit-status,owned.json,cleanup-check.json}`：作者 `37618` 中 `TestArtifactUserUploadHTTPDefaultApp` PASS3.97s、`TestArtifactMetadataHTTPDefaultApp` PASS4.07s，原测试 PID1767609 actual_wait code0，wrapper exit0；binary SHA256 `f38b932587c05525d3da0ca984d0eb883f825fa85927ec5b75267b33d896005e`。上传经默认 App、真实 Human Session/CSRF/current Owner 和 Object 存储，验证二进制精确读取、complete 前无公开 Artifact、原发布 COMMIT 后 typed ACK Unknown→原 Lookup、单次 Artifact/Audit/attempt、两种取消以及越权拒绝。点查以稳定 ArtifactID 取得原完整 ArtifactRef，GET/HEAD 不改变 Object/lease 事实且 read audit 为零正文 bytes，随后仅用返回的正式 FileID 读取原正文；跨项目、非 Owner、缺失 ID 和额外 query 均被拒绝。两个 top 均走到原 owner/App/guard/DB Joined。
+
+官方三 fixture cleanup 与保存的精确检查相符：6个资源 ID、3个目录及 wrapper/helper/test 3个 PID 全部 absent。本轮只读源、原日志与清理记录，未重跑测试；**默认 App 上传与点查的上述限定闭包接受，未见剩余已证 must-fix。**发布 Unknown 是原真实 COMMIT 后的受控返回 mask，不是网络故障或 rollback；8222 的并发门独立复用，浏览器上传/打开及其他生命周期仍不在本次实际结论内。
