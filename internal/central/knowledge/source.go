@@ -179,8 +179,7 @@ func (s *Service) ReadDocument(ctx context.Context, actor id.Actor, project id.P
 		return kc.DocumentContent{}, fault(f.ResourceDeleted)
 	}
 	if head.Active.SourceKind == kc.File {
-		unbound := kc.ReadableUnbound
-		return kc.DocumentContent{Document: *head.Active, Unavailable: &unbound}, nil
+		return s.readParsedProjection(ctx, actor, project, document, head.Active.ContentVersion, request)
 	}
 	reader, err := s.OpenCanonical(ctx, actor, project, document, nil)
 	if err != nil {
@@ -193,8 +192,7 @@ func (s *Service) ReadDocument(ctx context.Context, actor id.Actor, project id.P
 		if err != nil {
 			return kc.DocumentContent{}, portError(err)
 		}
-		unbound := kc.ReadableUnbound
-		return kc.DocumentContent{Document: reader.Document(), Unavailable: &unbound}, nil
+		return s.readParsedProjection(ctx, actor, project, document, reader.Document().ContentVersion, request)
 	}
 	content, readErr := readText(reader, request)
 	closeErr := reader.Close()
@@ -285,7 +283,7 @@ func (r *SourceResolver) sourceSnapshot(ctx context.Context, actor id.Actor, ref
 	if err := readInput(ctx, actor, project); err != nil {
 		return kc.DocumentRef{}, err
 	}
-	locks, err := scopeLocks(actor, project, false)
+	locks, err := accessLocks(ctx, actor, project, false)
 	if err != nil {
 		return kc.DocumentRef{}, err
 	}

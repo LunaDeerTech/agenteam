@@ -44,6 +44,9 @@ export interface ProjectArtifactsAPI {
   list(projectID: string, query: ArtifactQuery, signal: AbortSignal): Promise<ArtifactPage>
   read(ref: ArtifactRef, query: ArtifactReadQuery, signal: AbortSignal): Promise<ArtifactContent>
 }
+export interface ProjectArtifactMetadataAPI {
+  metadata(projectID: string, artifactID: string, signal: AbortSignal): Promise<ArtifactMetadata>
+}
 const encoder = new TextEncoder()
 function requireValue(value: boolean): asserts value {
   if (!value) throw new AccountFailure('invalid-response')
@@ -299,6 +302,30 @@ export function createProjectArtifactsAPI(fetcher?: Fetch): ProjectArtifactsAPI 
           artifactRead: captured,
           signal,
         },
+      )
+    },
+  }
+}
+
+// A stable Meeting file reference carries only ArtifactID. This authorized
+// point read resolves its original full P/A/F identity before content is read.
+export function createProjectArtifactMetadataAPI(fetcher?: Fetch): ProjectArtifactMetadataAPI {
+  const transport = accountTransport(fetcher)
+  return {
+    metadata(projectID, artifactID, signal) {
+      const project = captureArtifactID(projectID),
+        artifact = captureArtifactID(artifactID)
+      return transport(
+        'getProjectArtifactMetadata',
+        (value) => {
+          const result = decodeArtifactMetadata(shape(value, ['artifact']).artifact)
+          requireValue(
+            result.artifact_ref.project_id === project &&
+              result.artifact_ref.artifact_id === artifact,
+          )
+          return result
+        },
+        { projectID: project, artifactID: artifact, signal },
       )
     },
   }

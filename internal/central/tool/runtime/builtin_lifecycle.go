@@ -36,6 +36,7 @@ func (e *BuiltinExecutor) Drain(ctx context.Context) error {
 	if ctx == nil {
 		return fail(f.InvalidArgument)
 	}
+draining:
 	for {
 		e.mu.Lock()
 		if len(e.calls) == 0 && len(e.lookups) == 0 {
@@ -46,6 +47,14 @@ func (e *BuiltinExecutor) Drain(ctx context.Context) error {
 			select {
 			case <-call.done:
 				if call.retirement != nil {
+					if call.backendPending {
+						binding := call.binding
+						e.mu.Unlock()
+						if err := e.JoinCall(ctx, binding); err != nil {
+							return err
+						}
+						continue draining
+					}
 					err := call.retirement
 					e.mu.Unlock()
 					return err
@@ -98,7 +107,19 @@ func (e *BuiltinExecutor) JoinCall(ctx context.Context, b tc.ToolCallBinding) er
 	select {
 	case <-call.done:
 		e.mu.Lock()
-		err := call.retirement
+		pending, err := call.backendPending, call.retirement
+		observed := &builtinCall{binding: call.binding, plan: call.plan, locks: append([]f.LockRequest(nil), call.locks...), cause: call.cause, record: call.record, lookup: true}
+		e.mu.Unlock()
+		if !pending {
+			return err
+		}
+		defer func() { clear(observed.arguments); clear(observed.body) }()
+		if err = e.resolveReturned(ctx, observed); err != nil {
+			return err
+		}
+		e.retireObserved(observed)
+		e.mu.Lock()
+		err = call.retirement
 		e.mu.Unlock()
 		return err
 	case <-ctx.Done():

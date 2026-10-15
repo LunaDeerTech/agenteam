@@ -1,4 +1,4 @@
-import { AccountFailure, accountTransport, shape, string, type Fetch } from './client'
+import { AccountFailure, accountTransport, shape, string, uuid7, type Fetch } from './client'
 import type { WriteOptions } from './account'
 import { parseSystemInstant } from './system-account'
 import { workID, workVersion } from './work-review'
@@ -15,7 +15,7 @@ export type ExecutionApproval = Readonly<{
   execution_id: string
   agent_id: string
   tool_id: string
-  tool_name: 'run-command'
+  tool_name: string
   tool_call_id: string
   operation_id: string
   operation_fingerprint: string
@@ -79,6 +79,18 @@ export function captureExecutionApprovalDecision(value: unknown): ExecutionAppro
     })
   })
 }
+// Matches tool/contract.ValidMCPKey: immutable Config UUID plus bounded remote
+// name, distinct from Runner's run-command even when the remote name matches.
+function validApprovalToolName(value: string): boolean {
+  if (value === 'run-command') return true
+  const parts = value.split(':')
+  return (
+    parts.length === 3 &&
+    parts[0] === 'mcp' &&
+    uuid7.test(parts[1]!) &&
+    /^[A-Za-z0-9_.-]{1,128}$/.test(parts[2]!)
+  )
+}
 export function parseExecutionApproval(
   value: unknown,
   scope: ExecutionApprovalScope,
@@ -105,7 +117,7 @@ export function parseExecutionApproval(
     execution_id: workID(v.execution_id),
     agent_id: workID(v.agent_id),
     tool_id: workID(v.tool_id),
-    tool_name: string(v.tool_name, 1, 128),
+    tool_name: string(v.tool_name, 1, 169),
     tool_call_id: string(v.tool_call_id, 1, 256),
     operation_id: workID(v.operation_id),
     operation_fingerprint: string(v.operation_fingerprint, 71, 71),
@@ -120,7 +132,7 @@ export function parseExecutionApproval(
       result.project_id === scope.projectID &&
       result.execution_id === scope.executionID &&
       result.agent_id === scope.agentID &&
-      result.tool_name === 'run-command' &&
+      validApprovalToolName(result.tool_name) &&
       /^sha256:[0-9a-f]{64}$/.test(result.operation_fingerprint) &&
       (result.status === 'pending'
         ? result.version === '1' && result.resolved_at === null && result.resolved_by === null

@@ -48,13 +48,32 @@ type associatedExecutorState struct {
 // preparation/Model permission. Real SQL and both driver proofs remain required
 // in the production graph.
 type associatedExecutorOps struct {
-	admit              func(context.Context, i.ProjectID, c.AssociatedDispatch) error
-	inspect            func(context.Context, i.ProjectID, c.AssociatedDispatch) (associatedFacts, error)
+	admit              func(context.Context, i.ProjectID, associatedIdentity) error
+	inspect            func(context.Context, i.ProjectID, associatedIdentity) (associatedFacts, error)
 	prepare            func(context.Context, i.ExecutionID) error
 	recoverPreparation func(context.Context, i.ExecutionID) error
 	start              func(context.Context, i.ExecutionID) (c.DirectTextReceipt, error)
 	recoverStart       func(context.Context, i.ExecutionID) (c.DirectTextReceipt, error)
 	owners             func(*associatedCall) associatedOwners
+}
+
+// Private common driver identity; Task and Meeting public contracts stay distinct.
+type associatedIdentity struct {
+	c.AssociatedDispatch
+	meeting c.AssociatedMeeting
+}
+
+func (d associatedIdentity) sourceID() string {
+	if d.meeting.ExecutionID.Validate() == nil {
+		return d.meeting.Trigger.ContributionID
+	}
+	return d.DispatchID
+}
+func (d associatedIdentity) matchesLaunch(r c.LaunchRequest) bool {
+	if d.meeting.ExecutionID.Validate() == nil {
+		return r.Trigger == d.meeting.Trigger && r.Purpose == "meeting/response" && r.Lineage.DispatchID == "" && r.Lineage.ContributionGeneration != nil && r.Lineage.ContributionAttempt != nil && *r.Lineage.ContributionGeneration == d.meeting.Generation && *r.Lineage.ContributionAttempt == d.meeting.Attempt
+	}
+	return r.Trigger.Kind == "task" && r.Lineage.DispatchID == d.DispatchID
 }
 
 type associatedFacts struct {
@@ -73,7 +92,7 @@ type associatedCall struct {
 	recovery       *executionRecoveryCall
 	projectCall    *projectCallEntry
 	project        i.ProjectID
-	dispatch       c.AssociatedDispatch
+	dispatch       associatedIdentity
 	ctx            context.Context
 	cancel         context.CancelFunc
 	phase          c.ExecutionAdvancePhase
@@ -186,6 +205,15 @@ func (s *associatedExecutorState) notifyCancellation(execution i.ExecutionID) {
 }
 
 func (e *AssociatedExecutor) Advance(ctx context.Context, project i.ProjectID, dispatch c.AssociatedDispatch) (c.ExecutionAdvance, error) {
+	return e.advance(ctx, project, associatedIdentity{AssociatedDispatch: dispatch})
+}
+func (e *AssociatedExecutor) AdvanceMeeting(ctx context.Context, project i.ProjectID, meeting c.AssociatedMeeting) (c.ExecutionAdvance, error) {
+	if meeting.Validate() != nil {
+		return c.ExecutionAdvance{}, invalid()
+	}
+	return e.advance(ctx, project, associatedIdentity{AssociatedDispatch: c.AssociatedDispatch{ExecutionID: meeting.ExecutionID, AgentID: meeting.AgentID, Key: meeting.Key, Digest: meeting.Digest}, meeting: meeting})
+}
+func (e *AssociatedExecutor) advance(ctx context.Context, project i.ProjectID, dispatch associatedIdentity) (c.ExecutionAdvance, error) {
 	if ctx == nil || validateAssociated(project, dispatch) != nil {
 		return c.ExecutionAdvance{}, invalid()
 	}
@@ -247,7 +275,7 @@ func (e *AssociatedExecutor) Advance(ctx context.Context, project i.ProjectID, d
 	return s.startAssociatedLocked(project, dispatch), nil
 }
 
-func (s *associatedExecutorState) startAssociatedLocked(project i.ProjectID, dispatch c.AssociatedDispatch) c.ExecutionAdvance {
+func (s *associatedExecutorState) startAssociatedLocked(project i.ProjectID, dispatch associatedIdentity) c.ExecutionAdvance {
 	job := &associatedCall{project: project, dispatch: dispatch, phase: c.ExecutionAccepted, active: true}
 	job.ctx, job.cancel = context.WithCancel(context.WithValue(s.root, associatedContextKey{}, job))
 	s.jobs[dispatch.ExecutionID] = job
@@ -259,7 +287,7 @@ func (s *associatedExecutorState) startAssociatedLocked(project i.ProjectID, dis
 // Called with s.mu held. Reservation is local only: the worker owns the
 // registration transaction and its entire original return. Advance never waits
 // on that SQL or inherits the traversal's cancellation lifetime.
-func (s *associatedExecutorState) startOwnedAssociatedLocked(project i.ProjectID, dispatch c.AssociatedDispatch) (c.ExecutionAdvance, error) {
+func (s *associatedExecutorState) startOwnedAssociatedLocked(project i.ProjectID, dispatch associatedIdentity) (c.ExecutionAdvance, error) {
 	job := &associatedCall{project: project, dispatch: dispatch, phase: c.ExecutionAccepted, active: true}
 	job.ctx, job.cancel = context.WithCancel(context.WithValue(s.root, associatedContextKey{}, job))
 	s.jobs[dispatch.ExecutionID] = job

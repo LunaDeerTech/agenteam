@@ -21,8 +21,17 @@ func (p retirementUsageControl) ValidateUsageInTx(ctx context.Context, tx f.Tx, 
 	return p.validate(ctx, tx, r, plan)
 }
 
-func TestModelExecutionLeaseObservationUsesCurrentProofAndOriginalRead(t *testing.T) {
+func TestModelLeaseObservationUsesCurrentProofAndOriginalRead(t *testing.T) {
+	for _, kind := range []sc.LeaseOwnerKind{sc.ExecutionOwner, sc.ModelCallOwner} {
+		t.Run(string(kind), func(t *testing.T) {
+			testModelLeaseObservation(t, kind)
+		})
+	}
+}
+
+func testModelLeaseObservation(t *testing.T, kind sc.LeaseOwnerKind) {
 	request := unitModelRequest(t)
+	request.LeaseOwner, _ = sc.NewCredentialLeaseOwner(kind, request.LeaseOwner.Details().ID)
 	request.Action, request.RequestID = sc.ReleaseLeaseUsage, ""
 	binding, _ := sc.UsageBinding(request)
 	key, _ := f.AggregateLock(f.CredentialRefAggregate, request.Ref.Details().ID.String())
@@ -59,24 +68,28 @@ func TestModelExecutionLeaseObservationUsesCurrentProofAndOriginalRead(t *testin
 		if cancelRead {
 			cancel()
 		}
-		return projectAuditUnitRow{values: []any{request.Ref.Details().ID.String(), "system", "", "execution", request.LeaseOwner.Details().ID, "model", released}}
+		return projectAuditUnitRow{values: []any{request.Ref.Details().ID.String(), "system", "", string(kind), request.LeaseOwner.Details().ID, "model", released}}
 	}
-	got, err := s.ModelExecutionLeaseReleasedInTx(ctx, store.tx, request, plan)
+	observe := s.ModelExecutionLeaseReleasedInTx
+	if kind == sc.ModelCallOwner {
+		observe = s.ModelCallLeaseReleasedInTx
+	}
+	got, err := observe(ctx, store.tx, request, plan)
 	if err != nil || got || store.queries != 1 || proofCalls != 1 {
 		t.Fatal("unreleased lease became a released observation", err)
 	}
 	released = true
-	got, err = s.ModelExecutionLeaseReleasedInTx(ctx, store.tx, request, plan)
+	got, err = observe(ctx, store.tx, request, plan)
 	if err != nil || !got || store.queries != 2 || proofCalls != 2 {
 		t.Fatal("released observation lost original current proof", err)
 	}
 	denied = true
-	got, err = s.ModelExecutionLeaseReleasedInTx(ctx, store.tx, request, plan)
+	got, err = observe(ctx, store.tx, request, plan)
 	if err == nil || got || store.queries != 2 {
 		t.Fatal("denied current proof reached credential metadata")
 	}
 	denied, cancelRead = false, true
-	got, err = s.ModelExecutionLeaseReleasedInTx(ctx, store.tx, request, plan)
+	got, err = observe(ctx, store.tx, request, plan)
 	if !errors.Is(err, context.Canceled) || got || store.queries != 3 {
 		t.Fatal("read cancellation published a partial observation")
 	}

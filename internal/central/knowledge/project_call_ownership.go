@@ -34,13 +34,21 @@ type projectCallProof interface {
 	ConfirmStopped(context.Context, oc.ProcessID) error
 }
 type projectCallIdentity struct {
-	Format   int      `json:"format_version"`
-	Method   string   `json:"method"`
-	User     string   `json:"user_id,omitempty"`
-	Document string   `json:"document_id,omitempty"`
-	Command  string   `json:"command,omitempty"`
-	Key      string   `json:"command_key,omitempty"`
-	Digest   f.Digest `json:"semantic_digest,omitempty"`
+	IndexBuild string   `json:"index_build,omitempty"`
+	IndexJob   string   `json:"index_job,omitempty"`
+	Format     int      `json:"format_version"`
+	Method     string   `json:"method"`
+	User       string   `json:"user_id,omitempty"`
+	Agent      string   `json:"agent_id,omitempty"`
+	Execution  string   `json:"execution_id,omitempty"`
+	Operation  string   `json:"operation_id,omitempty"`
+	Tool       string   `json:"tool_id,omitempty"`
+	ToolCall   string   `json:"tool_call_id,omitempty"`
+	Attempt    string   `json:"attempt_id,omitempty"`
+	Document   string   `json:"document_id,omitempty"`
+	Command    string   `json:"command,omitempty"`
+	Key        string   `json:"command_key,omitempty"`
+	Digest     f.Digest `json:"semantic_digest,omitempty"`
 }
 type projectCallRecord struct {
 	ID         f.ID[projectCallID]       `json:"id"`
@@ -94,6 +102,7 @@ type projectCallState struct {
 	store     Store
 	authority *Authority
 	service   *Service
+	index     *IndexService
 	resolver  *SourceResolver
 	reads     *object.SourceReads
 	proof     projectCallProof
@@ -238,14 +247,60 @@ func (s *Service) beginProjectCall(ctx context.Context, actor id.Actor, target i
 		return ctx, &projectCallEntry{state: state, owner: w.owner}, nil
 	}
 	if lane != projectCallRecovery && (actor.Validate() != nil || actor.Details().Kind != id.Human) {
-		return nil, nil, fault(f.Forbidden)
+		if actor.Details().Kind == id.Service && lane == projectCallRead {
+			if _, err := currentIndexWork(ctx, actor, target); err != nil {
+				if _, err := currentIndexBuild(ctx, actor, target); err != nil {
+					return nil, nil, fault(f.Forbidden)
+				}
+			}
+			if source != nil {
+				return nil, nil, fault(f.Forbidden)
+			}
+		} else if actor.Details().Kind != id.AgentRun || lane != projectCallRead && lane != projectCallSource {
+			return nil, nil, fault(f.Forbidden)
+		} else if _, err := currentInvocation(ctx, actor, target); err != nil {
+			return nil, nil, err
+		}
 	}
 	identity, _ := ctx.Value(projectIdentityContextKey{}).(projectCallIdentity)
 	if identity.Format == 0 {
 		identity = projectCallIdentity{Format: 1, Method: string(lane), User: actor.Details().UserID}
+		if actor.Details().Kind == id.AgentRun {
+			v, _ := currentInvocation(ctx, actor, target)
+			d := v.invocation.Details()
+			identity.Agent, identity.Execution, identity.Operation = actor.Details().AgentID, d.ExecutionID, d.OperationID
+			identity.Tool, identity.ToolCall, identity.Attempt = d.ToolID, d.ToolCallID, d.AttemptID.String()
+		}
+		if actor.Details().Kind == id.Service {
+			if w, err := currentIndexWork(ctx, actor, target); err == nil {
+				identity.Method, identity.IndexJob, identity.Document = "index-job", w.job.id, w.job.document.String()
+			} else {
+				b, _ := currentIndexBuild(ctx, actor, target)
+				identity.Method, identity.IndexBuild = "index-build", b.id
+			}
+		}
 	}
 	if identity.Format != 1 || identity.Method == "" || len(identity.Method) > 64 || identity.User != actor.Details().UserID {
 		return nil, nil, fault(f.InvalidArgument)
+	}
+	if actor.Details().Kind == id.Service && lane != projectCallRecovery {
+		if w, err := currentIndexWork(ctx, actor, target); err == nil {
+			if identity.IndexJob != w.job.id || identity.Document != w.job.document.String() || identity.Method != "index-job" || identity.IndexBuild != "" {
+				return nil, nil, fault(f.Forbidden)
+			}
+		} else {
+			b, err := currentIndexBuild(ctx, actor, target)
+			if err != nil || identity.IndexBuild != b.id || identity.Method != "index-build" || identity.IndexJob != "" || identity.Document != "" {
+				return nil, nil, fault(f.Forbidden)
+			}
+		}
+	}
+	if actor.Details().Kind == id.AgentRun {
+		v, _ := currentInvocation(ctx, actor, target)
+		d := v.invocation.Details()
+		if identity.Agent != actor.Details().AgentID || identity.Execution != d.ExecutionID || identity.Operation != d.OperationID || identity.Tool != d.ToolID || identity.ToolCall != d.ToolCallID || identity.Attempt != d.AttemptID.String() {
+			return nil, nil, fault(f.Forbidden)
+		}
 	}
 	raw, err := json.Marshal(identity)
 	if err != nil {

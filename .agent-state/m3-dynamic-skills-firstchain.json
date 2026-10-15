@@ -1,0 +1,52 @@
+{
+  "assertions": {
+    "actual_model_requests": 5,
+    "canonical_object_text_reaches_model": true,
+    "captured_round_stays_empty": true,
+    "explicit_owner_http_assignment": true,
+    "immutable_successor_skill_inputs": 4,
+    "object_reader_leases_observed_and_all_released": true,
+    "original_runtime_app_producers_joined": true,
+    "process_guard_released": true,
+    "queued_assignment_has_applied_disposition": true,
+    "real_agent_unified_tool_install": true,
+    "skill_work_all_joined": true,
+    "skills_added_controls": 1,
+    "successor_lists_actual_installed_skill": true
+  },
+  "branch": "ai/m3-skills",
+  "cleanup": {
+    "minio": true,
+    "outbound_peer": true,
+    "postgres": true
+  },
+  "external_model": false,
+  "go": "1.27.1",
+  "last_migration": "00125",
+  "limitations": [
+    "Agent assignment is not yet implemented",
+    "Install Unknown reconciliation remains open",
+    "Runner prepare-skill and script execution remain open",
+    "Shared Model stopped-call recovery and Meeting fixed-snapshot retry are next"
+  ],
+  "native_session": "77051",
+  "original_exit_code": 0,
+  "original_log_path": "output/ai/m3-dynamic-skills/first07/native.log",
+  "original_log_sha256": "ff97108a68841df0927e92c6fc19a9d871facf7c89270b72e9688dae69e99eca",
+  "provider": "owned_controlled_tls",
+  "race": true,
+  "resource_conditions": {
+    "fixture_control_budget_seconds": 2,
+    "go_build_processes": [],
+    "original_wait_budget_seconds": 30,
+    "other_fixture": "meeting_runner_window2",
+    "source_candidate": "ae4778ab",
+    "test_binary": "/tmp/agenteam-m3-skills-app06.test",
+    "workspace_available_bytes": 4396515328
+  },
+  "schema_version": 1,
+  "source_commit": "ae4778ab",
+  "test": "TestSkillsM3AppDynamicInstallRead",
+  "test_binary_sha256": "13d974972e92e49ed78686a2e6cf8ddc12e450b91b583c0fee3bb972f29dd1c4",
+  "test_seconds": 39.04
+}

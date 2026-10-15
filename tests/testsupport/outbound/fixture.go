@@ -172,6 +172,15 @@ func (d *Descriptor) Create(ctx context.Context, cfg ScenarioConfig) (string, er
 func (d *Descriptor) Release(ctx context.Context, id string) error {
 	return d.control(ctx, "POST", "/release/"+id, nil, nil)
 }
+
+// UpdateFutureWire changes only an ordinal not yet captured by the controlled
+// peer. It preserves the scenario route/TLS and never rewrites an active reply.
+func (d *Descriptor) UpdateFutureWire(ctx context.Context, id string, ordinal int, wire WireScenario) error {
+	return d.control(ctx, "POST", "/update-future-wire/"+id, struct {
+		Ordinal int
+		Wire    WireScenario
+	}{ordinal, wire}, nil)
+}
 func (d *Descriptor) State(ctx context.Context, id string) (State, error) {
 	var state State
 	e := d.control(ctx, "GET", "/state/"+id, nil, &state)

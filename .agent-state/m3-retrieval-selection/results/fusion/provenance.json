@@ -1,0 +1,43 @@
+{
+  "snapshot": {
+    "adapter_revision": "openai-embeddings-float-v2",
+    "dimensions": 4096,
+    "id": "01a13b76-ce43-7dcc-890e-af5f5129f0e0",
+    "model": "deerling-embedding",
+    "provider": "01a13b76-cd6e-7f95-9a72-58e495021a13"
+  },
+  "vectors_sha256": "948074800e4cc25bff2e88305f5edd70ea82f2c677565821e0d96f1a4953276d",
+  "vector_source_commit": "784c6468",
+  "vector_source_path": ".agent-state/m3-model-runtime/runtime-embeddings-v2/vectors.json.gz",
+  "inputs_sha256": {
+    "corpus.jsonl": "be260511440b98080113bc99df7c4feea2935a74535dfff0f802f217bcc648c8",
+    "queries.jsonl": "b8836dd4ff3f81934d5e697f109353bbdf0caf17e9f726193be108a0c7ede76f"
+  },
+  "lexical_run_sha256": {
+    "pgroonga": "639e33f28f81ee67775f4a7a290ab513cd61eddbcf6d55183b84e4f8aca2da3f",
+    "pg_search": "a50261175be15f0bb9c945363749e6498b61e9781f089dc632e2d52da11ff2be"
+  },
+  "native_leg_source": "D13 section1.1 independently accepted historical 72 empty results; original run file unavailable",
+  "provider_response_model_observed": false,
+  "config": {
+    "status": "awaiting_real_model_snapshot_and_vectors",
+    "similarity": "cosine descending; source_id ASCII tie",
+    "candidate_k": 20,
+    "rrf_k": 60,
+    "weights": [
+      1,
+      1
+    ],
+    "output_k": 20,
+    "formula": "sum(1/(60+rank)); absent leg contributes 0; source_id ASCII tie"
+  },
+  "counts": {
+    "corpus": 64,
+    "queries": 72,
+    "dimensions": 4096
+  },
+  "scope": "fixed benchmark synthetic sources; production scope/current-version/serving filters not exercised",
+  "actual_model_calls_reused": 3,
+  "new_model_calls": 0,
+  "new_database_queries": 0
+}

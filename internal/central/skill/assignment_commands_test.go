@@ -159,7 +159,7 @@ func (s *assignmentLookupStore) QueryRow(ctx context.Context, q string, args ...
 	if err != nil {
 		return skillRowValues{err: err}
 	}
-	return skillRowValues{values: []any{r.ID.String(), r.Input.Actor.Details().UserID, string(r.Digest), r.Input.Raw, candidate, r.State, r.Receipt, r.RuntimeReceipt, r.Candidate.Created.Time()}}
+	return skillRowValues{values: []any{r.ID.String(), r.Input.Actor.Details().UserID, string(r.Input.Actor.Details().Kind), []byte(nil), string(r.Digest), r.Input.Raw, candidate, r.State, r.Receipt, r.RuntimeReceipt, r.Candidate.Created.Time()}}
 }
 
 func assignmentChangedControl(t *testing.T, actor i.Actor, enabled bool) *assignmentCommand {

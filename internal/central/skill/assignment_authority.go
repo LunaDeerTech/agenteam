@@ -133,8 +133,13 @@ func (a *AssignmentAuthority) requireWitness(ctx context.Context, tx f.Tx, r *as
 	if !ok || w == nil || w.owner != a || w.tx != tx || !w.active.Load() || w.id != r.ID || w.digest != r.Digest {
 		return nil, fault(f.Forbidden)
 	}
+	if r.Input.Run != nil {
+		if err := requireAssignmentRun(ctx, tx, r.Input, i.Mutate); err != nil {
+			return nil, err
+		}
+	}
 	store := a.owner.state().store
-	if err := store.RequireHeldLocks(ctx, tx, append(r.Input.agentRequest().RequiredLocks(), skillLock(r.Candidate.Skill, f.Shared))); err != nil {
+	if err := store.RequireHeldLocks(ctx, tx, append(r.Input.agentRequest(ctx).RequiredLocks(), skillLock(r.Candidate.Skill, f.Shared))); err != nil {
 		return nil, captureError(err)
 	}
 	x, err := store.InTx(tx)

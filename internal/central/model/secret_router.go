@@ -50,6 +50,18 @@ func (r *SecretUsageRouter) AuthorizeLeaseInTx(ctx context.Context, tx f.Tx, act
 	if resolutionHasApply(ctx) {
 		return r.model.AuthorizeLeaseInTx(ctx, tx, actor, ref, owner, action)
 	}
+	if ctx != nil && ctx.Value(stoppedRuntimeKey{}) != nil {
+		if r.runtime == nil {
+			return sc.UseGrant{}, fault(f.DependencyUnbound)
+		}
+		return r.runtime.authorizeStoppedSecret(ctx, tx, actor, ref, owner, action)
+	}
+	if ctx != nil && ctx.Value(modelCallRetirementKey{}) != nil {
+		if r.runtime == nil {
+			return sc.UseGrant{}, fault(f.DependencyUnbound)
+		}
+		return r.runtime.authorizeModelCallRetirement(ctx, tx, actor, ref, owner, action)
+	}
 	if ctx != nil && ctx.Value(executionRetirementKey{}) != nil {
 		if r.runtime == nil {
 			return sc.UseGrant{}, fault(f.DependencyUnbound)

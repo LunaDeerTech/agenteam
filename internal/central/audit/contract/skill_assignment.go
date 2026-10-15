@@ -83,7 +83,21 @@ func validateSkillAssignmentEntry(v EntryFields) error {
 	if e != nil {
 		return e
 	}
-	if v.Actor.Details().Kind != i.Human || v.Scope.Details().Kind != i.ProjectScope || v.Outcome != Success || v.Resource.Details().Kind != AgentResource || v.Resource.Details().ID != m.AgentID || v.Associations != (Associations{}) {
+	actor := v.Actor.Details()
+	if v.Scope.Details().Kind != i.ProjectScope || v.Outcome != Success || v.Resource.Details().Kind != AgentResource || v.Resource.Details().ID != m.AgentID {
+		return invalid("entry")
+	}
+	switch actor.Kind {
+	case i.Human:
+		if v.Associations != (Associations{}) {
+			return invalid("entry")
+		}
+	case i.AgentRun:
+		a := v.Associations
+		if actor.ProjectID != v.Scope.Details().ProjectID || a.ExecutionID != actor.ExecutionID || !validID(a.ToolID) || !validID(a.ToolCallID) || !validID(a.OperationID) || a != (Associations{ExecutionID: actor.ExecutionID, ToolID: a.ToolID, ToolCallID: a.ToolCallID, OperationID: a.OperationID}) {
+			return invalid("entry")
+		}
+	default:
 		return invalid("entry")
 	}
 	return nil

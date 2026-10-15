@@ -16,15 +16,17 @@ import (
 // Durable DTOs contain scalar facts, not an issuer, an Actor capability or a
 // serialized public plan. In-memory plans separately bind the entire Actor.
 type resolutionRequestDTO struct {
-	Format          int `json:"format_version"`
-	Actor           id.ActorDetails
-	Consumer        mc.Consumer
-	Purpose         mc.Purpose
-	Source          mc.ResolutionSource
-	ModelRef        *mc.ModelID
-	Selection       *mc.SelectionRef
-	ReasoningEffort string
-	Owner           sc.OwnerDetails
+	Format              int `json:"format_version"`
+	Actor               id.ActorDetails
+	Consumer            mc.Consumer
+	Purpose             mc.Purpose
+	Source              mc.ResolutionSource
+	ModelRef            *mc.ModelID
+	Selection           *mc.SelectionRef
+	ReasoningEffort     string
+	Owner               sc.OwnerDetails
+	ServingSnapshotID   *mc.SnapshotID `json:"ServingSnapshotID,omitempty"`
+	ServingGenerationID string         `json:"ServingGenerationID,omitempty"`
 }
 
 func resolutionRequest(r mc.ResolveRequest) resolutionRequestDTO {
@@ -32,7 +34,7 @@ func resolutionRequest(r mc.ResolveRequest) resolutionRequestDTO {
 	if a.Kind == id.Human {
 		a.SessionID = ""
 	}
-	return resolutionRequestDTO{1, a, r.Consumer.Clone(), r.Purpose, r.Source, r.Clone().ModelRef, r.Clone().Selection, r.ReasoningEffort, r.LeaseOwner.Details()}
+	return resolutionRequestDTO{1, a, r.Consumer.Clone(), r.Purpose, r.Source, r.Clone().ModelRef, r.Clone().Selection, r.ReasoningEffort, r.LeaseOwner.Details(), r.Clone().ServingSnapshotID, r.ServingGenerationID}
 }
 func resolutionSemantic(r mc.ResolveRequest) f.Digest {
 	raw, _ := encoded(resolutionRequest(r))
@@ -61,7 +63,22 @@ func resolutionUnitIdentity(consumer mc.Consumer, purpose mc.Purpose, o sc.Owner
 // Validate durable scalar identity without reconstructing an Actor or minting a
 // ServiceRegistration. Current authority always comes from the original caller.
 func (d resolutionRequestDTO) validate() error {
-	if d.Format != 1 || d.Consumer.Validate() != nil || d.Purpose != d.Consumer.Purpose || d.Source != mc.CurrentSelectionSource || d.Selection == nil || (mc.SelectionRequest{Consumer: d.Consumer, ModelRef: d.ModelRef, Selection: *d.Selection}).Validate() != nil || d.ReasoningEffort != "" {
+	if d.Format != 1 || d.Consumer.Validate() != nil || d.Purpose != d.Consumer.Purpose || d.ReasoningEffort != "" {
+		return unavailable(nil)
+	}
+	switch d.Source {
+	case mc.CurrentSelectionSource:
+		if d.ServingSnapshotID != nil || d.ServingGenerationID != "" || d.Selection == nil || (mc.SelectionRequest{Consumer: d.Consumer, ModelRef: d.ModelRef, Selection: *d.Selection}).Validate() != nil {
+			return unavailable(nil)
+		}
+	case mc.ServingSnapshotSource:
+		if d.ServingSnapshotID == nil || d.ServingSnapshotID.Validate() != nil || d.ModelRef != nil || d.Selection != nil || !mc.ServingSnapshotPurpose(d.Purpose) || d.Owner.Kind != sc.ModelCallOwner {
+			return unavailable(nil)
+		}
+		if _, err := f.ParseID[struct{}](d.ServingGenerationID); err != nil {
+			return unavailable(err)
+		}
+	default:
 		return unavailable(nil)
 	}
 	owner, e := sc.NewCredentialLeaseOwner(d.Owner.Kind, d.Owner.ID)
@@ -84,7 +101,7 @@ func (d resolutionRequestDTO) validate() error {
 			return unavailable(nil)
 		}
 		switch a.ServiceName {
-		case id.SecretService, id.SecretMaintenance, id.OutboundService, id.ObjectService, id.ObjectMaintenance, id.ProjectLifecycle, id.ProjectInitialization, id.OutboxDelivery, id.AccountBootstrap, id.AccountAuth, id.AccountMaintenance, id.AccountMail:
+		case id.SecretService, id.SecretMaintenance, id.OutboundService, id.ObjectService, id.ObjectMaintenance, id.ProjectLifecycle, id.ProjectInitialization, id.OutboxDelivery, id.AccountBootstrap, id.AccountAuth, id.AccountMaintenance, id.AccountMail, "knowledge-runtime", "memory-runtime", "meeting-runtime":
 		default:
 			return unavailable(nil)
 		}

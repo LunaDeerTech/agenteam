@@ -47,14 +47,10 @@ type contentDTO struct {
 	Unavailable *kc.ReadableUnavailable `json:"unavailable,omitempty"`
 }
 
-func encodeContent(ctx context.Context, project id.ProjectID, document kc.DocumentID, request kc.ReadRequest, content kc.DocumentContent) ([]byte, error) {
-	if ctx.Err() != nil {
-		return nil, ctx.Err()
+func projectDocument(d kc.DocumentRef) (documentDTO, error) {
+	if d.Validate() != nil {
+		return documentDTO{}, badProjection()
 	}
-	if request.Validate() != nil || content.Validate() != nil || content.Document.ID != document || content.Document.ProjectID != project {
-		return nil, badProjection()
-	}
-	d := content.Document
 	c := d.CreatedBy.Details()
 	creator := creatorDTO{Kind: c.Kind}
 	switch c.Kind {
@@ -63,9 +59,23 @@ func encodeContent(ctx context.Context, project id.ProjectID, document kc.Docume
 	case id.AgentRun:
 		creator.Project, creator.Agent, creator.Execution = c.ProjectID.String(), c.AgentID.String(), c.ExecutionID.String()
 	default:
+		return documentDTO{}, badProjection()
+	}
+	return documentDTO{d.ID, d.ProjectID, d.ParentDocumentID, d.Title, d.ContentVersion, d.SourceKind, d.MediaType, d.Status, d.IndexingStatus, creator, d.CreatedAt, d.UpdatedAt}, nil
+}
+
+func encodeContent(ctx context.Context, project id.ProjectID, document kc.DocumentID, request kc.ReadRequest, content kc.DocumentContent) ([]byte, error) {
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
+	if request.Validate() != nil || content.Validate() != nil || content.Document.ID != document || content.Document.ProjectID != project {
 		return nil, badProjection()
 	}
-	out := contentDTO{Document: documentDTO{d.ID, d.ProjectID, d.ParentDocumentID, d.Title, d.ContentVersion, d.SourceKind, d.MediaType, d.Status, d.IndexingStatus, creator, d.CreatedAt, d.UpdatedAt}}
+	doc, err := projectDocument(content.Document)
+	if err != nil {
+		return nil, err
+	}
+	out := contentDTO{Document: doc}
 	switch {
 	case content.Text != nil:
 		t := content.Text
@@ -74,11 +84,11 @@ func encodeContent(ctx context.Context, project id.ProjectID, document kc.Docume
 			return nil, badProjection()
 		}
 		out.Text = &textDTO{t.Text, t.NextByteOffset, t.Truncated}
-	case content.Unavailable != nil && *content.Unavailable == kc.ReadableUnbound:
+	case content.Unavailable != nil:
 		x := *content.Unavailable
 		out.Unavailable = &x
 	default:
-		// File references and future readable providers are not this HTTP API.
+		// A business file reference is not a readable current text projection.
 		return nil, badProjection()
 	}
 	raw, err := json.Marshal(out)

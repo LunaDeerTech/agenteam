@@ -85,12 +85,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": [
-                "",
-                "human",
-                "agent_run",
-                "service"
-              ]
+              "enum": ["", "human", "agent_run", "service"]
             },
             "description": "Generic closed Audit filter vocabulary. A legal System-only filter is accepted and yields an empty Project page; it does not authorize System output."
           },
@@ -119,6 +114,8 @@
                 "artifact.list",
                 "artifact.read",
                 "knowledge.delete_subtree",
+                "meeting.delete.accepted",
+                "meeting.delete.completed",
                 "model.create",
                 "model.delete",
                 "model.selection.update",
@@ -139,7 +136,13 @@
                 "project.delete.accepted",
                 "project.lifecycle.retry",
                 "project.restore",
+                "project.secret_variable.create",
+                "project.secret_variable.delete",
+                "project.secret_variable.update",
                 "project.update",
+                "project.variable.create",
+                "project.variable.delete",
+                "project.variable.update",
                 "provider.create",
                 "provider.delete",
                 "provider.update",
@@ -154,13 +157,7 @@
                 "smtp.delivery",
                 "smtp.delivery.retry",
                 "smtp.settings.update",
-                "smtp.test.request",
-                "project.variable.create",
-                "project.variable.update",
-                "project.variable.delete",
-                "project.secret_variable.create",
-                "project.secret_variable.update",
-                "project.secret_variable.delete"
+                "smtp.test.request"
               ]
             },
             "description": "Generic closed Audit filter vocabulary. A legal System-only filter is accepted and yields an empty Project page; it does not authorize System output."
@@ -171,13 +168,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": [
-                "",
-                "success",
-                "denied",
-                "failed",
-                "unknown"
-              ]
+              "enum": ["", "success", "denied", "failed", "unknown"]
             },
             "description": "Generic closed Audit filter vocabulary. A legal System-only filter is accepted and yields an empty Project page; it does not authorize System output."
           },
@@ -197,6 +188,7 @@
                 "invitation",
                 "knowledge_document",
                 "mail_job",
+                "meeting",
                 "model_config",
                 "model_provider",
                 "model_selection",
@@ -207,14 +199,14 @@
                 "project",
                 "project_creation",
                 "project_operation",
+                "project_variable",
                 "secret",
                 "secret_master",
                 "secret_rotation",
                 "session",
                 "smtp_settings",
                 "stored_object",
-                "user",
-                "project_variable"
+                "user"
               ]
             },
             "description": "Generic closed Audit filter vocabulary. A legal System-only filter is accepted and yields an empty Project page; it does not authorize System output."
@@ -733,12 +725,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": [
-                "",
-                "human",
-                "agent_run",
-                "service"
-              ]
+              "enum": ["", "human", "agent_run", "service"]
             },
             "description": "Generic closed Audit filter vocabulary. A legal System-only filter is accepted and yields an empty Project page; it does not authorize System output."
           },
@@ -767,6 +754,8 @@
                 "artifact.list",
                 "artifact.read",
                 "knowledge.delete_subtree",
+                "meeting.delete.accepted",
+                "meeting.delete.completed",
                 "model.create",
                 "model.delete",
                 "model.selection.update",
@@ -787,7 +776,13 @@
                 "project.delete.accepted",
                 "project.lifecycle.retry",
                 "project.restore",
+                "project.secret_variable.create",
+                "project.secret_variable.delete",
+                "project.secret_variable.update",
                 "project.update",
+                "project.variable.create",
+                "project.variable.delete",
+                "project.variable.update",
                 "provider.create",
                 "provider.delete",
                 "provider.update",
@@ -802,13 +797,7 @@
                 "smtp.delivery",
                 "smtp.delivery.retry",
                 "smtp.settings.update",
-                "smtp.test.request",
-                "project.variable.create",
-                "project.variable.update",
-                "project.variable.delete",
-                "project.secret_variable.create",
-                "project.secret_variable.update",
-                "project.secret_variable.delete"
+                "smtp.test.request"
               ]
             },
             "description": "Generic closed Audit filter vocabulary. A legal System-only filter is accepted and yields an empty Project page; it does not authorize System output."
@@ -819,13 +808,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": [
-                "",
-                "success",
-                "denied",
-                "failed",
-                "unknown"
-              ]
+              "enum": ["", "success", "denied", "failed", "unknown"]
             },
             "description": "Generic closed Audit filter vocabulary. A legal System-only filter is accepted and yields an empty Project page; it does not authorize System output."
           },
@@ -845,6 +828,7 @@
                 "invitation",
                 "knowledge_document",
                 "mail_job",
+                "meeting",
                 "model_config",
                 "model_provider",
                 "model_selection",
@@ -855,14 +839,14 @@
                 "project",
                 "project_creation",
                 "project_operation",
+                "project_variable",
                 "secret",
                 "secret_master",
                 "secret_rotation",
                 "session",
                 "smtp_settings",
                 "stored_object",
-                "user",
-                "project_variable"
+                "user"
               ]
             },
             "description": "Generic closed Audit filter vocabulary. A legal System-only filter is accepted and yields an empty Project page; it does not authorize System output."
@@ -1877,10 +1861,7 @@
             "$ref": "./common.json#/components/schemas/ID"
           }
         },
-        "required": [
-          "kind",
-          "id"
-        ]
+        "required": ["kind", "id"]
       },
       "AgentActor": {
         "type": "object",
@@ -1899,12 +1880,7 @@
             "$ref": "./common.json#/components/schemas/ID"
           }
         },
-        "required": [
-          "kind",
-          "id",
-          "project_id",
-          "execution_id"
-        ]
+        "required": ["kind", "id", "project_id", "execution_id"]
       },
       "ServiceActor": {
         "type": "object",
@@ -1945,12 +1921,7 @@
             "$ref": "./common.json#/components/schemas/ID"
           }
         },
-        "required": [
-          "kind",
-          "service",
-          "cause_ref",
-          "project_id"
-        ]
+        "required": ["kind", "service", "cause_ref", "project_id"]
       },
       "Actor": {
         "oneOf": [
@@ -2055,12 +2026,7 @@
           },
           "outcome": {
             "type": "string",
-            "enum": [
-              "success",
-              "denied",
-              "failed",
-              "unknown"
-            ]
+            "enum": ["success", "denied", "failed", "unknown"]
           },
           "resource": {
             "type": "object",
@@ -2073,10 +2039,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "type": "object",
@@ -2089,10 +2052,7 @@
                 "type": "array",
                 "items": {
                   "type": "string",
-                  "enum": [
-                    "purpose",
-                    "value"
-                  ]
+                  "enum": ["purpose", "value"]
                 },
                 "minItems": 1,
                 "maxItems": 2,
@@ -2100,10 +2060,7 @@
                 "description": "Canonical sorted unique field names; never configuration values."
               }
             },
-            "required": [
-              "version",
-              "changed_fields"
-            ]
+            "required": ["version", "changed_fields"]
           },
           "associations": {
             "$ref": "#/components/schemas/Associations"
@@ -2145,9 +2102,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -2175,12 +2130,7 @@
           },
           "outcome": {
             "type": "string",
-            "enum": [
-              "success",
-              "denied",
-              "failed",
-              "unknown"
-            ]
+            "enum": ["success", "denied", "failed", "unknown"]
           },
           "resource": {
             "type": "object",
@@ -2193,10 +2143,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "type": "object",
@@ -2209,10 +2156,7 @@
                 "type": "array",
                 "items": {
                   "type": "string",
-                  "enum": [
-                    "purpose",
-                    "value"
-                  ]
+                  "enum": ["purpose", "value"]
                 },
                 "minItems": 1,
                 "maxItems": 2,
@@ -2220,10 +2164,7 @@
                 "description": "Canonical sorted unique field names; never configuration values."
               }
             },
-            "required": [
-              "version",
-              "changed_fields"
-            ]
+            "required": ["version", "changed_fields"]
           },
           "associations": {
             "$ref": "#/components/schemas/Associations"
@@ -2265,9 +2206,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -2295,12 +2234,7 @@
           },
           "outcome": {
             "type": "string",
-            "enum": [
-              "success",
-              "denied",
-              "failed",
-              "unknown"
-            ]
+            "enum": ["success", "denied", "failed", "unknown"]
           },
           "resource": {
             "type": "object",
@@ -2313,10 +2247,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "type": "object",
@@ -2326,9 +2257,7 @@
                 "$ref": "./common.json#/components/schemas/Version"
               }
             },
-            "required": [
-              "version"
-            ]
+            "required": ["version"]
           },
           "associations": {
             "$ref": "#/components/schemas/Associations"
@@ -2370,9 +2299,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -2400,12 +2327,7 @@
           },
           "outcome": {
             "type": "string",
-            "enum": [
-              "success",
-              "denied",
-              "failed",
-              "unknown"
-            ]
+            "enum": ["success", "denied", "failed", "unknown"]
           },
           "resource": {
             "type": "object",
@@ -2418,10 +2340,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "type": "object",
@@ -2474,10 +2393,7 @@
                 ]
               }
             },
-            "required": [
-              "lease_id",
-              "consumer"
-            ]
+            "required": ["lease_id", "consumer"]
           },
           "associations": {
             "$ref": "#/components/schemas/Associations"
@@ -2519,9 +2435,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -2560,9 +2474,7 @@
                     "const": "outbound_policy"
                   }
                 },
-                "required": [
-                  "kind"
-                ]
+                "required": ["kind"]
               },
               {
                 "type": "object",
@@ -2575,10 +2487,7 @@
                     "$ref": "./common.json#/components/schemas/ID"
                   }
                 },
-                "required": [
-                  "kind",
-                  "id"
-                ]
+                "required": ["kind", "id"]
               },
               {
                 "type": "object",
@@ -2591,10 +2500,7 @@
                     "$ref": "./common.json#/components/schemas/ID"
                   }
                 },
-                "required": [
-                  "kind",
-                  "id"
-                ]
+                "required": ["kind", "id"]
               }
             ]
           },
@@ -2649,11 +2555,7 @@
                 "$ref": "./common.json#/components/schemas/Version"
               }
             },
-            "required": [
-              "consumer",
-              "reason",
-              "version"
-            ]
+            "required": ["consumer", "reason", "version"]
           },
           "associations": {
             "$ref": "#/components/schemas/Associations"
@@ -2695,9 +2597,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -2726,10 +2626,7 @@
                 "properties": {
                   "service": {
                     "type": "string",
-                    "enum": [
-                      "object",
-                      "object-maintenance"
-                    ]
+                    "enum": ["object", "object-maintenance"]
                   }
                 }
               }
@@ -2752,10 +2649,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "oneOf": [
@@ -2935,9 +2829,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -2966,10 +2858,7 @@
                 "properties": {
                   "service": {
                     "type": "string",
-                    "enum": [
-                      "object",
-                      "object-maintenance"
-                    ]
+                    "enum": ["object", "object-maintenance"]
                   }
                 }
               }
@@ -2980,10 +2869,7 @@
           },
           "outcome": {
             "type": "string",
-            "enum": [
-              "failed",
-              "unknown"
-            ]
+            "enum": ["failed", "unknown"]
           },
           "resource": {
             "type": "object",
@@ -2996,10 +2882,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "oneOf": [
@@ -3278,9 +3161,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -3309,10 +3190,7 @@
                 "properties": {
                   "service": {
                     "type": "string",
-                    "enum": [
-                      "object",
-                      "object-maintenance"
-                    ]
+                    "enum": ["object", "object-maintenance"]
                   }
                 }
               }
@@ -3335,10 +3213,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "oneOf": [
@@ -3518,9 +3393,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -3560,10 +3433,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "type": "object",
@@ -3586,10 +3456,7 @@
               },
               "from_state": {
                 "type": "string",
-                "enum": [
-                  "failed",
-                  "dead_letter"
-                ]
+                "enum": ["failed", "dead_letter"]
               },
               "redrive_cycle": {
                 "$ref": "./common.json#/components/schemas/Version"
@@ -3652,9 +3519,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -3694,10 +3559,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "type": "object",
@@ -3710,16 +3572,10 @@
                 "$ref": "./common.json#/components/schemas/ID"
               },
               "changed_fields": {
-                "const": [
-                  "created"
-                ]
+                "const": ["created"]
               }
             },
-            "required": [
-              "version",
-              "provider_id",
-              "changed_fields"
-            ]
+            "required": ["version", "provider_id", "changed_fields"]
           },
           "associations": {
             "$ref": "#/components/schemas/ModelAssociations"
@@ -3761,9 +3617,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -3803,10 +3657,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "type": "object",
@@ -3836,11 +3687,7 @@
                 "description": "Canonical sorted unique field names; never configuration values."
               }
             },
-            "required": [
-              "version",
-              "provider_id",
-              "changed_fields"
-            ]
+            "required": ["version", "provider_id", "changed_fields"]
           },
           "associations": {
             "$ref": "#/components/schemas/ModelAssociations"
@@ -3882,9 +3729,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -3924,10 +3769,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "type": "object",
@@ -3940,16 +3782,10 @@
                 "$ref": "./common.json#/components/schemas/ID"
               },
               "changed_fields": {
-                "const": [
-                  "deleted"
-                ]
+                "const": ["deleted"]
               }
             },
-            "required": [
-              "version",
-              "provider_id",
-              "changed_fields"
-            ]
+            "required": ["version", "provider_id", "changed_fields"]
           },
           "associations": {
             "$ref": "#/components/schemas/ModelAssociations"
@@ -3991,9 +3827,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -4033,10 +3867,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "type": "object",
@@ -4052,17 +3883,10 @@
                 "$ref": "./common.json#/components/schemas/ID"
               },
               "changed_fields": {
-                "const": [
-                  "created"
-                ]
+                "const": ["created"]
               }
             },
-            "required": [
-              "version",
-              "provider_id",
-              "model_id",
-              "changed_fields"
-            ]
+            "required": ["version", "provider_id", "model_id", "changed_fields"]
           },
           "associations": {
             "$ref": "#/components/schemas/ModelAssociations"
@@ -4104,9 +3928,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -4146,10 +3968,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "type": "object",
@@ -4184,12 +4003,7 @@
                 "description": "Canonical sorted unique field names; never configuration values."
               }
             },
-            "required": [
-              "version",
-              "provider_id",
-              "model_id",
-              "changed_fields"
-            ]
+            "required": ["version", "provider_id", "model_id", "changed_fields"]
           },
           "associations": {
             "$ref": "#/components/schemas/ModelAssociations"
@@ -4231,9 +4045,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -4273,10 +4085,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "oneOf": [
@@ -4294,9 +4103,7 @@
                     "$ref": "./common.json#/components/schemas/ID"
                   },
                   "changed_fields": {
-                    "const": [
-                      "deleted"
-                    ]
+                    "const": ["deleted"]
                   },
                   "affected_count": {
                     "$ref": "./common.json#/components/schemas/Progress"
@@ -4324,10 +4131,7 @@
                     "$ref": "./common.json#/components/schemas/ID"
                   },
                   "changed_fields": {
-                    "const": [
-                      "deleted",
-                      "replacement"
-                    ]
+                    "const": ["deleted", "replacement"]
                   },
                   "affected_count": {
                     "$ref": "./common.json#/components/schemas/Progress"
@@ -4387,9 +4191,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -4437,10 +4239,7 @@
                 "properties": {
                   "service": {
                     "type": "string",
-                    "enum": [
-                      "object",
-                      "object-maintenance"
-                    ]
+                    "enum": ["object", "object-maintenance"]
                   }
                 }
               }
@@ -4463,10 +4262,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "oneOf": [
@@ -4658,9 +4454,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -4689,10 +4483,7 @@
                 "properties": {
                   "service": {
                     "type": "string",
-                    "enum": [
-                      "object",
-                      "object-maintenance"
-                    ]
+                    "enum": ["object", "object-maintenance"]
                   }
                 }
               }
@@ -4715,10 +4506,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "oneOf": [
@@ -4910,9 +4698,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -4941,10 +4727,7 @@
                 "properties": {
                   "service": {
                     "type": "string",
-                    "enum": [
-                      "object",
-                      "object-maintenance"
-                    ]
+                    "enum": ["object", "object-maintenance"]
                   }
                 }
               }
@@ -4967,10 +4750,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "oneOf": [
@@ -5258,9 +5038,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -5310,10 +5088,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "oneOf": [
@@ -5599,9 +5374,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -5651,10 +5424,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "oneOf": [
@@ -5979,9 +5749,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -6019,10 +5787,7 @@
           },
           "outcome": {
             "type": "string",
-            "enum": [
-              "success",
-              "failed"
-            ]
+            "enum": ["success", "failed"]
           },
           "resource": {
             "type": "object",
@@ -6035,10 +5800,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "oneOf": [
@@ -7433,9 +7195,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -7486,10 +7246,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "type": "object",
@@ -7502,10 +7259,7 @@
                 "$ref": "./common.json#/components/schemas/Progress"
               }
             },
-            "required": [
-              "phase",
-              "count"
-            ]
+            "required": ["phase", "count"]
           },
           "associations": {
             "$ref": "#/components/schemas/Associations"
@@ -7544,9 +7298,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -7589,10 +7341,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "type": "object",
@@ -7659,9 +7408,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -7718,10 +7465,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "type": "object",
@@ -7788,9 +7532,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -7833,10 +7575,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "type": "object",
@@ -7920,9 +7659,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -7965,10 +7702,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "type": "object",
@@ -8047,9 +7781,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -8106,10 +7838,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "type": "object",
@@ -8188,9 +7917,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -8233,10 +7960,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "type": "object",
@@ -8307,9 +8031,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -8352,10 +8074,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "type": "object",
@@ -8378,10 +8097,7 @@
               },
               "from": {
                 "type": "string",
-                "enum": [
-                  "active",
-                  "archived"
-                ]
+                "enum": ["active", "archived"]
               },
               "to": {
                 "const": "deleting"
@@ -8438,9 +8154,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -8483,10 +8197,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "type": "object",
@@ -8509,10 +8220,7 @@
               },
               "action": {
                 "type": "string",
-                "enum": [
-                  "archive",
-                  "delete"
-                ]
+                "enum": ["archive", "delete"]
               }
             },
             "required": [
@@ -8561,9 +8269,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -8606,10 +8312,7 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "type": "object",
@@ -8688,9 +8391,7 @@
             "then": {
               "properties": {
                 "associations": {
-                  "required": [
-                    "execution_id"
-                  ]
+                  "required": ["execution_id"]
                 }
               }
             }
@@ -8809,6 +8510,12 @@
           },
           {
             "$ref": "#/components/schemas/ProjectSecretVariableDeleteRecord"
+          },
+          {
+            "$ref": "#/components/schemas/MeetingDeleteAcceptedRecord"
+          },
+          {
+            "$ref": "#/components/schemas/MeetingDeleteCompletedRecord"
           }
         ]
       },
@@ -8840,10 +8547,7 @@
             ]
           }
         },
-        "required": [
-          "items",
-          "next_cursor"
-        ]
+        "required": ["items", "next_cursor"]
       },
       "ProjectVariableCreateRecord": {
         "type": "object",
@@ -8881,19 +8585,12 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "type": "object",
             "additionalProperties": false,
-            "required": [
-              "variable_id",
-              "version",
-              "changed_fields"
-            ],
+            "required": ["variable_id", "version", "changed_fields"],
             "properties": {
               "variable_id": {
                 "$ref": "./common.json#/components/schemas/ID"
@@ -8902,9 +8599,7 @@
                 "const": "1"
               },
               "changed_fields": {
-                "const": [
-                  "created"
-                ]
+                "const": ["created"]
               }
             }
           },
@@ -8968,19 +8663,12 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "type": "object",
             "additionalProperties": false,
-            "required": [
-              "variable_id",
-              "version",
-              "changed_fields"
-            ],
+            "required": ["variable_id", "version", "changed_fields"],
             "properties": {
               "variable_id": {
                 "$ref": "./common.json#/components/schemas/ID"
@@ -9000,11 +8688,7 @@
               "changed_fields": {
                 "type": "array",
                 "items": {
-                  "enum": [
-                    "description",
-                    "name",
-                    "value"
-                  ]
+                  "enum": ["description", "name", "value"]
                 },
                 "minItems": 1,
                 "maxItems": 3,
@@ -9072,19 +8756,12 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "type": "object",
             "additionalProperties": false,
-            "required": [
-              "variable_id",
-              "version",
-              "changed_fields"
-            ],
+            "required": ["variable_id", "version", "changed_fields"],
             "properties": {
               "variable_id": {
                 "$ref": "./common.json#/components/schemas/ID"
@@ -9102,9 +8779,7 @@
                 ]
               },
               "changed_fields": {
-                "const": [
-                  "deleted"
-                ]
+                "const": ["deleted"]
               }
             }
           },
@@ -9168,19 +8843,12 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "type": "object",
             "additionalProperties": false,
-            "required": [
-              "variable_id",
-              "version",
-              "changed_fields"
-            ],
+            "required": ["variable_id", "version", "changed_fields"],
             "properties": {
               "variable_id": {
                 "$ref": "./common.json#/components/schemas/ID"
@@ -9189,9 +8857,7 @@
                 "const": "1"
               },
               "changed_fields": {
-                "const": [
-                  "created"
-                ]
+                "const": ["created"]
               }
             }
           },
@@ -9255,19 +8921,12 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "type": "object",
             "additionalProperties": false,
-            "required": [
-              "variable_id",
-              "version",
-              "changed_fields"
-            ],
+            "required": ["variable_id", "version", "changed_fields"],
             "properties": {
               "variable_id": {
                 "$ref": "./common.json#/components/schemas/ID"
@@ -9286,32 +8945,13 @@
               },
               "changed_fields": {
                 "enum": [
-                  [
-                    "description"
-                  ],
-                  [
-                    "name"
-                  ],
-                  [
-                    "value"
-                  ],
-                  [
-                    "description",
-                    "name"
-                  ],
-                  [
-                    "description",
-                    "value"
-                  ],
-                  [
-                    "name",
-                    "value"
-                  ],
-                  [
-                    "description",
-                    "name",
-                    "value"
-                  ]
+                  ["description"],
+                  ["name"],
+                  ["value"],
+                  ["description", "name"],
+                  ["description", "value"],
+                  ["name", "value"],
+                  ["description", "name", "value"]
                 ]
               }
             }
@@ -9376,19 +9016,12 @@
                 "$ref": "./common.json#/components/schemas/ID"
               }
             },
-            "required": [
-              "kind",
-              "id"
-            ]
+            "required": ["kind", "id"]
           },
           "metadata": {
             "type": "object",
             "additionalProperties": false,
-            "required": [
-              "variable_id",
-              "version",
-              "changed_fields"
-            ],
+            "required": ["variable_id", "version", "changed_fields"],
             "properties": {
               "variable_id": {
                 "$ref": "./common.json#/components/schemas/ID"
@@ -9406,9 +9039,7 @@
                 ]
               },
               "changed_fields": {
-                "const": [
-                  "deleted"
-                ]
+                "const": ["deleted"]
               }
             }
           },
@@ -9435,6 +9066,221 @@
           "summary"
         ],
         "description": "Closed Project-only safe projection. No Session IDs, payload text, secret bytes, settings bodies or historical authorization grant. Formal constructors and HTTP enforce equality across project/actor/resource/metadata IDs, canonical changed-field ordering and numeric relations not expressible by this portable schema. Metadata has at most 4096 encoded UTF-8 bytes; the complete 200-row page is bounded by 1048576 bytes without truncation."
+      },
+      "MeetingDeleteAcceptedRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "project"
+          },
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/HumanActor"
+          },
+          "action": {
+            "const": "meeting.delete.accepted"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "meeting"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": ["kind", "id"]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "meeting_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "deletion_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "initiator_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "deleted_rows": {
+                "const": "0"
+              }
+            },
+            "required": [
+              "meeting_id",
+              "deletion_id",
+              "initiator_id",
+              "version",
+              "deleted_rows"
+            ]
+          },
+          "associations": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": ["operation_id"]
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "project_id",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Closed Project-only safe projection. No Session IDs, payload text, secret bytes, settings bodies or historical authorization grant. Formal constructors and HTTP enforce equality across project/actor/resource/metadata IDs, canonical changed-field ordering and numeric relations not expressible by this portable schema. Metadata has at most 4096 encoded UTF-8 bytes; the complete 200-row page is bounded by 1048576 bytes without truncation. Meeting resource ID equals metadata.meeting_id; the only association operation_id equals metadata.deletion_id. Accepted Human ID equals initiator_id. Completed meeting-runtime actor has the same Project and deletion cause; deleted_rows is a positive canonical Int64 string."
+      },
+      "MeetingDeleteCompletedRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "audit_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "scope": {
+            "const": "project"
+          },
+          "project_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "actor": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "service"
+              },
+              "service": {
+                "const": "meeting-runtime"
+              },
+              "cause_ref": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "project_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": ["kind", "service", "cause_ref", "project_id"]
+          },
+          "action": {
+            "const": "meeting.delete.completed"
+          },
+          "outcome": {
+            "const": "success"
+          },
+          "resource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "meeting"
+              },
+              "id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": ["kind", "id"]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "meeting_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "deletion_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "initiator_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              },
+              "deleted_rows": {
+                "allOf": [
+                  {
+                    "$ref": "./common.json#/components/schemas/Progress"
+                  },
+                  {
+                    "not": {
+                      "const": "0"
+                    }
+                  }
+                ]
+              }
+            },
+            "required": [
+              "meeting_id",
+              "deletion_id",
+              "initiator_id",
+              "version",
+              "deleted_rows"
+            ]
+          },
+          "associations": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "operation_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              }
+            },
+            "required": ["operation_id"]
+          },
+          "summary": {
+            "const": "Audit event"
+          }
+        },
+        "required": [
+          "audit_id",
+          "created_at",
+          "scope",
+          "project_id",
+          "actor",
+          "action",
+          "outcome",
+          "resource",
+          "metadata",
+          "associations",
+          "summary"
+        ],
+        "description": "Closed Project-only safe projection. No Session IDs, payload text, secret bytes, settings bodies or historical authorization grant. Formal constructors and HTTP enforce equality across project/actor/resource/metadata IDs, canonical changed-field ordering and numeric relations not expressible by this portable schema. Metadata has at most 4096 encoded UTF-8 bytes; the complete 200-row page is bounded by 1048576 bytes without truncation. Meeting resource ID equals metadata.meeting_id; the only association operation_id equals metadata.deletion_id. Accepted Human ID equals initiator_id. Completed meeting-runtime actor has the same Project and deletion cause; deleted_rows is a positive canonical Int64 string."
       }
     }
   }

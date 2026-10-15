@@ -122,6 +122,12 @@ func (s *Service) readRow(ctx context.Context, tx foundation.Tx, actor identity.
 	if grant.Details().Existence != oc.ExistingOwner {
 		return objectRow{}, failure(foundation.Forbidden, nil)
 	}
+	// An owner grant that names an object must match even when the requested
+	// object has a canonical reference. A different current reference cannot
+	// broaden a fixed indexing-job grant before the exact-read fallback.
+	if grant.Details().ReadObjectID != (oc.ObjectID{}) && !grant.MatchesObjectRead(actor, owner, id) {
+		return objectRow{}, failure(foundation.Forbidden, nil)
+	}
 	if err = s.gate(ctx, tx, actor, owner, identity.Read); err != nil {
 		return objectRow{}, err
 	}

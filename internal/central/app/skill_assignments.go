@@ -23,12 +23,12 @@ import (
 // This fixed graph records configuration and durable ingress only. Constructing
 // the real slot observer starts no execution, scheduler, model or tool worker.
 // Every call remains owned by the original Skill Service's begin/end/drain.
-func createSkillAssignments(db database, service *skill.Service, agents *agent.Authority, facts *skill.AssignmentAuthority, events sc.AssignmentEvents, auditor *audit.Service, journal *outbox.Service) (*skill.AssignmentCommands, error) {
+func createSkillAssignments(db database, service *skill.Service, agents *agent.Authority, facts *skill.AssignmentAuthority, events sc.AssignmentEvents, auditor *audit.Service, journal *outbox.Service, runtime ac.SkillAssignmentRunAuthority) (*skill.AssignmentCommands, error) {
 	store, ok := db.(agent.Store)
 	if !ok || runtimeInformationNil(store) || service == nil || agents == nil || facts == nil || !events.Valid() || auditor == nil || journal == nil {
 		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
-	owner, err := createSkillAssignmentOwner(store, agents)
+	owner, err := createSkillAssignmentOwner(store, agents, runtime)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +39,7 @@ func createSkillAssignments(db database, service *skill.Service, agents *agent.A
 	return skill.NewAssignmentCommands(skill.AssignmentDependencies{Service: service, Agents: owner, CurrentAgents: agents, Runtime: ingress, Audit: auditor, Outbox: journal, Events: events}, facts)
 }
 
-func createSkillAssignmentOwner(store agent.Store, agents *agent.Authority) (*agent.SkillAssignmentAuthority, error) {
+func createSkillAssignmentOwner(store agent.Store, agents *agent.Authority, runtime ac.SkillAssignmentRunAuthority) (*agent.SkillAssignmentAuthority, error) {
 	if runtimeInformationNil(store) || agents == nil {
 		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
@@ -59,7 +59,11 @@ func createSkillAssignmentOwner(store agent.Store, agents *agent.Authority) (*ag
 	if err != nil {
 		return nil, err
 	}
-	return agent.NewSkillAssignmentAuthority(agents, []ac.SkillAssignmentVersionReferences{tools, mounts, models, secrets})
+	references := []ac.SkillAssignmentVersionReferences{tools, mounts, models, secrets}
+	if runtime != nil {
+		return agent.NewRuntimeSkillAssignmentAuthority(agents, references, runtime)
+	}
+	return agent.NewSkillAssignmentAuthority(agents, references)
 }
 
 func skillAssignmentHandler(commands *skill.AssignmentCommands, keys cursor.Keyring, core *account.Service, origin string) (http.Handler, error) {

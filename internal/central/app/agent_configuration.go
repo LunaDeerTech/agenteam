@@ -58,16 +58,17 @@ func (w *agentInstallWork) Force(ctx context.Context) error { return w.Drain(ctx
 func (w *agentInstallWork) Joined() bool                    { return w.authority.Joined() }
 
 type agentConfigurationAssembly struct {
-	store       agent.Store
-	service     *agent.Service
-	ownership   *agent.ProjectCallOwnership
-	registry    *registry.Registry
-	runnerTools bool
-	builtinKeys []string
-	mu          sync.Mutex
-	stopped     bool
-	initDone    chan struct{}
-	initStop    context.CancelFunc
+	store         agent.Store
+	service       *agent.Service
+	ownership     *agent.ProjectCallOwnership
+	registry      *registry.Registry
+	installSource *toolruntime.InstallSource
+	runnerTools   bool
+	builtinKeys   []string
+	mu            sync.Mutex
+	stopped       bool
+	initDone      chan struct{}
+	initStop      context.CancelFunc
 }
 
 // Keep the existing configuration-only constructor independent of call
@@ -84,7 +85,7 @@ func createAgentConfiguration(db database, projects *project.Authority, accounts
 	if err != nil {
 		return nil, err
 	}
-	return &agentConfigurationAssembly{store: providers.store, service: service, registry: providers.registry}, nil
+	return &agentConfigurationAssembly{store: providers.store, service: service, registry: providers.registry, installSource: providers.installSource}, nil
 }
 
 // Construction fixes both real Agent instances before either is published.
@@ -104,11 +105,18 @@ func createOwnedAgentConfiguration(db database, projects *project.Authority, acc
 func createOwnedAgentConfigurationWithBuiltins(db database, projects *project.Authority, accounts *account.Authority,
 	agents *agent.Authority, agentEvents *agent.EventAuthority, models *model.Authority,
 	skills *skill.Service, skillAuthority *skill.Authority, installer *agentInstallWork,
-	auditor *audit.Service, journal *outbox.Service, objects *objectAssembly, keys cursor.Keyring, includeRunners bool, sources map[string]registry.BuiltinSource) (*agentConfigurationAssembly, error) {
+	auditor *audit.Service, journal *outbox.Service, objects *objectAssembly, keys cursor.Keyring, includeRunners bool, sources map[string]registry.BuiltinSource, mcpAuthorities ...tc.MCPRegistryAuthority) (*agentConfigurationAssembly, error) {
 	if objects == nil || objects.guard == nil || objects.process.Validate() != nil {
 		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
-	providers, err := createAgentConfigurationProvidersWithSources(db, projects, accounts, agents, agentEvents, models, skills, skillAuthority, installer, auditor, journal, includeRunners, sources, keys)
+	if len(mcpAuthorities) > 1 {
+		return nil, f.NewFault(f.InvalidArgument, f.NotStarted)
+	}
+	var mcp tc.MCPRegistryAuthority
+	if len(mcpAuthorities) == 1 {
+		mcp = mcpAuthorities[0]
+	}
+	providers, err := createAgentConfigurationProvidersWithMCP(db, projects, accounts, agents, agentEvents, models, skills, skillAuthority, installer, auditor, journal, includeRunners, sources, mcp, keys)
 	if err != nil {
 		return nil, err
 	}
@@ -121,13 +129,14 @@ func createOwnedAgentConfigurationWithBuiltins(db database, projects *project.Au
 		builtinKeys = append(builtinKeys, key)
 	}
 	slices.Sort(builtinKeys)
-	return &agentConfigurationAssembly{store: providers.store, service: ownership.Service(), ownership: ownership, registry: providers.registry, runnerTools: includeRunners, builtinKeys: builtinKeys}, nil
+	return &agentConfigurationAssembly{store: providers.store, service: ownership.Service(), ownership: ownership, registry: providers.registry, installSource: providers.installSource, runnerTools: includeRunners, builtinKeys: builtinKeys}, nil
 }
 
 type agentConfigurationProviders struct {
-	store        agent.Store
-	registry     *registry.Registry
-	dependencies agent.Dependencies
+	store         agent.Store
+	registry      *registry.Registry
+	installSource *toolruntime.InstallSource
+	dependencies  agent.Dependencies
 }
 
 // Both constructors use the same fixed real providers. The Skill Authority
@@ -150,6 +159,13 @@ func createAgentConfigurationProvidersWithSources(db database, projects *project
 	agents *agent.Authority, agentEvents *agent.EventAuthority, models *model.Authority,
 	skills *skill.Service, skillAuthority *skill.Authority, installer *agentInstallWork,
 	auditor *audit.Service, journal *outbox.Service, includeRunners bool, extraSources map[string]registry.BuiltinSource, cursorKeys ...cursor.Keyring) (*agentConfigurationProviders, error) {
+	return createAgentConfigurationProvidersWithMCP(db, projects, accounts, agents, agentEvents, models, skills, skillAuthority, installer, auditor, journal, includeRunners, extraSources, nil, cursorKeys...)
+}
+
+func createAgentConfigurationProvidersWithMCP(db database, projects *project.Authority, accounts *account.Authority,
+	agents *agent.Authority, agentEvents *agent.EventAuthority, models *model.Authority,
+	skills *skill.Service, skillAuthority *skill.Authority, installer *agentInstallWork,
+	auditor *audit.Service, journal *outbox.Service, includeRunners bool, extraSources map[string]registry.BuiltinSource, mcp tc.MCPRegistryAuthority, cursorKeys ...cursor.Keyring) (*agentConfigurationProviders, error) {
 	store, ok := db.(agent.Store)
 	if !ok || runtimeInformationNil(store) || projects == nil || accounts == nil || agents == nil || agentEvents == nil || models == nil || skills == nil || skillAuthority == nil || installer == nil || installer.authority == nil || auditor == nil || journal == nil {
 		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
@@ -172,7 +188,7 @@ func createAgentConfigurationProvidersWithSources(db database, projects *project
 		}
 		sources[key] = extra
 	}
-	registered, err := registry.New(store, registry.Options{
+	registered, err := registry.New(store, registry.Options{MCP: mcp,
 		Sources:        sources,
 		RunnerSources:  runnerSources,
 		Authorizations: registry.Authorizations{Sessions: accounts, Projects: projects},
@@ -231,7 +247,7 @@ func createAgentConfigurationProvidersWithSources(db database, projects *project
 		Models: modelRefs, Tools: tools, ToolReferences: tools, Mounts: mounts,
 		Secrets: secrets, SecretReferences: secretRefs, Skills: initial,
 	}
-	return &agentConfigurationProviders{store: store, registry: registered, dependencies: dependencies}, nil
+	return &agentConfigurationProviders{store: store, registry: registered, installSource: source, dependencies: dependencies}, nil
 }
 
 // Called after the original Object.Initialize has bound the ProcessGuard and

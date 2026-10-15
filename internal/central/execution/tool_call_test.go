@@ -9,12 +9,151 @@ import (
 	"testing"
 
 	ac "github.com/LunaDeerTech/agenteam/internal/central/agent/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/agentloop"
 	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
 	tc "github.com/LunaDeerTech/agenteam/internal/central/tool/contract"
 )
+
+type checkpointModelCall struct {
+	response mc.ModelResponse
+	joined   bool
+}
+
+func (m *checkpointModelCall) BeginChat(context.Context, mc.ModelRequest) (mc.JSONCall, error) {
+	return m, nil
+}
+func (m *checkpointModelCall) Result(context.Context) (mc.ModelResponse, error) {
+	return m.response.Clone(), nil
+}
+func (m *checkpointModelCall) Close(context.Context) error { m.joined = true; return nil }
+func (m *checkpointModelCall) Joined() bool                { return m.joined }
+
+// A controlled Model response must reach the original checkpoint with its
+// captured install binding. This is candidate/codec evidence; the App test
+// separately proves the actual Registry, operation and installation ledger.
+func TestExecutionSkillInstallCheckpoint(t *testing.T) {
+	ctx := context.Background()
+	facts, consumer := runtimeModelCandidate(t)
+	fields := facts.Snapshot.Fields().Context.Input().Fields()
+	id := newTestID[i.Tool](t)
+	tool := tc.ExecutionTool{ToolID: id, SpecRevision: 1, ModelVisibleName: "tool_" + strings.ReplaceAll(id.String(), "-", ""), BindingSnapshot: tc.BuiltinExecutionBinding{Binding: tc.BuiltinBinding{HandlerID: "skill.install", ContractRevision: 1}, ScopeResolverID: "skill.install", RiskClassifierID: "skill.install", Class: tc.OrdinaryTool}}
+	fields.Tools = []tc.ExecutionTool{tool}
+	agent := fields.Agent.Fields()
+	agent.AllowedToolIDs = []i.ToolID{id}
+	var err error
+	fields.Agent, err = ac.NewAgentConfig(agent)
+	if err != nil {
+		t.Fatal(err)
+	}
+	input, err := ec.NewPreparationInput(fields)
+	if err != nil {
+		t.Fatal(err)
+	}
+	builder, _ := NewContextBuilder(contextBuilderProvider(t))
+	captured, err := builder.BuildContext(ctx, input)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sf := facts.Snapshot.Fields()
+	sf.Context = captured
+	snapshot, err := ec.NewDirectTextSnapshot(sf)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rf := facts.Round.Fields()
+	rf.ContextDigest = captured.Digest()
+	tools := []mc.Tool{{Name: tool.ModelVisibleName, Description: "Install a skill", InputSchema: json.RawMessage(`{"type":"object","properties":{},"additionalProperties":false}`)}}
+	choice := mc.ToolChoice{Kind: "required"}
+	rf.Input.SchemaVersion = mc.ToolInputSchemaVersion
+	rf.Input.Digest, err = mc.ToolInputDigest(ctx, rf.Messages, tools, choice)
+	if err != nil {
+		t.Fatal(err)
+	}
+	round, err := ec.NewLoopRound(ec.LoopRoundFields{Round: rf, Tools: tools, Choice: choice, Ordinal: 1, TranscriptStart: 1})
+	if err != nil {
+		t.Fatal(err)
+	}
+	request, err := agentloop.NewLoopRequest(ctx, captured.Digest(), mc.ModelRequest{Actor: consumer.Actor, CallID: rf.CallID, Consumer: fields.Model.Consumer.Clone(), Model: fields.Model, Input: rf.Input, Messages: rf.Messages, Tools: tools, ToolChoice: choice, ResponseFormat: mc.ResponseFormat{Kind: "text"}, RetryClass: mc.AgentRetry})
+	if err != nil {
+		t.Fatal(err)
+	}
+	model := &checkpointModelCall{response: mc.ModelResponse{CallID: rf.CallID, InvocationID: newTestID[mc.Invocation](t), Message: mc.Message{Role: "assistant", Parts: []mc.MessagePart{{ToolCall: &mc.ToolCallPart{ID: "install-call", Name: tool.ModelVisibleName, Arguments: json.RawMessage(`{ }`)}}}}, FinishReason: "tool_calls", Usage: mc.Usage{Source: mc.UnknownUsage}}}
+	controller, err := agentloop.NewDirectTextController(model)
+	if err != nil {
+		t.Fatal(err)
+	}
+	session, err := controller.Accept(request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	response, err := session.Result(ctx)
+	if err != nil || !session.Joined() {
+		t.Fatal("original Model session", err)
+	}
+	run := &directTextCall{ctx: ctx, owner: &directTextState{multi: &multiRoundState{}}, input: &preparationInputRecord{input: input}, snapshot: snapshot, round: loopExecutionRound{round}, allJoined: true, invocation: &directTextInvocation{session: session}}
+	candidate, err := newToolCallCandidate(run, response)
+	if err != nil || candidate == nil || string(candidate.canonical) != `{}` || string(candidate.original) != `{ }` {
+		t.Fatal("captured install could not checkpoint", err)
+	}
+	stored := &directTextRecord{snapshot: snapshot, round: run.round, toolPending: candidate}
+	binding, err := toolBinding(stored)
+	if err != nil || binding.Binding != tool.BindingSnapshot.Binding || binding.RunnerBinding != (tc.RunnerBinding{}) || !run.owner.acceptsToolBinding(binding) {
+		t.Fatal("checkpoint changed independent install binding", err)
+	}
+	if tc.DomainBuiltinBinding(binding.Binding) {
+		t.Fatal("install entered generic builtin ledger")
+	}
+	routing := toolCallStorageBinding(tool)
+	if routing != (tc.RunnerBinding{OperationName: "skill.install", OperationRevision: "1", ProtocolMajor: 1}) {
+		t.Fatal("install routing facts missing")
+	}
+	foreign := response.Clone()
+	foreign.Message.Parts[0].ToolCall.Name = "uncaptured-tool"
+	if _, err := newToolCallCandidate(run, foreign); err == nil {
+		t.Fatal("uncaptured tool reached checkpoint")
+	}
+	run.allJoined = false
+	if _, err := newToolCallCandidate(run, response); err == nil {
+		t.Fatal("unjoined response reached checkpoint")
+	}
+	controller.Stop()
+	if err := controller.Drain(ctx); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestExecutionSkillRoutingKeepsClosedBindingKinds(t *testing.T) {
+	state := &directTextState{multi: &multiRoundState{}}
+	for _, name := range []string{"skill.install", "skill.list", "skill.read", "skill.assign", "skill.prepare"} {
+		binding := tc.ToolCallBinding{Binding: tc.BuiltinBinding{HandlerID: name, ContractRevision: 1}}
+		if !state.acceptsToolBinding(binding) {
+			t.Fatalf("registered binding %s rejected", name)
+		}
+		binding.Binding.ContractRevision = 2
+		if state.acceptsToolBinding(binding) {
+			t.Fatalf("unregistered revision for %s admitted", name)
+		}
+	}
+	for _, binding := range []tc.ToolCallBinding{
+		{},
+		{Binding: tc.BuiltinBinding{HandlerID: "skill.delete", ContractRevision: 1}},
+		{Binding: tc.BuiltinBinding{HandlerID: "skill.install", ContractRevision: 1}, RunnerBinding: tc.ReadFileRegistration().Binding},
+		{Binding: tc.BuiltinBinding{HandlerID: "skill.install", ContractRevision: 1}, MCPBinding: tc.MCPBinding{RemoteToolName: "mixed"}},
+	} {
+		if state.acceptsToolBinding(binding) {
+			t.Fatal("invalid or mixed binding admitted")
+		}
+	}
+	if !state.acceptsToolBinding(tc.ToolCallBinding{RunnerBinding: tc.ReadFileRegistration().Binding}) {
+		t.Fatal("existing Runner binding rejected")
+	}
+	if (&directTextState{}).acceptsToolBinding(tc.ToolCallBinding{Binding: tc.BuiltinBinding{HandlerID: "skill.install", ContractRevision: 1}}) {
+		t.Fatal("install enabled outside explicit Tool loop")
+	}
+}
 
 func TestExecutionToolCallRoundKeepsV1ClosedAndV2Exact(t *testing.T) {
 	facts, _ := runtimeModelCandidate(t)

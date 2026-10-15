@@ -43,13 +43,20 @@ func (r ResolveRequest) Validate() error {
 			return bad()
 		}
 	case ServingSnapshotSource:
-		if r.ServingSnapshotID == nil || r.ServingSnapshotID.Validate() != nil || !uuid(r.ServingGenerationID) || r.ModelRef != nil || r.Selection != nil || r.ReasoningEffort != "" || r.Purpose != KnowledgeEmbedding && r.Purpose != MemoryEmbedding || r.LeaseOwner.Details().Kind != sc.ModelCallOwner {
+		if r.ServingSnapshotID == nil || r.ServingSnapshotID.Validate() != nil || !uuid(r.ServingGenerationID) || r.ModelRef != nil || r.Selection != nil || r.ReasoningEffort != "" || !ServingSnapshotPurpose(r.Purpose) || r.LeaseOwner.Details().Kind != sc.ModelCallOwner {
 			return bad()
 		}
 	default:
 		return bad()
 	}
 	return nil
+}
+
+// ServingSnapshotPurpose is the closed set of consumers whose durable logical
+// generation can retain and reuse an immutable snapshot across distinct calls.
+// Recognizing a purpose does not authorize the generation or acquire a lease.
+func ServingSnapshotPurpose(p Purpose) bool {
+	return p == KnowledgeEmbedding || p == MemoryEmbedding || p == MeetingSummaryInitial || p == MeetingSummaryUpdate
 }
 func (r ResolveRequest) Clone() ResolveRequest {
 	r.Consumer = r.Consumer.Clone()

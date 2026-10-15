@@ -2,7 +2,11 @@ package texthttp
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -20,6 +24,10 @@ const requestLimit = 1 << 20
 // size. Every admitted write therefore remains representable for recovery.
 const lookupRequestLimit = requestLimit + 84
 
+const uploadBytesLimit = 1 << 20
+const uploadRequestLimit = 1414488
+const uploadLookupLimit = uploadRequestLimit + 84
+
 // Raw fields retain missing/null and exact text bytes. DecodeJSON validates
 // unknown and duplicate decoded keys before this additional surrogate check.
 type inputWire struct {
@@ -28,6 +36,7 @@ type inputWire struct {
 	Expected json.RawMessage `json:"expected_version"`
 	Media    json.RawMessage `json:"media_type"`
 	Text     json.RawMessage `json:"text"`
+	Bytes    json.RawMessage `json:"bytes_base64"`
 	Command  json.RawMessage `json:"command"`
 	Document json.RawMessage `json:"document_id"`
 	Request  json.RawMessage `json:"request"`
@@ -151,11 +160,17 @@ func decodeIntent(w http.ResponseWriter, r *http.Request, route route) (intent, 
 	if route.action == "lookup" {
 		limit = lookupRequestLimit
 	}
+	if route.file {
+		limit = uploadRequestLimit
+		if route.action == "lookup" {
+			limit = uploadLookupLimit
+		}
+	}
 	if err := httpapi.DecodeJSON(w, r, &wire, limit); err != nil {
 		return out, err
 	}
 	fields := map[string]json.RawMessage{}
-	for key, value := range map[string]json.RawMessage{"parent_document_id": wire.Parent, "title": wire.Title, "expected_version": wire.Expected, "media_type": wire.Media, "text": wire.Text, "command": wire.Command, "document_id": wire.Document, "request": wire.Request} {
+	for key, value := range map[string]json.RawMessage{"parent_document_id": wire.Parent, "title": wire.Title, "expected_version": wire.Expected, "media_type": wire.Media, "text": wire.Text, "bytes_base64": wire.Bytes, "command": wire.Command, "document_id": wire.Document, "request": wire.Request} {
 		if len(value) > 0 {
 			fields[key] = value
 		}
@@ -172,15 +187,19 @@ func decodeIntent(w http.ResponseWriter, r *http.Request, route route) (intent, 
 		}
 		out.name = kc.CommandName(command)
 		raw = wire.Request
-		if len(raw) > requestLimit {
+		originalLimit := requestLimit
+		if route.file {
+			originalLimit = uploadRequestLimit
+		}
+		if len(raw) > originalLimit {
 			return out, f.NewFault(f.PayloadTooLarge, f.NotStarted)
 		}
 	} else {
 		target = route.target
 		switch route.action {
-		case "create-text":
+		case "create-text", "create-file":
 			out.name = kc.Create
-		case "replace-text":
+		case "replace-text", "replace-file":
 			out.name = kc.Update
 		default:
 			return out, invalidInput()
@@ -192,9 +211,13 @@ func decodeIntent(w http.ResponseWriter, r *http.Request, route route) (intent, 
 		return out, invalidInput()
 	}
 	var obj map[string]json.RawMessage
+	payloadField := "text"
+	if route.file {
+		payloadField = "bytes_base64"
+	}
 	switch out.name {
 	case kc.Create:
-		obj, err = exactObject(raw, "parent_document_id", "title", "media_type", "text")
+		obj, err = exactObject(raw, "parent_document_id", "title", "media_type", payloadField)
 		if err != nil {
 			return out, err
 		}
@@ -214,7 +237,7 @@ func decodeIntent(w http.ResponseWriter, r *http.Request, route route) (intent, 
 			return out, invalidInput()
 		}
 	case kc.Update:
-		obj, err = exactObject(raw, "expected_version", "media_type", "text")
+		obj, err = exactObject(raw, "expected_version", "media_type", payloadField)
 		if err != nil {
 			return out, err
 		}
@@ -227,10 +250,25 @@ func decodeIntent(w http.ResponseWriter, r *http.Request, route route) (intent, 
 		return out, invalidInput()
 	}
 	var text string
-	if !textField(obj["media_type"], &out.media) || !textField(obj["text"], &text) {
+	if !textField(obj["media_type"], &out.media) || !textField(obj[payloadField], &text) {
 		return out, invalidInput()
 	}
-	out.source, err = kc.NewTextSource(out.media, text)
+	if route.file {
+		if len(text) > base64.StdEncoding.EncodedLen(uploadBytesLimit) {
+			return out, f.NewFault(f.PayloadTooLarge, f.NotStarted)
+		}
+		raw, e := base64.StdEncoding.Strict().DecodeString(text)
+		if e != nil || base64.StdEncoding.EncodeToString(raw) != text {
+			return out, invalidInput()
+		}
+		if len(raw) > uploadBytesLimit {
+			return out, f.NewFault(f.PayloadTooLarge, f.NotStarted)
+		}
+		sum := sha256.Sum256(raw)
+		out.source, err = kc.NewUploadSource(out.media, f.Progress(len(raw)), f.Digest("sha256:"+hex.EncodeToString(sum[:])), io.NopCloser(bytes.NewReader(raw)))
+	} else {
+		out.source, err = kc.NewTextSource(out.media, text)
+	}
 	if err != nil {
 		return intent{}, invalidInput()
 	}

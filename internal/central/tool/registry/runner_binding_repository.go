@@ -92,7 +92,7 @@ func (r *Registry) RequireExecutionToolFactsInTx(ctx context.Context, tx f.Tx, r
 		return err
 	}
 	for _, want := range request.Tools {
-		v, exists, e := r.currentCaptureTool(ctx, tx, x, want.ToolID)
+		v, exists, e := r.currentCaptureTool(ctx, tx, x, request.Capture.ProjectID, want.ToolID)
 		if e != nil {
 			return e
 		}
@@ -100,7 +100,7 @@ func (r *Registry) RequireExecutionToolFactsInTx(ctx context.Context, tx f.Tx, r
 			return fail(f.NotFound)
 		}
 		b := want.BindingSnapshot
-		if v.Ref != (tc.SpecRef{ToolID: want.ToolID, SpecRevision: want.SpecRevision}) || v.Binding != b.Binding || v.RunnerBinding != b.RunnerBinding || v.Scope != b.ScopeResolverID || v.Risk != b.RiskClassifierID || v.Class != b.Class {
+		if v.Ref != (tc.SpecRef{ToolID: want.ToolID, SpecRevision: want.SpecRevision}) || v.Binding != b.Binding || v.RunnerBinding != b.RunnerBinding || v.MCPBinding != b.MCPBinding || v.Scope != b.ScopeResolverID || v.Risk != b.RiskClassifierID || v.Class != b.Class {
 			return fail(f.VersionConflict)
 		}
 		if v.Class != tc.CoreTool && !slices.Contains(allowed, want.ToolID) {

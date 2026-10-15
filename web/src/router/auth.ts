@@ -5,6 +5,7 @@ import { useSession, type SessionController } from '../composables/useSession'
 const returnTargets = [
   '/',
   '/projects',
+  '/mcp/oauth/callback',
   '/settings/profile',
   '/settings/appearance',
   '/settings/password',
@@ -23,6 +24,7 @@ const returnTargets = [
 // Inspect the raw path before Vue Router decodes params. No URL parser or decode pass.
 const reservedProjectRoots = new Set([
   'api',
+  'mcp',
   'assets',
   'auth',
   'login',
@@ -49,6 +51,7 @@ export function projectRoute(value: unknown): {
     | '/settings/variables'
     | '/settings/secrets'
     | '/settings/scheduler'
+    | '/settings/mcp'
     | '/settings/skills'
     | `/settings/skills/${string}`
     | '/settings/model-providers'
@@ -56,14 +59,17 @@ export function projectRoute(value: unknown): {
     | '/settings/model-usage'
     | '/tasks'
     | `/tasks/${string}`
+    | '/meetings'
+    | `/meetings/${string}`
     | '/artifacts'
+    | '/inbox'
     | '/knowledge'
     | `/knowledge/${string}`
   path: string
 } | null {
   if (typeof value !== 'string' || /[%\\?#]/.test(value)) return null
   const match =
-    /^\/([A-Za-z0-9][A-Za-z0-9-]{1,30}[A-Za-z0-9])\/([A-Za-z0-9._-]{1,64})(\/settings(?:\/(?:general|audit|agents|variables|secrets|scheduler|model-providers|available-models|model-usage|skills(?:\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?))?|\/tasks(?:\/(?:sprints\/)?[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?|\/artifacts|\/knowledge(?:\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?)?$/.exec(
+    /^\/([A-Za-z0-9][A-Za-z0-9-]{1,30}[A-Za-z0-9])\/([A-Za-z0-9._-]{1,64})(\/settings(?:\/(?:general|audit|agents|variables|secrets|scheduler|mcp|model-providers|available-models|model-usage|skills(?:\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?))?|\/tasks(?:\/(?:sprints\/)?[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?|\/meetings(?:\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?|\/artifacts|\/inbox|\/knowledge(?:\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?)?$/.exec(
       value,
     )
   if (!match) return null
@@ -300,6 +306,12 @@ export function skillsNavigationReadReady(router: Router): Readonly<Ref<boolean>
   return skillNavigation(router).publicReady
 }
 
+const meetingNavigation = new WeakMap<Router, { confirmLeave: () => Promise<boolean> }>()
+export function installMeetingNavigation(router: Router, owner: { confirmLeave: () => Promise<boolean> }) {
+  meetingNavigation.set(router, owner)
+  return () => { if (meetingNavigation.get(router) === owner) meetingNavigation.delete(router) }
+}
+
 export function installAuthentication(router: Router, auth: SessionController = useSession()) {
   const skills = skillNavigation(router)
   const finishSkillsNavigation = (to: RouteLocationNormalized) => {
@@ -308,8 +320,19 @@ export function installAuthentication(router: Router, auth: SessionController = 
     if (generation === skills.generation) skills.ready.value = true
   }
   router.beforeEach(async (to, from) => {
+    // Capture the untrusted callback once, before any Session/network await.
+    // Vue's normalized target still contains the query after replaceState, so
+    // immediately replace that navigation too before invoking later guards.
+    if (to.path === '/mcp/oauth/callback' && (Object.keys(to.query).length || to.hash)) {
+      auth.projectMCP.oauth.captureReturn(to.fullPath, (path) =>
+        window.history.replaceState(window.history.state, '', path),
+      )
+      return { path: '/mcp/oauth/callback', replace: true }
+    }
     skills.attempts.set(to, ++skills.generation)
     skills.ready.value = false
+    // Preserve the original Meeting command before Session revalidation.
+    if (to.fullPath !== from.fullPath && !((await meetingNavigation.get(router)?.confirmLeave()) ?? true)) return false
     // Ask before Session revalidation can temporarily unmount the dirty page.
     if (to.fullPath !== from.fullPath && !((await artifactCreationNavigation.get(router)?.confirmLeave()) ?? true)) return false
     if (

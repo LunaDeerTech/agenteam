@@ -20,15 +20,57 @@ type SkillAssignmentRequest struct {
 	AgentID         i.AgentID
 	Command         f.CommandIdentity
 	ExpectedVersion f.Version
+	Run             *SkillAssignmentRun
+	RunPlan         SkillAssignmentRunPlan
 }
 
 func (r SkillAssignmentRequest) Validate() error {
-	if r.Actor.Validate() != nil || r.Actor.Details().Kind != i.Human || r.ProjectID.Validate() != nil || r.AgentID.Validate() != nil || r.ExpectedVersion.Validate() != nil ||
+	if r.Actor.Validate() != nil || r.ProjectID.Validate() != nil || r.AgentID.Validate() != nil || r.ExpectedVersion.Validate() != nil ||
 		r.Command.Validate() != nil || r.Command.Namespace() != "project" || !slices.Equal(r.Command.OwnerIDs(), []string{r.ProjectID.String(), r.AgentID.String()}) ||
 		(r.Command.Command() != "skill.assign" && r.Command.Command() != "skill.remove") {
 		return invalid("", "INVALID_SKILL_ASSIGNMENT_OWNER")
 	}
+	if r.Actor.Details().Kind == i.Human {
+		if r.Run != nil || r.RunPlan != nil {
+			return invalid("", "INVALID_SKILL_ASSIGNMENT_OWNER")
+		}
+	} else if r.Actor.Details().Kind != i.AgentRun || r.Run == nil || r.Run.Validate(r.Actor, r.ProjectID) != nil || r.RunPlan == nil {
+		return invalid("", "INVALID_SKILL_ASSIGNMENT_OWNER")
+	}
 	return nil
+}
+
+// Run is immutable provenance, never a grant. The configured Tool authority
+// must recognize the original private witness and its exact protected input.
+type SkillAssignmentRun struct {
+	CallerAgentID i.AgentID     `json:"caller_agent_id"`
+	ExecutionID   i.ExecutionID `json:"execution_id"`
+	OperationID   string        `json:"operation_id"`
+	AttemptID     string        `json:"attempt_id"`
+	RequestID     string        `json:"request_id"`
+	ToolCallID    string        `json:"tool_call_id"`
+	ToolID        i.ToolID      `json:"tool_id"`
+	SpecRevision  f.Version     `json:"spec_revision"`
+	InputDigest   f.Digest      `json:"input_digest"`
+}
+
+func (r SkillAssignmentRun) Validate(actor i.Actor, project i.ProjectID) error {
+	a := actor.Details()
+	if actor.Validate() != nil || a.Kind != i.AgentRun || project.Validate() != nil || a.ProjectID != project.String() || r.CallerAgentID.Validate() != nil || a.AgentID != r.CallerAgentID.String() || r.ExecutionID.Validate() != nil || a.ExecutionID != r.ExecutionID.String() || r.ToolID.Validate() != nil || r.SpecRevision.Validate() != nil || r.InputDigest.Validate() != nil {
+		return invalid("", "INVALID_SKILL_ASSIGNMENT_RUN")
+	}
+	for _, v := range []string{r.OperationID, r.AttemptID, r.RequestID, r.ToolCallID} {
+		if _, err := f.ParseID[struct{}](v); err != nil {
+			return invalid("", "INVALID_SKILL_ASSIGNMENT_RUN")
+		}
+	}
+	return nil
+}
+
+type SkillAssignmentRunPlan interface{ RequiredLocks() []f.LockRequest }
+type SkillAssignmentRunAuthority interface {
+	DiscoverSkillAssignmentRun(context.Context, i.Actor, i.ProjectID, SkillAssignmentRun) (SkillAssignmentRunPlan, error)
+	RequireSkillAssignmentRunInTx(context.Context, f.Tx, SkillAssignmentRequest, i.AccessIntent) error
 }
 
 func (r SkillAssignmentRequest) RequiredLocks() []f.LockRequest {
@@ -40,7 +82,17 @@ func (r SkillAssignmentRequest) RequiredLocks() []f.LockRequest {
 	project, _ := f.ProjectLock(r.ProjectID.String())
 	schedule, _ := f.ProjectScheduleLock(r.ProjectID.String())
 	agent, _ := f.AgentLock(r.AgentID.String())
-	return []f.LockRequest{{Key: command, Mode: f.Exclusive}, {Key: user, Mode: f.Exclusive}, {Key: project, Mode: f.Shared}, {Key: schedule, Mode: f.Exclusive}, {Key: agent, Mode: f.Exclusive}}
+	locks := []f.LockRequest{{Key: command, Mode: f.Exclusive}, {Key: project, Mode: f.Shared}, {Key: schedule, Mode: f.Exclusive}, {Key: agent, Mode: f.Exclusive}}
+	if r.Run == nil {
+		return []f.LockRequest{{Key: command, Mode: f.Exclusive}, {Key: user, Mode: f.Exclusive}, {Key: project, Mode: f.Shared}, {Key: schedule, Mode: f.Exclusive}, {Key: agent, Mode: f.Exclusive}}
+	} else {
+		locks = append(locks, r.RunPlan.RequiredLocks()...)
+	}
+	return locks
+}
+
+type SkillAssignmentActiveOwner interface {
+	RequireActiveSkillAssignmentInTx(context.Context, f.Tx, SkillAssignmentRequest) (AgentRef, error)
 }
 
 type SkillAssignmentPlan interface {
@@ -91,6 +143,10 @@ func (r SkillAssignmentVersionChange) Validate() error {
 
 func (r SkillAssignmentVersionChange) Clone() SkillAssignmentVersionChange {
 	r.Before = r.Before.Clone()
+	if r.Request.Run != nil {
+		run := *r.Request.Run
+		r.Request.Run = &run
+	}
 	return r
 }
 
@@ -141,4 +197,50 @@ func (SkillAssignmentVersionChange) MarshalJSON() ([]byte, error) {
 }
 func (*SkillAssignmentVersionChange) UnmarshalJSON([]byte) error {
 	return invalid("", "INVALID_SKILL_ASSIGNMENT_VERSION")
+}
+
+func (SkillAssignmentRun) Format(w fmt.State, _ rune) { _, _ = w.Write([]byte("skill_assignment_run")) }
+func (SkillAssignmentRun) LogValue() slog.Value       { return slog.StringValue("skill_assignment_run") }
+
+// SkillAssignmentCatalogRequest is a read under the original assign Tool's
+// private run plan. No Human directory grant or mutation intent is synthesized.
+type SkillAssignmentCatalogRequest struct {
+	Actor        i.Actor
+	ProjectID    i.ProjectID
+	Run          SkillAssignmentRun
+	Plan         SkillAssignmentRunPlan
+	Target       *i.AgentID
+	AfterID      *i.AgentID
+	AfterCreated *f.Instant
+	Limit        int
+}
+
+func (r SkillAssignmentCatalogRequest) Validate() error {
+	if r.Run.Validate(r.Actor, r.ProjectID) != nil || r.Plan == nil || r.Limit < 1 || r.Limit > 50 ||
+		r.Target != nil && r.Target.Validate() != nil || r.AfterID != nil && r.AfterID.Validate() != nil || r.AfterCreated != nil && r.AfterCreated.Validate() != nil ||
+		(r.AfterID == nil) != (r.AfterCreated == nil) || r.Target != nil && r.AfterID != nil {
+		return invalid("", "INVALID_SKILL_CATALOG")
+	}
+	return nil
+}
+func (r SkillAssignmentCatalogRequest) RequiredLocks() []f.LockRequest {
+	if r.Validate() != nil {
+		return nil
+	}
+	locks := slices.Clone(r.Plan.RequiredLocks())
+	project, _ := f.ProjectLock(r.ProjectID.String())
+	schedule, _ := f.ProjectScheduleLock(r.ProjectID.String())
+	locks = append(locks, f.LockRequest{Key: project, Mode: f.Shared}, f.LockRequest{Key: schedule, Mode: f.Exclusive})
+	if r.Target != nil {
+		target, _ := f.AgentLock(r.Target.String())
+		locks = append(locks, f.LockRequest{Key: target, Mode: f.Shared})
+	}
+	return locks
+}
+
+type SkillAssignmentCatalogRunAuthority interface {
+	RequireSkillAssignmentCatalogInTx(context.Context, f.Tx, SkillAssignmentCatalogRequest) error
+}
+type SkillAssignmentCatalogOwner interface {
+	ReadSkillAssignmentCatalogInTx(context.Context, f.Tx, SkillAssignmentCatalogRequest) ([]DirectoryEntry, error)
 }

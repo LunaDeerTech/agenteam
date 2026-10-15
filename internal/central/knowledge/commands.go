@@ -588,7 +588,7 @@ func storePublishedDocument(ctx context.Context, x postgres.SQLExecutor, input c
 	if tag.RowsAffected() != 1 {
 		return fault(f.VersionConflict)
 	}
-	return nil
+	return enqueueIndexInTx(ctx, x, document)
 }
 
 // finishContentPublication prepares the fixed event outside the final Tx, then
@@ -984,6 +984,9 @@ func (s *Service) finishTitleOrReuse(ctx context.Context, input contentInput, in
 		}
 		if tag.RowsAffected() != 1 {
 			return fault(f.VersionConflict)
+		}
+		if err = enqueueIndexInTx(ctx, x, out); err != nil {
+			return err
 		}
 		receipt, err := st.deps.Outbox.AppendEventInTx(ctx, tx, input.actor, event, plan)
 		if err != nil {

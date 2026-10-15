@@ -8,10 +8,18 @@ import (
 )
 
 func (s *Service) ModelExecutionLeaseReleasedInTx(ctx context.Context, tx f.Tx, request sc.UsageRequest, plan sc.UsageDependencies) (bool, error) {
+	return s.modelLeaseReleasedInTx(ctx, tx, request, plan, sc.ExecutionOwner)
+}
+
+func (s *Service) ModelCallLeaseReleasedInTx(ctx context.Context, tx f.Tx, request sc.UsageRequest, plan sc.UsageDependencies) (bool, error) {
+	return s.modelLeaseReleasedInTx(ctx, tx, request, plan, sc.ModelCallOwner)
+}
+
+func (s *Service) modelLeaseReleasedInTx(ctx context.Context, tx f.Tx, request sc.UsageRequest, plan sc.UsageDependencies, owner sc.LeaseOwnerKind) (bool, error) {
 	if s == nil || s.data == nil || s.state() == nil || modelUsageNilPort(s.state().store) || modelUsageNilPort(s.state().auth.Usage) {
 		return false, failure(AuthorizationUnbound, f.DependencyUnbound, nil)
 	}
-	if ctx == nil || request.Validate() != nil || request.Purpose != sc.Model || request.Action != sc.ReleaseLeaseUsage || request.LeaseOwner.Details().Kind != sc.ExecutionOwner {
+	if ctx == nil || request.Validate() != nil || request.Purpose != sc.Model || request.Action != sc.ReleaseLeaseUsage || request.LeaseOwner.Details().Kind != owner {
 		return false, invalid()
 	}
 	if err := ctx.Err(); err != nil {
@@ -38,3 +46,4 @@ func (s *Service) ModelExecutionLeaseReleasedInTx(ctx context.Context, tx f.Tx, 
 }
 
 var _ sc.ModelLeaseRetirementObservation = (*Service)(nil)
+var _ sc.ModelCallLeaseRetirementObservation = (*Service)(nil)

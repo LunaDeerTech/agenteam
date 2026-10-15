@@ -166,7 +166,16 @@ func loadDirectTextRound(ctx context.Context, x postgres.SQLExecutor, execution 
 }
 
 func directTextJSON(v any) ([]byte, error) {
-	raw, err := json.Marshal(v)
+	var raw []byte
+	var err error
+	switch value := v.(type) {
+	case mc.Message:
+		raw, err = mc.EncodeCanonicalMessage(value)
+	case []mc.Message:
+		raw, err = mc.EncodeCanonicalMessages(value)
+	default:
+		raw, err = json.Marshal(v)
+	}
 	if err != nil {
 		return nil, invalid()
 	}
@@ -180,6 +189,28 @@ func decodeDirectTextJSON(raw []byte, target any) error {
 	canonical, err := cursor.CanonicalJSON(raw)
 	if err != nil || !bytes.Equal(raw, canonical) {
 		return invalid()
+	}
+	switch value := target.(type) {
+	case *mc.Message:
+		if value == nil {
+			return invalid()
+		}
+		message, err := mc.DecodeCanonicalMessage(raw)
+		if err != nil {
+			return invalid()
+		}
+		*value = message
+		return nil
+	case *[]mc.Message:
+		if value == nil {
+			return invalid()
+		}
+		messages, err := mc.DecodeCanonicalMessages(raw)
+		if err != nil {
+			return invalid()
+		}
+		*value = messages
+		return nil
 	}
 	d := json.NewDecoder(bytes.NewReader(raw))
 	d.DisallowUnknownFields()

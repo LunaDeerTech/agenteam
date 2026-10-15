@@ -88,3 +88,21 @@ func TestSuccessorSemanticRejectsUnpairedResults(t *testing.T) {
 		})
 	}
 }
+
+func TestToolInputFirstRoundAutoBindsChoice(t *testing.T) {
+	messages := []Message{{Role: "system", Parts: []MessagePart{{Text: &TextPart{Text: "system"}}}}, {Role: "user", Parts: []MessagePart{{Text: &TextPart{Text: "user"}}}}}
+	tools := []Tool{{Name: "read_file", InputSchema: json.RawMessage(`{"type":"object"}`)}}
+	required, err := ToolInputDigest(context.Background(), messages, tools, ToolChoice{Kind: "required"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	auto, err := ToolInputDigest(context.Background(), messages, tools, ToolChoice{Kind: "auto"})
+	if err != nil || auto == required {
+		t.Fatal("first round choice not bound", err)
+	}
+	for _, choice := range []ToolChoice{{Kind: "none"}, {Kind: "function", Name: "read_file"}, {Kind: "auto", Name: "read_file"}, {Kind: "required", Name: "read_file"}, {Kind: "unknown"}} {
+		if _, err := ToolInputDigest(context.Background(), messages, tools, choice); err == nil {
+			t.Fatal("unsupported first round choice accepted")
+		}
+	}
+}

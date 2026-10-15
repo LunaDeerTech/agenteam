@@ -652,6 +652,8 @@ current_message_id
 
 用于 Runtime 和 Timeline 快速定位当前有效版本。
 
+本节的 `attempt_index` 是从 0 开始的概念序号。正式持久化字段 `attempt`、HTTP 的 `attempt` 和 Execution Lineage 的 `contribution_attempt` 使用同一正整数表示，映射为 `attempt_index = attempt - 1`，反向为 `attempt = attempt_index + 1`。首发及每个新 generation 的首个 attempt 均为 `1`；用户 Retry 在同一 generation 内将该值加 `1`。这里的映射不改变既有 Launch digest、幂等 key 或历史行，也不把概念序号直接作为这些边界的参数。
+
 ### 10.1 Technical Retry
 
 模型 / Tool 的 transient retry 继续发生在同一个 Agent Execution 内，不新增 `MeetingContributionExecution`。

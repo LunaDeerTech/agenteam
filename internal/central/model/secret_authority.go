@@ -73,6 +73,9 @@ func (a *Authority) DiscoverUsage(ctx context.Context, r sc.UsageRequest) (sc.Us
 	if r.Validate() != nil {
 		return sc.UsageDependencies{}, fault(f.InvalidArgument)
 	}
+	if ctx != nil && ctx.Value(servingRetentionKey{}) != nil {
+		return a.discoverServingRetentionUsage(ctx, r)
+	}
 	if r.Purpose == sc.Model && r.Action == sc.AcquireLeaseUsage {
 		return a.discoverResolutionUsage(ctx, r)
 	}
@@ -97,6 +100,9 @@ func (a *Authority) DiscoverUsage(ctx context.Context, r sc.UsageRequest) (sc.Us
 	return sc.NewUsageDependencies(a.state().usageIssuer, binding, hash(raw), p.locks)
 }
 func (a *Authority) ValidateUsageInTx(ctx context.Context, tx f.Tx, r sc.UsageRequest, d sc.UsageDependencies) error {
+	if ctx != nil && ctx.Value(servingRetentionKey{}) != nil {
+		return a.validateServingRetentionUsage(ctx, tx, r, d)
+	}
 	if r.Purpose == sc.Model && r.Action == sc.AcquireLeaseUsage {
 		return a.validateResolutionUsage(ctx, tx, r, d)
 	}

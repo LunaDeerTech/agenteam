@@ -5,6 +5,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/agent"
 	ac "github.com/LunaDeerTech/agenteam/internal/central/agent/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/execution"
+	ec "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	i "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/model"
@@ -26,14 +27,20 @@ type executionRuntimeAuthorities struct {
 	model         *model.RuntimeAuthority
 	events        *execution.DirectTextEventAuthority
 	secretService i.ServiceRegistration
+	consumers     m3ConsumerRouter
+	m3            *m3Authorities
 }
 
 func createExecutionRuntimeAuthorities(db database, projects *project.Authority, guard *object.ProcessGuard, originalAgents ...*agent.Authority) (*executionRuntimeAuthorities, error) {
+	return createExecutionRuntimeAuthoritiesWithM3(db, projects, guard, nil, originalAgents...)
+}
+
+func createExecutionRuntimeAuthoritiesWithM3(db database, projects *project.Authority, guard *object.ProcessGuard, m3 *m3Authorities, originalAgents ...*agent.Authority) (*executionRuntimeAuthorities, error) {
 	store, ok := db.(execution.Store)
 	if !ok || runtimeInformationNil(store) || projects == nil || guard == nil || len(originalAgents) > 1 || len(originalAgents) == 1 && originalAgents[0] == nil {
 		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
-	b := &executionRuntimeAuthorities{}
+	b := &executionRuntimeAuthorities{m3: m3}
 	var err error
 	if b.pending, err = scheduler.NewPendingAuthority(store); err != nil {
 		return nil, err
@@ -42,7 +49,15 @@ func createExecutionRuntimeAuthorities(db database, projects *project.Authority,
 	if err != nil {
 		return nil, err
 	}
-	if b.execution, err = execution.NewAuthority(store, projects, access); err != nil {
+	var serviceAccess ec.ServiceProjectAccess = access
+	if m3 != nil {
+		meetingAccess, e := project.NewMeetingExecutionAccess(projects, m3.meeting)
+		if e != nil {
+			return nil, e
+		}
+		serviceAccess = executionServiceAccess{access, meetingAccess}
+	}
+	if b.execution, err = execution.NewAuthority(store, projects, serviceAccess); err != nil {
 		return nil, err
 	}
 	if len(originalAgents) == 1 {
@@ -61,8 +76,14 @@ func createExecutionRuntimeAuthorities(db database, projects *project.Authority,
 	if err != nil {
 		return nil, err
 	}
+	b.consumers = m3ConsumerRouter{agents: b.execution}
+	if m3 != nil {
+		b.consumers.knowledge = m3.knowledge
+		b.consumers.memory = m3.memory
+		b.consumers.meeting = m3.summary
+	}
 	if b.model, err = model.NewRuntimeAuthority(store, model.RuntimeAuthorizations{
-		Consumers: b.execution, Process: guard, ModelRuntime: modelService,
+		Consumers: b.consumers, StoppedConsumers: b.consumers, Process: guard, ModelRuntime: modelService,
 		SecretService: b.secretService, OutboundService: outboundService,
 	}); err != nil {
 		return nil, err
@@ -77,6 +98,7 @@ type agentRuntimeProviders struct {
 	configuration ac.ExecutionConfiguration
 	skills        sc.InitialBindingsProvider
 	roundSkills   sc.InitialRoundBindingsReader
+	assignments   sc.RoundAssignmentValidation
 	tools         tc.ExecutionTools
 }
 
@@ -98,6 +120,9 @@ func createAgentRuntimeProviders(db database, projects *project.Authority, accou
 		return out, err
 	}
 	if out.roundSkills, err = skill.NewInitialRoundBindings(skills); err != nil {
+		return out, err
+	}
+	if out.assignments, err = skill.NewAssignmentValidation(skills); err != nil {
 		return out, err
 	}
 	var registered *registry.Registry

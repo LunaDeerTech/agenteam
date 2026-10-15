@@ -6,6 +6,7 @@ import (
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/mount"
 	runnerhttp "github.com/LunaDeerTech/agenteam/internal/central/runner/http"
+	"github.com/LunaDeerTech/agenteam/internal/central/tool/authorization"
 	tc "github.com/LunaDeerTech/agenteam/internal/central/tool/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/tool/registry"
 	toolruntime "github.com/LunaDeerTech/agenteam/internal/central/tool/runtime"
@@ -103,10 +104,37 @@ func (b *executionRuntimeAssembly) runnerToolFactory(store execution.Store, obje
 				return nil, nil, err
 			}
 			b.add(runtimeWork(builtins))
-			combined, err := toolruntime.NewCompositeExecutor(dispatch, results, builtins)
+			var mcps []*toolruntime.MCPExecutor
+			if b.mcpTools != nil {
+				remote, e := toolruntime.NewMCPExecutor(b.mcpTools.invocations, owner, registered, b.mcpTools.backend)
+				if e != nil {
+					return nil, nil, e
+				}
+				b.add(runtimeWork(remote))
+				mcps = append(mcps, remote)
+			}
+			core, err := toolruntime.New(store, owner)
 			if err != nil {
 				return nil, nil, err
 			}
+			permission, err := authorization.New(store, owner, registered)
+			if err != nil {
+				return nil, nil, err
+			}
+			installer, err := toolruntime.NewInstallExecutor(core, permission, b.installSource, schemas)
+			if err != nil {
+				return nil, nil, err
+			}
+			install, err := toolruntime.NewInstallDispatcher(installer)
+			if err != nil {
+				return nil, nil, err
+			}
+			b.add(runtimeWork(install))
+			combined, err := toolruntime.NewCompositeExecutorWithInstall(dispatch, results, builtins, install, mcps...)
+			if err != nil {
+				return nil, nil, err
+			}
+			b.approvalOperations = combined
 			return combined, combined, nil
 		}
 		return dispatch, results, nil

@@ -38,7 +38,7 @@ func (s Selection) Contains(name string) bool {
 // Names returns a new slice in a fixed order, independent of configuration order.
 func (s Selection) Names() []string {
 	names := []string{}
-	for _, name := range []string{p.ReadFileOperation, p.ListDirectoryOperation, p.FindFilesOperation, p.WriteFileOperation, p.RunCommandOperation} {
+	for _, name := range []string{p.ReadFileOperation, p.ListDirectoryOperation, p.FindFilesOperation, p.WriteFileOperation, p.RunCommandOperation, p.SkillPrepareOperation} {
 		if s.Contains(name) {
 			names = append(names, name)
 		}
@@ -58,6 +58,8 @@ func operationBit(name string) uint8 {
 		return 8
 	case p.RunCommandOperation:
 		return 16
+	case p.SkillPrepareOperation:
+		return 32
 	default:
 		return 0
 	}

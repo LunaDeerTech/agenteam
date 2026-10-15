@@ -1,3 +1,17 @@
+import { createKnowledgeFileAPI, type KnowledgeFileAPI } from '../api/knowledge-file'
+import { createKnowledgeFileSession, type KnowledgeFileAction } from './knowledge-file-session'
+import { createArtifactUploadSession, type ArtifactUploadAction } from './artifact-upload-session'
+import { createArtifactUploadAPI, type ArtifactUploadAPI } from '../api/artifact-upload'
+import { createProjectMCPAPI, type ProjectMCPAPI } from '../api/project-mcp'
+import { createMCPOAuthAPI, type MCPOAuthAPI } from '../api/mcp-oauth'
+import { createMCPSession, type MCPAction } from './mcp-session'
+import { createMCPCredentialAPI, type MCPCredentialsAPI } from '../api/project-mcp-credentials'
+import { createMeetingsAPI, type MeetingsAPI } from '../api/meetings'
+import { createMeetingSession, type MeetingAction } from './meeting-session'
+import { createMeetingRealtime } from './meeting-realtime'
+import { createProjectInboxAPI } from '../api/project-inbox'
+import type { ProjectInboxAPI } from '../api/inbox-types'
+import { createInboxSession } from './inbox-session'
 import {
   createAgentSkillAssignmentsAPI,
   captureAgentSkillCommand,
@@ -7,18 +21,67 @@ import {
   type AgentSkillLookup,
   type AgentSkillQuery,
 } from '../api/agent-skill-assignments'
+import { createAgentMemoryAPI, type AgentMemoryAPI } from '../api/agent-memory'
+import { createAgentMemorySession, type MemoryAction } from './agent-memory-session'
 
-import { captureKnowledgeMove, createKnowledgeMoveAPI, type KnowledgeMoveAPI, type KnowledgeMoveInput, type KnowledgeMoveResult, type KnowledgeMoveLookup } from '../api/knowledge-move'
-import { randomUUID } from '../utils/random-uuid'
-import { createTaskExecutionOutputAPI, type TaskExecutionOutputAPI } from '../api/task-execution-output'
-import { createTaskExecutionsAPI, parseTaskExecution, type TaskExecution, type TaskExecutionsAPI, type TaskExecutionQuery } from '../api/task-executions'
-import { createTaskExecutionCancelAPI, captureTaskExecutionCancelInput, type TaskExecutionCancelAPI, type TaskExecutionCancelInput, type TaskExecutionCancelReceipt, type TaskExecutionCancelResult, type TaskExecutionCancelLookup } from '../api/task-execution-cancel'
-import { createExecutionApprovalAPI, capturePendingExecutionApproval, captureExecutionApprovalDecision, type ExecutionApprovalAPI, type ExecutionApproval, type ExecutionApprovalScope, type ExecutionApprovalDecision, type ExecutionApprovalReceipt, type ExecutionApprovalLookup } from '../api/execution-approval'
-import { createSkillImportAPI, captureSkillImport, type SkillImportAPI, type SkillImportInput, type SkillImportReceipt } from '../api/skill-import'
 import {
-  createProjectSecretCommandsAPI, captureProjectSecretCreate, captureProjectSecretUpdate,
-  captureProjectSecretIdentity, type ProjectSecretCommandsAPI, type ProjectSecretIdentity,
-  type ProjectSecretCreate, type ProjectSecretUpdate, type ProjectSecretReceipt, type ProjectSecretLookup,
+  captureKnowledgeMove,
+  createKnowledgeMoveAPI,
+  type KnowledgeMoveAPI,
+  type KnowledgeMoveInput,
+  type KnowledgeMoveResult,
+  type KnowledgeMoveLookup,
+} from '../api/knowledge-move'
+import { randomUUID } from '../utils/random-uuid'
+import {
+  createTaskExecutionOutputAPI,
+  type TaskExecutionOutputAPI,
+} from '../api/task-execution-output'
+import {
+  createTaskExecutionsAPI,
+  parseTaskExecution,
+  type TaskExecution,
+  type TaskExecutionsAPI,
+  type TaskExecutionQuery,
+} from '../api/task-executions'
+import {
+  createTaskExecutionCancelAPI,
+  captureTaskExecutionCancelInput,
+  type TaskExecutionCancelAPI,
+  type TaskExecutionCancelInput,
+  type TaskExecutionCancelReceipt,
+  type TaskExecutionCancelResult,
+  type TaskExecutionCancelLookup,
+} from '../api/task-execution-cancel'
+import {
+  createExecutionApprovalAPI,
+  capturePendingExecutionApproval,
+  captureExecutionApprovalDecision,
+  type ExecutionApprovalAPI,
+  type ExecutionApproval,
+  type ExecutionApprovalScope,
+  type ExecutionApprovalDecision,
+  type ExecutionApprovalReceipt,
+  type ExecutionApprovalLookup,
+} from '../api/execution-approval'
+import {
+  createSkillImportAPI,
+  captureSkillImport,
+  type SkillImportAPI,
+  type SkillImportInput,
+  type SkillImportReceipt,
+} from '../api/skill-import'
+import {
+  createProjectSecretCommandsAPI,
+  captureProjectSecretCreate,
+  captureProjectSecretUpdate,
+  captureProjectSecretIdentity,
+  type ProjectSecretCommandsAPI,
+  type ProjectSecretIdentity,
+  type ProjectSecretCreate,
+  type ProjectSecretUpdate,
+  type ProjectSecretReceipt,
+  type ProjectSecretLookup,
 } from '../api/project-secret-commands'
 import {
   createSystemRunnersAPI,
@@ -30,7 +93,14 @@ import {
   type RunnerMutation,
   type RunnerLookup,
 } from '../api/system-runners'
-import { createKnowledgeDeleteAPI, captureKnowledgeDelete, type KnowledgeDeleteAPI, type KnowledgeDeleteInput, type KnowledgeDeleteReceipt, type KnowledgeDeleteLookup } from '../api/knowledge-delete'
+import {
+  createKnowledgeDeleteAPI,
+  captureKnowledgeDelete,
+  type KnowledgeDeleteAPI,
+  type KnowledgeDeleteInput,
+  type KnowledgeDeleteReceipt,
+  type KnowledgeDeleteLookup,
+} from '../api/knowledge-delete'
 import { createAgentRunnerMountsAPI, type AgentRunnerMountsAPI } from '../api/agent-runner-mounts'
 import {
   createKnowledgeTitleSearchAPI,
@@ -39,9 +109,13 @@ import {
   type KnowledgeTitleQuery,
 } from '../api/knowledge-title-search'
 import {
-  createProjectSchedulerAPI, captureProjectSchedulerUpdate, captureProjectSchedulerID,
-  type ProjectSchedulerAPI, type ProjectSchedulerUpdate,
-  type ProjectSchedulerReceipt, type ProjectSchedulerLookup,
+  createProjectSchedulerAPI,
+  captureProjectSchedulerUpdate,
+  captureProjectSchedulerID,
+  type ProjectSchedulerAPI,
+  type ProjectSchedulerUpdate,
+  type ProjectSchedulerReceipt,
+  type ProjectSchedulerLookup,
 } from '../api/project-scheduler'
 import {
   createKnowledgeTextAPI,
@@ -82,8 +156,29 @@ import {
   type ProjectSecretsAPI,
   type ProjectSecretQuery,
 } from '../api/project-secrets'
-import { createArtifactCreationAPI, captureArtifactContent, type ArtifactCreationAPI, type ArtifactContentInput, type ArtifactCreationResult, type ArtifactCreationLookup, type ArtifactCancellation } from '../api/artifact-creation'
-import { createProjectArtifactsAPI, captureArtifactID, captureArtifactRef, captureArtifactQuery, captureArtifactReadQuery, type ProjectArtifactsAPI, type ArtifactRef, type ArtifactQuery, type ArtifactReadQuery, type ArtifactMetadata } from '../api/project-artifacts'
+import {
+  createArtifactCreationAPI,
+  captureArtifactContent,
+  type ArtifactCreationAPI,
+  type ArtifactContentInput,
+  type ArtifactCreationResult,
+  type ArtifactCreationLookup,
+  type ArtifactCancellation,
+} from '../api/artifact-creation'
+import {
+  createProjectArtifactsAPI,
+  createProjectArtifactMetadataAPI,
+  captureArtifactID,
+  captureArtifactRef,
+  captureArtifactQuery,
+  captureArtifactReadQuery,
+  type ProjectArtifactsAPI,
+  type ProjectArtifactMetadataAPI,
+  type ArtifactRef,
+  type ArtifactQuery,
+  type ArtifactReadQuery,
+  type ArtifactMetadata,
+} from '../api/project-artifacts'
 import {
   createProjectUsageAPI,
   captureProjectUsageID,
@@ -147,17 +242,35 @@ import {
   type TaskUpdateReceipt,
   type TaskUpdateLookup,
 } from '../api/work-task-edit'
-import { createWorkTaskReorderAPI, captureTaskReorderInput, type WorkTaskReorderAPI, type TaskReorderInput } from '../api/work-task-reorder'
 import {
-  createWorkTaskBlockersAPI, captureHumanBlockerDraft, captureHumanBlockerAdd, captureHumanBlockerResolve,
-  type WorkTaskBlockersAPI, type HumanBlockerDraft, type HumanBlockerAddInput,
-  type HumanBlockerResolveInput, type HumanBlockerReceipt, type HumanBlockerLookup,
+  createWorkTaskReorderAPI,
+  captureTaskReorderInput,
+  type WorkTaskReorderAPI,
+  type TaskReorderInput,
+} from '../api/work-task-reorder'
+import {
+  createWorkTaskBlockersAPI,
+  captureHumanBlockerDraft,
+  captureHumanBlockerAdd,
+  captureHumanBlockerResolve,
+  type WorkTaskBlockersAPI,
+  type HumanBlockerDraft,
+  type HumanBlockerAddInput,
+  type HumanBlockerResolveInput,
+  type HumanBlockerReceipt,
+  type HumanBlockerLookup,
 } from '../api/work-task-blockers'
 import {
-  createWorkTaskDependenciesAPI, captureTaskDependencyDraft, captureTaskDependencyAdd,
-  captureTaskDependencyResolve, captureTaskDependencyQuery,
-  type WorkTaskDependenciesAPI, type TaskDependencyDraft, type TaskDependencyAddInput,
-  type TaskDependencyResolveInput, type TaskDependencyCandidatesQuery,
+  createWorkTaskDependenciesAPI,
+  captureTaskDependencyDraft,
+  captureTaskDependencyAdd,
+  captureTaskDependencyResolve,
+  captureTaskDependencyQuery,
+  type WorkTaskDependenciesAPI,
+  type TaskDependencyDraft,
+  type TaskDependencyAddInput,
+  type TaskDependencyResolveInput,
+  type TaskDependencyCandidatesQuery,
 } from '../api/work-task-dependencies'
 import {
   createWorkTaskTimelineAPI,
@@ -472,6 +585,7 @@ export type ProjectModelSettingsProgress = Readonly<{
   canRetryOriginal: boolean
 }>
 type AgentConfigurationAction =
+  | MemoryAction
   | 'agent-skill-write'
   | 'agent-skill-lookup'
   | 'agent-configuration-read'
@@ -520,7 +634,12 @@ export type AgentConfigurationProgress = Readonly<{
   contextValid: boolean
 }>
 type SprintLifecycleAction =
-  'sprint-start' | 'sprint-start-lookup' | 'sprint-complete' | 'sprint-complete-lookup' | 'sprint-create' | 'sprint-create-lookup'
+  | 'sprint-start'
+  | 'sprint-start-lookup'
+  | 'sprint-complete'
+  | 'sprint-complete-lookup'
+  | 'sprint-create'
+  | 'sprint-create-lookup'
 type SprintStartIntent = {
   operation: SprintLifecycleOperation
   identity: PersonalIdentity
@@ -542,7 +661,9 @@ export type WorkSprintLifecycleProgress = Readonly<{
   error: string | null
   contextValid: boolean
 }>
-type SprintCreateIntent = Omit<SprintStartIntent, 'input' | 'operation'> & { input: SprintCreateInput }
+type SprintCreateIntent = Omit<SprintStartIntent, 'input' | 'operation'> & {
+  input: SprintCreateInput
+}
 export type SprintCreateProgress = Readonly<{
   projectID: string
   sprintID: string
@@ -620,15 +741,16 @@ export type MilestoneReorderProgress = Omit<MilestoneCreateProgress, 'result'> &
   readonly result: MilestoneReorderReceipt | null
 }
 type SprintPlanningAction =
-  | 'sprint-update'
-  | 'sprint-update-lookup'
-  | 'sprint-reorder'
-  | 'sprint-reorder-lookup'
-type SprintUpdateIntent = Omit<SprintStartIntent, 'input' | 'operation'> & { input: SprintUpdateInput }
+  'sprint-update' | 'sprint-update-lookup' | 'sprint-reorder' | 'sprint-reorder-lookup'
+type SprintUpdateIntent = Omit<SprintStartIntent, 'input' | 'operation'> & {
+  input: SprintUpdateInput
+}
 export type SprintUpdateProgress = Omit<WorkSprintLifecycleProgress, 'receipt' | 'operation'> & {
   readonly result: SprintUpdateReceipt | null
 }
-type SprintReorderIntent = Omit<SprintStartIntent, 'input' | 'operation'> & { input: SprintReorderInput }
+type SprintReorderIntent = Omit<SprintStartIntent, 'input' | 'operation'> & {
+  input: SprintReorderInput
+}
 export type SprintReorderProgress = Omit<WorkSprintLifecycleProgress, 'receipt' | 'operation'> & {
   readonly milestoneID: string
   readonly result: SprintReorderReceipt | null
@@ -651,9 +773,15 @@ type WorkReviewIntent = {
   | { kind: 'blocker-add'; input: HumanBlockerAddInput; taskBefore: Task }
   | { kind: 'blocker-resolve'; input: HumanBlockerResolveInput; taskBefore: Task }
   | { kind: 'dependency-add'; input: TaskDependencyAddInput; taskBefore: Task }
-  | { kind: 'dependency-resolve'; input: TaskDependencyResolveInput; relatedTaskID: string; taskBefore: Task }
+  | {
+      kind: 'dependency-resolve'
+      input: TaskDependencyResolveInput
+      relatedTaskID: string
+      taskBefore: Task
+    }
 )
-type WorkCommandReceipt = ReviewReceipt | TaskCreateReceipt | TaskUpdateReceipt | HumanBlockerReceipt
+type WorkCommandReceipt =
+  ReviewReceipt | TaskCreateReceipt | TaskUpdateReceipt | HumanBlockerReceipt
 type ExecutionCancelIntent = {
   kind: 'execution-cancel'
   identity: PersonalIdentity
@@ -675,16 +803,47 @@ export type ExecutionCancelProgress = Readonly<{
   observation: 'none' | 'committed' | 'not_observed' | 'failed'
   contextValid: boolean
 }>
-type ApprovalDecisionIntent = Omit<ExecutionCancelIntent, 'kind' | 'input'> & {
+type ApprovalDecisionIntent = Omit<ExecutionCancelIntent, 'kind' | 'input' | 'taskID'> & {
   kind: 'approval-decision'
   approval: ExecutionApproval
   input: ExecutionApprovalDecision
-}
-export type ExecutionApprovalProgress = Omit<ExecutionCancelProgress, 'receipt'> & Readonly<{
-  approvalID: string
-  decision: 'approve' | 'reject'
-  receipt: ExecutionApprovalReceipt | null
+} & (
+    | { source: 'task'; taskID: string }
+    | {
+        source: 'meeting'
+        meetingID: string
+        contributionID: string
+        generation: string
+        attempt: string
+        taskID?: never
+      }
+  )
+export type MeetingApprovalExecution = Readonly<{
+  id: string
+  project_id: string
+  meeting_id: string
+  contribution_id: string
+  agent_id: string
+  generation: string
+  attempt: string
+  status: string
+  cancel_requested_at: string | null
+  waiting_reason: string | null
+  waiting_reference: string | null
 }>
+export type MeetingExecutionApprovalProgress = Omit<ExecutionApprovalProgress, 'taskID'> &
+  Readonly<{
+    meetingID: string
+    contributionID: string
+    generation: string
+    attempt: string
+  }>
+export type ExecutionApprovalProgress = Omit<ExecutionCancelProgress, 'receipt'> &
+  Readonly<{
+    approvalID: string
+    decision: 'approve' | 'reject'
+    receipt: ExecutionApprovalReceipt | null
+  }>
 type WorkCommandLookup = ReviewLookup | TaskCreateLookup | TaskUpdateLookup | HumanBlockerLookup
 export type WorkReviewProgress = Readonly<{
   kind: WorkReviewIntent['kind']
@@ -760,12 +919,14 @@ type SkillImportOriginal = {
   input: SkillImportInput | null
   body: string | null
 }
-type ArtifactCreationAction = 'artifact-create' | 'artifact-create-lookup' | 'artifact-create-cancel'
+type ArtifactCreationAction =
+  'artifact-create' | 'artifact-create-lookup' | 'artifact-create-cancel'
 export type ArtifactCreationProgress = Readonly<{
   projectID: string
   phase: 'submitting' | 'uncertain' | 'confirmed' | 'cancelled'
   action: 'create' | 'lookup' | 'cancel'
-  observation: 'none' | 'not_observed' | 'pending' | 'committed' | 'cancel_requested' | 'cancelled' | 'failed'
+  observation:
+    'none' | 'not_observed' | 'pending' | 'committed' | 'cancel_requested' | 'cancelled' | 'failed'
   artifact: ArtifactMetadata | null
   contextValid: boolean
   canRetryOriginal: boolean
@@ -781,7 +942,15 @@ type ArtifactCreationOriginal = {
   keyConflict: boolean
 }
 type KnowledgeCommandAction =
-  'knowledge-move' | 'knowledge-move-lookup' | 'knowledge-rename' | 'knowledge-lookup' | 'knowledge-text-write' | 'knowledge-text-lookup' | 'knowledge-delete-preview' | 'knowledge-delete' | 'knowledge-delete-lookup'
+  | 'knowledge-move'
+  | 'knowledge-move-lookup'
+  | 'knowledge-rename'
+  | 'knowledge-lookup'
+  | 'knowledge-text-write'
+  | 'knowledge-text-lookup'
+  | 'knowledge-delete-preview'
+  | 'knowledge-delete'
+  | 'knowledge-delete-lookup'
 export type KnowledgeCommandProgress = Readonly<{
   projectID: string
   documentID: string
@@ -801,7 +970,9 @@ type KnowledgeCommandIntent = {
   uncertain: boolean
   keyConflict: boolean
 }
-type KnowledgeMoveIntent = Omit<KnowledgeCommandIntent, 'payload'> & { payload: { input: KnowledgeMoveInput | null; body: string | null } }
+type KnowledgeMoveIntent = Omit<KnowledgeCommandIntent, 'payload'> & {
+  payload: { input: KnowledgeMoveInput | null; body: string | null }
+}
 export type KnowledgeTextProgress = KnowledgeCommandProgress &
   Readonly<{ command: 'create' | 'update' }>
 type KnowledgeTextOriginal = {
@@ -815,8 +986,15 @@ type KnowledgeTextOriginal = {
   uncertain: boolean
   keyConflict: boolean
 }
-export type KnowledgeDeleteProgress = Omit<KnowledgeCommandProgress, 'receipt'> & Readonly<{ receipt: KnowledgeDeleteReceipt | null }>
-type KnowledgeDeleteOriginal = Omit<KnowledgeCommandIntent, 'payload'> & { payload: { input: KnowledgeDeleteInput | null; body: string | null; ids: readonly string[] | null } }
+export type KnowledgeDeleteProgress = Omit<KnowledgeCommandProgress, 'receipt'> &
+  Readonly<{ receipt: KnowledgeDeleteReceipt | null }>
+type KnowledgeDeleteOriginal = Omit<KnowledgeCommandIntent, 'payload'> & {
+  payload: {
+    input: KnowledgeDeleteInput | null
+    body: string | null
+    ids: readonly string[] | null
+  }
+}
 type ProjectIntent = {
   targetID: string
   identity: PersonalIdentity
@@ -1039,6 +1217,7 @@ interface LogoutIntent {
 }
 type Intent = LoginIntent | LogoutIntent
 type Action =
+  | 'inbox-read'
   | 'restore'
   | 'login'
   | 'logout'
@@ -1050,6 +1229,7 @@ type Action =
   | 'skill-read'
   | 'secret-read'
   | ArtifactCreationAction
+  | ArtifactUploadAction
   | 'artifact-read'
   | 'usage-read'
   | 'runtime-information-read'
@@ -1066,6 +1246,8 @@ type Action =
   | ProjectAction
   | ProjectCreationAction
   | SchedulerAction
+  | MCPAction
+  | KnowledgeFileAction
   | WorkReviewAction
   | SprintLifecycleAction
   | MilestonePlanningAction
@@ -1074,6 +1256,7 @@ type Action =
   | ProjectSecretAction
   | KnowledgeCommandAction
   | SkillImportAction
+  | MeetingAction
   | AgentConfigurationAction
   | ProjectAuditAction
   | ProjectModelAction
@@ -1219,18 +1402,30 @@ export function createSessionController(
     projectSecrets?: ProjectSecretsAPI
     projectSecretCommands?: ProjectSecretCommandsAPI
     artifactCreation?: ArtifactCreationAPI
+    artifactUpload?: ArtifactUploadAPI
+    artifactMetadata?: ProjectArtifactMetadataAPI
     projectArtifacts?: ProjectArtifactsAPI
     projectUsage?: ProjectUsageAPI
     scheduler?: ProjectSchedulerAPI
+    mcp?: ProjectMCPAPI
+    mcpCredentials?: MCPCredentialsAPI
+    mcpOAuth?: MCPOAuthAPI
     skillPackage?: SkillPackageAPI
     knowledgeMove?: KnowledgeMoveAPI
     knowledgeText?: KnowledgeTextAPI
+    knowledgeFile?: KnowledgeFileAPI
     knowledgeDelete?: KnowledgeDeleteAPI
     knowledgeCommands?: KnowledgeCommandsAPI
     knowledgeTitleSearch?: KnowledgeTitleSearchAPI
+    meetings?: MeetingsAPI
+    inbox?: ProjectInboxAPI
+    agentMemory?: AgentMemoryAPI
   }> = {},
 ) {
   const agentSkillAPI = commandAPIs.agentSkillAssignments ?? createAgentSkillAssignmentsAPI()
+  const meetingsAPI = commandAPIs.meetings ?? createMeetingsAPI()
+  const inboxAPI = commandAPIs.inbox ?? createProjectInboxAPI()
+  const agentMemoryAPI = commandAPIs.agentMemory ?? createAgentMemoryAPI()
   const runnersAPI = commandAPIs.systemRunners ?? createSystemRunnersAPI()
   const projectVariablesAPI = commandAPIs.projectVariables ?? createProjectVariablesAPI()
   const projectCreationAPI = commandAPIs.projectCreation ?? createProjectCreationAPI()
@@ -1241,8 +1436,13 @@ export function createSessionController(
   const secretCommandsAPI = commandAPIs.projectSecretCommands ?? createProjectSecretCommandsAPI()
   const projectSecretsAPI = commandAPIs.projectSecrets ?? createProjectSecretsAPI()
   const artifactCreationAPI = commandAPIs.artifactCreation ?? createArtifactCreationAPI()
+  const artifactUploadAPI = commandAPIs.artifactUpload ?? createArtifactUploadAPI()
+  const artifactMetadataAPI = commandAPIs.artifactMetadata ?? createProjectArtifactMetadataAPI()
   const projectArtifactsAPI = commandAPIs.projectArtifacts ?? createProjectArtifactsAPI()
   const projectUsageAPI = commandAPIs.projectUsage ?? createProjectUsageAPI()
+  const mcpAPI = commandAPIs.mcp ?? createProjectMCPAPI()
+  const mcpCredentialsAPI = commandAPIs.mcpCredentials ?? createMCPCredentialAPI()
+  const mcpOAuthAPI = commandAPIs.mcpOAuth ?? createMCPOAuthAPI()
   const schedulerAPI = commandAPIs.scheduler ?? createProjectSchedulerAPI()
   const skillPackageAPI = commandAPIs.skillPackage ?? createSkillPackageAPI()
   const taskDependenciesAPI = commandAPIs.taskDependencies ?? createWorkTaskDependenciesAPI()
@@ -1259,9 +1459,11 @@ export function createSessionController(
   const sprintLifecycleAPI = commandAPIs.sprintLifecycle ?? createWorkSprintLifecycleAPI()
   const knowledgeMoveAPI = commandAPIs.knowledgeMove ?? createKnowledgeMoveAPI()
   const knowledgeTextAPI = commandAPIs.knowledgeText ?? createKnowledgeTextAPI()
+  const knowledgeFileAPI = commandAPIs.knowledgeFile ?? createKnowledgeFileAPI()
   const knowledgeDeleteAPI = commandAPIs.knowledgeDelete ?? createKnowledgeDeleteAPI()
   const knowledgeCommandsAPI = commandAPIs.knowledgeCommands ?? createKnowledgeCommandsAPI()
-  const knowledgeTitleSearchAPI = commandAPIs.knowledgeTitleSearch ?? createKnowledgeTitleSearchAPI()
+  const knowledgeTitleSearchAPI =
+    commandAPIs.knowledgeTitleSearch ?? createKnowledgeTitleSearchAPI()
   const state = shallowReactive<PublicState>({
     phase: 'checking',
     user: null,
@@ -1344,7 +1546,27 @@ export function createSessionController(
     materialInvalid: boolean
     materialRevision: number
   }>({ progress: null, hasMaterial: false, materialInvalid: false, materialRevision: 0 })
+  const knowledgeFileRevisions: Record<KnowledgeFileAction, number> = {
+    'knowledge-file-read': 0,
+    'knowledge-file-write': 0,
+    'knowledge-file-lookup': 0,
+  }
+  const isKnowledgeFileAction = (kind: Action): kind is KnowledgeFileAction =>
+    Object.hasOwn(knowledgeFileRevisions, kind)
+  const mcpRevisions: Record<MCPAction, number> = { 'mcp-read': 0, 'mcp-write': 0, 'mcp-lookup': 0 }
+  const isMCPAction = (kind: Action): kind is MCPAction => Object.hasOwn(mcpRevisions, kind)
+  const meetingRevisions: Record<MeetingAction, number> = {
+    'meeting-read': 0,
+    'meeting-write': 0,
+    'meeting-lookup': 0,
+  }
+  let inboxRevision = 0
+  const isMeetingAction = (kind: Action): kind is MeetingAction =>
+    Object.hasOwn(meetingRevisions, kind)
   const agentConfigurationRevisions: Record<AgentConfigurationAction, number> = {
+    'agent-memory-read': 0,
+    'agent-memory-delete': 0,
+    'agent-memory-lookup': 0,
     'agent-skill-write': 0,
     'agent-skill-lookup': 0,
     'agent-configuration-read': 0,
@@ -1378,10 +1600,16 @@ export function createSessionController(
   }
   const isSprintLifecycleAction = (kind: Action): kind is SprintLifecycleAction =>
     Object.hasOwn(sprintLifecycleRevisions, kind)
-  const secretCommandRevisions: Record<ProjectSecretAction, number> = { 'secret-write': 0, 'secret-lookup': 0 }
-  const isSecretCommand = (kind: Action): kind is ProjectSecretAction => Object.hasOwn(secretCommandRevisions, kind)
+  const secretCommandRevisions: Record<ProjectSecretAction, number> = {
+    'secret-write': 0,
+    'secret-lookup': 0,
+  }
+  const isSecretCommand = (kind: Action): kind is ProjectSecretAction =>
+    Object.hasOwn(secretCommandRevisions, kind)
   let secretIntent: ProjectSecretIntent | null = null
-  const secretCommandState = shallowReactive<{ progress: Omit<ProjectSecretProgress, 'contextValid'> | null }>({ progress: null })
+  const secretCommandState = shallowReactive<{
+    progress: Omit<ProjectSecretProgress, 'contextValid'> | null
+  }>({ progress: null })
   const variableRevisions: Record<ProjectVariableAction, number> = {
     'variable-read': 0,
     'variable-write': 0,
@@ -1448,9 +1676,13 @@ export function createSessionController(
   }>({ progress: null })
   const isWorkReviewAction = (kind: Action): kind is WorkReviewAction =>
     Object.hasOwn(workReviewRevisions, kind)
-  let workReviewIntent: WorkReviewIntent | ExecutionCancelIntent | ApprovalDecisionIntent | null = null
+  let workReviewIntent: WorkReviewIntent | ExecutionCancelIntent | ApprovalDecisionIntent | null =
+    null
   const executionCancelState = shallowReactive<{
     progress: Omit<ExecutionCancelProgress, 'contextValid'> | null
+  }>({ progress: null })
+  const meetingApprovalState = shallowReactive<{
+    progress: Omit<MeetingExecutionApprovalProgress, 'contextValid'> | null
   }>({ progress: null })
   const executionApprovalState = shallowReactive<{
     progress: Omit<ExecutionApprovalProgress, 'contextValid'> | null
@@ -1458,11 +1690,18 @@ export function createSessionController(
   const workReviewState = shallowReactive<{
     progress: Omit<WorkReviewProgress, 'contextValid'> | null
   }>({ progress: null })
-  const schedulerRevisions: Record<SchedulerAction, number> = { 'scheduler-read': 0, 'scheduler-write': 0, 'scheduler-lookup': 0 }
-  const isSchedulerAction = (kind: Action): kind is SchedulerAction => Object.hasOwn(schedulerRevisions, kind)
+  const schedulerRevisions: Record<SchedulerAction, number> = {
+    'scheduler-read': 0,
+    'scheduler-write': 0,
+    'scheduler-lookup': 0,
+  }
+  const isSchedulerAction = (kind: Action): kind is SchedulerAction =>
+    Object.hasOwn(schedulerRevisions, kind)
   let schedulerIntent: SchedulerIntent | null = null
   let schedulerProgressContext: Pick<SchedulerIntent, 'identity' | 'csrf'> | null = null
-  const schedulerState = shallowReactive<{ progress: Omit<ProjectSchedulerProgress, 'contextValid' | 'canRetryOriginal'> | null }>({ progress: null })
+  const schedulerState = shallowReactive<{
+    progress: Omit<ProjectSchedulerProgress, 'contextValid' | 'canRetryOriginal'> | null
+  }>({ progress: null })
   const projectRevisions: Record<ProjectAction, number> = {
     'project-read': 0,
     'project-update': 0,
@@ -1478,10 +1717,16 @@ export function createSessionController(
   const projectCreationState = shallowReactive<{
     progress: Omit<ProjectCreationProgress, 'contextValid' | 'canResume'> | null
   }>({ progress: null })
-  const skillImportRevisions: Record<SkillImportAction, number> = { 'skill-install': 0, 'skill-install-lookup': 0 }
-  const isSkillImport = (kind: Action): kind is SkillImportAction => Object.hasOwn(skillImportRevisions, kind)
+  const skillImportRevisions: Record<SkillImportAction, number> = {
+    'skill-install': 0,
+    'skill-install-lookup': 0,
+  }
+  const isSkillImport = (kind: Action): kind is SkillImportAction =>
+    Object.hasOwn(skillImportRevisions, kind)
   let skillImportIntent: SkillImportOriginal | null = null
-  const skillImportState = shallowReactive<{ progress: Omit<SkillImportProgress, 'contextValid'> | null }>({ progress: null })
+  const skillImportState = shallowReactive<{
+    progress: Omit<SkillImportProgress, 'contextValid'> | null
+  }>({ progress: null })
   const knowledgeCommandRevisions: Record<KnowledgeCommandAction, number> = {
     'knowledge-move': 0,
     'knowledge-move-lookup': 0,
@@ -1495,18 +1740,39 @@ export function createSessionController(
   }
   const isKnowledgeCommand = (kind: Action): kind is KnowledgeCommandAction =>
     Object.hasOwn(knowledgeCommandRevisions, kind)
-  const artifactCreationRevisions: Record<ArtifactCreationAction, number> = { 'artifact-create': 0, 'artifact-create-lookup': 0, 'artifact-create-cancel': 0 }
-  const isArtifactCreation = (kind: Action): kind is ArtifactCreationAction => Object.hasOwn(artifactCreationRevisions, kind)
+  const artifactCreationRevisions: Record<ArtifactCreationAction, number> = {
+    'artifact-create': 0,
+    'artifact-create-lookup': 0,
+    'artifact-create-cancel': 0,
+  }
+  const isArtifactCreation = (kind: Action): kind is ArtifactCreationAction =>
+    Object.hasOwn(artifactCreationRevisions, kind)
+  const artifactUploadRevisions: Record<ArtifactUploadAction, number> = {
+    'artifact-upload-write': 0,
+    'artifact-upload-lookup': 0,
+    'artifact-upload-payload': 0,
+  }
+  const isArtifactUpload = (kind: Action): kind is ArtifactUploadAction =>
+    Object.hasOwn(artifactUploadRevisions, kind)
   let artifactCreationIntent: ArtifactCreationOriginal | null = null
-  const artifactCreationState = shallowReactive<{ progress: Omit<ArtifactCreationProgress, 'contextValid' | 'canRetryOriginal' | 'canCancel'> | null }>({ progress: null })
+  const artifactCreationState = shallowReactive<{
+    progress: Omit<
+      ArtifactCreationProgress,
+      'contextValid' | 'canRetryOriginal' | 'canCancel'
+    > | null
+  }>({ progress: null })
   let knowledgeMoveIntent: KnowledgeMoveIntent | null = null
-  const knowledgeMoveState = shallowReactive<{ progress: Omit<KnowledgeCommandProgress, 'contextValid' | 'canRetryOriginal'> | null }>({ progress: null })
+  const knowledgeMoveState = shallowReactive<{
+    progress: Omit<KnowledgeCommandProgress, 'contextValid' | 'canRetryOriginal'> | null
+  }>({ progress: null })
   let knowledgeIntent: KnowledgeCommandIntent | null = null
   const knowledgeCommandState = shallowReactive<{
     progress: Omit<KnowledgeCommandProgress, 'contextValid' | 'canRetryOriginal'> | null
   }>({ progress: null })
   let knowledgeDeleteIntent: KnowledgeDeleteOriginal | null = null
-  const knowledgeDeleteState = shallowReactive<{ progress: Omit<KnowledgeDeleteProgress, 'contextValid' | 'canRetryOriginal'> | null }>({ progress: null })
+  const knowledgeDeleteState = shallowReactive<{
+    progress: Omit<KnowledgeDeleteProgress, 'contextValid' | 'canRetryOriginal'> | null
+  }>({ progress: null })
   let knowledgeTextIntent: KnowledgeTextOriginal | null = null
   const knowledgeTextState = shallowReactive<{
     progress: Omit<KnowledgeTextProgress, 'contextValid' | 'canRetryOriginal'> | null
@@ -1673,9 +1939,12 @@ export function createSessionController(
     )
   }
   function clearIdentity(invalidate = true) {
+    meetingRealtime.clear()
     clearSecretRead()
     clearVariableReads()
     clearSchedulerRead()
+    clearMCPRead()
+    clearKnowledgeFileRead()
     clearAgentConfigurationRead()
     clearWorkReviewRead()
     clearKnowledgeRead()
@@ -1688,6 +1957,9 @@ export function createSessionController(
       clearProjectState()
       clearProjectCreationState()
       clearSchedulerState()
+      clearMCPState()
+      clearKnowledgeFileState()
+      clearMeetingState()
       clearAgentConfigurationState()
       clearSprintReorderState()
       clearSprintUpdateState()
@@ -1699,6 +1971,7 @@ export function createSessionController(
       clearKnowledgeMove()
       clearKnowledgeText()
       clearArtifactCreation()
+      clearArtifactUpload()
       clearSkillImport()
       clearKnowledgeDelete()
       clearWorkReviewState()
@@ -1769,6 +2042,9 @@ export function createSessionController(
       clearProjectState()
       clearProjectCreationState()
       clearSchedulerState()
+      clearMCPState({ preserveUnboundReturn: previous === null })
+      clearKnowledgeFileState()
+      clearMeetingState()
       clearAgentConfigurationState()
       clearSprintReorderState()
       clearSprintUpdateState()
@@ -1780,6 +2056,7 @@ export function createSessionController(
       clearKnowledgeMove()
       clearKnowledgeText()
       clearArtifactCreation()
+      clearArtifactUpload()
       clearSkillImport()
       clearKnowledgeDelete()
       clearWorkReviewState()
@@ -1807,7 +2084,9 @@ export function createSessionController(
     forgetIntent()
     expectedSession = null
     state.phase = 'authenticated'
-    if (!same || view.user.role !== 'admin' || (runnerIntent && runnerIntent.csrf !== sessionCSRF)) clearRunnerState()
+    projectMCP.oauth.restore(personalContext.identity!)
+    if (!same || view.user.role !== 'admin' || (runnerIntent && runnerIntent.csrf !== sessionCSRF))
+      clearRunnerState()
     if (invitationIntent) {
       if (!same || view.user.role !== 'admin' || invitationIntent.csrf !== sessionCSRF)
         clearInvitationState()
@@ -1879,9 +2158,10 @@ export function createSessionController(
     } else if (isUnknown(e)) {
       pending = true
       state.phase = 'uncertain'
-      state.notice = op.kind === 'login'
-        ? '暂时无法确认登录结果，请重试。'
-        : '请求结果尚未确认。可以检查当前会话，或在原上下文中重试原请求。'
+      state.notice =
+        op.kind === 'login'
+          ? '暂时无法确认登录结果，请重试。'
+          : '请求结果尚未确认。可以检查当前会话，或在原上下文中重试原请求。'
     } else if (pending) {
       // A later rejected replay is not a negative observation of the earlier write.
       if (e.problem?.code === 'CSRF_FAILED') {
@@ -1907,9 +2187,10 @@ export function createSessionController(
       clearIdentity()
       forgetIntent()
       state.phase = 'unavailable'
-      state.notice = op.kind === 'login'
-        ? '登录验证已失效，请重试。'
-        : '认证上下文已失效，请重新建立登录上下文。'
+      state.notice =
+        op.kind === 'login'
+          ? '登录验证已失效，请重试。'
+          : '认证上下文已失效，请重新建立登录上下文。'
     } else if (e.problem?.code === 'IDEMPOTENCY_KEY_REUSED') {
       state.phase = 'unavailable'
       state.notice = '原请求标识与输入不一致。请检查后明确重新建立登录上下文。'
@@ -2156,7 +2437,8 @@ export function createSessionController(
       if (intent?.kind === 'login' && canRetry()) return performLogin(intent)
       // A lost response, invalidated original authority or acknowledged login
       // never permits another command key. Only observe the current Session.
-      const check = restore(), captured = generation
+      const check = restore(),
+        captured = generation
       return check.then(() => {
         if (captured === generation && state.phase !== 'authenticated')
           state.notice = '暂时无法确认登录结果，请重试。'
@@ -2164,7 +2446,8 @@ export function createSessionController(
     }
     if (state.phase === 'authenticated') return Promise.resolve()
     if (state.phase === 'anonymous' && anonymousCSRF) return beginLogin(email, password)
-    const check = restore(), captured = generation
+    const check = restore(),
+      captured = generation
     return check.then(() => {
       if (captured !== generation) return
       return submitPreparedLogin(email, password)
@@ -2370,6 +2653,7 @@ export function createSessionController(
     work: (op: Operation, current: () => boolean) => Promise<T>,
     command?: PersonalCommand,
     kind:
+      | 'inbox-read'
       | 'personal'
       | 'system'
       | 'audit-read'
@@ -2377,13 +2661,14 @@ export function createSessionController(
       | 'skill-read'
       | 'secret-read'
       | ArtifactCreationAction
+      | ArtifactUploadAction
       | 'artifact-read'
       | 'usage-read'
       | 'runtime-information-read'
       | 'invitation-read'
       | 'invitation-write'
       | RunnerAction
-  | ProviderAction
+      | ProviderAction
       | ModelAction
       | SelectionAction
       | AccountSecurityAction
@@ -2392,21 +2677,25 @@ export function createSessionController(
       | OutboundPolicyAction
       | ProjectAction
       | ProjectCreationAction
-  | SchedulerAction
+      | SchedulerAction
+      | MCPAction
+      | KnowledgeFileAction
       | WorkReviewAction
       | SprintLifecycleAction
       | MilestonePlanningAction
       | SprintPlanningAction
       | ProjectVariableAction
-  | ProjectSecretAction
+      | ProjectSecretAction
       | KnowledgeCommandAction
-  | SkillImportAction
+      | SkillImportAction
+      | MeetingAction
       | AgentConfigurationAction
       | ProjectAuditAction
       | ProjectModelAction = 'personal',
   ): Promise<T> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     const revisionNow = () => {
+      if (kind === 'inbox-read') return inboxRevision
       if (isRunnerAction(kind)) return runnerRevisions[kind]
       if (isSchedulerAction(kind)) return schedulerRevisions[kind]
       if (isVariableAction(kind)) return variableRevisions[kind]
@@ -2415,12 +2704,16 @@ export function createSessionController(
       if (kind === 'skill-read') return skillRevision
       if (kind === 'secret-read') return secretReadRevision
       if (isArtifactCreation(kind)) return artifactCreationRevisions[kind]
+      if (isArtifactUpload(kind)) return artifactUploadRevisions[kind]
       if (kind === 'artifact-read') return artifactReadRevision
       if (kind === 'usage-read') return usageReadRevision
       if (isKnowledgeCommand(kind)) return knowledgeCommandRevisions[kind]
       if (isSprintPlanningAction(kind)) return sprintPlanningRevisions[kind]
       if (isMilestonePlanningAction(kind)) return milestonePlanningRevisions[kind]
       if (isSprintLifecycleAction(kind)) return sprintLifecycleRevisions[kind]
+      if (isMCPAction(kind)) return mcpRevisions[kind]
+      if (isKnowledgeFileAction(kind)) return knowledgeFileRevisions[kind]
+      if (isMeetingAction(kind)) return meetingRevisions[kind]
       if (isAgentConfigurationAction(kind)) return agentConfigurationRevisions[kind]
       if (isProjectCreationAction(kind)) return projectCreationRevisions[kind]
       return isWorkReviewAction(kind)
@@ -2482,13 +2775,18 @@ export function createSessionController(
         isMilestonePlanningAction(kind) ||
         isSprintLifecycleAction(kind) ||
         isAgentConfigurationAction(kind) ||
+        isMeetingAction(kind) ||
+        isMCPAction(kind) ||
+        isKnowledgeFileAction(kind) ||
         isWorkReviewAction(kind) ||
         kind === 'knowledge-read' ||
         kind === 'skill-read' ||
         kind === 'secret-read' ||
         isArtifactCreation(kind) ||
+        isArtifactUpload(kind) ||
         kind === 'artifact-read' ||
         kind === 'usage-read' ||
+        kind === 'inbox-read' ||
         isProjectAction(kind) ||
         isProjectCreationAction(kind) ||
         isProjectAuditAction(kind) ||
@@ -2540,11 +2838,14 @@ export function createSessionController(
       // POST -> Session check alive even when its page no longer consumes it.
       if (command?.kind !== 'password') op.abort.abort()
     }
-    const timer = setTimeout(() => {
-      endVisible(new AccountFailure('cancelled'))
-      op.expired = true
-      op.abort.abort()
-    }, 30_000)
+    const timer = setTimeout(
+      () => {
+        endVisible(new AccountFailure('cancelled'))
+        op.expired = true
+        op.abort.abort()
+      },
+      kind === 'artifact-upload-payload' ? 30 * 60_000 : 30_000,
+    )
     // This is the same owner as authentication, not another queue. The visible
     // promise is bounded; actual body/cancel completion alone releases ownership.
     const actual = Promise.resolve()
@@ -2558,7 +2859,10 @@ export function createSessionController(
       .catch((error: unknown) => {
         const e = isSchedulerAction(kind)
           ? schedulerFailure(identity, op, current, error)
-          : isKnowledgeCommand(kind) || isSkillImport(kind) || isArtifactCreation(kind)
+          : isKnowledgeCommand(kind) ||
+              isSkillImport(kind) ||
+              isArtifactCreation(kind) ||
+              isArtifactUpload(kind)
             ? current()
               ? projectFailure(identity, op, error)
               : error instanceof AccountFailure
@@ -2566,17 +2870,22 @@ export function createSessionController(
                 : new AccountFailure('transport')
             : isVariableAction(kind)
               ? variableFailure(op, current, identity, error)
-              : isSecretCommand(kind) || isSprintPlanningAction(kind) ||
+              : isSecretCommand(kind) ||
+                  isSprintPlanningAction(kind) ||
                   isMilestonePlanningAction(kind) ||
                   isSprintLifecycleAction(kind) ||
                   isAgentConfigurationAction(kind) ||
+                  isMeetingAction(kind) ||
+                  isMCPAction(kind) ||
+                  isKnowledgeFileAction(kind) ||
                   isWorkReviewAction(kind)
                 ? projectFailure(identity, op, error)
                 : kind === 'knowledge-read' ||
                     kind === 'skill-read' ||
                     kind === 'secret-read' ||
                     kind === 'artifact-read' ||
-                    kind === 'usage-read'
+                    kind === 'usage-read' ||
+                    kind === 'inbox-read'
                   ? knowledgeFailure(current, error)
                   : isProjectModelAction(kind)
                     ? projectModelFailure(kind, current, error)
@@ -4799,88 +5108,199 @@ export function createSessionController(
   }
   const secretContext = (original: ProjectSecretIntent) =>
     projectContext({ identity: original.actor, csrf: original.csrf })
-  function publishSecret(original: ProjectSecretIntent, phase: ProjectSecretProgress['phase'], receipt: ProjectSecretReceipt | null = null, observation: ProjectSecretProgress['observation'] = 'none') {
-    secretCommandState.progress = Object.freeze({ identity: original.identity, key: original.key, phase, uncertain: original.uncertain, receipt, observation })
+  function publishSecret(
+    original: ProjectSecretIntent,
+    phase: ProjectSecretProgress['phase'],
+    receipt: ProjectSecretReceipt | null = null,
+    observation: ProjectSecretProgress['observation'] = 'none',
+  ) {
+    secretCommandState.progress = Object.freeze({
+      identity: original.identity,
+      key: original.key,
+      phase,
+      uncertain: original.uncertain,
+      receipt,
+      observation,
+    })
   }
-  async function performSecret(original: ProjectSecretIntent, write?: (signal: AbortSignal) => Promise<ProjectSecretReceipt>): Promise<ProjectSecretReceipt | ProjectSecretLookup> {
+  async function performSecret(
+    original: ProjectSecretIntent,
+    write?: (signal: AbortSignal) => Promise<ProjectSecretReceipt>,
+  ): Promise<ProjectSecretReceipt | ProjectSecretLookup> {
     if (owner) throw new AccountFailure('busy')
-    const kind: ProjectSecretAction = write ? 'secret-write' : 'secret-lookup', revision = secretCommandRevisions[kind]
-    const live = () => secretIntent === original && secretContext(original) && revision === secretCommandRevisions[kind]
+    const kind: ProjectSecretAction = write ? 'secret-write' : 'secret-lookup',
+      revision = secretCommandRevisions[kind]
+    const live = () =>
+      secretIntent === original &&
+      secretContext(original) &&
+      revision === secretCommandRevisions[kind]
     if (!live()) throw new AccountFailure('invalid-input')
     const lookup = !write
     try {
       if (!lookup) publishSecret(original, 'submitting')
       // Publication can synchronously retire the current Session.
       if (!live()) throw new AccountFailure('cancelled')
-      const value = await runAuthorized<ProjectSecretReceipt | ProjectSecretLookup>(original.actor, async (op, current) => {
-        if (!current() || !live()) throw new AccountFailure('cancelled')
-        original.dispatched = true
-        return write ? write(op.abort.signal) : secretCommandsAPI.lookup(original.identity, original.csrf, original.key, op.abort.signal)
-      }, undefined, kind)
+      const value = await runAuthorized<ProjectSecretReceipt | ProjectSecretLookup>(
+        original.actor,
+        async (op, current) => {
+          if (!current() || !live()) throw new AccountFailure('cancelled')
+          original.dispatched = true
+          return write
+            ? write(op.abort.signal)
+            : secretCommandsAPI.lookup(
+                original.identity,
+                original.csrf,
+                original.key,
+                op.abort.signal,
+              )
+        },
+        undefined,
+        kind,
+      )
       if (!live()) throw new AccountFailure('cancelled')
       if ('status' in value && value.status === 'not_observed') {
         original.uncertain = true
         publishSecret(original, 'uncertain', null, 'not_observed')
       } else {
         original.uncertain = false
-        publishSecret(original, 'confirmed', 'status' in value ? value.receipt : value, lookup ? 'committed' : 'none')
+        publishSecret(
+          original,
+          'confirmed',
+          'status' in value ? value.receipt : value,
+          lookup ? 'committed' : 'none',
+        )
       }
       if (!live()) throw new AccountFailure('cancelled')
       return value
     } catch (error) {
       const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
-      if (secretIntent === original && revision === secretCommandRevisions[kind] && sameIdentity(original.actor, personalContext.identity)) {
+      if (
+        secretIntent === original &&
+        revision === secretCommandRevisions[kind] &&
+        sameIdentity(original.actor, personalContext.identity)
+      ) {
         const p = failure.problem
-        const rejected = !original.dispatched || (!!p && ['not_started', 'not_committed'].includes(p.commit_state) && p.code !== 'IDEMPOTENCY_KEY_REUSED')
+        const rejected =
+          !original.dispatched ||
+          (!!p &&
+            ['not_started', 'not_committed'].includes(p.commit_state) &&
+            p.code !== 'IDEMPOTENCY_KEY_REUSED')
         original.uncertain ||= lookup || !rejected
-        publishSecret(original, original.uncertain ? 'uncertain' : 'rejected', null, lookup ? 'failed' : 'none')
+        publishSecret(
+          original,
+          original.uncertain ? 'uncertain' : 'rejected',
+          null,
+          lookup ? 'failed' : 'none',
+        )
       }
       throw failure
     }
   }
-  function startSecret(identity: ProjectSecretIdentity, send: (csrf: string, key: string, signal: AbortSignal) => Promise<ProjectSecretReceipt>): Promise<ProjectSecretReceipt | ProjectSecretLookup> {
+  function startSecret(
+    identity: ProjectSecretIdentity,
+    send: (csrf: string, key: string, signal: AbortSignal) => Promise<ProjectSecretReceipt>,
+  ): Promise<ProjectSecretReceipt | ProjectSecretLookup> {
     const actor = personalIdentity()
     if (owner || secretIntent || personalIntent || pending) throw new AccountFailure('busy')
-    const original: ProjectSecretIntent = { actor, csrf: sessionCSRF, key: newKey(), identity: captureProjectSecretIdentity(identity), uncertain: false, dispatched: false }
+    const original: ProjectSecretIntent = {
+      actor,
+      csrf: sessionCSRF,
+      key: newKey(),
+      identity: captureProjectSecretIdentity(identity),
+      uncertain: false,
+      dispatched: false,
+    }
     secretIntent = original
-    return performSecret(original, signal => send(original.csrf, original.key, signal))
+    return performSecret(original, (signal) => send(original.csrf, original.key, signal))
   }
   const projectSecretCommands = {
     get progress(): ProjectSecretProgress | null {
       const progress = secretCommandState.progress
       if (!progress) return null
       const contextValid = !!secretIntent && secretContext(secretIntent)
-      return Object.freeze({ ...progress, receipt: contextValid ? progress.receipt : null, contextValid })
+      return Object.freeze({
+        ...progress,
+        receipt: contextValid ? progress.receipt : null,
+        contextValid,
+      })
     },
     create(projectID: string, draft: Omit<ProjectSecretCreate, 'variable_id'>) {
       try {
         if (owner || secretIntent || personalIntent || pending) throw new AccountFailure('busy')
         const value = shape(draft, ['name', 'description', 'value'])
-        const request = captureProjectSecretCreate({ ...value, variable_id: newProjectVariableID() })
-        return startSecret({ kind: 'create', projectID, targetID: request.variable_id }, (csrf, key, signal) => secretCommandsAPI.create(projectID, request, csrf, key, signal))
-      } catch (error) { return Promise.reject(error instanceof AccountFailure ? error : new AccountFailure('invalid-input')) }
+        const request = captureProjectSecretCreate({
+          ...value,
+          variable_id: newProjectVariableID(),
+        })
+        return startSecret(
+          { kind: 'create', projectID, targetID: request.variable_id },
+          (csrf, key, signal) => secretCommandsAPI.create(projectID, request, csrf, key, signal),
+        )
+      } catch (error) {
+        return Promise.reject(
+          error instanceof AccountFailure ? error : new AccountFailure('invalid-input'),
+        )
+      }
     },
-    update(projectID: string, targetID: string, expectedVersion: string, draft: ProjectSecretUpdate) {
+    update(
+      projectID: string,
+      targetID: string,
+      expectedVersion: string,
+      draft: ProjectSecretUpdate,
+    ) {
       try {
         const request = captureProjectSecretUpdate(draft)
-        return startSecret({ kind: 'update', projectID, targetID, expectedVersion }, (csrf, key, signal) => secretCommandsAPI.update(projectID, targetID, expectedVersion, request, csrf, key, signal))
-      } catch (error) { return Promise.reject(error instanceof AccountFailure ? error : new AccountFailure('invalid-input')) }
+        return startSecret(
+          { kind: 'update', projectID, targetID, expectedVersion },
+          (csrf, key, signal) =>
+            secretCommandsAPI.update(
+              projectID,
+              targetID,
+              expectedVersion,
+              request,
+              csrf,
+              key,
+              signal,
+            ),
+        )
+      } catch (error) {
+        return Promise.reject(
+          error instanceof AccountFailure ? error : new AccountFailure('invalid-input'),
+        )
+      }
     },
     delete(projectID: string, targetID: string, expectedVersion: string) {
       try {
-        return startSecret({ kind: 'delete', projectID, targetID, expectedVersion }, (csrf, key, signal) => secretCommandsAPI.delete(projectID, targetID, expectedVersion, csrf, key, signal))
-      } catch (error) { return Promise.reject(error instanceof AccountFailure ? error : new AccountFailure('invalid-input')) }
+        return startSecret(
+          { kind: 'delete', projectID, targetID, expectedVersion },
+          (csrf, key, signal) =>
+            secretCommandsAPI.delete(projectID, targetID, expectedVersion, csrf, key, signal),
+        )
+      } catch (error) {
+        return Promise.reject(
+          error instanceof AccountFailure ? error : new AccountFailure('invalid-input'),
+        )
+      }
     },
     lookup() {
-      if (!secretIntent?.uncertain || secretCommandState.progress?.phase !== 'uncertain') return Promise.reject(new AccountFailure('invalid-input'))
+      if (!secretIntent?.uncertain || secretCommandState.progress?.phase !== 'uncertain')
+        return Promise.reject(new AccountFailure('invalid-input'))
       return performSecret(secretIntent)
     },
     editRejected() {
-      if (owner || !secretIntent || secretIntent.uncertain || !secretContext(secretIntent) || secretCommandState.progress?.phase !== 'rejected') throw new AccountFailure('busy')
+      if (
+        owner ||
+        !secretIntent ||
+        secretIntent.uncertain ||
+        !secretContext(secretIntent) ||
+        secretCommandState.progress?.phase !== 'rejected'
+      )
+        throw new AccountFailure('busy')
       clearSecretCommand()
     },
     finishConfirmed() {
-      if (owner || secretCommandState.progress?.phase !== 'confirmed') throw new AccountFailure('busy')
+      if (owner || secretCommandState.progress?.phase !== 'confirmed')
+        throw new AccountFailure('busy')
       clearSecretCommand()
     },
     abandon() {
@@ -4974,7 +5394,14 @@ export function createSessionController(
         if (lookup)
           return projectVariablesAPI.lookup(c, original.csrf, original.key, op.abort.signal)
         if (c.kind === 'delete')
-          return projectVariablesAPI.delete(c.projectID, c.targetID, c.expectedVersion, original.csrf, original.key, op.abort.signal)
+          return projectVariablesAPI.delete(
+            c.projectID,
+            c.targetID,
+            c.expectedVersion,
+            original.csrf,
+            original.key,
+            op.abort.signal,
+          )
         return c.kind === 'create'
           ? projectVariablesAPI.create(
               c.projectID,
@@ -5113,10 +5540,13 @@ export function createSessionController(
     abandonPending: clearVariableState,
   }
   function clearAgentConfigurationRead() {
+    ++agentConfigurationRevisions['agent-memory-read']
+    if (owner?.kind === 'agent-memory-read') owner.abandon?.()
     ++agentConfigurationRevisions['agent-configuration-read']
     if (owner?.kind === 'agent-configuration-read') owner.abandon?.()
   }
   function clearAgentConfigurationState() {
+    agentMemory.clear()
     for (const kind of Object.keys(agentConfigurationRevisions) as AgentConfigurationAction[])
       ++agentConfigurationRevisions[kind]
     agentCommandIntent = null
@@ -5270,20 +5700,17 @@ export function createSessionController(
     ++agentConfigurationRevisions['agent-skill-lookup']
     agentSkillIntent = null
     agentSkillState.progress = null
-    if (owner && ['agent-skill-write', 'agent-skill-lookup'].includes(owner.kind))
-      owner.abandon?.()
+    if (owner && ['agent-skill-write', 'agent-skill-lookup'].includes(owner.kind)) owner.abandon?.()
   }
   function performAgentSkill(
     original: AgentSkillIntent,
     lookup: boolean,
   ): Promise<AgentSkillMutation | AgentSkillLookup> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
-    if (!agentSkillCurrent(original))
-      return Promise.reject(new AccountFailure('invalid-input'))
+    if (!agentSkillCurrent(original)) return Promise.reject(new AccountFailure('invalid-input'))
     const kind = lookup ? 'agent-skill-lookup' : 'agent-skill-write'
     const revision = agentConfigurationRevisions[kind]
-    const live = () =>
-      agentSkillCurrent(original) && revision === agentConfigurationRevisions[kind]
+    const live = () => agentSkillCurrent(original) && revision === agentConfigurationRevisions[kind]
     let dispatched = false
     if (!lookup) publishAgentSkill(original, 'submitting')
     return runAuthorized<AgentSkillMutation | AgentSkillLookup>(
@@ -5295,18 +5722,8 @@ export function createSessionController(
         dispatched = true
         const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
         const value = await (lookup
-          ? agentSkillAPI.lookup(
-              original.projectID,
-              original.agentID,
-              original.command,
-              write,
-            )
-          : agentSkillAPI.execute(
-              original.projectID,
-              original.agentID,
-              original.command,
-              write,
-            ))
+          ? agentSkillAPI.lookup(original.projectID, original.agentID, original.command, write)
+          : agentSkillAPI.execute(original.projectID, original.agentID, original.command, write))
         const receipt = 'state' in value ? value.receipt : value
         if (
           receipt &&
@@ -5329,7 +5746,10 @@ export function createSessionController(
           const receipt = 'state' in value ? value.receipt : value
           agentSkillIntent = null
           publication = publishAgentSkill(
-            original, 'confirmed', receipt, lookup ? 'committed' : 'none',
+            original,
+            'confirmed',
+            receipt,
+            lookup ? 'committed' : 'none',
           )
         }
         // A synchronous observer may leave or replace this domain during publication.
@@ -5367,6 +5787,134 @@ export function createSessionController(
       },
     )
   }
+  function clearKnowledgeFileRead() {
+    ++knowledgeFileRevisions['knowledge-file-read']
+    if (owner?.kind === 'knowledge-file-read') owner.abandon?.()
+  }
+  function clearKnowledgeFileState() {
+    knowledgeFiles.clear()
+    for (const kind of Object.keys(knowledgeFileRevisions) as KnowledgeFileAction[])
+      ++knowledgeFileRevisions[kind]
+    if (owner && isKnowledgeFileAction(owner.kind)) owner.abandon?.()
+  }
+  function knowledgeFileBusy() {
+    return !!(
+      owner ||
+      pending ||
+      personalIntent ||
+      knowledgeTextIntent ||
+      knowledgeIntent ||
+      knowledgeMoveIntent ||
+      knowledgeDeleteIntent ||
+      artifactCreationIntent
+    )
+  }
+  const knowledgeFiles = createKnowledgeFileSession(knowledgeFileAPI, {
+    capture() {
+      const identity = personalIdentity()
+      if (knowledgeFileBusy()) throw new AccountFailure('busy')
+      return { identity, csrf: sessionCSRF, key: newKey() }
+    },
+    identity: personalIdentity,
+    current: (identity) =>
+      sameIdentity(identity, personalContext.identity) && personalContext.phase === 'current',
+    busy: knowledgeFileBusy,
+    run: (identity, kind, work) =>
+      runAuthorized(identity, (op, current) => work(op.abort.signal, current), undefined, kind),
+    cancelRead: clearKnowledgeFileRead,
+  })
+  function clearMCPRead() {
+    ++mcpRevisions['mcp-read']
+    if (owner?.kind === 'mcp-read') owner.abandon?.()
+  }
+  function clearMCPState(options?: { preserveUnboundReturn?: boolean }) {
+    projectMCP.clear(options)
+    for (const kind of Object.keys(mcpRevisions) as MCPAction[]) ++mcpRevisions[kind]
+    if (owner && isMCPAction(owner.kind)) owner.abandon?.()
+  }
+  const projectMCP = createMCPSession(
+    mcpAPI,
+    {
+      capture() {
+        const identity = personalIdentity()
+        if (owner || personalIntent || pending || agentCommandIntent || agentSkillIntent)
+          throw new AccountFailure('busy')
+        return { identity, csrf: sessionCSRF, key: newKey() }
+      },
+      identity: personalIdentity,
+      current: (identity) =>
+        sameIdentity(identity, personalContext.identity) && personalContext.phase === 'current',
+      busy: () => !!owner || pending || !!personalIntent,
+      run: (identity, kind, work) =>
+        runAuthorized(identity, (op, current) => work(op.abort.signal, current), undefined, kind),
+      cancelRead: clearMCPRead,
+    },
+    mcpCredentialsAPI,
+    mcpOAuthAPI,
+  )
+  function clearMeetingState() {
+    meetings.clear()
+    meetingRealtime.clear()
+    for (const kind of Object.keys(meetingRevisions) as MeetingAction[]) ++meetingRevisions[kind]
+    if (owner && isMeetingAction(owner.kind)) owner.abandon?.()
+  }
+  const meetings = createMeetingSession(meetingsAPI, {
+    capture() {
+      const identity = personalIdentity()
+      if (owner || personalIntent || pending || agentCommandIntent || agentSkillIntent)
+        throw new AccountFailure('busy')
+      return { identity, csrf: sessionCSRF, key: newKey() }
+    },
+    identity: personalIdentity,
+    current: (identity) =>
+      sameIdentity(identity, personalContext.identity) && personalContext.phase === 'current',
+    busy: () => !!owner || pending || !!personalIntent,
+    run: (identity, kind, work) =>
+      runAuthorized(identity, (op, current) => work(op.abort.signal, current), undefined, kind),
+    cancelRead() {
+      ++meetingRevisions['meeting-read']
+      if (owner?.kind === 'meeting-read') owner.abandon?.()
+    },
+  })
+  const meetingRealtime = createMeetingRealtime({
+    identity: personalIdentity,
+    current: (identity) =>
+      sameIdentity(identity, personalContext.identity) && personalContext.phase === 'current',
+    open() {
+      const url = new URL('/api/v1/realtime', window.location.origin)
+      if (url.protocol !== 'http:' && url.protocol !== 'https:')
+        throw new AccountFailure('invalid-input')
+      url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:'
+      return new WebSocket(url)
+    },
+  })
+  const inbox = createInboxSession(inboxAPI, {
+    identity: personalIdentity,
+    run: (identity, work) =>
+      runAuthorized(identity, (op) => work(op.abort.signal), undefined, 'inbox-read'),
+    cancelRead() {
+      ++inboxRevision
+      if (owner?.kind === 'inbox-read') owner.abandon?.()
+    },
+  })
+  const agentMemory = createAgentMemorySession(agentMemoryAPI, {
+    capture() {
+      const identity = personalIdentity()
+      if (owner || personalIntent || pending || agentCommandIntent || agentSkillIntent)
+        throw new AccountFailure('busy')
+      return { identity, csrf: sessionCSRF, key: newKey() }
+    },
+    identity: personalIdentity,
+    current: (identity) =>
+      sameIdentity(identity, personalContext.identity) && personalContext.phase === 'current',
+    busy: () => !!owner || pending || !!personalIntent,
+    run: (identity, kind, work) =>
+      runAuthorized(identity, (op, current) => work(op.abort.signal, current), undefined, kind),
+    cancelRead() {
+      ++agentConfigurationRevisions['agent-memory-read']
+      if (owner?.kind === 'agent-memory-read') owner.abandon?.()
+    },
+  })
   const agentSkills = {
     get progress(): AgentSkillProgress | null {
       const p = agentSkillState.progress
@@ -5421,8 +5969,7 @@ export function createSessionController(
       }
     },
     checkOriginal() {
-      if (!agentSkillIntent?.uncertain)
-        return Promise.reject(new AccountFailure('invalid-input'))
+      if (!agentSkillIntent?.uncertain) return Promise.reject(new AccountFailure('invalid-input'))
       return performAgentSkill(agentSkillIntent, true)
     },
     editRejected() {
@@ -5478,8 +6025,10 @@ export function createSessionController(
       agentConfigurationRead((signal) =>
         projectModelSettingsAPI.listAvailableChatModels(p, q, signal),
       ),
-    runners: (p: string, q: PageQuery) => agentConfigurationRead((signal) => agentRunnerMountsAPI.list(p, q, signal)),
-    runnerMounts: (p: string, a: string) => agentConfigurationRead((signal) => agentRunnerMountsAPI.get(p, a, signal)),
+    runners: (p: string, q: PageQuery) =>
+      agentConfigurationRead((signal) => agentRunnerMountsAPI.list(p, q, signal)),
+    runnerMounts: (p: string, a: string) =>
+      agentConfigurationRead((signal) => agentRunnerMountsAPI.get(p, a, signal)),
     abandonRead: clearAgentConfigurationRead,
     startCreate(projectID: string, fields: Omit<AgentCreateFields, 'agent_id'>) {
       try {
@@ -5595,9 +6144,14 @@ export function createSessionController(
   ): Promise<SprintLifecycleResult> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     if (!sprintStartCurrent(original)) return Promise.reject(new AccountFailure('invalid-input'))
-    const kind: SprintLifecycleAction = original.operation === 'complete'
-      ? lookup ? 'sprint-complete-lookup' : 'sprint-complete'
-      : lookup ? 'sprint-start-lookup' : 'sprint-start'
+    const kind: SprintLifecycleAction =
+      original.operation === 'complete'
+        ? lookup
+          ? 'sprint-complete-lookup'
+          : 'sprint-complete'
+        : lookup
+          ? 'sprint-start-lookup'
+          : 'sprint-start'
     const revision = sprintLifecycleRevisions[kind]
     const live = () => sprintStartCurrent(original) && revision === sprintLifecycleRevisions[kind]
     let dispatched = false
@@ -5613,17 +6167,39 @@ export function createSessionController(
         const complete = original.operation === 'complete'
         const value = await (complete
           ? lookup
-            ? sprintLifecycleAPI.lookupComplete(original.projectID, original.sprintID, original.input, write)
-            : sprintLifecycleAPI.complete(original.projectID, original.sprintID, original.input, write)
+            ? sprintLifecycleAPI.lookupComplete(
+                original.projectID,
+                original.sprintID,
+                original.input,
+                write,
+              )
+            : sprintLifecycleAPI.complete(
+                original.projectID,
+                original.sprintID,
+                original.input,
+                write,
+              )
           : lookup
-          ? sprintLifecycleAPI.lookup(original.projectID, original.sprintID, original.input, write)
-          : sprintLifecycleAPI.start(original.projectID, original.sprintID, original.input, write))
+            ? sprintLifecycleAPI.lookup(
+                original.projectID,
+                original.sprintID,
+                original.input,
+                write,
+              )
+            : sprintLifecycleAPI.start(
+                original.projectID,
+                original.sprintID,
+                original.input,
+                write,
+              ))
         const receipt = 'status' in value ? value.receipt : value
         if (
           receipt &&
           (receipt.project.owner_user_id !== original.identity.userID ||
-            (complete ? receipt.sprint.completed_by?.user_id !== original.identity.userID
-              : receipt.sprint.started_by.kind !== 'human' || receipt.sprint.started_by.user_id !== original.identity.userID))
+            (complete
+              ? receipt.sprint.completed_by?.user_id !== original.identity.userID
+              : receipt.sprint.started_by.kind !== 'human' ||
+                receipt.sprint.started_by.user_id !== original.identity.userID))
         )
           throw new AccountFailure('invalid-response')
         return value
@@ -5915,12 +6491,10 @@ export function createSessionController(
     lookup: boolean,
   ): Promise<SprintReorderReceipt | SprintReorderLookup> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
-    if (!sprintReorderCurrent(original))
-      return Promise.reject(new AccountFailure('invalid-input'))
+    if (!sprintReorderCurrent(original)) return Promise.reject(new AccountFailure('invalid-input'))
     const kind: SprintPlanningAction = lookup ? 'sprint-reorder-lookup' : 'sprint-reorder'
     const revision = sprintPlanningRevisions[kind]
-    const live = () =>
-      sprintReorderCurrent(original) && revision === sprintPlanningRevisions[kind]
+    const live = () => sprintReorderCurrent(original) && revision === sprintPlanningRevisions[kind]
     let dispatched = false
     if (!lookup) publishSprintReorder(original, 'submitting')
     return runAuthorized<SprintReorderReceipt | SprintReorderLookup>(
@@ -5938,12 +6512,7 @@ export function createSessionController(
               original.input,
               write,
             )
-          : sprintPlanningAPI.reorder(
-              original.projectID,
-              original.sprintID,
-              original.input,
-              write,
-            )
+          : sprintPlanningAPI.reorder(original.projectID, original.sprintID, original.input, write)
       },
       undefined,
       kind,
@@ -6654,42 +7223,46 @@ export function createSessionController(
     },
   }
   // A completed command is a receipt, not a locally synthesized Project refresh.
-  function beginSprintLifecycle(projectID: string, sprintID: string, value: SprintStartInput, operation: SprintLifecycleOperation): Promise<SprintLifecycleResult> {
-      try {
-        const identity = personalIdentity()
-        if (
-          owner ||
-          workReviewIntent ||
-          milestoneCreateIntent ||
-          milestoneReorderIntent ||
-          sprintReorderIntent ||
-          milestoneUpdateIntent ||
-          sprintUpdateIntent ||
-          sprintStartIntent ||
-          sprintCreateIntent ||
-          personalIntent ||
-          pending
-        )
-          throw new AccountFailure('busy')
-        if (!uuid7.test(projectID) || !uuid7.test(sprintID))
-          throw new AccountFailure('invalid-input')
-        const input = captureSprintStartInput(value)
-        const original: SprintStartIntent = {
-          operation,
-          identity,
-          csrf: sessionCSRF,
-          projectID,
-          sprintID,
-          input,
-          key: newKey(),
-          body: JSON.stringify(input),
-          uncertain: false,
-        }
-        sprintStartIntent = original
-        return performSprintStart(original, false)
-      } catch (error) {
-        return Promise.reject(error)
+  function beginSprintLifecycle(
+    projectID: string,
+    sprintID: string,
+    value: SprintStartInput,
+    operation: SprintLifecycleOperation,
+  ): Promise<SprintLifecycleResult> {
+    try {
+      const identity = personalIdentity()
+      if (
+        owner ||
+        workReviewIntent ||
+        milestoneCreateIntent ||
+        milestoneReorderIntent ||
+        sprintReorderIntent ||
+        milestoneUpdateIntent ||
+        sprintUpdateIntent ||
+        sprintStartIntent ||
+        sprintCreateIntent ||
+        personalIntent ||
+        pending
+      )
+        throw new AccountFailure('busy')
+      if (!uuid7.test(projectID) || !uuid7.test(sprintID)) throw new AccountFailure('invalid-input')
+      const input = captureSprintStartInput(value)
+      const original: SprintStartIntent = {
+        operation,
+        identity,
+        csrf: sessionCSRF,
+        projectID,
+        sprintID,
+        input,
+        key: newKey(),
+        body: JSON.stringify(input),
+        uncertain: false,
       }
+      sprintStartIntent = original
+      return performSprintStart(original, false)
+    } catch (error) {
+      return Promise.reject(error)
+    }
   }
   const workSprintLifecycle = {
     get createProgress(): SprintCreateProgress | null {
@@ -6768,14 +7341,26 @@ export function createSessionController(
           })
         : null
     },
-    start(projectID: string, sprintID: string, value: SprintStartInput): Promise<SprintLifecycleResult> {
+    start(
+      projectID: string,
+      sprintID: string,
+      value: SprintStartInput,
+    ): Promise<SprintLifecycleResult> {
       return beginSprintLifecycle(projectID, sprintID, value, 'start')
     },
-    complete(projectID: string, sprintID: string, value: SprintStartInput): Promise<SprintLifecycleResult> {
+    complete(
+      projectID: string,
+      sprintID: string,
+      value: SprintStartInput,
+    ): Promise<SprintLifecycleResult> {
       return beginSprintLifecycle(projectID, sprintID, value, 'complete')
     },
     forgetUnavailable(projectID: string) {
-      if (sprintStartIntent?.projectID !== projectID && sprintLifecycleState.progress?.projectID !== projectID) return
+      if (
+        sprintStartIntent?.projectID !== projectID &&
+        sprintLifecycleState.progress?.projectID !== projectID
+      )
+        return
       ++sprintLifecycleRevisions['sprint-start']
       ++sprintLifecycleRevisions['sprint-start-lookup']
       ++sprintLifecycleRevisions['sprint-complete']
@@ -6783,7 +7368,15 @@ export function createSessionController(
       sprintStartIntent = null
       sprintProgressContext = null
       sprintLifecycleState.progress = null
-      if (owner && ['sprint-start', 'sprint-start-lookup', 'sprint-complete', 'sprint-complete-lookup'].includes(owner.kind))
+      if (
+        owner &&
+        [
+          'sprint-start',
+          'sprint-start-lookup',
+          'sprint-complete',
+          'sprint-complete-lookup',
+        ].includes(owner.kind)
+      )
         owner.abandon?.()
     },
     checkOriginal(): Promise<SprintLifecycleResult> {
@@ -6815,9 +7408,12 @@ export function createSessionController(
     workReviewState.progress = null
     executionCancelState.progress = null
     executionApprovalState.progress = null
+    meetingApprovalState.progress = null
     if (owner && isWorkReviewAction(owner.kind)) owner.abandon?.()
   }
-  function reviewCurrent(original: WorkReviewIntent | ExecutionCancelIntent | ApprovalDecisionIntent) {
+  function reviewCurrent(
+    original: WorkReviewIntent | ExecutionCancelIntent | ApprovalDecisionIntent,
+  ) {
     return workReviewIntent === original && projectContext(original)
   }
   function publishReview(
@@ -6856,7 +7452,11 @@ export function createSessionController(
         dispatched = true
         const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
         const checkedBlockerReply = (value: WorkCommandReceipt | WorkCommandLookup) => {
-          if ('taskBefore' in original && original.taskBefore && (!('status' in value) || value.status === 'committed')) {
+          if (
+            'taskBefore' in original &&
+            original.taskBefore &&
+            (!('status' in value) || value.status === 'committed')
+          ) {
             const receipt = 'status' in value ? value.receipt : value
             // Keep version-protected Task fields through Unknown/Lookup.
             // Another Task may rebalance manual_rank without changing this
@@ -6865,12 +7465,22 @@ export function createSessionController(
             // appended target-group rank for a Task transition.
             const before = original.taskBefore
             for (const key of Object.keys(before) as (keyof Task)[]) {
-              if (key !== 'version' && key !== 'updated_at' && key !== 'manual_rank' &&
-                  !(original.kind === 'review' && (key === 'state' || key === 'assignee_agent_id')) && receipt.task[key] !== before[key])
+              if (
+                key !== 'version' &&
+                key !== 'updated_at' &&
+                key !== 'manual_rank' &&
+                !(original.kind === 'review' && (key === 'state' || key === 'assignee_agent_id')) &&
+                receipt.task[key] !== before[key]
+              )
                 throw new AccountFailure('invalid-response')
             }
-            if (original.kind === 'review' && receipt.task.assignee_agent_id !==
-                ('assignee_agent_id' in original.input.request ? original.input.request.assignee_agent_id : before.assignee_agent_id))
+            if (
+              original.kind === 'review' &&
+              receipt.task.assignee_agent_id !==
+                ('assignee_agent_id' in original.input.request
+                  ? original.input.request.assignee_agent_id
+                  : before.assignee_agent_id)
+            )
               throw new AccountFailure('invalid-response')
             if (receipt.task.updated_at < before.updated_at)
               throw new AccountFailure('invalid-response')
@@ -6878,21 +7488,61 @@ export function createSessionController(
           return value
         }
         if (original.kind === 'dependency-add')
-          return (lookup
-            ? taskDependenciesAPI.lookup(original.projectID, original.taskID, 'work.task.blocker.add', original.input, original.input.request.metadata.related_task_id, write)
-            : taskDependenciesAPI.add(original.projectID, original.taskID, original.input, write)).then(checkedBlockerReply)
+          return (
+            lookup
+              ? taskDependenciesAPI.lookup(
+                  original.projectID,
+                  original.taskID,
+                  'work.task.blocker.add',
+                  original.input,
+                  original.input.request.metadata.related_task_id,
+                  write,
+                )
+              : taskDependenciesAPI.add(original.projectID, original.taskID, original.input, write)
+          ).then(checkedBlockerReply)
         if (original.kind === 'dependency-resolve')
-          return (lookup
-            ? taskDependenciesAPI.lookup(original.projectID, original.taskID, 'work.task.blocker.resolve', original.input, original.relatedTaskID, write)
-            : taskDependenciesAPI.resolve(original.projectID, original.taskID, original.input, original.relatedTaskID, write)).then(checkedBlockerReply)
+          return (
+            lookup
+              ? taskDependenciesAPI.lookup(
+                  original.projectID,
+                  original.taskID,
+                  'work.task.blocker.resolve',
+                  original.input,
+                  original.relatedTaskID,
+                  write,
+                )
+              : taskDependenciesAPI.resolve(
+                  original.projectID,
+                  original.taskID,
+                  original.input,
+                  original.relatedTaskID,
+                  write,
+                )
+          ).then(checkedBlockerReply)
         if (original.kind === 'blocker-add')
-          return (lookup
-            ? taskBlockersAPI.lookup(original.projectID, original.taskID, 'work.task.blocker.add', original.input, write)
-            : taskBlockersAPI.add(original.projectID, original.taskID, original.input, write)).then(checkedBlockerReply)
+          return (
+            lookup
+              ? taskBlockersAPI.lookup(
+                  original.projectID,
+                  original.taskID,
+                  'work.task.blocker.add',
+                  original.input,
+                  write,
+                )
+              : taskBlockersAPI.add(original.projectID, original.taskID, original.input, write)
+          ).then(checkedBlockerReply)
         if (original.kind === 'blocker-resolve')
-          return (lookup
-            ? taskBlockersAPI.lookup(original.projectID, original.taskID, 'work.task.blocker.resolve', original.input, write)
-            : taskBlockersAPI.resolve(original.projectID, original.taskID, original.input, write)).then(checkedBlockerReply)
+          return (
+            lookup
+              ? taskBlockersAPI.lookup(
+                  original.projectID,
+                  original.taskID,
+                  'work.task.blocker.resolve',
+                  original.input,
+                  write,
+                )
+              : taskBlockersAPI.resolve(original.projectID, original.taskID, original.input, write)
+          ).then(checkedBlockerReply)
         if (original.kind === 'reorder')
           return lookup
             ? taskReorderAPI.lookup(original.projectID, original.taskID, original.input, write)
@@ -6909,9 +7559,11 @@ export function createSessionController(
           return lookup
             ? workReviewAPI.lookupReady(original.projectID, original.taskID, original.input, write)
             : workReviewAPI.ready(original.projectID, original.taskID, original.input, write)
-        return (lookup
-          ? workReviewAPI.lookup(original.projectID, original.taskID, original.input, write)
-          : workReviewAPI.transfer(original.projectID, original.taskID, original.input, write)).then(checkedBlockerReply)
+        return (
+          lookup
+            ? workReviewAPI.lookup(original.projectID, original.taskID, original.input, write)
+            : workReviewAPI.transfer(original.projectID, original.taskID, original.input, write)
+        ).then(checkedBlockerReply)
       },
       undefined,
       kind,
@@ -6932,8 +7584,15 @@ export function createSessionController(
         const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
         if (live()) {
           const p = failure.problem
-          if ((original.kind.startsWith('blocker-') || original.kind.startsWith('dependency-') ||
-            (original.kind === 'review' && (original.input.request.target_state === 'cancelled' || isTaskBlockResume(original.input)))) && p && [403, 404].includes(p.status)) {
+          if (
+            (original.kind.startsWith('blocker-') ||
+              original.kind.startsWith('dependency-') ||
+              (original.kind === 'review' &&
+                (original.input.request.target_state === 'cancelled' ||
+                  isTaskBlockResume(original.input)))) &&
+            p &&
+            [403, 404].includes(p.status)
+          ) {
             clearWorkReviewState()
             throw failure
           }
@@ -6969,11 +7628,18 @@ export function createSessionController(
     observation: ExecutionCancelProgress['observation'] = 'none',
   ) {
     executionCancelState.progress = Object.freeze({
-      projectID: original.projectID, taskID: original.taskID, executionID: original.executionID,
-      phase, receipt, observation,
+      projectID: original.projectID,
+      taskID: original.taskID,
+      executionID: original.executionID,
+      phase,
+      receipt,
+      observation,
     })
   }
-  function performExecutionCancel(original: ExecutionCancelIntent, lookup: boolean): Promise<TaskExecutionCancelResult | TaskExecutionCancelLookup> {
+  function performExecutionCancel(
+    original: ExecutionCancelIntent,
+    lookup: boolean,
+  ): Promise<TaskExecutionCancelResult | TaskExecutionCancelLookup> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     if (!reviewCurrent(original)) return Promise.reject(new AccountFailure('invalid-input'))
     const kind: WorkReviewAction = lookup ? 'work-review-lookup' : 'work-review-transfer',
@@ -6981,58 +7647,125 @@ export function createSessionController(
     const live = () => reviewCurrent(original) && revision === workReviewRevisions[kind]
     let dispatched = false
     if (!lookup) publishExecutionCancel(original, 'submitting')
-    return runAuthorized<TaskExecutionCancelResult | TaskExecutionCancelLookup>(original.identity, async (op, current) => {
-      if (!current() || !live()) throw new AccountFailure('cancelled')
-      if (JSON.stringify(original.input) !== original.body) throw new AccountFailure('invalid-input')
-      dispatched = true
-      const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
-      return lookup
-        ? taskExecutionCancelAPI.lookup(original.projectID, original.taskID, original.executionID, original.input, write)
-        : taskExecutionCancelAPI.cancel(original.projectID, original.taskID, original.executionID, original.input, write)
-    }, undefined, kind).then(value => {
-      if (!live()) throw new AccountFailure('cancelled')
-      if ('found' in value && !value.found) {
-        original.uncertain = true
-        publishExecutionCancel(original, 'uncertain', null, 'not_observed')
-      } else {
-        publishExecutionCancel(original, 'confirmed', value.receipt, lookup ? 'committed' : 'none')
-        workReviewIntent = null
-      }
-      return value
-    }, error => {
-      const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
-      if (live()) {
-        const problem = failure.problem
-        if (problem && [403, 404].includes(problem.status)) {
-          clearWorkReviewState()
-          throw failure
+    return runAuthorized<TaskExecutionCancelResult | TaskExecutionCancelLookup>(
+      original.identity,
+      async (op, current) => {
+        if (!current() || !live()) throw new AccountFailure('cancelled')
+        if (JSON.stringify(original.input) !== original.body)
+          throw new AccountFailure('invalid-input')
+        dispatched = true
+        const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
+        return lookup
+          ? taskExecutionCancelAPI.lookup(
+              original.projectID,
+              original.taskID,
+              original.executionID,
+              original.input,
+              write,
+            )
+          : taskExecutionCancelAPI.cancel(
+              original.projectID,
+              original.taskID,
+              original.executionID,
+              original.input,
+              write,
+            )
+      },
+      undefined,
+      kind,
+    ).then(
+      (value) => {
+        if (!live()) throw new AccountFailure('cancelled')
+        if ('found' in value && !value.found) {
+          original.uncertain = true
+          publishExecutionCancel(original, 'uncertain', null, 'not_observed')
+        } else {
+          publishExecutionCancel(
+            original,
+            'confirmed',
+            value.receipt,
+            lookup ? 'committed' : 'none',
+          )
+          workReviewIntent = null
         }
-        const rejected = !dispatched || (!!problem && ['not_started', 'not_committed'].includes(problem.commit_state) && problem.code !== 'IDEMPOTENCY_KEY_REUSED')
-        original.uncertain ||= lookup || !rejected
-        publishExecutionCancel(original, original.uncertain ? 'uncertain' : 'rejected', null, lookup ? 'failed' : 'none')
-      }
-      throw failure
-    })
+        return value
+      },
+      (error) => {
+        const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (live()) {
+          const problem = failure.problem
+          if (problem && [403, 404].includes(problem.status)) {
+            clearWorkReviewState()
+            throw failure
+          }
+          const rejected =
+            !dispatched ||
+            (!!problem &&
+              ['not_started', 'not_committed'].includes(problem.commit_state) &&
+              problem.code !== 'IDEMPOTENCY_KEY_REUSED')
+          original.uncertain ||= lookup || !rejected
+          publishExecutionCancel(
+            original,
+            original.uncertain ? 'uncertain' : 'rejected',
+            null,
+            lookup ? 'failed' : 'none',
+          )
+        }
+        throw failure
+      },
+    )
   }
   // Execution cancellation shares the Task command slot: an Unknown result
   // cannot admit another Task mutation, new key, or opposite control intent.
   const executionCancel = {
     get progress(): ExecutionCancelProgress | null {
       const value = executionCancelState.progress
-      return value ? Object.freeze({ ...value, contextValid: workReviewIntent?.kind === 'execution-cancel' && reviewCurrent(workReviewIntent) }) : null
+      return value
+        ? Object.freeze({
+            ...value,
+            contextValid:
+              workReviewIntent?.kind === 'execution-cancel' && reviewCurrent(workReviewIntent),
+          })
+        : null
     },
     start(projectID: string, taskID: string, executionID: string, value: TaskExecutionCancelInput) {
       try {
         const identity = personalIdentity()
-        if (owner || workReviewIntent || milestoneReorderIntent || sprintReorderIntent || milestoneUpdateIntent || sprintUpdateIntent || personalIntent || pending || sprintStartIntent || sprintCreateIntent || milestoneCreateIntent)
+        if (
+          owner ||
+          workReviewIntent ||
+          milestoneReorderIntent ||
+          sprintReorderIntent ||
+          milestoneUpdateIntent ||
+          sprintUpdateIntent ||
+          personalIntent ||
+          pending ||
+          sprintStartIntent ||
+          sprintCreateIntent ||
+          milestoneCreateIntent
+        )
           throw new AccountFailure('busy')
-        if (![projectID, taskID, executionID].every(id => uuid7.test(id))) throw new AccountFailure('invalid-input')
+        if (![projectID, taskID, executionID].every((id) => uuid7.test(id)))
+          throw new AccountFailure('invalid-input')
         const input = captureTaskExecutionCancelInput(value)
-        const original: ExecutionCancelIntent = { kind: 'execution-cancel', identity, csrf: sessionCSRF, projectID, taskID, executionID, input, key: newKey(), body: JSON.stringify(input), uncertain: false }
+        const original: ExecutionCancelIntent = {
+          kind: 'execution-cancel',
+          identity,
+          csrf: sessionCSRF,
+          projectID,
+          taskID,
+          executionID,
+          input,
+          key: newKey(),
+          body: JSON.stringify(input),
+          uncertain: false,
+        }
         workReviewState.progress = null
         workReviewIntent = original
         return performExecutionCancel(original, false)
-      } catch (error) { return Promise.reject(error) }
+      } catch (error) {
+        return Promise.reject(error)
+      }
     },
     checkOriginal() {
       if (workReviewIntent?.kind !== 'execution-cancel' || !workReviewIntent.uncertain)
@@ -7040,90 +7773,343 @@ export function createSessionController(
       return performExecutionCancel(workReviewIntent, true)
     },
     editRejected() {
-      if (owner || workReviewIntent?.kind !== 'execution-cancel' || !reviewCurrent(workReviewIntent) || workReviewIntent.uncertain || executionCancelState.progress?.phase !== 'rejected')
+      if (
+        owner ||
+        workReviewIntent?.kind !== 'execution-cancel' ||
+        !reviewCurrent(workReviewIntent) ||
+        workReviewIntent.uncertain ||
+        executionCancelState.progress?.phase !== 'rejected'
+      )
         throw new AccountFailure('busy')
       workReviewIntent = null
       executionCancelState.progress = null
     },
     forgetUnavailable(projectID: string, taskID: string, executionID?: string) {
-      if (workReviewIntent?.kind === 'execution-cancel' && workReviewIntent.projectID === projectID && workReviewIntent.taskID === taskID && (!executionID || workReviewIntent.executionID === executionID))
+      if (
+        workReviewIntent?.kind === 'execution-cancel' &&
+        workReviewIntent.projectID === projectID &&
+        workReviewIntent.taskID === taskID &&
+        (!executionID || workReviewIntent.executionID === executionID)
+      )
         clearWorkReviewState()
     },
   }
-  function publishApprovalDecision(original: ApprovalDecisionIntent, phase: ExecutionApprovalProgress['phase'], receipt: ExecutionApprovalReceipt | null = null, observation: ExecutionApprovalProgress['observation'] = 'none') {
-    executionApprovalState.progress = Object.freeze({ projectID: original.projectID, taskID: original.taskID, executionID: original.executionID, approvalID: original.approval.id, decision: original.input.decision, phase, receipt, observation })
+  function publishApprovalDecision(
+    original: ApprovalDecisionIntent,
+    phase: ExecutionApprovalProgress['phase'],
+    receipt: ExecutionApprovalReceipt | null = null,
+    observation: ExecutionApprovalProgress['observation'] = 'none',
+  ) {
+    const shared = {
+      projectID: original.projectID,
+      executionID: original.executionID,
+      approvalID: original.approval.id,
+      decision: original.input.decision,
+      phase,
+      receipt,
+      observation,
+    }
+    if (original.source === 'meeting') {
+      executionApprovalState.progress = null
+      meetingApprovalState.progress = Object.freeze({
+        ...shared,
+        meetingID: original.meetingID,
+        contributionID: original.contributionID,
+        generation: original.generation,
+        attempt: original.attempt,
+      })
+    } else {
+      meetingApprovalState.progress = null
+      executionApprovalState.progress = Object.freeze({ ...shared, taskID: original.taskID })
+    }
   }
-  function performApprovalDecision(original: ApprovalDecisionIntent, lookup: boolean): Promise<ExecutionApprovalReceipt | ExecutionApprovalLookup> {
+  function performApprovalDecision(
+    original: ApprovalDecisionIntent,
+    lookup: boolean,
+  ): Promise<ExecutionApprovalReceipt | ExecutionApprovalLookup> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     if (!reviewCurrent(original)) return Promise.reject(new AccountFailure('invalid-input'))
-    const kind: WorkReviewAction = lookup ? 'work-review-lookup' : 'work-review-transfer', revision = workReviewRevisions[kind]
+    const kind: WorkReviewAction = lookup ? 'work-review-lookup' : 'work-review-transfer',
+      revision = workReviewRevisions[kind]
     const live = () => reviewCurrent(original) && revision === workReviewRevisions[kind]
     let dispatched = false
     if (!lookup) publishApprovalDecision(original, 'submitting')
-    return runAuthorized<ExecutionApprovalReceipt | ExecutionApprovalLookup>(original.identity, async (op, current) => {
-      if (!current() || !live()) throw new AccountFailure('cancelled')
-      if (JSON.stringify(original.input) !== original.body) throw new AccountFailure('invalid-input')
-      dispatched = true
-      const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
-      return lookup
-        ? executionApprovalAPI.lookup(original.approval, original.input, original.identity.userID, write)
-        : executionApprovalAPI.decide(original.approval, original.input, original.identity.userID, write)
-    }, undefined, kind).then(value => {
-      if (!live()) throw new AccountFailure('cancelled')
-      if ('status' in value && value.status !== 'committed') {
-        original.uncertain = true
-        publishApprovalDecision(original, 'uncertain', null, 'not_observed')
-      } else {
-        publishApprovalDecision(original, 'confirmed', 'status' in value ? value.receipt : value, lookup ? 'committed' : 'none')
-        workReviewIntent = null
-      }
-      return value
-    }, error => {
-      const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
-      if (live()) {
-        const problem = failure.problem
-        if (problem && [403, 404].includes(problem.status)) { clearWorkReviewState(); throw failure }
-        const rejected = !dispatched || (!!problem && ['not_started', 'not_committed'].includes(problem.commit_state) && problem.code !== 'IDEMPOTENCY_KEY_REUSED')
-        original.uncertain ||= lookup || !rejected
-        publishApprovalDecision(original, original.uncertain ? 'uncertain' : 'rejected', null, lookup ? 'failed' : 'none')
-      }
-      throw failure
-    })
+    return runAuthorized<ExecutionApprovalReceipt | ExecutionApprovalLookup>(
+      original.identity,
+      async (op, current) => {
+        if (!current() || !live()) throw new AccountFailure('cancelled')
+        if (JSON.stringify(original.input) !== original.body)
+          throw new AccountFailure('invalid-input')
+        dispatched = true
+        const write = { signal: op.abort.signal, csrfToken: original.csrf, key: original.key }
+        return lookup
+          ? executionApprovalAPI.lookup(
+              original.approval,
+              original.input,
+              original.identity.userID,
+              write,
+            )
+          : executionApprovalAPI.decide(
+              original.approval,
+              original.input,
+              original.identity.userID,
+              write,
+            )
+      },
+      undefined,
+      kind,
+    ).then(
+      (value) => {
+        if (!live()) throw new AccountFailure('cancelled')
+        if ('status' in value && value.status !== 'committed') {
+          original.uncertain = true
+          publishApprovalDecision(original, 'uncertain', null, 'not_observed')
+        } else {
+          publishApprovalDecision(
+            original,
+            'confirmed',
+            'status' in value ? value.receipt : value,
+            lookup ? 'committed' : 'none',
+          )
+          workReviewIntent = null
+        }
+        return value
+      },
+      (error) => {
+        const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (live()) {
+          const problem = failure.problem
+          if (problem && [403, 404].includes(problem.status)) {
+            clearWorkReviewState()
+            throw failure
+          }
+          const rejected =
+            !dispatched ||
+            (!!problem &&
+              ['not_started', 'not_committed'].includes(problem.commit_state) &&
+              problem.code !== 'IDEMPOTENCY_KEY_REUSED')
+          original.uncertain ||= lookup || !rejected
+          publishApprovalDecision(
+            original,
+            original.uncertain ? 'uncertain' : 'rejected',
+            null,
+            lookup ? 'failed' : 'none',
+          )
+        }
+        throw failure
+      },
+    )
   }
   const executionApproval = {
     get progress(): ExecutionApprovalProgress | null {
       const value = executionApprovalState.progress
-      return value ? Object.freeze({ ...value, contextValid: workReviewIntent?.kind === 'approval-decision' && reviewCurrent(workReviewIntent) }) : null
+      return value
+        ? Object.freeze({
+            ...value,
+            contextValid:
+              workReviewIntent?.kind === 'approval-decision' &&
+              workReviewIntent.source === 'task' &&
+              reviewCurrent(workReviewIntent),
+          })
+        : null
     },
-    get: (scope: ExecutionApprovalScope) => reviewRead(signal => executionApprovalAPI.get(scope, signal)),
-    start(projectID: string, taskID: string, value: TaskExecution, pendingApproval: ExecutionApproval, decision: 'approve' | 'reject') {
+    get meetingProgress(): MeetingExecutionApprovalProgress | null {
+      const value = meetingApprovalState.progress
+      return value
+        ? Object.freeze({
+            ...value,
+            contextValid:
+              workReviewIntent?.kind === 'approval-decision' &&
+              workReviewIntent.source === 'meeting' &&
+              reviewCurrent(workReviewIntent),
+          })
+        : null
+    },
+    startMeeting(
+      projectID: string,
+      meetingID: string,
+      contributionID: string,
+      execution: MeetingApprovalExecution,
+      pendingApproval: ExecutionApproval,
+      decision: 'approve' | 'reject',
+    ) {
       try {
         const identity = personalIdentity()
-        if (owner || workReviewIntent || milestoneReorderIntent || sprintReorderIntent || milestoneUpdateIntent || sprintUpdateIntent || personalIntent || pending || sprintStartIntent || sprintCreateIntent || milestoneCreateIntent)
+        if (
+          owner ||
+          workReviewIntent ||
+          milestoneReorderIntent ||
+          sprintReorderIntent ||
+          milestoneUpdateIntent ||
+          sprintUpdateIntent ||
+          personalIntent ||
+          pending ||
+          sprintStartIntent ||
+          sprintCreateIntent ||
+          milestoneCreateIntent
+        )
           throw new AccountFailure('busy')
-        if (![projectID, taskID].every(id => uuid7.test(id))) throw new AccountFailure('invalid-input')
-        let execution: TaskExecution
-        try { execution = parseTaskExecution(value, projectID, taskID, value.id) } catch { throw new AccountFailure('invalid-input') }
-        const approval = capturePendingExecutionApproval(pendingApproval)
-        if (execution.status !== 'waiting' || execution.cancel_requested_at !== null || execution.waiting_reason !== 'approval' || execution.waiting_reference !== approval.id || approval.project_id !== projectID || approval.execution_id !== execution.id || approval.agent_id !== execution.agent_id)
+        if (
+          ![projectID, meetingID, contributionID, execution.id, execution.agent_id].every((id) =>
+            uuid7.test(id),
+          ) ||
+          execution.project_id !== projectID ||
+          execution.meeting_id !== meetingID ||
+          execution.contribution_id !== contributionID
+        )
           throw new AccountFailure('invalid-input')
-        const input = captureExecutionApprovalDecision({ decision, expected_version: approval.version })
-        const original: ApprovalDecisionIntent = { kind: 'approval-decision', identity, csrf: sessionCSRF, projectID, taskID, executionID: execution.id, approval, input, key: newKey(), body: JSON.stringify(input), uncertain: false }
+        const generation = workVersion(execution.generation),
+          attempt = workVersion(execution.attempt)
+        const approval = capturePendingExecutionApproval(pendingApproval)
+        if (
+          execution.status !== 'waiting' ||
+          execution.cancel_requested_at !== null ||
+          execution.waiting_reason !== 'approval' ||
+          execution.waiting_reference !== approval.id ||
+          approval.project_id !== projectID ||
+          approval.execution_id !== execution.id ||
+          approval.agent_id !== execution.agent_id
+        )
+          throw new AccountFailure('invalid-input')
+        const input = captureExecutionApprovalDecision({
+          decision,
+          expected_version: approval.version,
+        })
+        const original: ApprovalDecisionIntent = {
+          kind: 'approval-decision',
+          source: 'meeting',
+          identity,
+          csrf: sessionCSRF,
+          projectID,
+          meetingID,
+          contributionID,
+          generation,
+          attempt,
+          executionID: execution.id,
+          approval,
+          input,
+          key: newKey(),
+          body: JSON.stringify(input),
+          uncertain: false,
+        }
         workReviewState.progress = null
         workReviewIntent = original
         return performApprovalDecision(original, false)
-      } catch (error) { return Promise.reject(error) }
+      } catch (error) {
+        return Promise.reject(
+          error instanceof AccountFailure && error.kind !== 'invalid-response'
+            ? error
+            : new AccountFailure('invalid-input'),
+        )
+      }
+    },
+    forgetMeetingUnavailable(projectID: string, meetingID: string, contributionID?: string) {
+      if (
+        workReviewIntent?.kind === 'approval-decision' &&
+        workReviewIntent.source === 'meeting' &&
+        workReviewIntent.projectID === projectID &&
+        workReviewIntent.meetingID === meetingID &&
+        (!contributionID || workReviewIntent.contributionID === contributionID)
+      )
+        clearWorkReviewState()
+    },
+    get: (scope: ExecutionApprovalScope) =>
+      reviewRead((signal) => executionApprovalAPI.get(scope, signal)),
+    start(
+      projectID: string,
+      taskID: string,
+      value: TaskExecution,
+      pendingApproval: ExecutionApproval,
+      decision: 'approve' | 'reject',
+    ) {
+      try {
+        const identity = personalIdentity()
+        if (
+          owner ||
+          workReviewIntent ||
+          milestoneReorderIntent ||
+          sprintReorderIntent ||
+          milestoneUpdateIntent ||
+          sprintUpdateIntent ||
+          personalIntent ||
+          pending ||
+          sprintStartIntent ||
+          sprintCreateIntent ||
+          milestoneCreateIntent
+        )
+          throw new AccountFailure('busy')
+        if (![projectID, taskID].every((id) => uuid7.test(id)))
+          throw new AccountFailure('invalid-input')
+        let execution: TaskExecution
+        try {
+          execution = parseTaskExecution(value, projectID, taskID, value.id)
+        } catch {
+          throw new AccountFailure('invalid-input')
+        }
+        const approval = capturePendingExecutionApproval(pendingApproval)
+        if (
+          execution.status !== 'waiting' ||
+          execution.cancel_requested_at !== null ||
+          execution.waiting_reason !== 'approval' ||
+          execution.waiting_reference !== approval.id ||
+          approval.project_id !== projectID ||
+          approval.execution_id !== execution.id ||
+          approval.agent_id !== execution.agent_id
+        )
+          throw new AccountFailure('invalid-input')
+        const input = captureExecutionApprovalDecision({
+          decision,
+          expected_version: approval.version,
+        })
+        const original: ApprovalDecisionIntent = {
+          kind: 'approval-decision',
+          source: 'task',
+          identity,
+          csrf: sessionCSRF,
+          projectID,
+          taskID,
+          executionID: execution.id,
+          approval,
+          input,
+          key: newKey(),
+          body: JSON.stringify(input),
+          uncertain: false,
+        }
+        workReviewState.progress = null
+        workReviewIntent = original
+        return performApprovalDecision(original, false)
+      } catch (error) {
+        return Promise.reject(error)
+      }
     },
     checkOriginal() {
-      if (workReviewIntent?.kind !== 'approval-decision' || !workReviewIntent.uncertain) return Promise.reject(new AccountFailure('invalid-input'))
+      if (workReviewIntent?.kind !== 'approval-decision' || !workReviewIntent.uncertain)
+        return Promise.reject(new AccountFailure('invalid-input'))
       return performApprovalDecision(workReviewIntent, true)
     },
     editRejected() {
-      if (owner || workReviewIntent?.kind !== 'approval-decision' || !reviewCurrent(workReviewIntent) || workReviewIntent.uncertain || executionApprovalState.progress?.phase !== 'rejected') throw new AccountFailure('busy')
-      workReviewIntent = null; executionApprovalState.progress = null
+      if (
+        owner ||
+        workReviewIntent?.kind !== 'approval-decision' ||
+        !reviewCurrent(workReviewIntent) ||
+        workReviewIntent.uncertain ||
+        (workReviewIntent.source === 'meeting'
+          ? meetingApprovalState.progress?.phase
+          : executionApprovalState.progress?.phase) !== 'rejected'
+      )
+        throw new AccountFailure('busy')
+      workReviewIntent = null
+      executionApprovalState.progress = null
+      meetingApprovalState.progress = null
     },
     forgetUnavailable(projectID: string, taskID: string) {
-      if (workReviewIntent?.kind === 'approval-decision' && workReviewIntent.projectID === projectID && workReviewIntent.taskID === taskID) clearWorkReviewState()
+      if (
+        workReviewIntent?.kind === 'approval-decision' &&
+        workReviewIntent.source === 'task' &&
+        workReviewIntent.projectID === projectID &&
+        workReviewIntent.taskID === taskID
+      )
+        clearWorkReviewState()
     },
   }
   // The Session owns keys/payloads and the actual request tail. Views receive only safe progress.
@@ -7166,8 +8152,13 @@ export function createSessionController(
     abandonRead: clearWorkReviewRead,
     forgetCancelUnavailable(projectID: string, taskID?: string) {
       const original = workReviewIntent
-      if (original?.kind === 'review' && (original.input.request.target_state === 'cancelled' || isTaskBlockResume(original.input)) &&
-          original.projectID === projectID && (!taskID || original.taskID === taskID)) {
+      if (
+        original?.kind === 'review' &&
+        (original.input.request.target_state === 'cancelled' ||
+          isTaskBlockResume(original.input)) &&
+        original.projectID === projectID &&
+        (!taskID || original.taskID === taskID)
+      ) {
         clearWorkReviewState()
         return true
       }
@@ -7189,11 +8180,18 @@ export function createSessionController(
           throw new AccountFailure('busy')
         if (!uuid7.test(projectID) || !uuid7.test(taskID)) throw new AccountFailure('invalid-input')
         const input = captureTransferInput(value)
-        if ((input.request.target_state === 'cancelled' || isTaskBlockResume(input)) && (sprintStartIntent || sprintCreateIntent || milestoneCreateIntent))
+        if (
+          (input.request.target_state === 'cancelled' || isTaskBlockResume(input)) &&
+          (sprintStartIntent || sprintCreateIntent || milestoneCreateIntent)
+        )
           throw new AccountFailure('busy')
         const taskBefore = isTaskBlockResume(input)
-          ? captureBlockerTask(projectID, taskID, input.expected_version, before as Task) : undefined
-        if (taskBefore && taskBefore.state !== (input.request.target_state === 'blocked' ? 'todo' : 'blocked'))
+          ? captureBlockerTask(projectID, taskID, input.expected_version, before as Task)
+          : undefined
+        if (
+          taskBefore &&
+          taskBefore.state !== (input.request.target_state === 'blocked' ? 'todo' : 'blocked')
+        )
           throw new AccountFailure('invalid-input')
         const original: WorkReviewIntent = {
           ...(taskBefore ? { taskBefore } : {}),
@@ -7348,7 +8346,12 @@ export function createSessionController(
       }
     },
     checkOriginal() {
-      if (!workReviewIntent?.uncertain || workReviewIntent.kind === 'execution-cancel' || workReviewIntent.kind === 'approval-decision') return Promise.reject(new AccountFailure('invalid-input'))
+      if (
+        !workReviewIntent?.uncertain ||
+        workReviewIntent.kind === 'execution-cancel' ||
+        workReviewIntent.kind === 'approval-decision'
+      )
+        return Promise.reject(new AccountFailure('invalid-input'))
       return performReview(workReviewIntent, true)
     },
     editRejected() {
@@ -7366,7 +8369,12 @@ export function createSessionController(
   }
   // Blocker commands share the existing Task intent and request owner. Unknown
   // therefore cannot open a second Task writer or manufacture another key/ID.
-  function captureBlockerTask(projectID: string, taskID: string, expectedVersion: string, value: Task) {
+  function captureBlockerTask(
+    projectID: string,
+    taskID: string,
+    expectedVersion: string,
+    value: Task,
+  ) {
     try {
       const task = decodeWorkTask(value, projectID, taskID)
       if (task.version !== expectedVersion || ['done', 'cancelled'].includes(task.state))
@@ -7376,25 +8384,57 @@ export function createSessionController(
       throw new AccountFailure('invalid-input')
     }
   }
-  function startHumanBlocker(projectID: string, taskID: string, value: HumanBlockerDraft | HumanBlockerResolveInput, task: Task, add: boolean) {
+  function startHumanBlocker(
+    projectID: string,
+    taskID: string,
+    value: HumanBlockerDraft | HumanBlockerResolveInput,
+    task: Task,
+    add: boolean,
+  ) {
     try {
       const identity = personalIdentity()
-      if (owner || workReviewIntent || milestoneCreateIntent || milestoneReorderIntent ||
-        milestoneUpdateIntent || sprintCreateIntent || sprintStartIntent || sprintReorderIntent ||
-        sprintUpdateIntent || personalIntent || pending) throw new AccountFailure('busy')
+      if (
+        owner ||
+        workReviewIntent ||
+        milestoneCreateIntent ||
+        milestoneReorderIntent ||
+        milestoneUpdateIntent ||
+        sprintCreateIntent ||
+        sprintStartIntent ||
+        sprintReorderIntent ||
+        sprintUpdateIntent ||
+        personalIntent ||
+        pending
+      )
+        throw new AccountFailure('busy')
       if (!uuid7.test(projectID) || !uuid7.test(taskID)) throw new AccountFailure('invalid-input')
       const captured = add ? captureHumanBlockerDraft(value) : captureHumanBlockerResolve(value)
       const taskBefore = captureBlockerTask(projectID, taskID, captured.expected_version, task)
       const command = add
-        ? { kind: 'blocker-add' as const, input: captureHumanBlockerAdd({ ...captured, request: { ...captured.request, blocker_id: newTaskID() } }) }
+        ? {
+            kind: 'blocker-add' as const,
+            input: captureHumanBlockerAdd({
+              ...captured,
+              request: { ...captured.request, blocker_id: newTaskID() },
+            }),
+          }
         : { kind: 'blocker-resolve' as const, input: captureHumanBlockerResolve(captured) }
       const original: WorkReviewIntent = {
-        ...command, taskBefore, identity, csrf: sessionCSRF, projectID, taskID, key: newKey(),
-        body: JSON.stringify(command.input), uncertain: false,
+        ...command,
+        taskBefore,
+        identity,
+        csrf: sessionCSRF,
+        projectID,
+        taskID,
+        key: newKey(),
+        body: JSON.stringify(command.input),
+        uncertain: false,
       }
       workReviewIntent = original
       return performReview(original, false)
-    } catch (error) { return Promise.reject(error) }
+    } catch (error) {
+      return Promise.reject(error)
+    }
   }
   const workTaskBlockers = {
     get progress(): WorkReviewProgress | null {
@@ -7406,38 +8446,83 @@ export function createSessionController(
     resolve: (projectID: string, taskID: string, value: HumanBlockerResolveInput, task: Task) =>
       startHumanBlocker(projectID, taskID, value, task, false),
     lookup() {
-      if (!workReviewIntent?.kind.startsWith('blocker-')) return Promise.reject(new AccountFailure('invalid-input'))
+      if (!workReviewIntent?.kind.startsWith('blocker-'))
+        return Promise.reject(new AccountFailure('invalid-input'))
       return workReview.checkOriginal()
     },
     forgetUnavailable(projectID: string, taskID?: string) {
       const value = workReviewState.progress
-      if (value?.kind.startsWith('blocker-') && value.projectID === projectID && (!taskID || value.taskID === taskID)) clearWorkReviewState()
+      if (
+        value?.kind.startsWith('blocker-') &&
+        value.projectID === projectID &&
+        (!taskID || value.taskID === taskID)
+      )
+        clearWorkReviewState()
     },
   }
-  function startTaskDependency(projectID: string, taskID: string, value: TaskDependencyDraft | TaskDependencyResolveInput, task: Task, relatedTaskID?: string) {
+  function startTaskDependency(
+    projectID: string,
+    taskID: string,
+    value: TaskDependencyDraft | TaskDependencyResolveInput,
+    task: Task,
+    relatedTaskID?: string,
+  ) {
     try {
       const identity = personalIdentity()
-      if (owner || workReviewIntent || milestoneCreateIntent || milestoneReorderIntent ||
-        milestoneUpdateIntent || sprintCreateIntent || sprintStartIntent || sprintReorderIntent ||
-        sprintUpdateIntent || personalIntent || pending) throw new AccountFailure('busy')
+      if (
+        owner ||
+        workReviewIntent ||
+        milestoneCreateIntent ||
+        milestoneReorderIntent ||
+        milestoneUpdateIntent ||
+        sprintCreateIntent ||
+        sprintStartIntent ||
+        sprintReorderIntent ||
+        sprintUpdateIntent ||
+        personalIntent ||
+        pending
+      )
+        throw new AccountFailure('busy')
       if (!uuid7.test(projectID) || !uuid7.test(taskID)) throw new AccountFailure('invalid-input')
-      let command: { kind: 'dependency-add'; input: TaskDependencyAddInput } | { kind: 'dependency-resolve'; input: TaskDependencyResolveInput; relatedTaskID: string }
+      let command:
+        | { kind: 'dependency-add'; input: TaskDependencyAddInput }
+        | { kind: 'dependency-resolve'; input: TaskDependencyResolveInput; relatedTaskID: string }
       if (relatedTaskID === undefined) {
         const draft = captureTaskDependencyDraft(value)
-        if (draft.request.metadata.related_task_id === taskID) throw new AccountFailure('invalid-input')
-        command = { kind: 'dependency-add', input: captureTaskDependencyAdd({ ...draft, request: { ...draft.request, blocker_id: newTaskID() } }) }
+        if (draft.request.metadata.related_task_id === taskID)
+          throw new AccountFailure('invalid-input')
+        command = {
+          kind: 'dependency-add',
+          input: captureTaskDependencyAdd({
+            ...draft,
+            request: { ...draft.request, blocker_id: newTaskID() },
+          }),
+        }
       } else {
-        if (!uuid7.test(relatedTaskID) || relatedTaskID === taskID) throw new AccountFailure('invalid-input')
-        command = { kind: 'dependency-resolve', input: captureTaskDependencyResolve(value), relatedTaskID }
+        if (!uuid7.test(relatedTaskID) || relatedTaskID === taskID)
+          throw new AccountFailure('invalid-input')
+        command = {
+          kind: 'dependency-resolve',
+          input: captureTaskDependencyResolve(value),
+          relatedTaskID,
+        }
       }
       const original: WorkReviewIntent = {
-        ...command, taskBefore: captureBlockerTask(projectID, taskID, command.input.expected_version, task),
-        identity, csrf: sessionCSRF, projectID, taskID, key: newKey(),
-        body: JSON.stringify(command.input), uncertain: false,
+        ...command,
+        taskBefore: captureBlockerTask(projectID, taskID, command.input.expected_version, task),
+        identity,
+        csrf: sessionCSRF,
+        projectID,
+        taskID,
+        key: newKey(),
+        body: JSON.stringify(command.input),
+        uncertain: false,
       }
       workReviewIntent = original
       return performReview(original, false)
-    } catch (error) { return Promise.reject(error) }
+    } catch (error) {
+      return Promise.reject(error)
+    }
   }
   const workTaskDependencies = {
     get progress(): WorkReviewProgress | null {
@@ -7449,19 +8534,32 @@ export function createSessionController(
         if (!uuid7.test(projectID)) throw new AccountFailure('invalid-input')
         const captured = captureTaskDependencyQuery(query)
         return reviewRead((signal) => taskDependenciesAPI.candidates(projectID, captured, signal))
-      } catch (error) { return Promise.reject(error) }
+      } catch (error) {
+        return Promise.reject(error)
+      }
     },
     add: (projectID: string, taskID: string, value: TaskDependencyDraft, task: Task) =>
       startTaskDependency(projectID, taskID, value, task),
-    resolve: (projectID: string, taskID: string, value: TaskDependencyResolveInput, relatedTaskID: string, task: Task) =>
-      startTaskDependency(projectID, taskID, value, task, relatedTaskID),
+    resolve: (
+      projectID: string,
+      taskID: string,
+      value: TaskDependencyResolveInput,
+      relatedTaskID: string,
+      task: Task,
+    ) => startTaskDependency(projectID, taskID, value, task, relatedTaskID),
     lookup() {
-      if (!workReviewIntent?.kind.startsWith('dependency-')) return Promise.reject(new AccountFailure('invalid-input'))
+      if (!workReviewIntent?.kind.startsWith('dependency-'))
+        return Promise.reject(new AccountFailure('invalid-input'))
       return workReview.checkOriginal()
     },
     forgetUnavailable(projectID: string, taskID?: string) {
       const value = workReviewState.progress
-      if (value?.kind.startsWith('dependency-') && value.projectID === projectID && (!taskID || value.taskID === taskID)) clearWorkReviewState()
+      if (
+        value?.kind.startsWith('dependency-') &&
+        value.projectID === projectID &&
+        (!taskID || value.taskID === taskID)
+      )
+        clearWorkReviewState()
     },
   }
   function clearSchedulerRead() {
@@ -7469,106 +8567,203 @@ export function createSessionController(
     if (owner?.kind === 'scheduler-read') owner.abandon?.()
   }
   function clearSchedulerPayload(original: SchedulerIntent | null) {
-    if (original) { original.payload.input = null; original.payload.body = null }
+    if (original) {
+      original.payload.input = null
+      original.payload.body = null
+    }
   }
   function clearSchedulerState(retire = true) {
-    for (const kind of Object.keys(schedulerRevisions) as SchedulerAction[]) ++schedulerRevisions[kind]
+    for (const kind of Object.keys(schedulerRevisions) as SchedulerAction[])
+      ++schedulerRevisions[kind]
     clearSchedulerPayload(schedulerIntent)
     schedulerIntent = null
     schedulerProgressContext = null
     schedulerState.progress = null
     if (retire && owner && isSchedulerAction(owner.kind)) owner.abandon?.()
   }
-  function schedulerFailure(identity: PersonalIdentity, op: Operation, current: () => boolean, error: unknown) {
+  function schedulerFailure(
+    identity: PersonalIdentity,
+    op: Operation,
+    current: () => boolean,
+    error: unknown,
+  ) {
     const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
     if (!current()) return e
     const result = projectFailure(identity, op, e)
     if ([401, 403, 404].includes(e.problem?.status ?? 0)) clearSchedulerState(false)
     return result
   }
-  function publishScheduler(original: SchedulerIntent, phase: ProjectSchedulerProgress['phase'], receipt: ProjectSchedulerReceipt | null = null, observation: ProjectSchedulerProgress['observation'] = 'none') {
+  function publishScheduler(
+    original: SchedulerIntent,
+    phase: ProjectSchedulerProgress['phase'],
+    receipt: ProjectSchedulerReceipt | null = null,
+    observation: ProjectSchedulerProgress['observation'] = 'none',
+  ) {
     schedulerProgressContext = { identity: original.identity, csrf: original.csrf }
-    schedulerState.progress = Object.freeze({ projectID: original.projectID, phase, receipt, observation })
+    schedulerState.progress = Object.freeze({
+      projectID: original.projectID,
+      phase,
+      receipt,
+      observation,
+    })
   }
-  function performScheduler(original: SchedulerIntent, lookup = false): Promise<ProjectSchedulerReceipt | ProjectSchedulerLookup> {
+  function performScheduler(
+    original: SchedulerIntent,
+    lookup = false,
+  ): Promise<ProjectSchedulerReceipt | ProjectSchedulerLookup> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     const kind: SchedulerAction = lookup ? 'scheduler-lookup' : 'scheduler-write'
     const revision = schedulerRevisions[kind]
-    const live = () => schedulerIntent === original && !!original.payload.input && projectContext(original) && revision === schedulerRevisions[kind]
+    const live = () =>
+      schedulerIntent === original &&
+      !!original.payload.input &&
+      projectContext(original) &&
+      revision === schedulerRevisions[kind]
     if (!live()) return Promise.reject(new AccountFailure('invalid-input'))
     let dispatched = false
     if (!lookup) publishScheduler(original, 'submitting')
-    return runAuthorized<ProjectSchedulerReceipt | ProjectSchedulerLookup>(original.identity, async (op, current) => {
-      const input = original.payload.input
-      if (!input || !current() || !live()) throw new AccountFailure('cancelled')
-      if (JSON.stringify(input) !== original.payload.body) throw new AccountFailure('invalid-input')
-      dispatched = true
-      try {
-        const write = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
-        return lookup
-          ? await schedulerAPI.lookup(original.projectID, original.identity.userID, write)
-          : await schedulerAPI.update(original.projectID, input, write)
-      } finally { if (schedulerIntent !== original) clearSchedulerPayload(original) }
-    }, undefined, kind).then(value => {
-      if (!live()) throw new AccountFailure('cancelled')
-      if ('state' in value && value.state !== 'committed') {
-        publishScheduler(original, 'uncertain', null, value.state)
+    return runAuthorized<ProjectSchedulerReceipt | ProjectSchedulerLookup>(
+      original.identity,
+      async (op, current) => {
+        const input = original.payload.input
+        if (!input || !current() || !live()) throw new AccountFailure('cancelled')
+        if (JSON.stringify(input) !== original.payload.body)
+          throw new AccountFailure('invalid-input')
+        dispatched = true
+        try {
+          const write = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
+          return lookup
+            ? await schedulerAPI.lookup(original.projectID, original.identity.userID, write)
+            : await schedulerAPI.update(original.projectID, input, write)
+        } finally {
+          if (schedulerIntent !== original) clearSchedulerPayload(original)
+        }
+      },
+      undefined,
+      kind,
+    ).then(
+      (value) => {
+        if (!live()) throw new AccountFailure('cancelled')
+        if ('state' in value && value.state !== 'committed') {
+          publishScheduler(original, 'uncertain', null, value.state)
+          return value
+        }
+        // Lookup confirms a historical key only; neither response publishes current configuration.
+        const receipt = 'state' in value ? value.receipt : value
+        publishScheduler(original, 'confirmed', receipt, lookup ? 'committed' : 'none')
+        clearSchedulerPayload(original)
+        schedulerIntent = null
         return value
-      }
-      // Lookup confirms a historical key only; neither response publishes current configuration.
-      const receipt = 'state' in value ? value.receipt : value
-      publishScheduler(original, 'confirmed', receipt, lookup ? 'committed' : 'none')
-      clearSchedulerPayload(original)
-      schedulerIntent = null
-      return value
-    }, (error: unknown) => {
-      const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
-      if (schedulerIntent === original && revision === schedulerRevisions[kind] && sameIdentity(original.identity, personalContext.identity)) {
-        const p = e.problem
-        const known = !dispatched || (!!p && ['not_started', 'not_committed'].includes(p.commit_state) && ['INVALID_ARGUMENT', 'VERSION_CONFLICT', 'INVALID_STATE', 'PROJECT_NOT_ACTIVE'].includes(p.code))
-        original.keyConflict ||= p?.code === 'IDEMPOTENCY_KEY_REUSED'
-        original.uncertain ||= lookup || !known || original.keyConflict
-        publishScheduler(original, original.uncertain ? 'uncertain' : 'rejected', null, lookup ? 'failed' : 'none')
-      }
-      throw e
-    })
+      },
+      (error: unknown) => {
+        const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (
+          schedulerIntent === original &&
+          revision === schedulerRevisions[kind] &&
+          sameIdentity(original.identity, personalContext.identity)
+        ) {
+          const p = e.problem
+          const known =
+            !dispatched ||
+            (!!p &&
+              ['not_started', 'not_committed'].includes(p.commit_state) &&
+              [
+                'INVALID_ARGUMENT',
+                'VERSION_CONFLICT',
+                'INVALID_STATE',
+                'PROJECT_NOT_ACTIVE',
+              ].includes(p.code))
+          original.keyConflict ||= p?.code === 'IDEMPOTENCY_KEY_REUSED'
+          original.uncertain ||= lookup || !known || original.keyConflict
+          publishScheduler(
+            original,
+            original.uncertain ? 'uncertain' : 'rejected',
+            null,
+            lookup ? 'failed' : 'none',
+          )
+        }
+        throw e
+      },
+    )
   }
   const projectScheduler = {
     get progress(): ProjectSchedulerProgress | null {
       const value = schedulerState.progress
       if (!value) return null
       const contextValid = !!schedulerProgressContext && projectContext(schedulerProgressContext)
-      return Object.freeze({ ...value, contextValid, canRetryOriginal: !!schedulerIntent?.payload.input && schedulerIntent.uncertain && !schedulerIntent.keyConflict && value.observation !== 'in_progress' && contextValid && !state.busy })
+      return Object.freeze({
+        ...value,
+        contextValid,
+        canRetryOriginal:
+          !!schedulerIntent?.payload.input &&
+          schedulerIntent.uncertain &&
+          !schedulerIntent.keyConflict &&
+          value.observation !== 'in_progress' &&
+          contextValid &&
+          !state.busy,
+      })
     },
     get(project: string) {
       try {
-        const target = captureProjectSchedulerID(project), identity = personalIdentity()
-        return runAuthorized(identity, (op) => schedulerAPI.get(target, op.abort.signal), undefined, 'scheduler-read')
-      } catch (e) { return Promise.reject(e) }
+        const target = captureProjectSchedulerID(project),
+          identity = personalIdentity()
+        return runAuthorized(
+          identity,
+          (op) => schedulerAPI.get(target, op.abort.signal),
+          undefined,
+          'scheduler-read',
+        )
+      } catch (e) {
+        return Promise.reject(e)
+      }
     },
     startUpdate(project: string, value: ProjectSchedulerUpdate) {
       try {
         const identity = personalIdentity()
         if (owner || schedulerIntent || personalIntent || pending) throw new AccountFailure('busy')
-        const projectID = captureProjectSchedulerID(project), input = captureProjectSchedulerUpdate(value)
-        const original: SchedulerIntent = { projectID, identity, csrf: sessionCSRF, key: newKey(), payload: { input, body: JSON.stringify(input) }, uncertain: false, keyConflict: false }
+        const projectID = captureProjectSchedulerID(project),
+          input = captureProjectSchedulerUpdate(value)
+        const original: SchedulerIntent = {
+          projectID,
+          identity,
+          csrf: sessionCSRF,
+          key: newKey(),
+          payload: { input, body: JSON.stringify(input) },
+          uncertain: false,
+          keyConflict: false,
+        }
         schedulerIntent = original
         return performScheduler(original)
-      } catch (e) { return Promise.reject(e) }
+      } catch (e) {
+        return Promise.reject(e)
+      }
     },
     checkOriginal() {
-      if (!schedulerIntent?.uncertain || !projectContext(schedulerIntent)) return Promise.reject(new AccountFailure('invalid-input'))
+      if (!schedulerIntent?.uncertain || !projectContext(schedulerIntent))
+        return Promise.reject(new AccountFailure('invalid-input'))
       return performScheduler(schedulerIntent, true)
     },
     retryOriginal() {
-      if (!schedulerIntent || !projectScheduler.progress?.canRetryOriginal) return Promise.reject(new AccountFailure('invalid-input'))
+      if (!schedulerIntent || !projectScheduler.progress?.canRetryOriginal)
+        return Promise.reject(new AccountFailure('invalid-input'))
       return performScheduler(schedulerIntent)
     },
     editRejected() {
-      if (owner || !schedulerIntent || schedulerIntent.uncertain || schedulerState.progress?.phase !== 'rejected' || !projectContext(schedulerIntent)) throw new AccountFailure('invalid-input')
+      if (
+        owner ||
+        !schedulerIntent ||
+        schedulerIntent.uncertain ||
+        schedulerState.progress?.phase !== 'rejected' ||
+        !projectContext(schedulerIntent)
+      )
+        throw new AccountFailure('invalid-input')
       clearSchedulerState()
+      clearMCPState()
+      clearKnowledgeFileState()
     },
-    finishConfirmed() { if (!owner && schedulerState.progress?.phase === 'confirmed') clearSchedulerState() },
+    finishConfirmed() {
+      if (!owner && schedulerState.progress?.phase === 'confirmed') clearSchedulerState()
+    },
     abandonRead: clearSchedulerRead,
     abandon: () => clearSchedulerState(),
   }
@@ -7677,8 +8872,7 @@ export function createSessionController(
         return result
       },
       (error: unknown) => {
-        const failure =
-          error instanceof AccountFailure ? error : new AccountFailure('transport')
+        const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
         if (
           projectCreationIntent === original &&
           sameIdentity(original.identity, personalContext.identity)
@@ -7766,8 +8960,7 @@ export function createSessionController(
       clearProjectCreationState()
     },
     clearReady() {
-      if (!owner && projectCreationState.progress?.phase === 'ready')
-        clearProjectCreationState()
+      if (!owner && projectCreationState.progress?.phase === 'ready') clearProjectCreationState()
     },
   }
   function clearProjectState() {
@@ -8955,7 +10148,17 @@ export function createSessionController(
     startRename(projectID: string, documentID: string, value: KnowledgeRenameInput) {
       try {
         const identity = personalIdentity()
-        if (owner || knowledgeMoveIntent || artifactCreationIntent || knowledgeIntent || knowledgeTextIntent || knowledgeDeleteIntent || personalIntent || pending)
+        if (
+          owner ||
+          knowledgeMoveIntent ||
+          artifactCreationIntent ||
+          knowledgeIntent ||
+          knowledgeTextIntent ||
+          knowledgeFiles.pending ||
+          knowledgeDeleteIntent ||
+          personalIntent ||
+          pending
+        )
           throw new AccountFailure('busy')
         const input = captureKnowledgeRename(value)
         const original: KnowledgeCommandIntent = {
@@ -9055,18 +10258,8 @@ export function createSessionController(
         try {
           const write = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
           return lookup
-            ? await knowledgeMoveAPI.lookup(
-                original.projectID,
-                original.documentID,
-                input,
-                write,
-              )
-            : await knowledgeMoveAPI.move(
-                original.projectID,
-                original.documentID,
-                input,
-                write,
-              )
+            ? await knowledgeMoveAPI.lookup(original.projectID, original.documentID, input, write)
+            : await knowledgeMoveAPI.move(original.projectID, original.documentID, input, write)
         } finally {
           if (knowledgeMoveIntent !== original) clearKnowledgeMovePayload(original)
         }
@@ -9142,7 +10335,17 @@ export function createSessionController(
     startMove(projectID: string, documentID: string, value: KnowledgeMoveInput) {
       try {
         const identity = personalIdentity()
-        if (owner || knowledgeDeleteIntent || artifactCreationIntent || knowledgeMoveIntent || knowledgeIntent || knowledgeTextIntent || personalIntent || pending)
+        if (
+          owner ||
+          knowledgeDeleteIntent ||
+          artifactCreationIntent ||
+          knowledgeMoveIntent ||
+          knowledgeIntent ||
+          knowledgeTextIntent ||
+          knowledgeFiles.pending ||
+          personalIntent ||
+          pending
+        )
           throw new AccountFailure('busy')
         const input = captureKnowledgeMove(value)
         const original: KnowledgeMoveIntent = {
@@ -9244,21 +10447,15 @@ export function createSessionController(
         try {
           const write = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
           const result = lookup
-            ? await knowledgeDeleteAPI.lookup(
-                original.projectID,
-                original.documentID,
-                input,
-                write,
-              )
-            : await knowledgeDeleteAPI.remove(
-                original.projectID,
-                original.documentID,
-                input,
-                write,
-              )
+            ? await knowledgeDeleteAPI.lookup(original.projectID, original.documentID, input, write)
+            : await knowledgeDeleteAPI.remove(original.projectID, original.documentID, input, write)
           const receipt = 'state' in result ? result.receipt : result
-          if (receipt && (!original.payload.ids || receipt.deleted_ids.length !== original.payload.ids.length ||
-            receipt.deleted_ids.some((id, index) => id !== original.payload.ids![index])))
+          if (
+            receipt &&
+            (!original.payload.ids ||
+              receipt.deleted_ids.length !== original.payload.ids.length ||
+              receipt.deleted_ids.some((id, index) => id !== original.payload.ids![index]))
+          )
             throw new AccountFailure('invalid-response')
           return result
         } finally {
@@ -9325,12 +10522,33 @@ export function createSessionController(
     preview(projectID: string, documentID: string) {
       try {
         const identity = personalIdentity()
-        const project = captureKnowledgeID(projectID), target = captureKnowledgeID(documentID)
-        if (owner || knowledgeMoveIntent || artifactCreationIntent || knowledgeDeleteIntent || knowledgeIntent || knowledgeTextIntent || personalIntent || pending)
+        const project = captureKnowledgeID(projectID),
+          target = captureKnowledgeID(documentID)
+        if (
+          owner ||
+          knowledgeMoveIntent ||
+          artifactCreationIntent ||
+          knowledgeDeleteIntent ||
+          knowledgeIntent ||
+          knowledgeTextIntent ||
+          knowledgeFiles.pending ||
+          personalIntent ||
+          pending
+        )
           throw new AccountFailure('busy')
-        return runAuthorized(identity, (op) => knowledgeDeleteAPI.preview(project, target,
-          { csrfToken: sessionCSRF, signal: op.abort.signal }), undefined, 'knowledge-delete-preview')
-      } catch (error) { return Promise.reject(error) }
+        return runAuthorized(
+          identity,
+          (op) =>
+            knowledgeDeleteAPI.preview(project, target, {
+              csrfToken: sessionCSRF,
+              signal: op.abort.signal,
+            }),
+          undefined,
+          'knowledge-delete-preview',
+        )
+      } catch (error) {
+        return Promise.reject(error)
+      }
     },
     cancelPreview: clearKnowledgeDeletePreview,
     get progress(): KnowledgeDeleteProgress | null {
@@ -9349,15 +10567,34 @@ export function createSessionController(
           !state.busy,
       })
     },
-    startDelete(projectID: string, documentID: string, value: KnowledgeDeleteInput, previewIDs: readonly string[]) {
+    startDelete(
+      projectID: string,
+      documentID: string,
+      value: KnowledgeDeleteInput,
+      previewIDs: readonly string[],
+    ) {
       try {
         const identity = personalIdentity()
-        if (owner || knowledgeMoveIntent || artifactCreationIntent || knowledgeIntent || knowledgeTextIntent || knowledgeDeleteIntent || personalIntent || pending)
+        if (
+          owner ||
+          knowledgeMoveIntent ||
+          artifactCreationIntent ||
+          knowledgeIntent ||
+          knowledgeTextIntent ||
+          knowledgeFiles.pending ||
+          knowledgeDeleteIntent ||
+          personalIntent ||
+          pending
+        )
           throw new AccountFailure('busy')
         const input = captureKnowledgeDelete(value)
-        if (!Array.isArray(previewIDs) || previewIDs.length === 0) throw new AccountFailure('invalid-input')
+        if (!Array.isArray(previewIDs) || previewIDs.length === 0)
+          throw new AccountFailure('invalid-input')
         const ids = Object.freeze(previewIDs.map(captureKnowledgeID).sort())
-        if (!ids.includes(documentID) || ids.some((id, index) => index > 0 && ids[index - 1] === id))
+        if (
+          !ids.includes(documentID) ||
+          ids.some((id, index) => index > 0 && ids[index - 1] === id)
+        )
           throw new AccountFailure('invalid-input')
         const original: KnowledgeDeleteOriginal = {
           projectID: captureKnowledgeID(projectID),
@@ -9532,7 +10769,17 @@ export function createSessionController(
     start(projectID: string, value: KnowledgeTextIntent) {
       try {
         const identity = personalIdentity()
-        if (owner || knowledgeMoveIntent || artifactCreationIntent || knowledgeTextIntent || knowledgeIntent || knowledgeDeleteIntent || personalIntent || pending)
+        if (
+          owner ||
+          knowledgeMoveIntent ||
+          artifactCreationIntent ||
+          knowledgeTextIntent ||
+          knowledgeFiles.pending ||
+          knowledgeIntent ||
+          knowledgeDeleteIntent ||
+          personalIntent ||
+          pending
+        )
           throw new AccountFailure('busy')
         const input = captureKnowledgeText(value)
         const original: KnowledgeTextOriginal = {
@@ -9633,68 +10880,116 @@ export function createSessionController(
     const retiring = owner && isSkillImport(owner.kind) ? owner : null
     ++skillImportRevisions['skill-install']
     ++skillImportRevisions['skill-install-lookup']
-    if (skillImportIntent) { skillImportIntent.input = null; skillImportIntent.body = null }
+    if (skillImportIntent) {
+      skillImportIntent.input = null
+      skillImportIntent.body = null
+    }
     skillImportIntent = null
     skillImportState.progress = null
     retiring?.abandon?.()
   }
-  function performSkillImport(original: SkillImportOriginal, lookup = false): Promise<SkillImportReceipt> {
+  function performSkillImport(
+    original: SkillImportOriginal,
+    lookup = false,
+  ): Promise<SkillImportReceipt> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     if (skillImportIntent !== original || !original.input || !projectContext(original))
       return Promise.reject(new AccountFailure('invalid-input'))
     const kind: SkillImportAction = lookup ? 'skill-install-lookup' : 'skill-install',
       revision = skillImportRevisions[kind]
-    const live = () => skillImportIntent === original && revision === skillImportRevisions[kind] && projectContext(original)
-    const publish = (phase: SkillImportProgress['phase'], receipt: SkillImportReceipt | null = null) => {
-      skillImportState.progress = Object.freeze({ projectID: original.projectID, skillID: original.skillID, phase, receipt })
+    const live = () =>
+      skillImportIntent === original &&
+      revision === skillImportRevisions[kind] &&
+      projectContext(original)
+    const publish = (
+      phase: SkillImportProgress['phase'],
+      receipt: SkillImportReceipt | null = null,
+    ) => {
+      skillImportState.progress = Object.freeze({
+        projectID: original.projectID,
+        skillID: original.skillID,
+        phase,
+        receipt,
+      })
     }
     let dispatched = false
     if (!lookup) publish('submitting')
-    return runAuthorized(original.identity, async (op, current) => {
-      const input = original.input
-      if (!input || !current() || !live()) throw new AccountFailure('cancelled')
-      if (JSON.stringify(input) !== original.body) throw new AccountFailure('invalid-input')
-      dispatched = true
-      const write = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
-      return lookup
-        ? skillImportAPI.lookup(original.projectID, input, write)
-        : skillImportAPI.install(original.projectID, input, write)
-    }, undefined, kind).then((receipt) => {
-      if (!live()) throw new AccountFailure('cancelled')
-      publish('confirmed', receipt)
-      original.input = null
-      original.body = null
-      return receipt
-    }, (error: unknown) => {
-      const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
-      if (live()) {
-        // Only local/pre-dispatch validation or the service's explicit initial
-        // input rejection allows editing. A Lookup fault never erases the intent:
-        // missing, reserved and failed are not permission to create another key.
-        const rejected = !lookup && (!dispatched ||
-          (failure.problem?.code === 'INVALID_ARGUMENT' && failure.problem.commit_state === 'not_started'))
-        publish(rejected ? 'rejected' : 'uncertain')
-      }
-      throw failure
-    })
+    return runAuthorized(
+      original.identity,
+      async (op, current) => {
+        const input = original.input
+        if (!input || !current() || !live()) throw new AccountFailure('cancelled')
+        if (JSON.stringify(input) !== original.body) throw new AccountFailure('invalid-input')
+        dispatched = true
+        const write = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
+        return lookup
+          ? skillImportAPI.lookup(original.projectID, input, write)
+          : skillImportAPI.install(original.projectID, input, write)
+      },
+      undefined,
+      kind,
+    ).then(
+      (receipt) => {
+        if (!live()) throw new AccountFailure('cancelled')
+        publish('confirmed', receipt)
+        original.input = null
+        original.body = null
+        return receipt
+      },
+      (error: unknown) => {
+        const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (live()) {
+          // Only local/pre-dispatch validation or the service's explicit initial
+          // input rejection allows editing. A Lookup fault never erases the intent:
+          // missing, reserved and failed are not permission to create another key.
+          const rejected =
+            !lookup &&
+            (!dispatched ||
+              (failure.problem?.code === 'INVALID_ARGUMENT' &&
+                failure.problem.commit_state === 'not_started'))
+          publish(rejected ? 'rejected' : 'uncertain')
+        }
+        throw failure
+      },
+    )
   }
   const skillImport = {
     get progress(): SkillImportProgress | null {
       const value = skillImportState.progress
-      return value ? Object.freeze({ ...value, contextValid: !!skillImportIntent && projectContext(skillImportIntent) }) : null
+      return value
+        ? Object.freeze({
+            ...value,
+            contextValid: !!skillImportIntent && projectContext(skillImportIntent),
+          })
+        : null
     },
     start(projectID: string, text: string) {
       try {
         const identity = personalIdentity()
-        if (owner || skillImportIntent || personalIntent || pending) throw new AccountFailure('busy')
-        const skillID = newTaskID(), input = captureSkillImport({ request: {
-          skill_id: skillID, mode: 'create', source: { kind: 'text_files', files: [{ path: 'SKILL.md', utf8_text: text }] },
-        } })
-        const original: SkillImportOriginal = { projectID: captureSkillID(projectID), skillID, identity,
-          csrf: sessionCSRF, key: newKey(), input, body: JSON.stringify(input) }
+        if (owner || skillImportIntent || personalIntent || pending)
+          throw new AccountFailure('busy')
+        const skillID = newTaskID(),
+          input = captureSkillImport({
+            request: {
+              skill_id: skillID,
+              mode: 'create',
+              source: { kind: 'text_files', files: [{ path: 'SKILL.md', utf8_text: text }] },
+            },
+          })
+        const original: SkillImportOriginal = {
+          projectID: captureSkillID(projectID),
+          skillID,
+          identity,
+          csrf: sessionCSRF,
+          key: newKey(),
+          input,
+          body: JSON.stringify(input),
+        }
         skillImportIntent = original
         return performSkillImport(original)
-      } catch (error) { return Promise.reject(error) }
+      } catch (error) {
+        return Promise.reject(error)
+      }
     },
     lookup() {
       if (skillImportState.progress?.phase !== 'uncertain' || !skillImportIntent)
@@ -9702,8 +10997,12 @@ export function createSessionController(
       return performSkillImport(skillImportIntent, true)
     },
     clearSettled() {
-      if (owner || !skillImportIntent || !projectContext(skillImportIntent) ||
-          !['confirmed', 'rejected'].includes(skillImportState.progress?.phase ?? ''))
+      if (
+        owner ||
+        !skillImportIntent ||
+        !projectContext(skillImportIntent) ||
+        !['confirmed', 'rejected'].includes(skillImportState.progress?.phase ?? '')
+      )
         throw new AccountFailure('invalid-input')
       clearSkillImport()
     },
@@ -9723,27 +11022,35 @@ export function createSessionController(
   }
   function secretRead<T>(capture: () => (signal: AbortSignal) => Promise<T>): Promise<T> {
     try {
-      const identity = personalIdentity(), work = capture()
-      return runAuthorized(identity, op => work(op.abort.signal), undefined, 'secret-read')
-    } catch (error) { return Promise.reject(error) }
+      const identity = personalIdentity(),
+        work = capture()
+      return runAuthorized(identity, (op) => work(op.abort.signal), undefined, 'secret-read')
+    } catch (error) {
+      return Promise.reject(error)
+    }
   }
   const projectSecrets = {
     list(projectID: string, query: ProjectSecretQuery = {}) {
       return secretRead(() => {
-        const project = captureProjectSecretID(projectID), captured = captureProjectSecretQuery(query)
-        return signal => projectSecretsAPI.list(project, captured, signal)
+        const project = captureProjectSecretID(projectID),
+          captured = captureProjectSecretQuery(query)
+        return (signal) => projectSecretsAPI.list(project, captured, signal)
       })
     },
     get(projectID: string, secretID: string) {
       return secretRead(() => {
-        const project = captureProjectSecretID(projectID), target = captureProjectSecretID(secretID)
-        return signal => projectSecretsAPI.get(project, target, signal)
+        const project = captureProjectSecretID(projectID),
+          target = captureProjectSecretID(secretID)
+        return (signal) => projectSecretsAPI.get(project, target, signal)
       })
     },
     abandon: clearSecretRead,
   }
   function eraseArtifactCreation(original: ArtifactCreationOriginal | null) {
-    if (original) { original.input = null; original.body = null }
+    if (original) {
+      original.input = null
+      original.body = null
+    }
   }
   function clearArtifactCreation() {
     const retiring = owner && isArtifactCreation(owner.kind) ? owner : null
@@ -9755,102 +11062,263 @@ export function createSessionController(
     artifactCreationState.progress = null
     retiring?.abandon?.()
   }
-  function performArtifactCreation(original: ArtifactCreationOriginal, action: 'create' | 'lookup' | 'cancel'): Promise<ArtifactCreationResult | ArtifactCreationLookup | ArtifactCancellation> {
+  function performArtifactCreation(
+    original: ArtifactCreationOriginal,
+    action: 'create' | 'lookup' | 'cancel',
+  ): Promise<ArtifactCreationResult | ArtifactCreationLookup | ArtifactCancellation> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
-    if (artifactCreationIntent !== original || !original.input || !projectContext(original)) return Promise.reject(new AccountFailure('invalid-input'))
-    const kind: ArtifactCreationAction = action === 'create' ? 'artifact-create' : action === 'lookup' ? 'artifact-create-lookup' : 'artifact-create-cancel'
+    if (artifactCreationIntent !== original || !original.input || !projectContext(original))
+      return Promise.reject(new AccountFailure('invalid-input'))
+    const kind: ArtifactCreationAction =
+      action === 'create'
+        ? 'artifact-create'
+        : action === 'lookup'
+          ? 'artifact-create-lookup'
+          : 'artifact-create-cancel'
     const revision = artifactCreationRevisions[kind]
-    const live = () => artifactCreationIntent === original && revision === artifactCreationRevisions[kind] && projectContext(original)
-    const publish = (phase: ArtifactCreationProgress['phase'], observation: ArtifactCreationProgress['observation'], artifact: ArtifactMetadata | null = null) => {
-      artifactCreationState.progress = Object.freeze({ projectID: original.projectID, action, phase, observation, artifact })
+    const live = () =>
+      artifactCreationIntent === original &&
+      revision === artifactCreationRevisions[kind] &&
+      projectContext(original)
+    const publish = (
+      phase: ArtifactCreationProgress['phase'],
+      observation: ArtifactCreationProgress['observation'],
+      artifact: ArtifactMetadata | null = null,
+    ) => {
+      artifactCreationState.progress = Object.freeze({
+        projectID: original.projectID,
+        action,
+        phase,
+        observation,
+        artifact,
+      })
     }
     publish('submitting', 'none')
-    return runAuthorized<ArtifactCreationResult | ArtifactCreationLookup | ArtifactCancellation>(original.identity, async (op, current) => {
-      const input = original.input
-      if (!input || !current() || !live()) throw new AccountFailure('cancelled')
-      if (JSON.stringify(input) !== original.body) throw new AccountFailure('invalid-input')
-      try {
-        const options = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
-        return action === 'create' ? await artifactCreationAPI.create(original.projectID, original.identity.userID, input, options)
-          : action === 'lookup' ? await artifactCreationAPI.lookup(original.projectID, original.identity.userID, input, options)
-          : await artifactCreationAPI.cancel(original.projectID, original.identity.userID, input, options)
-      } finally { if (artifactCreationIntent !== original) eraseArtifactCreation(original) }
-    }, undefined, kind).then(value => {
-      if (!live()) throw new AccountFailure('cancelled')
-      if (!('state' in value) || value.state === 'committed') {
-        publish('confirmed', 'committed', value.artifact)
-        eraseArtifactCreation(original); artifactCreationIntent = null
-      } else if (value.state === 'cancelled') {
-        publish('cancelled', 'cancelled')
-        eraseArtifactCreation(original); artifactCreationIntent = null
-      } else publish('uncertain', value.state)
-      return value
-    }, (error: unknown) => {
-      const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
-      if (artifactCreationIntent === original && revision === artifactCreationRevisions[kind] && sameIdentity(original.identity, personalContext.identity)) {
-        original.keyConflict ||= failure.problem?.code === 'IDEMPOTENCY_KEY_REUSED'
-        // Artifact creation spans transactions: even NotCommitted may follow a
-        // durable pending command. Only original-intent Lookup opens a replay.
-        publish('uncertain', 'failed')
-      }
-      throw failure
-    })
+    return runAuthorized<ArtifactCreationResult | ArtifactCreationLookup | ArtifactCancellation>(
+      original.identity,
+      async (op, current) => {
+        const input = original.input
+        if (!input || !current() || !live()) throw new AccountFailure('cancelled')
+        if (JSON.stringify(input) !== original.body) throw new AccountFailure('invalid-input')
+        try {
+          const options = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
+          return action === 'create'
+            ? await artifactCreationAPI.create(
+                original.projectID,
+                original.identity.userID,
+                input,
+                options,
+              )
+            : action === 'lookup'
+              ? await artifactCreationAPI.lookup(
+                  original.projectID,
+                  original.identity.userID,
+                  input,
+                  options,
+                )
+              : await artifactCreationAPI.cancel(
+                  original.projectID,
+                  original.identity.userID,
+                  input,
+                  options,
+                )
+        } finally {
+          if (artifactCreationIntent !== original) eraseArtifactCreation(original)
+        }
+      },
+      undefined,
+      kind,
+    ).then(
+      (value) => {
+        if (!live()) throw new AccountFailure('cancelled')
+        if (!('state' in value) || value.state === 'committed') {
+          publish('confirmed', 'committed', value.artifact)
+          eraseArtifactCreation(original)
+          artifactCreationIntent = null
+        } else if (value.state === 'cancelled') {
+          publish('cancelled', 'cancelled')
+          eraseArtifactCreation(original)
+          artifactCreationIntent = null
+        } else publish('uncertain', value.state)
+        return value
+      },
+      (error: unknown) => {
+        const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (
+          artifactCreationIntent === original &&
+          revision === artifactCreationRevisions[kind] &&
+          sameIdentity(original.identity, personalContext.identity)
+        ) {
+          original.keyConflict ||= failure.problem?.code === 'IDEMPOTENCY_KEY_REUSED'
+          // Artifact creation spans transactions: even NotCommitted may follow a
+          // durable pending command. Only original-intent Lookup opens a replay.
+          publish('uncertain', 'failed')
+        }
+        throw failure
+      },
+    )
   }
   const artifactCreation = {
     get progress(): ArtifactCreationProgress | null {
       const value = artifactCreationState.progress
       if (!value) return null
       const contextValid = !!artifactCreationIntent && projectContext(artifactCreationIntent)
-      const available = contextValid && !state.busy && !artifactCreationIntent?.keyConflict && value.phase === 'uncertain'
-      return Object.freeze({ ...value, contextValid,
+      const available =
+        contextValid &&
+        !state.busy &&
+        !artifactCreationIntent?.keyConflict &&
+        value.phase === 'uncertain'
+      return Object.freeze({
+        ...value,
+        contextValid,
         canRetryOriginal: available && value.observation === 'not_observed',
-        canCancel: available && (value.observation === 'pending' || value.observation === 'cancel_requested'),
+        canCancel:
+          available &&
+          (value.observation === 'pending' || value.observation === 'cancel_requested'),
       })
     },
     start(projectID: string, value: ArtifactContentInput) {
       try {
         const identity = personalIdentity()
-        if (owner || knowledgeMoveIntent || artifactCreationIntent || knowledgeIntent || knowledgeTextIntent || knowledgeDeleteIntent || personalIntent || pending) throw new AccountFailure('busy')
+        if (
+          owner ||
+          knowledgeMoveIntent ||
+          artifactCreationIntent ||
+          knowledgeIntent ||
+          knowledgeTextIntent ||
+          knowledgeFiles.pending ||
+          knowledgeDeleteIntent ||
+          personalIntent ||
+          pending
+        )
+          throw new AccountFailure('busy')
         const input = captureArtifactContent(value)
-        const original: ArtifactCreationOriginal = { projectID: captureArtifactID(projectID), identity, csrf: sessionCSRF, key: newKey(), input, body: JSON.stringify(input), keyConflict: false }
+        const original: ArtifactCreationOriginal = {
+          projectID: captureArtifactID(projectID),
+          identity,
+          csrf: sessionCSRF,
+          key: newKey(),
+          input,
+          body: JSON.stringify(input),
+          keyConflict: false,
+        }
         artifactCreationIntent = original
         return performArtifactCreation(original, 'create')
-      } catch (error) { return Promise.reject(error) }
+      } catch (error) {
+        return Promise.reject(error)
+      }
     },
     checkOriginal() {
-      if (!artifactCreationIntent || artifactCreation.progress?.phase !== 'uncertain' || !projectContext(artifactCreationIntent)) return Promise.reject(new AccountFailure('invalid-input'))
+      if (
+        !artifactCreationIntent ||
+        artifactCreation.progress?.phase !== 'uncertain' ||
+        !projectContext(artifactCreationIntent)
+      )
+        return Promise.reject(new AccountFailure('invalid-input'))
       return performArtifactCreation(artifactCreationIntent, 'lookup')
     },
     retryOriginal() {
-      if (!artifactCreationIntent || !artifactCreation.progress?.canRetryOriginal) return Promise.reject(new AccountFailure('invalid-input'))
+      if (!artifactCreationIntent || !artifactCreation.progress?.canRetryOriginal)
+        return Promise.reject(new AccountFailure('invalid-input'))
       return performArtifactCreation(artifactCreationIntent, 'create')
     },
     cancelOriginal() {
-      if (!artifactCreationIntent || !artifactCreation.progress?.canCancel) return Promise.reject(new AccountFailure('invalid-input'))
+      if (!artifactCreationIntent || !artifactCreation.progress?.canCancel)
+        return Promise.reject(new AccountFailure('invalid-input'))
       return performArtifactCreation(artifactCreationIntent, 'cancel')
     },
     finish() {
-      if (owner || artifactCreationIntent || !['confirmed', 'cancelled'].includes(artifactCreationState.progress?.phase ?? '')) throw new AccountFailure('invalid-input')
+      if (
+        owner ||
+        artifactCreationIntent ||
+        !['confirmed', 'cancelled'].includes(artifactCreationState.progress?.phase ?? '')
+      )
+        throw new AccountFailure('invalid-input')
       clearArtifactCreation()
     },
     abandonLocal: clearArtifactCreation,
   }
+  function clearArtifactUpload() {
+    const retiring = owner && isArtifactUpload(owner.kind) ? owner : null
+    for (const kind of Object.keys(artifactUploadRevisions) as ArtifactUploadAction[])
+      ++artifactUploadRevisions[kind]
+    artifactUploads.clear()
+    retiring?.abandon?.()
+  }
+  const artifactUploads = createArtifactUploadSession(artifactUploadAPI, {
+    capture() {
+      const identity = personalIdentity()
+      if (
+        owner ||
+        pending ||
+        personalIntent ||
+        artifactCreationIntent ||
+        knowledgeTextIntent ||
+        knowledgeIntent ||
+        knowledgeMoveIntent ||
+        knowledgeDeleteIntent
+      )
+        throw new AccountFailure('busy')
+      return { identity, csrf: sessionCSRF, key: newKey() }
+    },
+    current: (identity) =>
+      sameIdentity(identity, personalContext.identity) && personalContext.phase === 'current',
+    busy: () => !!owner || pending || !!personalIntent,
+    run: (identity, kind, work) =>
+      runAuthorized(identity, (op, current) => work(op.abort.signal, current), undefined, kind),
+    stopPayload() {
+      if (owner?.kind === 'artifact-upload-payload') owner.abandon?.()
+    },
+  })
   function clearArtifactRead() {
     ++artifactReadRevision
     if (owner?.kind === 'artifact-read') owner.abandon?.()
   }
   const projectArtifacts = {
+    metadata(projectID: string, artifactID: string) {
+      try {
+        const identity = personalIdentity(),
+          project = captureArtifactID(projectID),
+          artifact = captureArtifactID(artifactID)
+        return runAuthorized(
+          identity,
+          (op) => artifactMetadataAPI.metadata(project, artifact, op.abort.signal),
+          undefined,
+          'artifact-read',
+        )
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
     list(projectID: string, query: ArtifactQuery) {
       try {
-        const identity = personalIdentity(), project = captureArtifactID(projectID), captured = captureArtifactQuery(query)
-        return runAuthorized(identity, op => projectArtifactsAPI.list(project, captured, op.abort.signal), undefined, 'artifact-read')
-      } catch (error) { return Promise.reject(error) }
+        const identity = personalIdentity(),
+          project = captureArtifactID(projectID),
+          captured = captureArtifactQuery(query)
+        return runAuthorized(
+          identity,
+          (op) => projectArtifactsAPI.list(project, captured, op.abort.signal),
+          undefined,
+          'artifact-read',
+        )
+      } catch (error) {
+        return Promise.reject(error)
+      }
     },
     read(target: ArtifactRef, query: ArtifactReadQuery) {
       try {
-        const identity = personalIdentity(), capturedRef = captureArtifactRef(target), captured = captureArtifactReadQuery(query)
-        return runAuthorized(identity, op => projectArtifactsAPI.read(capturedRef, captured, op.abort.signal), undefined, 'artifact-read')
-      } catch (error) { return Promise.reject(error) }
+        const identity = personalIdentity(),
+          capturedRef = captureArtifactRef(target),
+          captured = captureArtifactReadQuery(query)
+        return runAuthorized(
+          identity,
+          (op) => projectArtifactsAPI.read(capturedRef, captured, op.abort.signal),
+          undefined,
+          'artifact-read',
+        )
+      } catch (error) {
+        return Promise.reject(error)
+      }
     },
     abandon: clearArtifactRead,
   }
@@ -10579,6 +12047,7 @@ export function createSessionController(
     projects,
     projectCreation,
     projectScheduler,
+    projectMCP,
     workReview,
     executionCancel,
     executionApproval,
@@ -10593,12 +12062,17 @@ export function createSessionController(
     projectVariables,
     agentConfiguration,
     agentSkills,
+    meetings,
+    meetingRealtime,
+    inbox,
+    agentMemory,
     projectAudit,
     skills,
     skillImport,
     projectSecrets,
     projectSecretCommands,
     artifactCreation,
+    artifactUploads,
     projectArtifacts,
     projectUsage,
     knowledge,
@@ -10606,6 +12080,7 @@ export function createSessionController(
     knowledgeCommands,
     knowledgeMove,
     knowledgeText,
+    knowledgeFiles,
     projectModelSettings,
     personal,
     system,

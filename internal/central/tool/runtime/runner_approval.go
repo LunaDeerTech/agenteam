@@ -56,11 +56,23 @@ func (e *CompositeExecutor) ReserveApprovalOperation(ctx context.Context, b tc.T
 	if e == nil {
 		return tc.ApprovalOperation{}, fail(f.DependencyUnbound)
 	}
+	if b.MCPBinding.Validate() == nil {
+		if e.mcp == nil {
+			return tc.ApprovalOperation{}, fail(f.DependencyUnbound)
+		}
+		return e.mcp.ReserveApprovalOperation(ctx, b)
+	}
 	return e.runners.ReserveApprovalOperation(ctx, b)
 }
 func (e *CompositeExecutor) RequireApprovalOperationInTx(ctx context.Context, tx f.Tx, op tc.ApprovalOperation) error {
 	if e == nil {
 		return fail(f.DependencyUnbound)
+	}
+	if op.Binding.MCPBinding.Validate() == nil {
+		if e.mcp == nil {
+			return fail(f.DependencyUnbound)
+		}
+		return e.mcp.RequireApprovalOperationInTx(ctx, tx, op)
 	}
 	return e.runners.RequireApprovalOperationInTx(ctx, tx, op)
 }
@@ -68,17 +80,35 @@ func (e *CompositeExecutor) RequireUnattemptedApprovalOperationInTx(ctx context.
 	if e == nil {
 		return fail(f.DependencyUnbound)
 	}
+	if op.Binding.MCPBinding.Validate() == nil {
+		if e.mcp == nil {
+			return fail(f.DependencyUnbound)
+		}
+		return e.mcp.RequireUnattemptedApprovalOperationInTx(ctx, tx, op)
+	}
 	return e.runners.RequireUnattemptedApprovalOperationInTx(ctx, tx, op)
 }
 func (e *CompositeExecutor) RejectApprovalOperationInTx(ctx context.Context, tx f.Tx, op tc.ApprovalOperation, requestID string) error {
 	if e == nil {
 		return fail(f.DependencyUnbound)
 	}
+	if op.Binding.MCPBinding.Validate() == nil {
+		if e.mcp == nil {
+			return fail(f.DependencyUnbound)
+		}
+		return e.mcp.RejectApprovalOperationInTx(ctx, tx, op, requestID)
+	}
 	return e.runners.RejectApprovalOperationInTx(ctx, tx, op, requestID)
 }
 func (e *CompositeExecutor) RequireRejectedOperationInTx(ctx context.Context, tx f.Tx, op tc.ApprovalOperation, requestID string) error {
 	if e == nil {
 		return fail(f.DependencyUnbound)
+	}
+	if op.Binding.MCPBinding.Validate() == nil {
+		if e.mcp == nil {
+			return fail(f.DependencyUnbound)
+		}
+		return e.mcp.RequireRejectedOperationInTx(ctx, tx, op, requestID)
 	}
 	return e.runners.RequireRejectedOperationInTx(ctx, tx, op, requestID)
 }

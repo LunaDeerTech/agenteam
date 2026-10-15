@@ -22,6 +22,7 @@ type controlAuthority interface {
 type controlSession struct {
 	readFile      bool // Only the authenticated, current Hello/Status capability.
 	writeFile     bool
+	skillPrepare  bool
 	command       bool
 	listDirectory bool
 	findFiles     bool
@@ -200,6 +201,7 @@ func (s *controlSession) receive(ctx context.Context, message p.Message) error {
 		s.active = true
 		s.readFile = slices.Contains(value.Capabilities, p.ReadFileOperation)
 		s.writeFile = slices.Contains(value.Capabilities, p.WriteFileOperation)
+		s.skillPrepare = slices.Contains(value.Capabilities, p.SkillPrepareOperation)
 		s.command = slices.Contains(value.Capabilities, p.RunCommandOperation)
 		s.listDirectory = slices.Contains(value.Capabilities, p.ListDirectoryOperation)
 		s.findFiles = slices.Contains(value.Capabilities, p.FindFilesOperation)
@@ -238,6 +240,7 @@ func (s *controlSession) receive(ctx context.Context, message p.Message) error {
 		s.mu.Lock()
 		s.readFile = slices.Contains(value.Capabilities, p.ReadFileOperation)
 		s.writeFile = slices.Contains(value.Capabilities, p.WriteFileOperation)
+		s.skillPrepare = slices.Contains(value.Capabilities, p.SkillPrepareOperation)
 		s.command = slices.Contains(value.Capabilities, p.RunCommandOperation)
 		s.listDirectory = slices.Contains(value.Capabilities, p.ListDirectoryOperation)
 		s.findFiles = slices.Contains(value.Capabilities, p.FindFilesOperation)

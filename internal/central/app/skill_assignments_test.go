@@ -9,10 +9,10 @@ import (
 )
 
 func TestSkillAssignmentRootRequiresBindingsAndPreservesRoutes(t *testing.T) {
-	if got, err := createSkillAssignments(nil, nil, nil, nil, contract.AssignmentEvents{}, nil, nil); err == nil || got != nil {
+	if got, err := createSkillAssignments(nil, nil, nil, nil, contract.AssignmentEvents{}, nil, nil, nil); err == nil || got != nil {
 		t.Fatal("missing same-Store assignment graph accepted")
 	}
-	if got, err := createSkillAssignmentOwner(nil, nil); err == nil || got != nil {
+	if got, err := createSkillAssignmentOwner(nil, nil, nil); err == nil || got != nil {
 		t.Fatal("missing original Agent owner accepted")
 	}
 	base := "/api/v1/projects/01900000-0000-7000-8000-000000000001/agents/01900000-0000-7000-8000-000000000002"

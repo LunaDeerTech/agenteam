@@ -52,6 +52,9 @@ func (a *runtimeAccessAuditAuthority) CheckAppendInTx(ctx context.Context, tx f.
 	if k.Producer != audit.AccessProducer || e.Action != audit.AccessDeny {
 		return a.original.CheckAppendInTx(ctx, tx, entry, key)
 	}
+	if mcpAccessDenial(entry) {
+		return a.original.CheckAppendInTx(ctx, tx, entry, key)
+	}
 	// Preserve the original domain-dispatch scope/producer checks before using
 	// the shared exact Model denial/Project SH/current lifecycle gate.
 	if e.Scope.Details().Kind != i.ProjectScope || audit.ProducerFor(e.Action) != k.Producer {

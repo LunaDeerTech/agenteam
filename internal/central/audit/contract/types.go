@@ -43,7 +43,10 @@ const (
 )
 
 func (a Action) Valid() bool {
-	if SkillAssignmentAction(a) || RunnerAction(a) || AccountAction(a) || ProjectAction(a) || ModelAction(a) || KnowledgeAction(a) || ProjectVariableAction(a) || ProjectSecretVariableAction(a) || AgentAction(a) {
+	if MeetingAction(a) {
+		return true
+	}
+	if MemoryAction(a) || MCPAction(a) || SkillAssignmentAction(a) || RunnerAction(a) || AccountAction(a) || ProjectAction(a) || ModelAction(a) || KnowledgeAction(a) || ProjectVariableAction(a) || ProjectSecretVariableAction(a) || AgentAction(a) {
 		return true
 	}
 	switch a {
@@ -83,7 +86,9 @@ const (
 
 func (k ResourceKind) Valid() bool {
 	switch k {
-	case ProjectResource, ProjectOperationResource, ProjectCreationResource:
+	case MeetingResource:
+		return true
+	case MemoryResource, MemoryNamespaceResource, MCPConfigResource, MCPConnectionResource, ProjectResource, ProjectOperationResource, ProjectCreationResource:
 		return true
 	case ModelProviderResource, ModelConfigResource, ModelSelectionResource:
 		return true
@@ -185,6 +190,21 @@ func NewEntry(f EntryFields) (Entry, error) {
 	}
 	if (a.Kind == identity.Service && a.ServiceName == identity.RunnerIdentity || r.Kind == RunnerResource) && !RunnerAction(f.Action) {
 		return Entry{}, invalid("runner_entry")
+	}
+	if MemoryAction(f.Action) {
+		if err := validateMemoryEntry(f); err != nil {
+			return Entry{}, err
+		}
+	}
+	if MeetingAction(f.Action) {
+		if err := validateMeetingDeletionEntry(f); err != nil {
+			return Entry{}, err
+		}
+	}
+	if MCPAction(f.Action) {
+		if err := validateMCPEntry(f); err != nil {
+			return Entry{}, err
+		}
 	}
 	if RunnerAction(f.Action) {
 		if err := validateRunnerEntry(f); err != nil {
@@ -324,9 +344,21 @@ const (
 )
 
 func (p Producer) Valid() bool {
-	return p == SkillProducer || p == RunnerProducer || p == ProjectVariableProducer || p == KnowledgeProducer || p == ModelProducer || p == ProjectProducer || p == AccountProducer || p == AccountMailProducer || p == SecretProducer || p == MasterProducer || p == PolicyProducer || p == AccessProducer || p == ObjectProducer || p == ArtifactProducer || p == OutboxProducer || p == AgentProducer
+	if p == MeetingProducer {
+		return true
+	}
+	return p == MemoryProducer || p == MCPProducer || p == SkillProducer || p == RunnerProducer || p == ProjectVariableProducer || p == KnowledgeProducer || p == ModelProducer || p == ProjectProducer || p == AccountProducer || p == AccountMailProducer || p == SecretProducer || p == MasterProducer || p == PolicyProducer || p == AccessProducer || p == ObjectProducer || p == ArtifactProducer || p == OutboxProducer || p == AgentProducer
 }
 func ProducerFor(action Action) Producer {
+	if MeetingAction(action) {
+		return MeetingProducer
+	}
+	if MemoryAction(action) {
+		return MemoryProducer
+	}
+	if MCPAction(action) {
+		return MCPProducer
+	}
 	if SkillAssignmentAction(action) {
 		return SkillProducer
 	}

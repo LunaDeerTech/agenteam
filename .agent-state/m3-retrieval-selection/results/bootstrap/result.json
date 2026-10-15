@@ -1,0 +1,28 @@
+{
+  "scope": "isolated UUID-domain SQL/bootstrap; not global migrations or App/Tool acceptance",
+  "passed": true,
+  "checks": [
+    "exact package install and bootstrap of UUID-domain indexes",
+    "production readiness rejects missing extension/index and accepts exact bootstrap",
+    "Knowledge production join predicates: project/current/ready/serving/snapshot/dimension and document/media/source before LIMIT, UUID ties",
+    "Memory production join predicates: namespace/canonical active revision/generation/type/tags before LIMIT, duplicate memory_id generations/revisions, UUID ties",
+    "actual CustomScan plans with default enable_seqscan, production joins and secondary UUID ordering",
+    "repeated bootstrap rejects existing indexes without silently claiming a new install",
+    "production readiness rejects a missing index and a BM25 index with wrong tokenizer, then accepts exact restoration"
+  ],
+  "cleanup": {
+    "pg_stop_exit": 0,
+    "container_exit": "137",
+    "container_absent": true,
+    "network_absent": true
+  },
+  "warnings": [
+    "WARNING:  key_field is deprecated as of 0.26.0 and is a no-op; it no longer needs to be provided",
+    "WARNING:  JoinScan not used: at least one relation lacks a ParadeDB index (tables: c, d, g, ip, st)",
+    "WARNING:  JoinScan not used: at least one relation lacks a ParadeDB index (tables: m, p, r)"
+  ],
+  "query_sha256": {
+    "knowledge": "98bb17e55de7a24d7d8881e4b1b101e949630ca3f0bfc0d80d58f7588ad8fd51",
+    "memory": "260c853322eafb9a247f1fd880db674b8be24f763b97419b5616ac2b01c4e23c"
+  }
+}

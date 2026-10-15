@@ -11,6 +11,7 @@ import (
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/object"
 	pvc "github.com/LunaDeerTech/agenteam/internal/central/projectvariable/contract"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/skill/contract"
 	tc "github.com/LunaDeerTech/agenteam/internal/central/tool/contract"
 )
 
@@ -22,21 +23,25 @@ type MultiRoundDependencies struct {
 	Tools              ToolCallMetadata
 	Guard              *object.ProcessGuard
 	CurrentEnvironment pvc.CurrentProcessEnvironment
+	MeetingDecisions   c.MeetingDecisionAuthority
+	SkillAssignments   sc.RoundAssignmentValidation
 	BindTools          func(*ToolCallDriver) (tc.RunnerDispatcher, tc.RunnerResultAuthority, error)
 	BindApproval       func(*ToolCallDriver) (gc.Gate, error)
 }
 type multiRoundState struct {
-	authority *ToolCallDriver
-	dispatch  tc.RunnerDispatcher
-	results   tc.RunnerResultAuthority
-	guard     *object.ProcessGuard
-	approvals gc.Gate
-	rejected  gc.RejectedResults
+	authority        *ToolCallDriver
+	dispatch         tc.RunnerDispatcher
+	results          tc.RunnerResultAuthority
+	guard            *object.ProcessGuard
+	approvals        gc.Gate
+	rejected         gc.RejectedResults
+	meetingDecisions c.MeetingDecisionAuthority
+	skills           sc.RoundAssignmentValidation
 }
 type MultiRoundDriver struct{ driver *DirectTextDriver }
 
 func NewMultiRoundDriver(store Store, authority *Authority, base DirectTextDependencies, deps MultiRoundDependencies) (*MultiRoundDriver, error) {
-	if nilPort(deps.Models) || nilPort(deps.Tools) || deps.Guard == nil || deps.BindTools == nil || base.Loop == nil {
+	if nilPort(deps.Models) || nilPort(deps.Tools) || nilPort(deps.SkillAssignments) || deps.Guard == nil || deps.BindTools == nil || base.Loop == nil {
 		return nil, fault(f.DependencyUnbound)
 	}
 	d, err := newDirectTextDriver(store, authority, base, &toolCallDependencies{metadata: deps.Tools, currentEnvironment: deps.CurrentEnvironment})
@@ -48,7 +53,7 @@ func NewMultiRoundDriver(store Store, authority *Authority, base DirectTextDepen
 		return nil, fault(f.DependencyUnbound)
 	}
 	toolAuthority := &ToolCallDriver{driver: d}
-	d.state.multi = &multiRoundState{authority: toolAuthority, guard: deps.Guard}
+	d.state.multi = &multiRoundState{authority: toolAuthority, guard: deps.Guard, meetingDecisions: deps.MeetingDecisions, skills: deps.SkillAssignments}
 	dispatch, results, err := deps.BindTools(toolAuthority)
 	if err != nil {
 		return nil, portError(err)

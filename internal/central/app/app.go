@@ -18,7 +18,10 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	rc "github.com/LunaDeerTech/agenteam/internal/central/retrieval/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
 	"github.com/LunaDeerTech/agenteam/internal/platform/lifecycle"
 	"github.com/LunaDeerTech/agenteam/internal/platform/logging"
@@ -38,6 +41,7 @@ type processLogger interface {
 	ShutdownComplete(bool, lifecycle.FailureCode)
 	Database(logging.DatabasePhase, string, string, int64)
 	Security(logging.SecurityPhase)
+	Retrieval(logging.RetrievalDiagnostic)
 	HTTPLogger() *slog.Logger
 	ServerErrorLog() *log.Logger
 }
@@ -61,6 +65,8 @@ type dependencies struct {
 	secret              func(context.Context, config.Config, database, *audit.Service) (maintenance, error)
 	outbound            func(context.Context, config.Config, database, *audit.Service) (egress, error)
 	objects             func(context.Context, config.Config, database, *audit.Service) (objectStorage, error)
+	mcpObjects          func(oc.Objects) oc.Objects
+	mcpModel            func(mc.JSONCaller, oc.SourceResolver, oc.Objects) mc.JSONCaller
 	outbox              func(config.Config, database, *audit.Service, objectStorage) (outboxStorage, error)
 	bind                func(context.Context, config.Config, database, *resources, *dependencies) error
 	secretInitialize    func(context.Context, *secret.Service) error
@@ -69,6 +75,7 @@ type dependencies struct {
 	observeAccount      func(*account.Service)
 	observeProjectUsage func(*projectUsageAssembly)
 	runtimeInformation  runtimeInformationFactory
+	retrievalObserver   rc.Observer
 }
 
 type startupResult struct {
@@ -439,6 +446,7 @@ func initialize(ctx context.Context, cfg config.Config, logger processLogger, de
 	if deps.bind == nil {
 		deps.bind = bindAccounts
 	}
+	deps.retrievalObserver = m3RetrievalObserver{logger: logger}
 	if err := deps.bind(ctx, cfg, store, owned, &deps); err != nil {
 		logger.Security(logging.SecurityFailed)
 		return startupResult{err: err, code: lifecycle.InitializationFailed, securityFailure: true}

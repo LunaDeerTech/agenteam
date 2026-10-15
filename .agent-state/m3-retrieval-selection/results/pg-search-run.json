@@ -1,0 +1,7582 @@
+{
+  "format_version": 1,
+  "dataset_revision": "lexical-v2",
+  "backend": "pg_search",
+  "backend_version": "0.26.1",
+  "config": {
+    "analyzer": "pdb.chinese_compatible with default filters; no external dictionary",
+    "query_mode": "SELECT source_id, paradedb.score(source_id)::double precision AS score FROM candidate_sections WHERE source_id @@@ paradedb.match('index_text', $1, conjunction_mode=>false) ORDER BY score DESC, source_id COLLATE \"C\" ASC LIMIT 20",
+    "ranking": "pg_search BM25; match tokenizer uses index configuration, disjunction mode, no fuzzy/prefix",
+    "candidate_k": 20,
+    "tie_break": "source_id_ascii",
+    "adapter_revision": "m3-lexical-v1"
+  },
+  "results": [
+    {
+      "query_id": "q01",
+      "hits": [
+        {
+          "source_id": "d02-s1",
+          "rank": 1,
+          "native_score": 23.43878173828125
+        },
+        {
+          "source_id": "d01-s2",
+          "rank": 2,
+          "native_score": 20.620441436767578
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 3,
+          "native_score": 20.555644989013672
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 4,
+          "native_score": 16.560182571411133
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 5,
+          "native_score": 13.072534561157227
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 6,
+          "native_score": 11.856343269348145
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 7,
+          "native_score": 11.515266418457031
+        },
+        {
+          "source_id": "d29-s2",
+          "rank": 8,
+          "native_score": 11.179500579833984
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 9,
+          "native_score": 10.644295692443848
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 10,
+          "native_score": 9.686594009399414
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 11,
+          "native_score": 8.597953796386719
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 12,
+          "native_score": 8.209171295166016
+        },
+        {
+          "source_id": "d12-s1",
+          "rank": 13,
+          "native_score": 8.138444900512695
+        },
+        {
+          "source_id": "d06-s1",
+          "rank": 14,
+          "native_score": 8.074122428894043
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 15,
+          "native_score": 8.06542682647705
+        },
+        {
+          "source_id": "d14-s1",
+          "rank": 16,
+          "native_score": 7.655581474304199
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 17,
+          "native_score": 7.620644569396973
+        },
+        {
+          "source_id": "d02-s2",
+          "rank": 18,
+          "native_score": 6.663496494293213
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 19,
+          "native_score": 6.291449546813965
+        },
+        {
+          "source_id": "d19-s2",
+          "rank": 20,
+          "native_score": 6.246522903442383
+        }
+      ]
+    },
+    {
+      "query_id": "q02",
+      "hits": [
+        {
+          "source_id": "d01-s2",
+          "rank": 1,
+          "native_score": 23.337648391723633
+        },
+        {
+          "source_id": "d02-s2",
+          "rank": 2,
+          "native_score": 9.762773513793945
+        },
+        {
+          "source_id": "d05-s1",
+          "rank": 3,
+          "native_score": 7.423375129699707
+        },
+        {
+          "source_id": "d11-s1",
+          "rank": 4,
+          "native_score": 5.610869407653809
+        },
+        {
+          "source_id": "d09-s1",
+          "rank": 5,
+          "native_score": 3.7676873207092285
+        },
+        {
+          "source_id": "d16-s2",
+          "rank": 6,
+          "native_score": 3.3233144283294678
+        },
+        {
+          "source_id": "d17-s1",
+          "rank": 7,
+          "native_score": 3.3233144283294678
+        },
+        {
+          "source_id": "d20-s1",
+          "rank": 8,
+          "native_score": 3.263542652130127
+        },
+        {
+          "source_id": "d29-s1",
+          "rank": 9,
+          "native_score": 2.860790252685547
+        },
+        {
+          "source_id": "d12-s2",
+          "rank": 10,
+          "native_score": 2.827526569366455
+        },
+        {
+          "source_id": "d27-s1",
+          "rank": 11,
+          "native_score": 2.827526569366455
+        },
+        {
+          "source_id": "d07-s1",
+          "rank": 12,
+          "native_score": 2.7632670402526855
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 13,
+          "native_score": 2.6070613861083984
+        },
+        {
+          "source_id": "d30-s1",
+          "rank": 14,
+          "native_score": 1.6377050876617432
+        },
+        {
+          "source_id": "d06-s2",
+          "rank": 15,
+          "native_score": 1.6133744716644287
+        },
+        {
+          "source_id": "d08-s2",
+          "rank": 16,
+          "native_score": 1.6133744716644287
+        },
+        {
+          "source_id": "d31-s1",
+          "rank": 17,
+          "native_score": 1.5832250118255615
+        },
+        {
+          "source_id": "d25-s1",
+          "rank": 18,
+          "native_score": 1.5648161172866821
+        },
+        {
+          "source_id": "d32-s1",
+          "rank": 19,
+          "native_score": 1.5648161172866821
+        },
+        {
+          "source_id": "d24-s1",
+          "rank": 20,
+          "native_score": 1.529253602027893
+        }
+      ]
+    },
+    {
+      "query_id": "q03",
+      "hits": [
+        {
+          "source_id": "d01-s2",
+          "rank": 1,
+          "native_score": 19.9371337890625
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 2,
+          "native_score": 18.977075576782227
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 3,
+          "native_score": 13.379891395568848
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 4,
+          "native_score": 12.419053077697754
+        },
+        {
+          "source_id": "d06-s1",
+          "rank": 5,
+          "native_score": 9.827569961547852
+        },
+        {
+          "source_id": "d05-s1",
+          "rank": 6,
+          "native_score": 8.721295356750488
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 7,
+          "native_score": 8.122456550598145
+        },
+        {
+          "source_id": "d19-s2",
+          "rank": 8,
+          "native_score": 7.98366641998291
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 9,
+          "native_score": 7.9176249504089355
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 10,
+          "native_score": 7.896658897399902
+        },
+        {
+          "source_id": "d14-s1",
+          "rank": 11,
+          "native_score": 7.823848724365234
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 12,
+          "native_score": 7.509883403778076
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 13,
+          "native_score": 6.618965148925781
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 14,
+          "native_score": 6.346250534057617
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 15,
+          "native_score": 6.2896952629089355
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 16,
+          "native_score": 6.046656608581543
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 17,
+          "native_score": 5.510505676269531
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 18,
+          "native_score": 5.504399299621582
+        },
+        {
+          "source_id": "d15-s2",
+          "rank": 19,
+          "native_score": 5.369168281555176
+        },
+        {
+          "source_id": "d29-s2",
+          "rank": 20,
+          "native_score": 5.300871849060059
+        }
+      ]
+    },
+    {
+      "query_id": "q04",
+      "hits": [
+        {
+          "source_id": "d02-s1",
+          "rank": 1,
+          "native_score": 26.040687561035156
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 2,
+          "native_score": 25.028886795043945
+        },
+        {
+          "source_id": "d01-s2",
+          "rank": 3,
+          "native_score": 20.620441436767578
+        },
+        {
+          "source_id": "d14-s1",
+          "rank": 4,
+          "native_score": 18.913711547851562
+        },
+        {
+          "source_id": "d29-s2",
+          "rank": 5,
+          "native_score": 14.422664642333984
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 6,
+          "native_score": 12.885869979858398
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 7,
+          "native_score": 12.381552696228027
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 8,
+          "native_score": 11.501914978027344
+        },
+        {
+          "source_id": "d06-s1",
+          "rank": 9,
+          "native_score": 11.049375534057617
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 10,
+          "native_score": 9.918241500854492
+        },
+        {
+          "source_id": "d02-s2",
+          "rank": 11,
+          "native_score": 9.641979217529297
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 12,
+          "native_score": 9.183441162109375
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 13,
+          "native_score": 8.927196502685547
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 14,
+          "native_score": 8.632975578308105
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 15,
+          "native_score": 8.132768630981445
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 16,
+          "native_score": 7.884920120239258
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 17,
+          "native_score": 7.074790954589844
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 18,
+          "native_score": 6.574948787689209
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 19,
+          "native_score": 6.375491142272949
+        },
+        {
+          "source_id": "d12-s1",
+          "rank": 20,
+          "native_score": 5.718082427978516
+        }
+      ]
+    },
+    {
+      "query_id": "q05",
+      "hits": [
+        {
+          "source_id": "d03-s2",
+          "rank": 1,
+          "native_score": 36.95191192626953
+        },
+        {
+          "source_id": "d03-s1",
+          "rank": 2,
+          "native_score": 27.309925079345703
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 3,
+          "native_score": 20.213096618652344
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 4,
+          "native_score": 15.499313354492188
+        },
+        {
+          "source_id": "d19-s2",
+          "rank": 5,
+          "native_score": 14.749502182006836
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 6,
+          "native_score": 13.860490798950195
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 7,
+          "native_score": 13.263410568237305
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 8,
+          "native_score": 13.08834457397461
+        },
+        {
+          "source_id": "d10-s1",
+          "rank": 9,
+          "native_score": 10.953368186950684
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 10,
+          "native_score": 10.357007026672363
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 11,
+          "native_score": 10.15567684173584
+        },
+        {
+          "source_id": "d06-s1",
+          "rank": 12,
+          "native_score": 7.491091728210449
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 13,
+          "native_score": 7.39271354675293
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 14,
+          "native_score": 7.122258186340332
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 15,
+          "native_score": 6.999302387237549
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 16,
+          "native_score": 6.855281352996826
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 17,
+          "native_score": 6.474801063537598
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 18,
+          "native_score": 6.302770614624023
+        },
+        {
+          "source_id": "d14-s1",
+          "rank": 19,
+          "native_score": 6.268115043640137
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 20,
+          "native_score": 6.092400074005127
+        }
+      ]
+    },
+    {
+      "query_id": "q06",
+      "hits": [
+        {
+          "source_id": "d04-s2",
+          "rank": 1,
+          "native_score": 18.146854400634766
+        },
+        {
+          "source_id": "d17-s1",
+          "rank": 2,
+          "native_score": 11.381396293640137
+        },
+        {
+          "source_id": "d03-s1",
+          "rank": 3,
+          "native_score": 9.888399124145508
+        },
+        {
+          "source_id": "d29-s1",
+          "rank": 4,
+          "native_score": 8.708211898803711
+        },
+        {
+          "source_id": "d23-s1",
+          "rank": 5,
+          "native_score": 6.893258571624756
+        },
+        {
+          "source_id": "d06-s2",
+          "rank": 6,
+          "native_score": 6.812156677246094
+        },
+        {
+          "source_id": "d27-s1",
+          "rank": 7,
+          "native_score": 6.528674125671387
+        },
+        {
+          "source_id": "d01-s2",
+          "rank": 8,
+          "native_score": 6.4908952713012695
+        },
+        {
+          "source_id": "d02-s2",
+          "rank": 9,
+          "native_score": 6.245898246765137
+        },
+        {
+          "source_id": "d12-s2",
+          "rank": 10,
+          "native_score": 5.986161231994629
+        },
+        {
+          "source_id": "d21-s1",
+          "rank": 11,
+          "native_score": 5.61569356918335
+        },
+        {
+          "source_id": "d18-s1",
+          "rank": 12,
+          "native_score": 5.613307952880859
+        },
+        {
+          "source_id": "d19-s1",
+          "rank": 13,
+          "native_score": 5.158157825469971
+        },
+        {
+          "source_id": "d05-s1",
+          "rank": 14,
+          "native_score": 4.802336692810059
+        },
+        {
+          "source_id": "d14-s2",
+          "rank": 15,
+          "native_score": 4.736842155456543
+        },
+        {
+          "source_id": "d26-s1",
+          "rank": 16,
+          "native_score": 4.498788356781006
+        },
+        {
+          "source_id": "d20-s1",
+          "rank": 17,
+          "native_score": 3.9797186851501465
+        },
+        {
+          "source_id": "d10-s2",
+          "rank": 18,
+          "native_score": 3.8355188369750977
+        },
+        {
+          "source_id": "d16-s2",
+          "rank": 19,
+          "native_score": 3.801792621612549
+        },
+        {
+          "source_id": "d22-s1",
+          "rank": 20,
+          "native_score": 3.3503198623657227
+        }
+      ]
+    },
+    {
+      "query_id": "q07",
+      "hits": [
+        {
+          "source_id": "d03-s1",
+          "rank": 1,
+          "native_score": 18.91770362854004
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 2,
+          "native_score": 18.5179443359375
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 3,
+          "native_score": 17.666677474975586
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 4,
+          "native_score": 11.07010269165039
+        },
+        {
+          "source_id": "d19-s2",
+          "rank": 5,
+          "native_score": 10.283828735351562
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 6,
+          "native_score": 9.856521606445312
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 7,
+          "native_score": 9.2931489944458
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 8,
+          "native_score": 8.866229057312012
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 9,
+          "native_score": 7.970075607299805
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 10,
+          "native_score": 7.733394622802734
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 11,
+          "native_score": 7.705062389373779
+        },
+        {
+          "source_id": "d04-s2",
+          "rank": 12,
+          "native_score": 7.462684631347656
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 13,
+          "native_score": 6.444885730743408
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 14,
+          "native_score": 6.089069366455078
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 15,
+          "native_score": 5.911090850830078
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 16,
+          "native_score": 5.662284851074219
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 17,
+          "native_score": 5.261782169342041
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 18,
+          "native_score": 5.0400238037109375
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 19,
+          "native_score": 4.894139766693115
+        },
+        {
+          "source_id": "d21-s2",
+          "rank": 20,
+          "native_score": 4.798179626464844
+        }
+      ]
+    },
+    {
+      "query_id": "q08",
+      "hits": [
+        {
+          "source_id": "d03-s2",
+          "rank": 1,
+          "native_score": 31.316055297851562
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 2,
+          "native_score": 27.59852409362793
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 3,
+          "native_score": 23.270103454589844
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 4,
+          "native_score": 16.819400787353516
+        },
+        {
+          "source_id": "d21-s2",
+          "rank": 5,
+          "native_score": 16.61391830444336
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 6,
+          "native_score": 14.728401184082031
+        },
+        {
+          "source_id": "d15-s2",
+          "rank": 7,
+          "native_score": 11.908527374267578
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 8,
+          "native_score": 9.483587265014648
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 9,
+          "native_score": 8.300958633422852
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 10,
+          "native_score": 7.990472793579102
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 11,
+          "native_score": 7.744926452636719
+        },
+        {
+          "source_id": "d14-s1",
+          "rank": 12,
+          "native_score": 7.266244888305664
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 13,
+          "native_score": 7.106006622314453
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 14,
+          "native_score": 7.063535690307617
+        },
+        {
+          "source_id": "d29-s2",
+          "rank": 15,
+          "native_score": 6.937227725982666
+        },
+        {
+          "source_id": "d10-s1",
+          "rank": 16,
+          "native_score": 6.114107131958008
+        },
+        {
+          "source_id": "d12-s1",
+          "rank": 17,
+          "native_score": 5.8604865074157715
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 18,
+          "native_score": 5.77564001083374
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 19,
+          "native_score": 5.762861251831055
+        },
+        {
+          "source_id": "d19-s2",
+          "rank": 20,
+          "native_score": 5.314278602600098
+        }
+      ]
+    },
+    {
+      "query_id": "q09",
+      "hits": [
+        {
+          "source_id": "d05-s2",
+          "rank": 1,
+          "native_score": 45.73023223876953
+        },
+        {
+          "source_id": "d05-s1",
+          "rank": 2,
+          "native_score": 26.056682586669922
+        },
+        {
+          "source_id": "d06-s1",
+          "rank": 3,
+          "native_score": 25.846933364868164
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 4,
+          "native_score": 24.456510543823242
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 5,
+          "native_score": 19.64935874938965
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 6,
+          "native_score": 19.32225799560547
+        },
+        {
+          "source_id": "d32-s2",
+          "rank": 7,
+          "native_score": 13.690581321716309
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 8,
+          "native_score": 13.249678611755371
+        },
+        {
+          "source_id": "d15-s2",
+          "rank": 9,
+          "native_score": 12.471782684326172
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 10,
+          "native_score": 12.462953567504883
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 11,
+          "native_score": 11.05936050415039
+        },
+        {
+          "source_id": "d12-s1",
+          "rank": 12,
+          "native_score": 10.66311264038086
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 13,
+          "native_score": 10.051568984985352
+        },
+        {
+          "source_id": "d14-s1",
+          "rank": 14,
+          "native_score": 9.798831939697266
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 15,
+          "native_score": 9.428417205810547
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 16,
+          "native_score": 8.428288459777832
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 17,
+          "native_score": 8.407411575317383
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 18,
+          "native_score": 8.32359504699707
+        },
+        {
+          "source_id": "d19-s2",
+          "rank": 19,
+          "native_score": 8.319686889648438
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 20,
+          "native_score": 7.456638336181641
+        }
+      ]
+    },
+    {
+      "query_id": "q10",
+      "hits": [
+        {
+          "source_id": "d05-s1",
+          "rank": 1,
+          "native_score": 12.740242004394531
+        },
+        {
+          "source_id": "d01-s2",
+          "rank": 2,
+          "native_score": 12.158573150634766
+        },
+        {
+          "source_id": "d02-s2",
+          "rank": 3,
+          "native_score": 9.880002975463867
+        },
+        {
+          "source_id": "d06-s2",
+          "rank": 4,
+          "native_score": 9.62368392944336
+        },
+        {
+          "source_id": "d08-s2",
+          "rank": 5,
+          "native_score": 6.356866836547852
+        },
+        {
+          "source_id": "d23-s1",
+          "rank": 6,
+          "native_score": 6.264222145080566
+        },
+        {
+          "source_id": "d19-s1",
+          "rank": 7,
+          "native_score": 5.5854620933532715
+        },
+        {
+          "source_id": "d20-s1",
+          "rank": 8,
+          "native_score": 5.284824371337891
+        },
+        {
+          "source_id": "d03-s1",
+          "rank": 9,
+          "native_score": 4.735428333282471
+        },
+        {
+          "source_id": "d21-s1",
+          "rank": 10,
+          "native_score": 4.598107814788818
+        },
+        {
+          "source_id": "d09-s1",
+          "rank": 11,
+          "native_score": 2.974587917327881
+        },
+        {
+          "source_id": "d11-s1",
+          "rank": 12,
+          "native_score": 2.84907865524292
+        },
+        {
+          "source_id": "d14-s2",
+          "rank": 13,
+          "native_score": 2.516040802001953
+        },
+        {
+          "source_id": "d29-s1",
+          "rank": 14,
+          "native_score": 2.5018601417541504
+        },
+        {
+          "source_id": "d12-s2",
+          "rank": 15,
+          "native_score": 2.4800188541412354
+        },
+        {
+          "source_id": "d27-s1",
+          "rank": 16,
+          "native_score": 2.4800188541412354
+        },
+        {
+          "source_id": "d30-s1",
+          "rank": 17,
+          "native_score": 2.4457058906555176
+        },
+        {
+          "source_id": "d13-s1",
+          "rank": 18,
+          "native_score": 2.3967342376708984
+        },
+        {
+          "source_id": "d18-s1",
+          "rank": 19,
+          "native_score": 2.262988567352295
+        },
+        {
+          "source_id": "d16-s2",
+          "rank": 20,
+          "native_score": 2.089501142501831
+        }
+      ]
+    },
+    {
+      "query_id": "q11",
+      "hits": [
+        {
+          "source_id": "d05-s2",
+          "rank": 1,
+          "native_score": 18.19422721862793
+        },
+        {
+          "source_id": "d05-s1",
+          "rank": 2,
+          "native_score": 15.850028038024902
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 3,
+          "native_score": 10.097392082214355
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 4,
+          "native_score": 9.624963760375977
+        },
+        {
+          "source_id": "d06-s2",
+          "rank": 5,
+          "native_score": 8.899713516235352
+        },
+        {
+          "source_id": "d01-s2",
+          "rank": 6,
+          "native_score": 7.490391254425049
+        },
+        {
+          "source_id": "d06-s1",
+          "rank": 7,
+          "native_score": 7.394647598266602
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 8,
+          "native_score": 7.373814582824707
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 9,
+          "native_score": 7.355405807495117
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 10,
+          "native_score": 6.676322937011719
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 11,
+          "native_score": 6.671453952789307
+        },
+        {
+          "source_id": "d15-s2",
+          "rank": 12,
+          "native_score": 6.0533857345581055
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 13,
+          "native_score": 5.938616752624512
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 14,
+          "native_score": 5.871490001678467
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 15,
+          "native_score": 5.666387557983398
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 16,
+          "native_score": 5.593564987182617
+        },
+        {
+          "source_id": "d21-s1",
+          "rank": 17,
+          "native_score": 5.373926162719727
+        },
+        {
+          "source_id": "d19-s1",
+          "rank": 18,
+          "native_score": 5.317926406860352
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 19,
+          "native_score": 4.84425163269043
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 20,
+          "native_score": 4.729576110839844
+        }
+      ]
+    },
+    {
+      "query_id": "q12",
+      "hits": [
+        {
+          "source_id": "d05-s2",
+          "rank": 1,
+          "native_score": 33.61328887939453
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 2,
+          "native_score": 19.49774932861328
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 3,
+          "native_score": 16.88678741455078
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 4,
+          "native_score": 16.539079666137695
+        },
+        {
+          "source_id": "d14-s1",
+          "rank": 5,
+          "native_score": 15.039191246032715
+        },
+        {
+          "source_id": "d15-s2",
+          "rank": 6,
+          "native_score": 14.81823444366455
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 7,
+          "native_score": 14.531050682067871
+        },
+        {
+          "source_id": "d29-s2",
+          "rank": 8,
+          "native_score": 13.185774803161621
+        },
+        {
+          "source_id": "d06-s1",
+          "rank": 9,
+          "native_score": 12.643527030944824
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 10,
+          "native_score": 12.18138599395752
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 11,
+          "native_score": 10.68559741973877
+        },
+        {
+          "source_id": "d15-s1",
+          "rank": 12,
+          "native_score": 8.71866226196289
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 13,
+          "native_score": 8.19587516784668
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 14,
+          "native_score": 8.042803764343262
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 15,
+          "native_score": 6.847429275512695
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 16,
+          "native_score": 6.798907279968262
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 17,
+          "native_score": 6.774782180786133
+        },
+        {
+          "source_id": "d13-s1",
+          "rank": 18,
+          "native_score": 6.564540386199951
+        },
+        {
+          "source_id": "d19-s2",
+          "rank": 19,
+          "native_score": 6.392767906188965
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 20,
+          "native_score": 6.110457420349121
+        }
+      ]
+    },
+    {
+      "query_id": "q13",
+      "hits": [
+        {
+          "source_id": "d07-s2",
+          "rank": 1,
+          "native_score": 43.410614013671875
+        },
+        {
+          "source_id": "d07-s1",
+          "rank": 2,
+          "native_score": 29.50956916809082
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 3,
+          "native_score": 22.48760414123535
+        },
+        {
+          "source_id": "d10-s1",
+          "rank": 4,
+          "native_score": 10.458024024963379
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 5,
+          "native_score": 9.868678092956543
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 6,
+          "native_score": 8.336959838867188
+        },
+        {
+          "source_id": "d14-s1",
+          "rank": 7,
+          "native_score": 8.268936157226562
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 8,
+          "native_score": 7.561363220214844
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 9,
+          "native_score": 6.9938645362854
+        },
+        {
+          "source_id": "d32-s2",
+          "rank": 10,
+          "native_score": 6.916479110717773
+        },
+        {
+          "source_id": "d19-s2",
+          "rank": 11,
+          "native_score": 6.676847457885742
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 12,
+          "native_score": 6.416619300842285
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 13,
+          "native_score": 5.7783331871032715
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 14,
+          "native_score": 5.663379192352295
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 15,
+          "native_score": 5.288531303405762
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 16,
+          "native_score": 5.195422172546387
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 17,
+          "native_score": 5.182141304016113
+        },
+        {
+          "source_id": "d21-s1",
+          "rank": 18,
+          "native_score": 5.111379146575928
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 19,
+          "native_score": 5.033506393432617
+        },
+        {
+          "source_id": "d31-s1",
+          "rank": 20,
+          "native_score": 4.946130275726318
+        }
+      ]
+    },
+    {
+      "query_id": "q14",
+      "hits": [
+        {
+          "source_id": "d07-s1",
+          "rank": 1,
+          "native_score": 18.373613357543945
+        },
+        {
+          "source_id": "d08-s2",
+          "rank": 2,
+          "native_score": 11.075254440307617
+        },
+        {
+          "source_id": "d02-s2",
+          "rank": 3,
+          "native_score": 5.437897205352783
+        },
+        {
+          "source_id": "d13-s1",
+          "rank": 4,
+          "native_score": 4.392977714538574
+        },
+        {
+          "source_id": "d30-s1",
+          "rank": 5,
+          "native_score": 4.046409606933594
+        },
+        {
+          "source_id": "d16-s2",
+          "rank": 6,
+          "native_score": 3.727429151535034
+        },
+        {
+          "source_id": "d17-s1",
+          "rank": 7,
+          "native_score": 3.727429151535034
+        },
+        {
+          "source_id": "d15-s1",
+          "rank": 8,
+          "native_score": 3.6427183151245117
+        },
+        {
+          "source_id": "d24-s1",
+          "rank": 9,
+          "native_score": 3.258801221847534
+        },
+        {
+          "source_id": "d22-s1",
+          "rank": 10,
+          "native_score": 2.355179786682129
+        },
+        {
+          "source_id": "d05-s1",
+          "rank": 11,
+          "native_score": 1.8176366090774536
+        },
+        {
+          "source_id": "d09-s1",
+          "rank": 12,
+          "native_score": 1.7975788116455078
+        },
+        {
+          "source_id": "d06-s2",
+          "rank": 13,
+          "native_score": 1.6133744716644287
+        },
+        {
+          "source_id": "d11-s1",
+          "rank": 14,
+          "native_score": 1.5897564888000488
+        },
+        {
+          "source_id": "d19-s1",
+          "rank": 15,
+          "native_score": 1.2775651216506958
+        },
+        {
+          "source_id": "d23-s1",
+          "rank": 16,
+          "native_score": 1.2775651216506958
+        },
+        {
+          "source_id": "d29-s1",
+          "rank": 17,
+          "native_score": 1.2775651216506958
+        },
+        {
+          "source_id": "d12-s2",
+          "rank": 18,
+          "native_score": 1.2627103328704834
+        },
+        {
+          "source_id": "d27-s1",
+          "rank": 19,
+          "native_score": 1.2627103328704834
+        },
+        {
+          "source_id": "d14-s2",
+          "rank": 20,
+          "native_score": 1.234013557434082
+        }
+      ]
+    },
+    {
+      "query_id": "q15",
+      "hits": [
+        {
+          "source_id": "d07-s2",
+          "rank": 1,
+          "native_score": 23.610437393188477
+        },
+        {
+          "source_id": "d07-s1",
+          "rank": 2,
+          "native_score": 21.957256317138672
+        },
+        {
+          "source_id": "d08-s2",
+          "rank": 3,
+          "native_score": 12.80433464050293
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 4,
+          "native_score": 10.884532928466797
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 5,
+          "native_score": 9.543245315551758
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 6,
+          "native_score": 8.554282188415527
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 7,
+          "native_score": 8.171403884887695
+        },
+        {
+          "source_id": "d16-s2",
+          "rank": 8,
+          "native_score": 8.145027160644531
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 9,
+          "native_score": 6.2315778732299805
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 10,
+          "native_score": 5.660024642944336
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 11,
+          "native_score": 5.419678211212158
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 12,
+          "native_score": 4.927381992340088
+        },
+        {
+          "source_id": "d14-s1",
+          "rank": 13,
+          "native_score": 4.030584335327148
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 14,
+          "native_score": 3.937113046646118
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 15,
+          "native_score": 3.8215737342834473
+        },
+        {
+          "source_id": "d19-s2",
+          "rank": 16,
+          "native_score": 3.6423826217651367
+        },
+        {
+          "source_id": "d03-s1",
+          "rank": 17,
+          "native_score": 3.0435099601745605
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 18,
+          "native_score": 2.7514193058013916
+        },
+        {
+          "source_id": "d21-s1",
+          "rank": 19,
+          "native_score": 2.658963203430176
+        },
+        {
+          "source_id": "d04-s2",
+          "rank": 20,
+          "native_score": 2.5683205127716064
+        }
+      ]
+    },
+    {
+      "query_id": "q16",
+      "hits": [
+        {
+          "source_id": "d07-s2",
+          "rank": 1,
+          "native_score": 27.445043563842773
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 2,
+          "native_score": 20.06362533569336
+        },
+        {
+          "source_id": "d14-s1",
+          "rank": 3,
+          "native_score": 15.700630187988281
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 4,
+          "native_score": 15.193513870239258
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 5,
+          "native_score": 11.859674453735352
+        },
+        {
+          "source_id": "d07-s1",
+          "rank": 6,
+          "native_score": 11.624472618103027
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 7,
+          "native_score": 11.425167083740234
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 8,
+          "native_score": 10.787739753723145
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 9,
+          "native_score": 9.150476455688477
+        },
+        {
+          "source_id": "d29-s2",
+          "rank": 10,
+          "native_score": 9.079751968383789
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 11,
+          "native_score": 8.170999526977539
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 12,
+          "native_score": 8.082737922668457
+        },
+        {
+          "source_id": "d32-s2",
+          "rank": 13,
+          "native_score": 8.019505500793457
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 14,
+          "native_score": 7.764852523803711
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 15,
+          "native_score": 7.759124279022217
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 16,
+          "native_score": 7.42437744140625
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 17,
+          "native_score": 7.282177925109863
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 18,
+          "native_score": 7.0968708992004395
+        },
+        {
+          "source_id": "d12-s1",
+          "rank": 19,
+          "native_score": 6.729328155517578
+        },
+        {
+          "source_id": "d15-s2",
+          "rank": 20,
+          "native_score": 6.402661323547363
+        }
+      ]
+    },
+    {
+      "query_id": "q17",
+      "hits": [
+        {
+          "source_id": "d09-s2",
+          "rank": 1,
+          "native_score": 32.407711029052734
+        },
+        {
+          "source_id": "d09-s1",
+          "rank": 2,
+          "native_score": 26.245695114135742
+        },
+        {
+          "source_id": "d10-s1",
+          "rank": 3,
+          "native_score": 24.304908752441406
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 4,
+          "native_score": 19.851886749267578
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 5,
+          "native_score": 15.501934051513672
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 6,
+          "native_score": 14.920539855957031
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 7,
+          "native_score": 12.89600944519043
+        },
+        {
+          "source_id": "d29-s2",
+          "rank": 8,
+          "native_score": 11.133502960205078
+        },
+        {
+          "source_id": "d19-s2",
+          "rank": 9,
+          "native_score": 10.793425559997559
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 10,
+          "native_score": 9.377899169921875
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 11,
+          "native_score": 8.525452613830566
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 12,
+          "native_score": 8.347280502319336
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 13,
+          "native_score": 8.253130912780762
+        },
+        {
+          "source_id": "d15-s2",
+          "rank": 14,
+          "native_score": 7.676244735717773
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 15,
+          "native_score": 7.2374677658081055
+        },
+        {
+          "source_id": "d06-s1",
+          "rank": 16,
+          "native_score": 6.969847679138184
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 17,
+          "native_score": 6.648900985717773
+        },
+        {
+          "source_id": "d29-s1",
+          "rank": 18,
+          "native_score": 6.441591262817383
+        },
+        {
+          "source_id": "d30-s1",
+          "rank": 19,
+          "native_score": 6.2220001220703125
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 20,
+          "native_score": 6.048243522644043
+        }
+      ]
+    },
+    {
+      "query_id": "q18",
+      "hits": [
+        {
+          "source_id": "d09-s1",
+          "rank": 1,
+          "native_score": 25.226688385009766
+        },
+        {
+          "source_id": "d10-s2",
+          "rank": 2,
+          "native_score": 16.147336959838867
+        },
+        {
+          "source_id": "d30-s1",
+          "rank": 3,
+          "native_score": 9.640703201293945
+        },
+        {
+          "source_id": "d01-s2",
+          "rank": 4,
+          "native_score": 8.950164794921875
+        },
+        {
+          "source_id": "d08-s2",
+          "rank": 5,
+          "native_score": 7.547009468078613
+        },
+        {
+          "source_id": "d27-s1",
+          "rank": 6,
+          "native_score": 7.409106254577637
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 7,
+          "native_score": 6.953450679779053
+        },
+        {
+          "source_id": "d16-s2",
+          "rank": 8,
+          "native_score": 6.634907245635986
+        },
+        {
+          "source_id": "d02-s2",
+          "rank": 9,
+          "native_score": 6.4841203689575195
+        },
+        {
+          "source_id": "d20-s1",
+          "rank": 10,
+          "native_score": 6.1333231925964355
+        },
+        {
+          "source_id": "d15-s1",
+          "rank": 11,
+          "native_score": 5.604669094085693
+        },
+        {
+          "source_id": "d04-s2",
+          "rank": 12,
+          "native_score": 5.318708419799805
+        },
+        {
+          "source_id": "d03-s1",
+          "rank": 13,
+          "native_score": 5.153534889221191
+        },
+        {
+          "source_id": "d24-s1",
+          "rank": 14,
+          "native_score": 4.975464820861816
+        },
+        {
+          "source_id": "d26-s1",
+          "rank": 15,
+          "native_score": 4.8993096351623535
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 16,
+          "native_score": 4.765610694885254
+        },
+        {
+          "source_id": "d32-s1",
+          "rank": 17,
+          "native_score": 4.472294330596924
+        },
+        {
+          "source_id": "d05-s1",
+          "rank": 18,
+          "native_score": 4.358782768249512
+        },
+        {
+          "source_id": "d06-s2",
+          "rank": 19,
+          "native_score": 4.1545209884643555
+        },
+        {
+          "source_id": "d11-s1",
+          "rank": 20,
+          "native_score": 4.108400821685791
+        }
+      ]
+    },
+    {
+      "query_id": "q19",
+      "hits": [
+        {
+          "source_id": "d09-s1",
+          "rank": 1,
+          "native_score": 16.16926383972168
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 2,
+          "native_score": 14.958731651306152
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 3,
+          "native_score": 14.660295486450195
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 4,
+          "native_score": 11.821664810180664
+        },
+        {
+          "source_id": "d10-s1",
+          "rank": 5,
+          "native_score": 8.447016716003418
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 6,
+          "native_score": 7.473688125610352
+        },
+        {
+          "source_id": "d10-s2",
+          "rank": 7,
+          "native_score": 6.806427001953125
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 8,
+          "native_score": 6.751495361328125
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 9,
+          "native_score": 6.393248558044434
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 10,
+          "native_score": 6.160530090332031
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 11,
+          "native_score": 6.067826271057129
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 12,
+          "native_score": 5.414267539978027
+        },
+        {
+          "source_id": "d07-s1",
+          "rank": 13,
+          "native_score": 5.387187957763672
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 14,
+          "native_score": 5.126736640930176
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 15,
+          "native_score": 4.742077827453613
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 16,
+          "native_score": 4.662158012390137
+        },
+        {
+          "source_id": "d01-s2",
+          "rank": 17,
+          "native_score": 4.40165376663208
+        },
+        {
+          "source_id": "d12-s1",
+          "rank": 18,
+          "native_score": 3.97501540184021
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 19,
+          "native_score": 3.490039825439453
+        },
+        {
+          "source_id": "d32-s2",
+          "rank": 20,
+          "native_score": 3.3762354850769043
+        }
+      ]
+    },
+    {
+      "query_id": "q20",
+      "hits": [
+        {
+          "source_id": "d09-s2",
+          "rank": 1,
+          "native_score": 31.08566665649414
+        },
+        {
+          "source_id": "d09-s1",
+          "rank": 2,
+          "native_score": 24.778377532958984
+        },
+        {
+          "source_id": "d10-s1",
+          "rank": 3,
+          "native_score": 24.41342544555664
+        },
+        {
+          "source_id": "d29-s2",
+          "rank": 4,
+          "native_score": 15.554755210876465
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 5,
+          "native_score": 14.805967330932617
+        },
+        {
+          "source_id": "d12-s1",
+          "rank": 6,
+          "native_score": 14.234153747558594
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 7,
+          "native_score": 13.847445487976074
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 8,
+          "native_score": 13.6507568359375
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 9,
+          "native_score": 10.289015769958496
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 10,
+          "native_score": 9.69990348815918
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 11,
+          "native_score": 9.278359413146973
+        },
+        {
+          "source_id": "d14-s1",
+          "rank": 12,
+          "native_score": 8.648956298828125
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 13,
+          "native_score": 8.235736846923828
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 14,
+          "native_score": 8.038406372070312
+        },
+        {
+          "source_id": "d19-s2",
+          "rank": 15,
+          "native_score": 7.7490105628967285
+        },
+        {
+          "source_id": "d29-s1",
+          "rank": 16,
+          "native_score": 7.6164422035217285
+        },
+        {
+          "source_id": "d10-s2",
+          "rank": 17,
+          "native_score": 7.5600714683532715
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 18,
+          "native_score": 7.31612491607666
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 19,
+          "native_score": 7.169746398925781
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 20,
+          "native_score": 7.121413230895996
+        }
+      ]
+    },
+    {
+      "query_id": "q21",
+      "hits": [
+        {
+          "source_id": "d11-s2",
+          "rank": 1,
+          "native_score": 37.82136535644531
+        },
+        {
+          "source_id": "d11-s1",
+          "rank": 2,
+          "native_score": 19.685028076171875
+        },
+        {
+          "source_id": "d12-s1",
+          "rank": 3,
+          "native_score": 18.318775177001953
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 4,
+          "native_score": 17.53081703186035
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 5,
+          "native_score": 16.50840950012207
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 6,
+          "native_score": 11.635354995727539
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 7,
+          "native_score": 11.489619255065918
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 8,
+          "native_score": 11.151134490966797
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 9,
+          "native_score": 8.587198257446289
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 10,
+          "native_score": 8.425301551818848
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 11,
+          "native_score": 7.651368618011475
+        },
+        {
+          "source_id": "d10-s2",
+          "rank": 12,
+          "native_score": 7.255768299102783
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 13,
+          "native_score": 6.8404107093811035
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 14,
+          "native_score": 6.833121299743652
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 15,
+          "native_score": 6.795359134674072
+        },
+        {
+          "source_id": "d29-s2",
+          "rank": 16,
+          "native_score": 6.462713241577148
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 17,
+          "native_score": 6.354893684387207
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 18,
+          "native_score": 6.239129066467285
+        },
+        {
+          "source_id": "d21-s2",
+          "rank": 19,
+          "native_score": 6.209483623504639
+        },
+        {
+          "source_id": "d16-s2",
+          "rank": 20,
+          "native_score": 5.848821640014648
+        }
+      ]
+    },
+    {
+      "query_id": "q22",
+      "hits": [
+        {
+          "source_id": "d11-s1",
+          "rank": 1,
+          "native_score": 21.300312042236328
+        },
+        {
+          "source_id": "d31-s1",
+          "rank": 2,
+          "native_score": 10.829840660095215
+        },
+        {
+          "source_id": "d25-s1",
+          "rank": 3,
+          "native_score": 9.608475685119629
+        },
+        {
+          "source_id": "d02-s2",
+          "rank": 4,
+          "native_score": 7.271962642669678
+        },
+        {
+          "source_id": "d32-s1",
+          "rank": 5,
+          "native_score": 7.218216896057129
+        },
+        {
+          "source_id": "d12-s2",
+          "rank": 6,
+          "native_score": 6.989755153656006
+        },
+        {
+          "source_id": "d16-s2",
+          "rank": 7,
+          "native_score": 6.599237442016602
+        },
+        {
+          "source_id": "d30-s1",
+          "rank": 8,
+          "native_score": 6.450253963470459
+        },
+        {
+          "source_id": "d09-s1",
+          "rank": 9,
+          "native_score": 5.991332054138184
+        },
+        {
+          "source_id": "d21-s1",
+          "rank": 10,
+          "native_score": 5.599081039428711
+        },
+        {
+          "source_id": "d27-s1",
+          "rank": 11,
+          "native_score": 5.403483867645264
+        },
+        {
+          "source_id": "d14-s2",
+          "rank": 12,
+          "native_score": 5.128108024597168
+        },
+        {
+          "source_id": "d01-s2",
+          "rank": 13,
+          "native_score": 5.112371444702148
+        },
+        {
+          "source_id": "d07-s1",
+          "rank": 14,
+          "native_score": 5.107657432556152
+        },
+        {
+          "source_id": "d17-s1",
+          "rank": 15,
+          "native_score": 4.762311935424805
+        },
+        {
+          "source_id": "d05-s1",
+          "rank": 16,
+          "native_score": 4.227005958557129
+        },
+        {
+          "source_id": "d04-s2",
+          "rank": 17,
+          "native_score": 4.147017955780029
+        },
+        {
+          "source_id": "d10-s2",
+          "rank": 18,
+          "native_score": 4.133153438568115
+        },
+        {
+          "source_id": "d06-s2",
+          "rank": 19,
+          "native_score": 4.099704742431641
+        },
+        {
+          "source_id": "d03-s1",
+          "rank": 20,
+          "native_score": 3.7578258514404297
+        }
+      ]
+    },
+    {
+      "query_id": "q23",
+      "hits": [
+        {
+          "source_id": "d11-s1",
+          "rank": 1,
+          "native_score": 22.570850372314453
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 2,
+          "native_score": 18.444419860839844
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 3,
+          "native_score": 6.985010147094727
+        },
+        {
+          "source_id": "d32-s2",
+          "rank": 4,
+          "native_score": 5.704113483428955
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 5,
+          "native_score": 5.179398536682129
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 6,
+          "native_score": 5.081543922424316
+        },
+        {
+          "source_id": "d21-s2",
+          "rank": 7,
+          "native_score": 4.949339866638184
+        },
+        {
+          "source_id": "d02-s2",
+          "rank": 8,
+          "native_score": 4.8374176025390625
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 9,
+          "native_score": 4.795042514801025
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 10,
+          "native_score": 4.637603759765625
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 11,
+          "native_score": 4.631087303161621
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 12,
+          "native_score": 4.0502214431762695
+        },
+        {
+          "source_id": "d12-s1",
+          "rank": 13,
+          "native_score": 4.015995979309082
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 14,
+          "native_score": 4.0095391273498535
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 15,
+          "native_score": 3.831505298614502
+        },
+        {
+          "source_id": "d16-s2",
+          "rank": 16,
+          "native_score": 3.7186155319213867
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 17,
+          "native_score": 3.425082206726074
+        },
+        {
+          "source_id": "d12-s2",
+          "rank": 18,
+          "native_score": 3.3345839977264404
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 19,
+          "native_score": 3.2485404014587402
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 20,
+          "native_score": 3.143517255783081
+        }
+      ]
+    },
+    {
+      "query_id": "q24",
+      "hits": [
+        {
+          "source_id": "d11-s2",
+          "rank": 1,
+          "native_score": 36.960716247558594
+        },
+        {
+          "source_id": "d12-s1",
+          "rank": 2,
+          "native_score": 29.755084991455078
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 3,
+          "native_score": 18.099987030029297
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 4,
+          "native_score": 15.779282569885254
+        },
+        {
+          "source_id": "d11-s1",
+          "rank": 5,
+          "native_score": 15.288740158081055
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 6,
+          "native_score": 14.672054290771484
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 7,
+          "native_score": 12.433650016784668
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 8,
+          "native_score": 10.894628524780273
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 9,
+          "native_score": 10.019930839538574
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 10,
+          "native_score": 9.626570701599121
+        },
+        {
+          "source_id": "d32-s2",
+          "rank": 11,
+          "native_score": 9.201244354248047
+        },
+        {
+          "source_id": "d16-s2",
+          "rank": 12,
+          "native_score": 9.094449043273926
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 13,
+          "native_score": 8.79565143585205
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 14,
+          "native_score": 7.618810653686523
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 15,
+          "native_score": 7.584029197692871
+        },
+        {
+          "source_id": "d10-s2",
+          "rank": 16,
+          "native_score": 7.255768299102783
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 17,
+          "native_score": 7.189032554626465
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 18,
+          "native_score": 6.32480001449585
+        },
+        {
+          "source_id": "d07-s1",
+          "rank": 19,
+          "native_score": 5.387187957763672
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 20,
+          "native_score": 5.380082607269287
+        }
+      ]
+    },
+    {
+      "query_id": "q25",
+      "hits": [
+        {
+          "source_id": "d13-s2",
+          "rank": 1,
+          "native_score": 32.14085388183594
+        },
+        {
+          "source_id": "d14-s1",
+          "rank": 2,
+          "native_score": 24.948894500732422
+        },
+        {
+          "source_id": "d13-s1",
+          "rank": 3,
+          "native_score": 17.722105026245117
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 4,
+          "native_score": 17.580711364746094
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 5,
+          "native_score": 13.258614540100098
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 6,
+          "native_score": 12.498907089233398
+        },
+        {
+          "source_id": "d10-s1",
+          "rank": 7,
+          "native_score": 12.465434074401855
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 8,
+          "native_score": 11.599912643432617
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 9,
+          "native_score": 9.011760711669922
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 10,
+          "native_score": 8.832773208618164
+        },
+        {
+          "source_id": "d15-s2",
+          "rank": 11,
+          "native_score": 8.643566131591797
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 12,
+          "native_score": 7.817434787750244
+        },
+        {
+          "source_id": "d19-s2",
+          "rank": 13,
+          "native_score": 6.745940208435059
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 14,
+          "native_score": 6.625521659851074
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 15,
+          "native_score": 5.984595775604248
+        },
+        {
+          "source_id": "d14-s2",
+          "rank": 16,
+          "native_score": 5.956966400146484
+        },
+        {
+          "source_id": "d06-s1",
+          "rank": 17,
+          "native_score": 5.831788063049316
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 18,
+          "native_score": 4.715195655822754
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 19,
+          "native_score": 4.57161283493042
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 20,
+          "native_score": 4.524518966674805
+        }
+      ]
+    },
+    {
+      "query_id": "q26",
+      "hits": [
+        {
+          "source_id": "d14-s2",
+          "rank": 1,
+          "native_score": 10.354028701782227
+        },
+        {
+          "source_id": "d13-s1",
+          "rank": 2,
+          "native_score": 10.060551643371582
+        },
+        {
+          "source_id": "d02-s2",
+          "rank": 3,
+          "native_score": 9.880002975463867
+        },
+        {
+          "source_id": "d08-s2",
+          "rank": 4,
+          "native_score": 6.356866836547852
+        },
+        {
+          "source_id": "d15-s1",
+          "rank": 5,
+          "native_score": 6.245898246765137
+        },
+        {
+          "source_id": "d01-s2",
+          "rank": 6,
+          "native_score": 5.833477973937988
+        },
+        {
+          "source_id": "d03-s1",
+          "rank": 7,
+          "native_score": 4.735428333282471
+        },
+        {
+          "source_id": "d05-s1",
+          "rank": 8,
+          "native_score": 3.088209629058838
+        },
+        {
+          "source_id": "d09-s1",
+          "rank": 9,
+          "native_score": 2.974587917327881
+        },
+        {
+          "source_id": "d06-s2",
+          "rank": 10,
+          "native_score": 2.8839476108551025
+        },
+        {
+          "source_id": "d11-s1",
+          "rank": 11,
+          "native_score": 2.84907865524292
+        },
+        {
+          "source_id": "d19-s1",
+          "rank": 12,
+          "native_score": 2.5018601417541504
+        },
+        {
+          "source_id": "d23-s1",
+          "rank": 13,
+          "native_score": 2.5018601417541504
+        },
+        {
+          "source_id": "d29-s1",
+          "rank": 14,
+          "native_score": 2.5018601417541504
+        },
+        {
+          "source_id": "d12-s2",
+          "rank": 15,
+          "native_score": 2.4800188541412354
+        },
+        {
+          "source_id": "d27-s1",
+          "rank": 16,
+          "native_score": 2.4800188541412354
+        },
+        {
+          "source_id": "d30-s1",
+          "rank": 17,
+          "native_score": 2.4457058906555176
+        },
+        {
+          "source_id": "d20-s1",
+          "rank": 18,
+          "native_score": 2.3063414096832275
+        },
+        {
+          "source_id": "d18-s1",
+          "rank": 19,
+          "native_score": 2.262988567352295
+        },
+        {
+          "source_id": "d16-s2",
+          "rank": 20,
+          "native_score": 2.089501142501831
+        }
+      ]
+    },
+    {
+      "query_id": "q27",
+      "hits": [
+        {
+          "source_id": "d13-s2",
+          "rank": 1,
+          "native_score": 16.58261489868164
+        },
+        {
+          "source_id": "d13-s1",
+          "rank": 2,
+          "native_score": 15.88453483581543
+        },
+        {
+          "source_id": "d14-s2",
+          "rank": 3,
+          "native_score": 10.95322322845459
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 4,
+          "native_score": 10.400862693786621
+        },
+        {
+          "source_id": "d14-s1",
+          "rank": 5,
+          "native_score": 8.992183685302734
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 6,
+          "native_score": 8.746734619140625
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 7,
+          "native_score": 7.952247142791748
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 8,
+          "native_score": 7.740004539489746
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 9,
+          "native_score": 7.627557277679443
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 10,
+          "native_score": 7.362131595611572
+        },
+        {
+          "source_id": "d15-s2",
+          "rank": 11,
+          "native_score": 7.254337787628174
+        },
+        {
+          "source_id": "d10-s1",
+          "rank": 12,
+          "native_score": 6.898750305175781
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 13,
+          "native_score": 6.295583724975586
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 14,
+          "native_score": 5.824788570404053
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 15,
+          "native_score": 5.795718193054199
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 16,
+          "native_score": 5.363446235656738
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 17,
+          "native_score": 5.356996059417725
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 18,
+          "native_score": 5.201952934265137
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 19,
+          "native_score": 4.657912731170654
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 20,
+          "native_score": 4.593637466430664
+        }
+      ]
+    },
+    {
+      "query_id": "q28",
+      "hits": [
+        {
+          "source_id": "d14-s1",
+          "rank": 1,
+          "native_score": 30.865079879760742
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 2,
+          "native_score": 18.180496215820312
+        },
+        {
+          "source_id": "d13-s1",
+          "rank": 3,
+          "native_score": 16.283695220947266
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 4,
+          "native_score": 11.813610076904297
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 5,
+          "native_score": 11.65737247467041
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 6,
+          "native_score": 9.522531509399414
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 7,
+          "native_score": 8.741851806640625
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 8,
+          "native_score": 8.447774887084961
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 9,
+          "native_score": 8.001172065734863
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 10,
+          "native_score": 7.861910820007324
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 11,
+          "native_score": 7.627379417419434
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 12,
+          "native_score": 7.1996235847473145
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 13,
+          "native_score": 7.057329177856445
+        },
+        {
+          "source_id": "d29-s2",
+          "rank": 14,
+          "native_score": 6.910001277923584
+        },
+        {
+          "source_id": "d12-s1",
+          "rank": 15,
+          "native_score": 6.88562536239624
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 16,
+          "native_score": 6.820224761962891
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 17,
+          "native_score": 6.356203079223633
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 18,
+          "native_score": 6.234596252441406
+        },
+        {
+          "source_id": "d21-s2",
+          "rank": 19,
+          "native_score": 5.276131629943848
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 20,
+          "native_score": 5.254377365112305
+        }
+      ]
+    },
+    {
+      "query_id": "q29",
+      "hits": [
+        {
+          "source_id": "d15-s2",
+          "rank": 1,
+          "native_score": 44.6558837890625
+        },
+        {
+          "source_id": "d15-s1",
+          "rank": 2,
+          "native_score": 26.013574600219727
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 3,
+          "native_score": 21.105632781982422
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 4,
+          "native_score": 15.863225936889648
+        },
+        {
+          "source_id": "d12-s1",
+          "rank": 5,
+          "native_score": 14.068625450134277
+        },
+        {
+          "source_id": "d10-s1",
+          "rank": 6,
+          "native_score": 13.037901878356934
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 7,
+          "native_score": 12.788269996643066
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 8,
+          "native_score": 12.606534004211426
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 9,
+          "native_score": 12.250179290771484
+        },
+        {
+          "source_id": "d06-s1",
+          "rank": 10,
+          "native_score": 11.842398643493652
+        },
+        {
+          "source_id": "d19-s2",
+          "rank": 11,
+          "native_score": 11.341053009033203
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 12,
+          "native_score": 11.26919174194336
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 13,
+          "native_score": 11.004392623901367
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 14,
+          "native_score": 10.784613609313965
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 15,
+          "native_score": 10.406696319580078
+        },
+        {
+          "source_id": "d21-s2",
+          "rank": 16,
+          "native_score": 9.610547065734863
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 17,
+          "native_score": 9.442322731018066
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 18,
+          "native_score": 8.572643280029297
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 19,
+          "native_score": 8.52767562866211
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 20,
+          "native_score": 8.372055053710938
+        }
+      ]
+    },
+    {
+      "query_id": "q30",
+      "hits": [
+        {
+          "source_id": "d15-s1",
+          "rank": 1,
+          "native_score": 20.280712127685547
+        },
+        {
+          "source_id": "d16-s2",
+          "rank": 2,
+          "native_score": 16.250179290771484
+        },
+        {
+          "source_id": "d09-s1",
+          "rank": 3,
+          "native_score": 13.531664848327637
+        },
+        {
+          "source_id": "d27-s1",
+          "rank": 4,
+          "native_score": 13.05916690826416
+        },
+        {
+          "source_id": "d29-s1",
+          "rank": 5,
+          "native_score": 12.46199893951416
+        },
+        {
+          "source_id": "d23-s1",
+          "rank": 6,
+          "native_score": 7.884000778198242
+        },
+        {
+          "source_id": "d32-s1",
+          "rank": 7,
+          "native_score": 6.922611236572266
+        },
+        {
+          "source_id": "d24-s1",
+          "rank": 8,
+          "native_score": 6.814907550811768
+        },
+        {
+          "source_id": "d13-s1",
+          "rank": 9,
+          "native_score": 6.507201671600342
+        },
+        {
+          "source_id": "d10-s2",
+          "rank": 10,
+          "native_score": 6.372891426086426
+        },
+        {
+          "source_id": "d02-s2",
+          "rank": 11,
+          "native_score": 6.245898246765137
+        },
+        {
+          "source_id": "d22-s1",
+          "rank": 12,
+          "native_score": 6.043761253356934
+        },
+        {
+          "source_id": "d20-s1",
+          "rank": 13,
+          "native_score": 6.009247779846191
+        },
+        {
+          "source_id": "d12-s2",
+          "rank": 14,
+          "native_score": 5.757126808166504
+        },
+        {
+          "source_id": "d26-s1",
+          "rank": 15,
+          "native_score": 5.500359058380127
+        },
+        {
+          "source_id": "d14-s2",
+          "rank": 16,
+          "native_score": 4.736842155456543
+        },
+        {
+          "source_id": "d05-s1",
+          "rank": 17,
+          "native_score": 4.5834808349609375
+        },
+        {
+          "source_id": "d06-s2",
+          "rank": 18,
+          "native_score": 4.520140171051025
+        },
+        {
+          "source_id": "d01-s2",
+          "rank": 19,
+          "native_score": 4.327480316162109
+        },
+        {
+          "source_id": "d17-s1",
+          "rank": 20,
+          "native_score": 4.1501054763793945
+        }
+      ]
+    },
+    {
+      "query_id": "q31",
+      "hits": [
+        {
+          "source_id": "d15-s1",
+          "rank": 1,
+          "native_score": 14.979896545410156
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 2,
+          "native_score": 9.44344425201416
+        },
+        {
+          "source_id": "d15-s2",
+          "rank": 3,
+          "native_score": 8.58810043334961
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 4,
+          "native_score": 6.967748641967773
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 5,
+          "native_score": 6.774782657623291
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 6,
+          "native_score": 6.499457359313965
+        },
+        {
+          "source_id": "d16-s2",
+          "rank": 7,
+          "native_score": 6.382331371307373
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 8,
+          "native_score": 6.091926574707031
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 9,
+          "native_score": 5.472760200500488
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 10,
+          "native_score": 5.309360504150391
+        },
+        {
+          "source_id": "d21-s2",
+          "rank": 11,
+          "native_score": 5.065738677978516
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 12,
+          "native_score": 4.803565502166748
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 13,
+          "native_score": 4.39044713973999
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 14,
+          "native_score": 4.381514549255371
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 15,
+          "native_score": 4.081254005432129
+        },
+        {
+          "source_id": "d10-s1",
+          "rank": 16,
+          "native_score": 3.8539578914642334
+        },
+        {
+          "source_id": "d09-s1",
+          "rank": 17,
+          "native_score": 3.689940929412842
+        },
+        {
+          "source_id": "d23-s1",
+          "rank": 18,
+          "native_score": 3.649705410003662
+        },
+        {
+          "source_id": "d32-s2",
+          "rank": 19,
+          "native_score": 3.571908712387085
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 20,
+          "native_score": 3.3408491611480713
+        }
+      ]
+    },
+    {
+      "query_id": "q32",
+      "hits": [
+        {
+          "source_id": "d15-s2",
+          "rank": 1,
+          "native_score": 26.78447914123535
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 2,
+          "native_score": 21.24416732788086
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 3,
+          "native_score": 15.19874382019043
+        },
+        {
+          "source_id": "d14-s1",
+          "rank": 4,
+          "native_score": 12.727924346923828
+        },
+        {
+          "source_id": "d15-s1",
+          "rank": 5,
+          "native_score": 11.868216514587402
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 6,
+          "native_score": 11.225143432617188
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 7,
+          "native_score": 10.826885223388672
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 8,
+          "native_score": 9.291610717773438
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 9,
+          "native_score": 8.352890014648438
+        },
+        {
+          "source_id": "d12-s1",
+          "rank": 10,
+          "native_score": 8.247420310974121
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 11,
+          "native_score": 7.988093376159668
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 12,
+          "native_score": 7.828606605529785
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 13,
+          "native_score": 7.169859886169434
+        },
+        {
+          "source_id": "d10-s1",
+          "rank": 14,
+          "native_score": 7.101229190826416
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 15,
+          "native_score": 7.06272029876709
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 16,
+          "native_score": 7.039867401123047
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 17,
+          "native_score": 7.002322673797607
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 18,
+          "native_score": 6.676827430725098
+        },
+        {
+          "source_id": "d29-s2",
+          "rank": 19,
+          "native_score": 6.47244119644165
+        },
+        {
+          "source_id": "d19-s2",
+          "rank": 20,
+          "native_score": 6.346521854400635
+        }
+      ]
+    },
+    {
+      "query_id": "q33",
+      "hits": [
+        {
+          "source_id": "d16-s1",
+          "rank": 1,
+          "native_score": 14.081461906433105
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 2,
+          "native_score": 12.364022254943848
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 3,
+          "native_score": 9.539410591125488
+        },
+        {
+          "source_id": "d16-s2",
+          "rank": 4,
+          "native_score": 8.61801528930664
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 5,
+          "native_score": 7.353318691253662
+        },
+        {
+          "source_id": "d19-s2",
+          "rank": 6,
+          "native_score": 6.980165481567383
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 7,
+          "native_score": 6.033578872680664
+        },
+        {
+          "source_id": "d17-s1",
+          "rank": 8,
+          "native_score": 5.664554119110107
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 9,
+          "native_score": 5.456859588623047
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 10,
+          "native_score": 5.176590919494629
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 11,
+          "native_score": 4.958680152893066
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 12,
+          "native_score": 4.759617328643799
+        },
+        {
+          "source_id": "d15-s2",
+          "rank": 13,
+          "native_score": 4.5065412521362305
+        },
+        {
+          "source_id": "d29-s2",
+          "rank": 14,
+          "native_score": 3.5268406867980957
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 15,
+          "native_score": 3.397472620010376
+        },
+        {
+          "source_id": "d21-s2",
+          "rank": 16,
+          "native_score": 3.3408493995666504
+        },
+        {
+          "source_id": "d14-s1",
+          "rank": 17,
+          "native_score": 3.3136560916900635
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 18,
+          "native_score": 3.3136560916900635
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 19,
+          "native_score": 3.2487432956695557
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 20,
+          "native_score": 3.2119140625
+        }
+      ]
+    },
+    {
+      "query_id": "q34",
+      "hits": [
+        {
+          "source_id": "d17-s2",
+          "rank": 1,
+          "native_score": 22.801118850708008
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 2,
+          "native_score": 11.885950088500977
+        },
+        {
+          "source_id": "d32-s2",
+          "rank": 3,
+          "native_score": 11.169517517089844
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 4,
+          "native_score": 10.122892379760742
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 5,
+          "native_score": 9.635519027709961
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 6,
+          "native_score": 9.2313232421875
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 7,
+          "native_score": 8.181323051452637
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 8,
+          "native_score": 7.971949577331543
+        },
+        {
+          "source_id": "d18-s1",
+          "rank": 9,
+          "native_score": 7.8139729499816895
+        },
+        {
+          "source_id": "d19-s2",
+          "rank": 10,
+          "native_score": 7.765966415405273
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 11,
+          "native_score": 7.719362735748291
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 12,
+          "native_score": 7.0686774253845215
+        },
+        {
+          "source_id": "d06-s1",
+          "rank": 13,
+          "native_score": 6.736856460571289
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 14,
+          "native_score": 6.36706018447876
+        },
+        {
+          "source_id": "d15-s2",
+          "rank": 15,
+          "native_score": 6.075392246246338
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 16,
+          "native_score": 6.07205867767334
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 17,
+          "native_score": 5.835526466369629
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 18,
+          "native_score": 5.723291873931885
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 19,
+          "native_score": 5.137445449829102
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 20,
+          "native_score": 5.025567531585693
+        }
+      ]
+    },
+    {
+      "query_id": "q35",
+      "hits": [
+        {
+          "source_id": "d18-s1",
+          "rank": 1,
+          "native_score": 17.374935150146484
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 2,
+          "native_score": 12.46213150024414
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 3,
+          "native_score": 11.926054000854492
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 4,
+          "native_score": 11.582021713256836
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 5,
+          "native_score": 11.363757133483887
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 6,
+          "native_score": 8.790830612182617
+        },
+        {
+          "source_id": "d15-s2",
+          "rank": 7,
+          "native_score": 8.132813453674316
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 8,
+          "native_score": 7.64454460144043
+        },
+        {
+          "source_id": "d20-s1",
+          "rank": 9,
+          "native_score": 7.483218193054199
+        },
+        {
+          "source_id": "d26-s1",
+          "rank": 10,
+          "native_score": 7.483218193054199
+        },
+        {
+          "source_id": "d30-s1",
+          "rank": 11,
+          "native_score": 7.483218193054199
+        },
+        {
+          "source_id": "d22-s1",
+          "rank": 12,
+          "native_score": 7.399718761444092
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 13,
+          "native_score": 7.303679466247559
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 14,
+          "native_score": 7.110169410705566
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 15,
+          "native_score": 6.813292980194092
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 16,
+          "native_score": 6.680245876312256
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 17,
+          "native_score": 5.858505725860596
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 18,
+          "native_score": 5.843618869781494
+        },
+        {
+          "source_id": "d10-s1",
+          "rank": 19,
+          "native_score": 5.732690811157227
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 20,
+          "native_score": 5.074333190917969
+        }
+      ]
+    },
+    {
+      "query_id": "q36",
+      "hits": [
+        {
+          "source_id": "d18-s2",
+          "rank": 1,
+          "native_score": 31.882295608520508
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 2,
+          "native_score": 16.718961715698242
+        },
+        {
+          "source_id": "d32-s2",
+          "rank": 3,
+          "native_score": 12.825868606567383
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 4,
+          "native_score": 11.45634651184082
+        },
+        {
+          "source_id": "d18-s1",
+          "rank": 5,
+          "native_score": 9.975215911865234
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 6,
+          "native_score": 9.787867546081543
+        },
+        {
+          "source_id": "d21-s2",
+          "rank": 7,
+          "native_score": 9.647379875183105
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 8,
+          "native_score": 9.596620559692383
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 9,
+          "native_score": 9.502881050109863
+        },
+        {
+          "source_id": "d15-s2",
+          "rank": 10,
+          "native_score": 9.429076194763184
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 11,
+          "native_score": 8.32660961151123
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 12,
+          "native_score": 8.30492115020752
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 13,
+          "native_score": 8.284643173217773
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 14,
+          "native_score": 8.074895858764648
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 15,
+          "native_score": 7.171970367431641
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 16,
+          "native_score": 6.8431596755981445
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 17,
+          "native_score": 6.610802173614502
+        },
+        {
+          "source_id": "d06-s1",
+          "rank": 18,
+          "native_score": 6.2648515701293945
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 19,
+          "native_score": 5.805130481719971
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 20,
+          "native_score": 5.5638108253479
+        }
+      ]
+    },
+    {
+      "query_id": "q37",
+      "hits": [
+        {
+          "source_id": "d01-s1",
+          "rank": 1,
+          "native_score": 13.083330154418945
+        },
+        {
+          "source_id": "d05-s1",
+          "rank": 2,
+          "native_score": 11.379805564880371
+        },
+        {
+          "source_id": "d19-s1",
+          "rank": 3,
+          "native_score": 10.824131965637207
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 4,
+          "native_score": 10.5199613571167
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 5,
+          "native_score": 9.4534330368042
+        },
+        {
+          "source_id": "d14-s1",
+          "rank": 6,
+          "native_score": 8.762751579284668
+        },
+        {
+          "source_id": "d19-s2",
+          "rank": 7,
+          "native_score": 8.043338775634766
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 8,
+          "native_score": 7.2428998947143555
+        },
+        {
+          "source_id": "d06-s1",
+          "rank": 9,
+          "native_score": 7.093341827392578
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 10,
+          "native_score": 5.208676338195801
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 11,
+          "native_score": 4.732611656188965
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 12,
+          "native_score": 4.517385482788086
+        },
+        {
+          "source_id": "d20-s1",
+          "rank": 13,
+          "native_score": 4.302497863769531
+        },
+        {
+          "source_id": "d01-s2",
+          "rank": 14,
+          "native_score": 3.771068572998047
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 15,
+          "native_score": 3.279447555541992
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 16,
+          "native_score": 3.2692699432373047
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 17,
+          "native_score": 2.5621249675750732
+        },
+        {
+          "source_id": "d29-s2",
+          "rank": 18,
+          "native_score": 1.9576627016067505
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 19,
+          "native_score": 1.835741639137268
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 20,
+          "native_score": 1.835741639137268
+        }
+      ]
+    },
+    {
+      "query_id": "q38",
+      "hits": [
+        {
+          "source_id": "d19-s2",
+          "rank": 1,
+          "native_score": 37.54050827026367
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 2,
+          "native_score": 15.593308448791504
+        },
+        {
+          "source_id": "d29-s2",
+          "rank": 3,
+          "native_score": 13.819246292114258
+        },
+        {
+          "source_id": "d21-s2",
+          "rank": 4,
+          "native_score": 12.014886856079102
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 5,
+          "native_score": 10.46471881866455
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 6,
+          "native_score": 10.311534881591797
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 7,
+          "native_score": 10.171436309814453
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 8,
+          "native_score": 10.089309692382812
+        },
+        {
+          "source_id": "d10-s1",
+          "rank": 9,
+          "native_score": 9.542506217956543
+        },
+        {
+          "source_id": "d12-s1",
+          "rank": 10,
+          "native_score": 8.729950904846191
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 11,
+          "native_score": 8.64078140258789
+        },
+        {
+          "source_id": "d06-s2",
+          "rank": 12,
+          "native_score": 7.896745681762695
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 13,
+          "native_score": 7.3963236808776855
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 14,
+          "native_score": 6.384596347808838
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 15,
+          "native_score": 6.380496025085449
+        },
+        {
+          "source_id": "d03-s1",
+          "rank": 16,
+          "native_score": 6.144977569580078
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 17,
+          "native_score": 5.8862786293029785
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 18,
+          "native_score": 5.419416427612305
+        },
+        {
+          "source_id": "d12-s2",
+          "rank": 19,
+          "native_score": 5.261038780212402
+        },
+        {
+          "source_id": "d10-s2",
+          "rank": 20,
+          "native_score": 4.808498859405518
+        }
+      ]
+    },
+    {
+      "query_id": "q39",
+      "hits": [
+        {
+          "source_id": "d20-s1",
+          "rank": 1,
+          "native_score": 18.82845687866211
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 2,
+          "native_score": 11.586326599121094
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 3,
+          "native_score": 10.987835884094238
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 4,
+          "native_score": 10.131868362426758
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 5,
+          "native_score": 9.449443817138672
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 6,
+          "native_score": 9.04559326171875
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 7,
+          "native_score": 8.994235038757324
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 8,
+          "native_score": 8.719980239868164
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 9,
+          "native_score": 8.113885879516602
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 10,
+          "native_score": 7.917347431182861
+        },
+        {
+          "source_id": "d26-s1",
+          "rank": 11,
+          "native_score": 7.483218193054199
+        },
+        {
+          "source_id": "d30-s1",
+          "rank": 12,
+          "native_score": 7.483218193054199
+        },
+        {
+          "source_id": "d18-s1",
+          "rank": 13,
+          "native_score": 7.399718761444092
+        },
+        {
+          "source_id": "d22-s1",
+          "rank": 14,
+          "native_score": 7.399718761444092
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 15,
+          "native_score": 7.372039318084717
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 16,
+          "native_score": 7.290769100189209
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 17,
+          "native_score": 6.924936294555664
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 18,
+          "native_score": 6.814304351806641
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 19,
+          "native_score": 6.3021697998046875
+        },
+        {
+          "source_id": "d14-s1",
+          "rank": 20,
+          "native_score": 6.29343318939209
+        }
+      ]
+    },
+    {
+      "query_id": "q40",
+      "hits": [
+        {
+          "source_id": "d05-s2",
+          "rank": 1,
+          "native_score": 21.55294418334961
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 2,
+          "native_score": 20.273292541503906
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 3,
+          "native_score": 12.126298904418945
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 4,
+          "native_score": 11.327678680419922
+        },
+        {
+          "source_id": "d20-s1",
+          "rank": 5,
+          "native_score": 8.334429740905762
+        },
+        {
+          "source_id": "d32-s2",
+          "rank": 6,
+          "native_score": 7.657588005065918
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 7,
+          "native_score": 7.522434234619141
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 8,
+          "native_score": 6.3725481033325195
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 9,
+          "native_score": 6.3074164390563965
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 10,
+          "native_score": 6.073468208312988
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 11,
+          "native_score": 5.927796363830566
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 12,
+          "native_score": 5.734847545623779
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 13,
+          "native_score": 5.513454437255859
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 14,
+          "native_score": 5.088967323303223
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 15,
+          "native_score": 4.7334747314453125
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 16,
+          "native_score": 4.708364486694336
+        },
+        {
+          "source_id": "d15-s1",
+          "rank": 17,
+          "native_score": 4.65186071395874
+        },
+        {
+          "source_id": "d10-s1",
+          "rank": 18,
+          "native_score": 4.467729568481445
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 19,
+          "native_score": 4.183243751525879
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 20,
+          "native_score": 4.160837173461914
+        }
+      ]
+    },
+    {
+      "query_id": "q41",
+      "hits": [
+        {
+          "source_id": "d05-s2",
+          "rank": 1,
+          "native_score": 15.095951080322266
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 2,
+          "native_score": 12.249427795410156
+        },
+        {
+          "source_id": "d21-s2",
+          "rank": 3,
+          "native_score": 11.917459487915039
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 4,
+          "native_score": 11.807778358459473
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 5,
+          "native_score": 11.497777938842773
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 6,
+          "native_score": 10.258195877075195
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 7,
+          "native_score": 8.79229736328125
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 8,
+          "native_score": 8.20071029663086
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 9,
+          "native_score": 8.049698829650879
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 10,
+          "native_score": 7.8593597412109375
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 11,
+          "native_score": 7.751523017883301
+        },
+        {
+          "source_id": "d21-s1",
+          "rank": 12,
+          "native_score": 7.70836877822876
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 13,
+          "native_score": 7.331460952758789
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 14,
+          "native_score": 6.244699954986572
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 15,
+          "native_score": 6.1187028884887695
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 16,
+          "native_score": 5.759054183959961
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 17,
+          "native_score": 5.599587917327881
+        },
+        {
+          "source_id": "d15-s2",
+          "rank": 18,
+          "native_score": 5.542148590087891
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 19,
+          "native_score": 5.5310893058776855
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 20,
+          "native_score": 5.267299652099609
+        }
+      ]
+    },
+    {
+      "query_id": "q42",
+      "hits": [
+        {
+          "source_id": "d21-s2",
+          "rank": 1,
+          "native_score": 33.16293716430664
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 2,
+          "native_score": 18.726219177246094
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 3,
+          "native_score": 13.756939888000488
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 4,
+          "native_score": 12.033391952514648
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 5,
+          "native_score": 9.735278129577637
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 6,
+          "native_score": 9.031932830810547
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 7,
+          "native_score": 8.501407623291016
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 8,
+          "native_score": 8.372225761413574
+        },
+        {
+          "source_id": "d32-s2",
+          "rank": 9,
+          "native_score": 8.106912612915039
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 10,
+          "native_score": 7.655854225158691
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 11,
+          "native_score": 6.874661445617676
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 12,
+          "native_score": 6.841353893280029
+        },
+        {
+          "source_id": "d22-s1",
+          "rank": 13,
+          "native_score": 6.587571144104004
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 14,
+          "native_score": 6.561913967132568
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 15,
+          "native_score": 6.423297882080078
+        },
+        {
+          "source_id": "d06-s1",
+          "rank": 16,
+          "native_score": 6.192124366760254
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 17,
+          "native_score": 6.1918840408325195
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 18,
+          "native_score": 5.994324684143066
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 19,
+          "native_score": 5.863277435302734
+        },
+        {
+          "source_id": "d15-s2",
+          "rank": 20,
+          "native_score": 5.696841239929199
+        }
+      ]
+    },
+    {
+      "query_id": "q43",
+      "hits": [
+        {
+          "source_id": "d22-s1",
+          "rank": 1,
+          "native_score": 22.89334487915039
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 2,
+          "native_score": 13.153536796569824
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 3,
+          "native_score": 12.16415023803711
+        },
+        {
+          "source_id": "d21-s2",
+          "rank": 4,
+          "native_score": 11.780086517333984
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 5,
+          "native_score": 11.069485664367676
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 6,
+          "native_score": 9.671233177185059
+        },
+        {
+          "source_id": "d29-s2",
+          "rank": 7,
+          "native_score": 9.482012748718262
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 8,
+          "native_score": 9.448455810546875
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 9,
+          "native_score": 7.882202625274658
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 10,
+          "native_score": 7.877379894256592
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 11,
+          "native_score": 7.721854209899902
+        },
+        {
+          "source_id": "d20-s1",
+          "rank": 12,
+          "native_score": 7.483218193054199
+        },
+        {
+          "source_id": "d26-s1",
+          "rank": 13,
+          "native_score": 7.483218193054199
+        },
+        {
+          "source_id": "d30-s1",
+          "rank": 14,
+          "native_score": 7.483218193054199
+        },
+        {
+          "source_id": "d18-s1",
+          "rank": 15,
+          "native_score": 7.399718761444092
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 16,
+          "native_score": 7.133101463317871
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 17,
+          "native_score": 6.4801435470581055
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 18,
+          "native_score": 5.576630115509033
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 19,
+          "native_score": 5.41565465927124
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 20,
+          "native_score": 5.271785736083984
+        }
+      ]
+    },
+    {
+      "query_id": "q44",
+      "hits": [
+        {
+          "source_id": "d22-s2",
+          "rank": 1,
+          "native_score": 37.77926254272461
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 2,
+          "native_score": 13.83527946472168
+        },
+        {
+          "source_id": "d22-s1",
+          "rank": 3,
+          "native_score": 12.690824508666992
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 4,
+          "native_score": 9.785540580749512
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 5,
+          "native_score": 9.462298393249512
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 6,
+          "native_score": 9.403739929199219
+        },
+        {
+          "source_id": "d21-s2",
+          "rank": 7,
+          "native_score": 8.815324783325195
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 8,
+          "native_score": 8.29902458190918
+        },
+        {
+          "source_id": "d19-s2",
+          "rank": 9,
+          "native_score": 7.800117492675781
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 10,
+          "native_score": 7.052127838134766
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 11,
+          "native_score": 6.759992599487305
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 12,
+          "native_score": 6.343805313110352
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 13,
+          "native_score": 5.885438442230225
+        },
+        {
+          "source_id": "d32-s2",
+          "rank": 14,
+          "native_score": 5.786155700683594
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 15,
+          "native_score": 5.765639305114746
+        },
+        {
+          "source_id": "d10-s1",
+          "rank": 16,
+          "native_score": 5.6181182861328125
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 17,
+          "native_score": 5.435300827026367
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 18,
+          "native_score": 5.3103413581848145
+        },
+        {
+          "source_id": "d21-s1",
+          "rank": 19,
+          "native_score": 4.986822128295898
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 20,
+          "native_score": 4.3490095138549805
+        }
+      ]
+    },
+    {
+      "query_id": "q45",
+      "hits": [
+        {
+          "source_id": "d24-s2",
+          "rank": 1,
+          "native_score": 11.94465160369873
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 2,
+          "native_score": 11.007894515991211
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 3,
+          "native_score": 10.28207778930664
+        },
+        {
+          "source_id": "d06-s1",
+          "rank": 4,
+          "native_score": 9.444498062133789
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 5,
+          "native_score": 8.973517417907715
+        },
+        {
+          "source_id": "d05-s1",
+          "rank": 6,
+          "native_score": 8.441128730773926
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 7,
+          "native_score": 7.954546928405762
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 8,
+          "native_score": 7.480247497558594
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 9,
+          "native_score": 6.654985427856445
+        },
+        {
+          "source_id": "d14-s1",
+          "rank": 10,
+          "native_score": 6.474615097045898
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 11,
+          "native_score": 6.279475688934326
+        },
+        {
+          "source_id": "d23-s1",
+          "rank": 12,
+          "native_score": 5.708255290985107
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 13,
+          "native_score": 5.095861434936523
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 14,
+          "native_score": 4.939996719360352
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 15,
+          "native_score": 4.805473804473877
+        },
+        {
+          "source_id": "d15-s2",
+          "rank": 16,
+          "native_score": 4.463968276977539
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 17,
+          "native_score": 4.431413650512695
+        },
+        {
+          "source_id": "d01-s2",
+          "rank": 18,
+          "native_score": 4.357920169830322
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 19,
+          "native_score": 4.01028299331665
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 20,
+          "native_score": 3.9651122093200684
+        }
+      ]
+    },
+    {
+      "query_id": "q46",
+      "hits": [
+        {
+          "source_id": "d23-s2",
+          "rank": 1,
+          "native_score": 30.061304092407227
+        },
+        {
+          "source_id": "d10-s1",
+          "rank": 2,
+          "native_score": 14.671018600463867
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 3,
+          "native_score": 14.129789352416992
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 4,
+          "native_score": 12.62816333770752
+        },
+        {
+          "source_id": "d19-s2",
+          "rank": 5,
+          "native_score": 12.269486427307129
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 6,
+          "native_score": 12.192259788513184
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 7,
+          "native_score": 10.39659309387207
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 8,
+          "native_score": 9.798264503479004
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 9,
+          "native_score": 9.719719886779785
+        },
+        {
+          "source_id": "d12-s1",
+          "rank": 10,
+          "native_score": 9.685409545898438
+        },
+        {
+          "source_id": "d06-s1",
+          "rank": 11,
+          "native_score": 9.361573219299316
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 12,
+          "native_score": 8.932798385620117
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 13,
+          "native_score": 8.920951843261719
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 14,
+          "native_score": 8.035125732421875
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 15,
+          "native_score": 7.795148849487305
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 16,
+          "native_score": 7.699359893798828
+        },
+        {
+          "source_id": "d21-s2",
+          "rank": 17,
+          "native_score": 7.6726179122924805
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 18,
+          "native_score": 7.474221229553223
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 19,
+          "native_score": 7.2673563957214355
+        },
+        {
+          "source_id": "d15-s2",
+          "rank": 20,
+          "native_score": 6.760791301727295
+        }
+      ]
+    },
+    {
+      "query_id": "q47",
+      "hits": [
+        {
+          "source_id": "d24-s1",
+          "rank": 1,
+          "native_score": 17.600282669067383
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 2,
+          "native_score": 15.834492683410645
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 3,
+          "native_score": 11.57752513885498
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 4,
+          "native_score": 8.57761287689209
+        },
+        {
+          "source_id": "d32-s1",
+          "rank": 5,
+          "native_score": 8.328156471252441
+        },
+        {
+          "source_id": "d28-s1",
+          "rank": 6,
+          "native_score": 8.234180450439453
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 7,
+          "native_score": 7.115449905395508
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 8,
+          "native_score": 7.077793121337891
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 9,
+          "native_score": 6.951945781707764
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 10,
+          "native_score": 6.946462631225586
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 11,
+          "native_score": 6.701502799987793
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 12,
+          "native_score": 6.34819221496582
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 13,
+          "native_score": 6.0455217361450195
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 14,
+          "native_score": 6.041105270385742
+        },
+        {
+          "source_id": "d06-s1",
+          "rank": 15,
+          "native_score": 5.952527046203613
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 16,
+          "native_score": 5.44741678237915
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 17,
+          "native_score": 5.411793231964111
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 18,
+          "native_score": 5.13287878036499
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 19,
+          "native_score": 4.861975193023682
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 20,
+          "native_score": 4.685374736785889
+        }
+      ]
+    },
+    {
+      "query_id": "q48",
+      "hits": [
+        {
+          "source_id": "d24-s2",
+          "rank": 1,
+          "native_score": 33.52986145019531
+        },
+        {
+          "source_id": "d24-s1",
+          "rank": 2,
+          "native_score": 10.0726318359375
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 3,
+          "native_score": 7.630444526672363
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 4,
+          "native_score": 6.031022071838379
+        },
+        {
+          "source_id": "d21-s2",
+          "rank": 5,
+          "native_score": 5.557176113128662
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 6,
+          "native_score": 5.514368057250977
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 7,
+          "native_score": 5.343034267425537
+        },
+        {
+          "source_id": "d32-s2",
+          "rank": 8,
+          "native_score": 5.343034267425537
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 9,
+          "native_score": 4.946262836456299
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 10,
+          "native_score": 4.631087303161621
+        },
+        {
+          "source_id": "d10-s1",
+          "rank": 11,
+          "native_score": 4.167382717132568
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 12,
+          "native_score": 3.980668067932129
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 13,
+          "native_score": 3.980668067932129
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 14,
+          "native_score": 3.742096185684204
+        },
+        {
+          "source_id": "d22-s1",
+          "rank": 15,
+          "native_score": 3.3842718601226807
+        },
+        {
+          "source_id": "d23-s1",
+          "rank": 16,
+          "native_score": 3.083601951599121
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 17,
+          "native_score": 2.376105785369873
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 18,
+          "native_score": 2.191962242126465
+        },
+        {
+          "source_id": "d29-s2",
+          "rank": 19,
+          "native_score": 1.7543162107467651
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 20,
+          "native_score": 1.7543162107467651
+        }
+      ]
+    },
+    {
+      "query_id": "q49",
+      "hits": [
+        {
+          "source_id": "d11-s2",
+          "rank": 1,
+          "native_score": 12.592509269714355
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 2,
+          "native_score": 11.366310119628906
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 3,
+          "native_score": 10.46430778503418
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 4,
+          "native_score": 8.338449478149414
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 5,
+          "native_score": 7.601627349853516
+        },
+        {
+          "source_id": "d21-s2",
+          "rank": 6,
+          "native_score": 6.610708236694336
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 7,
+          "native_score": 6.588895797729492
+        },
+        {
+          "source_id": "d15-s2",
+          "rank": 8,
+          "native_score": 6.220096111297607
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 9,
+          "native_score": 5.902187824249268
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 10,
+          "native_score": 5.88640022277832
+        },
+        {
+          "source_id": "d25-s1",
+          "rank": 11,
+          "native_score": 5.664554119110107
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 12,
+          "native_score": 5.462234020233154
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 13,
+          "native_score": 5.458312034606934
+        },
+        {
+          "source_id": "d32-s2",
+          "rank": 14,
+          "native_score": 5.1530609130859375
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 15,
+          "native_score": 5.127280235290527
+        },
+        {
+          "source_id": "d11-s1",
+          "rank": 16,
+          "native_score": 4.91331672668457
+        },
+        {
+          "source_id": "d19-s2",
+          "rank": 17,
+          "native_score": 4.753154277801514
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 18,
+          "native_score": 4.6290364265441895
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 19,
+          "native_score": 4.573795318603516
+        },
+        {
+          "source_id": "d06-s1",
+          "rank": 20,
+          "native_score": 4.573795318603516
+        }
+      ]
+    },
+    {
+      "query_id": "q50",
+      "hits": [
+        {
+          "source_id": "d25-s2",
+          "rank": 1,
+          "native_score": 28.464359283447266
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 2,
+          "native_score": 18.03036880493164
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 3,
+          "native_score": 16.069093704223633
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 4,
+          "native_score": 11.672215461730957
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 5,
+          "native_score": 11.420762062072754
+        },
+        {
+          "source_id": "d12-s1",
+          "rank": 6,
+          "native_score": 10.717109680175781
+        },
+        {
+          "source_id": "d32-s2",
+          "rank": 7,
+          "native_score": 10.159757614135742
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 8,
+          "native_score": 9.504504203796387
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 9,
+          "native_score": 8.05909538269043
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 10,
+          "native_score": 7.795147895812988
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 11,
+          "native_score": 7.755342483520508
+        },
+        {
+          "source_id": "d15-s2",
+          "rank": 12,
+          "native_score": 7.225568771362305
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 13,
+          "native_score": 6.141619682312012
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 14,
+          "native_score": 6.086190223693848
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 15,
+          "native_score": 5.745811462402344
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 16,
+          "native_score": 5.647402763366699
+        },
+        {
+          "source_id": "d12-s2",
+          "rank": 17,
+          "native_score": 5.217663764953613
+        },
+        {
+          "source_id": "d21-s2",
+          "rank": 18,
+          "native_score": 5.133446216583252
+        },
+        {
+          "source_id": "d10-s2",
+          "rank": 19,
+          "native_score": 4.729922771453857
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 20,
+          "native_score": 4.664431571960449
+        }
+      ]
+    },
+    {
+      "query_id": "q51",
+      "hits": [
+        {
+          "source_id": "d26-s2",
+          "rank": 1,
+          "native_score": 17.679737091064453
+        },
+        {
+          "source_id": "d26-s1",
+          "rank": 2,
+          "native_score": 17.4768009185791
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 3,
+          "native_score": 15.995584487915039
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 4,
+          "native_score": 15.080144882202148
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 5,
+          "native_score": 12.369455337524414
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 6,
+          "native_score": 12.366351127624512
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 7,
+          "native_score": 11.587004661560059
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 8,
+          "native_score": 9.75509262084961
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 9,
+          "native_score": 9.025617599487305
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 10,
+          "native_score": 8.041536331176758
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 11,
+          "native_score": 7.763465881347656
+        },
+        {
+          "source_id": "d20-s1",
+          "rank": 12,
+          "native_score": 7.483218193054199
+        },
+        {
+          "source_id": "d30-s1",
+          "rank": 13,
+          "native_score": 7.483218193054199
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 14,
+          "native_score": 7.482112884521484
+        },
+        {
+          "source_id": "d18-s1",
+          "rank": 15,
+          "native_score": 7.399718761444092
+        },
+        {
+          "source_id": "d22-s1",
+          "rank": 16,
+          "native_score": 7.399718761444092
+        },
+        {
+          "source_id": "d06-s1",
+          "rank": 17,
+          "native_score": 7.399598121643066
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 18,
+          "native_score": 6.977963447570801
+        },
+        {
+          "source_id": "d12-s1",
+          "rank": 19,
+          "native_score": 6.806417465209961
+        },
+        {
+          "source_id": "d12-s2",
+          "rank": 20,
+          "native_score": 6.753300666809082
+        }
+      ]
+    },
+    {
+      "query_id": "q52",
+      "hits": [
+        {
+          "source_id": "d26-s2",
+          "rank": 1,
+          "native_score": 27.867794036865234
+        },
+        {
+          "source_id": "d26-s1",
+          "rank": 2,
+          "native_score": 19.119035720825195
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 3,
+          "native_score": 11.637489318847656
+        },
+        {
+          "source_id": "d21-s2",
+          "rank": 4,
+          "native_score": 9.349703788757324
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 5,
+          "native_score": 8.991209030151367
+        },
+        {
+          "source_id": "d14-s1",
+          "rank": 6,
+          "native_score": 8.704439163208008
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 7,
+          "native_score": 7.933768272399902
+        },
+        {
+          "source_id": "d29-s2",
+          "rank": 8,
+          "native_score": 7.884629249572754
+        },
+        {
+          "source_id": "d32-s2",
+          "rank": 9,
+          "native_score": 7.857851982116699
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 10,
+          "native_score": 7.250021934509277
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 11,
+          "native_score": 6.918220043182373
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 12,
+          "native_score": 6.712584018707275
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 13,
+          "native_score": 6.701620101928711
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 14,
+          "native_score": 6.5668840408325195
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 15,
+          "native_score": 5.553437232971191
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 16,
+          "native_score": 5.4837965965271
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 17,
+          "native_score": 5.405237197875977
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 18,
+          "native_score": 4.5345940589904785
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 19,
+          "native_score": 4.472207069396973
+        },
+        {
+          "source_id": "d25-s1",
+          "rank": 20,
+          "native_score": 4.402551651000977
+        }
+      ]
+    },
+    {
+      "query_id": "q53",
+      "hits": [
+        {
+          "source_id": "d28-s2",
+          "rank": 1,
+          "native_score": 24.298812866210938
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 2,
+          "native_score": 22.02913475036621
+        },
+        {
+          "source_id": "d27-s1",
+          "rank": 3,
+          "native_score": 16.248388290405273
+        },
+        {
+          "source_id": "d28-s1",
+          "rank": 4,
+          "native_score": 14.72771167755127
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 5,
+          "native_score": 12.077985763549805
+        },
+        {
+          "source_id": "d21-s2",
+          "rank": 6,
+          "native_score": 9.194622039794922
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 7,
+          "native_score": 8.902729988098145
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 8,
+          "native_score": 7.575602054595947
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 9,
+          "native_score": 7.527162551879883
+        },
+        {
+          "source_id": "d15-s2",
+          "rank": 10,
+          "native_score": 7.083615303039551
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 11,
+          "native_score": 6.886601448059082
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 12,
+          "native_score": 5.277660369873047
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 13,
+          "native_score": 4.903486251831055
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 14,
+          "native_score": 4.787107944488525
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 15,
+          "native_score": 4.499453544616699
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 16,
+          "native_score": 4.33380126953125
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 17,
+          "native_score": 3.8985390663146973
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 18,
+          "native_score": 3.730889320373535
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 19,
+          "native_score": 3.581861734390259
+        },
+        {
+          "source_id": "d32-s2",
+          "rank": 20,
+          "native_score": 3.501988410949707
+        }
+      ]
+    },
+    {
+      "query_id": "q54",
+      "hits": [
+        {
+          "source_id": "d27-s2",
+          "rank": 1,
+          "native_score": 20.307294845581055
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 2,
+          "native_score": 11.721196174621582
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 3,
+          "native_score": 11.005404472351074
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 4,
+          "native_score": 10.91107177734375
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 5,
+          "native_score": 9.139286994934082
+        },
+        {
+          "source_id": "d32-s2",
+          "rank": 6,
+          "native_score": 8.62198543548584
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 7,
+          "native_score": 8.583183288574219
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 8,
+          "native_score": 8.003514289855957
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 9,
+          "native_score": 7.401655673980713
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 10,
+          "native_score": 7.205774784088135
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 11,
+          "native_score": 6.612808704376221
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 12,
+          "native_score": 6.259784698486328
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 13,
+          "native_score": 6.217400550842285
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 14,
+          "native_score": 5.812258720397949
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 15,
+          "native_score": 5.094772815704346
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 16,
+          "native_score": 4.819839954376221
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 17,
+          "native_score": 4.685374736785889
+        },
+        {
+          "source_id": "d18-s1",
+          "rank": 18,
+          "native_score": 4.56745719909668
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 19,
+          "native_score": 4.541893005371094
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 20,
+          "native_score": 4.45584774017334
+        }
+      ]
+    },
+    {
+      "query_id": "q55",
+      "hits": [
+        {
+          "source_id": "d28-s1",
+          "rank": 1,
+          "native_score": 29.91358184814453
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 2,
+          "native_score": 18.35271453857422
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 3,
+          "native_score": 13.035670280456543
+        },
+        {
+          "source_id": "d24-s1",
+          "rank": 4,
+          "native_score": 9.763433456420898
+        },
+        {
+          "source_id": "d27-s1",
+          "rank": 5,
+          "native_score": 9.368370056152344
+        },
+        {
+          "source_id": "d32-s1",
+          "rank": 6,
+          "native_score": 8.328156471252441
+        },
+        {
+          "source_id": "d29-s2",
+          "rank": 7,
+          "native_score": 7.852682113647461
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 8,
+          "native_score": 7.438232421875
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 9,
+          "native_score": 7.193717956542969
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 10,
+          "native_score": 7.142500400543213
+        },
+        {
+          "source_id": "d21-s2",
+          "rank": 11,
+          "native_score": 6.422820091247559
+        },
+        {
+          "source_id": "d19-s2",
+          "rank": 12,
+          "native_score": 6.163290977478027
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 13,
+          "native_score": 6.079859733581543
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 14,
+          "native_score": 6.049056053161621
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 15,
+          "native_score": 5.964848518371582
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 16,
+          "native_score": 5.659395217895508
+        },
+        {
+          "source_id": "d14-s1",
+          "rank": 17,
+          "native_score": 5.477598667144775
+        },
+        {
+          "source_id": "d12-s1",
+          "rank": 18,
+          "native_score": 5.304386615753174
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 19,
+          "native_score": 5.102221488952637
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 20,
+          "native_score": 4.846930980682373
+        }
+      ]
+    },
+    {
+      "query_id": "q56",
+      "hits": [
+        {
+          "source_id": "d28-s2",
+          "rank": 1,
+          "native_score": 28.905115127563477
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 2,
+          "native_score": 13.773491859436035
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 3,
+          "native_score": 11.941997528076172
+        },
+        {
+          "source_id": "d27-s1",
+          "rank": 4,
+          "native_score": 8.7822265625
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 5,
+          "native_score": 7.915482997894287
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 6,
+          "native_score": 7.883580207824707
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 7,
+          "native_score": 7.847485065460205
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 8,
+          "native_score": 7.482751846313477
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 9,
+          "native_score": 7.09069299697876
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 10,
+          "native_score": 7.023252964019775
+        },
+        {
+          "source_id": "d28-s1",
+          "rank": 11,
+          "native_score": 6.931338787078857
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 12,
+          "native_score": 6.733017921447754
+        },
+        {
+          "source_id": "d15-s2",
+          "rank": 13,
+          "native_score": 6.532341003417969
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 14,
+          "native_score": 6.459062099456787
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 15,
+          "native_score": 6.203309535980225
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 16,
+          "native_score": 6.01506233215332
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 17,
+          "native_score": 5.981874465942383
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 18,
+          "native_score": 5.901515483856201
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 19,
+          "native_score": 5.496356010437012
+        },
+        {
+          "source_id": "d32-s2",
+          "rank": 20,
+          "native_score": 5.122509002685547
+        }
+      ]
+    },
+    {
+      "query_id": "q57",
+      "hits": [
+        {
+          "source_id": "d29-s2",
+          "rank": 1,
+          "native_score": 10.138442993164062
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 2,
+          "native_score": 9.606935501098633
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 3,
+          "native_score": 9.309398651123047
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 4,
+          "native_score": 9.0493803024292
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 5,
+          "native_score": 8.543327331542969
+        },
+        {
+          "source_id": "d29-s1",
+          "rank": 6,
+          "native_score": 8.330169677734375
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 7,
+          "native_score": 7.645180702209473
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 8,
+          "native_score": 7.422652244567871
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 9,
+          "native_score": 7.2349348068237305
+        },
+        {
+          "source_id": "d09-s1",
+          "rank": 10,
+          "native_score": 7.200197219848633
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 11,
+          "native_score": 6.9013566970825195
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 12,
+          "native_score": 6.162175178527832
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 13,
+          "native_score": 5.614130020141602
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 14,
+          "native_score": 5.526632308959961
+        },
+        {
+          "source_id": "d07-s1",
+          "rank": 15,
+          "native_score": 5.387187957763672
+        },
+        {
+          "source_id": "d06-s1",
+          "rank": 16,
+          "native_score": 5.293170928955078
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 17,
+          "native_score": 5.182141304016113
+        },
+        {
+          "source_id": "d15-s2",
+          "rank": 18,
+          "native_score": 4.899753093719482
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 19,
+          "native_score": 4.848825454711914
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 20,
+          "native_score": 4.528658390045166
+        }
+      ]
+    },
+    {
+      "query_id": "q58",
+      "hits": [
+        {
+          "source_id": "d29-s2",
+          "rank": 1,
+          "native_score": 27.240324020385742
+        },
+        {
+          "source_id": "d21-s2",
+          "rank": 2,
+          "native_score": 11.253335952758789
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 3,
+          "native_score": 10.895743370056152
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 4,
+          "native_score": 9.73098087310791
+        },
+        {
+          "source_id": "d10-s1",
+          "rank": 5,
+          "native_score": 9.665508270263672
+        },
+        {
+          "source_id": "d30-s1",
+          "rank": 6,
+          "native_score": 8.326726913452148
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 7,
+          "native_score": 5.815581798553467
+        },
+        {
+          "source_id": "d10-s2",
+          "rank": 8,
+          "native_score": 5.762124061584473
+        },
+        {
+          "source_id": "d19-s2",
+          "rank": 9,
+          "native_score": 5.573134422302246
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 10,
+          "native_score": 5.507236957550049
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 11,
+          "native_score": 5.211953163146973
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 12,
+          "native_score": 5.139856338500977
+        },
+        {
+          "source_id": "d06-s1",
+          "rank": 13,
+          "native_score": 5.099218845367432
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 14,
+          "native_score": 4.90134334564209
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 15,
+          "native_score": 4.456948757171631
+        },
+        {
+          "source_id": "d29-s1",
+          "rank": 16,
+          "native_score": 4.044341564178467
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 17,
+          "native_score": 3.9643964767456055
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 18,
+          "native_score": 3.8317980766296387
+        },
+        {
+          "source_id": "d32-s2",
+          "rank": 19,
+          "native_score": 3.8001909255981445
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 20,
+          "native_score": 3.650164842605591
+        }
+      ]
+    },
+    {
+      "query_id": "q59",
+      "hits": [
+        {
+          "source_id": "d30-s2",
+          "rank": 1,
+          "native_score": 19.13079071044922
+        },
+        {
+          "source_id": "d30-s1",
+          "rank": 2,
+          "native_score": 17.980562210083008
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 3,
+          "native_score": 10.936803817749023
+        },
+        {
+          "source_id": "d15-s2",
+          "rank": 4,
+          "native_score": 8.163361549377441
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 5,
+          "native_score": 7.607064723968506
+        },
+        {
+          "source_id": "d20-s1",
+          "rank": 6,
+          "native_score": 7.483218193054199
+        },
+        {
+          "source_id": "d26-s1",
+          "rank": 7,
+          "native_score": 7.483218193054199
+        },
+        {
+          "source_id": "d18-s1",
+          "rank": 8,
+          "native_score": 7.399718761444092
+        },
+        {
+          "source_id": "d22-s1",
+          "rank": 9,
+          "native_score": 7.399718761444092
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 10,
+          "native_score": 7.275129318237305
+        },
+        {
+          "source_id": "d29-s2",
+          "rank": 11,
+          "native_score": 7.082649230957031
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 12,
+          "native_score": 7.0686774253845215
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 13,
+          "native_score": 6.954510688781738
+        },
+        {
+          "source_id": "d21-s2",
+          "rank": 14,
+          "native_score": 6.843796253204346
+        },
+        {
+          "source_id": "d10-s1",
+          "rank": 15,
+          "native_score": 6.041193962097168
+        },
+        {
+          "source_id": "d32-s2",
+          "rank": 16,
+          "native_score": 6.029165267944336
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 17,
+          "native_score": 5.864531993865967
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 18,
+          "native_score": 5.414930820465088
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 19,
+          "native_score": 4.847775459289551
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 20,
+          "native_score": 4.84040641784668
+        }
+      ]
+    },
+    {
+      "query_id": "q60",
+      "hits": [
+        {
+          "source_id": "d30-s2",
+          "rank": 1,
+          "native_score": 38.22676086425781
+        },
+        {
+          "source_id": "d30-s1",
+          "rank": 2,
+          "native_score": 14.283693313598633
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 3,
+          "native_score": 13.833366394042969
+        },
+        {
+          "source_id": "d29-s2",
+          "rank": 4,
+          "native_score": 13.593549728393555
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 5,
+          "native_score": 12.708817481994629
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 6,
+          "native_score": 11.931958198547363
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 7,
+          "native_score": 11.673408508300781
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 8,
+          "native_score": 10.73936939239502
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 9,
+          "native_score": 9.757477760314941
+        },
+        {
+          "source_id": "d14-s1",
+          "rank": 10,
+          "native_score": 8.343057632446289
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 11,
+          "native_score": 7.700575828552246
+        },
+        {
+          "source_id": "d29-s1",
+          "rank": 12,
+          "native_score": 7.127943515777588
+        },
+        {
+          "source_id": "d32-s2",
+          "rank": 13,
+          "native_score": 7.034994125366211
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 14,
+          "native_score": 6.941842079162598
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 15,
+          "native_score": 6.65900993347168
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 16,
+          "native_score": 6.482669353485107
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 17,
+          "native_score": 6.42715311050415
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 18,
+          "native_score": 4.859627723693848
+        },
+        {
+          "source_id": "d10-s1",
+          "rank": 19,
+          "native_score": 4.75575065612793
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 20,
+          "native_score": 4.509677886962891
+        }
+      ]
+    },
+    {
+      "query_id": "q61",
+      "hits": [
+        {
+          "source_id": "d32-s2",
+          "rank": 1,
+          "native_score": 16.430166244506836
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 2,
+          "native_score": 10.55654525756836
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 3,
+          "native_score": 8.381063461303711
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 4,
+          "native_score": 8.1806640625
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 5,
+          "native_score": 7.873082637786865
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 6,
+          "native_score": 7.3205742835998535
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 7,
+          "native_score": 6.626718044281006
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 8,
+          "native_score": 6.380460739135742
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 9,
+          "native_score": 6.295740127563477
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 10,
+          "native_score": 5.761600494384766
+        },
+        {
+          "source_id": "d31-s1",
+          "rank": 11,
+          "native_score": 5.708255290985107
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 12,
+          "native_score": 5.515972137451172
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 13,
+          "native_score": 5.366642951965332
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 14,
+          "native_score": 5.32841682434082
+        },
+        {
+          "source_id": "d06-s1",
+          "rank": 15,
+          "native_score": 4.733499526977539
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 16,
+          "native_score": 4.708467483520508
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 17,
+          "native_score": 4.464412689208984
+        },
+        {
+          "source_id": "d10-s1",
+          "rank": 18,
+          "native_score": 4.439029693603516
+        },
+        {
+          "source_id": "d21-s2",
+          "rank": 19,
+          "native_score": 4.416650772094727
+        },
+        {
+          "source_id": "d12-s1",
+          "rank": 20,
+          "native_score": 4.300278186798096
+        }
+      ]
+    },
+    {
+      "query_id": "q62",
+      "hits": [
+        {
+          "source_id": "d31-s2",
+          "rank": 1,
+          "native_score": 30.096952438354492
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 2,
+          "native_score": 15.319398880004883
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 3,
+          "native_score": 14.484724044799805
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 4,
+          "native_score": 14.416160583496094
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 5,
+          "native_score": 13.066404342651367
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 6,
+          "native_score": 11.341842651367188
+        },
+        {
+          "source_id": "d32-s2",
+          "rank": 7,
+          "native_score": 10.875481605529785
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 8,
+          "native_score": 10.531755447387695
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 9,
+          "native_score": 10.127304077148438
+        },
+        {
+          "source_id": "d15-s2",
+          "rank": 10,
+          "native_score": 9.235618591308594
+        },
+        {
+          "source_id": "d29-s2",
+          "rank": 11,
+          "native_score": 9.213542938232422
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 12,
+          "native_score": 9.05605411529541
+        },
+        {
+          "source_id": "d14-s1",
+          "rank": 13,
+          "native_score": 9.017572402954102
+        },
+        {
+          "source_id": "d21-s2",
+          "rank": 14,
+          "native_score": 8.471378326416016
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 15,
+          "native_score": 7.937525272369385
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 16,
+          "native_score": 7.393286228179932
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 17,
+          "native_score": 7.257014751434326
+        },
+        {
+          "source_id": "d09-s1",
+          "rank": 18,
+          "native_score": 6.825286388397217
+        },
+        {
+          "source_id": "d19-s2",
+          "rank": 19,
+          "native_score": 6.811257362365723
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 20,
+          "native_score": 6.642862319946289
+        }
+      ]
+    },
+    {
+      "query_id": "q63",
+      "hits": [
+        {
+          "source_id": "d32-s1",
+          "rank": 1,
+          "native_score": 23.051851272583008
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 2,
+          "native_score": 19.162195205688477
+        },
+        {
+          "source_id": "d32-s2",
+          "rank": 3,
+          "native_score": 18.241884231567383
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 4,
+          "native_score": 8.931188583374023
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 5,
+          "native_score": 8.878761291503906
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 6,
+          "native_score": 8.507184028625488
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 7,
+          "native_score": 8.343534469604492
+        },
+        {
+          "source_id": "d24-s1",
+          "rank": 8,
+          "native_score": 8.234180450439453
+        },
+        {
+          "source_id": "d28-s1",
+          "rank": 9,
+          "native_score": 8.234180450439453
+        },
+        {
+          "source_id": "d31-s1",
+          "rank": 10,
+          "native_score": 7.754355430603027
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 11,
+          "native_score": 6.280317783355713
+        },
+        {
+          "source_id": "d20-s1",
+          "rank": 12,
+          "native_score": 6.134627819061279
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 13,
+          "native_score": 5.888344764709473
+        },
+        {
+          "source_id": "d29-s2",
+          "rank": 14,
+          "native_score": 5.415227890014648
+        },
+        {
+          "source_id": "d19-s2",
+          "rank": 15,
+          "native_score": 4.966994285583496
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 16,
+          "native_score": 4.644101619720459
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 17,
+          "native_score": 4.575275897979736
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 18,
+          "native_score": 4.467432022094727
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 19,
+          "native_score": 4.148756980895996
+        },
+        {
+          "source_id": "d06-s1",
+          "rank": 20,
+          "native_score": 4.076722145080566
+        }
+      ]
+    },
+    {
+      "query_id": "q64",
+      "hits": [
+        {
+          "source_id": "d32-s2",
+          "rank": 1,
+          "native_score": 29.94110870361328
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 2,
+          "native_score": 14.303400993347168
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 3,
+          "native_score": 12.818507194519043
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 4,
+          "native_score": 12.074872016906738
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 5,
+          "native_score": 11.882057189941406
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 6,
+          "native_score": 9.487785339355469
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 7,
+          "native_score": 9.343544006347656
+        },
+        {
+          "source_id": "d32-s1",
+          "rank": 8,
+          "native_score": 8.604660034179688
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 9,
+          "native_score": 8.400505065917969
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 10,
+          "native_score": 8.319073677062988
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 11,
+          "native_score": 8.231073379516602
+        },
+        {
+          "source_id": "d21-s2",
+          "rank": 12,
+          "native_score": 7.522599220275879
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 13,
+          "native_score": 6.742218017578125
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 14,
+          "native_score": 6.476120948791504
+        },
+        {
+          "source_id": "d06-s1",
+          "rank": 15,
+          "native_score": 6.38759708404541
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 16,
+          "native_score": 6.345236778259277
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 17,
+          "native_score": 6.208813190460205
+        },
+        {
+          "source_id": "d23-s2",
+          "rank": 18,
+          "native_score": 6.180573463439941
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 19,
+          "native_score": 5.8933610916137695
+        },
+        {
+          "source_id": "d31-s2",
+          "rank": 20,
+          "native_score": 5.798670291900635
+        }
+      ]
+    },
+    {
+      "query_id": "q65",
+      "hits": [
+        {
+          "source_id": "d03-s2",
+          "rank": 1,
+          "native_score": 11.488618850708008
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 2,
+          "native_score": 9.911745071411133
+        },
+        {
+          "source_id": "d12-s1",
+          "rank": 3,
+          "native_score": 9.45862102508545
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 4,
+          "native_score": 7.263550758361816
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 5,
+          "native_score": 6.679965972900391
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 6,
+          "native_score": 4.233015060424805
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 7,
+          "native_score": 3.9704079627990723
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 8,
+          "native_score": 3.8701682090759277
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 9,
+          "native_score": 3.8259482383728027
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 10,
+          "native_score": 3.8259482383728027
+        },
+        {
+          "source_id": "d06-s1",
+          "rank": 11,
+          "native_score": 3.791470527648926
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 12,
+          "native_score": 3.7241289615631104
+        },
+        {
+          "source_id": "d05-s1",
+          "rank": 13,
+          "native_score": 3.711033344268799
+        },
+        {
+          "source_id": "d19-s2",
+          "rank": 14,
+          "native_score": 3.688791275024414
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 15,
+          "native_score": 3.5958950519561768
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 16,
+          "native_score": 3.037733554840088
+        },
+        {
+          "source_id": "d11-s1",
+          "rank": 17,
+          "native_score": 3.0216403007507324
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 18,
+          "native_score": 2.7254109382629395
+        },
+        {
+          "source_id": "d10-s1",
+          "rank": 19,
+          "native_score": 2.527205467224121
+        },
+        {
+          "source_id": "d10-s2",
+          "rank": 20,
+          "native_score": 2.525845527648926
+        }
+      ]
+    },
+    {
+      "query_id": "q66",
+      "hits": [
+        {
+          "source_id": "d29-s1",
+          "rank": 1,
+          "native_score": 7.308980464935303
+        },
+        {
+          "source_id": "d24-s1",
+          "rank": 2,
+          "native_score": 6.135750770568848
+        },
+        {
+          "source_id": "d06-s2",
+          "rank": 3,
+          "native_score": 6.093151569366455
+        },
+        {
+          "source_id": "d18-s1",
+          "rank": 4,
+          "native_score": 5.878974914550781
+        },
+        {
+          "source_id": "d02-s2",
+          "rank": 5,
+          "native_score": 5.011884689331055
+        },
+        {
+          "source_id": "d14-s2",
+          "rank": 6,
+          "native_score": 3.5028281211853027
+        },
+        {
+          "source_id": "d27-s1",
+          "rank": 7,
+          "native_score": 3.4721131324768066
+        },
+        {
+          "source_id": "d21-s1",
+          "rank": 8,
+          "native_score": 2.956730365753174
+        },
+        {
+          "source_id": "d23-s1",
+          "rank": 9,
+          "native_score": 2.956730365753174
+        },
+        {
+          "source_id": "d12-s2",
+          "rank": 10,
+          "native_score": 2.9296000003814697
+        },
+        {
+          "source_id": "d20-s1",
+          "rank": 11,
+          "native_score": 2.7457051277160645
+        },
+        {
+          "source_id": "d26-s1",
+          "rank": 12,
+          "native_score": 2.7457051277160645
+        },
+        {
+          "source_id": "d16-s2",
+          "rank": 13,
+          "native_score": 2.5390822887420654
+        },
+        {
+          "source_id": "d32-s1",
+          "rank": 14,
+          "native_score": 2.5390822887420654
+        },
+        {
+          "source_id": "d22-s1",
+          "rank": 15,
+          "native_score": 1.6361925601959229
+        },
+        {
+          "source_id": "d10-s2",
+          "rank": 16,
+          "native_score": 1.324270248413086
+        },
+        {
+          "source_id": "d04-s2",
+          "rank": 17,
+          "native_score": 1.2820271253585815
+        },
+        {
+          "source_id": "d05-s1",
+          "rank": 18,
+          "native_score": 1.2705731391906738
+        },
+        {
+          "source_id": "d03-s1",
+          "rank": 19,
+          "native_score": 1.259322166442871
+        },
+        {
+          "source_id": "d11-s1",
+          "rank": 20,
+          "native_score": 1.259322166442871
+        }
+      ]
+    },
+    {
+      "query_id": "q67",
+      "hits": [
+        {
+          "source_id": "d32-s2",
+          "rank": 1,
+          "native_score": 6.558399200439453
+        },
+        {
+          "source_id": "d23-s1",
+          "rank": 2,
+          "native_score": 4.656726837158203
+        },
+        {
+          "source_id": "d25-s1",
+          "rank": 3,
+          "native_score": 4.3298020362854
+        },
+        {
+          "source_id": "d15-s1",
+          "rank": 4,
+          "native_score": 4.221554756164551
+        },
+        {
+          "source_id": "d07-s1",
+          "rank": 5,
+          "native_score": 4.109339714050293
+        },
+        {
+          "source_id": "d26-s1",
+          "rank": 6,
+          "native_score": 4.109339714050293
+        },
+        {
+          "source_id": "d28-s1",
+          "rank": 7,
+          "native_score": 4.109339714050293
+        },
+        {
+          "source_id": "d17-s1",
+          "rank": 8,
+          "native_score": 4.0791473388671875
+        },
+        {
+          "source_id": "d22-s1",
+          "rank": 9,
+          "native_score": 3.9573631286621094
+        },
+        {
+          "source_id": "d02-s2",
+          "rank": 10,
+          "native_score": 3.9086873531341553
+        },
+        {
+          "source_id": "d30-s1",
+          "rank": 11,
+          "native_score": 3.9086873531341553
+        },
+        {
+          "source_id": "d32-s1",
+          "rank": 12,
+          "native_score": 3.7407782077789307
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 13,
+          "native_score": 3.1656441688537598
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 14,
+          "native_score": 3.132537364959717
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 15,
+          "native_score": 3.132537364959717
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 16,
+          "native_score": 3.132537364959717
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 17,
+          "native_score": 3.132537364959717
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 18,
+          "native_score": 3.068359136581421
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 19,
+          "native_score": 3.068359136581421
+        },
+        {
+          "source_id": "d16-s2",
+          "rank": 20,
+          "native_score": 2.6728105545043945
+        }
+      ]
+    },
+    {
+      "query_id": "q68",
+      "hits": [
+        {
+          "source_id": "d30-s2",
+          "rank": 1,
+          "native_score": 9.81528091430664
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 2,
+          "native_score": 9.329122543334961
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 3,
+          "native_score": 6.872658729553223
+        },
+        {
+          "source_id": "d20-s2",
+          "rank": 4,
+          "native_score": 6.766867637634277
+        },
+        {
+          "source_id": "d26-s2",
+          "rank": 5,
+          "native_score": 6.766867637634277
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 6,
+          "native_score": 6.085371971130371
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 7,
+          "native_score": 4.1971821784973145
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 8,
+          "native_score": 4.147429466247559
+        },
+        {
+          "source_id": "d32-s2",
+          "rank": 9,
+          "native_score": 4.092830181121826
+        },
+        {
+          "source_id": "d13-s2",
+          "rank": 10,
+          "native_score": 3.7874929904937744
+        },
+        {
+          "source_id": "d17-s2",
+          "rank": 11,
+          "native_score": 3.497190475463867
+        },
+        {
+          "source_id": "d10-s1",
+          "rank": 12,
+          "native_score": 2.6070613861083984
+        },
+        {
+          "source_id": "d14-s1",
+          "rank": 13,
+          "native_score": 2.472719430923462
+        },
+        {
+          "source_id": "d05-s2",
+          "rank": 14,
+          "native_score": 2.382805347442627
+        },
+        {
+          "source_id": "d04-s1",
+          "rank": 15,
+          "native_score": 1.9799368381500244
+        },
+        {
+          "source_id": "d03-s2",
+          "rank": 16,
+          "native_score": 1.9329484701156616
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 17,
+          "native_score": 1.6351792812347412
+        },
+        {
+          "source_id": "d03-s1",
+          "rank": 18,
+          "native_score": 1.5897564888000488
+        },
+        {
+          "source_id": "d04-s2",
+          "rank": 19,
+          "native_score": 1.234013557434082
+        },
+        {
+          "source_id": "d15-s1",
+          "rank": 20,
+          "native_score": 1.234013557434082
+        }
+      ]
+    },
+    {
+      "query_id": "q69",
+      "hits": [
+        {
+          "source_id": "d20-s1",
+          "rank": 1,
+          "native_score": 9.752315521240234
+        },
+        {
+          "source_id": "d19-s2",
+          "rank": 2,
+          "native_score": 9.552430152893066
+        },
+        {
+          "source_id": "d26-s1",
+          "rank": 3,
+          "native_score": 9.012472152709961
+        },
+        {
+          "source_id": "d30-s1",
+          "rank": 4,
+          "native_score": 7.483218193054199
+        },
+        {
+          "source_id": "d18-s1",
+          "rank": 5,
+          "native_score": 7.399718761444092
+        },
+        {
+          "source_id": "d22-s1",
+          "rank": 6,
+          "native_score": 7.399718761444092
+        },
+        {
+          "source_id": "d10-s1",
+          "rank": 7,
+          "native_score": 5.912992000579834
+        },
+        {
+          "source_id": "d27-s2",
+          "rank": 8,
+          "native_score": 4.605350017547607
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 9,
+          "native_score": 4.423770427703857
+        },
+        {
+          "source_id": "d29-s2",
+          "rank": 10,
+          "native_score": 4.416712284088135
+        },
+        {
+          "source_id": "d30-s2",
+          "rank": 11,
+          "native_score": 4.329668045043945
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 12,
+          "native_score": 4.304532051086426
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 13,
+          "native_score": 4.164771556854248
+        },
+        {
+          "source_id": "d24-s2",
+          "rank": 14,
+          "native_score": 4.156219005584717
+        },
+        {
+          "source_id": "d25-s2",
+          "rank": 15,
+          "native_score": 3.73083233833313
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 16,
+          "native_score": 3.604304790496826
+        },
+        {
+          "source_id": "d07-s2",
+          "rank": 17,
+          "native_score": 3.42236590385437
+        },
+        {
+          "source_id": "d32-s1",
+          "rank": 18,
+          "native_score": 3.4185495376586914
+        },
+        {
+          "source_id": "d24-s1",
+          "rank": 19,
+          "native_score": 3.379973888397217
+        },
+        {
+          "source_id": "d28-s1",
+          "rank": 20,
+          "native_score": 3.379973888397217
+        }
+      ]
+    },
+    {
+      "query_id": "q70",
+      "hits": [
+        {
+          "source_id": "d20-s1",
+          "rank": 1,
+          "native_score": 12.161019325256348
+        },
+        {
+          "source_id": "d22-s1",
+          "rank": 2,
+          "native_score": 11.973573684692383
+        },
+        {
+          "source_id": "d26-s1",
+          "rank": 3,
+          "native_score": 10.67194938659668
+        },
+        {
+          "source_id": "d18-s1",
+          "rank": 4,
+          "native_score": 8.76426887512207
+        },
+        {
+          "source_id": "d30-s1",
+          "rank": 5,
+          "native_score": 8.526914596557617
+        },
+        {
+          "source_id": "d02-s2",
+          "rank": 6,
+          "native_score": 8.311906814575195
+        },
+        {
+          "source_id": "d28-s1",
+          "rank": 7,
+          "native_score": 6.5687055587768555
+        },
+        {
+          "source_id": "d31-s1",
+          "rank": 8,
+          "native_score": 6.3517656326293945
+        },
+        {
+          "source_id": "d24-s1",
+          "rank": 9,
+          "native_score": 4.765102386474609
+        },
+        {
+          "source_id": "d32-s1",
+          "rank": 10,
+          "native_score": 4.486516952514648
+        },
+        {
+          "source_id": "d01-s2",
+          "rank": 11,
+          "native_score": 4.47442626953125
+        },
+        {
+          "source_id": "d07-s1",
+          "rank": 12,
+          "native_score": 3.8904519081115723
+        },
+        {
+          "source_id": "d17-s1",
+          "rank": 13,
+          "native_score": 3.6012539863586426
+        },
+        {
+          "source_id": "d25-s1",
+          "rank": 14,
+          "native_score": 3.6012539863586426
+        },
+        {
+          "source_id": "d27-s1",
+          "rank": 15,
+          "native_score": 3.262885093688965
+        },
+        {
+          "source_id": "d13-s1",
+          "rank": 16,
+          "native_score": 3.117873191833496
+        },
+        {
+          "source_id": "d14-s2",
+          "rank": 17,
+          "native_score": 2.1450350284576416
+        },
+        {
+          "source_id": "d08-s2",
+          "rank": 18,
+          "native_score": 2.0973691940307617
+        },
+        {
+          "source_id": "d23-s1",
+          "rank": 19,
+          "native_score": 1.581424593925476
+        },
+        {
+          "source_id": "d11-s1",
+          "rank": 20,
+          "native_score": 1.3445746898651123
+        }
+      ]
+    },
+    {
+      "query_id": "q71",
+      "hits": [
+        {
+          "source_id": "d21-s1",
+          "rank": 1,
+          "native_score": 5.576544761657715
+        },
+        {
+          "source_id": "d10-s2",
+          "rank": 2,
+          "native_score": 1.324270248413086
+        },
+        {
+          "source_id": "d04-s2",
+          "rank": 3,
+          "native_score": 1.2820271253585815
+        },
+        {
+          "source_id": "d14-s2",
+          "rank": 4,
+          "native_score": 1.2820271253585815
+        },
+        {
+          "source_id": "d05-s1",
+          "rank": 5,
+          "native_score": 1.2705731391906738
+        },
+        {
+          "source_id": "d06-s2",
+          "rank": 6,
+          "native_score": 1.2705731391906738
+        },
+        {
+          "source_id": "d03-s1",
+          "rank": 7,
+          "native_score": 1.259322166442871
+        },
+        {
+          "source_id": "d11-s1",
+          "rank": 8,
+          "native_score": 1.259322166442871
+        },
+        {
+          "source_id": "d19-s1",
+          "rank": 9,
+          "native_score": 1.224294900894165
+        },
+        {
+          "source_id": "d23-s1",
+          "rank": 10,
+          "native_score": 1.224294900894165
+        },
+        {
+          "source_id": "d29-s1",
+          "rank": 11,
+          "native_score": 1.224294900894165
+        },
+        {
+          "source_id": "d12-s2",
+          "rank": 12,
+          "native_score": 1.217308521270752
+        },
+        {
+          "source_id": "d25-s1",
+          "rank": 13,
+          "native_score": 1.217308521270752
+        },
+        {
+          "source_id": "d27-s1",
+          "rank": 14,
+          "native_score": 1.217308521270752
+        },
+        {
+          "source_id": "d24-s1",
+          "rank": 15,
+          "native_score": 1.203572154045105
+        },
+        {
+          "source_id": "d08-s2",
+          "rank": 16,
+          "native_score": 1.1901423931121826
+        },
+        {
+          "source_id": "d13-s1",
+          "rank": 17,
+          "native_score": 1.1901423931121826
+        },
+        {
+          "source_id": "d01-s2",
+          "rank": 18,
+          "native_score": 1.177009105682373
+        },
+        {
+          "source_id": "d09-s1",
+          "rank": 19,
+          "native_score": 1.177009105682373
+        },
+        {
+          "source_id": "d20-s1",
+          "rank": 20,
+          "native_score": 1.0723278522491455
+        }
+      ]
+    },
+    {
+      "query_id": "q72",
+      "hits": [
+        {
+          "source_id": "d04-s1",
+          "rank": 1,
+          "native_score": 11.506973266601562
+        },
+        {
+          "source_id": "d08-s1",
+          "rank": 2,
+          "native_score": 9.54299545288086
+        },
+        {
+          "source_id": "d10-s1",
+          "rank": 3,
+          "native_score": 7.2009172439575195
+        },
+        {
+          "source_id": "d12-s1",
+          "rank": 4,
+          "native_score": 7.197658538818359
+        },
+        {
+          "source_id": "d32-s2",
+          "rank": 5,
+          "native_score": 6.600481033325195
+        },
+        {
+          "source_id": "d06-s1",
+          "rank": 6,
+          "native_score": 4.343306541442871
+        },
+        {
+          "source_id": "d09-s2",
+          "rank": 7,
+          "native_score": 4.293610572814941
+        },
+        {
+          "source_id": "d09-s1",
+          "rank": 8,
+          "native_score": 3.7929322719573975
+        },
+        {
+          "source_id": "d22-s2",
+          "rank": 9,
+          "native_score": 3.4952211380004883
+        },
+        {
+          "source_id": "d11-s2",
+          "rank": 10,
+          "native_score": 3.484032392501831
+        },
+        {
+          "source_id": "d16-s1",
+          "rank": 11,
+          "native_score": 3.1353232860565186
+        },
+        {
+          "source_id": "d21-s2",
+          "rank": 12,
+          "native_score": 3.1353232860565186
+        },
+        {
+          "source_id": "d18-s2",
+          "rank": 13,
+          "native_score": 2.8517508506774902
+        },
+        {
+          "source_id": "d19-s2",
+          "rank": 14,
+          "native_score": 2.667072296142578
+        },
+        {
+          "source_id": "d02-s1",
+          "rank": 15,
+          "native_score": 2.666877269744873
+        },
+        {
+          "source_id": "d01-s1",
+          "rank": 16,
+          "native_score": 2.4611599445343018
+        },
+        {
+          "source_id": "d29-s1",
+          "rank": 17,
+          "native_score": 2.0001134872436523
+        },
+        {
+          "source_id": "d01-s2",
+          "rank": 18,
+          "native_score": 1.9449955224990845
+        },
+        {
+          "source_id": "d28-s2",
+          "rank": 19,
+          "native_score": 1.934993863105774
+        },
+        {
+          "source_id": "d30-s1",
+          "rank": 20,
+          "native_score": 1.9319305419921875
+        }
+      ]
+    }
+  ],
+  "measurements": {
+    "index_bytes": 3080192,
+    "indexing_ms": null,
+    "environment": "PostgreSQL17.8/vector0.8.1; nonce container 2CPU/3GiB; private Unix socket/psql; no timing samples; relation size excludes external extension files",
+    "latencies": []
+  }
+}

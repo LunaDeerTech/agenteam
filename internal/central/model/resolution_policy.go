@@ -12,6 +12,12 @@ import (
 )
 
 func resolutionVariant(r mc.ResolveRequest) error {
+	if r.Source == mc.ServingSnapshotSource {
+		if r.Validate() != nil {
+			return fault(f.InvalidArgument)
+		}
+		return nil
+	}
 	if r.Source != mc.CurrentSelectionSource || r.Selection == nil || r.Selection.Kind == "project_summary" {
 		return fault(f.DependencyUnbound)
 	}
@@ -32,7 +38,7 @@ func resolutionProfile(p *providerRecord, m *modelRecord, selection mc.Selection
 		if p.Input.Protocol != mc.OpenAIEmbeddings || m.Input.Type != mc.EmbeddingModel || !emptyObject(p.Input.Options) || !emptyObject(m.Input.Parameters) || !emptyObject(m.Input.RequestOverwrite) || len(m.Input.HeaderOverwrite) != 0 || c.Streaming || c.ToolCalls || c.ParallelToolCalls || c.Reasoning || len(c.ReasoningEfforts) != 0 || len(c.StructuredOutputModes) != 0 || c.MaxOutput != nil || !slices.Equal(c.InputModalities, []string{"text"}) || !slices.Equal(c.OutputModalities, []string{"vector"}) {
 			return "", fault(f.CapabilityUnsupported)
 		}
-		return adapter.OpenAIEmbeddingsFloatRevision, nil
+		return adapter.OpenAIEmbeddingsFloatUsageRevision, nil
 	}
 	if p.Input.Protocol != mc.OpenAIChat || m.Input.Type != mc.ChatModel || !emptyObject(p.Input.Options) || !emptyObject(m.Input.Parameters) || !emptyObject(m.Input.RequestOverwrite) || len(m.Input.HeaderOverwrite) != 0 || c.ToolCalls || c.ParallelToolCalls || c.Reasoning || len(c.ReasoningEfforts) != 0 || !slices.Equal(c.InputModalities, []string{"text"}) || !slices.Equal(c.OutputModalities, []string{"text"}) {
 		return "", fault(f.CapabilityUnsupported)
@@ -59,6 +65,9 @@ func currentResolutionDraftForProfile(ctx context.Context, x postgres.SQLExecuto
 	d := resolutionDraft{Format: 1, Snapshot: resolutionSnapshotDTO{Format: 1, ID: snapshot, ProjectID: r.Consumer.ProjectID}}
 	if e := resolutionVariant(r); e != nil {
 		return d, e
+	}
+	if r.Source == mc.ServingSnapshotSource {
+		return servingResolutionDraft(ctx, x, r)
 	}
 	key := ""
 	if r.Selection.Kind == "direct" {

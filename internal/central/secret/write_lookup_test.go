@@ -402,3 +402,45 @@ func TestSecretProjectPassiveLookupCurrentAuthorityAndCancellation(t *testing.T)
 		})
 	}
 }
+
+func TestSecretMCPProjectLookupExactReceiptAndReadOnly(t *testing.T) {
+	for _, terminal := range []f.CommitState{f.Committed, f.NotCommitted, f.Unknown} {
+		for _, purpose := range []string{"mcp", "model"} {
+			t.Run(string(terminal)+"/"+purpose, func(t *testing.T) {
+				s, store, r := projectLookupFixture(t)
+				r.Purpose = sc.MCP
+				store.result = terminal
+				credential, _ := f.NewID[sc.Credential]()
+				store.row = lookupRow{values: []any{"create", credential.String(), purpose, int64(1), false}}
+				out, err := s.LookupWriteCommand(context.Background(), r)
+				if terminal == f.Committed && purpose == "mcp" {
+					if err != nil || !out.Observed || out.Result == nil || out.Result.Metadata.Purpose != sc.MCP || !out.Result.Metadata.CredentialRef.Details().Scope.Equal(r.Scope) {
+						t.Fatal("exact MCP receipt absent")
+					}
+				} else if err == nil || out.Observed || out.Result != nil {
+					t.Fatal("foreign or unconfirmed receipt exposed")
+				}
+				if store.queries != 1 || store.acquires != 1 || store.held != 1 || len(store.locks) != 3 || len(s.state().nonces) != 0 || s.state().initialized {
+					t.Fatal("MCP lookup left original read-only lock plan")
+				}
+			})
+		}
+	}
+	for _, denial := range []string{"session", "project"} {
+		t.Run(denial, func(t *testing.T) {
+			s, store, r := projectLookupFixture(t)
+			r.Purpose = sc.MCP
+			if denial == "session" {
+				s.state().auth.Sessions = lookupSessions(func(context.Context, f.Tx, id.Actor) error { return f.NewFault(f.SessionRevoked, f.NotStarted) })
+			} else {
+				s.state().auth.Projects = lookupProject(func(context.Context, f.Tx, id.Actor, id.ProjectID, id.AccessIntent) (id.AccessGrant, error) {
+					return id.AccessGrant{}, f.NewFault(f.Forbidden, f.NotStarted)
+				})
+			}
+			out, err := s.LookupWriteCommand(context.Background(), r)
+			if err == nil || out.Observed || out.Result != nil || store.queries != 0 {
+				t.Fatal("MCP lookup read receipt without current authority")
+			}
+		})
+	}
+}

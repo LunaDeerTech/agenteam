@@ -37,7 +37,7 @@ func TestAssociatedProjectStopKeepsOtherProjectAndOriginalReturn(t *testing.T) {
 	defer onceB.Do(func() { close(releaseB) })
 	var starts atomic.Int32
 	e := associatedTestExecutor(associatedExecutorOps{
-		inspect: func(context.Context, i.ProjectID, c.AssociatedDispatch) (associatedFacts, error) {
+		inspect: func(context.Context, i.ProjectID, associatedIdentity) (associatedFacts, error) {
 			return associatedFacts{status: c.Created}, nil
 		},
 		prepare: func(ctx context.Context, id i.ExecutionID) error {
@@ -122,7 +122,7 @@ func TestAssociatedProjectStopCountsLateAdmissionUntilReturn(t *testing.T) {
 	defer once.Do(func() { close(release) })
 	var effects atomic.Int32
 	e := associatedTestExecutor(associatedExecutorOps{
-		admit: func(ctx context.Context, p i.ProjectID, _ c.AssociatedDispatch) error {
+		admit: func(ctx context.Context, p i.ProjectID, _ associatedIdentity) error {
 			if p == pa {
 				return fault(f.InvalidState)
 			}
@@ -130,7 +130,7 @@ func TestAssociatedProjectStopCountsLateAdmissionUntilReturn(t *testing.T) {
 			<-release // A physical COMMIT alone is not the original read return.
 			return nil
 		},
-		inspect: func(context.Context, i.ProjectID, c.AssociatedDispatch) (associatedFacts, error) {
+		inspect: func(context.Context, i.ProjectID, associatedIdentity) (associatedFacts, error) {
 			effects.Add(1)
 			return associatedFacts{status: c.Succeeded}, nil
 		},
@@ -184,7 +184,7 @@ func TestAssociatedProjectStopRetainsOriginalUnknownWithoutNewStart(t *testing.T
 			var prepares, starts, recoveries atomic.Int32
 			var token any
 			e := associatedTestExecutor(associatedExecutorOps{
-				inspect: func(context.Context, i.ProjectID, c.AssociatedDispatch) (associatedFacts, error) {
+				inspect: func(context.Context, i.ProjectID, associatedIdentity) (associatedFacts, error) {
 					if stage == "start" || recoveries.Load() != 0 {
 						return associatedFacts{status: c.Preparing, inputReady: true}, nil
 					}

@@ -36,7 +36,7 @@ func TestContentProjectionStrictUnionAndByteIdentity(t *testing.T) {
 			x := kc.ReadableUnbound
 			content.Unavailable = &x
 		case "future-unavailable":
-			x := kc.ReadableProcessing
+			x := kc.ReadableUnavailable("future")
 			content.Document.SourceKind = kc.File
 			content.Document.MediaType = kc.PDF
 			content.Text = nil
@@ -66,6 +66,17 @@ func TestContentProjectionStrictUnionAndByteIdentity(t *testing.T) {
 		var actual map[string]json.RawMessage
 		if err != nil || json.Unmarshal(raw, &actual) != nil || len(actual) != 2 || string(actual["unavailable"]) != `"dependency_unbound"` {
 			t.Fatal("unbound file fabricated readable content", err)
+		}
+		for _, status := range []kc.ReadableUnavailable{kc.ReadableProcessing, kc.ReadableFailed} {
+			content.Unavailable = &status
+			if _, err := encodeContent(context.Background(), content.Document.ProjectID, content.Document.ID, request, content); err != nil {
+				t.Fatal("known current file state rejected", err)
+			}
+		}
+		content.Unavailable = nil
+		content.Text = &kc.TextContent{Text: "current text", NextByteOffset: 12, ParserProfile: "docx:v1"}
+		if _, err := encodeContent(context.Background(), content.Document.ProjectID, content.Document.ID, request, content); err != nil {
+			t.Fatal("current parsed projection rejected", err)
 		}
 	}
 	content := testContent()

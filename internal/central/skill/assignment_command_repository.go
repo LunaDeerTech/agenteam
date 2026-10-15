@@ -3,6 +3,7 @@ package skill
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"slices"
 	"time"
@@ -50,11 +51,15 @@ func (r *assignmentCommand) validate() error {
 		return unavailable(nil)
 	}
 	c := r.Candidate
-	if c.Origin.Kind != i.Human || c.Origin.UserID != r.Input.Actor.Details().UserID {
+	if r.Input.Run == nil {
+		if c.Origin.Kind != i.Human || c.Origin.UserID != r.Input.Actor.Details().UserID {
+			return unavailable(nil)
+		}
+		if _, e := f.ParseID[i.Session](c.Origin.SessionID); e != nil {
+			return unavailable(e)
+		}
+	} else if r.Input.Run.Validate(r.Input.Actor, r.Input.Request.ProjectID) != nil || c.Origin != r.Input.Actor.Details() {
 		return unavailable(nil)
-	}
-	if _, e := f.ParseID[i.Session](c.Origin.SessionID); e != nil {
-		return unavailable(e)
 	}
 	if c.After.Project != r.Input.Request.ProjectID || c.After.Agent != r.Input.Request.AgentID {
 		return unavailable(nil)
@@ -226,18 +231,28 @@ func loadAssignmentCommand(ctx context.Context, x postgres.SQLExecutor, in assig
 // additionally checks the original Applied proof before accepting retired
 // queued routing; this decoder alone is never an authorization grant.
 func loadAssignmentCommandRecord(ctx context.Context, x postgres.SQLExecutor, in assignmentInput) (*assignmentCommand, error) {
-	var id, actor, digest, state string
-	var input, candidate, receipt, runtimeReceipt []byte
+	var id, actor, actorKind, digest, state string
+	var input, candidate, receipt, runtimeReceipt, origin []byte
 	var created time.Time
-	err := x.QueryRow(ctx, `SELECT id::text,actor_user_id::text,semantic_digest,input,candidate,state,receipt,runtime_receipt,created_at FROM agenteam_skill.assignment_commands WHERE project_id=$1 AND agent_id=$2 AND command_name=$3 AND idempotency_key=$4`, in.Request.ProjectID.String(), in.Request.AgentID.String(), in.Request.name(), string(in.Meta.IdempotencyKey)).Scan(&id, &actor, &digest, &input, &candidate, &state, &receipt, &runtimeReceipt, &created)
+	err := x.QueryRow(ctx, `SELECT id::text,COALESCE(actor_user_id::text,''),actor_kind,run_origin,semantic_digest,input,candidate,state,receipt,runtime_receipt,created_at FROM agenteam_skill.assignment_commands WHERE project_id=$1 AND agent_id=$2 AND command_name=$3 AND idempotency_key=$4`, in.Request.ProjectID.String(), in.Request.AgentID.String(), in.Request.name(), string(in.Meta.IdempotencyKey)).Scan(&id, &actor, &actorKind, &origin, &digest, &input, &candidate, &state, &receipt, &runtimeReceipt, &created)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
 	}
 	if err != nil {
 		return nil, unavailable(err)
 	}
-	if actor != in.Actor.Details().UserID {
+	if actorKind != string(in.Actor.Details().Kind) || actor != in.Actor.Details().UserID {
 		return nil, fault(f.NotFound)
+	}
+	if in.Run == nil {
+		if len(origin) != 0 {
+			return nil, unavailable(nil)
+		}
+	} else {
+		var run ag.SkillAssignmentRun
+		if json.Unmarshal(origin, &run) != nil || run != *in.Run {
+			return nil, fault(f.IdempotencyKeyReused)
+		}
 	}
 	if digest != string(in.Digest) {
 		return nil, fault(f.IdempotencyKeyReused)
@@ -359,7 +374,17 @@ func insertAssignmentCommand(ctx context.Context, x postgres.SQLExecutor, r *ass
 	if len(raw) > 1<<20 {
 		return fault(f.PayloadTooLarge)
 	}
-	tag, err := x.Exec(ctx, `INSERT INTO agenteam_skill.assignment_commands(id,project_id,agent_id,actor_user_id,command_name,idempotency_key,semantic_digest,input,candidate,state,created_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,'planned',$10)`, r.ID.String(), r.Input.Request.ProjectID.String(), r.Input.Request.AgentID.String(), r.Input.Actor.Details().UserID, r.Input.Request.name(), string(r.Input.Meta.IdempotencyKey), string(r.Digest), r.Input.Raw, raw, r.Candidate.Created.Time())
+	var origin any
+	var user any = r.Input.Actor.Details().UserID
+	if r.Input.Run != nil {
+		encoded, e := json.Marshal(r.Input.Run)
+		if e != nil {
+			return unavailable(e)
+		}
+		origin = encoded
+		user = nil
+	}
+	tag, err := x.Exec(ctx, `INSERT INTO agenteam_skill.assignment_commands(id,project_id,agent_id,actor_user_id,command_name,idempotency_key,semantic_digest,input,candidate,state,created_at,actor_kind,run_origin) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,'planned',$10,$11,$12)`, r.ID.String(), r.Input.Request.ProjectID.String(), r.Input.Request.AgentID.String(), user, r.Input.Request.name(), string(r.Input.Meta.IdempotencyKey), string(r.Digest), r.Input.Raw, raw, r.Candidate.Created.Time(), string(r.Input.Actor.Details().Kind), origin)
 	if err != nil {
 		return unavailable(err)
 	}
@@ -539,12 +564,24 @@ func loadAssignmentRecordByID(ctx context.Context, x postgres.SQLExecutor, proje
 	if assignmentDecode(raw, &intent, 16384) != nil || assignmentDecode(candidate, &plan, 1<<20) != nil {
 		return nil, unavailable(nil)
 	}
-	user, e := f.ParseID[i.User](plan.Origin.UserID)
-	session, e2 := f.ParseID[i.Session](plan.Origin.SessionID)
-	if e != nil || e2 != nil || intent.User != user.String() || intent.Request.ProjectID != project || intent.Request.AgentID != agent {
+	if intent.Request.ProjectID != project || intent.Request.AgentID != agent {
 		return nil, unavailable(nil)
 	}
-	actor, e := i.NewHuman(user, session)
+	var actor i.Actor
+	var e error
+	if intent.Run == nil {
+		user, e1 := f.ParseID[i.User](plan.Origin.UserID)
+		session, e2 := f.ParseID[i.Session](plan.Origin.SessionID)
+		if e1 != nil || e2 != nil || intent.User != user.String() || plan.Origin.Kind != i.Human {
+			return nil, unavailable(nil)
+		}
+		actor, e = i.NewHuman(user, session)
+	} else {
+		actor, e = i.NewAgentRun(project, intent.Run.CallerAgentID, intent.Run.ExecutionID)
+		if intent.User != "" || plan.Origin != actor.Details() {
+			return nil, unavailable(nil)
+		}
+	}
 	if e != nil {
 		return nil, unavailable(e)
 	}
@@ -552,7 +589,16 @@ func loadAssignmentRecordByID(ctx context.Context, x postgres.SQLExecutor, proje
 	if e != nil {
 		return nil, unavailable(e)
 	}
-	in, e := newAssignmentInput(actor, f.CommandMeta{RequestID: requestID, IdempotencyKey: f.IdempotencyKey(key), ExpectedVersion: &intent.Expected}, intent.Request)
+	var in assignmentInput
+	if intent.Run == nil {
+		in, e = newAssignmentInput(actor, f.CommandMeta{RequestID: requestID, IdempotencyKey: f.IdempotencyKey(key), ExpectedVersion: &intent.Expected}, intent.Request)
+	} else {
+		requestID, e = f.ParseID[f.Request](intent.Run.RequestID)
+		if e != nil {
+			return nil, unavailable(e)
+		}
+		in, e = newAssignmentRunInput(actor, f.CommandMeta{RequestID: requestID, IdempotencyKey: f.IdempotencyKey(key), ExpectedVersion: &intent.Expected}, intent.Request, intent.Run)
+	}
 	if e != nil {
 		return nil, unavailable(e)
 	}

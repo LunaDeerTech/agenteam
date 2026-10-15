@@ -11,6 +11,8 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/knowledge"
+	"github.com/LunaDeerTech/agenteam/internal/central/meeting"
+	"github.com/LunaDeerTech/agenteam/internal/central/memory"
 	"github.com/LunaDeerTech/agenteam/internal/central/object"
 	"github.com/LunaDeerTech/agenteam/internal/central/project"
 	"github.com/LunaDeerTech/agenteam/internal/central/projectvariable"
@@ -49,14 +51,14 @@ func createProjectUsageAuthority(db database, accounts *account.Authority) (*pro
 
 // The default root supplies its original same-Store Life before any consumer
 // receives this Project authority. Legacy isolated constructors stay unbound.
-func createProjectUsageAuthorityWithLifecycle(db database, accounts *account.Authority, lifecycle *project.LifecycleAuthority) (*projectUsageAssembly, error) {
+func createProjectUsageAuthorityWithLifecycle(db database, accounts *account.Authority, lifecycle *project.LifecycleAuthority, mcpFacts ...ac.ProjectFactAuthority) (*projectUsageAssembly, error) {
 	if lifecycle == nil {
 		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
 	}
-	return newProjectUsageAuthority(db, accounts, lifecycle)
+	return newProjectUsageAuthority(db, accounts, lifecycle, mcpFacts...)
 }
 
-func newProjectUsageAuthority(db database, accounts *account.Authority, lifecycle *project.LifecycleAuthority) (*projectUsageAssembly, error) {
+func newProjectUsageAuthority(db database, accounts *account.Authority, lifecycle *project.LifecycleAuthority, mcpFacts ...ac.ProjectFactAuthority) (*projectUsageAssembly, error) {
 	projectsStore, ok := db.(project.Store)
 	if !ok || runtimeInformationNil(projectsStore) || accounts == nil {
 		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
@@ -101,7 +103,25 @@ func newProjectUsageAuthority(db database, accounts *account.Authority, lifecycl
 	if err != nil {
 		return nil, err
 	}
-	dependencies := project.AuthorityDependencies{Sessions: accounts, Routes: accounts, AuditFacts: map[ac.Producer]ac.ProjectFactAuthority{ac.AgentProducer: agentFacts, ac.SecretProducer: secretFacts, ac.ProjectVariableProducer: variableFacts, ac.KnowledgeProducer: knowledgeFacts, ac.ObjectProducer: objectFacts, ac.ArtifactProducer: artifactFacts, ac.SkillProducer: skillFacts}}
+	memoryFacts, err := memory.NewAuditAuthority(projectsStore)
+	if err != nil {
+		return nil, err
+	}
+	meetingStore, ok := db.(meeting.Store)
+	if !ok || runtimeInformationNil(meetingStore) {
+		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+	}
+	meetingFacts, err := meeting.NewDeletionAuditFacts(meetingStore)
+	if err != nil {
+		return nil, err
+	}
+	dependencies := project.AuthorityDependencies{Sessions: accounts, Routes: accounts, AuditFacts: map[ac.Producer]ac.ProjectFactAuthority{ac.MeetingProducer: meetingFacts, ac.MemoryProducer: memoryFacts, ac.AgentProducer: agentFacts, ac.SecretProducer: secretFacts, ac.ProjectVariableProducer: variableFacts, ac.KnowledgeProducer: knowledgeFacts, ac.ObjectProducer: objectFacts, ac.ArtifactProducer: artifactFacts, ac.SkillProducer: skillFacts}}
+	if len(mcpFacts) > 1 || len(mcpFacts) == 1 && runtimeInformationNil(mcpFacts[0]) {
+		return nil, foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+	}
+	if len(mcpFacts) == 1 {
+		dependencies.AuditFacts[ac.MCPProducer] = mcpFacts[0]
+	}
 	if lifecycle != nil {
 		dependencies.Lifecycle = lifecycle
 	}

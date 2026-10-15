@@ -37,7 +37,7 @@ export type KnowledgeReadRequest = Readonly<{ byte_offset?: string; max_bytes?: 
 export type KnowledgeContent = Readonly<{ document: KnowledgeDocument }> &
   (
     | Readonly<{ text: Readonly<{ text: string; next_byte_offset: string; truncated: boolean }> }>
-    | Readonly<{ unavailable: 'dependency_unbound' }>
+    | Readonly<{ unavailable: 'dependency_unbound' | 'processing' | 'failed' }>
   )
 export interface KnowledgeOwnerAPI {
   children(
@@ -285,10 +285,15 @@ function content(
   requireValue(Object.keys(v).length === 2)
   const document = parseKnowledgeDocument(v.document, projectID, target)
   if (Object.hasOwn(v, 'unavailable')) {
-    requireValue(document.source_kind === 'file' && v.unavailable === 'dependency_unbound')
-    return Object.freeze({ document, unavailable: 'dependency_unbound' as const })
+    requireValue(
+      document.source_kind === 'file' &&
+        ['dependency_unbound', 'processing', 'failed'].includes(v.unavailable as string),
+    )
+    return Object.freeze({
+      document,
+      unavailable: v.unavailable as 'dependency_unbound' | 'processing' | 'failed',
+    })
   }
-  requireValue(document.source_kind === 'text')
   const t = shape(v.text, ['text', 'next_byte_offset', 'truncated'])
   const text = unicode(t.text, 0, request.max_bytes),
     next = decimal(t.next_byte_offset)

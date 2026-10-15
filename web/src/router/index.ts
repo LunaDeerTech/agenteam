@@ -25,6 +25,12 @@ export const router = createRouter({
     },
     { path: '/login', name: 'login', component: LoginView, meta: { authentication: true } },
     {
+      path: '/mcp/oauth/callback',
+      name: 'mcp-oauth-callback',
+      component: () => import('../views/MCPOAuthCallbackView.vue'),
+      meta: { authentication: true, protected: true },
+    },
+    {
       path: '/invite',
       name: 'invitation',
       component: () => import('../views/auth/InvitationView.vue'),
@@ -129,6 +135,16 @@ export const router = createRouter({
           component: () => import('../views/projects/ProjectTasksView.vue'),
         },
         {
+          path: 'meetings/:meeting_id?',
+          name: 'project-meetings',
+          component: () => import('../views/projects/ProjectMeetingsView.vue'),
+        },
+        {
+          path: 'inbox',
+          name: 'project-inbox',
+          component: () => import('../views/projects/ProjectInboxView.vue'),
+        },
+        {
           path: 'knowledge/:document_id?',
           name: 'project-knowledge',
           component: () => import('../views/projects/ProjectKnowledgeView.vue'),
@@ -158,7 +174,16 @@ export const router = createRouter({
               name: 'project-skills',
               component: () => import('../views/projects/ProjectSkillsView.vue'),
             },
-            { path: 'scheduler', name: 'project-scheduler', component: () => import('../views/projects/ProjectSchedulerSettings.vue') },
+            {
+              path: 'mcp',
+              name: 'project-mcp',
+              component: () => import('../views/projects/ProjectMCPView.vue'),
+            },
+            {
+              path: 'scheduler',
+              name: 'project-scheduler',
+              component: () => import('../views/projects/ProjectSchedulerSettings.vue'),
+            },
             {
               path: 'variables',
               name: 'project-variables',

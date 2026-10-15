@@ -37,12 +37,26 @@ func createExecutionBuiltins(authority *toolruntime.BuiltinAuthority, tasks *wor
 		return nil, err
 	}
 	out := &executionBuiltinAssembly{authority: authority, backends: append(taskBackends, artifactBackends...), sources: map[string]registry.BuiltinSource{}}
-	for _, backend := range out.backends {
-		source, err := toolruntime.NewBuiltinSource(authority, backend)
+	if err := out.addSources(out.backends...); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (out *executionBuiltinAssembly) addBackends(backends ...toolruntime.BuiltinBackend) error {
+	if err := out.addSources(backends...); err != nil {
+		return err
+	}
+	out.backends = append(out.backends, backends...)
+	return nil
+}
+func (out *executionBuiltinAssembly) addSources(backends ...toolruntime.BuiltinBackend) error {
+	for _, backend := range backends {
+		source, err := toolruntime.NewBuiltinSource(out.authority, backend)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		out.sources[backend.Registration().Definition.StableKey] = source
 	}
-	return out, nil
+	return nil
 }

@@ -9,9 +9,16 @@ import (
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 )
 
-func validateAssociated(project i.ProjectID, dispatch c.AssociatedDispatch) error {
+func validateAssociated(project i.ProjectID, dispatch associatedIdentity) error {
 	if project.Validate() != nil || dispatch.ExecutionID.Validate() != nil || dispatch.AgentID.Validate() != nil || dispatch.Key.Validate() != nil || dispatch.Digest.Validate() != nil {
 		return invalid()
+	}
+	if dispatch.meeting != (c.AssociatedMeeting{}) {
+		m := dispatch.meeting
+		if m.Validate() != nil || dispatch.DispatchID != "" || m.ExecutionID != dispatch.ExecutionID || m.AgentID != dispatch.AgentID || m.Key != dispatch.Key || m.Digest != dispatch.Digest {
+			return invalid()
+		}
+		return nil
 	}
 	if _, err := f.ParseID[struct{}](dispatch.DispatchID); err != nil {
 		return invalid()
@@ -23,18 +30,18 @@ func validateAssociated(project i.ProjectID, dispatch c.AssociatedDispatch) erro
 // grant. Its trusted caller supplied the association; these are independently
 // checked Execution facts. Driver-specific current authority is still checked
 // by the original preparation and DirectText methods before their writes/I/O.
-func (s *associatedExecutorState) inspect(ctx context.Context, project i.ProjectID, dispatch c.AssociatedDispatch) (associatedFacts, error) {
+func (s *associatedExecutorState) inspect(ctx context.Context, project i.ProjectID, dispatch associatedIdentity) (associatedFacts, error) {
 	return s.inspectAssociation(ctx, project, dispatch, false)
 }
 
 // Late admissions after the first Project stop must independently prove the
 // current Project gate. This read never adopts a driver claim or starts work.
-func (s *associatedExecutorState) admitProject(ctx context.Context, project i.ProjectID, dispatch c.AssociatedDispatch) error {
+func (s *associatedExecutorState) admitProject(ctx context.Context, project i.ProjectID, dispatch associatedIdentity) error {
 	_, err := s.inspectAssociation(ctx, project, dispatch, true)
 	return err
 }
 
-func (s *associatedExecutorState) inspectAssociation(ctx context.Context, project i.ProjectID, dispatch c.AssociatedDispatch, admission bool) (associatedFacts, error) {
+func (s *associatedExecutorState) inspectAssociation(ctx context.Context, project i.ProjectID, dispatch associatedIdentity, admission bool) (associatedFacts, error) {
 	if ctx == nil || validateAssociated(project, dispatch) != nil {
 		return associatedFacts{}, invalid()
 	}
@@ -84,7 +91,7 @@ func (s *associatedExecutorState) inspectAssociation(ctx context.Context, projec
 		if row.digest != dispatch.Digest {
 			return fault(f.IdempotencyKeyReused)
 		}
-		if row.summary.ID != dispatch.ExecutionID || row.summary.ProjectID != project || row.summary.AgentID != dispatch.AgentID || row.launch.ProjectID != project || row.launch.AgentID != dispatch.AgentID || row.launch.Meta.IdempotencyKey != dispatch.Key || row.launch.Trigger.Kind != "task" || row.launch.Lineage.DispatchID != dispatch.DispatchID {
+		if row.summary.ID != dispatch.ExecutionID || row.summary.ProjectID != project || row.summary.AgentID != dispatch.AgentID || row.launch.ProjectID != project || row.launch.AgentID != dispatch.AgentID || row.launch.Meta.IdempotencyKey != dispatch.Key || !dispatch.matchesLaunch(row.launch) {
 			return fault(f.ConfirmationStale)
 		}
 		if admission {

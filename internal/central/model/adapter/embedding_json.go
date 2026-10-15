@@ -460,13 +460,17 @@ func embeddingCount(raw []byte) (*mc.TokenCount, error) {
 	result := mc.TokenCount(n)
 	return &result, nil
 }
-func embeddingUsage(ctx context.Context, raw []byte) (mc.Usage, error) {
+func embeddingUsage(ctx context.Context, raw []byte, zeroCompletion bool) (mc.Usage, error) {
 	unknown := mc.Usage{Source: mc.UnknownUsage}
 	if len(raw) == 0 || bytes.Equal(raw, []byte("null")) {
 		return unknown, nil
 	}
 	s := embeddingScan(ctx, raw)
-	fields, _ := s.fields("prompt_tokens", "total_tokens")
+	names := []string{"prompt_tokens", "total_tokens"}
+	if zeroCompletion {
+		names = append(names, "completion_tokens")
+	}
+	fields, seen := s.fields(names...)
 	if !s.done() {
 		return unknown, s.err
 	}
@@ -480,7 +484,13 @@ func embeddingUsage(ctx context.Context, raw []byte) (mc.Usage, error) {
 	if err != nil {
 		return unknown, err
 	}
-	if u.InputTokens != nil || u.TotalTokens != nil {
+	if zeroCompletion && seen&4 != 0 {
+		u.OutputTokens, err = embeddingCount(raw[fields[2].start:fields[2].end])
+		if err != nil || u.OutputTokens == nil || *u.OutputTokens != 0 {
+			return unknown, protocolFailure()
+		}
+	}
+	if u.InputTokens != nil || u.TotalTokens != nil || u.OutputTokens != nil {
 		u.Source = mc.ProviderUsage
 	}
 	return u, nil
@@ -491,6 +501,10 @@ func embeddingUsage(ctx context.Context, raw []byte) (mc.Usage, error) {
 // syntax and valid usage, a vector semantic error may preserve usage separately;
 // the candidate EmbeddingResult is always zero on every error.
 func parseEmbeddingJSON(ctx context.Context, raw []byte, count, dimensions int) (EmbeddingResult, mc.Usage, error) {
+	return parseEmbeddingJSONProfile(ctx, raw, count, dimensions, false)
+}
+
+func parseEmbeddingJSONProfile(ctx context.Context, raw []byte, count, dimensions int, zeroCompletion bool) (EmbeddingResult, mc.Usage, error) {
 	unknown := mc.Usage{Source: mc.UnknownUsage}
 	if ctx == nil || !embeddingShape(count, dimensions) {
 		return EmbeddingResult{}, unknown, invalid()
@@ -523,7 +537,7 @@ func parseEmbeddingJSON(ctx context.Context, raw []byte, count, dimensions int) 
 	if model == "" || stringsNUL(model) {
 		return fail(protocolFailure())
 	}
-	usage, err = embeddingUsage(ctx, part(fields[3]))
+	usage, err = embeddingUsage(ctx, part(fields[3]), zeroCompletion)
 	if err != nil {
 		return EmbeddingResult{}, unknown, err
 	}

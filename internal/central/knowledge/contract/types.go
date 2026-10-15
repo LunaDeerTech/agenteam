@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"strings"
 	"unicode"
 	"unicode/utf8"
 
@@ -417,13 +418,14 @@ func (r *ReadRequest) UnmarshalJSON(b []byte) error {
 }
 
 type TextContent struct {
+	ParserProfile  string     `json:"parser_profile,omitempty"`
 	Text           string     `json:"text"`
 	NextByteOffset f.Progress `json:"next_byte_offset"`
 	Truncated      bool       `json:"truncated"`
 }
 
 func (t TextContent) Validate() error {
-	if !utf8.ValidString(t.Text) || len(t.Text) > MaxReadBytes || t.NextByteOffset.Validate() != nil || int64(t.NextByteOffset) < int64(len(t.Text)) {
+	if len(t.ParserProfile) > 256 || !utf8.ValidString(t.ParserProfile) || strings.ContainsAny(t.ParserProfile, " \t\r\n\x00") || !utf8.ValidString(t.Text) || len(t.Text) > MaxReadBytes || t.NextByteOffset.Validate() != nil || int64(t.NextByteOffset) < int64(len(t.Text)) {
 		return invalid()
 	}
 	return nil
@@ -440,7 +442,7 @@ func (d DocumentContent) Validate() error {
 	if d.Document.Validate() != nil || d.Document.Status != Active {
 		return invalid()
 	}
-	if d.Text != nil && d.File == nil && d.Unavailable == nil && d.Document.SourceKind == Text {
+	if d.Text != nil && d.File == nil && d.Unavailable == nil && (d.Document.SourceKind == Text && d.Text.ParserProfile == "" || d.Document.SourceKind == File && d.Text.ParserProfile != "") {
 		return d.Text.Validate()
 	}
 	if d.Unavailable != nil && d.Text == nil && d.File == nil && d.Document.SourceKind == File {
@@ -655,7 +657,7 @@ func (v TextContent) MarshalJSON() ([]byte, error) {
 }
 func (v *TextContent) UnmarshalJSON(b []byte) error {
 	type wire TextContent
-	w, e := decode[wire](b, []string{"text", "next_byte_offset", "truncated"}, nil, nil)
+	w, e := decode[wire](b, []string{"text", "next_byte_offset", "truncated"}, []string{"parser_profile"}, nil)
 	if e != nil {
 		return e
 	}

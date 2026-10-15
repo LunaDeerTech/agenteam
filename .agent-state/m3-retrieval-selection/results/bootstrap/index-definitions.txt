@@ -1,0 +1,2 @@
+agenteam_knowledge|knowledge_chunks_pg_search|t|t|CREATE INDEX knowledge_chunks_pg_search ON agenteam_knowledge.index_chunks USING bm25 (id, ((index_text)::pdb.chinese_compatible)) WITH (key_field=id)|(index_text::pdb.chinese_compatible)
+agenteam_memory|memory_projections_pg_search|t|t|CREATE INDEX memory_projections_pg_search ON agenteam_memory.projections USING bm25 (memory_id, ((index_text)::pdb.chinese_compatible)) WITH (key_field=memory_id)|(index_text::pdb.chinese_compatible)

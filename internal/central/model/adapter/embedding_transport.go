@@ -161,7 +161,7 @@ func (x *EmbeddingExchange) perform(create func() (embeddingClient, error), p em
 	if err != nil {
 		return EmbeddingResult{}, err
 	}
-	result, usage, err := parseEmbeddingJSON(x.ctx, raw, p.count, p.dimensions)
+	result, usage, err := parseEmbeddingJSONProfile(x.ctx, raw, p.count, p.dimensions, p.zeroCompletionUsage)
 	x.mu.Lock()
 	x.observation.Usage = usage.Clone()
 	result.ProviderRequestID = x.requestID

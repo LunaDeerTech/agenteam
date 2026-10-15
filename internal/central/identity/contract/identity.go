@@ -65,6 +65,10 @@ const (
 	AccountMaintenance ServiceName = "account-maintenance"
 	AccountMail        ServiceName = "account-mail"
 	ModelRuntime       ServiceName = "model-runtime"
+	KnowledgeRuntime   ServiceName = "knowledge-runtime"
+	MemoryRuntime      ServiceName = "memory-runtime"
+	MeetingRuntime     ServiceName = "meeting-runtime"
+	MCPRuntime         ServiceName = "mcp-runtime"
 	RunnerIdentity     ServiceName = "runner-identity"
 	Scheduler          ServiceName = "scheduler"
 )
@@ -172,7 +176,7 @@ type ServiceRegistration struct{ data func() ServiceName }
 
 func RegisterService(name ServiceName) (ServiceRegistration, error) {
 	switch name {
-	case SecretService, SecretMaintenance, OutboundService, ObjectService, ObjectMaintenance, ProjectLifecycle, ProjectInitialization, OutboxDelivery, AccountBootstrap, AccountAuth, AccountMaintenance, AccountMail, ModelRuntime, RunnerIdentity, Scheduler:
+	case SecretService, SecretMaintenance, OutboundService, ObjectService, ObjectMaintenance, ProjectLifecycle, ProjectInitialization, OutboxDelivery, AccountBootstrap, AccountAuth, AccountMaintenance, AccountMail, ModelRuntime, KnowledgeRuntime, MemoryRuntime, MeetingRuntime, MCPRuntime, RunnerIdentity, Scheduler:
 	default:
 		return ServiceRegistration{}, invalid()
 	}
@@ -185,9 +189,10 @@ func (r ServiceRegistration) Actor(causeRef string, scope Scope) (Actor, error) 
 	if r.data() == RunnerIdentity && scope.Details().Kind != System {
 		return Actor{}, invalid()
 	}
-	if r.data() == Scheduler {
-		// The cause names the original Dispatch intent. Registration provides
-		// identity only; its durable/current private proof is checked by owners.
+	if r.data() == Scheduler || r.data() == KnowledgeRuntime || r.data() == MemoryRuntime || r.data() == MeetingRuntime || r.data() == MCPRuntime {
+		// The cause names the original domain operation or launch intent.
+		// Registration provides identity only; each owner checks its current
+		// durable association and original private call proof.
 		if scope.Details().Kind != ProjectScope {
 			return Actor{}, invalid()
 		}

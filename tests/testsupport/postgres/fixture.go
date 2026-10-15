@@ -27,6 +27,8 @@ const UnsupportedImage = "pgvector/pgvector@sha256:16e62164a405447dca191079a924e
 const Label = "agenteam.d03.fixture"
 const Env = "AGENTEAM_PG_FIXTURE"
 const UnsupportedEnv = "AGENTEAM_PG_UNSUPPORTED_FIXTURE"
+const PGSearchImageEnv = "AGENTEAM_FIXTURE_PG_SEARCH_IMAGE"
+const PGSearchProfile = "pg_search"
 
 type Descriptor struct {
 	ContainerID string `json:"container_id"`
@@ -34,6 +36,7 @@ type Descriptor struct {
 	Nonce       string `json:"nonce"`
 	Port        string `json:"port"`
 	Image       string `json:"image"`
+	Retrieval   string `json:"retrieval,omitempty"`
 	User        string `json:"user"`
 	Password    string `json:"password"`
 	CAFile      string `json:"ca_file"`
@@ -41,6 +44,7 @@ type Descriptor struct {
 }
 type ContainerInspection struct {
 	ID     string `json:"Id"`
+	Image  string
 	Name   string
 	Config struct {
 		Image  string
@@ -98,7 +102,7 @@ func load(path string) (*Descriptor, error) {
 func (f *Descriptor) Verify() error {
 	nonce, err := hex.DecodeString(f.Nonce)
 	port, portErr := strconv.Atoi(f.Port)
-	if err != nil || len(nonce) != 16 || portErr != nil || port < 1 || port > 65535 || f.Image != Image && f.Image != UnsupportedImage || len(f.ContainerID) != 64 || len(f.NetworkID) != 64 || f.User == "" || f.Password == "" {
+	if err != nil || len(nonce) != 16 || portErr != nil || port < 1 || port > 65535 || !descriptorImage(f.Retrieval, f.Image, os.Getenv(PGSearchImageEnv)) || len(f.ContainerID) != 64 || len(f.NetworkID) != 64 || f.User == "" || f.Password == "" {
 		return errors.New("invalid integration fixture identity")
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -114,6 +118,9 @@ func (f *Descriptor) Verify() error {
 	}
 	if json.Unmarshal(output, &inspected) != nil || inspected.ID != f.ContainerID || inspected.Name != name || inspected.Config.Image != f.Image || inspected.Config.Labels[Label] != f.Nonce || !inspected.State.Running {
 		return errors.New("fixture container ownership mismatch")
+	}
+	if !containerImage(f.Retrieval, f.Image, inspected.Config.Image, inspected.Image) {
+		return errors.New("fixture immutable image mismatch")
 	}
 	ports := inspected.NetworkSettings.Ports["5432/tcp"]
 	if len(ports) != 1 || ports[0].HostIP != "127.0.0.1" || ports[0].HostPort != f.Port {
@@ -137,6 +144,31 @@ func (f *Descriptor) Verify() error {
 		return errors.New("fixture network label mismatch")
 	}
 	return postgres.RejectPGEnvironment(os.Environ())
+}
+
+// The explicit image pin is the local output of the frozen deployment recipe.
+// Tags, registry references and implicit pulls are not retrieval fixture inputs.
+func ValidPGSearchImageID(value string) bool {
+	if !strings.HasPrefix(value, "sha256:") || len(value) != len("sha256:")+64 || value != strings.ToLower(value) {
+		return false
+	}
+	raw, err := hex.DecodeString(strings.TrimPrefix(value, "sha256:"))
+	return err == nil && len(raw) == 32
+}
+
+func descriptorImage(profile, image, pin string) bool {
+	switch profile {
+	case "":
+		return pin == "" && (image == Image || image == UnsupportedImage)
+	case PGSearchProfile:
+		return ValidPGSearchImageID(pin) && image == pin
+	default:
+		return false
+	}
+}
+
+func containerImage(profile, image, configured, actual string) bool {
+	return configured == image && (profile != PGSearchProfile || actual == image)
 }
 func (f *Descriptor) URL(database string) string {
 	u := url.URL{Scheme: "postgresql", Host: net.JoinHostPort("127.0.0.1", f.Port), User: url.UserPassword(f.User, f.Password), Path: "/" + database}

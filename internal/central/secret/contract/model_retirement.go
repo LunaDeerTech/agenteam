@@ -12,3 +12,9 @@ import (
 type ModelLeaseRetirementObservation interface {
 	ModelExecutionLeaseReleasedInTx(context.Context, f.Tx, UsageRequest, UsageDependencies) (bool, error)
 }
+
+// ModelCallLeaseRetirementObservation observes the original auxiliary model
+// call's lease after its release writer returned. It never performs a release.
+type ModelCallLeaseRetirementObservation interface {
+	ModelCallLeaseReleasedInTx(context.Context, f.Tx, UsageRequest, UsageDependencies) (bool, error)
+}

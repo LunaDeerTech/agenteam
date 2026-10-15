@@ -47,6 +47,8 @@ type Config struct {
 	accountLog           func() string
 	launchRetry          *scheduler.LaunchRetryPolicy
 	executionRuntime     *ExecutionRuntimeOptions
+	retrievalRuntime     *RetrievalRuntimeOptions
+	knowledgeParser      *KnowledgeParserOptions
 }
 
 func (c Config) LogLevel() slog.Level                           { return c.logLevel }
@@ -102,8 +104,9 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 		case "LOG_LEVEL", "SHUTDOWN_TIMEOUT", "HTTP_ADDR", "PUBLIC_ORIGIN", "DEV_MODE", "CURSOR_KEYRING", "SECRET_KEYRING", "OUTBOUND_CA_FILE", outboundProxyOriginsSetting:
 		case "ACCOUNT_KEYRING", "ACCOUNT_RECOVERY_LOG":
 		case "KNOWLEDGE_CONFIRMATION_KEYRING":
+		case knowledgePDFToTextPath, knowledgePDFToTextSHA256, knowledgePrlimitPath, knowledgePrlimitSHA256:
 		case schedulerRetryMaxAttempts, schedulerRetryInitialBackoff, schedulerRetryMaxBackoff:
-		case executionRuntimeSetting:
+		case executionRuntimeSetting, retrievalRuntimeSetting:
 		case "OBJECT_DOWNLOAD_KEYRING", "OBJECT_ENDPOINT", "OBJECT_TRANSFER_ENDPOINT", "OBJECT_BUCKET", "OBJECT_ACCESS_KEY", "OBJECT_SECRET_KEY", "OBJECT_TLS_MODE", "OBJECT_CA_FILE", "OBJECT_SPOOL_DIR":
 		case "DATABASE_URL", "DATABASE_TLS_MODE", "DATABASE_CA_FILE", "DATABASE_MAX_CONNS", "DATABASE_CONNECT_TIMEOUT", "DATABASE_STARTUP_TIMEOUT", "DATABASE_LOCK_TIMEOUT":
 		default:
@@ -218,6 +221,20 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 	if c.executionRuntime != nil && c.launchRetry == nil {
 		return Config{}, invalid(schedulerRetryMaxAttempts)
 	}
+	c.retrievalRuntime, err = loadRetrievalRuntime(lookup)
+	if err != nil {
+		return Config{}, err
+	}
+	if c.retrievalRuntime != nil && (c.executionRuntime == nil || !c.executionRuntime.ToolLoop()) {
+		return Config{}, invalid(retrievalRuntimeSetting)
+	}
+	c.knowledgeParser, err = loadKnowledgeParser(lookup)
+	if err != nil {
+		return Config{}, err
+	}
+	if c.knowledgeParser != nil && c.retrievalRuntime == nil {
+		return Config{}, invalid(retrievalRuntimeSetting)
+	}
 
 	return c, nil
 }
@@ -272,6 +289,14 @@ func (c Config) Validate() error {
 		if c.launchRetry == nil {
 			return invalid(schedulerRetryMaxAttempts)
 		}
+	}
+	if c.retrievalRuntime != nil {
+		if c.retrievalRuntime.Validate() != nil || c.executionRuntime == nil || !c.executionRuntime.ToolLoop() {
+			return invalid(retrievalRuntimeSetting)
+		}
+	}
+	if c.knowledgeParser != nil && (c.knowledgeParser.Validate() != nil || c.retrievalRuntime == nil) {
+		return invalid("KNOWLEDGE_PARSER")
 	}
 	return nil
 }

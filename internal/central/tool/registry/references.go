@@ -85,7 +85,7 @@ func (c *Configuration) DiscoverToolReferences(ctx context.Context, change ac.To
 			return err
 		}
 		for _, tool := range sortedTools(change.After) {
-			v, err := s.registry.currentTool(ctx, tx, x, tool)
+			v, err := s.registry.currentProjectTool(ctx, tx, x, change.ProjectID, tool)
 			if err != nil {
 				return err
 			}
@@ -137,7 +137,7 @@ func (c *Configuration) ApplyToolReferencesInTx(ctx context.Context, tx f.Tx, ch
 		return portError(err)
 	}
 	for _, old := range d.entries {
-		now, err := s.registry.currentTool(ctx, tx, x, old.Ref.ToolID)
+		now, err := s.registry.currentProjectTool(ctx, tx, x, change.ProjectID, old.Ref.ToolID)
 		if err != nil {
 			return err
 		}

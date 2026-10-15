@@ -17,18 +17,18 @@ for name in ("knowledge-content.json", "common.json"):
     documents[name] = document
     registry = registry.with_resource(base + name, DRAFT202012.create_resource(document))
 spec = documents["knowledge-content.json"]
-assert len(spec["paths"]) == 1
-endpoint = next(iter(spec["paths"].values()))
-assert set(endpoint) == {"parameters", "get", "head"}
+assert len(spec["paths"]) == 2
 head_count = 0
-for response in endpoint["head"]["responses"].values():
-    if "$ref" in response:
-        response = spec["components"]["responses"][response["$ref"].rsplit("/", 1)[1]]
-    assert "content" not in response, "HEAD response must not declare a body"
-    assert response["headers"]["Cache-Control"]["schema"] == {"const": "no-store"}
-    assert "Content-Length" in response["headers"]
-    head_count += 1
-assert head_count == 10
+for endpoint in spec["paths"].values():
+    assert set(endpoint) == {"parameters", "get", "head"}
+    for response in endpoint["head"]["responses"].values():
+        if "$ref" in response:
+            response = spec["components"]["responses"][response["$ref"].rsplit("/", 1)[1]]
+        assert "content" not in response, "HEAD response must not declare a body"
+        assert response["headers"]["Cache-Control"]["schema"] == {"const": "no-store"}
+        assert "Content-Length" in response["headers"]
+        head_count += 1
+assert head_count == 21
 for schema in spec["components"]["schemas"].values():
     Draft202012Validator.check_schema(schema)
 cases = json.load(sys.stdin)["cases"]
@@ -42,4 +42,4 @@ for case in cases:
     )
     accepted = not list(validator.iter_errors(case["value"]))
     assert accepted == case["valid"], case["label"]
-print(f"PASS {len(cases)} actual-handler Schema controls; ten bodyless HEAD statuses; no network")
+print(f"PASS {len(cases)} actual-handler Schema controls; {head_count} bodyless HEAD statuses; no network")

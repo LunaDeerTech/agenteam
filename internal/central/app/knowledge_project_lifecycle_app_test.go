@@ -43,8 +43,9 @@ func TestKnowledgeProjectLifecycleDefaultApp(t *testing.T) {
 
 type knowledgeAppStore struct {
 	*executionSchedulerAppStore
-	mu    sync.Mutex
-	hooks []*usageAppHook
+	mu     sync.Mutex
+	hooks  []*usageAppHook
+	writes func(context.Context, postgres.SQLExecutor) (int64, error)
 }
 
 func (s *knowledgeAppStore) arm(h *usageAppHook) {
@@ -78,7 +79,11 @@ func (s *knowledgeAppStore) WithinTx(ctx context.Context, cause f.TransactionCau
 			break
 		}
 	}
+	writes := s.writes
 	s.mu.Unlock()
+	if writes == nil {
+		writes = knowledgeAppWrites
+	}
 	var before, after int64
 	selected := false
 	r := s.executionSchedulerAppStore.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
@@ -89,14 +94,14 @@ func (s *knowledgeAppStore) WithinTx(ctx context.Context, cause f.TransactionCau
 		if err != nil {
 			return err
 		}
-		before, err = knowledgeAppWrites(ctx, x)
+		before, err = writes(ctx, x)
 		if err != nil {
 			return err
 		}
 		if err = fn(ctx, tx); err != nil {
 			return err
 		}
-		after, err = knowledgeAppWrites(ctx, x)
+		after, err = writes(ctx, x)
 		if err != nil {
 			return err
 		}
@@ -150,8 +155,11 @@ type knowledgeLifecycleApp struct {
 	readers                 []kc.CanonicalRead
 }
 
-func newKnowledgeLifecycleApp(t *testing.T) *knowledgeLifecycleApp {
+func newKnowledgeLifecycleApp(t *testing.T, configure ...func(*dependencies, *executionSchedulerApp)) *knowledgeLifecycleApp {
 	t.Helper()
+	if len(configure) > 1 {
+		t.Fatal("one original App configuration hook required")
+	}
 	v := &knowledgeLifecycleApp{}
 	v.executionSchedulerApp = newExecutionSchedulerAppWith(t, func(d *dependencies, original *executionSchedulerApp) {
 		v.tracked = &knowledgeAppStore{executionSchedulerAppStore: original.store}
@@ -161,6 +169,9 @@ func newKnowledgeLifecycleApp(t *testing.T) *knowledgeLifecycleApp {
 			return v.tracked, err
 		}
 		d.observeProjectUsage = func(bound *projectUsageAssembly) { v.bound = bound }
+		if len(configure) == 1 && configure[0] != nil {
+			configure[0](d, original)
+		}
 	})
 	v.assembly.mu.Lock()
 	v.knowledgeCalls, _ = v.assembly.knowledge.(*knowledgeCallAssembly)

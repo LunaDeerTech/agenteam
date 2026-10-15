@@ -92,7 +92,11 @@ type documentResult struct {
 
 func documentValue(project id.ProjectID, in intent, out kc.DocumentRef) (documentResult, error) {
 	doc, err := projectDocument(project, out)
-	if err != nil || out.ID != in.target || out.SourceKind != kc.Text || out.MediaType != in.media {
+	kind := kc.Text
+	if in.media == kc.PDF || in.media == kc.DOCX {
+		kind = kc.File
+	}
+	if err != nil || out.ID != in.target || out.SourceKind != kind || out.MediaType != in.media {
 		return documentResult{}, badProjection()
 	}
 	switch in.name {

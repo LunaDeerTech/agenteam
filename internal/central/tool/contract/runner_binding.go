@@ -34,7 +34,13 @@ func (v RunnerBinding) Validate() error {
 	return nil
 }
 
-func validBindingChoice(b BuiltinBinding, r RunnerBinding) bool {
+func validBindingChoice(b BuiltinBinding, r RunnerBinding, m ...MCPBinding) bool {
+	if len(m) > 1 {
+		return false
+	}
+	if len(m) == 1 && m[0] != (MCPBinding{}) {
+		return b == (BuiltinBinding{}) && r == (RunnerBinding{}) && m[0].Validate() == nil
+	}
 	if r == (RunnerBinding{}) {
 		return stablePart(b.HandlerID) && b.ContractRevision.Validate() == nil
 	}

@@ -33,9 +33,10 @@ func NewBuiltinAuthority(store Store, guard *object.ProcessGuard, process oc.Pro
 
 type builtinWitnessKey struct{}
 type builtinWitness struct {
-	owner  *BuiltinExecutor
-	call   *builtinCall
-	active atomic.Bool
+	owner       *BuiltinExecutor
+	call        *builtinCall
+	active      atomic.Bool
+	cleanupOnly atomic.Bool
 }
 
 func (a *BuiltinAuthority) witness(ctx context.Context, actor i.Actor, project i.ProjectID) (*builtinWitness, error) {
@@ -54,7 +55,7 @@ func (a *BuiltinAuthority) witness(ctx context.Context, actor i.Actor, project i
 }
 
 func (a *BuiltinAuthority) withCurrent(ctx context.Context, tx f.Tx, w *builtinWitness, consume func(context.Context, []byte) error) error {
-	if w == nil || !w.active.Load() || w.owner.authority != a || consume == nil {
+	if w == nil || !w.active.Load() || w.cleanupOnly.Load() || w.owner.authority != a || consume == nil {
 		return fail(f.Forbidden)
 	}
 	if _, err := a.store.InTx(tx); err != nil {
@@ -70,7 +71,7 @@ func (a *BuiltinAuthority) withCurrent(ctx context.Context, tx f.Tx, w *builtinW
 	if err != nil {
 		return portError(err)
 	}
-	if err = requireBuiltinAttempt(ctx, x, a.process, w.call.record); err != nil {
+	if err = requireBuiltinAttempt(ctx, x, a.process, w.call.record, w.call.cold); err != nil {
 		return err
 	}
 	calls := 0

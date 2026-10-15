@@ -11,6 +11,7 @@ import (
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	protocol "github.com/LunaDeerTech/agenteam/internal/runnerprotocol"
 )
 
 func runnerContractID[T any](t *testing.T, n int) f.ID[T] {
@@ -87,6 +88,23 @@ func TestToolRunnerCallBindingDoesNotBroadenBuiltin(t *testing.T) {
 	b.RunnerBinding = RunnerBinding{}
 	if b.Validate() != nil {
 		t.Fatal("legacy skill.install rejected")
+	}
+	result := RunnerResultBinding{Call: b, OperationID: runnerContractID[Operation](t, 11), AttemptID: runnerContractID[Attempt](t, 12), RequestID: protocol.ID(runnerContractID[struct{}](t, 13).String()), InputDigest: digest, Fingerprint: digest, TerminalDigest: digest, Outcome: "success", Attempted: true, ResultDigest: digest, ResultBytes: 2}
+	if result.Validate() != nil || validateBuiltinResult(result) == nil {
+		t.Fatal("install result must use its explicit original-ledger branch")
+	}
+	for _, mutate := range []func(*RunnerResultBinding){
+		func(v *RunnerResultBinding) { v.Call.Binding.ContractRevision = 2 },
+		func(v *RunnerResultBinding) { v.Call.RunnerBinding = ReadFileRegistration().Binding },
+		func(v *RunnerResultBinding) { v.Attempted = false },
+		func(v *RunnerResultBinding) { v.TerminalDigest = "" },
+		func(v *RunnerResultBinding) { v.Outcome = "unknown" },
+	} {
+		bad := result
+		mutate(&bad)
+		if bad.Validate() == nil {
+			t.Fatal("install result accepted foreign binding or incomplete original terminal proof")
+		}
 	}
 	b.Binding.HandlerID = "another.builtin"
 	if b.Validate() == nil {

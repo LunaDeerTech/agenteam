@@ -14,7 +14,7 @@ import (
 func TestModelUsageRequestIDClosedVariants(t *testing.T) {
 	lease, _ := foundation.ParseID[Lease](accountID)
 	for _, purpose := range []Purpose{Model, MCP, System, SMTP} {
-		for _, kind := range []LeaseOwnerKind{ExecutionOwner, ModelCallOwner, AccountDeliveryOwner, AccountResponseOwner} {
+		for _, kind := range []LeaseOwnerKind{ExecutionOwner, ModelCallOwner, AccountDeliveryOwner, AccountResponseOwner, MCPConnectionRequestOwner} {
 			owner, _ := NewCredentialLeaseOwner(kind, accountID)
 			for _, action := range []UsageAction{AcquireLeaseUsage, ReleaseLeaseUsage, ReadLeaseUsage, RetainReferenceUsage, ReleaseReferenceUsage} {
 				name := string(purpose) + "/" + string(kind) + "/" + string(action)
@@ -26,7 +26,8 @@ func TestModelUsageRequestIDClosedVariants(t *testing.T) {
 					need := purpose == Model && action == ReadLeaseUsage && (kind == ExecutionOwner || kind == ModelCallOwner)
 					for _, request := range []string{"", anotherAccountID, "00000000-0000-0000-0000-000000000000", "01900000-0000-4000-8000-000000000001", "01900000-0000-7000-8000-00000000000A", "bad"} {
 						r.RequestID = request
-						valid := request == "" && !need || request == anotherAccountID && need
+						optional := purpose == MCP && action == ReadLeaseUsage && (kind == ExecutionOwner || kind == MCPConnectionRequestOwner)
+						valid := request == "" && !need || request == anotherAccountID && (need || optional)
 						if (r.Validate() == nil) != valid {
 							t.Fatalf("request %q validity, wanted %v", request, valid)
 						}

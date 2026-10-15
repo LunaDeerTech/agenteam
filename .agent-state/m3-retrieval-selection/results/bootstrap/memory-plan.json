@@ -1,0 +1,118 @@
+[
+  {
+    "Plan": {
+      "Node Type": "Limit",
+      "Parallel Aware": false,
+      "Async Capable": false,
+      "Startup Cost": 17.83,
+      "Total Cost": 17.83,
+      "Plan Rows": 1,
+      "Plan Width": 820,
+      "Plans": [
+        {
+          "Node Type": "Sort",
+          "Parent Relationship": "Outer",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Startup Cost": 17.83,
+          "Total Cost": 17.83,
+          "Plan Rows": 1,
+          "Plan Width": 820,
+          "Sort Key": ["(paradedb.score(p.memory_id)) DESC", "p.memory_id"],
+          "Plans": [
+            {
+              "Node Type": "Nested Loop",
+              "Parent Relationship": "Outer",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Join Type": "Inner",
+              "Startup Cost": 10.24,
+              "Total Cost": 17.82,
+              "Plan Rows": 1,
+              "Plan Width": 820,
+              "Inner Unique": true,
+              "Join Filter": "((m.memory_id = r.memory_id) AND (r.revision = m.current_revision))",
+              "Plans": [
+                {
+                  "Node Type": "Hash Join",
+                  "Parent Relationship": "Outer",
+                  "Parallel Aware": false,
+                  "Async Capable": false,
+                  "Join Type": "Inner",
+                  "Startup Cost": 10.10,
+                  "Total Cost": 11.84,
+                  "Plan Rows": 2,
+                  "Plan Width": 84,
+                  "Inner Unique": true,
+                  "Hash Cond": "((m.memory_id = (p.memory_id)::uuid) AND (m.current_revision = p.revision))",
+                  "Plans": [
+                    {
+                      "Node Type": "Seq Scan",
+                      "Parent Relationship": "Outer",
+                      "Parallel Aware": false,
+                      "Async Capable": false,
+                      "Relation Name": "memories",
+                      "Alias": "m",
+                      "Startup Cost": 0.00,
+                      "Total Cost": 1.70,
+                      "Plan Rows": 8,
+                      "Plan Width": 56,
+                      "Filter": "((project_id = '00000000-0000-7000-8000-000000000001'::uuid) AND (agent_id = '00000000-0000-7000-8000-000000000002'::uuid) AND (status = 'active'::text))"
+                    },
+                    {
+                      "Node Type": "Hash",
+                      "Parent Relationship": "Inner",
+                      "Parallel Aware": false,
+                      "Async Capable": false,
+                      "Startup Cost": 10.04,
+                      "Total Cost": 10.04,
+                      "Plan Rows": 4,
+                      "Plan Width": 60,
+                      "Plans": [
+                        {
+                          "Node Type": "Custom Scan",
+                          "Parent Relationship": "Outer",
+                          "Custom Plan Provider": "ParadeDB Base Scan",
+                          "Parallel Aware": false,
+                          "Async Capable": false,
+                          "Relation Name": "projections",
+                          "Alias": "p",
+                          "Startup Cost": 10.00,
+                          "Total Cost": 10.04,
+                          "Plan Rows": 4,
+                          "Plan Width": 60,
+                          "Table": "projections",
+                          "Index": "memory_projections_pg_search",
+                          "Segment Count": 1,
+                          "Exec Method": "NormalScanExecState",
+                          "Scores": true,
+                          "Tantivy Query": "{\"boolean\":{\"must\":[{\"heap_filter\":{\"indexed_query\":{\"boolean\":{\"must\":[{\"with_index\":{\"query\":{\"match\":{\"field\":\"index_text\",\"value\":\"索引恢复 PostgreSQL release_2026\",\"tokenizer\":null,\"distance\":null,\"transposition_cost_one\":null,\"prefix\":null,\"conjunction_mode\":false}}}}]}},\"always_filters\":[{\"heap_filter\":\"((project_id)::uuid = '00000000-0000-7000-8000-000000000001'::uuid)\"}]}},{\"heap_filter\":{\"indexed_query\":{\"boolean\":{\"must\":[{\"with_index\":{\"query\":{\"match\":{\"field\":\"index_text\",\"value\":\"索引恢复 PostgreSQL release_2026\",\"tokenizer\":null,\"distance\":null,\"transposition_cost_one\":null,\"prefix\":null,\"conjunction_mode\":false}}}}]}},\"always_filters\":[{\"heap_filter\":\"((agent_id)::uuid = '00000000-0000-7000-8000-000000000002'::uuid)\"}]}},{\"heap_filter\":{\"indexed_query\":{\"boolean\":{\"must\":[{\"with_index\":{\"query\":{\"match\":{\"field\":\"index_text\",\"value\":\"索引恢复 PostgreSQL release_2026\",\"tokenizer\":null,\"distance\":null,\"transposition_cost_one\":null,\"prefix\":null,\"conjunction_mode\":false}}}}]}},\"always_filters\":[{\"heap_filter\":\"((generation_id)::uuid = '00000000-0000-7000-8000-000000000005'::uuid)\"}]}}]}}"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "Node Type": "Index Scan",
+                  "Parent Relationship": "Inner",
+                  "Parallel Aware": false,
+                  "Async Capable": false,
+                  "Scan Direction": "Forward",
+                  "Index Name": "revisions_pkey",
+                  "Relation Name": "revisions",
+                  "Alias": "r",
+                  "Startup Cost": 0.14,
+                  "Total Cost": 2.97,
+                  "Plan Rows": 1,
+                  "Plan Width": 816,
+                  "Index Cond": "((project_id = '00000000-0000-7000-8000-000000000001'::uuid) AND (agent_id = '00000000-0000-7000-8000-000000000002'::uuid) AND (memory_id = (p.memory_id)::uuid) AND (revision = p.revision))",
+                  "Filter": "((type = ANY ('{fact}'::text[])) AND (tags @> '{kept}'::text[]) AND (status = 'active'::text))"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

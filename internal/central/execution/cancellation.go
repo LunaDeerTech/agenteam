@@ -3,7 +3,6 @@ package execution
 import (
 	"context"
 	"encoding/json"
-	"math"
 
 	c "github.com/LunaDeerTech/agenteam/internal/central/execution/contract"
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -124,29 +123,7 @@ func (s *CancellationService) RequestCancelInTx(ctx context.Context, tx f.Tx, ac
 	if !cancellationScopeMatches(row, scope) {
 		return c.Summary{}, fault(f.NotFound)
 	}
-	if expected != nil && (expected.Validate() != nil || row.summary.Version != *expected) {
-		return c.Summary{}, fault(f.VersionConflict)
-	}
-	if row.summary.Status.Terminal() || row.summary.CancelRequestedAt != nil {
-		return row.summary.Clone(), nil
-	}
-	if row.summary.Version == f.Version(math.MaxInt64) {
-		return c.Summary{}, fault(f.ResourceBusy)
-	}
-	at, err := captureTime(ctx, x)
-	if err != nil {
-		return c.Summary{}, err
-	}
-	tag, err := x.Exec(ctx, `UPDATE agenteam_execution.executions SET cancel_requested_at=$3,version=version+1,updated_at=GREATEST($3,updated_at+interval '1 microsecond') WHERE id=$1 AND version=$2 AND cancel_requested_at IS NULL AND status NOT IN('succeeded','failed','cancelled')`, scope.ExecutionID.String(), int64(row.summary.Version), at.Time())
-	if err != nil {
-		return c.Summary{}, unavailable(err)
-	}
-	if tag.RowsAffected() != 1 {
-		return c.Summary{}, fault(f.VersionConflict)
-	}
-	row.summary.Version++
-	row.summary.CancelRequestedAt = &at
-	return row.summary.Clone(), nil
+	return requestCancellationInTx(ctx, x, row, expected)
 }
 
 func cancellationScopeMatches(row *executionRecord, scope c.CancellationScope) bool {

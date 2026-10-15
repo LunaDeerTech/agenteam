@@ -1,0 +1,310 @@
+{
+  "format_version": 1,
+  "dataset_revision": "lexical-v2",
+  "backend": "pgroonga",
+  "backend_version": "4.1.0 / Groonga 16.1.3",
+  "config": {
+    "analyzer": "TokenBigram; NormalizerAuto; no external dictionary",
+    "query_mode": "SELECT source_id, pgroonga_score(tableoid,ctid)::double precision AS score FROM candidate_sections WHERE index_text &@~ $1 ORDER BY score DESC, source_id COLLATE \"C\" ASC LIMIT 20",
+    "ranking": "PGroonga default term frequency, not BM25",
+    "candidate_k": 20,
+    "tie_break": "source_id_ascii",
+    "adapter_revision": "m3-lexical-v1"
+  },
+  "results": [
+    {
+      "query_id": "q01",
+      "hits": []
+    },
+    {
+      "query_id": "q02",
+      "hits": []
+    },
+    {
+      "query_id": "q03",
+      "hits": []
+    },
+    {
+      "query_id": "q04",
+      "hits": []
+    },
+    {
+      "query_id": "q05",
+      "hits": []
+    },
+    {
+      "query_id": "q06",
+      "hits": []
+    },
+    {
+      "query_id": "q07",
+      "hits": []
+    },
+    {
+      "query_id": "q08",
+      "hits": []
+    },
+    {
+      "query_id": "q09",
+      "hits": []
+    },
+    {
+      "query_id": "q10",
+      "hits": []
+    },
+    {
+      "query_id": "q11",
+      "hits": []
+    },
+    {
+      "query_id": "q12",
+      "hits": []
+    },
+    {
+      "query_id": "q13",
+      "hits": []
+    },
+    {
+      "query_id": "q14",
+      "hits": []
+    },
+    {
+      "query_id": "q15",
+      "hits": []
+    },
+    {
+      "query_id": "q16",
+      "hits": []
+    },
+    {
+      "query_id": "q17",
+      "hits": []
+    },
+    {
+      "query_id": "q18",
+      "hits": []
+    },
+    {
+      "query_id": "q19",
+      "hits": []
+    },
+    {
+      "query_id": "q20",
+      "hits": []
+    },
+    {
+      "query_id": "q21",
+      "hits": []
+    },
+    {
+      "query_id": "q22",
+      "hits": []
+    },
+    {
+      "query_id": "q23",
+      "hits": []
+    },
+    {
+      "query_id": "q24",
+      "hits": []
+    },
+    {
+      "query_id": "q25",
+      "hits": []
+    },
+    {
+      "query_id": "q26",
+      "hits": []
+    },
+    {
+      "query_id": "q27",
+      "hits": []
+    },
+    {
+      "query_id": "q28",
+      "hits": []
+    },
+    {
+      "query_id": "q29",
+      "hits": []
+    },
+    {
+      "query_id": "q30",
+      "hits": []
+    },
+    {
+      "query_id": "q31",
+      "hits": []
+    },
+    {
+      "query_id": "q32",
+      "hits": []
+    },
+    {
+      "query_id": "q33",
+      "hits": []
+    },
+    {
+      "query_id": "q34",
+      "hits": []
+    },
+    {
+      "query_id": "q35",
+      "hits": []
+    },
+    {
+      "query_id": "q36",
+      "hits": []
+    },
+    {
+      "query_id": "q37",
+      "hits": []
+    },
+    {
+      "query_id": "q38",
+      "hits": []
+    },
+    {
+      "query_id": "q39",
+      "hits": []
+    },
+    {
+      "query_id": "q40",
+      "hits": []
+    },
+    {
+      "query_id": "q41",
+      "hits": []
+    },
+    {
+      "query_id": "q42",
+      "hits": []
+    },
+    {
+      "query_id": "q43",
+      "hits": []
+    },
+    {
+      "query_id": "q44",
+      "hits": []
+    },
+    {
+      "query_id": "q45",
+      "hits": []
+    },
+    {
+      "query_id": "q46",
+      "hits": []
+    },
+    {
+      "query_id": "q47",
+      "hits": []
+    },
+    {
+      "query_id": "q48",
+      "hits": []
+    },
+    {
+      "query_id": "q49",
+      "hits": []
+    },
+    {
+      "query_id": "q50",
+      "hits": []
+    },
+    {
+      "query_id": "q51",
+      "hits": []
+    },
+    {
+      "query_id": "q52",
+      "hits": []
+    },
+    {
+      "query_id": "q53",
+      "hits": []
+    },
+    {
+      "query_id": "q54",
+      "hits": []
+    },
+    {
+      "query_id": "q55",
+      "hits": []
+    },
+    {
+      "query_id": "q56",
+      "hits": []
+    },
+    {
+      "query_id": "q57",
+      "hits": []
+    },
+    {
+      "query_id": "q58",
+      "hits": []
+    },
+    {
+      "query_id": "q59",
+      "hits": []
+    },
+    {
+      "query_id": "q60",
+      "hits": []
+    },
+    {
+      "query_id": "q61",
+      "hits": []
+    },
+    {
+      "query_id": "q62",
+      "hits": []
+    },
+    {
+      "query_id": "q63",
+      "hits": []
+    },
+    {
+      "query_id": "q64",
+      "hits": []
+    },
+    {
+      "query_id": "q65",
+      "hits": []
+    },
+    {
+      "query_id": "q66",
+      "hits": []
+    },
+    {
+      "query_id": "q67",
+      "hits": []
+    },
+    {
+      "query_id": "q68",
+      "hits": []
+    },
+    {
+      "query_id": "q69",
+      "hits": []
+    },
+    {
+      "query_id": "q70",
+      "hits": []
+    },
+    {
+      "query_id": "q71",
+      "hits": []
+    },
+    {
+      "query_id": "q72",
+      "hits": []
+    }
+  ],
+  "measurements": {
+    "index_bytes": 0,
+    "indexing_ms": null,
+    "environment": "PostgreSQL17.8/vector0.8.1; nonce container 2CPU/3GiB; private Unix socket/psql; no timing samples; relation size excludes external extension files",
+    "latencies": []
+  }
+}

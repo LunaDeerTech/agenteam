@@ -50,6 +50,7 @@ func (c *Configuration) state() *configurationState {
 }
 
 type currentTool struct {
+	MCPBinding    tc.MCPBinding
 	Ref           tc.SpecRef
 	Key           string
 	Definition    []byte
@@ -100,7 +101,7 @@ func (r *Registry) currentTool(ctx context.Context, tx f.Tx, x postgres.SQLExecu
 	return v, nil
 }
 func sameCurrent(a, b currentTool) bool {
-	return a.Ref == b.Ref && a.Key == b.Key && bytes.Equal(a.Definition, b.Definition) && a.Binding == b.Binding && a.RunnerBinding == b.RunnerBinding && a.Scope == b.Scope && a.Risk == b.Risk && a.Class == b.Class
+	return a.Ref == b.Ref && a.Key == b.Key && bytes.Equal(a.Definition, b.Definition) && a.Binding == b.Binding && a.RunnerBinding == b.RunnerBinding && a.MCPBinding == b.MCPBinding && a.Scope == b.Scope && a.Risk == b.Risk && a.Class == b.Class
 }
 func baseLocks(actor id.Actor, project id.ProjectID, agent id.AgentID, agentMode f.LockMode) []f.LockRequest {
 	u, _ := f.UserLock(actor.Details().UserID)
@@ -200,7 +201,7 @@ func (c *Configuration) DiscoverConfigurationTools(ctx context.Context, request 
 			if row == nil {
 				return fail(f.DependencyUnbound)
 			}
-			current, err := s.registry.currentTool(ctx, tx, x, row.ID)
+			current, err := s.registry.currentProjectTool(ctx, tx, x, request.ProjectID, row.ID)
 			if err != nil {
 				return err
 			}
@@ -218,7 +219,7 @@ func (c *Configuration) DiscoverConfigurationTools(ctx context.Context, request 
 		}
 		slices.SortFunc(resolved, func(a, b id.ToolID) int { return bytes.Compare([]byte(a.String()), []byte(b.String())) })
 		for _, tool := range resolved {
-			v, err := s.registry.currentTool(ctx, tx, x, tool)
+			v, err := s.registry.currentProjectTool(ctx, tx, x, request.ProjectID, tool)
 			if err != nil {
 				return err
 			}
@@ -270,7 +271,7 @@ func (c *Configuration) RequireConfigurationToolsInTx(ctx context.Context, tx f.
 		return err
 	}
 	for _, old := range d.entries {
-		now, err := s.registry.currentTool(ctx, tx, x, old.Ref.ToolID)
+		now, err := s.registry.currentProjectTool(ctx, tx, x, request.ProjectID, old.Ref.ToolID)
 		if err != nil {
 			return err
 		}

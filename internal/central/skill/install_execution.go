@@ -120,6 +120,9 @@ func (a *Authority) requireInstallExecution(ctx context.Context, tx f.Tx, actor 
 	if err != nil {
 		return err
 	}
+	if handled, err := a.requireInstallLookup(ctx, tx, actor, project, intent); handled {
+		return err
+	}
 	r, plan, locks := call.read, call.readPlan, call.readLocks
 	if intent == id.Mutate {
 		r, plan, locks = call.mutate, call.mutatePlan, call.mutateLocks

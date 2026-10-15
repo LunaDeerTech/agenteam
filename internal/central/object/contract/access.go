@@ -233,7 +233,8 @@ func newAccessRequest(kind AccessKind, d AccessRequestDetails) (AccessRequest, e
 		owner := cause.Owner.Details()
 		allowedCause := owner.Kind == Avatar && (cause.Reason == ReplacedObject || cause.Reason == CancelledUpload) ||
 			owner.Kind == Knowledge && validID(owner.ProjectID) && (cause.Reason == ReplacedObject || cause.Reason == CancelledUpload || cause.Reason == OwnerDeleted || cause.Reason == ProjectDeleted) ||
-			owner.Kind == SkillRevision && validID(owner.ProjectID) && cause.Reason == ProjectDeleted
+			owner.Kind == SkillRevision && validID(owner.ProjectID) && cause.Reason == ProjectDeleted ||
+			owner.Kind == MCPContent && validID(owner.ProjectID) && cause.Reason == AbandonedAttempt
 		err = require(d.Operation == ReleaseForCleanupAccess && d.ObjectID.Validate() == nil && d.UploadID.Validate() == nil && d.Cleanup.Validate() == nil && allowedCause)
 	case ProjectCleanupAccess:
 		allow("actor", "project_cleanup")

@@ -282,7 +282,7 @@ func (c *runtimeCall) finish(ctx context.Context, result *wire.Result, original 
 		original = c.err
 	}
 	pending, accepted, joined := c.pending, c.accepted, c.joined
-	x, handoff, returned := c.exchange, c.handoff, c.startReturned
+	x, handoff, returned := c.lifecycleExchange(), c.handoff, c.startReturned
 	c.mu.Unlock()
 	if joined {
 		return nil
@@ -339,11 +339,24 @@ func (c *runtimeCall) finish(ctx context.Context, result *wire.Result, original 
 		usage = &result.End.Usage
 		requestID = result.End.ProviderRequestID
 	}
+	if original == nil && c.completedEmbedding != nil {
+		usage = &c.completedEmbedding.Usage
+		requestID = c.completedEmbedding.ProviderRequestID
+	}
 	if err := c.observe(ctx, observation, usage, requestID, true); err != nil {
 		return err
 	}
 	current = c.copyRecord()
 	var response *mc.ModelResponse
+	var embeddings *mc.Embeddings
+	if original == nil && c.completedEmbedding != nil {
+		r := mc.Embeddings{InvocationID: current.value.ID, Items: c.completedEmbedding.Items, Usage: current.value.Usage.Clone()}
+		if current.value.Dispatch != uc.Sent || r.ValidateFor(len(c.embeddingRequest.Texts), c.embeddingRequest.ExpectedDimensions) != nil {
+			original = fault(f.InvalidState)
+		} else {
+			embeddings = &r
+		}
+	}
 	if original == nil && result != nil {
 		r := mc.ModelResponse{CallID: current.value.CallID, InvocationID: current.value.ID,
 			Message:      runtimeResponseMessage(*result),
@@ -354,7 +367,7 @@ func (c *runtimeCall) finish(ctx context.Context, result *wire.Result, original 
 			response = &r
 		}
 	}
-	if response == nil && original == nil {
+	if response == nil && embeddings == nil && original == nil {
 		original = fault(f.InvalidState)
 	}
 	status := uc.Succeeded
@@ -388,7 +401,7 @@ func (c *runtimeCall) finish(ctx context.Context, result *wire.Result, original 
 	}
 	// This remains an unpublished candidate until the exact final mutation
 	// and retirement are confirmed. It contains only the original wire result.
-	c.result = response
+	c.result, c.embeddingResult = response, embeddings
 	if err = c.persist(ctx, uc.FinalizeAction, current, consumer, plan); err != nil {
 		return err
 	}
@@ -399,7 +412,7 @@ func (c *runtimeCall) finish(ctx context.Context, result *wire.Result, original 
 	if err = c.retireLease(ctx); err != nil {
 		return err
 	}
-	if result != nil && original != nil && response == nil {
+	if (result != nil || c.completedEmbedding != nil) && original != nil && response == nil && embeddings == nil {
 		return runtimePortError(original)
 	}
 	return nil

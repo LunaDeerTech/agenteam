@@ -334,6 +334,12 @@ func (a *Authority) Discover(ctx context.Context, request oc.ProjectRequest) (oc
 	if d.Kind == oc.AppendProject && d.Event.Producer == "governance" {
 		return a.discoverGovernanceEvent(request)
 	}
+	if d.Kind == oc.AppendProject && d.Event.Producer == "meeting" {
+		return a.discoverMeetingEvent(request)
+	}
+	if d.Kind == oc.DeliverProject && d.Event.Producer == "meeting" && (d.Delivery.HandlerID == "humaninbox.meeting_proposal" || d.Delivery.HandlerID == "humaninbox.meeting_decision") {
+		return a.discoverMeetingDelivery(ctx, request)
+	}
 	if d.Kind != oc.AppendProject || d.Event.Producer != c.ProjectProducer {
 		return oc.Dependencies{}, fault(foundation.DependencyUnbound)
 	}
@@ -385,6 +391,12 @@ func (a *Authority) ValidateInTx(ctx context.Context, tx foundation.Tx, request 
 	}
 	if d.Kind == oc.AppendProject && d.Event.Producer == "governance" {
 		return a.validateGovernanceEventInTx(ctx, tx, request, deps)
+	}
+	if d.Kind == oc.AppendProject && d.Event.Producer == "meeting" {
+		return a.validateMeetingEventInTx(ctx, tx, request, deps)
+	}
+	if d.Kind == oc.DeliverProject && d.Event.Producer == "meeting" && (d.Delivery.HandlerID == "humaninbox.meeting_proposal" || d.Delivery.HandlerID == "humaninbox.meeting_decision") {
+		return a.validateMeetingDeliveryInTx(ctx, tx, request, deps)
 	}
 	if d.Kind != oc.AppendProject || d.Event.Producer != c.ProjectProducer {
 		return fault(foundation.DependencyUnbound)

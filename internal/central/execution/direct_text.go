@@ -16,7 +16,9 @@ import (
 	mt "github.com/LunaDeerTech/agenteam/internal/central/mount/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 	pvc "github.com/LunaDeerTech/agenteam/internal/central/projectvariable/contract"
+	rc "github.com/LunaDeerTech/agenteam/internal/central/realtime/contract"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/skill/contract"
+	tc "github.com/LunaDeerTech/agenteam/internal/central/tool/contract"
 )
 
 type DirectTextDependencies struct {
@@ -31,6 +33,8 @@ type DirectTextDependencies struct {
 	Models      mc.ExecutionModelRetirement
 	Environment pvc.EnvironmentRetirement
 	Mounts      mt.ExecutionMountUseProvider
+	MCP         tc.MCPExecutionRetirement
+	Realtime    rc.Publisher
 }
 type DirectTextDriver struct{ state *directTextState }
 type directTextInvocation struct {
@@ -41,6 +45,8 @@ type directTextInvocation struct {
 	modelPlan       mc.ExecutionModelRetirementPlan
 	environmentPlan pvc.EnvironmentRetirementPlan
 	modelRetirement mc.ExecutionModelRetirementRequest
+	mcpRetirement   tc.MCPExecutionRetirementRequest
+	mcpPlan         tc.MCPExecutionRetirementPlan
 	callError       error
 	response        *mc.ModelResponse
 }
@@ -53,6 +59,9 @@ func newDirectTextDriver(store Store, a *Authority, deps DirectTextDependencies,
 		return nil, fault(f.DependencyUnbound)
 	}
 	if deps.Mounts != nil && nilPort(deps.Mounts) {
+		return nil, fault(f.DependencyUnbound)
+	}
+	if deps.Realtime != nil && nilPort(deps.Realtime) {
 		return nil, fault(f.DependencyUnbound)
 	}
 	process := deps.Processes.CurrentProcess()
@@ -413,7 +422,17 @@ func (s *directTextState) start(ctx context.Context, run *directTextCall) error 
 	run.summary.SnapshotID = &sid
 	run.summary.StartedAt = &at
 	s.mu.Unlock()
+	s.publishRuntime(run)
 	return nil
+}
+
+// Invoke only after the original transaction is known committed, or after
+// its exact original checkpoint has been observed. Notifications carry no
+// payload and never alter the business result or repeat a domain operation.
+func (s *directTextState) publishRuntime(run *directTextCall) {
+	if s.deps.Realtime != nil {
+		s.deps.Realtime.InvalidateExecution(run.request.Launch.ProjectID, run.request.ExecutionID)
+	}
 }
 
 func directTextUnknown(err error) bool {

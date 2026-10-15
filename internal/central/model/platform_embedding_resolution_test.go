@@ -57,7 +57,7 @@ func TestModelPlatformEmbeddingResolutionProfileMatrix(t *testing.T) {
 					t.Fatal("invalid positive profile", e)
 				}
 				revision, e := resolutionProfile(&p, &m, selection)
-				if e != nil || revision != adapter.OpenAIEmbeddingsFloatRevision {
+				if e != nil || revision != adapter.OpenAIEmbeddingsFloatUsageRevision {
 					t.Fatal("float profile", revision, e)
 				}
 				after, e := json.Marshal(m.Input)
@@ -278,7 +278,10 @@ func TestModelPlatformEmbeddingResolutionEntryGuards(t *testing.T) {
 			if serving.Validate() != nil {
 				t.Fatal("legal serving structure changed")
 			}
-			_, e = svc.DiscoverResolve(context.Background(), serving)
+			if e = resolutionVariant(serving); e != nil {
+				t.Fatal("serving source unsupported", e)
+			}
+			_, e = unbound.DiscoverResolve(context.Background(), serving)
 			requireCode(t, e, f.DependencyUnbound)
 			registration, _ := id.RegisterService(id.SecretService)
 			actor, _ := registration.Actor(mustID[struct{}](t).String(), id.SystemScope())

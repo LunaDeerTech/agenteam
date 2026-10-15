@@ -198,6 +198,31 @@ func TestOpenAIEmbeddingsUsageAndIsolation(t *testing.T) {
 	}
 }
 
+func TestOpenAIEmbeddingsV2ZeroCompletionCompatibility(t *testing.T) {
+	data := `[{"object":"embedding","index":0,"embedding":[1,2]}]`
+	raw := embeddingJSON(data, `{"prompt_tokens":3,"total_tokens":3,"completion_tokens":0}`)
+	old, _, err := parseEmbeddingJSON(context.Background(), raw, 1, 2)
+	embeddingZero(t, old, err)
+	result, usage, err := parseEmbeddingJSONProfile(context.Background(), raw, 1, 2, true)
+	if err != nil || usage.Source != mc.ProviderUsage || usage.OutputTokens == nil || *usage.OutputTokens != 0 || usage.InputTokens == nil || *usage.InputTokens != 3 || result.Usage.OutputTokens == usage.OutputTokens {
+		t.Fatal("explicit v2 zero completion usage", err)
+	}
+	for _, completion := range []string{`1`, `-1`, `-0`, `0.0`, `0e0`, `null`, `false`, `"0"`} {
+		r, u, err := parseEmbeddingJSONProfile(context.Background(), embeddingJSON(data, `{"prompt_tokens":3,"completion_tokens":`+completion+`}`), 1, 2, true)
+		embeddingZero(t, r, err)
+		if u.Source != mc.UnknownUsage || u.InputTokens != nil || u.OutputTokens != nil {
+			t.Fatal("invalid compatibility usage became reliable")
+		}
+	}
+	for _, usage := range []string{`{"completion_tokens":0,"completion_tokens":0}`, `{"completion_tokens":0,"output_tokens":0}`, `{"completi\u006fn_tokens":0,"completion_tokens":0}`} {
+		r, _, err := parseEmbeddingJSONProfile(context.Background(), embeddingJSON(data, usage), 1, 2, true)
+		embeddingZero(t, r, err)
+	}
+	if _, usage, err := parseEmbeddingJSONProfile(context.Background(), embeddingJSON(data, ""), 1, 2, true); err != nil || usage.Source != mc.UnknownUsage || usage.OutputTokens != nil {
+		t.Fatal("v2 inferred absent completion usage", err)
+	}
+}
+
 func embeddingMaximumJSON() []byte {
 	var body strings.Builder
 	body.WriteString(`{"object":"list","model":"m","data":[`)

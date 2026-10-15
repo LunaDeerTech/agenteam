@@ -9,6 +9,7 @@ import (
 )
 
 // WriteCommandLookupRequest observes a Human's historical Model credential
+// or Project MCP credential
 // receipt. It neither carries material nor authorizes replay of new material.
 type WriteCommandLookupRequest struct {
 	Actor           id.Actor
@@ -21,7 +22,7 @@ type WriteCommandLookupRequest struct {
 }
 
 func (r WriteCommandLookupRequest) Validate() error {
-	if r.Actor.Validate() != nil || r.Actor.Details().Kind != id.Human || r.Scope.Validate() != nil || r.Purpose != Model || r.Identity.Validate() != nil || r.Identity.Namespace() != "secret" || r.Identity.Command() != string(r.Kind) {
+	if r.Actor.Validate() != nil || r.Actor.Details().Kind != id.Human || r.Scope.Validate() != nil || (r.Purpose != Model && (r.Purpose != MCP || r.Scope.Details().Kind != id.ProjectScope)) || r.Identity.Validate() != nil || r.Identity.Namespace() != "secret" || r.Identity.Command() != string(r.Kind) {
 		return bad()
 	}
 	owners := r.Identity.OwnerIDs()

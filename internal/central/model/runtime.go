@@ -24,6 +24,7 @@ type RuntimeDependencies struct {
 	SecretReader sc.CredentialUsageReader
 	SecretUsage  sc.UsageOperations
 	Adapter      *wire.OpenAIChat
+	Embeddings   *wire.OpenAIEmbeddings
 	AllowHTTP    bool
 }
 
@@ -39,6 +40,9 @@ type runtimeState struct {
 	calls                        map[mc.CallID]*runtimeCall
 	admissions                   map[*runtimeAdmission]struct{}
 	usageCalls                   map[*runtimeUsageCall]struct{}
+	recoveries                   map[mc.CallID]*stoppedRuntimeCall
+	startup                      *stoppedRuntimeStartup
+	stoppedOwners                map[mc.CallID]*stoppedRuntimeOwner
 }
 
 type runtimeAdmission struct {
@@ -74,7 +78,7 @@ func newRuntime(store Store, authority *RuntimeAuthority, deps RuntimeDependenci
 	if a.runtime != nil {
 		return nil, fault(f.ResourceBusy)
 	}
-	s := &runtimeState{store: store, authority: authority, deps: deps, agentTiming: timing, calls: make(map[mc.CallID]*runtimeCall), admissions: make(map[*runtimeAdmission]struct{})}
+	s := &runtimeState{store: store, authority: authority, deps: deps, agentTiming: timing, calls: make(map[mc.CallID]*runtimeCall), admissions: make(map[*runtimeAdmission]struct{}), recoveries: make(map[mc.CallID]*stoppedRuntimeCall)}
 	a.runtime = s
 	return &Runtime{data: func() *runtimeState { return s }}, nil
 }
@@ -114,6 +118,12 @@ func (r *Runtime) Initialize(ctx context.Context) error {
 	if err != nil {
 		return portError(err)
 	}
+	if err = s.recoverStoppedCalls(ctx); err != nil {
+		return err
+	}
+	if err = s.recoverStoppedInvocationOwners(ctx, process); err != nil {
+		return err
+	}
 	cause, err := readCause("runtime-initialize")
 	if err != nil {
 		return err
@@ -124,8 +134,8 @@ func (r *Runtime) Initialize(ctx context.Context) error {
 			return portError(err)
 		}
 		var pending bool
-		// No restart takeover in this version. An unknown/unretired prior call
-		// blocks admission; a TTL or a missing local map is not a death proof.
+		// Recovery has to finish before admission. A live/unverifiable old
+		// process still blocks startup; absence from the local map proves nothing.
 		if err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_model.calls WHERE NOT retired), (SELECT count(*) FROM agenteam_model.runtime_attempts WHERE false)`).Scan(&pending, new(int64)); err != nil {
 			return unavailable(err)
 		}
@@ -204,9 +214,6 @@ func (r *Runtime) Drain(ctx context.Context) error {
 			usageCalls = append(usageCalls, call)
 		}
 		s.mu.Unlock()
-		if len(calls) == 0 && len(admissions) == 0 && len(usageCalls) == 0 {
-			return nil
-		}
 		for _, admission := range admissions {
 			admission.cancel()
 			select {
@@ -214,6 +221,18 @@ func (r *Runtime) Drain(ctx context.Context) error {
 			case <-ctx.Done():
 				return unavailable(ctx.Err())
 			}
+		}
+		// An admitted stopped-call lookup owns a read-only recovery witness
+		// until its original callback returns. Cancel and join that admission
+		// before interpreting retained witnesses as COMMIT Unknown work.
+		if err := s.confirmStoppedRecoveries(ctx); err != nil {
+			return err
+		}
+		if err := s.confirmStoppedOwners(ctx); err != nil {
+			return err
+		}
+		if len(calls) == 0 && len(admissions) == 0 && len(usageCalls) == 0 {
+			return nil
 		}
 		for _, call := range calls {
 			if err := call.close(ctx); err != nil {
@@ -240,7 +259,7 @@ func (r *Runtime) Joined() bool {
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	return s.stopped && !s.initializing && len(s.calls) == 0 && len(s.admissions) == 0 && len(s.usageCalls) == 0
+	return s.stopped && !s.initializing && len(s.calls) == 0 && len(s.admissions) == 0 && len(s.usageCalls) == 0 && len(s.recoveries) == 0 && len(s.stoppedOwners) == 0 && s.startup == nil
 }
 
 func (*Runtime) Format(w fmt.State, _ rune)   { _, _ = io.WriteString(w, "model_runtime") }

@@ -1,0 +1,24 @@
+M3 MCP OAuth Secret port controlled PostgreSQL evidence
+Source baseline: 9b7f9648; race compile session51280 original Wait0.
+Original native session56569 original Wait0. No external API request.
+Scope: Secret sealing/CAS/command receipt/Audit/transaction owner; private MCP fixture facts only.
+Earlier session36560 original Wait1 is retained in output/m3-model-checks/oauth-native-01.log; create was rejected before Unknown proxy arm. It was not successful Unknown coverage.
+
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+=== RUN   TestModelM3MCPOAuthSealedWrite
+--- PASS: TestModelM3MCPOAuthSealedWrite (5.47s)
+=== RUN   TestModelM3MCPOAuthRealCommitUnknown
+=== RUN   TestModelM3MCPOAuthRealCommitUnknown/commit-not-forwarded
+=== RUN   TestModelM3MCPOAuthRealCommitUnknown/commit-ack-dropped
+--- PASS: TestModelM3MCPOAuthRealCommitUnknown (10.01s)
+    --- PASS: TestModelM3MCPOAuthRealCommitUnknown/commit-not-forwarded (5.07s)
+    --- PASS: TestModelM3MCPOAuthRealCommitUnknown/commit-ack-dropped (4.94s)
+PASS
+D03 explicit test actual_wait pid=909337 code=0 selector=^TestModelM3MCPOAuth(SealedWrite|RealCommitUnknown)$
+D03 fixture cleanup checked for nonce edb32d334a7dee7159171218118009c6
+D04 outbound fixture cleanup checked for nonce 4e01257bb9fd1d4e035ca7900eb8cf81
+D05 object fixture exact resource cleanup checked nonce=44820f45c56562eac40c4be58b791f3a
+
+Pure Secret tests: session37657 original Wait0 (contract+Secret race).
+Media capability tests: session10458 original Wait0 (Runtime tools/media/auto race).
+Not claimed: MCP domain OAuth exchange/refresh/cold recovery or image/binary model consumption.

@@ -13,7 +13,7 @@ import (
 // original accepted-operation lookup. It lends no current-configuration
 // witness and cannot authorize a new Task/Artifact mutation or dispatch.
 func (d *ToolCallDriver) WithCommittedBuiltinToolCallInTx(ctx context.Context, tx f.Tx, b tc.ToolCallBinding, plan tc.ToolCallPlan, consume func(context.Context, tc.ToolCallBinding, []byte) error) error {
-	if d == nil || d.driver == nil || ctx == nil || consume == nil || b.Validate() != nil || b.RunnerBinding != (tc.RunnerBinding{}) || !tc.WorkArtifactBuiltinBinding(b.Binding) {
+	if d == nil || d.driver == nil || ctx == nil || consume == nil || b.Validate() != nil || b.RunnerBinding != (tc.RunnerBinding{}) || (!tc.DomainBuiltinBinding(b.Binding) && b.MCPBinding.Validate() != nil && b.Binding != (tc.BuiltinBinding{HandlerID: "skill.install", ContractRevision: 1})) {
 		return invalid()
 	}
 	p, ok := plan.(*toolCallPlan)

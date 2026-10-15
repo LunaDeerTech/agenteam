@@ -21,6 +21,29 @@ func WorkArtifactBuiltinBinding(v BuiltinBinding) bool {
 	}
 }
 
+// DomainBuiltinBinding is the implemented domain adapter contract set. A name
+// here establishes neither publication nor authority: Registry additionally
+// requires a live backend, and invocation requires the original private call.
+func DomainBuiltinBinding(v BuiltinBinding) bool {
+	if WorkArtifactBuiltinBinding(v) {
+		return true
+	}
+	if v.ContractRevision != 1 {
+		return false
+	}
+	switch v.HandlerID {
+	case "knowledge.query", "knowledge.read",
+		"skill.list", "skill.read", "skill.assign", "skill.prepare",
+		"memory.retain", "memory.recall", "memory.reflect",
+		"meeting.list", "meeting.request", "meeting.add-agent", "meeting.remove-agent",
+		"meeting.update", "meeting.comment", "meeting.request-decision",
+		"mcp.list-resources", "mcp.read-resource":
+		return true
+	default:
+		return false
+	}
+}
+
 // BuiltinInputAuthority lends the exact committed call's protected arguments
 // while the original Execution current-authority witness is alive. No caller
 // may replace these bytes with model arguments received by another route.
@@ -41,11 +64,27 @@ type CommittedBuiltinInputAuthority interface {
 }
 
 func validateBuiltinResult(v RunnerResultBinding) error {
-	if v.Call.Validate() != nil || v.Call.RunnerBinding != (RunnerBinding{}) || !WorkArtifactBuiltinBinding(v.Call.Binding) ||
+	return validateDirectResult(v, DomainBuiltinBinding(v.Call.Binding) || v.Call.MCPBinding.Validate() == nil)
+}
+
+// Install uses its original Operation/Attempt ledger. Sharing the immutable
+// result shape does not register it as a generic domain backend.
+func validateInstallResult(v RunnerResultBinding) error {
+	return validateDirectResult(v, v.Call.Binding == (BuiltinBinding{HandlerID: "skill.install", ContractRevision: 1}) && v.Call.MCPBinding == (MCPBinding{}))
+}
+
+func validateDirectResult(v RunnerResultBinding, supported bool) error {
+	if v.Call.Validate() != nil || v.Call.RunnerBinding != (RunnerBinding{}) || !supported ||
 		v.OperationID.Validate() != nil || v.AttemptID.Validate() != nil || !v.RequestID.Valid() ||
 		v.InputDigest.Validate() != nil || v.Fingerprint.Validate() != nil || v.TerminalDigest.Validate() != nil ||
 		!v.Attempted || v.ResultDigest.Validate() != nil || v.ResultBytes < 2 || v.ResultBytes > 1<<20 {
 		return operationInvalid()
+	}
+	if v.Call.MCPBinding.Validate() == nil && v.Outcome == "unknown" && v.Code == string(f.DependencyUnavailable) {
+		return nil
+	}
+	if v.Call.Binding == (BuiltinBinding{HandlerID: "skill.prepare", ContractRevision: 1}) && v.Call.MCPBinding == (MCPBinding{}) && v.Outcome == "unknown" && v.Code == string(f.DependencyUnavailable) {
+		return nil
 	}
 	if v.Outcome == "success" && v.Code == "" || v.Outcome == "failure" && f.Code(v.Code).Known() {
 		return nil

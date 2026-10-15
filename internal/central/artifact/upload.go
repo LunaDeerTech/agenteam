@@ -160,12 +160,7 @@ func (s *Service) beginUpload(ctx context.Context, v ac.Invocation, command foun
 	if err != nil {
 		return ac.UploadTarget{}, invalid()
 	}
-	semantic, err := jsonDigest(struct {
-		Actor, Project, Execution, Operation, Tool, ToolCall, Name, Description, Media string
-		Size                                                                           int64
-		SHA                                                                            *foundation.Digest
-		Version                                                                        *foundation.Version
-	}{stableActor(d.Actor), d.ProjectID.String(), d.ExecutionID, d.OperationID, d.ToolID, d.ToolCallID, display.Name, display.Description, media, length, expected, version})
+	semantic, err := uploadIntentDigest(v, display, media, length, expected, version)
 	if err != nil {
 		return ac.UploadTarget{}, err
 	}
@@ -245,6 +240,13 @@ func matchesIntent(u uploadIntent, v ac.Invocation, target ac.UploadTarget) erro
 	return nil
 }
 func (s *Service) uploadPayload(ctx context.Context, v ac.Invocation, target ac.UploadTarget, body io.ReadCloser) (oc.PutResult, error) {
+	return s.uploadPayloadAttempt(ctx, v, target, body, false)
+}
+
+// firstAttempt is the narrow Human HTTP admission rule. The original internal
+// UploadPayload retains its recovery semantics. A pre-stream observation alone
+// cannot grant a new attempt after a concurrent writer has already reserved one.
+func (s *Service) uploadPayloadAttempt(ctx context.Context, v ac.Invocation, target ac.UploadTarget, body io.ReadCloser, firstAttempt bool) (oc.PutResult, error) {
 	target.Command = copyCommand(target.Command)
 	if nilPort(body) {
 		return oc.PutResult{}, invalid()
@@ -307,6 +309,9 @@ func (s *Service) uploadPayload(ctx context.Context, v ac.Invocation, target ac.
 		}
 		if err = matchesIntent(current, v, target); err != nil {
 			return err
+		}
+		if firstAttempt && (current.state != "pending" || current.object != (oc.ObjectID{}) || current.upload != (oc.UploadID{}) || current.attempt != (oc.AttemptID{})) {
+			return failure(foundation.ResourceBusy, nil)
 		}
 		if current.sha.Validate() == nil && current.sha != p.Details().SHA256 {
 			return failure(foundation.IdempotencyKeyReused, nil)

@@ -20,7 +20,9 @@ type objectAuthorities struct {
 	knowledge   *knowledge.Authority
 	skills      *skill.Authority
 	artifacts   *artifact.OwnerProvider
+	mcp         objectOwnerAuthority
 	maintenance *object.MaintenanceOwnerResolver
+	preparation *skillPrepareTransferAuthority
 }
 
 type objectOwnerAuthority interface {
@@ -30,11 +32,19 @@ type objectOwnerAuthority interface {
 	oc.ProjectGate
 }
 
+type objectCleanupOwner interface {
+	CheckCleanupInTx(context.Context, f.Tx, oc.ObjectCleanupCause, oc.ObjectID) error
+}
+
 func newObjectAuthorities(store object.Store, avatar *account.AvatarAuthority, documents *knowledge.Authority, skills *skill.Authority) (*objectAuthorities, error) {
 	return newObjectAuthoritiesWithArtifacts(store, avatar, documents, skills, nil)
 }
 
-func newObjectAuthoritiesWithArtifacts(store object.Store, avatar *account.AvatarAuthority, documents *knowledge.Authority, skills *skill.Authority, artifacts *artifact.OwnerProvider) (*objectAuthorities, error) {
+func newObjectAuthoritiesWithArtifacts(store object.Store, avatar *account.AvatarAuthority, documents *knowledge.Authority, skills *skill.Authority, artifacts *artifact.OwnerProvider, mcp ...objectOwnerAuthority) (*objectAuthorities, error) {
+	return newObjectAuthoritiesWithPreparation(store, avatar, documents, skills, artifacts, nil, mcp...)
+}
+
+func newObjectAuthoritiesWithPreparation(store object.Store, avatar *account.AvatarAuthority, documents *knowledge.Authority, skills *skill.Authority, artifacts *artifact.OwnerProvider, preparation *skillPrepareTransferAuthority, mcp ...objectOwnerAuthority) (*objectAuthorities, error) {
 	if avatar == nil || documents == nil || skills == nil {
 		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
@@ -42,7 +52,14 @@ func newObjectAuthoritiesWithArtifacts(store object.Store, avatar *account.Avata
 	if err != nil {
 		return nil, err
 	}
-	return &objectAuthorities{avatar: avatar, knowledge: documents, skills: skills, artifacts: artifacts, maintenance: resolver}, nil
+	if len(mcp) > 1 || len(mcp) == 1 && runtimeInformationNil(mcp[0]) {
+		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
+	}
+	var remote objectOwnerAuthority
+	if len(mcp) == 1 {
+		remote = mcp[0]
+	}
+	return &objectAuthorities{mcp: remote, avatar: avatar, knowledge: documents, skills: skills, artifacts: artifacts, maintenance: resolver, preparation: preparation}, nil
 }
 
 func (a *objectAuthorities) owner(owner oc.ObjectOwner) (objectOwnerAuthority, error) {
@@ -56,6 +73,11 @@ func (a *objectAuthorities) owner(owner oc.ObjectOwner) (objectOwnerAuthority, e
 		return a.knowledge, nil
 	case oc.SkillRevision:
 		return a.skills, nil
+	case oc.MCPContent:
+		if a.mcp != nil {
+			return a.mcp, nil
+		}
+		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
 	case oc.Artifact:
 		if a.artifacts != nil {
 			return a.artifacts, nil
@@ -86,6 +108,9 @@ func (a *objectAuthorities) requestOwner(request oc.AccessRequest) (oc.ObjectOwn
 }
 
 func (a *objectAuthorities) Discover(ctx context.Context, request oc.AccessRequest) (oc.AccessDependencies, error) {
+	if request.Validate() == nil && request.Details().Kind == oc.LeaseAccess && request.Details().LeaseOwner.Details().Kind == oc.TransferOwner && a.preparation != nil {
+		return a.preparation.DiscoverPreparationLease(ctx, request)
+	}
 	var owner oc.ObjectOwner
 	var err error
 	if request.Validate() == nil && request.Details().Kind == oc.MaintenanceAccess {
@@ -104,6 +129,9 @@ func (a *objectAuthorities) Discover(ctx context.Context, request oc.AccessReque
 }
 
 func (a *objectAuthorities) ValidateInTx(ctx context.Context, tx f.Tx, request oc.AccessRequest, expected oc.AccessDependencies) error {
+	if request.Validate() == nil && request.Details().Kind == oc.LeaseAccess && request.Details().LeaseOwner.Details().Kind == oc.TransferOwner && a.preparation != nil {
+		return a.preparation.ValidatePreparationLeaseInTx(ctx, tx, request, expected)
+	}
 	var owner oc.ObjectOwner
 	var err error
 	if request.Validate() == nil && request.Details().Kind == oc.MaintenanceAccess {
@@ -164,6 +192,12 @@ func (a *objectAuthorities) CheckCleanupInTx(ctx context.Context, tx f.Tx, cause
 		return a.avatar.CheckCleanupInTx(ctx, tx, cause, object)
 	case oc.Knowledge:
 		return a.knowledge.CheckCleanupInTx(ctx, tx, cause, object)
+	case oc.MCPContent:
+		cleanup, ok := a.mcp.(objectCleanupOwner)
+		if !ok || runtimeInformationNil(cleanup) {
+			return f.NewFault(f.DependencyUnbound, f.NotStarted)
+		}
+		return cleanup.CheckCleanupInTx(ctx, tx, cause, object)
 	case oc.Artifact:
 		if a.artifacts != nil {
 			return a.artifacts.CheckCleanupInTx(ctx, tx, cause, object)
@@ -178,7 +212,10 @@ func (*objectAuthorities) CheckProjectCleanupInTx(context.Context, f.Tx, id.Acto
 	return f.NewFault(f.DependencyUnbound, f.NotStarted)
 }
 
-func (*objectAuthorities) AuthorizeLeaseInTx(context.Context, f.Tx, id.Actor, oc.ObjectID, oc.LeaseOwner, oc.LeaseAction) error {
+func (a *objectAuthorities) AuthorizeLeaseInTx(ctx context.Context, tx f.Tx, actor id.Actor, object oc.ObjectID, owner oc.LeaseOwner, action oc.LeaseAction) error {
+	if owner.Validate() == nil && owner.Details().Kind == oc.TransferOwner && a.preparation != nil {
+		return a.preparation.AuthorizeLeaseInTx(ctx, tx, actor, object, owner, action)
+	}
 	return f.NewFault(f.DependencyUnbound, f.NotStarted)
 }
 

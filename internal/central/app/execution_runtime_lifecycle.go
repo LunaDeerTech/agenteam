@@ -10,12 +10,22 @@ import (
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/governance/approval"
 	gc "github.com/LunaDeerTech/agenteam/internal/central/governance/approval/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/humaninbox"
+	"github.com/LunaDeerTech/agenteam/internal/central/knowledge"
+	"github.com/LunaDeerTech/agenteam/internal/central/mcp"
+	"github.com/LunaDeerTech/agenteam/internal/central/meeting"
+	"github.com/LunaDeerTech/agenteam/internal/central/memory"
+	"github.com/LunaDeerTech/agenteam/internal/central/model"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/mount"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
 	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/realtime"
 	runnerhttp "github.com/LunaDeerTech/agenteam/internal/central/runner/http"
 	"github.com/LunaDeerTech/agenteam/internal/central/scheduler"
 	tc "github.com/LunaDeerTech/agenteam/internal/central/tool/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/tool/registry"
+	toolruntime "github.com/LunaDeerTech/agenteam/internal/central/tool/runtime"
 )
 
 type executionRuntimeWork struct {
@@ -40,6 +50,23 @@ type executionRuntimeAssembly struct {
 	owners                         []executionRuntimeWork
 	runs                           []*executionRuntimeRun
 	initialize                     func(context.Context) error
+	modelRuntime                   *model.Runtime
+	modelCalls                     *model.ModelCallLeaseRetirement
+	servingRetention               *model.ServingSnapshotRetention
+	embeddingProfiles              *model.EmbeddingProfileReader
+	knowledgeIndex                 *knowledge.IndexService
+	memory                         *memory.Runtime
+	memories                       *memory.Service
+	meetings                       *meeting.Service
+	meetingProposals               *meeting.ProposalService
+	meetingInbox                   *humaninbox.Service
+	meetingResults                 *execution.MeetingExecutionReader
+	meetingRuntime                 *meeting.Runtime
+	realtime                       *realtime.Hub
+	mcp                            *mcp.Service
+	mcpTools                       *mcpAssembly
+	mcpCapture                     *registry.ExecutionCapture
+	mcpRetirement                  *mcp.ExecutionRetirement
 	executor                       *execution.AssociatedExecutor
 	manager                        *scheduler.ProjectRunners
 	taskReadDependencies           *execution.TaskReadDependencies
@@ -51,12 +78,17 @@ type executionRuntimeAssembly struct {
 	runnerManagedCleanup           pc.ProjectLifecycleParticipant
 	runnerDevice                   *runnerhttp.DeviceHandler
 	builtins                       *executionBuiltinAssembly
+	installSource                  *toolruntime.InstallSource
 	approvalAuthority              *approval.Authority
 	approvalEvents                 gc.Events
 	approvalOperations             tc.ApprovalOperations
 	approvalJournal                *outbox.Service
 	approval                       *approval.Service
 	cancellation                   *execution.CancellationService
+
+	// Package-local assembly observation can wrap this one caller. Runtime
+	// initialization, retirement and lifecycle remain the original owners.
+	loopModel mc.JSONCaller
 }
 
 func (b *executionRuntimeAssembly) add(owner executionRuntimeWork) {
@@ -128,6 +160,12 @@ func (b *executionRuntimeAssembly) Start(ctx context.Context) error {
 	if b.startRun(b.manager.Run) == nil {
 		return f.NewFault(f.ShuttingDown, f.NotStarted)
 	}
+	if b.meetingRuntime != nil && b.startRun(b.meetingRuntime.Run) == nil {
+		return f.NewFault(f.ShuttingDown, f.NotStarted)
+	}
+	if b.knowledgeIndex != nil && b.startRun(b.knowledgeIndex.Run) == nil {
+		return f.NewFault(f.ShuttingDown, f.NotStarted)
+	}
 	return ctx.Err()
 }
 
@@ -139,7 +177,14 @@ func (b *executionRuntimeAssembly) Check(ctx context.Context) error {
 	available := b.started && !b.constructing && !b.stopped
 	runs := append([]*executionRuntimeRun(nil), b.runs...)
 	b.mu.Unlock()
-	if !available || len(runs) != 2 {
+	expectedRuns := 2
+	if b.meetingRuntime != nil {
+		expectedRuns++
+	}
+	if b.knowledgeIndex != nil {
+		expectedRuns++
+	}
+	if !available || len(runs) != expectedRuns {
 		return f.NewFault(f.DependencyUnavailable, f.NotStarted)
 	}
 	for _, run := range runs {

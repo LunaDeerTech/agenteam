@@ -22,6 +22,7 @@ import (
 type SkillAssignmentAuthority struct {
 	agents     *Authority
 	references [4]c.SkillAssignmentVersionReferences
+	runtime    c.SkillAssignmentRunAuthority
 }
 
 func NewSkillAssignmentAuthority(agents *Authority, references []c.SkillAssignmentVersionReferences) (*SkillAssignmentAuthority, error) {
@@ -54,6 +55,18 @@ func NewSkillAssignmentAuthority(agents *Authority, references []c.SkillAssignme
 	return out, nil
 }
 
+func NewRuntimeSkillAssignmentAuthority(agents *Authority, references []c.SkillAssignmentVersionReferences, runtime c.SkillAssignmentRunAuthority) (*SkillAssignmentAuthority, error) {
+	if nilPort(runtime) {
+		return nil, fault(f.DependencyUnbound)
+	}
+	a, err := NewSkillAssignmentAuthority(agents, references)
+	if err != nil {
+		return nil, err
+	}
+	a.runtime = runtime
+	return a, nil
+}
+
 type skillAssignmentPlan struct {
 	issuer  *SkillAssignmentAuthority
 	request c.SkillAssignmentRequest
@@ -78,10 +91,17 @@ func (*skillAssignmentPlan) MarshalJSON() ([]byte, error) {
 }
 
 func sameSkillAssignmentRequest(a, b c.SkillAssignmentRequest) bool {
-	return a.Actor.Equal(b.Actor) && a.ProjectID == b.ProjectID && a.AgentID == b.AgentID && a.Command.Canonical() == b.Command.Canonical() && a.ExpectedVersion == b.ExpectedVersion
+	return sameSkillAssignmentRun(a, b) && a.Actor.Equal(b.Actor) && a.ProjectID == b.ProjectID && a.AgentID == b.AgentID && a.Command.Canonical() == b.Command.Canonical() && a.ExpectedVersion == b.ExpectedVersion
 }
 
-func (a *Authority) skillAssignmentCurrent(ctx context.Context, tx f.Tx, request c.SkillAssignmentRequest, locks []f.LockRequest, intent i.AccessIntent) (postgres.SQLExecutor, c.AgentConfig, error) {
+func sameSkillAssignmentRun(a, b c.SkillAssignmentRequest) bool {
+	if a.Run == nil || b.Run == nil {
+		return a.Run == nil && b.Run == nil && a.RunPlan == nil && b.RunPlan == nil
+	}
+	return *a.Run == *b.Run
+}
+
+func (a *Authority) skillAssignmentCurrent(ctx context.Context, tx f.Tx, request c.SkillAssignmentRequest, locks []f.LockRequest, intent i.AccessIntent, runtimes ...c.SkillAssignmentRunAuthority) (postgres.SQLExecutor, c.AgentConfig, error) {
 	if a == nil || a.state == nil {
 		return nil, c.AgentConfig{}, fault(f.DependencyUnbound)
 	}
@@ -91,8 +111,10 @@ func (a *Authority) skillAssignmentCurrent(ctx context.Context, tx f.Tx, request
 	if err := ctx.Err(); err != nil {
 		return nil, c.AgentConfig{}, err
 	}
-	if err := currentActor(request.Actor); err != nil {
-		return nil, c.AgentConfig{}, err
+	if request.Run == nil {
+		if err := currentActor(request.Actor); err != nil {
+			return nil, c.AgentConfig{}, err
+		}
 	}
 	if request.Validate() != nil {
 		return nil, c.AgentConfig{}, invalid()
@@ -107,15 +129,25 @@ func (a *Authority) skillAssignmentCurrent(ctx context.Context, tx f.Tx, request
 	if err = a.state.store.RequireHeldLocks(ctx, tx, locks); err != nil {
 		return nil, c.AgentConfig{}, executionConfigurationError(err)
 	}
-	grant, err := a.state.projects.RequireOwnerInTx(ctx, tx, request.Actor, request.ProjectID, intent)
-	if canceled := ctx.Err(); canceled != nil {
-		return nil, c.AgentConfig{}, canceled
-	}
-	if err != nil {
-		return nil, c.AgentConfig{}, executionConfigurationError(err)
-	}
-	if !grant.Matches(request.Actor, request.ProjectID) {
-		return nil, c.AgentConfig{}, fault(f.Forbidden)
+	if request.Run != nil {
+		var runtime c.SkillAssignmentRunAuthority
+		if len(runtimes) == 1 {
+			runtime = runtimes[0]
+		}
+		if nilPort(runtime) {
+			return nil, c.AgentConfig{}, fault(f.DependencyUnbound)
+		}
+		if err = runtime.RequireSkillAssignmentRunInTx(ctx, tx, request, intent); err != nil {
+			return nil, c.AgentConfig{}, executionConfigurationError(err)
+		}
+	} else {
+		grant, e := a.state.projects.RequireOwnerInTx(ctx, tx, request.Actor, request.ProjectID, intent)
+		if e != nil {
+			return nil, c.AgentConfig{}, executionConfigurationError(e)
+		}
+		if !grant.Matches(request.Actor, request.ProjectID) {
+			return nil, c.AgentConfig{}, fault(f.Forbidden)
+		}
 	}
 	current, err := initializedAgentState(ctx, x, request.ProjectID, request.AgentID, intent != i.Read)
 	if canceled := ctx.Err(); canceled != nil {
@@ -131,7 +163,7 @@ func (a *SkillAssignmentAuthority) ReadSkillAssignmentInTx(ctx context.Context, 
 	if a == nil || a.agents == nil || a.agents.state == nil {
 		return c.AgentRef{}, fault(f.DependencyUnbound)
 	}
-	_, current, err := a.agents.skillAssignmentCurrent(ctx, tx, request, request.RequiredLocks(), i.Read)
+	_, current, err := a.agents.skillAssignmentCurrent(ctx, tx, request, request.RequiredLocks(), i.Read, a.runtime)
 	if err != nil {
 		return c.AgentRef{}, err
 	}
@@ -148,13 +180,18 @@ func (a *SkillAssignmentAuthority) DiscoverSkillAssignment(ctx context.Context, 
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	if err := currentActor(request.Actor); err != nil {
-		return nil, err
+	if request.Run == nil {
+		if err := currentActor(request.Actor); err != nil {
+			return nil, err
+		}
 	}
 	if request.Validate() != nil {
 		return nil, invalid()
 	}
-	base := request.RequiredLocks()
+	base, err := oc.NormalizeLocks(request.RequiredLocks())
+	if err != nil {
+		return nil, err
+	}
 	cause, err := f.NewCommandsCause(request.Command)
 	if err != nil {
 		return nil, invalid()
@@ -165,7 +202,7 @@ func (a *SkillAssignmentAuthority) DiscoverSkillAssignment(ctx context.Context, 
 		if err := state.store.AcquireAll(ctx, tx, base); err != nil {
 			return executionConfigurationError(err)
 		}
-		_, current, err := a.agents.skillAssignmentCurrent(ctx, tx, request, base, i.Read)
+		_, current, err := a.agents.skillAssignmentCurrent(ctx, tx, request, base, i.Read, a.runtime)
 		before = current
 		return err
 	})
@@ -200,13 +237,14 @@ func (a *SkillAssignmentAuthority) DiscoverSkillAssignment(ctx context.Context, 
 
 type skillAssignmentVersionKey struct{}
 type skillAssignmentVersionWitness struct {
-	issuer *authorityState
-	tx     f.Tx
-	ctx    context.Context
-	change c.SkillAssignmentVersionChange
-	after  c.AgentConfig
-	locks  []f.LockRequest
-	active atomic.Bool
+	issuer  *authorityState
+	tx      f.Tx
+	ctx     context.Context
+	change  c.SkillAssignmentVersionChange
+	runtime c.SkillAssignmentRunAuthority
+	after   c.AgentConfig
+	locks   []f.LockRequest
+	active  atomic.Bool
 }
 
 func (a *SkillAssignmentAuthority) WithSkillAssignmentInTx(ctx context.Context, tx f.Tx, request c.SkillAssignmentRequest, plan c.SkillAssignmentPlan,
@@ -221,7 +259,7 @@ func (a *SkillAssignmentAuthority) WithSkillAssignmentInTx(ctx context.Context, 
 	if !ok || selected == nil || selected.issuer != a || !sameSkillAssignmentRequest(selected.request, request) {
 		return fault(f.Forbidden)
 	}
-	x, current, err := a.agents.skillAssignmentCurrent(ctx, tx, request, selected.RequiredLocks(), i.Read)
+	x, current, err := a.agents.skillAssignmentCurrent(ctx, tx, request, selected.RequiredLocks(), i.Read, a.runtime)
 	if err != nil {
 		return err
 	}
@@ -244,7 +282,7 @@ func (a *SkillAssignmentAuthority) WithSkillAssignmentInTx(ctx context.Context, 
 	}
 	// Recheck the live owner and complete canonical preimage after Prepare
 	// actually returns. A callback must not change the Agent before this CAS.
-	x, actual, err := a.agents.skillAssignmentCurrent(ctx, tx, request, selected.RequiredLocks(), i.Mutate)
+	x, actual, err := a.agents.skillAssignmentCurrent(ctx, tx, request, selected.RequiredLocks(), i.Mutate, a.runtime)
 	if err != nil {
 		return err
 	}
@@ -256,7 +294,7 @@ func (a *SkillAssignmentAuthority) WithSkillAssignmentInTx(ctx context.Context, 
 		return err
 	}
 	change := c.SkillAssignmentVersionChange{Request: request, Before: current, ResultVersion: after.Fields().Core.Version}
-	w := &skillAssignmentVersionWitness{issuer: a.agents.state, tx: tx, change: change, after: after, locks: selected.RequiredLocks()}
+	w := &skillAssignmentVersionWitness{runtime: a.runtime, issuer: a.agents.state, tx: tx, change: change, after: after, locks: selected.RequiredLocks()}
 	w.ctx = context.WithValue(ctx, skillAssignmentVersionKey{}, w)
 	w.active.Store(true)
 	defer w.active.Store(false)
@@ -322,7 +360,28 @@ func (a *Authority) RequireSkillAssignmentVersionAppliedInTx(ctx context.Context
 	if !ok || w == nil || !w.active.Load() || w.issuer != a.state || w.tx != tx || w.ctx != ctx || !sameSkillAssignmentRequest(w.change.Request, change.Request) || w.change.ResultVersion != change.ResultVersion || !sameValue(w.change.Before, change.Before) {
 		return fault(f.Forbidden)
 	}
-	_, current, err := a.skillAssignmentCurrent(ctx, tx, change.Request, w.locks, i.Mutate)
+	var current c.AgentConfig
+	var err error
+	if change.Request.Run == nil {
+		_, current, err = a.skillAssignmentCurrent(ctx, tx, change.Request, w.locks, i.Mutate)
+	} else {
+		// Current Tool/Execution authority was checked under this complete lock
+		// union immediately before the canonical CAS. Re-entering it halfway
+		// through the four reference updates would observe our own transitional
+		// Agent/Tool versions. Only this original active same-Tx write witness
+		// may inspect the exact postimage until all four owners have advanced.
+		if nilPort(w.runtime) {
+			return fault(f.Forbidden)
+		}
+		if err = a.state.store.RequireHeldLocks(ctx, tx, w.locks); err != nil {
+			return executionConfigurationError(err)
+		}
+		x, e := a.state.store.InTx(tx)
+		if e != nil {
+			return executionConfigurationError(e)
+		}
+		current, err = initializedAgentState(ctx, x, change.Request.ProjectID, change.Request.AgentID, true)
+	}
 	if err != nil {
 		return err
 	}
@@ -334,3 +393,57 @@ func (a *Authority) RequireSkillAssignmentVersionAppliedInTx(ctx context.Context
 
 var _ c.SkillAssignmentOwner = (*SkillAssignmentAuthority)(nil)
 var _ c.SkillAssignmentVersionOwner = (*Authority)(nil)
+
+func (a *SkillAssignmentAuthority) RequireActiveSkillAssignmentInTx(ctx context.Context, tx f.Tx, r c.SkillAssignmentRequest) (c.AgentRef, error) {
+	if a == nil || a.agents == nil {
+		return c.AgentRef{}, fault(f.DependencyUnbound)
+	}
+	_, current, err := a.agents.skillAssignmentCurrent(ctx, tx, r, r.RequiredLocks(), i.Mutate, a.runtime)
+	if err != nil {
+		return c.AgentRef{}, err
+	}
+	return c.AgentRef{ProjectID: r.ProjectID, AgentID: r.AgentID, ConfigVersion: current.Fields().Core.Version}, nil
+}
+
+func (a *SkillAssignmentAuthority) ReadSkillAssignmentCatalogInTx(ctx context.Context, tx f.Tx, r c.SkillAssignmentCatalogRequest) ([]c.DirectoryEntry, error) {
+	if a == nil || a.agents == nil || a.agents.state == nil {
+		return nil, fault(f.DependencyUnbound)
+	}
+	if r.Validate() != nil {
+		return nil, fault(f.Forbidden)
+	}
+	authority, ok := a.runtime.(c.SkillAssignmentCatalogRunAuthority)
+	if !ok || nilPort(authority) {
+		return nil, fault(f.DependencyUnbound)
+	}
+	state := a.agents.state
+	x, err := state.store.InTx(tx)
+	if err != nil {
+		return nil, portError(err)
+	}
+	if err = state.store.RequireHeldLocks(ctx, tx, r.RequiredLocks()); err != nil {
+		return nil, portError(err)
+	}
+	if err = authority.RequireSkillAssignmentCatalogInTx(ctx, tx, r); err != nil {
+		return nil, portError(err)
+	}
+	if r.Target != nil {
+		current, err := initializedAgentState(ctx, x, r.ProjectID, *r.Target, false)
+		if err != nil {
+			return nil, portError(err)
+		}
+		if current.Fields().Core.Lifecycle != c.AgentActive {
+			return nil, fault(f.NotFound)
+		}
+		return []c.DirectoryEntry{directoryProjection(current)}, nil
+	}
+	var after *directoryPosition
+	if r.AfterID != nil {
+		after = &directoryPosition{at: *r.AfterCreated, id: *r.AfterID}
+	}
+	// Reuse the canonical publication proof and bounded directory projection.
+	// The caller trims the extra row into an explicit next-page position.
+	return loadDirectoryPage(ctx, x, r.ProjectID, r.Limit, after)
+}
+
+var _ c.SkillAssignmentCatalogOwner = (*SkillAssignmentAuthority)(nil)

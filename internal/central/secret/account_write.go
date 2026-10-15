@@ -19,6 +19,9 @@ func preparedLocks(p preparedWrite) ([]foundation.LockRequest, error) {
 	if p.serviceRequest.Validate() == nil {
 		locks = append(locks, p.dependencies.Locks()...)
 	}
+	if p.mcpOAuth != nil {
+		locks = append(locks, p.mcpOAuth.dependencies.Locks()...)
+	}
 	return locks, nil
 }
 func (p PreparedWrite) Ref() sc.CredentialRef {

@@ -38,7 +38,7 @@ func (p ProjectCleanupProgress) Validate() error {
 		return f.NewFault(f.InvalidArgument, f.NotCommitted)
 	}
 	switch p.Stage {
-	case "objects", "documents", "command_events", "object_cleanup", "publications", "work_claims", "commands", "calls", "completed":
+	case "index_chunks", "index_generations", "model_operations", "index_jobs", "index_state", "index_profiles", "objects", "documents", "command_events", "object_cleanup", "publications", "work_claims", "commands", "calls", "completed":
 		return nil
 	}
 	return f.NewFault(f.InvalidArgument, f.NotCommitted)

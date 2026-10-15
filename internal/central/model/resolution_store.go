@@ -48,7 +48,7 @@ func loadResolutionPreparation(ctx context.Context, x postgres.SQLExecutor, iden
 	_, idErr := f.ParseID[struct{}](r.ID)
 	raw, _ := encoded(r.Request)
 	unit, unitErr := resolutionUnitIdentity(r.Request.Consumer, r.Request.Purpose, r.Request.Owner)
-	if idErr != nil || unitErr != nil || unit.Canonical() != r.Identity || r.Request.validate() != nil || r.Identity != identity || r.Version.Validate() != nil || r.Request.Format != 1 || r.Request.Consumer.Validate() != nil || r.Request.Purpose != r.Request.Consumer.Purpose || r.Request.Source != mc.CurrentSelectionSource || r.Request.Selection == nil || (mc.SelectionRequest{Consumer: r.Request.Consumer, ModelRef: r.Request.ModelRef, Selection: *r.Request.Selection}).Validate() != nil || r.Request.ReasoningEffort != "" || r.Request.Consumer.ProjectID.String() != r.Project || string(r.Request.Owner.Kind) != r.OwnerKind || r.Request.Owner.ID != r.OwnerID || hash(raw) != r.Semantic || r.Draft.validate() != nil || r.Draft.Snapshot.ID != r.SnapshotID || r.Draft.Snapshot.ProjectID.String() != r.Project || updated.Before(created) || r.Phase != "prepared" && r.Phase != "committed" || (r.Phase == "committed") != (committed != nil) || committed != nil && committed.Before(created) {
+	if idErr != nil || unitErr != nil || unit.Canonical() != r.Identity || r.Request.validate() != nil || r.Identity != identity || r.Version.Validate() != nil || r.Request.Format != 1 || r.Request.Consumer.Validate() != nil || r.Request.Purpose != r.Request.Consumer.Purpose || r.Request.ReasoningEffort != "" || r.Request.Consumer.ProjectID.String() != r.Project || string(r.Request.Owner.Kind) != r.OwnerKind || r.Request.Owner.ID != r.OwnerID || hash(raw) != r.Semantic || r.Draft.validate() != nil || r.Draft.Snapshot.ID != r.SnapshotID || r.Draft.Snapshot.ProjectID.String() != r.Project || updated.Before(created) || r.Phase != "prepared" && r.Phase != "committed" || (r.Phase == "committed") != (committed != nil) || committed != nil && committed.Before(created) {
 		return nil, unavailable(nil)
 	}
 	owner, e := sc.NewCredentialLeaseOwner(r.Request.Owner.Kind, r.Request.Owner.ID)
@@ -189,9 +189,15 @@ func completeResolution(ctx context.Context, x postgres.SQLExecutor, c *resoluti
 	if len(snapshot) > 128<<10 {
 		return fault(f.PayloadTooLarge)
 	}
-	_, e = x.Exec(ctx, `INSERT INTO agenteam_model.snapshots(id,project_id,live_provider_id,live_model_id,snapshot_data,snapshot_digest,provider_version,model_version,created_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`, c.draft.Snapshot.ID.String(), c.request.Consumer.ProjectID.String(), c.draft.Snapshot.Identity.ProviderID.String(), c.draft.Snapshot.Identity.ModelID.String(), snapshot, hash(snapshot), c.draft.ProviderVersion, c.draft.ModelVersion, at.Time())
-	if e != nil {
-		return unavailable(e)
+	if c.request.Source == mc.ServingSnapshotSource {
+		if err := checkCurrentResolution(ctx, x, c); err != nil {
+			return err
+		}
+	} else {
+		_, e = x.Exec(ctx, `INSERT INTO agenteam_model.snapshots(id,project_id,live_provider_id,live_model_id,snapshot_data,snapshot_digest,provider_version,model_version,created_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`, c.draft.Snapshot.ID.String(), c.request.Consumer.ProjectID.String(), c.draft.Snapshot.Identity.ProviderID.String(), c.draft.Snapshot.Identity.ModelID.String(), snapshot, hash(snapshot), c.draft.ProviderVersion, c.draft.ModelVersion, at.Time())
+		if e != nil {
+			return unavailable(e)
+		}
 	}
 	scope := ""
 	if c.draft.Snapshot.CredentialID != "" {

@@ -1,0 +1,77 @@
+{
+  "owned": {
+    "nonce": "f9b428e79f7c4a73a919fe4c049090f1",
+    "name": "m3-retrieval-f9b428e79f7c4a73a919fe4c049090f1",
+    "network_id": "7de6b2d1fba0abad8809e44cf31d5000a402aeace707aa87db2308ec1b3c68ad",
+    "container_id": "c766cae2fab817ec0bf9f8f6813ab94dcff774934ed1465e0f01576517bb05ed",
+    "docker_run_exit": 0
+  },
+  "version": {
+    "postgres": "170008",
+    "extensions": {
+      "plpgsql": "1.0",
+      "vector": "0.8.1",
+      "pg_search": "0.26.1"
+    }
+  },
+  "inputs_sha256": {
+    "complete.json": "37d30cd4a5d74201333cd2d6a1213b9985903a861f9000ff1b4c65ee3e47a363",
+    "corpus.jsonl": "be260511440b98080113bc99df7c4feea2935a74535dfff0f802f217bcc648c8",
+    "queries.jsonl": "b8836dd4ff3f81934d5e697f109353bbdf0caf17e9f726193be108a0c7ede76f"
+  },
+  "config": {
+    "version": "4.1.0 / Groonga 16.1.3",
+    "analyzer": "TokenBigram; NormalizerAuto; no external dictionary",
+    "index": "CREATE INDEX candidate_lexical ON candidate_sections USING pgroonga (index_text) WITH (tokenizer='TokenBigram', normalizers='NormalizerAuto')",
+    "session": "SET enable_seqscan=off",
+    "query": "SELECT source_id, pgroonga_score(tableoid,ctid)::double precision AS score FROM candidate_sections WHERE index_text &@~ $1 ORDER BY score DESC, source_id COLLATE \"C\" ASC LIMIT 20",
+    "ranking": "PGroonga default term frequency, not BM25"
+  },
+  "plan": [
+    {
+      "Plan": {
+        "Node Type": "Limit",
+        "Parallel Aware": false,
+        "Async Capable": false,
+        "Startup Cost": 4.02,
+        "Total Cost": 4.03,
+        "Plan Rows": 1,
+        "Plan Width": 22,
+        "Plans": [
+          {
+            "Node Type": "Sort",
+            "Parent Relationship": "Outer",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Startup Cost": 4.02,
+            "Total Cost": 4.03,
+            "Plan Rows": 1,
+            "Plan Width": 22,
+            "Sort Key": [
+              "(pgroonga_score(tableoid, ctid)) DESC",
+              "source_id COLLATE \"C\""
+            ],
+            "Plans": [
+              {
+                "Node Type": "Index Scan",
+                "Parent Relationship": "Outer",
+                "Parallel Aware": false,
+                "Async Capable": false,
+                "Scan Direction": "Forward",
+                "Index Name": "candidate_lexical",
+                "Relation Name": "candidate_sections",
+                "Alias": "candidate_sections",
+                "Startup Cost": 0.0,
+                "Total Cost": 4.01,
+                "Plan Rows": 1,
+                "Plan Width": 22,
+                "Index Cond": "(index_text &@~ '人工智能 lifecycleprobe'::text)"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "lifecycle": "insert/update/delete/reindex and exact 64-row readback passed"
+}

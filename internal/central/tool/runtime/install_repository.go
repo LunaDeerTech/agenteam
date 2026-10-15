@@ -95,12 +95,17 @@ func (v installTerminal) clone() installTerminal {
 }
 
 func (v installTerminal) validate(h *installHandoff) error {
-	if v.Format != 1 || v.Operation != h.record.ID || v.Attempt != h.attempt || len(v.Output) > 256 {
+	return v.validateOrigin(h.record, h.binding, h.attempt)
+}
+
+// Validation needs immutable provenance, not a fabricated live handoff.
+func (v installTerminal) validateOrigin(record operationRecord, binding tc.ToolCallBinding, attempt tc.AttemptID) error {
+	if v.Format != 1 || v.Operation != record.ID || v.Attempt != attempt || len(v.Output) > 256 {
 		return fail(f.InvalidState)
 	}
 	if v.Receipt != nil {
 		r := v.Receipt.receipt()
-		if r.Validate() != nil || r.ProjectID != h.binding.ProjectID || r.SkillID != h.record.SkillID || r.PackageSHA256 != h.record.Input.PackageDigest {
+		if r.Validate() != nil || r.ProjectID != binding.ProjectID || r.SkillID != record.SkillID || r.PackageSHA256 != record.Input.PackageDigest {
 			return fail(f.InvalidState)
 		}
 	}
@@ -223,46 +228,64 @@ func finishInstallAttempt(ctx context.Context, d *installAuthorityState, h *inst
 		if err != nil || process != d.process {
 			return fail(f.DependencyUnavailable)
 		}
-		// Recording an already-returned result is not another permission to
-		// execute. Revocation cannot erase the actual committed receipt.
-		if err = requireRunningInstall(ctx, x, d, h); err != nil {
-			return err
-		}
-		if terminal.Status == "success" {
-			if err = schemas.ValidateInstallOutputInTx(ctx, tx, h.binding.Spec, terminal.Output); err != nil {
-				terminal.Status, terminal.Category = "error", "backend_contract_violation"
-				terminal.Output = nil
-				// Preserve the complete known receipt even if model output cannot
-				// satisfy the original declared schema. No raw error is persisted.
-			}
-		}
-		if err = terminal.validate(h); err != nil {
-			return err
-		}
-		raw, err := encode(terminal)
-		if err != nil {
-			return err
-		}
-		attemptPhase, operationPhase, outcome := "failed", "failed", "error"
-		if terminal.Status == "success" {
-			attemptPhase, operationPhase, outcome = "succeeded", "succeeded", "success"
-		} else if !terminal.Known {
-			attemptPhase, outcome = "unknown", "unknown"
-		}
-		tag, err := x.Exec(ctx, `UPDATE agenteam_tool.attempts SET phase=$2,completed_at=clock_timestamp(),retired=true,outcome_data=$3 WHERE attempt_id=$1 AND phase='running' AND NOT retired`, h.attempt.String(), attemptPhase, raw)
-		if err != nil {
-			return portError(err)
-		}
-		if tag.RowsAffected() != 1 {
-			return fail(f.InvalidState)
-		}
-		tag, err = x.Exec(ctx, `UPDATE agenteam_tool.operations SET phase=$2,version=3,completed_at=clock_timestamp(),outcome=$3,terminal_data=$4 WHERE operation_id=$1 AND phase='running' AND version=2 AND active_attempt_id=$5`, h.record.ID.String(), operationPhase, outcome, raw, h.attempt.String())
-		if err != nil {
-			return portError(err)
-		}
-		if tag.RowsAffected() != 1 {
-			return fail(f.InvalidState)
-		}
-		return ctx.Err()
+		return writeInstallTerminalInTx(ctx, tx, x, d, h, schemas, terminal)
 	})
+}
+
+// The original caller owns the full lock set and checks the current process.
+func writeInstallTerminalInTx(ctx context.Context, tx f.Tx, x postgres.SQLExecutor, d *installAuthorityState, h *installHandoff, schemas InstallSchemaValidator, terminal *installTerminal) error {
+	// Recording an already-returned result is not another permission to
+	// execute. Revocation cannot erase the actual committed receipt.
+	if err := requireRunningInstall(ctx, x, d, h); err != nil {
+		return err
+	}
+	if terminal.Status == "success" {
+		if err := schemas.ValidateInstallOutputInTx(ctx, tx, h.binding.Spec, terminal.Output); err != nil {
+			terminal.Status, terminal.Category = "error", "backend_contract_violation"
+			terminal.Output = nil
+			// Preserve the complete known receipt even if model output cannot
+			// satisfy the original declared schema. No raw error is persisted.
+		}
+	}
+	if err := terminal.validate(h); err != nil {
+		return err
+	}
+	raw, err := encode(terminal)
+	if err != nil {
+		return err
+	}
+	h.mu.Lock()
+	h.finalRaw = bytes.Clone(raw)
+	h.mu.Unlock()
+	return publishInstallTerminal(ctx, x, h, terminal, raw)
+}
+
+// Recovery uses only the original callback's already validated bytes. It must
+// not rerun schema validation and turn the original result into a new outcome.
+func publishInstallTerminal(ctx context.Context, x postgres.SQLExecutor, h *installHandoff, terminal *installTerminal, raw []byte) error {
+	return publishInstallTerminalFor(ctx, x, h.record.ID, h.attempt, terminal, raw)
+}
+
+func publishInstallTerminalFor(ctx context.Context, x postgres.SQLExecutor, operation tc.OperationID, attempt tc.AttemptID, terminal *installTerminal, raw []byte) error {
+	attemptPhase, operationPhase, outcome := "failed", "failed", "error"
+	if terminal.Status == "success" {
+		attemptPhase, operationPhase, outcome = "succeeded", "succeeded", "success"
+	} else if !terminal.Known {
+		attemptPhase, outcome = "unknown", "unknown"
+	}
+	tag, err := x.Exec(ctx, `UPDATE agenteam_tool.attempts SET phase=$2,completed_at=clock_timestamp(),retired=true,outcome_data=$3 WHERE attempt_id=$1 AND phase='running' AND NOT retired`, attempt.String(), attemptPhase, raw)
+	if err != nil {
+		return portError(err)
+	}
+	if tag.RowsAffected() != 1 {
+		return fail(f.InvalidState)
+	}
+	tag, err = x.Exec(ctx, `UPDATE agenteam_tool.operations SET phase=$2,version=3,completed_at=clock_timestamp(),outcome=$3,terminal_data=$4 WHERE operation_id=$1 AND phase='running' AND version=2 AND active_attempt_id=$5`, operation.String(), operationPhase, outcome, raw, attempt.String())
+	if err != nil {
+		return portError(err)
+	}
+	if tag.RowsAffected() != 1 {
+		return fail(f.InvalidState)
+	}
+	return ctx.Err()
 }

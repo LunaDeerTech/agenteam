@@ -40,7 +40,7 @@ func TestSkillAssignmentDeletingReadCompatibility(t *testing.T) {
 	workAppCheck(t, "compatibility-project-reader", err)
 	agents, err := createAgentConfigurationAuthority(v.store, projects.projects)
 	workAppCheck(t, "compatibility-agent-reader", err)
-	owner, err := createSkillAssignmentOwner(v.store, agents)
+	owner, err := createSkillAssignmentOwner(v.store, agents, nil)
 	workAppCheck(t, "compatibility-fixed-reference-owners", err)
 	identity, err := f.NewCommandIdentity("project", []string{v.a.String(), agent.String()}, "skill.assign", "deleting-read-compatibility")
 	workAppCheck(t, "compatibility-command", err)

@@ -38,7 +38,7 @@ func TestExecutionRecoveryLateCancellationRevisitsOnlyCanonicalCancellation(t *t
 			s.options = AssociatedExecutorOptions{MaxOwned: 1, RecoveryInterval: time.Hour}
 			s.ops = associatedExecutorOps{
 				owners: s.ownedCalls,
-				inspect: func(context.Context, i.ProjectID, c.AssociatedDispatch) (associatedFacts, error) {
+				inspect: func(context.Context, i.ProjectID, associatedIdentity) (associatedFacts, error) {
 					t.Error("cancellation-only visit escaped into ordinary traversal")
 					return associatedFacts{}, fault(f.Forbidden)
 				},
@@ -73,7 +73,7 @@ func TestExecutionRecoveryLateCancellationRevisitsOnlyCanonicalCancellation(t *t
 				job.active = false // Original callback's physical return.
 			}
 			before := store.writes
-			_, _ = e.Advance(context.Background(), job.project, job.dispatch)
+			_, _ = e.Advance(context.Background(), job.project, job.dispatch.AssociatedDispatch)
 			associatedTestIdle(t, e)
 			if mode == "blocked-then-safe" {
 				if !job.cancelPending || job.retained || store.writes != before {
@@ -83,7 +83,7 @@ func TestExecutionRecoveryLateCancellationRevisitsOnlyCanonicalCancellation(t *t
 				s.mu.Lock()
 				job.next = time.Time{}
 				s.mu.Unlock()
-				_, _ = e.Advance(context.Background(), job.project, job.dispatch)
+				_, _ = e.Advance(context.Background(), job.project, job.dispatch.AssociatedDispatch)
 				associatedTestIdle(t, e)
 			}
 			if mode == "no-durable-request" {

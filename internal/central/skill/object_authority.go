@@ -136,6 +136,12 @@ func skillExistence(ctx context.Context, x postgres.SQLExecutor, row initializat
 	return oc.ExistingOwner, f.Version(version), nil
 }
 func (a *Authority) AuthorizeOwnerInTx(ctx context.Context, tx f.Tx, actor id.Actor, owner oc.ObjectOwner, intent id.AccessIntent) (oc.OwnerAuthorization, error) {
+	if hasRuntimePreparation(ctx) {
+		return a.preparationObjectAuthorizationInTx(ctx, tx, actor, owner, intent)
+	}
+	if hasRuntimeRead(ctx) {
+		return a.runtimeObjectAuthorizationInTx(ctx, tx, actor, owner, intent)
+	}
 	state := a.state()
 	if state == nil {
 		return oc.OwnerAuthorization{}, fault(f.DependencyUnbound)
@@ -167,6 +173,12 @@ func (a *Authority) AuthorizeOwnerInTx(ctx context.Context, tx f.Tx, actor id.Ac
 	return oc.NewOwnerAuthorization(oc.OwnerAuthorizationDetails{Actor: actor, Owner: owner, Intent: intent, Existence: existence, CreationCause: row.request.CreationID.String(), Version: version})
 }
 func (a *Authority) AuthorizeOwner(ctx context.Context, actor id.Actor, owner oc.ObjectOwner, intent id.AccessIntent) (oc.OwnerAuthorization, error) {
+	if hasRuntimePreparation(ctx) {
+		return a.preparationObjectAuthorization(ctx, actor, owner, intent)
+	}
+	if hasRuntimeRead(ctx) {
+		return a.runtimeObjectAuthorization(ctx, actor, owner, intent)
+	}
 	state := a.state()
 	if state == nil {
 		return oc.OwnerAuthorization{}, fault(f.DependencyUnbound)
@@ -213,10 +225,16 @@ func (a *Authority) CheckInTx(ctx context.Context, tx f.Tx, actor id.Actor, owne
 	return e
 }
 func (a *Authority) AuthorizeObjectReadInTx(ctx context.Context, tx f.Tx, actor id.Actor, owner oc.ObjectOwner, object oc.ObjectID) (oc.OwnerAuthorization, error) {
+	if hasRuntimePreparation(ctx) {
+		w, err := a.preparationWitness(ctx, actor, owner, id.Read)
+		if err != nil || w.joining || w.returned {
+			return oc.OwnerAuthorization{}, fault(f.Forbidden)
+		}
+	}
 	if actor.Validate() != nil || object.Validate() != nil {
 		return oc.OwnerAuthorization{}, invalid()
 	}
-	if actor.Details().Kind != id.Human {
+	if actor.Details().Kind != id.Human && !hasRuntimeRead(ctx) && !hasRuntimePreparation(ctx) {
 		return oc.OwnerAuthorization{}, fault(f.Forbidden)
 	}
 	grant, e := a.AuthorizeOwnerInTx(ctx, tx, actor, owner, id.Read)
@@ -328,6 +346,15 @@ func mappingDependencies(row initializationRow, actor id.Actor, intent id.Access
 	return oc.NewAccessDependencies(sum(material), locks)
 }
 func (a *Authority) Discover(ctx context.Context, request oc.AccessRequest) (oc.AccessDependencies, error) {
+	if hasRuntimePreparation(ctx) && request.Validate() == nil && request.Details().Kind != oc.MaintenanceAccess {
+		return a.preparationObjectDependencies(ctx, request)
+	}
+	// Object Close keeps the original context values, but its maintenance
+	// request is authorized by Object's own private reader/process proof.
+	// An ambient read witness must neither replace nor block that proof.
+	if hasRuntimeRead(ctx) && request.Validate() == nil && request.Details().Kind != oc.MaintenanceAccess {
+		return a.runtimeObjectDependencies(ctx, request)
+	}
 	state := a.state()
 	if state == nil {
 		return oc.AccessDependencies{}, fault(f.DependencyUnbound)
@@ -364,6 +391,12 @@ func (a *Authority) Discover(ctx context.Context, request oc.AccessRequest) (oc.
 	return mappingDependencies(*row, d.Actor, d.Intent)
 }
 func (a *Authority) ValidateInTx(ctx context.Context, tx f.Tx, request oc.AccessRequest, expected oc.AccessDependencies) error {
+	if hasRuntimePreparation(ctx) && request.Validate() == nil && expected.Validate() == nil && request.Details().Kind != oc.MaintenanceAccess {
+		return a.validatePreparationObjectInTx(ctx, tx, request, expected)
+	}
+	if hasRuntimeRead(ctx) && request.Validate() == nil && expected.Validate() == nil && request.Details().Kind != oc.MaintenanceAccess {
+		return a.validateRuntimeObjectInTx(ctx, tx, request, expected)
+	}
 	state := a.state()
 	if state == nil {
 		return fault(f.DependencyUnbound)

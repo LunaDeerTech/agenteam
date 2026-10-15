@@ -113,6 +113,9 @@ func (s *Service) discoverResolve(ctx context.Context, request mc.ResolveRequest
 	if e != nil {
 		return empty, unavailable(e)
 	}
+	if r.ServingSnapshotID != nil {
+		snapshot = *r.ServingSnapshotID
+	}
 	if row != nil {
 		snapshot = row.SnapshotID
 	}

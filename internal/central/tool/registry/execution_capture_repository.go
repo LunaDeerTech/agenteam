@@ -69,7 +69,13 @@ func loadCaptureCoreTools(ctx context.Context, x postgres.SQLExecutor) ([]id.Too
 // Agent configuration's existing currentTool deliberately rejects Core tools.
 // Capture has a separate class-aware read, retaining the same exact current
 // registration, immutable bytes and real Source binding checks for both classes.
-func (r *Registry) currentCaptureTool(ctx context.Context, tx f.Tx, x postgres.SQLExecutor, tool id.ToolID) (currentTool, bool, error) {
+func (r *Registry) currentCaptureTool(ctx context.Context, tx f.Tx, x postgres.SQLExecutor, project id.ProjectID, tool id.ToolID) (currentTool, bool, error) {
+	if s := r.data(); s != nil && !nilPort(s.mcp) && project.Validate() == nil {
+		v, exists, err := r.currentMCP(ctx, tx, x, project, tool)
+		if err != nil || exists {
+			return v, exists, err
+		}
+	}
 	var v currentTool
 	var revision, contract int64
 	var raw []byte
@@ -151,6 +157,12 @@ func writeExecutionToolReferences(ctx context.Context, x postgres.SQLExecutor, r
 	}
 	for _, v := range tools {
 		b := v.BindingSnapshot
+		if b.MCPBinding != (tc.MCPBinding{}) {
+			if err = writeMCPExecutionReference(ctx, x, r, v); err != nil {
+				return err
+			}
+			continue
+		}
 		if b.RunnerBinding != (tc.RunnerBinding{}) {
 			if err = writeRunnerExecutionReference(ctx, x, r, v); err != nil {
 				return err
@@ -177,6 +189,12 @@ func checkExecutionToolReferences(ctx context.Context, x postgres.SQLExecutor, r
 		return fail(f.InvalidState)
 	}
 	for _, want := range tools {
+		if want.BindingSnapshot.MCPBinding != (tc.MCPBinding{}) {
+			if err := checkMCPExecutionReference(ctx, x, r, want); err != nil {
+				return err
+			}
+			continue
+		}
 		if want.BindingSnapshot.RunnerBinding != (tc.RunnerBinding{}) {
 			if err := checkRunnerExecutionReference(ctx, x, r, want); err != nil {
 				return err

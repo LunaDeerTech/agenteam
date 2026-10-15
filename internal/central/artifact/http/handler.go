@@ -32,6 +32,8 @@ type accountBoundary interface {
 type handler struct {
 	reader   artifactReader
 	commands artifactCommands
+	uploads  artifactUserUploads
+	metadata artifactMetadataReader
 	boundary accountBoundary
 }
 
@@ -41,13 +43,14 @@ func NewHTTPHandler(service *artifact.Service, boundary *account.HTTPBoundary) (
 	if service == nil || boundary == nil {
 		return nil, f.NewFault(f.DependencyUnbound, f.NotStarted)
 	}
-	return &handler{reader: service, commands: service, boundary: boundary}, nil
+	return &handler{reader: service, commands: service, uploads: service, metadata: service, boundary: boundary}, nil
 }
 
 type route struct {
 	project, artifact, file string
 	command                 string
-	valid, read             bool
+	upload                  string
+	valid, read, metadata   bool
 }
 
 func artifactRoute(path string) route {
@@ -64,8 +67,17 @@ func artifactRoute(path string) route {
 	if len(parts) == 4 && parts[0] != "" && parts[1] == "artifacts" && parts[2] == "creation-commands" && (parts[3] == "lookup" || parts[3] == "cancel") {
 		return route{project: parts[0], command: parts[3], valid: true}
 	}
+	if len(parts) == 4 && parts[0] != "" && parts[1] == "artifacts" && parts[2] == "upload-commands" {
+		switch parts[3] {
+		case "begin", "lookup", "payload", "complete", "cancel":
+			return route{project: parts[0], upload: parts[3], valid: true}
+		}
+	}
 	if len(parts) == 6 && parts[0] != "" && parts[1] == "artifacts" && parts[2] != "" && parts[3] == "files" && parts[4] != "" && parts[5] == "content" {
 		return route{project: parts[0], artifact: parts[2], file: parts[4], valid: true, read: true}
+	}
+	if len(parts) == 3 && parts[0] != "" && parts[1] == "artifacts" && parts[2] != "" {
+		return route{project: parts[0], artifact: parts[2], valid: true, metadata: true}
 	}
 	return route{}
 }
@@ -76,17 +88,25 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, request *http.Request) {
 	if request == nil {
 		panic(http.ErrAbortHandler)
 	}
-	ctx, cancel := context.WithTimeout(request.Context(), requestBudget)
-	defer cancel()
 	var route route
 	if request.URL != nil {
 		route = artifactRoute(request.URL.Path)
 	}
+	duration := requestBudget
+	if route.upload == "payload" && request.Method == http.MethodPut {
+		duration = userUploadPayloadBudget
+	}
+	ctx, cancel := context.WithTimeout(request.Context(), duration)
+	defer cancel()
 	request.Pattern = ""
 	if route.valid {
 		request.Pattern = projectPrefix + "{project_id}/artifacts"
-		if route.read {
+		if route.upload != "" {
+			request.Pattern += "/upload-commands/" + route.upload
+		} else if route.read {
 			request.Pattern += "/{artifact_id}/files/{file_id}/content"
+		} else if route.metadata {
+			request.Pattern += "/{artifact_id}"
 		} else if route.command == "create-content" {
 			request.Pattern += "/create-content"
 		} else if route.command != "" {
@@ -94,6 +114,9 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, request *http.Request) {
 		}
 	}
 	r := request.WithContext(ctx)
+	if route.upload == "payload" && r.Body != nil {
+		r.Body = &userUploadHTTPBody{ReadCloser: r.Body}
+	}
 	w = abortWriter{w}
 	native := &nativeWriter{ResponseWriter: w}
 	budget := requestIO{controller: http.NewResponseController(native), ctx: ctx, body: r.Body}
@@ -154,6 +177,17 @@ func (h *handler) execute(w http.ResponseWriter, r *http.Request, route route) (
 	if !route.valid {
 		return nil, f.NewFault(f.NotFound, f.NotStarted)
 	}
+	if route.upload != "" {
+		method := http.MethodPost
+		if route.upload == "payload" {
+			method = http.MethodPut
+		}
+		if r.Method != method {
+			w.Header().Set("Allow", method)
+			return nil, f.NewFault(f.MethodNotAllowed, f.NotStarted)
+		}
+		return h.executeUserUpload(w, r, route, actor)
+	}
 	if route.command != "" {
 		if r.Method != http.MethodPost {
 			w.Header().Set("Allow", "POST")
@@ -187,6 +221,9 @@ func (h *handler) execute(w http.ResponseWriter, r *http.Request, route route) (
 	v, err := ac.NewInvocation(ac.InvocationDetails{Actor: actor, ProjectID: project, AttemptID: attempt})
 	if err != nil {
 		return nil, err
+	}
+	if route.metadata {
+		return h.executeMetadata(r, route, v)
 	}
 	if !route.read {
 		filter, page, err := listQuery(r)

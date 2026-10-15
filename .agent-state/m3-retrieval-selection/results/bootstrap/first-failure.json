@@ -1,0 +1,18 @@
+{
+  "scope": "isolated UUID-domain SQL/bootstrap; not global migrations or App/Tool acceptance",
+  "passed": false,
+  "checks": [
+    "exact package install and bootstrap of UUID-domain indexes",
+    "production readiness rejects missing extension/index and accepts exact bootstrap"
+  ],
+  "cleanup": {
+    "pg_stop_exit": 0,
+    "container_exit": "137",
+    "container_absent": true,
+    "network_absent": true
+  },
+  "query_sha256": {
+    "knowledge": "98bb17e55de7a24d7d8881e4b1b101e949630ca3f0bfc0d80d58f7588ad8fd51",
+    "memory": "260c853322eafb9a247f1fd880db674b8be24f763b97419b5616ac2b01c4e23c"
+  }
+}

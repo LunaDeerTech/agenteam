@@ -91,11 +91,11 @@ func (s *Service) PrepareDelivery(ctx context.Context, id oc.DeliveryID) (plan D
 		if nilPort(r.auth.Projects) {
 			return plan, failure(foundation.DependencyUnbound, nil)
 		}
-		request, err := deliveryProjectRequest(snap)
-		if err != nil {
-			return plan, err
-		}
-		project, err = r.auth.Projects.Discover(ctx, request)
+		err = s.withProjectDelivery(ctx, foundation.Tx{}, snap, nil, func(ctx context.Context, request oc.ProjectRequest) error {
+			var err error
+			project, err = r.auth.Projects.Discover(ctx, request)
+			return err
+		})
 		if err != nil {
 			return plan, portError(err)
 		}
@@ -216,11 +216,9 @@ func (s *Service) applyDeliveryInTx(ctx context.Context, tx foundation.Tx, d del
 		return oc.Result{}, failure(foundation.InvalidState, nil)
 	}
 	if current.identity.Scope.Kind == event.ProjectScope {
-		request, err := deliveryProjectRequest(current)
-		if err != nil {
-			return oc.Result{}, err
-		}
-		if err = s.state().auth.Projects.ValidateInTx(ctx, tx, request, d.project); err != nil {
+		if err = s.withProjectDelivery(ctx, tx, current, d.locks, func(ctx context.Context, request oc.ProjectRequest) error {
+			return s.state().auth.Projects.ValidateInTx(ctx, tx, request, d.project)
+		}); err != nil {
 			return oc.Result{}, portError(err)
 		}
 	}

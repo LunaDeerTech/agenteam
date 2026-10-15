@@ -8,6 +8,7 @@ import (
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 )
 
 func runtimeToolRequest(t *testing.T) mc.ModelRequest {
@@ -127,4 +128,93 @@ func TestToolCallingCaptureRejectsRevisionWithoutCapability(t *testing.T) {
 	requireCode(t, defaultResolutionCapture.requireDraft(request, draft), f.CapabilityUnsupported)
 	requireCode(t, toolFactsResolutionCapture.requireDraft(request, draft), f.CapabilityUnsupported)
 	requireCode(t, toolCallingResolutionCapture.requireDraft(request, draft), f.CapabilityUnsupported)
+}
+
+func TestRuntimeFirstRoundAutoRequiresExactBoundDigest(t *testing.T) {
+	r := runtimeToolRequest(t)
+	r.Input.SchemaVersion = mc.ToolInputSchemaVersion
+	var err error
+	r.Input.Digest, err = mc.ToolInputDigest(context.Background(), r.Messages, r.Tools, r.ToolChoice)
+	if err != nil {
+		t.Fatal(err)
+	}
+	r.ToolChoice = mc.ToolChoice{Kind: "auto"}
+	if _, err := prepareRuntimeInput(context.Background(), r, wire.JSONResponse); err == nil {
+		t.Fatal("changed choice accepted under required digest")
+	}
+	r.Input.Digest, err = mc.ToolInputDigest(context.Background(), r.Messages, r.Tools, r.ToolChoice)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := prepareRuntimeInput(context.Background(), r, wire.JSONResponse); err != nil {
+		t.Fatal("bound schema4 auto rejected", err)
+	}
+	r.Input.SchemaVersion = mc.ToolCallInputSchemaVersion
+	if _, err := prepareRuntimeInput(context.Background(), r, wire.JSONResponse); err == nil {
+		t.Fatal("historical schema2 became auto")
+	}
+}
+
+func TestRuntimeToolMediaReturnsCapabilityBeforeAdmission(t *testing.T) {
+	for _, image := range []bool{false, true} {
+		name := "file"
+		if image {
+			name = "image"
+		}
+		t.Run(name, func(t *testing.T) {
+			r := runtimeToolRequest(t)
+			r.ToolChoice = mc.ToolChoice{Kind: "auto"}
+			ref, err := oc.NewBusinessFileRef(oc.BusinessFileDetails{Kind: oc.ArtifactFile, ProjectID: r.Model.Consumer.ProjectID, ArtifactID: mustID[struct{}](t).String(), FileID: mustID[struct{}](t).String()})
+			if err != nil {
+				t.Fatal(err)
+			}
+			media := &mc.MediaPart{Ref: ref, MediaType: "application/octet-stream"}
+			result := mc.ResultPart{File: media}
+			if image {
+				media.MediaType = "image/png"
+				result = mc.ResultPart{Image: media}
+			}
+			r.Messages = append(r.Messages, mc.Message{Role: "assistant", Parts: []mc.MessagePart{{ToolCall: &mc.ToolCallPart{ID: "original-call", Name: r.Tools[0].Name, Arguments: json.RawMessage(`{}`)}}}}, mc.Message{Role: "tool", Parts: []mc.MessagePart{{ToolResult: &mc.ToolResultPart{CallID: "original-call", Parts: []mc.ResultPart{{Text: &mc.TextPart{Text: "canonical summary"}}, result}}}}})
+			semantic, err := mc.NewSuccessorSemantic(context.Background(), mc.SuccessorSemanticParts{Actor: r.Actor, Model: r.Model, Messages: r.Messages, Tools: r.Tools, ToolChoice: r.ToolChoice, ResponseFormat: r.ResponseFormat, RetryClass: r.RetryClass})
+			if err != nil {
+				t.Fatal(err)
+			}
+			r.Input.SchemaVersion = mc.SuccessorInputSchemaVersion
+			r.Input.Digest = semantic.Digest()
+			out, err := prepareRuntimeInput(context.Background(), r, wire.JSONResponse)
+			requireCode(t, err, f.CapabilityUnsupported)
+			if len(out.Messages) != 0 {
+				t.Fatal("unsupported input returned an admitted copy")
+			}
+			visits := 0
+			consumer := runtimeConsumerFunc(func(context.Context, mc.ConsumerRequest) (mc.ConsumerDependencies, error) {
+				visits++
+				t.Fatal("unsupported media reached consumer/wire admission")
+				return mc.ConsumerDependencies{}, nil
+			})
+			service := runtimePureService(runtimePureAuthority(t, &noIOStore{}, consumer))
+			timing, err := mc.NewAgentRetryTiming(agentRuntimeTiming())
+			if err != nil {
+				t.Fatal(err)
+			}
+			service.state().agentTiming = &timing
+			handle, err := service.BeginChat(context.Background(), r)
+			requireCode(t, err, f.CapabilityUnsupported)
+			if handle != nil || visits != 0 {
+				t.Fatal("unsupported media admitted an owner")
+			}
+			kept := r.Messages[3].Parts[0].ToolResult.Parts[1]
+			actual := kept.File
+			if image {
+				actual = kept.Image
+			}
+			if actual == nil || actual.Ref.Details().FileID != ref.Details().FileID || actual.Ref.Details().ArtifactID != ref.Details().ArtifactID || len(r.Messages[3].Parts[0].ToolResult.Parts) != 2 {
+				t.Fatal("canonical media/ref changed")
+			}
+			service.StopAdmission()
+			if err := service.Drain(context.Background()); err != nil || !service.Joined() {
+				t.Fatal("pre-dispatch rejection retained an owner", err)
+			}
+		})
+	}
 }

@@ -9,7 +9,7 @@ import (
 )
 
 func (d *ToolCallDriver) ApprovalLocks(ctx context.Context, b tc.ToolCallBinding) ([]f.LockRequest, error) {
-	if d == nil || d.driver == nil || d.driver.state.multi == nil || b.RunnerBinding != tc.RunCommandRegistration().Binding {
+	if d == nil || d.driver == nil || d.driver.state.multi == nil || (b.RunnerBinding != tc.RunCommandRegistration().Binding && b.MCPBinding.Validate() != nil) {
 		return nil, fault(f.Forbidden)
 	}
 	p, err := d.DiscoverToolCall(ctx, b)
@@ -20,7 +20,7 @@ func (d *ToolCallDriver) ApprovalLocks(ctx context.Context, b tc.ToolCallBinding
 }
 
 func (d *ToolCallDriver) RequireApprovalExecutionInTx(ctx context.Context, tx f.Tx, b tc.ToolCallBinding, reference string) error {
-	if d == nil || d.driver == nil || d.driver.state.multi == nil || b.RunnerBinding != tc.RunCommandRegistration().Binding {
+	if d == nil || d.driver == nil || d.driver.state.multi == nil || (b.RunnerBinding != tc.RunCommandRegistration().Binding && b.MCPBinding.Validate() != nil) {
 		return fault(f.Forbidden)
 	}
 	x, err := d.driver.state.store.InTx(tx)

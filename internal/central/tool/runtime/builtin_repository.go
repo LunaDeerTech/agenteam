@@ -41,8 +41,9 @@ func loadBuiltinRecord(ctx context.Context, x postgres.SQLExecutor, call tc.Tool
 		}
 		r.Request = p.ID(request)
 	}
-	if r.Input != bindingProjection(call) || project != call.ProjectID.String() || agent != call.AgentID.String() || execution != call.ExecutionID.String() ||
-		logical != call.LogicalCallID.String() || invocation != call.InvocationID.String() || providerCall != call.CallID || tool != call.Spec.ToolID.String() || revision != call.Spec.SpecRevision || kind != call.Binding.HandlerID {
+	expectedInput, e := encode(bindingProjection(call))
+	if e != nil || !bytes.Equal(raw, expectedInput) || project != call.ProjectID.String() || agent != call.AgentID.String() || execution != call.ExecutionID.String() ||
+		logical != call.LogicalCallID.String() || invocation != call.InvocationID.String() || providerCall != call.CallID || tool != call.Spec.ToolID.String() || revision != call.Spec.SpecRevision || kind != directOperationKind(r.Input) {
 		return nil, fail(f.Forbidden)
 	}
 	if err = r.validate(); err != nil {
@@ -60,7 +61,7 @@ func startBuiltinRecord(ctx context.Context, x postgres.SQLExecutor, r builtinRe
 		return err
 	}
 	b := r.Input
-	tag, err := x.Exec(ctx, `INSERT INTO agenteam_tool.operations(operation_id,project_id,agent_id,execution_id,logical_call_id,invocation_id,call_id,tool_id,spec_revision,input_data,input_digest,skill_id,backend_key,fingerprint,phase,version,operation_kind) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,NULL,NULL,$12,'created',1,$13)`, r.ID.String(), b.Project.String(), b.Agent.String(), b.Execution.String(), b.LogicalCall.String(), b.Invocation.String(), b.Call, b.Spec.ToolID.String(), int64(b.Spec.SpecRevision), raw, string(r.InputDigest), string(r.Fingerprint), b.Binding.HandlerID)
+	tag, err := x.Exec(ctx, `INSERT INTO agenteam_tool.operations(operation_id,project_id,agent_id,execution_id,logical_call_id,invocation_id,call_id,tool_id,spec_revision,input_data,input_digest,skill_id,backend_key,fingerprint,phase,version,operation_kind) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,NULL,NULL,$12,'created',1,$13)`, r.ID.String(), b.Project.String(), b.Agent.String(), b.Execution.String(), b.LogicalCall.String(), b.Invocation.String(), b.Call, b.Spec.ToolID.String(), int64(b.Spec.SpecRevision), raw, string(r.InputDigest), string(r.Fingerprint), directOperationKind(b))
 	if err != nil {
 		return portError(err)
 	}
@@ -84,30 +85,55 @@ func startBuiltinRecord(ctx context.Context, x postgres.SQLExecutor, r builtinRe
 	return nil
 }
 
-func requireBuiltinAttempt(ctx context.Context, x postgres.SQLExecutor, process oc.ProcessID, r builtinRecord) error {
+// readBuiltinAttemptProcess observes the original attempt identity without
+// granting authority to use it. Its caller must already hold the original
+// operation/input locks and validate the complete persisted binding.
+func readBuiltinAttemptProcess(ctx context.Context, x postgres.SQLExecutor, r builtinRecord) (oc.ProcessID, error) {
 	if r.validate() != nil || r.Phase != "running" {
-		return fail(f.InvalidState)
+		return oc.ProcessID{}, fail(f.InvalidState)
 	}
 	var processID, request, input, fingerprint string
 	var ordinal, fence int64
-	err := x.QueryRow(ctx, `SELECT a.process_id,a.backend_request_id,a.ordinal,a.fence,o.input_digest,o.fingerprint FROM agenteam_tool.operations o JOIN agenteam_tool.attempts a ON a.attempt_id=o.active_attempt_id AND a.operation_id=o.operation_id AND a.execution_id=o.execution_id AND a.project_id=o.project_id AND a.agent_id=o.agent_id WHERE o.operation_id=$1 AND o.active_attempt_id=$2 AND o.execution_id=$3 AND o.operation_kind=$4 AND o.phase='running' AND o.version=2 AND a.phase='running' AND NOT a.retired`, r.ID.String(), r.Attempt.String(), r.Input.Execution.String(), r.Input.Binding.HandlerID).Scan(&processID, &request, &ordinal, &fence, &input, &fingerprint)
+	err := x.QueryRow(ctx, `SELECT a.process_id,a.backend_request_id,a.ordinal,a.fence,o.input_digest,o.fingerprint FROM agenteam_tool.operations o JOIN agenteam_tool.attempts a ON a.attempt_id=o.active_attempt_id AND a.operation_id=o.operation_id AND a.execution_id=o.execution_id AND a.project_id=o.project_id AND a.agent_id=o.agent_id WHERE o.operation_id=$1 AND o.active_attempt_id=$2 AND o.execution_id=$3 AND o.operation_kind=$4 AND o.phase='running' AND o.version=2 AND a.phase='running' AND NOT a.retired`, r.ID.String(), r.Attempt.String(), r.Input.Execution.String(), directOperationKind(r.Input)).Scan(&processID, &request, &ordinal, &fence, &input, &fingerprint)
 	if errors.Is(err, pgx.ErrNoRows) {
-		return fail(f.ConfirmationStale)
+		return oc.ProcessID{}, fail(f.ConfirmationStale)
 	}
 	if err != nil {
-		return portError(err)
+		return oc.ProcessID{}, portError(err)
 	}
-	if processID != process.String() || request != string(r.Request) || ordinal != 1 || fence != 1 || input != string(r.InputDigest) || fingerprint != string(r.Fingerprint) {
-		return fail(f.Forbidden)
+	process, err := f.ParseID[oc.Process](processID)
+	if err != nil || request != string(r.Request) || ordinal != 1 || fence != 1 || input != string(r.InputDigest) || fingerprint != string(r.Fingerprint) {
+		return oc.ProcessID{}, fail(f.Forbidden)
 	}
-	return ctx.Err()
+	return process, ctx.Err()
 }
 
-func finishBuiltinRecord(ctx context.Context, x postgres.SQLExecutor, process oc.ProcessID, r builtinRecord, terminal builtinTerminal, body []byte) error {
+func requireBuiltinAttempt(ctx context.Context, x postgres.SQLExecutor, process oc.ProcessID, r builtinRecord, cold ...*builtinColdProof) error {
+	if len(cold) > 1 {
+		return fail(f.Forbidden)
+	}
+	expected := process
+	if len(cold) == 1 && cold[0] != nil {
+		if !cold[0].permits(process, r) {
+			return fail(f.Forbidden)
+		}
+		expected = cold[0].process
+	}
+	actual, err := readBuiltinAttemptProcess(ctx, x, r)
+	if err != nil {
+		return err
+	}
+	if actual != expected {
+		return fail(f.Forbidden)
+	}
+	return nil
+}
+
+func finishBuiltinRecord(ctx context.Context, x postgres.SQLExecutor, process oc.ProcessID, r builtinRecord, terminal builtinTerminal, body []byte, cold ...*builtinColdProof) error {
 	if err := terminal.validate(r, body); err != nil {
 		return err
 	}
-	if err := requireBuiltinAttempt(ctx, x, process, r); err != nil {
+	if err := requireBuiltinAttempt(ctx, x, process, r, cold...); err != nil {
 		return err
 	}
 	raw, err := encode(terminal)
@@ -123,14 +149,14 @@ func finishBuiltinRecord(ctx context.Context, x postgres.SQLExecutor, process oc
 		return fail(f.InvalidState)
 	}
 	phase, outcome := terminal.phases()
-	tag, err = x.Exec(ctx, `UPDATE agenteam_tool.attempts SET phase=$2,completed_at=clock_timestamp(),retired=true,outcome_data=$3 WHERE attempt_id=$1 AND operation_id=$4 AND phase='running' AND NOT retired`, r.Attempt.String(), phase, raw, r.ID.String())
+	tag, err = x.Exec(ctx, `UPDATE agenteam_tool.attempts SET phase=$2,completed_at=clock_timestamp(),retired=true,outcome_data=$3 WHERE attempt_id=$1 AND operation_id=$4 AND phase='running' AND NOT retired`, r.Attempt.String(), terminal.attemptPhase(), raw, r.ID.String())
 	if err != nil {
 		return portError(err)
 	}
 	if tag.RowsAffected() != 1 {
 		return fail(f.InvalidState)
 	}
-	tag, err = x.Exec(ctx, `UPDATE agenteam_tool.operations SET phase=$2,version=3,completed_at=clock_timestamp(),outcome=$3,terminal_data=$4 WHERE operation_id=$1 AND operation_kind=$5 AND phase='running' AND version=2 AND active_attempt_id=$6`, r.ID.String(), phase, outcome, raw, b.Binding.HandlerID, r.Attempt.String())
+	tag, err = x.Exec(ctx, `UPDATE agenteam_tool.operations SET phase=$2,version=3,completed_at=clock_timestamp(),outcome=$3,terminal_data=$4 WHERE operation_id=$1 AND operation_kind=$5 AND phase='running' AND version=2 AND active_attempt_id=$6`, r.ID.String(), phase, outcome, raw, directOperationKind(b), r.Attempt.String())
 	if err != nil {
 		return portError(err)
 	}
@@ -160,7 +186,7 @@ func loadBuiltinTerminal(ctx context.Context, x postgres.SQLExecutor, r builtinR
 	}
 	expectedPhase, expectedOutcome := terminal.phases()
 	canonical, err := encode(terminal)
-	if err != nil || !bytes.Equal(raw, canonical) || phase != expectedPhase || r.Phase != expectedPhase || outcome != expectedOutcome {
+	if err != nil || !bytes.Equal(raw, canonical) || phase != terminal.attemptPhase() || r.Phase != expectedPhase || outcome != expectedOutcome {
 		return terminal, nil, nil, fail(f.InvalidState)
 	}
 	return terminal, body, raw, nil

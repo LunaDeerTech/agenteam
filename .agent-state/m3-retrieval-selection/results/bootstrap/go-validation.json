@@ -1,0 +1,25 @@
+{
+  "original_session": 22718,
+  "actual_wait_exit": 0,
+  "scope": "ordinary lexical and config package checks; no App/Tool integration claim",
+  "command": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-p=1",
+    "-mod=readonly",
+    "./internal/central/retrieval/lexical",
+    "./internal/central/config"
+  ],
+  "environment": {
+    "GOTOOLCHAIN": "local",
+    "GOMAXPROCS": "2",
+    "GOCACHE": "/workspace/.cache/go-build",
+    "GOMODCACHE": "/workspace/go/pkg/mod"
+  },
+  "observed_tool_output": [
+    "ok  github.com/LunaDeerTech/agenteam/internal/central/retrieval/lexical 0.005s",
+    "ok  github.com/LunaDeerTech/agenteam/internal/central/config 0.064s"
+  ],
+  "source_commit": "0f288f14",
+  "product_source_commit": "b24ba485"
+}
