@@ -1,6 +1,7 @@
 import { basePages } from "./base-pages.js";
 import { contentPages } from "./content-pages.js";
 import { collaborationPages } from "./collaboration-pages.js";
+import { settingsPages, settingsShell, bindSettingsShell } from "./settings-pages.js";
 import {
   esc,
   icon,
@@ -11,7 +12,7 @@ import {
   enhanceSelects,
   closeMenu,
 } from "./core.js";
-const pages = { ...basePages, ...contentPages, ...collaborationPages };
+const pages = { ...basePages, ...contentPages, ...collaborationPages, ...settingsPages };
 const labels = {
   dashboard: "系统首页",
   projects: "项目列表",
@@ -30,7 +31,7 @@ const labels = {
 function locationFor(page, extra = {}) {
   const p = new URLSearchParams(location.search);
   p.set("page", page);
-  ["detail", "tab", "format"].forEach((k) => p.delete(k));
+  ["detail", "tab", "format", "section", "panel"].forEach((k) => p.delete(k));
   for (const [k, v] of Object.entries(extra)) p.set(k, v);
   return `?${p}`;
 }
@@ -56,7 +57,9 @@ function getContext() {
     },
   };
 }
-function navigate(page, extra = {}) {
+function navigate(page, extra = {}, skipGuard = false) {
+  const current = getContext();
+  if (!skipGuard && pages[current.page]?.beforeLeave?.(current, () => navigate(page, extra, true))) return;
   history.pushState({}, "", locationFor(page, extra));
   render();
   document.getElementById("main").focus({ preventScroll: true });
@@ -92,8 +95,9 @@ function render() {
             )
             .join("")}</nav></header>`
         : ""
-    }<main id="main" tabindex="-1">${page.render(ctx)}</main><aside class="lab-bar" aria-label="设计样板控制"><span class="lab-note"><span class="lab-dot"></span>F0 交互样板 · 全部为合成数据</span><button type="button" id="lab-open">${icon("settings", 13)} 样板设置</button></aside>`;
+    }<main id="main" tabindex="-1">${["settings", "mcp", "memory"].includes(ctx.page) ? settingsShell(ctx, page.render(ctx)) : page.render(ctx)}</main><aside class="lab-bar" aria-label="设计样板控制"><span class="lab-note"><span class="lab-dot"></span>F0 交互样板 · 全部为合成数据</span><button type="button" id="lab-open">${icon("settings", 13)} 样板设置</button></aside>`;
   page.bind?.(ctx);
+  if (["settings", "mcp", "memory"].includes(ctx.page)) bindSettingsShell(ctx);
   enhanceSelects();
   document.getElementById("system-menu")?.addEventListener("click", () =>
     showDialog(
@@ -160,6 +164,7 @@ function openLab(ctx) {
       ["error", "读取失败"],
       ["readonly", "只读"],
       ["unknown", "结果未知 / 恢复"],
+      ["conflict", "基本信息 · 版本冲突"],
     ]
       .map(
         ([v, l]) =>
@@ -167,7 +172,7 @@ function openLab(ctx) {
       )
       .join(
         "",
-      )}</select></div></form><p class="muted small">L1–L8 设计依据、已有命令映射与未实现边界见 <a href="./README.md">样板说明</a>。</p></div>${dialogFooter('<button class="button" data-dialog-close>取消</button><button class="button primary" type="submit" form="lab-form">应用并查看</button>')}`,
+      )}</select></div></form><p class="muted small">本轮精修基本信息；项目设置中其余栏目保留位置，MCP 与 Architecture Agent 为已有可操作样板，其余目录文字不是演示链接。全部保存只在本页内模拟。<br><br>L1–L8 设计依据、已有命令映射与未实现边界见 <a href="./README.md">样板说明</a>。</p></div>${dialogFooter('<button class="button" data-dialog-close>取消</button><button class="button primary" type="submit" form="lab-form">应用并查看</button>')}`,
     (d) => {
       d.querySelector("#lab-form").onsubmit = (e) => {
         e.preventDefault();

@@ -2,6 +2,8 @@
 
 F0 已因用户实看反馈重开返修。用户未接受现有项目菜单、项目设置结构、下拉样式、页面层次及整体视觉品质，与 Linear 的差距和动效质感仍需改进；视觉系统数值待重新校准，F1—F8 正式产品迁移未开始。此前内部技术与交互检查的通过事实仍按当时输入保留，不代表用户已接受设计，也不能覆盖本轮修改后的新输入。
 
+**当前候选：项目设置 → 基本信息已可浏览，正在内部独审与定向检查，尚无新页通过结论。** 方法与来源已归入[本地重设计技能](../../../../.agents/skills/agenteam-frontend-redesign/SKILL.md#从一个完整页面建立方法)及[来源说明](../../../development/agent-team/skill-sources.md#前端重设计方法的本地适配)。设置目录按11个真实栏目组织，本轮只深入 general；MCP 与 Agent Memory 沿原样板可达，其余栏目不具备本轮业务样板，不代表全设置覆盖。
+
 本样板使用依据当前字段构造的合成数据，业务动作只改变当前浏览器中的演示状态或显示演示反馈，不调用真实 API、不写入业务事实。PDF/文件下载使用本地生成内容，不能代证真实上传、解析、权限、恢复或生产接入。视觉候选与修订规则见[目标设计 §8](../target-design.md#8-f0-可实现视觉值与组件使用决定)；现有数值和下方页面结构均为本轮待核对、待重校的输入。
 
 入口协议见[模块契约](module-contract.md)，原技术与交互结果见[作者浏览器检查](test-README.md)和[独立视觉审查](review/README.md)。新的内部审查须注明新输入及受影响范围；返修后如暂无新的用户认可，结论写为“已修订/内部审查结果，待用户实看反馈”，不把内部检查通过称为用户对信息结构与视觉品质的接受。
@@ -14,20 +16,22 @@ F0 已因用户实看反馈重开返修。用户未接受现有项目菜单、�
 python3 -m http.server 5188 --bind 127.0.0.1 --directory docs/frontend-design/redesign/prototype
 ```
 
-打开 `http://127.0.0.1:5188/index.html?page=projects&theme=light&scenario=normal&accent=indigo`。停止时在该终端按 Ctrl+C。ES modules 需要 HTTP 服务，直接打开本地 HTML 文件不能代替此入口。自动检查使用自己的服务与端口，完整命令、锁定依赖及退出记录见[测试说明](test-README.md)。
+当前 general 候选打开 `http://127.0.0.1:5188/index.html?page=settings&fixture=baseline&scenario=normal&theme=light`；深色改为 `theme=dark`。端口 5188 仅为示例，可换任一空闲本机端口。旧项目列表仍可用 `?page=projects&theme=light&scenario=normal`。停止时在该终端按 Ctrl+C。ES modules 需要 HTTP 服务，直接打开本地 HTML 文件不能代替此入口。自动检查使用自己的服务与端口，完整命令、锁定依赖及退出记录见[测试说明](test-README.md)。
 
 | 参数       | 可用值与用途                                                                                                                                                        |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `page`     | 下表的11个必需页面；默认 `projects`。                                                                                                                               |
+| `page`     | 原11类模板与本轮 `settings`（general）候选，见下表；默认 `projects`。                                                                                               |
 | `theme`    | `light` / `dark`；默认浅色。                                                                                                                                        |
 | `scenario` | `normal` / `long` / `empty` / `loading` / `error` / `readonly` / `unknown`；默认正常。`long` 保留正常任务并增加长名称、长正文。                                     |
 | `accent`   | `neutral` / `indigo` / `teal`；当前默认 `indigo`；三种均为待重新校准的视觉候选，不作为已接受定稿。                                                                  |
-| `fixture`  | 默认 `design`；`baseline` 仅用于项目、任务、Provider 三类与当前 Vue 页的同输入对照。                                                                                |
+| `fixture`  | 默认 `design`；`baseline` 用于项目、任务、Provider 及 general 与当前正式 Vue 页的同输入对照。                                                                       |
 | 页面选择   | `page=tasks&detail=AT-142` 打开任务详情；`page=knowledge&doc=pdf`（另可选 `md / txt / docx`） 选择四格式示例；项目入口可携带 `project_name` / `project_lifecycle`。 |
 
 页面底部“样板设置”可切换页面、主题、强调色和状态。URL 只承载非敏感展示选择；草稿、凭据和 OAuth 材料不进入 URL。刷新会重建内存数据，不作为持久化或跨 Session 恢复。
 
-`fixture=baseline` 对齐 [interface-layout.fixtures.ts](../../../../tests/account-captcha-web/interface-layout.fixtures.ts) 的五项目、七状态任务及 Provider 字段；旧 fixture 的模型集合为空。完整前后对照使用同视口、主题和展开状态，不能把默认 `design` 的更多内容称为同输入。历史11路由审计图也不代证本轮新增协作页。
+`fixture=baseline` 对齐 [interface-layout.fixtures.ts](../../../../tests/account-captcha-web/interface-layout.fixtures.ts) 的五项目、七状态任务、Provider 字段及 general 的 Atlas 名称/描述；旧 fixture 的模型集合为空。完整前后对照使用同视口、主题和展开状态，不能把默认 `design` 的更多内容称为同输入。历史11路由审计图也不代证本轮新增协作页。
+
+general 的同内容基线是正式 Vue `/owner/atlas/settings/general`，不是旧 F0 的 MCP 设置样板；名称、描述和记录默认折叠态与该 fixture 对齐。正式基线 4/4、390 深色真实滚动补图 1/1 已通过，详见[基线说明](test-README.md#用户反馈后的基本信息页基线)；这些结果不证明新页或动效通过。`task-pages.js` / `task.css` 仍未接入，旧 `tasks` 样板继续提供原入口。
 
 ## 页面与参考结构
 
@@ -39,6 +43,7 @@ L1—L8 的定义和实际观察限制见 [Linear 官方参考](../linear-refere
 | `projects`  | 连续项目目录、状态筛选、创建输入、受理后查询与进入条件。                    | L1 框架分层、L4 名称主导的连续行；保留 Owner 与项目生命周期。                         |
 | `project`   | 项目概览；资料、状态与任务、会议、待办、知识、产物入口。                    | L1 分层、L3 概览；归档/归档中明确只读。                                               |
 | `tasks`     | 七状态看板、当前 Sprint 规划、任务创建、详情正文/属性、草稿与返回。         | L2 工作台、L5 局部横滚看板、L6 属性、L7 创建/草稿关闭；不增加拖拽或 Explore。         |
+| `settings`  | 项目设置基本信息候选：名称/描述编辑、记录、菜单、保存反馈及恢复。           | L1 框架层级、L8 成组设置；无归档/恢复/删除项目操作，正在内部审查。                    |
 | `providers` | Provider 目录→配置/模型；创建、就近保存、凭据输入、模型编辑和删除引用门禁。 | L1 信息层级、L6 对象属性、L8 成组设置；Provider、Model、Credential 各有独立命令语义。 |
 | `knowledge` | 目录→阅读/原文编辑、四格式原文件、PDF、元信息、上传/替换/下载与恢复。       | L2 阅读主区、L3 资源、L6 元信息、L7 草稿关闭；窄屏默认正文、单层目录。                |
 | `meetings`  | 消息与回复、引用/附件输入、Summary、Decision/Approval 与结果恢复。          | L2 内容工作台、L6 上下文、L7 输入与草稿；会议、附件及有限 Realtime 采用本项目语义。   |
@@ -47,7 +52,7 @@ L1—L8 的定义和实际观察限制见 [Linear 官方参考](../linear-refere
 | `oauth`     | 授权返回、结果未知/停止恢复、回到当前项目连接。                             | L7 单任务与返回、L8 恢复说明；不展示令牌或真实回调材料。                              |
 | `memory`    | Agent 内嵌面板；当前记录、来源与修订、删除确认、Unknown 查询与关闭。        | L2 记录/详情、L6 修订属性、L8 危险操作分区；不是新增产品路由。                        |
 
-项目导航另提供 `page=artifacts` 配套只读入口：连续产物列表、来源筛选、文本原文和二进制无预览说明。它映射已有 [ProjectArtifactsAPI.list/read](../../../../web/src/api/project-artifacts.ts)，不增加上传能力，也不将其计作第12个 F0 必需页。
+项目导航另提供 `page=artifacts` 配套只读入口：连续产物列表、来源筛选、文本原文和二进制无预览说明。它映射已有 [ProjectArtifactsAPI.list/read](../../../../web/src/api/project-artifacts.ts)，不增加上传能力，不计入原11类 F0 必需模板。
 
 ## 演示动作与真实实现接续
 
@@ -56,6 +61,7 @@ L1—L8 的定义和实际观察限制见 [Linear 官方参考](../linear-refere
 | 页面/动作                      | 当前代码中的真实依赖与接续边界                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 系统/项目首页、项目筛选/进入   | [project-owner.ts](../../../../web/src/api/project-owner.ts) 的 `list / resolve / get`；[useProjectWorkspace.ts](../../../../web/src/composables/useProjectWorkspace.ts) 管理目录与当前项目。系统首页不新增聚合服务。                                                                                                                                                                                                                                                                                          |
+| general 基本信息编辑与恢复     | [ProjectGeneralSettings.vue](../../../../web/src/views/projects/ProjectGeneralSettings.vue) 与 [useProjectWorkspace.ts](../../../../web/src/composables/useProjectWorkspace.ts) 的 `save / cancelEdits / readCurrent / checkOriginal / replayOriginal`；[project-owner.ts](../../../../web/src/api/project-owner.ts) 的 `update / lookup`。样板仅模拟保存反馈，更名提醒、版本、字段 presence、冲突/Unknown 与离页保护沿真实合同，不能将本地成功视为服务端写入。                                                |
 | 项目创建、受理后查看状态       | [project-creation.ts](../../../../web/src/api/project-creation.ts) 的 `create / get`；`accepted` 与可进入的 `ready` 分开，不能收到受理即宣称创建完成。                                                                                                                                                                                                                                                                                                                                                         |
 | Task 看板、详情与创建/描述输入 | [work-review.ts](../../../../web/src/api/work-review.ts) 的 `tasks / task / blockers`；[work-task-planning.ts](../../../../web/src/api/work-task-planning.ts) 的 `create / lookup`；[work-task-edit.ts](../../../../web/src/api/work-task-edit.ts) 的 `update / lookup`。样板草稿不是独立评论；状态转移继续由 `work-review` 的 `transfer / lookup` 负责，执行/审批等完整功能留给 F5 保真。                                                                                                                     |
 | Provider / Model / Credential  | [system-providers.ts](../../../../web/src/api/system-providers.ts) 的目录、读取、`createProvider / updateProvider / deleteProvider / lookupProviderCommand` 及 `createCredential / lookupCredentialCreate`；[system-models.ts](../../../../web/src/api/system-models.ts) 的目录、读取、`createModel / updateModel / deleteModel / getDeletionImpact / lookupModelCommand`。样板模型模态只演示字段组合，正式类型/协议与引用约束沿原 API；凭据提交后清空输入。                                                   |
@@ -78,6 +84,6 @@ Knowledge 可用 `doc=md / txt / pdf / docx` 查看格式边界：TXT、Markdown
 
 ## 复现、截图与 F1 接续
 
-作者复现与同输入前后对照见[测试说明](test-README.md)，独立截图、交互复现和最小保留图见[独审入口](review/README.md)。先查看项目、任务、Provider 的1440×960浅色与390×844深色整页，再查看其余模板；详情、Unknown、长内容和窄屏文件阅读需使用对应状态。原始截图及 trace 留在忽略的 `output/ai/frontend-f0/` 和 `output/ai/frontend-f0-review/`，不把可再生输出另建永久报告。
+作者复现与同输入前后对照见[测试说明](test-README.md)，独立截图、交互复现和最小保留图见[独审入口](review/README.md)。本轮先查看 general 的正式基线与候选整页，以及菜单打开、焦点与保存反馈；同内容对照使用1440×960/390×844与相同主题、折叠状态。原项目、任务、Provider 及其余模板的历史图仍按原输入解释；详情、Unknown、长内容和窄屏文件阅读需使用对应状态。本轮原始截图及 trace 留在忽略的 `output/ai/frontend-f0-refinement-test/` 和 `output/ai/frontend-f0-refinement-review/`；旧材料仍在原 `output/ai/frontend-f0/` 和 `output/ai/frontend-f0-review/`，不把可再生输出另建永久报告。
 
 F1 尚未开始；后续按[执行计划](../implementation-plan.md#5-f1共享基础应用框架及项目列表样板)接续：将本轮重新校准并说明接受状态的语义值、框架与组件行为落实到正式 Vue 共享基础，并以项目列表完成首个真实页面。沿原 API/composable 接线，检查真实导航、创建受理→就绪、权限/身份切换和恢复；样板脚本不直接搬进产品。当前先完成 F0 返修并取得用户实看反馈；F1 仍需后续阶段指令，不能据本样板自动宣布40叶迁移或任何真实业务验收通过。

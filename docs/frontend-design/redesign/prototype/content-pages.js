@@ -752,16 +752,7 @@ function bindDashboard(ctx) {
       ctx.setScenario("normal");
     }
     if (e.target.closest("[data-project-info]")) {
-      const base =
-        projects.find((p) => p.id === query().get("project")) || projects[0];
-      const p = {
-        ...base,
-        name: ctx.params?.get("project_name") || base.name,
-        description: ctx.params?.get("project_description") || base.description,
-      };
-      showDialog(
-        `${dialogHeader("项目基本信息")}<div class="dialog-body"><dl class="dashboard-info-dialog"><dt>名称</dt><dd>${esc(p.name)}</dd><dt>描述</dt><dd>${esc(p.description)}</dd><dt>版本</dt><dd>v${esc(p.version)}</dd></dl><p class="muted small">本地样板展示。正式编辑入口对应项目设置中的基本信息。</p></div>${dialogFooter('<button class="button" data-dialog-close>关闭</button>')}`,
-      );
+      ctx.navigate("settings");
     }
   };
 }

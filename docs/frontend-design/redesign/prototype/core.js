@@ -8,6 +8,13 @@ export const esc = (value) =>
   );
 const paths = {
   plus: "M12 5v14M5 12h14",
+  agents: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M16 3a4 4 0 0 1 0 8M22 21v-2a4 4 0 0 0-3-3.87M13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0",
+  person: "M20 21v-2a7 7 0 0 0-14 0v2M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0",
+  variable: "M8 4H6v16h2M16 4h2v16h-2M10 9l4 6M14 9l-4 6",
+  lock: "M5 10h14v11H5zM8 10V6a4 4 0 0 1 8 0v4M12 14v3",
+  shield: "M12 3 3 7v5c0 5 9 9 9 9s9-4 9-9V7zM8 12l3 3 5-6",
+  layers: "m12 3 10 5-10 5L2 8zm-10 9 10 5 10-5M2 16l10 5 10-5",
+  chart: "M4 20h16M7 16V9M12 16V4M17 16v-5",
   arrow: "M5 12h14m-5-5 5 5-5 5",
   back: "m14 6-6 6 6 6",
   chevron: "m7 10 5 5 5-5",
@@ -55,6 +62,7 @@ export const readonlyNotice = (ctx) =>
     : "";
 let dialogTrigger = null;
 export function showDialog(markup, onOpen, options = {}) {
+  closeMenu(false);
   const d = document.getElementById("dialog");
   dialogTrigger = document.activeElement;
   d.className = options.wide ? "wide-dialog" : "";
@@ -160,7 +168,8 @@ export function showMenu(trigger, items, choose, options = {}) {
     button.className = "menu-option";
     button.tabIndex = -1;
     button.setAttribute("role", options.role === "menu" ? "menuitem" : "option");
-    button.setAttribute("aria-selected", String(!!item.selected));
+    if (options.role !== "menu") button.setAttribute("aria-selected", String(!!item.selected));
+    if (item.selected) button.dataset.selected = "true";
     button.disabled = !!item.disabled;
     button.innerHTML = `${item.icon ? icon(item.icon,14) : ""}<span>${esc(item.label)}</span><span class="menu-check">${item.selected ? icon("check",14) : ""}</span>`;
     button.onclick = () => { closeMenu(); choose(item.value, index); };
@@ -170,12 +179,12 @@ export function showMenu(trigger, items, choose, options = {}) {
   const rect = trigger.getBoundingClientRect();
   const width = Math.min(Math.max(rect.width, options.width || 196), innerWidth - 24);
   panel.style.width = `${width}px`;
-  panel.style.left = `${Math.min(Math.max(12,rect.left),innerWidth-width-12)}px`;
+  panel.style.left = `${Math.min(Math.max(12,options.align === "end" ? rect.right-width : rect.left),innerWidth-width-12)}px`;
   panel.style.top = `${Math.min(rect.bottom+6,innerHeight-panel.offsetHeight-12)}px`;
   trigger.setAttribute("aria-expanded", "true");
   trigger.setAttribute("aria-controls", panel.id);
   const buttons = [...panel.querySelectorAll("button:not(:disabled)")];
-  const current = buttons.find(b => b.getAttribute("aria-selected") === "true") || buttons[0];
+  const current = buttons.find(b => b.dataset.selected === "true") || buttons[0];
   current?.focus();
   let letters = "", letterTimer;
   const keydown = e => {

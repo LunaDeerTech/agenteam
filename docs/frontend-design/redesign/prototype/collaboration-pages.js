@@ -1160,7 +1160,7 @@ function memoryState(ctx) {
           ],
     selected: "memory-01",
     detail: false,
-    closed: false,
+    closed: ctx.params?.get("panel") === "configuration",
     more: ctx.long,
     pending: ctx.scenario === "unknown" ? "memory-01" : "",
     pendingRevision: "3",
