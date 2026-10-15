@@ -1,6 +1,7 @@
 import { basePages } from "./base-pages.js";
 import { contentPages } from "./content-pages.js";
 import { collaborationPages } from "./collaboration-pages.js";
+import { agentPages } from "./agent-pages.js";
 import {
   settingsPages,
   settingsShell,
@@ -21,6 +22,7 @@ const pages = {
   ...contentPages,
   ...collaborationPages,
   ...settingsPages,
+  ...agentPages,
 };
 const labels = {
   dashboard: "系统首页",
@@ -29,25 +31,37 @@ const labels = {
   tasks: "任务工作台",
   providers: "系统 Provider",
   settings: "项目设置",
+  agents: "Agent",
   knowledge: "知识库",
   artifacts: "产物",
   meetings: "会议",
   inbox: "项目待办",
   mcp: "MCP 连接",
   oauth: "OAuth 回调",
-  memory: "Agent Memory",
 };
+let activeHistoryIndex = Number.isFinite(history.state?.f0Index)
+  ? history.state.f0Index
+  : 0;
+let activeContext = null;
+let restoringTraversal = null;
+let approvedTraversal = null;
+const entryScroll = new Map();
+history.replaceState({ ...history.state, f0Index: activeHistoryIndex }, "");
+history.scrollRestoration = "manual";
+
 function locationFor(page, extra = {}) {
   const p = new URLSearchParams(location.search);
   p.set("page", page);
-  ["detail", "tab", "format", "section", "panel"].forEach((k) => p.delete(k));
+  ["detail", "tab", "format", "section", "panel", "agent", "view"].forEach(
+    (k) => p.delete(k),
+  );
   for (const [k, v] of Object.entries(extra)) p.set(k, v);
   return `?${p}`;
 }
 const link = (page, label, current) =>
   `<a href="${locationFor(page)}" data-page="${page}" ${current ? 'aria-current="page"' : ""}>${label}</a>`;
-function getContext() {
-  const p = new URLSearchParams(location.search);
+function getContext(search = location.search) {
+  const p = new URLSearchParams(search);
   return {
     page: p.get("page") || "projects",
     theme: p.get("theme") || "light",
@@ -61,25 +75,45 @@ function getContext() {
     setScenario(scenario) {
       const p = new URLSearchParams(location.search);
       p.set("scenario", scenario);
-      history.replaceState({}, "", `?${p}`);
+      history.replaceState(history.state, "", `?${p}`);
       render();
     },
   };
 }
+function rememberView(ctx) {
+  entryScroll.set(activeHistoryIndex, { left: scrollX, top: scrollY });
+  pages[ctx.page]?.captureView?.(ctx);
+}
 function navigate(page, extra = {}, skipGuard = false) {
-  const current = getContext();
+  const current = activeContext || getContext();
+  const url = locationFor(page, extra);
+  const target = getContext(new URL(url, location.href).search);
   if (
     !skipGuard &&
-    pages[current.page]?.beforeLeave?.(current, () =>
-      navigate(page, extra, true),
+    pages[current.page]?.beforeLeave?.(
+      current,
+      () => navigate(page, extra, true),
+      target,
     )
   )
     return;
-  history.pushState({}, "", locationFor(page, extra));
-  render();
-  document.getElementById("main").focus({ preventScroll: true });
+  rememberView(current);
+  activeHistoryIndex += 1;
+  history.pushState({ f0Index: activeHistoryIndex }, "", url);
+  render({ reason: "navigate", previous: current });
 }
-function render() {
+function canonicalizeLegacyMemory() {
+  const params = new URLSearchParams(location.search);
+  if (params.get("page") !== "memory") return;
+  params.set("page", "agents");
+  params.set("agent", "agent-architecture");
+  if (params.get("panel") !== "configuration") params.set("view", "memory");
+  params.delete("panel");
+  history.replaceState(history.state, "", `?${params}`);
+}
+function render(options = {}) {
+  canonicalizeLegacyMemory();
+  history.replaceState({ ...history.state, f0Index: activeHistoryIndex }, "");
   closeMenu(false);
   const ctx = getContext(),
     page = pages[ctx.page] || pages.projects;
@@ -104,15 +138,15 @@ function render() {
                 id,
                 label,
                 id === "settings"
-                  ? ["settings", "mcp", "memory"].includes(ctx.page)
+                  ? ["settings", "mcp", "agents"].includes(ctx.page)
                   : ctx.page === id,
               ),
             )
             .join("")}</nav></header>`
         : ""
-    }<main id="main" tabindex="-1">${["settings", "mcp", "memory"].includes(ctx.page) ? settingsShell(ctx, page.render(ctx)) : page.render(ctx)}</main><aside class="lab-bar" aria-label="设计样板控制"><span class="lab-note"><span class="lab-dot"></span>F0 交互样板 · 全部为合成数据</span><button type="button" id="lab-open">${icon("settings", 13)} 样板设置</button></aside>`;
+    }<main id="main" tabindex="-1">${["settings", "mcp", "agents"].includes(ctx.page) ? settingsShell(ctx, page.render(ctx)) : page.render(ctx)}</main><aside class="lab-bar" aria-label="设计样板控制"><span class="lab-note"><span class="lab-dot"></span>F0 交互样板 · 全部为合成数据</span><button type="button" id="lab-open">${icon("settings", 13)} 样板设置</button></aside>`;
   page.bind?.(ctx);
-  if (["settings", "mcp", "memory"].includes(ctx.page)) bindSettingsShell(ctx);
+  if (["settings", "mcp", "agents"].includes(ctx.page)) bindSettingsShell(ctx);
   enhanceSelects();
   document.getElementById("system-menu")?.addEventListener("click", () =>
     showDialog(
@@ -138,6 +172,22 @@ function render() {
   document
     .getElementById("lab-open")
     .addEventListener("click", () => openLab(ctx));
+  activeContext = ctx;
+  if (["navigate", "popstate"].includes(options.reason)) {
+    document.getElementById("main").focus({ preventScroll: true });
+    const position =
+      options.reason === "popstate"
+        ? entryScroll.get(activeHistoryIndex)
+        : null;
+    window.scrollTo({
+      ...(position || { left: 0, top: 0 }),
+      behavior: "instant",
+    });
+  }
+  page.restoreView?.(ctx, {
+    reason: options.reason || "render",
+    previous: options.previous,
+  });
 }
 function openLab(ctx) {
   showDialog(
@@ -187,14 +237,14 @@ function openLab(ctx) {
       )
       .join(
         "",
-      )}</select></div></form><p class="muted small">本轮精修基本信息；项目设置中其余栏目保留位置，MCP 与 Architecture Agent 为已有可操作样板，其余目录文字不是演示链接。全部保存只在本页内模拟。<br><br>L1–L8 设计依据、已有命令映射与未实现边界见 <a href="./README.md">样板说明</a>。</p></div>${dialogFooter('<button class="button" data-dialog-close>取消</button><button class="button primary" type="submit" form="lab-form">应用并查看</button>')}`,
+      )}</select></div></form><p class="muted small">本轮精修基本信息与 Agent 列表、详情及记忆。Agent 示例为依据真实字段构造的三个合成对象，地址参数用于演示定位与返回；其余设置栏目保留位置，MCP 沿用已有对象布局，其余目录文字不是演示链接。全部保存只在本页内模拟。<br><br>L1–L8 设计依据、已有命令映射与未实现边界见 <a href="./README.md">样板说明</a>。</p></div>${dialogFooter('<button class="button" data-dialog-close>取消</button><button class="button primary" type="submit" form="lab-form">应用并查看</button>')}`,
     (d) => {
       d.querySelector("#lab-form").onsubmit = (e) => {
         e.preventDefault();
         const p = new URLSearchParams(location.search);
         for (const [k, v] of new FormData(e.target)) p.set(k, v);
         closeDialog();
-        history.replaceState({}, "", `?${p}`);
+        history.replaceState(history.state, "", `?${p}`);
         render();
         document.getElementById("lab-open").focus();
       };
@@ -226,5 +276,55 @@ document.addEventListener("click", (e) => {
   if (e.target.closest("[data-action=retry]"))
     getContext().setScenario("normal");
 });
-window.addEventListener("popstate", render);
+window.addEventListener("popstate", (event) => {
+  const targetIndex = Number.isFinite(event.state?.f0Index)
+    ? event.state.f0Index
+    : activeHistoryIndex - 1;
+  if (restoringTraversal) {
+    const request = restoringTraversal;
+    restoringTraversal = null;
+    request.restored = true;
+    if (request.accepted) {
+      approvedTraversal = request;
+      history.go(request.delta);
+    }
+    return;
+  }
+  const current = activeContext || getContext();
+  const target = getContext();
+  if (approvedTraversal) {
+    approvedTraversal = null;
+  } else {
+    const request = {
+      delta: targetIndex - activeHistoryIndex,
+      restored: false,
+      accepted: false,
+    };
+    const proceed = () => {
+      request.accepted = true;
+      if (request.restored) {
+        approvedTraversal = request;
+        history.go(request.delta);
+      }
+    };
+    if (
+      request.delta &&
+      pages[current.page]?.beforeLeave?.(current, proceed, target)
+    ) {
+      restoringTraversal = request;
+      history.go(-request.delta);
+      return;
+    }
+  }
+  rememberView(current);
+  activeHistoryIndex = targetIndex;
+  render({ reason: "popstate", previous: current });
+});
+window.addEventListener("beforeunload", (event) => {
+  const ctx = activeContext || getContext();
+  if (pages[ctx.page]?.beforeUnload?.(ctx)) {
+    event.preventDefault();
+    event.returnValue = "";
+  }
+});
 render();

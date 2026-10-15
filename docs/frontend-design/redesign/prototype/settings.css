@@ -816,3 +816,78 @@ body:has(.project-settings-shell) .project-identity > .muted {
     grid-template-columns: 85px minmax(0, 1fr);
   }
 }
+
+/* Project settings share a wide heading and a single left edge. */
+.project-settings-content {
+  padding: 43px 48px 60px;
+}
+.general-page {
+  max-width: none;
+  margin: 0;
+}
+.general-page > :not(.settings-page-heading) {
+  max-width: 760px;
+}
+.project-settings-content > .co-page,
+.project-settings-content > .agent-page {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+.project-settings-content .settings-page-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  margin: 0 0 28px;
+}
+.settings-page-heading > div:first-child {
+  min-width: 0;
+  flex: 1;
+}
+.project-settings-content .settings-page-heading h1 {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.35;
+  letter-spacing: -0.6px;
+  font-weight: 610;
+}
+.project-settings-content .settings-page-heading > div > p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.settings-mobile-switch {
+  display: none;
+  flex: none;
+}
+@media (max-width: 1050px) {
+  .project-settings-content {
+    padding: 38px 32px 48px;
+  }
+}
+@media (max-width: 760px) {
+  .project-settings-content,
+  .project-settings-content.project-settings-general {
+    padding: 27px 19px 35px;
+  }
+  .project-settings-content .settings-page-heading {
+    gap: 8px;
+    margin-bottom: 25px;
+  }
+  .project-settings-content .settings-page-heading h1 {
+    font-size: 23px;
+    letter-spacing: -0.5px;
+  }
+  .project-settings-content .settings-page-heading > div > p {
+    margin-top: 6px;
+    font-size: 12px;
+  }
+  .settings-mobile-switch {
+    display: inline-flex;
+    margin-top: 1px;
+  }
+}

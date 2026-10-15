@@ -13,7 +13,7 @@ import {
 // is called. The baseline values match interface-layout.fixtures.ts exactly.
 const entries = [
   { id: "general", label: "基本信息", icon: "settings", page: "settings" },
-  { id: "agents", label: "Agent", icon: "agents", page: "memory" },
+  { id: "agents", label: "Agent", icon: "agents", page: "agents" },
   { id: "variables", label: "普通变量", icon: "variable" },
   { id: "secrets", label: "Secrets", icon: "lock" },
   { id: "skills", label: "Skills", icon: "file" },
@@ -81,8 +81,8 @@ const dirty = (s) =>
   changed(s) || ["unknown", "conflict"].includes(s.phase) || s.saving;
 function locationFor(ctx, page, extra = {}) {
   const params = new URLSearchParams(ctx.params);
-  ["section", "panel", "detail", "tab", "format"].forEach((k) =>
-    params.delete(k),
+  ["section", "panel", "detail", "tab", "format", "agent", "view"].forEach(
+    (k) => params.delete(k),
   );
   params.set("page", page);
   for (const [k, v] of Object.entries(extra)) params.set(k, v);
@@ -91,26 +91,38 @@ function locationFor(ctx, page, extra = {}) {
 function settingLink(ctx, item, selected) {
   const content = `${icon(item.icon, 15)}<span>${esc(item.label)}</span>`;
   return item.page
-    ? `<a class="project-settings-link" href="${esc(locationFor(ctx, item.page, item.id === "agents" ? { panel: "configuration" } : {}))}" data-setting-page="${item.page}" ${item.id === "agents" ? 'data-setting-panel="configuration"' : ""} ${selected ? 'aria-current="page"' : ""}>${content}</a>`
+    ? `<a class="project-settings-link" href="${esc(locationFor(ctx, item.page))}" data-setting-page="${item.page}" ${selected ? 'aria-current="page"' : ""}>${content}</a>`
     : `<span class="project-settings-link project-settings-static">${content}</span>`;
 }
 export function settingsShell(ctx, content) {
   const selected =
-    ctx.page === "mcp" ? "mcp" : ctx.page === "memory" ? "agents" : "general";
-  const label = entries.find((e) => e.id === selected).label;
-  return `<div class="project-settings-shell"><aside class="project-settings-sidebar" aria-label="项目设置栏目"><h2>项目设置</h2><nav aria-label="设置栏目">${entries.map((item) => `${item.group ? `<div class="project-settings-group">${esc(item.group)}</div>` : ""}${settingLink(ctx, item, selected === item.id)}`).join("")}</nav></aside><div class="project-settings-content ${ctx.page === "settings" ? "project-settings-general" : ""}"><div class="project-settings-mobilebar"><button type="button" id="${ctx.page === "settings" ? "settings-section-secondary" : "settings-section-menu"}" class="settings-section-trigger" aria-haspopup="menu" aria-expanded="false">${icon("settings", 14)}<span>项目设置</span><span class="mobile-section-divider">/</span><strong>${esc(label)}</strong>${icon("chevron", 12)}</button></div>${content}</div></div>`;
+    ctx.page === "mcp" ? "mcp" : ctx.page === "agents" ? "agents" : "general";
+  return `<div class="project-settings-shell"><aside class="project-settings-sidebar" aria-label="项目设置栏目"><h2>项目设置</h2><nav aria-label="设置栏目">${entries.map((item) => `${item.group ? `<div class="project-settings-group">${esc(item.group)}</div>` : ""}${settingLink(ctx, item, selected === item.id)}`).join("")}</nav></aside><div class="project-settings-content ${ctx.page === "settings" ? "project-settings-general" : ""}">${content}</div></div>`;
 }
 export function bindSettingsShell(ctx) {
   document.querySelectorAll("[data-setting-page]").forEach((link) => {
     link.onclick = (e) => {
       if (e.ctrlKey || e.metaKey || e.shiftKey) return;
       e.preventDefault();
-      ctx.navigate(
-        link.dataset.settingPage,
-        link.dataset.settingPanel ? { panel: link.dataset.settingPanel } : {},
-      );
+      ctx.navigate(link.dataset.settingPage);
     };
   });
+  const heading = document.querySelector(
+    ".project-settings-content .settings-page-heading, .project-settings-content .page-heading",
+  );
+  if (heading) {
+    heading.classList.add("settings-page-heading");
+    const switcher = document.createElement("button");
+    switcher.type = "button";
+    switcher.id = "settings-section-menu";
+    switcher.className = "icon-button settings-mobile-switch";
+    switcher.setAttribute("aria-label", "切换项目设置栏目");
+    switcher.setAttribute("aria-haspopup", "menu");
+    switcher.setAttribute("aria-expanded", "false");
+    switcher.title = "项目设置栏目";
+    switcher.innerHTML = icon("menu", 17);
+    heading.append(switcher);
+  }
   const trigger = document.querySelector("#settings-section-menu");
   if (trigger)
     trigger.onclick = () =>
@@ -125,17 +137,14 @@ export function bindSettingsShell(ctx) {
             item.id ===
             (ctx.page === "mcp"
               ? "mcp"
-              : ctx.page === "memory"
+              : ctx.page === "agents"
                 ? "agents"
                 : "general"),
           disabled: !item.page,
         })),
         (value) => {
           const item = entries.find((e) => e.id === value);
-          ctx.navigate(
-            item.page,
-            item.id === "agents" ? { panel: "configuration" } : {},
-          );
+          ctx.navigate(item.page);
         },
         { role: "menu", label: "项目设置", width: 254 },
       );
@@ -155,7 +164,7 @@ function records(ctx, s) {
 function renderGeneral(ctx) {
   const s = local(ctx),
     readonly = locked(ctx, s);
-  const header = `<header class="general-heading"><div><h1 id="general-title" tabindex="-1"><span class="general-desktop-title">基本信息</span><button type="button" id="settings-section-menu" class="general-title-menu" aria-label="基本信息，切换项目设置栏目" aria-haspopup="menu" aria-expanded="false">基本信息${icon("chevron", 15)}</button></h1><p>管理项目名称与描述。</p></div><button class="button quiet general-more" id="general-more" aria-label="更多项目信息操作" aria-haspopup="menu" aria-expanded="false">${icon("more", 16)}<span>更多</span></button></header>`;
+  const header = `<header class="general-heading settings-page-heading"><div><h1 id="general-title" tabindex="-1">基本信息</h1><p>管理项目名称与描述。</p></div><button class="button quiet general-more" id="general-more" aria-label="更多项目信息操作" aria-haspopup="menu" aria-expanded="false">${icon("more", 16)}<span>更多</span></button></header>`;
   if (ctx.scenario === "loading")
     return `<section class="general-page">${header}<div class="general-loading" aria-busy="true" aria-label="正在读取项目信息"><div></div><div></div><div></div><p>正在读取项目信息…</p></div></section>`;
   if (ctx.scenario === "error")
@@ -220,7 +229,7 @@ function performSave(ctx, s) {
       params.get("scenario") === ctx.params.get("scenario")
     ) {
       params.set("project_name", s.current.name);
-      history.replaceState({}, "", `?${params}`);
+      history.replaceState(history.state, "", `?${params}`);
       rerender(ctx, "#general-title");
     }
   }, 420);

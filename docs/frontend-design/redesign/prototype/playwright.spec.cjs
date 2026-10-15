@@ -43,6 +43,7 @@ const states = [
   "unknown",
 ];
 const titles = {
+  agents: "Agent",
   settings: "基本信息",
   dashboard: "首页",
   projects: "项目",
@@ -1337,6 +1338,227 @@ test("[general-native-zoom] real Chromium 200% edit save menu and records", asyn
       JSON.stringify({ contextClosed: true, profileRemoved: true }, null, 2),
     );
   }
+});
+
+async function openAgents(page, layout, extra = {}, scenario = "normal") {
+  await open(page, "agents", layout, scenario, {
+    fixture: "design",
+    accent: "neutral",
+    ...extra,
+  });
+}
+const agentExamples = {
+  reviewer: {
+    title: "Reviewer",
+    description: "审查实现与交付结果，记录风险与改进建议。",
+  },
+  researcher: {
+    title: "Researcher",
+    description: "收集资料与核对来源，为团队提供研究依据。",
+  },
+};
+for (const layout of [layouts[0], { ...layouts[3], height: 480 }]) {
+  test(`[agents-first] explicit identity Memory return and direct URLs ${layout.width}`, async ({
+    page,
+  }, info) => {
+    const faults = await setup(page, layout);
+    await openAgents(page, layout);
+    await expect(
+      page.getByRole("heading", { name: "Agent", exact: true, level: 1 }),
+    ).toBeVisible();
+    await expect(page.locator(".agent-directory-row")).toHaveCount(3);
+    await expect(
+      page.locator("#agent-configuration-form, .agent-memory-list"),
+    ).toHaveCount(0);
+    for (const [id, expected] of Object.entries(agentExamples)) {
+      const row = page.locator(
+        `.agent-directory-link[data-agent-open="agent-${id}"]`,
+      );
+      await row.scrollIntoViewIfNeeded();
+      const previousY = await page.evaluate(() => scrollY);
+      if (layout.width === 390 && id === "reviewer")
+        expect(previousY).toBeGreaterThan(0);
+      await row.click();
+      await expect(page).toHaveURL(new RegExp(`agent=agent-${id}(?:&|$)`));
+      await expect(
+        page.getByRole("heading", {
+          name: expected.title,
+          exact: true,
+          level: 1,
+        }),
+      ).toBeVisible();
+      await expect(page.locator(".agent-directory-row")).toHaveCount(0);
+      await expect(
+        page.getByRole("textbox", { name: "Agent 名称", exact: true }),
+      ).toHaveValue(id);
+      await expect(
+        page.getByRole("textbox", { name: "描述", exact: true }),
+      ).toHaveValue(expected.description);
+      const memory = page.locator('[data-agent-action="memory"]');
+      await memory.click();
+      await expect(page).toHaveURL(/view=memory/);
+      await expect(page.locator(".settings-page-heading > div > p")).toHaveText(
+        expected.title,
+      );
+      await page
+        .locator(`[data-agent-action="memory-history:memory-${id}-1"]`)
+        .click();
+      await page.locator(".agent-memory-history summary").click();
+      await expect(page.locator(".agent-memory-history")).toContainText(
+        `execution-${id}-1`,
+      );
+      await expect(page.locator(".agent-memory-history")).not.toContainText(
+        "execution-architecture-1",
+      );
+      await page.locator(`[data-agent-back="agent-${id}"]`).click();
+      await expect(memory).toBeFocused();
+      await expect(
+        page.getByRole("textbox", { name: "Agent 名称", exact: true }),
+      ).toHaveValue(id);
+      await page.locator('[data-agent-back=""]').click();
+      await expect(row).toBeFocused();
+      await expect
+        .poll(() => page.evaluate(() => scrollY))
+        .toBeCloseTo(previousY, 0);
+    }
+    await page
+      .locator('.agent-directory-link[data-agent-open="agent-reviewer"]')
+      .click();
+    await page.goBack({ waitUntil: "commit" });
+    await expect(page.locator(".agent-directory-row")).toHaveCount(3);
+    await expect(
+      page.locator('.agent-directory-link[data-agent-open="agent-reviewer"]'),
+    ).toBeFocused();
+    await openAgents(page, layout, {
+      agent: "agent-researcher",
+      view: "memory",
+    });
+    await page.reload();
+    await expect(page.locator(".settings-page-heading > div > p")).toHaveText(
+      "Researcher",
+    );
+    await expect(
+      page.locator('[data-agent-action="memory-history:memory-researcher-1"]'),
+    ).toBeVisible();
+    await openAgents(page, layout, { agent: "agent-missing" });
+    await expect(
+      page.getByRole("heading", { name: "Agent 不可用", exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.locator("#agent-configuration-form, .agent-memory-list"),
+    ).toHaveCount(0);
+    await page
+      .getByRole("button", { name: "返回 Agent 列表", exact: true })
+      .click();
+    await expect(page.locator(".agent-directory-row")).toHaveCount(3);
+    await noOverflow(page, "Agent list restored");
+    await capture(
+      page,
+      info,
+      `agent-list-first-${layout.width}-${layout.theme}`,
+    );
+    expect(faults.errors).toEqual([]);
+    expect(faults.outbound).toEqual([]);
+  });
+}
+
+test("[agents-first] settings header geometry and left aligned forms", async ({
+  page,
+}, info) => {
+  const faults = await setup(page, layouts[0]);
+  const measured = [];
+  const routes = [
+    { page: "settings", body: "#general-form" },
+    { page: "agents", body: ".agent-directory" },
+    { page: "agents", agent: "agent-reviewer", body: ".agent-detail-content" },
+    {
+      page: "agents",
+      agent: "agent-reviewer",
+      view: "memory",
+      body: ".agent-detail-content",
+    },
+    { page: "mcp", body: ".co-mcp-layout" },
+  ];
+  for (const layout of [layouts[0], layouts[3]]) {
+    await page.setViewportSize({ width: layout.width, height: layout.height });
+    let baseline;
+    for (const route of routes) {
+      const { body, ...extra } = route;
+      await open(page, route.page, layout, "normal", {
+        fixture: "design",
+        accent: "neutral",
+        ...extra,
+      });
+      await expect(page.locator(".settings-page-heading")).toHaveCount(1);
+      const boxes = await page.evaluate((body) => {
+        const box = (selector) => {
+          const r = document.querySelector(selector).getBoundingClientRect();
+          return { x: r.x, width: r.width, right: r.right };
+        };
+        return {
+          header: box(".settings-page-heading"),
+          title: box(".settings-page-heading h1"),
+          description: box(".settings-page-heading > div > p"),
+          body: box(body),
+        };
+      }, body);
+      baseline ||= boxes;
+      expect(Math.abs(boxes.header.x - baseline.header.x)).toBeLessThanOrEqual(
+        1,
+      );
+      expect(
+        Math.abs(boxes.header.width - baseline.header.width),
+      ).toBeLessThanOrEqual(1);
+      expect(Math.abs(boxes.title.x - baseline.title.x)).toBeLessThanOrEqual(1);
+      expect(
+        Math.abs(boxes.description.x - baseline.description.x),
+      ).toBeLessThanOrEqual(1);
+      expect(Math.abs(boxes.body.x - boxes.header.x)).toBeLessThanOrEqual(1);
+      if (body === "#general-form" || body === ".agent-detail-content")
+        expect(boxes.body.width).toBeLessThanOrEqual(760);
+      measured.push({ route: extra, layout, boxes });
+      await noOverflow(page, `settings heading ${JSON.stringify(extra)}`);
+    }
+  }
+  await info.attach("settings-heading-geometry", {
+    body: JSON.stringify(measured, null, 2),
+    contentType: "application/json",
+  });
+  expect(faults.errors).toEqual([]);
+  expect(faults.outbound).toEqual([]);
+});
+
+test("[agents-first] existing General dirty browser Back guard", async ({
+  page,
+}) => {
+  const layout = layouts[0];
+  const faults = await setup(page, layout);
+  await openAgents(page, layout);
+  await page
+    .getByRole("navigation", { name: "项目菜单", exact: true })
+    .getByRole("link", { name: "项目设置", exact: true })
+    .click();
+  await page
+    .locator("#general-description")
+    .fill("保留 General 草稿，直到明确选择放弃。");
+  await page.goBack({ waitUntil: "commit" });
+  const dialog = page.getByRole("dialog", {
+    name: "放弃项目修改？",
+    exact: true,
+  });
+  await expect(dialog).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page).toHaveURL(/page=settings/);
+  await expect(page.locator("#general-description")).toHaveValue(
+    "保留 General 草稿，直到明确选择放弃。",
+  );
+  await page.goBack({ waitUntil: "commit" });
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole("button", { name: "放弃并离开", exact: true }).click();
+  await expect(page).toHaveURL(/page=agents/);
+  await expect(page.locator(".agent-directory-row")).toHaveCount(3);
+  expect(faults.errors).toEqual([]);
+  expect(faults.outbound).toEqual([]);
 });
 
 const comparison = [

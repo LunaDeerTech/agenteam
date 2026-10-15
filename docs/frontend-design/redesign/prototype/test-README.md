@@ -2,6 +2,27 @@
 
 本目录的 Playwright harness 只验证隔离样板与当前正式 Vue 页面在合成 HTTP fixture 下的表现。所有业务动作都是演示；没有真实后端、凭据、业务写入或生产验收。作者检查与独立视觉审查分别形成结论。
 
+## Agent 独立详情与设置 header
+
+本轮以 `c4c4c9d7` 后作者冻结的首条正常链为输入。`?page=agents` 是无默认选择的列表；`agent=agent-architecture|agent-researcher|agent-reviewer` 定位独立详情，`view=memory` 定位同一 Agent 的记忆。这三个对象是根据正式字段构造的合成样例，**没有当前正式 Vue 同三对象 fixture 的前图**；旧正式 fixture 只有一个 `reviewer`，不能混称同输入前后对照。旧 `page=memory` 只作明确的历史兼容别名。
+
+`[agents-first]` 首轮 **4/4 通过（23.1s，exit 0）**：
+
+- 1440×960 浅色和 390×480 深色，依次选择非首项 Reviewer / Researcher，核对名称、描述与各自记忆历史的 `execution-reviewer-1` / `execution-researcher-1`，关闭记忆回同一详情按钮，再回列表原行与滚动位置。短窗口先确认确有滚动，未改页面 CSS。
+- 浏览器 Back 返回原列表；Researcher Memory 的直接地址刷新仍属于 Researcher；未知 Agent ID 明确显示不可用，不能退回 Architecture；列表不同时显示详情。
+- General、Agent 列表/详情/记忆、MCP 在 1440 浅色 / 390 深色共享 header 横向起点与宽度，标题和说明左起点一致，表单/正文左对齐且表单最大宽度 760。此轮**没有断言标题纵向位置**；独审发现返回行造成的纵向漂移后已交作者修复。
+- app 历史改动下，General 脏草稿遇浏览器 Back 会确认；Escape 保留输入，明确放弃后才返回 Agent 列表。
+
+```sh
+export NODE_PATH=/workspace/shared/node/account-captcha-ac60fa262f0c44ae-node24.19.0-linux-x64/node_modules
+export F0_LEGACY=0 F0_PORT=5218
+export F0_OUTPUT="$PWD/output/ai/frontend-f0-refinement-test/agent-first"
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[agents-first\]' --list
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[agents-first\]'
+```
+
+该轮仅正常链与既有 General 回归；Unknown、项目 scope、只读细节当时仍在作者修正队列，未记为通过。normal / reduced motion 与原生 200% 尚待最终候选定向补查，不复用旧页缩放结论。原输出在 `output/ai/frontend-f0-refinement-test/agent-first/`；自有 5218 server PID 332756 已关闭并回收，浏览器随原命令退出，没有创建 `web/node_modules` 或关闭作者 5209 服务。harness 自查不替代独立视觉接受。
+
 ## 用户反馈后的基本信息页基线
 
 用户未接受旧 F0 的视觉结果。下文旧轮次的技术通过事实不代表用户接受，也不代替本轮单页设计与独立审查。本轮只为“项目设置 → 基本信息”准备当前正式 Vue 基线：真实路由 `/owner/atlas/settings/general` 加载 `web/src/views/projects/ProjectGeneralSettings.vue`，HTTP 数据直接复用 `tests/account-captcha-web/interface-layout.fixtures.ts`。没有改产品源码或增加 mock 接口；旧 F0 的设置页是 MCP，不能作为基本信息的同页前图。
