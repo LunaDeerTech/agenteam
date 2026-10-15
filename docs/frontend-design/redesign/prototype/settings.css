@@ -586,7 +586,7 @@ body:has(.project-settings-shell) .project-identity > .muted {
   }
 }
 
-/* Second composition: the fields and their save action are one editing group. */
+/* Shared alignment groups the fields and save action without an outer panel. */
 .general-page {
   max-width: 760px;
 }
@@ -620,10 +620,10 @@ body:has(.project-settings-shell) .project-identity > .muted {
   display: none;
 }
 #general-form {
-  padding: 25px 26px 12px;
-  background: var(--subtle);
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
 }
 .general-fields {
   border: 0;
@@ -725,9 +725,6 @@ body:has(.project-settings-shell) .project-identity > .muted {
   color: #b5baad;
 }
 @media (max-width: 1050px) {
-  #general-form {
-    padding: 22px 21px 12px;
-  }
   .general-field-row {
     grid-template-columns: 1fr;
     gap: 11px;
@@ -773,12 +770,6 @@ body:has(.project-settings-shell) .project-identity > .muted {
   }
   .general-more {
     font-size: 11px;
-  }
-  #general-form {
-    padding: 0;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
   }
   .general-field-row {
     padding-bottom: 25px;
