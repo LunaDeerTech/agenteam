@@ -55,21 +55,21 @@
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --surface-page: #161715;
-  --surface-content: #1c1d1a;
-  --surface-subtle: #20211e;
-  --surface-hover: #292b26;
-  --surface-active: #353a30;
-  --surface-overlay: #20211e;
-  --text-primary: #e7e8e3;
-  --text-secondary: #a0a399;
-  --text-tertiary: #a0a399;
-  --border-subtle: #30322c;
-  --border-strong: #797f70;
-  --accent: #c2c7ba;
-  --accent-hover: #e0e5d8;
-  --accent-text: #252923;
-  --focus-ring: #c2c7ba;
+  --surface-page: #171717;
+  --surface-content: #1d1d1d;
+  --surface-subtle: #222222;
+  --surface-hover: #2b2b2b;
+  --surface-active: #383838;
+  --surface-overlay: #222222;
+  --text-primary: #e7e7e7;
+  --text-secondary: #a2a2a2;
+  --text-tertiary: #a2a2a2;
+  --border-subtle: #333333;
+  --border-strong: #7c7c7c;
+  --accent: #c5c5c5;
+  --accent-hover: #e2e2e2;
+  --accent-text: #272727;
+  --focus-ring: #c5c5c5;
   --danger: #f39393;
   --scrim: rgb(0 0 0 / 60%);
   --shadow-overlay: 0 5px 24px rgb(0 0 0 / 28%), 0 1px 4px rgb(0 0 0 / 18%);
