@@ -26,6 +26,7 @@ import (
 
 	objectfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore"
 	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
+	"github.com/LunaDeerTech/agenteam/tests/testsupport/previewruntime"
 )
 
 func main()                   { os.Exit(run()) }
@@ -228,7 +229,7 @@ func certificates(directory, ip string) error {
 		return e
 	}
 	now := time.Now()
-	ca := &x509.Certificate{SerialNumber: big.NewInt(1), Subject: pkix.Name{CommonName: "owned D05 object fixture CA"}, NotBefore: now.Add(-time.Minute), NotAfter: now.Add(2 * time.Hour), IsCA: true, BasicConstraintsValid: true, KeyUsage: x509.KeyUsageCertSign}
+	ca := &x509.Certificate{SerialNumber: big.NewInt(1), Subject: pkix.Name{CommonName: "owned D05 object fixture CA"}, NotBefore: now.Add(-time.Minute), NotAfter: now.Add(previewruntime.CertificateValidity(2 * time.Hour)), IsCA: true, BasicConstraintsValid: true, KeyUsage: x509.KeyUsageCertSign}
 	der, e := x509.CreateCertificate(rand.Reader, ca, ca, &key.PublicKey, key)
 	if e != nil {
 		return e
@@ -237,7 +238,7 @@ func certificates(directory, ip string) error {
 	if e != nil {
 		return e
 	}
-	server := &x509.Certificate{SerialNumber: big.NewInt(2), IPAddresses: []net.IP{net.ParseIP(ip)}, NotBefore: now.Add(-time.Minute), NotAfter: now.Add(2 * time.Hour), KeyUsage: x509.KeyUsageDigitalSignature, ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth}}
+	server := &x509.Certificate{SerialNumber: big.NewInt(2), IPAddresses: []net.IP{net.ParseIP(ip)}, NotBefore: now.Add(-time.Minute), NotAfter: now.Add(previewruntime.CertificateValidity(2 * time.Hour)), KeyUsage: x509.KeyUsageDigitalSignature, ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth}}
 	cert, e := x509.CreateCertificate(rand.Reader, server, ca, &serverKey.PublicKey, key)
 	if e != nil {
 		return e

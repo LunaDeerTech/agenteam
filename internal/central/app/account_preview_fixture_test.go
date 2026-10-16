@@ -41,6 +41,7 @@ import (
 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
 	"github.com/LunaDeerTech/agenteam/internal/platform/logging"
 	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
+	"github.com/LunaDeerTech/agenteam/tests/testsupport/previewruntime"
 	smtpfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/smtp"
 )
 
@@ -87,9 +88,12 @@ func TestAccountPreviewFixture(t *testing.T) {
 	t.Cleanup(func() { _ = listener.Close() })
 	security := previewCertificate(t, private, originURL.Hostname())
 
-	// PG certificates are deliberately short lived. End this owned round before
-	// their one-hour expiry; a subsequent preview creates fresh resources.
-	ctx, cancel := context.WithTimeout(context.Background(), 45*time.Minute)
+	// The explicit public 24h mode also extends every owned fixture certificate
+	// through the shared previewruntime gate. Ordinary previews stay bounded to
+	// 45m and retain their existing short-lived dependency certificates.
+	startedAt := time.Now().UTC()
+	deadline := startedAt.Add(previewruntime.Lifetime())
+	ctx, cancel := context.WithDeadline(context.Background(), deadline)
 	t.Cleanup(cancel)
 	watchDone := make(chan struct{})
 	go func() {
@@ -225,7 +229,7 @@ func TestAccountPreviewFixture(t *testing.T) {
 		"certificate_ca_file": security.CAFile,
 		"local_tls_address":   listener.Addr().String(),
 		"nonce":               nonce, "credentials": credentials, "recovery_log": cfg.AccountRecoveryLog(),
-		"stop_file": filepath.Join(private, "stop"), "expires_at": time.Now().Add(44 * time.Minute).UTC(),
+		"stop_file": filepath.Join(private, "stop"), "started_at": startedAt, "expires_at": deadline.Add(-time.Minute),
 		"smtp_control": "http://" + net.JoinHostPort(smtp.PrivateIP, "9000"), "smtp_nonce": smtp.Nonce,
 		"smtp_endpoint_id": endpoint.ID, "database_fixture": os.Getenv(pgfixture.Env), "database_name": db.Name,
 	}
@@ -341,12 +345,13 @@ func previewCertificate(t *testing.T, directory, hostname string) previewTLS {
 	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	previewCheck(t, "TLS key", err)
 	now := time.Now()
-	caTemplate := &x509.Certificate{SerialNumber: big.NewInt(now.UnixNano()), Subject: pkix.Name{CommonName: "Owned account preview CA"}, NotBefore: now.Add(-time.Minute), NotAfter: now.Add(time.Hour), IsCA: true, BasicConstraintsValid: true, KeyUsage: x509.KeyUsageCertSign | x509.KeyUsageCRLSign}
+	validity := previewruntime.CertificateValidity(time.Hour)
+	caTemplate := &x509.Certificate{SerialNumber: big.NewInt(now.UnixNano()), Subject: pkix.Name{CommonName: "Owned account preview CA"}, NotBefore: now.Add(-time.Minute), NotAfter: now.Add(validity), IsCA: true, BasicConstraintsValid: true, KeyUsage: x509.KeyUsageCertSign | x509.KeyUsageCRLSign}
 	caDER, err := x509.CreateCertificate(rand.Reader, caTemplate, caTemplate, &caKey.PublicKey, caKey)
 	previewCheck(t, "TLS CA certificate", err)
 	ca, err := x509.ParseCertificate(caDER)
 	previewCheck(t, "TLS CA parse", err)
-	template := &x509.Certificate{SerialNumber: big.NewInt(now.UnixNano() + 1), Subject: pkix.Name{CommonName: "Owned account preview"}, DNSNames: []string{hostname}, IPAddresses: []net.IP{net.ParseIP("127.0.0.1")}, NotBefore: now.Add(-time.Minute), NotAfter: now.Add(time.Hour), KeyUsage: x509.KeyUsageDigitalSignature, ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth}}
+	template := &x509.Certificate{SerialNumber: big.NewInt(now.UnixNano() + 1), Subject: pkix.Name{CommonName: "Owned account preview"}, DNSNames: []string{hostname}, IPAddresses: []net.IP{net.ParseIP("127.0.0.1")}, NotBefore: now.Add(-time.Minute), NotAfter: now.Add(validity), KeyUsage: x509.KeyUsageDigitalSignature, ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth}}
 	if address := net.ParseIP(hostname); address != nil {
 		template.DNSNames = nil
 		template.IPAddresses = []net.IP{address}

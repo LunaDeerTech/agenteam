@@ -23,6 +23,7 @@ import (
 
 	netfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/outbound"
 	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
+	"github.com/LunaDeerTech/agenteam/tests/testsupport/previewruntime"
 )
 
 func main()             { os.Exit(run()) }
@@ -192,7 +193,7 @@ func certificates(directory string) error {
 		return e
 	}
 	now := time.Now()
-	ca := &x509.Certificate{SerialNumber: big.NewInt(1), Subject: pkix.Name{CommonName: "D04 isolated outbound CA"}, NotBefore: now.Add(-time.Minute), NotAfter: now.Add(time.Hour), IsCA: true, BasicConstraintsValid: true, KeyUsage: x509.KeyUsageCertSign}
+	ca := &x509.Certificate{SerialNumber: big.NewInt(1), Subject: pkix.Name{CommonName: "D04 isolated outbound CA"}, NotBefore: now.Add(-time.Minute), NotAfter: now.Add(previewruntime.CertificateValidity(time.Hour)), IsCA: true, BasicConstraintsValid: true, KeyUsage: x509.KeyUsageCertSign}
 	der, e := x509.CreateCertificate(rand.Reader, ca, ca, &key.PublicKey, key)
 	if e != nil {
 		return e
@@ -201,7 +202,7 @@ func certificates(directory string) error {
 	if e != nil {
 		return e
 	}
-	server := &x509.Certificate{SerialNumber: big.NewInt(2), Subject: pkix.Name{CommonName: "fixture.test"}, DNSNames: []string{"fixture.test", "other.fixture.test"}, NotBefore: now.Add(-time.Minute), NotAfter: now.Add(time.Hour), KeyUsage: x509.KeyUsageDigitalSignature, ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth}}
+	server := &x509.Certificate{SerialNumber: big.NewInt(2), Subject: pkix.Name{CommonName: "fixture.test"}, DNSNames: []string{"fixture.test", "other.fixture.test"}, NotBefore: now.Add(-time.Minute), NotAfter: now.Add(previewruntime.CertificateValidity(time.Hour)), KeyUsage: x509.KeyUsageDigitalSignature, ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth}}
 	serverDER, e := x509.CreateCertificate(rand.Reader, server, ca, &serverKey.PublicKey, key)
 	if e != nil {
 		return e

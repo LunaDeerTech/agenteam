@@ -12,6 +12,19 @@ case "$AGENTEAM_ACCOUNT_PREVIEW_PORT" in
   *) printf '%s\n' 'AGENTEAM_ACCOUNT_PREVIEW_PORT must be 5250 or 5254.' >&2; exit 1 ;;
 esac
 export AGENTEAM_ACCOUNT_PREVIEW_PORT
+AGENTEAM_ACCOUNT_PREVIEW_LIFETIME=${AGENTEAM_ACCOUNT_PREVIEW_LIFETIME:-45m}
+case "$AGENTEAM_ACCOUNT_PREVIEW_LIFETIME" in
+  45m) AGENTEAM_ACCOUNT_PREVIEW_TEST_TIMEOUT=55m ;;
+  24h)
+    if [ "$AGENTEAM_ACCOUNT_PREVIEW_PORT" != 5254 ]; then
+      printf '%s\n' 'The 24h preview lifetime requires the dedicated public TLS port 5254.' >&2
+      exit 1
+    fi
+    AGENTEAM_ACCOUNT_PREVIEW_TEST_TIMEOUT=24h10m
+    ;;
+  *) printf '%s\n' 'AGENTEAM_ACCOUNT_PREVIEW_LIFETIME must be 45m or 24h.' >&2; exit 1 ;;
+esac
+export AGENTEAM_ACCOUNT_PREVIEW_LIFETIME AGENTEAM_ACCOUNT_PREVIEW_TEST_TIMEOUT
 if [ "$("$AGENTEAM_GO" env GOVERSION)" != go1.27.1 ]; then
   printf '%s\n' 'Go go1.27.1 is required.' >&2
   exit 1
@@ -52,7 +65,7 @@ case "$*" in
   *-test.list=*) exec "$AGENTEAM_ACCOUNT_PREVIEW_BINARY" "$@" ;;
 esac
 # Explicit preview-only override: the stock runner's integration budget stays intact.
-exec "$AGENTEAM_ACCOUNT_PREVIEW_BINARY" "$@" -test.timeout=55m
+exec "$AGENTEAM_ACCOUNT_PREVIEW_BINARY" "$@" "-test.timeout=$AGENTEAM_ACCOUNT_PREVIEW_TEST_TIMEOUT"
 WRAPPER
 chmod 700 "$AGENTEAM_ACCOUNT_PREVIEW_DIRECTORY/test-wrapper"
 AGENTEAM_ACCOUNT_PREVIEW=1

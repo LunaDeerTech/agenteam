@@ -69,7 +69,7 @@ GOMAXPROCS=2 GOFLAGS=-p=2 sh scripts/run-account-preview.sh
 
 SMTP fixture 默认只记录计数/摘要；显式 `Scenario.CaptureMessage` 才保留最后一封已完整收到且250响应实际写回的邮件。`UseLastMessage` 经已核所有权的私网与 nonce 控制通道借用正文，回调返回即清本地副本，替换清旧正文；邮件正文不进普通 State/日志，不提供生产取回接口。新浏览器验收从此真实 SMTP 正文提取一次性链接，不能将 `accepted:true` 或其他恢复渠道拼接成邮件已送达。该 sink 只证明受控 SMTP 接受，不证明外部邮箱投递。
 
-本地轮次最多45分钟，受夹具证书有效期约束；停止时创建私有目录下的 `stop` 文件，或向该目录 `launcher.pid` 对应的原脚本发 SIGTERM。脚本等原 App、SMTP、PG、MinIO 退出和精确清理；不要直接终止下层测试进程来代替资源清理。下一轮须重新启动并核实，旧 manifest 不证明服务仍在运行。
+本地轮次默认最多45分钟；仅下述独立公网实例可显式选择24小时。停止时创建私有目录下的 `stop` 文件，或向该目录 `launcher.pid` 对应的原脚本发 SIGTERM。脚本等原 App、SMTP、PG、MinIO 退出和精确清理；不要直接终止下层测试进程来代替资源清理。下一轮须重新启动并核实，旧 manifest 不证明服务仍在运行。
 
 ### IP 直连 HTTPS 18443 预览入口
 
@@ -81,11 +81,14 @@ SMTP fixture 默认只记录计数/摘要；显式 `Scenario.CaptureMessage` 才
 AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go \
 AGENTEAM_MINIO_BINARY=/task-owned/cache/minio \
 AGENTEAM_ACCOUNT_PREVIEW_PORT=5254 \
+AGENTEAM_ACCOUNT_PREVIEW_LIFETIME=24h \
 AGENTEAM_ACCOUNT_PREVIEW_ORIGIN=https://154.12.86.233:18443 \
 GOMAXPROCS=2 GOFLAGS=-p=2 sh scripts/run-account-preview.sh
 ```
 
 fixture只允许5250/5254及明确列出的HTTPS origin，公开证书的IP SAN必须匹配154.12.86.233。App始终关闭DevMode、使用Secure/HttpOnly/SameSite Cookie并严格核Host/Origin；first-chain自检直接拨本机TLS listener，但URL、SNI、Host与Cookie jar按选定origin工作并验证本轮CA。临时专用CA不受浏览器公共信任，用户访问会遇到该站点的证书提示；不修改系统信任或全局禁用证书检查。测试浏览器只信本轮精确SPKI/CA。
+
+24小时模式要求显式预览开关、端口5254与上述精确时长同时成立；脚本拒绝其他时长及本地5250延长请求。该模式将本轮页面TLS、PostgreSQL、对象、SMTP及私网outbound的专用CA/叶证书有效期设为25小时，普通fixture期限不变；测试进程预算为24小时10分钟，App在24小时后进入正常退出与精确清理。实际对外可用截止以本轮私有 `runtime.json` 的 `expires_at` 为准。环境重启、进程退出仍会提前结束预览，不代表持久部署。
 
 只有本机真实链与安全门槛通过后才创建任务唯一frp映射。以下 `--check` 只验证配置，不建立连接：
 
