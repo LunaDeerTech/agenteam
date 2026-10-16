@@ -13,7 +13,7 @@ npm ci --prefix web
 npm run dev --prefix web
 ```
 
-打开 [系统设置骨架](http://127.0.0.1:5173/system/users)。dev 默认仅监听 `127.0.0.1:5173`，端口冲突时退出；指定独立端口使用 `npm run dev --prefix web -- --port 5244`。本工程没有 `/debug` 展示页。默认dev保持 `VITE_ACCOUNT_ENABLED=false` 的静态预览；本轮账户联调在5245显式开启该变量，浏览器经真实同源TLS5250访问页面和Account API。独立dev命令不启动后端；精确运行与部署边界见[web运行说明](../../../web/README.md)，实际结果见当前状态。
+打开 [系统设置骨架](http://127.0.0.1:5173/system/users)。dev 默认仅监听 `127.0.0.1:5173`，端口冲突时退出；指定独立端口使用 `npm run dev --prefix web -- --port 5244`。本工程没有 `/debug` 展示页。默认dev保持 `VITE_ACCOUNT_ENABLED=false` 的静态预览；本轮账户联调在5245显式开启该变量，浏览器经真实同源TLS5250访问页面和Account API；提供方是长驻Go测试进程内的真实App与独立依赖，不能表述为独立cmd二进制部署。独立dev命令不启动后端；精确运行与部署边界见[web运行说明](../../../web/README.md)，实际结果见当前状态。
 
 ```sh
 npm run check --prefix web

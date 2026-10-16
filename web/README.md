@@ -19,7 +19,7 @@ npm run dev --prefix web
 VITE_ACCOUNT_ENABLED=true npm run dev --prefix web -- --port 5245
 ```
 
-浏览器访问后端owner启动的 `https://localhost:5250`；该同源TLS入口把页面转到5245、账号API接真实隔离Central。直接打开5245不代表API已配置。真实提供方入口为[run-account-preview.sh](../scripts/run-account-preview.sh)，需后端owner准备固定工具链、MinIO、独立PG和私有运行目录；按[账号harness](../tests/frontend-account-rebuild/README.md)验证nonce/证书，不使用已有外部服务或公开HTTP传递密码。运行组合以[当前状态](../.agent-state/current.md)为准。
+浏览器访问后端owner启动的 `https://localhost:5250`；同源TLS入口把页面转到5245，账号API接长驻Go测试进程内的真实App装配及独立PG/MinIO/SMTP。它不是额外启动的cmd/Central二进制部署；直接打开5245不代表API已配置。真实提供方入口为[run-account-preview.sh](../scripts/run-account-preview.sh)，需后端owner准备固定工具链、MinIO、独立PG和私有运行目录；按[账号harness](../tests/frontend-account-rebuild/README.md)验证nonce/证书，不使用已有外部服务或公开HTTP传递密码。运行组合以[当前状态](../.agent-state/current.md)为准。
 
 ## 工程与浏览器检查
 
@@ -30,13 +30,13 @@ npm run type-check --prefix web
 npm run build --prefix web
 ```
 
-`npm run check --prefix web` 依次运行格式、组件测试和 build（含 type-check）。`format` 会写文件，协作时仅格式化自己获授权的路径。`npm run preview --prefix web` 在 `127.0.0.1:4173` 检查 `web/dist/`，也可用 `-- --port <端口>` 指定独立端口。
+`npm run check --prefix web` 依次运行格式、组件测试和build（含type-check）。默认false构建用于静态框架兼容检查；本轮真实账号旅程使用 `VITE_ACCOUNT_ENABLED=true` 的5245常驻dev经TLS代理，不能把false dist称为实际业务输入。`format` 会写文件，协作时仅格式化自己获授权的路径。`npm run preview --prefix web` 在 `127.0.0.1:4173` 检查 `web/dist/`，也可用 `-- --port <端口>` 指定独立端口。
 
 账号旅程见[账号harness](../tests/frontend-account-rebuild/README.md)，共享骨架浏览器命令见[框架harness](../tests/frontend-rebuild/README.md)，实际结果与未验范围见[当前状态](../.agent-state/current.md)。旧 fixture、HTML 原型、类型检查与组件测试各有证据边界，不能相互代替。
 
 ## 远程 dev 预览
 
-下列HTTP18081配置仅用于已有静态框架预览，保持 `VITE_ACCOUNT_ENABLED=false`，不传输真实账户材料。账号公网采用本地独立TLS5254加frp TCP直透18443，固定PublicOrigin为 `https://154.12.86.233:18443`；证书含IP SAN，临时自签信任提示已告知用户。frps无需配置HTTPS/证书，也不依赖远端Nginx；现443/18081保持。该公开实例尚未启用或验证，不能当作已可访问地址；入口、响应归属、安全Cookie及真实登录旅程通过后再交付。
+下列HTTP18081配置仅用于已有静态框架预览，保持 `VITE_ACCOUNT_ENABLED=false`，不传输真实账户材料。账号公网采用本地独立TLS5254加frp TCP直透18443，固定PublicOrigin为 `https://154.12.86.233:18443`；证书含IP SAN，临时自签信任提示已告知用户。frps无需配置HTTPS/证书，也不依赖远端Nginx；现443/18081保持。实际公开状态只在[当前状态](../.agent-state/current.md)记录；入口、响应归属、安全Cookie及真实登录旅程通过后才交付。启动、停止和frp命令见[后端预览说明](../docs/development/backend/account.md)。本地5250默认45分钟；独立public5254才可显式24小时，专用依赖证书25小时，实际截止以本轮runtime的 `expires_at` 为准，进程/环境退出可能提前结束。
 
 通过已有 frp 将本地 dev 端口映射到公网时，需为 Vite 显式配置外部 hostname 和端口。例如本轮分配本地 5244、公网 18081：
 

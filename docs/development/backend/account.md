@@ -101,6 +101,8 @@ python3 /workspace/agenteam-onboarding/frp/run-preview.py \
 
 实际启动使用同一助手去掉 `--check`，继承既有代理及系统CA验证，不输出或复制FRP认证值；WSS验证的是隧道入口，页面TLS由本机应用另行提供。先核本次frp登录与代理启动，再从 `https://154.12.86.233:18443` 验证本轮identity marker、正式登录旅程、Cookie及Origin/CSRF拒绝边界，才能向用户交入口。配置通过、TCP连通或本地自检都不能代替公网验真。预览有本轮证书与资源期限；结束后依本页方法真实退出、清理或重新创建自有轮次，不把旧manifest当持续存活证明。
 
+本轮环境的管理HTTP代理会终止客户端TLS，并因不信任预览专用CA而返回上游 `CERTIFICATE_VERIFY_FAILED` 503；其为纯IP签发的DNS类型SAN也与服务端真实IP SAN不同。客户端信任或固定代理证书不能改变代理到服务端的信任策略。遇到该明确结果后保留服务与隧道，停止重复请求或扩大TLS例外；只能记录本机TLS/业务验证、frp登录/端口分配已过，公网归属及浏览器交互仍待用户直接访问验证。浏览器固定本机路由的同origin验证可证明Cookie行为，但不能替代公网验真。
+
 ## 邮箱 canonical 与 SMTP wire
 
 邮箱仍采用1–254字节的裸 ASCII addr-spec，整体小写，不 trim、去点、去 tag、IDNA 或压缩 IP 文本。令 `S` 为本次修复前正式 `NormalizeEmail` 接受的集合，现在只接受 `S ∪ lower(S)`：旧合法输入的 canonical 字节不变，并允许其完整小写结果再次输入。原 `IPv6:` literal 的小写 canonical 可往返；如 `iPv6:`、`IPV6:` 的其他标记，以及使用 `ipv6:` 标记但其他部分未全部小写等原不合法输入仍拒绝，详见[闭包修复规格](../work-items/d07-email-canonical-roundtrip.md)。

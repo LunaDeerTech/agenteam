@@ -62,7 +62,7 @@
 
 browser authority 使用匿名 `X-CSRF-Token`：login、挑战和全部 invitation/password-reset 路径。logout 与所有本人写使用 Session CSRF。两种上下文可以共存，不能因访问公开页自动注销、把 Session CSRF 用作匿名 CSRF，或重新 bootstrap 破坏未决原命令。所有实际 mutation 带不可预测 `Idempotency-Key`；challenge create/verify 与 inspect 不带幂等键。JSON 请求上限 16 KiB。
 
-请求固定同源相对路径、`credentials: 'same-origin'`、`cache: 'no-store'`，拒绝重定向与 HTML/畸形成功体，不自行设置 Cookie/Host/Origin 或身份头。精确 status、媒体类型、有限响应 body 与必要 shape 校验后才能发布成功；204 不解析 JSON。安全 Problem 使用 `code,commit_state,field_errors,retry_hint,request_id`，页面显示固定安全文案与对应字段错误，不回显 raw body、密码或底层异常。
+请求固定同源相对路径、`credentials: 'same-origin'`、`cache: 'no-store'`，拒绝重定向与 HTML/畸形成功体，不自行设置 Cookie/Host/Origin 或身份头。精确 status、媒体类型、有限响应 body 与必要 shape 校验后才能发布成功；204 不解析 JSON。安全Problem使用 `code,commit_state,field_errors,retry_hint,request_id`；`commit_state` 的四个合法值为 `not_started / not_committed / committed / unknown`，须保留服务端原值。正常认证拒绝可返回 `not_started`，不能因漏识别该值误进Unknown；缺失或非法状态的已发mutation仍按Unknown处理。后一次明确拒绝不抹掉前一次已保留的Unknown。页面显示固定安全文案与对应字段错误，不回显raw body、密码或底层异常。
 
 ## 4. 会话、请求所有权与恢复
 

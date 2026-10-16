@@ -40,3 +40,5 @@ VUE_TEST_PORT=5243 VUE_TEST_OUTPUT="$PWD/output/ai/frontend-vue-rebuild-review/c
 基础阶段历史证据：当时全部组件测试 14/14 实际通过（既有 10 项加 Input/Select/Tabs 4 项）；浏览器首链 1 项、控件 4 项及路由/目录 7 项分轮通过。路由首轮 6/7，剩余一项最初错误假定 390px 的项目导航必定溢出；实际 7 项全部容纳且页面无横溢，改用 320px 触发真实局部横滚后定向 1/1 通过。原始失败与定向结果分别保留在当轮输出目录，未删除失败或重跑无关场景。那些轮次的原 preview 子进程 close 已收集，exitCode 143，确认当时 5242 已无监听；后续运行状态须另核。
 
 本入口只证明禁用账号的预览和已实现控件。后续账号阶段的真实旅程、安全边界、完整工程检查与服务状态由账号 harness 和当前工作项记录，不能用上述基础阶段数字代替。原生缩放及整页视觉结论由独立审查者另行报告，不能把自动检查通过写成用户已接受设计。
+
+账号阶段兼容复验：复用 `85c4ac49` 产品源码的最终 `VITE_ACCOUNT_ENABLED=false` dist，仅执行 `--grep 'personal settings|remaining leaf routes|narrow system and settings'` 三个受影响场景，3/3 通过（40.1 秒）。输出保留在 `output/ai/frontend-vue-rebuild-test/account-compat-01`；原 preview 子进程记录 `closed=true, exitCode=143`，检查后 5242 无监听。其余基础场景沿用历史证据，没有重复全矩阵或把禁用预览视为真实认证通过。
