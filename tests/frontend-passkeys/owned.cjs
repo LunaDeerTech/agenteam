@@ -405,6 +405,14 @@ async function signatureBudget(page) {
       name: "添加 Passkey",
       exact: true,
     });
+    const recoverExisting = dialog.getByRole("button", {
+      name: "无法使用已有 Passkey？",
+      exact: true,
+    });
+    if (await recoverExisting.isVisible()) {
+      await recoverExisting.click();
+      result.recovered_previous_owned_credential = true;
+    }
     let previous = await readLastMail(runtime);
     await fillPrivate(
       dialog.getByLabel("当前密码", { exact: true }),
@@ -439,13 +447,17 @@ async function signatureBudget(page) {
         .credentials.length === 1,
       "NATIVE_RESIDENT_CREDENTIAL_REQUIRED",
     );
-    stage = "discoverable-login";
+    stage = "discoverable-login-logout";
     requireFact((await logout(page)) === 204, "OWNED_LOGOUT_FAILED");
+    stage = "discoverable-login-navigation";
     await page.goto(origin + "/login");
+    stage = "discoverable-login-empty-email";
     await expect(page.getByLabel("邮箱", { exact: true })).toHaveValue("");
+    stage = "discoverable-login-button";
     await page
       .getByRole("button", { name: "使用 Passkey 登录", exact: true })
       .click();
+    stage = "discoverable-login-result";
     await expect(page).toHaveURL(origin + "/");
     stage = "second-password-session";
     secondContext = await browser.newContext();
@@ -567,6 +579,18 @@ async function signatureBudget(page) {
         ? error.message
         : "OWNED_ASSERTION_FAILED");
     result.error_type = error.name;
+    if (page)
+      result.page_state = await page
+        .evaluate(() => ({
+          ready_state: document.readyState,
+          email_input_present: !!document.querySelector('input[type="email"]'),
+          passkey_button_present: Array.from(
+            document.querySelectorAll("button"),
+          ).some(
+            (button) => button.textContent?.trim() === "使用 Passkey 登录",
+          ),
+        }))
+        .catch(() => null);
     process.exitCode = 1;
   } finally {
     if (page && identityVerified)

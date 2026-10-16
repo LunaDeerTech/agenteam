@@ -72,7 +72,9 @@ function loadRuntime() {
     "OWNED_NODE_CA_REQUIRED",
   );
   fact(
-    runtime.credentials?.email?.endsWith("@example.test") &&
+    typeof runtime.credentials?.email === "string" &&
+      /^[!-~]+@[!-~]+$/.test(runtime.credentials.email) &&
+      runtime.credentials.email.length <= 254 &&
       typeof runtime.credentials.password === "string" &&
       runtime.credentials.password.length > 0,
     "OWNED_ADMIN_CREDENTIALS_REQUIRED",
@@ -478,7 +480,10 @@ async function main() {
 
     stage = "isolated-account-via-real-invitation";
     const admin = await client("setup-admin");
-    await login(admin, runtime.credentials);
+    fact(
+      (await login(admin, runtime.credentials)).user.role === "admin",
+      "OWNED_SETUP_ADMIN_REQUIRED",
+    );
     const suffix = randomBytes(6).toString("hex");
     const account = {
       email: `passkey-security-${suffix}@example.test`,
