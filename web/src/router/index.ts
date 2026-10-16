@@ -15,9 +15,34 @@ declare module "vue-router" {
   }
 }
 
-export const router = createRouter({ history: createWebHistory(), routes, scrollBehavior: () => ({ top: 0 }) });
-const reservedOwners = new Set(["system", "settings", "mcp", "api", "assets", "login", "invite", "forgot-password", "reset-password", "projects"]);
-router.beforeEach((to) => {
-  if (to.meta.projectContext && reservedOwners.has(String(to.params.owner).toLowerCase())) return { name: "not-found", params: { pathMatch: to.path.slice(1).split("/") }, replace: true };
+export const router = createRouter({
+  history: createWebHistory(),
+  routes,
+  scrollBehavior: () => ({ top: 0 }),
 });
-router.afterEach((to) => { document.title = `${to.meta.title || "agenteam"} · agenteam`; });
+const reservedOwners = new Set([
+  "system",
+  "settings",
+  "mcp",
+  "api",
+  "assets",
+  "login",
+  "invite",
+  "forgot-password",
+  "reset-password",
+  "projects",
+]);
+router.beforeEach((to) => {
+  if (
+    to.meta.projectContext &&
+    reservedOwners.has(String(to.params.owner).toLowerCase())
+  )
+    return {
+      name: "not-found",
+      params: { pathMatch: to.path.slice(1).split("/") },
+      replace: true,
+    };
+});
+router.afterEach((to) => {
+  document.title = `${to.meta.title || "agenteam"} · agenteam`;
+});

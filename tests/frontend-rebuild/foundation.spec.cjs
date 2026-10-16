@@ -1,0 +1,35 @@
+const { test, expect } = require("@playwright/test");
+
+test("system settings navigation and appearance persist across a reload", async ({ page }) => {
+  const errors = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.goto("/system/users");
+  await expect(page.getByRole("heading", { name: "用户", exact: true })).toBeVisible();
+  await expect(page.locator("[data-page-content]")).toBeEmpty();
+  const settings = page.getByRole("navigation", { name: "系统设置", exact: true });
+  await expect(settings.getByRole("link")).toHaveCount(11);
+  await settings.getByRole("link", { name: "Providers", exact: true }).click();
+  await expect(page).toHaveURL(/\/system\/providers$/);
+  await expect(page.getByRole("heading", { name: "Providers", exact: true })).toBeFocused();
+  await expect(settings.getByRole("link", { name: "Providers", exact: true })).toHaveAttribute("aria-current", "page");
+  await page.goBack();
+  await expect(page.getByRole("heading", { name: "用户", exact: true })).toBeVisible();
+  const appearance = page.getByRole("button", { name: "外观", exact: true });
+  await appearance.focus();
+  await appearance.press("ArrowDown");
+  await expect(page.getByRole("menuitemradio", { name: "浅色", exact: true })).toBeFocused();
+  await page.keyboard.press("ArrowDown");
+  await expect(page.getByRole("menuitemradio", { name: "深色", exact: true })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(appearance).toBeFocused();
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await appearance.click();
+  await page.getByRole("menuitemradio", { name: "跟随系统", exact: true }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await page.emulateMedia({ colorScheme: "dark" });
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  expect(errors).toEqual([]);
+});

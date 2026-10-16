@@ -5,11 +5,16 @@ import AppShell from "./layouts/AppShell.vue";
 import AccountShell from "./layouts/AccountShell.vue";
 
 const route = useRoute();
-watch(() => route.fullPath, async (_next, previous) => {
-  if (!previous) return;
-  await nextTick();
-  requestAnimationFrame(() => document.getElementById("page-title")?.focus({ preventScroll: true }));
-});
+watch(
+  () => route.fullPath,
+  async (_next, previous) => {
+    if (!previous) return;
+    await nextTick();
+    requestAnimationFrame(() =>
+      document.getElementById("page-title")?.focus({ preventScroll: true }),
+    );
+  },
+);
 </script>
 
 <template>

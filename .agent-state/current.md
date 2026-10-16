@@ -1,49 +1,49 @@
-# 当前状态：接续新 Vue 工程，框架与空路由实现中
+# 当前状态：接续新 Vue 工程，框架与空路由验证中
 
-2026-10-16，用户在前次明确暂停、保存并推送后要求接续。当前任务仍是未验收的 Vue 重建，不把前次 WIP、旧 HTML 或旧 Vue 的检查视为新工程通过。
+2026-10-16，用户要求从已暂停并保存的 Vue 重建继续。当前任务仍未验收；WIP、旧 HTML 和归档 Vue 的检查不证明新工程通过。
 
 ## 目标与边界
 
-- 旧 `web/` 已完整归档到 `web-crape/`，仅作历史参照。新 `web/` 从零实现，不复用旧 API 客户端、Session、权限或业务代码；后端接口按具体页面需求另行设计，本轮未做。
+- 旧 `web/` 已完整归档到 `web-crape/`，仅作历史参照。新 `web/` 从零实现，不复用旧 API 客户端、Session、权限或业务代码；后端接口按具体页面需求另行设计，本轮不做。
 - 先共享 UI、AppShell、**唯一 SettingsShell** 与全部已定路由骨架，系统设置优先。系统/个人/项目设置为 11/3/11 个叶子；未讨论正文只保留标题与空区域，不搬完整 Agent 或项目列表正文，不填虚构数据。
-- `746ddcb3` 的可运行 HTML 原型是本轮明确设计参考。须由实际运行并看过整页的 owner 报告观察；原型 PASS 不代证新工程。设计入口见[重设计说明](../docs/frontend-design/redesign/README.md)。
+- `ai/frontend-f0-refinement-20261015@746ddcb3` 的可运行 HTML 原型是本轮设计参考，目录为 `docs/frontend-design/redesign/prototype/`。实现者与独审须实际运行并观察整页；原型检查不代证新工程。设计入口见[重设计说明](../docs/frontend-design/redesign/README.md)。
 
 ## 分支、会话与文件所有权
 
-- 工作树：`/workspace/agenteam-vue-rebuild`；分支：`ai/frontend-vue-rebuild-20261016`；本次恢复输入为 `635c90dc`，原型参考为 `746ddcb3`。恢复以该远端任务分支最新提交和实际差异为准；本状态不回填自身提交号。
-- `/root` 是当前唯一协调写会话，负责全部 Git、分支、worktree、checkpoint/push 与集成。前次暂停已明确交接，本次 owners 如下。
-- 骨架、共享组件与 harness 紧耦合，本轮共用工作树并按文件保持唯一写者；跨 owner 接口变更先沟通。Git 保存持续获用户授权；本轮未经最终范围验收，不合 main、不部署。
+- 当前工作树：`/workspace/agenteam`；任务分支：`ai/frontend-vue-rebuild-20261016`。用户所指暂停点为 `635c90dc`；root 已保留远端后续 `d05bc8ab`、`ac23d6a9`，本轮从 `ac23d6a9` 接续，不回退覆盖。恢复以任务分支最新提交和实际差异为准，本状态不回填自身提交号。
+- `/root` 是当前唯一协调写会话，负责全部 Git、分支、worktree、checkpoint/push 与集成。已核对 `main@b6db5297` 治理与任务分支相同，本轮不合 main。
+- 骨架、共享组件与 harness 紧耦合，本轮共用工作树并按文件保持唯一写者；跨 owner 接口变更先沟通。Git 保存持续获用户授权；WIP 不等于正式完成或用户设计接受。
 
-| Owner | 唯一写入范围与职责 | 当前状态 |
-| --- | --- | --- |
-| `/root/vue_integration` | `web/` 工程配置、锁、入口、路由、页面与布局；安装依赖、工程检查和壳集成 | 已安装新工程依赖；完整工程检查与作者浏览器结果待报告 |
-| `/root/vue_shared_ui` | `web/src/components/ui/`、`web/src/styles/`、`web/src/composables/useTheme.ts` | 已补齐八组件导出、Input/Tabs/Select CSS、五个壳图标、Dialog 类型及菜单首开宽度；限定 Prettier 与 type-check exit 0，浏览器待验 |
-| `/root/vue_tests` | `web/tests/` 与 `tests/frontend-rebuild/`（含该目录 README） | 原有 theme/menu/dialog 三文件共 10 项（4/3/3）通过；浏览器 harness 继续实现 |
-| `/root/vue_visual_review` | 独立只读审查；可再生材料放忽略的 `output/ai/` | 分别实际查看参考原型与新 Vue，范围和结论待报告 |
-| `/root/vue_boundary_audit` | 独立只读核对 fresh 依赖/源码隔离、归档一致性与路由覆盖；无正式文件写权 | 审查结果待报告 |
-| `/root/vue_docs` | 本状态、根 AGENTS/README、前端开发文档、新 `web/README.md` 与必要设计范围更正 | 唯一正式文档与状态作者；依据源码及 owners 实际回报更新，不代跑产品检查 |
+| Owner | 唯一写入范围与职责 |
+| --- | --- |
+| `/root/vue_integration` | `web/` 工程配置、锁、入口、路由、页面与布局；依赖恢复、工程检查、壳集成、作者浏览器与预览 |
+| `/root/vue_shared_ui` | `web/src/components/ui/`、`web/src/styles/`、`web/src/composables/useTheme.ts`；组件合同及受影响检查 |
+| `/root/vue_tests` | `web/tests/` 与 `tests/frontend-rebuild/`（含该目录 README）；组件测试与浏览器 harness |
+| `/root/vue_visual_review` | 独立只读浏览器审查；可再生材料放忽略的 `output/ai/` |
+| `/root/vue_docs` | 本状态、根 AGENTS/README、前端开发文档、`web/README.md` 和授权设计入口状态；只读核对新旧隔离，不代跑产品检查 |
 
-## 已有内容与首个断点
+## 当前结果与第一个断点
 
-前次已保存独立 Vue 工程及锁、集中路由 metadata、AppShell/AccountShell/单一 SettingsShell、标题加空正文，以及共享控件和初步组件测试。旧 fixture 已显式改指 `web-crape/`；归档源码保持原版本，默认构建入口仍是新 `web/`。
+已保存独立 Vue 工程及锁、集中路由 metadata、AppShell/AccountShell/单一 SettingsShell、标题加空正文、共享控件和初步组件测试。本轮恢复依赖后继续壳集成；八控件已存在于恢复输入。首个浏览器 harness `tests/frontend-rebuild/foundation.spec.cjs` 已落盘、实际通过 1/1 首链路并冻结；完整矩阵与独审仍进行中。
 
-恢复输入尚未安装依赖，Input/Tabs/Select 未导出且缺专用样式，浏览器 `foundation.spec.cjs` 尚缺。本轮已安装新依赖并补组件接线，当前首断点转为完整工程检查、浏览器 harness 和新 Vue 独审；已有源码不等于这些门槛已通过。
+当前断点为本轮完整工程检查、浏览器首链路及新 Vue 独审；具体控件和路由覆盖须由本轮实际检查确认。前端开发文档仍有归档合同，文档 owner 正按新源码归位。
 
-## 本轮检查与资源
+## 本轮已报告检查与资源
 
-- 测试 owner 报告 Node `v24.19.0`，`npm run test:unit --prefix web` 实际 exit 0，三个既有测试文件 10/10 通过（theme 4、menu 3、dialog 3）；5242 当时无监听。Chromium 为 `151.0.7922.173`，集成 owner 已恢复 `tests/account-captcha-web/node_modules` 的 Playwright `1.56.1`。浏览器尚未据此通过。
-- UI owner 已停止本批写入；限定组件/样式 Prettier 与 `npm run type-check --prefix web` 实际 exit 0。全工程 format/build/check、完整浏览器与新 Vue 独审待对应 owner 报告；不扩大局部通过范围。
-- 边界审查初步核实 `746ddcb3:web` 与恢复输入 `635c90dc:web-crape` 的 569 个文件 blob/执行位相同，工作树归档未改；新 lock 为独立 `@agenteam/web-rebuild`，179 个 package，未发现旧业务导入。精确路由与 fixture 审查仍进行中，未给整体接受结论。
-- 原型服务 5241 归 `/root/vue_integration`；测试服务 5242 归 `/root/vue_tests`；独审服务 5243 归 `/root/vue_visual_review`；作者 Vue 服务 5244 归 `/root/vue_integration`。以上是资源分配，启动、占用与实际退出分别由 owner 核实，不能视为已经运行或清理。
-- 新工程工具链要求 Node `>=24.12.0`；依赖按新 `web/package-lock.json` 安装，不能链接归档工程的依赖。安装与可复制运行入口将归位到 [web/README](../web/README.md)；浏览器命令以[新工程 harness](../tests/frontend-rebuild/README.md)为准。
-- 原始日志、截图、dist 和缓存保留于忽略目录；源码、锁和必要 harness 随 checkpoint 保存。向用户展示截图须先使用项目约定图床上传并展示返回链接；不在仓库文档写入凭据，不将本机路径当作用户已看到图片。
+- 集成 owner 报告：Node `24.19.0`、npm `11.9.0`；`npm ci --prefix web` 与 `npm ci --prefix tests/account-captcha-web` 均 exit 0；Playwright `1.56.1`、Chromium `151.0.7922.173` 可用。新 `web` 的 type-check 与 build 通过；首轮 format-check 仅发现三个既有 unit 文件格式失败，测试 owner 正修复；完整 `check`、组件测试、作者浏览器和独审结果待各 owner 本轮报告。
+- 文档 owner 只读核对：`746ddcb3:web` 与当前 `HEAD:web-crape` 的 569 个文件 blob/执行位完全相同，工作树归档无受跟踪改动。新 lock 为独立 `@agenteam/web-rebuild`、179 个 package；当前新 `web/src` 未检出旧 client、Session、权限/API 或归档导入。精确路由与默认构建入口核对仍在进行；此为有限静态边界结论，不是业务或浏览器验收。
+- 集成 owner 已实际启动原型 5241 与新 Vue dev 5244，并报告各自 HTTP 200；npm 父进程 PID 分别为 7451/7452，日志在忽略的 `output/ai/vue-integration/`。frp 公网 18081 已报告控制连接/代理启动成功，public/local index hash 一致；公网浏览器/HMR 仍在检查，尚未完成用户预览交付。
+- 测试 owner 实际运行生产 dist 首链路 1/1 exit 0：`/system/users` → Providers → 返回 → 键盘主题切换 → 刷新持久化 → 跟随系统变色，无 pageerror；对应命令见 [harness](../tests/frontend-rebuild/README.md)。5242 preview 已 SIGTERM，报告 `closed=true / exitCode=143` 且无监听；完整矩阵与组件扩展待做。
+- 独审 owner 已实际查看 `746ddcb3` 原型的 1440×960 浅色 general、Agent 列表与 Reviewer 基本配置整页；新 Vue 尚未审，无独审通过结论。独审服务 5243 尚未启动，当前使用原型 5241。环境快照不保留进程，恢复时必须重新核实。
+- 工具链要求 Node `>=24.12.0`；依赖按新 `web/package-lock.json` 安装，不能链接归档依赖。浏览器命令以[新工程 harness](../tests/frontend-rebuild/README.md)为准；普通工程运行入口由文档 owner 补齐。
+- 日志、截图、dist 和缓存放忽略目录；源码、锁和必要 harness 随 checkpoint 保存。用户图片展示先按项目约定上传图床并使用其公网链接；凭据不入文档。用户已授权通过 frp 保留 dev 供体验，只有公网响应及页面功能验证后才提供地址。
 
 ## 下一步与保存边界
 
-1. 集成 owner 安装新依赖并核对实际 Node/npm，UI owner 完成组件合同和样式；先打通 `/system/users` 及全部已定空路由。
-2. 运行本轮必要工程/组件检查，测试 owner 完成独立端口浏览器 harness；独审分别看原型与新 Vue 的整页、交互、主题、窄屏、动效和缩放。
-3. 文档 owner 按最终源码及检查结果补齐入口、组件合同、未验项与资源退出事实；只更正现行 scope，保留历史验收事实。
-4. 有意义结果或约每 5 分钟安全边界，各 owner 报告并停止本次保存路径写入；root checkpoint/push 后再续写。WIP 保存不等于正式完成、用户设计接受或可发布。
+1. 集成 owner 完成共享壳接线与工程检查；UI owner 按实际浏览器反馈返修控件和样式。
+2. 测试 owner 运行独立端口浏览器 harness；独审分别观察 `746ddcb3` 原型与新 Vue 的整页、交互、主题、窄屏、动效和缩放。
+3. 文档 owner 按源码与实际检查归位运行入口、组件合同、范围和未验项；保留历史验收，不宣称用户已接受设计。
+4. 有意义结果或持续修改约 5 分钟的安全边界，各 owner 报告并停写本批路径，由 root checkpoint/push 后续写；本轮正式范围验收前不合 main。
 
 ## 保留的既有恢复入口
 
