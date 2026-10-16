@@ -108,13 +108,15 @@ function settingsRoutes(
     path: `${prefix}/${page.key}${scope === "project" && page.key === "skills" ? "/:skillId?" : ""}`,
     name: `${scope}-settings-${page.key}`,
     component:
-      scope !== "personal"
-        ? emptyPage
-        : page.key === "profile"
-          ? () => import("../views/ProfilePage.vue")
-          : page.key === "appearance"
-            ? () => import("../views/AppearancePage.vue")
-            : () => import("../views/PasswordPage.vue"),
+      scope === "system" && page.key === "users"
+        ? () => import("../views/system/UsersPage.vue")
+        : scope !== "personal"
+          ? emptyPage
+          : page.key === "profile"
+            ? () => import("../views/ProfilePage.vue")
+            : page.key === "appearance"
+              ? () => import("../views/AppearancePage.vue")
+              : () => import("../views/PasswordPage.vue"),
     meta: {
       title: page.title,
       settingsScope: scope,
@@ -123,7 +125,10 @@ function settingsRoutes(
       order,
       projectContext: scope === "project",
       layout: "app",
-      content: scope === "personal" ? undefined : "unimplemented",
+      content:
+        scope === "personal" || (scope === "system" && page.key === "users")
+          ? undefined
+          : "unimplemented",
     },
   }));
 }

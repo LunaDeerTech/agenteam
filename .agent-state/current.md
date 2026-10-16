@@ -1,26 +1,28 @@
-# 当前状态：新 Vue 账号与个人设置已实现，公网验真受阻
+# 当前状态：新 Vue 系统账号设置四页实施中
 
-2026-10-16。此前七页、新会话/客户端、个人设置、顶栏真实头像与设置整框布局已完成对应检查；本轮按用户反馈将深色改为中性炭灰，限定工程、配色及浏览器检查通过，仍待用户体验反馈。公开24小时App仍保留；用户直连报TLS错误后，已查明旧frp进程被SIGKILL并成僵尸，现已用独立会话恢复转发。当前环境管理代理仍拒绝上游私有CA，尚未取得公网身份标记，用户重试结果未确认；不能只将原用户错误归因代理，也不能把本机验证称为公网通过。行为和验收唯一来源为[账号合同](../docs/development/work-items/frontend-account-rebuild.md)。
+2026-10-16。用户已接受中性炭灰深色与设置整框成果，相关源码已保存推送 `cd1a5df6`。本轮明确实现系统设置的用户、待注册邀请、账号安全和SMTP四页，其他七页保持骨架；唯一行为/验收合同为[系统账号设置](../docs/development/work-items/frontend-system-account-settings.md)，此前七页与会话边界仍见[账号合同](../docs/development/work-items/frontend-account-rebuild.md)。首用户目录slice已可见并通过类型检查，完整功能与真实联调尚未完成。公开24小时App仍保留；旧frp被SIGKILL成僵尸后已独立会话恢复转发，但管理代理仍拒上游私有CA，尚无公网身份标记或用户明确重试结果。UI反馈不代证公网通过，原用户TLS错误也不能只归因代理。
 
 ## 范围、组合与所有权
 
-- 主树 `/workspace/agenteam`、分支 `ai/frontend-vue-rebuild-20261016`；账号工作起点 `c13c2db5`。此前账号业务与工程检查输入为前端 `85c4ac49`，面板复用从 `26a71d47` 接续完成；顶栏与共享头像首批保存于 `1e0dbf0a`，设置整框布局已保存于 `6214bc1d`，本轮深色试调从该输入接续。后端候选 `9dd3044c` 含S1认证错误不清Cookie与公开24小时模式，root已将后端增量集成主树。恢复以任务分支最新提交及实际差异为准，不回填本状态自身提交号，不宣称已合main。
+- 主树 `/workspace/agenteam`、分支 `ai/frontend-vue-rebuild-20261016`；账号工作起点 `c13c2db5`，本轮系统四页从已推送 `cd1a5df6` 接续。此前账号业务检查输入 `85c4ac49`、顶栏共享头像首批 `1e0dbf0a`、设置整框 `6214bc1d` 的限定结果继续保留。公开后端 `9dd3044c` 含S1修复与24小时模式；系统设置的新后端候选及owned fixture另核，不与旧公开实例混用。恢复以任务分支最新提交及实际差异为准，不回填本状态自身提交号，不宣称已合main。
 - 后端树 `/workspace/agenteam-account-backend`、分支 `ai/account-entry-backend-20261016`。root负责全部Git/worktree/checkpoint及集成；内容按唯一路径owner维护，执行者不做Git写。
-- 新 `web/` 的client/session/权限和页面独立编写，不导入、复制或包裹 `web-crape/`。后端成熟密码学、CSRF、事务和领域规则保留；七页为login/invite/forgot/reset与profile/appearance/password。不增加开放注册、MFA、设备管理、邮箱修改或邀请管理；其他未讨论业务正文仍为骨架。
-- 用户已确定登录与找回密码共用同一AccountShell面板模板，含官方Logo、标题、当前表单及居中轻边框/克制阴影；设置仍用宽页头、左对齐开放表单和唯一SettingsShell，外层设置框与导航/正文整体收窄居中。[此前找回密码面板原图](https://img.lunadeer.cn/i/2026/10/16/6ad1c0e89dd92.png)已上传约定图床并匿名下载校验一致。顶栏“个人设置”只在右上菜单内，触发器显示当前身份已保存头像或默认占位。本轮仅试调深色的中性炭灰与柔和层次，内部审查通过不等于用户最终审美接受。
+- 新 `web/` 的client/session/权限和页面独立编写，不导入、复制或包裹 `web-crape/`。后端成熟密码学、CSRF、事务和领域规则保留。此前七页为login/invite/forgot/reset与profile/appearance/password；本轮新增已获授权的四项系统管理内容，不增加开放注册、MFA、设备管理、邮箱修改、用户角色切换/禁用/删除，其他业务正文仍为骨架。
+- 用户已确定登录与找回密码共用同一AccountShell面板模板，含官方Logo、标题、当前表单及居中轻边框/克制阴影；设置用宽页头、左对齐开放表单和唯一SettingsShell，整框居中及中性炭灰已获用户接受。[此前找回密码面板原图](https://img.lunadeer.cn/i/2026/10/16/6ad1c0e89dd92.png)已上传并校验。顶栏“个人设置”只在右上菜单内，触发器显示当前身份已保存头像或默认占位；本轮沿此基准接入四页内容。
 
 | Owner | 唯一职责 |
 | --- | --- |
-| `/root/account_contract` | 本状态、账号合同、前端说明及授权当前范围入口；本批冻结后由root保存。 |
-| `/root/vue_integration` | 新 `web/src/` 与工程配置/共享UI；本轮源码与作者检查完成并停写，保留dev进程。 |
+| `/root/account_contract` | 本状态、新系统合同与必要说明；本批冻结后由root保存。 |
+| `/root/vue_integration` | 用户/邀请页面与唯一共享client、Session/transport、路由接线；首用户slice已冻结，其余继续实施。 |
+| `/root/account_contract/system_api_surface` | 账号安全/SMTP两页及专属API模块，复用共享owner；不参与自身独审。 |
 | `/root/account_backend` | 独立后端树的account/API/装配、后端说明、真实服务与frp；当前服务保留。 |
-| `/root/vue_tests` | 新账号unit/浏览器harness与测试README；此前头像回归已完成，本轮配色不新增unit或业务重跑。 |
-| `/root/vue_visual_review` | 未参与实现的安全、视觉与交互独审；本轮深色配色与meta接线有限检查通过，浏览器已退出。 |
+| `/root/vue_tests` | 系统四页必要harness/测试与恢复说明；首用户browser源已加载，等待独立真实fixture。 |
+| `/root/vue_visual_review` | 未参与实现的视觉、交互与适用安全独审；待四页候选可操作后限定检查。 |
 
 ## 已打通的流程与检查边界
 
-- 本轮仅改 `web/src/styles/tokens.css` 的dark语义色、`web/src/composables/useTheme.ts` 的浏览器主题色映射及 `web/index.html` 的meta。深色改中性炭灰，浅色、布局与业务保持；独审发现此前HTML缺theme-color，补标签后才具备实际更新目标。最终三源限定Prettier、build（含vue-tsc）及差量检查通过；实际DOM确认唯一meta随dark→light→dark更新，未称headless已验证原生浏览器栏像素。
-- 深色有限独审使用5245受控合成只读身份，实际查看1440同输入前后、390深色、两尺寸菜单及焦点/hover：层次可辨、无横溢，键盘菜单与Esc回焦通过；本轮token对比度辅助检查亦通过。作者另看1440浅色，dark块外CSS逐字保持。无真实admin或SMTP操作，未重跑unit、业务或完整布局矩阵，浏览器均已退出。[中性炭灰原图](https://img.lunadeer.cn/i/2026/10/16/6ad1caedf1ecd.png)已上传并匿名下载校验字节一致，仍待用户实看。
+- 本轮首WIP为用户目录及共享system请求/游标接线：transport/session、system requests/useCursorList/directory、UsersPage和路由七源已冻结，作者type-check通过。`system-account.spec.ts`三项为2过1失败：请求limit10却接受11项，待修；独审合成四组合无横溢，但最后页禁用分页按钮后焦点落BODY/缺播报、完整UTC时间不可达也待修。`system-owned.cjs`与`system-users.spec.cjs`的`--list`加载1项通过，未执行真实browser。邀请与账号安全/SMTP仍在实施；后端正将已提交写后读取失败标为committed，成功DTO不变，新隔离owned fixture待就绪。首链目标是目录→受控邀请→既有邀请兑换→目录刷新，可见页面/加载成功不代证业务通过。
+- 此前深色仅改 `web/src/styles/tokens.css` 的dark语义色、`web/src/composables/useTheme.ts` 的浏览器主题色映射及 `web/index.html` 的meta。独审发现此前HTML缺theme-color，补标签后才具备实际更新目标。最终三源限定Prettier、build（含vue-tsc）及差量检查通过；实际DOM确认唯一meta随dark→light→dark更新，未称headless已验证原生浏览器栏像素。
+- 此前深色有限独审使用5245受控合成只读身份，实际查看1440同输入前后、390深色、两尺寸菜单及焦点/hover：层次可辨、无横溢，键盘菜单与Esc回焦通过；token对比度辅助检查亦通过。作者另看1440浅色，dark块外CSS逐字保持，无真实admin或SMTP操作，未重跑unit/业务/完整布局矩阵，浏览器均已退出。[中性炭灰原图](https://img.lunadeer.cn/i/2026/10/16/6ad1caedf1ecd.png)已上传并匿名下载校验一致，用户现已接受。
 - 此前设置整框仅改 `web/src/layouts/AppShell.vue`：按settings路由约束完整内容框最大1200px并居中，桌面外侧留白48px、中等宽32px、窄屏沿原5px；SettingsShell填满框内且内部标题/表单继续左齐，项目设置的项目导航随框收口，其他页面仍全宽。仅收窄内部的旧候选已被用户否定并撤回，SettingsShell相对基线无差异。限定Prettier、build（含vue-tsc）及差量格式检查通过，未新增unit或重跑业务旅程。
 - 此前整框修正版独审实际查看profile的1440/1920浅色、390浅深及系统1440浅色/项目1920深色6整页：完整框1200px且左右对称，目录贴框内边缘；390框380px、正文x25且无横溢。作者另验普通projects保持全宽、390目录Esc回焦；此前候选的原生200%和键盘结果仅按未变窄屏几何复用，未声称新版全矩阵重跑。检查均用5245受控合成只读身份，无真实admin或SMTP操作；浏览器已退出。[修正版设置外框原图](https://img.lunadeer.cn/i/2026/10/16/6ad1c8a9d9a0c.png)已上传并匿名下载校验字节一致，无该次布局阻断。
 - 此前顶栏产品差量为 `web/src/account/avatar.ts`、`image.ts`、`components/account/AvatarEditor.vue`、`AccountActions.vue`、`layouts/AppShell.vue`。顶栏去除独立个人入口，菜单显示共享的已保存头像；首次认证后读取Profile与受保护图片，资料页候选预览独立。PUT确认后更新共享显示，DELETE204立即清图、后续重读取新版本，旧版本不能复活已删图；同身份Session重验保留Blob，身份代际改变即撤销。读取继续共用账号owner及原容器/尺寸/hash/ETag校验。
@@ -60,7 +62,7 @@ SMTP仅连接本任务私有sink，邀请/重置正文链已验证，不代表�
 
 ## 保存与下一步
 
-本轮深色试调源码与必要文档由各owner冻结后交root保存/推送，不等于用户最终视觉接受、main或生产发布。后续接收用户对中性炭灰的体验反馈，不重复已完成检查。公网修复只确认恢复持久转发，仍待用户重试或其他获授权路径取得公网身份标记及真实登录结果；当前UI反馈不代证公网通过。恢复需同时核非Z进程状态、PID起始ticks/会话身份、实际监听/转发和24小时资源/证书期限，不能只用PID存在或旧启动日志判定存活。用户图片继续先上传图床并提供原图链接。
+本轮系统四页按新合同持续实施；首稳定源码、测试加载入口和文档由各owner冻结后交root保存/推送，WIP不等于四页完成、main或生产发布。下一结果是隔离真实用户/邀请首链，以及安全/SMTP页面可联调候选。系统全局配置写在独立测试实例执行，不改用户试用实例。公网仍待身份标记及真实登录结果；当前UI反馈不代证公网通过。恢复需核非Z状态、PID起始ticks/会话、实际监听/转发和24小时资源/证书期限，不能只凭PID存在或旧日志。用户图片继续先上传图床并提供原图链接。
 
 ## 保留的既有恢复入口
 

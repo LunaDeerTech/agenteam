@@ -31,6 +31,7 @@ export interface AccountRequest {
   current?: () => boolean;
   binary?: boolean;
   status?: number;
+  query?: Readonly<Record<string, string | number | undefined>>;
 }
 
 export interface AccountImage {
@@ -76,6 +77,18 @@ async function sendAccount<T>(
   if (!path.startsWith("/") || path.includes("?") || path.includes("#"))
     throw new AccountError("INVALID_REQUEST");
   const method = options.method ?? "GET";
+  const query = new URLSearchParams();
+  for (const [name, value] of Object.entries(options.query ?? {})) {
+    if (value === undefined) continue;
+    if (
+      method !== "GET" ||
+      !/^[a-z][a-z0-9_]*$/.test(name) ||
+      String(value).length > 8192
+    )
+      throw new AccountError("INVALID_REQUEST");
+    query.set(name, String(value));
+  }
+  const suffix = query.size ? `?${query.toString()}` : "";
   if (
     typeof options.body === "string" &&
     new TextEncoder().encode(options.body).length > 16384
@@ -95,7 +108,7 @@ async function sendAccount<T>(
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), 20000);
   try {
-    const response = await fetch(`${apiBase}${path}`, {
+    const response = await fetch(`${apiBase}${path}${suffix}`, {
       method,
       headers,
       body: options.body,

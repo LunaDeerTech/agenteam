@@ -291,6 +291,9 @@ export function sessionCommand<T>(
   validate?: (value: unknown) => value is T,
 ): AccountCommand<T> {
   const context = authenticatedContext();
+  const identityCurrent = context.current;
+  context.current = () =>
+    identityCurrent() && (!options.current || options.current());
   return command(
     path,
     options,
