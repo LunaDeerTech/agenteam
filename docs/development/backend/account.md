@@ -45,7 +45,7 @@ keyring 占位值故意无效；部署须独立生成随机 32-byte 材料并使
 | `/system/users`、`/system/invitations*`、`/system/account-settings` | 当前管理员列表、邀请/重发/撤销与账户安全设置 |
 | `/system/smtp*`、`/system/mail-jobs*` | 当前管理员 SMTP 配置/取消配置/测试、安全任务状态与人工重试 |
 
-非 Dev 模式的 Host 必须匹配规范化 PublicOrigin，非安全方法要求同源 Origin；两种模式的浏览器/Session 写请求均验证相应 `X-CSRF-Token`。非 Dev 模式的 HTTPS Cookie 为 `__Host-agenteam_session` / `__Host-agenteam_browser`，`HttpOnly; Secure; SameSite=Lax; Path=/` 且无 Domain；本地 HTTP 或 Dev 模式使用非 Secure 的 `agenteam_local_*`，其余 Cookie 属性相同。每次当前身份/权限检查不被历史 receipt 或 cursor 替代；业务命令沿 OpenAPI 带幂等键和版本，拒绝未知字段。公共 HTTP middleware 由根只包装一次，响应、Problem 与日志使用同一 request ID。
+非 Dev 模式的 Host 必须匹配规范化 PublicOrigin，非安全方法要求同源 Origin；两种模式的浏览器/Session 写请求均验证相应 `X-CSRF-Token`。非 Dev 模式的 HTTPS Cookie 为 `__Host-agenteam_session` / `__Host-agenteam_browser`，`HttpOnly; Secure; SameSite=Lax; Path=/` 且无 Domain；本地 HTTP 或 Dev 模式使用非 Secure 的 `agenteam_local_*`，其余 Cookie 属性相同。普通认证失败均不改写Session Cookie，避免另一标签页已登录后迟到GET或写请求401误删新Cookie；显式logout成功仍清Cookie，login/change-password成功仍换发Cookie，无效Session仍按服务端当前事实拒绝。每次当前身份/权限检查不被历史 receipt 或 cursor 替代；业务命令沿 OpenAPI 带幂等键和版本，拒绝未知字段。公共 HTTP middleware 由根只包装一次，响应、Problem 与日志使用同一 request ID。
 
 email 只读，本人可改 username/display_name/theme；username 按当前 DB 映射解析，改名后旧路径失效且无 alias。头像接单一原始 JPEG/PNG/WebP body，最多 5 MiB、边长 4096、总像素 16,777,216，拒动画/SVG/GIF、截断和尾随拼接；保持比例缩至 512×512 内、不放大，白底合成并重编码 JPEG，丢弃原元数据。命令摘要绑定完整原始 bytes，不能用重编码后的 SHA 替代输入语义。
 
@@ -70,6 +70,33 @@ GOMAXPROCS=2 GOFLAGS=-p=2 sh scripts/run-account-preview.sh
 SMTP fixture 默认只记录计数/摘要；显式 `Scenario.CaptureMessage` 才保留最后一封已完整收到且250响应实际写回的邮件。`UseLastMessage` 经已核所有权的私网与 nonce 控制通道借用正文，回调返回即清本地副本，替换清旧正文；邮件正文不进普通 State/日志，不提供生产取回接口。新浏览器验收从此真实 SMTP 正文提取一次性链接，不能将 `accepted:true` 或其他恢复渠道拼接成邮件已送达。该 sink 只证明受控 SMTP 接受，不证明外部邮箱投递。
 
 本地轮次最多45分钟，受夹具证书有效期约束；停止时创建私有目录下的 `stop` 文件，或向该目录 `launcher.pid` 对应的原脚本发 SIGTERM。脚本等原 App、SMTP、PG、MinIO 退出和精确清理；不要直接终止下层测试进程来代替资源清理。下一轮须重新启动并核实，旧 manifest 不证明服务仍在运行。
+
+### IP 直连 HTTPS 18443 预览入口
+
+本轮公开入口固定为 `https://154.12.86.233:18443`。IP已由域名DNS及现有18081公网页面内容一致性核实。采用浏览器TLS → frp TCP18443 → 本机TLS5254直通，不需要修改服务器Nginx或配置服务器证书；原443应用、`/~!frp`及18081纯前端预览保持。公网实例使用独立任务数据库、对象及SMTP资源，本地5250联调不会被重启或更换PUBLIC_ORIGIN。
+
+公网实例的显式启动输入如下；这只准备本机服务，不建立公网映射：
+
+```sh
+AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go \
+AGENTEAM_MINIO_BINARY=/task-owned/cache/minio \
+AGENTEAM_ACCOUNT_PREVIEW_PORT=5254 \
+AGENTEAM_ACCOUNT_PREVIEW_ORIGIN=https://154.12.86.233:18443 \
+GOMAXPROCS=2 GOFLAGS=-p=2 sh scripts/run-account-preview.sh
+```
+
+fixture只允许5250/5254及明确列出的HTTPS origin，公开证书的IP SAN必须匹配154.12.86.233。App始终关闭DevMode、使用Secure/HttpOnly/SameSite Cookie并严格核Host/Origin；first-chain自检直接拨本机TLS listener，但URL、SNI、Host与Cookie jar按选定origin工作并验证本轮CA。临时专用CA不受浏览器公共信任，用户访问会遇到该站点的证书提示；不修改系统信任或全局禁用证书检查。测试浏览器只信本轮精确SPKI/CA。
+
+只有本机真实链与安全门槛通过后才创建任务唯一frp映射。以下 `--check` 只验证配置，不建立连接：
+
+```sh
+python3 /workspace/agenteam-onboarding/frp/run-preview.py \
+  --server-addr mcpc-terra.lunadeer.cn --server-port 443 \
+  --local-port 5254 --remote-port 18443 \
+  --name account-preview-20261016 --check
+```
+
+实际启动使用同一助手去掉 `--check`，继承既有代理及系统CA验证，不输出或复制FRP认证值；WSS验证的是隧道入口，页面TLS由本机应用另行提供。先核本次frp登录与代理启动，再从 `https://154.12.86.233:18443` 验证本轮identity marker、正式登录旅程、Cookie及Origin/CSRF拒绝边界，才能向用户交入口。配置通过、TCP连通或本地自检都不能代替公网验真。预览有本轮证书与资源期限；结束后依本页方法真实退出、清理或重新创建自有轮次，不把旧manifest当持续存活证明。
 
 ## 邮箱 canonical 与 SMTP wire
 

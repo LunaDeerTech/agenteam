@@ -181,9 +181,10 @@ func (h *accountHTTP) httpDispatch(w http.ResponseWriter, r *http.Request, route
 	}
 	route.serve(w, r, input)
 }
-func (h *accountHTTP) httpProblem(w http.ResponseWriter, r *http.Request, e error, session bool) {
-	if session && (hasFaultCode(e, foundation.Unauthenticated) || hasFaultCode(e, foundation.SessionRevoked)) {
-		h.csrf.csrfClearSession(w)
-	}
+func (h *accountHTTP) httpProblem(w http.ResponseWriter, r *http.Request, e error, _ bool) {
+	// A delayed error response may belong to a Session that another tab has
+	// already replaced. Browsers apply Set-Cookie before the client can reject
+	// that stale response. Only explicit successful session commands mutate
+	// cookies; retaining an invalid cookie never makes its Session valid.
 	httpProblem(w, r, e)
 }

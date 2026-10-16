@@ -274,17 +274,25 @@ func TestHTTPBoundaryZeroAndSafeProblem(t *testing.T) {
 		}
 	}
 	for _, code := range []f.Code{f.Unauthenticated, f.SessionRevoked, f.Forbidden, f.CommitUnknown} {
-		w := httptest.NewRecorder()
-		r := httptest.NewRequest("GET", "https://example.test/private-material?value=secret", nil)
-		b.WriteProblem(w, r, f.NewFault(code, f.NotStarted))
-		cleared := len(w.Result().Cookies()) > 0
-		if cleared != (code == f.Unauthenticated || code == f.SessionRevoked) {
-			t.Fatal("wrong cookie clearing")
-		}
-		var p httpapi.Problem
-		_ = json.Unmarshal(w.Body.Bytes(), &p)
-		if p.Instance != "/api/v1" {
-			t.Fatal("path reflected")
+		for _, method := range []string{http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodPost} {
+			w := httptest.NewRecorder()
+			r := httptest.NewRequest(method, "https://example.test/private-material?value=secret", nil)
+			b.WriteProblem(w, r, f.NewFault(code, f.NotStarted))
+			cleared := len(w.Result().Cookies()) > 0
+			if cleared {
+				t.Fatal("an error response mutated the Session cookie")
+			}
+			if method == http.MethodHead {
+				if w.Body.Len() != 0 {
+					t.Fatal("HEAD Problem returned a body")
+				}
+				continue
+			}
+			var p httpapi.Problem
+			_ = json.Unmarshal(w.Body.Bytes(), &p)
+			if p.Instance != "/api/v1" {
+				t.Fatal("path reflected")
+			}
 		}
 	}
 }

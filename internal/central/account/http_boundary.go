@@ -87,9 +87,8 @@ func (b *HTTPBoundary) RequireSystem(r *http.Request, intent identity.AccessInte
 }
 
 func (b *HTTPBoundary) WriteProblem(w http.ResponseWriter, r *http.Request, err error) {
-	if b != nil && b.csrf.sessionName != "" && (hasFaultCode(err, foundation.Unauthenticated) || hasFaultCode(err, foundation.SessionRevoked)) {
-		b.csrf.csrfClearSession(w)
-	}
+	// Errors from any consumer can arrive after another tab has replaced its
+	// Session. Never erase the current browser cookie from an error response.
 	// The old projector needs nonnil request/URL values. Keep the caller's
 	// context (and request ID), but never project its path or query.
 	copyRequest := http.Request{}

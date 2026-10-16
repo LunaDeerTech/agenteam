@@ -6,6 +6,12 @@ cd "$(dirname "$0")/.."
 AGENTEAM_GO=${AGENTEAM_GO:-/workspace/toolchains/go1.27.1/bin/go}
 GOTOOLCHAIN=local
 export AGENTEAM_GO GOTOOLCHAIN
+AGENTEAM_ACCOUNT_PREVIEW_PORT=${AGENTEAM_ACCOUNT_PREVIEW_PORT:-5250}
+case "$AGENTEAM_ACCOUNT_PREVIEW_PORT" in
+  5250|5254) ;;
+  *) printf '%s\n' 'AGENTEAM_ACCOUNT_PREVIEW_PORT must be 5250 or 5254.' >&2; exit 1 ;;
+esac
+export AGENTEAM_ACCOUNT_PREVIEW_PORT
 if [ "$("$AGENTEAM_GO" env GOVERSION)" != go1.27.1 ]; then
   printf '%s\n' 'Go go1.27.1 is required.' >&2
   exit 1

@@ -65,11 +65,27 @@ func TestAccountPreviewFixture(t *testing.T) {
 	}
 	nonce, err := pgfixture.RandomHex(16)
 	previewCheck(t, "nonce", err)
-	const origin = "https://localhost:5250"
-	listener, err := net.Listen("tcp", "127.0.0.1:5250")
+	port := os.Getenv("AGENTEAM_ACCOUNT_PREVIEW_PORT")
+	if port == "" {
+		port = "5250"
+	}
+	if port != "5250" && port != "5254" {
+		t.Fatal("preview TLS port must be 5250 or 5254")
+	}
+	localOrigin := "https://localhost:" + port
+	origin := os.Getenv("AGENTEAM_ACCOUNT_PREVIEW_ORIGIN")
+	if origin == "" {
+		origin = localOrigin
+	}
+	if origin != localOrigin && origin != "https://mcpc-terra.lunadeer.cn:18443" && origin != "https://154.12.86.233:18443" {
+		t.Fatal("preview origin is not an explicitly supported HTTPS endpoint")
+	}
+	originURL, err := url.Parse(origin)
+	previewCheck(t, "preview origin", err)
+	listener, err := net.Listen("tcp", net.JoinHostPort("127.0.0.1", port))
 	previewCheck(t, "owned TLS listener", err)
 	t.Cleanup(func() { _ = listener.Close() })
-	certificate, spki, certFile := previewCertificate(t, private)
+	security := previewCertificate(t, private, originURL.Hostname())
 
 	// PG certificates are deliberately short lived. End this owned round before
 	// their one-hour expiry; a subsequent preview creates fresh resources.
@@ -166,10 +182,10 @@ func TestAccountPreviewFixture(t *testing.T) {
 	}
 	server := &http.Server{
 		ReadHeaderTimeout: 5 * time.Second,
-		TLSConfig:         &tls.Config{Certificates: []tls.Certificate{certificate}, MinVersion: tls.VersionTLS12},
+		TLSConfig:         &tls.Config{Certificates: []tls.Certificate{security.Certificate}, MinVersion: tls.VersionTLS12},
 		ErrorLog:          log.New(io.Discard, "", 0),
 		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if r.Host != "localhost:5250" {
+			if r.Host != originURL.Host {
 				http.Error(w, "preview host unavailable", http.StatusMisdirectedRequest)
 				return
 			}
@@ -203,10 +219,12 @@ func TestAccountPreviewFixture(t *testing.T) {
 			t.Error("preview TLS server did not return its closed state")
 		}
 	})
-	previewFirstChain(t, ctx, origin, certificate, credentials)
+	previewFirstChain(t, ctx, origin, listener.Addr().String(), security.CA, credentials)
 	manifest := map[string]any{
-		"origin": origin, "certificate_spki": spki, "certificate_file": certFile,
-		"nonce": nonce, "credentials": credentials, "recovery_log": cfg.AccountRecoveryLog(),
+		"origin": origin, "certificate_spki": security.SPKI, "certificate_file": security.CertificateFile,
+		"certificate_ca_file": security.CAFile,
+		"local_tls_address":   listener.Addr().String(),
+		"nonce":               nonce, "credentials": credentials, "recovery_log": cfg.AccountRecoveryLog(),
 		"stop_file": filepath.Join(private, "stop"), "expires_at": time.Now().Add(44 * time.Minute).UTC(),
 		"smtp_control": "http://" + net.JoinHostPort(smtp.PrivateIP, "9000"), "smtp_nonce": smtp.Nonce,
 		"smtp_endpoint_id": endpoint.ID, "database_fixture": os.Getenv(pgfixture.Env), "database_name": db.Name,
@@ -214,9 +232,14 @@ func TestAccountPreviewFixture(t *testing.T) {
 	raw, err := json.Marshal(manifest)
 	previewCheck(t, "private manifest encoding", err)
 	defer clear(raw)
-	previewCheck(t, "private manifest", os.WriteFile(filepath.Join(private, "runtime.json"), raw, 0600))
-	t.Cleanup(func() { _ = os.Remove(filepath.Join(private, "runtime.json")) })
-	t.Log("preview ready: production bootstrap/login/session/me, TLS and Secure Cookies verified; controlled SMTP configured")
+	manifestFile := filepath.Join(private, "runtime.json")
+	t.Cleanup(func() {
+		_ = os.Remove(manifestFile)
+		_ = os.Remove(manifestFile + ".tmp")
+	})
+	previewCheck(t, "private manifest", os.WriteFile(manifestFile+".tmp", raw, 0600))
+	previewCheck(t, "private manifest publication", os.Rename(manifestFile+".tmp", manifestFile))
+	t.Log("preview ready: production bootstrap/login/session/me/logout, anonymous/CSRF rejection, TLS and Secure Cookies verified; controlled SMTP configured")
 	select {
 	case <-ctx.Done():
 	case <-rootDone:
@@ -305,13 +328,30 @@ func previewConfigureSMTP(t *testing.T, ctx context.Context, cfg config.Config, 
 	previewCheck(t, "SMTP configure", err)
 }
 
-func previewCertificate(t *testing.T, directory string) (tls.Certificate, string, string) {
+type previewTLS struct {
+	Certificate                   tls.Certificate
+	CA                            *x509.Certificate
+	SPKI, CertificateFile, CAFile string
+}
+
+func previewCertificate(t *testing.T, directory, hostname string) previewTLS {
 	t.Helper()
+	caKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	previewCheck(t, "TLS CA key", err)
 	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	previewCheck(t, "TLS key", err)
 	now := time.Now()
-	template := &x509.Certificate{SerialNumber: big.NewInt(now.UnixNano()), Subject: pkix.Name{CommonName: "Owned account preview"}, DNSNames: []string{"localhost"}, IPAddresses: []net.IP{net.ParseIP("127.0.0.1")}, NotBefore: now.Add(-time.Minute), NotAfter: now.Add(time.Hour), KeyUsage: x509.KeyUsageDigitalSignature, ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth}}
-	der, err := x509.CreateCertificate(rand.Reader, template, template, &key.PublicKey, key)
+	caTemplate := &x509.Certificate{SerialNumber: big.NewInt(now.UnixNano()), Subject: pkix.Name{CommonName: "Owned account preview CA"}, NotBefore: now.Add(-time.Minute), NotAfter: now.Add(time.Hour), IsCA: true, BasicConstraintsValid: true, KeyUsage: x509.KeyUsageCertSign | x509.KeyUsageCRLSign}
+	caDER, err := x509.CreateCertificate(rand.Reader, caTemplate, caTemplate, &caKey.PublicKey, caKey)
+	previewCheck(t, "TLS CA certificate", err)
+	ca, err := x509.ParseCertificate(caDER)
+	previewCheck(t, "TLS CA parse", err)
+	template := &x509.Certificate{SerialNumber: big.NewInt(now.UnixNano() + 1), Subject: pkix.Name{CommonName: "Owned account preview"}, DNSNames: []string{hostname}, IPAddresses: []net.IP{net.ParseIP("127.0.0.1")}, NotBefore: now.Add(-time.Minute), NotAfter: now.Add(time.Hour), KeyUsage: x509.KeyUsageDigitalSignature, ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth}}
+	if address := net.ParseIP(hostname); address != nil {
+		template.DNSNames = nil
+		template.IPAddresses = []net.IP{address}
+	}
+	der, err := x509.CreateCertificate(rand.Reader, template, ca, &key.PublicKey, caKey)
 	previewCheck(t, "TLS certificate", err)
 	keyDER, err := x509.MarshalPKCS8PrivateKey(key)
 	previewCheck(t, "TLS key encoding", err)
@@ -326,19 +366,32 @@ func previewCertificate(t *testing.T, directory string) (tls.Certificate, string
 	certificate.Leaf = parsed
 	path := filepath.Join(directory, "certificate.pem")
 	previewCheck(t, "TLS certificate file", os.WriteFile(path, certPEM, 0600))
+	caPath := filepath.Join(directory, "certificate-ca.pem")
+	previewCheck(t, "TLS CA file", os.WriteFile(caPath, pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: caDER}), 0600))
 	sum := sha256.Sum256(parsed.RawSubjectPublicKeyInfo)
-	return certificate, base64.StdEncoding.EncodeToString(sum[:]), path
+	return previewTLS{Certificate: certificate, CA: ca, SPKI: base64.StdEncoding.EncodeToString(sum[:]), CertificateFile: path, CAFile: caPath}
 }
 
-func previewFirstChain(t *testing.T, ctx context.Context, origin string, certificate tls.Certificate, credential previewCredential) {
+func previewFirstChain(t *testing.T, ctx context.Context, origin, localAddress string, ca *x509.Certificate, credential previewCredential) {
 	t.Helper()
 	trust := x509.NewCertPool()
-	trust.AddCert(certificate.Leaf)
-	transport := &http.Transport{Proxy: nil, TLSClientConfig: &tls.Config{RootCAs: trust, MinVersion: tls.VersionTLS12}}
+	trust.AddCert(ca)
+	originURL, err := url.Parse(origin)
+	previewCheck(t, "first-chain origin", err)
+	// The public-origin candidate remains entirely local until its separate
+	// public proxy is enabled. URL authority, SNI, certificate verification and
+	// the Secure Cookie jar still use the exact configured browser origin.
+	transport := &http.Transport{Proxy: nil, TLSClientConfig: &tls.Config{RootCAs: trust, MinVersion: tls.VersionTLS12}, DialContext: func(ctx context.Context, network, address string) (net.Conn, error) {
+		if address != originURL.Host {
+			return nil, errors.New("preview first chain refused a different upstream")
+		}
+		return (&net.Dialer{}).DialContext(ctx, network, localAddress)
+	}}
 	defer transport.CloseIdleConnections()
 	jar, err := cookiejar.New(nil)
 	previewCheck(t, "Cookie jar", err)
-	client := &http.Client{Transport: transport, Jar: jar, Timeout: 20 * time.Second}
+	client := &http.Client{Transport: transport, Jar: jar, Timeout: 20 * time.Second, CheckRedirect: func(_ *http.Request, _ []*http.Request) error { return http.ErrUseLastResponse }}
+	var sawBrowserCookie, sawSessionCookie bool
 	request := func(method, path string, body any, csrf string, want int) map[string]any {
 		var reader io.Reader
 		if body != nil {
@@ -370,6 +423,10 @@ func previewFirstChain(t *testing.T, ctx context.Context, origin string, certifi
 			if strings.HasPrefix(cookie.Name, "__Host-") && (!cookie.Secure || !cookie.HttpOnly || cookie.Path != "/" || cookie.Domain != "") {
 				t.Fatal("production Cookie attributes missing")
 			}
+			if cookie.Value != "" {
+				sawBrowserCookie = sawBrowserCookie || cookie.Name == "__Host-agenteam_browser"
+				sawSessionCookie = sawSessionCookie || cookie.Name == "__Host-agenteam_session"
+			}
 		}
 		if want == http.StatusNoContent {
 			return nil
@@ -378,17 +435,24 @@ func previewFirstChain(t *testing.T, ctx context.Context, origin string, certifi
 		previewCheck(t, "HTTP response decoding", json.NewDecoder(io.LimitReader(response.Body, 1<<20)).Decode(&result))
 		return result
 	}
+	request(http.MethodGet, "/api/v1/session", nil, "", http.StatusUnauthorized)
 	bootstrap := request(http.MethodGet, "/api/v1/auth/bootstrap", nil, "", http.StatusOK)
 	csrf, ok := bootstrap["csrf_token"].(string)
 	if !ok || csrf == "" {
 		t.Fatal("anonymous CSRF missing")
 	}
+	request(http.MethodPost, "/api/v1/sessions/login", credential, "", http.StatusForbidden)
 	request(http.MethodPost, "/api/v1/sessions/login", credential, csrf, http.StatusOK)
 	session := request(http.MethodGet, "/api/v1/session", nil, "", http.StatusOK)
 	request(http.MethodGet, "/api/v1/me", nil, "", http.StatusOK)
+	request(http.MethodPatch, "/api/v1/me", map[string]string{"display_name": "Rejected preview change"}, "", http.StatusForbidden)
+	if !sawBrowserCookie || !sawSessionCookie {
+		t.Fatal("production browser and session Cookies were not both issued")
+	}
 	csrf, ok = session["csrf_token"].(string)
 	if !ok || csrf == "" {
 		t.Fatal("session CSRF missing")
 	}
 	request(http.MethodPost, "/api/v1/sessions/logout", struct{}{}, csrf, http.StatusNoContent)
+	request(http.MethodGet, "/api/v1/session", nil, "", http.StatusUnauthorized)
 }
