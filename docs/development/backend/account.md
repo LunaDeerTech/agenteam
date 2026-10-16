@@ -59,7 +59,7 @@ Account/Mail 初始化、bootstrap 和恢复消耗同一剩余安全启动预算
 
 真实 SMTP 使用生产 `cmd/agenteam`。当前已确认的[独立直连契约](../work-items/system-outbound-policy-proxy.md)将 SMTP 作为基础设施，直接连接管理员保存的 host/port/TLS，不受业务出站规则、全局代理或环境代理影响，也不新增 SMTP 专属代理开关；严格证书验证、Secret、当前配置/凭据、账户 SendPermit、权限审计、重试与 Unknown 保持。SMTP 继续复用现有静态系统/部署 CA，既有配置键名与五用途 keyring 不变。
 
-拆分实现、隔离验收与升级尚待完成，当前生产仍为 `13a22493` 的统一代理版本，不能把目标契约当作已部署行为。实际活动 binary 与恢复入口见[当前状态](../../../.agent-state/current.md)。本轮保留现有账号、Session、SMTP、代理与规则配置、凭据和密钥，无迁移、清库或配置重建。真实SMTP实发已暂停，只进行 owned 隔离验证；配置保存、升级或本机可用不等于邮件发送成功。
+SMTP 独立直连已完成关键 owned 隔离验证，并保数据切换至 `e2039777`；实际活动 binary、manifest、验证范围及恢复入口见[当前状态](../../../.agent-state/current.md)。本轮保留现有账号、Session、SMTP、代理与规则配置、凭据和密钥，无迁移、清库或配置重建。真实SMTP实发继续暂停，本次未验证公网或真实外部SMTP；配置保存、升级或本机可用不等于邮件发送成功。
 
 旧预览测试 binary 的固定 sink resolver 仅供隔离测试，不能承担真实 SMTP 部署；其外部 hostname 拒绝是当时 fixture 的限制，不应通过修改业务规则或 SMTP 密码绕过。以下首次准备说明只用于新实例；既有持久实例按后续 stage 流程升级，不能重新生成其配置或密钥。
 
@@ -102,7 +102,7 @@ python3 scripts/manage-persistent-central.py stage \
 
 切换顺序由运行owner执行：先核真实PID/start_ticks/executable及精确容器/nonce归属、无未终结或未join邮件任务；用当前manifest执行 `stop`并确认实际退出和端口释放。保留数据库/对象/TLS代理/frp，停止应用写入后对原数据库做私有custom-format备份并验证归档可读，记录原配置/密钥和数据身份摘要；备份、stderr及归档清单只存0700目录/0600文件，不打印凭据。随后只用stage返回的manifest执行 `start`，再核实际进程/exe SHA、迁移记录、同端口服务、原账号/SMTP安全投影与数据/密钥保持。
 
-`central-release.json`在候选Popen前持久记录已选source/SHA与manifest路径；后续管理使用其中的活动manifest，以 `python3 scripts/manage-persistent-central.py <action> --runtime /absolute/private/runtime-staged-FULL_REVISION.json`执行所选动作（action取status、stop或start）。本轮已完成schema144的保数据切换，原 `runtime.json`仅保留首次准备身份；准确活动路径、二进制摘要与验证限制见[恢复状态](../../../.agent-state/current.md)，不能继续使用旧manifest管理新实例。候选可能已提交迁移，因此一旦尝试启动，旧manifest不能再次start/stop/stage；保持所选候选并做兼容的前向修复。旧143二进制会拒绝144数据库，且不理解持久代理，切回direct也不能使其兼容；不自动回旧binary或恢复旧dump。候选进程记录发布失败时，manager只回收自己刚启动的child并实际wait，保留已选release和原错误，不清除未知残留文件；原正常stop超时仍不强杀。数据恢复如有需要必须另核配套schema、binary、备份与对象/密钥事实。
+`central-release.json`在候选Popen前持久记录已选source/SHA与manifest路径；后续管理使用其中的活动manifest，以 `python3 scripts/manage-persistent-central.py <action> --runtime /absolute/private/runtime-staged-FULL_REVISION.json`执行所选动作（action取status、stop或start）。本轮SMTP拆分切换保持既有schema145，原 `runtime.json`仅保留首次准备身份；准确活动路径、二进制摘要与验证限制见[恢复状态](../../../.agent-state/current.md)，不能继续使用旧manifest管理新实例。候选可能已提交迁移，因此一旦尝试启动，旧manifest不能再次start/stop/stage；保持所选候选并做兼容的前向修复。旧144及更早二进制不能在当前schema145数据库上回退启动；不自动回旧binary或恢复旧dump。候选进程记录发布失败时，manager只回收自己刚启动的child并实际wait，保留已选release和原错误，不清除未知残留文件；原正常stop超时仍不强杀。数据恢复如有需要必须另核配套schema、binary、备份与对象/密钥事实。
 
 保留原immutable nginx配置、TLS与nonce，`/__instance__/identity.source_revision`继续表示基础设施首次准备版本；它不证明新候选代码版本。新Central用活动manifest、实际PID/start_ticks/executable SHA证明，前端用实际构建/源组合单独核验。旧 `runtime-recovery-probe.cjs` 和 `diagnose-persistent-smtp.py`的identity.source等于runtime.source假设不适用于staged manifest，本轮升级用独立组合核验，不修改nginx来伪造候选身份。严格本机验证、公开入口响应归属和真实邮件结果分别记录；SMTP实测暂停，升级操作不触发测试发送。
 

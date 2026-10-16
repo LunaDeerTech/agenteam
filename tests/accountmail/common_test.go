@@ -62,8 +62,12 @@ func migrate(t *testing.T, cfg postgres.Config, src ...postgres.Source) *postgre
 	if e != nil {
 		t.Fatal(e)
 	}
-	if r := m.Migrate(ctxFor(t)); !r.Migrated {
-		t.Fatalf("migration %v", r.Fault)
+	// Schema installation uses the deployment startup budget. The ordinary
+	// account requests retain ctxFor's independent twenty-second budget.
+	ctx, cancel := context.WithTimeout(context.Background(), cfg.StartupTimeout())
+	defer cancel()
+	if r := m.Migrate(ctx); !r.Migrated {
+		t.Fatalf("migration %v (context=%v sqlstate=%s)", r.Fault, ctx.Err(), r.Fault.SQLState())
 	}
 	return m
 }

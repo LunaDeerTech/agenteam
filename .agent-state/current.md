@@ -1,22 +1,26 @@
-# 当前状态：SMTP 独立直连待集成与保数据升级
+# 当前状态：SMTP 独立直连已保数据切换，外部实发暂停
 
 2026-10-16。用户已确认 SMTP 与数据库、对象存储同属独立基础设施：直接连接保存的 host/port/TLS，不受业务出站规则、全局代理或环境代理影响，不新增 SMTP 专属代理开关。保留严格 TLS/STARTTLS、超时取消/join、Secret、SMTP 版本和当前凭据、账户 SendPermit 的 AUTH/MAIL 真实首写、权限审计、队列重投重试与 Unknown。现有账号/Session、SMTP、proxy、规则与 keys 全部保留，无迁移或清库；真实 SMTP 实发暂停，本轮仅 owned 隔离验证。正式合同见[工作项](../docs/development/work-items/system-outbound-policy-proxy.md)。
 
-当前生产仍为 `13a22493`，未切换、未发送外部邮件，活动 staged manifest 与恢复命令沿下方既有记录。独立审查已确认本轮关键风险证据足够支持集成；root 正准备将实现分支 `e2039777` 的35路径集成到主树，排除其分支 current，不提前记为已集成或已部署。
+实现已集成至主树 `edc4104b`，其生产输入与 e2039777 clean 候选一致。独立审查已确认本次关键证据支持交付；runtime 已完成备份、保数据 stage 与切换，活动版本为 `e203977766438a9045b2ac4ef54161e5e5c943f5`，实际 PID/start_ticks/exe SHA 与 manifest 匹配，恢复入口见下方。原 `13a22493` 已真实优雅退出0；本轮未发送外部邮件。
 
-已完成的 owned 验证覆盖真实 App 根在规则拒绝 SMTP 目标且统一代理故障时仍送达隔离 SMTP sink、HTTP 继续拒绝；该链44.93秒通过，整 fixture exit0并完成四类资源清理。域名及环境代理隔离、真实 socket 首写许可/取消的 race 检查，以及真实PG当前凭据换版、证书链/hostname拒绝均通过。旧 admission/material 两顶层停在40秒 setup，protocol/no_starttls 遇到 MIGRATION_FAILED 尚未进入业务；剩余必要回归原链仍在途，须收终态及清理，不称全量通过。未变更的队列、重试与 Unknown 逻辑只按原输入复用。
+切换保持 schema145，私有备份位于 `/workspace/scratch/agenteam-outbound-runtime-review/smtp-direct-cutover-backup-20261016-r1/`，dump为1556714字节、`pg_restore --list`退出0。规则/receipts/SMTP/proxy/账号/keys/objects 共23组保留HMAC投影全等，18个immutable文件、目录身份及基础容器保持，未终结邮件任务为0；SMTP v5仍为TLS且enabled，proxy v2无凭据状态保持。本机严格TLS、leaf、nonce、基础设施与活动进程身份通过，live200、出站匿名401及login200；ready503仍属既有边界。最终只读收尾全部脚本exit0：Central591580/ticks4770391、Vue55037/ticks274699、FRP303867与303876/ticks2387133与2387171均真实S存活，安全结果文件为 `smtp-direct-final-runtime-result.json`。本次未验证公网或真实外部SMTP。
 
-可部署候选来源 `e203977766438a9045b2ac4ef54161e5e5c943f5`，生产输入沿 b5 未改；Go1.27.1普通构建 VCS clean、1854项生产输入一致、check-config退出0，binary SHA256为 `390b106335240222fb3b7e0d52e34fae9daa23ed67f58c619cd10cedda8d9c19`。首次3df构建虽退出0但VCS modified=true，不作为部署候选；配置检查不代证运行升级。精确验证材料与剩余回归由实现分支 current 维护。
+owned 验证已收尾：真实 App 根在规则拒绝 SMTP 目标且统一代理故障时仍送达隔离 SMTP sink、HTTP 继续拒绝，44.93秒通过；域名/环境代理隔离与真实 socket 首写许可/取消 race、真实PG当前凭据换版、证书链/hostname拒绝均通过。四个最终代表为三模式 none/starttls/tls（76.28秒）、lost_acceptance（38.64秒）、cancelled_parent（67.86秒）、RuntimeForce（39.98秒），均实际exit0。累计16组owned nonce下32个容器/网络均确认不存在，匹配fixture目录为0。
+
+原批次六分钟超时实际exit2、停于 protocol/too_many_lines，admission/material setup失败及 no_starttls 的 MIGRATION_FAILED原因未知均保留；后续仅复验上述四代表，不改写为整矩阵通过。root 已从 `362afebe` 同步 `tests/accountmail/common_test.go` 到主树待保存，仅迁移 context 采用 `cfg.StartupTimeout`，业务20秒预算不变，不倒推旧失败原因。未变更的其余队列、重试与 Unknown 逻辑只按原输入复用；具体分轮证据由实现分支 current 维护。
+
+已部署候选来源 `e203977766438a9045b2ac4ef54161e5e5c943f5`，生产输入沿 b5 未改；Go1.27.1普通构建 VCS clean、1854项生产输入一致、check-config退出0，binary SHA256为 `390b106335240222fb3b7e0d52e34fae9daa23ed67f58c619cd10cedda8d9c19`。首次3df构建虽退出0但VCS modified=true，不作为部署候选；配置检查与实际运行验证分别记录。精确验证材料、原失败及最终资源清理由实现分支 current 维护。
 
 | 当前 Owner / 工作树 | 责任与下一步 |
 | --- | --- |
-| `/root/account_backend` / `/workspace/agenteam-smtp-direct` | 分支 `ai/smtp-direct-transport-20261016`，起点 `1a9250b1`；e2039777实现已冻结，维护原回归链终态/清理与该分支 current，交 root 集成。 |
-| `/root/account_backend/smtp_route_review` / `/workspace/agenteam` | 10份规范已归位并冻结；本次仅按实际验证结论更新主树 current，检查后再次停写，不写产品或实现树。 |
-| root / 指定独审与 runtime owner | 全部 Git 与组合协调；收齐原回归链和资源清理，完成集成后安排 runtime 保数据升级，升级不触发真实邮件。 |
+| `/root/account_backend` / `/workspace/agenteam-smtp-direct` | 分支 `ai/smtp-direct-transport-20261016`，起点 `1a9250b1`；e2039777实现已冻结并集成，关键代表与资源清理已收尾，维护该分支原失败及验证边界。 |
+| `/root/account_backend/smtp_route_review` / `/workspace/agenteam` | 10份规范已归位；本次仅更新主树 current 与账号文档的活动版本定位，记录验证及实际切换结果后冻结，不写产品或实现树。 |
+| root / 指定独审与 runtime owner | 关键验证、资源清理、保数据切换及最后只读存活收尾均已完成；root 保存测试预算差量及最终 current，保持外部实发暂停。 |
 
 ## 此前规则、代理与 SMTP 诊断（历史）
 
-以下保留原输入、原结果和未验证边界，不代表 SMTP 拆分已完成。
+以下保留原输入、原结果和未验证边界；SMTP 拆分的当前结论以上方记录为准，历史证据不代本轮验证。
 
 2026-10-16。本轮用户确认全公网/私网白名单或黑名单、HTTP统一按规则，以及单IP/CIDR/域名/最左通配目标；页面改紧凑表格、行末删除。新合同使用必填rule_mode与 `{target,ports}`，最多512条；风险地址改为默认32条可见可编辑黑名单，可删后按当前规则访问；不保留目标/DNS/网关隐藏地址硬拒，proxy独立版本及Unknown双snapshot保持。用户明确早期开发不需要旧规则/接口迁移：仅访问policy/规则回执重置，默认version1与32条显式风险黑名单（普通RFC1918/ULA不加入，未加载/未核实Unknown仍fail closed），账号/Session/SMTP/代理配置与凭据等保留；旧body400，无历史兼容分支。已按[工程契约](../docs/development/work-items/system-outbound-policy-proxy.md)完成隔离验证并集成：backend `89e99c6f`、Vue `db4e472f`均已推送；正式预览已保数据切换；用户已恢复指定收件人的单任务真实SMTP实测，结果见下，公网身份未新验。
 
@@ -59,8 +63,8 @@
 - manager `bbc6236e` 曾独立复现Popen后record发布失败留下存活未登记candidate；修正 `f01ca6ee` 后同.next故障实际关闭：原错误/未知.next保留，新child已wait且无PID/端口占用，status/stop与实际停止一致，selected仍为候选且旧版fallback拒绝，修复本fixture的.next后同版可恢复，合成data/keys/env未变。CLI退出0、子进程全回收；该fixture不代证production迁移/升级或公网。保留immutable nginx的nonce/基础设施source，候选后端另核active-release、实际进程/exe SHA与前端组合；旧probe强制identity.source等于runtime.source的假设不适用于staged manifest，未宣称复用通过。
 - 此前正式binary来源 `62ad504378fcab4e65722cbb7e5d2fffa8bc60a1`（含7aa修复），生产bootstrap/PG/MinIO真实就绪。严格本机CA/IP/SPKI、nonce/source、匿名401无Set-Cookie、登录/读取通过；仅Central停启后原Cookie/user/session/SMTP投影保持，PG/MinIO/web及持久keys未换，logout204→401，probe退出0。初次PG父目录权限失败未建账号，专属失败资源清理后修PGDATA挂载成功；恢复管理器端口检查修正后验证通过。
 - 此前12:14:30 UTC的Central PID424642/state S/start_ticks3218571，source `a5d12bf0f24afe10e80a142c79d05fdc0ce07e81`，exe SHA256 `777768c55735d7de70ba66ec678156351e1d11f3a4b2150ddd790ae6a94ee26c`与active-release相符；schema144已应用，代理初值direct/null且receipt/operation均0。停前后users/sessions/完整SMTP/SMTP凭据/原出站规则/account keyregistry的HMAC一致，18个immutable文件、4目录身份及PG/MinIO/web容器均保持，未终结mail/openattempt始终0，未发送SMTP。私有一致备份经PG17.8 pg_restore --list通过；首轮验证的buffered FD offset问题已修正，同原dump成功，原失败保留。严格本机CA/IP/leaf与nonce匹配，live/login200、规则/代理匿名401；ready503为D05 DEPENDENCY_UNBOUND，首轮断言失配未存详情，不倒推原因，限定复核符合原契约。
-- 当前入口仍为18443→TLS5256→Central5257，frp保留。数据、五组keys、环境与TLS材料位于仓库外私有 `/workspace/scratch/agenteam-central-persistent-r1/`（0700/0600）；活动manifest为该目录 `runtime-staged-13a224933d39643cd9e1ef5a328f09b27622e67c.json`。当前Central PID512863/start_ticks4067942、source `13a224933d39643cd9e1ef5a328f09b27622e67c`，实际exe SHA256 `0601f8697a834e49a6512560b1cddcaa29e6a47dbffe51a38b9d0c0d1dd36592`与active-release一致。恢复命令为 `python3 /workspace/agenteam/scripts/manage-persistent-central.py <action> --runtime <活动manifest完整路径>`（action取status、stop或start），必须使用staged输入，不能再以原runtime.json启动或回退。停Central不删除数据/重建keys，按[stage与恢复说明](../docs/development/backend/account.md#既有持久实例的stage与恢复)管理；旧a5d的144binary不能在当前schema145数据库上回退启动；恢复必须使用当前选中版本。旧r2资源/凭据已清理，5245/5241/443/18081保持。
-- 最终预览只读浏览器实际通过：本机CONNECT→5256保持18443 origin，严格CA/IP/leaf/nonce及浏览器实际SPKI匹配；真实登录200、新Vue module200、规则GET200及内容显示、代理GET200及直连显示。未执行规则/代理写入或SMTP，logout204→session401，CLI/Chromium退出0、relay关闭且socket0。终核manager running、上述Central与原frp helper/frpc身份匹配且非僵尸，5245/5256/5257仍监听。此结果仅证明本机实际组合，不证明公网链路。
+- 当前入口仍为18443→TLS5256→Central5257，frp保留。数据、五组keys、环境与TLS材料位于仓库外私有 `/workspace/scratch/agenteam-central-persistent-r1/`（0700/0600）；活动manifest为该目录 `runtime-staged-e203977766438a9045b2ac4ef54161e5e5c943f5.json`。当前Central PID591580/start_ticks4770391/state S、source `e203977766438a9045b2ac4ef54161e5e5c943f5`，实际exe SHA256 `390b106335240222fb3b7e0d52e34fae9daa23ed67f58c619cd10cedda8d9c19`与活动manifest匹配。恢复命令为 `python3 /workspace/agenteam/scripts/manage-persistent-central.py <action> --runtime <活动manifest完整路径>`（action取status、stop或start），必须使用当前staged输入，不能再以原runtime.json或旧13a manifest启动。停Central不删除数据/重建keys，按[stage与恢复说明](../docs/development/backend/account.md#既有持久实例的stage与恢复)管理；旧a5d的144binary不能在当前schema145数据库上回退启动；恢复必须使用当前选中版本。旧r2资源/凭据已清理，原前端与基础设施保持。
+- 此前13a预览只读浏览器实际通过：本机CONNECT→5256保持18443 origin，严格CA/IP/leaf/nonce及浏览器实际SPKI匹配；真实登录200、新Vue module200、规则GET200及内容显示、代理GET200及直连显示。未执行规则/代理写入或SMTP，logout204→session401，CLI/Chromium退出0、relay关闭且socket0。当时终核manager running、13a Central与原frp helper/frpc身份匹配且非僵尸，5245/5256/5257仍监听。此结果仅证明当时本机组合，不代本轮e203浏览器或公网验证。
 - 唯一公网匿名尝试使用专用CA和SPKI：CONNECT200，curl60/TLS_TRUST_REJECTED、HTTP0、instanceMatched=false；未发送凭据或取得实例标记，也未观察实际leaf issuer，不能将旧代理背景或frp登录当作本次公网证明。
 - 此前用户恢复后正式SMTP安全投影为configured/credential_present、version2，`smtp.exmail.qq.com:465/tls`，retry3/60未改。只读确认已有test任务目标与授权收件人相等；终态failed/attempts4/version9、attempt_channel=smtp、attempt_result=failed、reason=network_failed。未新POST或人工retry，诊断Session退出204，observer退出0；未证明SMTP接受或邮箱收到。
 - 此前SMTP诊断的一次直连探针DNS成功，但同目标465连接TCP errno111，拒绝来源未知。当时Central已继承HTTP_PROXY/HTTPS_PROXY及小写变量至proxy:8080，无ALL_PROXY；该运行版本SMTP不读取这些变量，未做无效重启。一次代理CONNECT200、系统CA/hostname严格TLS1.3通过（代理颁叶），随后10秒未收到任何greeting/220而超时，未EHLO/AUTH/MAIL；仅说明该探针未建立SMTP会话，不推断代理永不支持。未改SMTP配置、密码、出站policy或产品代理契约。
@@ -119,7 +123,7 @@
 
 ## 保存与下一步
 
-root 集成 e2039777 的35路径并保存本 current；继续等待既有必要回归链的真实终态与精确资源清理，不重复启动新链覆盖原失败。关键风险证据已支持集成，尚不称全部回归完成。runtime 随后按既有 stage/停止/恢复流程使用上述 clean 候选保数据升级；实际切换事实待运行 owner 报告后再更新，当前仍以13a活动manifest管理。保留用户5245/18443、账号/Session、SMTP TLS配置和凭据、keys、proxy、规则及对象数据，无迁移或清库；外部邮件继续暂停。旧代理HTTP400、直连失败和公网严格匿名curl60未取nonce的限制保持，隔离成功不证明本环境SMTP可达、认证或收件。
+关键代表已真实退出并完成资源清理，e203 clean 候选已实际保数据切换；runtime 最后只读存活收尾已退出0，root 保存 `362afebe` 的限定测试迁移预算差量与本 current。继续使用当前活动manifest管理已保留的用户5245/18443、账号/Session、SMTP TLS配置和凭据、keys、proxy、规则及对象数据，无迁移或清库；外部邮件继续暂停。旧代理HTTP400、直连失败和公网严格匿名curl60未取nonce的限制保持；此次受控成功仅证明独立直连与保留门禁，不证明本环境真实SMTP可达、认证或收件，亦非整套历史回归矩阵重新通过。
 
 ## 保留的既有恢复入口
 
