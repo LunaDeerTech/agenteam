@@ -28,6 +28,27 @@ test("owned real authorization and CSRF failures leave identity and configuratio
     { omitCSRF: true },
   );
   expect(rejected.status).toBe(403);
+  const gateway = proxy.value.gateway;
+  const proxyRejected = await api(
+    page,
+    "/system/outbound-policy/proxy",
+    "PUT",
+    {
+      expected_version: proxy.value.version,
+      mode: proxy.value.mode,
+      gateway: gateway
+        ? {
+            protocol: gateway.protocol,
+            host: gateway.host,
+            port: gateway.port,
+            username: gateway.username,
+          }
+        : null,
+      credential_action: gateway ? "keep" : "remove",
+    },
+    { omitCSRF: true },
+  );
+  expect(proxyRejected.status).toBe(403);
   expect(
     (await api(page, "/system/outbound-policy")).value.version ===
       rules.value.version,
