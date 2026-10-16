@@ -1,29 +1,30 @@
 # 当前状态：新 Vue 账号与个人设置已实现，公网验真受阻
 
-2026-10-16。本轮七页、新会话/客户端和个人设置已实现，指定本地真实旅程、工程检查与独立视觉/安全范围已通过。公开24小时App仍保留；用户直连报TLS错误后，已查明旧frp进程被SIGKILL并成僵尸，现已用独立会话恢复转发。当前环境管理代理仍拒绝上游私有CA，尚未取得公网身份标记，用户重试结果未确认；不能只将原用户错误归因代理，也不能把本机验证称为公网通过。行为和验收唯一来源为[账号合同](../docs/development/work-items/frontend-account-rebuild.md)。
+2026-10-16。此前七页、新会话/客户端和个人设置已实现，指定本地真实旅程、工程检查与独立视觉/安全范围已通过；本轮接续顶栏入口去重与已保存头像显示，新增实现与检查尚在进行。公开24小时App仍保留；用户直连报TLS错误后，已查明旧frp进程被SIGKILL并成僵尸，现已用独立会话恢复转发。当前环境管理代理仍拒绝上游私有CA，尚未取得公网身份标记，用户重试结果未确认；不能只将原用户错误归因代理，也不能把本机验证称为公网通过。行为和验收唯一来源为[账号合同](../docs/development/work-items/frontend-account-rebuild.md)。
 
 ## 范围、组合与所有权
 
-- 主树 `/workspace/agenteam`、分支 `ai/frontend-vue-rebuild-20261016`；账号工作起点 `c13c2db5`。此前账号业务与工程检查输入为前端 `85c4ac49`，本轮面板复用从 `26a71d47` 接续、仅有AccountShell布局差量；后端候选 `9dd3044c`，含S1认证错误不清Cookie与公开24小时模式；root已将后端增量集成主树。恢复以任务分支最新提交及实际差异为准，不回填本状态自身提交号，不宣称已合main。
+- 主树 `/workspace/agenteam`、分支 `ai/frontend-vue-rebuild-20261016`；账号工作起点 `c13c2db5`。此前账号业务与工程检查输入为前端 `85c4ac49`，面板复用从 `26a71d47` 接续完成；本轮顶栏与共享头像从 `c86600e5` 接续。后端候选 `9dd3044c` 含S1认证错误不清Cookie与公开24小时模式，root已将后端增量集成主树。恢复以任务分支最新提交及实际差异为准，不回填本状态自身提交号，不宣称已合main。
 - 后端树 `/workspace/agenteam-account-backend`、分支 `ai/account-entry-backend-20261016`。root负责全部Git/worktree/checkpoint及集成；内容按唯一路径owner维护，执行者不做Git写。
 - 新 `web/` 的client/session/权限和页面独立编写，不导入、复制或包裹 `web-crape/`。后端成熟密码学、CSRF、事务和领域规则保留；七页为login/invite/forgot/reset与profile/appearance/password。不增加开放注册、MFA、设备管理、邮箱修改或邀请管理；其他未讨论业务正文仍为骨架。
-- 用户已确定登录与找回密码共用同一AccountShell面板模板，含官方Logo、标题、当前表单及居中轻边框/克制阴影；三项设置继续宽页头、左对齐开放表单和唯一SettingsShell。[本轮找回密码面板原图](https://img.lunadeer.cn/i/2026/10/16/6ad1c0e89dd92.png)已上传约定图床并匿名下载校验一致，内部审查通过不等于用户最终审美接受。
+- 用户已确定登录与找回密码共用同一AccountShell面板模板，含官方Logo、标题、当前表单及居中轻边框/克制阴影；三项设置继续宽页头、左对齐开放表单和唯一SettingsShell。[此前找回密码面板原图](https://img.lunadeer.cn/i/2026/10/16/6ad1c0e89dd92.png)已上传约定图床并匿名下载校验一致。新增要求是删除顶栏独立“个人设置”按钮，仅保留右上菜单内入口；触发器显示当前身份已保存头像，未设置时默认占位。内部审查通过不等于用户最终审美接受。
 
 | Owner | 唯一职责 |
 | --- | --- |
 | `/root/account_contract` | 本状态、账号合同、前端说明及授权当前范围入口；本批冻结后由root保存。 |
-| `/root/vue_integration` | 新 `web/src/` 与工程配置/共享UI；产品源码已停写，保留dev进程。 |
+| `/root/vue_integration` | 新 `web/src/` 与工程配置/共享UI；本轮顶栏/共享头像实现与作者检查，保留dev进程。 |
 | `/root/account_backend` | 独立后端树的account/API/装配、后端说明、真实服务与frp；当前服务保留。 |
-| `/root/vue_tests` | 新账号unit/浏览器harness与测试README；作者检查结束，源码停写。 |
-| `/root/vue_visual_review` | 未参与实现的安全、视觉与交互独审；最后保留最小复现probe，不扩大测试。 |
+| `/root/vue_tests` | 新账号unit/浏览器harness与测试README；本轮必要头像生命周期回归。 |
+| `/root/vue_visual_review` | 未参与实现的安全、视觉与交互独审；本轮有限顶栏外观与交互审查。 |
 
 ## 已打通的流程与检查边界
 
-- 本轮唯一产品差量为 `web/src/layouts/AccountShell.vue`：login/forgot-password复用同一面板，账号逻辑与其他页未改。限定Prettier、build（含vue-tsc）和差量格式检查通过；作者与独审均实际查看两页1440/390×浅深8整页，独审另验找回受控202/503、390×320低高度及键盘往返，无新缺陷，浏览器已退出。这是5245真实Vue的有限布局观察，未重跑unit/账号旅程、未发SMTP，也不增加公网通过结论；下列业务结果保留其此前输入边界。
+- 本轮已同步顶栏入口与共享已保存头像合同：候选预览仍归资料页，头像读取继续共用账号请求owner并隔离身份/请求代际，共享Blob替换、移除或身份结束时释放。实现、必要生命周期回归与有限独审尚未收齐，不以旧测试代证。用户已取得admin初始凭据；本轮测试/截图使用独立测试账号或受控头像，不修改用户admin，不展示真实用户头像。
+- 前轮唯一产品差量为 `web/src/layouts/AccountShell.vue`：login/forgot-password复用同一面板，账号逻辑与其他页未改。限定Prettier、build（含vue-tsc）和差量格式检查通过；作者与独审均实际查看两页1440/390×浅深8整页，独审另验找回受控202/503、390×320低高度及键盘往返，无新缺陷，浏览器已退出。这是5245真实Vue的有限布局观察，未重跑unit/账号旅程、未发SMTP，也不增加公网通过结论；下列业务结果保留其此前输入边界。
 - 真实首链覆盖登录、受保护返回、Session/profile、刷新、退出及401；真实API边界另有一项通过。`browser-run-04`完整旅程通过受控SMTP邀请正文→兑换→普通账号登录→资料保存与409保草稿/显式采用新版本→外观预览/取消/保存/刷新→改密后当前Session200及另一旧Session401→找回与真实SMTP reset正文→重置后目标Session401→新密码登录且主题保留。
 - 头像前半已实际完成SVG拒绝零上传、PNG预览/取消、真实上传存JPEG及刷新读取。后半在修正测试Node专用CA信任后定向通过：DELETE204后GET丢响应只重读、DELETE一次；真实PATCH提交后丢响应进入Unknown，冻结草稿并显式同key/body重放，服务端版本不二次递增。受控响应丢失不冒充自然网络或PG提交Unknown。
 - 正式挑战测试另有实际1/1通过：连续错误密码401、合法 `commit_state=not_started` 不误入Unknown、错误proof400、真实键盘旋转验证200和同login key登录200，390px无横溢。作者早期scratch验证与正式spec运行分别保留。
-- 最终源码全量unit为6文件35/35；`format:check`、类型检查及production build均exit0。defaultfalse dist的旧骨架受影响兼容3/3通过；账号真实行为用的是5245的 `VITE_ACCOUNT_ENABLED=true` dev经TLS代理，不能把false dist称为业务输入。账号作者证据为5条独立通过测试加头像前半已执行步骤，精确命令/原失败见[账号harness](../tests/frontend-account-rebuild/README.md)，基础兼容见[框架harness](../tests/frontend-rebuild/README.md)。
+- 此前账号业务输入的全量unit为6文件35/35；`format:check`、类型检查及production build均exit0。defaultfalse dist的旧骨架受影响兼容3/3通过；账号真实行为用的是5245的 `VITE_ACCOUNT_ENABLED=true` dev经TLS代理，不能把false dist称为业务输入。账号作者证据为5条独立通过测试加头像前半已执行步骤，精确命令/原失败见[账号harness](../tests/frontend-account-rebuild/README.md)，基础兼容见[框架harness](../tests/frontend-rebuild/README.md)。
 - 独审接受登录panel与三项设置、forgot/reset浅深主题和1440/390整页，键盘、reduced motion与原生200%已覆盖。V3外观保存焦点环裁切经12px滚动余量修复，在390与原生200%同输入复验关闭，profile/password共享样式亦通过。真实跨身份reset确认当前管理员user/session保持200、目标旧Session200→401，密码清空且fragment移除，无伪注销。
 - S1旧实现真实GET/PATCH401迟到清新Cookie已修：普通认证错误不Set-Cookie，显式成功logout/换会话保持。最终24小时r2、后端 `9dd3044c` 的独立双tab浏览器复验通过：B新登录后释放A的原GET/PATCH401，两次Cookie数量和值保持、Session200；logout204后Cookie0/Session401。验证采用只允许目标IP18443的本机CONNECT固定拨5254，浏览器实际leaf SPKI和nonce匹配，保持规范Origin及完整TLS；这是本机验证，绝不代证公网frp。
 - 原登录成功离页误弹、邀请初导航错误均已修并定向复验，保留原失败。头像run05因Node route.fetch缺少fixture CA导致默认失败日志含临时Cookie/CSRF，已真实logout204→Session401撤销、敏感行清理并改0600，独审复核；无trace、截图、上传或Git跟踪材料。原外层失败不改写为整例通过。
@@ -52,7 +53,7 @@ SMTP仅连接本任务私有sink，邀请/重置正文链已验证，不代表�
 
 ## 保存与下一步
 
-产品与作者测试已停写；本批必要文档和独审最小probe由各owner明确冻结后交root保存/推送，WIP保存不等于main或生产发布。无需重复已通过产品检查。本次公网修复只恢复持久转发；下一可见结果是用户重试或其他获授权路径取得公网身份标记及真实登录结果。恢复需同时核非Z进程状态、PID起始ticks/会话身份、实际监听/转发和24小时资源/证书期限，不能只用PID存在或旧启动日志判定存活。用户图片继续先上传图床并提供原图链接。
+本轮顶栏/共享头像的源码、测试与文档由各owner分别明确冻结后交root保存/推送，WIP保存不等于main或生产发布。下一结果是本轮必要生命周期回归与有限外观审查，不重复此前完整账号旅程。公网修复只确认恢复持久转发，仍待用户重试或其他获授权路径取得公网身份标记及真实登录结果；当前UI反馈不代证公网通过。恢复需同时核非Z进程状态、PID起始ticks/会话身份、实际监听/转发和24小时资源/证书期限，不能只用PID存在或旧启动日志判定存活。用户图片继续先上传图床并提供原图链接。
 
 ## 保留的既有恢复入口
 

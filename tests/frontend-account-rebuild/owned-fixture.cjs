@@ -2,6 +2,12 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { createHash, X509Certificate } = require("node:crypto");
 const { test: base, expect, chromium } = require("@playwright/test");
+const {
+  publicOrigin,
+  validatePublicCertificate,
+  startFixedRelay,
+  observeOwnedCertificate,
+} = require("./fixed-runtime.cjs");
 
 function loadOwnedRuntime() {
   const filename = process.env.FRONTEND_ACCOUNT_RUNTIME;
@@ -27,7 +33,7 @@ function loadOwnedRuntime() {
     throw new Error("OWNED_ACCOUNT_RUNTIME_INVALID");
   }
   if (
-    runtime.origin !== "https://localhost:5250" ||
+    !["https://localhost:5250", publicOrigin].includes(runtime.origin) ||
     !/^[a-f0-9]{32}$/.test(runtime.nonce || "") ||
     !/^[A-Za-z0-9+/]{43}=$/.test(runtime.certificate_spki || "") ||
     typeof runtime.credentials?.email !== "string" ||
@@ -44,11 +50,13 @@ function loadOwnedRuntime() {
     .digest("base64");
   if (
     actual !== runtime.certificate_spki ||
-    !certificate.checkHost("localhost") ||
+    (runtime.origin !== publicOrigin && !certificate.checkHost("localhost")) ||
     Date.parse(certificate.validFrom) > Date.now() ||
     Date.parse(certificate.validTo) <= Date.now()
   )
     throw new Error("OWNED_ACCOUNT_CERTIFICATE_MISMATCH");
+  if (runtime.origin === publicOrigin)
+    validatePublicCertificate(runtime, certificate);
   return runtime;
 }
 
@@ -61,19 +69,27 @@ const test = base.extend({
   ],
   browser: [
     async ({ owned }, use) => {
-      const browser = await chromium.launch({
-        executablePath:
-          process.env.FRONTEND_ACCOUNT_CHROMIUM || "/usr/bin/chromium",
-        headless: true,
-        args: [
-          "--no-sandbox",
-          `--ignore-certificate-errors-spki-list=${owned.certificate_spki}`,
-        ],
-      });
+      const relay =
+        owned.origin === publicOrigin ? await startFixedRelay() : undefined;
+      let browser;
       try {
+        browser = await chromium.launch({
+          executablePath:
+            process.env.FRONTEND_ACCOUNT_CHROMIUM || "/usr/bin/chromium",
+          headless: true,
+          proxy: relay?.proxy,
+          args: [
+            "--no-sandbox",
+            `--ignore-certificate-errors-spki-list=${owned.certificate_spki}`,
+          ],
+        });
         await use(browser);
       } finally {
-        await browser.close();
+        try {
+          await browser?.close();
+        } finally {
+          await relay?.close();
+        }
       }
     },
     { scope: "worker" },
@@ -82,7 +98,17 @@ const test = base.extend({
     await use(owned.origin);
   },
   page: async ({ page, owned }, use, testInfo) => {
-    const response = await page.goto(`${owned.origin}/__fixture__/identity`);
+    const certificate =
+      owned.origin === publicOrigin
+        ? await observeOwnedCertificate(page, owned)
+        : undefined;
+    let response;
+    try {
+      response = await page.goto(`${owned.origin}/__fixture__/identity`);
+      certificate?.verify();
+    } finally {
+      await certificate?.close();
+    }
     if (!response || response.status() !== 200)
       throw new Error("OWNED_ACCOUNT_IDENTITY_UNAVAILABLE");
     let identity;

@@ -1,18 +1,37 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 import { UiButton, UiMenu, UiDialog, UiIcon } from "../ui";
 import CommandFeedback from "./CommandFeedback.vue";
-import { logoutCommand, useSession } from "../../account/session";
+import { logoutCommand } from "../../account/session";
+import {
+  refreshAccountAvatar,
+  rejectAvatarImage,
+  useAccountAvatar,
+} from "../../account/avatar";
 import { useCommand } from "../../account/useCommand";
 import { confirmAccountLeave } from "../../account/leave";
 const router = useRouter();
-const session = useSession();
+const avatar = useAccountAvatar();
+const items = computed(() => [
+  { id: "profile", label: "个人设置" },
+  ...(avatar.error.value
+    ? [
+        {
+          id: "reload-avatar",
+          label: "重新读取头像",
+          disabled: avatar.loading.value,
+        },
+      ]
+    : []),
+  { id: "logout", label: "退出登录" },
+]);
 const open = ref(false);
 const operation = useCommand<void>();
 const { busy, error, uncertain, replayable } = operation;
 async function select(id: string) {
   if (id === "profile") await router.push("/settings/profile");
+  if (id === "reload-avatar") await refreshAccountAvatar();
   if (id === "logout" && (await confirmAccountLeave())) open.value = true;
 }
 async function logout() {
@@ -23,20 +42,17 @@ async function logout() {
 }
 </script>
 <template>
-  <UiMenu
-    label="账号"
-    :items="[
-      {
-        id: 'profile',
-        label:
-          session.user.value?.display_name ||
-          session.user.value?.email ||
-          '个人设置',
-      },
-      { id: 'logout', label: '退出登录' },
-    ]"
-    @select="select"
-    ><template #trigger><UiIcon name="user" :size="16" /></template
+  <UiMenu label="账号" :items="items" @select="select"
+    ><template #trigger>
+      <span class="account-avatar" aria-hidden="true">
+        <img
+          v-if="avatar.url.value"
+          :src="avatar.url.value"
+          alt=""
+          @error="rejectAvatarImage(($event.target as HTMLImageElement).src)"
+        />
+        <UiIcon v-else name="user" :size="16" />
+      </span> </template
   ></UiMenu>
   <UiDialog
     :open="open"
@@ -70,3 +86,21 @@ async function logout() {
     >
   </UiDialog>
 </template>
+
+<style scoped>
+.account-avatar {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--surface-subtle);
+}
+.account-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+</style>

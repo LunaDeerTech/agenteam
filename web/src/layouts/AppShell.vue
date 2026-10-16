@@ -62,14 +62,6 @@ const changeTheme = (value: string) => {
           "
           >系统设置</RouterLink
         >
-        <RouterLink
-          class="desktop-link"
-          to="/settings"
-          :aria-current="
-            route.meta.settingsScope === 'personal' ? 'page' : undefined
-          "
-          >个人设置</RouterLink
-        >
         <UiMenu
           v-if="!accountEnabled"
           label="外观"
