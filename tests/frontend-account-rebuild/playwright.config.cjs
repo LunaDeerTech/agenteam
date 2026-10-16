@@ -1,6 +1,10 @@
 const path = require("node:path");
 const { defineConfig } = require("@playwright/test");
 
+// Playwright 1.56 also records a DOM snapshot on failure independently of trace.
+// Account fields can still contain private material when a test fails.
+process.env.PLAYWRIGHT_NO_COPY_PROMPT = "1";
+
 const output = path.resolve(
   process.env.FRONTEND_ACCOUNT_OUTPUT ||
     "output/ai/frontend-account-rebuild/browser",
