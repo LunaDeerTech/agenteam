@@ -87,5 +87,8 @@ backend须盘点实际Central发出入口与组合根：受控HTTP client、Prov
 
 - 前端候选已实现双Tab、严格DTO、规则/代理命令及恢复状态。作者完整check为55项unit及格式/类型/build通过；后续两项P2分别修复回焦与“严格回执成功、后读失败”时误显直连/空规则，增量格式/类型/build及作者/独立受控复验通过，未重跑55项。已确认回执与读取失败分开显示，恢复只GET，不猜当前配置。
 - 独立受控UI已查看四视口、浅深、两Tab、原生200%、焦点与减少动效；两次初期加载失败原因未定，保留原材料，后续通过不回填根因。这些拦截响应与合成身份结果不代真实API、代理通道或公网验证。
-- 后端前一候选已有outbound race/vet、App编译及DTO/gate/env定向检查；新增恢复增量后首次5260 launcher在缺失恢复接口处编译失败，尚未启动新依赖。凭据live lease在进程丢失/清理失败后的持久回收，以及原key重放确认pending后恢复规则+代理双snapshot，两项恢复门仍待实现完成和真实PG复验。
-- 正式浏览器harness与独立安全probe已保存；owned TLS5260尚未ready，真实PG/API与浏览器链未执行。由backend唯一恢复隔离fixture，frontend5246保留供受控观察；不操作现production/真实SMTP。精确输入、失败与下一步见[当前状态](../../../.agent-state/current.md)，命令和行为结果由[出站harness](../../../tests/frontend-outbound-policy/README.md)维护。
+- 后端候选已补持久operation与双snapshot恢复，原局部race/vet/DTO/gate/env结果保持输入边界，两项恢复门仍待真实PG判定。作者route测试首轮止于App迁移时fixture等待超时，独审首fixture止于selector被helper拒绝；均已清理并定向修准备，不记产品PASS/FAIL，也不将旧a37与修后6ea的PG binary混为同一证据。
+- owned TLS5260 r2已走真实App及账号/SMTP初始化，因fixture用户名非法止于普通邀请兑换，精确清理后用合法用户名启动r3；当前go-c完成、依赖启动中，manifest尚未ready，全部新UI真实浏览器未跑。frontend5246保留供受控观察；正式harness/probe已保存等待联调。
+- 保数据manager的Popen后登记失败问题经同.next故障独立复验关闭：候选被实际回收、无活未登记进程，保留selected release且拒旧版回退，修复测试自身残留后同版可恢复，合成配置/数据/密钥未变。此结果不代production迁移或升级；nginx保持原基础设施身份，候选版本另核实际进程与binary，不套用旧probe的source相等假设。
+
+不操作现production或真实SMTP。精确输入、失败与下一步见[当前状态](../../../.agent-state/current.md)，命令和行为结果由[出站harness](../../../tests/frontend-outbound-policy/README.md)维护。

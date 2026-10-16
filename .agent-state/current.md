@@ -1,6 +1,6 @@
 # 当前状态：Central出站规则与持久代理实施中
 
-2026-10-16。Central全部业务出网与持久代理仍在实施，唯一合同见[工程契约](../docs/development/work-items/system-outbound-policy-proxy.md)。主树已推 `be1321c7`，含真实链harness与独审probe；Vue候选 `e6bc7d61` 已远端保存，两项P2受控复验关闭。后端前一候选局部检查通过，新增恢复接口的首次5260 launcher编译失败，尚未启动依赖；真实PG/API及两项安全恢复门未完成。Runner、DB/对象部署基础连接不纳，真实SMTP发送仍暂停。现production数据库含用户新填SMTP，必须保留；服务不替换、数据不清空，公网身份未验与此前SMTP失败边界保持。
+2026-10-16。Central全部业务出网与持久代理仍在实施，唯一合同见[工程契约](../docs/development/work-items/system-outbound-policy-proxy.md)。Vue候选 `e6bc7d61` 两项P2受控复验已关闭；后端生产源码候选 `6ea558f1` 已保存，5260 r3已编译、正在启动独立依赖，manifest尚未ready。真实出站API/UI及两项安全恢复门未完成。管理脚本 `f01ca6ee` 的进程登记失败已同故障独立复验关闭，尚未部署到production。Runner、DB/对象部署基础连接不纳，真实SMTP发送仍暂停。现production数据库含用户新填SMTP，必须保留；服务不替换、数据不清空，公网身份未验与此前SMTP失败边界保持。
 
 ## 范围、组合与所有权
 
@@ -18,11 +18,14 @@
 | `/root/vue_tests` | 本轮出站UI/API正式harness与必要回归；旧TLS/恢复/邮件结果保留原输入，不代本轮通过。 |
 | `/root/outbound_visual` | 本轮独立受控视觉/交互审查，两项P2已关闭；不代真实后端或公网。 |
 | `/root/outbound_security` | 独立安全probe与两项恢复门真实PG复验，尚未完成。 |
+| `/root/outbound_runtime` | 保数据升级准备与唯一manager脚本；定向故障已独审关闭，实际production切换未执行。 |
 
 ## 已打通的流程与检查边界
 
 - 本轮Vue候选 `e6bc7d618d26745f4acbd0e0d31a5457b3d7b4e4` 已远端保存。作者完整check为10文件55项unit及格式/类型/build通过；之后回焦、严格receipt成功而GET失败两项P2定向修复并分别通过作者/独立受控复验，模板增量格式/类型/build通过，未重跑55项。后读失败不再猜直连或空规则，恢复只GET。独审四视口、浅深、两Tab、原生200%、焦点/减少动效完成；两次初期load失败根因未定，保留原材料。合成受控[访问规则浅色图](https://img.lunadeer.cn/i/2026/10/16/6ad20780f2705.png)与[代理深色图](https://img.lunadeer.cn/i/2026/10/16/6ad2062bbfc37.png)已实看、上传和匿名校验，不代真实后端或公网。
-- 后端独立树 `a37d93b0` 后持续补transport/恢复接线；较早候选outbound race通过（25.675秒）、vet0、App编译0及HTTP DTO/gate/env定向0。新增恢复增量后首次5260 launcher遇RecoverProxyCredentials未实现而编译失败，未启动PG/MinIO等新依赖；不能将前一编译通过套到此候选。当前补ProcessGuard持久operation与原key双snapshot恢复，仍待真实PG判定：进程丢失/清理失败后的live lease安全回收，以及Unknown后原key确认pending并恢复规则+proxy双snapshot。5260未ready、真实API/浏览器链未跑；5246仅受控UI，harness/probe已保存等待联调。
+- 后端生产源码候选 `6ea558f1`、后继作者route tests/说明 `fe0fb362` 与fixture用户名修正 `5a1871f1` 已远端保存。较早outbound race（25.675秒）/vet、DTO/gate/env等结果保留原输入；独审旧a37冻结源码的transport/env实际通过，不能代证修后6ea的PG恢复。5260 r2已走真实App/bootstrap/login/session/SMTP setup，止于fixture用户名含下划线导致兑换INVALID_ARGUMENT，专属资源已精确清理；r3改合法用户名后go-c完成，独立依赖启动中，manifest未ready，全部新UI真实浏览器仍未跑。
+- 两项恢复门仍待真实PG判定：进程丢失/清理失败后的live lease安全回收，以及Unknown后原key确认pending并恢复规则+proxy双snapshot。作者route测试首轮仅到migrating即5秒fixture地址等待超时，未登录或调用目标API，已清理，正以实际App预算加有界barrier复验；独审首fixture因selector缺锚被helper拒绝、PG未起且已清理，正修精确selector。这些准备失败不判为产品通过或产品失败，也不混用旧/新PG binary证据。
+- manager `bbc6236e` 曾独立复现Popen后record发布失败留下存活未登记candidate；修正 `f01ca6ee` 后同.next故障实际关闭：原错误/未知.next保留，新child已wait且无PID/端口占用，status/stop与实际停止一致，selected仍为候选且旧版fallback拒绝，修复本fixture的.next后同版可恢复，合成data/keys/env未变。CLI退出0、子进程全回收；未验证production迁移/升级或公网。保留immutable nginx的nonce/基础设施source，候选后端另核active-release、实际进程/exe SHA与前端组合；旧probe强制identity.source等于runtime.source的假设不适用于staged manifest，未宣称复用通过。
 - 此前正式binary来源 `62ad504378fcab4e65722cbb7e5d2fffa8bc60a1`（含7aa修复），生产bootstrap/PG/MinIO真实就绪。严格本机CA/IP/SPKI、nonce/source、匿名401无Set-Cookie、登录/读取通过；仅Central停启后原Cookie/user/session/SMTP投影保持，PG/MinIO/web及持久keys未换，logout204→401，probe退出0。初次PG父目录权限失败未建账号，专属失败资源清理后修PGDATA挂载成功；恢复管理器端口检查修正后验证通过。
 - 当前入口为18443→TLS5256→Central5257，独立frp与新Central实际存活；数据、五组keys、环境与TLS材料位于仓库外私有 `/workspace/scratch/agenteam-central-persistent-r1/`（0700/0600）。恢复使用[Central管理脚本](../scripts/manage-persistent-central.py)的status/start/stop及同目录runtime.json，停Central不删除数据库/对象数据或重新生成keys，基础设施按[后端说明](../docs/development/backend/account.md#可恢复的真实-smtp-运行准备)管理。旧r2 App实际wait0，4容器/4网络逐ID全不存在，旧凭据文件已撤；5245/5241/443/18081保持。
 - 唯一公网匿名尝试使用专用CA和SPKI：CONNECT200，curl60/TLS_TRUST_REJECTED、HTTP0、instanceMatched=false；未发送凭据或取得实例标记，也未观察实际leaf issuer，不能将旧代理背景或frp登录当作本次公网证明。
@@ -83,7 +86,7 @@
 
 ## 保存与下一步
 
-首断点为后端恢复增量尚未编译闭合；由backend补齐后启动唯一owned5260，再让tests和独立security完成真实PG/API及两项恢复门，frontend仅针对具体联调问题返修。按工程契约核Central消费者接线，不以受控UI或代理库局部通过代整包完成。真实SMTP验证继续暂停；现production及用户新SMTP/持久数据、frp/dev保留，禁止清库或自动替换。不改系统环境/工具代理，不打印秘密或私人收件地址，公网身份仍未验。
+等待backend的唯一owned5260 r3实际ready，再让tests运行新UI真实链；作者route测试与独立security分别完成本输入的PG/API及两项恢复门，frontend仅针对具体联调问题返修。按工程契约核Central消费者接线，不以受控UI、管理脚本或代理库局部通过代整包完成。真实SMTP验证继续暂停；现production及用户新SMTP/持久数据、frp/dev保留，禁止清库或自动替换。不改系统环境/工具代理，不打印秘密或私人收件地址，公网身份仍未验。
 
 ## 保留的既有恢复入口
 
