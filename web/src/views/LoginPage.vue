@@ -139,6 +139,11 @@ async function recheck() {
       </fieldset>
       <CommandFeedback
         :error="error"
+        :message="
+          error instanceof AccountError && error.status === 401
+            ? '邮箱或密码不正确，请检查后重试。'
+            : undefined
+        "
         :uncertain="uncertain"
         :replayable="replayable"
         :busy="busy"

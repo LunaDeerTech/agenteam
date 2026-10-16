@@ -91,6 +91,7 @@ watch(
   min-width: 0;
   min-height: 0;
   overflow-y: auto;
+  scroll-padding-block: 12px;
   padding: 43px 48px 60px;
 }
 .settings-page-body {

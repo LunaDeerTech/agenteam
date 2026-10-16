@@ -3,6 +3,7 @@ import { UiButton } from "../ui";
 import { accountErrorMessage } from "../../account/transport";
 defineProps<{
   error?: unknown;
+  message?: string;
   uncertain?: boolean;
   replayable?: boolean;
   busy?: boolean;
@@ -15,7 +16,7 @@ defineEmits<{ retry: []; abandon: [] }>();
       {{
         uncertain
           ? "原操作结果尚未确认。即使后续登录状态改变，也不能据此判断原操作未发生。"
-          : accountErrorMessage(error)
+          : message || accountErrorMessage(error)
       }}
     </p>
     <div v-if="uncertain" class="form-actions">

@@ -1,6 +1,7 @@
 import { isRecord } from "./types";
 
-export type CommitState = "committed" | "not_committed" | "unknown";
+export type CommitState =
+  "not_started" | "committed" | "not_committed" | "unknown";
 export class AccountError extends Error {
   constructor(
     readonly code: string,
@@ -172,7 +173,9 @@ async function sendAccount<T>(
       throw new AccountError(
         value.code,
         response.status,
-        commit === "committed" || commit === "not_committed"
+        commit === "not_started" ||
+          commit === "committed" ||
+          commit === "not_committed"
           ? commit
           : "unknown",
         fields,

@@ -183,6 +183,40 @@ describe("account HTTP request ownership", () => {
 
 describe("account HTTP response contract", () => {
   it.each([
+    ["not_started", "not_started", "not_started"],
+    ["missing state", undefined, "unknown"],
+    ["invalid state", "maybe_committed", "unknown"],
+  ])(
+    "preserves the recovery meaning of a login rejection with %s",
+    async (_name, state, expected) => {
+      const fetcher = vi.fn().mockResolvedValue(
+        json(
+          {
+            code: "UNAUTHENTICATED",
+            ...(state === undefined ? {} : { commit_state: state }),
+          },
+          401,
+          "application/problem+json",
+        ),
+      );
+      vi.stubGlobal("fetch", fetcher);
+      const { accountRequest } = await import("../src/account/transport");
+      await expect(
+        accountRequest("/sessions/login", {
+          method: "POST",
+          key: "original-login-intent",
+          body: "{}",
+        }),
+      ).rejects.toMatchObject({
+        code: "UNAUTHENTICATED",
+        status: 401,
+        commitState: expected,
+      });
+      expect(fetcher).toHaveBeenCalledOnce();
+    },
+  );
+
+  it.each([
     [
       "HTML success",
       () =>

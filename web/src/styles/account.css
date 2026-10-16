@@ -17,6 +17,9 @@
   flex-wrap: wrap;
   gap: 10px;
 }
+.form-actions :is(button, a) {
+  scroll-margin-block: 12px;
+}
 .form-note,
 .form-feedback {
   color: var(--text-secondary);
