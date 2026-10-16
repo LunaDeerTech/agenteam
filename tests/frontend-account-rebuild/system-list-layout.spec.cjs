@@ -80,7 +80,12 @@ for (const [width, colorScheme] of [
   }) => {
     for (const [path, label, refresh, emptyText] of [
       ["/system/users", "用户目录", "刷新", "暂无已注册用户。"],
-      ["/system/invitations", "待注册邀请", "刷新", "暂无待注册邀请。"],
+      [
+        "/system/invitations",
+        "待注册邀请",
+        "刷新",
+        "暂无待注册邀请。已接受、撤销或过期的邀请不会列在这里。",
+      ],
       ["/system/smtp", "投递任务", "刷新任务", "暂无投递任务。"],
     ]) {
       const page = await context.newPage();

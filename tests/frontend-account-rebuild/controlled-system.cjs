@@ -1,6 +1,6 @@
 // Finite synthetic responses for the three real Vue system-list pages.
 // No runtime, private credentials, or backend passthrough.
-const { expect } = require("@playwright/test");
+const { test, expect } = require("@playwright/test");
 const origin = "http://127.0.0.1:5245";
 
 const id = (index) => `019a2222-2222-7222-8222-${String(999999999999 - index)}`;
@@ -53,6 +53,32 @@ const job = (index) => ({
 });
 
 async function controlled(page, options = {}) {
+  const started = Date.now();
+  const diagnostics = { api: [], failed: [], pageErrors: [] };
+  page.on("response", (response) => {
+    const url = new URL(response.url());
+    if (url.origin === origin && url.pathname.startsWith("/api/v1/"))
+      diagnostics.api.push({
+        path: url.pathname,
+        status: response.status(),
+        elapsed: Date.now() - started,
+      });
+  });
+  page.on("requestfailed", (request) => {
+    const url = new URL(request.url());
+    diagnostics.failed.push({
+      path: url.pathname,
+      reason: request.failure()?.errorText,
+      elapsed: Date.now() - started,
+    });
+  });
+  page.on("pageerror", (error) =>
+    diagnostics.pageErrors.push({
+      name: error.name,
+      message: error.message.slice(0, 600),
+      elapsed: Date.now() - started,
+    }),
+  );
   const jobs = Array.from({ length: 60 }, (_, index) => job(index));
   const state = {
     empty: !!options.empty,
@@ -203,7 +229,25 @@ async function controlled(page, options = {}) {
     throw new Error("CONTROLLED_PATH_REJECTED");
   await page.goto(`${origin}${path}`);
   if (path === "/system/smtp") {
-    await expect(page.getByLabel("端口", { exact: true })).toHaveValue("2525");
+    try {
+      await expect(page.getByLabel("端口", { exact: true })).toHaveValue(
+        "2525",
+      );
+    } catch (failure) {
+      // Only this fully synthetic, pre-command page is captured. No runtime,
+      // credentials, request headers, command bodies, or API bodies are logged.
+      await test.info().attach("controlled-initial-page", {
+        contentType: "application/json",
+        body: JSON.stringify({
+          ...diagnostics,
+          path: new URL(page.url()).pathname,
+          configurationReads: state.configs,
+          unexpected: state.unexpected,
+          renderedText: (await page.locator("body").innerText()).slice(0, 5000),
+        }),
+      });
+      throw failure;
+    }
     await page.getByRole("tab", { name: "测试与任务", exact: true }).click();
     await expect(
       page.getByRole("heading", { name: "投递任务", exact: true }),

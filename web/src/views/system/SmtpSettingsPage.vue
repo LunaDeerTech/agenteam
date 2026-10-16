@@ -134,15 +134,15 @@ const configLocked = computed(
     configSave.uncertain.value ||
     checking.value,
 );
-const anyBusy = computed(
+const operationBusy = computed(
   () =>
     reading.value ||
-    jobs.loading.value ||
     detailReading.value ||
     configSave.busy.value ||
     deliverySave.busy.value ||
     checking.value,
 );
+const anyBusy = computed(() => operationBusy.value || jobs.loading.value);
 const deliveryLocked = computed(
   () =>
     !access.allowed.value ||
@@ -995,7 +995,7 @@ useLeaveProtection(
             results-label="投递任务结果"
             pagination-label="投递任务分页"
             empty-text="暂无投递任务。"
-            :disabled="anyBusy"
+            :disabled="operationBusy || !access.allowed.value"
           >
             <template #item="{ item: job }">
               <div class="task-summary">
