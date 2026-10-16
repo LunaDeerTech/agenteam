@@ -40,7 +40,7 @@ const rule = (n) => ({
   ports: [443, 587],
 });
 const emptyDeny = "未添加规则，允许访问所有目标。";
-const emptyAllow = "未添加规则，所有出站访问将被阻止。";
+const emptyAllow = "未添加规则，所有业务请求将被阻止。";
 const btn = (page, name) => page.getByRole("button", { name, exact: true });
 const tab = (page, name) => page.getByRole("tab", { name, exact: true });
 const field = (page, name) => page.getByLabel(name, { exact: true });

@@ -310,7 +310,7 @@ useLeaveProtection(
                   <td colspan="3" class="empty-rules">
                     {{
                       rules.draft.value.ruleMode === "allowlist"
-                        ? "未添加规则，所有出站访问将被阻止。"
+                        ? "未添加规则，所有业务请求将被阻止。"
                         : "未添加规则，允许访问所有目标。"
                     }}
                   </td>
@@ -465,7 +465,8 @@ useLeaveProtection(
           </p>
         </fieldset>
         <p class="form-note effect-note">
-          对 Central 新发起的业务出网调用生效；不会中断在途请求。
+          仅对 Central 新发起的业务请求生效，不中断在途请求。SMTP
+          不受本页规则或代理影响。
         </p>
         <p
           v-if="active.command.confirmed.value && !active.dirty.value"
