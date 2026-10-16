@@ -2,6 +2,8 @@ import { isRecord, isVersion } from "../account/types";
 import { isCursorPage, isId, isInstant } from "./directory";
 import { systemCommand, systemRequest } from "./requests";
 import type { CursorPage } from "./useCursorList";
+import { AccountError } from "../account/transport";
+import { isPageSize } from "./pagination";
 
 const phases = [
   "enqueue_pending",
@@ -115,12 +117,17 @@ export function isInvitation(value: unknown): value is Invitation {
     isInvitationDelivery(value.latest_delivery)
   );
 }
-export function listInvitations(cursor?: string, current?: () => boolean) {
+export function listInvitations(
+  cursor?: string,
+  current?: () => boolean,
+  limit = 10,
+) {
+  if (!isPageSize(limit)) throw new AccountError("INVALID_ARGUMENT");
   return systemRequest(
     "/system/invitations",
-    { query: { limit: 10, cursor }, current },
+    { query: { limit, cursor }, current },
     (value): value is CursorPage<Invitation> =>
-      isCursorPage(value, isInvitation) && value.items.length <= 10,
+      isCursorPage(value, isInvitation, limit),
   );
 }
 function receipt(value: unknown): value is InvitationReceipt {

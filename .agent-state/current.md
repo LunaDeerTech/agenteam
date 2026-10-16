@@ -1,6 +1,6 @@
-# 当前状态：新 Vue 系统账号设置四页实施中
+# 当前状态：新 Vue 系统账号设置四页已实现并完成限定验证
 
-2026-10-16。用户已接受中性炭灰深色与设置整框成果，相关源码已保存推送 `cd1a5df6`。本轮明确实现系统设置的用户、待注册邀请、账号安全和SMTP四页，其他七页保持骨架；唯一行为/验收合同为[系统账号设置](../docs/development/work-items/frontend-system-account-settings.md)，此前七页与会话边界仍见[账号合同](../docs/development/work-items/frontend-account-rebuild.md)。五条真实链已在独立实例通过；用户新增页长切换正在实现，SMTP冲突焦点修正待同输入复验，四页尚未最终收口。公开24小时App仍保留；旧frp被SIGKILL成僵尸后已独立会话恢复转发，但管理代理仍拒上游私有CA，尚无公网身份标记或用户明确重试结果。UI反馈不代证公网通过，原用户TLS错误也不能只归因代理。
+2026-10-16。用户已接受中性炭灰深色与设置整框成果，相关源码已保存推送 `cd1a5df6`。本轮系统设置的用户、待注册邀请、账号安全和SMTP四页已实现，其他七页保持骨架；唯一行为/验收合同为[系统账号设置](../docs/development/work-items/frontend-system-account-settings.md)，此前七页与会话边界仍见[账号合同](../docs/development/work-items/frontend-account-rebuild.md)。六条真实链、分页与最终有限独审已通过，无未结阻断；候选冻结交root最终保存。独立测试实例已清理，公开24小时App仍保留；旧frp被SIGKILL成僵尸后已独立会话恢复转发，但管理代理仍拒上游私有CA，尚无公网身份标记或用户明确重试结果。UI反馈不代证公网通过，原用户TLS错误也不能只归因代理。
 
 ## 范围、组合与所有权
 
@@ -12,17 +12,18 @@
 | Owner | 唯一职责 |
 | --- | --- |
 | `/root/account_contract` | 本状态、新系统合同与必要说明；本批冻结后由root保存。 |
-| `/root/vue_integration` | 用户/邀请页面与唯一共享client、Session/transport、路由接线；首用户slice已冻结，其余继续实施。 |
+| `/root/vue_integration` | 用户/邀请页面与唯一共享client、Session/transport、路由接线；最终源码已冻结。 |
 | `/root/account_contract/system_api_surface` | 账号安全/SMTP两页及专属API模块，复用共享owner；不参与自身独审。 |
-| `/root/account_backend` | 独立后端树的account/API/装配、后端说明、真实服务与frp；当前服务保留。 |
-| `/root/vue_tests` | 系统四页必要harness/测试与恢复说明；五条真实链已过，新增分页按受影响范围验证。 |
-| `/root/vue_visual_review` | 未参与实现的视觉、交互与适用安全独审；用户问题已复验关闭，其余限定检查继续。 |
+| `/root/account_backend` | 独立后端树的account/API/装配、后端说明、真实服务与frp；私有5250已清理，公开r2保留。 |
+| `/root/vue_tests` | 系统四页必要harness/测试与恢复说明；六条真实链通过，测试与README已冻结。 |
+| `/root/vue_visual_review` | 未参与实现的视觉、交互与适用安全独审；U1–U6关闭，最终图已上传并校验。 |
 
 ## 已打通的流程与检查边界
 
-- 本轮首WIP已先后保存，最近页头/单密码组合 `243a4560` 已推送。后端 `7aa9b503` 已推且正式源码/测试/OpenAPI/说明已集成，后端current不并入。窄修将已提交后的投影失败标为committed/replay，后读COMMIT_UNKNOWN改为DEPENDENCY_UNAVAILABLE，成功DTO不变；定向unit及真实PG HTTP验证通过（11.04秒），含四SMTP命令写后读失败、历史同key恢复且版本/投递/audit不重复，普通GET失败仍not_committed。独立5250已核专用CA/nonce与内建首链；公开r2继续保留 `9dd3044c` 及原账号/Session，不热替换、不新增公网端口，新Vue保守兼容旧后读not_started的Unknown边界。
-- 单密码/U3及邀请修正的冻结输入已通过 `npm run check --prefix web`：全web格式、8文件47/47 unit、vue-tsc与build；随后页头差量的限定格式、类型及build亦通过。页级动作已位于标题右侧，description按需显示，表单保存/取消就近。新增用户/邀请/SMTP投递统一页长下拉（5/10/20/50，默认10；改值清游标历史并回第一页真实读取）正在实现，SMTP 409焦点U4待同输入复验，前述检查不覆盖这批差量；最终截图亦待新候选。defaultfalse dist只作工程/预览构建，真实业务仍为5245 true经独立5250代理。
-- 本轮五条真实spec各1/1有效通过：users 38.6秒，security 11.5秒，invites run02 83.06秒，permissions run02 18.1秒，SMTP 18.9秒。覆盖真实目录/注册可见、安全冲突与原请求恢复、邀请投递/重试/限流/撤销/兑换、普通用户管理403但个人Session200，以及SMTP空保持/替换与丢响应恢复、202后读失败不重发、实际policy_rejected后人工重试至sink sent、移除认证及停用。SMTP输入为 `243a4560`；均用独立5250，非公开r2或外部邮箱。原分页unit失败、邀请run01 DOM断点失败及权限run01准备CSRF错误继续留在harness说明；邀请失败虽与HMR时间重叠，未认定唯一原因。作者浏览器/CLI与测试Session已退出，独立SMTP在最后停用后为unconfigured；公开实例未改。
+- 本轮源码和测试已保存至 `0a824d41`，此前 `550d95c8` 推送亦成功；最终分页候选冻结待本次保存。后端生产修复仍为 `7aa9b503`，正式源码/测试/OpenAPI/说明已集成，后端current不并入。窄修将已提交后的投影失败标为committed/replay，后读COMMIT_UNKNOWN改为DEPENDENCY_UNAVAILABLE，成功DTO不变；定向unit及真实PG HTTP验证通过（11.04秒），含四SMTP命令写后读失败、历史同key恢复且版本/投递/audit不重复，普通GET失败仍not_committed。验证用独立5250已核专用CA/nonce与内建首链，现已清理；公开r2继续保留 `9dd3044c` 及原账号/Session，不热替换、不新增公网端口，新Vue保守兼容旧后读not_started的Unknown边界。
+- 最终分页功能冻结输入通过 `npm run check --prefix web`：全web格式、9文件49/49 unit、vue-tsc与build。随后U6仅给PageSizeSelect根补一行position:relative，限定格式/差量检查与原输入独审复验通过，未重复全量unit或业务。页级动作位于标题右侧，description按需显示，表单保存/取消就近；三列表共用5/10/20/50页长（默认10），改值清游标历史并回第一页真实读取。旧骨架兼容2/2的输入为U4后、分页前dist；defaultfalse dist只作工程/预览构建，真实链使用5245 true经独立5250代理，不混同输入。
+- 本轮六条真实spec各1/1有效通过：users 38.6秒，security 11.5秒，invites run02 83.06秒，permissions run02 18.1秒，SMTP 18.9秒，pagination 10.2秒。覆盖真实目录/注册可见、安全冲突与原请求恢复、邀请投递/重试/限流/撤销/兑换、普通用户管理403但个人Session200，以及SMTP空保持/替换与丢响应恢复、202后读失败不重发、实际policy_rejected后人工重试至sink sent、移除认证及停用。分页另以真实只读目录确认默认10→5翻页→20/50回首无cursor及响应行数，定向unit 2/2（7.22秒）覆盖body尾部/迟到旧页长。SMTP输入为 `243a4560`，分页为最终功能候选；均用独立5250，非公开r2或外部邮箱。原分页unit失败、邀请run01 DOM断点失败及权限run01准备CSRF错误留在harness说明；邀请失败虽与HMR时间重叠，未认定唯一原因。作者浏览器/CLI与测试Session均已退出。
+- 最终有限独审以 `0a824d41` 加冻结分页/U5/U6差量为输入，U1–U6按各自原输入复验关闭。实际查看三列表1440浅色/390深色的页长、状态行、请求limit与回首页，SMTP原生200%及reduced motion、键盘/焦点；U6修后390根文档与视口均844高，无页底外溢。全为受控合成身份/响应，不代证真实后端或公网；[邀请原图](https://img.lunadeer.cn/i/2026/10/16/6ad1d97b6a56c.png)与[SMTP原图](https://img.lunadeer.cn/i/2026/10/16/6ad1d99969051.png)均已上传并匿名下载校验字节一致。独审浏览器/CLI退出，临时缩放profile已移除，无真实admin或公开服务变更。
 - 此前深色仅改 `web/src/styles/tokens.css` 的dark语义色、`web/src/composables/useTheme.ts` 的浏览器主题色映射及 `web/index.html` 的meta。独审发现此前HTML缺theme-color，补标签后才具备实际更新目标。最终三源限定Prettier、build（含vue-tsc）及差量检查通过；实际DOM确认唯一meta随dark→light→dark更新，未称headless已验证原生浏览器栏像素。
 - 此前深色有限独审使用5245受控合成只读身份，实际查看1440同输入前后、390深色、两尺寸菜单及焦点/hover：层次可辨、无横溢，键盘菜单与Esc回焦通过；token对比度辅助检查亦通过。作者另看1440浅色，dark块外CSS逐字保持，无真实admin或SMTP操作，未重跑unit/业务/完整布局矩阵，浏览器均已退出。[中性炭灰原图](https://img.lunadeer.cn/i/2026/10/16/6ad1caedf1ecd.png)已上传并匿名下载校验一致，用户现已接受。
 - 此前设置整框仅改 `web/src/layouts/AppShell.vue`：按settings路由约束完整内容框最大1200px并居中，桌面外侧留白48px、中等宽32px、窄屏沿原5px；SettingsShell填满框内且内部标题/表单继续左齐，项目设置的项目导航随框收口，其他页面仍全宽。仅收窄内部的旧候选已被用户否定并撤回，SettingsShell相对基线无差异。限定Prettier、build（含vue-tsc）及差量格式检查通过，未新增unit或重跑业务旅程。
@@ -47,7 +48,7 @@
 | public r2 | 目标体验URL `https://154.12.86.233:18443`，本地TLS5254终止，frp TCP18443直透；保留旧后端 `9dd3044c` 和原账号/Session，本轮不更新公开后端。新frp已独立会话恢复并跨tool确认存活，尚未完成公网身份/登录验真。 |
 | 有效期限 | started `2026-10-16 04:24:20 UTC`；实际expires **`2026-10-17 04:23:20 UTC`**，约24小时。页面、PG、MinIO、outbound、SMTP的10张实际CA/leaf期限均已核覆盖；进程或环境退出仍可能提前结束，不是永久部署。 |
 | 运行与停止 | 私有目录 `/workspace/scratch/account-preview-public-r2/`；`runtime.json`为0600原子manifest，`run-state.json`记录运行/停止，`credentials.txt`为0600最小凭据文件。密码、Cookie、CSRF和一次性链接不写入文档或普通输出。 |
-| 本地作者组合 | 新独立 `https://localhost:5250` → 5245新Vue dev，后端 `7aa9b503`，长驻Go测试进程内真实App+独立PG17/vector0.8.1、固定MinIO和受控SMTP；不是独立cmd/Central二进制部署。本轮期限为 `2026-10-16 08:04:12 UTC`，与公开r2分开，恢复须核实际进程及manifest。 |
+| 本地作者组合 | 独立5250已于 `2026-10-16 08:00 UTC` 优雅清理，无监听，runtime与scope sidecar已撤。验证输入是后端 `7aa9b503` 的长驻Go测试进程内真实App及专属PG/MinIO/SMTP等依赖，非独立cmd/Central二进制部署；后续验证需重新启动owned实例，不能复用旧manifest。 |
 | 静态预览 | 5244/HTTP18081保持 `VITE_ACCOUNT_ENABLED=false`；公开 `/login` 的禁用输入、官方Logo和预览提示已浏览器核实，账号API请求为0。原型5241、业务dev5245及既有frp18081按授权保留。 |
 
 公开实例不要求frps配置HTTPS/证书，也不依赖用户Nginx；现有443应用保持。临时专用CA和IP SAN会产生普通浏览器的不信任提示，用户已知；保持 `DevMode=false`、Secure Cookie和Host/Origin/CSRF校验，不修改系统信任。严格测试只信本轮专用CA/SPKI。准确启动与停止命令见[后端预览说明](../docs/development/backend/account.md)，不把历史manifest视为服务仍在。
@@ -60,11 +61,11 @@
 
 SMTP仅连接本任务私有sink，邀请/重置正文链已验证，不代表外部邮箱已配置或送达。202只表示受理；SMTP配置后不回退backend_log。公开演示的恢复渠道限制继续明确，不向真实用户/外部邮箱发邮件。
 
-旧45分钟public-r1已正常退出并完成原App/依赖清理，旧manifest/凭据已撤，不能再交给用户。作者Playwright均已退出；兼容preview5242原进程closed、exit143且无监听。public-r2的App、新恢复frp和授权保留dev不收掉；旧Z进程不是运行中的服务，工具退出与服务保留分开。
+旧45分钟public-r1已正常退出并完成原App/依赖清理，旧manifest/凭据已撤，不能再交给用户。本轮独立5250的App与外链均actual wait0，专属4容器/4网络逐ID确认不存在，7子进程已消失；launcher192442为exit0待reap的Z，非运行服务。作者Playwright均已退出；兼容preview5242已closed、exit143且无监听。backend清理时只读确认public-r2 App、恢复frp及5254/5245/5241仍在，未重新TLS探测或操作它们；公开r2和授权保留dev不收掉，工具退出与服务保留分开。
 
 ## 保存与下一步
 
-本轮系统四页按新合同持续实施；稳定源码、测试和文档由各owner冻结后交root保存/推送，WIP不等于四页完成、main或生产发布。下一结果是页长切换的受影响检查、SMTP冲突焦点复验与最终有限独审图。系统全局配置写在独立测试实例执行，不改用户试用实例；后端准确committed修复随Git交付，公开r2继续旧版本。公网仍待身份标记及真实登录结果；当前UI反馈不代证公网通过。恢复需核非Z状态、PID起始ticks/会话、实际监听/转发和24小时资源/证书期限，不能只凭PID存在或旧日志。用户图片继续先上传图床并提供原图链接。
+本轮系统四页源码、测试、说明及最终独审已冻结，交root保存/推送；本状态不预写自身提交或宣称已合main/生产发布。其余七项系统设置仍为骨架，不自动扩展。系统全局配置验证只在已清理的独立实例执行，未改用户试用实例；后端准确committed修复随Git交付，公开r2继续旧版本。公网仍待身份标记及真实登录结果，公开SMTP仅受控sink；当前UI反馈不代证公网或外部邮件送达。恢复需核非Z状态、PID起始ticks/会话、实际监听/转发和24小时资源/证书期限，不能只凭PID存在或旧日志。用户图片继续先上传图床并提供原图链接。
 
 ## 保留的既有恢复入口
 

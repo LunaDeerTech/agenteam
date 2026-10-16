@@ -116,3 +116,13 @@ node tests/account-captcha-web/node_modules/@playwright/test/cli.js test --confi
 - `system-smtp-run-01`：最终产品输入 `243a4560`，1/1 通过，18.9 秒。单密码框空值保持凭据且请求省略 password；新值替换、派发清空；真实保存接受后受控丢响应，仍用原 key/body/版本显式恢复，GET 安全投影不回显密码。保存私有主机的未允许端口成功不触发发送；独立测试 202 后受控丢 GET，只重读且测试 POST 共一次，真实任务最终 `policy_rejected`。恢复原端口后人工 retry 产生新任务，真实 SMTP sink 接收并确认 `sent`，与“请求已受理”分开；最后显式移除认证与停用配置均确认。成功后仅将空密码断言改为布尔输出，防未来失败报告回显值，没有改变步骤或重跑真实写入。
 
 上述五个限定入口各有一轮实际通过，原失败仍保留在忽略输出目录。全部作者 Playwright/CLI 已退出，每次测试上下文收尾真实 logout 204、再读 Session 401；无 trace、默认失败 DOM、截图、邮件正文或凭据附件。该 harness 没有持有监听，也未改公网 r2 用户管理员、配置或 frp。最终 owned 5250 的 SMTP 因显式停用验收而未配置，mailbox/全局写窗口已释放；服务退出由后端 owner 统一执行，本 README 不把测试进程退出当成后端服务退出。
+
+用户随后明确每页可选 5/10/20/50、默认 10。新增 `web/tests/system-account-pagination.spec.ts` 仅定向 2/2 通过（7.22 秒）：响应数组上界绑定实际请求大小；旧 5 条页面的 body 尚未读完时切到 20，不提前释放共享 HTTP 队列，完成收尾后新请求无旧 cursor，迟到旧行不发布。该测试源与下面真实入口保存于 `0a824d41`，运行消费 frontend owner 后续冻结的分页产品候选；此前四页证据不当作新分页证据。
+
+新增真实入口仅使用现有管理员读取已种好的独立用户目录，不恢复 SMTP、不创建账号或发邮件。先 `--list` 加载 1 条，再实际 `system-pagination-run-01` 1/1 通过（10.2 秒）：默认 10，选 5 后进入第二页携带实际 cursor，再选 20/50 各产生新的对应 limit 请求、清 cursor 回第一页，显示条目与真实 API 响应一致。收尾仍 logout 204 → Session 401，浏览器和 CLI 退出，owned 服务生命周期留给后端 owner。三个列表的布局、键盘选择和 SMTP 空列表 query 由独立受控审查另行覆盖，不与该真实用户目录范围混记。
+
+```sh
+npm run test:unit --prefix web -- tests/system-account-pagination.spec.ts
+export FRONTEND_ACCOUNT_OUTPUT="$PWD/output/ai/frontend-account-rebuild/system-pagination-run-01"
+node tests/account-captcha-web/node_modules/@playwright/test/cli.js test --config tests/frontend-account-rebuild/playwright.config.cjs system-pagination.spec.cjs
+```

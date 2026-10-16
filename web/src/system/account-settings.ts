@@ -533,11 +533,17 @@ export function isMailJob(value: unknown): value is MailJobManagement {
     return false;
   return true;
 }
-export function isMailJobPage(value: unknown): value is MailJobPage {
+export function isMailJobPage(
+  value: unknown,
+  limit = SETTINGS_PAGE_SIZE,
+): value is MailJobPage {
   if (
+    !Number.isInteger(limit) ||
+    limit < 1 ||
+    limit > 100 ||
     !exact(value, ["items"], ["next_cursor"]) ||
     !Array.isArray(value.items) ||
-    value.items.length > SETTINGS_PAGE_SIZE ||
+    value.items.length > limit ||
     !value.items.every(isMailJob)
   )
     return false;
@@ -546,7 +552,7 @@ export function isMailJobPage(value: unknown): value is MailJobPage {
     (typeof value.next_cursor !== "string" ||
       !value.next_cursor ||
       value.next_cursor.length > 8192 ||
-      value.items.length !== SETTINGS_PAGE_SIZE)
+      value.items.length !== limit)
   )
     return false;
   const seen = new Set<string>();
@@ -564,19 +570,28 @@ export function isMailJobPage(value: unknown): value is MailJobPage {
     },
   );
 }
-export function listSMTPJobs(cursor?: string, options: ReadOptions = {}) {
-  if (cursor !== undefined && (!cursor || cursor.length > 8192))
+export function listSMTPJobs(
+  cursor?: string,
+  options: ReadOptions = {},
+  limit = SETTINGS_PAGE_SIZE,
+) {
+  if (
+    !Number.isInteger(limit) ||
+    limit < 1 ||
+    limit > 100 ||
+    (cursor !== undefined && (!cursor || cursor.length > 8192))
+  )
     throw new AccountError("INVALID_ARGUMENT");
   return systemRequest(
     "/system/mail-jobs/management",
     {
       ...options,
       query: {
-        limit: String(SETTINGS_PAGE_SIZE),
+        limit: String(limit),
         ...(cursor ? { cursor } : {}),
       },
     },
-    isMailJobPage,
+    (value): value is MailJobPage => isMailJobPage(value, limit),
   );
 }
 export function getSMTPJob(jobId: string, options: ReadOptions = {}) {

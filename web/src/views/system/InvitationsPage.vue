@@ -21,6 +21,7 @@ import { formatInstant } from "../../system/directory";
 import { useSystemAccess } from "../../system/requests";
 import { useCursorList } from "../../system/useCursorList";
 import SettingsPageActions from "../../layouts/SettingsPageActions.vue";
+import PageSizeSelect from "../../components/system/PageSizeSelect.vue";
 import {
   retryMailJobCommand,
   mailJobRetryReason,
@@ -170,15 +171,16 @@ function close(force = false) {
 }
 async function refresh() {
   if (locked.value) return;
-  await list.first();
+  await navigate(list.first);
   if (!list.error.value && access.allowed.value) refreshNeeded.value = false;
 }
 async function navigate(action: () => Promise<void>) {
   if (locked.value) return;
   await action();
   await nextTick();
-  (list.error.value ? errorTarget.value : resultTarget.value)?.focus();
-  resultTarget.value?.scrollIntoView({ block: "start" });
+  const target = list.error.value ? errorTarget.value : resultTarget.value;
+  target?.focus();
+  target?.scrollIntoView({ block: "start" });
 }
 async function submit() {
   if (
@@ -289,15 +291,27 @@ onBeforeUnmount(() => {
     <p v-if="feedback && !task" class="form-feedback" role="status">
       {{ feedback }}
     </p>
-    <p class="directory-status form-note" role="status" aria-live="polite">
-      {{
-        list.loading.value
-          ? "正在读取邀请…"
-          : list.loaded.value
-            ? `第 ${list.index.value + 1} 页，已读取 ${list.items.value.length} 条邀请。`
-            : ""
-      }}
-    </p>
+    <div class="directory-list-status">
+      <p class="directory-status form-note" role="status" aria-live="polite">
+        {{
+          list.loading.value
+            ? "正在读取邀请…"
+            : list.loaded.value
+              ? `第 ${list.index.value + 1} 页，已读取 ${list.items.value.length} 条邀请。`
+              : ""
+        }}
+      </p>
+      <PageSizeSelect
+        :model-value="list.pageSize.value"
+        :disabled="
+          !accountEnabled ||
+          !access.allowed.value ||
+          operation.busy.value ||
+          operation.uncertain.value
+        "
+        @update:model-value="list.setPageSize"
+      />
+    </div>
     <div
       ref="resultTarget"
       tabindex="-1"
@@ -533,9 +547,20 @@ onBeforeUnmount(() => {
   justify-content: space-between;
   gap: 16px;
 }
+.directory-list-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 18px;
+}
+.directory-list-status :deep(.page-size-select) {
+  margin-left: auto;
+}
 .directory-status {
   min-height: 20px;
-  margin-block: 18px 0;
+  margin: 0;
 }
 .directory-results {
   scroll-margin-block: 12px;

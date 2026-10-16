@@ -16,6 +16,8 @@ import {
   UiSelect,
   UiTabs,
 } from "../../components/ui";
+import PageSizeSelect from "../../components/system/PageSizeSelect.vue";
+import { isPageSize } from "../../system/pagination";
 import { useLeaveProtection } from "../../account/leave";
 import {
   AccountError,
@@ -79,6 +81,7 @@ const listError = shallowRef<unknown>();
 const nextCursor = ref<string>();
 const cursors = ref<(string | undefined)[]>([undefined]);
 const page = ref(0);
+const pageSize = ref(10);
 let listTarget: { cursor?: string; page: number } = { page: 0 };
 const detailId = ref<string>();
 const detail = shallowRef<MailJobManagement>();
@@ -86,6 +89,7 @@ const detailReading = ref(false);
 const detailError = shallowRef<unknown>();
 const detailHeading = ref<HTMLElement | null>(null);
 const listHeading = ref<HTMLElement | null>(null);
+const configFeedback = ref<HTMLElement | null>(null);
 const checking = ref(false);
 const confirmation = ref<
   | "discard"
@@ -278,6 +282,16 @@ async function saveConfiguration(stop = false) {
       adopt(observation.value!);
     },
   );
+  await nextTick();
+  if (
+    alive &&
+    generation === access.generation.value &&
+    access.allowed.value &&
+    section.value === "configuration" &&
+    configSave.error.value &&
+    !configSave.uncertain.value
+  )
+    configFeedback.value?.focus();
 }
 async function removeAuthentication() {
   if (
@@ -308,6 +322,7 @@ async function removeAuthentication() {
 async function loadJobs(cursor?: string, targetPage = 0) {
   if (!access.allowed.value || !accountEnabled || listReading.value) return;
   const revision = ++listRevision;
+  const limit = pageSize.value;
   const generation = access.generation.value;
   const focused = document.activeElement;
   const restoreFocus =
@@ -326,7 +341,7 @@ async function loadJobs(cursor?: string, targetPage = 0) {
   rows.value = [];
   nextCursor.value = undefined;
   try {
-    const value = await listSMTPJobs(cursor, { current });
+    const value = await listSMTPJobs(cursor, { current }, limit);
     if (!current()) return;
     rows.value = value.items;
     nextCursor.value = value.next_cursor;
@@ -342,6 +357,21 @@ async function loadJobs(cursor?: string, targetPage = 0) {
       if (current()) listHeading.value?.focus({ preventScroll: true });
     }
   }
+}
+async function changePageSize(value: number) {
+  if (!isPageSize(value) || value === pageSize.value || !access.allowed.value)
+    return;
+  listRevision++;
+  listReading.value = false;
+  listReady.value = false;
+  rows.value = [];
+  nextCursor.value = undefined;
+  cursors.value = [undefined];
+  page.value = 0;
+  pageSize.value = value;
+  listError.value = undefined;
+  listTarget = { page: 0 };
+  await loadJobs();
 }
 async function openJob(jobId: string, moveFocus = true) {
   if (!access.allowed.value || detailReading.value) return;
@@ -474,6 +504,7 @@ function clearDelivery() {
   nextCursor.value = undefined;
   cursors.value = [undefined];
   page.value = 0;
+  pageSize.value = 10;
   detailId.value = undefined;
   detail.value = undefined;
   listError.value = undefined;
@@ -808,8 +839,10 @@ useLeaveProtection(
           </div>
           <div
             v-else-if="configSave.error.value"
+            ref="configFeedback"
             class="form-feedback"
             role="alert"
+            tabindex="-1"
           >
             <p>
               {{
@@ -1113,17 +1146,28 @@ useLeaveProtection(
               >
             </li>
           </ul>
-          <div v-if="listReady" class="pagination">
-            <span class="form-note" role="status"
-              >第 {{ page + 1 }} 页 · 本页 {{ rows.length }} 项</span
-            >
+          <div class="pagination">
+            <div class="pagination-status">
+              <span class="form-note" role="status">{{
+                listReady
+                  ? `第 ${page + 1} 页 · 本页 ${rows.length} 项`
+                  : listReading
+                    ? "正在读取任务…"
+                    : "尚未读取任务"
+              }}</span>
+              <PageSizeSelect
+                :model-value="pageSize"
+                :disabled="anyBusy"
+                @update:model-value="changePageSize"
+              />
+            </div>
             <div class="form-actions">
               <UiButton
-                :disabled="anyBusy || page === 0"
+                :disabled="anyBusy || !listReady || page === 0"
                 @click="loadJobs(cursors[page - 1], page - 1)"
                 >上一页</UiButton
               ><UiButton
-                :disabled="anyBusy || !nextCursor"
+                :disabled="anyBusy || !listReady || !nextCursor"
                 @click="loadJobs(nextCursor, page + 1)"
                 >下一页</UiButton
               >
@@ -1214,12 +1258,19 @@ h2 {
   min-width: 0;
 }
 .section-toolbar,
-.pagination {
+.pagination,
+.pagination-status {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
+}
+.pagination {
+  justify-content: flex-end;
+}
+.pagination-status {
+  width: 100%;
 }
 .job-reference {
   font-family: var(--font-mono);

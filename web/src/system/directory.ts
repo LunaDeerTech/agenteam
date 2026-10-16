@@ -1,6 +1,8 @@
 import { isRecord, isUser, type AccountUser } from "../account/types";
 import { systemRequest } from "./requests";
 import type { CursorPage } from "./useCursorList";
+import { AccountError } from "../account/transport";
+import { isPageSize } from "./pagination";
 
 export const isInstant = (value: unknown): value is string =>
   typeof value === "string" &&
@@ -18,6 +20,7 @@ export interface SystemUser extends AccountUser {
 export function isCursorPage<T>(
   value: unknown,
   item: (value: unknown) => value is T,
+  limit = 100,
 ): value is CursorPage<T> {
   return (
     isRecord(value) &&
@@ -25,18 +28,24 @@ export function isCursorPage<T>(
       (key) => key === "items" || key === "next_cursor",
     ) &&
     Array.isArray(value.items) &&
-    value.items.length <= 100 &&
+    value.items.length <= limit &&
     value.items.every(item) &&
     (value.next_cursor === undefined ||
       (typeof value.next_cursor === "string" &&
         value.next_cursor.length > 0 &&
-        new TextEncoder().encode(value.next_cursor).length <= 8192))
+        new TextEncoder().encode(value.next_cursor).length <= 8192 &&
+        value.items.length === limit))
   );
 }
-export function listUsers(cursor?: string, current?: () => boolean) {
+export function listUsers(
+  cursor?: string,
+  current?: () => boolean,
+  limit = 10,
+) {
+  if (!isPageSize(limit)) throw new AccountError("INVALID_ARGUMENT");
   return systemRequest(
     "/system/users",
-    { query: { limit: 10, cursor }, current },
+    { query: { limit, cursor }, current },
     (value): value is CursorPage<SystemUser> =>
       isCursorPage(
         value,
@@ -56,7 +65,8 @@ export function listUsers(cursor?: string, current?: () => boolean) {
             ].includes(key),
           ) &&
           isInstant((item as unknown as Record<string, unknown>).created_at),
-      ) && value.items.length <= 10,
+        limit,
+      ),
   );
 }
 export function formatInstant(value: string) {

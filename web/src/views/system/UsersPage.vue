@@ -6,6 +6,7 @@ import { listUsers, formatInstant } from "../../system/directory";
 import { useSystemAccess } from "../../system/requests";
 import { useCursorList } from "../../system/useCursorList";
 import SettingsPageActions from "../../layouts/SettingsPageActions.vue";
+import PageSizeSelect from "../../components/system/PageSizeSelect.vue";
 const access = useSystemAccess();
 const list = useCursorList(listUsers);
 const results = ref<HTMLElement>();
@@ -54,15 +55,22 @@ async function navigate(action: () => Promise<void>) {
         >返回第一页</UiButton
       >
     </div>
-    <p class="directory-status form-note" role="status" aria-live="polite">
-      {{
-        list.loading.value
-          ? "正在读取用户…"
-          : list.loaded.value
-            ? `第 ${list.index.value + 1} 页，已读取 ${list.items.value.length} 位用户。`
-            : ""
-      }}
-    </p>
+    <div class="directory-list-status">
+      <p class="directory-status form-note" role="status" aria-live="polite">
+        {{
+          list.loading.value
+            ? "正在读取用户…"
+            : list.loaded.value
+              ? `第 ${list.index.value + 1} 页，已读取 ${list.items.value.length} 位用户。`
+              : ""
+        }}
+      </p>
+      <PageSizeSelect
+        :model-value="list.pageSize.value"
+        :disabled="!accountEnabled || !access.allowed.value"
+        @update:model-value="list.setPageSize"
+      />
+    </div>
     <div
       ref="results"
       tabindex="-1"
@@ -141,9 +149,19 @@ async function navigate(action: () => Promise<void>) {
   padding: 0;
   margin: 24px 0;
 }
+.directory-list-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+.directory-list-status :deep(.page-size-select) {
+  margin-left: auto;
+}
 .directory-status {
   min-height: 20px;
-  margin-bottom: 0;
+  margin: 0;
 }
 .directory-results {
   scroll-margin-block: 12px;

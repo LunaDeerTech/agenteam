@@ -1,6 +1,7 @@
-import { onBeforeUnmount, ref, shallowRef, watch } from "vue";
+import { onBeforeUnmount, readonly, ref, shallowRef, watch } from "vue";
 import { accountEnabled } from "../account/transport";
 import { useSystemAccess } from "./requests";
+import { isPageSize, type PageSize } from "./pagination";
 
 export interface CursorPage<T> {
   items: T[];
@@ -11,10 +12,12 @@ export function useCursorList<T>(
   read: (
     cursor: string | undefined,
     current: () => boolean,
+    limit: number,
   ) => Promise<CursorPage<T>>,
 ) {
   const access = useSystemAccess();
   const items = shallowRef<T[]>([]);
+  const pageSize = ref<PageSize>(10);
   const cursors = ref<Array<string | undefined>>([undefined]);
   const index = ref(0);
   const nextCursor = ref<string>();
@@ -39,7 +42,11 @@ export function useCursorList<T>(
     loading.value = true;
     error.value = undefined;
     try {
-      const value = await read(cursor, () => alive && owner === sequence);
+      const value = await read(
+        cursor,
+        () => alive && owner === sequence,
+        pageSize.value,
+      );
       if (!alive || owner !== sequence) return;
       items.value = value.items;
       index.value = page;
@@ -52,7 +59,14 @@ export function useCursorList<T>(
       if (alive && owner === sequence) loading.value = false;
     }
   }
-  watch(access.generation, clear, { flush: "sync" });
+  watch(
+    access.generation,
+    () => {
+      pageSize.value = 10;
+      clear();
+    },
+    { flush: "sync" },
+  );
   watch(
     access.allowed,
     (value) => {
@@ -70,6 +84,19 @@ export function useCursorList<T>(
     loaded,
     error,
     index,
+    pageSize: readonly(pageSize),
+    async setPageSize(value: string | number) {
+      const size = typeof value === "string" ? Number(value) : value;
+      if (
+        !isPageSize(size) ||
+        (typeof value === "string" && String(size) !== value) ||
+        size === pageSize.value
+      )
+        return;
+      clear();
+      pageSize.value = size;
+      await load(0, undefined);
+    },
     nextCursor,
     reload: () => load(),
     first: () => load(0, undefined),
