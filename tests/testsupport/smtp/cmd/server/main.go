@@ -28,6 +28,7 @@ type scenario struct {
 	release chan struct{}
 	once    sync.Once
 	tls     *tls.Config
+	message []byte
 }
 type server struct {
 	mu    sync.Mutex
@@ -52,7 +53,8 @@ func main() {
 	}
 }
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if r.Header.Get("X-Fixture-Nonce") != s.nonce {
+	nonces := r.Header.Values("X-Fixture-Nonce")
+	if len(nonces) != 1 || nonces[0] != s.nonce {
 		w.WriteHeader(403)
 		return
 	}
@@ -134,6 +136,22 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		state := c.state
 		c.mu.Unlock()
 		_ = json.NewEncoder(w).Encode(state)
+		return
+	}
+	if r.Method == "GET" && parts[0] == "message" && c.config.CaptureMessage {
+		c.mu.Lock()
+		message := append([]byte(nil), c.message...)
+		c.mu.Unlock()
+		defer clear(message)
+		if len(message) == 0 {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		w.Header().Set("Cache-Control", "no-store")
+		w.Header().Set("Content-Type", "message/rfc822")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("Content-Length", strconv.Itoa(len(message)))
+		_, _ = w.Write(message)
 		return
 	}
 	w.WriteHeader(404)
@@ -286,8 +304,15 @@ func (c *scenario) serve(raw net.Conn) {
 			c.state.MessageSHA = hex.EncodeToString(sum[:])
 			c.state.MessageID = mid
 			c.mu.Unlock()
+			accepted := c.phase("accepted") && write(c.config.DataCode)
+			if accepted && c.config.DataCode == 250 && c.config.CaptureMessage {
+				c.mu.Lock()
+				clear(c.message)
+				c.message = append([]byte(nil), message...)
+				c.mu.Unlock()
+			}
 			clear(message)
-			if !c.phase("accepted") || !write(c.config.DataCode) {
+			if !accepted {
 				return
 			}
 		default:

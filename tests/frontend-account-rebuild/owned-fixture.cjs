@@ -108,4 +108,20 @@ async function sessionStatus(page) {
   });
 }
 
-module.exports = { test, expect, sessionStatus };
+async function fillPrivate(locator, value) {
+  try {
+    await locator.fill(value, { timeout: 5000 });
+  } catch {
+    throw new Error("PRIVATE_FIELD_INTERACTION_FAILED");
+  }
+}
+
+async function openPrivateLink(page, url) {
+  try {
+    await page.goto(url, { timeout: 15000 });
+  } catch {
+    throw new Error("PRIVATE_LINK_NAVIGATION_FAILED");
+  }
+}
+
+module.exports = { test, expect, sessionStatus, fillPrivate, openPrivateLink };

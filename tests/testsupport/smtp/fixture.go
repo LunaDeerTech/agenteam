@@ -43,8 +43,11 @@ type Scenario struct {
 	Mode                                   string
 	AuthCode, MailCode, RCPTCode, DataCode int
 	NoSTARTTLS, NoAuth                     bool
-	CloseStage, PauseStage                 string
-	GreetingBytes, GreetingLines           int
+	// CaptureMessage retains only the last successfully accepted DATA body in
+	// this owned fixture. Ordinary protocol tests never retain message bodies.
+	CaptureMessage               bool
+	CloseStage, PauseStage       string
+	GreetingBytes, GreetingLines int
 }
 type State struct {
 	Connections, Closed, TLS, Auth, Mail, RCPT, Data, Messages int
@@ -320,6 +323,48 @@ func (f *Fixture) State(ctx context.Context, id string) (State, error) {
 	var out State
 	e := f.control(ctx, "GET", "/state/"+id, nil, &out)
 	return out, e
+}
+
+// ErrMessageUnavailable means that this opted-in fixture has not captured a
+// successful message. It does not describe the production mail job state.
+var ErrMessageUnavailable = errors.New("SMTP fixture message unavailable")
+
+// UseLastMessage lends the last accepted RFC 5322 bytes through the fixture's
+// private, nonce-authenticated control channel. The callback must not log the
+// message or retain the borrowed slice; the owned copy is erased on return.
+// This is a test capability, never an application HTTP endpoint.
+func (f *Fixture) UseLastMessage(ctx context.Context, id string, use func([]byte) error) error {
+	if use == nil || len(id) != 32 || strings.Trim(id, "0123456789abcdef") != "" {
+		return errors.New("SMTP fixture message request invalid")
+	}
+	if e := f.Verify(ctx); e != nil {
+		return e
+	}
+	req, e := http.NewRequestWithContext(ctx, http.MethodGet, "http://"+net.JoinHostPort(f.PrivateIP, "9000")+"/message/"+id, nil)
+	if e != nil {
+		return errors.New("SMTP fixture message request invalid")
+	}
+	req.Header.Set("X-Fixture-Nonce", f.Nonce)
+	transport := &http.Transport{Proxy: nil}
+	defer transport.CloseIdleConnections()
+	client := &http.Client{Transport: transport, Timeout: 2 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
+	response, e := client.Do(req)
+	if e != nil {
+		return errors.New("SMTP fixture message control unavailable")
+	}
+	defer response.Body.Close()
+	if response.StatusCode == http.StatusNotFound {
+		return ErrMessageUnavailable
+	}
+	if response.StatusCode != http.StatusOK || response.Header.Get("Content-Type") != "message/rfc822" || response.ContentLength < 1 || response.ContentLength > 65536 {
+		return errors.New("SMTP fixture message control rejected")
+	}
+	message, e := io.ReadAll(io.LimitReader(response.Body, 65537))
+	defer clear(message)
+	if e != nil || int64(len(message)) != response.ContentLength {
+		return errors.New("SMTP fixture message body invalid")
+	}
+	return use(message)
 }
 
 func certificates(dir string) error {

@@ -35,7 +35,7 @@ keyring 占位值故意无效；部署须独立生成随机 32-byte 材料并使
 
 ## 正式 HTTP 与资料头像
 
-[account OpenAPI](../../../api/openapi/account.json) 固定 34 个显式 method/path、26 条路径，均位于 `/api/v1`：
+[account OpenAPI](../../../api/openapi/account.json) 固定 37 个显式 method/path、28 条路径，均位于 `/api/v1`：
 
 | 表面 | 当前能力 |
 | --- | --- |
@@ -52,6 +52,24 @@ email 只读，本人可改 username/display_name/theme；username 按当前 DB 
 头像切换、旧引用关门、Audit 与 receipt 在同一真实 Tx；后台按持久 cause 与实际 lease 公平清理，不从取消或年龄猜测实例死亡。GET/HEAD 支持单 Range，逐次核本人当前 exact ObjectID；已建立 reader 的底层 I/O 和 Close/join 真实结束后才释放 lease。它不是匿名 URL，也不是通用 Artifact/下载接口。
 
 Account/Mail 初始化、bootstrap 和恢复消耗同一剩余安全启动预算。健康采样核真实技术状态，不发送邮件。停机先停全部准入，Mail 的 FinishDelivery 和 actual join 必须先于 Core 最终排空；LoginResponse.UseCookie、头像解码/reader 和整个恢复日志 Sink 未 join 时保留共享 guard，DB 最后关闭，详见[生命周期](README.md#停止与退出)。
+
+## 新 Vue 账号联调
+
+新 `web/` 独立实现账号客户端、Session 与七个页面，页面和恢复语义见[账号重建工作项](../work-items/frontend-account-rebuild.md)。当前 HTTP 能力覆盖这些页面，无须新增同义 API。新客户端先调用匿名 bootstrap，用 browser CSRF 登录，再 GET session 取得会话 CSRF；本人资料/偏好/头像共享 User version。改密成功换发新 Cookie，若返回丢失须重新登录；不能用旧已撤销 Session 重放取回 Cookie。
+
+本轮隔离服务入口为 [run-account-preview.sh](../../../scripts/run-account-preview.sh) 与测试专属 [App fixture](../../../internal/central/app/account_preview_fixture_test.go)，不改变生产身份入口。使用固定 PostgreSQL、MinIO、真实 App/Account/Mail 与只向自有私网 sink 投递的 SMTP；不读取部署数据库或邮件凭据。运行前按本页依赖说明准备固定工具链、镜像和 MinIO binary。示例只启动本地服务，未创建公网映射：
+
+```sh
+AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go \
+AGENTEAM_MINIO_BINARY=/task-owned/cache/minio \
+GOMAXPROCS=2 GOFLAGS=-p=2 sh scripts/run-account-preview.sh
+```
+
+脚本新建0700私有目录，就绪后写入0600的 `runtime.json`，仅向受信测试调用方提供本轮 origin、证书/SPKI、临时账号与私有 SMTP 控制材料。默认 `https://localhost:5250` 将正式 `/api/v1` 转给真实 App，其他页面转给 `http://127.0.0.1:5245` 的新 Vue。App 关闭 DevMode，保留 Host/Origin/CSRF 与 Secure Cookie；浏览器只信任本轮精确证书/SPKI，不关闭全局证书验证。`runtime.json` 不入版本控制、普通日志或截图。
+
+SMTP fixture 默认只记录计数/摘要；显式 `Scenario.CaptureMessage` 才保留最后一封已完整收到且250响应实际写回的邮件。`UseLastMessage` 经已核所有权的私网与 nonce 控制通道借用正文，回调返回即清本地副本，替换清旧正文；邮件正文不进普通 State/日志，不提供生产取回接口。新浏览器验收从此真实 SMTP 正文提取一次性链接，不能将 `accepted:true` 或其他恢复渠道拼接成邮件已送达。该 sink 只证明受控 SMTP 接受，不证明外部邮箱投递。
+
+本地轮次最多45分钟，受夹具证书有效期约束；停止时创建私有目录下的 `stop` 文件，或向该目录 `launcher.pid` 对应的原脚本发 SIGTERM。脚本等原 App、SMTP、PG、MinIO 退出和精确清理；不要直接终止下层测试进程来代替资源清理。下一轮须重新启动并核实，旧 manifest 不证明服务仍在运行。
 
 ## 邮箱 canonical 与 SMTP wire
 

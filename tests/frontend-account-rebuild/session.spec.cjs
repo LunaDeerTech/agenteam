@@ -1,4 +1,9 @@
-const { test, expect, sessionStatus } = require("./owned-fixture.cjs");
+const {
+  test,
+  expect,
+  sessionStatus,
+  fillPrivate,
+} = require("./owned-fixture.cjs");
 
 test("real login restores a protected destination and logout revokes the current session", async ({
   page,
@@ -11,10 +16,14 @@ test("real login restores a protected destination and logout revokes the current
     page.getByRole("heading", { name: "登录", exact: true }),
   ).toBeVisible();
   expect(await sessionStatus(page)).toBe(401);
-  await page.getByLabel("邮箱", { exact: true }).fill(owned.credentials.email);
-  await page
-    .getByLabel("密码", { exact: true })
-    .fill(owned.credentials.password);
+  await fillPrivate(
+    page.getByLabel("邮箱", { exact: true }),
+    owned.credentials.email,
+  );
+  await fillPrivate(
+    page.getByLabel("密码", { exact: true }),
+    owned.credentials.password,
+  );
   const loginResponse = page.waitForResponse(
     (response) =>
       response.url().endsWith("/api/v1/sessions/login") &&
