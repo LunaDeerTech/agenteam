@@ -489,8 +489,8 @@ async function interactions(browser) {
     "proxy-mode-credentials-protocol-and-cancel",
     async (page, state) => {
       await tab(page, "代理设置").click();
-      await expect(field(page, "密码")).toHaveValue("");
-      await expect(field(page, "密码")).toHaveAttribute(
+      await expect(field(page, "密码（可选）")).toHaveValue("");
+      await expect(field(page, "密码（可选）")).toHaveAttribute(
         "placeholder",
         "留空保持现有密码",
       );
@@ -524,17 +524,17 @@ async function interactions(browser) {
       await modal
         .getByRole("button", { name: "移除身份认证", exact: true })
         .click();
-      await expect(field(page, "用户名")).toHaveValue("");
+      await expect(field(page, "用户名（可选）")).toHaveValue("");
       await focusedControl(page);
       await btn(page, "取消").click();
       await dialog(page, "放弃当前修改")
         .getByRole("button", { name: "放弃修改", exact: true })
         .click();
-      await expect(field(page, "用户名")).toHaveValue("synthetic-user");
+      await expect(field(page, "用户名（可选）")).toHaveValue("synthetic-user");
       await focusedControl(page);
       await select(page, "连接方式", "使用代理");
       const protocol = page.getByRole("combobox", {
-        name: "代理协议",
+        name: "代理服务器类型",
         exact: true,
       });
       await protocol.focus();

@@ -342,7 +342,7 @@ useLeaveProtection(
             </p>
             <UiSelect
               v-model="proxy.draft.value.protocol"
-              label="代理协议"
+              label="代理服务器类型"
               :options="protocolOptions"
               :disabled="locked"
             />
@@ -350,12 +350,15 @@ useLeaveProtection(
               <UiInput
                 v-model="proxy.draft.value.host"
                 label="代理主机"
+                placeholder="例如 proxy.example.com"
+                hint="仅填写 IP 或域名，不含协议前缀。"
                 :error="fieldError('host')"
                 autocomplete="off"
                 spellcheck="false"
               /><UiInput
                 v-model="proxy.draft.value.port"
                 label="代理端口"
+                placeholder="7890"
                 :error="fieldError('port')"
                 inputmode="numeric"
                 autocomplete="off"
@@ -363,13 +366,13 @@ useLeaveProtection(
             </div>
             <UiInput
               v-model="proxy.draft.value.username"
-              label="用户名"
+              label="用户名（可选）"
               :error="fieldError('username')"
               autocomplete="off"
             />
             <UiInput
               v-model="proxy.draft.value.password"
-              label="密码"
+              label="密码（可选）"
               type="password"
               :placeholder="
                 proxy.baseline.value?.gateway?.credential_present &&
@@ -629,6 +632,7 @@ h2 {
 }
 .gateway-address {
   display: grid;
+  align-items: start;
   grid-template-columns: minmax(0, 1fr) 120px;
   gap: 16px;
 }

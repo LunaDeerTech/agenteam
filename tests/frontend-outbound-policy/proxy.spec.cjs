@@ -31,7 +31,9 @@ async function saveProxy(page, receipts) {
   await expect
     .poll(
       async () =>
-        (await page.getByLabel("密码", { exact: true }).inputValue()) === "",
+        (await page
+          .getByLabel("密码（可选）", { exact: true })
+          .inputValue()) === "",
     )
     .toBe(true);
   return receipt;
@@ -98,15 +100,20 @@ test("owned proxy keeps, replaces and removes credentials and recovers only its 
   await select(page, "连接方式", "使用代理");
   await select(
     page,
-    "代理协议",
+    "代理服务器类型",
     { http: "HTTP CONNECT", https: "HTTPS CONNECT", socks5: "SOCKS5" }[
       gateway.protocol
     ],
   );
   await fillPrivate(page.getByLabel("代理主机", { exact: true }), gateway.host);
   await page.getByLabel("代理端口", { exact: true }).fill(String(gateway.port));
-  await page.getByLabel("用户名", { exact: true }).fill("owned-browser");
-  await fillPrivate(page.getByLabel("密码", { exact: true }), secrets[0]);
+  await page
+    .getByLabel("用户名（可选）", { exact: true })
+    .fill("owned-browser");
+  await fillPrivate(
+    page.getByLabel("密码（可选）", { exact: true }),
+    secrets[0],
+  );
   const first = await saveProxy(page, receipts);
   const stored = await api(page, endpoint);
   expect(stored.status).toBe(200);
@@ -123,7 +130,9 @@ test("owned proxy keeps, replaces and removes credentials and recovers only its 
   await expect
     .poll(
       async () =>
-        (await page.getByLabel("密码", { exact: true }).inputValue()) === "",
+        (await page
+          .getByLabel("密码（可选）", { exact: true })
+          .inputValue()) === "",
     )
     .toBe(true);
 
@@ -138,7 +147,10 @@ test("owned proxy keeps, replaces and removes credentials and recovers only its 
       keepBody.credential_action === "keep" &&
       !Object.hasOwn(keepBody, "password"),
   ).toBe(true);
-  await fillPrivate(page.getByLabel("密码", { exact: true }), secrets[1]);
+  await fillPrivate(
+    page.getByLabel("密码（可选）", { exact: true }),
+    secrets[1],
+  );
   await saveProxy(page, receipts);
   const replaceBody = JSON.parse(puts.at(-1).body);
   expect(
@@ -175,7 +187,10 @@ test("owned proxy keeps, replaces and removes credentials and recovers only its 
   });
   await page.route(routePattern, recoveryHandler);
   await select(page, "连接方式", "使用代理");
-  await fillPrivate(page.getByLabel("密码", { exact: true }), secrets[2]);
+  await fillPrivate(
+    page.getByLabel("密码（可选）", { exact: true }),
+    secrets[2],
+  );
   await page.getByRole("button", { name: "保存代理设置", exact: true }).click();
   await expect(page.getByRole("alert")).toContainText("原保存结果尚未确认");
   await expect(
@@ -184,7 +199,9 @@ test("owned proxy keeps, replaces and removes credentials and recovers only its 
   await expect
     .poll(
       async () =>
-        (await page.getByLabel("密码", { exact: true }).inputValue()) === "",
+        (await page
+          .getByLabel("密码（可选）", { exact: true })
+          .inputValue()) === "",
     )
     .toBe(true);
   expect(attempts.length).toBe(1);
@@ -210,7 +227,9 @@ test("owned proxy keeps, replaces and removes credentials and recovers only its 
   await expect
     .poll(
       async () =>
-        (await page.getByLabel("密码", { exact: true }).inputValue()) === "",
+        (await page
+          .getByLabel("密码（可选）", { exact: true })
+          .inputValue()) === "",
     )
     .toBe(true);
   expect(attempts.length).toBe(2);
