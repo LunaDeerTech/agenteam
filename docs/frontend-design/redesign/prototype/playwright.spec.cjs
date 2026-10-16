@@ -1357,6 +1357,67 @@ const agentExamples = {
     description: "收集资料与核对来源，为团队提供研究依据。",
   },
 };
+
+// Current Agent completion contract. These journeys use observable identities,
+// fields and command outcomes; the older groups below remain historical coverage.
+async function chooseAgentOption(page, field, name) {
+  await page.locator(`[data-select-for="${field}"]`).click();
+  await page.getByRole("option", { name, exact: true }).click();
+}
+async function agentTab(page, view) {
+  const tab = page.locator(`[data-agent-tab="${view}"]`);
+  await tab.click();
+  await expect(tab).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByRole("tabpanel")).toHaveAttribute(
+    "aria-labelledby",
+    await tab.getAttribute("id"),
+  );
+}
+for (const layout of [layouts[0], layouts[3]]) {
+  test(`[agent-completion] identity four tabs draft keyboard save and return ${layout.width}`, async ({ page }) => {
+    const faults = await setup(page, layout);
+    await openAgents(page, layout);
+    await expect(page.locator("#agent-configuration-form")).toHaveCount(0);
+    const reviewer = page.locator('.agent-directory-link[data-agent-open="agent-reviewer"]');
+    await reviewer.focus();
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Reviewer");
+    await expect(page.getByRole("tab")).toHaveText([
+      "基本配置", "能力与资源", "记忆", "审计",
+    ]);
+    const originalDescription = agentExamples.reviewer.description;
+    const draft = `键盘保存后的 Reviewer 描述 ${layout.width}。`;
+    await page.getByLabel("描述", { exact: true }).fill(draft);
+    for (const view of ["resources", "memory", "audit", "basic"]) {
+      await agentTab(page, view);
+      await expect(page.locator("#agent-page-title")).toHaveText("Reviewer");
+      await expect(page.locator(".settings-page-heading > div > p")).toHaveText(originalDescription);
+      await noOverflow(page, `current Agent ${view}/${layout.width}`);
+    }
+    await expect(page.getByLabel("描述", { exact: true })).toHaveValue(draft);
+    await page.locator("#agent-save").focus();
+    await page.keyboard.press("Enter");
+    await expect(page.locator("#agent-form-feedback")).toHaveText("配置已保存。");
+    await expect(page.locator(".settings-page-heading > div > p")).toHaveText(draft);
+    await page.getByLabel("描述", { exact: true }).fill("这份修改应被取消。");
+    await page.locator('[data-agent-action="cancel"]').click();
+    await expect(page.getByRole("dialog")).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(page.locator('[data-agent-action="cancel"]')).toBeFocused();
+    await expect(page.getByLabel("描述", { exact: true })).toHaveValue("这份修改应被取消。");
+    await page.locator('[data-agent-action="cancel"]').click();
+    await page.locator("[data-agent-confirm]").click();
+    await expect(page.getByLabel("描述", { exact: true })).toHaveValue(draft);
+    const back = page.locator('[data-agent-back=""]');
+    const title = page.locator("#agent-page-title");
+    expect((await back.boundingBox()).y).toBeLessThan((await title.boundingBox()).y);
+    await back.click();
+    await expect(reviewer).toBeFocused();
+    await expect(reviewer).toContainText(draft);
+    await expect(page.locator("#agent-configuration-form")).toHaveCount(0);
+    expect(faults).toEqual({ errors: [], outbound: [] });
+  });
+}
 for (const layout of [layouts[0], { ...layouts[3], height: 480 }]) {
   test(`[agents-first] explicit identity Memory return and direct URLs ${layout.width}`, async ({
     page,

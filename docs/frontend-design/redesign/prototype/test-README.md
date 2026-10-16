@@ -2,6 +2,24 @@
 
 本目录的 Playwright harness 只验证隔离样板与当前正式 Vue 页面在合成 HTTP fixture 下的表现。所有业务动作都是演示；没有真实后端、凭据、业务写入或生产验收。作者检查与独立视觉审查分别形成结论。
 
+## Agent 最终原型补齐：本轮检查
+
+本轮从 `b52b8c43` 的工作树继续，目标是已有 Agent 的“基本配置 / 能力与资源 / 记忆 / 审计”四个 Tab，以及只有前两个 Tab 的创建流程。后文旧轮次结果保留其原始输入和范围，不能作为本轮新增功能通过的依据。`[agent-completion]` 是本轮入口；当前正在补充测试，已完成首批两项发现性检查，**尚未运行本轮行为检查**。
+
+覆盖按实际用户动作组织：列表身份、派生忙碌、筛选分页及时间；空白和 Preset 复制后的真实创建结果；模型、推理等级与审批联动；普通 Tool 与 MCP 逐工具授权；完整 Mount、Secret 候选与旧引用、Skills 分配/启停/撤销；Memory 过滤、修订和删除留历史；Reusable Approvals 查看、撤销及保留来源。跨 Tab 草稿、逐条资源保存与基本配置取消之间的隔离，以及 Unknown 查询确认后回读恢复，是共同的重点。Agent 删除生命周期和手工新增/编辑 Memory 不在本轮范围。
+
+本轮复用与当前 `tests/account-captcha-web/package.json` / `package-lock.json` 完全匹配的仓外依赖；实测 Node 24.19.0、Playwright 1.56.1、Chromium 151.0.7922.173。自有静态端口为 5228，输出放在忽略的 `output/ai/frontend-f0-agent-completion-test/`，不消费视觉审查者的 5227 服务。以下命令从本工作树根目录执行；`--list` 仅证明用例可发现，不记作行为通过。
+
+```sh
+export NODE_PATH=/workspace/shared/node/account-captcha-ac60fa262f0c44ae-node24.19.0-linux-x64/node_modules
+export F0_LEGACY=0 F0_PORT=5228
+export F0_OUTPUT="$PWD/output/ai/frontend-f0-agent-completion-test/first"
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[agent-completion\]' --list
+node "$NODE_PATH/@playwright/test/cli.js" test --config docs/frontend-design/redesign/prototype/playwright.config.cjs --grep '\[agent-completion\]'
+```
+
+测试输入须由各实现 owner 冻结后执行。真实浏览器流程检查页面行为，不证明任何后端事务、持久化、网络故障、执行时授权或生产接入。新失败按产品、测试前置条件、环境或观测问题归因，原报告保留；修复后只复验受影响路径。独立视觉接受与用户接受另行形成。
+
 ## Agent 独立详情与设置 header
 
 本轮以 `c4c4c9d7` 后作者冻结的首条正常链为输入。`?page=agents` 是无默认选择的列表；`agent=agent-architecture|agent-researcher|agent-reviewer` 定位独立详情，`view=memory` 定位同一 Agent 的记忆。这三个对象是根据正式字段构造的合成样例，**没有当前正式 Vue 同三对象 fixture 的前图**；旧正式 fixture 只有一个 `reviewer`，不能混称同输入前后对照。旧 `page=memory` 只作明确的历史兼容别名。
