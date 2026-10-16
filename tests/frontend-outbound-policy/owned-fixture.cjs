@@ -131,10 +131,11 @@ const test = base.extend({
       await certificate.close();
     }
     const statuses = [];
+    const started = Date.now();
     page.on("response", (response) => {
       const pathname = new URL(response.url()).pathname;
       if (
-        /^\/api\/v1\/(?:session|sessions\/(?:login|logout)|system\/outbound-policy(?:\/proxy)?)$/.test(
+        /^\/api\/v1\/(?:auth\/bootstrap|session|sessions\/(?:login|logout)|system\/outbound-policy(?:\/proxy)?)$/.test(
           pathname,
         )
       )
@@ -142,6 +143,7 @@ const test = base.extend({
           path: pathname,
           method: response.request().method(),
           status: response.status(),
+          elapsedMs: Date.now() - started,
         });
     });
     try {
@@ -225,22 +227,42 @@ async function api(page, pathname, method = "GET", body, options = {}) {
 }
 async function loginHTTP(page, credentials) {
   try {
-    return await page.evaluate(async (credentials) => {
-      const bootstrap = await fetch("/api/v1/auth/bootstrap");
-      if (bootstrap.status !== 200) throw new Error();
-      const csrf = (await bootstrap.json()).csrf_token;
-      const response = await fetch("/api/v1/sessions/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-Token": csrf,
-          "Idempotency-Key": crypto.randomUUID(),
-        },
-        body: JSON.stringify(credentials),
-      });
-      await response.arrayBuffer();
-      return response.status;
+    const result = await page.evaluate(async (credentials) => {
+      let phase = "bootstrap_fetch";
+      let status;
+      try {
+        const bootstrap = await fetch("/api/v1/auth/bootstrap");
+        status = bootstrap.status;
+        if (status !== 200) return { phase: "bootstrap_status", status };
+        phase = "bootstrap_body";
+        const csrf = (await bootstrap.json()).csrf_token;
+        phase = "login_fetch";
+        status = undefined;
+        const response = await fetch("/api/v1/sessions/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": csrf,
+            "Idempotency-Key": crypto.randomUUID(),
+          },
+          body: JSON.stringify(credentials),
+        });
+        status = response.status;
+        phase = "login_body";
+        await response.arrayBuffer();
+        return { phase: "complete", status };
+      } catch {
+        return { phase, status };
+      }
     }, credentials);
+    if (result.phase !== "complete") {
+      await base.info().attach("safe-login-phase", {
+        body: Buffer.from(JSON.stringify(result)),
+        contentType: "application/json",
+      });
+      throw new Error();
+    }
+    return result.status;
   } catch {
     throw new Error("OWNED_OUTBOUND_HTTP_LOGIN_FAILED");
   }
