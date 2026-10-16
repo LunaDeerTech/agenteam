@@ -1,6 +1,6 @@
 # Central 出站规则与持久代理
 
-状态：持久代理基线已交付；本轮全网白名单/黑名单、IP/域名目标与紧凑规则表格已冻结，隔离验收进行中，尚未部署。本卡仍为唯一工程合同，架构见[出站网络策略](../../architecture/platform-infrastructure/outbound-network-policy.md)。用户明确不保留旧访问规则或旧写接口；精确规则重置不扩大为清空账号、SMTP或代理。公网身份未验证，真实SMTP暂停，Runner及部署基础连接继续排除。
+状态：持久代理基线已交付；本轮全网白名单/黑名单、IP/域名目标与紧凑规则表格已完成隔离验证、集成并保数据切换预览；最终只读页面分轮通过。本卡仍为唯一工程合同，架构见[出站网络策略](../../architecture/platform-infrastructure/outbound-network-policy.md)。用户明确不保留旧访问规则或旧写接口；精确规则重置不扩大为清空账号、SMTP或代理。公网身份未验证，真实SMTP暂停，Runner及部署基础连接继续排除。
 
 ## 1. 目标与分工
 
@@ -91,7 +91,11 @@ backend须盘点实际Central发出入口与组合根：受控HTTP client、Prov
 
 ## 7. 当前检查点
 
-本轮冻结输入为backend `13a22493`与Vue `6809bfd2`（产品 `20ebed6a`）。作者完整outbound/HTTP、定向race、00145精确重置及近1MiB规则JSON数据库重载通过；独立迁移复核确认其他业务域与行xmin保持。独立受控UI在1440/390两项及原生200%定向复验通过，初次visibility失败原因未证。独立API/socket业务selector已通过，但外层资源清理退出1，精确收尾仍在核对；新Vue真实规则链尚待结果。尚未集成或切换用户预览，不把受控UI当真实后端或公网证明。
+本轮已集成backend `89e99c6f`与Vue `db4e472f`并推送，来源分别为 `929f660b`（生产 `13a22493`）和 `41acc04d`（产品 `20ebed6a`）。作者outbound/HTTP完整测试、定向race、六包编译、规则精确重置与近1MiB JSON数据库重载通过；独立迁移与API/socket通过，原外层清理失败后精确资源已清零。规则Unknown三子例分轮通过，旧not_observed断言按既有settled恢复合同修正，不改产品或扩称双snapshot重新实测；具体边界见[后端出站说明](../backend/outbound.md)。
+
+新Vue真实规则旅程1/1通过，覆盖模式/通配目标增改删、重读、409保草稿及原配置恢复，Session退出204→401；owned5260已优雅退出并清理。独立受控1440/390和原生200%通过；首次visibility失败原因未证，真实链首轮导航观测失败未进业务，原材料保留，不倒推根因。
+
+正式预览已备份并切至13a，应用schema145；仅规则重置为version1/denylist/32条默认且旧规则receipts清零，21组其他业务保留投影与18个immutable文件一致。本机严格TLS/nonce、live及匿名管理拒绝通过，ready503沿既有D05边界；最终本机只读浏览器分轮确认规则32行与真实GET逐项一致、代理direct投影和控件显示；首轮代理通用display断言失败原因未定，仅诊断脚本补定位后同预算复验通过，产品未改。两次Session/浏览器/relay均退出，零配置写入；任务5246已按精确身份SIGTERM至exit143且无监听，用户5245与TLS入口保留。活动manifest及恢复入口见[当前状态](../../../.agent-state/current.md)，旧144binary不得回退启动当前数据库。未发SMTP或重试公网，不能宣称公网身份验证通过。
 
 下列为上一轮代理基线的已有证据，只按原输入复用，不代本轮新增验收。
 
