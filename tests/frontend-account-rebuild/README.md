@@ -22,7 +22,7 @@ export FRONTEND_ACCOUNT_MAILBOX_EXCLUSIVE=1
 node tests/account-captcha-web/node_modules/@playwright/test/cli.js test --config tests/frontend-account-rebuild/playwright.config.cjs
 ```
 
-runtime 文件必须 0600、父目录 0700，均归当前执行用户。字段为 `origin,nonce,certificate_spki,certificate_file,credentials:{email,password}`；其余受控渠道字段由 provider 提供，不输出到普通日志。测试仅接受精确 loopback HTTPS origin，核对证书 SPKI 与有效期，浏览器只信任该测试证书；不启用 `ignoreHTTPSErrors`、不降低产品 Secure Cookie、不将材料发送到 HTTP 公网预览。每个页面先检查测试代理 `/__fixture__/identity` 的 nonce，才填写凭据。
+runtime 文件必须 0600、父目录 0700，均归当前执行用户。字段为 `origin,nonce,certificate_spki,certificate_file,credentials:{email,password}`；其余受控渠道字段由 provider 提供，不输出到普通日志。历史账号旅程使用精确 `https://localhost:5250`；新增菜单头像片段也接受下述固定 r2 origin，通过本机单目标 CONNECT 进入同一 fixture。核对证书 SPKI 与有效期，浏览器只信任该测试证书；不启用 `ignoreHTTPSErrors`、不降低产品 Secure Cookie、不将材料发送到 HTTP 公网预览。每个页面先检查测试代理 `/__fixture__/identity` 的 nonce，才填写凭据。原 localhost 场景没有因新增 r2 支持而重新执行或获得 r2 通过结论。
 
 默认关闭 trace、video、screenshot，并设置 Playwright 1.56 的 `PLAYWRIGHT_NO_COPY_PROMPT=1` 关闭独立于 trace 的失败 DOM 快照，避免采集密码、Cookie 与一次性 token。密码填入和私有链接导航使用固定安全错误包装，避免默认 Playwright 失败 call log 回显值。失败附件只记白名单 API 路径、method 和 HTTP status，不含 query、body 或 header。截图实看按独立审查者的脱敏流程执行，向用户展示前上传约定图床。
 
@@ -61,4 +61,19 @@ FRONTEND_ACCOUNT_RUNTIME=/workspace/scratch/account-preview-public-r2/runtime.js
 
 `mail-reader.cjs` 消费任务所有的 SMTP sink 私有 nonce 控制通道，限制地址与消息大小，仅返回匹配收件人、正式 origin 和用途的邮件链接。该 sink 只保留最后一封成功邮件；触发邮件到取回正文期间必须和其他审查者协调独占 mailbox，取得私有材料后再释放。SMTP 配置后不回退受限日志，两个渠道的证据分别报告。
 
-后续按账号工作项增量覆盖个人设置、邀请与重置、受控失败和请求所有权，模拟和真实提供方结果分别报告。
+本轮共享头像的产品输入为 `1e0dbf0a`。`web/tests/account-avatar.spec.ts` 的 4 项受控行为测试通过：共享读取与 HTTP body 尾部所有权、相同 metadata 复用；替换/确认删除释放 Blob、失败重读和旧版本不能恢复图像；身份失效清理、迟到旧身份 Blob 释放且不覆盖新身份；读取失败与重载。随后唯一执行 `npm run test:unit --prefix web`，7 文件 39/39 通过（11.85 秒）。之后仅修正测试 mock 的 TypeScript 函数签名，没有改变运行行为；类型检查由工程 owner 补验，未重复全量 unit。
+
+`avatar-menu.spec.cjs` 是新增的一条真实菜单头像片段，使用 fresh SMTP 邀请普通账号，管理员只用于发出该邀请，不修改其资料、头像、密码或主题。运行前仍须协调独占 mailbox，并核实 r2 manifest 尚有效；不重启已有服务或 frp。实际命令为：
+
+```sh
+export NODE_PATH="$PWD/tests/account-captcha-web/node_modules"
+export FRONTEND_ACCOUNT_RUNTIME=/workspace/scratch/account-preview-public-r2/runtime.json
+export FRONTEND_ACCOUNT_MAILBOX_EXCLUSIVE=1
+export FRONTEND_ACCOUNT_OUTPUT="$PWD/output/ai/frontend-account-rebuild/avatar-menu-run-01"
+node tests/account-captcha-web/node_modules/@playwright/test/cli.js test --config tests/frontend-account-rebuild/playwright.config.cjs avatar-menu.spec.cjs --list
+node tests/account-captcha-web/node_modules/@playwright/test/cli.js test --config tests/frontend-account-rebuild/playwright.config.cjs avatar-menu.spec.cjs
+```
+
+本轮 `--list` 加载 1 条，随后实际 1/1 通过（14.2 秒、exit 0）：候选预览不改变顶栏；确认上传后顶栏和资料页共用 Blob URL；离开资料页仍保留头像，经账号菜单可返回个人设置；退出后 Session 401 且旧 URL 已释放；新文档直接登录项目页也能读取已保存头像；确认删除后两处同步清空并释放 URL，最终退出再读 401。失败收尾也会尝试撤销本测试上下文的 Session，不保存凭据。浏览器与临时 CONNECT 经 fixture `finally` 关闭，CLI 已退出，未新增保留监听；原服务和 frp 未动。没有重复密码、挑战或七页完整旅程。
+
+该片段通过 [fixed-runtime.cjs](fixed-runtime.cjs) 的最小适配器使用 r2：只允许 CONNECT `154.12.86.233:18443` 并固定拨号 `127.0.0.1:5254`，不终止 TLS。manifest 的 `certificate_file` 是 leaf、`certificate_ca_file` 是专用 CA；核验 CA 签发、IP SAN、期限及 SPKI，浏览器实际 Security 事件中的 leaf SPKI 必须匹配，nonce 通过后才进入凭据步骤。此片段没有 Node `route.fetch`；若以后增加，必须使用专用 CA 与安全错误包装，不能把 leaf 当 CA 或全局忽略 TLS。此结果仅证明**本机固定路由下的真实 Vue/API 链路，不是公网 frp 验真**。既有会话竞态 probe 保持原样，其通过证据与本轮分别记录。

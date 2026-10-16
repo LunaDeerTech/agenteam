@@ -58,8 +58,8 @@ const imageResponse = (index = 0, body?: ReadableStream<Uint8Array>) =>
   });
 
 let disposeTheme: (() => void) | undefined;
-let createURL: ReturnType<typeof vi.fn>;
-let revokeURL: ReturnType<typeof vi.fn>;
+let createURL: ReturnType<typeof vi.fn<(object: Blob | MediaSource) => string>>;
+let revokeURL: ReturnType<typeof vi.fn<(url: string) => void>>;
 beforeEach(async () => {
   vi.resetModules();
   vi.stubEnv("VITE_ACCOUNT_ENABLED", "true");
@@ -71,8 +71,10 @@ beforeEach(async () => {
     removeEventListener() {},
   }));
   let sequence = 0;
-  createURL = vi.fn(() => `blob:synthetic-${++sequence}`);
-  revokeURL = vi.fn();
+  createURL = vi.fn<(object: Blob | MediaSource) => string>(
+    () => `blob:synthetic-${++sequence}`,
+  );
+  revokeURL = vi.fn<(url: string) => void>();
   vi.stubGlobal(
     "URL",
     class extends URL {
