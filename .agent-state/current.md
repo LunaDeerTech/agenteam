@@ -1,6 +1,6 @@
-# 当前状态：SMTP详情模态与上下文保持已完成限定验证
+# 当前状态：三项系统列表共享容器与分页改造中
 
-2026-10-16。本次SMTP“测试与任务”已精简默认说明，投递详情改为模态窗口，发送测试/详情开关保留Tab、页长/页码、滚动与输入；修正版以已推 `5a102c9c` 加冻结SMTP页面差量完成受控UI及有限独审，交root最终保存。唯一行为/验收合同为[系统账号设置](../docs/development/work-items/frontend-system-account-settings.md)，此前账号边界仍见[账号合同](../docs/development/work-items/frontend-account-rebuild.md)。此前六条真实链仍只证明原API输入，本次没有恢复已清理的独立5250、改后端或重跑真实业务；公开r2旧后端与dev保留。旧frp死隧道已修复，但管理代理仍拒上游私有CA，尚无公网身份标记或用户明确重试结果；UI反馈不代证公网通过。
+2026-10-16。本轮从已推送且干净的 `7f4c325d` 接续：用户要求用户、邀请和SMTP投递三列表统一共享容器与分页逻辑，并沿Settings正文/页头的有效内边距左右伸展；外层1200px设置框保持。实现和本轮受控UI/必要unit/独审正在进行，尚无新通过结论。唯一行为/验收合同为[系统账号设置](../docs/development/work-items/frontend-system-account-settings.md)，此前账号边界仍见[账号合同](../docs/development/work-items/frontend-account-rebuild.md)。默认省略描述、SMTP模态及Unknown/焦点/上下文保持继续有效。旧49项检查、模态分轮验证及六条真实链不代证本轮；已清理的独立5250不恢复，后端/API不改，公开r2旧后端和dev保留。公网身份/登录及外部邮件送达限制不变。
 
 ## 范围、组合与所有权
 
@@ -12,17 +12,18 @@
 | Owner | 唯一职责 |
 | --- | --- |
 | `/root/account_contract` | 本状态、新系统合同与必要说明；本批冻结后由root保存。 |
-| `/root/vue_integration` | 用户/邀请页面与唯一共享client、Session/transport、路由接线；最终源码已冻结。 |
-| `/root/account_contract/system_api_surface` | 本次SMTP交互的唯一产品写者，复用既有组件/请求边界；不参与自身独审。 |
+| `/root/vue_integration` | 本轮共享列表/游标分页、Users/Invitations和SettingsShell唯一写者，负责共享接口与组合检查。 |
+| `/root/smtp_list_adapter` | 本轮SMTP页唯一适配写者；原system_api_surface已撤本轮写权且零读写退出。 |
 | `/root/account_backend` | 独立后端树的account/API/装配、后端说明、真实服务与frp；私有5250已清理，公开r2保留。 |
-| `/root/vue_tests` | 本次SMTP受控UI三个场景分轮通过，测试/README冻结；旧真实API证据按原输入复用。 |
-| `/root/vue_visual_review` | 本次模态/上下文有限独审完成，U7关闭，新图已上传校验；此前结果保留原输入边界。 |
+| `/root/vue_tests` | 本轮共享列表/分页必要unit与受控实际Vue回归、README；旧真实API证据按原输入复用。 |
+| `/root/vue_visual_review` | 本轮三列表宽度及交互有限独审；此前U1–U7及图片保留原输入边界。 |
 
 ## 已打通的流程与检查边界
 
-- 本次唯一产品差量为 `web/src/views/system/SmtpSettingsPage.vue`：底层列表常驻、详情复用UiDialog，测试受理后保留收件人。U7来自busy时所有Tab被禁用令当前值丢失、列表卸载，局部改为只禁非当前Tab；关闭后等待原生dialog退出再按当前代际回焦，阻止旧恢复抢焦点。路由、共享UiTabs、App认证入口与后端/API均未改，命令及Unknown门禁保留。原组级检查的全web格式及9文件49/49 unit通过，类型阶段因confirmedJob可能为空中断；补显式守卫后单独build（含vue-tsc）通过，未重跑49项。
-- 新SMTP模态三个受控实际Vue场景分轮通过：run01基线 `91f16e7e` 为2过1失败（36.3秒），run02基线 `5a102c9c` 为2过1失败（31.9秒）；后者确认原列表/触发器DOM存活，剩余Esc回焦失败。最终run03只复验首条1/1通过（9.2秒）：页2×20条、收件人、原DOM、滚动误差≤2px及原触发器焦点保持，详情开关零额外列表/配置GET。发送测试一次POST后GET失败仅重读、重试Unknown同key/body两条沿run02有效通过，不宣称最终又整组重跑。旧真实SMTP spec只适配模态及显式清输入，未重启5250执行；原失败与精确命令留在harness说明。
-- 新独审以 `5a102c9c` 加冻结关闭回焦补丁为输入，1440浅色/390深色实际确认Esc、遮罩、footer及X四种关闭回原触发器，原DOM/页2×20/邮箱/滚动保持；受控发送一次POST后查看详情、关闭回发送按钮，Unknown二层关闭确认及继续追踪保留。原生200%与reduced motion下模态内滚、头尾按钮可达、背景不动且回焦，U7关闭，无新阻断。[SMTP模态原图](https://img.lunadeer.cn/i/2026/10/16/6ad1e13da5556.png)已上传并匿名下载校验字节一致，全部合成数据；独审浏览器/CLI及缩放profile已清理，无新服务、真实后端/SMTP或公网操作。
+- 本轮共享SystemList/useCursorList与三页适配在实施，正式props/slots及调用边界待共享owner稳定后写入组件说明；暂不把接口草案写成已实现。三路解除正文760px上限，列表对齐页头/正文有效内边距，外框1200px与表单自身行宽保留。本次无后端写或真实环境恢复，新结果将按当前受控输入记录。
+- 此前SMTP唯一产品差量为 `web/src/views/system/SmtpSettingsPage.vue`：底层列表常驻、详情复用UiDialog，测试受理后保留收件人。U7来自busy时所有Tab被禁用令当前值丢失、列表卸载，局部改为只禁非当前Tab；关闭后等待原生dialog退出再按当前代际回焦，阻止旧恢复抢焦点。路由、共享UiTabs、App认证入口与后端/API均未改，命令及Unknown门禁保留。原组级检查的全web格式及9文件49/49 unit通过，类型阶段因confirmedJob可能为空中断；补显式守卫后单独build（含vue-tsc）通过，未重跑49项。
+- 此前SMTP模态三个受控实际Vue场景分轮通过：run01基线 `91f16e7e` 为2过1失败（36.3秒），run02基线 `5a102c9c` 为2过1失败（31.9秒）；后者确认原列表/触发器DOM存活，剩余Esc回焦失败。最终run03只复验首条1/1通过（9.2秒）：页2×20条、收件人、原DOM、滚动误差≤2px及原触发器焦点保持，详情开关零额外列表/配置GET。发送测试一次POST后GET失败仅重读、重试Unknown同key/body两条沿run02有效通过，不宣称最终又整组重跑。旧真实SMTP spec只适配模态及显式清输入，未重启5250执行；原失败与精确命令留在harness说明。
+- 此前独审以 `5a102c9c` 加冻结关闭回焦补丁为输入，1440浅色/390深色实际确认Esc、遮罩、footer及X四种关闭回原触发器，原DOM/页2×20/邮箱/滚动保持；受控发送一次POST后查看详情、关闭回发送按钮，Unknown二层关闭确认及继续追踪保留。原生200%与reduced motion下模态内滚、头尾按钮可达、背景不动且回焦，U7关闭，无新阻断。[SMTP模态原图](https://img.lunadeer.cn/i/2026/10/16/6ad1e13da5556.png)已上传并匿名下载校验字节一致，全部合成数据；独审浏览器/CLI及缩放profile已清理，无新服务、真实后端/SMTP或公网操作。
 - 此前四页最终成果已保存于 `5db51fe2`。后端生产修复仍为 `7aa9b503`，正式源码/测试/OpenAPI/说明已集成，后端current不并入。窄修将已提交后的投影失败标为committed/replay，后读COMMIT_UNKNOWN改为DEPENDENCY_UNAVAILABLE，成功DTO不变；定向unit及真实PG HTTP验证通过（11.04秒），含四SMTP命令写后读失败、历史同key恢复且版本/投递/audit不重复，普通GET失败仍not_committed。验证用独立5250已核专用CA/nonce与内建首链，现已清理；公开r2继续保留 `9dd3044c` 及原账号/Session，不热替换、不新增公网端口，新Vue保守兼容旧后读not_started的Unknown边界。
 - 此前分页功能冻结输入通过 `npm run check --prefix web`：全web格式、9文件49/49 unit、vue-tsc与build。随后U6仅给PageSizeSelect根补一行position:relative，限定格式/差量检查与原输入独审复验通过，未重复全量unit或业务。页级动作位于标题右侧，description按需显示，表单保存/取消就近；三列表共用5/10/20/50页长（默认10），改值清游标历史并回第一页真实读取。旧骨架兼容2/2的输入为U4后、分页前dist；defaultfalse dist只作工程/预览构建，真实链使用5245 true经独立5250代理，不混同输入。
 - 此前六条真实spec各1/1有效通过：users 38.6秒，security 11.5秒，invites run02 83.06秒，permissions run02 18.1秒，SMTP 18.9秒，pagination 10.2秒。覆盖真实目录/注册可见、安全冲突与原请求恢复、邀请投递/重试/限流/撤销/兑换、普通用户管理403但个人Session200，以及SMTP空保持/替换与丢响应恢复、202后读失败不重发、实际policy_rejected后人工重试至sink sent、移除认证及停用。分页另以真实只读目录确认默认10→5翻页→20/50回首无cursor及响应行数，定向unit 2/2（7.22秒）覆盖body尾部/迟到旧页长。SMTP输入为 `243a4560`，分页为最终功能候选；均用独立5250，非公开r2或外部邮箱。原分页unit失败、邀请run01 DOM断点失败及权限run01准备CSRF错误留在harness说明；邀请失败虽与HMR时间重叠，未认定唯一原因。作者浏览器/CLI与测试Session均已退出。
@@ -68,7 +69,7 @@ SMTP仅连接本任务私有sink，邀请/重置正文链已验证，不代表�
 
 ## 保存与下一步
 
-本次SMTP产品差量、受控测试、说明及有限独审已冻结，交root最终保存/推送；本状态不预写自身提交或宣称已合main/生产发布。后端未改，独立5250不恢复，API命令证据沿原输入保留，新受控UI结果不外推为后端或公网验真；未操作用户试用实例或真实邮箱。其余七项系统设置仍为骨架。公开r2保持旧后端，公网身份/登录及外部邮件送达限制不变。恢复需核非Z状态、PID起始ticks/会话、实际监听/转发和24小时资源/证书期限，不能只凭PID存在或旧日志。用户图片继续先上传图床并提供原图链接。
+本轮三列表共享改造按稳定WIP由各owner冻结后交root保存，随后补实际接口、受影响检查与有限独审，不以此前通过结论代替本次。后端未改，独立5250不恢复，API命令证据沿原输入保留，新受控UI结果不外推为后端或公网验真；不操作用户试用实例或真实邮箱。其余七项系统设置仍为骨架。公开r2保持旧后端，公网身份/登录及外部邮件送达限制不变。恢复需核非Z状态、PID起始ticks/会话、实际监听/转发和24小时资源/证书期限，不能只凭PID存在或旧日志。用户图片继续先上传图床并提供原图链接。
 
 ## 保留的既有恢复入口
 

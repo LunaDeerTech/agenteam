@@ -15,6 +15,8 @@
 
 四页共用已确认的设置整框、宽页头与左对齐开放正文；用户/邀请为目录，安全/SMTP配置为表单，任务详情按各页约定展示并保留来源，SMTP投递详情使用模态窗口。页面级动作放在标题同一行右侧：用户页刷新，邀请页刷新/邀请；窄屏按空间重排。description可选，标题已足够时不添加解释性副标题；删除用户/邀请的常规介绍与SMTP配置的常驻技术说明，必要操作影响、字段帮助、错误和恢复提示仍就近保留。表单保存/取消仍靠表单，不随页级动作上移；本次不批量删除其他页面的真实内容。正式Logo和已接受深色tokens保持，技术ID/版本只在必要详情中显示。`/system`仍默认用户页；普通用户直链显示无权限，不挂载管理正文或发管理请求。
 
+用户、邀请、SMTP投递三列表统一使用共享列表容器与游标分页逻辑，页面只接入对应数据/行内容及领域操作，不再各自维护同义分页状态。三列表左右伸展至Settings正文与页头的有效内边距，解除这三路正文的760px上限；已接受的外层1200px设置框与表单自身行宽保持，不推广到其他页面。共享改造继续保持默认省略描述、真实limit与单一请求owner、失权/迟到隔离，以及SMTP模态、Unknown恢复和焦点/上下文规则；正式公共接口按[组件说明](../frontend/components.md)中的实际实现维护。
+
 ## 2. 最小 HTTP 合同
 
 以下路径统一前缀 `/api/v1/system`，均要求当前管理员；写使用当前Session CSRF和稳定 `Idempotency-Key`。精确类型见[Account OpenAPI](../../../api/openapi/account.json)、[common](../../../api/openapi/common.json)及实际 `internal/central/account/http_system.go`，不新建同义API。
@@ -77,8 +79,8 @@
 
 | Owner | 写入/交付边界 |
 | --- | --- |
-| `vue_integration` | 用户/邀请页面及唯一共享System client、Session/transport接线、路由与组合检查。 |
-| `system_api_surface` | `web/src/views/system/AccountSecurityPage.vue`、`SmtpSettingsPage.vue`、`web/src/system/account-settings.ts`；与共享owner对齐窄接口。 |
+| `vue_integration` | 用户/邀请页面与共享列表/分页、SettingsShell接线及组合检查；唯一共享System client/Session/transport owner。 |
+| `smtp_list_adapter` | 本次唯一 `web/src/views/system/SmtpSettingsPage.vue` 适配写者；沿共享接口接线，不复制分页实现。原 `system_api_surface` 已结束且不再持有本轮写权。 |
 | `account_backend` | 成熟服务/实际wire核对及隔离真实提供方；无页面收益时不重做API。 |
 | `vue_tests` | 必要新前端/真实链harness与恢复说明；旧未变结果按输入复用。 |
 | `vue_visual_review` | 未参与实现的有限视觉、交互与适用安全独审。 |
