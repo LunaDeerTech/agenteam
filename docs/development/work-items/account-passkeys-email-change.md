@@ -1,6 +1,6 @@
 # Passkey、登录与安全及个人邮箱变更
 
-状态：2026-10-16 用户已授权完整实现，基线 `c09d69b71e9ca982e02089560eeeaeb7765749e8`。本卡是本轮唯一工程合同；接口细节由后端与前端在本卡固定，尚未实现或验证的部分不以既有密码登录结果代证。系统设置、系统导航及全局开关不新增任何 Passkey 项。
+状态：2026-10-16 已实现并完成适用的本地功能与安全验证，基线 `c09d69b71e9ca982e02089560eeeaeb7765749e8`。本卡是本轮唯一工程合同；本轮证据与待用户验证的部署边界见第5节。系统设置、系统导航及全局开关不新增任何 Passkey 项。
 
 ## 1. 范围与完整旅程
 
@@ -32,7 +32,7 @@
 
 新邮箱确认在同一事务内检查唯一性、当前身份/Session、原邮箱和 Passkey 授权状态，消费申请、更新规范邮箱和验证事实、写 Audit/receipt，并废弃旧 reset 与旧邮箱申请。保留本次强验证 Session，撤销其他 Session；向原邮箱排队发送变更通知，通知失败不回滚已完成变更，也不把通知当作授权依据。
 
-bootstrap 初始邮箱不能自动视为真实联系地址。部署者初始化/邮箱丢失恢复必须有单独、一次性、短期授权和可运行入口；CLI与授权消费流程见[运行说明](../backend/account.md#passkey-与邮箱验证部署边界实施中)，不得以直接改库教程、长期万能 token 或管理员页面开关代替。此运维流程仍要求当前密码登录Session和当前密码；同时失去密码的离线账号接管不纳本轮，也不提供对应假入口。授权绑定指定UserID、`initialize_email`或`recover_account`目的、目标邮箱，固定30分钟有效；同用户/用途重新签发撤销未过期旧授权。实际新邮箱仍须通过SMTP数字码证明持有；recover_account成功撤销旧keys及其他Session/reset，保当前强验证Session。
+bootstrap 初始邮箱不能自动视为真实联系地址。部署者初始化/邮箱丢失恢复必须有单独、一次性、短期授权和可运行入口；CLI与授权消费流程见[运行说明](../backend/account.md#passkey-与邮箱验证部署边界)，不得以直接改库教程、长期万能 token 或管理员页面开关代替。此运维流程仍要求当前密码登录Session和当前密码；同时失去密码的离线账号接管不纳本轮，也不提供对应假入口。授权绑定指定UserID、`initialize_email`或`recover_account`目的、目标邮箱，固定30分钟有效；同用户/用途重新签发撤销未过期旧授权。实际新邮箱仍须通过SMTP数字码证明持有；recover_account成功撤销旧keys及其他Session/reset，保当前强验证Session。
 
 ## 4. HTTP 与前端状态边界
 
@@ -83,4 +83,8 @@ root 负责 Git、隔离工作树与最终组合；account_backend 负责领域/
 
 当前检查点：后端产品 `163c21` 与前端产品 `257cc` 已集成主树，69项web unit、类型/build、受控视觉与P2/P3返修结果按未变输入保留。owned r3的真实浏览器run02通过密码加原邮箱码恢复→原生登记→免邮箱登录→新鲜Passkey/新邮箱码→邮箱确认；实际提交丢响应后原key/body恢复，保当前Cookie/Session并撤另一Session，验证码同key不双扣、四错后成功与五错锁定均已验证。独审run03另通过跨Session/operation/action/target拒绝、登记grant单消费者，以及认证key撤销后正确邮箱码不能确认；两把真实server key、退出及零外域请求已核。
 
-accountmail完整非integration单测通过；account完整执行仅旧HEAD/schema测试因新增合法布尔字段解析失败，测试模型修正后该项定向通过，其余保留同输入已执行结果，不称一次全绿。CLI实际签发/初始化、旧邮箱通知与outbox后验及owned资源收尾仍待最终结果。r1迁移Down误项、r2异步旧邮件观测错误已修并精确清理；作者browser run01导航Timeout、独审run02准备Error的原因未定，原失败保留，后续通过不改写原因。独审run01过严测试前置未进入业务。现有公开预览继续旧稳定前后端，不部署本轮00146或新页面，不发外部邮件；真实域名、物理认证器和外部收件由用户在独立服务器后验。复现与运行边界见[账号运行说明](../backend/account.md#passkey-与邮箱验证部署边界实施中)。
+accountmail完整非integration单测通过；account完整执行仅旧HEAD/schema测试因新增合法布尔字段解析失败，测试模型修正后该项定向通过，其余保留同输入已执行结果，不称一次全绿。CLI initialize_email实际进程exit0、空stdout、0600授权及同事务Audit已核；真实SMTP码、错码400及原key重放只扣一次、正确确认HTTP200通过。原harness随后将正式字符串Version误解为int64而退出1，测试修正后没有重复签发/发送/确认；严格owned只读续验实际通过，核唯一已提交receipt、verified邮箱、已消费授权/申请、others事件与当前Session保留、其余撤销。续验首次编译失败后修正通过。普通邮箱变更的旧verified邮箱通知仅一条intent/job，已sent且terminal/io_joined。
+
+r1迁移Down误项、r2异步旧邮件观测错误已修并精确清理，首r3编译错误亦保留；作者browser run01导航Timeout、独审run02准备Error的原因未定，原失败保留，后续通过不改写原因。独审run01过严测试前置未进入业务。任务Vite5274已退出且无监听；owned r3的App及runner均实际退出0，4容器/4网络逐exact ID清零，5270无监听且可绑定，runtime/sidecar/临时文件已撤。CLI未再次登出的测试Session随owned数据库清退终结。
+
+验证限制：CLI真实链覆盖initialize_email与同次提交续查；recover_account的旧key/reset分支未独立穷举真实实测，不宣称全部恢复组合均覆盖。现有公开预览继续旧稳定前后端，不部署本轮00146或新页面，不发外部邮件；真实域名、物理认证器、云同步和外部收件由用户在独立服务器后验。复现与运行边界见[账号运行说明](../backend/account.md#passkey-与邮箱验证部署边界)。

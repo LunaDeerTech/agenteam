@@ -1,12 +1,14 @@
-# 当前状态：Passkey 与个人邮箱变更实施中
+# 当前状态：Passkey 与个人邮箱变更已实现并完成本地适用验证
 
 2026-10-16。用户已授权[Passkey 与邮箱变更](../docs/development/work-items/account-passkeys-email-change.md)：登录增加免填邮箱的 Passkey；个人改密页扩为“登录与安全”并支持凭据添加/命名/删除；资料邮箱经新鲜 Passkey 与新邮箱数字码原子变更。系统设置、导航和全局开关均不新增 Passkey。首次登记/全 key 丢失恢复采用当前密码加原邮箱码，bootstrap 默认邮箱不视为已验证，另实现明确的一次性部署者初始化/恢复入口。
 
-本轮基线 `c09d69b71e9ca982e02089560eeeaeb7765749e8`，前后端独立实施，合同与必要蓝图/运行说明由 account_contract 唯一维护，全部 Git 由 root 负责。固定部署 PUBLIC_ORIGIN 决定 RP/Origin，IP 下能力不可用但密码登录保持；真实域名与设备由用户在独立服务器后验。能力/列表/登录、action绑定grant、Passkey管理/恢复、邮箱变更及运维初始化共享modal/CLI合同已固定；email_initialization_required明确区分bootstrap与普通未验证用户。主树 `37f904ec` 已包含后端产品 `163c21`、Vue产品 `257cc` 及正式harness/说明。当前剩余CLI实际签发与邮箱初始化、通知/outbox后验及owned资源收尾，尚不宣称全部完成。现有持久服务、账号、SMTP、keys 不动，外部实发仍暂停。
+本轮基线 `c09d69b71e9ca982e02089560eeeaeb7765749e8`，已实现并完成适用的本地功能与安全验证。固定部署 PUBLIC_ORIGIN 决定 RP/Origin，IP 下能力不可用但密码登录保持。能力/列表/登录、action绑定grant、Passkey管理/恢复、邮箱变更及运维初始化共享modal/CLI合同已落地；email_initialization_required明确区分bootstrap与普通未验证用户。后端产品 `163c21`、Vue产品 `257cc` 及正式harness/说明已集成主树，隔离验证及资源收尾完成。真实域名、物理认证器、云同步及外部SMTP未验，由用户在独立服务器后验。现有持久服务、账号、SMTP、keys不动，外部实发仍暂停。
 
 owned r3真实浏览器run02已通过密码加原邮箱码恢复、原生注册、免邮箱登录、新鲜Passkey加新邮箱SMTP码、确认成功丢响应后的原key/body恢复；当前Cookie/Session保持，另一Session失效，同key不重复扣验证码预算。独审run03已通过跨Session/operation/action/target拒绝、登记grant单消费者及认证key撤销后正确邮箱码仍拒绝；实际两把key与退出均核验。69项web unit、类型/build及受控视觉按未变输入复用。r1迁移Down误项、r2误取异步旧邮件均已修并清理；浏览器run01导航Timeout及独审run02准备Error原因未定，原材料保留，不由后续通过倒推原因。
 
-accountmail完整非integration单测通过；account完整执行唯一失败为旧HEAD/schema测试将新增合法布尔字段误读为字符串，测试模型修正后该项定向通过，其余沿同输入已执行结果，不称首次全绿。account_backend维护后端与最后CLI/资源收尾，proxy_copy维护新Vue，account_contract维护本轮文档，root负责Git与最终组合；独审安全反例已收口，本轮隔离SMTP sink证据不代外部投递。
+accountmail完整非integration单测通过；account完整执行唯一失败为旧HEAD/schema测试将新增合法布尔字段误读为字符串，测试模型修正后该项定向通过，其余沿同输入已执行结果，不称首次全绿。CLI实际签发exit0、空stdout与0600授权、真实隔离SMTP码、错码同key仅扣一次、正确确认HTTP200均已核；原harness随后误解Version类型退出1，修正后仅只读续验确认唯一receipt/已验证邮箱/已消费授权及申请/当前Session保留与其他撤销，没有重发或重新确认。续验首次编译失败后修正通过，原失败保留；普通改邮箱的旧邮箱通知为唯一intent/job且sent、terminal、io_joined。
+
+任务Vite5274已TERM退出143、进程消失且无监听；r3 App及外层runner实际退出0，4容器/4网络逐exact ID确认不存在，App/launcher退出、5270无监听且可绑定，runtime/sidecar/atomic临时文件自动撤销。CLI保留的测试Session随owned数据库清退终结；用户旧公开资源未触及。
 
 公开预览继续使用e203 Central与schema145，不升级用户DB。5245已移到私有冻结快照 `/workspace/scratch/agenteam-central-persistent-r1/frontend-stable-c09d69b7/`：92份源码与c09d逐项一致，独立node_modules及Vite缓存。首次快照进程遗漏VITE_ACCOUNT_ENABLED，源码/TLS200未证明账号入口可用；已修为显式true，最终Vite PID643745/start_ticks5172505。旧主树Vite55037/start_ticks274699已TERM→exit143/Z且不占端口，Central591580/start_ticks4770391与FRP303867/303876保持。最终匿名浏览器通过严格本机证书/nonce，实际accountEnabled=true、邮箱/密码/登录按钮可用、无禁用预览提示，session401/bootstrap200；CLI/浏览器/relay退出且socket0，未读取凭据、登录或发邮件。快照preview-record.json已登记绝对恢复命令/cwd及必需环境true，run-state的frontend_preview同步；按[账号运行说明](../docs/development/backend/account.md#保留旧后端时固定前端快照)从快照启动，不能再从主树启动5245连接旧后端。无新公网检验。
 
@@ -136,7 +138,7 @@ owned 验证已收尾：真实 App 根在规则拒绝 SMTP 目标且统一代理
 
 ## 保存与下一步
 
-下一步只收CLI实签发及邮箱初始化、通知/outbox后验和owned实例精确清理结果，再由root保存最终记录。真实浏览器与独审通过范围见本轮工作项；保留分轮失败，不重复未变检查，也不为缺少公网域名/物理设备阻塞可行隔离验收。当前不升级用户后端/DB，不发送外部邮件。
+实现、本地适用验证与owned资源清理已完成，由root保存最终记录。分轮失败及实际范围见本轮工作项，不重复未变检查。后续由用户在独立服务器配置正式HTTPS域名、SMTP并验证物理认证器/云同步；当前不升级用户后端/DB，不发送外部邮件。
 
 现有用户5245/18443及账号、Session、SMTP TLS配置/凭据、keys、proxy、规则与对象数据按既有约定保留；后端恢复使用上方e203活动manifest，前端只从c09d私有快照及preview-record恢复，不使用主树新页面、Passkey候选或历史manifest自动替换。此前公网严格匿名curl60未取nonce及外部SMTP未验证的限制保持；域名和真实设备由用户在其独立测试服务器配置与验证。
 

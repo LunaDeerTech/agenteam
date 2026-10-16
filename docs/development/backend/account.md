@@ -21,13 +21,13 @@ keyring 占位值故意无效；部署须独立生成随机 32-byte 材料并使
 
 首次启动幂等创建 `admin@mail.com` / `admin`，随机初始密码仅向上述受限日志尝试输出一次；重启不覆盖密码或重印。若该次输出丢失，走普通密码恢复。只有 SMTP 未配置时邀请/reset 使用受限日志；配置后发送失败不会改渠道。公共 bootstrap HTTP 只给浏览器上下文/CSRF 等安全投影，不返回初始密码。
 
-## Passkey 与邮箱验证部署边界（实施中）
+## Passkey 与邮箱验证部署边界
 
-本轮新增能力以[Passkey 与邮箱变更工作项](../work-items/account-passkeys-email-change.md)为准，尚不能用现有密码登录或历史预览结果证明新流程已通过。系统设置不新增 Passkey 配置；RP ID 与允许 Origin 只从固定 `AGENTEAM_CENTRAL_PUBLIC_ORIGIN` 派生，使用规范 DNS hostname 与准确端口。IP Origin 明确不可用，原密码登录继续工作；不从请求或转发头生成 RP/Origin，不降低 TLS 验证。域名改变会影响原 RP 下凭据的可用性，须按正式部署域名配置并由用户在独立服务器验证真实设备。
+本轮新增能力已实现并完成适用的本地验证，具体范围见[Passkey 与邮箱变更工作项](../work-items/account-passkeys-email-change.md)；当前公开预览仍保留旧稳定组合，新功能未部署到该实例。系统设置不新增 Passkey 配置；RP ID 与允许 Origin 只从固定 `AGENTEAM_CENTRAL_PUBLIC_ORIGIN` 派生，使用规范 DNS hostname 与准确端口。IP Origin 明确不可用，原密码登录继续工作；不从请求或转发头生成 RP/Origin，不降低 TLS 验证。域名改变会影响原 RP 下凭据的可用性，须按正式部署域名配置并由用户在独立服务器验证物理认证器、云同步及外部邮件。
 
 首次管理员的默认邮箱不是已验证邮箱。本人Passkey投影显式返回 `email_initialization_required`：仅未验证且有真实bootstrap记录时为true，不能按管理员角色或邮箱字符串猜测；普通未验证注册用户可用当前密码及原邮箱真实SMTP码完成首登记验证。
 
-部署者入口源码为 `cmd/agenteam-account-recovery/main.go`，独立命令使用与当前Central相同的已加载部署配置、数据库和keyring，不自动读取 `.env`。使用Go1.27.1构建；以下为已定义的调用方式，CLI与真实PG链路尚在隔离验收，不能据此声称已运行通过：
+部署者入口源码为 `cmd/agenteam-account-recovery/main.go`，独立命令使用与当前Central相同的已加载部署配置、数据库和keyring，不自动读取 `.env`。使用Go1.27.1构建；initialize_email实际签发及后续真实PG/隔离SMTP初始化已验证，分轮原失败与只读续验边界见工作项。调用方式：
 
 ```sh
 go build -o ./bin/agenteam-account-recovery ./cmd/agenteam-account-recovery
@@ -54,7 +54,7 @@ PASSKEY_SECURITY_RUN=1 \
 node tests/account-preview/passkey-security-independent.cjs
 ```
 
-从仓库根运行，前三个占位值替换为已核验的绝对路径，私有runtime及授权材料不入Git。已通过的独立范围是跨Session/操作/用途/目标拒绝、登记grant一次消费和认证凭据撤销后的邮箱确认拒绝；实际浏览器退出、会话logout与无外域访问另核。该结果不代表真实物理设备、公网域名或外部邮件已通过；完整分轮结果与仍待验项见本轮工作项。
+从仓库根运行，前三个占位值替换为已核验的绝对路径，私有runtime及授权材料不入Git。已通过的独立范围是跨Session/操作/用途/目标拒绝、登记grant一次消费和认证凭据撤销后的邮箱确认拒绝；实际浏览器退出、会话logout与无外域访问另核。该结果不代表物理认证器、云同步、公网域名或外部邮件已通过；完整分轮结果与部署边界见本轮工作项。
 
 ## 组合与依赖
 

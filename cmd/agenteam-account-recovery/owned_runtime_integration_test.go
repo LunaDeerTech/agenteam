@@ -62,12 +62,13 @@ type recoveryRuntime struct {
 // explicitly owned local preview. It neither builds App nor allocates fixtures.
 // The CLI receives fresh configuration-only keyrings: issuance uses random
 // authorization material and its SHA verifier, not the App's runtime MAC keys.
-func TestOwnedRuntimeEmailInitialization(t *testing.T) {
+func recoveryOwnedRuntime(t *testing.T) (context.Context, recoveryRuntime, *pgfixture.Descriptor, *pgx.Conn, *http.Client) {
+	t.Helper()
 	if os.Getenv("AGENTEAM_ACCOUNT_RECOVERY_OWNED") != "1" {
 		t.Skip("explicit owned recovery runtime opt-in required")
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
-	defer cancel()
+	t.Cleanup(cancel)
 	runtimePath := os.Getenv("AGENTEAM_ACCOUNT_RECOVERY_RUNTIME")
 	private := filepath.Dir(runtimePath)
 	st, err := os.Lstat(private)
@@ -98,11 +99,11 @@ func TestOwnedRuntimeEmailInitialization(t *testing.T) {
 	recoveryCheck(t, "owned PostgreSQL configuration", err)
 	connection, err := fixture.Connect(ctx, runtime.DatabaseName)
 	recoveryCheck(t, "owned PostgreSQL connection", err)
-	defer func() {
+	t.Cleanup(func() {
 		closeContext, stop := context.WithTimeout(context.Background(), 5*time.Second)
 		defer stop()
 		recoveryCheck(t, "owned PostgreSQL close", connection.Close(closeContext))
-	}()
+	})
 	client := recoveryHTTPClient(t, runtime, private)
 	var identity struct {
 		Nonce string `json:"nonce"`
@@ -112,6 +113,12 @@ func TestOwnedRuntimeEmailInitialization(t *testing.T) {
 		t.Fatal("recovery HTTPS fixture identity mismatch")
 	}
 	recoveryVerifySMTP(t, ctx, runtime)
+	return ctx, runtime, fixture, connection, client
+}
+
+func TestOwnedRuntimeEmailInitialization(t *testing.T) {
+	ctx, runtime, fixture, connection, client := recoveryOwnedRuntime(t)
+	private := filepath.Dir(os.Getenv("AGENTEAM_ACCOUNT_RECOVERY_RUNTIME"))
 	recoveryEmailChangePostcondition(t, ctx, connection, runtime.RegularCredentials.Email)
 	var user string
 	var unverified bool
@@ -245,8 +252,8 @@ func TestOwnedRuntimeEmailInitialization(t *testing.T) {
 		}
 	}
 	var changed struct {
-		Email   string `json:"email"`
-		Version int64  `json:"version"`
+		Email   string             `json:"email"`
+		Version foundation.Version `json:"version"`
 	}
 	recoveryHTTP(t, ctx, client, runtime, "POST", "/api/v1/me/email-initialization/confirm", current.CSRF, map[string]string{"request_id": receipt.RequestID, "code": code}, http.StatusOK, &changed)
 	code = ""
@@ -269,6 +276,42 @@ func TestOwnedRuntimeEmailInitialization(t *testing.T) {
 		t.Fatal("initialization durable mailbox, authorization or session facts disagree")
 	}
 	t.Logf("actual CLI pid=%d exit=0, empty stdout/stderr and private 0600 authorization; incorrect code plus same-key replay charged one attempt without a mailbox/session/event mutation; correct SMTP initialization consumed, current session retained and second session revoked; existing Passkeys/reset credentials not exercised", pid)
+}
+
+// This read-only continuation verifies the commit already acknowledged by the
+// first run's HTTP 200. It performs no CLI issue, login, SMTP send or confirm.
+// The first run failed while decoding its string-valued Version into an int64;
+// its failed test exit remains separate from these durable postconditions.
+func TestOwnedRuntimeEmailInitializationCommitted(t *testing.T) {
+	ctx, runtime, _, connection, _ := recoveryOwnedRuntime(t)
+	target := "cli-initialized-" + runtime.Nonce[:12] + "@example.test"
+	var confirms, requests, authorizations, events, revokedOthers int
+	var receiptMatches, requestConsumed, authorizationConsumed, currentRetained, noOtherActive, eventBound bool
+	recoveryCheck(t, "initialization HTTP-200 commit postcondition", connection.QueryRow(ctx, `
+WITH latest AS (
+ SELECT c.* FROM agenteam_account.commands c
+ JOIN agenteam_account.bootstrap b ON b.user_id=c.user_id
+ JOIN agenteam_account.security_receipts r ON r.command_id=c.id
+ WHERE b.singleton AND c.command_name='email-initialize-confirm' AND c.phase='committed' AND r.receipt ? 'email'
+ ORDER BY c.created_at DESC LIMIT 1
+)
+SELECT count(*),count(DISTINCT r.id),count(DISTINCT o.id),count(DISTINCT e.id),
+ coalesce(bool_and(jsonb_typeof(saved.receipt->'version')='string' AND saved.receipt->>'version'=u.version::text AND saved.receipt->>'email'=$1 AND saved.receipt ? 'created_at' AND u.email=$1 AND u.email_verified_at IS NOT NULL),false),
+ coalesce(bool_and(r.kind='initialization' AND r.phase='consumed' AND r.target_email=$1 AND r.original_email=$2 AND r.session_id=c.session_id AND r.user_id=c.user_id),false),
+ coalesce(bool_and(o.purpose='initialize_email' AND o.user_id=c.user_id AND o.target_email=$1 AND o.consumed_request_id=r.id),false),
+ coalesce(bool_and(EXISTS(SELECT 1 FROM agenteam_account.sessions s WHERE s.id=c.session_id AND s.user_id=c.user_id AND s.revoked_at IS NULL)),false),
+ coalesce(bool_and(NOT EXISTS(SELECT 1 FROM agenteam_account.sessions s WHERE s.user_id=c.user_id AND s.id<>c.session_id AND s.revoked_at IS NULL)),false),
+ coalesce(bool_and(e.event_type='account.sessions-revoked' AND e.aggregate_id=c.user_id AND e.header=c.event_header AND e.payload=c.event_payload AND convert_from(e.payload,'UTF8')::jsonb->>'scope'='others' AND convert_from(e.payload,'UTF8')::jsonb->>'reason'='email_changed' AND convert_from(e.payload,'UTF8')::jsonb->>'user_id'=c.user_id::text AND convert_from(e.payload,'UTF8')::jsonb->>'session_id'=c.session_id::text),false),
+ coalesce(max((SELECT count(*) FROM agenteam_account.sessions s WHERE s.user_id=c.user_id AND s.id<>c.session_id AND s.revoked_at IS NOT NULL AND s.revoked_reason='administrative')),0)
+FROM latest c JOIN agenteam_account.users u ON u.id=c.user_id
+LEFT JOIN agenteam_account.security_receipts saved ON saved.command_id=c.id
+LEFT JOIN agenteam_account.email_requests r ON r.user_id=c.user_id AND r.session_id=c.session_id AND r.kind='initialization' AND r.phase='consumed' AND r.target_email=$1
+LEFT JOIN agenteam_account.operator_authorizations o ON o.id=r.authorization_id
+LEFT JOIN agenteam_outbox.events e ON e.id=c.event_id`, target, runtime.Credentials.Email).Scan(&confirms, &requests, &authorizations, &events, &receiptMatches, &requestConsumed, &authorizationConsumed, &currentRetained, &noOtherActive, &eventBound, &revokedOthers))
+	if confirms != 1 || requests != 1 || authorizations != 1 || events != 1 || revokedOthers < 1 || !receiptMatches || !requestConsumed || !authorizationConsumed || !currentRetained || !noOtherActive || !eventBound {
+		t.Fatalf("initialization committed postcondition: confirms=%d requests=%d authorizations=%d events=%d revoked_others=%d receipt=%t request=%t authorization=%t current_retained=%t no_other_active=%t event=%t", confirms, requests, authorizations, events, revokedOthers, receiptMatches, requestConsumed, authorizationConsumed, currentRetained, noOtherActive, eventBound)
+	}
+	t.Log("original HTTP-200 initialization is committed: string-version receipt, verified mailbox, consumed request/authorization and one retained-session event agree; current session remains active and all other sessions are revoked; original in-memory cookies are gone and owned fixture teardown will remove the database")
 }
 
 // The preceding browser journey has already logged out. Check the session
