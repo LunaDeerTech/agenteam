@@ -14,6 +14,7 @@ const session = useSession();
 watch(session.status, (value) => {
   if (
     accountEnabled &&
+    route.matched.length > 0 &&
     value === "anonymous" &&
     route.meta.layout !== "account"
   )
@@ -55,13 +56,17 @@ watch(
     "
     class="session-feedback"
   >
-    <h1>
+    <h1 v-if="session.confirmedAction.value === 'password'">密码已修改</h1>
+    <h1 v-else>
       {{
         session.status.value === "checking"
           ? "正在确认登录状态"
           : "暂时无法确认登录状态"
       }}
     </h1>
+    <p v-if="session.confirmedAction.value === 'password'">
+      其他登录会话已退出。请重新确认本次登录状态，或使用新密码重新登录。
+    </p>
     <p v-if="session.problem.value" role="alert">
       {{ accountErrorMessage(session.problem.value) }}
     </p>

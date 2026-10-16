@@ -4,7 +4,7 @@
 
 2026-10-16，旧 `web/` 已完整归档为 `web-crape/`，新 Vue 的共享 UI、应用壳、唯一设置壳与40叶骨架已有工程/浏览器和独立限定检查。用户现已授权先实现登录、邀请兑换、找回/重置、相关接口与会话，以及完整个人设置；新客户端、Session、权限和业务状态从零建立，后端成熟安全领域规则保留。系统及其他未讨论正文继续为空，不自动迁回完整 Agent/项目列表。
 
-本轮范围、接口取舍和验收只在[账号重建合同](../work-items/frontend-account-rebuild.md)维护，当前owner、真实进度、资源与阻塞见[恢复状态](../../../.agent-state/current.md)。用户选择沿用 `mcpc-terra.lunadeer.cn` 的HTTPS入口增加转发；HTTPS和安全Cookie核实前只进行自有隔离本地真实联调，HTTP框架预览不接真实账号。骨架检查、旧HTML与旧Vue不能代证本轮七页行为或用户最终设计接受。
+本轮范围、接口取舍和验收只在[账号重建合同](../work-items/frontend-account-rebuild.md)维护，当前owner、真实进度、资源与阻塞见[恢复状态](../../../.agent-state/current.md)。用户最新选择本地TLS终止加frp TCP直透公网18443，固定PublicOrigin为 `https://154.12.86.233:18443`；无需改frps证书或远端Nginx，现443/18081保持。公开实例尚未启用/验真，本地真实首链与完整账号旅程已有分轮通过；S1跨标签迟到认证错误清Cookie修复、头像/Unknown及公网仍待验证，精确结果只见当前状态。骨架检查、旧HTML与旧Vue不能代证本轮七页行为或用户最终设计接受。
 
 本轮不等待全站HTML F0定稿，已确认模板和官方Logo继续使用。工程与设计入口见[前端开发说明](../frontend/README.md)、[设计入口](../../frontend-design/redesign/README.md)及[执行计划](../../frontend-design/redesign/implementation-plan.md)。下方M3、旧失败及STOP保留原含义；未完成的 `ai/task-comments-20261013` 继续保留。
 

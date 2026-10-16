@@ -46,7 +46,7 @@ export function ownAccountLink(
   consumer = owner;
   return () => {
     if (consumer === owner) consumer = undefined;
-    captured = undefined;
+    if (captured?.kind === kind) captured = undefined;
   };
 }
 if (import.meta.hot)

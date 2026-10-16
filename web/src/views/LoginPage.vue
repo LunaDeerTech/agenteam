@@ -12,7 +12,7 @@ import { emailError } from "../account/validation";
 import { safeReturnPath } from "../router/returnPath";
 const router = useRouter();
 const route = useRoute();
-const { status } = useSession();
+const { status, confirmedAction } = useSession();
 const email = ref("");
 const password = ref("");
 const errors = ref({ email: "", password: "" });
@@ -24,7 +24,11 @@ const frozen = computed(
   () => busy.value || uncertain.value || confirmed.value || !!challenge.value,
 );
 useLeaveProtection(
-  () => !!password.value || !!challenge.value || uncertain.value || busy.value,
+  () =>
+    !!password.value ||
+    !!challenge.value ||
+    uncertain.value ||
+    (busy.value && !confirmed.value),
 );
 function clearPasswords() {
   password.value = "";
@@ -82,6 +86,13 @@ async function recheck() {
 </script>
 <template>
   <div class="account-form">
+    <p
+      v-if="confirmedAction === 'password'"
+      class="form-feedback"
+      role="status"
+    >
+      密码已修改，其他登录会话已退出。请使用新密码重新登录。
+    </p>
     <p v-if="!accountEnabled" class="form-feedback">
       这是界面预览。安全账号入口就绪后可登录。
     </p>

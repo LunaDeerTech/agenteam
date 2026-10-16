@@ -22,9 +22,10 @@ export type SessionStatus =
 const status = ref<SessionStatus>(accountEnabled ? "checking" : "anonymous");
 const current = shallowRef<SessionResponse>();
 const problem = shallowRef<unknown>();
+const confirmedAction = ref<"password" | undefined>();
 const generation = ref(0);
 let browser: BootstrapResponse | undefined;
-let browserGeneration = 0;
+const browserGeneration = ref(0);
 let checking: Promise<void> | undefined;
 let initialized = !accountEnabled;
 
@@ -36,6 +37,7 @@ function publish(value: SessionResponse) {
   current.value = value;
   status.value = "authenticated";
   problem.value = undefined;
+  confirmedAction.value = undefined;
   if (changed) applyAccountTheme(value.user.theme);
 }
 
@@ -69,6 +71,7 @@ export function useSession() {
   return {
     status: readonly(status),
     problem: readonly(problem),
+    confirmedAction: readonly(confirmedAction),
     generation: readonly(generation),
     hasIdentity: computed(() => !!current.value),
     user: computed(() =>
@@ -118,13 +121,13 @@ export async function ensureSession() {
 }
 
 async function ensureBrowser() {
-  if (browser) return { value: browser, generation: browserGeneration };
+  if (browser) return { value: browser, generation: browserGeneration.value };
   return accountSequence(async (send) => {
     if (!browser) {
       browser = await send("/auth/bootstrap", {}, isBootstrap);
-      browserGeneration++;
+      browserGeneration.value++;
     }
-    return { value: browser, generation: browserGeneration };
+    return { value: browser, generation: browserGeneration.value };
   });
 }
 
@@ -134,10 +137,12 @@ export async function anonymousRequest<T>(
   validate?: (value: unknown) => value is T,
 ): Promise<T> {
   const context = await ensureBrowser();
+  const identityGeneration = generation.value;
   const requestedCurrent = options.current;
   const valid = () =>
+    generation.value === identityGeneration &&
     browser === context.value &&
-    browserGeneration === context.generation &&
+    browserGeneration.value === context.generation &&
     (!requestedCurrent || requestedCurrent());
   try {
     return await accountRequest(
@@ -152,7 +157,7 @@ export async function anonymousRequest<T>(
       error.code === "CSRF_FAILED"
     ) {
       browser = undefined;
-      browserGeneration++;
+      browserGeneration.value++;
     }
     throw error;
   }
@@ -165,6 +170,7 @@ function authenticatedContext() {
   const capturedGeneration = generation.value;
   return {
     csrf: snapshot.csrf_token,
+    userId: snapshot.user.id,
     generation: capturedGeneration,
     current: () =>
       generation.value === capturedGeneration &&
@@ -188,7 +194,8 @@ export async function authenticatedRequest<T>(
         current: () =>
           context.current() && (!requestedCurrent || requestedCurrent()),
       },
-      validate,
+      (value): value is T =>
+        (!validate || validate(value)) && sameAccount(value, context.userId),
     );
   } catch (error) {
     rejected(error, context.generation);
@@ -264,7 +271,7 @@ function command<T>(
           error.code === "CSRF_FAILED"
         ) {
           browser = undefined;
-          browserGeneration++;
+          browserGeneration.value++;
         }
         throw error;
       } finally {
@@ -283,7 +290,21 @@ export function sessionCommand<T>(
   options: AccountRequest,
   validate?: (value: unknown) => value is T,
 ): AccountCommand<T> {
-  return command(path, options, authenticatedContext(), validate);
+  const context = authenticatedContext();
+  return command(
+    path,
+    options,
+    context,
+    (value): value is T =>
+      (!validate || validate(value)) && sameAccount(value, context.userId),
+  );
+}
+function sameAccount(value: unknown, userId: string) {
+  return (
+    !isRecord(value) ||
+    !("user" in value) ||
+    (isRecord(value.user) && value.user.id === userId)
+  );
 }
 
 export async function browserCommand<T>(
@@ -292,6 +313,7 @@ export async function browserCommand<T>(
   validate?: (value: unknown) => value is T,
 ): Promise<AccountCommand<T>> {
   const context = await ensureBrowser();
+  const identityGeneration = generation.value;
   return command(
     path,
     options,
@@ -300,7 +322,9 @@ export async function browserCommand<T>(
       generation: context.generation,
       anonymous: true,
       current: () =>
-        browser === context.value && browserGeneration === context.generation,
+        generation.value === identityGeneration &&
+        browser === context.value &&
+        browserGeneration.value === context.generation,
     },
     validate,
   );
@@ -327,6 +351,7 @@ export async function loginCommand(
   options: { key?: string; challengePass?: string } = {},
 ): Promise<AccountCommand<unknown>> {
   const context = await ensureBrowser();
+  const identityGeneration = generation.value;
   return command(
     "/sessions/login",
     {
@@ -345,7 +370,9 @@ export async function loginCommand(
       generation: context.generation,
       anonymous: true,
       current: () =>
-        browser === context.value && browserGeneration === context.generation,
+        generation.value === identityGeneration &&
+        browser === context.value &&
+        browserGeneration.value === context.generation,
     },
     (value): value is unknown =>
       isRecord(value) &&
@@ -367,7 +394,10 @@ export function passwordCommand(body: {
     authenticatedContext(),
     (value): value is unknown =>
       isRecord(value) && value.completed === true && value.next_path === "/",
-    confirmReplacement,
+    async (send) => {
+      confirmedAction.value = "password";
+      await confirmReplacement(send);
+    },
   );
 }
 
@@ -378,6 +408,7 @@ export function logoutCommand(): AccountCommand<void> {
     authenticatedContext(),
     undefined,
     async () => {
+      confirmedAction.value = undefined;
       forgetIdentity();
     },
   );
@@ -385,5 +416,6 @@ export function logoutCommand(): AccountCommand<void> {
 
 export function updateSessionUser(user: AccountUser) {
   if (!current.value || current.value.user.id !== user.id) return;
+  if (BigInt(user.version) < BigInt(current.value.user.version)) return;
   current.value = { ...current.value, user };
 }

@@ -140,30 +140,45 @@ describe("account HTTP request ownership", () => {
     await expect(next).resolves.toEqual({ accepted: true });
   });
 
-  it("rejects stale ownership before sending and after receiving a delayed body", async () => {
-    const started = deferred();
-    const release = deferred();
-    const fetcher = vi.fn(async () => {
-      started.resolve();
-      await release.promise;
-      return json({ accepted: true });
-    });
-    vi.stubGlobal("fetch", fetcher);
-    const { accountRequest } = await import("../src/account/transport");
-    await expect(
-      accountRequest("/me", { current: () => false }, valid),
-    ).rejects.toMatchObject({ code: "STALE_REQUEST" });
-    expect(fetcher).not.toHaveBeenCalled();
-    let current = true;
-    const reading = accountRequest("/me", { current: () => current }, valid);
-    const rejected = expect(reading).rejects.toMatchObject({
-      code: "STALE_REQUEST",
-    });
-    await started.promise;
-    current = false;
-    release.resolve();
-    await rejected;
-  });
+  it.each(["read", "mutation"] as const)(
+    "rejects stale %s ownership before sending and after receiving a delayed body",
+    async (mode) => {
+      const started = deferred();
+      const release = deferred();
+      const fetcher = vi.fn(async () => {
+        started.resolve();
+        await release.promise;
+        return json({ accepted: true });
+      });
+      vi.stubGlobal("fetch", fetcher);
+      const { accountRequest } = await import("../src/account/transport");
+      const options =
+        mode === "mutation"
+          ? { method: "PATCH" as const, key: "original-intent", body: "{}" }
+          : {};
+      await expect(
+        accountRequest("/me", { ...options, current: () => false }, valid),
+      ).rejects.toMatchObject({
+        code: "STALE_REQUEST",
+        commitState: "not_committed",
+      });
+      expect(fetcher).not.toHaveBeenCalled();
+      let current = true;
+      const reading = accountRequest(
+        "/me",
+        { ...options, current: () => current },
+        valid,
+      );
+      const rejected = expect(reading).rejects.toMatchObject({
+        code: "STALE_REQUEST",
+        commitState: mode === "mutation" ? "unknown" : "not_committed",
+      });
+      await started.promise;
+      current = false;
+      release.resolve();
+      await rejected;
+    },
+  );
 });
 
 describe("account HTTP response contract", () => {

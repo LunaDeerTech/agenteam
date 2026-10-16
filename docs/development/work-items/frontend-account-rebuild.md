@@ -14,7 +14,7 @@
 | `/settings/appearance` | 浅色、深色、跟随系统的小预览；明确保存/取消；服务端保存与暂时预览分开。 |
 | `/settings/password` | 当前密码、新密码、确认；成功说明其他会话退出，确认本次换发的新会话。 |
 
-账号页沿现 AccountShell 的品牌、单任务标题、有标签字段、就近错误与一个主动作。设置沿已确认的唯一 SettingsShell：宽页头与正文左起点一致，较窄开放表单靠左，无外围表单框；官方 Logo 直接取 `docs/logos/`，不重画。显示技术请求号仅用于错误详情，不把内部状态、版本、CSRF 或请求键作为日常表单字段。取消、返回、保存及加载反馈在当前任务区；页面使用一处主滚动，390px 和 200% 缩放时提交与错误可达。
+账号页使用正式品牌、单任务标题、有标签字段、就近错误与一个主动作。用户最新要求登录像一个面板：仅 `/login` 将Logo、标题和表单放在居中的轻边框容器内，配克制阴影；此决定覆盖此前登录无外框的默认。其余账号入口保持各自单任务正文。设置沿已确认的唯一 SettingsShell：宽页头与正文左起点一致，较窄开放表单靠左，无外围表单框；官方 Logo 直接取 `docs/logos/`，不重画。显示技术请求号仅用于错误详情，不把内部状态、版本、CSRF 或请求键作为日常表单字段。取消、返回、保存及加载反馈在当前任务区；页面使用一处主滚动，390px 和 200% 缩放时提交与错误可达。
 
 所有已有应用路由均受会话保护，系统设置入口另依据真实 `user.role=admin` 显示/允许进入；项目与其他未实现正文仍为原骨架，不能因登录成功宣称已接入其业务权限。登录返回只接受路由器已登记的站内受保护路径，拒绝协议、host、`//`、反斜杠、控制字符、query/hash 及未匹配路径；不以返回路径授予授权。默认返回 `/`，`/settings` 仍重定向 profile。
 
@@ -68,7 +68,7 @@ browser authority 使用匿名 `X-CSRF-Token`：login、挑战和全部 invitati
 
 新会话状态保持小而明确：`checking / anonymous / authenticated / unavailable`；页面另有 `loading / ready / dirty / submitting / confirmed / uncertain / conflict / error`，不用全局一次失败清掉所有普通字段草稿。
 
-1. **一个实际请求 owner。** 当前 Account GET 也可能在401时写清 Session Cookie，浏览器会先应用 Cookie 再交给 JavaScript。因此全部账号 HTTP，包括头像读取，串行经过同一协调器直到响应 body/取消清理真正结束；不得用裸 `<img src='/api/v1/me/avatar'>` 或另一队列绕过。可见超时/导航取消不证明服务端回滚，也不能提前放出下一身份请求。未提交的新操作可明确反馈忙，不静默成功。
+1. **一个实际请求 owner与浏览器Cookie边界。** 全部账号HTTP，包括头像读取，串行经过同一协调器直到响应body/取消清理真正结束；不得用裸 `<img src='/api/v1/me/avatar'>` 或另一队列绕过。可见超时/导航取消不证明服务端回滚，也不能提前放出下一身份请求。未提交的新操作明确反馈忙，不静默成功。这只协调同标签页，不能阻止另一标签页先完成新登录。浏览器在JavaScript代际检查前应用Set-Cookie，因此普通认证错误响应均不得清Session Cookie，包括GET/HEAD及POST/PATCH等不安全方法；服务端仍拒绝旧身份，前端清当前失效显示。保留显式成功logout的清Cookie及成功login/改密的换Cookie行为。独审已复现旧GET/PATCH401迟到清新Cookie，修复是否完成只见当前状态，不能由前端ignoreResponse代证。
 2. **代际隔离。** 每次请求记录当前 user/session、稳定身份代际与请求代际；匿名写另记 browser context 代际。返回及 finally 均检验归属；旧响应不能改新身份、主题、头像、草稿或导航。普通同身份会话重验不销毁 dirty 草稿或重基其版本；新身份/真正失效时清旧私有内容和敏感引用。
 3. **确认与再读分开。** login/change-password 收到严格成功立即清密码，持同 owner 再 GET session；会话再读失败只允许重查会话，不再 POST 已确认命令。reset 204 立即确认并清 token/密码，再核当前 Session：目标可能与当前身份不同，不能假定当前 Cookie 必然失效。DELETE avatar 204 后同样保持已确认事实。
 4. **Unknown 是原命令事实。** mutation 已发出后的 transport/坏成功响应/取消、`COMMIT_UNKNOWN` 或 `commit_state=unknown` 进入 uncertain。冻结原 method/path/key/body/version/context；只允许显式原请求重放或明确放弃，不能自动换 key、改 body、重新 inspect/prepare 后重发。HTTP 当前没有命令 lookup；`retry_hint=lookup` 不代表存在可调用端点。后续401/403/410/冲突、Session检查或试登录都不证明原写未发生；上下文失效则停止重放并保留“原结果未确认”。
@@ -96,7 +96,7 @@ browser authority 使用匿名 `X-CSRF-Token`：login、挑战和全部 invitati
 
 `accepted:true` 只证明请求受理。存在/不存在的合法邮箱反馈一致；smtp显示“若该邮箱可用，将通过邮件提供恢复方式，请查看邮箱”，backend_log显示“恢复请求已受理；当前由有权限的管理员通过受限后端日志协助提供恢复方式”。不显示 token、完整链接、存在性、job ID、内部投递错误，也不声称已发出或已送达。SMTP配置后发送失败不回退日志；无SMTP时的受限恢复日志是现有真实渠道，不能冒充外部邮件服务。受控SMTP sink只能证明受控投递，真实提供方与公开找回可用性由后端/环境owner据实报告；未获另行授权不向真实用户/外部邮箱发送邮件。
 
-公网真实登录必须HTTPS、固定可信PublicOrigin与Secure/HttpOnly/SameSite Cookie。不得为HTTP18081开启DevMode、去Secure或放宽Origin/Host。HTTPS就绪前用自有隔离loopback环境并行验证真实后端和浏览器；现HTTP预览只保留静态框架，不接真实账户材料。用户已明确保留现有443应用，给同域名增加独立HTTPS端口18443；目标PublicOrigin为 `https://mcpc-terra.lunadeer.cn:18443`，使用该origin根路径。后端owner实测443根入口返回302至 `/login?next=%2F`，本轮不接管该应用。18443入口尚未部署，真实服务器Nginx应用属于外部依赖；后端owner准备可审核配置，完成入口与安全Cookie及真实旅程验证前不宣称公网账户可用。本地隔离联调继续。服务公开后须经frp、核对响应确为本轮服务并验证登录旅程后才交地址。
+公网真实登录必须HTTPS、固定规范PublicOrigin与Secure/HttpOnly/SameSite Cookie，不为HTTP18081开启DevMode、去Secure或放宽Origin/Host。用户最新选择由本地独立服务5254终止TLS，frp以TCP直透公网18443；固定PublicOrigin为 `https://154.12.86.233:18443`，证书含该IP的SAN。该IP已由DNS和域名/IP的18081同页响应校验确认。此方案不要求frps配置HTTPS/证书或用户修改Nginx，现有443应用与18081预览保持。临时自签证书会产生浏览器不信任提示，用户已知；不能将这种临时证书表述为公开CA信任或通过关闭产品TLS校验掩盖。公开实例与5250本地测试服务隔离，启动及公网验证状态见当前状态；完成入口响应归属、安全Cookie和真实登录旅程验证后才交地址。HTTP预览只保留静态框架，不传输真实账户材料。
 
 ## 7. 适用验收与完成出口
 

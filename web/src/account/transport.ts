@@ -148,7 +148,11 @@ async function sendAccount<T>(
       }
     }
     if (options.current && !options.current())
-      throw new AccountError("STALE_REQUEST");
+      throw new AccountError(
+        "STALE_REQUEST",
+        0,
+        mutation ? "unknown" : "not_committed",
+      );
     if (!response.ok) {
       if (!isRecord(value) || typeof value.code !== "string")
         throw new AccountError(

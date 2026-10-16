@@ -1,11 +1,19 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, shallowRef } from "vue";
+import {
+  computed,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  shallowRef,
+  watch,
+} from "vue";
 import { RouterLink, useRoute } from "vue-router";
 import { UiButton, UiInput } from "../components/ui";
 import CommandFeedback from "../components/account/CommandFeedback.vue";
 import {
   anonymousRequest,
   browserCommand,
+  logoutCommand,
   refreshSession,
   useSession,
 } from "../account/session";
@@ -24,6 +32,7 @@ const kind = invitation ? "invite" : "reset-password";
 const session = useSession();
 let token = takeAccountLink(kind);
 let pageGeneration = 0;
+let incomingLink = 0;
 let alive = true;
 const inspecting = ref(false);
 const valid = ref(false);
@@ -41,6 +50,8 @@ const fields = ref({
   confirmation: "",
 });
 const operation = useCommand<unknown>();
+const switchAccount = useCommand<void>();
+const switched = ref(false);
 const { busy, error, uncertain, replayable, confirmed } = operation;
 const dirty = computed(
   () =>
@@ -99,15 +110,24 @@ async function inspect() {
   }
 }
 const release = ownAccountLink(kind, (nextToken) => {
+  const incoming = ++incomingLink;
   void (async () => {
     const accepted = await confirmAccountLeave();
-    if (!alive || !accepted) return;
+    if (!alive || !accepted || incoming !== incomingLink) return;
     pageGeneration++;
     clearDraft();
     token = nextToken;
     await inspect();
   })();
 });
+async function explicitlySwitchAccount() {
+  if (!(await confirmAccountLeave())) return;
+  pageGeneration++;
+  clearDraft();
+  await switchAccount.submit(logoutCommand, () => {
+    switched.value = true;
+  });
+}
 async function submit() {
   if (
     !valid.value ||
@@ -164,6 +184,18 @@ function abandon() {
   invalid.value = true;
 }
 onMounted(inspect);
+watch(session.generation, () => {
+  pageGeneration++;
+  clearSensitive();
+  if (!confirmed.value) {
+    username.value = "";
+    displayName.value = "";
+    email.value = "";
+    valid.value = false;
+    invalid.value = true;
+    inspecting.value = false;
+  }
+});
 onBeforeUnmount(() => {
   alive = false;
   pageGeneration++;
@@ -187,6 +219,18 @@ onBeforeUnmount(() => {
       <RouterLink class="form-link" to="/login">前往登录</RouterLink>
     </template>
     <template v-else-if="!valid">
+      <CommandFeedback
+        v-if="uncertain"
+        :error="error"
+        :uncertain="uncertain"
+        :replayable="replayable"
+        :busy="busy"
+        @retry="operation.retry"
+        @abandon="abandon"
+      />
+      <p v-if="switched" role="status" class="form-feedback">
+        已退出当前账号。请重新打开原邀请链接，再继续接受邀请。
+      </p>
       <p v-if="inspecting" role="status" class="form-note">正在检查链接…</p>
       <p v-else-if="invalid" class="form-feedback">
         {{
@@ -201,6 +245,22 @@ onBeforeUnmount(() => {
       <UiButton v-if="inspectError" :loading="inspecting" @click="inspect"
         >重新检查链接</UiButton
       >
+      <template v-if="invitation && session.status.value === 'authenticated'">
+        <UiButton
+          :loading="switchAccount.busy.value"
+          :disabled="switchAccount.uncertain.value"
+          @click="explicitlySwitchAccount"
+          >退出当前账号并重新打开邀请</UiButton
+        >
+        <CommandFeedback
+          :error="switchAccount.error.value"
+          :uncertain="switchAccount.uncertain.value"
+          :replayable="switchAccount.replayable.value"
+          :busy="switchAccount.busy.value"
+          @retry="switchAccount.retry"
+          @abandon="switchAccount.abandon"
+        />
+      </template>
       <RouterLink v-if="!invitation" class="form-link" to="/forgot-password"
         >重新找回密码</RouterLink
       >

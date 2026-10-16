@@ -13,7 +13,7 @@ npm ci --prefix web
 npm run dev --prefix web
 ```
 
-打开 [系统设置骨架](http://127.0.0.1:5173/system/users)。dev 默认仅监听 `127.0.0.1:5173`，端口冲突时退出；指定独立端口使用 `npm run dev --prefix web -- --port 5244`。本工程没有 `/debug` 展示页。上述独立 dev 命令不代表账户服务已启动；账号/API代理与真实后端正在本轮工作项实现，实际可运行组合及结果见当前状态。
+打开 [系统设置骨架](http://127.0.0.1:5173/system/users)。dev 默认仅监听 `127.0.0.1:5173`，端口冲突时退出；指定独立端口使用 `npm run dev --prefix web -- --port 5244`。本工程没有 `/debug` 展示页。默认dev保持 `VITE_ACCOUNT_ENABLED=false` 的静态预览；本轮账户联调在5245显式开启该变量，浏览器经真实同源TLS5250访问页面和Account API。独立dev命令不启动后端；精确运行与部署边界见[web运行说明](../../../web/README.md)，实际结果见当前状态。
 
 ```sh
 npm run check --prefix web
@@ -22,7 +22,7 @@ npm run preview --prefix web
 
 `check` 依次执行 Prettier 只读格式检查、Vitest 组件测试、严格类型检查和 Vite 生产构建，产物位于 `web/dist/`。`preview` 仅用于本地检查生产产物，默认监听 `127.0.0.1:4173`；它不是生产部署。分项命令、远程 dev 的 Host/HMR 配置见 [web 运行说明](../../../web/README.md)。
 
-浏览器验证使用[新工程 harness](../../../tests/frontend-rebuild/README.md)，依赖独立锁定的 Playwright；组件测试位于 `web/tests/`。当前检查、失败与未验事项只在[当前状态](../../../.agent-state/current.md)维护，不从下方历史记录推定本轮通过。文档中的命令说明不等于已执行。
+账号真实旅程使用[账号harness](../../../tests/frontend-account-rebuild/README.md)，框架浏览器使用[骨架harness](../../../tests/frontend-rebuild/README.md)，两者按各自锁定Playwright说明运行；组件和受控状态测试位于 `web/tests/`。当前检查、失败与未验事项只在[当前状态](../../../.agent-state/current.md)维护，不从下方历史记录推定本轮通过。文档中的命令说明不等于已执行。
 
 ## 代码边界
 
@@ -30,12 +30,14 @@ npm run preview --prefix web
 | --- | --- |
 | `web/src/components/ui/` | 八个共享控件与内部浮层/滚动工具，公开导出见 `index.ts`；[合同](components.md)依据实际源码维护 |
 | `web/src/styles/` | 新工程独立的 token、基础样式和控件样式 |
+| `web/src/account/` | 独立实现的同源传输、会话/命令、链接捕获、离页与字段校验 |
 | `web/src/composables/useTheme.ts` | 共享主题呈现；账号页需按本轮合同区分服务端保存与临时预览 |
 | `web/src/layouts/` | AppShell、AccountShell、唯一 SettingsShell、页头与两类导航 |
 | `web/src/router/` | 路由、页面标题、设置 scope/栏目数据及项目导航 |
 | `web/src/views/SkeletonPage.vue` | 尚未实现业务的叶子空正文 |
 | `web/tests/` | 新工程 Vitest + Vue Test Utils 测试 |
-| `tests/frontend-rebuild/` | 新工程生产产物浏览器 harness |
+| `tests/frontend-rebuild/` | 新工程框架生产产物浏览器 harness |
+| `tests/frontend-account-rebuild/` | 当前真实TLS/账号提供方的七页旅程与边界harness |
 | `web-crape/` | 完整历史前端，仅作参照；旧 fixture 显式消费该归档，不能作为新工程证据 |
 
 共享组件不包含业务数据、API、权限或页面状态。后续页面须先明确内容、接口、状态和权限合同，再在新工程实现；不从归档自动复制客户端或业务 composable。依赖按新 `web/package-lock.json` 安装，不链接归档的 `node_modules`。默认 npm 和开发 Compose 的构建来源仍是新 `web/`；本轮骨架检查不代表 Compose、后端或生产 SPA 组合已验收。
@@ -46,7 +48,7 @@ npm run preview --prefix web
 
 路由与设置栏目集中在 `src/router/routes.ts`；骨架建立时全部叶子使用 `content: "unimplemented"`，本轮七页依合同接入实际内容，其余保持空正文。`/system`、`/settings`、`/:owner/:project/settings` 分别重定向到用户、个人资料和基本信息。HTML5 History 支持直达与返回；保留命名空间避免未知系统路径落入项目路由。这些路径可访问不表示认证、权限或业务已经实现。
 
-AppShell 组织系统导航、项目上下文和内容区；AccountShell 承载账号与 OAuth 回调骨架。系统、个人和项目设置均由同一 SettingsShell 消费对应栏目数组，窄屏目录由共享 UiDialog 承载。布局职责与控件接口见[组件说明](components.md#页面组合与滚动)。
+AppShell组织系统导航、项目上下文和内容区；AccountShell承载账号与OAuth回调。用户最新要求登录是居中轻边框面板，包含正式Logo/标题/表单并用克制阴影；只影响login，个人设置继续开放表单。系统、个人和项目设置均由同一 SettingsShell 消费对应栏目数组，窄屏目录由共享 UiDialog 承载。布局职责与控件接口见[组件说明](components.md#页面组合与滚动)。
 
 骨架阶段的主题使用本地 `agenteam.vue.appearance.v1` 缓存。本轮账号主题改为服务端保存与临时预览分离；匿名/失效使用system，本地缓存不作为用户偏好事实，不得跨账号继承。实际迁移实现与检查以本轮工作项及当前状态为准。
 

@@ -1,4 +1,4 @@
-import { computed, onBeforeUnmount, ref, shallowRef } from "vue";
+import { computed, onBeforeUnmount, ref, shallowRef, watch } from "vue";
 import { AccountError } from "./transport";
 import type { AccountCommand } from "./session";
 
@@ -7,19 +7,30 @@ export function useCommand<T>() {
   const uncertain = ref(false);
   const confirmed = ref(false);
   const error = shallowRef<unknown>();
-  let command: AccountCommand<T> | undefined;
+  const command = shallowRef<AccountCommand<T>>();
   let alive = true;
   let success: ((value: T) => void | Promise<void>) | undefined;
   let onConfirmed: (() => void) | undefined;
   const replayable = computed(
-    () => uncertain.value && !!command?.active && !confirmed.value,
+    () => uncertain.value && !!command.value?.active && !confirmed.value,
+  );
+  watch(
+    () => command.value?.active,
+    (active) => {
+      if (active === false) {
+        command.value?.release();
+        command.value = undefined;
+      }
+    },
+    { flush: "sync" },
   );
   async function execute() {
-    if (!command || busy.value) return;
+    const active = command.value;
+    if (!active || busy.value) return;
     busy.value = true;
     error.value = undefined;
     try {
-      const result = await command.run(() => {
+      const result = await active.run(() => {
         if (!alive) return;
         confirmed.value = true;
         uncertain.value = false;
@@ -30,12 +41,12 @@ export function useCommand<T>() {
       if (!alive) return;
       error.value = failure;
       if (
-        !command.confirmed &&
+        !active.confirmed &&
         failure instanceof AccountError &&
         failure.commitState === "unknown"
       )
         uncertain.value = true;
-      if (!uncertain.value && !command.confirmed) command.release();
+      if (!uncertain.value && !active.confirmed) active.release();
     } finally {
       if (alive) busy.value = false;
     }
@@ -50,8 +61,8 @@ export function useCommand<T>() {
     confirmed.value = false;
     busy.value = true;
     try {
-      command?.release();
-      command = await create();
+      command.value?.release();
+      command.value = await create();
       success = received;
       onConfirmed = cleared;
     } catch (failure) {
@@ -61,14 +72,14 @@ export function useCommand<T>() {
       if (alive) busy.value = false;
     }
     if (!alive) {
-      command?.release();
+      command.value?.release();
       return;
     }
     await execute();
   }
   function abandon() {
-    command?.release();
-    command = undefined;
+    command.value?.release();
+    command.value = undefined;
     uncertain.value = false;
     error.value = undefined;
     confirmed.value = false;
