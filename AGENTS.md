@@ -42,7 +42,7 @@ The frontend remains independently runnable. The root Go module requires exactly
 - `npm run preview --prefix web`: inspect the new production build at localhost:4173.
 - `git diff --check`: check tracked changes for whitespace errors.
 
-See `docs/development/backend/README.md` and `docs/development/frontend/README.md` for commands, configuration and boundaries. Backend process tests use temporary directories and loopback ephemeral ports; database and outbound fixtures verify nonce, labels and exact resource IDs before connecting. Outbox process tests share the real object ProcessGuard; it must remain held until callbacks and database cleanup actually join, or the owning process exits. Outbound success tests use owned private container sockets with exact policy rules; never replace the production loopback classifier with allow. Tests must not connect to existing infrastructure or read external credentials.
+See `docs/development/backend/README.md` and `docs/development/frontend/README.md` for commands, configuration and boundaries. Backend process tests use temporary directories and loopback ephemeral ports; database and outbound fixtures verify nonce, labels and exact resource IDs before connecting. Outbox process tests share the real object ProcessGuard; it must remain held until callbacks and database cleanup actually join, or the owning process exits. Outbound success tests use task-owned controlled targets authorized by the current policy rules, including editable loopback rules; do not bypass policy evaluation or connect to unrelated real system addresses. Tests must not connect to existing infrastructure or read external credentials.
 
 ## Coding Style & Naming Conventions
 

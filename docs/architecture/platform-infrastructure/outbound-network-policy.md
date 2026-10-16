@@ -1,6 +1,6 @@
 # Outbound Network Policy 详细设计
 
-> 状态：Central 持久代理已交付；访问规则正按用户确认的全网白名单/黑名单与目标匹配模型改造，见[本轮工程契约](../../development/work-items/system-outbound-policy-proxy.md)。本页定义目标契约，不代证新版本已部署或验收。
+> 状态：Central 持久代理已交付；全网白名单/黑名单与目标匹配实现已冻结、隔离验收进行中，见[本轮工程契约](../../development/work-items/system-outbound-policy-proxy.md)。本页定义目标契约，不代证新版本已部署或验收。
 >
 > 上层架构：
 > - [平台基础设施与部署架构](./README.md)
@@ -115,8 +115,8 @@ OutboundHttpClient.Do(
 request URL
 -> URL validation
 -> DNS resolution
--> address classification
--> current platform policy decision
+-> address classification for diagnostics
+-> current platform rule mode / target / port decision
 -> controlled dial
 -> HTTP request
 -> redirect re-validation
@@ -354,7 +354,7 @@ Outbound Network Policy 是平台统一安全能力；全网访问规则与代�
 
 产品移除 `AGENTEAM_CENTRAL_OUTBOUND_PROXY_ORIGINS` 与 `HTTP_PROXY`/`HTTPS_PROXY`/`NO_PROXY`（含小写）的选路读取，也不增加 `ALL_PROXY` 兜底。已有环境值不自动导入数据库。此变更不修改宿主环境、frp、开发工具或部署基础连接的环境配置。
 
-目标 DNS 仍由 Central 按完整 A/AAAA 结果执行现有分类、CIDR 与端口授权。CONNECT authority 或 SOCKS5 目标使用本次批准的数值 IP，不能把未经批准的 hostname 交网关二次解析；TLS SNI/hostname verification、HTTP Host 与业务凭据作用域仍使用原目标。代理不改变业务目标的当前全网访问规则。无法本地完成目标 DNS 审批时明确失败，不切换为网关远端 DNS。
+目标 DNS 仍由 Central 完整校验 A/AAAA，并按当前模式、原请求hostname、IP/CIDR与端口决定访问；地址分类只供诊断。CONNECT authority 或 SOCKS5 目标使用本次批准的数值 IP，不能把未经批准的 hostname 交网关二次解析；TLS SNI/hostname verification、HTTP Host 与业务凭据作用域仍使用原目标。代理不改变业务目标的当前全网访问规则。无法本地完成目标 DNS 审批时明确失败，不切换为网关远端 DNS。
 
 网关是管理员显式信任的基础设施。网关由管理员显式配置，公网、私网或loopback等合法地址均可使用；业务目标规则不匹配网关，也不保留网关的隐藏地址黑名单。网关解析须有界、完整校验全部候选的语法并固定实际拨号地址，继续验证TLS与认证边界。网关可沿部署 resolver 解析单标签名称；这一便利不扩到业务目标解析。受信网关实际如何转发不能由客户端独立证明，部署者须确保其遵守批准的数值目标。
 
@@ -413,7 +413,7 @@ MCP Config.endpoint
 MCP 不自行实现：
 
 - IP/CIDR/域名的白名单或黑名单；
-- loopback 检查；
+- loopback 等目标的可编辑规则判断；
 - DNS rebinding 防护；
 - redirect target validation。
 
