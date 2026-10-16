@@ -21,6 +21,14 @@ keyring 占位值故意无效；部署须独立生成随机 32-byte 材料并使
 
 首次启动幂等创建 `admin@mail.com` / `admin`，随机初始密码仅向上述受限日志尝试输出一次；重启不覆盖密码或重印。若该次输出丢失，走普通密码恢复。只有 SMTP 未配置时邀请/reset 使用受限日志；配置后发送失败不会改渠道。公共 bootstrap HTTP 只给浏览器上下文/CSRF 等安全投影，不返回初始密码。
 
+## Passkey 与邮箱验证部署边界（实施中）
+
+本轮新增能力以[Passkey 与邮箱变更工作项](../work-items/account-passkeys-email-change.md)为准，尚不能用现有密码登录或历史预览结果证明新流程已通过。系统设置不新增 Passkey 配置；RP ID 与允许 Origin 只从固定 `AGENTEAM_CENTRAL_PUBLIC_ORIGIN` 派生，使用规范 DNS hostname 与准确端口。IP Origin 明确不可用，原密码登录继续工作；不从请求或转发头生成 RP/Origin，不降低 TLS 验证。域名改变会影响原 RP 下凭据的可用性，须按正式部署域名配置并由用户在独立服务器验证真实设备。
+
+首次管理员的默认邮箱不是已验证邮箱。新增邮箱验证事实后，首次 Passkey 登记/全 key 丢失恢复需当前密码与原邮箱真实 SMTP 数字码；bootstrap 初始化真实邮箱、原邮箱也失去的恢复必须使用短时、一次性、绑定指定用户和目标邮箱的部署者授权入口。新邮箱仍须证明实际收码；管理员角色、后台恢复日志或直接修改资料不能代替该事实。CLI 与精确命令待后端首批接口固定后补齐，本段不提供尚不存在的可执行命令。
+
+这些验证码和旧邮箱变更通知使用专用 SMTP 邮件 kind，无后台日志 fallback；SMTP 未配置或不可用时明确反馈，不能称验证邮件已发送。实施与验收使用任务拥有的隔离数据库、域名/证书和 SMTP sink；不变更当前用户实例、域名、SMTP配置或 keys，不向外部邮箱发送。虚拟认证器/隔离 sink 的通过范围与真实设备、公开域名及外部投递分开记录。
+
 ## 组合与依赖
 
 组合根以真实 Store 和独立 account keyring 构造同一 `NewAuthority`，将其注入 Audit 的 Accounts/Session/System、Secret 的 AccountWrites/Usage/Session/System、Outbound 的 Session/System 和 Outbox 的 account Producer/Session/System 端口。`LoadKeyring` 与全部当前/历史 cursor、Secret、download 材料交叉核验，不读取环境默认凭据。
@@ -49,7 +57,7 @@ keyring 占位值故意无效；部署须独立生成随机 32-byte 材料并使
 
 SMTP PUT/unconfigure、测试发送和人工重试在命令已确认提交后，仍需按当前管理员权限读取安全结果。该后读失败返回错误 Problem，`commit_state=committed`、`retry_hint=replay`，不伪装为成功 DTO，也不声称原写未开始。保留原错误 code/status；只读事务自身的 COMMIT_UNKNOWN 改为 DEPENDENCY_UNAVAILABLE，原诊断仅保留在私有 cause。客户端保留原 method/path/Idempotency-Key/body/version，显式同键重放恢复原 receipt；每次重放重新鉴权，另读当前设置不能替代原 applied_version。普通读取和提交前失败维持各自原语义。 针对这四个命令的真实 PostgreSQL/HTTP 回归在只拦截后读的条件下，验证首次提交、历史同键重放、恢复 receipt 与无重复版本/投递/Audit；普通 GET 失败仍保留读事务语义。该回归不以已运行的旧预览二进制代证新源。
 
-email 只读，本人可改 username/display_name/theme；username 按当前 DB 映射解析，改名后旧路径失效且无 alias。头像接单一原始 JPEG/PNG/WebP body，最多 5 MiB、边长 4096、总像素 16,777,216，拒动画/SVG/GIF、截断和尾随拼接；保持比例缩至 512×512 内、不放大，白底合成并重编码 JPEG，丢弃原元数据。命令摘要绑定完整原始 bytes，不能用重编码后的 SHA 替代输入语义。
+普通资料接口不修改email；邮箱变更新增独立强验证流程，当前实施边界见上节。本人可改 username/display_name/theme；username 按当前 DB 映射解析，改名后旧路径失效且无 alias。头像接单一原始 JPEG/PNG/WebP body，最多 5 MiB、边长 4096、总像素 16,777,216，拒动画/SVG/GIF、截断和尾随拼接；保持比例缩至 512×512 内、不放大，白底合成并重编码 JPEG，丢弃原元数据。命令摘要绑定完整原始 bytes，不能用重编码后的 SHA 替代输入语义。
 
 头像切换、旧引用关门、Audit 与 receipt 在同一真实 Tx；后台按持久 cause 与实际 lease 公平清理，不从取消或年龄猜测实例死亡。GET/HEAD 支持单 Range，逐次核本人当前 exact ObjectID；已建立 reader 的底层 I/O 和 Close/join 真实结束后才释放 lease。它不是匿名 URL，也不是通用 Artifact/下载接口。
 
