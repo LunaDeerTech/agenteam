@@ -56,11 +56,11 @@ AppShell组织系统导航、项目上下文和内容区；“个人设置”只
 
 入口为 `/system/outbound-policy`，仅当前已确认的系统管理员可读取、保存；页面在唯一SettingsShell下提供“访问规则 / 代理设置”两个Tab。规则沿原集合GET/PUT，代理使用独立版本的 `/api/v1/system/outbound-policy/proxy`。字段、密码空保持/非空替换、网关身份变化及Unknown恢复以[工程契约](../work-items/system-outbound-policy-proxy.md)为准，不沿下方归档前端的状态实现。
 
-本轮候选位于独立frontend工作树，由owner以 `VITE_ACCOUNT_ENABLED=true` 启动loopback5246；直接页面地址为 `http://127.0.0.1:5246/system/outbound-policy`，只用于受控UI观察。真实API联调计划经backend所有的 `https://localhost:5260/system/outbound-policy` 同源TLS反代到5246，只有该fixture实际ready、证书/实例身份核对通过后才运行；dev本身不提供这些API，也不能把默认false dist的工程构建当业务输入。当前5260尚未ready，不复用用户18443实例或真实SMTP配置。
+本轮候选位于独立frontend工作树，由owner以 `VITE_ACCOUNT_ENABLED=true` 保留loopback5246；直接页面地址为 `http://127.0.0.1:5246/system/outbound-policy`，用于受控UI观察。真实API旅程已通过backend所有的 `https://localhost:5260/system/outbound-policy` 同源TLS反代执行，使用本轮CA/SPKI/nonce确认的独立r3；该fixture现已优雅清理、5260无监听，原manifest/sidecar已撤，不能直接复用旧命令或端口。再次真实联调须由owner提供新ready材料；dev本身不提供这些API，也不能把默认false dist工程构建当业务输入。用户18443实例与真实SMTP配置未用于这些测试。
 
 保存回执只证明原命令已确认，后续GET才提供当前配置。确认后读失败保留回执并显示读取失败，显式恢复只重读；不能显示推测的直连、空规则或可编辑默认值。保存不是连通性测试，页面没有任意外网试连或发送邮件动作。双Tab、表单就近保存/取消及模态回焦沿共享组件，必要安全提示保留，标题不添加装饰说明。
 
-真实UI/API的限定运行入口见[出站harness](../../../tests/frontend-outbound-policy/README.md)；受控截图、局部工程检查与真实后端结果分别记录，当前组合与未完成项见[当前状态](../../../.agent-state/current.md)。已有服务由各owner保留，接续前先核实际状态，不重复占用端口或重建现生产数据。
+真实UI/API的限定运行入口见[出站harness](../../../tests/frontend-outbound-policy/README.md)。规则CRUD/持久/409、代理密码保持/替换/移除和真实提交丢响应恢复、权限/CSRF三个场景分轮通过；失败材料与明确未证原因保留在harness，不把受控截图或UI/API保存链称为所有消费者协议验收。当前组合、最后lease门及尚未执行的生产切换见[当前状态](../../../.agent-state/current.md)。已有服务由各owner保留，接续前先核实际状态，不重复占用端口或重建现生产数据。
 
 ## 归档前端能力与验收记录（历史）
 

@@ -1,6 +1,6 @@
 # 当前状态：Central出站规则与持久代理实施中
 
-2026-10-16。Central全部业务出网与持久代理仍在实施，唯一合同见[工程契约](../docs/development/work-items/system-outbound-policy-proxy.md)。Vue候选 `e6bc7d61` 两项P2受控复验已关闭；后端生产源码候选 `6ea558f1` 已保存，5260 r3已编译、正在启动独立依赖，manifest尚未ready。真实出站API/UI及两项安全恢复门未完成。管理脚本 `f01ca6ee` 的进程登记失败已同故障独立复验关闭，尚未部署到production。Runner、DB/对象部署基础连接不纳，真实SMTP发送仍暂停。现production数据库含用户新填SMTP，必须保留；服务不替换、数据不清空，公网身份未验与此前SMTP失败边界保持。
+2026-10-16。Central全部业务出网与持久代理进入交付前WIP，唯一合同见[工程契约](../docs/development/work-items/system-outbound-policy-proxy.md)。Vue `e6bc7d61` 与后端生产源码 `6ea558f1` 的三条真实UI/API旅程分轮通过；代理实际选路、权限/Secret及Unknown恢复代表已有独立结果，最后lease活性门仍在跑。r3测试实例已清理，最终OpenAPI embed/构建组合及生产切换尚未完成。管理脚本 `f01ca6ee` 定向故障已独审关闭，未stage/备份/停止用户服务。Runner、DB/对象部署基础连接不纳，真实SMTP仍暂停；生产DB含用户新SMTP，必须保留，公网身份未验边界不变。
 
 ## 范围、组合与所有权
 
@@ -12,19 +12,20 @@
 | Owner | 唯一职责 |
 | --- | --- |
 | `/root/account_contract` | 本状态、出站架构与system-outbound-policy-proxy工程契约；本批冻结后由root保存。 |
-| `/root/vue_integration` | 独立frontend树的新Vue出站页候选已保存；持有5246，待真实API联调或具体返修。 |
+| `/root/vue_integration` | Vue候选e6bc7d61冻结，detached5246保留；等待root集成与实际预览组合核对。 |
 | `/root/smtp_list_adapter` | 此前SMTP适配owner，源码已冻结；原system_api_surface已撤写权。 |
 | `/root/account_backend` | 独立backend树的代理存储/API、统一安全拨号和Central全部业务装配；只用隔离fixture，不动现production或真实SMTP。 |
 | `/root/vue_tests` | 本轮出站UI/API正式harness与必要回归；旧TLS/恢复/邮件结果保留原输入，不代本轮通过。 |
 | `/root/outbound_visual` | 本轮独立受控视觉/交互审查，两项P2已关闭；不代真实后端或公网。 |
-| `/root/outbound_security` | 独立安全probe与两项恢复门真实PG复验，尚未完成。 |
+| `/root/outbound_security` | 独立transport/PG权限/Unknown代表已有结果；最后lease活性门仍待终态。 |
 | `/root/outbound_runtime` | 保数据升级准备与唯一manager脚本；定向故障已独审关闭，实际production切换未执行。 |
 
 ## 已打通的流程与检查边界
 
 - 本轮Vue候选 `e6bc7d618d26745f4acbd0e0d31a5457b3d7b4e4` 已远端保存。作者完整check为10文件55项unit及格式/类型/build通过；之后回焦、严格receipt成功而GET失败两项P2定向修复并分别通过作者/独立受控复验，模板增量格式/类型/build通过，未重跑55项。后读失败不再猜直连或空规则，恢复只GET。独审四视口、浅深、两Tab、原生200%、焦点/减少动效完成；两次初期load失败根因未定，保留原材料。合成受控[访问规则浅色图](https://img.lunadeer.cn/i/2026/10/16/6ad20780f2705.png)与[代理深色图](https://img.lunadeer.cn/i/2026/10/16/6ad2062bbfc37.png)已实看、上传和匿名校验，不代真实后端或公网。
-- 后端生产源码候选 `6ea558f1`、后继作者route tests/说明 `fe0fb362` 与fixture用户名修正 `5a1871f1` 已远端保存。较早outbound race（25.675秒）/vet、DTO/gate/env等结果保留原输入；独审旧a37冻结源码的transport/env实际通过，不能代证修后6ea的PG恢复。5260 r2已走真实App/bootstrap/login/session/SMTP setup，止于fixture用户名含下划线导致兑换INVALID_ARGUMENT，专属资源已精确清理；r3改合法用户名后go-c完成，独立依赖启动中，manifest未ready，全部新UI真实浏览器仍未跑。
-- 两项恢复门仍待真实PG判定：进程丢失/清理失败后的live lease安全回收，以及Unknown后原key确认pending并恢复规则+proxy双snapshot。作者route测试首轮仅到migrating即5秒fixture地址等待超时，未登录或调用目标API，已清理，正以实际App预算加有界barrier复验；独审首fixture因selector缺锚被helper拒绝、PG未起且已清理，正修精确selector。这些准备失败不判为产品通过或产品失败，也不混用旧/新PG binary证据。
+- 本轮三个真实浏览器场景以Vue `e6bc7d61`、后端生产 `6ea558f1`、fixture `5a1871f1` 分轮通过：rules17.1秒、authority18.8秒、proxy58.0秒，均exit0且测试Session退出204→401。覆盖规则CRUD/持久/409，代理密码空保持/替换/移除、真实commit丢响应原key/body恢复及后GET失败只GET、权限/CSRF。run01死Vite502已恢复；run02准备和run03五秒导航原因未证；run06测试响应body读取失败改专用CA真实route.fetch原样转发后复验。原失败和输入留在[出站harness](../tests/frontend-outbound-policy/README.md)，不倒推根因。r3真实优雅退出0、3容器/3网络清零、5260无监听且runtime/sidecar撤；detached5246 PID396832/start_ticks3059717保留，用户18443未动。
+- 后端生产Go仍为 `6ea558f1`，源码owner已停写并保存至 `a5d12bf0`（含独审lease测试，尚未通过）。作者root HTTP API→认证代理→Secret借还→owned HTTPS→坏gateway无直连→direct通过（18.42秒），独审自有nonce再跑同冻结binary通过（49.05秒），各实际退出并清理。独审6ea真实PG权限/Secret通过（38.03秒）；Unknown两旧a37原反例在6ea同输入通过（74.03秒），含held COMMIT settle/writer join后原key恢复、另一资源保存不提前解禁。18项transport定向race/env毒值及两个既有受影响selector（10.96/12.24秒）已有实际结果；不称PG race或所有Provider逐一端到端通过。Model/MCP/OAuth/SMTP源码沿同root，独立web-fetch消费者不存在，仅通用HTTP覆盖。
+- 最后lease活性门尚在跑，采用成熟StopAdmission/Drain释放spool但保实际ProcessGuard活的fixture检验保护与可靠停止后的回收；此前双root同spool setup失败不是产品缺陷。原5秒App/20秒migration/helper/fixture用户名及raw Authorization测试输入错误均保留，测试仅按正式启动预算调整准备，产品deadline未放宽。普通候选go build已有exit0；最后OpenAPI embed差量与最终构建身份仍待核，不将较早binary视为最终组合。
 - manager `bbc6236e` 曾独立复现Popen后record发布失败留下存活未登记candidate；修正 `f01ca6ee` 后同.next故障实际关闭：原错误/未知.next保留，新child已wait且无PID/端口占用，status/stop与实际停止一致，selected仍为候选且旧版fallback拒绝，修复本fixture的.next后同版可恢复，合成data/keys/env未变。CLI退出0、子进程全回收；未验证production迁移/升级或公网。保留immutable nginx的nonce/基础设施source，候选后端另核active-release、实际进程/exe SHA与前端组合；旧probe强制identity.source等于runtime.source的假设不适用于staged manifest，未宣称复用通过。
 - 此前正式binary来源 `62ad504378fcab4e65722cbb7e5d2fffa8bc60a1`（含7aa修复），生产bootstrap/PG/MinIO真实就绪。严格本机CA/IP/SPKI、nonce/source、匿名401无Set-Cookie、登录/读取通过；仅Central停启后原Cookie/user/session/SMTP投影保持，PG/MinIO/web及持久keys未换，logout204→401，probe退出0。初次PG父目录权限失败未建账号，专属失败资源清理后修PGDATA挂载成功；恢复管理器端口检查修正后验证通过。
 - 当前入口为18443→TLS5256→Central5257，独立frp与新Central实际存活；数据、五组keys、环境与TLS材料位于仓库外私有 `/workspace/scratch/agenteam-central-persistent-r1/`（0700/0600）。恢复使用[Central管理脚本](../scripts/manage-persistent-central.py)的status/start/stop及同目录runtime.json，停Central不删除数据库/对象数据或重新生成keys，基础设施按[后端说明](../docs/development/backend/account.md#可恢复的真实-smtp-运行准备)管理。旧r2 App实际wait0，4容器/4网络逐ID全不存在，旧凭据文件已撤；5245/5241/443/18081保持。
@@ -86,7 +87,7 @@
 
 ## 保存与下一步
 
-等待backend的唯一owned5260 r3实际ready，再让tests运行新UI真实链；作者route测试与独立security分别完成本输入的PG/API及两项恢复门，frontend仅针对具体联调问题返修。按工程契约核Central消费者接线，不以受控UI、管理脚本或代理库局部通过代整包完成。真实SMTP验证继续暂停；现production及用户新SMTP/持久数据、frp/dev保留，禁止清库或自动替换。不改系统环境/工具代理，不打印秘密或私人收件地址，公网身份仍未验。
+等待最后lease门及候选组合核对→root先集成backend→runtime按[stage/恢复说明](../docs/development/backend/account.md#既有持久实例的stage与恢复)保数据切换→root集成Vue→核实际预览组合。最终OpenAPI embed须重新构建核对，实际stage/私有备份/用户Central停机均未发生；旧143binary不兼容144DB且不理解持久代理，不能自动回退。现DB/账号/用户SMTP、keys、对象与frp/dev保留，真实SMTP暂停，不改宿主/工具代理，不打印秘密。nginx保原基础设施identity，新backend另核active-release/proc exe SHA及frontend组合；唯一公网严格匿名curl60未取nonce，不宣公网匹配。
 
 ## 保留的既有恢复入口
 

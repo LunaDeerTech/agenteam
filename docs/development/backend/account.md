@@ -57,7 +57,7 @@ Account/Mail 初始化、bootstrap 和恢复消耗同一剩余安全启动预算
 
 ## 可恢复的真实 SMTP 运行准备
 
-真实 SMTP 应由生产 `cmd/agenteam` 运行，使用默认 `SystemResolver`；当前生产根已支持，无须修改账号领域或出站地址分类器。预览测试 binary 中固定 sink 的 resolver 不是部署配置：外部 SMTP hostname 会在建连前被拒绝，不能通过更新出站 CIDR、修改 hosts 或替换 SMTP 密码修复。SMTP 本身始终直连，HTTP(S) 代理配置不代理 SMTP。
+真实 SMTP 应由生产 `cmd/agenteam` 运行，使用默认 `SystemResolver`；当前生产根已支持，无须修改账号领域或出站地址分类器。预览测试 binary 中固定 sink 的 resolver 不是部署配置：外部 SMTP hostname 会在建连前被拒绝，不能通过更新出站 CIDR、修改 hosts 或替换 SMTP 密码修复。此前持久预览的SMTP直连；本轮[统一出站候选](../work-items/system-outbound-policy-proxy.md)将SMTP接入同一持久代理选路，是否已部署以当前状态为准，不以候选源码代证运行行为。
 
 最小可恢复组合为独立 PostgreSQL/pgvector、MinIO、宿主生产 Central 和 HTTPS 反向代理。复用已核验的工具与只读镜像即可；每个新部署使用独立数据库、bucket、数据目录、私有配置及端口，不复用旧测试实例的运行数据。TLS 代理保留 canonical Host，`PUBLIC_ORIGIN` 固定准确 HTTPS origin，`DEV_MODE=false`。若保留两个实例同时登录，仅更换同一 IP/hostname 的端口不能隔离 `__Host-agenteam_session` Cookie；应使用不同 hostname，或明确使用独立浏览器 profile。
 
@@ -77,7 +77,28 @@ Account/Mail 初始化、bootstrap 和恢复消耗同一剩余安全启动预算
 
 用户配置完成并恢复诊断后，生产实例安全投影显示SMTP已配置且有凭据。其已有授权目标测试任务经过原配置的4次attempt，最终failed/network_failed；诊断只观察该job，没有新增POST或人工重试，结束logout204。固定生产入口工具见 [diagnose-persistent-smtp.py](../../../tests/account-preview/diagnose-persistent-smtp.py)：严格私有manifest、活动进程身份、CA/SPKI/实例标识门禁，秘密仅在内存和仓库外0600材料，错误只输出安全分类。旧fixture诊断器不可用于此入口。
 
-当前Central实际已继承proxy:8080的HTTP(S)代理环境，但SMTP源码保持直连。独立同目标465直连诊断在TCP被拒；显式系统代理探针取得CONNECT200和严格系统信任/hostname TLS成功，随后10秒未收到SMTP220，未进入认证或发信。该探针的代理叶证书不等于已独立核实目标SMTP服务器叶证书；本次无SMTP greeting不外推所有SMTP代理能力。`network_failed`本身不能区分DNS/TCP/TLS阶段，密码正确性与邮箱收到均未验证。当前保留服务并停止追加探针，需要实际可用SMTP网络出口，不能通过重复改密码、无效重启或放宽TLS/出站策略修复已观察到的网络限制。
+此前诊断时Central实际已继承proxy:8080的HTTP(S)代理环境，但该运行版本SMTP保持直连。独立同目标465直连诊断在TCP被拒；显式系统代理探针取得CONNECT200和严格系统信任/hostname TLS成功，随后10秒未收到SMTP220，未进入认证或发信。该探针的代理叶证书不等于已独立核实目标SMTP服务器叶证书；本次无SMTP greeting不外推所有SMTP代理能力。`network_failed`本身不能区分DNS/TCP/TLS阶段，密码正确性与邮箱收到均未验证。当前保留服务并停止追加探针，需要实际可用SMTP网络出口，不能通过重复改密码、无效重启或放宽TLS/出站策略修复已观察到的网络限制。
+
+### 既有持久实例的stage与恢复
+
+本轮升级保留现有数据库、对象数据、账号/Session、用户已保存SMTP、五用途keyring、TLS材料、spool与恢复日志。只切换同一Central端口的候选二进制；`prepare-persistent-central.py`仍用于首次准备/原输入校验，不能用新source重建目录或重置已有数据。实际升级须先完成候选功能与恢复门、最终组合构建及完整source/hash核对；当前进度见[恢复状态](../../../.agent-state/current.md)。
+
+管理器新增 `stage`：
+
+```sh
+python3 scripts/manage-persistent-central.py stage \
+  --runtime /absolute/private/runtime.json \
+  --candidate-binary /absolute/private/agenteam-candidate \
+  --source-revision FULL_40_CHARACTER_REVISION
+```
+
+以输出的 `runtime_file`作为候选manifest。stage只复制候选到私有 `bin/agenteam-<revision>`、检查配置并写独立 `runtime-staged-<revision>.json`，不停止原进程、不更换环境/密钥/数据库，不改原preparation；相同输入可重复，同revision不同SHA拒绝。`--check-config`不证明迁移或服务健康。
+
+切换顺序由运行owner执行：先核真实PID/start_ticks/executable及精确容器/nonce归属、无未终结或未join邮件任务；用当前manifest执行 `stop`并确认实际退出和端口释放。保留数据库/对象/TLS代理/frp，停止应用写入后对原数据库做私有custom-format备份并验证归档可读，记录原配置/密钥和数据身份摘要；备份、stderr及归档清单只存0700目录/0600文件，不打印凭据。随后只用stage返回的manifest执行 `start`，再核实际进程/exe SHA、迁移记录、同端口服务、原账号/SMTP安全投影与数据/密钥保持。
+
+`central-release.json`在候选Popen前持久记录已选source/SHA与manifest路径；后续管理使用其中的活动manifest。候选可能已提交迁移，因此一旦尝试启动，旧manifest不能再次start/stop/stage；保持所选候选并做兼容的前向修复。旧143二进制会拒绝144数据库，且不理解持久代理，切回direct也不能使其兼容；不自动回旧binary或恢复旧dump。候选进程记录发布失败时，manager只回收自己刚启动的child并实际wait，保留已选release和原错误，不清除未知残留文件；原正常stop超时仍不强杀。数据恢复如有需要必须另核配套schema、binary、备份与对象/密钥事实。
+
+保留原immutable nginx配置、TLS与nonce，`/__instance__/identity.source_revision`继续表示基础设施首次准备版本；它不证明新候选代码版本。新Central用活动manifest、实际PID/start_ticks/executable SHA证明，前端用实际构建/源组合单独核验。旧 `runtime-recovery-probe.cjs` 和 `diagnose-persistent-smtp.py`的identity.source等于runtime.source假设不适用于staged manifest，本轮升级用独立组合核验，不修改nginx来伪造候选身份。严格本机验证、公开入口响应归属和真实邮件结果分别记录；SMTP实测暂停，升级操作不触发测试发送。
 
 ## 新 Vue 账号联调
 

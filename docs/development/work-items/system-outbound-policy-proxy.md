@@ -1,6 +1,6 @@
 # Central 出站规则与持久代理
 
-状态：实施与隔离联调准备中；基线 `89e4e901`。本卡是本轮工程接口、体验和验收的唯一合同，架构规则见[出站网络策略](../../architecture/platform-infrastructure/outbound-network-policy.md)。wire已固定，前端候选已有工程与受控UI检查；真实PG/API和后端恢复门尚未完成，不代表本卡交付。
+状态：交付前WIP；基线 `89e4e901`。本卡是本轮工程接口、体验和验收的唯一合同，架构规则见[出站网络策略](../../architecture/platform-infrastructure/outbound-network-policy.md)。三条真实UI/API旅程、代理实际选路和Unknown恢复代表已有通过证据；最后lease活性门与最终组合核对尚未完成，生产未切换，不代表本卡正式交付。
 
 ## 1. 目标与分工
 
@@ -87,8 +87,10 @@ backend须盘点实际Central发出入口与组合根：受控HTTP client、Prov
 
 - 前端候选已实现双Tab、严格DTO、规则/代理命令及恢复状态。作者完整check为55项unit及格式/类型/build通过；后续两项P2分别修复回焦与“严格回执成功、后读失败”时误显直连/空规则，增量格式/类型/build及作者/独立受控复验通过，未重跑55项。已确认回执与读取失败分开显示，恢复只GET，不猜当前配置。
 - 独立受控UI已查看四视口、浅深、两Tab、原生200%、焦点与减少动效；两次初期加载失败原因未定，保留原材料，后续通过不回填根因。这些拦截响应与合成身份结果不代真实API、代理通道或公网验证。
-- 后端候选已补持久operation与双snapshot恢复，原局部race/vet/DTO/gate/env结果保持输入边界，两项恢复门仍待真实PG判定。作者route测试首轮止于App迁移时fixture等待超时，独审首fixture止于selector被helper拒绝；均已清理并定向修准备，不记产品PASS/FAIL，也不将旧a37与修后6ea的PG binary混为同一证据。
-- owned TLS5260 r2已走真实App及账号/SMTP初始化，因fixture用户名非法止于普通邀请兑换，精确清理后用合法用户名启动r3；当前go-c完成、依赖启动中，manifest尚未ready，全部新UI真实浏览器未跑。frontend5246保留供受控观察；正式harness/probe已保存等待联调。
-- 保数据manager的Popen后登记失败问题经同.next故障独立复验关闭：候选被实际回收、无活未登记进程，保留selected release且拒旧版回退，修复测试自身残留后同版可恢复，合成配置/数据/密钥未变。此结果不代production迁移或升级；nginx保持原基础设施身份，候选版本另核实际进程与binary，不套用旧probe的source相等假设。
+- 新Vue与owned TLS5260 r3的规则、代理、权限三个真实旅程已分轮通过：规则增改删/刷新/409，密码空保持/替换/移除、安全投影，真实提交丢响应的同key/body恢复、严格回执后读失败仅GET，以及普通身份403/缺CSRF拒绝。首死Vite502与准备/导航/回读失败均留在harness；其中未证原因不由后续通过倒推。
+- 后端生产源码6ea的root HTTP API→认证代理→Secret借还→owned HTTPS、坏网关不直连→direct代表经作者及独立运行通过；18项transport定向race与环境毒值门通过。Model/MCP/OAuth/SMTP沿同root装配；没有独立web-fetch消费者，不虚构该链，也不称所有Provider逐一端到端或PG race通过。
+- 独立真实PG权限/Secret与Unknown两代表已通过；旧a37同输入反例失败后，6ea确认held COMMIT实际settle/writer join、原key恢复双snapshot及另一资源成功不提前解禁。最后live lease活性门仍在跑：先以正式StopAdmission/Drain释放spool、保实际ProcessGuard活，再验证保护与可靠停止后的回收。原双root共spool的fixture准备失败不算产品缺陷。两个既有受影响selector已实际通过；原等待预算/selector/输入错误保留，产品deadline未放宽。
+- r3已优雅退出0，专属3容器/3网络清零，5260无监听且runtime/sidecar撤；frontend5246保留，用户18443及SMTP未动。候选普通build已通过，最终OpenAPI embed与组合构建仍待核对。
+- 保数据manager的Popen后登记失败问题经同.next故障独立复验关闭：候选实际回收、保留selected release且拒旧版回退，同版可恢复，合成配置/数据/密钥未变。实际production stage、备份、停机均未执行；运行顺序与143→144恢复边界见[持久实例stage与恢复](../backend/account.md#既有持久实例的stage与恢复)。nginx保持原基础设施身份，候选另核实际进程与binary，不套用旧probe的source相等假设。
 
 不操作现production或真实SMTP。精确输入、失败与下一步见[当前状态](../../../.agent-state/current.md)，命令和行为结果由[出站harness](../../../tests/frontend-outbound-policy/README.md)维护。
