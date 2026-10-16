@@ -1,6 +1,6 @@
-# 当前状态：新生产实例已切换，暂停等待用户配置SMTP
+# 当前状态：SMTP验证暂停，转只读核对出网架构
 
-2026-10-16。新production实例已按授权重建并切到原18443入口，本机TLS/auth与一次仅Central停启恢复验证通过；公网唯一严格匿名检查仍因TLS信任校验失败而未核实例标记。新管理员密码已单独交付，用户明确要求暂停，待其完整填写SMTP配置后再通知继续；不新增探测、邮件或业务测试。新SMTP为unconfigured，旧数据/Session未迁移。QQ465此前两次TCP连接未建立、未到TLS/AUTH/MAIL，尚未发新邮件或确认送达。页面与API合同仍见[系统账号设置](../docs/development/work-items/frontend-system-account-settings.md)及[账号合同](../docs/development/work-items/frontend-account-rebuild.md)，旧受控UI结果不代证真实邮件或公网。
+2026-10-16。按用户恢复指令跟踪其已有指定收件人任务，最终failed/attempts4/network_failed；本轮未新POST或人工重试。Central已有系统代理环境，但SMTP实现直连；代理探针TLS成功后未收到SMTP欢迎响应，未证明邮件接受或送达。用户现要求暂停SMTP验证，先只读核对统一出网模块、原设计及代理支持；不写网络代码，服务保留。本机TLS/auth及一次仅Central停启验证已过，18443入口保持；唯一公网严格匿名检查仍未核实例标记。邮箱、密码与认证材料不入文档；页面合同见[系统账号设置](../docs/development/work-items/frontend-system-account-settings.md)及[账号合同](../docs/development/work-items/frontend-account-rebuild.md)。
 
 ## 范围、组合与所有权
 
@@ -12,9 +12,9 @@
 | Owner | 唯一职责 |
 | --- | --- |
 | `/root/account_contract` | 本状态、新系统合同与必要说明；本批冻结后由root保存。 |
-| `/root/vue_integration` | 此前共享列表/分页及页面组合owner；本轮不改前端产品。 |
+| `/root/vue_integration` | 与backend只读核对出网架构、原设计及代理支持；不改产品。 |
 | `/root/smtp_list_adapter` | 此前SMTP适配owner，源码已冻结；原system_api_surface已撤写权。 |
-| `/root/account_backend` | production持久实例与恢复入口已交付，旧r2已清理；运行状态paused，按用户要求停止新探测/发信。 |
+| `/root/account_backend` | SMTP诊断已结束、所有probe退出；转只读核对出网模块及代理设计，不发信、不探测、不改产品，production/frp保留。 |
 | `/root/vue_tests` | 独立TLS/auth与一次仅Central停启验证通过并退出；唯一公网失败如实保留，不继续探测。 |
 | `/root/vue_visual_review` | 此前列表与模态有限独审；既有结果和图片保留原输入边界。 |
 
@@ -22,7 +22,9 @@
 
 - 本轮正式binary来源 `62ad504378fcab4e65722cbb7e5d2fffa8bc60a1`（含7aa修复），生产bootstrap/PG/MinIO真实就绪。严格本机CA/IP/SPKI、nonce/source、匿名401无Set-Cookie、登录/读取通过；仅Central停启后原Cookie/user/session/SMTP投影保持，PG/MinIO/web及持久keys未换，logout204→401，probe退出0。初次PG父目录权限失败未建账号，专属失败资源清理后修PGDATA挂载成功；恢复管理器端口检查修正后验证通过。
 - 当前入口为18443→TLS5256→Central5257，独立frp与新Central实际存活；数据、五组keys、环境与TLS材料位于仓库外私有 `/workspace/scratch/agenteam-central-persistent-r1/`（0700/0600）。恢复使用[Central管理脚本](../scripts/manage-persistent-central.py)的status/start/stop及同目录runtime.json，停Central不删除数据库/对象数据或重新生成keys，基础设施按[后端说明](../docs/development/backend/account.md#可恢复的真实-smtp-运行准备)管理。旧r2 App实际wait0，4容器/4网络逐ID全不存在，旧凭据文件已撤；5245/5241/443/18081保持。
-- 唯一公网匿名尝试使用专用CA和SPKI：CONNECT200，curl60/TLS_TRUST_REJECTED、HTTP0、instanceMatched=false；未发送凭据或取得实例标记，也未观察实际leaf issuer，不能将旧代理背景或frp登录当作本次公网证明。新SMTP仍未配置，用户须完整重填；管理员密码已单独交付，私有run-state已paused。按用户要求现在暂停，不追加诊断、连接尝试或发信。
+- 唯一公网匿名尝试使用专用CA和SPKI：CONNECT200，curl60/TLS_TRUST_REJECTED、HTTP0、instanceMatched=false；未发送凭据或取得实例标记，也未观察实际leaf issuer，不能将旧代理背景或frp登录当作本次公网证明。
+- 用户恢复后正式SMTP安全投影为configured/credential_present、version2，`smtp.exmail.qq.com:465/tls`，retry3/60未改。只读确认已有test任务目标与授权收件人相等；终态failed/attempts4/version9、attempt_channel=smtp、attempt_result=failed、reason=network_failed。未新POST或人工retry，诊断Session退出204，observer退出0；未证明SMTP接受或邮箱收到。
+- 本轮一次直连探针DNS成功，但同目标465连接TCP errno111，拒绝来源未知。实际Central已继承HTTP_PROXY/HTTPS_PROXY及小写变量至proxy:8080，无ALL_PROXY；SMTP源码不读取这些变量，未做无效重启。一次代理CONNECT200、系统CA/hostname严格TLS1.3通过（代理颁叶），随后10秒未收到任何greeting/220而超时，未EHLO/AUTH/MAIL；仅说明该探针未建立SMTP会话，不推断代理永不支持。未改SMTP配置、密码、出站policy或产品代理契约。
 - 此前backend在旧r2登录、读取安全配置/任务投影并logout204：SMTP为 `smtp.exmail.qq.com:465/tls`、credential_present、version6；近期两个test任务为failed/network_failed，记录attempts=4。未新建已知必败任务。脱敏 `diagnose-smtp.py` 一次inspect通过，已随后端 `62ad5043` 保存；未输出密码、认证材料或收件地址。
 - 此前装配与源码复核确认r2的previewSMTPResolver只认识私有sink，对外部hostname直接DNSFailed，未到连接或认证；普通公网IP出站策略本来允许，不能改policy掩盖resolver。r2随机account keyring/TLS私钥仅在内存，无无损切换控制；用户现已授权重建测试数据。另用系统DNS得到的两个A记录各直连QQ465一次，均TCP errno111、未到TLS/AUTH/MAIL；只证明这两次连接未建立，不能推断密码错误或由谁拒绝。production cmd已用Go1.27编译，持久配置、五组keys、DB及独立资源按正式预算/owner核对后启动；新实例与一次停启持久性尚待验证，未宣称真实投递通过。
 - 此前三列表产品 `9e557cd6` 与测试/组件说明 `409b49b7` 的完整工程检查通过：全web格式、9文件51/51 unit、类型与build（143模块）。后续U8只改SMTP页的operationBusy禁用条件，限定Prettier及build（含vue-tsc、143模块）通过，未再跑51项，共享五源未变。公共分页定向unit 4/4通过（5.27秒，既有两项加保留行失败重读/停用迟到两项）。SystemList/useCursorList正式接口与三页适配已落，三路解除正文760px上限，外框1200px、主区padding和表单自身行宽保持。
@@ -54,7 +56,7 @@
 
 ## 旧实例与先前公网断点（历史）
 
-以下是切换前记录，不代表当前实例或存活清单；旧r2现已退出清理，当前恢复入口与公网限制以上方三项为准。
+以下是切换前记录，不代表当前实例或存活清单；旧r2现已退出清理，当前恢复入口与公网限制以上方当前记录为准。
 
 | 资源 | 当前事实与恢复位置 |
 | --- | --- |
@@ -78,7 +80,7 @@
 
 ## 保存与下一步
 
-本轮按用户指令暂停，等待其在新入口完整配置SMTP并明确通知继续；不发新邮件、不继续探测。新production、持久数据及frp/dev保留，旧r2已清理。当前说明与测试README冻结交root保存，本状态不预写自身提交。后续恢复须核私有runtime/实际进程与证书状态，不打印环境、密钥、管理员密码或私人收件地址；公网身份验证与真实邮件结果仍分别待证。
+本轮诊断结果已收齐，私有run-state为diagnosis_complete，所有probe已退出。按用户最新指令暂停SMTP验证，由backend与integration只读核对统一出网模块、原设计及代理支持后讨论；不发信、不probe、不写网络代码，不扩任务文档或修改设计。新production、持久数据及frp/dev保留，旧r2已清理。不打印环境、密钥、管理员密码或私人收件地址；受理、SMTP接受和邮箱收到分别记录，代理TLS成功及邮件结果均不代证公网实例身份。
 
 ## 保留的既有恢复入口
 

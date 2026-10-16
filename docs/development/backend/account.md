@@ -73,7 +73,11 @@ Account/Mail 初始化、bootstrap 和恢复消耗同一剩余安全启动预算
 
 完成环境和入口核验后，用户在新入口的SMTP设置页重新输入SMTP密码，经正式API存入Secret；不从旧实例导出凭据。先通过真实应用测试API受理，再读取同一job终态；202、SMTP接受、最终邮箱收到仍是三个不同事实。若部署环境无法连接实际SMTP端口，新实例或标准解析器都不能替代出口连通性；单目标无AUTH/MAIL的TLS/EHLO工具见 [probe-smtp-transport.py](../../../tests/account-preview/probe-smtp-transport.py)，它仅证明传输阶段，不证明应用发送。
 
-2026-10-16本轮已实际完成上述持久组合和一次Central优雅停启：独立验证同一Cookie、用户/会话及SMTP投影保留，PG/MinIO容器与密钥不变，logout仍生效。当前公开18443映射已由旧5254测试fixture顺序切至5256；旧App和四套owned设施已清理，Vite5245保留。新SMTP尚未配置，未迁移非秘密字段或旧密码，用户需要重新填写完整设置。公网唯一匿名identity读取在管理网络严格TLS校验处失败（CONNECT200、curl60、HTTP0），未取得公网实例标识，不能据本机验收宣称公网验证通过。用户要求先取得新管理员密码并暂停；后续配置好后再继续，不自动发测试邮件。
+2026-10-16本轮已实际完成上述持久组合和一次Central优雅停启：独立验证同一Cookie、用户/会话及SMTP投影保留，PG/MinIO容器与密钥不变，logout仍生效。当前公开18443映射已由旧5254测试fixture顺序切至5256；旧App和四套owned设施已清理，Vite5245保留。旧SMTP字段/密码未迁移，用户随后自行在新实例保存完整配置。公网唯一匿名identity读取在管理网络严格TLS校验处失败（CONNECT200、curl60、HTTP0），未取得公网实例标识，不能据本机验收宣称公网验证通过。
+
+用户配置完成并恢复诊断后，生产实例安全投影显示SMTP已配置且有凭据。其已有授权目标测试任务经过原配置的4次attempt，最终failed/network_failed；诊断只观察该job，没有新增POST或人工重试，结束logout204。固定生产入口工具见 [diagnose-persistent-smtp.py](../../../tests/account-preview/diagnose-persistent-smtp.py)：严格私有manifest、活动进程身份、CA/SPKI/实例标识门禁，秘密仅在内存和仓库外0600材料，错误只输出安全分类。旧fixture诊断器不可用于此入口。
+
+当前Central实际已继承proxy:8080的HTTP(S)代理环境，但SMTP源码保持直连。独立同目标465直连诊断在TCP被拒；显式系统代理探针取得CONNECT200和严格系统信任/hostname TLS成功，随后10秒未收到SMTP220，未进入认证或发信。该探针的代理叶证书不等于已独立核实目标SMTP服务器叶证书；本次无SMTP greeting不外推所有SMTP代理能力。`network_failed`本身不能区分DNS/TCP/TLS阶段，密码正确性与邮箱收到均未验证。当前保留服务并停止追加探针，需要实际可用SMTP网络出口，不能通过重复改密码、无效重启或放宽TLS/出站策略修复已观察到的网络限制。
 
 ## 新 Vue 账号联调
 
