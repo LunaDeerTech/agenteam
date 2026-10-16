@@ -91,4 +91,28 @@ node tests/account-captcha-web/node_modules/@playwright/test/cli.js test --confi
 node tests/account-captcha-web/node_modules/@playwright/test/cli.js test --config tests/frontend-account-rebuild/playwright.config.cjs system-users.spec.cjs
 ```
 
-本轮首批源码已执行 `--list`，加载上述 1 条；此时独立后端尚未就绪，真实浏览器尚未执行。`npm run test:unit --prefix web -- tests/system-account.spec.ts` 首轮 2 项通过、1 项失败：系统403清除显示/旧管理命令但保留登录，以及同身份checking保留未确认原请求、真实角色丢失使其失效已通过；每页请求10条却接受11条的响应上界失败交给产品 owner 修复，原失败保留。后续新增页和修复只按实际运行补充结果，不复用旧账号或旧原型结论。
+本轮 `web/tests/system-account.spec.ts` 首轮 2 项通过、1 项失败：系统 403 清除显示/旧管理命令但保留登录，以及同身份 checking 保留未确认原请求、真实角色丢失使其失效已通过；请求 10 条却接受 11 条的响应上界失败交给产品 owner 修复。修复后仅定向复验该项与新增 SMTP 四项，5 项通过；随后 generic `useCommand` 的 committed 原意图/严格回执后读取失败行为新增 1 项并定向通过。最后由 integration owner 唯一执行 `npm run check --prefix web`，实际全量 47/47 unit 与 format/type/build 通过。后续用户要求的标题动作及说明文案改动由该 owner 补 format/type/build，未重复无关账号浏览器矩阵。
+
+四页使用后端 owner 的独立 `system-settings-runtime-r1`，真实 App/PG/MinIO/私有 SMTP，后端生产输入 `7aa9b503`；不是另起正式 `cmd` 二进制的验收，也不是公网 r2。恢复时必须让 owner 提供新的有效 runtime 和 sidecar，不能沿用已过期证书。安全配置和 SMTP 的受控丢响应使用 Node `route.fetch`，必须指向 manifest 的 **`certificate_ca_file` 专用 CA**，不能误用 leaf。所有转发异常包装为固定错误码；私有 body/key 只在内存中比较，密码断言只输出相等性布尔值。
+
+以下每条均先 `--list` 加载成功再单独实际运行；`--list` 本身不算业务通过。在上面的隔离 runtime/mailbox 环境变量之外设置专用 CA，并为每次运行提供独立输出目录：
+
+```sh
+export NODE_EXTRA_CA_CERTS=/absolute/isolated-system/private/certificate-ca.pem
+export FRONTEND_ACCOUNT_OUTPUT="$PWD/output/ai/frontend-account-rebuild/system-security-run-01"
+node tests/account-captcha-web/node_modules/@playwright/test/cli.js test --config tests/frontend-account-rebuild/playwright.config.cjs system-settings.spec.cjs
+# 其余限定入口，分别设置输出目录后单独运行：
+# system-invitations.spec.cjs
+# system-permissions.spec.cjs
+# system-smtp.spec.cjs
+```
+
+本轮分段实际结果如下，后续小改只复验受影响部分：
+
+- `system-users-run-01`：1/1 通过，38.6 秒。通过正常邀请/私有 SMTP/兑换补到 11 个注册用户（管理员加 10 个普通账号），真实前后游标页每页上界 10、顺序和只读目录通过。
+- `system-security-run-01`：1/1 通过，11.5 秒。真实安全配置保存与独立版本推进产生 409，草稿保留到明确采用；真实 PUT 已接受后受控丢弃响应，检查当前状态不当作确认，同 key/body 重放取得回执；之后 GET 失败仅重读，服务端版本没有再次增加。受控响应丢失不等同自然网络故障或真实 PG 提交不明。
+- `system-invitations-run-01`：创建 POST 201 与列表 GET 200 已发生，但确认状态 DOM 断言失败，不能记为通过。两处邀请源 mtime 确实落在该运行窗口内，保留此重叠事实，不断言 HMR 是唯一原因。相关源冻结后 `system-invitations-run-02` 1/1 通过，83.06 秒：创建、安全投影、私有 SMTP 接收、人工重试、真实 60 秒间隔后的重发、撤销反例、原链接兑换及用户目录可见；重发/重试不延长链接期限，不臆造邀请版本递增。
+- `system-permissions-run-01` 在准备现有普通账号时错用 Session CSRF 调用公开重置入口，得到 403，属于 harness 准备错误。修为匿名 bootstrap CSRF 后 `system-permissions-run-02` 1/1 通过，18.1 秒：仅将本轮该隔离实例已有的普通种子账号通过真实私有邮件重置一次，不新建账号；普通身份真实 GET 系统用户接口 403，随后 Session 200 且身份仍为同一普通用户。此项停留在 fixture 文档执行 HTTP，不代证 Vue 的权限错误布局；页面清显示由 unit 和独立受控视觉证据覆盖。
+- `system-smtp-run-01`：最终产品输入 `243a4560`，1/1 通过，18.9 秒。单密码框空值保持凭据且请求省略 password；新值替换、派发清空；真实保存接受后受控丢响应，仍用原 key/body/版本显式恢复，GET 安全投影不回显密码。保存私有主机的未允许端口成功不触发发送；独立测试 202 后受控丢 GET，只重读且测试 POST 共一次，真实任务最终 `policy_rejected`。恢复原端口后人工 retry 产生新任务，真实 SMTP sink 接收并确认 `sent`，与“请求已受理”分开；最后显式移除认证与停用配置均确认。成功后仅将空密码断言改为布尔输出，防未来失败报告回显值，没有改变步骤或重跑真实写入。
+
+上述五个限定入口各有一轮实际通过，原失败仍保留在忽略输出目录。全部作者 Playwright/CLI 已退出，每次测试上下文收尾真实 logout 204、再读 Session 401；无 trace、默认失败 DOM、截图、邮件正文或凭据附件。该 harness 没有持有监听，也未改公网 r2 用户管理员、配置或 frp。最终 owned 5250 的 SMTP 因显式停用验收而未配置，mailbox/全局写窗口已释放；服务退出由后端 owner 统一执行，本 README 不把测试进程退出当成后端服务退出。

@@ -83,7 +83,7 @@ test("real SMTP keeps secrets private, replays its original write and separates 
   await expect(port).toBeEnabled();
   const initial = await settings(page);
   expect(initial.configured && initial.credential_present).toBe(true);
-  await expect(password).toHaveValue("");
+  expect((await password.inputValue()) === "").toBe(true);
   let blankKeptSecret = false;
   const observeKeep = (request) => {
     if (
@@ -130,7 +130,7 @@ test("real SMTP keeps secrets private, replays its original write and separates 
   await fillPrivate(password, replacement);
   await page.getByRole("button", { name: "保存配置", exact: true }).click();
   await expect(page.getByRole("alert")).toContainText("原配置操作结果尚未确认");
-  await expect(password).toHaveValue("");
+  expect((await password.inputValue()) === "").toBe(true);
   await expect(password).toBeDisabled();
   await page.getByRole("button", { name: "检查当前状态", exact: true }).click();
   await expect(
