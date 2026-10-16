@@ -54,4 +54,6 @@ node tests/account-captcha-web/node_modules/@playwright/test/cli.js test \
 - `run-03-rules` 的真实 login/session 均 200，但 5 秒内 URL 尚未跳转。原轮缺少模块完成时序，根因未确定；`run-05` 同一 5 秒断言实际通过，记录点击到 URL 改变 1.807 秒。后续通过不抹去原失败，也不把共享 CPU 压力或冷模块推断写成已证原因。
 - `run-06-proxy` 首 PUT 200 后测试的浏览器 `response.json()` 回读失败，页面已发后续 GET；具体底层异常已被安全包装，无法追溯。改为上文真实转发捕获回执后仅复验代理场景，保持原 receipt、持久与恢复断言。
 
-所有实际 runner 已收集退出码；成功场景 finally 已确认本测试 Session logout 204 后 GET 401，浏览器关闭，匿名诊断进程也已退出。测试已释放 5260 配置写窗口；最终本轮代理为直连、保留网关且认证已移除。未访问 18443、未配置用户 SMTP、未发送真实邮件。root 已要求后端唯一 owner 清退 r3，服务及资源实际退出由该 owner 报告；此处不将测试退出写成后端已清退。过期 manifest 不能复用。
+所有实际 runner 已收集退出码；成功场景 finally 已确认本测试 Session logout 204 后 GET 401，浏览器关闭，匿名诊断进程也已退出。测试已释放 5260 配置写窗口；最终本轮代理为直连、保留网关且认证已移除。未访问 18443、未配置用户 SMTP、未发送真实邮件。
+
+后端唯一 owner 已实际清退 r3：原 Preview chain terminal exit 0，5260 不再监听；按本轮 nonce 与固定 label 精确核对，3 个容器及 3 个网络均已清除，cleanup 检查无失败。runtime manifest 与 sidecar 已撤回，私有日志和证书保留；5246 前端仍运行，公网实例未受影响。已撤回或过期的 manifest 不能复用。这些服务清理事实来自后端 owner，本次文档收尾未再启动测试或连接服务。
