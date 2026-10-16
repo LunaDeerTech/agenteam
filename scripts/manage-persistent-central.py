@@ -123,6 +123,9 @@ def run(args):
     if host != "127.0.0.1":
         raise RuntimeError("loopback_central_required")
     with socket.socket() as listener:
+        # Match Go's listener behavior: completed connections may remain in
+        # TIME_WAIT after a graceful stop, without an active service owning it.
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         listener.bind((host, int(port)))
     log_file = root / "central.log"
     fd = os.open(log_file, os.O_WRONLY | os.O_CREAT | os.O_APPEND | os.O_NOFOLLOW, 0o600)

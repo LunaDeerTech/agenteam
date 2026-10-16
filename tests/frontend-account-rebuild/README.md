@@ -181,4 +181,8 @@ runtime JSON 必须为当前用户所有、0600，父目录 0700 且无符号链
 
 脚本先验证 TLS 与 `/__instance__/identity`、匿名系统 SMTP GET 401，再真实登录、读取当前管理员 Session 和 SMTP 安全投影。输出 `ready_for_restart` 后保留 Cookie/CSRF 仅在内存中等待；由**后端唯一 owner** 使用其管理入口只停启 Central，保留 PostgreSQL、MinIO、配置与密钥。确认重新健康后，在原 probe 的 stdin 仅输入无秘密的 `resume`。屏障最多等待 10 分钟，不轮询或自动重启。随后核验 `central-process.json` 与实际 `/proc` 的 PID/start_ticks/exe，确认进程确已更换；同 Cookie、user/session 身份与 SMTP 投影必须保留，最后 logout 204、Session 401。输出只含固定阶段、状态码、布尔结论及安全错误码；不保存 Cookie、CSRF、密码、请求正文或 trace。
 
-目前该新入口仅 `node --check`、`--help` 与限定 Prettier 检查 exit 0；新实例真实链及一次重启结果待 owner 提供候选后执行，不能把语法/入口通过当成持久性通过。实际公网匿名实例匹配另在切换后协调一次检查，不用本机通过或 frpc 登录代替公网响应证据。
+该入口的 `node --check`、`--help` 与限定 Prettier 检查均 exit 0。随后使用正式 binary 来源 `62ad504378fcab4e65722cbb7e5d2fffa8bc60a1` 实际完成一次恢复检查并 exit 0：严格本机 TLS/实例绑定通过，匿名受保护 GET 401；登录、当前 Session 与 SMTP 安全配置读取均 200。到达 `ready_for_restart` 后由后端 owner 只停启 Central；恢复后实际进程身份已更换，同一个 Session Cookie、user/session 身份及 SMTP 安全投影均保持。最后 logout 204，再读 Session 401，probe 已退出，无保留测试会话。
+
+probe 直接证明上述 HTTP、身份与进程更换事实；原 PG/MinIO/TLS 代理资源、持久环境与密钥文件保持由后端 owner 另行实测，不把该单条链扩大为五组密钥全部用途或邮件投递验收。没有改资料、主题、密码或 SMTP，也没有尝试 AUTH/发送。准备阶段的 PG 目录权限与重启管理器 TIME_WAIT 预检问题由后端 owner 修正；它们不记为 probe 业务通过，实际恢复运行使用修正后的管理入口。
+
+后端顺序切换原公开入口后，仅执行一次**匿名**公网 identity GET，使用相同专用 CA 与 SPKI pin，不携带 Cookie/登录信息。实际管理代理 CONNECT 200，但 curl exit 60（TLS_TRUST_REJECTED，sslVerifyResult 1）、HTTP status 0，未取得可验证的 nonce/source 响应。该次未保存实际叶证书 issuer，结论限于当前管理网络的 TLS 信任拒绝；不能用本机通过、frpc 登录成功或此前代理行为代证本次公网身份匹配。未重试或放宽 TLS，所有验证进程退出。按用户要求暂停，保留服务由后端 owner 管理，等待用户重新配置 SMTP 后明确继续。

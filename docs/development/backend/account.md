@@ -73,7 +73,11 @@ Account/Mail 初始化、bootstrap 和恢复消耗同一剩余安全启动预算
 
 完成环境和入口核验后，用户在新入口的SMTP设置页重新输入SMTP密码，经正式API存入Secret；不从旧实例导出凭据。先通过真实应用测试API受理，再读取同一job终态；202、SMTP接受、最终邮箱收到仍是三个不同事实。若部署环境无法连接实际SMTP端口，新实例或标准解析器都不能替代出口连通性；单目标无AUTH/MAIL的TLS/EHLO工具见 [probe-smtp-transport.py](../../../tests/account-preview/probe-smtp-transport.py)，它仅证明传输阶段，不证明应用发送。
 
+2026-10-16本轮已实际完成上述持久组合和一次Central优雅停启：独立验证同一Cookie、用户/会话及SMTP投影保留，PG/MinIO容器与密钥不变，logout仍生效。当前公开18443映射已由旧5254测试fixture顺序切至5256；旧App和四套owned设施已清理，Vite5245保留。新SMTP尚未配置，未迁移非秘密字段或旧密码，用户需要重新填写完整设置。公网唯一匿名identity读取在管理网络严格TLS校验处失败（CONNECT200、curl60、HTTP0），未取得公网实例标识，不能据本机验收宣称公网验证通过。用户要求先取得新管理员密码并暂停；后续配置好后再继续，不自动发测试邮件。
+
 ## 新 Vue 账号联调
+
+以下fixture说明仅供受控隔离回归，固定SMTP sink不能承担真实邮件部署；当前可恢复公开运行使用上一节的生产Central与TLS5256。
 
 新 `web/` 独立实现账号客户端、Session 与七个页面，页面和恢复语义见[账号重建工作项](../work-items/frontend-account-rebuild.md)。当前 HTTP 能力覆盖这些页面，无须新增同义 API。新客户端先调用匿名 bootstrap，用 browser CSRF 登录，再 GET session 取得会话 CSRF；本人资料/偏好/头像共享 User version。改密成功换发新 Cookie，若返回丢失须重新登录；不能用旧已撤销 Session 重放取回 Cookie。
 
@@ -91,7 +95,7 @@ SMTP fixture 默认只记录计数/摘要；显式 `Scenario.CaptureMessage` 才
 
 本地轮次默认最多45分钟；仅下述独立公网实例可显式选择24小时。停止时创建私有目录下的 `stop` 文件，或向该目录 `launcher.pid` 对应的原脚本发 SIGTERM。脚本等原 App、SMTP、PG、MinIO 退出和精确清理；不要直接终止下层测试进程来代替资源清理。下一轮须重新启动并核实，旧 manifest 不证明服务仍在运行。
 
-### IP 直连 HTTPS 18443 预览入口
+### 历史测试fixture的IP直连HTTPS入口
 
 本轮公开入口固定为 `https://154.12.86.233:18443`。IP已由域名DNS及现有18081公网页面内容一致性核实。采用浏览器TLS → frp TCP18443 → 本机TLS5254直通，不需要修改服务器Nginx或配置服务器证书；原443应用、`/~!frp`及18081纯前端预览保持。公网实例使用独立任务数据库、对象及SMTP资源，本地5250联调不会被重启或更换PUBLIC_ORIGIN。
 
