@@ -14,7 +14,7 @@ const args = process.argv.slice(2);
 const option = (name, fallback) =>
   args.includes(name) ? args[args.indexOf(name) + 1] : fallback;
 const mode = option("--mode", "views");
-const modes = ["views", "interactions", "errors", "zoom"];
+const modes = ["views", "interactions", "errors", "zoom", "p3"];
 const rawOrigin = option("--base-url");
 const owned = option("--owned");
 const run = option("--run", "candidate");
@@ -133,6 +133,7 @@ async function setup(context, options = {}) {
     keys: {
       version: "1",
       email_verified: options.verified !== false,
+      email_initialization_required: options.initializationRequired === true,
       items: options.empty
         ? []
         : [
@@ -162,6 +163,13 @@ async function setup(context, options = {}) {
     pendingEmail: "",
     listFails: false,
   };
+  if (options.fullKeys)
+    state.keys.items = Array.from({ length: 20 }, (_, index) => ({
+      id: uuid(index + 30),
+      label: `合成密钥 ${index + 1}`,
+      created_at: instant,
+      last_used_at: null,
+    }));
   context.reviewState = state;
   if (options.unsupported)
     await context.addInitScript(() =>
@@ -304,6 +312,8 @@ async function setup(context, options = {}) {
         "/api/v1/me/passkeys/recovery/resend",
         "/api/v1/me/email-change/request",
         "/api/v1/me/email-change/resend",
+        "/api/v1/me/email-initialization/request",
+        "/api/v1/me/email-initialization/resend",
       ].includes(endpoint)
     ) {
       if (body.email) state.pendingEmail = body.email;
@@ -339,6 +349,22 @@ async function setup(context, options = {}) {
     if (method === "POST" && endpoint === "/api/v1/me/email-change/confirm") {
       state.user.email = state.pendingEmail;
       state.user.version = "2";
+      return respond({
+        version: "2",
+        email: state.user.email,
+        created_at: instant,
+      });
+    }
+    if (
+      method === "POST" &&
+      endpoint === "/api/v1/me/email-initialization/confirm"
+    ) {
+      state.user.email = "operator-bound@example.invalid";
+      state.user.version = "2";
+      state.keys.email_verified = true;
+      state.keys.email_initialization_required = false;
+      state.keys.items = [];
+      state.keys.version = "2";
       return respond({
         version: "2",
         email: state.user.email,
@@ -714,6 +740,184 @@ async function errors(browser) {
     { empty: true },
   );
 }
+async function p3(browser) {
+  await runCase(
+    browser,
+    "ordinary-unverified-scroll",
+    async ({ page, state }) => {
+      await expect(button(page, "添加 Passkey")).toBeEnabled();
+      await expect(button(page, "初始化邮箱")).toHaveCount(0);
+      await button(page, "添加 Passkey").click();
+      const dialog = modal(page, "添加 Passkey");
+      await expect(field(dialog, "当前密码")).toBeVisible();
+      await expect(field(dialog, "一次性授权")).toHaveCount(0);
+      await button(dialog, "取消").click();
+      await expect(button(page, "添加 Passkey")).toBeFocused();
+      await button(page, "修改密码").scrollIntoViewIfNeeded();
+      await expect(button(page, "修改密码")).toBeInViewport();
+      await shot(page, "p3-password-bottom-390-dark");
+      await noOverflow(page);
+      assert.equal(state.commands.length, 0);
+      return {
+        ordinaryUnverifiedCanStart: true,
+        passwordBottomReachable: true,
+      };
+    },
+    { empty: true, verified: false },
+  );
+  await runCase(
+    browser,
+    "operator-initialize-confirm",
+    async ({ page, state }) => {
+      await expect(button(page, "添加 Passkey")).toBeDisabled();
+      await button(page, "初始化邮箱").click();
+      const dialog = modal(page, "初始化邮箱");
+      await expect(field(dialog, "一次性授权")).toBeVisible();
+      await expect(dialog.getByRole("textbox")).toHaveCount(0);
+      await shot(page, "p3-initialize-start-390-dark");
+      await privateFill(
+        field(dialog, "一次性授权"),
+        crypto.randomBytes(32).toString("base64url"),
+      );
+      await privateFill(
+        field(dialog, "当前密码"),
+        crypto.randomBytes(24).toString("base64url"),
+      );
+      await button(dialog, "发送验证码").click();
+      await expect(field(dialog, "邮箱验证码")).toBeFocused();
+      await expect(dialog).toContainText("验证请求已受理");
+      await expect(
+        dialog.getByRole("button", { name: /秒后可重发/ }),
+      ).toBeDisabled();
+      assert.equal(state.user.email, "visual@example.invalid");
+      const request = state.commands.find(
+        (command) =>
+          command.endpoint === "/api/v1/me/email-initialization/request",
+      );
+      assert.deepEqual(Object.keys(JSON.parse(request.body)).sort(), [
+        "authorization",
+        "password",
+      ]);
+      await shot(page, "p3-initialize-code-390-dark");
+      await privateFill(field(dialog, "邮箱验证码"), "123456");
+      await button(dialog, "验证邮箱").click();
+      await expect(dialog.getByRole("status")).toContainText("邮箱已验证");
+      await expect(button(dialog, "完成")).toBeEnabled();
+      await shot(page, "p3-initialize-confirmed-390-dark");
+      await button(dialog, "完成").click();
+      await expect(button(page, "恢复邮箱")).toBeFocused();
+      await expect(button(page, "添加 Passkey")).toBeEnabled();
+      assert.equal(state.user.email, "operator-bound@example.invalid");
+      assert(
+        state.api.includes("POST /api/v1/me/email-initialization/confirm"),
+      );
+      return {
+        initializationDistinct: true,
+        requestNotCommit: true,
+        confirmationRefreshes: true,
+        focusRestored: true,
+      };
+    },
+    { empty: true, verified: false, initializationRequired: true },
+  );
+  await runCase(
+    browser,
+    "operator-recovery-error-cancel",
+    async ({ page, state }) => {
+      await button(page, "恢复邮箱").click();
+      const dialog = modal(page, "恢复邮箱");
+      await expect(dialog).toContainText("已有 Passkey 和其他登录会话将被撤销");
+      await privateFill(
+        field(dialog, "一次性授权"),
+        crypto.randomBytes(32).toString("base64url"),
+      );
+      await privateFill(
+        field(dialog, "当前密码"),
+        crypto.randomBytes(24).toString("base64url"),
+      );
+      await button(dialog, "发送验证码").click();
+      await expect(field(dialog, "邮箱验证码")).toBeFocused();
+      state.failure = {
+        endpoint: "/api/v1/me/email-initialization/confirm",
+        fields: [{ path: "/code", code: "INVALID_OR_EXPIRED" }],
+      };
+      await privateFill(field(dialog, "邮箱验证码"), "123456");
+      await button(dialog, "验证邮箱").click();
+      await expect(dialog.getByRole("alert")).toContainText(
+        "验证码错误或已过期",
+      );
+      await privateFill(field(dialog, "邮箱验证码"), "");
+      await shot(page, "p3-recovery-code-error-390-dark");
+      await page.keyboard.press("Escape");
+      await expect(button(page, "恢复邮箱")).toBeFocused();
+      assert.equal(state.user.email, "visual@example.invalid");
+      assert.equal(state.keys.items.length, 2);
+      await button(page, "恢复邮箱").click();
+      await expect(field(dialog, "一次性授权")).toHaveValue("");
+      await expect(field(dialog, "当前密码")).toHaveValue("");
+      await button(dialog, "取消").click();
+      await expect(button(page, "恢复邮箱")).toBeFocused();
+      return {
+        invalidCodeDoesNotMutate: true,
+        cancelClearsPrivateInputs: true,
+        focusRestored: true,
+      };
+    },
+  );
+  await runCase(
+    browser,
+    "full-key-recovery",
+    async ({ page, state }) => {
+      await expect(
+        page.getByRole("list", { name: "我的 Passkey" }).getByRole("listitem"),
+      ).toHaveCount(20);
+      await expect(button(page, "添加 Passkey")).toBeDisabled();
+      await button(page, "恢复 Passkey").click();
+      const dialog = modal(page, "恢复 Passkey");
+      await expect(field(dialog, "当前密码")).toBeVisible();
+      await expect(button(dialog, "使用 Passkey 验证")).toHaveCount(0);
+      await privateFill(
+        field(dialog, "当前密码"),
+        crypto.randomBytes(24).toString("base64url"),
+      );
+      await button(dialog, "发送验证码").click();
+      await expect(field(dialog, "邮箱验证码")).toBeVisible();
+      await shot(page, "p3-full-key-recovery-390-dark");
+      await button(dialog, "取消").click();
+      await expect(button(page, "恢复 Passkey")).toBeFocused();
+      assert.equal(state.keys.items.length, 20);
+      await noOverflow(page);
+      return {
+        capacityDoesNotBlockRecovery: true,
+        recoveryRequiresPasswordAndCode: true,
+        noRevocationBeforeRegistration: true,
+      };
+    },
+    { fullKeys: true },
+  );
+  await runCase(
+    browser,
+    "p3-system-navigation",
+    async ({ page }) => {
+      await page.goto(origin + "/system/providers", {
+        waitUntil: "domcontentloaded",
+        timeout: 30000,
+      });
+      const nav = page.getByRole("navigation", {
+        name: "系统设置",
+        exact: true,
+      });
+      await expect(nav).toBeVisible();
+      await expect(
+        nav.getByRole("link", {
+          name: /Passkey|初始化邮箱|恢复邮箱|登录与安全/,
+        }),
+      ).toHaveCount(0);
+      return { noSystemSettingAdded: true };
+    },
+    { width: 1440, theme: "light" },
+  );
+}
 async function zoom() {
   const profile = await fs.mkdtemp(
     path.join(os.tmpdir(), "passkey-visual-zoom-"),
@@ -844,6 +1048,7 @@ async function main() {
       if (mode === "views") await views(browser);
       if (mode === "interactions") await interactions(browser);
       if (mode === "errors") await errors(browser);
+      if (mode === "p3") await p3(browser);
     }
   } finally {
     if (browser) await browser.close();
