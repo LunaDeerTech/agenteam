@@ -5,19 +5,20 @@
 ## 本轮分支与职责
 
 - 本轮补齐基线：`b52b8c43`；任务分支：`ai/frontend-f0-refinement-20261015`；当前工作树：`/workspace/agenteam-f0-refinement`。原 F0 工作树已移除，不能沿旧目录恢复。
-- 唯一活动写会话为 `/root`，root 负责全部 Git 与集成。用户已授权在现有候选上补齐 Agent 设置的明确产品目标，并将 Reusable Approvals 独立为第4个“审计”Tab；最近已确认远端检查点为 `46805284`；其后的首版接入仍为 WIP，新结果尚未验收。本轮继续使用 `ai/frontend-f0-refinement-20261015`，暂不合并 main，main 仍为 `b6db5297`；恢复按[状态说明](README.md)核对分支最新提交与本地差异，不能把在制改动当已远端保存。
+- 唯一活动写会话为 `/root`，root 负责全部 Git 与集成。用户已授权在现有候选上补齐 Agent 设置的明确产品目标，并将 Reusable Approvals 独立为第4个“审计”Tab；最近已确认远端检查点为 `41d1a13d`；其后的修正待本次保存，稳定候选正在验收，尚无本轮整体通过结论。本轮继续使用 `ai/frontend-f0-refinement-20261015`，暂不合并 main，main 仍为 `b6db5297`；恢复按[状态说明](README.md)核对分支最新提交与本地差异，不能把在制改动当已远端保存。
 - `/root/agent_completion_designer` 负责基础配置、能力资源与样板集成；`/root/f0_structure_audit` 转为 Memory/审计模块实现；`/root/agent_completion_test` 负责本轮测试，`/root/f0_refinement_review` 独立审查；`/root/f0_docs` 独写本文件、任务台账顶部、`prototype/README.md`，以及 `page-blueprints.md`、`target-design.md`、`implementation-plan.md` 本轮对应规则。原型紧耦合，按文件唯一写者共用本工作树，Git 仍只由 root 执行。
 
 ## 当前断点与下一步
 
 技能与公开实践已归入[前端重设计技能](../.agents/skills/agenteam-frontend-redesign/SKILL.md#从一个完整页面建立方法)与[来源说明](../docs/development/agent-team/skill-sources.md#前端重设计方法的本地适配)。用户已实看 general 并要求去除名称/描述外层框，限定开放布局修正已完成；这不代表用户已认可整个示范。[目标设计 §8](../docs/frontend-design/redesign/target-design.md#8-f0-可实现视觉值与组件使用决定)仍保留待重校的原样板数值。
 
-**Agent 四 Tab 首版 WIP 已接入，当前进入作者浏览器检查，尚未完成本轮验证。** 基础配置、列表、Preset、资源行为与新 catalog 已落盘，Memory/审计独立模块已接入；同一对象的审计入口为 `?page=agents&agent=agent-reviewer&view=audit`，此处仅确认路由契约，不代表浏览器通过。 基本配置独立手动保存/取消，资源按完整操作逐项保存，记忆逐条操作；审计查看当前 Agent 的可复用授权来源、Tool、Scope、active/revoked 与时间，并仅撤销有效规则，不是设置变更日志，不手工新建或编辑 Scope。切 Tab 保留基本草稿，资源、记忆和审计的成功结果不被基本配置取消撤销；创建仍为两个配置 Tab。
+**Agent 四 Tab 与9类目标的首版已实现，正在验收。** 作者已跑通列表→基本草稿→资源即时保存→回基本保留草稿并保存→审计→Preset 复制首链；基本配置 auto→default→auto 时显示草稿不同步的问题已修。Memory/审计默认20条密度已落，20项作者断言覆盖正常确认/取消、历史及 Unknown 查询 committed 后回读发布和解锁，并已亲看1440浅色/390深色；这些是作者限定检查，尚非独审接受。同对象审计入口为 `?page=agents&agent=agent-reviewer&view=audit`。 基本配置独立手动保存/取消，资源按完整操作逐项保存，记忆逐条操作；审计查看当前 Agent 的可复用授权来源、Tool、Scope、active/revoked 与时间，并仅撤销有效规则，不是设置变更日志，不手工新建或编辑 Scope。切 Tab 保留基本草稿，资源、记忆和审计的成功结果不被基本配置取消撤销；创建仍为两个配置 Tab。
 
 本轮补齐列表模型/派生忙碌摘要/筛选分页与时间、Preset 复制及初始化结果、模型候选与推理强度、Tools/Core、挂载四字段、Secret/Skills 完整浏览、Memory 必要字段和完整历史，以及操作结果恢复闭环。完整契约归[项目设置蓝图](../docs/frontend-design/redesign/page-blueprints.md#53-项目设置11-个叶子)，不以当前 Vue/API 的接入程度删减目标。Agent 删除生命周期与手工 Memory 纠正流程仍未定，不由本轮补造。共享对象页头、独立返回、列表位置/焦点恢复与独立保存边界继续保留；MCP 不扩对象结构。
+
 此前 general 的正常/减少动效、窄屏、菜单与原生200%竞态修复等限定证据见[测试说明](../docs/frontend-design/redesign/prototype/test-README.md)与[独审入口](../docs/frontend-design/redesign/prototype/review/README.md)，只按未受影响的原输入复用。旧11类模板没有本轮整体验收；11个设置栏目中其余8叶仍无本轮业务样板，`task-pages.js` / `task.css` 仍未接入并保留 WIP。
 
-下一步先调整 Memory/审计的正常浏览密度，再完成作者浏览器检查并交受影响测试与独审。首版分页仍属在制输入，最终容量与专用检查参数待实际落地核对，不提前写成可用或已验证；文档依据实际结果收口。此前三 Tab 的限定视觉、保存隔离和原生200%证据保留原输入含义，不能代证本轮四 Tab 或补齐项。入口与当前可运行边界见[样板说明](../docs/frontend-design/redesign/prototype/README.md#启动与参数)。Agent 使用依据产品字段构造的合成对象，不声称与旧正式 Vue 同输入对照。实现仍限隔离样板及必要文档/harness，未推进产品 `web/src/`、后端或 F1—F8；F0 全局未定稿，设计值未冻结，尚未取得用户整体认可。
+功能测试首轮9项为5通过、4失败：其中1项产品问题已修，3项选择器前提已修，正在定向复跑，不能称全部通过。独审环境已就绪，等待稳定候选冻结后开始；下一步收齐修后测试、独审及各 owner 资源退出事实，再统一更新实际交付说明。此前三 Tab 的限定视觉、保存隔离和原生200%证据保留原输入含义，不能代证本轮四 Tab 或补齐项。入口与当前可运行边界见[样板说明](../docs/frontend-design/redesign/prototype/README.md#启动与参数)。Agent 使用依据产品字段构造的合成对象，不声称与旧正式 Vue 同输入对照。实现仍限隔离样板及必要文档/harness，未推进产品 `web/src/`、后端或 F1—F8；F0 全局未定稿，设计值未冻结，尚未取得用户整体认可。
 
 ## 材料与检查边界
 
