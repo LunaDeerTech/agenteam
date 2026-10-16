@@ -1,6 +1,6 @@
 # 前端开发基础
 
-当前 `web/` 是从零建立的 Vue 3、TypeScript、Vite 和 Vue Router 工程。旧前端完整保存在 `web-crape/`，新工程不导入其 API 客户端、Session、权限或业务实现。共享 UI、AppShell、唯一 SettingsShell 和已定路由骨架已有有限检查；当前实施[账号入口与个人设置](../work-items/frontend-account-rebuild.md)，包含真实会话与后端接入。其他未讨论的页面正文继续保留标题与空区域，不迁回完整 Agent/项目列表或虚构数据。
+当前 `web/` 是从零建立的 Vue 3、TypeScript、Vite 和 Vue Router 工程。旧前端完整保存在 `web-crape/`，新工程不导入其 API 客户端、Session、权限或业务实现。共享 UI、AppShell、唯一 SettingsShell、[账号入口与个人设置](../work-items/frontend-account-rebuild.md)和[系统账号四页](../work-items/frontend-system-account-settings.md)已有对应限定结果；本轮新增[出站规则与持久代理](../work-items/system-outbound-policy-proxy.md)。其他未讨论的页面正文继续保留标题与空区域，不迁回完整 Agent/项目列表或虚构数据。
 
 设计依据为[设计 v2](../../frontend-design/redesign/README.md)、[页面蓝图](../../frontend-design/redesign/page-blueprints.md)和[执行计划](../../frontend-design/redesign/implementation-plan.md)。可运行参考为 `ai/frontend-f0-refinement-20261015@746ddcb3` 的 [HTML 原型](../../frontend-design/redesign/prototype/README.md)，实现与审查均须在浏览器实际观察。原型的合成数据和历史检查不证明新 Vue 业务能力或设计已被用户接受。
 
@@ -13,7 +13,7 @@ npm ci --prefix web
 npm run dev --prefix web
 ```
 
-打开 [系统设置骨架](http://127.0.0.1:5173/system/users)。dev 默认仅监听 `127.0.0.1:5173`，端口冲突时退出；指定独立端口使用 `npm run dev --prefix web -- --port 5244`。本工程没有 `/debug` 展示页。默认dev保持 `VITE_ACCOUNT_ENABLED=false` 的静态预览；本轮账户联调在5245显式开启该变量，浏览器经真实同源TLS5250访问页面和Account API；提供方是长驻Go测试进程内的真实App与独立依赖，不能表述为独立cmd二进制部署。独立dev命令不启动后端；精确运行与部署边界见[web运行说明](../../../web/README.md)，实际结果见当前状态。
+打开 [系统设置骨架](http://127.0.0.1:5173/system/users)。dev 默认仅监听 `127.0.0.1:5173`，端口冲突时退出；指定独立端口使用 `npm run dev --prefix web -- --port 5244`。本工程没有 `/debug` 展示页。默认dev保持 `VITE_ACCOUNT_ENABLED=false` 的静态预览；真实业务须显式开启该变量，并使用HTTPS或loopback及同源API。独立dev命令不启动后端；此前5250账号fixture已清理，不能沿旧端口假定仍可联调。精确运行方式见[web运行说明](../../../web/README.md)，本轮出站入口见下节，实际实例/部署边界以[当前状态](../../../.agent-state/current.md)为准。
 
 ```sh
 npm run check --prefix web
@@ -51,6 +51,16 @@ npm run preview --prefix web
 AppShell组织系统导航、项目上下文和内容区；“个人设置”只保留在右上用户菜单内，菜单触发器显示当前身份已保存头像或默认占位。顶栏与资料页共享受控头像读取状态，页面候选预览独立，全部请求仍经过同一账号owner。AccountShell承载账号与OAuth回调。login与forgot-password复用同一居中轻边框面板模板，包含正式Logo/标题/当前表单并用克制阴影；个人设置继续开放表单。系统、个人和项目设置均由同一 SettingsShell 消费对应栏目数组，窄屏目录由共享 UiDialog 承载。布局职责与控件接口见[组件说明](components.md#页面组合与滚动)。
 
 骨架阶段的主题使用本地 `agenteam.vue.appearance.v1` 缓存。本轮账号主题改为服务端保存与临时预览分离；匿名/失效使用system，本地缓存不作为用户偏好事实，不得跨账号继承。实际迁移实现与检查以本轮工作项及当前状态为准。
+
+## 出站规则与代理（新Vue）
+
+入口为 `/system/outbound-policy`，仅当前已确认的系统管理员可读取、保存；页面在唯一SettingsShell下提供“访问规则 / 代理设置”两个Tab。规则沿原集合GET/PUT，代理使用独立版本的 `/api/v1/system/outbound-policy/proxy`。字段、密码空保持/非空替换、网关身份变化及Unknown恢复以[工程契约](../work-items/system-outbound-policy-proxy.md)为准，不沿下方归档前端的状态实现。
+
+本轮候选位于独立frontend工作树，由owner以 `VITE_ACCOUNT_ENABLED=true` 启动loopback5246；直接页面地址为 `http://127.0.0.1:5246/system/outbound-policy`，只用于受控UI观察。真实API联调计划经backend所有的 `https://localhost:5260/system/outbound-policy` 同源TLS反代到5246，只有该fixture实际ready、证书/实例身份核对通过后才运行；dev本身不提供这些API，也不能把默认false dist的工程构建当业务输入。当前5260尚未ready，不复用用户18443实例或真实SMTP配置。
+
+保存回执只证明原命令已确认，后续GET才提供当前配置。确认后读失败保留回执并显示读取失败，显式恢复只重读；不能显示推测的直连、空规则或可编辑默认值。保存不是连通性测试，页面没有任意外网试连或发送邮件动作。双Tab、表单就近保存/取消及模态回焦沿共享组件，必要安全提示保留，标题不添加装饰说明。
+
+真实UI/API的限定运行入口见[出站harness](../../../tests/frontend-outbound-policy/README.md)；受控截图、局部工程检查与真实后端结果分别记录，当前组合与未完成项见[当前状态](../../../.agent-state/current.md)。已有服务由各owner保留，接续前先核实际状态，不重复占用端口或重建现生产数据。
 
 ## 归档前端能力与验收记录（历史）
 

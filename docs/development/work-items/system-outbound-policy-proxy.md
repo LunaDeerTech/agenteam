@@ -1,6 +1,6 @@
 # Central 出站规则与持久代理
 
-状态：用户已授权实施；基线 `89e4e901`。本卡是本轮工程接口、体验和验收的唯一合同，架构规则见[出站网络策略](../../architecture/platform-infrastructure/outbound-network-policy.md)。最小wire已与backend确认并同步frontend/tests，未声明新功能已实现或验证。
+状态：实施与隔离联调准备中；基线 `89e4e901`。本卡是本轮工程接口、体验和验收的唯一合同，架构规则见[出站网络策略](../../architecture/platform-infrastructure/outbound-network-policy.md)。wire已固定，前端候选已有工程与受控UI检查；真实PG/API和后端恢复门尚未完成，不代表本卡交付。
 
 ## 1. 目标与分工
 
@@ -17,7 +17,7 @@ Runner、数据库、MinIO 等部署基础连接不纳入本轮。移除产品 `
 | 独立安全/视觉 reviewer | 未参与实现的安全反例与有限浏览器审查 |
 | root | Git、组合、共享文件/迁移编号及实际运行资源协调 |
 
-不接管现有18443 production或用户配置，不因新源码出现替换运行中实例。实施与验证使用独立配置、密钥、数据库和网络资源。
+不接管现有18443 production或用户配置，不因新源码出现替换运行中实例。现生产数据库包含用户新填SMTP，必须保留，旧测试数据重建授权不适用于这份数据。实施与验证使用独立配置、密钥、数据库和网络资源。
 
 ## 2. API 最小合同
 
@@ -85,4 +85,7 @@ backend须盘点实际Central发出入口与组合根：受控HTTP client、Prov
 
 ## 7. 当前检查点
 
-架构边界、代理精确JSON结构与历史回执已由backend确认，frontend/tests据此并行；存储/Secret实际接线、迁移、统一拨号及业务消费者覆盖仍待实现。本轮没有产品检查或网络实测结果，旧SMTP诊断不代新实现验收。进展与资源仅在[当前状态](../../../.agent-state/current.md)维护，完成后本卡保留最终合同及必要验收边界。
+- 前端候选已实现双Tab、严格DTO、规则/代理命令及恢复状态。作者完整check为55项unit及格式/类型/build通过；后续两项P2分别修复回焦与“严格回执成功、后读失败”时误显直连/空规则，增量格式/类型/build及作者/独立受控复验通过，未重跑55项。已确认回执与读取失败分开显示，恢复只GET，不猜当前配置。
+- 独立受控UI已查看四视口、浅深、两Tab、原生200%、焦点与减少动效；两次初期加载失败原因未定，保留原材料，后续通过不回填根因。这些拦截响应与合成身份结果不代真实API、代理通道或公网验证。
+- 后端前一候选已有outbound race/vet、App编译及DTO/gate/env定向检查；新增恢复增量后首次5260 launcher在缺失恢复接口处编译失败，尚未启动新依赖。凭据live lease在进程丢失/清理失败后的持久回收，以及原key重放确认pending后恢复规则+代理双snapshot，两项恢复门仍待实现完成和真实PG复验。
+- 正式浏览器harness与独立安全probe已保存；owned TLS5260尚未ready，真实PG/API与浏览器链未执行。由backend唯一恢复隔离fixture，frontend5246保留供受控观察；不操作现production/真实SMTP。精确输入、失败与下一步见[当前状态](../../../.agent-state/current.md)，命令和行为结果由[出站harness](../../../tests/frontend-outbound-policy/README.md)维护。
