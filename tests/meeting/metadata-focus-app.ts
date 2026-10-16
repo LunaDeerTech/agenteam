@@ -1,10 +1,10 @@
 import { createApp, h, ref } from "vue";
-import type { DirectoryAgent } from "../../web/src/api/agent-directory";
-import type { MeetingDetail } from "../../web/src/api/meetings";
-import MeetingMetadataEditor from "../../web/src/components/meetings/MeetingMetadataEditor.vue";
-import "../../web/src/styles/tokens.css";
-import "../../web/src/styles/base.css";
-import "../../web/src/styles/components.css";
+import type { DirectoryAgent } from "../../web-crape/src/api/agent-directory";
+import type { MeetingDetail } from "../../web-crape/src/api/meetings";
+import MeetingMetadataEditor from "../../web-crape/src/components/meetings/MeetingMetadataEditor.vue";
+import "../../web-crape/src/styles/tokens.css";
+import "../../web-crape/src/styles/base.css";
+import "../../web-crape/src/styles/components.css";
 
 const id = (n: number) =>
   `01990000-0000-7000-8000-${n.toString(16).padStart(12, "0")}`;

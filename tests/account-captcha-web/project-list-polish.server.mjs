@@ -1,9 +1,10 @@
+// Historical UI fixture: explicitly serves web-crape, never the rebuilt web.
 import { fileURLToPath } from "node:url";
-import { createServer } from "../../web/node_modules/vite/dist/node/index.js";
-import vue from "../../web/node_modules/@vitejs/plugin-vue/dist/index.mjs";
+import { createServer } from "../../web-crape/node_modules/vite/dist/node/index.js";
+import vue from "../../web-crape/node_modules/@vitejs/plugin-vue/dist/index.mjs";
 
-// UI-only browser fixture: official Vue source, isolated writable Vite cache.
-const root = fileURLToPath(new URL("../../web", import.meta.url));
+// Archived UI-only fixture with an isolated writable Vite cache.
+const root = fileURLToPath(new URL("../../web-crape", import.meta.url));
 const cacheDir = fileURLToPath(
   new URL("../../output/ai/project-list-polish-ui/vite", import.meta.url),
 );

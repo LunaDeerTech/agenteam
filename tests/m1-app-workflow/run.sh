@@ -1,19 +1,20 @@
 #!/bin/sh
 # One owned App/Runner/Provider/browser workflow through the official native fixtures.
+# Browser cases reproduce the archived web-crape app, not the rebuilt web.
 set -eu
 cd "$(dirname "$0")/../.."
 umask 077
 : "${AGENTEAM_GO:?exact Go 1.27.1 binary required}"
 : "${AGENTEAM_MINIO_BINARY:?verified MinIO binary required}"
 : "${AGENTEAM_M1_BROWSER_MODULES:?external locked browser node_modules required}"
-: "${AGENTEAM_M1_WEB_DIST:?production web dist required}"
+: "${AGENTEAM_M1_WEB_DIST:?archived web-crape production dist required}"
 case "${AGENTEAM_M1_CASE:-workflow}" in
   workflow)
-    : "${AGENTEAM_M1_WEB_MODULES:?external locked web node_modules required}"
+    : "${AGENTEAM_M1_WEB_MODULES:?external locked web-crape node_modules required}"
     agenteam_m1_selector='^TestM1AppToolWorkflow$'
     ;;
   live)
-    : "${AGENTEAM_M1_WEB_MODULES:?external locked web node_modules required}"
+    : "${AGENTEAM_M1_WEB_MODULES:?external locked web-crape node_modules required}"
     if [ "${AGENTEAM_M1_LIVE_OPT_IN:-}" != external-model-read-write-run-review ]; then
       printf '%s\n' 'M1 live requires explicit AGENTEAM_M1_LIVE_OPT_IN' >&2
       exit 1
@@ -33,7 +34,7 @@ mkdir -p "$agenteam_m1_parent"
 agenteam_m1_run=$(mktemp -d "$agenteam_m1_parent/run.XXXXXX")
 agenteam_m1_link="$agenteam_m1_root/tests/account-captcha-web/node_modules"
 agenteam_m1_created_link=0
-agenteam_m1_web_link="$agenteam_m1_root/web/node_modules"
+agenteam_m1_web_link="$agenteam_m1_root/web-crape/node_modules"
 agenteam_m1_created_web_link=0
 agenteam_m1_cleanup() {
   if [ "$agenteam_m1_created_web_link" = 1 ]; then

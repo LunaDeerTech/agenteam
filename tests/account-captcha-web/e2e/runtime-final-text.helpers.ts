@@ -11,8 +11,8 @@ import { createHash } from "node:crypto";
 import { knowledgeSessionBinding } from "./knowledge-owner-read.native";
 import { observeBrowserIO } from "./task-review.helpers";
 import { observeSystemRunnerWire } from "./system-runner-management.helpers";
-import type { TaskExecution } from "../../../web/src/api/task-executions";
-import type { TaskExecutionOutput } from "../../../web/src/api/task-execution-output";
+import type { TaskExecution } from "../../../web-crape/src/api/task-executions";
+import type { TaskExecutionOutput } from "../../../web-crape/src/api/task-execution-output";
 
 const digest = (value: string) =>
   createHash("sha256").update(value).digest("hex");

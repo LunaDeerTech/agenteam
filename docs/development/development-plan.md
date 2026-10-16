@@ -6,7 +6,7 @@
 
 ## 当前基线与计划范围
 
-2026-10-14 用户在产品完整性复核后明确调整当前路线：**继续原定 M3，M4 暂时废弃为当前里程碑；M3 完成后重新评估缺口，再决定后续完善工作，不自动进入交付阶段。** 本次目标调整基于 main `56d0d0b0`；此前[产品完整性复核](work-items/product-readiness-review.md)的缺口、证据和设计技能保留，但其 R1 先做旧页改造及 M4 出口安排不再作为当前派工顺序。D00–D07 的既有接受范围与后发现的 Object 缺陷分开记录；D08–D28 的长期范围和 E01 目标未删除，本次规划不新增实现或通过结论。
+2026-10-16 用户明确转入从零重建 Vue 前端：旧 `web/` 归档为 `web-crape/`，新 `web/` 不复用旧客户端、Session、权限或业务实现；必要后端接口随具体页面任务重新设计。当前先共享 UI、应用/设置框架与已定路由骨架，先系统设置；不等待全站 HTML F0 完成。原 M3 既有接受范围保留，M4 不作为当前里程碑，也不自动进入 D28 发布或 E01。D01–D28/E01 的长期目标与原产品停止项保持。
 
 AT-0005 已确认的产品决定不重新列为待选，正式来源见[决定归位](work-items/d00-decision-sync.md)及[审计处置映射](work-items/d00-baseline-audit-report.md#7-at-0005-决策处置映射)。D01–D28/E01 是长期开发目标；用户已持续授权后续开发的checkpoint与常规源码commit/push，保存不等待验收或逐次提醒。该授权不包含部署、force push或覆盖他人工作，也不解除既有产品停止项。
 
@@ -14,9 +14,9 @@ AT-0005 已确认的产品决定不重新列为待选，正式来源见[决定�
 
 ## 当前开发目标与里程碑
 
-当前状态与下一目标：**本轮明确定义的 M3 知识检索与引用、Memory、领域工具、MCP、Meeting 和相关 Runner 扩展已获接受，真实 Agent 调用、用户入口、必要恢复和退出按[M3卡](work-items/m3-knowledge-memory-collaboration.md)闭合。** 下一轮先根据真实缺口评估完善顺序；当前不安排 M4，也不预设自动进入 D28 发布交付或 E01。已接受范围不等于完整工具目录或全产品 ready。
+当前目标是新 Vue 工程的共享 UI、AppShell、单一 SettingsShell 和全部已定路由骨架；系统设置先行，未讨论页面只有标题与空内容区域。该范围已产生部分源码，现按用户要求暂停保存 WIP；恢复后按页面讨论内容、接口、状态与权限，再实现和验证；本轮不迁入完整 Agent/项目列表正文，也不宣后端或认证授权完成。工程与页面计划见[前端重建设计入口](../frontend-design/redesign/README.md)和[执行计划](../frontend-design/redesign/implementation-plan.md)。Agent HTML 保留对照，不继续扩展功能。
 
-已有 Agent 创建/配置、Skills、Task 指派/评审、执行历史与输出、DirectText App/Scheduler 接线、Runner read/write/run 及 Object safe 修复先核当前调用点和限定证据后复用。设计技能、[界面规范](../frontend-design/interface-design.md)、信息层级和状态反馈随 M3 新增或改动功能共同适用；全面重设计既有页面留待后续评估，不作为 M3 开工前置。Execution 成功不等于 Task 完成，Task 必须经过 `in_review`；Task 与 Execution 取消各沿正式合同。
+M3 知识检索与引用、Memory、领域工具、MCP、Meeting 和相关 Runner 扩展的原接受范围仍按[M3 卡](work-items/m3-knowledge-memory-collaboration.md)保留；其历史通过不代证新前端。下方 M1—M3 和五个工作包记录原产品里程碑，不构成当前前端派工路线；旧前端业务实现只留归档，不因历史复用原则移入新工程。
 
 以下里程碑是可验收的交付出口，**不是串行开发队列**。依稳定契约并行开发、基础自测后尽早隔离联调；权限、幂等、取消、Secret 和数据完整性检查须在相应真实风险暴露前落实，不能因列入后续里程碑而延期。
 

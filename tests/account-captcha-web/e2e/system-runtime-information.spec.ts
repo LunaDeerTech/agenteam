@@ -1,7 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import { existsSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import type { SystemRuntimeInformation } from "../../../web/src/api/system-runtime-information";
+import type { SystemRuntimeInformation } from "../../../web-crape/src/api/system-runtime-information";
 
 const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE!;
 const endpoint = "/api/v1/system/runtime-information";

@@ -1,7 +1,8 @@
+// Historical UI fixture: explicitly serves web-crape, never the rebuilt web.
 import { fileURLToPath } from "node:url";
-import { createServer } from "../../web/node_modules/vite/dist/node/index.js";
-import vue from "../../web/node_modules/@vitejs/plugin-vue/dist/index.mjs";
-const root = fileURLToPath(new URL("../../web", import.meta.url));
+import { createServer } from "../../web-crape/node_modules/vite/dist/node/index.js";
+import vue from "../../web-crape/node_modules/@vitejs/plugin-vue/dist/index.mjs";
+const root = fileURLToPath(new URL("../../web-crape", import.meta.url));
 const cacheDir = fileURLToPath(
   new URL("../../output/ai/interface-layout/vite", import.meta.url),
 );

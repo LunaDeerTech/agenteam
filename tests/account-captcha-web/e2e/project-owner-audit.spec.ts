@@ -17,8 +17,8 @@ import {
   type AuditQuery,
   type ProjectAuditPage,
   type ProjectAuditRecord,
-} from "../../../web/src/api/project-audit";
-import { AccountFailure } from "../../../web/src/api/client";
+} from "../../../web-crape/src/api/project-audit";
+import { AccountFailure } from "../../../web-crape/src/api/client";
 
 const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE!;
 const evidence = process.env.AGENTEAM_PROJECT_AUDIT_WEB_EVIDENCE!;

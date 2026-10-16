@@ -12,6 +12,12 @@ Thumbs.db
 /web/.vite/
 /web/coverage/
 
+# 归档前端仅供显式历史复现；生成产物不属于归档源码
+/web-crape/node_modules/
+/web-crape/dist/
+/web-crape/.vite/
+/web-crape/coverage/
+
 # 构建与测试产物
 /bin/
 /build/

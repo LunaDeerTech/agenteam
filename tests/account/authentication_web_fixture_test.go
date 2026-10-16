@@ -115,7 +115,8 @@ func newAuthenticationWebFixture(t *testing.T, ctx context.Context) *authenticat
 	proxy := httputil.NewSingleHostReverseProxy(backend)
 	proxy.Transport = transport // NewSingleHostReverseProxy preserves the original Host.
 	proxy.ErrorHandler = func(w http.ResponseWriter, _ *http.Request, _ error) { http.Error(w, "owned API unavailable", 502) }
-	root, err := filepath.Abs("../../web/dist")
+	// Historical browser fixture: never consume the rebuilt web assets.
+	root, err := filepath.Abs("../../web-crape/dist")
 	if err != nil {
 		t.Fatal(err)
 	}

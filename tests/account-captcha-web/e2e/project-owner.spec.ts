@@ -15,8 +15,8 @@ import {
   createProjectOwnerAPI,
   type Project,
   type ProjectLifecycle,
-} from "../../../web/src/api/project-owner";
-import { AccountFailure, uuid7 } from "../../../web/src/api/client";
+} from "../../../web-crape/src/api/project-owner";
+import { AccountFailure, uuid7 } from "../../../web-crape/src/api/client";
 
 const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE!;
 const evidence = process.env.AGENTEAM_PROJECT_OWNER_WEB_EVIDENCE!;

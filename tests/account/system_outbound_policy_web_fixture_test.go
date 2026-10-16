@@ -157,7 +157,8 @@ func newOutboundPolicyWebRoot(t *testing.T, ctx context.Context, own *outboundPo
 			}
 		}
 	}
-	root, err := filepath.Abs("../../web/dist")
+	// Historical browser fixture: never consume the rebuilt web assets.
+	root, err := filepath.Abs("../../web-crape/dist")
 	if err != nil {
 		t.Fatal(err)
 	}

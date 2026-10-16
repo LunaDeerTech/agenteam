@@ -1,3 +1,4 @@
+// Historical component fixture; dependencies and source belong to web-crape.
 const fs = require("node:fs");
 const path = require("node:path");
 const { pathToFileURL } = require("node:url");
@@ -13,7 +14,7 @@ if (process.argv.includes("--list")) {
 } else {
   void (async () => {
     const repo = path.resolve(__dirname, "../..");
-    const web = path.join(repo, "web");
+    const web = path.join(repo, "web-crape");
     const output = process.env.AGENTEAM_MEETING_FOCUS_EVIDENCE;
     if (!output || !path.isAbsolute(output))
       throw Error("PRIVATE_EVIDENCE_REQUIRED");

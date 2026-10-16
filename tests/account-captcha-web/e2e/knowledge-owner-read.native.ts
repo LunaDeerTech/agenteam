@@ -16,9 +16,9 @@ export async function knowledgeSessionBinding(
   root: string,
   dist: string,
 ): Promise<KnowledgeBinding> {
-  const ts = createRequire(join(root, "web/package.json"))(
+  const ts = createRequire(join(root, "web-crape/package.json"))(
     "typescript",
-  ) as typeof import("../../../web/node_modules/typescript");
+  ) as typeof import("../../../web-crape/node_modules/typescript");
   const parse = (code: string) =>
     ts.createSourceFile(
       "asset.js",
@@ -113,7 +113,7 @@ export async function knowledgeSessionBinding(
     .map(
       (n) =>
         (
-          n.moduleSpecifier as import("../../../web/node_modules/typescript").StringLiteral
+          n.moduleSpecifier as import("../../../web-crape/node_modules/typescript").StringLiteral
         ).text,
     );
   if (

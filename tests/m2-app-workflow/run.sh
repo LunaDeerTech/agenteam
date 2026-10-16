@@ -1,5 +1,6 @@
 #!/bin/sh
 # One original App/Runner and the official nonce-owned native fixtures.
+# Browser cases reproduce the archived web-crape app, not the rebuilt web.
 set -eu
 cd "$(dirname "$0")/../.."
 umask 077
@@ -51,7 +52,7 @@ agenteam_m2_parent="$agenteam_m2_root/output/ai/m2-app-integration"
 mkdir -p "$agenteam_m2_parent"
 agenteam_m2_run=$(mktemp -d "$agenteam_m2_parent/run.XXXXXX")
 agenteam_m2_link="$agenteam_m2_root/tests/account-captcha-web/node_modules"
-agenteam_m2_web_link="$agenteam_m2_root/web/node_modules"
+agenteam_m2_web_link="$agenteam_m2_root/web-crape/node_modules"
 agenteam_m2_created_link=0
 agenteam_m2_created_web_link=0
 agenteam_m2_cleanup() {
@@ -65,8 +66,8 @@ agenteam_m2_cleanup() {
 trap agenteam_m2_cleanup EXIT
 if [ "$agenteam_m2_browser" = 1 ]; then
   : "${AGENTEAM_M2_BROWSER_MODULES:?external locked browser node_modules required}"
-  : "${AGENTEAM_M2_WEB_MODULES:?external locked web node_modules required}"
-  : "${AGENTEAM_M2_WEB_DIST:?production web dist required}"
+  : "${AGENTEAM_M2_WEB_MODULES:?external locked web-crape node_modules required}"
+  : "${AGENTEAM_M2_WEB_DIST:?archived web-crape production dist required}"
   if [ ! -e "$agenteam_m2_link" ] && [ ! -L "$agenteam_m2_link" ]; then
     ln -s "$AGENTEAM_M2_BROWSER_MODULES" "$agenteam_m2_link"
     agenteam_m2_created_link=1

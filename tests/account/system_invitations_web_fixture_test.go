@@ -222,7 +222,8 @@ func newInvitationsWebRoot(t *testing.T, ctx context.Context, own *invitationsWe
 		}
 		http.Error(w, "owned API unavailable", 502)
 	}
-	root, err := filepath.Abs("../../web/dist")
+	// Historical browser fixture: never consume the rebuilt web assets.
+	root, err := filepath.Abs("../../web-crape/dist")
 	if err != nil {
 		t.Fatal(err)
 	}

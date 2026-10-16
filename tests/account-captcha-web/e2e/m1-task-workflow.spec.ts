@@ -7,10 +7,10 @@ import {
 } from "@playwright/test";
 import { mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
-import type { DirectoryAgent } from "../../../web/src/api/agent-directory";
-import type { TaskExecution } from "../../../web/src/api/task-executions";
-import type { TaskExecutionOutput } from "../../../web/src/api/task-execution-output";
-import type { Task } from "../../../web/src/api/work-review";
+import type { DirectoryAgent } from "../../../web-crape/src/api/agent-directory";
+import type { TaskExecution } from "../../../web-crape/src/api/task-executions";
+import type { TaskExecutionOutput } from "../../../web-crape/src/api/task-execution-output";
+import type { Task } from "../../../web-crape/src/api/work-review";
 import { observeM1Bodies } from "./m1-task-workflow.helpers";
 
 type Material = {

@@ -19,10 +19,10 @@ import type {
   ArtifactContent,
   ArtifactMetadata,
   ArtifactRef,
-} from "../../../web/src/api/project-artifacts";
-import type { DirectoryAgent } from "../../../web/src/api/agent-directory";
-import type { TaskExecution } from "../../../web/src/api/task-executions";
-import type { Task } from "../../../web/src/api/work-review";
+} from "../../../web-crape/src/api/project-artifacts";
+import type { DirectoryAgent } from "../../../web-crape/src/api/agent-directory";
+import type { TaskExecution } from "../../../web-crape/src/api/task-executions";
+import type { Task } from "../../../web-crape/src/api/work-review";
 import {
   m2RemainingBudget,
   m2ReviewOptions,
