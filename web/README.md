@@ -1,6 +1,6 @@
 # 新 Vue 前端
 
-本目录是独立重建的 Vue 工程，当前实现共享 UI、应用壳、唯一设置壳和 40 个已定叶子的标题/空正文。旧前端完整保存在 `../web-crape/`；新工程不复用其客户端、Session、权限或业务实现，不提供假登录、业务列表或后端结果。
+本目录是独立重建的 Vue 工程，已有共享 UI、应用壳、唯一设置壳和40个已定叶子；当前按[账号合同](../docs/development/work-items/frontend-account-rebuild.md)实现四个账号入口与三项个人设置，其余正文保持骨架。旧前端完整保存在 `../web-crape/`；新工程不复用其客户端、Session、权限或业务实现，不提供假登录、业务列表或后端结果。
 
 ## 本地运行
 
@@ -11,7 +11,7 @@ npm ci --prefix web
 npm run dev --prefix web
 ```
 
-默认入口为 `http://127.0.0.1:5173/system/users`；dev 仅绑定 loopback，端口冲突即退出。指定端口使用 `npm run dev --prefix web -- --port 5244`。本轮没有 `/debug`、API 代理或后端连接；账号路由也是空骨架。
+默认入口为 `http://127.0.0.1:5173/system/users`；dev 仅绑定 loopback，端口冲突即退出。指定端口使用 `npm run dev --prefix web -- --port 5244`。本工程没有 `/debug`。账户后端、API代理与真实会话正在接入；独立dev命令不表示后端就绪，运行组合见当前状态。
 
 ## 工程与浏览器检查
 
@@ -27,6 +27,8 @@ npm run build --prefix web
 真实浏览器命令和资源边界见[新工程 harness](../tests/frontend-rebuild/README.md)，实际结果与未验范围见[当前状态](../.agent-state/current.md)。旧 fixture、HTML 原型、类型检查与组件测试各有证据边界，不能相互代替。
 
 ## 远程 dev 预览
+
+下列HTTP18081配置仅用于已有静态框架预览，不能传输真实账户材料。用户已选择同域HTTPS增加转发；真实账号启用前需完成可信PublicOrigin、Secure Cookie与公网旅程验证，不以DevMode或去Secure绕过。
 
 通过已有 frp 将本地 dev 端口映射到公网时，需为 Vite 显式配置外部 hostname 和端口。例如本轮分配本地 5244、公网 18081：
 

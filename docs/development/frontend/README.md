@@ -1,6 +1,6 @@
 # 前端开发基础
 
-当前 `web/` 是从零建立的 Vue 3、TypeScript、Vite 和 Vue Router 工程。旧前端完整保存在 `web-crape/`，新工程不导入其 API 客户端、Session、权限或业务实现。当前范围为共享 UI、AppShell、唯一 SettingsShell 和已定路由骨架；系统设置优先，所有未讨论的页面正文仅保留标题与空区域，不包含完整 Agent、项目列表、虚构业务数据或后端接入。
+当前 `web/` 是从零建立的 Vue 3、TypeScript、Vite 和 Vue Router 工程。旧前端完整保存在 `web-crape/`，新工程不导入其 API 客户端、Session、权限或业务实现。共享 UI、AppShell、唯一 SettingsShell 和已定路由骨架已有有限检查；当前实施[账号入口与个人设置](../work-items/frontend-account-rebuild.md)，包含真实会话与后端接入。其他未讨论的页面正文继续保留标题与空区域，不迁回完整 Agent/项目列表或虚构数据。
 
 设计依据为[设计 v2](../../frontend-design/redesign/README.md)、[页面蓝图](../../frontend-design/redesign/page-blueprints.md)和[执行计划](../../frontend-design/redesign/implementation-plan.md)。可运行参考为 `ai/frontend-f0-refinement-20261015@746ddcb3` 的 [HTML 原型](../../frontend-design/redesign/prototype/README.md)，实现与审查均须在浏览器实际观察。原型的合成数据和历史检查不证明新 Vue 业务能力或设计已被用户接受。
 
@@ -13,7 +13,7 @@ npm ci --prefix web
 npm run dev --prefix web
 ```
 
-打开 [系统设置骨架](http://127.0.0.1:5173/system/users)。dev 默认仅监听 `127.0.0.1:5173`，端口冲突时退出；指定独立端口使用 `npm run dev --prefix web -- --port 5244`。本工程没有 `/debug` 展示页、认证服务、API 代理或真实业务请求，登录等账号路由也只有空正文。
+打开 [系统设置骨架](http://127.0.0.1:5173/system/users)。dev 默认仅监听 `127.0.0.1:5173`，端口冲突时退出；指定独立端口使用 `npm run dev --prefix web -- --port 5244`。本工程没有 `/debug` 展示页。上述独立 dev 命令不代表账户服务已启动；账号/API代理与真实后端正在本轮工作项实现，实际可运行组合及结果见当前状态。
 
 ```sh
 npm run check --prefix web
@@ -30,10 +30,10 @@ npm run preview --prefix web
 | --- | --- |
 | `web/src/components/ui/` | 八个共享控件与内部浮层/滚动工具，公开导出见 `index.ts`；[合同](components.md)依据实际源码维护 |
 | `web/src/styles/` | 新工程独立的 token、基础样式和控件样式 |
-| `web/src/composables/useTheme.ts` | 本地浅色、深色与跟随系统偏好；不依赖账号或服务端设置 |
+| `web/src/composables/useTheme.ts` | 共享主题呈现；账号页需按本轮合同区分服务端保存与临时预览 |
 | `web/src/layouts/` | AppShell、AccountShell、唯一 SettingsShell、页头与两类导航 |
 | `web/src/router/` | 路由、页面标题、设置 scope/栏目数据及项目导航 |
-| `web/src/views/SkeletonPage.vue` | 当前所有正式叶子的空正文 |
+| `web/src/views/SkeletonPage.vue` | 尚未实现业务的叶子空正文 |
 | `web/tests/` | 新工程 Vitest + Vue Test Utils 测试 |
 | `tests/frontend-rebuild/` | 新工程生产产物浏览器 harness |
 | `web-crape/` | 完整历史前端，仅作参照；旧 fixture 显式消费该归档，不能作为新工程证据 |
@@ -44,11 +44,11 @@ npm run preview --prefix web
 
 当前保留 40 个正式叶子定义：系统设置 11、个人设置 3、项目设置 11，其余 15 个覆盖首页、项目集合/概览、四个账号入口、任务三个入口、知识库、产物、会议、待办及 MCP OAuth 回调。动态详情仍属于各自叶子；三个目录重定向和 404 不计入 40 叶。URL 形状沿[页面蓝图](../../frontend-design/redesign/page-blueprints.md)，新代码参数名为 `owner/project`、`taskId/sprintId/documentId/meetingId/skillId`。
 
-路由与设置栏目集中在 `src/router/routes.ts`；所有正式叶子使用 `content: "unimplemented"` 并加载空正文。`/system`、`/settings`、`/:owner/:project/settings` 分别重定向到用户、个人资料和基本信息。HTML5 History 支持直达与返回；保留命名空间避免未知系统路径落入项目路由。这些路径可访问不表示认证、权限或业务已经实现。
+路由与设置栏目集中在 `src/router/routes.ts`；骨架建立时全部叶子使用 `content: "unimplemented"`，本轮七页依合同接入实际内容，其余保持空正文。`/system`、`/settings`、`/:owner/:project/settings` 分别重定向到用户、个人资料和基本信息。HTML5 History 支持直达与返回；保留命名空间避免未知系统路径落入项目路由。这些路径可访问不表示认证、权限或业务已经实现。
 
 AppShell 组织系统导航、项目上下文和内容区；AccountShell 承载账号与 OAuth 回调骨架。系统、个人和项目设置均由同一 SettingsShell 消费对应栏目数组，窄屏目录由共享 UiDialog 承载。布局职责与控件接口见[组件说明](components.md#页面组合与滚动)。
 
-主题默认跟随系统，存储键为 `agenteam.vue.appearance.v1`；手动偏好持久化在本地并响应同源 storage 变化，存储不可用时仍可当前页面切换。它不是旧账号外观设置或服务端偏好恢复。
+骨架阶段的主题使用本地 `agenteam.vue.appearance.v1` 缓存。本轮账号主题改为服务端保存与临时预览分离；匿名/失效使用system，本地缓存不作为用户偏好事实，不得跨账号继承。实际迁移实现与检查以本轮工作项及当前状态为准。
 
 ## 归档前端能力与验收记录（历史）
 

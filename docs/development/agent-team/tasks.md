@@ -2,9 +2,11 @@
 
 ## 本轮 Vue 前端从零重建
 
-2026-10-16，用户明确将旧 `web/` 归档为 `web-crape/`，从零建立新的 Vue 工程，不复用旧 API 客户端、Session、权限或业务实现；必要后端接口随具体页面任务重新设计。当前在 `ai/frontend-vue-rebuild-20261016` 建立共享 UI、AppShell、单一 SettingsShell 与全部已定路由骨架，先系统设置，未讨论正文只保留标题与空内容区。工程已有部分源码，现按用户要求暂停并保存 WIP，尚无新工程最终测试或独审通过结论，不代表后端/认证授权已完成。
+2026-10-16，旧 `web/` 已完整归档为 `web-crape/`，新 Vue 的共享 UI、应用壳、唯一设置壳与40叶骨架已有工程/浏览器和独立限定检查。用户现已授权先实现登录、邀请兑换、找回/重置、相关接口与会话，以及完整个人设置；新客户端、Session、权限和业务状态从零建立，后端成熟安全领域规则保留。系统及其他未讨论正文继续为空，不自动迁回完整 Agent/项目列表。
 
-本轮不等待全站 HTML F0 定稿；Agent HTML 保留对照，不再扩展，本轮不迁入完整 Agent 或项目列表正文。原 `ai/frontend-f0-refinement-20261015` 保留，其样板测试与独审仍仅证明原输入；不把旧内部结果当作用户接受或新 Vue 验收。现行工程和路线见[前端开发说明](../frontend/README.md)、[设计入口](../../frontend-design/redesign/README.md)、[执行计划](../../frontend-design/redesign/implementation-plan.md)与[当前恢复状态](../../../.agent-state/current.md)。下方 M3、旧失败及 STOP 保留原含义；未完成的 `ai/task-comments-20261013` 继续保留。
+本轮范围、接口取舍和验收只在[账号重建合同](../work-items/frontend-account-rebuild.md)维护，当前owner、真实进度、资源与阻塞见[恢复状态](../../../.agent-state/current.md)。用户选择沿用 `mcpc-terra.lunadeer.cn` 的HTTPS入口增加转发；HTTPS和安全Cookie核实前只进行自有隔离本地真实联调，HTTP框架预览不接真实账号。骨架检查、旧HTML与旧Vue不能代证本轮七页行为或用户最终设计接受。
+
+本轮不等待全站HTML F0定稿，已确认模板和官方Logo继续使用。工程与设计入口见[前端开发说明](../frontend/README.md)、[设计入口](../../frontend-design/redesign/README.md)及[执行计划](../../frontend-design/redesign/implementation-plan.md)。下方M3、旧失败及STOP保留原含义；未完成的 `ai/task-comments-20261013` 继续保留。
 
 ## 当前目标与工作包状态
 

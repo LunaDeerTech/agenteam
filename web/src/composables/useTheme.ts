@@ -72,6 +72,13 @@ function setTheme(value: ThemePreference) {
   }
 }
 
+export function applyAccountTheme(value: ThemePreference) {
+  if (!isTheme(value)) return;
+  if (!dispose) initTheme();
+  theme.value = value;
+  applyTheme();
+}
+
 export function useTheme() {
   return {
     theme: readonly(theme),
