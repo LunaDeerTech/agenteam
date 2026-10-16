@@ -740,8 +740,19 @@ function refreshResource(ctx, focus) {
         !active ||
         active === document.body ||
         active === document.documentElement
-      )
-        document.querySelector(focus)?.focus({ preventScroll: true });
+      ) {
+        const target = document.querySelector(focus);
+        target?.focus({ preventScroll: true });
+        if (
+          target?.matches(
+            '[data-agent-action="lookup"], [data-agent-action="basic-rebase"]',
+          )
+        ) {
+          const bounds = target.getBoundingClientRect();
+          if (bounds.top < 8 || bounds.bottom > innerHeight - 8)
+            target.scrollIntoView({ block: "nearest", behavior: "instant" });
+        }
+      }
     });
 }
 function resourceFocusIdentity(element) {
@@ -861,7 +872,10 @@ function submitResource(ctx, field, payload, labelText) {
     ) {
       // Preserve a deliberate focus move made while the request was pending.
       const active = resourceFocusIdentity(document.activeElement);
-      const stillAtOperation = active === command.focus.row;
+      const stillAtOperation =
+        active === command.focus.row ||
+        document.activeElement === document.body ||
+        document.activeElement === document.documentElement;
       const focus = stillAtOperation
         ? resource.status === "unknown"
           ? '[data-agent-action="lookup"]'
@@ -899,12 +913,17 @@ function creationValue(value) {
   delete next.installSkill;
   return next;
 }
-function publishConfiguration(ctx, state, command) {
+function publishConfiguration(
+  ctx,
+  state,
+  command,
+  retainCreationDraft = false,
+) {
   const edit = state.edits[command.agent];
   if (command.agent === "new") {
     const value = creationValue(command.input);
     state.agents.push(value);
-    delete state.edits.new;
+    if (!retainCreationDraft) delete state.edits.new;
     command.createdID = value.id;
     return value;
   }
@@ -1044,13 +1063,20 @@ function lookupOperation(ctx) {
   pending.observation = result === "failed" ? "failed" : "committed";
   if (pending.observation === "committed" && !pending.applied) {
     if (domain === "resource") publishResource(state, current, edit, command);
-    else
-      publishConfiguration(ctx, state, {
-        ...command,
-        agent: pending.agent,
-        fields: command.fields || basicFields,
-        input: command.input || command.value,
-      });
+    else {
+      const result = publishConfiguration(
+        ctx,
+        state,
+        {
+          ...command,
+          agent: pending.agent,
+          fields: command.fields || basicFields,
+          input: command.input || command.value,
+        },
+        pending.agent === "new",
+      );
+      if (pending.agent === "new") pending.createdID = result.id;
+    }
     pending.applied = true;
   }
   if (domain === "resource") {
@@ -1082,7 +1108,10 @@ function readbackOperation(ctx) {
   if (!pending || pending.phase !== "resolved") return;
   state.pending = null;
   if (pending.agent === "new" && pending.observation === "committed") {
-    const created = state.agents.at(-1);
+    const created = state.agents.find(
+      (agent) => agent.id === pending.createdID,
+    );
+    delete state.edits.new;
     return ctx.navigate("agents", { agent: created.id });
   }
   const edit = draftFor(ctx, state);
