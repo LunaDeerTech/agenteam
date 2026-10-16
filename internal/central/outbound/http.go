@@ -139,9 +139,6 @@ func (c *Client) Do(ctx context.Context, request *http.Request, profile Profile)
 		if status := c.state().policy.Status(); status.Version != nil {
 			a.decision.PolicyVersion = status.Version
 		}
-		if target.Origin().Scheme() == "http" && !p.AllowHTTP {
-			return fail(a.fail(ac.HTTPDenied, nil))
-		}
 		x, err := a.roundTrip(req)
 		if err != nil {
 			return fail(err)

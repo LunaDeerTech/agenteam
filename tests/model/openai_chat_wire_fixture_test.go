@@ -132,7 +132,7 @@ func (v *wireFixture) allow(t *testing.T, allowed bool) {
 		if e != nil {
 			t.Fatal(e)
 		}
-		rule, e := outbound.NewRule(v.net.PrivateIP+"/32", ports, false)
+		rule, e := outbound.NewRule(v.net.PrivateIP+"/32", ports)
 		if e != nil {
 			t.Fatal(e)
 		}
@@ -141,7 +141,7 @@ func (v *wireFixture) allow(t *testing.T, allowed bool) {
 			t.Fatal(e)
 		}
 	}
-	command, e := f.NewCommandIdentity("outbound-policy", []string{v.actor.Details().UserID}, "update", f.IdempotencyKey(newID[struct{}](t).String()))
+	command, e := f.NewCommandIdentity("outbound-policy-v2", []string{v.actor.Details().UserID}, "update", f.IdempotencyKey(newID[struct{}](t).String()))
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -149,7 +149,7 @@ func (v *wireFixture) allow(t *testing.T, allowed bool) {
 	if status.Version == nil {
 		t.Fatal("missing policy version")
 	}
-	_, e = v.policy.UpdatePolicy(testContext(t), v.actor, outbound.CommandMeta{Identity: command, ExpectedVersion: *status.Version, HTTPTraceID: newID[struct{}](t).String()}, rules)
+	_, e = v.policy.UpdatePolicy(testContext(t), v.actor, outbound.CommandMeta{Identity: command, ExpectedVersion: *status.Version, HTTPTraceID: newID[struct{}](t).String()}, outbound.Allowlist, rules)
 	if e != nil {
 		t.Fatal(e)
 	}

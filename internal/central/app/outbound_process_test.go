@@ -156,10 +156,10 @@ func seedAppOutbound(t *testing.T, db *pgfixture.Database, d *netfixture.Descrip
 		t.Fatal(err)
 	}
 	ports, _ := outbound.SelectedPorts(8443)
-	rule, _ := outbound.NewRule(d.PrivateIP+"/32", ports, false)
+	rule, _ := outbound.NewRule(d.PrivateIP+"/32", ports)
 	rules, _ := outbound.NewRules(rule)
-	command, _ := foundation.NewCommandIdentity("outbound-policy", []string{user.String()}, "update", "app-owned-fixture")
-	if _, err := policy.UpdatePolicy(ctx, actor, outbound.CommandMeta{Identity: command, ExpectedVersion: *policy.Status().Version}, rules); err != nil {
+	command, _ := foundation.NewCommandIdentity("outbound-policy-v2", []string{user.String()}, "update", "app-owned-fixture")
+	if _, err := policy.UpdatePolicy(ctx, actor, outbound.CommandMeta{Identity: command, ExpectedVersion: *policy.Status().Version}, outbound.Allowlist, rules); err != nil {
 		t.Fatal(err)
 	}
 }

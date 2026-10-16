@@ -37,14 +37,14 @@ import (
 
 type policySpy struct {
 	get func(context.Context, identity.Actor) (outbound.Policy, error)
-	put func(context.Context, identity.Actor, outbound.CommandMeta, outbound.Rules) (outbound.UpdateResult, error)
+	put func(context.Context, identity.Actor, outbound.CommandMeta, outbound.RuleMode, outbound.Rules) (outbound.UpdateResult, error)
 }
 
 func (s policySpy) GetPolicy(ctx context.Context, a identity.Actor) (outbound.Policy, error) {
 	return s.get(ctx, a)
 }
-func (s policySpy) UpdatePolicy(ctx context.Context, a identity.Actor, m outbound.CommandMeta, r outbound.Rules) (outbound.UpdateResult, error) {
-	return s.put(ctx, a, m, r)
+func (s policySpy) UpdatePolicy(ctx context.Context, a identity.Actor, m outbound.CommandMeta, mode outbound.RuleMode, r outbound.Rules) (outbound.UpdateResult, error) {
+	return s.put(ctx, a, m, mode, r)
 }
 
 type boundarySpy struct {
@@ -131,11 +131,12 @@ func (s *readStore) QueryRow(context.Context, string, ...any) postgres.Row { ret
 type policyRow struct{ raw []byte }
 
 func (r policyRow) Scan(v ...any) error {
-	if len(v) != 2 {
+	if len(v) != 3 {
 		return errors.New("unexpected controlled read")
 	}
 	*v[0].(*int64) = 1
-	*v[1].(*[]byte) = bytes.Clone(r.raw)
+	*v[1].(*string) = "denylist"
+	*v[2].(*[]byte) = bytes.Clone(r.raw)
 	return nil
 }
 
@@ -285,7 +286,7 @@ func TestOutboundHTTPMethodsInputAndSafeFaults(t *testing.T) {
 	p := samplePolicy(t, empty)
 	receipt := testReceipt(t)
 	var calls atomic.Int32
-	h := &systemHTTP{boundary: boundarySpy{authorize: func(_ *http.Request, _ identity.AccessIntent) (identity.Actor, error) { return a, nil }}, policy: policySpy{get: func(context.Context, identity.Actor) (outbound.Policy, error) { calls.Add(1); return p, nil }, put: func(context.Context, identity.Actor, outbound.CommandMeta, outbound.Rules) (outbound.UpdateResult, error) {
+	h := &systemHTTP{boundary: boundarySpy{authorize: func(_ *http.Request, _ identity.AccessIntent) (identity.Actor, error) { return a, nil }}, policy: policySpy{get: func(context.Context, identity.Actor) (outbound.Policy, error) { calls.Add(1); return p, nil }, put: func(context.Context, identity.Actor, outbound.CommandMeta, outbound.RuleMode, outbound.Rules) (outbound.UpdateResult, error) {
 		calls.Add(1)
 		return receipt, nil
 	}}}
@@ -317,7 +318,7 @@ func TestOutboundHTTPMethodsInputAndSafeFaults(t *testing.T) {
 		w := recorder()
 		r := httptest.NewRequest("GET", "https://example.test"+policyPath, nil)
 		if method == "PUT" {
-			r = updateRequest(`{"expected_version":"1","rules":[]}`)
+			r = updateRequest(`{"rule_mode":"denylist","expected_version":"1","rules":[]}`)
 		}
 		h.ServeHTTP(w, r)
 		if w.Code != 200 || !w.cleared() {
@@ -386,7 +387,7 @@ func TestOutboundHTTPBudgetIncludesPreauthenticationAndService(t *testing.T) {
 						t.Fatal("read renewed budget")
 					}
 					return p, nil
-				}, put: func(c context.Context, _ identity.Actor, _ outbound.CommandMeta, _ outbound.Rules) (outbound.UpdateResult, error) {
+				}, put: func(c context.Context, _ identity.Actor, _ outbound.CommandMeta, _ outbound.RuleMode, _ outbound.Rules) (outbound.UpdateResult, error) {
 					d, _ := c.Deadline()
 					if !d.Equal(deadline) {
 						t.Fatal("write renewed budget")
@@ -395,7 +396,7 @@ func TestOutboundHTTPBudgetIncludesPreauthenticationAndService(t *testing.T) {
 				}}}
 				r := httptest.NewRequest(method, "https://example.test"+policyPath, nil)
 				if method == "PUT" {
-					r = updateRequest(`{"expected_version":"1","rules":[]}`)
+					r = updateRequest(`{"rule_mode":"denylist","expected_version":"1","rules":[]}`)
 				}
 				w := recorder()
 				h.ServeHTTP(w, r.WithContext(ctx))
@@ -453,7 +454,7 @@ func TestOutboundHTTPCancellationJoinsServiceAndCallback(t *testing.T) {
 		t.Run(method, func(t *testing.T) {
 			entered, observed, release := make(chan struct{}), make(chan struct{}), make(chan struct{})
 			tail := func(ctx context.Context) { close(entered); <-ctx.Done(); close(observed); <-release }
-			h := &systemHTTP{boundary: boundarySpy{authorize: func(*http.Request, identity.AccessIntent) (identity.Actor, error) { return a, nil }}, policy: policySpy{get: func(c context.Context, _ identity.Actor) (outbound.Policy, error) { tail(c); return p, nil }, put: func(c context.Context, _ identity.Actor, _ outbound.CommandMeta, _ outbound.Rules) (outbound.UpdateResult, error) {
+			h := &systemHTTP{boundary: boundarySpy{authorize: func(*http.Request, identity.AccessIntent) (identity.Actor, error) { return a, nil }}, policy: policySpy{get: func(c context.Context, _ identity.Actor) (outbound.Policy, error) { tail(c); return p, nil }, put: func(c context.Context, _ identity.Actor, _ outbound.CommandMeta, _ outbound.RuleMode, _ outbound.Rules) (outbound.UpdateResult, error) {
 				tail(c)
 				return receipt, nil
 			}}}
@@ -461,7 +462,7 @@ func TestOutboundHTTPCancellationJoinsServiceAndCallback(t *testing.T) {
 			defer cancel()
 			r := httptest.NewRequest(method, "https://example.test"+policyPath, nil)
 			if method == "PUT" {
-				r = updateRequest(`{"expected_version":"1","rules":[]}`)
+				r = updateRequest(`{"rule_mode":"denylist","expected_version":"1","rules":[]}`)
 			}
 			w := recorder()
 			done := asyncServe(h, w, r.WithContext(ctx))
@@ -508,13 +509,13 @@ func TestOutboundHTTPWriteFailureAbortsWithoutSecondProblem(t *testing.T) {
 	a := testActor(t)
 	receipt := testReceipt(t)
 	calls := 0
-	h := &systemHTTP{boundary: boundarySpy{authorize: func(*http.Request, identity.AccessIntent) (identity.Actor, error) { return a, nil }}, policy: policySpy{put: func(context.Context, identity.Actor, outbound.CommandMeta, outbound.Rules) (outbound.UpdateResult, error) {
+	h := &systemHTTP{boundary: boundarySpy{authorize: func(*http.Request, identity.AccessIntent) (identity.Actor, error) { return a, nil }}, policy: policySpy{put: func(context.Context, identity.Actor, outbound.CommandMeta, outbound.RuleMode, outbound.Rules) (outbound.UpdateResult, error) {
 		calls++
 		return receipt, nil
 	}}}
 	w := recorder()
 	w.failWrite = true
-	done := asyncServe(h, w, updateRequest(`{"expected_version":"1","rules":[]}`))
+	done := asyncServe(h, w, updateRequest(`{"rule_mode":"denylist","expected_version":"1","rules":[]}`))
 	if waitServe(t, done) != http.ErrAbortHandler || calls != 1 || w.Code != 200 || w.Body.Len() != 0 || !w.cleared() {
 		t.Fatal("failed accepted response was replaced or leaked")
 	}
@@ -548,13 +549,13 @@ func TestOutboundHTTPBodyReadAndCloseActuallyJoin(t *testing.T) {
 		}
 	}
 	var called atomic.Bool
-	h := &systemHTTP{boundary: boundarySpy{authorize: func(*http.Request, identity.AccessIntent) (identity.Actor, error) { return a, nil }}, policy: policySpy{put: func(context.Context, identity.Actor, outbound.CommandMeta, outbound.Rules) (outbound.UpdateResult, error) {
+	h := &systemHTTP{boundary: boundarySpy{authorize: func(*http.Request, identity.AccessIntent) (identity.Actor, error) { return a, nil }}, policy: policySpy{put: func(context.Context, identity.Actor, outbound.CommandMeta, outbound.RuleMode, outbound.Rules) (outbound.UpdateResult, error) {
 		called.Store(true)
 		return outbound.UpdateResult{}, fault(foundation.InvalidArgument)
 	}}}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	r := updateRequest(`{"expected_version":"1","rules":[]}`).WithContext(ctx)
+	r := updateRequest(`{"rule_mode":"denylist","expected_version":"1","rules":[]}`).WithContext(ctx)
 	r.Body = body
 	done := asyncServe(h, w, r)
 	<-body.readEntered
@@ -585,7 +586,7 @@ func TestOutboundHTTPNativeBodyCancellationAndConnectionReuse(t *testing.T) {
 	var requests atomic.Int32
 	var mu sync.Mutex
 	conns := map[net.Conn]bool{}
-	h := &systemHTTP{boundary: boundarySpy{authorize: func(*http.Request, identity.AccessIntent) (identity.Actor, error) { return a, nil }}, policy: policySpy{get: func(context.Context, identity.Actor) (outbound.Policy, error) { return p, nil }, put: func(context.Context, identity.Actor, outbound.CommandMeta, outbound.Rules) (outbound.UpdateResult, error) {
+	h := &systemHTTP{boundary: boundarySpy{authorize: func(*http.Request, identity.AccessIntent) (identity.Actor, error) { return a, nil }}, policy: policySpy{get: func(context.Context, identity.Actor) (outbound.Policy, error) { return p, nil }, put: func(context.Context, identity.Actor, outbound.CommandMeta, outbound.RuleMode, outbound.Rules) (outbound.UpdateResult, error) {
 		puts.Add(1)
 		return receipt, nil
 	}}}

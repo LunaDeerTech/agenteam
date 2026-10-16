@@ -176,7 +176,7 @@ func TestSystemOutboundPolicyHTTPRootSharedInstance(t *testing.T) {
 	}
 	requestTarget(ac.PrivateNotAllowed)
 	targetCount(0)
-	body, err := json.Marshal(map[string]any{"expected_version": "1", "rules": []any{map[string]any{"cidr": network.PrivateIP + "/32", "ports": []int{8443}, "allow_http": false}}})
+	body, err := json.Marshal(map[string]any{"rule_mode": "allowlist", "expected_version": "1", "rules": []any{map[string]any{"target": network.PrivateIP + "/32", "ports": []int{8443}}}})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -188,7 +188,7 @@ func TestSystemOutboundPolicyHTTPRootSharedInstance(t *testing.T) {
 	requestTarget("")
 	state := targetCount(1)
 	connection := state.Requests[0].Connection
-	clearBody := []byte(`{"expected_version":"2","rules":[]}`)
+	clearBody := []byte(`{"rule_mode":"allowlist","expected_version":"2","rules":[]}`)
 	callHTTP("PUT", clearBody, guardID[struct{}](t).String())
 	requestTarget(ac.PrivateNotAllowed)
 	targetCount(1)

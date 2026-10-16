@@ -263,7 +263,7 @@ func TestMCPProtocolRealControlled(t *testing.T) {
 		}
 	})
 	ports, _ := outbound.SelectedPorts(8443)
-	rule, err := outbound.NewRule(p.ip+"/32", ports, false)
+	rule, err := outbound.NewRule(p.ip+"/32", ports)
 	if err != nil {
 		t.Fatal(err)
 	}

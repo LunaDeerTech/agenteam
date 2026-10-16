@@ -276,9 +276,6 @@ func (a *attempt) reason(err error, fallback ac.Reason) ac.Reason {
 }
 func (a *attempt) resolve() error {
 	origin := a.target.Origin()
-	if metadataHost(origin.Host()) {
-		return a.fail(ac.AddressForbidden, nil)
-	}
 	route, err := a.client.state().policy.proxySnapshot()
 	if err != nil {
 		return a.fail(ac.PolicyUnavailable, err)
@@ -347,9 +344,9 @@ func (a *attempt) admit(peer netip.Addr) error {
 			a.decision.AddressClass = class
 			a.decisionMu.Unlock()
 		}
-		if reason := p.Rules().check(ip, a.target.Origin().Port(), a.target.Origin().Scheme() == "http"); reason != "" {
-			return a.fail(reason, nil)
-		}
+	}
+	if reason := p.Rules().check(p.Mode(), a.target.Origin().Host(), a.addresses, a.target.Origin().Port()); reason != "" {
+		return a.fail(reason, nil)
 	}
 	if a.proxy != nil {
 		return a.admitProxy(peer)
@@ -494,7 +491,7 @@ func (a *attempt) denyAudit(reason ac.Reason) {
 	// Ordinary timeout, cancellation, disconnect and TLS/DNS availability errors
 	// are operational outcomes, not copies of all failed traffic into Audit.
 	switch reason {
-	case ac.InvalidTarget, ac.AddressForbidden, ac.PrivateNotAllowed, ac.PortDenied, ac.HTTPDenied, ac.RedirectDenied, ac.BindingInvalid, ac.CredentialDenied, ac.OriginDenied, ac.ResponseLimit:
+	case ac.InvalidTarget, ac.AddressForbidden, ac.RuleNotAllowed, ac.PrivateNotAllowed, ac.PortDenied, ac.HTTPDenied, ac.RedirectDenied, ac.BindingInvalid, ac.CredentialDenied, ac.OriginDenied, ac.ResponseLimit:
 	default:
 		return
 	}

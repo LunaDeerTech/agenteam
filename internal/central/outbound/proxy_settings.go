@@ -6,7 +6,6 @@ import (
 	"io"
 	"log/slog"
 	"net"
-	"net/netip"
 	"strconv"
 	"strings"
 	"unicode"
@@ -113,12 +112,6 @@ func normalizeProxyUpdate(input ProxyUpdate) (ProxyUpdate, error) {
 		return input, invalid()
 	}
 	g.Host = target.Origin().Host()
-	if metadataHost(g.Host) || g.Host == "localhost" || strings.HasSuffix(g.Host, ".localhost") {
-		return input, invalid()
-	}
-	if ip, e := netip.ParseAddr(g.Host); e == nil && Classify(ip) != Public && Classify(ip) != Private {
-		return input, invalid()
-	}
 	// Single-label corporate proxy names are explicitly configured deployment
 	// gateways. Target parsing and the target DNS resolver remain unchanged.
 	g.CredentialPresent = false

@@ -70,17 +70,17 @@ func newRuntimeFinalTextFixture(t *testing.T, origin string, configure func(*dep
 	}
 	ports, err := outbound.SelectedPorts(8443)
 	workAppCheck(t, "runtime-text-owned-port", err)
-	rule, err := outbound.NewRule(network.PrivateIP+"/32", ports, false)
+	rule, err := outbound.NewRule(network.PrivateIP+"/32", ports)
 	workAppCheck(t, "runtime-text-owned-rule", err)
 	rules, err := outbound.NewRules(rule)
 	workAppCheck(t, "runtime-text-owned-rules", err)
-	identity, err := f.NewCommandIdentity("outbound-policy", []string{v.actor.Details().UserID}, "update", f.IdempotencyKey(guardID[struct{}](t).String()))
+	identity, err := f.NewCommandIdentity("outbound-policy-v2", []string{v.actor.Details().UserID}, "update", f.IdempotencyKey(guardID[struct{}](t).String()))
 	workAppCheck(t, "runtime-text-policy-identity", err)
 	status := transport.policy.Status()
 	if status.Version == nil {
 		t.Fatal("original outbound policy absent")
 	}
-	_, err = transport.policy.UpdatePolicy(v.ctx, v.actor, outbound.CommandMeta{Identity: identity, ExpectedVersion: *status.Version, HTTPTraceID: guardID[f.Request](t).String()}, rules)
+	_, err = transport.policy.UpdatePolicy(v.ctx, v.actor, outbound.CommandMeta{Identity: identity, ExpectedVersion: *status.Version, HTTPTraceID: guardID[f.Request](t).String()}, outbound.Allowlist, rules)
 	workAppCheck(t, "runtime-text-formal-policy-update", err)
 	scope, err := id.InProject(v.a)
 	workAppCheck(t, "runtime-text-secret-scope", err)

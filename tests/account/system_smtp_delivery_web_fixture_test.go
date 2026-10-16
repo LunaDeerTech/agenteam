@@ -442,7 +442,7 @@ func newSMTPDeliveryWebRoot(t *testing.T, ctx context.Context, own *smtpDelivery
 		if e != nil {
 			t.Fatal(e)
 		}
-		rule, e := outbound.NewRule(own.smtp.PrivateIP+"/32", ports, false)
+		rule, e := outbound.NewRule(own.smtp.PrivateIP+"/32", ports)
 		if e != nil {
 			t.Fatal(e)
 		}

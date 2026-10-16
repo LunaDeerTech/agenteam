@@ -159,7 +159,7 @@ func (p *outboundLateCommitProxy) serve(client net.Conn) {
 func TestOutboundReloadWaitsForOriginalUnknownWriter(t *testing.T) {
 	f := newAuditFixture(t)
 	initial := outboundPolicy(t, f, nil)
-	if out, e := initial.UpdatePolicy(auditContext(t), f.actor, policyCommand(t, f.actor, 1), policyRules(t, "10.44.0.0/16")); e != nil || out.Version != 2 {
+	if out, e := initial.UpdatePolicy(auditContext(t), f.actor, policyCommand(t, f.actor, 1), outbound.Allowlist, policyRules(t, "10.44.0.0/16")); e != nil || out.Version != 2 {
 		t.Fatal("initial policy", e)
 	}
 	proxy := newOutboundLateCommitProxy(t, net.JoinHostPort("127.0.0.1", f.db.Fixture.Port))
@@ -183,7 +183,10 @@ func TestOutboundReloadWaitsForOriginalUnknownWriter(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 600*time.Millisecond)
 	defer cancel()
 	done := make(chan error, 1)
-	go func() { _, e := service.UpdatePolicy(ctx, f.actor, command, policyRules(t, "")); done <- e }()
+	go func() {
+		_, e := service.UpdatePolicy(ctx, f.actor, command, outbound.Allowlist, policyRules(t, ""))
+		done <- e
+	}()
 	select {
 	case <-proxy.reached:
 	case <-time.After(3 * time.Second):

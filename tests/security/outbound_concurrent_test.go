@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
 )
 
 func TestOutboundConcurrentPolicySavesSerialize(t *testing.T) {
@@ -17,8 +18,8 @@ func TestOutboundConcurrentPolicySavesSerialize(t *testing.T) {
 	r1, r2 := policyRules(t, "10.11.0.0/16"), policyRules(t, "10.12.0.0/16")
 	start := make(chan struct{})
 	done := make(chan error, 2)
-	go func() { <-start; _, e := s.UpdatePolicy(ctx, f.actor, a, r1); done <- e }()
-	go func() { <-start; _, e := s.UpdatePolicy(ctx, f.actor, b, r2); done <- e }()
+	go func() { <-start; _, e := s.UpdatePolicy(ctx, f.actor, a, outbound.Allowlist, r1); done <- e }()
+	go func() { <-start; _, e := s.UpdatePolicy(ctx, f.actor, b, outbound.Allowlist, r2); done <- e }()
 	close(start)
 	success, conflict := 0, 0
 	for range 2 {

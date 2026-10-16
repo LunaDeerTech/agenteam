@@ -51,6 +51,7 @@ const (
 	RotationError      Reason = "rotation_failed"
 	InvalidTarget      Reason = "invalid_target"
 	AddressForbidden   Reason = "address_forbidden"
+	RuleNotAllowed     Reason = "rule_not_allowed"
 	PrivateNotAllowed  Reason = "private_not_allowed"
 	PortDenied         Reason = "port_denied"
 	HTTPDenied         Reason = "http_denied"
@@ -73,7 +74,7 @@ const (
 
 func (r Reason) Valid() bool {
 	switch r {
-	case PermissionDenied, ScopeMismatch, LeaseInvalid, DecryptFailed, KeyUnavailable, CiphertextInvalid, RotationError, InvalidTarget, AddressForbidden, PrivateNotAllowed, PortDenied, HTTPDenied, TLSFailed, DNSFailed, RedirectDenied, PolicyUnavailable, BindingInvalid, ConsumerDenied, CredentialDenied, OriginDenied, ResponseLimit, Timeout, Cancelled, InternalError, StorageUnavailable, PayloadMissing, IntegrityMismatch:
+	case PermissionDenied, ScopeMismatch, LeaseInvalid, DecryptFailed, KeyUnavailable, CiphertextInvalid, RotationError, InvalidTarget, AddressForbidden, RuleNotAllowed, PrivateNotAllowed, PortDenied, HTTPDenied, TLSFailed, DNSFailed, RedirectDenied, PolicyUnavailable, BindingInvalid, ConsumerDenied, CredentialDenied, OriginDenied, ResponseLimit, Timeout, Cancelled, InternalError, StorageUnavailable, PayloadMissing, IntegrityMismatch:
 		return true
 	}
 	return false
@@ -165,7 +166,7 @@ func MasterMetadata(action Action, version foundation.Version, rotationID string
 	return metadata(action, metadataWire{Version: version.String(), RotationID: rotationID, Count: count.String(), Reason: reason})
 }
 func PolicyMetadata(version foundation.Version, ruleCount int) (Metadata, error) {
-	if version.Validate() != nil || ruleCount < 0 || ruleCount > 256 {
+	if version.Validate() != nil || ruleCount < 0 || ruleCount > 512 {
 		return Metadata{}, invalid("metadata")
 	}
 	return metadata(PolicyUpdate, metadataWire{Version: version.String(), RuleCount: foundation.Progress(ruleCount).String()})
@@ -536,7 +537,7 @@ func DecodeMetadata(action Action, raw []byte) (Metadata, error) {
 		return ProxyMetadata(version)
 	case PolicyUpdate:
 		count, e := foundation.ParseProgress(w.RuleCount)
-		if e != nil || count > 256 {
+		if e != nil || count > 512 {
 			return Metadata{}, invalid("metadata")
 		}
 		return PolicyMetadata(version, int(count))

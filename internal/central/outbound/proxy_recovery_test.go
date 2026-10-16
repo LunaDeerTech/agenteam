@@ -94,12 +94,13 @@ func (s *proxyRecoveryStore) QueryRow(_ context.Context, query string, args ...a
 			key := args[0].(string)
 			*out[0].(*bool) = s.exists[key]
 			s.observed[key] = true
-		case query == `SELECT version,rules FROM agenteam_outbound.outbound_policy WHERE singleton=true`:
+		case query == `SELECT version,rule_mode,rules FROM agenteam_outbound.outbound_policy WHERE singleton=true`:
 			if s.failCurrent {
 				return errors.New("controlled current snapshot failure")
 			}
 			*out[0].(*int64) = s.policyVersion
-			*out[1].(*[]byte) = s.rules.JSON()
+			*out[1].(*string) = string(Denylist)
+			*out[2].(*[]byte) = s.rules.JSON()
 		case query == `SELECT version,mode,gateway,coalesce(credential_id::text,'') FROM agenteam_outbound.proxy_settings WHERE singleton=true`:
 			*out[0].(*int64) = s.proxyVersion
 			*out[1].(*string) = "direct"
@@ -119,7 +120,7 @@ func proxyRecoveryFixture(t *testing.T, bound bool) (*PolicyService, *proxyRecov
 		t.Fatal(err)
 	}
 	store := &proxyRecoveryStore{t: t, rules: rules, policyVersion: 7, proxyVersion: 8, observed: make(map[string]bool), exists: make(map[string]bool)}
-	state := &policyState{store: store, mirror: policy(1, rules), available: true, proxy: proxySnapshot{version: 1, mode: "direct"}, proxyAvailable: true}
+	state := &policyState{store: store, mirror: policy(1, Denylist, rules), available: true, proxy: proxySnapshot{version: 1, mode: "direct"}, proxyAvailable: true}
 	if bound {
 		// Direct current-state recovery performs no credential operation.
 		state.proxyDependencies = &ProxyDependencies{}
@@ -166,7 +167,7 @@ func TestProxyRecoveryOrdinaryPublicationsCannotClearPending(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer release()
-	if err = service.publish(policy(2, store.rules)); err != nil {
+	if err = service.publish(policy(2, Denylist, store.rules)); err != nil {
 		t.Fatal(err)
 	}
 	if err = service.publishProxy(proxyRecord{settings: ProxySettings{Version: 2, Mode: "direct"}}); err != nil {
@@ -186,7 +187,7 @@ func TestProxyRecoveryOrdinaryPublicationsCannotClearPending(t *testing.T) {
 func TestProxyRecoveryRequiresEveryCommandAndBothCurrentRows(t *testing.T) {
 	service, store := proxyRecoveryFixture(t, true)
 	owner := proxyRecoveryOwner(t)
-	commands := []foundation.CommandIdentity{proxyRecoveryCommand(t, "outbound-policy", owner), proxyRecoveryCommand(t, "outbound-proxy", owner)}
+	commands := []foundation.CommandIdentity{proxyRecoveryCommand(t, "outbound-policy-v2", owner), proxyRecoveryCommand(t, "outbound-proxy", owner)}
 	store.required = []foundation.LockKey{policyLock(), proxyLock()}
 	for _, command := range commands {
 		proxyRecoveryPending(t, service, store, command)
@@ -247,7 +248,7 @@ func TestProxyRecoveryPolicyReplayPreservesCommittedFactAndUsesCurrentRows(t *te
 	if err != nil {
 		t.Fatal(err)
 	}
-	command := proxyRecoveryCommand(t, "outbound-policy", user.String())
+	command := proxyRecoveryCommand(t, "outbound-policy-v2", user.String())
 	meta := CommandMeta{Identity: command, ExpectedVersion: 1}
 	service.state().auth = Authorizations{Sessions: proxyRecoveryAuthority{}, System: proxyRecoveryAuthority{}}
 	store.required = []foundation.LockKey{policyLock()}
@@ -261,10 +262,10 @@ func TestProxyRecoveryPolicyReplayPreservesCommittedFactAndUsesCurrentRows(t *te
 		t.Fatal(err)
 	}
 	store.receipt = UpdateResult{Version: 2, AuditID: auditID, CreatedAt: at}
-	store.digest = commandDigest(actor, meta, store.rules)
+	store.digest = commandDigest(actor, meta, Denylist, store.rules)
 	store.exists[digestBytes([]byte(command.Canonical()))] = true
 	store.failCurrent = true
-	_, err = service.UpdatePolicy(context.Background(), actor, meta, store.rules)
+	_, err = service.UpdatePolicy(context.Background(), actor, meta, Denylist, store.rules)
 	var fault *foundation.Fault
 	if !errors.As(err, &fault) || fault.CommitState != foundation.Committed || fault.RetryHint != "replay" {
 		t.Fatal("known receipt recovery failure lost committed/replay semantics")
@@ -273,7 +274,7 @@ func TestProxyRecoveryPolicyReplayPreservesCommittedFactAndUsesCurrentRows(t *te
 		t.Fatal("failed replay recovery reopened admission")
 	}
 	store.failCurrent = false
-	out, err := service.UpdatePolicy(context.Background(), actor, meta, store.rules)
+	out, err := service.UpdatePolicy(context.Background(), actor, meta, Denylist, store.rules)
 	if err != nil {
 		t.Fatal(err)
 	}

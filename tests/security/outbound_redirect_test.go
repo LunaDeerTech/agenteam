@@ -45,7 +45,7 @@ func TestOutboundNetworkRedirectEachHopAndMethodBoundary(t *testing.T) {
 			if body != nil {
 				req, _ = http.NewRequest(method, f.url(start), body)
 			}
-			_, e := f.client.Do(auditContext(t), req, f.profile(t, outbound.ProfileOptions{AllowHTTP: true}))
+			_, e := f.client.Do(auditContext(t), req, f.profile(t, outbound.ProfileOptions{}))
 			// Rejected fresh-hop DNS/port attempts have no sent bytes even though
 			// a preceding, separately counted redirect response was received.
 			sent := mode != "private_port" && mode != "loopback"

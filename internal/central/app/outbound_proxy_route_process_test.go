@@ -112,8 +112,8 @@ func TestSystemOutboundProxyHTTPRouteChanges(t *testing.T) {
 	const proxyPath = policyPath + "/proxy"
 	var saved struct{ Version string }
 	callAPI(http.MethodPut, policyPath, map[string]any{
-		"expected_version": "1",
-		"rules":            []any{map[string]any{"cidr": network.PrivateIP + "/32", "ports": []int{8443}, "allow_http": false}},
+		"rule_mode": "allowlist", "expected_version": "1",
+		"rules": []any{map[string]any{"target": network.PrivateIP + "/32", "ports": []int{8443}}},
 	}, &saved)
 	if saved.Version != "2" {
 		t.Fatal("HTTP policy save did not advance the current version")
@@ -135,7 +135,7 @@ func TestSystemOutboundProxyHTTPRouteChanges(t *testing.T) {
 	gatewayAddress := gateway.listener.Addr().(*net.TCPAddr)
 	proxyInput := func(version, mode, action, user string, port int) map[string]any {
 		return map[string]any{
-			"expected_version": version, "mode": mode, "credential_action": action,
+			"rule_mode": "allowlist", "expected_version": version, "mode": mode, "credential_action": action,
 			"gateway": map[string]any{"protocol": "http", "host": gatewayAddress.IP.String(), "port": port, "username": user},
 		}
 	}

@@ -630,19 +630,19 @@ func newMCPM3AppWithOrigin(t *testing.T, peer *mcpfixture.Provider, network *net
 	workAppCheck(t, "mcp-policy-ports", err)
 	var allow []outbound.Rule
 	for _, address := range addresses {
-		rule, err := outbound.NewRule(address.String()+"/32", ports, false)
+		rule, err := outbound.NewRule(address.String()+"/32", ports)
 		workAppCheck(t, "mcp-policy-rule", err)
 		allow = append(allow, rule)
 	}
 	rules, err := outbound.NewRules(allow...)
 	workAppCheck(t, "mcp-policy-rules", err)
-	identity, err := f.NewCommandIdentity("outbound-policy", []string{v.actor.Details().UserID}, "update", f.IdempotencyKey(guardID[struct{}](t).String()))
+	identity, err := f.NewCommandIdentity("outbound-policy-v2", []string{v.actor.Details().UserID}, "update", f.IdempotencyKey(guardID[struct{}](t).String()))
 	workAppCheck(t, "mcp-policy-command", err)
 	before := transport.policy.Status()
 	if before.Version == nil {
 		t.Fatal("mcp-stage=policy original policy absent")
 	}
-	_, err = transport.policy.UpdatePolicy(v.ctx, v.actor, outbound.CommandMeta{Identity: identity, ExpectedVersion: *before.Version, HTTPTraceID: guardID[f.Request](t).String()}, rules)
+	_, err = transport.policy.UpdatePolicy(v.ctx, v.actor, outbound.CommandMeta{Identity: identity, ExpectedVersion: *before.Version, HTTPTraceID: guardID[f.Request](t).String()}, outbound.Allowlist, rules)
 	workAppCheck(t, "mcp-policy-update", err)
 	return v
 }

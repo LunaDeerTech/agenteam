@@ -20,7 +20,7 @@
         "description": "Current System administrator, rechecked in the same policy read transaction. GET-only, no query (including bare ?), body or write CSRF/key. Local 3-second budget starts before HTTP authentication and inherits earlier parent deadlines, with actual I/O completion before return. Current complete DB observation does not certify mirror availability, send success or a command receipt. Does not Reload.",
         "responses": {
           "200": {
-            "description": "Current authorized policy. Empty rules is [], never null.",
+            "description": "Current authorized policy. New installations default to denylist with the visible editable special-purpose-address and metadata rules. Missing/unreadable runtime state fails closed.",
             "headers": {
               "Cache-Control": {
                 "schema": {
@@ -72,7 +72,7 @@
             "CSRF": []
           }
         ],
-        "description": "Current administrator plus same-origin CSRF; same transaction rechecks current Session/authority. Whole-body replacement with original policy service locks, audit and receipt. Local 30-second budget includes preauthentication, bounded body, send gate, transaction, Unknown verification and response preparation; no renewed phase deadlines. An accepted historical key returns its original four-field result without reverting/reloading the process mirror, even while unavailable. Current observations and historical receipt differ. Canonically equal reordered rules/ports preserve command semantics; same key with different semantics conflicts. No automatic retry or cancellation of in-flight sends.",
+        "description": "Current administrator plus same-origin CSRF; same transaction rechecks current Session/authority. Whole-body replacement with original policy service locks, audit and receipt. Local 30-second budget includes preauthentication, bounded body, send gate, transaction, Unknown verification and response preparation; no renewed phase deadlines. An accepted historical key returns its original four-field result without reverting the process mirror. After an uncertain command, replay restores admission only after both current rules and proxy snapshots and pending commands are reconciled. Current observations and historical receipt differ. Mode participates in the semantic digest. Canonically equal reordered rules/ports preserve command semantics; same key with different semantics conflicts. No automatic retry or cancellation of in-flight sends.",
         "parameters": [
           {
             "$ref": "#/components/parameters/Origin"
@@ -303,7 +303,7 @@
         "schema": {
           "$ref": "./common.json#/components/schemas/IdempotencyKey"
         },
-        "description": "One untrimmed header. Identity is server-owned outbound-policy / current user / update / key. Session and request trace are not command identity."
+        "description": "One untrimmed header. Rule command identity is server-owned outbound-policy-v2 / current user / update / key; proxy uses its own outbound-proxy namespace. Session and request trace are not command identity."
       }
     },
     "schemas": {
@@ -311,15 +311,15 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "cidr",
+          "target",
           "ports"
         ],
         "properties": {
-          "cidr": {
+          "target": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 43,
-            "description": "Canonical netip prefix, masked network bits, non IPv4-mapped; wholly inside RFC1918 or ULA. Fixed forbidden-address classification still wins."
+            "maxLength": 255,
+            "description": "IP (canonicalized to /32 or /128), canonical masked CIDR, ASCII DNS name or *.DNS. DNS is lowercased and one final dot removed; wildcard matches one or more subdomain labels, never the apex. No URL, port, userinfo, path, zone or IPv4-mapped IP. Matching uses the original request hostname, not CNAME aliases. The visible default denylist contains special-purpose addresses and metadata names. Administrators may edit or remove those rows; there is no hidden address-class override."
           },
           "ports": {
             "oneOf": [
@@ -340,10 +340,6 @@
               }
             ],
             "description": "Literal all or 1–256 distinct integer JSON tokens. Strings, fraction/exponent notation, zero, negative and overflow are rejected. Input order may vary; stored/returned ports are sorted."
-          },
-          "allow_http": {
-            "type": "boolean",
-            "default": false
           }
         }
       },
@@ -351,16 +347,15 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "cidr",
-          "ports",
-          "allow_http"
+          "target",
+          "ports"
         ],
         "properties": {
-          "cidr": {
+          "target": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 43,
-            "description": "Canonical netip prefix, masked network bits, non IPv4-mapped; wholly inside RFC1918 or ULA. Fixed forbidden-address classification still wins."
+            "maxLength": 255,
+            "description": "IP (canonicalized to /32 or /128), canonical masked CIDR, ASCII DNS name or *.DNS. DNS is lowercased and one final dot removed; wildcard matches one or more subdomain labels, never the apex. No URL, port, userinfo, path, zone or IPv4-mapped IP. Matching uses the original request hostname, not CNAME aliases. The visible default denylist contains special-purpose addresses and metadata names. Administrators may edit or remove those rows; there is no hidden address-class override."
           },
           "ports": {
             "oneOf": [
@@ -381,10 +376,6 @@
               }
             ],
             "description": "Literal all or 1–256 distinct integer JSON tokens. Strings, fraction/exponent notation, zero, negative and overflow are rejected. Input order may vary; stored/returned ports are sorted."
-          },
-          "allow_http": {
-            "type": "boolean",
-            "default": false
           }
         }
       },
@@ -393,6 +384,7 @@
         "additionalProperties": false,
         "required": [
           "version",
+          "rule_mode",
           "rules"
         ],
         "properties": {
@@ -401,10 +393,18 @@
           },
           "rules": {
             "type": "array",
-            "maxItems": 256,
+            "maxItems": 512,
             "items": {
               "$ref": "#/components/schemas/OutboundRule"
             }
+          },
+          "rule_mode": {
+            "type": "string",
+            "enum": [
+              "allowlist",
+              "denylist"
+            ],
+            "description": "Applies to all public and private destinations and all supported HTTP/HTTPS/SMTP schemes. Empty allowlist denies all destinations; empty denylist permits every destination except fixed dangerous addresses. DNS address sets are admitted as a whole."
           }
         }
       },
@@ -413,6 +413,7 @@
         "additionalProperties": false,
         "required": [
           "expected_version",
+          "rule_mode",
           "rules"
         ],
         "properties": {
@@ -421,12 +422,20 @@
           },
           "rules": {
             "type": "array",
-            "maxItems": 256,
+            "maxItems": 512,
             "items": {
               "$ref": "#/components/schemas/OutboundRuleInput"
             },
-            "x-max-json-bytes": 524288,
-            "description": "Original raw JSON field is limited to 512 KiB before canonicalization; null, duplicate keys at any depth, invalid depth and duplicate canonical rules are rejected. Canonical rule order is not an evaluation priority."
+            "x-max-json-bytes": 1048576,
+            "description": "At most 512 canonical target/ports rules, bounded by the complete 1 MiB request. Duplicate canonical rules are rejected. Rows are alternatives, not an evaluation priority. Legacy cidr and allow_http fields are rejected."
+          },
+          "rule_mode": {
+            "type": "string",
+            "enum": [
+              "allowlist",
+              "denylist"
+            ],
+            "description": "Applies to all public and private destinations and all supported HTTP/HTTPS/SMTP schemes. Empty allowlist denies all destinations; empty denylist permits every destination except fixed dangerous addresses. DNS address sets are admitted as a whole."
           }
         }
       },
@@ -449,10 +458,10 @@
                 "$ref": "./common.json#/components/schemas/Progress"
               },
               {
-                "pattern": "^(0|[1-9][0-9]?|1[0-9]{2}|2[0-4][0-9]|25[0-6])$"
+                "pattern": "^(0|[1-9][0-9]?|[1-4][0-9]{2}|50[0-9]|51[0-2])$"
               }
             ],
-            "description": "Canonical decimal string in 0–256."
+            "description": "Canonical decimal string in 0–512."
           },
           "audit_id": {
             "$ref": "./common.json#/components/schemas/ID"
@@ -484,7 +493,7 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 253,
-            "description": "Canonical ASCII DNS name (single-label gateway allowed) or canonical IP, no URL, credentials, zone, path or port. Block-always addresses are forbidden."
+            "description": "Canonical ASCII DNS name (single-label gateway allowed) or canonical IP, no URL, credentials, zone, path or port. Explicit gateway addresses are administrator-approved independently of target rules; localhost and private gateways are permitted. DNS completeness, numeric pinning and TLS verification still apply."
           },
           "port": {
             "type": "integer",
@@ -521,7 +530,7 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 253,
-            "description": "Canonical ASCII DNS name (single-label gateway allowed) or canonical IP, no URL, credentials, zone, path or port. Block-always addresses are forbidden."
+            "description": "Canonical ASCII DNS name (single-label gateway allowed) or canonical IP, no URL, credentials, zone, path or port. Explicit gateway addresses are administrator-approved independently of target rules; localhost and private gateways are permitted. DNS completeness, numeric pinning and TLS verification still apply."
           },
           "port": {
             "type": "integer",

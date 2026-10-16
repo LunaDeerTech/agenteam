@@ -259,7 +259,7 @@ func prepareEmbeddings(ctx context.Context, r EmbeddingRequest, o CallOptions) (
 	}
 	o.Limits.RequestBodyBytes, o.Limits.ResponseBodyBytes = requestCap, responseCap
 	profile, err := outbound.NewProfile(outbound.ProfileOptions{
-		Consumer: ac.Model, AllowHTTP: o.AllowHTTP, Limits: o.Limits, Context: o.Context, Credentials: binding,
+		Consumer: ac.Model, Limits: o.Limits, Context: o.Context, Credentials: binding,
 	})
 	if err != nil {
 		return fail(invalid())

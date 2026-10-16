@@ -215,11 +215,11 @@ func (b CredentialBinding) MarshalJSON() ([]byte, error) { return []byte(`"crede
 func (b CredentialBinding) LogValue() slog.Value         { return slog.StringValue("credential_binding") }
 
 type ProfileOptions struct {
-	Consumer             ac.Consumer
-	AllowHTTP, Streaming bool
-	Limits               Limits
-	Context              CallContext
-	Credentials          CredentialBinding
+	Consumer    ac.Consumer
+	Streaming   bool
+	Limits      Limits
+	Context     CallContext
+	Credentials CredentialBinding
 }
 type Profile struct{ data func() ProfileOptions }
 

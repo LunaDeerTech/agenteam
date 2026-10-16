@@ -42,7 +42,7 @@ func TestSMTPProxyOwnedTLSAndBeginSendRouteRefresh(t *testing.T) {
 	})
 	gateway := proxyTestForwardHTTP(t, target, "", &connects)
 	client, state := proxyTestClient(t, trust, &proxyTestResolver{ips: []netip.Addr{netip.MustParseAddr(proxyTestPrivateIP(t))}}, gateway)
-	proxyTestRuleFor(t, state, target, false)
+	proxyTestRuleFor(t, state, target)
 	profile, err := NewSMTPProfile(CallContext{data: func() callData { return callData{} }}, Limits{})
 	if err != nil {
 		t.Fatal(err)

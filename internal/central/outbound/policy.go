@@ -1,6 +1,7 @@
 package outbound
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"crypto/subtle"
@@ -36,12 +37,13 @@ type Authorizations struct {
 }
 type policyData struct {
 	version foundation.Version
+	mode    RuleMode
 	rules   Rules
 }
 type Policy struct{ data func() policyData }
 
-func policy(version foundation.Version, rules Rules) Policy {
-	d := policyData{version, rules}
+func policy(version foundation.Version, mode RuleMode, rules Rules) Policy {
+	d := policyData{version, mode, rules}
 	return Policy{data: func() policyData { return d }}
 }
 func (p Policy) Version() foundation.Version {
@@ -49,6 +51,12 @@ func (p Policy) Version() foundation.Version {
 		return 0
 	}
 	return p.data().version
+}
+func (p Policy) Mode() RuleMode {
+	if p.data == nil {
+		return ""
+	}
+	return p.data().mode
 }
 func (p Policy) Rules() Rules {
 	if p.data == nil {
@@ -59,8 +67,9 @@ func (p Policy) Rules() Rules {
 func (p Policy) JSON() []byte {
 	b, _ := json.Marshal(struct {
 		Version foundation.Version `json:"version"`
+		Mode    RuleMode           `json:"rule_mode"`
 		Rules   json.RawMessage    `json:"rules"`
-	}{p.Version(), p.Rules().JSON()})
+	}{p.Version(), p.Mode(), p.Rules().JSON()})
 	return b
 }
 func (p Policy) Format(w fmt.State, _ rune)   { _, _ = io.WriteString(w, "outbound_policy") }
@@ -152,11 +161,11 @@ func (s *PolicyService) publish(p Policy) error {
 	d := s.state()
 	d.mu.Lock()
 	defer d.mu.Unlock()
-	if p.Version().Validate() != nil || !p.Rules().Valid() || p.Version() < d.mirror.Version() {
+	if p.Version().Validate() != nil || !p.Mode().Valid() || !p.Rules().Valid() || p.Version() < d.mirror.Version() {
 		d.available = false
 		return unavailable(nil)
 	}
-	if p.Version() == d.mirror.Version() && string(p.Rules().JSON()) != string(d.mirror.Rules().JSON()) {
+	if p.Version() == d.mirror.Version() && (p.Mode() != d.mirror.Mode() || string(p.Rules().JSON()) != string(d.mirror.Rules().JSON())) {
 		d.available = false
 		return unavailable(nil)
 	}
@@ -171,14 +180,21 @@ func policyLock() foundation.LockKey {
 func readPolicy(ctx context.Context, e postgres.SQLExecutor) (Policy, error) {
 	var version int64
 	var raw []byte
-	if err := e.QueryRow(ctx, `SELECT version,rules FROM agenteam_outbound.outbound_policy WHERE singleton=true`).Scan(&version, &raw); err != nil {
+	var mode string
+	if err := e.QueryRow(ctx, `SELECT version,rule_mode,rules FROM agenteam_outbound.outbound_policy WHERE singleton=true`).Scan(&version, &mode, &raw); err != nil {
 		return Policy{}, unavailable(err)
 	}
-	rules, err := DecodeRules(raw)
-	if err != nil || foundation.Version(version).Validate() != nil {
+	// PostgreSQL jsonb output adds formatting whitespace. The public byte limit
+	// applies to the serialized request/canonical DTO, not server formatting.
+	var compact bytes.Buffer
+	if len(raw) > 2<<20 || json.Compact(&compact, raw) != nil {
+		return Policy{}, unavailable(nil)
+	}
+	rules, err := DecodeRules(compact.Bytes())
+	if err != nil || foundation.Version(version).Validate() != nil || !RuleMode(mode).Valid() {
 		return Policy{}, unavailable(err)
 	}
-	return policy(foundation.Version(version), rules), nil
+	return policy(foundation.Version(version), RuleMode(mode), rules), nil
 }
 
 // Reload is an explicit startup/recovery operation, never a TTL/polling cache.
@@ -274,11 +290,11 @@ func (s *PolicyService) GetPolicy(ctx context.Context, actor identity.Actor) (Po
 	}
 	return out, nil
 }
-func validateCommand(actor identity.Actor, meta CommandMeta, rules Rules) error {
-	if actor.Validate() != nil || actor.Details().Kind != identity.Human || meta.Identity.Validate() != nil || meta.ExpectedVersion.Validate() != nil || !rules.Valid() {
+func validateCommand(actor identity.Actor, meta CommandMeta, mode RuleMode, rules Rules) error {
+	if actor.Validate() != nil || actor.Details().Kind != identity.Human || meta.Identity.Validate() != nil || meta.ExpectedVersion.Validate() != nil || !mode.Valid() || !rules.Valid() {
 		return invalid()
 	}
-	if meta.Identity.Namespace() != "outbound-policy" || meta.Identity.Command() != "update" || !slices.Equal(meta.Identity.OwnerIDs(), []string{actor.Details().UserID}) {
+	if meta.Identity.Namespace() != "outbound-policy-v2" || meta.Identity.Command() != "update" || !slices.Equal(meta.Identity.OwnerIDs(), []string{actor.Details().UserID}) {
 		return invalid()
 	}
 	if meta.HTTPTraceID != "" {
@@ -292,13 +308,14 @@ func digestBytes(raw []byte) string {
 	h := sha256.Sum256(raw)
 	return "sha256:" + hex.EncodeToString(h[:])
 }
-func commandDigest(actor identity.Actor, meta CommandMeta, rules Rules) string {
+func commandDigest(actor identity.Actor, meta CommandMeta, mode RuleMode, rules Rules) string {
 	raw, _ := json.Marshal(struct {
 		Format   int                `json:"format"`
 		User     string             `json:"user_id"`
 		Expected foundation.Version `json:"expected_version"`
+		Mode     RuleMode           `json:"rule_mode"`
 		Rules    json.RawMessage    `json:"rules"`
-	}{1, actor.Details().UserID, meta.ExpectedVersion, rules.JSON()})
+	}{2, actor.Details().UserID, meta.ExpectedVersion, mode, rules.JSON()})
 	return digestBytes(raw)
 }
 func readReceipt(ctx context.Context, e postgres.SQLExecutor, key, digest string) (UpdateResult, bool, error) {
@@ -317,7 +334,7 @@ func readReceipt(ctx context.Context, e postgres.SQLExecutor, key, digest string
 		return UpdateResult{}, true, failure(foundation.IdempotencyKeyReused, ac.InvalidTarget, nil)
 	}
 	auditID, err := foundation.ParseID[ac.Record](id)
-	if err != nil || version <= 0 || count < 0 || count > 256 {
+	if err != nil || version <= 0 || count < 0 || count > 512 {
 		return UpdateResult{}, true, unavailable(err)
 	}
 	created, err := foundation.NewInstant(at)
@@ -326,8 +343,8 @@ func readReceipt(ctx context.Context, e postgres.SQLExecutor, key, digest string
 	}
 	return UpdateResult{foundation.Version(version), foundation.Progress(count), auditID, created}, true, nil
 }
-func (s *PolicyService) UpdatePolicy(ctx context.Context, actor identity.Actor, meta CommandMeta, rules Rules) (UpdateResult, error) {
-	if err := validateCommand(actor, meta, rules); err != nil {
+func (s *PolicyService) UpdatePolicy(ctx context.Context, actor identity.Actor, meta CommandMeta, mode RuleMode, rules Rules) (UpdateResult, error) {
+	if err := validateCommand(actor, meta, mode, rules); err != nil {
 		return UpdateResult{}, err
 	}
 	release, err := s.state().gate.acquire(ctx, true)
@@ -339,7 +356,7 @@ func (s *PolicyService) UpdatePolicy(ctx context.Context, actor identity.Actor, 
 	ck, _ := foundation.CommandLock(meta.Identity)
 	userKey, _ := foundation.UserLock(actor.Details().UserID)
 	key := digestBytes([]byte(meta.Identity.Canonical()))
-	digest := commandDigest(actor, meta, rules)
+	digest := commandDigest(actor, meta, mode, rules)
 	var out UpdateResult
 	var next Policy
 	var changed bool
@@ -376,8 +393,8 @@ func (s *PolicyService) UpdatePolicy(ctx context.Context, actor identity.Actor, 
 		if current.Version() == foundation.Version(math.MaxInt64) {
 			return failure(foundation.InvalidState, ac.PolicyUnavailable, nil)
 		}
-		next = policy(current.Version()+1, rules)
-		if _, err = e.Exec(ctx, `UPDATE agenteam_outbound.outbound_policy SET version=$1,rules=$2 WHERE singleton=true`, int64(next.Version()), rules.JSON()); err != nil {
+		next = policy(current.Version()+1, mode, rules)
+		if _, err = e.Exec(ctx, `UPDATE agenteam_outbound.outbound_policy SET version=$1,rule_mode=$2,rules=$3 WHERE singleton=true`, int64(next.Version()), string(mode), rules.JSON()); err != nil {
 			return err
 		}
 		metadata, _ := ac.PolicyMetadata(next.Version(), rules.Count())

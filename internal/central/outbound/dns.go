@@ -135,7 +135,7 @@ func uniqueIPs(ips []netip.Addr) []netip.Addr {
 func (r *DNSResolver) family(ctx context.Context, name string, kind uint16) ([]netip.Addr, error) {
 	seen := map[string]bool{}
 	for depth := 0; depth < 16; depth++ {
-		if seen[name] || metadataHost(name) {
+		if seen[name] {
 			return nil, errDNS
 		}
 		seen[name] = true
@@ -181,7 +181,7 @@ func (r *DNSResolver) family(ctx context.Context, name string, kind uint16) ([]n
 				name = current
 				break // CNAME without terminal answer needs another query.
 			}
-			if seen[alias] || metadataHost(alias) {
+			if seen[alias] {
 				return nil, errDNS
 			}
 			if current != name {

@@ -14,57 +14,59 @@ const maxJSONBytes = 1 << 20
 
 type updateInput struct {
 	ExpectedVersion foundation.Version `json:"expected_version"`
+	Mode            outbound.RuleMode  `json:"rule_mode"`
 	Rules           json.RawMessage    `json:"rules"`
 }
 
 type policyOutput struct {
 	Version foundation.Version `json:"version"`
+	Mode    outbound.RuleMode  `json:"rule_mode"`
 	Rules   json.RawMessage    `json:"rules"`
 }
 
-func decodeUpdate(w http.ResponseWriter, r *http.Request, actor identity.Actor) (outbound.CommandMeta, outbound.Rules, error) {
+func decodeUpdate(w http.ResponseWriter, r *http.Request, actor identity.Actor) (outbound.CommandMeta, outbound.RuleMode, outbound.Rules, error) {
 	var empty outbound.CommandMeta
 	keys := r.Header.Values("Idempotency-Key")
 	if len(keys) != 1 {
-		return empty, outbound.Rules{}, fault(foundation.InvalidArgument)
+		return empty, "", outbound.Rules{}, fault(foundation.InvalidArgument)
 	}
 	key, err := foundation.ParseIdempotencyKey(keys[0])
 	if err != nil || actor.Validate() != nil || actor.Details().Kind != identity.Human {
-		return empty, outbound.Rules{}, fault(foundation.InvalidArgument)
+		return empty, "", outbound.Rules{}, fault(foundation.InvalidArgument)
 	}
-	command, err := foundation.NewCommandIdentity("outbound-policy", []string{actor.Details().UserID}, "update", key)
+	command, err := foundation.NewCommandIdentity("outbound-policy-v2", []string{actor.Details().UserID}, "update", key)
 	if err != nil {
-		return empty, outbound.Rules{}, fault(foundation.InvalidArgument)
+		return empty, "", outbound.Rules{}, fault(foundation.InvalidArgument)
 	}
 	var input updateInput
 	if err = httpapi.DecodeJSON(w, r, &input, maxJSONBytes); err != nil {
-		return empty, outbound.Rules{}, err
+		return empty, "", outbound.Rules{}, err
 	}
-	if input.ExpectedVersion.Validate() != nil {
-		return empty, outbound.Rules{}, fault(foundation.InvalidArgument)
+	if input.ExpectedVersion.Validate() != nil || !input.Mode.Valid() {
+		return empty, "", outbound.Rules{}, fault(foundation.InvalidArgument)
 	}
 	// Keep the original field bytes, including whitespace, for the engine's
-	// independent 512 KiB limit and its sole canonicalization contract.
+	// independent 1 MiB limit and its sole canonicalization contract.
 	rules, err := outbound.DecodeRules(input.Rules)
 	if err != nil {
-		return empty, outbound.Rules{}, err
+		return empty, "", outbound.Rules{}, err
 	}
 	meta := outbound.CommandMeta{Identity: command, ExpectedVersion: input.ExpectedVersion}
 	if requestID := httpapi.RequestID(r.Context()); requestID.Validate() == nil {
 		meta.HTTPTraceID = requestID.String()
 	}
-	return meta, rules, nil
+	return meta, input.Mode, rules, nil
 }
 
 func encodePolicy(policy outbound.Policy) ([]byte, error) {
-	if policy.Version().Validate() != nil || !policy.Rules().Valid() {
+	if policy.Version().Validate() != nil || !policy.Mode().Valid() || !policy.Rules().Valid() {
 		return nil, outputFault()
 	}
-	return encodeOutput(policyOutput{Version: policy.Version(), Rules: policy.Rules().JSON()})
+	return encodeOutput(policyOutput{Version: policy.Version(), Mode: policy.Mode(), Rules: policy.Rules().JSON()})
 }
 
 func encodeUpdate(result outbound.UpdateResult) ([]byte, error) {
-	if result.Version.Validate() != nil || result.RuleCount.Validate() != nil || result.RuleCount > 256 || result.AuditID.Validate() != nil || result.CreatedAt.Validate() != nil {
+	if result.Version.Validate() != nil || result.RuleCount.Validate() != nil || result.RuleCount > 512 || result.AuditID.Validate() != nil || result.CreatedAt.Validate() != nil {
 		return nil, outputFault()
 	}
 	return encodeOutput(result)

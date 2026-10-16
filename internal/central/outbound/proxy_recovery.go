@@ -73,7 +73,7 @@ func (s *PolicyService) recoverCurrentLocked(ctx context.Context) error {
 		locks = append(locks, foundation.LockRequest{Key: proxyLock(), Mode: foundation.Shared})
 	}
 	for _, identity := range pending {
-		if identity.Validate() != nil || identity.Command() != "update" || identity.Namespace() != "outbound-policy" && identity.Namespace() != "outbound-proxy" || identity.Namespace() == "outbound-proxy" && !bound {
+		if identity.Validate() != nil || identity.Command() != "update" || identity.Namespace() != "outbound-policy-v2" && identity.Namespace() != "outbound-proxy" || identity.Namespace() == "outbound-proxy" && !bound {
 			return unavailable(nil)
 		}
 		key, err := foundation.CommandLock(identity)
@@ -136,7 +136,7 @@ func (s *PolicyService) recoverCurrentLocked(ctx context.Context) error {
 func observePendingCommand(ctx context.Context, executor postgres.SQLExecutor, identity foundation.CommandIdentity) error {
 	var query string
 	switch identity.Namespace() {
-	case "outbound-policy":
+	case "outbound-policy-v2":
 		query = `SELECT EXISTS(SELECT 1 FROM agenteam_outbound.outbound_policy_receipts WHERE command_digest=$1)`
 	case "outbound-proxy":
 		query = `SELECT EXISTS(SELECT 1 FROM agenteam_outbound.proxy_receipts WHERE command_digest=$1)`

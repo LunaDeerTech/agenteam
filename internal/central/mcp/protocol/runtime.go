@@ -84,7 +84,7 @@ func (r *Runtime) Open(ctx context.Context, a Access) (_ *Session, err error) {
 			return nil, failure(InvalidRequest, false)
 		}
 	}
-	profile, err := outbound.NewProfile(outbound.ProfileOptions{Consumer: ac.MCP, AllowHTTP: target.Origin().Scheme() == "http", Context: a.Context, Credentials: credentials, Limits: outbound.Limits{Overall: 60 * time.Second, ReadIdle: 30 * time.Second, RequestBodyBytes: 1 << 20, ResponseBodyBytes: MaxContentBytes}})
+	profile, err := outbound.NewProfile(outbound.ProfileOptions{Consumer: ac.MCP, Context: a.Context, Credentials: credentials, Limits: outbound.Limits{Overall: 60 * time.Second, ReadIdle: 30 * time.Second, RequestBodyBytes: 1 << 20, ResponseBodyBytes: MaxContentBytes}})
 	if err != nil {
 		return nil, failure(InvalidRequest, false)
 	}

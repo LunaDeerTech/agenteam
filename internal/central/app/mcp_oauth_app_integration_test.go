@@ -71,17 +71,17 @@ func mcpOAuthAppAuthorizationExchangeWith(t *testing.T, throughHTTP bool,
 	}
 	ports, err := outbound.SelectedPorts(8443)
 	workAppCheck(t, "oauth-policy-ports", err)
-	rule, err := outbound.NewRule(peer.Address()+"/32", ports, false)
+	rule, err := outbound.NewRule(peer.Address()+"/32", ports)
 	workAppCheck(t, "oauth-policy-rule", err)
 	rules, err := outbound.NewRules(rule)
 	workAppCheck(t, "oauth-policy-rules", err)
-	identity, err := f.NewCommandIdentity("outbound-policy", []string{v.actor.Details().UserID}, "update", f.IdempotencyKey(guardID[struct{}](t).String()))
+	identity, err := f.NewCommandIdentity("outbound-policy-v2", []string{v.actor.Details().UserID}, "update", f.IdempotencyKey(guardID[struct{}](t).String()))
 	workAppCheck(t, "oauth-policy-identity", err)
 	before := transport.policy.Status()
 	if before.Version == nil {
 		t.Fatal("oauth original outbound policy missing")
 	}
-	_, err = transport.policy.UpdatePolicy(v.ctx, v.actor, outbound.CommandMeta{Identity: identity, ExpectedVersion: *before.Version, HTTPTraceID: guardID[f.Request](t).String()}, rules)
+	_, err = transport.policy.UpdatePolicy(v.ctx, v.actor, outbound.CommandMeta{Identity: identity, ExpectedVersion: *before.Version, HTTPTraceID: guardID[f.Request](t).String()}, outbound.Allowlist, rules)
 	workAppCheck(t, "oauth-policy", err)
 	scope, err := id.InProject(v.a)
 	workAppCheck(t, "oauth-project", err)

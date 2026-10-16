@@ -21,7 +21,7 @@ import (
 func (f *outboundNetwork) forbid(t *testing.T) {
 	t.Helper()
 	rules, _ := outbound.NewRules()
-	if _, e := f.policy.UpdatePolicy(auditContext(t), f.f.actor, policyCommand(t, f.f.actor, *f.policy.Status().Version), rules); e != nil {
+	if _, e := f.policy.UpdatePolicy(auditContext(t), f.f.actor, policyCommand(t, f.f.actor, *f.policy.Status().Version), outbound.Allowlist, rules); e != nil {
 		t.Fatal(e)
 	}
 }

@@ -24,15 +24,14 @@ import (
 var errProxyChanged = errors.New("OUTBOUND_PROXY_CHANGED")
 
 func proxyGatewayAddressAllowed(ip netip.Addr) bool {
-	class := Classify(ip)
-	return class == Public || class == Private
+	return ip.IsValid() && ip.Zone() == ""
 }
 
 func (a *attempt) resolveProxy() error {
 	ctx, cancel := context.WithTimeout(a.ctx, a.profile.Limits.DNS)
 	defer cancel()
 	host := a.proxy.Host
-	if metadataHost(host) || a.proxy.Port < 1 || a.proxy.Port > 65535 {
+	if a.proxy.Port < 1 || a.proxy.Port > 65535 {
 		return a.fail(ac.AddressForbidden, nil)
 	}
 	if ip, err := netip.ParseAddr(host); err == nil {
@@ -123,7 +122,7 @@ func proxyCanonicalGateway(ctx context.Context, host string, discover func(conte
 		return nil, errDNS
 	}
 	canonical, err = normalizeHost(canonical)
-	if err != nil || metadataHost(canonical) {
+	if err != nil {
 		return nil, errDNS
 	}
 	if _, err := netip.ParseAddr(canonical); err == nil {

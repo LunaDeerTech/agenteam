@@ -78,13 +78,13 @@ func (f *outboundNetwork) allow(t *testing.T, allowHTTP bool, ports ...uint16) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	rule, e := outbound.NewRule(f.net.PrivateIP+"/32", p, allowHTTP)
+	rule, e := outbound.NewRule(f.net.PrivateIP+"/32", p)
 	if e != nil {
 		t.Fatal(e)
 	}
 	rules, _ := outbound.NewRules(rule)
 	status := f.policy.Status()
-	if _, e = f.policy.UpdatePolicy(auditContext(t), f.f.actor, policyCommand(t, f.f.actor, *status.Version), rules); e != nil {
+	if _, e = f.policy.UpdatePolicy(auditContext(t), f.f.actor, policyCommand(t, f.f.actor, *status.Version), outbound.Allowlist, rules); e != nil {
 		t.Fatal(e)
 	}
 }
@@ -196,10 +196,10 @@ func TestOutboundNetworkRealPrivateRulesTLSAndKeepAlive(t *testing.T) {
 	}
 	httpID := f.scenario(t, netfixture.ScenarioConfig{Body: "http"})
 	req, _ := http.NewRequest("GET", "http://fixture.test:8080/case/"+httpID, nil)
-	_, e = f.client.Do(auditContext(t), req, f.profile(t, outbound.ProfileOptions{AllowHTTP: true}))
+	_, e = f.client.Do(auditContext(t), req, f.profile(t, outbound.ProfileOptions{}))
 	outboundReason(t, e, ac.HTTPDenied, false)
 	f.allow(t, true, 8443, 8080)
-	r, e = f.client.Do(auditContext(t), req, f.profile(t, outbound.ProfileOptions{AllowHTTP: true}))
+	r, e = f.client.Do(auditContext(t), req, f.profile(t, outbound.ProfileOptions{}))
 	if e != nil || readOutbound(t, r) != "http" {
 		t.Fatal("explicit HTTP rule failed", e)
 	}

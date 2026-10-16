@@ -73,6 +73,10 @@ func TestAccountPreviewFixture(t *testing.T) {
 		port = "5250"
 	}
 	outboundPreview := os.Getenv("AGENTEAM_OUTBOUND_PREVIEW") == "1"
+	ruleModesPreview := os.Getenv("AGENTEAM_RULE_MODES_PREVIEW") == "1"
+	if ruleModesPreview && !outboundPreview {
+		t.Fatal("rule modes preview requires owned outbound preview")
+	}
 	if outboundPreview && port != "5260" {
 		t.Fatal("outbound preview requires dedicated owned 5260")
 	}
@@ -249,9 +253,13 @@ func TestAccountPreviewFixture(t *testing.T) {
 	if outboundPreview {
 		regular := previewOutboundRegular(t, ctx, cfg, core, smtp, endpoint)
 		manifest["regular_credentials"] = regular
-		manifest["test_scope"] = "system-outbound-policy-proxy"
+		scope := "system-outbound-policy-proxy"
+		if ruleModesPreview {
+			scope = "system-outbound-rule-modes"
+		}
+		manifest["test_scope"] = scope
 		manifest["proxy_gateway"] = previewOutboundGateway(t, ctx, smtp, endpoint)
-		sidecar := map[string]string{"test_scope": "system-outbound-policy-proxy", "runtime_file": filepath.Join(private, "runtime.json"), "nonce": nonce}
+		sidecar := map[string]string{"test_scope": scope, "runtime_file": filepath.Join(private, "runtime.json"), "nonce": nonce}
 		data, e := json.Marshal(sidecar)
 		previewCheck(t, "outbound scope encoding", e)
 		scopePath := filepath.Join(private, "outbound-owned.json")
@@ -334,16 +342,18 @@ func previewConfigureSMTP(t *testing.T, ctx context.Context, cfg config.Config, 
 	t.Helper()
 	actor, err := fixtureAccountActor(ctx, cfg, core)
 	previewCheck(t, "SMTP setup real login", err)
-	ports, err := outbound.SelectedPorts(uint16(endpoint.Port))
-	previewCheck(t, "SMTP exact port", err)
-	rule, err := outbound.NewRule(smtp.PrivateIP+"/32", ports, false)
-	previewCheck(t, "SMTP exact private rule", err)
-	rules, err := outbound.NewRules(rule)
-	previewCheck(t, "SMTP rules", err)
-	key, err := foundation.NewCommandIdentity("outbound-policy", []string{actor.Details().UserID}, "update", foundation.IdempotencyKey(guardID[struct{}](t).String()))
-	previewCheck(t, "SMTP policy identity", err)
-	_, err = transport.policy.UpdatePolicy(ctx, actor, outbound.CommandMeta{Identity: key, ExpectedVersion: *transport.policy.Status().Version}, rules)
-	previewCheck(t, "SMTP policy", err)
+	if os.Getenv("AGENTEAM_RULE_MODES_PREVIEW") != "1" {
+		ports, err := outbound.SelectedPorts(uint16(endpoint.Port))
+		previewCheck(t, "SMTP exact port", err)
+		rule, err := outbound.NewRule(smtp.PrivateIP+"/32", ports)
+		previewCheck(t, "SMTP exact private rule", err)
+		rules, err := outbound.NewRules(rule)
+		previewCheck(t, "SMTP rules", err)
+		key, err := foundation.NewCommandIdentity("outbound-policy-v2", []string{actor.Details().UserID}, "update", foundation.IdempotencyKey(guardID[struct{}](t).String()))
+		previewCheck(t, "SMTP policy identity", err)
+		_, err = transport.policy.UpdatePolicy(ctx, actor, outbound.CommandMeta{Identity: key, ExpectedVersion: *transport.policy.Status().Version}, outbound.Allowlist, rules)
+		previewCheck(t, "SMTP policy", err)
+	}
 	settings, err := core.GetSMTPSettings(ctx, actor)
 	previewCheck(t, "SMTP current settings", err)
 	randomPassword, err := pgfixture.RandomHex(24)

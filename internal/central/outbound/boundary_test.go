@@ -87,45 +87,53 @@ func TestTargetCanonicalOrigins(t *testing.T) {
 	}
 }
 func TestRulesCanonicalAndStrictDecode(t *testing.T) {
-	raw := []byte(`[{"ports":[8443,443],"cidr":"fd00::/8"},{"allow_http":true,"ports":"all","cidr":"10.2.0.0/16"}]`)
-	r, e := DecodeRules(raw)
-	if e != nil {
-		t.Fatal(e)
+	raw := []byte(`[{"ports":[8443,443],"target":"FD00::1"},{"ports":"all","target":"EXAMPLE.COM."}]`)
+	r, err := DecodeRules(raw)
+	if err != nil {
+		t.Fatal(err)
 	}
-	want := `[{"cidr":"10.2.0.0/16","ports":"all","allow_http":true},{"cidr":"fd00::/8","ports":[443,8443],"allow_http":false}]`
+	want := `[{"target":"example.com","ports":"all"},{"target":"fd00::1/128","ports":[443,8443]}]`
 	if string(r.JSON()) != want {
 		t.Fatalf("canonical=%s", r.JSON())
 	}
-	again, e := DecodeRules(r.JSON())
-	if e != nil || !bytes.Equal(r.JSON(), again.JSON()) {
+	again, err := DecodeRules(r.JSON())
+	if err != nil || !bytes.Equal(r.JSON(), again.JSON()) {
 		t.Fatal("not canonical roundtrip")
 	}
-	for _, bad := range []string{`null`, `{}`, `[] true`, `[{"cidr":"10.0.0.0/8"}]`, `[{"cidr":"10.0.0.0/8","ports":null}]`, `[{"cidr":"10.0.0.0/8","ports":[]}]`, `[{"cidr":"10.0.0.0/8","ports":[0]}]`, `[{"cidr":"10.0.0.0/8","ports":[65536]}]`, `[{"cidr":"10.0.0.0/8","ports":[443,443]}]`, `[{"cidr":"10.0.0.0/8","ports":[1e2]}]`, `[{"cidr":"10.0.0.0/8","ports":"all","ports":"all"}]`, `[{"cidr":"10.0.0.0/8","ports":"all","extra":true}]`, `[{"cidr":"10.0.0.0/8","ports":"all","allow_http":null}]`, `[{"cidr":"10.0.0.0/8","ports":"all","allow_http":"false"}]`} {
-		if _, e := DecodeRules([]byte(bad)); e == nil {
+	for _, bad := range []string{
+		`null`, `{}`, `[] true`, `[{"target":"10.0.0.0/8"}]`,
+		`[{"target":"10.0.0.0/8","ports":null}]`, `[{"target":"10.0.0.0/8","ports":[]}]`,
+		`[{"target":"10.0.0.0/8","ports":[0]}]`, `[{"target":"10.0.0.0/8","ports":[65536]}]`,
+		`[{"target":"10.0.0.0/8","ports":[443,443]}]`, `[{"target":"10.0.0.0/8","ports":[1e2]}]`,
+		`[{"target":"10.0.0.0/8","ports":"all","ports":"all"}]`,
+		`[{"target":"10.0.0.0/8","ports":"all","extra":true}]`,
+		`[{"target":"10.0.0.0/8","ports":"all","allow_http":true}]`,
+		`[{"cidr":"10.0.0.0/8","ports":"all"}]`,
+		`[{"target":"EXAMPLE.COM.","ports":"all"},{"target":"example.com","ports":"all"}]`,
+		`[{"target":"8.8.8.8","ports":"all"},{"target":"8.8.8.8/32","ports":"all"}]`,
+	} {
+		if _, err := DecodeRules([]byte(bad)); err == nil {
 			t.Errorf("accepted %s", bad)
 		}
 	}
-	for _, cidr := range []string{"10.0.0.1/8", "10.0.0.0/7", "100.64.0.0/10", "127.0.0.0/8", "169.254.0.0/16", "0.0.0.0/0", "8.8.8.8/32", "::/0", "2001:4860::/32", "fe80::/10", "::ffff:10.0.0.0/104", "FD00::/8"} {
-		if _, e := NewRule(cidr, AllPorts(), true); e == nil {
-			t.Errorf("rule accepted %s", cidr)
-		}
-	}
-	if _, e := NewRule("10.0.0.0/8", Ports{}, false); e == nil {
+	if _, err := NewRule("10.0.0.0/8", Ports{}); err == nil {
 		t.Fatal("implicit all ports")
 	}
-	var many []Rule
-	for range 257 {
-		rule, _ := NewRule("10.0.0.0/8", AllPorts(), false)
-		many = append(many, rule)
+	many := make([]Rule, 513)
+	for i := range many {
+		many[i], _ = NewRule(fmt.Sprintf("node-%d.example", i), AllPorts())
 	}
-	if _, e := NewRules(many...); e == nil {
+	if _, err := NewRules(many[:512]...); err != nil {
+		t.Fatal("512 distinct rules rejected", err)
+	}
+	if _, err := NewRules(many...); err == nil {
 		t.Fatal("too many rules")
 	}
 	ports := make([]uint16, 257)
 	for i := range ports {
 		ports[i] = uint16(i + 1)
 	}
-	if _, e := SelectedPorts(ports...); e == nil {
+	if _, err := SelectedPorts(ports...); err == nil {
 		t.Fatal("too many ports")
 	}
 }
@@ -152,28 +160,33 @@ func TestMappedOriginIdentityAndOversizedNumericHost(t *testing.T) {
 		}
 	}
 }
-func TestRulesRequireOneCompleteMatchAndFixedDenials(t *testing.T) {
+func TestRulesRequireOneCompleteMatch(t *testing.T) {
 	ports, _ := SelectedPorts(443)
-	a, _ := NewRule("10.0.0.0/8", ports, false)
+	a, _ := NewRule("10.0.0.0/8", ports)
 	other, _ := SelectedPorts(8080)
-	b, _ := NewRule("10.0.0.0/8", other, true)
-	ula, _ := NewRule("fc00::/7", AllPorts(), true)
+	b, _ := NewRule("192.168.0.0/16", other)
+	ula, _ := NewRule("fc00::/7", AllPorts())
 	r, _ := NewRules(a, b, ula)
-	tests := []struct {
+	for _, tc := range []struct {
 		ip   string
 		port uint16
-		http bool
 		want ac.Reason
-	}{{"10.2.3.4", 443, false, ""}, {"10.2.3.4", 443, true, ac.HTTPDenied}, {"10.2.3.4", 8080, true, ""}, {"10.2.3.4", 80, true, ac.PortDenied}, {"192.168.1.1", 443, false, ac.PrivateNotAllowed}, {"fd00:ec2::254", 443, false, ac.AddressForbidden}, {"fd00:123::1", 443, false, ""}, {"127.0.0.1", 443, false, ac.AddressForbidden}, {"8.8.8.8", 80, true, ""}}
-	for _, tt := range tests {
-		if got := r.check(netip.MustParseAddr(tt.ip), tt.port, tt.http); got != tt.want {
-			t.Errorf("%s:%d got %s want %s", tt.ip, tt.port, got, tt.want)
+	}{
+		{"10.2.3.4", 443, ""}, {"10.2.3.4", 8080, ac.RuleNotAllowed},
+		{"10.2.3.4", 80, ac.RuleNotAllowed}, {"192.168.1.1", 443, ac.RuleNotAllowed},
+		{"192.168.1.1", 8080, ""}, {"fd00:ec2::254", 443, ""},
+		{"fd00:123::1", 443, ""}, {"127.0.0.1", 443, ac.RuleNotAllowed},
+		{"8.8.8.8", 80, ac.RuleNotAllowed},
+	} {
+		if got := r.check(Allowlist, tc.ip, []netip.Addr{netip.MustParseAddr(tc.ip)}, tc.port); got != tc.want {
+			t.Errorf("%s:%d got %s want %s", tc.ip, tc.port, got, tc.want)
 		}
 	}
 }
+
 func TestBoundarySafeImplicitProjections(t *testing.T) {
 	target, _ := ParseTarget("https://example.com/target-canary?token=target-canary")
-	rule, _ := NewRule("10.123.0.0/16", AllPorts(), true)
+	rule, _ := NewRule("10.123.0.0/16", AllPorts())
 	rules, _ := NewRules(rule)
 	rawCause := errors.New("raw-cause-canary")
 	err := failure(foundation.CommitUnknown, ac.PolicyUnavailable, rawCause)

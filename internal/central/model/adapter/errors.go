@@ -45,7 +45,7 @@ func transportFailure(err error) error {
 			return contextFailure(context.Canceled)
 		case ac.ResponseLimit:
 			return limitFailure()
-		case ac.CredentialDenied, ac.ConsumerDenied, ac.AddressForbidden, ac.HTTPDenied, ac.PrivateNotAllowed, ac.PortDenied, ac.OriginDenied, ac.BindingInvalid, ac.PermissionDenied, ac.RedirectDenied:
+		case ac.CredentialDenied, ac.ConsumerDenied, ac.AddressForbidden, ac.RuleNotAllowed, ac.HTTPDenied, ac.PrivateNotAllowed, ac.PortDenied, ac.OriginDenied, ac.BindingInvalid, ac.PermissionDenied, ac.RedirectDenied:
 			return failure("permission", "wire_transport_error")
 		}
 	}

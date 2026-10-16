@@ -156,7 +156,7 @@ func smtpError(e error, uncertain bool) (c.DeliveryOutcome, error) {
 	var network *outbound.NetworkError
 	if errors.As(e, &network) {
 		switch network.Decision().Reason {
-		case ac.AddressForbidden, ac.PrivateNotAllowed, ac.PortDenied, ac.HTTPDenied, ac.BindingInvalid:
+		case ac.RuleNotAllowed, ac.AddressForbidden, ac.PrivateNotAllowed, ac.PortDenied, ac.HTTPDenied, ac.BindingInvalid:
 			return c.DeliveryOutcome{Result: c.DeliveryFailed, Reason: c.ReasonPolicy}, fail(foundation.DependencyUnavailable, e)
 		}
 	}

@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"net/netip"
 	"slices"
+	"strings"
 
 	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 )
@@ -31,36 +32,66 @@ func SelectedPorts(ports ...uint16) (Ports, error) {
 	return Ports{data: func() portData { return portData{selected: p} }}, nil
 }
 
+type RuleMode string
+
+const (
+	Allowlist RuleMode = "allowlist"
+	Denylist  RuleMode = "denylist"
+)
+
+func (m RuleMode) Valid() bool { return m == Allowlist || m == Denylist }
+
 type ruleData struct {
-	prefix netip.Prefix
-	ports  Ports
-	http   bool
+	target   string
+	prefix   netip.Prefix
+	domain   string
+	wildcard bool
+	ports    Ports
 }
 type Rule struct{ data func() ruleData }
 
-func NewRule(cidr string, ports Ports, allowHTTP bool) (Rule, error) {
-	p, e := netip.ParsePrefix(cidr)
-	if e != nil || p != p.Masked() || p.String() != cidr || p.Addr().Is4In6() || ports.data == nil {
+func NewRule(target string, ports Ports) (Rule, error) {
+	if ports.data == nil {
 		return Rule{}, invalid()
 	}
-	inside := false
-	for _, outer := range privateRanges {
-		if outer.Contains(p.Addr()) && p.Bits() >= outer.Bits() {
-			inside = true
+	d := ruleData{ports: ports}
+	if ip, err := netip.ParseAddr(target); err == nil {
+		if ip.Is4In6() || ip.Zone() != "" {
+			return Rule{}, invalid()
+		}
+		d.prefix = netip.PrefixFrom(ip, ip.BitLen())
+		d.target = d.prefix.String()
+	} else if strings.Contains(target, "/") {
+		prefix, err := netip.ParsePrefix(target)
+		if err != nil || prefix != prefix.Masked() || prefix.String() != target || prefix.Addr().Is4In6() || prefix.Addr().Zone() != "" {
+			return Rule{}, invalid()
+		}
+		d.prefix, d.target = prefix, prefix.String()
+	} else {
+		d.wildcard = strings.HasPrefix(target, "*.")
+		host := target
+		if d.wildcard {
+			host = strings.TrimPrefix(host, "*.")
+		}
+		canonical, err := normalizeHost(host)
+		if err != nil {
+			return Rule{}, invalid()
+		}
+		if _, err = netip.ParseAddr(canonical); err == nil {
+			return Rule{}, invalid()
+		}
+		d.domain, d.target = canonical, canonical
+		if d.wildcard {
+			d.target = "*." + canonical
 		}
 	}
-	if !inside {
-		return Rule{}, invalid()
-	}
-	d := ruleData{p, ports, allowHTTP}
 	return Rule{data: func() ruleData { return d }}, nil
 }
 
 type Rules struct{ data func() []Rule }
 type ruleWire struct {
-	CIDR      string          `json:"cidr"`
-	Ports     json.RawMessage `json:"ports"`
-	AllowHTTP bool            `json:"allow_http"`
+	Target string          `json:"target"`
+	Ports  json.RawMessage `json:"ports"`
 }
 
 func ruleJSON(rule Rule) []byte {
@@ -72,11 +103,11 @@ func ruleJSON(rule Rule) []byte {
 	} else {
 		raw, _ = json.Marshal(p.selected)
 	}
-	b, _ := json.Marshal(ruleWire{d.prefix.String(), raw, d.http})
+	b, _ := json.Marshal(ruleWire{d.target, raw})
 	return b
 }
 func NewRules(rules ...Rule) (Rules, error) {
-	if len(rules) > 256 {
+	if len(rules) > 512 {
 		return Rules{}, invalid()
 	}
 	r := slices.Clone(rules)
@@ -125,21 +156,21 @@ func (p Ports) MarshalJSON() ([]byte, error) { return []byte(`"outbound_ports"`)
 func (p Ports) LogValue() slog.Value         { return slog.StringValue("outbound_ports") }
 
 func DecodeRules(raw []byte) (Rules, error) {
-	if len(raw) > 512*1024 || !strictJSON(raw) {
+	if len(raw) > 1<<20 || !strictJSON(raw) {
 		return Rules{}, invalid()
 	}
 	var values []json.RawMessage
-	if json.Unmarshal(raw, &values) != nil || values == nil || len(values) > 256 {
+	if json.Unmarshal(raw, &values) != nil || values == nil || len(values) > 512 {
 		return Rules{}, invalid()
 	}
 	rules := make([]Rule, 0, len(values))
 	for _, v := range values {
 		var fields map[string]json.RawMessage
-		if json.Unmarshal(v, &fields) != nil || len(fields) < 2 || len(fields) > 3 || fields["cidr"] == nil || fields["ports"] == nil {
+		if json.Unmarshal(v, &fields) != nil || len(fields) != 2 || fields["target"] == nil || fields["ports"] == nil {
 			return Rules{}, invalid()
 		}
 		for k, v := range fields {
-			if k != "cidr" && k != "ports" && k != "allow_http" || bytes.Equal(v, []byte("null")) {
+			if k != "target" && k != "ports" || bytes.Equal(v, []byte("null")) {
 				return Rules{}, invalid()
 			}
 		}
@@ -163,7 +194,7 @@ func DecodeRules(raw []byte) (Rules, error) {
 				return Rules{}, e
 			}
 		}
-		r, e := NewRule(w.CIDR, p, w.AllowHTTP)
+		r, e := NewRule(w.Target, p)
 		if e != nil {
 			return Rules{}, e
 		}
@@ -223,38 +254,66 @@ func strictJSON(raw []byte) bool {
 	return e == io.EOF
 }
 
-// check is used only with the complete resolved set, at each real admission.
-// Overlapping rules are alternatives: CIDR, port and HTTP must all match one.
-func (r Rules) check(ip netip.Addr, port uint16, http bool) ac.Reason {
-	class := Classify(ip)
-	if class == Public {
-		return ""
-	}
-	if class != Private {
-		return ac.AddressForbidden
-	}
-	if !r.Valid() {
+// check admits the complete resolved set against one current policy snapshot.
+// Address-risk defaults are ordinary editable rules. A denied address cannot
+// be discarded in favor of another DNS result.
+func (r Rules) check(mode RuleMode, host string, addresses []netip.Addr, port uint16) ac.Reason {
+	if !mode.Valid() || !r.Valid() {
 		return ac.PolicyUnavailable
 	}
-	ip = ip.Unmap()
-	reason := ac.PrivateNotAllowed
-	for _, rule := range r.data() {
-		d := rule.data()
-		if !d.prefix.Contains(ip) {
-			continue
-		}
-		if reason == ac.PrivateNotAllowed {
-			reason = ac.PortDenied
-		}
-		p := d.ports.data()
-		if !p.all && !slices.Contains(p.selected, port) {
-			continue
-		}
-		if http && !d.http {
-			reason = ac.HTTPDenied
-			continue
-		}
-		return ""
+	if port == 0 || len(addresses) == 0 || len(addresses) > 64 {
+		return ac.InvalidTarget
 	}
-	return reason
+	literal := false
+	if _, err := netip.ParseAddr(host); err == nil {
+		literal = true
+	} else {
+		canonical, err := normalizeHost(host)
+		if err != nil {
+			return ac.InvalidTarget
+		}
+		host = canonical
+	}
+	for _, ip := range addresses {
+		if !ip.IsValid() || ip.Zone() != "" {
+			return ac.InvalidTarget
+		}
+	}
+	rules := r.data()
+	matchesPort := func(d ruleData) bool {
+		p := d.ports.data()
+		return p.all || slices.Contains(p.selected, port)
+	}
+	if !literal {
+		for _, rule := range rules {
+			d := rule.data()
+			if d.domain == "" || !matchesPort(d) {
+				continue
+			}
+			match := host == d.domain
+			if d.wildcard {
+				match = host != d.domain && strings.HasSuffix(host, "."+d.domain)
+			}
+			if match {
+				if mode == Denylist {
+					return ac.RuleNotAllowed
+				}
+				return ""
+			}
+		}
+	}
+	for _, ip := range addresses {
+		matched := false
+		for _, rule := range rules {
+			d := rule.data()
+			if d.prefix.IsValid() && d.prefix.Contains(ip.Unmap()) && matchesPort(d) {
+				matched = true
+				break
+			}
+		}
+		if mode == Allowlist && !matched || mode == Denylist && matched {
+			return ac.RuleNotAllowed
+		}
+	}
+	return ""
 }

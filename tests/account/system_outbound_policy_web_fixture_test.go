@@ -491,7 +491,7 @@ func (f *outboundPolicyWebFixture) policyFacts(ctx context.Context) map[string]a
 	if key == "" {
 		return out
 	}
-	identity, err := foundation.NewCommandIdentity("outbound-policy", []string{f.admin.UserID}, "update", foundation.IdempotencyKey(key))
+	identity, err := foundation.NewCommandIdentity("outbound-policy-v2", []string{f.admin.UserID}, "update", foundation.IdempotencyKey(key))
 	if err != nil {
 		f.t.Fatal("owned policy command identity invalid")
 	}
@@ -564,7 +564,7 @@ func (f *outboundPolicyWebFixture) outboundIPC(ctx context.Context, r outboundPo
 		}
 		all := make([]outbound.Rule, 0, 256)
 		for n := 0; n < 256; n++ {
-			rule, err := outbound.NewRule(fmt.Sprintf("fdff:ffff:ffff:ffff:ffff:ffff:ffff:%x/128", 0xff00+n), selected, false)
+			rule, err := outbound.NewRule(fmt.Sprintf("fdff:ffff:ffff:ffff:ffff:ffff:ffff:%x/128", 0xff00+n), selected)
 			if err != nil {
 				f.t.Fatal("maximum formal rule invalid")
 			}

@@ -480,3 +480,31 @@ func TestDNSCrossZoneCNAMEWithTerminalNODATA(t *testing.T) {
 		})
 	}
 }
+
+// Risk domains are explicit policy rows. DNS still resolves the complete
+// record chain after the administrator removes those rows.
+func TestDNSMetadataNamesAndAliasesArePolicyNeutral(t *testing.T) {
+	f := newDNSFixture(t, func(query []byte, _ string) []byte {
+		_, name, kind := dnsQueryFields(query)
+		if kind != 1 {
+			return responseDNS(query, 0)
+		}
+		switch name {
+		case "metadata.google.internal":
+			return responseDNS(query, 0, dnsA(name, "127.0.0.1"))
+		case "original.example":
+			return responseDNS(query, 0, dnsRecord{owner: name, kind: 5, alias: "metadata.goog"}, dnsA("metadata.goog", "127.0.0.1"))
+		default:
+			t.Errorf("unexpected controlled DNS name %q", name)
+			return responseDNS(query, 3)
+		}
+	})
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	for _, host := range []string{"metadata.google.internal", "original.example"} {
+		ips, err := f.resolver(t).Lookup(ctx, host)
+		if err != nil || len(ips) != 1 || ips[0] != netip.MustParseAddr("127.0.0.1") {
+			t.Fatal("DNS retained hidden metadata refusal", err)
+		}
+	}
+}

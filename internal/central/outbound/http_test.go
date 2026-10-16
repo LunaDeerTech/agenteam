@@ -114,9 +114,9 @@ func TestRequestValidationAndResponseHeaderBudget(t *testing.T) {
 // not claim an allowed loopback HTTP request; real private sockets are covered
 // by the separately owned container integration suite.
 func TestFirstWriteLinearizesAndSlowWriteReleasesGate(t *testing.T) {
-	rule, _ := NewRule("10.20.0.0/16", AllPorts(), true)
+	rule, _ := NewRule("10.20.0.0/16", AllPorts())
 	rules, _ := NewRules(rule)
-	ps := &policyState{mirror: policy(1, rules), available: true, proxy: proxySnapshot{version: 1, mode: "direct"}, proxyAvailable: true}
+	ps := &policyState{mirror: policy(1, Allowlist, rules), available: true, proxy: proxySnapshot{version: 1, mode: "direct"}, proxyAvailable: true}
 	policyService := &PolicyService{data: func() *policyState { return ps }}
 	state := &clientState{policy: policyService, connections: map[*pooledConn]bool{}, changed: make(chan struct{})}
 	client := &Client{data: func() *clientState { return state }}
@@ -305,12 +305,12 @@ func TestSMTPCallerTighteningSurvivesTransportDeadlineReset(t *testing.T) {
 
 func boundaryState(t *testing.T) (*Client, *policyState, Target, context.Context, context.CancelFunc) {
 	t.Helper()
-	rule, err := NewRule("10.20.0.0/16", AllPorts(), true)
+	rule, err := NewRule("10.20.0.0/16", AllPorts())
 	if err != nil {
 		t.Fatal(err)
 	}
 	rules, _ := NewRules(rule)
-	ps := &policyState{mirror: policy(1, rules), available: true, proxy: proxySnapshot{version: 1, mode: "direct"}, proxyAvailable: true}
+	ps := &policyState{mirror: policy(1, Allowlist, rules), available: true, proxy: proxySnapshot{version: 1, mode: "direct"}, proxyAvailable: true}
 	policyService := &PolicyService{data: func() *policyState { return ps }}
 	state := &clientState{policy: policyService, idle: map[string][]*pooledConn{}, connections: map[*pooledConn]bool{}, active: map[*operation]bool{}, changed: make(chan struct{})}
 	client := &Client{data: func() *clientState { return state }}

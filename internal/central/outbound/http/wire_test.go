@@ -55,26 +55,26 @@ func requireCode(t *testing.T, err error, code foundation.Code) {
 
 func TestOutboundWireCanonicalIdentityAndBounds(t *testing.T) {
 	actor := testActor(t)
-	raw := `{"expected_version":"9223372036854775807","rules":[{"ports":[8443,443],"cidr":"fd00::/8"},{"allow_http":true,"ports":"all","cidr":"10.2.0.0/16"}]}`
+	raw := `{"rule_mode":"denylist","expected_version":"9223372036854775807","rules":[{"ports":[8443,443],"target":"fd00::/8"},{"ports":"all","target":"10.2.0.0/16"}]}`
 	var first outbound.CommandMeta
 	var firstRules outbound.Rules
 	httpapi.WithRequestID(nil, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		meta, rules, err := decodeUpdate(w, r, actor)
+		meta, mode, rules, err := decodeUpdate(w, r, actor)
 		if err != nil {
 			t.Fatal("valid wire failed", err)
 		}
-		if meta.ExpectedVersion != foundation.Version(math.MaxInt64) || meta.Identity.Namespace() != "outbound-policy" || meta.Identity.Command() != "update" || !reflect.DeepEqual(meta.Identity.OwnerIDs(), []string{actor.Details().UserID}) || meta.HTTPTraceID != httpapi.RequestID(r.Context()).String() {
+		if mode != outbound.Denylist || meta.ExpectedVersion != foundation.Version(math.MaxInt64) || meta.Identity.Namespace() != "outbound-policy-v2" || meta.Identity.Command() != "update" || !reflect.DeepEqual(meta.Identity.OwnerIDs(), []string{actor.Details().UserID}) || meta.HTTPTraceID != httpapi.RequestID(r.Context()).String() {
 			t.Fatal("server identity or version changed")
 		}
 		first, firstRules = meta, rules
 	})).ServeHTTP(httptest.NewRecorder(), updateRequest(raw))
-	want := `[{"cidr":"10.2.0.0/16","ports":"all","allow_http":true},{"cidr":"fd00::/8","ports":[443,8443],"allow_http":false}]`
+	want := `[{"target":"10.2.0.0/16","ports":"all"},{"target":"fd00::/8","ports":[443,8443]}]`
 	if string(firstRules.JSON()) != want {
 		t.Fatal("canonical rules changed")
 	}
-	canonical := `{"expected_version":"9223372036854775807","rules":` + want + `}`
-	meta, rules, err := decodeUpdate(httptest.NewRecorder(), updateRequest(canonical), actor)
-	if err != nil || meta.Identity.Canonical() != first.Identity.Canonical() || !bytes.Equal(rules.JSON(), firstRules.JSON()) || meta.HTTPTraceID != "" {
+	canonical := `{"rule_mode":"denylist","expected_version":"9223372036854775807","rules":` + want + `}`
+	meta, mode, rules, err := decodeUpdate(httptest.NewRecorder(), updateRequest(canonical), actor)
+	if err != nil || mode != outbound.Denylist || meta.Identity.Canonical() != first.Identity.Canonical() || !bytes.Equal(rules.JSON(), firstRules.JSON()) || meta.HTTPTraceID != "" {
 		t.Fatal("reordering changed intent or injected trace")
 	}
 	// Session is transport authority, not the original command identity.
@@ -90,7 +90,7 @@ func TestOutboundWireCanonicalIdentityAndBounds(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	meta, _, err = decodeUpdate(httptest.NewRecorder(), updateRequest(canonical), next)
+	meta, _, _, err = decodeUpdate(httptest.NewRecorder(), updateRequest(canonical), next)
 	if err != nil || meta.Identity.Canonical() != first.Identity.Canonical() {
 		t.Fatal("new Session changed same user's command")
 	}
@@ -99,43 +99,44 @@ func TestOutboundWireCanonicalIdentityAndBounds(t *testing.T) {
 func TestOutboundWireRejectsAmbiguousInput(t *testing.T) {
 	actor := testActor(t)
 	for _, raw := range []string{
-		`null`, `[]`, `{}`, `{"expected_version":"1"}`, `{"rules":[]}`, `{"expected_version":null,"rules":[]}`,
-		`{"expected_version":1,"rules":[]}`, `{"expected_version":"01","rules":[]}`, `{"expected_version":"0","rules":[]}`, `{"expected_version":"9223372036854775808","rules":[]}`,
-		`{"expected_version":"1","rules":null}`, `{"expected_version":"1","rules":[],"scope":"system"}`, `{"expected_version":"1","expected_version":"1","rules":[]}`,
-		`{"expected_version":"1","rules":[],"ru\u006ces":[]}`, `{"expected_version":"1","rules":[]} {}`, string([]byte{'{', 0xff, '}'}),
+		`{"expected_version":"1","rules":[]}`, `{"expected_version":"1","rule_mode":"bogus","rules":[]}`, `{"expected_version":"1","rule_mode":null,"rules":[]}`, `{"expected_version":"1","rule_mode":"denylist","rules":[{"cidr":"10.0.0.0/8","ports":"all"}]}`,
+		`null`, `[]`, `{}`, `{"rule_mode":"denylist","expected_version":"1"}`, `{"rules":[]}`, `{"rule_mode":"denylist","expected_version":null,"rules":[]}`,
+		`{"rule_mode":"denylist","expected_version":1,"rules":[]}`, `{"rule_mode":"denylist","expected_version":"01","rules":[]}`, `{"rule_mode":"denylist","expected_version":"0","rules":[]}`, `{"rule_mode":"denylist","expected_version":"9223372036854775808","rules":[]}`,
+		`{"rule_mode":"denylist","expected_version":"1","rules":null}`, `{"rule_mode":"denylist","expected_version":"1","rules":[],"scope":"system"}`, `{"rule_mode":"denylist","expected_version":"1","rule_mode":"denylist","expected_version":"1","rules":[]}`,
+		`{"rule_mode":"denylist","expected_version":"1","rules":[],"ru\u006ces":[]}`, `{"rule_mode":"denylist","expected_version":"1","rules":[]} {}`, string([]byte{'{', 0xff, '}'}),
 	} {
-		_, _, err := decodeUpdate(httptest.NewRecorder(), updateRequest(raw), actor)
+		_, _, _, err := decodeUpdate(httptest.NewRecorder(), updateRequest(raw), actor)
 		requireCode(t, err, foundation.InvalidArgument)
 	}
 	for _, rule := range []string{
-		`{}`, `null`, `{"cidr":"10.0.0.0/8"}`, `{"ports":"all"}`,
-		`{"cidr":"10.0.0.0/8","ports":"all","allow_http":null}`, `{"cidr":"10.0.0.0/8","ports":"all","extra":false}`,
-		`{"cidr":"10.0.0.0/8","ports":"all","ports":"all"}`, `{"cidr":"10.0.0.0/8","ports":null}`,
-		`{"cidr":"10.0.0.0/8","ports":[]}`, `{"cidr":"10.0.0.0/8","ports":[443,443]}`,
-		`{"cidr":"10.0.0.0/8","ports":["443"]}`, `{"cidr":"10.0.0.0/8","ports":[443.0]}`, `{"cidr":"10.0.0.0/8","ports":[4.43e2]}`,
-		`{"cidr":"10.0.0.0/8","ports":[0]}`, `{"cidr":"10.0.0.0/8","ports":[-1]}`, `{"cidr":"10.0.0.0/8","ports":[65536]}`,
-		`{"cidr":"10.0.0.1/8","ports":"all"}`, `{"cidr":"10.0.0.0/7","ports":"all"}`, `{"cidr":"127.0.0.0/8","ports":"all"}`,
-		`{"cidr":"::ffff:10.0.0.0/104","ports":"all"}`, `{"cidr":"FD00::/8","ports":"all"}`, `{"cidr":"fd00:0::/8","ports":"all"}`,
+		`{}`, `null`, `{"target":"10.0.0.0/8"}`, `{"ports":"all"}`,
+		`{"target":"10.0.0.0/8","ports":"all","allow_http":null}`, `{"target":"10.0.0.0/8","ports":"all","extra":false}`,
+		`{"target":"10.0.0.0/8","ports":"all","ports":"all"}`, `{"target":"10.0.0.0/8","ports":null}`,
+		`{"target":"10.0.0.0/8","ports":[]}`, `{"target":"10.0.0.0/8","ports":[443,443]}`,
+		`{"target":"10.0.0.0/8","ports":["443"]}`, `{"target":"10.0.0.0/8","ports":[443.0]}`, `{"target":"10.0.0.0/8","ports":[4.43e2]}`,
+		`{"target":"10.0.0.0/8","ports":[0]}`, `{"target":"10.0.0.0/8","ports":[-1]}`, `{"target":"10.0.0.0/8","ports":[65536]}`,
+		`{"target":"10.0.0.1/8","ports":"all"}`, `{"target":"https://example.test","ports":"all"}`, `{"target":"*.127.0.0.1","ports":"all"}`,
+		`{"target":"::ffff:10.0.0.0/104","ports":"all"}`, `{"target":"FD00::/8","ports":"all"}`, `{"target":"fd00:0::/8","ports":"all"}`,
 	} {
-		_, _, err := decodeUpdate(httptest.NewRecorder(), updateRequest(`{"expected_version":"1","rules":[`+rule+`]}`), actor)
+		_, _, _, err := decodeUpdate(httptest.NewRecorder(), updateRequest(`{"rule_mode":"denylist","expected_version":"1","rules":[`+rule+`]}`), actor)
 		requireCode(t, err, foundation.InvalidArgument)
 	}
 	for _, key := range []string{"", "two words", " leading", "trailing ", "a,b", "雪", strings.Repeat("x", 129)} {
-		r := updateRequest(`{"expected_version":"1","rules":[]}`)
+		r := updateRequest(`{"rule_mode":"denylist","expected_version":"1","rules":[]}`)
 		r.Header.Set("Idempotency-Key", key)
-		_, _, err := decodeUpdate(httptest.NewRecorder(), r, actor)
+		_, _, _, err := decodeUpdate(httptest.NewRecorder(), r, actor)
 		requireCode(t, err, foundation.InvalidArgument)
 	}
 	for _, key := range []string{"a", "aA09._:/-", strings.Repeat("x", 128)} {
-		r := updateRequest(`{"expected_version":"1","rules":[]}`)
+		r := updateRequest(`{"rule_mode":"denylist","expected_version":"1","rules":[]}`)
 		r.Header.Set("Idempotency-Key", key)
-		if _, _, err := decodeUpdate(httptest.NewRecorder(), r, actor); err != nil {
+		if _, _, _, err := decodeUpdate(httptest.NewRecorder(), r, actor); err != nil {
 			t.Fatal("valid key rejected")
 		}
 	}
-	r := updateRequest(`{"expected_version":"1","rules":[]}`)
+	r := updateRequest(`{"rule_mode":"denylist","expected_version":"1","rules":[]}`)
 	r.Header.Add("Idempotency-Key", "second")
-	_, _, err := decodeUpdate(httptest.NewRecorder(), r, actor)
+	_, _, _, err := decodeUpdate(httptest.NewRecorder(), r, actor)
 	requireCode(t, err, foundation.InvalidArgument)
 	for _, mutate := range []func(*http.Request){
 		func(r *http.Request) { r.Header.Set("Content-Type", "text/plain") },
@@ -143,9 +144,9 @@ func TestOutboundWireRejectsAmbiguousInput(t *testing.T) {
 		func(r *http.Request) { r.Header.Set("Content-Type", "application/json; charset=ascii") },
 		func(r *http.Request) { r.Header.Set("Content-Encoding", "gzip") },
 	} {
-		r := updateRequest(`{"expected_version":"1","rules":[]}`)
+		r := updateRequest(`{"rule_mode":"denylist","expected_version":"1","rules":[]}`)
 		mutate(r)
-		_, _, err := decodeUpdate(httptest.NewRecorder(), r, actor)
+		_, _, _, err := decodeUpdate(httptest.NewRecorder(), r, actor)
 		requireCode(t, err, foundation.UnsupportedMediaType)
 	}
 }
@@ -160,9 +161,9 @@ func TestOutboundWireMaximumRulesAndIndependentByteLimits(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	rules := make([]outbound.Rule, 256)
+	rules := make([]outbound.Rule, 512)
 	for i := range rules {
-		rules[i], err = outbound.NewRule(fmt.Sprintf("10.%d.0.0/16", i), selected, i%2 == 0)
+		rules[i], err = outbound.NewRule(fmt.Sprintf("%d.%s.%s.%s.%s", i, strings.Repeat("a", 63), strings.Repeat("b", 63), strings.Repeat("c", 63), strings.Repeat("d", 56)), selected)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -171,9 +172,9 @@ func TestOutboundWireMaximumRulesAndIndependentByteLimits(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	input := `{"expected_version":"1","rules":` + string(maximum.JSON()) + `}`
-	_, got, err := decodeUpdate(httptest.NewRecorder(), updateRequest(input), actor)
-	if err != nil || got.Count() != 256 || !bytes.Equal(got.JSON(), maximum.JSON()) {
+	input := `{"rule_mode":"denylist","expected_version":"1","rules":` + string(maximum.JSON()) + `}`
+	_, _, got, err := decodeUpdate(httptest.NewRecorder(), updateRequest(input), actor)
+	if err != nil || got.Count() != 512 || !bytes.Equal(got.JSON(), maximum.JSON()) {
 		t.Fatal("maximum legal rules rejected")
 	}
 	out, err := encodePolicy(samplePolicy(t, maximum))
@@ -181,27 +182,19 @@ func TestOutboundWireMaximumRulesAndIndependentByteLimits(t *testing.T) {
 		t.Fatal("maximum response truncated or rejected")
 	}
 	for _, raw := range []string{
-		`[{"cidr":"10.0.0.0/8","ports":"all"},{"cidr":"10.0.0.0/8","allow_http":false,"ports":"all"}]`,
-		"[" + strings.Repeat(`{"cidr":"10.0.0.0/8","ports":"all"},`, 256) + `{"cidr":"10.0.0.0/8","ports":"all"}]`,
-		`[{"cidr":"10.0.0.0/8","ports":[` + strings.Repeat("1,", 256) + `2]}]`,
+		`[{"target":"10.0.0.0/8","ports":"all"},{"target":"10.0.0.0/8","ports":"all"}]`,
+		"[" + strings.Repeat(`{"target":"10.0.0.0/8","ports":"all"},`, 512) + `{"target":"10.0.0.0/8","ports":"all"}]`,
+		`[{"target":"10.0.0.0/8","ports":[` + strings.Repeat("1,", 256) + `2]}]`,
 	} {
-		_, _, err := decodeUpdate(httptest.NewRecorder(), updateRequest(`{"expected_version":"1","rules":`+raw+`}`), actor)
+		_, _, _, err := decodeUpdate(httptest.NewRecorder(), updateRequest(`{"rule_mode":"denylist","expected_version":"1","rules":`+raw+`}`), actor)
 		requireCode(t, err, foundation.InvalidArgument)
 	}
-	// Field whitespace is part of its original bytes; outer whitespace is only
-	// part of the independent whole-body budget.
-	field := "[" + strings.Repeat(" ", 512*1024-2) + "]"
-	_, _, err = decodeUpdate(httptest.NewRecorder(), updateRequest(`{"expected_version":"1","rules":`+field+`}`), actor)
-	if err != nil {
-		t.Fatal("exact field limit rejected")
-	}
-	_, _, err = decodeUpdate(httptest.NewRecorder(), updateRequest(`{"expected_version":"1","rules":[ `+field[1:]+`}`), actor)
-	// This adds one field byte while retaining valid JSON.
-	requireCode(t, err, foundation.InvalidArgument)
-	empty := `{"expected_version":"1","rules":[]}`
+	// The complete request, including field and outer whitespace, has one
+	// 1 MiB budget. A legal 512 x 256-port payload fits under that bound.
+	empty := `{"rule_mode":"denylist","expected_version":"1","rules":[]}`
 	for _, delta := range []int{0, 1} {
 		body := empty + strings.Repeat(" ", maxJSONBytes-len(empty)+delta)
-		_, _, err = decodeUpdate(httptest.NewRecorder(), updateRequest(body), actor)
+		_, _, _, err = decodeUpdate(httptest.NewRecorder(), updateRequest(body), actor)
 		if delta == 0 && err != nil {
 			t.Fatal("exact body limit rejected")
 		}
@@ -225,7 +218,7 @@ func testReceipt(t *testing.T) outbound.UpdateResult {
 }
 
 func TestOutboundWireOutputAndRedaction(t *testing.T) {
-	rules, err := outbound.DecodeRules([]byte(`[{"cidr":"10.2.0.0/16","ports":"all"}]`))
+	rules, err := outbound.DecodeRules([]byte(`[{"target":"10.2.0.0/16","ports":"all"}]`))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -240,7 +233,7 @@ func TestOutboundWireOutputAndRedaction(t *testing.T) {
 		value  any
 		fields []string
 	}{
-		{policy, []string{"rules", "version"}},
+		{policy, []string{"rule_mode", "rules", "version"}},
 		{testReceipt(t), []string{"audit_id", "created_at", "rule_count", "version"}},
 	} {
 		var b []byte
@@ -267,7 +260,7 @@ func TestOutboundWireOutputAndRedaction(t *testing.T) {
 		t.Fatal("zero policy leaked candidate")
 	}
 	for _, mutate := range []func(*outbound.UpdateResult){
-		func(v *outbound.UpdateResult) { v.Version = 0 }, func(v *outbound.UpdateResult) { v.RuleCount = -1 }, func(v *outbound.UpdateResult) { v.RuleCount = 257 }, func(v *outbound.UpdateResult) { v.AuditID = ac.ID{} },
+		func(v *outbound.UpdateResult) { v.Version = 0 }, func(v *outbound.UpdateResult) { v.RuleCount = -1 }, func(v *outbound.UpdateResult) { v.RuleCount = 513 }, func(v *outbound.UpdateResult) { v.AuditID = ac.ID{} },
 	} {
 		v := testReceipt(t)
 		mutate(&v)
@@ -312,7 +305,7 @@ func TestOutboundSchemaMatchesFourOperationsAndClosedWire(t *testing.T) {
 	if len(proxy) != 2 || proxy["get"].OperationID != "getSystemOutboundProxy" || proxy["put"].OperationID != "updateSystemOutboundProxy" {
 		t.Fatal("proxy route/OpenAPI mismatch")
 	}
-	want := map[string][]string{"OutboundRuleInput": {"cidr", "ports"}, "OutboundRule": {"cidr", "ports", "allow_http"}, "OutboundPolicy": {"version", "rules"}, "OutboundPolicyUpdateInput": {"expected_version", "rules"}, "OutboundPolicyUpdateResult": {"version", "rule_count", "audit_id", "created_at"}}
+	want := map[string][]string{"OutboundRuleInput": {"target", "ports"}, "OutboundRule": {"target", "ports"}, "OutboundPolicy": {"version", "rule_mode", "rules"}, "OutboundPolicyUpdateInput": {"expected_version", "rule_mode", "rules"}, "OutboundPolicyUpdateResult": {"version", "rule_count", "audit_id", "created_at"}}
 	for name, required := range want {
 		s := spec.Components.Schemas[name]
 		if s.Type != "object" || s.Additional || !reflect.DeepEqual(s.Required, required) {

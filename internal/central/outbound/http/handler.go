@@ -21,7 +21,7 @@ type SystemHTTPOptions struct{ PublicOrigin string }
 
 type policyService interface {
 	GetPolicy(context.Context, identity.Actor) (outbound.Policy, error)
-	UpdatePolicy(context.Context, identity.Actor, outbound.CommandMeta, outbound.Rules) (outbound.UpdateResult, error)
+	UpdatePolicy(context.Context, identity.Actor, outbound.CommandMeta, outbound.RuleMode, outbound.Rules) (outbound.UpdateResult, error)
 }
 
 type accountBoundary interface {
@@ -108,13 +108,14 @@ func (h *systemHTTP) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	} else {
 		var meta outbound.CommandMeta
 		var rules outbound.Rules
-		meta, rules, err = decodeUpdate(w, r, actor)
+		var mode outbound.RuleMode
+		meta, mode, rules, err = decodeUpdate(w, r, actor)
 		if err == nil {
 			err = beforeCall(ctx)
 		}
 		if err == nil {
 			var result outbound.UpdateResult
-			result, err = h.policy.UpdatePolicy(ctx, actor, meta, rules)
+			result, err = h.policy.UpdatePolicy(ctx, actor, meta, mode, rules)
 			if err == nil {
 				body, err = encodeUpdate(result)
 			}

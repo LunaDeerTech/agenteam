@@ -73,9 +73,15 @@ func newAuditFixture(t *testing.T) *auditFixture {
 // The migrator enforces cfg.StartupTimeout. Callers that exercise that startup
 // budget can supply their test context without extending business operations.
 func newAuditFixtureWithMigrationParent(t *testing.T, migrationParent context.Context) *auditFixture {
+	return newAuditFixtureWithMigrationConfig(t, migrationParent, nil)
+}
+
+// Callers that explicitly cover full production startup may opt in to its
+// configured budget; the shared fixture and business contexts stay unchanged.
+func newAuditFixtureWithMigrationConfig(t *testing.T, migrationParent context.Context, values map[string]string) *auditFixture {
 	t.Helper()
 	db := pgfixture.NewDatabase(t)
-	cfg := db.Config(t, nil)
+	cfg := db.Config(t, values)
 	m, err := postgres.NewMigrator(cfg)
 	if err != nil {
 		t.Fatal(err)
@@ -83,8 +89,9 @@ func newAuditFixtureWithMigrationParent(t *testing.T, migrationParent context.Co
 	if migrationParent == nil {
 		migrationParent = auditContext(t)
 	}
+	started := time.Now()
 	if state := m.Migrate(migrationParent); !state.Migrated {
-		t.Fatal(state.Fault)
+		t.Fatalf("migration preparation failed code=%s sqlstate=%s deadline=%t canceled=%t elapsed=%s budget=%s", state.Fault.Code(), state.Fault.SQLState(), errors.Is(state.Fault, context.DeadlineExceeded), errors.Is(state.Fault, context.Canceled), time.Since(started), cfg.StartupTimeout())
 	}
 	store := openAuditStore(t, cfg)
 	// These are test-only authority facts. Production migrations do not create

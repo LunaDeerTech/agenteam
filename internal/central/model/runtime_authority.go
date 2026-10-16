@@ -211,7 +211,7 @@ func (c *runtimeCall) callOptions(call outbound.CallContext, material sc.SecretM
 	if remaining <= 0 {
 		remaining = time.Nanosecond
 	}
-	return wire.CallOptions{ProjectID: c.request.Consumer.ProjectID, Context: call, Credential: material, AllowHTTP: c.runtime.deps.AllowHTTP,
+	return wire.CallOptions{ProjectID: c.request.Consumer.ProjectID, Context: call, Credential: material,
 		Limits: outbound.Limits{Overall: remaining, ReadIdle: min(remaining, 60*time.Second), RequestBodyBytes: 16 << 20, ResponseBodyBytes: 16 << 20}}
 }
 

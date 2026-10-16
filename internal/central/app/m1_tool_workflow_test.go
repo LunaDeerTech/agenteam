@@ -223,17 +223,17 @@ func m1AllowOwnedPeer(t *testing.T, v *executionSchedulerApp, transport *outboun
 	t.Helper()
 	ports, err := outbound.SelectedPorts(8443)
 	workAppCheck(t, "m1-port", err)
-	rule, err := outbound.NewRule(network.PrivateIP+"/32", ports, false)
+	rule, err := outbound.NewRule(network.PrivateIP+"/32", ports)
 	workAppCheck(t, "m1-rule", err)
 	rules, err := outbound.NewRules(rule)
 	workAppCheck(t, "m1-rules", err)
-	identity, err := f.NewCommandIdentity("outbound-policy", []string{v.actor.Details().UserID}, "update", f.IdempotencyKey(guardID[struct{}](t).String()))
+	identity, err := f.NewCommandIdentity("outbound-policy-v2", []string{v.actor.Details().UserID}, "update", f.IdempotencyKey(guardID[struct{}](t).String()))
 	workAppCheck(t, "m1-policy-command", err)
 	before := transport.policy.Status()
 	if before.Version == nil {
 		t.Fatal("M1 original outbound policy absent")
 	}
-	_, err = transport.policy.UpdatePolicy(v.ctx, v.actor, outbound.CommandMeta{Identity: identity, ExpectedVersion: *before.Version, HTTPTraceID: guardID[f.Request](t).String()}, rules)
+	_, err = transport.policy.UpdatePolicy(v.ctx, v.actor, outbound.CommandMeta{Identity: identity, ExpectedVersion: *before.Version, HTTPTraceID: guardID[f.Request](t).String()}, outbound.Allowlist, rules)
 	workAppCheck(t, "m1-formal-policy-update", err)
 }
 

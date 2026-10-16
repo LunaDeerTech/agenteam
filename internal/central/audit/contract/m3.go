@@ -115,7 +115,7 @@ func MCPMetadata(a Action, v MCPMetadataFields) (Metadata, error) {
 	}
 	if v.ErrorCode != "" {
 		switch Reason(v.ErrorCode) {
-		case InvalidTarget, AddressForbidden, PrivateNotAllowed, PortDenied, HTTPDenied, TLSFailed, DNSFailed, RedirectDenied, PolicyUnavailable, BindingInvalid, ConsumerDenied, CredentialDenied, OriginDenied, ResponseLimit, Timeout, Cancelled, InternalError, StorageUnavailable, IntegrityMismatch:
+		case InvalidTarget, AddressForbidden, RuleNotAllowed, PrivateNotAllowed, PortDenied, HTTPDenied, TLSFailed, DNSFailed, RedirectDenied, PolicyUnavailable, BindingInvalid, ConsumerDenied, CredentialDenied, OriginDenied, ResponseLimit, Timeout, Cancelled, InternalError, StorageUnavailable, IntegrityMismatch:
 		default:
 			return Metadata{}, invalid("metadata")
 		}

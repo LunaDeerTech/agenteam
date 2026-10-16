@@ -31,7 +31,7 @@ func TestSystemOutboundPolicyHTTP(t *testing.T) {
 	}
 	f.browser().request("GET", outboundPolicyHTTPPath, nil, "", "").problem(t, 401, "UNAUTHENTICATED")
 	member.request("GET", outboundPolicyHTTPPath, nil, "", "").problem(t, 403, "FORBIDDEN")
-	body := []byte(`{"expected_version":"1","rules":[{"cidr":"10.73.0.0/16","ports":[8443,443],"allow_http":false}]}`)
+	body := []byte(`{"rule_mode":"allowlist","expected_version":"1","rules":[{"target":"10.73.0.0/16","ports":[8443,443]}]}`)
 	key := id[struct{}](t).String()
 	put := func(b *httpBrowser, data []byte, command string) httpResult {
 		return b.raw("PUT", outboundPolicyHTTPPath, data, func(r *http.Request) {
@@ -62,10 +62,10 @@ func TestSystemOutboundPolicyHTTP(t *testing.T) {
 	}
 	admin.request("GET", outboundPolicyHTTPPath+"//child", nil, "", "").problem(t, 400, "INVALID_ARGUMENT")
 	for _, bad := range []string{
-		`{"expected_version":"1","rules":[],"extra":1}`,
-		`{"expected_version":"1","expected_version":"1","rules":[]}`,
-		`{"expected_version":1,"rules":[]}`, `{"expected_version":"1","rules":null}`,
-		`{"expected_version":"1","rules":[{"cidr":"127.0.0.0/8","ports":"all"}]}`,
+		`{"rule_mode":"allowlist","expected_version":"1","rules":[],"extra":1}`,
+		`{"rule_mode":"allowlist","expected_version":"1","rule_mode":"allowlist","expected_version":"1","rules":[]}`,
+		`{"rule_mode":"allowlist","expected_version":1,"rules":[]}`, `{"rule_mode":"allowlist","expected_version":"1","rules":null}`,
+		`{"rule_mode":"allowlist","expected_version":"1","rules":[{"target":"https://invalid.test/","ports":"all"}]}`,
 	} {
 		put(admin, []byte(bad), key).problem(t, 400, "INVALID_ARGUMENT")
 	}
@@ -89,14 +89,14 @@ func TestSystemOutboundPolicyHTTP(t *testing.T) {
 	if !bytes.Equal(first.data, put(admin, canonical, key).want(t, 200).data) {
 		t.Fatal("canonical rule ordering changed the command receipt")
 	}
-	put(admin, []byte(`{"expected_version":"1","rules":[]}`), key).problem(t, 409, "IDEMPOTENCY_KEY_REUSED")
+	put(admin, []byte(`{"rule_mode":"allowlist","expected_version":"1","rules":[]}`), key).problem(t, 409, "IDEMPOTENCY_KEY_REUSED")
 	conflict := put(admin, body, id[struct{}](t).String())
 	conflict.problem(t, 409, "VERSION_CONFLICT")
 	f.assertTrace(conflict, "unknown_route")
 
 	// Two actual HTTP commands compete for v2. Even within one process gate,
 	// their distinct identities must produce only one new durable fact.
-	competing := []byte(`{"expected_version":"2","rules":[]}`)
+	competing := []byte(`{"rule_mode":"allowlist","expected_version":"2","rules":[]}`)
 	responses := make(chan outboundHTTPOutcome, 2)
 	competitionCtx, competitionCancel := context.WithTimeout(context.Background(), 5*time.Second)
 	var competition sync.WaitGroup
@@ -153,7 +153,7 @@ func TestSystemOutboundPolicyHTTP(t *testing.T) {
 	// The upstream has actually returned an accepted receipt. A task-owned
 	// native HTTP hop then truncates its body. This is response-loss evidence,
 	// not a manufactured PostgreSQL CommitUnknown result.
-	lost := []byte(`{"expected_version":"3","rules":[]}`)
+	lost := []byte(`{"rule_mode":"allowlist","expected_version":"3","rules":[]}`)
 	lostKey := id[struct{}](t).String()
 	upstreamReceipt := outboundHTTPTruncate(t, other, lost, lostKey)
 	confirmed := put(other, lost, lostKey).want(t, 200)

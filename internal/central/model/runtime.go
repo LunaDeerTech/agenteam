@@ -25,7 +25,6 @@ type RuntimeDependencies struct {
 	SecretUsage  sc.UsageOperations
 	Adapter      *wire.OpenAIChat
 	Embeddings   *wire.OpenAIEmbeddings
-	AllowHTTP    bool
 }
 
 type Runtime struct{ data func() *runtimeState }

@@ -34,7 +34,7 @@ func outboundPolicy(t *testing.T, f *auditFixture, appender ac.Appender) *outbou
 func policyCommand(t *testing.T, actor identity.Actor, expected foundation.Version) outbound.CommandMeta {
 	t.Helper()
 	key := foundation.IdempotencyKey(newID[struct{}](t).String())
-	command, e := foundation.NewCommandIdentity("outbound-policy", []string{actor.Details().UserID}, "update", key)
+	command, e := foundation.NewCommandIdentity("outbound-policy-v2", []string{actor.Details().UserID}, "update", key)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -47,7 +47,7 @@ func policyRules(t *testing.T, cidr string) outbound.Rules {
 		return r
 	}
 	ports, _ := outbound.SelectedPorts(443, 8443)
-	rule, e := outbound.NewRule(cidr, ports, false)
+	rule, e := outbound.NewRule(cidr, ports)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -58,22 +58,22 @@ func policyRules(t *testing.T, cidr string) outbound.Rules {
 	return rules
 }
 func TestOutboundPolicyDurabilityReplayAndAuthorization(t *testing.T) {
-	f := newAuditFixture(t)
+	f := newAuditFixtureWithMigrationConfig(t, t.Context(), map[string]string{"STARTUP_TIMEOUT": "2m"})
 	s := outboundPolicy(t, f, nil)
 	ctx := auditContext(t)
 	initial, e := s.GetPolicy(ctx, f.actor)
-	if e != nil || initial.Version() != 1 || initial.Rules().Count() != 0 {
+	if e != nil || initial.Version() != 1 || initial.Mode() != outbound.Denylist || initial.Rules().Count() != 32 {
 		t.Fatal("wrong initial policy", e)
 	}
 	k1 := policyCommand(t, f.actor, 1)
 	r1 := policyRules(t, "10.7.0.0/16")
-	first, e := s.UpdatePolicy(ctx, f.actor, k1, r1)
+	first, e := s.UpdatePolicy(ctx, f.actor, k1, outbound.Allowlist, r1)
 	if e != nil || first.Version != 2 {
 		t.Fatal(first, e)
 	}
 	k2 := policyCommand(t, f.actor, 2)
 	empty := policyRules(t, "")
-	second, e := s.UpdatePolicy(ctx, f.actor, k2, empty)
+	second, e := s.UpdatePolicy(ctx, f.actor, k2, outbound.Denylist, empty)
 	if e != nil || second.Version != 3 {
 		t.Fatal(second, e)
 	}
@@ -87,7 +87,7 @@ func TestOutboundPolicyDurabilityReplayAndAuthorization(t *testing.T) {
 	user, _ := foundation.ParseID[identity.User](f.actor.Details().UserID)
 	actor, _ := identity.NewHuman(user, session)
 	k1.HTTPTraceID = newID[struct{}](t).String()
-	replay, e := s.UpdatePolicy(ctx, actor, k1, r1)
+	replay, e := s.UpdatePolicy(ctx, actor, k1, outbound.Allowlist, r1)
 	if e != nil || replay != first {
 		t.Fatal("unstable replay", e)
 	}
@@ -95,12 +95,14 @@ func TestOutboundPolicyDurabilityReplayAndAuthorization(t *testing.T) {
 		t.Fatal("replay published old mirror", status)
 	}
 	p, e := s.GetPolicy(ctx, actor)
-	if e != nil || p.Version() != 3 || p.Rules().Count() != 0 {
+	if e != nil || p.Version() != 3 || p.Mode() != outbound.Denylist || p.Rules().Count() != 0 {
 		t.Fatal("replay restored old policy")
 	}
-	_, e = s.UpdatePolicy(ctx, actor, k1, empty)
+	_, e = s.UpdatePolicy(ctx, actor, k1, outbound.Denylist, r1)
 	requireCode(t, e, foundation.IdempotencyKeyReused)
-	_, e = s.UpdatePolicy(ctx, actor, policyCommand(t, actor, 1), r1)
+	_, e = s.UpdatePolicy(ctx, actor, k1, outbound.Allowlist, empty)
+	requireCode(t, e, foundation.IdempotencyKeyReused)
+	_, e = s.UpdatePolicy(ctx, actor, policyCommand(t, actor, 1), outbound.Allowlist, r1)
 	requireCode(t, e, foundation.VersionConflict)
 	var count int
 	if e = f.store.QueryRow(ctx, `SELECT count(*) FROM agenteam_audit.audit_records WHERE action='outbound.policy.update'`).Scan(&count); e != nil || count != 2 {
@@ -110,7 +112,7 @@ func TestOutboundPolicyDurabilityReplayAndAuthorization(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	_, e = s.UpdatePolicy(ctx, actor, k1, r1)
+	_, e = s.UpdatePolicy(ctx, actor, k1, outbound.Allowlist, r1)
 	requireCode(t, e, foundation.Forbidden)
 	_, e = s.GetPolicy(ctx, actor)
 	requireCode(t, e, foundation.Forbidden)
@@ -118,7 +120,7 @@ func TestOutboundPolicyDurabilityReplayAndAuthorization(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	_, e = s.UpdatePolicy(ctx, actor, k1, r1)
+	_, e = s.UpdatePolicy(ctx, actor, k1, outbound.Allowlist, r1)
 	requireCode(t, e, foundation.SessionRevoked)
 	unbound, _ := outbound.NewPolicyService(f.store, f.service, outbound.Authorizations{})
 	_, e = unbound.GetPolicy(ctx, actor)
@@ -144,7 +146,7 @@ func TestOutboundPolicyRollbackAndUnavailableReplay(t *testing.T) {
 	ctx := auditContext(t)
 	failed := outboundPolicy(t, f, rejectedPolicyAudit{f.service})
 	r := policyRules(t, "10.9.0.0/16")
-	if _, e := failed.UpdatePolicy(ctx, f.actor, policyCommand(t, f.actor, 1), r); e == nil {
+	if _, e := failed.UpdatePolicy(ctx, f.actor, policyCommand(t, f.actor, 1), outbound.Allowlist, r); e == nil {
 		t.Fatal("audit failure committed")
 	}
 	var version, receipts, audits int
@@ -156,11 +158,11 @@ func TestOutboundPolicyRollbackAndUnavailableReplay(t *testing.T) {
 	}
 	s := outboundPolicy(t, f, nil)
 	k1 := policyCommand(t, f.actor, 1)
-	first, e := s.UpdatePolicy(ctx, f.actor, k1, r)
+	first, e := s.UpdatePolicy(ctx, f.actor, k1, outbound.Allowlist, r)
 	if e != nil {
 		t.Fatal(e)
 	}
-	if _, e = s.UpdatePolicy(ctx, f.actor, policyCommand(t, f.actor, 2), policyRules(t, "")); e != nil {
+	if _, e = s.UpdatePolicy(ctx, f.actor, policyCommand(t, f.actor, 2), outbound.Allowlist, policyRules(t, "")); e != nil {
 		t.Fatal(e)
 	}
 	// The fixture corrupts a stored typed rule, then restores the original v3.
@@ -173,7 +175,7 @@ func TestOutboundPolicyRollbackAndUnavailableReplay(t *testing.T) {
 	if e = s.Reload(ctx); e == nil || s.Status().Available {
 		t.Fatal("invalid DB policy allowed")
 	}
-	_, e = s.UpdatePolicy(ctx, f.actor, k1, r)
+	_, e = s.UpdatePolicy(ctx, f.actor, k1, outbound.Allowlist, r)
 	var committed *foundation.Fault
 	if !errors.As(e, &committed) || committed.CommitState != foundation.Committed || committed.RetryHint != "replay" || s.Status().Available {
 		t.Fatal("historical receipt bypassed invalid current snapshot or lost committed fact")
@@ -182,7 +184,7 @@ func TestOutboundPolicyRollbackAndUnavailableReplay(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	got, e := s.UpdatePolicy(ctx, f.actor, k1, r)
+	got, e := s.UpdatePolicy(ctx, f.actor, k1, outbound.Allowlist, r)
 	if e != nil || got != first || !s.Status().Available || s.Status().Version == nil || *s.Status().Version != 3 {
 		t.Fatal("replay failed to retain original receipt and recover authoritative current v3", e)
 	}
@@ -193,7 +195,7 @@ func TestOutboundPolicyRollbackAndUnavailableReplay(t *testing.T) {
 func TestOutboundPolicyRealCommitUnknown(t *testing.T) {
 	for _, mode := range []string{"committed_verified", "committed_unavailable", "not_observed"} {
 		t.Run(mode, func(t *testing.T) {
-			f := newAuditFixture(t)
+			f := newAuditFixtureWithMigrationConfig(t, t.Context(), map[string]string{"STARTUP_TIMEOUT": "2m"})
 			proxy := newCommitProxy(t, net.JoinHostPort("127.0.0.1", f.db.Fixture.Port), mode != "not_observed")
 			proxy.armed.Store(false)
 			u, _ := url.Parse(f.db.Fixture.URL(f.db.Name))
@@ -220,7 +222,7 @@ func TestOutboundPolicyRealCommitUnknown(t *testing.T) {
 			command := policyCommand(t, f.actor, 1)
 			ctx := auditContext(t)
 			go func() {
-				r, e := s.UpdatePolicy(ctx, f.actor, command, policyRules(t, "10.8.0.0/16"))
+				r, e := s.UpdatePolicy(ctx, f.actor, command, outbound.Allowlist, policyRules(t, "10.8.0.0/16"))
 				done <- outcome{r, e}
 			}()
 			select {
@@ -248,16 +250,38 @@ func TestOutboundPolicyRealCommitUnknown(t *testing.T) {
 				} else {
 					requireCode(t, out.err, foundation.CommitUnknown)
 					var fault *foundation.Fault
-					if !errors.As(out.err, &fault) || fault.CommitState != foundation.Unknown || s.Status().Available {
+					if !errors.As(out.err, &fault) || fault.CommitState != foundation.Unknown {
 						t.Fatal("unknown falsely resolved", out.err)
+					}
+					if mode == "committed_unavailable" && s.Status().Available {
+						t.Fatal("unavailable verification reopened admission")
+					}
+					if mode == "not_observed" {
+						// This rule-only service has no proxy binding. Recovery can
+						// reopen its current snapshot after the command lock proves
+						// the original writer settled without a receipt; the caller's
+						// outcome still remains Unknown, not a successful update.
+						current, err := s.GetPolicy(auditContext(t), f.actor)
+						if err != nil || !s.Status().Available || current.Version() != 1 || current.Mode() != outbound.Denylist || string(current.Rules().JSON()) != string(outbound.DefaultRules().JSON()) {
+							t.Fatal("settled writer recovery changed the current rule snapshot", err)
+						}
+						var receipts, audits int
+						if err := f.store.QueryRow(auditContext(t), `SELECT (SELECT count(*) FROM agenteam_outbound.outbound_policy_receipts),(SELECT count(*) FROM agenteam_audit.audit_records WHERE action='outbound.policy.update')`).Scan(&receipts, &audits); err != nil || receipts != 0 || audits != 0 {
+							t.Fatal("uncommitted command acquired a receipt or audit", err)
+						}
 					}
 				}
 			case <-time.After(5 * time.Second):
 				t.Fatal("unknown reconciliation hung")
 			}
 			restarted := outboundPolicy(t, f, nil)
-			if *restarted.Status().Version != foundation.Version(stored) {
-				t.Fatal("restart ignored durable policy")
+			current, err := restarted.GetPolicy(auditContext(t), f.actor)
+			wantMode := outbound.Allowlist
+			if stored == 1 {
+				wantMode = outbound.Denylist
+			}
+			if err != nil || current.Version() != foundation.Version(stored) || current.Mode() != wantMode {
+				t.Fatal("restart ignored durable policy mode", err)
 			}
 		})
 	}

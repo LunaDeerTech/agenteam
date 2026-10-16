@@ -200,7 +200,7 @@ func TestB04AppSMTPFinalReplyDrainsBeforeCoreAndGuard(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	rule, err := outbound.NewRule(network.PrivateIP+"/32", ports, false)
+	rule, err := outbound.NewRule(network.PrivateIP+"/32", ports)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -208,11 +208,11 @@ func TestB04AppSMTPFinalReplyDrainsBeforeCoreAndGuard(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	key, err := foundation.NewCommandIdentity("outbound-policy", []string{actor.Details().UserID}, "update", foundation.IdempotencyKey(guardID[struct{}](t).String()))
+	key, err := foundation.NewCommandIdentity("outbound-policy-v2", []string{actor.Details().UserID}, "update", foundation.IdempotencyKey(guardID[struct{}](t).String()))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err = transport.policy.UpdatePolicy(databaseTestContext(t), actor, outbound.CommandMeta{Identity: key, ExpectedVersion: *transport.policy.Status().Version}, rules); err != nil {
+	if _, err = transport.policy.UpdatePolicy(databaseTestContext(t), actor, outbound.CommandMeta{Identity: key, ExpectedVersion: *transport.policy.Status().Version}, outbound.Allowlist, rules); err != nil {
 		t.Fatal(err)
 	}
 	settings, err := core.GetSMTPSettings(databaseTestContext(t), actor)

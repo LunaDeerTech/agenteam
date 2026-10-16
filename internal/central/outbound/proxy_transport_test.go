@@ -66,14 +66,14 @@ func proxyTestForwardHTTP(t *testing.T, target *proxyTestGateway, auth string, s
 	})
 }
 
-func proxyTestRuleFor(t *testing.T, state *policyState, target *proxyTestGateway, allowHTTP bool) {
+func proxyTestRuleFor(t *testing.T, state *policyState, target *proxyTestGateway) {
 	t.Helper()
 	addr := target.listener.Addr().(*net.TCPAddr)
 	ports, err := SelectedPorts(uint16(addr.Port))
 	if err != nil {
 		t.Fatal(err)
 	}
-	rule, err := NewRule(addr.IP.String()+"/32", ports, allowHTTP)
+	rule, err := NewRule(addr.IP.String()+"/32", ports)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -81,7 +81,7 @@ func proxyTestRuleFor(t *testing.T, state *policyState, target *proxyTestGateway
 	if err != nil {
 		t.Fatal(err)
 	}
-	state.mirror = policy(1, rules)
+	state.mirror = policy(1, Allowlist, rules)
 }
 
 func proxyTestAuth(state *policyState, user, password string) *atomic.Int32 {
@@ -133,9 +133,9 @@ func TestProxyOwnedTargetHTTPAndTLS(t *testing.T) {
 				resolver := &proxyTestResolver{ips: []netip.Addr{netip.MustParseAddr(proxyTestPrivateIP(t))}}
 				client, state := proxyTestClient(t, trust, resolver, gateway)
 				state.proxy.gateway.Protocol = protocol
-				proxyTestRuleFor(t, state, target, true)
+				proxyTestRuleFor(t, state, target)
 				reads := proxyTestAuth(state, "test", password)
-				profile, err := NewProfile(ProfileOptions{Consumer: ac.Model, Context: CallContext{data: func() callData { return callData{} }}, AllowHTTP: true})
+				profile, err := NewProfile(ProfileOptions{Consumer: ac.Model, Context: CallContext{data: func() callData { return callData{} }}})
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -161,17 +161,20 @@ func TestProxyTargetAndGatewayDenialsBeforeDial(t *testing.T) {
 		target, gateway []netip.Addr
 		reason          ac.Reason
 	}{
-		{"mixed_target_loopback", []netip.Addr{netip.MustParseAddr("8.8.8.8"), netip.MustParseAddr("::1")}, nil, ac.AddressForbidden},
-		{"target_private_without_rule", []netip.Addr{netip.MustParseAddr("10.22.33.44")}, nil, ac.PrivateNotAllowed},
-		{"mixed_gateway_loopback", nil, []netip.Addr{netip.MustParseAddr("10.22.33.44"), netip.MustParseAddr("127.0.0.1")}, ac.AddressForbidden},
-		{"gateway_metadata", nil, []netip.Addr{netip.MustParseAddr("fd00:ec2::254")}, ac.AddressForbidden},
-		{"gateway_linklocal", nil, []netip.Addr{netip.MustParseAddr("fe80::1")}, ac.AddressForbidden},
+		{"mixed_target_loopback", []netip.Addr{netip.MustParseAddr("8.8.8.8"), netip.MustParseAddr("::1")}, nil, ac.RuleNotAllowed},
+		{"target_private_without_rule", []netip.Addr{netip.MustParseAddr("10.22.33.44")}, nil, ac.RuleNotAllowed},
+		{"invalid_gateway_address", nil, []netip.Addr{{}}, ac.AddressForbidden},
+		{"gateway_zone", nil, []netip.Addr{netip.MustParseAddr("fe80::1%owned")}, ac.AddressForbidden},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			_, trust := proxyTestCertificate(t, "api.example")
 			gateway := proxyTestStartGateway(t, func(net.Conn) { t.Error("denied request dialed gateway") })
 			resolver := proxyMappedResolver{target: tc.target, gateway: tc.gateway}
 			client, state := proxyTestClient(t, trust, resolver, gateway)
+			if tc.name == "target_private_without_rule" {
+				rules, _ := NewRules()
+				state.mirror = policy(1, Allowlist, rules)
+			}
 			if tc.gateway != nil {
 				state.proxy.gateway.Host = "gateway.example"
 			}
@@ -265,11 +268,11 @@ func TestProxyOwnedTargetSOCKS5(t *testing.T) {
 			})
 			client, state := proxyTestClient(t, trust, &proxyTestResolver{ips: []netip.Addr{netip.MustParseAddr(proxyTestPrivateIP(t))}}, gateway)
 			state.proxy.gateway.Protocol = "socks5"
-			proxyTestRuleFor(t, state, target, true)
+			proxyTestRuleFor(t, state, target)
 			if authenticated {
 				proxyTestAuth(state, "test", "socks-private-canary")
 			}
-			profile, _ := NewProfile(ProfileOptions{Consumer: ac.Model, Context: CallContext{data: func() callData { return callData{} }}, AllowHTTP: true})
+			profile, _ := NewProfile(ProfileOptions{Consumer: ac.Model, Context: CallContext{data: func() callData { return callData{} }}})
 			request, _ := http.NewRequest("GET", "http://owned.example:"+strconv.Itoa(target.listener.Addr().(*net.TCPAddr).Port)+"/", nil)
 			response, err := client.Do(context.Background(), request, profile)
 			if err != nil {
@@ -363,9 +366,9 @@ func TestProxyOldPoolAndCredentialRotationUseNewGateway(t *testing.T) {
 	old := proxyTestForwardHTTP(t, target, "Basic "+base64.StdEncoding.EncodeToString([]byte("old:old-private-canary")), &oldConnects)
 	next := proxyTestForwardHTTP(t, target, "Basic "+base64.StdEncoding.EncodeToString([]byte("new:new-private-canary")), &newConnects)
 	client, state := proxyTestClient(t, trust, &proxyTestResolver{ips: []netip.Addr{netip.MustParseAddr(proxyTestPrivateIP(t))}}, old)
-	proxyTestRuleFor(t, state, target, true)
+	proxyTestRuleFor(t, state, target)
 	oldReads := proxyTestAuth(state, "old", "old-private-canary")
-	profile, _ := NewProfile(ProfileOptions{Consumer: ac.Model, Context: CallContext{data: func() callData { return callData{} }}, AllowHTTP: true})
+	profile, _ := NewProfile(ProfileOptions{Consumer: ac.Model, Context: CallContext{data: func() callData { return callData{} }}})
 	request, _ := http.NewRequest("GET", "http://owned.example:"+strconv.Itoa(target.listener.Addr().(*net.TCPAddr).Port)+"/", nil)
 	send := func() {
 		response, err := client.Do(context.Background(), request, profile)
@@ -406,10 +409,10 @@ func TestProxyDirectWithSavedGatewayDoesNotUseCredentials(t *testing.T) {
 	})
 	gateway := proxyTestStartGateway(t, func(net.Conn) { t.Error("direct mode dialed saved proxy") })
 	client, state := proxyTestClient(t, trust, &proxyTestResolver{ips: []netip.Addr{netip.MustParseAddr(proxyTestPrivateIP(t))}}, gateway)
-	proxyTestRuleFor(t, state, target, true)
+	proxyTestRuleFor(t, state, target)
 	reads := proxyTestAuth(state, "test", "unused-private-canary")
 	state.proxy.mode = "direct"
-	profile, _ := NewProfile(ProfileOptions{Consumer: ac.Model, Context: CallContext{data: func() callData { return callData{} }}, AllowHTTP: true})
+	profile, _ := NewProfile(ProfileOptions{Consumer: ac.Model, Context: CallContext{data: func() callData { return callData{} }}})
 	request, _ := http.NewRequest("GET", "http://owned.example:"+strconv.Itoa(target.listener.Addr().(*net.TCPAddr).Port)+"/", nil)
 	response, err := client.Do(context.Background(), request, profile)
 	if err != nil {
@@ -427,8 +430,8 @@ func TestProxyDeploymentDiscoveryRequiresCompleteCandidate(t *testing.T) {
 		t.Fatal("deployment hosts did not collect both families")
 	}
 	ips, err = proxyDeploymentHosts([]byte("10.2.3.4 gateway\n::1 gateway\n"), "gateway")
-	if err != nil || len(ips) != 2 || proxyGatewayAddressAllowed(ips[1]) {
-		t.Fatal("deployment hosts omitted forbidden family")
+	if err != nil || len(ips) != 2 || !proxyGatewayAddressAllowed(ips[1]) {
+		t.Fatal("deployment hosts omitted a valid explicitly configured family")
 	}
 	if _, err = proxyDeploymentHosts([]byte("broken gateway\n10.2.3.4 gateway\n"), "gateway"); err == nil {
 		t.Fatal("malformed matched hosts entry accepted")
@@ -460,7 +463,7 @@ func (r *proxyCandidateResolver) Lookup(_ context.Context, host string) ([]netip
 }
 
 func TestProxyRulesApplyBeforeTunnel(t *testing.T) {
-	for _, kind := range []string{"port", "http"} {
+	for _, kind := range []string{"port", "denylist"} {
 		t.Run(kind, func(t *testing.T) {
 			_, trust := proxyTestCertificate(t, "owned.example")
 			target := proxyTestStartGateway(t, func(net.Conn) { t.Error("denied target accepted a connection") })
@@ -472,16 +475,16 @@ func TestProxyRulesApplyBeforeTunnel(t *testing.T) {
 				allowed = 1
 			}
 			ports, _ := SelectedPorts(allowed)
-			rule, _ := NewRule(proxyTestPrivateIP(t)+"/32", ports, kind != "http")
+			rule, _ := NewRule(proxyTestPrivateIP(t)+"/32", ports)
 			rules, _ := NewRules(rule)
-			state.mirror = policy(1, rules)
-			profile, _ := NewProfile(ProfileOptions{Consumer: ac.Model, Context: CallContext{data: func() callData { return callData{} }}, AllowHTTP: true})
+			state.mirror = policy(1, Allowlist, rules)
+			if kind == "denylist" {
+				state.mirror = policy(1, Denylist, rules)
+			}
+			profile, _ := NewProfile(ProfileOptions{Consumer: ac.Model, Context: CallContext{data: func() callData { return callData{} }}})
 			request, _ := http.NewRequest("GET", "http://owned.example:"+strconv.Itoa(int(port))+"/", nil)
 			_, err := client.Do(context.Background(), request, profile)
-			want := ac.HTTPDenied
-			if kind == "port" {
-				want = ac.PortDenied
-			}
+			want := ac.RuleNotAllowed
 			if err == nil || SafeNetworkError(err).Decision().Reason != want || target.accepts.Load() != 0 || gateway.accepts.Load() != 0 {
 				t.Fatal("proxy bypassed target policy", err)
 			}
@@ -545,7 +548,7 @@ func TestProxySOCKSIPv6UsesNumericTarget(t *testing.T) {
 	})
 	client, state := proxyTestClient(t, trust, &proxyTestResolver{ips: []netip.Addr{ip}}, gateway)
 	state.proxy.gateway.Protocol = "socks5"
-	profile, _ := NewProfile(ProfileOptions{Consumer: ac.Model, Context: CallContext{data: func() callData { return callData{} }}, AllowHTTP: true})
+	profile, _ := NewProfile(ProfileOptions{Consumer: ac.Model, Context: CallContext{data: func() callData { return callData{} }}})
 	request, _ := http.NewRequest("GET", "http://api.example/", nil)
 	response, err := client.Do(context.Background(), request, profile)
 	if err != nil {
@@ -621,9 +624,9 @@ func TestProxyUpdateBetweenSOCKSNegotiationAndCredentialUse(t *testing.T) {
 	})
 	client, state := proxyTestClient(t, trust, &proxyTestResolver{ips: []netip.Addr{netip.MustParseAddr(proxyTestPrivateIP(t))}}, old)
 	state.proxy.gateway.Protocol = "socks5"
-	proxyTestRuleFor(t, state, target, true)
+	proxyTestRuleFor(t, state, target)
 	oldReads := proxyTestAuth(state, "old", "old-private-canary")
-	profile, _ := NewProfile(ProfileOptions{Consumer: ac.Model, Context: CallContext{data: func() callData { return callData{} }}, AllowHTTP: true})
+	profile, _ := NewProfile(ProfileOptions{Consumer: ac.Model, Context: CallContext{data: func() callData { return callData{} }}})
 	request, _ := http.NewRequest("GET", "http://owned.example:"+strconv.Itoa(target.listener.Addr().(*net.TCPAddr).Port)+"/", nil)
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()

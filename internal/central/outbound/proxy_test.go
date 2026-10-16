@@ -72,7 +72,7 @@ func (r *proxyTestResolver) Lookup(context.Context, string) ([]netip.Addr, error
 	return append([]netip.Addr(nil), r.ips...), nil
 }
 
-// The task-owned private gateway terminates tunnel protocols in these unit
+// Task-owned private or explicit loopback gateways terminate tunnel protocols in these unit
 // fixtures. Numeric target bytes are asserted; these fixtures never dial them.
 type proxyTestGateway struct {
 	listener net.Listener
@@ -85,7 +85,12 @@ type proxyTestGateway struct {
 
 func proxyTestStartGateway(t *testing.T, serve func(net.Conn)) *proxyTestGateway {
 	t.Helper()
-	listener, err := net.Listen("tcp", net.JoinHostPort(proxyTestPrivateIP(t), "0"))
+	return proxyTestStartGatewayAt(t, proxyTestPrivateIP(t), serve)
+}
+
+func proxyTestStartGatewayAt(t *testing.T, host string, serve func(net.Conn)) *proxyTestGateway {
+	t.Helper()
+	listener, err := net.Listen("tcp", net.JoinHostPort(host, "0"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -196,11 +201,8 @@ func proxyTestCertificate(t *testing.T, host string, extraHosts ...string) (tls.
 
 func proxyTestClient(t *testing.T, trust TrustStore, resolver Resolver, gateway *proxyTestGateway) (*Client, *policyState) {
 	t.Helper()
-	rules, err := NewRules()
-	if err != nil {
-		t.Fatal(err)
-	}
-	state := &policyState{mirror: policy(1, rules), available: true, proxy: proxySnapshot{version: 1, mode: "direct"}, proxyAvailable: true}
+	rules := DefaultRules()
+	state := &policyState{mirror: policy(1, Denylist, rules), available: true, proxy: proxySnapshot{version: 1, mode: "direct"}, proxyAvailable: true}
 	if gateway != nil {
 		addr := gateway.listener.Addr().(*net.TCPAddr)
 		state.proxy.mode = "proxy"
@@ -263,7 +265,7 @@ func proxyTestRequest(t *testing.T) *http.Request {
 func TestProxyConnectTLSAndSameOriginCredentials(t *testing.T) {
 	certificate, trust := proxyTestCertificate(t, "api.example")
 	var business, handshakes atomic.Int32
-	gateway := proxyTestStartGateway(t, func(conn net.Conn) {
+	gateway := proxyTestStartGatewayAt(t, "127.0.0.1", func(conn net.Conn) {
 		if !proxyTestReadConnect(t, conn) {
 			return
 		}
@@ -648,7 +650,7 @@ func TestProxyDirectRetainsAddressPolicy(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	_, err := client.Do(ctx, proxyTestRequest(t), proxyTestProfile(t, false, Limits{}))
-	if err == nil || SafeNetworkError(err).Decision().Reason != ac.AddressForbidden || SafeNetworkError(err).Decision().Sent {
+	if err == nil || SafeNetworkError(err).Decision().Reason != ac.RuleNotAllowed || SafeNetworkError(err).Decision().Sent {
 		t.Fatal("direct route bypassed the direct loopback denial")
 	}
 	if resolver.calls.Load() != 1 || gateway.accepts.Load() != 0 {

@@ -207,10 +207,10 @@ func TestAccountCurrentHumanBindsSecretAndOutboundWithoutLateLocks(t *testing.T)
 	if e != nil {
 		t.Fatal("current Human policy read locks", e)
 	}
-	pk, _ := foundation.NewCommandIdentity("outbound-policy", []string{actor.Details().UserID}, "update", foundation.IdempotencyKey(id[struct{}](t).String()))
+	pk, _ := foundation.NewCommandIdentity("outbound-policy-v2", []string{actor.Details().UserID}, "update", foundation.IdempotencyKey(id[struct{}](t).String()))
 	rules, _ := outbound.NewRules()
 	meta := outbound.CommandMeta{Identity: pk, ExpectedVersion: current.Version()}
-	if _, e = policy.UpdatePolicy(ctxFor(t), actor, meta, rules); e != nil {
+	if _, e = policy.UpdatePolicy(ctxFor(t), actor, meta, outbound.Allowlist, rules); e != nil {
 		t.Fatal("current Human policy update locks", e, safeFailure(e))
 	}
 	// A retained success receipt never replaces current Session authorization.
@@ -235,7 +235,7 @@ func TestAccountCurrentHumanBindsSecretAndOutboundWithoutLateLocks(t *testing.T)
 	if _, e = policy.GetPolicy(ctxFor(t), actor); e == nil {
 		t.Fatal("revoked Human read policy")
 	}
-	if _, e = policy.UpdatePolicy(ctxFor(t), actor, meta, rules); e == nil {
+	if _, e = policy.UpdatePolicy(ctxFor(t), actor, meta, outbound.Allowlist, rules); e == nil {
 		t.Fatal("revoked Human replayed policy receipt")
 	}
 	var count int

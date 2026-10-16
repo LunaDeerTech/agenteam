@@ -55,7 +55,6 @@ type CallOptions struct {
 	ProjectID  identity.ProjectID
 	Context    outbound.CallContext
 	Credential sc.SecretMaterial
-	AllowHTTP  bool
 	Limits     outbound.Limits
 }
 type End struct {
@@ -281,7 +280,7 @@ func prepareNativeRequest(r Request, o CallOptions, raw []byte, stream bool) (*h
 	if err != nil {
 		return fail(invalid())
 	}
-	profile, err := outbound.NewProfile(outbound.ProfileOptions{Consumer: ac.Model, AllowHTTP: o.AllowHTTP, Streaming: stream, Limits: o.Limits, Context: o.Context, Credentials: binding})
+	profile, err := outbound.NewProfile(outbound.ProfileOptions{Consumer: ac.Model, Streaming: stream, Limits: o.Limits, Context: o.Context, Credentials: binding})
 	if err != nil {
 		return fail(invalid())
 	}

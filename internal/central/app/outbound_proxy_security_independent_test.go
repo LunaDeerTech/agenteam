@@ -487,7 +487,7 @@ func independentProxyUnknownReceiptRecovery(t *testing.T, otherSave bool) {
 		t.Fatal("unknown proxy commit left outbound available")
 	}
 	if otherSave {
-		rules := map[string]any{"expected_version": "1", "rules": []any{}}
+		rules := map[string]any{"expected_version": "1", "rule_mode": "denylist", "rules": []any{}}
 		b.call(t, "PUT", "/api/v1/system/outbound-policy", guardID[struct{}](t).String(), rules, nil, 200)
 		if runtime.policy.Status().Available {
 			t.Error("other resource save restored unknown proxy mirror")
