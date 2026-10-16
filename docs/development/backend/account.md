@@ -57,7 +57,7 @@ Account/Mail 初始化、bootstrap 和恢复消耗同一剩余安全启动预算
 
 ## 可恢复的真实 SMTP 运行准备
 
-真实 SMTP 应由生产 `cmd/agenteam` 运行，使用默认 `SystemResolver`；当前生产根已支持，无须修改账号领域或出站地址分类器。预览测试 binary 中固定 sink 的 resolver 不是部署配置：外部 SMTP hostname 会在建连前被拒绝，不能通过更新出站 CIDR、修改 hosts 或替换 SMTP 密码修复。此前持久预览的SMTP直连；本轮[统一出站候选](../work-items/system-outbound-policy-proxy.md)将SMTP接入同一持久代理选路，是否已部署以当前状态为准，不以候选源码代证运行行为。
+真实 SMTP 应由生产 `cmd/agenteam` 运行，使用默认 `SystemResolver`；当前生产根已支持，无须修改账号领域或出站地址分类器。预览测试 binary 中固定 sink 的 resolver 不是部署配置：外部 SMTP hostname 会在建连前被拒绝，不能通过更新出站 CIDR、修改 hosts 或替换 SMTP 密码修复。此前持久预览的SMTP直连；本轮[统一出站版本](../work-items/system-outbound-policy-proxy.md)已接入同一持久代理选路并保数据部署。实际活动binary与代理模式见当前状态；配置保存、升级或本机可用不等于邮件发送成功，真实SMTP实测仍暂停。
 
 最小可恢复组合为独立 PostgreSQL/pgvector、MinIO、宿主生产 Central 和 HTTPS 反向代理。复用已核验的工具与只读镜像即可；每个新部署使用独立数据库、bucket、数据目录、私有配置及端口，不复用旧测试实例的运行数据。TLS 代理保留 canonical Host，`PUBLIC_ORIGIN` 固定准确 HTTPS origin，`DEV_MODE=false`。若保留两个实例同时登录，仅更换同一 IP/hostname 的端口不能隔离 `__Host-agenteam_session` Cookie；应使用不同 hostname，或明确使用独立浏览器 profile。
 
@@ -96,7 +96,7 @@ python3 scripts/manage-persistent-central.py stage \
 
 切换顺序由运行owner执行：先核真实PID/start_ticks/executable及精确容器/nonce归属、无未终结或未join邮件任务；用当前manifest执行 `stop`并确认实际退出和端口释放。保留数据库/对象/TLS代理/frp，停止应用写入后对原数据库做私有custom-format备份并验证归档可读，记录原配置/密钥和数据身份摘要；备份、stderr及归档清单只存0700目录/0600文件，不打印凭据。随后只用stage返回的manifest执行 `start`，再核实际进程/exe SHA、迁移记录、同端口服务、原账号/SMTP安全投影与数据/密钥保持。
 
-`central-release.json`在候选Popen前持久记录已选source/SHA与manifest路径；后续管理使用其中的活动manifest。候选可能已提交迁移，因此一旦尝试启动，旧manifest不能再次start/stop/stage；保持所选候选并做兼容的前向修复。旧143二进制会拒绝144数据库，且不理解持久代理，切回direct也不能使其兼容；不自动回旧binary或恢复旧dump。候选进程记录发布失败时，manager只回收自己刚启动的child并实际wait，保留已选release和原错误，不清除未知残留文件；原正常stop超时仍不强杀。数据恢复如有需要必须另核配套schema、binary、备份与对象/密钥事实。
+`central-release.json`在候选Popen前持久记录已选source/SHA与manifest路径；后续管理使用其中的活动manifest，以 `python3 scripts/manage-persistent-central.py <action> --runtime /absolute/private/runtime-staged-FULL_REVISION.json`执行所选动作（action取status、stop或start）。本轮已完成schema144的保数据切换，原 `runtime.json`仅保留首次准备身份；准确活动路径、二进制摘要与验证限制见[恢复状态](../../../.agent-state/current.md)，不能继续使用旧manifest管理新实例。候选可能已提交迁移，因此一旦尝试启动，旧manifest不能再次start/stop/stage；保持所选候选并做兼容的前向修复。旧143二进制会拒绝144数据库，且不理解持久代理，切回direct也不能使其兼容；不自动回旧binary或恢复旧dump。候选进程记录发布失败时，manager只回收自己刚启动的child并实际wait，保留已选release和原错误，不清除未知残留文件；原正常stop超时仍不强杀。数据恢复如有需要必须另核配套schema、binary、备份与对象/密钥事实。
 
 保留原immutable nginx配置、TLS与nonce，`/__instance__/identity.source_revision`继续表示基础设施首次准备版本；它不证明新候选代码版本。新Central用活动manifest、实际PID/start_ticks/executable SHA证明，前端用实际构建/源组合单独核验。旧 `runtime-recovery-probe.cjs` 和 `diagnose-persistent-smtp.py`的identity.source等于runtime.source假设不适用于staged manifest，本轮升级用独立组合核验，不修改nginx来伪造候选身份。严格本机验证、公开入口响应归属和真实邮件结果分别记录；SMTP实测暂停，升级操作不触发测试发送。
 

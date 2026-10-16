@@ -1,6 +1,6 @@
 # Central 出站规则与持久代理
 
-状态：交付前WIP；基线 `89e4e901`。本卡是本轮工程接口、体验和验收的唯一合同，架构规则见[出站网络策略](../../architecture/platform-infrastructure/outbound-network-policy.md)。三条真实UI/API旅程、代理实际选路和Unknown恢复代表已有通过证据；最后lease活性门与最终组合核对尚未完成，生产未切换，不代表本卡正式交付。
+状态：本轮Central范围实现、独立门与Git集成已完成，持久预览已保数据切换；基线 `89e4e901`。本卡是本轮工程接口、体验和验收的唯一合同，架构规则见[出站网络策略](../../architecture/platform-infrastructure/outbound-network-policy.md)。实际本机预览与公网归属分别记录，公网身份仍未验证，真实SMTP继续暂停；不扩大到Runner或所有业务端点逐一端到端验收。
 
 ## 1. 目标与分工
 
@@ -17,7 +17,7 @@ Runner、数据库、MinIO 等部署基础连接不纳入本轮。移除产品 `
 | 独立安全/视觉 reviewer | 未参与实现的安全反例与有限浏览器审查 |
 | root | Git、组合、共享文件/迁移编号及实际运行资源协调 |
 
-不接管现有18443 production或用户配置，不因新源码出现替换运行中实例。现生产数据库包含用户新填SMTP，必须保留，旧测试数据重建授权不适用于这份数据。实施与验证使用独立配置、密钥、数据库和网络资源。
+实施与验证使用独立配置、密钥、数据库和网络资源，不因新源码出现替换运行中实例。后续经独立门和最终组合核对，按已授权的保数据stage顺序升级18443现有实例。其数据库包含用户新填SMTP，必须保留；旧测试数据重建授权不适用于这份数据。
 
 ## 2. API 最小合同
 
@@ -89,8 +89,10 @@ backend须盘点实际Central发出入口与组合根：受控HTTP client、Prov
 - 独立受控UI已查看四视口、浅深、两Tab、原生200%、焦点与减少动效；两次初期加载失败原因未定，保留原材料，后续通过不回填根因。这些拦截响应与合成身份结果不代真实API、代理通道或公网验证。
 - 新Vue与owned TLS5260 r3的规则、代理、权限三个真实旅程已分轮通过：规则增改删/刷新/409，密码空保持/替换/移除、安全投影，真实提交丢响应的同key/body恢复、严格回执后读失败仅GET，以及普通身份403/缺CSRF拒绝。首死Vite502与准备/导航/回读失败均留在harness；其中未证原因不由后续通过倒推。
 - 后端生产源码6ea的root HTTP API→认证代理→Secret借还→owned HTTPS、坏网关不直连→direct代表经作者及独立运行通过；18项transport定向race与环境毒值门通过。Model/MCP/OAuth/SMTP沿同root装配；没有独立web-fetch消费者，不虚构该链，也不称所有Provider逐一端到端或PG race通过。
-- 独立真实PG权限/Secret与Unknown两代表已通过；旧a37同输入反例失败后，6ea确认held COMMIT实际settle/writer join、原key恢复双snapshot及另一资源成功不提前解禁。最后live lease活性门仍在跑：先以正式StopAdmission/Drain释放spool、保实际ProcessGuard活，再验证保护与可靠停止后的回收。原双root共spool的fixture准备失败不算产品缺陷。两个既有受影响selector已实际通过；原等待预算/selector/输入错误保留，产品deadline未放宽。
-- r3已优雅退出0，专属3容器/3网络清零，5260无监听且runtime/sidecar撤；frontend5246保留，用户18443及SMTP未动。候选普通build已通过，最终OpenAPI embed与组合构建仍待核对。
-- 保数据manager的Popen后登记失败问题经同.next故障独立复验关闭：候选实际回收、保留selected release且拒旧版回退，同版可恢复，合成配置/数据/密钥未变。实际production stage、备份、停机均未执行；运行顺序与143→144恢复边界见[持久实例stage与恢复](../backend/account.md#既有持久实例的stage与恢复)。nginx保持原基础设施身份，候选另核实际进程与binary，不套用旧probe的source相等假设。
+- 独立真实PG权限/Secret、Unknown两代表及lease活性门均通过；旧a37同输入反例失败后，6ea确认held COMMIT实际settle/writer join、原key恢复双snapshot及另一资源成功不提前解禁。lease使用合法durable-state注入及真实ProcessGuard生命周期：guard仍活时恢复保留lease/operation，旧process实际join后才释放并使HTTP remove成功，不称SIGKILL。原双root共spool准备失败不算产品缺陷；两个既有受影响selector已实际通过。PG非race，原准备/输入错误保留，产品deadline未放宽。
+- r3已优雅退出0，专属3容器/3网络清零，5260无监听且runtime/sidecar撤；任务专用frontend5246也已精确清退，主树用户5245保留。最终普通build与VCS clean通过，实际生产输入与集成主树一致；`api/openapi/outbound-policy.json`不在该cmd的Go/Embed依赖中，此前认为需要重做embed构建的待办已纠正。
+- 保数据manager登记失败的同.next故障已独审关闭。实际持久实例已stage、私有一致备份并切换到新binary，schema144；停前后用户/Session、完整SMTP及凭据、旧规则、keyregistry相等，原immutable文件/数据目录与基础容器保持，未发邮件。首次备份验证因buffered FD offset失败，修复读取方式后同一dump经PG17.8 `pg_restore --list`通过，原失败保留。严格本机TLS/nonce、live/login与匿名管理拒绝通过；ready503仍为D05 DEPENDENCY_UNBOUND，首断言未保存详情不追认原因。最终只读浏览器在严格本机TLS/实际证书与nonce门后确认登录、新Vue模块、规则/代理读取与显示，退出Session/浏览器/relay并保留原服务；未执行业务写入或SMTP。本机CONNECT保持public origin，不代证公网链路，公网严格读取仍未取得nonce。
 
-不操作现production或真实SMTP。精确输入、失败与下一步见[当前状态](../../../.agent-state/current.md)，命令和行为结果由[出站harness](../../../tests/frontend-outbound-policy/README.md)维护。
+恢复与143→144边界见[持久实例stage与恢复](../backend/account.md#既有持久实例的stage与恢复)。nginx保留原基础设施身份，新backend另核active-release、实际进程/exe SHA，前端按实际集成源核对，不套用旧probe的source相等假设。
+
+真实SMTP继续暂停，保留现服务与用户数据供预览。精确运行身份、预览检查及限制见[当前状态](../../../.agent-state/current.md)，隔离UI/API命令和结果由[出站harness](../../../tests/frontend-outbound-policy/README.md)维护。
