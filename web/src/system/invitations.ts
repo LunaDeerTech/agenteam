@@ -201,7 +201,7 @@ export const reasonLabel: Record<
   NonNullable<InvitationDelivery["reason"]>,
   string
 > = {
-  sent: "发送已受理",
+  sent: "发送端已确认",
   token_invalid: "业务链接已失效",
   configuration_invalid: "发送配置无效",
   policy_rejected: "出站规则拒绝",

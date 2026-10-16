@@ -1,6 +1,6 @@
 # 当前状态：新 Vue 系统账号设置四页实施中
 
-2026-10-16。用户已接受中性炭灰深色与设置整框成果，相关源码已保存推送 `cd1a5df6`。本轮明确实现系统设置的用户、待注册邀请、账号安全和SMTP四页，其他七页保持骨架；唯一行为/验收合同为[系统账号设置](../docs/development/work-items/frontend-system-account-settings.md)，此前七页与会话边界仍见[账号合同](../docs/development/work-items/frontend-account-rebuild.md)。用户目录与账号安全已分别通过独立实例真实浏览器验证，邀请及SMTP仍在验，四页尚未完成。公开24小时App仍保留；旧frp被SIGKILL成僵尸后已独立会话恢复转发，但管理代理仍拒上游私有CA，尚无公网身份标记或用户明确重试结果。UI反馈不代证公网通过，原用户TLS错误也不能只归因代理。
+2026-10-16。用户已接受中性炭灰深色与设置整框成果，相关源码已保存推送 `cd1a5df6`。本轮明确实现系统设置的用户、待注册邀请、账号安全和SMTP四页，其他七页保持骨架；唯一行为/验收合同为[系统账号设置](../docs/development/work-items/frontend-system-account-settings.md)，此前七页与会话边界仍见[账号合同](../docs/development/work-items/frontend-account-rebuild.md)。用户目录、账号安全及邀请已分别通过独立实例真实浏览器验证；SMTP真实链待跑，用户新页头要求正在调整，四页尚未完成。公开24小时App仍保留；旧frp被SIGKILL成僵尸后已独立会话恢复转发，但管理代理仍拒上游私有CA，尚无公网身份标记或用户明确重试结果。UI反馈不代证公网通过，原用户TLS错误也不能只归因代理。
 
 ## 范围、组合与所有权
 
@@ -15,14 +15,14 @@
 | `/root/vue_integration` | 用户/邀请页面与唯一共享client、Session/transport、路由接线；首用户slice已冻结，其余继续实施。 |
 | `/root/account_contract/system_api_surface` | 账号安全/SMTP两页及专属API模块，复用共享owner；不参与自身独审。 |
 | `/root/account_backend` | 独立后端树的account/API/装配、后端说明、真实服务与frp；当前服务保留。 |
-| `/root/vue_tests` | 系统四页必要harness/测试与恢复说明；用户/安全真实链已过，邀请在跑，SMTP待修正版。 |
+| `/root/vue_tests` | 系统四页必要harness/测试与恢复说明；用户/安全/邀请真实链已过，SMTP真实链待跑。 |
 | `/root/vue_visual_review` | 未参与实现的视觉、交互与适用安全独审；用户问题已复验关闭，其余限定检查继续。 |
 
 ## 已打通的流程与检查边界
 
-- 本轮已推 `0aeca9e1` 用户目录首WIP、`e84517e9` 私有account-settings/AccountSecurity源码（当时未check）、`20ac81ae` 新增系统unit与首失败说明。后端 `7aa9b503` 已推，root已集成8份正式源码/测试/OpenAPI/说明，后端current不并入。窄修将已提交后的投影失败标为committed/replay，后读COMMIT_UNKNOWN改为DEPENDENCY_UNAVAILABLE，成功DTO不变；定向unit及真实PG HTTP验证通过（11.04秒），含四SMTP命令写后读失败、历史同key恢复且版本/投递/audit不重复，普通GET失败仍not_committed。独立5250已就绪并核专用CA/nonce与内建首链；公开r2继续保留 `9dd3044c` 及原账号/Session，不热替换、不新增公网端口，新Vue保守兼容旧后读not_started的Unknown边界。
-- 此前前端11源已冻结并通过type-check（含新增7项test类型）：用户分页上界/焦点/UTC修正、邀请初版、路由及账号安全页接线、SMTP PUT局部32KiB与committed原值保留已落。本次邀请版本/提示修正已冻结；SMTP按用户新指令改为“发件账号”组及单密码框（空保持、填写替换），认证移除仅为有确认、无脏草稿时可用的次级动作。修正版工程与真实SMTP检查尚未完成，不把此前类型结果当作本次通过。
-- 新增7项system unit分轮有效通过：首轮2过1失败（limit10接受11项）保留，修正后定向5/5通过，原2项未重跑。覆盖分页上界、SMTP404保Unknown、503 committed保原提交事实/同key body、敏感投影拒绝、bigint历史回执与较新当前值、202后GET失败零重复POST。真实users 1/1通过（38.6秒），独审同输入复验关闭分页焦点/播报及完整UTC时间问题。安全真实链另1/1通过（11.5秒）：保存、真实并发409保草稿与显式采用、提交后丢响应保Unknown且同key/body恢复、确认后读失败只重GET不二次写。两条真实链均用新独立5250，非公开r2；邀请在跑，SMTP待修正版，不以合成视觉或unit代证业务通过。
+- 本轮首WIP已先后保存，最近主树组合从 `98f0b76a` 推进到 `6ed7e2cd`。后端 `7aa9b503` 已推且正式源码/测试/OpenAPI/说明已集成，后端current不并入。窄修将已提交后的投影失败标为committed/replay，后读COMMIT_UNKNOWN改为DEPENDENCY_UNAVAILABLE，成功DTO不变；定向unit及真实PG HTTP验证通过（11.04秒），含四SMTP命令写后读失败、历史同key恢复且版本/投递/audit不重复，普通GET失败仍not_committed。独立5250已核专用CA/nonce与内建首链；公开r2继续保留 `9dd3044c` 及原账号/Session，不热替换、不新增公网端口，新Vue保守兼容旧后读not_started的Unknown边界。
+- SMTP“发件账号”组及单密码框（空保持、填写替换）、带确认和草稿保护的次级认证移除，以及邀请最后修正的共同冻结输入已通过 `npm run check --prefix web`：全web格式、8文件47/47 unit、vue-tsc与build。此后用户要求页级动作移至标题右侧、description按需显示，删除用户/邀请常规介绍与SMTP配置常驻技术说明；页头调整仍在实施，后续只补受影响检查，前述通过不覆盖新差量。表单保存/取消继续就近，未扩大为全站批量删文案。defaultfalse dist只作工程/预览构建，真实业务仍为5245 true经独立5250代理。
+- 系统unit最初的2过1失败（limit10接受11项）与后续定向修正均保留，最终组合检查见上一项。真实users 1/1通过（38.6秒），独审同输入复验关闭分页焦点/播报及完整UTC时间问题。安全真实链1/1通过（11.5秒）：保存、真实并发409保草稿与显式采用、提交后丢响应保Unknown且同key/body恢复、确认后读失败只重GET不二次写。邀请run02 1/1通过（83.06秒），覆盖受控投递/人工重试、真实60秒重发限流、撤销反例、兑换和目录出现新用户；run01初201确认DOM断点失败保留，虽与源码HMR时间重叠，未认定唯一原因。三条真实链均用新独立5250，非公开r2；SMTP真实链待跑，不以合成视觉或unit代证业务通过。
 - 此前深色仅改 `web/src/styles/tokens.css` 的dark语义色、`web/src/composables/useTheme.ts` 的浏览器主题色映射及 `web/index.html` 的meta。独审发现此前HTML缺theme-color，补标签后才具备实际更新目标。最终三源限定Prettier、build（含vue-tsc）及差量检查通过；实际DOM确认唯一meta随dark→light→dark更新，未称headless已验证原生浏览器栏像素。
 - 此前深色有限独审使用5245受控合成只读身份，实际查看1440同输入前后、390深色、两尺寸菜单及焦点/hover：层次可辨、无横溢，键盘菜单与Esc回焦通过；token对比度辅助检查亦通过。作者另看1440浅色，dark块外CSS逐字保持，无真实admin或SMTP操作，未重跑unit/业务/完整布局矩阵，浏览器均已退出。[中性炭灰原图](https://img.lunadeer.cn/i/2026/10/16/6ad1caedf1ecd.png)已上传并匿名下载校验一致，用户现已接受。
 - 此前设置整框仅改 `web/src/layouts/AppShell.vue`：按settings路由约束完整内容框最大1200px并居中，桌面外侧留白48px、中等宽32px、窄屏沿原5px；SettingsShell填满框内且内部标题/表单继续左齐，项目设置的项目导航随框收口，其他页面仍全宽。仅收窄内部的旧候选已被用户否定并撤回，SettingsShell相对基线无差异。限定Prettier、build（含vue-tsc）及差量格式检查通过，未新增unit或重跑业务旅程。
@@ -47,7 +47,7 @@
 | public r2 | 目标体验URL `https://154.12.86.233:18443`，本地TLS5254终止，frp TCP18443直透；保留旧后端 `9dd3044c` 和原账号/Session，本轮不更新公开后端。新frp已独立会话恢复并跨tool确认存活，尚未完成公网身份/登录验真。 |
 | 有效期限 | started `2026-10-16 04:24:20 UTC`；实际expires **`2026-10-17 04:23:20 UTC`**，约24小时。页面、PG、MinIO、outbound、SMTP的10张实际CA/leaf期限均已核覆盖；进程或环境退出仍可能提前结束，不是永久部署。 |
 | 运行与停止 | 私有目录 `/workspace/scratch/account-preview-public-r2/`；`runtime.json`为0600原子manifest，`run-state.json`记录运行/停止，`credentials.txt`为0600最小凭据文件。密码、Cookie、CSRF和一次性链接不写入文档或普通输出。 |
-| 本地作者组合 | 新独立 `https://localhost:5250` → 5245新Vue dev，后端 `7aa9b503`，长驻Go测试进程内真实App+独立PG17/vector0.8.1、固定MinIO和受控SMTP；不是独立cmd/Central二进制部署。与公开r2分开，恢复须核实际进程及本轮manifest期限。 |
+| 本地作者组合 | 新独立 `https://localhost:5250` → 5245新Vue dev，后端 `7aa9b503`，长驻Go测试进程内真实App+独立PG17/vector0.8.1、固定MinIO和受控SMTP；不是独立cmd/Central二进制部署。本轮期限为 `2026-10-16 08:04:12 UTC`，与公开r2分开，恢复须核实际进程及manifest。 |
 | 静态预览 | 5244/HTTP18081保持 `VITE_ACCOUNT_ENABLED=false`；公开 `/login` 的禁用输入、官方Logo和预览提示已浏览器核实，账号API请求为0。原型5241、业务dev5245及既有frp18081按授权保留。 |
 
 公开实例不要求frps配置HTTPS/证书，也不依赖用户Nginx；现有443应用保持。临时专用CA和IP SAN会产生普通浏览器的不信任提示，用户已知；保持 `DevMode=false`、Secure Cookie和Host/Origin/CSRF校验，不修改系统信任。严格测试只信本轮专用CA/SPKI。准确启动与停止命令见[后端预览说明](../docs/development/backend/account.md)，不把历史manifest视为服务仍在。
@@ -64,7 +64,7 @@ SMTP仅连接本任务私有sink，邀请/重置正文链已验证，不代表�
 
 ## 保存与下一步
 
-本轮系统四页按新合同持续实施；稳定源码、测试和文档由各owner冻结后交root保存/推送，WIP不等于四页完成、main或生产发布。下一结果是独立实例的邀请真实链，以及SMTP修正版工程、真实功能和有限独审。系统全局配置写在独立测试实例执行，不改用户试用实例；后端准确committed修复随Git交付，公开r2继续旧版本。公网仍待身份标记及真实登录结果；当前UI反馈不代证公网通过。恢复需核非Z状态、PID起始ticks/会话、实际监听/转发和24小时资源/证书期限，不能只凭PID存在或旧日志。用户图片继续先上传图床并提供原图链接。
+本轮系统四页按新合同持续实施；稳定源码、测试和文档由各owner冻结后交root保存/推送，WIP不等于四页完成、main或生产发布。下一结果是SMTP真实链、页头新差量的受影响检查及有限独审。系统全局配置写在独立测试实例执行，不改用户试用实例；后端准确committed修复随Git交付，公开r2继续旧版本。公网仍待身份标记及真实登录结果；当前UI反馈不代证公网通过。恢复需核非Z状态、PID起始ticks/会话、实际监听/转发和24小时资源/证书期限，不能只凭PID存在或旧日志。用户图片继续先上传图床并提供原图链接。
 
 ## 保留的既有恢复入口
 

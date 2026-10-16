@@ -5,6 +5,7 @@ import { accountEnabled, accountErrorMessage } from "../../account/transport";
 import { listUsers, formatInstant } from "../../system/directory";
 import { useSystemAccess } from "../../system/requests";
 import { useCursorList } from "../../system/useCursorList";
+import SettingsPageActions from "../../layouts/SettingsPageActions.vue";
 const access = useSystemAccess();
 const list = useCursorList(listUsers);
 const results = ref<HTMLElement>();
@@ -20,15 +21,14 @@ async function navigate(action: () => Promise<void>) {
 
 <template>
   <div class="system-directory">
-    <div class="directory-toolbar">
-      <p class="form-note">查看已注册用户及其平台身份。</p>
+    <SettingsPageActions>
       <UiButton
         :disabled="!accountEnabled || !access.allowed.value"
         :loading="list.loading.value"
         @click="navigate(list.first)"
         >刷新</UiButton
       >
-    </div>
+    </SettingsPageActions>
     <p v-if="!accountEnabled" class="form-feedback">
       当前为界面预览。连接账号服务后可查看用户。
     </p>
@@ -130,7 +130,6 @@ async function navigate(action: () => Promise<void>) {
 </template>
 
 <style scoped>
-.directory-toolbar,
 .directory-pagination {
   display: flex;
   align-items: center;
@@ -195,9 +194,6 @@ async function navigate(action: () => Promise<void>) {
 @media (max-width: 480px) {
   .directory-row {
     gap: 12px;
-  }
-  .directory-toolbar {
-    align-items: flex-start;
   }
 }
 </style>

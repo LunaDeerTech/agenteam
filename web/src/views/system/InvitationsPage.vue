@@ -20,6 +20,7 @@ import { emailError } from "../../account/validation";
 import { formatInstant } from "../../system/directory";
 import { useSystemAccess } from "../../system/requests";
 import { useCursorList } from "../../system/useCursorList";
+import SettingsPageActions from "../../layouts/SettingsPageActions.vue";
 import {
   retryMailJobCommand,
   mailJobRetryReason,
@@ -106,6 +107,7 @@ const issue = computed(() => {
 });
 const conflict = computed(
   () =>
+    !operation.uncertain.value &&
     operation.error.value instanceof AccountError &&
     operation.error.value.code === "VERSION_CONFLICT",
 );
@@ -257,18 +259,15 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="invitation-directory">
-    <div class="directory-toolbar">
-      <p class="form-note">邀请通过后，用户可注册并加入平台。</p>
-      <div class="form-actions">
-        <UiButton :disabled="locked" @click="refresh">刷新</UiButton>
-        <UiButton
-          variant="primary"
-          :disabled="locked || refreshNeeded"
-          @click="open('create')"
-          >邀请用户</UiButton
-        >
-      </div>
-    </div>
+    <SettingsPageActions>
+      <UiButton :disabled="locked" @click="refresh">刷新</UiButton>
+      <UiButton
+        variant="primary"
+        :disabled="locked || refreshNeeded"
+        @click="open('create')"
+        >邀请用户</UiButton
+      >
+    </SettingsPageActions>
     <p v-if="!accountEnabled" class="form-feedback">
       当前为界面预览。连接账号服务后可管理邀请。
     </p>
@@ -528,15 +527,11 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.directory-toolbar,
 .directory-pagination {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-}
-.directory-toolbar .form-actions {
-  flex: none;
 }
 .directory-status {
   min-height: 20px;
@@ -614,13 +609,6 @@ onBeforeUnmount(() => {
   overflow-wrap: anywhere;
 }
 @media (max-width: 480px) {
-  .directory-toolbar {
-    align-items: flex-start;
-    flex-wrap: wrap;
-  }
-  .directory-toolbar .form-actions {
-    width: 100%;
-  }
   .delivery-details > div {
     grid-template-columns: 90px minmax(0, 1fr);
   }

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {
   computed,
+  nextTick,
   onBeforeUnmount,
   onMounted,
   reactive,
@@ -37,6 +38,7 @@ const submitted = ref(false);
 const confirmation = ref<"discard" | "adopt" | "abandon">();
 const save = useSettingsCommand<AccountSettings>();
 const checking = ref(false);
+const pageElement = ref<HTMLElement | null>(null);
 let alive = true;
 let readRevision = 0;
 const dirty = computed(
@@ -62,11 +64,7 @@ const locked = computed(
     save.uncertain.value ||
     checking.value,
 );
-const committed = computed(
-  () =>
-    save.error.value instanceof AccountError &&
-    save.error.value.commitState === "committed",
-);
+const committed = save.committed;
 const latestChanged = computed(
   () =>
     !!observation.value &&
@@ -116,7 +114,14 @@ async function load(replace = false) {
 async function submit() {
   if (locked.value || conflict.value || !dirty.value || !baseline.value) return;
   submitted.value = true;
-  if (Object.keys(issues.value).length) return;
+  if (Object.keys(issues.value).length) {
+    await nextTick();
+    if (alive && access.allowed.value)
+      pageElement.value
+        ?.querySelector<HTMLElement>('[aria-invalid="true"]')
+        ?.focus();
+    return;
+  }
   const generation = access.generation.value;
   const base = baseline.value;
   await save.submit(
@@ -188,7 +193,7 @@ useLeaveProtection(
 </script>
 
 <template>
-  <div class="security-page account-form">
+  <div ref="pageElement" class="security-page account-form">
     <p v-if="!accountEnabled" class="form-feedback">
       当前为界面预览，连接账号服务后可读取和修改设置。
     </p>
@@ -252,7 +257,7 @@ useLeaveProtection(
           </section>
         </fieldset>
         <p
-          v-if="save.confirmed.value"
+          v-if="save.confirmed.value && !dirty"
           class="form-note form-success"
           role="status"
         >

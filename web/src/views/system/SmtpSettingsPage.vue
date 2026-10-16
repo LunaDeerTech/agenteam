@@ -26,13 +26,14 @@ import { useSystemAccess } from "../../system/requests";
 import {
   deliveryChannel,
   deliveryKinds,
+  deliveryOutcome,
   deliveryPhases,
   deliveryReasons,
-  deliveryResults,
   getSMTPJob,
   getSMTPSettings,
   jobRetryIssue,
   listSMTPJobs,
+  removeSMTPAuthentication,
   retrySMTPJob,
   saveSMTPSettings,
   settingsEmailIssue,
@@ -50,6 +51,7 @@ import {
 } from "../../system/account-settings";
 
 const access = useSystemAccess();
+const pageElement = ref<HTMLElement | null>(null);
 const section = ref("configuration");
 const observation = shallowRef<SMTPSettings>();
 const baseline = shallowRef<SMTPSettings>();
@@ -57,8 +59,9 @@ const draft = reactive(smtpDraft());
 const reading = ref(false);
 const readError = shallowRef<unknown>();
 const submitted = ref(false);
+const needsPassword = ref(false);
 const configSave = useSettingsCommand<SMTPResult>();
-const configAction = ref<"save" | "unconfigure">("save");
+const configAction = ref<"save" | "unconfigure" | "remove-auth">("save");
 const recipient = ref("");
 const testSubmitted = ref(false);
 const deliverySave = useSettingsCommand<JobAccepted | JobRetryAccepted>();
@@ -92,6 +95,7 @@ const confirmation = ref<
   | "abandon-delivery"
   | "switch"
   | "retry"
+  | "remove-auth"
 >();
 const nextSection = ref("");
 const retryTarget = shallowRef<MailJobManagement>();
@@ -102,6 +106,7 @@ let detailRevision = 0;
 
 const configDirty = computed(() => {
   if (!baseline.value) return false;
+  if (needsPassword.value) return true;
   const initial = smtpDraft(baseline.value);
   return (Object.keys(initial) as (keyof SMTPDraft)[]).some(
     (key) => draft[key] !== initial[key],
@@ -144,28 +149,21 @@ const deliveryLocked = computed(
     anyBusy.value ||
     deliverySave.uncertain.value,
 );
-const configCommitted = computed(
-  () =>
-    configSave.error.value instanceof AccountError &&
-    configSave.error.value.commitState === "committed",
-);
-const deliveryCommitted = computed(
-  () =>
-    deliverySave.error.value instanceof AccountError &&
-    deliverySave.error.value.commitState === "committed",
-);
+const configCommitted = configSave.committed;
+const deliveryCommitted = deliverySave.committed;
 const issues = computed(() => {
   const value = smtpIssues(draft);
   if (draft.configured) {
     const hasCredential =
-      draft.credential_action === "replace"
-        ? !!draft.password
-        : draft.credential_action === "keep" &&
-          !!baseline.value?.credential_present;
+      !!draft.password || !!baseline.value?.credential_present;
     if (draft.username && !hasCredential)
       value.password = "认证账号需要同时配置密码。";
+    if (needsPassword.value && !draft.password)
+      value.password =
+        "上次填写的新密码已从输入框清除，请重新输入。取消修改可继续保留原密码。";
     if (!draft.username && hasCredential)
-      value.username = "保留或替换认证密码时，需要填写认证账号。";
+      value.username =
+        "保留或更新密码时需要填写认证账号。若要取消认证，请先取消修改，再使用移除已保存认证。";
   }
   return value;
 });
@@ -191,11 +189,6 @@ const encryptionOptions = [
   { value: "starttls", label: "STARTTLS" },
   { value: "none", label: "不加密" },
 ];
-const credentialOptions = [
-  { value: "keep", label: "保持当前凭据" },
-  { value: "replace", label: "替换密码" },
-  { value: "remove", label: "移除凭据" },
-];
 
 function fieldIssue(key: string) {
   if (submitted.value && issues.value[key]) return issues.value[key];
@@ -204,10 +197,18 @@ function fieldIssue(key: string) {
     ? "请检查此项内容后再试。"
     : "";
 }
+async function focusInvalid() {
+  await nextTick();
+  if (alive && access.allowed.value)
+    pageElement.value
+      ?.querySelector<HTMLElement>('[aria-invalid="true"]')
+      ?.focus();
+}
 function adopt(value: SMTPSettings) {
   baseline.value = value;
   Object.assign(draft, smtpDraft(value));
   submitted.value = false;
+  needsPassword.value = false;
 }
 async function readConfig(replace = false) {
   if (reading.value || !access.allowed.value || !accountEnabled) return;
@@ -247,7 +248,10 @@ async function saveConfiguration(stop = false) {
     ? smtpIssues({ ...smtpDraft(), ...policy }).auto_retry_count ||
       smtpIssues({ ...smtpDraft(), ...policy }).retry_interval_seconds
     : Object.keys(issues.value).length;
-  if (invalid) return;
+  if (invalid) {
+    await focusInvalid();
+    return;
+  }
   const base = baseline.value;
   const generation = access.generation.value;
   configAction.value = stop ? "unconfigure" : "save";
@@ -261,9 +265,36 @@ async function saveConfiguration(stop = false) {
           ? unconfigureSMTP(base, policy, options)
           : saveSMTPSettings(base, draft, options);
       // Keep replacement material only in the command's frozen body after dispatch.
+      needsPassword.value = !stop && !!draft.password;
       draft.password = "";
       return command;
     },
+    (value) => {
+      if (
+        !observation.value ||
+        BigInt(value.settings.version) >= BigInt(observation.value.version)
+      )
+        observation.value = value.settings;
+      adopt(observation.value!);
+    },
+  );
+}
+async function removeAuthentication() {
+  if (
+    configLocked.value ||
+    configDirty.value ||
+    configConflict.value ||
+    !baseline.value?.credential_present
+  )
+    return;
+  const base = baseline.value;
+  const generation = access.generation.value;
+  configAction.value = "remove-auth";
+  await configSave.submit(
+    () =>
+      removeSMTPAuthentication(base, {
+        current: () => alive && generation === access.generation.value,
+      }),
     (value) => {
       if (
         !observation.value ||
@@ -278,6 +309,11 @@ async function loadJobs(cursor?: string, targetPage = 0) {
   if (!access.allowed.value || !accountEnabled || listReading.value) return;
   const revision = ++listRevision;
   const generation = access.generation.value;
+  const focused = document.activeElement;
+  const restoreFocus =
+    focused instanceof HTMLElement &&
+    focused.matches("button") &&
+    !!focused.closest(".job-list");
   const current = () =>
     alive &&
     revision === listRevision &&
@@ -301,6 +337,10 @@ async function loadJobs(cursor?: string, targetPage = 0) {
     if (current()) listError.value = error;
   } finally {
     if (revision === listRevision) listReading.value = false;
+    if (current() && restoreFocus) {
+      await nextTick();
+      if (current()) listHeading.value?.focus({ preventScroll: true });
+    }
   }
 }
 async function openJob(jobId: string, moveFocus = true) {
@@ -319,7 +359,7 @@ async function openJob(jobId: string, moveFocus = true) {
   detailError.value = undefined;
   if (moveFocus) {
     await nextTick();
-    detailHeading.value?.focus({ preventScroll: true });
+    if (current()) detailHeading.value?.focus({ preventScroll: true });
   }
   try {
     const value = await getSMTPJob(jobId, { current });
@@ -341,12 +381,21 @@ async function backToList() {
   detail.value = undefined;
   detailError.value = undefined;
   await nextTick();
-  listHeading.value?.focus({ preventScroll: true });
+  if (
+    alive &&
+    access.allowed.value &&
+    section.value === "delivery" &&
+    !detailId.value
+  )
+    listHeading.value?.focus({ preventScroll: true });
 }
 async function sendTest() {
   if (deliveryLocked.value || !observation.value?.configured) return;
   testSubmitted.value = true;
-  if (settingsEmailIssue(recipient.value)) return;
+  if (settingsEmailIssue(recipient.value)) {
+    await focusInvalid();
+    return;
+  }
   const generation = access.generation.value;
   deliveryAction.value = "test";
   sourceJob.value = undefined;
@@ -406,7 +455,11 @@ async function inspectDelivery() {
   try {
     if (!(await deliverySave.verify())) return;
     if (sourceJob.value) await openJob(sourceJob.value);
-    else await loadJobs();
+    else {
+      detailId.value = undefined;
+      detail.value = undefined;
+      await loadJobs();
+    }
   } finally {
     checking.value = false;
   }
@@ -473,6 +526,10 @@ async function confirmAction() {
     await saveConfiguration(true);
     return;
   }
+  if (action === "remove-auth") {
+    await removeAuthentication();
+    return;
+  }
   if (action === "switch") {
     await switchSection(nextSection.value);
     return;
@@ -496,17 +553,21 @@ async function confirmAction() {
 const confirmationTitle = computed(() =>
   confirmation.value === "stop"
     ? "停用 SMTP"
-    : confirmation.value === "retry"
-      ? "申请新的投递重试"
-      : confirmation.value?.startsWith("abandon")
-        ? "放弃追踪本次操作"
-        : "放弃当前修改",
+    : confirmation.value === "remove-auth"
+      ? "移除已保存的认证"
+      : confirmation.value === "retry"
+        ? "申请新的投递重试"
+        : confirmation.value?.startsWith("abandon")
+          ? "放弃追踪本次操作"
+          : "放弃当前修改",
 );
 const confirmationCopy = computed(() => {
   if (confirmation.value === "stop")
     return "停用会清除已保存的连接配置和认证凭据，保留当前填写的重试策略。未保存的其他字段会被放弃；在途邮件不会因此撤回。";
   if (confirmation.value === "retry")
     return "使用当前合法配置和原业务材料申请新的投递周期，可能重复投递。原邀请或重置链接不会续期，是否接受由服务核实。";
+  if (confirmation.value === "remove-auth")
+    return "已保存的认证账号与密码将一并清除。SMTP 连接与发件人信息保持；邮件服务器需要允许不认证发送。";
   if (
     confirmation.value?.startsWith("abandon") ||
     (confirmation.value === "switch" &&
@@ -523,16 +584,11 @@ function reset() {
   readError.value = undefined;
   Object.assign(draft, smtpDraft());
   submitted.value = false;
+  needsPassword.value = false;
   confirmation.value = undefined;
   clearDelivery();
   section.value = "configuration";
 }
-watch(
-  () => draft.credential_action,
-  (value) => {
-    if (value !== "replace") draft.password = "";
-  },
-);
 watch(access.generation, reset, { flush: "sync" });
 watch(access.allowed, (allowed) => {
   if (allowed && !baseline.value && !reading.value) void readConfig();
@@ -555,7 +611,7 @@ useLeaveProtection(
 </script>
 
 <template>
-  <div class="smtp-page">
+  <div ref="pageElement" class="smtp-page">
     <p v-if="!accountEnabled" class="form-feedback">
       当前为界面预览，连接账号服务后可管理 SMTP。
     </p>
@@ -572,9 +628,6 @@ useLeaveProtection(
       :items="tabs"
     >
       <div v-if="section === 'configuration'" class="account-form smtp-form">
-        <p class="form-note">
-          配置保存与邮件投递分别确认。已配置后的发送失败不会切换到后台日志，加密失败也不会自动降级。
-        </p>
         <p v-if="reading && !baseline" class="form-note" role="status">
           正在读取 SMTP 配置…
         </p>
@@ -631,7 +684,7 @@ useLeaveProtection(
                 class="form-section"
                 aria-labelledby="smtp-authentication"
               >
-                <h2 id="smtp-authentication">身份认证</h2>
+                <h2 id="smtp-authentication">发件账号</h2>
                 <UiInput
                   v-model="draft.username"
                   label="认证账号"
@@ -639,38 +692,18 @@ useLeaveProtection(
                   :error="fieldIssue('username')"
                   autocomplete="off"
                 />
-                <UiSelect
-                  v-model="draft.credential_action"
-                  label="凭据处理"
-                  :options="credentialOptions"
-                  :disabled="configLocked"
-                  :hint="
-                    baseline.credential_present
-                      ? '已保存认证凭据，原密码不会读取或回显。'
-                      : '当前没有保存的认证凭据。'
-                  "
-                />
                 <UiInput
-                  v-if="draft.credential_action === 'replace'"
                   v-model="draft.password"
-                  label="替换密码"
+                  label="密码"
                   type="password"
                   autocomplete="new-password"
                   :error="fieldIssue('password')"
-                  hint="密码只用于本次保存，不会显示已保存的密码。"
+                  :hint="
+                    baseline.credential_present
+                      ? '留空保持已保存的密码，填写新值则更新。已保存的密码不会回显。'
+                      : '尚未保存密码。需要认证时，请同时填写账号与密码。'
+                  "
                 />
-                <p v-else-if="fieldIssue('password')" class="ui-field-error">
-                  {{ fieldIssue("password") }}
-                </p>
-                <p
-                  v-if="draft.credential_action === 'remove'"
-                  class="form-note"
-                >
-                  同时清空认证账号。移除凭据不会停用 SMTP。
-                </p>
-              </section>
-              <section class="form-section" aria-labelledby="smtp-sender">
-                <h2 id="smtp-sender">发送身份</h2>
                 <UiInput
                   v-model="draft.sender_email"
                   label="发件人邮箱"
@@ -685,6 +718,20 @@ useLeaveProtection(
                   :error="fieldIssue('sender_name')"
                   autocomplete="off"
                 />
+                <div
+                  v-if="baseline.credential_present"
+                  class="saved-auth-action"
+                >
+                  <UiButton
+                    variant="ghost"
+                    :disabled="configLocked || configDirty || configConflict"
+                    @click="confirmation = 'remove-auth'"
+                    >移除已保存的认证</UiButton
+                  >
+                  <p v-if="configDirty" class="form-note">
+                    需要移除认证时，请先保存或取消当前修改。
+                  </p>
+                </div>
               </section>
             </template>
             <section class="form-section" aria-labelledby="smtp-retry-policy">
@@ -713,14 +760,16 @@ useLeaveProtection(
             </section>
           </fieldset>
           <p
-            v-if="configSave.confirmed.value"
+            v-if="configSave.confirmed.value && !configDirty"
             class="form-note form-success"
             role="status"
           >
             {{
               configAction === "unconfigure"
                 ? "停用操作已确认。下方编辑基于当前配置。"
-                : "SMTP 配置已保存。保存成功不代表邮件已送达。"
+                : configAction === "remove-auth"
+                  ? "已保存的认证账号与密码已移除。"
+                  : "SMTP 配置已保存。保存成功不代表邮件已送达。"
             }}
           </p>
           <div
@@ -765,9 +814,12 @@ useLeaveProtection(
             <p>
               {{
                 configConflict
-                  ? "配置已发生变化，你的草稿已保留。请读取最新配置并核对，再明确采用。"
+                  ? "配置已发生变化，非密码字段的草稿已保留。请读取最新配置并核对，再明确采用。"
                   : accountErrorMessage(configSave.error.value)
               }}
+            </p>
+            <p v-if="needsPassword">
+              新密码已从输入框清除。继续保存前需重新输入，取消修改会保留原密码。
             </p>
           </div>
           <div
@@ -962,9 +1014,7 @@ useLeaveProtection(
               <dt>当前尝试结果</dt>
               <dd>
                 {{
-                  detail.attempt_result
-                    ? deliveryResults[detail.attempt_result]
-                    : "尚未记录终局结果"
+                  deliveryOutcome(detail.attempt_result, detail.attempt_channel)
                 }}
               </dd>
               <template v-if="detail.reason"
@@ -988,7 +1038,7 @@ useLeaveProtection(
               </dd>
             </dl>
             <p class="form-note">
-              “已接受”只表示 SMTP
+              “发送端已确认”只表示 SMTP
               接受或受限恢复日志已写入，不保证收件箱到达。历史结果不会随配置改变。
             </p>
             <p v-if="jobRetryIssue(detail)" class="form-note">
@@ -1049,9 +1099,7 @@ useLeaveProtection(
                 ><small
                   >{{ deliveryChannel(job.attempt_channel) }} ·
                   {{
-                    job.attempt_result
-                      ? deliveryResults[job.attempt_result]
-                      : "尚无终局结果"
+                    deliveryOutcome(job.attempt_result, job.attempt_channel)
                   }}</small
                 ><time :datetime="job.created_at" :title="job.created_at"
                   >{{ job.created_at.slice(0, 19).replace("T", " ") }} UTC</time
@@ -1098,21 +1146,29 @@ useLeaveProtection(
       </p>
       <template #footer>
         <UiButton @click="confirmation = undefined">{{
-          confirmation === "stop" || confirmation === "retry"
+          confirmation === "stop" ||
+          confirmation === "retry" ||
+          confirmation === "remove-auth"
             ? "取消"
             : "继续编辑"
         }}</UiButton>
         <UiButton
-          :variant="confirmation === 'stop' ? 'danger' : 'primary'"
+          :variant="
+            confirmation === 'stop' || confirmation === 'remove-auth'
+              ? 'danger'
+              : 'primary'
+          "
           @click="confirmAction"
           >{{
             confirmation === "stop"
               ? "确认停用"
-              : confirmation === "retry"
-                ? "申请重试"
-                : confirmation?.startsWith("abandon")
-                  ? "放弃追踪"
-                  : "放弃修改"
+              : confirmation === "remove-auth"
+                ? "确认移除认证"
+                : confirmation === "retry"
+                  ? "申请重试"
+                  : confirmation?.startsWith("abandon")
+                    ? "放弃追踪"
+                    : "放弃修改"
           }}</UiButton
         >
       </template>

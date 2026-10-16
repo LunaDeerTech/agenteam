@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, provide, shallowReadonly, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { UiDialog, UiIconButton } from "../components/ui";
 import {
@@ -9,9 +9,12 @@ import {
 } from "../router/routes";
 import PageHeading from "./PageHeading.vue";
 import SettingsNavigation from "./SettingsNavigation.vue";
+import { settingsActionsTarget } from "./settingsActions";
 
 const route = useRoute();
 const directoryOpen = ref(false);
+const actionsTarget = ref<HTMLElement>();
+provide(settingsActionsTarget, shallowReadonly(actionsTarget));
 const scope = computed(() => route.meta.settingsScope || "system");
 const title = computed(
   () =>
@@ -46,13 +49,17 @@ watch(
         :title="route.meta.title || ''"
         :description="route.meta.description"
       >
-        <template #actions
-          ><UiIconButton
-            class="settings-directory-trigger"
-            icon="menu"
-            :label="`打开${title}目录`"
-            @click="directoryOpen = true"
-        /></template>
+        <template #actions>
+          <div class="settings-heading-actions">
+            <div ref="actionsTarget" class="settings-page-actions" />
+            <UiIconButton
+              class="settings-directory-trigger"
+              icon="menu"
+              :label="`打开${title}目录`"
+              @click="directoryOpen = true"
+            />
+          </div>
+        </template>
       </PageHeading>
       <div class="settings-page-body"><slot /></div>
     </section>
@@ -99,6 +106,15 @@ watch(
   min-height: 240px;
 }
 .settings-directory-trigger {
+  display: none;
+}
+.settings-heading-actions,
+.settings-page-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.settings-page-actions:empty {
   display: none;
 }
 @media (max-width: 1050px) {

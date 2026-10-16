@@ -55,8 +55,14 @@ function instant(value: unknown): value is string {
 function text(value: unknown, maxBytes: number): value is string {
   return (
     typeof value === "string" &&
+    wellFormed(value) &&
     !/[\u0000-\u001f\u007f-\u009f]/.test(value) &&
     encoder.encode(value).length <= maxBytes
+  );
+}
+function wellFormed(value: string) {
+  return !/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/.test(
+    value,
   );
 }
 export function settingsEmailIssue(value: string): string {
@@ -257,8 +263,8 @@ export function smtpIssues(value: SMTPDraft): Record<string, string> {
   if (!text(value.sender_name, 320) || [...value.sender_name].length > 80)
     issues.sender_name = "发件人显示名最多 80 个字符，不能包含控制字符。";
   if (
-    value.credential_action === "replace" &&
-    (!value.password ||
+    value.password &&
+    (!wellFormed(value.password) ||
       encoder.encode(value.password).length > 2048 ||
       /[\u0000\r\n]/.test(value.password))
   )
@@ -309,6 +315,7 @@ export function isSMTPSettings(value: unknown): value is SMTPSettings {
     (value.port as number) >= 1 &&
     (value.port as number) <= 65535 &&
     value.host.length > 0 &&
+    !!value.username === value.credential_present &&
     ["none", "starttls", "tls"].includes(String(value.encryption)) &&
     !settingsEmailIssue(value.sender_email)
   );
@@ -340,6 +347,15 @@ export function saveSMTPSettings(
   writeVersion(base.version);
   if (Object.keys(smtpIssues(values)).length || !values.configured)
     throw new AccountError("INVALID_ARGUMENT");
+  const credential =
+    values.credential_action !== "remove" &&
+    (!!values.password || base.credential_present);
+  if (
+    !!values.username !== credential ||
+    (values.credential_action === "remove" && !!values.password) ||
+    !["keep", "replace", "remove"].includes(values.credential_action)
+  )
+    throw new AccountError("INVALID_ARGUMENT");
   return systemCommand(
     "/system/smtp",
     {
@@ -355,15 +371,23 @@ export function saveSMTPSettings(
         sender_name: values.sender_name,
         credential_action:
           values.credential_action === "remove" ? "remove" : "keep",
-        ...(values.credential_action === "replace"
-          ? { password: values.password }
-          : {}),
+        ...(values.password ? { password: values.password } : {}),
         auto_retry_count: values.auto_retry_count,
         retry_interval_seconds: values.retry_interval_seconds,
       }),
     },
     smtpResultFor(base),
     { uncertainOn: uncertainSMTPWrite },
+  );
+}
+export function removeSMTPAuthentication(
+  base: SMTPSettings,
+  options: ReadOptions = {},
+) {
+  return saveSMTPSettings(
+    base,
+    { ...smtpDraft(base), username: "", credential_action: "remove" },
+    options,
   );
 }
 export function unconfigureSMTP(
@@ -395,13 +419,13 @@ export const deliveryPhases = {
   claimed: "已领取",
   sending: "投递中",
   retry_wait: "等待自动重试",
-  sent: "已完成投递",
+  sent: "发送端已确认",
   failed: "投递失败",
   unknown: "结果未知",
   cancelled: "已取消",
 } as const;
 export const deliveryResults = {
-  sent: "已接受",
+  sent: "发送端已确认",
   failed: "失败",
   unknown: "结果未知",
   cancelled: "已取消",
@@ -612,12 +636,18 @@ export function mailJobRetryReason(job: {
   phase: string;
   attempt_result: string | null;
   version: string;
+  channel?: string | null;
+  attempt_channel?: string | null;
 }): string {
   if (!isVersion(job.version) || BigInt(job.version) === maxVersion)
     return "此任务版本已达到上限。";
   if (!["sent", "failed", "cancelled", "unknown"].includes(job.phase))
     return "当前任务仍在处理，请先重新读取状态。";
-  if (job.attempt_result === null && job.phase !== "cancelled")
+  const channel = "attempt_channel" in job ? job.attempt_channel : job.channel;
+  if (
+    job.attempt_result === null &&
+    (job.phase !== "cancelled" || channel != null)
+  )
     return "尚无可确认的终局尝试，暂时不能申请重试。";
   return "";
 }
@@ -637,6 +667,18 @@ export function deliveryChannel(value: DeliveryChannel | null): string {
     : value === "backend_log"
       ? "后台恢复日志"
       : "尚未记录尝试渠道";
+}
+export function deliveryOutcome(
+  value: keyof typeof deliveryResults | null,
+  channel: DeliveryChannel | null,
+): string {
+  if (value === "sent")
+    return channel === "smtp"
+      ? "邮件服务器已接收"
+      : channel === "backend_log"
+        ? "恢复日志已写入"
+        : "发送端已确认";
+  return value === null ? "尚未记录终局结果" : deliveryResults[value];
 }
 
 const knownBefore = new Set([
@@ -683,6 +725,7 @@ export function useSettingsCommand<T>() {
   const busy = ref(false);
   const uncertain = ref(false);
   const confirmed = ref(false);
+  const committed = ref(false);
   const replayVerified = ref(false);
   const error = shallowRef<unknown>();
   const result = shallowRef<T>();
@@ -710,6 +753,7 @@ export function useSettingsCommand<T>() {
     uncertain.value = false;
     replayVerified.value = false;
     confirmed.value = false;
+    committed.value = false;
     error.value = undefined;
     result.value = undefined;
   }
@@ -729,6 +773,7 @@ export function useSettingsCommand<T>() {
       const value = await active.run();
       if (!alive || captured !== revision) return;
       confirmed.value = true;
+      committed.value = true;
       uncertain.value = false;
       result.value = value;
       command = undefined;
@@ -737,6 +782,11 @@ export function useSettingsCommand<T>() {
     } catch (failure) {
       if (!alive || captured !== revision) return;
       error.value = failure;
+      if (
+        failure instanceof AccountError &&
+        failure.commitState === "committed"
+      )
+        committed.value = true;
       if (
         failure instanceof AccountError &&
         ["unknown", "committed"].includes(failure.commitState) &&
@@ -791,6 +841,7 @@ export function useSettingsCommand<T>() {
     busy,
     uncertain,
     confirmed,
+    committed,
     error,
     result,
     replayable,
