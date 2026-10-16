@@ -60,9 +60,36 @@ const accountPreview = new Map([
   ["修改密码", "当前为界面预览。账号服务连接后可修改密码。"],
 ]);
 
+const systemPreview = new Map([
+  ["用户", "当前为界面预览。连接账号服务后可查看用户。"],
+  ["待注册邀请", "当前为界面预览。连接账号服务后可管理邀请。"],
+  ["账号安全", "当前为界面预览，连接账号服务后可读取和修改设置。"],
+  ["SMTP", "当前为界面预览，连接账号服务后可管理 SMTP。"],
+]);
+
 async function agreedPage(page, title) {
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(title);
   await expect(page).toHaveTitle(`${title} · agenteam`);
+  if (systemPreview.has(title)) {
+    await expect(
+      page.getByText(systemPreview.get(title), { exact: true }),
+    ).toBeVisible();
+    await expect(page.locator("[data-page-content]")).toHaveCount(0);
+    await expect(
+      page.locator(
+        'input:not(:disabled), button[type="submit"]:not(:disabled)',
+      ),
+    ).toHaveCount(0);
+    if (title === "用户" || title === "待注册邀请")
+      await expect(
+        page.getByRole("button", { name: "刷新", exact: true }),
+      ).toBeDisabled();
+    if (title === "待注册邀请")
+      await expect(
+        page.getByRole("button", { name: "邀请用户", exact: true }),
+      ).toBeDisabled();
+    return;
+  }
   if (accountPreview.has(title)) {
     await expect(
       page.getByText(accountPreview.get(title), { exact: true }),

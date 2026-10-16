@@ -1,6 +1,6 @@
 # 新 Vue 基础验证
 
-本入口验证新 `web/` 在账号功能关闭的预览构建中的共享 UI、AppShell、唯一 SettingsShell、仍约定为空的路由与本地主题。账号阶段已实现的四个公开入口和三个个人设置页改为验证明确的预览说明与禁用提交，不能继续要求其正文为空。真实认证、会话、权限与业务 API 验证见 [账号 HTTPS harness](../frontend-account-rebuild/README.md)，不在本 HTTP 预览输入凭据。新客户端从零实现，`web-crape/` 仅为归档。原型及旧 Vue 的检查不代证本轮结果，自动检查也不代替独立整页视觉审查。
+本入口验证新 `web/` 在账号功能关闭的预览构建中的共享 UI、AppShell、唯一 SettingsShell、仍约定为空的路由与本地主题。已实现的四个公开账号入口、三个个人设置页，以及系统用户/邀请/账号安全/SMTP 四页验证明确的预览说明、禁用写入口和零 API 请求，不能继续要求其正文为空。真实认证、会话、权限与业务 API 验证见 [账号 HTTPS harness](../frontend-account-rebuild/README.md)，不在本 HTTP 预览输入凭据。新客户端从零实现，`web-crape/` 仅为归档。原型及旧 Vue 的检查不代证本轮结果，自动检查也不代替独立整页视觉审查。
 
 组件测试位于 `web/tests/`，使用新工程锁定的 Vitest 与 Vue Test Utils。浏览器测试使用 `tests/account-captcha-web/` 锁定的 Playwright **1.56.1**。先按锁安装依赖并构建当前新工程，然后执行：
 
@@ -32,7 +32,7 @@ VUE_TEST_PORT=5243 VUE_TEST_OUTPUT="$PWD/output/ai/frontend-vue-rebuild-review/c
 覆盖范围：
 
 - `foundation.spec.cjs`：真实生产 `/system/users` 导航与返回、菜单键盘操作、主题持久化和系统配色变化。
-- `routes.spec.cjs`：40 个已定叶子的直达标题；七个已实现账号页的禁用预览，其余未讨论叶子仍严格要求空正文；25 个设置叶子共用一个设置壳、可选详情参数、范围默认跳转、保留路径、窄屏目录切换及项目导航局部滚动。
+- `routes.spec.cjs`：40 个已定叶子的直达标题；七个已实现账号页与四个系统账号页的禁用预览，其余未讨论叶子仍严格要求空正文；25 个设置叶子共用一个设置壳、可选详情参数、范围默认跳转、保留路径、窄屏目录切换及项目导航局部滚动。
 - `controls.spec.cjs`：Input 描述与输入；Select 禁用项、键盘选择、取消和 typeahead；Tabs 键盘选择；Menu 关闭与外部焦点；原生 Dialog 焦点循环、背景不可交互、内层浮层与嵌套 Dialog、滚动锁释放、390px 深色与 reduced motion、长选项和遮罩点击/拖拽。
 
 原生 200% 缩放由独立视觉审查者另行执行，不属于本 Playwright 测试条目。原生 Chromium profile 的 zoom level 方法沿用 [原型交互检查](../../docs/frontend-design/redesign/prototype/review/interact.mjs)；须同时核对 inner/outer 尺寸、DPR 与根 CSS zoom，不能用 deviceScaleFactor、CSS zoom 或 pinch 代证浏览器页面缩放。
@@ -42,3 +42,5 @@ VUE_TEST_PORT=5243 VUE_TEST_OUTPUT="$PWD/output/ai/frontend-vue-rebuild-review/c
 本入口只证明禁用账号的预览和已实现控件。后续账号阶段的真实旅程、安全边界、完整工程检查与服务状态由账号 harness 和当前工作项记录，不能用上述基础阶段数字代替。原生缩放及整页视觉结论由独立审查者另行报告，不能把自动检查通过写成用户已接受设计。
 
 账号阶段兼容复验：复用 `85c4ac49` 产品源码的最终 `VITE_ACCOUNT_ENABLED=false` dist，仅执行 `--grep 'personal settings|remaining leaf routes|narrow system and settings'` 三个受影响场景，3/3 通过（40.1 秒）。输出保留在 `output/ai/frontend-vue-rebuild-test/account-compat-01`；原 preview 子进程记录 `closed=true, exitCode=143`，检查后 5242 无监听。其余基础场景沿用历史证据，没有重复全矩阵或把禁用预览视为真实认证通过。
+
+系统账号阶段兼容复验：用户/邀请/账号安全/SMTP 已有真实正文，修正原空页断言为禁用预览及零 API；未实现的其余系统叶子继续严格为空。复用 integration owner 在 U4 焦点修复后、页大小功能前构建的 false dist，`--list` 加载 2 条后执行 `--grep 'system settings navigation|system settings leaves'`，2/2 通过（17.6 秒）。结果在 `output/ai/frontend-vue-rebuild-test/system-compat-01`，本轮 preview `closed=true, exitCode=143` 且 5242 无监听。此份 dist 与结果不冒充后续分页大小功能证据，真实四页与分页检查另见账号 HTTPS harness。

@@ -4,13 +4,25 @@ test("system settings navigation and appearance persist across a reload", async 
   page,
 }) => {
   const errors = [];
+  const apiRequests = [];
   page.on("pageerror", (error) => errors.push(error.message));
+  page.on("request", (request) => {
+    if (["xhr", "fetch"].includes(request.resourceType()))
+      apiRequests.push(request.url());
+  });
   await page.emulateMedia({ colorScheme: "light" });
   await page.goto("/system/users");
   await expect(
     page.getByRole("heading", { name: "用户", exact: true }),
   ).toBeVisible();
-  await expect(page.locator("[data-page-content]")).toBeEmpty();
+  await expect(
+    page.getByText("当前为界面预览。连接账号服务后可查看用户。", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "刷新", exact: true }),
+  ).toBeDisabled();
   const settings = page.getByRole("navigation", {
     name: "系统设置",
     exact: true,
@@ -51,4 +63,5 @@ test("system settings navigation and appearance persist across a reload", async 
   await page.emulateMedia({ colorScheme: "dark" });
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   expect(errors).toEqual([]);
+  expect(apiRequests).toEqual([]);
 });

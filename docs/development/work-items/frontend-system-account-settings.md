@@ -35,7 +35,7 @@
 | GET `/mail-jobs/{id}/management` | 无body | 200精确目标的安全管理详情。 |
 | POST `/mail-jobs/{id}/retry` | `{version}` | 202 `{job_id,version}`；新的投递周期，使用源Job ID/version；返回版本不保证为1。邀请页同样使用此口。 |
 
-版本、计数、秒数遵common canonical十进制字符串，版本比较/后继不得经过JS Number；SMTP端口独用整数。ID、UTC微秒时间、闭合DTO/null/可选字段及成功状态需严格校验。分页接口只支持cursor/limit，没有搜索、角色筛选或总数。后端允许limit1–100；新Vue先以10项试用，按本次limit核响应，25只是后端默认值和旧UI选择。cursor不透明，仅保留于当前身份/页面内存；上一页重读原cursor，成功后才推进位置，刷新回首项，不自动补抓全量或把页内过滤称全库筛选。`CURSOR_INVALID`提供显式回首项。
+版本、计数、秒数遵common canonical十进制字符串，版本比较/后继不得经过JS Number；SMTP端口独用整数。ID、UTC微秒时间、闭合DTO/null/可选字段及成功状态需严格校验。分页接口只支持cursor/limit，没有搜索、角色筛选或总数。后端允许limit1–100；用户、邀请及SMTP投递目录共用状态行右侧的每页数量下拉，选项5/10/20/50、默认10，按本次实际limit核响应。改变页长清除游标历史，从第一页发新limit的真实请求，不把旧页在前端切片；不新增持久偏好或扩展未实现页面。cursor不透明，仅保留于当前身份/页面内存；上一页重读原cursor，成功后才推进位置，刷新回首项，不自动补抓全量或把页内过滤称全库筛选。`CURSOR_INVALID`提供显式回首项。
 
 在现有新Account传输上增加受限的分页参数编码和系统端点，不开放任意query透传；继续同源、no-store、拒redirect和真实body/cancel结束后释放owner。保持当前1MiB JSON/Problem响应界限；普通JSON写16KiB，只有正式PUT `/system/smtp`允许32KiB，按最终UTF-8序列化字节核算，不能整体放宽其他账号写预算。
 
