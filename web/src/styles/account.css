@@ -1,0 +1,65 @@
+.account-form {
+  display: grid;
+  gap: 22px;
+  max-width: 460px;
+}
+.account-form fieldset {
+  display: grid;
+  gap: 22px;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.form-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.form-note,
+.form-feedback {
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.65;
+}
+.form-feedback {
+  padding: 13px 15px;
+  background: var(--surface-page);
+  border-radius: 6px;
+  border: 1px solid var(--border-subtle);
+}
+.form-feedback .form-actions {
+  margin-top: 12px;
+}
+.form-success {
+  color: var(--text-primary);
+}
+.form-link {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-size: 12px;
+}
+.form-section {
+  display: grid;
+  gap: 20px;
+}
+.form-section + .form-section {
+  padding-top: 28px;
+  border-top: 1px solid var(--border-subtle);
+}
+.account-submit {
+  width: 100%;
+}
+.account-divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 4px 0;
+}
+.session-feedback {
+  max-width: 440px;
+  margin: 100px auto;
+  padding: 24px;
+  display: grid;
+  gap: 18px;
+}

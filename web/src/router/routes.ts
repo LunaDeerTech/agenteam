@@ -107,7 +107,10 @@ function settingsRoutes(
   return pages.map((page, order) => ({
     path: `${prefix}/${page.key}${scope === "project" && page.key === "skills" ? "/:skillId?" : ""}`,
     name: `${scope}-settings-${page.key}`,
-    component: emptyPage,
+    component:
+      scope === "personal" && page.key === "profile"
+        ? () => import("../views/ProfilePage.vue")
+        : emptyPage,
     meta: {
       title: page.title,
       settingsScope: scope,
@@ -142,8 +145,17 @@ export const routes: RouteRecordRaw[] = [
   ].map(([path, title]): RouteRecordRaw => ({
     path: `/${path}`,
     name: path,
-    component: emptyPage,
-    meta: { title, layout: "account", content: "unimplemented" },
+    component:
+      path === "login"
+        ? () => import("../views/LoginPage.vue")
+        : path === "forgot-password"
+          ? () => import("../views/ForgotPasswordPage.vue")
+          : () => import("../views/LinkAccountPage.vue"),
+    meta: {
+      title,
+      layout: "account",
+      content: undefined,
+    },
   })),
   {
     path: "/mcp/oauth/callback",

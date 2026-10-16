@@ -75,6 +75,11 @@ async function sendAccount<T>(
   if (!path.startsWith("/") || path.includes("?") || path.includes("#"))
     throw new AccountError("INVALID_REQUEST");
   const method = options.method ?? "GET";
+  if (
+    typeof options.body === "string" &&
+    new TextEncoder().encode(options.body).length > 16384
+  )
+    throw new AccountError("INVALID_ARGUMENT");
   const mutation = !!options.key;
   const headers = new Headers({
     Accept: options.binary

@@ -12,7 +12,6 @@ import {
   isBootstrap,
   isRecord,
   isSession,
-  isUser,
   type AccountUser,
   type BootstrapResponse,
   type SessionResponse,
@@ -51,6 +50,11 @@ function forgetIdentity() {
 function rejected(error: unknown, capturedGeneration: number) {
   if (capturedGeneration !== generation.value) return;
   if (error instanceof AccountError && error.status === 401) forgetIdentity();
+  else if (error instanceof AccountError && error.code === "CSRF_FAILED") {
+    generation.value++;
+    status.value = "unavailable";
+    problem.value = error;
+  }
 }
 
 export function sessionIdentity() {
@@ -66,6 +70,7 @@ export function useSession() {
     status: readonly(status),
     problem: readonly(problem),
     generation: readonly(generation),
+    hasIdentity: computed(() => !!current.value),
     user: computed(() =>
       status.value === "authenticated" ? current.value?.user : undefined,
     ),
@@ -305,6 +310,7 @@ async function confirmReplacement(send: AccountSender) {
   status.value = "checking";
   try {
     await readSession(send, generation.value);
+    initialized = true;
   } catch (error) {
     if (error instanceof AccountError && error.status === 401) forgetIdentity();
     else {

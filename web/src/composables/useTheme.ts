@@ -7,6 +7,7 @@ const theme = ref<ThemePreference>("system");
 const resolvedTheme = ref<"light" | "dark">("light");
 let dispose: (() => void) | undefined;
 let media: MediaQueryList | undefined;
+const accountMode = import.meta.env.VITE_ACCOUNT_ENABLED === "true";
 
 function isTheme(value: unknown): value is ThemePreference {
   return value === "light" || value === "dark" || value === "system";
@@ -36,7 +37,7 @@ export function initTheme() {
   media = window.matchMedia("(prefers-color-scheme: dark)");
   try {
     const saved = window.localStorage.getItem(THEME_STORAGE_KEY);
-    theme.value = isTheme(saved) ? saved : "system";
+    theme.value = !accountMode && isTheme(saved) ? saved : "system";
   } catch {
     theme.value = "system";
   }
@@ -44,6 +45,7 @@ export function initTheme() {
     if (theme.value === "system") applyTheme();
   };
   const onStorage = (event: StorageEvent) => {
+    if (accountMode) return;
     if (event.key !== THEME_STORAGE_KEY && event.key !== null) return;
     theme.value = isTheme(event.newValue) ? event.newValue : "system";
     applyTheme();

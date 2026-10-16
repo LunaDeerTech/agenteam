@@ -1,5 +1,9 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { routes, type SettingsScope } from "./routes";
+import "../account/link";
+import { accountEnabled } from "../account/transport";
+import { ensureSession, useSession } from "../account/session";
+import { confirmAccountLeave } from "../account/leave";
 
 declare module "vue-router" {
   interface RouteMeta {
@@ -32,7 +36,15 @@ const reservedOwners = new Set([
   "reset-password",
   "projects",
 ]);
-router.beforeEach((to) => {
+router.beforeEach(async (to, from) => {
+  const session = useSession();
+  if (
+    from.matched.length &&
+    from.path !== to.path &&
+    !(from.meta.layout !== "account" && session.status.value === "anonymous") &&
+    !(await confirmAccountLeave())
+  )
+    return false;
   if (
     to.meta.projectContext &&
     reservedOwners.has(String(to.params.owner).toLowerCase())
@@ -42,6 +54,18 @@ router.beforeEach((to) => {
       params: { pathMatch: to.path.slice(1).split("/") },
       replace: true,
     };
+  if (!accountEnabled) return;
+  await ensureSession();
+  if (to.meta.layout !== "account" || to.name === "mcp-oauth-callback") {
+    if (session.status.value === "anonymous")
+      return { name: "login", query: { return: to.path }, replace: true };
+    if (
+      session.status.value === "authenticated" &&
+      to.meta.settingsScope === "system" &&
+      session.user.value?.role !== "admin"
+    )
+      return { name: "home", replace: true };
+  }
 });
 router.afterEach((to) => {
   document.title = `${to.meta.title || "agenteam"} · agenteam`;

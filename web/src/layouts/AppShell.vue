@@ -7,9 +7,16 @@ import BrandLogo from "./BrandLogo.vue";
 import PageHeading from "./PageHeading.vue";
 import ProjectNavigation from "./ProjectNavigation.vue";
 import SettingsShell from "./SettingsShell.vue";
+import AccountActions from "../components/account/AccountActions.vue";
+import { accountEnabled } from "../account/transport";
+import { useSession } from "../account/session";
 
 const route = useRoute();
 const navigationOpen = ref(false);
+const session = useSession();
+const canManageSystem = computed(
+  () => !accountEnabled || session.user.value?.role === "admin",
+);
 const { theme, setTheme } = useTheme();
 const themes = computed(() => [
   { id: "light", label: "浅色", checked: theme.value === "light" },
@@ -47,6 +54,7 @@ const changeTheme = (value: string) => {
       </nav>
       <div class="system-actions">
         <RouterLink
+          v-if="canManageSystem"
           class="desktop-link"
           to="/system"
           :aria-current="
@@ -62,7 +70,11 @@ const changeTheme = (value: string) => {
           "
           >个人设置</RouterLink
         >
-        <UiMenu label="外观" :items="themes" @select="changeTheme"
+        <UiMenu
+          v-if="!accountEnabled"
+          label="外观"
+          :items="themes"
+          @select="changeTheme"
           ><template #trigger
             ><UiIcon
               :name="
@@ -74,6 +86,7 @@ const changeTheme = (value: string) => {
               "
               :size="16" /></template
         ></UiMenu>
+        <AccountActions v-else />
         <UiIconButton
           class="mobile-navigation-trigger"
           icon="menu"
@@ -98,7 +111,10 @@ const changeTheme = (value: string) => {
         <RouterLink to="/projects" @click="navigationOpen = false"
           >项目</RouterLink
         >
-        <RouterLink to="/system" @click="navigationOpen = false"
+        <RouterLink
+          v-if="canManageSystem"
+          to="/system"
+          @click="navigationOpen = false"
           >系统设置</RouterLink
         >
         <RouterLink to="/settings" @click="navigationOpen = false"

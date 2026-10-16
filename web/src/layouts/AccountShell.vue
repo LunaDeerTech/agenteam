@@ -7,7 +7,7 @@ const route = useRoute();
 
 <template>
   <div class="account-shell">
-    <header>
+    <header class="account-brand-header">
       <RouterLink to="/" aria-label="agenteam 首页">
         <BrandLogo class="account-logo" />
       </RouterLink>
@@ -26,10 +26,10 @@ const route = useRoute();
   min-height: 100dvh;
   background: var(--surface-page);
 }
-header {
+.account-brand-header {
   padding: 20px 28px;
 }
-header a {
+.account-brand-header a {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
@@ -45,7 +45,7 @@ main {
   padding: 0 24px 64px;
 }
 @media (max-width: 760px) {
-  header {
+  .account-brand-header {
     padding: 18px 22px;
   }
   main {
