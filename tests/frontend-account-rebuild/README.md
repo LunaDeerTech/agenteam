@@ -126,3 +126,20 @@ npm run test:unit --prefix web -- tests/system-account-pagination.spec.ts
 export FRONTEND_ACCOUNT_OUTPUT="$PWD/output/ai/frontend-account-rebuild/system-pagination-run-01"
 node tests/account-captcha-web/node_modules/@playwright/test/cli.js test --config tests/frontend-account-rebuild/playwright.config.cjs system-pagination.spec.cjs
 ```
+
+后续 SMTP 详情弹窗改动使用 [system-smtp-modal.spec.cjs](system-smtp-modal.spec.cjs) 做有限的**实际 Vue 浏览器、受控 HTTP 响应**验证。先由页面 owner 确认当前源码的账号启用 dev 位于精确 `http://127.0.0.1:5245`；此入口不启动服务、不读取 runtime、不登录真实账号。所有 `/api/v1/` 都使用合成 Session/配置/任务响应，未知请求与外部 origin 被拒绝，不接触已清理的 5250、公网 r2 或真实 SMTP。沿用锁定 Playwright 1.56.1、系统 Chromium、原 config 的无 trace/video/screenshot/失败 DOM 设置，无新依赖。
+
+```sh
+export NODE_PATH="$PWD/tests/account-captcha-web/node_modules"
+export FRONTEND_ACCOUNT_OUTPUT="$PWD/output/ai/frontend-account-rebuild/smtp-modal-run-01"
+node tests/account-captcha-web/node_modules/@playwright/test/cli.js test --config tests/frontend-account-rebuild/playwright.config.cjs system-smtp-modal.spec.cjs --list
+node tests/account-captcha-web/node_modules/@playwright/test/cli.js test --config tests/frontend-account-rebuild/playwright.config.cjs system-smtp-modal.spec.cjs
+# 只复验普通详情关闭的焦点/滚动问题时，另设独立输出目录并追加：
+# --grep 'detail closes back'
+```
+
+本轮 `--list` 加载 3 条。首产品输入 `91f16e7e` 的 `smtp-modal-run-01` 实际 2 通过、1 失败（36.3 秒）：Esc 关闭后原列表按钮未回焦。作者与独审定位为 busy 使所有 Tab 禁用，导致当前面板卸载。首修后补充原列表和原触发器 `ElementHandle.isConnected` 断言，`smtp-modal-run-02` 仍 2 通过、1 失败（31.9 秒）：原 DOM 已持续存活，关闭回焦仍失败。第二次局部修复后仅重跑原失败项，`smtp-modal-run-03` 1/1 通过（9.2 秒）；原失败材料保留，未放宽断言或重跑后端矩阵。
+
+三个场景分轮通过的范围是：20 条/第 2 页长列表、未发送收件人输入、原 DOM 与滚动位置保留，Esc 回原触发器且普通详情开关不增加列表/配置 GET；390px 深色与 reduced-motion 输入下，一次测试 POST 取得严格受理回执后打开详情，首 GET 失败只重读，不重发 POST，关闭后输入和分页保持；重试 Unknown 时关闭必须确认，选择继续追踪保留原 method/path/key/body/version，不能发新重试覆盖原命令，显式恢复后打开新任务详情。确认写入后最多一次局部列表重读必须仍使用原 20 条与第 2 页 cursor，关闭弹窗不触发 Tab 初始读取。
+
+这些是受控 API 下的交互证据，不证明本轮新建真实邮件、PG 幂等或外部投递。原 `system-smtp.spec.cjs` 已按弹窗作用域、关闭详情和显式清除保留输入更新恢复选择器，限定格式/语法检查通过；**没有重新运行该真实流程**，之前 18.9 秒的真实通过仍仅属于当时输入。所有本轮 Playwright/CLI 已实际退出，无新增监听或保留浏览器；既有 dev、公网服务与配置未改。完整工程检查和独立视觉结果由相应 owner 另报。

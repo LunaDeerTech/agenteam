@@ -442,24 +442,30 @@ async function openJob(jobId: string, captureOrigin = true) {
   }
 }
 async function closeDetail() {
-  detailRevision++;
+  const revision = ++detailRevision;
+  const origin = detailOrigin;
+  const scroll = detailScroll;
+  detailOrigin = null;
   detailReading.value = false;
   detailId.value = undefined;
   detail.value = undefined;
   detailError.value = undefined;
   await nextTick();
+  // UiDialog closes its native dialog after its own nextTick. Restore only
+  // after that close has released the modal focus trap.
+  await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
   if (
     alive &&
+    revision === detailRevision &&
     access.allowed.value &&
     section.value === "delivery" &&
     !detailId.value
   ) {
     const main = pageElement.value?.closest<HTMLElement>(".settings-main");
-    if (main) main.scrollTop = detailScroll;
-    if (detailOrigin?.isConnected && !detailOrigin.matches(":disabled"))
-      detailOrigin.focus({ preventScroll: true });
+    if (main) main.scrollTop = scroll;
+    if (origin?.isConnected && !origin.matches(":disabled"))
+      origin.focus({ preventScroll: true });
   }
-  detailOrigin = null;
 }
 function requestDetailClose() {
   if (deliverySave.busy.value) return;
@@ -1155,7 +1161,7 @@ useLeaveProtection(
     >
       <div class="job-detail">
         <p
-          v-if="confirmedJob?.job_id === detailId"
+          v-if="confirmedJob && confirmedJob.job_id === detailId"
           class="form-note form-success"
           role="status"
         >
@@ -1250,7 +1256,11 @@ useLeaveProtection(
             <dt>任务 ID</dt>
             <dd class="job-reference">{{ detail.job_id }}</dd>
             <template
-              v-if="confirmedJob?.job_id === detailId && confirmedJob.source"
+              v-if="
+                confirmedJob &&
+                confirmedJob.job_id === detailId &&
+                confirmedJob.source
+              "
               ><dt>源任务 ID</dt>
               <dd class="job-reference">{{ confirmedJob.source }}</dd></template
             >
