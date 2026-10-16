@@ -121,7 +121,7 @@ test("owned rules persist CRUD and preserve a conflicting draft until explicit a
   // Final deletion confirmation selector follows the product owner's stable
   // public dialog contract; a candidate without it must not silently pass.
   await page
-    .getByRole("dialog", { name: "删除规则", exact: true })
+    .getByRole("dialog", { name: "删除访问规则", exact: true })
     .getByRole("button", { name: "删除规则", exact: true })
     .click();
   await saveRules(page);
