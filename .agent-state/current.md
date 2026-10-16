@@ -1,6 +1,6 @@
-# 当前状态：三列表共享改造完成限定验证，保留初读失败限制
+# 当前状态：已授权重建可恢复实例，真实SMTP连接仍待验证
 
-2026-10-16。本轮从 `7f4c325d` 接续，三列表共享容器/分页、正文宽度及U8修正已保存推送 `35421b77`；外层1200px设置框保持。工程检查、五个受控浏览器场景的分轮运行和有限独审已完成；两次SMTP初配置等待失败的根因仍未知，不能归因环境或称已被U8修复。唯一行为/验收合同为[系统账号设置](../docs/development/work-items/frontend-system-account-settings.md)，此前账号边界仍见[账号合同](../docs/development/work-items/frontend-account-rebuild.md)。默认省略描述、SMTP模态及Unknown/焦点/上下文保持继续有效。旧真实链只证明原API输入；已清理的独立5250未恢复，后端/API未改，公开r2旧后端和dev保留。公网身份/登录及外部邮件送达限制不变。
+2026-10-16。本轮起点 `274cb6ef` 已核工作树干净并再次推送成功。用户已明确现有均为测试数据、允许重建，并授权向其指定收件人实测SMTP；地址与凭据不入文档。可恢复production实例正在准备，新实例就绪前保留旧r2，随后在同一18443入口顺序切换，避免并行Cookie冲突，不保留旧测试数据或Session。当前除r2测试resolver断点外，两次直连QQ465也未建立TCP，尚未发送新邮件或确认送达，不能承诺重建即发通。唯一页面合同仍为[系统账号设置](../docs/development/work-items/frontend-system-account-settings.md)，此前账号边界见[账号合同](../docs/development/work-items/frontend-account-rebuild.md)。两个旧受控页面初读失败仍为独立的未知根因问题，不与resolver或本次TCP失败混同。
 
 ## 范围、组合与所有权
 
@@ -12,15 +12,17 @@
 | Owner | 唯一职责 |
 | --- | --- |
 | `/root/account_contract` | 本状态、新系统合同与必要说明；本批冻结后由root保存。 |
-| `/root/vue_integration` | 本轮共享列表/游标分页、Users/Invitations和SettingsShell唯一写者，负责共享接口与组合检查。 |
-| `/root/smtp_list_adapter` | 本轮SMTP页唯一适配写者；原system_api_surface已撤本轮写权且零读写退出。 |
-| `/root/account_backend` | 独立后端树的account/API/装配、后端说明、真实服务与frp；私有5250已清理，公开r2保留。 |
-| `/root/vue_tests` | 本轮共享列表/分页必要unit与受控实际Vue回归、README；旧真实API证据按原输入复用。 |
-| `/root/vue_visual_review` | 本轮三列表宽度及交互有限独审；此前U1–U7及图片保留原输入边界。 |
+| `/root/vue_integration` | 此前共享列表/分页及页面组合owner；本轮不改前端产品。 |
+| `/root/smtp_list_adapter` | 此前SMTP适配owner，源码已冻结；原system_api_surface已撤写权。 |
+| `/root/account_backend` | 本轮真实SMTP脱敏诊断及production实例、持久资源/keys与启动控制；新实例就绪前保留旧r2，不放宽policy掩盖失败。 |
+| `/root/vue_tests` | 新实例独立TLS/auth及一次仅Central停启的持久性验证，实际待验；旧证据保留原输入，不恢复5250。 |
+| `/root/vue_visual_review` | 此前列表与模态有限独审；既有结果和图片保留原输入边界。 |
 
 ## 已打通的流程与检查边界
 
-- 本轮产品 `9e557cd6` 与测试/组件说明 `409b49b7` 的完整工程检查通过：全web格式、9文件51/51 unit、类型与build（143模块）。后续U8只改SMTP页的operationBusy禁用条件，限定Prettier及build（含vue-tsc、143模块）通过，未再跑51项，共享五源未变。公共分页定向unit 4/4通过（5.27秒，既有两项加保留行失败重读/停用迟到两项）。SystemList/useCursorList正式接口与三页适配已落，三路解除正文760px上限，外框1200px、主区padding和表单自身行宽保持。
+- 本轮backend已在真实r2登录、读取安全配置/任务投影并logout204：SMTP为 `smtp.exmail.qq.com:465/tls`、credential_present、version6；近期两个test任务为failed/network_failed，记录attempts=4。未新建已知必败任务。脱敏 `diagnose-smtp.py` 一次inspect通过，已随后端 `62ad5043` 保存；未输出密码、认证材料或收件地址。
+- 装配与源码复核确认r2的previewSMTPResolver只认识私有sink，对外部hostname直接DNSFailed，未到连接或认证；普通公网IP出站策略本来允许，不能改policy掩盖resolver。r2随机account keyring/TLS私钥仅在内存，无无损切换控制；用户现已授权重建测试数据。另用系统DNS得到的两个A记录各直连QQ465一次，均TCP errno111、未到TLS/AUTH/MAIL；只证明这两次连接未建立，不能推断密码错误或由谁拒绝。production cmd已用Go1.27编译，持久配置、五组keys、DB及独立资源按正式预算/owner核对后启动；新实例与一次停启持久性尚待验证，未宣称真实投递通过。
+- 此前三列表产品 `9e557cd6` 与测试/组件说明 `409b49b7` 的完整工程检查通过：全web格式、9文件51/51 unit、类型与build（143模块）。后续U8只改SMTP页的operationBusy禁用条件，限定Prettier及build（含vue-tsc、143模块）通过，未再跑51项，共享五源未变。公共分页定向unit 4/4通过（5.27秒，既有两项加保留行失败重读/停用迟到两项）。SystemList/useCursorList正式接口与三页适配已落，三路解除正文760px上限，外框1200px、主区padding和表单自身行宽保持。
 - 五个受控实际Vue浏览器目标分轮有效通过：run01普通模态及发送两项通过、三项失败（两个layout的empty文案预期错误，仅修测试；Unknown停在SMTP初配置）；run02桌面layout及Unknown两项通过，390再次在初配置5秒未见端口处失败；run03仅390场景1/1通过（20.8秒）。两次初配置失败原材料只有results errors，attachments/stdout/stderr为空，无URL/DOM/trace，证据不足以分类或确认根因；未提高timeout，新增安全初页诊断在run03未触发，不因后续通过声称原问题已修，也不继续盲重跑。未重启5250、操作真实后端或发邮件，所有测试CLI/浏览器已退出；原失败和精确输入见harness说明。
 - 独审U8（SMTP从10切5焦点落BODY）在operationBusy修正后同输入关闭；1440/390与原生200%页长选择保焦，SMTP模态原DOM、页码与滚动保持。三列表外缘与页头有效边距对齐，限定视觉/交互范围内无未结缺陷。最终实际源码为 `35421b77`；同1440×960浅色合成数据的[用户列表原图](https://img.lunadeer.cn/i/2026/10/16/6ad1ebcfa17d8.png)和[SMTP列表原图](https://img.lunadeer.cn/i/2026/10/16/6ad1ebde6f239.png)已实际查看、上传并匿名下载校验字节一致。独审CLI/浏览器已退出、临时缩放profile清零，无新服务；合成拦截不代证后端或公网。
 - 此前SMTP唯一产品差量为 `web/src/views/system/SmtpSettingsPage.vue`：底层列表常驻、详情复用UiDialog，测试受理后保留收件人。U7来自busy时所有Tab被禁用令当前值丢失、列表卸载，局部改为只禁非当前Tab；关闭后等待原生dialog退出再按当前代际回焦，阻止旧恢复抢焦点。路由、共享UiTabs、App认证入口与后端/API均未改，命令及Unknown门禁保留。原组级检查的全web格式及9文件49/49 unit通过，类型阶段因confirmedJob可能为空中断；补显式守卫后单独build（含vue-tsc）通过，未重跑49项。
@@ -51,8 +53,8 @@
 
 | 资源 | 当前事实与恢复位置 |
 | --- | --- |
-| public r2 | 目标体验URL `https://154.12.86.233:18443`，本地TLS5254终止，frp TCP18443直透；保留旧后端 `9dd3044c` 和原账号/Session，本轮不更新公开后端。新frp已独立会话恢复并跨tool确认存活，尚未完成公网身份/登录验真。 |
-| 有效期限 | started `2026-10-16 04:24:20 UTC`；实际expires **`2026-10-17 04:23:20 UTC`**，约24小时。页面、PG、MinIO、outbound、SMTP的10张实际CA/leaf期限均已核覆盖；进程或环境退出仍可能提前结束，不是永久部署。 |
+| public r2 | 目标体验URL `https://154.12.86.233:18443`，当前仍为旧后端 `9dd3044c`、本地TLS5254及原账号/Session。新production就绪前保留，届时同18443顺序切换；尚未切换或完成公网身份/登录验真。 |
+| 旧r2有效期限 | started `2026-10-16 04:24:20 UTC`；实际expires **`2026-10-17 04:23:20 UTC`**，约24小时。页面、PG、MinIO、outbound、SMTP的10张实际CA/leaf期限均已核覆盖；进程或环境退出仍可能提前结束，不是永久部署，也不代表新实例期限。 |
 | 运行与停止 | 私有目录 `/workspace/scratch/account-preview-public-r2/`；`runtime.json`为0600原子manifest，`run-state.json`记录运行/停止，`credentials.txt`为0600最小凭据文件。密码、Cookie、CSRF和一次性链接不写入文档或普通输出。 |
 | 本地作者组合 | 独立5250已于 `2026-10-16 08:00 UTC` 优雅清理，无监听，runtime与scope sidecar已撤。验证输入是后端 `7aa9b503` 的长驻Go测试进程内真实App及专属PG/MinIO/SMTP等依赖，非独立cmd/Central二进制部署；后续验证需重新启动owned实例，不能复用旧manifest。 |
 | 静态预览 | 5244/HTTP18081保持 `VITE_ACCOUNT_ENABLED=false`；公开 `/login` 的禁用输入、官方Logo和预览提示已浏览器核实，账号API请求为0。原型5241、业务dev5245及既有frp18081按授权保留。 |
@@ -65,13 +67,13 @@
 
 该匿名请求仍被环境管理代理的上游私有CA校验拒绝并返回503；面向客户端的IP证书改签问题也保留。尚未取得公网nonce、未发送凭据，用户恢复后的重试结果未确认；隧道连接及本机检查不代证完整公网登录。root继续收用户直连结果，服务保留至上述期限，后续按实际证据补充。
 
-SMTP仅连接本任务私有sink，邀请/重置正文链已验证，不代表外部邮箱已配置或送达。202只表示受理；SMTP配置后不回退backend_log。公开演示的恢复渠道限制继续明确，不向真实用户/外部邮箱发邮件。
+此前邀请/重置正文链只验证私有sink，不代表外部邮箱送达。当前r2已存在用户保存的外部SMTP配置，但测试resolver不能解析该外部主机，任务在连接/认证前失败。用户本轮已授权向其指定收件人实测，此授权覆盖原来的不发真实邮件限制，仅限该次明确范围；目前未新发或确认送达。202仍只表示受理，SMTP配置后不回退backend_log。
 
-旧45分钟public-r1已正常退出并完成原App/依赖清理，旧manifest/凭据已撤，不能再交给用户。本轮独立5250的App与外链均actual wait0，专属4容器/4网络逐ID确认不存在，7子进程已消失；launcher192442为exit0待reap的Z，非运行服务。作者Playwright均已退出；兼容preview5242已closed、exit143且无监听。backend清理时只读确认public-r2 App、恢复frp及5254/5245/5241仍在，未重新TLS探测或操作它们；公开r2和授权保留dev不收掉，工具退出与服务保留分开。
+旧45分钟public-r1已正常退出并完成原App/依赖清理，旧manifest/凭据已撤，不能再交给用户。本轮独立5250的App与外链均actual wait0，专属4容器/4网络逐ID确认不存在，7子进程已消失；launcher192442为exit0待reap的Z，非运行服务。作者Playwright均已退出；兼容preview5242已closed、exit143且无监听。backend清理时只读确认public-r2 App、恢复frp及5254/5245/5241仍在，未重新TLS探测或操作它们；旧r2在新production就绪前保留，之后按本轮授权顺序交接，dev保持。
 
 ## 保存与下一步
 
-本轮共享改造源码、测试与说明已冻结交root保存，实际通过与初读失败限制按上文保留；本状态不预写自身提交或宣称已合main/生产发布，不为补齐整组PASS盲重跑。后端未改，独立5250未恢复，API命令证据沿原输入保留，新受控UI结果不外推为后端或公网验真；未操作用户试用实例或真实邮箱。其余七项系统设置仍为骨架。公开r2保持旧后端，公网身份/登录及外部邮件送达限制不变。恢复需核非Z状态、PID起始ticks/会话、实际监听/转发和24小时资源/证书期限，不能只凭PID存在或旧日志。用户图片继续先上传图床并提供原图链接。
+用户已授权重建现有测试数据，root负责全部Git与同18443顺序切换协调。backend推进production cmd及持久资源/keys，tests验证TLS/auth和一次仅Central停启；新实例ready前不停止旧r2，不绕resolver或放宽policy。重建后用户需在新页面重新填写SMTP密码；发信授权仍仅限指定收件人，须区分受理、SMTP接受与实际到达，目前未发新邮件，也不能承诺重建会解决已观察的两次TCP失败。私有5250保持已清理，其余七项系统设置不扩展，既有公网验真限制继续保留。恢复仍核实际进程/资源与证书期限，不凭旧manifest或日志宣称服务可用。
 
 ## 保留的既有恢复入口
 
