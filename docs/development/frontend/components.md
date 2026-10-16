@@ -1,6 +1,6 @@
 # 公共组件接口
 
-本页描述新 `web/` 的实际公共合同，由 [UI 导出](../../../web/src/components/ui/index.ts)统一提供。旧 `web-crape/` 的组件、Floating UI、业务状态、Debug 示例与历史验收不属于本页接口；历史实现可在归档源码和 Git 历史查询。设计方向见[设计 v2](../../frontend-design/redesign/README.md)，本页接口存在不等于浏览器验收通过，实际检查见[当前状态](../../../.agent-state/current.md)。
+本页描述新 `web/` 的实际公共合同。基础控件由 [UI 导出](../../../web/src/components/ui/index.ts)统一提供，系统列表组合从下述专属路径导入。旧 `web-crape/` 的组件、Floating UI、业务状态、Debug 示例与历史验收不属于本页接口；历史实现可在归档源码和 Git 历史查询。设计方向见[设计 v2](../../frontend-design/redesign/README.md)，本页接口存在不等于浏览器验收通过，实际检查见[当前状态](../../../.agent-state/current.md)。
 
 ## 基础控件
 
@@ -35,6 +35,27 @@ Menu 与 Select 使用内部 `useAnchoredLayer`，依据触发位置和 viewport
 
 系统、个人和项目设置只使用一份 [SettingsShell](../../../web/src/layouts/SettingsShell.vue)。它从 route metadata 与集中栏目数组获得 scope、标题、分组和导航；设置目录与正文分工，桌面两区各自管理纵向滚动。窄屏隐藏常驻目录，通过同一个 UiDialog 的 left 模式打开，选中路由后关闭目录。
 
+正文默认最大760px；仅system scope的users、invitations、smtp三项启用 `settings-page-body--wide` 并解除该上限，三列表伸展至与页头相同的有效内边距。正文padding、外层1200px设置框和表单自身行宽保持，不把列表宽度推广到其他路由。
+
 [PageHeading](../../../web/src/layouts/PageHeading.vue)提供标题、可选说明与 actions 插槽。当前 [SkeletonPage](../../../web/src/views/SkeletonPage.vue)仅输出空正文；没有旧 `page-*` 布局类合同或已实现的业务表单。新增内容应沿壳的可收缩链分配滚动，不重新铺一层全屏高度或复制第二份设置壳。
 
-共享控件、token 和主题独立于页面，不导入业务、归档或测试展示内容。页面级修改遵循文件唯一写者规则；实际尺寸与颜色以新源码和已确认设计为准，不把本页的描述作为视觉接受结论。
+## 系统列表与游标分页
+
+[SystemList](../../../web/src/components/system/SystemList.vue)是系统业务域的共享组合，用户、邀请、SMTP投递三页共用状态行、页长选择、读取错误/空态、行容器与分页导航。页面提供字段和行操作，业务详情、命令及Unknown恢复仍归所属页面；不复制第二套列表容器或游标状态。
+
+| 接口 | 合同 |
+| --- | --- |
+| 必填props | `list: CursorList<T>`、`rowKey(item): string`、`label`、`emptyText`；rowKey使用稳定领域ID。 |
+| 可选props | `resultsLabel`、`paginationLabel`覆盖默认可访问名称；`disabled`门禁列表交互，`pageSizeDisabled`单独限制页长选择。普通读取中页长选择仍可用。 |
+| 插槽 | `item({ item })`提供行字段，`actions({ item })`提供行操作；`error-extra({ error })`补充该领域的错误恢复入口。 |
+| 暴露方法 | `navigate(action: () => Promise<void>)`执行列表操作后聚焦结果或错误；`focusResults({ scroll?: boolean })`显式回焦，`scroll:false`保滚动；`refresh()`回第一页并聚焦。 |
+
+[useCursorList](../../../web/src/system/useCursorList.ts)接受 `read(cursor, current, limit): Promise<CursorPage<T>>`，页结果为 `{ items, next_cursor? }`。领域reader负责端点与严格DTO校验，继续经共享System请求/权限/账号transport，并传递 `current`；hook自身不另建网络owner。
+
+- `options.enabled?: () => boolean`控制当前页面是否允许读取，仍与账号开关/系统权限相交；`immediate:false`由调用者明确启动读取。
+- 状态提供 `items/loading/refreshing/pending/loaded/error/index/nextCursor`及只读 `pageSize`。默认每页10，可选5/10/20/50；`setPageSize`清历史/旧项并从首项真实读取，不持久化偏好。
+- `first()`读取第一页，`previous()/next()`沿当前游标历史；`refresh()`重读当前已确认页，`reload()`重试最近目标页。`first/refresh/reload({ preserve:true })`仅在已有数据时保留列表DOM与观察，使用refreshing状态；失败仍显示真实错误，不把旧观察当新响应。
+- `cancel()`使当前读取失去发布资格，`reset()`另清列表/游标并恢复默认页长；系统权限代际变化执行reset。旧响应不发布，真实请求及body/cancel未结束前仍由底层唯一owner串行协调，页面不能用本地pending解除代替网络完成。
+- `updateItem(matches, update)`只更新当前已加载的匹配项，用于已确认的安全投影；不能冒充命令回执、全量刷新或总数。
+
+基础控件、token 和主题独立于页面，不导入业务、归档或测试展示内容。SystemList位于系统域并遵循[系统账号设置合同](../work-items/frontend-system-account-settings.md)的权限与恢复规则。页面级修改遵循文件唯一写者规则；实际尺寸与颜色以新源码和已确认设计为准，不把本页的描述作为视觉接受结论。

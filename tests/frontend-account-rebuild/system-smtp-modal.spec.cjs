@@ -2,7 +2,6 @@ const { test, expect } = require("@playwright/test");
 
 // This entry exercises the real Vue page against synthetic HTTP responses.
 // It never consumes a private runtime, authenticates, or contacts a backend.
-const origin = "http://127.0.0.1:5245";
 test.use({
   launchOptions: {
     executablePath: "/usr/bin/chromium",
@@ -10,166 +9,18 @@ test.use({
   },
   serviceWorkers: "block",
 });
-const id = (index) => `019a2222-2222-7222-8222-${String(999999999999 - index)}`;
-const instant = "2026-10-16T07:00:00.000000Z";
-const user = {
-  id: id(9000),
-  email: "synthetic-admin@example.invalid",
-  username: "synthetic-admin",
-  display_name: "Synthetic administrator",
-  role: "admin",
-  theme: "system",
-  version: "1",
-  initial_password_suggestion: false,
-};
-const session = {
-  user,
-  session: {
-    id: id(9001),
-    issued_at: instant,
-    absolute_expires_at: "2026-10-17T12:00:00.000000Z",
-    idle_expires_at: "2026-10-17T08:00:00.000000Z",
-  },
-  csrf_token: "synthetic-modal-context",
-};
-const smtp = {
-  id: id(9002),
-  version: "1",
-  configured: true,
-  host: "smtp.synthetic.example.invalid",
-  port: 2525,
-  encryption: "starttls",
-  username: "",
-  sender_email: "sender@example.invalid",
-  sender_name: "Synthetic mail",
-  credential_present: false,
-  auto_retry_count: "0",
-  retry_interval_seconds: "60",
-};
-const job = (index) => ({
-  job_id: id(index),
-  kind: "test",
-  phase: "failed",
-  attempts: "1",
-  version: "2",
-  channel: "smtp",
-  created_at: instant,
-  attempt_channel: "smtp",
-  attempt_result: "failed",
-  reason: "network_failed",
-});
-
-async function controlled(page, options = {}) {
-  const jobs = Array.from({ length: 60 }, (_, index) => job(index));
-  const state = {
-    lists: [],
-    configs: 0,
-    details: [],
-    tests: [],
-    retries: [],
-    unexpected: [],
-    accepted: job(1000),
-    retried: job(1001),
-    failDetail: false,
-  };
-  await page.context().route("**/*", async (route) => {
-    if (new URL(route.request().url()).origin === origin)
-      await route.continue();
-    else {
-      state.unexpected.push("outside-origin");
-      await route.abort("blockedbyclient");
-    }
-  });
-  await page.route("**/api/v1/**", async (route) => {
-    const request = route.request();
-    const url = new URL(request.url());
-    const path = url.pathname;
-    const method = request.method();
-    const respond = (body, status = 200) =>
-      route.fulfill({
-        status,
-        contentType: "application/json",
-        body: JSON.stringify(body),
-      });
-    const intent = () => ({
-      path,
-      method,
-      body: request.postData(),
-      key: request.headers()["idempotency-key"],
-    });
-    if (method === "GET" && path === "/api/v1/session") return respond(session);
-    if (method === "GET" && path === "/api/v1/me")
-      return respond({ user, avatar: null });
-    if (method === "GET" && path === "/api/v1/system/smtp") {
-      state.configs++;
-      return respond(smtp);
-    }
-    if (method === "GET" && path === "/api/v1/system/mail-jobs/management") {
-      const limit = Number(url.searchParams.get("limit"));
-      const cursor = url.searchParams.get("cursor");
-      const offset = cursor
-        ? Number(cursor.replace("synthetic-offset-", ""))
-        : 0;
-      state.lists.push({ limit, cursor });
-      const items = jobs.slice(offset, offset + limit);
-      return respond({
-        items,
-        ...(offset + limit < jobs.length
-          ? { next_cursor: `synthetic-offset-${offset + limit}` }
-          : {}),
-      });
-    }
-    if (method === "POST" && path === "/api/v1/system/smtp/test") {
-      state.tests.push(intent());
-      state.failDetail = !!options.failDetailAfterTest;
-      return respond({ job_id: state.accepted.job_id }, 202);
-    }
-    if (
-      method === "POST" &&
-      /^\/api\/v1\/system\/mail-jobs\/[^/]+\/retry$/.test(path)
-    ) {
-      state.retries.push(intent());
-      if (options.failFirstRetry && state.retries.length === 1)
-        return route.abort("connectionfailed");
-      return respond({ job_id: state.retried.job_id, version: "1" }, 202);
-    }
-    if (
-      method === "GET" &&
-      /^\/api\/v1\/system\/mail-jobs\/[^/]+\/management$/.test(path)
-    ) {
-      state.details.push(path);
-      if (state.failDetail) {
-        state.failDetail = false;
-        return route.abort("connectionfailed");
-      }
-      const found = [...jobs, state.accepted, state.retried].find(
-        (value) =>
-          path === `/api/v1/system/mail-jobs/${value.job_id}/management`,
-      );
-      if (found) return respond(found);
-    }
-    state.unexpected.push(`${method} ${path}`);
-    await route.abort("blockedbyclient");
-  });
-  await page.goto(`${origin}/system/smtp`);
-  await expect(page.getByLabel("端口", { exact: true })).toHaveValue("2525");
-  await page.getByRole("tab", { name: "测试与任务", exact: true }).click();
-  await expect(
-    page.getByRole("heading", { name: "投递任务", exact: true }),
-  ).toBeVisible();
-  return state;
-}
+const { controlled, id } = require("./controlled-system.cjs");
 
 async function secondPage(page) {
   await page.getByRole("combobox", { name: "每页条数", exact: true }).click();
   await page.getByRole("option", { name: "20 条", exact: true }).click();
   await expect(
     page.getByRole("status").filter({ hasText: "第 1 页" }),
-  ).toContainText("20 项");
+  ).toContainText("20 条");
   await page.getByRole("button", { name: "下一页", exact: true }).click();
   await expect(
     page.getByRole("status").filter({ hasText: "第 2 页" }),
-  ).toContainText("20 项");
+  ).toContainText("20 条");
 }
 const detailDialog = (page) =>
   page.getByRole("dialog", { name: "投递任务详情", exact: true });
@@ -181,7 +32,7 @@ async function retained(page, state, reads, draft) {
   ).toHaveAttribute("aria-selected", "true");
   await expect(
     page.getByRole("status").filter({ hasText: "第 2 页" }),
-  ).toContainText("20 项");
+  ).toContainText("20 条");
   await expect(
     page.getByRole("combobox", { name: "每页条数", exact: true }),
   ).toContainText("20 条");
