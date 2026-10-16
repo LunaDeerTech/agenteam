@@ -279,7 +279,7 @@ func (h *accountHTTP) httpSetSMTP(w http.ResponseWriter, r *http.Request, input 
 	// command or its opaque credential. A failed read cannot create a success.
 	out, e := h.core.GetSMTPSettings(r.Context(), input.actor)
 	if e != nil {
-		h.httpProblem(w, r, e, true)
+		h.httpProblem(w, r, committedProjectionError(e), true)
 		return
 	}
 	httpJSON(w, r, http.StatusOK, httpSMTPMutationDTO(receipt, out))
@@ -310,7 +310,7 @@ func (h *accountHTTP) httpUnconfigureSMTP(w http.ResponseWriter, r *http.Request
 	}
 	out, e := h.core.GetSMTPSettings(r.Context(), input.actor)
 	if e != nil {
-		h.httpProblem(w, r, e, true)
+		h.httpProblem(w, r, committedProjectionError(e), true)
 		return
 	}
 	httpJSON(w, r, http.StatusOK, httpSMTPMutationDTO(receipt, out))

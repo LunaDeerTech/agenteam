@@ -100,7 +100,11 @@ export function systemCommand<T>(
         return await command.run(onConfirmed);
       } catch (error) {
         rejected(error, current);
-        if (error instanceof AccountError && policy?.uncertainOn?.(error))
+        if (
+          error instanceof AccountError &&
+          error.commitState !== "committed" &&
+          policy?.uncertainOn?.(error)
+        )
           throw new AccountError(
             error.code,
             error.status,

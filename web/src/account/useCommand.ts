@@ -43,7 +43,8 @@ export function useCommand<T>() {
       if (
         !active.confirmed &&
         failure instanceof AccountError &&
-        failure.commitState === "unknown"
+        (failure.commitState === "unknown" ||
+          failure.commitState === "committed")
       )
         uncertain.value = true;
       if (!uncertain.value && !active.confirmed) active.release();

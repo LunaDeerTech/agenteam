@@ -39,7 +39,7 @@ func (s *Service) TestSMTP(ctx context.Context, f c.SMTPTest) (c.MailJobStatus, 
 	cmd, e := s.lookupMutation(ctx, key, macFor, f.Actor, c.BrowserIdentity{}, true)
 	if e == nil && cmd.phase == "committed" {
 		job, _ := parseID[c.MailJob](cmd.attempt)
-		return s.GetMailJob(ctx, f.Actor, job)
+		return s.committedMailJob(ctx, f.Actor, job)
 	}
 	if e != nil && !hasFaultCode(e, foundation.NotFound) {
 		return c.MailJobStatus{}, e
@@ -115,7 +115,7 @@ func (s *Service) TestSMTP(ctx context.Context, f c.SMTPTest) (c.MailJobStatus, 
 	}
 	if cmd.phase == "committed" {
 		job, _ := parseID[c.MailJob](cmd.attempt)
-		return s.GetMailJob(ctx, f.Actor, job)
+		return s.committedMailJob(ctx, f.Actor, job)
 	}
 	if cmd.phase != "planned" {
 		return c.MailJobStatus{}, fault(foundation.InvalidState, nil)
@@ -177,8 +177,15 @@ func (s *Service) TestSMTP(ctx context.Context, f c.SMTPTest) (c.MailJobStatus, 
 		return c.MailJobStatus{}, e
 	}
 	job, _ = parseID[c.MailJob](cmd.attempt)
-	return s.GetMailJob(ctx, f.Actor, job)
+	return s.committedMailJob(ctx, f.Actor, job)
 }
+
+// Only callers that have confirmed their command commit may use this projection.
+func (s *Service) committedMailJob(ctx context.Context, actor identity.Actor, id c.JobID) (c.MailJobStatus, error) {
+	out, err := s.GetMailJob(ctx, actor, id)
+	return out, committedProjectionError(err)
+}
+
 func (s *Service) GetMailJob(ctx context.Context, actor identity.Actor, id c.JobID) (c.MailJobStatus, error) {
 	if actor.Validate() != nil || actor.Details().Kind != identity.Human || id.Validate() != nil {
 		return c.MailJobStatus{}, invalid()

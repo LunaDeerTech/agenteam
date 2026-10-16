@@ -31,7 +31,7 @@ export interface AccountRequest {
   current?: () => boolean;
   binary?: boolean;
   status?: number;
-  query?: Readonly<Record<string, string | number | undefined>>;
+  query?: Readonly<{ cursor?: string; limit?: string | number }>;
 }
 
 export interface AccountImage {
@@ -82,8 +82,11 @@ async function sendAccount<T>(
     if (value === undefined) continue;
     if (
       method !== "GET" ||
-      !/^[a-z][a-z0-9_]*$/.test(name) ||
-      String(value).length > 8192
+      !["cursor", "limit"].includes(name) ||
+      !String(value) ||
+      new TextEncoder().encode(String(value)).length > 8192 ||
+      (name === "limit" &&
+        (!/^[1-9]\d{0,2}$/.test(String(value)) || Number(value) > 100))
     )
       throw new AccountError("INVALID_REQUEST");
     query.set(name, String(value));
@@ -91,7 +94,8 @@ async function sendAccount<T>(
   const suffix = query.size ? `?${query.toString()}` : "";
   if (
     typeof options.body === "string" &&
-    new TextEncoder().encode(options.body).length > 16384
+    new TextEncoder().encode(options.body).length >
+      (method === "PUT" && path === "/system/smtp" ? 32768 : 16384)
   )
     throw new AccountError("INVALID_ARGUMENT");
   const mutation = !!options.key;

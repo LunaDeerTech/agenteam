@@ -46,7 +46,20 @@ watch(
     "
     :is="route.meta.layout === 'account' ? AccountShell : AppShell"
   >
-    <RouterView :key="route.path" />
+    <div
+      v-if="
+        accountEnabled &&
+        route.meta.settingsScope === 'system' &&
+        session.status.value === 'authenticated' &&
+        session.user.value?.role !== 'admin'
+      "
+      class="form-feedback"
+      role="alert"
+    >
+      <p>你没有系统管理权限。此页面仅对当前管理员开放。</p>
+      <RouterLink class="form-link" to="/">返回首页</RouterLink>
+    </div>
+    <RouterView v-else :key="route.path" />
   </component>
   <main
     v-if="

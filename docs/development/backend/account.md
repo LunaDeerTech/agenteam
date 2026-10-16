@@ -47,6 +47,8 @@ keyring 占位值故意无效；部署须独立生成随机 32-byte 材料并使
 
 非 Dev 模式的 Host 必须匹配规范化 PublicOrigin，非安全方法要求同源 Origin；两种模式的浏览器/Session 写请求均验证相应 `X-CSRF-Token`。非 Dev 模式的 HTTPS Cookie 为 `__Host-agenteam_session` / `__Host-agenteam_browser`，`HttpOnly; Secure; SameSite=Lax; Path=/` 且无 Domain；本地 HTTP 或 Dev 模式使用非 Secure 的 `agenteam_local_*`，其余 Cookie 属性相同。普通认证失败均不改写Session Cookie，避免另一标签页已登录后迟到GET或写请求401误删新Cookie；显式logout成功仍清Cookie，login/change-password成功仍换发Cookie，无效Session仍按服务端当前事实拒绝。每次当前身份/权限检查不被历史 receipt 或 cursor 替代；业务命令沿 OpenAPI 带幂等键和版本，拒绝未知字段。公共 HTTP middleware 由根只包装一次，响应、Problem 与日志使用同一 request ID。
 
+SMTP PUT/unconfigure、测试发送和人工重试在命令已确认提交后，仍需按当前管理员权限读取安全结果。该后读失败返回错误 Problem，`commit_state=committed`、`retry_hint=replay`，不伪装为成功 DTO，也不声称原写未开始。保留原错误 code/status；只读事务自身的 COMMIT_UNKNOWN 改为 DEPENDENCY_UNAVAILABLE，原诊断仅保留在私有 cause。客户端保留原 method/path/Idempotency-Key/body/version，显式同键重放恢复原 receipt；每次重放重新鉴权，另读当前设置不能替代原 applied_version。普通读取和提交前失败维持各自原语义。
+
 email 只读，本人可改 username/display_name/theme；username 按当前 DB 映射解析，改名后旧路径失效且无 alias。头像接单一原始 JPEG/PNG/WebP body，最多 5 MiB、边长 4096、总像素 16,777,216，拒动画/SVG/GIF、截断和尾随拼接；保持比例缩至 512×512 内、不放大，白底合成并重编码 JPEG，丢弃原元数据。命令摘要绑定完整原始 bytes，不能用重编码后的 SHA 替代输入语义。
 
 头像切换、旧引用关门、Audit 与 receipt 在同一真实 Tx；后台按持久 cause 与实际 lease 公平清理，不从取消或年龄猜测实例死亡。GET/HEAD 支持单 Range，逐次核本人当前 exact ObjectID；已建立 reader 的底层 I/O 和 Close/join 真实结束后才释放 lease。它不是匿名 URL，也不是通用 Artifact/下载接口。

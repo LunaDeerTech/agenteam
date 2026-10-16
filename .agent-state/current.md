@@ -20,7 +20,9 @@
 
 ## 已打通的流程与检查边界
 
-- 本轮首WIP为用户目录及共享system请求/游标接线：transport/session、system requests/useCursorList/directory、UsersPage和路由七源已冻结，作者type-check通过。`system-account.spec.ts`三项为2过1失败：请求limit10却接受11项，待修；独审合成四组合无横溢，但最后页禁用分页按钮后焦点落BODY/缺播报、完整UTC时间不可达也待修。`system-owned.cjs`与`system-users.spec.cjs`的`--list`加载1项通过，未执行真实browser。邀请与账号安全/SMTP仍在实施；后端正将已提交写后读取失败标为committed，成功DTO不变，新隔离owned fixture待就绪。首链目标是目录→受控邀请→既有邀请兑换→目录刷新，可见页面/加载成功不代证业务通过。
+- 本轮已推 `0aeca9e1` 用户目录首WIP、`e84517e9` 私有account-settings/AccountSecurity源码（当时未check）、`20ac81ae` 新增系统unit与首失败说明。后端 `7aa9b503` 已推，root已将其中8份正式源码/测试/OpenAPI/说明取入主树待本次保存，后端current不并入。窄修将已提交后的投影失败标为committed/replay，后读COMMIT_UNKNOWN改为DEPENDENCY_UNAVAILABLE，成功DTO不变；定向unit通过，真实PG验证及独立5250 App仍在准备，旧public r2 `9dd3044c`未变。
+- 本次前端11源候选已冻结并通过type-check（含新增7项test类型）：用户分页上界/焦点/UTC修正、邀请初版、路由及账号安全页接线、SMTP PUT局部32KiB与committed原值保留已落。SMTP页面仍在写，组合尚未全build或真实浏览器验证；本次先与后端8路径保存WIP。
+- 用户首slice的type-check已过；新增7项system unit分轮有效通过：首轮2过1失败（limit10接受11项）保留，修正后定向5/5通过，原2项未重跑。覆盖分页上界、SMTP404保Unknown、503 committed保原提交事实/同key body、敏感投影拒绝、bigint历史回执与较新当前值、202后GET失败零重复POST。用户目录合成独审的分页焦点/播报及完整UTC时间问题待最终复验；真实users仅`--list`加载1项，browser待新fixture。邀请和安全/SMTP仍实施中；首真实链目标是目录→受控邀请→既有邀请兑换→目录刷新，不以可见页面或unit代证业务通过。
 - 此前深色仅改 `web/src/styles/tokens.css` 的dark语义色、`web/src/composables/useTheme.ts` 的浏览器主题色映射及 `web/index.html` 的meta。独审发现此前HTML缺theme-color，补标签后才具备实际更新目标。最终三源限定Prettier、build（含vue-tsc）及差量检查通过；实际DOM确认唯一meta随dark→light→dark更新，未称headless已验证原生浏览器栏像素。
 - 此前深色有限独审使用5245受控合成只读身份，实际查看1440同输入前后、390深色、两尺寸菜单及焦点/hover：层次可辨、无横溢，键盘菜单与Esc回焦通过；token对比度辅助检查亦通过。作者另看1440浅色，dark块外CSS逐字保持，无真实admin或SMTP操作，未重跑unit/业务/完整布局矩阵，浏览器均已退出。[中性炭灰原图](https://img.lunadeer.cn/i/2026/10/16/6ad1caedf1ecd.png)已上传并匿名下载校验一致，用户现已接受。
 - 此前设置整框仅改 `web/src/layouts/AppShell.vue`：按settings路由约束完整内容框最大1200px并居中，桌面外侧留白48px、中等宽32px、窄屏沿原5px；SettingsShell填满框内且内部标题/表单继续左齐，项目设置的项目导航随框收口，其他页面仍全宽。仅收窄内部的旧候选已被用户否定并撤回，SettingsShell相对基线无差异。限定Prettier、build（含vue-tsc）及差量格式检查通过，未新增unit或重跑业务旅程。

@@ -104,7 +104,7 @@ func (s *Service) RetryMailJob(ctx context.Context, q c.MailJobRetry) (c.MailJob
 	old, e := s.lookupMutation(ctx, key, macFor, q.Actor, c.BrowserIdentity{}, true)
 	if e == nil && old.phase == "committed" {
 		job, _ := parseID[c.MailJob](old.attempt)
-		return s.GetMailJob(ctx, q.Actor, job)
+		return s.committedMailJob(ctx, q.Actor, job)
 	}
 	if e != nil && !hasFaultCode(e, foundation.NotFound) {
 		return empty, e
@@ -230,7 +230,7 @@ func (s *Service) RetryMailJob(ctx context.Context, q c.MailJobRetry) (c.MailJob
 	}
 	if cmd.phase == "committed" {
 		job, _ = parseID[c.MailJob](cmd.attempt)
-		return s.GetMailJob(ctx, q.Actor, job)
+		return s.committedMailJob(ctx, q.Actor, job)
 	}
 	if cmd.phase != "planned" {
 		return empty, fault(foundation.InvalidState, nil)
@@ -300,5 +300,5 @@ func (s *Service) RetryMailJob(ctx context.Context, q c.MailJobRetry) (c.MailJob
 		return empty, e
 	}
 	job, _ = parseID[c.MailJob](cmd.attempt)
-	return s.GetMailJob(ctx, q.Actor, job)
+	return s.committedMailJob(ctx, q.Actor, job)
 }

@@ -2595,7 +2595,7 @@
             "CSRF": []
           }
         ],
-        "description": "Requires a current administrator on every request and again in the domain transaction.",
+        "description": "Requires a current administrator on every request and again in the domain transaction. If the command is confirmed committed but the subsequent authorized projection read fails, Problem reports commit_state=committed and retry_hint=replay. Preserve the original method, path, Idempotency-Key, body and version for an explicit same-key replay to recover the receipt; a current settings read is not the original receipt. The read error code/status is preserved, except a COMMIT_UNKNOWN from the read is classified as DEPENDENCY_UNAVAILABLE because the command outcome is known. Current authorization is rechecked on replay.",
         "responses": {
           "200": {
             "description": "Success",
@@ -2686,7 +2686,7 @@
             "CSRF": []
           }
         ],
-        "description": "Requires a current administrator on every request and again in the domain transaction.",
+        "description": "Requires a current administrator on every request and again in the domain transaction. If the command is confirmed committed but the subsequent authorized projection read fails, Problem reports commit_state=committed and retry_hint=replay. Preserve the original method, path, Idempotency-Key, body and version for an explicit same-key replay to recover the receipt; a current settings read is not the original receipt. The read error code/status is preserved, except a COMMIT_UNKNOWN from the read is classified as DEPENDENCY_UNAVAILABLE because the command outcome is known. Current authorization is rechecked on replay.",
         "responses": {
           "200": {
             "description": "Success",
@@ -2777,7 +2777,7 @@
             "CSRF": []
           }
         ],
-        "description": "Requires a current administrator on every request and again in the domain transaction.",
+        "description": "Requires a current administrator on every request and again in the domain transaction. If the command is confirmed committed but the subsequent authorized projection read fails, Problem reports commit_state=committed and retry_hint=replay. Preserve the original method, path, Idempotency-Key, body and version for an explicit same-key replay to recover the receipt; a current settings read is not the original receipt. The read error code/status is preserved, except a COMMIT_UNKNOWN from the read is classified as DEPENDENCY_UNAVAILABLE because the command outcome is known. Current authorization is rechecked on replay.",
         "responses": {
           "202": {
             "description": "Success",
@@ -3021,7 +3021,7 @@
             "CSRF": []
           }
         ],
-        "description": "Requires a current administrator on every request and again in the domain transaction.",
+        "description": "Requires a current administrator on every request and again in the domain transaction. If the command is confirmed committed but the subsequent authorized projection read fails, Problem reports commit_state=committed and retry_hint=replay. Preserve the original method, path, Idempotency-Key, body and version for an explicit same-key replay to recover the receipt; a current settings read is not the original receipt. The read error code/status is preserved, except a COMMIT_UNKNOWN from the read is classified as DEPENDENCY_UNAVAILABLE because the command outcome is known. Current authorization is rechecked on replay.",
         "responses": {
           "202": {
             "description": "Success",

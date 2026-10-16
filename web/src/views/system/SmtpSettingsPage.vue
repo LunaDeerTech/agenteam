@@ -1,0 +1,1250 @@
+<script setup lang="ts">
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  reactive,
+  ref,
+  shallowRef,
+  watch,
+} from "vue";
+import {
+  UiButton,
+  UiDialog,
+  UiInput,
+  UiSelect,
+  UiTabs,
+} from "../../components/ui";
+import { useLeaveProtection } from "../../account/leave";
+import {
+  AccountError,
+  accountEnabled,
+  accountErrorMessage,
+} from "../../account/transport";
+import { useSystemAccess } from "../../system/requests";
+import {
+  deliveryChannel,
+  deliveryKinds,
+  deliveryPhases,
+  deliveryReasons,
+  deliveryResults,
+  getSMTPJob,
+  getSMTPSettings,
+  jobRetryIssue,
+  listSMTPJobs,
+  retrySMTPJob,
+  saveSMTPSettings,
+  settingsEmailIssue,
+  smtpDraft,
+  smtpIssues,
+  testSMTP,
+  unconfigureSMTP,
+  useSettingsCommand,
+  type JobAccepted,
+  type JobRetryAccepted,
+  type MailJobManagement,
+  type SMTPDraft,
+  type SMTPResult,
+  type SMTPSettings,
+} from "../../system/account-settings";
+
+const access = useSystemAccess();
+const section = ref("configuration");
+const observation = shallowRef<SMTPSettings>();
+const baseline = shallowRef<SMTPSettings>();
+const draft = reactive(smtpDraft());
+const reading = ref(false);
+const readError = shallowRef<unknown>();
+const submitted = ref(false);
+const configSave = useSettingsCommand<SMTPResult>();
+const configAction = ref<"save" | "unconfigure">("save");
+const recipient = ref("");
+const testSubmitted = ref(false);
+const deliverySave = useSettingsCommand<JobAccepted | JobRetryAccepted>();
+const deliveryAction = ref<"test" | "retry">("test");
+const sourceJob = ref<string>();
+const confirmedJob = shallowRef<{
+  job_id: string;
+  source?: string;
+  kind: "test" | "retry";
+}>();
+const rows = shallowRef<MailJobManagement[]>([]);
+const listReady = ref(false);
+const listReading = ref(false);
+const listError = shallowRef<unknown>();
+const nextCursor = ref<string>();
+const cursors = ref<(string | undefined)[]>([undefined]);
+const page = ref(0);
+let listTarget: { cursor?: string; page: number } = { page: 0 };
+const detailId = ref<string>();
+const detail = shallowRef<MailJobManagement>();
+const detailReading = ref(false);
+const detailError = shallowRef<unknown>();
+const detailHeading = ref<HTMLElement | null>(null);
+const listHeading = ref<HTMLElement | null>(null);
+const checking = ref(false);
+const confirmation = ref<
+  | "discard"
+  | "adopt"
+  | "stop"
+  | "abandon-config"
+  | "abandon-delivery"
+  | "switch"
+  | "retry"
+>();
+const nextSection = ref("");
+const retryTarget = shallowRef<MailJobManagement>();
+let alive = true;
+let configRevision = 0;
+let listRevision = 0;
+let detailRevision = 0;
+
+const configDirty = computed(() => {
+  if (!baseline.value) return false;
+  const initial = smtpDraft(baseline.value);
+  return (Object.keys(initial) as (keyof SMTPDraft)[]).some(
+    (key) => draft[key] !== initial[key],
+  );
+});
+const deliveryDirty = computed(
+  () =>
+    !!recipient.value ||
+    deliverySave.busy.value ||
+    deliverySave.uncertain.value,
+);
+const configConflict = computed(
+  () =>
+    configSave.error.value instanceof AccountError &&
+    configSave.error.value.code === "VERSION_CONFLICT",
+);
+const configLocked = computed(
+  () =>
+    !accountEnabled ||
+    !access.allowed.value ||
+    !baseline.value ||
+    reading.value ||
+    configSave.busy.value ||
+    configSave.uncertain.value ||
+    checking.value,
+);
+const anyBusy = computed(
+  () =>
+    reading.value ||
+    listReading.value ||
+    detailReading.value ||
+    configSave.busy.value ||
+    deliverySave.busy.value ||
+    checking.value,
+);
+const deliveryLocked = computed(
+  () =>
+    !access.allowed.value ||
+    !accountEnabled ||
+    anyBusy.value ||
+    deliverySave.uncertain.value,
+);
+const configCommitted = computed(
+  () =>
+    configSave.error.value instanceof AccountError &&
+    configSave.error.value.commitState === "committed",
+);
+const deliveryCommitted = computed(
+  () =>
+    deliverySave.error.value instanceof AccountError &&
+    deliverySave.error.value.commitState === "committed",
+);
+const issues = computed(() => {
+  const value = smtpIssues(draft);
+  if (draft.configured) {
+    const hasCredential =
+      draft.credential_action === "replace"
+        ? !!draft.password
+        : draft.credential_action === "keep" &&
+          !!baseline.value?.credential_present;
+    if (draft.username && !hasCredential)
+      value.password = "认证账号需要同时配置密码。";
+    if (!draft.username && hasCredential)
+      value.username = "保留或替换认证密码时，需要填写认证账号。";
+  }
+  return value;
+});
+const testIssue = computed(() =>
+  testSubmitted.value ? settingsEmailIssue(recipient.value) : "",
+);
+const latestChanged = computed(
+  () =>
+    !!observation.value &&
+    !!baseline.value &&
+    observation.value.version !== baseline.value.version,
+);
+const selectedSection = computed({
+  get: () => section.value,
+  set: (value: string) => void requestSection(value),
+});
+const tabs = computed(() => [
+  { value: "configuration", label: "配置", disabled: anyBusy.value },
+  { value: "delivery", label: "测试与任务", disabled: anyBusy.value },
+]);
+const encryptionOptions = [
+  { value: "tls", label: "TLS" },
+  { value: "starttls", label: "STARTTLS" },
+  { value: "none", label: "不加密" },
+];
+const credentialOptions = [
+  { value: "keep", label: "保持当前凭据" },
+  { value: "replace", label: "替换密码" },
+  { value: "remove", label: "移除凭据" },
+];
+
+function fieldIssue(key: string) {
+  if (submitted.value && issues.value[key]) return issues.value[key];
+  return configSave.error.value instanceof AccountError &&
+    configSave.error.value.fields.some((field) => field.path === `/${key}`)
+    ? "请检查此项内容后再试。"
+    : "";
+}
+function adopt(value: SMTPSettings) {
+  baseline.value = value;
+  Object.assign(draft, smtpDraft(value));
+  submitted.value = false;
+}
+async function readConfig(replace = false) {
+  if (reading.value || !access.allowed.value || !accountEnabled) return;
+  const revision = ++configRevision;
+  const generation = access.generation.value;
+  const current = () =>
+    alive &&
+    revision === configRevision &&
+    generation === access.generation.value;
+  reading.value = true;
+  readError.value = undefined;
+  try {
+    const value = await getSMTPSettings({ current });
+    if (!current()) return;
+    if (baseline.value && baseline.value.id !== value.id)
+      throw new AccountError("INVALID_RESPONSE");
+    if (
+      !observation.value ||
+      BigInt(value.version) >= BigInt(observation.value.version)
+    )
+      observation.value = value;
+    if (!baseline.value || replace) adopt(observation.value!);
+  } catch (error) {
+    if (current()) readError.value = error;
+  } finally {
+    if (revision === configRevision) reading.value = false;
+  }
+}
+async function saveConfiguration(stop = false) {
+  if (configLocked.value || configConflict.value || !baseline.value) return;
+  submitted.value = true;
+  const policy = {
+    auto_retry_count: draft.auto_retry_count,
+    retry_interval_seconds: draft.retry_interval_seconds,
+  };
+  const invalid = stop
+    ? smtpIssues({ ...smtpDraft(), ...policy }).auto_retry_count ||
+      smtpIssues({ ...smtpDraft(), ...policy }).retry_interval_seconds
+    : Object.keys(issues.value).length;
+  if (invalid) return;
+  const base = baseline.value;
+  const generation = access.generation.value;
+  configAction.value = stop ? "unconfigure" : "save";
+  await configSave.submit(
+    () => {
+      const options = {
+        current: () => alive && generation === access.generation.value,
+      };
+      const command =
+        stop || !draft.configured
+          ? unconfigureSMTP(base, policy, options)
+          : saveSMTPSettings(base, draft, options);
+      // Keep replacement material only in the command's frozen body after dispatch.
+      draft.password = "";
+      return command;
+    },
+    (value) => {
+      if (
+        !observation.value ||
+        BigInt(value.settings.version) >= BigInt(observation.value.version)
+      )
+        observation.value = value.settings;
+      adopt(observation.value!);
+    },
+  );
+}
+async function loadJobs(cursor?: string, targetPage = 0) {
+  if (!access.allowed.value || !accountEnabled || listReading.value) return;
+  const revision = ++listRevision;
+  const generation = access.generation.value;
+  const current = () =>
+    alive &&
+    revision === listRevision &&
+    generation === access.generation.value &&
+    section.value === "delivery";
+  listTarget = { cursor, page: targetPage };
+  listReading.value = true;
+  listError.value = undefined;
+  listReady.value = false;
+  rows.value = [];
+  nextCursor.value = undefined;
+  try {
+    const value = await listSMTPJobs(cursor, { current });
+    if (!current()) return;
+    rows.value = value.items;
+    nextCursor.value = value.next_cursor;
+    cursors.value = [...cursors.value.slice(0, targetPage), cursor];
+    page.value = targetPage;
+    listReady.value = true;
+  } catch (error) {
+    if (current()) listError.value = error;
+  } finally {
+    if (revision === listRevision) listReading.value = false;
+  }
+}
+async function openJob(jobId: string, moveFocus = true) {
+  if (!access.allowed.value || detailReading.value) return;
+  const revision = ++detailRevision;
+  const generation = access.generation.value;
+  const previous = detail.value?.job_id === jobId ? detail.value : undefined;
+  const current = () =>
+    alive &&
+    revision === detailRevision &&
+    generation === access.generation.value &&
+    section.value === "delivery";
+  detailId.value = jobId;
+  detail.value = undefined;
+  detailReading.value = true;
+  detailError.value = undefined;
+  if (moveFocus) {
+    await nextTick();
+    detailHeading.value?.focus({ preventScroll: true });
+  }
+  try {
+    const value = await getSMTPJob(jobId, { current });
+    if (!current()) return;
+    detail.value =
+      previous && BigInt(previous.version) > BigInt(value.version)
+        ? previous
+        : value;
+  } catch (error) {
+    if (current()) detailError.value = error;
+  } finally {
+    if (revision === detailRevision) detailReading.value = false;
+  }
+}
+async function backToList() {
+  if (detailReading.value || deliverySave.busy.value) return;
+  detailRevision++;
+  detailId.value = undefined;
+  detail.value = undefined;
+  detailError.value = undefined;
+  await nextTick();
+  listHeading.value?.focus({ preventScroll: true });
+}
+async function sendTest() {
+  if (deliveryLocked.value || !observation.value?.configured) return;
+  testSubmitted.value = true;
+  if (settingsEmailIssue(recipient.value)) return;
+  const generation = access.generation.value;
+  deliveryAction.value = "test";
+  sourceJob.value = undefined;
+  confirmedJob.value = undefined;
+  await deliverySave.submit(
+    () =>
+      testSMTP(recipient.value, {
+        current: () => alive && generation === access.generation.value,
+      }),
+    async (value) => {
+      confirmedJob.value = { job_id: value.job_id, kind: "test" };
+      recipient.value = "";
+      testSubmitted.value = false;
+      await openJob(value.job_id);
+    },
+  );
+}
+async function retryJob() {
+  const target = retryTarget.value;
+  confirmation.value = undefined;
+  retryTarget.value = undefined;
+  if (!target || deliveryLocked.value || jobRetryIssue(target)) return;
+  const generation = access.generation.value;
+  deliveryAction.value = "retry";
+  sourceJob.value = target.job_id;
+  confirmedJob.value = undefined;
+  await deliverySave.submit(
+    () =>
+      retrySMTPJob(target, {
+        current: () => alive && generation === access.generation.value,
+      }),
+    async (value) => {
+      confirmedJob.value = {
+        job_id: value.job_id,
+        source: target.job_id,
+        kind: "retry",
+      };
+      await openJob(value.job_id);
+    },
+  );
+}
+async function inspectConfiguration() {
+  if (anyBusy.value) return;
+  checking.value = true;
+  try {
+    if (configSave.uncertain.value) {
+      if (!(await configSave.verify())) return;
+    } else await access.recheck();
+    if (access.allowed.value) await readConfig();
+  } finally {
+    checking.value = false;
+  }
+}
+async function inspectDelivery() {
+  if (anyBusy.value) return;
+  checking.value = true;
+  try {
+    if (!(await deliverySave.verify())) return;
+    if (sourceJob.value) await openJob(sourceJob.value);
+    else await loadJobs();
+  } finally {
+    checking.value = false;
+  }
+}
+function clearDelivery() {
+  listRevision++;
+  detailRevision++;
+  listReading.value = false;
+  detailReading.value = false;
+  listReady.value = false;
+  rows.value = [];
+  nextCursor.value = undefined;
+  cursors.value = [undefined];
+  page.value = 0;
+  detailId.value = undefined;
+  detail.value = undefined;
+  listError.value = undefined;
+  detailError.value = undefined;
+  recipient.value = "";
+  testSubmitted.value = false;
+  sourceJob.value = undefined;
+  confirmedJob.value = undefined;
+  retryTarget.value = undefined;
+  deliverySave.abandon();
+}
+async function switchSection(value: string) {
+  if (value === section.value || !["configuration", "delivery"].includes(value))
+    return;
+  if (section.value === "configuration") {
+    configRevision++;
+    configSave.abandon();
+    if (observation.value) adopt(observation.value);
+    else {
+      baseline.value = undefined;
+      Object.assign(draft, smtpDraft());
+    }
+  } else clearDelivery();
+  section.value = value;
+  if (value === "delivery") await loadJobs();
+  else if (!baseline.value) await readConfig();
+}
+async function requestSection(value: string) {
+  if (anyBusy.value || value === section.value) return;
+  if (
+    section.value === "configuration"
+      ? configDirty.value || configSave.uncertain.value
+      : deliveryDirty.value
+  ) {
+    nextSection.value = value;
+    confirmation.value = "switch";
+    return;
+  }
+  await switchSection(value);
+}
+async function confirmAction() {
+  const action = confirmation.value;
+  confirmation.value = undefined;
+  if (!access.allowed.value || anyBusy.value) return;
+  if (action === "retry") {
+    await retryJob();
+    return;
+  }
+  if (action === "stop") {
+    await saveConfiguration(true);
+    return;
+  }
+  if (action === "switch") {
+    await switchSection(nextSection.value);
+    return;
+  }
+  if (action === "abandon-config") {
+    configSave.abandon();
+    baseline.value = undefined;
+    Object.assign(draft, smtpDraft());
+    await readConfig(true);
+  } else if (action === "abandon-delivery") {
+    clearDelivery();
+    await loadJobs();
+  } else if (action === "adopt" && observation.value) {
+    configSave.abandon();
+    adopt(observation.value);
+  } else if (action === "discard" && baseline.value) {
+    configSave.abandon();
+    adopt(baseline.value);
+  }
+}
+const confirmationTitle = computed(() =>
+  confirmation.value === "stop"
+    ? "停用 SMTP"
+    : confirmation.value === "retry"
+      ? "申请新的投递重试"
+      : confirmation.value?.startsWith("abandon")
+        ? "放弃追踪本次操作"
+        : "放弃当前修改",
+);
+const confirmationCopy = computed(() => {
+  if (confirmation.value === "stop")
+    return "停用会清除已保存的连接配置和认证凭据，保留当前填写的重试策略。未保存的其他字段会被放弃；在途邮件不会因此撤回。";
+  if (confirmation.value === "retry")
+    return "使用当前合法配置和原业务材料申请新的投递周期，可能重复投递。原邀请或重置链接不会续期，是否接受由服务核实。";
+  if (
+    confirmation.value?.startsWith("abandon") ||
+    (confirmation.value === "switch" &&
+      (configSave.uncertain.value || deliverySave.uncertain.value))
+  )
+    return "此前提交仍可能生效。这只停止追踪原请求，不会撤销服务端操作或邮件发送；未保存的草稿也会清除。";
+  return "当前未保存的草稿会被清除。";
+});
+function reset() {
+  configRevision++;
+  reading.value = false;
+  observation.value = undefined;
+  baseline.value = undefined;
+  readError.value = undefined;
+  Object.assign(draft, smtpDraft());
+  submitted.value = false;
+  confirmation.value = undefined;
+  clearDelivery();
+  section.value = "configuration";
+}
+watch(
+  () => draft.credential_action,
+  (value) => {
+    if (value !== "replace") draft.password = "";
+  },
+);
+watch(access.generation, reset, { flush: "sync" });
+watch(access.allowed, (allowed) => {
+  if (allowed && !baseline.value && !reading.value) void readConfig();
+});
+onMounted(() => void readConfig());
+onBeforeUnmount(() => {
+  alive = false;
+  configRevision++;
+  listRevision++;
+  detailRevision++;
+  draft.password = "";
+});
+useLeaveProtection(
+  () =>
+    configDirty.value ||
+    configSave.busy.value ||
+    configSave.uncertain.value ||
+    deliveryDirty.value,
+);
+</script>
+
+<template>
+  <div class="smtp-page">
+    <p v-if="!accountEnabled" class="form-feedback">
+      当前为界面预览，连接账号服务后可管理 SMTP。
+    </p>
+    <div v-else-if="access.denied.value" class="form-feedback" role="alert">
+      <p>你目前没有系统管理权限。</p>
+      <UiButton :loading="checking" @click="inspectConfiguration"
+        >重新检查权限</UiButton
+      >
+    </div>
+    <UiTabs
+      v-else
+      v-model="selectedSection"
+      label="SMTP 设置分区"
+      :items="tabs"
+    >
+      <div v-if="section === 'configuration'" class="account-form smtp-form">
+        <p class="form-note">
+          配置保存与邮件投递分别确认。已配置后的发送失败不会切换到后台日志，加密失败也不会自动降级。
+        </p>
+        <p v-if="reading && !baseline" class="form-note" role="status">
+          正在读取 SMTP 配置…
+        </p>
+        <div v-if="readError" class="form-feedback" role="alert">
+          <p>配置读取失败。{{ accountErrorMessage(readError) }}</p>
+          <UiButton
+            :loading="reading"
+            :disabled="configSave.busy.value"
+            @click="readConfig()"
+            >重新读取配置</UiButton
+          >
+        </div>
+        <form
+          v-if="baseline"
+          class="account-form smtp-form"
+          @submit.prevent="saveConfiguration()"
+        >
+          <fieldset :disabled="configLocked">
+            <div v-if="!draft.configured" class="unconfigured">
+              <h2>尚未配置 SMTP</h2>
+              <p class="form-note">
+                邀请与密码恢复使用受限后台日志，由获授权运维协助转交。页面不提供恢复链接。
+              </p>
+              <UiButton @click="draft.configured = true">配置 SMTP</UiButton>
+            </div>
+            <template v-else>
+              <section class="form-section" aria-labelledby="smtp-connection">
+                <h2 id="smtp-connection">服务连接</h2>
+                <UiInput
+                  v-model="draft.host"
+                  label="主机"
+                  placeholder="smtp.example.com"
+                  :error="fieldIssue('host')"
+                  autocomplete="off"
+                />
+                <div class="smtp-pair">
+                  <UiInput
+                    v-model="draft.port"
+                    label="端口"
+                    inputmode="numeric"
+                    :error="fieldIssue('port')"
+                    autocomplete="off"
+                  />
+                  <UiSelect
+                    v-model="draft.encryption"
+                    label="加密方式"
+                    :options="encryptionOptions"
+                    :disabled="configLocked"
+                    :error="fieldIssue('encryption')"
+                  />
+                </div>
+              </section>
+              <section
+                class="form-section"
+                aria-labelledby="smtp-authentication"
+              >
+                <h2 id="smtp-authentication">身份认证</h2>
+                <UiInput
+                  v-model="draft.username"
+                  label="认证账号"
+                  hint="不使用认证时，账号与凭据需同时为空。"
+                  :error="fieldIssue('username')"
+                  autocomplete="off"
+                />
+                <UiSelect
+                  v-model="draft.credential_action"
+                  label="凭据处理"
+                  :options="credentialOptions"
+                  :disabled="configLocked"
+                  :hint="
+                    baseline.credential_present
+                      ? '已保存认证凭据，原密码不会读取或回显。'
+                      : '当前没有保存的认证凭据。'
+                  "
+                />
+                <UiInput
+                  v-if="draft.credential_action === 'replace'"
+                  v-model="draft.password"
+                  label="替换密码"
+                  type="password"
+                  autocomplete="new-password"
+                  :error="fieldIssue('password')"
+                  hint="密码只用于本次保存，不会显示已保存的密码。"
+                />
+                <p v-else-if="fieldIssue('password')" class="ui-field-error">
+                  {{ fieldIssue("password") }}
+                </p>
+                <p
+                  v-if="draft.credential_action === 'remove'"
+                  class="form-note"
+                >
+                  同时清空认证账号。移除凭据不会停用 SMTP。
+                </p>
+              </section>
+              <section class="form-section" aria-labelledby="smtp-sender">
+                <h2 id="smtp-sender">发送身份</h2>
+                <UiInput
+                  v-model="draft.sender_email"
+                  label="发件人邮箱"
+                  inputmode="email"
+                  :error="fieldIssue('sender_email')"
+                  autocomplete="off"
+                />
+                <UiInput
+                  v-model="draft.sender_name"
+                  label="发件人显示名"
+                  hint="可留空，留空时使用邮箱。"
+                  :error="fieldIssue('sender_name')"
+                  autocomplete="off"
+                />
+              </section>
+            </template>
+            <section class="form-section" aria-labelledby="smtp-retry-policy">
+              <h2 id="smtp-retry-policy">自动重试</h2>
+              <p class="form-note">
+                次数指首次尝试之外的自动重试，0 表示不自动重试。
+              </p>
+              <div class="smtp-pair">
+                <UiInput
+                  v-model="draft.auto_retry_count"
+                  label="自动重试次数"
+                  hint="0–5 次"
+                  inputmode="numeric"
+                  :error="fieldIssue('auto_retry_count')"
+                  autocomplete="off"
+                />
+                <UiInput
+                  v-model="draft.retry_interval_seconds"
+                  label="重试间隔（秒）"
+                  hint="10–3600 秒"
+                  inputmode="numeric"
+                  :error="fieldIssue('retry_interval_seconds')"
+                  autocomplete="off"
+                />
+              </div>
+            </section>
+          </fieldset>
+          <p
+            v-if="configSave.confirmed.value"
+            class="form-note form-success"
+            role="status"
+          >
+            {{
+              configAction === "unconfigure"
+                ? "停用操作已确认。下方编辑基于当前配置。"
+                : "SMTP 配置已保存。保存成功不代表邮件已送达。"
+            }}
+          </p>
+          <div
+            v-if="configSave.uncertain.value"
+            class="form-feedback"
+            role="alert"
+          >
+            <p>
+              {{
+                configCommitted
+                  ? "操作已提交，回执尚未读回。"
+                  : "原配置操作结果尚未确认。"
+              }}
+              原请求已保留，读取当前配置不能代替原请求回执。
+            </p>
+            <div class="form-actions">
+              <UiButton
+                :loading="checking"
+                :disabled="anyBusy"
+                @click="inspectConfiguration"
+                >检查当前状态</UiButton
+              >
+              <UiButton
+                v-if="configSave.replayable.value"
+                :loading="configSave.busy.value"
+                :disabled="reading || checking"
+                @click="configSave.retry"
+                >重试原请求</UiButton
+              >
+              <UiButton
+                :disabled="anyBusy"
+                @click="confirmation = 'abandon-config'"
+                >放弃本次操作</UiButton
+              >
+            </div>
+          </div>
+          <div
+            v-else-if="configSave.error.value"
+            class="form-feedback"
+            role="alert"
+          >
+            <p>
+              {{
+                configConflict
+                  ? "配置已发生变化，你的草稿已保留。请读取最新配置并核对，再明确采用。"
+                  : accountErrorMessage(configSave.error.value)
+              }}
+            </p>
+          </div>
+          <div
+            v-if="latestChanged && !configSave.uncertain.value"
+            class="form-feedback"
+          >
+            <p>
+              已读取较新的配置：{{
+                observation?.configured
+                  ? `${observation.host}:${observation.port} · ${observation.sender_email}`
+                  : "SMTP 未配置"
+              }}。采用后会替换草稿与未保存的密码。
+            </p>
+            <UiButton :disabled="configLocked" @click="confirmation = 'adopt'"
+              >采用最新配置</UiButton
+            >
+          </div>
+          <div class="form-actions">
+            <UiButton
+              variant="primary"
+              type="submit"
+              :loading="configSave.busy.value"
+              :disabled="configLocked || !configDirty || configConflict"
+              >保存配置</UiButton
+            >
+            <UiButton
+              :disabled="configLocked || !configDirty"
+              @click="confirmation = 'discard'"
+              >取消</UiButton
+            >
+            <UiButton
+              variant="ghost"
+              :loading="reading"
+              :disabled="
+                configSave.busy.value || configSave.uncertain.value || checking
+              "
+              @click="readConfig()"
+              >读取最新配置</UiButton
+            >
+          </div>
+          <section v-if="baseline.configured" class="form-section smtp-stop">
+            <h2>停用邮件传输</h2>
+            <p class="form-note">
+              清除 SMTP
+              连接和凭据，之后的恢复信息使用受限后台日志。此操作不会撤回已发送或在途邮件。
+            </p>
+            <UiButton
+              variant="danger"
+              :disabled="configLocked || configConflict"
+              @click="confirmation = 'stop'"
+              >停用 SMTP</UiButton
+            >
+          </section>
+        </form>
+      </div>
+      <div v-else class="delivery-page">
+        <form
+          class="account-form smtp-form test-form"
+          @submit.prevent="sendTest"
+        >
+          <h2>测试邮件</h2>
+          <p class="form-note">
+            测试使用服务端已保存的配置。请求受理、SMTP
+            接受和收件箱到达是不同结果。
+          </p>
+          <p v-if="!observation?.configured" class="form-note">
+            当前尚未确认可用的已配置 SMTP，请返回配置区读取或保存。
+          </p>
+          <UiInput
+            v-model="recipient"
+            label="测试收件邮箱"
+            inputmode="email"
+            autocomplete="off"
+            :disabled="deliveryLocked || !observation?.configured"
+            :error="testIssue"
+          />
+          <div class="form-actions">
+            <UiButton
+              type="submit"
+              variant="primary"
+              :loading="deliverySave.busy.value && deliveryAction === 'test'"
+              :disabled="
+                deliveryLocked || !observation?.configured || !recipient
+              "
+              >请求测试发送</UiButton
+            >
+          </div>
+        </form>
+        <div
+          v-if="confirmedJob"
+          class="form-feedback form-success"
+          role="status"
+        >
+          <p>
+            {{
+              confirmedJob.kind === "test"
+                ? "测试请求已受理。"
+                : "新的投递重试已受理。"
+            }}
+            实际尝试结果以任务详情为准。
+          </p>
+          <p class="job-reference">任务 {{ confirmedJob.job_id }}</p>
+          <p v-if="confirmedJob.source" class="job-reference">
+            源任务 {{ confirmedJob.source }}
+          </p>
+          <UiButton :disabled="anyBusy" @click="openJob(confirmedJob.job_id)"
+            >查看已受理任务</UiButton
+          >
+        </div>
+        <div
+          v-if="deliverySave.uncertain.value"
+          class="form-feedback"
+          role="alert"
+        >
+          <p>
+            {{
+              deliveryCommitted
+                ? "操作已提交，回执尚未读回。"
+                : "原请求结果尚未确认。"
+            }}
+            查看任务不能确认原请求是否成功；不要另发一个新请求。
+          </p>
+          <div class="form-actions">
+            <UiButton
+              :loading="checking"
+              :disabled="anyBusy"
+              @click="inspectDelivery"
+              >检查当前状态</UiButton
+            >
+            <UiButton
+              v-if="deliverySave.replayable.value"
+              :loading="deliverySave.busy.value"
+              :disabled="listReading || detailReading || checking"
+              @click="deliverySave.retry"
+              >重试原请求</UiButton
+            >
+            <UiButton
+              :disabled="anyBusy"
+              @click="confirmation = 'abandon-delivery'"
+              >放弃本次操作</UiButton
+            >
+          </div>
+        </div>
+        <div
+          v-else-if="deliverySave.error.value"
+          class="form-feedback"
+          role="alert"
+        >
+          <p>{{ accountErrorMessage(deliverySave.error.value) }}</p>
+        </div>
+        <section
+          v-if="detailId"
+          class="job-detail"
+          aria-labelledby="smtp-job-title"
+        >
+          <div class="section-toolbar">
+            <h2 id="smtp-job-title" ref="detailHeading" tabindex="-1">
+              投递任务详情
+            </h2>
+            <div class="form-actions">
+              <UiButton :disabled="anyBusy" @click="backToList"
+                >返回任务列表</UiButton
+              >
+              <UiButton
+                :loading="detailReading"
+                :disabled="anyBusy"
+                @click="openJob(detailId, false)"
+                >重新读取任务</UiButton
+              >
+            </div>
+          </div>
+          <p v-if="detailReading" class="form-note" role="status">
+            正在读取任务…
+          </p>
+          <div v-if="detailError" class="form-feedback" role="alert">
+            <p>
+              任务读取失败，已受理的请求不会重新发送。{{
+                accountErrorMessage(detailError)
+              }}
+            </p>
+          </div>
+          <template v-if="detail">
+            <dl class="job-facts">
+              <dt>任务类型</dt>
+              <dd>{{ deliveryKinds[detail.kind] }}</dd>
+              <dt>当前阶段</dt>
+              <dd>{{ deliveryPhases[detail.phase] }}</dd>
+              <dt>尝试次数</dt>
+              <dd>{{ detail.attempts }} 次领取记录</dd>
+              <dt>实际尝试渠道</dt>
+              <dd>{{ deliveryChannel(detail.attempt_channel) }}</dd>
+              <dt>当前尝试结果</dt>
+              <dd>
+                {{
+                  detail.attempt_result
+                    ? deliveryResults[detail.attempt_result]
+                    : "尚未记录终局结果"
+                }}
+              </dd>
+              <template v-if="detail.reason"
+                ><dt>原因</dt>
+                <dd>{{ deliveryReasons[detail.reason] }}</dd></template
+              >
+              <dt>创建时间（UTC）</dt>
+              <dd>
+                <time
+                  :datetime="detail.created_at"
+                  :title="detail.created_at"
+                  >{{ detail.created_at.slice(0, 19).replace("T", " ") }}</time
+                >
+              </dd>
+              <dt>任务 ID</dt>
+              <dd class="job-reference">{{ detail.job_id }}</dd>
+              <dt>兼容渠道摘要</dt>
+              <dd>
+                {{ deliveryChannel(detail.channel)
+                }}<small>不证明已尝试，也不代表下一次使用的渠道。</small>
+              </dd>
+            </dl>
+            <p class="form-note">
+              “已接受”只表示 SMTP
+              接受或受限恢复日志已写入，不保证收件箱到达。历史结果不会随配置改变。
+            </p>
+            <p v-if="jobRetryIssue(detail)" class="form-note">
+              {{ jobRetryIssue(detail) }}
+            </p>
+            <div class="form-actions">
+              <UiButton
+                :disabled="deliveryLocked || !!jobRetryIssue(detail)"
+                @click="
+                  retryTarget = { ...detail };
+                  confirmation = 'retry';
+                "
+                >申请重试投递</UiButton
+              >
+            </div>
+          </template>
+        </section>
+        <section v-else aria-labelledby="smtp-job-list" class="job-list">
+          <div class="section-toolbar">
+            <h2 id="smtp-job-list" ref="listHeading" tabindex="-1">投递任务</h2>
+            <UiButton
+              :loading="listReading"
+              :disabled="anyBusy"
+              @click="loadJobs()"
+              >刷新任务</UiButton
+            >
+          </div>
+          <p class="form-note">包含邀请、密码重置和测试任务，仅按需读取。</p>
+          <p v-if="listReading" class="form-note" role="status">
+            正在读取投递任务…
+          </p>
+          <div v-if="listError" class="form-feedback" role="alert">
+            <p>{{ accountErrorMessage(listError) }}</p>
+            <UiButton
+              :disabled="anyBusy"
+              @click="
+                listError instanceof AccountError &&
+                listError.code === 'CURSOR_INVALID'
+                  ? loadJobs()
+                  : loadJobs(listTarget.cursor, listTarget.page)
+              "
+              >{{
+                listError instanceof AccountError &&
+                listError.code === "CURSOR_INVALID"
+                  ? "返回首页重新加载"
+                  : "重新读取任务列表"
+              }}</UiButton
+            >
+          </div>
+          <p v-if="listReady && !rows.length" class="form-note">
+            暂无投递任务。
+          </p>
+          <ul v-if="rows.length" class="task-rows">
+            <li v-for="job in rows" :key="job.job_id">
+              <div class="task-summary">
+                <strong>{{ deliveryKinds[job.kind] }}</strong
+                ><span>{{ deliveryPhases[job.phase] }}</span
+                ><small
+                  >{{ deliveryChannel(job.attempt_channel) }} ·
+                  {{
+                    job.attempt_result
+                      ? deliveryResults[job.attempt_result]
+                      : "尚无终局结果"
+                  }}</small
+                ><time :datetime="job.created_at" :title="job.created_at"
+                  >{{ job.created_at.slice(0, 19).replace("T", " ") }} UTC</time
+                >
+              </div>
+              <UiButton
+                :disabled="anyBusy"
+                :aria-label="`查看${deliveryKinds[job.kind]}任务 ${job.job_id}`"
+                @click="openJob(job.job_id)"
+                >详情</UiButton
+              >
+            </li>
+          </ul>
+          <div v-if="listReady" class="pagination">
+            <span class="form-note" role="status"
+              >第 {{ page + 1 }} 页 · 本页 {{ rows.length }} 项</span
+            >
+            <div class="form-actions">
+              <UiButton
+                :disabled="anyBusy || page === 0"
+                @click="loadJobs(cursors[page - 1], page - 1)"
+                >上一页</UiButton
+              ><UiButton
+                :disabled="anyBusy || !nextCursor"
+                @click="loadJobs(nextCursor, page + 1)"
+                >下一页</UiButton
+              >
+            </div>
+          </div>
+        </section>
+      </div>
+    </UiTabs>
+    <UiDialog
+      :open="!!confirmation && access.allowed.value"
+      :title="confirmationTitle"
+      @update:open="!$event && (confirmation = undefined)"
+    >
+      <p class="confirmation-copy">{{ confirmationCopy }}</p>
+      <p
+        v-if="confirmation === 'retry' && retryTarget"
+        class="job-reference confirmation-copy"
+      >
+        源任务 {{ retryTarget.job_id }}
+      </p>
+      <template #footer>
+        <UiButton @click="confirmation = undefined">{{
+          confirmation === "stop" || confirmation === "retry"
+            ? "取消"
+            : "继续编辑"
+        }}</UiButton>
+        <UiButton
+          :variant="confirmation === 'stop' ? 'danger' : 'primary'"
+          @click="confirmAction"
+          >{{
+            confirmation === "stop"
+              ? "确认停用"
+              : confirmation === "retry"
+                ? "申请重试"
+                : confirmation?.startsWith("abandon")
+                  ? "放弃追踪"
+                  : "放弃修改"
+          }}</UiButton
+        >
+      </template>
+    </UiDialog>
+  </div>
+</template>
+
+<style scoped>
+.smtp-page,
+.delivery-page {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+}
+.smtp-form {
+  max-width: 560px;
+}
+h2 {
+  font-size: 14px;
+  font-weight: 600;
+}
+.smtp-pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 18px;
+}
+.unconfigured {
+  display: grid;
+  justify-items: start;
+  gap: 14px;
+}
+.smtp-stop {
+  justify-items: start;
+}
+.test-form {
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.job-list,
+.job-detail {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.section-toolbar,
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.job-reference {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.form-feedback .job-reference {
+  margin-top: 6px;
+}
+.form-feedback > .ui-button {
+  margin-top: 12px;
+}
+.job-facts {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr);
+  gap: 12px 24px;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.job-facts dt {
+  color: var(--text-secondary);
+}
+.job-facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.job-facts small {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+.task-rows {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.task-rows li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.task-summary {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 12px;
+  min-width: 0;
+  font-size: 12px;
+}
+.task-summary strong {
+  font-weight: 600;
+}
+.task-summary small,
+.task-summary time {
+  color: var(--text-secondary);
+  font-size: 11px;
+  grid-column: 1 / -1;
+  overflow-wrap: anywhere;
+}
+.confirmation-copy {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+@media (max-width: 520px) {
+  .smtp-pair {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+  .job-facts {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 5px;
+  }
+  .job-facts dd {
+    margin-bottom: 9px;
+  }
+  .section-toolbar {
+    align-items: flex-start;
+  }
+}
+</style>

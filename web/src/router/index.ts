@@ -59,12 +59,6 @@ router.beforeEach(async (to, from) => {
   if (to.meta.layout !== "account" || to.name === "mcp-oauth-callback") {
     if (session.status.value === "anonymous")
       return { name: "login", query: { return: to.path }, replace: true };
-    if (
-      session.status.value === "authenticated" &&
-      to.meta.settingsScope === "system" &&
-      session.user.value?.role !== "admin"
-    )
-      return { name: "home", replace: true };
   }
 });
 router.afterEach((to) => {

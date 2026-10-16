@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { UiButton } from "../ui";
-import { accountErrorMessage } from "../../account/transport";
+import { AccountError, accountErrorMessage } from "../../account/transport";
 defineProps<{
   error?: unknown;
   message?: string;
@@ -15,7 +15,9 @@ defineEmits<{ retry: []; abandon: [] }>();
     <p>
       {{
         uncertain
-          ? "原操作结果尚未确认。即使后续登录状态改变，也不能据此判断原操作未发生。"
+          ? error instanceof AccountError && error.commitState === "committed"
+            ? "操作已提交，回执尚未读回。请保留原请求，继续读取回执；不要重新发起操作。"
+            : "原操作结果尚未确认。即使后续登录状态改变，也不能据此判断原操作未发生。"
           : message || accountErrorMessage(error)
       }}
     </p>

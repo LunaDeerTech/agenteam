@@ -52,6 +52,28 @@ func confirmationError(original foundation.CommitResult, confirmation error) err
 	return fault(foundation.CommitUnknown, errors.Join(originalCause, confirmation))
 }
 
+// A projection failure cannot undo an already confirmed command. Keep the
+// original intent for an explicit same-key replay, which rechecks current
+// authority before recovering its receipt. Never modify a shared port Fault.
+func committedProjectionError(err error) error {
+	if err == nil {
+		return nil
+	}
+	var source *foundation.Fault
+	var out *foundation.Fault
+	if errors.As(err, &source) && source != nil && source.Code != foundation.CommitUnknown {
+		copy := *source
+		copy.FieldErrors = append([]foundation.FieldError(nil), source.FieldErrors...)
+		out = &copy
+	} else {
+		// An uncertain read transaction is not an uncertain original command.
+		out = foundation.NewFault(foundation.DependencyUnavailable, foundation.Committed)
+	}
+	out.CommitState = foundation.Committed
+	out.RetryHint = "replay"
+	return out.WithCause(err)
+}
+
 func nilPort(v any) bool {
 	if v == nil {
 		return true
