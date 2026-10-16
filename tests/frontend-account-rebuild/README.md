@@ -143,3 +143,27 @@ node tests/account-captcha-web/node_modules/@playwright/test/cli.js test --confi
 三个场景分轮通过的范围是：20 条/第 2 页长列表、未发送收件人输入、原 DOM 与滚动位置保留，Esc 回原触发器且普通详情开关不增加列表/配置 GET；390px 深色与 reduced-motion 输入下，一次测试 POST 取得严格受理回执后打开详情，首 GET 失败只重读，不重发 POST，关闭后输入和分页保持；重试 Unknown 时关闭必须确认，选择继续追踪保留原 method/path/key/body/version，不能发新重试覆盖原命令，显式恢复后打开新任务详情。确认写入后最多一次局部列表重读必须仍使用原 20 条与第 2 页 cursor，关闭弹窗不触发 Tab 初始读取。
 
 这些是受控 API 下的交互证据，不证明本轮新建真实邮件、PG 幂等或外部投递。原 `system-smtp.spec.cjs` 已按弹窗作用域、关闭详情和显式清除保留输入更新恢复选择器，限定格式/语法检查通过；**没有重新运行该真实流程**，之前 18.9 秒的真实通过仍仅属于当时输入。所有本轮 Playwright/CLI 已实际退出，无新增监听或保留浏览器；既有 dev、公网服务与配置未改。完整工程检查和独立视觉结果由相应 owner 另报。
+
+三列表统一到公共分页与列表容器后的验证以产品 `9e557cd6`、首批测试 `409b49b7` 为输入。`web/tests/system-account-pagination.spec.ts` 定向 4/4 通过（5.27 秒、exit 0）：保留原有两项请求上界/共享 HTTP 尾部测试，新增当前成功页刷新时保行、失败后同 cursor 重读，以及停用列表时退休迟到响应、保留页面、重新启用后显式读取。最后全量工程检查仍由 integration owner 唯一执行，未在这里重复整套账号 unit 或真实后台六条旅程。
+
+[controlled-system.cjs](controlled-system.cjs) 从原 SMTP modal spec 抽出有限合成响应，供该 spec 和 [system-list-layout.spec.cjs](system-list-layout.spec.cjs) 共用。只允许精确 `http://127.0.0.1:5245`，三个列表与现有 SMTP 场景用固定合成 DTO；所有 API 都被拦截，未知 API/外部 origin 拒绝。它没有读取 runtime、建立真实会话或写入真实 SMTP。布局入口分别在 1440px 浅色和 390px 深色下检查三页有数据/空态，比较实际 Settings 主滚动区扣除边框、padding 和滚动条后的内容边界，允许 1.5px 亚像素差异；检查状态左侧、页长右侧、列表及页脚外缘、0 条状态与无横向溢出，不把字段天然留白当作容器宽度。
+
+```sh
+export NODE_PATH="$PWD/tests/account-captcha-web/node_modules"
+export FRONTEND_ACCOUNT_OUTPUT="$PWD/output/ai/frontend-account-rebuild/system-list-run-01"
+node tests/account-captcha-web/node_modules/@playwright/test/cli.js test --config tests/frontend-account-rebuild/playwright.config.cjs system-smtp-modal.spec.cjs system-list-layout.spec.cjs --list
+node tests/account-captcha-web/node_modules/@playwright/test/cli.js test --config tests/frontend-account-rebuild/playwright.config.cjs system-smtp-modal.spec.cjs system-list-layout.spec.cjs
+# 后续仅复验受影响项，另设独立输出目录：
+# --grep 'three lists|closing an uncertain'
+# 或仅 system-list-layout.spec.cjs --grep '390px'
+```
+
+本轮每次均先 `--list`，实际分段结果为：
+
+- `system-list-run-01`：2 通过、3 失败（exit 1）。SMTP 普通详情同 DOM/滚动/页 2/20 条/输入/关闭回焦，以及窄屏单次发送与详情读取恢复通过。两个布局失败是测试误用邀请空态的短句 exact 匹配；改为产品原有完整文案，几何及状态断言保持原样。Unknown 场景在初配置页 5 秒内未找到“端口”，尚未进入恢复业务。
+- `system-list-run-02`：2 通过、1 失败（exit 1）。1440px 三页有数据/空态全部通过；Unknown 重试的关闭确认、继续追踪、原 method/path/key/body/version 恢复及同页局部刷新通过。390px 在最后 SMTP 初配置页再次未找到“端口”，先前两页已执行，不能据此算窄屏场景通过。
+- `system-list-run-03`：仅 390px 原场景 1/1 通过（20.8 秒、exit 0），消费已冻结的 SMTP 页长选择焦点局部修正；没有重复已过的四个浏览器场景。由此五个目标场景已分轮通过，页长选择焦点修正的独立复验由原 reviewer 另报。
+
+两次初配置加载失败的根因仍未确认，分轮通过不代表该根因已修复。只读核对既有 run01/run02 材料后，确认仅有结果 JSON 与 `.last-run.json`，失败无附件、页面正文、URL、API 事件或 stdout/stderr；原配置关闭 trace/截图/默认失败 DOM，因此无法事后区分页面未挂载、登录/权限状态、配置读取错误或仍在加载。一次有限的相同初加载探针成功且未见 pageerror/失败请求/HTTP 错误，亦不能代证原失败原因。新增诊断仅在**完全合成、任何命令前**的初配置失败时保存截断的渲染正文、页面错误，以及路径/状态/耗时/计数；不记录请求头、API 正文、命令 body/key 或私有 runtime。run03 未再次触发，未放宽超时或继续盲重跑。
+
+本轮所有作者浏览器/CLI 与有限诊断进程均已退出，无新增监听；未恢复已清理的 5250，也未改公网账号、SMTP 配置或 frp。以上仍是实际 Vue 加受控 HTTP 的证据，既有真实后端结果保留其原输入边界。
