@@ -36,7 +36,7 @@ go build -o ./bin/agenteam-account-recovery ./cmd/agenteam-account-recovery
 
 UserID须取真实不可变账号ID，邮箱与路径示例须替换。`initialize_email`用于未验证邮箱初始化，`recover_account`用于旧邮箱/Passkey不可用但仍能以密码登录的恢复。授权固定30分钟，只绑定此UserID、purpose与目标邮箱；同用户/用途新签发撤销旧授权，并写Audit。命令只签发授权，不更换邮箱、不发验证码、不重置密码，也不直接标记邮箱已验证。
 
-`--output`须是调用者控制的0700目录内尚不存在的绝对文件路径；命令以排他创建方式写0600文件，失败不覆盖已有文件。输出合同为小写 `id/authorization/user_id/purpose/email/expires_at`（实现正统一该字段，不把WIP大写默认字段作为协议）。授权不得输出到普通日志、截图或Git，经受限渠道交本人使用。命令不授予匿名登录能力：用户仍须已有当前Session并提供当前密码；同时丢失密码的离线接管不纳本轮。
+`--output`须是调用者控制的0700目录内尚不存在的绝对文件路径；命令以排他创建方式写0600文件，失败不覆盖已有文件。输出JSON使用小写 `id/authorization/user_id/purpose/email/expires_at`。授权不得输出到普通日志、截图或Git，经受限渠道交本人使用。命令不授予匿名登录能力：用户仍须已有当前Session并提供当前密码；同时丢失密码的离线接管不纳本轮。
 
 用户在个人“登录与安全”打开初始化/恢复邮箱modal，填写授权和当前密码；服务器从授权读取目标，向该邮箱发真实数字码，用户确认后才原子变更并验证邮箱。两种purpose共用 `/me/email-initialization/request|resend|confirm`，请求不另传邮箱或purpose；普通页面只提示向部署者获取授权，不展示命令长文。恢复成功撤销旧Passkeys、其他Session及旧reset，保当前强Session；初始化/恢复确认不附登记grant，之后正常首登记需再以当前密码和新邮箱码验证。管理员角色、后台日志或直接修改资料不能替代收码事实。
 

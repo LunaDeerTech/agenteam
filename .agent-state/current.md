@@ -2,9 +2,11 @@
 
 2026-10-16。用户已授权[Passkey 与邮箱变更](../docs/development/work-items/account-passkeys-email-change.md)：登录增加免填邮箱的 Passkey；个人改密页扩为“登录与安全”并支持凭据添加/命名/删除；资料邮箱经新鲜 Passkey 与新邮箱数字码原子变更。系统设置、导航和全局开关均不新增 Passkey。首次登记/全 key 丢失恢复采用当前密码加原邮箱码，bootstrap 默认邮箱不视为已验证，另实现明确的一次性部署者初始化/恢复入口。
 
-本轮基线 `c09d69b71e9ca982e02089560eeeaeb7765749e8`，前后端独立实施，合同与必要蓝图/运行说明由 account_contract 唯一维护，全部 Git 由 root 负责。固定部署 PUBLIC_ORIGIN 决定 RP/Origin，IP 下能力不可用但密码登录保持；真实域名与设备由用户在独立服务器后验。能力/列表/登录、一次性action绑定grant、Passkey管理/恢复及邮箱变更wire已固定，前端可并行接线；初始化/恢复共享modal及CLI/HTTP合同已固定；新增email_initialization_required明确区分bootstrap与普通未验证用户，严格DTO正同步。当前首断点为HTTP/邮件/CLI与真实PG组合门，尚无本轮完整功能或部署通过结论。当前持久服务、账号、SMTP、keys 不动，外部实发仍暂停。
+本轮基线 `c09d69b71e9ca982e02089560eeeaeb7765749e8`，前后端独立实施，合同与必要蓝图/运行说明由 account_contract 唯一维护，全部 Git 由 root 负责。固定部署 PUBLIC_ORIGIN 决定 RP/Origin，IP 下能力不可用但密码登录保持；真实域名与设备由用户在独立服务器后验。能力/列表/登录、action绑定grant、Passkey管理/恢复、邮箱变更及运维初始化共享modal/CLI合同已固定；email_initialization_required明确区分bootstrap与普通未验证用户。当前首断点为owned r2的真实PG/App与浏览器组合验证，尚无本轮完整功能或部署通过结论。当前持久服务、账号、SMTP、keys 不动，外部实发仍暂停。
 
-当前实现检查点：backend `5ff96e6c` 已保存WebAuthn0.18.2、00146、HTTP/email-confirm及运维CLI源码；纯Go真实签名测试通过，产品编译/真实PG仍在推进。独审发现的mail_recovery CHECK NULL问题已修，PG负例尚待确认，不称HTTP绕过。Vue `34442ff6` 已保存页面与P2焦点修正，helper4项unit及受控浏览器局部结果不代真实API。后端 `/workspace/agenteam-passkey-backend`、前端 `/workspace/agenteam-passkey-vue` 分别由account_backend/proxy_copy负责，主树文档由account_contract维护；独立验收待稳定输入，未触现用户runtime或外部邮箱。
+当前实现检查点：Vue产品 `257cc`、已保存harness `6ff0633c`，作者69项unit、类型/build通过；受控API的原生浏览器流程及P2/P3独审通过，全部合成API，不代真实后端。后端 `d2ad6a2d` 后最终补丁正冻结；00146误带Down令r1在执行SQL前失败，现已修正且源码约束测试通过，r1资源精确清理，真实PG/App/browser仍待r2。原失败保留；mail_recovery CHECK NULL返修的真实PG负例也不能提前写通过。
+
+account_backend唯一维护 `/workspace/agenteam-passkey-backend`，proxy_copy唯一维护 `/workspace/agenteam-passkey-vue`；主树合同/蓝图/运行说明由account_contract维护，root负责Git与最终组合，独审负责未完成安全门。现持久用户实例保持既有SMTP独立直连版本，账号、Session、SMTP配置、keys及数据不动，外部发信继续暂停。
 
 ## 此前 SMTP 独立直连交付
 
@@ -20,7 +22,7 @@ owned 验证已收尾：真实 App 根在规则拒绝 SMTP 目标且统一代理
 
 已部署候选来源 `e203977766438a9045b2ac4ef54161e5e5c943f5`，生产输入沿 b5 未改；Go1.27.1普通构建 VCS clean、1854项生产输入一致、check-config退出0，binary SHA256为 `390b106335240222fb3b7e0d52e34fae9daa23ed67f58c619cd10cedda8d9c19`。首次3df构建虽退出0但VCS modified=true，不作为部署候选；配置检查与实际运行验证分别记录。精确验证材料、原失败及最终资源清理由实现分支 current 维护。
 
-| 当前 Owner / 工作树 | 责任与下一步 |
+| 此前SMTP轮 Owner / 工作树 | 当时职责与收尾 |
 | --- | --- |
 | `/root/account_backend` / `/workspace/agenteam-smtp-direct` | 分支 `ai/smtp-direct-transport-20261016`，起点 `1a9250b1`；e2039777实现已冻结并集成，关键代表与资源清理已收尾，维护该分支原失败及验证边界。 |
 | `/root/account_backend/smtp_route_review` / `/workspace/agenteam` | 10份规范已归位；本次仅更新主树 current 与账号文档的活动版本定位，记录验证及实际切换结果后冻结，不写产品或实现树。 |
@@ -131,7 +133,9 @@ owned 验证已收尾：真实 App 根在规则拒绝 SMTP 目标且统一代理
 
 ## 保存与下一步
 
-关键代表已真实退出并完成资源清理，e203 clean 候选已实际保数据切换；runtime 最后只读存活收尾已退出0，root 保存 `362afebe` 的限定测试迁移预算差量与本 current。继续使用当前活动manifest管理已保留的用户5245/18443、账号/Session、SMTP TLS配置和凭据、keys、proxy、规则及对象数据，无迁移或清库；外部邮件继续暂停。旧代理HTTP400、直连失败和公网严格匿名curl60未取nonce的限制保持；此次受控成功仅证明独立直连与保留门禁，不证明本环境真实SMTP可达、认证或收件，亦非整套历史回归矩阵重新通过。
+下一步先用冻结的Passkey组合启动owned r2，完成真实PG约束、App/API/CLI与虚拟认证器浏览器薄链，再收独立权限/一次性证明/恢复门结果。按失败实际影响范围返修和复验；69项unit与合成API视觉结果不能替代这些门禁，不为缺少公网域名/真实设备阻塞可行隔离验证。确认完成范围后由root保存并集成，当前不替换用户运行实例，也不发送外部邮件。
+
+现有用户5245/18443及账号、Session、SMTP TLS配置/凭据、keys、proxy、规则与对象数据按既有约定保留；必要恢复仍使用上方e203活动manifest，不使用Passkey候选或历史manifest自动替换。此前公网严格匿名curl60未取nonce及外部SMTP未验证的限制保持；域名和真实设备由用户在其独立测试服务器配置与验证。
 
 ## 保留的既有恢复入口
 
