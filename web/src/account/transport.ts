@@ -95,7 +95,11 @@ async function sendAccount<T>(
   if (
     typeof options.body === "string" &&
     new TextEncoder().encode(options.body).length >
-      (method === "PUT" && path === "/system/smtp" ? 32768 : 16384)
+      (method === "PUT" && path === "/system/outbound-policy"
+        ? 1048576
+        : method === "PUT" && path === "/system/smtp"
+          ? 32768
+          : 16384)
   )
     throw new AccountError("INVALID_ARGUMENT");
   const mutation = !!options.key;

@@ -116,13 +116,15 @@ function settingsRoutes(
             ? () => import("../views/system/AccountSecurityPage.vue")
             : scope === "system" && page.key === "smtp"
               ? () => import("../views/system/SmtpSettingsPage.vue")
-              : scope !== "personal"
-                ? emptyPage
-                : page.key === "profile"
-                  ? () => import("../views/ProfilePage.vue")
-                  : page.key === "appearance"
-                    ? () => import("../views/AppearancePage.vue")
-                    : () => import("../views/PasswordPage.vue"),
+              : scope === "system" && page.key === "outbound-policy"
+                ? () => import("../views/system/OutboundPolicyPage.vue")
+                : scope !== "personal"
+                  ? emptyPage
+                  : page.key === "profile"
+                    ? () => import("../views/ProfilePage.vue")
+                    : page.key === "appearance"
+                      ? () => import("../views/AppearancePage.vue")
+                      : () => import("../views/PasswordPage.vue"),
     meta: {
       title: page.title,
       settingsScope: scope,
@@ -134,9 +136,13 @@ function settingsRoutes(
       content:
         scope === "personal" ||
         (scope === "system" &&
-          ["users", "invitations", "account-security", "smtp"].includes(
-            page.key,
-          ))
+          [
+            "users",
+            "invitations",
+            "account-security",
+            "smtp",
+            "outbound-policy",
+          ].includes(page.key))
           ? undefined
           : "unimplemented",
     },
