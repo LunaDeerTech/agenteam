@@ -201,3 +201,175 @@ describe("system account access and directory", () => {
     expect(fetcher).toHaveBeenCalledTimes(5);
   });
 });
+
+describe("system settings command receipts", () => {
+  it.each([
+    { status: 404, state: "not_started", expected: "unknown" },
+    { status: 503, state: "committed", expected: "committed" },
+  ])(
+    "retains an SMTP test intent after $status/$state without inventing a receipt",
+    async ({ status, state, expected }) => {
+      const jobId = "019a3333-3333-7333-8333-333333333333";
+      const fetcher = vi
+        .fn()
+        .mockResolvedValueOnce(json(identity()))
+        .mockResolvedValueOnce(
+          json(
+            {
+              code: status === 404 ? "NOT_FOUND" : "UNAVAILABLE",
+              commit_state: state,
+            },
+            status,
+          ),
+        )
+        .mockResolvedValueOnce(json({ job_id: jobId }, 202));
+      vi.stubGlobal("fetch", fetcher);
+      await (await import("../src/account/session")).refreshSession();
+      const { testSMTP } = await import("../src/system/account-settings");
+      const command = testSMTP("synthetic-recipient@example.test");
+      await expect(command.run()).rejects.toMatchObject({
+        status,
+        commitState: expected,
+      });
+      expect(command.confirmed).toBe(false);
+      expect(command.active).toBe(true);
+      await expect(command.run()).resolves.toEqual({ job_id: jobId });
+      expect(command.confirmed).toBe(true);
+      const writes = fetcher.mock.calls.slice(1);
+      expect(writes).toHaveLength(2);
+      for (const [url, init] of writes) {
+        expect(url).toBe("/api/v1/system/smtp/test");
+        expect((init as RequestInit).method).toBe("POST");
+        expect((init as RequestInit).body).toBe(
+          '{"recipient":"synthetic-recipient@example.test"}',
+        );
+        expect(
+          new Headers((init as RequestInit).headers).get("Idempotency-Key"),
+        ).toBe(command.key);
+      }
+    },
+  );
+
+  it("keeps an exact SMTP credential write private to the original intent and accepts a newer current view only with its matching receipt", async () => {
+    const base = {
+      id: "019a4444-4444-7444-8444-444444444444",
+      version: "9007199254740992",
+      configured: true,
+      host: "mail.fixture.test",
+      port: 2525,
+      encryption: "starttls" as const,
+      username: "fixture",
+      sender_email: "sender@example.test",
+      sender_name: "Original",
+      credential_present: true,
+      auto_retry_count: "0",
+      retry_interval_seconds: "60",
+    };
+    const receipt = {
+      applied_version: "9007199254740993",
+      settings: {
+        ...base,
+        version: "9007199254740994",
+        sender_name: "A later writer",
+      },
+    };
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(json(identity()))
+      .mockResolvedValueOnce(
+        json({
+          ...receipt,
+          settings: { ...receipt.settings, password: "forbidden-projection" },
+        }),
+      )
+      .mockResolvedValueOnce(json(receipt));
+    vi.stubGlobal("fetch", fetcher);
+    await (await import("../src/account/session")).refreshSession();
+    const { saveSMTPSettings, smtpDraft } =
+      await import("../src/system/account-settings");
+    const draft = {
+      ...smtpDraft(base),
+      credential_action: "replace" as const,
+      password: "synthetic-only-smtp-secret",
+      sender_name: "My draft",
+    };
+    const command = saveSMTPSettings(base, draft);
+    draft.password = "different-draft";
+    draft.sender_name = "Different name";
+    base.version = "9007199254740995";
+    await expect(command.run()).rejects.toMatchObject({
+      code: "INVALID_RESPONSE",
+      commitState: "unknown",
+    });
+    expect(command.confirmed).toBe(false);
+    await expect(command.run()).resolves.toEqual(receipt);
+    const writes = fetcher.mock.calls
+      .slice(1)
+      .map(([, init]) => init as RequestInit);
+    expect(writes).toHaveLength(2);
+    expect(writes[0]!.body).toBe(writes[1]!.body);
+    expect(JSON.parse(String(writes[0]!.body))).toMatchObject({
+      version: "9007199254740992",
+      password: "synthetic-only-smtp-secret",
+      credential_action: "keep",
+      sender_name: "My draft",
+    });
+    for (const write of writes)
+      expect(new Headers(write.headers).get("Idempotency-Key")).toBe(
+        command.key,
+      );
+  });
+
+  it("does not repeat a confirmed SMTP test when reading the accepted job fails", async () => {
+    const jobId = "019a3333-3333-7333-8333-333333333333";
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(json(identity()))
+      .mockResolvedValueOnce(json({ job_id: jobId }, 202))
+      .mockResolvedValueOnce(
+        json({ code: "UNAVAILABLE", commit_state: "not_started" }, 503),
+      );
+    vi.stubGlobal("fetch", fetcher);
+    await (await import("../src/account/session")).refreshSession();
+    const { testSMTP, getSMTPJob, useSettingsCommand } =
+      await import("../src/system/account-settings");
+    const view = mount({
+      setup() {
+        const operation = useSettingsCommand<{ job_id: string }>();
+        return () =>
+          h("section", [
+            h(
+              "button",
+              {
+                onClick: () =>
+                  operation.submit(
+                    () => testSMTP("synthetic-recipient@example.test"),
+                    async (receipt) => {
+                      await getSMTPJob(receipt.job_id);
+                    },
+                  ),
+              },
+              "Test",
+            ),
+            h("button", { onClick: operation.retry }, "Retry original"),
+            h(
+              "output",
+              `${operation.confirmed.value}:${operation.uncertain.value}:${operation.replayable.value}`,
+            ),
+          ]);
+      },
+    });
+    disposeView = () => view.unmount();
+    await view.get("button").trigger("click");
+    await vi.waitFor(() => expect(fetcher).toHaveBeenCalledTimes(3));
+    await flushPromises();
+    expect(view.get("output").text()).toBe("true:false:false");
+    await view.findAll("button")[1]!.trigger("click");
+    await flushPromises();
+    expect(fetcher.mock.calls.map(([url]) => url)).toEqual([
+      "/api/v1/session",
+      "/api/v1/system/smtp/test",
+      `/api/v1/system/mail-jobs/${jobId}/management`,
+    ]);
+  });
+});

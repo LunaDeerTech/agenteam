@@ -77,3 +77,18 @@ node tests/account-captcha-web/node_modules/@playwright/test/cli.js test --confi
 本轮 `--list` 加载 1 条，随后实际 1/1 通过（14.2 秒、exit 0）：候选预览不改变顶栏；确认上传后顶栏和资料页共用 Blob URL；离开资料页仍保留头像，经账号菜单可返回个人设置；退出后 Session 401 且旧 URL 已释放；新文档直接登录项目页也能读取已保存头像；确认删除后两处同步清空并释放 URL，最终退出再读 401。失败收尾也会尝试撤销本测试上下文的 Session，不保存凭据。浏览器与临时 CONNECT 经 fixture `finally` 关闭，CLI 已退出，未新增保留监听；原服务和 frp 未动。没有重复密码、挑战或七页完整旅程。
 
 该片段通过 [fixed-runtime.cjs](fixed-runtime.cjs) 的最小适配器使用 r2：只允许 CONNECT `154.12.86.233:18443` 并固定拨号 `127.0.0.1:5254`，不终止 TLS。manifest 的 `certificate_file` 是 leaf、`certificate_ca_file` 是专用 CA；核验 CA 签发、IP SAN、期限及 SPKI，浏览器实际 Security 事件中的 leaf SPKI 必须匹配，nonce 通过后才进入凭据步骤。此片段没有 Node `route.fetch`；若以后增加，必须使用专用 CA 与安全错误包装，不能把 leaf 当 CA 或全局忽略 TLS。此结果仅证明**本机固定路由下的真实 Vue/API 链路，不是公网 frp 验真**。既有会话竞态 probe 保持原样，其通过证据与本轮分别记录。
+
+系统用户与账号四页沿用本 harness，以[系统账号合同](../../docs/development/work-items/frontend-system-account-settings.md)为准。其全局安全/SMTP写入必须使用后端 owner 另建的独立 `https://localhost:5250` 实例，禁止指向供用户试用的 r2。新增 [system-owned.cjs](system-owned.cjs) 除核验原 runtime，还要求同目录、当前用户所有的 0600 `system-owned.json`，其中 `test_scope` 必须为 `frontend-system-account-settings`、`runtime_file` 必须等于传入 manifest 绝对路径、`nonce` 必须匹配；实例期限也必须有效。fixture 收尾注销当前测试上下文并确认 Session 401，服务生命周期仍由后端 owner 唯一管理。
+
+系统首链的恢复命令如下。`system-users.spec.cjs` 先读取真实管理员目录；若不足分页，仅在该隔离实例通过正常邀请/私有 SMTP/兑换 API 补到 11 个注册用户，再验证每页 10 条的游标前后页与只读展示。不使用搜索、角色筛选或全量补抓，也不写共享 PG fixture。
+
+```sh
+export NODE_PATH="$PWD/tests/account-captcha-web/node_modules"
+export FRONTEND_ACCOUNT_RUNTIME=/absolute/isolated-system/private/runtime.json
+export FRONTEND_ACCOUNT_MAILBOX_EXCLUSIVE=1
+export FRONTEND_ACCOUNT_OUTPUT="$PWD/output/ai/frontend-account-rebuild/system-users-run-01"
+node tests/account-captcha-web/node_modules/@playwright/test/cli.js test --config tests/frontend-account-rebuild/playwright.config.cjs system-users.spec.cjs --list
+node tests/account-captcha-web/node_modules/@playwright/test/cli.js test --config tests/frontend-account-rebuild/playwright.config.cjs system-users.spec.cjs
+```
+
+本轮首批源码已执行 `--list`，加载上述 1 条；此时独立后端尚未就绪，真实浏览器尚未执行。`npm run test:unit --prefix web -- tests/system-account.spec.ts` 首轮 2 项通过、1 项失败：系统403清除显示/旧管理命令但保留登录，以及同身份checking保留未确认原请求、真实角色丢失使其失效已通过；每页请求10条却接受11条的响应上界失败交给产品 owner 修复，原失败保留。后续新增页和修复只按实际运行补充结果，不复用旧账号或旧原型结论。
