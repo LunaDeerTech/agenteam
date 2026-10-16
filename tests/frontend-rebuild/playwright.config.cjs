@@ -2,12 +2,12 @@ const path = require("node:path");
 const { defineConfig } = require("@playwright/test");
 
 const output = path.resolve(
-  process.env.VUE_TEST_OUTPUT || "output/ai/vue-rebuild-test/browser",
+  process.env.VUE_TEST_OUTPUT || "output/ai/frontend-vue-rebuild-test/browser",
 );
 const port = Number(process.env.VUE_TEST_PORT || 5242);
 module.exports = defineConfig({
   testDir: __dirname,
-  testMatch: "foundation.spec.cjs",
+  testMatch: ["foundation.spec.cjs", "controls.spec.cjs"],
   timeout: 30000,
   expect: { timeout: 5000 },
   workers: 1,

@@ -82,23 +82,28 @@ watch(
   overflow-y: auto;
 }
 .settings-sidebar h2 {
-  margin: 0 11px 25px;
-  font-size: 13px;
-  font-weight: 550;
+  margin: 0 11px 22px;
+  font-size: 12px;
+  font-weight: 600;
   line-height: 1.5;
 }
 .settings-main {
   min-width: 0;
   min-height: 0;
   overflow-y: auto;
-  padding: 45px 48px 64px;
+  padding: 43px 48px 60px;
 }
 .settings-page-body {
-  max-width: 800px;
+  max-width: 760px;
   min-height: 240px;
 }
 .settings-directory-trigger {
   display: none;
+}
+@media (max-width: 1050px) {
+  .settings-main {
+    padding: 38px 32px 48px;
+  }
 }
 @media (max-width: 760px) {
   .settings-shell {
@@ -109,7 +114,7 @@ watch(
   }
   .settings-main {
     flex: 1;
-    padding: 28px 19px 48px;
+    padding: 27px 19px 35px;
   }
   .settings-directory-trigger {
     display: inline-flex;

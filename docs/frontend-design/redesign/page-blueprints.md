@@ -1,6 +1,6 @@
 # 前端设计 v2：页面蓝图与覆盖矩阵
 
-> 当前从零重建 Vue 前端，已按用户要求暂停并保存 WIP。下列 40 个叶子定义（原 36 个加 M3 的 4 个，动态详情仍按同一叶定义）用于已定路由骨架；`P` 表示 `/:username/:project_name`，个人/系统/项目设置分别为 3/11/11 个叶子。先共享 UI、AppShell 与单一 SettingsShell，先系统设置；未讨论正文仅标题与空区域。下文完整内容是产品设计目标与历史能力参照，不表示新工程已实现，也不要求继承 `web-crape/` 的 API、Session、权限或业务代码。Agent HTML 限定检查保留于[样板说明](prototype/README.md)，本轮不迁入完整 Agent 或项目列表正文。
+> 当前已从保存的 WIP 接续从零重建 Vue 前端，以 `746ddcb3` 的可运行 HTML 原型为设计参照，实际进度见[当前状态](../../../.agent-state/current.md)。下列 40 个叶子定义（原 36 个加 M3 的 4 个，动态详情仍按同一叶定义）用于已定路由骨架；`P` 表示 `/:username/:project_name`，个人/系统/项目设置分别为 3/11/11 个叶子。先共享 UI、AppShell 与单一 SettingsShell，先系统设置；未讨论正文仅标题与空区域。下文完整内容是产品设计目标与历史能力参照，不表示新工程已实现，也不要求继承 `web-crape/` 的 API、Session、权限或业务代码。Agent HTML 限定检查保留于[样板说明](prototype/README.md)，本轮不迁入完整 Agent 或项目列表正文。
 
 ## 1. 固定信息层级与页面归属
 

@@ -16,9 +16,9 @@ agenteam is an AI Agent collaboration platform with a Go backend, PostgreSQL/pgv
 - `cmd/agenteam/` and `cmd/agenteam-runner/`: Central and Runner entry points.
 - `internal/central/` and `internal/runner/`: respective implementations; `internal/runnerprotocol/`: shared communication contracts. Runner must not import Central business packages.
 - `internal/platform/logging/` and `internal/platform/lifecycle/`: neutral process utilities; must not import Central or Runner business types. `api/openapi/common.json`: implemented shared HTTP schemas.
-- `web/src/`: Vue application and shared component library; `db/migrations/`: one global migration sequence.
+- `web/src/`: independently rebuilt Vue application and shared component library; `web-crape/`: complete archived frontend for historical reference only; `db/migrations/`: one global migration sequence.
 - `tests/`: integration and end-to-end tests; `deploy/` and `scripts/`: deployment and development tooling.
-- `docs/architecture/`, `docs/frontend-design/`, and `docs/development/`: architecture, UI specifications, and repository organization. Shared controls live in `web/src/components/ui/`; Debug fixtures and presentation live in `web/src/views/debug/` and must not be imported by shared components.
+- `docs/architecture/`, `docs/frontend-design/`, and `docs/development/`: architecture, UI specifications, and repository organization. Shared controls live in `web/src/components/ui/`; application layouts live in `web/src/layouts/`. The new frontend must not import archived clients, Session, permissions, business implementations or fixture data. It currently has no Debug page.
 
 Keep `.gitkeep` files until their directories contain real files.
 
@@ -33,9 +33,9 @@ The frontend remains independently runnable. The root Go module requires exactly
 - `AGENTEAM_GO=/path/to/go1.27.1/bin/go AGENTEAM_MINIO_BINARY=/task-owned/cache/minio sh scripts/test-objects.sh`: full database, security, object, Artifact, download, transfer, Outbox and real process suite. The other integration scripts also acquire mandatory MinIO; the exact source-built binary and SHA are documented in the backend guide.
 - `./bin/agenteam --check-config`: validate current Central settings, including required database URL, independent cursor/Secret/download/account keyrings, `AGENTEAM_CENTRAL_ACCOUNT_RECOVERY_LOG`, safe `PUBLIC_ORIGIN`, object endpoint/bucket/explicit credentials, spool path and any explicit CA, without connecting, creating directories or opening the recovery log. Optional outbound CA appends deployment roots. Central still emits `scope=d05`; its help/version retain the D05 label. `./bin/agenteam-runner --check-config` validates D02 Runner settings. Both report `ready=false`; help/version need no configuration.
 - `npm ci --prefix web`: install locked frontend dependencies.
-- `npm run dev --prefix web`: serve development-only Debug at localhost:5173/debug.
+- `npm run dev --prefix web`: serve the new frontend skeleton at localhost:5173/system/users.
 - `npm run check --prefix web`: formatting check, unit tests, type check, and production build.
-- `npm run preview --prefix web`: inspect production build at localhost:4173; Debug is excluded.
+- `npm run preview --prefix web`: inspect the new production build at localhost:4173.
 - `git diff --check`: check tracked changes for whitespace errors.
 
 See `docs/development/backend/README.md` and `docs/development/frontend/README.md` for commands, configuration and boundaries. Backend process tests use temporary directories and loopback ephemeral ports; database and outbound fixtures verify nonce, labels and exact resource IDs before connecting. Outbox process tests share the real object ProcessGuard; it must remain held until callbacks and database cleanup actually join, or the owning process exits. Outbound success tests use owned private container sockets with exact policy rules; never replace the production loopback classifier with allow. Tests must not connect to existing infrastructure or read external credentials.

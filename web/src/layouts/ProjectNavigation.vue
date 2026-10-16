@@ -49,8 +49,9 @@ const active = (name: string) =>
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  flex-shrink: 0;
   gap: 18px;
-  min-height: 52px;
+  min-height: 48px;
   padding: 0 24px;
   border-bottom: 1px solid var(--border-subtle);
 }
@@ -90,7 +91,7 @@ nav {
 nav a {
   display: inline-flex;
   align-items: center;
-  min-height: 51px;
+  min-height: 47px;
   padding: 0 1px;
   color: var(--text-secondary);
   font-size: 12px;

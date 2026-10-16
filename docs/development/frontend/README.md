@@ -1,71 +1,58 @@
 # 前端开发基础
 
-前端重设计采用 [设计 v2](../../frontend-design/redesign/README.md)、[页面蓝图](../../frontend-design/redesign/page-blueprints.md)和[阶段计划](../../frontend-design/redesign/implementation-plan.md)，任务入口为 [agenteam-frontend-redesign 技能](../../../.agents/skills/agenteam-frontend-redesign/SKILL.md)。v2 重新建立设计来源，旧规范仅作历史/迁移输入；本页下文中的旧视觉/空 Dashboard 描述反映当前实现或历史，不约束新目标。当前业务接口、权限、生命周期与已有接受范围继续有效。本轮仅完成规范和规划，全部实施阶段未开始。
+当前 `web/` 是从零建立的 Vue 3、TypeScript、Vite 和 Vue Router 工程。旧前端完整保存在 `web-crape/`，新工程不导入其 API 客户端、Session、权限或业务实现。当前范围为共享 UI、AppShell、唯一 SettingsShell 和已定路由骨架；系统设置优先，所有未讨论的页面正文仅保留标题与空区域，不包含完整 Agent、项目列表、虚构业务数据或后端接入。
 
-前端位于 `web/`，使用 Vue 3、TypeScript、Vite、Vue Router 和自定义组件；旋转验证使用精确版本 `go-captcha-vue 2.0.7`。npm 锁文件固定依赖，Node 版本要求见 `web/package.json`。正式 Account 客户端已连接真实 Go 服务，提供登录、旋转挑战、Session 恢复、注销、受保护的空首页，以及本人资料/头像、主题和修改密码、邀请兑换与找回/重置密码。管理员用户目录、邀请管理、Provider/Model 配置、平台模型用途、账号安全、SMTP 配置与测试/投递任务、出站规则、只读系统审计及运行信息也已实现；Owner 项目列表、工作区、基本信息编辑与只读项目审计的当前能力及验收边界见下节。范围分别见 [D26 认证工作项](../work-items/d26-account-authentication.md)、[个人设置工作项](../work-items/d26-personal-settings.md)、[公开入口工作项](../work-items/d26-public-account-entry.md)、[目录工作项](../work-items/d27-system-user-directory-ui.md)、[邀请管理工作项](../work-items/d27-system-invitation-ui.md)、[Provider 工作项](../work-items/d27-system-provider-management-ui.md)、[Model 工作项](../work-items/d27-system-model-management-ui.md)、[平台用途工作项](../work-items/d27-system-model-selection-ui.md)、[账号安全工作项](../work-items/d27-system-account-security-ui.md)、[SMTP 配置工作项](../work-items/d27-system-smtp-settings-ui.md)、[SMTP 投递工作项](../work-items/d27-system-smtp-delivery-ui.md)、[出站规则工作项](../work-items/d27-system-outbound-policy-ui.md)、[系统审计工作项](../work-items/d27-system-audit-ui.md)、[运行信息工作项](../work-items/d27-system-runtime-information-ui.md)、[Owner 工作区工作项](../work-items/d27-project-owner-workspace-ui.md)及[项目审计工作项](../work-items/d27-project-owner-audit-ui.md)；其余业务页面及完整 D26/D27 仍待后续交付。
+设计依据为[设计 v2](../../frontend-design/redesign/README.md)、[页面蓝图](../../frontend-design/redesign/page-blueprints.md)和[执行计划](../../frontend-design/redesign/implementation-plan.md)。可运行参考为 `ai/frontend-f0-refinement-20261015@746ddcb3` 的 [HTML 原型](../../frontend-design/redesign/prototype/README.md)，实现与审查均须在浏览器实际观察。原型的合成数据和历史检查不证明新 Vue 业务能力或设计已被用户接受。
 
 ## 启动与检查
 
-在仓库根目录执行：
+使用 Node `>=24.12.0`，在仓库根目录执行：
 
 ```sh
 npm ci --prefix web
 npm run dev --prefix web
 ```
 
-正式认证入口为 [/login](http://127.0.0.1:5173/login)，开发组件展示为 [/debug](http://127.0.0.1:5173/debug)。开发服务器只绑定 `127.0.0.1:5173`；冲突时退出，不悄悄切换端口。
-
-连接自有 Central 时，显式提供其 loopback HTTP 端口，例如后端监听 `127.0.0.1:8080` 时：
+打开 [系统设置骨架](http://127.0.0.1:5173/system/users)。dev 默认仅监听 `127.0.0.1:5173`，端口冲突时退出；指定独立端口使用 `npm run dev --prefix web -- --port 5244`。本工程没有 `/debug` 展示页、认证服务、API 代理或真实业务请求，登录等账号路由也只有空正文。
 
 ```sh
-AGENTEAM_DEV_API_TARGET=http://127.0.0.1:8080 npm run dev --prefix web
-```
-
-代理只转发 `/api/v1`，保留浏览器 Host/Origin；Central 的 `PUBLIC_ORIGIN` 应为浏览器外部地址，本例为 `http://127.0.0.1:5173`。后端数据库、keyring、MinIO 等必需配置沿[后端指南](../backend/README.md)。目标必须是带显式端口的 loopback HTTP origin，不接受凭据、路径、query 或 hash；不添加 CORS、Cookie rewrite 或 CSRF 豁免。未配置目标时仍可运行纯前端展示，认证 API 不可用，不会提供假登录。
-
-```sh
-npm run type-check --prefix web
-npm run test:unit --prefix web
-npm run format:check --prefix web
-npm run build --prefix web
+npm run check --prefix web
 npm run preview --prefix web
 ```
 
-`npm run check --prefix web` 执行格式检查、单元测试和生产构建。`format` 会修改文件，`format:check` 只检查。
+`check` 依次执行 Prettier 只读格式检查、Vitest 组件测试、严格类型检查和 Vite 生产构建，产物位于 `web/dist/`。`preview` 仅用于本地检查生产产物，默认监听 `127.0.0.1:4173`；它不是生产部署。分项命令、远程 dev 的 Host/HMR 配置见 [web 运行说明](../../../web/README.md)。
+
+浏览器验证使用[新工程 harness](../../../tests/frontend-rebuild/README.md)，依赖独立锁定的 Playwright；组件测试位于 `web/tests/`。当前检查、失败与未验事项只在[当前状态](../../../.agent-state/current.md)维护，不从下方历史记录推定本轮通过。文档中的命令说明不等于已执行。
 
 ## 代码边界
 
-| 目录 | 职责 |
+| 路径 | 职责 |
 | --- | --- |
-| `web/src/components/ui/` | 可复用控件和内容组件；公开导出及接口类型在 `index.ts` 和 `types.ts` |
-| `web/src/components/layout/` | AppShell、SystemNav、ProjectNav 与 SettingsShell；系统和项目导航、路由内容区和设置侧栏 |
-| `web/src/api/` | 六项认证、八项个人设置、五项公开入口 Account 调用、System 用户目录 GET、邀请管理、十个固定 Provider/Credential 管理端点、九项受限 Model API、七项受限平台用途 API 及会议 Summary GET/PUT、账号安全 GET/PUT、SMTP 配置三项 API、测试/投递任务四项 API、出站规则 GET/PUT、系统审计两个 GET、运行信息 GET、Owner Project 五个端点及 Project Audit 两个 GET；运行时 DTO、头像字节与安全 Problem 解析 |
-| `web/src/composables/` | 同一 Cookie 请求协调者、公开入口 owner、页面期用户目录/系统审计/项目审计/运行信息状态与 App 生命周期内的本人设置/邀请/Provider/Model/平台用途及会议 Summary/账号安全/SMTP 配置与投递/出站规则/Owner 工作区草稿及原命令恢复，以及主题、按钮反馈、浮层与键盘工具 |
-| `web/src/styles/` | 唯一共享 token、基础规则、页面组合（`page-layouts.css`）与公共组件样式 |
-| `web/src/router/` | 路由和导航元数据 |
-| `web/src/views/auth/` 与 `HomeView.vue` | 正式登录/挑战、邀请/找回/重置页面与受保护空首页 |
-| `web/src/views/settings/` | 本人资料与头像、外观、修改密码三个真实设置页面 |
-| `web/src/views/system/` | 管理员系统设置壳、Runner 设备、用户、待注册邀请、Providers、Models、平台模型用途、系统审计、账号安全、SMTP、出站规则与运行信息十一个叶子，含非管理员及权限拒绝状态 |
-| `web/src/views/projects/` | Owner 列表与创建、项目工作区和概要、项目设置、任务 Kanban、知识与产物工作台及其业务面板 |
-| `web/src/views/debug/` | 开发环境组件展示、演示数据与展示布局 |
-| `web/src/tests/` | Vitest + Vue Test Utils 交互与基线检查 |
-| `tests/account/` 与 `tests/account-captcha-web/` | 正式构建、完整真实后端与浏览器的认证、个人设置、公开入口、系统用户目录、邀请、Provider/Model 管理、平台用途、账号安全、SMTP 配置/投递、出站规则、系统审计、运行信息、Owner 工作区与项目审计组合验收 |
+| `web/src/components/ui/` | 八个共享控件与内部浮层/滚动工具，公开导出见 `index.ts`；[合同](components.md)依据实际源码维护 |
+| `web/src/styles/` | 新工程独立的 token、基础样式和控件样式 |
+| `web/src/composables/useTheme.ts` | 本地浅色、深色与跟随系统偏好；不依赖账号或服务端设置 |
+| `web/src/layouts/` | AppShell、AccountShell、唯一 SettingsShell、页头与两类导航 |
+| `web/src/router/` | 路由、页面标题、设置 scope/栏目数据及项目导航 |
+| `web/src/views/SkeletonPage.vue` | 当前所有正式叶子的空正文 |
+| `web/tests/` | 新工程 Vitest + Vue Test Utils 测试 |
+| `tests/frontend-rebuild/` | 新工程生产产物浏览器 harness |
+| `web-crape/` | 完整历史前端，仅作参照；旧 fixture 显式消费该归档，不能作为新工程证据 |
 
-公共组件不能导入 `views/debug/`，不能包含演示数据、业务 API 或业务状态规则。正式页面直接引用相同公共组件；Debug 不是组件定义的位置。展示网格、目录和示例编排不约束正式业务布局。
+共享组件不包含业务数据、API、权限或页面状态。后续页面须先明确内容、接口、状态和权限合同，再在新工程实现；不从归档自动复制客户端或业务 composable。依赖按新 `web/package-lock.json` 安装，不链接归档的 `node_modules`。默认 npm 和开发 Compose 的构建来源仍是新 `web/`；本轮骨架检查不代表 Compose、后端或生产 SPA 组合已验收。
 
 ## 骨架与新页面
 
-页面改造先读[界面设计逻辑](../../frontend-design/interface-design.md)，在对应工作项说明页面类型、内容宽度/滚动、主动作载体与状态恢复，再复用正式布局和共享组件。按其短清单查看代表截图和关键交互；新规范不是现有页面已合规的证明，不为此另加审批层或重复设计档案。共享 `page-*` 类、设置嵌套与项目工作区的空间/滚动契约见[页面组合与滚动](components.md#页面组合与滚动)，不要在每页复制一套同义布局。
+当前保留 40 个正式叶子定义：系统设置 11、个人设置 3、项目设置 11，其余 15 个覆盖首页、项目集合/概览、四个账号入口、任务三个入口、知识库、产物、会议、待办及 MCP OAuth 回调。动态详情仍属于各自叶子；三个目录重定向和 404 不计入 40 叶。URL 形状沿[页面蓝图](../../frontend-design/redesign/page-blueprints.md)，新代码参数名为 `owner/project`、`taskId/sprintId/documentId/meetingId/skillId`。
 
-当前正式路由覆盖账号入口、保留空 Dashboard 的首页、项目列表与工作区、个人 3 类设置、系统 11 个设置叶、项目 10 个设置叶、任务 Kanban/Sprint/Task 详情入口、知识文档和产物工作台。任务三个入口共用现有看板页；会议工作台、Inbox、全局搜索及 Task Explore 尚无正式路由，不以设计模板补造功能。具体业务能力与实际验证范围以对应工作项、交付记录为准，页面存在和布局改造不代表完整模块或真实后端验收通过。
+路由与设置栏目集中在 `src/router/routes.ts`；所有正式叶子使用 `content: "unimplemented"` 并加载空正文。`/system`、`/settings`、`/:owner/:project/settings` 分别重定向到用户、个人资料和基本信息。HTML5 History 支持直达与返回；保留命名空间避免未知系统路径落入项目路由。这些路径可访问不表示认证、权限或业务已经实现。
 
-`/login` 使用独立认证布局。根路径 `/` 和受保护路由先检查真实 Session；未登录或无法确认时进入正常登录表单，不显示旧的受保护内容，内部仍区分匿名与查询失败。直接打开普通 `/login` 时，有效 Session 进入首页或合法返回目标；首屏查询失败静默，不显示技术检查或放弃按钮。登录提交时确保完成必要的 Session/匿名 CSRF 准备，业务 POST 前验证；主按钮显示加载，失败在附近给一条简短错误并保留输入，字段错误就近显示。确认身份后显示 AppShell、当前身份、退出操作、“首页”标题和空 Dashboard 容器。右上本人名称直达资料页，首页初始密码建议直达修改密码页，可继续使用系统。AppShell 与项目工作区按上述契约分配内容滚动，认证顶部区域在窄宽度或放大时可换行，保留品牌及退出操作。系统“项目”入口指向 `/projects`；ProjectNav 位于已授权的项目工作区内部，与系统导航并存。当前没有 Inbox、全局搜索或其它尚未实现的入口。
+AppShell 组织系统导航、项目上下文和内容区；AccountShell 承载账号与 OAuth 回调骨架。系统、个人和项目设置均由同一 SettingsShell 消费对应栏目数组，窄屏目录由共享 UiDialog 承载。布局职责与控件接口见[组件说明](components.md#页面组合与滚动)。
 
-在 `router/index.ts` 的 `routes` 注册正式页面，使用懒加载 `component`，为需要导航的路由声明 `meta.navigation: { label, order }`。SystemNav 从路由元数据读取入口，不需要复制导航数组或改写骨架。认证路由通过 `router/auth.ts` 及单一 `useSession` 协调，登录返回目标包含以下十五个账号/System 精确静态路径：`/`、`/settings/profile`、`/settings/appearance`、`/settings/password`、`/system/runners`、`/system/users`、`/system/invitations`、`/system/providers`、`/system/models`、`/system/model-selection`、`/system/account-security`、`/system/smtp`、`/system/outbound-policy`、`/system/audit`、`/system/runtime-information`，并增加 `/projects` 及下节严格 Project 路径。`/settings`、`/system`、query/hash、数组、外部 URL、其余动态后缀与未知系统叶子均不是返回目标；未知路径显示未找到提示。系统导航只向当前已确认且未被系统权限拒绝的 admin 展示“系统设置”。
+主题默认跟随系统，存储键为 `agenteam.vue.appearance.v1`；手动偏好持久化在本地并响应同源 storage 变化，存储不可用时仍可当前页面切换。它不是旧账号外观设置或服务端偏好恢复。
 
-客户端使用固定同源相对 Account/System/Project 路径，写操作分别传递匿名或 Session CSRF，不持久化密码、challenge pass 或 token。登录成功后还需 GET Session 确认身份及 Session CSRF；注销确认后才退出。认证、本人设置、公开入口、系统目录、邀请、Provider/Model、平台用途、账号安全、SMTP 配置/投递、出站规则、系统审计、运行信息、Owner 工作区与项目审计操作复用同一个请求协调者，逻辑超时不会提前释放尚未结束的实际请求。具体状态、取消和迟到结果规则见[D26 认证工作项](../work-items/d26-account-authentication.md)、[个人设置工作项](../work-items/d26-personal-settings.md)及[正式 Account API](../../../api/openapi/account.json)。
+## 归档前端能力与验收记录（历史）
 
-采用 HTML5 History。开发服务器和 Vite preview 支持回退；生产资源托管属于 D28，Central 当前未托管 SPA。非 API 的 History 页面才能回退到 `index.html`，API、缺失资产和服务端错误不能直接回退。认证、个人设置、公开入口、系统目录、邀请、Provider/Model 管理、平台用途、账号安全、SMTP 配置/投递、出站规则、系统审计、运行信息与 Owner 工作区的实际浏览器验收使用自有测试服务器托管冻结候选的生产 dist 并反代完整 Central，不把该测试服务器或 `vite preview` 当作生产部署；开发代理另有静态/类型检查，未单独进行真实 dev-server 浏览器验收。
+以下内容保留旧前端的实现、失败和限定验收事实，源代码现位于 `web-crape/`。其中“当前”“本轮”、历史 `web/` 路径、账号/API/权限及路由能力均指各记录当时的版本，不属于上方新工程的完成范围；原后端接受边界与 STOP 不因前端重建改变。旧组件/Debug 和账号基础验证另见[历史验证记录](verification.md)。后续页面以已确认产品目标和重新设计的接口实施，不从这里直接推导新源码已具备的能力。
 
 ## 普通 Project Variables
 
@@ -656,8 +643,8 @@ Debug 路由及动态导入使用编译期 `import.meta.env.DEV` 条件。生产
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UiButton, UiField, UiInput, UiDialog } from '../../../web/src/components/ui'
-import { useActionFeedback } from '../../../web/src/composables/useActionFeedback'
+import { UiButton, UiField, UiInput, UiDialog } from '../../../web-crape/src/components/ui'
+import { useActionFeedback } from '../../../web-crape/src/composables/useActionFeedback'
 
 const name = ref('')
 const open = ref(false)

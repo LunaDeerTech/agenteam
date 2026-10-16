@@ -19,8 +19,8 @@ defineProps<{ title: string; description?: string }>();
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 24px;
-  margin: 0 0 32px;
+  gap: 16px;
+  margin: 0 0 28px;
 }
 .page-heading > div:first-child {
   min-width: 0;
@@ -29,7 +29,7 @@ h1 {
   margin: 0;
   color: var(--text-primary);
   font-size: 24px;
-  line-height: 1.4;
+  line-height: 1.35;
   font-weight: 600;
   letter-spacing: -0.025em;
   overflow-wrap: anywhere;
@@ -41,7 +41,7 @@ p {
   margin: 8px 0 0;
   color: var(--text-secondary);
   font-size: 13px;
-  line-height: 1.7;
+  line-height: 1.6;
   overflow-wrap: anywhere;
 }
 .page-heading-actions {
@@ -49,11 +49,11 @@ p {
 }
 @media (max-width: 760px) {
   .page-heading {
-    gap: 12px;
-    margin-bottom: 28px;
+    gap: 8px;
+    margin-bottom: 25px;
   }
   h1 {
-    font-size: 22px;
+    font-size: 23px;
   }
 }
 </style>

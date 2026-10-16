@@ -1,4 +1,6 @@
-# 前端基础验证记录
+# 归档前端基础验证记录
+
+> 本页全部结果针对归档前端，源码现位于 `web-crape/`；历史 `web/` 路径和命令按当时版本解释。它们不证明新 Vue 重建通过。新工程检查入口见[新 harness](../../../tests/frontend-rebuild/README.md)，本轮实际结果与限制见[当前状态](../../../.agent-state/current.md)。原通过、失败与未验证范围保持。
 
 日期：2026-10-01。环境：Node 24.20.0、npm 11.19.0、Chromium / Playwright。此记录针对公共组件和 Debug，不代替业务页面验收。
 

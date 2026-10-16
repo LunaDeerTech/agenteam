@@ -50,6 +50,10 @@ const destination = (key: string) => ({
 </template>
 
 <style scoped>
+.settings-nav-group {
+  display: grid;
+  gap: 3px;
+}
 .settings-nav-group + .settings-nav-group {
   margin-top: 24px;
 }
@@ -64,8 +68,8 @@ a {
   display: flex;
   align-items: center;
   gap: 11px;
-  min-height: 34px;
-  padding: 6px 11px;
+  min-height: 33px;
+  padding: 7px 11px;
   color: var(--text-secondary);
   text-decoration: none;
   font-size: 12px;
@@ -94,6 +98,11 @@ a[aria-current="page"] {
 }
 a[aria-current="page"] svg {
   color: var(--text-secondary);
+}
+@media (max-width: 760px) {
+  a {
+    min-height: 44px;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   a {

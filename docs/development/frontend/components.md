@@ -1,79 +1,38 @@
 # 公共组件接口
 
-组件统一从 `web/src/components/ui/index.ts` 导入，样式由应用入口加载。普通组件使用原生语义，内容通过插槽传入；不要复制 Debug 模板实现业务控件。
+本页描述新 `web/` 的实际公共合同，由 [UI 导出](../../../web/src/components/ui/index.ts)统一提供。旧 `web-crape/` 的组件、Floating UI、业务状态、Debug 示例与历史验收不属于本页接口；历史实现可在归档源码和 Git 历史查询。设计方向见[设计 v2](../../frontend-design/redesign/README.md)，本页接口存在不等于浏览器验收通过，实际检查见[当前状态](../../../.agent-state/current.md)。
 
-## 控件与状态
+## 基础控件
 
-| 组件 | 主要接口 |
-| --- | --- |
-| UiButton | `variant: default / primary / ghost / danger`；`state: idle / loading / success`；`loadingLabel`、`successLabel`、`disabled`、`type`、`icon`；图标按钮传入 `aria-label` |
-| UiField | `label`、`hint`、`error`、`required`、可选 `id`；默认插槽提供 `id / invalid / describedby`，调用方传给实际输入 |
-| UiInput / UiTextarea | 字符串 `v-model`，`invalid`；原生 id、name、readonly、disabled、aria 属性及事件透传到输入元素 |
-| UiCheckbox / UiSwitch | 布尔 `v-model`；disabled、name；原生属性透传到 input；默认插槽提供标签 |
-| UiRadioGroup | 字符串 `v-model`；`options: ChoiceOption[]`、legend、name、disabled；未传 name 时自动生成，保留原生组内键盘行为 |
-| UiSelect | 字符串 `v-model`；options、label、id、disabled、invalid；锚定列表、选中标记、方向键、Home / End、文字首字符查找 |
-| UiMenu | label、`actions: MenuAction[]`；`select(id)`；disabled / danger 动作各自标记；关闭恢复触发焦点 |
-| UiProgress | value、max（默认 100）、label；有可访问名称与百分比文字 |
-| UiBadge / UiIdentity | badge 使用语义 tone；identity 使用 1 / 2 / 3 示例身份色或调用方传入的 CSS color；正式身份映射由调用方决定 |
+| 组件 | Props / model | 输出与内容 |
+| --- | --- | --- |
+| `UiButton` | `variant`: `default`（默认）/`primary`/`ghost`/`danger`；`type`: `button`（默认）/`submit`/`reset`；`disabled`、`loading` | 默认插槽提供按钮文字；loading 同时禁用并设置 `aria-busy`，不定义业务成功/失败状态 |
+| `UiIcon` | `name: string`、`size?: number` | 装饰性 SVG；需要可访问名称的操作使用 UiIconButton |
+| `UiIconButton` | 必填 `label`、`icon`；可选 `disabled`、`active` | 原生 button，label 同时用于可访问名称和 title；点击事件沿 Vue attrs 传递 |
+| `UiInput` | 必填 `label`；字符串 `v-model`；可选 `id`、`hint`、`error`、`disabled`、`type`（默认 text） | label 关联 input；attrs 传到 input，hint/error 与外部 `aria-describedby` 合并；error 设置无效状态 |
+| `UiSelect` | 必填 `label`、`options: SelectOption[]`；字符串 `v-model`；可选 `id`、`placeholder`（默认“请选择”）、`disabled`、`hint`、`error` | 锚定列表选择，不提供远程查询或搜索服务；选项字段为 `value`、`label`、可选 `disabled` |
+| `UiTabs` | 必填 `label`、`items: TabItem[]`、字符串 `v-model` | 默认插槽接收 `{ value }`；项字段为 `value`、`label`、可选 `disabled`，显示一个当前面板 |
+| `UiMenu` | 必填 `label`、`items: MenuItem[]`；可选 `disabled`、`align: start/end`（默认 end） | `select(id)`；trigger 插槽可定制触发内容；项字段为 `id`、`label`、可选 `checked`、`disabled`、`icon` |
+| `UiDialog` | 必填 `open`、`title`；可选 `side: center/left`（默认 center）、`closeOnOutside`、`closeOnEscape`（默认 true） | `update:open(false)`、`close(reason)`；默认/footer 插槽均接收 `{ close }` |
 
-`ChoiceOption` 使用 value、label、可选 disabled；`MenuAction` 使用 id、label、可选 disabled / danger。业务 ID 和状态映射由页面负责，不把领域枚举写入基础组件。
+`MenuItem`、`SelectOption`、`TabItem` 从同一 `index.ts` 导出。选择器与标签页的 item value 应唯一；菜单 id 应唯一。选择/切换只输出本地交互值，业务存取与确认由页面后续合同定义。
 
-`useActionFeedback().run(action)` 接受真实操作函数。操作期间 loading，完成后 success 保留 2400ms；异常保留 error 并恢复 idle。组件卸载后不继续更新反馈。默认按钮为 `type="button"`，表单提交显式指定 submit。
-
-## 内容、消息与导航
-
-| 组件 | 主要接口 |
-| --- | --- |
-| UiTree | nodes、label、`v-model:selected`、`v-model:expanded`；TreeNode 使用 id、label、children、disabled 和可选 expandable；suffix 插槽接收 node；展开与选择独立 |
-| UiCollapse | label、`v-model:open`；正文插槽；默认折叠、无边框，动态高度可中断过渡；maxHeight 默认 min(320px, 40dvh)，超出内部滚动 |
-| UiCard | 默认内容插槽 |
-| UiList | items（id、label、disabled）、label；select(id)；suffix 插槽 |
-| UiTable | columns（key、label）、rows（稳定 id）、caption；`cell-字段名` 插槽接收 row / value；容器局部横向滚动，不提供业务排序和筛选 |
-| UiMessage | role（user / agent）、name、time；正文插槽；无头像，用户右侧、Agent 左侧 |
-| UiReference / UiCode | reference 的 select 事件由页面处理；code 属性按纯文本输出，不解释 HTML / Markdown，plain 去掉代码表面和边框 |
-| UiComposer | 字符串 v-model、state、disabled、error、label；send(text) 发出非空且去除首尾空格的文本，父级负责存储与清空；actions 插槽；label 仅作可访问名称，不显示标题，内部输入无边框或聚焦高亮 |
-| UiState / UiSkeleton / UiSpinner | state 使用 kind（loading / empty / error）、title、description 与恢复操作插槽；skeleton 可指定 lines；独立 spinner 需搭配等待文字 |
-| UiBreadcrumb | items（label、可选 to）；最后一项为当前位置 |
-| UiTabs | 字符串 v-model、items（ChoiceOption[]）、label；默认插槽接收 value；方向键、Home / End 自动激活，跳过禁用项；指示线和内容滑动，退出面板 inert，支持快速反向和减少动效 |
-| UiPagination | 数字 v-model、total（页数）、label；上一页、下一页与当前页附近页码，超出范围会修正 |
-
-`TreeNode.expandable` 未传时保留按 `children?.length` 判断的原行为；`true` 支持子级尚未加载的节点，`false` 按叶子处理。展开按钮、键盘、子级可见性和 `aria-expanded` 使用同一判断；业务组件负责按展开动作读取子级。Knowledge 的只读树封装消费该接口，节点仍可独立选读；父子关系、当前权限和分页由业务层负责，`expandable` 不代表已取得子级目录或授权。
-
-Tree 使用可见节点的方向键、Home / End、Enter / Space；右键展开或进入子节点，左键折叠或回到父节点。标签页需要传入有效初始 value，列表和树节点 ID 必须唯一且稳定。
-
-## 页面组合与滚动
-
-页面类型与信息取舍遵循[界面设计逻辑](../../frontend-design/interface-design.md)；可直接复用的组合类定义在 [page-layouts.css](../../../web/src/styles/page-layouts.css)，由 `base.css` 统一导入。它们只组织空间，不新增 Vue 组件、控件主题或业务状态。
-
-| 类名 | 实际职责 |
-| --- | --- |
-| `page-layout` | 普通页面宽度 100%、内边距 24px、`flex: none`；650px 及以下内边距为上下 20px、左右 16px |
-| `page-layout--collection` / `page-layout--reading` | 与 `page-layout` 组合，分别居中限宽 1120px / 800px；宽度包含内边距 |
-| `page-header` / `page-heading` | 页头两端排列并可换行，间距 16px、下间距 24px；标题组内部间距 8px，直属说明文字使用弱化色 |
-| `page-actions` / `page-toolbar` | 动作按内容占宽并换行，间距 8px；工具栏两端排列、间距 12px、下间距 12px |
-| `page-surface` | 共享背景、细边框和 `radius-lg`，不提供内边距、行结构或滚动 |
-| `page-section` / `page-form` | 分区 / 表单纵向间距 16px / 20px；直属按钮不随 grid 拉满 |
-| `page-footer` | 底部信息与操作两端排列并换行，间距 12px、上内边距 16px；连续分页按钮放同一个 `page-actions` 内 |
-| `page-workspace` | 多区工作台使用剩余空间：纵向 flex、`flex: 1`、`min-width/min-height: 0`、外层 `overflow: hidden`；不提供内边距或内部滚动区 |
-
-普通集合/阅读页使用 `page-layout` 及对应限宽修饰类；设置叶页复用 SettingsShell 的菜单、800px 内容宽度和外边距，不重复套 `page-layout`。页面已有 grid 间距时统筹页头下间距，避免重复叠加。工作台各区宽度、断点和滚动由所属页面明确实现，不能只加 `page-workspace` 后把内容裁掉。
-
-[AppShell](../../../web/src/components/layout/AppShell.vue) 在 100dvh 内保留系统导航，`.app-content` 是可收缩的纵向 flex 主区并为普通页面提供滚动。[ProjectWorkspaceView](../../../web/src/views/projects/ProjectWorkspaceView.vue) 在该空间中保留项目导航与状态条，将剩余空间交给 `.project-content`（`flex: 1`、`min-height: 0`、`overflow: auto`）；普通项目内容在此滚动。任务、知识、产物等多区叶页继续使用 `page-workspace`，在目录、看板或阅读区显式分配局部滚动，项目导航不进入这些滚动区。
-
-沿外壳到工作区保持 `min-width/min-height: 0` 的可收缩链；工作台需要常驻的页头、导航和状态条保留自身高度，集合内容按自然高度展开。不要在叶页重新铺一层 100dvh、将列表限宽施加到整个 `.app-content`，或让外层和正文同时滚动同一段内容。组合后需实际检查长列表、窄屏和焦点可见性，类名本身不证明布局已通过验收。
+Select 和 Menu 使用方向键、Home/End、Enter/Space、Escape 及字符定位，并跳过禁用项；Tabs 使用左右方向键与 Home/End 切换可用项。具体浏览器覆盖由 harness 与独审报告确认，不能从键盘处理代码推定所有设备均已验收。
 
 ## 浮层
 
-UiDialog / UiDrawer 使用 `v-model:open`、title、closeOnOutside、closeOnEscape。两种关闭策略默认 true；危险或未保存表单由业务调用方明确设置，不以原型默认值推导产品规则。`close(reason)` 区分 escape / outside / action；footer 插槽提供 close 函数。
+UiDialog 使用原生 `<dialog>.showModal()`，可通过 `v-model:open` 控制。`side="left"` 提供左侧目录载体；本工程没有独立 UiDrawer。关闭原因是 `escape`、`outside` 或 `action`，由 `close` 事件发出；close 插槽函数默认发出 action。关闭按钮也发出关闭请求，页面有未保存或提交门禁时，应在受控 setter 中处理关闭意图。
 
-页面按[操作载体与关闭规则](../../frontend-design/interface-design.md#5-操作载体与关闭规则)选择 Dialog/Drawer。当前面板默认最大 560px，无通用 `size` 或 `beforeClose` prop；关闭按钮也会请求更新 `open`。有未保存/提交门禁时须由受控 setter 将关闭意图交给业务 owner，不能只关闭 Escape/遮罩而让关闭按钮绕过保护。正文与操作区使用已有插槽，不嵌套重复标题卡片。
+模态负责自身滚动锁、Tab 焦点循环和关闭时尝试恢复仍可用的原触发位置。新组件没有 `fallbackFocus`、`beforeClose`、通用 `size` 或 `data-autofocus` 扩展合同；如后续业务需要，须通过实际实现与对应检查增加。原生 `autofocus` 属性可按浏览器语义使用，不等于旧组件的焦点管理器。
 
-UiDialog 另支持可选 `fallbackFocus: HTMLElement | null`，由调用方提供当前本地 DOM 引用，例如已有 `tabindex="-1"` 的页面标题。正常 `open` 从 true 变 false 且没有剩余模态时，先恢复合法且实际可聚焦的原触发位置；失败后才尝试关闭时读取的最新后备目标。目标须属于同一 document、仍连接且可见可聚焦，不得为 BODY/HTML、禁用或隐藏/inert 范围内节点；组件不补 tabindex、不搜索其它页面目标或延迟抢焦点。直接卸载组件不尝试该后备，原触发位置恢复规则保持；仍有模态时完全沿其合法范围恢复，不使用页面后备。未传或当前 null/undefined 时保留原行为。调用方正常关闭须保留 Dialog 实例并设置 open=false；checking、离页或身份失效导致的整体卸载不触发此能力。UiDrawer、UiPopover 等封装器未新增此 typed API。
+Menu 与 Select 使用内部 `useAnchoredLayer`，依据触发位置和 viewport 处理翻转、边缘约束、尺寸与滚动/resize 更新；模态内的列表留在所属 dialog。未引入 Floating UI，内部定位 helper 不是对页面开放的公共 API。样式和动效使用共享 token，并处理 `prefers-reduced-motion`。
 
-UiPopover 提供锚定说明容器，使用 `v-model:open`、label、disabled，trigger / 默认插槽；默认插槽提供 close 函数。UiMenu 和 UiSelect 在同一定位基础上保留独立动作和选择语义，不使用搜索对话框替代。
+## 页面组合与滚动
 
-UiSearchDialog 使用 title、items（id、label）和 `v-model:open`，发出 select(id)。这里只负责本地列表过滤，不定义正式搜索权限、范围或 API。UiTooltip 只接受 text 和触发标签，说明不可含交互控件。
+[AppShell](../../../web/src/layouts/AppShell.vue) 保留系统顶栏，将剩余空间交给可收缩的主区；项目路由先展示 [ProjectNavigation](../../../web/src/layouts/ProjectNavigation.vue)。普通页面在标准内容区滚动，账号与 OAuth 回调由 [AccountShell](../../../web/src/layouts/AccountShell.vue)承载。
 
-浮层通过共享层管理器处理顶层 Escape、焦点恢复和模态焦点限制。模态背景 inert，退出内容立即 inert 并从可访问树移除。锚定定位使用 Floating UI 自动翻转、视口边缘避让和尺寸限制。Tab 从下拉返回正常页面顺序；tooltip 在原位置所属层内定位，不覆盖更高模态。
+系统、个人和项目设置只使用一份 [SettingsShell](../../../web/src/layouts/SettingsShell.vue)。它从 route metadata 与集中栏目数组获得 scope、标题、分组和导航；设置目录与正文分工，桌面两区各自管理纵向滚动。窄屏隐藏常驻目录，通过同一个 UiDialog 的 left 模式打开，选中路由后关闭目录。
 
-所有组件使用共享主题和 `prefers-reduced-motion`。参数修改同步[样式文档](../../frontend-design/styles/README.md)，不在正式页面另设一套控件颜色或字号。
+[PageHeading](../../../web/src/layouts/PageHeading.vue)提供标题、可选说明与 actions 插槽。当前 [SkeletonPage](../../../web/src/views/SkeletonPage.vue)仅输出空正文；没有旧 `page-*` 布局类合同或已实现的业务表单。新增内容应沿壳的可收缩链分配滚动，不重新铺一层全屏高度或复制第二份设置壳。
+
+共享控件、token 和主题独立于页面，不导入业务、归档或测试展示内容。页面级修改遵循文件唯一写者规则；实际尺寸与颜色以新源码和已确认设计为准，不把本页的描述作为视觉接受结论。

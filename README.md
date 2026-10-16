@@ -16,7 +16,7 @@ agenteam 是以项目为边界的 AI Agent 协作与执行平台，管理长期�
 - 存储：PostgreSQL / pgvector + MinIO。
 - 本地开发：Docker Compose 管理 Central 与基础设施，nginx 提供前端并反代 API；生产前端嵌入尚未验收。
 
-仓库包含 Vue 前端、共享组件与开发环境 Debug 展示，以及 Go Central/Runner、PostgreSQL/pgvector 和对象存储相关模块。已交付能力、尚未绑定端口与验收限制统一见任务台账；完整产品尚未就绪。
+仓库包含新 Vue 前端骨架、共享组件及完整归档的 `web-crape/`，以及 Go Central/Runner、PostgreSQL/pgvector 和对象存储相关模块。已交付能力、尚未绑定端口与验收限制统一见任务台账；完整产品尚未就绪。
 
 ## 后端开发
 
@@ -45,7 +45,7 @@ AGENTEAM_DEV_DATA_DIR=./.dev
 docker compose -f docker-compose.dev.yaml up -d --build --wait --wait-timeout 1200
 ```
 
-默认成功后，本机访问 **http://localhost:8080**，其他机器访问 **http://服务器IP:8080**；修改端口后使用对应端口即可。前端通过同源 `/api/v1` 调用后端。数据库和 MinIO 均不公开宿主端口。Compose 自动读取根 `.env`，已有 shell 环境变量优先。首次下载镜像和 Go/npm 依赖需要网络与足够磁盘空间。Docker `vfs` 驱动还会为容器文件系统占用空间：此前四服务实测额外约 3GB，不含数据目录内缓存，不是所有环境的峰值或上限。
+默认成功后，本机访问 **http://localhost:8080**，其他机器访问 **http://服务器IP:8080**；修改端口后使用对应端口即可。开发代理保留同源 `/api/v1` 入口；当前构建的是新 `web/` 空骨架，尚未连接后端账号与业务，不能沿下方归档版本的登录结果推定新工程组合已验收。数据库和 MinIO 均不公开宿主端口。Compose 自动读取根 `.env`，已有 shell 环境变量优先。首次下载镜像和 Go/npm 依赖需要网络与足够磁盘空间。Docker `vfs` 驱动还会为容器文件系统占用空间：此前四服务实测额外约 3GB，不含数据目录内缓存，不是所有环境的峰值或上限。
 
 从其他机器直接通过服务器 IP 测试时，在服务器的 `.env` 中配置：
 
@@ -101,7 +101,7 @@ docker build --secret id=dev_ca,src=/path/to/trusted-ca.crt --target minio -f Do
 
 官方社区版现采用源码分发，但上述历史 GitHub Release 的官方二进制资产仍可获取。本环境对同版本的官方 Quay 和 Docker Hub manifest 在匿名鉴权后仍收到访问拒绝；这不证明该 release 不存在，也不能代替用户本机错误诊断。当前 MinIO 构建已在 Linux/amd64 完成官方资产完整下载、固定 SHA-256 校验及镜像构建，实际版本、源码提交、原入口和许可证均已确认；其他支持架构尚未实际运行。本环境构建使用上述可选受信 CA。
 
-本轮使用新构建的 MinIO 镜像和标准 `up -d --build --wait --wait-timeout 1200` 命令，复用原有数据及构建缓存，通过四服务启动、真实浏览器管理员登录、Session 与 CSRF 校验，Central 以非 root 运行，没有镜像或入口覆盖。重启 app 后 Go 与前端重新构建，原数据库、三份凭据、五组密钥及机器标识保持不变；最后正常停止并 `down`，MinIO 收到 SIGTERM 后以状态 0 退出，容器和网络均已清退，原数据保留。此前源构建和首次启动曾因本环境磁盘空间保护主动取消，不计为通过。
+归档前端版本的开发组合曾使用新构建的 MinIO 镜像和标准 `up -d --build --wait --wait-timeout 1200` 命令，复用原有数据及构建缓存，通过四服务启动、真实浏览器管理员登录、Session 与 CSRF 校验，Central 以非 root 运行，没有镜像或入口覆盖。重启 app 后 Go 与前端重新构建，原数据库、三份凭据、五组密钥及机器标识保持不变；最后正常停止并 `down`，MinIO 收到 SIGTERM 后以状态 0 退出，容器和网络均已清退，原数据保留。此前源构建和首次启动曾因本环境磁盘空间保护主动取消，不计为通过。
 
 开发内网数据库与对象存储使用正式 `TLS_MODE=disable` 配置，不改变模型出站、DNS 或权限规则。此开发组合不启用 Execution Runtime，不发起模型请求，不新增 Runner 或 SMTP。nginx 开发托管不代表生产 SPA 嵌入完成；`/livez` 检查真实监听进程，当前产品的 `/readyz` 未绑定状态仍保留。
 
@@ -127,7 +127,7 @@ npm ci --prefix web
 npm run dev --prefix web
 ```
 
-访问 [Debug 组件展示](http://127.0.0.1:5173/debug)。公共组件独立于展示页，生产构建不包含 Debug。启动、检查及组件使用见[前端开发说明](docs/development/frontend/README.md)。
+访问 [系统设置骨架](http://127.0.0.1:5173/system/users)。新 `web/` 从零实现共享 UI、AppShell、唯一 SettingsShell 与已定空路由；旧 `web-crape/` 仅为归档。当前没有 Debug、认证/API 或业务页面接入。启动、检查与远程预览配置见 [web 运行说明](web/README.md)，范围和组件使用见[前端开发说明](docs/development/frontend/README.md)。
 
 ## 文档
 

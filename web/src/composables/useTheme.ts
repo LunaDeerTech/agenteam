@@ -25,7 +25,7 @@ function applyTheme() {
       .querySelector('meta[name="theme-color"]')
       ?.setAttribute(
         "content",
-        resolvedTheme.value === "dark" ? "#191a18" : "#f6f6f5",
+        resolvedTheme.value === "dark" ? "#161715" : "#f5f5f3",
       );
   }
 }
