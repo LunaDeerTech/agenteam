@@ -60,6 +60,7 @@ const active = (name: string) =>
   align-items: center;
   gap: 11px;
   min-width: 0;
+  max-width: 100%;
   font-size: 12px;
 }
 .project-back {
@@ -68,6 +69,7 @@ const active = (name: string) =>
   justify-content: center;
   width: 24px;
   height: 28px;
+  flex: none;
   border-radius: 4px;
   color: var(--text-secondary);
 }
@@ -76,7 +78,15 @@ const active = (name: string) =>
   color: var(--text-secondary);
   overflow-wrap: anywhere;
 }
+.project-owner {
+  flex: none;
+  max-width: 30%;
+}
+.project-separator {
+  flex: none;
+}
 .project-name {
+  min-width: 0;
   color: var(--text-primary);
   font-weight: 550;
   text-decoration: none;

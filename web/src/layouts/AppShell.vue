@@ -3,6 +3,7 @@ import { computed, ref } from "vue";
 import { RouterLink, useRoute } from "vue-router";
 import { UiDialog, UiIcon, UiIconButton, UiMenu } from "../components/ui";
 import { useTheme } from "../composables/useTheme";
+import BrandLogo from "./BrandLogo.vue";
 import PageHeading from "./PageHeading.vue";
 import ProjectNavigation from "./ProjectNavigation.vue";
 import SettingsShell from "./SettingsShell.vue";
@@ -25,11 +26,9 @@ const changeTheme = (value: string) => {
   <div class="app-shell">
     <a class="skip-link" href="#main">跳到主要内容</a>
     <header class="system-header">
-      <RouterLink to="/" class="brand" aria-label="agenteam 首页"
-        ><span class="brand-mark" aria-hidden="true"
-          ><i></i><i></i><i></i><i></i></span
-        >agenteam</RouterLink
-      >
+      <RouterLink to="/" class="brand" aria-label="agenteam 首页">
+        <BrandLogo compact-on-mobile />
+      </RouterLink>
       <nav class="system-primary" aria-label="系统导航">
         <RouterLink
           to="/"
@@ -128,27 +127,9 @@ const changeTheme = (value: string) => {
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
-  color: var(--text-primary);
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: -0.025em;
+  flex: none;
+  min-height: 44px;
   text-decoration: none;
-}
-.brand-mark {
-  display: grid;
-  grid-template-columns: repeat(2, 7px);
-  gap: 2px;
-  transform: rotate(-9deg);
-}
-.brand-mark i {
-  width: 7px;
-  height: 7px;
-  border-radius: 2px;
-  background: currentColor;
-}
-.brand-mark i:nth-child(2) {
-  opacity: 0.6;
 }
 .system-primary {
   display: flex;
@@ -237,7 +218,8 @@ const changeTheme = (value: string) => {
     gap: 14px;
   }
   .brand {
-    font-size: 13px;
+    min-width: 44px;
+    justify-content: center;
   }
   .system-primary {
     gap: 1px;

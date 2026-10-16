@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { RouterLink, useRoute } from "vue-router";
+import BrandLogo from "./BrandLogo.vue";
 import PageHeading from "./PageHeading.vue";
 const route = useRoute();
 </script>
 
 <template>
   <div class="account-shell">
-    <header><RouterLink to="/">agenteam</RouterLink></header>
+    <header>
+      <RouterLink to="/" aria-label="agenteam 首页">
+        <BrandLogo class="account-logo" />
+      </RouterLink>
+    </header>
     <main id="main" tabindex="-1">
       <PageHeading
         :title="route.meta.title || ''"
@@ -25,11 +30,14 @@ header {
   padding: 20px 28px;
 }
 header a {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   text-decoration: none;
-  letter-spacing: -0.025em;
+}
+.account-logo {
+  width: 152px;
+  height: 40px;
 }
 main {
   max-width: 420px;
