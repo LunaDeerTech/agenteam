@@ -1,44 +1,47 @@
-# 当前状态：新 Vue 工程已暂停，保存未验收 WIP
+# 当前状态：接续新 Vue 工程，框架与空路由实现中
 
-2026-10-16，用户要求暂停、记录全部当前内容并 commit/push，随后在新对话接续。全部实现、测试与独审 owner 已停写；本记录描述暂停时的实际断点，不是完成或通过结论。
+2026-10-16，用户在前次明确暂停、保存并推送后要求接续。当前任务仍是未验收的 Vue 重建，不把前次 WIP、旧 HTML 或旧 Vue 的检查视为新工程通过。
 
-## 用户已确认的方向
+## 目标与边界
 
-- 旧 `web/` 归档为 `web-crape/`，新 `web/` 从零建立，不复用旧 API 客户端、Session、权限或业务实现。必要后端接口随具体页面需求重新设计；当前没有重建后端或实现认证授权。
-- 先共享 UI、AppShell、**单一 SettingsShell** 和全部已定路由骨架，系统设置优先；未讨论正文只保留标题与空内容区域，不填假数据、旧表单或业务动作。系统/个人/项目设置分别为 11/3/11 个叶子，共用设置壳。
-- 不再等待全站 HTML F0 完成。Agent HTML 保留对照、不继续扩功能；本轮不迁入完整 Agent 或项目列表正文。旧样板和旧 Vue 的结果均不代证新工程。
+- 旧 `web/` 已完整归档到 `web-crape/`，仅作历史参照。新 `web/` 从零实现，不复用旧 API 客户端、Session、权限或业务代码；后端接口按具体页面需求另行设计，本轮未做。
+- 先共享 UI、AppShell、**唯一 SettingsShell** 与全部已定路由骨架，系统设置优先。系统/个人/项目设置为 11/3/11 个叶子；未讨论正文只保留标题与空区域，不搬完整 Agent 或项目列表正文，不填虚构数据。
+- `746ddcb3` 的可运行 HTML 原型是本轮明确设计参考。须由实际运行并看过整页的 owner 报告观察；原型 PASS 不代证新工程。设计入口见[重设计说明](../docs/frontend-design/redesign/README.md)。
 
-## 分支、保存与唯一写者
+## 分支、会话与文件所有权
 
-- 工作树：`/workspace/agenteam-vue-rebuild`；分支：`ai/frontend-vue-rebuild-20261016`；起点 `746ddcb3`。`web/` → `web-crape/` 的 `7a4fc14a` 已推远端并设置 upstream；暂停前其余 WIP 尚待 root 本次保存。恢复以远端该分支最新提交及实际差异为准，不依赖本状态的自提交哈希。
-- `main` 仍为 `b6db5297`；旧 `ai/frontend-f0-refinement-20261015` 保留在 `746ddcb3` 供参照，未合 main。不要回旧树修改其 `current.md`。
-- `/root` 是本轮唯一协调会话，执行全部 Git、分支、工作树和集成。新工程紧耦合，共用本树但按文件唯一写者划分；所有 owner 现已停写，接续先确认旧会话无写入活动。
+- 工作树：`/workspace/agenteam-vue-rebuild`；分支：`ai/frontend-vue-rebuild-20261016`；本次恢复输入为 `635c90dc`，原型参考为 `746ddcb3`。恢复以该远端任务分支最新提交和实际差异为准；本状态不回填自身提交号。
+- `/root` 是当前唯一协调写会话，负责全部 Git、分支、worktree、checkpoint/push 与集成。前次暂停已明确交接，本次 owners 如下。
+- 骨架、共享组件与 harness 紧耦合，本轮共用工作树并按文件保持唯一写者；跨 owner 接口变更先沟通。Git 保存持续获用户授权；本轮未经最终范围验收，不合 main、不部署。
 
-| Owner                             | 已保存到工作区、待本次 checkpoint 的范围                                                                                                                                                                                                                                                                                                                  | 暂停时断点与检查事实                                                                                                                                                                                                                                                                |
-| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/root/agent_completion_designer` | `web/package.json`、独立 `package-lock.json`、`index.html`、`tsconfig.json`、`vite.config.ts`、`.prettierignore`、`.prettierrc.json`、`public/.gitkeep`；`src/main.ts`、`App.vue`、`router/{index,routes}.ts`、`views/SkeletonPage.vue`、`layouts/{PageHeading,SettingsNavigation,SettingsShell,ProjectNavigation,AppShell,AccountShell}.vue`，共 19 文件 | 已写路由、单一设置壳与空正文；`/system` → `/system/users` 只是源码首链。仅 `npm install --package-lock-only --ignore-scripts --prefix web` 实际 exit 0；未安装依赖或运行工程检查/浏览器。                                                                                           |
-| `/root/vue_foundation_ui`         | `web/src/components/ui/{UiButton,UiIcon,UiIconButton,UiMenu,UiDialog,UiInput,UiTabs,UiSelect}.vue`、`index.ts`、`internal/{useAnchoredLayer,scrollLock}.ts`；`styles/{index,tokens,controls}.css`；`composables/useTheme.ts`，共 15 文件                                                                                                                  | 前五组件已导出并有 CSS；Input/Tabs/Select 已落盘但**尚未导出、缺专用 CSS**。主题、菜单、模态行为只是实现，未 build/unit/browser 验证。                                                                                                                                              |
-| `/root/f0_structure_audit`        | 根 `.gitignore`；`tests/account-captcha-web/` 的 2 个旧 fixture server 与 8 个 e2e/helper；`tests/meeting/metadata-focus-{app.ts,browser.cjs}`；`tests/{m1-app-workflow,m2-app-workflow}/run.sh`；`tests/account/` 的 11 个历史 web fixture，共 26 路径                                                                                                   | 仅将历史 fixture 显式指向 `web-crape/` 并忽略归档产物，默认 deploy/Compose 仍用新 `web/`，未改后端/API 或归档内部。归档 569 文件 blob/执行位与原版本一致；限定 shell/Node/TS 解析、引用、gofmt、diff/忽略检查已过，未跑旧业务或新 Vue。新 lock 和最终 archive-import 隔离尚待复核。 |
-| `/root/agent_completion_test`     | `web/tests/{theme,menu,dialog}.spec.ts`；`tests/frontend-rebuild/{README.md,browser-helpers.cjs,playwright.config.cjs,preview-server.mjs}`，共 7 文件                                                                                                                                                                                                     | 已写 10 个组件用例（4/3/3），尚未格式或运行。仅 config/server 的 `node --check` 通过及既有 Playwright 缓存/版本核对；浏览器配置指向尚不存在的 `foundation.spec.cjs`，harness 未完成。                                                                                               |
-| `/root/f0_refinement_review`      | 无正式文件写入，未创建新 review 目录，未修改旧 review                                                                                                                                                                                                                                                                                                     | 只看参考图与旧 HTML，未检查新 Vue 的整页、路由、交互、动效或原生缩放。可再生截图/脚本在忽略的 `output/ai/vue-rebuild-review/`，不新增永久档案。                                                                                                                                     |
-| `/root/f0_docs`                   | 本文件、`docs/development/agent-team/tasks.md` 顶部、`docs/development/development-plan.md` 当前目标、`docs/frontend-design/redesign/{README,implementation-plan,page-blueprints,target-design}.md`，共 7 文件                                                                                                                                            | 已将现行路线改为 fresh Vue 并记录暂停；旧 F0/M3 事实保留。仅文档格式/链接/限定 diff 检查，不是产品验证。其余开发说明与新工程 README 尚未归位。                                                                                                                                      |
+| Owner | 唯一写入范围与职责 | 当前状态 |
+| --- | --- | --- |
+| `/root/vue_integration` | `web/` 工程配置、锁、入口、路由、页面与布局；安装依赖、工程检查和壳集成 | 接续前次骨架，Node/npm、安装、type/build/check 实际结果待报告 |
+| `/root/vue_shared_ui` | `web/src/components/ui/`、`web/src/styles/`、`web/src/composables/useTheme.ts` | 补齐组件导出、样式和壳消费合同，实际检查待报告 |
+| `/root/vue_tests` | `web/tests/` 与 `tests/frontend-rebuild/`（含该目录 README） | 完成组件测试与浏览器 harness，实际结果待报告 |
+| `/root/vue_visual_review` | 独立只读审查；可再生材料放忽略的 `output/ai/` | 分别实际查看参考原型与新 Vue，范围和结论待报告 |
+| `/root/vue_boundary_audit` | 独立只读核对 fresh 依赖/源码隔离、归档一致性与路由覆盖；无正式文件写权 | 审查结果待报告 |
+| `/root/vue_docs` | 本状态、根 AGENTS/README、前端开发文档、新 `web/README.md` 与必要设计范围更正 | 唯一正式文档与状态作者；依据源码及 owners 实际回报更新，不代跑产品检查 |
 
-## 当前首断点与接续顺序
+## 已有内容与首个断点
 
-1. 从本任务远端分支恢复，读本状态、限定 diff 和各唯一 writer 的 WIP；先确认最新保存与会话归属。新 `web/` 尚未启动，不把源码/路由存在当作可运行。
-2. 按新独立锁安装依赖：仓库根执行 `npm ci --prefix web`。Node 要求 `>=24.12.0`；锁定 Vue 3.5.43、Router 4.6.4、Vite 8.3.1、TypeScript 5.9.3、vue-tsc 3.3.11、Vitest 4.1.11。暂停时未生成 `web/node_modules`、没有依赖软链。
-3. 核对 UI 已导出接口、所需图标与壳消费；处理 Input/Tabs/Select 未接线状态。`router/routes.ts` 集中路由 metadata，核对系统标题“模型”/“Models”、“Runner”/“Runner 设备”的正式命名。未讨论叶页继续保持空 `data-page-content`，不要趁接线填业务。
-4. 先运行必要格式、类型、构建和组件检查，再完成浏览器 harness 的 `foundation.spec.cjs`。工程已定义 `dev`、`type-check`、`build`、`preview`、`test:unit`、`format`、`format:check`、`check`，**均未运行**；`build` 含类型检查，`check` 含格式/单测/构建。首个可浏览目标为 `/system/users`：`npm run dev --prefix web` 使用 127.0.0.1:5173 strict；`preview` 使用 4173 strict。这是待执行命令，不是已验证启动说明。
-5. 跑通新 Vue 系统设置首链及全部既定空路由，再由独审检查整体、菜单/焦点、浅深/窄屏、动效及缩放。测试自有服务拟用 5242，独审拟用 5243；先核端口与资源归属。旧 HTML 与归档业务通过不能补证。
-6. 按实际工程合同补 `AGENTS.md` 长期目录/命令、根前端入口、`docs/development/frontend/{README,components}.md` 和新 `web/README.md`（由文档 owner 独写，当前不存在）；不要将这些尚未更新的旧说明当成新工程合同。旧 fixture 复现须显式构建 `web-crape/`，`*_WEB_MODULES`、`*_WEB_DIST`、`AGENTEAM_DIALOG_WEB_ROOT` 对应归档或其外部构建，不能链接新工程依赖。
+前次已保存独立 Vue 工程及锁、集中路由 metadata、AppShell/AccountShell/单一 SettingsShell、标题加空正文，以及共享控件和初步组件测试。旧 fixture 已显式改指 `web-crape/`；归档源码保持原版本，默认构建入口仍是新 `web/`。
 
-## 暂停时资源与材料
+恢复时的首断点是新工程尚未完成安装、组件接线与实际启动。前次仅生成锁的命令 `npm install --package-lock-only --ignore-scripts --prefix web` 实际 exit 0；Input/Tabs/Select 仍需核导出和样式，浏览器 `foundation.spec.cjs` 尚缺。以上为前次事实，本轮修改和检查由对应 owner 接续报告。
 
-lead 唯一生成 lock 的 npm 命令已实际退出；未启动 npm ci/dev/build/browser。UI 与工具兼容 owner 无自有运行进程。测试未启动本轮 install/server/browser，无 profile 或新软链，5242 无监听。独审的旧 HTML 参考截图服务 5243 及 browser/context 已关闭，原命令 join exit 0。上述为各 owner 的实际退出报告，不代表未来新命令自动清理。
+## 本轮检查与资源
 
-本次保存源码、独立锁、harness、必要文档和恢复状态，不保存依赖、缓存、构建产物或可重建 `output/ai/` 日志。新工程尚无 type-check/build/unit/browser/视觉通过结论；用户未接受新设计，未合 main，也未启动系统设置业务正文或后端重设计。
+- Node/npm、依赖安装、format/type/build/unit/check、浏览器及独审：本次实际结果待各 owner 报告；尚无本轮 PASS。
+- 原型服务 5241 归 `/root/vue_integration`；测试服务 5242 归 `/root/vue_tests`；独审服务 5243 归 `/root/vue_visual_review`；作者 Vue 服务 5244 归 `/root/vue_integration`。以上是资源分配，启动、占用与实际退出分别由 owner 核实，不能视为已经运行或清理。
+- 新工程工具链要求 Node `>=24.12.0`；依赖按新 `web/package-lock.json` 安装，不能链接归档工程的依赖。安装与可复制运行入口将归位到 [web/README](../web/README.md)；浏览器命令以[新工程 harness](../tests/frontend-rebuild/README.md)为准。
+- 原始日志、截图、dist 和缓存保留于忽略目录；源码、锁和必要 harness 随 checkpoint 保存。向用户展示截图须先使用项目约定图床上传并展示返回链接；不在仓库文档写入凭据，不将本机路径当作用户已看到图片。
 
-现行路线见[重设计入口](../docs/frontend-design/redesign/README.md)、[开发计划](../docs/development/development-plan.md#当前开发目标与里程碑)与[任务台账](../docs/development/agent-team/tasks.md)。历史样板入口保留在[原型说明](../docs/frontend-design/redesign/prototype/README.md)、[测试记录](../docs/frontend-design/redesign/prototype/test-README.md)和[独审记录](../docs/frontend-design/redesign/prototype/review/README.md)，不改写其原结果。
+## 下一步与保存边界
+
+1. 集成 owner 安装新依赖并核对实际 Node/npm，UI owner 完成组件合同和样式；先打通 `/system/users` 及全部已定空路由。
+2. 运行本轮必要工程/组件检查，测试 owner 完成独立端口浏览器 harness；独审分别看原型与新 Vue 的整页、交互、主题、窄屏、动效和缩放。
+3. 文档 owner 按最终源码及检查结果补齐入口、组件合同、未验项与资源退出事实；只更正现行 scope，保留历史验收事实。
+4. 有意义结果或约每 5 分钟安全边界，各 owner 报告并停止本次保存路径写入；root checkpoint/push 后再续写。WIP 保存不等于正式完成、用户设计接受或可发布。
 
 ## 保留的既有恢复入口
 
