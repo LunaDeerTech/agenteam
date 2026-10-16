@@ -1,19 +1,8 @@
 <script setup lang="ts">
-import {
-  computed,
-  nextTick,
-  onBeforeUnmount,
-  ref,
-  shallowRef,
-  watch,
-} from "vue";
+import { computed, onBeforeUnmount, ref, shallowRef, watch } from "vue";
 import { UiButton, UiDialog, UiInput, UiMenu } from "../../components/ui";
 import CommandFeedback from "../../components/account/CommandFeedback.vue";
-import {
-  accountEnabled,
-  AccountError,
-  accountErrorMessage,
-} from "../../account/transport";
+import { accountEnabled, AccountError } from "../../account/transport";
 import { useCommand } from "../../account/useCommand";
 import { useLeaveProtection } from "../../account/leave";
 import { emailError } from "../../account/validation";
@@ -21,7 +10,7 @@ import { formatInstant } from "../../system/directory";
 import { useSystemAccess } from "../../system/requests";
 import { useCursorList } from "../../system/useCursorList";
 import SettingsPageActions from "../../layouts/SettingsPageActions.vue";
-import PageSizeSelect from "../../components/system/PageSizeSelect.vue";
+import SystemList from "../../components/system/SystemList.vue";
 import {
   retryMailJobCommand,
   mailJobRetryReason,
@@ -48,8 +37,7 @@ const submittedEmail = ref("");
 const closeRequested = ref(false);
 const feedback = ref("");
 const refreshNeeded = ref(false);
-const resultTarget = ref<HTMLElement>();
-const errorTarget = ref<HTMLElement>();
+const listView = ref<{ refresh: () => Promise<void> }>();
 const now = ref(Date.now());
 const clock = window.setInterval(() => {
   now.value = Date.now();
@@ -62,7 +50,7 @@ const locked = computed(
     !access.allowed.value ||
     operation.busy.value ||
     operation.uncertain.value ||
-    list.loading.value,
+    list.pending.value,
 );
 const dirty = computed(
   () => task.value === "create" && !!email.value && !operation.confirmed.value,
@@ -171,17 +159,21 @@ function close(force = false) {
 }
 async function refresh() {
   if (locked.value) return;
-  await navigate(list.first);
+  await listView.value?.refresh();
   if (!list.error.value && access.allowed.value) refreshNeeded.value = false;
 }
-async function navigate(action: () => Promise<void>) {
-  if (locked.value) return;
-  await action();
-  await nextTick();
-  const target = list.error.value ? errorTarget.value : resultTarget.value;
-  target?.focus();
-  target?.scrollIntoView({ block: "start" });
-}
+watch(
+  () => [list.loaded.value, list.pending.value, list.error.value],
+  () => {
+    if (
+      list.loaded.value &&
+      !list.pending.value &&
+      !list.error.value &&
+      access.allowed.value
+    )
+      refreshNeeded.value = false;
+  },
+);
 async function submit() {
   if (
     locked.value ||
@@ -277,115 +269,60 @@ onBeforeUnmount(() => {
       <p>当前没有系统管理权限，邀请数据已清除。</p>
       <UiButton @click="access.recheck">重新检查权限</UiButton>
     </div>
-    <div
-      v-else-if="list.error.value"
-      ref="errorTarget"
-      tabindex="-1"
-      class="form-feedback"
-      role="alert"
-    >
-      <p>{{ accountErrorMessage(list.error.value) }}</p>
-      <p v-if="refreshNeeded">已确认的操作不会再次提交，请只重新读取列表。</p>
-      <UiButton :disabled="locked" @click="refresh">重新读取邀请</UiButton>
-    </div>
     <p v-if="feedback && !task" class="form-feedback" role="status">
       {{ feedback }}
     </p>
-    <div class="directory-list-status">
-      <p class="directory-status form-note" role="status" aria-live="polite">
-        {{
-          list.loading.value
-            ? "正在读取邀请…"
-            : list.loaded.value
-              ? `第 ${list.index.value + 1} 页，已读取 ${list.items.value.length} 条邀请。`
-              : ""
-        }}
-      </p>
-      <PageSizeSelect
-        :model-value="list.pageSize.value"
-        :disabled="
-          !accountEnabled ||
-          !access.allowed.value ||
-          operation.busy.value ||
-          operation.uncertain.value
-        "
-        @update:model-value="list.setPageSize"
-      />
-    </div>
-    <div
-      ref="resultTarget"
-      tabindex="-1"
-      class="directory-results"
-      aria-label="待注册邀请列表"
+    <SystemList
+      ref="listView"
+      :list="list"
+      :row-key="(item) => item.id"
+      label="待注册邀请"
+      results-label="待注册邀请列表"
+      pagination-label="邀请分页"
+      empty-text="暂无待注册邀请。已接受、撤销或过期的邀请不会列在这里。"
+      :disabled="
+        !accountEnabled ||
+        !access.allowed.value ||
+        operation.busy.value ||
+        operation.uncertain.value
+      "
     >
-      <p
-        v-if="list.loaded.value && !list.items.value.length"
-        class="directory-empty"
-      >
-        暂无待注册邀请。已接受、撤销或过期的邀请不会列在这里。
-      </p>
-      <ul
-        v-if="list.items.value.length"
-        class="directory-list"
-        :aria-busy="list.loading.value"
-      >
-        <li
-          v-for="item in list.items.value"
-          :key="item.id"
-          class="directory-row"
-        >
-          <div class="directory-object">
-            <strong>{{ item.email }}</strong>
-            <span class="directory-meta"
-              >{{ expired(item) ? "已过期" : "等待注册" }} · 有效至
-              <time
-                :datetime="item.expires_at"
-                :title="item.expires_at"
-                :aria-label="item.expires_at"
-                >{{ formatInstant(item.expires_at) }}</time
-              ></span
-            >
-            <span class="directory-delivery"
-              >{{ deliveryText(item.latest_delivery)
-              }}<span
-                v-if="
-                  item.latest_delivery.phase !== 'unknown' &&
-                  item.latest_delivery.attempt_result === 'unknown'
-                "
-              >
-                · 上次尝试结果未知</span
-              ></span
-            >
-          </div>
-          <UiMenu
-            :label="`${item.email} 的邀请操作`"
-            :items="menuItems(item)"
-            :disabled="locked"
-            @select="open($event as Task, item)"
-            ><template #trigger><span>操作</span></template></UiMenu
+      <template #error-extra>
+        <p v-if="refreshNeeded">已确认的操作不会再次提交，请只重新读取列表。</p>
+      </template>
+      <template #item="{ item }">
+        <strong>{{ item.email }}</strong>
+        <span class="directory-meta"
+          >{{ expired(item) ? "已过期" : "等待注册" }} · 有效至
+          <time
+            :datetime="item.expires_at"
+            :title="item.expires_at"
+            :aria-label="item.expires_at"
+            >{{ formatInstant(item.expires_at) }}</time
           >
-        </li>
-      </ul>
-    </div>
-    <nav
-      v-if="list.loaded.value && access.allowed.value"
-      class="directory-pagination"
-      aria-label="邀请分页"
-    >
-      <span class="form-note">第 {{ list.index.value + 1 }} 页</span>
-      <div class="form-actions">
-        <UiButton
-          :disabled="locked || list.index.value === 0"
-          @click="navigate(list.previous)"
-          >上一页</UiButton
+        </span>
+        <span class="directory-delivery"
+          >{{ deliveryText(item.latest_delivery)
+          }}<span
+            v-if="
+              item.latest_delivery.phase !== 'unknown' &&
+              item.latest_delivery.attempt_result === 'unknown'
+            "
+          >
+            · 上次尝试结果未知</span
+          ></span
         >
-        <UiButton
-          :disabled="locked || !list.nextCursor.value"
-          @click="navigate(list.next)"
-          >下一页</UiButton
+      </template>
+      <template #actions="{ item }">
+        <UiMenu
+          :label="`${item.email} 的邀请操作`"
+          :items="menuItems(item)"
+          :disabled="locked"
+          @select="open($event as Task, item)"
+          ><template #trigger><span>操作</span></template></UiMenu
         >
-      </div>
-    </nav>
+      </template>
+    </SystemList>
     <UiDialog
       :open="!!task"
       :title="title"
@@ -541,74 +478,11 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.directory-pagination {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-.directory-list-status {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 8px 16px;
-  margin-top: 18px;
-}
-.directory-list-status :deep(.page-size-select) {
-  margin-left: auto;
-}
-.directory-status {
-  min-height: 20px;
-  margin: 0;
-}
-.directory-results {
-  scroll-margin-block: 12px;
-}
-.directory-results:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 5px;
-}
-.directory-list {
-  list-style: none;
-  padding: 0;
-  margin: 6px 0 24px;
-}
-.directory-row {
-  display: flex;
-  gap: 16px;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 20px 0;
-  border-bottom: 1px solid var(--border-subtle);
-}
-.directory-row:first-child {
-  border-top: 1px solid var(--border-subtle);
-}
-.directory-object {
-  display: grid;
-  gap: 7px;
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-.directory-object strong {
-  font-size: 14px;
-  font-weight: 550;
-}
 .directory-meta,
 .directory-delivery {
   color: var(--text-secondary);
   font-size: 12px;
   line-height: 1.6;
-}
-.directory-row :deep(.ui-menu-trigger) {
-  flex: none;
-}
-.directory-empty {
-  padding: 32px 0;
-  color: var(--text-secondary);
-  font-size: 13px;
-  line-height: 1.7;
 }
 .dialog-email {
   margin: 0;

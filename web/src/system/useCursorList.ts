@@ -1,4 +1,11 @@
-import { onBeforeUnmount, readonly, ref, shallowRef, watch } from "vue";
+import {
+  computed,
+  onBeforeUnmount,
+  readonly,
+  ref,
+  shallowRef,
+  watch,
+} from "vue";
 import { accountEnabled } from "../account/transport";
 import { useSystemAccess } from "./requests";
 import { isPageSize, type PageSize } from "./pagination";
@@ -7,6 +14,13 @@ export interface CursorPage<T> {
   items: T[];
   next_cursor?: string;
 }
+export interface CursorListOptions {
+  enabled?: () => boolean;
+  immediate?: boolean;
+}
+export interface CursorReadOptions {
+  preserve?: boolean;
+}
 
 export function useCursorList<T>(
   read: (
@@ -14,65 +28,88 @@ export function useCursorList<T>(
     current: () => boolean,
     limit: number,
   ) => Promise<CursorPage<T>>,
+  options: CursorListOptions = {},
 ) {
   const access = useSystemAccess();
+  const enabled = computed(
+    () =>
+      accountEnabled && access.allowed.value && (options.enabled?.() ?? true),
+  );
   const items = shallowRef<T[]>([]);
   const pageSize = ref<PageSize>(10);
   const cursors = ref<Array<string | undefined>>([undefined]);
   const index = ref(0);
   const nextCursor = ref<string>();
   const loading = ref(false);
+  const refreshing = ref(false);
+  const pending = computed(() => loading.value || refreshing.value);
   const loaded = ref(false);
   const error = shallowRef<unknown>();
   let alive = true;
   let sequence = 0;
-  function clear() {
+  let target: { page: number; cursor?: string } = { page: 0 };
+  function cancel() {
     sequence++;
+    loading.value = false;
+    refreshing.value = false;
+  }
+  function clear() {
+    cancel();
     items.value = [];
     cursors.value = [undefined];
     index.value = 0;
     nextCursor.value = undefined;
     loaded.value = false;
-    loading.value = false;
     error.value = undefined;
+    target = { page: 0 };
   }
-  async function load(page = index.value, cursor = cursors.value[page]) {
-    if (!accountEnabled || !access.allowed.value || loading.value) return;
+  function reset() {
+    clear();
+    pageSize.value = 10;
+  }
+  async function load(
+    page: number,
+    cursor: string | undefined,
+    request: CursorReadOptions = {},
+  ) {
+    if (!alive || !enabled.value || pending.value) return;
     const owner = ++sequence;
-    loading.value = true;
+    const current = () => alive && owner === sequence && enabled.value;
+    const preserve = request.preserve === true && loaded.value;
+    target = { page, cursor };
+    refreshing.value = preserve;
+    loading.value = !preserve;
     error.value = undefined;
+    if (!preserve) {
+      items.value = [];
+      loaded.value = false;
+    }
     try {
-      const value = await read(
-        cursor,
-        () => alive && owner === sequence,
-        pageSize.value,
-      );
-      if (!alive || owner !== sequence) return;
+      const value = await read(cursor, current, pageSize.value);
+      if (!current()) return;
       items.value = value.items;
       index.value = page;
       cursors.value = [...cursors.value.slice(0, page), cursor];
       nextCursor.value = value.next_cursor;
       loaded.value = true;
     } catch (failure) {
-      if (alive && owner === sequence) error.value = failure;
+      if (current()) error.value = failure;
     } finally {
-      if (alive && owner === sequence) loading.value = false;
+      if (alive && owner === sequence) {
+        loading.value = false;
+        refreshing.value = false;
+      }
     }
   }
+  watch(access.generation, reset, { flush: "sync" });
   watch(
-    access.generation,
-    () => {
-      pageSize.value = 10;
-      clear();
-    },
-    { flush: "sync" },
-  );
-  watch(
-    access.allowed,
+    enabled,
     (value) => {
-      if (value) void load();
+      if (!value) cancel();
+      else if (options.immediate !== false)
+        void load(index.value, cursors.value[index.value]);
     },
-    { immediate: true },
+    { immediate: true, flush: "sync" },
   );
   onBeforeUnmount(() => {
     alive = false;
@@ -81,10 +118,21 @@ export function useCursorList<T>(
   return {
     items,
     loading,
+    refreshing,
+    pending,
     loaded,
     error,
     index,
     pageSize: readonly(pageSize),
+    nextCursor,
+    cancel,
+    reset,
+    updateItem(matches: (item: T) => boolean, update: (item: T) => T) {
+      if (!alive || !enabled.value) return;
+      items.value = items.value.map((item) =>
+        matches(item) ? update(item) : item,
+      );
+    },
     async setPageSize(value: string | number) {
       const size = typeof value === "string" ? Number(value) : value;
       if (
@@ -97,14 +145,19 @@ export function useCursorList<T>(
       pageSize.value = size;
       await load(0, undefined);
     },
-    nextCursor,
-    reload: () => load(),
-    first: () => load(0, undefined),
+    reload: (request?: CursorReadOptions) =>
+      load(target.page, target.cursor, request),
+    refresh: (request?: CursorReadOptions) =>
+      load(index.value, cursors.value[index.value], request),
+    first: (request?: CursorReadOptions) => load(0, undefined, request),
     previous: () =>
-      index.value > 0 ? load(index.value - 1) : Promise.resolve(),
+      index.value > 0
+        ? load(index.value - 1, cursors.value[index.value - 1])
+        : Promise.resolve(),
     next: () =>
       nextCursor.value
         ? load(index.value + 1, nextCursor.value)
         : Promise.resolve(),
   };
 }
+export type CursorList<T> = ReturnType<typeof useCursorList<T>>;

@@ -16,6 +16,11 @@ const directoryOpen = ref(false);
 const actionsTarget = ref<HTMLElement>();
 provide(settingsActionsTarget, shallowReadonly(actionsTarget));
 const scope = computed(() => route.meta.settingsScope || "system");
+const wideBody = computed(
+  () =>
+    scope.value === "system" &&
+    ["users", "invitations", "smtp"].includes(String(route.meta.settingKey)),
+);
 const title = computed(
   () =>
     ({ system: "系统设置", personal: "个人设置", project: "项目设置" })[
@@ -61,7 +66,12 @@ watch(
           </div>
         </template>
       </PageHeading>
-      <div class="settings-page-body"><slot /></div>
+      <div
+        class="settings-page-body"
+        :class="{ 'settings-page-body--wide': wideBody }"
+      >
+        <slot />
+      </div>
     </section>
     <UiDialog v-model:open="directoryOpen" :title="title" side="left">
       <SettingsNavigation
@@ -104,6 +114,9 @@ watch(
 .settings-page-body {
   max-width: 760px;
   min-height: 240px;
+}
+.settings-page-body--wide {
+  max-width: none;
 }
 .settings-directory-trigger {
   display: none;

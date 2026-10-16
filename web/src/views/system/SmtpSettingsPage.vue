@@ -16,8 +16,8 @@ import {
   UiSelect,
   UiTabs,
 } from "../../components/ui";
-import PageSizeSelect from "../../components/system/PageSizeSelect.vue";
-import { isPageSize } from "../../system/pagination";
+import SystemList from "../../components/system/SystemList.vue";
+import { useCursorList } from "../../system/useCursorList";
 import { useLeaveProtection } from "../../account/leave";
 import {
   AccountError,
@@ -75,21 +75,15 @@ const confirmedJob = shallowRef<{
   source?: string;
   kind: "test" | "retry";
 }>();
-const rows = shallowRef<MailJobManagement[]>([]);
-const listReady = ref(false);
-const listReading = ref(false);
-const listRefreshing = ref(false);
-const listError = shallowRef<unknown>();
-const nextCursor = ref<string>();
-const cursors = ref<(string | undefined)[]>([undefined]);
-const page = ref(0);
-const pageSize = ref(10);
-let listTarget: { cursor?: string; page: number } = { page: 0 };
+const jobs = useCursorList<MailJobManagement>(
+  (cursor, current, limit) => listSMTPJobs(cursor, { current }, limit),
+  { enabled: () => section.value === "delivery", immediate: false },
+);
+const listView = ref<{ refresh: () => Promise<void> }>();
 const detailId = ref<string>();
 const detail = shallowRef<MailJobManagement>();
 const detailReading = ref(false);
 const detailError = shallowRef<unknown>();
-const listHeading = ref<HTMLElement | null>(null);
 const configFeedback = ref<HTMLElement | null>(null);
 const checking = ref(false);
 const confirmation = ref<
@@ -107,7 +101,6 @@ const nextSection = ref("");
 const retryTarget = shallowRef<MailJobManagement>();
 let alive = true;
 let configRevision = 0;
-let listRevision = 0;
 let detailRevision = 0;
 let detailOrigin: HTMLElement | null = null;
 let detailScroll = 0;
@@ -144,7 +137,7 @@ const configLocked = computed(
 const anyBusy = computed(
   () =>
     reading.value ||
-    listReading.value ||
+    jobs.loading.value ||
     detailReading.value ||
     configSave.busy.value ||
     deliverySave.busy.value ||
@@ -331,74 +324,6 @@ async function removeAuthentication() {
     },
   );
 }
-async function loadJobs(cursor?: string, targetPage = 0, preserve = false) {
-  if (
-    !access.allowed.value ||
-    !accountEnabled ||
-    listReading.value ||
-    listRefreshing.value
-  )
-    return;
-  const revision = ++listRevision;
-  const limit = pageSize.value;
-  const generation = access.generation.value;
-  const focused = document.activeElement;
-  const restoreFocus =
-    !preserve &&
-    focused instanceof HTMLElement &&
-    focused.matches("button") &&
-    !!focused.closest(".job-list");
-  const current = () =>
-    alive &&
-    revision === listRevision &&
-    generation === access.generation.value &&
-    section.value === "delivery";
-  listTarget = { cursor, page: targetPage };
-  if (preserve) listRefreshing.value = true;
-  else listReading.value = true;
-  listError.value = undefined;
-  if (!preserve) {
-    listReady.value = false;
-    rows.value = [];
-    nextCursor.value = undefined;
-  }
-  try {
-    const value = await listSMTPJobs(cursor, { current }, limit);
-    if (!current()) return;
-    rows.value = value.items;
-    nextCursor.value = value.next_cursor;
-    cursors.value = [...cursors.value.slice(0, targetPage), cursor];
-    page.value = targetPage;
-    listReady.value = true;
-  } catch (error) {
-    if (current()) listError.value = error;
-  } finally {
-    if (revision === listRevision) {
-      listReading.value = false;
-      listRefreshing.value = false;
-    }
-    if (current() && restoreFocus) {
-      await nextTick();
-      if (current()) listHeading.value?.focus({ preventScroll: true });
-    }
-  }
-}
-async function changePageSize(value: number) {
-  if (!isPageSize(value) || value === pageSize.value || !access.allowed.value)
-    return;
-  listRevision++;
-  listReading.value = false;
-  listRefreshing.value = false;
-  listReady.value = false;
-  rows.value = [];
-  nextCursor.value = undefined;
-  cursors.value = [undefined];
-  page.value = 0;
-  pageSize.value = value;
-  listError.value = undefined;
-  listTarget = { page: 0 };
-  await loadJobs();
-}
 function captureDetailOrigin() {
   detailOrigin =
     document.activeElement instanceof HTMLElement
@@ -429,11 +354,9 @@ async function openJob(jobId: string, captureOrigin = true) {
       previous && BigInt(previous.version) > BigInt(value.version)
         ? previous
         : value;
-    rows.value = rows.value.map((job) =>
-      job.job_id === value.job_id &&
-      BigInt(value.version) >= BigInt(job.version)
-        ? value
-        : job,
+    jobs.updateItem(
+      (job) => job.job_id === value.job_id,
+      (job) => (BigInt(value.version) >= BigInt(job.version) ? value : job),
     );
   } catch (error) {
     if (current()) detailError.value = error;
@@ -480,7 +403,7 @@ async function showAcceptedJob(jobId: string) {
     generation === access.generation.value &&
     section.value === "delivery"
   )
-    await loadJobs(cursors.value[page.value], page.value, true);
+    await jobs.refresh({ preserve: true });
 }
 async function sendTest() {
   if (deliveryLocked.value || !observation.value?.configured) return;
@@ -551,27 +474,18 @@ async function inspectDelivery() {
     if (!(await deliverySave.verify())) return;
     if (sourceJob.value) await openJob(sourceJob.value);
     else {
-      await loadJobs(cursors.value[page.value], page.value, true);
+      await jobs.refresh({ preserve: true });
     }
   } finally {
     checking.value = false;
   }
 }
 function clearDelivery() {
-  listRevision++;
+  jobs.reset();
   detailRevision++;
-  listReading.value = false;
-  listRefreshing.value = false;
   detailReading.value = false;
-  listReady.value = false;
-  rows.value = [];
-  nextCursor.value = undefined;
-  cursors.value = [undefined];
-  page.value = 0;
-  pageSize.value = 10;
   detailId.value = undefined;
   detail.value = undefined;
-  listError.value = undefined;
   detailError.value = undefined;
   recipient.value = "";
   acceptedRecipient.value = "";
@@ -596,7 +510,7 @@ async function switchSection(value: string) {
     }
   } else clearDelivery();
   section.value = value;
-  if (value === "delivery") await loadJobs();
+  if (value === "delivery") await jobs.first();
   else if (!baseline.value) await readConfig();
 }
 async function requestSection(value: string) {
@@ -708,7 +622,6 @@ onMounted(() => void readConfig());
 onBeforeUnmount(() => {
   alive = false;
   configRevision++;
-  listRevision++;
   detailRevision++;
   draft.password = "";
 });
@@ -1046,7 +959,7 @@ useLeaveProtection(
             <UiButton
               v-if="deliverySave.replayable.value"
               :loading="deliverySave.busy.value"
-              :disabled="listReading || detailReading || checking"
+              :disabled="jobs.loading.value || detailReading || checking"
               @click="deliverySave.retry"
               >重试原请求</UiButton
             >
@@ -1066,40 +979,25 @@ useLeaveProtection(
         </div>
         <section aria-labelledby="smtp-job-list" class="job-list">
           <div class="section-toolbar">
-            <h2 id="smtp-job-list" ref="listHeading" tabindex="-1">投递任务</h2>
+            <h2 id="smtp-job-list">投递任务</h2>
             <UiButton
-              :loading="listReading || listRefreshing"
-              :disabled="anyBusy || listRefreshing"
-              @click="loadJobs()"
+              :loading="jobs.pending.value"
+              :disabled="anyBusy || jobs.refreshing.value"
+              @click="listView?.refresh()"
               >刷新任务</UiButton
             >
           </div>
-          <p v-if="listReading" class="form-note" role="status">
-            正在读取投递任务…
-          </p>
-          <div v-if="listError" class="form-feedback" role="alert">
-            <p>{{ accountErrorMessage(listError) }}</p>
-            <UiButton
-              :disabled="anyBusy"
-              @click="
-                listError instanceof AccountError &&
-                listError.code === 'CURSOR_INVALID'
-                  ? loadJobs()
-                  : loadJobs(listTarget.cursor, listTarget.page)
-              "
-              >{{
-                listError instanceof AccountError &&
-                listError.code === "CURSOR_INVALID"
-                  ? "返回首页重新加载"
-                  : "重新读取任务列表"
-              }}</UiButton
-            >
-          </div>
-          <p v-if="listReady && !rows.length" class="form-note">
-            暂无投递任务。
-          </p>
-          <ul v-if="rows.length" class="task-rows">
-            <li v-for="job in rows" :key="job.job_id">
+          <SystemList
+            ref="listView"
+            :list="jobs"
+            :row-key="(job) => job.job_id"
+            label="投递任务"
+            results-label="投递任务结果"
+            pagination-label="投递任务分页"
+            empty-text="暂无投递任务。"
+            :disabled="anyBusy"
+          >
+            <template #item="{ item: job }">
               <div class="task-summary">
                 <strong>{{ deliveryKinds[job.kind] }}</strong
                 ><span>{{ deliveryPhases[job.phase] }}</span
@@ -1112,45 +1010,16 @@ useLeaveProtection(
                   >{{ job.created_at.slice(0, 19).replace("T", " ") }} UTC</time
                 >
               </div>
+            </template>
+            <template #actions="{ item: job }">
               <UiButton
                 :disabled="anyBusy"
                 :aria-label="`查看${deliveryKinds[job.kind]}任务 ${job.job_id}`"
                 @click="openJob(job.job_id)"
                 >详情</UiButton
               >
-            </li>
-          </ul>
-          <div class="pagination">
-            <div class="pagination-status">
-              <span class="form-note" role="status">{{
-                listReady
-                  ? `第 ${page + 1} 页 · 本页 ${rows.length} 项`
-                  : listReading
-                    ? "正在读取任务…"
-                    : "尚未读取任务"
-              }}</span>
-              <PageSizeSelect
-                :model-value="pageSize"
-                :disabled="anyBusy"
-                @update:model-value="changePageSize"
-              />
-            </div>
-            <div class="form-actions">
-              <UiButton
-                :disabled="
-                  anyBusy || listRefreshing || !listReady || page === 0
-                "
-                @click="loadJobs(cursors[page - 1], page - 1)"
-                >上一页</UiButton
-              ><UiButton
-                :disabled="
-                  anyBusy || listRefreshing || !listReady || !nextCursor
-                "
-                @click="loadJobs(nextCursor, page + 1)"
-                >下一页</UiButton
-              >
-            </div>
-          </div>
+            </template>
+          </SystemList>
         </section>
       </div>
     </UiTabs>
@@ -1197,7 +1066,7 @@ useLeaveProtection(
             <UiButton
               v-if="deliverySave.replayable.value"
               :loading="deliverySave.busy.value"
-              :disabled="listReading || detailReading || checking"
+              :disabled="jobs.loading.value || detailReading || checking"
               @click="deliverySave.retry"
               >重试原请求</UiButton
             >
@@ -1379,20 +1248,12 @@ h2 {
   gap: 16px;
   min-width: 0;
 }
-.section-toolbar,
-.pagination,
-.pagination-status {
+.section-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
-}
-.pagination {
-  justify-content: flex-end;
-}
-.pagination-status {
-  width: 100%;
 }
 .job-reference {
   font-family: var(--font-mono);
@@ -1424,19 +1285,6 @@ h2 {
   margin-top: 4px;
   color: var(--text-secondary);
   font-size: 11px;
-}
-.task-rows {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-.task-rows li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  padding: 16px 0;
-  border-bottom: 1px solid var(--border-subtle);
 }
 .task-summary {
   display: grid;
