@@ -220,12 +220,28 @@ def run_locked(args, filename, root):
         write_private(active_file, dict(release(runtime), runtime_file=str(filename), launch_attempted_at=now()))
         child = subprocess.Popen([str(binary)], cwd=root, env=environment, stdin=subprocess.DEVNULL,
                                  stdout=output, stderr=subprocess.STDOUT, start_new_session=True, close_fds=True)
-    current = process(child.pid)
-    if current is None:
-        raise RuntimeError("central_exited_during_launch")
-    record = dict(current, started_at=now(), binary_sha256=digest, log_file=str(log_file), log_offset=offset,
-                  source_revision=runtime["source_revision"], runtime_file=str(filename))
-    write_private(record_file, record)
+    try:
+        current = process(child.pid)
+        if current is None:
+            raise RuntimeError("central_exited_during_launch")
+        record = dict(current, started_at=now(), binary_sha256=digest, log_file=str(log_file), log_offset=offset,
+                      source_revision=runtime["source_revision"], runtime_file=str(filename))
+        write_private(record_file, record)
+    except BaseException:
+        # A launch without its process record must not survive this manager.
+        # Only this newly spawned child is ours to reap; the selected release
+        # remains durable because its startup may already have migrated data.
+        if child.poll() is None:
+            child.terminate()
+        try:
+            child.wait(timeout=35)
+        except subprocess.TimeoutExpired:
+            child.kill()
+            try:
+                child.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                raise RuntimeError("central_registration_failed_child_not_reaped") from None
+        raise
     return {"started": True, "process": current, "source_revision": runtime["source_revision"],
             "log_file": str(log_file), "health_verified": False}
 
