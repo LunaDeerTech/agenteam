@@ -149,6 +149,10 @@ const test = base.extend({
     try {
       await use(page);
     } finally {
+      statuses.push({
+        event: "teardown-start",
+        elapsedMs: Date.now() - started,
+      });
       await page.unrouteAll({ behavior: "wait" });
       try {
         await closeSession(page);
@@ -171,23 +175,83 @@ async function fillPrivate(locator, value) {
   }
 }
 async function login(page, owned) {
-  await page.goto("/system/outbound-policy");
-  await expect(
-    page.getByRole("heading", { name: "登录", exact: true }),
-  ).toBeVisible();
-  await fillPrivate(
-    page.getByLabel("邮箱", { exact: true }),
-    owned.credentials.email,
-  );
-  await fillPrivate(
-    page.getByLabel("密码", { exact: true }),
-    owned.credentials.password,
-  );
-  await page.getByRole("button", { name: "登录", exact: true }).click();
-  await expect(page).toHaveURL(`${origin}/system/outbound-policy`);
-  await expect(
-    page.getByRole("button", { name: "添加规则", exact: true }),
-  ).toBeEnabled();
+  const started = Date.now();
+  const events = [];
+  const allow = new Set([
+    "/api/v1/session",
+    "/api/v1/auth/bootstrap",
+    "/api/v1/sessions/login",
+    "/src/views/system/OutboundPolicyPage.vue",
+    "/src/system/outbound-policy.ts",
+    "/src/system/useOutboundDraft.ts",
+    "/src/system/account-settings.ts",
+  ]);
+  const recordRequest = (event) => (request) => {
+    const url = new URL(request.url());
+    if (
+      url.origin === origin &&
+      (allow.has(url.pathname) || url.pathname.startsWith("/src/"))
+    )
+      events.push({
+        event,
+        path: url.pathname,
+        method: request.method(),
+        elapsedMs: Date.now() - started,
+      });
+  };
+  const requestStarted = recordRequest("request");
+  const requestFinished = recordRequest("requestfinished");
+  const requestFailed = recordRequest("requestfailed");
+  const navigate = (frame) => {
+    if (frame === page.mainFrame())
+      events.push({
+        event: "navigation",
+        path: new URL(frame.url()).pathname,
+        elapsedMs: Date.now() - started,
+      });
+  };
+  page.on("request", requestStarted);
+  page.on("requestfinished", requestFinished);
+  page.on("requestfailed", requestFailed);
+  page.on("framenavigated", navigate);
+  try {
+    await page.goto("/system/outbound-policy");
+    await expect(
+      page.getByRole("heading", { name: "登录", exact: true }),
+    ).toBeVisible();
+    await fillPrivate(
+      page.getByLabel("邮箱", { exact: true }),
+      owned.credentials.email,
+    );
+    await fillPrivate(
+      page.getByLabel("密码", { exact: true }),
+      owned.credentials.password,
+    );
+    events.push({ event: "login-click", elapsedMs: Date.now() - started });
+    await page.getByRole("button", { name: "登录", exact: true }).click();
+    await expect(page).toHaveURL(`${origin}/system/outbound-policy`);
+    await expect(
+      page.getByRole("button", { name: "添加规则", exact: true }),
+    ).toBeEnabled();
+  } finally {
+    page.off("request", requestStarted);
+    page.off("requestfinished", requestFinished);
+    page.off("requestfailed", requestFailed);
+    page.off("framenavigated", navigate);
+    const state = await page.evaluate(() => ({
+      path: location.pathname,
+      loginBusy: !!document.querySelector('button[aria-busy="true"]'),
+      dialogOpen: !!document.querySelector("dialog[open]"),
+      passwordEmpty: Array.from(
+        document.querySelectorAll('input[type="password"]'),
+      ).every((input) => input.value === ""),
+      alertPresent: !!document.querySelector('[role="alert"]'),
+    }));
+    await base.info().attach("safe-login-timing", {
+      body: Buffer.from(JSON.stringify({ events, state })),
+      contentType: "application/json",
+    });
+  }
 }
 // DTOs and secret request material stay in memory. Tests only assert booleans
 // for private comparisons; this helper never attaches response bodies.
