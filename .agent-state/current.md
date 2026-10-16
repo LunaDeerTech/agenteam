@@ -1,22 +1,22 @@
-# 当前状态：SMTP验证暂停，转只读核对出网架构
+# 当前状态：Central出站规则与持久代理实施中
 
-2026-10-16。按用户恢复指令跟踪其已有指定收件人任务，最终failed/attempts4/network_failed；本轮未新POST或人工重试。Central已有系统代理环境，但SMTP实现直连；代理探针TLS成功后未收到SMTP欢迎响应，未证明邮件接受或送达。用户现要求暂停SMTP验证，先只读核对统一出网模块、原设计及代理支持；不写网络代码，服务保留。本机TLS/auth及一次仅Central停启验证已过，18443入口保持；唯一公网严格匿名检查仍未核实例标记。邮箱、密码与认证材料不入文档；页面合同见[系统账号设置](../docs/development/work-items/frontend-system-account-settings.md)及[账号合同](../docs/development/work-items/frontend-account-rebuild.md)。
+2026-10-16。用户已授权把代理配置迁入“出站规则”页面并完善统一网络策略，明确先完成Central全部业务出网；基线 `89e4e901`。配置DB持久、保存对新调用生效，移除产品代理环境读取且无失败直连；支持HTTP/HTTPS CONNECT与SOCKS5及安全凭据管理。Runner、DB/对象部署基础连接不纳，真实SMTP发送仍暂停。架构与代理精确wire已由backend确认并同步frontend/tests，尚无本轮产品通过结论；见[唯一工程契约](../docs/development/work-items/system-outbound-policy-proxy.md)。现production/frp/dev保持，公网身份未验边界和此前SMTP失败保留；不记录密码或私人收件地址。
 
 ## 范围、组合与所有权
 
 - 主树 `/workspace/agenteam`、分支 `ai/frontend-vue-rebuild-20261016`；账号工作起点 `c13c2db5`，本轮系统四页从已推送 `cd1a5df6` 接续。此前账号业务检查输入 `85c4ac49`、顶栏共享头像首批 `1e0dbf0a`、设置整框 `6214bc1d` 的限定结果继续保留。旧公开r2 `9dd3044c` 已退出清理，现为下述生产cmd实例；此前fixture结果继续保留原输入边界。恢复以任务分支最新提交及实际差异为准，不回填本状态自身提交号，不宣称已合main。
-- 后端树 `/workspace/agenteam-account-backend`、分支 `ai/account-entry-backend-20261016`。root负责全部Git/worktree/checkpoint及集成；内容按唯一路径owner维护，执行者不做Git写。
+- 本轮backend树 `/workspace/agenteam-outbound-backend`、frontend树 `/workspace/agenteam-outbound-vue`，均从 `89e4e901` 隔离实施；此前账号backend树的记录只作既有输入。root负责全部Git/worktree/checkpoint及集成；内容按唯一路径owner维护，执行者不做Git写。
 - 新 `web/` 的client/session/权限和页面独立编写，不导入、复制或包裹 `web-crape/`。后端成熟密码学、CSRF、事务和领域规则保留。此前七页为login/invite/forgot/reset与profile/appearance/password；本轮新增已获授权的四项系统管理内容，不增加开放注册、MFA、设备管理、邮箱修改、用户角色切换/禁用/删除，其他业务正文仍为骨架。
 - 用户已确定登录与找回密码共用同一AccountShell面板模板，含官方Logo、标题、当前表单及居中轻边框/克制阴影；设置用宽页头、左对齐开放表单和唯一SettingsShell，整框居中及中性炭灰已获用户接受。[此前找回密码面板原图](https://img.lunadeer.cn/i/2026/10/16/6ad1c0e89dd92.png)已上传并校验。顶栏“个人设置”只在右上菜单内，触发器显示当前身份已保存头像或默认占位；本轮沿此基准接入四页内容。
 
 | Owner | 唯一职责 |
 | --- | --- |
-| `/root/account_contract` | 本状态、新系统合同与必要说明；本批冻结后由root保存。 |
-| `/root/vue_integration` | 与backend只读核对出网架构、原设计及代理支持；不改产品。 |
+| `/root/account_contract` | 本状态、出站架构与system-outbound-policy-proxy工程契约；本批冻结后由root保存。 |
+| `/root/vue_integration` | 独立frontend树的新Vue出站页、严格DTO和命令接线；先沿稳定规则接口实施。 |
 | `/root/smtp_list_adapter` | 此前SMTP适配owner，源码已冻结；原system_api_surface已撤写权。 |
-| `/root/account_backend` | SMTP诊断已结束、所有probe退出；转只读核对出网模块及代理设计，不发信、不探测、不改产品，production/frp保留。 |
-| `/root/vue_tests` | 独立TLS/auth与一次仅Central停启验证通过并退出；唯一公网失败如实保留，不继续探测。 |
-| `/root/vue_visual_review` | 此前列表与模态有限独审；既有结果和图片保留原输入边界。 |
+| `/root/account_backend` | 独立backend树的代理存储/API、统一安全拨号和Central全部业务装配；只用隔离fixture，不动现production或真实SMTP。 |
+| `/root/vue_tests` | 本轮出站UI/API正式harness与必要回归；旧TLS/恢复/邮件结果保留原输入，不代本轮通过。 |
+| `/root/vue_visual_review` | 本轮独立有限视觉/交互审查；安全反例由root安排独立owner，旧结果不外推。 |
 
 ## 已打通的流程与检查边界
 
@@ -80,7 +80,7 @@
 
 ## 保存与下一步
 
-本轮诊断结果已收齐，私有run-state为diagnosis_complete，所有probe已退出。按用户最新指令暂停SMTP验证，由backend与integration只读核对统一出网模块、原设计及代理支持后讨论；不发信、不probe、不写网络代码，不扩任务文档或修改设计。新production、持久数据及frp/dev保留，旧r2已清理。不打印环境、密钥、管理员密码或私人收件地址；受理、SMTP接受和邮箱收到分别记录，代理TLS成功及邮件结果均不代证公网实例身份。
+按已固定wire并行实现规则页、持久配置与统一拨号，在隔离环境尽早打通保存→后继请求换路；按新工程契约验权限/凭据/Unknown与Central消费者接线，不以代理库局部通过代整包完成。上轮SMTP诊断已结束，私有run-state为diagnosis_complete、所有probe退出；真实SMTP验证继续暂停。现production、持久数据及frp/dev保留，旧r2已清理；不自动部署候选，不改系统环境或工具代理，不打印密钥/管理员密码/私人收件地址，公网身份仍未验。
 
 ## 保留的既有恢复入口
 

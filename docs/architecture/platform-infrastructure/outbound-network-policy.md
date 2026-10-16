@@ -1,6 +1,6 @@
 # Outbound Network Policy 详细设计
 
-> 状态：初版设计稿
+> 状态：现行规则；Central 持久代理与统一业务出口按[本轮工程契约](../../development/work-items/system-outbound-policy-proxy.md)实施，文档不代证运行绑定或验收。
 >
 > 上层架构：
 > - [平台基础设施与部署架构](./README.md)
@@ -24,6 +24,8 @@ Outbound Network Policy 是平台级基础设施能力，不属于 MCP 私有逻
 - 未来 HTTP / Fetch Tool；
 - 未来外部 Integration / Connector；
 - 其他由业务配置决定目标地址的 Central outbound request。
+
+本轮范围为 Central 全部业务出网，包括现有 HTTP/HTTPS、Model、MCP 及其 OAuth/下载等派生调用、SMTP。Runner 与 PostgreSQL/MinIO 部署基础连接不纳入本轮；未来消费者接入时沿同一边界，不因本轮配置页面完成宣称全平台出网已统一。
 
 核心原则：
 
@@ -64,7 +66,8 @@ Outbound Network Policy 解决：
 - Credential 跨 origin 泄漏；
 - URL scheme / TLS 约束；
 - timeout / response size 等统一网络 guardrail；
-- 安全 diagnostics。
+- 安全 diagnostics；
+- 管理员配置的直连或统一代理出口及其凭据边界。
 
 它不负责：
 
@@ -125,6 +128,8 @@ request URL
 如果某些 SDK 必须接收原生 `http.Client`，平台应提供已经装配 Outbound Network Policy 的受控 Transport / Client，而不是允许 SDK 绕过策略。
 
 SMTP 等非 HTTP 协议复用目标地址、DNS/IP 和安全拨号边界，由自身 adapter 执行协议握手；不把 SMTP 包装成 HTTP 请求。精确端口与错误映射由 D04/D07 规格固定。
+
+HTTP 与 SMTP 的底层连接必须消费同一受控 TCP 选路：先批准业务目标，再按当前持久配置直连或建立代理隧道。业务 adapter 不能用独立默认 transport、环境代理或裸拨号绕过此入口。
 
 ## 5. URL Validation
 
@@ -216,6 +221,8 @@ private_allow_rules = []
 数据库是策略权威来源。规则修改后新请求立即使用新规则；后续 retry 和每一跳 redirect 也重新检查当前策略，复用已有连接不能跳过校验。已发出的在途请求继续执行，不因修改规则主动中断，也不承诺撤回已经发生的外部副作用。
 
 保存操作仅限系统管理员，须校验网段/端口/HTTP 选项、version 冲突并记录安全 Audit。策略缓存/版本传播、实际发出边界、DNS/dial 与连接池竞争由 D04 规格及真实并发验收确定。
+
+代理配置沿同一生效原则。访问规则与出口设置独立编辑、各有版本，实际发出须同时使用有效的当前规则与选路；代理保存不修改访问许可，规则保存不改变代理。规则或选路不可确认时拒绝新发出，不能回退为直连。切换模式、网关或凭据后，旧连接不能被新请求复用；已发送请求按原在途边界完成。
 
 ## 8. DNS Rebinding
 
@@ -364,6 +371,20 @@ Outbound Network Policy 是平台统一安全能力；内网放行部分是管�
 
 内网网段、端口和显式 HTTP 放行规则存数据库，可在系统 UI 修改；TLS / trust store 与网络实现参数仍按技术部署配置管理。固定禁止地址不是可编辑放行项。配置来源与启动边界见 [Deployment Runtime](./deployment-runtime.md)。
 
+### 14.1 持久代理与统一选路
+
+系统管理员在“出站规则”页面维护“访问规则”和“代理设置”。配置保存在数据库，默认直连；启用代理后，Central 范围内的全部业务目标使用所选网关，不设隐式 bypass 或失败直连。支持 HTTP CONNECT、HTTPS CONNECT 与 SOCKS5 TCP 隧道，不新增通用转发服务、UDP 或代理链。
+
+产品移除 `AGENTEAM_CENTRAL_OUTBOUND_PROXY_ORIGINS` 与 `HTTP_PROXY`/`HTTPS_PROXY`/`NO_PROXY`（含小写）的选路读取，也不增加 `ALL_PROXY` 兜底。已有环境值不自动导入数据库。此变更不修改宿主环境、frp、开发工具或部署基础连接的环境配置。
+
+目标 DNS 仍由 Central 按完整 A/AAAA 结果执行现有分类、CIDR 与端口授权。CONNECT authority 或 SOCKS5 目标使用本次批准的数值 IP，不能把未经批准的 hostname 交网关二次解析；TLS SNI/hostname verification、HTTP Host 与业务凭据作用域仍使用原目标。代理不改变固定禁止地址或私网规则。无法本地完成目标 DNS 审批时明确失败，不切换为网关远端 DNS。
+
+网关是管理员显式信任的基础设施。网关自身可为公网或 RFC1918/ULA 私网（包括显式配置的企业网关及 `proxy:8080`），与业务目标分类分开校验；不得据此放宽业务目标的私网权限。网关解析须有界、完整校验全部候选并固定实际拨号地址，拒绝 loopback、link-local、metadata、multicast、unspecified 与其他禁止地址。网关可沿部署 resolver 解析单标签名称；这一便利不扩到业务目标解析。受信网关实际如何转发不能由客户端独立证明，部署者须确保其遵守批准的数值目标。
+
+HTTPS 网关校验网关 hostname/CA，隧道内目标 HTTPS/TLS/STARTTLS 继续校验原目标；HTTP 与 SOCKS5 网关协议本身不加密到网关的认证交换，页面保留这一必要提示。代理凭据只能发给当前明确配置的网关，不能进入目标 Authorization/Cookie、重定向、普通日志或公开错误；目标业务凭据也不能进入 CONNECT/SOCKS 握手。配置代理不扩大业务自身的认证或 Project 授权。
+
+代理密码使用平台成熟的版本化 keyring 与认证加密保存，数据库和回执不存明文，不以新密码学替代现有安全实现。读取仅返回用户名和是否已有凭据；单密码输入留空保持、非空替换，移除认证须显式确认。改变网关身份不得把旧凭据默默转发给新网关。配置不可解密、代理连接/认证/隧道失败均拒绝，不降级、不直连。管理读写、幂等重放、版本冲突与结果未知恢复的精确接口见[工程契约](../../development/work-items/system-outbound-policy-proxy.md)。
+
 第一阶段不提供：
 
 - Project override；
@@ -395,6 +416,8 @@ Outbound Network Policy 是平台统一安全能力；内网放行部分是管�
 - Cookie；
 - API Key；
 - OAuth token。
+
+代理地址与用户名只在当前系统管理员的配置投影中提供；普通日志、Audit 和错误仅保留选路模式、协议、配置版本及闭集失败阶段，不记录代理密码、认证报文或任意网关响应。
 
 是否把 policy denial 写入正式 Audit，取决于调用场景；重复的普通网络失败可以保留在 operational log，敏感配置变更仍走平台 Audit。
 
@@ -449,4 +472,6 @@ Provider-specific headers 与 credentials 仍由 Model System 负责生成；Out
 11. timeout / response / redirect guardrail；
 12. TLS verification；
 13. structured policy decision / safe diagnostics；
-14. SMTP 等非 HTTP 消费者的正式安全拨号适配。
+14. SMTP 等非 HTTP 消费者的正式安全拨号适配；
+15. 持久直连/HTTP CONNECT/HTTPS CONNECT/SOCKS5 选路、网关凭据与动态更新；
+16. Central 全部现有业务出网的组合根接线与绕过检查，范围和逐项验收以本轮工程契约为准。
