@@ -57,12 +57,21 @@ test("real login restores a protected destination and logout revokes the current
   await expect(
     page.getByRole("heading", { name: "个人资料", exact: true }),
   ).toBeVisible();
+  await page.getByRole("button", { name: "账号", exact: true }).click();
+  await page.getByRole("menuitem", { name: "退出登录", exact: true }).click();
+  const confirmation = page.getByRole("dialog", {
+    name: "退出登录",
+    exact: true,
+  });
+  await expect(confirmation).toBeVisible();
   const logoutResponse = page.waitForResponse(
     (response) =>
       response.url().endsWith("/api/v1/sessions/logout") &&
       response.request().method() === "POST",
   );
-  await page.getByRole("button", { name: "退出登录", exact: true }).click();
+  await confirmation
+    .getByRole("button", { name: "退出登录", exact: true })
+    .click();
   expect((await logoutResponse).status()).toBe(204);
   await expect(page).toHaveURL(/\/login(?:\?|$)/);
   expect(await sessionStatus(page)).toBe(401);

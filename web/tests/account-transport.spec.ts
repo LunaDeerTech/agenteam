@@ -225,20 +225,18 @@ describe("account HTTP response contract", () => {
   it("preserves safe problem facts and never displays raw server text", async () => {
     vi.stubGlobal(
       "fetch",
-      vi
-        .fn()
-        .mockResolvedValue(
-          json(
-            {
-              code: "VERSION_CONFLICT",
-              commit_state: "not_committed",
-              field_errors: [{ path: "/username", code: "TAKEN" }],
-              detail: "PRIVATE_SERVER_SENTINEL",
-            },
-            409,
-            "application/problem+json",
-          ),
+      vi.fn().mockResolvedValue(
+        json(
+          {
+            code: "VERSION_CONFLICT",
+            commit_state: "not_committed",
+            field_errors: [{ path: "/username", code: "TAKEN" }],
+            detail: "PRIVATE_SERVER_SENTINEL",
+          },
+          409,
+          "application/problem+json",
         ),
+      ),
     );
     const { accountRequest, accountErrorMessage } =
       await import("../src/account/transport");
