@@ -12,7 +12,7 @@ assert(/^[a-z0-9-]+$/.test(run));
 const output = path.resolve(`output/ai/frontend-outbound-visual/${run}`);
 const only = process.env.OUTBOUND_VISUAL_CASE;
 const mode = process.argv[2] || "views";
-const modes = ["views", "interactions", "errors", "zoom"];
+const modes = ["rules", "views", "interactions", "errors", "zoom"];
 const instant = "2026-10-16T07:00:00.000000Z";
 const uuid = (n) => `019a2222-2222-7222-8222-${String(n).padStart(12, "0")}`;
 const user = {
@@ -36,10 +36,11 @@ const session = {
   csrf_token: "synthetic-visual-context",
 };
 const rule = (n) => ({
-  cidr: `10.${n}.0.0/16`,
+  target: `10.${n}.0.0/16`,
   ports: [443, 587],
-  allow_http: n === 1,
 });
+const emptyDeny = "未添加规则，允许访问所有目标。";
+const emptyAllow = "未添加规则，所有出站访问将被阻止。";
 const btn = (page, name) => page.getByRole("button", { name, exact: true });
 const tab = (page, name) => page.getByRole("tab", { name, exact: true });
 const field = (page, name) => page.getByLabel(name, { exact: true });
@@ -101,6 +102,7 @@ async function fixture(context, options = {}) {
   const state = {
     rules: {
       version: "1",
+      rule_mode: options.ruleMode || "denylist",
       rules: Array.from({ length: options.count ?? 2 }, (_, n) => rule(n + 1)),
     },
     proxy: {
@@ -209,9 +211,21 @@ async function fixture(context, options = {}) {
           "synthetic expected version",
         );
         const version = String(BigInt(intent.expected_version) + 1n);
-        if (resource === "rules")
-          state.rules = { version, rules: intent.rules };
-        else
+        if (resource === "rules") {
+          assert.deepEqual(Object.keys(intent).sort(), [
+            "expected_version",
+            "rule_mode",
+            "rules",
+          ]);
+          assert(["allowlist", "denylist"].includes(intent.rule_mode));
+          for (const item of intent.rules)
+            assert.deepEqual(Object.keys(item).sort(), ["ports", "target"]);
+          state.rules = {
+            version,
+            rule_mode: intent.rule_mode,
+            rules: intent.rules,
+          };
+        } else
           state.proxy = {
             version,
             mode: intent.mode,
@@ -309,6 +323,146 @@ async function checkCase(name, callback, browser, options = {}) {
     );
   }
 }
+async function rules(browser) {
+  for (const [width, theme] of [
+    [1440, "light"],
+    [390, "dark"],
+  ]) {
+    await checkCase(
+      `rules-${width}-${theme}`,
+      async (page, state) => {
+        const selector = page.getByRole("combobox", {
+          name: "规则模式",
+          exact: true,
+        });
+        const table = page.getByRole("table", {
+          name: "访问规则",
+          exact: true,
+        });
+        await expect(selector).toHaveText("黑名单");
+        await expect(page.getByText(emptyDeny, { exact: true })).toBeVisible();
+        await expect(
+          page.getByRole("checkbox", { name: "允许 HTTP" }),
+        ).toHaveCount(0);
+        await expect(
+          page.getByText(/系统禁止地址除外|固定危险地址/),
+        ).toHaveCount(0);
+        await shot(page, `rules-empty-${width}-${theme}`);
+        await selector.focus();
+        await page.keyboard.press("Enter");
+        await page.keyboard.press("Home");
+        await page.keyboard.press("Enter");
+        await expect(selector).toBeFocused();
+        await expect(selector).toHaveText("白名单");
+        await expect(page.getByText(emptyAllow, { exact: true })).toBeVisible();
+        assert.equal(state.writes.length, 0);
+
+        const targets = [
+          "127.0.0.1",
+          "192.168.40.0/24",
+          "API.Example.TEST.",
+          "*.LunaDeer.CN",
+        ];
+        for (const [index, target] of targets.entries()) {
+          await btn(page, "添加规则").click();
+          const row = table.getByRole("row", {
+            name: `规则 ${index + 1}`,
+            exact: true,
+          });
+          await expect(field(row, "目标")).toBeFocused();
+          await field(row, "目标").fill(target);
+          await field(row, "端口").fill(index === 0 ? "all" : "443, 8443");
+        }
+        await select(page, "规则模式", "黑名单");
+        await expect(field(page, "目标").first()).toHaveValue(targets[0]);
+        await select(page, "规则模式", "白名单");
+        await expect(field(page, "目标").last()).toHaveValue(targets[3]);
+        assert.equal(state.writes.length, 0);
+        await shot(page, `rules-filled-${width}-${theme}`);
+        const layout = await table.evaluate((node) => {
+          const bounds = node.getBoundingClientRect();
+          const parent = node.parentElement.getBoundingClientRect();
+          return {
+            tableWidth: bounds.width,
+            available: parent.width,
+            left: bounds.left,
+            right: bounds.right,
+          };
+        });
+        assert(
+          Math.abs(layout.tableWidth - layout.available) <= 1,
+          "table does not fill its available content width",
+        );
+        await overflow(page);
+
+        // A loopback target is an ordinary editable/deletable row, not a hidden policy.
+        const remove = btn(page, "删除规则 1");
+        await remove.focus();
+        await page.keyboard.press("Enter");
+        await expect(dialog(page, "删除访问规则")).toBeVisible();
+        await shot(page, `rules-delete-${width}-${theme}`);
+        await page.keyboard.press("Escape");
+        await expect(remove).toBeFocused();
+        await remove.click();
+        await dialog(page, "删除访问规则")
+          .getByRole("button", { name: "删除规则", exact: true })
+          .click();
+        await expect(field(page, "目标")).toHaveCount(3);
+        await focusedControl(page);
+        await btn(page, "保存规则").click();
+        await expect(
+          page.getByText("访问规则已保存。", { exact: true }),
+        ).toBeVisible();
+        assert.equal(state.writes.length, 1);
+        const saved = JSON.parse(state.writes[0].body);
+        assert.equal(saved.rule_mode, "allowlist");
+        assert.deepEqual(
+          saved.rules.map((item) => item.target),
+          ["192.168.40.0/24", "api.example.test", "*.lunadeer.cn"],
+        );
+
+        await select(page, "规则模式", "黑名单");
+        for (let remaining = 3; remaining > 0; remaining--) {
+          await btn(page, "删除规则 1").click();
+          await dialog(page, "删除访问规则")
+            .getByRole("button", { name: "删除规则", exact: true })
+            .click();
+          await expect(field(page, "目标")).toHaveCount(remaining - 1);
+        }
+        await focusedControl(page);
+        await expect(page.getByText(emptyDeny, { exact: true })).toBeVisible();
+        await btn(page, "保存规则").click();
+        await expect(
+          page.getByText("访问规则已保存。", { exact: true }),
+        ).toBeVisible();
+        assert.equal(state.writes.length, 2);
+        assert.equal(state.rules.rule_mode, "denylist");
+        assert.deepEqual(state.rules.rules, []);
+        await overflow(page);
+        return {
+          width,
+          theme,
+          layout,
+          keyboardMode: true,
+          unsavedModePreservesRows: true,
+          targetKinds: 4,
+          ordinaryLoopbackDelete: true,
+          deleteFocus: true,
+          emptyDenySaved: true,
+          writes: state.writes.length,
+        };
+      },
+      browser,
+      {
+        width,
+        theme,
+        count: 0,
+        motion: width === 390 ? "reduce" : "no-preference",
+      },
+    );
+  }
+}
+
 async function views(browser) {
   for (const width of [1440, 390])
     for (const theme of ["light", "dark"]) {
@@ -451,21 +605,21 @@ async function interactions(browser) {
         .getByRole("button", { name: "删除规则", exact: true })
         .click();
       await expect(btn(page, "添加规则")).toBeFocused();
-      await expect(field(page, "CIDR")).toHaveCount(1);
+      await expect(field(page, "目标")).toHaveCount(1);
       await btn(page, "取消").click();
       await dialog(page, "放弃当前修改")
         .getByRole("button", { name: "放弃修改", exact: true })
         .click();
-      await expect(field(page, "CIDR")).toHaveCount(2);
+      await expect(field(page, "目标")).toHaveCount(2);
       await btn(page, "添加规则").click();
-      await expect(field(page, "CIDR").last()).toBeFocused();
+      await expect(field(page, "目标").last()).toBeFocused();
       await btn(page, "保存规则").click();
-      await expect(field(page, "CIDR").last()).toBeFocused();
-      await expect(field(page, "CIDR").last()).toHaveAttribute(
+      await expect(field(page, "目标").last()).toBeFocused();
+      await expect(field(page, "目标").last()).toHaveAttribute(
         "aria-invalid",
         "true",
       );
-      await field(page, "CIDR").last().fill("192.168.30.0/24");
+      await field(page, "目标").last().fill("192.168.30.0/24");
       await field(page, "端口").last().fill("443");
       await btn(page, "保存规则").click();
       await expect(
@@ -608,9 +762,7 @@ async function errors(browser) {
       await expect(
         page.getByText("正在读取访问规则…", { exact: true }),
       ).toBeVisible();
-      await expect(
-        page.getByText("尚未设置私网访问规则。", { exact: true }),
-      ).toHaveCount(0);
+      await expect(page.getByText(emptyDeny, { exact: true })).toHaveCount(0);
       state.failRead = true;
       release();
       state.pendingRead = undefined;
@@ -618,9 +770,7 @@ async function errors(browser) {
       await shot(page, "read-failure-390-dark");
       await expect(btn(page, "添加规则")).toHaveCount(0);
       await btn(page, "重新读取配置").click();
-      await expect(
-        page.getByText("尚未设置私网访问规则。", { exact: true }),
-      ).toBeVisible();
+      await expect(page.getByText(emptyDeny, { exact: true })).toBeVisible();
       return {
         loadingNotEmpty: true,
         failedNotEmpty: true,
@@ -632,22 +782,22 @@ async function errors(browser) {
   await checkCase(
     "conflict-keeps-draft-and-explicit-adoption",
     async (page, state) => {
-      await field(page, "CIDR").first().fill("10.99.0.0/16");
+      await field(page, "目标").first().fill("10.99.0.0/16");
       state.conflict = true;
       await btn(page, "保存规则").click();
       await expect(page.getByRole("alert")).toContainText("你的草稿已保留");
       await expect(page.getByRole("alert")).toBeFocused();
-      await expect(field(page, "CIDR").first()).toHaveValue("10.99.0.0/16");
+      await expect(field(page, "目标").first()).toHaveValue("10.99.0.0/16");
       await btn(page, "读取最新配置").click();
       await expect(btn(page, "采用最新配置")).toBeVisible();
-      await expect(field(page, "CIDR").first()).toHaveValue("10.99.0.0/16");
+      await expect(field(page, "目标").first()).toHaveValue("10.99.0.0/16");
       await btn(page, "采用最新配置").scrollIntoViewIfNeeded();
       await shot(page, "conflict-adoption-390-dark");
       await btn(page, "采用最新配置").click();
       await dialog(page, "放弃当前修改")
         .getByRole("button", { name: "放弃修改", exact: true })
         .click();
-      await expect(field(page, "CIDR").first()).toHaveValue("10.12.0.0/16");
+      await expect(field(page, "目标").first()).toHaveValue("10.12.0.0/16");
       await focusedControl(page);
       assert.equal(state.writes.length, 1);
       return {
@@ -749,13 +899,11 @@ async function errors(browser) {
         "保存已确认，当前配置读取失败",
       );
       await expect(btn(page, "添加规则")).toHaveCount(0);
-      await expect(
-        page.getByText("尚未设置私网访问规则。", { exact: true }),
-      ).toHaveCount(0);
+      await expect(page.getByText(emptyDeny, { exact: true })).toHaveCount(0);
       await expect(btn(page, "保存规则")).toHaveCount(0);
       await shot(page, "rules-confirmed-read-failure-390-dark");
       await btn(page, "重新读取配置").click();
-      await expect(field(page, "CIDR")).toHaveCount(2);
+      await expect(field(page, "目标")).toHaveCount(2);
       await expect(field(page, "端口").first()).toHaveValue("443, 8443");
       assert.equal(state.writes.length, 1);
       return {
@@ -772,6 +920,7 @@ async function zoom() {
     path.join(os.tmpdir(), "outbound-visual-zoom-"),
   );
   let context;
+  let phase = "launch";
   try {
     await fs.mkdir(path.join(profile, "Default"));
     await fs.writeFile(
@@ -789,7 +938,9 @@ async function zoom() {
       colorScheme: "dark",
       serviceWorkers: "block",
     });
+    phase = "fixture-ready";
     const { page, state } = await fixture(context, { count: 8 });
+    phase = "measure-native-zoom";
     const measured = await page.evaluate(() => ({
       inner: innerWidth,
       outer: outerWidth,
@@ -802,6 +953,7 @@ async function zoom() {
       dpr: 2,
       cssZoom: "1",
     });
+    phase = "scroll-and-save";
     const region = page.locator(".settings-main");
     await page.mouse.move(550, 280);
     await page.mouse.wheel(0, 5000);
@@ -811,12 +963,16 @@ async function zoom() {
     await btn(page, "保存规则").scrollIntoViewIfNeeded();
     await expect(btn(page, "保存规则")).toBeInViewport();
     await overflow(page);
-    await tab(page, "代理设置").click();
-    await expect(field(page, "代理主机")).toBeVisible();
-    await field(page, "代理端口").fill("9443");
-    await btn(page, "保存代理设置").scrollIntoViewIfNeeded();
-    await expect(btn(page, "保存代理设置")).toBeInViewport();
-    await shot(page, "zoom-proxy-full-observer-only");
+    phase = "delete-dialog";
+    const remove = btn(page, "删除规则 8");
+    await remove.focus();
+    await page.keyboard.press("Enter");
+    await expect(dialog(page, "删除访问规则")).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(remove).toBeFocused();
+    await expect(remove).toBeInViewport();
+    phase = "capture";
+    await shot(page, "zoom-rules-full-observer-only");
     const cdp = await context.newCDPSession(page);
     const capture = await cdp.send("Page.captureScreenshot", {
       format: "png",
@@ -824,7 +980,7 @@ async function zoom() {
       captureBeyondViewport: false,
     });
     await fs.writeFile(
-      path.join(output, "zoom-200-proxy-viewport.png"),
+      path.join(output, "zoom-200-rules-viewport.png"),
       Buffer.from(capture.data, "base64"),
     );
     await cdp.detach();
@@ -834,13 +990,38 @@ async function zoom() {
     results.push({
       name: "native-200-percent",
       outcome: "observed",
-      detail: { ...measured, scrollAndSaveReachable: true },
+      detail: {
+        ...measured,
+        scrollAndSaveReachable: true,
+        deleteEscFocusRestored: true,
+        writes: state.writes.length,
+      },
     });
   } catch (error) {
+    const page = context?.pages()[0];
     results.push({
       name: "native-200-percent",
       outcome: "failed",
+      phase,
       check: String(error.message).split("\n")[0].slice(0, 240),
+      location: String(error.stack)
+        .split("\n")
+        .filter((line) => /visual-review\.cjs:\d+/.test(line))
+        .slice(0, 2),
+      api: context?.reviewState?.api,
+      unexpected: context?.reviewState?.unexpected,
+      pageErrors: context?.reviewState?.errors,
+      ui:
+        page &&
+        (await page
+          .evaluate(() => ({
+            pathname: location.pathname,
+            mounted: !!document.querySelector(".settings-main"),
+            tabs: document.querySelectorAll('[role="tab"]').length,
+            table: !!document.querySelector('table[aria-label="访问规则"]'),
+            openDialog: !!document.querySelector("dialog[open]"),
+          }))
+          .catch(() => ({ unavailable: true }))),
     });
   } finally {
     if (context) await context.close();
@@ -869,6 +1050,7 @@ async function main() {
         executablePath: "/usr/bin/chromium",
         args: ["--no-sandbox"],
       });
+      if (mode === "rules") await rules(browser);
       if (mode === "views") await views(browser);
       if (mode === "interactions") await interactions(browser);
       if (mode === "errors") await errors(browser);
@@ -880,7 +1062,7 @@ async function main() {
     mode,
     input:
       process.env.OUTBOUND_VISUAL_INPUT ||
-      "7f38e862; owner-frozen outbound Vue",
+      "rule-mode candidate; set OUTBOUND_VISUAL_INPUT to the reviewed frozen input",
     results,
     browserClosed: true,
     boundary:

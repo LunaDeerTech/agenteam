@@ -8,18 +8,18 @@
 
 限定场景：
 
-- `rules.spec.cjs`：真实规则整份配置读取、增改删与严格回执、刷新持久；409 保留草稿到显式采用新版本。
+- `rules.spec.cjs`：读取新 `{version,rule_mode,rules:[{target,ports}]}` 配置，切换白名单/黑名单、增改删通配域名与严格回执、刷新持久；409 同时保留模式和目标草稿到显式采用新版本，最后恢复原模式与原规则集合。
 - `proxy.spec.cjs`：真实代理保存、密码空值保持、替换/移除及安全投影；真实已接受写入后受控丢响应，显式恢复同 key/body，严格回执后的读取失败只重读。
 - `authority.spec.cjs`：新端点普通身份 403 后仍为同一有效 Session；缺失 CSRF 的写入拒绝且版本不变。
 
-后端 owner 唯一启动并清理 `https://localhost:5260`，TLS 反代本轮新 Vue 5246。loader 要求绝对路径的 `OUTBOUND_POLICY_RUNTIME`：runtime 文件 0600、直接父目录 0700、当前用户拥有且无符号链接；包含 `origin`、`nonce`、实际 `expires_at`、`certificate_ca_file`、`certificate_file`、`certificate_spki`、管理员 `credentials` 与普通用户 `regular_credentials`（两者均为 `{email,password}`）。证书文件在同一私有目录，校验 CA 签发、有效期、localhost 名称和 SPKI。浏览器只对指定 SPKI 使用测试证书例外，且在凭据使用前核实际 CDP leaf SPKI 与 `/__fixture__/identity` nonce。
+后端 owner 唯一启动并清理 `https://localhost:5260`，TLS 反代本轮新 Vue 5246。loader 要求绝对路径的 `OUTBOUND_POLICY_RUNTIME`：runtime 文件 0600、直接父目录 0700、当前用户拥有且无符号链接；包含 `test_scope:"system-outbound-rule-modes"`、`origin`、`nonce`、实际 `expires_at`、`certificate_ca_file`、`certificate_file`、`certificate_spki`、管理员 `credentials` 与普通用户 `regular_credentials`（两者均为 `{email,password}`）。证书文件在同一私有目录，校验 CA 签发、有效期、localhost 名称和 SPKI。浏览器只对指定 SPKI 使用测试证书例外，且在凭据使用前核实际 CDP leaf SPKI 与 `/__fixture__/identity` nonce。
 
-同目录 `outbound-owned.json` 必须恰有 `{test_scope:"system-outbound-policy-proxy",runtime_file:绝对路径,nonce}`，与 runtime 一致。代理场景另需后端 owner 提供本轮受控 `proxy_gateway:{protocol,host,port}`；保存此网关不代表已验证对应隧道/投递。测试创建的代理密码仅在内存中随机生成。每个场景 finally 撤销本场景 Session 并确认 401，浏览器由 worker finally 关闭；服务保留或退出由后端 owner 报告。
+同目录 `outbound-owned.json` 必须恰有 `{test_scope:"system-outbound-rule-modes",runtime_file:绝对路径,nonce}`，与 runtime 一致。代理场景另需后端 owner 提供本轮受控 `proxy_gateway:{protocol,host,port}`；保存此网关不代表已验证对应隧道/投递。测试创建的代理密码仅在内存中随机生成。每个场景 finally 撤销本场景 Session 并确认 401，浏览器由 worker finally 关闭；服务保留或退出由后端 owner 报告。
 
 先只列举，不读取私有 runtime、不启动浏览器：
 
 ```sh
-NODE_PATH=/workspace/agenteam/tests/account-captcha-web/node_modules \
+NODE_PATH=./tests/account-captcha-web/node_modules \
 node tests/account-captcha-web/node_modules/@playwright/test/cli.js test \
   --config tests/frontend-outbound-policy/playwright.config.cjs --list
 ```
@@ -27,7 +27,7 @@ node tests/account-captcha-web/node_modules/@playwright/test/cli.js test \
 在两个 owner 确认服务 ready、产品输入冻结后，替换下列私有路径。首次可只选择 `rules.spec.cjs` 接通真实规则链；剩余场景按失败影响定向运行，不重复旧账号矩阵。`NODE_EXTRA_CA_CERTS` 必须是该 runtime 的 **CA 文件**，供代理场景的 Node 转发建立信任；不能使用全局 TLS 忽略。所有转发异常改为固定错误码，不打印原始 Playwright headers。
 
 ```sh
-NODE_PATH=/workspace/agenteam/tests/account-captcha-web/node_modules \
+NODE_PATH=./tests/account-captcha-web/node_modules \
 OUTBOUND_POLICY_RUNTIME=/absolute/private/runtime.json \
 NODE_EXTRA_CA_CERTS=/absolute/private/ca.pem \
 OUTBOUND_POLICY_OUTPUT=output/ai/frontend-outbound-policy/current-rules \
@@ -36,6 +36,12 @@ node tests/account-captcha-web/node_modules/@playwright/test/cli.js test \
 ```
 
 将末尾 spec 分别换为 `proxy.spec.cjs`、`authority.spec.cjs` 即运行其限定场景，同时换独立输出目录以保留先前失败。三个入口的 `--list` 实际 exit 0；loader/config 与修订 spec 的 `node --check`、五个 CJS 限定格式检查均 exit 0。
+
+本轮新模式/目标页面的作者 1440 浅色、390 深色受控旅程通过，独立视觉同两尺寸及原生 200% 通过；全部采用合成 API，只证明页面编辑、模式/目标同体保存、普通默认行可删除和焦点/布局。作者前两次在 DOMContentLoaded 后五秒未取得首 Tab，随后显式关联首 rules GET 再检查通过；独审缩放首轮可见性失败因原诊断不足未归因，补安全阶段诊断后同输入同预算通过。原失败不删除，也不将冷加载或 CPU 压力写成已证根因。新 scope 的真实模式/目标保存链另见下段，不复用旧接口/旧 scope 结果。
+
+新 `system-outbound-rule-modes` owned 实例已执行唯一 `rules.spec.cjs`：`rule-modes-r2` 为 1/1、exit 0、39.4s，包含白名单与通配域名创建、端口编辑、刷新持久、409 保留模式/目标草稿、显式采用、删除后恢复原模式及原规则集合；清理确认 logout 204 后 session 401，浏览器已关闭并释放配置写窗口。`rule-modes-r1` 在初始登录导航阶段失败，finally 的诊断快照因上下文销毁覆盖了原始错误，旧清理也未取得会话；未进入规则操作，后端仅只读确认 ready 后新增 admin Session 为零。随后只让诊断失败不再遮盖原错误，并在同 nonce 的惰性 identity 页执行会话清理；产品、断言和时间预算未改，复验成功不倒推首次导航根因。输出保留在忽略目录 `output/ai/frontend-outbound-policy/`，不包含旧 proxy 回归或真实 SMTP。
+
+以下保留旧持久代理批次的输入与结果，不作为新规则模式和目标接口的通过证据。
 
 2026-10-16 实际组合为新 Vue 冻结 `e6bc7d61`、后端生产输入 `6ea558f1`、fixture 输入 `5a1871f1`；消费后端 owner 的私有 `/workspace/scratch/outbound-proxy-runtime-r3/runtime.json`，不是旧 r1/r2 或用户持久实例。三个场景分轮通过，未宣称一次全组运行：
 

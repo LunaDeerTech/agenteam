@@ -3,13 +3,14 @@ import { isRecord, isVersion } from "../account/types";
 import { isInstant } from "./directory";
 import { systemCommand, systemRequest } from "./requests";
 
+export type RuleMode = "allowlist" | "denylist";
 export interface OutboundRule {
-  cidr: string;
+  target: string;
   ports: "all" | number[];
-  allow_http: boolean;
 }
 export interface OutboundPolicy {
   version: string;
+  rule_mode: RuleMode;
   rules: OutboundRule[];
 }
 export interface OutboundReceipt {
@@ -19,9 +20,12 @@ export interface OutboundReceipt {
   created_at: string;
 }
 export interface RuleDraft {
-  cidr: string;
+  target: string;
   ports: string;
-  allow_http: boolean;
+}
+export interface PolicyDraft {
+  ruleMode: RuleMode | "";
+  rules: RuleDraft[];
 }
 type ReadOptions = Pick<AccountRequest, "current">;
 export const exact = (
@@ -32,8 +36,8 @@ export const exact = (
   Object.keys(value).length === keys.length &&
   keys.every((key) => key in value);
 
-/** Parse only a private network prefix; normalize masked addresses for editing. */
-export function canonicalPrivateCidr(input: string): string | undefined {
+/** Normalize a parsed IP prefix; rule targets separately require a network boundary. */
+function canonicalCidr(input: string): string | undefined {
   const match = /^([^/]+)\/(0|[1-9]\d{0,2})$/.exec(input.trim());
   if (!match) return;
   const address = match[1]!;
@@ -49,15 +53,6 @@ export function canonicalPrivateCidr(input: string): string | undefined {
     )
       return;
     const values = octets.map(Number);
-    if (!(
-      (values[0] === 10 && bits >= 8) ||
-      (values[0] === 172 &&
-        values[1]! >= 16 &&
-        values[1]! <= 31 &&
-        bits >= 12) ||
-      (values[0] === 192 && values[1] === 168 && bits >= 16)
-    ))
-      return;
     let number = values.reduce(
       (result, part) => (result << 8n) | BigInt(part),
       0n,
@@ -69,8 +64,14 @@ export function canonicalPrivateCidr(input: string): string | undefined {
         .join(".") + `/${bits}`
     );
   }
-  if (bits < 7 || bits > 128 || !/^[0-9a-f:]+$/i.test(address)) return;
-  const halves = address.split("::");
+  if (bits > 128 || /[%\[\]]/.test(address)) return;
+  let normalized: string;
+  try {
+    normalized = new URL(`https://[${address}]/`).hostname.slice(1, -1);
+  } catch {
+    return;
+  }
+  const halves = normalized.split("::");
   if (halves.length > 2) return;
   const parts = (value: string) => (value ? value.split(":") : []);
   const left = parts(halves[0]!);
@@ -86,7 +87,8 @@ export function canonicalPrivateCidr(input: string): string | undefined {
   const words = [...left, ...Array<string>(8 - count).fill("0"), ...right].map(
     (part) => parseInt(part, 16),
   );
-  if ((words[0]! & 0xfe00) !== 0xfc00) return;
+  if (words.slice(0, 5).every((word) => word === 0) && words[5] === 0xffff)
+    return;
   let number = words.reduce(
     (result, part) => (result << 16n) | BigInt(part),
     0n,
@@ -132,29 +134,59 @@ export function parsePorts(input: string): OutboundRule["ports"] | undefined {
   if (new Set(ports).size !== ports.length) return;
   return ports.sort((left, right) => left - right);
 }
-export function ruleDrafts(policy?: OutboundPolicy): RuleDraft[] {
-  return (
-    policy?.rules.map((rule) => ({
-      ...rule,
-      ports: rule.ports === "all" ? "all" : rule.ports.join(", "),
-    })) ?? []
-  );
+export function canonicalRuleTarget(input: string): string | undefined {
+  const value = input.trim();
+  if (!value) return;
+  if (value.includes("/")) {
+    const cidr = canonicalCidr(value);
+    return cidr === value ? cidr : undefined;
+  }
+  if (value.includes(":")) return canonicalCidr(`${value}/128`);
+  if (/^\d+(\.\d+){3}$/.test(value)) return canonicalCidr(`${value}/32`);
+  const wildcard = value.startsWith("*.");
+  const host = (wildcard ? value.slice(2) : value)
+    .toLowerCase()
+    .replace(/\.$/, "");
+  const labels = host.split(".");
+  if (
+    !host ||
+    host.length > 253 ||
+    !labels.every((label) =>
+      /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(label),
+    ) ||
+    /^(?:\d+|0x[0-9a-f]*)$/.test(labels.at(-1)!)
+  )
+    return;
+  return wildcard ? `*.${host}` : host;
 }
-export function ruleIssues(drafts: RuleDraft[]): Record<string, string> {
+export function ruleDrafts(policy?: OutboundPolicy): PolicyDraft {
+  return {
+    ruleMode: policy?.rule_mode ?? "",
+    rules:
+      policy?.rules.map((rule) => ({
+        target: rule.target,
+        ports: rule.ports === "all" ? "all" : rule.ports.join(", "),
+      })) ?? [],
+  };
+}
+export function ruleIssues(draft: PolicyDraft): Record<string, string> {
   const issues: Record<string, string> = {};
-  if (drafts.length > 256) issues.rules = "最多可设置 256 条规则。";
+  if (!["allowlist", "denylist"].includes(draft.ruleMode))
+    issues.rule_mode = "请选择规则模式。";
+  if (draft.rules.length > 512) issues.rules = "最多可设置 512 条规则。";
   const seen = new Set<string>();
-  drafts.forEach((draft, index) => {
-    const cidr = canonicalPrivateCidr(draft.cidr);
-    const ports = parsePorts(draft.ports);
-    if (!cidr)
-      issues[`${index}.cidr`] = "请输入 RFC1918 或 IPv6 ULA 私网 CIDR。";
+  draft.rules.forEach((rule, index) => {
+    const target = canonicalRuleTarget(rule.target);
+    const ports = parsePorts(rule.ports);
+    if (!target)
+      issues[`${index}.target`] =
+        "填写 IP、规范 CIDR、域名或 *.example.com，不含协议、端口或路径。";
     if (!ports)
       issues[`${index}.ports`] =
         "填写 all 或 1–65535 的端口，以逗号分隔，最多 256 个且不能重复。";
-    if (cidr && ports) {
-      const key = JSON.stringify([cidr, ports, draft.allow_http]);
-      if (seen.has(key)) issues[`${index}.cidr`] = "此规则与另一条规则重复。";
+    if (target && ports) {
+      const key = JSON.stringify([target, ports]);
+      if (seen.has(key)) issues[`${index}.target`] = "此规则与另一条规则重复。";
       seen.add(key);
     }
   });
@@ -162,10 +194,9 @@ export function ruleIssues(drafts: RuleDraft[]): Record<string, string> {
 }
 export function isOutboundRule(value: unknown): value is OutboundRule {
   return (
-    exact(value, ["cidr", "ports", "allow_http"]) &&
-    typeof value.cidr === "string" &&
-    canonicalPrivateCidr(value.cidr) === value.cidr &&
-    typeof value.allow_http === "boolean" &&
+    exact(value, ["target", "ports"]) &&
+    typeof value.target === "string" &&
+    canonicalRuleTarget(value.target) === value.target &&
     (value.ports === "all" ||
       (Array.isArray(value.ports) &&
         value.ports.length > 0 &&
@@ -181,15 +212,14 @@ export function isOutboundRule(value: unknown): value is OutboundRule {
 }
 export function isOutboundPolicy(value: unknown): value is OutboundPolicy {
   return (
-    exact(value, ["version", "rules"]) &&
+    exact(value, ["version", "rule_mode", "rules"]) &&
     isVersion(value.version) &&
+    (value.rule_mode === "allowlist" || value.rule_mode === "denylist") &&
     Array.isArray(value.rules) &&
-    value.rules.length <= 256 &&
+    value.rules.length <= 512 &&
     value.rules.every(isOutboundRule) &&
     new Set(
-      value.rules.map((rule) =>
-        JSON.stringify([rule.cidr, rule.ports, rule.allow_http]),
-      ),
+      value.rules.map((rule) => JSON.stringify([rule.target, rule.ports])),
     ).size === value.rules.length
   );
 }
@@ -198,28 +228,32 @@ export function getOutboundPolicy(options: ReadOptions = {}) {
 }
 export function saveOutboundPolicy(
   base: OutboundPolicy,
-  drafts: RuleDraft[],
+  draft: PolicyDraft,
   options: ReadOptions = {},
 ) {
   if (
     !isVersion(base.version) ||
     BigInt(base.version) === 9223372036854775807n ||
-    Object.keys(ruleIssues(drafts)).length
+    Object.keys(ruleIssues(draft)).length
   )
     throw new AccountError("INVALID_ARGUMENT");
-  const rules = drafts.map((draft) => ({
-    cidr: canonicalPrivateCidr(draft.cidr)!,
-    ports: parsePorts(draft.ports)!,
-    allow_http: draft.allow_http,
+  const rules = draft.rules.map((rule) => ({
+    target: canonicalRuleTarget(rule.target)!,
+    ports: parsePorts(rule.ports)!,
   }));
-  if (new TextEncoder().encode(JSON.stringify(rules)).length > 524288)
+  const body = JSON.stringify({
+    expected_version: base.version,
+    rule_mode: draft.ruleMode,
+    rules,
+  });
+  if (new TextEncoder().encode(body).length > 1048576)
     throw new AccountError("INVALID_ARGUMENT");
   return systemCommand(
     "/system/outbound-policy",
     {
       ...options,
       method: "PUT",
-      body: JSON.stringify({ expected_version: base.version, rules }),
+      body,
     },
     (value): value is OutboundReceipt =>
       exact(value, ["version", "rule_count", "audit_id", "created_at"]) &&

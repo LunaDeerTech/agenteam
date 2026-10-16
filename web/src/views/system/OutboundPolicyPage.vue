@@ -81,7 +81,9 @@ const fieldError = (name: string) => {
     return issues.value[name];
   const path =
     section.value === "rules"
-      ? `/rules/${name.replace(".", "/")}`
+      ? name === "rule_mode"
+        ? "/rule_mode"
+        : `/rules/${name.replace(".", "/")}`
       : name === "password"
         ? "/password"
         : `/gateway/${name}`;
@@ -92,6 +94,15 @@ const fieldError = (name: string) => {
     : undefined;
 };
 const locked = computed(() => active.value.locked.value || checking.value);
+const ruleModeOptions = [
+  { value: "allowlist", label: "白名单" },
+  { value: "denylist", label: "黑名单" },
+];
+const ruleModeHint = computed(() =>
+  rules.draft.value.ruleMode === "allowlist"
+    ? "仅允许匹配目标和端口的访问。"
+    : "阻止匹配目标和端口的访问，其余允许。",
+);
 const modeOptions = [
   { value: "direct", label: "直连" },
   { value: "proxy", label: "使用代理" },
@@ -141,7 +152,7 @@ async function confirm() {
     proxy.draft.value.removeCredential = true;
   }
   if (action === "delete" && deleteIndex.value !== undefined && !locked.value) {
-    rules.draft.value.splice(deleteIndex.value, 1);
+    rules.draft.value.rules.splice(deleteIndex.value, 1);
     deleteIndex.value = undefined;
   }
   submitted.value = false;
@@ -163,11 +174,11 @@ async function confirm() {
   });
 }
 function addRule() {
-  if (locked.value || rules.draft.value.length >= 256) return;
-  rules.draft.value.push({ cidr: "", ports: "", allow_http: false });
+  if (locked.value || rules.draft.value.rules.length >= 512) return;
+  rules.draft.value.rules.push({ target: "", ports: "" });
   void nextTick(() =>
     page.value
-      ?.querySelector<HTMLElement>(".rule-editor:last-child input")
+      ?.querySelector<HTMLElement>(".rule-row:last-child input")
       ?.focus(),
   );
 }
@@ -263,61 +274,100 @@ useLeaveProtection(
         @submit.prevent="submit"
       >
         <template v-if="section === 'rules'">
+          <UiSelect
+            v-model="rules.draft.value.ruleMode"
+            class="rule-mode"
+            label="规则模式"
+            :options="ruleModeOptions"
+            :hint="ruleModeHint"
+            :error="fieldError('rule_mode')"
+            :disabled="locked"
+          />
           <div class="rules-heading">
-            <h2>私网访问规则</h2>
+            <h2>访问目标</h2>
             <UiButton
-              :disabled="locked || rules.draft.value.length >= 256"
+              :disabled="locked || rules.draft.value.rules.length >= 512"
               @click="addRule"
               >添加规则</UiButton
             >
           </div>
-          <p class="form-note">
-            仅为指定私网地址和端口开放访问；固定禁止地址仍不可访问。
-          </p>
-          <p v-if="!rules.draft.value.length" class="empty-rules">
-            尚未设置私网访问规则。
-          </p>
           <div class="rule-list">
-            <fieldset
-              v-for="(rule, index) in rules.draft.value"
-              :key="index"
-              class="rule-editor"
-              :disabled="locked"
-            >
-              <legend>规则 {{ index + 1 }}</legend>
-              <div class="rule-fields">
-                <UiInput
-                  v-model="rule.cidr"
-                  label="CIDR"
-                  placeholder="10.0.0.0/8"
-                  :error="fieldError(`${index}.cidr`)"
-                  autocomplete="off"
-                  spellcheck="false"
-                />
-                <UiInput
-                  v-model="rule.ports"
-                  label="端口"
-                  placeholder="443, 587 或 all"
-                  :error="fieldError(`${index}.ports`)"
-                  autocomplete="off"
-                />
-              </div>
-              <div class="rule-options">
-                <label class="checkbox-label"
-                  ><input v-model="rule.allow_http" type="checkbox" />允许
-                  HTTP</label
-                ><UiButton
-                  variant="ghost"
-                  :disabled="locked"
-                  :aria-label="`删除规则 ${index + 1}`"
-                  @click="
-                    deleteIndex = index;
-                    confirmation = 'delete';
-                  "
-                  >删除</UiButton
+            <table class="rules-table" aria-label="访问规则">
+              <colgroup>
+                <col />
+                <col class="ports-column" />
+                <col class="action-column" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th scope="col">目标</th>
+                  <th scope="col">端口</th>
+                  <th scope="col"><span class="visually-hidden">操作</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-if="!rules.draft.value.rules.length">
+                  <td colspan="3" class="empty-rules">
+                    {{
+                      rules.draft.value.ruleMode === "allowlist"
+                        ? "未添加规则，所有出站访问将被阻止。"
+                        : "未添加规则，允许访问所有目标。"
+                    }}
+                  </td>
+                </tr>
+                <tr
+                  v-for="(rule, index) in rules.draft.value.rules"
+                  :key="index"
+                  class="rule-row"
+                  :aria-label="`规则 ${index + 1}`"
                 >
-              </div>
-            </fieldset>
+                  <td>
+                    <UiInput
+                      v-model="rule.target"
+                      label="目标"
+                      placeholder="IP、网段或域名"
+                      aria-describedby="rule-target-help"
+                      :error="fieldError(`${index}.target`)"
+                      :disabled="locked"
+                      autocomplete="off"
+                      spellcheck="false"
+                    />
+                  </td>
+                  <td>
+                    <UiInput
+                      v-model="rule.ports"
+                      label="端口"
+                      placeholder="443 或 all"
+                      :error="fieldError(`${index}.ports`)"
+                      :disabled="locked"
+                      autocomplete="off"
+                    />
+                  </td>
+                  <td class="rule-action">
+                    <UiButton
+                      variant="ghost"
+                      :disabled="locked"
+                      :aria-label="`删除规则 ${index + 1}`"
+                      @click="
+                        deleteIndex = index;
+                        confirmation = 'delete';
+                      "
+                      >删除</UiButton
+                    >
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <p id="rule-target-help" class="form-note">
+              目标支持 IP、网段、域名；*.example.com 仅匹配子域。
+            </p>
+            <p
+              v-if="submitted && issues.rules"
+              class="form-feedback"
+              role="alert"
+            >
+              {{ issues.rules }}
+            </p>
           </div>
         </template>
         <fieldset v-else class="proxy-fields" :disabled="locked">
@@ -494,13 +544,24 @@ useLeaveProtection(
             <dt>用户名</dt>
             <dd>{{ proxy.latest.value?.gateway?.username || "未设置" }}</dd>
           </dl>
-          <ul v-else class="latest-rules">
-            <li v-for="(rule, index) in rules.latest.value?.rules" :key="index">
-              {{ rule.cidr }} ·
-              {{ rule.ports === "all" ? "全部端口" : rule.ports.join(", ")
-              }}{{ rule.allow_http ? " · 允许 HTTP" : "" }}
-            </li>
-          </ul>
+          <template v-else>
+            <p class="latest-rule-mode">
+              规则模式：{{
+                rules.latest.value?.rule_mode === "allowlist"
+                  ? "白名单"
+                  : "黑名单"
+              }}
+            </p>
+            <ul class="latest-rules">
+              <li
+                v-for="(rule, index) in rules.latest.value?.rules"
+                :key="index"
+              >
+                {{ rule.target }} ·
+                {{ rule.ports === "all" ? "全部端口" : rule.ports.join(", ") }}
+              </li>
+            </ul>
+          </template>
           <UiButton :disabled="locked" @click="confirmation = 'adopt'"
             >采用最新配置</UiButton
           >
@@ -562,8 +623,7 @@ useLeaveProtection(
 
 <style scoped>
 .outbound-page,
-.outbound-form,
-.rule-list {
+.outbound-form {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -579,7 +639,6 @@ useLeaveProtection(
   border: 0;
 }
 .rules-heading,
-.rule-options,
 .credential-status {
   display: flex;
   align-items: center;
@@ -591,38 +650,69 @@ h2 {
   font-size: 14px;
   font-weight: 600;
 }
-.outbound-form .rule-editor {
-  padding: 0 0 16px;
+.rule-mode {
+  max-width: 560px;
+}
+.rule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  margin-top: -12px;
+}
+.rules-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.ports-column {
+  width: 30%;
+}
+.action-column {
+  width: 60px;
+}
+.rules-table th {
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  text-align: left;
+}
+.rules-table th,
+.rules-table td {
+  padding: 6px;
   border-bottom: 1px solid var(--border-subtle);
+  vertical-align: top;
 }
-.rule-editor legend {
-  padding: 0 0 14px;
-  font-size: 13px;
+.rules-table th:first-child,
+.rules-table td:first-child {
+  padding-left: 0;
+}
+.rules-table th:last-child,
+.rules-table td:last-child {
+  padding-right: 0;
+}
+.rule-action {
+  text-align: right;
+}
+.visually-hidden,
+.rule-row :deep(.ui-field-label) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.rules-table .empty-rules {
+  padding: 20px 0;
   color: var(--text-secondary);
 }
-.rule-fields {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-.rule-options {
+.latest-rule-mode {
   margin-top: 12px;
-}
-.checkbox-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-}
-.checkbox-label input {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--accent);
-}
-.empty-rules {
-  padding: 24px 0;
-  color: var(--text-secondary);
-  font-size: 13px;
 }
 .proxy-fields {
   display: flex;
@@ -655,9 +745,6 @@ h2 {
   overflow-wrap: anywhere;
 }
 @media (max-width: 560px) {
-  .rule-fields {
-    grid-template-columns: 1fr;
-  }
   .gateway-address {
     grid-template-columns: minmax(0, 1fr) 100px;
     gap: 12px;

@@ -1,4 +1,4 @@
-const { test, expect, api, login } = require("./owned-fixture.cjs");
+const { test, expect, api, login, select } = require("./owned-fixture.cjs");
 const endpoint = "/system/outbound-policy";
 
 async function saveRules(page) {
@@ -26,65 +26,69 @@ async function saveRules(page) {
   return receipt;
 }
 function row(page, index) {
-  return page.getByRole("group", { name: `规则 ${index + 1}`, exact: true });
+  return page.getByRole("row", { name: `规则 ${index + 1}`, exact: true });
 }
 
-test("owned rules persist CRUD and preserve a conflicting draft until explicit adoption", async ({
+test("owned rule modes and wildcard targets persist CRUD and preserve a conflicting draft until explicit adoption", async ({
   page,
   owned,
 }) => {
   await login(page, owned);
   const original = await api(page, endpoint);
   expect(original.status).toBe(200);
-  const cidr = "10.241.216.0/24";
+  const target = "*.owned-browser.example.invalid";
   if (
-    original.value.rules.some((rule) => rule.cidr === cidr) ||
-    original.value.rules.length > 250
+    original.value.rules.some((rule) => rule.target === target) ||
+    original.value.rules.length >= 512
   )
     throw new Error("OWNED_RULE_INPUT_COLLISION");
+  await select(page, "规则模式", "白名单");
   await page.getByRole("button", { name: "添加规则", exact: true }).click();
   const added = row(page, original.value.rules.length);
-  await added.getByLabel("CIDR", { exact: true }).fill(cidr);
+  await added.getByLabel("目标", { exact: true }).fill(target);
   await added.getByLabel("端口", { exact: true }).fill("9443");
   const createdReceipt = await saveRules(page);
   const created = await api(page, endpoint);
   expect(
     created.value.version === createdReceipt.version &&
+      created.value.rule_mode === "allowlist" &&
       createdReceipt.rule_count === String(original.value.rules.length + 1),
   ).toBe(true);
   expect(
     created.value.rules.some(
       (rule) =>
-        rule.cidr === cidr &&
+        rule.target === target &&
         JSON.stringify(rule.ports) === "[9443]" &&
-        rule.allow_http === false,
+        Object.keys(rule).sort().join() === "ports,target",
     ),
   ).toBe(true);
   await page.reload();
-  const index = created.value.rules.findIndex((rule) => rule.cidr === cidr);
+  const index = created.value.rules.findIndex((rule) => rule.target === target);
   await expect(
     row(page, index).getByLabel("端口", { exact: true }),
   ).toHaveValue("9443");
   await row(page, index).getByLabel("端口", { exact: true }).fill("9443, 8080");
-  await row(page, index).getByRole("checkbox", { name: "允许 HTTP" }).check();
   await saveRules(page);
   const edited = await api(page, endpoint);
-  const editIndex = edited.value.rules.findIndex((rule) => rule.cidr === cidr);
+  const editIndex = edited.value.rules.findIndex(
+    (rule) => rule.target === target,
+  );
   expect(
-    JSON.stringify(edited.value.rules[editIndex].ports) === "[8080,9443]" &&
-      edited.value.rules[editIndex].allow_http,
+    JSON.stringify(edited.value.rules[editIndex].ports) === "[8080,9443]",
   ).toBe(true);
 
   // An independent real update advances the DB version. GET is an observation,
   // never permission to silently replace the user's stale draft.
+  await select(page, "规则模式", "黑名单");
   await row(page, editIndex).getByLabel("端口", { exact: true }).fill("9080");
   const remoteRules = edited.value.rules.map((rule) =>
-    rule.cidr === cidr ? { ...rule, ports: [9081] } : rule,
+    rule.target === target ? { ...rule, ports: [9081] } : rule,
   );
   expect(
     (
       await api(page, endpoint, "PUT", {
         expected_version: edited.value.version,
+        rule_mode: "allowlist",
         rules: remoteRules,
       })
     ).status,
@@ -97,6 +101,9 @@ test("owned rules persist CRUD and preserve a conflicting draft until explicit a
   await page.getByRole("button", { name: "保存规则", exact: true }).click();
   expect((await conflictResponse).status()).toBe(409);
   await expect(page.getByRole("alert")).toContainText("你的草稿已保留");
+  await expect(
+    page.getByRole("combobox", { name: "规则模式", exact: true }),
+  ).toContainText("黑名单");
   await expect(
     row(page, editIndex).getByLabel("端口", { exact: true }),
   ).toHaveValue("9080");
@@ -115,6 +122,9 @@ test("owned rules persist CRUD and preserve a conflicting draft until explicit a
   await expect(
     row(page, editIndex).getByLabel("端口", { exact: true }),
   ).toHaveValue("9081");
+  await expect(
+    page.getByRole("combobox", { name: "规则模式", exact: true }),
+  ).toContainText("白名单");
   await page
     .getByRole("button", { name: `删除规则 ${editIndex + 1}`, exact: true })
     .click();
@@ -124,11 +134,17 @@ test("owned rules persist CRUD and preserve a conflicting draft until explicit a
     .getByRole("dialog", { name: "删除访问规则", exact: true })
     .getByRole("button", { name: "删除规则", exact: true })
     .click();
+  await select(
+    page,
+    "规则模式",
+    original.value.rule_mode === "allowlist" ? "白名单" : "黑名单",
+  );
   await saveRules(page);
   const removed = await api(page, endpoint);
   expect(
     removed.value.rules.length === original.value.rules.length &&
-      !removed.value.rules.some((rule) => rule.cidr === cidr),
+      removed.value.rule_mode === original.value.rule_mode &&
+      !removed.value.rules.some((rule) => rule.target === target),
   ).toBe(true);
   await page.reload();
   await expect(

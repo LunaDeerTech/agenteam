@@ -19,7 +19,9 @@ const scope = computed(() => route.meta.settingsScope || "system");
 const wideBody = computed(
   () =>
     scope.value === "system" &&
-    ["users", "invitations", "smtp"].includes(String(route.meta.settingKey)),
+    ["users", "invitations", "smtp", "outbound-policy"].includes(
+      String(route.meta.settingKey),
+    ),
 );
 const title = computed(
   () =>

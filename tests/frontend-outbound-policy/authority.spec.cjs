@@ -23,6 +23,7 @@ test("owned real authorization and CSRF failures leave identity and configuratio
     "PUT",
     {
       expected_version: rules.value.version,
+      rule_mode: rules.value.rule_mode,
       rules: rules.value.rules,
     },
     { omitCSRF: true },

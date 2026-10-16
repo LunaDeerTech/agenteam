@@ -39,13 +39,14 @@ function loadRuntime() {
       !!value.password;
     if (
       runtime.origin !== origin ||
+      runtime.test_scope !== "system-outbound-rule-modes" ||
       !/^[a-f0-9]{32}$/.test(runtime.nonce || "") ||
       !Number.isFinite(Date.parse(runtime.expires_at)) ||
       Date.parse(runtime.expires_at) <= Date.now() ||
       !credentials(runtime.credentials) ||
       !credentials(runtime.regular_credentials) ||
       Object.keys(sidecar).sort().join() !== "nonce,runtime_file,test_scope" ||
-      sidecar.test_scope !== "system-outbound-policy-proxy" ||
+      sidecar.test_scope !== "system-outbound-rule-modes" ||
       sidecar.runtime_file !== filename ||
       sidecar.nonce !== runtime.nonce
     )
@@ -155,6 +156,14 @@ const test = base.extend({
       });
       await page.unrouteAll({ behavior: "wait" });
       try {
+        // Finish teardown on the owned inert document so application navigation
+        // cannot destroy the execution context while revoking this session.
+        const response = await page.goto(`${origin}/__fixture__/identity`);
+        if (
+          response?.status() !== 200 ||
+          (await response.json()).nonce !== owned.nonce
+        )
+          throw new Error("OWNED_OUTBOUND_CLEANUP_IDENTITY_REJECTED");
         await closeSession(page);
       } finally {
         if (testInfo.status !== testInfo.expectedStatus)
@@ -238,15 +247,17 @@ async function login(page, owned) {
     page.off("requestfinished", requestFinished);
     page.off("requestfailed", requestFailed);
     page.off("framenavigated", navigate);
-    const state = await page.evaluate(() => ({
-      path: location.pathname,
-      loginBusy: !!document.querySelector('button[aria-busy="true"]'),
-      dialogOpen: !!document.querySelector("dialog[open]"),
-      passwordEmpty: Array.from(
-        document.querySelectorAll('input[type="password"]'),
-      ).every((input) => input.value === ""),
-      alertPresent: !!document.querySelector('[role="alert"]'),
-    }));
+    const state = await page
+      .evaluate(() => ({
+        path: location.pathname,
+        loginBusy: !!document.querySelector('button[aria-busy="true"]'),
+        dialogOpen: !!document.querySelector("dialog[open]"),
+        passwordEmpty: Array.from(
+          document.querySelectorAll('input[type="password"]'),
+        ).every((input) => input.value === ""),
+        alertPresent: !!document.querySelector('[role="alert"]'),
+      }))
+      .catch(() => ({ snapshotUnavailable: "navigation" }));
     await base.info().attach("safe-login-timing", {
       body: Buffer.from(JSON.stringify({ events, state })),
       contentType: "application/json",
