@@ -99,7 +99,37 @@ python3 /workspace/agenteam-onboarding/frp/run-preview.py \
   --name account-preview-20261016 --check
 ```
 
-实际启动使用同一助手去掉 `--check`，继承既有代理及系统CA验证，不输出或复制FRP认证值；WSS验证的是隧道入口，页面TLS由本机应用另行提供。先核本次frp登录与代理启动，再从 `https://154.12.86.233:18443` 验证本轮identity marker、正式登录旅程、Cookie及Origin/CSRF拒绝边界，才能向用户交入口。配置通过、TCP连通或本地自检都不能代替公网验真。预览有本轮证书与资源期限；结束后依本页方法真实退出、清理或重新创建自有轮次，不把旧manifest当持续存活证明。
+实际启动使用同一助手去掉 `--check`，继承既有代理及系统CA验证，不输出或复制FRP认证值。供用户持续使用的隧道须脱离短生命周期工具的进程组，并关闭继承的工具管道；以下方式与本轮恢复相同。先选定本轮0700私有目录和未占用的唯一代理名，仅在确认没有该轮活跃代理时执行：
+
+```sh
+export AGENTEAM_ACCOUNT_PREVIEW_DIRECTORY=/task-owned/private-preview
+export AGENTEAM_ACCOUNT_PREVIEW_TUNNEL_NAME=account-preview-unique-name
+python3 - <<'PY'
+import json, os, pathlib, subprocess
+directory = pathlib.Path(os.environ["AGENTEAM_ACCOUNT_PREVIEW_DIRECTORY"])
+assert directory.is_dir() and not directory.is_symlink()
+assert directory.stat().st_mode & 0o077 == 0
+assert not (directory / "frp-detached-process.json").exists()
+os.umask(0o077)
+args = ["python3", "/workspace/agenteam-onboarding/frp/run-preview.py",
+        "--server-addr", "mcpc-terra.lunadeer.cn", "--server-port", "443",
+        "--local-port", "5254", "--remote-port", "18443",
+        "--name", os.environ["AGENTEAM_ACCOUNT_PREVIEW_TUNNEL_NAME"]]
+with (directory / "frp-detached.log").open("xb", buffering=0) as log:
+    child = subprocess.Popen(args, stdin=subprocess.DEVNULL, stdout=log,
+                             stderr=subprocess.STDOUT, close_fds=True,
+                             start_new_session=True)
+fields = pathlib.Path(f"/proc/{child.pid}/stat").read_text().rsplit(")", 1)[1].split()
+with (directory / "frp-detached-process.json").open("x") as output:
+    json.dump({"pid": child.pid, "session_id": int(fields[3]),
+               "start_ticks": fields[19], "argv": args}, output)
+print("Detached helper PID:", child.pid)
+PY
+```
+
+启动命令退出后，在后续独立检查中核 `/proc/<pid>/stat` 状态不是 `Z`/`X`、`start_ticks`与登记一致、helper为独立session leader，并确认实际命令及子frpc身份。`kill(pid, 0)`、存在 `/proc/<pid>` 或历史login日志都不能证明进程存活：本轮在工具会话结束后观察到属于原工具进程组的旧helper/frpc已SIGKILL退出，遗留僵尸PID及成功启动日志。持续提供服务的App启动脚本也应使用独立session和私有日志，避免外层launcher被终止而丢失真实wait结果；已有App仍活跃时不要盲目重复启动。停止时只向身份仍匹配的本轮helper发SIGTERM，核子进程退出和精确私有TOML清理；已死进程遗留配置须按该轮精确路径处理，不遍历或终止其他映射。
+
+WSS验证的是隧道入口，页面TLS由本机应用另行提供；助手的 `type=tcp` 传输不终止HTTP或TLS。先核本次frp登录与代理启动及真实工作连接，再从 `https://154.12.86.233:18443` 验证本轮identity marker、正式登录旅程、Cookie及Origin/CSRF拒绝边界，才能向用户交入口。配置通过、TCP连通或本地自检都不能代替公网验真。预览有本轮证书与资源期限；结束后依本页方法真实退出、清理或重新创建自有轮次，不把旧manifest当持续存活证明。
 
 本轮环境的管理HTTP代理会终止客户端TLS，并因不信任预览专用CA而返回上游 `CERTIFICATE_VERIFY_FAILED` 503；其为纯IP签发的DNS类型SAN也与服务端真实IP SAN不同。客户端信任或固定代理证书不能改变代理到服务端的信任策略。遇到该明确结果后保留服务与隧道，停止重复请求或扩大TLS例外；只能记录本机TLS/业务验证、frp登录/端口分配已过，公网归属及浏览器交互仍待用户直接访问验证。浏览器固定本机路由的同origin验证可证明Cookie行为，但不能替代公网验真。
 
