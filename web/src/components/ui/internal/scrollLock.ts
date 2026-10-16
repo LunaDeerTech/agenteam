@@ -1,10 +1,10 @@
 let locks = 0;
-let previousOverflow = '';
+let previousOverflow = "";
 
 export function lockPageScroll() {
   if (locks++ === 0) {
     previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = "hidden";
   }
   let released = false;
   return () => {

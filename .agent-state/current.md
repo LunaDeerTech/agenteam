@@ -16,9 +16,9 @@
 
 | Owner | 唯一写入范围与职责 | 当前状态 |
 | --- | --- | --- |
-| `/root/vue_integration` | `web/` 工程配置、锁、入口、路由、页面与布局；安装依赖、工程检查和壳集成 | 接续前次骨架，Node/npm、安装、type/build/check 实际结果待报告 |
-| `/root/vue_shared_ui` | `web/src/components/ui/`、`web/src/styles/`、`web/src/composables/useTheme.ts` | 补齐组件导出、样式和壳消费合同，实际检查待报告 |
-| `/root/vue_tests` | `web/tests/` 与 `tests/frontend-rebuild/`（含该目录 README） | 完成组件测试与浏览器 harness，实际结果待报告 |
+| `/root/vue_integration` | `web/` 工程配置、锁、入口、路由、页面与布局；安装依赖、工程检查和壳集成 | 已安装新工程依赖；完整工程检查与作者浏览器结果待报告 |
+| `/root/vue_shared_ui` | `web/src/components/ui/`、`web/src/styles/`、`web/src/composables/useTheme.ts` | 已补齐八组件导出、Input/Tabs/Select CSS、五个壳图标、Dialog 类型及菜单首开宽度；限定 Prettier 与 type-check exit 0，浏览器待验 |
+| `/root/vue_tests` | `web/tests/` 与 `tests/frontend-rebuild/`（含该目录 README） | 原有 theme/menu/dialog 三文件共 10 项（4/3/3）通过；浏览器 harness 继续实现 |
 | `/root/vue_visual_review` | 独立只读审查；可再生材料放忽略的 `output/ai/` | 分别实际查看参考原型与新 Vue，范围和结论待报告 |
 | `/root/vue_boundary_audit` | 独立只读核对 fresh 依赖/源码隔离、归档一致性与路由覆盖；无正式文件写权 | 审查结果待报告 |
 | `/root/vue_docs` | 本状态、根 AGENTS/README、前端开发文档、新 `web/README.md` 与必要设计范围更正 | 唯一正式文档与状态作者；依据源码及 owners 实际回报更新，不代跑产品检查 |
@@ -27,11 +27,13 @@
 
 前次已保存独立 Vue 工程及锁、集中路由 metadata、AppShell/AccountShell/单一 SettingsShell、标题加空正文，以及共享控件和初步组件测试。旧 fixture 已显式改指 `web-crape/`；归档源码保持原版本，默认构建入口仍是新 `web/`。
 
-恢复时的首断点是新工程尚未完成安装、组件接线与实际启动。前次仅生成锁的命令 `npm install --package-lock-only --ignore-scripts --prefix web` 实际 exit 0；Input/Tabs/Select 仍需核导出和样式，浏览器 `foundation.spec.cjs` 尚缺。以上为前次事实，本轮修改和检查由对应 owner 接续报告。
+恢复输入尚未安装依赖，Input/Tabs/Select 未导出且缺专用样式，浏览器 `foundation.spec.cjs` 尚缺。本轮已安装新依赖并补组件接线，当前首断点转为完整工程检查、浏览器 harness 和新 Vue 独审；已有源码不等于这些门槛已通过。
 
 ## 本轮检查与资源
 
-- Node/npm、依赖安装、format/type/build/unit/check、浏览器及独审：本次实际结果待各 owner 报告；尚无本轮 PASS。
+- 测试 owner 报告 Node `v24.19.0`，`npm run test:unit --prefix web` 实际 exit 0，三个既有测试文件 10/10 通过（theme 4、menu 3、dialog 3）；5242 当时无监听。Chromium 为 `151.0.7922.173`，集成 owner 已恢复 `tests/account-captcha-web/node_modules` 的 Playwright `1.56.1`。浏览器尚未据此通过。
+- UI owner 已停止本批写入；限定组件/样式 Prettier 与 `npm run type-check --prefix web` 实际 exit 0。全工程 format/build/check、完整浏览器与新 Vue 独审待对应 owner 报告；不扩大局部通过范围。
+- 边界审查初步核实 `746ddcb3:web` 与恢复输入 `635c90dc:web-crape` 的 569 个文件 blob/执行位相同，工作树归档未改；新 lock 为独立 `@agenteam/web-rebuild`，179 个 package，未发现旧业务导入。精确路由与 fixture 审查仍进行中，未给整体接受结论。
 - 原型服务 5241 归 `/root/vue_integration`；测试服务 5242 归 `/root/vue_tests`；独审服务 5243 归 `/root/vue_visual_review`；作者 Vue 服务 5244 归 `/root/vue_integration`。以上是资源分配，启动、占用与实际退出分别由 owner 核实，不能视为已经运行或清理。
 - 新工程工具链要求 Node `>=24.12.0`；依赖按新 `web/package-lock.json` 安装，不能链接归档工程的依赖。安装与可复制运行入口将归位到 [web/README](../web/README.md)；浏览器命令以[新工程 harness](../tests/frontend-rebuild/README.md)为准。
 - 原始日志、截图、dist 和缓存保留于忽略目录；源码、锁和必要 harness 随 checkpoint 保存。向用户展示截图须先使用项目约定图床上传并展示返回链接；不在仓库文档写入凭据，不将本机路径当作用户已看到图片。

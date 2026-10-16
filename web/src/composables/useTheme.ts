@@ -1,49 +1,59 @@
-import { readonly, ref } from 'vue';
+import { readonly, ref } from "vue";
 
-export type ThemePreference = 'light' | 'dark' | 'system';
-export const THEME_STORAGE_KEY = 'agenteam.vue.appearance.v1';
+export type ThemePreference = "light" | "dark" | "system";
+export const THEME_STORAGE_KEY = "agenteam.vue.appearance.v1";
 
-const theme = ref<ThemePreference>('system');
-const resolvedTheme = ref<'light' | 'dark'>('light');
+const theme = ref<ThemePreference>("system");
+const resolvedTheme = ref<"light" | "dark">("light");
 let dispose: (() => void) | undefined;
 let media: MediaQueryList | undefined;
 
 function isTheme(value: unknown): value is ThemePreference {
-  return value === 'light' || value === 'dark' || value === 'system';
+  return value === "light" || value === "dark" || value === "system";
 }
 
 function applyTheme() {
-  resolvedTheme.value = theme.value === 'system' ? (media?.matches ? 'dark' : 'light') : theme.value;
-  if (typeof document !== 'undefined') {
+  resolvedTheme.value =
+    theme.value === "system"
+      ? media?.matches
+        ? "dark"
+        : "light"
+      : theme.value;
+  if (typeof document !== "undefined") {
     document.documentElement.dataset.theme = resolvedTheme.value;
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', resolvedTheme.value === 'dark' ? '#191a18' : '#f6f6f5');
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute(
+        "content",
+        resolvedTheme.value === "dark" ? "#191a18" : "#f6f6f5",
+      );
   }
 }
 
 export function initTheme() {
-  if (typeof window === 'undefined') return () => {};
+  if (typeof window === "undefined") return () => {};
   if (dispose) return dispose;
-  media = window.matchMedia('(prefers-color-scheme: dark)');
+  media = window.matchMedia("(prefers-color-scheme: dark)");
   try {
     const saved = window.localStorage.getItem(THEME_STORAGE_KEY);
-    theme.value = isTheme(saved) ? saved : 'system';
+    theme.value = isTheme(saved) ? saved : "system";
   } catch {
-    theme.value = 'system';
+    theme.value = "system";
   }
   const onSystemChange = () => {
-    if (theme.value === 'system') applyTheme();
+    if (theme.value === "system") applyTheme();
   };
   const onStorage = (event: StorageEvent) => {
     if (event.key !== THEME_STORAGE_KEY && event.key !== null) return;
-    theme.value = isTheme(event.newValue) ? event.newValue : 'system';
+    theme.value = isTheme(event.newValue) ? event.newValue : "system";
     applyTheme();
   };
-  media.addEventListener('change', onSystemChange);
-  window.addEventListener('storage', onStorage);
+  media.addEventListener("change", onSystemChange);
+  window.addEventListener("storage", onStorage);
   applyTheme();
   dispose = () => {
-    media?.removeEventListener('change', onSystemChange);
-    window.removeEventListener('storage', onStorage);
+    media?.removeEventListener("change", onSystemChange);
+    window.removeEventListener("storage", onStorage);
     dispose = undefined;
     media = undefined;
   };
@@ -63,7 +73,11 @@ function setTheme(value: ThemePreference) {
 }
 
 export function useTheme() {
-  return { theme: readonly(theme), resolvedTheme: readonly(resolvedTheme), setTheme };
+  return {
+    theme: readonly(theme),
+    resolvedTheme: readonly(resolvedTheme),
+    setTheme,
+  };
 }
 
 if (import.meta.hot) import.meta.hot.dispose(() => dispose?.());

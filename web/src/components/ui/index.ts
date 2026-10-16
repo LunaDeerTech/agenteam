@@ -1,6 +1,11 @@
-export { default as UiButton } from './UiButton.vue';
-export { default as UiDialog } from './UiDialog.vue';
-export { default as UiIcon } from './UiIcon.vue';
-export { default as UiIconButton } from './UiIconButton.vue';
-export { default as UiMenu } from './UiMenu.vue';
-export type { MenuItem } from './UiMenu.vue';
+export { default as UiButton } from "./UiButton.vue";
+export { default as UiDialog } from "./UiDialog.vue";
+export { default as UiIcon } from "./UiIcon.vue";
+export { default as UiIconButton } from "./UiIconButton.vue";
+export { default as UiInput } from "./UiInput.vue";
+export { default as UiMenu } from "./UiMenu.vue";
+export { default as UiSelect } from "./UiSelect.vue";
+export { default as UiTabs } from "./UiTabs.vue";
+export type { MenuItem } from "./UiMenu.vue";
+export type { SelectOption } from "./UiSelect.vue";
+export type { TabItem } from "./UiTabs.vue";
