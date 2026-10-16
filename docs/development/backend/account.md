@@ -127,6 +127,19 @@ python3 scripts/manage-persistent-central.py stage \
 
 保留原immutable nginx配置、TLS与nonce，`/__instance__/identity.source_revision`继续表示基础设施首次准备版本；它不证明新候选代码版本。新Central用活动manifest、实际PID/start_ticks/executable SHA证明，前端用实际构建/源组合单独核验。旧 `runtime-recovery-probe.cjs` 和 `diagnose-persistent-smtp.py`的identity.source等于runtime.source假设不适用于staged manifest，本轮升级用独立组合核验，不修改nginx来伪造候选身份。严格本机验证、公开入口响应归属和真实邮件结果分别记录；SMTP实测暂停，升级操作不触发测试发送。
 
+### 保留旧后端时固定前端快照
+
+Passkey源码已集成主树，但现有用户预览仍保留e203 Central、schema145及原账号/Session、SMTP、keys和数据，不运行主树新后端或升级该数据库。为避免新页面连接旧API，5245使用仓库外快照 `/workspace/scratch/agenteam-central-persistent-r1/frontend-stable-c09d69b7/`；其92份源码与c09d逐项一致，node_modules与Vite缓存独立。不要再以主树的npm/dev命令启动此保留入口。
+
+快照内 `preview-record.json` 保存绝对node命令、工作目录及required_environment/recovery_environment中的 `VITE_ACCOUNT_ENABLED=true`，私有run-state的frontend_preview登记实际进程；恢复前须核PID/start_ticks和端口归属。此环境变量是必需项，遗漏会将账号入口禁用。恢复命令在该快照目录运行：
+
+```sh
+cd /workspace/scratch/agenteam-central-persistent-r1/frontend-stable-c09d69b7
+VITE_ACCOUNT_ENABLED=true /opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node /workspace/scratch/agenteam-central-persistent-r1/frontend-stable-c09d69b7/node_modules/vite/bin/vite.js --host 127.0.0.1 --port 5245 --strictPort
+```
+
+恢复按现有运行owner流程脱离临时工具进程组并写私有日志，记录新实际进程身份后再核严格本机TLS/nonce、快照源码与实际accountEnabled。此次首次迁移遗漏flag已修正；最终匿名浏览器确认账号输入/按钮可用、禁用提示消失、session401/bootstrap200，浏览器与relay退出，无凭据读取、登录或邮件。本机检查不代表公网身份验证。当前准确PID与后端manifest见[当前状态](../../../.agent-state/current.md)；Passkey真实链使用独立owned环境，不复用此用户实例。
+
 ## 新 Vue 账号联调
 
 以下fixture说明仅供受控隔离回归，固定SMTP sink不能承担真实邮件部署；当前可恢复公开运行使用上一节的生产Central与TLS5256。

@@ -2,11 +2,14 @@
 
 2026-10-16。用户已授权[Passkey 与邮箱变更](../docs/development/work-items/account-passkeys-email-change.md)：登录增加免填邮箱的 Passkey；个人改密页扩为“登录与安全”并支持凭据添加/命名/删除；资料邮箱经新鲜 Passkey 与新邮箱数字码原子变更。系统设置、导航和全局开关均不新增 Passkey。首次登记/全 key 丢失恢复采用当前密码加原邮箱码，bootstrap 默认邮箱不视为已验证，另实现明确的一次性部署者初始化/恢复入口。
 
-本轮基线 `c09d69b71e9ca982e02089560eeeaeb7765749e8`，前后端独立实施，合同与必要蓝图/运行说明由 account_contract 唯一维护，全部 Git 由 root 负责。固定部署 PUBLIC_ORIGIN 决定 RP/Origin，IP 下能力不可用但密码登录保持；真实域名与设备由用户在独立服务器后验。能力/列表/登录、action绑定grant、Passkey管理/恢复、邮箱变更及运维初始化共享modal/CLI合同已固定；email_initialization_required明确区分bootstrap与普通未验证用户。当前首断点为owned r2的真实PG/App与浏览器组合验证，尚无本轮完整功能或部署通过结论。当前持久服务、账号、SMTP、keys 不动，外部实发仍暂停。
+本轮基线 `c09d69b71e9ca982e02089560eeeaeb7765749e8`，前后端独立实施，合同与必要蓝图/运行说明由 account_contract 唯一维护，全部 Git 由 root 负责。固定部署 PUBLIC_ORIGIN 决定 RP/Origin，IP 下能力不可用但密码登录保持；真实域名与设备由用户在独立服务器后验。能力/列表/登录、action绑定grant、Passkey管理/恢复、邮箱变更及运维初始化共享modal/CLI合同已固定；email_initialization_required明确区分bootstrap与普通未验证用户。源码已集成并推送：backend `d0bae38e`（来源 `163c21`）、Vue `e1749220`（来源 `719483ed`），不含实现树current。当前首断点为owned r3的真实PG/App与浏览器组合验证，尚无本轮完整功能或部署通过结论。当前持久服务、账号、SMTP、keys 不动，外部实发仍暂停。
 
-当前实现检查点：Vue产品 `257cc`、已保存harness `6ff0633c`，作者69项unit、类型/build通过；受控API的原生浏览器流程及P2/P3独审通过，全部合成API，不代真实后端。后端 `d2ad6a2d` 后最终补丁正冻结；00146误带Down令r1在执行SQL前失败，现已修正且源码约束测试通过，r1资源精确清理，真实PG/App/browser仍待r2。原失败保留；mail_recovery CHECK NULL返修的真实PG负例也不能提前写通过。
+当前实现检查点：作者69项unit、类型/build及受控API原生浏览器、P2/P3独审结果保留原输入，不代真实后端。owned r2已实际通过00146、SQL CHECK负例、初始化receipt与cooldown，随后夹具误取异步旧邮件而退出1，已精确清理；修正夹具后的r3正在启动，CLI小包仅compile通过、尚未实际执行，不能称完整链路通过。r1的Down误项在SQL执行前失败、源码修复与清理事实保留。
 
 account_backend唯一维护 `/workspace/agenteam-passkey-backend`，proxy_copy唯一维护 `/workspace/agenteam-passkey-vue`；主树合同/蓝图/运行说明由account_contract维护，root负责Git与最终组合，独审负责未完成安全门。现持久用户实例保持既有SMTP独立直连版本，账号、Session、SMTP配置、keys及数据不动，外部发信继续暂停。
+
+公开预览继续使用e203 Central与schema145，不升级用户DB。5245已移到私有冻结快照 `/workspace/scratch/agenteam-central-persistent-r1/frontend-stable-c09d69b7/`：92份源码与c09d逐项一致，独立node_modules及Vite缓存。首次快照进程遗漏VITE_ACCOUNT_ENABLED，源码/TLS200未证明账号入口可用；已修为显式true，最终Vite PID643745/start_ticks5172505。旧主树Vite55037/start_ticks274699已TERM→exit143/Z且不占端口，Central591580/start_ticks4770391与FRP303867/303876保持。最终匿名浏览器通过严格本机证书/nonce，实际accountEnabled=true、邮箱/密码/登录按钮可用、无禁用预览提示，session401/bootstrap200；CLI/浏览器/relay退出且socket0，未读取凭据、登录或发邮件。快照preview-record.json已登记绝对恢复命令/cwd及必需环境true，run-state的frontend_preview同步；按[账号运行说明](../docs/development/backend/account.md#保留旧后端时固定前端快照)从快照启动，不能再从主树启动5245连接旧后端。无新公网检验。
+
 
 ## 此前 SMTP 独立直连交付
 
@@ -73,7 +76,7 @@ owned 验证已收尾：真实 App 根在规则拒绝 SMTP 目标且统一代理
 - manager `bbc6236e` 曾独立复现Popen后record发布失败留下存活未登记candidate；修正 `f01ca6ee` 后同.next故障实际关闭：原错误/未知.next保留，新child已wait且无PID/端口占用，status/stop与实际停止一致，selected仍为候选且旧版fallback拒绝，修复本fixture的.next后同版可恢复，合成data/keys/env未变。CLI退出0、子进程全回收；该fixture不代证production迁移/升级或公网。保留immutable nginx的nonce/基础设施source，候选后端另核active-release、实际进程/exe SHA与前端组合；旧probe强制identity.source等于runtime.source的假设不适用于staged manifest，未宣称复用通过。
 - 此前正式binary来源 `62ad504378fcab4e65722cbb7e5d2fffa8bc60a1`（含7aa修复），生产bootstrap/PG/MinIO真实就绪。严格本机CA/IP/SPKI、nonce/source、匿名401无Set-Cookie、登录/读取通过；仅Central停启后原Cookie/user/session/SMTP投影保持，PG/MinIO/web及持久keys未换，logout204→401，probe退出0。初次PG父目录权限失败未建账号，专属失败资源清理后修PGDATA挂载成功；恢复管理器端口检查修正后验证通过。
 - 此前12:14:30 UTC的Central PID424642/state S/start_ticks3218571，source `a5d12bf0f24afe10e80a142c79d05fdc0ce07e81`，exe SHA256 `777768c55735d7de70ba66ec678156351e1d11f3a4b2150ddd790ae6a94ee26c`与active-release相符；schema144已应用，代理初值direct/null且receipt/operation均0。停前后users/sessions/完整SMTP/SMTP凭据/原出站规则/account keyregistry的HMAC一致，18个immutable文件、4目录身份及PG/MinIO/web容器均保持，未终结mail/openattempt始终0，未发送SMTP。私有一致备份经PG17.8 pg_restore --list通过；首轮验证的buffered FD offset问题已修正，同原dump成功，原失败保留。严格本机CA/IP/leaf与nonce匹配，live/login200、规则/代理匿名401；ready503为D05 DEPENDENCY_UNBOUND，首轮断言失配未存详情，不倒推原因，限定复核符合原契约。
-- 当前入口仍为18443→TLS5256→Central5257，frp保留。数据、五组keys、环境与TLS材料位于仓库外私有 `/workspace/scratch/agenteam-central-persistent-r1/`（0700/0600）；活动manifest为该目录 `runtime-staged-e203977766438a9045b2ac4ef54161e5e5c943f5.json`。当前Central PID591580/start_ticks4770391/state S、source `e203977766438a9045b2ac4ef54161e5e5c943f5`，实际exe SHA256 `390b106335240222fb3b7e0d52e34fae9daa23ed67f58c619cd10cedda8d9c19`与活动manifest匹配。恢复命令为 `python3 /workspace/agenteam/scripts/manage-persistent-central.py <action> --runtime <活动manifest完整路径>`（action取status、stop或start），必须使用当前staged输入，不能再以原runtime.json或旧13a manifest启动。停Central不删除数据/重建keys，按[stage与恢复说明](../docs/development/backend/account.md#既有持久实例的stage与恢复)管理；旧a5d的144binary不能在当前schema145数据库上回退启动；恢复必须使用当前选中版本。旧r2资源/凭据已清理，原前端与基础设施保持。
+- 当前入口仍为18443→TLS5256→Central5257，frp保留。数据、五组keys、环境与TLS材料位于仓库外私有 `/workspace/scratch/agenteam-central-persistent-r1/`（0700/0600）；活动manifest为该目录 `runtime-staged-e203977766438a9045b2ac4ef54161e5e5c943f5.json`。当前Central PID591580/start_ticks4770391/state S、source `e203977766438a9045b2ac4ef54161e5e5c943f5`，实际exe SHA256 `390b106335240222fb3b7e0d52e34fae9daa23ed67f58c619cd10cedda8d9c19`与活动manifest匹配。恢复命令为 `python3 /workspace/agenteam/scripts/manage-persistent-central.py <action> --runtime <活动manifest完整路径>`（action取status、stop或start），必须使用当前staged输入，不能再以原runtime.json或旧13a manifest启动。停Central不删除数据/重建keys，按[stage与恢复说明](../docs/development/backend/account.md#既有持久实例的stage与恢复)管理；旧a5d的144binary不能在当前schema145数据库上回退启动；恢复必须使用当前选中版本。旧r2资源/凭据已清理，基础设施保持；前端5245使用上方c09d私有快照，不再运行主树。
 - 此前13a预览只读浏览器实际通过：本机CONNECT→5256保持18443 origin，严格CA/IP/leaf/nonce及浏览器实际SPKI匹配；真实登录200、新Vue module200、规则GET200及内容显示、代理GET200及直连显示。未执行规则/代理写入或SMTP，logout204→session401，CLI/Chromium退出0、relay关闭且socket0。当时终核manager running、13a Central与原frp helper/frpc身份匹配且非僵尸，5245/5256/5257仍监听。此结果仅证明当时本机组合，不代本轮e203浏览器或公网验证。
 - 唯一公网匿名尝试使用专用CA和SPKI：CONNECT200，curl60/TLS_TRUST_REJECTED、HTTP0、instanceMatched=false；未发送凭据或取得实例标记，也未观察实际leaf issuer，不能将旧代理背景或frp登录当作本次公网证明。
 - 此前用户恢复后正式SMTP安全投影为configured/credential_present、version2，`smtp.exmail.qq.com:465/tls`，retry3/60未改。只读确认已有test任务目标与授权收件人相等；终态failed/attempts4/version9、attempt_channel=smtp、attempt_result=failed、reason=network_failed。未新POST或人工retry，诊断Session退出204，observer退出0；未证明SMTP接受或邮箱收到。
@@ -133,9 +136,9 @@ owned 验证已收尾：真实 App 根在规则拒绝 SMTP 目标且统一代理
 
 ## 保存与下一步
 
-下一步先用冻结的Passkey组合启动owned r2，完成真实PG约束、App/API/CLI与虚拟认证器浏览器薄链，再收独立权限/一次性证明/恢复门结果。按失败实际影响范围返修和复验；69项unit与合成API视觉结果不能替代这些门禁，不为缺少公网域名/真实设备阻塞可行隔离验证。确认完成范围后由root保存并集成，当前不替换用户运行实例，也不发送外部邮件。
+下一步先用修正邮件观测的冻结Passkey组合启动owned r3，完成真实PG约束、App/API/CLI与虚拟认证器浏览器薄链，再收独立权限/一次性证明/恢复门结果。按失败实际影响范围返修和复验；69项unit与合成API视觉结果不能替代这些门禁，不为缺少公网域名/真实设备阻塞可行隔离验证。源码已由root集成，后续按实际门禁补齐验证与最终记录；当前不升级用户后端/DB，也不发送外部邮件。
 
-现有用户5245/18443及账号、Session、SMTP TLS配置/凭据、keys、proxy、规则与对象数据按既有约定保留；必要恢复仍使用上方e203活动manifest，不使用Passkey候选或历史manifest自动替换。此前公网严格匿名curl60未取nonce及外部SMTP未验证的限制保持；域名和真实设备由用户在其独立测试服务器配置与验证。
+现有用户5245/18443及账号、Session、SMTP TLS配置/凭据、keys、proxy、规则与对象数据按既有约定保留；后端恢复使用上方e203活动manifest，前端只从c09d私有快照及preview-record恢复，不使用主树新页面、Passkey候选或历史manifest自动替换。此前公网严格匿名curl60未取nonce及外部SMTP未验证的限制保持；域名和真实设备由用户在其独立测试服务器配置与验证。
 
 ## 保留的既有恢复入口
 

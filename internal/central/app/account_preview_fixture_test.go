@@ -25,6 +25,7 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/http/httputil"
+	"net/mail"
 	"net/netip"
 	"net/url"
 	"os"
@@ -534,30 +535,46 @@ func previewOutboundRegular(t *testing.T, ctx context.Context, cfg config.Config
 	email := "outbound-reader@example.test"
 	input, e := c.NewInvitationCreate(c.InvitationCreateFields{Actor: actor, Key: foundation.IdempotencyKey(guardID[struct{}](t).String()), Email: email})
 	previewCheck(t, "ordinary seed invitation", e)
-	_, e = core.CreateInvitation(ctx, input)
+	receipt, e := core.CreateInvitation(ctx, input)
 	previewCheck(t, "ordinary invitation command", e)
 	var link string
+	invitationPending := errors.New("owned invitation is not the captured message yet")
 	delivery, stop := context.WithTimeout(ctx, 20*time.Second)
 	defer stop()
 	for {
 		e = smtp.UseLastMessage(delivery, endpoint.ID, func(raw []byte) error {
-			for _, word := range strings.Fields(string(raw)) {
-				if strings.Contains(word, "/invite#") {
-					u, e := url.Parse(word)
-					if e == nil {
-						link = u.Fragment
-					}
+			message, err := mail.ReadMessage(bytes.NewReader(raw))
+			if err != nil {
+				return invitationPending
+			}
+			recipients, err := message.Header.AddressList("To")
+			if err != nil || len(recipients) != 1 || recipients[0].Address != email {
+				return invitationPending
+			}
+			body, err := io.ReadAll(message.Body)
+			if err != nil {
+				return err
+			}
+			defer clear(body)
+			prefix := strings.TrimSuffix(cfg.PublicOrigin(), "/") + "/invite#" + receipt.ID.String() + "."
+			for _, word := range strings.Fields(string(body)) {
+				if !strings.HasPrefix(word, prefix) {
+					continue
+				}
+				u, err := url.Parse(word)
+				if err == nil {
+					link = u.Fragment
 				}
 			}
 			if link == "" {
-				return errors.New("owned invitation link missing")
+				return invitationPending
 			}
 			return nil
 		})
 		if e == nil {
 			break
 		}
-		if !errors.Is(e, smtpfixture.ErrMessageUnavailable) {
+		if !errors.Is(e, smtpfixture.ErrMessageUnavailable) && !errors.Is(e, invitationPending) {
 			previewCheck(t, "ordinary delivered link", e)
 		}
 		select {
