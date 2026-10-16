@@ -24,14 +24,34 @@ node tests/account-captcha-web/node_modules/@playwright/test/cli.js test \
   --config tests/frontend-outbound-policy/playwright.config.cjs --list
 ```
 
-在两个 owner 确认服务 ready、产品输入冻结后，替换下列私有路径。首次可只选择 `rules.spec.cjs` 接通真实规则链；剩余场景按失败影响定向运行，不重复旧账号矩阵。`NODE_EXTRA_CA_CERTS` 必须是该 runtime 的 **CA 文件**，供受控丢响应中的 Node 转发建立信任；不能使用全局 TLS 忽略。所有转发异常改为固定错误码，不打印原始 Playwright headers。
+在两个 owner 确认服务 ready、产品输入冻结后，替换下列私有路径。首次可只选择 `rules.spec.cjs` 接通真实规则链；剩余场景按失败影响定向运行，不重复旧账号矩阵。`NODE_EXTRA_CA_CERTS` 必须是该 runtime 的 **CA 文件**，供代理场景的 Node 转发建立信任；不能使用全局 TLS 忽略。所有转发异常改为固定错误码，不打印原始 Playwright headers。
 
 ```sh
 NODE_PATH=/workspace/agenteam/tests/account-captcha-web/node_modules \
 OUTBOUND_POLICY_RUNTIME=/absolute/private/runtime.json \
 NODE_EXTRA_CA_CERTS=/absolute/private/ca.pem \
+OUTBOUND_POLICY_OUTPUT=output/ai/frontend-outbound-policy/current-rules \
 node tests/account-captcha-web/node_modules/@playwright/test/cli.js test \
   --config tests/frontend-outbound-policy/playwright.config.cjs rules.spec.cjs
 ```
 
-当前实际结果：两个 loader/config 文件 `node --check`、五个 CJS 限定格式化均 exit 0；`--list` 实际 exit 0，列出 3 文件、3 场景。真实 fixture 尚未 ready，前端还在完成删除确认和密码派发清空，**尚未运行真实浏览器，未形成业务通过结论**。后续结果会区分真实后端行为和受控丢响应边界，不以列表加载或历史通过代证。
+将末尾 spec 分别换为 `proxy.spec.cjs`、`authority.spec.cjs` 即运行其限定场景，同时换独立输出目录以保留先前失败。三个入口的 `--list` 实际 exit 0；loader/config 与修订 spec 的 `node --check`、五个 CJS 限定格式检查均 exit 0。
+
+2026-10-16 实际组合为新 Vue 冻结 `e6bc7d61`、后端生产输入 `6ea558f1`、fixture 输入 `5a1871f1`；消费后端 owner 的私有 `/workspace/scratch/outbound-proxy-runtime-r3/runtime.json`，不是旧 r1/r2 或用户持久实例。三个场景分轮通过，未宣称一次全组运行：
+
+| 输出子目录 | 实际结果 | 范围与限制 |
+| --- | --- | --- |
+| `run-04-authority` | 1/1，exit 0；CLI 18.8s | 管理员两端点 GET 200；规则及代理 PUT 缺 CSRF 均 403、两版本不变；普通身份两端点 GET 403 后仍为同一有效 Session。 |
+| `run-05-rules` | 1/1，exit 0；CLI 17.1s | 真实整份规则增改删、刷新持久、独立更新造成 409 后保草稿并显式采用；保留 fixture 既有规则。 |
+| `run-07-proxy` | 1/1，exit 0；CLI 58.0s | 真实保存、刷新后的安全投影、空密码保持、替换、明确移除；真实已接受 PUT 丢响应后显式同 key/body 重放，严格回执后的 GET 丢失只重读、写入次数不增加。 |
+
+代理场景的普通 PUT 和故障 PUT 都通过 `route.fetch` 使用专用 CA、原 method/body/headers 请求真实服务；真实 receipt 在内存核 shape/version 后原样 `fulfill`。故障只丢第一份真实响应与恢复后的一个 GET，不制造成功回执。此处证明 UI/API 保存和恢复，**不证明 HTTP/HTTPS/SOCKS5 隧道、代理认证传输、热生效或 SMTP 投递**，那些证据由后端与安全独审分别提供。
+
+此前实际失败保留，未改断言或增超时来消除：
+
+- `run-01-rules` 在凭据输入前无登录页。一次匿名诊断实际观察到 502、固定“owned preview upstream unavailable”；作者确认 5246 Vite 进程已不存在，恢复相同源码的独立进程后继续。
+- `run-02-authority` 在 bootstrap/login 准备包装内失败，尚未进入权限断言。当时没有 bootstrap 分阶段日志，无法补证准确根因；后续匿名浏览器观察 secure context、UUID 与 bootstrap 200 正常，不能倒推为 CSP 或产品故障。helper 已补固定阶段/整数状态与脱敏请求时序。
+- `run-03-rules` 的真实 login/session 均 200，但 5 秒内 URL 尚未跳转。原轮缺少模块完成时序，根因未确定；`run-05` 同一 5 秒断言实际通过，记录点击到 URL 改变 1.807 秒。后续通过不抹去原失败，也不把共享 CPU 压力或冷模块推断写成已证原因。
+- `run-06-proxy` 首 PUT 200 后测试的浏览器 `response.json()` 回读失败，页面已发后续 GET；具体底层异常已被安全包装，无法追溯。改为上文真实转发捕获回执后仅复验代理场景，保持原 receipt、持久与恢复断言。
+
+所有实际 runner 已收集退出码；成功场景 finally 已确认本测试 Session logout 204 后 GET 401，浏览器关闭，匿名诊断进程也已退出。测试已释放 5260 配置写窗口；最终本轮代理为直连、保留网关且认证已移除。未访问 18443、未配置用户 SMTP、未发送真实邮件。root 已要求后端唯一 owner 清退 r3，服务及资源实际退出由该 owner 报告；此处不将测试退出写成后端已清退。过期 manifest 不能复用。
