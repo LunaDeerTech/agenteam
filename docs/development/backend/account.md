@@ -42,6 +42,20 @@ UserID须取真实不可变账号ID，邮箱与路径示例须替换。`initiali
 
 这些验证码和旧邮箱变更通知使用专用 SMTP 邮件 kind，无后台日志 fallback；SMTP 未配置或不可用时明确反馈，不能称验证邮件已发送。实施与验收使用任务拥有的隔离数据库、域名/证书和 SMTP sink；不变更当前用户实例、域名、SMTP配置或 keys，不向外部邮箱发送。虚拟认证器/隔离 sink 的通过范围与真实设备、公开域名及外部投递分开记录。
 
+### 隔离安全复验
+
+[独立浏览器探针](../../../tests/account-preview/passkey-security-independent.cjs)使用真实App、虚拟认证器与私有SMTP sink，默认无opt-in不连接。运行前须确认fixture归属、`account-passkeys-email-change` scope、有效期限、专用CA/leaf/nonce与live实例一致，并取得浏览器及邮箱观测窗口的独占使用权；不能指向用户预览或复用其他任务的邮箱。
+
+```sh
+NODE_PATH='<repo>/tests/account-captcha-web/node_modules' \
+NODE_EXTRA_CA_CERTS='<owned-certificate-ca.pem>' \
+PASSKEY_OWNED_RUNTIME='<owned-runtime.json>' \
+PASSKEY_SECURITY_RUN=1 \
+node tests/account-preview/passkey-security-independent.cjs
+```
+
+从仓库根运行，前三个占位值替换为已核验的绝对路径，私有runtime及授权材料不入Git。已通过的独立范围是跨Session/操作/用途/目标拒绝、登记grant一次消费和认证凭据撤销后的邮箱确认拒绝；实际浏览器退出、会话logout与无外域访问另核。该结果不代表真实物理设备、公网域名或外部邮件已通过；完整分轮结果与仍待验项见本轮工作项。
+
 ## 组合与依赖
 
 组合根以真实 Store 和独立 account keyring 构造同一 `NewAuthority`，将其注入 Audit 的 Accounts/Session/System、Secret 的 AccountWrites/Usage/Session/System、Outbound 的 Session/System 和 Outbox 的 account Producer/Session/System 端口。`LoadKeyring` 与全部当前/历史 cursor、Secret、download 材料交叉核验，不读取环境默认凭据。
@@ -56,13 +70,15 @@ UserID须取真实不可变账号ID，邮箱与路径示例须替换。`initiali
 
 ## 正式 HTTP 与资料头像
 
-[account OpenAPI](../../../api/openapi/account.json) 固定 37 个显式 method/path、28 条路径，均位于 `/api/v1`：
+[account OpenAPI](../../../api/openapi/account.json) 固定56个显式method/path、46条路径，均位于 `/api/v1`：
 
 | 表面 | 当前能力 |
 | --- | --- |
 | `/auth/bootstrap`、`/session`、`/sessions/*`、`/auth/challenges*` | 匿名浏览器上下文、当前 Session、登录/登出和挑战验证 |
 | `/password-resets/*`、`/invitations/inspect`、`/invitations/redeem` | 统一恢复回执、链接检查和一次消费，token 只放请求正文 |
 | `/me`、`/me/preferences`、`/me/change-password`、`/me/avatar` | 本人资料、主题偏好、改密及头像读写/删除 |
+| `/auth/passkeys/*`、`/me/passkeys*` | 部署能力、免邮箱登录、重新认证、凭据管理与密码/邮箱码恢复 |
+| `/me/email-change/*`、`/me/email-initialization/*` | 新鲜Passkey后修改邮箱、部署者授权初始化/恢复邮箱 |
 | `/system/users`、`/system/invitations*`、`/system/account-settings` | 当前管理员列表、邀请/重发/撤销与账户安全设置 |
 | `/system/smtp*`、`/system/mail-jobs*` | 当前管理员 SMTP 配置/取消配置/测试、安全任务状态与人工重试 |
 

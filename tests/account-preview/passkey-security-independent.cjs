@@ -579,6 +579,16 @@ async function main() {
     );
     await cdp.send("WebAuthn.clearCredentials", { authenticatorId });
     const keyTwo = await register(first, addGrant, "Independent key two", true);
+    stage = "read-two-persisted-native-keys";
+    const persistedKeys = await read(first, "/me/passkeys");
+    fact(
+      persistedKeys.items.length === 2 &&
+        persistedKeys.items.some((item) => item.id === keyOne.id) &&
+        persistedKeys.items.some((item) => item.id === keyTwo.id),
+      "TWO_REGISTERED_KEYS_NOT_PERSISTED",
+    );
+    result.two_native_keys_read_from_real_app = true;
+    stage = "export-second-native-key";
     let secondVirtualKey = (
       await cdp.send("WebAuthn.getCredentials", { authenticatorId })
     ).credentials[0];

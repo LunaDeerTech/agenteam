@@ -207,6 +207,43 @@ func TestOwnedRuntimeEmailInitialization(t *testing.T) {
 		}
 	}
 	code := recoverySMTPCode(t, ctx, runtime, target, job)
+	// A rejected code commits only its attempt accounting. Replaying the same
+	// command must neither spend another attempt nor publish a revocation event.
+	type attemptState struct {
+		Attempts, Failures, Events int
+		Version, Sequence          int64
+		Email                      string
+		Verified, Current, Other   bool
+	}
+	attemptSnapshot := func() attemptState {
+		t.Helper()
+		var state attemptState
+		recoveryCheck(t, "initialization attempt snapshot", connection.QueryRow(ctx, `SELECT r.attempts,b.failures,u.version,u.auth_sequence,u.email,u.email_verified_at IS NOT NULL,(SELECT count(*) FROM agenteam_outbox.events e WHERE e.aggregate_id=u.id AND e.event_type='account.sessions-revoked'),EXISTS(SELECT 1 FROM agenteam_account.sessions s WHERE s.id=$2 AND s.user_id=u.id AND s.revoked_at IS NULL),EXISTS(SELECT 1 FROM agenteam_account.sessions s WHERE s.id=$3 AND s.user_id=u.id AND s.revoked_at IS NULL) FROM agenteam_account.email_requests r JOIN agenteam_account.users u ON u.id=r.user_id JOIN agenteam_account.email_rate_limits b ON b.user_id=r.user_id AND b.kind=r.kind WHERE r.id=$1`, receipt.RequestID, current.Session.ID, other.Session.ID).Scan(&state.Attempts, &state.Failures, &state.Version, &state.Sequence, &state.Email, &state.Verified, &state.Events, &state.Current, &state.Other))
+		return state
+	}
+	beforeAttempt := attemptSnapshot()
+	if !beforeAttempt.Current || !beforeAttempt.Other || beforeAttempt.Verified || beforeAttempt.Email != runtime.Credentials.Email {
+		t.Fatal("initialization attempt control state changed before confirmation")
+	}
+	wrongCode := "000000"
+	if code == wrongCode {
+		wrongCode = "111111"
+	}
+	wrongKey, err := foundation.NewID[struct{}]()
+	recoveryCheck(t, "incorrect-code command key", err)
+	wrongBody := map[string]string{"request_id": receipt.RequestID, "code": wrongCode}
+	wantAttempt := beforeAttempt
+	wantAttempt.Attempts++
+	wantAttempt.Failures++
+	for range 2 {
+		var rejection json.RawMessage
+		recoveryHTTP(t, ctx, client, runtime, "POST", "/api/v1/me/email-initialization/confirm", current.CSRF, wrongBody, http.StatusBadRequest, &rejection, wrongKey.String())
+		validRejection := bytes.Contains(rejection, []byte("INVALID_OR_EXPIRED")) && bytes.Contains(rejection, []byte("/code"))
+		clear(rejection)
+		if !validRejection || attemptSnapshot() != wantAttempt {
+			t.Fatal("incorrect code or its replay changed business state or charged the attempt budget incorrectly")
+		}
+	}
 	var changed struct {
 		Email   string `json:"email"`
 		Version int64  `json:"version"`
@@ -231,7 +268,7 @@ func TestOwnedRuntimeEmailInitialization(t *testing.T) {
 	if !committed {
 		t.Fatal("initialization durable mailbox, authorization or session facts disagree")
 	}
-	t.Logf("actual CLI pid=%d exit=0, empty stdout/stderr and private 0600 authorization; SMTP initialization consumed, current session retained and second session revoked; existing Passkeys/reset credentials not exercised", pid)
+	t.Logf("actual CLI pid=%d exit=0, empty stdout/stderr and private 0600 authorization; incorrect code plus same-key replay charged one attempt without a mailbox/session/event mutation; correct SMTP initialization consumed, current session retained and second session revoked; existing Passkeys/reset credentials not exercised", pid)
 }
 
 // The preceding browser journey has already logged out. Check the session
@@ -373,7 +410,7 @@ func recoveryHTTPClient(t *testing.T, runtime recoveryRuntime, private string) *
 	return &http.Client{Transport: transport, Jar: jar, Timeout: 20 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
 }
 
-func recoveryHTTP(t *testing.T, ctx context.Context, client *http.Client, runtime recoveryRuntime, method, path, csrf string, body any, want int, out any) {
+func recoveryHTTP(t *testing.T, ctx context.Context, client *http.Client, runtime recoveryRuntime, method, path, csrf string, body any, want int, out any, sameKey ...string) {
 	t.Helper()
 	var reader io.Reader
 	if body != nil {
@@ -393,9 +430,13 @@ func recoveryHTTP(t *testing.T, ctx context.Context, client *http.Client, runtim
 		request.Header.Set("X-CSRF-Token", csrf)
 	}
 	if method == "POST" {
-		key, err := foundation.NewID[struct{}]()
-		recoveryCheck(t, "recovery HTTP command key", err)
-		request.Header.Set("Idempotency-Key", key.String())
+		if len(sameKey) == 1 && sameKey[0] != "" {
+			request.Header.Set("Idempotency-Key", sameKey[0])
+		} else {
+			key, err := foundation.NewID[struct{}]()
+			recoveryCheck(t, "recovery HTTP command key", err)
+			request.Header.Set("Idempotency-Key", key.String())
+		}
 	}
 	response, err := client.Do(request)
 	recoveryCheck(t, "recovery TLS HTTP round trip", err)

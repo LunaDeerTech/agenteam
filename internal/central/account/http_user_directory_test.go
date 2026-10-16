@@ -191,7 +191,7 @@ func TestHTTPUserDirectoryHEADRoutesAndSchema(t *testing.T) {
 	type operation struct {
 		ID         string                                `json:"operationId"`
 		Security   []map[string][]string                 `json:"security"`
-		Parameters []map[string]string                   `json:"parameters"`
+		Parameters []map[string]json.RawMessage          `json:"parameters"`
 		Responses  map[string]map[string]json.RawMessage `json:"responses"`
 	}
 	var document struct {
