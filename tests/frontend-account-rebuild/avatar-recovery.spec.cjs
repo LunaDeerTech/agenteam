@@ -2,6 +2,33 @@ const { randomBytes } = require("node:crypto");
 const { test, expect } = require("./owned-fixture.cjs");
 const { mailLink, login, api } = require("./journey-support.cjs");
 
+function safeRoute(handler) {
+  return async (route) => {
+    try {
+      await handler(route);
+    } catch {
+      await route.abort("failed").catch(() => {});
+      // route.fetch errors otherwise include the complete private request headers.
+      throw new Error("OWNED_ROUTE_FORWARDING_FAILED");
+    }
+  };
+}
+
+async function pngBytes(page) {
+  return Buffer.from(
+    await page.evaluate(() => {
+      const canvas = document.createElement("canvas");
+      canvas.width = 32;
+      canvas.height = 32;
+      const painter = canvas.getContext("2d");
+      painter.fillStyle = "#476539";
+      painter.fillRect(0, 0, 32, 32);
+      return canvas.toDataURL("image/png").split(",")[1];
+    }),
+    "base64",
+  );
+}
+
 async function newOwnedUser(page, owned) {
   if (process.env.FRONTEND_ACCOUNT_MAILBOX_EXCLUSIVE !== "1")
     throw new Error("COORDINATE_OWNED_SMTP_MAILBOX_BEFORE_RUNNING");
@@ -72,7 +99,7 @@ async function newOwnedUser(page, owned) {
   return { email, password };
 }
 
-test("real avatar validation and storage, confirmed-delete read recovery, and explicit unknown profile replay", async ({
+test("real avatar rejects unsafe files and supports local preview, cancellation, upload and reload", async ({
   page,
   owned,
 }) => {
@@ -102,18 +129,7 @@ test("real avatar validation and storage, confirmed-delete read recovery, and ex
       "请选择静态 JPEG、PNG 或 WebP 图片。",
     );
     expect(uploads).toBe(0);
-    const bytes = Buffer.from(
-      await page.evaluate(() => {
-        const canvas = document.createElement("canvas");
-        canvas.width = 32;
-        canvas.height = 32;
-        const painter = canvas.getContext("2d");
-        painter.fillStyle = "#476539";
-        painter.fillRect(0, 0, 32, 32);
-        return canvas.toDataURL("image/png").split(",")[1];
-      }),
-      "base64",
-    );
+    const bytes = await pngBytes(page);
     await file.setInputFiles({
       name: "owned.png",
       mimeType: "image/png",
@@ -148,26 +164,71 @@ test("real avatar validation and storage, confirmed-delete read recovery, and ex
     ).toBeVisible();
     page.off("request", observeUpload);
   });
+});
+
+test("real confirmed-delete read recovery and explicit unknown profile replay", async ({
+  page,
+  owned,
+}) => {
+  test.setTimeout(90000);
+  if (process.env.NODE_EXTRA_CA_CERTS !== owned.certificate_file)
+    throw new Error("OWNED_NODE_CA_TRUST_REQUIRED");
+  const user = await newOwnedUser(page, owned);
+  await login(page, user.email, user.password);
+  // Seed an avatar through the actual API; the separately passed browser case
+  // owns candidate validation and upload UI. Only recovery is repeated here.
+  const seeded = await page.evaluate(
+    async (base64) => {
+      const current = await (await fetch("/api/v1/session")).json();
+      const profile = await (await fetch("/api/v1/me")).json();
+      const response = await fetch("/api/v1/me/avatar", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "image/png",
+          "If-Match": `"${profile.user.version}"`,
+          "X-CSRF-Token": current.csrf_token,
+          "Idempotency-Key": crypto.randomUUID(),
+        },
+        body: Uint8Array.from(atob(base64), (character) =>
+          character.charCodeAt(0),
+        ),
+      });
+      await response.arrayBuffer();
+      return response.status;
+    },
+    (await pngBytes(page)).toString("base64"),
+  );
+  expect(seeded).toBe(200);
+  await page.reload();
+  await expect(
+    page.getByRole("img", { name: "当前头像", exact: true }),
+  ).toBeVisible();
 
   await test.step("a confirmed delete followed by a failed profile read only offers a read retry", async () => {
     let deletes = 0;
     let failedRead = false;
-    await page.route("**/api/v1/me/avatar", async (route) => {
-      if (route.request().method() === "DELETE") {
-        deletes++;
-        const response = await route.fetch();
-        expect(response.status()).toBe(204);
-        await response.body();
-        failedRead = true;
-        await route.fulfill({ response });
-      } else await route.continue();
-    });
-    await page.route("**/api/v1/me", async (route) => {
-      if (route.request().method() === "GET" && failedRead) {
-        failedRead = false;
-        await route.abort("connectionfailed");
-      } else await route.continue();
-    });
+    await page.route(
+      "**/api/v1/me/avatar",
+      safeRoute(async (route) => {
+        if (route.request().method() === "DELETE") {
+          deletes++;
+          const response = await route.fetch();
+          expect(response.status()).toBe(204);
+          await response.body();
+          failedRead = true;
+          await route.fulfill({ response });
+        } else await route.continue();
+      }),
+    );
+    await page.route(
+      "**/api/v1/me",
+      safeRoute(async (route) => {
+        if (route.request().method() === "GET" && failedRead) {
+          failedRead = false;
+          await route.abort("connectionfailed");
+        } else await route.continue();
+      }),
+    );
     await page.getByRole("button", { name: "移除头像", exact: true }).click();
     await expect(page.getByRole("alert")).toContainText(
       "头像已移除，当前资料尚未刷新。",
@@ -190,20 +251,23 @@ test("real avatar validation and storage, confirmed-delete read recovery, and ex
   await test.step("after an actually committed profile response is lost, explicit replay uses the same command", async () => {
     const attempts = [];
     let committedVersion;
-    await page.route("**/api/v1/me", async (route) => {
-      if (route.request().method() !== "PATCH") return route.continue();
-      attempts.push({
-        key: route.request().headers()["idempotency-key"],
-        body: route.request().postData(),
-      });
-      const response = await route.fetch();
-      expect(response.status()).toBe(200);
-      const profile = await response.json();
-      if (attempts.length === 1) {
-        committedVersion = profile.user.version;
-        await route.abort("connectionfailed");
-      } else await route.fulfill({ response });
-    });
+    await page.route(
+      "**/api/v1/me",
+      safeRoute(async (route) => {
+        if (route.request().method() !== "PATCH") return route.continue();
+        attempts.push({
+          key: route.request().headers()["idempotency-key"],
+          body: route.request().postData(),
+        });
+        const response = await route.fetch();
+        expect(response.status()).toBe(200);
+        const profile = await response.json();
+        if (attempts.length === 1) {
+          committedVersion = profile.user.version;
+          await route.abort("connectionfailed");
+        } else await route.fulfill({ response });
+      }),
+    );
     await page
       .getByLabel("显示名称", { exact: true })
       .fill("原请求恢复后的资料");
