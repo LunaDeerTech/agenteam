@@ -564,10 +564,9 @@ async function main() {
       { purpose: "manage_passkeys", action: "register" },
       keyOne.rawId,
     );
-    // Model a second device for creation: excludeCredentials must remain real.
-    // Preserve only this test's native-generated key in process memory, create
-    // on an empty virtual device, then restore it for deterministic selection.
-    // Both keys and every assertion still come from Chromium's authenticator.
+    // Model two devices without placing two resident keys for one RP/User on
+    // the same virtual device. Preserve only this test's native-generated keys
+    // in process memory and load one at a time. All assertions remain native.
     let savedVirtualKey = (
       await cdp.send("WebAuthn.getCredentials", { authenticatorId })
     ).credentials[0];
@@ -580,18 +579,43 @@ async function main() {
     );
     await cdp.send("WebAuthn.clearCredentials", { authenticatorId });
     const keyTwo = await register(first, addGrant, "Independent key two", true);
-    await cdp.send("WebAuthn.addCredential", {
-      authenticatorId,
-      credential: savedVirtualKey,
-    });
+    let secondVirtualKey = (
+      await cdp.send("WebAuthn.getCredentials", { authenticatorId })
+    ).credentials[0];
+    fact(
+      secondVirtualKey &&
+        Buffer.from(secondVirtualKey.credentialId, "base64").toString(
+          "base64url",
+        ) === keyTwo.rawId,
+      "SECOND_NATIVE_KEY_EXPORT_MISMATCH",
+    );
+    async function selectVirtualKey(value) {
+      await cdp.send("WebAuthn.clearCredentials", { authenticatorId });
+      await cdp.send("WebAuthn.addCredential", {
+        authenticatorId,
+        credential: {
+          credentialId: value.credentialId,
+          isResidentCredential: true,
+          rpId: "localhost",
+          privateKey: value.privateKey,
+          userHandle: value.userHandle,
+          signCount: value.signCount,
+          backupEligibility: value.backupEligibility,
+          backupState: value.backupState,
+        },
+      });
+    }
+    stage = "select-original-native-key";
+    await selectVirtualKey(savedVirtualKey);
     savedVirtualKey = undefined;
     fact(
       keyOne.id !== keyTwo.id &&
         keyOne.rawId !== keyTwo.rawId &&
         (await cdp.send("WebAuthn.getCredentials", { authenticatorId }))
-          .credentials.length === 2,
+          .credentials.length === 1,
       "TWO_REAL_KEYS_REQUIRED",
     );
+    stage = "second-independent-session";
     const second = await client("independent-secondary");
     await login(second, account);
     fact(
@@ -707,6 +731,8 @@ async function main() {
     result.checks.email_confirmation_session_bound = true;
 
     stage = "revoke-authenticating-key-before-email-confirmation";
+    await selectVirtualKey(secondVirtualKey);
+    secondVirtualKey = undefined;
     const deleteGrant = await grant(
       first,
       { purpose: "manage_passkeys", action: "delete", passkey_id: keyOne.id },

@@ -33,6 +33,7 @@ import (
 	objectfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore"
 	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
 	smtpfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/smtp"
+	"github.com/jackc/pgx/v5"
 )
 
 type recoveryRuntime struct {
@@ -52,6 +53,9 @@ type recoveryRuntime struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	} `json:"credentials"`
+	RegularCredentials struct {
+		Email string `json:"email"`
+	} `json:"regular_credentials"`
 }
 
 // TestOwnedRuntimeEmailInitialization deliberately reuses an already running,
@@ -108,6 +112,7 @@ func TestOwnedRuntimeEmailInitialization(t *testing.T) {
 		t.Fatal("recovery HTTPS fixture identity mismatch")
 	}
 	recoveryVerifySMTP(t, ctx, runtime)
+	recoveryEmailChangePostcondition(t, ctx, connection, runtime.RegularCredentials.Email)
 	var user string
 	var unverified bool
 	recoveryCheck(t, "bootstrap initialization owner", connection.QueryRow(ctx, `SELECT u.id::text,u.email_verified_at IS NULL FROM agenteam_account.bootstrap b JOIN agenteam_account.users u ON u.id=b.user_id WHERE b.singleton AND u.email=$1`, runtime.Credentials.Email).Scan(&user, &unverified))
@@ -227,6 +232,41 @@ func TestOwnedRuntimeEmailInitialization(t *testing.T) {
 		t.Fatal("initialization durable mailbox, authorization or session facts disagree")
 	}
 	t.Logf("actual CLI pid=%d exit=0, empty stdout/stderr and private 0600 authorization; SMTP initialization consumed, current session retained and second session revoked; existing Passkeys/reset credentials not exercised", pid)
+}
+
+// The preceding browser journey has already logged out. Check the session
+// named by its immutable confirmation event, not that session's current state.
+func recoveryEmailChangePostcondition(t *testing.T, ctx context.Context, connection *pgx.Conn, oldEmail string) {
+	t.Helper()
+	if oldEmail == "" {
+		t.Fatal("ordinary email-change source mailbox is absent from the owned manifest")
+	}
+	var confirms, notices, intents, jobs int
+	var receiptMatches, eventBound, retainedSession, oldNotice, smtpComplete bool
+	recoveryCheck(t, "ordinary email-change durable postcondition", connection.QueryRow(ctx, `
+WITH latest AS (
+ SELECT c.* FROM agenteam_account.commands c JOIN agenteam_account.users u ON u.id=c.user_id
+ WHERE u.username='outbound-reader' AND c.command_name='email-change-confirm' AND c.phase='committed'
+ ORDER BY c.created_at DESC LIMIT 1
+)
+SELECT count(*),
+ coalesce(bool_and(r.receipt ? 'version' AND r.receipt ? 'email' AND r.receipt ? 'created_at' AND r.receipt->>'email'=u.email),false),
+ coalesce(bool_and(e.event_type='account.sessions-revoked' AND e.aggregate_id=c.user_id AND e.header=c.event_header AND e.payload=c.event_payload),false),
+ coalesce(bool_and(convert_from(e.payload,'UTF8')::jsonb->>'scope'='others' AND convert_from(e.payload,'UTF8')::jsonb->>'reason'='email_changed' AND convert_from(e.payload,'UTF8')::jsonb->>'user_id'=c.user_id::text AND convert_from(e.payload,'UTF8')::jsonb->>'session_id'=c.session_id::text),false),
+ count(DISTINCT n.id),count(DISTINCT i.id),count(DISTINCT j.id),
+ coalesce(bool_and(n.kind='old_email_notice' AND n.original_email=$1 AND n.target_email=$1 AND n.user_id=c.user_id AND n.session_id=c.session_id AND n.user_version::text=r.receipt->>'version'),false),
+ coalesce(bool_and(i.kind='email_notice' AND i.job_id=j.id AND j.id=c.attempt_id AND j.phase='sent' AND a.channel='smtp' AND a.result='sent' AND a.terminal AND a.io_joined),false)
+FROM latest c JOIN agenteam_account.users u ON u.id=c.user_id
+LEFT JOIN agenteam_account.security_receipts r ON r.command_id=c.id
+LEFT JOIN agenteam_outbox.events e ON e.id=c.event_id
+LEFT JOIN agenteam_account.email_requests n ON n.id=c.resource_id
+LEFT JOIN agenteam_account.delivery_intents i ON i.id=c.id AND i.link_id=n.id
+LEFT JOIN agenteam_account.mail_jobs j ON j.intent_id=i.id
+LEFT JOIN agenteam_account.mail_attempts a ON a.id=j.current_attempt_id`, oldEmail).Scan(&confirms, &receiptMatches, &eventBound, &retainedSession, &notices, &intents, &jobs, &oldNotice, &smtpComplete))
+	if confirms != 1 || notices != 1 || intents != 1 || jobs != 1 || !receiptMatches || !eventBound || !retainedSession || !oldNotice || !smtpComplete {
+		t.Fatalf("ordinary email-change postcondition: confirms=%d notices=%d intents=%d jobs=%d receipt=%t event=%t retained_session=%t old_notice=%t smtp_complete=%t", confirms, notices, intents, jobs, receiptMatches, eventBound, retainedSession, oldNotice, smtpComplete)
+	}
+	t.Log("ordinary email change: committed receipt and retained-session event agree; one original-mailbox notice/intent/job finished SMTP with terminal I/O joined")
 }
 
 func recoveryCheck(t *testing.T, stage string, err error) {

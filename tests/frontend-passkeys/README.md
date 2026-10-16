@@ -48,6 +48,8 @@ node tests/frontend-passkeys/owned.cjs
 
 真实旅程使用独立普通账号完成密码登录、原邮箱码首次登记、原生 Passkey 免邮箱登录、fresh Passkey 改邮箱及验证码确认；主动丢一次真实确认响应，显式重放原 key/body 获取 receipt。随后确认当前强 Session 和 Cookie 保留、另一登录 Session 被撤销。`main_chain_pass` 单列该链结果。
 
+若前次仅完成注册，复验可通过页面已有恢复入口撤旧凭据并重新登记，仍遵守邮件冷却。成功改邮箱后，manifest 中原登录邮箱已失效；完整重跑应由 fixture owner 提供新的专用账号，不修改数据库绕过流程。
+
 后续 `signature_budget` 单独使用两份真实 reauth assertion 验证错误签名限次：同 key 重放不重复扣次；四次不同 key 失败后原正确 assertion 仍可完成；五次后被拒。该证据只涵盖已登录 reauth，不外推匿名登录的重放语义。脚本最后退出本轮会话、移除虚拟认证器并关闭浏览器；fixture 的数据库与 SMTP 资源由后端 owner 统一清理。
 
 独立交互/视觉审查仍由其专用 harness 负责。每次实际结果与首失败边界记录在任务 current；此文件仅维护运行方式，不以脚本存在替代通过结果。真实域名和实体设备留部署环境另验。
