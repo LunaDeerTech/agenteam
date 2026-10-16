@@ -48,7 +48,7 @@ npm run preview --prefix web
 
 路由与设置栏目集中在 `src/router/routes.ts`；骨架建立时全部叶子使用 `content: "unimplemented"`，本轮七页依合同接入实际内容，其余保持空正文。`/system`、`/settings`、`/:owner/:project/settings` 分别重定向到用户、个人资料和基本信息。HTML5 History 支持直达与返回；保留命名空间避免未知系统路径落入项目路由。这些路径可访问不表示认证、权限或业务已经实现。
 
-AppShell组织系统导航、项目上下文和内容区；AccountShell承载账号与OAuth回调。用户最新要求登录是居中轻边框面板，包含正式Logo/标题/表单并用克制阴影；只影响login，个人设置继续开放表单。系统、个人和项目设置均由同一 SettingsShell 消费对应栏目数组，窄屏目录由共享 UiDialog 承载。布局职责与控件接口见[组件说明](components.md#页面组合与滚动)。
+AppShell组织系统导航、项目上下文和内容区；AccountShell承载账号与OAuth回调。login与forgot-password复用同一居中轻边框面板模板，包含正式Logo/标题/当前表单并用克制阴影；个人设置继续开放表单。系统、个人和项目设置均由同一 SettingsShell 消费对应栏目数组，窄屏目录由共享 UiDialog 承载。布局职责与控件接口见[组件说明](components.md#页面组合与滚动)。
 
 骨架阶段的主题使用本地 `agenteam.vue.appearance.v1` 缓存。本轮账号主题改为服务端保存与临时预览分离；匿名/失效使用system，本地缓存不作为用户偏好事实，不得跨账号继承。实际迁移实现与检查以本轮工作项及当前状态为准。
 

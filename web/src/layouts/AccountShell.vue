@@ -4,18 +4,20 @@ import { computed } from "vue";
 import BrandLogo from "./BrandLogo.vue";
 import PageHeading from "./PageHeading.vue";
 const route = useRoute();
-const login = computed(() => route.name === "login");
+const panel = computed(
+  () => route.name === "login" || route.name === "forgot-password",
+);
 </script>
 
 <template>
-  <div class="account-shell" :class="{ 'account-shell--login': login }">
-    <header v-if="!login" class="account-brand-header">
+  <div class="account-shell" :class="{ 'account-shell--panel': panel }">
+    <header v-if="!panel" class="account-brand-header">
       <RouterLink to="/" aria-label="agenteam 首页">
         <BrandLogo class="account-logo" />
       </RouterLink>
     </header>
-    <main id="main" tabindex="-1" :class="{ 'login-panel': login }">
-      <div v-if="login" class="login-panel-brand">
+    <main id="main" tabindex="-1" :class="{ 'account-panel': panel }">
+      <div v-if="panel" class="account-panel-brand">
         <RouterLink to="/" aria-label="agenteam 首页"
           ><BrandLogo class="account-logo"
         /></RouterLink>
@@ -51,13 +53,13 @@ main {
   margin: 64px auto 0;
   padding: 0 24px 64px;
 }
-.account-shell--login {
+.account-shell--panel {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 48px 24px;
 }
-main.login-panel {
+main.account-panel {
   width: 100%;
   max-width: 440px;
   margin: 0;
@@ -67,10 +69,10 @@ main.login-panel {
   background: var(--surface-content);
   box-shadow: 0 12px 40px rgb(0 0 0 / 5%);
 }
-.login-panel-brand {
+.account-panel-brand {
   margin-bottom: 28px;
 }
-.login-panel-brand a {
+.account-panel-brand a {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
@@ -82,10 +84,10 @@ main.login-panel {
   main {
     margin-top: 48px;
   }
-  .account-shell--login {
+  .account-shell--panel {
     padding: 28px 20px;
   }
-  main.login-panel {
+  main.account-panel {
     padding: 28px 24px;
   }
 }

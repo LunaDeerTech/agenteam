@@ -4,10 +4,10 @@
 
 ## 范围、组合与所有权
 
-- 主树 `/workspace/agenteam`、分支 `ai/frontend-vue-rebuild-20261016`；账号工作起点 `c13c2db5`。最终前端产品检查输入 `85c4ac49`，后端最终候选 `9dd3044c`，含S1认证错误不清Cookie与公开24小时模式；root已将后端增量集成主树。恢复以任务分支最新提交及实际差异为准，不回填本状态自身提交号，不宣称已合main。
+- 主树 `/workspace/agenteam`、分支 `ai/frontend-vue-rebuild-20261016`；账号工作起点 `c13c2db5`。此前账号业务与工程检查输入为前端 `85c4ac49`，本轮面板复用从 `26a71d47` 接续、仅有AccountShell布局差量；后端候选 `9dd3044c`，含S1认证错误不清Cookie与公开24小时模式；root已将后端增量集成主树。恢复以任务分支最新提交及实际差异为准，不回填本状态自身提交号，不宣称已合main。
 - 后端树 `/workspace/agenteam-account-backend`、分支 `ai/account-entry-backend-20261016`。root负责全部Git/worktree/checkpoint及集成；内容按唯一路径owner维护，执行者不做Git写。
 - 新 `web/` 的client/session/权限和页面独立编写，不导入、复制或包裹 `web-crape/`。后端成熟密码学、CSRF、事务和领域规则保留；七页为login/invite/forgot/reset与profile/appearance/password。不增加开放注册、MFA、设备管理、邮箱修改或邀请管理；其他未讨论业务正文仍为骨架。
-- 登录按用户最新要求使用居中轻边框/克制阴影面板，含官方Logo、标题与表单；三项设置继续宽页头、左对齐开放表单和唯一SettingsShell。[已展示的登录面板原图](https://img.lunadeer.cn/i/2026/10/16/6ad1a3e7b18d9.png)来自约定图床，内部审查通过不等于用户最终审美接受。
+- 用户已确定登录与找回密码共用同一AccountShell面板模板，含官方Logo、标题、当前表单及居中轻边框/克制阴影；三项设置继续宽页头、左对齐开放表单和唯一SettingsShell。[本轮找回密码面板原图](https://img.lunadeer.cn/i/2026/10/16/6ad1c0e89dd92.png)已上传约定图床并匿名下载校验一致，内部审查通过不等于用户最终审美接受。
 
 | Owner | 唯一职责 |
 | --- | --- |
@@ -19,6 +19,7 @@
 
 ## 已打通的流程与检查边界
 
+- 本轮唯一产品差量为 `web/src/layouts/AccountShell.vue`：login/forgot-password复用同一面板，账号逻辑与其他页未改。限定Prettier、build（含vue-tsc）和差量格式检查通过；作者与独审均实际查看两页1440/390×浅深8整页，独审另验找回受控202/503、390×320低高度及键盘往返，无新缺陷，浏览器已退出。这是5245真实Vue的有限布局观察，未重跑unit/账号旅程、未发SMTP，也不增加公网通过结论；下列业务结果保留其此前输入边界。
 - 真实首链覆盖登录、受保护返回、Session/profile、刷新、退出及401；真实API边界另有一项通过。`browser-run-04`完整旅程通过受控SMTP邀请正文→兑换→普通账号登录→资料保存与409保草稿/显式采用新版本→外观预览/取消/保存/刷新→改密后当前Session200及另一旧Session401→找回与真实SMTP reset正文→重置后目标Session401→新密码登录且主题保留。
 - 头像前半已实际完成SVG拒绝零上传、PNG预览/取消、真实上传存JPEG及刷新读取。后半在修正测试Node专用CA信任后定向通过：DELETE204后GET丢响应只重读、DELETE一次；真实PATCH提交后丢响应进入Unknown，冻结草稿并显式同key/body重放，服务端版本不二次递增。受控响应丢失不冒充自然网络或PG提交Unknown。
 - 正式挑战测试另有实际1/1通过：连续错误密码401、合法 `commit_state=not_started` 不误入Unknown、错误proof400、真实键盘旋转验证200和同login key登录200，390px无横溢。作者早期scratch验证与正式spec运行分别保留。
