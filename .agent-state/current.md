@@ -1,6 +1,6 @@
 # 当前状态：全网规则模式与IP/域名目标改造中
 
-2026-10-16。本轮用户确认全公网/私网白名单或黑名单、HTTP统一按规则，以及单IP/CIDR/域名/最左通配目标；页面改紧凑表格、行末删除。新合同使用必填rule_mode与 `{target,ports}`，最多512条；固定危险地址硬拒、proxy独立版本及Unknown双snapshot保持。用户明确早期开发不需要旧规则/接口迁移：仅访问policy/规则回执重置，默认version1黑名单空表（固定危险地址仍硬拒，未加载/Unknown仍fail closed），账号/Session/SMTP/代理配置与凭据等保留；旧body400，无历史兼容分支。两实现树正按[工程契约](../docs/development/work-items/system-outbound-policy-proxy.md)实施，尚未验证或部署新模型；现用户runtime不动，真实SMTP暂停。
+2026-10-16。本轮用户确认全公网/私网白名单或黑名单、HTTP统一按规则，以及单IP/CIDR/域名/最左通配目标；页面改紧凑表格、行末删除。新合同使用必填rule_mode与 `{target,ports}`，最多512条；风险地址改为默认32条可见可编辑黑名单，可删后按当前规则访问；不保留目标/DNS/网关隐藏地址硬拒，proxy独立版本及Unknown双snapshot保持。用户明确早期开发不需要旧规则/接口迁移：仅访问policy/规则回执重置，默认version1与32条显式风险黑名单（普通RFC1918/ULA不加入，未加载/Unknown仍fail closed），账号/Session/SMTP/代理配置与凭据等保留；旧body400，无历史兼容分支。两实现树正按[工程契约](../docs/development/work-items/system-outbound-policy-proxy.md)实施，尚未验证或部署新模型；现用户runtime不动，真实SMTP暂停。
 
 此前Central全部业务出网与持久代理已按[工程契约](../docs/development/work-items/system-outbound-policy-proxy.md)实现，后端及Vue分别集成于 `ef68e733`、`241df5be`，已推送。真实UI/API三旅程、代理选路及权限/Secret/Unknown/lease独立恢复门通过；持久预览已备份并保数据切至最终候选，账号、Session、用户SMTP与密钥保持。最终只读页面基本检查已通过严格本机TLS/身份门，不能替代公网身份验证。Runner、DB/对象部署基础连接不纳；真实SMTP继续暂停，公网仍未取得本实例标记。
 

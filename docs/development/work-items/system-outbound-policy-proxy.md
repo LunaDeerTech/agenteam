@@ -34,9 +34,9 @@ Runner、数据库、MinIO 等部署基础连接不纳入本轮。移除产品 `
 
 `target`统一接受单IP、CIDR、精确域名或 `*.domain`。单IPv4/IPv6规范输出为 `/32`或 `/128`，拒绝IPv4-mapped及zone；CIDR须规范书写并位于网络边界，可覆盖公网/私网及宽网段。域名沿唯一host校验：ASCII、小写、去一个合法末尾点、合法label，拒绝模糊数字主机；不接受scheme、userinfo、path、query、fragment或附带端口。通配只允许最左侧一次 `*.`，后接合格DNS名称；匹配一个或多级子域，不含根域，不作子串匹配。只匹配原请求的规范hostname，不使用CNAME或反向DNS扩权；IP字面目标按IP/CIDR匹配。
 
-先检查metadata hostname及完整A/AAAA的固定危险地址，任一命中即拒绝，域名规则和宽网段不能绕过。白名单中，原域名与端口命中同一域名行则允许其全部非硬禁解析IP；否则每个解析IP均须分别命中某条IP/CIDR与端口。黑名单中，任一域名行或任一解析IP与端口命中即拒绝整个目标。白名单空表拒绝全部；黑名单空表允许其余目标，固定危险地址始终拒绝。HTTP与HTTPS不再有独立网络许可，均按上述规则；OAuth等协议固有的HTTPS要求、HTTPS→HTTP重定向禁止、TLS验证和凭据作用域保持。
+完整A/AAAA的每个地址必须语法合法，但没有隐藏的地址类别或metadata hostname拒绝。白名单中，原域名与端口命中同一域名行则允许其全部合法解析IP；否则每个解析IP均须分别命中某条IP/CIDR与端口。黑名单中，任一域名行或任一解析IP与端口命中即拒绝整个目标。白名单空表拒绝全部；黑名单空表允许全部语法合法目标；默认风险范围亦可通过删除相应规则放行。HTTP与HTTPS不再有独立网络许可，均按上述规则；OAuth等协议固有的HTTPS要求、HTTPS→HTTP重定向禁止、TLS验证和凭据作用域保持。
 
-用户明确不要求旧规则迁移或兼容。数据库结构升级 `00145`只将访问policy重置为version `"1"`、`denylist`、空rules，并删除该资源的旧规则receipts；新装使用相同默认，普通目标无需预先配置，固定危险地址仍拒绝；未加载、读取失败或Unknown不能冒充默认空黑名单。不存在38条补集、四条默认黑名单或隐藏legacy模式。旧格式请求400，不重放旧format1回执；新规则命令使用 `outbound-policy-v2` namespace及含mode/规范target规则的format2语义摘要，避免旧key身份别名。proxy独立version/配置/凭据及其receipts/operations不重置，其他业务数据和Audit不清除。命令pending为进程内状态，结构升级须在旧Central实际停止后进行，不直接清其他恢复记录代替join。
+用户明确不要求旧规则迁移或兼容。数据库结构升级 `00145`只将访问policy重置为version `"1"`、`denylist`和32条显式风险规则，并删除该资源的旧规则receipts；新装使用相同默认，普通公网及RFC1918/ULA服务无需预先配置。默认清单包含原IPv4/IPv6风险范围及两个metadata域名，全部端口，来自`internal/central/outbound/default_rules.go`的DefaultRules并与00145一致；用户可编辑/删除，不再保留Classify、metadataHost、DNS原名/CNAME的隐藏地址拒绝。未加载、读取失败或Unknown不能冒充空黑名单。不存在38条补集、四条默认黑名单或隐藏legacy模式。旧格式请求400，不重放旧format1回执；新规则命令使用 `outbound-policy-v2` namespace及含mode/规范target规则的format2语义摘要，避免旧key身份别名。proxy独立version/配置/凭据及其receipts/operations不重置，其他业务数据和Audit不清除。命令pending为进程内状态，结构升级须在旧Central实际停止后进行，不直接清其他恢复记录代替join。
 
 代理配置默认version `"1"`、mode=`direct`、gateway=null。mode仅`direct`/`proxy`，协议仅`http`/`https`/`socks5`；port是1–65535整数。host与port独立输入，沿后端规范ASCII域名/IP解析，不能带URL userinfo/path/query/fragment。GET/PUT拒query；GET拒body，PUT拒未知/重复/null必填字段、尾随值和非法UTF-8。规则JSON与整PUT均设1MiB上限，以完整body上限作为最终约束；代理请求有界，不复用规则大体积预算。版本为规范正int64字符串，audit_id为UUIDv7，created_at为规范UTC微秒时间。
 
@@ -59,9 +59,9 @@ credential_action仅`keep`/`remove`：空密码输入省略password，keep保留
 
 | 检查点 | 必须行为 |
 | --- | --- |
-| 业务目标 | 保留原URL/协议、完整A/AAAA与固定禁止地址；执行全网模式/目标/端口规则，混合允许/禁止DNS结果拒绝，HTTP无独立网络开关。 |
+| 业务目标 | 保留原URL/协议、完整A/AAAA及合法IP校验；执行当前全网模式/目标/端口规则，混合允许/规则拒绝DNS结果拒绝，HTTP无独立网络开关或隐藏地址黑名单。 |
 | 隧道目标 | HTTP(S) CONNECT及SOCKS5只传已批准数值IP；原域名仍用于目标TLS/HTTP Host/凭据作用域，不提供remote-DNS绕过。 |
-| 网关自身 | 显式配置的公网或RFC1918/ULA私网可用，支持企业单标签网关；完整解析并固定拨号IP，仍拒loopback/link-local/metadata/其他禁止地址。网关许可不放行同网段业务目标。 |
+| 网关自身 | 显式管理员配置授权网关，支持合法公网/私网/loopback和企业单标签host；完整解析及合法IP检查后固定拨号，继续验证TLS/认证，不再按地址类别或metadata名暗拒。业务目标rules不套网关，也不因网关许可放行目标。 |
 | TLS | HTTPS网关单独验证CA/hostname；隧道内目标TLS/STARTTLS保留原校验与部署CA，无skip verify或TLS失败降级。 |
 | 凭据 | 代理认证只发当前网关，业务凭据只发授权目标；CONNECT/SOCKS不带业务headers/body。HTTP/SOCKS认证到网关无协议加密，页面作必要提示。 |
 | 失败 | 网关DNS/TCP/认证/CONNECT/SOCKS/TLS失败均不直连、不读env、不以另一条路重新发业务。 |
@@ -82,8 +82,8 @@ backend须盘点实际Central发出入口与组合根：受控HTTP client、Prov
 
 ## 6. 本轮完成出口
 
-1. 精确结构升级：仅访问规则及其回执重置为version1/黑名单空表，proxy与账号/Session/SMTP/密钥等原样；旧body拒绝，重启保持新模式/目标，产品仍不读代理env。
-2. 新模型真实管理员API与Vue首链：读取→选择模式/增改单IP、CIDR、域名、通配目标→保存→真实受控调用→新读取；两模式空表、同域多级/apex边界、混合DNS及固定危险拒绝，HTTP统一与协议自身HTTPS边界；权限/CSRF、409、新命令同key回执与未知恢复仍有效。
+1. 精确结构升级：仅访问规则及其回执重置为version1/32条可编辑默认黑名单，proxy与账号/Session/SMTP/密钥等原样；旧body拒绝，重启保持新模式/目标，产品仍不读代理env。
+2. 新模型真实管理员API与Vue首链：读取→选择模式/增改单IP、CIDR、域名、通配目标→保存→真实受控调用→新读取；两模式空表、同域多级/apex边界、混合DNS、默认风险拦截与删除后真实放行，HTTP统一与协议自身HTTPS边界；权限/CSRF、409、新命令同key回执与未知恢复仍有效。
 3. 隔离真实代理/目标：HTTP CONNECT、HTTPS CONNECT、SOCKS5，匿名/账号认证，目标TLS、SMTP受控握手/发送门；拒绝场景证明零目标业务发出及无直连回退。真实外部邮箱不在本轮验证内。
 4. 当前策略竞争：已发请求继续，新请求/redirect/池复用/SMTP BeginSend采用新版本；Unknown镜像关闭、取消/drain无遗留连接，凭据更新不复用旧隧道。
 5. Central各既有业务消费者接线核对及必要代表真实调用；DB/Object/Runner明确排除。不以仅新代理库通过宣称全部Central已完成。

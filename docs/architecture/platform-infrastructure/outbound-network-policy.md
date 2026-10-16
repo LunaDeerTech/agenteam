@@ -169,14 +169,9 @@ reserved / special-use
 cloud-metadata-sensitive
 ~~~
 
-第一阶段固定：
+地址分类用于诊断，不直接构成不可编辑的拒绝。新配置默认黑名单含原风险范围的显式目标；管理员可以查看、编辑或删除。普通RFC1918/ULA私网不在默认列表中。非法IP、zone、非法URL等语法和协议约束仍拒绝，合法地址按当前规则决定。
 
-- loopback：禁止；
-- link-local：禁止；
-- cloud metadata / known metadata target：禁止；
-- unspecified / multicast / 明显保留地址：禁止；
-- public / RFC1918 与 ULA private：统一由管理员访问规则判断，没有公网隐式放行；
-- 新配置默认黑名单空表，普通目标无需额外配置即可使用，固定危险地址仍禁止。
+默认32条均为全部端口：IPv4风险范围16条，IPv6风险范围14条，以及 `metadata.google.internal`、`metadata.goog` 两个精确域名。唯一代码清单见`internal/central/outbound/default_rules.go`的DefaultRules，数据库初始化由`db/migrations/00145_outbound_rule_modes.sql`写同一集合；不在前端复制默认列表。删除对应规则后允许访问原被其拦截的目标，不继续以Classify、metadataHost或DNS别名检查暗中拒绝。
 
 IPv4 与 IPv6 使用相同安全语义。
 
@@ -193,15 +188,15 @@ OutboundNetworkPolicy
     └── ports: explicitly all | selected ports
 ~~~
 
-白名单仅允许命中目标与端口的请求，空表拒绝全部；黑名单拒绝命中的请求，空表允许其余目标。两种模式都先执行固定危险地址拒绝，不能通过域名、通配域名、宽网段或代理绕过。规则顺序无优先级；目标与端口须在同一行匹配。
+白名单仅允许命中目标与端口的请求，空表拒绝全部；黑名单拒绝命中的请求，空表允许其余目标。风险地址也按当前显式规则判断，没有规则外的永久地址黑名单。规则顺序无优先级；目标与端口须在同一行匹配。
 
 目标支持单个IPv4/IPv6、CIDR、精确域名和最左侧 `*.` 通配域名。域名使用规范ASCII形式；`*.example.com`匹配一个或多个层级的子域名，不包含 `example.com` 本身，也不匹配 `otherexample.com`。只匹配原请求的规范hostname，不以CNAME或反向DNS名称扩展授权；IP字面目标走IP规则。字段编码、规范化、大小限制见工程契约。
 
-每次完整解析A/AAAA后，先拒绝任何固定禁止地址。白名单中，若原域名与端口命中域名规则，其全部非硬禁解析地址可获准；否则每个解析IP都必须分别命中IP/CIDR规则和端口。黑名单中，原域名与端口命中任一域名规则，或任一解析IP与端口命中IP/CIDR规则，即拒绝整个目标。不能从混合结果中挑允许地址绕过拒绝。
+每次完整解析A/AAAA后，先确认全部地址语法合法。白名单中，若原域名与端口命中域名规则，其全部合法解析地址可获准；否则每个解析IP都必须分别命中IP/CIDR规则和端口。黑名单中，原域名与端口命中任一域名规则，或任一解析IP与端口命中IP/CIDR规则，即拒绝整个目标。不能从混合结果中挑允许地址绕过拒绝。
 
 HTTP、HTTPS和SMTP等业务目标复用上述地址/端口判断，移除每行 `allow_http` 及通用网络Profile的明文许可开关；协议本身的HTTPS要求、TLS验证、HTTPS重定向不得降为HTTP以及凭据作用域仍有效。
 
-用户已明确当前处于早期开发，不保留旧访问规则或旧写接口兼容。新默认为黑名单空表，精确重置范围与版本/命令身份见工程契约；不据此清空账号、Session、SMTP、代理配置、凭据或其他业务数据。
+用户已明确当前处于早期开发，不保留旧访问规则或旧写接口兼容。新默认为上述可编辑黑名单，精确重置范围与版本/命令身份见工程契约；不据此清空账号、Session、SMTP、代理配置、凭据或其他业务数据。
 
 ### 7.1 更新生效边界
 
@@ -351,7 +346,7 @@ policy_violation
 
 Outbound Network Policy 是平台统一安全能力；全网访问规则与代理设置是管理员维护的 Runtime Platform Config。
 
-规则模式、目标和端口存数据库，可在系统 UI 修改；TLS / trust store 与网络实现参数仍按技术部署配置管理。固定禁止地址不是可编辑放行项。配置来源与启动边界见 [Deployment Runtime](./deployment-runtime.md)。
+规则模式、目标和端口存数据库，可在系统 UI 修改；TLS / trust store 与网络实现参数仍按技术部署配置管理。默认风险目标也是可编辑规则，读取失败或Unknown仍拒绝发出，不能假定为空黑名单。配置来源与启动边界见 [Deployment Runtime](./deployment-runtime.md)。
 
 ### 14.1 持久代理与统一选路
 
@@ -359,9 +354,9 @@ Outbound Network Policy 是平台统一安全能力；全网访问规则与代�
 
 产品移除 `AGENTEAM_CENTRAL_OUTBOUND_PROXY_ORIGINS` 与 `HTTP_PROXY`/`HTTPS_PROXY`/`NO_PROXY`（含小写）的选路读取，也不增加 `ALL_PROXY` 兜底。已有环境值不自动导入数据库。此变更不修改宿主环境、frp、开发工具或部署基础连接的环境配置。
 
-目标 DNS 仍由 Central 按完整 A/AAAA 结果执行现有分类、CIDR 与端口授权。CONNECT authority 或 SOCKS5 目标使用本次批准的数值 IP，不能把未经批准的 hostname 交网关二次解析；TLS SNI/hostname verification、HTTP Host 与业务凭据作用域仍使用原目标。代理不改变固定禁止地址或全网访问规则。无法本地完成目标 DNS 审批时明确失败，不切换为网关远端 DNS。
+目标 DNS 仍由 Central 按完整 A/AAAA 结果执行现有分类、CIDR 与端口授权。CONNECT authority 或 SOCKS5 目标使用本次批准的数值 IP，不能把未经批准的 hostname 交网关二次解析；TLS SNI/hostname verification、HTTP Host 与业务凭据作用域仍使用原目标。代理不改变业务目标的当前全网访问规则。无法本地完成目标 DNS 审批时明确失败，不切换为网关远端 DNS。
 
-网关是管理员显式信任的基础设施。网关自身可为公网或 RFC1918/ULA 私网（包括显式配置的企业网关及 `proxy:8080`），与业务目标分类分开校验；不得据此放宽业务目标的私网权限。网关解析须有界、完整校验全部候选并固定实际拨号地址，拒绝 loopback、link-local、metadata、multicast、unspecified 与其他禁止地址。网关可沿部署 resolver 解析单标签名称；这一便利不扩到业务目标解析。受信网关实际如何转发不能由客户端独立证明，部署者须确保其遵守批准的数值目标。
+网关是管理员显式信任的基础设施。网关由管理员显式配置，公网、私网或loopback等合法地址均可使用；业务目标规则不匹配网关，也不保留网关的隐藏地址黑名单。网关解析须有界、完整校验全部候选的语法并固定实际拨号地址，继续验证TLS与认证边界。网关可沿部署 resolver 解析单标签名称；这一便利不扩到业务目标解析。受信网关实际如何转发不能由客户端独立证明，部署者须确保其遵守批准的数值目标。
 
 HTTPS 网关校验网关 hostname/CA，隧道内目标 HTTPS/TLS/STARTTLS 继续校验原目标；HTTP 与 SOCKS5 网关协议本身不加密到网关的认证交换，页面保留这一必要提示。代理凭据只能发给当前明确配置的网关，不能进入目标 Authorization/Cookie、重定向、普通日志或公开错误；目标业务凭据也不能进入 CONNECT/SOCKS 握手。配置代理不扩大业务自身的认证或 Project 授权。
 
@@ -445,7 +440,7 @@ Provider-specific headers 与 credentials 仍由 Model System 负责生成；Out
 2. URL / scheme validation；
 3. DNS resolution；
 4. IP classification；
-5. loopback / link-local / metadata / reserved address deny；
+5. 可见可编辑的loopback / link-local / metadata / reserved默认风险规则；
 6. 公网与私网统一的allowlist/denylist目标匹配；
 7. 管理员 UI / API 维护的持久化IP/CIDR/域名/端口规则与即时新请求生效；
 8. DNS rebinding 防护；
