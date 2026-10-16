@@ -154,6 +154,8 @@ async function setup(context, options = {}) {
     commands: [],
     unexpected: [],
     pageErrors: [],
+    failedResources: [],
+    stage: "install-interception",
     failure: undefined,
     hold: undefined,
     purpose: "manage_passkeys",
@@ -349,11 +351,22 @@ async function setup(context, options = {}) {
   const page = context.pages()[0] || (await context.newPage());
   page.setDefaultTimeout(10000);
   page.on("pageerror", () => state.pageErrors.push("pageerror"));
+  page.on("requestfailed", (request) => {
+    const url = new URL(request.url());
+    if (url.origin === origin && !url.pathname.startsWith("/api/"))
+      state.failedResources.push({
+        path: url.pathname,
+        reason: request.failure()?.errorText,
+      });
+  });
+  state.stage = "native-authenticator";
   const native = options.unsupported ? undefined : await authenticator(page);
+  state.stage = "navigation-domcontentloaded";
   await page.goto(origin + (options.route || "/settings/password"), {
     waitUntil: "domcontentloaded",
     timeout: 30000,
   });
+  state.stage = "initial-visible-ui";
   if (options.route === "/login")
     await expect(button(page, "使用 Passkey 登录")).toBeVisible();
   else if (options.route === "/settings/profile")
@@ -363,6 +376,7 @@ async function setup(context, options = {}) {
       page.getByRole("heading", { name: "登录与安全", exact: true }),
     ).toBeVisible();
   await settle(page);
+  state.stage = "interaction";
   return { page, state, native };
 }
 async function runCase(browser, name, callback, options = {}) {
@@ -384,6 +398,18 @@ async function runCase(browser, name, callback, options = {}) {
     results.push({ name, outcome: "observed", detail });
   } catch (failure) {
     const state = context.reviewState;
+    const page = context.pages()[0];
+    const focus =
+      page && !page.isClosed()
+        ? await page
+            .evaluate(() => ({
+              tag: document.activeElement?.tagName,
+              role: document.activeElement?.getAttribute("role"),
+              ariaLabel: document.activeElement?.getAttribute("aria-label"),
+              insideDialog: !!document.activeElement?.closest("dialog[open]"),
+            }))
+            .catch(() => undefined)
+        : undefined;
     results.push({
       name,
       outcome: "failed",
@@ -395,6 +421,9 @@ async function runCase(browser, name, callback, options = {}) {
       api: state?.api,
       unexpected: state?.unexpected,
       pageErrors: state?.pageErrors,
+      failedResources: state?.failedResources,
+      stage: state?.stage,
+      focus,
     });
   } finally {
     await context.close();
@@ -450,6 +479,26 @@ async function views(browser) {
   );
 }
 async function interactions(browser) {
+  await runCase(
+    browser,
+    "system-nav-excludes-passkey",
+    async ({ page }) => {
+      await page.goto(origin + "/system/providers", {
+        waitUntil: "domcontentloaded",
+        timeout: 30000,
+      });
+      const nav = page.getByRole("navigation", {
+        name: "系统设置",
+        exact: true,
+      });
+      await expect(nav).toBeVisible();
+      await expect(
+        nav.getByRole("link", { name: /Passkey|登录与安全/ }),
+      ).toHaveCount(0);
+      return { systemNavigationUnchanged: true };
+    },
+    { width: 1440, theme: "light" },
+  );
   await runCase(browser, "rename-delete-focus", async ({ page }) => {
     const rename = button(page, `重命名 ${keyLabel}`);
     await rename.click();
@@ -469,7 +518,19 @@ async function interactions(browser) {
     await shot(page, "delete-confirm-390-dark");
     await button(modal(page, "删除 Passkey"), "取消").click();
     await expect(remove).toBeFocused();
-    return { nativeToSyntheticGrant: true, renameAndDeleteCancel: true };
+    await remove.click();
+    await button(modal(page, "删除 Passkey"), "使用 Passkey 验证").click();
+    await button(modal(page, "删除 Passkey"), "确认删除").click();
+    await expect(modal(page, "删除 Passkey").getByRole("status")).toContainText(
+      "已删除",
+    );
+    await button(modal(page, "删除 Passkey"), "完成").click();
+    await expect(button(page, "添加 Passkey")).toBeFocused();
+    return {
+      nativeToSyntheticGrant: true,
+      renameAndDeleteCancel: true,
+      deletedTriggerFallbackFocus: true,
+    };
   });
   await runCase(
     browser,
@@ -527,6 +588,60 @@ async function interactions(browser) {
   );
 }
 async function errors(browser) {
+  await runCase(browser, "rename-unknown-recovery", async ({ page, state }) => {
+    await button(page, `重命名 ${keyLabel}`).click();
+    const dialog = modal(page, "重命名 Passkey");
+    await button(dialog, "使用 Passkey 验证").click();
+    await field(dialog, "Passkey 名称").fill("恢复后电脑");
+    const endpoint = `/api/v1/me/passkeys/${uuid(3)}`;
+    state.failure = { endpoint, kind: "unknown" };
+    await button(dialog, "保存名称").click();
+    await expect(dialog.getByRole("alert")).toContainText("原操作结果尚未确认");
+    await expect(field(dialog, "Passkey 名称")).toBeDisabled();
+    await expect(button(dialog, "取消")).toBeDisabled();
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeVisible();
+    await shot(page, "rename-unknown-390-dark");
+    await button(dialog, "重试原请求").click();
+    await expect(dialog.getByRole("status")).toContainText("名称已更新");
+    const requests = state.commands.filter(
+      (command) => command.endpoint === endpoint,
+    );
+    assert.equal(requests.length, 2);
+    assert(
+      requests[0].key && requests[0].key === requests[1].key,
+      "original retry key retained",
+    );
+    assert.equal(
+      requests[0].body,
+      requests[1].body,
+      "original retry body retained",
+    );
+    await button(dialog, "完成").click();
+    await expect(button(page, "重命名 恢复后电脑")).toBeFocused();
+    return { unknownVisible: true, inputFrozen: true, originalRetry: true };
+  });
+  await runCase(browser, "rename-conflict-reread", async ({ page, state }) => {
+    await button(page, `重命名 ${keyLabel}`).click();
+    const dialog = modal(page, "重命名 Passkey");
+    await button(dialog, "使用 Passkey 验证").click();
+    await field(dialog, "Passkey 名称").fill("并发后电脑");
+    state.failure = {
+      endpoint: `/api/v1/me/passkeys/${uuid(3)}`,
+      code: "VERSION_CONFLICT",
+      status: 409,
+    };
+    state.keys.version = "2";
+    await button(dialog, "保存名称").click();
+    await expect(dialog).toContainText("已保留名称");
+    await button(dialog, "读取最新列表").click();
+    await button(dialog, "采用当前版本并重新验证").click();
+    await button(dialog, "使用 Passkey 验证").click();
+    await expect(field(dialog, "Passkey 名称")).toHaveValue("并发后电脑");
+    await shot(page, "rename-conflict-recovered-390-dark");
+    await button(dialog, "取消").click();
+    return { conflictExplicit: true, keepsNameAfterReauthentication: true };
+  });
   for (const kind of ["domainDisabled", "unsupported", "capabilityError"])
     await runCase(
       browser,
@@ -553,7 +668,19 @@ async function errors(browser) {
       await shot(page, "first-key-recovery-390-dark");
       await button(dialog, "取消").click();
       await expect(button(page, "添加 Passkey")).toBeFocused();
-      return { firstKeyRequiresPasswordAndMail: true };
+      await page.goto(origin + "/settings/profile", {
+        waitUntil: "domcontentloaded",
+        timeout: 30000,
+      });
+      await button(page, "修改邮箱").click();
+      await expect(modal(page, "修改邮箱")).toContainText(
+        "修改邮箱前，请先添加 Passkey",
+      );
+      await button(modal(page, "修改邮箱"), "前往登录与安全").click();
+      await expect(
+        page.getByRole("heading", { name: "登录与安全", exact: true }),
+      ).toBeVisible();
+      return { firstKeyRequiresPasswordAndMail: true, emailRequiresKey: true };
     },
     { empty: true },
   );
