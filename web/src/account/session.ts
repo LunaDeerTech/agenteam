@@ -385,6 +385,32 @@ export async function loginCommand(
   );
 }
 
+export async function passkeyLoginCommand(body: {
+  operation_id: string;
+  credential: unknown;
+}): Promise<AccountCommand<unknown>> {
+  const context = await ensureBrowser();
+  const identityGeneration = generation.value;
+  return command(
+    "/auth/passkeys/login/complete",
+    { method: "POST", body: JSON.stringify(body) },
+    {
+      csrf: context.value.csrf_token,
+      generation: context.generation,
+      anonymous: true,
+      current: () =>
+        generation.value === identityGeneration &&
+        browser === context.value &&
+        browserGeneration.value === context.generation,
+    },
+    (value): value is unknown =>
+      isRecord(value) &&
+      isSession({ ...value, csrf_token: "pending-confirmation" }) &&
+      value.next_path === "/",
+    confirmReplacement,
+  );
+}
+
 export function passwordCommand(body: {
   version: string;
   current_password: string;

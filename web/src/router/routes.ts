@@ -84,7 +84,7 @@ export const projectSettings: readonly SettingsPage[] = [
 export const personalSettings: readonly SettingsPage[] = [
   { key: "profile", title: "个人资料", group: "", icon: "user" },
   { key: "appearance", title: "外观", group: "", icon: "sun" },
-  { key: "password", title: "修改密码", group: "", icon: "lock" },
+  { key: "password", title: "登录与安全", group: "", icon: "lock" },
 ];
 
 export const projectNavigation = [

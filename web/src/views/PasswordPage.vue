@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, ref, watch } from "vue";
 import { RouterLink } from "vue-router";
 import { UiButton, UiInput } from "../components/ui";
 import CommandFeedback from "../components/account/CommandFeedback.vue";
+import PasskeySettings from "../components/account/PasskeySettings.vue";
 import { useLeaveProtection } from "../account/leave";
 import {
   passwordCommand,
@@ -21,6 +22,7 @@ const version = ref(session.user.value?.version ?? "");
 const submitted = ref(false);
 const abandoned = ref(false);
 const refreshing = ref(false);
+const passkeyBusy = ref(false);
 const save = useCommand<unknown>();
 const dirty = computed(
   () => !!(currentPassword.value || newPassword.value || confirmation.value),
@@ -28,6 +30,7 @@ const dirty = computed(
 const locked = computed(
   () =>
     !accountEnabled ||
+    passkeyBusy.value ||
     save.busy.value ||
     save.uncertain.value ||
     save.confirmed.value ||
@@ -124,83 +127,91 @@ onBeforeUnmount(clearPasswords);
 </script>
 
 <template>
-  <form class="account-form" @submit.prevent="submit">
-    <p v-if="!accountEnabled" class="form-feedback">
-      当前为界面预览。账号服务连接后可修改密码。
-    </p>
-    <template v-if="save.confirmed.value">
-      <div class="form-feedback form-success" role="status">
-        <p>密码已修改，其他登录会话已退出。</p>
-        <p v-if="save.busy.value">正在确认本次登录状态…</p>
-        <p v-else-if="session.status.value === 'authenticated'">
-          本次登录状态已确认，可以继续使用。
+  <div class="account-form">
+    <PasskeySettings @busy="(value) => (passkeyBusy = value)" />
+    <section class="form-section" aria-labelledby="password-heading">
+      <h2 id="password-heading">密码</h2>
+      <form class="account-form" @submit.prevent="submit">
+        <p v-if="!accountEnabled" class="form-feedback">
+          当前为界面预览。账号服务连接后可修改密码。
         </p>
-        <template v-else>
-          <p>密码已修改，请重新确认登录状态或使用新密码登录。</p>
-          <div class="form-actions">
-            <UiButton :loading="refreshing" @click="confirmSession"
-              >重新确认登录状态</UiButton
-            >
-            <RouterLink class="form-link" to="/login">重新登录</RouterLink>
+        <template v-if="save.confirmed.value">
+          <div class="form-feedback form-success" role="status">
+            <p>密码已修改，其他登录会话已退出。</p>
+            <p v-if="save.busy.value">正在确认本次登录状态…</p>
+            <p v-else-if="session.status.value === 'authenticated'">
+              本次登录状态已确认，可以继续使用。
+            </p>
+            <template v-else>
+              <p>密码已修改，请重新确认登录状态或使用新密码登录。</p>
+              <div class="form-actions">
+                <UiButton :loading="refreshing" @click="confirmSession"
+                  >重新确认登录状态</UiButton
+                >
+                <RouterLink class="form-link" to="/login">重新登录</RouterLink>
+              </div>
+            </template>
           </div>
         </template>
-      </div>
-    </template>
-    <template v-else>
-      <fieldset :disabled="locked">
-        <UiInput
-          v-model="currentPassword"
-          label="当前密码"
-          type="password"
-          autocomplete="current-password"
-          :error="currentIssue"
-        />
-        <UiInput
-          v-model="newPassword"
-          label="新密码"
-          type="password"
-          autocomplete="new-password"
-          :error="newIssue"
-          hint="使用 15–128 个字符，避免常见或容易猜到的密码。"
-        />
-        <UiInput
-          v-model="confirmation"
-          label="确认新密码"
-          type="password"
-          autocomplete="new-password"
-          :error="confirmationIssue"
-        />
-      </fieldset>
-      <p class="form-note">
-        修改成功后，其他设备上的登录会话将退出。本次登录会话会重新确认。
-      </p>
-      <CommandFeedback
-        :error="save.error.value"
-        :uncertain="save.uncertain.value"
-        :replayable="save.replayable.value"
-        :busy="save.busy.value"
-        @retry="save.retry"
-        @abandon="abandonSave"
-      />
-      <p v-if="save.uncertain.value || abandoned" class="form-note">
-        原改密结果尚未确认，旧登录可能已失效。重新登录不会确认原操作结果；如需登录，请使用实际生效的密码。
-      </p>
-      <div v-if="conflict" class="form-feedback">
-        <p>资料已发生变化，已保留密码输入。重新读取当前版本后再提交。</p>
-        <UiButton :loading="refreshing" @click="readLatestVersion"
-          >读取并采用当前版本</UiButton
-        >
-      </div>
-      <div class="form-actions">
-        <UiButton
-          variant="primary"
-          type="submit"
-          :loading="save.busy.value"
-          :disabled="locked || !dirty || conflict"
-          >修改密码</UiButton
-        >
-        <UiButton :disabled="locked || !dirty" @click="cancel">取消</UiButton>
-      </div>
-    </template>
-  </form>
+        <template v-else>
+          <fieldset :disabled="locked">
+            <UiInput
+              v-model="currentPassword"
+              label="当前密码"
+              type="password"
+              autocomplete="current-password"
+              :error="currentIssue"
+            />
+            <UiInput
+              v-model="newPassword"
+              label="新密码"
+              type="password"
+              autocomplete="new-password"
+              :error="newIssue"
+              hint="使用 15–128 个字符，避免常见或容易猜到的密码。"
+            />
+            <UiInput
+              v-model="confirmation"
+              label="确认新密码"
+              type="password"
+              autocomplete="new-password"
+              :error="confirmationIssue"
+            />
+          </fieldset>
+          <p class="form-note">
+            修改成功后，其他设备上的登录会话将退出。本次登录会话会重新确认。
+          </p>
+          <CommandFeedback
+            :error="save.error.value"
+            :uncertain="save.uncertain.value"
+            :replayable="save.replayable.value"
+            :busy="save.busy.value"
+            @retry="save.retry"
+            @abandon="abandonSave"
+          />
+          <p v-if="save.uncertain.value || abandoned" class="form-note">
+            原改密结果尚未确认，旧登录可能已失效。重新登录不会确认原操作结果；如需登录，请使用实际生效的密码。
+          </p>
+          <div v-if="conflict" class="form-feedback">
+            <p>资料已发生变化，已保留密码输入。重新读取当前版本后再提交。</p>
+            <UiButton :loading="refreshing" @click="readLatestVersion"
+              >读取并采用当前版本</UiButton
+            >
+          </div>
+          <div class="form-actions">
+            <UiButton
+              variant="primary"
+              type="submit"
+              :loading="save.busy.value"
+              :disabled="locked || !dirty || conflict"
+              >修改密码</UiButton
+            >
+            <UiButton :disabled="locked || !dirty" @click="cancel"
+              >取消</UiButton
+            >
+          </div>
+        </template>
+      </form>
+    </section>
+  </div>
 </template>

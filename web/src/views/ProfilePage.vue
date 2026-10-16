@@ -10,6 +10,7 @@ import {
 import { UiButton, UiInput } from "../components/ui";
 import CommandFeedback from "../components/account/CommandFeedback.vue";
 import AvatarEditor from "../components/account/AvatarEditor.vue";
+import EmailChangeDialog from "../components/account/EmailChangeDialog.vue";
 import { useLeaveProtection } from "../account/leave";
 import {
   authenticatedRequest,
@@ -38,6 +39,7 @@ const saved = ref(false);
 const abandoned = ref(false);
 const latestRead = ref(false);
 const avatarBusy = ref(false);
+const emailOpen = ref(false);
 const save = useCommand<ProfileResponse>();
 let alive = true;
 let readGeneration = 0;
@@ -262,8 +264,11 @@ onBeforeUnmount(() => {
           label="邮箱"
           type="email"
           readonly
-          hint="邮箱用于登录，目前不支持修改。"
+          hint="邮箱用于登录。"
         />
+        <UiButton :disabled="locked" @click="emailOpen = true"
+          >修改邮箱</UiButton
+        >
       </fieldset>
       <CommandFeedback
         :error="save.error.value"
@@ -304,5 +309,10 @@ onBeforeUnmount(() => {
         >
       </div>
     </form>
+    <EmailChangeDialog
+      v-model:open="emailOpen"
+      :version="profile?.user.version ?? ''"
+      @changed="acceptProfile"
+    />
   </div>
 </template>

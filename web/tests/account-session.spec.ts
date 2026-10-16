@@ -69,6 +69,53 @@ afterEach(() => {
 });
 
 describe("confirmed account commands", () => {
+  it("retains a Passkey assertion only for its original uncertain command and never replays after login confirmation", async () => {
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(bootstrap())
+      .mockRejectedValueOnce(new TypeError("controlled lost response"))
+      .mockResolvedValueOnce(json({ ...identity(), next_path: "/" }))
+      .mockResolvedValueOnce(failure("TEMPORARILY_UNAVAILABLE", 503))
+      .mockResolvedValueOnce(json(identity()));
+    vi.stubGlobal("fetch", fetcher);
+    const { passkeyLoginCommand, refreshSession, useSession } =
+      await import("../src/account/session");
+    const payload = {
+      operation_id: "019a3333-3333-7333-8333-333333333333",
+      credential: { id: "AQID", response: { signature: "BAU" } },
+    };
+    const command = await passkeyLoginCommand(payload);
+    await expect(command.run()).rejects.toMatchObject({
+      commitState: "unknown",
+    });
+    payload.credential.response.signature = "changed-after-freeze";
+    const confirmed = vi.fn();
+    await expect(command.run(confirmed)).rejects.toMatchObject({ status: 503 });
+    const first = fetcher.mock.calls[1]![1] as RequestInit;
+    const retry = fetcher.mock.calls[2]![1] as RequestInit;
+    expect(retry.body).toBe(first.body);
+    expect(new Headers(retry.headers).get("Idempotency-Key")).toBe(
+      new Headers(first.headers).get("Idempotency-Key"),
+    );
+    expect(JSON.parse(String(retry.body)).credential.response.signature).toBe(
+      "BAU",
+    );
+    expect(confirmed).toHaveBeenCalledOnce();
+    expect(command.confirmed).toBe(true);
+    await expect(command.run()).rejects.toMatchObject({
+      code: "STALE_REQUEST",
+    });
+    await refreshSession();
+    expect(useSession().status.value).toBe("authenticated");
+    expect(fetcher.mock.calls.map(([url]) => url)).toEqual([
+      "/api/v1/auth/bootstrap",
+      "/api/v1/auth/passkeys/login/complete",
+      "/api/v1/auth/passkeys/login/complete",
+      "/api/v1/session",
+      "/api/v1/session",
+    ]);
+  });
+
   it("clears login material at confirmation and only rereads the session after that read fails", async () => {
     const fetcher = vi
       .fn()

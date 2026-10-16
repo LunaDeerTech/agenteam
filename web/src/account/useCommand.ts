@@ -9,6 +9,7 @@ export function useCommand<T>() {
   const error = shallowRef<unknown>();
   const command = shallowRef<AccountCommand<T>>();
   let alive = true;
+  let generation = 0;
   let success: ((value: T) => void | Promise<void>) | undefined;
   let onConfirmed: (() => void) | undefined;
   const replayable = computed(
@@ -17,9 +18,10 @@ export function useCommand<T>() {
   watch(
     () => command.value?.active,
     (active) => {
-      if (active === false) {
+      if (active === false && !command.value?.confirmed) {
         command.value?.release();
         command.value = undefined;
+        busy.value = false;
       }
     },
     { flush: "sync" },
@@ -31,14 +33,14 @@ export function useCommand<T>() {
     error.value = undefined;
     try {
       const result = await active.run(() => {
-        if (!alive) return;
+        if (!alive || command.value !== active) return;
         confirmed.value = true;
         uncertain.value = false;
         onConfirmed?.();
       });
-      if (alive) await success?.(result);
+      if (alive && command.value === active) await success?.(result);
     } catch (failure) {
-      if (!alive) return;
+      if (!alive || command.value !== active) return;
       error.value = failure;
       if (
         !active.confirmed &&
@@ -49,7 +51,7 @@ export function useCommand<T>() {
         uncertain.value = true;
       if (!uncertain.value && !active.confirmed) active.release();
     } finally {
-      if (alive) busy.value = false;
+      if (alive && command.value === active) busy.value = false;
     }
   }
   async function submit(
@@ -58,27 +60,35 @@ export function useCommand<T>() {
     cleared?: () => void,
   ) {
     if (busy.value || uncertain.value) return;
+    const owner = ++generation;
     error.value = undefined;
     confirmed.value = false;
     busy.value = true;
     try {
       command.value?.release();
-      command.value = await create();
+      const created = await create();
+      if (!alive || owner !== generation) {
+        created.release();
+        return;
+      }
+      command.value = created;
       success = received;
       onConfirmed = cleared;
     } catch (failure) {
-      if (alive) error.value = failure;
+      if (alive && owner === generation) error.value = failure;
       return;
     } finally {
-      if (alive) busy.value = false;
+      if (alive && owner === generation) busy.value = false;
     }
-    if (!alive) {
+    if (!alive || owner !== generation) {
       command.value?.release();
       return;
     }
     await execute();
   }
   function abandon() {
+    generation++;
+    busy.value = false;
     command.value?.release();
     command.value = undefined;
     uncertain.value = false;
