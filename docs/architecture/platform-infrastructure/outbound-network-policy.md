@@ -1,6 +1,6 @@
 # Outbound Network Policy 详细设计
 
-> 状态：现行规则；Central 持久代理与统一业务出口按[本轮工程契约](../../development/work-items/system-outbound-policy-proxy.md)实施，文档不代证运行绑定或验收。
+> 状态：Central 持久代理已交付；访问规则正按用户确认的全网白名单/黑名单与目标匹配模型改造，见[本轮工程契约](../../development/work-items/system-outbound-policy-proxy.md)。本页定义目标契约，不代证新版本已部署或验收。
 >
 > 上层架构：
 > - [平台基础设施与部署架构](./README.md)
@@ -175,52 +175,39 @@ cloud-metadata-sensitive
 - link-local：禁止；
 - cloud metadata / known metadata target：禁止；
 - unspecified / multicast / 明显保留地址：禁止；
-- public：允许；
-- private：默认拒绝，须命中管理员维护的系统内网放行规则。
+- public / RFC1918 与 ULA private：统一由管理员访问规则判断，没有公网隐式放行；
+- 新配置默认黑名单空表，普通目标无需额外配置即可使用，固定危险地址仍禁止。
 
 IPv4 与 IPv6 使用相同安全语义。
 
-## 7. Private Network Policy
+## 7. 全网访问规则
 
-private network 不能在各业务模块中单独配置。
-
-系统管理员通过系统 UI / 管理 API 维护统一内网规则，持久化 PostgreSQL，不要求重启 Central。概念结构如下，正式字段/编码由 D04 规格确定：
+系统管理员通过系统 UI / 管理 API 维护统一规则，持久化 PostgreSQL，对 Central 新业务调用生效，无需重启。规则不由 Project、Agent、MCP 或其他业务模块分别维护。
 
 ~~~text
 OutboundNetworkPolicy
 ├── version
-└── private_allow_rules[]
-    ├── CIDR
-    ├── selected ports / explicitly all ports
-    └── allow HTTP (default false)
+├── rule_mode: allowlist | denylist
+└── rules[]
+    ├── target: IP | CIDR | domain | *.domain
+    └── ports: explicitly all | selected ports
 ~~~
 
-默认不放行内网：
+白名单仅允许命中目标与端口的请求，空表拒绝全部；黑名单拒绝命中的请求，空表允许其余目标。两种模式都先执行固定危险地址拒绝，不能通过域名、通配域名、宽网段或代理绕过。规则顺序无优先级；目标与端口须在同一行匹配。
 
-~~~text
-private_allow_rules = []
-~~~
+目标支持单个IPv4/IPv6、CIDR、精确域名和最左侧 `*.` 通配域名。域名使用规范ASCII形式；`*.example.com`匹配一个或多个层级的子域名，不包含 `example.com` 本身，也不匹配 `otherexample.com`。只匹配原请求的规范hostname，不以CNAME或反向DNS名称扩展授权；IP字面目标走IP规则。字段编码、规范化、大小限制见工程契约。
 
-管理员可以显式允许内网服务，例如：
+每次完整解析A/AAAA后，先拒绝任何固定禁止地址。白名单中，若原域名与端口命中域名规则，其全部非硬禁解析地址可获准；否则每个解析IP都必须分别命中IP/CIDR规则和端口。黑名单中，原域名与端口命中任一域名规则，或任一解析IP与端口命中IP/CIDR规则，即拒绝整个目标。不能从混合结果中挑允许地址绕过拒绝。
 
-~~~text
-10.20.0.0/16, ports = [443, 8443], allow HTTP = false
-192.168.50.0/24, ports = [8080], allow HTTP = true
-~~~
+HTTP、HTTPS和SMTP等业务目标复用上述地址/端口判断，移除每行 `allow_http` 及通用网络Profile的明文许可开关；协议本身的HTTPS要求、TLS验证、HTTPS重定向不得降为HTTP以及凭据作用域仍有效。
 
-规则支持网段及可选端口限制；不限制端口时须管理员显式选择全部端口。命中网段/端口只表示地址授权，内网 HTTP 仍须独立开启允许项。loopback、link-local、metadata、unspecified/multicast 等固定禁止地址不能通过规则放行。Project、Agent 或 MCP Config 不能自行修改系统策略。
-
-这样：
-
-- 未配置规则时禁止访问 Central 内网；
-- 管理员可按网段和端口允许内部 MCP / Provider / SMTP；
-- 业务配置不能借由 endpoint 自行扩大 Central 的网络可达范围。
+用户已明确当前处于早期开发，不保留旧访问规则或旧写接口兼容。新默认为黑名单空表，精确重置范围与版本/命令身份见工程契约；不据此清空账号、Session、SMTP、代理配置、凭据或其他业务数据。
 
 ### 7.1 更新生效边界
 
 数据库是策略权威来源。规则修改后新请求立即使用新规则；后续 retry 和每一跳 redirect 也重新检查当前策略，复用已有连接不能跳过校验。已发出的在途请求继续执行，不因修改规则主动中断，也不承诺撤回已经发生的外部副作用。
 
-保存操作仅限系统管理员，须校验网段/端口/HTTP 选项、version 冲突并记录安全 Audit。策略缓存/版本传播、实际发出边界、DNS/dial 与连接池竞争由 D04 规格及真实并发验收确定。
+保存操作仅限系统管理员，须校验模式/目标/端口、version 冲突并记录安全 Audit。策略缓存/版本传播、实际发出边界、DNS/dial 与连接池竞争由 D04 规格及真实并发验收确定。
 
 代理配置沿同一生效原则。访问规则与出口设置独立编辑、各有版本，实际发出须同时使用有效的当前规则与选路；代理保存不修改访问许可，规则保存不改变代理。规则或选路不可确认时拒绝新发出，不能回退为直连。切换模式、网关或凭据后，旧连接不能被新请求复用；已发送请求按原在途边界完成。
 
@@ -323,14 +310,9 @@ HTTPS 使用系统 / 平台受信任 CA 与标准 hostname verification。
 
 私有 CA 通过平台部署级受信任证书配置支持，不通过关闭证书或 hostname 校验实现。
 
-HTTP 是否允许由具体消费者和系统策略共同决定。
+HTTP与HTTPS使用相同访问规则，没有每行HTTP开关或隐藏的通用网络许可。OAuth等业务协议固有的HTTPS要求仍须执行；规则许可不构成TLS降级或凭据越域授权。
 
-例如：
-
-- 公网 endpoint 可以要求 HTTPS；
-- 内网规则放行网段/端口后默认仍要求 HTTPS，管理员须在相应规则中显式允许 HTTP。
-
-SMTP 支持管理员明确选择 TLS / STARTTLS / none；加密失败不自动降级，none 不额外限定只能用于内网。该协议选择不绕过地址/端口授权，也不直接使用 HTTP 规则的 allow_http 作为 SMTP 开关。见 [SMTP Delivery](authentication/smtp-delivery.md)。
+SMTP 支持管理员明确选择 TLS / STARTTLS / none；加密失败不自动降级，none 不额外限定只能用于内网。该协议选择不绕过统一目标/端口授权。见 [SMTP Delivery](authentication/smtp-delivery.md)。
 
 ## 13. Policy Decision
 
@@ -367,9 +349,9 @@ policy_violation
 
 ## 14. 配置与作用域
 
-Outbound Network Policy 是平台统一安全能力；内网放行部分是管理员维护的 Runtime Platform Config。
+Outbound Network Policy 是平台统一安全能力；全网访问规则与代理设置是管理员维护的 Runtime Platform Config。
 
-内网网段、端口和显式 HTTP 放行规则存数据库，可在系统 UI 修改；TLS / trust store 与网络实现参数仍按技术部署配置管理。固定禁止地址不是可编辑放行项。配置来源与启动边界见 [Deployment Runtime](./deployment-runtime.md)。
+规则模式、目标和端口存数据库，可在系统 UI 修改；TLS / trust store 与网络实现参数仍按技术部署配置管理。固定禁止地址不是可编辑放行项。配置来源与启动边界见 [Deployment Runtime](./deployment-runtime.md)。
 
 ### 14.1 持久代理与统一选路
 
@@ -377,7 +359,7 @@ Outbound Network Policy 是平台统一安全能力；内网放行部分是管�
 
 产品移除 `AGENTEAM_CENTRAL_OUTBOUND_PROXY_ORIGINS` 与 `HTTP_PROXY`/`HTTPS_PROXY`/`NO_PROXY`（含小写）的选路读取，也不增加 `ALL_PROXY` 兜底。已有环境值不自动导入数据库。此变更不修改宿主环境、frp、开发工具或部署基础连接的环境配置。
 
-目标 DNS 仍由 Central 按完整 A/AAAA 结果执行现有分类、CIDR 与端口授权。CONNECT authority 或 SOCKS5 目标使用本次批准的数值 IP，不能把未经批准的 hostname 交网关二次解析；TLS SNI/hostname verification、HTTP Host 与业务凭据作用域仍使用原目标。代理不改变固定禁止地址或私网规则。无法本地完成目标 DNS 审批时明确失败，不切换为网关远端 DNS。
+目标 DNS 仍由 Central 按完整 A/AAAA 结果执行现有分类、CIDR 与端口授权。CONNECT authority 或 SOCKS5 目标使用本次批准的数值 IP，不能把未经批准的 hostname 交网关二次解析；TLS SNI/hostname verification、HTTP Host 与业务凭据作用域仍使用原目标。代理不改变固定禁止地址或全网访问规则。无法本地完成目标 DNS 审批时明确失败，不切换为网关远端 DNS。
 
 网关是管理员显式信任的基础设施。网关自身可为公网或 RFC1918/ULA 私网（包括显式配置的企业网关及 `proxy:8080`），与业务目标分类分开校验；不得据此放宽业务目标的私网权限。网关解析须有界、完整校验全部候选并固定实际拨号地址，拒绝 loopback、link-local、metadata、multicast、unspecified 与其他禁止地址。网关可沿部署 resolver 解析单标签名称；这一便利不扩到业务目标解析。受信网关实际如何转发不能由客户端独立证明，部署者须确保其遵守批准的数值目标。
 
@@ -435,7 +417,7 @@ MCP Config.endpoint
 
 MCP 不自行实现：
 
-- private CIDR allowlist；
+- IP/CIDR/域名的白名单或黑名单；
 - loopback 检查；
 - DNS rebinding 防护；
 - redirect target validation。
@@ -464,8 +446,8 @@ Provider-specific headers 与 credentials 仍由 Model System 负责生成；Out
 3. DNS resolution；
 4. IP classification；
 5. loopback / link-local / metadata / reserved address deny；
-6. public network allow；
-7. 管理员 UI / API 维护的持久化 private CIDR / port / HTTP 放行规则与即时新请求生效；
+6. 公网与私网统一的allowlist/denylist目标匹配；
+7. 管理员 UI / API 维护的持久化IP/CIDR/域名/端口规则与即时新请求生效；
 8. DNS rebinding 防护；
 9. redirect re-validation；
 10. cross-origin credential stripping；

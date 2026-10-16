@@ -1,22 +1,24 @@
-# 当前状态：Central出站规则与持久代理已集成并保数据部署
+# 当前状态：全网规则模式与IP/域名目标改造中
 
-2026-10-16。Central全部业务出网与持久代理已按[工程契约](../docs/development/work-items/system-outbound-policy-proxy.md)实现，后端及Vue分别集成于 `ef68e733`、`241df5be`，已推送。真实UI/API三旅程、代理选路及权限/Secret/Unknown/lease独立恢复门通过；持久预览已备份并保数据切至最终候选，账号、Session、用户SMTP与密钥保持。最终只读页面基本检查已通过严格本机TLS/身份门，不能替代公网身份验证。Runner、DB/对象部署基础连接不纳；真实SMTP继续暂停，公网仍未取得本实例标记。
+2026-10-16。本轮用户确认全公网/私网白名单或黑名单、HTTP统一按规则，以及单IP/CIDR/域名/最左通配目标；页面改紧凑表格、行末删除。新合同使用必填rule_mode与 `{target,ports}`，最多512条；固定危险地址硬拒、proxy独立版本及Unknown双snapshot保持。用户明确早期开发不需要旧规则/接口迁移：仅访问policy/规则回执重置，默认version1黑名单空表（固定危险地址仍硬拒，未加载/Unknown仍fail closed），账号/Session/SMTP/代理配置与凭据等保留；旧body400，无历史兼容分支。两实现树正按[工程契约](../docs/development/work-items/system-outbound-policy-proxy.md)实施，尚未验证或部署新模型；现用户runtime不动，真实SMTP暂停。
 
-本轮后续仅优化代理表单文案：改称“代理服务器类型”，主机提示仅IP/域名且不含协议前缀，端口示例7890，用户名/密码标为可选；密码留空保留语义不变，局部修正地址行对齐。唯一产品页及两处精确标签selector已冻结；vue-tsc、三文件格式与两CJS语法检查通过，最终1440浅色/390深色受控浏览器实看无横溢、提示关联与空密码占位正确，零写入，浏览器已关闭，未重跑业务或全量构建。运行owner实核原Central/Vite5245/FRP仍活、严格本机TLS/实例身份通过，无需恢复或重启；DB/账号/密钥/SMTP均未操作，真实SMTP仍暂停，公网未新验。
+此前Central全部业务出网与持久代理已按[工程契约](../docs/development/work-items/system-outbound-policy-proxy.md)实现，后端及Vue分别集成于 `ef68e733`、`241df5be`，已推送。真实UI/API三旅程、代理选路及权限/Secret/Unknown/lease独立恢复门通过；持久预览已备份并保数据切至最终候选，账号、Session、用户SMTP与密钥保持。最终只读页面基本检查已通过严格本机TLS/身份门，不能替代公网身份验证。Runner、DB/对象部署基础连接不纳；真实SMTP继续暂停，公网仍未取得本实例标记。
+
+此前代理表单文案小轮：改称“代理服务器类型”，主机提示仅IP/域名且不含协议前缀，端口示例7890，用户名/密码标为可选；密码留空保留语义不变，局部修正地址行对齐。唯一产品页及两处精确标签selector已冻结；vue-tsc、三文件格式与两CJS语法检查通过，最终1440浅色/390深色受控浏览器实看无横溢、提示关联与空密码占位正确，零写入，浏览器已关闭，未重跑业务或全量构建。运行owner实核原Central/Vite5245/FRP仍活、严格本机TLS/实例身份通过，无需恢复或重启；DB/账号/密钥/SMTP均未操作，真实SMTP仍暂停，公网未新验。
 
 ## 范围、组合与所有权
 
 - 主树 `/workspace/agenteam`、分支 `ai/frontend-vue-rebuild-20261016`；账号工作起点 `c13c2db5`，本轮系统四页从已推送 `cd1a5df6` 接续。此前账号业务检查输入 `85c4ac49`、顶栏共享头像首批 `1e0dbf0a`、设置整框 `6214bc1d` 的限定结果继续保留。旧公开r2 `9dd3044c` 已退出清理，现为下述生产cmd实例；此前fixture结果继续保留原输入边界。恢复以任务分支最新提交及实际差异为准，不回填本状态自身提交号，不宣称已合main。
-- 本轮backend树 `/workspace/agenteam-outbound-backend`、frontend树 `/workspace/agenteam-outbound-vue`，均从 `89e4e901` 隔离实施；此前账号backend树的记录只作既有输入。root负责全部Git/worktree/checkpoint及集成；内容按唯一路径owner维护，执行者不做Git写。
+- 本轮backend树 `/workspace/agenteam-rule-modes-backend`、frontend树 `/workspace/agenteam-rule-modes-vue`；上一轮出站树及账号树只作既有输入。root负责全部Git/worktree/checkpoint及集成；内容按唯一路径owner维护，执行者不做Git写。
 - 新 `web/` 的client/session/权限和页面独立编写，不导入、复制或包裹 `web-crape/`。后端成熟密码学、CSRF、事务和领域规则保留。此前七页为login/invite/forgot/reset与profile/appearance/password，并已接系统账号四页；本轮只新增出站规则/代理，不增加开放注册、MFA、设备管理、邮箱修改、用户角色切换/禁用/删除，其他未讨论业务正文仍为骨架。
 - 用户已确定登录与找回密码共用同一AccountShell面板模板，含官方Logo、标题、当前表单及居中轻边框/克制阴影；设置用宽页头、左对齐开放表单和唯一SettingsShell，整框居中及中性炭灰已获用户接受。[此前找回密码面板原图](https://img.lunadeer.cn/i/2026/10/16/6ad1c0e89dd92.png)已上传并校验。顶栏“个人设置”只在右上菜单内，触发器显示当前身份已保存头像或默认占位；本轮沿此基准接入四页内容。
 
 | Owner | 唯一职责 |
 | --- | --- |
 | `/root/account_contract` | 本状态、出站架构与system-outbound-policy-proxy工程契约；本批冻结后由root保存。 |
-| `/root/vue_integration` | Vue候选e6bc7d61已集成；主树5245保留，任务专用5246已精确清退，产品源码冻结。 |
+| `/root/proxy_copy` | 本轮规则模式/目标/紧凑表格及新严格DTO，写独立Vue树；主树用户5245保持。 |
 | `/root/smtp_list_adapter` | 此前SMTP适配owner，源码已冻结；原system_api_surface已撤写权。 |
-| `/root/account_backend` | 独立backend树的代理存储/API、统一安全拨号和Central全部业务装配；只用隔离fixture，不动现production或真实SMTP。 |
+| `/root/account_backend` | 新规则模型、精确规则重置/API/安全匹配及受影响消费者；隔离验证，不动现production或真实SMTP。 |
 | `/root/vue_tests` | 本轮出站UI/API正式harness与必要回归；旧TLS/恢复/邮件结果保留原输入，不代本轮通过。 |
 | `/root/outbound_visual` | 本轮独立受控视觉/交互审查，两项P2已关闭；不代真实后端或公网。 |
 | `/root/outbound_security` | 独立transport与真实PG权限/Unknown/lease恢复门已关闭，保留各自输入与覆盖边界。 |
@@ -91,7 +93,7 @@
 
 ## 保存与下一步
 
-后端/Vue已集成推送，持久预览保数据切换完成；最终严格本机只读页面检查和服务存活核对已通过；保留服务供用户反馈，不自动恢复真实SMTP。保留DB/账号/用户SMTP、keys、对象与frp/dev，不改宿主/工具代理。恢复只用上述活动staged manifest，不自动回143binary或还原旧dump。nginx继续提供原基础设施identity；新backend已另核active-release与proc/exe SHA，前端组合以主树集成版本核对。唯一公网严格匿名curl60未取nonce，未新验公网归属，不宣称公开验证通过。
+下一步为新规则模型的隔离API/真实匹配首链与紧凑表格验证，按实际组合收口后由root集成并协调部署；旧55项/旧三旅程不代本轮通过。现已部署持久代理服务保持，DB/账号/用户SMTP、keys、对象与frp/dev不动，真实SMTP暂停。将来只按明确范围重置访问规则，不做全库重建或旧规则兼容；当前恢复仍用上述活动staged manifest。公网严格匿名curl60未取nonce的边界保持，不宣称公开验证通过。
 
 ## 保留的既有恢复入口
 

@@ -1,6 +1,6 @@
 # Central 出站规则与持久代理
 
-状态：本轮Central范围实现、独立门与Git集成已完成，持久预览已保数据切换；基线 `89e4e901`。本卡是本轮工程接口、体验和验收的唯一合同，架构规则见[出站网络策略](../../architecture/platform-infrastructure/outbound-network-policy.md)。实际本机预览与公网归属分别记录，公网身份仍未验证，真实SMTP继续暂停；不扩大到Runner或所有业务端点逐一端到端验收。
+状态：持久代理基线已交付；本轮按用户新决定实现全网白名单/黑名单、IP/域名目标与紧凑规则表格，尚待新模型验证与部署。本卡仍为唯一工程合同，架构见[出站网络策略](../../architecture/platform-infrastructure/outbound-network-policy.md)。用户明确不保留旧访问规则或旧写接口；精确规则重置不扩大为清空账号、SMTP或代理。公网身份未验证，真实SMTP暂停，Runner及部署基础连接继续排除。
 
 ## 1. 目标与分工
 
@@ -11,13 +11,13 @@ Runner、数据库、MinIO 等部署基础连接不纳入本轮。移除产品 `
 | Owner / 工作树 | 唯一责任 |
 | --- | --- |
 | account_contract / `/workspace/agenteam` | 本卡、出站架构、main current |
-| account_backend / `/workspace/agenteam-outbound-backend` | 存储/迁移、API/OpenAPI、安全选路、Central 消费者装配及后端说明 |
-| vue_integration / `/workspace/agenteam-outbound-vue` | 新 Vue 出站页、严格 DTO、命令和共享组件接线 |
+| account_backend / `/workspace/agenteam-rule-modes-backend` | 存储/迁移、API/OpenAPI、安全选路、Central 消费者装配及后端说明 |
+| proxy_copy / `/workspace/agenteam-rule-modes-vue` | 新 Vue 出站页、严格 DTO、命令和共享组件接线 |
 | vue_tests / root 指定测试路径 | 本轮正式 UI/API harness 与必要回归 |
 | 独立安全/视觉 reviewer | 未参与实现的安全反例与有限浏览器审查 |
 | root | Git、组合、共享文件/迁移编号及实际运行资源协调 |
 
-实施与验证使用独立配置、密钥、数据库和网络资源，不因新源码出现替换运行中实例。后续经独立门和最终组合核对，按已授权的保数据stage顺序升级18443现有实例。其数据库包含用户新填SMTP，必须保留；旧测试数据重建授权不适用于这份数据。
+实施与验证使用独立配置、密钥、数据库和网络资源，不因新源码出现替换运行中实例。用户本轮明确允许舍弃旧访问规则；只重置该资源及其规则回执，不转存旧语义、不做旧接口兼容。18443现有账号/Session、用户SMTP、代理配置及凭据、对象数据和keyring必须保留；不据此重建整个实例或清空数据库。
 
 ## 2. API 最小合同
 
@@ -25,14 +25,20 @@ Runner、数据库、MinIO 等部署基础连接不纳入本轮。移除产品 `
 
 | 方法/路径 | 语义 |
 | --- | --- |
-| `GET /system/outbound-policy` | 保留现有 `{version,rules}`，数据库当前完整观察，无分页。 |
-| `PUT /system/outbound-policy` | 保留 `{expected_version,rules}` 完整替换；200历史回执 `{version,rule_count,audit_id,created_at}`，不混入当前配置。 |
+| `GET /system/outbound-policy` | 200恰为 `{version,rule_mode,rules}`，数据库当前完整观察，无分页。 |
+| `PUT /system/outbound-policy` | JSON恰为 `{expected_version,rule_mode,rules}`，模式与整表原子替换；200历史回执仍为 `{version,rule_count,audit_id,created_at}`，不混入当前配置。 |
 | `GET /system/outbound-policy/proxy` | 200恰为 `{version,mode,gateway}`；gateway为null或 `{protocol,host,port,username,credential_present}`，不返回密码。 |
 | `PUT /system/outbound-policy/proxy` | JSON恰为 `{expected_version,mode,gateway,credential_action,password?}`；gateway为null或 `{protocol,host,port,username}`。200历史回执恰为 `{version,audit_id,created_at}`，当前配置另GET。 |
 
-现有规则继续复用唯一 DecodeRules：最多256条规范 RFC1918/ULA CIDR，ports为显式`"all"`或1–256个互异端口1–65535；allow_http默认false，响应显式给出。空集合真实表示不放行私网；顺序不表达优先级，规范重复项拒绝。版本为规范正int64十进制字符串；回执rule_count也是规范十进制字符串，不用JS number比较版本。无新lookup、任意URL测试、公开代理或Reload API。
+规则 `rule_mode`必填且仅为 `allowlist`（白名单）或 `denylist`（黑名单），覆盖全部公网与私网。`rules`最多512条，每项恰为 `{target,ports}`，不接受旧 `cidr`、`allow_http`或缺少模式的body。ports为显式 `"all"`或1–256个互异端口1–65535。模式、目标、端口共同形成完整命令；顺序无优先级，规范化后重复项拒绝。版本为规范正int64十进制字符串，回执rule_count也为规范十进制字符串且最多512，不用JS number比较版本。无新lookup、任意URL测试、公开代理或Reload API。
 
-代理配置默认version `"1"`、mode=`direct`、gateway=null。mode仅`direct`/`proxy`，协议仅`http`/`https`/`socks5`；port是1–65535整数。host与port独立输入，沿后端规范ASCII域名/IP解析，不能带URL userinfo/path/query/fragment。GET/PUT拒query；GET拒body，PUT拒未知/重复/null必填字段、尾随值和非法UTF-8。规则保留现有1MiB请求/rules512KiB上限；代理请求有界，不复用规则大体积预算。版本为规范正int64字符串，audit_id为UUIDv7，created_at为规范UTC微秒时间。
+`target`统一接受单IP、CIDR、精确域名或 `*.domain`。单IPv4/IPv6规范输出为 `/32`或 `/128`，拒绝IPv4-mapped及zone；CIDR须规范书写并位于网络边界，可覆盖公网/私网及宽网段。域名沿唯一host校验：ASCII、小写、去一个合法末尾点、合法label，拒绝模糊数字主机；不接受scheme、userinfo、path、query、fragment或附带端口。通配只允许最左侧一次 `*.`，后接合格DNS名称；匹配一个或多级子域，不含根域，不作子串匹配。只匹配原请求的规范hostname，不使用CNAME或反向DNS扩权；IP字面目标按IP/CIDR匹配。
+
+先检查metadata hostname及完整A/AAAA的固定危险地址，任一命中即拒绝，域名规则和宽网段不能绕过。白名单中，原域名与端口命中同一域名行则允许其全部非硬禁解析IP；否则每个解析IP均须分别命中某条IP/CIDR与端口。黑名单中，任一域名行或任一解析IP与端口命中即拒绝整个目标。白名单空表拒绝全部；黑名单空表允许其余目标，固定危险地址始终拒绝。HTTP与HTTPS不再有独立网络许可，均按上述规则；OAuth等协议固有的HTTPS要求、HTTPS→HTTP重定向禁止、TLS验证和凭据作用域保持。
+
+用户明确不要求旧规则迁移或兼容。数据库结构升级 `00145`只将访问policy重置为version `"1"`、`denylist`、空rules，并删除该资源的旧规则receipts；新装使用相同默认，普通目标无需预先配置，固定危险地址仍拒绝；未加载、读取失败或Unknown不能冒充默认空黑名单。不存在38条补集、四条默认黑名单或隐藏legacy模式。旧格式请求400，不重放旧format1回执；新规则命令使用 `outbound-policy-v2` namespace及含mode/规范target规则的format2语义摘要，避免旧key身份别名。proxy独立version/配置/凭据及其receipts/operations不重置，其他业务数据和Audit不清除。命令pending为进程内状态，结构升级须在旧Central实际停止后进行，不直接清其他恢复记录代替join。
+
+代理配置默认version `"1"`、mode=`direct`、gateway=null。mode仅`direct`/`proxy`，协议仅`http`/`https`/`socks5`；port是1–65535整数。host与port独立输入，沿后端规范ASCII域名/IP解析，不能带URL userinfo/path/query/fragment。GET/PUT拒query；GET拒body，PUT拒未知/重复/null必填字段、尾随值和非法UTF-8。规则JSON与整PUT均设1MiB上限，以完整body上限作为最终约束；代理请求有界，不复用规则大体积预算。版本为规范正int64字符串，audit_id为UUIDv7，created_at为规范UTC微秒时间。
 
 `direct`可保留完整gateway与已存凭据但不使用；正常切回直连携带完整gateway，不能隐含清除设置。`proxy`必须有gateway。gateway=null仅允许direct且credential_action=`remove`，表示明确清除网关/认证。
 
@@ -53,7 +59,7 @@ credential_action仅`keep`/`remove`：空密码输入省略password，keep保留
 
 | 检查点 | 必须行为 |
 | --- | --- |
-| 业务目标 | 保留原URL/协议、完整A/AAAA、固定禁止地址、CIDR/端口与HTTP许可；混合允许/禁止DNS结果拒绝。 |
+| 业务目标 | 保留原URL/协议、完整A/AAAA与固定禁止地址；执行全网模式/目标/端口规则，混合允许/禁止DNS结果拒绝，HTTP无独立网络开关。 |
 | 隧道目标 | HTTP(S) CONNECT及SOCKS5只传已批准数值IP；原域名仍用于目标TLS/HTTP Host/凭据作用域，不提供remote-DNS绕过。 |
 | 网关自身 | 显式配置的公网或RFC1918/ULA私网可用，支持企业单标签网关；完整解析并固定拨号IP，仍拒loopback/link-local/metadata/其他禁止地址。网关许可不放行同网段业务目标。 |
 | TLS | HTTPS网关单独验证CA/hostname；隧道内目标TLS/STARTTLS保留原校验与部署CA，无skip verify或TLS失败降级。 |
@@ -70,20 +76,22 @@ backend须盘点实际Central发出入口与组合根：受控HTTP client、Prov
 
 沿已确认1200px设置整框、左齐开放表单和共享控件。在唯一页头下用“访问规则 / 代理设置”Tabs；不重复装饰description。页面级刷新在标题右侧，表单保存/取消就近；有草稿或未决命令时不因切Tab丢输入或暗中保存。
 
-访问规则展示真实完整集合、空态和加载/失败状态；新增/编辑CIDR、端口范围及HTTP许可，删除显式确认，保存完整集合。代理页先选择直连/代理，再配置协议、host、port及可选认证；读取只显示是否已保存密码。只保必要提示：新调用生效而在途不撤回、代理失败不自动直连、相应网关协议的明文认证边界。失败不伪造空配置。
+访问规则先显示“规则模式”下拉白名单/黑名单，随后使用紧凑表格编辑“目标 / 端口 / 操作”，删除位于每行末尾并显式确认；移除允许HTTP开关。支持新增与完整集合保存，窄屏表格在自身区域处理宽度，不让页面横溢。切模式保留未保存行，不隐式保存；空表明确当前模式的全拒或允许其余目标含义。保留真实加载/失败/空态，不把读取失败当默认空黑名单。代理页先选择直连/代理，再配置代理服务器类型、host、port及可选认证；读取只显示是否已保存密码。只保必要提示：新调用生效而在途不撤回、代理失败不自动直连、相应网关协议的明文认证边界。失败不伪造空配置。
 
 保存正常、字段错误、409、权限丢失、Unknown与原请求恢复必须可观察且有下一步；长表单错误聚焦到可见反馈或首错误字段，模态Esc/关闭回原触发器，滚动与Tab状态保持。未增加真实外网探测按钮或SMTP测试入口。
 
 ## 6. 本轮完成出口
 
-1. 数据库迁移和原配置兼容：默认direct、旧规则保留、重启保持配置/凭据；产品不读代理env，宿主/工具环境不变。
-2. 真实管理员API与新Vue首链：读取→保存规则/代理→后继受控调用实际换路→新读取；当前权限/CSRF、409、同key历史receipt与未知恢复、秘密不泄露。
+1. 精确结构升级：仅访问规则及其回执重置为version1/黑名单空表，proxy与账号/Session/SMTP/密钥等原样；旧body拒绝，重启保持新模式/目标，产品仍不读代理env。
+2. 新模型真实管理员API与Vue首链：读取→选择模式/增改单IP、CIDR、域名、通配目标→保存→真实受控调用→新读取；两模式空表、同域多级/apex边界、混合DNS及固定危险拒绝，HTTP统一与协议自身HTTPS边界；权限/CSRF、409、新命令同key回执与未知恢复仍有效。
 3. 隔离真实代理/目标：HTTP CONNECT、HTTPS CONNECT、SOCKS5，匿名/账号认证，目标TLS、SMTP受控握手/发送门；拒绝场景证明零目标业务发出及无直连回退。真实外部邮箱不在本轮验证内。
 4. 当前策略竞争：已发请求继续，新请求/redirect/池复用/SMTP BeginSend采用新版本；Unknown镜像关闭、取消/drain无遗留连接，凭据更新不复用旧隧道。
 5. Central各既有业务消费者接线核对及必要代表真实调用；DB/Object/Runner明确排除。不以仅新代理库通过宣称全部Central已完成。
 6. 有限浏览器浅深/宽窄、键盘/焦点/缩放，受影响格式、类型、build与必要unit；独立安全审查本轮新增凭据/网关/未知提交边界。旧业务证据只按原输入复用，不抄全量历史。
 
 ## 7. 当前检查点
+
+本轮规则模式、target与紧凑表格契约已定，前后端隔离实施中，尚无新模型通过或公开部署结论。下列为上一轮代理基线的已有证据，只按原输入复用，不代本轮新增验收。
 
 - 前端候选已实现双Tab、严格DTO、规则/代理命令及恢复状态。作者完整check为55项unit及格式/类型/build通过；后续两项P2分别修复回焦与“严格回执成功、后读失败”时误显直连/空规则，增量格式/类型/build及作者/独立受控复验通过，未重跑55项。已确认回执与读取失败分开显示，恢复只GET，不猜当前配置。
 - 独立受控UI已查看四视口、浅深、两Tab、原生200%、焦点与减少动效；两次初期加载失败原因未定，保留原材料，后续通过不回填根因。这些拦截响应与合成身份结果不代真实API、代理通道或公网验证。
