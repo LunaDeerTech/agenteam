@@ -167,3 +167,18 @@ node tests/account-captcha-web/node_modules/@playwright/test/cli.js test --confi
 两次初配置加载失败的根因仍未确认，分轮通过不代表该根因已修复。只读核对既有 run01/run02 材料后，确认仅有结果 JSON 与 `.last-run.json`，失败无附件、页面正文、URL、API 事件或 stdout/stderr；原配置关闭 trace/截图/默认失败 DOM，因此无法事后区分页面未挂载、登录/权限状态、配置读取错误或仍在加载。一次有限的相同初加载探针成功且未见 pageerror/失败请求/HTTP 错误，亦不能代证原失败原因。新增诊断仅在**完全合成、任何命令前**的初配置失败时保存截断的渲染正文、页面错误，以及路径/状态/耗时/计数；不记录请求头、API 正文、命令 body/key 或私有 runtime。run03 未再次触发，未放宽超时或继续盲重跑。
 
 本轮所有作者浏览器/CLI 与有限诊断进程均已退出，无新增监听；未恢复已清理的 5250，也未改公网账号、SMTP 配置或 frp。以上仍是实际 Vue 加受控 HTTP 的证据，既有真实后端结果保留其原输入边界。
+
+正式 Central 可恢复实例的最小独立检查入口是 [runtime-recovery-probe.cjs](runtime-recovery-probe.cjs)。它与旧 fixture 浏览器套件分开：通过精确 `https://154.12.86.233:18443` 身份、固定本机 `127.0.0.1:5256` TLS 拨号访问正式 Central，**不代表公网 frp 验证**。脚本不启动/停止服务、不读环境中的五组密钥、不改资料或 SMTP，也不做 AUTH 或测试发送。
+
+```sh
+node --check tests/frontend-account-rebuild/runtime-recovery-probe.cjs
+node tests/frontend-account-rebuild/runtime-recovery-probe.cjs --help
+FRONTEND_ACCOUNT_RUNTIME=/absolute/persistent-instance/private/runtime.json \
+  node tests/frontend-account-rebuild/runtime-recovery-probe.cjs
+```
+
+runtime JSON 必须为当前用户所有、0600，父目录 0700 且无符号链接；字段包括 `origin,local_tls_address,central_address,source_revision,nonce,certificate_ca_file,certificate_file,certificate_spki,credentials_file,central_binary,central_binary_sha256`。目标固定为上述 origin 与 TLS 地址、Central `127.0.0.1:5257`，完整源码 revision 和 32 位十六进制 nonce 分别与实例身份端点核对。独立 credentials JSON 也须位于同一私有目录、0600，仅在内存中读取 email/password；CA 与 leaf 必须位于该实例目录，校验证书期限、签发关系、IP SAN 和实际连接的 leaf SPKI。该正式实例没有测试 fixture 的人工期限；若 manifest 提供 `expires_at` 则仍严格拒绝过期输入。
+
+脚本先验证 TLS 与 `/__instance__/identity`、匿名系统 SMTP GET 401，再真实登录、读取当前管理员 Session 和 SMTP 安全投影。输出 `ready_for_restart` 后保留 Cookie/CSRF 仅在内存中等待；由**后端唯一 owner** 使用其管理入口只停启 Central，保留 PostgreSQL、MinIO、配置与密钥。确认重新健康后，在原 probe 的 stdin 仅输入无秘密的 `resume`。屏障最多等待 10 分钟，不轮询或自动重启。随后核验 `central-process.json` 与实际 `/proc` 的 PID/start_ticks/exe，确认进程确已更换；同 Cookie、user/session 身份与 SMTP 投影必须保留，最后 logout 204、Session 401。输出只含固定阶段、状态码、布尔结论及安全错误码；不保存 Cookie、CSRF、密码、请求正文或 trace。
+
+目前该新入口仅 `node --check`、`--help` 与限定 Prettier 检查 exit 0；新实例真实链及一次重启结果待 owner 提供候选后执行，不能把语法/入口通过当成持久性通过。实际公网匿名实例匹配另在切换后协调一次检查，不用本机通过或 frpc 登录代替公网响应证据。
