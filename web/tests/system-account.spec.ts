@@ -203,6 +203,96 @@ describe("system account access and directory", () => {
 });
 
 describe("system settings command receipts", () => {
+  it("keeps generic invitation commands after a committed Problem and distinguishes that feedback from an unknown outcome", async () => {
+    const receipt = {
+      id: "019a3333-3333-7333-8333-333333333333",
+      job_id: "019a4444-4444-7444-8444-444444444444",
+      version: "1",
+    };
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(json(identity()))
+      .mockResolvedValueOnce(
+        json({ code: "UNAVAILABLE", commit_state: "committed" }, 503),
+      )
+      .mockResolvedValueOnce(json(receipt, 201))
+      .mockResolvedValueOnce(
+        json({ code: "UNAVAILABLE", commit_state: "not_started" }, 503),
+      );
+    vi.stubGlobal("fetch", fetcher);
+    await (await import("../src/account/session")).refreshSession();
+    const { createInvitation, listInvitations } =
+      await import("../src/system/invitations");
+    const { useCommand } = await import("../src/account/useCommand");
+    const Feedback = (
+      await import("../src/components/account/CommandFeedback.vue")
+    ).default;
+    const view = mount({
+      setup() {
+        const operation = useCommand<typeof receipt>();
+        return () =>
+          h("section", [
+            h(
+              "button",
+              {
+                onClick: () =>
+                  operation.submit(
+                    () => createInvitation("synthetic-recipient@example.test"),
+                    async () => {
+                      await listInvitations();
+                    },
+                  ),
+              },
+              "Invite",
+            ),
+            h(Feedback, {
+              error: operation.error.value,
+              uncertain: operation.uncertain.value,
+              replayable: operation.replayable.value,
+              busy: operation.busy.value,
+              onRetry: operation.retry,
+            }),
+            h("output", String(operation.confirmed.value)),
+          ]);
+      },
+    });
+    disposeView = () => view.unmount();
+    await view.get("button").trigger("click");
+    await vi.waitFor(() =>
+      expect(view.text()).toContain("操作已提交，回执尚未读回"),
+    );
+    expect(view.text()).not.toContain("原操作结果尚未确认");
+    expect(view.get("output").text()).toBe("false");
+    await view
+      .findAll("button")
+      .find((button) => button.text() === "重试原请求")!
+      .trigger("click");
+    await vi.waitFor(() => expect(fetcher).toHaveBeenCalledTimes(4));
+    await flushPromises();
+    expect(view.get("output").text()).toBe("true");
+    expect(
+      view.findAll("button").some((button) => button.text() === "重试原请求"),
+    ).toBe(false);
+    const writes = fetcher.mock.calls.filter(
+      ([, init]) => (init as RequestInit).method === "POST",
+    );
+    expect(writes).toHaveLength(2);
+    expect(writes[0]![0]).toBe("/api/v1/system/invitations");
+    expect(writes[1]![0]).toBe(writes[0]![0]);
+    expect((writes[1]![1] as RequestInit).body).toBe(
+      (writes[0]![1] as RequestInit).body,
+    );
+    expect(
+      new Headers((writes[1]![1] as RequestInit).headers).get(
+        "Idempotency-Key",
+      ),
+    ).toBe(
+      new Headers((writes[0]![1] as RequestInit).headers).get(
+        "Idempotency-Key",
+      ),
+    );
+  });
+
   it.each([
     { status: 404, state: "not_started", expected: "unknown" },
     { status: 503, state: "committed", expected: "committed" },

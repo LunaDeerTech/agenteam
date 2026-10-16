@@ -29,8 +29,7 @@ import {
   createInvitation,
   resendInvitation,
   revokeInvitation,
-  deliveryLabel,
-  attemptLabel,
+  deliveryText,
   reasonLabel,
   type Invitation,
 } from "../../system/invitations";
@@ -43,6 +42,7 @@ const task = ref<Task>();
 const selected = shallowRef<Invitation>();
 const email = ref("");
 const submitted = ref(false);
+const submittedEmail = ref("");
 const closeRequested = ref(false);
 const feedback = ref("");
 const refreshNeeded = ref(false);
@@ -87,17 +87,31 @@ const actionLabel = computed(() =>
       }[task.value]
     : "确认",
 );
-const issue = computed(() => (submitted.value ? emailError(email.value) : ""));
+const issue = computed(() => {
+  if (submitted.value && emailError(email.value))
+    return emailError(email.value);
+  if (
+    email.value !== submittedEmail.value ||
+    !(operation.error.value instanceof AccountError)
+  )
+    return "";
+  const field = operation.error.value.fields.find(
+    (item) => item.path === "/email",
+  );
+  return field?.code === "ALREADY_EXISTS"
+    ? "此邮箱已注册，无法再次邀请。"
+    : field
+      ? "请检查邮箱地址后再试。"
+      : "";
+});
 const conflict = computed(
   () =>
     operation.error.value instanceof AccountError &&
     operation.error.value.code === "VERSION_CONFLICT",
 );
 const expired = (item: Invitation) => Date.parse(item.expires_at) <= now.value;
-const exhausted = (item: Invitation) =>
-  BigInt(item.version) >= 9223372036854775807n;
 function menuItems(item: Invitation) {
-  const unavailable = expired(item) || exhausted(item);
+  const unavailable = expired(item);
   return [
     { id: "detail", label: "查看详情" },
     {
@@ -128,6 +142,7 @@ function open(next: Task, item?: Invitation) {
   selected.value = item;
   email.value = "";
   submitted.value = false;
+  submittedEmail.value = "";
   closeRequested.value = false;
   feedback.value = "";
 }
@@ -148,6 +163,7 @@ function close(force = false) {
   selected.value = undefined;
   email.value = "";
   submitted.value = false;
+  submittedEmail.value = "";
   closeRequested.value = false;
 }
 async function refresh() {
@@ -173,6 +189,7 @@ async function submit() {
   )
     return;
   submitted.value = true;
+  submittedEmail.value = email.value;
   if (task.value === "create" && emailError(email.value)) return;
   const target = selected.value;
   if (task.value !== "create" && (!target || expired(target))) return;
@@ -234,6 +251,7 @@ onBeforeUnmount(() => {
   dialogGeneration++;
   window.clearInterval(clock);
   email.value = "";
+  submittedEmail.value = "";
 });
 </script>
 
@@ -315,7 +333,7 @@ onBeforeUnmount(() => {
               ></span
             >
             <span class="directory-delivery"
-              >{{ deliveryLabel[item.latest_delivery.phase]
+              >{{ deliveryText(item.latest_delivery)
               }}<span
                 v-if="
                   item.latest_delivery.phase !== 'unknown' &&
@@ -405,7 +423,7 @@ onBeforeUnmount(() => {
               </div>
               <div>
                 <dt>当前任务状态</dt>
-                <dd>{{ deliveryLabel[selected.latest_delivery.phase] }}</dd>
+                <dd>{{ deliveryText(selected.latest_delivery) }}</dd>
               </div>
               <div>
                 <dt>实际尝试渠道</dt>
@@ -422,11 +440,7 @@ onBeforeUnmount(() => {
               <div>
                 <dt>当前尝试结果</dt>
                 <dd>
-                  {{
-                    selected.latest_delivery.attempt_result
-                      ? attemptLabel[selected.latest_delivery.attempt_result]
-                      : "尚未记录"
-                  }}
+                  {{ deliveryText(selected.latest_delivery, true) }}
                 </dd>
               </div>
               <div>

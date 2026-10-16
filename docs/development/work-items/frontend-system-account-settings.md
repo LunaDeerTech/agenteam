@@ -9,7 +9,7 @@
 | `/system/users` | 管理员分页查看姓名/邮箱、用户名、角色和注册时间；确认邀请注册后的新用户出现。只读，无角色切换、禁用、删除、代改资料或他人项目入口。 | 已装配Account用户目录。 |
 | `/system/invitations` | 查看有效待注册邀请及最近投递；创建、重发邀请、人工重试投递、确认撤销；明确受理、实际尝试和未确认请求的区别。 | Account邀请、精确latest_delivery投影及邮件retry。 |
 | `/system/account-security` | 编辑Session期限、重置链接期限和挑战阈值；保存/取消，冲突保草稿并明确采用当前配置。 | Account settings singleton及版本写。 |
-| `/system/smtp` | 同页“配置 / 测试与任务”两区，默认配置。保存/停用传输配置、保持/替换/移除凭据；显式测试、读取任务详情、人工重试。 | SMTP singleton、Secret及正式邮件management读口。 |
+| `/system/smtp` | 同页“配置 / 测试与任务”两区，默认配置。保存/停用传输配置，以单密码框保持或替换凭据；显式测试、读取任务详情、人工重试。 | SMTP singleton、Secret及正式邮件management读口。 |
 
 系统设置仍保留既定11栏目；Providers、模型、平台模型用途、Runner、出站规则、系统审计、运行信息七页继续骨架，本轮不接正文。它们已有蓝图与后端能力，后续按完整流程接入，不因本轮选择另增栏目。现有四个公开账号入口及个人设置继续使用已实现能力。
 
@@ -43,15 +43,15 @@
 
 **用户目录。** 显示名为空回落邮箱，角色显示管理员/普通用户；注册时间标明UTC、可见至秒，完整微秒时间可访问。空、加载、失败、分页及刷新各有真实反馈；分页控件状态改变后焦点仍可用并播报完成，不落到无任务上下文的BODY。其他用户字段是文本，不借目录建立代操作权限。
 
-**邀请。** 创建只填写邮箱，不输入密码、角色或期限；沿既有邮箱验证，不偷偷trim。邀请从首次创建固定24小时，重发/重试沿原链接且不续期；已有有效同邮箱由服务复用，已注册邮箱拒绝。重发受服务60秒限流，不能从latest_delivery时间推算剩余限流。撤销前明确邮箱与链接失效影响，取消零写。邀请版本与邮件任务版本严格分开，目标及版本在确认时捕获，刷新不偷换。
+**邀请。** 创建只填写邮箱，不输入密码、角色或期限；沿既有邮箱验证，不偷偷trim。邀请从首次创建固定24小时，重发/重试沿原链接且不续期；已有有效同邮箱由服务复用，已注册邮箱拒绝。重发受服务60秒限流，不能从latest_delivery时间推算剩余限流；重发不推进Invitation版本，不能要求receipt.version=原version+1，只核目标ID及合法版本。撤销前明确邮箱与链接失效影响，取消零写。邀请版本与邮件任务版本严格分开，目标及版本在确认时捕获，刷新不偷换。
 
 列表的 `latest_delivery={job_id,accepted_at,phase,attempts,version,channel,attempt_result,reason?}` 是该邀请跨重发/重试周期最近一次已接受任务，不能按邮箱扫全局任务推导。详情解释当前尝试渠道与结果；channel可为null，不用当前SMTP配置补历史。`retry_wait`可保留上一attempt的unknown；`sent`只表示SMTP接受或受限日志持久写入，不保证收件箱到达。后台日志渠道只说明由获授权运维协助，页面不展示/复制token、恢复链接或日志正文。
 
 **账号安全。** 四字段分Session、重置与挑战组，共一个保存边界：idle 900–2592000秒、absolute 3600–7776000秒且idle≤absolute、reset 300–7200秒、challenge 1–20次。默认值只作规则说明，表单必须由真实GET建立；不提供关闭挑战或自动写回默认值。期限改变仅影响随后签发的Session/token，已签发对象保留期限；挑战阈值影响下次尝试；邀请仍固定24小时。保存不宣称撤销旧Session。PUT结果须id匹配、version为原version+1、四值等于原意图；历史结果不覆盖较新当前观察。
 
-**SMTP配置。** 首次GET成功才允许编辑；404/失败不等于未配置。传输字段为host、port、encryption(`tls/starttls/none`)、username、sender_email、sender_name，另有auto_retry_count 0–5、retry_interval_seconds 10–3600秒。重试计数是首次之外的自动尝试次数；当前配置不承诺连接/投递可用。未配置时保留重试编辑及明确“配置SMTP”入口，不猜主机/端口/认证；保存未配置重试策略走unconfigure。
+**SMTP配置。** 首次GET成功才允许编辑；404/失败不等于未配置。传输字段为host、port、encryption(`tls/starttls/none`)、username、sender_email、sender_name，另有auto_retry_count 0–5、retry_interval_seconds 10–3600秒。按用户最新指令，原“身份认证”组改名“发件账号”，将账号、单密码框与发件邮箱/名称（From Address/Name）放在同组；wire仍用sender_email/sender_name，不新增同义API字段。重试计数是首次之外的自动尝试次数；当前配置不承诺连接/投递可用。未配置时保留重试编辑及明确“配置SMTP”入口，不猜主机/端口/认证；保存未配置重试策略走unconfigure。
 
-凭据只写：keep且不带password保持，keep+非空password替换，没有replace枚举；remove不带非空password并要求username空。username与credential必须同为空或同存在。新密码1–2048 UTF-8 bytes，拒NUL/CR/LF及非法Unicode，不trim；安全投影只显示credential_present，不填掩码假装读取旧密码。host、邮件地址、显示名及字节规则沿正式SMTP规格。停用前确认清传输/凭据，提交捕获的两个重试值，不暗示取消在途投递。`SMTPResult.applied_version=原version+1`，`settings.id`匹配singleton且`settings.version≥applied_version`；当前settings可与原写不同，不能要求它等于原草稿。
+密码框不回填：已有凭据时留空保持、填写新值替换，日常表单不要求选择keep/replace/remove模式，也不把清空输入解释为移除。日常保存的wire使用keep：留空省略password，非空带新password；后端没有replace枚举。首次无凭据时按正式username/credential配对校验，同为空才是无认证，非空账号须有新密码；已有凭据也不能仅靠清空账号/密码绕过配对。新密码1–2048 UTF-8 bytes，拒NUL/CR/LF及非法Unicode，不trim；只显示credential_present安全状态，不用掩码假装读取旧密码。另保留不抢主流程的次级“移除已保存的认证”按钮及确认，仅无未保存修改时可用；有草稿时禁用并提示先保存或取消，不暗中覆盖草稿。该明确动作才提交username为空及credential_action=remove。host、邮件地址、显示名及字节规则沿正式SMTP规格。真实“停用SMTP”仍是独立危险动作，确认清传输/凭据并提交捕获的两个重试值，不暗示取消在途投递。`SMTPResult.applied_version=原version+1`，`settings.id`匹配singleton且`settings.version≥applied_version`；当前settings可与原写不同，不能要求它等于原草稿。
 
 **SMTP测试与任务。** 切区先处理脏草稿/未确认意图，默认配置区不发送或自动读任务。新测试需已确认当前configured=true，填写收件人后显式请求；历史原请求恢复不被较新的停用状态遮断。任务列表包括invitation/password_reset/test，详情用management DTO的 `attempt_channel/attempt_result`，旧兼容 `channel`不是实际尝试证明；InvitationDelivery.channel才是其当前attempt事实，两个相似DTO不可合并。邀请accepted_at是接受时间，MailJob.created_at是意图创建时间。只显式刷新，不自动轮询。请求受理与任务结果分开；严格202后只读取已返回JobID，不重发已确认POST。
 
@@ -71,7 +71,7 @@
 
 先打通管理员进入用户目录→创建隔离邀请→查看真实受控投递→已有邀请页兑换普通账号→回目录刷新看到注册结果；安全配置与SMTP完整内容并行。基础正常/失败后尽早真实联调，不等四页全矩阵或文档扩写。
 
-必要验收覆盖：四页真实加载/空/失败、普通用户直链零管理请求、当前失权及迟到结果隔离；邀请创建/重发/撤销与一次真实投递重试；安全保存/刷新和冲突不偷换版本；SMTP配置、凭据保持/替换/移除、停用、测试受理与实际任务状态。定向覆盖SMTP写后读失败的Unknown、原key/body恢复、确认后读失败零重复写和实际owner未结束时互斥。浅深、桌面/390、键盘/焦点和适用错误整页由未参与实现者观察；沿已接受布局和主题，不借旧UI通过代证新页面。
+必要验收覆盖：四页真实加载/空/失败、普通用户直链零管理请求、当前失权及迟到结果隔离；邀请创建/重发/撤销与一次真实投递重试；安全保存/刷新和冲突不偷换版本；SMTP配置、密码留空保持/填写替换及首次配对校验、次级认证移除的确认与草稿保护、独立停用、测试受理与实际任务状态。定向覆盖SMTP写后读失败的Unknown、原key/body恢复、确认后读失败零重复写和实际owner未结束时互斥。浅深、桌面/390、键盘/焦点和适用错误整页由未参与实现者观察；沿已接受布局和主题，不借旧UI通过代证新页面。
 
 系统安全/SMTP真实写使用独立测试实例和受控邮箱，不更改供用户试用实例的全局配置或admin资料/凭据；未获另行授权不向真实外部邮箱发送测试邮件。受控SMTP接受不等于外部邮箱送达；公网、证书和原服务期限仍按当前状态据实保留，不由本轮页面成功推断公网验真。
 

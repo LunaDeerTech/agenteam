@@ -69,15 +69,29 @@ export function isInvitationDelivery(
     isInstant(value.accepted_at) &&
     phases.includes(value.phase as InvitationDelivery["phase"]) &&
     typeof value.attempts === "string" &&
-    /^(0|[1-9]\d{0,18})$/.test(value.attempts) &&
-    BigInt(value.attempts) <= 9223372036854775807n &&
+    /^[0-6]$/.test(value.attempts) &&
     isVersion(value.version) &&
     [null, "smtp", "backend_log"].includes(value.channel as null) &&
     [null, "sent", "failed", "unknown", "cancelled"].includes(
       value.attempt_result as null,
     ) &&
     (value.reason === undefined ||
-      reasons.includes(value.reason as InvitationDelivery["reason"] & string))
+      reasons.includes(
+        value.reason as InvitationDelivery["reason"] & string,
+      )) &&
+    !(value.channel === null && value.attempt_result !== null) &&
+    !(value.channel !== null && value.attempts === "0") &&
+    !(
+      value.channel === null &&
+      ["claimed", "sending", "retry_wait", "sent", "failed"].includes(
+        String(value.phase),
+      )
+    ) &&
+    (value.phase !== "enqueue_pending" ||
+      (value.attempts === "0" &&
+        value.version === "1" &&
+        value.reason === undefined &&
+        value.channel === null))
   );
 }
 export function isInvitation(value: unknown): value is Invitation {
@@ -138,9 +152,7 @@ export function resendInvitation(
       current,
     },
     (value): value is InvitationReceipt =>
-      receipt(value) &&
-      value.id === invitation.id &&
-      BigInt(value.version) === BigInt(invitation.version) + 1n,
+      receipt(value) && value.id === invitation.id,
   );
 }
 export function revokeInvitation(
@@ -164,17 +176,27 @@ export const deliveryLabel: Record<InvitationDelivery["phase"], string> = {
   claimed: "正在准备",
   sending: "正在尝试发送",
   retry_wait: "等待自动重试",
-  sent: "发送已受理",
+  sent: "发送已确认",
   failed: "投递失败",
   unknown: "投递结果未知",
   cancelled: "已取消",
 };
 export const attemptLabel = {
-  sent: "发送已受理",
+  sent: "发送已确认",
   failed: "尝试失败",
   unknown: "结果未知",
   cancelled: "已取消",
 };
+export function deliveryText(delivery: InvitationDelivery, attempt = false) {
+  const state = attempt ? delivery.attempt_result : delivery.phase;
+  if (state === "sent")
+    return delivery.channel === "smtp" ? "邮件服务器已接收" : "恢复日志已写入";
+  return attempt
+    ? state
+      ? attemptLabel[state as keyof typeof attemptLabel]
+      : "尚未记录"
+    : deliveryLabel[delivery.phase];
+}
 export const reasonLabel: Record<
   NonNullable<InvitationDelivery["reason"]>,
   string
