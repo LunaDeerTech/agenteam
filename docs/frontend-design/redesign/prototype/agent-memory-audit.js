@@ -311,7 +311,22 @@ function inView(ctx, current, view, bridge) {
 }
 
 function refresh(ctx, current, view, bridge, focus) {
-  if (inView(ctx, current, view, bridge)) bridge.refresh(ctx, focus);
+  if (!inView(ctx, current, view, bridge)) return;
+  bridge.refresh(ctx);
+  if (!focus) return;
+  requestAnimationFrame(() => {
+    if (!inView(ctx, current, view, bridge)) return;
+    const target = document.querySelector(focus);
+    if (!target) return;
+    target.focus({ preventScroll: true });
+    const rect = target.getBoundingClientRect();
+    if (rect.top < 0 || rect.bottom > window.innerHeight)
+      target.scrollIntoView({
+        block: "nearest",
+        inline: "nearest",
+        behavior: "instant",
+      });
+  });
 }
 
 function pendingBanner(state, current, view) {

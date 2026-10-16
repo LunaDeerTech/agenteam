@@ -568,7 +568,7 @@ function resources(ctx, state, current) {
     ["low", "低风险"],
     ["medium", "中风险"],
     ["high", "高风险"],
-  ])}</div><div class="agent-catalog-list">${tools.map((tool) => `<label class="agent-choice-row"><input type="checkbox" data-tool="${tool.id}" ${current.allowedToolIDs.includes(tool.id) ? "checked" : ""} ${locked || !tool.available ? "disabled" : ""}><span><strong>${esc(tool.name)}${!tool.available ? " · 已停用" : ""}</strong><span>${esc(tool.purpose)}</span><small>${tool.source} · ${tool.access === "read" ? "只读" : "写入"} · ${{ low: "低", medium: "中", high: "高" }[tool.risk]}风险</small></span></label>`).join("") || '<p class="agent-muted-line">没有符合筛选的工具。</p>'}</div><details class="agent-core-tools"><summary>Core Tools · 始终可见（${coreTools.length}）</summary><p>平台核心能力只读，不可禁用；仍受项目范围和服务端授权限制。</p><div>${coreTools.map((tool) => `<span>${esc(tool)}</span>`).join("")}</div></details>`;
+  ])}</div><div class="agent-catalog-list">${tools.map((tool) => `<label class="agent-choice-row" tabindex="-1" data-resource-focus-row="tool:${tool.id}"><input type="checkbox" data-tool="${tool.id}" ${current.allowedToolIDs.includes(tool.id) ? "checked" : ""} ${locked || !tool.available ? "disabled" : ""}><span><strong>${esc(tool.name)}${!tool.available ? " · 已停用" : ""}</strong><span>${esc(tool.purpose)}</span><small>${tool.source} · ${tool.access === "read" ? "只读" : "写入"} · ${{ low: "低", medium: "中", high: "高" }[tool.risk]}风险</small></span></label>`).join("") || '<p class="agent-muted-line">没有符合筛选的工具。</p>'}</div><details class="agent-core-tools"><summary>Core Tools · 始终可见（${coreTools.length}）</summary><p>平台核心能力只读，不可禁用；仍受项目范围和服务端授权限制。</p><div>${coreTools.map((tool) => `<span>${esc(tool)}</span>`).join("")}</div></details>`;
   const skillRows = current.skills
     .map((assignment) => {
       const skill = skillChoices.find((item) => item.id === assignment.skillID);
@@ -583,7 +583,7 @@ function resources(ctx, state, current) {
         : resource.failed && !edit.conflict
           ? button("重试此操作", "resource-retry", "", locked)
           : "";
-  return `<div class="agent-detail-content" id="agent-tab-panel" role="tabpanel" aria-labelledby="agent-tab-resources">${readOnly(ctx) ? notice("当前项目为只读", "资源可以阅读，修改暂不可用。") : ""}${creating ? '<p class="agent-section-note">这些资源在创建 Agent 时一并保存。</p>' : ""}${edit.conflict ? notice("配置已有新版本", "基本配置草稿和未提交资源操作已保留。", button("重读并保留草稿", "basic-rebase", "", !!state.pending || !!state.busy)) : ""}${state.domainPending || (state.pending && state.pending.kind !== "resource") ? notice("操作结果待确认", "请回到原操作查询结果。", button("查看原操作", "original")) : ""}<div id="agent-resource-feedback" class="agent-resource-feedback" role="status" ${resource.message ? "" : "hidden"} data-status="${resource.status}"><span>${esc(resource.message)}</span>${feedbackActions}</div>${
+  return `<div class="agent-detail-content" id="agent-tab-panel" role="tabpanel" aria-labelledby="agent-tab-resources">${readOnly(ctx) ? notice("当前项目为只读", "资源可以阅读，修改暂不可用。") : ""}${creating ? '<p class="agent-section-note">这些资源在创建 Agent 时一并保存。</p>' : ""}${edit.conflict ? notice("配置已有新版本", "基本配置草稿和未提交资源操作已保留。", button("重读并保留草稿", "basic-rebase", "", !!state.pending || !!state.busy)) : ""}${state.domainPending || (state.pending && state.pending.kind !== "resource") ? notice("操作结果待确认", "请回到原操作查询结果。", button("查看原操作", "original")) : ""}<div id="agent-resource-feedback" class="agent-resource-feedback" role="status" tabindex="-1" ${resource.message ? "" : "hidden"} data-status="${resource.status}"><span>${esc(resource.message)}</span>${feedbackActions}</div>${
     gate(ctx, "Agent 资源") ||
     `<section class="agent-resource-groups">${disclosure("tools", "工具权限", `${current.allowedToolIDs.length} 项普通工具已授权`, toolContent, edit)}${disclosure("runners", "Runner 与资源目录", `${current.runnerMounts.length} 项资源目录`, `<p class="agent-section-note">填写完整挂载信息后确认。移除配置不会删除目录。</p>${mountRows}${mountEditor}`, edit)}${disclosure(
       "secrets",
@@ -593,7 +593,7 @@ function resources(ctx, state, current) {
         .slice(0, resource.secretLimit)
         .map(
           (secret) =>
-            `<label class="agent-choice-row"><input type="checkbox" data-secret="${secret.id}" ${current.secretIDs.includes(secret.id) ? "checked" : ""} ${locked ? "disabled" : ""}><span><strong>${esc(secret.label)}</strong><span>${esc(secret.description)}</span></span></label>`,
+            `<label class="agent-choice-row" tabindex="-1" data-resource-focus-row="secret:${secret.id}"><input type="checkbox" data-secret="${secret.id}" ${current.secretIDs.includes(secret.id) ? "checked" : ""} ${locked ? "disabled" : ""}><span><strong>${esc(secret.label)}</strong><span>${esc(secret.description)}</span></span></label>`,
         )
         .join(
           "",
@@ -731,6 +731,59 @@ function publishResource(state, current, edit, command) {
       : `${command.label}已保存。`;
   if (command.field === "runnerMounts") resource.mount = null;
 }
+function refreshResource(ctx, focus) {
+  refresh(ctx);
+  if (focus)
+    requestAnimationFrame(() => {
+      const active = document.activeElement;
+      if (
+        !active ||
+        active === document.body ||
+        active === document.documentElement
+      )
+        document.querySelector(focus)?.focus({ preventScroll: true });
+    });
+}
+function resourceFocusIdentity(element) {
+  if (!element || !document.getElementById("main")?.contains(element))
+    return null;
+  for (const attribute of [
+    "data-tool",
+    "data-secret",
+    "data-resource-focus-row",
+    "data-agent-tab",
+    "data-agent-action",
+    "data-select-for",
+    "data-resource-filter",
+  ]) {
+    if (element.hasAttribute(attribute))
+      return `[${attribute}="${CSS.escape(element.getAttribute(attribute))}"]`;
+  }
+  if (element.id) return `#${CSS.escape(element.id)}`;
+  const section =
+    element.tagName === "SUMMARY" &&
+    element.parentElement?.dataset.agentSection;
+  return section
+    ? `[data-agent-section="${CSS.escape(section)}"] > summary`
+    : null;
+}
+function resourceCommandFocus(field, before, after) {
+  const attribute =
+    field === "allowedToolIDs"
+      ? "tool"
+      : field === "secretIDs"
+        ? "secret"
+        : null;
+  if (!attribute) return { control: null, row: "#agent-resource-feedback" };
+  const target = [...new Set([...before, ...after])].find(
+    (id) => before.includes(id) !== after.includes(id),
+  );
+  if (!target) return { control: null, row: "#agent-resource-feedback" };
+  return {
+    control: `[data-${attribute}="${CSS.escape(target)}"]`,
+    row: `[data-resource-focus-row="${CSS.escape(`${attribute}:${target}`)}"]`,
+  };
+}
 function submitResource(ctx, field, payload, labelText) {
   const state = local(ctx),
     id = agentID(ctx),
@@ -746,12 +799,13 @@ function submitResource(ctx, field, payload, labelText) {
   )
     return;
   if (id === "new") {
+    const focus = resourceFocusIdentity(document.activeElement);
     edit.value[field] = copy(payload);
     markDirty(ctx, field);
     if (field === "runnerMounts") resource.mount = null;
     resource.message = `${labelText}已加入创建草稿。`;
     resource.status = "success";
-    return refresh(ctx);
+    return refresh(ctx, focus);
   }
   const current = state.agents.find((agent) => agent.id === id);
   const command = {
@@ -762,12 +816,13 @@ function submitResource(ctx, field, payload, labelText) {
     expectedVersion: current.version,
     key: crypto.randomUUID(),
     label: labelText,
+    focus: resourceCommandFocus(field, current[field], payload),
   };
   state.busy = command;
   resource.failed = null;
   resource.status = "pending";
   resource.message = `正在保存${labelText}…`;
-  refresh(ctx);
+  refreshResource(ctx, command.focus.row);
   setTimeout(() => {
     if (state.busy !== command) return;
     state.busy = null;
@@ -800,7 +855,22 @@ function submitResource(ctx, field, payload, labelText) {
       resource.message = "资源操作遇到版本冲突，输入与基本配置草稿已保留。";
       resource.failed = command;
     } else publishResource(state, current, edit, command);
-    if (isCurrentContext(ctx, id)) refresh(ctx);
+    if (
+      isCurrentContext(ctx, id) &&
+      new URLSearchParams(location.search).get("view") === "resources"
+    ) {
+      // Preserve a deliberate focus move made while the request was pending.
+      const active = resourceFocusIdentity(document.activeElement);
+      const stillAtOperation = active === command.focus.row;
+      const focus = stillAtOperation
+        ? resource.status === "unknown"
+          ? '[data-agent-action="lookup"]'
+          : edit.conflict
+            ? '[data-agent-action="basic-rebase"]'
+            : command.focus.control || "#agent-resource-feedback"
+        : active;
+      refreshResource(ctx, focus);
+    }
   }, 350);
 }
 function creationValue(value) {
@@ -966,7 +1036,7 @@ function lookupOperation(ctx) {
         "暂未观察到结果，原请求仍保留。再次查询可核对终态。";
     else
       state.edits[pending.agent].message = "暂未观察到结果，请再次查询原操作。";
-    return refresh(ctx);
+    return refresh(ctx, '[data-agent-action="lookup"]');
   }
   const current = state.agents.find((agent) => agent.id === pending.agent),
     edit = state.edits[pending.agent];
@@ -999,7 +1069,12 @@ function lookupOperation(ctx) {
           ? "原操作已确认成功。重新读取配置后继续。"
           : "原操作已确认失败。重新读取后可重试，输入保留。";
   }
-  refresh(ctx);
+  refresh(
+    ctx,
+    domain === "resource"
+      ? '[data-agent-action="resource-readback"]'
+      : '[data-agent-action="basic-readback"]',
+  );
 }
 function readbackOperation(ctx) {
   const state = local(ctx),
@@ -1025,7 +1100,12 @@ function readbackOperation(ctx) {
         : "已重新读取。原输入已保留，可重试保存。";
     if (pending.observation === "failed") edit.failed = pending.original;
   }
-  refresh(ctx);
+  refresh(
+    ctx,
+    pending.kind === "resource"
+      ? pending.original.focus?.control || "#agent-resource-feedback"
+      : "#agent-form-feedback",
+  );
 }
 function presetDialog(ctx) {
   const state = local(ctx),
