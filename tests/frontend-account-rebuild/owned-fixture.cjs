@@ -81,7 +81,7 @@ const test = base.extend({
   baseURL: async ({ owned }, use) => {
     await use(owned.origin);
   },
-  page: async ({ page, owned }, use) => {
+  page: async ({ page, owned }, use, testInfo) => {
     const response = await page.goto(`${owned.origin}/__fixture__/identity`);
     if (!response || response.status() !== 200)
       throw new Error("OWNED_ACCOUNT_IDENTITY_UNAVAILABLE");
@@ -93,7 +93,29 @@ const test = base.extend({
     }
     if (identity.nonce !== owned.nonce)
       throw new Error("OWNED_ACCOUNT_IDENTITY_MISMATCH");
-    await use(page);
+    const responses = [];
+    page.on("response", (item) => {
+      const pathname = new URL(item.url()).pathname;
+      if (
+        /^\/api\/v1\/(?:auth\/bootstrap|session|sessions\/(?:login|logout)|me(?:\/(?:preferences|avatar|change-password))?|password-resets\/(?:request|inspect|complete)|invitations\/(?:inspect|redeem)|system\/invitations)$/.test(
+          pathname,
+        )
+      )
+        responses.push({
+          path: pathname,
+          method: item.request().method(),
+          status: item.status(),
+        });
+    });
+    try {
+      await use(page);
+    } finally {
+      if (testInfo.status !== testInfo.expectedStatus)
+        await testInfo.attach("safe-account-response-status", {
+          body: Buffer.from(JSON.stringify(responses)),
+          contentType: "application/json",
+        });
+    }
   },
 });
 
