@@ -2,21 +2,25 @@
 
 F0 已因用户实看反馈重开返修。用户未接受现有项目菜单、项目设置结构、下拉样式、页面层次及整体视觉品质，与 Linear 的差距和动效质感仍需改进；视觉系统数值待重新校准，F1—F8 正式产品迁移未开始。此前内部技术与交互检查的通过事实仍按当时输入保留，不代表用户已接受设计，也不能覆盖本轮修改后的新输入。
 
-**当前正在按最终产品目标补齐 Agent，并新增第4个“审计”Tab；尚无本轮完成或通过结论。** 基本配置手动保存，资源逐项保存，记忆逐条操作；审计查看可复用授权的来源、Tool、Scope、active/revoked 与时间，仅撤销有效规则，不是 Agent 设置变更日志，不手工新建或编辑 Scope。完整补齐目标与边界见[项目设置蓝图](../page-blueprints.md#53-项目设置11-个叶子)，不按当前 Vue/API 接入程度删减目标。此前三 Tab 的内部结果只保留原输入含义，不能代证新增内容或用户接受。
+**Agent 的列表、创建与四 Tab 首版已接入，正在测试、独审与受影响返修；尚无本轮整体验收结论。** 基本配置手动保存，资源逐项保存，记忆逐条操作；审计查看可复用授权的来源、Tool、Scope、active/revoked 与时间，仅撤销有效规则，不是 Agent 设置变更日志，不手工新建或编辑 Scope。最终产品目标与边界见[项目设置蓝图](../page-blueprints.md#53-项目设置11-个叶子)，当前样板覆盖见下表。此前三 Tab 的内部结果只保留原输入含义，不能代证新增内容或用户接受。
 
 方法与来源见[本地重设计技能](../../../../.agents/skills/agenteam-frontend-redesign/SKILL.md#从一个完整页面建立方法)及[来源说明](../../../development/agent-team/skill-sources.md#前端重设计方法的本地适配)。设置目录仍为11个栏目；general、Agent 与 MCP 有样板，其余8项仍为静态文字。MCP 只统一页头，其他模板未获本轮整体验收；Agent 删除生命周期和手工 Memory 编辑规则未定，不由本轮补造。F0 未定稿，旧长表单、三 Tab 与 general 的结果继续按原输入解释。
 本样板使用依据当前字段构造的合成数据，业务动作只改变当前浏览器中的演示状态或显示演示反馈，不调用真实 API、不写入业务事实。PDF/文件下载使用本地生成内容，不能代证真实上传、解析、权限、恢复或生产接入。视觉候选与修订规则见[目标设计 §8](../target-design.md#8-f0-可实现视觉值与组件使用决定)；现有数值和下方页面结构均为本轮待核对、待重校的输入。
 
-入口协议见[模块契约](module-contract.md)，原技术与交互结果见[作者浏览器检查](test-README.md)和[独立视觉审查](review/README.md)。新的内部审查须注明新输入及受影响范围；返修后如暂无新的用户认可，结论写为“已修订/内部审查结果，待用户实看反馈”，不把内部检查通过称为用户对信息结构与视觉品质的接受。
+入口与模块保存边界见[模块契约](module-contract.md)，原技术与交互结果见[作者浏览器检查](test-README.md)和[独立视觉审查](review/README.md)。新的内部审查须注明新输入及受影响范围；返修后如暂无新的用户认可，结论写为“已修订/内部审查结果，待用户实看反馈”，不把内部检查通过称为用户对信息结构与视觉品质的接受。
 
 ## 启动与参数
 
-先获取并切换到 `ai/frontend-f0-refinement-20261015` 分支的最新提交；本轮暂不合并 main，仅更新 main 无法取得此示范。原型源码保存在仓库内 `docs/frontend-design/redesign/prototype/`，入口为 [index.html](index.html)，不是临时输出目录。只浏览样板需要 Python 3，不需要产品依赖。以下命令从该分支的仓库根目录执行，使用一个空闲的本机端口：
+在已克隆仓库的根目录获取任务分支 `ai/frontend-f0-refinement-20261015`；本轮尚未合并 main。以下命令切换并快进该分支，再启动仓库内原型；本地已有修改时先按自己的工作流保存，`git switch` / `pull --ff-only` 不会替你丢弃它们。
 
 ```sh
+git fetch origin refs/heads/ai/frontend-f0-refinement-20261015:refs/remotes/origin/ai/frontend-f0-refinement-20261015
+git switch ai/frontend-f0-refinement-20261015
+git pull --ff-only origin ai/frontend-f0-refinement-20261015
 python3 -m http.server 5188 --bind 127.0.0.1 --directory docs/frontend-design/redesign/prototype
 ```
 
+原型源码与 [index.html](index.html) 都在仓库内，不依赖临时输出目录；浏览只需 Python 3 和现代浏览器，不需安装产品依赖。在自己的服务器提供预览时，将绑定地址改为 `0.0.0.0`，通过 `http://服务器地址:5188/index.html?page=agents` 访问。端口可换为空闲端口，也可将整个 prototype 目录交给现有静态 HTTP 服务。
 当前 Agent 列表打开 `http://127.0.0.1:5188/index.html?page=agents&scenario=normal&theme=light`；默认仅列表，不自动选择对象。general 入口仍为 `?page=settings&fixture=baseline&scenario=normal&theme=light`，MCP 为 `?page=mcp`；深色改为 `theme=dark`。端口 5188 仅为示例，可换任一空闲本机端口。旧项目列表仍可用 `?page=projects&theme=light&scenario=normal`。停止时在该终端按 Ctrl+C。ES modules 需要 HTTP 服务，直接打开本地 HTML 文件不能代替此入口。自动检查使用自己的服务与端口，完整命令、锁定依赖及退出记录见[测试说明](test-README.md)。
 
 | 参数       | 可用值与用途                                                                                                                                                                                                            |
@@ -28,21 +32,56 @@ python3 -m http.server 5188 --bind 127.0.0.1 --directory docs/frontend-design/re
 | `fixture`  | 默认 `design`；`baseline` 用于项目、任务、Provider 及 general 与当前正式 Vue 页的同输入对照。                                                                                                                           |
 | 页面选择   | `page=tasks&detail=AT-142` 打开任务详情；`page=knowledge&doc=pdf`（另可选 `md / txt / docx`） 选择四格式示例；项目入口可携带 `project_name` / `project_lifecycle`。                                                     |
 
-以下是本轮补齐前已可浏览的非敏感对象入口；四 Tab 新内容与新增参数待实现冻结后按实际结果更新，不能将下表或旧检查当成本轮完成证明。详情替换列表主区，Memory 属于同一对象；未知 ID 显示无效目标并提供返回，不回退到首项：
+Agent 入口如下。默认仅列表；未知 ID 显示无效目标与返回入口，不选择首项代替。对象页头保持独立“← Agent”返回、当前显示名/名称与实际描述；说明为空时隐藏该行。
 
-| 入口                                               | 含义                                                                                                              |
-| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `?page=agents`                                     | Agent 列表，初始无选中详情                                                                                        |
-| `?page=agents&agent=new`                           | 独立创建，默认基本配置；可切 `view=resources`，仅两个 Tab，无记忆 Tab。名称与主模型必填，成功后仅新增本地合成对象 |
-| `?page=agents&agent=agent-reviewer`                | Reviewer 独立详情，默认基本配置；另有 `agent-architecture`、`agent-researcher`                                    |
-| `?page=agents&agent=agent-reviewer&view=resources` | Reviewer 详情的能力与资源 Tab                                                                                     |
-| `?page=agents&agent=agent-reviewer&view=memory`    | Reviewer 同一详情的记忆 Tab                                                                                       |
-| `?page=memory`                                     | 旧链接按原映射兼容至 Architecture 的记忆 Tab；旧 `panel=configuration` 兼容至其基本配置，不作为新列表入口         |
+| 入口                                               | 含义                                                                                      |
+| -------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `?page=agents`                                     | 常规列表有 Architecture、Researcher、Reviewer 三个合成对象，页容量10；无默认选中对象      |
+| `?page=agents&list_fixture=paged`                  | 15个合成对象，用于列表筛选、翻页与返回位置演示                                            |
+| `?page=agents&agent=new`                           | 创建的基本配置；可切 `view=resources`，两 Tab 汇集一次创建，不展示记忆/审计               |
+| `?page=agents&agent=agent-reviewer`                | Reviewer 基本配置；可换 `agent-architecture` 或 `agent-researcher`                        |
+| `?page=agents&agent=agent-reviewer&view=resources` | 当前对象的能力与资源                                                                      |
+| `?page=agents&agent=agent-reviewer&view=memory`    | 当前对象的记忆                                                                            |
+| `?page=agents&agent=agent-reviewer&view=audit`     | 当前对象的可复用授权审计                                                                  |
+| `?page=memory`                                     | 旧链接兼容至 Architecture 记忆；旧 `panel=configuration` 兼容至基本配置，不定义新产品路由 |
 
-详情保留上方独立“← Agent”返回列表、当前显示名/名称标题与实际描述，无描述时不显示说明行，技术名留在基本信息。本轮目标为基本配置/能力与资源/记忆/审计四个 Tab，共用稳定对象页头；不设置独立“查看记忆”按钮。基本配置独立草稿与手动保存，资源按完整操作保存，Memory 与授权撤销逐条操作；各自成功结果不被基本配置取消或保存回滚，各自保留失败与 Unknown 恢复。创建仍只用两个配置 Tab 汇集一次创建输入，没有记忆或审计 Tab；完整字段、初始化和权限目标见上述蓝图。
-新 Agent 入口使用真实字段合同构造的3个合成对象（Architecture、Researcher、Reviewer），并模拟模型、指令、审批、Runner/Secret 引用、Skills 与 Memory；不调用真实 API、不代表真实 Agent 运行。旧正式 Vue fixture 只有1个 reviewer，与此输入不同；即使带 `fixture=baseline`，也不能将 Agent 图称为真实 Vue 的同输入前后对照。补齐前的列表返回、基本草稿与独立操作隔离、创建及缩放结果见[此前三 Tab 定向检查](test-README.md#三-tab-与独立保存的最终定向检查)；旧长表单结果仅证明当时输入。创建尚无对象 ID，前两个 Tab 汇集一次创建输入，不表示资源已即时写入；有效创建只增加本地对象，刷新后重置。
+已有 Agent 的基本配置独立手动保存/取消，同对象切 Tab 保留草稿。工具、完整 Mount、Secret 与 Skills 分别即时提交；Memory 删除、审计撤销各自逐条提交。基本配置取消/保存不能回滚其他域已成功的操作。创建尚无对象 ID，资源选择只汇入一次创建输入；完成后增加本地对象，重载页面重置。所有对象、目录和结果均为合成输入，不能称为真实 Vue 同输入对照或真实 Agent 运行。
 
-资源恢复演示可在对象入口附加 `resource_result=error`（另可用 `unknown`、`conflict`、`version_jump`），在提交资源操作后触发对应本地结果；`resource_extra_secret=1` 为 Reviewer 添加缺页既有 Secret 引用，用于核对完整集合保留。它们都是合成检查参数，不代表真实服务返回。
+## Agent 目标与样板覆盖
+
+下表描述已接入的交互和正式设计依据；它不是测试或独审通过表。基础/资源由 [agent-pages.js](agent-pages.js) 与 [agent-catalog.js](agent-catalog.js) 承载，记忆/审计由 [agent-memory-audit.js](agent-memory-audit.js) 承载。
+
+| 产品目标与来源                                                                                                                                                  | 当前可操作的样板呈现                                                                                                                                                               |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [对象列表与派生执行状态](../../../architecture/agent-management.md#3-agent-与执行链路的关系)                                                                    | 名称、职责、模型、更新时间及由非终态执行派生的 busy/idle；名称/描述搜索、忙闲筛选、刷新与分页；不提供 Agent 在线或启停开关                                                         |
+| [Preset 复制](../../../architecture/agent-management.md#4-agent-preset)与[初始化](../../../architecture/agent-management.md#skills)                             | 创建页选择 Research / Review / Writing，预览后确认复制；失效工具推荐跳过，失效或空模型要求重选；已有名称、显示名与项目资源保留。Add Skills 与 install-skill 两开关实际改变创建结果 |
+| [基本配置与模型](../../../architecture/agent-management.md#基础配置)、[审批策略](../../../architecture/security-governance/README.md#42-approval-policy-子流程) | 完整身份、描述、颜色、指令与 AGENTS.md；系统/项目模型的 Provider/可用性；按模型能力编辑推理强度；default/auto/allow 与 auto 审批模型；独立草稿/保存/取消及冲突重读                 |
+| [Tool 与 Core 授权](../../../architecture/agent-management.md#capability)                                                                                       | 普通工具逐项授权/撤销；按来源、读写、风险筛选，按名称/用途搜索并显示用途；MCP 逐 Tool 授权，Core 只读始终可见，不另造功能分类词表                                                  |
+| [Runner Mount](../../../architecture/runner/agent-workspace.md#3-agent-mount)                                                                                   | name、Runner、workspace、description 四字段完整确认，编辑与移除；名称和目录名分别表达，目录仅单段逻辑名称                                                                          |
+| [Secret 授权](../../../architecture/agent-management.md#project-environment-variables)                                                                          | 名称与用途搜索、显示其余候选、单独授权/撤销；保留目录暂缺的既有引用，不显示 Secret 值                                                                                              |
+| [Skills 分配与生效](../../../architecture/agent-skills.md#6-新分配技能的下一轮生效)                                                                             | 候选详情/简介/修订/保护标记与搜索，具名确认分配、启用/禁用/撤销；区分配置保存与运行中待下一轮应用，分配不等于安装项目技能包                                                        |
+| [Memory 用户管理](../../../architecture/knowledge-memory/agent-memory-domain.md#22-用户侧-memory-管理)                                                          | text/type/tags/importance/更新时间/来源摘要；类型、标签、重要性、来源及当前/已删除筛选；逐修订内容/状态/时间/来源与分页/重试；删除后可查保留历史，来源失效明确说明                 |
+| [Reusable Approvals](../../../architecture/security-governance/approval-scope.md#11-agent-配置界面)                                                             | 审计 Tab 列表/筛选/分页→详情→返回；Tool、Scope、active/revoked、时间、批准人与来源摘要；撤销 active 并保留记录。不是设置变更日志，不手工新增或编辑授权范围                         |
+
+所有写操作保留各自失败、冲突与原请求恢复区域；Unknown 查询终态后仍须重新读取恢复操作，不能凭“已发出查询”提前解锁。以下参数用于主动查看这些状态，不影响正常预览。
+
+### Agent 场景与恢复参数
+
+在上表入口后追加参数即可；均是非敏感演示选项。Memory/审计列表及历史默认页容量20，`page_size=3&history_page_size=2` 可让少量合成记录显示翻页；两个值接受1–50的整数，其他值回退20。
+
+| 参数                                                   | 演示方式                                                                                                                                        |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `model_reference=invalid` / `missing`                  | Architecture 显示停用 Legacy 模型或已删除模型引用，要求明确重选                                                                                 |
+| `resource_extra_secret=1`                              | Reviewer 含目录未返回的既有 Secret 引用，核对筛选/授权后仍保留                                                                                  |
+| `basic_result` / `creation_result` / `resource_result` | 值为 `error`、`unknown`、`conflict`；执行对应操作时触发一次；资源另支持 `version_jump` 的待核回执                                               |
+| `basic_lookup` / `creation_lookup` / `resource_lookup` | 默认 `committed`；`failed` 确认失败；`not_observed` 第一次查不到，第二次得到成功终态。随后点击重新读取配置/资源恢复操作                         |
+| `memory_read=error` / `audit_read=error`               | 对应区域首次读取失败，可重新读取                                                                                                                |
+| `memory_history=error`                                 | 首次展开记忆修订历史失败，可在历史区重试                                                                                                        |
+| `memory_result` / `audit_result`                       | `error`、`conflict`、`unknown`，在确认删除/撤销时触发一次，保留原记录和操作                                                                     |
+| `memory_lookup` / `audit_lookup`                       | 默认 `committed` 或指定 `failed`；确认终态后点击重新读取，才发布结果并解锁。`not_observed` 持续保持待确认，`error` 演示查询失败；两者不伪装成功 |
+| `scenario=unknown`                                     | 直接构造当前操作域待确认状态；`readonly` / `conflict` / `empty` / `loading` / `error` 等继续使用通用场景                                        |
+
+例如，打开 `?page=agents&agent=agent-reviewer&view=memory&page_size=3&history_page_size=2&memory_result=unknown`，确认删除后查询原删除结果，再重新读取，观察记录进入“已删除”而历史仍保留。审计将 `view` 改为 `audit`、结果参数改为 `audit_result=unknown`，进入一条生效记录后确认撤销并走相同两步恢复。需要重新观察一次性故障时重新载入页面；这是重建合成状态，不是跨 Session 恢复。
 
 页面底部“样板设置”可切换页面、主题、强调色和状态。URL 只承载非敏感展示选择；草稿、凭据和 OAuth 材料不进入 URL。刷新会重建内存数据，不作为持久化或跨 Session 恢复。
 
@@ -61,7 +100,7 @@ L1—L8 的定义和实际观察限制见 [Linear 官方参考](../linear-refere
 | `project`   | 项目概览；资料、状态与任务、会议、待办、知识、产物入口。                             | L1 分层、L3 概览；归档/归档中明确只读。                                               |
 | `tasks`     | 七状态看板、当前 Sprint 规划、任务创建、详情正文/属性、草稿与返回。                  | L2 工作台、L5 局部横滚看板、L6 属性、L7 创建/草稿关闭；不增加拖拽或 Explore。         |
 | `settings`  | 项目设置基本信息候选：名称/描述编辑、记录、菜单、保存反馈及恢复。                    | L1 框架层级、L8 成组设置；无归档/恢复/删除项目操作，旧检查不覆盖本轮共享页头变化。    |
-| `agents`    | 列表→独立详情；正在补齐基本配置/能力与资源/记忆/审计四 Tab，创建仅前两个配置 Tab。   | L4 连续对象列表、L8 任务分组；本轮进行中，旧三 Tab 内部检查不覆盖补齐项。             |
+| `agents`    | 列表→独立详情四 Tab：基本配置、能力与资源、记忆、审计；创建仅前两个配置 Tab。        | L4 连续对象列表、L8 任务分组；首版已接入，检查与返修中，旧三 Tab 证据不代证新增内容。 |
 | `providers` | Provider 目录→配置/模型；创建、就近保存、凭据输入、模型编辑和删除引用门禁。          | L1 信息层级、L6 对象属性、L8 成组设置；Provider、Model、Credential 各有独立命令语义。 |
 | `knowledge` | 目录→阅读/原文编辑、四格式原文件、PDF、元信息、上传/替换/下载与恢复。                | L2 阅读主区、L3 资源、L6 元信息、L7 草稿关闭；窄屏默认正文、单层目录。                |
 | `meetings`  | 消息与回复、引用/附件输入、Summary、Decision/Approval 与结果恢复。                   | L2 内容工作台、L6 上下文、L7 输入与草稿；会议、附件及有限 Realtime 采用本项目语义。   |
@@ -74,7 +113,7 @@ L1—L8 的定义和实际观察限制见 [Linear 官方参考](../linear-refere
 
 ## 演示动作与真实实现接续
 
-下表列出已有产品接续依赖，样板没有调用它们；它不是本轮 Agent 最终目标的上限，新增样板内容按正式产品契约构造，真实接线另行验证。刷新、过滤、目录切换、Tab、详情、草稿和分页演示仅处理内存数据；“查询原请求”也只展示恢复语义。正式接入必须复用对应 API、Session/Project guard 与请求 owner，保留版本、字段 presence、原 key、迟到结果和只读限制。
+下表列出既有接续点，Agent 的完整产品目标与原型映射以上一节为准。Preset、Tool/Core 和可复用授权按该节关联的正式设计构造，不能从下表省略项推断它们不属于目标。样板不调用这些服务，产品接线另行验证。刷新、过滤、目录切换、Tab、详情、草稿和分页演示仅处理内存数据；“查询原请求”也只展示恢复语义。正式接入必须复用对应 API、Session/Project guard 与请求 owner，保留版本、字段 presence、原 key、迟到结果和只读限制。
 
 | 页面/动作                       | 当前代码中的真实依赖与接续边界                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -91,6 +130,8 @@ L1—L8 的定义和实际观察限制见 [Linear 官方参考](../linear-refere
 | MCP 配置、连接、发现、凭据      | [project-mcp.ts](../../../../web/src/api/project-mcp.ts) 的配置/连接/能力读取与写命令；[mcp-session.ts](../../../../web/src/composables/mcp-session.ts) 的 `start / lookup`，凭据由 [mcp-credential-session.ts](../../../../web/src/composables/mcp-credential-session.ts) 独立 `start / lookup`。系统配置只读；Unknown 与 stopped 不混同成功。                                                                                                                                                                |
 | OAuth 发起、回调、查询与返回    | [mcp-oauth-session.ts](../../../../web/src/composables/mcp-oauth-session.ts) 的原授权会话、`completeReturn / lookup`；正式返回依赖同 Session、原意图和 code 清理。样板无真实 OAuth 跳转或令牌。                                                                                                                                                                                                                                                                                                                |
 | Agent 创建、配置读取/编辑与恢复 | [agent-configuration.ts](../../../../web/src/api/agent-configuration.ts) 的 `create / lookup / getConfiguration / update / lookupUpdate` 与 [useProjectAgents.ts](../../../../web/src/composables/useProjectAgents.ts)；样板仅本地模拟，创建和更新保持各自原输入及恢复语义，Memory 命令独立见下行。                                                                                                                                                                                                            |
+| Agent Skills 分配与恢复         | [agent-skill-assignments.ts](../../../../web/src/api/agent-skill-assignments.ts) 的 `list / execute / lookup`；产品行为按 [Skills](../../../architecture/agent-skills.md) 保持独立分配、版本与运行中应用反馈，样板候选来自本地 catalog。                                                                                                                                                                                                                                                                       |
+| Preset、Tool/Core、可复用授权   | 采用上节 [Agent Management](../../../architecture/agent-management.md) 与 [Approval Scope](../../../architecture/security-governance/approval-scope.md) 的产品契约；复制边界、逐工具授权和撤销规则均已纳入样板。正式接线需保持同一产品语义，不将本地成功视为服务端结果。                                                                                                                                                                                                                                       |
 | Memory 读取、修订、删除与查询   | [agent-memory.ts](../../../../web/src/api/agent-memory.ts) 的 `list / history / delete / lookup`；[agent-memory-session.ts](../../../../web/src/composables/agent-memory-session.ts) 的 `start / lookup` 保留 `memory_id + expected_revision`，Unknown 时不能直接移除原记录。                                                                                                                                                                                                                                  |
 
 ## 状态、文件与键盘检查
@@ -102,6 +143,8 @@ Knowledge 可用 `doc=md / txt / pdf / docx` 查看格式边界：TXT、Markdown
 公共模态由原生 `dialog`、Tab/Shift+Tab 循环、Escape/关闭按钮及回焦组成。任务与知识草稿在离开前提示保留，Provider Tab 需要方向键与正确焦点，窄屏目录和详情需要明确返回路径；底部样板栏不得遮挡操作。这些要求曾按上一轮输入完成浏览器检查和适用独立复验，原失败及修复依据继续保留；本轮修改后须补受影响检查。Knowledge 在原生 200% 的低高度视口下允许正文随页面滚动，真实滚轮可到达长文后部；不以等效 viewport 检查替代该次原生缩放证据。
 
 ## 复现、截图与 F1 接续
+
+当前四 Tab 候选的功能测试、独审及受影响返修仍在进行，最终结果以[测试说明](test-README.md)与[独审入口](review/README.md)的本轮记录为准，不能将下列历史结果累加成新候选通过。
 
 补齐前的三 Tab [定向测试](test-README.md#三-tab-与独立保存的最终定向检查)由未受影响的7项与修后资源代表链1项组成，覆盖新 Tab 身份/直链、基本草稿与独立操作互不回滚、创建、键盘/动效及当时原生200%；异常版本的旧错误预期已撤回，修后保留原状态与待核命令，不合并称为全站矩阵通过。[独立审查](review/README.md#agent-三-tab-与独立保存职责限定内部通过)亲看三 Tab 的1440浅色/390深色六张正常整页，完成跨 Tab 主链，并在取消后焦点修正后按原窄屏现场复验；旧整页与保存结果仅按未受影响范围复用。各项输入、限制及代表图见对应入口，不作为用户接受或真实后端验收。
 

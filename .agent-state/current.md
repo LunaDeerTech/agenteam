@@ -5,7 +5,7 @@
 ## 本轮分支与职责
 
 - 本轮补齐基线：`b52b8c43`；任务分支：`ai/frontend-f0-refinement-20261015`；当前工作树：`/workspace/agenteam-f0-refinement`。原 F0 工作树已移除，不能沿旧目录恢复。
-- 唯一活动写会话为 `/root`，root 负责全部 Git 与集成。用户已授权在现有候选上补齐 Agent 设置的明确产品目标，并将 Reusable Approvals 独立为第4个“审计”Tab；最近已确认远端检查点为 `41d1a13d`；其后的修正待本次保存，稳定候选正在验收，尚无本轮整体通过结论。本轮继续使用 `ai/frontend-f0-refinement-20261015`，暂不合并 main，main 仍为 `b6db5297`；恢复按[状态说明](README.md)核对分支最新提交与本地差异，不能把在制改动当已远端保存。
+- 唯一活动写会话为 `/root`，root 负责全部 Git 与集成。用户已授权在现有候选上补齐 Agent 设置的明确产品目标，并将 Reusable Approvals 独立为第4个“审计”Tab；最近已确认远端检查点为 `507f92d3`；该候选进入测试与独审后，资源操作回焦 P1 正由实现者定向返修，尚无本轮整体通过结论。本轮继续使用 `ai/frontend-f0-refinement-20261015`，暂不合并 main，main 仍为 `b6db5297`；恢复按[状态说明](README.md)核对分支最新提交与本地差异，不能把在制改动当已远端保存。
 - `/root/agent_completion_designer` 负责基础配置、能力资源与样板集成；`/root/f0_structure_audit` 转为 Memory/审计模块实现；`/root/agent_completion_test` 负责本轮测试，`/root/f0_refinement_review` 独立审查；`/root/f0_docs` 独写本文件、任务台账顶部、`prototype/README.md`，以及 `page-blueprints.md`、`target-design.md`、`implementation-plan.md` 本轮对应规则。原型紧耦合，按文件唯一写者共用本工作树，Git 仍只由 root 执行。
 
 ## 当前断点与下一步
@@ -18,7 +18,7 @@
 
 此前 general 的正常/减少动效、窄屏、菜单与原生200%竞态修复等限定证据见[测试说明](../docs/frontend-design/redesign/prototype/test-README.md)与[独审入口](../docs/frontend-design/redesign/prototype/review/README.md)，只按未受影响的原输入复用。旧11类模板没有本轮整体验收；11个设置栏目中其余8叶仍无本轮业务样板，`task-pages.js` / `task.css` 仍未接入并保留 WIP。
 
-功能测试首轮9项为5通过、4失败：其中1项产品问题已修，3项选择器前提已修，正在定向复跑，不能称全部通过。独审环境已就绪，等待稳定候选冻结后开始；下一步收齐修后测试、独审及各 owner 资源退出事实，再统一更新实际交付说明。此前三 Tab 的限定视觉、保存隔离和原生200%证据保留原输入含义，不能代证本轮四 Tab 或补齐项。入口与当前可运行边界见[样板说明](../docs/frontend-design/redesign/prototype/README.md#启动与参数)。Agent 使用依据产品字段构造的合成对象，不声称与旧正式 Vue 同输入对照。实现仍限隔离样板及必要文档/harness，未推进产品 `web/src/`、后端或 F1—F8；F0 全局未定稿，设计值未冻结，尚未取得用户整体认可。
+功能测试已有14条有效通过证据（首批5条、修后4条、Memory/审计5条）；另4条恢复/只读 scope 检查已准备但尚未运行。测试者当前停写可保存，资源操作后的焦点 P1 正由设计实现者定向修复；独审已通过主要视图、原生200%与动效的限定检查，焦点问题及剩余检查仍待收口，不称全部通过。下一步完成该修正及剩余检查，再收齐独审和各 owner 资源退出事实，统一更新实际交付说明。此前三 Tab 的限定视觉、保存隔离和原生200%证据保留原输入含义，不能代证本轮四 Tab 或补齐项。入口与当前可运行边界见[样板说明](../docs/frontend-design/redesign/prototype/README.md#启动与参数)。Agent 使用依据产品字段构造的合成对象，不声称与旧正式 Vue 同输入对照。实现仍限隔离样板及必要文档/harness，未推进产品 `web/src/`、后端或 F1—F8；F0 全局未定稿，设计值未冻结，尚未取得用户整体认可。
 
 ## 材料与检查边界
 

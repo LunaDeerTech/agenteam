@@ -1373,12 +1373,35 @@ async function agentTab(page, view) {
     await tab.getAttribute("id"),
   );
 }
+async function findAgentRow(page, id) {
+  const row = page.locator(`.agent-directory-link[data-agent-open="${id}"]`);
+  for (let attempt = 0; attempt < 10; attempt++) {
+    if (await row.count()) return row;
+    const next = page.locator('[data-agent-action="list-next"]');
+    if (!(await next.isEnabled())) break;
+    await next.click();
+  }
+  await expect(row, `Agent ${id} must be reachable through the directory`).toBeVisible();
+  return row;
+}
+async function agentSection(page, name) {
+  const section = page.locator(`[data-agent-section="${name}"]`);
+  if (!(await section.getAttribute("open"))) {
+    if (!(await section.evaluate((node) => node.open)))
+      await section.locator(":scope > summary").click();
+  }
+  await expect(section).toHaveAttribute("open", "");
+  return section;
+}
+async function resourceSaved(page) {
+  await expect(page.locator("#agent-resource-feedback")).toHaveAttribute("data-status", "success");
+}
 for (const layout of [layouts[0], layouts[3]]) {
   test(`[agent-completion] identity four tabs draft keyboard save and return ${layout.width}`, async ({ page }) => {
     const faults = await setup(page, layout);
     await openAgents(page, layout);
     await expect(page.locator("#agent-configuration-form")).toHaveCount(0);
-    const reviewer = page.locator('.agent-directory-link[data-agent-open="agent-reviewer"]');
+    const reviewer = await findAgentRow(page, "agent-reviewer");
     await reviewer.focus();
     await page.keyboard.press("Enter");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Reviewer");
@@ -1418,6 +1441,689 @@ for (const layout of [layouts[0], layouts[3]]) {
     expect(faults).toEqual({ errors: [], outbound: [] });
   });
 }
+test("[agent-completion] model effort approval coupling and invalid reference recovery", async ({ page }) => {
+  const faults = await setup(page, layouts[0]);
+  await openAgents(page, layouts[0], { agent: "agent-reviewer" });
+  await chooseAgentOption(page, "agent-modelID", /^Project Chat ·/);
+  await expect(page.locator("#agent-reasoningEffort")).toHaveValue("");
+  await page.locator("#agent-save").click();
+  await expect(page.locator("#agent-form-feedback")).toContainText("推理");
+  await chooseAgentOption(page, "agent-reasoningEffort", "高");
+  await chooseAgentOption(page, "agent-approvalPolicy", "模型自动审批");
+  await page.locator("#agent-save").click();
+  await expect(page.locator("#agent-form-feedback")).toContainText("审批模型");
+  await chooseAgentOption(page, "agent-approvalModelID", /^Review Chat ·/);
+  await page.locator("#agent-save").click();
+  await expect(page.locator("#agent-form-feedback")).toHaveText("配置已保存。");
+  await agentTab(page, "resources");
+  const tools = await agentSection(page, "tools");
+  await expect(tools.locator("[data-tool]:checked")).toHaveCount(0);
+  await agentTab(page, "basic");
+  await chooseAgentOption(page, "agent-modelID", /^System Reasoning ·/);
+  await expect(page.locator("#agent-reasoningEffort")).toHaveValue("high");
+  await chooseAgentOption(page, "agent-modelID", /^Review Chat ·/);
+  await expect(page.locator("#agent-reasoningEffort")).toHaveCount(0);
+  await chooseAgentOption(page, "agent-approvalPolicy", "默认审批");
+  await expect(page.locator("#agent-approval-model")).toBeHidden();
+  await chooseAgentOption(page, "agent-approvalPolicy", "模型自动审批");
+  await expect(page.locator("#agent-approvalModelID")).toHaveValue("");
+  await openAgents(page, layouts[0], { agent: "agent-architecture", model_reference: "invalid" });
+  await expect(page.locator("#agent-modelID")).toHaveValue("model-retired-chat");
+  await expect(page.getByRole("tabpanel")).toContainText("当前不可用");
+  await page.getByLabel("描述", { exact: true }).fill("修复模型引用时保留的描述。");
+  await page.locator("#agent-save").click();
+  await expect(page.locator("#agent-form-feedback")).toContainText("模型");
+  await expect(page.getByLabel("描述", { exact: true })).toHaveValue("修复模型引用时保留的描述。");
+  await chooseAgentOption(page, "agent-modelID", /^Review Chat ·/);
+  await page.locator("#agent-save").click();
+  await expect(page.locator("#agent-form-feedback")).toHaveText("配置已保存。");
+  expect(faults).toEqual({ errors: [], outbound: [] });
+});
+
+test("[agent-completion] ordinary Tool filters grant revoke and individual MCP authorization", async ({ page }) => {
+  const faults = await setup(page, layouts[3]);
+  await openAgents(page, layouts[3], { agent: "agent-architecture", view: "resources" });
+  const tools = await agentSection(page, "tools");
+  const skillsBefore = await (await agentSection(page, "skills")).locator(".agent-skill-row").allTextContents();
+  await chooseAgentOption(page, "agent-filter-toolSource", "Runner");
+  await chooseAgentOption(page, "agent-filter-toolAccess", "写入");
+  await chooseAgentOption(page, "agent-filter-toolRisk", "高风险");
+  await expect(tools.locator("[data-tool]")).toHaveCount(1);
+  await expect(tools).toContainText("在授权工作目录内执行命令");
+  await tools.locator('[data-tool="run-command"]').check();
+  await resourceSaved(page);
+  await chooseAgentOption(page, "agent-filter-toolSource", "全部来源");
+  await chooseAgentOption(page, "agent-filter-toolAccess", "读写类型");
+  await chooseAgentOption(page, "agent-filter-toolRisk", "全部风险");
+  await expect(tools.locator('[data-tool="web-search"]')).toBeChecked();
+  await tools.locator('[data-tool="web-search"]').uncheck();
+  await resourceSaved(page);
+  await expect(tools.locator('[data-tool="run-command"]')).toBeChecked();
+  await expect(tools.locator('[data-tool="read-file"]')).toBeChecked();
+  await tools.locator(".agent-core-tools summary").click();
+  await expect(tools.locator(".agent-core-tools")).toContainText("recall");
+  await expect(tools.locator(".agent-core-tools input, .agent-core-tools button")).toHaveCount(0);
+  await expect(page.locator(".agent-skill-row")).toHaveText(skillsBefore);
+  await chooseAgentOption(page, "agent-filter-toolSource", "MCP");
+  await tools.locator('[data-tool="mcp:github:list_issues"]').check();
+  await resourceSaved(page);
+  await expect(tools.locator('[data-tool="mcp:github:create_issue"]')).not.toBeChecked();
+  await expect(tools.locator('[data-tool="mcp:docs:search"]')).not.toBeChecked();
+  await tools.locator('[data-tool="mcp:github:list_issues"]').uncheck();
+  await resourceSaved(page);
+  await expect(tools.locator('[data-tool="mcp:github:list_issues"]')).not.toBeChecked();
+  await noOverflow(page, "Tool authorization filters 390");
+  expect(faults).toEqual({ errors: [], outbound: [] });
+});
+
+test("[agent-completion] complete Mount and Secret changes survive basic cancellation", async ({ page }) => {
+  const faults = await setup(page, layouts[3]);
+  await openAgents(page, layouts[3], { agent: "agent-reviewer", resource_extra_secret: "1" });
+  await page.getByLabel("描述", { exact: true }).fill("取消基本配置不应撤销已完成的资源动作。");
+  await agentTab(page, "resources");
+  const mounts = await agentSection(page, "runners");
+  await page.locator('[data-agent-action="add-mount"]').click();
+  await page.getByLabel("挂载名称", { exact: true }).fill("Review workspace");
+  await chooseAgentOption(page, "agent-action-runner", "Atlas Runner");
+  await page.getByLabel("资源目录名", { exact: true }).fill("/unsafe/absolute");
+  await page.getByLabel("说明", { exact: true }).fill("评审输出及复现材料。");
+  await page.locator('[data-agent-action="confirm-mount"]').click();
+  await expect(page.locator("#agent-resource-feedback")).toHaveAttribute("data-status", "error");
+  await expect(page.getByLabel("挂载名称", { exact: true })).toHaveValue("Review workspace");
+  await expect(page.getByLabel("说明", { exact: true })).toHaveValue("评审输出及复现材料。");
+  await page.getByLabel("资源目录名", { exact: true }).fill("review-work");
+  await page.locator('[data-agent-action="confirm-mount"]').click();
+  await resourceSaved(page);
+  await expect(mounts).toContainText("Review workspace");
+  await expect(mounts).toContainText("Atlas Runner / review-work");
+  await expect(mounts).toContainText("评审输出及复现材料。");
+  await page.locator('[data-agent-action="edit-mount:0"]').click();
+  await expect(page.getByLabel("说明", { exact: true })).toHaveValue("评审输出及复现材料。");
+  await page.getByLabel("挂载名称", { exact: true }).fill("Review archive");
+  await chooseAgentOption(page, "agent-action-runner", "Research Runner");
+  await page.getByLabel("资源目录名", { exact: true }).fill("review-archive");
+  await page.getByLabel("说明", { exact: true }).fill("归档后的评审材料。");
+  await page.locator('[data-agent-action="confirm-mount"]').click();
+  await resourceSaved(page);
+  const secrets = await agentSection(page, "secrets");
+  await page.locator('[data-agent-action="secret-more"]').click();
+  await expect(secrets.locator("[data-secret]")).toHaveCount(7);
+  await expect(secrets.locator('[data-secret="secret-outside-directory"]')).toBeChecked();
+  await expect(secrets).toContainText("调用文档翻译服务");
+  await expect(secrets.locator('input[type="password"], textarea')).toHaveCount(0);
+  await page.getByRole("searchbox", { name: "筛选 Secret", exact: true }).fill("研究资料");
+  await expect(secrets.locator("[data-secret]")).toHaveCount(1);
+  await secrets.locator('[data-secret="secret-research"]').check();
+  await resourceSaved(page);
+  await page.getByRole("searchbox", { name: "筛选 Secret", exact: true }).fill("");
+  await expect(secrets.locator('[data-secret="secret-outside-directory"]')).toBeChecked();
+  await agentTab(page, "basic");
+  await page.locator('[data-agent-action="cancel"]').click();
+  await page.locator("[data-agent-confirm]").click();
+  await expect(page.getByLabel("描述", { exact: true })).toHaveValue(agentExamples.reviewer.description);
+  await agentTab(page, "resources");
+  await expect(mounts).toContainText("Review archive");
+  await expect(mounts).toContainText("Research Runner / review-archive");
+  await expect(mounts).toContainText("归档后的评审材料。");
+  await expect(secrets.locator('[data-secret="secret-research"]')).toBeChecked();
+  await expect(secrets.locator('[data-secret="secret-outside-directory"]')).toBeChecked();
+  await page.locator('[data-agent-action="remove-mount:0"]').click();
+  await expect(page.getByRole("dialog")).toContainText("Review archive");
+  await page.keyboard.press("Escape");
+  await expect(mounts.locator(".agent-saved-mount")).toHaveCount(1);
+  await page.locator('[data-agent-action="remove-mount:0"]').click();
+  await page.locator("[data-agent-confirm]").click();
+  await resourceSaved(page);
+  await expect(mounts.locator(".agent-saved-mount")).toHaveCount(0);
+  expect(faults).toEqual({ errors: [], outbound: [] });
+});
+
+test("[agent-completion] Skills assignment disable enable revoke names the target and preserves configuration", async ({ page }) => {
+  const faults = await setup(page, layouts[0]);
+  await openAgents(page, layouts[0], { agent: "agent-reviewer", view: "resources" });
+  const skills = await agentSection(page, "skills");
+  await page.locator('[data-agent-action="skill-assign"]').click();
+  await page.locator('[data-skill-pick="skill-research"]').click();
+  await expect(page.getByRole("dialog")).toContainText("Research");
+  await expect(page.getByRole("dialog")).toContainText("Reviewer");
+  await page.locator("[data-agent-confirm]").click();
+  await resourceSaved(page);
+  const research = skills.locator(".agent-skill-row").filter({ hasText: "Research" });
+  await expect(research).toContainText("已启用");
+  await expect(research).toContainText("修订 3");
+  await research.getByRole("button", { name: "禁用", exact: true }).click();
+  await expect(page.getByRole("dialog")).toContainText("Research");
+  await page.locator("[data-agent-confirm]").click();
+  await resourceSaved(page);
+  await expect(research).toContainText("已禁用");
+  await expect(skills).toContainText("后续");
+  await expect(skills).toContainText("固定版本");
+  const tools = await agentSection(page, "tools");
+  await expect(tools.locator("[data-tool]:checked")).toHaveCount(0);
+  await agentTab(page, "basic");
+  await page.getByLabel("描述", { exact: true }).fill("Skills 禁用后更新配置。");
+  await page.locator("#agent-save").click();
+  await expect(page.locator("#agent-form-feedback")).toHaveText("配置已保存。");
+  await agentTab(page, "resources");
+  await expect(research).toContainText("已禁用");
+  await research.getByRole("button", { name: "启用", exact: true }).click();
+  await page.locator("[data-agent-confirm]").click();
+  await resourceSaved(page);
+  await expect(research).toContainText("已启用");
+  await research.getByRole("button", { name: "撤销分配", exact: true }).click();
+  await expect(page.getByRole("dialog")).toContainText("Research");
+  await expect(page.getByRole("dialog")).toContainText("Reviewer");
+  await page.keyboard.press("Escape");
+  await expect(research).toContainText("已启用");
+  await research.getByRole("button", { name: "撤销分配", exact: true }).click();
+  await page.locator("[data-agent-confirm]").click();
+  await resourceSaved(page);
+  await expect(research).toHaveCount(0);
+  await page.locator('[data-agent-action="skill-assign"]').click();
+  await expect(page.locator('[data-skill-pick="skill-research"]')).toBeEnabled();
+  await page.keyboard.press("Escape");
+  expect(faults).toEqual({ errors: [], outbound: [] });
+});
+
+test("[agent-completion] directory pagination filters refresh and saved timestamps", async ({ page }) => {
+  const faults = await setup(page, layouts[0]);
+  await page.clock.setFixedTime(new Date("2026-11-02T10:20:00Z"));
+  await openAgents(page, layouts[0], { list_fixture: "paged" });
+  const firstIDs = await page.locator(".agent-directory-link").evaluateAll((nodes) => nodes.map((node) => node.dataset.agentOpen));
+  expect(firstIDs.length).toBeGreaterThan(3);
+  await expect(page.locator("#agent-configuration-form")).toHaveCount(0);
+  await page.locator('[data-agent-action="list-next"]').click();
+  const secondIDs = await page.locator(".agent-directory-link").evaluateAll((nodes) => nodes.map((node) => node.dataset.agentOpen));
+  expect(secondIDs.length).toBeGreaterThan(0);
+  expect(secondIDs.some((id) => firstIDs.includes(id))).toBe(false);
+  await page.locator('[data-agent-action="refresh"]').click();
+  expect(await page.locator(".agent-directory-link").evaluateAll((nodes) => nodes.map((node) => node.dataset.agentOpen))).toEqual(secondIDs);
+  await page.getByRole("searchbox", { name: "筛选 Agent", exact: true }).fill("reviewer");
+  await expect(page.locator(".agent-directory-link")).toHaveCount(1);
+  const reviewer = await findAgentRow(page, "agent-reviewer");
+  await expect(reviewer).toContainText("Review Chat");
+  await expect(reviewer.locator("..").locator("time")).toHaveAttribute("datetime", "2026-10-13T12:25:00Z");
+  await expect(reviewer.locator("..").locator("time")).toHaveText(/10月13日/);
+  await page.getByRole("searchbox", { name: "筛选 Agent", exact: true }).fill("");
+  await chooseAgentOption(page, "agent-list-status", "正在执行");
+  await expect(page.locator(".agent-directory-link")).toHaveCount(1);
+  await expect(page.locator(".agent-directory-link")).toContainText("AT-142");
+  await expect(page.locator(".agent-directory-link")).toContainText("Project Chat");
+  await chooseAgentOption(page, "agent-list-status", "无进行中执行");
+  await expect(page.locator('.agent-directory-link[data-agent-open="agent-architecture"]')).toHaveCount(0);
+  await page.getByRole("searchbox", { name: "筛选 Agent", exact: true }).fill("no-matching-agent");
+  await expect(page.locator(".agent-directory-link")).toHaveCount(0);
+  await page.locator('[data-agent-action="list-clear"]').click();
+  await (await findAgentRow(page, "agent-reviewer")).click();
+  await page.getByLabel("描述", { exact: true }).fill("更新时间来自本次保存。");
+  await page.locator("#agent-save").click();
+  await expect(page.locator("#agent-form-feedback")).toHaveText("配置已保存。");
+  await page.locator('[data-agent-back=""]').click();
+  const saved = await findAgentRow(page, "agent-reviewer");
+  await expect(saved.locator("..").locator("time")).toHaveAttribute("datetime", "2026-11-02T10:20:00.000Z");
+  await expect(saved.locator("..").locator("time")).toHaveText(/11月2日/);
+  expect(faults).toEqual({ errors: [], outbound: [] });
+});
+
+async function copyAgentPreset(page, id) {
+  await page.locator('[data-agent-action="preset-select"]').click();
+  await page.locator(`[data-preset-preview="${id}"]`).click();
+  await expect(page.getByRole("dialog")).toContainText("不复制项目 Secret");
+  await page.locator("[data-preset-copy]").click();
+}
+test("[agent-completion] blank creation validates identity and has only two draft tabs", async ({ page }) => {
+  const faults = await setup(page, layouts[3]);
+  await openAgents(page, layouts[3], { agent: "new", view: "audit" });
+  await expect(page.getByRole("tab")).toHaveText(["基本配置", "能力与资源"]);
+  await page.getByLabel("显示名称", { exact: true }).fill("Blank agent");
+  await page.locator("#agent-save").click();
+  await expect(page.getByRole("textbox", { name: /^Agent 名称/ })).toBeFocused();
+  await page.getByRole("textbox", { name: /^Agent 名称/ }).fill("blank-agent");
+  await page.locator("#agent-save").click();
+  await expect(page.locator('[data-select-for="agent-modelID"]')).toBeFocused();
+  await chooseAgentOption(page, "agent-modelID", /^Review Chat ·/);
+  await page.locator("#agent-save").click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Blank agent");
+  await expect(page.getByRole("tab")).toHaveCount(4);
+  await agentTab(page, "memory");
+  await expect(page.getByRole("tabpanel")).toContainText(/暂无(?:当前)?记忆/);
+  await agentTab(page, "audit");
+  await expect(page.getByRole("tabpanel")).toContainText("暂无");
+  expect(faults).toEqual({ errors: [], outbound: [] });
+});
+
+test("[agent-completion] Preset copies metadata skips invalid tools and respects initialization choices", async ({ page }) => {
+  const faults = await setup(page, layouts[0]);
+  for (const enabled of [false, true]) {
+    await openAgents(page, layouts[0], { agent: "new" });
+    await agentTab(page, "resources");
+    await page.locator('[data-agent-init="addSkills"]').setChecked(enabled);
+    await page.locator('[data-agent-init="installSkill"]').setChecked(enabled);
+    await agentTab(page, "basic");
+    await page.getByRole("textbox", { name: /^Agent 名称/ }).fill(`research-${enabled ? "defaults" : "minimal"}`);
+    await copyAgentPreset(page, "preset-research");
+    await expect(page.getByRole("tabpanel")).toContainText("legacy-fetch");
+    await expect(page.locator("#agent-modelID")).toHaveValue("model-system-reasoning");
+    await expect(page.locator("#agent-reasoningEffort")).toHaveValue("high");
+    await expect(page.getByLabel("Agent 指令", { exact: true })).toHaveValue(/一手来源/);
+    await agentTab(page, "resources");
+    await expect(page.locator('[data-agent-init="addSkills"]')).toBeChecked({ checked: enabled });
+    await expect(page.locator('[data-agent-init="installSkill"]')).toBeChecked({ checked: enabled });
+    await expect(page.locator(".agent-saved-mount")).toHaveCount(0);
+    await expect(page.locator("[data-secret]:checked")).toHaveCount(0);
+    await expect(page.locator('.agent-skill-row')).toHaveCount(0);
+    await expect(page.locator('[data-tool^="mcp:"]:checked')).toHaveCount(0);
+    await page.locator("#agent-save").click();
+    await expect(page.getByRole("tab")).toHaveCount(4);
+    await agentTab(page, "resources");
+    const tools = await agentSection(page, "tools");
+    await expect(tools.locator('[data-tool="web-search"]')).toBeChecked();
+    await expect(tools.locator('[data-tool="legacy-fetch"]')).not.toBeChecked();
+    await expect(tools.locator('[data-tool="install-skill"]')).toBeChecked({ checked: enabled });
+    const skills = await agentSection(page, "skills");
+    const addSkills = skills.locator(".agent-skill-row").filter({ hasText: "Add Skills" });
+    await expect(addSkills).toHaveCount(enabled ? 1 : 0);
+    if (enabled) await expect(addSkills).toContainText("已启用");
+    await agentTab(page, "memory");
+    await expect(page.getByRole("tabpanel")).toContainText(/暂无(?:当前)?记忆/);
+    await agentTab(page, "audit");
+    await expect(page.getByRole("tabpanel")).toContainText("暂无");
+  }
+  await openAgents(page, layouts[0], { agent: "new" });
+  await copyAgentPreset(page, "preset-review");
+  await expect(page.locator("#agent-modelID")).toHaveValue("model-retired-chat");
+  await expect(page.getByRole("tabpanel")).toContainText("不可用");
+  await page.getByRole("textbox", { name: /^Agent 名称/ }).fill("review-preset");
+  await page.locator("#agent-save").click();
+  await expect(page.getByRole("tab")).toHaveCount(2);
+  await expect(page.locator("#agent-modelID")).toHaveValue("model-retired-chat");
+  await expect(page.locator("#agent-form-feedback")).toContainText("主模型");
+  await chooseAgentOption(page, "agent-modelID", /^Review Chat ·/);
+  await page.locator("#agent-save").click();
+  await expect(page.getByRole("tab")).toHaveCount(4);
+  expect(faults).toEqual({ errors: [], outbound: [] });
+});
+test("[agent-completion] basic pending error conflict and Unknown retain input and recover", async ({ page }) => {
+  const faults = await setup(page, layouts[3]);
+  await page.clock.install();
+  for (const result of ["error", "conflict", "unknown"]) {
+    await openAgents(page, layouts[3], { agent: "agent-reviewer", basic_result: result });
+    const draft = `基本配置 ${result} 后仍保留的输入。`;
+    await page.getByLabel("描述", { exact: true }).fill(draft);
+    if (result === "error") await page.clock.pauseAt(new Date(Date.now() + 1000));
+    await page.locator("#agent-save").click();
+    if (result === "error") {
+      await expect(page.locator("#agent-save")).toBeDisabled();
+      await expect(page.locator('[data-agent-action="cancel"]')).toBeDisabled();
+      await expect(page.locator("#agent-form-feedback")).toContainText("正在保存");
+      await page.clock.runFor(450);
+      await page.clock.resume();
+      await expect(page.locator("#agent-form-feedback")).toContainText("保存失败");
+      await expect(page.getByLabel("描述", { exact: true })).toHaveValue(draft);
+      await page.locator('[data-agent-action="basic-retry"]').click();
+    } else if (result === "conflict") {
+      await expect(page.locator('[data-agent-action="basic-rebase"]')).toBeVisible();
+      await expect(page.locator("#agent-save")).toBeDisabled();
+      await expect(page.getByLabel("描述", { exact: true })).toHaveValue(draft);
+      await page.locator('[data-agent-action="basic-rebase"]').click();
+      await expect(page.getByLabel("描述", { exact: true })).toHaveValue(draft);
+      await page.locator("#agent-save").click();
+    } else {
+      await expect(page.locator('[data-agent-action="lookup"]')).toBeVisible();
+      await expect(page.locator("#agent-save")).toBeDisabled();
+      await expect(page.locator('[data-agent-action="basic-retry"]')).toHaveCount(0);
+      await page.locator('[data-agent-action="lookup"]').click();
+      await expect(page.locator('[data-agent-action="basic-readback"]')).toBeVisible();
+      await expect(page.locator("#agent-save")).toBeDisabled();
+      await expect(page.getByLabel("描述", { exact: true })).toHaveValue(draft);
+      await page.locator('[data-agent-action="basic-readback"]').click();
+      await expect(page.locator('[data-agent-action="basic-readback"]')).toHaveCount(0);
+      await expect(page.getByLabel("描述", { exact: true })).toBeEnabled();
+    }
+    if (result !== "unknown") await expect(page.locator("#agent-form-feedback")).toHaveText("配置已保存。");
+    await expect(page.locator(".settings-page-heading > div > p")).toHaveText(draft);
+    await page.locator('[data-agent-back=""]').click();
+    await (await findAgentRow(page, "agent-reviewer")).click();
+    await expect(page.getByLabel("描述", { exact: true })).toHaveValue(draft);
+  }
+  expect(faults).toEqual({ errors: [], outbound: [] });
+});
+
+test("[agent-completion] resources error conflict Unknown and invalid receipts preserve drafts with one application", async ({ page }) => {
+  const faults = await setup(page, layouts[3]);
+  for (const result of ["error", "conflict", "unknown", "version_jump"]) {
+    await openAgents(page, layouts[3], { agent: "agent-reviewer", resource_result: result, resource_extra_secret: "1" });
+    const draft = `资源 ${result} 期间的基本配置草稿。`;
+    await page.getByLabel("描述", { exact: true }).fill(draft);
+    await agentTab(page, "resources");
+    await agentSection(page, "secrets");
+    const secret = page.locator('[data-secret="secret-research"]');
+    await secret.check();
+    const feedback = page.locator("#agent-resource-feedback");
+    await expect(feedback).toHaveAttribute("data-status", ["unknown", "version_jump"].includes(result) ? "unknown" : "error");
+    await expect(secret).toBeChecked();
+    await agentTab(page, "basic");
+    await expect(page.getByLabel("描述", { exact: true })).toHaveValue(draft);
+    if (["unknown", "version_jump"].includes(result)) await expect(page.locator("#agent-save")).toBeDisabled();
+    await agentTab(page, "resources");
+    if (result === "conflict") await page.locator('[data-agent-action="basic-rebase"]').click();
+    if (["error", "conflict"].includes(result)) {
+      await page.locator('[data-agent-action="resource-retry"]').click();
+      await resourceSaved(page);
+    } else {
+      await expect(secret).toBeDisabled();
+      await expect(page.locator('[data-agent-action="resource-retry"]')).toHaveCount(0);
+      await page.locator('[data-agent-action="lookup"]').click();
+      await expect(page.locator('[data-agent-action="resource-readback"]')).toBeVisible();
+      await expect(secret).toBeDisabled();
+      await page.locator('[data-agent-action="resource-readback"]').click();
+      await resourceSaved(page);
+    }
+    await expect(secret).toBeChecked();
+    await expect(secret).toBeEnabled();
+    await expect(page.locator(".agent-records dd").nth(1)).toHaveText(result === "conflict" ? "3" : "2");
+    await page.locator('[data-agent-action="secret-more"]').click();
+    await expect(page.locator('[data-secret="secret-outside-directory"]')).toBeChecked();
+    await agentTab(page, "basic");
+    await expect(page.getByLabel("描述", { exact: true })).toHaveValue(draft);
+    await page.locator("#agent-save").click();
+    await expect(page.locator("#agent-form-feedback")).toHaveText("配置已保存。");
+    await agentTab(page, "resources");
+    await expect(secret).toBeChecked();
+    await expect(page.locator('[data-secret="secret-outside-directory"]')).toBeChecked();
+  }
+  expect(faults).toEqual({ errors: [], outbound: [] });
+});
+
+test("[agent-completion] creation Unknown keeps original input until reread and creates one identity", async ({ page }) => {
+  const faults = await setup(page, layouts[0]);
+  await openAgents(page, layouts[0], { agent: "new", creation_result: "unknown" });
+  await page.getByRole("textbox", { name: /^Agent 名称/ }).fill("unknown-created");
+  await page.getByLabel("显示名称", { exact: true }).fill("Unknown created");
+  await page.getByLabel("描述", { exact: true }).fill("只创建一个对象的原始输入。");
+  await chooseAgentOption(page, "agent-modelID", /^Review Chat ·/);
+  await page.locator("#agent-save").click();
+  await expect(page.locator('[data-agent-action="lookup"]')).toBeVisible();
+  await expect(page.locator("#agent-save")).toBeDisabled();
+  await page.locator('[data-agent-back=""]').click();
+  await page.locator("[data-agent-leave]").click();
+  await expect(page.locator('[data-agent-action="create"]')).toBeDisabled();
+  await page.locator('[data-agent-action="original"]').click();
+  await expect(page.getByRole("textbox", { name: /^Agent 名称/ })).toHaveValue("unknown-created");
+  await page.locator('[data-agent-action="lookup"]').click();
+  await expect(page.locator('[data-agent-action="basic-readback"]')).toBeVisible();
+  await expect(page.getByRole("textbox", { name: /^Agent 名称/ })).toHaveValue("unknown-created");
+  await expect(page.getByLabel("描述", { exact: true })).toHaveValue("只创建一个对象的原始输入。");
+  await expect(page.locator("#agent-save")).toBeDisabled();
+  await page.locator('[data-agent-action="basic-readback"]').click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Unknown created");
+  const createdID = new URL(page.url()).searchParams.get("agent");
+  expect(createdID).not.toBe("new");
+  await page.locator('[data-agent-back=""]').click();
+  await page.getByRole("searchbox", { name: "筛选 Agent", exact: true }).fill("unknown-created");
+  await expect(page.locator(".agent-directory-link")).toHaveCount(1);
+  await expect(page.locator(".agent-directory-link")).toHaveAttribute("data-agent-open", createdID);
+  expect(faults).toEqual({ errors: [], outbound: [] });
+});
+
+test("[agent-completion] readonly direct URLs and project namespaces preserve object ownership", async ({ page }) => {
+  const faults = await setup(page, layouts[0]);
+  for (const lifecycle of ["archiving", "archived", "deleting"]) {
+    await openAgents(page, layouts[0], { agent: "agent-reviewer", project_lifecycle: lifecycle });
+    await expect(page.locator("#agent-save")).toBeDisabled();
+    await agentTab(page, "resources");
+    await agentSection(page, "tools");
+    await expect(page.locator('[data-tool="web-search"]')).toBeDisabled();
+    await agentSection(page, "skills");
+    await expect(page.locator('[data-agent-action="skill-assign"]')).toBeDisabled();
+    await agentTab(page, "memory");
+    await expect(domainAction(page, "memory-delete:memory-reviewer-1")).toBeDisabled();
+    await agentTab(page, "audit");
+    await domainAction(page, "audit-detail:agent-reviewer-approval-1").click();
+    await expect(domainAction(page, "audit-revoke:agent-reviewer-approval-1")).toBeDisabled();
+  }
+  await openAgents(page, layouts[0], { agent: "agent-researcher", view: "audit" }, "readonly");
+  await page.reload();
+  await expect(page.locator("#agent-page-title")).toHaveText("Researcher");
+  await expect(page.locator('[data-agent-tab="audit"]')).toHaveAttribute("aria-selected", "true");
+  await domainAction(page, "audit-detail:agent-researcher-approval-1").click();
+  await expect(domainAction(page, "audit-revoke:agent-researcher-approval-1")).toBeDisabled();
+  await openAgents(page, layouts[0], { agent: "agent-missing" });
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Agent 不可用");
+  await expect(page.locator("#agent-configuration-form")).toHaveCount(0);
+  await openAgents(page, layouts[0], { agent: "agent-reviewer", view: "resources" });
+  await agentSection(page, "secrets");
+  await page.locator('[data-secret="secret-research"]').check();
+  await resourceSaved(page);
+  await page.getByRole("link", { name: "返回项目列表", exact: true }).click();
+  await page.locator('.project-name[data-project-name="Design.System"]').click();
+  await page.getByRole("link", { name: "项目设置", exact: true }).click();
+  await page.getByRole("navigation", { name: "设置栏目", exact: true }).getByRole("link", { name: "Agent", exact: true }).click();
+  await (await findAgentRow(page, "agent-reviewer")).click();
+  await agentTab(page, "resources");
+  await agentSection(page, "secrets");
+  await expect(page.locator('[data-secret="secret-research"]')).not.toBeChecked();
+  await agentTab(page, "memory");
+  await expect(page.locator('[data-memory-id="memory-reviewer-1"]')).toBeVisible();
+  await page.getByRole("link", { name: "返回项目列表", exact: true }).click();
+  await page.locator('.project-name[data-project-name="Atlas"]').click();
+  await page.getByRole("link", { name: "项目设置", exact: true }).click();
+  await page.getByRole("navigation", { name: "设置栏目", exact: true }).getByRole("link", { name: "Agent", exact: true }).click();
+  await (await findAgentRow(page, "agent-reviewer")).click();
+  await agentTab(page, "resources");
+  await agentSection(page, "secrets");
+  await expect(page.locator('[data-secret="secret-research"]')).toBeChecked();
+  expect(faults).toEqual({ errors: [], outbound: [] });
+});
+
+const domainAction = (page, action) => page.locator(`[data-agent-domain-action="${action}"]`);
+async function confirmDomain(page) {
+  await domainAction(page, "confirm-domain").click();
+}
+
+test("[agent-completion] Memory filters complete revision pages and deletion history stay with the Agent", async ({ page }) => {
+  const faults = await setup(page, layouts[3]);
+  await openAgents(page, layouts[3], { agent: "agent-reviewer", page_size: "3", history_page_size: "2" });
+  const draft = "Memory 删除后仍待保存的基本配置。";
+  await page.getByLabel("描述", { exact: true }).fill(draft);
+  const version = await page.locator(".agent-records dd").nth(1).textContent();
+  await agentTab(page, "memory");
+  const firstIDs = await page.locator("[data-memory-id]").evaluateAll((nodes) => nodes.map((node) => node.dataset.memoryId));
+  await domainAction(page, "memory-next").click();
+  const secondIDs = await page.locator("[data-memory-id]").evaluateAll((nodes) => nodes.map((node) => node.dataset.memoryId));
+  expect(new Set([...firstIDs, ...secondIDs]).size).toBe(5);
+  expect(secondIDs.some((id) => firstIDs.includes(id))).toBe(false);
+  await chooseAgentOption(page, "memory-importance", "高");
+  await expect(page.locator("[data-memory-id]")).toHaveCount(1);
+  await expect(page.locator("[data-memory-id]")).toContainText("评审结论区分已验证问题");
+  await chooseAgentOption(page, "memory-importance", "全部重要性");
+  await chooseAgentOption(page, "memory-source", "知识文档");
+  await expect(page.locator("[data-memory-id]")).toHaveCount(1);
+  await expect(page.locator("[data-memory-id]")).toContainText("来源已删除");
+  await chooseAgentOption(page, "memory-source", "任务");
+  const record = page.locator('[data-memory-id="agent-reviewer-memory-3"]');
+  await expect(record).toBeVisible();
+  await domainAction(page, "memory-history:agent-reviewer-memory-3").click();
+  expect(await record.locator("[data-memory-revision]").evaluateAll((nodes) => nodes.map((node) => node.dataset.memoryRevision))).toEqual(["3", "2"]);
+  await domainAction(page, "history:agent-reviewer-memory-3-next").click();
+  await expect(record.locator("[data-memory-revision]")).toHaveAttribute("data-memory-revision", "1");
+  await expect(record).toContainText("来源信息未记录");
+  await domainAction(page, "memory-delete:agent-reviewer-memory-3").click();
+  await expect(page.getByRole("dialog")).toContainText("交付前核对范围、来源和未验证事项");
+  await page.keyboard.press("Escape");
+  await expect(record).toBeVisible();
+  await domainAction(page, "memory-delete:agent-reviewer-memory-3").click();
+  await confirmDomain(page);
+  await expect(record).toHaveCount(0);
+  await chooseAgentOption(page, "memory-status", "已删除");
+  await chooseAgentOption(page, "memory-source", "全部来源");
+  await expect(record).toContainText("已删除");
+  await expect(record.locator('[data-agent-domain-action^="memory-delete:"]')).toHaveCount(0);
+  if (!(await record.locator(".agent-domain-history").count()))
+    await domainAction(page, "memory-history:agent-reviewer-memory-3").click();
+  await domainAction(page, "history:agent-reviewer-memory-3-prev").click();
+  expect(await record.locator("[data-memory-revision]").evaluateAll((nodes) => nodes.map((node) => node.dataset.memoryRevision))).toEqual(["4", "3"]);
+  await domainAction(page, "history:agent-reviewer-memory-3-next").click();
+  expect(await record.locator("[data-memory-revision]").evaluateAll((nodes) => nodes.map((node) => node.dataset.memoryRevision))).toEqual(["2", "1"]);
+  await agentTab(page, "basic");
+  await expect(page.locator(".agent-records dd").nth(1)).toHaveText(version);
+  await expect(page.getByLabel("描述", { exact: true })).toHaveValue(draft);
+  await page.locator('[data-agent-action="cancel"]').click();
+  await page.locator("[data-agent-confirm]").click();
+  await agentTab(page, "memory");
+  await expect(record).toContainText("已删除");
+  await page.locator('[data-agent-back=""]').click();
+  await (await findAgentRow(page, "agent-researcher")).click();
+  await agentTab(page, "memory");
+  await expect(page.locator('[data-memory-id="agent-researcher-memory-3"]')).toBeVisible();
+  await expect(page.getByRole("tabpanel")).not.toContainText("评审结论区分已验证问题");
+  expect(faults).toEqual({ errors: [], outbound: [] });
+});
+
+test("[agent-completion] Audit active cancellation revoke retained source and basic draft isolation", async ({ page }) => {
+  const faults = await setup(page, layouts[0]);
+  await page.clock.setFixedTime(new Date("2026-11-03T12:15:00Z"));
+  await openAgents(page, layouts[0], { agent: "agent-reviewer", page_size: "3" });
+  await page.getByLabel("描述", { exact: true }).fill("审批撤销后取消这份基本配置。");
+  const version = await page.locator(".agent-records dd").nth(1).textContent();
+  await agentTab(page, "audit");
+  const before = await page.locator(".agent-domain-approval-row").allTextContents();
+  await domainAction(page, "audit-next").click();
+  expect((await page.locator(".agent-domain-approval-row").allTextContents()).some((text) => before.includes(text))).toBe(false);
+  await chooseAgentOption(page, "audit-state", "生效中");
+  await expect(page.locator(".agent-domain-approval-row")).toHaveCount(3);
+  await domainAction(page, "audit-detail:agent-reviewer-approval-1").click();
+  const detail = page.locator('[data-approval-id="agent-reviewer-approval-1"]');
+  await expect(detail).toContainText("项目文档");
+  await expect(detail).toContainText("来源与操作记录");
+  await expect(detail).toContainText("Reviewer");
+  await expect(detail.locator('time[datetime="2026-10-15T09:10:00Z"]')).toBeVisible();
+  await expect(detail.locator("input, textarea, select")).toHaveCount(0);
+  await domainAction(page, "audit-revoke:agent-reviewer-approval-1").click();
+  await expect(page.getByRole("dialog")).toContainText("项目文档");
+  await page.keyboard.press("Escape");
+  await expect(detail).toContainText("生效中");
+  await expect(domainAction(page, "audit-revoke:agent-reviewer-approval-1")).toBeFocused();
+  await domainAction(page, "audit-revoke:agent-reviewer-approval-1").click();
+  await confirmDomain(page);
+  await expect(detail).toContainText("已撤销");
+  await expect(detail.locator('time[datetime="2026-11-03T12:15:00.000Z"]')).toBeVisible();
+  await expect(domainAction(page, "audit-revoke:agent-reviewer-approval-1")).toHaveCount(0);
+  await expect(detail).toContainText("更新「项目文档」时批准后续同类调用");
+  await domainAction(page, "audit-back").click();
+  await expect(domainAction(page, "audit-detail:agent-reviewer-approval-1")).toHaveCount(0);
+  await chooseAgentOption(page, "audit-state", "已撤销");
+  await expect(page.locator(".agent-domain-approval-row")).toHaveCount(2);
+  await domainAction(page, "audit-detail:agent-reviewer-approval-3").click();
+  await expect(page.locator(".agent-domain-detail")).toContainText("来源已删除");
+  await expect(page.locator(".agent-domain-detail")).toContainText("发布说明");
+  await agentTab(page, "basic");
+  await expect(page.locator(".agent-records dd").nth(1)).toHaveText(version);
+  await page.locator('[data-agent-action="cancel"]').click();
+  await page.locator("[data-agent-confirm]").click();
+  await agentTab(page, "audit");
+  await domainAction(page, "audit-back").click();
+  await domainAction(page, "audit-detail:agent-reviewer-approval-1").click();
+  await expect(detail).toContainText("已撤销");
+  await expect(domainAction(page, "audit-revoke:agent-reviewer-approval-1")).toHaveCount(0);
+  expect(faults).toEqual({ errors: [], outbound: [] });
+});
+
+for (const domain of ["memory", "audit"]) {
+  test(`[agent-completion] ${domain} Unknown terminal lookup requires reread and blocks duplicate commands`, async ({ page }) => {
+    const faults = await setup(page, layouts[3]);
+    await openAgents(page, layouts[3], { agent: "agent-reviewer", [`${domain}_result`]: "unknown" });
+    const draft = `等待 ${domain} 原操作的基本配置草稿。`;
+    await page.getByLabel("描述", { exact: true }).fill(draft);
+    await agentTab(page, domain);
+    if (domain === "audit") await domainAction(page, "audit-detail:agent-reviewer-approval-1").click();
+    const target = domain === "memory" ? "memory-reviewer-1" : "agent-reviewer-approval-1";
+    const operation = `${domain}-${domain === "memory" ? "delete" : "revoke"}:${target}`;
+    await domainAction(page, operation).click();
+    await confirmDomain(page);
+    await expect(domainAction(page, `${domain}-lookup`)).toBeVisible();
+    await expect(domainAction(page, operation)).toBeDisabled();
+    await agentTab(page, "basic");
+    await expect(page.getByLabel("描述", { exact: true })).toHaveValue(draft);
+    await expect(page.locator("#agent-save")).toBeDisabled();
+    await expect(page.locator('[data-agent-action="cancel"]')).toBeDisabled();
+    await page.locator('[data-agent-back=""]').click();
+    await page.locator("[data-agent-leave]").click();
+    await page.locator('[data-agent-action="original"]').click();
+    await expect(page).toHaveURL(new RegExp(`view=${domain}`));
+    await expect(page.locator("#agent-page-title")).toHaveText("Reviewer");
+    await domainAction(page, `${domain}-lookup`).click();
+    await expect(domainAction(page, `${domain}-reconcile`)).toBeVisible();
+    await expect(page.locator(".agent-domain-notice")).toContainText("已确认完成");
+    // A terminal receipt alone must not publish the object change or unlock writes.
+    await expect(domainAction(page, operation)).toBeDisabled();
+    if (domain === "memory") await expect(page.locator(`[data-memory-id="${target}"]`)).toBeVisible();
+    else await expect(page.locator(`[data-approval-id="${target}"]`)).toContainText("生效中");
+    await domainAction(page, `${domain}-reconcile`).click();
+    await expect(domainAction(page, `${domain}-reconcile`)).toHaveCount(0);
+    if (domain === "memory") {
+      await expect(page.locator(`[data-memory-id="${target}"]`)).toHaveCount(0);
+      await chooseAgentOption(page, "memory-status", "已删除");
+      await expect(page.locator(`[data-memory-id="${target}"]`)).toContainText("修订 3");
+    } else {
+      await expect(page.locator(`[data-approval-id="${target}"]`)).toContainText("已撤销");
+      await expect(domainAction(page, operation)).toHaveCount(0);
+    }
+    await agentTab(page, "basic");
+    await expect(page.getByLabel("描述", { exact: true })).toHaveValue(draft);
+    await expect(page.locator("#agent-save")).toBeEnabled();
+    await expect(page.locator(".agent-records dd").nth(1)).toHaveText("1");
+    expect(faults).toEqual({ errors: [], outbound: [] });
+  });
+}
+
+test("[agent-completion] domain read history and command failures preserve targets and recover", async ({ page }) => {
+  const faults = await setup(page, layouts[0]);
+  await openAgents(page, layouts[0], { agent: "agent-reviewer", view: "memory", memory_read: "error", memory_history: "error", memory_result: "error" });
+  await expect(page.getByRole("tabpanel")).toContainText("暂时无法读取记忆");
+  await domainAction(page, "memory-refresh").last().click();
+  const record = page.locator('[data-memory-id="memory-reviewer-1"]');
+  await expect(record).toBeVisible();
+  await domainAction(page, "memory-history:memory-reviewer-1").click();
+  await expect(record).toContainText("暂时无法读取此条记忆的历史");
+  await domainAction(page, "history-retry:memory-reviewer-1").click();
+  await expect(record.locator("[data-memory-revision]")).toHaveCount(2);
+  await domainAction(page, "memory-delete:memory-reviewer-1").click();
+  await confirmDomain(page);
+  await expect(domainAction(page, "memory-retry")).toBeVisible();
+  await expect(record).toContainText("修订 2");
+  await domainAction(page, "memory-retry").click();
+  await expect(page.getByRole("dialog")).toContainText("评审结论区分已验证问题");
+  await confirmDomain(page);
+  await expect(record).toHaveCount(0);
+  await openAgents(page, layouts[0], { agent: "agent-reviewer", view: "audit", audit_read: "error", audit_result: "conflict" });
+  await domainAction(page, "audit-refresh").last().click();
+  await domainAction(page, "audit-detail:agent-reviewer-approval-1").click();
+  await domainAction(page, "audit-revoke:agent-reviewer-approval-1").click();
+  await confirmDomain(page);
+  await expect(page.getByRole("alert")).toContainText("记录已变化");
+  await expect(page.locator(".agent-domain-detail")).toContainText("生效中");
+  await page.getByRole("alert").locator('[data-agent-domain-action="audit-refresh"]').click();
+  await expect(page.getByRole("alert")).toHaveCount(0);
+  await domainAction(page, "audit-revoke:agent-reviewer-approval-1").click();
+  await confirmDomain(page);
+  await expect(page.locator(".agent-domain-detail")).toContainText("已撤销");
+  await openAgents(page, layouts[0], { agent: "agent-reviewer", view: "audit", audit_result: "unknown", audit_lookup: "failed" });
+  await domainAction(page, "audit-detail:agent-reviewer-approval-1").click();
+  await domainAction(page, "audit-revoke:agent-reviewer-approval-1").click();
+  await confirmDomain(page);
+  await domainAction(page, "audit-lookup").click();
+  await expect(domainAction(page, "audit-reconcile")).toBeVisible();
+  await expect(page.locator(".agent-domain-notice")).toContainText("已确认失败");
+  await domainAction(page, "audit-reconcile").click();
+  await expect(domainAction(page, "audit-retry")).toBeVisible();
+  await expect(page.locator(".agent-domain-detail")).toContainText("生效中");
+  await domainAction(page, "audit-retry").click();
+  await confirmDomain(page);
+  await expect(page.locator(".agent-domain-detail")).toContainText("已撤销");
+  expect(faults).toEqual({ errors: [], outbound: [] });
+});
+
 for (const layout of [layouts[0], { ...layouts[3], height: 480 }]) {
   test(`[agents-first] explicit identity Memory return and direct URLs ${layout.width}`, async ({
     page,
