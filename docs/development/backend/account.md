@@ -55,6 +55,24 @@ email 只读，本人可改 username/display_name/theme；username 按当前 DB 
 
 Account/Mail 初始化、bootstrap 和恢复消耗同一剩余安全启动预算。健康采样核真实技术状态，不发送邮件。停机先停全部准入，Mail 的 FinishDelivery 和 actual join 必须先于 Core 最终排空；LoginResponse.UseCookie、头像解码/reader 和整个恢复日志 Sink 未 join 时保留共享 guard，DB 最后关闭，详见[生命周期](README.md#停止与退出)。
 
+## 可恢复的真实 SMTP 运行准备
+
+真实 SMTP 应由生产 `cmd/agenteam` 运行，使用默认 `SystemResolver`；当前生产根已支持，无须修改账号领域或出站地址分类器。预览测试 binary 中固定 sink 的 resolver 不是部署配置：外部 SMTP hostname 会在建连前被拒绝，不能通过更新出站 CIDR、修改 hosts 或替换 SMTP 密码修复。SMTP 本身始终直连，HTTP(S) 代理配置不代理 SMTP。
+
+最小可恢复组合为独立 PostgreSQL/pgvector、MinIO、宿主生产 Central 和 HTTPS 反向代理。复用已核验的工具与只读镜像即可；每个新部署使用独立数据库、bucket、数据目录、私有配置及端口，不复用旧测试实例的运行数据。TLS 代理保留 canonical Host，`PUBLIC_ORIGIN` 固定准确 HTTPS origin，`DEV_MODE=false`。若保留两个实例同时登录，仅更换同一 IP/hostname 的端口不能隔离 `__Host-agenteam_session` Cookie；应使用不同 hostname，或明确使用独立浏览器 profile。
+
+部署输入以 [central.env.example](../../../deploy/central.env.example) 为唯一字段来源。需先持久保存五用途独立随机32字节密钥（Cursor、Secret、Object download、Account、Knowledge confirmation）、数据库和对象凭据、TLS证书/私钥，再启动二进制；再次启动不得覆盖生成新密钥。程序不自动读取 `.env`，启动管理器须将0700目录下0600配置作为环境加载且不得输出。Account恢复日志、spool及其相邻 `.processes`、机器身份与数据库/对象数据应持续保留；停止App不应删除数据库或基础设施。
+
+可审阅的运行文件最小集合为：私有持久环境/密钥文件、数据库和对象TLS及独立容器配置、同运行UID的恢复日志/spool目录、只启动已核编译版本的Central进程管理配置，以及保留Host的HTTPS代理配置。新数据库由生产二进制执行完整迁移，使用PostgreSQL17.8及vector0.8.1，新bucket由正式初始化绑定store identity。现有 `deploy/dev/init.mjs` 可参考原子发布和不覆盖密钥的做法；现有开发Compose默认DevMode/HTTP与不同MinIO版本，不能原样作为此HTTPS部署。测试fixture的退出DROP/清资源生命周期也不能用作持久启动器。
+
+本轮固定部署的准备入口为 [prepare-persistent-central.py](../../../scripts/prepare-persistent-central.py)：传入工作树外新建的 `--state-dir`、已编译 `--central-binary`、固定 SHA 的 `--minio-binary` 和完整40位 `--source-revision`。脚本只生成私有输入，不启动容器，不连接SMTP；原子发布 `runtime.json`，重复运行只校验并复用，拒绝覆盖不完整目录或改变密钥。所有数据库/对象数据、环境、密钥、凭据和日志均保存在仓库外私有目录，不进入Git。当前固定端口为 Central127.0.0.1:5257、TLS127.0.0.1:5256、PostgreSQL127.0.0.1:5456、MinIO127.0.0.1:9456；TLS代理仍转发新Vue5245。
+
+部署owner先核固定镜像及端口归属，再对私有 `compose.json` 启动 `database`、`minio`，随后以 [manage-persistent-central.py](../../../scripts/manage-persistent-central.py) 的 `check --runtime /absolute/private/runtime.json` 和 `start` 启动Central，最后启动 `web`。不要打印展开后的Compose或环境配置。manager只负责该Central，使用独立session、私有日志和实际PID/start_ticks/executable/二进制摘要确认归属；`stop` 发送TERM并等待真实退出，不删除数据库、对象、密钥、spool或代理。再次 `start` 使用原私有环境。`--check-config` 的 `valid=true, ready=false` 仅表示配置合法，仍需实际启动及API验证。
+
+首次bootstrap从正式私有Account恢复日志提取最小管理员材料至独立0600凭据文件，不输出到普通运行日志。独立验收应在内存中保留一个登录Cookie，只停止/重新启动Central，再验证原Cookie、用户与SMTP配置投影仍有效；确认数据库/对象容器ID与持久密钥未更换。公开切换仅在新实例通过后顺序停止旧映射/旧测试实例，再将原18443映射改接5256；同host旧Cookie在新实例无效，用户重新登录。当前专用CA/叶证书30天，仅适合本次受控预览；没有fixture自动45分钟/24小时销毁期限，进程与证书有效期仍须实际核验。
+
+完成环境和入口核验后，用户在新入口的SMTP设置页重新输入SMTP密码，经正式API存入Secret；不从旧实例导出凭据。先通过真实应用测试API受理，再读取同一job终态；202、SMTP接受、最终邮箱收到仍是三个不同事实。若部署环境无法连接实际SMTP端口，新实例或标准解析器都不能替代出口连通性；单目标无AUTH/MAIL的TLS/EHLO工具见 [probe-smtp-transport.py](../../../tests/account-preview/probe-smtp-transport.py)，它仅证明传输阶段，不证明应用发送。
+
 ## 新 Vue 账号联调
 
 新 `web/` 独立实现账号客户端、Session 与七个页面，页面和恢复语义见[账号重建工作项](../work-items/frontend-account-rebuild.md)。当前 HTTP 能力覆盖这些页面，无须新增同义 API。新客户端先调用匿名 bootstrap，用 browser CSRF 登录，再 GET session 取得会话 CSRF；本人资料/偏好/头像共享 User version。改密成功换发新 Cookie，若返回丢失须重新登录；不能用旧已撤销 Session 重放取回 Cookie。
