@@ -24,26 +24,30 @@
 
 ## 当前结果与第一个断点
 
-已保存独立 Vue 工程及锁、集中路由 metadata、AppShell/AccountShell/单一 SettingsShell、标题加空正文、共享控件和初步组件测试。本轮恢复依赖后继续壳集成；八控件已存在于恢复输入。首个浏览器 harness `tests/frontend-rebuild/foundation.spec.cjs` 已落盘、实际通过 1/1 首链路并冻结；完整矩阵与独审仍进行中。
+独立 Vue 工程、共享控件、AppShell/AccountShell/单一 SettingsShell 和 40 个空正文叶子已建立。本轮工程格式、类型、构建和全量 14 项 unit 通过；浏览器 12 项以 1 首链 + 4 控件 + 7 路由分轮有效结果组合覆盖，不能称为最终一次全量运行。
 
-当前断点为本轮完整工程检查、浏览器首链路及新 Vue 独审；具体控件和路由覆盖须由本轮实际检查确认。前端开发入口与组件合同已按新源码归位，旧业务验收保留为归档记录；本轮文档更新不扩大产品接受范围。
+用户最新指出自绘 Logo 错误，要求使用 `docs/logos/` 已有正式资源。独审另发现 390px 长项目 slug 下短 owner 被拆行、返回箭头收缩的局部可读性问题，已交集成 owner 定向修复。当前断点是正式 Logo、项目长名可读性修复及独审的受影响复验；含错误 Logo 的旧截图不作为最终展示。其余源码未受影响的检查按对应 owner 结论复用。本轮仍未合 main，也未宣称用户已接受设计。
+
+前端开发入口与组件合同已按新源码归位，旧业务验收保留为归档记录；UI owner 已只读确认八控件合同无实际 API 误述。
 
 ## 本轮已报告检查与资源
 
-- 集成 owner 报告：Node `24.19.0`、npm `11.9.0`；`npm ci --prefix web` 与 `npm ci --prefix tests/account-captcha-web` 均 exit 0；Playwright `1.56.1`、Chromium `151.0.7922.173` 可用。新 `web` 的 type-check 与 build 通过；首轮 format-check 发现三个既有 unit 文件格式失败，测试 owner 已修复并继续扩展测试；新增 unit 接入后的 type-check 发现两处 strict 可能 undefined，测试 owner 正局部修复；先前 type-check/build 通过仅属于扩展前输入。完整 `check` 和最终独审仍待报告。
+- 集成 owner 报告：Node `24.19.0`、npm `11.9.0`；新 `web` 与锁定浏览器 harness 的 `npm ci` 均 exit 0；Playwright `1.56.1`、Chromium `151.0.7922.173` 可用。当前源码 `npm run format:check --prefix web` 与 `npm run build --prefix web`（含 `vue-tsc --noEmit`）均 exit 0。首轮三个既有 unit 文件的格式失败，以及新增 unit 两处 strict 可能 undefined，已由测试 owner 修复；最终通过属于修复后的输入，不改写早期失败。
 - 文档 owner 只读核对：`746ddcb3:web` 与当前 `HEAD:web-crape` 的 569 个文件 blob/执行位完全相同，工作树归档无受跟踪改动。新 lock 为独立 `@agenteam/web-rebuild`、179 个 package；当前新 `web/src` 未检出旧 client、Session、权限/API 或归档导入。路由导出核对为 40 正式叶子、11/3/11 设置、3 个重定向及 404，URL 形状与蓝图一致，全部正文为 SkeletonPage；三类设置只使用一份 SettingsShell，无 debug 路由。默认 npm、`deploy/dev/start.sh` 与 Compose 挂载均指新 `web/`。这是有限静态边界结论，本轮未运行 Compose，不是业务或浏览器验收。
-- 集成 owner 已实际启动原型 5241 与新 Vue dev 5244，并报告各自 HTTP 200；npm 父进程 PID 分别为 7451/7452，日志在忽略的 `output/ai/vue-integration/`。frp 助手 PID 8418 保持，公网 `http://mcpc-terra.lunadeer.cn:18081/system/users` 与本地 index SHA-256 一致，真实浏览器导航与主题切换已通过，root 已向用户提供该入口并保留 dev/frp。HMR 本地同 token/Upgrade 返回 101，但本环境经继承 HTTP 代理访问公网 WebSocket 被 envoy 403 拒绝；该环境链路未验成 HMR，可手动刷新获取更新，不据此断言用户直连也失败。
-- 测试 owner 实际运行生产 dist 首链路 1/1 exit 0：`/system/users` → Providers → 返回 → 键盘主题切换 → 刷新持久化 → 跟随系统变色，无 pageerror；对应命令见 [harness](../tests/frontend-rebuild/README.md)。5242 preview 已 SIGTERM，报告 `closed=true / exitCode=143` 且无监听；组件扩展 14/14 与新增控件浏览器 4/4 已由 owner 报告通过；剩余路由、移动与原生缩放仍在验证，不能计完整矩阵通过。
-- UI owner 根据实际打开的原型与新 Vue 校准 `tokens.css/useTheme.ts` 的中性暖灰、字体、圆角和 theme-color，无组件 API 或存储语义变更；报告作者浏览器主题、回焦、reduced motion、overflow 与对比度检查通过。源码已停写待 checkpoint。
-- 独审 owner 已实际查看原型与新 Vue 整页，初看无结构性返修项，最终交互/矩阵结论待报告。独审端口 5243 仍以 owner 实际启动/退出报告为准。环境快照不保留进程，恢复时必须重新核实。
+- 集成 owner 已实际启动原型 5241 与新 Vue dev 5244，并报告各自 HTTP 200；原型为 Python PID 7451，新 Vue 为 Vite PID 7464（npm 父进程 7452），日志和 PID 文件位于忽略的 `output/ai/vue-integration/`。frp 助手 PID 8418 保持，公网 `http://mcpc-terra.lunadeer.cn:18081/system/users` 与本地 index SHA-256 一致，真实浏览器导航与主题切换已通过，root 已向用户提供该入口并保留 dev/frp。HMR 本地同 token/Upgrade 返回 101，但本环境经继承 HTTP 代理访问公网 WebSocket 被 envoy 403 拒绝；该环境链路未验成 HMR，可手动刷新获取更新，不据此断言用户直连也失败。
+- 测试 owner 报告全量 unit 14/14（theme 4、menu 3、dialog 3、Input 1、Select 2、Tabs 1）；生产浏览器 12 项分轮有效通过：首链 1、控件 4、路由 7。覆盖主题键盘/刷新/跟随系统、控件焦点/选择、40 叶子、3 个 optional URL、默认跳转/保留路径与窄屏目录，命令及精确范围见 [harness](../tests/frontend-rebuild/README.md)。
+- 路由组首轮 6/7，最后一项误设 390px 项目导航必横溢；实际导航 342px 已容纳约 326px 标签，document 无横溢。测试 owner 改用 320px 真实触发局部横滚后定向 1/1 通过，保留原失败，不归为产品缺陷。最终 5242 preview PID 18822 已退出，报告 `closed=true / exitCode=143` 且无监听；原生 200% 缩放由独审另证，不算 harness 条目。
+- UI owner 根据实际打开的原型与新 Vue 校准 `tokens.css/useTheme.ts` 的中性暖灰、字体、圆角和 theme-color，无组件 API 或存储语义变更；报告作者浏览器主题、回焦、reduced motion、overflow 与对比度检查通过。两文件已随 checkpoint 保存，无接口变更。
+- 独审 owner 以 `85677d28` 实际观察原型 general、Agent 列表/四 Tab、浅深/390 与菜单/Select/草稿 dialog，以及新 Vue 系统/个人/项目壳和 UI fixture。低高 1440×600 侧栏滚动、390×600 抽屉末项、导航后 H1 焦点、原生 200% 后 720×408 无横溢、普通/减少动效均报告通过，未发现框架结构性返修；后续独审发现上述长项目名局部问题，待同输入复验。Logo 变化使壳截图输入改变，最终结论待受影响复验。
+- 旧输入独审 5243 production+fixture 服务已退出：wrapper PID 16600 终端 exit 0，preview PID 16650 报告 `closed=true / exitCode=143`。Logo/长名返修后由独审启动新隔离 preview 并复验，实际资源事实待其报告。原型 5241、新 Vue dev 5244 和 frp 18081 按用户授权保留。环境快照不保留进程，恢复时必须重新核实。
 - 工具链要求 Node `>=24.12.0`；依赖按新 `web/package-lock.json` 安装，不能链接归档依赖。浏览器命令以[新工程 harness](../tests/frontend-rebuild/README.md)为准；普通工程运行及 Host/HMR 配置见 [web 运行说明](../web/README.md)。
 - 日志、截图、dist 和缓存放忽略目录；源码、锁和必要 harness 随 checkpoint 保存。用户图片展示先按项目约定上传图床并使用其公网链接；凭据不入文档。用户已授权通过 frp 保留 dev 供体验，只有公网响应及页面功能验证后才提供地址。
 
 ## 下一步与保存边界
 
-1. 集成 owner 完成共享壳接线与工程检查；UI owner 按实际浏览器反馈返修控件和样式。
-2. 测试 owner 运行独立端口浏览器 harness；独审分别观察 `746ddcb3` 原型与新 Vue 的整页、交互、主题、窄屏、动效和缩放。
-3. 文档 owner 按源码与实际检查归位运行入口、组件合同、范围和未验项；保留历史验收，不宣称用户已接受设计。
+1. 集成 owner 使用 `docs/logos/` 正式品牌资源，并修复 390px 长项目名下 owner/返回箭头的可读性；补受影响检查，独审按同输入复验后给出当前范围最终结论。
+2. 保留已验证公网 dev 供用户体验；如环境重启，按运行说明恢复并重核服务，不将本机 WebSocket 代理限制外推为用户直连结果。
+3. 文档 owner 按 Logo 返修与最终独审更新最小状态和资源事实；保留历史验收，不宣称用户已接受设计。
 4. 有意义结果或持续修改约 5 分钟的安全边界，各 owner 报告并停写本批路径，由 root checkpoint/push 后续写；本轮正式范围验收前不合 main。
 
 ## 保留的既有恢复入口

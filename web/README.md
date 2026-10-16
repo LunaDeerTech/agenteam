@@ -36,7 +36,7 @@ AGENTEAM_PREVIEW_HOST=mcpc-terra.lunadeer.cn AGENTEAM_PREVIEW_PORT=18081 npm run
 
 `AGENTEAM_PREVIEW_HOST` 是不带协议和端口的 hostname，加入 Vite allowedHosts 并作为 HMR host；`AGENTEAM_PREVIEW_PORT` 是外部 HTTP/WebSocket 端口。当前配置使用 `ws`，适用于本轮 HTTP frp 入口；本地监听仍是 loopback。这两个变量不会自动启动隧道，也不配置 API 代理。
 
-本环境 frp 方式遵循 `/workspace/AGENTS.md` 和 `/workspace/agenteam-onboarding/frp/wss-start-instructions.md`：显式连接 `mcpc-terra.lunadeer.cn:443`，唯一映射名，不占用其他服务端口，保留证书验证。实际映射、进程、启动日志和可用性由服务 owner 在[当前状态](../.agent-state/current.md)维护；恢复环境必须重新启动并核对公网返回内容、页面交互和 HMR。验证通过后再向用户提供地址，并保留服务供体验；不在仓库记录凭据。
+本环境 frp 方式遵循 `/workspace/AGENTS.md` 和 `/workspace/agenteam-onboarding/frp/wss-start-instructions.md`：显式连接 `mcpc-terra.lunadeer.cn:443`，唯一映射名，不占用其他服务端口，保留证书验证。实际映射、进程、启动日志和可用性由服务 owner 在[当前状态](../.agent-state/current.md)维护；恢复环境必须重新启动并核对公网返回内容与页面交互，同时单列 HMR 结果和环境限制。公网页面验证通过后向用户提供地址，并保留服务供体验；HMR 不可用时说明手动刷新方式，不在仓库记录凭据。
 
 ## 源码入口
 

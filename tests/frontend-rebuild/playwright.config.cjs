@@ -7,7 +7,7 @@ const output = path.resolve(
 const port = Number(process.env.VUE_TEST_PORT || 5242);
 module.exports = defineConfig({
   testDir: __dirname,
-  testMatch: ["foundation.spec.cjs", "controls.spec.cjs"],
+  testMatch: ["foundation.spec.cjs", "controls.spec.cjs", "routes.spec.cjs"],
   timeout: 30000,
   expect: { timeout: 5000 },
   workers: 1,

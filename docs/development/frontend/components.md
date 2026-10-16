@@ -29,6 +29,8 @@ Menu 与 Select 使用内部 `useAnchoredLayer`，依据触发位置和 viewport
 
 ## 页面组合与滚动
 
+界面品牌使用 [docs/logos](../../logos/) 已有正式资源，按需复制浅深主题变体到新工程；不以自绘几何图形代替正式 Logo。
+
 [AppShell](../../../web/src/layouts/AppShell.vue) 保留系统顶栏，将剩余空间交给可收缩的主区；项目路由先展示 [ProjectNavigation](../../../web/src/layouts/ProjectNavigation.vue)。普通页面在标准内容区滚动，账号与 OAuth 回调由 [AccountShell](../../../web/src/layouts/AccountShell.vue)承载。
 
 系统、个人和项目设置只使用一份 [SettingsShell](../../../web/src/layouts/SettingsShell.vue)。它从 route metadata 与集中栏目数组获得 scope、标题、分组和导航；设置目录与正文分工，桌面两区各自管理纵向滚动。窄屏隐藏常驻目录，通过同一个 UiDialog 的 left 模式打开，选中路由后关闭目录。

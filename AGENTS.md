@@ -44,7 +44,7 @@ See `docs/development/backend/README.md` and `docs/development/frontend/README.m
 
 Preserve surrounding HTML/CSS/JavaScript formatting; the frontend uses Prettier via its package scripts. Use UTF-8, LF endings, descriptive names, and kebab-case documentation filenames. Format Go code with `gofmt` (tabs). For new Vue code, use two-space indentation and PascalCase component filenames.
 
-Follow confirmed frontend style tokens and layout specifications. Keep business lifecycle rules in architecture documents, and update related links when moving documentation.
+Follow confirmed frontend style tokens and layout specifications. Use the official assets in `docs/logos/` for application branding; copy the required theme variants into the frontend assets instead of recreating the mark. Keep business lifecycle rules in architecture documents, and update related links when moving documentation.
 
 ## Testing Guidelines
 
