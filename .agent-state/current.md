@@ -2,12 +2,11 @@
 
 2026-10-16。用户已授权[Passkey 与邮箱变更](../docs/development/work-items/account-passkeys-email-change.md)：登录增加免填邮箱的 Passkey；个人改密页扩为“登录与安全”并支持凭据添加/命名/删除；资料邮箱经新鲜 Passkey 与新邮箱数字码原子变更。系统设置、导航和全局开关均不新增 Passkey。首次登记/全 key 丢失恢复采用当前密码加原邮箱码，bootstrap 默认邮箱不视为已验证，另实现明确的一次性部署者初始化/恢复入口。
 
-本轮基线 `c09d69b71e9ca982e02089560eeeaeb7765749e8`，前后端独立实施，合同与必要蓝图/运行说明由 account_contract 唯一维护，全部 Git 由 root 负责。固定部署 PUBLIC_ORIGIN 决定 RP/Origin，IP 下能力不可用但密码登录保持；真实域名与设备由用户在独立服务器后验。能力/列表/登录、一次性action绑定grant、Passkey管理/恢复及邮箱变更wire已固定，前端可并行接线；当前首断点为部署者CLI/初始化完整结构，尚无本轮完整功能或部署通过结论。当前持久服务、账号、SMTP、keys 不动，外部实发仍暂停。
+本轮基线 `c09d69b71e9ca982e02089560eeeaeb7765749e8`，前后端独立实施，合同与必要蓝图/运行说明由 account_contract 唯一维护，全部 Git 由 root 负责。固定部署 PUBLIC_ORIGIN 决定 RP/Origin，IP 下能力不可用但密码登录保持；真实域名与设备由用户在独立服务器后验。能力/列表/登录、一次性action绑定grant、Passkey管理/恢复及邮箱变更wire已固定，前端可并行接线；初始化/恢复共享modal及CLI/HTTP合同已固定；新增email_initialization_required明确区分bootstrap与普通未验证用户，严格DTO正同步。当前首断点为HTTP/邮件/CLI与真实PG组合门，尚无本轮完整功能或部署通过结论。当前持久服务、账号、SMTP、keys 不动，外部实发仍暂停。
 
-首实现检查点：backend `fbd4ad70` 已保存WebAuthn0.18.2锁定依赖、00146结构、core/密码学适配及签名测试源码，尚未HTTP/邮件组合、产品编译或PG验证。Vue `a1a970fe` 已保存原生WebAuthn helper，4项unit通过，登录/个人页接线进行中；不把源码检查点当完整功能通过。
+当前实现检查点：backend `5ff96e6c` 已保存WebAuthn0.18.2、00146、HTTP/email-confirm及运维CLI源码；纯Go真实签名测试通过，产品编译/真实PG仍在推进。独审发现的mail_recovery CHECK NULL问题已修，PG负例尚待确认，不称HTTP绕过。Vue `34442ff6` 已保存页面与P2焦点修正，helper4项unit及受控浏览器局部结果不代真实API。后端 `/workspace/agenteam-passkey-backend`、前端 `/workspace/agenteam-passkey-vue` 分别由account_backend/proxy_copy负责，主树文档由account_contract维护；独立验收待稳定输入，未触现用户runtime或外部邮箱。
 
 ## 此前 SMTP 独立直连交付
-
 
 2026-10-16。用户已确认 SMTP 与数据库、对象存储同属独立基础设施：直接连接保存的 host/port/TLS，不受业务出站规则、全局代理或环境代理影响，不新增 SMTP 专属代理开关。保留严格 TLS/STARTTLS、超时取消/join、Secret、SMTP 版本和当前凭据、账户 SendPermit 的 AUTH/MAIL 真实首写、权限审计、队列重投重试与 Unknown。现有账号/Session、SMTP、proxy、规则与 keys 全部保留，无迁移或清库；真实 SMTP 实发暂停，本轮仅 owned 隔离验证。正式合同见[工作项](../docs/development/work-items/system-outbound-policy-proxy.md)。
 

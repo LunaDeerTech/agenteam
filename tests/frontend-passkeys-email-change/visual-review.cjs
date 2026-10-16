@@ -443,7 +443,8 @@ async function views(browser) {
             page.getByRole("list", { name: "我的 Passkey" }),
           ).toBeVisible();
           await shot(page, `security-${width}-${theme}`);
-          await field(page, "确认新密码").scrollIntoViewIfNeeded();
+          await button(page, "修改密码").scrollIntoViewIfNeeded();
+          await expect(button(page, "修改密码")).toBeInViewport();
           await shot(page, `security-bottom-${width}-${theme}`);
           return noOverflow(page);
         },
@@ -757,6 +758,16 @@ async function zoom() {
     await button(modal(page, "修改邮箱"), "发送验证码").click();
     await expect(field(modal(page, "修改邮箱"), "新邮箱验证码")).toBeVisible();
     await button(modal(page, "修改邮箱"), "取消").scrollIntoViewIfNeeded();
+    await button(modal(page, "修改邮箱"), "取消").focus();
+    await page.keyboard.press("Tab");
+    await expect(button(modal(page, "修改邮箱"), "关闭")).toBeFocused();
+    await page.keyboard.press("Shift+Tab");
+    await expect(button(modal(page, "修改邮箱"), "取消")).toBeFocused();
+    assert(
+      await page.evaluate(
+        () => matchMedia("(prefers-reduced-motion: reduce)").matches,
+      ),
+    );
     await noOverflow(page);
     const cdp = await context.newCDPSession(page);
     const capture = await cdp.send("Page.captureScreenshot", {

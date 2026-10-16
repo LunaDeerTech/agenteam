@@ -209,7 +209,7 @@ Artifact 日期和大小面向用户格式化，原值可在详情复制；Token
 | `/settings/appearance` | 浅/深/系统三项明确选中与小型预览，同一目的共用表面                     | 保存 / 取消；预览与账号服务端持久化分清，不以本地 Debug 状态代证             |
 | `/settings/password`   | 个人导航与页题为“登录与安全”，保留改密表单并分区显示 Passkey 列表 | 改密及 Passkey 添加/命名/删除；重新认证、丢失恢复与 Session 影响就近呈现，不增加设备管理 |
 
-Passkey 与邮箱流程以[本轮合同](../../development/work-items/account-passkeys-email-change.md)为准。保留个人原路由与开放表单，弹窗处理邮箱多步任务；首次登记/全 key 丢失恢复使用当前密码与原邮箱数字码，未验证的 bootstrap 邮箱须走明确运维初始化。IP Origin 或浏览器能力不足显示真实不可用原因并保留密码路径。系统设置、系统导航与全局开关不新增任何 Passkey 项。
+Passkey 与邮箱流程以[本轮合同](../../development/work-items/account-passkeys-email-change.md)为准。保留个人原路由与开放表单，弹窗处理邮箱多步任务；首次登记/全 key 丢失恢复使用当前密码与原邮箱数字码；普通未验证用户可走此流程，仅服务端email_initialization_required为true时须先运维初始化。个人“登录与安全”复用modal消费部署者一次授权与当前密码，再确认绑定邮箱数字码，覆盖初始化/原邮箱丢失恢复；页面仅短提示获取授权，不展示CLI长文，也不新增可更改的授权目标字段。IP Origin 或浏览器能力不足显示真实不可用原因并保留密码路径。系统设置、系统导航与全局开关不新增任何 Passkey 项。
 
 ### 5.2 系统设置：11 个叶子
 

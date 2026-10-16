@@ -25,7 +25,20 @@ keyring 占位值故意无效；部署须独立生成随机 32-byte 材料并使
 
 本轮新增能力以[Passkey 与邮箱变更工作项](../work-items/account-passkeys-email-change.md)为准，尚不能用现有密码登录或历史预览结果证明新流程已通过。系统设置不新增 Passkey 配置；RP ID 与允许 Origin 只从固定 `AGENTEAM_CENTRAL_PUBLIC_ORIGIN` 派生，使用规范 DNS hostname 与准确端口。IP Origin 明确不可用，原密码登录继续工作；不从请求或转发头生成 RP/Origin，不降低 TLS 验证。域名改变会影响原 RP 下凭据的可用性，须按正式部署域名配置并由用户在独立服务器验证真实设备。
 
-首次管理员的默认邮箱不是已验证邮箱。新增邮箱验证事实后，首次 Passkey 登记/全 key 丢失恢复需当前密码与原邮箱真实 SMTP 数字码；bootstrap 初始化真实邮箱、原邮箱也失去的恢复必须使用短时、一次性、绑定指定用户和目标邮箱的部署者授权入口。新邮箱仍须证明实际收码；管理员角色、后台恢复日志或直接修改资料不能代替该事实。CLI 与精确命令待后端首批接口固定后补齐，本段不提供尚不存在的可执行命令。
+首次管理员的默认邮箱不是已验证邮箱。本人Passkey投影显式返回 `email_initialization_required`：仅未验证且有真实bootstrap记录时为true，不能按管理员角色或邮箱字符串猜测；普通未验证注册用户可用当前密码及原邮箱真实SMTP码完成首登记验证。
+
+部署者入口源码为 `cmd/agenteam-account-recovery/main.go`，独立命令使用与当前Central相同的已加载部署配置、数据库和keyring，不自动读取 `.env`。使用Go1.27.1构建；以下为已定义的调用方式，CLI与真实PG链路尚在隔离验收，不能据此声称已运行通过：
+
+```sh
+go build -o ./bin/agenteam-account-recovery ./cmd/agenteam-account-recovery
+./bin/agenteam-account-recovery --user-id '<USER_ID>' --purpose initialize_email --email 'owner@example.invalid' --output '/absolute/private/mailbox-authorization.json'
+```
+
+UserID须取真实不可变账号ID，邮箱与路径示例须替换。`initialize_email`用于未验证邮箱初始化，`recover_account`用于旧邮箱/Passkey不可用但仍能以密码登录的恢复。授权固定30分钟，只绑定此UserID、purpose与目标邮箱；同用户/用途新签发撤销旧授权，并写Audit。命令只签发授权，不更换邮箱、不发验证码、不重置密码，也不直接标记邮箱已验证。
+
+`--output`须是调用者控制的0700目录内尚不存在的绝对文件路径；命令以排他创建方式写0600文件，失败不覆盖已有文件。输出合同为小写 `id/authorization/user_id/purpose/email/expires_at`（实现正统一该字段，不把WIP大写默认字段作为协议）。授权不得输出到普通日志、截图或Git，经受限渠道交本人使用。命令不授予匿名登录能力：用户仍须已有当前Session并提供当前密码；同时丢失密码的离线接管不纳本轮。
+
+用户在个人“登录与安全”打开初始化/恢复邮箱modal，填写授权和当前密码；服务器从授权读取目标，向该邮箱发真实数字码，用户确认后才原子变更并验证邮箱。两种purpose共用 `/me/email-initialization/request|resend|confirm`，请求不另传邮箱或purpose；普通页面只提示向部署者获取授权，不展示命令长文。恢复成功撤销旧Passkeys、其他Session及旧reset，保当前强Session；初始化/恢复确认不附登记grant，之后正常首登记需再以当前密码和新邮箱码验证。管理员角色、后台日志或直接修改资料不能替代收码事实。
 
 这些验证码和旧邮箱变更通知使用专用 SMTP 邮件 kind，无后台日志 fallback；SMTP 未配置或不可用时明确反馈，不能称验证邮件已发送。实施与验收使用任务拥有的隔离数据库、域名/证书和 SMTP sink；不变更当前用户实例、域名、SMTP配置或 keys，不向外部邮箱发送。虚拟认证器/隔离 sink 的通过范围与真实设备、公开域名及外部投递分开记录。
 
