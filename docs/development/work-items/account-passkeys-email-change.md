@@ -18,21 +18,21 @@
 
 - 使用成熟 WebAuthn 实现，Passkey 绑定稳定 UserID，不能绑定可修改的邮箱或用户名。用户名为空的登录使用 discoverable credential；登记要求 resident key，登记与断言均要求 User Verification。公钥、credential ID、签名计数及必要备份状态持久保存；不接收或保存认证器私钥。
 - RP ID 与允许 Origin 只从固定部署 `PUBLIC_ORIGIN` 派生，RP ID 为规范 hostname，Origin 包括实际协议和端口；不从请求 Host、转发头或客户端 body 选择。IP Origin 明确返回能力不可用，不影响原密码登录。无跳过证书、宽泛 Origin 或 Dev 模式隐式绕过。
-- 挑战随机、短时、一次性并持久绑定用途。匿名登录绑定匿名浏览器上下文；登录后的登记、删除及邮箱操作绑定当前 UserID、Session、用途和相关操作目标。断言消费与凭据/Session/邮箱写入同事务，重放不能再执行副作用。
+- 挑战随机、有效期5分钟、一次性并持久绑定用途。匿名登录绑定匿名浏览器上下文；登录后的登记、删除及邮箱操作绑定当前 UserID、Session、用途和相关操作目标。断言消费与凭据/Session/邮箱写入同事务，重放不能再执行副作用。
 - 成功预检不代替提交时的当前授权：重新读取 Session、账号状态、当前邮箱、凭据集合/版本及相关申请；跨身份、跨 Session、跨用途和已失效/已消费挑战拒绝。邮箱改变不改变 UserID 或已有公钥归属。
 - 需要新增明确的邮箱验证事实。既有邮箱、bootstrap 默认 `admin@mail.com` 和管理员角色都不是验证证据；不能将后台恢复日志里的材料当作邮箱收到验证码。
 
 ## 3. 重新认证、邮件与恢复
 
-有可用 Passkey 时，添加/删除 Passkey 和修改邮箱要求新鲜 UV 断言。验证只授权对应当前操作，不能作为长期通用管理员通行证。首次登记与全 key 丢失恢复采用当前密码加原邮箱数字码；恢复须明确旧 key 的撤销与会话影响，避免遗失的 key 继续登录。命名只改变显示名称，不改变公钥身份。
+有可用 Passkey 时，添加/命名/删除 Passkey 和修改邮箱要求新鲜 UV 断言。grant有效期5分钟、一次性，绑定当前用户/Session及action；命名/删除同时绑定目标Passkey ID。邮箱用途不接受key管理action/目标。验证只授权对应当前操作，不能作为通用管理员通行证。首次登记与全 key 丢失恢复采用当前密码加原邮箱数字码；恢复grant只能登记新key，成功登记时原子撤销旧keys及旧管理授权，避免遗失的key继续登录；恢复开始不先删除旧keys。命名只改变显示名称，不改变公钥身份。
 
-数字验证码使用密码学安全随机源，服务端只存受保护摘要；绑定用途、申请、用户/Session 和规范邮箱。申请须有明确期限、错误次数上限和重发间隔，重发不能延长同一旧码的有效期或无限重置尝试预算。失效、取消、替代与已用状态均有可执行下一步；不输出码、密码、WebAuthn 原始认证材料或运维授权到普通日志/URL/浏览器持久存储。
+数字验证码使用密码学安全随机源，服务端只存受保护摘要；绑定用途、申请、用户/Session 和规范邮箱。数字码固定6位ASCII数字。申请有效期10分钟，同一用户/用途的连续窗口累计最多5次错误，发送间隔60秒；重复request和resend均不能洗掉窗口预算；重发使旧码立即失效，不重置累计错误预算，也不能无限延长同一申请的期限。失效、取消、替代与已用状态均有可执行下一步；不输出码、密码、WebAuthn 原始认证材料或运维授权到普通日志/URL/浏览器持久存储。
 
 新邮箱码、原邮箱验证/恢复码和旧邮箱变更通知使用专用邮件 kind，严格 SMTP 投递，不能 fallback 到 backend log。受理、SMTP 接受和实际邮箱收到是不同事实；未配置/不可用须有真实失败或等待反馈，不能用“已发送”假成功。隔离 sink 可测试收码链，但不代证外部邮箱。
 
 新邮箱确认在同一事务内检查唯一性、当前身份/Session、原邮箱和 Passkey 授权状态，消费申请、更新规范邮箱和验证事实、写 Audit/receipt，并废弃旧 reset 与旧邮箱申请。保留本次强验证 Session，撤销其他 Session；向原邮箱排队发送变更通知，通知失败不回滚已完成变更，也不把通知当作授权依据。
 
-bootstrap 初始邮箱不能自动视为真实联系地址。部署者初始化/邮箱丢失恢复必须有单独、一次性、短期授权和可运行入口；具体 CLI 与授权消费流程由后端固定后写入[运行说明](../backend/account.md)，不得以直接改库教程、长期万能 token 或管理员页面开关代替。授权至少绑定指定 UserID、目的、目标邮箱和期限，实际新邮箱仍须通过 SMTP 数字码证明持有。
+bootstrap 初始邮箱不能自动视为真实联系地址。部署者初始化/邮箱丢失恢复必须有单独、一次性、短期授权和可运行入口；具体 CLI 与授权消费流程由后端固定后写入[运行说明](../backend/account.md)，不得以直接改库教程、长期万能 token 或管理员页面开关代替。此运维流程仍要求当前密码登录Session和当前密码；同时失去密码的离线账号接管不纳本轮，也不提供对应假入口。授权至少绑定指定 UserID、目的、目标邮箱和期限，实际新邮箱仍须通过 SMTP 数字码证明持有。
 
 ## 4. HTTP 与前端状态边界
 
@@ -40,12 +40,31 @@ bootstrap 初始邮箱不能自动视为真实联系地址。部署者初始化/
 
 | 方法与路径 | 请求与成功响应 |
 | --- | --- |
-| `GET /auth/passkeys/capabilities` | `{available:boolean,reason:"available"\|"secure_origin_required"\|"domain_required",rp_id:string\|null}`。仅代表固定部署能力，浏览器支持另行判断。 |
-| `GET /me/passkeys` | 当前 Session；`{version,email_verified,items:[{id,label,created_at,last_used_at}]}`，version为规范正int64十进制字符串，last_used_at可为null。 |
+| `GET /auth/passkeys/capabilities` | `{available:boolean,reason:"available"\|"secure_origin_required"\|"domain_required",rp_id:string\|null}`。available为false时rp_id必须为null；仅代表固定部署能力，浏览器支持另行判断。 |
+| `GET /me/passkeys` | 当前 Session；`{version,email_verified,items:[{id,label,created_at,last_used_at}]}`，集合version初始为"1"且为规范正int64十进制字符串，id为UUIDv7，last_used_at可为null；最多20个活动keys。 |
 | `POST /auth/passkeys/login/options` | 匿名browser CSRF、无需Idempotency-Key；返回 `{operation_id,expires_at,public_key}`，public_key为原生PublicKeyCredentialRequestOptionsJSON，不要求邮箱。 |
 | `POST /auth/passkeys/login/complete` | 匿名browser CSRF及Idempotency-Key，body恰为 `{operation_id,credential}`，credential为AuthenticationResponseJSON；成功沿既有登录响应及Session Cookie，再GET session确认。 |
 
-operation_id为不透明UUID，选项仅在其用途/浏览器和期限内有效。登记拟使用 `/me/passkeys/registration/options` 的 `{grant_id,label}` 与 `/complete` 的 `{operation_id,credential}`；重新认证、grant、邮箱、CLI及具体期限/限次待后端下一批固定，不能由前端猜测成功结构或增设lookup。这些操作不混入系统设置或普通资料 PATCH。
+operation_id为不透明UUID，选项仅在其用途/浏览器和期限内有效。认证器JSON采用成熟库对应结构，客户端不拼接或修改签名材料。
+
+下表路径亦带 `/api/v1`。options用当前Session CSRF，后续命令同时使用Idempotency-Key。options/confirm/管理命令成功200；实际邮件入队的request/resend成功202，不表示已送达。命名label去首尾空白后须为1–64个Unicode字符、最多256个UTF-8字节。
+
+| 方法与路径 | 请求与成功响应 |
+| --- | --- |
+| `POST /me/passkeys/reauth/options` | `{purpose,action?,passkey_id?}`；purpose为`manage_passkeys`或`change_email`。manage必须带`register`/`rename`/`delete` action，后两者必须带目标id；change_email禁止action/id。返回options operation。 |
+| `POST /me/passkeys/reauth/complete` | `{operation_id,credential}` → `{grant_id,purpose,expires_at}`；服务器保存并验证action与目标绑定，不以响应少字段丢失约束。 |
+| `POST /me/passkeys/registration/options` | `{grant_id,label,expected_version}` → `{operation_id,expires_at,public_key}`；public_key为原生PublicKeyCredentialCreationOptionsJSON，expected_version为Passkey集合版本；options原子将grant消费并绑定该operation，取消后须重新认证。 |
+| `POST /me/passkeys/registration/complete` | `{operation_id,credential}` → `{version,id,created_at}`；credential为原生RegistrationResponseJSON，登记与grant/挑战消费原子提交。 |
+| `PATCH /me/passkeys/{id}` | `{expected_version,label,grant_id}` → `{version,id,created_at}`。 |
+| `DELETE /me/passkeys/{id}` | `{expected_version,grant_id}` → `{version,id,created_at}`；仍返回确认回执，不能凭列表未见目标替代原结果。 |
+| `POST /me/passkeys/recovery/request` | `{password}` → `{request_id,expires_at,resend_after}`；当前Session发起，使用原邮箱真实SMTP码。 |
+| `POST /me/passkeys/recovery/resend` | `{request_id}` → 同申请回执；成功202，沿同用户/用途的窗口预算。 |
+| `POST /me/passkeys/recovery/confirm` | `{request_id,code}` → 上述grant结构，服务端限定为register；已有keys时作为丢失恢复，最终新登记才撤旧keys。 |
+| `POST /me/email-change/request` | `{grant_id,email,expected_version}` → `{request_id,expires_at,resend_after}`；expected_version是`/me`的User版本，规范邮箱绑定该唯一申请。 |
+| `POST /me/email-change/resend` | `{request_id}` → 同申请回执；重发不转移邮箱/用途，不清尝试预算。 |
+| `POST /me/email-change/confirm` | `{request_id,code}` → `{version,email,created_at}`；当前Cookie不旋转，保本次强Session并撤其他Session，按当前权限支持原命令回执恢复。 |
+
+Passkey集合版本与User版本独立，不互相推导。能力/所有读取成功200，严格拒绝未知字段。错误或过期验证码用400 `INVALID_ARGUMENT`、field `/code` 的 `INVALID_OR_EXPIRED`；失效grant用409 `INVALID_STATE`，限次用429 `RATE_LIMITED`。SMTP未配置/停用用409 `INVALID_STATE`，依赖失败503；不把验证码错误当Session401而清空身份。原key/body显式重放恢复receipt，无新增GET lookup，complete重放不能再次消费挑战/grant。运维授权初始化/恢复将使用本人当前Session的专用流程；精确CLI及该流程返回结构尚待后端下一批固定，不由前端猜测。这些操作不混入系统设置或普通资料 PATCH。
 
 所有写操作沿当前 Origin、浏览器/Session CSRF 和幂等命令边界。相同命令原 key/body 恢复原 receipt，先核当前授权；不能因挑战已消费就把已提交重放错误判作新失败。WebAuthn 用户取消在提交前返回可重试状态；提交开始后断网/结果未知保持原意图并冻结可改字段，显式同请求恢复，不创建新 key 重试。GET 仅观察当前状态，不能代替原命令回执。
 
@@ -59,4 +78,4 @@ root 负责 Git、隔离工作树与最终组合；account_backend 负责领域/
 
 完成出口包括：密码入口不回退；能力禁用边界；首次登记/再次登记/命名/删除与免邮箱登录；密码加旧邮箱码恢复；邮箱强验证到真实隔离 SMTP 收码和原子更新；部署者初始化/邮箱丢失恢复；错误码、限次/过期/重发与跨用途/Session 反例；当前凭据变更竞争、唯一性、Unknown 原请求恢复与 Session/reset 撤销；日志无秘密泄露。浏览器覆盖可用的虚拟认证器、宽窄主题/键盘/取消/焦点，真实设备与公网域名留给用户独立服务器验收，不将缺少公网条件写作产品已通过。
 
-当前检查点：行为合同及能力/列表/匿名Passkey登录首批wire已固定，可并行实现；其余grant/邮箱/CLI与具体期限/限次待下一批约定。结构升级00146由account_backend唯一维护。未运行本轮产品测试、未部署、未发外部邮件。
+当前检查点：能力/列表/登录、action绑定grant、登记/命名/删除、密码与旧邮箱码恢复和邮箱变更wire已固定，可并行实现；运维CLI/初始化HTTP完整结构待下一批约定。结构升级00146由account_backend唯一维护。未运行本轮产品测试、未部署、未发外部邮件。

@@ -2,7 +2,9 @@
 
 2026-10-16。用户已授权[Passkey 与邮箱变更](../docs/development/work-items/account-passkeys-email-change.md)：登录增加免填邮箱的 Passkey；个人改密页扩为“登录与安全”并支持凭据添加/命名/删除；资料邮箱经新鲜 Passkey 与新邮箱数字码原子变更。系统设置、导航和全局开关均不新增 Passkey。首次登记/全 key 丢失恢复采用当前密码加原邮箱码，bootstrap 默认邮箱不视为已验证，另实现明确的一次性部署者初始化/恢复入口。
 
-本轮基线 `c09d69b71e9ca982e02089560eeeaeb7765749e8`，前后端独立实施，合同与必要蓝图/运行说明由 account_contract 唯一维护，全部 Git 由 root 负责。固定部署 PUBLIC_ORIGIN 决定 RP/Origin，IP 下能力不可用但密码登录保持；真实域名与设备由用户在独立服务器后验。能力查询、本人列表和匿名Passkey登录首批wire已固定，前端可并行接线；当前首断点为grant/邮箱申请、持久验证状态及部署者CLI细节，尚无实现/测试/部署通过结论。当前持久服务、账号、SMTP、keys 不动，外部实发仍暂停。
+本轮基线 `c09d69b71e9ca982e02089560eeeaeb7765749e8`，前后端独立实施，合同与必要蓝图/运行说明由 account_contract 唯一维护，全部 Git 由 root 负责。固定部署 PUBLIC_ORIGIN 决定 RP/Origin，IP 下能力不可用但密码登录保持；真实域名与设备由用户在独立服务器后验。能力/列表/登录、一次性action绑定grant、Passkey管理/恢复及邮箱变更wire已固定，前端可并行接线；当前首断点为部署者CLI/初始化完整结构，尚无本轮完整功能或部署通过结论。当前持久服务、账号、SMTP、keys 不动，外部实发仍暂停。
+
+首实现检查点：backend `fbd4ad70` 已保存WebAuthn0.18.2锁定依赖、00146结构、core/密码学适配及签名测试源码，尚未HTTP/邮件组合、产品编译或PG验证。Vue `a1a970fe` 已保存原生WebAuthn helper，4项unit通过，登录/个人页接线进行中；不把源码检查点当完整功能通过。
 
 ## 此前 SMTP 独立直连交付
 
