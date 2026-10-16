@@ -1,6 +1,8 @@
 # 当前状态：全网规则模式与IP/域名目标已集成并切换预览
 
-2026-10-16。本轮用户确认全公网/私网白名单或黑名单、HTTP统一按规则，以及单IP/CIDR/域名/最左通配目标；页面改紧凑表格、行末删除。新合同使用必填rule_mode与 `{target,ports}`，最多512条；风险地址改为默认32条可见可编辑黑名单，可删后按当前规则访问；不保留目标/DNS/网关隐藏地址硬拒，proxy独立版本及Unknown双snapshot保持。用户明确早期开发不需要旧规则/接口迁移：仅访问policy/规则回执重置，默认version1与32条显式风险黑名单（普通RFC1918/ULA不加入，未加载/未核实Unknown仍fail closed），账号/Session/SMTP/代理配置与凭据等保留；旧body400，无历史兼容分支。已按[工程契约](../docs/development/work-items/system-outbound-policy-proxy.md)完成隔离验证并集成：backend `89e99c6f`、Vue `db4e472f`均已推送；正式预览已保数据切换，真实SMTP暂停，公网身份未新验。
+2026-10-16。本轮用户确认全公网/私网白名单或黑名单、HTTP统一按规则，以及单IP/CIDR/域名/最左通配目标；页面改紧凑表格、行末删除。新合同使用必填rule_mode与 `{target,ports}`，最多512条；风险地址改为默认32条可见可编辑黑名单，可删后按当前规则访问；不保留目标/DNS/网关隐藏地址硬拒，proxy独立版本及Unknown双snapshot保持。用户明确早期开发不需要旧规则/接口迁移：仅访问policy/规则回执重置，默认version1与32条显式风险黑名单（普通RFC1918/ULA不加入，未加载/未核实Unknown仍fail closed），账号/Session/SMTP/代理配置与凭据等保留；旧body400，无历史兼容分支。已按[工程契约](../docs/development/work-items/system-outbound-policy-proxy.md)完成隔离验证并集成：backend `89e99c6f`、Vue `db4e472f`均已推送；正式预览已保数据切换；用户已恢复指定收件人的单任务真实SMTP实测，结果见下，公网身份未新验。
+
+本次真实SMTP由唯一运行owner经严格本机TLS/实例身份门后，使用用户已保存的SMTP version4、HTTP代理 version2向指定收件人提交一次正式测试请求，返回202；共4次尝试（初发加用户配置的3次自动重试）后终态为 `failed / timeout`，未发生手动重发、配置修改、重启或直连绕过。实际观察到Central连接已保存代理网关的TCP连接，但不等于CONNECT、TLS或SMTP成功；第3/4次的协议采样为 `negotiation → closed`，现有安全字段不能进一步区分CONNECT等待、TLS、220 greeting或EHLO，也不能据采样断言未进入AUTH或密码有误。没有 `sent` 或SMTP接受事实，更不表示收件箱已收到。跟踪CLI曾因一次GET断言失败退出1（未记录HTTP状态，原因未定），会话已logout204→401；之后仅同任务只读续查退出0并确认终态，未重复POST。
 
 本轮后端生产输入为 `13a22493`（交付 `929f660b`），Vue产品为 `20ebed6a`（交付 `41acc04d`）。作者outbound/HTTP完整测试、定向race、相关六包编译、精确规则重置与近1MiB数据库重载通过；独立迁移与API/socket通过，原外层清理失败后精确6资源/3目录已清零。规则Unknown三子例分轮通过，settled后的恢复按既有合同验证，不扩称本轮重跑了双snapshot恢复。新Vue真实规则旅程1/1通过：模式/通配目标增改删、重读、409保草稿及恢复原配置，测试Session退出204→401；owned5260已优雅退出并清理。独立1440/390及原生200%通过；首次visibility失败原因未证，浏览器首轮导航观测失败未进业务，原材料保留，详情见正式测试说明。
 
@@ -97,7 +99,7 @@
 
 ## 保存与下一步
 
-本轮源码已集成并推送，持久预览已保数据切换；最终只读页面与任务5246清退事实已收齐，文档冻结交root保存。保留用户5245/18443与当前DB、账号/Session、SMTP、keys、proxy和对象数据供体验；真实SMTP继续暂停。恢复使用上述13a活动staged manifest，不自动回退旧binary。公网严格匿名curl60未取nonce的限制保持，不宣称公开身份验证通过。
+本轮源码已集成并推送，持久预览已保数据切换；本次用户恢复的单任务真实SMTP实测已结束，结果与观察限制见当前摘要。保留用户5245/18443与当前DB、账号/Session、SMTP、keys、proxy和对象数据供体验，不追加发送或修改配置。下一断点是经已保存代理的SMTP协商超时，但现有安全记录尚不能确定具体阶段；后续只按新证据定向定位，不把超时解释为密码错误或SMTP接受。恢复使用上述13a活动staged manifest，不自动回退旧binary。公网严格匿名curl60未取nonce的限制保持，不宣称公开身份验证通过。本次仅更新当前摘要与下一步，历史记录不改，冻结交root保存。
 
 ## 保留的既有恢复入口
 
