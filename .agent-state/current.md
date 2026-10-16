@@ -1,4 +1,18 @@
-# 当前状态：全网规则模式与IP/域名目标已集成并切换预览
+# 当前状态：SMTP 独立直连拆分实施中
+
+2026-10-16。用户已确认 SMTP 与数据库、对象存储同属独立基础设施：直接连接保存的 host/port/TLS，不受业务出站规则、全局代理或环境代理影响，不新增 SMTP 专属代理开关。保留严格 TLS/STARTTLS、超时取消/join、Secret、SMTP 版本和当前凭据、账户 SendPermit 的 AUTH/MAIL 真实首写、权限审计、队列重投重试与 Unknown。现有账号/Session、SMTP、proxy、规则与 keys 全部保留，无迁移或清库；真实 SMTP 实发暂停，本轮仅 owned 隔离验证。正式合同见[工作项](../docs/development/work-items/system-outbound-policy-proxy.md)。
+
+当前生产仍为 `13a22493`，活动 staged manifest 与恢复命令沿下方既有记录；新实现、隔离验收、root 集成与 runtime 升级尚未完成，不把目标边界写成运行事实。
+
+| 当前 Owner / 工作树 | 责任与下一步 |
+| --- | --- |
+| `/root/account_backend` / `/workspace/agenteam-smtp-direct` | 分支 `ai/smtp-direct-transport-20261016`，起点 `1a9250b1`；实现与受影响测试、该分支 current，先冻结交 root 与独审。 |
+| `/root/account_backend/smtp_route_review` / `/workspace/agenteam` | 唯一维护 root 授权的当前契约、后端说明及本 current；10文件归位与限定文档检查完成，已冻结交 checkpoint，不写产品或实现树。 |
+| root / 指定独审与 runtime owner | 全部 Git 和组合协调；独立隔离验收、集成后才保数据升级当前服务，升级不触发真实邮件。 |
+
+## 此前规则、代理与 SMTP 诊断（历史）
+
+以下保留原输入、原结果和未验证边界，不代表 SMTP 拆分已完成。
 
 2026-10-16。本轮用户确认全公网/私网白名单或黑名单、HTTP统一按规则，以及单IP/CIDR/域名/最左通配目标；页面改紧凑表格、行末删除。新合同使用必填rule_mode与 `{target,ports}`，最多512条；风险地址改为默认32条可见可编辑黑名单，可删后按当前规则访问；不保留目标/DNS/网关隐藏地址硬拒，proxy独立版本及Unknown双snapshot保持。用户明确早期开发不需要旧规则/接口迁移：仅访问policy/规则回执重置，默认version1与32条显式风险黑名单（普通RFC1918/ULA不加入，未加载/未核实Unknown仍fail closed），账号/Session/SMTP/代理配置与凭据等保留；旧body400，无历史兼容分支。已按[工程契约](../docs/development/work-items/system-outbound-policy-proxy.md)完成隔离验证并集成：backend `89e99c6f`、Vue `db4e472f`均已推送；正式预览已保数据切换；用户已恢复指定收件人的单任务真实SMTP实测，结果见下，公网身份未新验。
 
@@ -14,7 +28,7 @@
 
 此前代理表单文案小轮：改称“代理服务器类型”，主机提示仅IP/域名且不含协议前缀，端口示例7890，用户名/密码标为可选；密码留空保留语义不变，局部修正地址行对齐。唯一产品页及两处精确标签selector已冻结；vue-tsc、三文件格式与两CJS语法检查通过，最终1440浅色/390深色受控浏览器实看无横溢、提示关联与空密码占位正确，零写入，浏览器已关闭，未重跑业务或全量构建。运行owner实核原Central/Vite5245/FRP仍活、严格本机TLS/实例身份通过，无需恢复或重启；DB/账号/密钥/SMTP均未操作，真实SMTP仍暂停，公网未新验。
 
-## 范围、组合与所有权
+## 此前范围、组合与所有权（历史）
 
 - 主树 `/workspace/agenteam`、分支 `ai/frontend-vue-rebuild-20261016`；账号工作起点 `c13c2db5`，本轮系统四页从已推送 `cd1a5df6` 接续。此前账号业务检查输入 `85c4ac49`、顶栏共享头像首批 `1e0dbf0a`、设置整框 `6214bc1d` 的限定结果继续保留。旧公开r2 `9dd3044c` 已退出清理，现为下述生产cmd实例；此前fixture结果继续保留原输入边界。恢复以任务分支最新提交及实际差异为准，不回填本状态自身提交号，不宣称已合main。
 - 本轮backend树 `/workspace/agenteam-rule-modes-backend`、frontend树 `/workspace/agenteam-rule-modes-vue`；上一轮出站树及账号树只作既有输入。root负责全部Git/worktree/checkpoint及集成；内容按唯一路径owner维护，执行者不做Git写。
@@ -101,7 +115,7 @@
 
 ## 保存与下一步
 
-本轮源码已集成并推送，持久预览已保数据切换；单任务SMTP实测与后续有界连接诊断已结束，结果见当前摘要。保留用户5245/18443与当前DB、账号/Session、SMTP、keys、proxy和对象数据供体验，保留用户已更正的TLS配置；不追加发送、擅自直连、回退TLS或重启。下一步需要代理端为SMTP提供真正的原始TCP透明隧道，或换用支持该用途的代理；当前EHLO得到HTTP400的链路问题不能靠修改SMTP密码或重复投递解决，认证和收件仍未验证。恢复使用上述13a活动staged manifest，不自动回退旧binary。公网严格匿名curl60未取nonce的限制保持，不宣称公开身份验证通过。本次仅更新当前SMTP摘要与下一步，历史记录不改，冻结交root保存。
+本轮先完成 SMTP 独立直连源码、owned 隔离验证与独立审查，再由 root 集成并安排 runtime 保数据升级；当前仍运行13a，不提前替换或追加真实发送。10份文档已按新边界归位，限定格式/链接及静态一致性检查完成并冻结交 root checkpoint；后端总览4条原历史 output 结果链接在本工作区缺失，保留原记录。实际产品测试、集成和切换结果取得后再补，不预写 PASS。保留用户5245/18443、DB、账号/Session、用户已更正的 TLS 配置、SMTP凭据、keys、proxy和对象数据。当前代理链路的HTTP400与既有直连失败仅作为历史限制，拆分不证明本环境端口可达或认证/收件成功。恢复继续使用13a活动staged manifest，不自动回退旧binary；公网严格匿名curl60未取nonce的限制保持。
 
 ## 保留的既有恢复入口
 

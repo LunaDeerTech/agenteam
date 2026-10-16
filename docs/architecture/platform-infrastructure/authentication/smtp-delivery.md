@@ -2,19 +2,23 @@
 
 > 上层：[账号认证](README.md)。相关：[账号生命周期](account-lifecycle.md)、[Deployment Runtime](../deployment-runtime.md)、[Outbound Network Policy](../outbound-network-policy.md)、[Audit](../../security-governance/audit.md)。
 
+> 当前网络契约已确认 SMTP 为独立直连基础设施；实现与隔离验收进行中，尚未部署。工程范围与实际进度见[SMTP 拆分工作项](../../../development/work-items/system-outbound-policy-proxy.md)。
+
 ## 1. 职责
 
 向注册邮箱投递邀请和密码重置链接，并支持管理员测试邮件。未配置 SMTP 时使用明确授权的 Central 后台日志渠道；这不是通用邮件 / Push 通知中心，不为 Inbox 新增外部通知机制。
 
 ## 2. 配置与凭据
 
-SMTP 配置为 Runtime Platform Config，由系统管理员维护，持久化 PostgreSQL。概念字段：host、port、encryption（none / STARTTLS / TLS）、auth username、credential_ref、sender email、sender display name。最终存储 schema 与 adapter 参数在实现阶段确定。
+SMTP 配置为 Runtime Platform Config，由系统管理员维护，持久化 PostgreSQL。概念字段：host、port、encryption（none / STARTTLS / TLS）、auth username、credential_ref、sender email、sender display name。独立连接沿用既有配置、Secret 与版本，不新增迁移、清库或专属代理开关。
 
 认证密码经平台 Secret Management 保存，不在 SMTP 配置中保存明文，不在读取 API 回显。空白替换输入保留现有凭据，移除凭据使用显式动作。保存配置不自动发送邮件；测试使用指定收件邮箱，不创建注册邀请或重置请求。
 
-支持 TLS、STARTTLS、none 三种模式，由管理员明确选择。选择加密时正常验证证书，STARTTLS 升级失败停止发送，不自动降级明文；私有 CA 通过受信任证书配置支持，不关闭验证。none 是正式选项，不另加“仅限内网”的业务限制，也不能由选择 none 绕过网络授权。
+支持 TLS、STARTTLS、none 三种模式，由管理员明确选择。选择加密时严格验证系统/部署 CA 与原 SMTP hostname，STARTTLS 升级失败停止发送，不自动降级明文；私有 CA 通过既有部署证书配置支持，不关闭验证。none 是正式选项，不另加“仅限内网”的业务限制。
 
-目标地址仍遵循统一 Outbound Network Policy：固定禁止地址不能放行，内网须命中管理员维护的网段/端口规则。SMTP 使用非 HTTP 安全拨号适配，不直接调用 OutboundHttpClient，也不把内网 HTTP 的 allow_http 开关当作 SMTP 加密模式。协议、证书、连接/握手/投递 timeout 的具体适配由 D07 规格落实。
+SMTP 与数据库、对象存储同属独立基础设施连接，直接连接保存的 host / port，不受业务 Outbound Network Policy、全局代理或环境代理控制。Model、MCP 与外部 HTTP 类调用继续使用统一业务出站模块。SMTP 只服务既有账户邮件投递，不提供任意目标代理；共享静态 TLS 根不构成对动态规则或代理的依赖。
+
+独立传输保留连接/握手/投递 timeout、取消与真实 socket/worker join。每次 AUTH 与 MAIL 仍由账户 SendPermit 包围真实首写，校验当前 SMTP 版本、凭据和账户授权；移除统一网络门禁不移除该账户门禁。Secret lease、权限审计、任务队列及未知结果恢复继续沿既有契约，工程适配见[工作项](../../../development/work-items/system-outbound-policy-proxy.md)。
 
 ## 3. 投递渠道
 
@@ -48,4 +52,4 @@ SMTP 配置为 Runtime Platform Config，由系统管理员维护，持久化 Po
 
 SMTP 是可选运行配置，无配置不阻断 Central ready。PostgreSQL / pgvector 和 MinIO 仍为 mandatory dependency，不新增基础设施 degraded mode。
 
-验证 SMTP 有 / 无配置、TLS/STARTTLS/none、私有 CA 与升级失败、出站拒绝、保存/测试/业务投递失败、有限自动与手动重试竞争及重启恢复。验证邀请/重置链接不延长期限，撤销/过期/已用后禁止重发，未知投递结果被如实记录，恢复日志不进入其他可见数据流。
+使用 owned 隔离资源验证 SMTP 有 / 无配置、TLS/STARTTLS/none、私有 CA 与升级失败，以及业务规则拒绝、全局代理故障和环境代理值均不改变 SMTP 直连。验证保存/测试/业务投递失败、有限自动与手动重试竞争及重启恢复；邀请/重置链接不延长期限，撤销/过期/已用后禁止重发，未知投递结果被如实记录，恢复日志不进入其他可见数据流。当前环境真实 SMTP 实发暂停，隔离结果不证明外部出口或邮箱送达。

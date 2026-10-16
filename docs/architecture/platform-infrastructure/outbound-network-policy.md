@@ -1,6 +1,6 @@
 # Outbound Network Policy 详细设计
 
-> 状态：Central 持久代理已交付；全网白名单/黑名单与目标匹配实现已冻结、隔离验收进行中，见[本轮工程契约](../../development/work-items/system-outbound-policy-proxy.md)。本页定义目标契约，不代证新版本已部署或验收。
+> 状态：Central 持久代理及全网规则已交付；用户已确认 SMTP 拆为独立直连基础设施，本轮实现与隔离验收进行中，见[工程契约](../../development/work-items/system-outbound-policy-proxy.md)。本页定义当前目标契约，不代证 SMTP 拆分已实现、验收或部署。
 >
 > 上层架构：
 > - [平台基础设施与部署架构](./README.md)
@@ -9,7 +9,7 @@
 > - [MCP Server Config / Connection Lifecycle](../mcp-integration/mcp-server-config-lifecycle.md)
 > - [MCP Protocol Runtime](../mcp-integration/mcp-protocol-runtime.md)
 
-本文定义 agenteam Central 对“目标地址由配置、用户输入或外部数据决定”的出站网络访问所使用的统一安全边界。
+本文定义 agenteam Central 对模型、MCP 与外部 HTTP 类业务访问所使用的统一安全边界。SMTP、数据库和对象存储属于独立基础设施连接，边界见第 3 节。
 
 ## 1. 定位
 
@@ -19,39 +19,33 @@ Outbound Network Policy 是平台级基础设施能力，不属于 MCP 私有逻
 
 - MCP Server Endpoint；
 - Model Provider Base URL；
-- SMTP host / port；
 - 未来 Webhook；
 - 未来 HTTP / Fetch Tool；
 - 未来外部 Integration / Connector；
 - 其他由业务配置决定目标地址的 Central outbound request。
 
-本轮范围为 Central 全部业务出网，包括现有 HTTP/HTTPS、Model、MCP 及其 OAuth/下载等派生调用、SMTP。Runner 与 PostgreSQL/MinIO 部署基础连接不纳入本轮；未来消费者接入时沿同一边界，不因本轮配置页面完成宣称全平台出网已统一。
+本模块范围为 Central 的外部 HTTP/HTTPS、Model、MCP 及其 OAuth/下载等派生调用。SMTP、Runner 与 PostgreSQL/MinIO 基础连接不纳入该模块；未来业务 HTTP 消费者接入时沿同一边界，不因配置页面完成宣称全平台出网已统一。
 
 核心原则：
 
-> 业务模块不自行实现 SSRF / private-network 防护，而是统一经过平台 Outbound Network Policy。
+> 范围内的业务模块不自行实现 SSRF / private-network 防护，而是统一经过平台 Outbound Network Policy。
 
 ~~~mermaid
 flowchart LR
     MCP["MCP Protocol Runtime"]
     Model["Model Provider Adapter"]
-    SMTP["SMTP Delivery"]
     Future["Future HTTP Integration"]
 
     Policy["Outbound Network Policy"]
     Client["Controlled Outbound HTTP Client"]
-    MailDial["Controlled SMTP Dial"]
     Network["External / Allowed Private Network"]
 
     MCP --> Policy
     Model --> Policy
-    SMTP --> Policy
     Future --> Policy
 
     Policy --> Client
     Client --> Network
-    Policy --> MailDial
-    MailDial --> Network
 ~~~
 
 ## 2. 设计目标
@@ -79,7 +73,7 @@ Outbound Network Policy 解决：
 
 ## 3. 使用边界
 
-当运行时业务 outbound target 来自以下来源之一时，必须经过该策略：
+范围内的运行时业务 outbound target 来自以下来源之一时，必须经过该策略：
 
 ~~~text
 user configuration
@@ -91,7 +85,9 @@ tool / integration controlled target
 
 用于初始化和运行平台自身的可信 Deployment 基础连接，例如由环境变量配置的 PostgreSQL、MinIO，由部署层直接管理，独立于保存在 PostgreSQL 中的管理员运行时出站策略。它们仍须校验部署参数、凭据、TLS 与可达性；这里不增加新的管理 UI 或网络模式。
 
-边界取决于连接用途与控制来源，不取决于地址是否写在环境变量中。Model Provider、MCP、SMTP、HTTP 集成等用户或业务可配置目标，以及外部响应派生的目标，仍须执行本策略；不得借基础连接名义将其变成任意目标代理。
+SMTP 同样属于平台基础设施连接：只直接连接管理员保存的 SMTP host / port，按该配置执行 TLS / STARTTLS / none，不消费业务出站规则、全局代理或环境代理，也不增加 SMTP 专属代理开关。SMTP 配置仍存于原账号域；独立传输不要求迁移配置、清库或更换密钥。严格证书验证、超时、取消与真实 join、Secret 借用、当前 SMTP 版本与凭据校验、账户 SendPermit 的 AUTH/MAIL 真实首写保护、权限审计、队列重试与 Unknown 语义继续由账号投递链负责，见 [SMTP Delivery](authentication/smtp-delivery.md)。
+
+边界取决于连接用途，不取决于地址是否写在环境变量中。Model Provider、MCP、HTTP 集成等业务可配置目标，以及外部响应派生的目标，仍须执行本策略；SMTP 的独立连接仅服务既有账号邮件投递，不提供任意目标代理。
 
 该划分与 [Deployment Runtime 的配置分层](./deployment-runtime.md#5-deployment-config-与-runtime-platform-config) 一致：启动先建立 PostgreSQL / MinIO 基础连接，再加载管理员运行时策略，避免策略依赖数据库、连接数据库又先依赖该策略的循环。具体基础连接适配由 D02–D05 / D28 落实，运行时业务出口仍由 D04 的受控网络能力统一约束。
 
@@ -127,9 +123,7 @@ request URL
 
 如果某些 SDK 必须接收原生 `http.Client`，平台应提供已经装配 Outbound Network Policy 的受控 Transport / Client，而不是允许 SDK 绕过策略。
 
-SMTP 等非 HTTP 协议复用目标地址、DNS/IP 和安全拨号边界，由自身 adapter 执行协议握手；不把 SMTP 包装成 HTTP 请求。精确端口与错误映射由 D04/D07 规格固定。
-
-HTTP 与 SMTP 的底层连接必须消费同一受控 TCP 选路：先批准业务目标，再按当前持久配置直连或建立代理隧道。业务 adapter 不能用独立默认 transport、环境代理或裸拨号绕过此入口。
+范围内的 HTTP 及 SDK 底层连接必须消费同一受控 TCP 选路：先批准业务目标，再按当前持久配置直连或建立代理隧道。业务 adapter 不能用独立默认 transport、环境代理或裸拨号绕过此入口。SMTP 使用独立直连传输，其生命周期与账户发送准入不依赖本模块的 Conn、规则或代理版本。
 
 ## 5. URL Validation
 
@@ -194,7 +188,7 @@ OutboundNetworkPolicy
 
 每次完整解析A/AAAA后，先确认全部地址语法合法。白名单中，若原域名与端口命中域名规则，其全部合法解析地址可获准；否则每个解析IP都必须分别命中IP/CIDR规则和端口。黑名单中，原域名与端口命中任一域名规则，或任一解析IP与端口命中IP/CIDR规则，即拒绝整个目标。不能从混合结果中挑允许地址绕过拒绝。
 
-HTTP、HTTPS和SMTP等业务目标复用上述地址/端口判断，移除每行 `allow_http` 及通用网络Profile的明文许可开关；协议本身的HTTPS要求、TLS验证、HTTPS重定向不得降为HTTP以及凭据作用域仍有效。
+HTTP、HTTPS业务目标复用上述地址/端口判断，移除每行 `allow_http` 及通用网络Profile的明文许可开关；协议本身的HTTPS要求、TLS验证、HTTPS重定向不得降为HTTP以及凭据作用域仍有效。SMTP 不参与该规则判断。
 
 用户已明确当前处于早期开发，不保留旧访问规则或旧写接口兼容。新默认为上述可编辑黑名单，精确重置范围与版本/命令身份见工程契约；不据此清空账号、Session、SMTP、代理配置、凭据或其他业务数据。
 
@@ -307,7 +301,7 @@ HTTPS 使用系统 / 平台受信任 CA 与标准 hostname verification。
 
 HTTP与HTTPS使用相同访问规则，没有每行HTTP开关或隐藏的通用网络许可。OAuth等业务协议固有的HTTPS要求仍须执行；规则许可不构成TLS降级或凭据越域授权。
 
-SMTP 支持管理员明确选择 TLS / STARTTLS / none；加密失败不自动降级，none 不额外限定只能用于内网。该协议选择不绕过统一目标/端口授权。见 [SMTP Delivery](authentication/smtp-delivery.md)。
+SMTP 独立支持管理员明确选择 TLS / STARTTLS / none；加密模式严格验证系统/部署 CA 与原 SMTP hostname，加密失败不自动降级，none 不额外限定只能用于内网。它直接连接配置的 host / port，不受本模块规则或代理控制。见 [SMTP Delivery](authentication/smtp-delivery.md)。
 
 ## 13. Policy Decision
 
@@ -350,7 +344,7 @@ Outbound Network Policy 是平台统一安全能力；全网访问规则与代�
 
 ### 14.1 持久代理与统一选路
 
-系统管理员在“出站规则”页面维护“访问规则”和“代理设置”。配置保存在数据库，默认直连；启用代理后，Central 范围内的全部业务目标使用所选网关，不设隐式 bypass 或失败直连。支持 HTTP CONNECT、HTTPS CONNECT 与 SOCKS5 TCP 隧道，不新增通用转发服务、UDP 或代理链。
+系统管理员在“出站规则”页面维护“访问规则”和“代理设置”。配置保存在数据库，默认直连；启用代理后，本模块范围内的全部业务目标使用所选网关，不设隐式 bypass 或失败直连。SMTP、数据库、对象存储及 Runner 不因该设置改变连接方式。支持 HTTP CONNECT、HTTPS CONNECT 与 SOCKS5 TCP 隧道，不新增通用转发服务、UDP 或代理链。
 
 产品移除 `AGENTEAM_CENTRAL_OUTBOUND_PROXY_ORIGINS` 与 `HTTP_PROXY`/`HTTPS_PROXY`/`NO_PROXY`（含小写）的选路读取，也不增加 `ALL_PROXY` 兜底。已有环境值不自动导入数据库。此变更不修改宿主环境、frp、开发工具或部署基础连接的环境配置。
 
@@ -358,7 +352,7 @@ Outbound Network Policy 是平台统一安全能力；全网访问规则与代�
 
 网关是管理员显式信任的基础设施。网关由管理员显式配置，公网、私网或loopback等合法地址均可使用；业务目标规则不匹配网关，也不保留网关的隐藏地址黑名单。网关解析须有界、完整校验全部候选的语法并固定实际拨号地址，继续验证TLS与认证边界。网关可沿部署 resolver 解析单标签名称；这一便利不扩到业务目标解析。受信网关实际如何转发不能由客户端独立证明，部署者须确保其遵守批准的数值目标。
 
-HTTPS 网关校验网关 hostname/CA，隧道内目标 HTTPS/TLS/STARTTLS 继续校验原目标；HTTP 与 SOCKS5 网关协议本身不加密到网关的认证交换，页面保留这一必要提示。代理凭据只能发给当前明确配置的网关，不能进入目标 Authorization/Cookie、重定向、普通日志或公开错误；目标业务凭据也不能进入 CONNECT/SOCKS 握手。配置代理不扩大业务自身的认证或 Project 授权。
+HTTPS 网关校验网关 hostname/CA，隧道内目标 HTTPS 继续校验原目标；HTTP 与 SOCKS5 网关协议本身不加密到网关的认证交换，页面保留这一必要提示。代理凭据只能发给当前明确配置的网关，不能进入目标 Authorization/Cookie、重定向、普通日志或公开错误；目标业务凭据也不能进入 CONNECT/SOCKS 握手。配置代理不扩大业务自身的认证或 Project 授权。
 
 代理密码使用平台成熟的版本化 keyring 与认证加密保存，数据库和回执不存明文，不以新密码学替代现有安全实现。读取仅返回用户名和是否已有凭据；单密码输入留空保持、非空替换，移除认证须显式确认。改变网关身份不得把旧凭据默默转发给新网关。配置不可解密、代理连接/认证/隧道失败均拒绝，不降级、不直连。管理读写、幂等重放、版本冲突与结果未知恢复的精确接口见[工程契约](../../development/work-items/system-outbound-policy-proxy.md)。
 
@@ -449,6 +443,6 @@ Provider-specific headers 与 credentials 仍由 Model System 负责生成；Out
 11. timeout / response / redirect guardrail；
 12. TLS verification；
 13. structured policy decision / safe diagnostics；
-14. SMTP 等非 HTTP 消费者的正式安全拨号适配；
+14. 明确 SMTP、数据库、对象存储与 Runner 的独立连接边界；
 15. 持久直连/HTTP CONNECT/HTTPS CONNECT/SOCKS5 选路、网关凭据与动态更新；
-16. Central 全部现有业务出网的组合根接线与绕过检查，范围和逐项验收以本轮工程契约为准。
+16. Central 范围内现有业务 HTTP/Model/MCP 的组合根接线与绕过检查，范围和逐项验收以工程契约为准。

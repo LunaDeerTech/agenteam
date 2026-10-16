@@ -57,7 +57,11 @@ Account/Mail 初始化、bootstrap 和恢复消耗同一剩余安全启动预算
 
 ## 可恢复的真实 SMTP 运行准备
 
-真实 SMTP 应由生产 `cmd/agenteam` 运行，使用默认 `SystemResolver`；当前生产根已支持，无须修改账号领域或出站地址分类器。预览测试 binary 中固定 sink 的 resolver 不是部署配置：外部 SMTP hostname 会在建连前被拒绝，不能通过更新出站 CIDR、修改 hosts 或替换 SMTP 密码修复。此前持久预览的SMTP直连；本轮[统一出站版本](../work-items/system-outbound-policy-proxy.md)已接入同一持久代理选路并保数据部署。实际活动binary与代理模式见当前状态；配置保存、升级或本机可用不等于邮件发送成功，真实SMTP实测仍暂停。
+真实 SMTP 使用生产 `cmd/agenteam`。当前已确认的[独立直连契约](../work-items/system-outbound-policy-proxy.md)将 SMTP 作为基础设施，直接连接管理员保存的 host/port/TLS，不受业务出站规则、全局代理或环境代理影响，也不新增 SMTP 专属代理开关；严格证书验证、Secret、当前配置/凭据、账户 SendPermit、权限审计、重试与 Unknown 保持。SMTP 继续复用现有静态系统/部署 CA，既有配置键名与五用途 keyring 不变。
+
+拆分实现、隔离验收与升级尚待完成，当前生产仍为 `13a22493` 的统一代理版本，不能把目标契约当作已部署行为。实际活动 binary 与恢复入口见[当前状态](../../../.agent-state/current.md)。本轮保留现有账号、Session、SMTP、代理与规则配置、凭据和密钥，无迁移、清库或配置重建。真实SMTP实发已暂停，只进行 owned 隔离验证；配置保存、升级或本机可用不等于邮件发送成功。
+
+旧预览测试 binary 的固定 sink resolver 仅供隔离测试，不能承担真实 SMTP 部署；其外部 hostname 拒绝是当时 fixture 的限制，不应通过修改业务规则或 SMTP 密码绕过。以下首次准备说明只用于新实例；既有持久实例按后续 stage 流程升级，不能重新生成其配置或密钥。
 
 最小可恢复组合为独立 PostgreSQL/pgvector、MinIO、宿主生产 Central 和 HTTPS 反向代理。复用已核验的工具与只读镜像即可；每个新部署使用独立数据库、bucket、数据目录、私有配置及端口，不复用旧测试实例的运行数据。TLS 代理保留 canonical Host，`PUBLIC_ORIGIN` 固定准确 HTTPS origin，`DEV_MODE=false`。若保留两个实例同时登录，仅更换同一 IP/hostname 的端口不能隔离 `__Host-agenteam_session` Cookie；应使用不同 hostname，或明确使用独立浏览器 profile。
 
@@ -71,9 +75,11 @@ Account/Mail 初始化、bootstrap 和恢复消耗同一剩余安全启动预算
 
 首次bootstrap从正式私有Account恢复日志提取最小管理员材料至独立0600凭据文件，不输出到普通运行日志。独立验收应在内存中保留一个登录Cookie，只停止/重新启动Central，再验证原Cookie、用户与SMTP配置投影仍有效；确认数据库/对象容器ID与持久密钥未更换。公开切换仅在新实例通过后顺序停止旧映射/旧测试实例，再将原18443映射改接5256；同host旧Cookie在新实例无效，用户重新登录。当前专用CA/叶证书30天，仅适合本次受控预览；没有fixture自动45分钟/24小时销毁期限，进程与证书有效期仍须实际核验。
 
-完成环境和入口核验后，用户在新入口的SMTP设置页重新输入SMTP密码，经正式API存入Secret；不从旧实例导出凭据。先通过真实应用测试API受理，再读取同一job终态；202、SMTP接受、最终邮箱收到仍是三个不同事实。若部署环境无法连接实际SMTP端口，新实例或标准解析器都不能替代出口连通性；单目标无AUTH/MAIL的TLS/EHLO工具见 [probe-smtp-transport.py](../../../tests/account-preview/probe-smtp-transport.py)，它仅证明传输阶段，不证明应用发送。
+首次创建独立新实例时，完成环境和入口核验后，用户在新入口的SMTP设置页输入SMTP密码，经正式API存入Secret；不从旧实例导出凭据。先通过真实应用测试API受理，再读取同一job终态；202、SMTP接受、最终邮箱收到仍是三个不同事实。若部署环境无法连接实际SMTP端口，新实例或标准解析器都不能替代出口连通性；单目标无AUTH/MAIL的TLS/EHLO工具见 [probe-smtp-transport.py](../../../tests/account-preview/probe-smtp-transport.py)，它仅证明传输阶段，不证明应用发送。
 
-2026-10-16本轮已实际完成上述持久组合和一次Central优雅停启：独立验证同一Cookie、用户/会话及SMTP投影保留，PG/MinIO容器与密钥不变，logout仍生效。当前公开18443映射已由旧5254测试fixture顺序切至5256；旧App和四套owned设施已清理，Vite5245保留。旧SMTP字段/密码未迁移，用户随后自行在新实例保存完整配置。公网唯一匿名identity读取在管理网络严格TLS校验处失败（CONNECT200、curl60、HTTP0），未取得公网实例标识，不能据本机验收宣称公网验证通过。
+以下为此前部署与诊断的历史记录，仅代表当时输入，不作为本轮 SMTP 拆分验收或继续真实发送的授权。
+
+2026-10-16此前已实际完成上述持久组合和一次Central优雅停启：独立验证同一Cookie、用户/会话及SMTP投影保留，PG/MinIO容器与密钥不变，logout仍生效。当前公开18443映射已由旧5254测试fixture顺序切至5256；旧App和四套owned设施已清理，Vite5245保留。旧SMTP字段/密码未迁移，用户随后自行在新实例保存完整配置。公网唯一匿名identity读取在管理网络严格TLS校验处失败（CONNECT200、curl60、HTTP0），未取得公网实例标识，不能据本机验收宣称公网验证通过。
 
 用户配置完成并恢复诊断后，生产实例安全投影显示SMTP已配置且有凭据。其已有授权目标测试任务经过原配置的4次attempt，最终failed/network_failed；诊断只观察该job，没有新增POST或人工重试，结束logout204。固定生产入口工具见 [diagnose-persistent-smtp.py](../../../tests/account-preview/diagnose-persistent-smtp.py)：严格私有manifest、活动进程身份、CA/SPKI/实例标识门禁，秘密仅在内存和仓库外0600材料，错误只输出安全分类。旧fixture诊断器不可用于此入口。
 
@@ -81,7 +87,7 @@ Account/Mail 初始化、bootstrap 和恢复消耗同一剩余安全启动预算
 
 ### 既有持久实例的stage与恢复
 
-本轮升级保留现有数据库、对象数据、账号/Session、用户已保存SMTP、五用途keyring、TLS材料、spool与恢复日志。只切换同一Central端口的候选二进制；`prepare-persistent-central.py`仍用于首次准备/原输入校验，不能用新source重建目录或重置已有数据。实际升级须先完成候选功能与恢复门、最终组合构建及完整source/hash核对；当前进度见[恢复状态](../../../.agent-state/current.md)。
+SMTP 拆分升级不新增数据库迁移；保留现有数据库、对象数据、账号/Session、用户已保存SMTP、代理与规则配置、五用途keyring、TLS材料、spool与恢复日志。只切换同一Central端口的候选二进制；`prepare-persistent-central.py`仍用于首次准备/原输入校验，不能用新source重建目录或重置已有数据。实际升级须先完成候选功能与恢复门、最终组合构建及完整source/hash核对；当前进度见[恢复状态](../../../.agent-state/current.md)。
 
 管理器新增 `stage`：
 

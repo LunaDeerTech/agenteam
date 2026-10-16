@@ -1,5 +1,7 @@
 # D07 账号、Session、SMTP 与个人资料实施规格
 
+> 当前网络边界覆盖说明：用户已确认 SMTP 拆为独立基础设施，直接连接已配置 host/port/TLS，不受业务出站规则、全局代理或环境代理控制。本文原 `Outbound.Client.DialTarget`、`BeginSend/EndSend` 及 D04 DNS/policy/pinning 要求保留为原阶段设计，不再约束新传输；账户 `BeginDelivery` / `SendPermit` 的真实 AUTH/MAIL 首写、Secret、配置版本、TLS、超时/join、权限审计、重试与 Unknown 仍有效。当前规范见 [SMTP 架构](../../architecture/platform-infrastructure/authentication/smtp-delivery.md)及[拆分工程契约](system-outbound-policy-proxy.md)。实现、隔离验收与部署仍待完成，以下历史验收事实不变。
+
 - 修订：7（已采纳设计，B04按§1分阶段实施）；基于固定 `c07ebcc` 的修订6及B03冻结接口核对，细化B04 Avatar/profile、最小公共接口、并行范围与根装配。B02已独立验收，基线 `ebe87e7`；B03最终验收与提交绑定由主卡登记，本稿不代表B03或B04实现、测试或验收通过。
 - 范围与所有权：[D07 主卡](d07-account-session-smtp.md)。本规格落实已确认的[账号生命周期](../../architecture/platform-infrastructure/authentication/account-lifecycle.md)、[SMTP](../../architecture/platform-infrastructure/authentication/smtp-delivery.md)、[D01 基础契约](d01-contracts/foundation.md)；不新增公开注册、角色管理、账号删除、设备管理或前端生产页面。
 - D07 交付真实后端、HTTP、账户安全和后台投递。D08 仍拥有 Project/Owner；D25 接 Session 撤销与 WS；D26 接账号/个人页面，D27 接系统设置。挑战 Vue 只交独立兼容测试 harness。

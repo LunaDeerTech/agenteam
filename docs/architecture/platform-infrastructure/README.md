@@ -434,13 +434,12 @@ Project Variable / Secret 的领域模型见 [Project Environment Variables 与 
 
 ## 11. Outbound Network Policy
 
-Central 中由业务配置、用户输入或外部数据决定目标地址的出站网络访问统一经过 Outbound Network Policy。
+Central 的模型、MCP 与外部 HTTP 类业务访问统一经过 Outbound Network Policy。SMTP 与数据库、对象存储属于独立基础设施连接；SMTP 直接连接管理员保存的 host/port/TLS，不受业务规则、全局代理或环境代理控制，不新增专属代理开关。SMTP 的 Secret、严格 TLS、当前配置校验、账户首写保护、权限审计、重试和 Unknown 保留，见 [SMTP 投递](authentication/smtp-delivery.md)。
 
 典型消费者：
 
 - MCP；
 - Model Provider；
-- SMTP（使用非 HTTP 安全拨号适配）；
 - 未来 Webhook / HTTP Integration。
 
 统一处理：
@@ -455,7 +454,7 @@ Central 中由业务配置、用户输入或外部数据决定目标地址的出
 - TLS；
 - timeout / response guardrail。
 
-内网放行规则由系统管理员通过 UI / 管理 API 维护，保存在 PostgreSQL，按网段与可选端口限制，并可显式选择全部端口。默认不放行内网，固定禁止地址不能被规则解除；内网 HTTP 还须管理员显式允许。新请求、重试和重定向立即使用当前规则，已发出的在途请求继续，连接复用不能绕过校验。Project / Agent / MCP Config 不能自行扩大网络访问范围。
+业务访问规则由系统管理员通过 UI / 管理 API 维护，保存在 PostgreSQL，使用全网 allowlist/denylist 与 IP/CIDR/域名/端口规则；默认风险规则可见且可编辑，精确语义见下方专题。范围内的新请求、重试和重定向立即使用当前规则，已发出的在途请求继续，连接复用不能绕过校验。Project / Agent / MCP Config 不能自行扩大网络访问范围；SMTP 与其他独立基础设施不消费这些规则。
 
 完整设计见 [Outbound Network Policy 详细设计](./outbound-network-policy.md)。
 

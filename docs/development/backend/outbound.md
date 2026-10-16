@@ -1,12 +1,14 @@
 # 受控出站
 
-`internal/central/outbound` 提供 DB 策略、地址分类观测、完整 DNS 审批、HTTP/1.1 client 和 SMTP 受控连接端口。基础规则迁移为 `00004_outbound.sql`，DB 代理与凭据恢复映射为 `00144_outbound_proxy.sql`；新规则模型为 `00145_outbound_rule_modes.sql`。生产组合根已绑定真实 Account Session/SystemAdmin 授权并载入策略；D07 的 [accountmail](accountmail.md) 已用该端口执行 SMTP 协议。System 出站策略管理 HTTP 已复用同一个 PolicyService 与 Account core 装配到生产根；Model Chat/Embedding、MCP 协议与 OAuth、SMTP 现均绑定同一动态策略服务；没有匿名策略 API 或默认成功的授权实现。当前不存在单独的 Central web-fetch/URL 下载业务调用，通用 HTTP(S) 能力由本模块提供，后续消费者必须使用相同出口。
+> 当前契约已将 SMTP 拆为独立直连基础设施；实现、隔离验收与运行实例升级尚待完成。以下模块边界按新契约维护，历史结果只代表原输入，进度见[工程契约](../work-items/system-outbound-policy-proxy.md)。
+
+`internal/central/outbound` 提供 DB 策略、地址分类观测、完整 DNS 审批与 HTTP/1.1 client。基础规则迁移为 `00004_outbound.sql`，DB 代理与凭据恢复映射为 `00144_outbound_proxy.sql`；新规则模型为 `00145_outbound_rule_modes.sql`。生产组合根已绑定真实 Account Session/SystemAdmin 授权并载入策略；D07 的 [accountmail](accountmail.md) 按当前契约使用独立 SMTP 直连传输，不依赖本模块的规则、代理或 Conn。System 出站策略管理 HTTP 已复用同一个 PolicyService 与 Account core 装配到生产根；Model Chat/Embedding、MCP 协议与 OAuth 绑定同一动态策略服务；没有匿名策略 API 或默认成功的授权实现。当前不存在单独的 Central web-fetch/URL 下载业务调用，通用 HTTP(S) 能力由本模块提供，后续消费者必须使用相同出口。
 
 产品规则见[出站架构](../../architecture/platform-infrastructure/outbound-network-policy.md)，工程接口与验收见 [D04 实施规格](../work-items/d04-security-design.md)。此实现依赖正式部署的单 Central 前提。
 
 ## 配置、状态与停止
 
-`AGENTEAM_CENTRAL_OUTBOUND_CA_FILE` 可选，省略时使用系统 trust roots；设置后追加文件内 PEM CA，显式空值视为配置错误。文件必须可读、仅包含有效 CA certificate PEM，最多 1 MiB；不接受私钥、非 CA 证书、无 CA 或额外正文。它与数据库 CA 独立，无 skip-verify 或业务自带 CA。配置加载后保留不可变 trust store，不保存文件路径。`--check-config` 读取并验证 CA，不连接网络或宣称 DB policy/canary 已初始化。
+`AGENTEAM_CENTRAL_OUTBOUND_CA_FILE` 可选，省略时使用系统 trust roots；设置后追加文件内 PEM CA，显式空值视为配置错误。文件必须可读、仅包含有效 CA certificate PEM，最多 1 MiB；不接受私钥、非 CA 证书、无 CA 或额外正文。它与数据库 CA 独立，无 skip-verify 或业务自带 CA。配置加载后保留不可变 trust store，不保存文件路径。SMTP 继续复用这份系统/部署静态 TLS 根；配置键名不变，共享信任材料不构成对动态规则或代理的依赖。`--check-config` 读取并验证 CA，不连接网络或宣称 DB policy/canary 已初始化。
 
 数据库启动阶段后，cursor/Audit、Secret 初始验证、维护 worker 启动与策略载入和后续 Object/Outbox/Account/Mail 初始化共用 30s 安全阶段。策略载入失败不得监听。`/diagnostics` 的 `outbound` 只包含 available 与 policy version，不含规则/IP 清单；DB 健康不可用时组件诊断也不再声称可用。Account/DB 健康时 `outbound_authorization=system_bound`，Project 仍未绑定，整体 ready=false。
 
@@ -14,9 +16,9 @@
 
 ## 策略与实际发出
 
-`NewPolicyService` 绑定 Store、真实 Audit 与当前 Session/SystemAdmin 端口；`GetPolicy/UpdatePolicy` 每次检查当前权限。规则为 `rule_mode=allowlist|denylist` 与 `rules[{target,ports}]`。target 支持 IP、CIDR、ASCII 域名及 `*.domain`；HTTP/HTTPS/SMTP 统一按规则。版本1的默认 denylist 包含32条可见、可删除的特殊用途地址与 metadata 名称规则，唯一清单见 `internal/central/outbound/default_rules.go`，与00145初始化保持一致。没有隐藏地址类别拒绝；清空 denylist 允许所有语法有效目标，空 allowlist 拒绝所有目标。未加载、无效 mode 和 Unknown 始终 fail closed，不能回退到空 denylist。
+`NewPolicyService` 绑定 Store、真实 Audit 与当前 Session/SystemAdmin 端口；`GetPolicy/UpdatePolicy` 每次检查当前权限。规则为 `rule_mode=allowlist|denylist` 与 `rules[{target,ports}]`。target 支持 IP、CIDR、ASCII 域名及 `*.domain`；HTTP/HTTPS 统一按规则；SMTP 不参与该判断。版本1的默认 denylist 包含32条可见、可删除的特殊用途地址与 metadata 名称规则，唯一清单见 `internal/central/outbound/default_rules.go`，与00145初始化保持一致。没有隐藏地址类别拒绝；清空 denylist 允许所有语法有效目标，空 allowlist 拒绝所有目标。未加载、无效 mode 和 Unknown 始终 fail closed，不能回退到空 denylist。
 
-00145按早期开发阶段的明确决定重置旧访问规则与其旧回执，不迁移旧规则语义，不接收旧body。仅规则单例重置为version1/default denylist，proxy/Secret/账号/SMTP及Audit历史保持。规则命令使用 `outbound-policy-v2` namespace；部署先停旧binary，禁止跨schema并发或只换旧binary回退。
+此前00145按早期开发阶段的明确决定重置旧访问规则与其旧回执，不迁移旧规则语义，不接收旧body。仅规则单例重置为version1/default denylist，proxy/Secret/账号/SMTP及Audit历史保持。规则命令使用 `outbound-policy-v2` namespace；部署先停旧binary，禁止跨schema并发或只换旧binary回退。
 
 管理命令在真实短 Tx 中写策略、receipt 与 Audit；旧 command 的同义重放返回原 receipt，不发布旧规则。不可用镜像须另外核实两份当前配置及未决命令后恢复，不能凭历史 receipt 恢复。
 
@@ -57,19 +59,19 @@ Go Resolver 的 StrictErrors 只对 temporary family error 放弃子集，因此
 
 分类常量引用 [IANA IPv4 special registry](https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml)、[IPv6 special registry](https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml) 及源码内 cloud metadata 资料。默认可见规则保守涵盖这些特殊用途段，不宣称实时跟踪在线注册表；管理员可删除。Classify仅作观测，不作为隐藏准入；IPv4-mapped IPv6 在分类/peer 时 Unmap，但保留完整 IPv6 origin 身份，不能与 IPv4 origin 合并凭据。
 
-HTTP 固定 H1、无 HTTP/2/coalescing/cookie jar，TLS 至少 1.2，验证系统/部署 CA、有效期及原 hostname，不降级绕过错误。HTTP 和 HTTPS 使用相同规则准入。SMTP 的显式 none、TLS及STARTTLS仍由SMTP协议配置决定。
+HTTP 固定 H1、无 HTTP/2/coalescing/cookie jar，TLS 至少 1.2，验证系统/部署 CA、有效期及原 hostname，不降级绕过错误。HTTP 和 HTTPS 使用相同规则准入。SMTP 的独立 none、TLS及STARTTLS规则见[账号邮件说明](accountmail.md)，不使用本节 DNS/规则准入。
 
 ### 数据库代理与动态受控传输
 
-Central 的代理由 `agenteam_outbound.proxy_settings` 单例保存，默认 `direct`。System 管理员使用 `GET/PUT /api/v1/system/outbound-policy/proxy` 管理，权限、当前 Session、Origin/CSRF、版本 CAS 和幂等回执与规则管理共用正式边界；具体 DTO 见 [OpenAPI](../../../api/openapi/outbound-policy.json)。规则与代理各有版本，共享实际发送门。保存返回原命令的 `version/audit_id/created_at`，当前 GET 不替代回执。任一未知提交使整个运行时 fail closed；历史回执或另一资源保存不单独恢复全部可用性，原命令重放或显式 Reload 的恢复阶段必须在两个 DB 配置锁及未决命令锁下读取当前事实。新代理命令 Unknown 使用 `retry_hint=replay`；已知提交后恢复读失败保留 `commit_state=committed` 与 replay，继续原命令恢复。
+Central 的代理由 `agenteam_outbound.proxy_settings` 单例保存，默认 `direct`。System 管理员使用 `GET/PUT /api/v1/system/outbound-policy/proxy` 管理，权限、当前 Session、Origin/CSRF、版本 CAS 和幂等回执与规则管理共用正式边界；具体 DTO 见 [OpenAPI](../../../api/openapi/outbound-policy.json)。规则与代理各有版本，共享实际发送门。保存返回原命令的 `version/audit_id/created_at`，当前 GET 不替代回执。任一未知提交使本模块业务出站 fail closed；历史回执或另一资源保存不单独恢复全部可用性，原命令重放或显式 Reload 的恢复阶段必须在两个 DB 配置锁及未决命令锁下读取当前事实。新代理命令 Unknown 使用 `retry_hint=replay`；已知提交后恢复读失败保留 `commit_state=committed` 与 replay，继续原命令恢复。
 
-产品不读取 `HTTP_PROXY`、`HTTPS_PROXY`、`NO_PROXY` 及小写项，不再接受旧 `AGENTEAM_CENTRAL_OUTBOUND_PROXY_ORIGINS` 部署字段。操作系统代理环境保留给 frp、npm 等部署工具，不会成为 Central 业务代理的后备源。App 根 Client、每次创建的 Model Client、MCP/OAuth SDK transport 和 SMTP DialTarget/BeginSend 读同一个动态策略服务。Runner 及 PostgreSQL/对象存储的部署连接不在本轮代理范围。
+产品不读取 `HTTP_PROXY`、`HTTPS_PROXY`、`NO_PROXY` 及小写项，不再接受旧 `AGENTEAM_CENTRAL_OUTBOUND_PROXY_ORIGINS` 部署字段。操作系统代理环境保留给 frp、npm 等部署工具，不会成为 Central 业务代理的后备源。App 根 Client、每次创建的 Model Client、MCP/OAuth SDK transport 读同一个动态策略服务。SMTP 独立直连，不读取该服务或代理环境值；Runner 及 PostgreSQL/对象存储继续保持原连接边界。
 
-支持 HTTP/HTTPS CONNECT 与 SOCKS5；HTTP 目标也通过数字 IP CONNECT 隧道，SOCKS5 不委托目标 DNS。每次新请求、重试、redirect 和 SMTP BeginSend 都重新核完整目标 A/AAAA 与 rule_mode/target/ports。目标任何IP或域名被当前规则拒绝都拒绝整个集合，原域名仅保留给 Host 和 TLS 校验。网关独立完整解析并 pin 数字 IP；管理员显式保存的合法网关独立批准，包括本机地址；业务target规则不作用于网关，网关也没有额外地址类别硬禁。单标签网关可以使用部署 hosts/search 找到同一候选，最终地址必须来自完整 hosts 快照或该规范候选的严格双 family DNS。启用代理失败不直连降级。
+支持 HTTP/HTTPS CONNECT 与 SOCKS5；HTTP 目标也通过数字 IP CONNECT 隧道，SOCKS5 不委托目标 DNS。范围内每次新请求、重试和 redirect 都重新核完整目标 A/AAAA 与 rule_mode/target/ports。目标任何IP或域名被当前规则拒绝都拒绝整个集合，原域名仅保留给 Host 和 TLS 校验。网关独立完整解析并 pin 数字 IP；管理员显式保存的合法网关独立批准，包括本机地址；业务target规则不作用于网关，网关也没有额外地址类别硬禁。单标签网关可以使用部署 hosts/search 找到同一候选，最终地址必须来自完整 hosts 快照或该规范候选的严格双 family DNS。启用代理失败不直连降级。
 
-HTTPS 网关先以网关 hostname 和系统/部署 CA 校验证书；目标 HTTPS/SMTP TLS 再保留原目标 hostname 校验。HTTP Basic 或 SOCKS5 用户名密码只发给已批准网关，业务凭据仍受原目标 origin 绑定。网关协议、规范 host、port 或 username 改变且保存了密码时，必须提供新密码或明确 remove；direct 模式保留网关也受该规则约束。keep 且密码省略保持原密钥，非空密码替换；remove 不带密码且 username 为空。DTO/Audit/日志不含密码或 Secret 引用。
+HTTPS 网关先以网关 hostname 和系统/部署 CA 校验证书；目标 HTTPS 再保留原目标 hostname 校验。HTTP Basic 或 SOCKS5 用户名密码只发给已批准网关，业务凭据仍受原目标 origin 绑定。网关协议、规范 host、port 或 username 改变且保存了密码时，必须提供新密码或明确 remove；direct 模式保留网关也受该规则约束。keep 且密码省略保持原密钥，非空密码替换；remove 不带密码且 username 为空。DTO/Audit/日志不含密码或 Secret 引用。
 
-代理密码使用成熟 Secret envelope、同事务映射/引用及短时 lease。代理命令语义使用账户 keyring 的独立 MAC domain，保存 kid+MAC，不保存密码的无钥摘要。获取/使用借用的子 context 为 2s，取消后的独立清理为 5s，原回调及清理真实 join 后才释放发送门；PG rollback/discard 有各自的既有限额，因此这些是阶段预算，不宣称整体墙钟固定上限。旧池连接与当前代理版本不符即拒用；SMTP 在 BeginSend 检查旧连接版本，变化后关闭并由下次正式重试重建。
+代理密码使用成熟 Secret envelope、同事务映射/引用及短时 lease。代理命令语义使用账户 keyring 的独立 MAC domain，保存 kid+MAC，不保存密码的无钥摘要。获取/使用借用的子 context 为 2s，取消后的独立清理为 5s，原回调及清理真实 join 后才释放发送门；PG rollback/discard 有各自的既有限额，因此这些是阶段预算，不宣称整体墙钟固定上限。旧池连接与当前代理版本不符即拒用；业务出站规则或代理版本变化不影响独立 SMTP 连接，SMTP 仍须校验自己的当前配置与凭据。
 
 迁移 00144 加表默认 direct，不读取或复制旧环境代理秘密。保留既有 DB、密钥与账号，公开实例更新须通过当前任务门禁后按 owner 的精确进程步骤进行。旧版本不理解已启用的 DB 代理，不能将忽略配置直连称为兼容回退；切 direct 也不足以让旧二进制使用已迁移数据库。迁移 guard 会拒绝高于自身 manifest 的已应用版本，因此回退还须协调与旧版本匹配的数据库备份和密钥，不能仅替换 binary 或绕过版本检查。
 
@@ -83,21 +85,23 @@ HTTPS 网关先以网关 hostname 和系统/部署 CA 校验证书；目标 HTTP
 
 平台上限：DNS/connect 5s、TLS 10s、默认响应头 15s/64 KiB、普通 overall 120s/响应 16 MiB、stream overall 30min/响应 256 MiB/read idle 60s、请求头 64 KiB/body 16 MiB。除下述 Model 生成等待资格外，Profile 只能收紧。响应按实际字节计数，1xx 累计头与 trailer 计入限制；无自动解压，发送 Accept-Encoding: identity 并拒绝非 identity Content-Encoding。业务 CONNECT/101 不支持；受信代理内部 CONNECT 受上节约束。拒绝/超限先关闭不可复用 socket；最小 Audit 使用原 scope/cause、受原操作及最多 1s 预算约束，失败保留原拒绝，不重发网络请求。
 
-非流式 Model 可能先生成完整 JSON 再发送响应头。`NewProfile` 仅对 `Consumer=Model && Streaming=false` 接受显式大于 15s 的 `Limits.ResponseHeaders`，且必须不超过显式原 `Overall` 与 60s。零值仍为 15s，其他 consumer、SSE 及 SMTP 保持原 15s 上限；受信代理 CONNECT 等待也最多 15s，不随模型生成时间延长。当前 Model adapter 仅 JSON tools 请求在未显式指定时提供 `min(原 attempt 剩余预算,60s)`，保留显式更短值。真正读取响应头的 deadline 始终再取原 request context 的更早期限；该资格不新建 attempt、改变 retry 或延长 M1 的 300s/12-sent 观察条件。
+非流式 Model 可能先生成完整 JSON 再发送响应头。`NewProfile` 仅对 `Consumer=Model && Streaming=false` 接受显式大于 15s 的 `Limits.ResponseHeaders`，且必须不超过显式原 `Overall` 与 60s。零值仍为 15s，其他 HTTP consumer 与 SSE 保持原 15s 上限；受信代理 CONNECT 等待也最多 15s，不随模型生成时间延长。当前 Model adapter 仅 JSON tools 请求在未显式指定时提供 `min(原 attempt 剩余预算,60s)`，保留显式更短值。真正读取响应头的 deadline 始终再取原 request context 的更早期限；该资格不新建 attempt、改变 retry 或延长 M1 的 300s/12-sent 观察条件。
 
 `Response`、Profile、binding 与原始 cause 通过私有闭包保存；普通 fmt/JSON/slog 不含 URL path/query、header/body、凭据、全部 IP 或原 net/TLS 错误。显式 Body/Headers/Trailers 是可信 adapter 的读取端口。`NetworkError.Decision()` 仅投影 reason、consumer、规范 origin、policy_version、地址分类、redirect_count、sent、trace ID 与可选闭集 phase。只有 origin 的实际响应头读取失败会标记 `response_headers`；空值表示未记录具体阶段，不能推断未发送。CONNECT、TLS、请求写入及响应 body 错误不借用此标记。Model JSON tools 可将 `timeout + response_headers` 映射为安全专用码，保留原 sent/retry 含义；不输出原始响应或底层错误来诊断时间。
 
 需要原生 `*http.Client` 的 SDK 使用 `SDKClient(profile)`，受控私有 Transport、拒绝标准库层另行 redirect、Jar=nil；Transport 内仍由 Client.Do 统一处理符合上述限制的合法 redirect。Go 的导出字段技术上可改；禁止替换属于可信 adapter 契约，不是类型强制。标准库会用包含原 URL 的 `*url.Error` 包装失败，SDK 的原 error/response 不能进入通用日志或业务 DTO；先用 `SafeNetworkError` 映射，并显式转换 response。现 Model Chat/Embedding 和 MCP/OAuth 生产接线均消费本模块；该源码接线结论不等同逐 provider 的真实外部业务端到端验证。
 
-## SMTP 正式连接端口
+## SMTP 独立连接边界
 
-`DialTarget(ctx,host,port,SMTPProfile)` 只做同一完整 DNS/pinning/当前策略控制下的连接。返回 Conn 兼容 net.Conn，由 Client 统一拥有取消和停机。已装配的 D07 accountmail 负责 TLS/STARTTLS/none、协议、认证和持久邮件结果；配置后 SMTP 失败不回退到恢复日志。
+SMTP 是与数据库、对象存储并列的基础设施连接，直接连接管理员保存的 host/port，按其 none/TLS/STARTTLS 模式执行。它不使用本模块的 `DialTarget`、`SMTPProfile`、`Conn` 或 `BeginSend/EndSend`，不消费动态访问规则、持久全局代理或环境代理，不提供 SMTP 专属代理开关。
 
-可信 D07 adapter 初始写只能执行不带凭据的建连/TLS 协商，不能把初始握手计作 AUTH/邮件业务 sent。每次 AUTH 或每封邮件前调用 BeginSend(ctx)，重新完整 DNS 并核验固定 peer；真正底层首 Write 再持当前策略门禁并记录 sent。TLS 包装不会绕过该底层 Write。完成本次协议结果后 EndSend，之后禁止写到下一次 BeginSend。BeginSend/Write 必须串行，并发明确拒绝；BeginSend 失败关闭连接，不能回退沿用旧 attempt。StopAdmission 与新 attempt 发布共用同一准入锁；停止期间尚在 DNS 的 BeginSend 不能发布新 attempt，已准入发送可按在途规则完成。caller 设置 deadline 不能放宽持门禁首写的 2s 上限，caller 更短的期限在首写后仍保留。D07 不得省略 BeginSend 或在初始协商阶段泄露凭据。
+移除的是统一网络策略与选路依赖。账户层 `BeginDelivery` / `SendPermit` 仍在每次 AUTH 和 MAIL 的真实首写处校验当前 SMTP 版本、凭据及授权；TLS 包装不能提前消费该许可。独立传输负责有界拨号、取消与实际连接关闭/join，Mail Registry、Secret 材料释放和账户最终排空保持原职责。协议、结果未知、重试和运行说明见[账号邮件](accountmail.md)；拆分不要求数据库迁移、重建配置或更换密钥。
 
 ## 验证
 
-本轮00145、新target/mode与可编辑默认黑名单已通过outbound与HTTP两个完整普通包单测，以及新判定、当前模式门、默认条目可删除和loopback网关的定向race。真实PostgreSQL的`TestOutboundRuleModesResetPreservesOtherDomains`已验证144→145仅重置规则和旧规则回执，账号、SMTP、Secret、proxy及Audit行与xmin保持，重复迁移不重置新规则；512条近1MiB合法规则经jsonb格式化超过1MiB后仍可写入并通过生产Reload，独审也在独占资源实际复验通过。
+SMTP 拆分的 owned 隔离验证尚待实现 owner 与独立 reviewer 完成；以下为此前规则与代理版本的验证记录，不代证新 SMTP 传输或真实邮箱送达。
+
+此前00145、新target/mode与可编辑默认黑名单已通过outbound与HTTP两个完整普通包单测，以及新判定、当前模式门、默认条目可删除和loopback网关的定向race。真实PostgreSQL的`TestOutboundRuleModesResetPreservesOtherDomains`已验证144→145仅重置规则和旧规则回执，账号、SMTP、Secret、proxy及Audit行与xmin保持，重复迁移不重置新规则；512条近1MiB合法规则经jsonb格式化超过1MiB后仍可写入并通过生产Reload，独审也在独占资源实际复验通过。
 
 新Vue真实规则旅程已验证mode与通配域名同体保存、刷新、409保留草稿及显式采用、删除与原配置恢复。独立真实API/socket门通过默认本机拒绝、删除对应可见行后放行、域名/完整地址集合、发送前模式变化、redirect与加载失败关闭；其DNS答案为受控resolver，不宣称真实部署DNS验证。mode持久回执与COMMIT结果未知代表分轮通过：无法验证当前配置时仍关闭；已持原command锁证明writer结束且无receipt、重新读取当前规则后可以恢复准入，对调用方仍保留COMMIT_UNKNOWN/Unknown，原version/denylist/default32与零receipt/Audit不变。最后这一旧fixture未绑定proxy，只证明rule-only恢复，不新增双snapshot实际覆盖声明。
 
