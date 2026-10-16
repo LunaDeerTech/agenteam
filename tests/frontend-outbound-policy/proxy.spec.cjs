@@ -11,7 +11,7 @@ const {
 const endpoint = "/system/outbound-policy/proxy";
 const routePattern = "**/api/v1/system/outbound-policy/proxy";
 
-async function saveProxy(page) {
+async function saveProxy(page, receipts) {
   const next = page.waitForResponse(
     (response) =>
       new URL(response.url()).pathname === `/api/v1${endpoint}` &&
@@ -20,12 +20,8 @@ async function saveProxy(page) {
   await page.getByRole("button", { name: "保存代理设置", exact: true }).click();
   const response = await next;
   expect(response.status()).toBe(200);
-  let receipt;
-  try {
-    receipt = await response.json();
-  } catch {
-    throw new Error("PROXY_RECEIPT_UNREADABLE");
-  }
+  const receipt = receipts.get(response.request().headers()["idempotency-key"]);
+  if (!receipt) throw new Error("PROXY_FORWARDED_RECEIPT_UNAVAILABLE");
   expect(
     Object.keys(receipt).sort().join() === "audit_id,created_at,version",
   ).toBe(true);
@@ -78,6 +74,23 @@ test("owned proxy keeps, replaces and removes credentials and recovers only its 
       });
   });
   await login(page, owned);
+  // Capture the genuine server receipt before forwarding its unchanged body.
+  // Chromium's later response-body retrieval failed in run-06 despite a 200
+  // and the UI's following GET; never replace this with a fabricated receipt.
+  const receipts = new Map();
+  await page.route(
+    routePattern,
+    safeForward(async (route) => {
+      if (route.request().method() !== "PUT") return route.continue();
+      const response = await route.fetch();
+      if (response.status() === 200)
+        receipts.set(
+          route.request().headers()["idempotency-key"],
+          await response.json(),
+        );
+      await route.fulfill({ response });
+    }),
+  );
   await page.getByRole("tab", { name: "代理设置", exact: true }).click();
   await expect(
     page.getByRole("combobox", { name: "连接方式", exact: true }),
@@ -94,7 +107,7 @@ test("owned proxy keeps, replaces and removes credentials and recovers only its 
   await page.getByLabel("代理端口", { exact: true }).fill(String(gateway.port));
   await page.getByLabel("用户名", { exact: true }).fill("owned-browser");
   await fillPrivate(page.getByLabel("密码", { exact: true }), secrets[0]);
-  const first = await saveProxy(page);
+  const first = await saveProxy(page, receipts);
   const stored = await api(page, endpoint);
   expect(stored.status).toBe(200);
   expect(
@@ -116,7 +129,7 @@ test("owned proxy keeps, replaces and removes credentials and recovers only its 
 
   // Changing mode with an empty password must keep the gateway/credential.
   await select(page, "连接方式", "直连");
-  await saveProxy(page);
+  await saveProxy(page, receipts);
   const kept = await api(page, endpoint);
   const keepBody = JSON.parse(puts.at(-1).body);
   expect(
@@ -126,7 +139,7 @@ test("owned proxy keeps, replaces and removes credentials and recovers only its 
       !Object.hasOwn(keepBody, "password"),
   ).toBe(true);
   await fillPrivate(page.getByLabel("密码", { exact: true }), secrets[1]);
-  await saveProxy(page);
+  await saveProxy(page, receipts);
   const replaceBody = JSON.parse(puts.at(-1).body);
   expect(
     replaceBody.credential_action === "keep" &&
@@ -139,30 +152,28 @@ test("owned proxy keeps, replaces and removes credentials and recovers only its 
   const attempts = [];
   let committedVersion;
   let loseNextRead = false;
-  await page.route(
-    routePattern,
-    safeForward(async (route) => {
-      if (route.request().method() === "PUT") {
-        attempts.push({
-          key: route.request().headers()["idempotency-key"],
-          body: route.request().postData(),
-        });
-        const response = await route.fetch();
-        if (response.status() !== 200) throw new Error();
-        const receipt = await response.json();
-        if (attempts.length === 1) {
-          committedVersion = receipt.version;
-          await route.abort("connectionfailed");
-        } else {
-          loseNextRead = true;
-          await route.fulfill({ response });
-        }
-      } else if (loseNextRead && route.request().method() === "GET") {
-        loseNextRead = false;
+  const recoveryHandler = safeForward(async (route) => {
+    if (route.request().method() === "PUT") {
+      attempts.push({
+        key: route.request().headers()["idempotency-key"],
+        body: route.request().postData(),
+      });
+      const response = await route.fetch();
+      if (response.status() !== 200) throw new Error();
+      const receipt = await response.json();
+      if (attempts.length === 1) {
+        committedVersion = receipt.version;
         await route.abort("connectionfailed");
-      } else await route.continue();
-    }),
-  );
+      } else {
+        loseNextRead = true;
+        await route.fulfill({ response });
+      }
+    } else if (loseNextRead && route.request().method() === "GET") {
+      loseNextRead = false;
+      await route.abort("connectionfailed");
+    } else await route.continue();
+  });
+  await page.route(routePattern, recoveryHandler);
   await select(page, "连接方式", "使用代理");
   await fillPrivate(page.getByLabel("密码", { exact: true }), secrets[2]);
   await page.getByRole("button", { name: "保存代理设置", exact: true }).click();
@@ -203,7 +214,7 @@ test("owned proxy keeps, replaces and removes credentials and recovers only its 
     )
     .toBe(true);
   expect(attempts.length).toBe(2);
-  await page.unroute(routePattern);
+  await page.unroute(routePattern, recoveryHandler);
   const recovered = await api(page, endpoint);
   expect(
     recovered.value.version === committedVersion &&
@@ -217,7 +228,7 @@ test("owned proxy keeps, replaces and removes credentials and recovers only its 
     .getByRole("button", { name: "移除身份认证", exact: true })
     .click();
   await select(page, "连接方式", "直连");
-  await saveProxy(page);
+  await saveProxy(page, receipts);
   const removed = await api(page, endpoint);
   const removeBody = JSON.parse(puts.at(-1).body);
   expect(
