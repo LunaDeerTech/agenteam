@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { nextTick, watch } from "vue";
-import { RouterView, useRoute } from "vue-router";
+import { RouterLink, RouterView, useRoute } from "vue-router";
 import AppShell from "./layouts/AppShell.vue";
 import AccountShell from "./layouts/AccountShell.vue";
 import LeaveConfirmation from "./components/account/LeaveConfirmation.vue";
@@ -74,6 +74,15 @@ watch(
       :loading="session.status.value === 'checking'"
       @click="session.refresh"
       >重新检查登录状态</UiButton
+    >
+    <RouterLink
+      v-if="
+        session.confirmedAction.value === 'password' &&
+        session.status.value !== 'checking'
+      "
+      class="form-link"
+      to="/login"
+      >使用新密码重新登录</RouterLink
     >
   </main>
   <LeaveConfirmation />

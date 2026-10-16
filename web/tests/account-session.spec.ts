@@ -24,7 +24,7 @@ const identity = (
   user: {
     id: "019a2222-2222-7222-8222-222222222222",
     email: "unit@example.test",
-    username: "unit_user",
+    username: "unit-user",
     display_name: "Unit User",
     role: "user",
     theme: "dark",
@@ -244,12 +244,12 @@ describe("account command ownership and recovery", () => {
     vi.stubGlobal("fetch", fetcher);
     const { browserCommand } = await import("../src/account/session");
     const first = await browserCommand(
-      "/password/forgot",
+      "/password-resets/request",
       { method: "POST", body: "{}" },
       accepted,
     );
     const waiting = await browserCommand(
-      "/password/forgot",
+      "/password-resets/request",
       { method: "POST", body: "{}" },
       accepted,
     );
@@ -260,14 +260,14 @@ describe("account command ownership and recovery", () => {
       code: "STALE_REQUEST",
     });
     const fresh = await browserCommand(
-      "/password/forgot",
+      "/password-resets/request",
       { method: "POST", body: "{}" },
       accepted,
     );
     expect(fresh.active).toBe(true);
     expect(fetcher.mock.calls.map(([url]) => url)).toEqual([
       "/api/v1/auth/bootstrap",
-      "/api/v1/password/forgot",
+      "/api/v1/password-resets/request",
       "/api/v1/auth/bootstrap",
     ]);
   });

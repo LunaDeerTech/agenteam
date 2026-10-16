@@ -17,7 +17,11 @@ import {
   refreshSession,
   useSession,
 } from "../account/session";
-import { accountEnabled, accountErrorMessage } from "../account/transport";
+import {
+  AccountError,
+  accountEnabled,
+  accountErrorMessage,
+} from "../account/transport";
 import { isRecord } from "../account/types";
 import { takeAccountLink, ownAccountLink } from "../account/link";
 import { useCommand } from "../account/useCommand";
@@ -67,6 +71,19 @@ function clearSensitive() {
   token = undefined;
   password.value = "";
   confirmation.value = "";
+}
+function fieldIssue(name: string, local: string) {
+  return (
+    local ||
+    (error.value instanceof AccountError &&
+    error.value.fields.some(
+      (field) =>
+        field.path === `/${name}` ||
+        (name === "password" && field.path === "/new_password"),
+    )
+      ? "请检查此项内容后再试。"
+      : "")
+  );
 }
 function clearDraft() {
   clearSensitive();
@@ -285,7 +302,7 @@ onBeforeUnmount(() => {
             v-model="username"
             label="用户名"
             autocomplete="username"
-            :error="fields.username"
+            :error="fieldIssue('username', fields.username)"
             hint="3–32 位字母、数字或中间连字符。"
             required
           />
@@ -293,7 +310,7 @@ onBeforeUnmount(() => {
             v-model="displayName"
             label="显示名"
             autocomplete="nickname"
-            :error="fields.display_name"
+            :error="fieldIssue('display_name', fields.display_name)"
             hint="可选；留空时显示邮箱。"
           />
         </template>
@@ -302,7 +319,7 @@ onBeforeUnmount(() => {
           :label="invitation ? '密码' : '新密码'"
           type="password"
           autocomplete="new-password"
-          :error="fields.password"
+          :error="fieldIssue('password', fields.password)"
           hint="使用 15–128 个字符。"
           required
         />
@@ -311,7 +328,7 @@ onBeforeUnmount(() => {
           label="确认密码"
           type="password"
           autocomplete="new-password"
-          :error="fields.confirmation"
+          :error="fieldIssue('confirmation', fields.confirmation)"
           required
         />
       </fieldset>

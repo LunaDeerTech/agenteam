@@ -35,6 +35,15 @@ function clearPasswords() {
   challengePassword = "";
   challenge.value = undefined;
 }
+function fieldIssue(name: string, local: string) {
+  return (
+    local ||
+    (error.value instanceof AccountError &&
+    error.value.fields.some((field) => field.path === `/${name}`)
+      ? "请检查此项内容后再试。"
+      : "")
+  );
+}
 async function goToApplication() {
   await router.replace(safeReturnPath(route.query.return));
 }
@@ -96,7 +105,7 @@ async function recheck() {
     <p v-if="!accountEnabled" class="form-feedback">
       这是界面预览。安全账号入口就绪后可登录。
     </p>
-    <template v-else-if="status === 'authenticated'">
+    <template v-if="accountEnabled && status === 'authenticated'">
       <p class="form-note">你已经登录，可以继续使用当前账号。</p>
       <UiButton variant="primary" @click="goToApplication">进入应用</UiButton>
     </template>
@@ -116,7 +125,7 @@ async function recheck() {
           type="email"
           autocomplete="username"
           inputmode="email"
-          :error="errors.email"
+          :error="fieldIssue('email', errors.email)"
           required
         />
         <UiInput
@@ -124,7 +133,7 @@ async function recheck() {
           label="密码"
           type="password"
           autocomplete="current-password"
-          :error="errors.password"
+          :error="fieldIssue('password', errors.password)"
           required
         />
       </fieldset>
