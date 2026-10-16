@@ -191,21 +191,35 @@ test("real SMTP keeps secrets private, replays its original write and separates 
   );
   await page.getByLabel("测试收件邮箱", { exact: true }).fill(recipient);
   await page.getByRole("button", { name: "请求测试发送", exact: true }).click();
+  const detail = page.getByRole("dialog", {
+    name: "投递任务详情",
+    exact: true,
+  });
+  await expect(detail).toBeVisible();
   await expect(
-    page.getByRole("status").filter({ hasText: "测试请求已受理" }),
+    detail.getByRole("status").filter({ hasText: "测试请求已受理" }),
   ).toBeVisible();
-  await expect(page.getByRole("alert")).toContainText(
+  await expect(detail.getByRole("alert")).toContainText(
     "任务读取失败，已受理的请求不会重新发送",
   );
   expect(testWrites).toBe(1);
   const failed = await jobPhase(page, acceptedId, "failed");
   expect(failed.reason).toBe("policy_rejected");
-  await page.getByRole("button", { name: "重新读取任务", exact: true }).click();
-  await expect(page.getByText("出站规则拒绝", { exact: true })).toBeVisible();
+  await detail
+    .getByRole("button", { name: "重新读取任务", exact: true })
+    .click();
+  await expect(detail.getByText("出站规则拒绝", { exact: true })).toBeVisible();
   expect(testWrites).toBe(1);
   await page.unroute("**/api/v1/system/smtp/test");
   await page.unroute("**/api/v1/system/mail-jobs/*/management");
 
+  await detail.getByRole("button", { name: "关闭详情", exact: true }).click();
+  await expect(page.getByLabel("测试收件邮箱", { exact: true })).toHaveValue(
+    recipient,
+  );
+  // Sending keeps the input. Clear this test's draft explicitly before
+  // leaving the tab; closing detail must not silently discard it.
+  await page.getByLabel("测试收件邮箱", { exact: true }).fill("");
   await page.getByRole("tab", { name: "配置", exact: true }).click();
   await port.fill(String(initial.port));
   await save(page);
@@ -213,22 +227,26 @@ test("real SMTP keeps secrets private, replays its original write and separates 
   await page
     .getByRole("button", { name: `查看测试任务 ${acceptedId}`, exact: true })
     .click();
-  await page.getByRole("button", { name: "申请重试投递", exact: true }).click();
+  await detail
+    .getByRole("button", { name: "申请重试投递", exact: true })
+    .click();
   const retry = page.getByRole("dialog", {
     name: "申请新的投递重试",
     exact: true,
   });
   await expect(retry).toContainText("可能重复投递");
   await retry.getByRole("button", { name: "申请重试", exact: true }).click();
-  const retryStatus = page
+  const retryStatus = detail
     .getByRole("status")
     .filter({ hasText: "新的投递重试已受理" });
   await expect(retryStatus).toBeVisible();
   const retryId = (
-    await retryStatus.locator(".job-reference").first().textContent()
-  )
-    .replace(/^任务\s+/, "")
-    .trim();
+    await detail
+      .locator("dt")
+      .filter({ hasText: /^任务 ID$/ })
+      .locator("+ dd")
+      .textContent()
+  ).trim();
   expect(retryId).not.toBe(acceptedId);
   const sent = await jobPhase(page, retryId, "sent");
   expect(sent.attempt_channel).toBe("smtp");
@@ -245,13 +263,16 @@ test("real SMTP keeps secrets private, replays its original write and separates 
       { timeout: 10000 },
     )
     .toBe(true);
-  await page.getByRole("button", { name: "重新读取任务", exact: true }).click();
+  await detail
+    .getByRole("button", { name: "重新读取任务", exact: true })
+    .click();
   await expect(
-    page.getByText("邮件服务器已接收", { exact: true }),
+    detail.getByText("邮件服务器已接收", { exact: true }),
   ).toBeVisible();
 
   // Explicit removal and stopping are separate, confirmed actions; an empty
   // ordinary password field above retained the saved credential.
+  await detail.getByRole("button", { name: "关闭详情", exact: true }).click();
   await page.getByRole("tab", { name: "配置", exact: true }).click();
   await page
     .getByRole("button", { name: "移除已保存的认证", exact: true })

@@ -189,8 +189,16 @@ const selectedSection = computed({
   set: (value: string) => void requestSection(value),
 });
 const tabs = computed(() => [
-  { value: "configuration", label: "配置", disabled: anyBusy.value },
-  { value: "delivery", label: "测试与任务", disabled: anyBusy.value },
+  {
+    value: "configuration",
+    label: "配置",
+    disabled: anyBusy.value && section.value !== "configuration",
+  },
+  {
+    value: "delivery",
+    label: "测试与任务",
+    disabled: anyBusy.value && section.value !== "delivery",
+  },
 ]);
 const encryptionOptions = [
   { value: "tls", label: "TLS" },
