@@ -327,7 +327,11 @@ def compose_configuration(root, project, labels, uid, gid):
                     "POSTGRES_PASSWORD_FILE": "/run/agenteam-input/postgres-password",
                     "POSTGRES_HOST_AUTH_METHOD": "scram-sha-256",
                     "POSTGRES_INITDB_ARGS": "--auth-local=trust --auth-host=scram-sha-256",
-                    "PGDATA": "/var/lib/postgresql/data/pgdata",
+                    # The bind root is private (0700) and initially belongs to
+                    # the preparing UID. The official root entrypoint chowns
+                    # PGDATA before dropping to postgres; naming a child here
+                    # would leave its bind-root parent nontraversable.
+                    "PGDATA": "/var/lib/postgresql/data",
                 },
                 "ports": ["127.0.0.1:5456:5432"],
                 "volumes": [mount(root / "data/postgres", "/var/lib/postgresql/data", False),
