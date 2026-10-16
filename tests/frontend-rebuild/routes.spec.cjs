@@ -50,15 +50,36 @@ const settings = [
   },
 ];
 
-async function emptyPage(page, title) {
+const accountPreview = new Map([
+  ["登录", "这是界面预览。安全账号入口就绪后可登录。"],
+  ["接受邀请", "这是界面预览。安全账号入口就绪后可使用链接。"],
+  ["找回密码", "这是界面预览。安全账号入口就绪后可提交请求。"],
+  ["重置密码", "这是界面预览。安全账号入口就绪后可使用链接。"],
+  ["个人资料", "当前为界面预览。账号服务连接后可编辑个人资料。"],
+  ["外观", "当前为界面预览。账号服务连接后可保存外观偏好。"],
+  ["修改密码", "当前为界面预览。账号服务连接后可修改密码。"],
+]);
+
+async function agreedPage(page, title) {
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(title);
   await expect(page).toHaveTitle(`${title} · agenteam`);
+  if (accountPreview.has(title)) {
+    await expect(
+      page.getByText(accountPreview.get(title), { exact: true }),
+    ).toBeVisible();
+    await expect(page.locator("[data-page-content]")).toHaveCount(0);
+    // Public link pages have no form before inspection; every other account
+    // preview retains its real form with submission disabled.
+    if (title !== "接受邀请" && title !== "重置密码")
+      await expect(page.locator('button[type="submit"]')).toBeDisabled();
+    return;
+  }
   await expect(page.locator("[data-page-content]")).toHaveCount(1);
   await expect(page.locator("[data-page-content]")).toBeEmpty();
 }
 
 for (const group of settings) {
-  test(`${group.scope} settings leaves use one empty settings shell`, async ({
+  test(`${group.scope} settings leaves use one settings shell and agreed content`, async ({
     page,
   }) => {
     const apiRequests = [];
@@ -69,7 +90,7 @@ for (const group of settings) {
     for (const [key, title] of group.pages) {
       await test.step(`${group.prefix}/${key}`, async () => {
         await page.goto(`${group.prefix}/${key}`);
-        await emptyPage(page, title);
+        await agreedPage(page, title);
         await expect(page.locator("[data-settings-scope]")).toHaveCount(1);
         await expect(page.locator("[data-settings-scope]")).toHaveAttribute(
           "data-settings-scope",
@@ -96,7 +117,7 @@ for (const group of settings) {
   });
 }
 
-test("remaining fifteen leaf routes and optional detail URLs retain empty content and their scope", async ({
+test("remaining leaf routes and optional detail URLs retain agreed content and their scope", async ({
   page,
 }) => {
   const pages = [
@@ -121,7 +142,7 @@ test("remaining fifteen leaf routes and optional detail URLs retain empty conten
   for (const [url, title, scope] of pages) {
     await test.step(url, async () => {
       await page.goto(url);
-      await emptyPage(page, title);
+      await agreedPage(page, title);
       await expect(page.locator("[data-settings-scope]")).toHaveCount(0);
       await expect(
         page.getByRole("navigation", { name: "系统导航", exact: true }),
@@ -132,7 +153,7 @@ test("remaining fifteen leaf routes and optional detail URLs retain empty conten
     });
   }
   await page.goto("/owner/project/settings/skills/skill-id");
-  await emptyPage(page, "Skills");
+  await agreedPage(page, "Skills");
   await expect(page.locator("[data-settings-scope]")).toHaveAttribute(
     "data-settings-scope",
     "project",
@@ -157,7 +178,7 @@ test("scope defaults and reserved unknown paths cannot turn into project pages",
     "/unknown/deep/path",
   ]) {
     await page.goto(url);
-    await emptyPage(page, "页面不存在");
+    await agreedPage(page, "页面不存在");
     await expect(
       page.getByRole("navigation", { name: "项目导航", exact: true }),
     ).toHaveCount(0);
@@ -182,7 +203,7 @@ test("narrow system and settings directories close on navigation and restore foc
     ),
   ).toBe("ui-sheet-enter");
   await directory.getByRole("link", { name: "SMTP", exact: true }).click();
-  await emptyPage(page, "SMTP");
+  await agreedPage(page, "SMTP");
   await expect(directory).not.toBeVisible();
   await expect(page.getByRole("heading", { level: 1 })).toBeFocused();
   await opener.click();
@@ -203,7 +224,7 @@ test("narrow system and settings directories close on navigation and restore foc
   await systemOpener.click();
   const system = page.getByRole("dialog", { name: "导航", exact: true });
   await system.getByRole("link", { name: "个人设置", exact: true }).click();
-  await emptyPage(page, "个人资料");
+  await agreedPage(page, "个人资料");
   await expect(system).not.toBeVisible();
   await page
     .getByRole("button", { name: "打开个人设置目录", exact: true })
@@ -212,9 +233,9 @@ test("narrow system and settings directories close on navigation and restore foc
     .getByRole("dialog", { name: "个人设置", exact: true })
     .getByRole("link", { name: "修改密码" })
     .click();
-  await emptyPage(page, "修改密码");
+  await agreedPage(page, "修改密码");
   await page.goBack();
-  await emptyPage(page, "个人资料");
+  await agreedPage(page, "个人资料");
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
@@ -242,12 +263,12 @@ test("narrow project navigation scrolls locally and keeps the route identity", a
     .getByRole("dialog", { name: "项目设置", exact: true })
     .getByRole("link", { name: "MCP", exact: true })
     .click();
-  await emptyPage(page, "MCP");
+  await agreedPage(page, "MCP");
   await expect(page).toHaveURL(
     /\/long-owner-name\/long-project-name\/settings\/mcp$/,
   );
   await navigation.getByRole("link", { name: "会议", exact: true }).click();
-  await emptyPage(page, "会议");
+  await agreedPage(page, "会议");
   await expect(page).toHaveURL(
     /\/long-owner-name\/long-project-name\/meetings$/,
   );
