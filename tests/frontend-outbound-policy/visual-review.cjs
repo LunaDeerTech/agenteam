@@ -7,7 +7,10 @@ const path = require("node:path");
 const os = require("node:os");
 
 const origin = "http://127.0.0.1:5246";
-const output = path.resolve("output/ai/frontend-outbound-visual/candidate");
+const run = process.env.OUTBOUND_VISUAL_RUN || "candidate";
+assert(/^[a-z0-9-]+$/.test(run));
+const output = path.resolve(`output/ai/frontend-outbound-visual/${run}`);
+const only = process.env.OUTBOUND_VISUAL_CASE;
 const mode = process.argv[2] || "views";
 const modes = ["views", "interactions", "errors", "zoom"];
 const instant = "2026-10-16T07:00:00.000000Z";
@@ -126,13 +129,14 @@ async function fixture(context, options = {}) {
   const page = context.pages()[0] || await context.newPage();
   page.setDefaultTimeout(7000);
   page.on("pageerror", () => state.errors.push("pageerror"));
-  await page.goto(`${origin}/system/outbound-policy`);
+  await page.goto(`${origin}/system/outbound-policy`, {waitUntil: "domcontentloaded", timeout: 30000});
   await expect(tab(page, "访问规则")).toBeVisible();
   await expect(btn(page, "添加规则")).toBeVisible();
   await settle(page);
   return {page, state};
 }
 async function checkCase(name, callback, browser, options = {}) {
+  if (only && name !== only) return;
   const context = await browser.newContext({viewport: {width: options.width || 390, height: options.width === 1440 ? 960 : 844}, colorScheme: options.theme || "dark", reducedMotion: options.motion || "no-preference", serviceWorkers: "block"});
   let state;
   try {
@@ -144,21 +148,67 @@ async function checkCase(name, callback, browser, options = {}) {
   } catch (error) {
     // No implicit screenshot/DOM/trace and no raw request/error data.
     results.push({name, outcome: "failed", check: String(error.message).split("\n")[0].slice(0, 240), unexpected: state?.unexpected, pageErrors: state?.errors});
-  } finally { await context.close(); }
+  } finally { await context.close(); console.log(JSON.stringify({case: name, outcome: results.at(-1)?.outcome})); }
 }
 async function views(browser) {
   for (const width of [1440, 390]) for (const theme of ["light", "dark"]) {
     await checkCase(`views-${width}-${theme}`, async (page) => {
       await shot(page, `rules-${width}-${theme}`);
       await overflow(page);
+      if (width === 390) {
+        await btn(page, "保存规则").scrollIntoViewIfNeeded();
+        await shot(page, `rules-${width}-${theme}-bottom`);
+      }
       await tab(page, "代理设置").click();
       await expect(field(page, "代理主机")).toHaveValue("gateway.example.invalid");
       await shot(page, `proxy-${width}-${theme}`);
+      if (width === 390) {
+        await btn(page, "保存代理设置").scrollIntoViewIfNeeded();
+        await shot(page, `proxy-${width}-${theme}-bottom`);
+      }
       return overflow(page);
     }, browser, {width, theme, credential: true});
   }
 }
 async function interactions(browser) {
+  await checkCase("direct-partial-draft-and-focus-handoff", async (page) => {
+    await tab(page, "代理设置").click();
+    await select(page, "连接方式", "使用代理");
+    await field(page, "代理主机").fill("partial.example.invalid");
+    await select(page, "连接方式", "直连");
+    await expect(field(page, "代理主机")).toHaveValue("partial.example.invalid");
+    await btn(page, "保存代理设置").click();
+    await expect(field(page, "代理端口")).toBeFocused();
+    await expect(field(page, "代理端口")).toHaveAttribute("aria-invalid", "true");
+    await btn(page, "取消").click();
+    await dialog(page, "放弃当前修改").getByRole("button", {name: "放弃修改", exact: true}).click();
+    await expect(dialog(page, "放弃当前修改")).toHaveCount(0);
+    const focus = await page.evaluate(() => ({tag: document.activeElement.tagName, text: document.activeElement.textContent?.trim().slice(0, 60), disabled: !!document.activeElement.disabled}));
+    assert(focus.tag !== "BODY" && !focus.disabled, "confirmed cancel leaves keyboard focus on document body");
+    return {partialDraftVisible: true, errorFocused: true, focus};
+  }, browser, {direct: true});
+  await checkCase("ordinary-dialog-motion", async (page) => {
+    await page.evaluate(() => {
+      window.__visualFrames = [];
+      document.addEventListener("click", () => {
+        const start = performance.now();
+        const sample = () => {
+          const dialog = document.querySelector("dialog[open]");
+          const css = dialog && getComputedStyle(dialog);
+          window.__visualFrames.push({elapsed: performance.now() - start, opacity: css?.opacity, transform: css?.transform, durations: document.getAnimations().map((a) => a.effect.getComputedTiming().duration)});
+          if (performance.now() - start < 240) requestAnimationFrame(sample);
+        };
+        requestAnimationFrame(sample);
+      }, {once: true, capture: true});
+    });
+    await btn(page, "删除规则 1").click();
+    await page.waitForFunction(() => window.__visualFrames.at(-1)?.elapsed >= 240);
+    const frames = await page.evaluate(() => window.__visualFrames);
+    await page.keyboard.press("Escape");
+    await expect(btn(page, "删除规则 1")).toBeFocused();
+    assert(frames.some((frame) => frame.durations.some((duration) => duration > 1)), "ordinary dialog has no observed transition");
+    return {sampledFrames: frames.length, observedDurations: [...new Set(frames.flatMap((frame) => frame.durations))], focusRestored: true};
+  }, browser);
   await checkCase("rules-draft-tabs-delete-cancel-save", async (page, state) => {
     const rules = tab(page, "访问规则"), proxy = tab(page, "代理设置");
     await field(page, "端口").first().fill("443, 8443");
